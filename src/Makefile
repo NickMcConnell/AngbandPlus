@@ -53,6 +53,7 @@ SRCS = \
   store.c bldg.c birth.c load.c \
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c \
+  lua.c \
   main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
 
 OBJS = \
@@ -65,6 +66,7 @@ OBJS = \
   store.o bldg.o birth.o load.o \
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o \
+  lua.o lua/lib/liblua.a lua/lib/liblualib.a \
   main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
 
 
@@ -219,6 +221,13 @@ install: angband
 
 
 #
+# Build Lua.
+#
+
+lua/lib/liblua.a:
+	cd lua; make
+
+#
 # Build the "Angband" program
 #
 
@@ -231,7 +240,8 @@ angband: $(OBJS)
 #
 
 clean:
-	\rm *~ *.o
+	-rm *~ *.o
+	cd lua; make clean
 
 
 #

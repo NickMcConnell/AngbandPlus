@@ -59,8 +59,8 @@ extern cptr ingr_short_names[16];
 extern recipe recipe_info[MAX_RECIPES];
 extern cptr deity_niceness[10];
 extern cptr deity_standing[11];
-extern cptr deity_rarity[4];
-extern cptr deity_affiliation[23];
+extern cptr deity_rarity[5];
+extern cptr deity_affiliation[29];
 extern deity deity_info[MAX_GODS];
 extern shape shape_info[MAX_SHAPES];
 extern cli_comm cli_info[MAX_COMMANDS];
@@ -248,6 +248,7 @@ extern cptr ANGBAND_DIR_INFO;
 extern cptr ANGBAND_DIR_SAVE;
 extern cptr ANGBAND_DIR_USER;
 extern cptr ANGBAND_DIR_XTRA;
+extern cptr ANGBAND_DIR_LUA;
 extern bool item_tester_full;
 extern byte item_tester_tval;
 extern bool(*item_tester_hook) (object_type *);
@@ -901,6 +902,13 @@ extern int interpret_favor(void);
 extern void hand_of_fate(void);
 extern void fate_effect(int fate_given, int fate_gotten);
 extern void strike_it_lucky(void);
+
+
+/* lua.c */
+
+extern errr init_lua(void);
+
+
 
 /*
  * Hack -- conditional (or "bizarre") externs

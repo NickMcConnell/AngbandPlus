@@ -46,7 +46,7 @@
 #define VERSION_PATCH	2
 
 #define KAM_VERSION_MAJOR 2
-#define KAM_VERSION_MINOR 0
+#define KAM_VERSION_MINOR 1
 #define KAM_VERSION_PATCH 0
 
 
@@ -128,7 +128,7 @@
 #define MAX_ARENAS              4
 #define MAX_ARENA_MONS		47 /* -KMW- */
 
-#define MAX_GODS   26
+#define MAX_GODS   32
 #define MAX_SHAPES 25
 #define MAX_MUTS   66
 #define MAX_T_ACT  51
@@ -167,11 +167,11 @@
  * Maximum array bounds for template based arrays
  *
  */
-#define MAX_F_IDX		200	/* Max size for "f_info[]" -KMW- */
+#define MAX_F_IDX		210	/* Max size for "f_info[]" -KMW- */
 #define MAX_K_IDX		611	/* Max size for "k_info[]" */
 #define MAX_A_IDX		128	/* Max size for "a_info[]" */
 #define MAX_E_IDX		150	/* Max size for "e_info[]" */
-#define MAX_R_IDX		661	/* Max size for "r_info[]" */
+#define MAX_R_IDX		700	/* Max size for "r_info[]" */
 #define MAX_V_IDX		200	/* Max size for "v_info[]" -KMW- */
 
 
@@ -590,6 +590,8 @@
 #define SUMMON_GOOD_UNIQUE      37
 #define SUMMON_SAURON           38
 #define SUMMON_AVATAR           39
+#define SUMMON_KOBOLD           40
+#define SUMMON_UNDEAD_KOBOLD    41
 
 /*
  * Spell types used by project(), and related functions.
@@ -872,14 +874,14 @@
 
 #define FEAT_STORE_EXIT         101
 
-#define FEAT_DEEP_WATER		128
-#define FEAT_SHAL_WATER		129
-#define FEAT_DEEP_LAVA		130
-#define FEAT_SHAL_LAVA		131
+#define FEAT_DEEP_WATER		199
+#define FEAT_SHAL_WATER		200
+#define FEAT_DEEP_LAVA		201
+#define FEAT_SHAL_LAVA		202
 
 /* Altars. */
-#define FEAT_ALTAR_HEAD         132
-#define FEAT_ALTAR_TAIL         157
+#define FEAT_ALTAR_HEAD         128
+#define FEAT_ALTAR_TAIL         159
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -1888,6 +1890,14 @@
 #define GA_BEING    22
 #define GA_UNBEING  23
 
+#define GA_KOBOLDS  24
+#define GA_ORCS     25
+#define GA_TROLLS   26
+#define GA_GIANTS   27
+#define GA_DEMONS   28
+#define GA_DRAGONS  29
+
+
 /* Constants for shapes */
 
 #define SHAPE_ABOMINATION 1
@@ -2854,8 +2864,8 @@
 #define RF6_DARKNESS		0x00001000 /* Create Darkness */
 #define RF6_TRAPS			0x00002000 /* Create Traps */
 #define RF6_FORGET			0x00004000 /* Cause amnesia */
-#define RF6_XXX6			0x00008000 /* ??? */
-#define RF6_XXX7			0x00010000 /* Summon (?) */
+#define RF6_S_UNDEAD_KOBOLD		0x00008000 /* Summon undead kobold */
+#define RF6_S_KOBOLD			0x00010000 /* Summon a kobold */
 #define RF6_S_GOOD_UNIQUE      	0x00020000 /* Summon a lawful unique */
 #define RF6_S_MONSTER		0x00040000 /* Summon Monster */
 #define RF6_S_MONSTERS		0x00080000 /* Summon Monsters */
@@ -2892,7 +2902,7 @@
 #define RF7_HAS_WINGS		0x00000800 /* Monster has wings. */
 #define RF7_HUMANOID		0x00001000 /* Monster is humanoid. */
 #define RF7_KAMIKAZE		0x00002000 /* Kamikaze monster. */
-#define RF7_XXX15		0x00004000
+#define RF7_KOBOLD		0x00004000 /* Oh my god, it's a kobold! */
 #define RF7_XXX16		0x00008000
 #define RF7_XXX17		0x00010000
 #define RF7_XXX18               0x00020000
@@ -2929,7 +2939,7 @@
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE | \
-    RF6_S_GOOD_UNIQUE)
+    RF6_S_GOOD_UNIQUE | RF6_S_KOBOLD | RF6_S_UNDEAD_KOBOLD)
 
 
 

@@ -2312,7 +2312,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* Make monster */
 		case GF_MAKE_MONSTER:
 		{
-			if (dam < SUMMON_ANT || dam > SUMMON_AVATAR)
+			if (dam < SUMMON_ANT || 
+			    dam > SUMMON_UNDEAD_KOBOLD)
 				dam = 0;
 
 			if (summon_specific(y, x, p_ptr->depth, dam))

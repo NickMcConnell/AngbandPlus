@@ -1,6 +1,6 @@
 
 The amalgamated Kamband help file. (Alpha version.)
-Conforms to version 2.0 "Baalzebub".
+Conforms to version 2.1 "Combustible".
 Work in progress by Ivan Tkatchev.
 
 ----------------------------------

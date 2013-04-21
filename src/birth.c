@@ -950,7 +950,7 @@ static void get_extra(void)
 	  while (1) {
 	    pgod = rand_int(MAX_GODS);
 
-	    if (magik(100 / (deity_info[pgod].rarity + 1))) break;
+	    if (magik(100 / ((deity_info[pgod].rarity % 4) + 1))) break;
 	  }
 
 	  mformat(MSG_BONUS, 

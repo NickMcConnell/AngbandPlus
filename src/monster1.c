@@ -274,6 +274,8 @@ static void roff_aux(int r_idx, int remem)
 			flags3 |= (RF3_EVIL);
 		if (r_ptr->flags3 & (RF3_ANIMAL))
 			flags3 |= (RF3_ANIMAL);
+		if (r_ptr->flags7 & RF7_KOBOLD)
+		  flags7 |= RF7_KOBOLD;
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH))
@@ -608,6 +610,8 @@ static void roff_aux(int r_idx, int remem)
 			roff(" troll");
 		else if (flags3 & (RF3_ORC))
 			roff(" orc");
+		else if (flags7 & RF7_KOBOLD)
+		  roff(" kobold");
 		else
 			roff(" creature");
 
@@ -888,10 +892,10 @@ static void roff_aux(int r_idx, int remem)
 		vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))
 		vp[vn++] = "cause amnesia";
-	if (flags6 & (RF6_XXX6))
-		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX7))
-		vp[vn++] = "do something";
+	if (flags6 & (RF6_S_UNDEAD_KOBOLD))
+		vp[vn++] = "summon undead kobolds";
+	if (flags6 & (RF6_S_KOBOLD))
+		vp[vn++] = "summon kobolds";
 	if (flags6 & (RF6_S_GOOD_UNIQUE))
 		vp[vn++] = "summon lawful Unique Beings";
 	if (flags6 & (RF6_S_MONSTER))

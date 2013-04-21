@@ -90,6 +90,7 @@ void init_file_paths(char *path)
 	string_free(ANGBAND_DIR_SAVE);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
+	string_free(ANGBAND_DIR_LUA);
 
 
 	/*** Prepare the "path" ***/
@@ -117,6 +118,7 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_SAVE = string_make("");
 	ANGBAND_DIR_USER = string_make("");
 	ANGBAND_DIR_XTRA = string_make("");
+	ANGBAND_DIR_LUA = string_make("");
 
 
 #else /* VM */
@@ -163,6 +165,9 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "xtra");
 	ANGBAND_DIR_XTRA = string_make(path);
+
+	strcpy(tail, "lua");
+	ANGBAND_DIR_LUA = string_make(path);
 
 #endif /* VM */
 
@@ -2371,6 +2376,13 @@ void init_angband(void)
 	note("[Initializing arrays... (alloc)]");
 	if (init_alloc())
 		quit("Cannot initialize alloc stuff");
+
+	/* Initialize scripting */
+	note("[Initializing Lua...]");
+
+	if (init_lua()) {
+	  quit("Cannot initialize Lua");
+	}
 
 	/*** Load default user pref files ***/
 

@@ -1935,10 +1935,10 @@ static void spoil_mon_info(cptr fname)
 			vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))
 			vp[vn++] = "cause amnesia";
-		if (flags6 & (RF6_XXX6))
-			vp[vn++] = "do something";
-		if (flags6 & (RF6_XXX7))
-			vp[vn++] = "do something";
+		if (flags6 & (RF6_S_UNDEAD_KOBOLD))
+			vp[vn++] = "summon undead kobolds";
+		if (flags6 & (RF6_S_KOBOLD))
+			vp[vn++] = "summon kobolds";
 		if (flags6 & (RF6_S_GOOD_UNIQUE))
 			vp[vn++] = "summon lawful unique beings.";
 		if (flags6 & (RF6_S_MONSTER))

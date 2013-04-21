@@ -5804,6 +5804,46 @@ static void monster_strike_fate(monster_type* m_ptr) {
   case GA_UNBEING: 
     m_ptr->fate = FATE_KILL;
     break;
+
+    /* Kobolds: Save poor cutie kobolds! */
+  case GA_KOBOLDS:
+    if (r_ptr->flags7 & RF7_KOBOLD) {
+      m_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Orcs: Save/sacrifice orcs. */
+  case GA_ORCS:
+    if (r_ptr->flags3 & RF3_ORC) {
+      m_ptr->fate = (magik(25) ? FATE_SACRIFICE : FATE_SAVE);
+    }
+    break;
+
+    /* Trolls: No effect. */
+  case GA_TROLLS:
+    break;
+
+    /* Giants: Kill some non-giants. */
+  case GA_GIANTS:
+    if (!(r_ptr->flags3 & RF3_GIANT) && magik(10)) {
+      m_ptr->fate = FATE_KILL;
+    }
+    break;
+
+    /* Demons: Sacrificing rampage. */
+  case GA_DEMONS:
+    if (!(r_ptr->flags3 & RF3_DEMON)) {
+      m_ptr->fate = FATE_SACRIFICE;
+    }
+    break;
+
+    /* Dragons: Sacrifice just a bit. */
+  case GA_DRAGONS:
+    if (magik(5)) {
+      m_ptr->fate = FATE_SACRIFICE;
+    }
+    break;
+
   }
 }
 
@@ -6027,6 +6067,44 @@ static void object_strike_fate(object_type* o_ptr) {
     /* Unbeing: No effect. */
   case GA_UNBEING: 
     break;
+
+    /* Kobolds: No effect. */
+  case GA_KOBOLDS:
+    break;
+
+    /* Orcs: Kill "slay orc" items. */
+  case GA_ORCS:
+    if (f1 & (TR1_SLAY_ORC)) {
+      o_ptr->fate = FATE_KILL;
+    }
+    break;
+
+    /* Trolls: I'm HUNGRY! */
+  case GA_TROLLS:
+    if (o_ptr->tval == TV_FOOD) {
+      o_ptr->fate = FATE_USE;
+    }
+    break;
+
+    /* Giants: Break some random items. */
+  case GA_GIANTS:
+    if (magik(10)) {
+      o_ptr->fate = FATE_KILL;
+    }
+    break;
+
+    /* Demons: No effect. */
+  case GA_DEMONS:
+    break;
+
+    /* Dragons: Sacrifice "slay dragon" items. */
+  case GA_DRAGONS:
+    if (f1 & (TR1_SLAY_DRAGON)) {
+      o_ptr->fate = FATE_SACRIFICE;
+    }
+    break;
+
+
   }
 }
 
@@ -6298,7 +6376,8 @@ static int strike_it_bonus(int amount) {
 	    m_ptr = &m_list[cave_m_idx[p_ptr->py + i][p_ptr->px + j]];
 
 	    if (cave_m_idx[p_ptr->py + i][p_ptr->px + j] > 0 &&
-		m_ptr->hp * 5 <= amount) {
+		m_ptr->hp * 5 <= amount &&
+		!m_ptr->is_pet) {
 
 	      exit = 1;
 	      i = 1;

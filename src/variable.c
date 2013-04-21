@@ -664,6 +664,10 @@ cptr ANGBAND_DIR_USER;
  */
 cptr ANGBAND_DIR_XTRA;
 
+/*
+ * Extension scripts.
+ */
+cptr ANGBAND_DIR_LUA;
 
 /*
  * Total Hack -- allow all items to be listed (even empty ones)

@@ -477,7 +477,7 @@ static void place_altar(int y, int x)
 	while (TRUE)
 	{
 		alt = rand_int(MAX_GODS);
-		rar = deity_info[alt].rarity;
+		rar = deity_info[alt].rarity % 4;
 
 		if (p_ptr->depth < randnor(rar * 10, 3) || rand_int(rar) > 0)
 			continue;

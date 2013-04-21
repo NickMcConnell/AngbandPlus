@@ -1,10 +1,10 @@
 
 
                         +---------------------+
-                       <     KaMband  2.0      >
+                       <     KaMband  2.1      >
                         +---------------------+
 
-                           a.k.a. "Baalzebub"
+                          a.k.a. "Combustible"
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
              and Umoria:    Copyright (c) 1989 James E. Wilson

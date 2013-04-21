@@ -1903,13 +1903,55 @@ bool make_attack_spell(int m_idx)
 			/* RF6_XXX6X6 */
 		case 160 + 15:
 		{
-			break;
+		  disturb(1, 0);
+
+		  if (blind) {
+		    msg_format("%^s mumbles in the kobold tongue.", m_name);
+
+		  } else {
+		    msg_format("%^s summons undead kobolds!", m_name);
+		  }
+
+		  for (k = 0; k < 3; k++) {
+		    if (m_ptr->is_pet)
+		      count +=
+			summon_specific_friendly(y, x, rlev, 
+						 SUMMON_UNDEAD_KOBOLD);
+		    else
+		      count += summon_specific(y, x, rlev, 
+					       SUMMON_UNDEAD_KOBOLD);
+		  }
+
+		  if (blind && count)
+		    msg_print("You hear many kobolds appear nearby.");
+
+		  break;
 		}
 
-			/* RF6_XXX7X6 */
+			/* RF6_S_KOBOLD */
 		case 160 + 16:
 		{
-			break;
+		  disturb(1, 0);
+
+		  if (blind) {
+		    msg_format("%^s mumbles in the kobold tongue.", m_name);
+
+		  } else {
+		    msg_format("%^s summons kobolds!", m_name);
+		  }
+
+		  for (k = 0; k < 5; k++) {
+		    if (m_ptr->is_pet)
+		      count +=
+			summon_specific_friendly(y, x, rlev, SUMMON_KOBOLD);
+		    else
+		      count += summon_specific(y, x, rlev, SUMMON_KOBOLD);
+		  }
+
+		  if (blind && count)
+		    msg_print("You hear many kobolds appear nearby.");
+
+		  break;
 		}
 
 			/* RF6_S_GOOD_UNIQUE */

@@ -17,7 +17,7 @@
 
 # Version stamp (required)
 
-V:2.0.0
+V:2.1.0
 
 
 # 0x00 --> nothing
@@ -458,102 +458,110 @@ G: :d
 ####  128-160 some additional ``floor'' features.
 ####
 
-N:128:pool of deep water
-G:#:b
-
-N:129:stream of shallow water
-G:#:B
-
-N:130:pool of deep lava
-G:#:r
-
-N:131:stream of shallow lava
-G:#:U
 
 ###### Here are the altars. As for ingredients, one for each color. ######
 
-N:132:Altar of Night
+N:128:Altar of Night
 G:0:d
 
-N:133:Altar of Day
+N:129:Altar of Day
 G:0:w
 
-N:134:Altar of Shadow
+N:130:Altar of Shadow
 G:0:s
 
-N:135:Altar of Fire
+N:131:Altar of Fire
 G:0:o
 
-N:136:Altar of Blood
+N:132:Altar of Blood
 G:0:r
 
-N:137:Altar of Nature
+N:133:Altar of Nature
 G:0:g
 
-N:138:Altar of Water
+N:134:Altar of Water
 G:0:b
 
-N:139:Altar of Stone
+N:135:Altar of Stone
 G:0:u
 
-N:140:Altar of Evil
+N:136:Altar of Evil
 G:0:D
 
-N:141:Altar of Good
+N:137:Altar of Good
 G:0:W
 
-N:142:Altar of Chaos
+N:138:Altar of Chaos
 G:0:v
 
-N:143:Altar of Sun
+N:139:Altar of Sun
 G:0:y
 
-N:144:Altar of Rage
+N:140:Altar of Rage
 G:0:R
 
-N:145:Altar of Beasts
+N:141:Altar of Beasts
 G:0:G
 
-N:146:Altar of Winds
+N:142:Altar of Winds
 G:0:B
 
-N:147:Altar of Spheres
+N:143:Altar of Spheres
 G:0:U
 
 
 
-N:148:Altar of Time
+N:144:Altar of Time
 G:0:g
 
-N:149:Altar of Infinity
+N:145:Altar of Infinity
 G:0:r
 
-N:150:Altar of Change
+N:146:Altar of Change
 G:0:u
 
-N:151:Altar of Stasis
+N:147:Altar of Stasis
 G:0:U
 
-N:152:Altar of Particles
+N:148:Altar of Particles
 G:0:v
 
-N:153:Altar of Continuity
+N:149:Altar of Continuity
 G:0:y
 
-N:154:Altar of Energy
+N:150:Altar of Energy
 G:0:R
 
-N:155:Altar of Matter
+N:151:Altar of Matter
 G:0:G
 
-N:156:Altar of Being
+N:152:Altar of Being
 G:0:W
 
-N:157:Altar of Unbeing
+N:153:Altar of Unbeing
 G:0:D
 
+
+N:154:Koboldish Altar
+G:0:y
+
+N:155:Orcish Altar
+G:0:s
+
+N:156:Trollish Altar
+G:0:w
+
+N:157:Giantish Altar
+G:0:W
+
+N:158:Demonic Altar
+G:0:r
+
+N:159:Draconian Altar
+G:0:g
+
 #
-# 158, 159, 160 -- Space for three more altars.
+# 160 -- Space for one more altar.
 #
 
 #
@@ -581,3 +589,23 @@ G:*:w
 N:198:down shaft
 G:%:g
 
+
+###128
+
+N:199:pool of deep water
+G:#:b
+
+###129
+
+N:200:stream of shallow water
+G:#:B
+
+###130
+
+N:201:pool of deep lava
+G:#:r
+
+###131
+
+N:202:stream of shallow lava
+G:#:U

@@ -2404,18 +2404,19 @@ cptr deity_standing[11] = {
 /*
  * Textual translations of your deity's rarity. 
  */
-cptr deity_rarity[4] = {
+cptr deity_rarity[5] = {
 	"Minor",
 	"Major",
 	"Elder",
-	"Greater Elder"
+	"Greater Elder",
+	"Racial"
 };
 
 /* 
  * Explain moonster affiliations for gods.
  */
 
-cptr deity_affiliation[23] = {
+cptr deity_affiliation[29] = {
 	/* GA_NIGHT */
 	"those monsters who are immune or breathe cold, those who breathe "
 		"darkness, those who don't sleep, and those who are hurt by light",
@@ -2499,7 +2500,26 @@ cptr deity_affiliation[23] = {
 	"all living creatures, whatever form they come in",
 
 	/* GA_UNBEING */
-	"absolutely nothing"
+	"absolutely nothing",
+
+	/* GA_KOBOLDS */
+	"kobolds",
+
+	/* GA_ORCS */
+	"orcs",
+
+	/* GA_TROLLS */
+	"trolls",
+
+	/* GA_GIANTS */
+	"giants",
+
+	/* GA_DEMONS */
+	"demons",
+
+	/* GA_DRAGONS */
+	"dragons"
+	
 };
 
 /*
@@ -2542,7 +2562,17 @@ deity deity_info[MAX_GODS] = {
 	{"Skade", "Matter", 4, GA_MATTER, GA_ENERGY, 2, 1},
 
 	{"Inanna", "Being", 0, GA_BEING, GA_UNBEING, 3, 1},
-	{"Belzebuth", "Unbeing", 9, GA_UNBEING, GA_BEING, 3, 0}
+	{"Belzebuth", "Unbeing", 9, GA_UNBEING, GA_BEING, 3, 0},
+
+	/* These are special "racial" gods for races. */
+	
+	{"Uergash", "Kobolds", 4, GA_KOBOLDS, GA_ORCS, 4, 0},
+	{"Krimpatuluk", "Orcs", 2, GA_ORCS, GA_DEMONS, 4, 0},
+	{"Bob", "Trolls", 3, GA_TROLLS, GA_GIANTS, 4, 0},
+	{"Gygax", "Giants", 5, GA_GIANTS, GA_TROLLS, 4, 0},
+	{"Gothmog", "Demons", 2, GA_DEMONS, GA_DRAGONS, 4, 0},
+	{"Glaurung", "Dragons", 5, GA_DRAGONS, GA_KOBOLDS, 4, 0}
+
 };
 
 /* 

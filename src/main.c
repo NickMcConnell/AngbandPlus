@@ -173,6 +173,14 @@ static void change_path(cptr info)
 			break;
 		}
 
+	case 'l':
+	  {
+	    string_free(ANGBAND_DIR_LUA);
+	    ANGBAND_DIR_LUA = string_make(s+1);
+	    break;
+	  }
+
+
 #ifdef VERIFY_SAVEFILE
 
 		case 'b':
@@ -647,6 +655,19 @@ int main(int argc, char *argv[])
 	}
 #endif
 
+
+#ifdef USE_SDL
+	/* Attempt to use the "main-sdl.c" support */
+	if (!done && (!mstr || (streq(mstr, "sdl")))) {
+
+	  extern errr init_sdl(int, char**);
+
+	  if (0 == init_sdl(argc, argv)) {
+	    ANGBAND_SYS = "sdl";
+	    done = TRUE;
+	  }
+	}
+#endif
 
 	/* Grab privs (dropped above for X11) */
 	safe_setuid_grab();

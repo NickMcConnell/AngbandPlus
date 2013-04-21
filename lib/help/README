@@ -966,3 +966,32 @@ now always the same no matter how you reach it.) However, terrain levels
 still try to neatly tile. (Fit together at the seams.)
 
 
+--- Release 2.1 "Combustible" ---
+
+
+Added a whole wealth of new kobolds -- 32 (yes, thirty-two!) new members
+of the fine race. The game now includes almost a whole functioning kobold
+society -- female, children, adolescent kobolds and even a kobold
+intellectual and demigod.
+
+Added 6 new gods, specifically for some monster races. There is currently
+a koboldish, orcish, trollish, giantish, demonic and draconian gods.
+Note that these gods do not give any bonuses. (Though you'll get
+aligned/despised monsters and fates for avatars.)
+
+Kamband finally includes a scripting language.
+
+I'm using Lua, http://www.lua.org, a small, efficient and highly portable 
+scripting language. Lua is about 120K when compiled, pure ANSI C code.
+It is said to compile on just about any platform that supports
+ANSI C. 
+
+All necessary code is included with Kamband, but the Makefiles for 
+non-Unix platforms are not yet written. Sorry, I just don't want
+to fiddle with something that I don't understand too well.
+
+Note that in this version scripting is not yet used.
+I will start writing extension scripts in the next version
+when compilation and compatibility problems are taken care of.
+
+

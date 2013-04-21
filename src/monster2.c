@@ -361,6 +361,7 @@ errr get_mon_num_prep(void)
 {
 	int i;
 
+
 	/* Scan the allocation table */
 	for (i = 0; i < alloc_race_size; i++)
 	{
@@ -2183,6 +2184,16 @@ bool alloc_monster(int dis, int flags)
 
 	int rnd = randint(100);
 
+	/* Check that the buffers do not overflow if generating for
+	 * the wilderness. */
+
+	if (p_ptr->inside_special == SPECIAL_WILD &&
+	    m_max >= (MAX_M_IDX * 3) / 4) {
+
+	  return FALSE;
+	}
+
+
 	/* Add some random variation on monster generation for fun. */
 
 	/* Generate a horde of monsters
@@ -2247,7 +2258,7 @@ static bool summon_specific_okay(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	bool okay = FALSE;
+	u32b okay = 0;
 
 
 	/* Hack -- no specific type specified */
@@ -2391,10 +2402,23 @@ static bool summon_specific_okay(int r_idx)
 
 			break;
 		}
+
+	case SUMMON_KOBOLD:
+	  {
+	    okay = (r_ptr->flags7 & RF7_KOBOLD);
+	    break;
+	  }
+
+	case SUMMON_UNDEAD_KOBOLD:
+	  {
+	    okay = (r_ptr->flags7 & RF7_KOBOLD &&
+		    r_ptr->flags3 & RF3_UNDEAD);
+	    break;
+	  }
 	}
 
 	/* Result */
-	return (okay);
+	return (okay ? TRUE : FALSE);
 }
 
 
@@ -2513,8 +2537,9 @@ static bool summon_specific_aux(int y1, int x1, int lev, int type,
 
 
 	/* Handle failure */
-	if (!r_idx)
-		return (FALSE);
+	if (!r_idx) {
+	  return (FALSE);
+	}
 
 	/* Attempt to place the monster (awake, allow groups) */
 	return place_monster_aux(y, x, r_idx, mode);
@@ -2922,250 +2947,285 @@ static bool monster_aligned_aux(monster_race * r_ptr, int galign)
 	}
 
 
-	switch (galign)
-	{
-		case GA_NIGHT:
-			if (r_ptr->flags3 & RF3_IM_COLD || r_ptr->flags3 & RF3_NO_SLEEP
-				|| r_ptr->flags4 & RF4_BR_COLD ||
-				r_ptr->flags4 & RF4_BR_DARK || r_ptr->flags5 & RF5_BA_COLD
-				|| r_ptr->flags5 & RF5_BA_DARK ||
-				r_ptr->flags5 & RF5_BO_COLD || r_ptr->flags6 & RF6_DARKNESS
-				|| r_ptr->flags3 & RF3_HURT_LITE)
-			{
-				return TRUE;
-			}
+	switch (galign) {
+	case GA_NIGHT:
+	  if (r_ptr->flags3 & RF3_IM_COLD || r_ptr->flags3 & RF3_NO_SLEEP || 
+	      r_ptr->flags4 & RF4_BR_COLD ||
+	      r_ptr->flags4 & RF4_BR_DARK || r_ptr->flags5 & RF5_BA_COLD ||
+	      r_ptr->flags5 & RF5_BA_DARK ||
+	      r_ptr->flags5 & RF5_BO_COLD || r_ptr->flags6 & RF6_DARKNESS ||
+	      r_ptr->flags3 & RF3_HURT_LITE)
+	    {
+	      return TRUE;
+	    }
+	  break;
+
+	case GA_DAY:
+	  if (r_ptr->flags3 & RF3_HURT_COLD ||
+	      r_ptr->flags3 & RF3_IM_ACID || r_ptr->flags4 & RF4_BR_ELEC ||
+	      r_ptr->flags5 & RF5_BA_ELEC ||
+	      r_ptr->flags5 & RF5_BO_ELEC || r_ptr->flags4 & RF4_BR_LITE)
+	    {
+	      return TRUE;
+	    }
 			break;
 
-		case GA_DAY:
-			if (r_ptr->flags3 & RF3_HURT_COLD ||
-				r_ptr->flags3 & RF3_IM_ACID || r_ptr->flags4 & RF4_BR_ELEC
-				|| r_ptr->flags5 & RF5_BA_ELEC ||
-				r_ptr->flags5 & RF5_BO_ELEC || r_ptr->flags4 & RF4_BR_LITE)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_SHADOW:
+	  if (r_ptr->flags3 & RF3_ORC || r_ptr->flags3 & RF3_TROLL ||
+	      r_ptr->flags3 & RF3_GIANT || r_ptr->flags3 & RF3_DRAGON ||
+	      r_ptr->flags2 & RF2_INVISIBLE)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_SHADOW:
-			if (r_ptr->flags3 & RF3_ORC || r_ptr->flags3 & RF3_TROLL ||
-				r_ptr->flags3 & RF3_GIANT || r_ptr->flags3 & RF3_DRAGON ||
-				r_ptr->flags2 & RF2_INVISIBLE)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_FIRE:
+	  if (r_ptr->flags2 & RF2_DEEPLAVA || r_ptr->flags3 & RF3_DEMON ||
+	      r_ptr->flags3 & RF3_HURT_COLD ||
+	      r_ptr->flags3 & RF3_IM_FIRE || r_ptr->flags4 & RF4_BR_FIRE ||
+	      r_ptr->flags5 & RF5_BA_FIRE ||
+	      r_ptr->flags5 & RF5_BO_FIRE)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_FIRE:
-			if (r_ptr->flags2 & RF2_DEEPLAVA || r_ptr->flags3 & RF3_DEMON
-				|| r_ptr->flags3 & RF3_HURT_COLD ||
-				r_ptr->flags3 & RF3_IM_FIRE || r_ptr->flags4 & RF4_BR_FIRE
-				|| r_ptr->flags5 & RF5_BA_FIRE ||
-				r_ptr->flags5 & RF5_BO_FIRE)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_FLESH:
+	  if (r_ptr->flags2 & RF2_MULTIPLY ||
+	      r_ptr->flags2 & RF2_REGENERATE ||
+	      r_ptr->flags6 & RF6_S_MONSTER ||
+	      r_ptr->flags6 & RF6_S_MONSTERS || r_ptr->flags6 & RF6_S_ANT ||
+	      r_ptr->flags6 & RF6_S_SPIDER ||
+	      r_ptr->flags6 & RF6_S_HOUND || r_ptr->flags6 & RF6_S_HYDRA ||
+	      r_ptr->flags6 & RF6_S_DRAGON)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_FLESH:
-			if (r_ptr->flags2 & RF2_MULTIPLY ||
-				r_ptr->flags2 & RF2_REGENERATE ||
-				r_ptr->flags6 & RF6_S_MONSTER ||
-				r_ptr->flags6 & RF6_S_MONSTERS || r_ptr->flags6 & RF6_S_ANT
-				|| r_ptr->flags6 & RF6_S_SPIDER ||
-				r_ptr->flags6 & RF6_S_HOUND || r_ptr->flags6 & RF6_S_HYDRA
-				|| r_ptr->flags6 & RF6_S_DRAGON)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_NATURE:
+	  if (r_ptr->flags3 & RF3_ANIMAL || r_ptr->flags2 & RF2_STUPID ||
+	      r_ptr->flags2 & RF2_EMPTY_MIND ||
+	      r_ptr->flags2 & RF2_WEIRD_MIND)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_NATURE:
-			if (r_ptr->flags3 & RF3_ANIMAL || r_ptr->flags2 & RF2_STUPID ||
-				r_ptr->flags2 & RF2_EMPTY_MIND ||
-				r_ptr->flags2 & RF2_WEIRD_MIND)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_WATER:
+	  if (r_ptr->flags3 & RF3_RES_WATE || r_ptr->flags5 & RF5_BA_WATE ||
+	      r_ptr->flags5 & RF5_BO_WATE || r_ptr->flags2 & RF2_SWIM ||
+	      r_ptr->flags2 & RF2_AQUATIC)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_WATER:
-			if (r_ptr->flags3 & RF3_RES_WATE || r_ptr->flags5 & RF5_BA_WATE
-				|| r_ptr->flags5 & RF5_BO_WATE || r_ptr->flags2 & RF2_SWIM
-				|| r_ptr->flags2 & RF2_AQUATIC)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_STONE:
+	  if (r_ptr->flags3 & RF3_HURT_ROCK || r_ptr->flags5 & RF5_HOLD ||
+	      r_ptr->flags4 & RF4_BR_SHAR ||
+	      r_ptr->flags4 & RF4_BR_GRAV)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_STONE:
-			if (r_ptr->flags3 & RF3_HURT_ROCK || r_ptr->flags5 & RF5_HOLD
-				|| r_ptr->flags4 & RF4_BR_SHAR ||
-				r_ptr->flags4 & RF4_BR_GRAV)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_EVIL:
+	  if (r_ptr->flags3 & RF3_EVIL || r_ptr->flags3 & RF3_UNDEAD ||
+	      r_ptr->flags3 & RF3_DEMON || r_ptr->flags3 & RF3_RES_NETH ||
+	      r_ptr->flags3 & RF3_RES_NEXU ||
+	      r_ptr->flags4 & RF4_BR_NETH || r_ptr->flags4 & RF4_BR_NEXU ||
+	      r_ptr->flags5 & RF5_BA_NETH ||
+	      r_ptr->flags5 & RF5_BO_NETH || r_ptr->flags6 & RF6_S_DEMON ||
+	      r_ptr->flags6 & RF6_S_UNDEAD ||
+	      r_ptr->flags6 & RF6_S_HI_UNDEAD ||
+	      r_ptr->flags6 & RF6_S_WRAITH)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_EVIL:
-			if (r_ptr->flags3 & RF3_EVIL || r_ptr->flags3 & RF3_UNDEAD ||
-				r_ptr->flags3 & RF3_DEMON || r_ptr->flags3 & RF3_RES_NETH
-				|| r_ptr->flags3 & RF3_RES_NEXU ||
-				r_ptr->flags4 & RF4_BR_NETH || r_ptr->flags4 & RF4_BR_NEXU
-				|| r_ptr->flags5 & RF5_BA_NETH ||
-				r_ptr->flags5 & RF5_BO_NETH || r_ptr->flags6 & RF6_S_DEMON
-				|| r_ptr->flags6 & RF6_S_UNDEAD ||
-				r_ptr->flags6 & RF6_S_HI_UNDEAD ||
-				r_ptr->flags6 & RF6_S_WRAITH)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_GOOD:
+	  if (r_ptr->flags6 & RF6_S_ANGEL || r_ptr->flags3 & RF3_NO_FEAR ||
+	      r_ptr->flags5 & RF5_SCARE || r_ptr->flags3 & RF3_NO_CONF ||
+	      r_ptr->flags4 & RF4_BR_CONF || r_ptr->flags5 & RF5_CONF ||
+	      r_ptr->flags5 & RF5_BLIND)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_GOOD:
-			if (r_ptr->flags6 & RF6_S_ANGEL || r_ptr->flags3 & RF3_NO_FEAR
-				|| r_ptr->flags5 & RF5_SCARE || r_ptr->flags3 & RF3_NO_CONF
-				|| r_ptr->flags4 & RF4_BR_CONF || r_ptr->flags5 & RF5_CONF
-				|| r_ptr->flags5 & RF5_BLIND)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_CHAOS:
+	  if (r_ptr->flags4 & RF4_BR_CHAO || r_ptr->flags3 & RF3_RES_PLAS ||
+	      r_ptr->flags4 & RF4_BR_PLAS ||
+	      r_ptr->flags5 & RF5_DRAIN_MANA ||
+	      r_ptr->flags5 & RF5_MIND_BLAST ||
+	      r_ptr->flags5 & RF5_BRAIN_SMASH ||
+	      r_ptr->flags5 & RF5_BO_PLAS || r_ptr->flags6 & RF6_BLINK ||
+	      r_ptr->flags6 & RF6_TPORT || r_ptr->flags6 & RF6_TELE_TO ||
+	      r_ptr->flags6 & RF6_TELE_AWAY ||
+	      r_ptr->flags6 & RF6_TELE_LEVEL ||
+	      r_ptr->flags6 & RF6_FORGET)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_CHAOS:
-			if (r_ptr->flags4 & RF4_BR_CHAO || r_ptr->flags3 & RF3_RES_PLAS
-				|| r_ptr->flags4 & RF4_BR_PLAS ||
-				r_ptr->flags5 & RF5_DRAIN_MANA ||
-				r_ptr->flags5 & RF5_MIND_BLAST ||
-				r_ptr->flags5 & RF5_BRAIN_SMASH ||
-				r_ptr->flags5 & RF5_BO_PLAS || r_ptr->flags6 & RF6_BLINK ||
-				r_ptr->flags6 & RF6_TPORT || r_ptr->flags6 & RF6_TELE_TO ||
-				r_ptr->flags6 & RF6_TELE_AWAY ||
-				r_ptr->flags6 & RF6_TELE_LEVEL ||
-				r_ptr->flags6 & RF6_FORGET)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_AIR:
+	  if (r_ptr->flags2 & RF2_POWERFUL ||
+	      r_ptr->flags2 & RF2_TAKE_ITEM ||
+	      r_ptr->flags2 & RF2_KILL_ITEM ||
+	      r_ptr->flags4 & RF4_ARROW_1 || r_ptr->flags4 & RF4_ARROW_2 ||
+	      r_ptr->flags4 & RF4_ARROW_3 ||
+	      r_ptr->flags4 & RF4_ARROW_4 || r_ptr->flags4 & RF4_BR_SOUN)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_AIR:
-			if (r_ptr->flags2 & RF2_POWERFUL ||
-				r_ptr->flags2 & RF2_TAKE_ITEM ||
-				r_ptr->flags2 & RF2_KILL_ITEM ||
-				r_ptr->flags4 & RF4_ARROW_1 || r_ptr->flags4 & RF4_ARROW_2
-				|| r_ptr->flags4 & RF4_ARROW_3 ||
-				r_ptr->flags4 & RF4_ARROW_4 || r_ptr->flags4 & RF4_BR_SOUN)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_SMARTS:
+	  if (r_ptr->flags2 & RF2_SMART || r_ptr->flags5 & RF5_CAUSE_1 ||
+	      r_ptr->flags5 & RF5_CAUSE_2 || r_ptr->flags5 & RF5_CAUSE_3 ||
+	      r_ptr->flags5 & RF5_CAUSE_4 || r_ptr->flags6 & RF6_HEAL ||
+	      r_ptr->flags6 & RF6_TRAPS ||
+	      r_ptr->flags5 & RF5_MISSILE)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_SMARTS:
-			if (r_ptr->flags2 & RF2_SMART || r_ptr->flags5 & RF5_CAUSE_1 ||
-				r_ptr->flags5 & RF5_CAUSE_2 || r_ptr->flags5 & RF5_CAUSE_3
-				|| r_ptr->flags5 & RF5_CAUSE_4 || r_ptr->flags6 & RF6_HEAL
-				|| r_ptr->flags6 & RF6_TRAPS ||
-				r_ptr->flags5 & RF5_MISSILE)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_TIME:
+	  if (r_ptr->flags6 & RF6_HASTE || r_ptr->flags6 & RF6_TELE_TO ||
+	      r_ptr->flags6 & RF6_TELE_AWAY ||
+	      r_ptr->flags6 & RF6_TELE_LEVEL || r_ptr->flags6 & RF6_BLINK ||
+	      r_ptr->flags6 & RF6_TPORT ||
+	      r_ptr->flags4 & RF4_BR_TIME)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_TIME:
-			if (r_ptr->flags6 & RF6_HASTE || r_ptr->flags6 & RF6_TELE_TO ||
-				r_ptr->flags6 & RF6_TELE_AWAY ||
-				r_ptr->flags6 & RF6_TELE_LEVEL || r_ptr->flags6 & RF6_BLINK
-				|| r_ptr->flags6 & RF6_TPORT ||
-				r_ptr->flags4 & RF4_BR_TIME)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_INFINITY:
+	  if (r_ptr->flags2 & RF2_SMART || r_ptr->flags2 & RF2_MULTIPLY ||
+	      r_ptr->flags2 & RF2_REGENERATE ||
+	      r_ptr->flags3 & RF3_RES_NETH || r_ptr->flags4 & RF4_BR_NETH ||
+	      r_ptr->flags5 & RF5_BA_NETH ||
+	      r_ptr->flags5 & RF5_BO_NETH)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_INFINITY:
-			if (r_ptr->flags2 & RF2_SMART || r_ptr->flags2 & RF2_MULTIPLY
-				|| r_ptr->flags2 & RF2_REGENERATE ||
-				r_ptr->flags3 & RF3_RES_NETH || r_ptr->flags4 & RF4_BR_NETH
-				|| r_ptr->flags5 & RF5_BA_NETH ||
-				r_ptr->flags5 & RF5_BO_NETH)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_CHANGE:
+	  if (r_ptr->flags1 & RF1_CHAR_MULTI ||
+	      r_ptr->flags1 & RF1_ATTR_MULTI ||
+	      r_ptr->flags3 & RF3_RES_DISE || r_ptr->flags4 & RF4_BR_DISE ||
+	      r_ptr->flags4 & RF4_BR_QUAKE ||
+	      r_ptr->flags4 & RF4_BR_CHAO)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_CHANGE:
-			if (r_ptr->flags1 & RF1_CHAR_MULTI ||
-				r_ptr->flags1 & RF1_ATTR_MULTI ||
-				r_ptr->flags3 & RF3_RES_DISE || r_ptr->flags4 & RF4_BR_DISE
-				|| r_ptr->flags4 & RF4_BR_QUAKE ||
-				r_ptr->flags4 & RF4_BR_CHAO)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_STASIS:
+	  if (r_ptr->flags1 & RF1_NEVER_MOVE ||
+	      r_ptr->flags3 & RF3_UNDEAD ||
+	      r_ptr->flags2 & RF2_EMPTY_MIND)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_STASIS:
-			if (r_ptr->flags1 & RF1_NEVER_MOVE ||
-				r_ptr->flags3 & RF3_UNDEAD ||
-				r_ptr->flags2 & RF2_EMPTY_MIND)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_SMALL:
+	  if (r_ptr->flags2 & RF2_MULTIPLY || r_ptr->flags1 & RF1_FRIEND ||
+	      r_ptr->flags1 & RF1_FRIENDS ||
+	      r_ptr->flags1 & RF1_ESCORT || r_ptr->flags1 & RF1_ESCORTS)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_SMALL:
-			if (r_ptr->flags2 & RF2_MULTIPLY || r_ptr->flags1 & RF1_FRIEND
-				|| r_ptr->flags1 & RF1_FRIENDS ||
-				r_ptr->flags1 & RF1_ESCORT || r_ptr->flags1 & RF1_ESCORTS)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_LARGE:
+	  if (r_ptr->flags3 & RF3_GIANT || r_ptr->flags3 & RF3_DRAGON ||
+	      r_ptr->flags2 & RF2_POWERFUL)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_LARGE:
-			if (r_ptr->flags3 & RF3_GIANT || r_ptr->flags3 & RF3_DRAGON ||
-				r_ptr->flags2 & RF2_POWERFUL)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_ENERGY:
+	  if (r_ptr->flags3 & RF3_RES_PLAS || r_ptr->flags4 & RF4_BR_PLAS ||
+	      r_ptr->flags5 & RF5_BO_PLAS ||
+	      r_ptr->flags4 & RF4_BR_MANA || r_ptr->flags5 & RF5_BA_MANA ||
+	      r_ptr->flags5 & RF5_BO_MANA ||
+	      r_ptr->flags3 & RF3_IM_FIRE || r_ptr->flags4 & RF4_BR_FIRE ||
+	      r_ptr->flags5 & RF5_BA_FIRE ||
+	      r_ptr->flags5 & RF5_BO_FIRE || r_ptr->flags4 & RF4_BR_LITE ||
+	      r_ptr->flags4 & RF4_BR_SOUN)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_ENERGY:
-			if (r_ptr->flags3 & RF3_RES_PLAS || r_ptr->flags4 & RF4_BR_PLAS
-				|| r_ptr->flags5 & RF5_BO_PLAS ||
-				r_ptr->flags4 & RF4_BR_MANA || r_ptr->flags5 & RF5_BA_MANA
-				|| r_ptr->flags5 & RF5_BO_MANA ||
-				r_ptr->flags3 & RF3_IM_FIRE || r_ptr->flags4 & RF4_BR_FIRE
-				|| r_ptr->flags5 & RF5_BA_FIRE ||
-				r_ptr->flags5 & RF5_BO_FIRE || r_ptr->flags4 & RF4_BR_LITE
-				|| r_ptr->flags4 & RF4_BR_SOUN)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_MATTER:
+	  if (r_ptr->flags3 & RF3_IM_ACID || r_ptr->flags4 & RF4_BR_ACID ||
+	      r_ptr->flags5 & RF5_BA_ACID ||
+	      r_ptr->flags5 & RF5_BO_ACID || r_ptr->flags3 & RF3_IM_COLD ||
+	      r_ptr->flags4 & RF4_BR_COLD ||
+	      r_ptr->flags5 & RF5_BA_COLD || r_ptr->flags5 & RF5_BO_COLD ||
+	      r_ptr->flags3 & RF3_IM_POIS ||
+	      r_ptr->flags4 & RF4_BR_POIS || r_ptr->flags5 & RF5_BA_POIS ||
+	      r_ptr->flags5 & RF5_BO_POIS ||
+	      r_ptr->flags4 & RF4_BR_SHAR || r_ptr->flags4 & RF4_BR_DARK ||
+	      r_ptr->flags5 & RF5_BA_DARK)
+	    {
+	      return TRUE;
+	    }
+	  break;
 
-		case GA_MATTER:
-			if (r_ptr->flags3 & RF3_IM_ACID || r_ptr->flags4 & RF4_BR_ACID
-				|| r_ptr->flags5 & RF5_BA_ACID ||
-				r_ptr->flags5 & RF5_BO_ACID || r_ptr->flags3 & RF3_IM_COLD
-				|| r_ptr->flags4 & RF4_BR_COLD ||
-				r_ptr->flags5 & RF5_BA_COLD || r_ptr->flags5 & RF5_BO_COLD
-				|| r_ptr->flags3 & RF3_IM_POIS ||
-				r_ptr->flags4 & RF4_BR_POIS || r_ptr->flags5 & RF5_BA_POIS
-				|| r_ptr->flags5 & RF5_BO_POIS ||
-				r_ptr->flags4 & RF4_BR_SHAR || r_ptr->flags4 & RF4_BR_DARK
-				|| r_ptr->flags5 & RF5_BA_DARK)
-			{
-				return TRUE;
-			}
-			break;
+	case GA_BEING:
+	  return TRUE;
+	  break;
 
-		case GA_BEING:
-			return TRUE;
-			break;
+	case GA_UNBEING:
+	  return FALSE;
+	  break;
 
-		case GA_UNBEING:
-			return FALSE;
-			break;
+	case GA_KOBOLDS:
+	  if (r_ptr->flags7 & RF7_KOBOLD) {
+	    return TRUE;
+	  }
+	  break;
+
+	case GA_ORCS:
+	  if (r_ptr->flags3 & RF3_ORC) {
+	    return TRUE;
+	  }
+	  break;
+
+	case GA_TROLLS:
+	  if (r_ptr->flags3 & RF3_TROLL) {
+	    return TRUE;
+	  }
+	  break;
+
+	case GA_GIANTS:
+	  if (r_ptr->flags3 & RF3_GIANT) {
+	    return TRUE;
+	  }
+	  break;
+
+	case GA_DEMONS:
+	  if (r_ptr->flags3 & RF3_DEMON) {
+	    return TRUE;
+	  }
+	  break;
+
+	case GA_DRAGONS:
+	  if (r_ptr->flags3 & RF3_DRAGON) {
+	    return TRUE;
+	  }
+	  break;
 
 	}
 	return FALSE;

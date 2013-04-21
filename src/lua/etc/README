@@ -1,0 +1,43 @@
+This directory contains some code that might be useful.
+
+bin2c.c
+	This program converts files to byte arrays that are automatically
+	run with lua_dobuffer. This allows C programs to include all necessary
+	Lua code, even in precompiled form. Even if the code is included in
+	source form, bin2c is useful because it avoids the hassle of having to
+	quote special characters in C strings.
+	Example of usage: Run bin2c file1 file2 ... > init.h. Then, in your C
+	program, just do #include "init.h" anywhere in the *body* of a
+	function. This will be equivalent to calling
+		lua_dofile(L,"file1"); lua_dofile(L,"file2"); ...
+	Note that the Lua state is called "L". If you use a different name,
+	say "mystate", just #define L mystate before #include "init.h".
+
+def.lua
+	A Lua script for creating .DEF for Windows DLLs.
+	Just do "make def" to create lua.def.
+
+min.c
+	A minimal Lua interpreter.
+
+lua.ico
+	A Lua icon for Windows.
+	It was drawn by hand by Markus Gritsch <gritsch@iue.tuwien.ac.at>.
+
+lua.xpm
+	The same icon as lua.ico, but in XPM format.
+	It was converted with ImageMagick by Andy Tai <andy@exp.com>.
+
+lua.magic
+	Data for teaching file(1) about Lua precompiled chunks.
+
+stdcall.lua
+	A Lua script for changing the calling convention to __stdcall.
+	Do "make stdcall" and new modules will be created in stdcall/.
+
+setfallback.lua
+	A Lua implementation of fallbacks on top of tag methods.
+	You only need this module if you have Lua code that uses setfallback.
+
+trace.c
+	A simple execution tracer. An example of how to use the debugging hooks.

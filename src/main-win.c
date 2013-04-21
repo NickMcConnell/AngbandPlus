@@ -4664,6 +4664,7 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_SAVE);
 	validate_dir(ANGBAND_DIR_USER);
 	validate_dir(ANGBAND_DIR_XTRA);
+	validate_dir(ANGBAND_DIR_LUA);
 
 	/* Build the filename */
 	path_build(path, 1024, ANGBAND_DIR_FILE, "news.txt");

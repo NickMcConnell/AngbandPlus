@@ -23,6 +23,7 @@ OBJS = \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o bldg.o birth.o wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o \
+  lua.o lua/lib/liblua.a \
   main-ibm.o main.o
 
 
@@ -43,6 +44,9 @@ LIBS = -lpc
 ../angband.exe: ../kamband.exe
 	stubify -g ../angband.exe
 	stubedit ../angband.exe runfile=kamband.exe
+
+lua/lib/liblua.a:
+	cd lua; make
 
 ../kamband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o ../kamband.exe $(OBJS) $(LIBS)

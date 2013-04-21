@@ -23,7 +23,7 @@
 
 # Version stamp (required)
 
-V:2.0.0
+V:2.1.0
 
 
 ##### Something special #####
@@ -3396,7 +3396,13 @@ A:5/1
 M:5
 P:0:1d2:0:0:0
 
-## XXX 399 XXX ##
+N:399:& Kobold Skeleton~
+G:~:w
+I:1:9:0
+W:2:80:60:0
+A:2/1
+M:5
+P:0:1d2:0:0:0
 
 
 ##### Dragon Scale Mail #####
