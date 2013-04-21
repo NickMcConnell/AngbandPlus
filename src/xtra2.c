@@ -2244,6 +2244,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
  */
 bool modify_panel(int wy, int wx)
 {
+
+    // Hajo: scroll always when in iso view
+    if(!streq(ANGBAND_GRAF,"iso")) {
 	/* Verify wy, adjust if needed */
 	if (p_ptr->depth == 0) wy = SCREEN_HGT;
 	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
@@ -2252,7 +2255,8 @@ bool modify_panel(int wy, int wx)
 	/* Verify wx, adjust if needed */
 	if (p_ptr->depth == 0) wx = SCREEN_WID;
 	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
-	else if (wx < 0) wx = 0;
+	else if (wx < 0) wx = 0;    
+    }
 
 	/* React to changes */
 	if ((p_ptr->wy != wy) || (p_ptr->wx != wx))

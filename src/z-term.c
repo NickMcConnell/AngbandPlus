@@ -1076,9 +1076,6 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 }
 
 
-
-
-
 /*
  * Actually perform all requested changes to the window
  *
@@ -1479,6 +1476,10 @@ errr Term_fresh(void)
 	/* Actually flush the output */
 	Term_xtra(TERM_XTRA_FRESH, 0);
 
+
+	// Hajo:
+	// refresh the graphical view
+	// refresh_display();
 
 	/* Success */
 	return (0);

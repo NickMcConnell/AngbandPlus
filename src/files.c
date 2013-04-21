@@ -781,6 +781,9 @@ errr process_pref_file(cptr name)
 
 	bool bypass = FALSE;
 
+	// Hajo
+	// printf("Processing pref file '%s'\n", name);
+
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, name);

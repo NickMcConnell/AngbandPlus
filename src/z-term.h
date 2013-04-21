@@ -49,7 +49,7 @@ struct term_win
 	char **tc;
 
 	byte *vta;
-	char *vtc;
+	char *vtc;     
 #endif /* USE_TRANSPARENCY */
 
 };

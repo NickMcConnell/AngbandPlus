@@ -2821,7 +2821,6 @@ void play_game(bool new_game)
 		/* Window stuff */
 		if (p_ptr->window) window_stuff();
 
-
 		/* Cancel the target */
 		target_set_monster(0);
 

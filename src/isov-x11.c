@@ -1,6 +1,13 @@
-/* File: main-x11.c */
+/* File: isov-x11.c */
 
 /*
+ * Copyright (c) 2001, Hj. Malthaner
+ * hansjoerg.malthaner@gmx.de
+ * 
+ * this file is based on main-x11.c which carried the following
+ * copyright notice:
+ *  
+ *
  * Copyright (c) 1997 Ben Harrison, and others
  *
  * This software may be copied and distributed for educational, research,
@@ -11,6 +18,7 @@
 
 /*
  * This file helps Angband work with UNIX/X11 computers.
+ * Support for isometric view was added by Hj.  Malthaner
  *
  * To use this file, compile with "USE_X11" defined, and link against all
  * the various "X11" libraries which may be needed.
@@ -97,7 +105,7 @@
 #include "angband.h"
 
 
-#ifdef USE_X11
+#ifdef USE_ISOV_X11
 
 
 #ifndef __MAKEDEPEND__
@@ -107,11 +115,28 @@
 #include <X11/keysymdef.h>
 #endif /* __MAKEDEPEND__ */
 
+/*
+ * Simugraph system wrapper header (Hj. Malthaner)
+ */
+#include "iso/simsys.h"
+
 
 /*
- * Include some helpful X11 code.
+ * Iso view world adaptor (Hj. Malthaner)
  */
-#include "maid-x11.c"
+#include "iso/world_adaptor.h"
+
+/*
+ * Text place marker function protype (Hj. Malthaner)
+ */
+void set_spots(int x, int y, int n, bool v);
+
+
+/*
+ * Control flow tracker macro (Hj. Malthaner)
+ */
+// #define DEBUG(s) printf(s"\n")
+#define DEBUG(s) 
 
 
 /*
@@ -446,6 +471,9 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 {
 	metadpy *m = Metadpy;
 
+	DEBUG("Metadpy_init_2");
+
+
 	/*** Open the display if needed ***/
 
 	/* If no Display given, attempt to Create one */
@@ -523,6 +551,7 @@ static errr Metadpy_nuke(void)
 {
 	metadpy *m = Metadpy;
 
+	DEBUG("Metadpy_nuke");
 
 	/* If required, Free the Display */
 	if (m->nuke)
@@ -548,7 +577,15 @@ static errr Metadpy_nuke(void)
  * General Flush/ Sync/ Discard routine
  */
 static errr Metadpy_update(int flush, int sync, int discard)
-{
+{       
+	DEBUG("Metadpy_update");
+
+
+	// Hajo:
+	// refresh the graphical view
+
+	refresh_display();
+
 	/* Flush if desired */
 	if (flush) XFlush(Metadpy->dpy);
 
@@ -564,7 +601,9 @@ static errr Metadpy_update(int flush, int sync, int discard)
  * Make a simple beep
  */
 static errr Metadpy_do_beep(void)
-{
+{                              
+	DEBUG("Infowin_do_beep");
+
 	/* Make a simple beep */
 	XBell(Metadpy->dpy, 100);
 
@@ -584,6 +623,9 @@ static errr Infowin_set_name(cptr name)
 	char *bp = buf;
 	strcpy(buf, name);
 	st = XStringListToTextProperty(&bp, 1, &tp);
+
+	DEBUG("Infowin_set_name");
+
 	if (st) XSetWMName(Metadpy->dpy, Infowin->win, &tp);
 	return (0);
 }
@@ -602,6 +644,9 @@ static errr Infowin_set_icon_name(cptr name)
 	char *bp = buf;
 	strcpy(buf, name);
 	st = XStringListToTextProperty(&bp, 1, &tp);
+
+	DEBUG("Infowin_set_icon_name");
+
 	if (st) XSetWMIconName(Metadpy->dpy, Infowin->win, &tp);
 	return (0);
 }
@@ -613,6 +658,9 @@ static errr Infowin_set_icon_name(cptr name)
 static errr Infowin_nuke(void)
 {
 	infowin *iwin = Infowin;
+
+	DEBUG("Infowin_nuke");
+
 
 	/* Nuke if requested */
 	if (iwin->nuke)
@@ -639,6 +687,8 @@ static errr Infowin_prepare(Window xid)
 	XWindowAttributes xwa;
 	int x, y;
 	unsigned int w, h, b, d;
+
+	DEBUG("Infowin_prepare");
 
 	/* Assign stuff */
 	iwin->win = xid;
@@ -675,6 +725,8 @@ static errr Infowin_prepare(Window xid)
  */
 static errr Infowin_init_real(Window xid)
 {
+	DEBUG("Infowin_init_real");
+
 	/* Wipe it clean */
 	(void)WIPE(Infowin, infowin);
 
@@ -705,6 +757,8 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
 {
 	Window xid;
 
+	DEBUG("Infowin_init_data");
+
 	/* Wipe it clean */
 	(void)WIPE(Infowin, infowin);
 
@@ -718,19 +772,8 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
 
 	/* If no parent given, depend on root */
 	if (dad == None)
+	    dad = Metadpy->root;
 
-/* #ifdef USE_GRAPHICS
-
-		xid = XCreateWindow(Metadpy->dpy, Metadpy->root, x, y, w, h, b, 8, InputOutput, CopyFromParent, 0, 0);
-
-	else
-*/
-
-/* #else */
-
-		dad = Metadpy->root;
-
-/* #endif */
 
 	/* Create the Window XXX Error Check */
 	xid = XCreateSimpleWindow(Metadpy->dpy, dad, x, y, w, h, b, fg, bg);
@@ -755,6 +798,8 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
  */
 static errr Infowin_set_mask(long mask)
 {
+	DEBUG("Infowin_set_mask");
+
 	/* Save the new setting */
 	Infowin->mask = mask;
 
@@ -771,6 +816,8 @@ static errr Infowin_set_mask(long mask)
  */
 static errr Infowin_map(void)
 {
+	DEBUG("Infowin_map");
+
 	/* Execute the Mapping */
 	XMapWindow(Metadpy->dpy, Infowin->win);
 
@@ -786,6 +833,8 @@ static errr Infowin_map(void)
  */
 static errr Infowin_unmap(void)
 {
+	DEBUG("Infowin_unmap");
+
 	/* Execute the Un-Mapping */
 	XUnmapWindow(Metadpy->dpy, Infowin->win);
 
@@ -801,6 +850,8 @@ static errr Infowin_unmap(void)
  */
 static errr Infowin_raise(void)
 {
+	DEBUG("Infowin_raise");
+
 	/* Raise towards visibility */
 	XRaiseWindow(Metadpy->dpy, Infowin->win);
 
@@ -816,6 +867,9 @@ static errr Infowin_raise(void)
  */
 static errr Infowin_lower(void)
 {
+	DEBUG("Infowin_lower");
+
+
 	/* Lower towards invisibility */
 	XLowerWindow(Metadpy->dpy, Infowin->win);
 
@@ -831,6 +885,8 @@ static errr Infowin_lower(void)
  */
 static errr Infowin_impell(int x, int y)
 {
+	DEBUG("Infowin_impell");
+
 	/* Execute the request */
 	XMoveWindow(Metadpy->dpy, Infowin->win, x, y);
 
@@ -844,6 +900,8 @@ static errr Infowin_impell(int x, int y)
  */
 static errr Infowin_resize(int w, int h)
 {
+	DEBUG("Infowin_resize");
+
 	/* Execute the request */
 	XResizeWindow(Metadpy->dpy, Infowin->win, w, h);
 
@@ -859,6 +917,8 @@ static errr Infowin_resize(int w, int h)
  */
 static errr Infowin_locate(int x, int y, int w, int h)
 {
+	DEBUG("Infowin_locate");
+
 	/* Execute the request */
 	XMoveResizeWindow(Metadpy->dpy, Infowin->win, x, y, w, h);
 
@@ -874,11 +934,19 @@ static errr Infowin_locate(int x, int y, int w, int h)
  */
 static errr Infowin_wipe(void)
 {
-	/* Execute the request */
-	XClearWindow(Metadpy->dpy, Infowin->win);
+    int y;
+    
+    DEBUG("Infowin_wipe");
 
-	/* Success */
-	return (0);
+    /* Execute the request */
+    XClearWindow(Metadpy->dpy, Infowin->win);
+
+    for(y=0; y<24; y++) {
+	set_spots(0, y, 80, FALSE);
+    }
+                    
+    /* Success */
+    return (0);
 }
 
 
@@ -889,6 +957,8 @@ static errr Infowin_wipe(void)
  */
 static errr Infowin_fill(void)
 {
+	DEBUG("Infowin_fill");
+
 	/* Execute the request */
 	XFillRectangle(Metadpy->dpy, Infowin->win, Infoclr->gc,
 	               0, 0, Infowin->w, Infowin->h);
@@ -946,6 +1016,8 @@ static int Infoclr_Opcode(cptr str)
 {
 	register int i;
 
+	DEBUG("Infoclr_Opcode");
+
 	/* Scan through all legal operation names */
 	for (i = 0; opcode_pairs[i*2]; ++i)
 	{
@@ -980,6 +1052,8 @@ static int Infoclr_Opcode(cptr str)
 static Pixell Infoclr_Pixell(cptr name)
 {
 	XColor scrn;
+
+	DEBUG("Infoclr_Pixell");
 
 	/* Attempt to Parse the name */
 	if (name && name[0])
@@ -1030,6 +1104,8 @@ static errr Infoclr_init_1(GC gc)
 {
 	infoclr *iclr = Infoclr;
 
+	DEBUG("Infoclr_init_1");
+
 	/* Wipe the iclr clean */
 	(void)WIPE(iclr, infoclr);
 
@@ -1047,6 +1123,8 @@ static errr Infoclr_init_1(GC gc)
 static errr Infoclr_nuke(void)
 {
 	infoclr *iclr = Infoclr;
+
+	DEBUG("Infoclr_nuke");
 
 	/* Deal with 'GC' */
 	if (iclr->nuke)
@@ -1082,6 +1160,7 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
 	XGCValues gcv;
 	unsigned long gc_mask;
 
+	DEBUG("Infoclr_init_data");
 
 
 	/*** Simple error checking of opr and clr ***/
@@ -1156,6 +1235,7 @@ static errr Infoclr_change_fg(Pixell fg)
 {
 	infoclr *iclr = Infoclr;
 
+	DEBUG("Infoclr_change_fg");
 
 	/*** Simple error checking of opr and clr ***/
 
@@ -1181,6 +1261,9 @@ static errr Infoclr_change_fg(Pixell fg)
  */
 static errr Infofnt_nuke(void)
 {
+
+	DEBUG("Infofnt_nuke");
+
 	infofnt *ifnt = Infofnt;
 
 	/* Deal with 'name' */
@@ -1213,6 +1296,8 @@ static errr Infofnt_prepare(XFontStruct *info)
 
 	XCharStruct *cs;
 
+	DEBUG("Infofnt_prepare");
+
 	/* Assign the struct */
 	ifnt->info = info;
 
@@ -1243,6 +1328,9 @@ static errr Infofnt_prepare(XFontStruct *info)
  */
 static errr Infofnt_init_real(XFontStruct *info)
 {
+
+	DEBUG("Infofnt_init_real");
+
 	/* Wipe the thing */
 	(void)WIPE(Infofnt, infofnt);
 
@@ -1266,6 +1354,7 @@ static errr Infofnt_init_data(cptr name)
 {
 	XFontStruct *info;
 
+	DEBUG("Infofnt_init_data");
 
 	/*** Load the info Fresh, using the name ***/
 
@@ -1312,6 +1401,7 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 {
 	int i;
 
+	DEBUG("Infofnt_text_std");
 
 	/*** Do a brief info analysis ***/
 
@@ -1375,11 +1465,13 @@ static errr Infofnt_text_non(int x, int y, cptr str, int len)
 {
 	int w, h;
 
+	DEBUG("Infofnt_text_non");
 
 	/*** Find the width ***/
 
 	/* Negative length is a flag to count the characters in str */
 	if (len < 0) len = strlen(str);
+
 
 	/* The total width will be 'len' chars * standard width */
 	w = len * Infofnt->wid;
@@ -1409,30 +1501,7 @@ static errr Infofnt_text_non(int x, int y, cptr str, int len)
 	return (0);
 }
 
-
-
 /*************************************************************************/
-
-
-/*
- * Angband specific code follows... (ANGBAND)
- */
-
-
-/*
- * Hack -- cursor color
- */
-static infoclr *xor;
-
-/*
- * Actual color table
- */
-static infoclr *clr[256];
-
-/*
- * Color info (unused, red, green, blue).
- */
-static byte color_table[256][4];
 
 /*
  * Forward declare
@@ -1449,20 +1518,6 @@ struct term_data
 	infofnt *fnt;
 
 	infowin *win;
-
-#ifdef USE_GRAPHICS
-
-	XImage *tiles;
-
-#ifdef USE_TRANSPARENCY
-
-	/* Tempory storage for overlaying tiles. */
-	XImage *TmpImage;
-
-#endif
-
-#endif
-
 };
 
 
@@ -1476,6 +1531,552 @@ struct term_data
  */
 static term_data data[MAX_TERM_DATA];
 
+
+
+/*
+ * Simugraph specific routines
+ * by Hj. Malthaner
+ */
+
+
+#include <sys/shm.h>
+#include <X11/extensions/XShm.h>
+
+
+
+/**
+ * we need to track spots with text to avoid overdrawing text with images
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+bool spots[80][24];
+
+
+/**
+ * spot array access prozedure
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+void set_spots(int x, int y, int n, bool v)
+{
+    int i;
+
+    for(i=x; i<x+n; i++) {
+	spots[i][y] = v;
+    }
+} 
+
+
+
+
+/*
+ * Hajo: this flags need to be set when opening windows
+ */
+
+static bool use_shm = FALSE;
+
+static int tex_width;
+static int tex_height;
+static int tex_xoff;
+static int tex_yoff;
+
+
+static unsigned int tab16[1<<16];
+
+/** 
+ * mouse coordinates for Simugraph engine 
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */    
+int mx, my; 
+
+
+/**
+ * inits operating system stuff
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+int dr_os_init(int n, int *parameter)
+{
+    // Hajo:
+    // unused in isov-x11
+    return TRUE;
+}
+
+
+/**
+ * opens graphics device/context/window of size w*h
+ * @param w width
+ * @param h height
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+int dr_os_open(int w, int h)
+{
+    const int left = 13;
+
+    tex_width  = (data[0].fnt->wid * (data[0].t.wid-left+2) + 3) & 0xFFFC;
+    tex_height = data[0].fnt->hgt * (data[0].t.hgt-2);
+                                                  
+    tex_xoff = data[0].fnt->wid * left;
+    tex_yoff = data[0].fnt->hgt * 1 + 1;
+
+    return TRUE;
+}
+
+
+/**
+ * closes operating system stuff
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+int dr_os_close()
+{
+    // Hajo:
+    // unused in isov-x11
+    return TRUE;
+}
+
+
+/**
+ * retrieve display width
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+int dr_get_width()
+{
+    return tex_width;
+}
+
+
+/**
+ * retrieve display height
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+int dr_get_height()
+{
+    return tex_height;
+}
+
+
+/**
+ * XImage we use as a internal buffer for double buffering
+ * @author Hj. Malthaner
+ */
+static XImage *texturimg;
+
+
+/**
+ * We use shared memory if available
+ * @author Hj. Malthaner
+ */
+static XShmSegmentInfo xshminfo;
+ 
+
+/**
+ * this is used if we need to fake an 8 bit array
+ * @author Hj. Malthaner
+ */
+static unsigned short * data8;
+
+
+/**
+ * creates a (maybe virtual) array of graphics data
+ * @author Hj. Malthaner
+ */
+unsigned short * dr_textur_init()
+{       
+    int i;
+
+    unsigned int redShift, redMask;
+    unsigned int greenShift, greenMask;
+    unsigned int blueShift, blueMask;
+
+
+    printf("isov-x11::dr_textur_init()\n");
+    printf(" width  = %d\n", tex_width);
+    printf(" height = %d\n", tex_height);
+    printf(" depth1 = %d\n", Metadpy->depth);
+
+
+    if(!use_shm) {	
+        int depth = (Metadpy->depth+7) & 0xFFF8;
+
+	printf(" depth2 = %d\n", depth);
+
+	texturimg=XCreateImage(Metadpy->dpy, 
+	                       DefaultVisual(Metadpy->dpy, 
+                                             DefaultScreen(Metadpy->dpy)),
+                               Metadpy->depth, 
+			       ZPixmap, 
+			       0,
+                               malloc((tex_width)*(tex_height)*(depth/8)),
+			       tex_width, 
+			       tex_height, 
+			       depth, 
+			       (tex_width)*(depth/8));
+
+	printf(" Texturimage = %p\n",texturimg);
+
+    } else {
+	int depth = Metadpy->depth;
+
+	xshminfo.shmid = shmget(IPC_PRIVATE,
+			        tex_width * tex_height*(depth/8),
+				IPC_CREAT | 0777);
+
+	texturimg = XShmCreateImage(Metadpy->dpy, 
+                                    DefaultVisual(Metadpy->dpy, 
+                                                  DefaultScreen(Metadpy->dpy)),
+                                    depth, 
+                                    ZPixmap, 
+                                    NULL, 
+				    &xshminfo,
+				    tex_width, 
+				    tex_height);
+
+	printf("Texturimage : %p\n",texturimg);
+	printf("shmid : %d\n",xshminfo.shmid);
+
+	texturimg->data = (char *) shmat(xshminfo.shmid, 0, 0);
+	printf("Data : %p\n",texturimg->data);
+
+	xshminfo.shmaddr = texturimg->data;
+	xshminfo.readOnly = False;
+
+	printf("Attach : %d\n",XShmAttach(Metadpy->dpy, &xshminfo));
+    }
+
+
+
+
+
+    /* compute values for decomposing pixel into color values: */
+    redMask = texturimg->red_mask;
+    redShift = 0;
+    while ((redMask & 1) == 0)
+    {
+	redShift++;
+	redMask >>= 1;
+    }
+    greenMask = texturimg->green_mask;
+    greenShift = 0;
+    while ((greenMask & 1) == 0)
+    {
+	greenShift++;
+	greenMask >>= 1;
+    }
+    blueMask = texturimg->blue_mask;
+    blueShift = 0;
+    while ((blueMask & 1) == 0)
+    {
+	blueShift++;
+	blueMask >>= 1;
+    }
+
+    printf(" redMask = %d, redShift = %d\n", redMask, redShift);
+    printf(" greenMask = %d, greenShift = %d\n", greenMask, greenShift);
+    printf(" blueMask = %d, blueShift = %d\n", blueMask, blueShift);
+
+
+    for(i=0; i<(1<<16); i++) {
+	// FIXME!!!
+	// must consider color bits, or breaks in anything else but RGB 555
+	const unsigned int R = (i & 0x7C00) >> 10;
+	const unsigned int G = (i & 0x03E0) >> 5;
+	const unsigned int B = (i & 0x001F) >> 0;
+		 
+	tab16[i]= 
+	((R & redMask) << redShift) +
+	((G & greenMask) << greenShift) +
+	(B << blueShift);
+    }         
+
+
+            
+    data8 = calloc((tex_width)*(tex_height), 2);
+
+    printf(" textur = %p\n", data8);
+
+    // fake an 16 bit array and convert data before displaying
+    return data8;
+}
+
+
+/**
+ * displays the array of graphics data
+ * @author Hj. Malthaner
+ */
+void dr_textur(int xp, int yp, int w, int h)
+{
+    int x,y;
+    const unsigned short * const end = data8 + tex_height*tex_width;
+    const unsigned short * src = data8;
+    unsigned long * dest = (unsigned long *)texturimg->data;
+
+    // clipping unten
+    if(yp+h > tex_height) {
+	h = tex_height-yp;
+    } 
+
+
+    // if we are in truecolor we need to convert our image data
+
+    do {
+	*dest ++ = tab16[ *src ] + (tab16[ *(src+1) ] << 16);
+	src += 2;
+    } while(src < end);    
+
+/* generic code   
+    for(y=0; y<tex_height; y++) {
+	const unsigned short * src = data8 + y*tex_width;
+
+	for(x=0; x<tex_width; x++) {
+	    XPutPixel(texturimg, x, y, tab16[src[x]]);
+	}
+    }
+*/    
+
+
+    /* debug spot field
+    for(y=0; y<24; y++) {
+	for(x=0; x<80; x++) {
+	    if(spots[x][y]) {
+		printf("X");
+	    } else {
+		printf(".");
+	    }
+	}
+	printf("\n");
+    }
+    */
+
+    for(y=0; y<SCREEN_HGT; y++) {
+	const int left = 13;
+
+	yp = data[0].fnt->hgt * y;
+	x = 0;
+
+	do {
+	    int n = 0;
+	    while(x+n < 80-left && !spots[x+n+left][y+1]) {
+		n++;
+	    } 
+
+	    xp = data[0].fnt->wid * x;
+
+	    if(use_shm) {   
+		// printf("%d %d %d %d\n", xp, yp, w, h);
+
+		XShmPutImage(Metadpy->dpy,
+		Infowin->win, 
+		Infoclr->gc,
+		texturimg, 
+		xp, yp, tex_xoff+xp, tex_yoff+yp,
+		data[0].fnt->wid*(n), 
+		data[0].fnt->hgt, 
+		0);
+	    } else {
+		XPutImage(Metadpy->dpy,
+		Infowin->win, 
+		Infoclr->gc,
+		texturimg, 
+		xp, yp, tex_xoff+xp, tex_yoff+yp,
+		data[0].fnt->wid*(n), 
+		data[0].fnt->hgt);
+	    }
+
+	    x += n;
+
+	    while(x < 80-left && spots[x+left][y+1]) {
+		x++;
+	    } 	    
+	} while(x<80-left);      
+    }
+}
+
+
+/**
+ * use this method to flush graphics pipeline (undrawn stuff) onscreen.
+ * @author Hj. Malthaner
+ */
+void dr_flush()
+{
+    // Iso-view for angband needs no sync.
+    // XSync(md,FALSE);
+}
+
+
+/**
+ * set colormap entries
+ * @author Hj. Malthaner
+ */ 
+void dr_setRGB8multi(int first, int count, unsigned char * data)
+{
+    // Hajo:
+    // unused in isov-x11    
+}
+
+
+/**
+ * display/hide mouse pointer
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+void show_pointer(int yesno)
+{
+    // Hajo:
+    // unused in isov-x11
+}
+
+
+/**
+ * move mouse pointer
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+void move_pointer(int x, int y)
+{
+    // Hajo:
+    // unused in isov-x11
+}
+
+
+/**
+ * update softpointer position
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+void ex_ord_update_mx_my()
+{
+    // Hajo:
+    // unused in isov-x11
+}
+
+
+/**
+ * get events from the system
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+void GetEvents()
+{
+    // Hajo:
+    // unused in isov-x11
+}
+
+
+/**
+ * get events from the system without waiting
+ * @author Hj. Malthaner (hansjoerg.malthaner@gmx.de)
+ */
+void GetEventsNoWait()
+{
+    // Hajo:
+    // unused in isov-x11
+}
+
+
+/**
+ * @returns time since progrma start in milliseconds
+ * @author Hj. Malthaner
+ */
+long long dr_time(void)
+{
+    // Hajo:
+    // unused in isov-x11
+    return 0;
+}
+
+
+/**
+ * sleeps some microseconds
+ * @author Hj. Malthaner
+ */
+void dr_sleep(unsigned long usec)
+{
+    // Hajo:
+    // unused in isov-x11
+}
+
+
+/**
+ * loads a sample
+ * @return a handle for that sample or -1 on failure
+ * @author Hj. Malthaner
+ */
+int dr_load_sample(const char *filename)
+{
+    // Hajo:
+    // unused in isov-x11
+    return TRUE;
+}
+
+
+/**
+ * plays a sample
+ * @param key the key for the sample to be played
+ * @author Hj. Malthaner
+ */
+void dr_play_sample(int key, int volume) 
+{
+    // Hajo:
+    // unused in isov-x11
+}
+
+
+/*************************************************************************/
+
+
+/*
+ * Angband specific code follows... (ANGBAND)
+ */
+
+
+/*
+ * Hack -- cursor color
+ */
+static infoclr *xor;
+
+
+/*
+ * Actual color table
+ */
+static infoclr *clr[256];
+
+
+/*
+ * Color info (unused, red, green, blue).
+ */
+static byte color_table[256][4];
+
+
+/*
+ * Checks if the keysym is a special key or a normal key
+ * Assume that XK_MISCELLANY keysyms are special
+ *
+ * Also appears in "main-x11.c".
+ */
+#define IsSpecialKey(keysym) \
+  ((unsigned)(keysym) >= 0xFF00)
+
+
+/*
+ * Hack -- Convert an RGB value to an X11 Pixel, or die.
+ */
+static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
+{
+	Colormap cmap = DefaultColormapOfScreen(DefaultScreenOfDisplay(dpy));
+
+	char cname[8];
+
+	XColor xcolour;
+
+
+	/* Build the color */
+
+	xcolour.red = red * 255;
+	xcolour.green = green * 255;
+	xcolour.blue = blue * 255;
+	xcolour.flags = DoRed | DoGreen | DoBlue;
+
+	/* Attempt to Allocate the Parsed color */
+	if (!(XAllocColor(dpy, cmap, &xcolour)))
+	{
+		quit_fmt("Couldn't allocate bitmap color '%s'\n", cname);
+	}
+
+	return (xcolour.pixel);
+}
 
 
 /*
@@ -1496,6 +2097,8 @@ static void react_keypress(XKeyEvent *xev)
 	char buf[128];
 	char msg[128];
 
+
+	DEBUG("react_keypress");
 
 	/* Check for "normal" keypresses */
 	n = XLookupString(ev, buf, 125, &ks, NULL);
@@ -1606,9 +2209,17 @@ static errr CheckEvent(bool wait)
 
 	int i, x, y;
 
+	DEBUG("CheckEvent");
+
 
 	/* Do not wait unless requested */
 	if (!wait && !XPending(Metadpy->dpy)) return (1);
+
+
+//	if(XPending(Metadpy->dpy)==0) {
+//	    refresh_display();
+//	}
+
 
 	/* Load the Event */
 	XNextEvent(Metadpy->dpy, xev);
@@ -1647,61 +2258,6 @@ static errr CheckEvent(bool wait)
 	/* Switch on the Type */
 	switch (xev->type)
 	{
-
-#if 0
-
-		case ButtonPress:
-		case ButtonRelease:
-		{
-			int z = 0;
-
-			/* Which button is involved */
-			if (xev->xbutton.button == Button1) z = 1;
-			else if (xev->xbutton.button == Button2) z = 2;
-			else if (xev->xbutton.button == Button3) z = 3;
-			else if (xev->xbutton.button == Button4) z = 4;
-			else if (xev->xbutton.button == Button5) z = 5;
-
-			/* Where is the mouse */
-			x = xev->xbutton.x;
-			y = xev->xbutton.y;
-
-			/* XXX Handle */
-
-			break;
-		}
-
-		case EnterNotify:
-		case LeaveNotify:
-		{
-			/* Where is the mouse */
-			x = xev->xcrossing.x;
-			y = xev->xcrossing.y;
-
-			/* XXX Handle */
-
-			break;
-		}
-
-		case MotionNotify:
-		{
-			/* Where is the mouse */
-			x = xev->xmotion.x;
-			y = xev->xmotion.y;
-
-			/* XXX Handle */
-
-			break;
-		}
-
-		case KeyRelease:
-		{
-			/* Nothing */
-			break;
-		}
-
-#endif
-
 		case KeyPress:
 		{
 			/* Save the mouse location */
@@ -1713,7 +2269,7 @@ static errr CheckEvent(bool wait)
 
 			/* Process the key */
 			react_keypress(&(xev->xkey));
-
+                                    
 			break;
 		}
 
@@ -1727,7 +2283,6 @@ static errr CheckEvent(bool wait)
 
 			/* Redraw */
 			Term_redraw();
-
 			break;
 		}
 
@@ -1810,6 +2365,8 @@ static errr Term_xtra_x11_level(int v)
 {
 	term_data *td = (term_data*)(Term->data);
 
+	DEBUG("Term_xtra_x11_level");
+
 	/* Handle "activate" */
 	if (v)
 	{
@@ -1831,6 +2388,8 @@ static errr Term_xtra_x11_level(int v)
 static errr Term_xtra_x11_react(void)
 {
 	int i;
+
+	DEBUG("Term_xtra_x11_react");
 
 	if (Metadpy->color)
 	{
@@ -1872,7 +2431,9 @@ static errr Term_xtra_x11_react(void)
  * Handle a "special request"
  */
 static errr Term_xtra_x11(int n, int v)
-{
+{	
+	DEBUG("Term_xtra_x11");
+
 	/* Handle a subset of the legal requests */
 	switch (n)
 	{
@@ -1880,8 +2441,14 @@ static errr Term_xtra_x11(int n, int v)
 		case TERM_XTRA_NOISE: Metadpy_do_beep(); return (0);
 
 		/* Flush the output XXX XXX */
-		case TERM_XTRA_FRESH: Metadpy_update(1, 0, 0); return (0);
-
+		case TERM_XTRA_FRESH: 
+                {
+		    struct infoclr *tmp = Infoclr;
+		    Infoclr = clr[TERM_DARK];
+		    Metadpy_update(1, 0, 0); 
+		    Infoclr = tmp;
+		    return (0);
+                }
 		/* Process random events XXX */
 		case TERM_XTRA_BORED: return (CheckEvent(0));
 
@@ -1915,7 +2482,9 @@ static errr Term_xtra_x11(int n, int v)
  * Consider a rectangular outline like "main-mac.c".  XXX XXX
  */
 static errr Term_curs_x11(int x, int y)
-{
+{                               
+	DEBUG("Term_curs_x11");
+
 	/* Draw the cursor */
 	Infoclr_set(xor);
 
@@ -1932,14 +2501,19 @@ static errr Term_curs_x11(int x, int y)
  */
 static errr Term_wipe_x11(int x, int y, int n)
 {
-	/* Erase (use black) */
-	Infoclr_set(clr[TERM_DARK]);
+    DEBUG("Term_wipe_x11");
 
-	/* Mega-Hack -- Erase some space */
-	Infofnt_text_non(x, y, "", n);
 
-	/* Success */
-	return (0);
+    /* Erase (use black) */
+    Infoclr_set(clr[TERM_DARK]);
+
+    /* Mega-Hack -- Erase some space */
+    Infofnt_text_non(x, y, "", n);
+
+    set_spots(x, y, n, FALSE);
+    
+    /* Success */
+    return (0);
 }
 
 
@@ -1947,134 +2521,57 @@ static errr Term_wipe_x11(int x, int y, int n)
  * Draw some textual characters.
  */
 static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
-{
+{       
+    DEBUG("Term_text_x11");
+
+
+    if(a < 16) {
 	/* Draw the text */
 	Infoclr_set(clr[a]);
 
 	/* Draw the text */
 	Infofnt_text_std(x, y, s, n);
 
-	/* Success */
-	return (0);
-}
-
-
-#ifdef USE_GRAPHICS
+	set_spots(x, y, n, TRUE);
+    } else {
+	set_spots(x, y, n, FALSE);
+    }                    
 
 /*
- * Draw some graphical characters.
- */
-# ifdef USE_TRANSPARENCY
-static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
-{
-	int i, x1, y1;
+    printf("%d %d ", x,y);
 
-	byte a;
-	char c;
+    while(n--) {
+	printf("%c", *s++);	
+    }
+    printf("\n");	
+*/
 
-
-#ifdef USE_TRANSPARENCY
-	byte ta;
-	char tc;
-
-	int x2, y2;
-	int k,l;
-
-	unsigned long pixel, blank;
-#endif /* USE_TRANSPARENCY */
-
-	term_data *td = (term_data*)(Term->data);
-
-	y *= Infofnt->hgt;
-	x *= Infofnt->wid;
-
-	/* Add in affect of window boundaries */
-	y += Infowin->oy;
-	x += Infowin->ox;
-
-	for (i = 0; i < n; ++i)
-	{
-		a = *ap++;
-		c = *cp++;
-
-		/* For extra speed - cache these values */
-		x1 = (c&0x7F) * td->fnt->wid;
-		y1 = (a&0x7F) * td->fnt->hgt;
-
-#ifdef USE_TRANSPARENCY
-
-		ta = *tap++;
-		tc = *tcp++;
-
-		/* For extra speed - cache these values */
-		x2 = (tc&0x7F) * td->fnt->wid;
-		y2 = (ta&0x7F) * td->fnt->hgt;
-
-		/* Optimise the common case */
-		if ((x1 == x2) && (y1 == y2))
-		{
-			/* Draw object / terrain */
-			XPutImage(Metadpy->dpy, td->win->win,
-		  	        clr[0]->gc,
-		  	        td->tiles,
-		  	        x1, y1,
-		  	        x, y,
-		  	        td->fnt->wid, td->fnt->hgt);
-		}
-		else
-		{
-
-			/* Mega Hack^2 - assume the top left corner is "black" */
-			blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6);
-
-			for (k = 0; k < td->fnt->wid; k++)
-			{
-				for (l = 0; l < td->fnt->hgt; l++)
-				{
-					/* If mask set... */
-					if ((pixel = XGetPixel(td->tiles, x1 + k, y1 + l)) == blank)
-					{
-						/* Output from the terrain */
-						pixel = XGetPixel(td->tiles, x2 + k, y2 + l);
-					}
-
-					/* Store into the temp storage. */
-					XPutPixel(td->TmpImage, k, l, pixel);
-				}
-			}
-
-
-			/* Draw to screen */
-
-			XPutImage(Metadpy->dpy, td->win->win,
-		    	      clr[0]->gc,
-		     	     td->TmpImage,
-		     	     0, 0, x, y,
-		     	     td->fnt->wid, td->fnt->hgt);
-		}
-
-#else /* USE_TRANSPARENCY */
-
-		/* Draw object / terrain */
-		XPutImage(Metadpy->dpy, td->win->win,
-		          clr[0]->gc,
-		          td->tiles,
-		          x1, y1,
-		          x, y,
-		          td->fnt->wid, td->fnt->hgt);
-
-#endif /* USE_TRANSPARENCY */
-		x += td->fnt->wid;
-	}
-
-	/* Success */
-	return (0);
+    /* Success */
+    return (0);
 }
 
-#endif /* USE_GRAPHICS */
+
+unsigned char **iso_ap;
+unsigned char **iso_cp;
+unsigned char **iso_atp;
+unsigned char **iso_ctp;
+
+
+static errr Term_pict_x11(int x, int y, int n, 
+                          const byte *ap, const char *cp,                           
+			  const byte *atp, const char *ctp)
+{
+  /* printf("%d, %d\n", x, y); */
+
+    memcpy(&iso_ap[y][x], ap, n);
+    memcpy(&iso_cp[y][x], cp, n);
+    memcpy(&iso_atp[y][x], atp, n);
+    memcpy(&iso_ctp[y][x], ctp, n);
+
+    set_spots(x, y, n, FALSE);
+
+    return 0;
+}
 
 
 
@@ -2115,6 +2612,7 @@ static errr term_data_init(term_data *td, int i)
 
 	XSizeHints *sh;
 
+	DEBUG("term_data_init");
 
 	/* Window specific font name */
 	sprintf(buf, "ANGBAND_X11_FONT_%d", i);
@@ -2220,7 +2718,9 @@ static errr term_data_init(term_data *td, int i)
 	/* Prepare the standard font */
 	MAKE(td->fnt, infofnt);
 	Infofnt_set(td->fnt);
-	Infofnt_init_data(font);
+	if(Infofnt_init_data(font)) {
+	    plog_fmt("Font %s not available!", font);
+	}
 
 	/* Hack -- key buffer size */
 	num = (fixed ? 1024 : 16);
@@ -2254,7 +2754,7 @@ static errr term_data_init(term_data *td, int i)
 	res_name[0] = FORCELOWER(res_name[0]);
 	ch->res_name = res_name;
 
-	strcpy(res_class, "Angband");
+	strcpy(res_class, "Iso-Angband 0.2.3");
 	ch->res_class = res_class;
 
 	XSetClassHint(Metadpy->dpy, Infowin->win, ch);
@@ -2321,6 +2821,10 @@ static errr term_data_init(term_data *td, int i)
 	t->curs_hook = Term_curs_x11;
 	t->wipe_hook = Term_wipe_x11;
 	t->text_hook = Term_text_x11;
+	t->pict_hook = Term_pict_x11;
+
+        t->always_pict = FALSE;
+        t->higher_pict = TRUE;
 
 	/* Save the data */
 	t->data = td;
@@ -2332,8 +2836,20 @@ static errr term_data_init(term_data *td, int i)
 	return (0);
 }
 
-// Hajo
-#include "../hajo_src/world_adaptor.h"
+
+static unsigned char ** halloc(int w, int h)
+{
+    unsigned char **field = (unsigned char **)malloc(sizeof(unsigned char *) * h);
+    int i;
+
+    for(i=0; i<h; i++) {
+	field[i] = (unsigned char *)malloc(sizeof(unsigned char) * w);
+	memset(field[i], 32 , w);
+    }
+
+    return field;
+}
+
 
 
 /*
@@ -2345,22 +2861,11 @@ errr init_x11(int argc, char *argv[])
 
 	cptr dpy_name = "";
 
-	int num_term = MAX_TERM_DATA;
+// Hajo: let the user request more terms rather than less
+//	int num_term = MAX_TERM_DATA;
+	int num_term = 1;
 
-#ifdef USE_GRAPHICS
-
-	char filename[1024];
-
-	int pict_wid = 0;
-	int pict_hgt = 0;
-
-#ifdef USE_TRANSPARENCY
-
-	char *TmpData;
-#endif /* USE_TRANSPARENCY */
-
-#endif /* USE_GRAPHICS */
-
+	DEBUG("init_x11");
 
 	/* Parse args */
 	for (i = 1; i < argc; i++)
@@ -2368,12 +2873,6 @@ errr init_x11(int argc, char *argv[])
 		if (prefix(argv[i], "-d"))
 		{
 			dpy_name = &argv[i][2];
-			continue;
-		}
-
-		if (prefix(argv[i], "-s"))
-		{
-			smoothRescaling = FALSE;
 			continue;
 		}
 
@@ -2451,116 +2950,30 @@ errr init_x11(int argc, char *argv[])
 	/* Activate the "Angband" window screen */
 	Term_activate(&data[0].t);
 
-
-#ifdef USE_GRAPHICS
-
-	/* Try graphics */
-	if (arg_graphics)
-	{
-		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
-
-		/* Use the "16x16.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
-		{
-			/* Use graphics */
-			use_graphics = TRUE;
-
-			use_transparency = TRUE;
-
-			pict_wid = pict_hgt = 16;
-
-			ANGBAND_GRAF = "new";
-		}
-		else
-		{
-			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
-
-			/* Use the "8x8.bmp" file if it exists */
-			if (0 == fd_close(fd_open(filename, O_RDONLY)))
-			{
-				/* Use graphics */
-				use_graphics = TRUE;
-
-				pict_wid = pict_hgt = 8;
-
-				ANGBAND_GRAF = "old";
-			}
-		}
-	}
-
-	/* Load graphics */
-	if (use_graphics)
-	{
-		Display *dpy = Metadpy->dpy;
-
-		XImage *tiles_raw;
-
-		/* Load the graphical tiles */
-		tiles_raw = ReadBMP(dpy, filename);
-
-		/* Initialize the windows */
-		for (i = 0; i < num_term; i++)
-		{
-			term_data *td = &data[i];
-
-			term *t = &td->t;
-
-			/* Graphics hook */
-			t->pict_hook = Term_pict_x11;
-
-			/* Use graphics sometimes */
-			t->higher_pict = TRUE;
-
-			/* Resize tiles */
-			td->tiles =
-			ResizeImage(dpy, tiles_raw,
-			            pict_wid, pict_hgt,
-			            td->fnt->wid, td->fnt->hgt);
-		}
-
-#ifdef USE_TRANSPARENCY
-		/* Initialize the transparency masks */
-		for (i = 0; i < num_term; i++)
-		{
-			term_data *td = &data[i];
-			int ii, jj;
-			int depth = DefaultDepth(dpy, DefaultScreen(dpy));
-			Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
-			int total;
-
-
-			/* Determine total bytes needed for image */
-			ii = 1;
-			jj = (depth - 1) >> 2;
-			while (jj >>= 1) ii <<= 1;
-			total = td->fnt->wid * td->fnt->hgt * ii;
-
-
-			TmpData = (char *)malloc(total);
-
-			td->TmpImage = XCreateImage(dpy,visual,depth,
-				ZPixmap, 0, TmpData,
-				td->fnt->wid, td->fnt->hgt, 8, 0);
-
-		}
-#endif /* USE_TRANSPARENCY */
-
-
-		/* Free tiles_raw? XXX XXX */
-	}
-
-#endif /* USE_GRAPHICS */
-
-
-                       
 	// Hajo
+	// always use graphics
+
+	// use_graphics = TRUE;
+	use_graphics = FALSE;
+	use_transparency = TRUE;
+
+	ANGBAND_GRAF = "iso";
+        ANGBAND_SYS = "iso";
+               
+	// Hajo
+	// init view
 	init_adaptor();
+
+	printf("Term size is %dx%d\n", data[0].t.wid, data[0].t.hgt);
+
+	iso_cp = halloc(data[0].t.wid, data[0].t.hgt);
+	iso_ap = halloc(data[0].t.wid, data[0].t.hgt);
+	iso_ctp = halloc(data[0].t.wid, data[0].t.hgt);
+	iso_atp = halloc(data[0].t.wid, data[0].t.hgt);
+
 
 	/* Success */
 	return (0);
 }
 
-#endif /* USE_X11 */
-
+#endif /* USE_ISOV_X11 */

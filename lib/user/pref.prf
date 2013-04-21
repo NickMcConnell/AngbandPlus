@@ -238,5 +238,10 @@ C:1:'
 ?:[EQU $SYS acn]
 %:pref-acn.prf
 
-?:1
+?:[EQU $SYS iso]
+%:pref-iso.prf
 
+?:[EQU $SYS isd]
+%:pref-isd.prf
+
+?:1

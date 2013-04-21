@@ -1,6 +1,6 @@
-
               **************************************************
-              **   Angband 2.9.1   **   The Pits of Angband   **
+              **         Iso-Angband 0.2.3, based on          **
+              **      Angband 2.9.1 - The Pits of Angband     **
               **************************************************
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:   Copyright (c) 1989 James E. Wilson
@@ -8,10 +8,9 @@
                        Angband 2.0 - 2.4 - 2.6.2 by:
                    Alex Cutler, Andy Astrand, Sean Marsh,
                  Geoff Hill, Charles Teague, Charles Swiger
-
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
                      Angband 2.9.1 by Robert Ruehlmann
-              Isometric view addon 0.2.1 by Hansjoerg Malthaner
+              Isometric view addon 0.2.3 by Hansjoerg Malthaner
 
     Send comments, bug reports, and patches for Angband to "rr9@angband.org"
                Send comments, bug reports, and patches for the 
@@ -19,6 +18,6 @@
 
        Visit the Angband Home Page at "http://thangorodrim.angband.org/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
+       Visit the Iso-Angband Home Page at "http://www.isoband.cjb.net/"
     Read the online help files, especially "general.txt" and "version.txt"
-   Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
-
+        Iso-Angband is available for Unix (X11/SDL) and Windows (SDL)

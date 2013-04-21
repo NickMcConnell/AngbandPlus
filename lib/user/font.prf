@@ -52,5 +52,11 @@
 ?:[EQU $SYS acn]
 %:font-acn.prf
 
+?:[EQU $SYS iso]
+%:font-iso.prf
+
+?:[EQU $SYS isd]
+%:font-iso.prf
+
 ?:1
 

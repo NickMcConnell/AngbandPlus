@@ -17,7 +17,8 @@
  */
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
+/* #if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN) */
+#if !defined(MACINTOSH) && !defined(ACORN)
 
 
 /*
@@ -506,6 +507,35 @@ int main(int argc, char *argv[])
 	}
 #endif
 
+
+#ifdef USE_ISOV_X11
+	/* Attempt to use the "isov-x11.c" support */
+	if (!done && (!mstr || (streq(mstr, "x11"))))
+	{
+		extern errr init_x11(int, char**);
+		if (0 == init_x11(argc, argv))
+		{
+			ANGBAND_SYS = "iso";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+#ifdef USE_ISOV_SDL
+	/* Attempt to use the "main-sdl.c" support */
+	if (!done && (!mstr || (streq(mstr, "sdl"))))
+	{
+		extern errr init_sdl(int, char**);
+		if (0 == init_sdl(argc, argv))
+		{
+			ANGBAND_SYS = "isd";
+			done = TRUE;
+		}
+	}
+#endif
+
+
 #ifdef USE_GCU
 	/* Attempt to use the "main-gcu.c" support */
 	if (!done && (!mstr || (streq(mstr, "gcu"))))
@@ -660,6 +690,22 @@ int main(int argc, char *argv[])
 	/* Exit */
 	return (0);
 }
+
+
+#ifdef WINDOWS
+
+/*
+ * Hajo: SDL/Windows wants a main in a file that #includes SDL
+ * that main will call this hook, and this hook then can call main
+ * of Angband main()
+ */
+extern int sdl_main_hook(int argc, char ** argv)
+{
+  return main(argc, argv);
+}
+
+#endif
+
 
 #endif
 

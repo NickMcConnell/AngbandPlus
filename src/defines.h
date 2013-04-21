@@ -81,7 +81,8 @@
  * Number of grids in each panel (horizontally)
  * Must be a multiple of BLOCK_WID
  */
-#define PANEL_WID	33
+/* Hajo: was 33 */
+#define PANEL_WID	11
 
 
 /*

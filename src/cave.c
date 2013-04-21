@@ -635,7 +635,17 @@ void map_info(int y, int x, byte *ap, char *cp)
 	int floor_num = 0;
 
 	/* Hack -- Assume that "new" means "Adam Bolt Tiles" */
-	bool graf_new = (use_graphics && streq(ANGBAND_GRAF, "new"));
+	bool graf_new = (use_graphics && streq(ANGBAND_GRAF, "new")) ||
+                        (use_graphics && streq(ANGBAND_GRAF, "iso"));  
+
+	/* Hajo: do a bounds check */
+	if(x < 0 || y < 0 || x>=DUNGEON_WID || y>=DUNGEON_HGT) {
+	  *ap = 0x80;
+	  *tap = 0x80;
+	  *cp = 0xA0;
+	  *tcp = 0xA0;
+	  return;
+	}
 
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
@@ -672,7 +682,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 			c = f_ptr->x_char;
 
 			/* Special lighting effects */
-			if (view_special_lite && ((a == TERM_WHITE) || graf_new))
+			if (view_special_lite && (((a & 0xF) == TERM_WHITE) || graf_new))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
@@ -1036,6 +1046,13 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Result */
 	(*ap) = a;
 	(*cp) = c;
+
+	// Hajo: always graphics
+
+	(*ap) |= 0x80;
+	(*cp) |= 0x80;
+	(*tap) |= 0x80;
+	(*tcp) |= 0x80;
 }
 
 
