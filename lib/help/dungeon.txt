@@ -209,7 +209,7 @@ special rooms, and chests.
 Preserve Mode:
      If you do not have preserve mode on, you will occasionally get the message
 "You feel there is something special about this level.", indicating the presence
-of a monster pit or nest, a vault, or an artifact.
+of an artifact.
      However, turning preserve mode off also means that artifacts are created
 only once; they will never appear again.  You can check the artifacts that have
 been found or lost by using the knowledge '~' menu.

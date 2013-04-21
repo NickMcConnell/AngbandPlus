@@ -469,9 +469,9 @@ static void regen_monsters(void)
 		}
 
 		/* Allow hp regeneration, if needed. */
-		if (m_ptr->hp != m_ptr->maxhp)
+		if (m_ptr->hp != give_extra_hp*m_ptr->maxhp)
 		{
-			frac = (m_ptr->maxhp + smooth) / 100;
+			frac = (give_extra_hp*m_ptr->maxhp + smooth) / 100;
 
 			/* Some monsters regenerate quickly */
 			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
@@ -483,10 +483,10 @@ static void regen_monsters(void)
 			m_ptr->hp += frac;
 
 			/* Do not over-regenerate */
-			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+			if (m_ptr->hp > give_extra_hp*m_ptr->maxhp) m_ptr->hp = give_extra_hp*m_ptr->maxhp;
 
 			/* Fully healed -> flag minimum range for recalculation */
-			if (m_ptr->hp == m_ptr->maxhp) m_ptr->min_range = 0;
+			if (m_ptr->hp == give_extra_hp*m_ptr->maxhp) m_ptr->min_range = 0;
 		}
 
 	}

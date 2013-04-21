@@ -2915,7 +2915,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	n_ptr->mana = r_ptr->mana;
 
 	/* And start out fully healthy */
-	n_ptr->hp = n_ptr->maxhp;
+	n_ptr->hp = give_extra_hp*n_ptr->maxhp;
 
 	/* Hack -- in the dungeon, aggravate every monster as long as there
 	 * are too many recent thefts

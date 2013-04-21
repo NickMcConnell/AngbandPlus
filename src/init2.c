@@ -2320,7 +2320,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_TELEPORT_AWAY].code =    NEWSPELL_TELEPORT_AWAY;
 	newspells[NEWSPELL_TELEPORT_AWAY].school1 = SCHOOL_TELEPORTATION;
 	newspells[NEWSPELL_TELEPORT_AWAY].school2 = SCHOOL_FORCE;
-	newspells[NEWSPELL_TELEPORT_AWAY].level =   29;
+	newspells[NEWSPELL_TELEPORT_AWAY].level =   32;
 	newspells[NEWSPELL_TELEPORT_AWAY].cost =    6;
 	my_strcpy(newspells[NEWSPELL_TELEPORT_AWAY].name,"Teleport Away",80);
 	newspells[NEWSPELL_TELEPORT_AWAY].book =    4;
@@ -2347,7 +2347,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_CCW].code =    NEWSPELL_CCW;
 	newspells[NEWSPELL_CCW].school1 = SCHOOL_HEALING;
 	newspells[NEWSPELL_CCW].school2 = -1;
-	newspells[NEWSPELL_CCW].level =   26;
+	newspells[NEWSPELL_CCW].level =   31;
 	newspells[NEWSPELL_CCW].cost =    10;
 	my_strcpy(newspells[NEWSPELL_CCW].name,"Cure Critical Wounds",80);
 	newspells[NEWSPELL_CCW].book =    4;
@@ -2447,7 +2447,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_CREATE_MISSILES].school1 = SCHOOL_CONJURATIONS;
 	newspells[NEWSPELL_CREATE_MISSILES].school2 = -1;
 	newspells[NEWSPELL_CREATE_MISSILES].level =   26;
-	newspells[NEWSPELL_CREATE_MISSILES].cost =    15;
+	newspells[NEWSPELL_CREATE_MISSILES].cost =    20;
 	my_strcpy(newspells[NEWSPELL_CREATE_MISSILES].name,"Create Missiles",80);
 	newspells[NEWSPELL_CREATE_MISSILES].book =    6;
 	}
@@ -2455,7 +2455,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_ENCHANT_ARMOR].code =    NEWSPELL_ENCHANT_ARMOR;
 	newspells[NEWSPELL_ENCHANT_ARMOR].school1 = SCHOOL_BUFFS;
 	newspells[NEWSPELL_ENCHANT_ARMOR].school2 = SCHOOL_RESISTANCE;
-	newspells[NEWSPELL_ENCHANT_ARMOR].level =   25;
+	newspells[NEWSPELL_ENCHANT_ARMOR].level =   28;
 	newspells[NEWSPELL_ENCHANT_ARMOR].cost =    12;
 	my_strcpy(newspells[NEWSPELL_ENCHANT_ARMOR].name,"Enchant Armor",80);
 	newspells[NEWSPELL_ENCHANT_ARMOR].book =    6;
@@ -2491,7 +2491,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_HEALING].code =    NEWSPELL_HEALING;
 	newspells[NEWSPELL_HEALING].school1 = SCHOOL_HEALING;
 	newspells[NEWSPELL_HEALING].school2 = -1;
-	newspells[NEWSPELL_HEALING].level =   39;
+	newspells[NEWSPELL_HEALING].level =   41;
 	newspells[NEWSPELL_HEALING].cost =    20;
 	my_strcpy(newspells[NEWSPELL_HEALING].name,"Healing",80);
 	newspells[NEWSPELL_HEALING].book =    7;

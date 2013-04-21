@@ -155,11 +155,18 @@ Elemental rings no longer activate for resist element (since they already give i
 Fixed bug where text appears on the wrong line during character generation
 Plural of 'knife' is 'knives'
 
-TO DO
------
+After third beta
+-----------------
 
-GET TERRAIN FEATURES ALIGNED WITH TILES FOR BOLT, GERVAIS SETS
+Slays on missile weapons do less damage.
+Some monster changes.
+Raised the level of some spells.
+2-handed artefact weapons are now correctly 2-handed!
+Artefacts are less common, particularly if you have low Luck.
+Monster pits and vaults no longer cause special feelings: only artifacts do.
+High Elves now have a big disadvantage when facing the final bosses. 
+Healing spells and Healing, *Healing* and Life potions give less hp than formerly.
+Create Missiles costs more and is less likely to produce great ammo.
+Spellcasting is a little less effective if you have low Int/Wis.
 
-SOME PEOPLE HAVE INSTALL/COMPILE PROBLEMS...
 
-CAN WALLS BE MADE VISIBLE UNDER VISTA?

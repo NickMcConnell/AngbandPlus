@@ -510,9 +510,6 @@ int melee_p_increment(const object_type *o_ptr, const monster_type *m_ptr){
  *
  * Note that "flasks of oil" do NOT do fire damage, although they
  * certainly could be made to do so.  XXX XXX
- *
- * Note that most brands and slays are x3, except Slay Animal (x2),
- * Slay Evil (x2), and Kill dragon (x5).
  */
 int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, bool is_weapon)
 {
@@ -570,7 +567,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 					l_ptr->r_l_flags3 |= (RF3_UNDEAD);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Demon */
@@ -582,7 +579,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 					l_ptr->r_l_flags3 |= (RF3_DEMON);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Orc */
@@ -594,7 +591,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 					l_ptr->r_l_flags3 |= (RF3_ORC);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Troll */
@@ -606,7 +603,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 					l_ptr->r_l_flags3 |= (RF3_TROLL);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Giant */
@@ -618,7 +615,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 					l_ptr->r_l_flags3 |= (RF3_GIANT);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Dragon */
@@ -630,7 +627,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 					l_ptr->r_l_flags3 |= (RF3_DRAGON);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 2) mult = 2;
 			}
 
 			/* Execute Dragon */
@@ -642,7 +639,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 					l_ptr->r_l_flags3 |= (RF3_DRAGON);
 				}
 
-				if (mult < 5) mult = 5;
+				if (mult < 3) mult = 3;
 			}
 
 			/* Execute demon */
@@ -654,7 +651,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 					l_ptr->r_l_flags3 |= (RF3_DEMON);
 				}
 
-				if (mult < 5) mult = 5;
+				if (mult < 3) mult = 3;
 			}
 
 			/* Execute undead */
@@ -666,7 +663,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 					l_ptr->r_l_flags3 |= (RF3_UNDEAD);
 				}
 
-				if (mult < 5) mult = 5;
+				if (mult < 3) mult = 3;
 			}
 
 			if ((p_ptr->slay_elements) && (is_weapon))
@@ -705,15 +702,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 				} else {
 
 					/* Otherwise, take the damage */
-					/*Water reduces acid damage*/
-					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
-					{
-						if (mult < 2 ) mult = 2;
-					}
-					else
-					{
-						if (mult < 3) mult = 3;
-					}
+					if (mult < 2 ) mult = 2;
 				}
 			}
 
@@ -730,15 +719,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 				} else {
 
 					/* Otherwise, take the damage */
-					/* Water increases damage */
-					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
-					{
-						if (mult < 4 ) mult = 4;
-					}
-					else
-					{
-						if (mult < 3) mult = 3;
-					}
+					if (mult < 2 ) mult = 2;
 				}
 			}
 
@@ -772,15 +753,7 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 				} else {
 
 					/* Otherwise, take the damage */
-					/* Water decreases damage */
-					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
-					{
-						if (mult < 2 ) mult = 2;
-					}
-					else
-					{
-						if (mult < 3) mult = 3;
-					}
+					if (mult < 2 ) mult = 2;
 				}
 			}
 
@@ -817,13 +790,8 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 				/* Otherwise, take the damage */
 				else
 				{
-					/* Water increases damage */
-					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
-					{
-						if (mult < 4 ) mult = 4;
-					}
-
-					else if (mult < 3) mult = 3;
+					/* Otherwise, take the damage */
+					if (mult < 2 ) mult = 2;
 				}
 			} 
 
@@ -842,7 +810,8 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					/* Otherwise, take the damage */
+					if (mult < 2 ) mult = 2;
 				}
 			}
 

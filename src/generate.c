@@ -2606,12 +2606,12 @@ static void build_type_nest(int y0, int x0)
 	/* Increase the level rating */
 	rating += 10;
 
-	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
+	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") 
 	if ((p_ptr->depth <= 40) &&
 	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
 	{
 		good_item_flag = TRUE;
-	}
+	}*/
 
 	/* Sort the entries XXX XXX XXX */
 	for (i = 0; i < 64 - 1; i++)
@@ -2890,12 +2890,12 @@ static void build_type_pit(int y0, int x0)
 	/* Increase the level rating */
 	rating += 10;
 
-	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
+	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") 
 	if ((p_ptr->depth <= 40) &&
 	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
 	{
 		good_item_flag = TRUE;
-	}
+	}*/
 
 	/* Top and bottom rows */
 	for (x = x0 - 9; x <= x0 + 9; x++)
@@ -3268,12 +3268,12 @@ static void build_type7(int y0, int x0)
 	/* Boost the rating */
 	rating += v_ptr->rat;
 
-	/* (Sometimes) Cause a special feeling */
+	/* (Sometimes) Cause a special feeling 
 	if ((p_ptr->depth <= 50) ||
 	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 1) < 400))
 	{
 		good_item_flag = TRUE;
-	}
+	}*/
 
 	/* Hack -- Build the vault */
 	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
@@ -3390,12 +3390,12 @@ static void build_type8(int y0, int x0)
 	/* Boost the rating */
 	rating += v_ptr->rat;
 
-	/* (Sometimes) Cause a special feeling */
+	/* (Sometimes) Cause a special feeling 
 	if ((p_ptr->depth <= 50) ||
 	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 1) < 400))
 	{
 		good_item_flag = TRUE;
-	}
+	}*/
 
 	/* Build the vault */
 	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);

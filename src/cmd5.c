@@ -2088,7 +2088,7 @@ cptr do_mage_spell(int mode, int spell)
 					/* Require "clean" floor space */
 					if (!cave_clean_bold(j, k)) continue;
 
-					place_object(j, k, one_in_((40 - p_ptr->lev)/10+1), 0, drop_type);
+					place_object(j, k, 0, 0, drop_type);
 
 					/* Placement accomplished */
 					break;
@@ -3018,7 +3018,7 @@ cptr do_mage_spell(int mode, int spell)
 		
 		case NEWSPELL_HEALING:
 		{
-			dam = 325;
+			dam = 200;
 
 			if (name) return ("Heal");
 			if (desc) return (format("Eliminates stunning and cuts and heals %d hp.", dam));

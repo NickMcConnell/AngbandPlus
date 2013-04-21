@@ -73,7 +73,7 @@
 
 # Version stamp (required)
 
-V:0.1.3
+V:0.1.4
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -2957,7 +2957,7 @@ W:15:0:4:350
 P:0:1d1:0:0:0
 A:15/8:25/2:50/2
 F:EASY_KNOW
-D:It cures 325 points of damage, cures all stunning, heals all cut
+D:It cures 200 points of damage, cures all stunning, heals all cut
 D: damage, neutralizes poison, and cures blindness and confusion.  It
 D: also provides nourishment for about 100 turns under normal
 D: conditions. 
@@ -2970,7 +2970,7 @@ W:40:0:4:1500
 P:0:1d1:0:0:0
 A:20/8:40/8:60/4
 F:EASY_KNOW
-D:It cures 1500 points of damage, cures all stunning, heals all cut
+D:It cures 400 points of damage, cures all stunning, heals all cut
 D: damage, neutralizes poison, and cures blindness and confusion. 
 
 
@@ -3011,7 +3011,7 @@ G:!:d
 I:75:42:2000
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:20/1:40/2
+A:20/2:40/2
 F:EASY_KNOW
 D:It restores strength to maximum if it is currently below maximum. 
 D: It also cures hunger.
@@ -3022,7 +3022,7 @@ G:!:d
 I:75:43:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:20/1:40/2
+A:20/2:40/2
 F:EASY_KNOW
 D:It restores intelligence to maximum if it is currently below maximum. 
 D: It also cures confusion.
@@ -3033,7 +3033,7 @@ G:!:d
 I:75:44:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:20/1:40/2
+A:20/2:40/2
 F:EASY_KNOW
 D:It restores wisdom to maximum if it is currently below maximum. 
 D: It also removes fear and cures hallucination.
@@ -3043,7 +3043,7 @@ G:!:d
 I:75:45:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:20/1:40/2
+A:20/2:40/2
 F:EASY_KNOW
 D:It restores dexterity to maximum if it is currently below maximum. 
 D: It also cures stunning.
@@ -3053,7 +3053,7 @@ G:!:d
 I:75:46:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:20/1:40/2
+A:20/2:40/2
 F:EASY_KNOW
 D:It restores constitution to maximum if it is currently below maximum. 
 D: It also cures poison and cuts.
@@ -3064,7 +3064,7 @@ G:!:d
 I:75:47:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:20/1:40/2
+A:20/2:40/2
 F:EASY_KNOW
 D:It restores agility to maximum if it is currently below maximum. 
 
@@ -3074,7 +3074,7 @@ G:!:d
 I:75:48:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:20/1:40/2
+A:20/3:40/3
 F:EASY_KNOW
 D:It restores stealth to maximum if it is currently below maximum. 
 
@@ -3084,7 +3084,7 @@ G:!:d
 I:75:49:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:20/1:40/2
+A:20/2:40/2
 F:EASY_KNOW
 D:It restores perception to maximum if it is currently below maximum. 
 D: It also cures blindness.
@@ -3095,7 +3095,7 @@ G:!:d
 I:75:50:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:20/1:40/2
+A:20/3:40/3
 F:EASY_KNOW
 D:It restores luck to maximum if it is currently below maximum. 
 
@@ -3153,7 +3153,7 @@ G:!:d
 I:75:59:0
 W:45:0:4:3000
 P:0:0d0:0:0:0
-A:20/8:30/4:40/2
+A:30/4:40/2
 F:EASY_KNOW
 D:It restores to maximum all stats that are currently below maximum. 
 

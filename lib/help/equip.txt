@@ -121,22 +121,22 @@ Damage multipliers from slays and brands on ammo (only the best applies)
 
      Slay Evil      :  x2 against evil enemies
      Slay Animal    :  x2 against animals
-     Slay Orc       :  x3 against orcs and orc-like creatures
-     Slay Troll     :  x3 against trolls
-     Slay Giant     :  x3 against giants
-     Slay Undead    :  x3 against undead
-     Slay Demon     :  x3 against demons
-     Slay Dragon    :  x3 against dragons
+     Slay Orc       :  x2 against orcs and orc-like creatures
+     Slay Troll     :  x2 against trolls
+     Slay Giant     :  x2 against giants
+     Slay Undead    :  x2 against undead
+     Slay Demon     :  x2 against demons
+     Slay Dragon    :  x2 against dragons
 
-     Execute Undead :  x5 against undead
-     Execute Demon  :  x5 against demons
-     Execute Dragon :  x5 against dragons
+     Execute Undead :  x3 against undead
+     Execute Demon  :  x3 against demons
+     Execute Dragon :  x3 against dragons
 
-     Brand Acid     :  x3 against everything not resistant to acid
-     Brand Elec     :  x3 against everything not resistant to electricity
-     Brand Fire     :  x3 against everything not resistant to fire
-     Brand Cold     :  x3 against everything not resistant to cold
-     Brand Pois     :  x3 against everything not resistant to poison
+     Brand Acid     :  x2 against everything not resistant to acid
+     Brand Elec     :  x2 against everything not resistant to electricity
+     Brand Fire     :  x2 against everything not resistant to fire
+     Brand Cold     :  x2 against everything not resistant to cold
+     Brand Pois     :  x2 against everything not resistant to poison
 
 Throwing Weapons: 	Damage is doubled when throwing this weapon.
 Well balanced Weapons:  Damage is doubled (again).

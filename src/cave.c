@@ -841,7 +841,7 @@ static void map_hidden_monster(monster_type *m_ptr, byte *ap, char *cp)
 	/* Second attempt. Compare monster's hit points with player's hit points */
 	else if ((div = p_ptr->mhp) > 0)
 	{
-		level = (m_ptr->maxhp * 9) / div + 1;
+		level = (give_extra_hp*m_ptr->maxhp * 9) / div + 1;
 	}
 	/* Default. It should never happen */
 	else

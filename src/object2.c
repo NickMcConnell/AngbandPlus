@@ -2756,7 +2756,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	test_good = MIN(60,15+((lev+adj_luc_good_chance[p_ptr->stat_ind[A_LUC]])*3)/4);
 	
 	/* Base chance of being "great" */
-	test_great = 7+(lev*3+adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]*5)/8;
+	test_great = 7+(lev*2+adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]*6)/8;
 
 	if (!(challenged())){
 		test_great = MIN(7,test_great);
@@ -2799,7 +2799,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	 */
 	if ((good) && (great))
 	{
-		rolls_times_ten = 30;
+		rolls_times_ten = 25;
 	}
 
 	if (rolls_times_ten > 0){
@@ -2809,10 +2809,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	}
 
 	if (danger(p_ptr->depth)<=15){
-		rolls_times_ten = rolls_times_ten / 4;
-	} else if (danger(p_ptr->depth)<=25){
 		rolls_times_ten = rolls_times_ten / 2;
-	}
+	} 
 
 	num_artifacts_already = 0;
 	for (i = z_info->art_spec_max; i < z_info->art_norm_max; i++)
@@ -2831,15 +2829,16 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		if (!(challenged())){
 			rolls_times_ten = 0;
 		} else {
-			rolls_times_ten = MAX(3,(rolls_times_ten * (MAX(40-num_artifacts_already,adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]/2))) / 40);
+			rolls_times_ten = MAX(1,(rolls_times_ten * (MAX(30-num_artifacts_already,adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]/2))) / 30);
 		}
 	} else {
 		if (!(challenged())){
 			rolls_times_ten = 3;
 		} else {
-			rolls_times_ten = MAX(5,(rolls_times_ten * (MAX(60-num_artifacts_already,adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]))) / 60);
+			rolls_times_ten = MAX(5,(rolls_times_ten * (MAX(50-num_artifacts_already,adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]))) / 50);
 		}
 	}
+
 
 	/* Get no rolls if not allowed */
 	if (!okay || o_ptr->art_num) rolls_times_ten = 0;
@@ -2849,11 +2848,15 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		rolls += 1;
 	}
 
+	// msg_format("good %d, great %d, test_good %d, test_great %d, power %d, %d rolls, %d times ten, %d already", good, great, test_good, test_great, power, rolls, rolls_times_ten, num_artifacts_already);
+
 	/* Roll for artifacts if allowed */
 	for (i = 0; i < rolls; i++)
 	{
 		/* Roll for an artifact */
-		if (make_artifact(o_ptr)) break;
+		if (make_artifact(o_ptr)){
+			break;
+		}
 	}
 
 	/* Hack -- analyze artifacts */

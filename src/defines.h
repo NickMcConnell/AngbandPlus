@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"Third beta release"
+#define VERSION_STRING	"First stable release"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	1
-#define VERSION_PATCH	3
+#define VERSION_PATCH	4
 #define VERSION_EXTRA	0
 
 
@@ -5266,3 +5266,5 @@ enum
 #define MIN_PANEL_CHANGE_OFFSET_Y 2
 #define MIN_PANEL_CHANGE_OFFSET_X 4
 
+/* Mega-Hack - this is a maxhp multiplier for monster pointed to by r_ptr */
+#define give_extra_hp ((r_ptr->flags1 & (RF1_QUESTOR)) && (rp_ptr->r_exp >= 150) ? 2 : 1)

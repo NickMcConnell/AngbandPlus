@@ -71,7 +71,7 @@ static void find_range(monster_type *m_ptr)
 
 			/* Examine monster health */
 			m_chp = m_ptr->hp;
-			m_mhp = m_ptr->maxhp;
+			m_mhp = give_extra_hp*m_ptr->maxhp;
 
 			/* Prepare to optimize the calculation */
 			p_val = (p_lev * p_mhp) + (p_chp << 2);	/* div p_mhp */
@@ -120,7 +120,7 @@ static void find_range(monster_type *m_ptr)
 		     (r_ptr->flags6 & (RF6_BREATH_MASK)) ||
 		     (r_ptr->flags7 & (RF7_BREATH_MASK))) &&
 		    (m_ptr->best_range < 6) &&
-		    (m_ptr->hp > m_ptr->maxhp / 2))
+		    (m_ptr->hp > give_extra_hp*m_ptr->maxhp / 2))
 		{
 			m_ptr->best_range = 6;
 		}
@@ -1479,7 +1479,7 @@ static void remove_useless_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u3
 	if (m_ptr->mana >= r_ptr->mana) f6 &= ~(RF6_ADD_MANA);
 
 	/* Don't heal if full */
-	if (m_ptr->hp >= m_ptr->maxhp) f6 &= ~(RF6_HEAL);
+	if (m_ptr->hp >= give_extra_hp*m_ptr->maxhp) f6 &= ~(RF6_HEAL);
 
 	/* Don't Haste if Hasted */
 	if (m_ptr->hasted > 10) f6 &= ~(RF6_HASTE);
@@ -1797,11 +1797,11 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 	   some parameters. */
 
 	/* Figure out if we are hurt */
-	if (m_ptr->hp < m_ptr->maxhp/8) want_hps += 5;
-	else if (m_ptr->hp < m_ptr->maxhp/5) want_hps += 3;
-	else if (m_ptr->hp < m_ptr->maxhp/4) want_hps += 2;
-	else if (m_ptr->hp < m_ptr->maxhp/2) want_hps++;
-	else if (m_ptr->hp == m_ptr->maxhp) f6 &= ~(RF6_HEAL);
+	if (m_ptr->hp < give_extra_hp*m_ptr->maxhp/8) want_hps += 5;
+	else if (m_ptr->hp < give_extra_hp*m_ptr->maxhp/5) want_hps += 3;
+	else if (m_ptr->hp < give_extra_hp*m_ptr->maxhp/4) want_hps += 2;
+	else if (m_ptr->hp < give_extra_hp*m_ptr->maxhp/2) want_hps++;
+	else if (m_ptr->hp == give_extra_hp*m_ptr->maxhp) f6 &= ~(RF6_HEAL);
 
 	/* Figure out if we want mana */
 	if (m_ptr->mana < r_ptr->mana/4) want_mana +=2;
@@ -1836,7 +1836,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 
 	/* Find monster properties; Add an offset so that things are OK near zero */
 	breath_hp = (m_ptr->hp > 2000 ? m_ptr->hp : 2000);
-	breath_maxhp = (m_ptr->maxhp > 2000 ? m_ptr->maxhp : 2000);
+	breath_maxhp = (give_extra_hp*m_ptr->maxhp > 2000 ? give_extra_hp*m_ptr->maxhp : 2000);
 
 	/* Cheat if requested, or if a player ghost. */
 	if ((smart_cheat) || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
@@ -2570,7 +2570,7 @@ static void get_move_advance(monster_type *m_ptr, int *ty, int *tx)
 		(r_ptr->flags7 & (RF7_ARCHERY_MASK)))
 	{
 		/*Is monster wounded?*/
-		if ((m_ptr->hp > (m_ptr->maxhp / 2)) || (m_ptr->hp > 750))
+		if ((m_ptr->hp > (give_extra_hp*m_ptr->maxhp / 2)) || (m_ptr->hp > 750))
 		{
 				wants_shot = TRUE;
  		}
@@ -5466,7 +5466,7 @@ static s16b process_monster(monster_type *m_ptr)
 		     (r_ptr->flags6 & (RF6_BREATH_MASK)) ||
 		     (r_ptr->flags7 & (RF7_BREATH_MASK))) &&
 		     (m_ptr->cdis < 6) &&
-		     (m_ptr->hp > m_ptr->maxhp / 2))
+		     (m_ptr->hp > give_extra_hp*m_ptr->maxhp / 2))
 			{
 				chance += (100 - chance) / 10;
 			}
@@ -5936,7 +5936,7 @@ static void recover_monster(monster_type *m_ptr)
 	if (m_ptr->monfear)
 	{
 		/* Random recovery from fear */
-		int d = randint(MIN(m_ptr->maxhp / 10, m_ptr->hp));
+		int d = randint(MIN(give_extra_hp*m_ptr->maxhp / 10, m_ptr->hp));
 
 		/* Still afraid */
 		if (m_ptr->monfear > d)

@@ -3352,7 +3352,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 		int percentage;
 
 		/* Percentage of fully healthy */
-		percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
+		percentage = (100L * m_ptr->hp) / (give_extra_hp * m_ptr->maxhp);
 
 		/*
 		 * Run (sometimes) if at 10% or less of max hit points,
@@ -3637,7 +3637,7 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	if (monster_nonliving(r_ptr)) living = FALSE;
 
 	/* Healthy monsters */
-	if (m_ptr->hp >= m_ptr->maxhp)
+	if (m_ptr->hp >= give_extra_hp*m_ptr->maxhp)
 	{
 		/* No damage */
 		my_strcpy(buf, (living ? "unhurt" : "undamaged"), max);
@@ -3645,7 +3645,7 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	else
 	{
 		/* Calculate a health "percentage" */
-		int perc = 100L * m_ptr->hp / m_ptr->maxhp;
+		int perc = 100L * m_ptr->hp / (give_extra_hp*m_ptr->maxhp);
 
 		if (perc >= 60)
 			my_strcpy(buf, (living ? "somewhat wounded" : "somewhat damaged"), max);

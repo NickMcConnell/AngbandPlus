@@ -103,7 +103,7 @@
 
 # Version stamp (required)
 
-V:0.1.3
+V:0.1.4
 
 ##### Non-race (contains the player picture) #####
 N:0:<player>
@@ -7964,7 +7964,7 @@ D: terrible chill runs down your spine as you face it.
 
 N:604:The Giant Mutant Troll
 G:T:R
-I:130:80d100:100:110:10
+I:132:100d100:100:110:10
 W:49:1:160:30000
 B:HIT:BATTER:14d10
 B:HIT:BATTER:14d10
@@ -7984,14 +7984,15 @@ D:creature of unparalleled ferocity. Then he turned him loose to wreak
 D:havoc. 'Why?' you ask. 'Why not?' I reply. 'When you're as bad ass as 
 D:the Witch King you don't have to have a reason for doing evil sh*t!' 
 D:Whatever the case, you must defeat him before you can reach the Witch 
-D:King on level 50.
+D:King on level 50. (And be warned that High Elves will find both these 
+D:final fights particularly difficult.)
 
 # The Witch-King is the final Quest (thus the QUESTOR flag).
 # You must kill him to complete the final quest, and win the game.
 
 N:629:The Witch-King of Angmar
 G:W:D1
-I:130:80d100:90:120:0
+I:130:100d100:90:120:0
 W:50:1:200:100000
 B:HIT:LOSE_ALL:10d10
 B:HIT:TERRIFY:10d10
@@ -8103,7 +8104,7 @@ D:spot.
 N:634:Spreading infestation
 G:m:G
 I:120:40d20:200:60:0
-W:31:6:60:600
+W:31:4:60:600
 B:SPORE:CONFUSE:7d7
 B:SPORE:TERRIFY:7d7
 B:SPORE:POISON:7d7

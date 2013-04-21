@@ -489,7 +489,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_HEALING:
 		{
-			if (hp_player(325)) *ident = TRUE;
+			if (hp_player(200)) *ident = TRUE;
 			if (set_blind(0)) *ident = TRUE;
 			if (set_confused(0)) *ident = TRUE;
 			if (set_poisoned(0)) *ident = TRUE;
@@ -500,7 +500,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_STAR_HEALING:
 		{
-			if (hp_player(1500)) *ident = TRUE;
+			if (hp_player(400)) *ident = TRUE;
 			if (set_blind(0)) *ident = TRUE;
 			if (set_confused(0)) *ident = TRUE;
 			if (set_poisoned(0)) *ident = TRUE;
@@ -2205,7 +2205,6 @@ static bool activate_object(object_type *o_ptr)
 				(void)set_oppose_elec(p_ptr->oppose_elec + act_time);
 				(void)set_oppose_fire(p_ptr->oppose_fire + act_time);
 				(void)set_oppose_cold(p_ptr->oppose_cold + act_time);
-				(void)set_oppose_pois(p_ptr->oppose_pois + act_time);
 				break;
 			}
 

@@ -1,0 +1,7 @@
+TO DO? PROB WAIT FOR NPP
+------------------------
+
+Bugfix needed - 'windows version crashes when activating sound' (same as NPP)
+GET TERRAIN FEATURES ALIGNED WITH TILES FOR BOLT, GERVAIS SETS
+SOME PEOPLE HAVE INSTALL/COMPILE PROBLEMS...
+CAN WALLS BE MADE VISIBLE UNDER VISTA?

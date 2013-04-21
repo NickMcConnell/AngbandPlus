@@ -3278,7 +3278,7 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 		case SV_POTION_HEALING:
 		{
 			/*healing explosion at the site, radius 1*/
-			if (explosion(SOURCE_PLAYER, 1, y, x, 325, GF_OLD_HEAL, flag)) ident = TRUE;
+			if (explosion(SOURCE_PLAYER, 1, y, x, 200, GF_OLD_HEAL, flag)) ident = TRUE;
 
 			un_confuse = TRUE;
 			un_stun = TRUE;
@@ -3289,7 +3289,7 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 		case SV_POTION_STAR_HEALING:
 		{
 			/*healing explosion at the site, radius 1*/
-			if (explosion(SOURCE_PLAYER, 1, y, x, 1500, GF_OLD_HEAL, flag)) ident = TRUE;
+			if (explosion(SOURCE_PLAYER, 1, y, x, 400, GF_OLD_HEAL, flag)) ident = TRUE;
 
 			un_confuse = TRUE;
 			un_stun = TRUE;

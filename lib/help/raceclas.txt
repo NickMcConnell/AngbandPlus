@@ -72,7 +72,8 @@ strength and hardiness. No other race is as good at magic, and none is so skille
 with missile weapons.  High-elves are able to see the unseen, have good 
 infravision, and have innate resistance to light. They are also native to forest. 
 However, having lived so long and learnt so much, it is very hard for them to 
-advance further.  
+advance further. It is also rumored that High Elves will face a special challenge
+if they manage to reach the Witch King. 
 
 ====== Classes ======
 

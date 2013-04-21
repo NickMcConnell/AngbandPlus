@@ -4620,7 +4620,7 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			if (seen) obvious = TRUE;
 
 			/* Heal fully */
-			m_ptr->hp = m_ptr->maxhp;
+			m_ptr->hp = give_extra_hp*m_ptr->maxhp;
 
 			/* Speed up */
 			do_haste = 25 + rand_int(25);
@@ -4644,7 +4644,7 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			bool healed = TRUE;
 
 			/*does monster need healing?*/
-			if (m_ptr->hp == m_ptr->maxhp) healed = FALSE;
+			if (m_ptr->hp == give_extra_hp*m_ptr->maxhp) healed = FALSE;
 
 			if (seen) obvious = TRUE;
 
@@ -4658,7 +4658,7 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			m_ptr->hp += dam;
 
 			/* No overflow */
-			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+			if (m_ptr->hp > give_extra_hp*m_ptr->maxhp) m_ptr->hp = give_extra_hp*m_ptr->maxhp;
 
 			/* Redraw (later) if needed */
 			if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);

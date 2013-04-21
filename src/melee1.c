@@ -3491,7 +3491,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			}
 
 			/* We regain lost hitpoints (up to spower * 3) */
-			gain = MIN(m_ptr->maxhp - m_ptr->hp, spower * 3);
+			gain = MIN(give_extra_hp*m_ptr->maxhp - m_ptr->hp, spower * 3);
 
 			/* We do not gain more than mana * 15 HPs at a time */
 			gain = MIN(gain, m_ptr->mana * 15);
@@ -3506,10 +3506,10 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			m_ptr->mana -= MIN(cost, m_ptr->mana);
 
 			/* Fully healed */
-			if (m_ptr->hp >= m_ptr->maxhp)
+			if (m_ptr->hp >= give_extra_hp*m_ptr->maxhp)
 			{
 				/* Fully healed */
-				m_ptr->hp = m_ptr->maxhp;
+				m_ptr->hp = give_extra_hp*m_ptr->maxhp;
 
 				/* Message */
 				if (m_ptr->ml)
@@ -3811,11 +3811,11 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				}
 
 				/* Heal the monster with remaining energy */
-				if ((m_ptr->hp < m_ptr->maxhp) && (r1))
+				if ((m_ptr->hp < (give_extra_hp*m_ptr->maxhp)) && (r1))
 				{
 					/* Heal */
 					m_ptr->hp += (30 * (r1 + 1));
-					if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+					if (m_ptr->hp > give_extra_hp*m_ptr->maxhp) m_ptr->hp = give_extra_hp*m_ptr->maxhp;
 
 					/* Redraw (later) if needed */
 					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
