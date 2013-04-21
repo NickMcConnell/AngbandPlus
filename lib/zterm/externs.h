@@ -678,8 +678,8 @@ extern uint maxroll(uint num, uint sides);
 extern bool is_a_vowel(int ch);
 
 /* xtra1.c */
-extern void cnv_stat(int val, char *out_val);
-extern s16b modify_stat_value(int value, int amount);
+//extern void cnv_stat(int val, char *out_val);
+//extern s16b modify_stat_value(int value, int amount);
 extern void notice_stuff(void);
 extern void update_stuff(void);
 extern void redraw_stuff(void);

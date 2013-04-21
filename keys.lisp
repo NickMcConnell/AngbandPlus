@@ -109,8 +109,8 @@ operation."
 
 (defun open-all! (dun pl)
   "opens all doors around.."
-  (let ((x (player.loc-x pl))
-	(y (player.loc-y pl)))
+  (let ((x (location-x pl))
+	(y (location-y pl)))
     
     (dolist (i (list (cons x (1- y))
 		     (cons x (1+ y))

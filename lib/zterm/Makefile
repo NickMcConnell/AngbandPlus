@@ -9,6 +9,7 @@ ENVIRONMENT=X11
 # set this variable to wanted lisp-system
 LISP_SYSTEM=CMUCL
 #LISP_SYSTEM=ACL
+#LISP_SYSTEM=CLISP
 
 
 # do you want to use experimental sound
@@ -28,6 +29,10 @@ endif
 
 ifeq ($(LISP_SYSTEM),ACL)
 BASEDEFINES= -DUSE_ACL=1
+endif
+
+ifeq ($(LISP_SYSTEM),CLISP)
+BASEDEFINES= -DUSE_CLISP=1
 endif
 
 # GCU settings

@@ -14,23 +14,34 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
 
 (defconstant +view-max+ 1536)
 (defconstant +vinfo-max-grids+ 161)
 (defconstant +vinfo-max-slopes+ 126)
 
-   
+#||
 (defconst +vinfo-bits-3+ vinfo-bit-type #x3FFFFFFF "")
 (defconst +vinfo-bits-2+ vinfo-bit-type #xFFFFFFFF "")
 (defconst +vinfo-bits-1+ vinfo-bit-type #xFFFFFFFF "")
 (defconst +vinfo-bits-0+ vinfo-bit-type #xFFFFFFFF "")
+||#
 
+(defconstant +vinfo-bit-fields+ #8(#xFFFF #xFFFF  ;; 0
+				   #xFFFF #xFFFF  ;; 1
+				   #xFFFF #xFFFF  ;; 2
+				   #x3FFF #xFFFF  ;; 3
+				   ))
+
+(defconstant +vinfo-bit-field-len+ 8)
+
+(defconstant +vinfo-grid-field-len+ 8)
 
 (defconstant +scale+ 100000)
 
 (defstruct (vinfo-type (:conc-name vinfo-type.))
   grids ;; 8
-  bits  ;; 4
+  bits  ;; 4 -> 8 (length +vinfo-bit-fields+)
   next-0
   next-1
   x
@@ -45,11 +56,14 @@ the Free Software Foundation; either version 2 of the License, or
   slopes-max)
 
 (defvar *vinfo* (make-array +vinfo-max-grids+))
-    
+
+)
+
 ;;(defvar *view-size* 0)
 ;;(defvar *view-array* (make-array +view-max+))
 
 (defun create-vinfo-hack ()
+  "A function that creates and inits a vinfo-hack."
   (let ((hack (make-vinfo-hack)))
     (setf (vinfo-hack.num-slopes hack) 0
 	  (vinfo-hack.slopes hack) (make-array +vinfo-max-slopes+)
@@ -61,6 +75,8 @@ the Free Software Foundation; either version 2 of the License, or
 	  
 
 (defun vinfo-init-aux (hack x y m)
+  "Helper function for vinfo-init."
+  
   (let ((i 0)
 	(slope-num (vinfo-hack.num-slopes hack)))
     
@@ -89,31 +105,33 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;(trace vinfo-init-aux)
 
-#+allegro
+#-compiler-that-inlines
 (defmacro grid (x y)
   `(the fixnum (+ (the fixnum (* 256 ,y)) ,x)))
 
-#-allegro
+#+compiler-that-inlines
 (defun grid (x y)
   (the fixnum (+ (* 256 y) x)))
 
-#+allegro
+#-compiler-that-inlines
 (defmacro grid-y (g)
   `(the fixnum (int-/ ,g 256)))
 
-#-allegro
+#+compiler-that-inlines
 (defun grid-y (g)
   (the fixnum (int-/ g 256)))
 
-#+allegro
+#-compiler-that-inlines
 (defmacro grid-x (g)
   `(the fixnum (prog1 (mod ,g 256))))
 
-#-allegro
+#+compiler-that-inlines
 (defun grid-x (g)
   (the fixnum (prog1 (mod g 256))))
 
 (defun vinfo-init ()
+  "Inits the *vinfo* object."
+  
   (let ((hack (create-vinfo-hack))
 	(vinfo *vinfo*)
 	(num-grids 0))
@@ -160,8 +178,9 @@ the Free Software Foundation; either version 2 of the License, or
 ;;    (warn "last part")
     (loop for i from 0 to (1- +vinfo-max-grids+)
 	  do
-	  (setf (svref vinfo i) (make-vinfo-type :grids (make-array 8 :initial-element 0)
-						 :bits (make-array 4 :element-type 'vinfo-bit-type
+	  (setf (svref vinfo i) (make-vinfo-type :grids (make-array +vinfo-grid-field-len+ :initial-element 0)
+						 :bits (make-array +vinfo-bit-field-len+
+								   :element-type 'vinfo-bit-type
 								   :initial-element 0)
 						 :x 0
 						 :y 0
@@ -210,10 +229,11 @@ the Free Software Foundation; either version 2 of the License, or
 	      (when (and (> e 0)
 			 (> m (aref (vinfo-hack.slopes-min hack) x y))
 			 (< m (aref (vinfo-hack.slopes-max hack) x y)))
-		
-		(bit-flag-add! (aref (vinfo-type.bits vinfo-obj) (int-/ i 32))
-			       (expt 2 (mod i 32)))
-		)))
+		(let ((div-16 (int-/ i 16)))
+		  
+		  (bit-flag-add! (aref (vinfo-type.bits vinfo-obj) div-16)
+				 (expt 2 (mod i 16)))
+		  ))))
 	  
 	  (setf (vinfo-type.next-0 vinfo-obj) (svref vinfo 0))
 
@@ -275,13 +295,15 @@ the Free Software Foundation; either version 2 of the License, or
 					
 	  )))
 
-    ;;(%hidden-dump)
+;;    (%hidden-dump)
     
     (values)))
 
-
+;; these are here to avoid consing up new ones..
 (defvar *array-view* (make-array 1536 :fill-pointer 0))
 (defvar *temp-view* (make-array 1536 :fill-pointer 0))
+(defvar *temp-bit-arr* (make-array +vinfo-bit-field-len+ :element-type 'vinfo-bit-type))
+(defvar *temp-queue* (make-array (* 2 +vinfo-max-grids+) :initial-element nil))
 
 ;; seems to be a list, despite the name
 ;;(defvar *view-hack-arr* nil)
@@ -291,8 +313,8 @@ the Free Software Foundation; either version 2 of the License, or
 
   (declare (optimize (safety 0) (speed 3) (debug 0)))
 
-  (let* ((py (player.loc-y pl))
-	 (px (player.loc-x pl))
+  (let* ((py (location-y pl))
+	 (px (location-x pl))
 	 (pg (grid px py))
 	 (radius (player.light-radius pl))
 	 (fast-view *array-view*)
@@ -377,28 +399,30 @@ the Free Software Foundation; either version 2 of the License, or
 
       (block octant-run
 	;; octants
-	(loop for o2 of-type u-fixnum from 0 to 7;; size of the grid array
+	(loop for o2 of-type u-fixnum from 0 to #.(1- +vinfo-grid-field-len+) ;; size of the grid array
 	      do
 	    
 	      ;; (warn "octant ~a" o2)
 	    
 	      (let ((queue-head 0)
 		    (queue-tail 0)
-		    (queue (make-array (* 2 +vinfo-max-grids+) :initial-element nil))
+		    (queue-len #.(* 2 +vinfo-max-grids+))
+		    (queue *temp-queue*)
 		    ;;(num-slopes (vinfo-hack.num-slopes hack))
-		    (bit-arr (make-array 4 :element-type 'vinfo-bit-type))
+		    (bit-arr *temp-bit-arr*)
 		    (last-v (svref vinfo 0))
 		    ;;(count 0)
 		    )
 
-		(declare (type (simple-array vinfo-bit-type (4)) bit-arr))
+		(declare (type (simple-array vinfo-bit-type (#.+vinfo-bit-field-len+)) bit-arr))
 		(declare (type vinfo-type last-v))
-		
+
+		(dotimes (i queue-len)
+		  (setf (svref queue i) nil))
 ;;		(warn "fish")
-		(setf (aref bit-arr 0) +vinfo-bits-0+
-		      (aref bit-arr 1) +vinfo-bits-1+
-		      (aref bit-arr 2) +vinfo-bits-2+
-		      (aref bit-arr 3) +vinfo-bits-3+)
+		(dotimes (i +vinfo-bit-field-len+)
+		  (setf (aref bit-arr i) (aref +vinfo-bit-fields+ i)))
+		
 		
 ;;		(warn "go..")
 		
@@ -411,7 +435,7 @@ the Free Software Foundation; either version 2 of the License, or
 		
 ;;		  (when (= (incf count) 40)
 ;;		    (return))
-		  (assert (< queue-head (length queue)))
+		  (assert (< queue-head queue-len))
 		  
 		  (let* ((e queue-head)
 			 ;; get next
@@ -426,20 +450,19 @@ the Free Software Foundation; either version 2 of the License, or
 			 )
 		    
 		    (declare (type u-fixnum g x y its-d))
-		    (declare (type (simple-array vinfo-bit-type (4)) bits))
+		    (declare (type (simple-array vinfo-bit-type (#.+vinfo-bit-field-len+)) bits))
 		    
 		    (incf queue-head)
 
 		    ;;(warn "Bit-arr[~a]: ~s vs ~s" queue-head bit-arr bits)
-		  
-		    (when (or (bit-flag-and (aref bit-arr 0)
-					    (aref bits 0))
-			      (bit-flag-and (aref bit-arr 1)
-					    (aref bits 1))
-			      (bit-flag-and (aref bit-arr 2)
-					    (aref bits 2))
-			      (bit-flag-and (aref bit-arr 3)
-					    (aref bits 3)))
+
+		    ;; optimise this!!!
+		    (when (block check-equals
+			    (dotimes (i +vinfo-bit-field-len+)
+			       (when (bit-flag-and (aref bit-arr i)
+						   (aref bits i))
+				 (return-from check-equals t)))
+			    nil)
 
 		      (when (minusp g)
 			(error "{pg=~s,px=~s,py=~s} -> {g=~s,x=~s,y=~s} -> {o2=~s,e=~s} -> ~s"
@@ -452,11 +475,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;			(warn "bit ok at {~a,~a} -> ~a" x y info)
 		      
-
 			;; we have a wall!
 			(cond ((bit-flag-set? info +cave-wall+)
 
-			       (dotimes (i 4)
+			       (dotimes (i #.(length +vinfo-bit-fields+))
 				 (bit-flag-remove! (aref bit-arr i)
 						   (aref bits i)))
 			       ;;(warn "{~a,~a} -> a wall" x y)
@@ -602,27 +624,43 @@ the Free Software Foundation; either version 2 of the License, or
     (setf (fill-pointer the-array) 0)))
 
 
-
+#||
 (defun %hidden-dump ()
   
-    (let ((str *standard-output*))
+;;    (let ((str *standard-output*))
+  (with-open-file (str (pathname "new-dump")
+		       :direction :output 
+		       :if-exists :supersede)
+
       (loop for i from 0
 	    for x across *vinfo*
 ;;	    until (> i 30)
-#||	    (format str "~d: x=~d y=~d d=~d r=~d~%"
-		    i
-		    (vinfo-type.x x)
-		    (vinfo-type.y x)
-		    (vinfo-type.d x)
-		    (vinfo-type.r x))||#
+
+	    
+;;	    (format str "~d: x=~d y=~d d=~d r=~d~%"
+;;		    i
+;;		    (vinfo-type.x x)
+;;		    (vinfo-type.y x)
+;;		    (vinfo-type.d x)
+;;		    (vinfo-type.r x))
 	    do
-	    (format str "~d: ~s~%" i (vinfo-type.bits x))
+	    (format str "~3d: " i)
+	    (dotimes (i 4)
+	      (let ((val (* i 2)))
+		(format str "~16,'0b" (aref (vinfo-type.bits x) val))
+		(format str "~16,'0b " (aref (vinfo-type.bits x) (1+ val)))))
+	      
+	    (format str "~%")
+
+;;	    (format str "~d: ~s~%" i (vinfo-type.bits x))
 ;;	    (format str "~d: ~s~%" i (vinfo-type.grids x))
 ;;	    (format str "~d: ~s~%" i (vinfo-type.d x))
 	    ))
     )
+||#
 
+#||
 (in-package :cl-user)
 (defun kl ()
   (lb::vinfo-init))
-
+||#

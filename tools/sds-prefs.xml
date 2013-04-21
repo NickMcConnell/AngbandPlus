@@ -11,10 +11,10 @@
    
 
    <output>
-     <info type="outdir" value="doc"/>
+     <info type="outdir" value="doc"/> 
 
      <format name="docbook">
-         <info type="outdir"    value="doc"/>
+         <info type="outdir"    value="doc"/> 
 	 <info type="baseurl"   value="http://localhost/~stig/lang-doc/"/>
 	 <info type="bgcolor"   value="white"/>
 	 <info type="textcolor" value="black"/>

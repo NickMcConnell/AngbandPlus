@@ -19,8 +19,8 @@ the Free Software Foundation; either version 2 of the License, or
   "Moves the player, in a direction, if possible.
 The direction is a number from the keypad."
 
-  (let* ((cur-x (player.loc-x pl))
-	 (cur-y (player.loc-y pl))
+  (let* ((cur-x (location-x pl))
+	 (cur-y (location-y pl))
 	 (wanted-x cur-x)
 	 (wanted-y cur-y))
 
@@ -54,13 +54,13 @@ The direction is a number from the keypad."
 
 	    ;; something is in the way
 	    ((not (cave-floor-bold? dun wanted-x wanted-y))
-	     (c-print-message "Cannot walk that way.."))
+	     (c-print-message! "Cannot walk that way.."))
 
 	    ;; default is just to move
 	    (t
 	     (swap-monsters! dun pl
-			     (player.loc-x pl)
-			     (player.loc-y pl)
+			     (location-x pl)
+			     (location-y pl)
 			     wanted-x
 			     wanted-y)
 
@@ -71,8 +71,8 @@ The direction is a number from the keypad."
 
     ;; hack
     (apply-possible-coord-trigger dun
-				  (player.loc-x pl)
-				  (player.loc-y pl))
+				  (location-x pl)
+				  (location-y pl))
     pl))
 
     
@@ -110,7 +110,7 @@ a number or a symbol identifying the place."
 	 (warn "selection function not implemented."))
        
        (setq printed-prompt (format nil "~a " the-prompt))
-       (c-prt printed-prompt 0 0)
+       (c-prt! printed-prompt 0 0)
        
        (when show-mode
 	 (item-table-print (get-item-table dungeon player the-place)
@@ -133,26 +133,26 @@ a number or a symbol identifying the place."
 			     :prompt prompt :where :floor))
 	       
 	       ((alpha-char-p read-char)
-		(c-prt "" 0 0)
+		(c-prt! "" 0 0)
 		(return-from select-item (cons the-place (a2i read-char)))))
 	 
-	 (c-prt "" 0 0))))
+	 (c-prt! "" 0 0))))
 	    
    
     ;; clear prompt
     #-cmu
-    (c-prt "" 0 0)
+    (c-prt! "" 0 0)
     
     nil))
   
 
 (defun use-stair! (dun pl dir)
   "Uses a stair in direction DIR if the player PL
-is above a stair."
+is above a stair.  DIR can be :UP or :DOWN"
 
   (let* ((depth (player.depth pl))
-	 (x (player.loc-x pl))
-	 (y (player.loc-y pl))
+	 (x (location-x pl))
+	 (y (location-y pl))
 	 (feat (cave-feature dun x y))
 	 (leaving-sym nil))
     
@@ -162,7 +162,7 @@ is above a stair."
 	 (return-from use-stair! nil))
        
        (if (= depth 0)
-	   (warn "Cannot go upstairs here")
+	   (error "Cannot go upstairs from level 0")
 	   (decf depth))
        (setf leaving-sym :up-stair))
       
@@ -174,7 +174,7 @@ is above a stair."
        (setf leaving-sym :down-stair))
       
       (otherwise
-       (warn "Unknown direction for stair-use ~a" dir)))
+       (lang-warn "Unknown direction for stair-use ~a" dir)))
 
     (bit-flag-add! *redraw* +print-map+ +print-basic+)
     (bit-flag-add! *update* +update-view+)
@@ -190,13 +190,13 @@ is above a stair."
   "Tries to pick up from floor.  Should be implemented with selection from
 a list if more items occupy the same place."
   
-  (let* ((x (player.loc-x player))
-	 (y (player.loc-y player))
+  (let* ((x (location-x player))
+	 (y (location-y player))
 	 (objs (cave-objects dungeon x y)))
 
     (if (not objs)
 	(progn
-	  (warn "Nothing on floor.")
+	  (lang-warn "Nothing on floor.")
 	  nil)
 
 	(loop

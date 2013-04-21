@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LISPFILES="
+THEFILES="
 package.lisp
 base.lisp
 constants.lisp
@@ -42,9 +42,17 @@ init.lisp
 lib/vanilla/base.lisp
 "
 
-BASEPATH=/home/stig/tmp
+BASEPATH=/home/stig/wiper
+#BASEPATH=/home/stig/tmp
 
-${BASEPATH}/bin/lisp2csf -v -p tools/sds-prefs.xml -o doc/lispy-out.xml ${LISPFILES}
-${BASEPATH}/bin/csf2sdoc -v -V -o doc/lang-out.sdoc -p tools/sds-prefs.xml -r doc/lispy-out.xml
-#${BASEPATH}/bin/sdoc2doc -v -f docbook -p tools/sds-prefs.xml -r doc/lang-out.sdoc
-#cd doc && jade -d ${BASEPATH}/share/sds/xml/sdoc.dsl -t sgml ${BASEPATH}/share/sds/xml/xml.dcl book.xml
+GENERATEPATH=doc
+CSFFILE=${GENERATEPATH}/lispy-out.xml
+SDOCFILE=${GENERATEPATH}/lang-out.sdoc
+PREFSFILE=tools/sds-prefs.xml
+DSSSLFILE=${BASEPATH}/share/sds/xml/sdoc.dsl
+XMLDECL=${BASEPATH}/share/sds/xml/xml.dcl
+
+${BASEPATH}/bin/lisp2csf -v -p ${PREFSFILE} -o ${CSFFILE} ${THEFILES}
+${BASEPATH}/bin/csf2sdoc -v -V -o ${SDOCFILE} -p ${PREFSFILE} -r ${CSFFILE}
+${BASEPATH}/bin/sdoc2doc -v -f docbook -p ${PREFSFILE} -r ${SDOCFILE}
+cd ${GENERATEPATH} && jade -d ${DSSSLFILE} -t sgml ${XMLDECL} book.xml

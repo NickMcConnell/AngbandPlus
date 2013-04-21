@@ -1,23 +1,38 @@
 (mk:defsystem langband
-    :source-pathname ""
+    :source-pathname (translate-logical-pathname "langband:")
+;;    :source-pathname ""
     :source-extension "lisp"
     :components
     (
      (:module decl
               :source-pathname ""
               :components ((:file "package")
-			   (:file "memoize")))
+			   (:file "memoize")
+			   )
+	      )
+     (:module foreign
+	      :source-pathname "lib/foreign"
+	      :components (;;(:file "package")
+			   #+cmu
+			   (:file "gen-cmu")
+			   #+allegro
+			   (:file "gen-acl")
+			   #+clisp
+			   (:file "gen-clisp")
+			   
+			   )
+	      :depends-on (decl)
+	      )
+
+     
      (:module basic
               :source-pathname ""
               :components ((:file "base")
 			   (:file "constants")
 			   (:file "variables")
-			   
 			   (:file "core")
-			   #+allegro
-			   (:file "lib/foreign/acl")
-			   #+cmu
-			   (:file "lib/foreign/cmu")
+			   ;;(:file "lib/foreign/cmu")
+			   ;;(:file "lib/foreign/dump-cmu")
 			   (:file "parameters")
 			   (:file "global")
 			   (:file "settings")
@@ -44,7 +59,8 @@
 			   (:file "combat")
 			   (:file "keys")
 			   (:file "actions"))
-	      :depends-on (decl))
+	      :depends-on (foreign)
+	      )
      
      (:module common
 	      :source-pathname "lib/common"

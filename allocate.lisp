@@ -21,8 +21,8 @@ the Free Software Foundation; either version 2 of the License, or
 	(y nil)
 	(dungeon-height (dungeon.height dungeon))
 	(dungeon-width  (dungeon.width dungeon))
-	(px (player.loc-x player))
-	(py (player.loc-y player)))
+	(px (location-x player))
+	(py (location-y player)))
 
     (loop named search-for-spot
 	  do
@@ -41,10 +41,14 @@ the Free Software Foundation; either version 2 of the License, or
 (defun place-single-monster! (dun pl mon x y sleeping)
   "places a single monster MON at (X,Y) in dungeon DUN."
   (declare (ignore pl sleeping))
+
+  ;; add checks that it is ok to place something at this spot..
   
-  (setf (cave-monsters dun x y) mon)
-  
-  )
+  (setf (cave-monsters dun x y) mon
+	(location-x mon) x
+	(location-y mon) y)
+  (push mon (dungeon.monsters dun))
+  t)
 
 (defun place-monster! (dungeon player x y sleeping group)
   "Tries to place a monster at given coordinates.."
@@ -68,10 +72,10 @@ the Free Software Foundation; either version 2 of the License, or
 
     
     ;; hack, move to swap later
-    (when (and (= from-x (player.loc-x pl))
-	       (= from-y (player.loc-y pl)))
-      (setf (player.loc-x pl) to-x
-	    (player.loc-y pl) to-y))
+    (when (and (= from-x (location-x pl))
+	       (= from-y (location-y pl)))
+      (setf (location-x pl) to-x
+	    (location-y pl) to-y))
 	     
     
     (when mon-1
@@ -110,7 +114,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 
     (when (= 0 total)
-      (warn "No suitable monsters at level ~a [~a]" level *level*)
+      (lang-warn "No suitable monsters at level ~a [~a]" level *level*)
       (return-from get-monster-kind-by-level nil))
 
     (let ((val (random total)))

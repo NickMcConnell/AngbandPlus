@@ -67,9 +67,9 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dun pl)
 	(declare (ignore dun))
 	(display-player pl)
-	(c-pause-line *last-console-line*)
+	(c-pause-line! *last-console-line*)
 	(bit-flag-add! *redraw* +print-map+ +print-basic+)
-	(clear-the-screen)))
+	(clear-the-screen!)))
 
 (define-key-operation 'go-downstairs
     #'(lambda (dun pl) (use-stair! dun pl :down)))
@@ -115,12 +115,14 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'inspect-coord
     #'(lambda (dun pl)
-	(let* ((cur-x (player.loc-x pl))
-	       (cur-y (player.loc-y pl))
+	(let* ((cur-x (location-x pl))
+	       (cur-y (location-y pl))
 	       (coord-obj (cave-coord dun cur-x cur-y)))
 	  (warn "Describing [~a,~a]" cur-x cur-y)
 	  (describe coord-obj)
-	  (warn "Mapped to ~s" (map-info dun cur-x cur-y)))))
+	  (multiple-value-bind (the-attr the-char)
+	      (map-info dun cur-x cur-y)
+	    (warn "Mapped to (~s . ~s)" the-attr the-char)))))
 
 (define-key-operation 'print-keys
     #'(lambda (dun pl)

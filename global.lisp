@@ -19,6 +19,25 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 
 (in-package :langband)
 
+;; these might be commented out
+#||
+(eval-when (:compile-toplevel :load-toplevel :execute)
+
+  (defgeneric location-x (obj)
+    (:documention "Generic function for all things that have a location
+in the game at some point."))
+  
+  (defgeneric (setf location-x) (value obj)
+    (:documentation "Sets the x-location for the object whenever possible."))
+  
+  (defgeneric location-y (obj)
+    (:documention "Generic function for all things that have a location
+in the game at some point."))
+  
+  (defgeneric (setf location-y) (value obj)
+    (:documentation "Sets the y-location for the object whenever possible.")))
+||#  
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defclass game-values ()
@@ -68,6 +87,12 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
      (events      :accessor aobj.events
 		  :initarg :events
 		  :initform nil)
+     (loc-x       :accessor location-x
+		  :initarg :loc-x
+		  :initform nil)
+     (loc-y       :accessor location-y
+		  :initarg :loc-y
+		  :initform nil)
      )))
 
 
@@ -75,10 +100,14 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defclass active-monster (activatable)
-    ((kind   :accessor amon.kind   :initarg :obj   :initform nil)
-     (cur-hp :accessor amon.cur-hp :initarg :hp    :initform nil)
-     (speed  :accessor amon.speed  :initarg :speed :initform nil)
-     (mana   :accessor amon.mana   :initarg :mana  :initform nil)
+    ((kind    :accessor amon.kind   :initarg :obj   :initform nil)
+     (cur-hp  :accessor amon.cur-hp :initarg :hp    :initform nil)
+     (speed   :accessor amon.speed  :initarg :speed :initform nil)
+     (mana    :accessor amon.mana   :initarg :mana  :initform nil)
+     (loc-x   :accessor location-x  :initarg :loc-x :initform nil)
+     (loc-y   :accessor location-y  :initarg :loc-y :initform nil)
+     (alive?  :accessor amon.alive? :initarg :alive? :initform t)
+
      )))
    
 
@@ -172,13 +201,13 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
     
 (defun screen-save ()
   ;; flush
-  (c-print-message +c-null-value+)
-  (c-term-save))
+  (c-print-message! +c-null-value+)
+  (c-term-save!))
 
 (defun screen-load ()
     ;; flush
-  (c-print-message +c-null-value+)
-  (c-term-load))
+  (c-print-message! +c-null-value+)
+  (c-term-load!))
 
 
 (defmacro with-new-screen (arg &body body)

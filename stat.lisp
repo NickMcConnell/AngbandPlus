@@ -65,18 +65,20 @@ the Free Software Foundation; either version 2 of the License, or
     table))
 
 
-(defun cnv-stat (val)
+(defun cnv-stat (val stream)
   "Converts given stat integer to a 6 char long string with
 space padding on the left."
   (cond ;;((<= val 9)
 	 ;;(format nil "~6@a" val))
 	((<= val 18)
-	 (%get-6str val)) ;; hackish
+;;	 (%get-6str val)) ;; more hackish
+	 (format stream "~6d" val)) ;; hackish
 	(t
 	 (let ((extra (- val 18)))
 	   (if (>= extra 100)
-	       (format nil "18/~3d" extra)
-	       (format nil " 18/~2,'0d" extra))))))
+	       (format stream "18/~3d" extra)
+	       (format stream " 18/~2,'0d" extra)))))
+  )
       
 ;;(trace cnv-stat) 
 

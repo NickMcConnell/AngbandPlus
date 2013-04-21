@@ -134,9 +134,9 @@ should be an exisiting id."
     (activate-object house))
   
   (with-new-screen ()
-    (clear-the-screen)
+    (clear-the-screen!)
     (item-table-print (house.items house))
-    (c-pause-line *last-console-line*)
+    (c-pause-line! *last-console-line*)
     ))
     
 
@@ -182,14 +182,14 @@ should be an exisiting id."
 
     (flet ((iterator-fun (a-table key val)
 	     (declare (ignore a-table key))
-	     (c-prt "" (+ i y) (- x 2))
-	     (c-put-str (format nil "~a) ~a" (i2a i)
+	     (c-prt! "" (+ i y) (- x 2))
+	     (c-put-str! (format nil "~a) ~a" (i2a i)
 				(object-description val :store t))
 			(+ i y) x)
 	     (let* ((weight (object.weight (aobj.kind val)))
 		    (full-pounds (int-/ weight 10))
 		    (fractions (mod weight 10)))
-	       (c-prt (format nil "~3d.~d lb~a" full-pounds fractions (if (> full-pounds 1)
+	       (c-prt! (format nil "~3d.~d lb~a" full-pounds fractions (if (> full-pounds 1)
 									  "s"
 									  ""))
 		      (+ i y) 61))
@@ -201,7 +201,7 @@ should be an exisiting id."
       (item-table-iterate! table #'iterator-fun)
     
       (when show-pause
-	(c-pause-line *last-console-line*))
+	(c-pause-line! *last-console-line*))
       )))
   
 #||

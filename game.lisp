@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: CL-USER -*-
 
 #|
 
@@ -16,18 +16,68 @@ ADD_DESC: This file just contains simple init and loading of the game
 
 |#
 
+(in-package :cl-user)
+
+;; we want to know where we are
+(defun default-directory ()
+  "The default directory."
+  #+allegro (excl:current-directory)
+  #+clisp (lisp:default-directory)
+  #+cmucl (ext:default-directory)
+  #+cormanlisp (ccl:get-current-directory)
+  #+lispworks (hcl:get-working-directory)
+  #+lucid (lcl:working-directory)
+  #-(or allegro clisp cmucl cormanlisp lispworks lucid) (truename "."))
+
+
+(defvar *current-dir* (namestring (default-directory)))
+
 ;; add features we need
 (eval-when (:execute :load-toplevel :compile-toplevel)
   
 ;;  (push :xp-testing *features*)
+;;  #-clisp
 ;;  (push :using-sound *features*)
+;;  (push :use-common-ffi *features*)
+  #+(or allegro cmu)
+  (push :use-callback-from-c *features*)
 
-  )
+  #+(or cmu clisp)
+  (push :handle-char-as-num *features*)
+
+  #+cmu
+  (push :compiler-that-inlines *features*)
   
-#+(or cmu clisp allegro lispworks)
+  )
+
+
+
+(defconstant +defsystem-file+ #+ecl "tools/defsystem.lisp"
+	     #-ecl "tools/defsystem")
+
+#+clisp
+(progn
+  (format t "Removing some clisp-warnings.. we hope~%")
+  ;;(push (pathname "@lisppath@/") *load-paths*)        
+  (setq 
+   clos::*gf-warn-on-removing-all-methods* nil
+   clos::*warn-if-gf-already-called* nil
+   clos::*gf-warn-on-replacing-method* nil
+   system::*SOURCE-FILE-TYPES* '(".lisp" ".lsp")))
+  
+
+#+ecl
+(setq sys:*gc-verbose* nil)
+
+(let ((log-path (concatenate 'string *current-dir* "/**/*")))
+  (setf (logical-pathname-translations "langband")
+	(list (list "**;*" log-path))))
+
+
+;;#+(or cmu clisp allegro lispworks)
 (progn
   (unless (find-package :make)
-    (load "tools/defsystem" :verbose nil)))
+    (load +defsystem-file+ :verbose nil)))
 
 (eval-when (:execute :load-toplevel :compile-toplevel) 
 (proclaim '(optimize
@@ -53,6 +103,11 @@ ADD_DESC: This file just contains simple init and loading of the game
     ))
 ||#
 
+#+cmu
+(setq ext:*gc-verbose* nil
+      ext:*byte-compile-default* nil
+      *compile-print* nil)
+
 #+allegro
 (progn
   (setf *load-local-names-info* t
@@ -68,20 +123,42 @@ ADD_DESC: This file just contains simple init and loading of the game
 	      #+cmu (extensions:*gc-verbose* nil)
 	      )
     (funcall func)))
- 
+
+(defun quit-game& ()
+  "Tries to quit game.."
+  #+cmu
+  (cl-user::quit)
+  #-cmu
+  (warn "Can't quit yet.. fix me..")
+  (values))
+
+
+(defun load-shared-lib (&optional (lib "./lib/zterm/liblang_ui.so"))
+  "Loads the necessary shared-lib."
+
+  (let ((is-there (probe-file lib)))
+    (unless is-there
+      (warn "Unable to locate dynamic library ~a, please run 'make'."
+	    lib)
+      (quit-game&)))
+      
+  
+  #+allegro
+  (load lib)
+  #+cmu
+  (alien:load-foreign lib)
+  #+clisp
+  nil
+  #-(or cmu allegro clisp)
+  (warn "Did not load shared-library.."))
 
 (defun load-game ()
   "Tries to load the game."
-    #+cmu
-    (progn
-      (alien:load-foreign "./lib/zterm/liblang_ui.so")
-      (pushnew :already-loaded *features*))
-
-    
-    ;;  (push :langband-debug *features*)
-    (load "langband.system")
-    (mk:operate-on-system 'langband 'compile :verbose nil)
-    (format t "~&Base engine loaded...~%"))
+  (load-shared-lib)
+  ;;  (push :langband-debug *features*)
+  (load "langband.system")
+  (mk:operate-on-system 'langband 'compile :verbose t)
+  (format t "~&Base engine loaded...~%"))
 
 (compile-in-environment #'load-game)
 
@@ -131,3 +208,5 @@ ADD_DESC: This file just contains simple init and loading of the game
 
 #+xp-testing
 (do-a-test :pre)
+
+;;(trace c-term-queue-char!)

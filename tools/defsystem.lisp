@@ -1299,9 +1299,12 @@
 ;        #+(and :sun4 :lispworks)             ("lisp" . "wfasl")
 ;        #+(and :mips :lispworks)             ("lisp" . "mfasl")
          #+:mcl                               ("lisp" . "fasl")
+	 #+ecl ("lsp" . "o")
 
          ;; Otherwise,
-         ("lisp" . ,(pathname-type (compile-file-pathname "foo.lisp")))))
+	 #-ecl
+         ("lisp" . ,(pathname-type (compile-file-pathname "foo.lisp")))
+	 ))
   "Filename extensions for Common Lisp. A cons of the form
    (Source-Extension . Binary-Extension). If the system is
    unknown (as in *features* not known), defaults to lisp and fasl.")
@@ -1898,6 +1901,7 @@ ABS: NIL          REL: NIL               Result: ""
 
 (defun pathname-logical-p (thing)
   (typecase thing
+    #-ecl
     (logical-pathname t)
     #+clisp ; CLisp has non conformant Logical Pathnames.
     (pathname (pathname-logical-p (namestring thing)))

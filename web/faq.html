@@ -26,14 +26,15 @@
 	It isn't finished yet and won't be finished for some time as
 	it will need go to through several stages, as all newly
 	written programs must.  I hope to have a minimal playable
-	version ready in the 1st quarter of 2001.  You can check it
+	version ready in the 2nd quarter of 2001.  You can check it
 	out from CVS or download pre-alpha versions on Sourceforge
 	though. </li>
 
       <li> <b>Does it run on [insert OS]?</b><br>
 	The main development-platform is my x86 Debian-system,
 	using CMU Common Lisp.  It is also tested once in awhile with
-	Allegro Common Lisp.  It should be portable to other
+	Allegro Common Lisp and has been made to work with CLISP on a
+	Debian-system.  It should be portable to other 
 	OSes and other Lisp-systems at later stages though.  However,
 	I might sacrifice support for older systems in order to get
 	the best possible result with newer systems, e.g ditch the
@@ -64,7 +65,24 @@
 	several minutes.  This file is for compatibility with
 	traditional angband and isn't really needed when the necessary
 	files have been converted to lisp.  Please be patient. </li>
-      
+
+      <li> <b>How do I get things working with CLISP?</b><br>
+	It's a bit tricky still but can be done.  First tweak
+	lib/zterm/Makefile to use CLISP, and then do (if you don't use
+	csh/tcsh set the LD_LIBRARY_PATH the way your shell prefers):
+	<pre>
+	  $ make
+	  $ clisp -q
+	  &gt; (load "game")  ;; this stops at foreign loading, use ^D to quit
+	  $ setenv LD_LIBRARY_PATH `pwd`/linking
+	  $ make clisp-link
+	  $ linked/lisp.run -M linked/lispinit.mem -q
+	  &gt; (load "game") ;; this should work now
+	</pre>
+	This will be improved later, but it's an important step
+	ahead.  You might need to edit the paths in Makefile and
+	linking/Makefile. </li> 
+	  
       <li> <b>How is the code structured?</b><br>
 	Currently the code is changed frequently and this answer may
 	not be up-to-date.  Please look at the <a

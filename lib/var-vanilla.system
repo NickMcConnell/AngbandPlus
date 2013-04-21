@@ -1,5 +1,6 @@
 (mk:defsystem vanilla-variant
-    :source-pathname "lib"
+;;    :source-pathname "lib"
+    :source-pathname (translate-logical-pathname "langband:lib")
     :source-extension "lisp"
     :components
     (

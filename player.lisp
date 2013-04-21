@@ -84,6 +84,16 @@ the Free Software Foundation; either version 2 of the License, or
 (defun (setf player.eq) (val pl-obj)
   (setf (player.equipment pl-obj) val))
 
+(defmethod location-x ((obj player))
+  (player.loc-x obj))
+(defmethod location-y ((obj player))
+  (player.loc-y obj))
+  
+(defmethod (setf location-x) (value (obj player))
+  (setf (player.loc-x obj) value))
+(defmethod (setf location-y) (value (obj player))
+  (setf (player.loc-y obj) value))
+  
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   ;; move this to variants later
@@ -220,8 +230,8 @@ the Free Software Foundation; either version 2 of the License, or
 ;;	(Warn "checking ~a" i)
 	(when (consp i)
 	  (case (car i)
-	    ('<infravision> (setf (player.infravision player) (cadr i)))
-	    ('<resist> ;; handle later
+	    (<infravision> (setf (player.infravision player) (cadr i)))
+	    (<resist> ;; handle later
 	     )
 	    (otherwise
 	     #+cmu ;; FIX

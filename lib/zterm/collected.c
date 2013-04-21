@@ -19,6 +19,15 @@ errr init_x11(int argc, char **argv);
 errr init_gcu(int argc, char **argv);
 #endif
 
+#if defined(USE_CMUCL)
+#define USING_CALLBACK 1
+#elif defined (USE_ACL)
+#define USING_CALLBACK 1
+#elif defined (USE_CLISP)
+/* nothing */
+#else
+#error "Unknown lisp-system"
+#endif
 
 #if defined(USE_CMUCL)
 typedef unsigned long lispobj ;
@@ -190,6 +199,10 @@ play_game_lisp() {
 	funcall0(callback_fun);
     }
 }
+
+#elif defined(USE_CLISP)
+
+
 
 #else
 
@@ -691,11 +704,132 @@ void play_game(bool new_game) {
         /* Hack -- Turn off the cursor */
         (void)Term_set_cursor(0);
 
+#ifdef USING_CALLBACK
 	// this is a callback
 	play_game_lisp();
+#endif
+	
+}
+
+/* Here we try to do a few things on the C-side to avoid allocating
+   things on the Lisp-side. */
+
+#define MAX_BUF_SZ 1024
+static char *hidden_buffer = NULL;
+
+static void
+clean_hidden_buffer() {
+    if (!hidden_buffer) {
+	C_MAKE(hidden_buffer, MAX_BUF_SZ, char);
+    }
+    memset(hidden_buffer,MAX_BUF_SZ,0);
+}
+
+/*
+ * Converts stat num into a six-char (right justified) string
+ */
+static void
+cnv_stat(int val, char *out_val) {
+
+    /* Above 18 */
+    if (val > 18) {
+	int bonus = (val - 18);
+
+	if (bonus >= 100) {
+	    sprintf(out_val, "18/%03d", bonus);
+	}
+	else {
+	    sprintf(out_val, " 18/%02d", bonus);
+	}
+    }
+
+    /* From 3 to 18 */
+    else {
+	sprintf(out_val, "    %2d", val);
+    }
+}
+
+
+void
+print_coloured_stat (byte attr,
+		     int stat,
+		     int row,
+		     int col) {
+    
+    clean_hidden_buffer();
+    cnv_stat(stat,hidden_buffer);
+    c_put_str(attr,hidden_buffer, row, col);
 
 }
 
+static const char *token_list[] = {
+    "", // 0
+    "Name",
+    "Cur MP",
+    "Max MP",
+    "Level",
+    "LEVEL", // 5
+    "Exp",
+    "EXP",
+    "Cur HP",
+    "Max HP",
+    "Cur AC", // 10
+    "AU",
+    "Str",
+    "Int",
+    "Wis",
+    "Dex", // 15
+    "Con",
+    "Chr",
+    "STR",
+    "INT",
+    "WIS", //20
+    "DEX",
+    "CON",
+    "CHR",
+    "            "
+};
+
+void
+print_coloured_token (byte attr,
+		      int token,
+		      int row,
+		      int col) {
+
+//    printf("Going for token %d\n", token);
+//    printf("This token is %s\n", token_list[token]);
+    c_put_str(attr,token_list[token], row, col);
+    
+}
+
+void
+print_coloured_number (byte attr,
+			long number,
+			int padding,
+			int row,
+			int col) {
+
+    char *format_str = "%ld";
+    clean_hidden_buffer();
+    if (padding == 9) {
+	format_str = "%9ld";
+    }
+    else if (padding == 5) {
+	format_str = "%5ld";
+    }
+    else if (padding == 8) {
+	format_str = "%8ld";
+    }
+    else if (padding == 6) {
+	format_str = "%6ld";
+    }
+    else {
+	printf("no print_col_number for %d\n", padding);
+    }
+    sprintf(hidden_buffer, format_str, number);
+    c_put_str(attr,hidden_buffer, row, col);
+
+}
 
 #ifdef USE_SOUND
 

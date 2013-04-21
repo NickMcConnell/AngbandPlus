@@ -249,8 +249,8 @@ the table, the key and the object itself."))
 
     (flet ((iterator-fun (a-table key val)
 	     (declare (ignore a-table key))
-	     (c-prt "" (+ i y) (- x 2))
-	     (c-put-str (format nil "~a) ~a" (i2a i)
+	     (c-prt! "" (+ i y) (- x 2))
+	     (c-put-str! (format nil "~a) ~a" (i2a i)
 				(object-description val))
 			(+ i y) x)
 	   
@@ -259,7 +259,7 @@ the table, the key and the object itself."))
     (item-table-iterate! table #'iterator-fun)
     
     (when show-pause
-      (c-pause-line *last-console-line*))
+      (c-pause-line! *last-console-line*))
 
     )))
 	    
@@ -380,8 +380,8 @@ to variant obj."
 
     (flet ((iterator-fun (a-table key val)
 	     (declare (ignore a-table key))
-	     (c-prt "" (+ i y) (- x 2))
-	     (c-put-str (format nil "~a) ~13a : ~a" (i2a i)
+	     (c-prt! "" (+ i y) (- x 2))
+	     (c-put-str! (format nil "~a) ~13a : ~a" (i2a i)
 				 (get (aref *equip-slot-order* i) 'description)
 				 (if val
 				     (object-description val)
@@ -392,7 +392,7 @@ to variant obj."
     (item-table-iterate! table #'iterator-fun)
     
     (when show-pause
-      (c-pause-line *last-console-line*))
+      (c-pause-line! *last-console-line*))
 
     )))
 

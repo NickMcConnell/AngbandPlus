@@ -21,25 +21,27 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +shared-zterm-lib+ "./lib/zterm/liblang_ui.so")
 #+allegro
 (defconstant +c-null-value+ 0)
-#+cmu
+#-allegro
 (defconstant +c-null-value+ nil)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (deftype =char-code= ()
-    #+cmu
+    #+handle-char-as-num
     'u-fixnum
-    #+allegro
-    'character))
+    #-handle-char-as-num
+    'character
+    ))
 
 ;; for use with c-kode
 (defconstant +false+ 0)
 (defconstant +true+ 1)
 
 (defmacro charify-number (num)
-  #+cmu
+  #+handle-char-as-num
   num
-  #+allegro
-  `(code-char ,num))
+  #-handle-char-as-num
+  `(code-char ,num)
+  )
 
 (defconst +term-dark+    =char-code= (charify-number 0) "a colour")
 (defconst +term-white+   =char-code= (charify-number 1) "a colour")

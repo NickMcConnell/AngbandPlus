@@ -23,40 +23,40 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
 (defun create-character-basics! (the-player)
   "Interactive questioning to select the basics of the character.
 Modififes the given player object."
-  (clear-the-screen)
+  (clear-the-screen!)
     
   ;; Display some helpful information 
-  (c-term-putstr 5 10 -1 +term-white+
+  (c-term-putstr! 5 10 -1 +term-white+
 		 "Please answer the following questions.  Most of the questions")
-  (c-term-putstr 5 11 -1 +term-white+
+  (c-term-putstr! 5 11 -1 +term-white+
 		 "display a set of standard answers, and many will also accept")
-  (c-term-putstr 5 12 -1 +term-white+
+  (c-term-putstr! 5 12 -1 +term-white+
 		 "some special responses, including 'Q' to quit, 'S' to restart,")
-  (c-term-putstr 5 13 -1 +term-white+
+  (c-term-putstr! 5 13 -1 +term-white+
 		 "and '?' for help.  Note that 'Q' and 'S' must be capitalized.")
 
 
   ;; Player sex
 
   ;; Extra info 
-  (c-term-putstr 5 15 -1 +term-white+
+  (c-term-putstr! 5 15 -1 +term-white+
 		 "Your 'sex' does not have any significant gameplay effects.")
 
   (let ((sex-len (length +sexes+)))
     (dotimes (i sex-len)
-      (c-put-str (format nil "~c) ~a" (i2a i) (cadr (nth i +sexes+)))
+      (c-put-str! (format nil "~c) ~a" (i2a i) (cadr (nth i +sexes+)))
 		 (truncate (+ 21 (/ i 5)))
 		 (truncate (+ 2 (* 15 (mod i 5))))))
 
     (block input-loop
       (loop
 
-       (c-put-str (format nil "Choose a sex (~c-~c, or * for random): "
+       (c-put-str! (format nil "Choose a sex (~c-~c, or * for random): "
 			  (i2a 0) (i2a (- sex-len 1)))
 		  20 2)
   
        (let ((val (read-one-character)))
-;;	 (warn "Got back ~a" val)
+;;	 (warn "Got back ~a ~s ~s" val val (type-of val))
 	 (cond ((eql val #\Q) (c-quit! +c-null-value+))
 	       ((eql val #\S) (return-from create-character-basics! nil))
 	       ((eql val +escape+)
@@ -68,15 +68,15 @@ Modififes the given player object."
 		      (progn
 			(setf (player.sex the-player) (car (nth r-val +sexes+)))
 			(return-from input-loop))
-		      (c-bell "Illegal sex!"))))))
+		      (c-bell! "Illegal sex!"))))))
        ))
    
-    (c-put-str "Sex" 3 1)
-    (c-col-put-str +term-l-blue+ (get-sex-name the-player) 3 8)
+    (c-put-str! "Sex" 3 1)
+    (c-col-put-str! +term-l-blue+ (get-sex-name the-player) 3 8)
 
-    (c-clear-from 15)
+    (c-clear-from! 15)
    
-    (c-term-putstr 5 15  -1 +term-white+
+    (c-term-putstr! 5 15  -1 +term-white+
 		   "Your 'race' determines various intrinsic factors and bonuses.")
 
     (let* ((cur-races (get-races-as-a-list))
@@ -84,13 +84,13 @@ Modififes the given player object."
       (loop for i from 0
 	    for elt in cur-races
 	    do
-	    (c-put-str (format nil "~a) ~a" (i2a i) (race.name elt))
+	    (c-put-str! (format nil "~a) ~a" (i2a i) (race.name elt))
 		       (truncate (+ 21 (/ i 5)))
 		       (truncate (+ 2 (* 15 (mod i 5))))))
 
       (block input-loop
 	(loop
-	 (c-put-str (format nil "Choose a race (~c-~c, or * for random): "
+	 (c-put-str! (format nil "Choose a race (~c-~c, or * for random): "
 			    (i2a 0) (i2a (- race-len 1)))
 		    20 2)
 
@@ -106,20 +106,20 @@ Modififes the given player object."
 			(progn
 			  (setf (player.race the-player) (nth r-val cur-races))
 			  (return-from input-loop))
-			(c-bell "Illegal race!"))))))
+			(c-bell! "Illegal race!"))))))
      
 	 ))
    
-      (c-put-str "Race" 4 1)
-      (c-col-put-str +term-l-blue+ (get-race-name the-player) 4 8)
+      (c-put-str! "Race" 4 1)
+      (c-col-put-str! +term-l-blue+ (get-race-name the-player) 4 8)
 
-      (c-clear-from 15)
+      (c-clear-from! 15)
 
       ;; time to do classes.. slightly more tricky
 
-      (c-term-putstr 5 15 -1 +term-white+
+      (c-term-putstr! 5 15 -1 +term-white+
 		     "Your 'class' determines various intrinsic abilities and bonuses.")
-      (c-term-putstr 5 16 -1 +term-white+
+      (c-term-putstr! 5 16 -1 +term-white+
 		     "Any entries with a (*) should only be used by advanced players.")
 
 
@@ -151,7 +151,7 @@ Modififes the given player object."
 	(loop for i from 0
 	      for elt in combined-classes
 	      do
-	      (c-put-str (format nil "~a) ~a" (i2a i)
+	      (c-put-str! (format nil "~a) ~a" (i2a i)
 				 (if (>= i class-len)
 				     (concatenate 'string "(" (class.name elt) ")")
 				     (class.name elt)))
@@ -160,7 +160,7 @@ Modififes the given player object."
 
 	(block input-loop
 	  (loop 
-	   (c-put-str (format nil "Choose a class (~c-~c, or * for random): "
+	   (c-put-str! (format nil "Choose a class (~c-~c, or * for random): "
 			      (i2a 0) (i2a (- comb-class-len 1)))
 		      20 2)
 
@@ -177,15 +177,15 @@ Modififes the given player object."
 			  (progn
 			    (setf (player.class the-player) (nth r-val combined-classes))
 			    (return-from input-loop))
-			  (c-bell "Illegal class!"))))))
+			  (c-bell! "Illegal class!"))))))
 
 	   )))))
    
 
-  (c-put-str "Class" 5 1)
-  (c-col-put-str +term-l-blue+ (get-class-name the-player) 5 8)
+  (c-put-str! "Class" 5 1)
+  (c-col-put-str! +term-l-blue+ (get-class-name the-player) 5 8)
   
-  (c-clear-from 15)
+  (c-clear-from! 15)
 	 
    
   t)
@@ -230,7 +230,7 @@ Modififes the given player object."
   "Rolls up a character and modifies given PLAYER-object."
   ;; dropping auto-roller
   
-  (c-clear-from 10)
+  (c-clear-from! 10)
   
   (roll-stats! player)
 

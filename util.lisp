@@ -24,8 +24,8 @@ ADD_DESC: classes and must be loaded late.
   
   (ecase which-table
     (:floor (cave-objects dungeon 
-			  (player.loc-x player)
-			  (player.loc-y player)))
+			  (location-x player)
+			  (location-y player)))
     (:backpack (aobj.contains (player.inventory player)))
     (:equip (player.eq player))))
 

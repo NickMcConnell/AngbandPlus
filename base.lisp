@@ -17,7 +17,8 @@ the Free Software Foundation; either version 2 of the License, or
 (eval-when (:compile-toplevel :load-toplevel :execute)
   ;; 28 bits
   (deftype u-fixnum () '(unsigned-byte 28))
-  (deftype vinfo-bit-type () `(unsigned-byte 32))
+;;  (deftype vinfo-bit-type () `(unsigned-byte 32))
+  (deftype vinfo-bit-type () `(unsigned-byte 16))
 
   (defclass activatable ()
     ((activated :reader activated? :initform nil))
@@ -222,7 +223,7 @@ and NIL if unsuccesful."
 	 t)
 	;; we're full
 	(t
-	 (warn "equipment full..")
+	 (lang-warn "equipment full..")
 	 nil)))
 
 
@@ -288,36 +289,38 @@ and NIL if unsuccesful."
   `(setf ,loc (logandc2 ,loc ,flag)))
 
 ;; change me into a macro at some point?
-#+allegro
+#-compiler-that-inlines
 (defmacro bit-flag-set? (loc flag)
   `(/= 0 (logand ,loc ,flag)))
 
-#-allegro
+#+compiler-that-inlines
 (defun bit-flag-set? (loc flag)
   "Checks if the given flag is set, and returns T or NIL."
   (/= 0 (logand loc flag)))
 
-#+allegro
+#-compiler-that-inlines
 (defmacro bit-flag-and (pos1 pos2)
   `(/= 0 (logand ,pos1 ,pos2)))
 
-#-allegro
+#+compiler-that-inlines
 (defun bit-flag-and (pos1 pos2)
   (/= 0 (logand pos1 pos2)))
 
 (defsubst read-one-character ()
   "Reads one character from the C-side."
 
-  #+allegro
-  (c-inkey)
-  #+cmu
-  (code-char (c-inkey)))
+  #-handle-char-as-num
+  (c-inkey!)
+  #+handle-char-as-num
+  (code-char (c-inkey!))
+  )
+  
 
-(defsubst clear-the-screen ()
+(defsubst clear-the-screen! ()
   "Clears the screen on the C-side."
-  (c-term-clear)
+  (c-term-clear!)
   #+cmu
-  (c-clear-from 0))
+  (c-clear-from! 0))
 
 ;; move to better place later
 (defgeneric print-depth (level setting)
@@ -342,7 +345,7 @@ situation where the system assumes the object is invalid."))
 (defmethod activate-object :around ((obj activatable) &key)
    (unless (next-method-p)
      ;; this will never happen
-     (warn "Unable to find ACTIVATE-OBJECT for type ~a" (type-of obj))
+     (lang-warn "Unable to find ACTIVATE-OBJECT for type ~a" (type-of obj))
      (return-from activate-object nil))
 
    ;; we pass along the same arguments.. 
@@ -353,7 +356,7 @@ situation where the system assumes the object is invalid."))
 	    obj)
 	   
 	   (t
-	    (warn "Activation of object ~a failed, return was ~a" obj result)
+	    (lang-warn "Activation of object ~a failed, return was ~a" obj result)
 	    nil)
 	   )))
 
@@ -447,7 +450,7 @@ level/room/player combo.  Allowed to return NIL."))
 	   (prof:show-call-graph :stream s :verbose t)
 	   ))))
 
-#+cmu
+#-allegro
 (defmacro tricky-profile (expr type)
   (declare (ignore type))
   `(time ,expr))
@@ -455,23 +458,22 @@ level/room/player combo.  Allowed to return NIL."))
 (defun garbage-collect (&key (global nil))
   "Tries to enforce a garbage collect."
   (declare (ignore global))
-  #+cmu
-  (ext:gc)
-  #+allegro
-  (excl:gc t))
+  #+cmu (ext:gc)
+  #+allegro (excl:gc t)
+  #+clisp (lisp:gc)
+  #-(or allegro cmu clisp)
+  (lang-warn "explicit GC not implemented."))
+
+(defun lang-warn (format-string &rest format-args)
+  "Prints a warning for Langband-system.  It works almost like
+regular WARN except that no condition is sent, use regular WARN for such
+cases.  Leaks memory, only use when testing."
+  
+  (format *error-output* "~&~@<LB-Warning:  ~3i~:_~A~:>~%"
+          (apply #'format nil format-string format-args)))
 
 
-#||
-(defvar *left-adj-6str* (make-hash-table :test #'eql))
-
-(dotimes (i 60)
-  (setf (gethash i *left-adj-6str*) (format nil "~6d" i)))
-
-(defmacro %get-6str (num)
-  `(progn
-    (assert (< ,num 60)) ;; the length
-    (gethash ,num *left-adj-6str*)))
-||#
+;; remove these ones later:
 
 (defun-memo %get-6str (num)
   (format nil "~6d" num))

@@ -64,7 +64,10 @@ part of the new level."
 				  max-dungeon-height
 				  :its-depth 0))
 	 (qy +screen-height+)
-	 (qx +screen-width+))
+	 (qx +screen-width+)
+;;	 (build-stores nil) ;; for testing
+	 (build-stores t)
+	 )
 
     (declare (type u-fixnum qy qx))
 
@@ -78,37 +81,38 @@ part of the new level."
 				     (cons (1+ +screen-width+)  (+ +screen-width+ qx -1))
 				     (cons (1+ +screen-height+) (+ +screen-height+ qy -1)))
 
-    ;; we need stores
-    (let* ((y-offset +screen-height+)
-	   (x-offset +screen-width+)
-	   (store-num (level.num-stores level))
-	   (store-numbers (shuffle-array! (get-array-with-numbers store-num :fill-pointer t)
-					 store-num))
-;;	   (stores (loop for x from 0 to (1- store-num) collecting (create-store (1+ x))))
-	   )
+    (setf (level.dungeon level) dungeon)
+    
+    (when build-stores
+      ;; we need stores
+      (let* ((y-offset +screen-height+)
+	     (x-offset +screen-width+)
+	     (store-num (level.num-stores level))
+	     (store-numbers (shuffle-array! (get-array-with-numbers store-num :fill-pointer t)
+					    store-num))
+	     ;;	   (stores (loop for x from 0 to (1- store-num) collecting (create-store (1+ x))))
+	     )
 
-      ;; move actual stores to level object
-;;      (warn "Stores is ~a" store-numbers)
-
-      (setf (level.dungeon level) dungeon)
+	;; move actual stores to level object
+	;;      (warn "Stores is ~a" store-numbers)
 
 	    
-      (dotimes (y 2)
-	(dotimes (x 4)
-	  (let* ((house-num (1+ (vector-pop store-numbers)))
-		 (the-house (get-house house-num)))
-	    (when the-house
-	      (let ((x0 (+ x-offset (* x 14) 12))
-		    (y0 (+ y-offset (* y 9) 6)))
-		;;(warn "building ~s [~a]" the-house house-num)
-		(build-house! level the-house x0 y0
-			      :door-feature (1- (+ +feature-shop-head+ house-num))
-			      :door-trigger  #'(lambda (dun x y)
-						 (declare (ignore dun x y))
-						 (visit-house *level* the-house)))
-;;						 (warn "Entering shop ~a, ~a" house-num the-house)))
-		)))
-	  )))
+	(dotimes (y 2)
+	  (dotimes (x 4)
+	    (let* ((house-num (1+ (vector-pop store-numbers)))
+		   (the-house (get-house house-num)))
+	      (when the-house
+		(let ((x0 (+ x-offset (* x 14) 12))
+		      (y0 (+ y-offset (* y 9) 6)))
+		  ;;(warn "building ~s [~a]" the-house house-num)
+		  (build-house! level the-house x0 y0
+				:door-feature (1- (+ +feature-shop-head+ house-num))
+				:door-trigger  #'(lambda (dun x y)
+						   (declare (ignore dun x y))
+						   (visit-house *level* the-house)))
+		  ;;	(warn "Entering shop ~a, ~a" house-num the-house)))
+		  )))
+	    ))))
 
     
 
@@ -170,7 +174,7 @@ part of the new level."
 (defmethod print-depth ((level van-town-level) setting)
   "prints current depth somewhere"
   (declare (ignore setting))
-  (c-prt "Town" *last-console-line* 70)) ;;fix 
+  (c-prt! "Town" *last-console-line* 70)) ;;fix 
 
 
 (defmethod activate-object :after ((level van-town-level) &key)

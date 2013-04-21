@@ -18,6 +18,39 @@ the Free Software Foundation; either version 2 of the License, or
 
   )
 
+(defun kill-monster! (dun x y monster)
+  "Tries to remove the monster at the location."
+  (setf (amon.alive? monster) nil
+	(dungeon.monsters dun) (delete monster (dungeon.monsters dun))
+	(cave-monsters dun x y) nil)
+  nil)
+
+(defun cmb-describe-miss (pl the-monster)
+  (declare (ignore pl))
+  (c-print-message! (format nil "You miss the ~a." (monster.name the-monster)))
+  nil)
+
+(defun cmb-hit-monster? (pl the-monster)
+  (declare (ignore pl the-monster))
+  (/= (random 2) 1))
+
+(defun cmb-inflict-damage (pl the-monster)
+  (declare (ignore pl))
+  (let ((amount (random 10)))
+    (decf (amon.cur-hp the-monster) amount)
+    amount))
+
+(defun cmb-describe-hit (pl the-monster)
+  (declare (ignore pl))
+  (c-print-message! (format nil "You hit the ~a." (monster.name the-monster)))
+  nil)
+
+(defun cmb-describe-death (pl the-monster)
+  (declare (ignore pl))
+  (c-print-message! (format nil "The ~a dies.." (monster.name the-monster)))
+  nil)
+
+
 (defun attack-location! (dun pl x y)
   "attacks a given location.."
 
@@ -27,21 +60,22 @@ the Free Software Foundation; either version 2 of the License, or
 	;; hack
 	(play-sound 1)
 ;;	(describe the-monster)
-	(if (/= (random 2) 1)
-	    (c-print-message (format nil "You miss the ~a." (monster.name the-monster)))
+	(if (cmb-hit-monster? pl the-monster)
+	    (cmb-describe-miss pl the-monster)
 	    (progn
-	      (decf (amon.cur-hp the-monster) (random 10))
-	      (c-print-message (format nil "You hit the ~a." (monster.name the-monster)))
-	      
+	      (cmb-inflict-damage pl the-monster)
+	      (cmb-describe-hit pl the-monster)
+	      	      
 	      (when (< (amon.cur-hp the-monster) 0)
-		
-		(c-print-message (format nil "The ~a dies.." (monster.name the-monster)))
-		
+		(cmb-describe-death pl the-monster)
 		(let ((monster-xp (monster.xp (amon.kind the-monster))))
 		  (increase-xp! pl (if monster-xp monster-xp 0)))
 		
-		(setf (cave-monsters dun x y) nil)
+		(kill-monster! dun x y the-monster)
+		;; repaint
 		(light-spot! dun x y)
 		)))
 	      
 	))))
+
+

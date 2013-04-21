@@ -19,7 +19,6 @@ ADD_DESC: Most of the code which deals with the game loops.
 (in-package :langband)
 
 
-
 (defun redraw-stuff (dun pl)
   "Redraws stuff according to *REDRAW*."
   
@@ -50,8 +49,40 @@ ADD_DESC: Most of the code which deals with the game loops.
     (update-view! dun pl))
   )
 
+(defun process-single-monster! (dun pl mon)
+  "Tries to process a single monster."
+
+  (let ((mx (location-x mon))
+	(my (location-y mon))
+	(px (location-x pl))
+	(py (location-y pl))
+	)
+
+;;    (lang-warn "Action for '~a' at (~s,~s)" (monster.name mon)
+;;	       mx my)
+    
+    (when (player-has-los-bold? dun mx my)
+;;      (lang-warn "-> '~a' at (~s,~s) can see player at (~s,~s)"
+;;		 (monster.name mon) mx my px py)
+      ;; we can see the evil player..
+      )
+
+    
+    ))
+
+(defun process-monsters& (dun pl)
+  "Tries to do something nasty to all the monsters."
+
+  (let ((monster-list (dungeon.monsters dun)))
+;;    (lang-warn "On turn ~a there is ~a monsters"
+;;	       (variant.turn *variant*) (length monster-list))
+    (dolist (i monster-list)
+      (when (amon.alive? i)
+	(process-single-monster! dun pl i)))
+  
+    nil))
  
-(defun process-player! (pl dun)
+(defun process-player! (dun pl)
   "processes the player in a given turn"
   
   ;; fake stuff
@@ -79,7 +110,6 @@ ADD_DESC: Most of the code which deals with the game loops.
 	 (dungeon-width  (dungeon.width dun))
 
 	 )
-	
   
     ;; we're not leaving
     (setf (player.leaving-p pl) nil)
@@ -98,14 +128,14 @@ ADD_DESC: Most of the code which deals with the game loops.
     ;; postpone veri of panel
     (verify-panel dun pl)
     
-    (c-print-message +c-null-value+)
+    (c-print-message! +c-null-value+)
   
     (bit-flag-add! *redraw* +print-map+ +print-basic+)
     (bit-flag-add! *update* +forget-view+ +update-view+)
   
     ;; postpone flush
 
-    (clear-the-screen)
+    (clear-the-screen!)
 
     ;; postpone stuff..
     (update-stuff dun pl)
@@ -120,8 +150,9 @@ ADD_DESC: Most of the code which deals with the game loops.
      
        ;; do player
        (update-player! pl)
-       (process-player! pl dun)
-     
+       (process-player! dun pl)
+
+       (process-monsters& dun pl)
        ;; stuff
 
        (let ((leave-sym (player.leaving-p pl)))
@@ -135,7 +166,7 @@ ADD_DESC: Most of the code which deals with the game loops.
        (when (/= 0 *update*)
 	 (update-stuff dun pl))
 
-       ;;     (warn "redraw is ~a" *redraw*)
+       ;; (warn "redraw is ~a" *redraw*)
        (when (/= 0 *redraw*)
 	 (redraw-stuff dun pl))
 
@@ -148,59 +179,56 @@ ADD_DESC: Most of the code which deals with the game loops.
     ))
 
 (defun game-loop& ()
-  "This is the main game-loop."
+  "This is the main game-loop.  and this function looks _ugly_."
   (multiple-value-bind (*player* *variant* *level*)
       (load-old-environment&)
     
-      (loop
-       ;; clean up to prevent too many delays while running the dungeon
-       (garbage-collect :global t)
-
-       ;; let's run this dungeon
-
-       (let* ((how-level-was-left
-	       ;;(tricky-profile
-	       (time
-		(run-level! *level* *player*)
-		;;:space)
-		)
-		))
-	   
-	 
-	   ;; return if we're toast
-	   (when (player.dead-p *player*)
-	     (return-from game-loop&))
+    (loop
+     ;; clean up to prevent too many delays while running the dungeon
+     (garbage-collect :global t)
+     
+     ;; let's run this dungeon
+     
+     (let ((how-level-was-left nil))
        
-	 ;; generate new cave
-	 (setq *level* (create-appropriate-level *variant* *level*
-						 *player* (player.depth *player*)))
-	 
-	 (activate-object *level* :player *player*
-			  :leave-method how-level-was-left)
-	 ;; safety?
-	 (save-current-environment&)
-
-	 ))))
+       (setq how-level-was-left (run-level! *level* *player*))
+       
+;;        (tricky-profile
+;;         (setq how-level-was-left (run-level! *level* *player*))
+;;         :space)
+       
+       ;; return if we're toast
+       (when (player.dead-p *player*)
+	 (return-from game-loop&))
+       
+       ;; generate new cave
+       (setq *level* (create-appropriate-level *variant* *level*
+					       *player* (player.depth *player*)))
+       
+       (activate-object *level* :player *player*
+			:leave-method how-level-was-left)
+       
+       ;; safety? we will reload in less than a second :-)
+       (save-current-environment&)))
+    ))
 
 (defun save-current-environment& ()
-  (setf (get '*player* 'last-value) *player*)
-  (setf (get '*variant* 'last-value) *variant*)
-  (setf (get '*level* 'last-value) *level*)
-  (values))
+  "Attempts to save the environment."
+  (setf (get '*player* 'last-value) *player*
+	(get '*variant* 'last-value) *variant*
+	(get '*level* 'last-value) *level*)
+  'last-value)
 
 (defun load-old-environment& ()
+  "Returns three values with an old environment."
   (values (get '*player* 'last-value)
 	  (get '*variant* 'last-value)
 	  (get '*level* 'last-value)))
 
 (defun play-game& ()
   "Should not be called directly."
-;;  (c-init-angband!)
-;;  (c-pause-line 23)
-
-;;  (warn "playing the damned game")
   
-  ;; hack to remove cursor
+
   (let ((*player* nil)
 	(*level* nil)
 ;;	#+allegro
@@ -209,10 +237,9 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     (let ((*load-verbose* nil))
       (load "lib/file/prefs.lisp"))
-    
-    (c-set-cursor& 0)
 
-;;    (key-test)
+    ;; hack to remove cursor
+    (c-set-cursor& 0)
     
     (block creation
       (loop
@@ -225,28 +252,25 @@ ADD_DESC: Most of the code which deals with the game loops.
        
 	 (warn "Trying to create player again.."))))
 
-    ;; time to init the stores
-    ;; postponed
-;;    (initialise-stores&) 
-    (c-prt "Please wait..." 0 0)  
-    (c-pause-line *last-console-line*)
-    (clear-the-screen)
+    (c-prt! "Please wait..." 0 0)  
+    (c-pause-line! *last-console-line*)
+    (clear-the-screen!)
     
     (block dungeon-running
       (unless *level* 
 	(setf *level* (create-appropriate-level *variant* *level*
 						*player* (player.depth *player*)))
 	(activate-object *level* :player *player*
-			  :leave-method nil))
+			 :leave-method nil))
       
       (save-current-environment&)
       (game-loop&))
     
-    (c-prt "Quitting..." 0 0)  
-    (c-pause-line *last-console-line*)
+    (c-prt! "Quitting..." 0 0)  
+    (c-pause-line! *last-console-line*)
     (c-quit! +c-null-value+)))
 
-;; low-level definitions
+;; low-level definitions, move it somewhere else later..
 #+allegro
 (ff:defun-foreign-callable c-callable-play ()
   (play-game&))

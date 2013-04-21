@@ -242,11 +242,11 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	       (return-from legal-spot-finder)))
       
       (case type
-	('alloc-type-rubble (place-rubble! dungeon x y))
-	('alloc-type-trap   (place-trap! dungeon x y))
+	(alloc-type-rubble (place-rubble! dungeon x y))
+	(alloc-type-trap   (place-trap! dungeon x y))
 	;; add again later
-;;	('alloc-type-gold   (place-gold! dungeon x y))
-	('alloc-type-object (place-object! dungeon x y nil nil))))
+;;	(alloc-type-gold   (place-gold! dungeon x y))
+	(alloc-type-object (place-object! dungeon x y nil nil))))
   
     (values)))
 
@@ -639,8 +639,8 @@ argument is passed it will be used as new dungeon and returned."
   (when leave-method
     (let* ((dun (level.dungeon obj))
 	   (pl (if player player *player*))
-	   (px (player.loc-x pl))
-	   (py (player.loc-y pl))
+	   (px (location-x pl))
+	   (py (location-y pl))
 	   (feat (case leave-method
 		   (:down-stair +feature-less+)
 		   (:up-stair +feature-more+)

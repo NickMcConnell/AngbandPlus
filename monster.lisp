@@ -109,8 +109,8 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 (defmethod print-object ((inst active-monster) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
-	   (amon.kind inst))
+   (format stream "~:(~a~) [~S, (~s,~s)]" (class-name (class-of inst)) 
+	   (amon.kind inst) (location-x inst) (location-y inst))
   inst))
 
 

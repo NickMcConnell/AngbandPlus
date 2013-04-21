@@ -359,14 +359,14 @@ with k-info.txt numbers. NUM is the numeric id."
     
     (dolist (x o-tlist)
       (case x
-	('<mushroom> (setf tot-str (concatenate 'string flavour " mushroom of " tot-str)))
-	('<ring> (setf tot-str (concatenate 'string flavour " ring of " tot-str)))
-	('<potion> (setf tot-str (concatenate 'string flavour " potion of " tot-str)))
-	('<staff> (setf tot-str (concatenate 'string flavour " staff of " tot-str)))
-	('<wand> (setf tot-str (concatenate 'string flavour " wand of " tot-str)))
-	('<rod> (setf tot-str (concatenate 'string flavour " rod of " tot-str)))
-	('<amulet> (setf tot-str (concatenate 'string flavour " amulet of " tot-str)))
-	('<scroll> (setf tot-str (concatenate 'string "scroll ['" flavour "'] of " tot-str)))
+	(<mushroom> (setf tot-str (concatenate 'string flavour " mushroom of " tot-str)))
+	(<ring> (setf tot-str (concatenate 'string flavour " ring of " tot-str)))
+	(<potion> (setf tot-str (concatenate 'string flavour " potion of " tot-str)))
+	(<staff> (setf tot-str (concatenate 'string flavour " staff of " tot-str)))
+	(<wand> (setf tot-str (concatenate 'string flavour " wand of " tot-str)))
+	(<rod> (setf tot-str (concatenate 'string flavour " rod of " tot-str)))
+	(<amulet> (setf tot-str (concatenate 'string flavour " amulet of " tot-str)))
+	(<scroll> (setf tot-str (concatenate 'string "scroll ['" flavour "'] of " tot-str)))
 	(otherwise
 	 ;;(warn "Object fell through type-list")
 	 )))

@@ -17,13 +17,17 @@ Might be used:
   - Allegro Common Lisp
     is not active dev-platform anymore due to license
 
+  - CLISP
+    is a bit tricky to get working, see the FAQ for more info
+
+
     
 How to start it:
 
   - tweak lib/zterm/Makefile
     Probably only ENVIRONMENT and LISP_SYSTEM needs to be changed.
     ***Only the X11 option is really recommended right now***
-    
+
   - run 'make'
     Where make is GNU Make
     

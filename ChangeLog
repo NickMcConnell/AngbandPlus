@@ -1,3 +1,24 @@
+2001-04-13  Stig E Sandø <stig@users.sourceforge.net>
+	* made generic functions LOCATION-X and LOCATION-Y to abstract
+	away details of various things location
+	* rewrote MAP-INFO to return two values instead of a cons
+	* added LANG-WARN
+	* rewrote much of the LOS-code.  it doesn't cons much anymore and
+	it now uses 16-bit ints instead of 32-bit ints.  it has a bug
+	though.
+	* rewrote much of the print.lisp code to just pass numbers to C to
+	avoid string-allocation.  added a couple of new C-functions for
+	this, and their FFI-declarations. 
+	* started to abstract somewhat on combat and started the long
+	track of monster-processing
+	* Fixed buggy LOS from 16-bit change which also fixed an old bug
+	in my old code.. whaddayaknow.
+	* minor edits..
+		
+2001-03-15  Stig E Sandø <stig@users.sourceforge.net>
+	* updated a lot of code to make things work with CLISP.  No actual
+	changes to the game, but mostly system issues.
+	
 2001-02-19  Stig E Sandø <stig@users.sourceforge.net>
 	* simplified lib/zterm/Makefile slightly
 	* improved the activation protocol for objects, uses :around and

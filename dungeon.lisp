@@ -221,7 +221,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   (values))
 
 (defun map-info (dungeon x y)
-  "Returns a CONS with the map-info (attr . char)"
+  "Returns two values, attr and char, use M-V-B to get the values."
   
   ;; maybe get the coord in one go..
   (let* (;;(coord (cave-coord
@@ -230,7 +230,11 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	 (flags (cave-flags dungeon x y))
 	 (obj (cave-objects dungeon x y))
 	 (f-obj nil)
-	 (ret-obj nil))
+	 (ret-attr +term-white+)
+	 (ret-char #\X)
+	 ;;(name-return nil)
+	 )
+
 
     ;; skip hallucination
     
@@ -241,8 +245,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		      (bit-flag-set? flags +cave-seen+))
 
 		  (setf f-obj (get-feature +feature-floor+))
-		  (setf ret-obj (cons (feature.x-attr f-obj)
-				      (feature.x-char f-obj)))
+		  (setf ret-attr (feature.x-attr f-obj)
+			ret-char (feature.x-char f-obj))
 
 		    ;; do tricky handling here
 		    
@@ -252,8 +256,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		 ;; otherwise darkness
 		 (t
 		  (setf f-obj (get-feature +feature-none+))
-		  (setf ret-obj (cons (feature.x-attr f-obj)
-				      (feature.x-char f-obj)))
+		  (setf ret-attr (feature.x-attr f-obj)
+			ret-char (feature.x-char f-obj))
 		  ))
 	     
 	   )
@@ -262,16 +266,16 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 	   (cond ((bit-flag-set? flags +cave-mark+)
 		  (setf f-obj (get-feature feat))
-		  (setf ret-obj (cons (feature.x-attr f-obj)
-				      (feature.x-char f-obj))))
+		  (setf ret-attr (feature.x-attr f-obj)
+			ret-char (feature.x-char f-obj)))
 
 		 ;; not noted
 		 (t
 		  (setf f-obj (get-feature +feature-none+))
-		  (setf ret-obj (cons (feature.x-attr f-obj)
-				      (feature.x-char f-obj))))
+		  (setf ret-attr (feature.x-attr f-obj)
+			ret-char (feature.x-char f-obj)))
 		 
-		) 
+		)
 	   
 	   ))
 
@@ -282,34 +286,48 @@ car is start and cdr is the non-included end  (ie [start, end> )"
       ;; do we have objects..
       (if (> (items.cur-size obj) 1)
 	  ;; pile symbol
-	  (setf ret-obj (cons +term-white+ #\&))
+	  (setf ret-attr +term-white+
+		ret-char #\&)
 	  ;; single object
 	  (let* ((kind (aobj.kind (item-table-find obj 0)))
 		 (flavour (object.flavour kind)))
+	    ;;(warn "Object ~s of kind ~s has flavour ~s" obj kind flavour)
+	    ;;(warn "-> (~s,~s) / (~s,~s)"
+		;;  (if flavour (cadr flavour) nil) (object.x-char kind)
+		;;  (object.x-attr kind) (object.x-char kind) )
+	    ;;(setq name-return t)
 	    (if flavour
-		(setf ret-obj (cons (cadr flavour)
-				    (object.x-char kind)))
-		(setf ret-obj (cons (object.x-attr kind)
-				    (object.x-char kind)))))))
+		(setf ret-attr (cadr flavour)
+		      ret-char (object.x-char kind))
+		(setf ret-attr (object.x-attr kind)
+		      ret-char (object.x-char kind)))
+	    )))
+    
+;;    (when name-return
+;;      (warn "Returns (~s,~s)" ret-attr ret-char))
 
     
     ;; do we have monsters?
     (when (and mon (and (bit-flag-set? flags +cave-seen+) 
 			(bit-flag-set? flags +cave-view+)))
       (let ((kind (amon.kind (car mon))))
-	(setf ret-obj (cons (monster.colour kind)
-			    (monster.symbol kind)))))
+	(setf ret-attr (monster.colour kind)
+	      ret-char (monster.symbol kind))))
 
+;;    (when name-return
+;;      (warn "Returns (~s,~s)" ret-attr ret-char))
     
     ;; remove this entry later..
-    (when (and (eql x (player.loc-x *player*))
-	       (eql y (player.loc-y *player*)))
+    (when (and (eql x (location-x *player*))
+	       (eql y (location-y *player*)))
 ;;      (warn "returning player at {~a,~a}" x y)
-      (setf ret-obj (cons +term-white+ #\@)))
+      (setf ret-attr +term-white+
+	    ret-char #\@))
 
+;;    (when name-return
+;;      (warn "Returns (~s,~s)" ret-attr ret-char))
     
-    
-    ret-obj))
+    (values ret-attr ret-char)))
 
 (defun cave-is-room? (dungeon x y)
   (bit-flag-set? (cave-flags dungeon x y)
@@ -329,13 +347,22 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		 +cave-icky+))
 
 
+(defun player-has-los-bold? (dungeon x y)
+  (bit-flag-set? (cave-flags dungeon x y)
+		 +cave-view+))
+
+(defun player-can-see-bold? (dungeon x y)
+  (bit-flag-set? (cave-flags dungeon x y)
+		 +cave-seen+))
+
 (defun place-player! (dungeon player x y)
   (declare (ignore dungeon))
   ;; fix me later
-  (setf (player.loc-y player) y)
-  (setf (player.loc-x player) x)
+  (setf (location-y player) y
+	(location-x player) x)
 
-  t)
+  player)
+
 
 
 
@@ -359,9 +386,10 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	  (loop for x of-type fixnum from (player.view-x player)
 		for vx of-type fixnum from +start-column-of-map+ to (the fixnum (1- tx))
 		do
-		(let ((point-info (map-info dungeon x y)))
-;;		  (warn "Q at ~a ~a with ~a" vx vy (cdr point-info))
-		  (%loc-queue-cons vx vy point-info))))
+		(multiple-value-bind (the-attr the-char)
+		    (map-info dungeon x y)
+	  ;;		  (warn "Q at ~a ~a with ~a" vx vy (cdr point-info))
+		  (%loc-queue-cons vx vy the-attr the-char))))
 
 
 
@@ -369,14 +397,15 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     (print-depth *level* nil)
     ))
 
-(defun %loc-queue-cons (vx vy point-info)
-  (c-term-queue-char vx vy
-		     (car point-info)
-		     #+allegro
-		     (cdr point-info)
-		     #+cmu
-		     (char-code (cdr point-info))
-		     ))
+(defun %loc-queue-cons (vx vy the-attr the-char)
+  "Misleading name.. no cons involved anymore."
+  (c-term-queue-char! vx vy
+		      the-attr
+		      #-handle-char-as-num
+		      the-char
+		      #+handle-char-as-num
+		      (char-code the-char)))
+
 
 (defun verify-panel (dungeon pl)
 
@@ -389,8 +418,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	 (pl-depth (player.depth pl))
 	 (new-y d-y)
 	 (new-x d-x)
-	 (p-y (player.loc-y pl))
-	 (p-x (player.loc-x pl))
+	 (p-y (location-y pl))
+	 (p-x (location-x pl))
 	 (scroll-p nil))
 
     (declare (type fixnum d-y d-x new-y new-x p-y p-x pl-depth))
@@ -494,29 +523,29 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 (defun light-spot! (dungeon x y)
   "lighting up the spot.."
 
-  (let* ((info (map-info dungeon x y))
-	 (pvx (player.view-x *player*))
+  (let* ((pvx (player.view-x *player*))
 	 (pvy (player.view-y *player*))
 	 (kx (- x pvx))
 	 (ky (- y pvy)))
 
-    #||
+
     ;; debugging
-    (when (or (minusp kx)
-	      (minusp ky))
-      (error "a value became negative.."))
-    ||#
+;;    (when (or (minusp kx) (minusp ky))
+;;    (error "a value became negative.."))
+
     
     ;, sometimes we cross a screen
     (when (and (<= 0 kx)
 	       (<= 0 ky)
 	       (< ky +screen-height+)
 	       (< kx +screen-width+))
-	   
-	   (%loc-queue-cons
-	    (+ +start-column-of-map+ kx)
-	    (+ +start-row-of-map+ ky)
-	    info))
+
+      (multiple-value-bind (the-attr the-char)
+	  (map-info dungeon x y)
+	(%loc-queue-cons (+ +start-column-of-map+ kx)
+			 (+ +start-row-of-map+ ky)
+			 the-attr the-char)))
+
     ))
 
 
@@ -556,17 +585,19 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	    
 	      (loop for x from 0 to (1- dungeon-width)
 		    do
-		    (let* ((point-info (map-info dungeon x y))
-			   (val (case (cdr point-info)
-				  (#\# (if (eql +feature-secret+
-						(cave-feature dungeon x y))
-					   str-orange-colour
-					   str-gray-colour))
-				  (#\. str-white-colour)
-				  (#\+ str-burgund-colour)
-				  (#\@ str-dblue-colour)
-				  (#\' str-ltblue-colour)
-				  (otherwise "0 1 0"))))
+		    (multiple-value-bind (the-attr the-char)
+			(map-info dungeon x y)
+		      (declare (ignore the-attr))
+		      (let ((val (case the-char
+				   (#\# (if (eql +feature-secret+
+						 (cave-feature dungeon x y))
+					    str-orange-colour
+					    str-gray-colour))
+				   (#\. str-white-colour)
+				   (#\+ str-burgund-colour)
+				   (#\@ str-dblue-colour)
+				   (#\' str-ltblue-colour)
+				   (otherwise "0 1 0"))))
 		    
 		      ;;	  (warn "Q at ~a ~a with ~a" vx vy (cdr point-info))
 		      ;; set x,y
@@ -583,7 +614,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 		      (incf cnt)
 		    
-		      )))
+		      ))))
 
       
 	(loop for x across arr

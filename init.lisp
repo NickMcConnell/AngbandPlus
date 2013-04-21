@@ -216,13 +216,15 @@ call appropriately high-level init in correct order."
   (unless *current-key-table*
     (setf *current-key-table* *ang-keys*))
 
+  #+use-callback-from-c
   (arrange-callback)
   ;;  (c-init-x11! 0 0)
   (c-init-gui! 0 +c-null-value+)
 
-;;  (warn "return..")
-;;  #+cmu
-;;  (play-game&)
+
+  ;;(warn "return..")
+  #-use-callback-from-c
+  (play-game&)
   
   )
 
@@ -230,10 +232,13 @@ call appropriately high-level init in correct order."
   "system specific code.."
   
   #+allegro
-  (set_lisp_callback (ff:register-foreign-callable `c-callable-play nil t))
+  (set_lisp_callback! (ff:register-foreign-callable `c-callable-play nil t))
 
   #+cmu
   (let ((ptr (kernel:get-lisp-obj-address #'play-game&)))
-    (set_lisp_callback ptr))
+    (set_lisp_callback! ptr))
 
+  #-(or cmu allegro)
+  (warn "No callback arranged for implementation..")
+  
   )
