@@ -1,0 +1,59 @@
+New combat rules for GW-Angband 2.8.3v2:
+----------------------------------------
+
+Player combat rules are significantly altered.  Instead of getting
+a number of "blows per round" and a number of "shots per round", the
+player has an energy cost associated with each blow or shot.  This number
+is based primarily on DEX, but modified by class, experience level and
+(for melee weapons only) the ratio of the player's STR over the weapon's
+weight.
+
+High-level characters may have per-blow energy costs which would give
+them several blows per "normal" round.  In order to reduce tedium (and
+keyboard wear-and-tear), a new option has been introduced: the maximum
+desired blows per attack.  If this is set to a value greater than 1,
+the character will attempt to take that many blows each time a monster is
+attacked in melee.  (But the per-blow energy cost is also considered --
+the character is not allowed to take more blows than the largest number
+which will fit in a 100-energy round.)
+
+Also, if the maximum desired blows per attack is set to a value greater
+than 1, and a monster dies in melee before all the desired blows have
+been used, the character will be charged only the energy cost of the
+number of blows actually used to kill the monster.
+
+    Example: a character has a per-blow energy cost of 30 and is attacking
+    a monster.  If the maximum desired blows per attack is set to 2, then
+    the character will swing 2 times (and will be charged 60 energy).
+
+    However, if the monster dies on the first blow, then the character
+    will only be charged 30 energy.
+    
+    If the same character sets the maximum desired blows per attack to 4,
+    then the character will swing up to 3 times each time a monster is
+    attacked (4 blows would require 120 energy, which is greater than 100
+    and thus disallowed).
+    
+    If that character later gains enough power to lower the per-blow
+    energy cost to 25, then the character could swing up to 4 times
+    per attack.
+
+By setting the maximum desired blows per attack to 0 (the default)
+or 1, the character will only swing one time per attack (which gives
+the maximum flexibility).  By setting it to 9, the character will act
+similar to a normal Angband character, always taking as many blows as
+possible each time an attack is made.  However, even with the maximum
+desired blows per attack set to 9, the character still has one benefit
+over her Angband counterpart -- unused blows will not count against her.
+(This benefit is identical to that of the high-level Oangband 0.3.2
+Warrior, except that it applies to all characters regardless of class
+or level.)
+
+In certain situations the character may gain additional benefit by setting
+the maximum desired blows per attack to a high value.  Consider monsters
+which are faster than the character, but who have low hit points.
+If the character takes one swing against the monster, it may miss, or
+not do enough damage to hit; but multiple swings may kill the monster.
+By taking several swings at once, the character may avoid letting the
+monster attack in between the character's blows.  This benefit must be
+weighed against the flexibility gained by taking single swings.

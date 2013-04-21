@@ -1,0 +1,711 @@
+This is a basic guide to the magical spells and prayers in GW-Angband,
+organized by realm and by spellbook.
+
+Mage Spells
+-----------
+
+  An Introduction to Spellcasting
+  -------------------------------
+  This book contains copies of simple spells from several different schools
+  of magic.  Recently graduated Mages always start with this book, which is
+  intended to give them the resources necessary for basic survival until
+  they can obtain the more specialized and powerful tomes.  All three of the
+  magical classes (Mage, Ranger and Rogue) may learn all of the spells in
+  this book, except Magic Missile (which Rogues may not learn).
+
+  Magic Missile
+    This spell throws a small burst of pure magical energy (or mana) which
+    can be deadly against weak monsters.
+  Detect Monsters
+    This spell reveals the locations of nearby monsters.  It does not
+    reveal any monsters which are invisible.
+  Phase Door
+    This spell opens a low-power gateway through space.  It allows the caster
+    to traverse short distances nearly instantaneously; unfortunately, the
+    destination is unpredictable.  (Note, however, that quantum laws
+    prohibit the simultaneous occupancy of a single space by multiple
+    physical objects, so the traveler will be perfectly safe.)
+  Light Area
+    This spell illuminates a room, or a small section of a corridor.
+  Cure Light Wounds
+    This spell heals a small amount of physical damage (hit points).
+  Find Hidden Traps/Doors
+    This spell reveals the locations of any nearby traps and doors (including
+    secret doors).
+
+  The Art of Divination
+  ---------------------
+  This book contains spells specialized for use in the gathering of
+  information.  Mages survive best when they have the most knowledge
+  they can possibly obtain, so that they can choose alternative courses
+  of action without resorting to guesswork.  Only Rogues may learn the
+  spells Detect Treasure and Detect Objects; all of the magical classes
+  may learn all of the other spells in this book.
+
+  Detect Monsters
+    This spell reveals the locations of nearby monsters.  It does not
+    reveal any monsters which are invisible.
+  Find Hidden Traps/Doors
+    This spell reveals the locations of any nearby traps and doors (including
+    secret doors).
+  Detect Treasure
+    This spell reveals the locations of all nearby deposits of gold and other
+    precious metals and gems.
+  Detect Objects
+    This spell revelas the locations of all nearby non-living objects, but
+    not precious metals or gems.
+  Identify
+    This spell allows the caster to obtain basic information about the nature
+    of a single object.  If the object has charges (e.g., a wand or staff),
+    the caster will know how many it has.  If the object can be activated
+    (e.g., some artifacts), then the object must be identified to learn how
+    the activation is triggered.
+  Detect Invisible
+    This spell permits the caster to obtain a brief glimpse of the ethereal
+    plane in the local vicinity.  Any monsters which hide their visible forms
+    on this plane will become known to the caster.
+  Detect Evil
+    This spell reveals the locations of nearby evil monsters (including
+    any which are normally invisible).  This spell was researched by careful
+    observation of the energy flow around priests as they obtain this
+    information by divine agency; as such, the magical schools may mimic
+    the effect, but do so with low efficiency.
+  Detect Enchantment
+    This spell reveals the locations of nearby objects which have been
+    magically altered.
+
+  Elementary Evocations
+  ---------------------
+  This is the favored magical school of the pure Mage, who cannot rely upon
+  physical combat for self defense.  Mages and Rangers may learn all the
+  spells in this book; Rogues may learn only Stinking Cloud and Shock Wave,
+  and even those are learned only after a great amount of study.
+
+  Magic Missile
+    This spell throws a small burst of pure magical energy (or mana) which
+    can be deadly against weak monsters.
+  Stinking Cloud
+    This spell summons a small cloud poisonous gas at a point indicated by
+    the caster.  Monsters caught in the cloud may be harmed or killed, but
+    larger creatures are seldom incapacitated by this simple spell.
+  Lightning Bolt
+    This spell calls forth a burst of electrical energy which is useful for
+    punishing monsters who foolishly line up in narrow corridors.
+  Frost Bolt
+    This spell projects a magical field which, upon impact with living (or,
+    in some cases, animated) flesh, causes molecular motion to stop briefly.
+    The result of this is a deterioration of the body consistent with that
+    of severe, prolonged exposure to chilling temperatures, but which occurs
+    almost instantaneously.
+  Acid Bolt
+    This spell sprays highly corrosive fluid at a target chosen by the caster.
+    The fluid is highly unstable, and thus will generally affect only the
+    specific target chosen; by the time gravity would have brought the
+    fluid to ground level, it has reverted to harmless water, leaving objects
+    unharmed.
+  Fire Bolt
+    This spell shoots a superheated soft pellet at a specified target.  This
+    pellet may stick to the target, causing severe burns, or it may burn its
+    way through to affect others.
+  Shock Wave
+    This spell allows the caster to create a burst of sound at a distance.
+    The resulting damage is not great, but this often stuns monsters.
+  Explosion
+    With this spell, the caster conjures thousands of bits of rock from his
+    surroundings and places them in a state of compression some distance away.
+    The compression is released, and the shards fly outward in all directions,
+    ripping apart anything in their path.
+
+  The Space-Time Continuum
+  ------------------------
+  This book is an introductory study of the most basic forces of physics and
+  the universe in which we live.  It contains spells which are useful for
+  transportation, and spells which give the caster an advantage by allowing
+  her to move more quickly.  Although these spells require dedicated study,
+  once mastered they are among the most useful.  All the magical schools
+  may learn all the spells in this book.
+
+  Phase Door
+    This spell opens a low-power gateway through space.  It allows the caster
+    to traverse short distances nearly instantaneously; unfortunately, the
+    destination is unpredictable.  (Note, however, that quantum laws
+    prohibit the simultaneous occupancy of a single space by multiple
+    physical objects, so the traveler will be perfectly safe.)
+  Teleport Self
+    This spell opens a high-power gateway through space.  The caster may step
+    through it, traversing longer distances nearly instantaneously.  As with
+    Phase Door, however, there is no time to arrange for a specific
+    destination before the gate destabilizes.
+  Slow Monster
+    This spell alters the local temporal field surrounding a creature chosen
+    by the caster.  If the creature does not dodge aside in time, it will
+    be encased in a relativistic reference frame which will cause time to pass
+    more slowly for it than for the caster or other nearby creatures.
+  Teleport Other
+    This spell opens a high-power gateway through space, but along a line
+    specified by the caster.  Creatures intersected by this line will be
+    transported to unpredictable distant locations.
+  Haste Self
+    This spell temporarily alters the local temporal field surrounding the
+    caster.  The caster will be encased in a relativistic reference frame
+    which will cause time to pass more quickly for the caster than for other
+    nearby creatures.
+  Teleport Level
+    This spell opens a high-power gateway through space, allowing the caster
+    to move vertically (perpendicular to the surface of the earth).  The
+    caster may end up at a higher altitude or at a lower altitude than
+    before.  However, there are built-in safeguards which require the
+    caster to end up between 1 and 3 inches above a horizontal stone surface.
+  Word of Recall
+    This spell opens an extremely-high-power gateway through space.  However,
+    the spell takes the time to partially specify a destination.  A few
+    minutes after the spell has been cast, the destination will have been
+    completely codified, and the gateway will open, allowing the caster
+    to traverse a distance of up to several thousand feet vertically.
+
+  Anatomy and Physiology
+  ----------------------
+  This book is dedicated to the study of the caster's physical body.  While
+  this not normally a chosen specialization for most magical practitioners,
+  it contains some handy spells.  Mages may not learn Heroism or Berserker,
+  because their studies are focused toward external effects rather than
+  internal ones.
+
+  Cure Light Wounds
+    This spell heals a small amount of physical damage (hit points).
+  Cure Poison
+    This spell neutralizes the effects of toxins in the caster's bloodstream.
+    (Hallucinogens are not affected.)
+  Satisfy Hunger
+    This spell conjures water and essential nutrients within the caster's
+    body, alleviating the need for nourishment.
+  Heroism
+    This spell releases hormones which temporarily increase the efficiency
+    with which the caster utilizes oxygen, food and other biological fuels.
+    Under the influence of these hormones (also available over the counter),
+    the caster fights and dodges more effectively, and the body's immune
+    system is hardened against an additional amount of damage.  As a side
+    effect, the caster's flight response is inhibited, making magical fear
+    attacks ineffective.
+  Berserker
+    This spell releases hormones similar to those of the Heroism spell, but
+    much more potent in their effects.  The caster becomes extremely good at
+    fighting, but suffers from such a severe slowing of the flight response
+    that normal dodging reflexes are impaired.  (These hormones are available
+    only by prescription, or through illicit markets.)
+  Resist Poison
+    This spell creates a chemomagical aura around the caster which causes
+    toxic substances to be partially neutralized upon contact.  This
+    dramatically reduces the effectivess of poisonous gases used against
+    the caster.
+
+  Matter and Energy
+  -----------------
+  This book contains an assortment of spells which focus on conversion
+  processes between matter and energy.  It is a highly electic study,
+  practical rather than elegant.  "Serious" (i.e., theoretical) scholars
+  generally disdain this realm as clumsy, but many field practitioners
+  find these spells useful.  All of the magical schools may learn all
+  the spells in this book.
+
+  Light Area
+    This spell illuminates a room, or a small section of a corridor.
+  Trap/Door Destruction
+    This spell cleverly disintegrates the locking or triggering mechanisms
+    in all of the commonly used locks and traps.  By focusing upon a very
+    small piece of the larger structure, the spell remains effecient.
+  Door Creation
+    This spell surrounds the caster with a circular region of closed
+    doorways.  The origin of this spell is not certain; it is suspected
+    that it was devised by a Gnomish jester as a practical joke.  However,
+    there are times when one wishes a bit of privacy....
+  Spear of Light
+    This spell illuminates a long section of a corridor (or part of a room).
+    It is useful for seeing areas at a distance without relying upon
+    multiple castings of various Divination spells.  Also, many monsters
+    who live underground are highly sensitive to bright light.
+  Turn Stone to Mud
+    This spell replaces (some) stone molecules in a region with water
+    molecules; the resulting mixture is highly porous and easily removed.
+    Also note that some magical creatures made of stone may be incapacitated
+    or destroyed by this spell.
+  Stair Creation
+    This spell creates a physical stairway from the caster's vicinity to
+    a region up to 50' away.  While this spell does not permit the caster
+    to specify whether the stairs will ascend or descend, choosy casters
+    may simply try again in another place....
+  Lesser Recharging
+    This spell attempts to store magical energy in a device (a wand, staff
+    or rod) which uses such energy.  This spell utilizes only small amounts
+    of energy and does not contain a full set of safeguards; for best
+    results, the device being charged should be fully (or almost fully)
+    discharged.  This spell should not be used on valuable or complex
+    magical devices.
+  Greater Recharging
+    Like Lesser Recharging, this spell replenishes the spent magical energy
+    in a device.  However, this spell utilizes much greater amounts of
+    energy, and contains a wider range of safeguards.  It can handle more
+    complex devices safely -- or at least, more safely....
+  Elemental Brand
+    This spell allows a caster of moderate skill to create a permanent
+    enchantment on a very small area, such as the head of an arrow.  In
+    order to be suitable for non-masters, this spell does not allow the
+    caster to focus on a particular element; rather, the caster simply
+    wills an elemental force to comply, and the first element which
+    responds is the one which is branded onto the area.  (Note that
+    because of their studies of toxins, Rogues will always receive a
+    response from the elements of poison.)
+
+  Grimoire of Black Magic
+  -----------------------
+  This book contains spells normally associated with "witchcraft" or
+  "necromancy".  These spells generally affect the mind or soul of
+  a creature, and are quite difficult to master.  In many cases, the
+  target creature may not be affected; the mind naturally resists such
+  interference, and the stronger the creature (relative to the caster),
+  the less likely it is that the spell will succeed.  Rogues and Rangers
+  may learn only the first four spells in this book.
+
+  Confuse Monster
+    This spell temporarily clouds the mind of the target, rendering it
+    unable to focus upon complex activities such as walking, fighting or
+    casting spells.
+  Sleep Monster
+    This spell causes the target to fall asleep.
+  Mass Sleep
+    This spell causes all nearby creatures to fall asleep.
+  Bedlam
+    This spell creates a large psychomagical field over a region specified
+    by the caster.  Creatures within the field may become confused (as per
+    Confuse Monster).  The effect is strongest near the center of the region.
+  Genocide
+    This spell kills all the creatures of a specific family on the current
+    dungeon level.  It draws power from the caster's body; caution must be
+    exercised before using this spell on common monsters, because the spell
+    might completely drain the caster's life.
+  Mass Genocide
+    This spell kills all creatures near the caster, without regard for the
+    creature's family or species.  Like Genocide, this spell draws upon
+    the caster's body for power; it may be fatal to the caster if there are
+    many creatures nearby.
+  Rend Soul
+    This spell is the favorite of great necromancers.  The caster opens a
+    channel between the nether planes and her victim; the result is
+    unpleasant and often fatal.
+
+  Evocations for Experts
+  ----------------------
+  This book continues the study of the direct projection of energy and
+  matter for purposes of destruction.  The spells in this book are
+  difficult to master, but the results are often spectacular.  Rangers
+  may not learn Mana Storm; Rogues may learn only Cloudkill.
+
+  Cloudkill
+    This spell is a more powerful version of Stinking Cloud.
+  Frost Ball
+    This spell creates a region in which molecular motion is suppressed.
+    Creatures and liquids caught in this region are frozen.  Liquids stored
+    in glass containers will expand, causing their containers to shatter.
+  Acid Ball
+    This spell conjures a ball of highly corrosive fluid in a region specified
+    by the caster.  Living flesh and many types of objects will be dissolved.
+  Fire Ball
+    This spell conjures a flammable gas (usually hydrogen) in a region
+    specified by the caster, and ignites it.  Creatures and objects caught
+    in the region may be burned quite severely.
+  Ice Storm
+    This spell lowers the temperature of a region specified by the caster,
+    and also sends water through the region at high velocity.  The water
+    is frozen into ice, which pounds the frozen flesh of creatures caught
+    in the region.  Blows to the head may cause temporary incapacitation
+    of creatures who survive.
+  Meteor Swarm
+    This spell conjures superheated chunks of iron and rock and directs
+    them toward a target specified by the caster.  These projectiles pummel
+    hapless creature in their path, and may burn objects on the ground.
+  Mana Storm
+    This spell creates a burst of pure magical energy in a region chosen
+    by the caster.  Any creature within the region will be seared, often
+    killed.
+
+  Defensive Magic
+  ---------------
+  These spells are favored by practitioners who wish to continue their
+  practice in dangerous places.  All the magical schools may learn all
+  the spells in this book.
+
+  Resist Cold
+    This spell sets up a magical aura about the caster's body which
+    insulates her against magical freezing effects.
+  Resist Fire
+    This spell sets up a magical aura about the caster's body which
+    insulates her against extreme heat.
+  Resist Poison
+    This spell creates a chemomagical aura around the caster which causes
+    toxic substances to be partially neutralized upon contact.  This
+    dramatically reduces the effectivess of poisonous gases used against
+    the caster.
+  Resistance
+    This spell sets up multiple independent magical auras around the
+    caster.  There are five distinct subspells which are all activated
+    simultaneously (but which may terminate independently) -- one each
+    for protection against cold, fire, electricity, acid and poison.
+  Shield
+    This spell creates a hard but flexible "second skin" around the caster.
+    This magical defense will deflect or absorb many blows taken in combat.
+  Rune of Protection
+    This spell allows the caster to draw a weak but functional pentagram upon
+    the ground.  Creatures other than the caster are unable to step upon the
+    pentagram without first breaking it (which is possible for strong
+    creatures).  Note, however, that this pentagram protects only the floor;
+    creatures may still attack the caster while she is standing in the
+    pentagram....
+
+  The Chaos Compendium
+  --------------------
+  This book contains some of the most powerful and dangerous incantations
+  available to mortals.  Those who use these spells are advised to do so
+  with extreme caution.  Rangers may learn all but the last two spells in
+  this book; Rogues may learn only Wonder.
+
+  Wonder
+    This dangerous spell allows even novice casters to tap the planes of
+    chaos and unleash the forces of wild magic.  The effects of this are
+    unpredictable, but generally destructive.
+  Polymorph Other
+    This spell attempts to transform a creature into a different species
+    (which may not necessarily be an improvement from the caster's point
+    of view).
+  Earthquake
+    This spell causes geological upheavals centered upon the ground beneath
+    the caster's feet.  The surrounding terrain may be rearranged
+    significantly, often to the dismay of creatures in the vicinity.
+  Word of Destruction
+    This spell unleashes a powerful wave of chaos centered upon the caster.
+    Any creatures or objects caught in the wave are instantly destroyed.
+    The surrounding terrain is often unrecognizable afterward.
+  Rift
+    Powerful casters may temporarily fold the planes of space along a
+    line.  Anything caught on this line will be torn apart by extreme
+    gravitational forces as the planes unfold themselves.  Creatures which
+    dodge to one side of the rift may survive, but will often be carried a
+    short distance by the unfolding planes.
+  Chaos Strike
+    The caster invoking this spell hurls a small piece of the primordial
+    chaos.  This chaos is unstable in our universe, and quickly dissipates,
+    but anything struck by this chaos will be subject to its destructive
+    nature.  Chaos has been known to warp the mind and body.
+
+Priest Prayers
+--------------
+
+  Visions
+  -------
+  This book contains prayers which lead one to a fuller understanding of
+  one's place in the gods' creation.  Through meditation and prayer,
+  enlightenment may be achieved.
+
+  Detect Evil
+    The unholy cannot be tolerated; the gods take offense at them and
+    willingly guide those who would seek to end their reign.
+  Call Light
+    It is truly said that those who are strong in their faith need never
+    wander in the darkness.
+  Find Traps
+    Trickery is anathema to the righteous; such deceptions may fool those
+    who are not pure in their faith, but the true children of the gods
+    need not fear in strange places.
+  Detect Doors/Stairs
+    The portal is the interface between the present and the future.  The
+    gods guide our steps as we pass through life toward our destinies.
+  Sense Invisible
+    The eyes of the gods are all-knowing and all-seeing.  Foul creatures
+    who would hide from them will be revealed.
+  Sense Surroundings
+    All of creation is contained within the smallest seed.  Those who
+    meditate upon this basic truth may glimpse a portion of creation,
+    reflected from within.
+
+  Lesser Healings
+  ---------------
+  The gods comfort those who are ill.  For though the flesh may be weak,
+  the spirit is strong; through prayer, the body may be rebuilt in the
+  image of the divine spirit which is within us all.
+
+  Cure Light Wounds
+    The power of healing begins with this simple mantra.  For it is said
+    that even the longest journey begins with a single step.
+  Remove Fear
+    The righteous do not fear the wicked; for the power of the gods moves
+    us, and we shall be victorious.
+  Neutralize Poison
+    By acknowledging our sins, and praying for forgiveness, we come closer
+    to the purity of the gods.
+  Cure Mortal Wounds
+    As one's faith grows stronger, one is able to transform the body into
+    a closer reflection of the divine.  For we are created in the image of
+    the gods, and this knowledge will sustain us through our trials in this
+    life.
+  Regneration
+    The gods help those who help themselves, and a drop of prevention is
+    worth a river of undoing.  By meditating upon the divine spirit, the
+    faithful may strengthen their own spirit, as well as their bodies.
+
+  The Heavenly Host
+  -----------------
+  It is written that in the final days of the world, the legions of darkness
+  will attempt to wrest control of creation from the servants of the gods.
+  In preparation for the final conflict, the righteous pray for strength
+  and courage; in togetherness we may yet prevail.
+
+  Bless
+    With courage in our hearts, we beseech the gods for their aid as we
+    fight in their name.  Our aim shall be true, and our enemies will
+    falter.
+  Orb of Draining
+    The true power of the gods is shown through their ability to expunge
+    the forces corruption and evil from their creation.  As the gods' agents,
+    the righteous wield the holy light; and the light shall erase the
+    darkness.
+  Radiant Aura
+    The righteous wear the power of the gods as a cloak.  It is said that
+    evil must cower in the darkness; it cannot withstand the light of the
+    gods' love.
+  Exorcise
+    The servants of the darkness sometimes intrude upon the gods' creation
+    directly, or through mortal agents who violate the sacred mysteries of
+    life and death.  These abominations are not within the gods' plan.  As
+    servants of the light, we wield the righteous power to return them to
+    the pits whence they came.
+  Earthquake
+    The power of the gods is supreme; all of creation is within their grasp.
+    Should the need arise, the servants of the gods may humbly ask that
+    the world tremble with righteous fury.
+
+  The Hand of Mercy
+  -----------------
+  The gods are merciful; they wish their creation to exist in peace and
+  harmony.  Conflict between their servants is a thing to be avoided
+  wherever possible.  By prayer, we may overcome violence without violence.
+
+  Turn Undead
+    When the servants of the darkness profane the sacred mysteries of life
+    and death, the abominations they create are weak.  They cower from the
+    light of the gods.
+  Scare Monster
+    The creatures which inhabit the gods' creation all share a piece of the
+    divine spirit.  In those who are not strong in their faith, feelings of
+    aggression (the work of the hand of the darkness) may sometimes
+    temporarily overcome the natural tendency for harmony.  At such times,
+    the mind is in a weakened state (it is not in tune with the gods'
+    creation), and through the shared piece of the divine spirit, the
+    primitive emotions be channeled into less destructive alternatives.
+  Sanctuary
+    The mortal flesh is weak and requires rest after its labors.  This is
+    particularly true when the spirit is also weak, as when a creature has
+    been tricked into the service of the darkness.  Through the shared piece
+    of the divine spirit, the righteous may call upon the spirit of another
+    and so bring peace.
+  Teleport Other
+    It is written: "When a child is naughty, do you kill it?  Nay, the peace
+    of the gods is our greatest power; those who cannot coexist with us in
+    harmony must be sent to a place where they will not cause further harm."
+  Banishment
+    When beset by the legions of darkness, the wise may seek to disperse
+    them.  Through the contemplation of the divine harmony, the righteous
+    may call upon the gods to scatter the wicked, like dust in the wind.
+
+  The Clerical Handbook
+  ---------------------
+  Often, the children of the gods are called upon to service in strange
+  and distant lands.  As part of the preparation for such journeys, these
+  prayers may help one to cope with the unexpected.
+
+  Call Light
+    It is truly said that those who are strong in their faith need never
+    wander in the darkness.
+  Satisfy Hunger
+    The gods smile upon their creation; the righteous need never know
+    famine, for the gods shall send divine manna to the needy.
+  Remove Curse
+    The servants of the darkness often befoul creation.  Through prayer,
+    the righteous may cleanse the world to bring it back into its natural
+    attunement to the divine.
+  Unbarring Ways
+    The quest for righteousness is often a struggle.  When the servants
+    of the darkness erect barriers in the path of the holy, the power of
+    prayer may overcome them.
+  Recharging
+    Often when traveling far from the flock, the lone servant of the gods
+    may find the tools of the secular magi to be of some benefit.  When
+    used in the name of righteousness, such trinkets may be replenished
+    by divine energy (although the holy spirit is often too strong for
+    these intrinsically flawed vessels).
+  Dispel Curse
+    The strongest servants of the darkness often befoul creation so cruelly
+    that only the most dedicated prayers and rituals will suffice to
+    return the world to its pristine purity.
+
+  Ethereal Openings
+  -----------------
+  All of creation is contained within the mind of the gods.  There is a
+  single pervasive, unifying harmony which runs throughout the world and
+  connects all parts of it together.  Through attunement to the will of
+  the gods and to the divine spirit, the righteous may surpass the
+  superficial physical layers of their surroundings, and move where the
+  gods will.
+
+  Portal
+    In the struggle against the forces of evil, the children of the gods
+    may sometimes find themselves in a place where their mortal flesh is
+    endangered.  The wise may seek shelter, and a chance for prayer,
+    before rejoining the battle.
+  Teleport Self
+    Some of the servants of the darkness are sufficiently strong or numerous
+    that a greater distance is required in order to provide adequate time
+    for preparation.
+  Teleport Level
+    At times the legions of darkness may so fully inhabit a place that
+    the lone servant of the gods cannot prevail.  There is no shame in
+    retreat; it is better to survive to report such places so that they
+    may be cleansed by an effort of many children of the gods working
+    together.
+  Blink
+    In the battle against evil, the righteous may find it useful to move
+    only a small distance; for, even as the servant of the gods is
+    planning and preparing, so may the servant of evil.
+  Word of Recall
+    It is written: "Would you walk to the market when you a horse is
+    willing to carry you?  It is not shameful to seek shortcuts; for by
+    eliminating unnecessary tedium, we free ourselves for the greater
+    work of the gods."
+  Alter Reality
+    The creation of the gods is an ongoing process.  When a small part of
+    it is flawed beyond repair, the gods may intervene.  A tiny region
+    of the tapestry of the universe may be removed and rewoven.
+
+  Godly Insights
+  --------------
+  It is truly said that the gods know all.  As mere reflections of the
+  divine image, we are not able to encompass all knowledge; but through
+  meditation we may expand our knowledge of the world around us.  For
+  a brief moment, we may see through the eyes of our creators.
+
+  Detection
+    This prayer guides the mind and spirit of the faithful; when the eyes
+    of the flesh are closed, the eyes of the soul may be opened.
+  Perception
+    As vessels for our piece of the divine spirit, our bodies interact
+    with the physical world and the objects therein.  But in order to
+    truly see a thing, we must pray; only through attunement to the divine
+    may we learn all the aspects which are hidden to our mortal eyes.
+  Probing
+    The creatures of the gods' creation are plentiful and often strange.
+    Through prayer, the wise may seek insight; through understanding,
+    the wise may seek harmony.
+  Clairyovance
+    Those who are strongest in their faith may remain attuned to the divine
+    spirit for longer periods of time, gaining a greater understanding of
+    the creation.
+
+  Spiritual Armor
+  ---------------
+  The mortal flesh is merely the vessel for the holy spirit.  When the
+  spirit is attuned to the divine through meditation, it is possible for
+  the spirit to temporarily overcome the limitations of the body.  In this
+  way, the righteous may strengthen themselves for the trials ahead.
+
+  Resist Heat and Cold
+    The gods' creation is filled with energy; the body exists within a
+    small range of temperatures.  Through prayer, one may balance the energy
+    flow of the universe through one's flesh.
+  Protection from Evil
+    Through attunement to the gods, the righteous may erect a protective
+    barrier around the body.  The forces of darkness cannot surpass this
+    barrier so long as it is held in place.  (The stronger one's faith,
+    the stronger the barrier.)
+  Resist Poison
+    The purity of the gods, and their love for their creation, allows the
+    faithful to overcome the foulness of the servants of the darkness.
+  Holy Sight
+    Though mortal eyes may fail, the eyes of the spirit can never be closed
+    so long as one's faith is strong.
+  Clear Consciousness
+    The servants of evil may attempt to deceive and confuse the faithful.
+    But through meditation upon the divine spirit, the children of the gods
+    may turn aside from such petty trickery.
+  Resist Elements
+    As one advances in one's attunement to the divine spirit, one's
+    understanding of the energy flows of the universe grows.  Through
+    disciplined meditation and faith, the one may balance the flow of
+    different forms of energy and certain harmful substances in order to
+    protect oneself.
+  Sacred Shield
+    Through faith, the righteous may erect a physical barrier which protects
+    against attacks directed at the flesh.
+
+  Purifications and Healings
+  --------------------------
+  The divine spirit within us is a reflection of the gods themselves; by
+  meditating upon this knowledge, the faithful may bring their bodies and
+  minds into attunement with this perfection.
+
+  Healing
+    Injury of the flesh may be reversed by those whose faith is strong.
+  Purify Body
+    The flesh is subject to certain ailments and temporary disabilities.
+    However, the faithful know that the power of the divine spirit may
+    overcome such conditions.
+  Meditation
+    Through prayer, one may bring one's mind and spirit back into a state
+    of attunement to the divine spirit which unites us.
+  Restoration
+    This complex ritual restores both the mind and the body.
+  Remembrance
+    The abominations created by the forces of darkness may sometimes
+    temporarily corrupt the souls of the faithful, bringing doubt of one's
+    own abilities.  Through ritual and prayer, those of the strongest faith
+    may overcome this, and reattune their spirits in accordance with the
+    will of the gods.
+
+  Wrath of God
+  ------------
+  It is written that in the final days of the world, the battle between
+  the forces of the gods and the servants of the darkness will plunge the
+  gods' creation into turmoil.  It is also written that there may come a
+  hero -- a true child of the gods, strong in faith and righteousness --
+  who will overcome the strongest of the servants of evil.
+
+  Dispel Undead
+    The abominations created by the servants of the darkness tremble before
+    the righteous anger of the gods whose creation they defile.
+  Dispel Demons
+    Some of the forces of evil may penetrate the barrier between the gods'
+    creation and the realms of the underworld, traveling to our world for
+    purposes of savage destruction.  The righteous shall not permit such
+    intrusions.
+  Dispel Evil
+    Whenever a creature is touched by unholiness, it is stained forever.
+    The mark of evil shall be a calling to the righteous, who shall smite
+    the wicked.
+  Bless Weapon
+    Through this ritual, the righteous may consecrate a blade to the service
+    of the gods and their battle against the forces of darkness.
+  Holy Word
+    As children of the gods, we bear a small piece of them within ourselves.
+    Certain symbols within our consciousness -- images, sounds, words --
+    resonate with the power of the gods themselves.  In times of direst need,
+    those who are strongest in their faith and righteousness may call upon
+    this inner reflection of the gods to unleash -- briefly -- the full
+    wrath as well as the full love of the gods.
+  Annihilation
+    It is written: "And the beast arose, and bellowed forth a battle cry.
+    And the stone around it shook with the force of its unholy power, and
+    the trees were ripped from the earth.  And the angel of the gods did
+    call upon the holy ones; and through him the gods delivered a mighty
+    ray of blessed light, which severed the head of the beast."
+  Word of Destruction
+    When evil desecrates the creation of the gods, their anger grows.
+    The most powerful of the righteous may serve as foci to direct the
+    divine wrath to destroy the evil where it stands, and to cleanse the
+    places and things which evil has touched.

@@ -590,6 +590,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	bool image = p_ptr->image;
 
+#ifdef ALLOW_EASY_FLOOR
+
+	int floor_num = 0;
+	
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
@@ -794,8 +799,27 @@ void map_info(int y, int x, byte *ap, char *cp)
 				a = object_attr(o_ptr);
 			}
 
+#ifdef ALLOW_EASY_FLOOR
+
+			/* Use the topmost marked item */
+			if (!easy_floor) break;
+
+			/* Use a special symbol for a stack or 2 or more items */
+			if (++floor_num > 1)
+			{
+				c = '*';
+				a = TERM_L_GREEN;
+
+				/* Done */
+				break;
+			}
+			
+#else /* ALLOW_EASY_FLOOR */
+
 			/* Done */
 			break;
+
+#endif /* ALLOW_EASY_FLOOR */
 		}
 	}
 
@@ -3708,6 +3732,9 @@ void disturb(int stop_search, int unused_flag)
 	{
 		/* Cancel */
 		p_ptr->running = 0;
+
+		/* Check for new panel if appropriate */
+		if (center_player && avoid_center) verify_panel();
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);

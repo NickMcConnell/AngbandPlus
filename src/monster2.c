@@ -2319,12 +2319,14 @@ void update_smart_learn(int m_idx, int what)
 		case DRS_RES_BLIND:
 		{
 			if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
+			if (p_ptr->oppose_blind) m_ptr->smart |= (SM_OPP_BLIND);
 			break;
 		}
 
 		case DRS_RES_CONFU:
 		{
 			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			if (p_ptr->oppose_conf) m_ptr->smart |= (SM_OPP_CONF);
 			break;
 		}
 

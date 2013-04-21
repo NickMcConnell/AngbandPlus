@@ -779,6 +779,9 @@ struct player_class
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
+
+	s16b blow_energy;		/* Multiplier for energy per blow */
+	s16b fire_energy;		/* Multiplier for energy per shot */
 };
 
 
@@ -800,6 +803,8 @@ struct player_other
 	s16b hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
 	s16b delay_factor;		/* Delay factor (0 to 9) */
+
+	s16b max_blows;			/* Maybe swing this many times */
 };
 
 
@@ -886,6 +891,12 @@ struct player_type
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
+
+	/* Some new fields in GW-Angband 2.8.3v2. */
+	s16b radiant;		/* Timed -- radiant aura */
+	s16b oppose_blind;	/* Timed -- radiant aura */
+	s16b oppose_conf;	/* Timed -- radiant aura */
+	s16b regen;		/* Timed -- regeneration */
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -1080,8 +1091,8 @@ struct player_type
 
 	u32b noise;			/* Derived from stealth */
 
-	s16b num_blow;		/* Number of blows */
-	s16b num_fire;		/* Number of shots */
+	s16b blow_energy;	/* Energy used per blow */
+	s16b fire_energy;	/* Number of shots */
 
 	byte ammo_mult;		/* Ammo multiplier */
 

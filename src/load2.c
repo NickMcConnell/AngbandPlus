@@ -1049,12 +1049,11 @@ static errr rd_store(int n)
 
 
 /*
- * Read RNG state (added in 2.8.0)
+ * Read RNG state (added in 2.8.0) (subtracted in GW-Angband 2.8.3v2).
  */
 static void rd_randomizer(void)
 {
 	int i;
-
 	u16b tmp16u;
 
 	/* Old version */
@@ -1064,12 +1063,13 @@ static void rd_randomizer(void)
 	rd_u16b(&tmp16u);
 
 	/* Place */
-	rd_u16b(&Rand_place);
+	rd_u16b(&tmp16u);		/* was Rand_place */
 
-	/* State */
-	for (i = 0; i < RAND_DEG; i++)
+	/* State -- see wr_randomizer() in save.c. */
+	for (i = 0; i < 63; i++)	/* RAND_DEG was 63 */
 	{
-		rd_u32b(&Rand_state[i]);
+		u32b tmp32u;
+		rd_u32b(&tmp32u);
 	}
 
 	/* Accept */
@@ -1331,7 +1331,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->poisoned);
 	rd_s16b(&p_ptr->image);
 	rd_s16b(&p_ptr->protevil);
-	rd_s16b(&p_ptr->invuln);
+	rd_s16b(&p_ptr->invuln);	 /* vestigial */
 	rd_s16b(&p_ptr->hero);
 	rd_s16b(&p_ptr->shero);
 	rd_s16b(&p_ptr->shield);
@@ -1362,13 +1362,22 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);
 #endif
 
+	/* Some new fields for GW-Angband 2.8.3v2. */
+	rd_s16b(&p_ptr->radiant);
+	rd_s16b(&p_ptr->oppose_blind);
+	rd_s16b(&p_ptr->oppose_conf);
+	rd_s16b(&p_ptr->regen);
+
+	/* Max desired blows per attack (in a strange place) */
+	rd_s16b(&op_ptr->max_blows);
+
 #ifdef GJW_RANDART
 	/* Future use */
-	for (i = 0; i < 44; i++) rd_byte(&tmp8u);
+	for (i = 0; i < 34; i++) rd_byte(&tmp8u);
 	rd_u32b(&seed_randart);
 #else
 	/* Future use */
-	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
+	for (i = 0; i < 38; i++) rd_byte(&tmp8u);
 #endif
 
 	/* Skip the flags */

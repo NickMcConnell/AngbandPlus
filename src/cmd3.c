@@ -23,6 +23,12 @@ void do_cmd_inven(void)
 	/* Note that we are in "inventory" mode */
 	p_ptr->command_wrk = FALSE;
 
+#ifdef ALLOW_EASY_FLOOR
+
+	/* Note that we are in "inventory" mode */
+	if (easy_floor) p_ptr->command_wrk = (USE_INVEN);
+	
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Save screen */
 	screen_save();
@@ -70,6 +76,12 @@ void do_cmd_equip(void)
 	/* Note that we are in "equipment" mode */
 	p_ptr->command_wrk = TRUE;
 
+#ifdef ALLOW_EASY_FLOOR
+
+	/* Note that we are in "equipment" mode */
+	if (easy_floor) p_ptr->command_wrk = (USE_EQUIP);
+	
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Save screen */
 	screen_save();
@@ -462,6 +474,16 @@ void do_cmd_destroy(void)
 
 	/* Message */
 	msg_format("You destroy %s.", o_name);
+
+	/*
+	 * If rods/wands are destroyed, the total maximum timeout or charges
+	 * of the stack needs to be reduced, unless all are destroyed.
+	 */
+	if ( ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) &&
+	     (amt < o_ptr->number))
+	{
+		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
+	}
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
@@ -945,8 +967,8 @@ void do_cmd_locate(void)
 
 		/* Prepare to ask which way to look */
 		sprintf(out_val,
-		        "Map sector [%d,%d], which is%s your sector.  Direction?",
-		        (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
+				  "Map sector [%d(%02d), %d(%02d)], which is%s your sector.  Direction?",
+				  (y2 / PANEL_HGT), (y2 % PANEL_HGT), (x2 / PANEL_WID), (x2 % PANEL_WID), tmp_val);
 
 		/* Assume no direction */
 		dir = 0;

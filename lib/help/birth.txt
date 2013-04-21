@@ -269,82 +269,85 @@ have intrinsic abilities.
                primary stats are Intelligence and Dexterity.
 
 	  Ranger
-	       A Ranger is a warrior/mage.  He is a good fighter,  and
-	       the best  of  the  classes  with a missile weapon such as
-	       a bow.  The ranger learns spells much more slowly than a
-	       mage,  but is  capable  of  learning all  but the most
-	       powerful spells.  Because a ranger is really  a	dual
-	       class  character,  more experience  is  required for him
-	       to advance.  A ranger has a good stealth, good perception,
-	       good searching, a good saving throw,  and is good with
-	       magical devices.  His primary stats are Intelligence
-	       and Dexterity.
+	       A  Ranger is a warrior/mage.  He is a passable fighter,  and
+	       the best  of  the  classes  with a missile weapon such as  a
+	       bow.  The ranger learns spells much more slowly than a mage,
+	       but  is  capable  of  learning all  but  the  most  powerful
+	       spells.  Because a ranger is really a dual-class  character,
+	       more  experience  is required for him to advance.  A  Ranger
+	       has a good stealth, good perception, good searching, a  good
+	       saving throw, and is good with magical devices.  His primary
+	       stats are Intelligence and Dexterity.
 
 	  Paladin
-	       A Paladin is a warrior/priest.  He is a very  good
-	       fighter, second	only to the warrior class, but not very
-	       good at mis- sile weapons.  He receives prayers at a
-	       slower pace then the priest,  but  can even  receive the
-	       most  powerful  prayers.  Because a paladin is  really  a
-	       dual  class  character,	it requires  more  experience  to
-	       advance him.  A paladin lacks much in the way of abilities.
-	       He is poor at  stealth,	per- ception,  searching,  and
-	       magical devices.  He has a decent saving throw due to
-	       his divine alliance.  His primary  stats are Strength
-	       and Charisma.
+	       A  Paladin is a warrior/priest.  He is a very good  fighter,
+	       though slightly slower than the Rogue, but not very good  at
+	       missile  weapons.  He receives  prayers  at  a  slower  pace
+	       than  the Priest,  but  can even  receive the most  powerful
+	       prayers.  A Paladin is trained to battle the forces of evil,
+	       and  receives a bonus when attacking demons and the  undead.
+	       Because  a  Paladin  is really  a  dual-class character,  it
+	       requires  more experience to advance  him.  A Paladin  lacks
+	       much  in  the  way  of abilities.  He is  poor  at  stealth,
+	       perception, searching and magical devices.  He has a  decent
+	       saving throw due to his divine alliance.  His primary  stats
+	       are Strength and Wisdom.
 
 
 === Stats ===
 
           Strength
-               Strength is important in fighting with weapons and in melee
-               combat.  A high strength can improve your chances of hitting
-               as well as the amount of damage done with each hit.  Char-
-               acters with low strengths may receive penalties.  Strength
-               is also useful in tunneling and in carrying heavy items.
- 
+               Strength is important in fighting with weapons and in
+               melee combat.  A high strength can improve your chances of
+               hitting as well as the amount of damage done with each hit.
+               Characters with low strengths may receive penalties.
+               Strength is also useful in tunneling and in carrying
+               heavy items.
+
           Intelligence
-               Intelligence affects the spellcasting abilities of mage-like
-               spellcasters, mages, rangers, and rogues.  Intelligence
-               will affect the number of spells you may learn each level as
-               well as the number of spell points you receive.  A high
-               intelligence may also improve your chances of successfully
-               casting a spell.  You cannot learn spells if your intelligence
-               is 7 or lower.  A good intelligence can also help with using
-               magic devices, picking locks, and disarming traps.
- 
+               Intelligence affects the spellcasting abilities of
+               mage-like spellcasters, mages, rangers, and rogues.
+               Intelligence will affect the number of spells you may
+               learn each level as well as the number of spell points
+               you receive.  A high intelligence may also improve your
+               chances of successfully casting a spell.  You cannot
+               learn spells if your intelligence is 7 or lower.  A good
+               intelligence can also help with using magic devices,
+               picking locks, and disarming traps.
+
           Wisdom
-               The primary function of wisdom is to determine the ability
-               of a priest or paladin to use prayers, just like intelligence
-               affects spellcasting.  Again, high wisdom will increase the
-               number of spell points you have and increase the number of
-               prayers you can learn each level, while improving the chance
-               that a prayer will be successful.  A good wisdom can also
-               help to improve your chances of resisting magical spells cast
-               upon you by monsters.
- 
-          Dexterity
-               Dexterity is a combination of agility and quickness.  A high
-               dexterity may allow a character to get multiple blows with
-               lighter weapons, thus greatly increasing his kill power, and
-               will increase his chances of hitting with any weapon and
-               dodging blows from enemies.  Dexterity is also useful in
-               picking locks, disarming traps, and protecting yourself from
-               some of the thieves that inhabit the dungeons.
- 
-          Constitution
-               Constitution is a character's ability to resist damage to his
-               body, and to recover from damage received.  Therefore a
-               character with a high constitution will receive more hit
-               points and also recover them faster while resting.
- 
-          Charisma
-               Charisma represents a character's personality and physical
-               appearance.  A character with a high charisma will receive
-               better prices from store owners, whereas a character with a
-               very low charisma may be robbed blind.  A high charisma will
-               also mean more starting money for the character.
- 
+               The primary function of wisdom is to determine the
+               ability of a priest or paladin to use prayers, just like
+               intelligence affects spellcasting.  Again, high wisdom will
+               increase the number of spell points you have and increase
+               the number of prayers you can learn each level, while
+               improving the chance that a prayer will be successful.
+               A good wisdom can also help to improve your chances of
+               resisting magical spells cast upon you by monsters.
+
+	  Dexterity
+	       Dexterity is a combination of agility and quickness.
+	       A high dexterity will allow a character to attack more
+	       quickly with lighter weapons and shoot more quickly
+	       with bows, thus greatly increasing his kill power, and
+	       will increase his chances of hitting with any weapon and
+	       dodging blows from enemies.  Dexterity is also useful in
+	       picking locks, disarming traps, and protecting yourself
+	       from some of the thieves that inhabit the dungeons.
+
+	  Constitution
+	       Constitution is a character's ability to resist damage to
+	       his body, and to recover from damage received.  Therefore a
+	       character with a high constitution will receive more hit
+	       points and also recover them faster while resting.
+
+	  Charisma
+	       Charisma represents a character's personality and physical
+	       appearance.  A character with a high charisma will receive
+	       better prices from store owners, whereas a character with
+	       a very low charisma may be robbed blind.  A high charisma
+	       will also mean more starting money for the character.
+
 
 === Abilities (outdated) ===
 

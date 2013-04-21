@@ -1,7 +1,9 @@
 
 
             ****************************************************
-            **  GW-Angband 2.8.3v1  **   The Pits of Angband  **
+            **  GW-Angband 2.8.3v2  **   The Pits of Angband  **
+            ****************************************************
+            **            THIS IS AN ALPHA RELEASE            **
             ****************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke

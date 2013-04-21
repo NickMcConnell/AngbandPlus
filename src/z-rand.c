@@ -1,26 +1,36 @@
 /* File: z-rand.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison, and others
+ * Copyright (c) 1997-1999 Greg Wooledge, Ben Harrison, and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  */
 
+/* This library is free software; you can redistribute it and/or   */
+/* modify it under the terms of the GNU Library General Public     */
+/* License as published by the Free Software Foundation; either    */
+/* version 2 of the License, or (at your option) any later         */
+/* version.                                                        */
+/* This library is distributed in the hope that it will be useful, */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of  */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.            */
+/* See the GNU Library General Public License for more details.    */
+/* You should have received a copy of the GNU Library General      */
+/* Public License along with this library; if not, write to the    */
+/* Free Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA   */ 
+/* 02111-1307  USA                                                 */
+
+/* Copyright (C) 1997 Makoto Matsumoto and Takuji Nishimura.       */
+/* When you use this, send an email to: matumoto@math.keio.ac.jp   */
+/* with an appropriate reference to your work.                     */
 
 /*
  * This file provides an optimized random number generator.
  *
- *
  * This code provides both a "quick" random number generator (4 bytes of
- * state), and a "decent" random number generator (256 bytes of state),
- * both available in two flavors, first, the simple "mod" flavor, which
- * is fast, but slightly biased at high values, and second, the simple
- * "div" flavor, which is less fast (and potentially non-terminating)
- * but which is not biased and is much less subject to non-randomness
- * problems in the low bits.  Note the "rand_int()" macro in "z-rand.h",
- * which must specify a "default" flavor.
+ * state), and a "decent" random number generator.
  *
  * Note the use of the "simple" RNG, first you activate it via
  * "Rand_quick = TRUE" and "Rand_value = seed" and then it is used
@@ -28,19 +38,25 @@
  * done, you de-activate it via "Rand_quick = FALSE" or choose a new
  * seed via "Rand_value = seed".
  *
- *
  * This (optimized) random number generator is based loosely on the old
  * "random.c" file from Berkeley but with some major optimizations and
- * algorithm changes.  See below for more details.
+ * algorithm changes.  The "complex" random number generator has been
+ * replaced by the "Mersenne Twister" algorithm (see below).
  *
  * Some code by Ben Harrison (benh@phial.com).
  *
  * Some code by Randy (randy@stat.tamu.edu).
+ *
+ * Some code by Greg Wooledge (wooledge@kellnet.com).
  */
 
 
 
 #include "z-rand.h"
+
+/* Internally used functions (the Mersenne Twister algorithm). */
+static void sgenrand(u32b seed);
+static u32b genrand(void);
 
 
 /*
@@ -63,96 +79,26 @@ u32b Rand_value;
 
 
 /*
- * Current "index" for the "complex" RNG
- */
-u16b Rand_place;
-
-/*
- * Current "state" table for the "complex" RNG
- */
-u32b Rand_state[RAND_DEG];
-
-
-
-/*
  * Initialize the "complex" RNG using a new seed
  */
 void Rand_state_init(u32b seed)
 {
-	int i, j;
-
-	/* Seed the table */
-	Rand_state[0] = seed;
-
-	/* Propagate the seed */
-	for (i = 1; i < RAND_DEG; i++) Rand_state[i] = LCRNG(Rand_state[i-1]);
-
-	/* Cycle the table ten times per degree */
-	for (i = 0; i < RAND_DEG * 10; i++)
+	/* Invoke the Mersenne Twister initialization. */
+	if (seed)
 	{
-		/* Acquire the next index */
-		j = Rand_place + 1;
-		if (j == RAND_DEG) j = 0;
-
-		/* Update the table, extract an entry */
-		Rand_state[j] += Rand_state[Rand_place];
-
-		/* Advance the index */
-		Rand_place = j;
+		sgenrand(seed);
 	}
-}
-
-
-/*
- * Extract a "random" number from 0 to m-1, via "modulus"
- *
- * Note that "m" should probably be less than 500000, or the
- * results may be rather biased towards low values.
- */
-u32b Rand_mod(u32b m)
-{
-	int j;
-	u32b r;
-
-	/* Hack -- simple case */
-	if (m <= 1) return (0);
-
-	/* Use the "simple" RNG */
-	if (Rand_quick)
-	{
-		/* Cycle the generator */
-		r = (Rand_value = LCRNG(Rand_value));
-
-		/* Mutate a 28-bit "random" number */
-		r = ((r >> 4) % m);
-	}
-
-	/* Use the "complex" RNG */
 	else
 	{
-		/* Acquire the next index */
-		j = Rand_place + 1;
-		if (j == RAND_DEG) j = 0;
-
-		/* Update the table, extract an entry */
-		r = (Rand_state[j] += Rand_state[Rand_place]);
-
-		/* Advance the index */
-		Rand_place = j;
-
-		/* Extract a "random" number */
-		r = ((r >> 4) % m);
+		sgenrand(MT_DEF_SEED);
 	}
-
-	/* Use the value */
-	return (r);
 }
 
 
 /*
- * Extract a "random" number from 0 to m-1, via "division"
+ * Extract a "random" number from 0 to m-1.
  *
- * This method selects "random" 28-bit numbers, and then uses
+ * The "simple" RNG selects "random" 28-bit numbers, and then uses
  * division to drop those numbers into "m" different partitions,
  * plus a small non-partition to reduce bias, taking as the final
  * value the first "good" partition that a number falls into.
@@ -160,22 +106,35 @@ u32b Rand_mod(u32b m)
  * This method has no bias, and is much less affected by patterns
  * in the "low" bits of the underlying RNG's.
  *
- * Note that "m" must not be greater than 0x1000000, or division
- * by zero will result.
+ * The "complex" version uses the Mersenne Twister.  From the MT FAQ:
+ *
+ *   Want a uniform discrete distribution among the integers [0..N-1], e.g.
+ *   a dice in the case of N=6. 
+ *
+ *   If the application is not sensitive to the rounding off error, then please
+ *   multiply N and take the integer part (sufficient for most applications).
+ *   In the very rare case that the rounding off error of real numbers does
+ *   matter, then generate random integers, take the minimum integer with
+ *   N<=2^n, take the least significant n bits and discard the numbers greater
+ *   than or equal to N.
+ *
+ * Since we're not using real (float/double) numbers here, we'll take the
+ * second approach.  Thus the "_div" name is no longer accurate for the
+ * "complex" RNG. -GJW
  */
 u32b Rand_div(u32b m)
 {
-	u32b r, n;
+	u32b r;
 
 	/* Hack -- simple case */
 	if (m <= 1) return (0);
 
-	/* Partition size */
-	n = (0x10000000 / m);
-
 	/* Use a simple RNG */
 	if (Rand_quick)
 	{
+		/* Partition size */
+		u32b n = (0x10000000 / m);
+
 		/* Wait for it */
 		while (1)
 		{
@@ -193,23 +152,43 @@ u32b Rand_div(u32b m)
 	/* Use a complex RNG */
 	else
 	{
+		int i;
+		u32b m_tmp;
+
+		/*
+		 * Find the minimum power of 2 which is >= m.  We do this
+		 * by right-shifting m, 1 step at a time until it gets down
+		 * to 1; then left-shifting an equal number of times.  If
+		 * we get our original m back, then it's a power of 2.
+		 * Otherwise left-shift once more. -GJW
+		 */
+		m_tmp = m;
+		i = 1;
+
+		/* Right-shift several times. */
+		while (m_tmp > 1)
+		{
+			m_tmp >>= 1;
+			i++;
+		}
+
+		/* Left-shift an equal number (i) of times. */
+		m_tmp <<= i;
+
+		/*
+		 * If m_tmp = m, then m is a power of 2, so stop.  Otherwise,
+		 * shift one more time.
+		 */
+		if (m_tmp != m) m_tmp <<= 1;
+
+		/* Our bitmask is 1 less than m_tmp. */
+		m_tmp--;
+
 		/* Wait for it */
 		while (1)
 		{
-			int j;
-
-			/* Acquire the next index */
-			j = Rand_place + 1;
-			if (j == RAND_DEG) j = 0;
-
-			/* Update the table, extract an entry */
-			r = (Rand_state[j] += Rand_state[Rand_place]);
-
-			/* Hack -- extract a 28-bit "random" number */
-			r = (r >> 4) / n;
-
-			/* Advance the index */
-			Rand_place = j;
+			/* Get a random 32-bit value from MT, masked. */
+			r = genrand() & m_tmp;
 
 			/* Done */
 			if (r < m) break;
@@ -339,3 +318,69 @@ s16b Rand_normal(int mean, int stand)
 }
 
 
+/*
+ * The following is the Mersenne Twister algorithm, from
+ *
+ * http://www.math.keio.ac.jp/~matumoto/emt.html
+ *
+ * I have reformatted the code slightly to enhance readability. -GJW
+ */
+
+/* A C-program for MT19937: Integer     version                   */
+/*  genrand() generates one pseudorandom unsigned integer (32bit) */
+/* which is uniformly distributed among 0 to 2^32-1  for each     */
+/* call. sgenrand(seed) set initial values to the working area    */
+/* of 624 words. Before genrand(), sgenrand(seed) must be         */
+/* called once. (seed is any 32-bit integer except for 0).        */
+/*   Coded by Takuji Nishimura, considering the suggestions by    */
+/* Topher Cooper and Marc Rieffel in July-Aug. 1997.              */
+
+static u32b mt[MT_N];	/* the array for the state vector  */
+static int mti = MT_N + 1;	/* mti==N+1 means mt[N] is not initialized */
+
+/* initializing the array with a NONZERO seed */
+void sgenrand(u32b seed)
+{
+    /* setting initial seeds to mt[N] using         */
+    /* the generator Line 25 of Table 1 in          */
+    /* [KNUTH 1981, The Art of Computer Programming */
+    /*    Vol. 2 (2nd Ed.), pp102]                  */
+    mt[0] = seed & 0xffffffff;
+    for (mti = 1; mti < MT_N; mti++)
+        mt[mti] = (69069 * mt[mti - 1]) & 0xffffffff;
+}
+
+u32b genrand(void)
+{
+    u32b y;
+    static u32b mag01[2] = {0x0, MT_MATRIX_A};
+    /* mag01[x] = x * MT_MATRIX_A  for x=0,1 */
+
+    if (mti >= MT_N) { /* generate N words at one time */
+        int kk;
+
+        if (mti == MT_N + 1)		/* if sgenrand() has not been called, */
+            sgenrand(MT_DEF_SEED);	/* a default initial seed is used */
+
+        for (kk = 0; kk < MT_N - MT_M; kk++) {
+            y = (mt[kk] & MT_UPPER_MASK) | (mt[kk + 1] & MT_LOWER_MASK);
+            mt[kk] = mt[kk + MT_M] ^ (y >> 1) ^ mag01[y & 0x1];
+        }
+        for ( ; kk < MT_N - 1; kk++) {
+            y = (mt[kk] & MT_UPPER_MASK) | (mt[kk + 1] & MT_LOWER_MASK);
+            mt[kk] = mt[kk + (MT_M - MT_N)] ^ (y >> 1) ^ mag01[y & 0x1];
+        }
+        y = (mt[MT_N - 1] & MT_UPPER_MASK) | (mt[0] & MT_LOWER_MASK);
+        mt[MT_N - 1] = mt[MT_M - 1] ^ (y >> 1) ^ mag01[y & 0x1];
+
+        mti = 0;
+    }
+  
+    y = mt[mti++];
+    y ^= MT_TEMPERING_SHIFT_U(y);
+    y ^= MT_TEMPERING_SHIFT_S(y) & MT_TEMPERING_MASK_B;
+    y ^= MT_TEMPERING_SHIFT_T(y) & MT_TEMPERING_MASK_C;
+    y ^= MT_TEMPERING_SHIFT_L(y);
+
+    return y; 
+}

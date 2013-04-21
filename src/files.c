@@ -1183,13 +1183,13 @@ static void display_player_xtra_info(void)
 	if (p_ptr->random_artifacts)
 	{
 		Term_putstr(1, 0, -1, TERM_WHITE,
-			format ("[Angband %d.%d.%d with randart "
+			format ("[GW-Angband %d.%d.%d with randart "
 				RANDART_VERSION ", seed %lu]",
 				VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
 				(unsigned int) seed_randart));
 	} else {
 		Term_putstr(1, 0, -1, TERM_WHITE,
-			format ("[Angband %d.%d.%d with randart "
+			format ("[GW-Angband %d.%d.%d with randart "
 				RANDART_VERSION "]",
 				VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH));
 	}
@@ -1348,15 +1348,15 @@ static void display_player_xtra_info(void)
 
 
 	/* Blows */
-	sprintf(buf, "%d/turn", p_ptr->num_blow);
-	Term_putstr(col, 14, -1, TERM_WHITE, "Blows");
-	Term_putstr(col+5, 14, -1, TERM_L_BLUE, format("%13s", buf));
+	sprintf(buf, "%d", p_ptr->blow_energy);
+	Term_putstr(col, 14, -1, TERM_WHITE, "Blow cost");
+	Term_putstr(col+9, 14, -1, TERM_L_BLUE, format("%9s", buf));
 
 
 	/* Shots */
-	sprintf(buf, "%d/turn", p_ptr->num_fire);
-	Term_putstr(col, 15, -1, TERM_WHITE, "Shots");
-	Term_putstr(col+5, 15, -1, TERM_L_BLUE, format("%13s", buf));
+	sprintf(buf, "%d", p_ptr->fire_energy);
+	Term_putstr(col, 15, -1, TERM_WHITE, "Shot cost");
+	Term_putstr(col+9, 15, -1, TERM_L_BLUE, format("%9s", buf));
 
 
 	/* Infra */
@@ -3434,7 +3434,7 @@ void display_scores(int from, int to)
 	Term_clear();
 
 	/* Title */
-	put_str("                Angband Hall of Fame", 0, 0);
+	put_str("                GW-Angband Hall of Fame", 0, 0);
 
 	/* Display the scores */
 	display_scores_aux(from, to, -1, NULL);

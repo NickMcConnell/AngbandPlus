@@ -1,12 +1,30 @@
 /* File: z-rand.h */
 
 /*
- * Copyright (c) 1997 Ben Harrison, and others
+ * Copyright (c) 1997-1999 Greg Wooledge, Ben Harrison, and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* This library is free software; you can redistribute it and/or   */
+/* modify it under the terms of the GNU Library General Public     */
+/* License as published by the Free Software Foundation; either    */
+/* version 2 of the License, or (at your option) any later         */
+/* version.                                                        */
+/* This library is distributed in the hope that it will be useful, */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of  */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.            */
+/* See the GNU Library General Public License for more details.    */
+/* You should have received a copy of the GNU Library General      */
+/* Public License along with this library; if not, write to the    */
+/* Free Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA   */
+/* 02111-1307  USA                                                 */
+
+/* Copyright (C) 1997 Makoto Matsumoto and Takuji Nishimura.       */
+/* When you use this, send an email to: matumoto@math.keio.ac.jp   */
+/* with an appropriate reference to your work.                     */
 
 #ifndef INCLUDED_Z_RAND_H
 #define INCLUDED_Z_RAND_H
@@ -17,14 +35,22 @@
 
 /**** Available constants ****/
 
+#define MT_DEF_SEED     4357		/* should never be used */
 
-/*
- * The "degree" of the "complex" Random Number Generator.
- * This value is hard-coded at 63 for a wide variety of reasons.
- */
-#define RAND_DEG 63
+/* Period parameters */
+#define MT_N            624
+#define MT_M            397
+#define MT_MATRIX_A     0x9908b0df      /* constant vector a */
+#define MT_UPPER_MASK   0x80000000      /* most significant w-r bits */
+#define MT_LOWER_MASK   0x7fffffff      /* least significant r bits */
 
-
+/* Tempering parameters */
+#define MT_TEMPERING_MASK_B     0x9d2c5680
+#define MT_TEMPERING_MASK_C     0xefc60000
+#define MT_TEMPERING_SHIFT_U(y) ((y) >> 11)
+#define MT_TEMPERING_SHIFT_S(y) ((y) << 7)
+#define MT_TEMPERING_SHIFT_T(y) ((y) << 15)
+#define MT_TEMPERING_SHIFT_L(y) ((y) >> 18)
 
 
 /**** Available macros ****/
@@ -62,18 +88,14 @@
 extern bool Rand_quick;
 extern u32b Rand_value;
 extern u16b Rand_place;
-extern u32b Rand_state[RAND_DEG];
 
 
 /**** Available Functions ****/
 
 
 extern void Rand_state_init(u32b seed);
-extern u32b Rand_mod(u32b m);
 extern u32b Rand_div(u32b m);
 extern s16b Rand_normal(int mean, int stand);
 
 
 #endif
-
-

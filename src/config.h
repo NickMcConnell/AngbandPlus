@@ -167,6 +167,11 @@
 /* #define VERIFY_SAVEFILE */
 
 
+/*
+ * OPTION: Use random artifacts.  (Warning: GW-Angband may not compile
+ * with this option disabled.)
+ */
+#define GJW_RANDART
 
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
@@ -361,11 +366,6 @@
 
 
 /*
- * OPTION: Allow the use of random artifacts.
- */
-#define GJW_RANDART
-
-/*
  * OPTION: Hack -- Macintosh stuff
  */
 #ifdef MACINTOSH
@@ -521,4 +521,24 @@
 # define VERIFY_TIMESTAMP
 #endif
 
+
+/*
+ * OPTION: Repeat last command
+ */
+#define ALLOW_REPEAT
+
+/*
+ * OPTION: Make opening and closing things easy
+ */
+#define ALLOW_EASY_OPEN
+
+/*
+ * OPTION: Make disarming traps easy
+ */
+#define ALLOW_EASY_DISARM
+
+/*
+ * OPTION: Make floor stacks easy
+ */
+#define ALLOW_EASY_FLOOR
 

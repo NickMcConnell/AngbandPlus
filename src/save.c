@@ -863,7 +863,11 @@ static void wr_store(store_type *st_ptr)
 
 
 /*
- * Write RNG state
+ * Pretend to write RNG state.  Since the Mersenne Twister has a much
+ * larger state than the original Angband 2.8.3 "complex" RNG does, saving
+ * its state would break savefile compatibility with Angband.  So I have
+ * to make a choice between breaking Angband savefile compatibility and
+ * ruining the Angband "anti-scumming" feature.  I choose the latter. -GJW
  */
 static errr wr_randomizer(void)
 {
@@ -873,12 +877,13 @@ static errr wr_randomizer(void)
 	wr_u16b(0);
 
 	/* Place */
-	wr_u16b(Rand_place);
+	wr_u16b(0);			/* was Rand_place */
 
 	/* State */
-	for (i = 0; i < RAND_DEG; i++)
+	for (i = 0; i < 63; i++)	/* RAND_DEG was 63 */
 	{
-		wr_u32b(Rand_state[i]);
+		wr_u32b(0);
+		/*wr_u32b(Rand_state[i]);*/
 	}
 
 	/* Success */
@@ -1090,7 +1095,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->poisoned);
 	wr_s16b(p_ptr->image);
 	wr_s16b(p_ptr->protevil);
-	wr_s16b(p_ptr->invuln);
+	wr_s16b(p_ptr->invuln);	 /* vestigial */
 	wr_s16b(p_ptr->hero);
 	wr_s16b(p_ptr->shero);
 	wr_s16b(p_ptr->shield);
@@ -1118,13 +1123,22 @@ static void wr_extra(void)
 	wr_byte(0);
 #endif
 
+	/* Some new fields for GW-Angband 2.8.3v2. */
+	wr_s16b(p_ptr->radiant);
+	wr_s16b(p_ptr->oppose_blind);
+	wr_s16b(p_ptr->oppose_conf);
+	wr_s16b(p_ptr->regen);
+
+	/* Max desired blows per attack (in a strange place) */
+	wr_s16b(op_ptr->max_blows);
+
 #ifdef GJW_RANDART
 	/* Future use */
-	for (i = 0; i < 11; i++) wr_u32b(0L);
+	for (i = 0; i < 17; i++) wr_u16b(0L);
 	wr_u32b(seed_randart);
 #else
 	/* Future use */
-	for (i = 0; i < 12; i++) wr_u32b(0L);
+	for (i = 0; i < 19; i++) wr_u16b(0L);
 #endif
 
 	/* Ignore some flags */

@@ -483,10 +483,16 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are protected by a mystic shield.";
 	}
+	if (p_ptr->radiant)
+	{
+		info[i++] = "You are surrounded by a radiant aura.";
+	}
+#if 0
 	if (p_ptr->invuln)
 	{
 		info[i++] = "You are temporarily invulnerable.";
 	}
+#endif
 	if (p_ptr->confusing)
 	{
 		info[i++] = "Your hands are glowing dull red.";
@@ -520,9 +526,16 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are glowing with light.";
 	}
-	if (p_ptr->regenerate)
+	if (p_ptr->regenerate || p_ptr->regen)
 	{
-		info[i++] = "You regenerate quickly.";
+		if (p_ptr->regenerate && p_ptr->regen)
+		{
+			info[i++] = "You regenerate quickly.";
+		}
+		else
+		{
+			info[i++] = "You regenerate very quickly.";
+		}
 	}
 	if (p_ptr->telepathy)
 	{
@@ -615,11 +628,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are resistant to darkness.";
 	}
-	if (p_ptr->resist_blind)
+	if (p_ptr->resist_blind || p_ptr->oppose_blind)
 	{
 		info[i++] = "Your eyes are resistant to blindness.";
 	}
-	if (p_ptr->resist_confu)
+	if (p_ptr->resist_confu || p_ptr->oppose_conf)
 	{
 		info[i++] = "You are resistant to confusion.";
 	}
@@ -2098,6 +2111,9 @@ bool recharge(int num)
 		/* Recharge power */
 		i = (num + 100 - lev - (10 * o_ptr->pval)) / 15;
 
+		/* Mega hack: Staves of the Magi may not be recharged. -GJW */
+		if (o_ptr->sval == SV_STAFF_THE_MAGI) i = 0;
+
 		/* Back-fire XXX XXX XXX */
 		if ((i <= 1) || (rand_int(i) == 0))
 		{
@@ -2242,6 +2258,14 @@ bool turn_undead(void)
 bool dispel_undead(int dam)
 {
 	return (project_hack(GF_DISP_UNDEAD, dam));
+}
+
+/*
+ * Dispel demons
+ */
+bool dispel_demons(int dam)
+{
+	return (project_hack(GF_DISP_DEMONS, dam));
 }
 
 /*
@@ -2557,7 +2581,8 @@ void destroy_area(int y1, int x1, int r, bool full)
 		msg_print("There is a searing blast of light!");
 
 		/* Blind the player */
-		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
+		if (!p_ptr->resist_blind && !p_ptr->resist_lite &&
+		    !p_ptr->oppose_blind)
 		{
 			/* Become blind */
 			(void)set_blind(p_ptr->blind + 10 + randint(10));
@@ -3257,6 +3282,70 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	return (project(-1, rad, ty, tx, dam, typ, flg));
 }
 
+#if 0	/* There are no effects which use this in GW-Angband 2.8.3v2. */
+/* Cast a ball spell that does not jump over monsters. -GJW */
+bool fire_solid_ball(int typ, int dir, int dam, int rad)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int ty, tx;
+
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
+	/* Use the given direction */
+	ty = py + 99 * ddy[dir];
+	tx = px + 99 * ddx[dir];
+
+	/* Hack -- Use an actual "target" (early detonation) */
+	if ((dir == 5) && target_okay())
+	{
+		ty = p_ptr->target_row;
+		tx = p_ptr->target_col;
+	}
+
+	/* Analyze the "dir" and the "target".  Hurt items on floor. */
+	return (project(-1, rad, ty, tx, dam, typ, flg));
+}
+#endif
+
+/*
+ * Cast multiple non-jumping ball spells at the same target.  In order to get
+ * the "proper" effect for a rapid-fire multiple ball spell (Meteor Swarm), we
+ * have to have a function like this.  Calling fire_solid_ball() in a loop
+ * doesn't work because if the target dies after the first hit, the remaining
+ * balls will be centered on the caster....  -GJW
+ */
+bool fire_swarm(int num, int typ, int dir, int dam, int rad)
+{
+	bool noticed = FALSE;
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int ty, tx;
+
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
+	/* Use the given direction */
+	ty = py + 99 * ddy[dir];
+	tx = px + 99 * ddx[dir];
+
+	/* Hack -- Use an actual "target" (early detonation) */
+	if ((dir == 5) && target_okay())
+	{
+		ty = p_ptr->target_row;
+		tx = p_ptr->target_col;
+	}
+
+	while (num--)
+	{
+		/* Analyze the "dir" and the "target".  Hurt items on floor. */
+		if (project(-1, rad, ty, tx, dam, typ, flg)) noticed = TRUE;
+	}
+
+	return noticed;
+}
 
 /*
  * Hack -- apply a "projection()" in a direction (or at the target)

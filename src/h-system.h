@@ -103,9 +103,15 @@
 #  include <string.h>
 # else
 #  include <strings.h>
+#  ifndef strstr
 extern char *strstr();
+#  endif
+#  ifndef strchr
 extern char *strchr();
+#  endif
+#  ifndef strrchr
 extern char *strrchr();
+#  endif
 # endif
 
 #else

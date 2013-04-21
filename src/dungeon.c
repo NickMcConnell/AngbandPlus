@@ -429,7 +429,7 @@ static void process_world(void)
 	int regen_amount;
 
 	object_type *o_ptr;
-
+        object_kind *k_ptr;
 
 
 	/* Every 10 game turns */
@@ -497,7 +497,7 @@ static void process_world(void)
 			else
 			{
 				/* Message */
-				msg_print("The sun has fallen.");
+				msg_print("The sun has set.");
 			}
 
 			/* Illuminate */
@@ -674,6 +674,12 @@ static void process_world(void)
 		regen_amount = regen_amount * 2;
 	}
 
+	/* Also include time-limited regeneration */
+	if (p_ptr->regen)
+	{
+		regen_amount *= 2;
+	}
+
 	/* Searching or Resting */
 	if (p_ptr->searching || p_ptr->resting)
 	{
@@ -823,6 +829,29 @@ static void process_world(void)
 		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
 	}
 
+	/* Radiant Aura */
+	if (p_ptr->radiant)
+	{
+		(void)set_radiant(p_ptr->radiant - 1);
+	}
+
+	/* Oppose Blindness */
+	if (p_ptr->oppose_blind)
+	{
+		(void)set_oppose_blind(p_ptr->oppose_blind - 1);
+	}
+
+	/* Oppose Confusion */
+	if (p_ptr->oppose_conf)
+	{
+		(void)set_oppose_conf(p_ptr->oppose_conf - 1);
+	}
+
+	/* Temporary regeneration */
+	if (p_ptr->regen)
+	{
+		(void)set_regen(p_ptr->regen - 1);
+	}
 
 	/*** Poison and Stun and Cut ***/
 
@@ -950,18 +979,38 @@ static void process_world(void)
 	for (j = 0, i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
+		k_ptr = &k_info[o_ptr->k_idx];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
 		/* Examine all charging rods */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval))
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
-			/* Charge it */
-			o_ptr->pval--;
+			int temp;
 
-			/* Notice changes */
-			if (!(o_ptr->pval)) j++;
+			/* Determine how many rods are charging. */
+			temp = (o_ptr->timeout + (k_ptr->pval - 1))
+				/ k_ptr->pval;
+			if (temp > o_ptr->number) temp = o_ptr->number;
+
+			if (temp)
+			{
+				int temp2;
+
+				/* Decrease timeout by that number. */
+				o_ptr->timeout -= temp;
+
+				/* Boundary control. */
+				if (o_ptr->timeout < 0) o_ptr->timeout = 0;
+
+				/* How many are charging now? */
+				temp2 = (o_ptr->timeout + (k_ptr->pval - 1))
+					/ k_ptr->pval;
+
+				/* Notice changes */
+				if (!(o_ptr->timeout) || (temp2 != temp)) j++;
+			}
 		}
 	}
 
@@ -991,7 +1040,11 @@ static void process_world(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Recharge rods on the ground */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval)) o_ptr->pval--;
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		{
+			o_ptr->timeout -= o_ptr->number;
+			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
+		}
 	}
 
 
@@ -1170,6 +1223,13 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
+#ifdef ALLOW_REPEAT
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{

@@ -394,9 +394,9 @@ F:STR | DEX | CON |
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
 F:FREE_ACT | SEE_INVIS
 
-N:69:of Extra Attacks
+N:69:of Quickness
 X:24:20
-W:0:0:0:10000
+W:0:0:0:5000
 C:0:0:0:2
 F:BLOWS
 
@@ -578,10 +578,10 @@ W:0:0:0:10000
 C:5:10:0:2
 F:MIGHT
 
-N:109:of Extra Shots
+N:109:of Quickness
 X:25:20
 C:10:5:0:1
-W:0:0:0:10000
+W:0:0:0:5000
 F:SHOTS
 
 # 110 (unused)

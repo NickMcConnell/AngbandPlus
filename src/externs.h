@@ -43,7 +43,8 @@ extern byte adj_str_wgt[];
 extern byte adj_str_hold[];
 extern byte adj_str_dig[];
 extern byte adj_str_blow[];
-extern byte adj_dex_blow[];
+extern s16b adj_dex_blow_energy[];
+extern s16b adj_dex_fire_energy[];
 extern byte adj_dex_safe[];
 extern byte adj_con_fix[];
 extern byte adj_con_mhp[];
@@ -66,7 +67,7 @@ extern cptr window_flag_desc[32];
 extern cptr option_text[OPT_MAX];
 extern cptr option_desc[OPT_MAX];
 extern bool option_norm[OPT_MAX];
-extern byte option_page[4][16];
+extern byte option_page[OPT_PAGE_MAX][OPT_PER_PAGE];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -567,6 +568,7 @@ extern bool sleep_monsters(void);
 extern bool banish_evil(int dist);
 extern bool turn_undead(void);
 extern bool dispel_undead(int dam);
+extern bool dispel_demons(int dam);
 extern bool dispel_evil(int dam);
 extern bool dispel_monsters(int dam);
 extern void aggravate_monsters(int who);
@@ -580,6 +582,10 @@ extern void unlite_room(int y1, int x1);
 extern bool lite_area(int dam, int rad);
 extern bool unlite_area(int dam, int rad);
 extern bool fire_ball(int typ, int dir, int dam, int rad);
+#if 0 /* not used yet */
+extern bool fire_solid_ball(int typ, int dir, int dam, int rad);
+#endif
+extern bool fire_swarm(int num, int typ, int dir, int dam, int rad);
 extern bool fire_bolt(int typ, int dir, int dam);
 extern bool fire_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
@@ -689,7 +695,6 @@ extern bool set_blessed(int v);
 extern bool set_hero(int v);
 extern bool set_shero(int v);
 extern bool set_protevil(int v);
-/* extern bool set_invuln(int v); */
 extern bool set_tim_invis(int v);
 extern bool set_tim_infra(int v);
 extern bool set_oppose_acid(int v);
@@ -697,6 +702,10 @@ extern bool set_oppose_elec(int v);
 extern bool set_oppose_fire(int v);
 extern bool set_oppose_cold(int v);
 extern bool set_oppose_pois(int v);
+extern bool set_radiant(int v);
+extern bool set_oppose_blind(int v);
+extern bool set_oppose_conf(int v);
+extern bool set_regen(int v);
 extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);
@@ -759,4 +768,35 @@ extern void user_name(char *buf, int id);
 /* main.c */
 /* extern int main(int argc, char *argv[]); */
 
+#ifdef ALLOW_REPEAT
+
+/* util.c */
+extern void repeat_push(int what);
+extern bool repeat_pull(int *what);
+extern void repeat_check(void);
+
+#endif /* ALLOW_REPEAT */
+
+#ifdef ALLOW_EASY_OPEN
+
+/* cmd2.c */
+extern bool easy_open_door(int y, int x);
+
+#endif /* ALLOW_EASY_OPEN */
+
+#ifdef ALLOW_EASY_DISARM
+
+extern bool do_cmd_disarm_aux(int y, int x);
+
+#endif /* ALLOW_EASY_DISARM */
+
+#ifdef ALLOW_EASY_FLOOR
+
+/* object1.c */
+extern bool scan_floor(int *items, int *item_num, int y, int x, int mode);
+extern void show_floor(int y, int x);
+extern bool get_item_floor(int *cp, cptr pmt, cptr str, int mode);
+extern void py_pickup_floor(int pickup);
+
+#endif /* ALLOW_EASY_FLOOR */
 

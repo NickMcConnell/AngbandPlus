@@ -1423,7 +1423,7 @@ static void calc_mana(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-	msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2;
+	msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 10;
 
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
@@ -1658,6 +1658,92 @@ static int weight_limit(void)
 
 
 /*
+ * Compute the energy required for each blow.  (This was separated out of
+ * calc_bonuses() which is *way* too big.) -GJW
+ */
+static s16b compute_blow_energy (int wgt)
+{
+	s32b energy, strwgt;
+
+	/* Base value is derived from DEX. */
+	energy = adj_dex_blow_energy[p_ptr->stat_ind[A_DEX]];	/* x10 */
+
+	/* Multiply by class factor. */
+	energy *= class_info[p_ptr->pclass].blow_energy;	/* x100 */
+
+	/*
+	 * Multiply by (strength divided by weight) factor.  This factor
+	 * should be s(x) = (33 + 102/x)%, where x is strength (indexed)
+	 * divided by weapon weight in pounds.
+	 *
+	 * Example:
+	 *   STR 18/80, weapon weight 7.0 lbs.
+	 *   strength index = 26
+	 *   x = 26/7 ~= 3.7
+	 *   s(x) = (33+102/3.7)% = 61%
+	 */
+	strwgt = (p_ptr->stat_ind[A_STR] + 3) * 100 / wgt;	/* x10 */
+	energy *= (33 + 1020 / strwgt);				/* x10000 */
+
+	/* Knock off a few decimal places to prevent overflow for wimps. */
+	energy /= 100;						/* x100 */
+
+	/* Multiply by level factor.  This is simply (100 - 3*L/2)%. */
+	energy *= (100 - (3 * p_ptr->lev) / 2);			/* x10000 */
+
+	/* Multiply by fudge factor, then divide by 10000. */
+	/* Our current fudge factor is 3.2. */
+	energy *= 32;
+	energy /= 100000;
+
+	/* Normalize to a range of [15,100]. */
+	if (energy < 15) energy = 15;
+	if (energy > 100) energy = 100;
+
+	return (s16b) energy;
+}
+
+/*
+ * Compute the energy required for each shot.  (This was separated out of
+ * calc_bonuses() which is *way* too big.) -GJW
+ */
+static s16b compute_fire_energy(void)
+{
+	s32b energy;
+	s16b class_factor;
+
+	/* Base value is derived from DEX. */
+	energy = adj_dex_fire_energy[p_ptr->stat_ind[A_DEX]];	/* x10 */
+
+	/*
+	 * Multiply by class factor.  HACK: Rangers get their superb
+	 * bonus only with bows (otherwise use the Rogues' value).
+	 */
+	class_factor = class_info[p_ptr->pclass].fire_energy;
+	if ((p_ptr->pclass == CLASS_RANGER) && (p_ptr->ammo_tval != TV_ARROW))
+	{
+		class_factor = class_info[CLASS_ROGUE].fire_energy;
+	}
+	energy *= class_factor;					/* x100 */
+
+	/* We have no STR factor for missile weapons.  Should we? */
+
+	/* Multiply by level factor.  This is simply (100 - L)%. */
+	energy *= (100 - p_ptr->lev);				/* x10000 */
+
+	/* Multiply by our fudge factor and divide by 10000. */
+	/* The current fudge factor is 2. */
+	energy *= 2;
+	energy /= 10000;
+
+	/* Normalize to a range of [15,100]. */
+	if (energy < 15) energy = 15;
+	if (energy > 100) energy = 100;
+
+	return (s16b) energy;
+}
+
+/*
  * Calculate the players current "state", taking into account
  * not only race/class intrinsics, but also objects being worn
  * and temporary spell effects.
@@ -1730,11 +1816,11 @@ static void calc_bonuses(void)
 	p_ptr->pspeed = 110;
 
 	/* Reset "blow" info */
-	p_ptr->num_blow = 1;
+	p_ptr->blow_energy = 100;
 	extra_blows = 0;
 
 	/* Reset "fire" info */
-	p_ptr->num_fire = 0;
+	p_ptr->fire_energy = 0;
 	p_ptr->ammo_mult = 0;
 	p_ptr->ammo_tval = 0;
 	extra_shots = 0;
@@ -2049,14 +2135,14 @@ static void calc_bonuses(void)
 		p_ptr->to_d -= 5;
 		p_ptr->dis_to_d -= 5;
 	}
-
+#if 0
 	/* Invulnerability */
 	if (p_ptr->invuln)
 	{
 		p_ptr->to_a += 100;
 		p_ptr->dis_to_a += 100;
 	}
-
+#endif
 	/* Temporary blessing */
 	if (p_ptr->blessed)
 	{
@@ -2244,7 +2330,7 @@ static void calc_bonuses(void)
 	if (o_ptr->k_idx)
 	{
 		/* Get to shoot */
-		p_ptr->num_fire = 1;
+		p_ptr->fire_energy = 100;
 
 		/* Analyze the launcher */
 		switch (o_ptr->sval)
@@ -2293,26 +2379,21 @@ static void calc_bonuses(void)
 		/* Apply special flags */
 		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
 		{
-			/* Extra shots */
-			p_ptr->num_fire += extra_shots;
-
 			/* Extra might */
 			p_ptr->ammo_mult += extra_might;
 
-			/* Hack -- Rangers love Bows */
-			if ((p_ptr->pclass == CLASS_RANGER) &&
-			    (p_ptr->ammo_tval == TV_ARROW))
-			{
-				/* Extra shot at level 20 */
-				if (p_ptr->lev >= 20) p_ptr->num_fire++;
+			/* Compute firing speed. */
+			p_ptr->fire_energy = compute_fire_energy();
 
-				/* Extra shot at level 40 */
-				if (p_ptr->lev >= 40) p_ptr->num_fire++;
+			/* Give 10% energy bonus for each "extra shot". -GJW */
+			if (extra_shots)
+			{
+				s32b energy = p_ptr->fire_energy;
+				for (i = 0; i < extra_shots; i++) energy *= 9;
+				for (i = 0; i < extra_shots; i++) energy /= 10;
+				p_ptr->fire_energy = energy;
 			}
 		}
-
-		/* Require at least one shot */
-		if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
 	}
 
 
@@ -2338,61 +2419,21 @@ static void calc_bonuses(void)
 	/* Normal weapons */
 	if (o_ptr->k_idx && !p_ptr->heavy_wield)
 	{
-		int str_index, dex_index;
+		int i;
 
-		int num = 0, wgt = 0, mul = 0, div = 0;
+		/* Get combat speed (energy cost per blow). -GJW */
+		p_ptr->blow_energy = compute_blow_energy (o_ptr->weight);
 
-		/* Analyze the class */
-		switch (p_ptr->pclass)
+		/* HACK: Get 10% off blow_energy for each "extra blow". -GJW */
+		if (extra_blows)
 		{
-			/* Warrior */
-			case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
-
-			/* Mage */
-			case CLASS_MAGE:    num = 4; wgt = 35; mul = 3; break;
-
-			/* Priest */
-			case CLASS_PRIEST:  num = 5; wgt = 40; mul = 2; break;
-
-			/* Rogue */
-			case CLASS_ROGUE:   num = 5; wgt = 30; mul = 3; break;
-
-			/* Ranger */
-			case CLASS_RANGER:  num = 5; wgt = 35; mul = 4; break;
-
-			/* Paladin */
-			case CLASS_PALADIN: num = 5; wgt = 35; mul = 4; break;
+			/* Use temporary variable large enough to hold the
+			 * inflated energy cost (prevents overflow). */
+			s32b energy = p_ptr->blow_energy;
+			for (i = 0; i < extra_blows; i++) energy *= 9;
+			for (i = 0; i < extra_blows; i++) energy /= 10;
+			p_ptr->blow_energy = (s16b) energy;
 		}
-
-		/* Enforce a minimum "weight" (tenth pounds) */
-		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
-
-		/* Mages actually get mul = 3/2 not 3. */
-		if (p_ptr->pclass == CLASS_MAGE) div *= 2;
-
-		/* Access the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
-
-		/* Maximal value */
-		if (str_index > 11) str_index = 11;
-
-		/* Index by dexterity */
-		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
-
-		/* Maximal value */
-		if (dex_index > 11) dex_index = 11;
-
-		/* Use the blows table */
-		p_ptr->num_blow = blows_table[str_index][dex_index];
-
-		/* Maximal value */
-		if (p_ptr->num_blow > num) p_ptr->num_blow = num;
-
-		/* Add in the "bonus blows" */
-		p_ptr->num_blow += extra_blows;
-
-		/* Require at least one blow */
-		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
 
 		/* Boost digging skill by weapon weight */
 		p_ptr->skill_dig += (o_ptr->weight / 10);

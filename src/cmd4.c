@@ -538,13 +538,13 @@ static void do_cmd_options_aux(int page, cptr info)
 
 	int i, k = 0, n = 0;
 
-	int opt[16];
+	int opt[OPT_PER_PAGE];
 
 	char buf[80];
 
 
 	/* Scan the options */
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < OPT_PER_PAGE; i++)
 	{
 		/* Collect options on this "page" */
 		if (option_page[page][i] != 255)
@@ -841,6 +841,7 @@ void do_cmd_options(void)
 		/* Special choices */
 		prt("(D) Base Delay Factor", 13, 5);
 		prt("(H) Hitpoint Warning", 14, 5);
+		prt("(B) Blows Per Attack", 15, 5);
 
 		/* Prompt */
 		prt("Command: ", 18, 0);
@@ -948,6 +949,27 @@ void do_cmd_options(void)
 				break;
 			}
 
+			/* Hack -- desired blows per attack command */
+			case 'B':
+			case 'b':
+			{
+				/* Prompt */
+				prt("Command: Blows Per Attack", 18, 0);
+
+				/* Get a new value */
+				while (1)
+				{
+					prt(format("Current blows per attack: %1d",
+					           op_ptr->max_blows), 22, 0);
+					prt("Blows Per Attack (0-9 or ESC to accept): ", 20, 0);
+					k = inkey();
+					if (k == ESCAPE) break;
+					if (isdigit(k)) op_ptr->max_blows = D2I(k);
+					else bell("Illegal blows per attack!");
+				}
+
+				break;
+			}
 			/* Unknown option */
 			default:
 			{

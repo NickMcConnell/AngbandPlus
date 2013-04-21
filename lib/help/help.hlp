@@ -6,20 +6,20 @@ Please choose one of the following online help files:
     (2) Creating a Character       (birth.txt)
     (3) Exploring the Dungeon      (dungeon.txt)
     (4) Attacking Monsters         (attack.txt)
-    (5) Playing the Game           (playing.txt)
-    (6) Command Descriptions       (command.txt)
-    (7) Option Descriptions        (option.txt)
-    (8) Version Information        (version.txt)
-    (9) Spoiler Menu (if any)      (spoiler.hlp)
-    (0) User Menu (if any)         (user.hlp)
+    (5) Spells and Prayers         (spells.txt)
+    (6) Playing the Game           (playing.txt)
+    (7) Command Descriptions       (command.txt)
+    (8) Option Descriptions        (option.txt)
+    (9) Version Information        (version.txt)
+    (0) Spoiler Menu (if any)      (spoiler.hlp)
 
 ***** [1] general.txt
 ***** [2] birth.txt
 ***** [3] dungeon.txt
 ***** [4] attack.txt
-***** [5] playing.txt
-***** [6] command.txt
-***** [7] option.txt
-***** [8] version.txt
-***** [9] spoiler.hlp
-***** [0] user.hlp
+***** [5] spells.txt
+***** [6] playing.txt
+***** [7] command.txt
+***** [8] option.txt
+***** [9] version.txt
+***** [0] spoiler.hlp

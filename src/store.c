@@ -208,7 +208,7 @@ static void say_comment_5(void)
  */
 static void say_comment_6(void)
 {
-	msg_print(comment_6[rand_int(5)]);
+	msg_print(comment_6[rand_int(MAX_COMMENT_6)]);
 }
 
 
@@ -623,8 +623,10 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Different objects cannot be stacked */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
 
-	/* Different charges (etc) cannot be stacked */
-	if (o_ptr->pval != j_ptr->pval) return (0);
+	/* Different charges (etc) cannot be stacked, except wands/rods */
+	if ((o_ptr->pval != j_ptr->pval) &&
+	    (o_ptr->tval != TV_WAND) && (o_ptr->tval != TV_ROD))
+		return (0);
 
 	/* Require many identical values */
 	if (o_ptr->to_h  !=  j_ptr->to_h) return (0);
@@ -668,6 +670,15 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 	/* Combine quantity, lose excess items */
 	o_ptr->number = (total > 99) ? 99 : total;
+
+	/*
+	 * If rods are stacking, add the timeouts together.  For wands, add
+	 * the charges.  In each case, this is the same code -- add the pvals.
+	 */
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+	{
+		o_ptr->pval += j_ptr->pval;
+	}
 }
 
 
@@ -799,7 +810,7 @@ static bool store_will_buy(object_type *o_ptr)
 			break;
 		}
 
-		/* Temple */
+		/* Temple -- accept more stuff -GJW */
 		case 3:
 		{
 			/* Analyze the type */
@@ -809,9 +820,46 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:
-				break;
+					break;
+
+				case TV_AMULET:
+					if (o_ptr->sval == SV_AMULET_WISDOM)
+						break;
+					else
+						return FALSE;
+
+				/* Accept items with the BLESSED flag. */
+				/* Should we just write is_blessed()? -GJW */
+				case TV_SWORD:
+				case TV_POLEARM:
+				{
+					if (o_ptr->name1)
+					{
+						artifact_type *a_ptr =
+							&a_info[o_ptr->name1];
+						if (a_ptr->flags3 & TR3_BLESSED)
+							break;
+					}
+					else if (o_ptr->name2)
+					{
+						ego_item_type *e_ptr =
+							&e_info[o_ptr->name2];
+						if (e_ptr->flags3 & TR3_BLESSED)
+							break;
+					}
+#if 0 /* we don't have any object kinds with BLESSED in GW-Angband 2.8.3v2 */
+					else
+					{
+						object_kind *k_ptr =
+							&k_info[o_ptr->k_idx];
+						if (k_ptr->flags3 & TR3_BLESSED)
+							break;
+					}
+#endif
+					return FALSE;
+				}
 				default:
-				return (FALSE);
+					return FALSE;
 			}
 			break;
 		}
@@ -931,13 +979,6 @@ static int home_carry(object_type *o_ptr)
 		if (!object_known_p(o_ptr)) continue;
 		if (!object_known_p(j_ptr)) break;
 
-		/* Hack -- otherwise identical rods sort by increasing
-		   recharge time  --dsb */
-		if (o_ptr->tval == TV_ROD) {
-			if (o_ptr->pval < j_ptr->pval) break;
-			if (o_ptr->pval > j_ptr->pval) continue;
-		}
-
 		/* Objects sort by decreasing value */
 		j_value = object_value(j_ptr);
 		if (value > j_value) break;
@@ -1025,13 +1066,6 @@ static int store_carry(object_type *o_ptr)
 		/* Objects sort by increasing sval */
 		if (o_ptr->sval < j_ptr->sval) break;
 		if (o_ptr->sval > j_ptr->sval) continue;
-
-		/* Hack -- otherwise identical rods sort by increasing
-		   recharge time  --dsb */
-		if (o_ptr->tval == TV_ROD) {
-			if (o_ptr->pval < j_ptr->pval) break;
-			if (o_ptr->pval > j_ptr->pval) continue;
-		}
 
 		/* Evaluate that slot */
 		j_value = object_value(j_ptr);
@@ -1170,6 +1204,14 @@ static void store_delete(void)
 
 	/* Hack -- sometimes, only destroy a single object */
 	if (rand_int(100) < 50) num = 1;
+
+	/* Decrement maximum timeout of rods, or charges of wands. */
+	if ((st_ptr->stock[what].tval == TV_ROD) ||
+	    (st_ptr->stock[what].tval == TV_WAND))
+	{
+		st_ptr->stock[what].pval -=
+		    num * st_ptr->stock[what].pval / st_ptr->stock[what].number;
+	}
 
 	/* Actually destroy (part of) the object */
 	store_item_increase(what, -num);
@@ -1602,6 +1644,20 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	object_type *o_ptr;
 
+#ifdef ALLOW_REPEAT
+
+	/* Get the item index */
+	if (repeat_pull(com_val))
+	{
+		/* Verify the item */
+		if ((*com_val >= 0) && (*com_val <= (st_ptr->stock_num - 1)))
+		{
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Assume failure */
 	*com_val = (-1);
@@ -1667,6 +1723,12 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	/* Save item */
 	(*com_val) = item;
+
+#ifdef ALLOW_REPEAT
+
+	repeat_push(*com_val);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -2371,6 +2433,15 @@ static void store_purchase(void)
 	/* Modify quantity */
 	i_ptr->number = amt;
 
+	/*
+	 * If a rod/wand, divide total maximum timeouts or charges among
+	 * those purchased and those left on the shelf.
+	 */
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+	{
+		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+	}
+	
 	/* Hack -- require room in pack */
 	if (!inven_carry_okay(i_ptr))
 	{
@@ -2530,16 +2601,31 @@ static void store_purchase(void)
 	else
 	{
 
-#if 0
+		/*
+		 * If a rod/wand, divide total maximum timeouts or charges
+		 * among those picked up and those left behind.
+		 */
+		if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+		{
+			i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+			o_ptr->pval -= i_ptr->pval;
 
-		/* Describe the object */
-		object_desc(o_name, i_ptr, TRUE, 3);
+			/*
+			 * Rods also need to have their timeouts distributed.
+			 * The dropped stack will accept all time remaining to
+			 * charge up to its maximum.
+			 */
+			if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+			{
+				if (i_ptr->pval > o_ptr->timeout)
+					i_ptr->timeout = o_ptr->timeout;
+				else
+					i_ptr->timeout = i_ptr->pval;
 
-		/* Message */
-		msg_format("You pick up %s (%c).",
-		           o_name, store_to_label(item));
-
-#endif
+				if (amt < o_ptr->number)
+					o_ptr->timeout -= i_ptr->timeout;
+			}
+		}
 
 		/* Give it to the player */
 		item_new = inven_carry(i_ptr);
@@ -2662,6 +2748,15 @@ static void store_sell(void)
 	/* Modify quantity */
 	i_ptr->number = amt;
 
+	/*
+	 * If a rod/wand, allocate total maximum timeouts or charges to those
+	 * being sold.
+	 */
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+	{
+		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+	}
+
 	/* Get a full description */
 	object_desc(o_name, i_ptr, TRUE, 3);
 
@@ -2733,6 +2828,15 @@ static void store_sell(void)
 			/* Modify quantity */
 			i_ptr->number = amt;
 
+			/*
+			 * If a rod/wand, let the shopkeeper know just how many
+			 * charges he really paid for.
+			 */
+			if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+			{
+				i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+			}
+
 			/* Get the "actual" value */
 			value = object_value(i_ptr) * i_ptr->number;
 
@@ -2745,6 +2849,17 @@ static void store_sell(void)
 
 			/* Analyze the prices (and comment verbally) */
 			purchase_analyze(price, value, dummy);
+
+			/*
+			 * Allocate charges between those wands or rods sold
+			 * and retained, unless all are being sold.
+			 */
+			if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+			{
+				i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+				if (o_ptr->number > amt)
+					o_ptr->pval -= i_ptr->pval;
+			}
 
 			/* Take the object from the player */
 			inven_item_increase(item, -amt);
@@ -2774,6 +2889,34 @@ static void store_sell(void)
 	/* Player is at home */
 	else
 	{
+		/*
+		 * If a rod/wand, allocate total maximum timeouts or charges
+		 * between those dropped and those kept, unless all are being
+		 * dropped.
+		 */
+		if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+		{
+			i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+			if (o_ptr->number > amt)
+				o_ptr->pval -= i_ptr->pval;
+
+			/*
+			 * Rods also need to have their timeouts distributed.
+			 * The dropped stack will accept all time remaining to
+			 * charge up to its maximum.
+			 */
+			if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+			{
+				if (i_ptr->pval > o_ptr->timeout)
+					i_ptr->timeout = o_ptr->timeout;
+				else
+					i_ptr->timeout = i_ptr->pval;
+
+				if (amt < o_ptr->number)
+					o_ptr->timeout -= i_ptr->timeout;
+			}
+		}
+
 		/* Describe */
 		msg_format("You drop %s (%c).", o_name, index_to_label(item));
 
@@ -2824,6 +2967,13 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
+#ifdef ALLOW_REPEAT
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -3474,7 +3624,7 @@ void store_maint(int which)
 	j = st_ptr->stock_num;
 
 	/* Sell a few items */
-	j = j - randint(STORE_TURNOVER);
+	j = j - randint(STORE_SELL_TURNOVER);
 
 	/* Never keep more than "STORE_MAX_KEEP" slots */
 	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
@@ -3493,7 +3643,7 @@ void store_maint(int which)
 	j = st_ptr->stock_num;
 
 	/* Buy some more items */
-	j = j + randint(STORE_TURNOVER);
+	j = j + randint(STORE_BUY_TURNOVER);
 
 	/* Never keep more than "STORE_MAX_KEEP" slots */
 	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;

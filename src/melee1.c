@@ -110,6 +110,105 @@ static cptr desc_moan[] =
 
 
 /*
+ * Drain energy from one of the player's wands, staves or rods.  Return
+ * TRUE if energy is actually drained, FALSE otherwise.
+ *
+ * I split this out of make_attack_normal so I can read it! -GJW
+ */
+bool drain_charges (int m_idx, int rlev)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	int i, j, k;
+	object_type *o_ptr;
+	bool obvious = FALSE;
+
+	/* Find an item */
+	for (k = 0; k < 10; k++)
+	{
+		int tmp = 0;
+
+		/* Pick an item */
+		i = rand_int(INVEN_PACK);
+
+		/* Obtain the item */
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Drain charged wands/staffs */
+		if (((o_ptr->tval == TV_STAFF) ||
+		     (o_ptr->tval == TV_WAND)) &&
+		    (o_ptr->pval))
+			tmp = 1;
+
+		/* Check rods, too. */
+		if ((o_ptr->tval == TV_ROD) &&
+		    (o_ptr->timeout < o_ptr->pval))
+			tmp = 1;
+
+		if (tmp)
+		{
+			/* Message */
+			msg_print("Energy drains from your pack!");
+
+			/* Obvious */
+			obvious = TRUE;
+
+			/* Heal */
+			j = rlev;
+
+			/* Handle merged wands. */
+			if (o_ptr->tval == TV_WAND)
+			{
+				m_ptr->hp += j * o_ptr->pval;
+			}
+
+			/* Handle merged rods. */
+			else if (o_ptr->tval == TV_ROD)
+			{
+				m_ptr->hp +=
+				    j * (o_ptr->pval - o_ptr->timeout) / 30;
+			}
+
+			/* Handle staves (they don't currently merge-stack). */
+			else
+			{
+				m_ptr->hp += j * o_ptr->pval * o_ptr->number;
+			}
+
+			/* Make sure monster isn't over-healed. */
+			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+			/* Redraw (later) if needed */
+			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+
+			/* Uncharge */
+			if ((o_ptr->tval == TV_STAFF) ||
+			    (o_ptr->tval == TV_WAND))
+			{
+				o_ptr->pval = 0;
+			}
+			else if (o_ptr->tval == TV_ROD)
+			{
+				o_ptr->timeout = o_ptr->pval;
+			}
+
+			/* Combine / Reorder the pack */
+			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN);
+
+			/* Done */
+			break;
+		}
+	}
+
+	return obvious;
+}
+
+/*
  * Attack the player via physical attacks.
  */
 bool make_attack_normal(int m_idx)
@@ -120,7 +219,7 @@ bool make_attack_normal(int m_idx)
 
 	int ap_cnt;
 
-	int i, j, k, tmp, ac, rlev;
+	int i, k, tmp, ac, rlev;
 	int do_cut, do_stun;
 
 	s32b gold;
@@ -133,8 +232,7 @@ bool make_attack_normal(int m_idx)
 
 	char ddesc[80];
 
-	bool blinked;
-
+	bool blinked, radaura, fear, alive;
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
@@ -154,8 +252,11 @@ bool make_attack_normal(int m_idx)
 	monster_desc(ddesc, m_ptr, 0x88);
 
 
-	/* Assume no blink */
+	/* Reset flags to defaults. */
 	blinked = FALSE;
+	radaura = FALSE;
+	alive = TRUE;
+	fear = FALSE;
 
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
@@ -228,12 +329,28 @@ bool make_attack_normal(int m_idx)
 			/* Always disturbing */
 			disturb(1, 0);
 
+			/*
+			 * Hack -- Apply "radiant aura".  We do this *before*
+			 * protection from evil, so monsters may get crisped
+			 * without even doing damage! -GJW
+			 */
+			if ((p_ptr->radiant > 0) &&
+			    (r_ptr->flags3 & (RF3_EVIL)))
+			{
+				/* Remember the Evil-ness */
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= (RF3_EVIL);
+				}
+
+				/* Do the actual damage later. */
+				radaura = TRUE;
+			}
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->protevil > 0) &&
 			    (r_ptr->flags3 & (RF3_EVIL)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
+			    (! monster_saves (rlev, p_ptr->lev)))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
@@ -488,49 +605,10 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Find an item */
-					for (k = 0; k < 10; k++)
+					/* Drain charges. */
+					if (drain_charges (m_idx, rlev))
 					{
-						/* Pick an item */
-						i = rand_int(INVEN_PACK);
-
-						/* Obtain the item */
-						o_ptr = &inventory[i];
-
-						/* Skip non-objects */
-						if (!o_ptr->k_idx) continue;
-
-						/* Drain charged wands/staffs */
-						if (((o_ptr->tval == TV_STAFF) ||
-						     (o_ptr->tval == TV_WAND)) &&
-						    (o_ptr->pval))
-						{
-							/* Message */
-							msg_print("Energy drains from your pack!");
-
-							/* Obvious */
-							obvious = TRUE;
-
-							/* Heal */
-							j = rlev;
-							m_ptr->hp += j * o_ptr->pval * o_ptr->number;
-							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
-							/* Redraw (later) if needed */
-							if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-
-							/* Uncharge */
-							o_ptr->pval = 0;
-
-							/* Combine / Reorder the pack */
-							p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-							/* Window stuff */
-							p_ptr->window |= (PW_INVEN);
-
-							/* Done */
-							break;
-						}
+						obvious = TRUE;
 					}
 
 					break;
@@ -649,6 +727,15 @@ bool make_attack_normal(int m_idx)
 
 						/* Modify number */
 						i_ptr->number = 1;
+
+						/* If a rod/wand, divvy up total timeout/charges. */
+						if ((o_ptr->tval == TV_ROD) ||
+						    (o_ptr->tval == TV_WAND))
+						{
+							/*k_ptr = &k_info[o_ptr->k_idx];*/
+							i_ptr->pval = o_ptr->pval / o_ptr->number;
+							o_ptr->pval -= i_ptr->pval;
+						}
 
 						/* Carry the object */
 						(void)monster_carry(m_idx, i_ptr);
@@ -1245,6 +1332,17 @@ bool make_attack_normal(int m_idx)
 		}
 	}
 
+	/* Now apply radiant aura damage, if necessary */
+	if (radaura)
+	{
+		msg_format ("%^s is burned by the holy light!", m_name);
+		if (mon_take_hit (m_idx, randint(p_ptr->lev), &fear,
+			" turns into a pile of ash."))
+		{
+			alive = FALSE;
+			blinked = FALSE;
+		}
+	}
 
 	/* Blink away */
 	if (blinked)
@@ -1255,11 +1353,20 @@ bool make_attack_normal(int m_idx)
 
 
 	/* Always notice cause of death */
-	if (p_ptr->is_dead && (r_ptr->r_deaths < MAX_SHORT))
+	if (p_ptr->is_dead)
 	{
-		r_ptr->r_deaths++;
+		if (r_ptr->r_deaths < MAX_SHORT)
+		{
+			r_ptr->r_deaths++;
+		}
 	}
 
+	/* Monster may run from radiant aura. */
+	else if (fear && alive && m_ptr->ml)
+	{
+		sound(SOUND_FLEE);
+		msg_format("%^s flees in terror!", m_name);
+	}
 
 	/* Assume we attacked */
 	return (TRUE);

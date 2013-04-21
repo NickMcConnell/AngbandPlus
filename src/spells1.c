@@ -143,7 +143,13 @@ void teleport_away(int m_idx, int dis)
  * Teleport the player to a location up to "dis" grids away.
  *
  * If no such spaces are readily available, the distance may increase.
- * Try very hard to move the player at least a quarter that distance.
+ *
+ * When long-range teleport effects are considered, there is a nasty
+ * tendency to "bounce" the player between two or three different spots
+ * because these are the only spots that are "far enough" way to satisfy
+ * the algorithm.  Therefore, if the teleport distance is more than 50,
+ * we decrease the minimum acceptable distance to try to increase randomness.
+ * -GJW
  */
 void teleport_player(int dis)
 {
@@ -160,7 +166,7 @@ void teleport_player(int dis)
 	x = px;
 
 	/* Minimum distance */
-	min = dis / 2;
+	min = dis / (dis > 50 ? 3 : 2);
 
 	/* Look until done */
 	while (look)
@@ -341,6 +347,7 @@ static byte spell_color(int type)
 		case GF_COLD:		return (TERM_WHITE);
 		case GF_POIS:		return (TERM_GREEN);
 		case GF_HOLY_ORB:	return (TERM_L_DARK);
+		case GF_EXORCISE:	return (TERM_L_DARK);
 		case GF_MANA:		return (TERM_L_DARK);
 		case GF_ARROW:		return (TERM_WHITE);
 		case GF_WATER:		return (TERM_SLATE);
@@ -441,8 +448,10 @@ void take_hit(int dam, cptr kb_str)
 	/* Disturb */
 	disturb(1, 0);
 
+#if 0
 	/* Mega-Hack -- Apply "invulnerability" */
 	if (p_ptr->invuln && (dam < 9000)) return;
+#endif
 
 	/* Hurt the player */
 	p_ptr->chp -= dam;
@@ -756,6 +765,13 @@ static int inven_damage(inven_func typ, int perc)
 				             (amt > 1 ? "Some of y" : "One of y")) : "Y"),
 				           o_name, index_to_label(i),
 				           ((amt > 1) ? "were" : "was"));
+
+				/* For wands/rods, reduce stack charges/timeout. */
+				if ( ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
+				  && (amt < o_ptr->number))
+				{
+					o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
+				}
 
 				/* Destroy "amt" items */
 				inven_item_increase(i, -amt);
@@ -1359,6 +1375,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_SOUND:
 		case GF_MANA:
 		case GF_HOLY_ORB:
+		case GF_EXORCISE:
 		{
 			break;
 		}
@@ -2129,6 +2146,41 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Exorcise: special all-or-nothing attack vs. undead/demons */
+		case GF_EXORCISE:
+		{
+			if (seen) obvious = TRUE;
+			if ((r_ptr->flags3 & (RF3_UNDEAD)) ||
+			    (r_ptr->flags3 & (RF3_DEMON)))
+			{
+				if (monster_saves (r_ptr->level, dam))
+				{
+					dam = 0;
+					note = " resists your exorcism.";
+				}
+				else
+				{
+					dam = m_ptr->hp + 1;
+					note = " is exorcised!";
+				}
+
+				if (r_ptr->flags3 & (RF3_UNDEAD))
+				{
+					if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
+				}
+				if (r_ptr->flags3 & (RF3_DEMON))
+				{
+					if (seen) r_ptr->r_flags3 |= (RF3_DEMON);
+				}
+			}
+			else
+			{
+				dam = 0;
+				note = " cannot be exorcised.";
+			}
+			break;
+		}
+
 		/* Arrow -- no defense XXX */
 		case GF_ARROW:
 		{
@@ -2333,7 +2385,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_GRAVITY:
 		{
 			if (seen) obvious = TRUE;
-			do_dist = 10 - (r_ptr->level / 20);
+
+			/* Get a "saving throw" against displacement. */
+			if (rand_int(2) > 0) do_dist = 10 - (r_ptr->level / 20);
+
 			if (r_ptr->flags4 & (RF4_BR_GRAV))
 			{
 				note = " resists.";
@@ -2868,6 +2923,35 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Dispel demons */
+		case GF_DISP_DEMONS:
+		{
+			/* Only affect undead */
+			if (r_ptr->flags3 & (RF3_DEMON))
+			{
+				/* Learn about type */
+				if (seen) r_ptr->r_flags3 |= (RF3_DEMON);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
 
 		/* Dispel evil */
 		case GF_DISP_EVIL:
@@ -3365,7 +3449,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				(void)set_stun(p_ptr->stun + randint(40));
 			}
-			if (!p_ptr->resist_confu)
+			if ((!p_ptr->resist_confu) && (!p_ptr->oppose_conf))
 			{
 				(void)set_confused(p_ptr->confused + randint(5) + 5);
 			}
@@ -3381,7 +3465,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			if (!p_ptr->resist_confu)
+			if ((!p_ptr->resist_confu) && (!p_ptr->oppose_conf))
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
@@ -3447,11 +3531,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_CONFUSION:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-			if (p_ptr->resist_confu)
+			if (p_ptr->resist_confu || p_ptr->oppose_conf)
 			{
 				dam *= 5; dam /= (randint(6) + 6);
 			}
-			if (!p_ptr->resist_confu)
+			else
 			{
 				(void)set_confused(p_ptr->confused + randint(20) + 10);
 			}
@@ -3520,7 +3604,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
 			}
-			else if (!blind && !p_ptr->resist_blind)
+			else if (!blind && (!p_ptr->resist_blind) &&
+				(!p_ptr->oppose_blind))
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
@@ -3536,7 +3621,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
 			}
-			else if (!blind && !p_ptr->resist_blind)
+			else if (!blind && (!p_ptr->resist_blind) &&
+				(!p_ptr->oppose_blind))
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
@@ -3600,7 +3686,13 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
 			msg_print("Gravity warps around you.");
-			teleport_player(5);
+
+			/*
+			 * Give the player the same "saving throw" vs.
+			 * displacement that the monsters get.
+			 */
+			if (rand_int(2) > 0) teleport_player(5);
+
 			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
 			if (!p_ptr->resist_sound)
 			{

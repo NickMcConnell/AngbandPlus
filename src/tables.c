@@ -97,7 +97,7 @@ byte adj_mag_study[] =
 
 
 /*
- * Stat Table (INT/WIS) -- extra half-mana-points per level
+ * Stat Table (INT/WIS) -- extra tenth-mana-points per level
  */
 byte adj_mag_mana[] =
 {
@@ -105,40 +105,40 @@ byte adj_mag_mana[] =
 	0	/* 4 */,
 	0	/* 5 */,
 	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	2	/* 9 */,
-	2	/* 10 */,
-	2	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	3	/* 18/30-18/39 */,
-	3	/* 18/40-18/49 */,
-	4	/* 18/50-18/59 */,
-	4	/* 18/60-18/69 */,
-	5	/* 18/70-18/79 */,
-	6	/* 18/80-18/89 */,
-	7	/* 18/90-18/99 */,
-	8	/* 18/100-18/109 */,
-	9	/* 18/110-18/119 */,
-	10	/* 18/120-18/129 */,
-	11	/* 18/130-18/139 */,
-	12	/* 18/140-18/149 */,
-	13	/* 18/150-18/159 */,
-	14	/* 18/160-18/169 */,
-	15	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	16	/* 18/190-18/199 */,
-	16	/* 18/200-18/209 */,
-	16	/* 18/210-18/219 */,
-	16	/* 18/220+ */
+	3	/* 7 */,
+	5	/* 8 */,
+	7	/* 9 */,
+	8	/* 10 */,
+	9	/* 11 */,
+	10	/* 12 */,
+	11	/* 13 */,
+	12	/* 14 */,
+	13	/* 15 */,
+	14	/* 16 */,
+	15	/* 17 */,
+	16	/* 18/00-18/09 */,
+	17	/* 18/10-18/19 */,
+	18	/* 18/20-18/29 */,
+	19	/* 18/30-18/39 */,
+	20	/* 18/40-18/49 */,
+	21	/* 18/50-18/59 */,
+	23	/* 18/60-18/69 */,
+	25	/* 18/70-18/79 */,
+	30	/* 18/80-18/89 */,
+	35	/* 18/90-18/99 */,
+	40	/* 18/100-18/109 */,
+	45	/* 18/110-18/119 */,
+	50	/* 18/120-18/129 */,
+	55	/* 18/130-18/139 */,
+	60	/* 18/140-18/149 */,
+	65	/* 18/150-18/159 */,
+	70	/* 18/160-18/169 */,
+	75	/* 18/170-18/179 */,
+	80	/* 18/180-18/189 */,
+	85	/* 18/190-18/199 */,
+	90	/* 18/200-18/209 */,
+	95	/* 18/210-18/219 */,
+	100	/* 18/220+ */
 };
 
 
@@ -787,7 +787,10 @@ byte adj_str_dig[] =
 
 
 /*
- * Stat Table (STR) -- help index into the "blow" table
+ * Stat Table (STR) -- help index into the "blow" table.
+ * Aieee!  This isn't actually used for blows any longer, but it's still
+ * used in two other places -- the distance an object may be thrown, and
+ * the chance of bashing open a door. -GJW
  */
 byte adj_str_blow[] =
 {
@@ -833,50 +836,102 @@ byte adj_str_blow[] =
 
 
 /*
- * Stat Table (DEX) -- index into the "blow" table
+ * Stat Table (DEX) -- new table for computation of the basic energy cost
+ * per blow.  This is actually the function 42.5 cos(3x/40) + 57.5, which
+ * gives a nice, smooth power curve.  Results should be divided by 10.
+ *
+ * This replaces the old adj_dex_blow[].  It's got a new name so that nobody
+ * will be confused. -GJW
  */
-byte adj_dex_blow[] =
+s16b adj_dex_blow_energy[] =
 {
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	0	/* 8 */,
-	0	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	1	/* 12 */,
-	1	/* 13 */,
-	1	/* 14 */,
-	1	/* 15 */,
-	1	/* 16 */,
-	1	/* 17 */,
-	1	/* 18/00-18/09 */,
-	2	/* 18/10-18/19 */,
-	2	/* 18/20-18/29 */,
-	2	/* 18/30-18/39 */,
-	2	/* 18/40-18/49 */,
-	3	/* 18/50-18/59 */,
-	3	/* 18/60-18/69 */,
-	4	/* 18/70-18/79 */,
-	4	/* 18/80-18/89 */,
-	5	/* 18/90-18/99 */,
-	6	/* 18/100-18/109 */,
-	7	/* 18/110-18/119 */,
-	8	/* 18/120-18/129 */,
-	9	/* 18/130-18/139 */,
-	10	/* 18/140-18/149 */,
-	11	/* 18/150-18/159 */,
-	12	/* 18/160-18/169 */,
-	14	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	18	/* 18/190-18/199 */,
-	20	/* 18/200-18/209 */,
-	20	/* 18/210-18/219 */,
-	20	/* 18/220+ */
+	989	/* 3 */,
+	981	/* 4 */,
+	970	/* 5 */,
+	958	/* 6 */,
+	943	/* 7 */,
+	923	/* 8 */,
+	907	/* 9 */,
+	886	/* 10 */,
+	863	/* 11 */,
+	839	/* 12 */,
+	813	/* 13 */,
+	786	/* 14 */,
+	758	/* 15 */,
+	729	/* 16 */,
+	699	/* 17 */,
+	668	/* 18 */,
+	637	/* 18/10-18/19 */,
+	605	/* 18/20-18/29 */,
+	573	/* 18/30-18/39 */,
+	542	/* 18/40-18/49 */,
+	510	/* 18/50-18/59 */,
+	479	/* 18/60-18/69 */,
+	448	/* 18/70-18/79 */,
+	418	/* 18/80-18/89 */,
+	389	/* 18/90-18/99 */,
+	361	/* 18/100-18/109 */,
+	334	/* 18/110-18/119 */,
+	308	/* 18/120-18/129 */,
+	284	/* 18/130-18/139 */,
+	262	/* 18/140-18/149 */,
+	241	/* 18/150-18/159 */,
+	223	/* 18/160-18/169 */,
+	206	/* 18/170-18/179 */,
+	191	/* 18/180-18/189 */,
+	178	/* 18/190-18/199 */,
+	168	/* 18/200-18/209 */,
+	160	/* 18/210-18/219 */,
+	155	/* 18/220+ */
 };
 
+/*
+ * Stat Table (DEX) -- new table for computation of the basic energy cost
+ * per shot.  This is actually the function (40 - x)^(1/3) * 14.6237 + 50,
+ * which gives a nice, smooth power curve.  Results should be divided by 10.
+ * -GJW
+ */
+s16b adj_dex_fire_energy[] =
+{
+	987	/* 3 */,
+	983	/* 4 */,
+	978	/* 5 */,
+	974	/* 6 */,
+	969	/* 7 */,
+	964	/* 8 */,
+	959	/* 9 */,
+	954	/* 10 */,
+	949	/* 11 */,
+	944	/* 12 */,
+	939	/* 13 */,
+	933	/* 14 */,
+	928	/* 15 */,
+	922	/* 16 */,
+	916	/* 17 */,
+	910	/* 18 */,
+	903	/* 18/10-18/19 */,
+	897	/* 18/20-18/29 */,
+	890	/* 18/30-18/39 */,
+	883	/* 18/40-18/49 */,
+	876	/* 18/50-18/59 */,
+	868	/* 18/60-18/69 */,
+	861	/* 18/70-18/79 */,
+	852	/* 18/80-18/89 */,
+	844	/* 18/90-18/99 */,
+	835	/* 18/100-18/109 */,
+	825	/* 18/110-18/119 */,
+	815	/* 18/120-18/129 */,
+	804	/* 18/130-18/139 */,
+	792	/* 18/140-18/149 */,
+	780	/* 18/150-18/159 */,
+	766	/* 18/160-18/169 */,
+	750	/* 18/170-18/179 */,
+	732	/* 18/180-18/189 */,
+	711	/* 18/190-18/199 */,
+	684	/* 18/200-18/209 */,
+	646	/* 18/210-18/219 */,
+	500	/* 18/220+ */
+};
 
 /*
  * Stat Table (DEX) -- chance of avoiding "theft" and "falling"
@@ -1017,127 +1072,6 @@ byte adj_con_mhp[] =
 
 
 /*
- * This table is used to help calculate the number of blows the player can
- * make in a single round of attacks (one player turn) with a normal weapon.
- *
- * This number ranges from a single blow/round for weak players to up to six
- * blows/round for powerful warriors.
- *
- * Note that certain artifacts and ego-items give "bonus" blows/round.
- *
- * First, from the player class, we extract some values:
- *
- *    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
- *    Mage    --> num = 4; mul = 3; div = 2 * MAX(35, weapon_weight);
- *    Priest  --> num = 5; mul = 3; div = MAX(40, weapon_weight);
- *    Rogue   --> num = 5; mul = 3; div = MAX(30, weapon_weight);
- *    Ranger  --> num = 5; mul = 4; div = MAX(35, weapon_weight);
- *    Paladin --> num = 5; mul = 4; div = MAX(35, weapon_weight);
- *
- * To get "P", we look up the relevant "adj_str_blow[]" (see above),
- * multiply it by "mul", and then divide it by "div", rounding down.
- *
- * To get "D", we look up the relevant "adj_dex_blow[]" (see above),
- * note especially column 6 (DEX 18/101) and 11 (DEX 18/150).
- *
- * The player gets "blows_table[P][D]" blows/round, as shown below,
- * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
- */
-byte blows_table[12][12] =
-{
-	/* P/D */
-	/* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
-
-	/* 0  */
-	{  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2 },
-
-	/* 1  */
-	{  1,   1,   1,   1,   2,   2,   3,   3,   3,   3,   3,   3 },
-
-	/* 2  */
-	{  1,   1,   2,   2,   3,   3,   4,   4,   4,   4,   4,   4 },
-
-	/* 3  */
-	{  1,   2,   2,   3,   3,   4,   4,   4,   4,   5,   5,   5 },
-
-	/* 4  */
-	{  1,   2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5 },
-
-	/* 5  */
-	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6 },
-
-	/* 6  */
-	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6 },
-
-	/* 7  */
-	{  2,   3,   3,   4,   4,   4,   5,   5,   5,   5,   5,   6 },
-
-	/* 8  */
-	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6 },
-
-	/* 9  */
-	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   5,   6,   6 },
-
-	/* 10 */
-	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6,   6 },
-
-	/* 11+ */
-	{  3,   3,   4,   4,   4,   4,   5,   5,   6,   6,   6,   6 },
-};
-
-
-#if 0
-
-/*
- * This is the "old" table used to calculate multiple blows.
- *
- * Note that this table used a different indexing scheme to determine "P"
- */
-
-byte old_blows_table[11][12] =
-{
-	/* P/D */
-	/* 3,  10, /01, /50, /90,/100,/101,/110,/120,/130,/140,/150 */
-
-	/* 0+ */
-	{  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   3},
-
-	/* 2+ */
-	{  1,   1,   1,   1,   2,   2,   3,   3,   3,   3,   3,   4},
-
-	/* 3+ */
-	{  1,   1,   1,   2,   2,   3,   4,   4,   4,   4,   4,   5},
-
-	/* 4+ */
-	{  1,   1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5},
-
-	/* 6+ */
-	{  1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5},
-
-	/* 8+ */
-	{  1,   2,   2,   3,   4,   4,   4,   5,   5,   5,   5,   5},
-
-	/* 10+ */
-	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6},
-
-	/* 13+ */
-	{  2,   3,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6},
-
-	/* 15+ */
-	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6},
-
-	/* 18+ */
-	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6},
-
-	/* 20+ */
-	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6,   6}
-};
-
-#endif
-
-
-
-/*
  * Store owners (exactly four "possible" owners per store, chosen randomly)
  * { name, purse, max greed, min greed, haggle_per, tolerance, race, unused }
  */
@@ -1169,7 +1103,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Ludwig the Humble",		5000,	175, 109,  6, 15, RACE_HUMAN},
 		{ "Gunnar the Paladin",		10000,	185, 110,  5, 23, RACE_HUMAN},
 		{ "Delilah the Pure",		25000,	180, 107,  6, 20, RACE_ELF},
-		{ "Bosk the Wise",			30000,	185, 109,  5, 15, RACE_DWARF},
+		{ "Bosk the Wise",		30000,	185, 109,  5, 15, RACE_DWARF},
 	},
 	{
 		/* Alchemist */
@@ -1190,7 +1124,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Lo-Hak the Awful",		20000,	250, 150, 10,  5, RACE_HALF_TROLL},
 		{ "Histor the Goblin",		20000,	250, 150, 10,  5, RACE_HALF_ORC},
 		{ "Durwin the Blue",		25000,	250, 150, 10,  5, RACE_KOBOLD},
-		{ "Drago the Fair",			30000,	250, 150, 10,  5, RACE_ELF},
+		{ "Drago the Fair",		30000,	250, 150, 10,  5, RACE_ELF},
 	},
 	{
 		/* Home */
@@ -1491,7 +1425,7 @@ player_race race_info[MAX_RACES] =
  *	{STR,INT,WIS,DEX,CON,CHR},
  *	c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
  *	x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
- *	HD, Exp
+ *	HD, Exp, blow_energy, fire_energy
  */
 player_class class_info[MAX_CLASS] =
 {
@@ -1500,7 +1434,7 @@ player_class class_info[MAX_CLASS] =
 		{ 5, -2, -2, 2, 2, -1},
 		25, 18, 18, 1,  14, 2, 70, 55,
 		10, 7,  10, 0,  0,  0,  45, 45,
-		9,  0
+		9,  0,  5, 10
 	},
 
 	{
@@ -1508,7 +1442,7 @@ player_class class_info[MAX_CLASS] =
 		{-5, 3, 0, 1, -2, 1},
 		30, 36, 30, 2,  16, 20, 34, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
-		0, 30
+		0, 30, 25, 20
 	},
 
 	{
@@ -1516,7 +1450,7 @@ player_class class_info[MAX_CLASS] =
 		{-1, -3, 3, -1, 0, 2},
 		25, 30, 32, 2,  16, 8, 48, 35,
 		7,  10, 12, 0,  0,  0, 20, 20,
-		2, 20
+		2, 20, 20, 18
 	},
 
 	{
@@ -1524,7 +1458,7 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 1, -2, 3, 1, -1},
 		45, 32, 28, 5, 32, 24, 60, 66,
 		15, 10, 10, 0,  0,  0, 40, 30,
-		6, 25
+		6, 25,  7,  8
 	},
 
 	{
@@ -1532,7 +1466,7 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 2, 0, 1, 1, 1},
 		30, 32, 28, 3,  24, 16, 56, 72,
 		8,  10, 10, 0,  0,  0,  30, 45,
-		4, 30
+		4, 30, 10,  5
 	},
 
 	{
@@ -1540,7 +1474,7 @@ player_class class_info[MAX_CLASS] =
 		{ 3, -3, 1, 0, 2, 2},
 		20, 24, 25, 1,  12, 2, 68, 40,
 		7,  10, 11, 0,  0,  0,  35, 30,
-		6, 35
+		6, 35,  8, 12
 	}
 };
 
@@ -1686,10 +1620,10 @@ player_magic magic_info[MAX_CLASS] =
 			{ 19, 12, 55,   8}, /* frost ball */
 			{ 20, 15, 70,  20}, /* acid ball */
 			{ 26, 18, 65,  12}, /* fire ball */
-			{ 27, 24, 75,  24}, /* ice storm 15 */
+			{ 27, 22, 75,  24}, /* ice storm 15 */
 			{ 15,  8, 30,  12}, /* wonder */
-			{ 30, 30, 85,  34}, /* meteor storm */
-			{ 42, 45, 95, 200}, /* mana storm */
+			{ 30, 25, 85,  34}, /* meteor storm */
+			{ 42, 30, 95, 200}, /* mana storm */
 
 			{  3,  3, 25,   3}, /* cure light wounds */
 			{  3,  3, 25,   2}, /* find traps 20 */
@@ -1720,9 +1654,9 @@ player_magic magic_info[MAX_CLASS] =
 			{  5,  5, 30,   4}, /* sleep 1 */
 			{ 13,  7, 50,   6}, /* sleep 3 */
 			{ 20, 15, 60,  24}, /* bedlam */
-			{ 33, 25, 95,  25}, /* genocide 45 */
+			{ 33, 40, 95,  25}, /* genocide 45 */
 			{ 40, 75, 80, 100}, /* mass genocide */
-			{ 45, 40, 80,  80}, /* rend soul */
+			{ 45, 30, 80,  80}, /* rend soul */
 
 			{ 10,  5, 50,  10}, /* resist cold */
 			{ 10,  5, 50,  10}, /* resist fire */
@@ -1731,7 +1665,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 25, 10, 45,  20}, /* resist poison */
 			{ 28, 20, 65,  30}, /* resistance */
 			{ 32, 24, 75,  30}, /* shield */
-			{ 99,  0,  0,   0}, /* was GoI 55 */
+			{ 36, 60, 70,  40}, /* rune of protection 55 */
 
 			{ 30, 10, 70,  10}, /* detect enchantment */
 			{ 30, 25, 75,  15}, /* WoR */
@@ -1739,7 +1673,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 20, 18, 60,  24}, /* earthquake */
 			{ 33, 21, 80,  15}, /* destruction 60 */
 			{ 35, 30, 60,  25}, /* rift */
-			{ 38, 40, 90,  40}, /* chaos strike */
+			{ 38, 35, 90,  40}, /* chaos strike */
 
 			{ 99,  0,  0,   0} /* (blank) */
 		}
@@ -1758,79 +1692,81 @@ player_magic magic_info[MAX_CLASS] =
 		350,
 
 		{
-			{  1,  1, 10,   4},
-			{  1,  2, 15,   4},
-			{  1,  2, 20,   4},
-			{  1,  2, 25,   4},
-			{  3,  2, 25,   1},
-			{  3,  3, 27,   2},
-			{  3,  3, 27,   2},
-			{  3,  3, 28,   4},
+			{  1,  2, 15,   4}, /* cure light */
+			{  3,  2, 25,   4}, /* remove fear */
+			{  7,  5, 38,   4}, /* neutralize poison */
+			{ 10,  7, 45,   4}, /* cure mortal */
+			{ 15,  8, 40,   4}, /* regeneration */
 
-			{  5,  4, 29,   3},
-			{  5,  4, 30,   4},
-			{  5,  4, 32,   4},
-			{  5,  5, 34,   4},
-			{  7,  5, 36,   3},
-			{  7,  5, 38,   4},
-			{  7,  6, 38,   5},
-			{  7,  7, 38,   5},
+			{ 25, 30, 80,  20}, /* healing */
+			{ 28, 40, 70,  20}, /* purify body */
+			{ 30, 50, 75,  20}, /* meditation */
+			{ 35, 70, 90,  30}, /* restoration */
+			{ 35, 70, 90,  50}, /* remembrance */
 
-			{  9,  6, 38,   4},
-			{  9,  7, 38,   4},
-			{  9,  7, 40,   4},
-			{ 11,  8, 42,   4},
-			{ 11,  8, 42,   4},
-			{ 11,  9, 55,   5},
-			{ 13, 10, 45,   4},
-			{ 13, 11, 45,   4},
-			{ 15, 12, 50,   5},
+			{  1,  1, 10,   4}, /* detect evil */
+			{  3,  2, 25,   1}, /* call light */
+			{  5,  3, 27,   2}, /* find traps */
+			{  9,  3, 27,   2}, /* detect doors/stairs */
+			{ 11,  8, 42,   4}, /* sense invisible */
 
-			{ 15, 14, 50,   5},
-			{ 17, 14, 55,   7},
-			{ 21, 16, 60,   7},
-			{ 25, 20, 70,  12},
-			{ 33, 55, 90,  15},
-			{ 39, 32, 95,  20},
+			{ 10, 10, 80,  20}, /* detection */
+			{ 20, 20, 80,  20}, /* perception */
+			{ 25, 10, 80,  50}, /* probing */
+			{ 35, 50, 80,  80}, /* clairvoyance */
 
-			{  3,  3, 50,   2},
-			{ 10, 10, 80,  20},
-			{ 20, 20, 80,  20},
-			{ 25, 10, 80, 150},
-			{ 35, 50, 80, 230},
+			{  3,  3, 20,   4}, /* bless */
+			{  9,  7, 38,   4}, /* orb of draining */
+			{ 11, 10, 50,   4}, /* radiant aura */
+			{ 13,  7, 40,   4}, /* exorcise */
+			{ 24,  9, 55,   4}, /* earthquake */
 
-			{ 15,  5, 50,  25},
-			{ 17,  7, 60,  45},
-			{ 30, 50, 80, 130},
-			{ 35, 70, 90, 230},
-			{ 35, 70, 90, 250},	/* 350 */
+			{ 17, 14, 55,   7}, /* dispel undead */
+			{ 19, 16, 60,   8}, /* dispel demons */
+			{ 25, 20, 70,  12}, /* dispel evil */
+			{ 35, 50, 80,  60}, /* bless weapon */
+			{ 39, 32, 95,  60}, /* holy word */
+			{ 40, 60, 75,  70}, /* annihilation */
+			{ 43, 35, 80, 100}, /* word of destruction */
 
-			{ 15,  7, 70,  25},
-			{ 20, 10, 75,  60},
-			{ 25, 25, 80, 250},
-			{ 35, 35, 80, 115},
-			{ 45, 60, 75, 250},	/* 350 */
+			{  9,  4, 30,   4}, /* portal */
+			{ 12, 10, 50,   8}, /* teleport self */
+			{ 27, 40, 75,   6}, /* teleport level */
+			{ 30,  6, 50,   6}, /* blink */
+			{ 35, 50, 75,  12}, /* word of recall */
+			{ 40, 60, 75,  50}, /* alter reality */
 
-			{  5,  6, 50,  40},
-			{ 15, 20, 80,  25},
-			{ 25, 40, 80, 160},
-			{ 35, 50, 80, 230},
-			{ 37, 60, 85, 250},	/* 325 */
-			{ 45, 95, 85, 250},	/* 530 */
+			{ 13, 10, 45,   4}, /* sense surroundings */
 
-			{  3,  3, 50,   6},
-			{ 10, 10, 50,   8},
-			{ 20, 20, 80,  16},
-			{ 30, 40, 75, 133},
-			{ 35, 50, 75,  11},
-			{ 40, 60, 75, 250},	/* 300 */
+			{  7,  5, 38,   4}, /* satisfy hunger */
+			{  7,  6, 38,   5}, /* remove curse */
+			{ 11,  6, 50,  40}, /* unbarring ways */
+			{ 20, 25, 80,  40}, /* recharging */
+			{ 29, 40, 75,  60}, /* dispel curse */
 
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0}
+			{  5,  3, 29,   3}, /* turn undead */
+			{  6,  4, 29,   3}, /* scare monster */
+			{  7,  5, 38,   3}, /* sanctuary */
+			{ 26, 20, 80,  16}, /* teleport other */
+			{ 31, 25, 80,  50}, /* banishment */
+
+			{  7,  7, 38,   5}, /* resist heat/cold */
+			{ 11,  8, 42,   4}, /* protection from evil */
+			{ 20, 20, 70,  10}, /* resist poison */
+			{ 22, 20, 70,  10}, /* holy sight */
+			{ 28, 25, 75,  20}, /* clear consciousness */
+			{ 30, 30, 80,  20}, /* resist elements */
+			{ 34, 40, 80,  30}, /* sacred shield */
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0}
 		}
 	},
 
@@ -1852,7 +1788,7 @@ player_magic magic_info[MAX_CLASS] =
 			{  7,  2, 55,   1}, /* phase */
 			{  9,  3, 60,   1}, /* light */
 
-			{ 99,  0,  0,   0}, /* stinky */
+			{ 21, 12, 50,  10}, /* stinky */
 			{ 99,  0,  0,   0}, /* lightning 5 */
 			{ 99,  0,  0,   0}, /* frost */
 			{ 99,  0,  0,   0}, /* acid */
@@ -1870,17 +1806,17 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0}, /* mana */
 
 			{ 11,  4, 65,   1}, /* cure light */
-			{ 13,  5, 50,   1}, /* traps 20 */
+			{  8,  3, 50,   1}, /* traps 20 */
 			{ 10,  3, 60,   1}, /* treasure */
 			{ 12,  4, 65,   1}, /* objects */
-			{ 28, 18, 60,   2}, /* identify */
+			{ 18, 18, 60,   2}, /* identify */
 			{ 20, 10, 50,   4}, /* invisible */
 			{ 30, 15, 70,   6}, /* evil 25 */
 			{ 14,  7, 60,   2}, /* trap destruct */
 
 			{ 21,  9, 90,   1}, /* cure poison */
 			{ 22,  9, 50,   1}, /* teleport */
-			{ 99,  0,  0,   0}, /* slow mon */
+			{ 28, 20, 70,   2}, /* slow mon */
 			{ 31, 25, 70,   3}, /* tele other 30 */
 			{ 32, 25, 70,   6}, /* haste */
 			{ 25, 20, 60,  20}, /* tele level */
@@ -1904,12 +1840,12 @@ player_magic magic_info[MAX_CLASS] =
 
 			{ 16, 12, 50,  40}, /* RC */
 			{ 19, 12, 50,  40}, /* RF */
-			{ 22, 11, 50,  40}, /* hero 50  */
-			{ 25, 25, 60, 160}, /* berserker */
-			{ 26, 20, 75,  60}, /* RP */
+			{ 26, 15, 50,  40}, /* hero 50  */
+			{ 28, 20, 60,  60}, /* berserker */
+			{ 30, 25, 75,  60}, /* RP */
 			{ 31, 30, 85,  80}, /* R */
 			{ 34, 20, 75,  80}, /* shield */
-			{ 99,  0,  0,   0}, /* was GoI 55 */
+			{ 99,  0,  0,   0}, /* rune of protection 55 */
 
 			{ 27, 10, 50,  10}, /* detect enchantment */
 			{ 36, 40, 80,  18}, /* WoR */
@@ -1997,8 +1933,8 @@ player_magic magic_info[MAX_CLASS] =
 			{ 23, 30, 80,  35}, /* berserk */
 			{ 26, 25, 75,  50}, /* RP */
 			{ 31, 40, 85,  70}, /* R */
-			{ 15, 20, 75,  80}, /* shield */
-			{ 99,  0,  0,   0}, /* was GoI 55 */
+			{ 35, 30, 75,  80}, /* shield */
+			{ 40, 75, 80,  80}, /* rune of protection 55 */
 
 			{ 35, 20, 70,  10}, /* enchantment */
 			{ 35, 35, 75,  16}, /* WoR */
@@ -2025,70 +1961,75 @@ player_magic magic_info[MAX_CLASS] =
 		400,
 
 		{
-			{  1,  1, 30,   4},
-			{  2,  2, 35,   4},
-			{  3,  3, 35,   4},
-			{  5,  3, 35,   4},
-			{  5,  4, 35,   4},
-			{  7,  5, 40,   3},
-			{  7,  5, 40,   3},
-			{  9,  7, 40,   3},
-			{  9,  7, 40,   3},
-			{  9,  8, 40,   3},
-			{ 11,  9, 40,   3},
-			{ 11, 10, 45,   3},
-			{ 11, 10, 45,   3},
-			{ 13, 10, 45,   3},
-			{ 13, 11, 45,   4},
-			{ 15, 13, 45,   4},
-			{ 15, 15, 50,   4},
-			{ 17, 15, 50,   4},
-			{ 17, 15, 50,   4},
-			{ 19, 15, 50,   4},
-			{ 19, 15, 50,   4},
-			{ 21, 17, 50,   3},
-			{ 23, 17, 50,   3},
-			{ 25, 20, 50,   3},
-			{ 27, 21, 50,   3},
-			{ 29, 22, 50,   3},
-			{ 31, 24, 60,   3},
-			{ 33, 28, 60,   3},
-			{ 35, 32, 70,   4},
-			{ 37, 70, 90,   5},
-			{ 39, 38, 95,  10},
+			{  2,  2, 35,   4}, /* cure light */
+			{  5,  3, 35,   4}, /* remove fear */
+			{ 13, 10, 50,   4}, /* neutralize poison */
+			{ 20, 20, 50,   3}, /* cure mortal */
+			{ 23, 20, 60,   4}, /* regeneration */
 
-			{ 5,  5,  50,   1},
-			{ 15, 15, 80,  12},
-			{ 25, 25, 80,  16},
-			{ 30, 15, 80, 135},
-			{ 37, 55, 80, 215},
+			{ 29, 60, 80,  75}, /* healing */
+			{ 32, 70, 80,  80}, /* purify body */
+			{ 35, 70, 80,  80}, /* meditation */
+			{ 40, 80, 90, 100}, /* restoration */
+			{ 40, 80, 90, 150}, /* remembrance */
 
-			{ 17, 15, 50,  25},
-			{ 23, 25, 60,  35},
-			{ 35, 60, 80, 115},
-			{ 40, 80, 90, 200},
-			{ 40, 80, 90, 250},	/* 300 */
+			{  1,  1, 30,   4}, /* detect evil */
+			{  5,  4, 35,   4}, /* call light */
+			{  7,  5, 40,   3}, /* find traps */
+			{  8,  5, 40,   3}, /* detect doors/stairs */
+			{ 19, 15, 50,   4}, /* sense invisible */
 
-			{ 20, 13, 70,  20},
-			{ 30, 20, 75,  40},
-			{ 30, 35, 80, 200},
-			{ 40, 40, 80, 100},
-			{ 47, 70, 75, 250},	/* 350 */
+			{ 15, 15, 80,  12}, /* detection */
+			{ 25, 25, 80,  16}, /* perception */
+			{ 30, 15, 80, 135}, /* probing */
+			{ 37, 55, 80, 215}, /* clairvoyance */
 
-			{ 10, 16, 50,  20},
-			{ 25, 30, 80,  15},
-			{ 30, 50, 80, 130},
-			{ 40, 70, 80, 200},
-			{ 42, 80, 85, 250},	/* 285 */
-			{ 47, 95, 85, 250},	/* 500 */
+			{  3,  3, 35,   4}, /* bless */
+			{ 17, 15, 50,   4}, /* orb of draining */
+			{ 19, 15, 60,   4}, /* radiant aura */
+			{ 24, 20, 70,   4}, /* exorcise */
+			{ 31, 20, 70,   4}, /* earthquake */
 
-			{  7,  7, 50,   2},
-			{ 20, 20, 50,   4},
-			{ 25, 25, 80,  12},
-			{ 35, 50, 75, 115},
-			{ 40, 60, 75,  10},
-			{ 45, 70, 75, 250},
+			{ 27, 24, 60,   3}, /* dispel undead */
+			{ 29, 24, 60,   3}, /* dispel demons */
+			{ 33, 32, 70,   4}, /* dispel evil */
+			{ 35, 70, 95,  80}, /* bless weapon */
+			{ 39, 40, 90,  90}, /* holy word */
+			{ 42, 50, 75, 100}, /* annihilation */
+			{ 47, 60, 80, 100}, /* word of destruction */
 
+			{  9,  8, 40,   3}, /* portal */
+			{ 20, 20, 50,   4}, /* teleport self */
+			{ 25, 50, 75,   8}, /* teleport level */
+			{ 27,  9, 50,  12}, /* blink */
+			{ 40, 60, 75,  15}, /* word of recall */
+			{ 45, 70, 75, 200}, /* alter reality */
+
+			{ 23, 17, 50,   3}, /* sense surroundings */
+
+			{ 13, 10, 45,   3}, /* satisfy hunger */
+			{ 14, 11, 45,   4}, /* remove curse */
+			{ 18, 16, 50,  20}, /* unbarring ways */
+			{ 25, 30, 80,  15}, /* recharging */
+			{ 30, 50, 80, 100}, /* dispel curse */
+
+			{  7,  6, 40,   3}, /* turn undead */
+			{  9,  7, 45,   3}, /* scare monster */
+			{ 13, 10, 45,   3}, /* sanctuary */
+			{ 25, 25, 80,  12}, /* teleport other */
+			{ 30, 35, 80, 100}, /* banishment */
+
+			{ 15, 13, 45,   4}, /* resist heat and cold */
+			{ 19, 15, 50,   4}, /* protection from evil */
+			{ 30, 25, 80,   8}, /* resist poison */
+			{ 32, 25, 80,   8}, /* holy sight */
+			{ 35, 25, 80,  10}, /* clear consciousness */
+			{ 40, 50, 80,  20}, /* resist elements */
+			{ 30, 30, 70,  20}, /* sacred shield */
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -2115,7 +2056,7 @@ u32b spell_flags[2][12][2] =
 		{ 0x04000008, 0x000001fa },
 		{ 0x00000000, 0x0000fe00 },
 		{ 0x0006f800, 0x00000000 },
-		{ 0x00000000, 0x00730000 },
+		{ 0x00000000, 0x00f30000 },
 		{ 0x00010000, 0x7c000000 },
 		{ 0x00000000, 0x00000000 },
 		{ 0x00000000, 0x00000000 }
@@ -2123,16 +2064,16 @@ u32b spell_flags[2][12][2] =
 
 	{
 		/*** Priest spell books ***/
-		{ 0x000000ff, 0x00000000 },
-		{ 0x0000ff00, 0x00000000 },
-		{ 0x01ff0000, 0x00000000 },
-		{ 0x7e000000, 0x00000000 },
-		{ 0x00000000, 0x03f00000 },
-		{ 0x80000000, 0x0000000f },
-		{ 0x00000000, 0x000001f0 },
-		{ 0x00000000, 0x000fc000 },
-		{ 0x00000000, 0x00003e00 },
-		{ 0x00000000, 0x00000000 },
+		{ 0x00007c00, 0x00000020 },
+		{ 0x0000001f, 0x00000000 },
+		{ 0x00f80000, 0x00000000 },
+		{ 0x00000000, 0x0000f800 },
+		{ 0x00000800, 0x000007c0 },
+		{ 0x80000000, 0x0000001f },
+		{ 0x00078000, 0x00000000 },
+		{ 0x00000000, 0x007f0000 },
+		{ 0x000003e0, 0x00000000 },
+		{ 0x7f000000, 0x00000000 },
 		{ 0x00000000, 0x00000000 },
 		{ 0x00000000, 0x00000000 }
 	}
@@ -2233,7 +2174,7 @@ cptr spell_names[2][64] =
 		"Resist Poison",
 		"Resistance",
 		"Shield",
-		"(blank)",	/* Globe of Invulnerability has been nuked */
+		"Rune of Protection",
 
 		/* Here for obscure reasons.... */
 		"Detect Enchantment",
@@ -2254,87 +2195,91 @@ cptr spell_names[2][64] =
 	/*** Priest Spells ***/
 
 	{
-		/* Beginners Handbook (sval 0) */
-		"Detect Evil",
-		"Cure Light Wounds",
-		"Bless",
+		/* healing 1 */
+		"Cure Light Wounds",	/* 0 */
 		"Remove Fear",
-		"Call Light",
+		"Neutralize Poison",
+		"Cure Mortal Wounds",
+		"Regeneration",
+
+		/* healing 2 */
+		"Healing",		/* 5 */
+		"Purify Body",
+		"Meditation",
+		"Restoration",
+		"Remembrance",
+
+		/* revelation 1 */
+		"Detect Evil",		/* 10 */
+		"Call Light",		/* also in utility */
 		"Find Traps",
 		"Detect Doors/Stairs",
-		"Slow Poison",
-
-		/* Words of Wisdom (sval 1) */
-		"Scare Monster",
-		"Portal",
-		"Cure Serious Wounds",
-		"Chant",
-		"Sanctuary",
-		"Satisfy Hunger",
-		"Remove Curse",
-		"Resist Heat and Cold",
-
-		/* Chants and Blessings (sval 2) */
-		"Neutralize Poison",
-		"Orb of Draining",
-		"Cure Critical Wounds",
 		"Sense Invisible",
-		"Protection from Evil",
-		"Earthquake",
-		"Sense Surroundings",
-		"Cure Mortal Wounds",
-		"Turn Undead",
 
-		/* Exorcism and Dispelling (sval 3) */
-		"Prayer",
-		"Dispel Undead",
-		"Heal",
-		"Dispel Evil",
-		"Glyph of Warding",
-		"Holy Word",
-
-		/* Godly Insights... (sval 5) */
-		"Detect Monsters",
-		"Detection",
+		/* revelation 2 */
+		"Detection",		/* 15 */
 		"Perception",
 		"Probing",
 		"Clairvoyance",
 
-		/* Purifications and Healing (sval 6) */
-		"Cure Serious Wounds",
-		"Cure Mortal Wounds",
-		"Healing",
-		"Restoration",
-		"Remembrance",
+		/* offense 1 */
+		"Bless",		/* 19 */
+		"Orb of Draining",
+		"Radiant Aura",
+		"Exorcise",
+		"Earthquake",
 
-		/* Wrath of God (sval 8) */
-		"Dispel Undead",
+		/* offense 2 */
+		"Dispel Undead",	/* 24 */
+		"Dispel Demons",
 		"Dispel Evil",
-		"Banishment",
-		"Word of Destruction",
+		"Bless Weapon",
+		"Holy Word",
 		"Annihilation",
+		"Word of Destruction",
 
-		/* Holy Infusions (sval 7) */
-		"Unbarring Ways",
-		"Recharging",
-		"Dispel Curse",
-		"Enchant Weapon",
-		"Enchant Armour",
-		"Elemental Brand",
-
-		/* Ethereal openings (sval 4) */
-		"Blink",
+		/* escape */
+		"Portal",		/* 31 */
 		"Teleport Self",
-		"Teleport Other",
 		"Teleport Level",
+		"Blink",
 		"Word of Recall",
 		"Alter Reality",
 
+		/* utility */
+		"Sense Surroundings",	/* 37 */ /* actually in revelation 1 */
+		"Satisfy Hunger",
+		"Remove Curse",
+		"Unbarring Ways",
+		"Recharging",
+		"Dispel Curse",
+
+		/* non-violence */
+		"Turn Undead",		/* 43 */
+		"Scare Monster",
+		"Sanctuary",
+		"Teleport Other",
+		"Banishment",
+
+		/* defense */
+		"Resist Heat and Cold",	/* 48 */
+		"Protection from Evil",
+		"Resist Poison",
+		"Holy Sight",
+		"Clear Consciousness",
+		"Resist Elements",
+		"Sacred Shield",
+
+		/* currently unused */
+		"(blank)",	 	/* 55 */
 		"(blank)",
 		"(blank)",
 		"(blank)",
 		"(blank)",
-		"(blank)"
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)"		/* 63 */
 	}
 };
 
@@ -2624,6 +2569,7 @@ cptr option_text[OPT_MAX] =
 	"show_details",				/* OPT_show_details */
 	"ring_bell",				/* OPT_ring_bell */
 	"show_flavors",				/* OPT_flavors */
+
 	"run_ignore_stairs",		/* OPT_run_ignore_stairs */
 	"run_ignore_doors",			/* OPT_run_ignore_doors */
 	"run_cut_corners",			/* OPT_run_cut_corners */
@@ -2639,7 +2585,11 @@ cptr option_text[OPT_MAX] =
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
+#ifdef ALLOW_EASY_OPEN
+	"easy_open",   /* OPT_easy_open */
+#else /* ALLOW_EASY_OPEN */
 	NULL,						/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
 	"testing_stack",			/* OPT_testing_stack */
@@ -2652,8 +2602,16 @@ cptr option_text[OPT_MAX] =
 	"dungeon_stair",			/* OPT_dungeon_stair */
 	"flow_by_sound",			/* OPT_flow_by_sound */
 	"flow_by_smell",			/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM
+	"easy_disarm",   /* OPT_easy_disarm */
+#else  /* ALLOW_EASY_DISARM */
 	NULL,						/* xxx track_follow */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+	"easy_floor",   /* OPT_easy_floor */
+#else  /* ALLOW_EASY_FLOOR */
 	NULL,						/* xxx track_target */
+#endif /* ALLOW_EASY_FLOOR */
 	"smart_learn",				/* OPT_smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
@@ -2662,10 +2620,11 @@ cptr option_text[OPT_MAX] =
 	"avoid_other",				/* OPT_avoid_other */
 	"flush_failure",			/* OPT_flush_failure */
 	"flush_disturb",			/* OPT_flush_disturb */
-	NULL,						/* xxx flush_command */
+
 	"fresh_before",				/* OPT_fresh_before */
 	"fresh_after",				/* OPT_fresh_after */
-	NULL,						/* xxx fresh_message */
+	"center_player",		/* OPT_center_player */
+	"avoid_center",			/* OPT_avoid_center */
 	"compress_savefile",		/* OPT_compress_savefile */
 	"hilite_player",			/* OPT_hilite_player */
 	"view_yellow_lite",			/* OPT_view_yellow_lite */
@@ -2696,6 +2655,7 @@ cptr option_desc[OPT_MAX] =
 	"Show details in monster descriptions",		/* OPT_show_details */
 	"Audible bell (on errors, etc)",			/* OPT_ring_bell */
 	"Show flavors in object descriptions",		/* OPT_show_flacors */
+
 	"When running, ignore stairs",				/* OPT_run_ignore_stairs */
 	"When running, ignore doors",				/* OPT_run_ignore_doors */
 	"When running, cut corners",				/* OPT_run_cut_corners */
@@ -2711,7 +2671,11 @@ cptr option_desc[OPT_MAX] =
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
+#ifdef ALLOW_EASY_OPEN
+	"Open and close automatically",   /* OPT_easy_open */
+#else /* ALLOW_EASY_OPEN */
 	NULL,										/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	"Allow objects to stack on floor",			/* OPT_testing_stack */
@@ -2724,8 +2688,16 @@ cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
 	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM
+	"Disarm traps automatically",   /* OPT_easy_disarm */
+#else /* ALLOW_EASY_DISARM */
 	NULL,										/* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+	"Display floor stacks in a list",   /* OPT_easy_floor */
+#else /* ALLOW_EASY_FLOOR */
 	NULL,										/* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
@@ -2734,10 +2706,11 @@ cptr option_desc[OPT_MAX] =
 	"Avoid processing special colors",			/* OPT_avoid_other */
 	"Flush input on various failures",			/* OPT_flush_failure */
 	"Flush input whenever disturbed",			/* OPT_flush_disturb */
-	NULL,										/* xxx */
+
 	"Flush output before every command",		/* OPT_fresh_before */
 	"Flush output after various things",		/* OPT_fresh_after */
-	NULL,										/* xxx */
+	"Always center on the player (*slow*)",		/* OPT_center_player */
+	"Avoid centering while running",		/* OPT_avoid_center */
 	"Compress messages in savefiles",			/* OPT_compress_savefile */
 	"Hilite the player with the cursor",		/* OPT_hilite_player */
 	"Use special colors for torch lite",		/* OPT_view_yellow_lite */
@@ -2768,6 +2741,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_show_details */
 	TRUE,		/* OPT_ring_bell */
 	TRUE,		/* OPT_show_flavors */
+
 	TRUE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
@@ -2783,7 +2757,11 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
+#ifdef ALLOW_EASY_OPEN
+	TRUE,   /* OPT_easy_open */
+#else /* ALLOW_EASY_OPEN */
 	FALSE,		/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
 	FALSE,		/* OPT_testing_stack */
@@ -2796,8 +2774,16 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM
+	TRUE,   /* OPT_easy_disarm */
+#else /* ALLOW_EASY_DISARM */
 	FALSE,		/* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+	TRUE,   /* OPT_easy_floor */
+#else /* ALLOW_EASY_FLOOR */
 	FALSE,		/* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
@@ -2806,10 +2792,10 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_avoid_other */
 	TRUE,		/* OPT_flush_failure */
 	FALSE,		/* OPT_flush_disturb */
-	FALSE,		/* xxx */
 	TRUE,		/* OPT_fresh_before */
 	FALSE,		/* OPT_fresh_after */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_center_player */
+	FALSE,		/* OPT_avoid_center */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
 	FALSE,		/* OPT_view_yellow_lite */
@@ -2822,7 +2808,7 @@ bool option_norm[OPT_MAX] =
 /*
  * Option screen interface
  */
-byte option_page[4][16] =
+byte option_page[OPT_PAGE_MAX][OPT_PER_PAGE] =
 {
 	/*** User-Interface ***/
 
@@ -2842,7 +2828,13 @@ byte option_page[4][16] =
 		OPT_show_choices,
 		OPT_show_details,
 		OPT_show_flavors,
-		OPT_ring_bell
+		OPT_ring_bell,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255
 	},
 
 	/*** Disturbance ***/
@@ -2863,6 +2855,12 @@ byte option_page[4][16] =
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
 		255
 	},
 
@@ -2883,6 +2881,24 @@ byte option_page[4][16] =
 		OPT_flow_by_smell,
 		OPT_smart_learn,
 		OPT_smart_cheat,
+#ifdef ALLOW_EASY_OPEN
+		OPT_easy_open,
+#else /* ALLOW_EASY_OPEN */
+		255,
+#endif /* ALLOW_EASY_OPEN */
+#ifdef ALLOW_EASY_DISARM
+		OPT_easy_disarm,
+#else /* ALLOW_EASY_DISARM */
+		255,
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+		OPT_easy_floor,
+#else /* ALLOW_EASY_FLOOR */
+		255,
+#endif /* ALLOW_EASY_FLOOR */
+		255,
+		255,
+		255,
 		255,
 		255
 	},
@@ -2898,12 +2914,18 @@ byte option_page[4][16] =
 		OPT_flush_disturb,
 		OPT_fresh_before,
 		OPT_fresh_after,
+		OPT_center_player,
+		OPT_avoid_center,
 		OPT_compress_savefile,
 		OPT_hilite_player,
 		OPT_view_yellow_lite,
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
+		255,
+		255,
+		255,
+		255,
 		255,
 		255
 	}

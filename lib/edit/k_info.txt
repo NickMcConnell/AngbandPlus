@@ -1873,8 +1873,8 @@ P:0:1d1:0:0:0
 N:266:Restore Mana
 G:!:d
 I:75:40:0
-W:25:0:4:350
-A:25/1
+W:25:0:4:1000
+A:25/4:50/2:100/1
 P:0:1d1:0:0:0
 
 N:267:Infra-vision
@@ -2287,7 +2287,7 @@ N:325:the Magi
 G:_:d
 I:55:19:0
 W:70:0:50:4500
-A:70/2
+A:75/4
 P:0:1d2:0:0:0
 
 N:326:Perception
@@ -2349,32 +2349,32 @@ W:20:0:30:300
 A:20/1
 P:0:1d1:0:0:0
 
-N:334:[Beginners Handbook]
+N:334:[Visions]
 G:?:G
 I:91:0:0
 W:5:0:30:25
 A:5/1
 P:0:1d1:0:0:0
 
-N:335:[Words of Wisdom]
+N:335:[Lesser Healings]
 G:?:G
 I:91:1:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
-N:336:[Chants and Blessings]
+N:336:[The Heavenly Host]
 G:?:G
 I:91:2:0
-W:20:0:30:300
-A:20/1
+W:15:0:30:200
+A:15/1
 P:0:1d1:0:0:0
 
-N:337:[Exorcism and Dispelling]
+N:337:[The Hand of Mercy]
 G:?:G
 I:91:3:0
-W:30:0:30:900
-A:30/1
+W:20:0:30:300
+A:20/1
 P:0:1d1:0:0:0
 
 ##### Chests #####
@@ -2476,189 +2476,189 @@ P:0:1d1:0:0:0
 
 N:351:Door/Stair Location
 G:-:d
-I:66:1:0
+I:66:1:70
 W:15:0:15:1000
 A:15/1
 P:0:1d1:0:0:0
 
 N:352:Trap Location
 G:-:d
-I:66:0:0
+I:66:0:50
 W:5:0:15:100
 A:5/1
 P:0:1d1:0:0:0
 
 N:353:Probing
 G:-:d
-I:66:7:0
+I:66:7:50
 W:40:0:15:4000
 A:40/4
 P:0:1d1:0:0:0
 
 N:354:Recall
 G:-:d
-I:66:3:0
+I:66:3:60
 W:30:0:15:4000
 A:30/4
 P:0:1d1:0:0:0
 
 N:355:Illumination
 G:-:d
-I:66:4:0
+I:66:4:30
 W:20:0:15:1000
 A:20/1
 P:0:1d1:0:0:0
 
 N:356:Light
 G:-:d
-I:66:15:0
+I:66:15:9
 W:10:0:15:500
 A:10/1
 P:0:1d1:0:0:0
 
 N:357:Lightning Bolts
 G:-:d
-I:66:21:0
+I:66:21:11
 W:20:0:15:2000
 A:20/1
 P:0:1d1:0:0:0
 
 N:358:Frost Bolts
 G:-:d
-I:66:23:0
+I:66:23:13
 W:25:0:15:2500
 A:25/1
 P:0:1d1:0:0:0
 
 N:359:Fire Bolts
 G:-:d
-I:66:22:0
+I:66:22:15
 W:30:0:15:3000
 A:30/1
 P:0:1d1:0:0:0
 
 N:360:Polymorph
 G:-:d
-I:66:19:0
+I:66:19:25
 W:35:0:15:1200
 A:35/1
 P:0:1d1:0:0:0
 
 N:361:Slow Monster
 G:-:d
-I:66:17:0
+I:66:17:20
 W:30:0:15:1500
 A:30/1
 P:0:1d1:0:0:0
 
 N:362:Sleep Monster
 G:-:d
-I:66:16:0
+I:66:16:18
 W:30:0:15:1500
 A:30/1
 P:0:1d1:0:0:0
 
 N:363:Drain Life
 G:-:d
-I:66:18:0
+I:66:18:23
 W:75:0:15:3600
 A:75/4
 P:0:1d1:0:0:0
 
 N:364:Teleport Other
 G:-:d
-I:66:13:0
+I:66:13:25
 W:45:0:15:1400
 A:45/2
 P:0:1d1:0:0:0
 
 N:365:Disarming
 G:-:d
-I:66:14:0
+I:66:14:30
 W:35:0:15:2100
 A:35/1
 P:0:1d1:0:0:0
 
 N:366:Lightning Balls
 G:-:d
-I:66:25:0
+I:66:25:23
 W:55:0:15:4000
 A:55/1
 P:0:1d1:0:0:0
 
 N:367:Cold Balls
 G:-:d
-I:66:27:0
+I:66:27:25
 W:60:0:15:4500
 A:60/1
 P:0:1d1:0:0:0
 
 N:368:Fire Balls
 G:-:d
-I:66:26:0
+I:66:26:30
 W:75:0:15:5000
 A:75/1
 P:0:1d1:0:0:0
 
 N:369:Acid Balls
 G:-:d
-I:66:24:0
+I:66:24:27
 W:70:0:15:5500
 A:70/1
 P:0:1d1:0:0:0
 
 N:370:Acid Bolts
 G:-:d
-I:66:20:0
+I:66:20:12
 W:40:0:15:3500
 A:40/1
 P:0:1d1:0:0:0
 
 N:371:Enlightenment
 G:-:d
-I:66:5:0
+I:66:5:99
 W:65:0:15:10000
 A:65/4
 P:0:1d1:0:0:0
 
 N:372:Perception
 G:-:d
-I:66:2:0
+I:66:2:10
 W:50:0:15:13000
 A:50/8
 P:0:1d1:0:0:0
 
 N:373:Curing
 G:-:d
-I:66:8:0
+I:66:8:999
 W:65:0:15:15000
 A:65/8
 P:0:1d1:0:0:0
 
 N:374:Healing
 G:-:d
-I:66:9:0
+I:66:9:999
 W:80:0:15:20000
 A:80/8
 P:0:1d1:0:0:0
 
 N:375:Detection
 G:-:d
-I:66:6:0
+I:66:6:99
 W:30:0:15:5000
 A:30/8
 P:0:1d1:0:0:0
 
 N:376:Restoration
 G:-:d
-I:66:10:0
+I:66:10:999
 W:80:0:15:25000
 A:80/16
 P:0:1d1:0:0:0
 
 N:377:Speed
 G:-:d
-I:66:11:0
+I:66:11:99
 W:95:0:15:50000
 A:95/16
 P:0:1d1:0:0:0
@@ -2707,43 +2707,42 @@ A:80/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:384:[Ethereal Openings]
-G:?:g
+N:384:[The Clerical Handbook]
+G:?:G
 I:91:4:0
-W:40:0:30:5000
-A:40/1
+W:25:0:30:1000
+A:25/1
 P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:385:[Godly Insights]
+N:385:[Ethereal Openings]
 G:?:g
 I:91:5:0
-W:50:0:30:10000
-A:50/1
+W:30:0:30:5000
+A:30/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:386:[Purifications and Healing]
+N:386:[Godly Insights]
 G:?:g
 I:91:6:0
-W:60:0:30:30000
-A:60/1
+W:35:0:30:8000
+A:35/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:387:[Holy Infusions]
+N:387:[Spiritual Armor]
 G:?:g
 I:91:7:0
-W:80:0:30:50000
-A:80/2
+W:40:0:30:20000
+A:40/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:388:[Wrath of God]
+N:388:[Purifications and Healings]
 G:?:g
 I:91:8:0
-W:100:0:30:100000
-A:100/4
+W:60:0:30:40000
+A:60/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -2951,7 +2950,14 @@ F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
 F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 413 XXX ##
+# A Prayer book, moved here because this is where there's a gap.
+N:413:[Wrath of God]
+G:?:g
+I:91:9:0
+W:80:0:30:100000
+A:80/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ## XXX 414 XXX ##
 

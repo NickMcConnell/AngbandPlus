@@ -63,7 +63,7 @@ _randart.o: randart.c
 #
 
 libangb.a: $(OBJS)
-	ar rcv $@ $(OBJS)
+	ar rc $@ $(OBJS)
 	ranlib $@
 
 

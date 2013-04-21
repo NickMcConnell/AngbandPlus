@@ -231,7 +231,7 @@ install: angband randart
 #
 
 angband: $(MAIN_OBJS) libangband.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(MAIN_OBJS) libangband.a $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $(MAIN_OBJS) libangband.a $(LIBS)
 
 #
 # Build the standalone randart program.  This typically doesn't need any
@@ -241,7 +241,7 @@ angband: $(MAIN_OBJS) libangband.a
 #
 
 randart: _randart.o randmain.o libangband.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ _randart.o randmain.o libangband.a
+	$(CC) $(LDFLAGS) -o $@ _randart.o randmain.o libangband.a
 
 _randart.o : randart.c
 	cp randart.c _randart.c
@@ -249,8 +249,8 @@ _randart.o : randart.c
 	rm _randart.c
 
 libangband.a: $(OBJS)
-	ar rcv $@ $(OBJS)
-	@echo "If ranlib doesn't exist on your system, you can ignore the error."
+	ar rc $@ $(OBJS)
+	@echo "### If ranlib doesn't exist on your system, you may ignore the error."
 	-ranlib $@
 
 #
@@ -310,6 +310,7 @@ monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
+randart.o : randart.c $(INCS)
 save.o: save.c $(INCS)
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)

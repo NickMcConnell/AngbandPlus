@@ -2057,7 +2057,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
+			if (drain_life(dir, 150)) ident = TRUE;
 			break;
 		}
 
@@ -2076,63 +2076,63 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
+			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(4, 6));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, 8));
+			fire_bolt_or_beam(20, GF_ACID, dir, damroll(10, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3, 8));
+			fire_beam(GF_ELEC, dir, damroll(6, 6));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
+			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(12, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_COLD, dir, damroll(6, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 120, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 64, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 144, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 96, 2);
 			ident = TRUE;
 			break;
 		}
@@ -2145,14 +2145,14 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			fire_ball(GF_FIRE, dir, 100, 3);
+			fire_ball(GF_FIRE, dir, 200, 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 80, 3);
+			fire_ball(GF_COLD, dir, 160, 3);
 			ident = TRUE;
 			break;
 		}
@@ -2163,31 +2163,31 @@ void do_cmd_aim_wand(void)
 			{
 				case 1:
 				{
-					fire_ball(GF_ACID, dir, 100, 3);
+					fire_ball(GF_ACID, dir, 200, 3);
 					break;
 				}
 
 				case 2:
 				{
-					fire_ball(GF_ELEC, dir, 80, 3);
+					fire_ball(GF_ELEC, dir, 160, 3);
 					break;
 				}
 
 				case 3:
 				{
-					fire_ball(GF_FIRE, dir, 100, 3);
+					fire_ball(GF_FIRE, dir, 200, 3);
 					break;
 				}
 
 				case 4:
 				{
-					fire_ball(GF_COLD, dir, 80, 3);
+					fire_ball(GF_COLD, dir, 160, 3);
 					break;
 				}
 
 				default:
 				{
-					fire_ball(GF_POIS, dir, 60, 3);
+					fire_ball(GF_POIS, dir, 120, 3);
 					break;
 				}
 			}
@@ -2198,7 +2198,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ANNIHILATION:
 		{
-			if (drain_life(dir, 125)) ident = TRUE;
+			if (drain_life(dir, 250)) ident = TRUE;
 			break;
 		}
 	}
@@ -2223,33 +2223,6 @@ void do_cmd_aim_wand(void)
 
 	/* Use a single charge */
 	o_ptr->pval--;
-
-	/* Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Restore the charges */
-		o_ptr->pval++;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your wand.");
-	}
 
 	/* Describe the charges in the pack */
 	if (item >= 0)
@@ -2281,6 +2254,7 @@ void do_cmd_zap_rod(void)
 	int item, ident, chance, dir, lev;
 
 	object_type *o_ptr;
+	object_kind *k_ptr;
 
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
@@ -2308,14 +2282,17 @@ void do_cmd_zap_rod(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Get the object kind. */
+	k_ptr = &k_info[o_ptr->k_idx];
 
+#if 0
 	/* Mega-Hack -- refuse to zap a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
 		msg_print("You must first pick up the rods.");
 		return;
 	}
-
+#endif
 
 	/* Get a direction (unless KNOWN not to need it) */
 	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
@@ -2332,7 +2309,7 @@ void do_cmd_zap_rod(void)
 	ident = FALSE;
 
 	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].level;
+	lev = k_ptr->level;
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;
@@ -2357,18 +2334,27 @@ void do_cmd_zap_rod(void)
 		return;
 	}
 
-	/* Still charging */
-	if (o_ptr->pval)
+	/* A single rod is still charging */
+	if ((o_ptr->number == 1) && (o_ptr->timeout))
 	{
 		if (flush_failure) flush();
 		msg_print("The rod is still charging.");
 		return;
 	}
-
+	/* A stack of rods lacks enough energy. */
+	else if ((o_ptr->number > 1) &&
+		 (o_ptr->number <= (o_ptr->timeout + k_ptr->pval - 1) / k_ptr->pval))
+	{
+		if (flush_failure) flush();
+		msg_print("The rods are all still charging.");
+		return;
+	}
 
 	/* Sound */
 	sound(SOUND_ZAP);
 
+	/* Increase the timeout by the rod kind's pval. */
+	o_ptr->timeout += k_ptr->pval;
 
 	/* Analyze the rod */
 	switch (o_ptr->sval)
@@ -2376,7 +2362,6 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
-			o_ptr->pval = 50;
 			break;
 		}
 
@@ -2384,7 +2369,6 @@ void do_cmd_zap_rod(void)
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
-			o_ptr->pval = 70;
 			break;
 		}
 
@@ -2392,7 +2376,6 @@ void do_cmd_zap_rod(void)
 		{
 			ident = TRUE;
 			if (!ident_spell()) use_charge = FALSE;
-			o_ptr->pval = 10;
 			break;
 		}
 
@@ -2409,14 +2392,12 @@ void do_cmd_zap_rod(void)
 				p_ptr->word_recall = 0;
 			}
 			ident = TRUE;
-			o_ptr->pval = 60;
 			break;
 		}
 
 		case SV_ROD_ILLUMINATION:
 		{
 			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
@@ -2424,7 +2405,6 @@ void do_cmd_zap_rod(void)
 		{
 			map_area();
 			ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -2432,7 +2412,6 @@ void do_cmd_zap_rod(void)
 		{
 			detect_all();
 			ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -2440,7 +2419,6 @@ void do_cmd_zap_rod(void)
 		{
 			probing();
 			ident = TRUE;
-			o_ptr->pval = 50;
 			break;
 		}
 
@@ -2451,7 +2429,6 @@ void do_cmd_zap_rod(void)
 			if (set_confused(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2460,7 +2437,6 @@ void do_cmd_zap_rod(void)
 			if (hp_player(500)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2473,7 +2449,6 @@ void do_cmd_zap_rod(void)
 			if (do_res_stat(A_DEX)) ident = TRUE;
 			if (do_res_stat(A_CON)) ident = TRUE;
 			if (do_res_stat(A_CHR)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2487,21 +2462,18 @@ void do_cmd_zap_rod(void)
 			{
 				(void)set_fast(p_ptr->fast + 5);
 			}
-			o_ptr->pval = 99;
 			break;
 		}
 
 		case SV_ROD_TELEPORT_AWAY:
 		{
 			if (teleport_monster(dir)) ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
 		case SV_ROD_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
@@ -2510,99 +2482,86 @@ void do_cmd_zap_rod(void)
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
 			ident = TRUE;
-			o_ptr->pval = 9;
 			break;
 		}
 
 		case SV_ROD_SLEEP_MONSTER:
 		{
 			if (sleep_monster(dir)) ident = TRUE;
-			o_ptr->pval = 18;
 			break;
 		}
 
 		case SV_ROD_SLOW_MONSTER:
 		{
 			if (slow_monster(dir)) ident = TRUE;
-			o_ptr->pval = 20;
 			break;
 		}
 
 		case SV_ROD_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
-			o_ptr->pval = 23;
+			if (drain_life(dir, 150)) ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_POLYMORPH:
 		{
 			if (poly_monster(dir)) ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
 		case SV_ROD_ACID_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
+			fire_bolt_or_beam(10, GF_ACID, dir, damroll(12, 8));
 			ident = TRUE;
-			o_ptr->pval = 12;
 			break;
 		}
 
 		case SV_ROD_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
+			fire_beam(GF_ELEC, dir, damroll(6, 6));
 			ident = TRUE;
-			o_ptr->pval = 11;
 			break;
 		}
 
 		case SV_ROD_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
+			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(16, 8));
 			ident = TRUE;
-			o_ptr->pval = 15;
 			break;
 		}
 
 		case SV_ROD_COLD_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
+			fire_bolt_or_beam(10, GF_COLD, dir, damroll(10, 8));
 			ident = TRUE;
-			o_ptr->pval = 13;
 			break;
 		}
 
 		case SV_ROD_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 120, 2);
 			ident = TRUE;
-			o_ptr->pval = 27;
 			break;
 		}
 
 		case SV_ROD_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 64, 2);
 			ident = TRUE;
-			o_ptr->pval = 23;
 			break;
 		}
 
 		case SV_ROD_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 144, 2);
 			ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
 		case SV_ROD_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 96, 2);
 			ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 	}
@@ -2627,36 +2586,7 @@ void do_cmd_zap_rod(void)
 	/* Hack -- deal with cancelled zap */
 	if (!use_charge)
 	{
-		o_ptr->pval = 0;
-		return;
-	}
-
-
-	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Restore "charge" */
-		o_ptr->pval = 0;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your rod.");
+		o_ptr->timeout -= k_ptr->pval;
 	}
 }
 
@@ -3109,7 +3039,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You call forth a lightning bolt!");
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ELEC, dir, damroll(4, 8));
+				fire_beam(GF_ELEC, dir, damroll(4, 6));
 				o_ptr->timeout = rand_int(6) + 6;
 				break;
 			}
@@ -3180,7 +3110,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You call forth a lightning bolt!");
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ELEC, dir, damroll(4, 8));
+				fire_beam(GF_ELEC, dir, damroll(4, 6));
 				o_ptr->timeout = rand_int(6) + 6;
 				break;
 			}

@@ -503,6 +503,15 @@ void py_pickup(int pickup)
 
 	char o_name[80];
 
+#ifdef ALLOW_EASY_FLOOR
+
+	if (easy_floor)
+	{
+		py_pickup_floor(pickup);
+		return;
+	}
+	
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -901,7 +910,7 @@ void hit_trap(int y, int x)
  */
 void py_attack(int y, int x)
 {
-	int num = 0, k, bonus, chance;
+	int k, bonus, chance, num_blow, num = 0;
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -953,18 +962,28 @@ void py_attack(int y, int x)
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
+	/* How many blows will we take? */
+	if (op_ptr->max_blows > 1)
+	{
+		/* How many *can* we take? */
+		num_blow = 100 / p_ptr->blow_energy;
+
+		/* But don't take more than the player wants to use. */
+		if (num_blow > op_ptr->max_blows) num_blow = op_ptr->max_blows;
+	}
+	else
+	{
+		num_blow = 1;
+	}
 
 	/* Attack once for each legal blow */
-	while (num++ < p_ptr->num_blow)
+	while (num++ < num_blow)
 	{
 		/* Test for hit */
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 		{
 			/* Sound */
 			sound(SOUND_HIT);
-
-			/* Message */
-			msg_format("You hit %s.", m_name);
 
 			/* Hack -- bare hands do one damage */
 			k = 1;
@@ -983,17 +1002,39 @@ void py_attack(int y, int x)
 			/* Apply the player damage bonuses */
 			k += p_ptr->to_d;
 
+			/*
+			 * HACK: paladins get a lev% damage bonus vs. undead
+			 * and demons.  (Not evil -- that would be too
+			 * powerful.)
+			 */
+			if ( (p_ptr->pclass == CLASS_PALADIN) &&
+			     (r_ptr->flags3 & (RF3_DEMON|RF3_UNDEAD)) )
+			{
+				k += (k * p_ptr->lev / 100);
+				msg_format("You smite %s.", m_name);
+			}
+			else
+			{
+				msg_format("You hit %s.", m_name);
+			}
+
 			/* No negative damage */
 			if (k < 0) k = 0;
 
 			/* Complex message */
 			if (p_ptr->wizard)
 			{
-				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+				msg_format("You do %d (out of %d) damage.",
+					k, m_ptr->hp);
 			}
 
 			/* Damage, check for fear and death */
-			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
+			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL))
+			{
+				/* Give refund for unused blows (calc later) */
+				num_blow = num;
+				break;
+			}
 
 			/* Disturb the monster (AFTER damage is done -GJW) */
 			m_ptr->csleep = 0;
@@ -1041,6 +1082,18 @@ void py_attack(int y, int x)
 		}
 	}
 
+	/*
+	 * Rather than giving the player N blows per round, we subtract
+	 * 1/N energy per blow.  This gives more flexibility at the low
+	 * end ("1.5 blows per round" or the equivalent), for a smoother
+	 * power curve.  It also allows a more "realistic" mix of
+	 * player/monster blows -- trading individual blows, rather than
+	 * trading volleys.
+	 * 
+	 * Also, now that we allow "clusters" of blows for keystroke
+	 * reduction, multiply by the number of blows actually used. -GJW
+	 */
+	p_ptr->energy_use = p_ptr->blow_energy * num_blow;
 
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)
@@ -1095,6 +1148,18 @@ void move_player(int dir, int do_pickup)
 		py_attack(y, x);
 	}
 
+#ifdef ALLOW_EASY_DISARM
+
+	/* Disarm a visible trap */
+	else if ((do_pickup != easy_disarm) &&
+		(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+		(cave_feat[y][x] <= FEAT_TRAP_TAIL))
+	{
+		(void) do_cmd_disarm_aux(y, x);
+	}
+	
+#endif /* ALLOW_EASY_DISARM */
+
 	/* Player can not walk through "walls" */
 	else if (!cave_floor_bold(y, x))
 	{
@@ -1141,6 +1206,12 @@ void move_player(int dir, int do_pickup)
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
+#ifdef ALLOW_EASY_OPEN
+
+				if (easy_open && easy_open_door(y, x)) return;
+
+#endif /* ALLOW_EASY_OPEN */
+
 				msg_print("There is a door blocking your way.");
 			}
 
@@ -1183,7 +1254,15 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle "objects" */
+#ifdef ALLOW_EASY_DISARM
+
+		py_pickup(do_pickup != always_pickup);
+		
+#else  /* ALLOW_EASY_DISARM */
+
 		py_pickup(do_pickup);
+		
+#endif /* ALLOW_EASY_DISARM */
 
 		/* Handle "store doors" */
 		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
@@ -1954,6 +2033,14 @@ void run_step(int dir)
 	p_ptr->energy_use = 100;
 
 	/* Move the player, using the "pickup" flag */
+#ifdef ALLOW_EASY_DISARM
+
+	move_player(p_ptr->run_cur_dir, FALSE);
+	
+#else /* ALLOW_EASY_DISARM */
+
 	move_player(p_ptr->run_cur_dir, always_pickup);
+	
+#endif /* ALLOW_EASY_DISARM */
 }
 

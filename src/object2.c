@@ -958,12 +958,18 @@ static s32b object_value_real(object_type *o_ptr)
 	{
 		/* Wands/Staffs */
 		case TV_WAND:
+		{
+			/* Pay extra for charges */
+			value += (value * o_ptr->pval / o_ptr->number / 12);
+
+			/* Done */
+			break;
+		}
+
 		case TV_STAFF:
 		{
 			/* Pay extra for charges */
-			value += ((value / 20) * o_ptr->pval);
-
-			/* Done */
+			value += (value * o_ptr->pval / 20);
 			break;
 		}
 
@@ -1158,21 +1164,30 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 		/* Staffs and Wands */
 		case TV_STAFF:
+		{
+			/* Require knowledge */
+			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
+
+			/* Require identical charges (staffs are bulky). */
+			if (o_ptr->pval != j_ptr->pval) return (0);
+
+			/* Assume okay (wand charges combine). */
+			break;
+		}
+
 		case TV_WAND:
 		{
 			/* Require knowledge */
 			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
 
-			/* Fall through */
+			/* Assume okay (wand charges combine). */
+			break;
 		}
 
 		/* Staffs and Wands and Rods */
 		case TV_ROD:
 		{
-			/* Require identical charges */
-			if (o_ptr->pval != j_ptr->pval) return (0);
-
-			/* Probably okay */
+			/* Assume okay */
 			break;
 		}
 
@@ -1306,6 +1321,19 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 	/* Hack -- could average discounts XXX XXX XXX */
 	/* Hack -- save largest discount XXX XXX XXX */
 	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
+
+	/* If rods are stacking, add the pvals and current timeouts. */
+	if (o_ptr->tval == TV_ROD)
+	{
+		o_ptr->pval += j_ptr->pval;
+		o_ptr->timeout += j_ptr->timeout;
+	}
+
+	/* If wands are stacking, combine the charges. */
+	if (o_ptr->tval == TV_WAND)
+	{
+		o_ptr->pval += j_ptr->pval;
+	}
 }
 
 
@@ -2964,6 +2992,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
  */
 static void a_m_aux_4(object_type *o_ptr, int level, int power)
 {
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
 	/* Apply magic (good or bad) according to type */
 	switch (o_ptr->tval)
 	{
@@ -2997,6 +3027,13 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			/* Hack -- charge staffs */
 			charge_staff(o_ptr);
 
+			break;
+		}
+
+		case TV_ROD:
+		{
+			/* Transfer the pval. */
+			o_ptr->pval = k_ptr->pval;
 			break;
 		}
 
@@ -3363,6 +3400,39 @@ static bool kind_is_good(int k_idx)
 		{
 			if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
 			return (FALSE);
+		}
+
+		/* Potions -- some are good -GJW */
+		case TV_POTION:
+		{
+			switch (k_ptr->sval)
+			{
+				case SV_POTION_HEALING:
+				case SV_POTION_STAR_HEALING:
+				case SV_POTION_LIFE:
+				case SV_POTION_RESTORE_MANA:
+				case SV_POTION_AUGMENTATION:
+				case SV_POTION_STAR_ENLIGHTENMENT:
+				case SV_POTION_EXPERIENCE:
+					return TRUE;
+			}
+			return FALSE;
+		}
+
+		/* Scrolls -- some are good -GJW */
+		case TV_SCROLL:
+		{
+			switch (k_ptr->sval)
+			{
+				case SV_SCROLL_STAR_IDENTIFY:
+				case SV_SCROLL_RUNE_OF_PROTECTION:
+				case SV_SCROLL_GENOCIDE:
+				case SV_SCROLL_MASS_GENOCIDE:
+				case SV_SCROLL_ACQUIREMENT:
+				case SV_SCROLL_STAR_ACQUIREMENT:
+					return TRUE;
+			}
+			return FALSE;
 		}
 	}
 
@@ -4338,13 +4408,6 @@ s16b inven_carry(object_type *o_ptr)
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
 
-			/* Hack -- otherwise identical rods sort by increasing
-			   recharge time  --dsb */
-			if (o_ptr->tval == TV_ROD) {
-				if (o_ptr->pval < j_ptr->pval) break;
-				if (o_ptr->pval > j_ptr->pval) continue;
-			}
-
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
 
@@ -4538,6 +4601,24 @@ void inven_drop(int item, int amt)
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
+	/* If rods/wands are dropped, divvy up total max timeout or charges. */
+	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
+	{
+		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+		if (amt < o_ptr->number) o_ptr->pval -= i_ptr->pval;
+
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		{
+			if (i_ptr->pval > o_ptr->timeout)
+				i_ptr->timeout = o_ptr->timeout;
+			else
+				i_ptr->timeout = i_ptr->pval;
+
+			if (amt < o_ptr->number)
+				o_ptr->timeout -= i_ptr->timeout;
+		}
+	}
+
 	/* Modify quantity */
 	i_ptr->number = amt;
 
@@ -4693,13 +4774,6 @@ void reorder_pack(void)
 			/* Unidentified objects always come last */
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
-
-			/* Hack -- otherwise identical rods sort by increasing
-			   recharge time  --dsb */
-			if (o_ptr->tval == TV_ROD) {
-				if (o_ptr->pval < j_ptr->pval) break;
-				if (o_ptr->pval > j_ptr->pval) continue;
-			}
 
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
@@ -4866,7 +4940,7 @@ void spell_info(char *p, int spell)
 			case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
 			case 2: strcpy(p, " range 10"); break;
 			case 4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-			case 5: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
+			case 5: sprintf(p, " dam %dd6", (3+((plev-5)/6))); break;
 			case 6: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
 			case 7: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
 			case 8: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
@@ -4876,7 +4950,7 @@ void spell_info(char *p, int spell)
 			case 12: sprintf(p, " dam %d", 30 + plev); break;
 			case 13: sprintf(p, " dam %d", 40 + plev); break;
 			case 14: sprintf(p, " dam %d", 55 + plev); break;
-			case 15: sprintf(p, " dam %d", 70 + plev); break;
+			case 15: sprintf(p, " dam %d", 50 + plev * 2); break;
 			case 17: sprintf(p, " dam %dx%d", 30+plev/2, 2+plev/20); break;
 			case 18: sprintf(p, " dam %d", 300 + plev*2); break;
 			case 19: strcpy(p, " heal 2d8"); break;
@@ -4902,36 +4976,117 @@ void spell_info(char *p, int spell)
 	{
 		int plev = p_ptr->lev;
 
-		/* See below */
-		int orb = (plev / ((p_ptr->pclass == 2) ? 2 : 4));
-
 		/* Analyze the spell */
 		switch (spell)
 		{
-			case 1: strcpy(p, " heal 2d10"); break;
-			case 2: strcpy(p, " dur 12+d12"); break;
-			case 9: sprintf(p, " range %d", 3*plev); break;
-			case 10: strcpy(p, " heal 4d10"); break;
-			case 11: strcpy(p, " dur 24+d24"); break;
-			case 15: strcpy(p, " dur 10+d10"); break;
-			case 17: sprintf(p, " %d+3d6", plev + orb); break;
-			case 18: strcpy(p, " heal 6d10"); break;
-			case 19: strcpy(p, " dur 24+d24"); break;
-			case 20: sprintf(p, " dur %d+d25", 3*plev); break;
-			case 23: strcpy(p, " heal 8d10"); break;
-			case 25: strcpy(p, " dur 48+d48"); break;
-			case 26: sprintf(p, " dam d%d", 3*plev); break;
-			case 27: strcpy(p, " heal 300"); break;
-			case 28: sprintf(p, " dam d%d", 3*plev); break;
-			case 30: strcpy(p, " heal 1000"); break;
-			case 36: strcpy(p, " heal 4d10"); break;
-			case 37: strcpy(p, " heal 8d10"); break;
-			case 38: strcpy(p, " heal 2000"); break;
-			case 41: sprintf(p, " dam d%d", 4*plev); break;
-			case 42: sprintf(p, " dam d%d", 4*plev); break;
-			case 45: strcpy(p, " dam 200"); break;
-			case 52: strcpy(p, " range 10"); break;
-			case 53: sprintf(p, " range %d", 8*plev); break;
+			case 0: /* cure light */
+			{
+				sprintf (p, " heal %dd%d", 2+plev/10, 8+plev/4);
+				break;
+			}
+			case 3: /* cure mortal */
+			{
+				sprintf (p, " heal %dd%d", 8+plev/6, 10+plev/3);
+				break;
+			}
+			case 4: /* regeneration */
+			{
+				sprintf (p, " dur 5+d%d", 20+plev*2);
+				break;
+			}
+			case 5: /* healing */
+			{
+				sprintf (p, " heal %d", 500+plev*10);
+				break;
+			}
+			case 11: /* call light */
+			{
+				sprintf (p, " dam 2d%d", plev/2);
+				break;
+			}
+			case 14: /* sense invisible */
+			{
+				sprintf (p, " dur %d+d24", plev);
+				break;
+			}
+			case 19: /* bless */
+			{
+				sprintf (p, " dur %d+d20", plev*2);
+				break;
+			}
+			case 20: /* orb of draining */
+			{
+				int orb = (plev /
+				    ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4));
+				sprintf (p, " dam %d+3d6", plev + orb);
+				break;
+			}
+			case 21: /* radiant aura */
+			{
+				sprintf (p, " dur %d", plev*3);
+				break;
+			}
+			case 23: /* earthquake */
+			{
+				sprintf (p, " rad %d+d4", 6+plev/10);
+				break;
+			}
+			case 24: /* dispel undead */
+			case 25: /* dispel demons */
+			case 26: /* dispel evil */
+			case 28: /* holy word */
+			{
+				sprintf (p, " dam 2d%d", plev*3);
+				break;
+			}
+			case 29: /* annihilation */
+			{
+				strcpy (p, " dam 200");
+				break;
+			}
+			case 30: /* word of destruction */
+			{
+				sprintf (p, " rad %d+d5", 7+plev/5);
+				break;
+			}
+			case 31: /* portal */
+			{
+				sprintf (p, " range %d", 20+plev);
+				break;
+			}
+			case 32: /* teleport self */
+			{
+				sprintf (p, " range %d", plev*8);
+				break;
+			}
+			case 34: /* blink */
+			{
+				strcpy (p, " range 10");
+				break;
+			}
+			case 48: /* resist heat and cold */
+			{
+				strcpy (p, " dur 10+d10");
+				break;
+			}
+			case 49: /* protection from evil */
+			{
+				sprintf (p, " dur %d+d25", plev*3);
+				break;
+			}
+			case 50: /* resist poison */
+			case 51: /* holy sight */
+			case 52: /* clear consciousness */
+			case 53: /* resist elements */
+			{
+				sprintf (p, " dur %d+d20", plev);
+				break;
+			}
+			case 54: /* sacred shield */
+			{
+				sprintf (p, " dur %d+d10", plev/2);
+				break;
+			}
 		}
 	}
 }

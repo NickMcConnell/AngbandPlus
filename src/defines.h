@@ -238,8 +238,9 @@
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
 #define STORE_CHOICES	32		/* Number of items to choose stock from */
 #define STORE_OBJ_LEVEL	5		/* Magic Level for normal stores */
-#define STORE_TURNOVER	9		/* Normal shop turnover, per day */
-#define STORE_MIN_KEEP	6		/* Min slots to "always" keep full */
+#define STORE_SELL_TURNOVER	7	/* Normal shop turnover */
+#define STORE_BUY_TURNOVER	12	/* Normal shop turnover */
+#define STORE_MIN_KEEP	10		/* Min slots to "always" keep full */
 #define STORE_MAX_KEEP	18		/* Max slots to "always" keep full */
 #define STORE_SHUFFLE	25		/* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS		1000	/* Number of turns between turnovers */
@@ -554,7 +555,7 @@
 #define GF_FIRE         18
 #define GF_COLD         19
 #define GF_POIS         20
-#define GF_XXX2			21
+#define GF_EXORCISE	21
 #define GF_LITE         22
 #define GF_DARK         23
 #define GF_XXX3			24
@@ -565,7 +566,7 @@
 #define GF_NETHER       29
 #define GF_CHAOS        30
 #define GF_DISENCHANT   31
-#define GF_XXX4			32
+#define XXX4			32
 #define GF_KILL_WALL	33
 #define GF_KILL_DOOR	34
 #define GF_KILL_TRAP	35
@@ -583,7 +584,7 @@
 #define GF_DISP_UNDEAD	47
 #define GF_DISP_EVIL	48
 #define GF_DISP_ALL		49
-#define GF_XXX7			50
+#define GF_DISP_DEMONS		50
 #define GF_OLD_CLONE	51
 #define GF_OLD_POLY		52
 #define GF_OLD_HEAL		53
@@ -1511,7 +1512,7 @@
  * Special "sval" limit -- first "good" magic/prayer book
  */
 #define SV_MBOOK_MIN_GOOD	5
-#define SV_PBOOK_MIN_GOOD	4
+#define SV_PBOOK_MIN_GOOD	5
 
 
 
@@ -1792,8 +1793,8 @@
 #define SM_OPP_FIRE		0x00000004
 #define SM_OPP_COLD		0x00000008
 #define SM_OPP_POIS		0x00000010
-#define SM_OPP_XXX1		0x00000020
-#define SM_OPP_XXX2		0x00000040
+#define SM_OPP_BLIND		0x00000020
+#define SM_OPP_CONF		0x00000040
 #define SM_OPP_XXX3		0x00000080
 #define SM_IMM_XXX5		0x00000100
 #define SM_IMM_XXX6		0x00000200
@@ -2231,6 +2232,20 @@
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
 
 
+/*
+ * Hack -- "bolt" spells that may hurt fellow monsters
+ */
+#define RF4_BOLT_MASK \
+   (RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
+
+#define RF5_BOLT_MASK \
+   (RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
+    RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+    RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_BOLT_MASK \
+   0L
+
 
 /*** Cheating option Definitions ***/
 
@@ -2279,6 +2294,7 @@
 #define OPT_show_details			13
 #define OPT_ring_bell				14
 #define OPT_show_flavors			15
+
 #define OPT_run_ignore_stairs		16
 #define OPT_run_ignore_doors		17
 #define OPT_run_cut_corners			18
@@ -2294,7 +2310,11 @@
 #define OPT_verify_destroy			28
 #define OPT_verify_special			29
 #define OPT_allow_quantity			30
+#ifdef ALLOW_EASY_OPEN
+#define OPT_easy_open 31
+#else /* ALLOW_EASY_OPEN */
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define OPT_auto_haggle				32
 #define OPT_auto_scum				33
 #define OPT_testing_stack			34
@@ -2307,8 +2327,16 @@
 #define OPT_dungeon_stair			41
 #define OPT_flow_by_sound			42
 #define OPT_flow_by_smell			43
+#ifdef ALLOW_EASY_DISARM
+#define OPT_easy_disarm 44
+#else  /* ALLOW_EASY_DISARM */
 /* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+#define OPT_easy_floor 45
+#else  /* ALLOW_EASY_FLOOR */
 /* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 #define OPT_smart_learn				46
 #define OPT_smart_cheat				47
 #define OPT_view_reduce_lite		48
@@ -2317,10 +2345,10 @@
 #define OPT_avoid_other				51
 #define OPT_flush_failure			52
 #define OPT_flush_disturb			53
-/* xxx */
-#define OPT_fresh_before			55
-#define OPT_fresh_after				56
-/* xxx */
+#define OPT_fresh_before			54
+#define OPT_fresh_after				55
+#define OPT_center_player		56
+#define OPT_avoid_center		57
 #define OPT_compress_savefile		58
 #define OPT_hilite_player			59
 #define OPT_view_yellow_lite		60
@@ -2329,6 +2357,8 @@
 #define OPT_view_special_lite		63
 #define OPT_MAX						64
 
+#define OPT_PAGE_MAX 4 /* Number of pages of options -- TNB */
+#define OPT_PER_PAGE 22 /* Max. number of options in a page -- TNB */
 
 /*
  * Hack -- Option symbols
@@ -2349,6 +2379,7 @@
 #define show_details			op_ptr->opt[OPT_show_details]
 #define ring_bell				op_ptr->opt[OPT_ring_bell]
 #define show_flavors			op_ptr->opt[OPT_show_flavors]
+
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
 #define run_cut_corners			op_ptr->opt[OPT_run_cut_corners]
@@ -2364,7 +2395,11 @@
 #define verify_destroy			op_ptr->opt[OPT_verify_destroy]
 #define verify_special			op_ptr->opt[OPT_verify_special]
 #define allow_quantity			op_ptr->opt[OPT_allow_quantity]
+#ifdef ALLOW_EASY_OPEN
+#define easy_open			op_ptr->opt[OPT_easy_open]
+#else /* ALLOW_EASY_OPEN */
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define auto_haggle				op_ptr->opt[OPT_auto_haggle]
 #define auto_scum				op_ptr->opt[OPT_auto_scum]
 #define testing_stack			op_ptr->opt[OPT_testing_stack]
@@ -2377,8 +2412,16 @@
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
 #define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
 #define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
+#ifdef ALLOW_EASY_DISARM
+#define easy_disarm			op_ptr->opt[OPT_easy_disarm]
+#else /* ALLOW_EASY_DISARM */
 /* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+#define easy_floor			op_ptr->opt[OPT_easy_floor]
+#else /* ALLOW_EASY_FLOOR */
 /* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 #define smart_learn				op_ptr->opt[OPT_smart_learn]
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
@@ -2387,10 +2430,10 @@
 #define avoid_other				op_ptr->opt[OPT_avoid_other]
 #define flush_failure			op_ptr->opt[OPT_flush_failure]
 #define flush_disturb			op_ptr->opt[OPT_flush_disturb]
-/* xxx */
 #define fresh_before			op_ptr->opt[OPT_fresh_before]
 #define fresh_after				op_ptr->opt[OPT_fresh_after]
-/* xxx */
+#define center_player			op_ptr->opt[OPT_center_player]
+#define avoid_center			op_ptr->opt[OPT_avoid_center]
 #define compress_savefile		op_ptr->opt[OPT_compress_savefile]
 #define hilite_player			op_ptr->opt[OPT_hilite_player]
 #define view_yellow_lite		op_ptr->opt[OPT_view_yellow_lite]
