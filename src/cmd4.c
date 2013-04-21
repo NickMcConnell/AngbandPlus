@@ -2605,9 +2605,22 @@ static char hack[17] = "dwsorgbuDWvyRGBU";
 
 
 /*
+* Hack, splitting up the original so that it can be used for more than 1 purpose
+*/
+void restore_screen( void )
+{
+	/* Restore the screen */
+	Term_load();
+	
+	/* Leave "icky" mode */
+	character_icky = FALSE;	
+}
+
+
+/*
 * Hack -- load a screen dump from a file
 */
-void do_cmd_load_screen(void)
+void do_cmd_load_screen( cptr path , cptr file )
 {
 	int i, y, x;
 
@@ -2622,7 +2635,7 @@ void do_cmd_load_screen(void)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_PREF, "dump.txt");
+	path_build(buf, 1024, path , file );
 
 	/* Append to the file */
 	fff = my_fopen(buf, "r");
@@ -2670,12 +2683,20 @@ void do_cmd_load_screen(void)
 		{
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
-
-			/* Look up the attr */
-			for (i = 0; i < 16; i++)
+			
+			if( buf[x] == ' ' )
 			{
-				/* Use attr matches */
-				if (hack[i] == buf[x]) a = i;
+			    a = TERM_WHITE;
+			}
+			else
+			{	
+			
+			    /* Look up the attr */
+			    for (i = 0; i < 16; i++)
+			    {
+				    /* Use attr matches */
+				    if (hack[i] == buf[x]) a = i;
+			    }
 			}
 
 			/* Hack -- fake monochrome */
@@ -2698,16 +2719,10 @@ void do_cmd_load_screen(void)
 	my_fclose(fff);
 
 
-	/* Message */
-	msg_print("Screen dump loaded.");
-	msg_print(NULL);
+	/* Hack Message , Not usefull for general purpose*/
+	
+	/*msg_print(NULL);*/
 
-
-	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
 }
 
 

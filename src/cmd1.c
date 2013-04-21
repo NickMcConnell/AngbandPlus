@@ -239,30 +239,30 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Orc */
-			if ((f1 & (TR1_SLAY_ORC)) &&
-				(r_ptr->flags3 & (RF3_ORC)))
+			/* Slay Angel */
+			if ((f1 & (TR1_SLAY_ANGEL)) &&
+				(r_ptr->flags3 & (RF3_FALLEN_ANGEL)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_ORC);
+					r_ptr->r_flags3 |= (RF3_FALLEN_ANGEL);
 				}
 
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Troll */
-			if ((f1 & (TR1_SLAY_TROLL)) &&
-				(r_ptr->flags3 & (RF3_TROLL)))
+			/* Execute Angel */
+			if ((f1 & (TR1_KILL_ANGEL)) &&
+				(r_ptr->flags3 & (RF3_FALLEN_ANGEL)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_TROLL);
+					r_ptr->r_flags3 |= (RF3_FALLEN_ANGEL);
 				}
-
-
-
-				if (mult < 3) mult = 3;
+				/*Michael has the top gear*/
+				if (mult < 5) mult = 5;
+				if ((o_ptr->name1 == ART_MICHAEL))
+					mult *= 3;				
 			}
 
 			/* Slay Giant */
@@ -301,7 +301,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 				if (mult < 5) mult = 5;
 
-				if ((o_ptr->name1 == ART_LIGHTNING))
+				if ((o_ptr->name1 == ART_SWORD_FURCIFER))
 					mult *= 3;
 			}
 
@@ -566,7 +566,8 @@ void carry(int pickup)
 			}
 
 			/* If the object is worthless then destroy it instead of picking it up */
-			else if ((auto_destroy) && (object_value(o_ptr) <= 0))
+			/* Fix konijn, dont go destroying 'worhtless' artefacts... */
+			else if ((auto_destroy) && (object_value(o_ptr) <= 0) && !artefact_p(o_ptr))
 			{     
 				/* Delete the object */
 				delete_object_idx(this_o_idx);
@@ -1277,7 +1278,7 @@ void py_attack(int y, int x)
 
 		}
 
-		if (f1 & TR1_VORPAL && (randint((o_ptr->name1 == ART_VORPAL_BLADE)?3:6) == 1))
+		if (f1 & TR1_VORPAL && (randint((o_ptr->name1 == ART_ASTAROTH)?3:6) == 1))
 			vorpal_cut = TRUE;
 		else vorpal_cut = FALSE;
 
@@ -1421,12 +1422,9 @@ void py_attack(int y, int x)
 			if (vorpal_cut)
 			{
 				int step_k = k;
-				if (o_ptr->name1 == ART_VORPAL_BLADE)
-					msg_print("Your Vorpal Blade goes snicker-snack!");
-				else
-					msg_format("Your weapon cuts deep into %s!", m_name);
+     			msg_format("Your weapon cuts deep into %s!", m_name);
 				do { k += step_k; }
-				while (randint((o_ptr->name1 == ART_VORPAL_BLADE)?2:4)==1);
+				while (randint((o_ptr->name1 == ART_ASTAROTH)?2:4)==1);
 
 			}
 

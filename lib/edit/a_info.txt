@@ -18,162 +18,395 @@
 # not be dropped when Morgoth is killed.  Note that they, like the "special"
 # artefacts, are never created "accidentally".
 
+# === Understanding artifact.txt ===
+
+# N: serial number : item name
+# I: tval : sval : pval
+# W: depth : rarity : weight : cost
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
+# F: flag | flag | etc
+# A: activation : recharge time : recharge time dice
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'I' is for basic information. The tval is for the type of item, the
+# sval identifies the subtype and the pval indicates the amount of
+# effect the item has, if applicable.
+
+# 'W' is for extra information. Depth is the depth the object is
+# normally found at, rarity determines how common the object is,
+# weight is in tenth-pounds and cost is the item's value.
+
+# 'P' is for power information. The items base armor class, its base
+# damage and pluses to-hit, to-dam and to-ac.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+# 'A' is for activation.  Activation is the effect the artifact
+# activates for. The recharge time calculates from the recharge time
+# plus a random value between 1 and the recharge time dice (if not 0).
+# If an activation is given then the artifact must also have the
+# ACTIVATE flag.
+
+#okay, perfect equipment : 
+# Long sword of michael , 82
+# BladeTurner , 17
+# Dragon helm of power 39 or crown of the sun 42 or crown of the universe 34
+# Light crossbow of death 126
+# Gem of insight, 3
+# Shield of stability, 32
+# Cloaks, 49  , life
+# Boots of travel , 60
+# Cesti of COmbat , 59
+# Ring 1 , Sheating , 127
+# Ring 2, one ring , 13
 
 # Version stamp (required)
 
-V:1.0.3
+V:0.8.1
 
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Lights                             #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
-
-# The Phial of Galadriel
-
-N:1:of Galadriel
+#Beatrice being the misses of Dante
+##define ART_BEATRICE           1
+# The Phial of Beatrice
+N:1:of Beatrice
 I:39:4:1
 W:1:1:10:10000
 P:0:1d1:0:0:0
-F:ACTIVATE | SEARCH |
-F:INSTA_ART
+F:CHA | SEARCH
+F:INSTA_ART | ACTIVATE
 
-
-# The Gem of Seeing
-
-N:2:of Seeing
-I:39:5:1
-W:30:25:5:32500
+# The Gem of Eos
+#The concubine of old Tithonus now
+#Grew pale above the eastern balcony,
+#Breaking away from her sweet lover’s arms;
+#Her white forehead glittered with bright gems
+#Set in the shape of that cold animal
+#Which stings and lashes people with its tail;
+#define ART_EOS          2
+N:2:of Eos
+I:39:5:2
+W:30:25:5:50000
 P:0:1d1:0:0:0
-F:ACTIVATE | SEE_INVIS | HOLD_LIFE |
-F:INSTA_ART | SPEED
+F:SPEED
+F:SEE_INVIS | HOLD_LIFE | RES_POIS
+F:INSTA_ART | ACTIVATE
 
-
-# The Gem of Insight
-# Was +2 WIS/DEX
-
-N:3:of Insight
+#Gem ofAugustine of Hippo, random stuff 
+#define ART_HIPPO        3
+N:3:of Hippo
 I:39:6:3
-W:50:50:5:150000
+W:50:50:5:70000
 P:0:1d1:0:0:0
-F:ACTIVATE | SEE_INVIS | HOLD_LIFE | RES_CHAOS |
-F:INSTA_ART | SPEED | WIS | INT
+F:WIS | INT
+F:SEE_INVIS | HOLD_LIFE | 
+F:RES_CHAOS | RES_DARK | RES_CONF
+F:INSTA_ART | ACTIVATE
 
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Amulets                            #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
-# The Amulet of Purity
-
-N:4:of Purity
-I:40:10:2
+# The Amulet of Fiery Doom , Fire Immunity and a CON boost
+#define ART_DOOM            4
+N:4:of Fiery Doom
+I:40:10:5
 W:50:10:3:60000
-F:CON | HIDE_TYPE | 
-F:ACTIVATE | RES_FIRE | 
-F:INSTA_ART
+P:0:1d1:5:5:-25
+F:CON | 
+F:RES_FIRE | IM_FIRE
+F:INSTA_ART | ACTIVATE | HIDE_TYPE
 
-
-# The Amulet of Inquisition
-
-N:5:of Inquisition
+#Raphael ( priest ) , wisdom, charisma , detection , basic resistance
+# The Amulet of Raphael
+#define ART_AMULET_RAPHAEL  5
+N:5:of Raphael
 I:40:11:3
 W:65:30:3:90000
-F:WIS | CHA | INFRA | HIDE_TYPE | 
-F:SEE_INVIS | FREE_ACT | ACTIVATE | 
-F:RES_ACID | RES_COLD | RES_ELEC | 
-F:INSTA_ART
+F:WIS | CHA | 
+F:INFRA | SEE_INVIS | TELEPATHY | RES_ACID | RES_COLD | RES_ELEC | RES_FIRE
+F:INSTA_ART | ACTIVATE | HIDE_TYPE
 
+#Michael ( warrior ) , constitution, dexterity , resist confusion , speed
+# The Amulet of Michael
+#define ART_AMULET_MICHAEL  6
+N:6:of Michael
+I:40:11:3
+W:65:30:3:90000
+F:CON | DEX | SPEED | RES_CONF | BLOWS
+F:INSTA_ART | ACTIVATE | HIDE_TYPE
 
-# The Necklace of the Dwarves
-
-N:6:of the Dwarves
+# The Necklace of the Nephilim ( warrior ) STR,CON , 
+#define ART_NEPHILIM        7
+N:7:of the Nephilim
 I:40:12:3
 W:70:50:3:75000
-F:STR | CON | INFRA | HIDE_TYPE | 
-F:SEE_INVIS | FREE_ACT | REGEN | LITE | 
-F:INSTA_ART
+F:STR | CON | 
+F:SEE_INVIS | INFRA | REGEN | FREE_ACT
+F:INSTA_ART | HIDE_TYPE
 
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Rings                              #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
-# Artifact 7 is unused
-
-
-# The Ring of Magic
-
-N:8:of Magic
-I:45:32:1
-W:50:25:2:75000
-F:STR | INT | WIS | DEX | CON | CHA | STEALTH | HIDE_TYPE | 
-F:RES_POIS | ACTIVATE | SEE_INVIS | SEARCH |
-F:INSTA_ART
-
-
-# The Ring of Bast
-
-N:9:of Bast
+N:8:of Saint George, the Slayer
 I:45:33:4
 W:70:50:2:175000
-F:STR | DEX | CON | HIDE_TYPE | 
-F:ACTIVATE | SPEED |
-F:INSTA_ART
+F:STR | DEX | CON | SPEED |
+F:INSTA_ART | ACTIVATE | HIDE_TYPE
 
+N:9:of Gabriel, the Messenger
+I:45:32:1
+W:50:25:2:75000
+F:STR | INT | WIS | DEX | CON | CHA | 
+F:STEALTH | RES_POIS | SEE_INVIS | SEARCH |
+F:INSTA_ART | HIDE_TYPE | ACTIVATE
 
-# The Ring of Elemental Power (Fire)
-
-N:10:of Elemental Power (Fire)
+N:10:of Saint Raphael, the Healer
 I:45:34:1
 W:70:30:2:100000
 P:0:1d1:10:10:0
-F:STR | INT | WIS | DEX | CON | CHA | SPEED | HIDE_TYPE | 
-F:ACTIVATE | FREE_ACT | SEE_INVIS | 
-F:SLOW_DIGEST | REGEN | 
-F:SUST_STR | SUST_DEX | IM_FIRE |
-F:INSTA_ART
+F:STR | INT | WIS | DEX | CON | CHA | SPEED | 
+F:FREE_ACT | SEE_INVIS | SLOW_DIGEST | REGEN | SUST_STR | SUST_DEX 
+F:IM_FIRE | 
+F:INSTA_ART | ACTIVATE | HIDE_TYPE
 
-
-# The Ring of Elemental Power (Ice)
-
-N:11:of Elemental Power (Ice)
+N:11:of Saint Michael, Prince of Mercy
 I:45:35:2
 W:80:40:2:200000
 P:0:1d1:11:11:0
-F:STR | INT | WIS | DEX | CON | CHA | SPEED | HIDE_TYPE | 
-F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | REGEN | SHOW_MODS |
-F:SUST_INT | SUST_WIS | IM_COLD | 
-F:INSTA_ART
+F:STR | INT | WIS | DEX | CON | CHA | SPEED | BLOWS
+F:HOLD_LIFE | FREE_ACT | SEE_INVIS | FEATHER | REGEN | SUST_INT | SUST_WIS | 
+F:IM_COLD | 
+F:INSTA_ART | HIDE_TYPE | ACTIVATE | SHOW_MODS
 
+N:12:!Ring of Sheating
+I:45:37:5
+W:50:25:2:75000
+P:0:1d1:15:15:0
+F:REFLECT | SH_FIRE | SH_ELEC | STEALTH | SPEED | SHOW_MODS
 
-# The Ring of Elemental Power (Storm)
-
-N:12:of Elemental Power (Storm)
+N:13:!Ring of the Emmanuel
 I:45:36:3
 W:90:50:2:300000
 P:0:1d1:12:12:0
-F:STR | INT | WIS | DEX | CON | CHA | SPEED | HIDE_TYPE | 
-F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | SLOW_DIGEST | REGEN | 
-F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC | 
-F:INSTA_ART
+F:STR | INT | WIS | DEX | CON | CHA | SPEED |  
+F:HOLD_LIFE | FREE_ACT | SEE_INVIS | FEATHER | SLOW_DIGEST | REGEN | 
+F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | 
+F:IM_ELEC | 
+F:INSTA_ART | HIDE_TYPE | ACTIVATE | 
 
-
-# The One Ring
-
-N:13:of Power (The One Ring)
+#Gets extra power and resist
+N:14:!First Ring
 I:45:37:5
 W:100:100:2:5000000
 P:0:1d1:15:15:0
-F:STR | INT | WIS | DEX | CON | CHA | SPEED | HIDE_TYPE | 
-F:ACTIVATE | CURSED | HEAVY_CURSE | PERMA_CURSE |
-F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN | TY_CURSE |
+F:STR | INT | WIS | DEX | CON | CHA | SPEED | STEALTH | HIDE_TYPE | 
+F:ACTIVATE | CURSED | HEAVY_CURSE | PERMA_CURSE | 
+F:DRAIN_EXP | SEE_INVIS | REGEN | 
+#F:AGGRAVATE | TY_CURSE |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
 F:SUST_STR | SUST_DEX | SUST_CON | 
 F:SUST_INT | SUST_WIS | SUST_CHA | 
 F:INSTA_ART
 
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Armours                            #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
-# Artifact 14 is unused
+#####################################################################################################################
+#############################  3 common armours, remotely useful                         ############################
+#####################################################################################################################
 
+N:15:!Lion Crested Armour of Sabnock
+I:37:4:2
+W:20:3:220:32000
+P:14:1d4:-2:0:15
+F:STR | CHA | HIDE_TYPE | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_SHARDS | RES_NEXUS
 
-# Artifact 15 is unused
+N:16:!Robes of Alastor, the Executor
+I:36:4:4
+W:20:3:80:45000 
+P:4:0d0:0:7:20
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK
 
+#Ok , ok , very useful, I felt generous
+# The Leather Scale Mail 'Whirlwind'
+N:17:'Whirlwind'
+I:36:11:3
+W:20:3:60:25000
+P:11:1d1:-1:0:25
+F:DEX | HIDE_TYPE | SPEED | FREE_ACT | FEATHER | 
 
-# The Multi-Hued Dragon Scale Mail 'Razorback'
-# Was (-2) INT | WIS | STEALTH | HIDE_TYPE, (-3) to hit, 30 pounds (?)
+#####################################################################################################################
+#############################  1 uncommon armours, quite useful                          ############################
+#####################################################################################################################
 
-N:16:'Razorback'
+#define ART_PRAVUIL         18
+#elevate int/wis every 3333 turns
+N:18:of Pravuil, Angel of the Word
+I:37:6:3
+W:25:9:270:40000
+P:16:1d4:-2:0:35
+F:INT | WIS | CON |  
+F:RES_DARK | RES_LITE | RES_POIS | RES_CONF
+F:HIDE_TYPE | 
+F:ACTIVATE
+
+#####################################################################################################################
+#############################  3 evil level 30 armors, one race, two hard working demons ############################
+#####################################################################################################################
+
+#Halphas builds towers and fills them with ammunition and weapons
+N:19:!Plate Armour of Halphas the Demon
+I:37:15:1
+W:30:3:300:50000
+P:25:2d4:0:0:25
+F:CON | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_SOUND | RES_CONF | RES_NEXUS
+
+#the most valiant Marquis of Hell
+N:20:!Plate Armour of Naberius the Demon
+I:37:15:1
+W:30:3:300:50000
+P:25:2d4:15:15:25
+F:CON | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_SOUND | RES_CONF | RES_NEXUS
+
+# Se'irim are goat demons
+# The Metal Brigandine Armour of the Se'irim
+N:21:of the Se'irim
+I:37:9:2
+W:30:3:200:30000
+P:19:1d4:0:0:15
+F:STR | DEX | HIDE_TYPE | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONF | RES_SOUND
+
+#####################################################################################################################
+#############################  3 angelic robes at level 40                               ############################
+#####################################################################################################################
+
+N:22:!Robe of Saint Michael
+I:36:2:4
+W:40:3:20:135000
+P:28:1d4:-1:0:45
+F:CON | STR | DEX | SPEED | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS |
+F:RES_DARK | RES_FEAR |
+F:SEE_INVIS | SH_FIRE
+F:ACTIVATE
+
+N:23:!Robe of Saint Raphael
+I:36:2:2
+W:40:3:20:333000
+P:28:1d4:-1:0:45
+F:INT | WIS | CHA | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS |
+F:RES_LITE | HOLD_LIFE | RES_NETHER | SH_FIRE | TELEPATHY
+F:SEE_INVIS | 
+
+N:24:!Robe of Saint Gabriel
+I:36:2:7
+W:40:3:20:333000
+P:28:1d4:-1:0:45
+F:STEALTH | SPEED | DEX | 
+F:TELEPATHY | RES_CHAOS | RES_NEXUS
+
+#####################################################################################################################
+#############################  3 angelic robes at level 40                               ############################
+#####################################################################################################################
+
+#TODO : Spell to cut monsters
+#define ART_VEPAR           25
+N:25:!Corslet of Vepar, Mistress of the Dark Waters
+I:37:35:4
+W:40:3:340:150000
+P:15:2d4:-6:0:40
+F:CHA | HIDE_TYPE | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK | 
+F:RES_DISEN | IM_ELEC
+F:ACTIVATE
+
+#####################################################################################################################
+#############################   4 armours for the four old kings of Hell                #############################
+#####################################################################################################################
+
+#He teaches philosophy : WIS,INT
+#makes men invisible : see_invis
+#He carries men and things fast : speed
+N:26:!Plate Mail of Gaep, Demon King
+I:37:30:2
+W:75:9:420:300000
+P:40:2d4:-4:0:20
+F:WIS | INT | SPEED
+F:HOLD_LIFE | SUST_WIS | 
+F:RES_ACID | RES_COLD | RES_DARK | RES_NETHER | RES_NEXUS | RES_CHAOS | 
+F:ACTIVATE
+
+#Has power over water
+#Is not to be summoned
+N:27:!Plate Mail of Ziminiar, Demon King
+I:37:30:2
+W:75:9:420:300000
+P:40:2d4:-4:0:20
+F:WIS | RES_CONF | RES_COLD | IM_COLD | NO_MAGIC | FREE_ACT | 
+F:ACTIVATE
+
+#Has power over earth
+#Is not to be summoned
+#define ART_CORSON          28
+#He got the good old soulkeeper activation
+#Corson == Gorson, second sounds better, no ?
+N:28:!Plate Mail of Gorson, Demon King
+I:37:30:2
+W:75:9:420:300000
+P:40:2d4:-4:0:20
+F:WIS | 
+F:HOLD_LIFE | SUST_CON | IM_ACID | NO_MAGIC | REGEN | REFLECT | RES_SHARDS | RES_SOUND
+F:ACTIVATE
+
+#Has power over air
+#Is not to be summoned
+#poisonous astral breath.
+#Isnt it beautiful that air and poison are semi-synonymous
+N:29:!Plate Mail of Amaymon, Demon King
+I:37:30:2
+W:75:9:420:300000
+P:40:2d4:-4:0:20
+F:CON | SPEED | 
+F:NO_MAGIC | RES_ELEC | RES_LITE | IM_ELEC | FEATHER | FREE_ACT
+F:ACTIVATE
+
+#####################################################################################################################
+#############################  2 ultra armors level 80                                  #############################
+#####################################################################################################################
+
+N:30:!Armour of Baphomet, master of blood
 I:38:6:0
 W:90:9:500:400000
 P:30:2d4:-4:0:25
@@ -182,14 +415,23 @@ F:RES_FIRE | RES_COLD | RES_POIS | RES_LITE | RES_DARK |
 F:LITE | SEE_INVIS | AGGRAVATE | 
 F:ACTIVATE
 
+N:31:!Armour of Asmodai, King of Demons
+I:38:6:0
+W:90:9:500:400000
+P:30:2d4:-4:0:25
+F:FREE_ACT | IM_ELEC | 
+F:RES_FIRE | RES_COLD | RES_POIS | RES_LITE | RES_DARK | 
+F:LITE | SEE_INVIS | AGGRAVATE | 
+F:ACTIVATE
 
-# The Power Dragon Scale Mail 'Bladeturner'
-# Was (-3) DEX | HIDE_TYPE, (-4) to hit, 50 pounds (?)
+#####################################################################################################################
+#############################  2 ultra armors level 95                                  #############################
+#####################################################################################################################
 
-N:17:'Bladeturner'
+N:32:!Armour of Samael, Angel of Death
 I:38:30:0
 W:95:3:600:500000
-P:50:2d4:-8:0:35
+P:50:2d4:10:10:35
 F:HOLD_LIFE | REGEN |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | FEATHER |
 F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
@@ -197,116 +439,40 @@ F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_BLIND | RES_CONF |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
 F:ACTIVATE
 
-
-# Artifact 18 is unused
-
-
-# The Adamantite Plate Mail 'Soulkeeper'
-
-N:19:'Soulkeeper'
-I:37:30:2
-W:75:9:420:300000
-P:40:2d4:-4:0:20
-F:CON | 
-F:HOLD_LIFE | SUST_CON | 
-F:RES_ACID | RES_COLD | RES_DARK | RES_NETHER | RES_NEXUS | RES_CHAOS | 
+N:33:!Armour of Abaddon, Destroyer of the Apocalypse
+I:38:30:0
+W:95:3:600:500000
+P:50:2d4:10:10:35
+F:HOLD_LIFE | REGEN |
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | FEATHER |
+F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
+F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_BLIND | RES_CONF |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
 F:ACTIVATE
 
-
-# The Full Plate Armour of the Gods
-
-N:20:of the Gods
-I:37:15:1
-W:30:3:300:50000
-P:25:2d4:0:0:25
-F:CON | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:RES_SOUND | RES_CONF | RES_NEXUS
-
-
-# The Metal Brigandine Armour of Serpents
-
-N:21:of Serpents
-I:37:9:2
-W:30:3:200:30000
-P:19:1d4:0:0:15
-F:STR | DEX | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONF | RES_SOUND
-
-
-# The Mithril Chain Mail of the Vampire Hunter
-
-N:22:of the Vampire Hunter
-I:37:20:4
-W:40:3:150:135000
-P:28:1d4:-1:0:20
-F:STEALTH | WIS | INT |
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS |
-F:HOLD_LIFE | RES_NETHER | RES_DARK | RES_FEAR |
-F:SEE_INVIS |
+N:34:!Bloodstained Armour of Saint Michael
+I:38:30:0
+W:95:3:600:900000
+P:50:2d4:10:10:65
+F:HOLD_LIFE | REGEN |
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | FEATHER |
+F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
+F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_BLIND | RES_CONF |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
 F:ACTIVATE
 
+#N:16:!Plate Mail of Purson, Demon King
+# of 
 
-# The Mithril Plate Mail of the Orcs
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Shields                            #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
-N:23:of the Orcs
-I:37:3:4
-W:40:3:250:150000
-P:15:2d4:-2:0:40
-F:STR | CHA | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK | 
-F:RES_DISEN | ACTIVATE
-
-
-# The Chain Mail 'Heartguard'
-
-N:24:'Heartguard'
-I:37:4:2
-W:20:3:220:32000
-P:14:1d4:-2:0:15
-F:STR | CHA | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_SHARDS | RES_NEXUS
-
-
-# The Augmented Chain Mail of the Ogre Lords
-
-N:25:of the Ogre Lords
-I:37:6:3
-W:25:9:270:40000
-P:16:1d4:-2:0:20
-F:INT | WIS | CON | HIDE_TYPE | 
-F:RES_ACID | RES_POIS | RES_CONF | ACTIVATE
-
-
-# Artifact 26 is unused
-
-
-# The Soft Leather Armour of the Kobold Chief
-
-N:27:of the Kobold Chief
-I:36:4:4
-W:20:3:80:45000
-P:4:0d0:0:0:20
-F:STEALTH | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK
-
-
-# The Leather Scale Mail 'Wyvernscale'
-
-N:28:'Wyvernscale'
-I:36:11:3
-W:20:3:60:25000
-P:11:1d1:-1:0:25
-F:DEX | HIDE_TYPE | 
-F:RES_ACID | RES_SHARDS
-
-
-# Artifact 29 is unused
-
-
-# The Small Metal Shield 'Vitriol'
-
-N:30:'Vitriol'
+N:35:!Shield of Saint Michael
 I:34:3:4
 W:30:6:65:60000
 P:3:1d2:0:0:25
@@ -314,118 +480,96 @@ F:STR | CON | HIDE_TYPE |
 F:FREE_ACT | IM_ACID | RES_SOUND | 
 F:RES_CHAOS
 
-
-# The Large Leather Shield 'Rawhide'
-
-N:31:'Rawhide'
+N:36:of the Lower Elements
 I:34:4:0
 W:30:3:60:12000
 P:4:1d2:0:0:20
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_DARK
 
-
-# The Large Metal Shield 'Stability'
-
-N:32:of Stability
+#A minor MtG reference
+N:37:of the Ages
 I:34:5:0
 W:40:9:120:160000
-P:5:1d3:0:0:20
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SUST_STR | SUST_INT | 
-F:SUST_WIS | SUST_DEX | SUST_CON | SUST_CHA
+P:5:1d3:0:0:45
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHA | 
+F:HOLD_LIFE | 
 
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Crowns & Co                        #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
-# Artifact 33 is unused
+#####################################################################################################################
+#############################  level 10 , 1 hood                                        #############################
+#####################################################################################################################
 
-
-# The Massive Lead Crown of the Universe
-
-N:34:of the Universe
-I:33:50:125
-W:100:1:20:10000000
-P:0:1d1:0:0:0
-F:STR | INT | WIS | DEX | CON | CHA | INFRA | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
-F:RES_LITE | RES_DARK | RES_CONF | RES_NEXUS | 
-F:LITE | SEE_INVIS | TELEPATHY |
-F:CURSED | HEAVY_CURSE | PERMA_CURSE | NO_TELE
-F:INSTA_ART
-
-
-# The Iron Crown of Misery
-
-N:35:of Misery
-I:33:10:-25
-W:40:12:20:0
-P:0:1d1:0:0:25
-F:STR | DEX | CON | HIDE_TYPE | 
-F:FREE_ACT | SEE_INVIS | TELEPATHY | CURSED
-
-
-# The Hard Leather Cap of the Mindcrafter
-
-N:36:of the Mindcrafter
-I:32:2:2
-W:20:2:15:50000
-P:2:0d0:0:0:10
-F:INT | WIS | HIDE_TYPE | 
-F:RES_BLIND | TELEPATHY
-
-
-# The Metal Cap of Holiness
-
-N:37:of Holiness
+N:38:!Hood of Saint Augustin
 I:32:3:3
 W:10:2:20:22000
 P:3:1d1:0:0:12
 F:WIS | CHA | HIDE_TYPE
 
+#####################################################################################################################
+#############################  level 20 , 4  excellent ones                             #############################
+#####################################################################################################################
 
-# The Steel Helm of Hammerhand
+N:39:!Crown of Solomon
+I:32:2:2
+W:20:2:15:50000
+P:2:0d0:0:0:10
+F:INT | WIS | HIDE_TYPE | RES_BLIND | TELEPATHY
 
-N:38:of Hammerhand
+# a wild spirit or underworld demon that, under the shape of a bull, went through the cities, especially by night. 
+N:40:of Gallu, the Wild Spirit
 I:32:6:3
 W:20:2:60:45000
 P:6:1d3:0:0:20
-F:STR | DEX | CON | HIDE_TYPE | 
-F:RES_ACID | RES_NEXUS
+F:STEALTH | STR | DEX | CON | HIDE_TYPE | 
+F:RES_DARK | 
 
+N:41:'Terror Mask'
+I:32:5:-2
+W:20:5:75:0
+P:5:1d3:25:25:10
+F:INT | WIS | SEARCH | HIDE_TYPE | SHOW_MODS |
+F:SEE_INVIS | NO_MAGIC |
+F:RES_DISEN | RES_FEAR | FREE_ACT | RES_ACID | RES_COLD  | RES_POIS |
+F:IM_COLD | ACTIVATE | TELEPORT
 
-# The _DRAGON_ Helm of Power
-
-N:39:of Power
-I:32:7:4
-W:40:12:75:300000
-P:8:1d3:0:0:20
-F:STR | DEX | CON | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND | 
-F:LITE | SEE_INVIS | TELEPATHY | ACTIVATE
-
-# The Iron Helm 'Skullkeeper'
-
-N:40:'Skullkeeper'
+N:42:'Skullkeeper'
 I:32:5:2
 W:20:5:75:100000
 P:5:1d3:0:0:10
 F:INT | WIS | SEARCH | HIDE_TYPE | 
 F:RES_BLIND | SEE_INVIS | ACTIVATE
 
+#####################################################################################################################
+#############################  level 40 , 2 excellent ones , 1 crap                     #############################
+#####################################################################################################################
 
-# The Terror Mask (for warriors only...)
+# The Iron Crown of Misery
+N:43:of Misery
+I:33:10:-25
+W:40:12:20:0
+P:0:1d1:0:0:25
+F:STR | DEX | CON | HIDE_TYPE | 
+F:FREE_ACT | SEE_INVIS | TELEPATHY | CURSED
 
-N:41:'Terror Mask'
-I:32:5:-1
-W:20:5:75:0
-P:5:1d3:25:25:10
-F:INT | WIS | SEARCH | HIDE_TYPE | SHOW_MODS |
-F:SEE_INVIS | NO_MAGIC |
-F:RES_DISEN | RES_FEAR | FREE_ACT | RES_ACID | RES_COLD  | RES_POIS |
-F:IM_COLD | ACTIVATE |
-F:TELEPORT
-
+N:44:!Helm of the Lammasu
+I:32:7:4
+W:40:12:75:300000
+P:8:1d3:0:0:20
+F:STR | DEX | CON | HIDE_TYPE | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND | 
+F:LITE | SEE_INVIS | TELEPATHY | 
+F:ACTIVATE
 
 # The Golden Crown of the Sun
-
-N:42:of the Sun
+N:45:of the Sun
 I:33:11:3
 W:40:40:30:125000
 P:0:1d1:0:0:15
@@ -433,140 +577,162 @@ F:STR | WIS | CON | HIDE_TYPE | SPEED |
 F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | RES_ELEC | RES_CHAOS |
 F:LITE | SEE_INVIS | REGEN | ACTIVATE
 
+#####################################################################################################################
+#############################  Ultimate Crown                                           #############################
+#####################################################################################################################
 
-# Artifact 43 is unused
+# The Massive Lead Crown of the Seventh Day
+# Changed, teleportation is now allowed...
+N:46:of the Seventh Day
+I:33:50:125
+W:100:1:20:10000000
+P:0:1d1:0:0:0
+F:STR | INT | WIS | DEX | CON | CHA | INFRA | HIDE_TYPE | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
+F:RES_LITE | RES_DARK | RES_CONF | RES_NEXUS | 
+F:LITE | SEE_INVIS | TELEPATHY |
+F:CURSED | HEAVY_CURSE | PERMA_CURSE | 
+F:INSTA_ART
 
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Cloaks                             #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
-# The Cloak of Joseph
+#####################################################################################################################
+#############################  level 3 : 1 good , 1 bad cloak                           #############################
+#####################################################################################################################
 
-N:44:of Joseph
-I:35:1:0
-W:5:45:10:10000
-P:1:0d0:0:0:15
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
-
-
-# The Cloak 'Darkness'
-
-N:45:'Darkness'
-I:35:1:2
-W:5:45:10:13000
-P:1:0d0:0:0:4
-F:INT | WIS | STEALTH | HIDE_TYPE | 
-F:RES_ACID | RES_DARK | ACTIVATE
-
-
-# The Cloak of the Swashbuckler
-
-N:46:of the Swashbuckler
+N:47:of Jean de Nynauld
 I:35:1:3
-W:10:90:10:35000
-P:1:0d0:0:0:18
-F:DEX | CHA | HIDE_TYPE | 
-F:FREE_ACT | RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
+W:3:10:10:11000
+P:1:0d0:0:0:15
+F:STEALTH | RES_ACID | ACTIVATE
 
+#####################################################################################################################
+#############################  level 5 : 1 good , 1 bad cloak                           #############################
+#####################################################################################################################
 
-# The Cloak 'Shade'
-
-N:47:'Shade'
+N:48:!Simple Cloak
 I:35:1:0
 W:5:20:10:8000
 P:1:0d0:0:0:10
 F:FREE_ACT | RES_ACID | SEE_INVIS
 
-
-# The Cloak 'Shifter'
-
-N:48:'Shifter'
-I:35:1:3
-W:3:10:10:11000
+N:49:The Cloak of Joseph
+I:35:1:0
+W:5:45:10:10000
 P:1:0d0:0:0:15
-F:STEALTH | 
-F:RES_ACID | ACTIVATE
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
+F:ACTIVATE
 
+# The Cloak of Draebor
+N:50:of Draebor
+I:35:1:2
+W:5:45:10:13000
+P:1:0d0:0:0:12
+F:INT | WIS | STEALTH | HIDE_TYPE | 
+F:RES_ACID | RES_DARK | 
+F:ACTIVATE
+
+#####################################################################################################################
+#############################  level 10 : 1 crappy cloak                                #############################
+#####################################################################################################################
+
+N:51:of the Bard
+I:35:1:3
+W:10:90:10:35000
+P:1:0d0:0:0:18
+F:DEX | CHA | HIDE_TYPE | 
+F:FREE_ACT | RES_ACID | RES_FIRE | RES_COLD | 
+F:ACTIVATE
+
+#####################################################################################################################
+#############################  level 10 : 1 stealth cloak + 1 priest cloak + 1 frost cloak ########################
+#####################################################################################################################
 
 # The Shadow Cloak of Life
-
-N:49:of Life
+N:52:of Life
 I:35:6:2
 W:40:40:5:55000
 P:6:0d0:0:0:20
 F:INT | WIS | CHA | HIDE_TYPE | SPEED | STEALTH |
 F:RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
 
-
-# The Shadow Cloak of the Lucifuge
-
-N:50:of the Lucifuge
+N:53:of the Lucifuge
 I:35:6:4
 W:40:40:5:35000
 P:6:0d0:0:0:12
 F:STEALTH | 
-F:FREE_ACT | IM_ACID | SEE_INVIS
+F:FREE_ACT | IM_ACID | SEE_INVIS | RES_CONF | RES_CHAOS | RES_FIRE
 
+N:54:of the Frost Plains
+I:35:6:4
+W:40:40:5:35000
+P:6:0d0:0:0:12
+F:STEALTH | IM_COLD | REFLECT
 
-# Artifact 51 is unused
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Gloves                             #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
+#####################################################################################################################
+#############################  7 level 10 gloves , ex-cammithrins                            ########################
+#####################################################################################################################
 
-# The Set of Leather Gloves 'Calfskin'
-
-N:52:'Calfskin'
+#I want to be the artificer gloves, Malphas is hero of artificers
+#Malphas being the man of crows -> Feather
+N:55:of Malphas
 I:31:1:2
 W:10:6:5:36000
 P:1:0d0:8:8:15
-F:STR | CON | HIDE_TYPE | 
-F:FREE_ACT | SHOW_MODS
+F:STR | DEX | FREE_ACT | FEATHER
 
-
-# The Set of Leather Gloves of Light
-
-N:53:of Light
+#What ever :)
+N:56:!Gloves of Incandescent Light
 I:31:1:0
 W:10:3:5:30000
 P:1:0d0:0:0:10
-F:FREE_ACT | RES_LITE | SUST_CON | LITE | ACTIVATE
-
+F:FREE_ACT | RES_LITE | SUST_CON | LITE | 
+F:ACTIVATE
 
 # The Set of Gauntlets 'Ironfist'
-
-N:54:'Ironfist'
+N:57:'Ironfist'
 I:31:2:0
 W:10:20:25:15000
-P:2:1d1:0:0:15
-F:RES_FIRE | ACTIVATE
+P:2:1d1:0:10:15
+F:RES_ACID | ACTIVATE | REGEN |
 
-
-# The Set of Gauntlets of Ghouls
-
-N:55:of Ghouls
+N:58:of the Ghouls
 I:31:2:4
 W:10:20:25:33000
 P:2:1d1:0:0:15
-F:RES_COLD | ACTIVATE
-F:SUST_CON | CON | REGEN
+F:RES_COLD | ACTIVATE | SUST_CON | CON | REGEN
 
-
-# The Set of Gauntlets 'White Spark'
-
-N:56:'White Spark'
-I:31:2:0
+#I fully believe that Furfur, demon of thunder is corrupted from Furcifer
+N:59:of Furcifer
+I:31:2:2
 W:10:20:25:11000
 P:2:1d1:0:0:15
-F:RES_ELEC | ACTIVATE
-
+F:RES_ELEC | SPEED
+F:ACTIVATE
 
 # The Set of Gauntlets of the Dead
-
-N:57:of the Dead
+N:60:of the Dead
 I:31:2:0
 W:10:20:25:12000
 P:2:1d1:0:0:15
-F:RES_ACID | ACTIVATE
+F:RES_ACID | ACTIVATE | CURSED | HEAVY_CURSE | 
 
-
-# The Set of Gauntlets of Thanos
-
-N:58:of Thanos
+# The Set of Gauntlets of Thanos , b00h
+N:61:of Thanos
 I:31:2:2
 W:10:20:25:0
 P:2:1d1:-11:-12:0
@@ -574,112 +740,122 @@ F:STR | DEX | HIDE_TYPE | RES_DISEN | RES_NEXUS |
 F:HOLD_LIFE | RES_NETHER | RES_CHAOS | RES_POIS | IM_COLD | IM_FIRE |
 F:AGGRAVATE | CURSED | SHOW_MODS | HEAVY_CURSE | TY_CURSE | TELEPORT
 
+#####################################################################################################################
+#############################  1 super set of Gauntlets                                      ########################
+#####################################################################################################################
 
-# The Set of Cesti of Combat
-
-N:59:of Combat
+# The Set of Cesti of the Grim Reaper
+N:62:of the Grim Reaper
 I:31:5:4
 W:40:15:40:110000
 P:5:1d1:10:10:20
-F:DEX | HIDE_TYPE | 
+F:DEX | HIDE_TYPE | IM_COLD | 
 F:FREE_ACT | RES_ACID | ACTIVATE | SHOW_MODS
 
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Boots                              #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
-# The Pair of Hard Leather Boots of Travel
-
-N:60:of Travel
-I:30:3:15
-W:40:120:40:300000
-P:3:1d1:0:0:20
-F:SPEED | 
-F:RES_NEXUS | ACTIVATE
-
+#####################################################################################################################
+#############################  level 10   +5 speed                                           ########################
+#####################################################################################################################
 
 # The Pair of Soft Leather Boots of Dancing
-
-N:61:of Dancing
+N:63:!Satan's Dancing Boots
 I:30:2:5
 W:10:25:20:40000
 P:2:1d1:0:0:15
-F:DEX | HIDE_TYPE | CHA | SUST_CHA |
-F:ACTIVATE | FREE_ACT | 
+F:DEX | FREE_ACT | 
+F:CHA | SUST_CHA | 
+F:ACTIVATE | 
 F:RES_NETHER | RES_CHAOS | SUST_CON
 
+#####################################################################################################################
+#############################  level 30   +10 speed (cursed)                                 ########################
+#####################################################################################################################
 
 # The Pair of Metal Shod Boots of the Black Reaver
-
-N:62:of the Black Reaver
+N:64:of the Black Reaver
 I:30:6:10
 W:30:25:80:15000
 P:6:1d1:0:0:20
-F:STR | CON | HIDE_TYPE |
-F:SPEED | AGGRAVATE
+F:STR | CON | HIDE_TYPE | SPEED | AGGRAVATE
 
+#####################################################################################################################
+#############################  level 30   +15 speed + electricity immunity                   ########################
+#####################################################################################################################
 
-# Artifact 63 is unused
+# The Pair of Hard Leather Boots of Furcifer
+N:65:of Furcifer
+I:30:3:15
+W:40:120:40:300000
+P:3:1d1:0:0:20
+F:SPEED | RES_NEXUS | ACTIVATE | IM_ELEC
 
+# The Pair of Hard Leather Boots of Saint Gabriel
+N:66:of Saint Gabriel
+I:30:3:15
+W:40:120:40:300000
+P:3:1d1:0:0:20
+F:SPEED | RES_NEXUS | ACTIVATE | 
+F:RES_CHAOS | RES_CONF | FEATHER | FREE_ACT | RES_LITE | RES_FEAR
 
-# The Main Gauche of Defence
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Blades                             #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
-N:64:of Defence
-I:23:5:3
-W:15:30:30:22500
-P:0:2d5:12:15:0
-F:INT | DEX | HIDE_TYPE | SPEED |
-F:SLAY_TROLL | SLAY_GIANT | FREE_ACT | SEE_INVIS | SHOW_MODS
+#####################################################################################################################
+#############################  level 3                                                       ########################
+#####################################################################################################################
 
-
-# The Dagger of the Assassin
-
-N:65:of the Assassin
-I:23:4:4
-W:20:80:12:125000
-P:0:2d4:10:15:5
-F:DEX | HIDE_TYPE | STEALTH | SEARCH |
-F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | BRAND_POIS |
-F:FREE_ACT | RES_DARK | SUST_DEX | SEE_INVIS |
-F:SHOW_MODS
-
-
-# The Dagger 'Faith'
-
-N:66:'Faith'
-I:23:4:0
-W:4:10:12:12000
-P:0:1d4:4:6:0
-F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS | LITE
-
-
-# The Dagger 'Hope'
-
-N:67:'Hope'
+N:67:of the Cocytus
 I:23:4:0
 W:3:10:12:11000
-P:0:1d4:4:6:0
-F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS
+P:0:1d4:7:7:0
+F:BRAND_COLD | RES_COLD | SHOW_MODS | VAMPIRIC
+F:ACTIVATE
 
+#####################################################################################################################
+#############################  level 4                                                       ########################
+#####################################################################################################################
 
-# The Dagger 'Charity'
+N:68:of the Inferno
+I:23:4:0
+W:4:10:12:12000
+P:0:1d4:7:7:0
+F:BRAND_FIRE | RES_FIRE | SHOW_MODS | LITE | SH_FIRE
+F:ACTIVATE
 
-N:68:'Charity'
+#####################################################################################################################
+#############################  level 5                                                       ########################
+#####################################################################################################################
+
+N:69:of Furcifer
 I:23:4:0
 W:5:10:12:13000
-P:0:1d4:4:6:0
-F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS
+P:0:1d4:7:7:0
+F:BRAND_ELEC | RES_ELEC | SHOW_MODS | SH_ELEC
+F:ACTIVATE
 
-
-# The Dagger of Thoth
-
-N:69:of Thoth
+N:70:!Kinslayer
 I:23:4:0
 W:5:40:12:35000
 P:0:2d4:4:3:0
-F:SLAY_ORC | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS | BRAND_POIS
+F:SLAY_DEMON | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS | BRAND_POIS
 
+#####################################################################################################################
+#############################  level 10                                                      ########################
+#####################################################################################################################
 
-# The Dagger 'Icicle'
-
-N:70:'Icicle'
+N:71:'Frost'
 I:23:4:2
 W:10:40:12:50000
 P:0:2d4:6:9:0
@@ -688,210 +864,50 @@ F:BRAND_COLD | RES_COLD |
 F:SEE_INVIS | SLOW_DIGEST | REGEN |
 F:ACTIVATE | SHOW_MODS | BRAND_POIS
 
+#####################################################################################################################
+#############################  level 15                                                      ########################
+#####################################################################################################################
 
-# The Bastard Sword 'Selfslayer'
-
-N:71:'Selfslayer'
-I:23:21:5
-W:30:15:140:100000
-P:0:5d4:-20:20:0
-F:CON | HIDE_TYPE | 
-F:KILL_DRAGON | SLAY_EVIL | SLAY_DEMON | SLAY_TROLL | RES_DISEN | 
-F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS
-
-
-# The Broad Sword of Xumu
-
-N:72:of Xumu
-I:23:11:4
-W:20:45:50:125000
-P:0:2d7:20:12:0
-F:STR | DEX | CON | SUST_CON | SUST_STR
-F:REGEN | FREE_ACT | SEE_INVIS |
-F:RES_CHAOS | RES_NETHER | HOLD_LIFE | RES_FEAR |
-F:RES_COLD | 
-F:SLAY_DEMON | SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD |
-F:BRAND_COLD |
-F:SLOW_DIGEST | SHOW_MODS | HIDE_TYPE | BLESSED
-
-
-# The Broad Sword 'Brightblade'
-
-N:73:'Brightblade'
-I:23:16:1
-W:20:20:150:40000
-P:0:2d5:10:15:0
-F:SEARCH | 
-F:SLAY_EVIL | BRAND_FIRE | SLAY_ORC | RES_FIRE | RES_LITE | LITE | 
-F:SLOW_DIGEST | SHOW_MODS
-
-
-# The Broad Sword 'Lightning'
-
-N:74:'Lightning'
-I:23:16:4
-W:20:90:150:95000
-P:0:2d5:12:16:0
-F:SEARCH | 
-F:BRAND_ELEC | SLAY_ORC | KILL_DRAGON | RES_FEAR |
-F:RES_ELEC | LITE | RES_FIRE | RES_POIS |
-F:SLOW_DIGEST | SHOW_MODS
-
-
-# The Broad Sword 'Black Ice'
-
-N:75:'Black Ice'
-I:23:16:3
-W:20:20:150:40000
-P:0:2d5:10:15:0
-F:STEALTH | 
-F:SLAY_EVIL | BRAND_COLD | SLAY_ORC | RES_COLD | LITE | 
-F:SLOW_DIGEST | SHOW_MODS
-
-
-# The Two-Handed Sword 'Dragonslayer'
-
-N:76:'Dragonslayer'
-I:23:25:2
-W:30:30:200:100000
-P:0:3d6:13:17:0
-F:STR | HIDE_TYPE | 
-F:KILL_DRAGON | SLAY_TROLL | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
-
-
-# The Two-Handed Sword 'Firetongue'
-
-N:77:'Firetongue'
-I:23:25:4
-W:30:180:250:205000
-P:0:4d6:19:21:0
-F:STR | CHA | INFRA | HIDE_TYPE | VORPAL |
-F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE | LITE |
-F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
-F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE | SHOW_MODS
-
-
-# The Two-Handed Sword 'Twilight'
-
-N:78:'Twilight'
-I:23:25:10
-W:30:15:250:0
-P:0:4d6:-40:-60:-50
-F:SPEED | IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | RES_FEAR |
-F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS | TY_CURSE | LITE
-
-
-# The Cutlass of Blackbeard
-
-N:79:of Blackbeard
-I:23:12:3
-W:20:8:110:28000
-P:0:1d7:10:11:0
-F:DEX | STEALTH | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
-F:SEE_INVIS | REGEN | SHOW_MODS
-
-
-# The Executioner's Sword 'Genocide'
-
-N:80:'Genocide'
-I:23:28:0
-W:40:15:260:111000
-P:0:4d5:18:19:0
-F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT | 
-F:SLAY_ORC | SEE_INVIS | SHOW_MODS | VORPAL | BRAND_POIS
-
-
-# The Katana of Groo
-
-N:81:of Groo
-I:23:20:3
-W:30:25:50:75000
-P:0:8d4:0:0:0
-F:DEX | HIDE_TYPE | BLOWS | VORPAL |
-F:SUST_DEX | SHOW_MODS | SPEED
-
-
-# The Long Sword of Michael
-
-N:82:of Michael
-I:23:17:10
-W:20:120:130:300000
-P:0:4d5:22:25:0
-F:SPEED | 
-F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | 
-F:FREE_ACT | RES_COLD | RES_LITE | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | 
-F:ACTIVATE | SHOW_MODS
-
-
-# The Long Sword of Everflame
-
-N:83:of Everflame
-I:23:17:4
-W:20:40:130:80000
-P:0:2d5:10:15:5
-F:STR | HIDE_TYPE | 
-F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
-F:RES_FIRE | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS | LITE
-
-
-# The Long Sword 'Thunderbolt'
-
-N:84:'Thunderbolt'
-I:23:17:2
-W:20:30:130:150000
-P:0:2d5:8:12:0
-F:STR | CON | HIDE_TYPE | CHAOTIC | REGEN | SLOW_DIGEST |
-F:SLAY_EVIL | BRAND_ELEC | SLAY_DEMON | FREE_ACT | RES_ELEC | 
-F:RES_LITE | LITE | SEE_INVIS | SHOW_MODS | ACTIVATE | SPEED |
-F:SUST_CON | SUST_STR | SUST_INT | SUST_WIS | RES_ELEC | RES_DARK |
-F:RES_DISEN | RES_FEAR | BLOWS | SPEED
-
-
-# The Long Sword 'Demon Blade'
-
-N:85:'Demon Blade'
-I:23:16:2
-W:20:15:130:66666
-P:0:11d5:-30:7:0
-F:DEX | CHA | STEALTH | HIDE_TYPE | SPEED | AGGRAVATE | BLOWS | VORPAL |
-F:SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS
-
+# The Main Gauche of Valefar
+#He tempts people to steal and is in charge of a good relationship among thieves, but later he brings them to the gallows. 
+N:72:of Valefar
+I:23:5:3
+W:15:30:30:22500
+P:0:2d5:12:15:0
+F:INT | DEX | HIDE_TYPE | SPEED |
+F:SLAY_DEMON | SLAY_GIANT | FREE_ACT | SEE_INVIS | SHOW_MODS
 
 # The Rapier of Montoya's Father
-
-N:86:of Montoya's Father
-I:23:7:0
+#I lost the reference, if anybody finds out who Montoya could be ...
+#John is the most contemporary person in this game
+N:73:of Homer
+I:23:20:0
 W:15:8:40:15000
 P:0:1d6:12:19:0
 F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
 
-
-# The Sabre of Bluebeard
-
-N:87:of Bluebeard
+# The Sabre of Barbatos
+N:74:of Barbatos
 I:23:11:1
 W:15:8:50:25000
 P:0:1d7:6:8:0
 F:BLOWS | 
-F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_TROLL | SLAY_GIANT | 
-F:SLAY_ORC | SHOW_MODS
+F:SLAY_DEMON | KILL_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SHOW_MODS
 
+#####################################################################################################################
+#############################  level 20                                                      ########################
+#####################################################################################################################
 
-# The Small Sword 'Sting'
-
-N:88:'Sting'
-I:23:8:2
-W:20:15:75:100000
-P:0:1d6:7:8:0
-F:STR | DEX | CON | BLOWS | 
-F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | 
-F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
-
+# The Short Sword of Merlin
+N:75:of Merlin, Demon-Spawn
+I:23:10:2
+W:20:8:80:35000
+P:0:1d7:3:7:0
+F:BLOWS |
+F:SLAY_ANIMAL | SLOW_DIGEST | REGEN | SHOW_MODS | SEE_INVIS | RES_DISEN
 
 # The Scimitar 'Soulsword'
-
-N:89:'Soulsword'
+N:76:'Soulsword'
 I:23:18:2
 W:20:8:130:111111
 P:0:2d5:9:11:0
@@ -901,32 +917,199 @@ F:RES_CHAOS | RES_DISEN | RES_NEXUS | RES_NETHER | HOLD_LIFE |
 F:SEE_INVIS | BLESSED |
 F:SHOW_MODS
 
+# The Cutlass of Gusion
+N:77:of Gusion
+I:23:12:3
+W:20:8:110:28000
+P:0:1d7:10:11:0
+F:DEX | STEALTH | HIDE_TYPE | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
+F:SEE_INVIS | REGEN | SHOW_MODS
 
-# The Short Sword of Merlin
+# The Long Sword of Sitri
+N:78:of Sitri, Demon Prince
+I:23:16:2
+W:20:15:130:66666
+P:0:11d5:-30:7:0
+F:DEX | CHA | STEALTH | HIDE_TYPE | SPEED | AGGRAVATE | BLOWS | VORPAL |
+F:SEE_INVIS | SHOW_MODS
 
-N:90:of Merlin
-I:23:10:2
-W:20:8:80:35000
-P:0:1d7:3:7:0
-F:BLOWS |
-F:SLAY_ANIMAL | SLOW_DIGEST | REGEN | SHOW_MODS | SEE_INVIS | RES_DISEN
+N:79:of Orobas, Demon Prince
+I:23:8:2
+W:20:15:75:100000
+P:0:1d6:7:8:0
+F:STR | DEX | CON | BLOWS | 
+F:SLAY_EVIL | SLAY_UNDEAD |  
+F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
+
+# The Broad Sword 'Brightblade'
+N:80:'Brightblade'
+I:23:16:1
+W:20:20:150:40000
+P:0:2d5:10:15:0
+F:SEARCH | 
+F:SLAY_EVIL | BRAND_FIRE | SLAY_DEMON | RES_FIRE | RES_LITE | LITE | SH_FIRE
+F:SLOW_DIGEST | SHOW_MODS
+
+# The Broad Sword 'Black Ice'
+N:81:'Black Ice'
+I:23:16:7
+W:20:20:150:40000
+P:0:2d5:10:15:0
+F:STEALTH | RES_DARK
+F:SLAY_EVIL | BRAND_COLD | SLAY_DEMON | RES_COLD | LITE | 
+F:SLOW_DIGEST | SHOW_MODS
+
+# The Long Sword Great Earl of Hell
+N:82:of Andromalius, Great Earl of Hell
+I:23:17:2
+W:20:30:130:150000
+P:0:2d5:8:12:0
+F:STR | CON | HIDE_TYPE | CHAOTIC | REGEN | SLOW_DIGEST |
+F:SLAY_EVIL | BRAND_ELEC | SLAY_DEMON | FREE_ACT | RES_ELEC | 
+F:RES_LITE | LITE | SEE_INVIS | SHOW_MODS | SPEED |
+F:SUST_CON | SUST_STR | SUST_INT | SUST_WIS | RES_DARK |
+F:RES_DISEN | RES_FEAR | BLOWS |
+F:ACTIVATE
+
+N:83:of Rashaverak, the Unknown
+I:23:17:4
+W:20:40:130:80000
+P:0:2d5:10:15:5
+F:STR | HIDE_TYPE | 
+F:SLAY_EVIL | BRAND_FIRE | SLAY_ANGEL | FREE_ACT | 
+F:RES_FIRE | SUST_DEX | SEE_INVIS | SHOW_MODS | LITE
+F:ACTIVATE
+
+# The Broad Sword of Saint George
+N:84:of Saint George
+I:23:11:4
+W:20:45:50:125000
+P:0:2d7:20:12:0
+F:STR | DEX | CON | SUST_CON | SUST_STR | SUST_DEX | 
+F:REGEN | FREE_ACT | SEE_INVIS | HOLD_LIFE | 
+F:RES_CHAOS | RES_NETHER | RES_FEAR |
+F:RES_COLD | RES_FIRE | 
+F:SLAY_DEMON | SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD | KILL_DRAGON | 
+F:BRAND_COLD |BRAND_FIRE | 
+F:SLOW_DIGEST | BLESSED | 
+F:SHOW_MODS | HIDE_TYPE | 
+
+# The Dagger of Iscariot
+N:85:of Iscariot
+I:23:4:4
+W:20:80:12:125000
+P:0:2d4:10:15:5
+F:DEX | HIDE_TYPE | STEALTH | SEARCH |
+F:SLAY_EVIL | SLAY_ANGEL | BRAND_POIS |
+F:FREE_ACT | RES_DARK | SUST_DEX | SEE_INVIS |
+F:SHOW_MODS | CURSED | HEAVY_CURSE | 
+
+#This one _executes_ dragons
+# The Broad Sword of Furcifer
+N:86:of Furcifer
+I:23:16:4
+W:20:90:150:95000
+P:0:2d5:12:16:0
+F:SEARCH | 
+F:BRAND_ELEC | SLAY_EVIL | KILL_DRAGON | RES_FEAR |
+F:RES_ELEC | LITE | RES_FIRE | RES_POIS |
+F:SLOW_DIGEST | SHOW_MODS | IM_ELEC | SH_ELEC | 
+
+# The Long Sword of Michael
+N:87:of Michael
+I:23:17:10
+W:20:120:130:300000
+P:0:4d5:22:25:0
+F:SPEED | 
+F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON |  
+F:FREE_ACT | RES_COLD | RES_LITE | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | SHOW_MODS
+F:ACTIVATE | KILL_ANGEL
+
+#####################################################################################################################
+#############################  level 30                                                      ########################
+#####################################################################################################################
+
+N:88:of the Wailing Tree
+I:23:21:5
+W:30:15:140:100000
+P:0:5d4:-20:20:0
+F:CON | HIDE_TYPE | 
+F:KILL_DRAGON | SLAY_EVIL | SLAY_DEMON | KILL_ANGEL | RES_DISEN | 
+F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS
+
+# The Two-Handed Sword 'Twilight'
+N:89:'Twilight'
+I:23:25:10
+W:30:15:250:0
+P:0:4d6:-40:-60:-50
+F:SPEED | IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | RES_FEAR |
+F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS | TY_CURSE | LITE
+
+# The Katana of the East
+N:90:of the East
+I:23:20:3
+W:30:25:50:75000
+P:0:8d4:0:0:0
+F:DEX | HIDE_TYPE | BLOWS | VORPAL |
+F:SUST_DEX | SHOW_MODS | SPEED
+
+# The Two-Handed Sword 'Dragonslayer'
+N:91:'Dragonslayer'
+I:23:25:2
+W:30:30:200:100000
+P:0:3d6:13:17:0
+F:STR | HIDE_TYPE | 
+F:KILL_DRAGON | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
+
+# The Two-Handed Sword 'Firetongue'
+N:92:'Firetongue'
+I:23:25:4
+W:30:180:250:205000
+P:0:4d6:19:21:0
+F:STR | CHA | INFRA | HIDE_TYPE | VORPAL |
+F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE | LITE |
+F:SLAY_UNDEAD | SLAY_DEMON | SLAY_ANGEL | SLAY_GIANT |  
+F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE | SHOW_MODS
+
+#####################################################################################################################
+#############################  level 40                                                      ########################
+#####################################################################################################################
+
+# The Executioner's Sword of Uriel
+N:93:of Uriel
+I:23:28:0
+W:40:15:260:111000
+P:0:4d5:18:19:0
+F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | KILL_ANGEL | SLAY_GIANT | SLAY_DEMON
+F:SEE_INVIS | SHOW_MODS | VORPAL | BRAND_POIS | SH_FIRE
+
+# The Scythe of 
+N:94:of Azrael
+I:22:17:3
+W:40:8:250:18000
+P:0:5d3:8:8:10
+F:DEX | CHA | HIDE_TYPE | 
+F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD | 
+F:RES_LITE | LITE | SEE_INVIS | SHOW_MODS
+F:ACTIVATE
 
 
-# The Blade of Chaos 'Doomcaller'
-# Was (-5) CON | HIDE_TYPE, +0 armour
+# The Long Sword of the Dawn
+N:95:of the Dawn
+I:23:17:3
+W:40:120:130:250000
+P:0:3d5:20:20:0
+F:ACTIVATE | LITE | BRAND_FIRE | FREE_ACT | RES_FIRE | INFRA |
+F:SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD | SLAY_DEMON | VORPAL |
+F:CHA | SUST_CHA | RES_FEAR | RES_LITE | RES_BLIND | REGEN | SHOW_MODS
 
-N:91:'Doomcaller'
-I:23:30:0
-W:70:25:180:250000
-P:0:6d5:18:28:-50
-F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
-F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS
-F:CHAOTIC | VORPAL | BRAND_FIRE | BRAND_POIS | LITE
+#####################################################################################################################
+#############################  level 50                                                      ########################
+#####################################################################################################################
 
-# The Long Sword 'Vorpal Blade'
-
-N:92:'Vorpal Blade'
+#Really, really , really sharp ;)
+N:96:of Astaroth, Grand Duke of Hell
 I:23:17:2
 W:50:30:150:250000
 P:0:5d5:32:32:0
@@ -934,63 +1117,47 @@ F:VORPAL |
 F:SLAY_EVIL |
 F:FREE_ACT | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | SPEED | STR |DEX
 
-# The Beaked Axe of Theoden
+#####################################################################################################################
+#############################  level 70                                                      ########################
+#####################################################################################################################
 
-N:93:of Theoden
-I:22:10:3
-W:20:15:180:40000
-P:0:2d6:8:10:0
-F:WIS | CON | HIDE_TYPE | 
-F:SLAY_DRAGON | TELEPATHY | SLOW_DIGEST | ACTIVATE | SHOW_MODS
+N:97:'Doomcaller'
+I:23:30:0
+W:70:25:180:250000
+P:0:6d5:18:28:-50
+F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | KILL_ANGEL |
+F:FREE_ACT | SEE_INVIS | TELEPATHY | LITE
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CHAOS
+F:CHAOTIC | VORPAL
+F:BRAND_FIRE | BRAND_POIS |BRAND_COLD |  
+F:AGGRAVATE | SHOW_MODS
 
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Hafteds                            #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
-# The Glaive of Pain
-
-N:94:of Pain
-I:22:13:0
-W:30:25:190:50000
-P:0:9d6:0:30:0
-F:SHOW_MODS
-
-
-# The Halberd 'Armourbane'
-
-N:95:'Armourbane'
-I:22:15:3
-W:20:8:190:22000
-P:0:3d5:6:9:0
-F:CHA | HIDE_TYPE | 
-F:BRAND_FIRE | SLAY_UNDEAD | SLAY_GIANT | RES_FIRE | RES_SOUND | 
-F:FEATHER | SEE_INVIS | SHOW_MODS | LITE
-
-
-# The Pike of Tepes
-
-N:96:of Tepes
-I:22:8:2
-W:20:15:160:32000
-P:0:2d5:10:12:10
-F:INT | HIDE_TYPE | 
-F:BRAND_COLD | BRAND_FIRE | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | 
-F:RES_FIRE | RES_COLD | SUST_INT | SLOW_DIGEST | SHOW_MODS | LITE
-
+#####################################################################################################################
+############################# 4 *  level 15                                                  ########################
+#####################################################################################################################
 
 # The Spear 'Runespear' (of Odin)
-
-N:97:'Runespear'
+#Soon to be replaced
+N:98:'Runespear'
 I:22:2:4
 W:15:45:50:180000
 P:0:4d6:15:25:5
 F:INT | WIS | HIDE_TYPE |
 F:BRAND_FIRE | BRAND_ELEC |
-F:SLAY_TROLL | SLAY_ORC | SLAY_GIANT |
+F:SLAY_ANGEL | SLAY_GIANT |
 F:FREE_ACT | RES_FIRE | RES_ELEC | RES_LITE |
 F:SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS | LITE
 
-
 # The Spear of Destiny
-
-N:98:of Destiny
+N:99:of Destiny
 I:22:2:4
 W:15:45:50:77777
 P:0:1d6:15:15:0
@@ -1002,97 +1169,16 @@ F:FEATHER |
 F:LITE | SEE_INVIS |
 F:ACTIVATE | BLESSED | SHOW_MODS
 
-
-# The Spear of Hagen
-
-N:99:of Hagen
+# The Spear of Amdusias
+N:100:of Amdusias
 I:22:2:3
 W:15:12:50:30000
 P:0:1d6:11:13:0
 F:STEALTH | RES_DARK | INFRA | SPEED |
 F:BRAND_COLD | SLAY_UNDEAD | RES_COLD | SEE_INVIS | SHOW_MODS
 
-
-# The Lance 'Skewer'
-
-N:100:'Skewer'
-I:22:20:2
-W:20:23:360:55000
-P:0:3d8:3:21:0
-F:DEX | HIDE_TYPE | 
-F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS
-
-
-# The Great Axe of the Yeeks
-
-N:101:of the Yeeks
-I:22:25:3
-W:30:90:230:150000
-P:0:4d4:10:20:15
-F:CON | HIDE_TYPE | 
-F:KILL_DRAGON | SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
-F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | SHOW_MODS
-
-
-# The Great Axe of the Trolls
-
-N:102:of the Trolls
-I:22:25:2
-W:30:120:230:200000
-P:0:4d4:15:18:8
-F:STR | INT | WIS | DEX | CON | CHA | HIDE_TYPE | 
-F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | 
-F:SLAY_ORC | FREE_ACT | IM_COLD | SEE_INVIS | ACTIVATE | 
-F:BLESSED | SHOW_MODS
-
-
-# The Battle Axe of N'Kai
-
-N:103:of N'Kai
-I:22:22:3
-W:30:15:170:90000
-P:0:3d8:8:11:5
-F:STR | CON | STEALTH | HIDE_TYPE | 
-F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_BLIND | FEATHER | 
-F:SEE_INVIS | REGEN | SHOW_MODS
-
-
-# The Battle Axe 'Spleen Slicer'
-
-N:104:'Spleen Slicer'
-I:22:22:1
-W:30:15:170:21000
-P:0:2d8:4:3:0
-F:STR | DEX | HIDE_TYPE | 
-F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS
-
-
-# The Lochaber Axe of the Dwarves
-
-N:105:of the Dwarves
-I:22:28:10
-W:30:8:250:80000
-P:0:3d8:12:17:0
-F:SLAY_EVIL | TUNNEL | INFRA | SEARCH | SLAY_GIANT |
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_FEAR |
-F:SHOW_MODS
-
-
-# The Broad Axe of Nodens
-
-N:106:of Nodens
-I:22:11:3
-W:20:8:160:50000
-P:0:2d6:13:19:0
-F:CON | HIDE_TYPE | 
-F:SLAY_EVIL | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
-F:SEE_INVIS | SHOW_MODS
-
-
 # The Trident of Wrath
-
-N:107:of Wrath
+N:101:of Wrath
 I:22:5:2
 W:15:35:300:90000
 P:0:3d8:16:18:0
@@ -1100,59 +1186,48 @@ F:STR | DEX | HIDE_TYPE | CHAOTIC |
 F:SLAY_EVIL | SLAY_UNDEAD | RES_LITE | RES_DARK | SEE_INVIS | 
 F:BLESSED | SHOW_MODS
 
+#####################################################################################################################
+############################# 10 *  level 20                                                 ########################
+#####################################################################################################################
 
-# The Trident of the Tritons
+# The Beaked Axe of Eligor
+#Eligos (also Abigor or Eligor)
+N:102:of Eligor
+I:22:10:3
+W:20:15:180:40000
+P:0:2d6:8:10:0
+F:WIS | CON | HIDE_TYPE | 
+F:SLAY_DRAGON | TELEPATHY | SLOW_DIGEST | ACTIVATE | SHOW_MODS
 
-N:108:of the Tritons
-I:22:5:4
-W:30:90:70:120000
-P:0:4d8:15:19:0
+# The Lance of Orias
+N:103:of Orias
+I:22:20:2
+W:20:23:360:55000
+P:0:3d8:3:21:0
 F:DEX | HIDE_TYPE | 
-F:SLAY_DRAGON | SLAY_ANIMAL | FREE_ACT | HOLD_LIFE | IM_ACID | 
-F:RES_NETHER | SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE | 
-F:BLESSED | SHOW_MODS
+F:SLAY_EVIL | SLAY_ANGEL | SEE_INVIS | SHOW_MODS
 
+# The Pike of Tepes
+N:104:of Tepes
+I:22:8:2
+W:20:15:160:32000
+P:0:2d5:10:12:10
+F:INT | HIDE_TYPE | 
+F:BRAND_COLD | BRAND_FIRE | SLAY_DEMON | SLAY_ANGEL | SLAY_GIANT | 
+F:RES_FIRE | RES_COLD | SUST_INT | SLOW_DIGEST | SHOW_MODS | LITE
 
-# The Scythe of Azrael
+# The Morning Star of Beherit
+N:105:of Beherit
+I:21:12:4
+W:20:30:150:30000
+P:0:2d6:8:22:0
+F:STR | HIDE_TYPE | 
+F:SLAY_DEMON | SLAY_GIANT | SLAY_EVIL | SLAY_UNDEAD
+F:RES_NEXUS | SEE_INVIS | 
+F:SHOW_MODS
 
-N:109:of Azrael
-I:22:17:3
-W:40:8:250:18000
-P:0:5d3:8:8:10
-F:DEX | CHA | HIDE_TYPE | 
-F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD | 
-F:RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
-
-
-# The Long Sword of the Dawn
-
-N:110:of the Dawn
-I:23:17:3
-W:40:120:130:250000
-P:0:3d5:20:20:0
-F:ACTIVATE | LITE | BRAND_FIRE | FREE_ACT | RES_FIRE | INFRA |
-F:SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD | SLAY_DEMON | VORPAL |
-F:CHA | SUST_CHA | RES_FEAR | RES_LITE | RES_BLIND | REGEN | SHOW_MODS
-
-
-
-# The Mighty Hammer of Worlds
-# Was 30 pounds (?), -10 to speed
-# The weight (100 pounds) of the hammer yields about -4 to speed
-# Note that it takes 18/200 strength to wield it correctly
-
-N:111:of Worlds
-I:21:50:0
-W:100:1:1000:500000
-P:0:9d9:5:25:10
-F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | IMPACT | SLAY_UNDEAD | NO_MAGIC |
-F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | RES_ACID | RES_ELEC | RES_FIRE | 
-F:RES_COLD | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART
-
-
-# The Flail 'Totila'
-
-N:112:'Totila'
+# The Flail of Phenex
+N:106:of Phenex
 I:21:13:2
 W:20:8:150:55000
 P:0:3d6:6:8:0
@@ -1160,50 +1235,119 @@ F:STEALTH |
 F:SLAY_EVIL | BRAND_FIRE | RES_FIRE | RES_CONF | ACTIVATE | 
 F:SHOW_MODS | LITE
 
-
-# The Two-Handed Flail 'Thunderfist'
-
-N:113:'Thunderfist'
-I:21:18:4
-W:45:38:300:160000
-P:0:3d6:5:18:0
-F:STR | HIDE_TYPE | 
-F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_ORC | 
-F:RES_ELEC | RES_FIRE | RES_DARK | SHOW_MODS | LITE
-
-
-# The Morning Star 'Bloodspike'
-
-N:114:'Bloodspike'
-I:21:12:4
-W:20:30:150:30000
-P:0:2d6:8:22:0
-F:STR | HIDE_TYPE | 
-F:SLAY_ANIMAL | SLAY_TROLL | SLAY_ORC | RES_NEXUS | SEE_INVIS | 
-F:SHOW_MODS
-
-
-# The Morning Star 'Firestar'
-
-N:115:'Firestar'
+# The Morning Star 'Morningstar'
+N:107:'Morningstar'
 I:21:12:0
 W:20:15:150:35000
 P:0:2d6:5:7:2
 F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS | LITE
 
-
-# The Mace 'Thunder'
-
-N:116:'Thunder'
+# The Mace of Beleth
+N:108:of Beleth, 
 I:21:5:0
 W:20:15:200:50000
 P:0:3d4:12:12:0
 F:KILL_DRAGON | BRAND_ELEC | IM_ELEC | ACTIVATE | SHOW_MODS
 
+# The Halberd of Carabia
+N:109:of Carabia
+I:22:15:3
+W:20:8:190:22000
+P:0:3d5:6:9:0
+F:CHA | HIDE_TYPE | 
+F:BRAND_FIRE | SLAY_UNDEAD | SLAY_GIANT | RES_FIRE | RES_SOUND | 
+F:FEATHER | SEE_INVIS | SHOW_MODS | LITE
 
-# The War Hammer 'Mjollnir'
+# The Broad Axe of Nodens
+N:110:of Nodens
+I:22:11:3
+W:20:8:160:50000
+P:0:2d6:13:19:0
+F:CON | HIDE_TYPE | 
+F:SLAY_EVIL | SLAY_ANGEL | SLAY_GIANT | 
+F:SEE_INVIS | SHOW_MODS
 
-N:117:'Mjollnir'
+#####################################################################################################################
+############################# 7  *  level 30                                                 ########################
+#####################################################################################################################
+
+# The Glaive of Pain
+N:111:of Pain
+I:22:13:0
+W:30:25:190:50000
+P:0:9d6:0:30:0
+F:SHOW_MODS
+
+# The Great Axe of the Weak
+N:112:of the Weak
+I:22:25:3
+W:30:90:230:150000
+P:0:4d4:10:20:15
+F:CON | HIDE_TYPE | 
+F:KILL_DRAGON | SLAY_DEMON | KILL_ANGEL | FREE_ACT | 
+F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | SHOW_MODS
+
+# The Great Axe of the Trolls
+N:113:of the Trolls
+I:22:25:2
+W:30:120:230:200000
+P:0:4d4:15:18:8
+F:STR | WIS | DEX | CON | HIDE_TYPE | 
+F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | RES_LITE | STEALTH
+F:SLAY_DEMON | FREE_ACT | IM_COLD | SEE_INVIS | ACTIVATE | 
+F:BLESSED | SHOW_MODS
+
+# The Battle Axe of N'Kai
+N:114:of N'Kai
+I:22:22:3
+W:30:15:170:90000
+P:0:3d8:8:11:5
+F:STR | CON | 
+F:STEALTH | FREE_ACT | 
+F:SLAY_DEMON | SLAY_ANGEL | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_BLIND |
+F:SEE_INVIS | REGEN |  FEATHER | 
+F:HIDE_TYPE | SHOW_MODS
+
+# The Battle Axe of Ronove
+N:115:of Ronove
+I:22:22:1
+W:30:15:170:21000
+P:0:2d8:4:3:0
+F:STR | DEX | HIDE_TYPE | 
+F:SLAY_ANGEL | ACTIVATE | SHOW_MODS
+
+# The Lochaber Axe of the Dwarves
+N:116:of the Dwarves
+I:22:28:10
+W:30:8:250:80000
+P:0:3d8:12:17:0
+F:SLAY_EVIL | SLAY_GIANT |
+F:TUNNEL | INFRA | SEARCH | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD 
+F:RES_FEAR |
+F:SHOW_MODS
+
+# The Trident of the Tritons
+N:117:of the Tritons
+I:22:5:4
+W:30:90:70:120000
+P:0:4d8:15:19:0
+F:DEX | 
+F:SLAY_DRAGON | SLAY_ANIMAL 
+F:FREE_ACT | HOLD_LIFE | SLOW_DIGEST | SEE_INVIS | REGEN | 
+F:RES_NETHER | 
+F:IM_ACID | 
+F:BLESSED | 
+F:SHOW_MODS | HIDE_TYPE | 
+F:ACTIVATE | 
+
+#####################################################################################################################
+############################# 1 *  level 40                                                  ########################
+#####################################################################################################################
+
+# The War Hammer of Amaymon, Prince of Hell
+N:118:of Amaymon, Prince of Hell
 I:21:8:4
 W:40:75:120:250000
 P:0:9d3:19:21:5
@@ -1212,41 +1356,88 @@ F:KILL_DRAGON | SLAY_EVIL | BRAND_ELEC | SLAY_UNDEAD | SLAY_DEMON |
 F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS | 
 F:SEE_INVIS | SHOW_MODS
 
+#####################################################################################################################
+############################# 1 *  level 45                                                  ########################
+#####################################################################################################################
+
+# The Two-Handed Flail of Samael, Angel of Death
+N:119:of Samael, Angel of Death
+I:21:18:4
+W:45:38:300:160000
+P:0:3d6:5:18:0
+F:STR | HIDE_TYPE | 
+F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | 
+F:RES_ELEC | RES_FIRE | RES_DARK | SHOW_MODS | LITE
+
+#####################################################################################################################
+############################# 1 *  level 100                                                 ########################
+#####################################################################################################################
+
+# Note that it takes 18/200 strength to wield it correctly
+N:120:of Abaddon, Destroyer of the Apocalypse
+I:21:50:0
+W:100:1:1000:500000
+P:0:9d9:5:25:10
+F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | IMPACT | SLAY_UNDEAD | NO_MAGIC |
+F:SLAY_DEMON | RES_ACID | RES_ELEC | RES_FIRE | 
+F:RES_COLD | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART
+
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    Quarterstaffs                      #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
+
+#####################################################################################################################
+############################# 3 *  level 20                                                  ########################
+#####################################################################################################################
 
 # The Quarterstaff 'Firestaff'
-
-N:118:'Firestaff'
+N:121:'Firestaff'
 I:21:3:3
 W:20:18:150:70000
 P:0:1d9:10:20:0
 F:INT | HIDE_TYPE | 
 F:SLAY_ANIMAL | BRAND_FIRE | RES_FIRE | SHOW_MODS | LITE
 
-
 # The Quarterstaff 'Eriril'
-
-N:119:'Eriril'
+N:122:'Eriril'
 I:21:3:4
 W:20:18:150:20000
 P:0:1d9:3:5:0
 F:INT | WIS | HIDE_TYPE | 
 F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 
+# The Lucerne Hammer 'Justice'
+N:123:'Justice'
+I:21:10:4
+W:20:15:120:30000
+P:0:2d5:10:6:8
+F:WIS | INFRA | HIDE_TYPE | 
+F:BRAND_COLD | SLAY_ANGEL | RES_COLD | RES_LITE | LITE | REGEN | 
+F:ACTIVATE | SHOW_MODS
+
+#####################################################################################################################
+############################# 1 *  level 30                                                  ########################
+#####################################################################################################################
 
 # The Quarterstaff of Atal
-
-N:120:of Atal
+N:124:of Atal
 I:21:3:4
 W:30:105:150:140000
 P:0:2d9:10:13:0
 F:INT | WIS | CHA | HIDE_TYPE | SEARCH | BRAND_FIRE |
-F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | LITE |
+F:SLAY_EVIL | BRAND_FIRE | SLAY_ANGEL | LITE |
 F:HOLD_LIFE | RES_FIRE | RES_NETHER | SEE_INVIS | ACTIVATE | SHOW_MODS
 
+#####################################################################################################################
+############################# 1 *  level 80                                                  ########################
+#####################################################################################################################
 
 # The Mace of Disruption 'Deathwreaker'
-
-N:121:'Deathwreaker'
+N:125:of Asmodai, Solomon's Bane
 I:21:20:6
 W:80:38:400:444444
 P:0:7d8:18:18:0
@@ -1255,52 +1446,41 @@ F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | BRAND_FIRE |
 F:IM_FIRE | RES_DARK | RES_CHAOS | RES_DISEN | AGGRAVATE | LITE |
 F:SHOW_MODS | BRAND_POIS | VAMPIRIC
 
+#####################################################################################################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#######################################    (X)Bows                            #######################################
+#######################################                                       #######################################
+#######################################                                       #######################################
+#####################################################################################################################
 
-# The Lucerne Hammer 'Justice'
-
-N:122:'Justice'
-I:21:10:4
-W:20:15:120:30000
-P:0:2d5:10:6:8
-F:WIS | INFRA | HIDE_TYPE | 
-F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN | 
-F:ACTIVATE | SHOW_MODS
-
-
-# Artifact 123 is unused
-
-
-# The Long Bow 'Sureshot'
-
-N:124:'Sureshot'
+N:126:!Assassin's Bow
 I:19:13:3
 W:40:20:40:35000
 P:0:0d0:20:22:0
-F:DEX | STEALTH | HIDE_TYPE | 
-F:RES_DISEN | XTRA_SHOTS | SHOW_MODS
+F:DEX | STEALTH | XTRA_SHOTS | XTRA_MIGHT
+F:RES_DISEN | 
+F:SHOW_MODS | HIDE_TYPE
 
-
-# The Long Bow of Serpents
-
-N:125:of Serpents
+N:127:'Sureshot'
 I:19:13:3
 W:30:20:40:20000
 P:0:0d0:17:19:0
-F:DEX | HIDE_TYPE | 
-F:FREE_ACT | XTRA_MIGHT | SHOW_MODS
+F:DEX | FREE_ACT | XTRA_MIGHT | XTRA_SHOTS
+F:HIDE_TYPE | SHOW_MODS
 
-
-# The Light Crossbow of Death
-
-N:126:of Death
+N:128:!Crossbow of Death
 I:19:23:10
 W:50:25:110:50000
 P:0:0d0:10:14:0
-F:SPEED | 
-F:RES_FIRE | XTRA_MIGHT | ACTIVATE | SHOW_MODS
+F:SPEED | XTRA_MIGHT | 
+F:RES_FIRE | 
+F:ACTIVATE | SHOW_MODS
 
+########
+# Stupid stupid stupid hardcodings, force me to add new items here until I do a new sweep
+########
 
-# Artifact 127 is unused
+#Achilles’ lance, given him by his father Peleus, had the power to heal the wounds it inflicted.
 
-
-
+#  Pentalpha Ring, worn by Solomon, to enslave demons

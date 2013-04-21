@@ -196,6 +196,7 @@ errr path_parse(char *buf, int max, cptr file)
 	struct passwd	*pw;
 	char		user[128];
 
+	(void)max;
 
 	/* Assume no result */
 	buf[0] = '\0';
@@ -1640,7 +1641,7 @@ char (*inkey_hack)(int flush_first) = NULL;
 */
 char inkey(void)
 {
-	int v;
+	bool v;
 
 	char kk;
 
@@ -2236,6 +2237,20 @@ void message_add(cptr str)
 }
 
 
+/* This waits for a standard key press ( escape, space, enter or the other enter ) */
+void msg_flush_wait(void)
+{
+	/* Get an acceptable keypress */
+	while (1)
+	{
+		int cmd = inkey();
+		if (quick_messages) break;
+		if ((cmd == ESCAPE) || (cmd == ' ')) break;
+		if ((cmd == '\n') || (cmd == '\r')) break;
+		bell();
+	}
+	
+}
 
 /*
 * Hack -- flush
@@ -2249,21 +2264,14 @@ static void msg_flush(int x)
 
 	/* Pause for response */
 	Term_putstr(x, 0, -1, a, "-more-");
-
+    
 	/* Get an acceptable keypress */
-	while (1)
-	{
-		int cmd = inkey();
-		if (quick_messages) break;
-		if ((cmd == ESCAPE) || (cmd == ' ')) break;
-		if ((cmd == '\n') || (cmd == '\r')) break;
-		bell();
-	}
+	msg_flush_wait();
+
 
 	/* Clear the line */
 	Term_erase(0, 0, 255);
 }
-
 
 /*
 * Output a message to the top line of the screen.
@@ -2292,7 +2300,8 @@ static void msg_flush(int x)
 */
 void msg_print(cptr msg)
 {
-	static p = 0;
+	/* Try and fix warning that p will default ot int */
+	static int p = 0;
 
 	int n;
 

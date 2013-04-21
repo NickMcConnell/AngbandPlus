@@ -33,20 +33,19 @@
 
 
 /*
-* Current version number of Hellband: 1.0.3
+* Current version number of Hellband: 0.8.1
 */
+#define VERSION_NAME	"Hellband 0.8.1"
 
 /* <<VERSION STAMP>> */
-#define VERSION_MAJOR   1
-#define VERSION_MINOR   0
-#define VERSION_PATCH   3
-
+#define VERSION_MAJOR   0
+#define VERSION_MINOR   8
+#define VERSION_PATCH   1
 
 /*
 * This value is not currently used
 */
 #define VERSION_EXTRA   0
-
 
 /*
 * Number of grids used to display the dungeon (vertically).
@@ -289,12 +288,12 @@
 /*
 * Maximum array bounds for template based arrays
 */
-#define MAX_F_IDX       103      /* Max size for "f_info[]" */
-#define MAX_K_IDX       576     /* Max size for "k_info[]" */
-#define MAX_A_IDX       128     /* Max size for "a_info[]" */
+#define MAX_F_IDX       103     /* Max size for "f_info[]" */
+#define MAX_K_IDX       600     /* Max size for "k_info[]" */
+#define MAX_A_IDX       150     /* Max size for "a_info[]" */
 #define MAX_E_IDX       255     /* Max size for "e_info[]" */
-#define MAX_R_IDX       577 /* Max size for "r_info[]" */
-#define MAX_V_IDX       114  /* Max size for "v_info[]" Was 16*/
+#define MAX_R_IDX       700     /* Max size for "r_info[]" */
+#define MAX_V_IDX       114     /* Max size for "v_info[]" Was 16*/
 
 
 /*
@@ -307,7 +306,7 @@
 /*
 * Maximum number of quests 
 */
-#define MAX_QUESTS     100						 /* Max number of quests */
+#define MAX_QUESTS     2						 /* Max number of quests */
 
 
 /*
@@ -740,10 +739,10 @@ and tables.c --TY */
 #define COL_SPEED               49      /* "Slow (-NN)" or "Fast (+NN)" */
 
 #define ROW_STUDY               23
-#define COL_STUDY               63      /* "Study" */
+#define COL_STUDY               61      /* "Study" */
 
 #define ROW_DEPTH               23
-#define COL_DEPTH               69      /* "Lev NNN" / "NNNN ft" */
+#define COL_DEPTH               67      /* "Lev NNN" / "NNNN ft" */
 
 
 
@@ -802,6 +801,11 @@ and tables.c --TY */
 #define FEAT_PATTERN_XTRA1 0x48
 #define FEAT_PATTERN_XTRA2 0x49
 
+/* Beginning of Dis ( Dis contains shielded levels and no vaults ) */
+#define DIS_START 5
+#define DIS_END   27
+
+
 /* Shops */
 #define FEAT_SHOP_HEAD        0x4A
 #define FEAT_SHOP_TAIL         0x55
@@ -815,157 +819,181 @@ and tables.c --TY */
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
 
-/* Lites */
-#define ART_GALADRIEL           1
-#define ART_GEM_SEEING                     2
-#define ART_INSIGHT                      3
+/* Lites  ART_GALADRIEL , ART_GEM_SEEING ,  ART_INSIGHT */ 
+#define ART_BEATRICE     1
+#define ART_EOS          2
+#define ART_HIPPO        3
 
-/* Amulets */
-#define ART_PURITY           4
-#define ART_INQUISITION                       5
-#define ART_DWARVES                     6
+/* Amulets  ART_PURITY , ART_INQUISITION , ART_DWARVES */
+#define ART_DOOM            4
+#define ART_AMULET_RAPHAEL  5
+#define ART_AMULET_MICHAEL  6
+#define ART_NEPHILIM        7
 
-/* Rings */
-#define ART_MAGIC                     8
-#define ART_BAST                      9
-#define ART_ELEMFIRE                       10
-#define ART_ELEMICE                       11
-#define ART_ELEMSTORM                       12
-#define ART_ONE_RING                       13
+/* Rings ART_MAGIC , ART_BAST ,  ART_ELEMFIRE , ART_ELEMICE , ART_ELEMSTORM , ART_ONE_RING*/
+#define ART_RING_GEORGE     8
+#define ART_RING_GABRIEL    9
+#define ART_RING_RAPHAEL    10
+#define ART_RING_MICHAEL    11
+#define ART_EMMANUEL        13
+#define ART_FIRST           14
+
+/*
+ART_KOBOLD -> ART_ALASTOR
+ART_WYVERNSCALE - > ART_WHIRLWIND
+ART_HEARTGUARD -> ART_SABNOCK
+ART_OGRELORDS -> ART_PRAVUIL
+ART_SERPENTS -> ART_SEIRIM
+ART_VAMPLORD ->  ART_ROBE_MICHAEL
+ART_ORCS -> VEPAR
+*/
+#define ART_SABNOCK         15
+#define ART_ALASTOR         16
+#define ART_WHIRLWIND       17
+#define ART_PRAVUIL         18
+#define ART_SEIRIM          21
+#define ART_ROBE_MICHAEL    22
+#define ART_VEPAR           25
+
+/* ART_SOULKEEPER - > ART_GAEP , ART_ZIMINAR , ART_CORSON , ART_AMAYMON */
+#define ART_GAEP            26
+#define ART_ZIMINAR         27
+#define ART_CORSON          28
+#define ART_AMAYMON         29
 
 /* Dragon Scale */
-#define ART_RAZORBACK           16
-#define ART_BLADETURNER         17
+/* ART_RAZORBACK - > ART_BAPHOMET + ART_ASMODAI */
+#define ART_BAPHOMET        30
+#define ART_ASMODAI         31
 
-/* Hard Armour */
-#define ART_SOULKEEPER          19
-#define ART_GODS                     20
-#define ART_SERPENTS            21
-#define ART_VAMPLORD          22
-#define ART_ORCS                   23
-#define ART_HEARTGUARD          24
-#define ART_OGRELORDS           25
+/* ART_BLADETURNER -> ART_SAMAEL + ART_ABADDON + ART_BLOOD_MICHAEL */
 
-/* Soft Armour */
-#define ART_KOBOLD           27
-#define ART_WYVERNSCALE         28
+#define ART_SAMAEL          32
+#define ART_ABADDON         33
+#define ART_BLOOD_MICHAEL   34
+
+/*#define ART_GODS                20 -> Has become Halphas and Naberius */
 
 /* Shields */
-#define ART_VITRIOL                      30
-#define ART_RAWHIDE            31
-#define ART_STABILITY                   32
+#define ART_SHIELD_MICHAEL  35
+#define ART_SHIELD_ELEMENTS 36
+#define ART_SHIELD_AGES     37
 
-/* Helms and Crowns */
-#define ART_UNIVERSE                     34
-#define ART_MISERY           35
-#define ART_MINDCRAFTER           36
-#define ART_HOLINESS                     37
-#define ART_HAMMERHAND          38
-#define ART_POWER                         39
-#define ART_SKULLKEEPER          40
-#define ART_MASK                      41
-#define ART_SUN                      42
+/* Helms and Crowns 
+ART_UNIVERSE -> ART_SEVENTH
+ART_MISERY -> ART_MISERY
+ART_MINDCRAFTER - > ART_SOLOMON
+ART_HOLINESS -> ART_AUGUSTIN
+ART_HAMMERHAND -> ART_GALLU
+ART_POWER -> ART_LAMMASU
+*/
 
-/* Cloaks */
-#define ART_JOSEPH                     44
-#define ART_DARKNESS          45
-#define ART_SWASHBUCKLER                     46
-#define ART_SHADE           47
-#define ART_SHIFTER            48
-#define ART_LIFE                     49
-#define ART_LUCIFUGE                        50
+#define ART_AUGUSTIN        38
+#define ART_SOLOMON         39
+#define ART_GALLU           40
+#define ART_MASK            41
+#define ART_SKULLKEEPER     42
+#define ART_MISERY          43
+#define ART_LAMMASU         44
+#define ART_SUN             45
+#define ART_SEVENTH         46
 
-/* Gloves */
-#define ART_CALFSKIN            52
-#define ART_LIGHT          53
-#define ART_IRONFIST            54
-#define ART_GHOULS          55
-#define ART_WHITESPARK           56
-#define ART_DEAD                     57
-#define ART_THANOS                     58
-#define ART_COMBAT           59
+/* Cloaks 
+ART_SHADE - > ART_SIMPLE
+ART_SWASHBUCKLER -> ART_BARD
+ART_DARKNESS -> ART_DRAEBOR
+*/
+#define ART_SHIFTER         47
+#define ART_SIMPLE          48
+#define ART_JOSEPH          49
+#define ART_DRAEBOR         50
+#define ART_BARD            51
+#define ART_LIFE            52
+#define ART_LUCIFUGE        53
+#define ART_FROSTPLAINS     53
 
-/* Boots */
-#define ART_TRAVEL                      60
-#define ART_DANCING                         61
-#define ART_BLACKREAVER                       62
+/* Gloves 
+ART_CALFSKIN -> ART_MALPHAS
+ART_WHITESPARK -> ART_FURFICER
+ART_COMBAT -> ART_GRIMREAPER
+*/
+#define ART_MALPHAS         55
+#define ART_LIGHT           56
+#define ART_IRONFIST        57
+#define ART_GHOULS          58
+#define ART_FURFICER        59
+#define ART_DEAD            60
+#define ART_THANOS          61
+#define ART_GRIMREAPER      62
 
-/* Swords */
-#define ART_DEFENCE            64
-#define ART_ASSASSIN                     65
-#define ART_FAITH            66
-#define ART_HOPE            67
-#define ART_CHARITY                     68
-#define ART_THOTH                       69
-#define ART_ICICLE            70
-#define ART_SELFSLAYER                      71
-#define ART_XUMU            72
-#define ART_BRIGHTBLADE           73
-#define ART_LIGHTNING                      74
-#define ART_BLACKICE                     75
-#define ART_DRAGONSLAYER            76
-#define ART_FIRETONGUE           77
-#define ART_TWILIGHT            78
-#define ART_BLACKBEARD           79
-#define ART_GENOCIDE          80
-#define ART_GROO            81
-#define ART_MICHAEL                      82
-#define ART_EVERFLAME                     83
-#define ART_THUNDERBOLT            84
-#define ART_DEMONBLADE                  85
-#define ART_MONTOYA            86
-#define ART_BLUEBEARD                      87
-#define ART_STING                       88
-#define ART_SOULSWORD          89
-#define ART_MERLIN            90
-#define ART_DOOMCALLER          91
-#define ART_VORPAL_BLADE        92
+/* Boots 
+ART_TRAVEL -> ART_BOOTS_GABRIEL , ART_BOOTS_FURCIFER
+*/
+#define ART_DANCING         63
+#define ART_BLACKREAVER     64
+#define ART_BOOTS_FURCIFER  65
+#define ART_BOOTS_GABRIEL   66          
 
+/* BLADES & Co
+ART_HOPE -> ART_COCYTUS
+ART_FAITH -> ART_DAGGER_INFERNO
+ART_CHARITY -> ART_DAGGER_FURCIFER
+ART_THOTH -> ART_KINSLAYER
+*/
+
+#define ART_COCYTUS         67
+#define ART_DAGGER_INFERNO  68
+#define ART_DAGGER_FURCIFER 69
+#define ART_KINSLAYER       70
+#define ART_FROST           71
+#define ART_VALEFAR         72
+#define ART_HOMER           73
+#define ART_BARBATOS        74
+#define ART_MERLIN          75
+#define ART_SOULSWORD       76
+#define ART_GUSION          77
+#define ART_SITRI           78
+#define ART_OROBAS          79
+#define ART_BRIGHTBLADE     80
+#define ART_BLACKICE        81
+#define ART_ANDROMALIUS     82
+#define ART_RASHAVERAK      83
+#define ART_SWORD_FURCIFER  86
+#define ART_MICHAEL         87
+#define ART_DRAGONSLAYER    91
+#define ART_FIRETONGUE      92
+#define ART_AZRAEL          94
+#define ART_DAWN            95
+#define ART_ASTAROTH        96
+ 
 /* Polearms */
-#define ART_THEODEN                     93
-#define ART_PAIN                        94
-#define ART_ARMOURBANE                     95
-#define ART_TEPES                         96
-#define ART_ODIN                      97
-#define ART_DESTINY                       98
-#define ART_HAGEN                     99
-#define ART_SKEWER           100
-#define ART_YEEKS                       101
-#define ART_TROLLS                       102
-#define ART_NKAI                       103
-#define ART_SPLEENSLICER           104
-#define ART_AXEDWARVES            105
-#define ART_NODENS         106
-#define ART_WRATH                       107
-#define ART_TRITONS                        108
-#define ART_AZRAEL                      109
 
-/* The sword of the Dawn */
-#define ART_DAWN                110
+#define ART_ODIN            98
+#define ART_DESTINY         99
+#define ART_ELIGOR          102
+#define ART_PHENEX          106
+#define ART_MORNINGSTAR     107
+#define ART_BELETH          108
+#define ART_TROLLS          113
+#define ART_RONOVE          115
+#define ART_TRITONS         117
+#define ART_HAMMER_AMAYMON  118
+#define ART_HAMMER_ABADDON  120
 
-/* Hafted */
-#define ART_WORLDS                       111
-#define ART_TOTILA                      112
-#define ART_THUNDERFIST         113
-#define ART_BLOODSPIKE          114
-#define ART_FIRESTAR            115
-#define ART_THUNDER                     116
-#define ART_MJOLLNIR                        117
-#define ART_FIRESTAFF                         118
-#define ART_ERIRIL                      119
-#define ART_ATAL                      120
-#define ART_DEATHWREAKER        121
-#define ART_JUSTICE                      122
+/* Quarterstafs staves stavens ? Grin ;) */
+
+#define ART_FIRESTAFF       121
+#define ART_ERIRIL          122
+#define ART_JUSTICE         123
+#define ART_ATAL            124
 
 /* Bows */
-#define ART_SURESHOT        124
-#define ART_BOWSERPENTS                        125
-#define ART_DEATH            126
 
-
+#define ART_BOWASSASSIN     126
+#define ART_SURESHOT        127
+#define ART_DEATH           128
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
-
 
 /* Nothing */
 /* xxx */
@@ -1065,16 +1093,18 @@ and tables.c --TY */
 #define EGO_SLAY_EVIL           81
 #define EGO_SLAY_UNDEAD         82
 #define EGO_SLAY_DEMON          83
-#define EGO_SLAY_ORC            84
-#define EGO_SLAY_TROLL          85
+#define EGO_SLAY_ANGEL          84
+#define EGO_KILL_ANGEL          85
 #define EGO_SLAY_GIANT          86
 #define EGO_SLAY_DRAGON         87
 #define EGO_KILL_ANIMAL         88
 #define EGO_KILL_EVIL           89
 #define EGO_KILL_UNDEAD         90
 #define EGO_KILL_DEMON          83
-#define EGO_KILL_ORC            84
-#define EGO_KILL_TROLL          85
+/* EGO_KILL_ORC */
+#define EGO_KILL_XANGEL         84 
+/* EGO_KILL_TROLL */
+#define EGO_KILL_SINNER         85
 #define EGO_KILL_GIANT          86
 #define EGO_KILL_DRAGON         95
 #define EGO_VAMPIRIC            96
@@ -1100,6 +1130,8 @@ and tables.c --TY */
 /* Ammo */
 #define EGO_HURT_ANIMAL         112
 #define EGO_HURT_EVIL           113
+#define EGO_HOLY_FLAME          114
+#define EGO_ANGEL_BANE          115
 /* xxx */
 /* xxx */
 /* xxx */
@@ -1382,7 +1414,7 @@ and tables.c --TY */
 #define SV_IRON_CROWN                   10
 #define SV_GOLDEN_CROWN                 11
 #define SV_JEWELED_CROWN                12
-#define SV_UNIVERSE                              50
+#define SV_SEVENTH                      50
 
 /* The "sval" codes for TV_BOOTS */
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS   2
@@ -1451,10 +1483,10 @@ and tables.c --TY */
 #define SV_AMULET_DOOM                  0
 #define SV_AMULET_TELEPORT              1
 #define SV_AMULET_ADORNMENT             2
-#define SV_AMULET_SLOW_DIGEST   3
-#define SV_AMULET_RESIST_ACID   4
+#define SV_AMULET_SLOW_DIGEST           3
+#define SV_AMULET_RESIST_ACID           4
 #define SV_AMULET_SEARCHING             5
-#define SV_AMULET_WISDOM                6
+#define SV_AMULET_BRILLIANCE            6
 #define SV_AMULET_CHARISMA              7
 #define SV_AMULET_THE_MAGI              8
 #define SV_AMLUET_REFLECTION            9
@@ -1476,12 +1508,12 @@ and tables.c --TY */
 #define SV_RING_FEATHER_FALL    7
 #define SV_RING_RESIST_FIRE             8
 #define SV_RING_RESIST_COLD             9
-#define SV_RING_SUSTAIN_STR             10
-#define SV_RING_SUSTAIN_INT             11
-#define SV_RING_SUSTAIN_WIS             12
+#define SV_RING_SUSTAIN_BODY            10
+#define SV_RING_SUSTAIN_MIND            11
+#define SV_RING_COMBAT_LUST             12
 #define SV_RING_SUSTAIN_DEX             13
 #define SV_RING_SUSTAIN_CON             14
-#define SV_RING_sustain_cha             15
+#define SV_RING_SUSTAIN_CHA             15
 #define SV_RING_PROTECTION              16
 #define SV_RING_ACID                    17
 #define SV_RING_FLAMES                  18
@@ -2027,9 +2059,7 @@ and tables.c --TY */
 #define SUMMON_YEEK				    50
 #define SUMMON_HUMAN			    51
 #define SUMMON_KOBOLD			    52
-
-
-
+#define SUMMON_SKULLS               53
 
 /*
 * Spell types used by project(), and related functions.
@@ -2243,8 +2273,8 @@ and tables.c --TY */
 #define TR1_SLAY_EVIL               0x00020000L
 #define TR1_SLAY_UNDEAD             0x00040000L
 #define TR1_SLAY_DEMON              0x00080000L
-#define TR1_SLAY_ORC                0x00100000L
-#define TR1_SLAY_TROLL              0x00200000L
+#define TR1_SLAY_ANGEL              0x00100000L
+#define TR1_KILL_ANGEL              0x00200000L
 #define TR1_SLAY_GIANT              0x00400000L
 #define TR1_SLAY_DRAGON             0x00800000L
 #define TR1_KILL_DRAGON             0x01000000L     /* Execute Dragon */
@@ -2621,6 +2651,38 @@ and tables.c --TY */
 #define RF6_S_FALLEN                0x40000000      /* Summon fallen angel */
 #define RF6_S_UNIQUE                0x80000000      /* Summon Unique Monster */
 
+#define RF7_ANNOYED                 0x00000001      /* Annoyed ? */
+#define RF7_NO_SPAWN                0x00000002      /* Can only be summoned */
+#define RF7_XXX3                    0x00000004      /* Heal self */
+#define RF7_XXX4                    0x00000008      /* Heal a lot (?) */
+#define RF7_XXX5                    0x00000010      /* Teleport Short */
+#define RF7_XXX6                    0x00000020      /* Teleport Long */
+#define RF7_XXX7                    0x00000040      /* Move to Player (?) */
+#define RF7_XXX8                    0x00000080      /* Move to Monster (?) */
+#define RF7_XXX9                    0x00000100      /* Move player to monster */
+#define RF7_XXX10                   0x00000200      /* Move player far away */
+#define RF7_XXX11                   0x00000400      /* Move player vertically */
+#define RF7_XXX12                   0x00000800      /* Move player (?) */
+#define RF7_XXX13                   0x00001000      /* Create Darkness */
+#define RF7_XXX14                   0x00002000      /* Create Traps */
+#define RF7_XXX15                   0x00004000      /* Cause amnesia */
+#define RF7_XXX16                   0x00008000      /* ??? */
+#define RF7_XXX17                   0x00010000      /* Summon "kin" */
+#define RF7_XXX18                   0x00020000      /* Summon Black Reavers! */
+#define RF7_XXX19                   0x00040000      /* Summon Monster */
+#define RF7_XXX20                   0x00080000      /* Summon Monsters */
+#define RF7_XXX21                   0x00100000      /* Summon Ants */
+#define RF7_XXX22                   0x00200000      /* Summon Spiders */
+#define RF7_XXX23                   0x00400000      /* Summon Hounds */
+#define RF7_XXX24                   0x00800000      /* Summon Hydras */
+#define RF7_XXX25                   0x01000000      /* Summon devil */
+#define RF7_XXX26                   0x02000000      /* Summon Demon */
+#define RF7_XXX27                   0x04000000      /* Summon Undead */
+#define RF7_XXX28                   0x08000000      /* Summon Dragon */
+#define RF7_XXX29                   0x10000000      /* Summon Greater Undead */
+#define RF7_XXX30                   0x20000000      /* Summon Ancient Dragon */
+#define RF7_XXX31                   0x40000000      /* Summon fallen angel */
+#define RF7_XXX32                   0x80000000      /* Summon Unique Monster */
 
 
 /*
@@ -2738,10 +2800,17 @@ and tables.c --TY */
 
 /*
 * Determines if a map location is on or inside the outer walls
+* THIS ONE IS FOR SIGNED, if you update this, update in_bounds2 as well
 */
 #define in_bounds2(Y,X) \
 	(((Y) >= 0) && ((X) >= 0) && ((Y) < cur_hgt) && ((X) < cur_wid))
 
+/*
+ * Determines if a map location is on or inside the outer walls
+ * THIS ONE IS FOR UNSIGNED, if you update this, update in_bounds2 as well
+ */
+#define in_bounds2_unsigned(Y,X) \
+(((Y) < cur_hgt) && ((X) < cur_wid))
 
 /*
 * Determines if a map location is currently "on screen" -RAK-
@@ -2973,6 +3042,15 @@ extern int PlayerUID;
 # undef MESSAGE_BUF
 # define MESSAGE_BUF    4096
 #endif
+
+/*
+ * Available graphic modes
+ */
+#define GRAPHICS_NONE           0
+#define GRAPHICS_ORIGINAL       1
+#define GRAPHICS_ADAM_BOLT      2
+#define GRAPHICS_DAVID_GERVAIS  3
+#define GRAPHICS_PSEUDO         4
 
 /*
 * Return the "attr" for a given item.

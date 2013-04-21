@@ -125,6 +125,7 @@ static void roff_aux(int r_idx)
 	u32b		flags4;
 	u32b		flags5;
 	u32b		flags6;
+	u32b		flags7;	
 
 	int			vn = 0;
 	cptr		vp[64];
@@ -186,6 +187,7 @@ static void roff_aux(int r_idx)
 		r_ptr->r_flags4 = r_ptr->flags4;
 		r_ptr->r_flags5 = r_ptr->flags5;
 		r_ptr->r_flags6 = r_ptr->flags6;
+		r_ptr->r_flags7 = r_ptr->flags7;		
 	}
 
 
@@ -201,13 +203,14 @@ static void roff_aux(int r_idx)
 	flags4 = (r_ptr->flags4 & r_ptr->r_flags4);
 	flags5 = (r_ptr->flags5 & r_ptr->r_flags5);
 	flags6 = (r_ptr->flags6 & r_ptr->r_flags6);
-
+	flags7 = (r_ptr->flags7 & r_ptr->r_flags7);
 
 	/* Assume some "obvious" flags */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) flags1 |= (RF1_UNIQUE);
 	if ((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD)) flags1 |= (RF1_GUARDIAN);
 	if (r_ptr->flags1 & (RF1_MALE)) flags1 |= (RF1_MALE);
 	if (r_ptr->flags1 & (RF1_FEMALE)) flags1 |= (RF1_FEMALE);
+    if (r_ptr->flags7 & (RF7_ANNOYED)) flags7 |= (RF7_ANNOYED);
 
 	/* Assume some "creation" flags */
 	if (r_ptr->flags1 & (RF1_FRIEND)) flags1 |= (RF1_FRIEND);
@@ -1307,7 +1310,7 @@ static void roff_aux(int r_idx)
 	if (r)
 	{
 		/* Now mention attack speed */
-		switch (r) // Use correct grammar
+		switch (r) /* Use correct grammar */
 		{
 		case 1:
 			{
@@ -1374,7 +1377,11 @@ static void roff_aux(int r_idx)
 		roff("You feel an intense desire to kill this monster...  ");
 	}
 
-
+	if (flags7 & (RF7_ANNOYED))
+	{
+		c_roff(TERM_RED, format("%^s considers you an annoyance.", wd_he[msex]));
+	}
+	
 	/* All done */
 	roff("\n");
 

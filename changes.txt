@@ -1,0 +1,96 @@
+Renamed most of all townspeople
+	- Beware of the ex leper, he now has 4 constitution draining attacks
+	- Beware of the bulldog, he's a lot meaner now
+	- No more friends
+	- No more worshipping friends that run in your way
+	- No more friends tout court
+
+Changed some features
+	- Red stairways are so much cooler
+	- Yellow walls give more an impression of heat
+
+Dungeon generator
+    - Have added protected zones for the city of Dis ( level 6 to 27 )
+    - Protected zones have no vaults or destroyed levels
+    - Each level has creatures unique to it ( This can cause minor slowdown I find )
+    - Level 26 has Satan, do not bother him, or in other words do no let him kill you
+    - Levels after 26 have no creatures of before level 26
+    - Removed out of theme monster pits
+
+Creatures
+    - Most creatures have been deleted, only modded creatures are mentioned
+	- Rat King has moved to third floor, can summon now more mice/rats
+	- Grip & co have become red hellhounds
+	- Had all nagas renamed to succubi
+	- Disembodied hand is no longer a unique ;)
+	- Some more shriekers to stir things up, everybody likes Discord
+	- Coins have friends, good for money gathering, bad for equipment ;)
+	- Added most Julian Lightion higher demons
+	- Added ANNOYED monster flag, do not even think of attacking monsters with this flag, these monsters cannot be used for quests
+	- Added NO_SPAWN monster flag, these monsters cannot be generated ( they can be summoned though, grin grin grin grin grin )
+	- UNIQUE flag now implies MAX_HP at the code level
+	- ESCORTS flag now implies ESCORT at the code level
+	- DROP_GREAT flag now implies DROP_GOOD at the code level
+    
+Flavours
+	- Changed most ring flavours and quite a bit of staf flavors.
+	- Changed most wand flavours
+	- Changed all store owners, who will notice ;)
+	- Inns do not show owner name
+	
+Story
+	- Intro story added
+	- Level 1 story added
+	- Level 2 story added	
+	
+Equipment
+        - Removed slay Troll and Slay orc, added slay angel and **Slay angel**
+	- Sword of St Michael executes Angels ( almost only way to kill Lucifer right now ;(
+	- Re-organized almost all artefacts , removed _all_ tolkien ones
+	- All initial gauntlets are now interesting ;)
+	- All initial daggers are now interesting ;)
+	- Some stupid sustain rings/amulets are now less stupid
+	- Some berserking jewelry
+	- Add golden corselets for the Golden Corselet of the Mistress of the Waters
+	- Highly improved the artefact bows/crossbows
+	- Added more flavours for the missiles ( holy fire, hunt demon )
+	- Added more basic types of missiles ( seeker versions )
+	- Changed many artefact activations, some are now quite interesting
+	- Added artefact angelic robes
+	- Added !xxxx for artefact names, this will takes as the name whatever comes after !, ignoring base name
+	- 	
+	
+Character Building
+	- Player leveling causes a complete heal and restoration.
+
+Start Up
+        - Created color intro screen
+	- Players start with a scroll of recal
+	- High mages start with 2 spell books
+
+Wizard Commands
+	- 'A' , get ArchAngel Michaels' equipment
+	- 'S' , get usefull supplies
+
+UI
+        - Study indicator now only appears in town, it really only is usefull there
+	- Longer dungeon names are now possible ( up to 18 characters , starting where study used to start )
+	- Old study position has been shifted to the left 2 positions
+
+Artefacts :
+Changed most of them, made sure that worhtless artefacts are not stomped
+
+-TODO : 
+Players should start with
+  -Brass Lantern
+  -3 oil stuffs
+Fallen Angels should not get upset inside Inferno  
+Level 5 should have Minos' palace placed, with the only exit that points downstairs
+covering all other downstairs conveniently with rubble 
+
+-DONE:
+	
+code changes : for testing purposes, since there is no more flagging code for wizards,
+there can be either only all wizards or no wizards, right now every player is a wizard 
+until this game is released. So to all that want to wizard around, check file birth.c
+and set 	debug_mode = TRUE;	

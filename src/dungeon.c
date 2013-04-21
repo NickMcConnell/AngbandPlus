@@ -271,7 +271,7 @@ static void sense_inventory(void)
 				okay = TRUE;
 				break;
 			}
-		case TV_LITE: // Only orbs
+		case TV_LITE: /* Only orbs */
 			{
 				if(o_ptr->sval == SV_LITE_ORB)
 				{
@@ -851,6 +851,18 @@ static void process_world(void)
 				acquirement(py,px,randint(2)+1,FALSE);
 				break;
 			}
+		case 110: /* April 20 */
+		{
+			msg_print("Happy Konijn Day!");
+			acquirement(py,px,randint(2)+1,FALSE);
+			break;
+		}			
+		case 152: /* Dante's birthday 1 july*/
+		{
+			msg_print("When Dis celebrates, the devils come out to play...");
+			summon_specific(py,px,dun_level,SUMMON_DEVIL);
+			break;
+		}						
 		case 303: /* November 1st (Night of October 31st) */
 			{
 				msg_print("All Hallows Eve and the ghouls come out to play...");
@@ -1514,18 +1526,6 @@ static void process_world(void)
 			check_experience();
 		}
 	}
-
-	/* Rarely, take damage from the Jewel of Judgement */
-	if ((randint(999)==1) && !(p_ptr->anti_magic))
-	{
-		if ((inventory[INVEN_LITE].tval) && !(p_ptr->invuln)
-			&& (inventory[INVEN_LITE].sval == SV_LITE_INSIGHT))
-		{
-			msg_print("The Jewel of Judgement drains life from you!");
-			take_hit(MIN(p_ptr->lev, 50), "the Jewel of Judgement");
-		}
-	}
-
 
 	/* Process equipment */
 	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2205,7 +2205,7 @@ extern void do_cmd_borg(void);
 static void process_command(void)
 {
 
-	char error_m[80];
+	/* char error_m[80]; */
 
 #ifdef ALLOW_REPEAT /* TNB */
 
@@ -2945,7 +2945,9 @@ static void process_command(void)
 		/* Load "screen dump" */
 	case '(':
 		{
-			do_cmd_load_screen();
+			do_cmd_load_screen( ANGBAND_DIR_PREF ,  "dump.txt" );
+			(void)msg_flush_wait();
+			(void)restore_screen();
 			break;
 		}
 
@@ -3489,7 +3491,10 @@ static void dungeon(void)
 	/* Notice a Quest Level */
 	if (is_quest(dun_level)) quest_discovery();
 
-	if (dun_bias) show_dun_bias();
+	if (dun_bias)
+	{
+		show_dun_bias();
+	}
 
 	/*** Process this dungeon level ***/
 
@@ -3667,7 +3672,8 @@ static void load_all_pref_files(void)
 */
 void play_game(bool new_game)
 {
-	int i,j,x,y;
+	/*,j,x,y; removed for some compiler warning */
+	int i; 
 
 	hack_corruption = FALSE;
 
@@ -3799,6 +3805,18 @@ void play_game(bool new_game)
 		{
 			turn=1;
 		}
+		
+		/* You have received a letter */
+		msg_print("You have a received a letter.");
+		msg_print(NULL);
+		/* Show the letter */
+		do_cmd_load_screen( ANGBAND_DIR_FILE ,  "LEVEL0.TXT" );
+		/*void restore_screen( void )*/
+		(void)msg_flush_wait();
+		msg_print("You travel to Volterra in Italy.");
+		msg_print(NULL);
+		msg_print("You mutter 'Lasciate ogne esperanza, voi chi intrate'");
+		msg_print(NULL);		
 	}
 
 

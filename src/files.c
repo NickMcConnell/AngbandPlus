@@ -2613,7 +2613,7 @@ errr file_character(cptr name, bool full)
 
 	FILE		*fff = NULL;
 
-	store_type		*st_ptr = &store[7];
+	/*store_type		*st_ptr = &store[7];*/ /*Unused*/
 
 	char		o_name[80];
 
@@ -3842,11 +3842,11 @@ static void print_tomb(void)
 */
 static void show_info(void)
 {
-	int			i, j, k;
+	int			i;/*, j, k;*/
 
 	object_type		*o_ptr;
 
-	store_type		*st_ptr = &store[7];
+	/*store_type		*st_ptr = &store[7]; */
 
 
 	/* Hack -- Know everything in the inven/equip */
@@ -4348,7 +4348,7 @@ void show_highclass(int pclass,int psubclasscode)
 	/* Now, list the active player if they qualify */
 	if ((p_ptr->pclass+100*p_ptr->realm1) == (pclass+100*psubclasscode))
 	{
-		sprintf(out_val, "You) %s the level %d %s (Score %d)",
+		sprintf(out_val, "You) %s the level %d %s (Score %ld)",
 			player_name,p_ptr->lev,
 			race_info[p_ptr->prace].title, total_points());
 		prt(out_val, (m + 8), 0);
@@ -4423,7 +4423,7 @@ void race_score(int race_num)
 	/* add player if qualified */
 	if (p_ptr->prace == race_num)
 	{
-		sprintf(out_val, "You) %s, the level %d %s (Score %d)",
+		sprintf(out_val, "You) %s, the level %d %s (Score %ld)",
 			player_name, p_ptr->lev,
 			class_sub_name[p_ptr->pclass][p_ptr->realm1],total_points());
 		prt(out_val, (m + 8), 0);
@@ -4446,7 +4446,7 @@ void race_score(int race_num)
 */
 static errr top_twenty(void)
 {
-	int          i,j,best;
+	int          j,best;
 
 	high_score   the_score;
 
@@ -4519,8 +4519,9 @@ static errr top_twenty(void)
 	/* Save the date in a hacked up form (9 chars) */
 	sprintf(the_score.day, "%-.6s %-.2s", ctime(&ct) + 4, ctime(&ct) + 22);
 #else
-	/* Save the date in standard form (8 chars) */
-	strftime(the_score.day, 9, "%m/%d/%y", localtime(&ct));
+	/* Save the date in standard form (10 chars) */
+	/* This could hurt somewhere , I do not know when this routine is called */
+    strftime(the_score.day, 9, "%m/%d/%Y", localtime(&ct));
 #endif
 
 	/* Save the player name (15 chars) */
@@ -4580,7 +4581,7 @@ static errr top_twenty(void)
 */
 static errr predict_score(void)
 {
-	int          i,j,best;
+	int          j,best;
 
 	high_score   the_score;
 
@@ -4667,12 +4668,14 @@ static errr predict_score(void)
 */
 static void kingly(void)
 {
+/*	
 	cptr	p;
-
 	char	tmp[160];
-
-	char	buf[1024];
 	char    dummy[80];
+*/	
+	
+	char	buf[1024];
+
 
 	FILE        *fp;
 

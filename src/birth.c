@@ -886,10 +886,10 @@ static bool point_mod_player(void)
 	char b2 = ']';
 	char stat;
 	char modpts[4] = "none";
-	char *buf = "zero";
-	int tmp = 0;
-	int hp = 0;
-	int addhp = 0; 
+	/*char *buf = "zero";*/
+	/*int tmp = 0;*/
+	/*int hp = 0;*/
+	/*int addhp = 0; */
 	int x = 0;
 	int i, points;
 
@@ -2086,7 +2086,7 @@ void initialise_quests()
 	j=0;
 	for(i=0;i<MAX_R_IDX;i++)
 	{
-		if (r_info[i].flags1 & (RF1_ALWAYS_GUARD)) // It's a quest monster
+		if (r_info[i].flags1 & (RF1_ALWAYS_GUARD)) /* It's a quest monster */
 		{
 			q_list[j].level=r_info[i].level;
 			q_list[j].r_idx=i;
@@ -2196,7 +2196,7 @@ static void player_wipe(void)
 
 
 	/* Start with no quests */
-	initialise_quests(); /* DEAN */
+	/*initialise_quests();  DEAN */ 
 
 	/* Reset the "objects" */
 	for (i = 1; i < MAX_K_IDX; i++)
@@ -2250,7 +2250,7 @@ static void player_wipe(void)
 	debug_live = FALSE;
 	debug_wild = FALSE;
 	debug_mode = FALSE;
-
+	
 	/* Assume no winning game */
 	total_winner = FALSE;
 
@@ -2345,21 +2345,21 @@ static byte player_init[MAX_CLASS][3][2] =
 		{
 			/* High Mage */
 			{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-			{ TV_SWORD, SV_DAGGER },
-			{ TV_RING, SV_RING_SUSTAIN_INT}
+			{ TV_SORCERY_BOOK, 1 }, /* Hack^2 : for realm1 book, 2nd edition */
+			{ TV_SWORD, SV_DAGGER }, 		
 		},
 
 		{
 			/* Druid */
 			{TV_SORCERY_BOOK,0}, /* Hack: for realm1 book */
 			{ TV_HAFTED, SV_QUARTERSTAFF },
-			{TV_RING,SV_RING_SUSTAIN_WIS},
+			{TV_AMULET,SV_AMULET_BRILLIANCE},
 		},
 
 		{
 			/* Demonologist */
 			{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-			{ TV_RING, SV_RING_SUSTAIN_INT },
+			{ TV_RING, SV_RING_SUSTAIN_MIND },
 			{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
 		},
 
@@ -2379,6 +2379,17 @@ static void player_outfit(void)
 	object_type	forge;
 	object_type	*q_ptr;
 
+	/* A scroll of Recall for all */
+	/* Get local object */
+	q_ptr = &forge;
+	/* Hack -- Give the player scrolls of light */
+	object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL));
+	q_ptr->number = (char)rand_range(1,1);
+	object_aware(q_ptr);
+	object_known(q_ptr);
+	/* These objects are "storebought" */
+	q_ptr->ident |= IDENT_STOREB;
+	(void)inven_carry(q_ptr, FALSE);
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -2463,14 +2474,19 @@ static void player_outfit(void)
 		tv = player_init[p_ptr->pclass][i][0];
 		sv = player_init[p_ptr->pclass][i][1];
 
-		/* Hack to initialize spellbooks */
+		/* Hack to initialize spellbooks 
+           Note that the two TV's point to first and second realm
+		   Except for high mages for which first and second book are given
+		   This hack is actually not even needed, but is small and might
+		   be useful later	
+		*/
 		if (tv  == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
-		else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
+		else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + ( p_ptr->pclass==CLASS_HIGH_MAGE?p_ptr->realm1:p_ptr->realm2 ) - 1;
 
 		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
 			p_ptr->prace == RACE_BARBARIAN)
 			/* Barbarians do not need a ring of resist fear */
-			sv = SV_RING_SUSTAIN_STR;
+			sv = SV_RING_SUSTAIN_BODY;
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -2510,7 +2526,7 @@ void player_birth_quests(void)
 		if(q_list[j].r_idx == 0) break;
 		j++;
 	} while (j < MAX_QUESTS);
-	if(j >= MAX_QUESTS) return; // No room for random quests
+	if(j >= MAX_QUESTS) return; /* No room for random quests */
 	for (i=j; i<MAX_Q_IDX; i++)
 	{
 		do
@@ -2698,8 +2714,14 @@ static bool player_birth_aux()
 
 		/* Generate quests */
 		/* Set max number of quest */
-		MAX_Q_IDX =randint(20)+10;
-		player_birth_quests();
+		/*MAX_Q_IDX =randint(20)+10; 
+		if ( MAX_Q_IDX > MAX_QUESTS ){
+			
+		}
+		*/
+		MAX_Q_IDX = MAX_QUESTS;
+		initialise_quests();
+		/*player_birth_quests();*/
 
 #ifdef ALLOW_AUTOROLLER
 		/* Set "autoroll" */
@@ -3352,8 +3374,10 @@ static bool player_birth_aux()
 
 		/* Generate quests */
 		/* Set max number of quest */
-		MAX_Q_IDX =randint(20)+10;
-		player_birth_quests();
+		/*MAX_Q_IDX =randint(20)+10;*/
+		MAX_Q_IDX = MAX_QUESTS;
+		/*player_birth_quests();*/
+        initialise_quests();
 
 #ifdef ALLOW_AUTOROLLER
 
@@ -3424,7 +3448,7 @@ static bool player_birth_aux()
 				/* Get a minimum stat */
 				while (TRUE)
 				{
-					char *s;
+					/* char *s; */
 
 					/* Move the cursor */
 					put_str("", 16 + i, 30);

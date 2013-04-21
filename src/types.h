@@ -341,6 +341,7 @@ struct monster_race
 	u32b flags4;			/* Flags 4 (inate/breath) */
 	u32b flags5;			/* Flags 5 (normal spells) */
 	u32b flags6;			/* Flags 6 (special spells) */
+	u32b flags7;            /* Flags 7 (Inferno specific)  */
 
 	monster_blow blow[4];	/* Up to four blows per round */
 
@@ -389,6 +390,9 @@ struct monster_race
 	u32b r_flags4;			/* Observed racial flags */
 	u32b r_flags5;			/* Observed racial flags */
 	u32b r_flags6;			/* Observed racial flags */
+	u32b r_flags7;			/* Observed racial flags */	
+	
+	int  r_escort;          /* *** Inferno : what specific escort is defined ? *** */
 };
 
 
@@ -681,7 +685,7 @@ typedef struct quest quest;
 
 struct quest
 {
-	int level;		/* Dungeon level */
+	unsigned int level;		/* Dungeon level */
 	int r_idx;		/* Monster race */
 
 	int cur_num;	/* Number killed */
@@ -950,6 +954,7 @@ struct player_type
 
 	s16b max_plv;		/* Max Player Level */
 	s16b max_dun_level; /* Deepest dungeon level explored */
+	u32b visits;        /* Levels visited by taking the stairs */	
 
 	s16b stat_max[6];	/* Current "maximal" stat values */
 	s16b stat_cur[6];	/* Current "natural" stat values */
@@ -1131,6 +1136,8 @@ struct player_type
 	byte tval_ammo;		/* Correct ammo tval */
 
 	s16b pspeed;		/* Current speed */
+	
+
 };
 
 

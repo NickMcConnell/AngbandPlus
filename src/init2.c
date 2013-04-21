@@ -502,11 +502,11 @@ static errr init_f_info(void)
 	/*** Kill the fake arrays ***/
 
 	/* Free the "f_info" array */
-	C_KILL(f_info, f_head->info_num, feature_type);
+	KILL(f_info);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(f_name, fake_name_size, char);
-	C_KILL(f_text, fake_text_size, char);
+	KILL(f_name);
+	KILL(f_text);
 
 	/* Forget the array sizes */
 	fake_name_size = 0;
@@ -760,11 +760,11 @@ static errr init_k_info(void)
 	/*** Kill the fake arrays ***/
 
 	/* Free the "k_info" array */
-	C_KILL(k_info, k_head->info_num, object_kind);
+	KILL(k_info);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(k_name, fake_name_size, char);
-	C_KILL(k_text, fake_text_size, char);
+	KILL(k_name);
+	KILL(k_text);
 
 	/* Forget the array sizes */
 	fake_name_size = 0;
@@ -1018,11 +1018,11 @@ static errr init_a_info(void)
 	/*** Kill the fake arrays ***/
 
 	/* Free the "a_info" array */
-	C_KILL(a_info, a_head->info_num, artefact_type);
+	KILL(a_info);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(a_name, fake_name_size, char);
-	C_KILL(a_text, fake_text_size, char);
+	KILL(a_name);
+	KILL(a_text);
 
 	/* Forget the array sizes */
 	fake_name_size = 0;
@@ -1276,11 +1276,11 @@ static errr init_e_info(void)
 	/*** Kill the fake arrays ***/
 
 	/* Free the "e_info" array */
-	C_KILL(e_info, e_head->info_num, ego_item_type);
+	KILL(e_info);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(e_name, fake_name_size, char);
-	C_KILL(e_text, fake_text_size, char);
+	KILL(e_name);
+	KILL(e_text);
 
 	/* Forget the array sizes */
 	fake_name_size = 0;
@@ -1451,7 +1451,7 @@ static errr init_r_info(void)
 
 	/* Assume the size of "r_name" and "r_text" */
 	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
+	fake_text_size = 90 * 1024L;
 
 	/* Allocate the "r_info" array */
 	C_MAKE(r_info, r_head->info_num, monster_race);
@@ -1534,11 +1534,11 @@ static errr init_r_info(void)
 	/*** Kill the fake arrays ***/
 
 	/* Free the "r_info" array */
-	C_KILL(r_info, r_head->info_num, monster_race);
+	KILL(r_info);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(r_name, fake_name_size, char);
-	C_KILL(r_text, fake_text_size, char);
+	KILL(r_name);
+	KILL(r_text);
 
 	/* Forget the array sizes */
 	fake_name_size = 0;
@@ -1791,11 +1791,11 @@ static errr init_v_info(void)
 	/*** Kill the fake arrays ***/
 
 	/* Free the "v_info" array */
-	C_KILL(v_info, v_head->info_num, vault_type);
+	KILL(v_info);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(v_name, fake_name_size, char);
-	C_KILL(v_text, fake_text_size, char);
+	KILL(v_name);
+	KILL(v_text);
 
 	/* Forget the array sizes */
 	fake_name_size = 0;
@@ -2964,7 +2964,7 @@ void init_angband(void)
 
 	int mode = 0644;
 
-	FILE *fp;
+	/*FILE *fp; No longer used */
 
 	char buf[1024];
 
@@ -2993,35 +2993,14 @@ void init_angband(void)
 	(void)fd_close(fd);
 
 
-	/*** Display the "news" file ***/
-
-	/* Clear screen */
-	Term_clear();
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
-
-	/* Open the News file */
-	fp = my_fopen(buf, "r");
-
-	/* Dump */
-	if (fp)
-	{
-		int i = 0;
-
-		/* Dump the file to the screen */
-		while (0 == my_fgets(fp, buf, 1024))
-		{
-			/* Display and advance */
-			Term_putstr(0, i++, -1, TERM_WHITE, buf);
-		}
-
-		/* Close */
-		my_fclose(fp);
-	}
+	/* Aw screw it,  everybody loves colour ;) */
+	use_colour = 1;
+    do_cmd_load_screen( ANGBAND_DIR_FILE ,  "NEWS_COLOR.TXT" );
+	/*void restore_screen( void )*/
+	/*(void)msg_flush_wait();*/
 
 	/* Flush it */
-	Term_fresh();
+	/*Term_fresh();*/
 
 
 	/*** Verify (or create) the "high score" file ***/
@@ -3099,7 +3078,7 @@ void init_angband(void)
 	note("[Initializing user pref files...]");
 
 	/* build a name for the basic 'help' index */
-	sprintf(syshelpfile,"help-%s.txt",ANGBAND_SYS);
+	sprintf(syshelpfile,"help-%s.txt", "win");
 
 	/* Access the "basic" pref file */
 	strcpy(buf, "pref.prf");

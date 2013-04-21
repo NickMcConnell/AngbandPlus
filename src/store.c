@@ -247,7 +247,7 @@ bool free_homes(void)
 */
 static void say_comment_1(void)
 {
-	char rumour[80];
+	/*char rumour[80];  */
 	msg_print(comment_1[rand_int(MAX_COMMENT_1)]);
 }
 
@@ -1828,8 +1828,12 @@ static void display_store(void)
 		cptr owner_name = (ot_ptr->owner_name);
 		cptr race_name = race_info[ot_ptr->owner_race].title;
 
-		/* Put the owner name and race */
-		sprintf(buf, "%s (%s)", owner_name, race_name);
+		/* Put the owner name and race for all except Inn, where only owner_name is shown*/
+		if( cur_store_num != STORE_INN ){
+		  sprintf(buf, "%s (%s)", owner_name, race_name);
+		}else{
+		  sprintf(buf, "%s", owner_name );	
+		}	
 		put_str(buf, 3, 10);
 
 		/* Show the max price in the store (above prices) */
@@ -3099,6 +3103,12 @@ static void store_sell(void)
 
 	/* Modify quantity */
 	q_ptr->number = amt;
+	
+	/* Modify charges for wands */
+	if(o_ptr->tval==TV_WAND)
+	{
+		q_ptr->pval = o_ptr->pval / o_ptr->number * amt;
+	}	
 
 	/* Get a full description */
 	object_desc(o_name, q_ptr, TRUE, 3);
@@ -3171,6 +3181,12 @@ static void store_sell(void)
 
 			/* Modify quantity */
 			q_ptr->number = amt;
+			
+			/* Modify charges for wands */
+			if(o_ptr->tval==TV_WAND)
+			{
+				q_ptr->pval = o_ptr->pval / o_ptr->number * amt;
+			}	
 
 			/* Get the "actual" value */
 			if (cur_store_num == STORE_PAWN)
@@ -3945,7 +3961,9 @@ static void store_process_command(void)
 		/* Load "screen dump" */
 	case '(':
 		{
-			do_cmd_load_screen();
+			do_cmd_load_screen( ANGBAND_DIR_PREF ,  "dump.txt" );
+			(void)msg_flush_wait();
+			(void)restore_screen();
 			break;
 		}
 

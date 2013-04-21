@@ -1,0 +1,192 @@
+# File: makefile
+# Purpose: makefile suitable for compiling on unix, or cross-compiling
+# 
+# If you want to cross-compile, then use the FOREIGN variable when calling
+# make.  This makefile always keeps up-to-date with dependencies and even
+# the files in the project.
+#
+# (c) Andrew Sidwell, 2004 - 2005; public domain, or failing that, BSD.
+#
+
+# Executable name
+EXE_PROTO = hellband
+
+# angband objects (automatic)
+ANG_OBJS_PROTO_MAIN := $(patsubst %.c,%.o, $(wildcard mai*.c))
+ANG_OBJS_PROTO_GAME := $(patsubst %.c,%.o, $(filter-out $(wildcard mai*), $(wildcard *.c)))
+ANG_OBJS_PROTO := $(ANG_OBJS_PROTO_MAIN) $(ANG_OBJS_PROTO_GAME)
+
+ifeq ($(NATIVE),)
+  NATIVE := unix-gcc
+endif
+
+ifeq ($(NATIVE),unix-gcc)
+
+  # Rememeber to have the ncurses dev headers installed if you want to compile!
+
+  CC = ccache gcc
+  CFLAGS = -ggdb -DUSE_GCU -USE_NCURSES -DHAVE_MKSTEMP
+  LIBS = -lncurses
+
+endif
+
+ifeq ($(FOREIGN),)
+
+  F_CC = $(CC)
+  F_CFLAGS = $(CFLAGS)
+  F_LIBS = $(LIBS)
+
+endif
+
+ifeq ($(FOREIGN),win-mingw32)
+
+  F_CC := ccache i586-mingw32msvc-gcc
+  F_CFLAGS := -mno-cygwin -O2 -fno-strength-reduce -DWINDOWS -DCROSS_COMPILE
+  F_LIBS := -s -mno-cygwin -mwindows
+
+  F_OBJDIR = mingw32
+  F_EXE_EXT = .exe
+
+  WRES := i586-mingw32msvc-windres
+  WINDOWS := true
+
+endif
+
+ifeq ($(FOREIGN),win-mingw32-primitive)
+
+  F_CC := ccache i386-mingw32-gcc
+  F_CFLAGS := -mno-cygwin -O2 -fno-strength-reduce -DWINDOWS -DCROSS_COMPILE
+  F_LIBS := -s -mno-cygwin -mwindows
+
+  F_OBJDIR = mingw32
+  F_EXE_EXT = .exe
+
+  WRES := i386-mingw32-windres
+  WINDOWS := true
+
+endif
+
+
+ifeq ($(FOREIGN),ros-gcc)
+
+  GCCSDKBIN = /home/riscos/cross/bin
+
+  F_CC := $(GCCSDKBIN)/gcc -mlibscl
+  F_CFLAGS := -O2 -ansi -pedantic -mpoke-function-name
+  F_LIBS := $(DESKLIB_PATH)/../desklib.o
+
+  F_OBJDIR = aof
+  F_EXE_EXT = ,ff8
+
+endif
+
+ifeq ($(WARNINGS),all)
+
+  WARNING = -Wbad-function-cast -Wmissing-declarations -Wmissing-prototypes -Wnested-externs \
+    -Wold-style-definition -Wstrict-prototypes -Wtraditional -Wdeclaration-after-statement \
+    -Wno-pointer-sign -fsyntax-only -pedantic -w -Wextra -Wall -Waggregate-return -Wcast-align \
+    -Wcast-qual  -Wchar-subscripts  -Wcomment -Wconversion  -Wno-deprecated-declarations \
+    -Wno-div-by-zero -Wno-endif-labels -Werror-implicit-function-declaration -Wfloat-equal \
+    -Wformat=2 -Wno-format-extra-args -Wformat-nonliteral -Wformat-security -Wformat-y2k \
+    -Wimplicit -Wimplicit-function-declaration  -Wimplicit-int -Wimport -Wno-import \
+    -Winit-self -Winline -Winvalid-pch -Wlong-long \
+    -Wmain -Wmissing-braces -Wmissing-field-initializers -Wmissing-format-attribute \
+    -Wmissing-include-dirs -Wmissing-noreturn -Wno-multichar -Wnonnull -Wpacked -Wpadded \
+    -Wparentheses -Wpointer-arith -Wredundant-decls -Wreturn-type -Wsequence-point -Wshadow \
+    -Wsign-compare -Wstrict-aliasing=2 -Wswitch -Wswitch-default -Wswitch-enum -Wsystem-headers \
+    -Wtrigraphs -Wundef -Wuninitialized -Wunknown-pragmas -Wunreachable-code -Wunused \
+    -Wunused-function -Wunused-label -Wunused-parameter -Wunused-value -Wunused-variable \
+    -Wwrite-strings -Wvariadic-macros -std=iso9899:199409
+
+ # -pedantic-errors -Werror -Wfatal-errors
+
+else
+  WARNING = -pedantic -Wall -W -std=iso9899:199409
+endif
+
+# Add these warnings to the CFLAGS list
+CFLAGS += $(WARNING)
+
+
+ifdef F_OBJDIR
+
+  ANG_OBJS = $(patsubst %.o,$(F_OBJDIR)/%.o,$(ANG_OBJS_PROTO))
+  EXE = $(F_OBJDIR)/$(EXE_PROTO)$(F_EXE_EXT)
+
+else
+
+  ANG_OBJS = $(ANG_OBJS_PROTO)
+
+  EXE = $(EXE_PROTO)
+
+  F_CC = $(CC)
+  F_CFLAGS = $(CFLAGS)
+  F_LIBS = $(LIBS)  
+
+  F_OBJDIR = .
+
+endif
+
+
+# Generate dependency list
+DEPS := $(patsubst %.o,%.d,$(ANG_OBJS))
+
+# Windows hackery (must be after depgen)
+ifeq ($(WINDOWS),true)
+  ANG_OBJS += angband.res
+endif
+
+# Default target
+default: ../$(EXE)
+
+# Install rule (copy up)
+install: ../$(EXE)
+
+echo:
+	@(echo GAME_OBJS = $(ANG_OBJS_PROTO_GAME))
+	@(echo MAIN_OBJS = $(ANG_OBJS_PROTO_MAIN))
+
+make-obj-dirs:
+	mkdir -p lua/$(F_OBJDIR)/
+	mkdir -p $(F_OBJDIR)/
+
+# Output programs
+$(EXE): $(ANG_OBJS)
+	$(F_CC) $(F_CFLAGS) $(ANG_OBJS) $(F_LIBS) -o $(EXE)
+
+upx: $(EXE)
+	upx $(EXE)
+
+# All C files depend on their depfile
+%.c:%.d
+$(F_OBJDIR)/%.c:%.d
+
+# C files -> depfiles
+%.d:%.c
+	@echo -n Generating dependencies for $<...
+	@(echo -n $@\ $(dir $@); \
+	  $(CC) $(CFLAGS) -MM $< \
+	) > $@ || (rm -f $@ && exit 1)
+	@echo  done.
+
+
+# Include deps
+-include $(DEPS)
+
+../$(EXE): $(EXE)
+	cp $(EXE) ..
+
+%.o:%.c
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+$(F_OBJDIR)/%.o:%.c
+	$(F_CC) -c $(F_CFLAGS) -o $@ $<
+
+
+# Resource file (for cross-compiling to windows)
+angband.res: angband.rc
+	$(WRES) $< -O coff -o $@
+
+# Clean up old junk
+clean:
+	-rm -f $(EXE) lua/tolua *.d lua/*.d $(F_OBJDIR)/*.o lua/$(F_OBJDIR)/*.o

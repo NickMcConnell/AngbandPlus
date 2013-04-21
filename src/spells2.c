@@ -1576,13 +1576,13 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
 		}
-		if (f1 & (TR1_SLAY_ORC))
+		if (f1 & (TR1_SLAY_ANGEL))
 		{
-			info[i++] = "Your weapon is especially deadly against orcs.";
+			info[i++] = "Your weapon is especially deadly against fallen angels.";
 		}
-		if (f1 & (TR1_SLAY_TROLL))
+		if (f1 & (TR1_KILL_ANGEL))
 		{
-			info[i++] = "Your weapon is especially deadly against trolls.";
+			info[i++] = "Your weapon is a great bane of fallen angels";
 		}
 		if (f1 & (TR1_SLAY_GIANT))
 		{
@@ -2552,7 +2552,11 @@ bool item_tester_hook_armour(object_type *o_ptr)
 			return (TRUE);
 		}
 	}
-
+    if( o_ptr->to_a > 0 )
+	{
+			return (TRUE);	
+	}
+	
 	return (FALSE);
 }
 
@@ -3620,11 +3624,11 @@ void random_slay (object_type * o_ptr, bool is_scroll)
 				artefact_bias = BIAS_PRIESTLY;
 			break;
 		case 9: case 10:
-			o_ptr->art_flags1 |= TR1_SLAY_ORC;
+			o_ptr->art_flags1 |= TR1_SLAY_ANGEL;
 			/*  if (is_scroll) msg_print ("You hate orcs.");*/
 			break;
 		case 11: case 12:
-			o_ptr->art_flags1 |= TR1_SLAY_TROLL;
+			o_ptr->art_flags1 |= TR1_KILL_ANGEL;
 			/*  if (is_scroll) msg_print ("You hate trolls.");*/
 			break;
 		case 13: case 14:

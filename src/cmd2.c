@@ -251,10 +251,26 @@ void do_cmd_go_down(void)
 			{
 				/* Success */
 				/* Check for entering a dungeon */
-				if(dun_level==0)
+				if(dun_level==0 && (p_ptr->visits & (0x1<<dun_level)) == 0  )
 				{
-					msg_print("You enter a maze of down staircases.");
+					msg_print("You enter the sewers of Volterra.");
+					msg_print( NULL );
+					/* Show the appropriate file */
+					do_cmd_load_screen( ANGBAND_DIR_FILE ,  "LEVEL1.TXT" );
+					(void)msg_flush_wait();
+					(void)restore_screen();
+					p_ptr->visits |= (0x1<<dun_level) ;
 				}
+				if(dun_level==1 && (p_ptr->visits & (0x1<<dun_level)) == 0  )
+				{
+					msg_print("You descend into the lower levels of Hell");
+					msg_print( NULL );
+					/* Show the appropriate file */
+					do_cmd_load_screen( ANGBAND_DIR_FILE ,  "LEVEL2.TXT" );
+					(void)msg_flush_wait();
+					(void)restore_screen();
+					p_ptr->visits |= (0x1<<dun_level) ;
+				}				
 				/* Now actually go down */
 				if (autosave_l)
 				{
@@ -2747,6 +2763,12 @@ void do_cmd_throw(void)
 
 	/* Single object */
 	q_ptr->number = 1;
+	
+	/* Modify charges for wands */
+	if(o_ptr->tval==TV_WAND)
+	{
+		q_ptr->pval = o_ptr->pval / o_ptr->number; /* we only really throw 1 * q_ptr->number; */
+	}
 
 	/* Reduce and describe inventory */
 	if (item >= 0)

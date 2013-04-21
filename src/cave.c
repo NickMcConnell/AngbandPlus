@@ -1035,13 +1035,25 @@ void map_info(int y, int x, byte *ap, char *cp)
 				else
 					(*cp) = c;
 
-				/* Multi-hued attr */
-				if (r_ptr->flags2 & (RF2_ATTR_ANY))
-					(*ap) = randint(15);
-				else switch (randint(7))
-				{  case 1:
-				(*ap)=TERM_RED;
-				break;
+				/* Some serious magic that does not require any edit file magic  */
+				/* It is only documented here and in the changes, so one day you */
+				/* Might find this bit of code in utter frustration and mutter   */
+				/* evil curses in my general direction. Sorry. I hate increasing */
+				/* memory size all the time for adding extra flags               */
+				/* Anyway : if you need to have good old color changing, put the */
+				/* color of the baddie w ( white )                               */
+				/* If you want a logical cycling, you need to put the darkest    */
+				/* color in the G line                                           */
+				 
+				if ( r_ptr->x_attr == TERM_WHITE )
+				{
+					/* Multi-hued attr */
+					if (r_ptr->flags2 & (RF2_ATTR_ANY))
+						(*ap) = randint(15);
+					else switch (randint(7))
+					{  case 1:
+						(*ap)=TERM_RED;
+						break;
 					case 2:
 						(*ap)=TERM_L_RED;
 						break;
@@ -1060,7 +1072,52 @@ void map_info(int y, int x, byte *ap, char *cp)
 					case 7:
 						(*ap)=TERM_GREEN;
 						break;
+					}		
 				}
+				else
+				{  /* We are cycling between 2 colors, half of the time */
+				   /* Since I dont store the current state, I throw a   */
+				   /* die all the time */
+				    if( randint(2) == 1 )
+					{
+						(*ap) = r_ptr->x_attr;
+					}
+					else{
+						switch (r_ptr->x_attr)
+						{  
+						case TERM_RED:
+							(*ap)=TERM_L_RED;
+							break;
+						case TERM_ORANGE:
+							(*ap)=TERM_YELLOW;
+							break;
+						case TERM_VIOLET:
+							(*ap)=TERM_L_BLUE;
+							break;							
+						case TERM_YELLOW:
+							(*ap)=TERM_WHITE;
+							break;
+				    	case TERM_GREEN:
+							(*ap)=TERM_L_GREEN;
+							break;
+						case TERM_BLUE:
+							(*ap)=TERM_L_BLUE;
+							break;
+						case TERM_DARK:
+							(*ap)=TERM_L_DARK;
+							break;
+						case TERM_WHITE:
+							(*ap)=TERM_L_WHITE;
+							break;	
+						case TERM_UMBER:
+							(*ap)=TERM_L_UMBER;
+							break;						
+						default:
+							(*ap) = r_ptr->x_attr;
+						}
+					}
+				}
+				
 			}
 
 			/* Normal monster (not "clear" in any way) */
@@ -1306,23 +1363,11 @@ void lite_spot(int y, int x)
 	/* Redraw if on screen */
 	if (panel_contains(y, x))
 	{
-		byte a;
-		byte c;
+		byte a, ta;
+		char c, tc;
 
-#ifdef USE_TRANSPARENCY
-		byte ta;
-		char tc;
-#endif /* USE_TRANSPARENCY */
-
-		{
-#ifdef USE_TRANSPARENCY
-			/* Examine the grid */
-			map_info(y, x, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-			/* Examine the grid */
-			map_info(y, x, &a, &c);
-#endif /* USE_TRANSPARENCY */
-		}
+		/* Examine the grid */
+		map_info(y, x, &a, &c, &ta, &tc);
 
 		/* Hack -- fake monochrome */
 		if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
@@ -1330,13 +1375,8 @@ void lite_spot(int y, int x)
 		else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			&& (p_ptr->wraith_form && use_colour )) a = TERM_L_DARK;
 
-#ifdef USE_TRANSPARENCY
 		/* Hack -- Queue it */
 		Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc);
-#else /* USE_TRANSPARENCY */
-		/* Hack -- Queue it */
-		Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c);
-#endif /* USE_TRANSPARENCY */
 	}
 }
 
@@ -1354,7 +1394,7 @@ void prt_map(void)
 {
 	int x, y;
 
-	int v;
+	bool v;
 
 	/* Access the cursor state */
 	(void)Term_get_cursor(&v);
@@ -1371,7 +1411,6 @@ void prt_map(void)
 			byte a;
 			char c;
 
-#ifdef USE_TRANSPARENCY
 			byte ta;
 			char tc;
 
@@ -1386,19 +1425,6 @@ void prt_map(void)
 
 			/* Efficiency -- Redraw that grid of the map */
 			Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc);
-#else /* USE_TRANSPARENCY */
-			/* Determine what is there */
-			map_info(y, x, &a, &c);
-
-			/* Hack -- fake monochrome */
-			if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-				&& (p_ptr->invuln || !use_colour)) a = TERM_WHITE;
-			else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
-				&& (p_ptr->wraith_form && use_colour )) a = TERM_L_DARK;
-
-			/* Efficiency -- Redraw that grid of the map */
-			Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c);
-#endif /* USE_TRANSPARENCY */
 		}
 	}
 
@@ -3599,9 +3625,13 @@ bool is_quest(int level)
 {
 	int i;
 
-
 	/* Town is never a quest */
 	if (!level) return (FALSE);
+	
+	/* No quests in Dis */
+	if ( level > DIS_START && level < DIS_END ){
+      return (FALSE);
+	}
 
 	/* Check quests */
 	for (i = 0; i < MAX_Q_IDX; i++)

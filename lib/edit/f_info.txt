@@ -17,7 +17,7 @@
 
 # Version stamp (required)
 
-V:1.0.3
+V:0.8.1
 
 
 # 0x00 --> nothing
@@ -55,12 +55,12 @@ G:':U
 # 0x06 --> up stairs (perm)
 
 N:6:up staircase
-G:<:w
+G:<:r
 
 # 0x07 --> down stairs (perm)
 
 N:7:down staircase
-G:>:w
+G:>:r
 
 # 0x08 --> Path
 
@@ -324,7 +324,7 @@ G:*:o
 # 0x38 --> granite wall -- basic
 
 N:56:granite wall
-G:#:w
+G:#:y
 
 # 0x39 --> granite wall -- inner
 

@@ -1,0 +1,36 @@
+#!/usr/bin/java judo 
+fc = getFileAsString("R_INFO.TXT");
+
+fbackup = openTextFile( "R_INFO.BAK" , "w");
+f = openTextFile( "R_INFO.TXT" , "w");
+
+. <fbackup> fc;
+
+fbackup.close();
+
+fca = fc.split("\\n");
+
+currentmonster = 0;
+
+for  x in fca {
+
+  //Make sure that descriptions end with a space
+  if( x.startsWith('D:') ){
+    if( !x.endsWith(' ') ){
+	  x = x @ ' ';
+     . x;
+	}
+  }
+  
+  //Make sure that we renumber
+  if( x.startsWith('N:') ){
+    ta = x.split(":");
+	x = 'N:' @ currentmonster @ ":" @ ta[2];
+	currentmonster++;
+	. x;
+  }  
+  . <f> x;
+  
+}
+
+f.close();

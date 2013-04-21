@@ -1062,6 +1062,33 @@ static void do_cmd_wiz_play(void)
 	}
 }
 
+/* Refactoring of the wiz_Create_item code so that I do not need to copy paste code */
+
+static void drop_item( int k_idx )
+{
+	object_type	forge;
+	object_type *q_ptr;
+	
+	/* Return if failed */
+	if (!k_idx) return;
+	
+	/* Get local object */
+	q_ptr = &forge;
+	
+	/* Create the item */
+	object_prep(q_ptr, k_idx);
+	
+	/* Apply magic (no messages, no artefacts) */
+	apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
+	
+	/* Drop the object from heaven */
+	drop_near(q_ptr, -1, py, px);
+	
+	/* All done */
+	msg_print("Allocated.");
+	
+	
+}
 
 /*
 * Wizard routine for creating objects		-RAK-
@@ -1074,11 +1101,7 @@ static void do_cmd_wiz_play(void)
 */
 static void wiz_create_item(void)
 {
-	object_type	forge;
-	object_type *q_ptr;
-
 	int k_idx;
-
 
 	/* Icky */
 	character_icky = TRUE;
@@ -1088,38 +1111,79 @@ static void wiz_create_item(void)
 
 	/* Get object base type */
 	k_idx = wiz_create_itemtype();
-
+	
 	/* Restore the screen */
 	Term_load();
-
+	
 	/* Not Icky */
 	character_icky = FALSE;
+	
+	drop_item( k_idx );
 
-
-	/* Return if failed */
-	if (!k_idx) return;
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Create the item */
-	object_prep(q_ptr, k_idx);
-
-	/* Apply magic (no messages, no artefacts) */
-	apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
-
-	/* Drop the object from heaven */
-	drop_near(q_ptr, -1, py, px);
-
-	/* All done */
-	msg_print("Allocated.");
 }
+
+
+/*
+ *  Set up the ultimate supply stack for dungeon wandering
+*/
+static void do_cmd_wiz_supplies(void)
+{
+	int i;
+	/* Lets get 15 copies of the essentials */
+	for (i = 0; i < 15; i++)
+	{
+		drop_item( 200 ); /* Scroll of mass banishment */
+		drop_item( 422 ); /* potion of *enlightenment */
+		drop_item( 419 ); /* potion of *healing */
+		drop_item( 266 ); /* potion of restore mana */
+		drop_item( 249 ); /* potion of speed */
+		drop_item( 249 ); /* potion of speed */		
+		drop_item( 221 ); /* *destruction* */		
+	}	
+	drop_item( 79 ); /* seeker arrow */				
+	drop_item( 81 ); /* seeker bolt */				
+}
+
+
+/*
+* Set up an ultra debug character
+*/ 
+static void do_cmd_wiz_michael(void)
+{
+   int			tmp_int;	
+	int			i;
+   /* Set all stats to maximum */
+   tmp_int = 18+100;
+   for (i = 0; i < 6; i++)
+   {	   
+	   p_ptr->stat_cur[i] = p_ptr->stat_max[i] = tmp_int;
+   }
+   wiz_create_named_art( 87 ); /*Longsword of Michael*/
+   wiz_create_named_art( 34 ); /*/Bloodstained Armour of Saint Michael*/
+   wiz_create_named_art( 46 ); /*/Crown of the Seventh Day*/
+   wiz_create_named_art( 128 ); /*/Crossbow of Death*/
+   wiz_create_named_art( 3 );   /*/Gem of Hippo*/
+   wiz_create_named_art( 35 ); /*/Shield of Saint Michael*/
+   wiz_create_named_art( 54 ); /*/Cloak Of the Frost Plains*/
+   wiz_create_named_art( 65 ); /*/Boots of Furcifer*/
+   wiz_create_named_art( 62 ); /*/cesti of the Grim Reaper*/
+   wiz_create_named_art( 14 ); /*/The First Ring*/
+   wiz_create_named_art( 12 ); /*/Ring of sheating*/
+   wiz_create_named_art( 5 );  /*/Amulet of Raphael*/
+   wiz_create_named_art( 24 );  /*/Robe of Gabriel for spellcasters*/
+   
+   p_ptr->au = 12345678;
+
+} 
+
+/* This is a hack apparently, I wouldnt know ;)  */
+extern void do_cmd_wiz_cure_all(void);
 
 
 /*
 * Cure everything instantly
 */
-static void do_cmd_wiz_cure_all(void)
+void do_cmd_wiz_cure_all(void)
 {
 	/* Remove curses */
 	(void)remove_all_curse();
@@ -1421,7 +1485,10 @@ void do_cmd_debug(void)
 	case '?':
 		do_cmd_wiz_help();
 		break;
-
+		/* Allow player to dress to kill, naming the character Michael */
+	case 'A':	
+		do_cmd_wiz_michael();
+		break;
 
 		/* Cure all maladies */
 	case 'a':
@@ -1534,6 +1601,10 @@ void do_cmd_debug(void)
 	case 's':
 		if (command_arg <= 0) command_arg = 1;
 		do_cmd_wiz_summon(command_arg);
+		break;
+		
+	case 'S':
+		do_cmd_wiz_supplies();
 		break;
 
 		/* Teleport */

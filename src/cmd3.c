@@ -227,6 +227,12 @@ void do_cmd_wield(void)
 	/* Modify quantity */
 	q_ptr->number = 1;
 
+	/* Modify charges for wands */
+	if(o_ptr->tval==TV_WAND)
+	{
+		q_ptr->pval = o_ptr->pval / o_ptr->number; /* we only really throw 1 * q_ptr->number; */
+	}	
+	
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
 	{
@@ -491,7 +497,7 @@ void do_cmd_destroy_all()
 	if(!count)
 	{
 		msg_print("You are carrying nothing worth destroying.");
-		energy_use=0; // Don't take a turn after all
+		energy_use=0; /* Don't take a turn after all */
 	}
 }
 
@@ -502,6 +508,7 @@ void do_cmd_destroy(void)
 {
 	int			item, amt = 1;
 	int			old_number;
+	s16b        old_charges;
 
 	bool		force = FALSE;
 
@@ -546,12 +553,15 @@ void do_cmd_destroy(void)
 		if (amt <= 0) return;
 	}
 
-
-	/* Describe the object */
+	/* Describe the to be destroyed object */
 	old_number = o_ptr->number;
+	old_charges = o_ptr->pval;
+	if( o_ptr->tval == TV_WAND ) o_ptr->pval = o_ptr->pval / o_ptr->number * amt;
 	o_ptr->number = amt;
 	object_desc(o_name, o_ptr, TRUE, 3);
+	/* Reset the object */
 	o_ptr->number = old_number;
+	o_ptr->pval   = old_charges;
 
 	/* Verify unless quantity given */
 	if (!force)
@@ -1286,15 +1296,15 @@ static cptr ident_info[] =
 		"=:A ring",
 		">:A down staircase",
 		"?:A scroll",
-		"@:You",
-		/*A:Unused*/
+		"@:You or an impersonator",
+		"A:Fallen Angel",
 		"B:Bird",
 		"C:Canine",
 		"D:Ancient Dragon/Wyrm",
 		"E:Elemental",
-		"F:Dragon Fly",
+		"F:Frog",
 		"G:Ghost",
-		"H:Hybrid",
+		"H:Horror",
 		"I:Insect",
 		"J:Snake",
 		"K:Killer Beetle",
@@ -1323,10 +1333,10 @@ static cptr ident_info[] =
 		"b:Bat",
 		"c:Centipede",
 		"d:Dragon",
-		"e:Floating Eye",
+		"e:Ectoplasm",
 		"f:Feline",
 		"g:Golem",
-		"h:Hobbit/Elf/Dwarf",
+		"h:Hybrid",
 		"i:Icky Thing",
 		"j:Jelly",
 		"k:Kobold",
@@ -1334,7 +1344,7 @@ static cptr ident_info[] =
 		"m:Mold",
 		"n:Naga",
 		"o:Orc",
-		"p:Person/Human",
+		"p:Sinner",
 		"q:Quadruped",
 		"r:Rodent",
 		"s:Skeleton",

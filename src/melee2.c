@@ -5643,7 +5643,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 			/* Message */
 			if (act)
 			{
-				strfmt(temp,act,t_name);
+				strnfmt(temp, sizeof(temp), act, t_name);
 				if (m_ptr->ml || t_ptr->ml)
 					msg_format("%^s %s", m_name, temp);
 
@@ -6009,7 +6009,29 @@ static void process_monster(int m_idx, bool is_friend)
 		/* Still sleeping */
 		if (m_ptr->csleep) return;
 	}
-
+	
+	/*  Handle annoyed monsters*/
+	if (r_ptr->flags7 & (RF7_ANNOYED)){
+		/*Monsters get annoyed when they are not at full health*/
+		if( m_ptr->hp < m_ptr->maxhp ){
+			/*And they only blame the hero if he is in the neighbourhood
+			  monster location fx and fy of m_ptr
+			  player location px and py 
+		      And yes, a magical hard coded value ;(
+			  TODO, put this in constants*/												  
+			if( distance( px , py , m_ptr->fx , m_ptr->fy ) < 16 ){
+				char m_name[80];
+				
+				/* Acquire the monster name */
+				monster_desc(m_name, m_ptr, 0);
+				
+				/* Dump a message */
+				msg_format("%^s mutters a hex.", m_name);		
+				/*summon_specific(py, px, 10, SUMMON_SKULLS);*/
+				summon_skulls(py,px);
+			}
+		}
+	}
 
 	/* Handle "stun" */
 	if (m_ptr->stunned)
@@ -6713,9 +6735,9 @@ static void process_monster(int m_idx, bool is_friend)
 					/* React to objects that hurt the monster */
 					if (f1 & (TR1_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
 					if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
-					if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
+					if (f1 & (TR1_KILL_ANGEL)) flg3 |= (RF3_FALLEN_ANGEL);
 					if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
-					if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
+					if (f1 & (TR1_SLAY_ANGEL)) flg3 |= (RF3_FALLEN_ANGEL);
 					if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
 					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
 					if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);

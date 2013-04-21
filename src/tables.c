@@ -1094,137 +1094,137 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
 		/* Store 0 (General Store)*/
-		{ "Falilmawen the Friendly",         250,    170, 108,  5, 15, RACE_HOBBIT},
-		{ "Voirin the Cowardly",       500,    175, 108,  4, 12, RACE_HUMAN},
-		{ "Erashnak the Midget",          750,    170, 107,  5, 15, RACE_DEVILSPAWN},
-		{ "Grug the Comely",        1000,    165, 107,  6, 18, RACE_HALF_TITAN},
-		{ "Forovir the Cheap",         250,    170, 108,  5, 15, RACE_HUMAN},
-		{ "Ellis the Fool",       500,    175, 108,  4, 12, RACE_HUMAN},
-		{ "Filbert the Hungry",          750,    170, 107,  5, 15, RACE_VAMPIRE},
-		{ "Fthnargl Psathiggua",        1000,    165, 107,  6, 18, RACE_MIND_FLAYER},
-		{ "Eloise Long-Dead",         250,    170, 108,  5, 15, RACE_SPECTRE},
-		{ "Fundi the Slow",       500,    175, 108,  4, 12, RACE_ZOMBIE},
-		{ "Granthus",          750,    170, 107,  5, 15, RACE_SKELETON},
-		{ "Lorax the Suave",        1000,    165, 107,  6, 18, RACE_VAMPIRE},
-		{ "Butch",         250,    170, 108,  5, 15, RACE_HALF_ORC},
-		{ "Elbereth the Beautiful",       500,    175, 108,  4, 12, RACE_HIGH_ELF},
-		{ "Sarleth the Sneaky",          750,    170, 107,  5, 15, RACE_GNOME},
-		{ "Narlock",        1000,    165, 107,  6, 18, RACE_DWARF},
+		{ "Wirt the Weasel",         250,    170, 108,  5, 15, RACE_HUMAN}, /* Diablo II + Diablo I */
+		{ "Atma the Tragic",       500,    175, 108,  4, 12, RACE_HUMAN}, /* Diablo II ( should be an Inn Owner, but I will not put in a hack on a hack for her */
+		{ "Elzix the Scoundrel",          750,    170, 107,  5, 15, RACE_HUMAN}, /* Diablo II  */
+		{ "Ogden the Innkeeper",        1000,    165, 107,  6, 18, RACE_HUMAN},  /* Diablo I  */
+		{ "Wirt the Weasel",         250,    170, 108,  5, 15, RACE_HUMAN}, /* Diablo II + Diablo I */
+		{ "Atma the Tragic",       500,    175, 108,  4, 12, RACE_HUMAN}, /* Diablo II ( should be an Inn Owner, but I will not put in a hack on a hack for her */
+		{ "Elzix the Scoundrel",          750,    170, 107,  5, 15, RACE_HUMAN}, /* Diablo II  */
+		{ "Ogden the Innkeeper",        1000,    165, 107,  6, 18, RACE_HUMAN},  /* Diablo I  */
+		{ "Wirt the Weasel",         250,    170, 108,  5, 15, RACE_HUMAN}, /* Diablo II + Diablo I */
+		{ "Atma the Tragic",       500,    175, 108,  4, 12, RACE_HUMAN}, /* Diablo II ( should be an Inn Owner, but I will not put in a hack on a hack for her */
+		{ "Elzix the Scoundrel",          750,    170, 107,  5, 15, RACE_HUMAN}, /* Diablo II  */
+		{ "Ogden the Innkeeper",        1000,    165, 107,  6, 18, RACE_HUMAN},  /* Diablo I  */
+		{ "Wirt the Weasel",         250,    170, 108,  5, 15, RACE_HUMAN}, /* Diablo II + Diablo I */
+		{ "Atma the Tragic",       500,    175, 108,  4, 12, RACE_HUMAN}, /* Diablo II ( should be an Inn Owner, but I will not put in a hack on a hack for her */
+		{ "Elzix the Scoundrel",          750,    170, 107,  5, 15, RACE_HUMAN}, /* Diablo II  */
+		{ "Ogden the Innkeeper",        1000,    165, 107,  6, 18, RACE_HUMAN},  /* Diablo I  */
 	},
 	{
 		/* Store 1 (Armoury) */
-		{ "Kon-Dar the Ugly",           10000,   210, 115,  5,  7, RACE_HALF_ORC},
-		{ "Darg-Low the Grim",          15000,  190, 111,  4,  9, RACE_HUMAN},
-		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_NEPHILIM},
-		{ "Elo Dragonscale",          30000,  200, 112,  4,  5, RACE_ELF},
-		{ "Delicatus",           10000,   210, 115,  5,  7, RACE_SPRITE},
-		{ "Gruce the Huge",          15000,  190, 111,  4,  9, RACE_HALF_GIANT},
-		{ "Animus",            25000,  200, 112,  4, 10, RACE_GOLEM},
-		{ "Malvus",          30000,  200, 112,  4,  5, RACE_HALF_TITAN},
-		{ "Selaxis",           10000,   210, 115,  5,  7, RACE_ZOMBIE},
-		{ "Deathchill",          15000,  190, 111,  4,  9, RACE_SPECTRE},
-		{ "Drios the Faint",            25000,  200, 112,  4, 10, RACE_SPECTRE},
-		{ "Bathric the Cold",          30000,  200, 112,  4,  5, RACE_VAMPIRE},
-		{ "Vengella the Cruel",           10000,   210, 115,  5,  7, RACE_HALF_TROLL},
-		{ "Wyrana the Mighty",          15000,  190, 111,  4,  9, RACE_HUMAN},
-		{ "Yojo II",            25000,  200, 112,  4, 10, RACE_DWARF},
-		{ "Ranalar the Sweet",          30000,  200, 112,  4,  5, RACE_NEPHILIM},
+		{ "Flavie, Rogue Guardian",           10000,   210, 115,  5,  7, RACE_HUMAN},  /* Diablo II */
+		{ "Flava, Holy Knight",          15000,  190, 111,  4,  9, RACE_HUMAN},  /* Diablo II, act 2 */
+		{ "Hratli, Sorcer",            25000,  200, 112,  4, 10, RACE_HUMAN}, /* Diablo II, act 3 */
+		{ "Feradach Dathi",          30000,  200, 112,  4,  5, RACE_HUMAN},  /* Irish King, enchanted his armor with a speed bonus ;) What a guy */
+		{ "Flavie, Rogue Guardian",           10000,   210, 115,  5,  7, RACE_HUMAN},  /* Diablo II */
+		{ "Flava, Holy Knight",          15000,  190, 111,  4,  9, RACE_HUMAN},  /* Diablo II, act 2 */
+		{ "Hratli, Sorcer",            25000,  200, 112,  4, 10, RACE_HUMAN}, /* Diablo II, act 3 */
+		{ "Feradach Dathi",          30000,  200, 112,  4,  5, RACE_HUMAN},  /* Irish King, enchanted his armor with a speed bonus ;) What a guy */
+		{ "Flavie, Rogue Guardian",           10000,   210, 115,  5,  7, RACE_HUMAN},  /* Diablo II */
+		{ "Flava, Holy Knight",          15000,  190, 111,  4,  9, RACE_HUMAN},  /* Diablo II, act 2 */
+		{ "Hratli, Sorcer",            25000,  200, 112,  4, 10, RACE_HUMAN}, /* Diablo II, act 3 */
+		{ "Feradach Dathi",          30000,  200, 112,  4,  5, RACE_HUMAN},  /* Irish King, enchanted his armor with a speed bonus ;) What a guy */
+		{ "Flavie, Rogue Guardian",           10000,   210, 115,  5,  7, RACE_HUMAN},  /* Diablo II */
+		{ "Flava, Holy Knight",          15000,  190, 111,  4,  9, RACE_HUMAN},  /* Diablo II, act 2 */
+		{ "Hratli, Sorcer",            25000,  200, 112,  4, 10, RACE_HUMAN}, /* Diablo II, act 3 */
+		{ "Feradach Dathi",          30000,  200, 112,  4,  5, RACE_HUMAN},  /* Irish King, enchanted his armor with a speed bonus ;) What a guy */
 	},
 	{
 		/* Store 2 (Weaponsmith)*/
-		{ "Arnold the Beastly",      10000,   210, 115,  6,  6, RACE_BARBARIAN},
-		{ "Arndal Beast-Slayer",        15000,  185, 110,  5,  9, RACE_HALF_ELF},
-		{ "Edor the Short",         25000,  190, 115,  5,  7, RACE_HOBBIT},
-		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
-		{ "Drew the Skilled",      10000,   210, 115,  6,  6, RACE_HUMAN},
-		{ "Orrax Dragonson",        15000,  185, 110,  5,  9, RACE_DRACONIAN},
-		{ "Anthrax Disease-Carrier",         25000,  190, 115,  5,  7, RACE_DEVILSPAWN},
-		{ "Arkhoth the Stout",       30000,  195, 112,  4,  8, RACE_DWARF},
-		{ "Sarlyas the Rotten",      10000,   210, 115,  6,  6, RACE_ZOMBIE},
-		{ "Tuethic Bare-Bones",        15000,  185, 110,  5,  9, RACE_SKELETON},
-		{ "Bilious",         25000,  190, 115,  5,  7, RACE_DEVILSPAWN},
-		{ "Fasgul",       30000,  195, 112,  4,  8, RACE_ZOMBIE},
-		{ "Ellefris the Paladin",      10000,   210, 115,  6,  6, RACE_BARBARIAN},
-		{ "K'trrik'k",        15000,  185, 110,  5,  9, RACE_KLACKON},
-		{ "Drocus Spiderfriend",         25000,  190, 115,  5,  7, RACE_DARK_ELF},
-		{ "Fungus Giant-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
+		{ "Charsi, Rogue Blacksmith",      10000,   210, 115,  6,  6, RACE_HUMAN}, /* Diablo II ,  */
+		{ "Kashya, Rogue Captain",        15000,  185, 110,  5,  9, RACE_HUMAN},  /* Diablo II */
+		{ "Geglash the Barbarian",         25000,  190, 115,  5,  7, RACE_BARBARIAN}, /* Diablo II, act 2*/
+		{ "Lady of the Lake",       30000,  195, 112,  4,  8, RACE_SPRITE}, /*  She was in the business of selling *magical* blades */
+		{ "Natalya, Hunter of Evil",      10000,   210, 115,  6,  6, RACE_HUMAN},  /* Diablo II, act 3*/
+		{ "Larzuk the Barbarian",        15000,  185, 110,  5,  9, RACE_BARBARIAN}, /* Diablo II, act 5*/
+		{ "Qual-Kehk the Troubled",         25000,  190, 115,  5,  7, RACE_HUMAN}, /* Diablo II, act 5*/
+		{ "Griswold, Blacksmith",       30000,  195, 112,  4,  8, RACE_DWARF}, /* Diablo I */
+		{ "Charsi, Rogue Blacksmith",      10000,   210, 115,  6,  6, RACE_HUMAN}, /* Diablo II ,  */
+		{ "Kashya, Rogue Captain",        15000,  185, 110,  5,  9, RACE_HUMAN},  /* Diablo II */
+		{ "Geglash the Barbarian",         25000,  190, 115,  5,  7, RACE_BARBARIAN}, /* Diablo II, act 2*/
+		{ "Lady of the Lake",       30000,  195, 112,  4,  8, RACE_SPRITE}, /*  She was in the business of selling *magical* blades */
+		{ "Natalya, Hunter of Evil",      10000,   210, 115,  6,  6, RACE_HUMAN},  /* Diablo II, act 3*/
+		{ "Larzuk the Barbarian",        15000,  185, 110,  5,  9, RACE_BARBARIAN}, /* Diablo II, act 5*/
+		{ "Qual-Kehk the Troubled",         25000,  190, 115,  5,  7, RACE_HUMAN}, /* Diablo II, act 5*/
+		{ "Griswold, Blacksmith",       30000,  195, 112,  4,  8, RACE_DWARF}, /* Diablo I */
 	},
-	{
+		{
 		/* Store 3 (Temple)*/
-		{ "Ludwig the Humble",         10000,   175, 109,  6, 15, RACE_DWARF},
-		{ "Gunnar the Paladin",         15000,  185, 110,  5, 23, RACE_HALF_TROLL},
-		{ "Sir Parsival the Pure",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-		{ "Asenath the Holy",          30000,  185, 109,  5, 15, RACE_HUMAN},
-		{ "Krikkik",         10000,   175, 109,  6, 15, RACE_KLACKON},
-		{ "Morival the Wild",         15000,  185, 110,  5, 23, RACE_ELF},
-		{ "Hoshak the Dark",           25000,  180, 107,  6, 20, RACE_IMP},
-		{ "Atal the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
-		{ "Ibenidd the Chaste",         10000,   175, 109,  6, 15, RACE_HUMAN},
-		{ "Eridish",         15000,  185, 110,  5, 23, RACE_HALF_TROLL},
-		{ "Vrudush the Priest",           25000,  180, 107,  6, 20, RACE_HALF_OGRE},
-		{ "Haob the Berserker",          30000,  185, 109,  5, 15, RACE_BARBARIAN},
-		{ "Proogdish the Youthfull",         10000,   175, 109,  6, 15, RACE_HALF_OGRE},
-		{ "Lumwise the Mad",         15000,  185, 110,  5, 23, RACE_YEEK},
-		{ "Muirt the Virtuous",           25000,  180, 107,  6, 20, RACE_KOBOLD},
-		{ "Dardobard the Weak",          30000,  185, 109,  5, 15, RACE_SPECTRE},
+		{ "Akara, Rogue Priestess",         10000,   175, 109,  6, 15, RACE_HUMAN}, /*Diablo II , The spiritual leader of the Sisters of the Sightless Eye*/
+		{ "Lord Jerhyn",         15000,  185, 110,  5, 23, RACE_HUMAN}, /* Diablo II, act 2 */
+		{ "Ormus, Healer",           25000,  180, 107,  6, 20, RACE_HUMAN},  /* Diablo II, act 3 */
+		{ "Asenath the Holy",          30000,  185, 109,  5, 15, RACE_HUMAN}, /* Diablo II, act 3 */
+		{ "Pepin the Healer",         10000,   175, 109,  6, 15, RACE_HUMAN}, /* Diablo I  */
+		{ "Julian the Theurgist",         15000,  185, 110,  5, 23, RACE_HUMAN},  /* Theurgists are cool ? */
+		{ "Roger Bacon",           25000,  180, 107,  6, 20, RACE_HUMAN},  /* Yah, those Franciscans eh ! */
+		{ "Abraham ben Samuel Abulafia",          30000,  185, 109,  5, 15, RACE_HUMAN},  /* Go kabbalah's */
+		{ "Akara, Rogue Priestess",         10000,   175, 109,  6, 15, RACE_HUMAN}, /*Diablo II , The spiritual leader of the Sisters of the Sightless Eye*/
+		{ "Lord Jerhyn",         15000,  185, 110,  5, 23, RACE_HUMAN}, /* Diablo II, act 2 */
+		{ "Ormus, Healer",           25000,  180, 107,  6, 20, RACE_HUMAN},  /* Diablo II, act 3 */
+		{ "Asenath the Holy",          30000,  185, 109,  5, 15, RACE_HUMAN}, /* Diablo II, act 3 */
+		{ "Pepin the Healer",         10000,   175, 109,  6, 15, RACE_HUMAN}, /* Diablo I  */
+		{ "Julian the Theurgist",         15000,  185, 110,  5, 23, RACE_HUMAN},  /* Theurgists are cool ? */
+		{ "Roger Bacon",           25000,  180, 107,  6, 20, RACE_HUMAN},  /* Yah, those Franciscans eh ! */
+		{ "Abraham ben Samuel Abulafia",          30000,  185, 109,  5, 15, RACE_HUMAN},  /* Go kabbalah's */
 	},
 	{
 		/* Store 4 (Alchemist)*/
-		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
-		{ "Wizzle the Chaotic",         10000,  190, 110,  6,  8, RACE_HOBBIT},
-		{ "Kakalrakakal",           15000,  200, 116,  6,  9, RACE_KLACKON},
-		{ "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
-		{ "Fanelath the Cautious",         10000,  190, 111,  5,  8, RACE_DWARF},
-		{ "Runcie the Insane",         10000,  190, 110,  6,  8, RACE_HUMAN},
-		{ "Grumbleworth",           15000,  200, 116,  6,  9, RACE_GNOME},
-		{ "Flitter",       15000,  220, 111,  4,  9, RACE_SPRITE},
-		{ "Xarillus",         10000,  190, 111,  5,  8, RACE_HUMAN},
-		{ "Egbert the Old",         10000,  190, 110,  6,  8, RACE_DWARF},
-		{ "Valindra the Proud",           15000,  200, 116,  6,  9, RACE_HIGH_ELF},
-		{ "Taen the Alchemist",       15000,  220, 111,  4,  9, RACE_HUMAN},
-		{ "Cayd the Sweet",         10000,  190, 111,  5,  8, RACE_VAMPIRE},
-		{ "Fulir the Dark",         10000,  190, 110,  6,  8, RACE_NIBELUNG},
-		{ "Domli the Humble",           15000,  200, 116,  6,  9, RACE_DWARF},
-		{ "Yaarjukka Demonspawn",       15000,  220, 111,  4,  9, RACE_IMP},
+		{ "Lysander",				10000,  190, 111,  5,  8, RACE_HUMAN},  /* Diablo II, act 2 */
+		{ "Alkor",         10000,  190, 110,  6,  8, RACE_HUMAN},  /* Diablo II, act 3 */
+		{ "Jamella, Gatekeeper",           15000,  200, 116,  6,  9, RACE_HUMAN}, /* Diablo II, act 4 */
+		{ "Anya, the Fated",       15000,  220, 111,  4,  9, RACE_HUMAN},  /* Diablo II, act 5 */
+		{ "Malah, town Nurse",         10000,  190, 111,  5,  8, RACE_DWARF}, /* Diablo II, act 5 */
+		{ "Twardowski, Physician",         10000,  190, 110,  6,  8, RACE_HUMAN},  /*  Famous Alchemist  */
+		{ "Parmigianino",           15000,  200, 116,  6,  9, RACE_HUMAN},  /*  Girolamo Francesco Maria Mazzola (11 January 1503- 24 August 1540) */
+		{ "Nicholas Flamel",       15000,  220, 111,  4,  9, RACE_SPRITE},  /* Okay, this is _not_ the NF of Harry Potter ;) */
+		{ "Lysander",				10000,  190, 111,  5,  8, RACE_HUMAN},  /* Diablo II, act 2 */
+		{ "Alkor",         10000,  190, 110,  6,  8, RACE_HUMAN},  /* Diablo II, act 3 */
+		{ "Jamella, Gatekeeper",           15000,  200, 116,  6,  9, RACE_HUMAN}, /* Diablo II, act 4 */
+		{ "Anya, the Fated",       15000,  220, 111,  4,  9, RACE_HUMAN},  /* Diablo II, act 5 */
+		{ "Malah, town Nurse",         10000,  190, 111,  5,  8, RACE_DWARF}, /* Diablo II, act 5 */
+		{ "Twardowski, Physician",         10000,  190, 110,  6,  8, RACE_HUMAN},  /*  Famous Alchemist  */
+		{ "Parmigianino",           15000,  200, 116,  6,  9, RACE_HUMAN},  /*  Girolamo Francesco Maria Mazzola (11 January 1503- 24 August 1540) */
+		{ "Nicholas Flamel",       15000,  220, 111,  4,  9, RACE_SPRITE},  /* Okay, this is _not_ the NF of Harry Potter ;) */
 	},
 	{
 		/* Store 5 (Magic)*/
-		{ "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
-		{ "Buggerby the Great",         20000,  215, 113,  6, 10, RACE_GNOME},
-		{ "Kyria the Illusionist",       30000,  200, 110,  7, 10, RACE_HUMAN},
-		{ "Nikki the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-		{ "Solostoran",        15000,  200, 110,  7,  8, RACE_SPRITE},
-		{ "Achshe the Tentacled",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
-		{ "Kaza the Noble",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
-		{ "Fazzil the Dark",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
-		{ "Keldorn the Grand",        15000,  200, 110,  7,  8, RACE_DWARF},
-		{ "Philanthropus",         20000,  215, 113,  6, 10, RACE_HOBBIT},
-		{ "Agnar the Enchantress",       30000,  200, 110,  7, 10, RACE_HUMAN},
-		{ "Buliance the Necromancer",       30000,  175, 110,  5, 11, RACE_DEVILSPAWN},
-		{ "Vuirak the High-Mage",        15000,  200, 110,  7,  8, RACE_DEVILSPAWN},
-		{ "Madish the Smart",         20000,  215, 113,  6, 10, RACE_DEVILSPAWN},
-		{ "Falebrimbor",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
-		{ "Felil-Gand the Subtle",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Merlin the Sage",       30000,  175, 110,  5, 11, RACE_DEVILSPAWN},		/*Merlin was the son of an incubus*/
+    	{ "Lady of the Lake",        15000,  200, 110,  7,  8, RACE_SPRITE},	     /*  She was in the business of selling *magical* blades */
+ 		{ "Drognan",        15000,  200, 110,  7,  8, RACE_HUMAN},  /* Diablo II */
+		{ "Adria the Witch",         20000,  215, 113,  6, 10, RACE_HUMAN},  /* Diablo I */
+		{ "Witch of Endor",       30000,  200, 110,  7, 10, RACE_HUMAN}, /* Hebrew Bible */
+		{ "Gyges of Lydia",       30000,  175, 110,  5, 11, RACE_HUMAN}, /* king said to possess magical artifacts */
+		{ "Iannes and Mambres",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER}, /* magicians at Pharaoh's court mentioned in the New Testament */
+		{ "Simon the Sorcerer",       30000,  200, 110,  7, 10, RACE_DEVILSPAWN}, /* Simon Magus, not the computer game */
+		{ "Merlin the Sage",       30000,  175, 110,  5, 11, RACE_DEVILSPAWN},		/*Merlin was the son of an incubus*/
+    	{ "Lady of the Lake",        15000,  200, 110,  7,  8, RACE_SPRITE},	     /*  She was in the business of selling *magical* blades */
+ 		{ "Drognan",        15000,  200, 110,  7,  8, RACE_HUMAN},  /* Diablo II */
+		{ "Adria the Witch",         20000,  215, 113,  6, 10, RACE_HUMAN},  /* Diablo I */
+		{ "Witch of Endor",       30000,  200, 110,  7, 10, RACE_HUMAN}, /* Hebrew Bible */
+		{ "Gyges of Lydia",       30000,  175, 110,  5, 11, RACE_HUMAN}, /* king said to possess magical artifacts */
+		{ "Iannes and Mambres",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER}, /* magicians at Pharaoh's court mentioned in the New Testament */
+		{ "Simon the Sorcerer",       30000,  200, 110,  7, 10, RACE_DEVILSPAWN}, /* Simon Magus, not the computer game */
 	},
 	{
 		/* Store 6 (Black Market)*/
-		{ "Charity the Necromancer", 20000,  250, 150, 10,  5, RACE_DARK_ELF},
-		{ "Pugnacious the Pugilist",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
-		{ "Footsore the Lucky",          30000,  250, 150, 10,  5, RACE_DEVILSPAWN},
-		{ "Sidria Lighfingered",           30000,  250, 150, 10,  5, RACE_HUMAN},
-		{ "Vhassa the Dead",             20000,  250, 150, 10,  5, RACE_ZOMBIE},
-		{ "Kyn the Treacherous",          20000,  250, 150, 10,  5, RACE_VAMPIRE},
-		{ "Bubonicus",          30000,  250, 150, 10,  5, RACE_DEVILSPAWN},
-		{ "Corpselight",           30000,  250, 150, 10,  5, RACE_SPECTRE},
-		{ "Parrish the Bloodthirsty",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
-		{ "Vile",          20000,  250, 150, 10,  5, RACE_SKELETON},
-		{ "Prentice the Trusted",          30000,  250, 150, 10,  5, RACE_SKELETON},
-		{ "Griella Humanslayer",           30000,  250, 150, 10,  5, RACE_IMP},
-		{ "Angelface",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
-		{ "Flotsam the Bloated",          20000,  250, 150, 10,  5, RACE_ZOMBIE},
-		{ "Nieval",          30000,  250, 150, 10,  5, RACE_VAMPIRE},
-		{ "Anastasia the Luminous",           30000,  250, 150, 10,  5, RACE_SPECTRE},
-	},
+		{ "Apollonius of Tyana", 20000,  250, 150, 10,  5, RACE_HUMAN},  /* Year 2 */
+		{ "Lady of the Lake",          20000,  250, 150, 10,  5, RACE_SPRITE},  /*  She was pretty shady, in the business of selling *magical* *blades* */
+		{ "Gheed - Caravan Trader",          30000,  250, 150, 10,  5, RACE_HUMAN}, /* Diablo II */
+		{ "Warriv - Caravan Leader",           30000,  250, 150, 10,  5, RACE_HUMAN}, /* Diablo II */
+		{ "Greiz - Mercenary Captain",             20000,  250, 150, 10,  5, RACE_HUMAN}, /* Diablo II, act 2 */
+		{ "Asheara, Iron Wolf",          20000,  250, 150, 10,  5, RACE_HUMAN}, /* Diablo II, act 3 */
+		{ "Lucius Apuleius",          30000,  250, 150, 10,  5, RACE_HUMAN}, /* A Discourse on Magic ;) */
+		{ "Elymas",           30000,  250, 150, 10,  5, RACE_HUMAN}, /* Bibilic Jewish Magician */
+		{ "Apollonius of Tyana", 20000,  250, 150, 10,  5, RACE_HUMAN},  /* Year 2 */
+		{ "Lady of the Lake",          20000,  250, 150, 10,  5, RACE_SPRITE},  /*  She was pretty shady, in the business of selling *magical* *blades* */
+		{ "Gheed - Caravan Trader",          30000,  250, 150, 10,  5, RACE_HUMAN}, /* Diablo II */
+		{ "Warriv - Caravan Leader",           30000,  250, 150, 10,  5, RACE_HUMAN}, /* Diablo II */
+		{ "Greiz - Mercenary Captain",             20000,  250, 150, 10,  5, RACE_HUMAN}, /* Diablo II, act 2 */
+		{ "Asheara, Iron Wolf",          20000,  250, 150, 10,  5, RACE_HUMAN}, /* Diablo II, act 3 */
+		{ "Lucius Apuleius",          30000,  250, 150, 10,  5, RACE_HUMAN}, /* A Discourse on Magic ;) */
+		{ "Elymas",           30000,  250, 150, 10,  5, RACE_HUMAN}, /* Bibilic Jewish Magician */	
+    },
 	{
 		/* Store 7 (Home)*/
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
@@ -1245,42 +1245,43 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
 	},
 	{
+		/*Eliezer of Worms*/
 		/* Store 8 (Bookstore)*/
-		{ "Randolph Carter", 15000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "Odnar the Sage", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
-		{ "Gandar the Neutral", 25000, 120, 110, 7, 19, RACE_VAMPIRE},
-		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_GOLEM},
-		{ "Sarai the Swift", 15000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "Bodril the Seer", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
-		{ "Veloin the Quiet", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-		{ "Vanthylas the Learned", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
-		{ "Ossein the Literate", 15000, 175, 108, 4, 12, RACE_SKELETON},
-		{ "Olvar Bookworm", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
-		{ "Shallowgrave", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-		{ "Death Mask", 30000, 140, 105, 6, 12, RACE_ZOMBIE},
-		{ "Porcina the Obese", 15000, 175, 108, 4, 12, RACE_HALF_ORC},
-		{ "Glaruna Brandybreath", 20000, 120, 105, 6, 16, RACE_DWARF},
-		{ "Furface Yeek", 25000, 120, 110, 7, 19, RACE_YEEK},
-		{ "Bald Oggin", 30000, 140, 105, 6, 12, RACE_GNOME},
+		{ "Johann Weyer", 15000, 175, 108, 4, 12, RACE_HUMAN}, /* Pseudomonarchia Daemonum (between February 24, 1515 and February 24, 1516 Ð February 24, 1588)*/
+		{ "Ludovico Antonio Muratori", 20000, 120, 105, 6, 16, RACE_HALF_ELF},  /* Ludovico Antonio Muratori (1672 - 1750) was an Italian historian */
+		{ "Johannes Trithemius", 25000, 120, 110, 7, 19, RACE_HUMAN}, /* Steganographia  (1 February 1462 - 13 December 1516) */
+		{ "Abra-Melin", 30000, 140, 105, 6, 12, RACE_HUMAN}, /* The Book of the Sacred Magic of Abramelin the Mage  - 1458 */
+		{ "Alibek the Egyptian", 15000, 175, 108, 4, 12, RACE_HUMAN}, /* The Grand Grimoir - 13th century */
+		{ "John Dee", 20000, 120, 105, 6, 16, RACE_HUMAN}, /* Wrote books in the enochian language - (July 13, 1527 Ð 1608 or 1609)*/
+		{ "Heinrich Cornelius Agrippa", 25000, 120, 110, 7, 19, RACE_HUMAN}, /* Libri tres de occulta philosophia - born of noble birth in Cologne September 14, 1486, died in Grenoble February 18, 1535) */
+		{ "Peter de Abano", 30000, 140, 105, 6, 12, RACE_HUMAN}, /* Heptameron - (c. 1250-1316)  */
+		{ "Hypatia of Alexandria", 15000, 175, 108, 4, 12, RACE_HUMAN}, /* philosopher, mathematician, and teacher ,  (c. 370 - 415) */
+		{ "Eratosthenes", 20000, 120, 105, 6, 16, RACE_HUMAN}, /* Famous Librarian - (276 BC - 194 BC)*/
+		{ "Gaius Suetonius Tranquillus", 25000, 120, 110, 7, 19, RACE_HUMAN}, /* Roman Librarian -  (69 or 70 AD - after 130 AD  */
+		{ "Zenodotus", 30000, 140, 105, 6, 12, RACE_HUMAN},  /* He was the first superintendent of the library at Alexandria - 280 BC. */
+		{ "Flavius Magnus Aurelius Cassiodorus Senator", 15000, 175, 108, 4, 12, RACE_HUMAN}, /* Owner of east,west,greek,roman, goth works */
+		{ "Dionysius Exiguus", 20000, 120, 105, 6, 16, RACE_HUMAN}, /* Inventor of Anno Domini */
+		{ "Callimachus", 25000, 120, 110, 7, 19, RACE_YEEK}, /*  His Pinakes (tablets), in 120 books, a critical and chronologically arranged catalogue of the library, laid the foundation of a history of Greek literature. (ca. 305 BC- ca. 240 BC)  */
+		{ "Demetrius Phalereus", 30000, 140, 105, 6, 12, RACE_GNOME}, /* 40,000 to 700,000 books and was initially organized by Demetrius Phalereus. - 3rd century BC, */
 	},
 	{
-		/* Store 9 (Inn)*/
-		{ "Mordsan", 15000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "Furfoot Pobber", 20000, 120, 105, 6, 16, RACE_HOBBIT},
-		{ "Oddo Yeekson", 25000, 120, 110, 7, 19, RACE_YEEK},
-		{ "Dry-Bones", 30000, 140, 105, 6, 12, RACE_SKELETON},
-		{ "Kleibons", 15000, 175, 108, 4, 12, RACE_KLACKON},
-		{ "Prendegast", 20000, 120, 105, 6, 16, RACE_HOBBIT},
-		{ "Straasha", 25000, 120, 110, 7, 19, RACE_DRACONIAN},
-		{ "Allia the Servile", 30000, 140, 105, 6, 12, RACE_HUMAN},
-		{ "Fubble the Boring", 15000, 175, 108, 4, 12, RACE_ZOMBIE},
-		{ "Bare-Bones Salluah", 20000, 120, 105, 6, 16, RACE_SKELETON},
-		{ "Winsalt Once-Living", 25000, 120, 110, 7, 19, RACE_SPECTRE},
-		{ "Agnes D'Arcy", 30000, 140, 105, 6, 12, RACE_VAMPIRE},
-		{ "Lumin the Blue", 15000, 175, 108, 4, 12, RACE_SPECTRE},
-		{ "Short Al", 20000, 120, 105, 6, 16, RACE_ZOMBIE},
-		{ "Silent Faldus", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
-		{ "Quirmby the Strange", 30000, 140, 105, 6, 12, RACE_VAMPIRE},
+		/* Store 9 (Inn) , This shop has a hack that prevents (Human to show) , shop is identified by nymber*/
+		{ "The George and Dragon", 15000, 175, 108, 4, 12, RACE_HUMAN}, /*London*/
+		{ "The Tabard Inn", 20000, 120, 105, 6, 16, RACE_HUMAN},  /* London */
+ 		{ "The Cat and The Fiddle", 25000, 120, 110, 7, 19, RACE_HUMAN},  /* Hampshire */
+ 		{ "The Old Bell", 30000, 140, 105, 6, 12, RACE_HUMAN},  /* Malmesbury */
+		{ "The Weary Friar", 15000, 175, 108, 4, 12, RACE_HUMAN}, /* Cornwall */
+		{ "The Fighting Cocks", 20000, 120, 105, 6, 16, RACE_HUMAN}, /* St Albans */
+		{ "The Trip to Jerusalem", 25000, 120, 110, 7, 19, RACE_HUMAN}, /* Nottingham */
+		{ "The Bull & Bladder", 30000, 140, 105, 6, 12, RACE_HUMAN}, /* Birmingham */
+		{ "The George and Dragon", 15000, 175, 108, 4, 12, RACE_HUMAN}, /*London*/
+		{ "The Tabard Inn", 20000, 120, 105, 6, 16, RACE_HUMAN},  /* London */
+ 		{ "The Cat and The Fiddle", 25000, 120, 110, 7, 19, RACE_HUMAN},  /* Hampshire */
+ 		{ "The Old Bell", 30000, 140, 105, 6, 12, RACE_HUMAN},  /* Malmesbury */
+		{ "The Weary Friar", 15000, 175, 108, 4, 12, RACE_HUMAN}, /* Cornwall */
+		{ "The Fighting Cocks", 20000, 120, 105, 6, 16, RACE_HUMAN}, /* St Albans */
+		{ "The Trip to Jerusalem", 25000, 120, 110, 7, 19, RACE_HUMAN}, /* Nottingham */
+		{ "The Bull & Bladder", 30000, 140, 105, 6, 12, RACE_HUMAN}, /* Birmingham */
 	},
 	{
 		/* Store 10 (Hall)*/
@@ -1302,23 +1303,23 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Hall of Records",                          0,      100, 100,  0, 99, 99},
 	},
 	{
-		/* Store 11 (Pawnbroker)*/
-		{ "Magd the Ruthless", 2000, 100, 100, 4, 12, RACE_HUMAN},
-		{ "Drako Fairdeal", 4000, 100, 100, 6, 16, RACE_DRACONIAN},
-		{ "Featherwing", 5000, 100, 100, 7, 19, RACE_SPRITE},
-		{ "Xochinaggua", 10000, 100, 100, 6, 12, RACE_MIND_FLAYER},
-		{ "Od the Penniless", 2000, 100, 100, 4, 12, RACE_ELF},
-		{ "Xax", 4000, 100, 100, 6, 16, RACE_GOLEM},
-		{ "Jake Small", 5000, 100, 100, 7, 19, RACE_HALF_GIANT},
-		{ "Helga the Lost", 10000, 100, 100, 6, 12, RACE_HUMAN},
-		{ "Gloom the Phlegmatic", 2000, 100, 100, 4, 12, RACE_ZOMBIE},
-		{ "Quick-Arm Vollaire", 4000, 100, 100, 6, 16, RACE_VAMPIRE},
-		{ "Asenath", 5000, 100, 100, 7, 19, RACE_ZOMBIE},
-		{ "Lord Filbert", 10000, 100, 100, 6, 12, RACE_VAMPIRE},
-		{ "Herranyth the Ruthless", 2000, 100, 100, 4, 12, RACE_HUMAN},
-		{ "Gagrin Moneylender", 4000, 100, 100, 6, 16, RACE_YEEK},
-		{ "Thrambor the Grubby", 5000, 100, 100, 7, 19, RACE_HALF_ELF},
-		{ "Derigrin the Honest", 10000, 100, 100, 6, 12, RACE_HOBBIT},
+		/* Store 11 (Pawnbroker)* Yah, I just doubled the entries, enterprising souls can find some more known trader states */
+		{ "Joris the Fleming", 2000, 100, 100, 4, 12, RACE_HUMAN},  /*Famous traders ;) */
+		{ "Giovanni the Venetian", 4000, 100, 100, 6, 16, RACE_HUMAN}, /* Mercantile Italian city-state */
+		{ "Hiram of Tyre", 5000, 100, 100, 7, 19, RACE_HUMAN},  /*Phoenicia was an ancient civilization in the north of ancient Canaan, trading nation, , furnished architects, workmen and cedar timbers for the temple of his ally Solomon at Jerusalem.*/
+		{ "Yosef the Radhanite", 10000, 100, 100, 6, 12, RACE_HUMAN}, /* Jewish Trading clan */
+		{ "Nicolasthe Genoan", 2000, 100, 100, 4, 12, RACE_HUMAN},  /*mercantile Italian city-stat*/
+		{ "Alfonso the Pisan", 4000, 100, 100, 6, 16, RACE_HUMAN}, /*mercantile Italian city-state*/
+		{ "Eduardo the Amalfian", 5000, 100, 100, 7, 19, RACE_HUMAN},  /*mercantile Italian city-state*/
+		{ "Jan the Dutch", 10000, 100, 100, 6, 12, RACE_HUMAN}, /* Vikings also traded when they couldnt steal */
+		{ "Joris the Fleming", 2000, 100, 100, 4, 12, RACE_HUMAN},  /*Famous traders ;) */
+		{ "Giovanni the Venetian", 4000, 100, 100, 6, 16, RACE_HUMAN}, /* Mercantile Italian city-state */
+		{ "Hiram of Tyre", 5000, 100, 100, 7, 19, RACE_HUMAN},  /*Phoenicia was an ancient civilization in the north of ancient Canaan, trading nation, , furnished architects, workmen and cedar timbers for the temple of his ally Solomon at Jerusalem.*/
+		{ "Yosef the Radhanite", 10000, 100, 100, 6, 12, RACE_HUMAN}, /* Jewish Trading clan */
+		{ "Nicolasthe Genoan", 2000, 100, 100, 4, 12, RACE_HUMAN},  /*mercantile Italian city-stat*/
+		{ "Alfonso the Pisan", 4000, 100, 100, 6, 16, RACE_HUMAN}, /*mercantile Italian city-state*/
+		{ "Eduardo the Amalfian", 5000, 100, 100, 7, 19, RACE_HUMAN},  /*mercantile Italian city-state*/
+		{ "Cain the Elder", 10000, 100, 100, 6, 12, RACE_HUMAN}, /* Diablo II */
 	},
 };
 
@@ -6142,23 +6143,19 @@ u32b fake_spell_flags[4]=
 
 byte realm_choices[MAX_CLASS]=
 {
-/* Warrior */   (CH_NONE),
-/* Mage */      (CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS |
-CH_DEATH | CH_PLANAR | CH_FOLK | CH_CORPOREAL),
-/* Priest */    (CH_NATURE | CH_CHAOS | CH_PLANAR | CH_FOLK | CH_CORPOREAL),
-/* Rogue */     (CH_SORCERY | CH_DEATH | CH_PLANAR | CH_FOLK ),
-/* Ranger */    (CH_CHAOS | CH_DEATH | CH_PLANAR | CH_FOLK | CH_CORPOREAL),
-/* Paladin */   (CH_LIFE | CH_DEATH),
-/* Warrior-Mage */   (CH_LIFE | CH_NATURE | CH_CHAOS | CH_DEATH | CH_PLANAR |
-CH_FOLK | CH_SORCERY | CH_CORPOREAL),
-/* Diabolist */ (CH_CHAOS),
-/* Mystic */          (CH_CORPOREAL),
+/* Warrior */		(CH_NONE),
+/* Mage */			(CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS | CH_DEATH | CH_PLANAR | CH_FOLK | CH_CORPOREAL),
+/* Priest */		(CH_NATURE | CH_CHAOS | CH_PLANAR | CH_FOLK | CH_CORPOREAL),
+/* Rogue */			(CH_SORCERY | CH_DEATH | CH_PLANAR | CH_FOLK ),
+/* Ranger */		(CH_CHAOS | CH_DEATH | CH_PLANAR | CH_FOLK | CH_CORPOREAL),
+/* Paladin */		(CH_LIFE | CH_DEATH),
+/* Warrior-Mage */  (CH_LIFE | CH_NATURE | CH_CHAOS | CH_DEATH | CH_PLANAR | CH_FOLK | CH_SORCERY | CH_CORPOREAL),
+/* Diabolist */		(CH_CHAOS),
+/* Mystic */        (CH_CORPOREAL),
 /* Mindcrafter */   (CH_NONE),
-/* High Mage */     (CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS |
-CH_DEATH | CH_PLANAR | CH_FOLK | CH_CORPOREAL),
-/* Druid */             (CH_NATURE),
-/* Demonologist */ (CH_LIFE | CH_SORCERY | CH_NATURE | CH_DEATH |
-CH_PLANAR | CH_FOLK | CH_CORPOREAL),
+/* High Mage */     (CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS | CH_DEATH | CH_PLANAR | CH_FOLK | CH_CORPOREAL),
+/* Druid */         (CH_NATURE),
+/* Demonologist */  (CH_LIFE | CH_SORCERY | CH_NATURE | CH_DEATH | CH_PLANAR | CH_FOLK | CH_CORPOREAL),
 };
 
 cptr realm_names [] =
@@ -6902,7 +6899,7 @@ option_type option_info[] =
 { &carry_query_flag,    FALSE,  4,      0, 3,
 "carry_query_flag",             "Prompt before picking things up" },
 
-{ &use_old_target,              TRUE,  3,      0, 4,
+{ &use_old_target,              FALSE,  3,      0, 4,
 "use_old_target",               "Use old target by default" },
 
 { &always_pickup,               TRUE,   4,      0, 5,
@@ -6911,19 +6908,19 @@ option_type option_info[] =
 { &always_repeat,               TRUE,   1,      0, 6,
 "always_repeat",                "Repeat obvious commands" },
 
-{ &depth_in_feet,               TRUE,  1,      0, 7,
+{ &depth_in_feet,               FALSE,  1,      0, 7,
 "depth_in_feet",                "Show dungeon level in feet" },
 
 { &stack_force_notes,   TRUE,  4,      0, 8,
 "stack_force_notes",    "Merge inscriptions when stacking" },
 
-{ &stack_force_costs,   FALSE,  4,      0, 9,
+{ &stack_force_costs,   TRUE,  4,      0, 9,
 "stack_force_costs",    "Merge discounts when stacking" },
 
 { &show_labels,                 TRUE,   4,      0, 10,
 "show_labels",                  "Show labels in object listings" },
 
-{ &show_weights,                FALSE,  4,      0, 11,
+{ &show_weights,                TRUE,  4,      0, 11,
 "show_weights",                 "Show weights in object listings" },
 
 { &show_choices,                TRUE,  1,      0, 12,
@@ -6945,7 +6942,7 @@ option_type option_info[] =
 { &find_ignore_stairs,  FALSE,   2,      0, 16,
 "find_ignore_stairs",   "Run past stairs" },
 
-{ &find_ignore_doors,   FALSE,   2,      0, 17,
+{ &find_ignore_doors,   TRUE,   2,      0, 17,
 "find_ignore_doors",    "Run through open doors" },
 
 { &find_cut,                    TRUE,   2,      0, 18,
@@ -6998,16 +6995,16 @@ option_type option_info[] =
 { &stack_allow_wands,   TRUE,   4,      1, 3,
 "stack_allow_wands",    "Allow wands/staffs/rods to stack" },
 
-{ &expand_look,                 FALSE,  6,      1, 4,
+{ &expand_look,                 TRUE,  6,      1, 4,
 "expand_look",                  "Expand the power of the look command" },
 
-{ &expand_list,                 FALSE,  6,      1, 5,
+{ &expand_list,                 TRUE,  6,      1, 5,
 "expand_list",                  "Expand the power of the list commands" },
 
 { &view_perma_grids,    TRUE,   6,      1, 6,
 "view_perma_grids",             "Map remembers all perma-lit grids" },
 
-{ &view_torch_grids,    FALSE,  6,      1, 7,
+{ &view_torch_grids,    TRUE,  6,      1, 7,
 "view_torch_grids",             "Map remembers all torch-lit grids" },
 
 { &dungeon_align,               TRUE,   6,      1, 8,
@@ -7082,7 +7079,7 @@ option_type option_info[] =
 { &fresh_message,               FALSE,  5,      1, 28,
 "fresh_message",                "Refresh screen after every message" },
 
-{ &compress_savefile,   FALSE,   5,      1, 29,
+{ &compress_savefile,   TRUE,   5,      1, 29,
 "compress_savefile",    "Compress messages in savefiles" },
 
 { &hilite_player,               FALSE,  1,      1, 30,
@@ -7121,7 +7118,7 @@ option_type option_info[] =
 { &disturb_allies,        FALSE, 2, 2, 10,
 "disturb_allies",     "Disturb when visible allies move" },
 
-{ &multi_stair,        TRUE, 6, 2, 11,
+{ &multi_stair,        FALSE, 6, 2, 11,
 "multi_stair",     "Stairs can be longer than one level" },
 
 { &rand_unbiased,    TRUE,5,2,12,
@@ -7148,10 +7145,10 @@ option_type option_info[] =
 { &preserve_mode,               TRUE,  7, 2, 19,
 "preserve_mode",                "Artifacts are not lost if you never saw them" },
 
-{ &use_autoroller,               TRUE,  7, 2, 20,
+{ &use_autoroller,               FALSE,  7, 2, 20,
 "use_autoroller",                "Stats are rolled repeatedly with minima" },
 
-{ &spend_points,               FALSE,  7, 2, 21,
+{ &spend_points,               TRUE,  7, 2, 21,
 "spend_points",                "Stats are not rolled, points are spent on them" },
 
 { &ironman_shop,               FALSE,  7, 2, 22,

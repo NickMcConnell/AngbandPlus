@@ -43,36 +43,57 @@
 
 static cptr ring_adj[MAX_ROCKS] =
 {
-	"Alexandrite", "Amethyst", "Aquamarine", "Azurite", "Beryl",
-		"Bloodstone", "Calcite", "Carnelian", "Corundum", "Diamond",
-		"Emerald", "Fluorite", "Garnet", "Granite", "Jade",
-		"Jasper", "Lapis Lazuli", "Malachite", "Marble", "Moonstone",
-		"Onyx", "Opal", "Pearl", "Quartz", "Quartzite",
-		"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
-		"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
-		"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-		"Engagement", "Adamantite",
-		"Wire", "Soapstone", "Bone", "Wooden",
-		"Spikard", "Serpent",   "Wedding", "Double",
-		"Plain", "Brass",  "Scarab","Shining",
-		"Rusty","Transparent"
+		/* Scary material 3*/
+	    "Skull", "Bone" , "Bloodstone" , 
+	    /* Utility Ring 4 */
+		"Chevron", "Stirrup", "Signet" , "Poisoning" ,
+	    /* Black materials 7*/
+		"Onyx", "Obsidian", "Black Marble", "Black Pearl" , "Swarovski", "Jasper" , "Bixbyite" , 
+		/* Symbolic/wish ring 2 */	
+	    "Prosperity", "Sun", 
+	    /* Organizations 3*/
+	    "Crusader" , "Inquisitor" , "Imperial" ,
+	    /*Cultural references 6*/
+	    "Byzantine" , "Ancient", "Celtic", "Etruscan", "Goth" , "Umbrian" ,
+	    /* Band count references 3*/
+		"Double banded", "Triple banded" , "Gimmal" ,
+	    /* Metals 7*/
+		"Iron", "Steel", "Copper","White Gold", "Bronze" , "Gold", "Silver",
+	    /* Coupling 4*/
+		"Regards", "Posie", "Chastity", "Claddaigh" , 
+	    /* Magical Positions 4*/
+		"Mage's", "Wizard's", "Witches'", "Grandmaster's",
+	    /*Various 4*/
+		"Spikard", "Serpentine",  "Double", "Dragon's" , 
+	    /* Metal states 6*/
+		"Plain",  "Rusted", "Tarnished", "Dull" , "Blotted" , "Stained" , 
+		/* Church Ranks 3*/
+	    "Bishop's",  "Cardinal's", "Papal"
+
 };
 
 static byte ring_col[MAX_ROCKS] =
 {
-	TERM_GREEN, TERM_VIOLET, TERM_L_BLUE, TERM_L_BLUE, TERM_L_GREEN,
-		TERM_RED, TERM_WHITE, TERM_RED, TERM_SLATE, TERM_WHITE,
-		TERM_GREEN, TERM_L_GREEN, TERM_RED, TERM_L_DARK, TERM_L_GREEN,
-		TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_WHITE, TERM_L_WHITE,
-		TERM_L_RED, TERM_L_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_L_WHITE,
-		TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
-		TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
-		TERM_L_DARK, TERM_L_WHITE, TERM_GREEN, TERM_L_BLUE, TERM_L_DARK,
-		TERM_YELLOW, TERM_VIOLET,
-		TERM_UMBER, TERM_L_WHITE, TERM_WHITE, TERM_UMBER,
-		TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
-		TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW,
-		TERM_RED, TERM_WHITE
+   /* Scary material */
+   TERM_WHITE, TERM_L_WHITE, TERM_RED, 
+   /* Utility Ring 4*/
+   TERM_L_BLUE, TERM_L_GREEN, TERM_RED, TERM_VIOLET, 
+   /* Black materials 7*/
+   TERM_L_DARK,TERM_L_DARK,TERM_L_DARK,TERM_L_DARK,TERM_L_DARK,TERM_L_DARK,TERM_L_DARK,	
+   /* Symbolic/wish ring 2 */
+   TERM_YELLOW , TERM_YELLOW ,
+   /*Cultural references 6*/
+	TERM_BLUE,TERM_BLUE,TERM_GREEN,TERM_GREEN,TERM_UMBER,TERM_UMBER,
+   /* Band count references 3*/
+   TERM_ORANGE,TERM_ORANGE,TERM_ORANGE,
+    /* Metals 7*/
+	TERM_WHITE,TERM_WHITE, TERM_ORANGE, TERM_L_WHITE,TERM_ORANGE , TERM_YELLOW , TERM_L_WHITE ,
+	/*Various 4*/
+	TERM_L_GREEN , TERM_L_GREEN , TERM_YELLOW , TERM_L_GREEN ,
+	/* Metal states 6*/
+	TERM_SLATE , TERM_SLATE , TERM_SLATE , TERM_SLATE , TERM_SLATE , TERM_SLATE ,
+	/* Church Ranks 3*/
+	TERM_L_RED , TERM_L_RED , TERM_L_RED
 };
 
 
@@ -99,45 +120,59 @@ static byte amulet_col[MAX_AMULETS] =
 
 /*
 * Staffs (adjectives and colours)
+ Fancy stuff, but cornel is a type of dogwood, it sounds better
+ Fir is kind of pine in Denmark ( guess what country's tree collection is well described in wikipedia ;)
+ Cercis is also a tree found in Denmark, sounds good
+ Chestnut is very european, much more than bamboo...
+ Ash is also more european, then tons of trees of http://www.biblepicturegallery.com/Pictures/Trees.htm
+ Sandal Wood , (1K.10.11, 2Chr.2.8, 11.10).
+ Myrtle , (Neh.8.15, Is.41.19, 55.13).
+ Fig Tree , According to some traditions, the fig was the forbidden fruit..
+ Tamarisk , (Ps.92.14, 1King.6.29,32,35,7.36, Lev.23.40, Jn.12.31, Neh.8.15, Jn.12.13)
+ Juniper 
+ Wormwood, Deut.29.18, Prov.5.4, Rev.8.11.
+ 
 */
 
 static cptr staff_adj[MAX_WOODS] =
 {
-	"Aspen", "Balsa", "Banyan", "Birch", "Cedar",
-		"Cottonwood", "Cypress", "Dogwood", "Elm", "Eucalyptus",
-		"Hemlock", "Hickory", "Ironwood", "Locust", "Mahogany",
-		"Maple", "Mulberry", "Oak", "Pine", "Redwood",
-		"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
-		"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
-		"Golden", "Ashen"/*,"Gnarled","Ivory","Willow"*/
+	    "Aspen", "Fir", "Cercis", "Birch", "Cedar",
+		"Willow", "Cypress", "Cornel", "Elm", "Beech",
+		"Poplar", "Hickory", "Sandal Wood", "Locust", "Ash",
+		"Maple", "Mulberry", "Oak", "Pine", "Myrtle",
+		"Rosewood", "Spruce", "Fig Tree", "Teak", "Walnut",
+		"Mistletoe", "Hawthorn", "Chestnut", "Tamarisk", "Wormwood",
+		"Olive Tree", "Juniper"/*,"Gnarled","Ivory"*/
 };
 
 static byte staff_col[MAX_WOODS] =
 {
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-		TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-		TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_UMBER,
+		TERM_L_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
+		TERM_L_GREEN, TERM_L_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_UMBER,
 		TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
 		TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
-		TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
-		TERM_YELLOW, TERM_SLATE, /*???,???,???*/
+		TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_GREEN, TERM_UMBER,
+		TERM_L_GREEN, TERM_SLATE, /*???,???,???*/
 };
 
 
 /*
 * Wands (adjectives and colours)
+ Scheelite is the new tungsten ;)
+ Femur is the thigh bone, with middle age people being much smaller, it would be about the size of a wand
 */
 
 static cptr wand_adj[MAX_METALS] =
 {
-	"Aluminum", "Cast Iron", "Chromium", "Copper", "Gold",
-		"Iron", "Magnesium", "Molybdenum", "Nickel", "Rusty",
-		"Silver", "Steel", "Tin", "Titanium", "Tungsten",
-		"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
+    	"Triple Plated", "Cast Iron", "Double Plated", "Copper", "Gold",
+		"Iron", "Pointy", "Master", "Nickel", "Rusty",
+		"Silver", "Steel", "Tin", "Femur", "Scheelite",
+		"Black", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
 		"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
-		"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
-		"Platinum", "Lead","Lead-Plated", "Ivory" , "Adamantite",
-		"Uridium", "Long", "Short", "Hexagonal"
+		"Dragon Tooth", "Unicorn", "Runed", "Bronze", "Brass",
+		"Crystal", "Lead","Lead-Plated", "Ivory" , "Bejeweled",
+		"Wizard's", "Long", "Short", "Hexagonal"
 };
 
 static byte wand_col[MAX_METALS] =
@@ -145,10 +180,10 @@ static byte wand_col[MAX_METALS] =
 	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
 		TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_UMBER, TERM_RED,
 		TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_WHITE, TERM_WHITE,
-		TERM_L_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
+		TERM_L_DARK, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
 		TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
-		TERM_L_BLUE, TERM_L_BLUE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-		TERM_WHITE, TERM_SLATE, TERM_SLATE, TERM_WHITE, TERM_VIOLET,
+		TERM_WHITE, TERM_WHITE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
+		TERM_L_BLUE, TERM_SLATE, TERM_SLATE, TERM_WHITE, TERM_VIOLET,
 		TERM_L_RED, TERM_L_BLUE, TERM_BLUE, TERM_RED
 };
 
@@ -1377,6 +1412,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	bool            show_weapon = FALSE;
 	bool            show_armour = FALSE;
+	
+	bool			artefact_overrides = FALSE; /* We start with the conviction that the a_info name does not override the k_info name */
 
 	cptr            s, u;
 	char            *t;
@@ -1385,12 +1422,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	char            b1 = '[', b2 = ']';
 	char            c1 = '{', c2 = '}';
 
-	char            tmp_val[160];
-	char            tmp_val2[90];
+	char            tmp_val[160];  /* Buffer for the description of the thing */
+	char            tmp_val2[90];  /* Buffer the inscription of the thing */
 
 	u32b            f1, f2, f3;
 
 	object_kind             *k_ptr = &k_info[o_ptr->k_idx];
+	artefact_type			*a_ptr = &a_info[o_ptr->name1];  /* This could be null pointer ! */
 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -1407,6 +1445,18 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	/* Extract default "base" string */
 	basenm = (k_name + k_ptr->name);
+	
+	/* Extract potential artefact string , still knowing that this could point to nothing */
+	if (artefact_p(o_ptr) && aware && known ){ /* This gives some assurance that we are not point to null */
+	  basenm = (a_name + a_ptr->name);
+		if( basenm[0] == '!' ){
+		    artefact_overrides = TRUE; /* This will prevent a double display later in the code */
+			basenm++; /* This will prevent the exclamation mark in the artifact name to show up */
+		}else{
+			basenm = (k_name + k_ptr->name); /* False alert, let the the old logic run */
+		}	
+	}
+	
 
 	/* Assume no "modifier" string */
 	modstr = "";
@@ -1495,9 +1545,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 				basenm = "& Ring~";
 			else
 				basenm = aware ? "& # Ring~" : "& # Ring~";
-
-			/* Hack -- The One Ring */
-			if (!aware && (o_ptr->sval == SV_RING_ONERING)) modstr = "Plain Gold";
 
 			break;
 		}
@@ -1831,10 +1878,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Grab any artefact name */
-		else if (o_ptr->name1)
+		else if (o_ptr->name1  && artefact_overrides == FALSE)
 		{
-			artefact_type *a_ptr = &a_info[o_ptr->name1];
-
 			t = object_desc_chr(t, ' ');
 			t = object_desc_str(t, (a_name + a_ptr->name));
 		}
@@ -2588,23 +2633,23 @@ cptr item_activation(object_type *o_ptr)
 	/* Some artefacts can be activated */
 	switch (o_ptr->name1)
 	{
-	case ART_FAITH:
+	case ART_DAGGER_INFERNO:
 		{
 			return "fire bolt (9d8) every 8+d8 turns";
 		}
-	case ART_HOPE:
+	case ART_COCYTUS:
 		{
 			return "frost bolt (6d8) every 7+d7 turns";
 		}
-	case ART_CHARITY:
+	case ART_DAGGER_FURCIFER:
 		{
 			return "lightning bolt (4d8) every 6+d6 turns";
 		}
-	case ART_THOTH:
+	case ART_KINSLAYER:
 		{
 			return "stinking cloud (12) every 4+d4 turns";
 		}
-	case ART_ICICLE:
+	case ART_FROST:
 		{
 			return "frost ball (48) every 5+d5 turns";
 		}
@@ -2620,19 +2665,23 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "summon a Black Reaver every 500+d500 turns";
 		}
-	case ART_EVERFLAME:
+	case ART_RASHAVERAK:
 		{
 			return "fire ball (72) every 400 turns";
 		}
-	case ART_FIRESTAR:
+	case ART_MORNINGSTAR:
 		{
 			return "large fire ball (72) every 100 turns";
 		}
-	case ART_TRAVEL:
+	case ART_BOOTS_FURCIFER:
 		{
-			return "haste self (20+d20 turns) every 200 turns";
+			return "haste self (50 turns) every 200 turns";
 		}
-	case ART_THEODEN:
+	case ART_BOOTS_GABRIEL:
+	{
+		return "haste self (50 turns) every 200 turns";
+	}		
+	case ART_ELIGOR:
 		{
 			return "drain life (120) every 400 turns";
 		}
@@ -2640,7 +2689,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "drain life (90) every 70 turns";
 		}
-	case ART_OGRELORDS:
+	case ART_PRAVUIL:
 		{
 			return "door and trap destruction every 10 turns";
 		}
@@ -2648,7 +2697,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "word of recall every 200 turns";
 		}
-	case ART_THUNDER:
+	case ART_BELETH:
 		{
 			return "haste self (20+d20 turns) every 100+d100 turns";
 		}
@@ -2664,7 +2713,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "mass genocide every 1000 turns";
 		}
-	case ART_SPLEENSLICER:
+	case ART_RONOVE:
 		{
 			return "cure wounds (4d7) every 3+d3 turns";
 		}
@@ -2672,7 +2721,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "fire branding of bolts every 999 turns";
 		}
-	case ART_THUNDERBOLT:
+	case ART_ANDROMALIUS:
 		{
 			return "a getaway every 35 turns";
 		}
@@ -2684,18 +2733,28 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "stone to mud every 5 turns";
 		}
-	case ART_SOULKEEPER:
+	case ART_CORSON:
 		{
 			return "heal (1000) every 888 turns";
 		}
-	case ART_VAMPLORD:
+	case ART_AMAYMON:
+	{
+		return "poisonous nether breath(700) every 888 turns";
+	}		
+	case ART_ROBE_MICHAEL:
 		{
 			return ("heal (777), curing and heroism every 300 turns");
 		}
+	case ART_VEPAR:
+	    {
+		return ("storm of the Dark Waters every 500 turns");
+    	}
+/*		
 	case ART_ORCS:
 		{
 			return "genocide every 500 turns";
 		}
+*/		
 	case ART_LIFE:
 		{
 			return "restore life levels every 450 turns";
@@ -2708,11 +2767,11 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "resistance (20+d20 turns) every 111 turns";
 		}
-	case ART_DARKNESS:
+	case ART_DRAEBOR:
 		{
 			return "Sleep II every 55 turns";
 		}
-	case ART_SWASHBUCKLER:
+	case ART_BARD:
 		{
 			return "recharge item I every 70 turns";
 		}
@@ -2720,7 +2779,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "teleport every 45 turns";
 		}
-	case ART_TOTILA:
+	case ART_PHENEX:
 		{
 			return "confuse monster every 15 turns";
 		}
@@ -2736,7 +2795,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "frost bolt (6d8) every 7+d7 turns";
 		}
-	case ART_WHITESPARK:
+	case ART_FURFICER:
 		{
 			return "lightning bolt (4d8) every 6+d6 turns";
 		}
@@ -2744,9 +2803,9 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "acid bolt (5d8) every 5+d5 turns";
 		}
-	case ART_COMBAT:
+	case ART_GRIMREAPER:
 		{
-			return "a magical arrow (150) every 90+d90 turns";
+			return "a magical seeker bolt (450) every 90+d90 turns";
 		}
 	case ART_SKULLKEEPER:
 		{
@@ -2756,59 +2815,71 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "heal (700) every 250 turns";
 		}
-	case ART_RAZORBACK:
+	case ART_ASMODAI:
 		{
 			return "star ball (150) every 1000 turns";
 		}
-	case ART_BLADETURNER:
-		{
-			return "breathe elements (300), berserk rage, bless, and resistance";
-		}
-	case ART_GALADRIEL:
+	case ART_BAPHOMET:
+	{
+		return "star ball (150) every 1000 turns";
+	}		
+	case ART_SAMAEL:
+	{
+		return "breathe elements (300), berserk rage, bless, and resistance";
+	}
+	case ART_ABADDON:
+	{
+		return "breathe elements (300), berserk rage, bless, and resistance";
+	}
+	case ART_BLOOD_MICHAEL:
+	{
+		return "breathe elements (300), berserk rage, bless, and resistance";
+	}		
+	case ART_BEATRICE:
 		{
 			return "illumination every 10+d10 turns";
 		}
-	case ART_GEM_SEEING:
+	case ART_EOS:
 		{
-			return "magic mapping and light every 50+d50 turns";
+			return "magic mapping and light every 20+d20 turns, draining you";
 		}
-	case ART_INSIGHT:
+	case ART_HIPPO:
 		{
-			return "clairvoyance and recall, draining you";
+			return "clairvoyance and cure";
 		}
-	case ART_INQUISITION:
+	case ART_AMULET_MICHAEL : case ART_AMULET_RAPHAEL:
 		{
-			return "dispel evil (x5) every 300+d300 turns";
+			return "dispel evil (x5) and protection from evil every 450+d450 turns";
 		}
-	case ART_PURITY:
+	case ART_DOOM:
 		{
-			return "protection from evil every 225+d225 turns";
+			return "fireball(250) and protection from fire every 450+d50 turns";
 		}
-	case ART_MAGIC:
+	case ART_RING_GEORGE:
 		{
-			return "a strangling attack (100) every 100+d100 turns";
+			return "shield and berserk (100+d25 turns) every 100+d100 turns";
 		}
-	case ART_BAST:
+	case ART_RING_GABRIEL:
 		{
-			return "haste self (75+d75 turns) every 150+d150 turns";
+			return "haste self (125 turns) every 150+d150 turns";
 		}
-	case ART_ELEMFIRE:
+	case ART_RING_RAPHAEL:
 		{
-			return "large fire ball (120) every 225+d225 turns";
+			return "fireball(250), healing and protective magic every 700+d250 turns";
 		}
-	case ART_ELEMICE:
+	case ART_RING_MICHAEL:
 		{
-			return "large frost ball (200) every 325+d325 turns";
+			return "frostball(200) and combat magic  every 250+d250 turns";
 		}
-	case ART_ELEMSTORM:
+	case ART_EMMANUEL:
 		{
-			return "large lightning ball (250) every 425+d425 turns";
+			return "lightning ball(250) and heal(700) every 700+d300 turns";
 		}
-	case ART_ONE_RING:
+	case ART_FIRST:
 		{
 			return "bizarre things every 450+d450 turns";
 		}
-	case ART_POWER: case ART_MASK:
+	case ART_LAMMASU: case ART_MASK:
 		{
 			return "rays of fear in every direction";
 		}
@@ -3050,13 +3121,13 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It is especially deadly against dragons.";
 	}
-	if (f1 & (TR1_SLAY_ORC))
+	if (f1 & (TR1_SLAY_ANGEL))
 	{
-		info[i++] = "It is especially deadly against orcs.";
+		info[i++] = "It is especially deadly against fallen angels.";
 	}
-	if (f1 & (TR1_SLAY_TROLL))
+	if (f1 & (TR1_KILL_ANGEL))
 	{
-		info[i++] = "It is especially deadly against trolls.";
+		info[i++] = "It is a bane of fallen angels.";
 	}
 	if (f1 & (TR1_SLAY_GIANT))
 	{
@@ -4896,7 +4967,7 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 	return (item);
 }
 
-
+#if 0  
 static byte dragon_colour (object_type * o_ptr)
 {
 	u32b fl = o_ptr->art_flags2;
@@ -4918,6 +4989,7 @@ static byte dragon_colour (object_type * o_ptr)
 	return TERM_SLATE;
 
 }
+#endif
 
 #if 0  
 byte object_attr(object_type *  o_ptr)

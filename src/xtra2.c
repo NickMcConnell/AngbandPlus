@@ -21,6 +21,9 @@ extern bool curse_weapon();
 extern bool curse_armour();
 extern void random_resistance(object_type * q_ptr, bool is_scroll, int specific);
 
+/* This is a hack apparently, I wouldnt know ;)  */
+extern void do_cmd_wiz_cure_all(void);
+
 
 /*
 * Set "p_ptr->blind", notice observable changes
@@ -365,7 +368,7 @@ bool set_fast(int v)
 	{
 		if (!p_ptr->fast)
 		{
-			msg_print("You feel yourself moving faster!");
+			msg_print("You feel time slowing down!");
 			notice = TRUE;
 		}
 	}
@@ -375,7 +378,7 @@ bool set_fast(int v)
 	{
 		if (p_ptr->fast)
 		{
-			msg_print("You feel yourself slow down.");
+			msg_print("You regain normal speed.");
 			notice = TRUE;
 		}
 	}
@@ -1929,6 +1932,11 @@ void check_experience(void)
 
 		/* Handle stuff */
 		handle_stuff();
+		
+		/* Give the player the good news */
+		msg_format("You feel magically reinvigorated.");
+		/* Cure the player completely */
+		(void)do_cmd_wiz_cure_all();
 
 		if(level_reward)
 		{
@@ -2157,7 +2165,7 @@ void monster_death(int m_idx)
 			object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_WORLDS));
 
 			/* Mega-Hack -- Mark this item as "Mighty Hammer of Worlds" */
-			q_ptr->name1 = ART_WORLDS;
+			q_ptr->name1 = ART_HAMMER_ABADDON;
 
 			/* Mega-Hack -- Actually create "Mighty Hammer of Worlds" */
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
@@ -2170,10 +2178,10 @@ void monster_death(int m_idx)
 			q_ptr = &forge;
 
 			/* Mega-Hack -- Prepare to make "Crown of the Universe" */
-			object_prep(q_ptr, lookup_kind(TV_CROWN, SV_UNIVERSE));
+			object_prep(q_ptr, lookup_kind(TV_CROWN, SV_SEVENTH));
 
 			/* Mega-Hack -- Mark this item as "Crown of the Universe" */
-			q_ptr->name1 = ART_UNIVERSE;
+			q_ptr->name1 = ART_SEVENTH;
 
 			/* Mega-Hack -- Actually create "Crown of the Universe" */
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
@@ -2186,12 +2194,14 @@ void monster_death(int m_idx)
 			byte a_idx = 0;
 			int chance = 0;
 			int I_kind = 0;
-
+#ifdef GO_GROO
+            Alas , Groo is no more !
 			if (strstr((r_name + r_ptr->name),"Groo"))
 			{
-				a_idx = ART_GROO;
+				a_idx = ART_GROO; /* This is commented out  */
 				chance = 75;
 			}
+#endif
 
 			if ((a_idx > 0) && ((randint(99)<chance) || (debug_mode)))
 			{
@@ -4158,7 +4168,7 @@ void gain_level_reward(int chosen_reward)
 			dummy2 = SV_LONG_SWORD;
 			break;
 		case 24: case 25: case 26:
-			dummy2 = dummy2 = SV_SCIMITAR;
+			dummy2 = SV_SCIMITAR;
 			break;
 		case 27:
 			dummy2 = SV_KATANA;

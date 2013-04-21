@@ -1,6 +1,8 @@
  /* GIF Loader
   * by Paul Bartrum
   */
+#ifdef USE_DOS
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -344,3 +346,9 @@ BITMAP *load_gif(char *filename, RGB *pal)
 	/* this is never executed but DJGPP complains if you leave it out */
 	return NULL;
 }
+
+#else
+
+static int i = 0;
+
+#endif /* USE_DOS */

@@ -534,16 +534,41 @@ static void prt_depth(void)
 	{
 		(void)strcpy(depths, "Town");
 	}
+	else if (dun_level==1)
+	{
+	        (void)strcpy(depths, "Sewers");
+	}
+	else if (dun_level>1 && dun_level < 4 )
+	{
+	        (void)strcpy(depths, "Gates of Hell");
+	}
+	else if (dun_level==4)
+	{
+	        (void)strcpy(depths, "Acheron's Shores");
+	}
+	else if (dun_level==5)
+	{
+	        (void)strcpy(depths, "Limbo");
+	}
+	
 	else if (depth_in_feet)
 	{
-		(void)sprintf(depths, "(%d ft)",dun_level * 50);
+		(void)sprintf(depths, "Hell (%d ft)",dun_level * 50);
 	}
 	else
 	{
-		(void)sprintf(depths, "(Lev %d)", dun_level);
+		(void)sprintf(depths, "Hell (Lev %d)", dun_level);
 	}
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%9s", depths), 23, COL_DEPTH);
+	if(dun_level==0)
+	{
+	  prt(format("%9s", depths), 23, COL_DEPTH);
+	}
+	else
+	{
+	  prt(format("%18s", depths), 23, COL_STUDY);
+	
+	}
 }
 
 
@@ -804,14 +829,20 @@ static void prt_speed(void)
 
 static void prt_study(void)
 {
-	if (p_ptr->new_spells)
+        /* Only show study indicator in town, where it matters  */
+	if (p_ptr->new_spells && dun_level == 0)
 	{
 		put_str("Study", ROW_STUDY, COL_STUDY);
 	}
-	else
+	else if(!p_ptr->new_spells && dun_level == 0)
 	{
 		put_str("     ", ROW_STUDY, COL_STUDY);
 	}
+	/* We are not clearing the text outside the town, 
+	   because this space is now used with the longer
+	   dungeon names 
+	*/
+
 }
 
 

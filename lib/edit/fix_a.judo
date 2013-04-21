@@ -1,0 +1,36 @@
+#!/usr/bin/java judo 
+fc = getFileAsString("A_INFO.TXT");
+
+fbackup = openTextFile( "A_INFO.BAK" , "w");
+f = openTextFile( "A_INFO.TXT" , "w");
+
+. <fbackup> fc;
+
+fbackup.close();
+
+fca = fc.split("\\n");
+
+currentartifact = 1;
+
+for  x in fca {
+
+  //Make sure that descriptions end with a space
+  if( x.startsWith('D:') ){
+    if( !x.endsWith(' ') ){
+	  x = x @ ' ';
+     . x;
+	}
+  }
+  
+  //Make sure that we renumber
+  if( x.startsWith('N:') ){
+    ta = x.split(":");
+	x = 'N:' @ currentartifact @ ":" @ ta[2];
+	currentartifact++;
+	. x;
+  }  
+  . <f> x;
+  
+}
+
+f.close();

@@ -472,8 +472,8 @@ static flag_desc slay_flags_desc[] =
 	{ TR1_SLAY_EVIL,          "Evil" },
 	{ TR1_SLAY_UNDEAD,        "Undead" },
 	{ TR1_SLAY_DEMON,         "Demon" },
-	{ TR1_SLAY_ORC,           "Orc" },
-	{ TR1_SLAY_TROLL,         "Troll" },
+	{ TR1_SLAY_ANGEL,         "Angel" },
+	{ TR1_KILL_ANGEL,         "XAngel" },
 	{ TR1_SLAY_GIANT,         "Giant" },
 	{ TR1_SLAY_DRAGON,        "Dragon" },
 	{ TR1_KILL_DRAGON,        "Xdragon" }
@@ -2449,7 +2449,7 @@ static void spoil_mon_info(cptr fname)
 		if (k)
 		{
 			/* Now mention attack speed */
-			switch (k) // Use correct grammar
+			switch (k) /* Use correct grammar */
 			{
 			case 1:
 				{

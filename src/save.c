@@ -663,6 +663,7 @@ static void wr_lore(int r_idx)
 	wr_u32b(r_ptr->r_flags4);
 	wr_u32b(r_ptr->r_flags5);
 	wr_u32b(r_ptr->r_flags6);
+	wr_u32b(r_ptr->r_flags7);	
 
 
 	/* Monster limit per level */
@@ -963,6 +964,7 @@ static void wr_extra(void)
 	/* Max Player Level */
 	wr_s16b(p_ptr->max_plv);
 	wr_s16b(p_ptr->max_dun_level);
+	wr_u32b(p_ptr->visits);
 
 	/* More info */
 	wr_s16b(0);     /* oops */

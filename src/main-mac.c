@@ -134,6 +134,8 @@
 
 #include "angband.h"
 
+#ifdef MACINTOSH
+
 #include <Types.h>
 #include <Gestalt.h>
 #include <QuickDraw.h>
@@ -4295,3 +4297,5 @@ void main(void)
 	while (TRUE) CheckEvents(TRUE);
 }
 
+
+#endif /* MACINTOSH */

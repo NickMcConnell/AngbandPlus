@@ -34,9 +34,7 @@
 * of the platforms that we currently support.
 */
 
-
 #ifdef ALLOW_TEMPLATES
-
 
 /*
 * Hack -- error tracking
@@ -44,13 +42,11 @@
 extern s16b error_idx;
 extern s16b error_line;
 
-
 /*
 * Hack -- size of the "fake" arrays
 */
 extern u32b fake_name_size;
 extern u32b fake_text_size;
-
 
 
 /*** Helper arrays for parsing ascii template files ***/
@@ -220,7 +216,7 @@ cptr r_info_flags3[] =
 		"ANIMAL",
 		"FALLEN_ANGEL", 
 		"GOOD",
-		"XXX3X3",
+		"XXXX", /* RF3_PLAYER_GHOST */
 		"NONLIVING", 
 		"HURT_LITE",
 		"HURT_ROCK",
@@ -361,10 +357,51 @@ cptr r_info_flags6[] =
 		"S_UNIQUE"
 };
 
+/*
+ * Monster race flags
+ */
+cptr r_info_flags7[] =
+{
+	"ANNOYED",
+	"NO_SPAWN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN",
+	"INFERNO_OPEN"
+};
+
+
 
 /*
 * Object flags
-*/
+ 
+ */
 static cptr k_info_flags1[] =
 {
 	"STR",
@@ -387,8 +424,8 @@ static cptr k_info_flags1[] =
 		"SLAY_EVIL",
 		"SLAY_UNDEAD",
 		"SLAY_DEMON",
-		"SLAY_ORC",
-		"SLAY_TROLL",
+		"SLAY_ANGEL", /*"SLAY_ORC",*/
+		"KILL_ANGEL", /*"SLAY_TROLL",*/
 		"SLAY_GIANT",
 		"SLAY_DRAGON",
 		"KILL_DRAGON",
@@ -1254,7 +1291,7 @@ static errr grab_one_artefact_flag(artefact_type *a_ptr, cptr what)
 
 
 /*
-* Initialize the "a_info" array, by parsing an ascii "template" file
+* Initialize the "                                     " array, by parsing an ascii "template" file
 */
 errr init_a_info_txt(FILE *fp, char *buf)
 {
@@ -1772,6 +1809,25 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 		}
 	}
 
+	/* Scan flags7 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags7[i]))
+		{
+			r_ptr->flags7 |= (1L << i);
+			return (0);
+		}
+	}	
+	/* INFERNO : scan for specific monster escort  */
+	/* FLAG : ESCORT_???? */
+	if( prefix( what , "ESCORT_" )  )
+	{
+		/*char *numberchars; */
+		/*ascii_to_text( numberchars , what+7 ); */
+		r_ptr->r_escort = atoi( what+7 );
+		return(0);
+	}
+	
 	/* Oops */
 	msg_format("Unknown monster flag '%s'.", what);
 
@@ -1816,7 +1872,7 @@ static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
 			return (0);
 		}
 	}
-
+	
 	/* Oops */
 	msg_format("Unknown monster flag '%s'.", what);
 
@@ -1842,13 +1898,11 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	monster_race *r_ptr = NULL;
 
-
 	/* Just before the first record */
 	error_idx = -1;
 
 	/* Just before the first line */
 	error_line = -1;
-
 
 	/* Start the "fake" stuff */
 	r_head->name_size = 0;
@@ -1918,6 +1972,9 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 			/* Save the index */
 			error_idx = i;
+			
+			/* If needed , show the index */
+			/* msg_format( " %d ", i ); */
 
 			/* Point at the "info" */
 			r_ptr = &r_info[i];
@@ -1987,7 +2044,14 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			/* Save the values */
 			r_ptr->d_char = sym;
 			r_ptr->d_attr = tmp;
-
+			
+			/*Humans have open_door and bash_door, hardcoded for efficiency */
+			if( r_ptr->d_char == 'p' )
+			{
+				r_ptr->flags2 |= RF2_OPEN_DOOR;
+				r_ptr->flags2 |= RF2_BASH_DOOR;				
+			}
+			
 			/* Next... */
 			continue;
 		}
@@ -2118,9 +2182,29 @@ errr init_r_info_txt(FILE *fp, char *buf)
 				s = t;
 			}
 
+
+            /* Minor hack, DROP_GREAT is useless without DROP_GOOD */
+            /* Instead of modifying the whole codebase, I will just force the */
+            /* DROP_GOOD flag if I encounter the DROP_GREAT flag */
+            if (r_ptr->flags1 & (RF1_DROP_GREAT))
+            {
+            	r_ptr->flags1 |= RF1_DROP_GOOD;
+            }
+
+
+            /* Minor hack, RF1_UNIQUE should be accomapnied by  RF1_FORCE_MAXHP */
+            /* Instead of modifying the r_info now, I will just force the */
+            /* RF1_FORCE_MAXHP flag if I encounter the RF1_UNIQUE flag */
+            if (r_ptr->flags1 & (RF1_UNIQUE))
+            {
+            	r_ptr->flags1 |= RF1_FORCE_MAXHP;
+            }
+
 			/* Next... */
 			continue;
 		}
+
+
 
 		/* Process 'S' for "Spell Flags" (multiple lines) */
 		if (buf[0] == 'S')

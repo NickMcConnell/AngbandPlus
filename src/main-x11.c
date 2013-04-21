@@ -443,6 +443,7 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 /*
  * Nuke the current metadpy
  */
+#ifdef COMPLETE_X11
 static errr Metadpy_nuke(void)
 {
 	metadpy *m = Metadpy;
@@ -464,7 +465,7 @@ static errr Metadpy_nuke(void)
 	/* Return Success */
 	return (0);
 }
-
+#endif
 
 /*
  * General Flush/ Sync/ Discard routine
@@ -514,6 +515,7 @@ static errr Infowin_set_name(cptr name)
 /*
  * Set the icon name of Infowin
  */
+#ifdef COMPLETE_X11
 static errr Infowin_set_icon_name(cptr name)
 {
 	Status st;
@@ -525,11 +527,12 @@ static errr Infowin_set_icon_name(cptr name)
 	if (st) XSetWMIconName(Metadpy->dpy, Infowin->win, &tp);
 	return (0);
 }
-
+#endif
 
 /*
  * Nuke Infowin
  */
+#ifdef COMPLETE_X11
 static errr Infowin_nuke(void)
 {
 	infowin *iwin = Infowin;
@@ -544,7 +547,7 @@ static errr Infowin_nuke(void)
 	/* Success */
 	return (0);
 }
-
+#endif
 
 /*
  * Prepare a new 'infowin'.
@@ -555,7 +558,8 @@ static errr Infowin_prepare(Window xid)
 
 	Window tmp_win;
 	XWindowAttributes xwa;
-	int x, y, w, h, b, d;
+	int x, y;
+	unsigned int w, h, b, d;
 
 	/* Assign stuff */
 	iwin->win = xid;
@@ -588,6 +592,7 @@ static errr Infowin_prepare(Window xid)
 /*
  * Initialize a new 'infowin'.
  */
+#ifdef COMPLETE_X11
 static errr Infowin_init_real(Window xid)
 {
 	/* Wipe it clean */
@@ -599,7 +604,7 @@ static errr Infowin_init_real(Window xid)
 	/* Attempt to Prepare ourself */
 	return (Infowin_prepare(xid));
 }
-
+#endif
 
 /*
  * Init an infowin by giving some data.
@@ -681,6 +686,7 @@ static errr Infowin_map (void)
 /*
  * Request that Infowin be unmapped
  */
+#ifdef COMPLETE_X11
 static errr Infowin_unmap (void)
 {
 	/* Execute the Un-Mapping */
@@ -689,6 +695,7 @@ static errr Infowin_unmap (void)
 	/* Success */
 	return (0);
 }
+#endif
 
 
 /*
@@ -707,6 +714,7 @@ static errr Infowin_raise(void)
 /*
  * Request that Infowin be lowered
  */
+#ifdef COMPLETE_X11
 static errr Infowin_lower(void)
 {
 	/* Lower towards invisibility */
@@ -715,11 +723,12 @@ static errr Infowin_lower(void)
 	/* Success */
 	return (0);
 }
-
+#endif
 
 /*
  * Request that Infowin be moved to a new location
  */
+#ifdef COMPLETE_X11
 static errr Infowin_impell(int x, int y)
 {
 	/* Execute the request */
@@ -728,7 +737,7 @@ static errr Infowin_impell(int x, int y)
 	/* Success */
 	return (0);
 }
-
+#endif
 
 /*
  * Resize an infowin
@@ -746,6 +755,7 @@ static errr Infowin_resize(int w, int h)
 /*
  * Move and Resize an infowin
  */
+#ifdef COMPLETE_X11
 static errr Infowin_locate(int x, int y, int w, int h)
 {
 	/* Execute the request */
@@ -754,7 +764,7 @@ static errr Infowin_locate(int x, int y, int w, int h)
 	/* Success */
 	return (0);
 }
-
+#endif
 
 /*
  * Visually clear Infowin
@@ -772,6 +782,7 @@ static errr Infowin_wipe(void)
 /*
  * Visually Paint Infowin with the current color
  */
+#ifdef COMPLETE_X11
 static errr Infowin_fill(void)
 {
 	/* Execute the request */
@@ -781,6 +792,7 @@ static errr Infowin_fill(void)
 	/* Success */
 	return (0);
 }
+#endif
 
 
 
@@ -909,6 +921,7 @@ static Pixell Infoclr_Pixell(cptr name)
 /*
  * Initialize a new 'infoclr' with a real GC.
  */
+#ifdef COMPLETE_X11
 static errr Infoclr_init_1(GC gc)
 {
 	infoclr *iclr = Infoclr;
@@ -922,11 +935,13 @@ static errr Infoclr_init_1(GC gc)
 	/* Success */
 	return (0);
 }
+#endif
 
 
 /*
  * Nuke an old 'infoclr'.
  */
+#ifdef COMPLETE_X11
 static errr Infoclr_nuke(void)
 {
 	infoclr *iclr = Infoclr;
@@ -944,6 +959,7 @@ static errr Infoclr_nuke(void)
 	/* Success */
 	return (0);
 }
+#endif
 
 
 /*
@@ -1030,6 +1046,7 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
 /*
  * Nuke an old 'infofnt'.
  */
+#ifdef COMPLETE_X11
 static errr Infofnt_nuke (void)
 {
 	infofnt *ifnt = Infofnt;
@@ -1051,7 +1068,7 @@ static errr Infofnt_nuke (void)
 	/* Success */
 	return (0);
 }
-
+#endif
 
 /*
  * Prepare a new 'infofnt'
@@ -1088,6 +1105,7 @@ static errr Infofnt_prepare(XFontStruct *info)
 /*
  * Initialize a new 'infofnt'.
  */
+#ifdef COMPLETE_X11
 static errr Infofnt_init_real(XFontStruct *info)
 {
 	/* Wipe the thing */
@@ -1099,7 +1117,7 @@ static errr Infofnt_init_real(XFontStruct *info)
 	/* Attempt to prepare it */
 	return (Infofnt_prepare (info));
 }
-
+#endif
 
 /*
  * Init an infofnt by its Name
@@ -1786,8 +1804,12 @@ static errr Term_xtra_x11_level(int v)
  * React to changes
  */
 static errr Term_xtra_x11_react(void)
-{
+{   
+	/* Seems we wil code this on a later day ;) */
+	
+	/*
 	term_data *td = (term_data*)(Term->data);
+	*/
 
 	/* XXX XXX XXX */
 

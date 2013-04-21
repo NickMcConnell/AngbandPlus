@@ -118,10 +118,10 @@ static cptr desc_worship[] =
 */
 static cptr desc_moan[] =
 {
-	"seems sad about something.",
-		"asks if you have seen his dogs.",
-		"tells you to get off his land.",
-		"mumbles something about mushrooms."
+	    "seems sad about something.",
+		"asks if you have found the seventh seal.",
+		"tells you to stop staring at him.",
+		"caresses his blackened shield."
 };
 
 

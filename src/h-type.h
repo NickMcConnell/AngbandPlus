@@ -113,8 +113,8 @@ typedef unsigned long huge;
 
 
 /* Signed/Unsigned 16 bit value */
-typedef signed short s16b;
-typedef unsigned short u16b;
+typedef signed short s16b; /* -32768 to 32767 */
+typedef unsigned short u16b; /* 0 to 65535 */
 
 /* Signed/Unsigned 32 bit value */
 #ifdef L64	/* 64 bit longs */

@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:1.0.3
+V:0.8.1
 
 
 ### Body Armor ###
@@ -407,7 +407,7 @@ X:24:20
 W:0:0:0:20000
 C:5:5:0:2
 F:STR | DEX | CON | 
-F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
+F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD
 F:FREE_ACT | SEE_INVIS
 
 N:69:of Extra Attacks
@@ -488,15 +488,15 @@ X:24:14
 W:0:0:0:2500
 F:SLAY_DEMON
 
-N:84:of Slay Orc
+N:84:of Slay Angel
 X:24:10
 W:0:0:0:2500
-F:SLAY_ORC
+F:SLAY_ANGEL
 
-N:85:of Slay Troll
+N:85:of Angel Bane
 X:24:10
 W:0:0:0:2500
-F:SLAY_TROLL
+F:KILL_ANGEL
 
 N:86:of Slay Giant
 X:24:14
@@ -534,17 +534,17 @@ W:0:0:0:4000
 C:0:0:0:2
 F:INT | SLAY_DEMON
 
-N:92:of Orc Bane
+N:92:of Angel Bane
 X:24:14
 W:0:0:0:4000
 C:0:0:0:2
-F:DEX | SLAY_ORC
+F:DEX | KILL_ANGEL
 
-N:93:of Troll Bane
+N:93:of Sinner Bane
 X:24:14
 W:0:0:0:4000
 C:0:0:0:2
-F:STR | SLAY_TROLL
+F:STR | DEX | CON | FREE_ACT | REGEN | RES_FEAR
 
 N:94:of Giant Bane
 X:24:16
@@ -641,11 +641,17 @@ F:SLAY_ANIMAL
 N:113:of Hurt Evil
 X:23:10
 W:0:0:0:25
-F:SLAY_EVIL
+F:SLAY_EVIL | 
 
-# 114 (unused)
+N:114:of Holy Fire
+X:23:10
+W:0:0:0:25
+F:SLAY_DEMON | BRAND_FIRE
 
-# 115 (unused)
+N:115:of Angel Bane
+X:23:10
+W:0:0:0:25
+F:KILL_ANGEL | BRAND_ACID
 
 # 116 (unused)
 

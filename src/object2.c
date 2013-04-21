@@ -887,8 +887,8 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f1 & TR1_SLAY_EVIL) total += 4500;
 	if (f1 & TR1_SLAY_UNDEAD) total += 3500;
 	if (f1 & TR1_SLAY_DEMON) total += 3500;
-	if (f1 & TR1_SLAY_ORC) total += 3000;
-	if (f1 & TR1_SLAY_TROLL) total += 3500;
+	if (f1 & TR1_SLAY_ANGEL) total += 3000;
+	if (f1 & TR1_KILL_ANGEL) total += 4400;
 	if (f1 & TR1_SLAY_GIANT) total += 3500;
 	if (f1 & TR1_SLAY_DRAGON) total += 3500;
 	if (f1 & TR1_KILL_DRAGON) total += 5500;
@@ -1386,23 +1386,34 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 		/* Staffs and Wands */
 	case TV_STAFF:
+		/* Require identical charges */
+		/*StackingWIP*/
+		if (object_known_p(o_ptr) && !object_known_p(j_ptr)) return (0);
+		if (!object_known_p(o_ptr) && object_known_p(j_ptr)) return (0);		
+		if (o_ptr->pval != j_ptr->pval) return (0);
+	    break;
 	case TV_WAND:
 		{
-			/* Require knowledge */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
-
+			/*StackingWIP*/
+			/* Require knowledge of both or knowledge of none */
+			/* if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0); */
+			if (object_known_p(o_ptr) && !object_known_p(j_ptr)) return (0);
+			if (!object_known_p(o_ptr) && object_known_p(j_ptr)) return (0);			
+			
+			/*StackingWIP screw falling through*/
 			/* Fall through */
+			break;
 		}
 
 		/* Staffs and Wands and Rods */
 	case TV_ROD:
 		{
-			/* Require permission */
-			if (!stack_allow_wands) return (0);
-
-			/* Require identical charges */
-			if (o_ptr->pval != j_ptr->pval) return (0);
-
+			/*StackingWIP*/
+			/* Require permission, screw permission*/
+			/* if (!stack_allow_wands) return (0); */
+			if (object_known_p(o_ptr) && !object_known_p(j_ptr)) return (0);
+			if (!object_known_p(o_ptr) && object_known_p(j_ptr)) return (0);						
+            if (o_ptr->pval != j_ptr->pval) return (0);
 			/* Probably okay */
 			break;
 		}
@@ -1534,6 +1545,8 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 	/* Add together the item counts */
 	o_ptr->number = ((total < MAX_STACK_SIZE) ? total : (MAX_STACK_SIZE - 1));
+	
+	if(o_ptr->tval==TV_WAND)o_ptr->pval=o_ptr->pval+j_ptr->pval;
 
 	/* Hack -- blend "known" status */
 	if (object_known_p(j_ptr)) object_known(o_ptr);
@@ -1792,36 +1805,36 @@ void random_artefact_resistance(object_type * o_ptr)
 	switch(o_ptr->name1)
 	{
 
-	case ART_ORCS: case ART_HEARTGUARD: case ART_OGRELORDS:
-	case ART_KOBOLD: case ART_SERPENTS:
-	case ART_RAWHIDE: case ART_STABILITY: case ART_MINDCRAFTER:
-	case ART_LIFE: case ART_BLACKREAVER: case ART_VITRIOL:
-	case ART_HOPE: case ART_CHARITY: case ART_FAITH:
-	case ART_STING: case ART_JUSTICE:
-	case ART_WYVERNSCALE:
+	case ART_VEPAR: case ART_SABNOCK: case ART_PRAVUIL:
+	case ART_ALASTOR: case ART_SEIRIM:
+	case ART_SHIELD_MICHAEL: case ART_SHIELD_ELEMENTS: case ART_SOLOMON:
+	case ART_LIFE: case ART_BLACKREAVER: case ART_SHIELD_AGES:
+	case ART_COCYTUS: case ART_DAGGER_FURCIFER: case ART_DAGGER_INFERNO:
+	case ART_OROBAS: case ART_JUSTICE:
+	case ART_WHIRLWIND:
 		{
 			/* Give a resistance */
 			give_resistance = TRUE;
 		}
 		break;
-	case ART_DEFENCE: case ART_BRIGHTBLADE: case ART_BLACKICE:
-	case ART_EVERFLAME: case ART_FIRETONGUE: case ART_DRAGONSLAYER:
-	case ART_SOULSWORD: case ART_BOWSERPENTS: case ART_DEATH:
+	case ART_VALEFAR: case ART_BRIGHTBLADE: case ART_BLACKICE:
+	case ART_RASHAVERAK: case ART_FIRETONGUE: case ART_DRAGONSLAYER:
+	case ART_SOULSWORD: case ART_BOWASSASSIN: case ART_DEATH:
 		{
 			/* Give a resistance OR a power */
 			if (randint(2)==1) give_resistance = TRUE;
 			else give_power = TRUE;
 		}
 		break;
-	case ART_ELEMICE: case ART_ELEMSTORM: case ART_MISERY:
-	case ART_COMBAT: case ART_SWASHBUCKLER: case ART_TRITONS:
+	case ART_RING_MICHAEL: case ART_EMMANUEL: case ART_MISERY:
+	case ART_GRIMREAPER: case ART_BARD: case ART_TRITONS:
 	case ART_ATAL:
 		{
 			/* Give a power */
 			give_power = TRUE;
 		}
 		break;
-	case ART_ONE_RING: case ART_SUN: case ART_MJOLLNIR:
+	case ART_FIRST: case ART_SUN: case ART_HAMMER_AMAYMON:
 		{
 			/* Give both */
 			give_power = TRUE;
@@ -2227,7 +2240,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						break;
 					}
 
-				case 13: case 14:
+				case 13: case 14: case 15:
 					{
 						o_ptr->name2 = EGO_SLAY_UNDEAD;
 						o_ptr->art_flags2 |= TR2_HOLD_LIFE;
@@ -2239,22 +2252,24 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						break;
 					}
 
-				case 15: case 16: case 17:
+			    case 16: case 17: case 18:
 					{
-						o_ptr->name2 = EGO_SLAY_ORC;
+						o_ptr->name2 = EGO_SLAY_ANGEL;
 						if (rand_int(100) < 20)
 						{
-							o_ptr->name2 = EGO_KILL_ORC;
+							o_ptr->name2 = EGO_KILL_XANGEL;
 						}
 						break;
 					}
 
-				case 18: case 19: case 20:
+				 case 19: case 20:
 					{
-						o_ptr->name2 = EGO_SLAY_TROLL;
+						o_ptr->name2 = EGO_KILL_ANGEL;
 						if (rand_int(100) < 20)
 						{
-							o_ptr->name2 = EGO_KILL_TROLL;
+							/*Okay, okay, this is a hack, however, what is the superlative of kill angel, execute angel ???
+							there would have been to much angel bashing, so I decided to replace some of it with sinner bashing*/
+							o_ptr->name2 = EGO_KILL_SINNER;
 						}
 						break;
 					}
@@ -2447,7 +2462,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				/* Roll for ego-item */
-				switch (randint(12))
+				switch (randint(16))
 				{
 				case 1: case 2: case 3:
 					{
@@ -2461,13 +2476,13 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						break;
 					}
 
-				case 5:
+				case 5: case 6:
 					{
 						o_ptr->name2 = EGO_FROST;
 						break;
 					}
 
-				case 6: case 7:
+				 case 7:
 					{
 						o_ptr->name2 = EGO_HURT_ANIMAL;
 						break;
@@ -2497,6 +2512,18 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						o_ptr->dd++;
 						break;
 					}
+				case 13: case 14:
+				{
+					o_ptr->name2 = EGO_HOLY_FLAME;
+					o_ptr->dd++;					
+					break;
+				}					
+				case 15: case 16:
+				{
+					o_ptr->name2 = EGO_ANGEL_BANE;
+					o_ptr->dd++;					
+					break;
+				}						
 				}
 
 				/* Hack -- super-charge the damage dice */
@@ -3411,7 +3438,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			switch (o_ptr->sval)
 			{
 				/* Amulet of wisdom/charisma */
-			case SV_AMULET_WISDOM:
+			case SV_AMULET_BRILLIANCE:
 			case SV_AMULET_CHARISMA:
 				{
 					o_ptr->pval = 1 + m_bonus(5, level);
@@ -3517,8 +3544,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 static void a_m_aux_4(object_type *o_ptr, int level, int power)
 {
 	/* XXX XXX XXX */
+	/*
 	level = (0, level);
 	power = (0, power);
+	*/	
 
 	/* Apply magic (good or bad) according to type */
 	switch (o_ptr->tval)
@@ -3580,9 +3609,9 @@ static void a_m_aux_5(object_type *o_ptr, int level, int power)
 	}
 
 	/* Orbs */
-	if (power < 0) // Cursed
+	if (power < 0) /* Cursed */
 	{
-		switch(randint(2)) // Cursed
+		switch(randint(2)) /* Cursed */
 		{
 		case 1:
 			{
@@ -3610,7 +3639,7 @@ static void a_m_aux_5(object_type *o_ptr, int level, int power)
 			}
 		} 
 	}
-	else if (power == 1) // Good
+	else if (power == 1) /* Good */
 	{
 		switch(randint(30))
 		{
@@ -3770,7 +3799,7 @@ static void a_m_aux_5(object_type *o_ptr, int level, int power)
 			}
 		}
 	}
-	else if (power == 2) // Great
+	else if (power == 2) /* Great */
 	{
 		o_ptr->name2 = EGO_ORB_POWER;
 		for (i=0; i<3; i++)
@@ -5081,9 +5110,15 @@ void inven_item_increase(int item, int num)
 	/* Un-apply */
 	num -= o_ptr->number;
 
-	/* Change the number and weight */
+	/* Change the number and weight and charges*/
 	if (num)
 	{
+		/* Change charges if we are removing some wands*/		
+		if(num<0 && num!=-o_ptr->number && o_ptr->tval==TV_WAND)
+		{
+			o_ptr->pval = o_ptr->pval + ( o_ptr->pval / o_ptr->number * num );
+		}
+		
 		/* Add the number */
 		o_ptr->number += num;
 
@@ -5602,6 +5637,12 @@ void inven_drop(int item, int amt)
 
 	/* Modify quantity */
 	q_ptr->number = amt;
+	
+	/* Modify charges for wands */
+	if(o_ptr->tval==TV_WAND)
+	{
+		q_ptr->pval = o_ptr->pval / o_ptr->number * q_ptr->number;		
+	}
 
 	/* Describe local object */
 	object_desc(o_name, q_ptr, TRUE, 3);

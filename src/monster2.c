@@ -91,7 +91,10 @@ static int ghost_race;
 
 static char gb_name[32];
 
-
+/*
+ * Hack -- the "type" of the current "summon specific"
+ */
+static int summon_specific_type = 0;
 
 /*
 * Set a "blow" record for the ghost
@@ -1081,10 +1084,31 @@ s16b get_mon_num(int level)
 	monster_race	*r_ptr;
 
 	alloc_entry		*table = alloc_race_table;
+	
+	/* The meaning of true and false */
+	bool bool_true = 1;
+	bool bool_false = 0;
+	/* Shielded levels only contain monsters of that depth */	
+	bool       shielded_level;
+
+	
+	/* Shielded levels only contain monsters of that depth 
+	   my teacher in structured programming would hit on the 
+	   head for assigning true false via if/else, but then again
+	   this is guaranteed to work, and I dont know how this bool
+	   thing really works in C.
+    */
+	/* TODO : shielded levels should be contained in an array or something*/
+	if ( dun_level > DIS_START && dun_level < DIS_END ){
+		shielded_level = bool_true;
+		level = dun_level;  /* Just to be certain */
+	}else{
+		shielded_level = bool_false;
+	}
 
 
-	/* Boost the level */
-	if (level > 0)
+	/* Boost the level if we are not on a shielded level */
+	if (level > 0 && shielded_level == bool_false)
 	{
 		/* Occasional "nasty" monster */
 		if (rand_int(NASTY_MON) == 0)
@@ -1135,7 +1159,26 @@ s16b get_mon_num(int level)
 		{
 			continue;
 		}
+		
+		/* Hack? -- no NO_SPAWN monsters */
+		if (r_ptr->flags7 & (RF7_NO_SPAWN))
+		{
+			continue;
+		}
 
+		/* Hack -- shielded levels have no monsters from other depths*/
+		if( shielded_level == bool_true && table[i].level != dun_level ){
+			continue;
+		}
+		/*Hack non shielded levels have no monsters from shielded depths*/
+		if( shielded_level == bool_false && ( table[i].level > DIS_START && table[i].level < DIS_END ) ){
+			continue;
+		}		
+		/*Hack levels after Dis, should have no monsters from before Dis*/
+		if( dun_level >= DIS_END && table[i].level < DIS_END ){
+			continue;
+		}
+		
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
 
@@ -2009,6 +2052,10 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	monster_race	*r_ptr = &r_info[r_idx];
 
 	cptr		name = (r_name + r_ptr->name);
+	
+	/*Variables for Satan's circle*/
+	int lx,ly,x1,y1,k;
+	
 
 
 	/* Verify location */
@@ -2217,7 +2264,51 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 
 	/* Hack -- Notice new multi-hued monsters */
 	if (r_ptr->flags1 & (RF1_ATTR_MULTI)) shimmer_monsters = TRUE;
-
+	
+	/* Hack - Satan's disintegrating powers have created a circular area for him*/
+	if( dun_level == DIS_END-1 )
+	{
+	x1 = x;
+	y1 = y;
+	
+	/* Big area of affect */
+	for (ly = (y1 - 15); ly <= (y1 + 15); ly++)
+	{
+		for (lx = (x1 - 15); lx <= (x1 + 15); lx++)
+		{
+			/* Skip illegal grids */
+			if (!in_bounds(ly, lx)) continue;
+			
+			/* Extract the distance */
+			k = distance(y1, x1, ly, lx);
+			
+			/* Stay in the circle of death */
+			if (k >= 16) continue;
+			
+			/* Dont Delete the monster, only Satan should be there */
+			/* delete_monster(ly, lx); */
+			
+			/* Destroy valid grids */
+			if (cave_valid_bold(ly, lx))
+			{
+				/* Delete objects */
+				delete_object(ly, lx);
+				
+				/* Access the grid */
+				c_ptr = &cave[ly][lx];
+				
+				/* Create floor */
+				c_ptr->feat = FEAT_FLOOR;
+				
+				/* No longer part of a room or vault */
+				c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
+				
+				/* No longer illuminated or known */
+				c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
+			}/* End of fixing cave*/
+		}/* End of x */
+	}/* End of y */ 
+	}/* End of Satan code */	
 
 	/* Success */
 	return (TRUE);
@@ -2392,27 +2483,31 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 			/* Require empty grids */
 			if (!cave_empty_bold(ny, nx) || (cave[ny][nx].feat == FEAT_WATER)) continue;
 
-
-			/* Set the escort index */
-			place_monster_idx = r_idx;
-
-
-			/* Set the escort hook */
-			get_mon_num_hook = place_monster_okay;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
-
-
-			/* Pick a random race */
-			z = get_mon_num(r_ptr->level);
-
-
-			/* Remove restriction */
-			get_mon_num_hook = NULL;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
+            if( r_ptr->r_escort > 0 )
+			{
+				/* Some monsters have their escorts defined */
+				z = r_ptr->r_escort;
+			}
+			else
+			{	
+				/* Set the escort index */
+				place_monster_idx = r_idx;
+				
+				/* Set the escort hook */
+				get_mon_num_hook = place_monster_okay;
+				
+				/* Prepare allocation table */
+				get_mon_num_prep();
+				
+				/* Pick a random race */
+				z = get_mon_num(r_ptr->level);
+				
+				/* Remove restriction */
+				get_mon_num_hook = NULL;
+				
+				/* Prepare allocation table */
+				get_mon_num_prep();
+			}
 
 
 			/* Handle failure */
@@ -2631,10 +2726,7 @@ bool alloc_monster(int dis, int slp)
 
 
 
-/*
-* Hack -- the "type" of the current "summon specific"
-*/
-static int summon_specific_type = 0;
+
 
 
 /*
@@ -2654,6 +2746,11 @@ static bool summon_specific_okay(int r_idx)
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
+	case SUMMON_SKULLS:
+		{
+			okay = strstr((r_name + r_ptr->name),"Screaming skull of Vengeance") || strstr((r_name + r_ptr->name),"Screaming skull of Fury");
+			break;
+		}
 	case SUMMON_ANT:
 		{
 			okay = ((r_ptr->d_char == 'a') &&
@@ -2948,7 +3045,6 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	/* Save the "summon" type */
 	summon_specific_type = type;
 
-
 	/* Require "okay" monsters */
 	get_mon_num_hook = summon_specific_okay;
 
@@ -2974,13 +3070,69 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	{
 		Group_ok = FALSE;
 	}
-
+	/* Reset it since we abuse it somewhere else */
+    summon_specific_type = 0;
+	
 	/* Attempt to place the monster (awake, allow groups) */
 	if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, FALSE)) return (FALSE);
 
 
 	/* Success */
 	return (TRUE);
+}
+
+/* Eeeeeeeew , I couldnt make the regular SUMMON_SKULLS work, sadness...*/
+
+bool summon_skulls(int y1, int x1)
+{
+	int i, x, y, r_idx;
+	
+	bool Group_ok = TRUE;
+	
+	
+	/* Look for a location */
+	for (i = 0; i < 20; ++i)
+	{
+		/* Pick a distance */
+		int d = (i / 15) + 1;
+		
+		/* Pick a location */
+		scatter(&y, &x, y1, x1, d, 0);
+		
+		/* Require "empty" floor grid */
+		if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER)) continue;
+		
+		/* Hack -- no summon on glyph of warding */
+		if (cave[y][x].feat == FEAT_GLYPH) continue;
+		if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
+		
+		/* ... nor on the Pattern */
+		if ((cave[y][x].feat >= FEAT_PATTERN_START)
+			&& (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
+			continue;
+		
+		/* Okay */
+		break;
+	}
+	summon_specific_type = SUMMON_SKULLS;
+	/* Failure */
+	if (i == 20) return (FALSE);
+    	/* Scan the allocation table */
+		for (i = 0; i < alloc_race_size; i++)
+		{
+			/* Accept monsters which pass the restriction, if any */
+			if (summon_specific_okay(i) )
+			{
+				/* Accept this monster */
+				r_idx= i;
+				/* Attempt to place the monster (awake, allow groups) */
+				if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, FALSE)) return (FALSE);
+				/* Success */
+				return (TRUE);				
+			}
+		}
+		return(FALSE);
+
 }
 
 

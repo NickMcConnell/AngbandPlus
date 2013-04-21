@@ -1,278 +1,129 @@
-// Microsoft Visual C++ generated resource script.
-//
-#include "resource.h"
+/* File: angband.rc */
 
-#define APSTUDIO_READONLY_SYMBOLS
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 2 resource.
-//
-#include "afxres.h"
+ANGBAND MENU
+{
+	POPUP "&File"
+	{
+		MENUITEM "&New", 100
+		MENUITEM "&Open...", 101
+		MENUITEM SEPARATOR
+		MENUITEM "&Save", 110
+		MENUITEM SEPARATOR
+		MENUITEM "E&xit", 130
+	}
 
-/////////////////////////////////////////////////////////////////////////////
-#undef APSTUDIO_READONLY_SYMBOLS
+	POPUP "&Window"
+	{
+		POPUP "&Visibility"
+		{
+			MENUITEM "Term-0 window", 200
+			MENUITEM "Term-1 window", 201
+			MENUITEM "Term-2 window", 202
+			MENUITEM "Term-3 window", 203
+			MENUITEM "Term-4 window", 204
+			MENUITEM "Term-5 window", 205
+			MENUITEM "Term-6 window", 206
+			MENUITEM "Term-7 window", 207
+		}
 
-/////////////////////////////////////////////////////////////////////////////
-// English (U.K.) resources
+		POPUP "&Font"
+		{
+			MENUITEM "Term-0 window", 210
+			MENUITEM "Term-1 window", 211
+			MENUITEM "Term-2 window", 212
+			MENUITEM "Term-3 window", 213
+			MENUITEM "Term-4 window", 214
+			MENUITEM "Term-5 window", 215
+			MENUITEM "Term-6 window", 216
+			MENUITEM "Term-7 window", 217
+		}
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
-#ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
-#pragma code_page(1252)
-#endif //_WIN32
+		MENUITEM SEPARATOR
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
+		POPUP "Bizarre Display"
+		{
+			MENUITEM "Term-0 window", 230
+			MENUITEM "Term-1 window", 231
+			MENUITEM "Term-2 window", 232
+			MENUITEM "Term-3 window", 233
+			MENUITEM "Term-4 window", 234
+			MENUITEM "Term-5 window", 235
+			MENUITEM "Term-6 window", 236
+			MENUITEM "Term-7 window", 237
+		}
 
-HELLBAND MENU 
-BEGIN
-    POPUP "&File"
-    BEGIN
-        MENUITEM "&New Player Profile",         100
-        MENUITEM "&Load Player Profile",        101
-        MENUITEM SEPARATOR
-        MENUITEM "End Game",                    1081
-        MENUITEM SEPARATOR
-        MENUITEM "&Save and Continue",          1283
-        MENUITEM "Save and E&xit",              1288
-    END
-    POPUP "&Action"
-    BEGIN
-        POPUP "Alter"
-        BEGIN
-            MENUITEM "Bash",                        1066
-            MENUITEM "Close",                       1099
-            MENUITEM "Disarm",                      1068
-            MENUITEM "Open",                        1111
-            MENUITEM "Tunnel",                      1084
-        END
-        POPUP "Looking"
-        BEGIN
-            MENUITEM "Identify Symbol",             1047
-            MENUITEM "Locate",                      1076
-            MENUITEM "Look",                        1108
-            MENUITEM "Map",                         1077
-        END
-        POPUP "Magic"
-        BEGIN
-            MENUITEM "Cast Spell/Mindcrafting Power", 1109
-            MENUITEM "Racial Ability/Corruption",   1085
-        END
-        POPUP "Movement"
-        BEGIN
-            MENUITEM "Go Down",                     1062
-            MENUITEM "Go Up",                       1060
-            MENUITEM "Run",                         1046
-            MENUITEM "Walk (with pickup)",          1059
-            MENUITEM "Walk (flip pickup)",          1045
-        END
-        POPUP "Resting"
-        BEGIN
-            MENUITEM "Rest",                        1082
-            MENUITEM "Stand Still (with pickup)",   1044
-        END
-    END
-    POPUP "&Inventory"
-    BEGIN
-        MENUITEM "Equipment",                   1101
-        MENUITEM "Inventory",                   1105
-        MENUITEM SEPARATOR
-        POPUP "Handle"
-        BEGIN
-            MENUITEM "Destroy",                     1107
-            MENUITEM "Destroy All",                 1075
-            MENUITEM "Drop",                        1100
-            MENUITEM "Pick Up",                     1103
-            MENUITEM "Take Off",                    1116
-            MENUITEM "Wear/Wield",                  1119
-            MENUITEM "Eat Food",                    1069
-            MENUITEM "Fire Missile",                1102
-            MENUITEM "Fuel Light",                  1070
-            MENUITEM "Jam Spike",                   1106
-            MENUITEM "Throw",                       1118
-        END
-        POPUP "Use"
-        BEGIN
-            MENUITEM "Activate Item",               1065
-            MENUITEM "Aim Wand",                    1097
-            MENUITEM "Quaff Potion",                1113
-            MENUITEM "Read Scroll",                 1114
-            MENUITEM "Use Staff",                   1117
-            MENUITEM "Zap Rod",                     1122
-            MENUITEM SEPARATOR
-            MENUITEM "Browse Book",                 1098
-        END
-        MENUITEM SEPARATOR
-        MENUITEM "Inspect",                     1073
-        MENUITEM "Inscribe",                    1123
-        MENUITEM "Uninscribe",                  1125
-    END
-    POPUP "&Other"
-    BEGIN
-        MENUITEM "Character Info",              1067
-        MENUITEM "Feeling",                     1270
-        MENUITEM "Knowledge",                   1126
-        MENUITEM "Message History",             1280
-        POPUP "Preferences"
-        BEGIN
-            MENUITEM "Colours",                     1038
-            MENUITEM "Macros",                      1064
-            MENUITEM "Options",                     1061
-            MENUITEM "Pref Command",                1034
-            MENUITEM "Visuals",                     1037
-            MENUITEM SEPARATOR
-            MENUITEM "&Graphics",                   400
-            MENUITEM "&Sound",                      401
-        END
-        POPUP "Screen Dump"
-        BEGIN
-            MENUITEM "Load Screen",                 1040
-            MENUITEM "Dump Screen",                 1041
-        END
-        MENUITEM "Note",                        1058
-        MENUITEM "Redraw Screen",               1282
-    END
-    POPUP "&Window"
-    BEGIN
-        POPUP "&Main"
-        BEGIN
-            MENUITEM "Change &Font",                310
-        END
-        MENUITEM SEPARATOR
-        POPUP "&Mirror"
-        BEGIN
-            MENUITEM "&Visible",                    201
-            MENUITEM "Change &Font",                311
-        END
-        POPUP "&Recall"
-        BEGIN
-            MENUITEM "&Visible",                    202
-            MENUITEM "Change &Font",                312
-        END
-        POPUP "&Choice"
-        BEGIN
-            MENUITEM "&Visible",                    203
-            MENUITEM "Change &Font",                313
-        END
-        POPUP "Xtra-&1"
-        BEGIN
-            MENUITEM "&Visible",                    204
-            MENUITEM "Change &Font",                314
-        END
-        POPUP "Xtra-&2"
-        BEGIN
-            MENUITEM "&Visible",                    205
-            MENUITEM "Change &Font",                315
-        END
-        POPUP "Xtra-&3"
-        BEGIN
-            MENUITEM "&Visible",                    206
-            MENUITEM "Change &Font",                316
-        END
-        POPUP "Xtra-&4"
-        BEGIN
-            MENUITEM "&Visible",                    207
-            MENUITEM "Change &Font",                317
-        END
-    END
-    POPUP "&Help"
-    BEGIN
-        MENUITEM "&Help",                       1063
-        MENUITEM "&Version Info",               1086
-        MENUITEM SEPARATOR
-        MENUITEM "&About",                      902
-    END
-END
+		POPUP "Increase Tile Width"
+		{
+			MENUITEM "Term-0 window", 240
+			MENUITEM "Term-1 window", 241
+			MENUITEM "Term-2 window", 242
+			MENUITEM "Term-3 window", 243
+			MENUITEM "Term-4 window", 244
+			MENUITEM "Term-5 window", 245
+			MENUITEM "Term-6 window", 246
+			MENUITEM "Term-7 window", 247
+		}
 
+		POPUP "Decrease Tile Width"
+		{
+			MENUITEM "Term-0 window", 250
+			MENUITEM "Term-1 window", 251
+			MENUITEM "Term-2 window", 252
+			MENUITEM "Term-3 window", 253
+			MENUITEM "Term-4 window", 254
+			MENUITEM "Term-5 window", 255
+			MENUITEM "Term-6 window", 256
+			MENUITEM "Term-7 window", 257
+		}
 
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
+		POPUP "Increase Tile Height"
+		{
+			MENUITEM "Term-0 window", 260
+			MENUITEM "Term-1 window", 261
+			MENUITEM "Term-2 window", 262
+			MENUITEM "Term-3 window", 263
+			MENUITEM "Term-4 window", 264
+			MENUITEM "Term-5 window", 265
+			MENUITEM "Term-6 window", 266
+			MENUITEM "Term-7 window", 267
+		}
 
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
+		POPUP "Decrease Tile Height"
+		{
+			MENUITEM "Term-0 window", 270
+			MENUITEM "Term-1 window", 271
+			MENUITEM "Term-2 window", 272
+			MENUITEM "Term-3 window", 273
+			MENUITEM "Term-4 window", 274
+			MENUITEM "Term-5 window", 275
+			MENUITEM "Term-6 window", 276
+			MENUITEM "Term-7 window", 277
+		}
+	}
 
-2 TEXTINCLUDE 
-BEGIN
-    "#include ""afxres.h""\r\n"
-    "\0"
-END
+	POPUP "&Options"
+	{
+		POPUP "&Graphics"
+		{
+			MENUITEM "&None", 400
+			MENUITEM "&Old tiles", 401
+			MENUITEM "&Adam Bolt's tiles", 402
+			MENUITEM "&David Gervais' tiles", 403
+			MENUITEM "&Bigtile mode", 409
+		}
 
-3 TEXTINCLUDE 
-BEGIN
-    "\r\n"
-    "\0"
-END
+		MENUITEM "&Sound", 410
+		MENUITEM SEPARATOR
+		MENUITEM "Low Priority", 420
+		MENUITEM "Activate Screensaver", 430
+		MENUITEM "&Map", 440
+	}
 
-#endif    // APSTUDIO_INVOKED
+	POPUP "&Help"
+	{
+		MENUITEM "&Contents", 901
+	}
+}
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Version
-//
-
-VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,3,0
- PRODUCTVERSION 1,0,3,0
- FILEFLAGSMASK 0x3fL
-#ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
- FILEFLAGS 0x0L
-#endif
- FILEOS 0x40004L
- FILETYPE 0x1L
- FILESUBTYPE 0x0L
-BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "080904b0"
-        BEGIN
-            VALUE "Comments", "Angband Variant"
-            VALUE "CompanyName", " "
-            VALUE "FileDescription", "Hellband Executable"
-            VALUE "FileVersion", "1.0.3"
-            VALUE "InternalName", "Hellband"
-            VALUE "LegalCopyright", "© 2004 Dean Anderson"
-            VALUE "OriginalFilename", "Angband.exe"
-            VALUE "ProductName", "Hellband"
-            VALUE "ProductVersion", "1.0.3"
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x809, 1200
-    END
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-HELLBAND_ICON           ICON                    "Angband.ico"
-#endif    // English (U.K.) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-
-#ifndef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 3 resource.
-//
-
-
-/////////////////////////////////////////////////////////////////////////////
-#endif    // not APSTUDIO_INVOKED
+ANGBAND ICON "angband.ico"
 

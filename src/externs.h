@@ -502,7 +502,8 @@ extern void do_cmd_colours(void);
 extern void do_cmd_note(void);
 extern void do_cmd_version(void);
 extern void do_cmd_feeling(bool);
-extern void do_cmd_load_screen(void);
+extern void restore_screen( void );
+extern void do_cmd_load_screen( cptr path , cptr file );
 extern void do_cmd_save_screen(void);
 extern void do_cmd_knowledge(void);
 extern void do_cmd_options_aux(int,cptr);
@@ -625,6 +626,7 @@ extern void update_smart_learn(int m_idx, int what);
 extern bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok);
 extern bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm);
 extern void remove_non_pets(void);
+extern bool summon_skulls(int y1, int x1);
 
 /* object1.c */
 /* object2.c */
@@ -894,6 +896,7 @@ extern void pause_line(int row);
 extern void request_command(bool shopping);
 extern bool is_a_vowel(int ch);
 extern int get_keymap_dir(char ch);
+extern void msg_flush_wait(void);
 
 /* xtra1.c */
 extern void cnv_stat(int val, char *out_val);
@@ -905,6 +908,7 @@ extern void window_stuff(void);
 extern void handle_stuff(void);
 extern bool mystic_empty_hands();
 extern bool mystic_heavy_armour();
+extern void day_to_date(s16b day,char *date);
 
 /* xtra2.c */
 extern bool set_blind(int v);
@@ -970,7 +974,7 @@ extern int get_number_monster(int i);
 extern int get_rnd_q_monster(int q_idx);
 extern void player_birth_quests(void);
 extern void put_quest_monster(int r_idx);
-
+extern void show_dun_bias(void);
 
 /*
 * Hack -- conditional (or "bizarre") externs

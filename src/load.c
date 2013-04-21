@@ -52,7 +52,7 @@ static u32b	v_check = 0L;
 */
 static u32b	x_check = 0L;
 
-
+#ifdef using_obsolete_function_older_than
 
 /*
 * This function determines if the version of the savefile
@@ -76,7 +76,7 @@ static bool older_than(byte x, byte y, byte z)
 	return (FALSE);
 }
 
-
+#endif
 
 /*
 * Hack -- Show information on the screen, one line at a time.
@@ -141,6 +141,7 @@ static bool wearable_p(object_type *o_ptr)
 * of savefiles.  They also maintain the "checksum" info for 2.7.0+
 */
 
+/* HACK^3 Changing this means changing sf_get_char !!!! */
 static byte sf_get(void)
 {
 	byte c, v;
@@ -156,6 +157,31 @@ static byte sf_get(void)
 
 	/* Return the value */
 	return (v);
+}
+
+/* HACK^3 Changing this means changing sf_get !!!! */
+static char sf_get_char(void)
+{
+	char cc;
+	byte c, v;
+	
+	/* Get a character, decode the value */
+	cc = getc(fff);
+	c = cc & 0xFF;
+	v = c ^ xor_byte;
+	xor_byte = c;
+	
+	/* Maintain the checksum info */
+	v_check += v;
+	x_check += xor_byte;
+	
+	/* Return the value */
+	return (cc);
+}
+
+static void rd_char(char *ip)
+{
+	*ip = sf_get_char();
 }
 
 static void rd_byte(byte *ip)
@@ -519,7 +545,8 @@ static void rd_lore(int r_idx)
 	rd_u32b(&r_ptr->r_flags4);
 	rd_u32b(&r_ptr->r_flags5);
 	rd_u32b(&r_ptr->r_flags6);
-
+	rd_u32b(&r_ptr->r_flags7);
+	
 
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
@@ -536,6 +563,7 @@ static void rd_lore(int r_idx)
 	r_ptr->r_flags4 &= r_ptr->flags4;
 	r_ptr->r_flags5 &= r_ptr->flags5;
 	r_ptr->r_flags6 &= r_ptr->flags6;
+	r_ptr->r_flags7 &= r_ptr->flags7;	
 }
 
 
@@ -679,10 +707,13 @@ static void rd_options(void)
 	debug_live = (c & 0x2000) ? TRUE : FALSE;
 	debug_wild = (c & 0x4000) ? TRUE : FALSE;
 
-	rd_byte(&autosave_l);
-	rd_byte(&autosave_t);
+	
+	rd_byte(&b);
+	autosave_l = b;   /*Grrr, byte is not boolean is not byte is not boolean*/
+	rd_byte(&b);
+	autosave_t = b;   /*Grrr, byte is not boolean is not byte is not boolean*/
+	
 	rd_s16b(&autosave_freq);
-
 
 	/*** Normal Options ***/
 
@@ -779,7 +810,8 @@ static void rd_ghost(void)
 	rd_string(r_name + r_ptr->name, 64);
 
 	/* Visuals */
-	rd_byte(&r_ptr->d_char);
+	/* TODO : aaarag, chars are not bytes , chars are not bytes */
+	rd_char(&r_ptr->d_char);
 	rd_byte(&r_ptr->d_attr);
 
 	/* Level/Rarity */
@@ -893,6 +925,7 @@ static void rd_extra(void)
 
 	rd_s16b(&p_ptr->max_plv);
 	rd_s16b(&p_ptr->max_dun_level);
+	rd_u32b(&p_ptr->visits);
 
 	/* Repair maximum player level XXX XXX XXX */
 	if (p_ptr->max_plv < p_ptr->lev) p_ptr->max_plv = p_ptr->lev;
@@ -1393,6 +1426,7 @@ static errr rd_savefile_new_aux(void)
 
 	byte tmp8u;
 	u16b tmp16u;
+	s16b tmp16s;
 	u32b tmp32u;
 
 
@@ -1510,7 +1544,7 @@ static errr rd_savefile_new_aux(void)
 	/* Incompatible save files */
 	if (tmp16u > MAX_QUESTS)
 	{
-		note(format("Too many (%u) quests!", tmp16u));
+		note(format("Too many (%u) quests, only %u are allowed !", tmp16u , MAX_QUESTS));
 		return (23);
 	}
 	else
@@ -1523,8 +1557,8 @@ static errr rd_savefile_new_aux(void)
 	{
 		rd_byte(&tmp8u);
 		q_list[i].level = tmp8u;
-		rd_s16b(&tmp16u);
-		q_list[i].r_idx = tmp16u;
+		rd_s16b(&tmp16s);
+		q_list[i].r_idx = tmp16s;
 		rd_byte(&tmp8u);
 		q_list[i].cur_num = tmp8u;
 		rd_byte(&tmp8u);

@@ -439,6 +439,16 @@ static bool new_player_spot(void)
 
 		/* Refuse to start on anti-teleport grids */
 		if (cave[y][x].info & (CAVE_ICKY)) continue;
+		
+		/*Refuse to place the player in the center of Satan's level*/
+		if( dun_level == DIS_END - 1 )
+		{
+			if( x > (cur_wid>>3) && 
+				x < cur_wid - (cur_wid>>3) && 
+				y > (cur_hgt>>3) && 
+				y < cur_hgt - (cur_hgt>>3) )
+				continue;
+		}
 
 		/* Done */
 		break;
@@ -729,7 +739,7 @@ static void alloc_stairs(int feat, int num, int walls)
 */
 static void alloc_object(int set, int typ, int num)
 {
-	int y, x, k;
+	int y = 0, x = 0, k;
 	int dummy = 0;
 
 	/* Place some objects */
@@ -886,14 +896,24 @@ static void build_streamer(int feat, int chance)
 static void destroy_level(void)
 {
 	int y1, x1, y, x, k, t, n;
-
+    int epicenter_count_max;
 	cave_type *c_ptr;
 
 	/* Note destroyed levels */
 	if (debug_room) msg_print("Destroyed Level");
+	
+	/* Satan's level is extremely destroyed */
+	if( dun_level == DIS_END-1 )
+	{
+		epicenter_count_max = 15;
+	}
+	else
+	{
+		epicenter_count_max = randint(5);
+	}
 
 	/* Drop a few epi-centers (usually about two) */
-	for (n = 0; n < randint(5); n++)
+	for (n = 0; n < epicenter_count_max ; n++)
 	{
 		/* Pick an epi-center */
 		x1 = rand_range(5, cur_wid-1 - 5);
@@ -1914,27 +1934,27 @@ static void build_type4(int yval, int xval)
 * Note the use of Angband 2.7.9 monster race pictures in various places.
 */
 
-
 /*
-* Helper function for "monster nest (jelly)"
-*/
-static bool vault_aux_jelly(int r_idx)
+ * Helper function for "monster nest (snakes)"
+ * This is a straight copy the jelly one, but modified
+ */
+static bool vault_aux_snake(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-
+	
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
-
+	
 	/* Also decline evil jellies (like death molds and shoggoths) */
-	if (r_ptr->flags3 & (RF3_EVIL)) return (FALSE);
-
-	/* Require icky thing, jelly, mold, or mushroom */
-	if (!strchr("ijm,", r_ptr->d_char)) return (FALSE);
-
+	/* Well, evil snakes are more than welcome */
+	/* if (r_ptr->flags3 & (RF3_EVIL)) return (FALSE); */
+	
+	/* Require snakes */
+	if (!strchr("J", r_ptr->d_char)) return (FALSE);
+	
 	/* Okay */
 	return (TRUE);
 }
-
 
 /*
 * Helper function for "monster nest (animal)"
@@ -2069,25 +2089,6 @@ static bool vault_aux_symbol(int r_idx)
 
 
 /*
-* Helper function for "monster pit (orc)"
-*/
-static bool vault_aux_orc(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
-
-	/* Hack -- Require "o" monsters */
-	if (!strchr("o", r_ptr->d_char)) return (FALSE);
-
-	/* Okay */
-	return (TRUE);
-}
-
-
-
-/*
 * Helper function for "monster pit (troll)"
 */
 static bool vault_aux_troll(int r_idx)
@@ -2151,7 +2152,7 @@ static bool vault_aux_dragon(int r_idx)
 
 
 /*
-* Helper function for "monster pit (demon)"
+* Helper function for "monster pit (major demon)"
 */
 static bool vault_aux_demon(int r_idx)
 {
@@ -2169,6 +2170,23 @@ static bool vault_aux_demon(int r_idx)
 
 
 /*
+ * Helper function for "monster pit (minor demon)"
+ */
+static bool vault_aux_minordemon(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	
+	/* Hack -- Require "U" monsters */
+	if (!strchr("u", r_ptr->d_char)) return (FALSE);
+	
+	/* Okay */
+	return (TRUE);
+}
+
+/*
 * Type 5 -- Monster nests
 *
 * A monster nest is a "big" room, with an "inner" room, containing
@@ -2183,7 +2201,7 @@ static bool vault_aux_demon(int r_idx)
 * "appropriate" non-unique monsters for the nest.
 *
 * Currently, a monster nest is one of
-*   a nest of "jelly" monsters   (Dungeon level 5 and deeper)
+*   a nest of "snake" monsters   (Dungeon level 5 and deeper) ( used to be jelly )
 *   a nest of "animal" monsters  (Dungeon level 30 and deeper)
 *   a nest of "undead" monsters  (Dungeon level 50 and deeper)
 *
@@ -2296,13 +2314,13 @@ static void build_type5(int yval, int xval)
 		}
 	}
 	else if (tmp < 25)
-		/* Monster nest (jelly) */
+		/* Monster nest (snake) ex jelly */
 	{
 		/* Describe */
-		name = "jelly";
+		name = "snake";
 
 		/* Restrict to jelly */
-		get_mon_num_hook = vault_aux_jelly;
+		get_mon_num_hook = vault_aux_snake;
 	}
 
 	else if (tmp < 50)
@@ -2543,14 +2561,14 @@ static void build_type6(int yval, int xval)
 	/* Choose a pit type */
 	tmp = randint(dun_level);
 
-	/* Orc pit */
+	/* Minor Demon Pit */
 	if (tmp < 20)
 	{
 		/* Message */
-		name = "orc";
+		name = "minor demon";
 
 		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_orc;
+		get_mon_num_hook = vault_aux_minordemon;
 	}
 
 	/* Troll pit */
@@ -3599,6 +3617,8 @@ static bool cave_gen(void)
 	int max_vault_ok = 2;
 	bool destroyed = FALSE;
 	bool empty_level = FALSE;
+    /* Same name as in monster2.c to facilitate greps */
+	bool      shielded_level;
 
 	dun_data dun_body;
 
@@ -3608,9 +3628,23 @@ static bool cave_gen(void)
 
 	if (!(max_panel_rows)) max_vault_ok--;
 	if (!(max_panel_cols)) max_vault_ok--;
+	
+	/* These are the rules of Dis : 
+	   There shall be no vaults in Dis
+	   There shall be no quests in Dis
+	   There shall be no empty levels in Dis
+	   There shall be no destroyed levels in Dis
+	*/	
+	
+	if ( dun_level > DIS_START && dun_level < DIS_END ){
+		shielded_level = TRUE;
+		max_vault_ok = 0; 
+	}else{
+		shielded_level = FALSE;
+	}
+ 
 
-
-	if ((randint(EMPTY_LEVEL)==1) && empty_levels)
+	if ((randint(EMPTY_LEVEL)==1) && empty_levels && shielded_level == FALSE )
 	{
 		empty_level = TRUE;
 		if (debug_room)
@@ -3634,7 +3668,11 @@ static bool cave_gen(void)
 
 
 	/* Possible "destroyed" level */
-	if ((dun_level > 10) && (rand_int(DUN_DEST) == 0) && (small_levels))
+	if ((dun_level > 10) && (rand_int(DUN_DEST) == 0) && (small_levels) && shielded_level == FALSE)
+		destroyed = TRUE;
+	
+	/*The level with Satan is destroyed*/
+	if( dun_level == DIS_END-1 )
 		destroyed = TRUE;
 
 	/* Hack -- No destroyed "quest" levels */
@@ -4339,7 +4377,7 @@ void generate_cave(void)
 		/* Nothing good here yet */
 		rating = 0;
 
-		dun_bias = 0; // Nothing exciting yet
+		dun_bias = 0; /* Nothing exciting yet */
 
 
 		/* Build the town */
@@ -4364,8 +4402,8 @@ void generate_cave(void)
 		else
 		{
 
-			/* Sometimes bias the level */
-			if((dun_level > 5) && (randint(50)==1))
+			/* Never bias the level , randint 50 should never be 51 */
+			if((dun_level > 5) && (randint(50)==51))
 			{
 				switch(randint(10))
 				{

@@ -176,10 +176,12 @@ void teleport_away(int m_idx, int dis)
 */
 void teleport_to_player(int m_idx)
 {
-	int                     ny, nx, oy, ox, d, i, min;
-	int dis = 2;
+	int  oy, ox, d, i, min;	
+	int  nx   = 0;
+	int  ny   = 0;
+	int  dis  = 2;
 
-	bool            look = TRUE;
+	bool look = TRUE;
 
 	monster_type    *m_ptr = &m_list[m_idx];
 	int attempts = 500;
@@ -812,7 +814,7 @@ void take_hit(int damage, cptr hit_from)
 
 	bool pen_invuln = FALSE;
 
-	char death_message[80];
+	/*char death_message[80];*/
 
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
 
@@ -4616,8 +4618,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			max_attempts--;
 		}
 
-		while ((max_attempts > 0) && in_bounds2(t_y, t_x) &&
-			!(player_has_los_bold(t_y, t_x)));
+		while (  (max_attempts > 0) 
+				 && 
+				 in_bounds2_unsigned(t_y, t_x) 
+				 &&
+			     !(player_has_los_bold(t_y, t_x))
+			  );
 
 		if (max_attempts < 1)
 		{
@@ -5958,9 +5964,13 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 						t_x = x_saver - 1 + randint(3);
 						max_attempts--;
 					}
-
-					while ((max_attempts > 0) && in_bounds2(t_y, t_x) &&
-						!(los(y, x, t_y, t_x)));
+				/* One day, I will know what this means :  */
+					while ( (max_attempts > 0) 
+						    && 
+							in_bounds2_unsigned(t_y, t_x) 
+							&&
+						    !(los(y, x, t_y, t_x))
+						  );
 
 					if (max_attempts < 1)
 					{

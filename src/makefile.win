@@ -6,14 +6,14 @@
 
 # change this to suit your taste
 
-CC = c:\apps\bc45\bin\bcc.exe +bccw16.cfg
-CC32 = c:\apps\bc45\bin\bcc32.exe +bccw32.cfg
-LINK = c:\apps\bc45\bin\tlink.exe
-LINK32 = c:\apps\bc45\bin\tlink32.exe
-RC = c:\apps\bc45\bin\brc.exe
-RC32 = c:\apps\bc45\bin\brc32.exe
-LIBDIR = c:\apps\bc45\lib
-INCLDIR = c:\apps\bc45\include;c:\angband\ext-win\src
+
+CC32 = bcc32.exe +bccw32.cfg
+LINK = tlink.exe
+LINK32 = ilink32.exe
+RC = brc.exe
+RC32 = brc32.exe
+LIBDIR = c:\Bcc55\lib
+INCLDIR = c:\Bcc55\include;.
 
 # shouldn't need to change anything below
 
@@ -56,7 +56,7 @@ OBJS32 = \
   main-win.o32 readdib.o32 \
   quest.o32
 
-default: bccw16.cfg angband cleanobj bccw32.cfg angband32 cleanobj32
+default: bccw32.cfg angband32 cleanobj32
 
 clean:
 	del *.obj
@@ -72,7 +72,7 @@ cleanobj32:
 	del bccw32.cfg
 
 bccw16.cfg: makefile.win
-	if not exist ..\angband.ini copy ..\ext-win\src\angband.ini ..
+	if not exist ..\hellband.ini copy hellband.ini ..
 	copy &&|
 -I$(INCLDIR)
 -L$(LIBDIR)
@@ -92,7 +92,6 @@ bccw16.cfg: makefile.win
 -p-
 -Os
 -Oa
--OW
 -O
 -d
 -Ob
@@ -126,7 +125,6 @@ bccw32.cfg: makefile.win
 -b-
 -p-
 -Os
--OW
 -O
 -d
 -Oa
@@ -151,10 +149,10 @@ bccw32.cfg: makefile.win
 generate.obj: generate.c
 	$(CC) -c generate.c
 
-readdib.obj: ..\ext-win\src\readdib.c ..\ext-win\src\readdib.h
-	$(CC) -c ..\ext-win\src\readdib.c
+readdib.obj: readdib.c readdib.h
+	$(CC) -c readdib.c
 
-angband: $(OBJS) ..\ext-win\src\angband.rc
+angband: $(OBJS) angband.rc
 	$(LINK) /L$(LIBDIR) @&&|
 -Twe -P -d -x -Gn -Oc -yx4096 +
 c0wl+
@@ -168,9 +166,9 @@ store birth load +
 wizard1 wizard2 +
 generate dungeon init1 init2 +
 main-win readdib quest,+
-..\angband.exe,..\angband.map,import cwl,..\ext-win\src\angband.def
+..\angband.exe,..\angband.map,import cwl
 |
-	$(RC) -31 ..\ext-win\src\angband.rc ..\angband.exe
+	$(RC) -31 angband.rc ..\angband.exe
 
 .c.o32:
 	$(CC32) -c -o$@ $<
@@ -179,10 +177,10 @@ main-win readdib quest,+
 generate.o32: generate.c
 	$(CC32) -c -ogenerate.o32 -O- generate.c
 
-readdib.o32: ..\ext-win\src\readdib.c ..\ext-win\src\readdib.h
-	$(CC32) -c -oreaddib.o32 ..\ext-win\src\readdib.c
+readdib.o32: readdib.c readdib.h
+	$(CC32) -c -oreaddib.o32 readdib.c
 
-angband32: $(OBJS32) ..\ext-win\src\angband.rc
+angband32: $(OBJS32) angband.rc
 	$(LINK32) /L$(LIBDIR) @&&|
 -aa -B:0x400000 -S:0x100000 -P -x +
 c0w32 +
@@ -196,6 +194,6 @@ store.o32 birth.o32 load.o32 +
 wizard1.o32 wizard2.o32 +
 generate.o32 dungeon.o32 init1.o32 init2.o32 +
 main-win.o32 readdib.o32 quest.o32,+
-..\angband32.exe,..\angband.map,import32 cw32,..\ext-win\src\angband.def
+..\angband32.exe,..\angband.map,import32 cw32
 |
-	$(RC32) -w32 ..\ext-win\src\angband.rc ..\angband32.exe
+	$(RC32) -w32 angband.rc ..\angband32.exe
