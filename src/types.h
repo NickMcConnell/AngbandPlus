@@ -792,7 +792,7 @@ struct magic_type
 	cptr name;          /* Name of the spell */
 	cptr macro;			/* Macro of the spell description */	
 	cptr spoiler;       /* Spoiler of the spell */
-	cptr info;			/* Information about the spell */
+	char *info;			/* Information about the spell */
 	byte attr_info;		/* Color of the info */
 	byte attr_realm;    /* Color of the realm */
 	bool forgotten;     /* Have we forgotten it ?*/

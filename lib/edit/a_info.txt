@@ -66,7 +66,7 @@
 
 # Version stamp (required)
 
-V:0.8.5
+V:0.8.6
 
 #####################################################################################################################
 #######################################                                       #######################################
@@ -1484,3 +1484,7 @@ F:ACTIVATE | SHOW_MODS
 #Achilles’ lance, given him by his father Peleus, had the power to heal the wounds it inflicted.
 
 #  Pentalpha Ring, worn by Solomon, to enslave demons
+
+#Brynhild -  A Valkyrie who angers Odin and is punished with imprisonment in a ring of fire. She is a dazzling character, with strength both of soul and body. She is the prototype for Wagner's Brunnhilde, the most famous Valkyrie in opera.
+
+#

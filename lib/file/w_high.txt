@@ -1,89 +1,35 @@
-87
+33
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
-of Ultimate Might
-'Slayer'
-'World Ender'
-'Destructor'
-of Destruction
-'Daemon Sultan'
-'Disintegrator'
-'Vanquisher'
-of Y'ha N'thlei
-'Mjollner'
-'Hand of God'
-'Deathstorm'
-'Devil's Instrument'
-'Word of God'
-'Quest'
-'Quietus'
-'Wraithverge'
-'Arc of Death'
-of Death
-'Devastator'
-'Excsymyr'
-'Vorax'
-'Excalibur'
+of Celestial Protection
+of the Archangel Uriel
+of the Archangel Raguel
+of the Archangel Zerachiel
+of the Archangel Remiel
+of the Archangel Samael
+of Adanos the Elder Titan
+of Hyperion the Elder Titan
+of Iapetos the Elder Titan
+of Koios the Elder Titan
+of Kronos the Elder Titan
+of Mylinos the Elder Titan
+of Okeanos the Elder Titan
+of Olymbros the Elder Titan
+of Olympos the Elder Titan
+of Ophina the Elder Titan
+of Ostasos the Elder Titan
+of Polos the Elder Titan
+of the First Day
+of Ares the Warrior God
+of Apollo
+of Zeus
+of Poseidon
+of Hephaestus
+of Daidalos the Artificer 
+of the Furies
+of the Fates
+of Pandora
 of Muramasa
-'Heartseeker'
-'Bloodscourge'
-'Hand of Vecna'
-'Unmaker'
-of the Apocalypse
-'Armageddon'
-'Devourer'
-'Soul Searer'
-'Abyss'
-'Cosmic Horror'
-'Dragon Fang'
-'Nemesis'
-'Doom!'
-'Death Dealer'
-'Dead Man's Hand'
-'Exodus'
-'White Heat'
-'Exterminator'
-'Thunderstrike'
-'Bloodwych'
-'Inferno'
-'War'
-'Death'
-'Dominator'
-'Conqueror'
-'Secret Weapon'
-'Angel of Death'
-'Destroying Angel'
-'Black Star'
-of Nodens
-of the Gug City
-of R'lyeh
-'Right Hand of Justice'
-'Vengeance'
-of the King
+of the First Horseman
+of the Second Horseman
+of the Third Horseman
 of the Fourth Horseman
-'Apocalyptica'
-'Doomsday'
-'Judgement of Heaven'
-'Creeping Death'
-'Eternity's End'
-'Word of Death'
-of the Emperor Lich
-'Finalizer'
-of Attrition
-of Decimation
-'Sacrificial Blade'
-of Bone Breaking
-of Questing
-of Mnar
-of the Gods
-'Moon Song'
-'Pain Giver'
-of Randolph Carter
-of the Mystic
-'Fatal Destiny'
-'Bast's Claw'
-'Undying Samurai'
-'Eternal Verities'
-'Maw of Hell'
-'Joyeuse'
-of the Eagle Lord
-'Azriel's Own'

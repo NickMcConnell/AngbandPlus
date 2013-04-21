@@ -1035,7 +1035,8 @@ s16b get_mon_num(int level)
 	bool       shielded_level;
 	
 	/* Shielded levels only contain monsters of that depth */
-	if ( dun_level > DIS_START && dun_level < DIS_END ){
+	if ( dun_level > DIS_START && dun_level < DIS_END )
+	{
 		shielded_level = TRUE;
 		level = dun_level;  /* Just to be certain */
 	}else{
@@ -1103,15 +1104,18 @@ s16b get_mon_num(int level)
 		}
 
 		/* Hack -- shielded levels have no monsters from other depths*/
-		if( shielded_level == TRUE && table[i].level != dun_level /*&& monster_filter_hook== NULL*/){
+		if( shielded_level == TRUE && table[i].level != dun_level /*&& monster_filter_hook== NULL*/)
+		{
 			continue;
 		}
 		/*Hack non shielded levels have no monsters from shielded depths*/
-		if( shielded_level == FALSE && ( table[i].level > DIS_START && table[i].level < DIS_END /*&& *monster_filter_hook== NULL*/ ) ){
+		if( shielded_level == FALSE && ( table[i].level > DIS_START && table[i].level < DIS_END /*&& *monster_filter_hook== NULL*/ ) )
+		{
 			continue;
 		}		
 		/*Hack levels after Dis, should have no monsters from before Dis*/
-		if( dun_level >= DIS_END && table[i].level < DIS_END ){
+		if( dun_level >= DIS_END && table[i].level < DIS_END )
+		{
 			continue;
 		}
 		
@@ -1867,14 +1871,12 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		&& (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
 		return (FALSE);
 
-
-
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
 
-
 	/* Hack -- "unique" monsters must be "unique" */
-	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
+	if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
+		(r_ptr->cur_num >= r_ptr->max_num))
 	{
 		/* Cannot create */
 		return (FALSE);
@@ -1971,7 +1973,8 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 
 	/* Friendly? */
 
-	if (charm){
+	if (charm)
+	{
 		set_ally( m_ptr, ALLY_PLAYER);
 	}
 

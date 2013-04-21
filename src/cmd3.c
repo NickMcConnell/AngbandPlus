@@ -1544,7 +1544,7 @@ static void roff_top(int r_idx)
 /*
 * Identify a character, allow recall of monsters
 *
-* Several "special" responses recall "mulitple" monsters:
+* Several "special" responses recall "multiple" monsters:
 *   ^A (all monsters)
 *   ^U (all unique monsters)
 *   ^N (all non-unique monsters)

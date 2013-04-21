@@ -2387,29 +2387,9 @@ cptr colour_names[16] =
 "Light Umber",
 };
 
-
-/*
-* Abbreviations of healthy stats
-*/
-cptr stat_names[6] =
-{
-"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHA: "
-};
-
-/*Yes, this is braindead, one day I will fix it*/
-cptr stats_short[6] =
-{
-	"STR", "INT", "WIS", "DEX", "CON", "CHA"
-};
-
-/*
-* Abbreviations of damaged stats
-*/
-cptr stat_names_reduced[6] =
-{
-"str: ", "int: ", "wis: ", "dex: ", "con: ", "cha: "
-};
-
+cptr stat_names[STAT_COUNT]         = {"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHA: " }; /* Abbreviations of healthy stats */
+cptr stats_short[STAT_COUNT]        = {"STR"  , "INT"  , "WIS"  , "DEX"  , "CON"  , "CHA"   }; /* Yes, this is braindead, one day I will fix it */
+cptr stat_names_reduced[STAT_COUNT] = {"str: ", "int: ", "wis: ", "dex: ", "con: ", "cha: " }; /* Abbreviations of damaged stats */
 
 /*
 * Certain "screens" always use the main screen, including News, Birth,
@@ -2550,7 +2530,6 @@ option_type option_info[] =
 { &wear_confirm,        TRUE,   4,		2, 8,			"confirm_wear",					"Confirm to wear/wield known cursed items" },
 { &confirm_stairs,      FALSE,  1,		2, 9,			"confirm_stairs",				"Prompt before exiting a dungeon level" },
 { &disturb_allies,		FALSE,  2,		2, 10,			"disturb_allies",				"Disturb when visible allies move" },
-{ &multi_stair,			FALSE,  6,		2, 11,			"multi_stair",					"Stairs can be longer than one level" },
 { &rand_unbiased,		TRUE,   5,		2,12,			"rand_unbiased",				"Random numbers have bias removed"},
 { &unify_commands,		FALSE,  4,		2,13,			"unify_commands",				"Use a single 'u'se command for all objects"},
 { &testing_stack,		TRUE,   4,		2, 14,			"testing_stack",                "Allow objects to stack on floor" },

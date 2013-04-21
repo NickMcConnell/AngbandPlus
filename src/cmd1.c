@@ -179,7 +179,8 @@ s16b tot_dam_aux_helper(u32b *weaponflags , u32b specific_weaponflag , u32b mons
 {
 	if ( (*weaponflags & (specific_weaponflag)) &&  (monsterflags & (specific_monsterflag)))
 	{
-		if (visible){
+		if (visible)
+		{
 			*recall_flags |= (specific_monsterflag);
 		}
 		*weaponflags |= (!specific_weaponflag);

@@ -1581,7 +1581,8 @@ static void calc_spells(void)
 		if (j >= 99) continue;
 
 		/* Get the spell */
-		if (j < 32){
+		if (j < 32)
+		{
 		/* Access the spell */
 			get_extended_spell_info( use_realm1, j , s_ptr );
 		}
@@ -1700,7 +1701,8 @@ static void calc_spells(void)
 		if (j >= 99) break;
 
 		/* Get the spell */
-		if (j < 32){
+		if (j < 32)
+		{
 			get_extended_spell_info( use_realm1, j , s_ptr );
 		}
 		else{
@@ -1755,7 +1757,8 @@ static void calc_spells(void)
 	for (j = 0; j < max_spells; j++)
 	{
 		/* Get the spell */
-		if (j < 32){
+		if (j < 32)
+		{
 			get_extended_spell_info( use_realm1, j , s_ptr );
 		}
 		else{

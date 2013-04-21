@@ -285,10 +285,15 @@ static void roff_aux(int r_idx)
 			}
 		}
 
-		/* Dead unique who never hurt us */
+		/* Dead unique who never killed us */
 		else if (dead)
 		{
-			roff("You have slain this foe.  ");
+			roff("You have slain this foe");
+			if(flags7 & (RF7_REBORN))
+			{
+				roff(" at least once");
+			}
+			roff(".  ");
 		}
 	}
 
@@ -535,6 +540,11 @@ static void roff_aux(int r_idx)
 		else if (flags3 & (RF3_FALLEN_ANGEL)) roff (" fallen angel");
 		else roff(" creature");
 
+		if(flags7 & (RF7_REBORN) && r_ptr->r_pkills>0)
+		{
+			roff(" again");
+		}
+		
 		/* Group some variables */
 		if (TRUE)
 		{

@@ -37,7 +37,7 @@
 * Max sizes of the following arrays
 */
 #define MAX_ROCKS      56       /* Used with rings (min 38) */
-#define MAX_AMULETS    17       /* Used with amulets (min 13) */
+#define MAX_AMULETS    19       /* Used with amulets (min 13) */
 #define MAX_WOODS      32       /* Used with staffs (min 30) */
 #define MAX_METALS     39       /* Used with wands/rods (min 29/28) */
 #define MAX_COLORS     66       /* Used with potions (min 60) */
@@ -119,9 +119,9 @@ static byte ring_col[MAX_ROCKS] =
 static cptr amulet_adj[MAX_AMULETS] =
 {
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
-		"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
-		"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-		"Copper", "Swastika"
+	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
+	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
+	"Copper", "Swastika", "Dragon Tooth" , "Dragon Claw" , 
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -129,7 +129,7 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 		TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 		TERM_GREEN, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
-		TERM_L_UMBER, TERM_VIOLET /* Hack */
+		TERM_L_UMBER, TERM_VIOLET, TERM_RED, TERM_RED /* Hack */
 };
 
 
@@ -313,41 +313,6 @@ static cptr syllables[MAX_SYLLABLES] =
 static char scroll_adj[MAX_TITLES][16];
 
 static byte scroll_col[MAX_TITLES];
-
-void get_table_name(char * out_string)
-{
-	int testcounter = (randint(3)) + 1;
-
-	strcpy(out_string, "'");
-
-	if (randint(3)==2)
-	{
-		while (testcounter--)
-			strcat(out_string, syllables[(randint(MAX_SYLLABLES))-1]);
-	}
-
-	else
-	{
-		char Syllable[80];
-		testcounter = (randint(2)) + 1;
-		while (testcounter--)
-		{
-			get_rnd_line("elvish.txt", Syllable);
-			strcat(out_string, Syllable);
-		}
-	}
-
-	out_string[1] = toupper(out_string[1]);
-
-	strcat(out_string, "'");
-
-	out_string[18] = '\0';
-
-	return;
-}
-
-
-
 
 /*
 * Certain items have a flavor
@@ -1245,11 +1210,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 }
 
 
-
-
-
-
-
 /*
 * Print a char "c" into a string "t", as if by sprintf(t, "%c", c),
 * and return a pointer to the terminator (t + 1).
@@ -1467,9 +1427,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	basenm = (k_name + k_ptr->name);
 	
 	/* Extract potential artefact string , still knowing that this could point to nothing */
-	if (artefact_p(o_ptr) && aware && known ){ /* This gives some assurance that we are not point to null */
+	if (artefact_p(o_ptr) && aware && known )
+	{ /* This gives some assurance that we are not point to null */
 	  basenm = (a_name + a_ptr->name);
-		if( basenm[0] == '!' ){
+		if( basenm[0] == '!' )
+		{
 		    artefact_overrides = TRUE; /* This will prevent a double display later in the code */
 			basenm++; /* This will prevent the exclamation mark in the artifact name to show up */
 		}else{
@@ -2238,39 +2200,37 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* No more details wanted */
 	if (mode < 3) goto copyback;
 
-
 	/* No inscription yet */
 	tmp_val2[0] = '\0';
 
 	/* Use the standard inscription if available */
 	if (o_ptr->note)
 	{
-		strcpy(tmp_val2, quark_str(o_ptr->note));
+		my_commacat(tmp_val2, quark_str(o_ptr->note), sizeof( tmp_val2 ) );
 	}
 
 	/* Note "cursed" if the item is known to be cursed */
-	else if (cursed_p(o_ptr) && (known || (o_ptr->ident & (IDENT_SENSE))))
+	if (cursed_p(o_ptr) && (known || (o_ptr->ident & (IDENT_SENSE))) && !o_ptr->note)
 	{
-		strcpy(tmp_val2, "cursed");
+		my_commacat(tmp_val2, "cursed", sizeof( tmp_val2 ) );
 	}
 
 	/* Mega-Hack -- note empty wands/staffs */
-	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
+	if (!known && (o_ptr->ident & (IDENT_EMPTY)))
 	{
-		strcpy(tmp_val2, "empty");
+		my_commacat(tmp_val2, "empty", sizeof( tmp_val2 ) );
 	}
-
-	/* Note "tried" if the object has been tested unsuccessfully */
-	else if (!aware && object_tried_p(o_ptr))
-	{
-		strcpy(tmp_val2, "tried");
-	}
-
 	/* Note the discount, if any */
-	else if (o_ptr->discount)
+	if (o_ptr->discount)
 	{
 		object_desc_num(tmp_val2, o_ptr->discount);
-		strcat(tmp_val2, "% off");
+		my_commacat(tmp_val2, "% off", sizeof( tmp_val2 ) );
+	}
+
+	/* Add "tried" if the object has been tested unsuccessfully */
+	if (!aware && object_tried_p(o_ptr))
+	{
+		my_commacat(tmp_val2, "tried", sizeof( tmp_val2 ) );
 	}
 
 	/* Append the inscription, if any */
@@ -5689,7 +5649,7 @@ void do_squelch( void )
  * I am not sure yet that this is a good idea, but such is life ;)
  * I keep being reminded by Leon Marrick on this one ;)
  * So, anyway an item index is given, positive is inventory,negative is floor
- * First we check what is the policy and do some minimum invegation of the object
+ * First we check what is the policy and do some minimum investigation of the object
  * Then depending on the squelch rule and what we know about the object do we decide to squelch
  * Then after that we check for all kinds of sanity checks that might prevent the squelching
  * Then we do the actual killing
@@ -5771,7 +5731,8 @@ void consider_squelch( object_type *o_ptr )
 		msg_format("Squelch %s ?" , o_name);
 		msg_format("SVAL %d ?" , o_ptr->sval);	
 		msg_format("Option for that :(%s)" , squelch_strings[sq_option] ); 
-		if(sense || id){
+		if(sense || id)
+		{
 			msg_format("Feel:%s" , feel );
 			if(heavy || id)
 				msg_format("Feel_heavy : %s." , feel_heavy );		

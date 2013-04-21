@@ -2054,7 +2054,9 @@ static void display_player_stat_info(void)
 		(void) cnv_stat(p_ptr->stat_top[i], buf);					c_put_str(TERM_L_GREEN, buf, row+i, header[7].position);			/* Actual maximal modified value */
 		/* Only display stat_use if not maximal */
 		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
-	      {(void)cnv_stat(p_ptr->stat_use[i], buf);				c_put_str(TERM_YELLOW, buf, row+i, header[8].position);}
+		{
+			(void)cnv_stat(p_ptr->stat_use[i], buf);				c_put_str(TERM_YELLOW, buf, row+i, header[8].position);
+		}
 	}
 
 	/* Column */
@@ -2337,7 +2339,8 @@ static void display_name_race_class()
 	put_str("Race   :", start_row, start_col);		c_put_str(TERM_L_BLUE, rp_ptr->title								, start_row++, start_col+indent);
 	put_str("Sign   :", start_row, start_col);		c_put_str(TERM_L_BLUE, bsp_ptr->title								, start_row++, start_col+indent);
 	put_str("Class  :", start_row, start_col);		c_put_str(TERM_L_BLUE, class_sub_name[p_ptr->pclass][p_ptr->realm1] , start_row++, start_col+indent);
-	if (p_ptr->realm1 || p_ptr->realm2){
+	if (p_ptr->realm1 || p_ptr->realm2)
+	{
 		put_str("Magic  :", start_row, start_col);
 		if (p_ptr->realm2)
 			sprintf(realm_buff,"%s/%s",realm_names[p_ptr->realm1],realm_names[p_ptr->realm2]);
@@ -2604,12 +2607,7 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "\n Arena Levels:       ON");
 	else
 		fprintf(fff, "\n Arena Levels:       OFF");
-
-	if (multi_stair)
-		fprintf(fff, "\n Long Stairs:       ON");
-	else
-		fprintf(fff, "\n Long Stairs:       OFF");
-
+	
 	fprintf(fff, "\n Recall Depth:       Level %d (%d')\n", p_ptr->max_dun_level,
 		50 * p_ptr->max_dun_level);
 
@@ -2663,10 +2661,8 @@ errr file_character(cptr name, bool full)
 		dump_corruptions(fff);
 	}
 
-
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
-
 
 	/* Dump the equipment */
 	if (equip_cnt)
@@ -2675,8 +2671,13 @@ errr file_character(cptr name, bool full)
 		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
 			object_desc(o_name, &inventory[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n",
-				index_to_label(i), paren, o_name);
+			if(artefact_p( &inventory[i] ) && object_known_p(&inventory[i]))
+			{
+				fprintf(fff, "%c%s ",index_to_label(i), paren);
+				spoiler_print_analyze_art(fff, &inventory[i]);
+			}else{
+				fprintf(fff, "%c%s %s\n",index_to_label(i), paren, o_name);	
+			}
 		}
 		fprintf(fff, "\n\n");
 	}
@@ -2686,8 +2687,13 @@ errr file_character(cptr name, bool full)
 	for (i = 0; i < INVEN_PACK; i++)
 	{
 		object_desc(o_name, &inventory[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n",
-			index_to_label(i), paren, o_name);
+		if(artefact_p( &inventory[i] ) && object_known_p(&inventory[i]))
+		{
+			fprintf(fff, "%c%s ",index_to_label(i), paren);
+			spoiler_print_analyze_art(fff, &inventory[i]);
+		}else{
+			fprintf(fff, "%c%s %s\n",index_to_label(i), paren, o_name);	
+		}
 	}
 	fprintf(fff, "\n\n");
 
@@ -4889,7 +4895,6 @@ static void handle_signal_abort(int sig)
 
 	/* Nothing to save, just quit */
 	if (!character_generated || character_saved) quit(NULL);
-
 
 	/* Clear the bottom line */
 	Term_erase(0, 23, 255);

@@ -3193,7 +3193,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				do_conf = 0;
 				/* Powerful demons & undead can turn a mindcrafter's
 				* attacks back on them */
-				if (((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_DEMON)) && (r_ptr->level > p_ptr->lev/2) && (randint(2) == 1) ){
+				if (((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_DEMON)) && (r_ptr->level > p_ptr->lev/2) && (randint(2) == 1) )
+				{
 					note = NULL;
 					msg_format("%^s%s corrupted mind backlashes your attack!", m_name, (seen ? "'s" : "s"));
 					/* Saving throw */
@@ -3379,7 +3380,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Normal monsters slow down */
 			else
 			{
-				if (m_ptr->mspeed > 60){
+				if (m_ptr->mspeed > 60)
+				{
 					m_ptr->mspeed -= 10;
 					note = " starts moving slower.";
 				}
@@ -3439,7 +3441,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	case GF_CHARM:
 		{
 			/*Not all charm attacks work on every one*/
-			if (monster_filter_hook && !((*monster_filter_hook)(m_ptr->r_idx))){
+			if (monster_filter_hook && !((*monster_filter_hook)(m_ptr->r_idx)))
+			{
 				note = " is unaffected!";
 				obvious = FALSE;
 				dam = 0;
@@ -3604,13 +3607,16 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
         } 
         if (!(is_ally(m_ptr)))
         {
-            if (randint(100) < dam){ 
+            if (randint(100) < dam)
+			{ 
                 do_stun = dam; 
             }
-            else if (randint(100) < dam){
+            else if (randint(100) < dam)
+			{
                 do_conf = dam;
             }
-            else if (randint(100) < dam){
+            else if (randint(100) < dam)
+			{
                 do_fear = dam;
             }
         }
@@ -6219,7 +6225,7 @@ void get_extended_spell_info( u16b realm  , int spell , magic_type *s_ptr )
 	s_ptr->attr_info = TERM_WHITE;
    /* Get info */
 	spell_info_short( short_info , spell, realm);
-	s_ptr->info = NULL;
+	s_ptr->info = short_info; /* Used to be initialized with NULL */
 
 	/* Check for illegible */
 	if (s_ptr->slevel >= 99)

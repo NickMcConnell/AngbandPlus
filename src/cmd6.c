@@ -1817,11 +1817,8 @@ void do_cmd_use_staff(int item)
 		return;
 	}
 
-
 	/* Sound */
 	sound(SOUND_ZAP);
-
-
 
 	/* Analyze the staff */
 	switch (o_ptr->sval)
@@ -2081,6 +2078,7 @@ void do_cmd_use_staff(int item)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
+		o_ptr->ident |= (IDENT_SENSE);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
@@ -2204,10 +2202,8 @@ void do_cmd_aim_wand(int item)
 		return;
 	}
 
-
 	/* Allow direction to be cancelled for free */
 	if (!get_aim_dir(&dir)) return;
-
 
 	/* Take a turn */
 	if (item < INVEN_POUCH_1)
@@ -2256,10 +2252,8 @@ void do_cmd_aim_wand(int item)
 		return;
 	}
 
-
 	/* Sound */
 	sound(SOUND_ZAP);
-
 
 	/* XXX Hack -- Extract the "sval" effect */
 	sval = o_ptr->sval;
@@ -2509,6 +2503,7 @@ void do_cmd_aim_wand(int item)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
+		o_ptr->ident |= (IDENT_SENSE);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 

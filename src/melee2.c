@@ -294,8 +294,6 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 			{
 				msg_format("%^s is destroyed.", m_name);
 			}
-
-
 			else
 			{
 				msg_format("%^s is killed.", m_name);
@@ -6041,14 +6039,17 @@ static void process_monster(int m_idx, bool is_friend)
 	}
 	
 	/*  Handle annoyed monsters*/
-	if (r_ptr->flags7 & (RF7_ANNOYED)){
+	if (r_ptr->flags7 & (RF7_ANNOYED))
+	{
 		/*Monsters get annoyed when they are not at full health*/
-		if( m_ptr->hp < m_ptr->maxhp ){
+		if( m_ptr->hp < m_ptr->maxhp )
+		{
 			/*And they only blame the hero if he is in the neighbourhood ( distance < 16 )
 			  monster location fx and fy of m_ptr
 			  player location px and py 
 			*/
-			if( distance( px , py , m_ptr->fx , m_ptr->fy ) < 16 ){
+			if( distance( px , py , m_ptr->fx , m_ptr->fy ) < 16 )
+			{
 				char m_name[80];
 				
 				/* Acquire the monster name */

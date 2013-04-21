@@ -3492,18 +3492,18 @@ char menu_key_help(void)
 	int cur_num = 0, max_num, old_num = 0;
 	int menu = 0;
 	bool odd;
-    int cur_col;
-    int cur_row;
-    
-    /*Make sure the menu does not overwrite the @ for tactical considerations*/
-    basey = (py - panel_row_min > 10)? 2 : 13;
+	int cur_col;
+	int cur_row;
+
+	/*Make sure the menu does not overwrite the @ for tactical considerations*/
+	basey = (py - panel_row_min > 10)? 2 : 13;
 	basex = 15;
-    
+	
 	/* Clear top line */
 	prt("", 0, 0);
-    
+	
 	Term_save();
-    
+	
 	while(1)
 	{
 		int i = 0;
@@ -3517,54 +3517,58 @@ char menu_key_help(void)
 		put_str("|                                                    |", basey+4, basex);
 		put_str("|                                                    |", basey+5, basex);
 		put_str("\\----------------------------------------------------/", basey+6, basex);
-        
-        /*Write all menu entries ( in tables.c )*/
+
+		/*Write all menu entries ( in tables.c )*/
 		for(i = 0; i < 10; i++)
 		{
 			if (!menu_info[menu][i].cmd) break;
 			menu_name = menu_info[menu][i].name;
-            /* In the first menu we dont show shortcuts, it would be confusing */
-            /* This does not prevent you from creating menu_names with shortcuts in them */
-            /* Like 'Documentation (?)' */ 
-            if(menu!=0)
-                put_str( format("%s (%c)", menu_name, menu_info[menu][i].cmd ), basey + 1 + i / 2, basex + 4 + (i % 2) * 24);
-            else
-                put_str( menu_name, basey + 1 + i / 2, basex + 4 + (i % 2) * 24); 
-		}
-        
-        /* Remember how many real entries there are , is current spot odd and which row are we on ?*/
-		max_num = i;
-		odd = max_num % 2;
-        cur_row = cur_num /2;
-        cur_col = cur_num % 2;
-                
-        /* Place indicator of current spot */
-		put_str("> ",basey + 1 + cur_row, basex + 2 + (cur_col * 24) );
-        
-		/* Place the cursor on the player */
-		move_cursor_relative(py, px);
-        
-		/* Get a command */
-		sub_cmd = inkey();
-        
-        /*Are we selecting ( wide range of keys accepted ) */
-		if ((sub_cmd == ' ') || (sub_cmd == 'x') || (sub_cmd == 'X') || (sub_cmd == '\r') || (sub_cmd == '\n'))
-		{
-			if (menu_info[menu][cur_num].fin)
-			{
-				cmd = menu_info[menu][cur_num].cmd;
-				break;
+			/* In the first menu we dont show shortcuts, it would be confusing */
+			/* This does not prevent you from creating menu_names with shortcuts in them */	
+			/* Like 'Documentation (?)' */
+			/*	On the 31 deal, because control character are anded with 1F , we basically only keep
+				the control character ( all characters less than 32 ), 65 -> 1 , so in order to restore
+				the original character I tried adding 64 and it worked ;) */
+			if(menu!=0)
+				if(menu_info[menu][i].cmd>31)
+					put_str( format("%s (%c)", menu_name, menu_info[menu][i].cmd ), basey + 1 + i / 2, basex + 4 + (i % 2) * 24);
+				else
+					put_str( format("%s (^%c)", menu_name, menu_info[menu][i].cmd + 64 ), basey + 1 + i / 2, basex + 4 + (i % 2) * 24);
+			else
+				put_str( menu_name, basey + 1 + i / 2, basex + 4 + (i % 2) * 24); 
 			}
+
+			/* Remember how many real entries there are , is current spot odd and which row are we on ?*/
+			max_num = i;
+			odd = max_num % 2;
+			cur_row = cur_num /2;
+			cur_col = cur_num % 2;
+
+			/* Place indicator of current spot */
+			put_str("> ",basey + 1 + cur_row, basex + 2 + (cur_col * 24) );
+			/* Place the cursor on the player */
+			move_cursor_relative(py, px);
+			/* Get a command */
+			sub_cmd = inkey();
+
+			/*Are we selecting ( wide range of keys accepted ) */
+			if ((sub_cmd == ' ') || (sub_cmd == 'x') || (sub_cmd == 'X') || (sub_cmd == '\r') || (sub_cmd == '\n'))
+			{
+				if (menu_info[menu][cur_num].fin)
+				{
+					cmd = menu_info[menu][cur_num].cmd;
+					break;
+				}
 			else
 			{
 				menu = menu_info[menu][cur_num].cmd - '0';
 				cur_num = 0;
-                /* Show sub menu in an overlapping fashion */
+				/* Show sub menu in an overlapping fashion */
 				basey += 2;
 				basex += 8;
 			}
 		}
-        /* Are we backing out ?odd*/
+		/* Are we backing out ?odd*/
 		else if ((sub_cmd == ESCAPE) || (sub_cmd == 'z') || (sub_cmd == 'Z') || (sub_cmd == '0'))
 		{
 			if (!menu)
@@ -3582,13 +3586,15 @@ char menu_key_help(void)
 				Term_save();
 			}
 		}
+		/* Are we going down, note support for roguelike key settings*/
 		else if ((sub_cmd == '2') || (sub_cmd == 'j') || (sub_cmd == 'J'))
 		{
 			if (odd)
-				cur_num = (cur_num + 2) % (max_num  + (cur_col?-1:+1) );
+				cur_num = (cur_num + 2) % (max_num + (cur_col?-1:+1) );
 			else 
-                cur_num = (cur_num + 2) % max_num;
+				cur_num = (cur_num + 2) % max_num;
 		}
+		/* Are we going up, note support for roguelike key settings*/
 		else if ((sub_cmd == '8') || (sub_cmd == 'k') || (sub_cmd == 'K'))
 		{
 			if (odd)
@@ -3600,6 +3606,7 @@ char menu_key_help(void)
 			}
 			else cur_num = (cur_num + max_num - 2) % max_num;
 		}
+		/* Given that there are 2 columns, left and right are meaningless*/
 		else if ((sub_cmd == '4') || (sub_cmd == '6') || (sub_cmd == 'h') || (sub_cmd == 'H') || (sub_cmd == 'l') || (sub_cmd == 'L'))
 		{
 			if ( cur_col || (cur_num == max_num - 1))
@@ -3611,32 +3618,33 @@ char menu_key_help(void)
 				cur_num++;
 			}
 		}
-        else
-        {
-            /* Check if the actual command key was pressed and return that, unless the entry is not final */
-            for( i = 0 ; i <10; i++ )
-            {
-                if( sub_cmd == menu_info[menu][i].cmd )
-                {
-                    if( menu_info[menu][i].fin)
-                    {
-                        /* Hack Hack Hack, fix me !! */
-                        Term_load();
-                        if (!inkey_next) inkey_next = "";
-                        return (sub_cmd);                   
-                    }
-                    else
-                    {
-                        menu = menu_info[menu][cur_num].cmd - '0';
-                        cur_num = 0;
-                        basey += 2;
-                        basex += 8;                        
-                    }
-                }
-            }
-        }
+		else
+		{
+			/* Check if the actual command key was pressed and return that, unless the entry is not final */
+			for( i = 0 ; i <10; i++ )
+			{
+				if( sub_cmd == menu_info[menu][i].cmd )
+				{
+					if( menu_info[menu][i].fin)
+					{
+						/* Hack Hack Hack, fix me !! */
+						/* This is a hack because of the copy pastage and evil return */
+						Term_load();
+						if (!inkey_next) inkey_next = "";
+						return (sub_cmd);
+					}
+					else
+					{
+						menu = menu_info[menu][cur_num].cmd - '0';
+						cur_num = 0;
+						basey += 2;
+						basex += 8;
+					}
+				}
+			}
+		}
 	}
-    
+	
 	Term_load();
 	if (!inkey_next) inkey_next = "";
 	return (cmd);
@@ -3679,7 +3687,8 @@ void script_error(int error)
 double find_var(char *s)
 {
 	/*Make sure we really do deal here with a var*/
-	if(!isalpha(*s)){
+	if(!isalpha(*s))
+	{
 		script_error(1);
 		return 0.0;
 	}

@@ -2667,6 +2667,7 @@ static errr init_other(void)
 
 		/* No table for the black market or home */
 		if ((j == STORE_BLACK) ||
+			 j == STORE_BOOK_SWAP || 
 			(j == STORE_HOME)) continue;
 
 		/* Assume full table */

@@ -22,6 +22,7 @@
 #include "angband.h"
 
 /* Chance of using syllables to form the name instead of the "template" files */
+/* TABLE_NAME is kept out of fear of breaking something */
 #define TABLE_NAME      45
 #define A_CURSED        13
 #define WEIRD_LUCK      12
@@ -32,7 +33,6 @@ several times... */
 
 extern int artefact_bias;
 
-extern void get_table_name(char * out_string);
 extern s32b flag_cost(object_type * o_ptr, int plusses);
 
 
@@ -213,7 +213,7 @@ void explosive_rune(void)
 */
 static cptr desc_stat_pos[] =
 {
-	"strong",
+		"strong",
 		"smart",
 		"wise",
 		"dextrous",
@@ -227,7 +227,7 @@ static cptr desc_stat_pos[] =
 */
 static cptr desc_stat_neg[] =
 {
-	"weak",
+		"weak",
 		"stupid",
 		"naive",
 		"clumsy",
@@ -695,7 +695,8 @@ void self_knowledge(void)
 	}
 
 	/* Birth sign powers ... */
-	if(p_ptr->psign){
+	if(p_ptr->psign)
+	{
 		for( j = 0 ; sign_powers[j].description != NULL ; j++ )
 		{
 			if( sign_powers[j].idx == p_ptr->psign && plev >= sign_powers[j].level )
@@ -3510,10 +3511,6 @@ void give_activation_power (object_type * o_ptr)
 
 void get_random_name(char * return_name, bool armour, int power)
 {
-	if (randint(100)<=TABLE_NAME)
-		get_table_name(return_name);
-	else
-	{
 		char NameFile[16];
 		switch (armour)
 		{
@@ -3552,7 +3549,6 @@ void get_random_name(char * return_name, bool armour, int power)
 		}
 
 		get_rnd_line(NameFile, return_name);
-	}
 }
 
 bool create_artefact(object_type *o_ptr, bool a_scroll)
@@ -6491,7 +6487,8 @@ void blow_monster(int y , int x)
 	c_ptr = &cave[y][x];
 	
 	/* Delete the monster (if any) */
-	if (c_ptr->m_idx){ 
+	if (c_ptr->m_idx)
+	{ 
 		monster_type *m_ptr = &m_list[c_ptr->m_idx];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 		/* Get "the monster" or "something" */
@@ -6583,7 +6580,8 @@ void drown_object(int y , int x , int spoty , int spotx)
 			o_ptr->iy = spoty;
 			c_ptr = &cave[spoty][spotx];
 			/* No stacking (allow combining) */
-			if (!testing_stack){
+			if (!testing_stack)
+			{
 				delete_object(spoty, spotx);
 				c_ptr->o_idx = this_o_idx;
 				o_ptr->next_o_idx = 0;

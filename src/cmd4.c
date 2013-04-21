@@ -927,7 +927,8 @@ static void do_cmd_options_squelcher_rules(void)
 				*/
 				if( squelch_possibilities[k] >> squelch_options[k] > 0  )
 				{
-					while(! (squelch_flags[++squelch_options[k]] & squelch_possibilities[k])){;}
+					while(! (squelch_flags[++squelch_options[k]] & squelch_possibilities[k]))
+					{;}
 				}
 				else
 				 squelch_options[k] = SQUELCH_NO;	

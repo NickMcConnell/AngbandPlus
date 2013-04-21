@@ -813,6 +813,7 @@ void object_aware(object_type *o_ptr)
 {
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
+	o_ptr->ident |= (IDENT_SENSE);
 }
 
 /*
@@ -820,10 +821,21 @@ void object_aware(object_type *o_ptr)
  */
 void object_full_id(object_type *o_ptr)
 {
+	char line[80];
+	
 	/* We have "felt" it in every way */
-	o_ptr->ident |= (IDENT_MENTAL);    
+	o_ptr->ident |= (IDENT_MENTAL);
 	object_aware(o_ptr);	
 	object_known(o_ptr,TRUE);
+	/* *ID* gives the formula away */
+	if(o_ptr->tval==TV_POTION)
+	{
+		potion_alch[o_ptr->sval].known1 = TRUE;
+		potion_alch[o_ptr->sval].known2 = TRUE;
+		msg_print("You have gained alchemical knowledge!");
+		alchemy_describe(line, sizeof(line), o_ptr->sval);
+		msg_print(line);
+	}
 }
 
 /*
@@ -1347,7 +1359,6 @@ s32b object_value(object_type *o_ptr)
 		value = object_value_base(o_ptr);
 	}
 
-
 	/* Apply discount (if any) */
 	if (o_ptr->discount) value -= (value * o_ptr->discount / 100L);
 
@@ -1355,10 +1366,6 @@ s32b object_value(object_type *o_ptr)
 	/* Return the final value */
 	return (value);
 }
-
-
-
-
 
 /*
 * Determine if an item can "absorb" a second item
@@ -2369,7 +2376,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 							do { o_ptr->ds++; } while (randint(o_ptr->ds)==1);
 						}
 						/* Always put the biggest number up front to increase average damage */
-						if( o_ptr->ds > o_ptr->dd){
+						if( o_ptr->ds > o_ptr->dd)
+						{
 							temp_byte = o_ptr->ds;
 							o_ptr->ds = o_ptr->dd;
 							o_ptr->dd = temp_byte;
@@ -5891,6 +5899,45 @@ void reorder_pack(void)
 */
 extern void mindcraft_info(char *p, int power);
 
+void spoil_spells( object_type *o_ptr )
+{
+	int		spell = -1;
+	magic_type	s_magic;
+	magic_type	*s_ptr = &s_magic;
+	
+	/* Wait for key */
+	while (1)
+	{
+		char c;
+		/* Get Key Press*/
+		c = inkey();
+		/* Lowercase it with paranoia*/
+		if (isupper(c)) c = tolower(c);
+		/* Extract request */
+		spell = (islower(c) ? A2I(c) : -1);
+		if ((spell < 0) || (spell >= 8 ))
+		{
+			break;
+		}
+		
+		/* Clear lines, position cursor (really should use strlen here) */
+		Term_erase(13, 11 , 255);
+		Term_erase(13, 12 , 255);
+		Term_erase(13, 13 , 255);
+		
+		/*msg_format( "Spell : %d" , spell );msg_print(NULL);*/
+		/* Access the spell */
+		get_extended_spell_info(  (o_ptr->tval-TV_MIRACLES_BOOK) ,  o_ptr->sval*8+spell , s_ptr );
+		/*msg_format( "Spell : %s" , s_ptr->spoiler );msg_print(NULL);		*/
+		/* Display that spell's information. */
+		c_roff(TERM_L_BLUE, s_ptr->spoiler,13,11,13);
+	}		
+
+	/* Restore the screen */
+	Term_load();
+
+}
+
 /*
  * Hack -- Display all known spells in a window
  *
@@ -6194,7 +6241,6 @@ void spell_info_short(char *p, int spell, int realm)
 void print_spells(byte *spells, int num, int y, int x, int realm)
 {
 	int             i, spell;
-	cptr            info;
 	char            out_val[160];
     magic_type      s_magic;
     magic_type      *s_ptr = &s_magic;
@@ -6224,13 +6270,9 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
 			continue;
 		}
 
-		/*Some silly pointer copying to make sprintf happy */
-		info =  (s_ptr->info==NULL?&short_info:s_ptr->info);
-		
-		sprintf(out_val, "  %c) %-30s%2d %4d %3d%% %s",
-			I2A(i), 
-			s_ptr->name, /* realm, spell */
-				s_ptr->slevel, s_ptr->smana, spell_chance(spell,realm), info );
+        /* Print index, name, level, mana cost, odds to cast well and info */
+        sprintf(out_val, "  %c) %-30s%2d %4d %3d%% %s",	I2A(i), s_ptr->name, s_ptr->slevel, s_ptr->smana, spell_chance(spell,realm), s_ptr->info );
+        
 		prt(out_val, y + i + 1, x);
 	}
 

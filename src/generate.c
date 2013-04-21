@@ -3647,7 +3647,8 @@ static bool cave_gen(void)
 	   There shall be no destroyed levels in Dis
 	*/	
 	
-	if ( dun_level > DIS_START && dun_level < DIS_END ){
+	if ( dun_level > DIS_START && dun_level < DIS_END )
+	{
 		shielded_level = TRUE;
 		max_vault_ok = 0; 
 	}else{
@@ -4096,6 +4097,7 @@ static void build_store(int n, int yy, int xx)
 	c_ptr->feat = FEAT_SHOP_HEAD + n;
 	store[n].x = x;
 	store[n].y = y;
+
 }
 
 
@@ -4115,7 +4117,7 @@ static void town_gen_hack(void)
 
 	cave_type *c_ptr;
 
-	int rooms[MAX_STORES];
+	int rooms[MAX_STORES-1];
 
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
@@ -4125,7 +4127,7 @@ static void town_gen_hack(void)
 
 
 	/* Prepare an Array of "remaining stores", and count them */
-	for (n = 0; n < MAX_STORES; n++) rooms[n] = n;
+	for (n = 0; n < MAX_STORES-1; n++) rooms[n] = n;
 
 	/* Place four rows of stores */
 	for (y = 0; y < 4; y++)

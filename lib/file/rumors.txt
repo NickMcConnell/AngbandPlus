@@ -1,4 +1,4 @@
-194
+115
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 They say that you can't trust rumors.
 They say that smart guys hang around at 1600'.
@@ -9,58 +9,35 @@ They say that a visit to 3250' will only get you killed.
 Throw a Potion of Blindness at a monster and it cannot cast any spells!
 MAKE MONEY FAST! Find a Treasure Pit!
 The greatest danger could be your stupidity
+The greatest danger could be your arrogance
 You are not illiterate
 A good item will not corrode.
 You will obtain your goal if you keep diving
 You will obtain your death if you keep diving
-Some weapons that slay dragons can be very deadly against them...
-Finding the Phial of Beatric at 50' is nothing to be proud of.
+They say the Sword of Saint Michael truly slaughters Fallen Angels
+They say the Sword of Furcifer truly slaighters Dragons
+Finding the Phial of Beatrice at 50' is nothing to be proud of.
 There are Black Market stores hidden deep in the dungeon, with COOL stuff!
-Have you ever seen a Rod of Havoc inscribed {Armageddon}?
-What a pity, you cannot read it!
-You will encounter a dark, tall stranger...
 A Mithril mail will not rust.
 An Adamantite mail will not rust.
 A Rusty Chain Mail cannot rust any further.
-If you are a mage, you will NOT want to find Raal's Tome of Destruction!
-You won't want to find Raal's Tome of Destruction!
-You won't want to find Raal's Tome of Destruction, unless you are a mage.
 A Wand of Death is useless against monsters that are tougher than you.
 A Wand of Death is of little use against foes that are dead already.
 Try taking off your armor before fighting a Gelatinous Cube!
-They say that only one sword can score *CRITICAL* hits.
-You have read too many books.
-This rumor is not true.
 Planar power may be useful in some circumstances: free teleport!
 If you can fall like a feather, you need not care about gravity.
-They say that you should rejoice if you find a scroll labeled ""!
 You don't always have to kill everything you meet!
 If you can't beat it, leave it alone!
-An umber hulk can be a confusing sight.
 There *is* a good use for Potions of Detonations, Ruination and Death...
-Watch your step!
 It's a bad idea to throw away a Longsword (4d5).
 It's a bad idea to wield a Longsword (4d5).
 It's useless to bash monsters with bows - but there's one notable exception...
 Actually, Slime Mold Juice is not completely useless.
-Help me! I'm being held captive in a Vault at 2850'!
-Ever tried inscribing your armor {erodeproof}?
-Using a Morningstar in the evening has no effect.
-Why are you wasting time reading fortunes?
-There is a horrible, ghastly fate awaiting you... at 2700'!
-You can protect yourself from Great Wyrms of Power by doing the following:
-It's true name is 249.
-You feel like someone's pulling your leg!
-AAAAAAAAAAARRRRRRRRGGGGHHHHHHH!
-Imperial assassin looking for a job. Contact: Pak, Master of Sinanju, 2600'.
-Try inscribing the name of the first monster killed by it in the weapon!
+It's true name is 591.
 The richer the victim the happier the thief.
 Dont worry about money. The best artefacts are free.
 Thanks for letting me out of the cookie!
-There's something bad about what you are carrying in your backpack...
-Thieves are more likely to appear if you are carrying a lot of money.
 Dont kiss Lillith on the lips today.
-Dont follow these instructions:
 They say that Scrolls of *Curse Weapon* can create powerful cursed artifacts.
 Avoid taking unnecessary gambles.
 They say Hell has parties where weird customs prevail.
@@ -68,25 +45,18 @@ They say that all Law weapons are deadly against Demons.
 They say neutral people burn in the hottest fires.
 Hell is paved with people that had good intentions.
 There is a way to turn a Ring of Speed (-20) into a Ring of Speed (+20).
-There is no way to turn a Ring of Speed (-20) into a Ring of Speed (+20).
-You are almost there
 Cool guys can resist fire.
 They say that Death incarnate wears a fancy set of cesti.
-You feel the Longsword (t) you are carrying in your backpack is special...
-If you start seeing red monsters, you have probably gained infravision.
 They say that the dungeon is deeper than Dis.
 When all else fails, read the instructions.
 They say Nadain holds the key to the final story line.
-They say that Hell has has no bottom.
+They say that Hell has no bottom.
 They say that Hell has a bottom.
 No poison is immediately deadly, except in large quantities.
 Parting is all we know of heaven all we need of Hell.
-I have seen a Ring of Speed (+50) in the Black Market!
 Telepathy works like a two-way door.
 Elvish waybread might negate the effects of poison.
 Once uncursed, Sitri's sword will become a deadly weapon.
-If there's a stairway to hell, there must also be a stairway to heaven.
-You feel your luck is turning...
 The torture of a bad conscience is hell for a living soul.
 Overeating can be bad for your health if there are others nearby.
 Cave dwellers are accustomed to darkness and rarely enjoy bright light.
@@ -95,8 +65,7 @@ It is often a good idea to throw items that you don't want to eat or drink.
 The faster you run the more food you will burn.
 Invisible monsters will often expose themselves if you drop items around you.
 They say that the key to killing tougher monsters is called "hit&run".
-They say that there is no such thing as free advice.
-Wearing an Amulet of Doom will take you into the Dungeons of Doom.
+Amulets of DOOM have potential.
 They say the tortures of Hell beat the boredom of the Heavens.
 You can often wrest one last charge from an empty wand if you try hard enough.
 Wands may recharge themselves if you leave them on the floor long enough.
@@ -104,93 +73,45 @@ There is more than one way to deal with a locked door.
 Afraid of your valuables getting stolen? Carry more junk!
 Afraid of your money getting stolen? Invest it!
 If you hear something smash into splinters, you had better watch out.
-They say that you had better leave Greater hell-beasts alone.
-You have an unusual equipment for success, use it properly.
-Help, I am forced writing fortunes at 2850'
 Selling unidentified potions to shopkeepers might be safer than quaffing them.
 Always look out for trapdoors on "special" feeling levels!
 There is a way to max out your stats with Potions of Charisma & Nexus.
 Unique opponents will recover their health faster than other creatures.
 They say that only Furcifer's sword is the true sword of dragon slayers.
 They say that only Michael's sword is the bane of the fallen ones.
-"So when I die, the first thing I will see in heaven is a score list?"
-You're going into the morgue at midnight?
-How dare you! I will not buy that!
-Buy a home in the dungeon, any depth you want! Contact: McDuck & Co.
 A Potion of Iocaine is also known as a potion of death...
-Operation OVERKILL has started now.
-There is a trap on this level!
 A weapon of Undead Slaying has all you need to kill a ghost.
 A weapon of Dragon Slaying may give you resistance to a dragon's breath attack.
 They say that only a Warrior will want to wear the Terror Mask.
-All that is shall come to an end - a dark day dawns for the gods.
-Everyone agrees you are the best
-Never wear your best pants when you go to fight for freedom.
 Having troubles with summoners? Door Creation is your friend!
 Stairway Creation may be slower than Teleport Level, but safer...
-I hid Christiaan in a vault at 4700'. To find it, you need to:
 Wands of Heal Monster are useful! Hint: ball spell, @....moo(o)ooo
 Guaranteed heal self - scenario: p'@, type c4c4c4c4
 If it can't see you, it can't hurt you!
 If it can't see you, you might still be able to hurt it...
-The Jedi Holocron is the best artifact light source there is.
-Dont ask, dont say. Everything lies in silence.
 Even you can beat Lucifer.
 No animal is interested in sex if it is mortally scared.
-Use the Force!
-Trust your intuition. The universe is guiding your life.
-Everything is not yet lost.
-There is a plenty of Longswords around 1000'.
-You have remarkable power which you are not using.
 There are often stairways in graveyards: bad people are carried to hell...
-Only a person totally unharmed by cold can live in Siberia!
-Only a god of Thunder could ride a lightning bolt!
 When the day of Ragnarok comes, Surtur will set the world afire...
 Surtur's accursed sword, Twilight, burns with everlasting fire.
 Satan's dancing boots will make you more attractive.
 Satan's dancing boots will cause the monsters to drool on you.
 Weapons of Flame will light your way.
-They say that the gods get angry if you pray too much.
-For any remedy there is a misery.
 Poison will kill you slowly.
-Didn't you forget to pay?
-Death is just life's way of telling you you've been fired.
-They say that nobody can defeat his own ghost.
 A greedy genocide can be a fatal mistake, especially if you are low on hits.
-PLEASE ignore the previous rumor.
-There are scrolls that can be read only by mages.
 Some undead opponents will come back if defeated, more powerful than before!
-The answer is 42.
-One level further down somebody is getting killed, right now.
-Meet me at 1900' if you are a man.
 Bashing a creature may sometimes stun it.
-Never carry a Potion of Detonations if there is a fire trap nearby!
-Laugh to scorn the power of man, for none of woman born shall harm thee!
-All hail thee that shalt be king hereafter!
-A wise man always speaks too soon...
-Let us not dwell on possible bad fortunes!
 Appearance is only the frosting, not the cake!
-A feeling of Death flows through your body.
-Violence is no solution.
-Boots of Speed (+50) are no myth!
 I know whatever was; whatever is, whatever shall be.
-Merlin wore the Terror Mask and the last thing he ever saw was a big J...
 They say that alcohol is bad for your health.
-What if you DON'T give a name to the artifact you create..?
-They say that ancient battlefields are often haunted.
 Beware of pits that fill the whole level!
-Liar! I have not the gold!
-They say that the true name of wall monsters is 177.
-Never mind the Phial of Galadriel - the Phial of the Gods kicks its butt!
-A Ring of Speed? Phooey! Try looking for a Ring of *Speed*!
-Thisss cccity isss guilty... the crime isss life... the ssentence isss DEATH!
 If you hear heavy steps - watch out!
 A visit to the Zoo is educational: you meet many strange animals.
-What happens if you wear a Ring of Extra Ring Fingers (-2) {cursed}?
-Tnediserp eht em llik tsum uoy emag siht niw ot.
-If I cancel tomorrow the undead will thank me today.
 Hellfire will burn your soul...
 Never attempt to Call the Void in an enclosed space!
 Call the Void needs a lot of room to cast...
 Why doesn't Detect Monsters show invisible monsters? 'Cos you can't see 'em!
-I'll tell you the truth, son: your soul's gonna burn in a lake of fire!
+They say a night at the Inn opens your options
+They say the Alchemist knows everything about magical properties.
+They say the Magic Shoppe allows you to escape death.
+They say the Pawnshop is like a Museum, except that you can get your stuff back.

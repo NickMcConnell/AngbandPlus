@@ -360,6 +360,6 @@ BITMAP *load_gif(char *filename, RGB *pal)
 
 #else
 
-static int i = 0;
+/*static int i = 0; */
 
 #endif /* USE_DOS */

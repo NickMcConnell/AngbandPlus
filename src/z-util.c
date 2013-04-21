@@ -86,6 +86,7 @@ int my_strnicmp(cptr a, cptr b, int n)
 }
 
 
+
 /*
  * The my_strcpy() function copies up to 'bufsize'-1 characters from 'src'
  * to 'buf' and NUL-terminates the result.  The 'buf' and 'src' strings may
@@ -144,6 +145,31 @@ size_t my_strcat(char *buf, const char *src, size_t bufsize)
 	}
 }
 
+size_t my_commacat(char *buf, const char *src, size_t bufsize)
+{
+	size_t dlen = strlen(buf);	
+
+	/* Is there room left in the buffer? */
+	if (dlen < bufsize - 2)
+	{
+		if( dlen >0 )
+		{
+			/* Append as much as possible  */
+			my_strcpy(buf + dlen, ", ", bufsize - dlen);
+			dlen = strlen(buf);
+			return (dlen + my_strcpy(buf + dlen, src, bufsize - dlen));
+		}
+		else
+		{
+			return (dlen + my_strcpy(buf + dlen, src, bufsize - dlen));	
+		}
+	}
+	else
+	{
+		/* Return without appending */
+		return (dlen + strlen(src));
+	}
+}
 
 /*
  * Determine if string "a" is equal to string "b"

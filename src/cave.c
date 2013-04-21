@@ -3646,7 +3646,8 @@ bool is_quest(int level)
 	if (!level) return (FALSE);
 	
 	/* No quests in Dis */
-	if ( level > DIS_START && level < DIS_END ){
+	if ( level > DIS_START && level < DIS_END )
+	{
       return (FALSE);
 	}
 

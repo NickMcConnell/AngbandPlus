@@ -233,7 +233,6 @@ extern bool auto_destroy;
 extern bool wear_confirm;
 extern bool confirm_stairs;
 extern bool disturb_allies;
-extern bool multi_stair;
 extern bool maximise_mode;
 extern bool preserve_mode;
 extern bool use_autoroller;
@@ -774,6 +773,7 @@ extern void alchemy_describe(char *buf, size_t max, int sval);
 extern void do_squelch(void);
 extern void consider_squelch( object_type *o_ptr );
 extern void spell_info_short(char *p, int spell, int realm);
+extern void spoil_spells( object_type *o_ptr );
 
 /* save.c */
 extern bool save_player(void);
@@ -1045,6 +1045,10 @@ extern int get_rnd_q_monster(int q_idx);
 extern void player_birth_quests(void);
 extern void put_quest_monster(int r_idx);
 extern void show_dun_bias(void);
+
+/* wizard1.c */
+
+extern void spoiler_print_analyze_art(FILE *fff, object_type *q_ptr);
 
 /*
 * Hack -- conditional (or "bizarre") externs

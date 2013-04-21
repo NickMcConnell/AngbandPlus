@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.8.5
+V:0.8.6
 
 
 ### Body Armor ###
@@ -406,7 +406,7 @@ N:68:(Angelic)
 X:24:20
 W:0:0:0:20000
 C:5:5:0:2
-F:STR | DEX | CON | 
+F:STR | DEX | CON | BLESSED |  
 F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD
 F:FREE_ACT | SEE_INVIS
 

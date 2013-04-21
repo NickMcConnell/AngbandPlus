@@ -207,8 +207,9 @@ void room_rest(bool night)
 	st_ptr = &store[cur_store_num];
 	ot_ptr = &owners[cur_store_num][st_ptr->owner];
 	/* Reset all timed effects */
-	for( n = 0 ; n < TIMED_COUNT ; n ++ ){
-		msg_note( timed[n].lose );
+	for( n = 0 ; n < TIMED_COUNT ; n ++ )
+	{
+		/*msg_note( timed[n].lose );*/
 		*(timed[n].timer) = 0;
 	}	
 	
@@ -667,13 +668,6 @@ static void mass_produce(object_type *o_ptr)
 	o_ptr->number = size - (size * discount / 100);
 }
 
-
-
-
-
-
-
-
 /*
 * Determine if a store item can "absorb" another item
 *
@@ -993,7 +987,8 @@ static bool store_will_buy(object_type *o_ptr)
 	}
 
 	/* XXX XXX XXX Ignore "worthless" items */
-	if (object_value(o_ptr) <= 0) return (FALSE);
+	/* Store will junk for you worthless items now */
+	/* if (object_value(o_ptr) <= 0) return (FALSE); */
 
 	/* Assume okay */
 	return (TRUE);
@@ -1341,7 +1336,6 @@ static void store_create(void)
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return;
 
-
 	/* Hack -- consider up to four items */
 	for (tries = 0; tries < 4; tries++)
 	{
@@ -1680,7 +1674,6 @@ static void display_store(void)
 {
 	char buf[80];
 
-
 	/* Clear screen */
 	Term_clear();
 
@@ -1709,12 +1702,21 @@ static void display_store(void)
 	/* Normal stores */
 	if ((cur_store_num != STORE_HOME) && (cur_store_num != STORE_HALL))
 	{
-		cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + cur_store_num].name);
+		cptr store_name;
 		cptr owner_name = (ot_ptr->owner_name);
 		cptr race_name = race_info[ot_ptr->owner_race].title;
+		if(cur_store_num != STORE_BOOK_SWAP)
+		{	
+			store_name = (f_name + f_info[FEAT_SHOP_HEAD + cur_store_num].name);
+		}
+		else
+		{
+			store_name = "Mage Guild";
+		}	
 
 		/* Put the owner name and race for all except Inn, where only owner_name is shown*/
-		if( cur_store_num != STORE_INN ){
+		if( cur_store_num != STORE_INN )
+		{
 		  sprintf(buf, "%s (%s)", owner_name, race_name);
 		}else{
 		  sprintf(buf, "%s", owner_name );	
@@ -2979,7 +2981,6 @@ static void store_sell(void)
 		return;
 	}
 
-
 	/* Assume one item */
 	amt = 1;
 
@@ -3014,25 +3015,37 @@ static void store_sell(void)
 	/* Remove any inscription for stores */
 	if (cur_store_num != 7) q_ptr->note = 0;
 
-
 	/* Is there room in the store (or the home?) */
 	if (!store_check_num(q_ptr))
 	{
 		if (cur_store_num == STORE_HOME) msg_print("Your home is full.");
-		else msg_print("I have not the room in my store to keep it.");
+		else msg_print("I have no room in my store to keep it.");
 		return;
 	}
-
 
 	/* Real store */
 	if (cur_store_num != STORE_HOME)
 	{
-		/* Describe the transaction */
-		msg_format("Selling %s (%c).", o_name, index_to_label(item));
-		msg_print(NULL);
-
-		/* Haggle for it */
-		choice = sell_haggle(q_ptr, &price);
+		if (object_value(o_ptr) > 0 )
+		{
+			/* Describe the transaction */
+			msg_format("Selling %s (%c).", o_name, index_to_label(item));
+			msg_print(NULL);
+			/* Haggle for it */
+			choice = sell_haggle(q_ptr, &price);
+		}
+		else
+		{
+			msg_format("Junking %s (%c).", o_name, index_to_label(item));
+			msg_print(NULL);
+			/* Identify it fully */
+			object_full_id( q_ptr );
+			/* Get a potentially new full description */
+			object_desc(o_name, q_ptr, TRUE, 3);
+			/* Eco friendly shop owners will not charge for making Hell a cleaner place */
+			price = 0;
+			choice = 0;
+		}
 
 		/* Kicked out */
 		if (st_ptr->store_open >= turn) return;
@@ -3098,8 +3111,12 @@ static void store_sell(void)
 				object_desc(o_name, q_ptr, TRUE, 3);
 			}
 
-
-			if (cur_store_num != STORE_PAWN)
+			if( price <= 0)
+			{
+				/* Describe the result (in message buffer) */
+				msg_format("You junked the %s.", o_name);				
+			}
+			else if (cur_store_num != STORE_PAWN)
 			{
 				/* Describe the result (in message buffer) */
 				msg_format("You sold %s for %ld gold.", o_name, (long)price);
@@ -3119,6 +3136,9 @@ static void store_sell(void)
 
 			/* Handle stuff */
 			handle_stuff();
+			
+			/*** XXX XXX XXX Hack, get out of void function because we did the job if we junked */
+			if(price<=0)return;
 			
 			if( 
 				(cur_store_num == STORE_TEMPLE && q_ptr->tval == TV_DEMONIC_BOOK ) ||
@@ -3363,7 +3383,18 @@ static void store_process_command(void)
 			}
 			break;
 		}
-
+	case '<':
+		{
+			/* Go upstairs to get to the geek club */
+			cur_store_num = STORE_BOOK_SWAP;
+			/* Set pointer to correct store */
+			st_ptr = &store[cur_store_num];
+			/* Start at the beginning */
+			store_top = 0;
+			/* Display the store */
+			display_store();
+			break;
+		}
 		/* perform 'special' for store */
 	case 'r':
 		{
@@ -3971,7 +4002,6 @@ void do_cmd_store(void)
 	st_ptr = &store[cur_store_num];
 	ot_ptr = &owners[cur_store_num][st_ptr->owner];
 
-
 	/* Start at the beginning */
 	store_top = 0;
 
@@ -4066,6 +4096,7 @@ void do_cmd_store(void)
 		case STORE_LIBRARY:
 			{
 				prt(" r) Gain a spell.",22, 60);
+				prt(" <) Go upstairs", 23, 15);
 				break;
 			}
 		case STORE_INN:
@@ -4289,7 +4320,7 @@ void store_maint(int which)
 	int		old_rating = rating;
 
 	/* Ignore home */
-	if ((which == STORE_HOME) || (which == STORE_HALL) || (which == STORE_PAWN)) return;
+	if ((which == STORE_HOME) || (which == STORE_HALL) || (which == STORE_PAWN) || (which == STORE_BOOK_SWAP))return;
 
 
 	/* Save the store indices */
@@ -4477,11 +4508,10 @@ void do_store_browse( object_type *o_ptr)
 	prt("", 0, 0);
 
 	/* Prompt user */
-	put_str("[Press any key to continue]", 0, 23);
+	put_str("[(Browsing) Choose a spell or press Escape ]", 0, 17);
 
-	/* Wait for key */
-	(void)inkey();
-
-	/* Restore the screen */
-	Term_load();
+	/* Spoil the spells*/
+	spoil_spells( o_ptr );
 }
+
+

@@ -18,6 +18,9 @@
   - Removed out of theme monster pits ( orcs & trolls & coins ), added snakes pit I think
 
 *Creatures
+  - 0.8.6 Uniques with reborn now properly respawn, but without xp or treasure
+  - 0.8.6 Bodyguards of the judges properly named now. ( more properly at least )
+  - 0.8.6 Fixed space after perjurer, fixed various french characters ( need unicode soon )
   - 0.8.5 Fixed again Pit Fiend, Osyluth, Hell knight, Barbazu, ( all these xp ), Revenant( seriously buffed hp, be scared of revenants )
   - 0.8.5 Monsters can now do off screen breathing ( reversal pending user input )
   - 0.8.4 Marilith xp has been 'fixed' as well
@@ -82,6 +85,10 @@
   - 0.8.5 X11 preference file location is now dumped to console in fiddle mode
 
 *Equipment
+  - 0.8.6 Items will no longer use elvish names, all ridiculous Z artefact names are replaced with in-theme names.
+  - 0.8.6 Items like rods/staffs/wands that are known will no longer be pseudo-sensed
+  - 0.8.6 Shop owners now will junk {broken} items and identify them for you
+  - 0.8.6 Added flavors Dragon Tooth and Dragon Claw for amulets
   - 0.8.5 Fixed a fair amount of rings being black, fear the copy-paste !!
   - 0.8.5 There is message on the scroll. -> There is a message on the scroll.
   - 0.8.5 Fire sheath now correctly says 'fire sheath triggers' instead of electric sheath triggers. (bugfix)
@@ -133,6 +140,9 @@
   - Player leveling causes a complete heal and restoration.
 
 *Start Up
+  - 0.8.6 Exp factor, hit dice and stat mods are now straight from proper tables instead of out of help files
+  - 0.8.6 Fixed message for male lilu's
+  - 0.8.6 No more female Leprechauns with appropriate message
   - 0.8.5 Intro screen now mentions version number
   - 0.8.5 Lilu now have con bonus as mentioned in the char creation screen
   - 0.8.5 History background revamped and improved, real backgrounds now for werewolves, florentians, Lilu, gypies etc.
@@ -156,7 +166,15 @@
   - 'A' , get ArchAngel Michaels' equipment
   - 'S' , get usefull supplies
 
+*Stores
+  - 0.8.6 Inn no longer shows all the effects that have been reset ( bugfix )
+  - 0.8.6 Alchemist will now *ID* potions and tell you the alchemical formula
+  
 *UI
+  - 0.8.6 Help Screen was letting control characters bleed through
+  - 0.8.6 Inscriptions and stuff now get concatenated, example: {average, tried, empty}
+  - 0.8.6 Character dump now shows all info on artefacts, somewhat ugly but acceptable for this release.
+  - 0.8.5 Visible monsters panel is added
   - 0.8.5 XP on main screen is now standarly showing how much xp is needed for next level
   - 0.8.5 Fix demon power descriptions
   - 0.8.5 Quick start now properly says 'hey, I dont support that!' before quitting
@@ -187,6 +205,8 @@
   - 0.8.4 Commands are updated
 
 *Combat & Magic
+  - 0.8.6 Spell spoilers are now available inside stores as well, so you can check out what those spells mean
+  - 0.8.6 Angelic weapons are blessed now
   - 0.8.4 Various changes to the parser macro's because of case sensitivity
   - 0.8.4 Various attempts to fix first time spell casting xp gain
   - 0.8.4 No more fainting when gaining a new level because of casting a spell for the first time ( Chris Hughes reported )
@@ -280,7 +300,15 @@
   - 0.8.2 Nexus now gets resisted by nexus breathers (bugfix)
   - 0.8.2 Disintegrate checked wrong flag set for uniqueness of monster ( bugfix )
 
+*Patrons
+  - 0.8.6 No more references to 'Mortal', about half of the races is not mortal
+
 *Internals
+  - 0.8.6 Squashed the last 2 compiler warnings after a discussion on const correctness on rgrd
+  - 0.8.6 "blue eyes, and a very fair complexion" is left in, it is a called an Oxford comma ;)
+  - 0.8.6 After 3 hours 'fixed' software bug by deleting scores files which was in old format
+  - 0.8.6 Internals are now more ready to add / remove central stats
+  - 0.8.6 Removed long stairs option while cleaning up char dump
   - 0.8.5 s_ptr ( spell pointer ) is no longer global, removing tons of (potential) bugs
   - 0.8.5 First few thousand lines of xtra2.c no longer unholy repetitive heap of code
   - 0.8.5 Added makefile.WHICH pointing which makefile to use ( and which makefiles not to use )  
@@ -308,6 +336,8 @@
   - Changed most of them, made sure that worhtless artefacts are not stomped
   
 * GPL
+  - 0.8.6 Found license of Sprite World II, zlib, I re-release it under GPL
+  - 0.8.6 Found and got GPL release of Maarten Hazewinkel
   - 0.8.5 Found and got GPL release of Scott Egashira
   - 0.8.5 Found and got GPL release of David Boeren
   - 0.8.5 Found and got GPL release of Steve Linberg
@@ -317,7 +347,7 @@
   - 0.8.5 Found and got GPL release of Kevin Bracey
 
 -TODO :
--Level 5 should have Minos' palace placed, with the only exit that points downstairs covering all other downstairs conveniently with rubble ( go calamarain ;)
+- Level 5 should have Minos' palace placed, with the only exit that points downstairs covering all other downstairs conveniently with rubble ( go calamarain ;)
 - Allow Hell Knights to control the powers of Demonic Weapons ( basically : todo demonic weapons )
 - allow clean_shot to use is_monster_killer(enemy, m_ptr)
 - wtf is MFLAG_NICE
@@ -325,14 +355,15 @@
 - drop_good_only drop_great_only bm_sells_thegoodstuff are not in
 - cmd5.c is not using to the fullest the new spell capabilities
 - Same classes should get access to more realms ( they will be bad at it, but roleplayers dont care )
-- REBORN flag : make it work
 - unique set drops 
 - Need a centralized U_power to description algorithm
-- Need a centralized birth screen routine 
+- They say that Scrolls of *Curse Weapon* can create powerful cursed artifacts.
+
 - Find Roland Jay Roberts ( Found and waiting )
-- Find Sprite World II authors ( new maintainer found and waiting )
-- Find Maarten Hazewinkel ( Found and waiting )
 - Find Ross E Becker ( Found and waiting )
 - Find Randy Hutson, the one that studied in the Math department of Texas ( not found )
+
+
+
 
 

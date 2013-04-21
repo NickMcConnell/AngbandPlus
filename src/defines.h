@@ -50,15 +50,15 @@
 
 
 /*
-* Current version number of Hellband: 0.8.5
+* Current version number of Hellband: 0.8.6
 */
-#define VERSION_NAME	"Hellband 0.8.5"
-#define VERSION     	"0.8.5"
+#define VERSION_NAME	"Hellband 0.8.6"
+#define VERSION     	"0.8.6"
 
 /* <<VERSION STAMP>> */
 #define VERSION_MAJOR   0
 #define VERSION_MINOR   8
-#define VERSION_PATCH   5
+#define VERSION_PATCH   6
 
 /*
 * This value is not currently used
@@ -98,7 +98,7 @@
 /*
 * Total number of stores (see "store.c", etc)
 */
-#define MAX_STORES      12
+#define MAX_STORES      13
 
 /*
 * Road Directions
@@ -112,18 +112,19 @@
 * Store Types
 */
 
-#define STORE_GENERAL    0
-#define STORE_ARMOURY    1
-#define STORE_WEAPON      2
-#define STORE_TEMPLE        3
-#define STORE_ALCHEMIST  4
-#define STORE_MAGIC           5
-#define STORE_BLACK           6
-#define STORE_HOME            7
-#define STORE_LIBRARY       8
-#define STORE_INN                 9
-#define STORE_HALL            10
-#define STORE_PAWN          11
+#define STORE_GENERAL   0
+#define STORE_ARMOURY   1
+#define STORE_WEAPON    2
+#define STORE_TEMPLE    3
+#define STORE_ALCHEMIST 4
+#define STORE_MAGIC     5
+#define STORE_BLACK     6
+#define STORE_HOME      7
+#define STORE_LIBRARY   8
+#define STORE_INN       9
+#define STORE_HALL      10
+#define STORE_PAWN      11
+#define STORE_BOOK_SWAP 12
 
 /*
 * Total number of owners per store (see "store.c", etc)
@@ -647,6 +648,10 @@ and tables.c --TY */
 #define A_DEX   3
 #define A_CON   4
 #define A_CHA   5
+
+/* Stat count for loops on stats, who knows how many stats we might have one day */
+
+#define STAT_COUNT 6
 
 /*
 * Player sex constants (hard-coded by save-files, arrays, etc)
@@ -2870,7 +2875,6 @@ ART_THOTH -> ART_KINSLAYER
 */
 #define object_tried_p(T) \
 	(k_info[(T)->k_idx].tried)
-
 
 /*
 * Determine if a given inventory item is "known"

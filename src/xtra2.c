@@ -1008,7 +1008,6 @@ void monster_death(int m_idx)
 			/* Drop it in the dungeon */
 			drop_near(q_ptr, -1, y, x);
 
-
 			/* Get local object */
 			q_ptr = &forge;
 
@@ -1109,9 +1108,6 @@ void monster_death(int m_idx)
 		}
 	}
 
-
-
-
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;
 
@@ -1173,7 +1169,6 @@ void monster_death(int m_idx)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
-
 	/* Only process "Quest Monsters" */
 	if (!((r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD))) return;
 
@@ -1188,8 +1183,6 @@ void monster_death(int m_idx)
 	{
 		if (q_list[i].level || (q_list[i].cur_num != q_list[i].max_num)) total++;
 	}
-
-
 
 	/* Need some stairs */
 	if (total)
@@ -1214,7 +1207,6 @@ void monster_death(int m_idx)
 
 		/* Create stairs down */
 		cave_set_feat(y, x, FEAT_MORE);
-
 
 		/* Remember to update everything */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
@@ -1381,15 +1373,20 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		{
 			p_ptr->exp_frac = (u16b)new_exp_frac;
 		}
-
-		/* Gain experience */
-		gain_exp(new_exp);
-
-		/* Generate treasure */
-		monster_death(m_idx);
+		
+		/*No exp or treasure for reborns */
+		if(!((r_ptr->flags7 & (RF7_REBORN)) && r_ptr->r_pkills > 0 ))
+		{
+			/* Gain experience */
+			gain_exp(new_exp);
+			/* Generate treasure */
+			monster_death(m_idx);
+		}
 
 		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+		/* Except of course when it doesnt stay dead ;) */
+		if (r_ptr->flags1 & (RF1_UNIQUE) &&
+			!(r_ptr->flags7 & (RF7_REBORN))) r_ptr->max_num = 0;
 
 		/* XXX XXX Mega-Hack -- allow another ghost later
 		* Remove the slain bone file */
@@ -2894,14 +2891,11 @@ void gain_level_reward(int chosen_reward)
 	object_type forge;
 	int nasty_chance = 6;
 
-
-
 	if (!chosen_reward)
 	{
 		if (multi_rew) return;
 		else multi_rew = TRUE;
 	}
-
 
 	if (p_ptr->lev == 13) nasty_chance = 2;
 	else if (!(p_ptr->lev % 13)) nasty_chance = 3;
@@ -2915,7 +2909,6 @@ void gain_level_reward(int chosen_reward)
 	if (type < 1) type = 1;
 	if (type > 20) type = 20;
 	type--;
-
 
 	sprintf(wrath_reason, "the Wrath of %s",
 		evil_patron_shorts[p_ptr->evil_patron]);
@@ -2935,13 +2928,13 @@ void gain_level_reward(int chosen_reward)
 	case REW_POLY_SLF:
 		msg_format("The voice of %s booms out:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thou needst a new form, mortal!'");
+		msg_print("'Thou needst a new form!'");
 		do_poly_self();
 		break;
 	case REW_GAIN_EXP:
 		msg_format("The voice of %s booms out:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Well done, mortal! Lead on!'");
+		msg_print("'Well done! Lead on!'");
 		if (p_ptr->exp < PY_MAX_EXP)
 		{
 			s32b ee = (p_ptr->exp / 2) + 10;
@@ -2953,7 +2946,7 @@ void gain_level_reward(int chosen_reward)
 	case REW_LOSE_EXP:
 		msg_format("The voice of %s booms out:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thou didst not deserve that, slave.'");
+		msg_print("'Thou does not deserve that power just yet!'");
 		lose_exp(p_ptr->exp / 6);
 		break;
 	case REW_GOOD_OBJ:
@@ -3037,25 +3030,25 @@ void gain_level_reward(int chosen_reward)
 	case REW_GOOD_OBS:
 		msg_format("The voice of %s booms out:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thy deed hath earned thee a worthy reward.'");
+		msg_print("'Thy deeds have earned thee a worthy reward.'");
 		acquirement(py, px, randint(2) + 1, FALSE);
 		break;
 	case REW_GREA_OBS:
 		msg_format("The voice of %s booms out:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Behold, mortal, how generously I reward thy loyalty.'");
+		msg_print("'Behold, how generously I reward thy loyalty.'");
 		acquirement(py, px, randint(2) + 1, TRUE);
 		break;
 	case REW_TY_CURSE:
-		msg_format("The voice of %s thunders:",
+		msg_format("The voice of %s whispers:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thou art growing arrogant, mortal.'");
+		msg_print("'Greatness requires suffering, true power requires true suffering.'");
 		activate_ty_curse();
 		break;
 	case REW_SUMMON_M:
 		msg_format("The voice of %s booms out:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'My pets, destroy the arrogant mortal!'");
+		msg_print("'You have grown soft, maybe this will keep you sharp.'");
 		for (dummy = 0; dummy < randint(5) + 1; dummy++)
 		{
 			(void) summon_specific(py, px, dun_level, 0);
@@ -3076,7 +3069,7 @@ void gain_level_reward(int chosen_reward)
 	case REW_GAIN_ABL:                
 		msg_format("The voice of %s rings out:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Stay, mortal, and let me mold thee.'");
+		msg_print("'Stay and let me mold thee!'");
 		if ((randint(3)==1) && !(evil_stats[p_ptr->evil_patron] < 0))
 			do_inc_stat(evil_stats[p_ptr->evil_patron]);
 		else
@@ -3085,7 +3078,7 @@ void gain_level_reward(int chosen_reward)
 	case REW_LOSE_ABL:
 		msg_format("The voice of %s booms out:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'I grow tired of thee, mortal.'");
+		msg_print("'It takes pressure to become a diamond.'");
 		if ((randint(3)==1) && !(evil_stats[p_ptr->evil_patron] < 0))
 			do_dec_stat(evil_stats[p_ptr->evil_patron]);
 		else
@@ -3094,8 +3087,7 @@ void gain_level_reward(int chosen_reward)
 	case REW_RUIN_ABL:
 		msg_format("The voice of %s thunders:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Thou needst a lesson in humility, mortal!'");
-		msg_print("You feel less powerful!");
+		msg_print("'Patience and humility!'");
 		for (dummy = 0; dummy < 6; dummy++)
 		{
 			(void) dec_stat(dummy, 10 + randint(15), TRUE);
@@ -3177,7 +3169,7 @@ void gain_level_reward(int chosen_reward)
 	case REW_WRATH:
 		msg_format("The voice of %s thunders:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_print("'Die, mortal!'");
+		msg_print("'You no longer serve my purposes!'");
 		take_hit(p_ptr->lev * 4, wrath_reason);
 		for (dummy = 0; dummy < 6; dummy++)
 		{
@@ -3216,30 +3208,23 @@ void gain_level_reward(int chosen_reward)
 			evil_patron_shorts[p_ptr->evil_patron]);
 		break;
 	case REW_SER_DEMO:
-		msg_format("%s rewards you with a demonic servant!",evil_patron_shorts[p_ptr->evil_patron]);
-		if (!(summon_specific_friendly(py, px, dun_level, FILTER_DEMON, FALSE)))
-			msg_print("Nobody ever turns up...");
+		msg_format("%s considers helping you.",evil_patron_shorts[p_ptr->evil_patron]);
+		summon_specific_friendly(py, px, dun_level, FILTER_DEMON, FALSE);
 		break;
 	case REW_SER_MONS:
-		msg_format("%s rewards you with a servant!",evil_patron_shorts[p_ptr->evil_patron]);
-		if (!(summon_specific_friendly(py, px, dun_level, FILTER_NO_UNIQUES, FALSE)))
-			msg_print("Nobody ever turns up...");
+		msg_format("%s considers helping you.",evil_patron_shorts[p_ptr->evil_patron]);
+		summon_specific_friendly(py, px, dun_level, FILTER_NO_UNIQUES, FALSE);
 		break;
 	case REW_SER_UNDE:
-		msg_format("%s rewards you with an undead servant!",evil_patron_shorts[p_ptr->evil_patron]);
-		if (!(summon_specific_friendly(py, px, dun_level, FILTER_UNDEAD, FALSE)))
-			msg_print("Nobody ever turns up...");
+		msg_format("%s considers helping you.",evil_patron_shorts[p_ptr->evil_patron]);
+		summon_specific_friendly(py, px, dun_level, FILTER_UNDEAD, FALSE);
 		break;
 	default:
 		msg_format("The voice of %s stammers:",
 			evil_patron_shorts[p_ptr->evil_patron]);
-		msg_format("'Uh... uh... the answer's %d/%d, what's the question?'", type,
-			effect );
+		msg_format("'Uh... uh... the answer's %d/%d, what's the question?'", type, effect );
 	}
-
-
 }
-
 
 /*
 * old -- from PsiAngband.
@@ -3296,7 +3281,8 @@ bool tgt_pt(int *x,int *y)
 
 /*Somewhat the same tactic as in Tyrant, add all the odds together*/
 /*in order to find how many sides the die needs to get a random corruption*/
-int count_corruption_options(){
+int count_corruption_options()
+{
 	int i;
 	int count = 0;
 	for( i = 0 ; i < COUNT_CORRUPTIONS ; i++ )
@@ -3305,7 +3291,8 @@ int count_corruption_options(){
 }
 
 /*Converts a dice throw for a corruption into the actual corruption*/
-int get_corruption( int option){
+int get_corruption( int option)
+{
 	int i;
 	int count = 0;
 	for( i = 0 ; i < COUNT_CORRUPTIONS ; i++ )

@@ -258,45 +258,44 @@ static void sense_inventory(void)
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
-		if(!heavy)
+
+		/* Valid "tval" codes */
+		switch (o_ptr->tval)
 		{
-			/* Valid "tval" codes */
-			switch (o_ptr->tval)
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+			case TV_BOW:
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_HELM:
+			case TV_CROWN:
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
 			{
-				case TV_SHOT:
-				case TV_ARROW:
-				case TV_BOLT:
-				case TV_BOW:
-				case TV_DIGGING:
-				case TV_HAFTED:
-				case TV_POLEARM:
-				case TV_SWORD:
-				case TV_BOOTS:
-				case TV_GLOVES:
-				case TV_HELM:
-				case TV_CROWN:
-				case TV_SHIELD:
-				case TV_CLOAK:
-				case TV_SOFT_ARMOR:
-				case TV_HARD_ARMOR:
-				case TV_DRAG_ARMOR:
+				okay = TRUE;
+				break;
+			}
+			case TV_LITE: /* Only orbs */
+			{
+				if(o_ptr->sval == SV_LITE_ORB)
 				{
 					okay = TRUE;
-					break;
 				}
-				case TV_LITE: /* Only orbs */
-				{
-					if(o_ptr->sval == SV_LITE_ORB)
-					{
-						okay = TRUE;
-					}
-					break;
-				}
+				break;
 			}
-		}
-		else
-		{
-			okay = TRUE;
+			default:
+			{
+				if( !object_aware_p(o_ptr) && heavy )
+					okay = TRUE;				
+			}
 		}
 
 		/* Skip non-sense machines */
@@ -307,7 +306,7 @@ static void sense_inventory(void)
 
 		/* It is fully known, no information needed */
 		if (object_known_p(o_ptr)) continue;
-
+		
 		/* Occasional failure on inventory items */
 		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
 

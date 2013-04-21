@@ -54,6 +54,9 @@ extern size_t my_strcpy(char *buf, const char *src, size_t bufsize);
 /* Concatenate two strings */
 extern size_t my_strcat(char *buf, const char *src, size_t bufsize);
 
+/* Concatenate two strings, put a comma in between if buf is not empty */
+extern size_t my_commacat(char *buf, const char *src, size_t bufsize);
+
 /* Test equality, prefix, suffix */
 extern bool streq(cptr s, cptr t);
 extern bool prefix(cptr s, cptr t);

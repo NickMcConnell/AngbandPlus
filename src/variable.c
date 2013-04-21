@@ -235,7 +235,6 @@ bool auto_destroy;		/* Known worthless items are destroyed without confirmation 
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
 bool disturb_allies;		/* Allies moving nearby disturb us */
-bool multi_stair;         /* Multiple level staircases */
 bool unify_commands; /* Combine object commands into a single 'u'se command */
 bool centre_view; /* Centre view on player */
 bool no_centre_run; /* Stop centring when running */
@@ -945,3 +944,10 @@ bool easy_disarm = TRUE;
  * The alchemy information
  */
 alchemy_info potion_alch[SV_POTION_MAX];
+
+/*
+ * Book swap information
+ */
+
+
+

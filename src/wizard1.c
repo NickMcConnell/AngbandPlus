@@ -26,7 +26,7 @@
 /*
 * The spoiler file being created
 */
-static FILE *fff = NULL;
+/*FILE *fff = NULL; */
 
 
 
@@ -244,6 +244,8 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 */
 static void spoil_obj_desc(cptr fname)
 {
+	FILE *fff = NULL;
+	
 	int i, k, s, t, n = 0;
 
 	u16b who[200];
@@ -679,7 +681,7 @@ typedef struct
 /*
 * Write out `n' of the character `c' to the spoiler file
 */
-static void spoiler_out_n_chars(int n, char c)
+static void spoiler_out_n_chars(FILE *fff, int n, char c)
 {
 	while (--n >= 0) fputc(c, fff);
 }
@@ -687,18 +689,18 @@ static void spoiler_out_n_chars(int n, char c)
 /*
 * Write out `n' blank lines to the spoiler file
 */
-static void spoiler_blanklines(int n)
+static void spoiler_blanklines(FILE *fff, int n)
 {
-	spoiler_out_n_chars(n, '\n');
+	spoiler_out_n_chars(fff, n, '\n');
 }
 
 /*
 * Write a line to the spoiler file and then "underline" it with hypens
 */
-static void spoiler_underline(cptr str)
+static void spoiler_underline(FILE *fff, cptr str)
 {
 	fprintf(fff, "%s\n", str);
-	spoiler_out_n_chars(strlen(str), '-');
+	spoiler_out_n_chars(fff, strlen(str), '-');
 	fprintf(fff, "\n");
 }
 
@@ -994,13 +996,13 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
 }
 
 
-static void print_header(void)
+static void print_header(FILE *fff)
 {
 	char buf[80];
 
 	sprintf(buf, "Artifact Spoilers for Hellband Version %d.%d.%d",
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-	spoiler_underline(buf);
+	spoiler_underline(fff, buf);
 
 }
 
@@ -1043,7 +1045,7 @@ static void print_header(void)
 #define LIST_SEP ';'
 
 
-static void spoiler_outlist(cptr header, cptr *list, char separator)
+static void spoiler_outlist(FILE *fff, cptr header, cptr *list, char separator)
 {
 	int line_len, buf_len;
 	char line[MAX_LINE_LEN+1], buf[80];
@@ -1137,7 +1139,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 
 /* Create a spoiler file entry for an artefact */
 
-static void spoiler_print_art(obj_desc_list *art_ptr)
+static void spoiler_print_art(FILE *fff, obj_desc_list *art_ptr)
 {
 	pval_info_type *pval_ptr = &art_ptr->pval_info;
 
@@ -1151,22 +1153,22 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 	{
 		/* Mention the effects of pval */
 		sprintf(buf, "%s to", pval_ptr->pval_desc);
-		spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
+		spoiler_outlist(fff, buf, pval_ptr->pval_affects, ITEM_SEP);
 	}
 
 	/* Now deal with the description lists */
 
-	spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
+	spoiler_outlist(fff, "Slay", art_ptr->slays, ITEM_SEP);
 
-	spoiler_outlist("", art_ptr->brands, LIST_SEP);
+	spoiler_outlist(fff, "", art_ptr->brands, LIST_SEP);
 
-	spoiler_outlist("Immunity to", art_ptr->immunities, ITEM_SEP);
+	spoiler_outlist(fff, "Immunity to", art_ptr->immunities, ITEM_SEP);
 
-	spoiler_outlist("Resist", art_ptr->resistances, ITEM_SEP);
+	spoiler_outlist(fff, "Resist", art_ptr->resistances, ITEM_SEP);
 
-	spoiler_outlist("Sustain", art_ptr->sustains, ITEM_SEP);
+	spoiler_outlist(fff, "Sustain", art_ptr->sustains, ITEM_SEP);
 
-	spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
+	spoiler_outlist(fff, "", art_ptr->misc_magic, LIST_SEP);
 
 
 	/* Write out the possible activation at the primary indention level */
@@ -1219,6 +1221,17 @@ static bool make_fake_artefact(object_type *o_ptr, int name1)
 	return (TRUE);
 }
 
+/* Write down artefact spoiler info to a given file */
+void spoiler_print_analyze_art(FILE *fff, object_type *q_ptr)
+{	
+	obj_desc_list artefact;
+	
+	/* Analyze the artefact */
+	object_analyze(q_ptr, &artefact);
+
+	/* Write out the artefact description to the spoiler file */
+	spoiler_print_art(fff, &artefact);
+}
 
 /*
 * Create a spoiler file for artefacts
@@ -1230,10 +1243,8 @@ static void spoil_artefact(cptr fname)
 	object_type forge;
 	object_type *q_ptr;
 
-	obj_desc_list artefact;
-
 	char buf[1024];
-
+	FILE *fff = NULL;
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_INFO, fname);
@@ -1252,7 +1263,7 @@ static void spoil_artefact(cptr fname)
 	}
 
 	/* Dump the header */
-	print_header();
+	print_header(fff);
 
 	/* List the artefacts by tval */
 	for (i = 0; group_artefact[i].tval; i++)
@@ -1260,9 +1271,9 @@ static void spoil_artefact(cptr fname)
 		/* Write out the group title */
 		if (group_artefact[i].name)
 		{
-			spoiler_blanklines(2);
-			spoiler_underline(group_artefact[i].name);
-			spoiler_blanklines(1);
+			spoiler_blanklines(fff, 2);
+			spoiler_underline(fff, group_artefact[i].name);
+			spoiler_blanklines(fff, 1);
 		}
 
 		/* Now search through all of the artefacts */
@@ -1282,11 +1293,8 @@ static void spoil_artefact(cptr fname)
 			/* Attempt to "forge" the artefact */
 			if (!make_fake_artefact(q_ptr, j)) continue;
 
-			/* Analyze the artefact */
-			object_analyze(q_ptr, &artefact);
-
-			/* Write out the artefact description to the spoiler file */
-			spoiler_print_art(&artefact);
+			/* Analyze object and write it to the file */
+			spoiler_print_analyze_art(fff, q_ptr);
 		}
 	}
 
@@ -1301,7 +1309,6 @@ static void spoil_artefact(cptr fname)
 	msg_print("Successfully created a spoiler file.");
 }
 
-
 /*
 * Create a spoiler file for monster flag usage
 */
@@ -1309,11 +1316,12 @@ static void spoil_artefact(cptr fname)
 static void spoil_mon_stats(cptr fname)
 {
 	int i,j, n = 0;
-
+	
 	s16b who[MAX_R_IDX];
 
 	char buf[1024];
-
+	FILE *fff = NULL;
+	
 	int per_level_count,total_count,cur_level;
 
 	monster_race *r_ptr;
@@ -1525,7 +1533,7 @@ static void spoil_mon_desc(cptr fname)
 	char ac[80];
 	char hp[80];
 	char exp[80];
-
+	FILE *fff = NULL;
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_INFO, fname);
@@ -1665,7 +1673,7 @@ static cptr wd_lhe[3] =
 * Buffer text to the given file. (-SHAWN-)
 * This is basically c_roff() from mon-desc.c with a few changes.
 */
-static void spoil_out(cptr str)
+static void spoil_out(FILE *fff, cptr str)
 {
 	cptr r;
 
@@ -1742,7 +1750,7 @@ static void spoil_mon_info(cptr fname)
 	cptr p, q;
 	cptr vp[64];
 	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags7;
-
+	FILE *fff = NULL;
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_INFO, fname);
@@ -1765,8 +1773,8 @@ static void spoil_mon_info(cptr fname)
 	sprintf(buf, "Monster Spoilers for Hellband Version %d.%d.%d\n",
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
-	spoil_out(buf);
-	spoil_out("------------------------------------------\n\n");
+	spoil_out(fff, buf);
+	spoil_out(fff, "------------------------------------------\n\n");
 
 	/*
 	* List all monsters in order (except the ghost).
@@ -1795,44 +1803,44 @@ static void spoil_mon_info(cptr fname)
 		/* Prefix */
 		if (flags1 & (RF1_ALWAYS_GUARD))
 		{
-			spoil_out("[G] ");
+			spoil_out(fff, "[G] ");
 		}
 		else if (flags1 & (RF1_UNIQUE))
 		{
-			spoil_out("[U] ");
+			spoil_out(fff, "[U] ");
 		}
 		else
 		{
-			spoil_out("The ");
+			spoil_out(fff, "The ");
 		}
 
 		/* Name */
 		sprintf(buf, "%s  (", (r_name + r_ptr->name));  /* ---)--- */
-		spoil_out(buf);
+		spoil_out(fff, buf);
 
 		/* Color */
-		spoil_out(attr_to_text(r_ptr->d_attr));
+		spoil_out(fff, attr_to_text(r_ptr->d_attr));
 
 		/* Symbol --(-- */
 		sprintf(buf, " '%c')\n", r_ptr->d_char);
-		spoil_out(buf);
+		spoil_out(fff, buf);
 
 
 		/* Indent */
 		sprintf(buf, "=== ");
-		spoil_out(buf);
+		spoil_out(fff, buf);
 
 		/* Number */
 		sprintf(buf, "Num:%d  ", n);
-		spoil_out(buf);
+		spoil_out(fff, buf);
 
 		/* Level */
 		sprintf(buf, "Lev:%d  ", r_ptr->level);
-		spoil_out(buf);
+		spoil_out(fff, buf);
 
 		/* Rarity */
 		sprintf(buf, "Rar:%d  ", r_ptr->rarity);
-		spoil_out(buf);
+		spoil_out(fff, buf);
 
 		/* Speed */
 		if (r_ptr->speed >= 110)
@@ -1843,7 +1851,7 @@ static void spoil_mon_info(cptr fname)
 		{
 			sprintf(buf, "Spd:-%d  ", (110 - r_ptr->speed));
 		}
-		spoil_out(buf);
+		spoil_out(fff, buf);
 
 		/* Hitpoints */
 		if ((flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
@@ -1854,63 +1862,63 @@ static void spoil_mon_info(cptr fname)
 		{
 			sprintf(buf, "Hp:%dd%d  ", r_ptr->hdice, r_ptr->hside);
 		}
-		spoil_out(buf);
+		spoil_out(fff, buf);
 
 		/* Armor Class */
 		sprintf(buf, "Ac:%d  ", r_ptr->ac);
-		spoil_out(buf);
+		spoil_out(fff, buf);
 
 		/* Experience */
 		sprintf(buf, "Exp:%ld\n", (long)(r_ptr->mexp));
-		spoil_out(buf);
+		spoil_out(fff, buf);
 
 
 		/* Describe */
-		spoil_out(r_text + r_ptr->text);
-		spoil_out("  ");
+		spoil_out(fff, r_text + r_ptr->text);
+		spoil_out(fff, "  ");
 
 
-		spoil_out("This");
+		spoil_out(fff, "This");
 
-		if (flags3 & (RF3_ANIMAL)) spoil_out(" natural");
-		if (flags3 & (RF3_EVIL)) spoil_out(" evil");
-		if (flags3 & (RF3_GOOD)) spoil_out(" good");
-		if (flags3 & (RF3_UNDEAD)) spoil_out(" undead");
-		if (flags3 & (RF3_DEVIL)) spoil_out(" infernal");
+		if (flags3 & (RF3_ANIMAL)) spoil_out(fff, " natural");
+		if (flags3 & (RF3_EVIL)) spoil_out(fff, " evil");
+		if (flags3 & (RF3_GOOD)) spoil_out(fff, " good");
+		if (flags3 & (RF3_UNDEAD)) spoil_out(fff, " undead");
+		if (flags3 & (RF3_DEVIL)) spoil_out(fff, " infernal");
 
-		if (flags3 & (RF3_DRAGON)) spoil_out(" dragon");
-		else if (flags3 & (RF3_DEMON)) spoil_out(" demon");
-		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
-		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
-		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-		else if (flags3 & (RF3_FALLEN_ANGEL)) spoil_out (" fallen angel");
-		else spoil_out(" creature");
+		if (flags3 & (RF3_DRAGON)) spoil_out(fff, " dragon");
+		else if (flags3 & (RF3_DEMON)) spoil_out(fff, " demon");
+		else if (flags3 & (RF3_GIANT)) spoil_out(fff, " giant");
+		else if (flags3 & (RF3_TROLL)) spoil_out(fff, " troll");
+		else if (flags3 & (RF3_ORC)) spoil_out(fff, " orc");
+		else if (flags3 & (RF3_FALLEN_ANGEL)) spoil_out(fff, " fallen angel");
+		else spoil_out(fff, " creature");
 
-		spoil_out(" moves");
+		spoil_out(fff, " moves");
 
 		if ((flags1 & (RF1_RAND_50)) && (flags1 & (RF1_RAND_25)))
 		{
-			spoil_out(" extremely erratically");
+			spoil_out(fff, " extremely erratically");
 		}
 		else if (flags1 & (RF1_RAND_50))
 		{
-			spoil_out(" somewhat erratically");
+			spoil_out(fff, " somewhat erratically");
 		}
 		else if (flags1 & (RF1_RAND_25))
 		{
-			spoil_out(" a bit erratically");
+			spoil_out(fff, " a bit erratically");
 		}
 		else
 		{
-			spoil_out(" normally");
+			spoil_out(fff, " normally");
 		}
 
 		if (flags1 & (RF1_NEVER_MOVE))
 		{
-			spoil_out(", but does not deign to chase intruders");
+			spoil_out(fff, ", but does not deign to chase intruders");
 		}
 
-		spoil_out(".  ");
+		spoil_out(fff, ".  ");
 
 
 
@@ -1918,39 +1926,39 @@ static void spoil_mon_info(cptr fname)
 		if (flags1 & (RF1_FORCE_SLEEP))
 		{
 			sprintf(buf, "%s is always created sluggish.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out(fff, buf);
 		}
 
 		if (flags2 & (RF2_AURA_FIRE))
 		{
 			sprintf(buf, "%s is surrounded in flames.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out(fff, buf);
 		}
 
 		if (flags2 & (RF2_AURA_ELEC))
 		{
 			sprintf(buf, "%s is surrounded in electricity.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out(fff, buf);
 		}
 
 		if (flags2 & (RF2_REFLECTING))
 		{
 			sprintf(buf, "%s reflects bolt spells.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out(fff, buf);
 		}
 
 		if (flags1 & (RF1_ESCORT))
 		{
 			sprintf(buf, "%s usually appears with ", wd_che[msex]);
-			spoil_out(buf);
-			if (flags1 & (RF1_ESCORTS)) spoil_out("escorts.  ");
-			else spoil_out("an escort.  ");
+			spoil_out(fff, buf);
+			if (flags1 & (RF1_ESCORTS)) spoil_out(fff, "escorts.  ");
+			else spoil_out(fff, "an escort.  ");
 		}
 
 		if ((flags1 & (RF1_FRIEND)) || (flags1 & (RF1_FRIENDS)))
 		{
 			sprintf(buf, "%s usually appears in groups.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out(fff, buf);
 		}
 
 
@@ -1967,15 +1975,15 @@ static void spoil_mon_info(cptr fname)
 
 		if (vn)
 		{
-			spoil_out(wd_che[msex]);
+			spoil_out(fff, wd_che[msex]);
 			for (i = 0; i < vn; i++)
 			{
-				if (!i) spoil_out(" may ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" or ");
-				spoil_out(vp[i]);
+				if (!i) spoil_out(fff, " may ");
+				else if (i < vn-1) spoil_out(fff, ", ");
+				else spoil_out(fff, " or ");
+				spoil_out(fff, vp[i]);
 			}
-			spoil_out(".  ");
+			spoil_out(fff, ".  ");
 		}
 
 		/* Collect breaths */
@@ -2006,15 +2014,15 @@ static void spoil_mon_info(cptr fname)
 		if (vn)
 		{
 			breath = TRUE;
-			spoil_out(wd_che[msex]);
+			spoil_out(fff, wd_che[msex]);
 			for (i = 0; i < vn; i++)
 			{
-				if (!i) spoil_out(" may breathe ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" or ");
-				spoil_out(vp[i]);
+				if (!i) spoil_out(fff, " may breathe ");
+				else if (i < vn-1) spoil_out(fff, ", ");
+				else spoil_out(fff, " or ");
+				spoil_out(fff, vp[i]);
 			}
-			if (flags2 & (RF2_POWERFUL)) spoil_out(" powerfully");
+			if (flags2 & (RF2_POWERFUL)) spoil_out(fff, " powerfully");
 		}
 
 		/* Collect spells */
@@ -2091,21 +2099,21 @@ static void spoil_mon_info(cptr fname)
 			magic = TRUE;
 			if (breath)
 			{
-				spoil_out(", and is also");
+				spoil_out(fff, ", and is also");
 			}
 			else
 			{
-				spoil_out(wd_che[msex]);
-				spoil_out(" is");
+				spoil_out(fff, wd_che[msex]);
+				spoil_out(fff, " is");
 			}
-			spoil_out(" magical, casting spells");
-			if (flags2 & (RF2_SMART)) spoil_out(" intelligently");
+			spoil_out(fff, " magical, casting spells");
+			if (flags2 & (RF2_SMART)) spoil_out(fff, " intelligently");
 			for (i = 0; i < vn; i++)
 			{
-				if (!i) spoil_out(" which ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" or ");
-				spoil_out(vp[i]);
+				if (!i) spoil_out(fff, " which ");
+				else if (i < vn-1) spoil_out(fff, ", ");
+				else spoil_out(fff, " or ");
+				spoil_out(fff, vp[i]);
 			}
 		}
 
@@ -2113,7 +2121,7 @@ static void spoil_mon_info(cptr fname)
 		{
 			sprintf(buf, "; 1 time in %d.  ",
 				200 / (r_ptr->freq_inate + r_ptr->freq_spell));
-			spoil_out(buf);
+			spoil_out(fff, buf);
 		}
 
 		/* Collect special abilities. */
@@ -2131,46 +2139,46 @@ static void spoil_mon_info(cptr fname)
 
 		if (vn)
 		{
-			spoil_out(wd_che[msex]);
+			spoil_out(fff, wd_che[msex]);
 			for (i = 0; i < vn; i++)
 			{
-				if (!i) spoil_out(" can ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" and ");
-				spoil_out(vp[i]);
+				if (!i) spoil_out(fff, " can ");
+				else if (i < vn-1) spoil_out(fff, ", ");
+				else spoil_out(fff, " and ");
+				spoil_out(fff, vp[i]);
 			}
-			spoil_out(".  ");
+			spoil_out(fff, ".  ");
 		}
 
 		if (flags2 & (RF2_INVISIBLE))
 		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" is invisible.  ");
+			spoil_out(fff, wd_che[msex]);
+			spoil_out(fff, " is invisible.  ");
 		}
 		if (flags2 & (RF2_COLD_BLOOD))
 		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" is cold blooded.  ");
+			spoil_out(fff, wd_che[msex]);
+			spoil_out(fff, " is cold blooded.  ");
 		}
 		if (flags2 & (RF2_EMPTY_MIND))
 		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" is not detected by telepathy.  ");
+			spoil_out(fff, wd_che[msex]);
+			spoil_out(fff, " is not detected by telepathy.  ");
 		}
 		if (flags2 & (RF2_WEIRD_MIND))
 		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" is rarely detected by telepathy.  ");
+			spoil_out(fff, wd_che[msex]);
+			spoil_out(fff, " is rarely detected by telepathy.  ");
 		}
 		if (flags2 & (RF2_MULTIPLY))
 		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" breeds explosively.  ");
+			spoil_out(fff, wd_che[msex]);
+			spoil_out(fff, " breeds explosively.  ");
 		}
 		if (flags2 & (RF2_REGENERATE))
 		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" regenerates quickly.  ");
+			spoil_out(fff, wd_che[msex]);
+			spoil_out(fff, " regenerates quickly.  ");
 		}
 
 		/* Collect susceptibilities */
@@ -2182,15 +2190,15 @@ static void spoil_mon_info(cptr fname)
 
 		if (vn)
 		{
-			spoil_out(wd_che[msex]);
+			spoil_out(fff, wd_che[msex]);
 			for (i = 0; i < vn; i++)
 			{
-				if (!i) spoil_out(" is hurt by ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" and ");
-				spoil_out(vp[i]);
+				if (!i) spoil_out(fff, " is hurt by ");
+				else if (i < vn-1) spoil_out(fff, ", ");
+				else spoil_out(fff, " and ");
+				spoil_out(fff, vp[i]);
 			}
-			spoil_out(".  ");
+			spoil_out(fff, ".  ");
 		}
 
 		/* Collect immunities */
@@ -2205,15 +2213,15 @@ static void spoil_mon_info(cptr fname)
 
 		if (vn)
 		{
-			spoil_out(wd_che[msex]);
+			spoil_out(fff, wd_che[msex]);
 			for (i = 0; i < vn; i++)
 			{
-				if (!i) spoil_out(" resists ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" and ");
-				spoil_out(vp[i]);
+				if (!i) spoil_out(fff, " resists ");
+				else if (i < vn-1) spoil_out(fff, ", ");
+				else spoil_out(fff, " and ");
+				spoil_out(fff, vp[i]);
 			}
-			spoil_out(".  ");
+			spoil_out(fff, ".  ");
 		}
 
 		/* Collect resistances */
@@ -2233,15 +2241,15 @@ static void spoil_mon_info(cptr fname)
 				if (flags3 & (RF3_RES_TELE)) vp[vn++] = "teleportation";
 		if (vn)
 		{
-			spoil_out(wd_che[msex]);
+			spoil_out(fff, wd_che[msex]);
 			for (i = 0; i < vn; i++)
 			{
-				if (!i) spoil_out(" resists ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" and ");
-				spoil_out(vp[i]);
+				if (!i) spoil_out(fff, " resists ");
+				else if (i < vn-1) spoil_out(fff, ", ");
+				else spoil_out(fff, " and ");
+				spoil_out(fff, vp[i]);
 			}
-			spoil_out(".  ");
+			spoil_out(fff, ".  ");
 		}
 				
 				
@@ -2283,33 +2291,33 @@ static void spoil_mon_info(cptr fname)
 
 		if (vn)
 		{
-			spoil_out(wd_che[msex]);
+			spoil_out(fff, wd_che[msex]);
 			for (i = 0; i < vn; i++)
 			{
-				if (!i) spoil_out(" cannot be ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" or ");
-				spoil_out(vp[i]);
+				if (!i) spoil_out(fff, " cannot be ");
+				else if (i < vn-1) spoil_out(fff, ", ");
+				else spoil_out(fff, " or ");
+				spoil_out(fff, vp[i]);
 			}
-			spoil_out(".  ");
+			spoil_out(fff, ".  ");
 		}
 
-		spoil_out(wd_che[msex]);
-		if (r_ptr->sleep > 200)     spoil_out(" prefers to ignore");
-		else if (r_ptr->sleep > 95) spoil_out(" pays very little attention to");
-		else if (r_ptr->sleep > 75) spoil_out(" pays little attention to");
-		else if (r_ptr->sleep > 45) spoil_out(" tends to overlook");
-		else if (r_ptr->sleep > 25) spoil_out(" takes quite a while to see");
-		else if (r_ptr->sleep > 10) spoil_out(" takes a while to see");
-		else if (r_ptr->sleep > 5)  spoil_out(" is fairly observant of");
-		else if (r_ptr->sleep > 3)  spoil_out(" is observant of");
-		else if (r_ptr->sleep > 1)  spoil_out(" is very observant of");
-		else if (r_ptr->sleep > 0)  spoil_out(" is vigilant for");
-		else spoil_out(" is ever vigilant for");
+		spoil_out(fff, wd_che[msex]);
+		if (r_ptr->sleep > 200)     spoil_out(fff, " prefers to ignore");
+		else if (r_ptr->sleep > 95) spoil_out(fff, " pays very little attention to");
+		else if (r_ptr->sleep > 75) spoil_out(fff, " pays little attention to");
+		else if (r_ptr->sleep > 45) spoil_out(fff, " tends to overlook");
+		else if (r_ptr->sleep > 25) spoil_out(fff, " takes quite a while to see");
+		else if (r_ptr->sleep > 10) spoil_out(fff, " takes a while to see");
+		else if (r_ptr->sleep > 5)  spoil_out(fff, " is fairly observant of");
+		else if (r_ptr->sleep > 3)  spoil_out(fff, " is observant of");
+		else if (r_ptr->sleep > 1)  spoil_out(fff, " is very observant of");
+		else if (r_ptr->sleep > 0)  spoil_out(fff, " is vigilant for");
+		else spoil_out(fff, " is ever vigilant for");
 
 		sprintf(buf, " intruders, which %s may notice from %d feet.  ",
 			wd_lhe[msex], 10 * r_ptr->aaf);
-		spoil_out(buf);
+		spoil_out(fff, buf);
 
 		i = 0;
 		if (flags1 & (RF1_DROP_60)) i += 1;
@@ -2323,60 +2331,60 @@ static void spoil_mon_info(cptr fname)
 		if (i)
 		{
 			sin = FALSE;
-			spoil_out(wd_che[msex]);
-			spoil_out(" will carry");
+			spoil_out(fff, wd_che[msex]);
+			spoil_out(fff, " will carry");
 
 			if (i == 1)
 			{
-				spoil_out(" a"); sin = TRUE;
+				spoil_out(fff, " a"); sin = TRUE;
 			}
 			else if (i == 2)
 			{
-				spoil_out(" one or two");
+				spoil_out(fff, " one or two");
 				sin = TRUE;
 			}
 			else
 			{
 				sprintf(buf, " up to %u", i);
-				spoil_out(buf);
+				spoil_out(fff, buf);
 			}
 
 			if (flags1 & (RF1_DROP_GREAT))
 			{
-				if (sin) spoil_out("n");
-				spoil_out(" exceptional object");
+				if (sin) spoil_out(fff, "n");
+				spoil_out(fff, " exceptional object");
 			}
 			else if (flags1 & (RF1_DROP_GOOD))
 			{
-				spoil_out(" good object");
+				spoil_out(fff, " good object");
 			}
 			else if (flags1 & (RF1_DROP_USEFUL))
 			{
-				spoil_out(" useful object");
+				spoil_out(fff, " useful object");
 			}
 			else if (flags1 & (RF1_ONLY_ITEM))
 			{
-				spoil_out(" object");
+				spoil_out(fff, " object");
 			}
 			else if (flags1 & (RF1_ONLY_GOLD))
 			{
-				spoil_out(" treasure");
+				spoil_out(fff, " treasure");
 			}
 			else
 			{
-				if (sin) spoil_out("n");
-				spoil_out(" object");
-				if (i > 1) spoil_out("s");
-				spoil_out(" or treasure");
+				if (sin) spoil_out(fff, "n");
+				spoil_out(fff, " object");
+				if (i > 1) spoil_out(fff, "s");
+				spoil_out(fff, " or treasure");
 			}
-			if (i > 1) spoil_out("s");
+			if (i > 1) spoil_out(fff, "s");
 
 			if (flags1 & (RF1_DROP_CHOSEN))
 			{
-				spoil_out(", in addition to chosen objects");
+				spoil_out(fff, ", in addition to chosen objects");
 			}
 
-			spoil_out(".  ");
+			spoil_out(fff, ".  ");
 		}
 
 		/* Count the actual attacks */
@@ -2462,35 +2470,35 @@ static void spoil_mon_info(cptr fname)
 
 			if (!k)
 			{
-				spoil_out(wd_che[msex]);
-				spoil_out(" can ");
+				spoil_out(fff, wd_che[msex]);
+				spoil_out(fff, " can ");
 			}
 			else if (k < i-1)
 			{
-				spoil_out(", ");
+				spoil_out(fff, ", ");
 			}
 			else
 			{
-				spoil_out(", and ");
+				spoil_out(fff, ", and ");
 			}
 
 			/* Describe the method */
-			spoil_out(p);
+			spoil_out(fff, p);
 
 			/* Describe the effect, if any */
 			if (r_ptr->blow[j].effect)
 			{
-				spoil_out(" to ");
-				spoil_out(q);
+				spoil_out(fff, " to ");
+				spoil_out(fff, q);
 				if (r_ptr->blow[j].d_dice && r_ptr->blow[j].d_side)
 				{
-					spoil_out(" with damage");
+					spoil_out(fff, " with damage");
 					if (r_ptr->blow[j].d_side == 1)
 						sprintf(buf, " %d", r_ptr->blow[j].d_dice);
 					else
 						sprintf(buf, " %dd%d",
 						r_ptr->blow[j].d_dice, r_ptr->blow[j].d_side);
-					spoil_out(buf);
+					spoil_out(fff, buf);
 				}
 			}
 
@@ -2504,51 +2512,51 @@ static void spoil_mon_info(cptr fname)
 			{
 			case 1:
 				{
-					spoil_out(format(", which %s does",wd_lhe[msex]));
+					spoil_out(fff, format(", which %s does",wd_lhe[msex]));
 					break;
 				}
 			case 2:
 				{
-					spoil_out(format(" - both of which %s does",wd_lhe[msex]));
+					spoil_out(fff, format(" - both of which %s does",wd_lhe[msex]));
 					break;
 				}
 			default:
 				{
-					spoil_out(format(" - all of which %s does",wd_lhe[msex]));
+					spoil_out(fff, format(" - all of which %s does",wd_lhe[msex]));
 					break;
 				}
 			}
 
 			if(r_ptr->num_blows > 8)
 			{
-				spoil_out(" with incredible speed");
+				spoil_out(fff, " with incredible speed");
 			}
 			else if(r_ptr->num_blows > 5)
 			{
-				spoil_out(" extremely quickly");
+				spoil_out(fff, " extremely quickly");
 			}
 			else if(r_ptr->num_blows > 3)
 			{
-				spoil_out(" very quickly");
+				spoil_out(fff, " very quickly");
 			}
 			else if(r_ptr->num_blows > 2)
 			{
-				spoil_out(" quickly");
+				spoil_out(fff, " quickly");
 			}
 			else if(r_ptr->num_blows > 1)
 			{
-				spoil_out(" at a moderate speed");
+				spoil_out(fff, " at a moderate speed");
 			}
 			else
 			{
-				spoil_out(" slowly");
+				spoil_out(fff, " slowly");
 			}
-			spoil_out(".  ");
+			spoil_out(fff, ".  ");
 		}
 		else if (flags1 & (RF1_NEVER_BLOW))
 		{
 			sprintf(buf, "%s has no physical attacks.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out(fff, buf);
 		}
 				
 		/* Notice monsters that _have_ to be avoided */
@@ -2567,7 +2575,7 @@ static void spoil_mon_info(cptr fname)
             roff( format("%^s recovers from fatal wounds.", wd_che[msex]));
         }	                
 
-		spoil_out(NULL);
+		spoil_out(fff, NULL);
 	}
 
 	/* Check for errors */

@@ -180,20 +180,8 @@ void do_cmd_go_up(void)
 				do_cmd_save_game();
 				is_autosave = FALSE;
 			}
-
-			/* Go up the stairs */
-			if(multi_stair)
-			{
-				int j=randint(5);
-				if (j>dun_level) j=1;
-				dun_level-= j;
-				if(dun_level<0)dun_level=0;
-			}
-			else
-			{
-				dun_level--;
-			}
-
+			dun_level--;
+			if(dun_level<0)dun_level=0;				
 			/* Check for leaving dungeon */
 			if(dun_level == 0)
 			{
@@ -296,26 +284,11 @@ void do_cmd_go_down(void)
 				}
 			}
 			/* Go down */
-			if(multi_stair)
+			dun_level++;
+			if(dun_level > MAX_DEPTH)
 			{
-				int i;
-				int j=randint(5);
-				if(j>dun_level) j=1; 
-				for(i=0;i<j;i++)
-				{
-					dun_level++;
-					if(is_quest(dun_level)) break;
-				}
-				if(dun_level > MAX_DEPTH)
-				{
-					dun_level = MAX_DEPTH;
-				}
+				dun_level = MAX_DEPTH;
 			}
-			else
-			{
-				dun_level++;
-			}
-
 			/* Hack - If you've gone 'down' to level 0  then go down again to level 1 */
 			if(dun_level == 0) dun_level++;
 

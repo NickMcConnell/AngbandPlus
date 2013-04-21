@@ -290,6 +290,8 @@ void rustproof(void)
 }
 
 
+
+
 /*
 * Peruse the spells/prayers in a Book
 *
@@ -307,9 +309,7 @@ void do_cmd_browse(int item)
 	byte		spells[64];
 
 	object_type	*o_ptr;
-    magic_type   s_magic;
-    magic_type  *s_ptr = &s_magic;
-
+	
 	/* Warriors are illiterate */
 	if (!(p_ptr->realm1 || p_ptr->realm2))
 	{
@@ -383,40 +383,11 @@ void do_cmd_browse(int item)
 
 	/* Prompt user */
 	put_str("[(Browsing) Choose a spell or press Escape ]", 0, 13);
+	
+	/* Spoil the spells*/
+	spoil_spells( o_ptr );
 
-	/* Wait for key */
-	while (1)
-	{
-		char c;
-		/* Get Key Press*/
-		c = inkey();
-		/* Lowercase it with paranoia*/
-		if (isupper(c)) c = tolower(c);
-		/* Extract request */
-		spell = (islower(c) ? A2I(c) : -1);
-		if ((spell < 0) || (spell >= 8 ))
-		{
-			break;
-		}
-		
-		/* Clear lines, position cursor (really should use strlen here) */
-		Term_erase(13, 11 , 255);
-		Term_erase(13, 12 , 255);
-		Term_erase(13, 13 , 255);
-		
-		/*msg_format( "Spell : %d" , spell );msg_print(NULL);*/
-		/* Access the spell */
-		get_extended_spell_info(  (o_ptr->tval-TV_MIRACLES_BOOK) ,  o_ptr->sval*8+spell , s_ptr );
-		/*msg_format( "Spell : %s" , s_ptr->spoiler );msg_print(NULL);		*/
-		/* Display that spell's information. */
-		c_roff(TERM_L_BLUE, s_ptr->spoiler,13,11,13);
-	}		
-
-	/* Restore the screen */
-	Term_load();
 }
-
-
 
 
 /*
@@ -3044,7 +3015,8 @@ void do_cmd_cast(void)
 		}
 		get_extended_spell_info( realm , spell , s_ptr);
 		/* A spell was cast */
-		if( !s_ptr->worked  ){
+		if( !s_ptr->worked  )
+		{
             int spell_skill = mp_ptr->skill[realm]-1;            
 			first_time = TRUE;
             if( spell_skill == SUPER || spell_skill == BETTER )

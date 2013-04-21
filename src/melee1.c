@@ -1335,7 +1335,8 @@ bool make_attack_normal(int m_idx)
 		{
 			if (p_ptr->sh_fire)
 			{
-				if (!(r_ptr->flags3 & RF3_IM_FIRE)){
+				if (!(r_ptr->flags3 & RF3_IM_FIRE))
+				{
 					msg_format("Your fire sheath triggers!", m_name);					
 					project(0, 0, m_ptr->fy, m_ptr->fx, damroll(2,6	) , GF_FIRE, PROJECT_KILL | PROJECT_STOP);
 				}
@@ -1345,7 +1346,8 @@ bool make_attack_normal(int m_idx)
 		
 			if (p_ptr->sh_elec)
 			{
-				if (!(r_ptr->flags3 & RF3_IM_FIRE)){
+				if (!(r_ptr->flags3 & RF3_IM_FIRE))
+				{
 					msg_format("Your electric sheath triggers!", m_name);										
 					project(0, 0, m_ptr->fy, m_ptr->fx, damroll(2,6	) , GF_ELEC, PROJECT_KILL | PROJECT_STOP); 
 				}

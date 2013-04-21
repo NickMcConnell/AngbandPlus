@@ -61,7 +61,7 @@
 #  coming stealthily along; and I render the man weak, so that his habit of body is enfeebled."
 
 #  and the binding their mouths with a bond, and the ruin of their minds, and paining of their bodies.""
-#  Enêpsigos , A spirit, as it were a woman in the form she had. But on her shoulders she had two other heads with hands. Foresight
+#  Enpsigos , A spirit, as it were a woman in the form she had. But on her shoulders she had two other heads with hands. Foresight
 
 # Mastema 'Hostility' is the chief of the demons engendered by the fallen Watchers. Mastema is the tester of humans with God's permission.
 #  This rebel angel is the Accusing Angel of Hebrew mythology. He is the executioner who slaughtered the firstborn of Egypt and who tried, unsuccessfully, to murder Moses.
@@ -239,7 +239,7 @@
 #Nicomedian
 #
 
-V:0.8.5
+V:0.8.6
 
 
 ##### The Player #####
@@ -629,7 +629,7 @@ D:This one will be forced by Minos to lie in the mud under continual cold rain a
 D:He has not accepted Minos' judgement and prefers to dwell in the lower levels for eternity. 
 
 #Dark blue : Perjurer
-N:34:Perjurer	
+N:34:Perjurer
 G:p:b
 I:110:2:9d4:20:16:5
 W:2:1:0:6
@@ -1174,7 +1174,7 @@ F:DROP_90 | FORCE_SLEEP | FRIENDS
 F:EVIL | IM_POIS | FALLEN_ANGEL
 D:An angel of the Third Triad, its' duty is to defend Minos' Throne. 
 
-N:80:Aeacus' Bodyguard
+N:80:Aeacean Bodyguard
 G:u:y
 I:110:1:13d9:20:32:30
 W:5:1:0:25
@@ -1185,7 +1185,7 @@ D:A lesser demon, it's duty is to protect
 D:Aeacus from the more dangerous sinners who are sometimes quite resourcefull. 
 D:Aecus is a brother of Minos, judging European souls and selecting their punishment. 
 
-N:81:Rhadamanthus' Bodyguard
+N:81:Rhadamanthean Bodyguard
 G:u:W
 I:110:1:13d9:20:32:30
 W:5:1:0:25
@@ -1196,7 +1196,7 @@ D:A lesser demon, it's duty is to protect
 D:Rhadamanthus from the more dangerous sinners who are sometimes quite resourcefull. 
 D:Rhadamanthus is a brother of Minos, judging Asian souls and selecting their punishment. 
 
-N:82:Minos' Bodyguard
+N:82:Bodyguard
 G:u:G
 I:110:1:13d9:20:32:30
 W:5:1:0:25
@@ -2142,7 +2142,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GREAT |
 F:OPEN_DOOR | BASH_DOOR
 D:Philip IV the Fair (French: Philippe IV le Bel) (1268 – November 29, 1314) was King of France from 1285 until his death. 
 D:Philip arrested Jews so he could seize their assets to accommodate the inflated costs of modern warfare, 
-D:personally defeated the Flemings at Mons-en-Pévèle in 1304, forcing a harsh peace treaty with humiliating penalties. 
+D:personally defeated the Flemings at Mons in 1304, forcing a harsh peace treaty with humiliating penalties. 
 D:He had all the Knights Templar in France simultaneously arrested by his agents. To be later tortured into admitting heresy in the Order. 
 
 N:158:Edward, the Black Prince
@@ -4066,7 +4066,7 @@ F:MALE | UNIQUE |
 F:DROP_90 | DROP_2D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ATTR_MULTI
-D:François Villon (ca. 1431 - ca. 1474) was a French poet, thief, and general vagabond. 
+D:Francois Villon (ca. 1431 - ca. 1474) was a French poet, thief, and general vagabond. 
 
 #Ever so slightly out of depth ( original depth is 52 )
 N:302:Grand master thief

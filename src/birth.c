@@ -40,7 +40,7 @@ struct birther
 
 	s32b au;
 
-	s16b stat[6];
+	s16b stat[STAT_COUNT];
 
 	char history[4][70];
 };
@@ -55,15 +55,20 @@ static birther prev;
 #define RARE 5
 #define END_GROUP 1
 
+/* Binary options birth screen */
+#define SHOW_PLUS TRUE
+#define NO_PLUS FALSE
+#define SHOW_NAMES FALSE
+#define NO_NAMES TRUE
+
 /* Player background information  */
 typedef struct background_type background_type;
 struct background_type
 {
-	cptr info;			    /* Textual History */
-	byte frequency;			/* Frequency of this entry */
-	s16b bonus;			    /* Social Class Bonus + 50 */
-    u32b metadata;          /* validity check and end of group flag */
-    
+	cptr info;		/* Textual History */
+	byte frequency;		/* Frequency of this entry */
+	s16b bonus;		/* Social Class Bonus + 50 */
+	u32b metadata;		/* validity check and end of group flag */
 };
 
 static background_type background[] = 
@@ -401,211 +406,97 @@ static background_type background[] =
     {"feral yellow eyes and glistening fangs. ",                                   UNLIKELY,            0,    0},                                                                                                               
     {"bloodshot red eyes and the smell of death surrounding you.",                 UNLIKELY,            0,    END_GROUP},                                                                                                       
 
-	{"You were refused the afterlife by a curse. ",                                LIKELY,              15,   BG_SPECTRE},
-	{"You refused the afterlife with an oath. ",                                   LIKELY,              35,   0},
-	{"You cheated death with a demonic pact. ",                                    UNLIKELY,            15,   0},
-	{"You were a necromancer in life. ",                                           UNLIKELY,            35,   END_GROUP},
+    {"You were refused the afterlife by a curse. ",                                LIKELY,              15,   BG_SPECTRE},
+    {"You refused the afterlife with an oath. ",                                   LIKELY,              35,   0},
+    {"You cheated death with a demonic pact. ",                                    UNLIKELY,            15,   0},
+    {"You were a necromancer in life. ",                                           UNLIKELY,            35,   END_GROUP},
 
-	{"You have eyes like red coals, ",                                             LIKELY,              0,    BG_SPECTRE},
-	{"You have blank white eyes, ",                                                UNLIKELY,            -5,   0 },
-	{"You have gaping holes where your eyes were, ",                               UNLIKELY,            -5,   END_GROUP },
+    {"You have eyes like red coals, ",                                             LIKELY,              0,    BG_SPECTRE},
+    {"You have blank white eyes, ",                                                UNLIKELY,            -5,   0 },
+    {"You have gaping holes where your eyes were, ",                               UNLIKELY,            -5,   END_GROUP },
 
-	{"a deathly gray complexion. ",                                                LIKELY,              0,    BG_SPECTRE},
+    {"a deathly gray complexion. ",                                                LIKELY,              0,    BG_SPECTRE},
     {"an intense sadness is expressed in all your movements. ",                    UNLIKELY,            5,    END_GROUP },
 
-	{"You are surrounded by an eerie green aura.",                                 UNLIKELY,            0,    BG_SPECTRE},
-   	{"You are constantly surrounded by a white fog.",                              LIKELY,              5,    END_GROUP},
+    {"You are surrounded by an eerie green aura.",                                 UNLIKELY,            0,    BG_SPECTRE},
+       {"You are constantly surrounded by a white fog.",                              LIKELY,              5,    END_GROUP},
 
-	{"Your mother was a succubus. ",                                               LIKELY,              15,   BG_DEVILSPAWN|BG_SUCCUBUS|BG_IMP},
-	{"Your father was an incubus. ",	                                           LIKELY,              15,   0},
-	{"Your mother was Glaryssa, the Succubus Queen. ",	                           LIKELY,              65,   0},
-    {"Your mother was Lilith, the first Woman. ",	                               LIKELY,              80,   0},
-	{"You are created from raw Chaos itself. ",                                    LIKELY,              90,   0},
-	{"You are a descendant of a Devil Prince. ",                                   LIKELY,              70,   END_GROUP},
+    {"Your mother was a succubus. ",                                               LIKELY,              15,   BG_DEVILSPAWN|BG_SUCCUBUS|BG_IMP},
+    {"Your father was an incubus. ",                                               LIKELY,              15,   0},
+    {"Your mother was Glaryssa, the Succubus Queen. ",                               LIKELY,              65,   0},
+    {"Your mother was Lilith, the first Woman. ",                                   LIKELY,              80,   0},
+    {"You are created from raw Chaos itself. ",                                    LIKELY,              90,   0},
+    {"You are a descendant of a Devil Prince. ",                                   LIKELY,              70,   END_GROUP},
         
-    {"Your mother was Lilith, the first Woman. ",	                               LIKELY,              80,   BG_LILI},
-    {"Your grandmother was Lilith, the first Woman. ",	                           UNLIKELY,            65,   END_GROUP},    
+    {"Your mother was Lilith, the first Woman. ",                                   LIKELY,              80,   BG_LILI},
+    {"Your grandmother was Lilith, the first Woman. ",                               UNLIKELY,            65,   END_GROUP},    
     
-	{"You have coal black eyes, ",                                                 LIKELY,              0,    BG_DEVILSPAWN|BG_SUCCUBUS|BG_IMP|BG_LILI},
-	{"You have pale pink eyes, ",                                                  LIKELY,              0,    0},
-	{"You have eyes like red embers, ",                                            LIKELY,              0,    0},
-	{"You have beautiful green eyes, ",                                            UNLIKELY,            5,    END_GROUP},
+    {"You have coal black eyes, ",                                                 LIKELY,              0,    BG_DEVILSPAWN|BG_SUCCUBUS|BG_IMP|BG_LILI},
+    {"You have pale pink eyes, ",                                                  LIKELY,              0,    0},
+    {"You have eyes like red embers, ",                                            LIKELY,              0,    0},
+    {"You have beautiful green eyes, ",                                            UNLIKELY,            5,    END_GROUP},
 
-	{"no hair at all, ",                                                           LIKELY,              15,   BG_DEVILSPAWN|BG_SUCCUBUS|BG_IMP|BG_LILI},    
-	{"dirty brown hair, ",                                                         LIKELY,              15,   0},
-	{"mangy gray hair, ",                                                          LIKELY,              15,   0},
-	{"fine albino hair, ",                                                         UNLIKELY,            5,    END_GROUP},
+    {"no hair at all, ",                                                           LIKELY,              15,   BG_DEVILSPAWN|BG_SUCCUBUS|BG_IMP|BG_LILI},    
+    {"dirty brown hair, ",                                                         LIKELY,              15,   0},
+    {"mangy gray hair, ",                                                          LIKELY,              15,   0},
+    {"fine albino hair, ",                                                         UNLIKELY,            5,    END_GROUP},
 
-	{"and the hooves of a goat.",                                                  LIKELY,              -5,   BG_DEVILSPAWN|BG_IMP|BG_LILI},
-	{"and vestigial wings.",                                                       LIKELY,              0,    0},
-	{"and slightly clawed fingers.",                                               LIKELY,              -3,   0},
-	{"and an unnaturally wide smile.",                                             LIKELY,              -3,   0},
-	{"and a slight sulphurous smell about you.",                                   LIKELY,              3,    0},
-	{"and a bright red skin.",                                                     LIKELY,              0,    0},
-	{"and a forked tongue.",                                                       LIKELY,              3,    END_GROUP},
+    {"and the hooves of a goat.",                                                  LIKELY,              -5,   BG_DEVILSPAWN|BG_IMP|BG_LILI},
+    {"and vestigial wings.",                                                       LIKELY,              0,    0},
+    {"and slightly clawed fingers.",                                               LIKELY,              -3,   0},
+    {"and an unnaturally wide smile.",                                             LIKELY,              -3,   0},
+    {"and a slight sulphurous smell about you.",                                   LIKELY,              3,    0},
+    {"and a bright red skin.",                                                     LIKELY,              0,    0},
+    {"and a forked tongue.",                                                       LIKELY,              3,    END_GROUP},
     
-	{"and a pitch black skin.",                                                    LIKELY,              0,    BG_SUCCUBUS},
-	{"and a firy red skin.",                                                       LIKELY,              0,    0},
-	{"and an emerald green skin.",                                                 LIKELY,              0,    0},
-	{"and a frosty blue skin.",                                                    LIKELY,              0,    END_GROUP},    
+    {"and a pitch black skin.",                                                    LIKELY,              0,    BG_SUCCUBUS},
+    {"and a fiery red skin.",                                                       LIKELY,              0,    0},
+    {"and an emerald green skin.",                                                 LIKELY,              0,    0},
+    {"and a frosty blue skin.",                                                    LIKELY,              0,    END_GROUP},    
     
     { NULL,                                                                        0,                   0,    END_GROUP}, /* Ye famous null record */
 };
 
-/*
-* Current stats
-*/
-static s16b stat_use[6];
-
-/*
-* Autoroll limit
-*/
-static s16b stat_limit[6];
-
-/*
-* Autoroll matches
-*/
-static s32b stat_match[6];
-
-/*
-* Autoroll round
-*/
+/* Current stats */
+static s16b stat_use[STAT_COUNT];
+/* Autoroll limit */
+static s16b stat_limit[STAT_COUNT];
+/* Autoroll matches */
+static s32b stat_match[STAT_COUNT];
+/* Autoroll round */
 static s32b auto_round;
-
-/*
-* Last round
-*/
+/* Last round */
 static s32b last_round;
 
-/*
-* Name segments for random player names
-*/
+/* Name segments for random player names */
 
-/* Dwarves */
-static char *dwarf_syllable1[] =
-{
-	"B", "D", "F", "G", "Gl", "H", "K", "L", "M", "N", "R", "S", "T", "Th", "V",
-};
+static char *dwarf_syllable1[] = { "B", "D", "F", "G", "Gl", "H", "K", "L", "M", "N", "R", "S", "T", "Th", "V", };
+static char *dwarf_syllable2[] = { "a", "e", "i", "o", "oi", "u", };
+static char *dwarf_syllable3[] = { "bur", "fur", "gan", "gnus", "gnar", "li", "lin", "lir", "mli", "nar", "nus", "rin", "ran", "sin", "sil", "sur", };
 
-static char *dwarf_syllable2[] =
-{
-	"a", "e", "i", "o", "oi", "u",
-};
+static char *elf_syllable1[] = { "Al", "An", "Bal", "Bel", "Cal", "Cel", "El", "Elr", "Elv", "Eow", "Ear", "F", "Fal", "Fel", "Fin", "G", "Gal", "Gel", "Gl", "Is", "Lan", "Leg", "Lom", "N", "Nal", "Nel",  "S", "Sal", "Sel", "T", "Tal", "Tel", "Thr", "Tin", };
+static char *elf_syllable2[] = { "a", "adrie", "ara", "e", "ebri", "ele", "ere", "i", "io", "ithra", "ilma", "il-Ga", "ili", "o", "orfi", "u", "y", };
+static char *elf_syllable3[] = { "l", "las", "lad", "ldor", "ldur", "linde", "lith", "mir", "n", "nd", "ndel", "ndil", "ndir", "nduil", "ng", "mbor", "r", "rith", "ril", "riand", "rion", "s", "thien", "viel", "wen", "wyn", };
 
-static char *dwarf_syllable3[] =
-{
-	"bur", "fur", "gan", "gnus", "gnar", "li", "lin", "lir", "mli", "nar", "nus", "rin", "ran", "sin", "sil", "sur",
-};
+static char *gnome_syllable1[] = { "Aar", "An", "Ar", "As", "C", "H", "Han", "Har", "Hel", "Iir", "J", "Jan", "Jar", "K", "L", "M", "Mar", "N", "Nik", "Os", "Ol", "P", "R", "S", "Sam", "San", "T", "Ter", "Tom", "Ul", "V", "W", "Y", };
+static char *gnome_syllable2[] = { "a", "aa",  "ai", "e", "ei", "i", "o", "uo", "u", "uu", };
+static char *gnome_syllable3[] = { "ron", "re", "la", "ki", "kseli", "ksi", "ku", "ja", "ta", "na", "namari", "neli", "nika", "nikki", "nu", "nukka", "ka", "ko", "li", "kki", "rik", "po", "to", "pekka", "rjaana", "rjatta", "rjukka", "la", "lla", "lli", "mo", "nni", };
 
-/* Elves */
-static char *elf_syllable1[] =
-{
-	"Al", "An", "Bal", "Bel", "Cal", "Cel", "El", "Elr", "Elv", "Eow", "Ear", "F", "Fal", "Fel", "Fin", "G", "Gal", "Gel", "Gl", "Is", "Lan", "Leg", "Lom", "N", "Nal", "Nel",  "S", "Sal", "Sel", "T", "Tal", "Tel", "Thr", "Tin",
-};
+static char *human_syllable1[] = { "Ab", "Ac", "Ad", "Af", "Agr", "Ast", "As", "Al", "Adw", "Adr", "Ar", "B", "Br", "C", "Cr", "Ch", "Cad", "D", "Dr", "Dw", "Ed", "Eth", "Et", "Er", "El", "Eow", "F", "Fr", "G", "Gr", "Gw", "Gal", "Gl", "H", "Ha", "Ib", "Jer", "K", "Ka", "Ked", "L", "Loth", "Lar", "Leg", "M", "Mir", "N", "Nyd", "Ol", "Oc", "On", "P", "Pr", "R", "Rh", "S", "Sev", "T", "Tr", "Th", "V", "Y", "Z", "W", "Wic", };
+static char *human_syllable2[] = { "a", "ae", "au", "ao", "are", "ale", "ali", "ay", "ardo", "e", "ei", "ea", "eri", "era", "ela", "eli", "enda", "erra", "i", "ia", "ie", "ire", "ira", "ila", "ili", "ira", "igo", "o", "oa", "oi", "oe", "ore", "u", "y", };
+static char *human_syllable3[] = { "a", "and", "b", "bwyn", "baen", "bard", "c", "ctred", "cred", "ch", "can", "d", "dan", "don", "der", "dric", "dfrid", "dus", "f", "g", "gord", "gan", "l", "li", "lgrin", "lin", "lith", "lath", "loth", "ld", "ldric", "ldan", "m", "mas", "mos", "mar", "mond", "n", "nydd", "nidd", "nnon", "nwan", "nyth", "nad", "nn", "nnor", "nd", "p", "r", "ron", "rd", "s", "sh", "seth", "sean", "t", "th", "tha", "tlan", "trem", "tram", "v", "vudd", "w", "wan", "win", "wyn", "wyr", "wyr", "wyth", };
 
-static char *elf_syllable2[] =
-{
-	"a", "adrie", "ara", "e", "ebri", "ele", "ere", "i", "io", "ithra", "ilma", "il-Ga", "ili", "o", "orfi", "u", "y",
-};
+static char *orc_syllable1[] = { "B", "Er", "G", "Gr", "H", "P", "Pr", "R", "V", "Vr", "T", "Tr", "M", "Dr", };
+static char *orc_syllable2[] = { "a", "i", "o", "oo", "u", "ui", };
+static char *orc_syllable3[] = { "dash", "dish", "dush", "gar", "gor", "gdush", "lo", "gdish", "k", "lg", "nak", "rag", "rbag", "rg", "rk", "ng", "nk", "rt", "ol", "urk", "shnak", "mog", "mak", "rak", };
 
-static char *elf_syllable3[] =
-{
-	"l", "las", "lad", "ldor", "ldur", "linde", "lith", "mir", "n", "nd", "ndel", "ndil", "ndir", "nduil", "ng", "mbor", "r", "rith", "ril", "riand", "rion", "s", "thien", "viel", "wen", "wyn",
-};
+static char *angel_syllable1[] = { "Sa","A","U","Mi","Ra","Ana","Pa","Lu","She","Ga","Da","O","Pe","Lau", };
+static char *angel_syllable2[] = { "br","m","l","z","zr","mm","mr","r","ral","ch","zaz","tr","n","lar", };
+static char *angel_syllable3[] = { "iel","ial","ael","ubim","aphon","iel","ael", };
 
-/* Gnomes */
-static char *gnome_syllable1[] =
-{
-	"Aar", "An", "Ar", "As", "C", "H", "Han", "Har", "Hel", "Iir", "J", "Jan", "Jar", "K", "L", "M", "Mar", "N", "Nik", "Os", "Ol", "P", "R", "S", "Sam", "San", "T", "Ter", "Tom", "Ul", "V", "W", "Y",
-};
-
-static char *gnome_syllable2[] =
-{
-	"a", "aa",  "ai", "e", "ei", "i", "o", "uo", "u", "uu",
-};
-
-static char *gnome_syllable3[] =
-{
-	"ron", "re", "la", "ki", "kseli", "ksi", "ku", "ja", "ta", "na", "namari", "neli", "nika", "nikki", "nu", "nukka", "ka", "ko", "li", "kki", "rik", "po", "to", "pekka", "rjaana", "rjatta", "rjukka", "la", "lla", "lli", "mo", "nni",
-};
-
-/* Hobbits are no more, one day maybe this colelction of syllables will be usefull again */
-/*static char *hobbit_syllable1[] =
-{
-	"B", "Ber", "Br", "D", "Der", "Dr", "F", "Fr", "G", "H", "L", "Ler", "M", "Mer", "N", "P", "Pr", "Per", "R", "S", "T", "W",
-};
-
-static char *hobbit_syllable2[] =
-{
-	"a", "e", "i", "ia", "o", "oi", "u",
-};
-
-static char *hobbit_syllable3[] =
-{
-	"bo", "ck", "decan", "degar", "do", "doc", "go", "grin", "lba", "lbo", "lda", "ldo", "lla", "ll", "lo", "m", "mwise", "nac", "noc", "nwise", "p", "ppin", "pper", "tho", "to",
-};*/
-
-/* Human */
-static char *human_syllable1[] =
-{
-	"Ab", "Ac", "Ad", "Af", "Agr", "Ast", "As", "Al", "Adw", "Adr", "Ar", "B", "Br", "C", "Cr", "Ch", "Cad", "D", "Dr", "Dw", "Ed", "Eth", "Et", "Er", "El", "Eow", "F", "Fr", "G", "Gr", "Gw", "Gal", "Gl", "H", "Ha", "Ib", "Jer", "K", "Ka", "Ked", "L", "Loth", "Lar", "Leg", "M", "Mir", "N", "Nyd", "Ol", "Oc", "On", "P", "Pr", "R", "Rh", "S", "Sev", "T", "Tr", "Th", "V", "Y", "Z", "W", "Wic",
-};
-
-static char *human_syllable2[] =
-{
-	"a", "ae", "au", "ao", "are", "ale", "ali", "ay", "ardo", "e", "ei", "ea", "eri", "era", "ela", "eli", "enda", "erra", "i", "ia", "ie", "ire", "ira", "ila", "ili", "ira", "igo", "o", "oa", "oi", "oe", "ore", "u", "y",
-};
-
-static char *human_syllable3[] =
-{
-	"a", "and", "b", "bwyn", "baen", "bard", "c", "ctred", "cred", "ch", "can", "d", "dan", "don", "der", "dric", "dfrid", "dus", "f", "g", "gord", "gan", "l", "li", "lgrin", "lin", "lith", "lath", "loth", "ld", "ldric", "ldan", "m", "mas", "mos", "mar", "mond", "n", "nydd", "nidd", "nnon", "nwan", "nyth", "nad", "nn", "nnor", "nd", "p", "r", "ron", "rd", "s", "sh", "seth", "sean", "t", "th", "tha", "tlan", "trem", "tram", "v", "vudd", "w", "wan", "win", "wyn", "wyr", "wyr", "wyth",
-};
-
-/* Orc */
-static char *orc_syllable1[] =
-{
-	"B", "Er", "G", "Gr", "H", "P", "Pr", "R", "V", "Vr", "T", "Tr", "M", "Dr",
-};
-
-static char *orc_syllable2[] =
-{
-	"a", "i", "o", "oo", "u", "ui",
-};
-
-static char *orc_syllable3[] =
-{
-	"dash", "dish", "dush", "gar", "gor", "gdush", "lo", "gdish", "k", "lg", "nak", "rag", "rbag", "rg", "rk", "ng", "nk", "rt", "ol", "urk", "shnak", "mog", "mak", "rak",
-};
-
-static char *angel_syllable1[] =
-{
-	"Sa","A","U","Mi","Ra","Ana","Pa","Lu","She","Ga","Da","O","Pe","Lau",
-};
-
-static char *angel_syllable2[] =
-{
-	"br","m","l","z","zr","mm","mr","r","ral","ch","zaz","tr","n","lar",
-};
-
-static char *angel_syllable3[] =
-{
-	"iel","ial","ael","ubim","aphon","iel","ael",
-};
-
-static char *illithid_syllable1[] =
-{
-	"Cth","Az","Fth","Ts","Xo","Q'N","R'L","Ghata","L","Zz","Fl","Cl","S","Y",
-};
-
-static char *illithid_syllable2[] =
-{
-	"nar","loi","ul","lu","noth","thon","ath","'N","rhy","oth","aza","agn","oa","og",
-};
-
-static char *illithid_syllable3[] =
-{
-	"l","a","u","oa","oggua","oth","ath","aggua","lu","lo","loth","lotha","agn","axl",
-};
+static char *illithid_syllable1[] = { "Cth","Az","Fth","Ts","Xo","Q'N","R'L","Ghata","L","Zz","Fl","Cl","S","Y", };
+static char *illithid_syllable2[] = { "nar","loi","ul","lu","noth","thon","ath","'N","rhy","oth","aza","agn","oa","og", };
+static char *illithid_syllable3[] ={ "l","a","u","oa","oggua","oth","ath","aggua","lu","lo","loth","lotha","agn","axl",};
 
 /* Hellband new/mad creation screen tables */
 
@@ -697,8 +588,8 @@ static int subraces[COUNT_RACES][2] =
 static cptr subraces_strings[] =
 {
 	"Florentian",			/*0*/
-	"Gipsy",				/*1*/
-	"Nordic",				/*2*/
+	"Gipsy",			/*1*/
+	"Nordic",			/*2*/
 	"Atlantian",			/*3*/
 	"Dwarf descendant",		/*4*/
 	"Elf descendant",		/*5*/
@@ -706,19 +597,19 @@ static cptr subraces_strings[] =
 	"Troll descendant",		/*7*/
 	"Giant descendant",		/*8*/
 	"Titan descendant",		/*9*/	
-	"Nephilim",				/*10*/
+	"Nephilim",			/*10*/
 	"Afflicted",			/*11*/
 	"Seelie Fae",			/*12*/
-	"Gnome",				/*13*/
+	"Gnome",			/*13*/
 	"Leprechaun",			/*14*/
-	"Kobold",				/*15*/	
+	"Kobold",			/*15*/	
 	"Devilspawn",			/*16*/
-	"Imp",					/*17*/
-	"Succubus",				/*18*/
-	"Lili",					/*19*/	
-	"Elder",				/*20*/
+	"Imp",				/*17*/
+	"Succubus",			/*18*/
+	"Lili",				/*19*/	
+	"Elder",			/*20*/
 	"Elder Guardian",		/*21*/
-	"Horror",				/*22*/
+	"Horror",			/*22*/
 };
 
 static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
@@ -738,7 +629,7 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Hit Dice : 10                    Experience Factor: 100"},
+		"                                                       "},
 	/*Gipsy*/
 	{   "Gipsies are not very well liked, even though they are  ",
 		"great entertainers and sport some of the most beautiful",
@@ -752,8 +643,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Dex:+1 Cha:+1                                          ",
-		"Hit Dice : 10                    Experience Factor: 110"},
+		"                                                       ",
+		"                                                       "},
 	/*Nordic*/
 	{   "Nordics are hardy men from the North. They are still   ",
 		"very much in touch with Nature and its' spirits. This  ",
@@ -767,8 +658,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Int:+1 Wis:+1                                          ",
-		"Hit Dice 10                      Experience Factor: 120"},
+		"                                                       ",
+		"                                                       "},
 	/*Atlantian*/
 	{   "Living in a dome on the bottom of the ocean, they have ",
 		"no natural enemies and grown weak. They do however have",
@@ -782,8 +673,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -1, Int: +3, Wis: +2, Dex: +2, Con: -1, Cha: +1   ",
-		"Hit dice: 9                      Experience Factor: 150"},
+		"                                                       ",
+		"                                                       "},
 	/*Dwarf*/
 	{   "True dwarfs have not dwelled on the planet surface     ",
 		"since ages, but they had mingled with humans and some  ",
@@ -797,8 +688,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +1, Int: +1, Wis: -1, Dex: -1, Con +1, Cha -1     ",
-		"Hit dice: 11                     Experience Factor: 125"},
+		"                                                       ",
+		"                                                       "},
 	/*Elf*/
 	{   "True elfs have not dwelled in the Scandinavian lands   ",
 		"since ages, but they had mingled with humans and some  ",
@@ -812,8 +703,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -1, Int: +1, Wis: +1, Dex: +1, Con: -1, Cha: +1   ",
-		"Hit dice: 8                      Experience Factor: 120"},
+		"                                                       ",
+		"                                                       "},
 	/*Ogre*/
 	{   "Ogres were a race of large humanoid beings, fierce and ",
 		"cruel monsters that ate human flesh. The most viscious ",
@@ -827,8 +718,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"traps that explode when touched. They tend be rich.    ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +3, Int: -1, Wis: -1, Dex: -1, Con: +3, Cha: -1   ",
-		"Hit dice: 12                     Experience Factor: 130"},
+		"                                                       ",
+		"                                                       "},
 	/*Troll*/
 	{   "Trolls are the Scandinavian version of the German and  ",
 		"French ogres. Their descendants even though civilized  ",
@@ -842,8 +733,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +4, Int: -4, Wis: -2, Dex: -4, Con: +3, Cha: -2   ",
-		"Hit dice: 12                     Experience Factor: 137"},
+		"                                                       ",
+		"                                                       "},
 	/*Giant*/
 	{   "Like the descendants of the Titans they have concealed ",
 		"themselves on an island in the Mediterranean sea. The  ",
@@ -857,8 +748,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +4, Int: -2, Wis: -2, Dex: -2, Con: +3, Cha: -3   ",
-		"Hit dice: 13                     Experience Factor: 150"},
+		"                                                       ",
+		"                                                       "},
 	/*Titan*/
 	{   "The largest of all, and superior in almost every aspect",
 		"these descedants have been found on a remote island in ",
@@ -872,8 +763,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str:  +5, Int: +1, Wis: +1, Dex: -2, Con: +3, Cha: +1  ",
-		"Hit dice: 14                     Experience Factor: 255"},
+		"                                                       ",
+		"                                                       "},
 	/*Nephilim*/
 	{   "Children of men and angels, they usually become giant  ",
 		"man-eating creatures. It seems that at some point in   ",
@@ -887,8 +778,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +1, Int: +2, Wis: +2, Dex: +2, Con: +3, Cha: +2   ",
-		"Hit dice: 10                     Experience Factor: 225"},
+		"                                                       ",
+		"                                                       "},
 	/*Afflicted*/
 	{   "Either bitten by vampire or werewolf or undead, the    ",
 		"afflicted have lost their humanity. This usually means ",
@@ -917,8 +808,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -4, Int: +3, Wis: +3, Dex: +3, Con: -2, Cha: +2   ",
-		"Hit dice: 7                      Experience Factor: 175"},
+		"                                                       ",
+		"                                                       "},
 	/*Gnome*/
 	{   "Gnomes are a small, playful folk. Whilst being very    ",
 		"intelligent, they suffer from an almost chronic failure",
@@ -932,8 +823,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -1, Int: +2, Wis: +0, Dex: +2, Con: +1, Cha: -2   ",
-		"Hit dice: 8                      Experience Factor: 135"},
+		"                                                       ",
+		"                                                       "},
 	/*Leprechaun*/
 	{   "Leprechauns are male faeries inhabiting Ireland.  They ", 
 		"are into shoemaking, mischief and gold collections.    ",
@@ -947,8 +838,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -4, Int: +3, Wis: +3, Dex: +4, Con: -4, Cha: +7   ",
-		"Hit dice: 7                      Experience Factor: 100"},
+		"                                                       ",
+		"                                                       "},
 	/*Kobold*/
 	{   "Kobolds are malicious faeries inhabiting the Black     ", 
 		"Forest. Some of their talents are very useful and for  ",
@@ -962,8 +853,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +1, Int: -1, Wis: +0, Dex: +1, Con: +0, Cha: -4   ",
-		"Hit dice: 9                      Experience Factor: 125"},	
+		"                                                       ",
+		"                                                       "},	
 	/*Devilspawn*/
 	{   "Devilspawn are the progeny of mortals and demons. As   ",
 		"such, they inherit some of the raw strength of their   ",
@@ -977,8 +868,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +2, Int: -1, Wis: -1, Dex, -1, Con: +2, Cha: -4	",
-		"Hit dice: 11                     Experience Factor: 140"},
+		"                                                       ",
+		"                                                       "},
 	/*Imp*/
 	{   "Imps are small red-skinned fire demons. Although not   ",
 		"terribly strong or smart, they are tough and fast. As  ",
@@ -992,8 +883,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -1, Int: -1, Wis: -1, Dex: +1, Con: +2, Cha: -3   ",
-		"Hit dice: 10                     Experience Factor: 110"},
+		"                                                       ",
+		"                                                       "},
 	/*Succubus*/
 	{   "Born in the pits of Hell, they have been selected as   ",
 		"much for their beauty as their visciousness. They are  ",
@@ -1007,8 +898,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Int: +2, Dex, +2, Cha: +4                              ",
-		"Hit dice: 11                     Experience Factor: 160"},
+		"                                                       ",
+		"                                                       "},
 	/*Lili*/
 	{   "Born from Lilith and Asmodeus they know that Lillith   ",
 		"will come one day after them. They join the League for ",
@@ -1022,9 +913,9 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Con:4, Cha: +4                                         ",
-		"Hit dice: 14                     Experience Factor: 160"},	
-	/*Elder*/     
+		"                                                       ",
+		"                                                       "},	
+	/*Elder*/
 	{	"The true Elder is a very tough creature, regenerating  ",
 		"wounds even when almost completely destroyed. They are ",
 		"a beautiful sight to behold and radiate light in the   ",
@@ -1037,10 +928,10 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +1, Int: +3, Wis: +2, Dex: +3, Con: +1, Cha: +5   ",
-		"Hit dice: 10                     Experience Factor: 200"},
+		"                                                       ",
+		"                                                       "},
 	/*Elder Guardian*/
-	{   "Elder Guardians have been completely designed to defend",
+	{	"Elder Guardians have been completely designed to defend",
 		"their assigned Elder. A few Elder Guardians have lost  ",
 		"the Elder they should guard and have joined the League,",
 		"as a means to find back their protegee. They are slow, ",
@@ -1052,8 +943,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +4, Int: -5, Wis: -5, Dex: +0, Con: +4, Cha: -4   ",
-		"Hit dice: 12                     Experience Factor: 200",},
+		"                                                       ",
+		"                                                       ",},
 	/*Horror*/     
 	{	"Some of the Elder have become Horrors, after recovering",
 		"from grievous wounds their body has changed into a     ",
@@ -1067,8 +958,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -3, Int: +4, Wis: +4, Dex: +0, Con: -2, Cha: -5   ",
-		"Hit dice: 9                      Experience Factor: 140"},	
+		"                                                       ",
+		"                                                       "},	
 			
 };
 
@@ -1096,8 +987,8 @@ static cptr afflictions_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"                                                       ",
 	"                                                       ",
 	"                                                       ",
-	"Str: +3, Int: +3, Wis: -1, Dex: -1, Con: +1, Cha: +2   ",
-	"Hit dice: 11                     Experience Factor: 200"},
+	"                                                       ",
+	"                                                       "},
 /*Werewolf*/
 {   "Werewolves are mostly originating from the Black Forest",
 	"in Germany. They tend to kill their beloved ones under ",
@@ -1111,8 +1002,8 @@ static cptr afflictions_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"                                                       ",
 	"                                                       ",
 	"                                                       ",
-	"Str: +3, Int: +3, Wis: -1, Dex: -1, Con: +1, Cha: +2   ",
-	"Hit dice: 11                     Experience Factor: 200"},
+	"                                                       ",
+	"                                                       "},
 /*Skeleton*/
 {   "Skeletons in Hellband are the remains of the poor souls",
 	"that annoyed an African medicin man. They have can bind",
@@ -1126,8 +1017,8 @@ static cptr afflictions_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"                                                       ",
 	"                                                       ",
 	"                                                       ",
-	"Str: +0, Int: -2, Wis: -2, Dex: +0, Con: +1, Cha: -4   ",
-	"Hit dice: 10                     Experience Factor: 145"},
+	"                                                       ",
+	"                                                       "},
 /*Mummy*/
 {   "Mummies are the new zombies, and I am all out of witty ",
 	"description. So here's the deal. If you play a Mummy,  ",
@@ -1141,8 +1032,8 @@ static cptr afflictions_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"                                                       ",
 	"                                                       ",
 	"                                                       ",
-	"Str: +2, Int: -6, Wis: -6, Dex: +1, Con: +4, Cha: -5   ",
-	"Hit dice: 13                     Experience Factor: 135"},
+	"                                                       ",
+	"                                                       "},
 /*Spectre*/
 {   "Spectres are incorporeal undead spirits. As such, they ",
 	"can walk through walls. This hurts them slightly, and  ",
@@ -1156,8 +1047,8 @@ static cptr afflictions_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"glowing ectoplasmic form emits light much like a torch.",
 	"                                                       ",
 	"                                                       ",
-	"Str: -5, Int: +4, Wis: +4, Dex: +2, Con: -3, Cha: -6   ",
-	"Hit dice: 7                      Experience Factor: 180"},
+	"                                                       ",
+	"                                                       "},
 };
 
 static cptr signs_strings[] =
@@ -1185,7 +1076,7 @@ static cptr signs_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"                                                       ",
 	"                                                       ",
 	"                                                       ",
-	"Hit dice: +0                     Experience Factor: 0  "},
+	"                                                       "},
 /*Draco*/
 {   "The constellation Draco or 'Dragon' confers under rare ",
 	"circumstances dragon powers to newborn children. Later ",
@@ -1199,8 +1090,8 @@ static cptr signs_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"                                                       ",
 	"                                                       ",
 	"                                                       ",
-	"Str: +2, Int: +1, Wis: +1, Dex: +1, Con: +2, Cha: -3   ",
-	"Hit dice: +1                     Experience Factor: 250"},
+	"                                                       ",
+	"                                                       "},
 /*Serpens*/
 {   "The constellation Serpens or 'Serpent' confers under   ",
 	"rare conditions powers of and over snakes. People born ",
@@ -1215,7 +1106,7 @@ static cptr signs_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"                                                       ",
 	"                                                       ",
 	"                                                       ",
-	"Hit dice: +0                     Experience Factor:  30"},
+	"                                                       "},
 /*Plutus*/
 {   "Even though Plutus' star is not classified under modern",
 	"astronomy, it's effects on newborns can be profound.The",
@@ -1229,14 +1120,14 @@ static cptr signs_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"                                                       ",
 	"                                                       ",
 	"                                                       ",
-	"Str: +1, Int: -1, Wis: +2, Dex: +0, Con: +2, Cha: +4   ",
-	"Hit dice: +1                     Experience Factor: 135"},
+	"                                                       ",
+	"                                                       "},
 /*Morui*/
 {   "Stories are told of the people from the star Morui, now",
 	"more commonly called Orion. It is said that they have  ",
 	"mingled with humans and that their genes are stronger  ",
 	"with children born under Orion. People born under Morui",
-	"are better in every way save for an odd mind. They grow ",  
+	"are better in every way save for an odd mind. They grow",
 	"a tough subdermal chitin that resists acid and their   ",
 	"thoughts are impossible to confuse. They can grow wings",
 	"that help avoid pits and falls. As they get more       ",
@@ -1244,8 +1135,8 @@ static cptr signs_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"to spit acid.                                          ",
 	"                                                       ",
 	"                                                       ",
-	"Str: +2, Int: -1, Wis: -1, Dex: +1, Con: +2, Cha: -2   ",
-	"Hit dice: +2                     Experience Factor: 135"},
+	"                                                       ",
+	"                                                       "},
 };
 
 
@@ -1265,8 +1156,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +5, Int: -2, Wis: -2, Dex: +2, Con: +2, Cha: -1   ",
-		"Hit dice: 9                      Experience Factor:   0"},
+		"                                                       ",
+		"                                                       "},
 	/*Mage*/
 	{   "Mages study arcane magic, but do not specialize as     ",
 		"strongly as high-mages do. Mages receive two realms of ",
@@ -1280,8 +1171,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -5, Int: +3, Wis: +0, Dex: +1, Con: -2, Cha: +1   ",
-		"Hit dice: 0                      Experience Factor:  30"},
+		"                                                       ",
+		"                                                       "},
 	/*Priest*/
 	{   "Priests are divine magic specialists. Whilst not as    ",
 		"good at combat as paladins, they are better at magic. ",
@@ -1295,8 +1186,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -1, Int: -3, Wis: +3, Dex: -1, Con: +0, Cha: +2   ",
-		"Hit dice: 2                      Experience Factor:  20"},	
+		"                                                       ",
+		"                                                       "},	
 	/*Rogue*/
 	{   "Rogues are masters of stealth. Although they are not as",
 		"good as warriors in a straight fight, they can backstab",
@@ -1310,8 +1201,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +2, Int: +1, Wis: -2, Dex: +3, Con: +1, Cha: -1   ",
-		"Hit dice: 6                      Experience Factor:  25"},	
+		"                                                       ",
+		"                                                       "},	
 	/*Ranger*/
 	{   "Rangers are decent fighters, although they specialize  ",
 		"in missile weapons. Like druids, they use divine magic ",
@@ -1325,8 +1216,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +2, Int: +2, Wis: +0, Dex: +1, Con: +1, Cha: +1   ",
-		"Hit dice: 4                      Experience Factor:  30"},	
+		"                                                       ",
+		"                                                       "},	
 	/*Paladin*/
 	{   "Paladins are holy warriors. There are two types - true ",
 		"Paladins and Death Knights. True paladins get divine   ",
@@ -1340,8 +1231,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +3, Int: -3, Wis: +1, Dex: +0, Con: +2, Cha: +2   ",
-		"Hit dice: 6                      Experience Factor:  35"},	
+		"                                                       ",
+		"                                                       "},	
 	/*Warrior-Mage*/
 	{   "Warrior mages combine reasonable combat skills with two",
 		"realms of arcane magic. One of their realms of magic   ",
@@ -1355,8 +1246,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +2, Int: +2, Wis: +0, Dex: +1, Con: +0, Cha: +1   ",
-		"Hit dice: 4                      Experience Factor:  50"},	
+		"                                                       ",
+		"                                                       "},	
 	/*Hell Knight*/
 	{   "Hell Knights have made pacts with an infernal patron in",
 		"exchange for physical prowess. As such, they are good  ",
@@ -1370,8 +1261,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +2, Int: +1, Wis: +0, Dex: +1, Con: +2, Cha: -2   ",
-		"Hit dice: 6                      Experience Factor:  35"},	
+		"                                                       ",
+		"                                                       "},	
 	/*Mystic*/
 	{   "Mystics are martial artists. As such they are masters  ",
 		"of unarmed combat and increase their speed as they gain",
@@ -1385,8 +1276,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: +2, Int: -1, Wis: +1, Dex: +3, Con: +2, Cha: +1   ",
-		"Hit dice: 6                      Experience Factor:  40"},	
+		"                                                       ",
+		"                                                       "},	
 	/*Mindcrafter*/
 	{   "Mindcrafters rely on the supernatural powers that their",
 		"mind is capable of producing. Many of their powers are ",
@@ -1400,8 +1291,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -1, Int: +0, Wis: +3, Dex: -1, Con: -1, Cha: +2   ",
-		"Hit dice: 2                      Experience Factor:  25"},		
+		"                                                       ",
+		"                                                       "},		
 	/*High-Mage**/
 	{   "High mages study arcane magic from a single realm to   ",
 		"the exclusion of any other magic. As such, their       ",
@@ -1415,8 +1306,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -5, Int: +4, Wis: +0, Dex: +0, Con: -2, Cha: +1   ",
-		"Hit dice: 0                      Experience Factor:  30"},			
+		"                                                       ",
+		"                                                       "},			
 	/*Druid**/
 	{   "Druids are nature worshippers. As such, they use divine",
 		"magic from the realm of Nature. They are better at     ",
@@ -1430,8 +1321,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"                                                       ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -1, Int: -3, Wis: +4, Dex: -2, Con: +0, Cha: +3   ",
-		"Hit dice: 2                      Experience Factor:  20"},		
+		"                                                       ",
+		"                                                       "},		
 	/*Warlock**/
 	{   "Warlocks are people who have studied the magical       ",
 		"arts of demon magic with the aid of an infernal patron.",
@@ -1445,8 +1336,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"their patron involves only using the power of chaos.   ",
 		"                                                       ",
 		"                                                       ",
-		"Str: -5, Int: +4, Wis: +0, Dex: +0, Con: -2, Cha: +1   ",
-		"Hit dice: 0                      Experience Factor:  30"},		
+		"                                                       ",
+		"                                                       "},		
 	
 };
 
@@ -1728,7 +1619,7 @@ void create_random_name(int race, char *name)
 }
 
 u16b choose_realm(byte choices)
-{
+{                                                                                                           
 	int picks[MAX_REALM] = {0};
 	int byteflag = 1;
 	int n, i, choice, dir;
@@ -1975,7 +1866,7 @@ static void save_prev_data(void)
 	prev.au = p_ptr->au;
 
 	/* Save the stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < STAT_COUNT; i++)
 	{
 		prev.stat[i] = p_ptr->stat_max[i];
 	}
@@ -2009,7 +1900,7 @@ static void load_prev_data(void)
 	temp.birthday = p_ptr->birthday;
 
 	/* Save the stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < STAT_COUNT; i++)
 	{
 		temp.stat[i] = p_ptr->stat_max[i];
 	}
@@ -2031,7 +1922,7 @@ static void load_prev_data(void)
 	p_ptr->au = prev.au;
 
 	/* Load the stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < STAT_COUNT; i++)
 	{
 		p_ptr->stat_max[i] = prev.stat[i];
 		p_ptr->stat_cur[i] = prev.stat[i];
@@ -2054,7 +1945,7 @@ static void load_prev_data(void)
 	prev.au = temp.au;
 
 	/* Save the stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < STAT_COUNT; i++)
 	{
 		prev.stat[i] = temp.stat[i];
 	}
@@ -2171,7 +2062,7 @@ static void get_stats(void)
 	}
 
 	/* Acquire the stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < STAT_COUNT; i++)
 	{
 		/* Extract 5 + 1d3 + 1d4 + 1d5 */
 		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
@@ -2291,12 +2182,14 @@ static void get_history(void)
 	/* Process the history */
 	while ( background[ bg_index ].info != NULL )
 	{
-        if( background[bg_index].metadata & race_bitflag ){
+        if( background[bg_index].metadata & race_bitflag )
+		{
             odds_index = 0;
             odds_total = 0;
             odd_current = 0;
             odd_found = FALSE;
-            while( background[ bg_index ].metadata != END_GROUP ){
+            while( background[ bg_index ].metadata != END_GROUP )
+			{
                 odds_total += background[ bg_index ].frequency;
                 odds[odds_index++] = background[ bg_index ].frequency;
                 bg_index++;
@@ -2306,9 +2199,11 @@ static void get_history(void)
             odds[odds_index++] = background[ bg_index ].frequency;            
             /*So which of the entries do we take*/
             odds_total = randint(odds_total);
-            for( odd_counter = 0 ; odd_counter < odds_index && !odd_found ; odd_counter++){
+            for( odd_counter = 0 ; odd_counter < odds_index && !odd_found ; odd_counter++)
+			{
                 odd_current += odds[odd_counter];
-                if(  odd_current >= odds_total ){
+                if(  odd_current >= odds_total )
+				{
                     odd_found = TRUE;
                     (void)strcat(buf, background[ bg_index - odds_index + odd_counter + 1 ].info );
                     social_class += background[ bg_index - odds_index + odd_counter + 1 ].bonus;
@@ -2407,9 +2302,6 @@ static void get_ahw(void)
 	}
 }
 
-
-
-
 /*
 * Get the player's starting money
 */
@@ -2421,7 +2313,7 @@ static void get_money(void)
 	gold = (p_ptr->sc * 6) + randint(100) + 300;
 
 	/* Process the stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < STAT_COUNT; i++)
 	{
 		/* Mega-Hack -- reduce gold for high stats */
 		if (stat_use[i] >= 18+50) gold -= 300;
@@ -2453,7 +2345,7 @@ static void birth_put_stats(void)
 
 
 	/* Put the stats (and percents) */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < STAT_COUNT; i++)
 	{
 		/* Put the stat */
 		cnv_stat(stat_use[i], buf);
@@ -2991,6 +2883,87 @@ void player_birth_quests(void)
 	}
 }
 
+static bool navigate_birth_screen( int *choice, int min, int max, bool *done )
+{
+	char c;
+	int dir;
+			
+	c = inkey();
+	if (c == 'Q') quit(NULL);
+	if (c == 'S') return (FALSE);		
+	if (c == '*')
+	{
+		*choice = rand_range(0,max-1);
+		*done = TRUE;
+	}
+	if (c == '?') do_cmd_help(syshelpfile_birth);
+	if (c == '=')
+	{
+		Term_save();
+		do_cmd_options_aux(7,"Startup Options");
+		Term_load();
+	}
+	if( ( c== ' ') || (c == '\n') || (c == '\r') )*done = TRUE;
+	/* Look up the direction */
+	dir = get_keymap_dir(c);
+	if(dir==2 || c=='2')*choice=*choice+1==max?min:*choice+1;
+	if(dir==8 || c=='8')*choice=*choice==min?max-1:*choice-1;
+			
+	return TRUE;
+}
+
+static void fill_birth_screen( char *title , int start , int end , int choice , int offset, cptr choices[], cptr descriptions[], byte mhp , byte exp, s16b stats[] , bool doplus, bool nolist )
+{
+	char buf[80];
+	/* Yah, do me own centering logic, bad konijn! */
+	int screen_width = 80;
+	int i;
+
+	c_put_str(TERM_YELLOW, title, 5, ((screen_width-strlen(title))>>1) );
+	
+	for(i=start;i<=end;i++)
+		c_put_str(TERM_L_BLUE, i==choice?">":" " , 8+i , 2 );
+
+	if(!nolist)
+	for(i=start;i<=end;i++)
+		c_put_str(i==choice?TERM_L_BLUE:TERM_L_WHITE, choices[i+offset], 8+i, 3);
+	
+	for(i=0;i<COUNT_LINES;i++)
+		put_str( descriptions[i] , 8+i , 23 );
+	
+	/* Put Hit Dice if they are known*/
+	if( mhp != 0 )
+	{
+		sprintf(buf,doplus?"Hite dice: +%d   ":"Hite dice: %d   ", mhp );
+		put_str( buf , 7+COUNT_LINES , 23);
+	}
+
+	/* Put XP Factor if known*/
+	if( exp != 0 )
+	{
+		sprintf(buf,doplus?"Experience Factor: +%d":"Experience Factor: %d", exp );
+		put_str( buf , 7+COUNT_LINES , 55);
+	}
+	
+	/* Put stat mods */
+	sprintf(buf,"%s"," ");
+	for( i=0; i < STAT_COUNT ; i++ )
+	{
+		if( stats[i] != 0 )
+		{
+			if(buf[0]==' ')
+				sprintf(buf, "%s%d", stat_names[i] ,stats[i] );
+			else
+				sprintf(buf, "%s, %s%d", buf , stat_names[i] , stats[i] );
+		}
+	}
+	put_str( buf , 6+COUNT_LINES , 23);
+	
+	/*Put the cursor next to the current choice for UI niceness*/
+	if(!nolist)
+		c_put_str( TERM_L_BLUE, choices[choice+offset], 8+choice, 3);
+}
+
 /*
 * Helper function for 'player_birth()'
 *
@@ -3008,11 +2981,12 @@ static bool player_birth_aux()
 	bool flag = FALSE;
 	bool prev = FALSE;
 	bool quickstart = FALSE;
+	bool done = FALSE;
 
 	cptr str;
 	
 	char c;
-
+	int stat_counter;
 	
 	/* These vars were used for a) , one day they  might come back
 		int n;	char p2 = ')';
@@ -3030,7 +3004,7 @@ static bool player_birth_aux()
 	
 	/* Yah, do me own centering logic, bad konijn! */
 	int screen_width = 80;
-
+	s16b zero_stats[] = {0,0,0,0,0,0};
 
 	/*** Intro ***/
 	
@@ -3061,6 +3035,11 @@ static bool player_birth_aux()
 		if (c == 'S')
 		{
 			quickstart = TRUE;
+			break;
+		}
+		if (c == '*')
+		{
+			choice = rand_range(0,1);
 			break;
 		}
 		if (c == '?') do_cmd_help(syshelpfile_birth);
@@ -3144,7 +3123,8 @@ static bool player_birth_aux()
 		/* Generate quests */
 		/* Set max number of quest */
 		/*MAX_Q_IDX =randint(20)+10; 
-		if ( MAX_Q_IDX > MAX_QUESTS ){
+		if ( MAX_Q_IDX > MAX_QUESTS )
+		{
 			
 		}
 		*/
@@ -3158,7 +3138,7 @@ static bool player_birth_aux()
 		/* Initialize */
 		if (autoroll)
 		{
-			int mval[6];
+			int mval[STAT_COUNT];
 			/* Clear fields */
 			auto_round = 0L;
 			last_round = 0L;
@@ -3167,7 +3147,7 @@ static bool player_birth_aux()
 			/* Prompt for the minimum stats */
 			put_str("Enter minimums for: ", 8, 3);
 			/* Output the maximum stats */
-			for (i = 0; i < 6; i++)
+			for (i = 0; i < STAT_COUNT; i++)
 			{
 				/* Reset the "success" counter */
 				stat_match[i] = 0;
@@ -3179,7 +3159,7 @@ static bool player_birth_aux()
 				mval[i] = m;
 			}
 			/* Hack in the minimum stats */
-			for (i = 0; i < 6; i++)
+			for (i = 0; i < STAT_COUNT; i++)
 			{
 				stat_limit[i] = 0;
 			}
@@ -3350,7 +3330,6 @@ static bool player_birth_aux()
 		/* Clean up */
 		clear_from(10);
 
-
 		/*** Generate ***/
 
 		/* Roll */
@@ -3373,12 +3352,8 @@ static bool player_birth_aux()
 				c_put_str(TERM_L_BLUE, class_sub_name[p_ptr->pclass][p_ptr->realm1], 5, 15);
 
 				/* Label stats */
-				put_str("STR:", 2 + A_STR, 61);
-				put_str("INT:", 2 + A_INT, 61);
-				put_str("WIS:", 2 + A_WIS, 61);
-				put_str("DEX:", 2 + A_DEX, 61);
-				put_str("CON:", 2 + A_CON, 61);
-				put_str("CHA:", 2 + A_CHA, 61);
+				for( stat_counter = 0 ; stat_counter < STAT_COUNT ; stat_counter++ )
+					put_str( stat_names[stat_counter] , 2 + stat_counter , 61 );
 
 				/* Note when we started */
 				last_round = auto_round;
@@ -3412,7 +3387,7 @@ static bool player_birth_aux()
 				if (auto_round >= 1000000L) break;
 
 				/* Check and count acceptable stats */
-				for (i = 0; i < 6; i++)
+				for (i = 0; i < STAT_COUNT; i++)
 				{
 					/* This stat is okay */
 					if (stat_use[i] >= stat_limit[i])
@@ -3602,46 +3577,19 @@ static bool player_birth_aux()
 		/* Load new birth screen with restart option ( yah, a waste of bytes, but also it guarantees a clean screen */	
 		do_cmd_load_screen( ANGBAND_DIR_FILE ,  "birth2.txt" );
 		
-		/* Choose a genus ?*/
+		/* Choose a genus, set initial choice to 0, set up loop flag*/
 		choice = 0;
-		while (1)
+		done = FALSE;
+		
+		while (!done)
 		{
-			
+			/*Set up title*/
 			sprintf(buf,"What is your genus, %s?", str);
-			c_put_str(TERM_YELLOW, buf, 5, ((screen_width-strlen(buf))>>1) );
-			
-			for(i=0;i<COUNT_RACES;i++)
-				c_put_str(TERM_L_BLUE, i==choice?">":" " , 8+i , 2 );			
-			
-			for(i=0;i<COUNT_RACES;i++)
-				c_put_str(i==choice?TERM_L_BLUE:TERM_L_WHITE, races_strings[i], 8+i, 3);
-			
-			for(i=0;i<COUNT_LINES;i++)
-				put_str( races_descriptions[choice][i] , 8+i , 23 );
-			
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);		
-			if (c == '*')
-			{
-				choice = randint(COUNT_RACES);
-			}
-			if (c == '?') do_cmd_help(syshelpfile_birth);
-			if (c == '=')
-			{
-				Term_save();
-				do_cmd_options_aux(7,"Startup Options");
-				Term_load();
-			}
-			if( ( c== ' ') || (c == '\n') || (c == '\r') ) break;	
-			/* Look up the direction */
-			dir = get_keymap_dir(c);
-			if(dir==2 || c=='2')
-				choice=choice+1==COUNT_RACES?0:choice+1;
-			if(dir==8 || c=='8')
-				choice=choice==0?COUNT_RACES-1:choice-1;
-			else bell();
-		}		
+			/*Set up screen*/
+			fill_birth_screen( buf , 0 , COUNT_RACES-1 , choice , 0 , races_strings, races_descriptions[choice], 0, 0, zero_stats , FALSE, FALSE);
+			/*Allow user to navigate/cancel/quit/read help*/
+			if( navigate_birth_screen( &choice, 0, COUNT_RACES , &done ) == FALSE ) return FALSE;
+		}
 		
 		/* Set temporary race until player has drilled down */
 		p_ptr->prace = choice;
@@ -3653,46 +3601,18 @@ static bool player_birth_aux()
 		a_offset = subraces[p_ptr->prace][0];
 		a_end = subraces[p_ptr->prace][1] - subraces[p_ptr->prace][0];
 		
-		/* Choose specific genus ?*/
+		/* Choose specific genus, set initial choice to 0, set up loop flag*/
 		choice = 0;
-		while (1)
+		done   = FALSE;
+		
+		while (!done)
 		{
-			
+			/*Set up title*/
 			sprintf(buf,"What type of %s are you, %s?",  races_strings[p_ptr->prace] ,  str);
-			c_put_str(TERM_YELLOW, buf, 5, ((screen_width-strlen(buf))>>1) );
-			
-			for(i=0;i<=a_end;i++)
-				c_put_str(TERM_L_BLUE, i==choice?">":" " , 8+i , 2 );					
-			
-			for(i=0;i<=a_end;i++)
-				c_put_str(i==choice?TERM_L_BLUE:TERM_L_WHITE, subraces_strings[i+a_offset], 8+i, 3);
-			
-			for(i=0;i<COUNT_LINES;i++)
-				put_str( subraces_descriptions[choice+a_offset][i] , 8+i , 23 );
-			
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);	
-			if (c == '*')
-			{
-				choice = randint(COUNT_SUBRACES);
-			}
-			if (c == '?') do_cmd_help(syshelpfile_birth);
-			if (c == '=')
-			{
-				Term_save();
-				do_cmd_options_aux(7,"Startup Options");
-				Term_load();
-			}
-			if( ( c== ' ') || (c == '\n') || (c == '\r') ) break;	
-			/* Look up the direction */
-			dir = get_keymap_dir(c);
-			/*get_key_map does not alway work, so we hardcode some stuff*/
-			if(dir==2 || c=='2')
-				choice=choice ==a_end?0:choice+1;
-			if(dir==8 || c=='8')
-				choice=choice==0?a_end:choice-1;
-			else bell();
+			/*Set up screen*/
+			fill_birth_screen( buf , 0 , a_end , choice , a_offset , subraces_strings, subraces_descriptions[choice+a_offset], (race_info[choice+a_offset].r_mhp), (race_info[choice+a_offset].r_exp), race_info[choice+a_offset].r_adj , FALSE, FALSE);  
+			/*Allow user to navigate/cancel/quit/read help*/
+			if( navigate_birth_screen( &choice, 0 , a_end+1 , &done ) == FALSE ) return FALSE;
 		}		
 		
 		/* Choice was just for UI, choice+a_offset has what we really want, which is now the new role of choice */
@@ -3700,111 +3620,67 @@ static bool player_birth_aux()
 		
 		if( ( choice==SUCCUBUS || choice == LILI ) && p_ptr->psex == GENTLEMAN )
 		{
-		    /*No cross dressing in my game ;)*/
-			msg_print("Hellband does not support demon crossdressers.");	
-		    /* Set sex */
-		    p_ptr->psex = LADY;
-		    /* Get sex into a string */
-		    sp_ptr = &sex_info[p_ptr->psex];
-		    str = sp_ptr->address;
+			/*No cross dressing in my game ;)*/
+			msg_note("Hellband does not support demon cross-dressers.");	
+			/* Set sex */
+			p_ptr->psex = LADY;
+			/* Get sex into a string */
+			sp_ptr = &sex_info[p_ptr->psex];
+			str = sp_ptr->address;
+		}
+		
+		if( ( choice==LEPRECHAUN ) && p_ptr->psex == LADY )
+		{
+			/*No cross dressing in my game ;)*/
+			msg_note("Hellband does not support leprechaun cross-dressers.");	
+			/* Set sex */
+			p_ptr->psex = GENTLEMAN;
+			/* Get sex into a string */
+			sp_ptr = &sex_info[p_ptr->psex];
+			str = sp_ptr->address;
 		}
 		
 		/*Unless we are afflicated we get the right to be born under a constellation*/
 		if( p_ptr->prace == R_HUMAN && choice!= AFFLICTED )
 		{
 			p_ptr->prace = choice;
-			/* Choose specific birth sign ?*/
+			/* Choose specific birth sign, set initial choice to 0, set up loop flag*/
 			choice = 0;
+			done   = FALSE;
 			/* Load new birth screen with restart option ( yah, a waste of bytes, but also it guarantees a clean screen */	
 			do_cmd_load_screen( ANGBAND_DIR_FILE ,  "birth2.txt" );	
 			
-			while (1)
+			while (!done)
 			{
-				
+				/*Set up title*/
 				sprintf(buf,"Which constellation were you born under, %s?",  str);
-				c_put_str(TERM_YELLOW, buf, 5, ((screen_width-strlen(buf))>>1) );
-				
-				for(i=0;i<COUNT_SIGNS;i++)
-					c_put_str(TERM_L_BLUE, i==choice?">":" " , 8+i , 2 );				
-				
-				for(i=0;i<COUNT_SIGNS;i++)
-					c_put_str(i==choice?TERM_L_BLUE:TERM_L_WHITE, signs_strings[i], 8+i, 3);
-				
-				for(i=0;i<COUNT_LINES;i++)
-					put_str( signs_descriptions[choice][i] , 8+i , 23 );
-				
-				c = inkey();
-				if (c == 'Q') quit(NULL);
-				if (c == 'S') return (FALSE);	
-				if (c == '*')
-				{
-					choice = randint(COUNT_SIGNS);
-				}
-				if (c == '?') do_cmd_help(syshelpfile_birth);
-				if (c == '=')
-				{
-					Term_save();
-					do_cmd_options_aux(7,"Startup Options");
-					Term_load();
-				}
-				if( ( c== ' ') || (c == '\n') || (c == '\r') ) break;	
-				/* Look up the direction */
-				dir = get_keymap_dir(c);
-				/*get_key_map does not alway work, so we hardcode some stuff*/
-				if(dir==2 || c=='2')
-					choice=choice+1==COUNT_SIGNS?0:choice+1;
-				if(dir==8 || c=='8')
-					choice=choice==0?COUNT_SIGNS-1:choice-1;
-				else bell();
-			}		
+				/*Set up screen*/
+				fill_birth_screen( buf , 0 , COUNT_SIGNS-1 , choice , 0 , signs_strings, signs_descriptions[choice], (sign_info[choice].r_mhp), (sign_info[choice].r_exp), sign_info[choice].r_adj , TRUE, FALSE );
+				/*Allow user to navigate/cancel/quit/read help*/
+				if( navigate_birth_screen( &choice, 0 ,COUNT_SIGNS , &done ) == FALSE ) return FALSE;
+			}
 			p_ptr->psign  = choice;
 	}
 		/* If we are afflicted, we get to choose which afflication*/
 		else if( choice == AFFLICTED)
 		{
-			/* Choose specific affliction ?*/
+			/* Choose specific affliction, set initial choice to 0, set up loop flag*/
 			choice = 0;
+			done = FALSE;
 			/* Load new birth screen with restart option ( yah, a waste of bytes, but also it guarantees a clean screen */	
 			do_cmd_load_screen( ANGBAND_DIR_FILE ,  "birth2.txt" );	
 			
-			while (1)
+			while (!done)
 			{
-				
+				/*Set up title*/
 				sprintf(buf,"What is your affliction, %s?",  str);
-				c_put_str(TERM_YELLOW, buf, 5, ((screen_width-strlen(buf))>>1) );
-				
-				for(i=0;i<COUNT_AFFLICTIONS;i++)
-					c_put_str(TERM_L_BLUE, i==choice?">":" " , 8+i , 2 );					
-				
-				for(i=0;i<COUNT_AFFLICTIONS;i++)
-					c_put_str(i==choice?TERM_L_BLUE:TERM_L_WHITE, afflictions_strings[i], 8+i, 3);
-				
-				for(i=0;i<COUNT_LINES;i++)
-					put_str( afflictions_descriptions[choice][i] , 8+i , 23 );
-				
-				c = inkey();
-				if (c == 'Q') quit(NULL);
-				if (c == 'S') return (FALSE);	
-				if (c == '*')
-				{
-					choice = randint(COUNT_AFFLICTIONS);
-				}
-				if (c == '?') do_cmd_help(syshelpfile_birth);
-				if (c == '=')
-				{
-					Term_save();
-					do_cmd_options_aux(7,"Startup Options");
-					Term_load();
-				}
-				if( ( c== ' ') || (c == '\n') || (c == '\r') ) break;	
-				/* Look up the direction */
-				dir = get_keymap_dir(c);
-				/*get_key_map does not alway work, so we hardcode some stuff*/
-				if(dir==2 || c=='2')
-					choice=choice+1==COUNT_AFFLICTIONS?0:choice+1;
-				if(dir==8 || c=='8')
-					choice=choice==0?COUNT_AFFLICTIONS-1:choice-1;
-				else bell();
+				/*Set up screen*/
+				fill_birth_screen( buf , 0 , COUNT_AFFLICTIONS-1 , choice , 0 , afflictions_strings, afflictions_descriptions[choice], 
+				(race_info[choice+subraces[COUNT_RACES-1][1]+1].r_mhp), 
+				(race_info[choice+subraces[COUNT_RACES-1][1]+1].r_exp), 
+				race_info[choice+subraces[COUNT_RACES-1][1]+1].r_adj , TRUE, FALSE);
+				/*Allow user to navigate/cancel/quit/read help*/
+				if( navigate_birth_screen( &choice, 0 ,COUNT_AFFLICTIONS , &done ) == FALSE ) return FALSE;
 			}			
 			/* Serious hack, human afflictions must be the last afflictions!! or else !! damnation & all !!  */
 			p_ptr->prace = choice+subraces[COUNT_RACES-1][1]+1;
@@ -3830,20 +3706,22 @@ static bool player_birth_aux()
 		/* Get a random name now we have a race*/
 		create_random_name(p_ptr->prace,player_name);
 
-		/* Choose specific class ?*/
+		/* Choose specific class, set initial choice to 0, set up loop flag */
 		choice = 0;
+		done   = FALSE;
 		/* Load new birth screen with restart option ( yah, a waste of bytes, but also it guarantees a clean screen */	
 		do_cmd_load_screen( ANGBAND_DIR_FILE ,  "birth2.txt" );	
+
+		/*Set up screen title*/
+		sprintf(buf,"What is your vocation, %s?",  str);
 		
-		while (1)
+		while (!done)
 		{
-			
-			sprintf(buf,"What is your vocation, %s?",  str);
-			c_put_str(TERM_YELLOW, buf, 5, ((screen_width-strlen(buf))>>1) );
-			
-			for(i=0;i<MAX_CLASS;i++)
-				c_put_str(TERM_L_BLUE, i==choice?">":" " , 8+i , 2 );		
-			
+			/*Use helper variable to pass along class info*/
+			cp_ptr = &class_info[choice];			
+			/* Set up screen*/
+			fill_birth_screen( buf , 0 , MAX_CLASS-1 , choice , 0 , NULL, classes_descriptions[choice], cp_ptr->c_mhp, cp_ptr->c_exp, cp_ptr->c_adj , TRUE, TRUE );
+			/* Show classes , with braces if they are not advised */
 			for(i=0;i<MAX_CLASS;i++)
 			{
 				cp_ptr = &class_info[i];
@@ -3857,35 +3735,21 @@ static bool player_birth_aux()
 				}
 				c_put_str(i==choice?TERM_L_BLUE:TERM_L_WHITE, buf, 8+i, 3);
 			}
-			
-			for(i=0;i<COUNT_LINES;i++)
-				put_str( classes_descriptions[choice][i] , 8+i , 23 );
-			
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);	
-			if (c == '*')
+			/*Damn, this is ugly just to put the cursor nicely ( basically print the choice again*/
+			cp_ptr = &class_info[choice];
+			if (!(rp_ptr->choice & (1L << choice )))
 			{
-				choice = randint(MAX_CLASS);
+				sprintf(buf, "(%s)", cp_ptr->title);
 			}
-			if (c == '?') do_cmd_help(syshelpfile_birth);
-			if (c == '=')
+			else
 			{
-				Term_save();
-				do_cmd_options_aux(7,"Startup Options");
-				Term_load();
+				sprintf(buf, "%s", cp_ptr->title);
 			}
-			if( ( c== ' ') || (c == '\n') || (c == '\r') ) break;	
-			/* Look up the direction */
-			dir = get_keymap_dir(c);
-			/*get_key_map does not alway work, so we hardcode some stuff*/
-			if(dir==2 || c=='2')
-				choice=choice+1==MAX_CLASS?0:choice+1;
-			if(dir==8 || c=='8')
-				choice=choice==0?MAX_CLASS-1:choice-1;
-			else bell();
-		}			
-		
+			c_put_str(TERM_L_BLUE, buf, 8+choice, 3);
+			
+			/*Allow user to navigate/cancel/quit/read help*/
+			if( navigate_birth_screen( &choice, 0 ,MAX_CLASS , &done ) == FALSE ) return FALSE;			
+		}
 		
 		p_ptr->pclass = choice;
 		cp_ptr = &class_info[p_ptr->pclass];
@@ -3901,7 +3765,7 @@ static bool player_birth_aux()
 
 		if(!get_realms())
 			return FALSE;
-        
+		
 		if(p_ptr->realm1)
 		{
 			if(p_ptr->realm2)
@@ -3940,7 +3804,7 @@ static bool player_birth_aux()
 		/* Initialize Autoroller if necessary */
 		if (autoroll)
 		{
-			int mval[6];
+			int mval[STAT_COUNT];
 			
 			do_cmd_load_screen( ANGBAND_DIR_FILE ,  "birth2.txt" );	
 			sprintf(buf,"Enter minimum values for these stats");
@@ -3951,7 +3815,7 @@ static bool player_birth_aux()
 			last_round = 0L;
 
 			/* Output the maximum stats */
-			for (i = 0; i < 6; i++)
+			for (i = 0; i < STAT_COUNT; i++)
 			{
 				/* Reset the "success" counter */
 				stat_match[i] = 0;
@@ -3988,7 +3852,7 @@ static bool player_birth_aux()
 			}
 
 			/* Input the minimum stats */
-			for (i = 0; i < 6; i++)
+			for (i = 0; i < STAT_COUNT; i++)
 			{
 				/* Get a minimum stat */
 				while (TRUE)
@@ -4006,7 +3870,6 @@ static bool player_birth_aux()
 
 					v = atoi(inp);
 					if(v>18) v=18+(v-18)*10;
-
 
 					/* Break on valid input */
 					if (v <= mval[i]) break;
@@ -4044,12 +3907,8 @@ static bool player_birth_aux()
 				c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
 
 				/* Label stats */
-				put_str("STR:", 2 + A_STR, 61);
-				put_str("INT:", 2 + A_INT, 61);
-				put_str("WIS:", 2 + A_WIS, 61);
-				put_str("DEX:", 2 + A_DEX, 61);
-				put_str("CON:", 2 + A_CON, 61);
-				put_str("CHA:", 2 + A_CHA, 61);
+				for( stat_counter = 0 ; stat_counter < STAT_COUNT ; stat_counter++ )
+					put_str( stat_names[stat_counter] , 2 + stat_counter , 61 );
 
 				/* Note when we started */
 				last_round = auto_round;
@@ -4067,7 +3926,7 @@ static bool player_birth_aux()
 				/* Get a new character */
 				if (point_mod)
 				{
-					for(i=0;i<6;i++)
+					for(i=0;i<STAT_COUNT;i++)
 					{
 						p_ptr->stat_cur[i] = p_ptr->stat_max[i] = 8;
 					}
@@ -4094,7 +3953,7 @@ static bool player_birth_aux()
 				if (auto_round >= 1000000L) break;
 
 				/* Check and count acceptable stats */
-				for (i = 0; i < 6; i++)
+				for (i = 0; i < STAT_COUNT; i++)
 				{
 					/* This stat is okay */
 					if (stat_use[i] >= stat_limit[i])
@@ -4323,6 +4182,7 @@ void player_birth(void)
 		/* Ignore home, hall  and pawnbrokers */
 		if ((n != STORE_HOME) &&
 			(n != STORE_HALL) &&
+			(n != STORE_BOOK_SWAP) &&
 			(n != STORE_PAWN))
 		{
 			/* Maintain the shop (ten times) */
