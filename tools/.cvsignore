@@ -1,4 +1,5 @@
 *.fasl
 *.x86f
 *.err
+obsolete.lsp
 

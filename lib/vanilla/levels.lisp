@@ -18,9 +18,9 @@ the Free Software Foundation; either version 2 of the License, or
 
   (defclass van-town-level (themed-level)
     ((id :initform 'town-level)
-     (stores        :initarg :stores     :initform nil  :accessor variant.stores)
-     (num-stores    :initarg :num-stores :initform 8 :accessor variant.num-stores)
-     (home-num      :initarg :home-num   :initform 7 :accessor variant.home-num))
+     (stores        :initarg :stores     :initform nil  :accessor level.stores)
+     (num-stores    :initarg :num-stores :initform 8 :accessor level.num-stores)
+     (home-num      :initarg :home-num   :initform 7 :accessor level.home-num))
 
     ))
 
@@ -56,7 +56,7 @@ argument is non-NIL it will be re-used and returned as
 part of the new level."
 
   (let* ((*level* level)
-	 (var-obj *variant*)
+;;	 (var-obj *variant*)
 	 (settings (get-setting :random-level)) ;; hack
 	 (max-dungeon-width  (slot-value settings 'max-width))
 	 (max-dungeon-height (slot-value settings 'max-height))
@@ -81,30 +81,32 @@ part of the new level."
     ;; we need stores
     (let* ((y-offset +screen-height+)
 	   (x-offset +screen-width+)
-	   (store-num (variant.num-stores level))
+	   (store-num (level.num-stores level))
 	   (store-numbers (shuffle-array! (get-array-with-numbers store-num :fill-pointer t)
 					 store-num))
 ;;	   (stores (loop for x from 0 to (1- store-num) collecting (create-store (1+ x))))
 	   )
 
       ;; move actual stores to level object
-;;      (warn "Stores is ~a" stores)
+;;      (warn "Stores is ~a" store-numbers)
 
       (setf (level.dungeon level) dungeon)
 
 	    
       (dotimes (y 2)
 	(dotimes (x 4)
-	  (let* ((house-num (vector-pop store-numbers))
+	  (let* ((house-num (1+ (vector-pop store-numbers)))
 		 (the-house (get-house house-num)))
 	    (when the-house
 	      (let ((x0 (+ x-offset (* x 14) 12))
 		    (y0 (+ y-offset (* y 9) 6)))
-		(warn "building ~s [~a]" the-house house-num)
+		;;(warn "building ~s [~a]" the-house house-num)
 		(build-house! level the-house x0 y0
 			      :door-feature (1- (+ +feature-shop-head+ house-num))
 			      :door-trigger  #'(lambda (dun x y)
-						 (warn "Entering shop ~a" (1+ house-num))))
+						 (declare (ignore dun x y))
+						 (visit-house *level* the-house)))
+;;						 (warn "Entering shop ~a, ~a" house-num the-house)))
 		)))
 	  )))
 

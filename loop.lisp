@@ -154,10 +154,8 @@ ADD_DESC: Most of the code which deals with the game loops.
     
       (loop
        ;; clean up to prevent too many delays while running the dungeon
-       #+cmu
-       (ext:gc)
-       #+allegro
-       (excl:gc t)
+       (garbage-collect :global t)
+
        ;; let's run this dungeon
 
        (let* ((how-level-was-left
@@ -209,7 +207,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 ;;	(old-spread (sys:gsgc-parameter :generation-spread))
 	)
 
-    (let ((*load-verbose* t))
+    (let ((*load-verbose* nil))
       (load "lib/file/prefs.lisp"))
     
     (c-set-cursor& 0)
@@ -252,7 +250,4 @@ ADD_DESC: Most of the code which deals with the game loops.
 #+allegro
 (ff:defun-foreign-callable c-callable-play ()
   (play-game&))
-
-#+allegro
-(ff:def-foreign-call set_lisp_callback (address))
 

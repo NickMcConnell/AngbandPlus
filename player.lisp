@@ -15,11 +15,12 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband)
 
 
-(defstruct (player (:conc-name player.))
+(def-saveable-struct
+    (player (:conc-name player.))
   
-  (name "Foo")
-   (class nil)
-   (race nil)
+    (name "Foo")
+  (class nil)
+  (race nil)
    (sex nil)
    
    (base-stats nil) ;; "this is the base stats"
@@ -133,7 +134,7 @@ the Free Software Foundation; either version 2 of the License, or
     (flet ((make-and-assign-backpack! (id)
 	     (let ((back-obj (create-aobj-from-id id))
 		   (eq-slots (player.eq t-p)))
-	       (warn "eq-slots ~a" eq-slots)
+	       ;;(warn "eq-slots ~a" eq-slots)
 	       (item-table-add! eq-slots back-obj 'eq.backpack)
 	       (setf (player.inventory t-p) back-obj))))
       

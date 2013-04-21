@@ -36,6 +36,7 @@
 
 
 #include "angband.h"
+#include "langband.h"
 
 
 #ifdef USE_X11
@@ -301,12 +302,16 @@ typedef struct RGB
      unsigned char filler;
 } RGB;
 
+
+
+
 static Pixell Infoclr_Pixell(cptr name);
 /*
  * Read a BMP file. XXX XXX XXX
  *
  * Replaced ReadRaw & RemapColors.
  */
+
 static XImage *ReadBMP(Display *disp, char Name[])
 {
 	FILE *f;
@@ -336,7 +341,7 @@ static XImage *ReadBMP(Display *disp, char Name[])
 			quit("Bad BMP format");
 		}
 	
-		/* Compute number of colors recorded */
+		// Compute number of colors recorded 
 		ncol = (fileheader.bfOffBits - 54) / 4;
 		
 		for (x = 0; x < ncol; ++x)
@@ -382,6 +387,7 @@ static XImage *ReadBMP(Display *disp, char Name[])
 
 	return Res;
 }
+
 
 /* ========================================================*/
 /* Code for smooth icon rescaling from Uwe Siems, Jan 2000 */
@@ -2117,6 +2123,8 @@ static errr Infofnt_text_non(int x, int y, cptr str, int len)
  */
 
 
+
+
 /*
  * Hack -- cursor color
  */
@@ -2615,6 +2623,9 @@ static errr Term_xtra_x11(int n, int v)
 
 		/* React to changes XXX XXX XXX */
 		case TERM_XTRA_REACT: return (Term_xtra_x11_react());
+#ifdef USE_SOUND
+	case TERM_XTRA_SOUND: send_sound_msg(SNDMSG_PLAY, v, ""); return (0);
+#endif
 	}
 
 	/* Unknown */
@@ -2849,6 +2860,8 @@ errr init_x11(int argc, char *argv[])
 		plog_fmt("Ignoring option: %s", argv[i]);
 	}
 
+//	puts("going spinmeister");
+	
 
 #ifdef USE_GRAPHICS
 
@@ -3062,4 +3075,7 @@ errr init_x11(int argc, char *argv[])
 	return (0);
 }
 
+
+
 #endif /* USE_X11 */
+

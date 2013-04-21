@@ -13,3 +13,5 @@ this file defines preferences done the lispy way
   
   (read-pref-file "lib/file/x11-keys.lisp"))
 
+(when (using-sound?)
+  (read-pref-file "lib/file/sound.lisp"))

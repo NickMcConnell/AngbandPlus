@@ -20,11 +20,27 @@ the Free Software Foundation; either version 2 of the License, or
   (deftype vinfo-bit-type () `(unsigned-byte 32))
 
   (defclass activatable ()
-    ((activated :accessor activated? :initform nil))
+    ((activated :reader activated? :initform nil))
     (:documentation "Mixin-class for activatation of objects,
-may be removed later for efficiency-reasons."))
+may be removed later for efficiency-reasons.  It enforces a
+protocol that allows activated? to be set automagically after
+a succesful ACTIVATE-OBJECT."))
   
 )
+
+(defmacro def-saveable-struct (&rest rest)
+  (let ((name (if (consp (car rest))
+		  (caar rest)
+		  (car rest)))
+	(sym-list (mapcar #'(lambda (x)
+			      (if (consp x)
+				  (car x)
+				  x))
+			  (cdr rest))))
+    `(progn
+      (setf (get ',name 'struct-slots) ',sym-list)
+      (defstruct ,@rest))))
+
 
 (defmacro defsubst (name arglist &body body)
   "Declare an inline defun."
@@ -316,26 +332,31 @@ This means that an object may be created but may not be fully initialised
 and filled with appropriate values right away.  The normal CL/CLOS mechanisms
 deal with the actual creation of the bare object, but non-trivial objects
 should also be \"activated\", ie get proper values on all variables.
-The object in question should be returned."))  
+The object in question must be returned, failure to do so may lead to a
+situation where the system assumes the object is invalid."))  
 
 (defmethod activate-object (obj &key)
 
   obj)
 
-(defmethod activate-object :after ((obj activatable) &key)
-   (setf (activated? obj) t))
+(defmethod activate-object :around ((obj activatable) &key)
+   (unless (next-method-p)
+     ;; this will never happen
+     (warn "Unable to find ACTIVATE-OBJECT for type ~a" (type-of obj))
+     (return-from activate-object nil))
 
+   ;; we pass along the same arguments.. 
+   (let ((result (call-next-method)))
+     ;; we only say that an object is activated if it returned the object
+     (cond ((eq obj result)
+	    (setf (slot-value obj 'activated) t)
+	    obj)
+	   
+	   (t
+	    (warn "Activation of object ~a failed, return was ~a" obj result)
+	    nil)
+	   )))
 
-#||
-;; move me later
-(defgeneric post-initialise (obj &key &allow-other-keys)
-  (:documentation "Is called to complete an initialisation of an object.
-Should return the object."))
-
-(defmethod post-initialise (obj &key)
-
-  obj)
-||#
 
 ;; move me later
 
@@ -430,6 +451,15 @@ level/room/player combo.  Allowed to return NIL."))
 (defmacro tricky-profile (expr type)
   (declare (ignore type))
   `(time ,expr))
+
+(defun garbage-collect (&key (global nil))
+  "Tries to enforce a garbage collect."
+  (declare (ignore global))
+  #+cmu
+  (ext:gc)
+  #+allegro
+  (excl:gc t))
+
 
 #||
 (defvar *left-adj-6str* (make-hash-table :test #'eql))

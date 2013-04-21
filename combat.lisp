@@ -24,6 +24,8 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((monsters (cave-monsters dun x y)))
     (when monsters
       (let ((the-monster (car monsters)))
+	;; hack
+	(play-sound 1)
 ;;	(describe the-monster)
 	(if (/= (random 2) 1)
 	    (c-print-message (format nil "You miss the ~a." (monster.name the-monster)))

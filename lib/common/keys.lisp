@@ -42,6 +42,9 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'move-down-right
     #'(lambda (dun pl) (move-player! dun pl 3)))
 
+(define-key-operation 'stand-still
+    #'(lambda (dun pl) (move-player! dun pl 5)))
+
 
 (define-key-operation 'show-equipment
      #'(lambda (dun pl)
@@ -106,7 +109,31 @@ the Free Software Foundation; either version 2 of the License, or
 	(declare (ignore dun))
 	(assert (eq pl nil))))
 
-(define-keypress *ang-keys* :global #\z 'halt-program) 
+(define-key-operation 'save-game
+    #'(lambda (dun pl)
+	(save-game dun pl)))
+
+(define-key-operation 'inspect-coord
+    #'(lambda (dun pl)
+	(let* ((cur-x (player.loc-x pl))
+	       (cur-y (player.loc-y pl))
+	       (coord-obj (cave-coord dun cur-x cur-y)))
+	  (warn "Describing [~a,~a]" cur-x cur-y)
+	  (describe coord-obj)
+	  (warn "Mapped to ~s" (map-info dun cur-x cur-y)))))
+
+(define-key-operation 'print-keys
+    #'(lambda (dun pl)
+	(declare (ignore dun pl))
+	(print-key-table (gethash :global *ang-keys*)
+			 "table.keys")))
+
+
+
+(define-keypress *ang-keys* :global #\z 'halt-program)
+(define-keypress *ang-keys* :global #\Z 'save-game)
+(define-keypress *ang-keys* :global #\I 'inspect-coord)
+(define-keypress *ang-keys* :global #\K 'print-keys) 
 
 #||
 (define-keypress *ang-keys* :global #\k 'move-up)
@@ -115,14 +142,16 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :global #\h 'move-left)
 ||#
 
+(define-keypress *ang-keys* :global #\9 'move-up-right)
 (define-keypress *ang-keys* :global #\8 'move-up)
 (define-keypress *ang-keys* :global #\7 'move-up-left)
-(define-keypress *ang-keys* :global #\9 'move-up-right)
 (define-keypress *ang-keys* :global #\6 'move-right)
+(define-keypress *ang-keys* :global #\5 'stand-still)
 (define-keypress *ang-keys* :global #\4 'move-left)
+(define-keypress *ang-keys* :global #\3 'move-down-right)
 (define-keypress *ang-keys* :global #\2 'move-down)
 (define-keypress *ang-keys* :global #\1 'move-down-left)
-(define-keypress *ang-keys* :global #\3 'move-down-right)
+(define-keypress *ang-keys* :global #\. 'stand-still)
 
 (define-keypress *ang-keys* :global #\e 'show-equipment)
 (define-keypress *ang-keys* :global #\i 'show-inventory)
@@ -141,12 +170,4 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-keypress *ang-keys* :global #\p 'print-map)
 (define-keypress *ang-keys* :global #\P 'print-map-as-ppm)
-
-;; redefine these later
-#||
-(define-keypress :global #\S #\S
-		 #'(lambda (dun pl)
-		     (declare (ignore pl dun)) (show-store 6)))
-
-||#
 

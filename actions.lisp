@@ -29,11 +29,14 @@ The direction is a number from the keypad."
       (8 (decf wanted-y))
       (7 (decf wanted-y) (decf wanted-x))
       (6 (incf wanted-x))
+      (5 nil)
       (4 (decf wanted-x))
       (3 (incf wanted-y) (incf wanted-x))
       (2 (incf wanted-y))
       (1 (incf wanted-y) (decf wanted-x))
-      (otherwise (warn "Unknown direction")))
+      (otherwise
+       (warn "Unknown direction ~s" direction)
+       ))
 
     #||
     (warn "Position ~a ~a has currently ~a,~a -> ~a" wanted-x wanted-y (cave-feature dun wanted-x wanted-y)
@@ -44,7 +47,7 @@ The direction is a number from the keypad."
 
     (let ((monsters (cave-monsters dun wanted-x wanted-y)))
 
-      ;; mmonsters to attack
+      ;; monsters to attack
       (cond (monsters
 	     (attack-location! dun pl wanted-x wanted-y)
 	     )
@@ -137,9 +140,10 @@ a number or a symbol identifying the place."
 	    
    
     ;; clear prompt
+    #-cmu
     (c-prt "" 0 0)
     
-     nil))
+    nil))
   
 
 (defun use-stair! (dun pl dir)

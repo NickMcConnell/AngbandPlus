@@ -121,6 +121,12 @@ ADD_DESC: in C from CMUCL.
 (alien:def-alien-routine ("Term_load" c-term-load)
     errr)
 
+(alien:def-alien-routine ("Term_xtra" c-term-xtra&)
+    errr
+  (msg int :in)
+  (arg int :in))
+
+
 
 (alien:def-alien-routine ("Term_inkey" c-term-inkey&)
     errr
@@ -148,5 +154,15 @@ ADD_DESC: in C from CMUCL.
     void
   (a cptr)
   (b cptr))
+
+#+using-sound
+(alien:def-alien-routine ("load_sound" c-load-sound&)
+    errr
+  (msg int :in)
+  (fname cptr))
+
+(alien:def-alien-routine ("set_lisp_callback" set_lisp_callback)
+    void
+  (ptr alien:unsigned))
 
 

@@ -57,7 +57,7 @@ operation."
     (unless oper
       (error "Unable to find operation '~a' in ~a for key '~a'"
 	    operation (cons key-table where) key)
-      
+      #-cmu
       (return-from define-keypress nil))
     
     (unless table
@@ -67,25 +67,6 @@ operation."
     (setf (gethash key table) oper)
     ))
     
-#||    
-
-
-(defun define-keypress (where ang-key rogue-key function)
-  "Defines a keypress and creates the necessary tables"
-
-  (declare (ignore rogue-key))
-  
-  (let ((table (gethash where *keypress-tables* )))
-
-    (unless table
-      (setf table (make-hash-table))
-      (setf (gethash where *keypress-tables*) table))
-
-    ;; ignore rogue-keys
-    (setf (gethash ang-key table) function)
-
-    ang-key))
-||#
 
 (defun check-keypress (table key)
   "checks a keypress vs the given table"
@@ -138,8 +119,53 @@ operation."
       (when (is-closed-door? dun (car i) (cdr i))
 	(open-door! dun (car i) (cdr i))))))
 
+(defun print-key-table (table fname)
+  "Prints a key-table to the given file."
+  
+  (with-open-file (s (pathname fname)
+                     :direction :output 
+                     :if-exists :supersede)
+    (let ((collected nil))
+      (maphash #'(lambda (k v)
+		   (push (cons k v) collected))
+
+	       table)
+      ;; hackish
+      (let ((key-ops (get-key-operations)))
+	(dolist (i key-ops)
+	  (dolist (j collected)
+	    (when (eq (cdr i) (cdr j))
+	      (setf (cdr j) (car i))))))
+      
+      (let ((sorted (sort (mapcar #'(lambda (k)
+				      (format nil "key ~a -> ~a" (car k) (cdr k)))
+				  collected)
+			  #'string-lessp)))
+	(dolist (i sorted)
+	  (format s "~a~%" i))))))
+
 #||
 (defun key-test ()
   (dotimes (i 5)
     (print (c-read-some-key& 0 0))))
+
+  
+
+
+(defun define-keypress (where ang-key rogue-key function)
+  "Defines a keypress and creates the necessary tables"
+
+  (declare (ignore rogue-key))
+  
+  (let ((table (gethash where *keypress-tables* )))
+
+    (unless table
+      (setf table (make-hash-table))
+      (setf (gethash where *keypress-tables*) table))
+
+    ;; ignore rogue-keys
+    (setf (gethash ang-key table) function)
+
+    ang-key))
 ||#
+

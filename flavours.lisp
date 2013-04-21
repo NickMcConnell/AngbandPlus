@@ -88,7 +88,7 @@ of objects.  all entries are copied, not shared."
 	    ;;(warn "Checking ~s vs ~s" (object.obj-type the-kind) (flavour-type.symbol i)) 
 	    (when (obj-is? the-kind (flavour-type.symbol i))
 	      (flavour-obj-kind! the-kind i)
-	      (return-from flavouring the-kind))))))
+	      (return-from flavouring obj))))))
     
     obj))
 	

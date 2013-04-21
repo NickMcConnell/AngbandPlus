@@ -384,7 +384,8 @@
 /*
  * OPTION: Allow the use of "sound" in various places.
  */
-#define USE_SOUND
+
+//#define USE_SOUND
 
 /*
  * OPTION: Allow the use of "graphics" in various places

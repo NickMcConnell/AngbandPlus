@@ -37,8 +37,7 @@
 	OSes and other Lisp-systems at later stages though.  However,
 	I might sacrifice support for older systems in order to get
 	the best possible result with newer systems, e.g ditch the
-	Athena-widget support to concentrate on Gtk+.  Gtk+ currently
-	do not work with CMU CL.</li>
+	Athena-widget support to concentrate on Gtk+. </li>
 
       <li> <b>I found a bug, what do I do?</b><br>
 	Please check if the bug has been reported first in the <a
@@ -77,6 +76,23 @@
 	compile, and much less work.  Please use releases if you want
 	things to "work".  The CVS-version is bleeding edge though and
 	may have bug-fixes and features missing in releases.</li>
+
+      <li> <b>How do I get sounds working?</b><br>
+	<ol>
+	  <li> uncomment the using-sound line in game.lisp</li>
+	  <li> set SOUND_USE in lib/zterm/Makefile to YES</li>
+	  <li> recompile all C-code and lisp-code</li>
+	  <li> get example sounds from the <a
+	  href="http://sourceforge.net/projects/langband/">langband
+	  project page</a> dowload area
+	  <li> install wanted sounds in lib/sound and configure in
+	  lib/file/sound.lisp</li>
+	  <li> start lib/zterm/sound_daemon in the background</li>
+	  <li> start the game </li>
+	  <li> play the game and if possible, hit something</li>
+	  <li> quit game and exit the sound_daemon</li>
+	</ol>
+      </li>
       
     </ol>
 	

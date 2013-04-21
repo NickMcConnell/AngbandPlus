@@ -1,3 +1,22 @@
+2001-02-19  Stig E Sandø <stig@users.sourceforge.net>
+	* simplified lib/zterm/Makefile slightly
+	* improved the activation protocol for objects, uses :around and
+	checks for appropriate activation and returns appropriate value.
+	Updated a few objects to ensure they're activated properly.
+	* improved shop-code slightly, shops and houses now includes item
+	containers and should specialise the appropriate functions
+	* made cmucl use a callback, just like ACL.  this will hopefully
+	make it easier later with the gtk-support which seems to work now.
+	* added a small function to print out key-mappings
+	* a few minor bugs fixed
+		
+2001-02-18  Stig E Sandø <stig@users.sourceforge.net>
+	* Added Aerton's preliminary sound-support (a daemon) for Angband
+	and Linux. The small sound-daemon is released in public domain.
+	* Updated main-x11.c, Makefile and lisp-code to reflect this.  The
+	sound-support seems to work.
+	* added a FAQ-entry to explain how to use the sound-support
+	
 2001-02-12  Stig E Sandø <stig@users.sourceforge.net>
 	* added activable mixin-class for being consistent with
 	acticate-object state and later deactivation

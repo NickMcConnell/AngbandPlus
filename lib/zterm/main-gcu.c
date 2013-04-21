@@ -46,7 +46,7 @@
  */
 
 #include "angband.h"
-
+#include "langband.h"
 
 #ifdef USE_GCU
 
@@ -767,6 +767,10 @@ static errr Term_xtra_gcu(int n, int v)
 		case TERM_XTRA_REACT:
 		Term_xtra_gcu_react();
 		return (0);
+#ifdef USE_SOUND
+	case TERM_XTRA_SOUND: send_sound_msg(SNDMSG_PLAY, v, ""); return (0);
+#endif
+
 	}
 
 	/* Unknown */

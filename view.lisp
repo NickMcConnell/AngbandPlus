@@ -67,7 +67,7 @@ the Free Software Foundation; either version 2 of the License, or
     (when (and (> m 0)
 	       (<= m +scale+))
       (loop named inner
-	    for j of-type u-fixnum from 0 to (1- slope-num)
+	    for j from 0 to (1- slope-num)
 	    do
 	    (incf i)
 	    (when (= m (svref (vinfo-hack.slopes hack) j))

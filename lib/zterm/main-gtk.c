@@ -9,7 +9,7 @@
  */
 
 #include "angband.h"
-
+#include "langband.h"
 
 #ifdef USE_GTK
 
@@ -203,6 +203,10 @@ static errr Term_xtra_gtk(int n, int v)
 
 		/* React to changes */
 		case TERM_XTRA_REACT: return (0);
+#ifdef USE_SOUND
+	case TERM_XTRA_SOUND: send_sound_msg(SNDMSG_PLAY, v, ""); return (0);
+#endif
+	    
 	}
 
 	/* Unknown */
@@ -246,7 +250,7 @@ static void save_game_gtk(void)
 {
 	if (game_in_progress && character_generated)
 	{
-		if (!inkey_flag && !can_save)
+		if (!inkey_flag || !can_save)
 		{
 			plog("You may not do that right now.");
 			return;
@@ -479,6 +483,7 @@ static gboolean keypress_event_handler(GtkWidget *widget, GdkEventKey *event, gp
 	        mo ? "O" : "", mx ? "M" : "",
 	        gdk_keyval_name(event->keyval), 13);
 
+//	printf("keypress: %s\n", msg);
 	/* Enqueue the "macro trigger" string */
 	for (i = 0; msg[i]; i++) Term_keypress(msg[i]);
 
@@ -635,13 +640,13 @@ static void init_gtk_window(term_data *td, bool main)
 errr init_gtk(int argc, char **argv)
 {
 	int i;
-//	puts("foo.");
+
 	gtk_set_locale();
 //	printf("foo %d %p\n", argc, argv);
 	/* Initialize the environment */
 	
 	gtk_init(&argc, &argv);
-//	puts("foo");
+
 	/* Initialize the windows */
 	for (i = 0; i < 1; i++)
 	{

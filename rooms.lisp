@@ -100,6 +100,9 @@ dungeon."))
 	    (x (int-/ (* (+ bx1 bx2 1) +block-width+) 2)))
 
 	(build-room! room dungeon player x y)
+	
+	;; hackish
+	(push (cons room (cons x y)) (dungeon.rooms dungeon))
 	;;      (funcall fun dungeon x y)
 
 	(push (cons x y) (dun-data.room-centres *cur-dun*))
@@ -116,4 +119,3 @@ dungeon."))
 
 
 	t))))
-

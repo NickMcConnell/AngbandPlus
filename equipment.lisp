@@ -34,10 +34,14 @@ the Free Software Foundation; either version 2 of the License, or
     ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil))
     (:documentation "What is worn."))  
 
-  (defclass items-in-shop (item-table)
-    ((obj-list :accessor items.objs     :initarg :objs     :initform nil)
-     (max-size :accessor items.max-size :initarg :max-size :initform 5))
-    (:documentation "What is in a given shop."))
+  (defclass items-in-house (items-in-container)
+    ((max-size :initform 24))
+    (:documentation "What is in a house."))
+  
+  (defclass items-in-store (items-in-house)
+    ()
+    (:documentation "What is in a store."))
+
   )
 
 
@@ -404,9 +408,9 @@ to variant obj."
 		   :cur-size len)))
 
 
-(defun make-container (size)
+(defun make-container (size &optional (type 'items-in-container))
   "Returns appropriate container.."
-  (make-instance 'items-in-container :max-size size
+  (make-instance type :max-size size
 		 :cur-size 0
 		 :objs (make-array size :initial-element nil)))
 

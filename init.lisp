@@ -120,13 +120,7 @@ ADD_DESC: at the start.
       (setq table (sort table #'< :key #'alloc.level))
 
       #+langband-debug
-      (with-open-file (s (pathname "dumps/foo.txt")
-			 :direction :output 
-                         :if-exists :supersede)
-	(loop for i across table
-	      do
-	      (format s "~&~a: ~a~%" (alloc.level i) (alloc.obj i))))
-
+      (dump-alloc-table table "dumps/foo.txt")
       
       table)))
 
@@ -186,15 +180,18 @@ ADD_DESC: at the start.
     
 
       #+langband-debug
-      (with-open-file (s (pathname "dumps/formosa.txt")
-			 :direction :output 
-                         :if-exists :supersede)
-	(loop for i across table
-	      do
-	      (format s "~&~a: ~a~%" (alloc.level i) (alloc.obj i))))
+      (dump-alloc-table table "dumps/formosa.txt")
       
       table)))
 
+(defun dump-alloc-table (table fname)
+  "Dumps an alloc-table to the given file."
+  (with-open-file (s (pathname fname)
+		     :direction :output 
+		     :if-exists :supersede)
+    (loop for i across table
+	  do
+	  (format s "~&~a: ~a~%" (alloc.level i) (alloc.obj i)))))
 
 (defun game-init& ()
   "This function should be called from the outside to
@@ -219,13 +216,24 @@ call appropriately high-level init in correct order."
   (unless *current-key-table*
     (setf *current-key-table* *ang-keys*))
 
-  #+allegro
-  (set_lisp_callback (ff:register-foreign-callable `c-callable-play nil t))
-  
+  (arrange-callback)
   ;;  (c-init-x11! 0 0)
   (c-init-gui! 0 +c-null-value+)
+
+;;  (warn "return..")
+;;  #+cmu
+;;  (play-game&)
   
+  )
+
+(defun arrange-callback ()
+  "system specific code.."
+  
+  #+allegro
+  (set_lisp_callback (ff:register-foreign-callable `c-callable-play nil t))
+
   #+cmu
-  (play-game&)
-  
+  (let ((ptr (kernel:get-lisp-obj-address #'play-game&)))
+    (set_lisp_callback ptr))
+
   )

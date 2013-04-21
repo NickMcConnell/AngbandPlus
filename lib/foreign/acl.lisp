@@ -104,6 +104,11 @@ ADD_DESC: in C from ACL.
 						   (c :int fixnum))
   :returning errr)
 
+(ff:def-foreign-call (c-term-xtra& "Term_xtra") ((a :int fixnum)
+						 (c :int fixnum))
+  :returning errr)
+
+
 ;;(ff:def-foreign-call (c-read-some-key& "read_some_key") ((a :int fixnum)
 ;;							 (c :int fixnum))
 ;;  :returning :char)
@@ -112,3 +117,30 @@ ADD_DESC: in C from ACL.
 (ff:def-foreign-call (c-macro-add& "macro_add") ((b cptr)
 						 (a cptr))
   :returning :void)
+
+#+using-sound
+(ff:def-foreign-call (c-load-sound& "load_sound") ((msg :int fixnum)
+						   (fname cptr))
+  :returning errr)
+
+
+(ff:def-foreign-call set_lisp_callback (address))
+
+
+#||
+(ff:def-foreign-call (pq_real_setdblogin "PQsetdbLogin")
+    ((pghost (* :char) string)
+     (pgport (* :char))
+     (pgoptions (* :char))
+     (pgtty (* :char))
+     (dbName (* :char))
+     (login (* :char) string)
+     (pwd (* :char) string))
+  :returning :void)
+
+
+(defun pqsetdblogin (host port opt tty name login pwd)
+  (flet ((fix-arg (x)
+	   (if (not x) 0 x)))
+    (pq_real_setdblogin host (fix-arg port) (fix-arg opt) (fix-arg tty) name login pwd)))
+||#

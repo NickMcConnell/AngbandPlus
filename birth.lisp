@@ -267,7 +267,7 @@ Modififes the given player object."
   (update-player! player)
   (display-player player)
   
-  (c-pause-line *last-console-line*)
+;;  (c-pause-line *last-console-line*)
   
   t)
 

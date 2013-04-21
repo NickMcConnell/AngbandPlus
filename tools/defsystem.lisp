@@ -851,7 +851,7 @@
 ;;; Now that ANSI CL includes PROVIDE and REQUIRE again, is this code
 ;;; necessary?
 
-#-(or (and :CMU (not :new-compiler)) :vms :mcl :lispworks :clisp
+#-(or (and :cmu (not :new-compiler)) :vms :mcl :lispworks :clisp
       (and allegro-version>= (version>= 4 1)))
 (eval-when #-(or :lucid :cmu17) (:compile-toplevel :load-toplevel :execute)
 	   #+(or :lucid :cmu17) (compile load eval)
@@ -1103,7 +1103,7 @@
 		    #+(or :cltl2 :lispworks) "COMMON-LISP-USER"))
 |#
 
-#-(or :PCL :CLOS)
+#-(or :pcl :clos)
 (when (find-package "PCL")
   (pushnew :pcl *modules*)
   (pushnew :pcl *features*))
@@ -1162,8 +1162,8 @@
     "./"
     #+:LUCID     (working-directory)
     #+ACLPC      (current-directory)
-    #+:ALLEGRO   (excl:current-directory)
-    #+:CMU       (ext:default-directory)
+    #+:allegro   (excl:current-directory)
+    #+:cmu       (ext:default-directory)
     ;; *** Marco Antoniotti <marcoxa@icsi.berkeley.edu>
     ;; Somehow it is better to qualify default-directory in CMU with
     ;; the appropriate package (i.e. "EXTENSIONS".)
@@ -1725,8 +1725,8 @@ s/^[^M]*IRIX Execution Environment 1, *[a-zA-Z]* *\\([^ ]*\\)/\\1/p\\
      (make-pathname :host host
 		    :device device
 		    :directory
-		    #-(and :cmu (not :cmu17)) directory
-		    #+(and :cmu (not :cmu17)) (coerce directory 'simple-vector)
+		    #-(and :cmu (not :cmu17) (not :cmu18)) directory
+		    #+(and :cmu (not :cmu17) (not :cmu18)) (coerce directory 'simple-vector)
 		    :name rel-file))))
 
 (defun directory-to-list (directory)
@@ -2458,9 +2458,9 @@ D
 			   :name (pathname-name pathname)
 			   :type (component-extension component type)
 			   :device
-			   #+(and :CMU (not :cmu17))
+			   #+(and :cmu (not :cmu17) (not :cmu18))
 			   :absolute
-			   #-(and :CMU (not :cmu17))
+			   #-(and :cmu (not :cmu17) (not :cmu18))
 			   (let ((dev (component-device component)))
 			     (when dev
 			       (pathname-device dev)))
@@ -3136,7 +3136,7 @@ D
 	    (translate-version version)
 	  ;; CL implementations may uniformly default this to nil
 	  (let ((*load-verbose* nil) ; nil
-		#-(or MCL CMU CLISP) (*compile-file-verbose* nil) ; nil
+		#-(or mcl cmu clisp) (*compile-file-verbose* nil) ; nil
 		(*compile-verbose* nil) ; nil
 		(*version* version)
 		(*oos-verbose* verbose)
@@ -3147,7 +3147,7 @@ D
 		(*load-source-instead-of-binary* load-source-instead-of-binary)
 		(*minimal-load* minimal-load)
 		(system (find-system name :load)))
-	    #-(or CMU CLISP)
+	    #-(or cmu clisp)
 	    (declare (special *compile-verbose* #-MCL *compile-file-verbose*)
 		     (ignore *compile-verbose* #-MCL *compile-file-verbose*))
 	    (unless (component-operation operation)

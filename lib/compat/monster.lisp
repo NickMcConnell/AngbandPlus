@@ -33,7 +33,9 @@ the Free Software Foundation; either version 2 of the License, or
 	      (case first-char
 		((#\# nil #\Space) nil)
 		;; Version
-		((#\V #\d) (format t "Version: ~a~%" l))
+		((#\V #\d)
+		 ;;(format t "Version: ~a~%" l)
+		 )
 
 		;; Descriptions
 		((#\D #\d)

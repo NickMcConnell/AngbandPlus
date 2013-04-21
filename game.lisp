@@ -20,6 +20,7 @@ ADD_DESC: This file just contains simple init and loading of the game
 (eval-when (:execute :load-toplevel :compile-toplevel)
   
 ;;  (push :xp-testing *features*)
+;;  (push :using-sound *features*)
 
   )
   
@@ -70,6 +71,7 @@ ADD_DESC: This file just contains simple init and loading of the game
  
 
 (defun load-game ()
+  "Tries to load the game."
     #+cmu
     (progn
       (alien:load-foreign "./lib/zterm/liblang_ui.so")
@@ -79,7 +81,7 @@ ADD_DESC: This file just contains simple init and loading of the game
     ;;  (push :langband-debug *features*)
     (load "langband.system")
     (mk:operate-on-system 'langband 'compile :verbose nil)
-    (format t "~&System loaded...~%"))
+    (format t "~&Base engine loaded...~%"))
 
 (compile-in-environment #'load-game)
 
@@ -119,6 +121,13 @@ ADD_DESC: This file just contains simple init and loading of the game
 	#+cmu (*compile-print* nil)
 	)
     (game-init&)))
+
+#||
+(trace lb::pqsetdblogin)
+
+(lb::pqsetdblogin "" nil nil nil "s14" "stig"
+		  "heihei")
+||#
 
 #+xp-testing
 (do-a-test :pre)

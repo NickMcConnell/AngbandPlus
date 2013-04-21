@@ -310,7 +310,7 @@ with k-info.txt numbers. NUM is the numeric id."
   (let ((the-kind (get-obj-kind-by-level level)))
     (if (not the-kind)
 	nil
-	(make-instance 'active-object :obj the-kind))))
+	(create-aobj-from-kind the-kind))))
 
 
 (defun plural-name (number name)
@@ -322,6 +322,9 @@ with k-info.txt numbers. NUM is the numeric id."
 	    do
 	    (case x
 	      (#\~ (when plural
+		     ;; hackish
+		     (when (find (schar name (1- i)) '(#\h #\s))
+		       (write-char #\e s))
 		     (write-char #\s s)))
 	      
 	      (#\& (if plural
@@ -362,8 +365,8 @@ with k-info.txt numbers. NUM is the numeric id."
 	('<staff> (setf tot-str (concatenate 'string flavour " staff of " tot-str)))
 	('<wand> (setf tot-str (concatenate 'string flavour " wand of " tot-str)))
 	('<rod> (setf tot-str (concatenate 'string flavour " rod of " tot-str)))
-	('<rod> (setf tot-str (concatenate 'string flavour " amulet of " tot-str)))
-	('<scroll> (setf tot-str (concatenate 'string "scroll [" flavour "] of " tot-str)))
+	('<amulet> (setf tot-str (concatenate 'string flavour " amulet of " tot-str)))
+	('<scroll> (setf tot-str (concatenate 'string "scroll ['" flavour "'] of " tot-str)))
 	(otherwise
 	 ;;(warn "Object fell through type-list")
 	 )))

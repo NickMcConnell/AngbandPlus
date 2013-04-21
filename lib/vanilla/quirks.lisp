@@ -116,12 +116,12 @@ the rest of the game is init'ed."
 					  obj)
 				    t)))
 			    var-obj)
-    
-  (load-variant-data& var-obj "defines")
-  (load-variant-data& var-obj "races")
-  (load-variant-data& var-obj "classes")
-  (load-variant-data& var-obj "flavours")
-  (load-variant-data& var-obj "stores")
+  (let ((*load-verbose* nil))
+    (load-variant-data& var-obj "defines")
+    (load-variant-data& var-obj "races")
+    (load-variant-data& var-obj "classes")
+    (load-variant-data& var-obj "flavours")
+    (load-variant-data& var-obj "stores"))
 
   
   (van-init-equipment-values var-obj)
@@ -222,7 +222,7 @@ the rest of the game is init'ed."
 
   ;; initialise all tables
   (let ((object-tables (variant.objects var-obj)))
-    (warn "Mapping ~a" object-tables)
+;;    (warn "Mapping ~a" object-tables)
     (maphash #'(lambda (key obj)
 		 (update-gobj-table! key obj
 				     #'create-alloc-table-objects))
@@ -243,7 +243,7 @@ the rest of the game is init'ed."
   (initialise-monsters& var-obj :old-file "lib/edit/r_info.txt")
   (initialise-features& var-obj :old-file "lib/edit/f_info.txt")
 
-  )
+  var-obj)
 
 
 (defun van-init-equipment-values (var-obj)

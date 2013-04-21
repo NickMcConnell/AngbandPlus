@@ -192,6 +192,7 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
 (defun get-monster-list (&optional (var-obj *variant*))
   "returns a fresh list.  Remove me!"
+  (declare (ignore var-obj))
   (let ((table (get-mkind-table)))
     (stable-sort (loop for v being each hash-value of table
 		       collecting v)

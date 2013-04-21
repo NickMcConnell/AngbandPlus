@@ -23,7 +23,7 @@
 			   (:file "settings")
 			   (:file "level")
 			   (:file "floor")
-;;			   (:file "sex")
+			   (:file "sound")
 			   (:file "stat")
 			   (:file "race")
 			   (:file "class")
@@ -53,6 +53,7 @@
 			   (:file "quirks")
 			   (:file "rooms")
 			   (:file "keys"))
+
 	      :depends-on (basic))
 
      (:module execution

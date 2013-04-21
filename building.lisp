@@ -37,22 +37,44 @@ the Free Software Foundation; either version 2 of the License, or
 (defgeneric build-house! (level house topleft-x topleft-y &key)
   (:documentation "Builds a house on the given level at given coord."))
 
+(defgeneric visit-house (level house)
+  (:documentation "Visits a given house.."))
+
+(defmethod visit-house (level (house house))
+  (declare (ignore level))
+  (warn "simple house.."))
+  
 (defgeneric find-owner-for-house (level house &key)
   (:documentation "Tries to find an appropriate owner for the house."))
 
 (defmethod find-owner-for-house (level house &key)
+  (declare (ignore level house))
   nil)
 
-(defmethod activate-object ((obj house) &key (owner nil))
+(defmethod activate-object ((obj house) &key (owner nil) (var-obj *variant*) (level *level*))
   "Wakes a house(-type) from slumber and returns a usable house."
 
   (when (and owner (typep owner 'owner))
     (setf (house.owner obj) owner))
-    
-;;  (warn "activating object ~a" obj)
-  
-  obj)
 
+  (when (eq (house.owner obj) :random)
+    (let ((new-owner (find-owner-for-house level obj
+					   :var-obj var-obj :selection :random)))
+      (when (acceptable-owner? obj new-owner)
+	(setf (house.owner obj) new-owner))))
+  
+  (cond ((acceptable-owner? obj)
+	 (return-from activate-object obj))
+	(t
+	 (warn "House ~a does not have an owner." obj)
+	 nil)))
+
+(defun acceptable-owner? (house &optional (owner nil))
+  "Returns t or nil."
+  (let ((the-owner (if owner owner (house.owner house))))
+    (when (and the-owner (or (typep the-owner 'owner)
+			 (eq the-owner :player)))
+      t)))
 
 (defun establish-house& (var-obj house &key (house-key nil))
   "Establish a house as available type.  Returns NIL
@@ -98,6 +120,7 @@ failure and owner on success."
       
       (gethash id table))))
 
+;;(trace get-house)
 
 (defun get-owner (id &optional (var-obj *variant*))
   "Returns an owner (non-activated) or NIL."
@@ -188,4 +211,24 @@ failure and owner on success."
        
        ))
 
+    house))
+
+(defun define-house (id &key name number x-attr x-char owner (no-items nil))
+  "defines a house and adds it to the appropriate table."
+  
+  (let ((var-obj *variant*)
+	(house (make-instance 'house :id id :name name :owner owner
+			      :x-attr x-attr :x-char x-char)))
+
+    ;; hackish
+    (unless no-items
+      (setf (house.items house) (make-container 24 ;; fix later
+						'items-in-house)))
+    
+    (establish-house& var-obj house)
+
+    (when (and number (numberp number))
+      ;; add to numbered position
+      (establish-house& var-obj house :house-key number))
+    
     house))

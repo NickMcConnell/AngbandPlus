@@ -1,10 +1,15 @@
 
 
 #include "angband.h"
+#include "langband.h"
 
-#ifndef CMUCL
-#define CMUCL 0
+/* hackish include of SysV IPC */
+#ifdef USE_SOUND
+# include <sys/types.h>
+# include <sys/ipc.h>
+# include <sys/msg.h>
 #endif
+
 
 #if defined(USE_GTK)
 errr init_gtk(int argc, char **argv);
@@ -14,6 +19,11 @@ errr init_x11(int argc, char **argv);
 errr init_gcu(int argc, char **argv);
 #endif
 
+
+#if defined(USE_CMUCL)
+typedef unsigned long lispobj ;
+extern lispobj funcall0(lispobj function);
+#endif
 
 /*
  * Hack -- take notes on line 23
@@ -117,6 +127,13 @@ init_gui(int argc, char *argv[] ) {
     argv[0] = "langband";
     argv[1] = NULL;
 
+#ifdef USE_SOUND
+	// hackish
+	use_sound = 1;
+	sound_init();
+#endif
+
+    
 #if defined(USE_GTK)
     init_gtk(argc,argv);
 #elif defined(USE_X11)
@@ -136,7 +153,7 @@ init_gui(int argc, char *argv[] ) {
     
 }
     
-
+#if defined(USE_ACL)
 
 int (*callback_fun)() = 0;
 
@@ -148,13 +165,38 @@ set_lisp_callback(int (*fun)()) {
 
 void
 play_game_lisp() {
-//    puts("play lisp-game");
+    puts("Note: playing lisp-game through callback from C");
     (*callback_fun)();
 //    void (*lisp_call)(),*lisp_call_address();
 //    lisp_call = lisp_call_address(callback_index);
 //    (*lisp_call)();
 
 }
+
+#elif defined(USE_CMUCL)
+
+lispobj callback_fun = 0;
+
+void
+set_lisp_callback(lispobj fun) {
+//    printf("Setting cb to %uld\n", fun);
+    callback_fun = fun;
+}
+
+void
+play_game_lisp() {
+    if (callback_fun) {
+	puts("Note: playing lisp-game through callback from C");
+	funcall0(callback_fun);
+    }
+}
+
+#else
+
+#error "Unknown lisp-system"
+
+#endif /* lisp-system */
+
 
 #ifdef SMALL_BOYS_FOR_BREAKFAST
 /*
@@ -648,10 +690,103 @@ void play_game(bool new_game) {
 
         /* Hack -- Turn off the cursor */
         (void)Term_set_cursor(0);
-#if (CMUCL==0)
+
+	// this is a callback
 	play_game_lisp();
-#endif
+
 }
+
+
+#ifdef USE_SOUND
+
+
+static int snd_con_id;
+static int snd_con_dev;
+
+//static
+errr
+send_sound_msg (int type, int extra, const cptr str) {
+	snd_msg sm;
+
+	if (!use_sound) return 0;
+	
+//	printf("Sending %d,%d, '%s'\n", type, extra, str);
+	
+	sm.mtype = type;
+        sm.extra = extra;
+	strcpy (sm.str, str);
+	if (msgsnd (snd_con_dev, &sm, sizeof(snd_msg) - 1023 - sizeof(long) + strlen(sm.str), 0) == -1) {
+		/* error */
+	    puts("X11 error");
+		return 1;
+	}
+
+	return 0;
+}
+
+/*
+static errr hack_load_sound_x11 (int n, const cptr fn) {
+	char filename[1024], xtra_sound_dir[1024];
+
+
+	// Build the "sound" path 
+	path_build(xtra_sound_dir, 1024, ANGBAND_DIR_XTRA, "sound");
+        path_build(filename, 1024, xtra_sound_dir, fn);
+
+        return sound_con_send (SNDMSG_LOADSOUND, n, filename);
+}
+*/
+
+errr
+load_sound (int num, const cptr fname) {
+
+//    printf("Loading %d,%s\n", num, fname);
+
+
+    return send_sound_msg (SNDMSG_LOADSOUND, num, fname);
+}
+
+errr
+sound_init (void) {
+
+       	if (!use_sound) return 1;
+
+	puts("Langband/C sound init");
+
+	/* tmp hack */
+        snd_con_id = 0xFADE;
+
+	/* Join an IPC message queue */
+	snd_con_dev = msgget(snd_con_id, 0);
+
+	/* Failure */
+	if (snd_con_dev == -1) {
+		use_sound = FALSE;
+		return 1;
+	}
+
+	/* Hack - Set hook */
+//        hack_load_sound = hack_load_sound_x11;
+
+//        process_sound_pref_file("sound.prf");
+
+	/* Success */
+	return 0;
+}
+
+
+errr
+sound_terminate (void) {
+
+	/* Paranoia */
+        if (!use_sound) return 0;
+
+	/* Shutdown angband sound daemon */
+	return send_sound_msg (SNDMSG_CLOSE, 0, "");
+}
+
+#endif /* USE_SOUND */
+
 
 /*
 int more_chars = 0;
@@ -1312,3 +1447,31 @@ s16b tokenize(char *buf, s16b num, char **tokens)
 }
 
 #endif /* SMALL_BOYS_EAT_VEGETABLES */
+
+#ifdef ESOTERIC_PQ_TEST
+
+static const char *
+gv(const char *val) {
+    if (val)
+	return val;
+    else
+	return "";
+}
+
+void
+PQsetdbLogin(const char *pghost, const char *pgport,
+	     const char *pgoptions, const char *pgtty,
+	     const char *dbName,
+	     const char *login, const char *pwd) {
+
+    printf ("%p %p %p %p %p %p %p\n",
+	    pghost, pgport, pgoptions, pgtty,
+	    dbName, login, pwd);
+    
+    printf ("%s %s %s %s %s %s %s\n",
+	    gv(pghost), gv(pgport), gv(pgoptions), gv(pgtty),
+	    gv(dbName), gv(login), gv(pwd));
+	    
+
+}
+#endif /* ESOTERIC_PQ_TEST */

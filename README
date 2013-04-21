@@ -21,7 +21,7 @@ Might be used:
 How to start it:
 
   - tweak lib/zterm/Makefile
-    Probably only ENVIRONMENT and CMUCL needs to be changed.
+    Probably only ENVIRONMENT and LISP_SYSTEM needs to be changed.
     ***Only the X11 option is really recommended right now***
     
   - run 'make'
