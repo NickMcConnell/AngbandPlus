@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <title>(LAngband code)</title>
+  </head>
+  
+  <body bgcolor="white">
+    
+    <h1 align=center>Langband code</h1>
+
+    <h3> Base engine </h3>
+    <pre>
+      ./abilities.lisp    -- unused
+      ./base.lisp         -- basic utilities
+      ./birth.lisp        -- character creation
+      ./class.lisp        -- code related to character classes
+      ./combat.lisp       -- combat-code
+      ./constants.lisp    -- constants for the game
+      ./dungeon.lisp      -- dungeon representation
+      ./equipment.lisp    -- equipment representation
+      ./flavours.lisp     -- object flavouring
+      ./floor.lisp        -- floor/feature code
+      ./foreign.lisp      -- linking to C-code
+      ./game.lisp         -- the code to load the game
+      ./generate.lisp     -- generate town/dungeon 
+      ./global.lisp       -- globally interesting classes
+      ./init.lisp         -- initialisation of game-tables
+      ./keys.lisp         -- code for keypresses
+      ./loop.lisp         -- the game loop
+      ./monster.lisp      -- monster code
+      ./util.lisp         -- utilities based on much Langband-code
+      ./object.lisp       -- code dealing with object-details
+      ./package.lisp      -- package definition
+      ./parameters.lisp   -- game-parameter code
+      ./player.lisp       -- the player-class and accompanying code
+      ./print.lisp        -- various code to print stuff
+      ./race.lisp         -- code related to character races
+      ./rooms.lisp        -- code for room-creation
+      ./settings.lisp     -- setting code for various parts of the game/code
+      ./stat.lisp         -- stat-related code
+      ./stores.lisp       -- store-related code
+      ./variables.lisp    -- global/dynamic variables
+    </pre>
+
+    <h3> Tools </h3>
+    <pre>     
+      ./tools/defsystem.lisp   -- 'make' for Lisp
+    </pre>
+
+    <h3> Common code for all variants </h3>
+    <pre>
+      ./lib/common/parameters.lisp -- parameter-defintions for all variants
+      ./lib/common/objects.lisp    -- common objects for all variants
+      ./lib/common/quirks.lisp     -- settings for all variants
+    </pre>
+
+    <h3> Vanilla-code </h3>
+    <pre>  
+      ./lib/vanilla/classes.lisp  -- the classes in vanilla
+      ./lib/vanilla/new-mon.lisp  -- the monsters in vanilla
+      ./lib/vanilla/races.lisp    -- the character races in vanilla
+      ./lib/vanilla/stores.lisp   -- the stores in vanilla
+      ./lib/vanilla/flavours.lisp -- the flavours of vanilla
+      ./lib/vanilla/quirks.lisp   -- special vanilla settings for engine
+    </pre>
+
+    <h3> Backward-compatibility code </h3>
+    <pre>
+      ./lib/compat/monster.lisp    -- reads r_info.txt
+      ./lib/compat/obj-kind.lisp   -- reads k_info.txt
+      ./lib/compat/floor.lisp      -- reads f_info.txt
+    </pre>
+
+  </body>
+</html>

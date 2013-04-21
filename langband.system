@@ -1,0 +1,62 @@
+(mk:defsystem langband
+    :source-pathname ""
+    :source-extension "lisp"
+    :components
+    (
+     (:module decl
+              :source-pathname ""
+              :components ((:file "package")))
+     (:module basic
+              :source-pathname ""
+              :components ((:file "base")
+			   (:file "constants")
+			   (:file "variables")
+			   #+allegro
+			   (:file "lib/foreign/acl")
+			   #+cmu
+			   (:file "lib/foreign/cmu")
+			   (:file "parameters")
+			   (:file "global")
+			   (:file "settings")
+			   (:file "floor")
+;;			   (:file "sex")
+			   (:file "stat")
+			   (:file "race")
+			   (:file "class")
+			   (:file "object")
+			   (:file "equipment")
+			   (:file "player")
+			   (:file "birth")
+			   (:file "flavours")
+			   (:file "dungeon")
+			   (:file "stores")
+			   (:file "monster")
+			   (:file "generate")
+			   (:file "rooms")
+			   (:file "print")
+			   (:file "util")
+			   (:file "combat")
+			   (:file "view")
+			   (:file "keys")
+			   
+			   (:file "lib/common/parameters")
+			   (:file "lib/common/objects")
+			   (:file "lib/common/quirks")
+			   (:file "lib/common/keys")
+			   			   
+			   (:file "lib/compat/monster")
+			   (:file "lib/compat/obj-kind")
+			   (:file "lib/compat/floor")
+			   
+			   (:file "lib/vanilla/quirks")
+			   (:file "lib/vanilla/classes")
+			   (:file "lib/vanilla/races")
+			   (:file "lib/vanilla/stores")
+			   (:file "lib/vanilla/flavours")
+
+			   (:file "loop")
+			   (:file "init")			   
+			   )
+                                  
+              :depends-on (decl))
+     ))

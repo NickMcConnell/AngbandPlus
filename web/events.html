@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <title>(LAngband events)</title>
+  </head>
+  
+  <body bgcolor="white">
+    
+    <h1 align=center>Langband events</h1>
+
+    <p>This is an attempt to list known events that are triggered and
+    the order they're triggered in.  Listed as:<br>
+      <tt>:EVENT-NAME [CLASSNAME,:SETTING-KEY] - (arg1, arg2, ...)</tt></p>
+
+    <h3>Birth</h3>
+
+    <p>Dungeon object is NIL.  <code>:on-pre-equip</code> is called
+    before adding of racial/class equipment, while
+    <code>:on-post-equip</code> is called after racial/class
+    equipment.  All items existing in inventory/equip-slots after
+    post-equip will be identified.</p> 
+    <ul>
+      <li> :on-pre-equip [birth-settings, :birth] - (dungeon player)</li>
+      <li> :on-post-equip [birth-settings, :birth] - (dungeon player)</li>
+    </ul>
+
+    <h3>Objects</h3>
+    <p>Player and dungeon arguments are NIL.  There might exist valid
+    values at <code>*player*</code> or <code>*dungeon*</code> though.
+    <ul>
+      <li> :on-create [object-kind, NIL] - (player dungeon active-object)</li>
+    </ul>
+    
+  </body>
+</html>

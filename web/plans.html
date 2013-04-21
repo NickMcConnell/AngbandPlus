@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <title>(LAngband plans)</title>
+  </head>
+  
+  <body bgcolor="white">
+    
+    <h1 align=center>LAngband plans</h1>
+    
+    <p>
+      I have not written a lot of the rationale and purpose behind
+      Langband.  This document will at least some features I want and
+      how I imagine this implemented.  
+    </p>
+
+    <h2>Implementation plans</h2>
+    <ul>
+      <li> Small and pretty generic game engine with as few as
+      possible special cases.  Details should in most cases be moved
+      to variant-specific code. </li>
+      
+      <li> Allowing the variant to be programmed declarative and let
+      the engine build the necessary datastructures.  Allow use of
+      object-oriented and functional/procedural code in the variant to
+      be intermingled with the declarative code, ie callback
+      functions, local variables and classes, overriding of
+      engine-features, etc.  The variant will have the full power of
+      Common Lisp available.</li>
+      
+      <li> Limit the amount of constants in the game, and let most
+      things be tailoured and customised in the variant-code. </li>
+
+      <li> Strive towards a human-readable and intuitive mini-language
+      to describe the variant in.  </li>
+
+      <li> Have a conversion-tool for a one-way translation of
+      standard Angband info-files to the Langband variant
+      mini-language. </li>
+
+      <li> Avoid hacks and too complex features of standard Angband,
+      ie the macro-language and the myriad of unused options. 
+      
+      <li> Use Vanilla as a variant-template for others to build their
+      variants from.</li>
+
+      <li> Make the Lisp-code portable between
+      Lisp-implementations.</li> 
+      
+    </ul>
+
+    <h2>A variant which use the Langband engine</h2>
+
+    <p>I plan to use the Langband engine to build a variant of my own
+    which will probably have the following features:</p>
+    
+    <ul>
+      <li> (Edible) Corpses</li>
+      
+      <li> Monsters carrying and <u>using</u> relevant items.  If the
+      kobold picks up Cubragol he will use it.  Yes, this implies that
+      the "monsters can't pick up artifacts" disappear. </li>
+      
+      <li> Get rid of the stupid pits and instead add "themed" rooms
+      as orc camp, giant lair, dragon council, elven courts,
+      graveyards, ... </li>
+      
+      <li> Divide level feelings into separate parts, not sure on
+      details yet though.  Make feelings dependent on race, class and
+      level, and a chance to botch feeling perception.  This will
+      <u>weaken</u> the current level feeling system considerably, see
+      also next point wrt to "special levels" in non-preserve mode.
+      The level feeling system now hardly ever is meaningful except
+      before 1000'.</li>
+      
+      <li> Remove point-based character generation, non-maximise mode and the
+      non-preserve mode.  Also strip away several other options. The
+      removal of non-preserve mode also means that "special level"
+      feelings disappear.  Auto-scum might also be removed and levels
+      in general will be made more interesting.  Auto-scum is mainly
+      used to get interesting levels now.  This change may also be put
+      directly into the engine though. </li>
+      
+      <li> Connected stairs to avoid stair-scumming and make it
+      realistic when one recalls and go back stairs. </li>
+      
+      <li> More realistic equipment organisation and add containers
+      like quivers and backpacks. </li>
+      
+      <li> Different kinds of spellbooks, which can have random
+      spells.  Spellbooks can also have free spots to transcribe one
+      spell from one book to another.  </li>
+      
+      <li> Quests which span over several levels and involve items and
+      hunts for particular creatures. </li>
+      
+      <li> Gods and religions for priests (and others). </li>
+      
+      <li> Possibility for making a team, but unlike Tangband the
+      whole team should be placed in the @ and moved around together
+      and the characters should be shown on the left in eye of the
+      beholder-style to make it easy to visualise whose turn it is.
+      This should be default, but with the possibility of spreading
+      out in really bad fights.</li>
+      
+      <li> Add better music support, and find appropriate music.  When
+      entering the Big Church (themed room) Schubert's Ave Maria
+      should be played.  When entering the dungeon for the first time,
+      Repulica's Ready to Go should be played.  Or maybe not :-)</li>
+      <li> ... </li>
+    </ul>
+	
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <title>(LAngband coding style)</title>
+  </head>
+  
+  <body bgcolor="white">
+    
+    <h1 align=center>Langband style</h1>
+    
+    <p>
+      Currently very little is documented or in place, some coding
+      guidelines exist however to make the code easier to understand:
+
+    <ul>
+      <li> All constants (<code>DEFCONSTANT</code>) are put in-between
+      <code>+</code>-signs, ie <code>+pi+</code> </li>
+
+      <li> All global dynamic variables (use <code>DEFVAR</code>, not
+  <code>DEFPARAMETER</code>) are put in-between <code>*</code>-signs,
+  ie <code>*player*</code></li> 
+
+      <li> All predicates have a <code>?</code>-suffix, ie
+  <code>player-dead?</code> and should have no side-effects</li>
+
+      <li> All functions which induce side-effects on their arguments should
+  have a <code>!</code>-suffix, ie <code>equip-player!</code></li>
+  
+      <li> All functions which manipulate global variables should have a
+  <code>&</code>-suffix, ie <code>init-environment&</code></li>
+  
+      <li> All game-related symbolic constants should be put between <code>&lt;</code> and <code>&gt;</code>,
+	ie <code>'&lt;RANGER&gt;</code></li>
+      
+      <li> All functions and macros with a <code>DEFINE-</code> prefix implicitly have
+	global side-effects, ie <code>define-monster</code>.  They
+	will also return the object they have defined.  Do not use the
+	<code>&amp;</code> suffix. </li>
+      
+      <li> The prefix <code>MAKE-</code> are restricted to non-sideeffect constructors of
+	objects, ie wrapped <code>MAKE-INSTANCE</code>s. An object is
+	returned from this kind of function.</li>
+
+      <li> Functions whose purpose is to "add" something to "global" tables, maybe
+      from a <code>DEFINE-</code> function, should use the
+      <code>ESTABLISH-</code> prefix, and return the object in
+      question.  A <code>&amp;</code> suffix is expected. These should
+      not be called by variant code though, they should use
+      <code>DEFINE-</code>. However, if it seems reasonable with a
+      <code>SETF</code>-match to a <code>GET-</code> function instead
+      of an <code>ESTABLISH-</code>, use <code>SETF</code>.</li>
+
+      <li> Variant-code should use their own special prefix for
+      functions, variables, etc.  As an example, all vanilla functions
+      and variables use the <code>VAN-</code> prefix.</li>
+
+
+    </ul>
+    </p>
+
+	
+  </body>
+</html>

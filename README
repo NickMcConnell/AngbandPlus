@@ -1,0 +1,26 @@
+[This file will be updated]
+
+Currently Langband is crippled and barely working, but it can be
+loaded and used.
+
+You need:
+- A decent computer and system (Linux, fast enough and with a decent
+  amount of memory)
+- CMU Common Lisp (there exists a decent package for Debian)
+
+Might be used:
+- Allegro Common Lisp (is not active dev-platform anymore due to license)
+
+How to start it:
+
+- tweak lib/zterm/Makefile  (Probably only ENVIRONMENT and CMUCL needs to be changed.)
+- run 'make'  (where make is GNU Make)
+- start lisp
+- (load "game")
+- (lb::a)
+
+(Select a high-elf warriour for the most developed char)
+
+Docs:
+
+See the web/-directory.

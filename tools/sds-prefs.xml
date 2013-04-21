@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE prefs SYSTEM "prefs.dtd">
+
+<prefs>
+   <project name="Langband">
+     <info type="fullname" value="A lispier Angband"/>
+     <info type="author"   value="Stig E Sandoe" info="stig@ii.uib.no"/>
+     <info type="version"  value="0.1"/>
+     <info type="date"     value="Autumn 2000"/>
+   </project>
+   
+
+   <output>
+     <info type="outdir" value="doc"/>
+
+     <format name="docbook">
+         <info type="outdir"    value="doc"/>
+	 <info type="baseurl"   value="http://localhost/~stig/lang-doc/"/>
+	 <info type="bgcolor"   value="white"/>
+	 <info type="textcolor" value="black"/>
+         <info type="generate"  value="book"/>
+       </format>
+  
+   </output>
+
+   <!-- dunno how to use style yet.. -->
+   <!--
+   <style name="woopsie">
+     <overall>
+       <graphics level="normal"/>
+       <links level="high"/>
+     </overall>
+     <overview>
+       <show>all</show>
+     </overview>
+     <tree format="full"/>
+   </style>
+   -->
+   
+</prefs>
