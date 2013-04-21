@@ -4328,59 +4328,65 @@ static void calc_bonuses(void)
 }
 
 
+/*
+ * Helper routine for clean_explosion().
+ */
+static void clean_explosion_aux(object_type *stack)
+{
+	object_type *o_ptr = stack;
+	object_type *o_nxt;
+
+	while (o_ptr)
+	{
+		/* Preload the next object. */
+		o_nxt = o_ptr->next_global;
+
+		/* Is it dead? */
+		if (!o_ptr->k_idx)
+		{
+			int iy = o_ptr->iy;
+			int ix = o_ptr->ix;
+			byte stack = o_ptr->stack;
+
+			remove_object(o_ptr);
+
+			if (stack == STACK_FLOOR)
+			{
+				lite_spot(iy, ix);
+			}
+		}
+
+		o_ptr = o_nxt;
+	}
+}
+
 
 /* 
  * Delete all objects with k_idx == 0. This is used only for ``dead''
  * objects, after they've been exploded. See ``explode_object'' for detailed
  * explanation.
+ *
+ * Note: Rotted objects made of STUFF_FLESH are considered "exploded"
+ * if they rot away. This can happen in the Home as well.
  */
 static void clean_explosion(void)
 {
-	object_type *o_ptr = o_list;
-	object_type *o_nxt;
+	/* Clean exploded dungeon objects */
+	clean_explosion_aux(o_list);
 
-	int iter = 0;
-
-	/* We may have to clean several lists. */
-	do
+	/* In a vault store */
+	if (p_ptr->inside_special == SPECIAL_STORE)
 	{
-
-		while (o_ptr)
+		/* Not in the Home (see below) */
+		if (p_ptr->s_idx != 7)
 		{
-			/* Preload the next object. */
-			o_nxt = o_ptr->next_global;
-
-			/* Is it dead? */
-			if (!o_ptr->k_idx)
-			{
-				int iy = o_ptr->iy;
-				int ix = o_ptr->ix;
-				byte stack = o_ptr->stack;
-
-				remove_object(o_ptr);
-
-				if (stack == STACK_FLOOR)
-				{
-					lite_spot(iy, ix);
-				}
-			}
-
-			o_ptr = o_nxt;
+			/* Clean exploded vault-store objects */
+			clean_explosion_aux(store[p_ptr->s_idx].stock);
 		}
-
-		if (!iter && p_ptr->inside_special == SPECIAL_STORE)
-		{
-			o_ptr = store[p_ptr->s_idx].stock;
-			iter++;
-
-		}
-		else
-		{
-			break;
-		}
-
 	}
-	while (TRUE);
+
+	/* Clean exploded Home objects */
+	clean_explosion_aux(store[7].stock);
 }
 
 
@@ -4397,7 +4403,6 @@ void notice_stuff(void)
 	if (p_ptr->notice & PN_CLEAN_EXPLOSION)
 	{
 		p_ptr->notice &= ~(PN_CLEAN_EXPLOSION);
-
 		clean_explosion();
 	}
 

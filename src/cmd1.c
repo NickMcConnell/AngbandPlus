@@ -1671,7 +1671,108 @@ void py_attack(int y, int x)
 }
 
 
+/*
+ * Return TRUE if a monster can enter the given location.
+ */
+static bool monster_can_enter(int m_idx, int y, int x)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	int feat;
+	bool do_move;
 
+	/* Paranoia */
+	if (!in_bounds_fully(y, x))
+		return (FALSE);
+
+	/* Assume no movement is possible */
+	do_move = FALSE;
+
+	/* Get the feature */
+	feat = cave_feat[y][x];
+
+	/* Empty space. */
+	if (feat == FEAT_UNSEEN)
+	{
+		/* Nothing */
+	}
+
+	/* Floor is open */
+	else if (cave_floor_bold(y, x))
+	{
+		/* Go ahead and move */
+		do_move = TRUE;
+
+		/* handle deep water -KMW- */
+		if ((feat == FEAT_DEEP_WATER) &&
+			!(r_ptr->flags2 & RF2_SWIM) &&
+			!(r_ptr->flags2 & RF2_PASS_WALL) &&
+			!(r_ptr->flags2 & RF2_FLY) &&
+			!(r_ptr->flags2 & RF2_AQUATIC))
+		{
+			do_move = FALSE;
+		}
+
+		/* handle deep lava -KMW- */
+		else if ((feat == FEAT_DEEP_LAVA) &&
+			!(r_ptr->flags2 & RF2_DEEPLAVA) &&
+			!(r_ptr->flags2 & RF2_PASS_WALL) &&
+			!(r_ptr->flags2 & RF2_FLY))
+		{
+			do_move = FALSE;
+		}
+
+		/* handle shallow lava -KMW- */
+		else if ((feat == FEAT_SHAL_LAVA) &&
+			!(r_ptr->flags3 & RF3_IM_FIRE) &&
+			!(r_ptr->flags2 & RF2_PASS_WALL) &&
+			!(r_ptr->flags2 & RF2_FLY))
+		{
+			do_move = FALSE;
+		}
+
+		/* handle aquatic monsters -KMW- */
+		else if ((r_ptr->flags2 & RF2_AQUATIC) &&
+			(feat != FEAT_DEEP_WATER) &&
+			(feat != FEAT_SHAL_WATER))
+		{
+			do_move = FALSE;
+		}
+	}
+
+	/* Aquatic monsters never move through solid terrain. */
+	else if (r_ptr->flags2 & RF2_AQUATIC)
+	{
+		/* Nothing. */
+	}
+
+	/* Permanent wall. Adjusted -KMW- */
+	else if ((feat >= FEAT_PERM_EXTRA) &&
+		(feat <= FEAT_PERM_SOLID))
+	{
+		/* Nothing */
+	}
+
+	/* Handle Chaos Fog */
+	else if (feat == FEAT_CHAOS_FOG)
+	{
+		do_move = TRUE;
+	}
+
+	/* Handle trees */
+	else if (feat == FEAT_TREES)
+	{
+		do_move = TRUE;
+	}
+
+	/* Monster moves through walls (and doors) */
+	else if (r_ptr->flags2 & RF2_PASS_WALL)
+	{
+		do_move = TRUE;
+	}
+
+	return do_move;
+}
 
 
 /*
@@ -1705,17 +1806,17 @@ void move_player(int dir, int jumping)
 			py_attack(y, x);
 			oktomove = FALSE;
 			disturb(0, 0);
-
-			/* Pet, but you're in a wall */
 		}
-		else if (!cave_floor_bold(py, px))
+
+		/* Pet, but player is in a bad location */
+		else if (!monster_can_enter(cave_m_idx[y][x], py, px))
 		{
 			msg_print("Your pet is blocking your way.");
 			oktomove = FALSE;
 			disturb(0, 0);
-
-			/* A pet */
 		}
+
+		/* A pet */
 		else
 		{
 			mprint(MSG_TEMP, "You switch spots with your pet.");
@@ -1723,7 +1824,8 @@ void move_player(int dir, int jumping)
 	}
 
 	/* Optionally alter known traps/doors on (non-jumping) movement */
-	else if (easy_alter && !jumping && (cave_info[y][x] & (CAVE_MARK)) &&
+	else if (easy_alter && !jumping &&
+		(cave_info[y][x] & (CAVE_MARK)) &&
 		(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
 		(cave_feat[y][x] <= FEAT_DOOR_TAIL))
 	{

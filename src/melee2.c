@@ -84,7 +84,7 @@ static void remove_bad_spells(int m_idx, u32b * f4p, u32b * f5p,
 	if (r_ptr->flags2 & (RF2_STUPID))
 		return;
 
-	/* Pets don't know about other mosnters. */
+	/* Pets don't know about other monsters. */
 	if (m_ptr->is_pet)
 		return;
 
@@ -3449,11 +3449,10 @@ static void process_monster(int m_idx)
 
 		/* Set off traps. */
 		if (do_move && (cave_feat[ny][nx] == FEAT_INVIS ||
-				(cave_feat[ny][nx] >= FEAT_TRAP_HEAD &&
-					cave_feat[ny][nx] <= FEAT_TRAP_TAIL)) &&
+			(cave_feat[ny][nx] >= FEAT_TRAP_HEAD &&
+			cave_feat[ny][nx] <= FEAT_TRAP_TAIL)) &&
 			!(r_ptr->flags2 & RF2_FLY))
 		{
-
 			if (m_ptr->ml)
 			{
 				char m_name[80];
@@ -3469,7 +3468,6 @@ static void process_monster(int m_idx)
 			 */
 			if (!(r_ptr->flags2 & RF2_SMART) || !(magik(r_ptr->level)))
 			{
-
 				mon_hit_trap(m_idx, ny, nx);
 			}
 

@@ -574,7 +574,7 @@ static void process_world(void)
 					for (x = 0; x < DUNGEON_WID; x++)
 					{
 						/* Darken "boring" features */
-						if (cave_feat[y][x] <= FEAT_INVIS)
+						if (cave_boring_bold(y, x))
 						{
 							/* Forget the grid */
 							cave_info[y][x] &= ~(CAVE_GLOW | CAVE_MARK);

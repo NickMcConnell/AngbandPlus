@@ -564,7 +564,7 @@ static void store_maint_any(int which)
 			apply_magic(o_ptr, i_val, FALSE, FALSE, FALSE);
 		}
 
-		/* Store-made items are stringer. */
+		/* Store-made items are stronger. */
 		o_ptr->chp = (o_ptr->chp * rand_range(10, 20)) / 10;
 
 		/* The item is "known" */
@@ -572,7 +572,9 @@ static void store_maint_any(int which)
 
 		/* Remove worthless items */
 		if (object_value(o_ptr) <= 0)
+		{
 			KILL(o_ptr, object_type);
+		}
 
 		/* Add to store */
 		else
@@ -817,120 +819,77 @@ static s32b price_item(owner_type * ot_ptr, object_type * o_ptr, int greed,
  *
  * See "store_object_absorb()" for the actual "absorption" code.
  *
- * Most items _do not_ stack; Potions, food and scrolls will, corpses sometimes
- * will. Arrows and bolts will stack only if they are identical.
+ * All identical items will stack in a store. Some fields, such as
+ * the inscription field, are ignored.
  */
 bool store_object_similar(object_type * o_ptr, object_type * j_ptr)
 {
-	int total = o_ptr->number + j_ptr->number;
-	bool ret = FALSE;
-
 	/* Hack -- Identical items cannot be stacked */
 	if (o_ptr == j_ptr)
-		return FALSE;
+		return (FALSE);
 
 	/* Don't combine dead items. */
 	if (!o_ptr->k_idx || !j_ptr->k_idx)
-		return FALSE;
+		return (FALSE);
 
-	/* Require identical object types */
+	/* Different objects cannot be stacked */
 	if (o_ptr->k_idx != j_ptr->k_idx)
-		return FALSE;
-#if 0
-	if (o_ptr->world != j_ptr->world)
-		return FALSE;
-#endif
+		return (FALSE);
 
+	/* Different materials cannot be stacked */
 	if (o_ptr->stuff != j_ptr->stuff)
-		return FALSE;
+		return (FALSE);
 
-	/* Analyze the items */
-	switch (o_ptr->tval)
-	{
-			/* Corpses. */
-		case TV_CORPSE:
-		{
-			/* OK if sval and pval match. */
-			if (o_ptr->sval != j_ptr->sval || o_ptr->pval != j_ptr->pval)
-				return FALSE;
+	/* Different charges (etc) cannot be stacked */
+	if (o_ptr->pval != j_ptr->pval)
+		return (FALSE);
 
-			ret = TRUE;
-			break;
-		}
+	/* Require identical "bonuses" */
+	if (o_ptr->to_h != j_ptr->to_h)
+		return (FALSE);
+	if (o_ptr->to_d != j_ptr->to_d)
+		return (FALSE);
+	if (o_ptr->to_a != j_ptr->to_a)
+		return (FALSE);
 
-			/* Food and Potions and Scrolls */
-		case TV_FOOD:
-		case TV_POTION:
-		case TV_FLASK:
-		case TV_SPIKE:
-		case TV_SCROLL:
-		{
-			/* Assume okay */
-			ret = TRUE;
-			break;
-		}
+	/* Require identical "artifact" names */
+	if (o_ptr->name1 != j_ptr->name1)
+		return (FALSE);
 
-			/* Missiles */
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_SHOT:
-		{
-			/* Require identical "bonuses" */
-			if (o_ptr->to_h != j_ptr->to_h)
-				return (FALSE);
-			if (o_ptr->to_d != j_ptr->to_d)
-				return (FALSE);
-			if (o_ptr->to_a != j_ptr->to_a)
-				return (FALSE);
+	/* Require identical "ego-item" names */
+	if (o_ptr->name2 != j_ptr->name2)
+		return (FALSE);
 
-			/* Require identical "pval" code */
-			if (o_ptr->pval != j_ptr->pval)
-				return (FALSE);
+	/* Hack -- Never stack recharging items */
+	if (o_ptr->timeout || j_ptr->timeout)
+		return (FALSE);
 
-			/* Require identical "artifact" names */
-			if (o_ptr->name1 != j_ptr->name1)
-				return (FALSE);
+	/* Require identical health. */
+	if (o_ptr->chp != j_ptr->chp)
+		return (FALSE);
 
-			/* Require identical "ego-item" names */
-			if (o_ptr->name2 != j_ptr->name2)
-				return (FALSE);
+	/* Require identical "values" */
+	if (o_ptr->ac != j_ptr->ac)
+		return (FALSE);
+	if (o_ptr->dd != j_ptr->dd)
+		return (FALSE);
+	if (o_ptr->ds != j_ptr->ds)
+		return (FALSE);
 
-			/* Hack -- Never stack recharging items */
-			if (o_ptr->timeout || j_ptr->timeout)
-				return (FALSE);
-
-			/* Require identical health. */
-			if (o_ptr->chp != j_ptr->chp)
-				return FALSE;
-
-			/* Require identical "values" */
-			if (o_ptr->ac != j_ptr->ac)
-				return (FALSE);
-			if (o_ptr->dd != j_ptr->dd)
-				return (FALSE);
-			if (o_ptr->ds != j_ptr->ds)
-				return (FALSE);
-
-			/* Probably okay */
-			ret = TRUE;
-			break;
-		}
-
-		default:
-			/* Not okay. */
-			return FALSE;
-			break;
-	}
+	/* Hack -- Never stack chests */
+	if (o_ptr->tval == TV_CHEST)
+		return (FALSE);
 
 	/* Rrequire matching "discounts" */
 	if (o_ptr->discount != j_ptr->discount)
-		return FALSE;
+		return (FALSE);
 
 	/* Maximal "stacking" limit */
-	if (total >= MAX_STACK_SIZE)
-		return FALSE;
+	if (o_ptr->number + j_ptr->number >= MAX_STACK_SIZE)
+		return (FALSE);
 
-	return ret;
+	/* They match, so they must be similar */
+	return (TRUE);
 }
 
 
@@ -1072,7 +1031,7 @@ static object_type *get_stock(cptr pmt)
 
 
 	/* Build the prompt */
-	sprintf(buf, "(Items %c-%c, ESC to exit) %s", I2A(0),
+	sprintf(buf, "(Store: %c-%c, ESC to exit) %s", I2A(0),
 		I2A(st_cur->page_cur_cnt - 1), pmt);
 
 	/* Ask until done */
@@ -2395,6 +2354,12 @@ bool store_sell_item(object_type * o_ptr, store_type * st_ptr)
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+
 	/* Get the "actual" value */
 	value = object_value(o_ptr) * o_ptr->number;
 
@@ -2409,9 +2374,6 @@ bool store_sell_item(object_type * o_ptr, store_type * st_ptr)
 
 	/* Erase the inscription */
 	o_ptr->note = 0;
-
-	/* Redraw. */
-	p_ptr->redraw |= PR_GOLD;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2477,6 +2439,9 @@ bool store_buy_item(object_type * o_ptr, store_type * st_ptr)
 	/* Hack -- buying an item makes you aware of it */
 	object_aware(o_ptr);
 
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
 	/* Hack -- clear the "fixed" flag from the item */
 	o_ptr->ident &= ~(IDENT_FIXED);
 
@@ -2489,9 +2454,9 @@ bool store_buy_item(object_type * o_ptr, store_type * st_ptr)
 	/* Erase the inscription */
 	o_ptr->note = 0;
 
-	p_ptr->redraw |= PR_GOLD;
-
+	/* Handle stuff */
 	handle_stuff();
+
 	return TRUE;
 }
 
@@ -2546,6 +2511,42 @@ s32b object_store_value(object_type * o_ptr)
 
 		return x;
 	}
+}
+
+
+/*
+ * Observe an store item
+ */
+static void store_observe(void)
+{
+	object_type *o_ptr;
+	char o_name[80];
+	char out_val[160];
+
+	/* Prompt */
+	sprintf(out_val, "Examine which item? ");
+
+	/* Choose an item */
+	o_ptr = get_stock("Examine which item? ");
+
+	/* Cancel */
+	if (!o_ptr) return;
+
+	/* Hack -- Examine parchment */
+	if (o_ptr->tval == TV_TEXT)
+	{
+		show_book_number(o_ptr->sval);
+		return;
+	}
+
+	/* Description */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Describe */
+	msg_format("Examining %s...", o_name);
+
+	/* Describe it fully */
+	identify_fully_aux(o_ptr);
 }
 
 
@@ -2707,7 +2708,7 @@ static void store_process_command(void)
 			/* Identify an object */
 		case 'I':
 		{
-			do_cmd_observe();
+			store_observe();
 			break;
 		}
 
@@ -2902,7 +2903,7 @@ void do_cmd_store(void)
 
 
 	/* Leave the shop. */
-	if (vault_shops && p_ptr->inside_special == SPECIAL_STORE)
+	if (vault_shops && (p_ptr->inside_special == SPECIAL_STORE))
 	{
 		p_ptr->load_dungeon = MAX_DEPTH + 1;
 		p_ptr->leaving = TRUE;
@@ -3002,8 +3003,10 @@ void do_cmd_store(void)
 		}
 
 		/* Commands */
-		prt(" g) Get/Purchase an item.", screen_y - 2, 40);
-		prt(" d) Drop/Sell an item.", screen_y - 1, 40);
+		prt(" g) Get/Purchase an item.", screen_y - 2, screen_x / 3);
+		prt(" d) Drop/Sell an item.", screen_y - 1, screen_x / 3);
+
+		prt(" I) Inspect an item.", screen_y - 2, screen_x / 3 * 2);
 
 		/* Prompt */
 		prt("You may: ", screen_y - 3, 0);
@@ -3013,6 +3016,12 @@ void do_cmd_store(void)
 
 		/* Process the command */
 		store_process_command();
+
+		/* Notice stuff */
+		notice_stuff();
+
+		/* Handle stuff */
+		handle_stuff();
 
 		/* Hack -- Handle charisma changes */
 		if (tmp_chr != p_ptr->stat_use[A_CHR])

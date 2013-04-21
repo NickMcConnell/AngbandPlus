@@ -532,6 +532,10 @@ static void wr_monster(monster_type * m_ptr)
 
 	for (o_ptr = m_ptr->inventory; o_ptr != NULL; o_ptr = o_ptr->next)
 	{
+		/* Paranoia: Don't write dead item */
+		if (!o_ptr->k_idx) continue;
+
+		/* Write the item */
 		wr_item(o_ptr);
 	}
 
@@ -637,6 +641,9 @@ static void wr_store(store_type * st_ptr)
 	/* Save the stock */
 	for (o_ptr = st_ptr->stock; o_ptr != NULL; o_ptr = o_ptr->next_global)
 	{
+		/* Paranoia: Don't write dead item */
+		if (!o_ptr->k_idx) continue;
+
 		wr_item(o_ptr);
 		wr_byte(o_ptr->iy);
 		wr_byte(o_ptr->ix);
@@ -1060,6 +1067,8 @@ static void wr_dungeon(void)
 	/* Dump the objects */
 	for (o_ptr = o_list; o_ptr != NULL; o_ptr = o_ptr->next_global)
 	{
+		/* Paranoia: Don't write dead item */
+		if (!o_ptr->k_idx) continue;
 
 		if (o_ptr->stack == STACK_FLOOR)
 		{
@@ -1320,13 +1329,15 @@ static bool wr_savefile_new(void)
 	{
 		bool foo = FALSE;
 
+		/* Paranoia: Don't write dead item */
+		if (!o_ptr->k_idx) continue;
+
 		/* Dump object */
 		wr_item(o_ptr);
 
 		/* Hack -- Write equipment slot. */
 		for (i = 0; i < EQUIP_MAX; i++)
 		{
-
 			if (equipment[i] == o_ptr)
 			{
 				wr_s16b(i);

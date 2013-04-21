@@ -459,7 +459,7 @@ static bool stop_sorting_objects(object_type * o_ptr, object_type * i_ptr)
 	if (!object_known_p(i_ptr))
 		return TRUE;
 
-#if 1
+	/* Objects sort by increasing material */
 	if (o_ptr->stuff < i_ptr->stuff) return TRUE;
 	if (o_ptr->stuff > i_ptr->stuff) return FALSE;
 
@@ -483,13 +483,10 @@ static bool stop_sorting_objects(object_type * o_ptr, object_type * i_ptr)
 		if (o_ptr->pval > i_ptr->pval) return TRUE;
 		if (o_ptr->pval < i_ptr->pval) return FALSE;
 	}
-#endif
 
-#if 1
 	/* Objects sort by decreasing health */
 	if (o_ptr->chp > i_ptr->chp) return TRUE;
 	if (o_ptr->chp < i_ptr->chp) return FALSE;
-#endif
 
 	/* Determine the "value" */
 	o_value = object_value(o_ptr);
@@ -501,8 +498,8 @@ static bool stop_sorting_objects(object_type * o_ptr, object_type * i_ptr)
 	if (o_value < i_value)
 		return FALSE;
 
-	/* Assume less than */
-	return TRUE;
+	/* Assume greater than */
+	return FALSE;
 }
 
 
@@ -530,7 +527,7 @@ static bool stop_sorting_objects_store(object_type * o_ptr, object_type * i_ptr)
 	if (o_ptr->sval > i_ptr->sval)
 		return FALSE;
 
-#if 1
+	/* Objects sort by incresing material */
 	if (o_ptr->stuff < i_ptr->stuff) return TRUE;
 	if (o_ptr->stuff > i_ptr->stuff) return FALSE;
 
@@ -554,13 +551,10 @@ static bool stop_sorting_objects_store(object_type * o_ptr, object_type * i_ptr)
 		if (o_ptr->pval > i_ptr->pval) return TRUE;
 		if (o_ptr->pval < i_ptr->pval) return FALSE;
 	}
-#endif
 
-#if 1
 	/* Objects sort by decreasing health */
 	if (o_ptr->chp > i_ptr->chp) return TRUE;
 	if (o_ptr->chp < i_ptr->chp) return FALSE;
-#endif
 
 	/* Determine the "value" */
 	o_value = object_value(o_ptr);
@@ -572,8 +566,8 @@ static bool stop_sorting_objects_store(object_type * o_ptr, object_type * i_ptr)
 	if (o_value < i_value)
 		return FALSE;
 
-	/* Assume less than */
-	return TRUE;
+	/* Assume greater than */
+	return FALSE;
 }
 
 
@@ -3323,8 +3317,11 @@ void combine_pack(void)
 
 	bool flag = FALSE;
 
+
+	/* Scan every item */
 	for (iter1 = inventory; iter1 != NULL; iter1 = iter1->next)
 	{
+		/* Scan every following item */
 		for (iter2 = iter1; iter2->next != NULL; iter2 = iter2->next)
 		{
 			tmp = iter2->next;
@@ -3338,18 +3335,24 @@ void combine_pack(void)
 				/* Combine them. */
 				object_absorb(iter1, tmp);
 
+				/* Delete absorbed object */
 				remove_object(tmp);
 
+				/* Take note */
 				flag = TRUE;
 			}
 		}
 	}
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN);
-
+	/* An item combined */
 	if (flag)
+	{
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN);
+
+		/* Message */
 		mprint(MSG_TEMP, "You combine some items in your pack.");
+	}
 }
 
 
@@ -3383,8 +3386,10 @@ void reorder_pack(void)
 		/* Never move down */
 		if (o_ptr == j_ptr) continue;
 
+		/* Unlink */
 		link_remove(o_ptr);
 
+		/* Link */
 		link_insert(j_ptr->prev, j_ptr, o_ptr);
 
 		/* Take note */
@@ -3667,14 +3672,12 @@ bool object_take_hit(object_type * o_ptr, s16b dam, cptr verb)
 	/* Loop until either the damage or the objects run out. */
 	while (TRUE)
 	{
-
 		/* Kill it. */
 		if (dam > o_ptr->chp)
 		{
 			dam -= o_ptr->chp;
 			o_ptr->chp = o_ptr->mhp;
 			amt++;
-
 		}
 		else
 		{
@@ -3701,14 +3704,12 @@ bool object_take_hit(object_type * o_ptr, s16b dam, cptr verb)
 
 			wy = p_ptr->py;
 			wx = p_ptr->px;
-
 		}
 		else if (o_ptr->stack == STACK_MON_INVEN)
 		{
 			wy = o_ptr->owner->fy;
 			wx = o_ptr->owner->fx;
 			pron = "the";
-
 		}
 		else
 		{
@@ -3730,12 +3731,10 @@ bool object_take_hit(object_type * o_ptr, s16b dam, cptr verb)
 			if ((o_ptr->marked && o_ptr->stack == STACK_FLOOR) ||
 				o_ptr->stack == STACK_INVEN)
 			{
-
 				mformat(MSG_WARNING, "%d of %s %s %s!", amt, pron, o_name,
 					verb);
 				disturb(0, 0);
 			}
-
 		}
 		else
 		{
@@ -3751,7 +3750,6 @@ bool object_take_hit(object_type * o_ptr, s16b dam, cptr verb)
 			if ((o_ptr->marked && o_ptr->stack == STACK_FLOOR) ||
 				o_ptr->stack == STACK_INVEN)
 			{
-
 				mformat(MSG_WARNING, "%^s %s!", o_name, verb);
 				disturb(0, 0);
 			}
@@ -3767,7 +3765,6 @@ bool object_take_hit(object_type * o_ptr, s16b dam, cptr verb)
 
 			object_known(i_ptr);
 			ret = FALSE;
-
 		}
 		else
 		{

@@ -3319,7 +3319,12 @@
 #define player_has_los_bold(Y,X) \
     ((cave_info[Y][X] & (CAVE_VIEW)) != 0)
 
-
+/*
+ * Determine if a "lega" grid should be memorized
+ */
+#define cave_boring_bold(Y,X) \
+	((cave_feat[Y][X] <= FEAT_INVIS) || (cave_feat[Y][X] == FEAT_GRASS) || \
+	(cave_feat[Y][X] == FEAT_SWAMP) || (cave_feat[Y][X] == FEAT_MUD))
 
 
 /*

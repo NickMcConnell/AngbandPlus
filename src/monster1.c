@@ -1740,7 +1740,7 @@ static void roff_aux(int r_idx, int remem)
 	/* Monster is an insta-pet */
 	if (r_ptr->flags2 & (RF2_INSTAPET))
 	{
-		roff(format("%^s is your faithfull ally. ", wd_he[msex]));
+		roff(format("%^s is your faithful ally. ", wd_he[msex]));
 	}
 
 	if (r_ptr->flags3 & RF3_FRIENDLY)

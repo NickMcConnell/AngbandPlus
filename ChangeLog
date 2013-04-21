@@ -1,8 +1,44 @@
-This is the list of changes for Kamband 1.8a, which was put together
+This is the list of changes for Kamband 1.8c, which was put together
 by Tim Baker to make some user-interface improvements and fix some
 bugs.
 
-Kamband 1.8b
+Version 1.8c
+============
+
+o Added "known monsters" display to the Knowledge command.
+
+o Fixed a bug where INSTA_PET monsters could be created without being
+	turned into pets. Ever wonder why some King's Soldiers were hostile?
+
+o Added the "Inspect (I)" command to the store display.
+
+o Made sure to combine/reorder the pack and update subwindows when
+	buying/selling items.
+
+o Fixed a bug where the "/ for Floor" prompt" might be displayed
+	when choosing an item and there were no valid floor items.
+
+o Fixed a problem with repeated pack-reordering messages when two identical
+	un-stackable items are in the pack.
+
+o Fixed a bug preventing the character from leaving the Arena if it was entered
+	more than once during a visit.
+
+o Fixed a bug which broke the savefile. (Items rotted away in the Home were
+	not deleted.)
+
+o Fixed a bug with pets blocking your movement if you were in a tree or some
+	other (non-floor) feature the pet could move through.
+
+o Fixed occasional infinite loop when getting a building reward.
+
+o Changed the inventory display to show the total weight of a stack, not the
+	weight of a single item.
+
+o Fiddled with town lighting again.
+
+
+Version 1.8b
 ============
 
 o Add Bigscreen support
@@ -82,5 +118,5 @@ o Restored the original Angband store display. The -/+/=/space keys are used
 
 -- Tim Baker
 dbaker@direct.ca
-March 1, 2000
+March 17, 2000
 

@@ -4043,7 +4043,7 @@ void show_stack_page(object_type * pages[MAX_STACK_PAGES], int page_cnt,
 		/* Display the weight if needed */
 		if (show_weights)
 		{
-			int wgt = o_ptr->weight / o_ptr->number;
+			int wgt = o_ptr->weight /* / o_ptr->number */;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 			put_str(tmp_val, row + i + 1, screen_x - 9);
 		}
@@ -4256,7 +4256,7 @@ object_type *get_item(cptr prompt, cptr str, int y, int x, int mode)
 			strcat(out_val, tmp_val);
 
 			/* Indicate legality of the "floor" */
-			if (s_aux)
+			if (size_aux)
 				strcat(out_val, " / for Floor,");
 		}
 

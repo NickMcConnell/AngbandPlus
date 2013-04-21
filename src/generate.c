@@ -4196,29 +4196,31 @@ static void cave_gen(void)
  */
 static void lite_up_town(bool daytime)
 {
-	int x, y, f;
+	int x, y, f, flg;
 
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
-			/* Darken and forget the floors */
-			cave_info[y][x] &= ~(CAVE_GLOW);
-
-			/* Day time */
-			if (daytime)
+			/* Interesting grids */
+			if (daytime || !cave_boring_bold(y, x))
 			{
-				/* Perma-Lite */
+				/* Illuminate the grid */
 				cave_info[y][x] |= (CAVE_GLOW);
 
 				/* Wiz-lite if appropriate. */
 				if (wiz_lite_town)
 				{
-					cave_info[y][x] |= CAVE_MARK;
+					/* Memorize the grid */
+					cave_info[y][x] |= (CAVE_MARK);
 				}
 			}
 		}
 	}
+
+	flg = CAVE_GLOW;
+	if (wiz_lite_town)
+		flg |= CAVE_MARK;
 
 	/* Now add light in appropriate places */
 	for (y = 1; y < DUNGEON_HGT - 1; y++)
@@ -4231,15 +4233,15 @@ static void lite_up_town(bool daytime)
 				(f >= FEAT_BLDG_HEAD && f <= FEAT_BLDG_TAIL) ||
 				(f == FEAT_STORE_EXIT))
 			{
-				cave_info[y - 1][x - 1] |= CAVE_GLOW;
-				cave_info[y - 1][x] |= CAVE_GLOW;
-				cave_info[y - 1][x + 1] |= CAVE_GLOW;
-				cave_info[y][x - 1] |= CAVE_GLOW;
-				cave_info[y][x] |= CAVE_GLOW;
-				cave_info[y][x + 1] |= CAVE_GLOW;
-				cave_info[y + 1][x - 1] |= CAVE_GLOW;
-				cave_info[y + 1][x] |= CAVE_GLOW;
-				cave_info[y + 1][x + 1] |= CAVE_GLOW;
+				cave_info[y - 1][x - 1] |= flg;
+				cave_info[y - 1][x] |= flg;
+				cave_info[y - 1][x + 1] |= flg;
+				cave_info[y][x - 1] |= flg;
+				cave_info[y][x] |= flg;
+				cave_info[y][x + 1] |= flg;
+				cave_info[y + 1][x - 1] |= flg;
+				cave_info[y + 1][x] |= flg;
+				cave_info[y + 1][x + 1] |= flg;
 			}
 		}
 	}
@@ -4605,11 +4607,9 @@ void generate_cave(void)
 		/* Restore an old dungeon. */
 		if (p_ptr->load_dungeon)
 		{
-
 			if (load_dungeon(p_ptr->load_dungeon - 1))
 			{
 				mprint(MSG_ERROR, "Could not load temporary dungeon!");
-
 			}
 			else
 			{
@@ -4624,7 +4624,6 @@ void generate_cave(void)
 
 		if (!load)
 		{
-
 			/* Build the arena -KMW- */
 			if (p_ptr->inside_special == SPECIAL_ARENA ||
 				p_ptr->inside_special == SPECIAL_MAGIC_ARENA)

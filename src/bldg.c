@@ -316,41 +316,37 @@ static void clear_bldg(void)
 }
 
 /*
- * Places a building reward at the doorstep for the player -KMW-
+ * Places a building reward in the player's inventory.
  */
-
-static void put_reward(byte thetval, byte thesval, int dunlevel)
+static void put_reward(byte tval, byte sval, int dunlevel)
 {
 	object_type *q_ptr;
-	int i, choice;
+	int choice;
 
-	choice = 0;
+	/* Find the object template */
+	choice = lookup_kind(tval, sval);
 
-	for (i = 1; i < MAX_K_IDX; i++)
-	{
-		object_kind *k_ptr = &k_info[i];
-
-		if (k_ptr->tval == thetval && k_ptr->sval == thesval)
-		{
-			choice = i;
-			break;
-		}
-	}
-
+	/* Alloc a new object */
 	q_ptr = new_object();
-	object_prep(q_ptr, choice);
 
 	/* Hack -- make something worthwhile. */
 	while (1)
 	{
+		/* Wipe the object */
+		object_prep(q_ptr, choice);
+
+		/* Apply some magic */
 		apply_magic(q_ptr, dunlevel, TRUE, TRUE, FALSE);
 
+		/* Ignore garbage items */
 		if (cursed_p(q_ptr) || broken_p(q_ptr))
 			continue;
 
+		/* Stop */
 		break;
 	}
 
+	/* Let the player carry it */
 	inven_carry(q_ptr);
 }
 
@@ -655,7 +651,6 @@ static void gamble_game(int type)
  * Reward the player, given a class. Use a class of -1 for ``generic''
  * rewards.
  */
-
 static void greet_char(int class, bool free)
 {
 	int max_idx = p_ptr->lev / 5;
@@ -697,7 +692,6 @@ static void greet_char(int class, bool free)
 		/* All rewards up to current level have been collected. */
 		if (cur_idx < 0)
 		{
-
 			/* No more rewards to collect */
 			if (max_idx == MAX_REWARDS)
 			{
@@ -705,7 +699,6 @@ static void greet_char(int class, bool free)
 					"Your greeting is returned with respect.");
 				msg_print(NULL);
 				return;
-
 			}
 			else
 			{
@@ -926,7 +919,6 @@ static void greet_char(int class, bool free)
 
 			put_reward(tval, sval, p_ptr->lev);
 			break;
-
 	}
 }
 
@@ -1172,7 +1164,6 @@ static bool enchant_something(cptr name, int where, int tval, bool plural,
 /*
  * Enter the arena.
  */
-
 static void enter_arena(void)
 {
 	if (p_ptr->arena_number[p_ptr->which_arena] == MAX_ARENA_MONS)
@@ -1187,22 +1178,23 @@ static void enter_arena(void)
 		mprint(MSG_TEMP, "Press the space bar to continue");
 		msg_print(NULL);
 		p_ptr->arena_number[p_ptr->which_arena]++;
-
 	}
 	else if (p_ptr->arena_number[p_ptr->which_arena] > MAX_ARENA_MONS)
 	{
 		mprint(MSG_TEMP,
 			"You enter the arena briefly and bask in your glory.");
 		msg_print(NULL);
-
 	}
 	else
 	{
-
-		/* Save the level. */
-		if (save_dungeon(MAX_DEPTH))
+		/* Perhaps we are re-entering the arena */
+		if (!p_ptr->inside_special)
 		{
-			mprint(MSG_ERROR, "Could not save temporary dungeon!");
+			/* Save the level. */
+			if (save_dungeon(MAX_DEPTH))
+			{
+				mprint(MSG_ERROR, "Could not save temporary dungeon!");
+			}
 		}
 
 		/* Dumb Hack -- allow the ``magical arena''. */
@@ -2251,7 +2243,6 @@ static void bldg_command(int which, bool class_b)
 			{
 				if (inp == bldg->letters[i])
 				{
-
 					did_key = TRUE;
 
 					cost = bldg->costs[i];
@@ -2259,17 +2250,15 @@ static void bldg_command(int which, bool class_b)
 					/* Pay for services */
 					if (cost > 0)
 					{
-						if (class_b && bldg->class == p_ptr->pclass)
+						if (class_b && (bldg->class == p_ptr->pclass))
 						{
 							bldg_activation(bldg, i);
-
 						}
 						else if (p_ptr->au < cost)
 						{
 							mprint(MSG_TEMP, "You don't have the gold!");
 							msg_print(NULL);
 							break;
-
 						}
 						else
 						{
@@ -2277,40 +2266,37 @@ static void bldg_command(int which, bool class_b)
 							if (bldg_activation(bldg, i))
 								p_ptr->au -= cost;
 						}
-
 					}
 					else
 					{
-						if (class_b && bldg->class != p_ptr->pclass &&
-							cost == 0)
+						if (class_b && (bldg->class != p_ptr->pclass) &&
+							(cost == 0))
 						{
 							mformat(MSG_TEMP, "Only %ss can do that here!",
 								class_info[bldg->class].title);
 							msg_print(NULL);
 							break;
-
 						}
 						else
 						{
 							bldg_activation(bldg, i);
-
 						}
 					}
 				}
 			}
 		}
 
-
-		if (inp == ESCAPE || mega_hack_exit_bldg)
+		if ((inp == ESCAPE) || mega_hack_exit_bldg)
 		{
 			/* Player exits from the arena */
-			if ((p_ptr->inside_special == SPECIAL_ARENA ||
-					p_ptr->inside_special == SPECIAL_MAGIC_ARENA) &&
+			if (((p_ptr->inside_special == SPECIAL_ARENA) ||
+				(p_ptr->inside_special == SPECIAL_MAGIC_ARENA)) &&
 				p_ptr->exit_bldg)
 			{
-
-				p_ptr->load_dungeon = MAX_DEPTH + 1;
 				p_ptr->leaving = TRUE;
+
+				/* Remember to load this level */
+				p_ptr->load_dungeon = MAX_DEPTH + 1;
 			}
 
 			break;

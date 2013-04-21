@@ -1702,7 +1702,6 @@ static bool place_monster_one(int y, int x, int r_idx, int flags)
 	/* Optimize -- Repair flags */
 	repair_mflag_born = TRUE;
 
-
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr))
 		return (FALSE);
@@ -1912,7 +1911,6 @@ bool place_monster_aux(int y, int x, int r_idx, int flags)
 	if (!place_monster_one(y, x, r_idx, flags))
 		return (FALSE);
 
-
 	/* Generate a single monster. */
 	if (flags & MON_ALLOC_JUST_ONE)
 		return TRUE;
@@ -1934,7 +1932,8 @@ bool place_monster_aux(int y, int x, int r_idx, int flags)
 		for (i = 0; i < 50; i++)
 		{
 			int nx, ny, z, d = 3;
-
+			int flags2 = flags;
+			
 			/* Pick a location */
 			scatter(&ny, &nx, y, x, d, 0);
 
@@ -1975,8 +1974,14 @@ bool place_monster_aux(int y, int x, int r_idx, int flags)
 			if (!z)
 				break;
 
+			/* Handle ``insta-pet'' flags. */
+			if (r_info[z].flags2 & (RF2_INSTAPET))
+			{
+				flags2 |= MON_ALLOC_PET;
+			}
+
 			/* Place a single escort */
-			(void) place_monster_one(ny, nx, z, flags);
+			(void) place_monster_one(ny, nx, z, flags2);
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & (RF1_FRIENDS)) ||
@@ -1984,7 +1989,7 @@ bool place_monster_aux(int y, int x, int r_idx, int flags)
 				(flags & MON_ALLOC_GROUP))
 			{
 				/* Place a group of monsters */
-				(void) place_monster_group(ny, nx, z, flags);
+				(void) place_monster_group(ny, nx, z, flags2);
 			}
 		}
 	}
