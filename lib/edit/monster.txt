@@ -103,7 +103,7 @@
 
 # Version stamp (required)
 
-V:0.1.4
+V:0.1.5
 
 ##### Non-race (contains the player picture) #####
 N:0:<player>

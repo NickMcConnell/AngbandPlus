@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"First stable release"
+#define VERSION_STRING	"First stable release with UT32"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	1
-#define VERSION_PATCH	4
+#define VERSION_PATCH	5
 #define VERSION_EXTRA	0
 
 

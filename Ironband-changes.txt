@@ -169,4 +169,8 @@ Healing spells and Healing, *Healing* and Life potions give less hp than formerl
 Create Missiles costs more and is less likely to produce great ammo.
 Spellcasting is a little less effective if you have low Int/Wis.
 
+After fourth beta
+-----------------
+
+Now supports UT32 tileset - many thanks to Buzzkill!
 
