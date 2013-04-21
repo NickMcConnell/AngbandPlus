@@ -397,7 +397,8 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 			/* Brand (Light) */
 			if ((f1 & (TR1_BRAND_LITE))
-			    || (p_ptr->power_active == POWER_WPN_LIGHT))
+			    || (p_ptr->power_active == POWER_WPN_LIGHT) ||
+			    ((rp_ptr->flags3 & (TR3_ACTIVATE)) && (p_ptr->fey == FEY_SEELIE)))
 			{
 				if (r_ptr->flags3 & (RF3_HURT_LITE))
 				{
@@ -680,6 +681,7 @@ void py_pickup(int pickup)
 	s16b this_o_idx, next_o_idx = 0;
 
 	object_type *o_ptr;
+        object_type *quiv_ptr;
 
 	char o_name[80];
 
@@ -692,6 +694,7 @@ void py_pickup(int pickup)
 
 #endif /* ALLOW_EASY_FLOOR */
 
+        quiv_ptr = &inventory[INVEN_AMMO];
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -730,6 +733,18 @@ void py_pickup(int pickup)
 			/* Check the next object */
 			continue;
 		}
+
+                /* Auto-add ammo to quiver */
+                if (quiv_ptr->k_idx == o_ptr->k_idx)
+                {
+                        if (object_similar(quiv_ptr, o_ptr))
+                        {
+                                object_absorb(quiv_ptr, o_ptr);
+                                delete_object_idx(this_o_idx);
+                                msg_format("You add %s to your quiver.", o_name);
+                                continue;
+                        }
+                }
 
 		/* Test for auto-pickup */
 		if (auto_pickup_okay(o_ptr))

@@ -1579,6 +1579,7 @@ static errr rd_extra(void)
 	rd_byte(&p_ptr->power_active);
 	rd_byte(&p_ptr->power_passive);
 	rd_byte(&p_ptr->shapeshift);
+	rd_byte(&p_ptr->fey);
 
 	/* Read spell info */
 	for (i = 0; i < 2; i++)

@@ -243,6 +243,9 @@ Alter (+)
 
 --- Spell and Prayer Commands ---
 
+Use racial ability (U) or eXtra abilities (X)
+        Use whatever ability has been given by your race.
+
 Browse a book (b) or Peruse a book (P)
         Only mages, rogues, and rangers can read magic books, and only
         priests and paladins can read prayer books.  Warriors cannot read

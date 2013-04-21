@@ -374,6 +374,7 @@ extern cptr shifter_forms[MAX_SHIFTER_FORMS-1];
 extern void do_cmd_shifter(void);
 extern int get_sorceror_spell(int *sn, cptr prompt, bool any);
 extern void do_cmd_sorceror(void);
+extern void do_cmd_action(bool m);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -392,6 +393,7 @@ extern void switch_until(int target_class);
 extern bool player_has_class(int class, int level);
 extern int level_of_class(int class);
 extern int best_class();
+extern int best_experience();
 extern int index_of_class(int class_sought);
 extern int magery_class(bool bookcaster);
 extern int priest_class(bool bookcaster);

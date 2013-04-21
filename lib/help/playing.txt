@@ -100,7 +100,7 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Toggle search mode
  t  Take off equipment                   T  Dig a tunnel
- u  Use a staff                          U  (unused)
+ u  Use a staff                          U  Use racial ability
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  (unused)
  x  (unused)                             X  (unused)
@@ -163,7 +163,7 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  u  (walk - north east)                  U  (run - north east)
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  Locate player on map (Where)
- x  Look around                          X  (unused)
+ x  Look around                          X  Racial ability
  y  (walk - north west)                  Y  (run - north west)
  z  Aim a wand (Zap)                     Z  Use a staff (Zap)
  !  Interact with system                ^A  (special - debug command)

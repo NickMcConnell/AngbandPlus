@@ -238,7 +238,7 @@ void do_cmd_wield(void)
 	object_copy(o_ptr, i_ptr);
 
 	/* Increase the weight */
-	p_ptr->total_weight += i_ptr->weight;
+	p_ptr->total_weight += i_ptr->weight * num;
 
 	/* Increment the equip counter by hand */
 	p_ptr->equip_cnt++;
@@ -564,8 +564,8 @@ void do_cmd_destroy(void)
 	     }
 
 	     /* Get piety, but no pages, from opposing books */
-	     if ((player_has_class(CLASS_CRUSADER, 0) && (o_ptr->tval == TV_DEATH_BOOK)) ||
-		 (player_has_class(CLASS_SLAYER, 0) && (o_ptr->tval == TV_PRAYER_BOOK))) 
+	     if ((player_has_class(CLASS_CRUSADER, 0) && o_ptr->tval == TV_DEATH_BOOK) ||
+		 (player_has_class(CLASS_SLAYER, 0) && o_ptr->tval == TV_PRAYER_BOOK))
 	     {
 	          num_pages = 0;
 
@@ -579,6 +579,22 @@ void do_cmd_destroy(void)
 
 		       msg_print("You feel pious!");
 		  }
+	     }
+
+	     /* Lose piety */
+	     if ((player_has_class(CLASS_CRUSADER, 0) && o_ptr->tval == TV_PRAYER_BOOK) ||
+		 (player_has_class(CLASS_SLAYER, 0) && o_ptr->tval == TV_DEATH_BOOK))
+	     {
+	          num_pages = 0;
+
+		  /* From 10 to 90 piety */
+		  p_ptr->mpp -= (o_ptr->sval + 1) * 10;
+		  if (p_ptr->mpp < 0) p_ptr->mpp = 0;
+		  p_ptr->cpp = p_ptr->mpp;
+		  p_ptr->redraw |= (PR_MANA);
+		  redraw_stuff();
+
+		  msg_print("You feel heathen!");
 	     }
 
 	     /* Pages were created */

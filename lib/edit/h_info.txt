@@ -25,6 +25,8 @@
 #   Kobold        --> 77 --> 78 --> 79 --> 80 --> 65 --> 66
 #   Yeek          --> 81 --> 82 --> 83 --> 84 --> 65 --> 66
 #   Maiar         --> 85 --> 86 --> 87 --> 88
+#   Angel	  --> 89 to 92
+#   Fey           --> 93
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
@@ -501,33 +503,70 @@ N:88:0:100:80
 D:a Wizard of legend. 
 
 N:89:90:25:50
-D:You have glowing red eyes, 
+D:You have pure white wings, 
 N:89:90:50:50
-D:You have shining black eyes, 
+D:You have iridescent wings, 
 N:89:90:75:50
-D:You have puke yellow eyes, 
+D:You have wings like burnished gold, 
 N:89:90:100:50
-D:You have pale eyes, 
+D:You have wings of living fire, 
 
 N:90:91:50:50
-D:and your form is the deepest black. 
+D:and your form sheds a clear, holy light. 
 N:90:91:100:50
-D:and your form is like gloomy fog. 
+D:and your form radiates awesome divine power. 
 
-N:91:0:25:50
-D:You remember nothing of how you came into being. 
-N:91:0:50:80
-D:You came into being at midnight, when the moon was new. 
-N:91:0:75:20
-D:You came into being at a time of destruction and despair. 
+N:91:92:10:20
+D:You are a unnoticed servant of 
+N:91:92:25:30
+D:You are a minor servant of 
+N:91:92:45:40
+D:You are a loyal subject of 
+N:91:92:65:50
+D:You have attached yourself to 
+N:91:92:85:65
+D:You are a notable follower of 
+N:91:92:95:80
+D:You are a celebrated follower of 
 N:91:92:100:100
-D:You were previously a powerful 
+D:You serve as a personal honor guard to 
 
-N:92:0:25:80
-D:mage of dark sorcery. 
 N:92:0:50:20
-D:necromancer, whose spells went awry. 
-N:92:0:75:20
-D:warrior, but were defeated by the undead. 
+D:a Deva in the heavenly host. 
+N:92:0:70:40
+D:a Planetar in the heavenly host. 
+N:92:0:90:60
+D:a Solar in the heavenly host. 
+N:92:0:100:75
+D:Azriel, Angel of Death. 
 N:92:0:100:100
-D:thief, who learnt the ways of shadow too well. 
+D:Raphael, the Messenger. 
+N:92:0:100:100
+D:Uriel, Angel of Fire.
+
+N:93:94:20:50
+D:You were born at dawn, 
+N:93:94:40:50
+D:You were born at dusk, 
+N:93:94:60:20
+D:You were born during a spring thunderstorm, 
+N:93:94:80:20
+D:You were born on a hot autumn day, 
+N:93:94:100:100
+D:You were born with a half-moon high in the sky, 
+
+N:94:95:20:0
+D:and sold to slave-traders. 
+N:94:95:40:20
+D:and left in a fairy ring. 
+N:94:95:60:50
+D:and left at a doorstep in a basket. 
+N:94:95:100:100
+D:and given to wandering gypsies. 
+
+N:95:0:20:50
+D:You remember little of your upbringing. 
+N:95:0:70:20
+D:You had a hard time as a youngling. 
+N:95:0:100:100
+D:You had a charmed life. 

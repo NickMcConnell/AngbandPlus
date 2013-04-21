@@ -1087,7 +1087,7 @@ N:135:Extra Attacks
 G:=:d
 I:45:25:0
 W:80:0:2:10000
-A:80/8
+A:80/3
 F:BLOWS | HIDE_TYPE
 
 N:136:Speed

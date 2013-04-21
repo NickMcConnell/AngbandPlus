@@ -3580,6 +3580,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_LITE:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
+			if ((rp_ptr->flags3 & (TR3_ACTIVATE)) && (p_ptr->fey == FEY_UNSEELIE)) dam *= 2; 
 			if (p_ptr->resist_lite)
 			{
 				dam *= 4; dam /= (randint(6) + 6);

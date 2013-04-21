@@ -3120,6 +3120,8 @@ void monster_death(int m_idx)
 		  
 		  /* Add monster level */
 		  p_ptr->mpp += (r_ptr->level * multiplier) / 2;
+		  if (p_ptr->mpp > (level_of_class(CLASS_CRUSADER) * level_of_class(CLASS_CRUSADER) * 4))
+		    p_ptr->mpp = level_of_class(CLASS_CRUSADER) * level_of_class(CLASS_CRUSADER) * 4;
 		  p_ptr->cpp = p_ptr->mpp;
 
 		  /* Redraw piety */
@@ -3142,6 +3144,8 @@ void monster_death(int m_idx)
 		  
 		  /* Add monster level */
 		  p_ptr->mpp += (r_ptr->level * multiplier) / 2;
+		  if (p_ptr->mpp > (level_of_class(CLASS_SLAYER) * level_of_class(CLASS_SLAYER) * 4))
+		    p_ptr->mpp = level_of_class(CLASS_SLAYER) * level_of_class(CLASS_SLAYER) * 4;
 		  p_ptr->cpp = p_ptr->mpp;
 
 		  /* Redraw piety */

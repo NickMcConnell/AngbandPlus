@@ -1301,6 +1301,8 @@ static void display_player_xtra_info(void)
 	int xthn, xthb, xfos, xsrh;
 	int xdis, xdev, xsav, xstl;
 	int row;
+	int class;
+	int totexp = 0;
 
 	object_type *o_ptr;
 
@@ -1342,8 +1344,8 @@ static void display_player_xtra_info(void)
 	col = 1;
 
 	/* Gold */
-	Term_putstr(col, 9, -1, TERM_WHITE, "Gold");
-	Term_putstr(col+8, 9, -1, TERM_L_GREEN,
+	Term_putstr(col, 10, -1, TERM_WHITE, "Gold");
+	Term_putstr(col+8, 10, -1, TERM_L_GREEN,
 		    format("%10ld", p_ptr->au));
 
 	/* Only show if info is not being hidden */
@@ -1361,11 +1363,30 @@ static void display_player_xtra_info(void)
 	if (adult_hidden) row = 11; else row = 13;
 
 	Term_putstr(col, row, -1, TERM_WHITE, "Magery");
-	Term_putstr(col+8, row, -1, TERM_L_BLUE,
+	Term_putstr(col+6, row, -1, TERM_L_BLUE,
 		    format("%10s", realm_names[p_ptr->realm_magery]));
 	Term_putstr(col, row+1, -1, TERM_WHITE, "Prayer");
-	Term_putstr(col+8, row+1, -1, TERM_L_BLUE,
+	Term_putstr(col+6, row+1, -1, TERM_L_BLUE,
 		    format("%10s", realm_names[p_ptr->realm_priest]));
+
+	/* Shapeshift */
+	if (p_ptr->shapeshift)
+	{
+	  Term_putstr(col, row+2, -1, TERM_WHITE, "Form");
+	  Term_putstr(col+12, row+2, -1 , TERM_L_BLUE, shifter_forms[p_ptr->shapeshift-1]);
+	}
+
+	/* Total experience earned */
+	if (!adult_hidden)
+	{
+		for (class = 0; class < p_ptr->available_classes; class++)
+		{
+			/* Current Experience */
+			totexp += p_ptr->exp[class];
+		}
+		Term_putstr(col, row+3, -1, TERM_WHITE, "Total exp");
+		Term_putstr(col+12, row+3, -1, TERM_L_BLUE, format("%d", totexp));
+	}
 
 	/* Middle */
 	col = 26;
@@ -1452,8 +1473,7 @@ static void display_player_xtra_info(void)
 			      ammo_ptr->dd * p_ptr->ammo_mult, ammo_ptr->ds, 
 			      (dam + ammo_ptr->to_d) * p_ptr->ammo_mult);
 		 else /* Without useable ammo */
-		      sprintf(buf, "(%+d,%dd%d%+d)", 0,
-			      p_ptr->ammo_mult, hit, dam);
+		      sprintf(buf, "(%+d,%dd%d%+d)", hit, p_ptr->ammo_mult, 0, dam);
 	    }
 	    else /* No useable missile weapon */
 		 sprintf(buf, " ");
@@ -1555,13 +1575,12 @@ static void display_player_xtra_info(void)
 	}
 	*/
 
-	/* New experience display */
-	int class;
-
 	/* Headings */
 
 	put_str("Class", 18, 1);
 	put_str("Lvl", 18, 16);
+
+	/* New experience display */
 	if (adult_hidden)
 	{ 
 	     put_str("Experience", 18, 20);
@@ -1662,6 +1681,24 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	(*f1) |= rp_ptr->flags1;
 	(*f2) |= rp_ptr->flags2;
 	(*f3) |= rp_ptr->flags3;
+
+	/* Fey */
+	if (rp_ptr->flags3 & (TR3_ACTIVATE)) {
+	  switch (p_ptr->fey)
+	    {
+	    case FEY_SEELIE:
+	      (*f2) |= (TR2_RES_FEAR);
+	      (*f2) |= (TR2_RES_DARK);
+	      (*f3) |= (TR3_LITE);
+	      (*f3) |= (TR3_HOLD_LIFE);
+	      (*f3) |= (TR3_AGGRAVATE);
+	      break;
+	    case FEY_UNSEELIE:
+	      (*f1) |= (TR1_STEALTH);
+	      (*f3) |= (TR3_SEE_INVIS);
+	      break;
+	    }
+	}
 
 	/* Add class flags */
 	if (player_has_class(CLASS_WARRIOR, 30)) (*f2) |= (TR2_RES_FEAR);
@@ -2047,9 +2084,17 @@ static void display_player_flag_info(void)
  */
 static void display_player_misc_info(void)
 {
+	int i;
+
 	cptr p;
 
 	char buf[80];
+
+	char class[17] = "";
+
+	/* Prepen Seelie/Unseelie to Fey */
+	cptr race_str;
+	cptr fey;
 
 	/* Name */
 	put_str("Name", 1, 1);
@@ -2061,39 +2106,51 @@ static void display_player_misc_info(void)
 
 	/* Race */
 	put_str("Race", 3, 1);
-	c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 3, 8);
+	if (rp_ptr->flags3 & (TR3_ACTIVATE)) {
+	  if (p_ptr->fey == FEY_SEELIE) fey = "Seelie "; else fey = "Unseelie "; }
+	else fey = "";
+	race_str = p_name + rp_ptr->name;
+	c_put_str(TERM_L_BLUE, format("%s%s", fey, race_str), 3, 8);
 
-	/* Shapeshift */
-	if (p_ptr->shapeshift)
+	/* Class(es) HEREME */
+	put_str("Class", 4, 1);
+	if (p_ptr->available_classes == 1)
 	{
-	  put_str("Form", 4, 1);
-	  c_put_str(TERM_L_BLUE, shifter_forms[p_ptr->shapeshift-1], 4, 8);
+		sprintf(class, class_info[p_ptr->pclass[0]].title);
 	}
+	else
+	{
+		for (i = 0; i < p_ptr->available_classes; i++)
+		{
+			if (i > 0) strcat(class, ",");
+			strcat(class, format("%s", class_info[p_ptr->pclass[i]].title_short));
+		}
+	}
+	c_put_str(TERM_L_BLUE, class, 4, 8);
 
 	/* Wizard */
-	else if (p_ptr->wizard)
+	if (p_ptr->wizard)
 	{
 		p = "[=-W-I-Z-A-R-D-=]";
 
 		/* Dump it */
-		c_put_str(TERM_L_BLUE, p, 4, 1);
+		c_put_str(TERM_L_BLUE, p, 5, 1);
 	}
-
 	/* Winner */
 	else if (p_ptr->total_winner)
 	{
 		p = "***W*I*N*N*E*R***";
 
 		/* Dump it */
-		c_put_str(TERM_L_BLUE, p, 4, 1);
+		c_put_str(TERM_L_BLUE, p, 5, 1);
 	}
 
 	if (!adult_hidden)
 	{
 	     /* Hit Points */
-	     put_str("HP", 5, 1);
+	     put_str("HP", 6, 1);
 	     sprintf(buf, "%d/%d", p_ptr->chp, p_ptr->mhp);
-	     c_put_str(TERM_L_BLUE, buf, 5, 8);
+	     c_put_str(TERM_L_BLUE, buf, 6, 8);
 
 	     /* Spell Points */
 	     if (p_ptr->realm_magery == REALM_MAGIC+1 || 
@@ -2102,9 +2159,9 @@ static void display_player_misc_info(void)
 		 player_has_class(CLASS_RUNECASTER, 0) ||
 		 player_has_class(CLASS_SORCEROR, 0))
 	     {
-		  put_str("SP", 6, 1);
+		  put_str("SP", 7, 1);
 		  sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
-		  c_put_str(TERM_L_BLUE, buf, 6, 8);
+		  c_put_str(TERM_L_BLUE, buf, 7, 8);
 	     }
 	     
 	     /* Piety */
@@ -2114,18 +2171,18 @@ static void display_player_misc_info(void)
 		  /* Don't show if knowledge is hidden */
 		  if (!adult_hidden)
 		  {
-		       put_str("PP", 7, 1);
+		       put_str("PP", 8, 1);
 		       sprintf(buf, "%d", p_ptr->mpp);
-		       c_put_str(TERM_L_BLUE, buf, 7, 8);
+		       c_put_str(TERM_L_BLUE, buf, 8, 8);
 		  }
 	     }
 	     /* Normal display/use of piety */
 	     else if (p_ptr->realm_priest == REALM_PRAYER+1 ||
 		 p_ptr->realm_priest == REALM_DEATH+1)
 	     {
-		  put_str("PP", 7, 1);
+		  put_str("PP", 8, 1);
 		  sprintf(buf, "%d/%d", p_ptr->cpp, p_ptr->mpp);
-		  c_put_str(TERM_L_BLUE, buf, 7, 8);
+		  c_put_str(TERM_L_BLUE, buf, 8, 8);
 	     }
 	}
 }
@@ -2527,7 +2584,7 @@ errr file_character(cptr name, bool full)
 	display_player(0);
 
 	/* Dump part of the screen */
-	for (y = 2; y < 23; y++)
+	for (y = 1; y < 23; y++)
 	{
 		/* Dump each row */
 		for (x = 0; x < 79; x++)
@@ -3561,7 +3618,10 @@ static void print_tomb(void)
 
 	for (i = 0; i < p_ptr->available_classes; i++)
 	{
-	     sprintf(tmp, "%s (Level %d)", cp_ptr[p_ptr->pclass[i]]->title, p_ptr->lev[i]);
+	     if (p_ptr->max_lev[i] > p_ptr->lev[i])
+		  sprintf(tmp, "%s (lev %d/%d)", cp_ptr[p_ptr->pclass[i]]->title, p_ptr->lev[i], p_ptr->max_lev[i]);
+	     else
+		  sprintf(tmp, "%s (lev %d)", cp_ptr[p_ptr->pclass[i]]->title, p_ptr->lev[i]);
 	     center_string(buf, tmp);
 	     put_str(buf, 9 + i, 11);
 	}
@@ -3951,7 +4011,8 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 		/* Dump 5 entries */
 		for (n = 0; j < count && n < 5; place++, j++, n++)
 		{
-			int pr, pc, clev, mlev, cdun, mdun;
+			int i, pr, nc, pc[4], clev[4], mlev[4], cdun, mdun;
+			int current_score; char tmp[160] = "";
 
 			cptr user, gold, when, aged;
 
@@ -3980,11 +4041,16 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* Extract the race/class */
 			pr = atoi(the_score.p_r);
-			pc = atoi(the_score.p_c);
+			nc = the_score.n_c;
+			for (current_score = 0; current_score < nc; current_score++)
+			{
+			     pc[current_score] = the_score.p_c[current_score];
+
+			     clev[current_score] = the_score.cur_lev[current_score];
+			     mlev[current_score] = the_score.max_lev[current_score];
+			}
 
 			/* Extract the level info */
-			clev = atoi(the_score.cur_lev);
-			mlev = atoi(the_score.max_lev);
 			cdun = atoi(the_score.cur_dun);
 			mdun = atoi(the_score.max_dun);
 
@@ -4003,23 +4069,18 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			}
 
 			/* Dump some info */
-			sprintf(out_val, "%3d.%9s  %s the ",
+			sprintf(out_val, "%3d.%9s  %s the",
 			        place, the_score.pts, the_score.who);
 
-			if (the_score.n_c > 1)
-			{
-			  strcat(out_val, format("multiclassed %s",
-						 p_name + p_info[pr].name));
-			}
-			else
-			{
-			  strcat(out_val, format("%s %s, Level %d", 
-						 p_name + p_info[pr].name, 
-						 class_info[pc].title, clev));
-			}
 
-			/* Append a "maximum level" */
-			if (mlev > clev) strcat(out_val, format(" (Max %d)", mlev));
+			for (current_score = 0; current_score < nc; current_score++)
+			{
+			     if (the_score.max_lev[current_score] > the_score.cur_lev[current_score])
+				  strcat(tmp, format(" %s(%d/%d)", class_info[the_score.p_c[current_score]].title_short, the_score.cur_lev[current_score], the_score.max_lev[current_score]));
+			     else
+				  strcat(tmp, format(" %s(%d)", class_info[the_score.p_c[current_score]].title_short, the_score.cur_lev[current_score]));
+			}
+			strcat(out_val, format("%s %s", tmp, p_name + p_info[pr].name));
 
 			/* Dump the first line */
 			c_put_str(attr, out_val, n*4 + 2, 0);
@@ -4114,6 +4175,7 @@ static int score_idx = -1;
  */
 static errr enter_score(void)
 {
+        int i;
 #ifndef SCORE_CHEATERS
 	int j;
 #endif /* SCORE_CHEATERS */
@@ -4221,12 +4283,15 @@ static errr enter_score(void)
 	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
 	sprintf(the_score.p_r, "%2d", p_ptr->prace);
         the_score.n_c = p_ptr->available_classes;
-	sprintf(the_score.p_c, "%2d", p_ptr->pclass[best_class()]);
+	for (i = 0; i < the_score.n_c; i++)
+	{
+	     the_score.p_c[i] = p_ptr->pclass[i];
+	     the_score.cur_lev[i] = p_ptr->lev[i];
+	     the_score.max_lev[i] = p_ptr->max_lev[i];
+	}
 
 	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev[best_class()]);
 	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev[best_class()]);
 	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
 
 	/* Save the cause of death (31 chars) */
@@ -4309,7 +4374,7 @@ static void top_twenty(void)
  */
 errr predict_score(void)
 {
-	int j;
+	int i, j;
 
 	high_score the_score;
 
@@ -4345,12 +4410,16 @@ errr predict_score(void)
 	sprintf(the_score.uid, "%7u", player_uid);
 	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
 	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_c, "%2d", p_ptr->pclass[best_class()]);
+
+	for (i = 0; i < the_score.n_c; i++)
+	{
+	     the_score.p_c[i] = p_ptr->pclass[i];
+	     the_score.cur_lev[i] = p_ptr->lev[i];
+	     the_score.max_lev[i] = p_ptr->max_lev[i];
+	}
 
 	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev[best_class()]);
 	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev[best_class()]);
 	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
 
 	/* Hack -- no cause of death */

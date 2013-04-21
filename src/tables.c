@@ -1275,7 +1275,7 @@ const player_sex sex_info[MAX_SEXES] =
 const player_class class_info[MAX_CLASS] =
 {
 	{
-		"Warrior",
+	     "Warrior", "War",
 		{ 5, -2, -2, 2, 2, -1},
 		25, 18, 18, 1,  14, 2, 70, 55,
 		10, 7,  10, 0,  0,  0, 45, 45,
@@ -1283,7 +1283,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Mage",
+	     "Mage", "Mag",
 		{-5, 3, -1, 1, -2, 1},
 		30, 36, 30, 2,  16, 20, 34, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
@@ -1291,7 +1291,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Holy Priest",
+	     "Holy Priest", "Holy",
 		{-1, -1, 3, -1, 0, 2},
 		25, 30, 32, 2,  16, 8, 48, 35,
 		7,  10, 12, 0,  0,  0, 20, 20,
@@ -1299,7 +1299,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Thief",
+	     "Thief", "Thf",
 		{ 2, 0, -2, 3, 1, -1},
 		45, 32, 28, 5, 32, 24, 60, 66,
 		15, 10, 10, 0,  1,  0, 40, 30,
@@ -1307,7 +1307,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{ /* Added -KMW- */
-		"Illusionist",
+	     "Illusionist", "Ilu",
 		{-5, 3, -1, 1, -2, 1},
 		30, 36, 30, 2,  16, 20, 34, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
@@ -1315,7 +1315,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-                "Archer",
+	     "Archer", "Arc",
                 { 2, 0, 0, 3, 1, 1},
                 25, 18, 18, 3,  24, 16, 34, 85,
 		10,  7, 10, 0,  0,  0,  15, 45,
@@ -1323,7 +1323,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Death Priest",
+	     "Death Priest", "Dth",
 		{-1, -1, 3, -1, 0, 2},
 		25, 10, 32, 2,  16, 8, 48, 35,
 		7,   1, 12, 0,  0,  0, 20, 20,
@@ -1331,7 +1331,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Berserker",
+	     "Berserker", "Bsrk",
 		{ 6, -4, -2, 2, 4, -2},
 		25, 0,  18, 1,  14, 2,  75, 10,
 		7,  0,  10, 0,  0,  0,  45,  5,
@@ -1339,7 +1339,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Monk",
+	     "Monk", "Mnk",
 		{ 2, -1, 1, 4, 3, -1},
 		45, 24, 32, 5, 32, 24, 75, 20,
 		15, 10, 12, 0,  0,  0, 45, 10,
@@ -1347,7 +1347,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Runecaster",
+	     "Runecaster", "Rune",
 		{-6, 2, 0, 2, -3, 0},
 		30, 50, 30, 2,  16, 20, 15, 10,
 		7,  15, 9,  0,  0,  0,   7,  5,
@@ -1355,7 +1355,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Crusader",
+	     "Crusader", "Cru",
 		{ 4, -1, 2, 1, 2, 1},
 		20, 18, 32, 1,  14, 2, 68, 40,
 		7 , 7,  12, 0,  0,  0, 35, 30,
@@ -1363,7 +1363,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-	        "Shifter",
+	     "Shifter", "Shf",
 	        { 2, 1, 0, 3, 1, 0 },
 		20, 18, 18, 1,  14, 2, 56, 40,
 		 7, 7,  10, 0,  0,  0, 30, 30,
@@ -1371,7 +1371,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Dark Slayer",
+	     "Dark Slayer", "Sly",
 		{ 3, -1, 1, 0, 3, 0},
 		20, 18, 25, 1,  12, 2, 68, 40,
 		7 , 7,  11, 0,  0,  0, 35, 30,
@@ -1379,7 +1379,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Sorceror",
+	     "Sorceror", "Src",
 		{-6, 3, 0, 1, -3, 0},
 		30, 36, 30, 2,  16, 20, 15, 10,
 		7,  13, 9,  0,  0,  0,   7,  5,

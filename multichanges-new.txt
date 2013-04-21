@@ -434,3 +434,48 @@ found, and renamed it to Scroll of Infinite Spells to avoid confusion
 Show number of blows when in hidden mode
 Added descriptions to spells, thanks to somniloquy for the code and
 some of the descriptions
+
+1.1.3
+
+Fixed bug : when wielding a missile launcher and no ammo, damage/to
+hit were showing up wrong in the 'C' screen
+All classes (with current/max level) are shown in the high-score list
+Reduced rarity of ring of extra ettacks from 8 to 3
+Ammo that matches what is in your quiver is automatically picked up
+and equipeed (thansk to somniloquy)
+somniloquy added class info and total xp to 'C' screen
+astral characters get more food rations
+Archers chance of breaking ammo can be as low as 2% now, depending
+on their level (was 10%)
+fixed bug : shifter failing to shift takes a turn now
+monster memory now shows 'life rating' of monsters once again
+fixed bug : ammo in quiver was not being counted towards total weight
+added Angel race and some artifacts/ego-items from Ingeborg
+
+1.1.4
+
+Added Fey race: based on humans, but weaker, charismatic, good saving
+throw, feather fall. Can shift between Seelie and Unseelie with 'U'. 
+Seelie = lite +2, aggravate, res fear/dark, hold life, heroism, brand light.
+Unseelie = stealth, see invis, max light radius of 2, hurt by bright light.
+
+Demunchkinated farmer maggot (oops)
+Invulnerability is no longer affected by persistence
+Monsters summon around themselves, rather than around the player
+Quickstart saves starting mana/piety values
+Crusader/slayer piety cap at level * level * 4 = 4 to 10k
+Astral characters start with 5 mass-id and 50 id, instead of 30 mass-id
+Cavemen favour slings rather than bows
+
+Mana is now an average of that available to all classes
+Extra menua when using 'm'/'p', to choose which classes powers to use
+Shifters can now combine with any class except Berserkers
+Crusaders/Slayers can now combine with Runecasters/Sorcerors
+Crusaders/Slayers lose piety from destroying their own prayer books 
+Sorceror mana is decreased from wearing gloves or heavy armour
+Max weight of armour allowed is an average now, instead of being
+calculated seperately for each class
+
+1.1.4b
+
+Fixed a bug that crashed the game when you tried to make a character with certain classes

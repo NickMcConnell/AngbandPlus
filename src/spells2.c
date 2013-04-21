@@ -512,7 +512,8 @@ void self_knowledge(void)
 	{
 		info[i++] = "You feel righteous.";
 	}
-	if ((p_ptr->hero) || (p_ptr->power_passive == POWER_HEROISM))
+	if ((p_ptr->hero) || (p_ptr->power_passive == POWER_HEROISM) ||
+	    ((rp_ptr->flags3 & (TR3_ACTIVATE)) && (p_ptr->fey == FEY_SEELIE)))
 	{
 		info[i++] = "You feel heroic.";
 	}
@@ -812,6 +813,10 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your shooting might is affected by your equipment.";
 	}
+	if ((rp_ptr->flags3 & (TR3_ACTIVATE)) && (p_ptr->fey == FEY_UNSEELIE))
+	{
+	     info[i++] = "You take extra damage from bright light.";
+	}
 
 
 	/* Get the current weapon */
@@ -841,7 +846,8 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon poisons your foes.";
 		}
-		if ((f1 & (TR1_BRAND_LITE)) || (p_ptr->power_active == POWER_WPN_LIGHT))
+		if ((f1 & (TR1_BRAND_LITE)) || (p_ptr->power_active == POWER_WPN_LIGHT) ||
+		    ((rp_ptr->flags3 & (TR3_ACTIVATE)) && (p_ptr->fey == FEY_SEELIE)))
 		{
 			info[i++] = "Your weapon is shining with a bright light.";
 		}
@@ -849,7 +855,6 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon is absorbing light.";
 		}
-
 
 		/* Special "slay" flags */
 		if ((f1 & (TR1_SLAY_ANIMAL)) || (p_ptr->power_active == POWER_SLAY_ANIMAL))
@@ -906,6 +911,10 @@ void self_knowledge(void)
 	}
 	else if (player_has_class(CLASS_MONK, 0))
 	{
+	     if (p_ptr->power_active != POWER_WPN_LIGHT &&
+		 ((rp_ptr->flags3 & (TR3_ACTIVATE)) && (p_ptr->fey == FEY_SEELIE)))
+		  info[i++] = "Your hands are shining with a bright light.";
+
 	     switch (p_ptr->power_active)
 	     {
 	     case POWER_WPN_LIGHT:

@@ -5,14 +5,13 @@ classes. You may finish the choosing process by hitting the ESCAPE key
 instead of choosing a class. The order of your choices does matter, as
 classes which are chosen earlier will advance in levels much quicker.
 
-Note : If you wish to play a Ranger, Paladin, or non-recommended class (for
-your race), choose that class first, as you will not be allowed to take a
-second class.
+Note : If you wish to play a non-recommended class (for your race),
+choose that class first, as you will not be allowed to take a second
+class.
 
 The player info screen (accessed with 'C') shows class and level info 
 for each class.
 
-To use spell and prayer books, the relevant class must be active. 
 Use '[' and ']' to switch between classes.
 
 --- Entering a new class ---
@@ -22,12 +21,14 @@ fastest pseudo-id out of all the classes that you are a member
 of. Skills are calculated as an average of how good each class is at
 each skill. You will gain class intrinstics and abilities regardless
 of which class is active, although you will have to switch to a class
-if you want to use their spellcasting abilities.
+if you want to browse or gain spells from their books.
 
 Penalties to spell failure rates are imposed if you wear gloves
-(except for silk gloves) or if your total armour worn weighs more than
-300lbs. Likewise, prayer failure rates are penalized if you wield a
-bladed weapon or if your total armour worn weighs more than 400lbs.
+(except for silk gloves). Likewise, prayer failure rates are penalized
+if you wield a bladed weapon. Both spellcasting and praying can be
+penalized by wearing over a certain weight of armor.
+Sorcerors have their mana reduced instead of suffereing from increased
+failure rates.
 
 Your HP is calculated as an average of what each individual class
 would get. Mana has been split up into piety (which priests and
@@ -53,20 +54,21 @@ level in.
 
 Rangers and Paladins are not shown in this table, as they cannot multiclass.
 
-             War Mag Pri Thi Ill Arc Dea Ber Mon Rune Cru Shi Slay
-Warrior           Y   Y   Y   Y       Y           Y        Y
-Mage          Y       Y   Y       Y   Y       Y
+             War Mag Pri Thi Ill Arc Dea Ber Mon Rune Cru Shi Slay Sorc
+Warrior           Y   Y   Y   Y       Y           Y        Y        Y
+Mage          Y       Y   Y       Y   Y       Y            Y
 Priest        Y   Y           Y   Y       Y   Y            Y
-Thief         Y   Y           Y   Y   Y       Y   Y        Y   Y
-Illusionist   Y       Y   Y       Y   Y       Y
-Archer            Y   Y   Y   Y       Y       Y   Y   Y    Y   Y
+Thief         Y   Y           Y   Y   Y       Y   Y        Y   Y    Y
+Illusionist   Y       Y   Y       Y   Y       Y            Y
+Archer            Y   Y   Y   Y       Y       Y   Y   Y    Y   Y    Y
 Death Priest  Y   Y       Y   Y   Y       Y   Y            Y
 Berserker             Y               Y       Y       Y        Y
-Monk              Y   Y   Y   Y   Y   Y   Y       Y   Y    Y   Y
-Runecaster    Y           Y       Y           Y
-Crusader                          Y       Y   Y
-Shifter       Y       Y   Y       Y   Y       Y
-Slayer            Y       Y   Y   Y       Y   Y            Y
+Monk              Y   Y   Y   Y   Y   Y   Y       Y   Y    Y   Y    Y
+Runecaster    Y           Y       Y           Y       Y    Y   Y
+Crusader                          Y       Y   Y   Y        Y        Y
+Shifter       Y   Y   Y   Y   Y   Y   Y       Y   Y   Y        Y    Y
+Slayer            Y       Y   Y   Y       Y   Y   Y        Y        Y
+Sorceror      Y           Y       Y           Y       Y    Y    Y
 
 There are four fighter-type classes - Warrior, Archer, Berserker, and
 Monk. Warrior is the base fighter-class, not specialized in any area, and
@@ -75,12 +77,12 @@ they hate to use missile weapons, nor can they be Thieves. Any other
 combination of fighter-classes is allowed.
 
 Only one of the four magic-using classes may be chosen (Mage, Illusionist,
-Runecaster, Shifter) as Thieves are lower-powered versions of Mages, and a
-character can only learn one of these different types of magic. Also,
-Runecasters cannot be any type of priest, as they have no respect for prayer
-books.
+Runecaster, Sorceror) as a character can only learn one of these different
+types of magic. Also, Runecasters and Sorcerors cannot be any type of
+priest, as they have no respect for prayer books.
 
-Berserkers, Crusaders and Slayers cannot learn magic.
+Berserkers cannot learn magic, while Crusaders/Slayers are limited to
+runecasting or sorcery. Shifters can combine with any class except Berserker.
 
 Only one of the four priestly classes may be chosen (Holy Priest, Death Priest,
 Crusader and Slayer) as they each pray in different ways. Crusaders and Slayers
@@ -91,8 +93,9 @@ Crusaders cannot also be Thieves, as they are opposed to this lifestyle.
 
 This command is used to switch between different classes, if you are
 multiclassing. You will be switched to the next class which you are a
-member of. You only need to switch classes in order to cast spells,
-use prayers, or show information about your experience.
+member of. You only need to switch classes in order to learn
+spells/prayers or browse books, if you have more than one book-using
+class, or show information about your experience.
 
 --- Switch class backwards ---
 

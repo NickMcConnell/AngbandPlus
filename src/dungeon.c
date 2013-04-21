@@ -879,12 +879,6 @@ static void process_world(void)
 		  (void)set_protevil(p_ptr->protevil - 1);
 	     }
 
-	     /* Invulnerability */
-	     if (p_ptr->invuln)
-	     {
-		  (void)set_invuln(p_ptr->invuln - 1);
-	     }
-
 	     /* Heroism */
 	     if (p_ptr->hero)
 	     {
@@ -1075,6 +1069,12 @@ static void process_world(void)
 		  (void)set_tim_regen(p_ptr->tim_regen - 1);	     
 	     }
 
+	}
+
+	/* Invulnerability */
+	if (p_ptr->invuln)
+	{
+	     (void)set_invuln(p_ptr->invuln - 1);
 	}
 
 	/* Paralysis */
@@ -1824,49 +1824,44 @@ static void process_command(void)
 		/* Cast a spell */
 	        case 'm':
 		{
-		     if (magery_class(FALSE) != -1)
-		     {
-			  switch_until(magery_class(FALSE));
-			  
-			  switch (magery_class(FALSE))
-			  {
-			  case CLASS_SORCEROR:
-			       do_cmd_sorceror(); break;
-			  case CLASS_CRUSADER:
-			  case CLASS_SLAYER:
-			       do_cmd_power(); break;
-			  case CLASS_SHIFTER:
-			       do_cmd_shifter(); break;
-			  case CLASS_ILLUSIONIST:
-			       do_cmd_cast_illusion(); break;
-			  case CLASS_MAGE:
-			       do_cmd_cast(); break;
-			  }
-		     }
-		     else
-			  msg_print("You cannot cast spells!");
+		     do_cmd_action(TRUE);
 		     break;
 		}
 
 		/* Pray a prayer */
 		case 'p':
 		{
-		     if (priest_class(FALSE) != -1)
-		     {
-			  switch_until(priest_class(FALSE));
+		     do_cmd_action(FALSE);
+		     break;
+		}
 
-			  switch (priest_class(FALSE))
+		/* Use racial ability (currently only fey) */
+	        case 'U':
+		{
+		     /* Fey */
+		     if (rp_ptr->flags3 & (TR3_ACTIVATE))
+		     {
+			  if (p_ptr->fey == FEY_SEELIE)
 			  {
-			  case CLASS_DEATH_PRIEST:
-			  case CLASS_SLAYER:
-			       do_cmd_cast_death(); break;
-			  case CLASS_PRIEST:
-			  case CLASS_CRUSADER:
-			       do_cmd_pray(); break;
+			       msg_print("You give way to your darker side.");
+			       p_ptr->fey = FEY_UNSEELIE;
 			  }
+			  else
+			  {
+			       msg_print("You remember your light side.");
+			       p_ptr->fey = FEY_SEELIE;
+			  }
+
+			  /* Recalculate bonuses */
+			  p_ptr->update |= (PU_BONUS);
+			  handle_stuff();
+
+			  /* Redraw race info */
+			  p_ptr->redraw |= (PR_BASIC);
+			  redraw_stuff();
 		     }
 		     else
-			  msg_print("Pray hard enough and your prayers may be answered.");
+			  msg_print("You have no racial ability!");
 		     break;
 		}
 

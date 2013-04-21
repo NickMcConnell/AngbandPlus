@@ -1143,8 +1143,17 @@ static void prt_frame_basic(void)
 {
 	int i;
 
+	/* Prepen Seelie/Unseelie to Fey */
+	cptr race_str;
+	cptr fey;
+
+	if (rp_ptr->flags3 & (TR3_ACTIVATE)) {
+	  if (p_ptr->fey == FEY_SEELIE) fey = "Seelie "; else fey = "Unseelie "; }
+	else fey = "";
+	race_str = p_name + rp_ptr->name;
+
 	/* Race and Class */
-	prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
+	prt_field(format("%s%s", fey, race_str), ROW_RACE, COL_RACE);
 	prt_field(cp_ptr[p_ptr->pclass[p_ptr->current_class]]->title, ROW_CLASS, COL_CLASS);
 
 	/* Title */
@@ -1791,9 +1800,23 @@ static void calc_cumber(void)
 
 	object_type *o_ptr;
 
-	int max_wgt = 
-	     mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_weight;
+	int max_wgt;
 	int cur_wgt;
+
+	int i, total_max_wgt = 0, num = 0;
+
+
+	/* Average max weight */
+	for (i = 0; i < p_ptr->available_classes; i++)
+	{
+	     if (mp_ptr[p_ptr->pclass[i]]->spell_weight > 0)
+	     {
+		  total_max_wgt += mp_ptr[p_ptr->pclass[i]]->spell_weight;
+		  num++;
+	     }
+	}
+	if (num == 0) max_wgt = 0; else
+	  max_wgt = total_max_wgt / num;
 
 	/* Assume player is not encumbered by gloves */
 	p_ptr->cumber_glove = 0;
@@ -1919,56 +1942,84 @@ static void calc_cumber(void)
 
 /*
  * Calculate maximum mana.  You do not need to know any spells.
+ * Changed to calc an average
  */
 static void calc_mana(void)
 {
-	int msp, levels;
+        int total_msp = 0, i, num = 0;
 
-	/* Hack -- Must be literate */
-	if ((p_ptr->realm_magery == 0) && 
+	/* Hack -- Must be a mana user */
+	if ((!player_has_class(CLASS_MAGE, 0)) && 
+	    (!player_has_class(CLASS_ILLUSIONIST, 0)) && 
 	    (!player_has_class(CLASS_BERSERKER, 0)) && 
 	    (!player_has_class(CLASS_SHIFTER, 0)) &&
 	    (!player_has_class(CLASS_RUNECASTER, 0)) &&
 	    (!player_has_class(CLASS_SORCEROR, 0)))
 	  return;
 
-	/* Extract "effective" player level */
-	if (player_has_class(CLASS_BERSERKER, 0))
-	     levels = level_of_class(CLASS_BERSERKER) + 1;
-	else if (player_has_class(CLASS_SHIFTER, 0))
-	     levels = level_of_class(CLASS_SHIFTER) + 1;
-	else if (player_has_class(CLASS_RUNECASTER, 0))
-	     levels = level_of_class(CLASS_RUNECASTER) + 1;
-	else if (player_has_class(CLASS_SORCEROR, 0))
-	     levels = level_of_class(CLASS_SORCEROR) + 1;
-	else
-	  levels = level_of_class(magery_class(TRUE)) - mp_ptr[magery_class(TRUE)]->spell_first + 1;
+	for (i = 0; i < p_ptr->available_classes; i++)
+	{
+	     int msp, levels;
 
-	/* Hack -- no negative mana */
-	if (levels < 0) levels = 0;
+	     /* Extract "effective" player level */
+	     if (p_ptr->pclass[i] == CLASS_BERSERKER ||
+		 p_ptr->pclass[i] == CLASS_SHIFTER || 
+		 p_ptr->pclass[i] == CLASS_RUNECASTER ||
+		 p_ptr->pclass[i] == CLASS_SORCEROR)
+	     {
+		  levels = level_of_class(p_ptr->pclass[i]) + 1;
+		  num++;
+	     }
+	     else if (p_ptr->pclass[i] == magery_class(TRUE))
+	     {
+		  levels = level_of_class(magery_class(TRUE)) - mp_ptr[magery_class(TRUE)]->spell_first + 1;
+		  if (levels < 0) levels = 0;
+		  num++;
+	     }
+	     
+	     /* Extract total mana */
+	     if (p_ptr->pclass[i] == CLASS_BERSERKER)
+		  msp = adj_mag_mana[p_ptr->stat_ind[A_STR]] * levels;
+	     else
+		  msp = adj_mag_mana[p_ptr->stat_ind[A_INT]] * levels / 2;
 
-	/* Extract total mana */
-	if (player_has_class(CLASS_BERSERKER, 0))
-	     msp = adj_mag_mana[p_ptr->stat_ind[A_STR]] * levels;
-	else
-	     msp = adj_mag_mana[p_ptr->stat_ind[A_INT]] * levels / 2;
+	     /* Hack -- usually add one mana */
+	     if (msp) msp++;
+	     
+	     /* Penalize sorcs for gloves/heavy */
+	     if (p_ptr->pclass[i] == CLASS_SORCEROR)
+	     {
+		  int percent = 100;
+		  if (p_ptr->cumber_glove)
+		       percent -= (10 * p_ptr->cumber_glove);
+		  if (p_ptr->cumber_armor_wizard)
+		       percent -= p_ptr->cumber_armor_wizard;
+		  
+		  /* no mana */
+		  if (percent < 1) msp = 0;
+		  else /* decreased */
+		  {
+		       msp = (msp * percent) / 100;
+		  }
+	     }
 
-	/* Hack -- usually add one mana */
-	if (msp) msp++;
+	     /* Mana can never be negative */
+	     if (msp < 0) msp = 0;
 
-	/* Mana can never be negative */
-	if (msp < 0) msp = 0;
+	     total_msp += msp;
+	}
+	total_msp /= num;
 
 	/* Maximum mana has changed */
-	if (p_ptr->msp != msp)
+	if (p_ptr->msp != total_msp)
 	{
 		/* Save new limit */
-		p_ptr->msp = msp;
+		p_ptr->msp = total_msp;
 
 		/* Enforce new limit */
-		if (p_ptr->csp >= msp)
+		if (p_ptr->csp >= total_msp)
 		{
-			p_ptr->csp = msp;
+			p_ptr->csp = total_msp;
 			p_ptr->csp_frac = 0;
 		}
 
@@ -1992,10 +2043,9 @@ static void calc_piety(void)
 {
 	int mpp, levels;
 
-	/* Hack -- Must be literate (cruasders/slayers don't use this function to get piety) */
-	if (p_ptr->realm_priest == 0 || 
-	    player_has_class(CLASS_CRUSADER, 0) || 
-	    player_has_class(CLASS_SLAYER, 0))
+	/* Hack -- Must be a piety user (not crusaders or slayers) */
+	if (!player_has_class(CLASS_PRIEST, 0) && 
+	    !player_has_class(CLASS_DEATH_PRIEST, 0))
 	    return;
 
 	/* Extract "effective" player level */
@@ -2115,8 +2165,12 @@ static void calc_torch(void)
 	     }
 	}
 
-	if (p_ptr->shapeshift == 12)
+	if (p_ptr->shapeshift == FORM_CHAOS_DRAKE)
 	     p_ptr->cur_lite++;
+
+	/* Seelie Fey get more light */
+	if ((rp_ptr->flags3 & (TR3_ACTIVATE)) && (p_ptr->fey == FEY_SEELIE))
+	  p_ptr->cur_lite += 2;
 
 	/* Loop through all wielded items */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2160,6 +2214,12 @@ static void calc_torch(void)
 	/* max radius is 5 without rewriting other code -- */
 	/* see cave.c:update_lite() and defines.h:LITE_MAX */
 	if (p_ptr->cur_lite > 5) p_ptr->cur_lite = 5;
+
+	/* Unseelie fey cannot have light > 2 */
+	if ((rp_ptr->flags3 & (TR3_ACTIVATE)) && (p_ptr->fey == FEY_UNSEELIE))
+	{
+	  if (p_ptr->cur_lite > 2) p_ptr->cur_lite = 2;
+	}
 
 	/* Reduce lite when running if requested */
 	if (p_ptr->running && view_reduce_lite)
@@ -2689,7 +2749,8 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary "Hero" */
-	if ((p_ptr->hero) || (p_ptr->power_passive == POWER_HEROISM))
+	if ((p_ptr->hero) || (p_ptr->power_passive == POWER_HEROISM) ||
+	    ((rp_ptr->flags3 & (TR3_ACTIVATE)) && (p_ptr->fey == FEY_SEELIE)))
 	{
 		p_ptr->to_h += 12;
 		p_ptr->dis_to_h += 12;
@@ -2959,6 +3020,7 @@ static void calc_bonuses(void)
 	p_ptr->skill_stl += 1;
 	if (p_ptr->tim_stealth) p_ptr->skill_stl += 3;
 	if (p_ptr->power_passive == POWER_STEALTH) p_ptr->skill_stl += 3;
+	if ((rp_ptr->flags3 & (TR3_ACTIVATE)) && (p_ptr->fey == FEY_UNSEELIE)) p_ptr->skill_stl += 6;
 
 	/* Affect Skill -- disarming (DEX and INT) */
 	p_ptr->skill_dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];

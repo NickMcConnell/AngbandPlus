@@ -312,6 +312,34 @@ have intrinsic abilities.
                Maia have their scored reduced by 50%, as they
                are primarily a race for those new to the game.               
 
+          Angel
+               Angels are similar to Maiar, in their exceptional 
+               abilities, skills, recovery powers, versatility and 
+               reduced score. But they also gain the intrinstics of 
+               feather fall, free action, hold life, resist nether, 
+               resist poison, see invisible, sustain wisdom, and 
+               increased ability to use holy prayers. They pay for
+               these abilities with a very slow advancement rate, and
+               their score is halved. 
+
+          Fey
+               Fey are mysterious beings who attempt to masqurade as
+               humans, although they are generally lack physical 
+               strength and are better looking. Fey resist spells well, 
+               and take no damage from falling from heights. 
+               What is most unusual about fey is their two-sided nature:
+               they can take on the aspect of either a Seelie or 
+               Unseelie (using the 'U' key). 
+               Seelie Fey resist fear, darkness and experience
+               draining. They glow brightly, and do extra damage to
+               monsters that fear light. They are constantly heroic,
+               but tend to attract the attention of anything nearby.
+               Unseelie Fey have no problem with going unnoticed, and
+               can sense those who were hoping to do likewise, but
+               illumination above that of a lantern fails to get past
+               their gloomy aura, and they are hurt by bright light.
+               Due to their two-sided nature, Fey can not take more than
+               two classes at a time.
 
 === Classes (outdated) ===
  
@@ -461,8 +489,9 @@ have intrinsic abilities.
                 key. Currently selected powers are shown in a lighter colour.
                 Crusader's can also pray from prayer books like Holy Priests,
                 but their piety increases only when they kill evil monsters,
-                demons and undead, and decreases over time. This means that
-                Crusaders must be diligent if they are to remain powerful.
+                demons and undead, decreases over time, and is limited by their
+                experience level. This means that Crusaders must be diligent if
+                they are to remain powerful.
 
           Shifter
                 Shifters are a mage-like class, which can change into a number
@@ -485,7 +514,8 @@ have intrinsic abilities.
                 gain piety from killing - most living monsters are fodder to
                 them. They use this piety to pray from Death prayer books. They
                 need to be as diligent than Crusaders in killing, as
-                their piety decreases just as quickly.
+                their piety decreases just as quickly, and is limited by their
+                experience level in the same way.
                 Dark Slayers also gain powers as Crusaders do, with a slightly
                 different selection of active and passive powers. These powers
                 can be selected with the 'm' key and do not cost piety, as just

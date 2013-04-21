@@ -1,26 +1,40 @@
 
-make scroll of infinite spells an artifact, and indestructible
+fix 'chance to activate devices', something is wrong with the formulas..
 
 bug : examinig identified scroll of infinite spells makes the game crash
 
-bug : shifter failing to shift does not take a turn
+bug : death priest is non-recommended class for maia, but selecting two classes makes it available again..
+
+get rid of favoured archer pref and let archers choose a weapon
+
+crusader/slayer/priest reading opposing prayer scroll should have nothing happen
+
+ironman_rooms
+
+berserker : hit for > 1/8 hp in one hit, go berserk
+powers : berserk strength, massacre (heng), haste, leap attack, bash
+
+amulet/ring of magic stasis, persistence + res disen
+
+autosave
+
+save starting equipment for quickstart
+
+archers : create ammo (and brand with chosen ego), criticals (based on
+dex), 2 shots at level 1, remove racial prefs, allow player to choose
+mastery
+
+crusader/slayer brands suck at higher levels - brand nether, vampiric
+(instaed of slay animal), aura of fire (crusader), aura of cold
+(slayer), aura of fear (slayer)
+
+make scroll of infinite spells an artifact, and indestructible
 
 make sorc spells sortable, allow replacing if list < max, use up/down to reorder spells
-bug : give sorc spells a failure chance
 allow sorcs to 'b'rowse spell list
 add info for 'b'rowsing spells
 sorc/runecaster use 'G' to learn from spell scrolls
 list sorc spells in file dumps
-
-sae starting equipment for quickstart
-
-bug : ammo in quiver not being counted towards total weight
-
-autosave
-
-amulet/ring of magic stasis, persistence + res disen
-
-allow persistence on randarts? allow invuln to persist?
 
 two-weapon combat, two-handed weapons (>20lbs + mage staff, qstaff, beaked axe, glaive, halberd, awl-pike, pike)
 stop attacking when monster dies, take less time if not all blows were used
@@ -28,22 +42,13 @@ tv_axe
 
 give runecasters more ring/amulet slots?
 
-munchkin mode, allow all class combinations
-bug : death priest is non-recommended class for maia, but selecting two classes makes it available again..
-
 use ESC to cancel curent queue of messages, like one-turn auto-more
+
+make groups monsters stay away from doorways when they are in a room and you are in a corridor
 
 --
 
 rod/wand/staff stacking
-
-combining warrior/berserker with mage/illusionist/priest
-- use any weapon
-- increase max weight of armour allowed
-
-make groups monsters stay away from doorways when they are in a room and you are in a corridor
-make summoners summon around themselves
-Show permanent walls in different colour - cyan or umber?
 
 allow player to choose which class gets XP
 - get rid of code to divide XP automagiaclly
@@ -57,8 +62,6 @@ allow player to choose which class gets XP
 - regained XP goes to unallocated
 
 ---
-
-Make hiscore list show class information
 
 Reject non-Multiband savefiles, do conversions for older Multiband savefiles
 change VERSION_MAJOR/MINOR/PATCH and headers in *_info.txt's

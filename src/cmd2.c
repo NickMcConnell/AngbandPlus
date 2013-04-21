@@ -30,9 +30,6 @@ void do_cmd_go_up(void)
 		return;
 	}
 
-	/* Hack -- take a turn */
-	p_ptr->energy_use = 100;
-
 	/* Success */
 	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
 
@@ -41,6 +38,9 @@ void do_cmd_go_up(void)
 
 	/* New depth */
 	p_ptr->depth--;
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -58,9 +58,6 @@ void do_cmd_go_down(void)
 		msg_print("I see no down staircase here.");
 		return;
 	}
-
-	/* Hack -- take a turn */
-	p_ptr->energy_use = 100;
 
 	/* Success */
 	message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
@@ -93,6 +90,9 @@ void do_cmd_go_down(void)
 	     if (deepened)
 	       message(MSG_STAIRS, 0, "You came out deeper than you'd expected!");
 	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -2328,7 +2328,7 @@ static int breakage_chance(const object_type *o_ptr)
 		{
 		     // Archers get lower chance
 		     if (rp_ptr->archer_type == 2 || rp_ptr->archer_type == 0)
-			  return (35 - (level_of_class(CLASS_ARCHER) / 2));
+			  return (35 - (level_of_class(CLASS_ARCHER) * 2 / 3));
 		     else
 			  return (35);
 		}
@@ -2340,7 +2340,7 @@ static int breakage_chance(const object_type *o_ptr)
 		     if (rp_ptr->archer_type == 1 || rp_ptr->archer_type == 0)
 		     {
 			  int temp = 25 - (level_of_class(CLASS_ARCHER) / 2);
-			  if (temp < 10) temp = 10;
+			  if (temp < 2) temp = 2;
 			  return (temp);
 		     }
 		     else
@@ -2353,7 +2353,7 @@ static int breakage_chance(const object_type *o_ptr)
 		     if (rp_ptr->archer_type == 3 || rp_ptr->archer_type == 0)
 		     {
 			  int temp = 25 - (level_of_class(CLASS_ARCHER) / 2);
-			  if (temp < 10) temp = 10;
+			  if (temp < 2) temp = 2;
 			  return (temp);
 		     }
 		     else

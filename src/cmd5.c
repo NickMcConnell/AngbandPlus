@@ -4438,6 +4438,10 @@ void do_cmd_shifter()
 	  {
 		if (flush_failure) flush();
 		msg_print("You failed to concentrate hard enough!");
+
+		/* Take a turn */
+		p_ptr->energy_use = 100;
+
 		return;
 	  }
      }
@@ -5051,4 +5055,205 @@ void do_cmd_sorceror()
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);     
+}
+
+static int get_action(int *sn, bool m)
+{
+        int             i = -1, ask, y = 1, x = 20;
+        int             temp[MAX_CLASS], num = 0;
+	char		choice;
+	char            out_val[160];
+	byte            line_attr;
+
+	/* Nothing chosen yet */
+	bool flag = FALSE;
+
+	/* No redraw yet */
+	bool redraw = FALSE;
+
+#ifdef ALLOW_REPEAT
+
+	/* Get the spell, if available */
+	if (repeat_pull(sn))
+	     return (TRUE);
+
+#endif /* ALLOW_REPEAT */
+
+	/* Assume cancelled */
+	(*sn) = -1;
+
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+	     if ((p_ptr->pclass[i] == magery_class(TRUE) && m) ||
+		 (p_ptr->pclass[i] == priest_class(TRUE) && !m) ||
+		 (p_ptr->pclass[i] == CLASS_CRUSADER && m) ||
+		 (p_ptr->pclass[i] == CLASS_SLAYER && m) ||
+		 (p_ptr->pclass[i] == CLASS_SHIFTER && m) ||
+		 (p_ptr->pclass[i] == CLASS_SORCEROR && m))
+	     {
+		  temp[num] = p_ptr->pclass[i];
+		  num ++;
+	     }
+	}
+
+	/* no classes can do this */
+	if (num == 0) {
+	     if (m) msg_print("You cannot cast spells!");
+	     else
+		  msg_print("Pray hard enough and your prayers may be answered.");
+	     return 0;
+	}
+
+	/* more than one choice */
+	if (num > 1)
+	{
+
+	/* Build a prompt (accept all spells) */
+	strnfmt(out_val, 78, "(Class %c-%c, *=List, ESC=exit) Use which class? ",
+						I2A(0), I2A(num - 1));
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		/* Request redraw */
+		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		{
+			/* Show the list */
+			if (!redraw)
+			{
+				char power_desc[80];
+
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save the screen */
+				screen_save();
+
+				/* Display a list of spells */
+				prt("", y, x);
+
+				/* Dump the spells */
+				for (i = 0; i < num; i++)
+				{
+					/* Color */
+					line_attr = TERM_WHITE;
+
+					/* Dump the spell */
+					sprintf(power_desc, "  %c) %-30s",
+						I2A(i), class_info[temp[i]].title);
+					c_prt(line_attr, power_desc, y + i + 1, x);
+				}
+
+				/* Clear the bottom line */
+				prt("", y + i + 1, x);
+			}
+
+			/* Hide the list */
+			else
+			{
+				/* Hide list */
+				redraw = FALSE;
+
+				/* Restore the screen */
+				screen_load();
+			}
+
+			/* Redo asking */
+			continue;
+		}
+
+		/* Note verify */
+		ask = (isupper(choice));
+
+		/* Lowercase */
+		if (ask) choice = tolower(choice);
+
+		/* Extract request */
+		i = (islower(choice) ? A2I(choice) : -1);
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= num))
+		{
+			bell("Illegal class choice!");
+			continue;
+		}
+
+	        /* Verify it */
+		if (ask)
+		{
+			char tmp_val[160];
+
+			/* Prompt */
+			strnfmt(tmp_val, 78, "Use %s? ", class_info[temp[i]].title);
+
+			/* Belay that order */
+			if (!get_check(tmp_val)) continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+	} /* only one choice */
+	else { i = 0; flag = TRUE; }
+
+	/* Restore the screen */
+	if (redraw) screen_load();
+
+	/* Abort if needed */
+	if (!flag) return (FALSE);
+
+	/* Save the choice */
+	(*sn) = temp[i];
+	
+#ifdef ALLOW_REPEAT
+
+	repeat_push(*sn);
+
+#endif /* ALLOW_REPEAT */
+
+	/* Success */
+	return (TRUE);	
+}
+
+void do_cmd_action(bool m)
+{
+     int action;
+
+     /* Ask for a power */
+     if (!get_action(&action, m)) return;
+
+     switch_until(action);
+
+     /* 'm' */
+     if (m)
+     {
+	  switch (action)
+	  {
+	  case CLASS_SORCEROR:
+	       do_cmd_sorceror(); break;
+	  case CLASS_CRUSADER:
+	  case CLASS_SLAYER:
+	       do_cmd_power(); break;
+	  case CLASS_SHIFTER:
+	       do_cmd_shifter(); break;
+	  case CLASS_ILLUSIONIST:
+	       do_cmd_cast_illusion(); break;
+	  case CLASS_MAGE:
+	       do_cmd_cast(); break;
+	  }
+     }
+     /* 'p' */
+     else
+     {
+	  switch (action)
+	  {
+	  case CLASS_DEATH_PRIEST:
+	  case CLASS_SLAYER:
+	       do_cmd_cast_death(); break;
+	  case CLASS_PRIEST:
+	  case CLASS_CRUSADER:
+	       do_cmd_pray(); break;
+	  }
+     }
 }

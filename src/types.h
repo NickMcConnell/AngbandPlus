@@ -758,6 +758,7 @@ struct player_race
 struct player_class
 {
 	cptr title;			/* Type of class */
+        cptr title_short; /* for showing high scores */
 
 	s16b c_adj[A_MAX];	/* Class stat modifier */
 
@@ -950,6 +951,9 @@ struct player_type
 
         /* Shifter's current form */
         byte shapeshift;
+
+        /* Fey's current aspect */
+        byte fey;
 
 	u32b spell_learned1[2];	/* Spell flags */
 	u32b spell_learned2[2];	/* Spell flags */
@@ -1191,12 +1195,12 @@ struct high_score
 
 	char sex[2];		/* Player Sex (string) */
 	char p_r[3];		/* Player Race (number) */
-	char p_c[3];		/* Player Class (number) */
+	int p_c[4];		/* Player Class (number) */
         char n_c;
 
-	char cur_lev[4];		/* Current Player Level (number) */
+	int cur_lev[4];		/* Current Player Level (number) */
 	char cur_dun[4];		/* Current Dungeon Level (number) */
-	char max_lev[4];		/* Max Player Level (number) */
+	int max_lev[4];		/* Max Player Level (number) */
 	char max_dun[4];		/* Max Dungeon Level (number) */
 
 	char how[32];		/* Method of death (string) */

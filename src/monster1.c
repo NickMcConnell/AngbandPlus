@@ -984,8 +984,14 @@ static void roff_aux(int r_idx)
 		       }
 		  }
 
+		  /* Seelie Fey */
+		  if (((rp_ptr->flags3 & (TR3_ACTIVATE)) && (p_ptr->fey == FEY_SEELIE)) &&
+		      ((flags3 & (RF3_HURT_LITE)) && (mult < 3))) mult = 3;
+
 		  average_damage *= mult;
 	     }
+
+
 
 	     /* Add known modifier */
 	     average_damage += mod;
@@ -1040,66 +1046,80 @@ static void roff_aux(int r_idx)
 	     /* Armor */
 	     roff(format("%^s has an armor rating of ", wd_he[msex]));
 	     c_roff(TERM_L_RED, format("%d", r_ptr->ac));
+
+	     /* Maximized hitpoints */
+	     if (flags1 & (RF1_FORCE_MAXHP))
+	     {
+		  roff(" a life rating of ");
+		  c_roff(TERM_L_RED, format("%d", r_ptr->hdice * r_ptr->hside));
+	     }
+	     
+	     /* Variable hitpoints */
+	     else
+	     {
+		  roff(" a life rating of ");
+		  c_roff(TERM_L_RED, format("%dd%d", r_ptr->hdice, r_ptr->hside));
+	     }
 	     roff(",");
 
-		/* Average blows */
-		roff(" and you would take an ");
-		if (blows == -1) /* None */
-		{
-		     c_roff(TERM_L_RED, "infinite");
-		     roff(" number of blows ");
-		}
-		else if (blows < 11) /* 1 blow or less */
-		{
-		     roff("average of ");
-		     c_roff(TERM_L_RED, "1");
-		     roff(" blow ");
-		}
-		else if (blows % 10 == 0) /* Round number of blows */
-		{
-		     roff("average of ");
-		     c_roff(TERM_L_RED, format("%d", blows / 10));
-		     roff(" blows ");
-		}
-		else /* Decimal number of blows */
-		{
-		     roff("average of ");
-		     c_roff(TERM_L_RED, format("%d.%d", blows / 10, blows % 10));
-		     roff(" blows ");
-		}
-
-		/* Show missile damage */
-		if (i_ptr->k_idx && j_ptr->k_idx)
-		{
-		     roff("and an ");
-
-		     if (shots == -1) /* None */
-		     {
-			 c_roff(TERM_L_RED, "infinite");
-			 roff(" number of shots ");
-		     }
-		     else if (shots < 11) /* 1 shot or less */
-		     {
-			 roff("average of ");
-			 c_roff(TERM_L_RED, "1");
-			 roff(" shot ");
-		     }
-		     else if (shots % 10 == 0) /* Round number of shots */
-		     {
-			 roff("average of ");
-			 c_roff(TERM_L_RED, format("%d", shots / 10));
-			 roff(" shots ");
-		     }
-		     else /* Decimal number of shots */
-		     {
-			 roff("average of ");
-			 c_roff(TERM_L_RED, format("%d.%d", shots / 10, shots % 10));
-			 roff(" shots ");
-		     }
-
-		     /* Finished */
-		     roff(format("to kill %s.  ", wd_him[msex]));
-		}
+	     /* Average blows */
+	     roff(" and you would take an ");
+	     if (blows == -1) /* None */
+	     {
+		  c_roff(TERM_L_RED, "infinite");
+		  roff(" number of blows ");
+	     }
+	     else if (blows < 11) /* 1 blow or less */
+	     {
+		  roff("average of ");
+		  c_roff(TERM_L_RED, "1");
+		  roff(" blow ");
+	     }
+	     else if (blows % 10 == 0) /* Round number of blows */
+	     {
+		  roff("average of ");
+		  c_roff(TERM_L_RED, format("%d", blows / 10));
+		  roff(" blows ");
+	     }
+	     else /* Decimal number of blows */
+	     {
+		  roff("average of ");
+		  c_roff(TERM_L_RED, format("%d.%d", blows / 10, blows % 10));
+		  roff(" blows ");
+	     }
+	     
+	     /* Show missile damage */
+	     if (i_ptr->k_idx && j_ptr->k_idx)
+	     {
+		  roff("and an ");
+		  
+		  if (shots == -1) /* None */
+		  {
+		       c_roff(TERM_L_RED, "infinite");
+		       roff(" number of shots ");
+		  }
+		  else if (shots < 11) /* 1 shot or less */
+		  {
+		       roff("average of ");
+		       c_roff(TERM_L_RED, "1");
+		       roff(" shot ");
+		  }
+		  else if (shots % 10 == 0) /* Round number of shots */
+		  {
+		       roff("average of ");
+		       c_roff(TERM_L_RED, format("%d", shots / 10));
+		       roff(" shots ");
+		  }
+		  else /* Decimal number of shots */
+		  {
+		       roff("average of ");
+		       c_roff(TERM_L_RED, format("%d.%d", shots / 10, shots % 10));
+		       roff(" shots ");
+		  }
+	     }
+	     
+	     /* Finished */
+	     roff(format("to kill %s.  ", wd_him[msex]));
 	}
 
 

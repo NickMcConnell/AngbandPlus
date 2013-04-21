@@ -597,6 +597,9 @@ static void player_wipe(void)
 	/* Shapeshifter form */
 	p_ptr->shapeshift = 0;
 
+	/* Fey aspect */
+	p_ptr->fey = FEY_UNSEELIE;
+
 	p_ptr->current_class = 0; /* First class is active */
 	p_ptr->available_classes = 1; /* One class only at start */
 
@@ -683,16 +686,26 @@ static void player_outfit(void)
 	/* Hack -- Give the player some food */
 	i_ptr = &object_type_body;
 	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	i_ptr->number = (byte)rand_range(3, 7);
+	if (p_ptr->astral)
+	  i_ptr->number = (byte)rand_range(15, 30);
+	else
+	  i_ptr->number = (byte)rand_range(3, 7);
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
 
-	if (p_ptr->astral) /* 30 MASS-ID scrolls */
+	if (p_ptr->astral) /* 5 MASS-ID scrolls and 50 identify */
 	{
 	    i_ptr = &object_type_body;
 	    object_prep(i_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_MASS_IDENTIFY));
-	    i_ptr->number = 30;
+	    i_ptr->number = 5;
+	    object_aware(i_ptr);
+	    object_known(i_ptr);
+	    (void)inven_carry(i_ptr);
+
+	    i_ptr = &object_type_body;
+	    object_prep(i_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_IDENTIFY));
+	    i_ptr->number = 50;
 	    object_aware(i_ptr);
 	    object_known(i_ptr);
 	    (void)inven_carry(i_ptr);
@@ -1550,9 +1563,8 @@ static bool player_birth_aux_2(void)
 		/* HACK - Give crusader/slayer some piety, based on wisdom */
 		if (player_has_class(CLASS_CRUSADER, 0) || player_has_class(CLASS_SLAYER, 0) )
 		{
-		     /* +1 = 2-3, +2 = 3-6, +3 = 4-9, d4 = 5-12 */
-		     p_ptr->mpp = randint(adj_mag_mana[p_ptr->stat_ind[A_WIS]] * 2) + 
-			  adj_mag_mana[p_ptr->stat_ind[A_WIS]] + 1;
+		     p_ptr->mpp = adj_mag_mana[p_ptr->stat_ind[A_WIS]];
+ 		     if (p_ptr->mpp > 4) p_ptr->mpp = 4;
 		     p_ptr->cpp = p_ptr->mpp;
 		}
 
@@ -1683,6 +1695,8 @@ static bool player_birth_aux_3(void)
 
 	s32b last_round;
 
+	/* Clean up */
+	clear_from(7);
 
 	/*** Autoroll ***/
 
@@ -1692,7 +1706,6 @@ static bool player_birth_aux_3(void)
 		int mval[A_MAX];
 
 		char inp[80];
-
 
 		/* Extra info */
 		Term_putstr(5, 7, -1, TERM_WHITE,
@@ -2015,9 +2028,8 @@ static bool player_birth_aux_3(void)
 			/* HACK - Give crusader/slayer some piety, based on wisdom */
 			if (player_has_class(CLASS_CRUSADER, 0) || player_has_class(CLASS_SLAYER, 0))
 			{
-			     /* +1 = 2-3, +2 = 3-6, +3 = 4-9, d4 = 5-12 */
-			     p_ptr->mpp = randint(adj_mag_mana[p_ptr->stat_ind[A_WIS]] * 2) + 
-				  adj_mag_mana[p_ptr->stat_ind[A_WIS]] + 1;
+			     p_ptr->mpp = adj_mag_mana[p_ptr->stat_ind[A_WIS]];
+			     if (p_ptr->mpp > 4) p_ptr->mpp = 4;
 			     p_ptr->cpp = p_ptr->mpp;
 			}
 
@@ -2154,6 +2166,9 @@ static bool player_birth_quick()
 	byte old_hitdie;
 	u16b old_expfact[MAX_CLASS];
 	s16b old_hp[PY_MAX_LEVEL];
+	s16b old_mhp;
+	s16b old_msp;
+	s16b old_mpp;
 
 	old_astral = p_ptr->astral_birth;
 	old_sex = p_ptr->psex;
@@ -2166,6 +2181,10 @@ static bool player_birth_quick()
 	old_hitdie = p_ptr->hitdie;
 	for (i = 0; i < MAX_CLASS; i++)
 	  old_expfact[i] = p_ptr->expfact[i];
+
+	old_mhp = p_ptr->mhp;
+	old_msp = p_ptr->msp;
+	old_mpp = p_ptr->mpp;
 
 	old_char.age = p_ptr->age;
 	old_char.au = p_ptr->au_birth;
@@ -2241,6 +2260,10 @@ static bool player_birth_quick()
 	for (i = 0; i < p_ptr->available_classes; i++)
 	  p_ptr->expfact[i] = old_expfact[i];
 
+	p_ptr->mhp = old_mhp;
+	p_ptr->msp = old_msp;
+	p_ptr->mpp = old_mpp;
+
 	p_ptr->age = old_char.age;
 	p_ptr->au_birth = p_ptr->au = old_char.au;
 	p_ptr->ht_birth = p_ptr->ht = old_char.ht;
@@ -2284,21 +2307,12 @@ static bool player_birth_quick()
 		op_ptr->opt[OPT_CHEAT + i] = FALSE;
 	}
 
-	/* Calculate the bonuses and hitpoints */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
+	/* Calculate the bonuses */
+	p_ptr->update |= (PU_BONUS);
 
 	/* Update stuff */
 	update_stuff();
 
-	/* HACK - Give crusader/slayer some piety, based on wisdom */
-	if (player_has_class(CLASS_CRUSADER, 0) || player_has_class(CLASS_SLAYER, 0) )
-	{
-	    /* +1 = 2-3, +2 = 3-6, +3 = 4-9, d4 = 5-12 */
-	    p_ptr->mpp = randint(adj_mag_mana[p_ptr->stat_ind[A_WIS]] * 2) + 
-	      adj_mag_mana[p_ptr->stat_ind[A_WIS]] + 1;
-	    p_ptr->cpp = p_ptr->mpp;
-	}
-	
 	/* Fully healed */
 	p_ptr->chp = p_ptr->mhp;
 

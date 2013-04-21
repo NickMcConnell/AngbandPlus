@@ -25,17 +25,17 @@ V:2.9.2
 
 # General Store
 N:0:0:Bilbo the Friendly
-I:3:200:175:108:4:12
+I:3:500:175:108:4:12
 N:0:1:Rincewind the Chicken
-I:0:200:175:108:4:12
+I:0:500:175:108:4:12
 N:0:2:Snafu the Midget
-I:4:300:170:107:5:15
+I:4:500:170:107:5:15
 N:0:3:Lyar-el the Comely
-I:2:300:165:107:6:18
+I:2:500:165:107:6:18
 
 # Armoury
 N:1:0:Kon-Dar the Ugly
-I:6:5000:210:115:5:7
+I:6:25000:210:115:5:7
 N:1:1:Darg-Low the Grim
 I:0:10000:190:111:4:9
 N:1:2:Decado the Handsome
@@ -45,7 +45,7 @@ I:5:30000:200:112:4:5
 
 # Weapon Smith
 N:2:0:Ithyl-Mak the Beastly
-I:7:5000:210:115:6:6
+I:7:25000:210:115:6:6
 N:2:1:Arndal Beast-Slayer
 I:1:10000:185:110:5:9
 N:2:2:Tarl Beast-Master
@@ -55,7 +55,7 @@ I:5:30000:195:112:4:8
 
 # Temple
 N:3:0:Ludwig the Humble
-I:0:5000:175:109:6:15
+I:0:25000:175:109:6:15
 N:3:1:Gunnar the Paladin
 I:0:10000:185:110:5:23
 N:3:2:Delilah the Pure
@@ -67,11 +67,11 @@ I:5:30000:185:109:5:15
 N:4:0:Mauser the Chemist
 I:1:10000:190:111:5:8
 N:4:1:Wizzle the Chaotic
-I:3:10000:190:110:6:8
+I:3:15000:190:110:6:8
 N:4:2:Ga-nat the Greedy
-I:4:15000:200:116:6:9
+I:4:20000:200:116:6:9
 N:4:3:Vella the Slender
-I:0:15000:220:111:4:9
+I:0:25000:220:111:4:9
 
 # Magic Shop
 N:5:0:Ariel the Sorceress

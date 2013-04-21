@@ -570,7 +570,7 @@ W:0:10:0:3000
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE
+F:BRAND_FIRE | LITE | RES_FIRE | IGNORE_FIRE
 
 N:75:of Freezing
 X:24:15:0
@@ -960,4 +960,36 @@ N:127:(Blasted)
 X:31:0:0
 W:0:0:0:0
 C:0:0:10:0
+
+### New boot types created by Ingeborg S. Nordén ###
+
+N:128:of the North
+X:36:15:0
+W:0:2:0:10000
+C:0:0:10:0
+T:30:0:99
+F:FREE_ACT | RES_COLD |
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE |
+
+N:129:of the Marshlands
+X:36:15:0
+W:0:5:0:20000
+C:0:0:10:0
+T:30:0:99
+F:FREE_ACT | RES_ACID | RES_POIS |
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE |
+
+
+### New crown type created by Ingeborg S. Nordén ###
+
+N:130:of Sanctity
+X:34:15:3
+W:0:4:0:7500
+C:0:0:0:3
+T:33:0:99
+F:WIS | SUST_WIS | R_HOLY | R_DEATH | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+
 

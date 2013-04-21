@@ -1,4 +1,4 @@
-# File: r_info.txt
+# File: r_info.txt a
 
 
 # This file is used to initialize the "lib/data/r_info.raw" file, which is
@@ -214,8 +214,8 @@ D:A thin flea-ridden mutt, growling as you get close.
 
 N:4:Farmer Maggot
 G:h:w
-I:110:35d10:40:10:3
-W:0:4:0:0
+I:110:35d5:40:10:3
+W:0:1:0:0
 B:MOAN
 B:MOAN
 F:UNIQUE | MALE | 

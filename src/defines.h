@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.1.2"
+#define VERSION_STRING	"1.1.4"
 
 
 /*
@@ -622,6 +622,10 @@
 #define SHIFTER_POLY_OTHER     60
 #define SHIFTER_CHAOS_BOLT     61
 #define SHIFTER_NEXUS_BOLT     62
+
+/* Fey aspects */
+#define FEY_SEELIE 0
+#define FEY_UNSEELIE 1
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"

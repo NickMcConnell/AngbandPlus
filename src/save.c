@@ -1494,6 +1494,7 @@ static bool wr_savefile_new(void)
 	wr_byte(p_ptr->power_active);
 	wr_byte(p_ptr->power_passive);
 	wr_byte(p_ptr->shapeshift);
+	wr_byte(p_ptr->fey);
 
 	/* Write spell data */
 	for (i = 0; i < 2; i++)

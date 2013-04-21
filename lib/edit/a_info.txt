@@ -348,7 +348,19 @@ F:DEX | HIDE_TYPE |
 F:RES_ACID | RES_SHARD
 
 
-# Artifact 29 is unused
+# The Quilted Armour of Eyvindr Godhi
+# (in memory of a lucky player's randart find)
+
+N:29:of Eyvindr Godhi
+I:36:8:2
+W:40:15:60:27
+P:8:0d0:0:0:12
+F:DEX | STEALTH
+F:SUST_DEX |
+F:RES_ACID | RES_COLD | RES_ELEC | RES_FIRE |
+F:RES_NETHR | HOLD_LIFE |
+F:ACTIVATE | HIDE_TYPE |
+A:REM_FEAR_POIS:5:0
 
 
 # The Small Metal Shield of Thorin
@@ -381,8 +393,19 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SUST_STR | SUST_INT |
 F:SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
 
 
-# Artifact 33 is unused
+# The Hard Leather Cap 'Steadfast'
+# (created by Ingeborg S. Nordén; inspired by a player's lucky
+# randart find)
 
+N:33:'Steadfast'
+I:32:2:2
+W:40:15:15:50000
+P:2:0d0:0:0:13
+F:INFRA | SEARCH |
+F:INT | SUST_INT |
+F:WIS | SUST_WIS |
+F:RES_BLIND | RES_CHAOS | RES_NEXUS |
+F:HIDE_TYPE |
 
 # The Massive Iron Crown of Morgoth
 
@@ -481,7 +504,21 @@ F:LITE | SEE_INVIS | REGEN | ACTIVATE
 A:HEAL1:500:0
 
 
-# Artifact 43 is unused
+# The White Dragon Scale Mail 'Bonechill'
+# (new artifact created by Ingeborg S. Nordén)
+
+N:43:'Bonechill'
+I:38:3:4
+W:75:75:200:160000
+P:30:2d4:-2:0:20
+F:FREE_ACT |
+F:CON | SUST_CON |
+F:RES_BLIND | RES_LITE | RES_DARK |
+F:RES_FEAR |
+F:IM_COLD |
+F:ACTIVATE | HIDE_TYPE |
+A:FROST5:325:325
+
 
 
 # The Cloak 'Colluin'
@@ -557,7 +594,20 @@ F:STEALTH |
 F:FREE_ACT | IM_ACID | RES_ACID | SEE_INVIS
 
 
-# Artifact 51 is unused
+# The Set of Silk Gloves 'Lingering Touch'
+# (new artifact created by Ingeborg S. Nordén)
+
+N:51:'Lingering Touch'
+I:31:0:5
+W:50:25:1:50000
+P:0:0d0:-10:-10:20
+F:FREE_ACT | LITE | 
+F:R_MAGERY | R_ILLUSION |
+F:DEX | SUST_DEX |
+F:RES_DISEN | PERSISTENCE |
+F:LIGHT_CURSE | HEAVY_CURSE |
+F:ACTIVATE | HIDE_TYPE |
+A:RECHARGE1:70:0
 
 
 # The Set of Leather Gloves 'Cambeleg'
@@ -674,7 +724,19 @@ P:6:1d1:0:0:20
 F:STR | CON | HIDE_TYPE
 
 
-# Artifact 63 is unused
+# The Breastplate 'Heart's Faith'
+# (created by Ingeborg S. Nordén)
+
+N:63:'Heart's Faith'
+I:37:11:5
+W:40:40:200:90000
+P:21:1d6:-2:0:14
+F:FREE_ACT | FEATHER | LITE |
+F:STR | SUST_STR |
+F:WIS | SUST_WIS |
+F:RES_BLIND | RES_FEAR | RES_CONFU |
+F:BLESSED | R_HOLY |
+F:HIDE_TYPE |
 
 
 # The Main Gauche of Maedhros
@@ -980,7 +1042,18 @@ F:RES_CONFU |
 F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS
 
 
-# Artifact 92 is unused
+# The Dagger of Saint Grimhelm:  created in memory of a deceased 
+# warrior/priest who had great luck with finding equipment, but 
+# *terrible* luck escaping fights!  --ISN
+
+N:92:of Saint Grimhelm
+I:23:4:4
+W:25:10:12:45000
+P:0:2d4:10:11:15
+F:BLESSED | FEATHER | FREE_ACT | SEE_INVIS | STEALTH |
+F:SUST_STR | SUST_CON |
+F:SLAY_ANIMAL | SLAY_ORC |
+F:INSTA_ART | HIDE_TYPE | SHOW_MODS |
 
 
 # The Beaked Axe of Theoden
@@ -1317,7 +1390,21 @@ F:ACTIVATE | SHOW_MODS
 A:DRAIN_LIFE1:70:0
 
 
-# Artifact 123 is unused
+# The Hatchet 'Trollkindler'
+# (new artifact created by Ingeborg S. Nordén,
+# inspired by a previous player's lucky randart find)
+
+N:123:'Trollkindler'
+I:22:1:4
+W:40:30:60:120
+P:0:1d5:18:18:5
+F:STR | CON |
+F:SUST_STR | SUST_CON |
+F:BRAND_FIRE | LITE | RES_FIRE |
+F:SLAY_TROLL |
+F:FREE_ACT | FEATHER | SEE_INVIS |
+F:BLESSED | R_HOLY |
+F:HIDE_TYPE | SHOW_MODS |
 
 
 # The Long Bow 'Belthronding'
@@ -1351,5 +1438,8 @@ F:RES_FIRE | ACTIVATE | SHOW_MODS
 A:FIREBRAND:999:0
 
 
-# Artifact 127 is unused
+
+
+
+
 
