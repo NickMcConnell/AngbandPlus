@@ -1,5 +1,9 @@
-Image list. Mostly complete
+====================================
+Image credits list - mostly complete
+====================================
 
+Nr. Description         Author
+--- ------------------- ------
 
 000 Quartz vein         (Hajo)
 001 Open floor (unused) (Hajo)
@@ -7,7 +11,10 @@ Image list. Mostly complete
 003 Brick wall (unused) (Hajo)
 004 Clean floor         (Hajo)
 005 Clean wall          (Hajo)
-006-027 unused
+006 Crackle wall        (Hajo)
+007-025 unused
+026 Line ring           (Hajo)
+027 Line amulet         (Hajo)
 028 Line mushroom       (Hajo)
 029 Line rodent         (Hajo)
 030 Line Snake          (Mitsuhiro/Hajo)
@@ -47,8 +54,8 @@ Image list. Mostly complete
 163 Line floating eye   (Hajo)
 164 Line icky thing     (Hajo)
 165 Line spider         (Hajo)
-166 (unused)
-167 (unused)
+166 Line ooze           (Hajo)
+167 Line jelly          (Hajo)
 168 insect swarm        (Hajo)
 169 grid bug            (Hajo)
 170 soldier ant         (Hajo)
@@ -62,13 +69,18 @@ Image list. Mostly complete
 179 Line bat            (M. Woxberg/Hajo)
 180-181 added by M. Woxberg
 182 Line warrior        (Maarten/Hajo)
-183-197 added by M. Woxberg
+183-184 added by M. Woxberg
+185 Line happy drunk    (Maarten/Hajo) 
+186 Line merchant       (Maarten/Hajo)
+187 Line village idiot  (Maarten/Hajo)
+188 Line mercenary      (Maarten/Hajo) 
+189-197 added by M. Woxberg
 198 Line mage           (Maarten/Hajo)
-199 added by M. Woxberg
-200 copper 3            (Hajo)
-201 copper 2            (Hajo)
-202 copper 1            (Hajo)
-203 gems                (Hajo)
+199 Line priest         (Maarten/Hajo)
+200 Coin pile 3         (Hajo)
+201 Coin pile 2         (Hajo)
+202 Coin pile 1         (Hajo)
+203 Gem pile            (Hajo)
 204 Line cap            (Hajo)
 205 Line gloves         (Hajo)
 206 Line shoes          (Hajo)
@@ -83,12 +95,20 @@ Image list. Mostly complete
 215 Line mace           (Hajo)
 216 Line bow            (Hajo)
 217 Line arrow          (Hajo)
-218 Line hammer         (Hajo)
-219 Line pike           (Hajo)
-220-222 added by M. Woxberg
+218 Line armor          (Hajo)
+219 Line hammer         (Hajo)
+220 Line pike           (Hajo)
+221 Line wand           (Hajo)
+222 Line rod            (Hajo)
 223 (unused)
 224-231 Shop entrances  (Hajo)
-232-239 bottles (unused)(Hajo)
+232 Line broken bone    (Hajo)
+233 Line bolts          (Hajo)
+234 Line staff          (Hajo)
+235 (unused)
+236-237 bottles (unused)(Hajo)
+238 (unused)
+239 (unused)
 240-279 9 part walls    (Hajo)
 280-318 9 part walls    (Hajo)
 319 Town outside tile   (Hajo)
@@ -98,9 +118,25 @@ Hajo:      Hansjörg Malthaner
 Maarten:   Maarten Woxberg
 Mitsuhiro: Mitsohiro Itakura
 
+-----------------------------------------------------------------
 
 Started by Hj. Malthaner, March 2001
-Stuff added by M. Woxberg, 27th March 2001
-Last update by Hj. Malthaner, 30-Sep-2009
+Stuff added by M. Woxberg, 27-Mar-2001
+Last update by Hj. Malthaner, 05-Oct-2009
 
-Contact: hansjoerg.malthaner@gmx.de
+-----------------------------------------------------------------
+
+I hereby want tp make my images available under the 
+creative commons "Attribution - Share alike" license.
+
+http://creativecommons.org/licenses/by-sa/3.0/deed.en
+
+If you use the images, I'd like an attribution like this:
+Artwork by Hj. Malthaner <hansjoerg.malthaner@gmx.de>
+
+If you modify the images, please put it this way:
+Based on artwork by Hj. Malthaner <hansjoerg.malthaner@gmx.de>
+
+If in doubt, please contact me: hansjoerg.malthaner@gmx.de
+
+-----------------------------------------------------------------
