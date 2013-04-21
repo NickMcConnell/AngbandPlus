@@ -1,22 +1,28 @@
 echo on
 echo Master install script
-rm -rv hb083
-rm -rv hb083win
-rm hb083src.zip
-rm hb083win.zip
+echo rm -rv hb084
+rm -rv hb084win
+rm hb084src.zip
+rm hb084win.zip
 
-svn export https://hellband.googlecode.com/svn/trunk/ hb083
+svn export https://hellband.googlecode.com/svn/trunk/ hb084
 
 echo zipping up source ...
 
-cd hb083
+cd hb084
 rm -rv www
 rm pkg_win
+cd lib
+cd edit
+rm *backup*
+rm *.bak
+cd ..
+cd ..
 cd ..
 
-zip -9 -r -q hb083src.zip hb083
+zip -9 -r -q hb084src.zip hb084
 
-cd hb083
+cd hb084
 cd src 
 mkdir mingw32
 export FOREIGN=win-mingw32-primitive
@@ -26,8 +32,8 @@ make -fmakefile.sid
 cd ..
 cd ..
 
-cp -r hb083 hb083win
-cd hb083win
+cp -r hb084 hb084win
+cd hb084win
 
 rm -rv src
 rm .svnignore
@@ -44,9 +50,10 @@ rm lib/pref/*emx*
 rm lib/pref/*lsl*
 rm lib/pref/*xaw*
 rm lib/edit/*backup*
+rm lib/edit/*fix*
 rm lib/edit/*judo*
 rm lib/apex/*.raw
 
 cd ..
 
-zip -9 -r hb083win.zip hb083win
+zip -9 -r hb084win.zip hb084win

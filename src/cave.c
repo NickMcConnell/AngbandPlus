@@ -11,6 +11,23 @@
 * by Robert Ruehlmann (rr9@angband.org)
 */
 
+/*
+ * Copyright (c) 1997 Robert Ruehlmann, Ben Harrison
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * Robert Ruehlmann and Ben Harrison released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
 
 /*
 * Approximate Distance between two points.
@@ -36,41 +53,45 @@ int distance(int y1, int x1, int y2, int x2)
 	return (d);
 }
 
-
 /*
-* A simple, fast, integer-based line-of-sight algorithm.  By Joseph Hall,
-* 4116 Brewster Drive, Raleigh NC 27606.  Email to jnh@ecemwl.ncsu.edu.
-*
-* Returns TRUE if a line of sight can be traced from (x1,y1) to (x2,y2).
-*
-* The LOS begins at the center of the tile (x1,y1) and ends at the center of
-* the tile (x2,y2).  If los() is to return TRUE, all of the tiles this line
-* passes through must be floor tiles, except for (x1,y1) and (x2,y2).
-*
-* We assume that the "mathematical corner" of a non-floor tile does not
-* block line of sight.
-*
-* Because this function uses (short) ints for all calculations, overflow may
-* occur if dx and dy exceed 90.
-*
-* Once all the degenerate cases are eliminated, the values "qx", "qy", and
-* "m" are multiplied by a scale factor "f1 = abs(dx * dy * 2)", so that
-* we can use integer arithmetic.
-*
-* We travel from start to finish along the longer axis, starting at the border
-* between the first and second tiles, where the y offset = .5 * slope, taking
-* into account the scale factor.  See below.
-*
-* Also note that this function and the "move towards target" code do NOT
-* share the same properties.  Thus, you can see someone, target them, and
-* then fire a bolt at them, but the bolt may hit a wall, not them.  However,
-* by clever choice of target locations, you can sometimes throw a "curve".
-*
-* Note that "line of sight" is not "reflexive" in all cases.
-*
-* Use the "projectable()" routine to test "spell/missile line of sight".
-*
-* Use the "update_view()" function to determine player line-of-sight.
+ * A simple, fast, integer-based line-of-sight algorithm.  By Joseph Hall,
+ * 4116 Brewster Drive, Raleigh NC 27606.  Email to jnh@ecemwl.ncsu.edu.
+ *
+ * ADDENDUM : Robert Hall placed this code in public domain. I Konijn have taken
+ * the code and hereby release it and all changes under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * Returns TRUE if a line of sight can be traced from (x1,y1) to (x2,y2).
+ *
+ * The LOS begins at the center of the tile (x1,y1) and ends at the center of
+ * the tile (x2,y2).  If los() is to return TRUE, all of the tiles this line
+ * passes through must be floor tiles, except for (x1,y1) and (x2,y2).
+ *
+ * We assume that the "mathematical corner" of a non-floor tile does not
+ * block line of sight.
+ *
+ * Because this function uses (short) ints for all calculations, overflow may
+ * occur if dx and dy exceed 90.
+ *
+ * Once all the degenerate cases are eliminated, the values "qx", "qy", and
+ * "m" are multiplied by a scale factor "f1 = abs(dx * dy * 2)", so that
+ * we can use integer arithmetic.
+ *
+ * We travel from start to finish along the longer axis, starting at the border
+ * between the first and second tiles, where the y offset = .5 * slope, taking
+ * into account the scale factor.  See below.
+ *
+ * Also note that this function and the "move towards target" code do NOT
+ * share the same properties.  Thus, you can see someone, target them, and
+ * then fire a bolt at them, but the bolt may hit a wall, not them.  However,
+ * by clever choice of target locations, you can sometimes throw a "curve".
+ *
+ * Note that "line of sight" is not "reflexive" in all cases.
+ *
+ * Use the "projectable()" routine to test "spell/missile line of sight".
+ *
+ * Use the "update_view()" function to determine player line-of-sight.
 */
 bool los(int y1, int x1, int y2, int x2)
 {

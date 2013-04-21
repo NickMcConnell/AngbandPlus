@@ -3,12 +3,23 @@
 /* Purpose: code dealing with files (and death) */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
+
 
 #include "angband.h"
 
@@ -1108,8 +1119,7 @@ static void display_xp_info(void)
 	else
 	{
 		prt_lnum("Exp to Adv.",
-				 (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L),
-				 start_row++, start_col, TERM_L_GREEN);
+				 (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L), start_row++, start_col, TERM_L_GREEN);
 	}
 	prt_lnum("Exp Factor ", p_ptr->expfact, start_row++, start_col, TERM_L_GREEN);
 	
@@ -2211,7 +2221,7 @@ static void display_temporary(void)
 	
     display_temporary_aux( col , &row , p_ptr->stun ,           "Stunned." );
 	display_temporary_aux( col , &row , p_ptr->cut ,            "Bleeding." );						   
-	display_temporary_aux( col , &row , p_ptr->afraid ,         "Tterrified." );	
+	display_temporary_aux( col , &row , p_ptr->afraid ,         "Terrified." );	
 	display_temporary_aux( col , &row , p_ptr->poisoned ,       "Poisoned." );
 	display_temporary_aux( col , &row , p_ptr->slow ,           "Slowed." );	
 	display_temporary_aux( col , &row , p_ptr->confused ,       "Confused." );
@@ -4715,19 +4725,18 @@ errr get_rnd_line(char * file_name, char * output)
 	/* Failed */
 	if (!fp) return (-1);
 
-
 	/* Parse the file */
 	if (0 == my_fgets(fp, buf, 80))
 		lines = atoi(buf);
 	else return (1);
 
 	line = randint(lines);
+    plog_fmt_fiddle( "Lines : %d. Line: %d." , lines , line );
 	for (counter = 0; counter <= line; counter++)
 	{
 		if (!(0 == my_fgets(fp, buf, 80)))
 			return (1);
-		else if (counter == line)
-			break;
+        plog_fmt_fiddle( "Line: %d. Line %s" , counter , buf );
 	}
 
 	strcpy (output, buf);

@@ -1,7 +1,22 @@
 /* File: util.c */
 
 /* Purpose: Angband utilities -BEN- */
-
+/*
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke and Ben Harrison have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
 
@@ -2371,6 +2386,15 @@ void msg_note(cptr msg)
 	msg_print(NULL);
 }
 
+/*  
+ * Do 1 message print and beep. I find this less hackisch than 
+ * overwriting the standardish 'bell()' function
+ */
+void msg_bell(cptr msg)
+{
+    msg_print(msg);
+    bell();
+}
 
 /*
 * Display a formatted message, using "vstrnfmt()" and "msg_print()".
@@ -2394,6 +2418,47 @@ void msg_format(cptr fmt, ...)
 	msg_print(buf);
 }
 
+void msg_fiddle(cptr fmt, ...)
+{
+	va_list vp;
+	char buf[1024];
+	
+	if(arg_fiddle)
+	{
+		/* Begin the Varargs Stuff */
+		va_start(vp, fmt);
+		/* Format the args, save the length */
+		(void)vstrnfmt(buf, 1024, fmt, vp);
+		/* End the Varargs Stuff */
+		va_end(vp);
+		/* Display */
+		msg_print(buf);
+		msg_print(NULL);
+	}
+}
+/* This is ripped out of z-form.c !!!!!!!!!!! */
+
+void plog_fmt_fiddle(cptr fmt, ...)
+{
+    char *res;
+	va_list vp;
+    
+    /*If we arent fiddling, get outta here!*/
+    if(!arg_fiddle)
+        return;
+    
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+    
+	/* Format the args */
+	res = vformat(fmt, vp);
+    
+	/* End the Varargs Stuff */
+	va_end(vp);
+    
+	/* Call plog */
+	plog(res);
+}
 
 
 /*
@@ -3339,6 +3404,18 @@ bool repeat_pull(int *what)
 	return (TRUE);
 }
 
+void repeat_clear(void)
+{
+	/* Start over from the failed pull */
+	if (repeat__idx)
+		repeat__cnt = --repeat__idx;
+	/* Paranoia */
+	else
+		repeat__cnt = repeat__idx;
+    
+	return;
+}
+
 void repeat_push_char(char what)
 {
 	/* Too many keys */
@@ -3406,6 +3483,166 @@ void repeat_check(void)
 
 #endif /* ALLOW_REPEAT -- TNB */
 
+/*BEGIN*/
+
+char menu_key_help(void)
+{
+	char cmd;
+	int basey, basex;
+	int cur_num = 0, max_num, old_num = 0;
+	int menu = 0;
+	bool odd;
+    int cur_col;
+    int cur_row;
+    
+    /*Make sure the menu does not overwrite the @ for tactical considerations*/
+    basey = (py - panel_row_min > 10)? 2 : 13;
+	basex = 15;
+    
+	/* Clear top line */
+	prt("", 0, 0);
+    
+	Term_save();
+    
+	while(1)
+	{
+		int i = 0;
+		char sub_cmd;
+		cptr menu_name;
+		if (!menu) old_num = cur_num;
+		put_str("/----------------------------------------------------\\", basey, basex);
+		put_str("|                                                    |", basey+1, basex);
+		put_str("|                                                    |", basey+2, basex);
+		put_str("|                                                    |", basey+3, basex);
+		put_str("|                                                    |", basey+4, basex);
+		put_str("|                                                    |", basey+5, basex);
+		put_str("\\----------------------------------------------------/", basey+6, basex);
+        
+        /*Write all menu entries ( in tables.c )*/
+		for(i = 0; i < 10; i++)
+		{
+			if (!menu_info[menu][i].cmd) break;
+			menu_name = menu_info[menu][i].name;
+            /* In the first menu we dont show shortcuts, it would be confusing */
+            /* This does not prevent you from creating menu_names with shortcuts in them */
+            /* Like 'Documentation (?)' */ 
+            if(menu!=0)
+                put_str( format("%s (%c)", menu_name, menu_info[menu][i].cmd ), basey + 1 + i / 2, basex + 4 + (i % 2) * 24);
+            else
+                put_str( menu_name, basey + 1 + i / 2, basex + 4 + (i % 2) * 24); 
+		}
+        
+        /* Remember how many real entries there are , is current spot odd and which row are we on ?*/
+		max_num = i;
+		odd = max_num % 2;
+        cur_row = cur_num /2;
+        cur_col = cur_num % 2;
+                
+        /* Place indicator of current spot */
+		put_str("> ",basey + 1 + cur_row, basex + 2 + (cur_col * 24) );
+        
+		/* Place the cursor on the player */
+		move_cursor_relative(py, px);
+        
+		/* Get a command */
+		sub_cmd = inkey();
+        
+        /*Are we selecting ( wide range of keys accepted ) */
+		if ((sub_cmd == ' ') || (sub_cmd == 'x') || (sub_cmd == 'X') || (sub_cmd == '\r') || (sub_cmd == '\n'))
+		{
+			if (menu_info[menu][cur_num].fin)
+			{
+				cmd = menu_info[menu][cur_num].cmd;
+				break;
+			}
+			else
+			{
+				menu = menu_info[menu][cur_num].cmd - '0';
+				cur_num = 0;
+                /* Show sub menu in an overlapping fashion */
+				basey += 2;
+				basex += 8;
+			}
+		}
+        /* Are we backing out ?odd*/
+		else if ((sub_cmd == ESCAPE) || (sub_cmd == 'z') || (sub_cmd == 'Z') || (sub_cmd == '0'))
+		{
+			if (!menu)
+			{
+				cmd = ESCAPE;
+				break;
+			}
+			else
+			{
+				menu = 0;
+				cur_num = old_num;
+				basey -= 2;
+				basex -= 8;
+				Term_load();
+				Term_save();
+			}
+		}
+		else if ((sub_cmd == '2') || (sub_cmd == 'j') || (sub_cmd == 'J'))
+		{
+			if (odd)
+				cur_num = (cur_num + 2) % (max_num  + (cur_col?-1:+1) );
+			else 
+                cur_num = (cur_num + 2) % max_num;
+		}
+		else if ((sub_cmd == '8') || (sub_cmd == 'k') || (sub_cmd == 'K'))
+		{
+			if (odd)
+			{
+				if (cur_col)
+					cur_num = (cur_num + max_num - 3) % (max_num - 1);
+				else
+					cur_num = (cur_num + max_num - 1) % (max_num + 1);
+			}
+			else cur_num = (cur_num + max_num - 2) % max_num;
+		}
+		else if ((sub_cmd == '4') || (sub_cmd == '6') || (sub_cmd == 'h') || (sub_cmd == 'H') || (sub_cmd == 'l') || (sub_cmd == 'L'))
+		{
+			if ( cur_col || (cur_num == max_num - 1))
+			{
+				cur_num--;
+			}
+			else if (cur_num < max_num - 1)
+			{
+				cur_num++;
+			}
+		}
+        else
+        {
+            /* Check if the actual command key was pressed and return that, unless the entry is not final */
+            for( i = 0 ; i <10; i++ )
+            {
+                if( sub_cmd == menu_info[menu][i].cmd )
+                {
+                    if( menu_info[menu][i].fin)
+                    {
+                        /* Hack Hack Hack, fix me !! */
+                        Term_load();
+                        if (!inkey_next) inkey_next = "";
+                        return (sub_cmd);                   
+                    }
+                    else
+                    {
+                        menu = menu_info[menu][cur_num].cmd - '0';
+                        cur_num = 0;
+                        basey += 2;
+                        basex += 8;                        
+                    }
+                }
+            }
+        }
+	}
+    
+	Term_load();
+	if (!inkey_next) inkey_next = "";
+	return (cmd);
+}
+
+
 /**BEGIN**/
 
 /* script to be analyzed */
@@ -3457,6 +3694,7 @@ double find_var(char *s)
 	if( prefix(s , "MSP" ) )  return (double)p_ptr->msp;
 	/*Still here ? Let the user know, return 0*/
 	script_error(4);
+	msg_note( s );
 	return 0;
 }
 

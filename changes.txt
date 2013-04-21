@@ -18,6 +18,8 @@
   - Removed out of theme monster pits ( orcs & trolls & coins ), added snakes pit I think
 
 *Creatures
+  - 0.8.5 Fixed again Pit Fiend, Osyluth, Hell knight, Barbazu, ( all these xp ), Revenant( seriously buffed hp, be scared of revenants )
+  - 0.8.5 Monsters can now do off screen breathing ( reversal pending user input )
   - 0.8.4 Marilith xp has been 'fixed' as well
   - 0.8.4 #define RF7_AQUATIC         0x00080000    /* Thrives in water */
   - 0.8.4 #define RF7_FLIGHT          0x00100000    /* Can fly or levitate */
@@ -65,6 +67,7 @@
   - Monsters can now have specific escorts : ESCORT_XXX
 
 *Flavours
+  - 0.8.5 Staves : umber , wands green, food umber ( instead of violet , violet and green )
   - Changed most ring flavours and quite a bit of staf flavors.
   - Changed most wand flavours
   - Changed all store owners, who will notice ;)
@@ -75,7 +78,14 @@
   - Level 1 story added
   - Level 2 story added
 
+*Fiddle Mode
+  - 0.8.5 X11 preference file location is now dumped to console in fiddle mode
+
 *Equipment
+  - 0.8.5 Fixed a fair amount of rings being black, fear the copy-paste !!
+  - 0.8.5 There is message on the scroll. -> There is a message on the scroll.
+  - 0.8.5 Fire sheath now correctly says 'fire sheath triggers' instead of electric sheath triggers. (bugfix)
+  - 0.8.5 Orcish Pick -> Ekkuyan Pick ( From Ekku, the high grade ore for Damascan Steel )
   - 0.8.4 Temple will buy now Demonic and Death books but will destroy them instead of putting them for sale
   - 0.8.4 Magic store now not only sells but also buys orbs
   - 0.8.4 ego item 'of the Minchiate Elements' added , fire+cold+fire branding , only possible with 'Book of Toth'
@@ -100,6 +110,7 @@
   - Added !xxxx for artefact names, this will takes as the name whatever comes after !, ignoring base name
 
 *Character Building
+  - 0.8.4 Morui still talked about Klackons, fixed
   - 0.8.3 Different sex descriptions : Lady/Sir Dame/Lord
   - 0.8.3 Revamped races : 4 major races : Human, Fae, Spawn & Elder
   - 0.8.3 Human subraces : Florentian, Gipsy, Nordic ( thanks Steam), Atlantian, Dwarf/elf/ogre/troll/giant/titan descendant/nephilim/afflicted
@@ -122,7 +133,9 @@
   - Player leveling causes a complete heal and restoration.
 
 *Start Up
-
+  - 0.8.5 Intro screen now mentions version number
+  - 0.8.5 Lilu now have con bonus as mentioned in the char creation screen
+  - 0.8.5 History background revamped and improved, real backgrounds now for werewolves, florentians, Lilu, gypies etc.
   - 0.8.3 Added dedication to Miss Konijn in start-up screen
   - 0.8.3 Completely rewrote birth sequence
   - 0.8.2 Birth screen does not allow to increase a stat when 0 points available (bugfix)
@@ -135,6 +148,7 @@
   - High mages start with 2 spell books
 
 *Wizard Commands
+  - 0.8.5 '2' now evaluates an expression with the PFH for testing purposes
   - 0.8.4 '1' now makes all spells learned, beats pressing 'G' 64 times all the time
   - 0.8.4 '-' now makes you loose a corruption
   - 0.8.4 '0' now creates permanent walls around the player ( to test stacking or to be experiment without being bothered by monsters )
@@ -143,6 +157,10 @@
   - 'S' , get usefull supplies
 
 *UI
+  - 0.8.5 XP on main screen is now standarly showing how much xp is needed for next level
+  - 0.8.5 Fix demon power descriptions
+  - 0.8.5 Quick start now properly says 'hey, I dont support that!' before quitting
+  - 0.8.5 Added floor list functionality
   - 0.8.4 Added squelcher functionality ( first phase ) from scratch
   - 0.8.4 Spells Screen is now actually useful and no longer hacked ( more color, all spells shown )
   - 0.8.4 Browsing books allows now for spell descriptions to pop up
@@ -162,6 +180,7 @@
   - Old study position has been shifted to the left 2 positions
 
 *Help Files
+  - 0.8.5 '?' now first shows an interactive menu, pressing '?' again shows documentation ( thank you Hengband )
   - 0.8.4 Help on Help is rewritten
   - 0.8.4 Birthsigns are added to help
   - 0.8.4 History is updated
@@ -262,6 +281,12 @@
   - 0.8.2 Disintegrate checked wrong flag set for uniqueness of monster ( bugfix )
 
 *Internals
+  - 0.8.5 s_ptr ( spell pointer ) is no longer global, removing tons of (potential) bugs
+  - 0.8.5 First few thousand lines of xtra2.c no longer unholy repetitive heap of code
+  - 0.8.5 Added makefile.WHICH pointing which makefile to use ( and which makefiles not to use )  
+  - 0.8.5 Rumors have been changed/added/removed
+  - 0.8.5 Rumors have been fixed ( too long rumor stopped further rumors to be properly displayed
+  - 0.8.5 Added improved fiddle mode support
   - 0.8.4 Added cygwin makefile ( thanks Chris Hughes )
   - 0.8.4 Found several instances where the smart bit flag was checked for SM_SMART with '&&', fixed now, have not tested the consequences
   - 0.8.4 Removed ally status from the smart bit field, which means you can now actually turn off the smart directive without loosing ally/neutral/etc functionality
@@ -281,19 +306,33 @@
   - 0.8.2 Draebors cloak now activates for mass confusion and blink
   - 0.8.2 Furcifers' and Michaels' swords are now more restricted with their slays
   - Changed most of them, made sure that worhtless artefacts are not stomped
-
+  
+* GPL
+  - 0.8.5 Found and got GPL release of Scott Egashira
+  - 0.8.5 Found and got GPL release of David Boeren
+  - 0.8.5 Found and got GPL release of Steve Linberg
+  - 0.8.5 Found and got GPL release of Mike Marcelais 
+  - 0.8.5 Found and got GPL release of Skirmantas Kligys
+  - 0.8.5 Found and got GPL release of Chris R. Martin
+  - 0.8.5 Found and got GPL release of Kevin Bracey
 
 -TODO :
 -Level 5 should have Minos' palace placed, with the only exit that points downstairs covering all other downstairs conveniently with rubble ( go calamarain ;)
--xtra2 should be largely rewritten so it does not drive me mad ( or at least preserve the last strands of my sanity ;)
-  set_blind & company
 - Allow Hell Knights to control the powers of Demonic Weapons ( basically : todo demonic weapons )
 - allow clean_shot to use is_monster_killer(enemy, m_ptr)
 - wtf is MFLAG_NICE
+- Chaos Knights are not in
+- drop_good_only drop_great_only bm_sells_thegoodstuff are not in
+- cmd5.c is not using to the fullest the new spell capabilities
+- Same classes should get access to more realms ( they will be bad at it, but roleplayers dont care )
+- REBORN flag : make it work
+- unique set drops 
+- Need a centralized U_power to description algorithm
+- Need a centralized birth screen routine 
+- Find Roland Jay Roberts ( Found and waiting )
+- Find Sprite World II authors ( new maintainer found and waiting )
+- Find Maarten Hazewinkel ( Found and waiting )
+- Find Ross E Becker ( Found and waiting )
+- Find Randy Hutson, the one that studied in the Math department of Texas ( not found )
 
--ON WIZARD MODE :
 
-code changes : for testing purposes, since there is no more flagging code for wizards,
-there can be either only all wizards or no wizards, right now every player is a wizard
-unless this game is released. So to all that want to wizard around, check file birth.c
-and set   debug_mode = TRUE; and compile. All wizards know how to compile ;)

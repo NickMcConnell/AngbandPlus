@@ -3,12 +3,21 @@
 /* Purpose: Angband Tables */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
 
@@ -1494,7 +1503,7 @@ player_race race_info[COUNT_SUBRACES] = {
    {  "Devilspawn",			{ 2,-2,-1,-1, 2,-4 }, 	-5, -2, -1, -1, -1,  5, 12,  5, 	11, 140,  14,   6,   65,  6, 150, 20,  61,  6, 120,  15,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Ranger and Paladin */
    {  "Imp",				{-1,-1,-1, 1, 2,-3 }, 	-3,  2, -1,  1, -1, 10,  5, -5, 	10, 110,  13,   4,   68,  1, 150,  5,  64,  1, 120,   5,  3,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
    {  "Succubus",			{ 0, 2, 0, 2, 0, 4 }, 	-5, -2, -1, -1, -1,  5, 12,  5, 	11, 160,  14,   6,   65,  6, 150, 20,  61,  6, 120,  15,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Ranger and Paladin */
-   {  "Lili",				{ 0, 2, 0, 2, 0, 4 }, 	-5, -2, -1, -1, -1,  5, 12,  5, 	11, 160,  14,   6,   65,  6, 150, 20,  61,  6, 120,  15,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Ranger and Paladin */
+   {  "Lili",				{ 0, 0, 0, 0, 4, 4 }, 	-5, -2, -1, -1, -1,  5, 12,  5, 	11, 160,  14,   6,   65,  6, 150, 20,  61,  6, 120,  15,  0,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,}, /* All but Ranger and Paladin */
    {  "Elder",				{ 1, 3, 2, 3, 1, 5 }, 	 4, 20, 20,  4,  3, 14, 10, 25, 	10, 200, 100,  30,   90, 10, 190, 20,  82, 10, 180,  15,  4,  0x1FFF, 	TRUE,	FALSE,	FALSE,	FALSE,},
    {  "Elder Guardian",     { 4,-5,-5, 0, 4,-4 }, 	-5, -5, 10, -1, -1,  8, 20,  0, 	12, 200,   1, 100,   66,  1, 200,  6,  62,  1, 180,   6,  4,  0x0001, 	FALSE,	FALSE,	TRUE,	FALSE,}, 
    {  "Elder Horror",		{-3, 4, 4, 0,-2,-5 }, 	10, 25, 15,  2,  5, 12,-10, -5, 	 9, 140, 100,  25,   68,  6, 142, 15,  63,  6, 112,  10,  4,  0x1746, 	TRUE,	FALSE,	FALSE,	FALSE,},
@@ -1514,41 +1523,48 @@ player_race sign_info[COUNT_SIGNS] = {
     {  "Morui",				{ 2,-1,-1, 1, 2,-2 }, 	10,  5,  5,  0, -1, 10,  5,  5, 	2,  35,  6,   0,   0,  0,   0,  0,   0,  0,   0,   0,  2,  0x1FFF,		TRUE,	FALSE,	FALSE,	FALSE,},
 };
 
+
+/*  The description should be no longer than 20 characters if you want it to look pretty in the 'U'se menu */
+/*  The description should be able to work with 'You can ...' if you want it to look pretty with self knowledge */
 U_power racial_powers[] = {
-	/*Race             desc                   lev  cost cost/level   stat   extra_info		power*/
-	{ DWARF			, "detect doors+traps",		5,	5,		0,		A_WIS,	NULL,			0,},
+	/*Race             desc5678901234567890   lev  cost cost/level  stat   extra_info		power*/
+	{ DWARF			, "detect traps & doors",	5,	5,		0,		A_WIS,	NULL,			0,},
 	{ GNOME			, "teleport",				5,	5,		0,		A_INT,	NULL,			0,},
 	{ LEPRECHAUN	, "teleport",				5,	5,		5,		A_INT,	NULL,			0,},
 	{ TROLL			, "berserk",				10,	12,		0,		A_WIS,	NULL,			0,},
 	{ NORDIC		, "berserk",				8,	10,		0,		A_WIS,	NULL,			0,},
-	{ NEPHILIM		, "divine powers",			30,	50,		0,		A_INT,	NULL,			0,},
-	{ OGRE			, "explosive rune",			25,	35,		0,		A_INT,	NULL,			0,},
-	{ GIANT			, "stone to rubble",		20,	10,		0,		A_STR,	NULL,			0,},
+	{ NEPHILIM		, "use divine powers",		30,	50,		0,		A_INT,	NULL,			0,},
+	{ OGRE			, "set a trap",				25,	35,		0,		A_INT,	NULL,			0,},
+	{ GIANT			, "bash a wall",			20,	10,		0,		A_STR,	NULL,			0,},
 	{ TITAN			, "probe",					25,	20,		0,		A_INT,	NULL,			0,},		
 	{ SPECTRE		, "scare",					4,	3,		0,		A_INT,	NULL,			0,},
-	{ KOBOLD		, "poison dart",			12,	8,		0,		A_DEX,	"dam lvl",		0},
-	{ ATLANTIAN		, "magic missile",			2,	2,		0,		A_INT,	NULL,			0,},
+	{ KOBOLD		, "spit poison",			12,	8,		0,		A_DEX,	"dam lvl",		0},
+	{ ATLANTIAN		, "conjure a  missile",		2,	2,		0,		A_INT,	NULL,			0,},
 	{ HORROR		, "mind blast",				15,	12,		0,		A_INT,	"dam lvl",		0},
-	{ IMP			, "fire blast",				9,	15,		0,		A_WIS,	"dam lvl",		0},
-	{ GUARDIAN		, "stone skin",				20,	15,		0,		A_CON,	"dur 30+d20",	0},
+	{ IMP			, "blast fire",				9,	15,		0,		A_WIS,	"dam lvl",		0},
+	{ GUARDIAN		, "cast stone skin",		20,	15,		0,		A_CON,	"dur 30+d20",	0},
 	{ SKELETON		, "restore life",			30,	30,		0,		A_WIS,	NULL,			0,},
 	{ MUMMY			, "restore life",			30,	30,		0,		A_WIS,	NULL,			0,},				
 	{ VAMPIRE		, "drain life",				2,	1,		3,		A_CON,	NULL,			0,},
-	{ FAE			, "sleeping dust",			12,	12,		0,		A_INT,	NULL,			0,},	
+	{ FAE			, "throw faerie dust",		12,	12,		0,		A_INT,	NULL,			0,},	
 	{ 0				, NULL,						0,	0,		0,		0	,	NULL,			0,},/*Famous NULL record*/	
 	
 };
 
+/*  The description should be no longer than 20 characters if you want it to look pretty in the 'U'se menu */
+/*  The description should be able to work with 'You can ...' if you want it to look pretty with self knowledge */
 U_power sign_powers[] = {
-	/*Sign              desc                   lev  cost cost/level   stat   extra_info		power*/
-	{ SIGN_PLUTUS		, "detect doors+traps",		5,	5,		0,		A_WIS,	NULL,			ABILITY_DETECT_DOOR_TRAPS,},
+	/*Sign                 desc5678901234567890                   lev  cost cost/level   stat   extra_info		power*/
+	{ SIGN_PLUTUS		, "detect doors & traps",	5,	5,		0,		A_WIS,	NULL,			ABILITY_DETECT_DOOR_TRAPS,},
 	{ SIGN_MORUI		, "spit acid",				9,	9,		0,		A_DEX,	NULL,			ABILITY_SPIT_ACID,},
-	{ SIGN_DRACO		, "breath weapon",			1,	0,		1,		A_CON,	"dam 2*lvl",	ABILITY_BREATHE_ELEMENTS,},		
+	{ SIGN_DRACO		, "breathe the elements",	1,	0,		1,		A_CON,	"dam 2*lvl",	ABILITY_BREATHE_ELEMENTS,},		
 	{ 0					, NULL,						0,	0,		0,		0	,	NULL,			0,},/*Famous NULL record*/	
 };
 
+/*  The description should be no longer than 20 characters if you want it to look pretty in the 'U'se menu */
+/*  Another table is used for self knowledge */
 U_power freak_powers[] = {
-	/*Sign              desc                   lev  cost cost/level   stat   extra_info			power*/
+	/*Sign                 desc5678901234567890   lev  cost cost/level   stat   extra_info		power*/
 	{ COR1_SPIT_ACID	, "spit acid",				9,	9,		0,		A_DEX,	"dam lvl",		COR1_SPIT_ACID,},
 	{ COR1_BR_FIRE		, "fire breath",			20,	0,		1,		A_CON,	"dam 2*lvl",	COR1_BR_FIRE,},
 	{ COR1_HYPN_GAZE	, "hypnotic gaze",			12,	12,		0,		A_CHA,	NULL,			COR1_HYPN_GAZE,},
@@ -2191,7 +2207,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 28, 20, 70, 15,   "Healing",						"heal: 300",  "Heals 300 damage and completely stops bleeding and stunning.",},
 	{ 33, 30, 75, 20,   "Resist True",					"dur: 1d25+25",  "Gives you a temporary resistance to acid, cold, fire, electricity and poison.",},
 		
-	{ 3, 3, 25, 15,     "Horrific Visage",				"scare: PELV",  "Scares and stuns a nearby monster.",},
+	{ 3, 3, 25, 15,     "Horrific Visage",				"scare: PLEV",  "Scares and stuns a nearby monster.",},
 	{ 10, 10, 70, 40,   "See Magic",					NULL,  "Detects nearby magical items.",},
 	{ 10, 10, 80, 40,   "Stone Skin",					"dur: 1d20+30",  "Adds 50 to your armour class for a short while.",},
 	{ 12, 12, 80, 40,   "Move Body",					"range: PLEV+2",  "Teleports you to a nearby location that you specify.",},
@@ -2243,7 +2259,7 @@ spell_type spells[MAX_REALM][32] =
 	{ 46, 70, 80, 150,  "True Warding",					NULL,  "Surrounds you with Glyphs of Warding.",},
 	{ 30, 20, 80, 15,   "Word of Destruction",			"rad: 15",  "Causes the roof to collapse around you, much like the effects of an earthquake.",},
 	{ 40, 100, 95, 200, "Gift of Malphas ",				NULL,  "Not done yet",},     
-	{ 40, 100, 95, 200, "Kiss of Lillith",				"charm: PELV*4",  "Quadriple charm attack on all monsters around you.",},
+	{ 40, 100, 95, 200, "Kiss of Lillith",				"charm: PLEV*4",  "Quadriple charm attack on all monsters around you.",},
 	{ 40, 100, 95, 200, "Behemoth's Call",				"rad: 16",  "Flood the dungeon with its items and monsters around you.",},
 	{ 47, 75, 80, 200,  "Chaos Rift",					"dam: MHP;rad: 2",  "Creates a huge rift causing Primal Chaos damage."},
 	}
@@ -2421,7 +2437,7 @@ NULL,
 "Display overhead view",
 "Display monster recall",
 "Display object recall",
-NULL,
+"Display visible monsters",
 "Display snap-shot",
 NULL,
 NULL,
@@ -2453,7 +2469,7 @@ option_type option_info[] =
 {
 /*** User-Interface ***/
 
-{ &rogue_like_commands, FALSE,	1,      0, 0,			"rogue_like_commands",  "		Rogue-like commands" },
+{ &rogue_like_commands, FALSE,	1,      0, 0,			"rogue_like_commands",          "Rogue-like commands" },
 { &quick_messages,		TRUE,	1,      0, 1,			"quick_messages",               "Activate quick messages" },
 { &other_query_flag,    FALSE,  1,      0, 2,			"other_query_flag",             "Prompt for item confirmation" },
 { &carry_query_flag,    FALSE,  4,      0, 3,			"carry_query_flag",             "Prompt before picking things up" },
@@ -2550,14 +2566,15 @@ option_type option_info[] =
 { &apply_k_discover,	FALSE,  8,		2, 24,			"inscribe_id",					"Apply {!k} on discovery of new item types" },	
 { &sanity_store,		TRUE,   9,		2, 25,			"sanity_store",					"Keep storebought items" },	
 { &sanity_speed,		TRUE,   9,		2, 26,			"sanity_speed",					"Keep items giving speed bonuses" },	
-{ &sanity_immune,		TRUE,   9,		2, 27,			"sanity_immune",					"Keep items giving immunity" },	
-{ &sanity_telepathy,	TRUE,   9,		2, 28,			"sanity_telepathy",					"Keep items giving telepathy" },	
-{ &sanity_high_resist,	TRUE,   9,		2, 29,			"sanity_high_resists",					"Keep items giving high resists" },	
+{ &sanity_immune,		TRUE,   9,		2, 27,			"sanity_immune",				"Keep items giving immunity" },	
+{ &sanity_telepathy,	TRUE,   9,		2, 28,			"sanity_telepathy",				"Keep items giving telepathy" },	
+{ &sanity_high_resist,	TRUE,   9,		2, 29,			"sanity_high_resists",			"Keep items giving high resists" },	
 { &sanity_stat,			TRUE,   9,		2, 30,			"sanity_stat",					"Keep items boosting stats" },	
-{ &sanity_verbose,		TRUE,   9,		2, 31,			"sanity_verbose",					"Inform when sanity checks are used" },	
+{ &sanity_verbose,		TRUE,   9,		2, 31,			"sanity_verbose",				"Inform when sanity checks are used" },	
 { &sanity_id,			TRUE,   9,		3, 1,			"sanity_id",					"Keep unknown consumables" },			
 { &sanity_realm,		TRUE,   9,		3, 0,			"sanity_realm",					"Keep books from own realm" },		
-{ &sanity_price,		TRUE,   9,		3, 1,			"sanity_price",					"Keep items worth more than x gold" },		
+{ &sanity_price,		TRUE,   9,		3, 1,			"sanity_price",					"Keep items worth more than x gold" },	
+{ &reverse_xp,          TRUE,   1,		3, 2,			"reverse_xp",					"Show xp untill next level" },		
 	
 
 /*** End of Table ***/
@@ -2851,6 +2868,170 @@ cptr class_sub_name[MAX_CLASS][MAX_REALM+1] =
 {	"Druid",		"-",			"-",		"Druid",	"-",			"-",			"-",			"-",			"-",			"-"	},
 {   "Warlock",		"-",			"-",		"-",		"-",            "-",            "-",			"-",			"-",			"Warlock"	},
 };
+
+timed_type timed[] = 
+{/*	  s16b *timer;			  cptr status					cptr gain;									cptr lose;									u32b redraw;		u32b update;*/
+	{ &(p_body.fast),	      "hastened",					"You feel time slowing down!",				"You regain normal speed",					0,					PU_BONUS, },
+	{ &(p_body.slow),	      "slowed",						"You feel yourself moving slower!",			"You feel yourself speed up.",				0,					PU_BONUS, },
+	{ &(p_body.blind),	      "blind",						"You are blind!",							"You can see again.",						PR_MAP|PR_BLIND,	PU_UN_VIEW|PU_UN_LITE|PU_VIEW|PU_LITE|PU_MONSTERS, }, /*PW_OVERHEAD*/
+	{ &(p_body.paralyzed),	  "paralyzed",					"You are paralyzed!",						"You can move again.",						PR_STATE,			0, }, 
+	{ &(p_body.confused),	  "confused",					"You are confused!",						"You feel less confused now.",				PR_CONFUSED,		0, }, 
+	{ &(p_body.afraid),	      "terrified",					"You are terrified!",						"You feel bolder now.",						PR_AFRAID,			0, },
+	{ &(p_body.image),	      "hallucinating",				"Oh, wow! Everything looks so cosmic now!", "You can see clearly again.",				PR_MAP,				PU_MONSTERS, }, /*PW_OVERHEAD*/
+	{ &(p_body.poisoned),	  "poisoned",					"You are poisoned!",                        "You are no longer poisoned.",				PR_POISONED,		0, },
+	{ &(p_body.cut),	      "cut",						"You are cut!",								"You are no longer bleeding.",				PR_CUT,				0, }, /*Call to custom code */
+	{ &(p_body.stun),	      "stunned",					"You are stunned!",							"You are no longer stunned.",				PR_STUN,			PU_BONUS, }, /*Call to custom code */
+	{ &(p_body.protevil),	  "protected from evil",		"You feel safe from evil!",                 "You no longer feel safe from evil.",		0,					0, }, 
+	{ &(p_body.invuln),	      "invulnerable",				"Invulnerability!",                         "The invulnerability wears off.",			PR_MAP,				PU_BONUS|PU_MONSTERS, }, /*PW_OVERHEAD*/
+	{ &(p_body.hero),	      "heroic",						"You feel like a hero!",                    "The heroism wears off.",					0,					PU_BONUS|PU_HP, },
+	{ &(p_body.shero),	      "raging",						"You feel the surge of a cold rage!",       "Your rage wears down.",					0,					PU_BONUS|PU_HP, },
+	{ &(p_body.shield),		  "shielded",					"Your are shielded.",						"Your shield dissipates.",					0,					PU_BONUS, },
+	{ &(p_body.blessed),	  "blessed",					"You feel righteous!",                      "The prayer has expired.",					0,					PU_BONUS, },
+	{ &(p_body.tim_invis),	  "seeing invisible",			"Your eyes feel very sensitive!",           "Your eyes feel less sensitive.",			0,					PU_BONUS|PU_MONSTERS, },
+	{ &(p_body.tim_infra),	  "seeing infra-red",			"Your eyes begin to tingle!",               "Your eyes stop tingling.",					0,					PU_BONUS|PU_MONSTERS, },
+	{ &(p_body.magic_shell),  "anti-magical",				"You feel shielded from magic.",            "You no longer feel shielded from magic.",  0,					PU_BONUS, },
+	{ &(p_body.oppose_acid),  "resistant to acid",			"You feel resistant to acid!",              "You feel less resistant to acid.",         0,					0, },
+	{ &(p_body.oppose_elec),  "resistant to electricity",	"You feel resistant to electricity!",       "You feel less resistant to electricity.",  0,					0, },
+	{ &(p_body.oppose_fire),  "resistant to fire",			"You feel resistant to fire!",              "You feel less resistant to fire.",         0,					0, },
+	{ &(p_body.oppose_cold),  "resistant to cold",			"You feel resistant to cold!",              "You feel less resistant to cold.",         0,					0, },
+	{ &(p_body.oppose_pois),  "resistant to poison",		"You feel resistant to poison!",            "You feel less resistant to poison.",       0,					0, },
+	{ &(p_body.tim_esp),      "psychic",					"You feel your consciousness expand!",      "Your consciousness contracts again.",      0,					PU_BONUS|PU_MONSTERS, },
+	{ &(p_body.wraith_form),  "incorporeal",				"You become a ghastly wraith-being!",       "You are no longer a wraith.",              PR_MAP,				PU_BONUS|PU_MONSTERS, },   /*PW_OVERHEAD*/
+};
+
+menu_type menu_info[10][10] =
+{
+	{
+    {"Magic/Special", '1', FALSE},
+    {"Action", '2', FALSE},
+    {"Items(use)", '3', FALSE},
+    {"Items(other)", '4', FALSE},
+    {"Equip", '5', FALSE},
+    {"Door/Box", '6', FALSE},
+    {"Informations", '7', FALSE},
+    {"Options", '8', FALSE},
+    {"Other commands", '9', FALSE},
+    {"Documentation (?)", '?', TRUE},
+	},
+    
+	{
+    {"Use", 'm', TRUE},
+    {"See tips", 'b', TRUE},
+    {"Study", 'G', TRUE},
+    {"Special abilities", 'U', TRUE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE}
+	},
+    
+	{
+    {"Rest", 'R', TRUE},
+    {"Disarm a trap", 'D', TRUE},
+    {"Search", 's', TRUE},
+    {"Look", 'l', TRUE},
+    {"Target", '*', TRUE},
+    {"Dig", 'T', TRUE},
+    {"Go up stairs", '<', TRUE},
+    {"Go down stairs", '>', TRUE},
+    {"Search mode ON/OFF", 'S', TRUE},
+    {"", 0, FALSE},        
+	},
+    
+	{
+    {"Read a scroll", 'r', TRUE},
+    {"Drink a potion", 'q', TRUE},
+    {"Use a staff", 'u', TRUE},
+    {"Aim a wand", 'a', TRUE},
+    {"Zap a rod", 'z', TRUE},
+    {"Activate an equipment", 'A', TRUE},
+    {"Eat", 'E', TRUE},
+    {"Fire missile weapon", 'f', TRUE},
+    {"Throw an item", 'v', TRUE},
+    {"", 0, FALSE}
+	},
+    
+	{
+    {"Get items", 'g', TRUE},
+    {"Drop an item", 'd', TRUE},
+    {"Destroy an item", 'k', TRUE},
+    {"Inscribe an item", '{', TRUE},
+    {"Uninscribe an item", '}', TRUE},
+    {"Info about an item", 'I', TRUE},
+    {"Inventory list", 'i', TRUE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE}
+	},
+    
+	{
+    {"Wear", 'w', TRUE},
+    {"Take off", 't', TRUE},
+    {"Refuel", 'F', TRUE},
+    {"Equipment list", 'e', TRUE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE}
+	},
+    
+	{
+    {"Open", 'o', TRUE},
+    {"Close", 'c', TRUE},
+    {"Bash a door", 'B', TRUE},
+    {"Jam a door", 'j', TRUE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE}
+	},
+    
+	{
+    {"Full map", 'M', TRUE},
+    {"Map", 'L', TRUE},
+    {"Level feeling", KTRL('F'), TRUE},
+    {"Character status", 'C', TRUE},
+    {"Identify symbol", '/', TRUE},
+    {"Show prev messages", KTRL('P'), TRUE},
+    {"Current time", KTRL('T'), TRUE},
+    {"Various informations", '~', TRUE},
+    {"Play record menu", '|', TRUE},
+    {"", 0, FALSE}
+	},
+    
+	{
+    {"Set options", '=', TRUE},
+    {"Interact with macros", '@', TRUE},
+    {"Interact w/ visuals", '%', TRUE},
+    {"Interact with colors", '&', TRUE},
+    {"Enter a user pref", '\"', TRUE},
+    {"Reload auto-pick pref", '$', TRUE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE},
+    {"", 0, FALSE}
+	},
+        
+	{
+    {"Save and quit", KTRL('X'), TRUE},
+    {"Save", KTRL('S'), TRUE},
+    {"Documentation", '?', TRUE},
+    {"Redraw", KTRL('R'), TRUE},
+    {"Take note", ':', TRUE},
+    {"Dump screen dump", ')', TRUE},
+    {"Load screen dump", '(', TRUE},
+    {"Version info", 'V', TRUE},
+    {"", 0, FALSE},
+    {"", 0, FALSE}
+	},
+};
+
 
 /* All possible squelch states described */
 cptr squelch_strings[] = {

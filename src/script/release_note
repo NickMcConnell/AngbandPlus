@@ -1,0 +1,34 @@
+#!/usr/bin/java judo 
+
+fc = getFileAsString("changes.txt");
+
+f = openTextFile( "releasenote.txt" , "w");
+
+fca = fc.split("\\n");
+
+cline = "";
+
+for  x in fca {
+  
+  . x;
+
+  if( x.startsWith('*') ){
+     . <f> x;
+  }
+  
+  if( x.startsWith("  - 0.8.4") ){
+    ta = x.split("\\s");
+    cline = "";
+      for t in ta{
+      	if( t.length() + cline.length() + 1 > 71 ){
+	  . <f> cline;
+	  cline = "          " @ t @ " ";
+	}else{
+	  cline = cline @ t @ " ";
+	}
+      }
+      . <f> cline;
+  }  
+}
+
+f.close();

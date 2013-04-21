@@ -3,12 +3,21 @@
 /* Purpose: describe monsters (using monster memory) */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Christopher J. Stuart
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Christopher J. Stuart
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Christopher J. Stuart released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
 
@@ -236,6 +245,9 @@ static void roff_aux(int r_idx)
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_MAXHP)) flags1 |= (RF1_FORCE_MAXHP);
+        
+        /* Know reborn flag */
+        if (r_ptr->flags7 & (RF7_REBORN)) flags7 |= (RF7_REBORN);
 	}
 
 
@@ -1428,6 +1440,11 @@ static void roff_aux(int r_idx)
 	{
 		roff( format("%^s is blown about to and fro by a violent storm.", wd_he[msex]));
 	}	 
+	/* Notice monsters that never die permanently */
+	if (flags7 & (RF7_REBORN))
+	{
+		roff( format("%^s recovers from fatal wounds.", wd_he[msex]));
+	}	     
 	
 	/* All done */
 	roff("\n");
@@ -1542,5 +1559,135 @@ void display_roff(int r_idx)
 	roff_top(r_idx);
 }
 
+/*
+ * Hack -- show a list of the visible monsters in the current "term" window
+ */
+void display_visible(void)
+{
+	int i, j;
+	int c = 0;
+	int items = 0;
+    
+	monster_list_entry *who;
+    
+	/* Clear */
+	Term_clear();
+    
+	/* XXX Hallucination - no monster list */
+	if (p_ptr->image)
+	{		
+		c_prt(TERM_WHITE,"You see a lot of pretty colours.",0,0);
+		return;
+	}
+    
+	/* Allocate the "who" array */
+	C_MAKE(who, m_max, monster_list_entry);
+    
+	/* Count up the number visible in each race */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+        
+		bool found = FALSE;
+        
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+        
+		/* Skip unseen monsters */
+		if (!(m_ptr->ml || m_ptr->mflag)) continue;
+        
+		/* Increase for this race */
+		if (items)
+		{
+			for (j = 0; j < items; j++)
+			{
+				if ( who[j].r_idx == m_ptr->r_idx)
+				{
+					who[j].amount++;
+					found = TRUE;
+					break;
+				}
+			}
+		}
+		
+		if (!found)
+		{
+			who[items].r_idx = m_ptr->r_idx;
+			who[items].amount = 1;
+			items++;
+		}
+        
+		/* Increase total Count */
+		c++;
+	}
+    
+	/* Are monsters visible? */
+	if (items)
+	{
+		int w, h, num = 0;
+		u16b why = 1;
+        
+		/* First, sort the monsters by expereince*/
+		ang_sort_comp = ang_sort_comp_visible_hook;
+		ang_sort_swap = ang_sort_swap_visible_hook;
+        
+		/* Sort the array */
+		ang_sort(who, &why, items);
+        
+		/* Then, display them */
+		(void)Term_get_size(&w, &h);
+        
+		c_prt(TERM_WHITE,format("You can see %d monster%s", c, (c > 1 ? "s:" : ":")), 0, 0);
+        
+		/* Print the monsters in reverse order */
+		for (i = items - 1; i >= 0; i--)
+		{
+			monster_race *r_ptr =  &r_info[who[i].r_idx];
+            char m_name[80];
+            
+			/* Default Colour */
+			byte attr = TERM_WHITE;
+            
+			/* Uniques are red */
+			if  (r_ptr->flags1 & (RF1_UNIQUE)) 
+                attr = TERM_L_RED;
+            
+			/* Have we ever killed one? */
+			if (r_ptr->r_tkills)
+			{
+				if (r_ptr->level > p_ptr->max_dun_level  )
+				{
+					attr = TERM_VIOLET;
+				}
+			}
+			else
+			{
+                attr = TERM_SLATE;
+			}			
+            
+            strcpy(m_name, (r_name + r_ptr->name));
+                        
+			/* Dump the monster symbol and name */
+			c_prt(r_ptr->x_attr, format("%c ",r_ptr->x_char), (num % (h - 1)) + 1, (num / (h - 1) * 26));
+			if (who[i].amount == 1)
+			{
+                 c_prt(attr, m_name, (num % (h - 1)) + 1,  (num / (h - 1) * 26) + 2);
+			}
+			else
+			{
+				c_prt(attr, format("%s (x%d)", m_name, who[i].amount), (num % (h - 1)) + 1, ((num / (h - 1)) * 26) + 2);
+			}
+			num++;
+		}
+	}
+    
+	else
+	{
+		c_prt(TERM_WHITE,"You see no monsters.",0,0);
+	}
+    
+	/* XXX XXX Free the "who" array */
+	FREE(who);
+}
 
 

@@ -2,11 +2,26 @@
 
 /* Purpose: Spoiler generation -BEN- */
 
+/*
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke and Ben Harrison have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
+
 #include "angband.h"
 
-
 #ifdef ALLOW_SPOILERS
-
 
 /*
 * The spoiler file being created
@@ -2546,6 +2561,11 @@ static void spoil_mon_info(cptr fname)
 		{
 			sprintf(buf, "%s is blown about to and fro by a violent storm.", wd_che[msex]);
 		}	 				
+        /* Notice monsters that never die permanently */
+        if (flags7 & (RF7_REBORN))
+        {
+            roff( format("%^s recovers from fatal wounds.", wd_che[msex]));
+        }	                
 
 		spoil_out(NULL);
 	}

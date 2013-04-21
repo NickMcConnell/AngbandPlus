@@ -3,12 +3,23 @@
 /* Purpose: Spell/Prayer commands */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
+
 
 
 #include "angband.h"
@@ -41,6 +52,9 @@ static int get_spell(int *sn, cptr prompt, int use_realm , int sval, bool known 
 	char		choice;
 
 	char		out_val[160];
+    
+    magic_type   s_magic;
+    magic_type  *s_ptr = &s_magic;
 
 	cptr p = ((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "prayer" : "spell");
 
@@ -178,7 +192,7 @@ static int get_spell(int *sn, cptr prompt, int use_realm , int sval, bool known 
 			char tmp_val[160];
 
 			/* Access the spell */
-			get_spell_info( use_realm-1  , spell%32 , s_ptr );
+			get_extended_spell_info( use_realm-1  , spell%32 , s_ptr );
 			
 			/* Prompt */
 			strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
@@ -238,9 +252,8 @@ void rustproof(void)
 	item_tester_hook = item_tester_hook_armour;
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Rustproof which piece of armour? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Rustproof which piece of armour? ", "You have nothing to rustproof." , USE_INVEN | USE_EQUIP | USE_FLOOR))
 	{
-		if (item == -2) msg_print("You have nothing to rustproof.");
 		return;
 	}
 
@@ -294,7 +307,8 @@ void do_cmd_browse(int item)
 	byte		spells[64];
 
 	object_type	*o_ptr;
-
+    magic_type   s_magic;
+    magic_type  *s_ptr = &s_magic;
 
 	/* Warriors are illiterate */
 	if (!(p_ptr->realm1 || p_ptr->realm2))
@@ -309,9 +323,8 @@ void do_cmd_browse(int item)
 	if(item < 0)
 	{
 		/* Get an item (from inven or floor) */
-		if (!get_item(&item, "Browse which book? ", FALSE, TRUE, TRUE))
+		if (!get_item(&item, "Browse which book? ","You have no books that you can read.", USE_FLOOR | USE_INVEN))
 		{
-			if (item == -2) msg_print("You have no books that you can read.");
 			return;
 		}
 	}
@@ -393,7 +406,7 @@ void do_cmd_browse(int item)
 		
 		/*msg_format( "Spell : %d" , spell );msg_print(NULL);*/
 		/* Access the spell */
-		get_spell_info(  (o_ptr->tval-TV_MIRACLES_BOOK) ,  o_ptr->sval*8+spell , s_ptr );
+		get_extended_spell_info(  (o_ptr->tval-TV_MIRACLES_BOOK) ,  o_ptr->sval*8+spell , s_ptr );
 		/*msg_format( "Spell : %s" , s_ptr->spoiler );msg_print(NULL);		*/
 		/* Display that spell's information. */
 		c_roff(TERM_L_BLUE, s_ptr->spoiler,13,11,13);
@@ -453,9 +466,8 @@ void do_cmd_study(void)
 	item_tester_tval = (byte)mp_ptr->spell_book;
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Study which book? ", FALSE, TRUE, TRUE))
+	if (!get_item(&item, "Study which book? ", "You have no books that you can read." , USE_INVEN ))
 	{
-		if (item == -2) msg_print("You have no books that you can read.");
 		return;
 	}
 
@@ -534,8 +546,6 @@ void do_cmd_study(void)
 	energy_use = 100;
 
 	if (increment) spell += increment;
-
-	msg_format( "Spell : %d. increment : %d. learned spells : %d,%d" , spell, increment , spell_learned1 , spell_learned2);
 	
 	/* Learn the spell */
 	if (spell < 32)
@@ -546,8 +556,6 @@ void do_cmd_study(void)
 	{
 		spell_learned2 |= (1L << (spell - 32));
 	}
-	
-	msg_format( "Spell : %d. increment : %d. learned spells : %d,%d" , spell, increment , spell_learned1 , spell_learned2);
 	
 	/* Find the next open entry in "spell_order[]" */
 	for (i = 0; i < 64; i++)
@@ -599,13 +607,13 @@ void do_poly_wounds(void)
 	{
 		msg_print("A new wound was created!");
 		take_hit(change, "a polymorphed wound");
-		set_cut(change);
+		set_timed_effect( TIMED_CUT, change);
 	}
 	else
 	{
 		msg_print("Your wounds are polymorphed into less serious ones.");
 		hp_player(change);
-		set_cut((p_ptr->cut)-(change/2));
+		set_timed_effect( TIMED_CUT, (p_ptr->cut)-(change/2));
 	}
 }
 
@@ -1046,6 +1054,8 @@ void do_cmd_cast(void)
 	const cptr prayer = ((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "prayer" : "spell");
 
 	object_type	*o_ptr;
+    magic_type   s_magic;
+    magic_type  *s_ptr = &s_magic;
 
 	char	ppp[80];
 
@@ -1077,9 +1087,8 @@ void do_cmd_cast(void)
 	item_tester_tval = (byte)mp_ptr->spell_book;
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Use which book? ", FALSE, TRUE, TRUE))
+	if (!get_item(&item, "Use which book? ", "You have no spell books!", USE_INVEN | USE_FLOOR))
 	{
-		if (item == -2) msg_format("You have no %s books!", prayer);
 		return;
 	}
 
@@ -1187,13 +1196,13 @@ void do_cmd_cast(void)
 				break;
 			case 1: /* Cure Light Wounds */
 				(void)hp_player(damroll(2, 10));
-				(void)set_cut(p_ptr->cut - 10);
+				(void)set_timed_effect( TIMED_CUT, p_ptr->cut - 10);
 				break;
 			case 2: /* Bless */
-				(void)set_blessed(p_ptr->blessed + randint(12) + 12);
+				(void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + randint(12) + 12);
 				break; 
 			case 3: /* Remove Fear */
-				(void)set_afraid(0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
 				break;
 			case 4: /* Call Light */
 				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
@@ -1205,7 +1214,7 @@ void do_cmd_cast(void)
 				break;
 			case 6: /* Cure Medium Wounds */
 				(void)hp_player(damroll(4, 10));
-				(void)set_cut((p_ptr->cut / 2) - 20);
+				(void)set_timed_effect( TIMED_CUT, (p_ptr->cut / 2) - 20);
 				break;
 			case 7: /* Satisfy Hunger */
 				(void)set_food(PY_FOOD_MAX - 1);
@@ -1214,15 +1223,15 @@ void do_cmd_cast(void)
 				remove_curse();
 				break;
 			case 9: /* Cure Poison */
-				(void)set_poisoned(0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
 				break;
 			case 10: /* Cure Critical Wounds */
 				(void)hp_player(damroll(8, 10));
-				(void)set_stun(0);
-				(void)set_cut(0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
 				break;
 			case 11: /* Sense Unseen */
-				(void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
+				(void)set_timed_effect( TIMED_TIM_INVIS, p_ptr->tim_invis + randint(24) + 24);
 				break;
 			case 12: /* Orb or Draining */
 				if (!get_aim_dir(&dir)) return;
@@ -1233,12 +1242,12 @@ void do_cmd_cast(void)
 					((plev < 30) ? 2 : 3));
 				break;
 			case 13: /* Protection from Evil */
-				(void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
+				(void)set_timed_effect( TIMED_PROTEVIL, p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
 				break;
 			case 14: /* Healing */
 				(void)hp_player(300);
-				(void)set_stun(0);
-				(void)set_cut(0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
 				break;
 			case 15: /* Glyph of Warding */
 				warding_glyph();
@@ -1270,22 +1279,22 @@ void do_cmd_cast(void)
 			case 22: /* Holy Word */
 				(void)dispel_evil(plev * 4);
 				(void)hp_player(1000);
-				(void)set_afraid(0);
-				(void)set_poisoned(0);
-				(void)set_stun(0);
-				(void)set_cut(0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
 				break;
 			case 23: /* Warding True */
 				warding_glyph();
 				glyph_creation();
 				break;
 			case 24: /* Heroism */
-				(void)set_hero(p_ptr->hero + randint(25) + 25);
+				(void)set_timed_effect( TIMED_HERO, p_ptr->hero + randint(25) + 25);
 				(void)hp_player(10);
-				(void)set_afraid(0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
 				break;
 			case 25: /* Prayer */
-				(void)set_blessed(p_ptr->blessed + randint(48) + 48);
+				(void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + randint(48) + 48);
 				break;
 			case 26:
 				bless_weapon();
@@ -1301,8 +1310,8 @@ void do_cmd_cast(void)
 				break;
 			case 28: /* Healing True */
 				(void)hp_player(2000);
-				(void)set_stun(0);
-				(void)set_cut(0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
 				break;
 			case 29: /* Holy Vision */
 				identify_fully();
@@ -1315,17 +1324,17 @@ void do_cmd_cast(void)
 				confuse_monsters(plev*4);
 				turn_monsters(plev*4);
 				stasis_monsters(plev*4);
-				(void)set_shero(p_ptr->shero + randint(25) + 25);
+				(void)set_timed_effect( TIMED_SHERO, p_ptr->shero + randint(25) + 25);
 				(void)hp_player(300);
 				if (!p_ptr->fast) {   /* Haste */
-					(void)set_fast(randint(20 + (plev) ) + plev);
+					(void)set_timed_effect( TIMED_FAST, randint(20 + (plev) ) + plev);
 				} else {
-					(void)set_fast(p_ptr->fast + randint(5));
+					(void)set_timed_effect( TIMED_FAST, p_ptr->fast + randint(5));
 				}
-				(void)set_afraid(0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
 				break;
 			case 31: /* Holy Invulnerability */
-				(void)set_invuln(p_ptr->invuln + randint(7) + 7);
+				(void)set_timed_effect( TIMED_INVULN, p_ptr->invuln + randint(7) + 7);
 				break;
 			default:
 				msg_format("You cast an unknown Miracle: %d.", spell);
@@ -1384,11 +1393,11 @@ void do_cmd_cast(void)
 			case 13: /* Haste Self */
 				if (!p_ptr->fast)
 				{
-					(void)set_fast(randint(20 + (plev) ) + plev);
+					(void)set_timed_effect( TIMED_FAST, randint(20 + (plev) ) + plev);
 				}
 				else
 				{
-					(void)set_fast(p_ptr->fast + randint(5));
+					(void)set_timed_effect( TIMED_FAST, p_ptr->fast + randint(5));
 				}
 				break;
 			case 14: /* Detection True */
@@ -1427,7 +1436,7 @@ void do_cmd_cast(void)
 				}
 
 			case 20: /* Sense Minds */
-				(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+				(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp + randint(30) + 25);
 				break;
 			case 21: /* Self knowledge */
 				(void)self_knowledge();
@@ -1455,7 +1464,7 @@ void do_cmd_cast(void)
 				wiz_lite();
 				if (!(p_ptr->telepathy))
 				{
-					(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+					(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp + randint(30) + 25);
 				}
 				break;
 			case 28: /* Enchant Weapon */
@@ -1468,7 +1477,7 @@ void do_cmd_cast(void)
 				(void) alchemy();
 				break;
 			case 31: /* Globe of Invulnerability */
-				(void)set_invuln(p_ptr->invuln + randint(8) + 8);
+				(void)set_timed_effect( TIMED_INVULN, p_ptr->invuln + randint(8) + 8);
 				break;
 			default:
 				msg_format("You cast an unknown Sorcery spell: %d.", spell);
@@ -1483,7 +1492,7 @@ void do_cmd_cast(void)
 				break;
 			case 1: /* First Aid */
 				(void)hp_player(damroll(2, 8));
-				(void)set_cut(p_ptr->cut - 15);
+				(void)set_timed_effect( TIMED_CUT, p_ptr->cut - 15);
 				break;
 			case 2: /* Detect Doors + Traps */
 				(void)detect_traps();
@@ -1507,13 +1516,13 @@ void do_cmd_cast(void)
 				(void) charm_animal(dir, plev);
 				break;
 			case 6: /* Resist Environment */
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + randint(20) + 20);
 				break;
 			case 7: /* Cure Wounds + Poison */
-				(void)set_cut(0);
-				(void)set_poisoned(0);
+				(void)set_timed_effect( TIMED_CUT, 0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
 				break;
 			case 8: /* Stone to Mud */
 				if (!get_aim_dir(&dir)) return;
@@ -1550,9 +1559,9 @@ void do_cmd_cast(void)
 				break;
 			case 15: /* Herbal Healing */
 				(void)hp_player(1000);
-				(void)set_stun(0);
-				(void)set_cut(0);
-				(void)set_poisoned(0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
 				break;
 			case 16: /* Door Building */
 				(void)door_creation();
@@ -1561,14 +1570,14 @@ void do_cmd_cast(void)
 				(void)stair_creation();
 				break;
 			case 18: /* Stone Skin */
-				(void)set_shield(p_ptr->shield + randint(20) + 30);
+				(void)set_timed_effect( TIMED_SHIELD, p_ptr->shield + randint(20) + 30);
 				break;
 			case 19: /* Resistance True */
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_ACID, p_ptr->oppose_acid + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_POIS, p_ptr->oppose_pois + randint(20) + 20);
 				break;
 			case 20: /* Animal Friendship */
 				(void) charm_animals(plev * 2);
@@ -1921,7 +1930,7 @@ void do_cmd_cast(void)
 				(void)sleep_monster(dir);
 				break;
 			case 5: /* Resist Poison */
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_POIS, p_ptr->oppose_pois + randint(20) + 20);
 				break;
 			case 6: /* Horrify */
 				if (!get_aim_dir(&dir)) return;
@@ -1975,9 +1984,9 @@ void do_cmd_cast(void)
 				(void)restore_level();
 				break;
 			case 16: /* Berserk */
-				(void)set_shero(p_ptr->shero + randint(25) + 25);
+				(void)set_timed_effect( TIMED_SHERO, p_ptr->shero + randint(25) + 25);
 				(void)hp_player(30);
-				(void)set_afraid(0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
 				break;
 			case 17: /* Invoke Spirits */
 				{
@@ -1993,10 +2002,10 @@ void do_cmd_cast(void)
 						(void) summon_specific(py, px, dun_level, FILTER_UNDEAD);
 					} else if (die < 14) {
 						msg_print("An unnamable evil brushes against your mind...");
-						set_afraid(p_ptr->afraid + randint(4) + 4);
+						set_timed_effect( TIMED_AFRAID , p_ptr->afraid + randint(4) + 4);
 					} else if (die < 26) {
 						msg_print("Your head is invaded by a horde of gibbering spectral voices...");
-						set_confused(p_ptr->confused + randint(4) + 4);
+						set_timed_effect( TIMED_CONFUSED , p_ptr->confused + randint(4) + 4);
 					} else if (die < 31) {
 						poly_monster (dir);
 					} else if (die < 36) {
@@ -2057,16 +2066,16 @@ void do_cmd_cast(void)
 				fire_bolt_or_beam(beam, GF_DARK, dir, damroll(4+((plev-5)/4), 8));
 				break;
 			case 19: /* Battle Frenzy */
-				(void)set_shero(p_ptr->shero + randint(25) + 25);
+				(void)set_timed_effect( TIMED_SHERO, p_ptr->shero + randint(25) + 25);
 				(void)hp_player(30);
-				(void)set_afraid(0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
 				if (!p_ptr->fast)
 				{
-					(void)set_fast(randint(20 + (plev / 2) ) + (plev / 2));
+					(void)set_timed_effect( TIMED_FAST, randint(20 + (plev / 2) ) + (plev / 2));
 				}
 				else
 				{
-					(void)set_fast(p_ptr->fast + randint(5));
+					(void)set_timed_effect( TIMED_FAST, p_ptr->fast + randint(5));
 				}
 				break;
 			case 20: /* Vampirism True */
@@ -2181,7 +2190,7 @@ void do_cmd_cast(void)
 
 				break;
 			case 31: /* Wraithform */
-				set_shadow(p_ptr->wraith_form + randint(plev/2) + (plev/2));
+				set_timed_effect( TIMED_WRAITH_FORM, p_ptr->wraith_form + randint(plev/2) + (plev/2));
 				break;
 			default:
 				msg_format("You cast an unknown Death spell: %d.", spell);
@@ -2265,7 +2274,7 @@ void do_cmd_cast(void)
 					else if (die <42)
 					{
 						msg_print("It's the Star.");
-						set_blessed(p_ptr->blessed + p_ptr->lev);
+						set_timed_effect( TIMED_BLESSED, p_ptr->blessed + p_ptr->lev);
 					}
 					else if (die <47)
 					{
@@ -2403,7 +2412,7 @@ void do_cmd_cast(void)
 					break;
 				}
 			case 6: /* The High Priestess"*/
-				(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+				(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp + randint(30) + 25);
 				break;
 			case 7: /* The Chariot */
 				if (!get_aim_dir(&dir)) return;
@@ -2415,9 +2424,9 @@ void do_cmd_cast(void)
 				break;
 			case 9: /* Temperance */
 				{
-					(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-					(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-					(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+					(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold + randint(20) + 20);
+					(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + randint(20) + 20);
+					(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + randint(20) + 20);
 				}
 					break;					
 			case 10: /* King of Swords */
@@ -2476,15 +2485,15 @@ void do_cmd_cast(void)
 			case 17: /* The Star */
 				{
 					(void)hp_player(150);
-					(void)set_stun(0);
-					(void)set_cut(0);
+					(void)set_timed_effect( TIMED_STUN, 0);
+					(void)set_timed_effect( TIMED_CUT, 0);
 					break;					
 				}
 				break;
 			case 18: /* Fortitude */
 				{
-                    (void)set_blessed(p_ptr->blessed + plev);                    
-                    (void)set_hero(p_ptr->hero + plev);
+                    (void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + plev);                    
+                    (void)set_timed_effect( TIMED_HERO, p_ptr->hero + plev);
 				}
 				break;
 			case 19: /* The Emperor */
@@ -2636,7 +2645,7 @@ void do_cmd_cast(void)
 				break;
 			case 7: /* Cure Light Wounds */
 				(void) hp_player(damroll(2, 8));
-				(void) set_cut(p_ptr->cut - 10);
+				(void) set_timed_effect( TIMED_CUT, p_ptr->cut - 10);
 				break;
 			case 8: /* Detect Doors & Traps */
 				(void)detect_traps();
@@ -2658,23 +2667,23 @@ void do_cmd_cast(void)
 				(void)detect_objects_normal();
 				break;
 			case 13: /* Cure Poison */
-				(void)set_poisoned(0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
 				break;
 			case 14: /* Resist Cold */
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold + randint(20) + 20);
 				break;
 			case 15: /* Resist Fire */
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + randint(20) + 20);
 				break;
 			case 16: /* Resist Lightning */
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + randint(20) + 20);
 				break;
 			case 17: /* Resist Acid */
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_ACID, p_ptr->oppose_acid + randint(20) + 20);
 				break;
 			case 18: /* Cure Medium Wounds */
 				(void)hp_player(damroll(4, 8));
-				(void)set_cut((p_ptr->cut / 2) - 50);
+				(void)set_timed_effect( TIMED_CUT, (p_ptr->cut / 2) - 50);
 				break;
 			case 19: /* Teleport */
 				teleport_player(plev * 5);
@@ -2692,7 +2701,7 @@ void do_cmd_cast(void)
 				(void)set_food(PY_FOOD_MAX - 1);
 				break;
 			case 23: /* See Invisible */
-				(void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
+				(void)set_timed_effect( TIMED_TIM_INVIS, p_ptr->tim_invis + randint(24) + 24);
 				break;
 			case 24: /* Recharging */
 				(void)recharge(plev * 2);
@@ -2731,7 +2740,7 @@ void do_cmd_cast(void)
 				wiz_lite();
 				if (!(p_ptr->telepathy))
 				{
-					(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+					(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp + randint(30) + 25);
 				}
 				break;
 			default:
@@ -2744,13 +2753,13 @@ void do_cmd_cast(void)
 			{
 			case 0: /* Cure Light Wounds */
 				(void)hp_player(damroll(2, 10));
-				(void)set_cut(p_ptr->cut - 10);
+				(void)set_timed_effect( TIMED_CUT, p_ptr->cut - 10);
 				break;
 			case 1: /* Shift */
 				teleport_player(10);
 				break;
 			case 2: /* Bravery */
-				(void)set_afraid(0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
 				break; 
 			case 3: /* Bat's Sense */
 				map_area();
@@ -2761,30 +2770,30 @@ void do_cmd_cast(void)
 				(void)detect_stairs();
 				break;
 			case 5: /* Mind Vision */
-				(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+				(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp + randint(30) + 25);
 				break;
 			case 6: /* Cure Medium Wounds */
 				(void)hp_player(damroll(4, 10));
-				(void)set_cut((p_ptr->cut / 2) - 20);
+				(void)set_timed_effect( TIMED_CUT, (p_ptr->cut / 2) - 20);
 				break;
 			case 7: /* Satisfy Hunger */
 				(void)set_food(PY_FOOD_MAX - 1);
 				break;
 			case 8: /* Burn Resistance */
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + randint(20) + 20);
+				(void)set_timed_effect( TIMED_OPPOSE_ACID, p_ptr->oppose_acid + randint(20) + 20);
 				break;
 			case 9: /* Detoxify */
-				(void)set_poisoned(0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
 				break;
 			case 10: /* Cure Critical Wounds */
 				(void)hp_player(damroll(8, 10));
-				(void)set_stun(0);
-				(void)set_cut(0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
 				break;
 			case 11: /* See Invisible */
-				(void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
+				(void)set_timed_effect( TIMED_TIM_INVIS, p_ptr->tim_invis + randint(24) + 24);
 				break;
 			case 12: /* Teleport */
 				teleport_player(plev * 3);
@@ -2792,24 +2801,24 @@ void do_cmd_cast(void)
 			case 13: /* Haste */
 				if (!p_ptr->fast)
 				{
-					(void)set_fast(randint(20 + (plev) ) + plev);
+					(void)set_timed_effect( TIMED_FAST, randint(20 + (plev) ) + plev);
 				}
 				else
 				{
-					(void)set_fast(p_ptr->fast + randint(5));
+					(void)set_timed_effect( TIMED_FAST, p_ptr->fast + randint(5));
 				}
 				break;
 			case 14: /* Healing */
 				(void)hp_player(300);
-				(void)set_stun(0);
-				(void)set_cut(0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
 				break;
 			case 15: /* Resist True */
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(25) + 25);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(25) + 25);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(25) + 25);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(25) + 25);
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(25) + 25);
+				(void)set_timed_effect( TIMED_OPPOSE_ACID, p_ptr->oppose_acid + randint(25) + 25);
+				(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + randint(25) + 25);
+				(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + randint(25) + 25);
+				(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold + randint(25) + 25);
+				(void)set_timed_effect( TIMED_OPPOSE_POIS, p_ptr->oppose_pois + randint(25) + 25);
 				break;
 			case 16: /* Horrific Visage */
 				if (!get_aim_dir(&dir)) return;
@@ -2820,7 +2829,7 @@ void do_cmd_cast(void)
 				(void)detect_objects_magic(FALSE,FALSE);
 				break;
 			case 18: /* Stone Skin */
-				(void)set_shield(p_ptr->shield + randint(20) + 30);
+				(void)set_timed_effect( TIMED_SHIELD, p_ptr->shield + randint(20) + 30);
 				break;
 			case 19: /* Move Body */
 				msg_print("You focus your Chi. Choose a destination.");
@@ -2852,12 +2861,12 @@ void do_cmd_cast(void)
 					break;
 				}
 			case 24: /* Heroism */
-				(void)set_hero(p_ptr->hero + randint(25) + 25);
+				(void)set_timed_effect( TIMED_HERO, p_ptr->hero + randint(25) + 25);
 				(void)hp_player(10);
-				(void)set_afraid(0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
 				break;
 			case 25: /* Wraithform */
-				set_shadow(p_ptr->wraith_form + randint(plev/2) + (plev/2));
+				set_timed_effect( TIMED_WRAITH_FORM, p_ptr->wraith_form + randint(plev/2) + (plev/2));
 				break;
 			case 26: /* Attune to Magic */
 				identify_fully();
@@ -2872,8 +2881,8 @@ void do_cmd_cast(void)
 				break;
 			case 28: /* Healing True */
 				(void)hp_player(2000);
-				(void)set_stun(0);
-				(void)set_cut(0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
 				break;
 			case 29: /* Hypnotic Eyes */
 				if (!get_aim_dir(&dir)) return;
@@ -2883,7 +2892,7 @@ void do_cmd_cast(void)
 				(void)restore_level();
 				break;
 			case 31: /* Invulnerability */
-				(void)set_invuln(p_ptr->invuln + randint(7) + 7);
+				(void)set_timed_effect( TIMED_INVULN, p_ptr->invuln + randint(7) + 7);
 				break;
 			default:
 				msg_format("You cast an unknown Somatic spell: %d.", spell);
@@ -2894,7 +2903,7 @@ void do_cmd_cast(void)
 			switch (spell)
 			{
                 case 0: /* Unholy strength */
-                    (void)set_hero(p_ptr->hero + randint(25) + 25);
+                    (void)set_timed_effect( TIMED_HERO, p_ptr->hero + randint(25) + 25);
                     (void)take_hit( (p_ptr->lev/10)*5+5 , "Strain of Unholy Strength");
                     break;
                 case 1: /* Sense Evil */
@@ -2923,8 +2932,8 @@ void do_cmd_cast(void)
                     (void)lite_area_hecate(damroll(plev, 2), (plev / 10) + 1);
                     break;
                 case 8: /* Abaddon's Rage */
-                    (void)set_shero(p_ptr->shero + randint(25) + 25);
-                    (void)set_blessed(p_ptr->blessed + randint(25) + 25);                    
+                    (void)set_timed_effect( TIMED_SHERO, p_ptr->shero + randint(25) + 25);
+                    (void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + randint(25) + 25);                    
                     break;
                 case 9: /* Mind Leech */
                     (void)mind_leech();
@@ -2936,7 +2945,7 @@ void do_cmd_cast(void)
                     warding_glyph();
                     break;
                 case 12: /* Protection from Evil */
-                    (void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
+                    (void)set_timed_effect( TIMED_PROTEVIL, p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
                     break;
                 case 13: /* Summon Demons */
                     if (!(summon_specific_friendly(py, px, plev, FILTER_DEMON, TRUE)))
@@ -2969,9 +2978,9 @@ void do_cmd_cast(void)
                     break;
                 case 19: /* Sariel's Ire  */
 					dummy = randint(50) + 25;
-                    (void)set_blessed(p_ptr->blessed + dummy);                    
-                    (void)set_hero(p_ptr->hero + dummy);
-                    (void)set_magic_shell(p_ptr->magic_shell + dummy);					
+                    (void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + dummy);                    
+                    (void)set_timed_effect( TIMED_HERO, p_ptr->hero + dummy);
+                    (void)set_timed_effect( TIMED_MAGIC_SHELL, p_ptr->magic_shell + dummy);					
 					break;
                 case 20: /* Azazel's Rule */
                     (void)charm_all_goats();
@@ -3000,8 +3009,8 @@ void do_cmd_cast(void)
 					break;
 				case 25: /* Temperance */
 					dummy = randint(50) + 50;
-					(void)set_oppose_cold( dummy );
-					(void)set_oppose_fire( dummy );					
+					(void)set_timed_effect( TIMED_OPPOSE_COLD,  dummy );
+					(void)set_timed_effect( TIMED_OPPOSE_FIRE,  dummy );					
 					break;
 				case 26: /* True Warding */
 					warding_glyph();
@@ -3033,10 +3042,15 @@ void do_cmd_cast(void)
 			msg_format("You cast a spell from an unknown realm: realm %d, spell %d.", realm, spell);
 			msg_print(NULL);
 		}
+		get_extended_spell_info( realm , spell , s_ptr);
 		/* A spell was cast */
 		if( !s_ptr->worked  ){
+            int spell_skill = mp_ptr->skill[realm]-1;            
 			first_time = TRUE;
-			xp_gain = s_ptr->sexp *  s_ptr->sexp;
+            if( spell_skill == SUPER || spell_skill == BETTER )
+                xp_gain = s_ptr->sexp;
+            else
+                xp_gain = s_ptr->sexp *  s_ptr->sexp;
 			if (realm == p_ptr->realm1-1)
 				spell_worked1 |= (1L << spell);
 			else
@@ -3068,7 +3082,7 @@ void do_cmd_cast(void)
 		msg_print("You faint from the effort!");
 
 		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
+		(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + randint(5 * oops + 1));
 
 		/* Damage CON (possibly permanently) */
 		if (rand_int(100) < 50)
@@ -3433,12 +3447,12 @@ void do_cmd_mindcraft(void)
 				lose_all_info();
 			} else if (b < 15) {
 				msg_print("Weird visions seem to dance before your eyes...");
-				set_image(p_ptr->image + 5 + randint(10));
+				set_timed_effect( TIMED_IMAGE , p_ptr->image + 5 + randint(10));
 			} else if (b < 45) {
 				msg_print("Your brain is addled!");
-				set_confused(p_ptr->confused + randint(8));
+				set_timed_effect( TIMED_CONFUSED , p_ptr->confused + randint(8));
 			} else if (b < 90) {
-				set_stun(p_ptr->stun + randint(8));
+				set_timed_effect( TIMED_STUN, p_ptr->stun + randint(8));
 			} else {   /* Mana storm */
 				msg_print("Your mind unleashes its power in an uncontrollable storm!");
 				project(1, 2+plev/10, py, px,
@@ -3464,7 +3478,7 @@ void do_cmd_mindcraft(void)
 			 }
 
 			 if ((plev > 24) && (plev < 40))
-				 set_tim_esp(p_ptr->tim_esp + plev);
+				 set_timed_effect( TIMED_ESP, p_ptr->tim_esp + plev);
 
 			 if (!b)  msg_print("You feel safe.");
 			 break;
@@ -3514,12 +3528,12 @@ void do_cmd_mindcraft(void)
 				 (plev > 20 ? (plev-20)/8 + 1 : 0));
 			 break;
 		 case 6:   /* Character Armour */
-			 set_shield(p_ptr->shield + plev);
-			 if (plev > 14)   set_oppose_acid(p_ptr->oppose_acid + plev);
-			 if (plev > 19)   set_oppose_fire(p_ptr->oppose_fire + plev);
-			 if (plev > 24)   set_oppose_cold(p_ptr->oppose_cold + plev);
-			 if (plev > 29)   set_oppose_elec(p_ptr->oppose_elec + plev);
-			 if (plev > 34)   set_oppose_pois(p_ptr->oppose_pois + plev);
+			 set_timed_effect( TIMED_SHIELD, p_ptr->shield + plev);
+			 if (plev > 14)   set_timed_effect( TIMED_OPPOSE_ACID, p_ptr->oppose_acid + plev);
+			 if (plev > 19)   set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + plev);
+			 if (plev > 24)   set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold + plev);
+			 if (plev > 29)   set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + plev);
+			 if (plev > 34)   set_timed_effect( TIMED_OPPOSE_POIS, p_ptr->oppose_pois + plev);
 			 break;
 		 case 7:   /* Psychometry */
 			 if (plev < 40)
@@ -3536,19 +3550,19 @@ void do_cmd_mindcraft(void)
 				 (void)mindblast_monsters(plev * ((plev-5) / 10 + 1));
 			 break;
 		 case 9:   /* Adrenaline */
-			 set_afraid(0);
-			 set_stun(0);
+			 set_timed_effect( TIMED_AFRAID , 0);
+			 set_timed_effect( TIMED_STUN, 0);
 			 hp_player(plev);
 			 b = 10 + randint((plev*3)/2);
 			 if (plev < 35)
-				 set_hero(p_ptr->hero + b);
+				 set_timed_effect( TIMED_HERO, p_ptr->hero + b);
 			 else
-				 set_shero(p_ptr->shero + b);
+				 set_timed_effect( TIMED_SHERO, p_ptr->shero + b);
 
 			 if (!p_ptr->fast)	{   /* Haste */
-				 (void)set_fast(b);
+				 (void)set_timed_effect( TIMED_FAST, b);
 			 } else {
-				 (void)set_fast(p_ptr->fast + b);
+				 (void)set_timed_effect( TIMED_FAST, p_ptr->fast + b);
 			 }
 			 break;
 		 case 10:   /* Psychic Drain */
@@ -3592,7 +3606,7 @@ void do_cmd_mindcraft(void)
 		msg_print("You faint from the effort!");
 
 		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
+		(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + randint(5 * oops + 1));
 
 		/* Damage WIS (possibly permanently) */
 		if (rand_int(100) < 50)

@@ -3,12 +3,23 @@
 /* Purpose: Angband game engine */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
+
 
 #include "angband.h"
 
@@ -461,12 +472,12 @@ static bool pattern_effect(void)
 	if (cave[py][px].feat == FEAT_PATTERN_END)
 	{
 
-		(void)set_poisoned(0);
-		(void)set_image(0);
-		(void)set_stun(0);
-		(void)set_cut(0);
-		(void)set_blind(0);
-		(void)set_afraid(0);
+		(void)set_timed_effect( TIMED_POISONED , 0);
+		(void)set_timed_effect( TIMED_IMAGE , 0);
+		(void)set_timed_effect( TIMED_STUN, 0);
+		(void)set_timed_effect( TIMED_CUT, 0);
+		(void)set_timed_effect( TIMED_BLIND , 0);
+		(void)set_timed_effect( TIMED_AFRAID , 0);
 		(void)do_res_stat(A_STR);
 		(void)do_res_stat(A_INT);
 		(void)do_res_stat(A_WIS);
@@ -713,9 +724,8 @@ bool psychometry(void)
 	cptr            feel;
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Meditate on which item? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Meditate on which item? ", "You have nothing appropriate." , USE_EQUIP | USE_INVEN | USE_FLOOR))
 	{
-		if (item == -2) msg_print("You have nothing appropriate.");
 		return (FALSE);
 	}
 
@@ -1231,7 +1241,7 @@ static void process_world(void)
 				disturb(1, 0);
 
 				/* Hack -- faint (bypass free action) */
-				(void)set_paralyzed(p_ptr->paralyzed + 1 + rand_int(5));
+				(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + 1 + rand_int(5));
 			}
 		}
 	}
@@ -1330,19 +1340,19 @@ static void process_world(void)
 	/* Hack -- Hallucinating */
 	if (p_ptr->image)
 	{
-		(void)set_image(p_ptr->image - 1);
+		(void)set_timed_effect( TIMED_IMAGE , p_ptr->image - 1);
 	}
 
 	/* Blindness */
 	if (p_ptr->blind)
 	{
-		(void)set_blind(p_ptr->blind - 1);
+		(void)set_timed_effect( TIMED_BLIND , p_ptr->blind - 1);
 	}
 
 	/* Times see-invisible */
 	if (p_ptr->tim_invis)
 	{
-		(void)set_tim_invis(p_ptr->tim_invis - 1);
+		(void)set_timed_effect( TIMED_TIM_INVIS, p_ptr->tim_invis - 1);
 	}
 
 	if (multi_rew)
@@ -1353,121 +1363,121 @@ static void process_world(void)
 	/* Timed esp */
 	if (p_ptr->tim_esp)
 	{
-		(void)set_tim_esp(p_ptr->tim_esp - 1);
+		(void)set_timed_effect( TIMED_ESP, p_ptr->tim_esp - 1);
 	}
 
 	/* Timed infra-vision */
 	if (p_ptr->tim_infra)
 	{
-		(void)set_tim_infra(p_ptr->tim_infra - 1);
+		(void)set_timed_effect( TIMED_TIM_INFRA, p_ptr->tim_infra - 1);
 	}
 
 	/* Paralysis */
 	if (p_ptr->paralyzed)
 	{
-		(void)set_paralyzed(p_ptr->paralyzed - 1);
+		(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed - 1);
 	}
 
 	/* Confusion */
 	if (p_ptr->confused)
 	{
-		(void)set_confused(p_ptr->confused - 1);
+		(void)set_timed_effect( TIMED_CONFUSED , p_ptr->confused - 1);
 	}
 
 	/* Afraid */
 	if (p_ptr->afraid)
 	{
-		(void)set_afraid(p_ptr->afraid - 1);
+		(void)set_timed_effect( TIMED_AFRAID , p_ptr->afraid - 1);
 	}
 
 	/* Fast */
 	if (p_ptr->fast)
 	{
-		(void)set_fast(p_ptr->fast - 1);
+		(void)set_timed_effect( TIMED_FAST, p_ptr->fast - 1);
 	}
 
 	/* Slow */
 	if (p_ptr->slow)
 	{
-		(void)set_slow(p_ptr->slow - 1);
+		(void)set_timed_effect( TIMED_SLOW, p_ptr->slow - 1);
 	}
 
 	/* Protection from evil */
 	if (p_ptr->protevil)
 	{
-		(void)set_protevil(p_ptr->protevil - 1);
+		(void)set_timed_effect( TIMED_PROTEVIL, p_ptr->protevil - 1);
 	}
 
 	/* Invulnerability */
 	if (p_ptr->invuln)
 	{
-		(void)set_invuln(p_ptr->invuln - 1);
+		(void)set_timed_effect( TIMED_INVULN, p_ptr->invuln - 1);
 	}
 
 	/* Wraith form */
 	if (p_ptr->wraith_form)
 	{
-		(void)set_shadow(p_ptr->wraith_form - 1);
+		(void)set_timed_effect( TIMED_WRAITH_FORM, p_ptr->wraith_form - 1);
 	}
 
 	/* Heroism */
 	if (p_ptr->hero)
 	{
-		(void)set_hero(p_ptr->hero - 1);
+		(void)set_timed_effect( TIMED_HERO, p_ptr->hero - 1);
 	}
 
 	/* Super Heroism */
 	if (p_ptr->shero)
 	{
-		(void)set_shero(p_ptr->shero - 1);
+		(void)set_timed_effect( TIMED_SHERO, p_ptr->shero - 1);
 	}
 	
 	/* Anti-magic Shell */
 	if (p_ptr->magic_shell)
 	{
-		(void)set_magic_shell(p_ptr->magic_shell - 1);
+		(void)set_timed_effect( TIMED_MAGIC_SHELL, p_ptr->magic_shell - 1);
 	}
 	
 	/* Blessed */
 	if (p_ptr->blessed)
 	{
-		(void)set_blessed(p_ptr->blessed - 1);
+		(void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed - 1);
 	}
 
 	/* Shield */
 	if (p_ptr->shield)
 	{
-		(void)set_shield(p_ptr->shield - 1);
+		(void)set_timed_effect( TIMED_SHIELD, p_ptr->shield - 1);
 	}
 
 	/* Oppose Acid */
 	if (p_ptr->oppose_acid)
 	{
-		(void)set_oppose_acid(p_ptr->oppose_acid - 1);
+		(void)set_timed_effect( TIMED_OPPOSE_ACID, p_ptr->oppose_acid - 1);
 	}
 
 	/* Oppose Lightning */
 	if (p_ptr->oppose_elec)
 	{
-		(void)set_oppose_elec(p_ptr->oppose_elec - 1);
+		(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec - 1);
 	}
 
 	/* Oppose Fire */
 	if (p_ptr->oppose_fire)
 	{
-		(void)set_oppose_fire(p_ptr->oppose_fire - 1);
+		(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire - 1);
 	}
 
 	/* Oppose Cold */
 	if (p_ptr->oppose_cold)
 	{
-		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
+		(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold - 1);
 	}
 
 	/* Oppose Poison */
 	if (p_ptr->oppose_pois)
 	{
-		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
+		(void)set_timed_effect( TIMED_OPPOSE_POIS, p_ptr->oppose_pois - 1);
 	}
 
 
@@ -1479,7 +1489,7 @@ static void process_world(void)
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
 		/* Apply some healing */
-		(void)set_poisoned(p_ptr->poisoned - adjust);
+		(void)set_timed_effect( TIMED_POISONED , p_ptr->poisoned - adjust);
 	}
 
 	/* Stun */
@@ -1488,7 +1498,7 @@ static void process_world(void)
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
 		/* Apply some healing */
-		(void)set_stun(p_ptr->stun - adjust);
+		(void)set_timed_effect( TIMED_STUN, p_ptr->stun - adjust);
 	}
 
 	/* Cut */
@@ -1500,7 +1510,7 @@ static void process_world(void)
 		if (p_ptr->cut > 1000) adjust = 0;
 
 		/* Apply some healing */
-		(void)set_cut(p_ptr->cut - adjust);
+		(void)set_timed_effect( TIMED_CUT, p_ptr->cut - adjust);
 	}
 
 
@@ -1611,7 +1621,7 @@ static void process_world(void)
 				disturb(0,0);
 				msg_print("RAAAAGHH!");
 				msg_print("You feel a fit of rage coming over you!");
-				(void) set_shero(p_ptr->shero + 10 + randint(p_ptr->lev));
+				(void) set_timed_effect( TIMED_SHERO, p_ptr->shero + 10 + randint(p_ptr->lev));
 			}
 
 			if ((p_ptr->muta2 & COR2_COWARDICE) && (randint(3000)==13))
@@ -1660,13 +1670,13 @@ static void process_world(void)
 					{
 						if (!(p_ptr->resist_conf))
 						{
-							(void)set_confused(p_ptr->confused + rand_int(20) + 15);
+							(void)set_timed_effect( TIMED_CONFUSED , p_ptr->confused + rand_int(20) + 15);
 						}
 
 						if ((randint(3)==1) && !(p_ptr->resist_chaos))
 						{
 							msg_print("Your mind is playing tricks on you!");
-							(void)set_image(p_ptr->image + rand_int(150) + 150);
+							(void)set_timed_effect( TIMED_IMAGE , p_ptr->image + rand_int(150) + 150);
 						}
 					}
 				}
@@ -1678,7 +1688,7 @@ static void process_world(void)
 				{
 					disturb(0,0);
 					p_ptr->redraw |= PR_EXTRA;
-					(void)set_image(p_ptr->image + rand_int(50) + 20);
+					(void)set_timed_effect( TIMED_IMAGE , p_ptr->image + rand_int(50) + 20);
 				}
 			}
 
@@ -1734,11 +1744,11 @@ static void process_world(void)
 					msg_print("You feel less energetic.");
 					if (p_ptr->fast > 0)
 					{
-						set_fast(0);
+						set_timed_effect( TIMED_FAST, 0);
 					}
 					else
 					{
-						set_slow(p_ptr->slow + randint(30) + 10);
+						set_timed_effect( TIMED_SLOW, p_ptr->slow + randint(30) + 10);
 					}
 				}
 				else
@@ -1746,11 +1756,11 @@ static void process_world(void)
 					msg_print("You feel more energetic.");
 					if (p_ptr->slow > 0)
 					{
-						set_slow(0);
+						set_timed_effect( TIMED_SLOW, 0);
 					}
 					else
 					{
-						set_fast(p_ptr->fast + randint(30) + 10);
+						set_timed_effect( TIMED_FAST, p_ptr->fast + randint(30) + 10);
 					}
 				}
 				msg_print(NULL);
@@ -1872,7 +1882,7 @@ static void process_world(void)
 				disturb(0,0);
 				msg_print("You feel insubstantial!");
 				msg_print(NULL);
-				set_shadow(p_ptr->wraith_form + randint(p_ptr->lev/2) + (p_ptr->lev/2));
+				set_timed_effect( TIMED_WRAITH_FORM, p_ptr->wraith_form + randint(p_ptr->lev/2) + (p_ptr->lev/2));
 			}
 			if ((p_ptr->muta2 & COR2_POLY_WOUND) &&
 				(randint(3000)==1))
@@ -1941,12 +1951,12 @@ static void process_world(void)
 				if (p_ptr->tim_esp > 0)
 				{
 					msg_print("Your mind feels cloudy!");
-					set_tim_esp(0);
+					set_timed_effect( TIMED_ESP, 0);
 				}
 				else
 				{
 					msg_print("Your mind expands!");
-					set_tim_esp(p_ptr->lev);
+					set_timed_effect( TIMED_ESP, p_ptr->lev);
 				}
 			}
 			if ((p_ptr->muta2 & COR2_NAUSEA) && !(p_ptr->slow_digest) &&
@@ -2006,7 +2016,7 @@ static void process_world(void)
 				disturb(0,0);
 				msg_print("You feel invincible!");
 				msg_print(NULL);
-				(void)set_invuln(p_ptr->invuln + randint(8) + 8);
+				(void)set_timed_effect( TIMED_INVULN, p_ptr->invuln + randint(8) + 8);
 			}
 			if ((p_ptr->muta2 & COR2_SP_TO_HP) &&
 				(randint(2000)==1))
@@ -2254,6 +2264,19 @@ static void process_command(void)
 #endif /* ALLOW_REPEAT -- TNB */
 
 
+    /*** Help and Such ***/
+    /* First we do the menu'd help, if the user presses ? again,
+     * we go into the 'fullblown' help
+     */
+	if( command_cmd == '?' )
+    {
+        command_cmd = menu_key_help();
+        /*plog_fmt_fiddle("Char received : %c" , command_cmd);*/
+        if( command_cmd == '?' )
+        {
+            do_cmd_help(syshelpfile);
+        }
+    }
 
 	/* Parse the command */
 	switch (command_cmd)
@@ -2760,18 +2783,6 @@ static void process_command(void)
 			do_cmd_target();
 			break;
 		}
-
-
-
-		/*** Help and Such ***/
-
-		/* Help */
-	case '?':
-		{
-			do_cmd_help(syshelpfile);
-			break;
-		}
-
 		/* Identify symbol */
 	case '/':
 		{
@@ -3466,7 +3477,7 @@ static void dungeon(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+    p_ptr->window |= (PW_MONSTER | PW_VISIBLE);
 
 	/* Redraw dungeon */
 	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
@@ -3884,7 +3895,7 @@ void play_game(bool new_game)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	p_ptr->window |= (PW_MONSTER | PW_VISIBLE);
 	
 	/* Window stuff */
 	if(arg_fiddle)msg_note( "Doing windows stuff" );
@@ -4000,14 +4011,14 @@ void play_game(bool new_game)
 				p_ptr->csp_frac = 0;
 
 				/* Hack -- Healing */
-				(void)set_blind(0);
-				(void)set_confused(0);
-				(void)set_poisoned(0);
-				(void)set_afraid(0);
-				(void)set_paralyzed(0);
-				(void)set_image(0);
-				(void)set_stun(0);
-				(void)set_cut(0);
+				(void)set_timed_effect( TIMED_BLIND , 0);
+				(void)set_timed_effect( TIMED_CONFUSED , 0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
+				(void)set_timed_effect( TIMED_PARALYZED , 0);
+				(void)set_timed_effect( TIMED_IMAGE , 0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
 
 				/* Hack -- Prevent starvation */
 				(void)set_food(PY_FOOD_MAX - 1);
@@ -4053,14 +4064,14 @@ void play_game(bool new_game)
 				p_ptr->csp_frac = 0;
 
 				/* Hack -- Healing */
-				(void)set_blind(0);
-				(void)set_confused(0);
-				(void)set_poisoned(0);
-				(void)set_afraid(0);
-				(void)set_paralyzed(0);
-				(void)set_image(0);
-				(void)set_stun(0);
-				(void)set_cut(0);
+				(void)set_timed_effect( TIMED_BLIND , 0);
+				(void)set_timed_effect( TIMED_CONFUSED , 0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
+				(void)set_timed_effect( TIMED_PARALYZED , 0);
+				(void)set_timed_effect( TIMED_IMAGE , 0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
 
 				/* Hack -- Prevent starvation */
 				(void)set_food(PY_FOOD_MAX - 1);

@@ -3,8 +3,16 @@
 /* Purpose: Support for Acorn RISC OS Angband */
 
 /*
- * Author: Kevin Bracey (kbracey@art.acorn.co.uk)
+ * Author: Kevin Bracey (kevin@bracey-griffith.freeserve.co.uk)
  *
+ * Kevin Bracey released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license.
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license.  
  */
 
 /* Check compiler flag */
@@ -25,7 +33,7 @@
  *
  */
 
-#define VERSION "2.7.9v6 (07-May-96)"
+#define VERSION "1.0.4(2007)"
 
 /* Hack to prevent types clash from OSLib */
 typedef unsigned int bits;

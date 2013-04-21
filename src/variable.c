@@ -3,12 +3,21 @@
 /* Purpose: Angband variables */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
 
@@ -246,6 +255,7 @@ bool sanity_stat; /*Dont kill items with stat bonuses*/
 bool sanity_verbose; /* Inform player when a sanity check is used */
 bool sanity_realm; /* Dont kill books of the realm I use */
 bool sanity_price;	/* Dont kill items more expensive then this */
+bool reverse_xp; /* Diplay xp till next level */
 u32b sane_price; /* Limit price over which items will not be squelched */
 bool sanity_id; /* Dont kill unknown consumables */
 
@@ -700,7 +710,7 @@ cptr keymap_act[KEYMAP_MODES][256];
 /*
 * Static player info record
 */
-static player_type p_body;
+/*static*/ player_type p_body;
 
 /*
 * Pointer to the player info
@@ -716,9 +726,6 @@ player_race *rp_ptr;
 player_class *cp_ptr;
 class_magic *mp_ptr;
 player_race *bsp_ptr;
-/* Pointer to current spell we deal with Hack^3 */
-magic_type   s_body;
-magic_type  *s_ptr = &s_body;
 char short_info[25];
 
 /*

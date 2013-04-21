@@ -3,12 +3,22 @@
 /* Purpose: Movement commands (part 2) */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
 
 #include "angband.h"
 
@@ -536,7 +546,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("A puff of green gas surrounds you!");
 		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 		{
-			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
+			(void)set_timed_effect( TIMED_POISONED , p_ptr->poisoned + 10 + randint(20));
 		}
 	}
 
@@ -546,7 +556,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("A puff of yellow gas surrounds you!");
 		if (!p_ptr->free_act)
 		{
-			(void)set_paralyzed(p_ptr->paralyzed + 10 + randint(20));
+			(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + 10 + randint(20));
 		}
 	}
 
@@ -1804,7 +1814,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		msg_print("You are off-balance.");
 
 		/* Hack -- Lose balance ala paralysis */
-		(void)set_paralyzed(p_ptr->paralyzed + 2 + rand_int(2));
+		(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + 2 + rand_int(2));
 	}
 
 	/* Result */
@@ -2414,9 +2424,8 @@ void do_cmd_fire(void)
 	item_tester_tval = p_ptr->tval_ammo;
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Fire which item? ", FALSE, TRUE, TRUE))
+	if (!get_item(&item, "Fire which item? ", "You have nothing to fire.", USE_INVEN|USE_FLOOR))
 	{
-		if (item == -2) msg_print("You have nothing to fire.");
 		return;
 	}
 
@@ -2767,9 +2776,8 @@ void do_cmd_throw(void)
 
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Throw which item? ", FALSE, TRUE, TRUE))
+	if (!get_item(&item, "Throw which item? ", "You have nothing to throw." , USE_INVEN|USE_FLOOR))
 	{
-		if (item == -2) msg_print("You have nothing to throw.");
 		return;
 	}
 
@@ -3173,8 +3181,8 @@ static void cmd_racial_power_aux (void)
 			(p_ptr->pclass == CLASS_WARRIOR?6:12)))
 		{
 			msg_print("RAAAGH!");
-			(void)set_afraid(0);
-			(void)set_shero(p_ptr->shero + 10 + randint(plev));
+			(void)set_timed_effect( TIMED_AFRAID , 0);
+			(void)set_timed_effect( TIMED_SHERO, p_ptr->shero + 10 + randint(plev));
 			(void)hp_player(30);
 		}
 		break;
@@ -3203,12 +3211,12 @@ static void cmd_racial_power_aux (void)
 			if (racial_aux(40, 75, A_WIS, 50))
 			{
 				msg_print("You meditate on the grace of God");
-				(void)set_poisoned(0);
-				(void)set_image(0);
-				(void)set_stun(0);
-				(void)set_cut(0);
-				(void)set_blind(0);
-				(void)set_afraid(0);
+				(void)set_timed_effect( TIMED_POISONED , 0);
+				(void)set_timed_effect( TIMED_IMAGE , 0);
+				(void)set_timed_effect( TIMED_STUN, 0);
+				(void)set_timed_effect( TIMED_CUT, 0);
+				(void)set_timed_effect( TIMED_BLIND , 0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
 				(void)do_res_stat(A_STR);
 				(void)do_res_stat(A_INT);
 				(void)do_res_stat(A_WIS);
@@ -3241,9 +3249,9 @@ static void cmd_racial_power_aux (void)
 			(p_ptr->pclass == CLASS_WARRIOR?6:12)))
 		{
 			msg_print("You summon a berserker rage!");
-			(void)set_afraid(0);
+			(void)set_timed_effect( TIMED_AFRAID , 0);
 
-			(void)set_shero(p_ptr->shero + 10 + randint(plev));
+			(void)set_timed_effect( TIMED_SHERO, p_ptr->shero + 10 + randint(plev));
 			(void)hp_player(30);
 		}
 		break;
@@ -3337,7 +3345,7 @@ static void cmd_racial_power_aux (void)
 	case GUARDIAN:
 		if (racial_aux(20, 15, A_CON, 8))
 		{
-			(void)set_shield(p_ptr->shield + randint(20) + 30);
+			(void)set_timed_effect( TIMED_SHIELD, p_ptr->shield + randint(20) + 30);
 		}
 		break;
 	case SKELETON: case MUMMY:
@@ -3428,6 +3436,7 @@ void do_cmd_racial_power(void)
 
 	char            choice;
 	cptr q;
+    cptr s;
 
 	char            out_val[160];
 
@@ -3519,10 +3528,10 @@ void do_cmd_racial_power(void)
 					/*Show power and start description with cost*/
 					sprintf(power_desc[num],"%-20s (cost %d", sign_powers[i].description , sign_powers[i].cost );
 					/*Show cost that rises with level if there is one*/
-					if( racial_powers[i].cost_level > 0 )
+					if( sign_powers[i].cost_level > 0 )
 						sprintf(power_desc[num],"%s + lvl/%d", power_desc[num], sign_powers[i].cost_level );
 					/*Show extra info if there is*/
-					if( racial_powers[i].info != NULL )
+					if( sign_powers[i].info != NULL )
 						sprintf(power_desc[num],"%s, %s", power_desc[num], sign_powers[i].info );
 					/*End with stat used*/
 					sprintf(power_desc[num],"%s, %s based)", power_desc[num], stats_short[sign_powers[i].stat] );
@@ -3546,10 +3555,10 @@ void do_cmd_racial_power(void)
 					/*Show power and start description with cost*/
 					sprintf(power_desc[num],"%-20s (cost %d", freak_powers[i].description , freak_powers[i].cost );
 					/*Show cost that rises with level if there is one*/
-					if( racial_powers[i].cost_level > 0 )
+					if( freak_powers[i].cost_level > 0 )
 						sprintf(power_desc[num],"%s + lvl/%d", power_desc[num], freak_powers[i].cost_level );
 					/*Show extra info if there is*/
-					if( racial_powers[i].info != NULL )
+					if( freak_powers[i].info != NULL )
 						sprintf(power_desc[num],"%s, %s", power_desc[num], freak_powers[i].info );
 					/*End with stat used*/
 					sprintf(power_desc[num],"%s, %s based)", power_desc[num], stats_short[freak_powers[i].stat] );
@@ -4062,9 +4071,9 @@ void do_cmd_racial_power(void)
 		case COR1_BERSERK:
 			if (racial_aux(8, 8, A_STR, 14))
 			{
-				(void)set_shero(p_ptr->shero + randint(25) + 25);
+				(void)set_timed_effect( TIMED_SHERO, p_ptr->shero + randint(25) + 25);
 				(void)hp_player(30);
-				(void)set_afraid(0);
+				(void)set_timed_effect( TIMED_AFRAID , 0);
 			}
 			break;
 
@@ -4101,27 +4110,27 @@ void do_cmd_racial_power(void)
 
 				if (rand_int(5) < num)
 				{
-					(void)set_oppose_acid(p_ptr->oppose_acid + dur);
+					(void)set_timed_effect( TIMED_OPPOSE_ACID, p_ptr->oppose_acid + dur);
 					num--;
 				}
 				if (rand_int(4) < num)
 				{
-					(void)set_oppose_elec(p_ptr->oppose_elec + dur);
+					(void)set_timed_effect( TIMED_OPPOSE_ELEC, p_ptr->oppose_elec + dur);
 					num--;
 				}
 				if (rand_int(3) < num)
 				{
-					(void)set_oppose_fire(p_ptr->oppose_fire + dur);
+					(void)set_timed_effect( TIMED_OPPOSE_FIRE, p_ptr->oppose_fire + dur);
 					num--;
 				}
 				if (rand_int(2) < num)
 				{
-					(void)set_oppose_cold(p_ptr->oppose_cold + dur);
+					(void)set_timed_effect( TIMED_OPPOSE_COLD, p_ptr->oppose_cold + dur);
 					num--;
 				}
 				if (num)
 				{
-					(void)set_oppose_pois(p_ptr->oppose_pois + dur);
+					(void)set_timed_effect( TIMED_OPPOSE_POIS, p_ptr->oppose_pois + dur);
 					num--;
 				}
 			}
@@ -4146,7 +4155,8 @@ void do_cmd_racial_power(void)
 
 				/* Get an item */
 				q = "Drain which item? ";
-				if (!get_item(&item, q, FALSE,TRUE,TRUE)) break;
+                s = "There was nothing to drain. ";
+				if (!get_item(&item, q, s, USE_INVEN | USE_EQUIP | USE_FLOOR)) break;
 
 				if (item >= 0)
 				{

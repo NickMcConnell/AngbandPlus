@@ -3,12 +3,21 @@
 /* Purpose: Store commands */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
 
@@ -168,8 +177,8 @@ void room_rest(bool night)
 		turn = ((turn/100000)+1)*100000;
 	}
 	p_ptr->chp = p_ptr->mhp;
-	set_blind(0);
-	set_confused(0);
+	set_timed_effect( TIMED_BLIND , 0);
+	set_timed_effect( TIMED_CONFUSED , 0);
 	p_ptr->stun = 0;
 	if(night)
 	{
@@ -197,35 +206,12 @@ void room_rest(bool night)
 	/* Reset the Store and Owner pointers */
 	st_ptr = &store[cur_store_num];
 	ot_ptr = &owners[cur_store_num][st_ptr->owner];
-
-	p_ptr->fast = 0;			/* Timed -- Fast */
-	p_ptr->slow = 0;			/* Timed -- Slow */
-	p_ptr->blind = 0;			/* Timed -- Blindness */
-	p_ptr->paralyzed = 0;		/* Timed -- Paralysis */
-	p_ptr->confused = 0;		/* Timed -- Confusion */
-	p_ptr->afraid = 0;		/* Timed -- Fear */
-	p_ptr->image = 0;			/* Timed -- Hallucination */
-	p_ptr->poisoned = 0;		/* Timed -- Poisoned */
-	p_ptr->cut = 0;			/* Timed -- Cut */
-	p_ptr->stun = 0;			/* Timed -- Stun */
-	p_ptr->protevil = 0;		/* Timed -- Protection */
-	p_ptr->invuln = 0;		/* Timed -- Invulnerable */
-	p_ptr->hero = 0;			/* Timed -- Heroism */
-	p_ptr->shero = 0;			/* Timed -- Super Heroism */
-	p_ptr->magic_shell = 0;    /* Timed -- Anti-magic Shell */
-	p_ptr->shield = 0;		/* Timed -- Shield Spell */
-	p_ptr->blessed = 0;		/* Timed -- Blessed */
-	p_ptr->see_inv = 0;		/* Timed -- See Invisible */
-	p_ptr->tim_invis = 0;		/* Timed -- Invisibility -KMW- */
-	p_ptr->wraith_form = 0;		/* Timed -- walk through walls -KMW- */
-	p_ptr->tim_infra = 0;		/* Timed -- Infra Vision */
-	p_ptr->oppose_acid = 0;	/* Timed -- oppose acid */
-	p_ptr->oppose_elec = 0;	/* Timed -- oppose lightning */
-	p_ptr->oppose_fire = 0;	/* Timed -- oppose heat */
-	p_ptr->oppose_cold = 0;	/* Timed -- oppose cold */
-	p_ptr->oppose_pois = 0;	/* Timed -- oppose poison */
-	p_ptr->magic_shell = 0; /* Timed -- Magic Shell */
-
+	/* Reset all timed effects */
+	for( n = 0 ; n < TIMED_COUNT ; n ++ ){
+		msg_note( timed[n].lose );
+		*(timed[n].timer) = 0;
+	}	
+	
 	new_level_flag = TRUE;
 	came_from = START_WALK; /* We don't want the player to be moved */
 }
@@ -2965,9 +2951,8 @@ static void store_sell(void)
 	item_tester_hook = store_will_buy;
 
 	/* Get an item (from equip or inven) */
-	if (!get_item(&item, pmt, TRUE, TRUE, FALSE))
+	if (!get_item(&item, pmt,"You have nothing that I want.", USE_EQUIP | USE_INVEN))
 	{
-		if (item == -2) msg_print("You have nothing that I want.");
 		return;
 	}
 

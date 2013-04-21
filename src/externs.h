@@ -3,6 +3,24 @@
 /* Purpose: extern declarations (variables and functions) */
 
 /*
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
+
+/*
 * Note that some files have their own header files
 * (z-virt.h, z-util.h, z-form.h, term.h, random.h)
 */
@@ -77,7 +95,9 @@ extern int chaos_rewards[MAX_PATRON][20];
 extern martial_arts ma_blows[MAX_MA];
 extern mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS];
 extern cptr class_sub_name[MAX_CLASS][MAX_REALM+1];
+extern timed_type timed[];
 extern cptr squelch_strings[];
+extern menu_type menu_info[10][10];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -231,6 +251,7 @@ extern bool sanity_verbose; /* Inform player when a sanity check is used */
 extern bool sanity_realm; /* Dont kill books of the realm I use */
 extern bool sanity_price;	/* Dont kill items more expensive then this */
 extern bool sanity_id; /* Dont kill unknown consumables */
+extern bool reverse_xp;
 extern u32b sane_price;	/* Dont kill items more expensive then this */
 extern bool use_bigtile;
 extern byte squelch_options[SQ_HL_COUNT];
@@ -355,13 +376,13 @@ extern char misc_to_char[128];
 extern byte tval_to_attr[128];
 extern char tval_to_char[128];
 extern cptr keymap_act[KEYMAP_MODES][256];
+extern player_type p_body;
 extern player_type *p_ptr;
 extern player_sex *sp_ptr;
 extern player_race *rp_ptr;
 extern player_class *cp_ptr;
 extern class_magic *mp_ptr;
 extern player_race *bsp_ptr;
-extern magic_type  *s_ptr;
 extern char short_info[25];
 extern u32b spell_learned1;
 extern u32b spell_learned2;
@@ -634,6 +655,7 @@ extern void curse_equipment(int chance, int heavy_chance);
 /* monster1.c */
 extern void screen_roff(int r_idx);
 extern void display_roff(int r_idx);
+extern void display_visible(void);
 
 /* monster2.c */
 extern s16b place_ghost(void);
@@ -708,7 +730,7 @@ extern void display_equip(void);
 extern void show_inven(void);
 extern void show_equip(void);
 extern void toggle_inven_equip(void);
-extern bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor);
+extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
 extern void excise_object_idx(int o_idx);
 extern void delete_object_idx(int o_idx);
 extern void delete_object(int y, int x);
@@ -774,7 +796,6 @@ extern bool res_stat(int stat);
 extern bool apply_disenchant(int mode);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
 extern bool potion_smash_effect(int who, int y, int x, int o_sval);
-extern void get_spell_info( u16b realm  , int spell , magic_type *s_ptr );
 extern void get_extended_spell_info( u16b realm  , int spell , magic_type *s_ptr );
 
 /* spells2.c */
@@ -941,7 +962,9 @@ extern cptr message_str(s16b age);
 extern void message_add(cptr msg);
 extern void msg_print(cptr msg);
 extern void msg_note(cptr msg);
+extern void msg_bell(cptr msg);
 extern void msg_format(cptr fmt, ...);
+extern void msg_fiddle(cptr fmt, ...);
 extern void c_put_str(byte attr, cptr str, int row, int col);
 extern void put_str(cptr str, int row, int col);
 extern void c_prt(byte attr, cptr str, int row, int col);
@@ -961,6 +984,7 @@ extern void request_command(bool shopping);
 extern bool is_a_vowel(int ch);
 extern int get_keymap_dir(char ch);
 extern void msg_flush_wait(void);
+extern char menu_key_help(void);
 
 /* xtra1.c */
 extern void cnv_stat(int val, char *out_val);
@@ -976,30 +1000,7 @@ extern void day_to_date(s16b day,char *date);
 extern byte health_colour( s16b current, s16b max );
 
 /* xtra2.c */
-extern bool set_blind(int v);
-extern bool set_confused(int v);
-extern bool set_poisoned(int v);
-extern bool set_afraid(int v);
-extern bool set_paralyzed(int v);
-extern bool set_image(int v);
-extern bool set_fast(int v);
-extern bool set_slow(int v);
-extern bool set_shield(int v);
-extern bool set_blessed(int v);
-extern bool set_hero(int v);
-extern bool set_shero(int v);
-extern bool set_magic_shell(int v);
-extern bool set_protevil(int v);
-extern bool set_invuln(int v);
-extern bool set_tim_invis(int v);
-extern bool set_tim_infra(int v);
-extern bool set_oppose_acid(int v);
-extern bool set_oppose_elec(int v);
-extern bool set_oppose_fire(int v);
-extern bool set_oppose_cold(int v);
-extern bool set_oppose_pois(int v);
-extern bool set_stun(int v);
-extern bool set_cut(int v);
+extern bool set_timed_effect( byte effect , int v );
 extern bool set_food(int v);
 extern void check_experience(void);
 extern void gain_exp(s32b amount);
@@ -1010,6 +1011,10 @@ extern void panel_bounds(void);
 extern void panel_bounds_center(void);
 extern void verify_panel(void);
 extern cptr look_mon_desc(int m_idx);
+extern bool ang_sort_comp_visible_hook(vptr u, vptr v, int a, int b);
+extern void ang_sort_swap_visible_hook(vptr u, vptr v, int a, int b);
+extern void ang_sort_swap_hook(vptr u, vptr v, int a, int b);
+extern bool ang_sort_comp_hook(vptr u, vptr v, int a, int b);
 extern void ang_sort_aux(vptr u, vptr v, int p, int q);
 extern void ang_sort(vptr u, vptr v, int n);
 extern bool target_able(int m_idx);
@@ -1020,13 +1025,12 @@ extern bool get_hack_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern int get_evil_patron();
 extern void gain_level_reward(int chosen_reward);
-extern bool set_shadow(int v);
-extern bool set_tim_esp(int v);
 extern bool tgp_pt(int *x, int * y);
 extern bool tgt_pt (int *x, int *y);
 extern bool gain_corruption(int choose_mut);
 extern void dump_corruptions(FILE *OutFile);
 extern bool lose_corruption(int choose_mut);
+extern u32b *corruption_idx_to_u32b(byte b);
 
 /* quest.c */
 extern int get_quest_monster(void);
@@ -1081,6 +1085,7 @@ extern int usleep(huge usecs);
 /* util.c */
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
+extern void repeat_clear(void);
 extern void repeat_push_char(char what);
 extern bool repeat_pull_char(char *what);
 extern void repeat_check(void);
@@ -1091,6 +1096,7 @@ extern char *script;
 extern char variable_token[SCRIPT_MAX_LENGTH];
 extern char dice_mode;
 extern void eval_script(double *out);
+extern void plog_fmt_fiddle(cptr fmt, ...);
 
 #ifdef ALLOW_EASY_OPEN /* TNB */
 

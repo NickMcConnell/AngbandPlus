@@ -15,6 +15,10 @@
  *   any way you find useful, provided that you agree that
  *   Microsoft has no warranty obligations or liability for any
  *   Sample Application Files which are modified.
+ *
+ *   I Konijn found it usefull to distribute this code under the terms of the GNU General Public License (version 2),
+ *   as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ *   or under the terms of the traditional Angband license. 
  */
 
 #if defined(USE_WIN) || defined(WINDOWS) || defined(WIN32)

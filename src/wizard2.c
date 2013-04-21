@@ -3,12 +3,21 @@
 /* Purpose: Wizard commands */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke and Ben Harrison have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
 
@@ -492,13 +501,38 @@ static void strip_name(char *buf, int k_idx)
 
 
 /*
-* Hack -- title for each column
-*
-* XXX XXX XXX This will not work with "EBCDIC", I would think.
-*/
+ * Hack -- title for each column
+ */
 static char head[3] =
 { 'a', 'A', '0' };
 
+/* Refactoring of the wiz_Create_item code so that I do not need to copy paste code */
+
+static void drop_item( int k_idx )
+{
+	object_type	forge;
+	object_type *q_ptr;
+	
+	/* Return if failed */
+	if (!k_idx) return;
+	
+	/* Get local object */
+	q_ptr = &forge;
+	
+	/* Create the item */
+	object_prep(q_ptr, k_idx);
+	
+	/* Apply magic (no messages, no artefacts) */
+	apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
+	
+	/* Drop the object from heaven */
+	drop_near(q_ptr, -1, py, px);
+	
+	/* All done */
+	msg_print("Allocated.");
+	
+	
+}
 
 /*
 * Specify tval and sval (type and subtype of object) originally
@@ -508,7 +542,7 @@ static char head[3] =
 *
 * List up to 50 choices in three columns
 */
-static int wiz_create_itemtype(void)
+static int wiz_create_itemtype(bool all_of_them)
 {
 	int                  i, num, max_num;
 	int                  col, row;
@@ -583,6 +617,10 @@ static int wiz_create_itemtype(void)
 
 			/* Remember the object index */
 			choice[num++] = i;
+            
+            /* If we want them all, drop them all*/
+            if(all_of_them)
+                drop_item( i );
 		}
 	}
 
@@ -591,13 +629,17 @@ static int wiz_create_itemtype(void)
 
 	/* Choose! */
 	if (!get_com(format("What Kind of %s? ", tval_desc), &ch)) return (0);
-
+	
 	/* Analyze choice */
 	num = -1;
 	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
 	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	if ((ch >= head[2]) && (ch < head[2] + 20)) num = ch - head[2] + 40;
 
+    /*If we want it all, press * */
+    if( ch == '*' )
+        wiz_create_itemtype(TRUE);
+    
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);
 
@@ -958,9 +1000,8 @@ static void do_cmd_wiz_play(void)
 
 
 	/* Get an item (from equip or inven) */
-	if (!get_item(&item, "Play with which object? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Play with which object? ", "You have nothing to play with." , USE_EQUIP | USE_INVEN | USE_FLOOR))
 	{
-		if (item == -2) msg_print("You have nothing to play with.");
 		return;
 	}
 
@@ -1069,34 +1110,6 @@ static void do_cmd_wiz_play(void)
 	}
 }
 
-/* Refactoring of the wiz_Create_item code so that I do not need to copy paste code */
-
-static void drop_item( int k_idx )
-{
-	object_type	forge;
-	object_type *q_ptr;
-	
-	/* Return if failed */
-	if (!k_idx) return;
-	
-	/* Get local object */
-	q_ptr = &forge;
-	
-	/* Create the item */
-	object_prep(q_ptr, k_idx);
-	
-	/* Apply magic (no messages, no artefacts) */
-	apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
-	
-	/* Drop the object from heaven */
-	drop_near(q_ptr, -1, py, px);
-	
-	/* All done */
-	msg_print("Allocated.");
-	
-	
-}
-
 /*
 * Wizard routine for creating objects		-RAK-
 * Heavily modified to allow magification and artefactification  -Bernd-
@@ -1117,7 +1130,7 @@ static void wiz_create_item(void)
 	Term_save();
 
 	/* Get object base type */
-	k_idx = wiz_create_itemtype();
+	k_idx = wiz_create_itemtype(FALSE);
 	
 	/* Restore the screen */
 	Term_load();
@@ -1315,15 +1328,15 @@ void do_cmd_wiz_cure_all(void)
 	p_ptr->csp_frac = 0;
 
 	/* Cure stuff */
-	(void)set_blind(0);
-	(void)set_confused(0);
-	(void)set_poisoned(0);
-	(void)set_afraid(0);
-	(void)set_paralyzed(0);
-	(void)set_image(0);
-	(void)set_stun(0);
-	(void)set_cut(0);
-	(void)set_slow(0);
+	(void)set_timed_effect( TIMED_BLIND , 0);
+	(void)set_timed_effect( TIMED_CONFUSED , 0);
+	(void)set_timed_effect( TIMED_POISONED , 0);
+	(void)set_timed_effect( TIMED_AFRAID , 0);
+	(void)set_timed_effect( TIMED_PARALYZED , 0);
+	(void)set_timed_effect( TIMED_IMAGE , 0);
+	(void)set_timed_effect( TIMED_STUN, 0);
+	(void)set_timed_effect( TIMED_CUT, 0);
+	(void)set_timed_effect( TIMED_SLOW, 0);
 
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);

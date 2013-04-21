@@ -3,15 +3,24 @@
 /* Purpose: create a player character */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
 
 #include "angband.h"
-
 
 /*
 * Forward declare
@@ -36,661 +45,412 @@ struct birther
 	char history[4][70];
 };
 
-
-
-/*
-* The last character displayed
-*/
+/* The last character displayed */
 static birther prev;
 
+/* Frequencies of backgrounds to happen */
+#define COMMON 60
+#define LIKELY 30
+#define UNLIKELY 15
+#define RARE 5
+#define END_GROUP 1
 
-
-/*
-* Forward declare
-*/
-typedef struct hist_type hist_type;
-
-/*
-* Player background information
-*/
-struct hist_type
+/* Player background information  */
+typedef struct background_type background_type;
+struct background_type
 {
 	cptr info;			    /* Textual History */
-
-	byte roll;			    /* Frequency of this entry */
-	byte chart;			    /* Chart index */
-	byte next;			    /* Next chart index */
-	byte bonus;			    /* Social Class Bonus + 50 */
+	byte frequency;			/* Frequency of this entry */
+	s16b bonus;			    /* Social Class Bonus + 50 */
+    u32b metadata;          /* validity check and end of group flag */
+    
 };
 
-
-/*
-* Background information (see below)
-*
-* Chart progression by race, this is of course outdated :)
-
-*   Barbarian			  1 ->   2 ->   3 ->  50 ->  51 ->  52 ->  53
-*   Cyclops				 77 -> 109 -> 110 -> 111 -> 112
-*   Atlantian			 69 ->  70 ->  71 ->  72 ->  73
-*	Devilspawn			129 -> 130 -> 131 -> 132 -> 133
-*	Draconian			 89 ->  90 ->  91
-*   Dwarf				 16 ->  17 ->  18 ->  57 ->  58 ->  59 ->  60 ->  61
-*   Elf					  7 ->   8 ->   9 ->  54 ->  55 ->  56
-*   Gnome				 13 ->  14 ->   3 ->  50 ->  51 ->  52 ->  53
-*	Golem				 98 ->  99 -> 100 -> 101
-*   Half-Elf			  4 ->   1 ->   2 ->   3 ->  50 ->  51 ->  52 ->  53
-*   Half-Giant			 75 ->  20 ->   2 ->   3 ->  50 ->  51 ->  52 ->  53
-*   Half-Ogre			 74 ->  20 ->   2 ->   3 ->  50 ->  51 ->  52 ->  53
-*   Half-Orc			 19 ->  20 ->   2 ->   3 ->  50 ->  51 ->  52 ->  53
-*   Half-Titan			 76 ->  20 ->   2 ->   3 ->  50 ->  51 ->  52 ->  53
-*   Half-Troll			 22 ->  23 ->  62 ->  63 ->  64 ->  65 ->  66
-*   High Elf			  7 ->   8 ->   9 ->  54 ->  55 ->  56
-*   Hobbit				 10 ->  11 ->   3 ->  50 ->  51 ->  52 ->  53
-*   Human				  1 ->   2 ->   3 ->  50 ->  51 ->  52 ->  53
-*	Imp					 94 ->  95 ->  96 ->  97
-*	Klackon				 84 ->  85 ->  86
-*	Kobold				 82 ->  83 ->  24 ->  25 ->  26
-*	Mind Flayer			 92 ->  93
-*   Nephilim			 67 ->  68 ->  50 ->  51 ->  52 ->  53
-*	Nibelung			 87 ->  88 ->  18 ->  57 ->  58 ->  59 ->  60 ->  61
-*	Skeleton			102 -> 103 -> 104 -> 105 -> 106
-*	Spectre				118 -> 119 -> 134 -> 121 -> 122 -> 123
-*	Sprite				124 -> 125 -> 126 -> 127 -> 128
-*	Vampire				113 -> 114 -> 115 -> 116 -> 117
-*	Yeek				 78 ->  79 ->  80 ->  81
-*	Zombie				107 -> 108 ->  62 ->  63 ->  64 ->  65 ->  66
-*
-* XXX XXX XXX This table *must* be correct or drastic errors may occur!
-*/
-static hist_type bg[] =
+static background_type background[] = 
 {
-	/* 1 = Barbarian/Half-Elf/Human */
-	{"You are the illegitimate and unacknowledged child ",	 10, 1, 2, 25},
-	{"You are the illegitimate but acknowledged child ",	 20, 1, 2, 35},
-	{"You are one of several children ",             95, 1, 2, 45},
-	{"You are the first child ",				100, 1, 2, 50},
-
-	/* 2 = Barbarian/Half-Elf/Half-Giant/Half-Ogre/Half-Orc/Half-Titan/Human */
-	{"of a Serf. ",						 40, 2, 3, 65},
-	{"of a Yeoman. ",						 65, 2, 3, 80},
-	{"of a Townsman. ",					 80, 2, 3, 90},
-	{"of a Guildsman. ",					 90, 2, 3, 105},
-	{"of a Landed Knight. ",					 96, 2, 3, 120},
-	{"of a Noble Family. ",    99, 2, 3, 130},
-	{"of the Royal Blood Line. ",                100, 2, 3, 140},
-
-	/* 3 = Barbarian/Gnome/Half-Elf/Half-Giant/Half-Ogre/Half-Orc/Half-Titan/Hobbit/Human */
-	{"You are the black sheep of the family. ",		 20, 3, 50, 20},
-	{"You are a credit to the family. ",			 80, 3, 50, 55},
-	{"You are a well liked child. ",				100, 3, 50, 60},
-
-	/* 4 = Half-Elf */
-	{"Your mother was of the Teleri. ",			 40, 4, 1, 50},
-	{"Your father was of the Teleri. ",			 75, 4, 1, 55},
-	{"Your mother was of the Noldor. ",		 	 90, 4, 1, 55},
-	{"Your father was of the Noldor. ",		 	 95, 4, 1, 60},
-	{"Your mother was of the Vanyar. ",			 98, 4, 1, 65},
-	{"Your father was of the Vanyar. ",			100, 4, 1, 70},
-
-	/* 7 = Elf/High Elf */
-	{"You are one of several children ",			 60, 7, 8, 50},
-	{"You are the only child ",					100, 7, 8, 55},
-
-	/* 8 = Elf/High Elf */
-	{"of a Teleri ",						 75, 8, 9, 50},
-	{"of a Noldor ",						 95, 8, 9, 55},
-	{"of a Vanyar ",						100, 8, 9, 60},
-
-	/* 9 = Elf/High Elf */
-	{"Ranger. ",						 40, 9, 54, 80},
-	{"Archer. ",						 70, 9, 54, 90},
-	{"Warrior. ",						 87, 9, 54, 110},
-	{"Mage. ",							 95, 9, 54, 125},
-	{"Prince. ",						 99, 9, 54, 140},
-	{"King. ",							100, 9, 54, 145},
-
-	/* 10 = Hobbit */
-	{"You are one of several children of a Hobbit ",		 85, 10, 11, 45},
-	{"You are the only child of a Hobbit ",		        100, 10, 11, 55},
-
-	/* 11 = Hobbit */
-	{"Bum. ",							 20, 11, 3, 55},
-	{"Tavern Owner. ",						 30, 11, 3, 80},
-	{"Miller. ",						 40, 11, 3, 90},
-	{"Home Owner. ",						 50, 11, 3, 100},
-	{"Burglar. ",						 80, 11, 3, 110},
-	{"Warrior. ",						 95, 11, 3, 115},
-	{"Mage. ",							 99, 11, 3, 125},
-	{"Clan Elder. ",						100, 11, 3, 140},
-
-	/* 13 = Gnome */
-	{"You are one of several children of a Gnome ",		 85, 13, 14, 45},
-	{"You are the only child of a Gnome ",			100, 13, 14, 55},
-
-	/* 14 = Gnome */
-	{"Beggar. ",						 20, 14, 3, 55},
-	{"Braggart. ",						 50, 14, 3, 70},
-	{"Prankster. ",						 75, 14, 3, 85},
-	{"Warrior. ",						 95, 14, 3, 100},
-	{"Mage. ",							100, 14, 3, 125},
-
-	/* 16 = Dwarf */
-	{"You are the descendant of a Dwarven ",		 25, 16, 17, 40},
-	{"You are the last descendant of a Dwarven ",			100, 16, 17, 50},
-
-	/* 17 = Dwarf */
-	{"Thief. ",						 10, 17, 18, 60},
-	{"Prison Guard. ",						 25, 17, 18, 75},
-	{"Miner. ",						 75, 17, 18, 90},
-	{"Warrior. ",						 90, 17, 18, 110},
-	{"Priest. ",						 99, 17, 18, 130},
-	{"King. ",							100, 17, 18, 150},
-
-	/* 18 = Dwarf/Nibelung */
-	{"You are the black sheep of the family. ",		 15, 18, 57, 10},
-	{"You are a credit to the family. ",			 85, 18, 57, 50},
-	{"You are a well liked child. ",				100, 18, 57, 55},
-
-	/* 19 = Half-Orc */
-	{"Your mother was an Orc, but it is unacknowledged. ",	 25, 19, 20, 25},
-	{"Your father was an Orc, but it is unacknowledged. ",	100, 19, 20, 25},
-
-	/* 20 = Half-Giant/Half-Ogre/Half-Orc/Half-Titan */
-	{"You are the adopted child ",				100, 20, 2, 50},
-
-	/* 22 = Half-Troll */
-	{"Your father is a descendant of a cave troll ",				 30, 22, 23, 20},
-	{"Your father is a descendant of a cave troll ",				 60, 22, 23, 25},
-	{"Your mother is a descendant of a hill troll ",				 75, 22, 23, 30},
-	{"Your mother is a descendant of a hill troll ",				 90, 22, 23, 35},
-	{"Your mother is a descendant of a troll ",				 95, 22, 23, 40},
-	{"Your father is a descendant of a troll ",				100, 22, 23, 45},
-
-	/* 23 = Half-Troll */
-	{"Grunt. ",							  5, 23, 62, 60},
-	{"Warrior. ",						 95, 23, 62, 55},
-	{"Priest. ",						 99, 23, 62, 65},
-	{"Clan Chief. ",						100, 23, 62, 80},
-
-	/* 24 = Kobold */
-	{"You have a green complexion, ",    25, 24, 25, 50 },
-	{"You have a dark green complexion, ",    50, 24, 25, 50 },
-	{"You have a yellow complexion, ",    75, 24, 25, 50 },
-	{"You have a green complexion, a yellow belly, ",    100, 24, 25, 50 },
-
-	/* 25 = Kobold */
-	{"bright eyes, ",    25, 25, 26, 50 },
-	{"yellow eyes, ",    50, 25, 26, 50 },
-	{"red eyes, ",    75, 25, 26, 50 },
-	{"snake-like eyes, ",    100, 25, 26, 50 },
-
-	/* 26 = Kobold */
-	{"and a long sinuous tail.",        20, 26, 0, 50 },
-	{"and a short tail.",        40, 26, 0, 50 },
-	{"and a muscular tail.",        60, 26, 0, 50 },
-	{"and a long tail.",        80, 26, 0, 50 },
-	{"and a sinuous tail.",        100, 26, 0, 50 },
-
-
-	/* 50 = Barbarian/Gnome/Half-Elf/Half-Giant/Half-Ogre/Half-Orc/Half-Titan/Hobbit/Human/Nephilim */
-	{"You have dark brown eyes, ",				 20, 50, 51, 50},
-	{"You have brown eyes, ",					 60, 50, 51, 50},
-	{"You have hazel eyes, ",					 70, 50, 51, 50},
-	{"You have green eyes, ",					 80, 50, 51, 50},
-	{"You have blue eyes, ",					 90, 50, 51, 50},
-	{"You have blue-gray eyes, ",				100, 50, 51, 50},
-
-	/* 51 = Barbarian/Gnome/Half-Elf/Half-Giant/Half-Ogre/Half-Orc/Half-Titan/Hobbit/Human/Nephilim */
-	{"straight ",						 70, 51, 52, 50},
-	{"wavy ",							 90, 51, 52, 50},
-	{"curly ",							100, 51, 52, 50},
-
-	/* 52 = Barbarian/Gnome/Half-Elf/Half-Giant/Half-Ogre/Half-Orc/Half-Titan/Hobbit/Human/Nephilim */
-	{"black hair, ",						 30, 52, 53, 50},
-	{"brown hair, ",						 70, 52, 53, 50},
-	{"auburn hair, ",						 80, 52, 53, 50},
-	{"red hair, ",						 90, 52, 53, 50},
-	{"blond hair, ",						100, 52, 53, 50},
-
-	/* 53 = Barbarian/Gnome/Half-Elf/Half-Giant/Half-Ogre/Half-Orc/Half-Titan/Hobbit/Human/Nephilim */
-	{"and a very dark complexion.",				 10, 53, 0, 50},
-	{"and a dark complexion.",					 30, 53, 0, 50},
-	{"and an average complexion.",				 80, 53, 0, 50},
-	{"and a fair complexion.",					 90, 53, 0, 50},
-	{"and a very fair complexion.",				100, 53, 0, 50},
-
-	/* 54 = Elf/High Elf */
-	{"You have light grey eyes, ",				 85, 54, 55, 50},
-	{"You have light blue eyes, ",				 95, 54, 55, 50},
-	{"You have light green eyes, ",				100, 54, 55, 50},
-
-	/* 55 = Elf/High Elf */
-	{"straight ",						 75, 55, 56, 50},
-	{"wavy ",							100, 55, 56, 50},
-
-	/* 56 = Elf/High Elf */
-	{"black hair, and a fair complexion.",			 75, 56, 0, 50},
-	{"brown hair, and a fair complexion.",			 85, 56, 0, 50},
-	{"blond hair, and a fair complexion.",			 95, 56, 0, 50},
-	{"silver hair, and a fair complexion.",			100, 56, 0, 50},
-
-	/* 57 = Dwarf/Nibelung */
-	{"You have dark brown eyes, ",				 99, 57, 58, 50},
-	{"You have eyes that glow in the dark, ",				100, 57, 58, 60},
-
-	/* 58 = Dwarf/Nibelung */
-	{"straight ",						 90, 58, 59, 50},
-	{"wavy ",							100, 58, 59, 50},
-
-	/* 59 = Dwarf/Nibelung */
-	{"black hair, ",						 75, 59, 60, 50},
-	{"brown hair, ",						100, 59, 60, 50},
-
-	/* 60 = Dwarf/Nibelung */
-	{"a two foot beard, ",					 25, 60, 61, 50},
-	{"a two foot beard, ",					 60, 60, 61, 51},
-	{"a one foot beard, ",					 90, 60, 61, 53},
-	{"a one foot beard, ",					100, 60, 61, 55},
-
-	/* 61 = Dwarf/Nibelung */
-	{"and a dark complexion.",					100, 61, 0, 50},
-
-	/* 62 = Half-Troll/Mummy */
-	{"You have slime green eyes, ",				 60, 62, 63, 50},
-	{"You have puke yellow eyes, ",				 85, 62, 63, 50},
-	{"You have blue-bloodshot eyes, ",				 99, 62, 63, 50},
-	{"You have glowing red eyes, ",				100, 62, 63, 55},
-
-	/* 63 = Half-Troll/Mummy */
-	{"dirty ",							 33, 63, 64, 50},
-	{"mangy ",							 66, 63, 64, 50},
-	{"oily ",							100, 63, 64, 50},
-
-	/* 64 = Half-Troll/Mummy */
-	{"sea-weed green hair, ",					 33, 64, 65, 50},
-	{"bright red hair, ",					 66, 64, 65, 50},
-	{"dark purple hair, ",					100, 64, 65, 50},
-
-	/* 65 = Half-Troll/Mummy/Yeek */
-	{"and green ",						 25, 65, 66, 50},
-	{"and blue ",						 50, 65, 66, 50},
-	{"and white ",						 75, 65, 66, 50},
-	{"and black ",						100, 65, 66, 50},
-
-	/* 66 = Half-Troll/Mummy/Yeek */
-	{"ulcerous skin.",						 33, 66, 0, 50},
-	{"scabby skin.",						 66, 66, 0, 50},
-	{"leprous skin.",                       100, 66, 0, 50},
-
-	/* 67 = Nephilim */
-	{"You are an unacknowledged child of ", 50, 67, 68, 45},
-	{"You are a rebel child of ",         80, 67, 68, 65},
-	{"You are a long lost child of ",     100, 67, 68, 55},
-
-	/* 68 = Nephilim */
-	{"someone with angel blood. ",               50, 68, 50, 80 },
-	{"an unknown child of an angel. ", 65, 68, 50, 90 },
-	{"an unknown angel. ", 79, 68, 50, 100 },
-	{"Araqiel. ",       80, 68, 50, 130 },
-	{"Kokabiel. ",        83, 68, 50, 105 },
-	{"Samyaza. ",       84, 68, 50, 105 },
-	{"Ramiel. ",        85, 68, 50, 90 },
-	{"Daniel. ",        87, 68, 50, 100 },
-	{"Chazaqiel. ",       88, 68, 50, 125 },
-	{"Baraqiel. ",      89, 68, 50, 120 },
-	{"Samyaza. ",       90, 68, 50, 140 },
-	{"Sariel. ",     91, 68, 50, 115 },
-	{"one of the Grigori leaders. ",       92, 68, 50, 110 },
-	{"one of the original 200. ",       93, 68, 50, 105 },
-	{"Araqiel. ",        94, 68, 50, 95 },
-	{"Kokabiel. ",        95, 68, 50, 115 },
-	{"Samyaza. ",        96, 68, 50, 110 },
-	{"Samyaza. ",         97, 68, 50, 135 },
-	{"Baraqiel. ",      98, 68, 50, 90 },
-	{"Sariel. ",       99, 68, 50, 105 },
-	{"Azazel. ",       100, 68, 50, 80 },
-
-	/* 69 = Atlantian */
-	{"You are one of several children of an Atlantian ",      85, 69, 70, 45},
-	{"You are the only child of an Atlantian ",          100, 69, 70, 55},
-
-	/* 70 = Atlantian */
-	{"scholar. ", 50, 70, 71, 60 },
-	{"researcher. ", 80, 70, 71, 75 },
-	{"guardian. ", 100, 70, 71, 95 },
-
-	/* 71 =Atlantian*/
-	{"You have black eyes, ", 100, 71, 72, 50},
-
-	/* 72 = Atlantian */
-	{"straight ",                        70, 72, 73, 50},
-	{"wavy ",                            90, 72, 73, 50},
-	{"curly ",                          100, 72, 73, 50},
-
-	/* 73 = Atlantian */
-	{"black hair and a very dark complexion.", 100, 73, 0, 50 },
-
-	/* 74 = Half-Ogre */
-	{"You have Ogre blood from your mothers' side, your father is unaware. ", 25, 74, 20, 25},
-	{"You have Ogre blood from your father' side, your mother is unaware. ", 100, 74, 20, 25},
-
-	/* 75 = Half-Hiant */
-	{"One of your forefathers on your mother's side mother was a Giant. ", 10, 75, 20, 50},
-	{"One of your forefathers on your mother's side mother was a Giant. ", 10, 75, 20, 50},
-	{"One of your forefathers on your mother's side mother was a Giant. ", 10, 75, 20, 50},
-	{"One of your forefathers on your mother's side mother was a Giant. ", 10, 75, 20, 50},
-	{"One of your forefathers on your mother's side mother was a Giant. ", 10, 75, 20, 50},
-	{"One of your forefathers on your father's side mother was a Giant. ", 10, 75, 20, 50},
-	{"One of your forefathers on your father's side mother was a Giant. ", 10, 75, 20, 50},
-	{"One of your forefathers on your father's side mother was a Giant. ", 10, 75, 20, 50},
-	{"One of your forefathers on your father's side mother was a Giant. ", 10, 75, 20, 50},
-	{"One of your forefathers on your father's side mother was a Giant. ", 10, 75, 20, 50},
-
-	/* 76 = Half-Titan */
-	{"You are the the distant offspring of an unknown Titan. ", 75, 76, 20, 50 },
-	{"You are the the distant offspring of Themis. ",        80, 76, 20, 100 },
-	{"You are the the distant offspring of Mnemosyne. ",     85, 76, 20, 100 },
-	{"You are the the distant offspring of Okeanoas. ",      90, 76, 20, 100 },
-	{"You are the the distant offspring of Crius. ",         95, 76, 20, 100 },
-	{"You are the the distant offspring of Hyperion. ",      98, 76, 20, 125 },
-	{"You are the the distant offspring of Kronos. ",       100, 76, 20, 150 },
-
-	/* 77 = Cyclops */
-	{"You are the offspring of an unknown Cyclops. ", 90, 77, 109, 50 },
-	{"You are Polyphemos's child. ", 98, 77, 109, 80 },
-	{"You are Uranos's child. ", 100, 77, 109, 135 },
-
-	/* 78 = Yeek */
-	{"You are one of several children of ", 100, 78, 79, 50 },
-
-	/* 79 = Yeek */
-	{"a Brown Yeek. ", 50, 79, 80, 50 },
-	{"a Blue Yeek. ", 75, 79, 80, 50 },
-	{"a Master Yeek. ", 95, 79, 80, 85 },
-	{"Boldor, the King of the Yeeks. ", 100, 79, 80, 120 },
-
-	/* 80 = Yeek */
-	{"You have pale eyes, ",    25, 80, 81, 50 },
-	{"You have glowing eyes, ",    50, 80, 81, 50 },
-	{"You have tiny black eyes, ",    75, 80, 81, 50 },
-	{"You have shining black eyes, ",    100, 80, 81, 50 },
-
-	/* 81 = Yeek */
-	{"and short blue fur.",        20, 81, 0, 50 },
-	{"and short brown fur.",        40, 81, 0, 50 },
-	{"and short black fur.",        60, 81, 0, 50 },
-	{"and long blue fur.",        80, 81, 0, 50 },
-	{"and long brown fur.",        100, 81, 0, 50 },
-
-	/* 82 = Kobold */
-	{"You are one of several children of ", 100, 82, 83, 50 },
-
-	/* 83 = Kobold */
-	{"a Small Kobold. ",   40, 83, 24, 50 },
-	{"a Kobold. ",         75, 83, 24, 55 },
-	{"a Large Kobold. ",   95, 83, 24, 65 },
-	{"Vort, the Kobold Queen. ",     100, 83, 24, 100 },
-
-	/* 84 = Klackon */
-	{"You are one of several children of a Klackon hive queen. "
-	, 100, 84, 85, 50 },
-
-	/* 85 = Klackon */
-	{"You have red skin, ", 40, 85, 86, 50 },
-	{"You have black skin, ", 90, 85, 86, 50 },
-	{"You have yellow skin, ", 100, 85, 86, 50 },
-
-	/* 86 = Klackon */
-	{"and black eyes.", 100, 86, 0, 50 },
-
-	/* 87 = Nibelung */
-	{"You are one of several children of ", 100, 87, 88, 89 },
-
-	/* 88 = Nibelung */
-	{"a Nibelung Slave. ", 30, 88, 18, 20 },
-	{"a Nibelung Thief. ", 50, 88, 18, 40 },
-	{"a Nibelung Smith. ", 70, 88, 18, 60 },
-	{"a Nibelung Miner. ", 90, 88, 18, 75 },
-	{"a Nibelung Priest. ", 95, 88, 18, 100 },
-	{"Mime, the Nibelung. ", 100, 88, 18, 100 },
-
-	/* 89 = Draconian */
-	{"You are one of several children of a Draconian ", 85, 89, 90, 50  },
-	{"You are the only child of a Draconian ", 100, 89, 90, 55 },
-
-	/* 90 = Draconian */
-	{"Warrior. ", 50, 90, 91, 50 },
-	{"Priest. ", 65, 90, 91, 65 },
-	{"Mage. ", 85, 90, 91, 70 },
-	{"Noble. ", 100, 90, 91, 100 },
-
-	/* 91 = Draconian */
-	{"You have green wings, green skin and yellow belly.", 30, 91, 0, 50 },
-	{"You have green wings, and green skin.", 55, 91, 0, 50 },
-	{"You have red wings, and red skin.", 80, 91, 0, 50 },
-	{"You have black wings, and black skin.", 90, 91, 0, 50 },
-	{"You have metallic skin, and shining wings.", 100, 91, 0, 50},
-
-	/* 92 = Elder Horror */
-	{"You have slimy skin, empty glowing eyes, and ", 100, 92, 93, 80 },
-
-	/* 93 = Elder Horror */
-	{"three tentacles around your mouth.", 20, 93, 0, 45 },
-	{"four tentacles around your mouth.", 80, 93, 0, 50 },
-	{"five tentacles around your mouth.", 100, 93, 0, 55 },
-
-	/* 94 = Imp */
-	{"You ancestor was ", 100, 94, 95, 50 },
-
-	/* 95 = Imp */
-	{"a mindless demonic spawn. ", 30, 95, 96, 20 },
-	{"a minor demon. ", 60, 95, 96, 50 },
-	{"a major demon. ", 90, 95, 96, 75 },
-	{"a demon lord. ", 100, 95, 96, 99 },
-
-	/* 96 = Imp */
-	{"You have red skin, ", 50, 96, 97, 50 },
-	{"You have brown skin, ", 100, 96, 97, 50},
-
-	/* 97 = Imp */
-	{"claws, fangs, spikes, and glowing red eyes.", 40, 97, 0, 50 },
-	{"claws, fangs, and glowing red eyes.", 70, 97, 0, 50 },
-	{"claws, and glowing red eyes.", 100, 97, 0, 50 },
-
-	/* 98 = Guardian */
-	{"You were created to ", 100, 98, 99, 50 },
-
-	/* 99 = Guardian */
-	{"guard ", 40, 99, 100, 50 },
-	{"protect ", 80, 99, 100, 50 },
-	{"preserve ", 85, 99, 100, 40 },
-	{"watch ", 99, 99, 100, 50 },
-	{"oversee", 100, 99, 100, 100},
-
-	/* 100 = Guardian */
-	{"a lost Elder", 40, 100, 101, 50 },
-	{"the sarcophagus of an Elder", 65, 100, 101, 50 },
-	{"the stasis chamber of an Elder", 90, 100, 101, 50},
-	{"the first Elder", 100, 100, 101, 60},
-
-	/* 101 = Guardian */
-	{" Horror.", 10, 101, 0, 65 },
-	{".", 100, 101, 0, 50 },
-
-	/* 102 = Skeleton */
-	{"You were cursed because ", 100, 102, 103, 50 },
-
-	/* 103 = Skeleton */
-	{"you slept with a medicine man's daughter. ", 30, 103, 104, 50 },
-	{"sold fake magical amulets to a medicine man. ", 50, 103, 104, 50 },
-	{"pretended to be more powerful than the local medicin man. ", 70, 103, 104, 50 },
-	{"mistook a medicine man for the village fool. ", 75, 103, 104, 50 },
-	{"you asked a medicine man for immortality. ", 85, 103, 104, 50 },
-	{"were in the wrong place at the wrong time. ", 95, 103, 104, 30 },
-	{"you thought it would get you a role with Johny Depp. ", 100, 103, 104, 50 },
-
-	/* 104 = Skeleton */
-	{"You have ", 100, 104, 105, 50 },
-
-	/* 105 = Skeleton */
-	{"dirty, dry bones, ", 40, 105, 106, 50 },
-	{"rotten black bones, ", 60, 105, 106, 50 },
-	{"filthy, brown bones, ", 80, 105, 106, 50 },
-	{"shining white bones, ", 100, 105, 106, 50 },
-
-	/* 106 = Skeleton */
-	{"and a blackened skull.", 30, 106, 0, 50 },
-	{"and a fractured skull.", 50, 106, 0, 50 },
-	{"and empty eyesockets.", 100, 106, 0, 50 },
-
-	/* 107 = Mummy */
-	{"You were created by ", 100, 107, 108, 50 },
-
-	/* 108 = Mummy */
-	{"the local dabbler in the dark arts. ", 30, 108, 62, 50 },
-	{"a priest of Mazghuna. ", 50, 108, 62, 50 },
-	{"a dark priest in Saqqara. ",60, 108, 62, 50 },
-	{"an evil priest of Dahshur. ", 70, 108, 62, 50 },
-	{"a pact with Egyptian Sand Demons. ", 80, 108, 62, 50 },
-	{"the high priests of Gizeh. ", 95, 108, 62, 30 },
-	{"the Pharaoh. ", 100, 108, 62, 50 },
-
-	/* 109 = Cyclops */
-	{"You have a dark brown eye, ",               20, 109, 110, 50},
-	{"You have a brown eye, ",                    60, 109, 110, 50},
-	{"You have a hazel eye, ",                    70, 109, 110, 50},
-	{"You have a green eye, ",                    80, 109, 110, 50},
-	{"You have a blue eye, ",                     90, 109, 110, 50},
-	{"You have a blue-gray eye, ",               100, 109, 110, 50},
-
-	/* 110 = Cyclops */
-	{"straight ",                        70, 110, 111, 50},
-	{"wavy ",                            90, 110, 111, 50},
-	{"curly ",                          100, 110, 111, 50},
-
-	/* 111 = Cyclops */
-	{"black hair, ",                         30, 111, 112, 50},
-	{"brown hair, ",                         70, 111, 112, 50},
-	{"auburn hair, ",                        80, 111, 112, 50},
-	{"red hair, ",                       90, 111, 112, 50},
-	{"blond hair, ",                        100, 111, 112, 50},
-
-	/* 112 = Cyclops */
-	{"and a very dark complexion.",              10, 112, 0, 50},
-	{"and a dark complexion.",                   30, 112, 0, 50},
-	{"and an average complexion.",               80, 112, 0, 50},
-	{"and a fair complexion.",                   90, 112, 0, 50},
-	{"and a very fair complexion.",             100, 112, 0, 50},
-
-	/* 113 = Vampire */
-	{"You arose from an unmarked grave. ", 20, 113, 114, 50 },
-	{"In life you were a simple peasant, the victim of a powerful Vampire Lord. ", 40, 109, 110, 50 },
-	{"In life you were a Vampire Hunter, but they got you. ", 60, 113, 114, 50 },
-	{"In life you were a Necromancer. ", 80, 113, 114, 50 },
-	{"In life you were a powerful noble. ", 95, 113, 114, 50 },
-	{"In life you were a powerful and cruel tyrant. ", 100, 113, 114, 50 },
-
-	/* 114 = Vampire */
-	{"You have ", 100, 114, 115, 50 },
-
-	/* 115 = Vampire */
-	{"jet-black hair, ", 25, 115, 116, 50 },
-	{"matted brown hair, ", 50, 115, 116, 50 },
-	{"white hair, ", 75, 115, 116, 50 },
-	{"a hairless head, ", 100, 115, 116, 50 },
-
-	/* 116 = Vampire */
-	{"eyes like red coals, ", 25, 116, 117, 50 },
-	{"blank white eyes, ", 50, 116, 117, 50 },
-	{"feral yellow eyes, ", 75, 116, 117, 50 },
-	{"bloodshot red eyes, ", 100, 116, 117, 50 },
-
-	/* 117 = Vampire */
-	{"and a deathly pale complexion.", 100, 117, 0, 50 },
-
-	/* 118 = Spectre */
-	{"You were created by ", 100, 118, 119, 50 },
-
-	/* 119 = Spectre */
-	{"a curse. ", 30, 119, 134, 50 },
-	{"an oath. ", 50, 119, 134, 50 },
-	{"an curse. ", 70, 119, 134, 50 },
-	{"an oath. ", 75, 119, 134, 50 },
-	{"a curse. ", 85, 119, 134, 50 },
-	{"an oath. ", 95, 119, 134, 30 },
-	{"a pact with demons. ", 100, 119, 134, 50 },
-
-	/* 121 = Spectre */
-	{"eyes like red coals, ", 25, 121, 122, 50 },
-	{"blank white eyes, ", 50, 121, 122, 50 },
-	{"feral yellow eyes, ", 75, 121, 122, 50 },
-	{"bloodshot red eyes, ", 100, 121, 122, 50 },
-
-	/* 122 = Spectre */
-	{" and a deathly gray complexion. ", 100, 122, 123, 50 },
-
-	/* 123 = Spectre */
-	{"An eerie green aura surrounds you.", 100, 123, 0, 50 },
-
-	/* 124 = Faeries */
-	{"You were born ", 100, 124, 125, 50 },
-
-	/* 125 = Faeries */
-	{"in Ireland. ", 20, 125, 126, 35 },
-	{"in Scotland. ", 30, 125, 126, 25 },
-	{"in Whales. ", 75, 125, 126, 50 },
-	{"on the island of Man. ", 90, 125, 126, 75 },
-	{"under a full moon. ", 100, 125, 126, 85 },
-
-	/* 126 = Faeries */
-	{"You have a great sense of humour, ", 100, 126, 127, 50 },
-
-	/* 127 = Faeries */
-	{"curly red hair, ",                        80, 127, 128, 50},
-	{"spiked red hair, ",                            100, 127, 128, 50},
-
-	/* 128 = Faeries */
-	{"blue eyes, and a very fair complexion.", 100, 128, 0, 50},
-
-	/* 129 = Devilspawn */
-	{"Your mother was a succubus. ", 30, 129, 130, 40},
-	{"Your father was an incubus. ",	50, 129, 130, 50 },
-	{"Your mother was Glaryssa, the Succubus Queen. ",	60, 129, 130, 60 },
-	{"You are created from raw Chaos itself. ", 75, 129, 130, 50},
-	{"You are a descendant of a Devil Prince. ", 100, 129, 130, 30},
-
-	/* 130 = Devilspawn */
-	{"You have coal black eyes, ",              60, 130, 131, 50},
-	{"You have pale pink eyes, ",              85, 130, 131, 50},
-	{"You have eyes like red embers, ",               99, 130, 131, 50},
-	{"You have beautiful blue eyes, ",             100, 130, 131, 55},
-
-	/* 131 = Devilspawn */
-	{"no hair at all, ",                 10, 131, 133, 50 },
-	{"dirty ",                           33, 131, 132, 50},
-	{"mangy ",                           66, 131, 132, 50},
-	{"fine ",                           100, 131, 132, 50},
-
-	/* 132 = Devilspawn */
-	{"brown hair, ",                    33, 132, 133, 50},
-	{"gray hair, ",                    66, 132, 133, 50},
-	{"albino hair, ",                  100, 132, 133, 50},
-
-	/* 133 = Devilspawn */
-	{"and the hooves of a goat.",      50, 133, 0, 50 },
-	{"and vestigial wings.",        75, 133, 0, 50 },
-	{"and slightly clawed fingers.",       85, 133, 0, 50 },
-	{"and an unnaturally wide smile.",    90, 133, 0, 50 },
-	{"and a slight sulphurous smell about you.",       95, 133, 0, 50 },
-	{"and bright red skin.",       97, 133, 0, 50 },
-	{"and a forked tongue.",       100, 133, 0, 50 },
-
-	/* 134 = Spectre */
-	{"You have ", 100, 134, 121, 50 },
-
+    {"You are the descendant of a Dwarven ",                                       UNLIKELY,            0,    BG_DWARF},                                                                                                        
+    {"You are the last descendant of a Dwarven ",                                  COMMON,              10,   END_GROUP},                                                                                                       
+    
+    {"Miner. ",                                                                    COMMON,              0,    BG_DWARF},                                                                                                        
+    {"Warrior. ",                                                                  COMMON,              0,    0},                                                                                                               
+    {"Shaman. ",                                                                   UNLIKELY,            15,   0},                                                                                                               
+    {"Lord. ",                                                                     RARE,                25,   0},                                                                                                               
+    {"King. ",                                                                     RARE,                25,   END_GROUP},                                                                                                       
+    
+    {"You are the illegitimate and unacknowledged child ",                         RARE,                -20,  BG_FLORENTIAN | BG_NORDIC | BG_GIPSY | BG_DWARF | BG_ELF},                                                        
+    {"You are the illegitimate but acknowledged child ",                           UNLIKELY,            -10,  0},                                                                                                               
+    {"You are one of several children ",                                           COMMON,              0,    0},                                                                                                               
+    {"You are the first child ",                                                   UNLIKELY,            15,   END_GROUP},                                                                                                       
+    
+    {"You are the adopted child ",                                                 COMMON,              5,    BG_GIANT|BG_OGRE|1|BG_TROLL|BG_WEREWOLF},                                                                                     
+    {"You are the only child ",                                                    UNLIKELY,            0,    0},                                                                                                               
+    {"You are one of several children of ",                                        RARE,                0,    END_GROUP},                                                                                                        
+    
+    {"of a guildsman. ",                                                           RARE,                25,   BG_GIANT|BG_OGRE|1|BG_TROLL|BG_WEREWOLF},                                                                                      
+    {"of a hunter. ",                                                              COMMON,              25,   0},                                                                                                                
+    {"of a fisherman. ",                                                           COMMON,              25,   0},                                                                                                               
+    {"of a Shaman. ",                                                              RARE,                90,   END_GROUP},                                                                                                        
+    
+    {"of a Duke. ",                                                                RARE,                85,   BG_NORDIC| BG_DWARF | BG_ELF},                                                                                     
+    {"of a Count. ",                                                               UNLIKELY,            65,   0},                                                                                                                
+    {"of a guildsman. ",                                                           COMMON,              25,   0},                                                                                                                
+    {"of a hunter. ",                                                              COMMON,              25,   0},                                                                                                                
+    {"of a fisherman. ",                                                           COMMON,              25,   0},                                                                                                               
+    {"of a Shaman. ",                                                              RARE,                90,   0},                                                                                                                
+    {"of a bard. ",                                                                UNLIKELY,            25,   0},                                                                                                                
+    {"of the Royal bloodline. ",                                                   RARE,                90,   END_GROUP},                                                                                                        
+    
+    {"of a clan leader. ",                                                         RARE,                60,   BG_GIPSY},                                                                                                         
+    {"of a craftsman. ",                                                           RARE,                10,   0},                                                                                                                
+    {"of a fortune-teller. ",                                                      RARE,                15,   0},                                                                                                                
+    {"of a thief. ",                                                               RARE,                0,    END_GROUP},                                                                                                        
+    
+    {"of a serf. ",                                                                LIKELY,              0,    BG_FLORENTIAN},                                                                                                   
+    {"of a yeoman. ",                                                              LIKELY,              10,   0},                                                                                                               
+    {"of a townsman. ",                                                            COMMON,              20,   0},                                                                                                               
+    {"of a guildsman. ",                                                           COMMON,              25,   0},                                                                                                                
+    {"of a Duke. ",                                                                RARE,                85,   0},                                                                                                                
+    {"of a Marquess. ",                                                            UNLIKELY,            75,   0},                                                                                                                
+    {"of a Count. ",                                                               UNLIKELY,            65,   0},                                                                                                                
+    {"of a Viscount. ",                                                            UNLIKELY,            50,   0},                                                                                                                
+    {"of a Baron. ",                                                               LIKELY,              50,   0},                                                                                                                
+    {"of a Seigneur. ",                                                            UNLIKELY,            50,   0},                                                                                                               
+    {"of a Patrician. ",                                                           UNLIKELY,            50,   0},                                                                                                               
+    {"of the Royal bloodLine. ",                                                   RARE,                90,   END_GROUP},                                                                                                        
+    
+    { "Your father has elven blood.",                                              UNLIKELY,            35,   BG_ELF},                                                                                                          
+    { "Your mother has elven blood.",                                              UNLIKELY,            35,   0},                                                                                                               
+    { "Your grandfather has elven blood.",                                         UNLIKELY,            35,   0},                                                                                                               
+    { "Your grandmother has elven blood.",                                         UNLIKELY,            35,   END_GROUP},                                                                                                        
+    
+    {"You are one of several children of ",                                        COMMON,              0,    BG_GNOME|BG_LEPRECHAUN|BG_KOBOLD|BG_ATLANTIAN},                                                                   
+    {"You are the only child of ",                                                 UNLIKELY,            15,   END_GROUP},                                                                                                       
+    
+    {"an Atlantian scholar. ",                                                     COMMON,              70,   BG_ATLANTIAN},                                                                                                    
+    {"an Atlantian researcher. ",                                                  COMMON,              70,   0 },                                                                                                              
+    {"an Atlantian guardian. ",                                                    COMMON,              80,   END_GROUP },                                                                                                      
+    
+    {"a gnome beggar. ",                                                           RARE,                10,   BG_GNOME},                                                                                                        
+    {"a gnome braggart. ",                                                         COMMON,              15,   0},                                                                                                               
+    {"a gnome prankster. ",                                                        COMMON,              15,   0},                                                                                                               
+    {"a gnome scout. ",                                                            UNLIKELY,            60,   0},                                                                                                               
+    {"a gnome illusionist. ",                                                      UNLIKELY,            30,   END_GROUP},                                                                                                       
+    
+    {"a shoemaker. ",                                                              COMMON,              15,   BG_LEPRECHAUN},                                                                                                   
+    {"a storyteller. ",                                                            UNLIKELY,            30,   END_GROUP},                                                                                                        
+    
+    {"a kobold thief. ",                                                           COMMON,              -15,  BG_KOBOLD},                                                                                                       
+    {"a kobold scout. ",                                                           LIKELY,              0,    0},                                                                                                               
+    {"a kobold assassin. ",                                                        UNLIKELY,            -30,  END_GROUP},                                                                                                       
+    
+    {"Your real father is a descendant of a troll ",                               COMMON,              0,    BG_TROLL},                                                                                                        
+    {"Your mother is a descendant of a troll ",                                    UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"warrior. ",                                                                  COMMON,              0,    BG_TROLL},                                                                                                        
+    {"Shaman. ",                                                                   UNLIKELY,            15,   0},                                                                                                               
+    {"chief. ",                                                                    RARE,                1523, END_GROUP},                                                                                                       
+    
+    {"You have Ogre blood from your mothers' side, your father is unaware. ",      UNLIKELY,            0,    BG_OGRE},                                                                                                         
+    {"You have Ogre blood from your fathers' side, your mother is unaware. ",      UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"One of your forefathers on your mother's side mother was a Giant. ",         UNLIKELY,            0,    BG_GIANT},                                                                                                        
+    {"One of your forefathers on your father's side mother was a Giant. ",         UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"You are the the distant offspring of an unknown Titan. ",                    COMMON,              25,   BG_TITAN },                                                                                                       
+    {"You are the the distant offspring of Themis. ",                              COMMON,              50,   0},                                                                                                               
+    {"You are the the distant offspring of Mnemosyne. ",                           UNLIKELY,            40,   0 },                                                                                                              
+    {"You are the the distant offspring of Okeanos. ",                             LIKELY,              35,   0 },                                                                                                              
+    {"You are the the distant offspring of Crius. ",                               RARE,                25,   0 },                                                                                                              
+    {"You are the the distant offspring of Hyperion. ",                            LIKELY,              35,   0 },                                                                                                              
+    {"You are the the distant offspring of Kronos. ",                              LIKELY,              35,   END_GROUP },                                                                                                      
+    
+    {"You are a rebel child of ",                                                  COMMON,              75,   BG_NEPHILIM},                                                                                                     
+    {"You are a long lost child of ",                                              UNLIKELY,            35,   END_GROUP},                                                                                                       
+    
+    {"someone with angel blood. ",                                                 UNLIKELY,            15,   BG_NEPHILIM},                                                                                                     
+    {"an unknown child of an angel. ",                                             UNLIKELY,            15,   0},                                                                                                               
+    {"an unknown angel. ",                                                         UNLIKELY,            15,   0},                                                                                                               
+    {"Araqiel. ",                                                                  COMMON,              -20,  0},                                                                                                               
+    {"Kokabiel. ",                                                                 COMMON,              -20,  0},                                                                                                               
+    {"Samyaza. ",                                                                  COMMON,              -20,  0},                                                                                                               
+    {"Ramiel. ",                                                                   COMMON,              -20,  0},                                                                                                               
+    {"Daniel. ",                                                                   COMMON,              -20,  0},                                                                                                               
+    {"Chazaqiel. ",                                                                COMMON,              -20,  0},                                                                                                               
+    {"Azazel. ",                                                                   COMMON,              -20,  0},                                                                                                               
+    {"Baraqiel. ",                                                                 COMMON,              -20,  0},                                                                                                               
+    {"Sariel. ",                                                                   COMMON,              -20,  0},                                                                                                               
+    {"one of the Grigori leaders. ",                                               COMMON,              -40,  0},                                                                                                               
+    {"one of the Grigori. ",                                                       COMMON,              -20,  END_GROUP},                                                                                                       
+    
+    {"You are the black sheep of the family. ",                                    UNLIKELY,            -15,  BG_FLORENTIAN | BG_NORDIC | BG_LEPRECHAUN | BG_GNOME | BG_ELF | BG_DWARF | BG_GIANT | BG_OGRE | BG_TITAN |BG_WEREWOLF},       
+    {"You are a credit to the family. ",                                           UNLIKELY,            10,   0},                                                                                                               
+    {"You are a well liked child. ",                                               LIKELY,              5,    END_GROUP},
+    
+    {"You have left your family the moment you became a werewolf.",                UNLIKELY,            30,   BG_WEREWOLF},
+    {"After some family members went missing, you left the family.",               LIKELY,              10,   0},
+    {"You have slain most of your village and went hiding.",                       LIKELY,              -5,   END_GROUP},
+
+    {"You have been captured by the League, forced now to do their bidding.",      UNLIKELY,            -5,   BG_WEREWOLF},
+    {"You have joined the League, hoping to find a cure.",                         LIKELY,              10,   END_GROUP},
+    
+    {"You have awakened 1 millemium ago, and yearn to retreat soon.",              LIKELY,              35,   BG_ELDER},
+    {"You have studied demonic magics for 700 years, and seek some adventure.",    UNLIKELY,            20,   0},
+    {"You are on a quest to find your Maker since the world is born.",             RARE,                70,   END_GROUP},    
+    
+    {"You were born in Ireland. ",                                                 UNLIKELY,            15,   BG_FAE|BG_LEPRECHAUN|BG_GNOME },                                                                                  
+    {"You were born in Scotland. ",                                                UNLIKELY,            15,   0 },                                                                                                              
+    {"You were born in Whales. ",                                                  UNLIKELY,            15,   0 },                                                                                                              
+    {"You were born under a full moon. ",                                          UNLIKELY,            15,   END_GROUP},                                                                                                       
+    
+    {"You have a great sense of humour, ",                                         UNLIKELY,            15,   BG_FAE|BG_LEPRECHAUN|BG_GNOME},                                                                                   
+    {"You have the reputation of a prankster, ",                                   UNLIKELY,            -15,  0},                                                                                                               
+    {"You have an insatiable wanderlust, ",                                        UNLIKELY,            15,   END_GROUP},                                                                                                       
+    
+    {"curly red hair, ",                                                           UNLIKELY,            0,    BG_FAE|BG_LEPRECHAUN|BG_GNOME},                                                                                   
+    {"spiked red hair, ",                                                          UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"blue eyes, and a very fair complexion.",                                     UNLIKELY,            0,    BG_FAE|BG_LEPRECHAUN|BG_GNOME},                                                                                   
+    {"green eyes, and fair complexion.",                                           UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"You have a green complexion, ",                                              UNLIKELY,            0,    BG_KOBOLD},                                                                                                       
+    {"You have a dark green complexion, ",                                         UNLIKELY,            0,    0},                                                                                                               
+    {"You have a yellow complexion, ",                                             UNLIKELY,            0,    0},                                                                                                               
+    {"You have a green complexion with red markings, ",                            UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"bright eyes, ",                                                              UNLIKELY,            0,    BG_KOBOLD},                                                                                                       
+    {"yellow eyes, ",                                                              UNLIKELY,            0,    0},                                                                                                               
+    {"red eyes, ",                                                                 UNLIKELY,            0,    0},                                                                                                               
+    {"snake-like eyes, ",                                                          UNLIKELY,            0,    END_GROUP },                                                                                                      
+    
+    {"and a long sinuous tail.",                                                   UNLIKELY,            0,    BG_KOBOLD},                                                                                                       
+    {"and a short tail.",                                                          UNLIKELY,            0,    0},                                                                                                               
+    {"and a muscular tail.",                                                       UNLIKELY,            0,    0},                                                                                                               
+    {"and a long tail.",                                                           UNLIKELY,            0,    0},                                                                                                               
+    {"and a sinuous tail.",                                                        UNLIKELY,            0,    END_GROUP },                                                                                                      
+    
+    /* Nordic eyes */                                                             
+    {"You have dark brown eyes, ",                                                 RARE,                0,    BG_NORDIC| BG_DWARF | BG_ELF },                                                                                   
+    {"You have brown eyes, ",                                                      RARE,                0,    0},                                                                                                               
+    {"You have hazel eyes, ",                                                      UNLIKELY,            0,    0},                                                                                                               
+    {"You have green eyes, ",                                                      LIKELY,              0,    0},                                                                                                               
+    {"You have blue eyes, ",                                                       COMMON,              0,    0},                                                                                                               
+    {"You have amber eyes, ",                                                      UNLIKELY,            5,    0},                                                                                                               
+    {"You have grey eyes, ",                                                       LIKELY,              0,    0},                                                                                                                
+    {"You have violet eyes, ",                                                     RARE,                5,    END_GROUP},                                                                                                                
+    
+    /* South Europe / Middle East eyes */                                         
+    {"You have dark brown eyes, ",                                                 LIKELY,              0,    BG_GIPSY|BG_FLORENTIAN|BG_TITAN|BG_GIANT|BG_OGRE},                                                                
+    {"You have brown eyes, ",                                                      COMMON,              0,    0},                                                                                                               
+    {"You have hazel eyes, ",                                                      UNLIKELY,            0,    0},                                                                                                               
+    {"You have green eyes, ",                                                      UNLIKELY,            0,    0},                                                                                                               
+    {"You have blue eyes, ",                                                       UNLIKELY,            0,    0},                                                                                                               
+    {"You have amber eyes, ",                                                      UNLIKELY,            0,    0},                                                                                                               
+    {"You have grey eyes, ",                                                       UNLIKELY,            0,    END_GROUP},                                                                                                        
+    
+    /* World citizen */                                                           
+    {"You have dark brown eyes, ",                                                 UNLIKELY,            0,    BG_NEPHILIM|BG_ATLANTIAN|BG_ELDER},                                                                               
+    {"You have brown eyes, ",                                                      UNLIKELY,            0,    0},                                                                                                               
+    {"You have hazel eyes, ",                                                      UNLIKELY,            0,    0},                                                                                                               
+    {"You have green eyes, ",                                                      UNLIKELY,            0,    0},                                                                                                               
+    {"You have blue eyes, ",                                                       UNLIKELY,            0,    0},                                                                                                               
+    {"You have amber eyes, ",                                                      UNLIKELY,            0,    0},                                                                                                               
+    {"You have violet eyes, ",                                                     RARE,                5,    0},                                                                                                                
+    {"You have grey eyes, ",                                                       UNLIKELY,            0,    END_GROUP},                                                                                                        
+    
+    {"straight ",                                                                  UNLIKELY,            0,    BG_NEPHILIM|BG_ATLANTIAN|BG_ELDER|BG_GIPSY|BG_FLORENTIAN|BG_TITAN|BG_GIANT|BG_OGRE|BG_NORDIC| BG_DWARF | BG_ELF}, 
+    {"wavy ",                                                                      UNLIKELY,            0,    0},                                                                                                               
+    {"curly ",                                                                     UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    /*Nordic hairs manga glasses ;}, */ 
+    {"flaming red hair, ",                                                         UNLIKELY,            0,    BG_NORDIC| BG_DWARF | BG_ELF},                                                                                    
+    {"arctic blond hair, ",                                                        COMMON,              0,    0},                                                                                                                
+    {"jet black hair, ",                                                           UNLIKELY,            0,    0},                                                                                                                
+    {"brown hair, ",                                                               LIKELY,              0,    END_GROUP},                                                                                                        
+    
+    /*South Europe / Middle East eyes manga glasses ;}, */ 
+    {"jet black hair, ",                                                           UNLIKELY,            0,    BG_GIPSY|BG_FLORENTIAN|BG_TITAN|BG_GIANT|BG_OGRE},                                                                 
+    {"brown hair, ",                                                               UNLIKELY,            0,    0},                                                                                                                
+    {"dark brown hair, ",                                                          UNLIKELY,            0,    END_GROUP},                                                                                                        
+    
+    /* World citizen hair */                                                      
+    {"flaming red hair, ",                                                         UNLIKELY,            0,    BG_NEPHILIM|BG_ATLANTIAN|BG_ELDER},                                                                               
+    {"arctic blond hair, ",                                                        UNLIKELY,            0,    0},
+    {"jet black hair, ",                                                           UNLIKELY,            0,    0}, 
+    {"brown hair, ",                                                               UNLIKELY,            0,    END_GROUP},                                                                                                        
+    
+    /*Nordic Complexions */                                                       
+    {"and a dark complexion.",                                                     RARE,                0,    BG_NORDIC| BG_DWARF | BG_ELF},                                                                                    
+    {"and an average complexion.",                                                 RARE,                0,    0},                                                                                                               
+    {"and a fair complexion.",                                                     COMMON,              0,    0},                                                                                                               
+    {"and a very fair complexion.",                                                LIKELY,              0,    END_GROUP},                                                                                                       
+    
+    /*South Europe / Middle East complexions */                                   
+    {"and a very dark complexion.",                                                COMMON,              0,    BG_GIPSY|BG_FLORENTIAN|BG_TITAN|BG_GIANT|BG_OGRE},                                                                
+    {"and a dark complexion.",                                                     COMMON,              0,    0},                                                                                                               
+    {"and an average complexion.",                                                 UNLIKELY,            0,    0},                                                                                                               
+    {"and a fair complexion.",                                                     RARE,                0,    END_GROUP},                                                                                                       
+    
+    /*World citizen complexions */                                                
+    {"and a very dark complexion.",                                                UNLIKELY,            0,    BG_NEPHILIM|BG_ATLANTIAN|BG_ELDER},                                                                               
+    {"and a dark complexion.",                                                     UNLIKELY,            0,    0},                                                                                                               
+    {"and an average complexion.",                                                 UNLIKELY,            0,    0},                                                                                                               
+    {"and a fair complexion.",                                                     UNLIKELY,            0,    0},                                                                                                               
+    {"and a very fair complexion.",                                                UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"You have become corrupted in the last century.",                             LIKELY,              0,    BG_HORROR},                                                                                                       
+    {"You have become corrupted a millenium ago.",                                 UNLIKELY,            0,    0},                                                                                                                
+    {"You have become corrupted during the Great Flood",                           RARE,                10,   END_GROUP},                                                                                                        
+    
+    {"You have slimy skin, empty glowing eyes, and ",                              UNLIKELY,            15,   BG_HORROR},                                                                                                       
+    {"You have slimy scales, a set of eyestalks, and ",                            UNLIKELY,            15,   END_GROUP},                                                                                                        
+    
+    {"three tentacles around your mouth.",                                         UNLIKELY,            0,    BG_HORROR},                                                                                                       
+    {"four tentacles around your mouth.",                                          UNLIKELY,            0,    0},                                                                                                               
+    {"five tentacles around your mouth.",                                          RARE,                -5,   END_GROUP},                                                                                                       
+    
+    {"You sire was a mindless demonic spawn.",                                     COMMON,              15,   BG_IMP},                                                                                                          
+    {"You sire was a minor demon.",                                                LIKELY,              20,   0},                                                                                                                
+    {"You sire was a major demon.",                                                UNLIKELY,            25,   0},                                                                                                                
+    {"You sire was a demon lord.",                                                 RARE,                30,   END_GROUP},                                                                                                        
+    
+    {"You have a dark red skin, ",                                                 COMMON,              0,    BG_IMP},                                                                                                          
+    {"You have a slimy green skin, ",                                              LIKELY,              -5,   0},                                                                                                               
+    {"You have a jet black skin, ",                                                UNLIKELY,            5,    END_GROUP},                                                                                                       
+    
+    {"claws, fangs, spikes, and glowing red eyes.",                                UNLIKELY,            -10,  BG_IMP},                                                                                                          
+    {"claws, fangs, and glowing red eyes.",                                        LIKELY,              -5,   0},                                                                                                               
+    {"claws, and glowing red eyes.",                                               LIKELY,              -5,   END_GROUP},                                                                                                       
+    
+    {"You were created to guard ",                                                 UNLIKELY,            45,   BG_GUARDIAN},                                                                                                     
+    {"You were created to protect ",                                               UNLIKELY,            45,   0},                                                                                                               
+    {"You were created to preserve ",                                              UNLIKELY,            45,   0},                                                                                                               
+    {"You were created to oversee ",                                               UNLIKELY,            45,   END_GROUP},                                                                                                        
+    
+    {"a lost Elder",                                                               UNLIKELY,            0,    BG_GUARDIAN},                                                                                                     
+    {"the sarcophagus of an Elder",                                                UNLIKELY,            -10,  0},                                                                                                               
+    {"the stasis chamber of an Elder",                                             UNLIKELY,            -10,  0},                                                                                                               
+    {"the first Elder",                                                            RARE,                15,   END_GROUP},                                                                                                       
+    
+    {" Horror.",                                                                   RARE,                -5,   BG_GUARDIAN},                                                                                                     
+    {".",                                                                          LIKELY,              0,    END_GROUP},                                                                                                       
+    
+    {"You were cursed because ",                                                   UNLIKELY,            0,    BG_SKELETON},                                                                                                     
+    {"You were hexed because ",                                                    UNLIKELY,            0,    END_GROUP},                                                                                                        
+    
+    {"you slept with a medicine man's daughter. ",                                 UNLIKELY,            7,    BG_SKELETON},                                                                                                     
+    {"sold fake magical amulets to a medicine man. ",                              UNLIKELY,            7,    0},                                                                                                               
+    {"pretended to be more powerful than the local medicin man. ",                 UNLIKELY,            7,    0},                                                                                                               
+    {"mistook a medicine man for the village fool. ",                              UNLIKELY,            7,    0},                                                                                                               
+    {"you asked a medicine man for immortality. ",                                 UNLIKELY,            7,    0},                                                                                                               
+    {"were in the wrong place at the wrong time. ",                                UNLIKELY,            7,    0},                                                                                                               
+    {"you thought it would get you a role with Johny Depp. ",                      UNLIKELY,            7,    END_GROUP},                                                                                                       
+    
+    {"You have dirty, dry bones, ",                                                UNLIKELY,            0,    BG_SKELETON},                                                                                                     
+    {"You have rotten black bones, ",                                              UNLIKELY,            0,    0},                                                                                                               
+    {"You have filthy, brown bones, ",                                             UNLIKELY,            0,    0},                                                                                                               
+    {"You have shining white bones, ",                                             UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"and a blackened skull.",                                                     UNLIKELY,            0,    BG_SKELETON},                                                                                                     
+    {"and a fractured skull.",                                                     UNLIKELY,            0,    0},                                                                                                               
+    {"and empty eyesockets.",                                                      UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"You have slime green eyes, ",                                                UNLIKELY,            5,    BG_MUMMY|BG_TROLL},                                                                                               
+    {"You have puke yellow eyes, ",                                                UNLIKELY,            5,    0},                                                                                                               
+    {"You have blue-bloodshot eyes, ",                                             UNLIKELY,            5,    0},                                                                                                               
+    {"You have glowing red eyes, ",                                                UNLIKELY,            5,    END_GROUP},                                                                                                       
+    
+    {"dirty ",                                                                     UNLIKELY,            0,    BG_MUMMY|BG_TROLL},                                                                                               
+    {"mangy ",                                                                     UNLIKELY,            0,    0},                                                                                                               
+    {"oily ",                                                                      UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"sea-weed green hair, ",                                                      UNLIKELY,            0,    BG_MUMMY|BG_TROLL},                                                                                               
+    {"bright red hair, ",                                                          UNLIKELY,            0,    0},                                                                                                               
+    {"dark purple hair, ",                                                         UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"and green ",                                                                 UNLIKELY,            0,    BG_MUMMY|BG_TROLL},                                                                                               
+    {"and blue ",                                                                  UNLIKELY,            0,    0},                                                                                                               
+    {"and white ",                                                                 UNLIKELY,            0,    0},                                                                                                               
+    {"and black ",                                                                 UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"ulcerous skin.",                                                             UNLIKELY,            0,    BG_MUMMY|BG_TROLL},                                                                                               
+    {"scabby skin.",                                                               UNLIKELY,            0,    0},                                                                                                               
+    {"leprous skin.",                                                              UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"You were created by the local dabbler in the dark arts. ",                   UNLIKELY,            0,    BG_MUMMY},                                                                                                        
+    {"You were created by a priest of Mazghuna. ",                                 UNLIKELY,            0,    0},                                                                                                               
+    {"You were created by a dark priest in Saqqara. ",                             UNLIKELY,            0,    0},                                                                                                               
+    {"You were created by an evil priest of Dahshur. ",                            UNLIKELY,            0,    0},                                                                                                               
+    {"You were created by a pact with Egyptian Sand Demons. ",                     UNLIKELY,            -5,   0},                                                                                                               
+    {"You were created by the high priests of Gizeh. ",                            UNLIKELY,            5,    0},                                                                                                               
+    {"You were created by the Pharaoh. ",                                          UNLIKELY,            15,   END_GROUP},                                                                                                       
+    
+    {"You arose from an unmarked grave. ",                                         LIKELY,              15,   BG_VAMPIRE},                                                                                                      
+    {"In life you were a simple peasant, the victim of a powerful Vampire Lord. ", UNLIKELY,            25,   0},                                                                                                               
+    {"In life you were a Vampire Hunter, but they got you. ",                      UNLIKELY,            60,   0},                                                                                                               
+    {"In life you were a Necromancer. ",                                           RARE,                30,   0},                                                                                                               
+    {"In life you were a powerful noble. ",                                        UNLIKELY,            25,   0},                                                                                                               
+    {"In life you were a powerful and cruel tyrant. ",                             RARE,                55,   END_GROUP},                                                                                                       
+    
+    {"You have jet-black hair, ",                                                  UNLIKELY,            0,    BG_VAMPIRE},                                                                                                      
+    {"You have matted brown hair, ",                                               UNLIKELY,            0,    0},                                                                                                               
+    {"You have white hair, ",                                                      UNLIKELY,            0,    0},                                                                                                               
+    {"You have a bald head, ",                                                     UNLIKELY,            0,    END_GROUP},                                                                                                       
+    
+    {"eyes like red coals and a deathly pale complexion. ",                        UNLIKELY,            0,    BG_VAMPIRE},                                                                                                      
+    {"blank white eyes and an alabaster complexion. ",                             UNLIKELY,            0,    0},                                                                                                               
+    {"feral yellow eyes and glistening fangs. ",                                   UNLIKELY,            0,    0},                                                                                                               
+    {"bloodshot red eyes and the smell of death surrounding you.",                 UNLIKELY,            0,    END_GROUP},                                                                                                       
+
+	{"You were refused the afterlife by a curse. ",                                LIKELY,              15,   BG_SPECTRE},
+	{"You refused the afterlife with an oath. ",                                   LIKELY,              35,   0},
+	{"You cheated death with a demonic pact. ",                                    UNLIKELY,            15,   0},
+	{"You were a necromancer in life. ",                                           UNLIKELY,            35,   END_GROUP},
+
+	{"You have eyes like red coals, ",                                             LIKELY,              0,    BG_SPECTRE},
+	{"You have blank white eyes, ",                                                UNLIKELY,            -5,   0 },
+	{"You have gaping holes where your eyes were, ",                               UNLIKELY,            -5,   END_GROUP },
+
+	{"a deathly gray complexion. ",                                                LIKELY,              0,    BG_SPECTRE},
+    {"an intense sadness is expressed in all your movements. ",                    UNLIKELY,            5,    END_GROUP },
+
+	{"You are surrounded by an eerie green aura.",                                 UNLIKELY,            0,    BG_SPECTRE},
+   	{"You are constantly surrounded by a white fog.",                              LIKELY,              5,    END_GROUP},
+
+	{"Your mother was a succubus. ",                                               LIKELY,              15,   BG_DEVILSPAWN|BG_SUCCUBUS|BG_IMP},
+	{"Your father was an incubus. ",	                                           LIKELY,              15,   0},
+	{"Your mother was Glaryssa, the Succubus Queen. ",	                           LIKELY,              65,   0},
+    {"Your mother was Lilith, the first Woman. ",	                               LIKELY,              80,   0},
+	{"You are created from raw Chaos itself. ",                                    LIKELY,              90,   0},
+	{"You are a descendant of a Devil Prince. ",                                   LIKELY,              70,   END_GROUP},
+        
+    {"Your mother was Lilith, the first Woman. ",	                               LIKELY,              80,   BG_LILI},
+    {"Your grandmother was Lilith, the first Woman. ",	                           UNLIKELY,            65,   END_GROUP},    
+    
+	{"You have coal black eyes, ",                                                 LIKELY,              0,    BG_DEVILSPAWN|BG_SUCCUBUS|BG_IMP|BG_LILI},
+	{"You have pale pink eyes, ",                                                  LIKELY,              0,    0},
+	{"You have eyes like red embers, ",                                            LIKELY,              0,    0},
+	{"You have beautiful green eyes, ",                                            UNLIKELY,            5,    END_GROUP},
+
+	{"no hair at all, ",                                                           LIKELY,              15,   BG_DEVILSPAWN|BG_SUCCUBUS|BG_IMP|BG_LILI},    
+	{"dirty brown hair, ",                                                         LIKELY,              15,   0},
+	{"mangy gray hair, ",                                                          LIKELY,              15,   0},
+	{"fine albino hair, ",                                                         UNLIKELY,            5,    END_GROUP},
+
+	{"and the hooves of a goat.",                                                  LIKELY,              -5,   BG_DEVILSPAWN|BG_IMP|BG_LILI},
+	{"and vestigial wings.",                                                       LIKELY,              0,    0},
+	{"and slightly clawed fingers.",                                               LIKELY,              -3,   0},
+	{"and an unnaturally wide smile.",                                             LIKELY,              -3,   0},
+	{"and a slight sulphurous smell about you.",                                   LIKELY,              3,    0},
+	{"and a bright red skin.",                                                     LIKELY,              0,    0},
+	{"and a forked tongue.",                                                       LIKELY,              3,    END_GROUP},
+    
+	{"and a pitch black skin.",                                                    LIKELY,              0,    BG_SUCCUBUS},
+	{"and a firy red skin.",                                                       LIKELY,              0,    0},
+	{"and an emerald green skin.",                                                 LIKELY,              0,    0},
+	{"and a frosty blue skin.",                                                    LIKELY,              0,    END_GROUP},    
+    
+    { NULL,                                                                        0,                   0,    END_GROUP}, /* Ye famous null record */
 };
-
-
 
 /*
 * Current stats
@@ -1254,7 +1014,7 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"will come one day after them. They join the League for ",
 		"power, power they will use when the Day comes. Lili are",
 		"beautiful and rebellious like their mother and sensual ",
-		"like their father. Lilim resists chaos and confusion   ",
+		"like their father. Lilim resist chaos and confusion    ",
 		"and are very tough.                                    ",
 		"                                                       ",
 		"                                                       ",
@@ -1476,12 +1236,12 @@ static cptr signs_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"more commonly called Orion. It is said that they have  ",
 	"mingled with humans and that their genes are stronger  ",
 	"with children born under Orion. People born under Morui",
-	"are better in every way save for an odd mind. The grow ",  
-	"a tough chitin that resists acid and their thoughts are",
-	"impossible to confuse. The can grow wings that help    ",
-	"avoid pits and falls. As Klackons get more experienced,",
-	"they also get faster and gain the ability to spit acid.",
-	"                                                       ",
+	"are better in every way save for an odd mind. They grow ",  
+	"a tough subdermal chitin that resists acid and their   ",
+	"thoughts are impossible to confuse. They can grow wings",
+	"that help avoid pits and falls. As they get more       ",
+	"experienced, they also get faster and gain the ability ",
+	"to spit acid.                                          ",
 	"                                                       ",
 	"                                                       ",
 	"Str: +2, Int: -1, Wis: -1, Dex: +1, Con: +2, Cha: -2   ",
@@ -2504,178 +2264,68 @@ static void get_extra(void)
 */
 static void get_history(void)
 {
-	int		i, n, chart, roll, social_class;
+	int		i, n;
+
+    /* 15 lines for 1 history part should be more than enough */
+    int     odds[15];
+    int     social_class = 0;
+    int     bg_index = 0;
+    int     odds_index = 0;
+    int     odds_total = 0;
+    int     odd_counter = 0;
+    int     odd_current = 0;
+    bool    odd_found  = FALSE;
 
 	char	*s, *t;
-
 	char	buf[240];
-
-
+    
+    /* Hack^2 , bitflag will determine if background entry is valid or not for the player's race */
+    u32b    race_bitflag = (1<<(p_ptr->prace+1));
 
 	/* Clear the previous history strings */
 	for (i = 0; i < 4; i++) history[i][0] = '\0';
 
-
 	/* Clear the history text */
 	buf[0] = '\0';
 
-	/* Initial social class */
-	social_class = randint(4);
-
-	/* Starting place */
-	switch (p_ptr->prace)
-	{
-	case NEPHILIM:
-		{
-			chart = 67;
-			break;
-		}
-	case ATLANTIAN:
-	{
-		chart = 69;
-		break;
-	}
-	case NORDIC:
-	case GIPSY:
-	case FLORENTIAN:	
-		{
-			chart = 1;
-			break;
-		}
-	case ELF:
-		{
-			chart = 4;
-			break;
-		}
-	case GNOME:
-		{
-			chart = 13;
-			break;
-		}
-	case DWARF:
-		{
-			chart = 16;
-			break;
-		}
-	case TROLL:
-		{
-			chart = 22;
-			break;
-		}
-	case OGRE:
-		{
-			chart = 74;
-			break;
-		}
-	case GIANT:
-		{
-			chart = 75;
-			break;
-		}
-	case TITAN:
-		{
-			chart = 76;
-			break;
-		}
-	case KOBOLD:
-		{
-			chart = 82;
-			break;
-		}
-/*
-	case :
-		{
-			chart = 84;
-			break;
-		}
-*/
-/*
-	case :
-		{
-			chart = 89;
-			break;
-		}
-*/
-	case HORROR:
-		{
-			chart = 92;
-			break;
-		}
-	case IMP:
-		{
-			chart = 94;
-			break;
-		}
-	case GUARDIAN:
-		{
-			chart = 98;
-			break;
-		}
-	case SKELETON:
-		{
-			chart = 102;
-			break;
-		}
-	case MUMMY:
-		{
-			chart = 107;
-			break;
-		}
-	case VAMPIRE:
-		{
-			chart = 113;
-			break;
-		}
-	case SPECTRE:
-		{
-			chart = 118;
-			break;
-		}
-	case FAE:
-	case LEPRECHAUN:
-		{
-			chart = 124;
-			break;
-		}
-	case DEVILSPAWN:
-	case SUCCUBUS:
-	case LILI:
-		{
-			chart = 129;
-			break;
-		}
-	default:
-		{
-			chart = 0;
-			break;
-		}
-	}
-
-
 	/* Process the history */
-	while (chart)
+	while ( background[ bg_index ].info != NULL )
 	{
-		/* Start over */
-		i = 0;
-
-		/* Roll for nobility */
-		roll = randint(100);
-
-
-		/* Access the proper entry in the table */
-		while ((chart != bg[i].chart) || (roll > bg[i].roll)) i++;
-
-		/* Acquire the textual history */
-		(void)strcat(buf, bg[i].info);
-
-		/* Add in the social class */
-		social_class += (int)(bg[i].bonus) - 50;
-
-		/* Enter the next chart */
-		chart = bg[i].next;
-	}
-
-
+        if( background[bg_index].metadata & race_bitflag ){
+            odds_index = 0;
+            odds_total = 0;
+            odd_current = 0;
+            odd_found = FALSE;
+            while( background[ bg_index ].metadata != END_GROUP ){
+                odds_total += background[ bg_index ].frequency;
+                odds[odds_index++] = background[ bg_index ].frequency;
+                bg_index++;
+            }
+            /*Lame!! Blame brain rot.*/
+            odds_total += background[ bg_index ].frequency;
+            odds[odds_index++] = background[ bg_index ].frequency;            
+            /*So which of the entries do we take*/
+            odds_total = randint(odds_total);
+            for( odd_counter = 0 ; odd_counter < odds_index && !odd_found ; odd_counter++){
+                odd_current += odds[odd_counter];
+                if(  odd_current >= odds_total ){
+                    odd_found = TRUE;
+                    (void)strcat(buf, background[ bg_index - odds_index + odd_counter + 1 ].info );
+                    social_class += background[ bg_index - odds_index + odd_counter + 1 ].bonus;
+                }
+            }
+            if(!odd_found)
+            {
+                msg_fiddle("Could not find matching bg for %s" , background[ bg_index ].info );
+            }
+        }else{
+            /* Loop til end of non-appropriate group */
+            while( background[ bg_index ].metadata != END_GROUP )
+                bg_index++;
+        }
+        /* Advance 1*/
+        bg_index++;
+  	}
 
 	/* Verify social class */
 	if (social_class > 100) social_class = 100;
@@ -2683,7 +2333,6 @@ static void get_history(void)
 
 	/* Save the social class */
 	p_ptr->sc = social_class;
-
 
 	/* Skip leading spaces */
 	for (s = buf; *s == ' '; s++) /* loop */;
@@ -3433,8 +3082,8 @@ static bool player_birth_aux()
 
 	if (quickstart)
 	{
-		msg_print("Autoroller disabled for now.");
-		msg_print("NULL");		
+		msg_print("Autoroller disabled for now. ( Quitting ) ");
+		msg_print( NULL);		
 		quit(NULL);
 		
 		/*** Player sex ***/

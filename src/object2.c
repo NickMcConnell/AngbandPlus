@@ -3,12 +3,21 @@
 /* Purpose: Object code, part 2 */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
 
@@ -5899,6 +5908,8 @@ void display_spell_list(void)
 	char            out_val[160];
 	char            out_val2[160];
 	int             w,h,n;
+    magic_type   s_magic;
+    magic_type  *s_ptr = &s_magic;
 	
 	/* Get size of terminal*/
 	Term_get_size(&w,&h);
@@ -6009,7 +6020,7 @@ void display_spell_list(void)
 			}
 
 			/* Access the spell */
-			/*get_spell_info( j<1?use_realm1:use_realm2, i%32 , s_ptr );*/
+			/*get_extended_spell_info( j<1?use_realm1:use_realm2, i%32 , s_ptr );*/
 			get_extended_spell_info( realm, i%32 , s_ptr ); 
 			/* Write out the spell name */
 			strcpy(name, s_ptr->name);
@@ -6037,12 +6048,14 @@ void display_spell_list(void)
 s16b spell_chance(int spell,int realm)
 {
 	int             chance, minfail;
+    magic_type   s_magic;
+    magic_type  *s_ptr = &s_magic;
 
 	/* Paranoia -- must be literate */
 	if (!mp_ptr->spell_book) return (100);
 
 	/* Access the spell */
-	get_spell_info( realm, spell , s_ptr );
+	get_extended_spell_info( realm, spell , s_ptr );
 
 	/* Extract the base spell failure rate */
 	chance = s_ptr->sfail;
@@ -6101,6 +6114,9 @@ s16b spell_chance(int spell,int realm)
 */
 bool spell_okay(int spell, bool known, int realm)
 {
+    magic_type   s_magic;
+    magic_type  *s_ptr = &s_magic;
+
 	/* Access the spell */
 	get_extended_spell_info( realm, spell , s_ptr );
 
@@ -6180,6 +6196,8 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
 	int             i, spell;
 	cptr            info;
 	char            out_val[160];
+    magic_type      s_magic;
+    magic_type      *s_ptr = &s_magic;
 
 	if ((realm<0 || realm>MAX_REALM - 1) && debug_mode)
 		msg_print ("Warning! print_spells called with null realm");

@@ -1,15 +1,23 @@
 /* File: main.c */
 
 /*
-* Copyright (c) 1997 Ben Harrison, and others
-*
-* This software may be copied and distributed for educational, research,
-* and not for profit purposes provided that this copyright and statement
-* are included in all such copies.
-*/
+ * Copyright (c) 1997 Ben Harrison, and others
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * Ben Harrison and others have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
-
 
 /*
 * Some machines have a "main()" function in their "main-xxx.c" file,
@@ -485,8 +493,10 @@ usage:
 	if (!done && (!mstr || (streq(mstr, "x11"))))
 	{
 		extern errr init_x11(int, char**);
+        plog_fmt_fiddle("About to init X11.");        
 		if (0 == init_x11(argc, argv))
 		{
+            plog_fmt_fiddle("X11 successfully inited.");
 			ANGBAND_SYS = "x11";
 			done = TRUE;
 		}
@@ -602,19 +612,6 @@ usage:
 	}
 #endif
 
-
-#ifdef USE_VME
-	/* Attempt to use the "main-vme.c" support */
-	if (!done && (!mstr || (streq(mstr, "vme"))))
-	{
-		extern errr init_vme(void);
-		if (0 == init_vme())
-		{
-			ANGBAND_SYS = "vme";
-			done = TRUE;
-		}
-	}
-#endif
 
 
 	/* Grab privs (dropped above for X11) */

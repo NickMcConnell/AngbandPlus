@@ -1,6 +1,17 @@
- /* GIF Loader
-  * by Paul Bartrum
-  */
+/* GIF Loader
+ * by Paul Bartrum
+ *
+ * Paul Batrum has not been found yet, so his work only falls under standard Angband license.
+ * Hellband does not use this code, and even if Hellband goes gfx , I would most likely use png.
+ * 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+*/ 
+
+
 #ifdef USE_DOS
 
 #include <stdlib.h>

@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:0.8.4
+V:0.8.5
 
 
 ##### Something special #####
@@ -691,7 +691,7 @@ A:10/16
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:88:& Orcish Pick~
+N:88:& Ekkuyan Pick~
 G:\:g
 I:20:5:2
 W:30:0:150:300
@@ -1027,105 +1027,105 @@ P:5:1d3:0:0:0
 ##### Rings #####
 
 N:132:Strength
-G:=:d
+G:=:y
 I:45:24:0
 W:30:0:2:500
 A:30/1
 F:STR | HIDE_TYPE | SUST_STR
 
 N:133:Dexterity
-G:=:d
+G:=:y
 I:45:26:0
 W:30:0:2:500
 A:30/1
 F:DEX | HIDE_TYPE | SUST_DEX
 
 N:134:Constitution
-G:=:d
+G:=:y
 I:45:27:0
 W:30:0:2:500
 A:30/1
 F:CON | HIDE_TYPE | SUST_CON
 
 N:135:Intelligence
-G:=:d
+G:=:y
 I:45:25:0
 W:30:0:2:500
 A:30/1
 F:INT | HIDE_TYPE | SUST_INT
 
 N:136:Speed
-G:=:d
+G:=:y
 I:45:31:0
 W:80:0:2:100000
 A:80/1
 F:SPEED | HIDE_TYPE
 
 N:137:Searching
-G:=:d
+G:=:y
 I:45:23:0
 W:5:0:2:250
 A:5/1
 F:SEARCH | HIDE_TYPE
 
 N:138:Teleportation
-G:=:d
+G:=:y
 I:45:4:0
 W:5:0:2:250
 A:5/1
 F:CURSED | TELEPORT | EASY_KNOW
 
 N:139:Slow Digestion
-G:=:d
+G:=:y
 I:45:6:0
 W:5:0:2:250
 A:5/1
 F:SLOW_DIGEST | EASY_KNOW
 
 N:140:Resist Fire
-G:=:d
+G:=:y
 I:45:8:0
 W:10:0:2:250
 A:10/1
 F:RES_FIRE | IGNORE_FIRE | EASY_KNOW
 
 N:141:Resist Cold
-G:=:d
+G:=:y
 I:45:9:0
 W:10:0:2:250
 A:10/1
 F:RES_COLD | IGNORE_COLD | EASY_KNOW
 
 N:142:Levitation
-G:=:d
+G:=:y
 I:45:7:0
 W:5:0:2:200
 A:5/1
 F:FEATHER | EASY_KNOW
 
 N:143:Poison Resistance
-G:=:d
+G:=:y
 I:45:20:0
 W:60:0:2:16000
 A:60/2
 F:RES_POIS | EASY_KNOW
 
 N:144:Free Action
-G:=:d
+G:=:y
 I:45:21:0
 W:20:0:2:1500
 A:20/1
 F:FREE_ACT | EASY_KNOW
 
 N:145:Weakness
-G:=:d
+G:=:y
 I:45:2:-5
 W:5:0:2:0
 A:5/1
 F:CURSED | STR | HIDE_TYPE
 
 N:146:Flames
-G:=:d
+G:=:y
 I:45:18:0
 W:50:0:2:3000
 A:50/1
@@ -1133,7 +1133,7 @@ P:0:0d0:0:0:15
 F:RES_FIRE | IGNORE_FIRE | ACTIVATE
 
 N:147:Acid
-G:=:d
+G:=:y
 I:45:17:0
 W:50:0:2:3000
 A:50/1
@@ -1141,7 +1141,7 @@ P:0:0d0:0:0:15
 F:RES_ACID | IGNORE_ACID | ACTIVATE
 
 N:148:Ice
-G:=:d
+G:=:y
 I:45:19:0
 W:50:0:2:3000
 A:50/1
@@ -1149,46 +1149,46 @@ P:0:0d0:0:0:15
 F:RES_COLD | IGNORE_COLD | ACTIVATE
 
 N:149:Woe
-G:=:d
+G:=:y
 I:45:0:-5
 W:50:0:2:0
 A:50/1
 F:CURSED | TELEPORT | WIS | CHA | HIDE_TYPE
 
 N:150:Stupidity
-G:=:d
+G:=:y
 I:45:3:-5
 W:5:0:2:0
 A:5/1
 F:CURSED | INT | HIDE_TYPE
 
 N:151:Damage
-G:=:d
+G:=:y
 I:45:29:0
 W:20:0:2:500
 A:20/1
 
 N:152:Accuracy
-G:=:d
+G:=:y
 I:45:28:0
 W:20:0:2:500
 A:20/1
 
 N:153:Protection
-G:=:d
+G:=:y
 I:45:16:0
 W:10:0:2:500
 A:10/1
 
 N:154:Aggravation
-G:=:d
+G:=:y
 I:45:1:0
 W:5:0:2:0
 A:5/1
 F:CURSED | AGGRAVATE | EASY_KNOW
 
 N:155:See Invisible
-G:=:d
+G:=:y
 I:45:22:0
 W:30:0:2:340
 A:30/1
@@ -1220,14 +1220,14 @@ A:30/1
 F:AGGRAVATE | EASY_KNOW
 
 N:159:Elevation
-G:=:d
+G:=:y
 I:45:13:1
 W:30:0:2:750
 A:30/1
 F:STR | CON | DEX | CHA | WIS | INT | EASY_KNOW
 
 N:160:Temperance
-G:=:d
+G:=:y
 I:45:14:0
 W:30:0:2:750
 A:30/1
@@ -1241,7 +1241,7 @@ A:30/1
 F:RES_LITE | RES_DARK | EASY_KNOW
 
 N:162:Slaying
-G:=:d
+G:=:y
 I:45:30:0
 W:40:0:2:1000
 A:40/1
@@ -3110,7 +3110,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:425:Fear Resistance
-G:=:d
+G:=:y
 I:45:38:0
 W:10:0:2:300 
 A:10/2
@@ -3124,70 +3124,70 @@ A:30/2
 F:RES_LITE | RES_DARK | STEALTH | EASY_KNOW
 
 N:427:Nether Resistance
-G:=:d
+G:=:y
 I:45:40:0
 W:34:0:2:14500
 A:34/2
 F:RES_NETHER | HOLD_LIFE | EASY_KNOW
 
 N:428:Nexus Resistance
-G:=:d
+G:=:y
 I:45:41:0
 W:24:0:2:3000
 A:24/2
 F:RES_NEXUS | EASY_KNOW
 
 N:429:Sound Resistance
-G:=:d
+G:=:y
 I:45:42:0
 W:26:0:2:3000
 A:26/2
 F:RES_SOUND | EASY_KNOW
 
 N:430:Confusion Resistance
-G:=:d
+G:=:y
 I:45:43:0
 W:22:0:2:3000
 A:22/2
 F:RES_CONF | EASY_KNOW
 
 N:431:Shard Resistance
-G:=:d
+G:=:y
 I:45:44:0
 W:25:0:2:3000
 A:25/2
 F:RES_SHARDS | EASY_KNOW
 
 N:432:Disenchantment Resistance
-G:=:d
+G:=:y
 I:45:45:0
 W:90:0:2:15000
 A:90/10
 F:RES_DISEN | EASY_KNOW
 
 N:433:Chaos Resistance
-G:=:d
+G:=:y
 I:45:46:0
 W:50:0:2:13000
 A:50/2
 F:RES_CHAOS | RES_CONF | EASY_KNOW
 
 N:434:Blindness Resistance
-G:=:d
+G:=:y
 I:45:47:0
 W:60:0:2:7500
 A:60/2
 F:RES_BLIND | EASY_KNOW
 
 N:435:Lordly Protection
-G:=:d
+G:=:y
 I:45:48:0
 W:100:0:2:100000
 A:100/5
 F:RES_DISEN | RES_POIS | HOLD_LIFE | FREE_ACT
 
 N:436:Extra Attacks
-G:=:d
+G:=:y
 I:45:49:0
 W:50:0:2:100000
 A:50/2

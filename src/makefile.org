@@ -95,9 +95,13 @@ OBJS = \
 
 #
 # This is my compiler of choice, it seems to work most everywhere
-#
-CC = gcc
+# Modified by konijn, if you set CACHE as an environment variable it'll ccache
+# This can be useful if you're working a lot on the header files.
 
+CC = gcc
+ifeq ($(CACHE),X)
+  CC = ccache gcc
+endif
 
 #
 # Standard version (see main-x11.c and main-gcu.c)

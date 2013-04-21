@@ -5,6 +5,15 @@
 /*
  * This file written by "Ben Harrison (benh@phial.com)".
  *
+ * Ben Harrison released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ *
  * This file is intended to show one way to build a "visual module"
  * for Angband to allow it to work with a new system.  It does not
  * actually work, but if the code near "XXX XXX XXX" comments were

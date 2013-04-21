@@ -3,12 +3,21 @@
 /* Purpose: Spell code (part 1) */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
 
@@ -3071,21 +3080,21 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 						{
 							switch (randint(4)) {
 								case 1:
-									set_confused(p_ptr->confused + 3 + randint(dam));
+									set_timed_effect( TIMED_CONFUSED , p_ptr->confused + 3 + randint(dam));
 									break;
 								case 2:
-									set_stun(p_ptr->stun + randint(dam)); break;
+									set_timed_effect( TIMED_STUN, p_ptr->stun + randint(dam)); break;
 								case 3:
 									{
 									if (r_ptr->flags3 & (RF3_NO_FEAR))
 										note = " is unaffected.";
 									else
-										set_afraid(p_ptr->afraid + 3 + randint(dam));
+										set_timed_effect( TIMED_AFRAID , p_ptr->afraid + 3 + randint(dam));
 									}
 								break;
 								default:
 									if (!p_ptr->free_act)
-									(void)set_paralyzed(p_ptr->paralyzed + randint(dam));
+									(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + randint(dam));
 									break;
 							}/* End switch for player effects of backlash*/
 						}/* End of potential backlash effects */
@@ -3196,17 +3205,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 						/* Confuse, stun, terrify */
 						switch (randint(4)) {
 							case 1:
-								set_stun(p_ptr->stun + dam / 2);
+								set_timed_effect( TIMED_STUN, p_ptr->stun + dam / 2);
 								break;
 							case 2:
-								set_confused(p_ptr->confused + dam / 2);
+								set_timed_effect( TIMED_CONFUSED , p_ptr->confused + dam / 2);
 								break;
 							default:
 								{
 									if (r_ptr->flags3 & (RF3_NO_FEAR))
 										note = " is unaffected.";
 									else
-										set_afraid(p_ptr->afraid + dam);
+										set_timed_effect( TIMED_AFRAID , p_ptr->afraid + dam);
 								}
 						}/*End of switch*/
 					}/*End of backlash*/
@@ -4581,7 +4590,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			take_hit(dam, killer);
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
+				(void)set_timed_effect( TIMED_POISONED , p_ptr->poisoned + rand_int(dam) + 10);
 			}
 			break;
 		}
@@ -4595,7 +4604,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			take_hit(dam, killer);
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
+				(void)set_timed_effect( TIMED_POISONED , p_ptr->poisoned + rand_int(dam) + 10);
 				if (randint(5)==1) /* 6 */
 				{ msg_print("You undergo a freakish metamorphosis!");
 				if (randint(4)==1) /* 4 */
@@ -4658,7 +4667,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (!p_ptr->resist_sound)
 			{
 				int k = (randint((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
-				(void)set_stun(p_ptr->stun + k);
+				(void)set_timed_effect( TIMED_STUN, p_ptr->stun + k);
 			}
 			if (!(p_ptr->resist_fire || p_ptr->oppose_fire
 				|| p_ptr->immune_fire))
@@ -4709,11 +4718,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (fuzzy) msg_print("You are hit by something wet!");
 			if (!p_ptr->resist_sound)
 			{
-				(void)set_stun(p_ptr->stun + randint(40));
+				(void)set_timed_effect( TIMED_STUN, p_ptr->stun + randint(40));
 			}
 			if (!p_ptr->resist_conf)
 			{
-				(void)set_confused(p_ptr->confused + randint(5) + 5);
+				(void)set_timed_effect( TIMED_CONFUSED , p_ptr->confused + randint(5) + 5);
 			}
 
 			if (randint(5)==1)
@@ -4735,11 +4744,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			}
 			if (!p_ptr->resist_conf)
 			{
-				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+				(void)set_timed_effect( TIMED_CONFUSED , p_ptr->confused + rand_int(20) + 10);
 			}
 			if (!p_ptr->resist_chaos)
 			{
-				(void)set_image(p_ptr->image + randint(10));
+				(void)set_timed_effect( TIMED_IMAGE , p_ptr->image + randint(10));
 				if (randint(3)==1)
 				{
 					msg_print("Your body is twisted by chaos!");
@@ -4782,7 +4791,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			}
 			else
 			{
-				(void)set_cut(p_ptr->cut + dam);
+				(void)set_timed_effect( TIMED_CUT, p_ptr->cut + dam);
 			}
 			if ((!p_ptr->resist_shard) || (randint(13)==1))
 			{
@@ -4804,7 +4813,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			else
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
-				(void)set_stun(p_ptr->stun + k);
+				(void)set_timed_effect( TIMED_STUN, p_ptr->stun + k);
 			}
 			if ((!p_ptr->resist_sound) || (randint(13)==1))
 			{
@@ -4825,7 +4834,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			}
 			if (!p_ptr->resist_conf)
 			{
-				(void)set_confused(p_ptr->confused + randint(20) + 10);
+				(void)set_timed_effect( TIMED_CONFUSED , p_ptr->confused + randint(20) + 10);
 			}
 			take_hit(dam, killer);
 			break;
@@ -4869,7 +4878,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (fuzzy) msg_print("You are hit by kinetic force!");
 			if (!p_ptr->resist_sound)
 			{
-				(void)set_stun(p_ptr->stun + randint(20));
+				(void)set_timed_effect( TIMED_STUN, p_ptr->stun + randint(20));
 			}
 			take_hit(dam, killer);
 			break;
@@ -4882,7 +4891,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (fuzzy) msg_print("You are hit by shards!");
 			if (!p_ptr->resist_sound)
 			{
-				(void)set_stun(p_ptr->stun + randint(20));
+				(void)set_timed_effect( TIMED_STUN, p_ptr->stun + randint(20));
 			}
 			if (p_ptr->resist_shard)
 			{
@@ -4890,7 +4899,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			}
 			else
 			{
-				(void)set_cut(p_ptr->  cut + ( dam / 2) );
+				(void)set_timed_effect( TIMED_CUT, p_ptr->  cut + ( dam / 2) );
 			}
 
 			if ((!p_ptr->resist_shard) || (randint(12)==1))
@@ -4906,7 +4915,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 	case GF_INERTIA:
 		{
 			if (fuzzy) msg_print("You are hit by something slow!");
-			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+			(void)set_timed_effect( TIMED_SLOW, p_ptr->slow + rand_int(4) + 4);
 			take_hit(dam, killer);
 			break;
 		}
@@ -4921,7 +4930,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
-				(void)set_blind(p_ptr->blind + randint(5) + 2);
+				(void)set_timed_effect( TIMED_BLIND , p_ptr->blind + randint(5) + 2);
 			}
 			if (rp_ptr->hates_light) {
 				msg_print("The light scorches your flesh!");
@@ -4955,7 +4964,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
-				(void)set_blind(p_ptr->blind + randint(5) + 2);
+				(void)set_timed_effect( TIMED_BLIND , p_ptr->blind + randint(5) + 2);
 			}
 			if (p_ptr->wraith_form)
 				hp_player(dam);
@@ -5032,11 +5041,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			msg_print("Gravity warps around you.");
 			teleport_player(5);
 			if (!p_ptr->ffall)
-				(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+				(void)set_timed_effect( TIMED_SLOW, p_ptr->slow + rand_int(4) + 4);
 			if (!(p_ptr->resist_sound || p_ptr->ffall))
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
-				(void)set_stun(p_ptr->stun + k);
+				(void)set_timed_effect( TIMED_STUN, p_ptr->stun + k);
 			}
 			if (p_ptr->ffall)
 			{
@@ -5071,7 +5080,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 	case GF_OLD_SPEED:
 		{
 			if (fuzzy)  msg_print("You are hit by something!");
-			(void)set_fast(p_ptr->fast + randint(5));
+			(void)set_timed_effect( TIMED_FAST, p_ptr->fast + randint(5));
 			dam = 0;
 			break;
 		}
@@ -5079,14 +5088,14 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 	case GF_OLD_SLOW:
 		{
 			if (fuzzy) msg_print("You are hit by something slow!");
-			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+			(void)set_timed_effect( TIMED_SLOW, p_ptr->slow + rand_int(4) + 4);
 			break;
 		}
 	case GF_OLD_SLEEP:
 		{
 			if (p_ptr->free_act)  break;
 			if (fuzzy) msg_print("You fall asleep!");
-			set_paralyzed(p_ptr->paralyzed + dam);
+			set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + dam);
 			dam = 0;
 			break;
 		}
@@ -5120,11 +5129,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			cold_dam(dam, killer);
 			if (!p_ptr->resist_shard)
 			{
-				(void)set_cut(p_ptr->cut + damroll(5, 8));
+				(void)set_timed_effect( TIMED_CUT, p_ptr->cut + damroll(5, 8));
 			}
 			if (!p_ptr->resist_sound)
 			{
-				(void)set_stun(p_ptr->stun + randint(15));
+				(void)set_timed_effect( TIMED_STUN, p_ptr->stun + randint(15));
 			}
 
 			if ((!(p_ptr->resist_cold || p_ptr->oppose_cold)) || (randint(12)==1))
@@ -6140,6 +6149,62 @@ bool spell_worked( u16b realm  , int spell )
 	return FALSE;
 }
 
+void get_spell_info( u16b realm  , int spell , magic_type *s_ptr )
+{
+	int spell_skill;
+	spell_type *spell_info;
+	
+	/* How well can the player cast spells from this realm ?*/
+	spell_skill = mp_ptr->skill[realm]-1;
+	/* Browsing realms with skill NO, have now -1 in spell_skill, not good for array access*/
+	if(spell_skill<0)spell_skill = 0;
+	/* Get the information of the actual spell */
+	spell_info = &spells[realm][spell];
+	/*Copy over the name*/
+	s_ptr->name = spell_info->name;
+	/*Copy over the macro*/
+	s_ptr->macro = spell_info->macro;
+	/*Copy over the spoiler*/
+	s_ptr->spoiler = spell_info->spoiler;
+	/*Copy over the experience gained, super casters gain double xp*/
+	s_ptr->sexp  = spell_skill==SUPER?spell_info->sexp*2:spell_info->sexp;
+	/* Translate the spell chance, better skill, lower percentage of failure etc.*/
+	switch( spell_skill )
+	{
+		case POOR:
+			s_ptr->sfail = spell_info->sfail - 10;
+			break;
+		case WORSE:
+			s_ptr->sfail = spell_info->sfail - 5;		
+			break;		
+		case SAME:
+			s_ptr->sfail = spell_info->sfail;
+			break;		
+		case BETTER:
+			s_ptr->sfail = spell_info->sfail + 10;
+			break;		
+		case SUPER:
+			s_ptr->sfail = spell_info->sfail - 15;
+			break;		
+	}
+	/* Translate the level*/
+	/*msg_format( "TODO%d with %d -> %d" , spell_info->slevel  
+		, spell_skill
+		, spell_skill_level[ spell_info->slevel - 1 ][spell_skill]);	*/
+	s_ptr->slevel = spell_skill_level[ spell_info->slevel - 1 ][spell_skill];
+	/* Translate the mana requirement*/
+	if( spell_info->smana > 25 )
+		s_ptr->smana = spell_info->smana + spell_skill_mana[25][spell_skill];
+	else
+		s_ptr->smana = spell_skill_mana[spell_info->smana - 1][spell_skill];
+	/*Some safe values for the non extended stuff in case of*/
+	s_ptr->info = "";
+	s_ptr->attr_info = TERM_WHITE;
+	s_ptr->attr_realm = TERM_WHITE;
+	s_ptr->forgotten = FALSE;
+	s_ptr->learned = FALSE;
+	s_ptr->worked	= FALSE;
+}
 
 void get_extended_spell_info( u16b realm  , int spell , magic_type *s_ptr )
 {
@@ -6181,61 +6246,5 @@ void get_extended_spell_info( u16b realm  , int spell , magic_type *s_ptr )
 	}
 }
 	
-void get_spell_info( u16b realm  , int spell , magic_type *s_ptr )
-{
-	int spell_skill;
-	spell_type *spell_info;
-
-	/* How well can the player cast spells from this realm ?*/
-	spell_skill = mp_ptr->skill[realm]-1;
-	/* Browsing realms with skill NO, have now -1 in spell_skill, not good for array access*/
-	if(spell_skill<0)spell_skill = 0;
-	/* Get the information of the actual spell */
-	spell_info = &spells[realm][spell];
-	/*Copy over the name*/
-	s_ptr->name = spell_info->name;
-	/*Copy over the macro*/
-	s_ptr->macro = spell_info->macro;
-	/*Copy over the spoiler*/
-	s_ptr->spoiler = spell_info->spoiler;
-	/*Copy over the experience gained, super casters gain double xp*/
-	s_ptr->sexp  = spell_skill==SUPER?spell_info->sexp*2:spell_info->sexp;
-	/* Translate the spell chance, better skill, lower percentage of failure etc.*/
-	switch( spell_skill )
-	{
-		case POOR:
-			s_ptr->sfail = spell_info->sfail - 10;
-			break;
-		case WORSE:
-			s_ptr->sfail = spell_info->sfail - 5;		
-			break;		
-		case SAME:
-			s_ptr->sfail = spell_info->sfail;
-			break;		
-		case BETTER:
-			s_ptr->sfail = spell_info->sfail + 10;
-			break;		
-		case SUPER:
-			s_ptr->sfail = spell_info->sfail - 15;
-			break;		
-	}
-	/* Translate the level*/
-	/*msg_format( "TODO%d with %d -> %d" , spell_info->slevel  
-								   , spell_skill
-									, spell_skill_level[ spell_info->slevel - 1 ][spell_skill]);	*/
-	s_ptr->slevel = spell_skill_level[ spell_info->slevel - 1 ][spell_skill];
-	/* Translate the mana requirement*/
-	if( spell_info->smana > 25 )
-		s_ptr->smana = spell_info->smana + spell_skill_mana[25][spell_skill];
-	else
-		s_ptr->smana = spell_skill_mana[spell_info->smana - 1][spell_skill];
-	/*Some safe values for the non extended stuff in case of*/
-	s_ptr->info = "";
-	s_ptr->attr_info = TERM_WHITE;
-	s_ptr->attr_realm = TERM_WHITE;
-	s_ptr->forgotten = FALSE;
-	s_ptr->learned = FALSE;
-	s_ptr->worked	= FALSE;
-}
 
 

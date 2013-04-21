@@ -2,6 +2,28 @@
 
 /* Purpose: Initialization (part 2) -BEN- */
 
+/*
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * Ben Harrison released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
+
 #include "angband.h"
 
 #ifdef CHECK_MODIFICATION_TIME
@@ -101,28 +123,6 @@ void init_file_paths(char *path)
 	/* Prepare to append to the Base Path */
 	tail = path + strlen(path);
 	
-	
-#ifdef VM
-	
-	
-	/*** Use "flat" paths with VM/ESA ***/
-	
-	/* Use "blank" path names */
-	ANGBAND_DIR_APEX = string_make("");
-	ANGBAND_DIR_BONE = string_make("");
-	ANGBAND_DIR_DATA = string_make("");
-	ANGBAND_DIR_EDIT = string_make("");
-	ANGBAND_DIR_FILE = string_make("");
-	ANGBAND_DIR_HELP = string_make("");
-	ANGBAND_DIR_INFO = string_make("");
-	ANGBAND_DIR_SAVE = string_make("");
-	ANGBAND_DIR_PREF = string_make("");
-	ANGBAND_DIR_USER = string_make("");
-	ANGBAND_DIR_XTRA = string_make("");
-	
-#else /* VM */
-	
-	
 	/*** Build the sub-directory names ***/
 	
 	/* Build a path name */
@@ -210,8 +210,6 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "xtra");
 	ANGBAND_DIR_XTRA = string_make(path);
-	
-#endif /* VM */
 	
 	
 #ifdef NeXT
@@ -3111,12 +3109,9 @@ void init_angband(void)
 	use_colour = 1;
 	do_cmd_load_screen(ANGBAND_DIR_FILE, "news_color.txt");
 
-	/*void restore_screen( void )*/
-	/*(void)msg_flush_wait();*/
-
-	/* Flush it */
-	/*Term_fresh();*/
-
+    /* Hack, now we cannot changes really news_color.txt, not drastically anyway */
+    Term_putstr(61, 5, -1, TERM_RED, VERSION);
+    Term_fresh();    
 
 	/*** Verify (or create) the "high score" file ***/
 

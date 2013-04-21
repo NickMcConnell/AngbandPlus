@@ -3,12 +3,21 @@
 /* Purpose: global type declarations */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 
 /*
@@ -1176,8 +1185,9 @@ struct player_type
 	byte tval_ammo;		/* Correct ammo tval */
 
 	s16b pspeed;		/* Current speed */
-	
-
+    
+    s16b command_see;		/* See "cmd1.c" */
+	s16b command_wrk;		/* See "cmd1.c" */
 };
 
 
@@ -1239,3 +1249,30 @@ struct opposed_corruptions_type {
 	cptr message;
 };
 
+typedef struct timed_type timed_type;
+struct timed_type {
+	s16b *timer;
+	cptr status;
+	cptr gain;
+	cptr lose;
+	u32b redraw;	
+	u32b update;
+};
+
+/*
+ * Structure for building monster "lists"
+ */
+typedef struct monster_list_entry monster_list_entry;
+struct monster_list_entry
+{
+	s16b r_idx;			/* Monster race index */
+	byte amount;
+};
+
+typedef struct menu_type menu_type;
+struct menu_type
+{
+	cptr name;
+	byte cmd;
+	bool fin;
+};

@@ -3,12 +3,21 @@
 /* Purpose: misc code for monsters */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
 
@@ -1544,7 +1553,9 @@ void update_mon(int m_idx, bool full)
 
 
 	/* Process "nearby" monsters on the current "panel" */
-	else if (panel_contains(fy, fx))
+    /* XXX XXX XXX In the year of the Lord 2007, Jan 27 konijn declared that all monsters are visible when in los */
+    /* Is this cruel ? yes ! Does it makes sense ? Yes ! Would have to do it anyway with bigscreen ? Yes ! */
+	else if ( TRUE /*panel_contains(fy, fx)*/)
 	{
 		cave_type *c_ptr = &cave[fy][fx];
 
@@ -1618,6 +1629,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Update health bar as needed */
 			if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+            
+			/* Update monster list window */
+			p_ptr->window |= (PW_VISIBLE);            
 
 			/* Hack -- Count "fresh" sightings */
 			if (r_ptr->r_sights < MAX_SHORT) r_ptr->r_sights++;
@@ -1655,6 +1669,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Erase the monster */
 			lite_spot(fy, fx);
+            
+			/* Update monster list window */
+			p_ptr->window |= (PW_VISIBLE);                 
 
 			/* Update health bar as needed */
 			if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);

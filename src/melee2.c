@@ -3,16 +3,29 @@
 /* Purpose: Monster spells and movement */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 /*
 * This file has several additions to it by Keldon Jones (keldon@umr.edu)
 * to improve the general quality of the AI (version 0.1.1).
+* 
+ * Keldon Jones released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license.  
 */
 
 #include "angband.h"
@@ -3664,12 +3677,12 @@ bool make_attack_spell(int m_idx)
 				msg_print("Your mind is blasted by psionic energy.");
 				if (!p_ptr->resist_conf)
 				{
-					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+					(void)set_timed_effect( TIMED_CONFUSED , p_ptr->confused + rand_int(4) + 4);
 				}
 
 				if ((!p_ptr->resist_chaos) && (randint(3)==1))
 				{
-					(void) set_image(p_ptr->image + rand_int(250) + 150);
+					(void) set_timed_effect( TIMED_IMAGE , p_ptr->image + rand_int(250) + 150);
 				}
 				take_hit(damroll(8, 8), ddesc);
 			}
@@ -3699,17 +3712,17 @@ bool make_attack_spell(int m_idx)
 				take_hit(damroll(12, 15), ddesc);
 				if (!p_ptr->resist_blind)
 				{
-					(void)set_blind(p_ptr->blind + 8 + rand_int(8));
+					(void)set_timed_effect( TIMED_BLIND , p_ptr->blind + 8 + rand_int(8));
 				}
 				if (!p_ptr->resist_conf)
 				{
-					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+					(void)set_timed_effect( TIMED_CONFUSED , p_ptr->confused + rand_int(4) + 4);
 				}
 				if (!p_ptr->free_act)
 				{
-					(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
+					(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + rand_int(4) + 4);
 				}
-				(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+				(void)set_timed_effect( TIMED_SLOW, p_ptr->slow + rand_int(4) + 4);
 
 				while (rand_int(100) > p_ptr->skill_sav)
 					(void)do_dec_stat(A_INT);
@@ -3718,7 +3731,7 @@ bool make_attack_spell(int m_idx)
 
 				if (!p_ptr->resist_chaos)
 				{
-					(void) set_image(p_ptr->image + rand_int(250) + 150);
+					(void) set_timed_effect( TIMED_IMAGE , p_ptr->image + rand_int(250) + 150);
 				}
 
 			}
@@ -3797,7 +3810,7 @@ bool make_attack_spell(int m_idx)
 			else
 			{
 				take_hit(damroll(15, 15), ddesc);
-				(void)set_cut(p_ptr->cut + damroll(10, 10));
+				(void)set_timed_effect( TIMED_CUT, p_ptr->cut + damroll(10, 10));
 			}
 			break;
 		}
@@ -3952,7 +3965,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				(void)set_afraid(p_ptr->afraid + rand_int(4) + 4);
+				(void)set_timed_effect( TIMED_AFRAID , p_ptr->afraid + rand_int(4) + 4);
 			}
 			update_smart_learn(m_idx, DRS_FEAR);
 			break;
@@ -3975,7 +3988,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				(void)set_blind(12 + rand_int(4));
+				(void)set_timed_effect( TIMED_BLIND , 12 + rand_int(4));
 			}
 			update_smart_learn(m_idx, DRS_BLIND);
 			break;
@@ -3998,7 +4011,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+				(void)set_timed_effect( TIMED_CONFUSED , p_ptr->confused + rand_int(4) + 4);
 			}
 			update_smart_learn(m_idx, DRS_CONF);
 			break;
@@ -4020,7 +4033,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+				(void)set_timed_effect( TIMED_SLOW, p_ptr->slow + rand_int(4) + 4);
 			}
 			update_smart_learn(m_idx, DRS_FREE);
 			break;
@@ -4043,7 +4056,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
+				(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + rand_int(4) + 4);
 			}
 			update_smart_learn(m_idx, DRS_FREE);
 			break;
@@ -6607,6 +6620,9 @@ static void process_monster(int m_idx, bool is_friend)
 				did_kill_body = TRUE;
 
 				/* XXX XXX XXX Message */
+                
+				/* Update visuals */
+				p_ptr->window |= (PW_VISIBLE);                
 
 				/* Kill the monster */
 				delete_monster(ny, nx);

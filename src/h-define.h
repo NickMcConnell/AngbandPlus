@@ -1,5 +1,23 @@
 /* File: h-define.h */
 
+/*
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
+
 #ifndef INCLUDED_H_DEFINE_H
 #define INCLUDED_H_DEFINE_H
 
@@ -105,28 +123,16 @@
 
 
 /*
-* Hack -- allow use of "ASCII" and "EBCDIC" for "indexes", "digits",
-* and "Control-Characters".
-*
-* Note that all "index" values must be "lowercase letters", while
-* all "digits" must be "digits".  Control characters can be made
-* from any legal characters.  XXX XXX XXX
-*/
-#ifdef VM
-#  define A2I(X)	alphatoindex(X)
-#  define I2A(X)	indextoalpha(X)
-#  define D2I(X)	((X) - '0')
-#  define I2D(X)	((X) + '0')
-#  define KTRL(X)	((X) & 0x1F)
-#  define ESCAPE	'\033'
-#else
-#  define A2I(X)	((X) - 'a')
-#  define I2A(X)	((X) + 'a')
-#  define D2I(X)	((X) - '0')
-#  define I2D(X)	((X) + '0')
-#  define KTRL(X)	((X) & 0x1F)
-#  define ESCAPE	'\033'
-#endif
+ * Note that all "index" values must be "lowercase letters", while
+ * all "digits" must be "digits".  Control characters can be made
+ * from any legal characters.  XXX XXX XXX
+ */
+#define A2I(X)	((X) - 'a')
+#define I2A(X)	((X) + 'a')
+#define D2I(X)	((X) - '0')
+#define I2D(X)	((X) + '0')
+#define KTRL(X)	((X) & 0x1F)
+#define ESCAPE	'\033'
 
 
 #endif

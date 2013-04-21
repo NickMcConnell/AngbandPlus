@@ -3,12 +3,22 @@
 /* Purpose: Movement commands (part 1) */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
 
 #include "angband.h"
 #define MAX_VAMPIRIC_DRAIN 100
@@ -653,7 +663,7 @@ static void hit_trap(void)
 
 					name = "a spiked pit";
 					dam = dam * 2;
-					(void)set_cut(p_ptr->cut + randint(dam));
+					(void)set_timed_effect( TIMED_CUT, p_ptr->cut + randint(dam));
 				}
 
 				/* Take the damage */
@@ -687,7 +697,7 @@ static void hit_trap(void)
 					name = "a spiked pit";
 
 					dam = dam * 2;
-					(void)set_cut(p_ptr->cut + randint(dam));
+					(void)set_timed_effect( TIMED_CUT, p_ptr->cut + randint(dam));
 
 					if (p_ptr->resist_pois || p_ptr->oppose_pois)
 					{
@@ -697,7 +707,7 @@ static void hit_trap(void)
 					else
 					{
 						dam = dam * 2;
-						(void)set_poisoned(p_ptr->poisoned + randint(dam));
+						(void)set_timed_effect( TIMED_POISONED , p_ptr->poisoned + randint(dam));
 					}
 				}
 
@@ -754,7 +764,7 @@ static void hit_trap(void)
 				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
 				take_hit(dam, name);
-				(void)set_slow(p_ptr->slow + rand_int(20) + 20);
+				(void)set_timed_effect( TIMED_SLOW, p_ptr->slow + rand_int(20) + 20);
 			}
 			else
 			{
@@ -816,7 +826,7 @@ static void hit_trap(void)
 			msg_print("A black gas surrounds you!");
 			if (!p_ptr->resist_blind)
 			{
-				(void)set_blind(p_ptr->blind + rand_int(50) + 25);
+				(void)set_timed_effect( TIMED_BLIND , p_ptr->blind + rand_int(50) + 25);
 			}
 			break;
 		}
@@ -826,7 +836,7 @@ static void hit_trap(void)
 			msg_print("A gas of scintillating colours surrounds you!");
 			if (!p_ptr->resist_conf)
 			{
-				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+				(void)set_timed_effect( TIMED_CONFUSED , p_ptr->confused + rand_int(20) + 10);
 			}
 			break;
 		}
@@ -836,7 +846,7 @@ static void hit_trap(void)
 			msg_print("A pungent green gas surrounds you!");
 			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
 			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
+				(void)set_timed_effect( TIMED_POISONED , p_ptr->poisoned + rand_int(20) + 10);
 			}
 			break;
 		}
@@ -846,7 +856,7 @@ static void hit_trap(void)
 			msg_print("A strange white mist surrounds you!");
 			if (!p_ptr->free_act)
 			{
-				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
+				(void)set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + rand_int(10) + 5);
 			}
 			break;
 		}

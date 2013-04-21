@@ -2,35 +2,55 @@
 
 /* Purpose: support for loading savefiles -BEN- */
 
+/*
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * Ben Harrison released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
+
 #include "angband.h"
 
 
 /*
-* This file loads savefiles from Hellband 1.0.0 onwards
-*
-* We attempt to prevent corrupt savefiles from inducing memory errors.
-*
-* Note that this file should not use the random number generator, the
-* object flavors, the visual attr/char mappings, or anything else which
-* is initialized *after* or *during* the "load character" function.
-*
-* This file assumes that the monster/object records are initialized
-* to zero, and the race/kind tables have been loaded correctly.  The
-* order of object stacks is currently not saved in the savefiles, but
-* the "next" pointers are saved, so all necessary knowledge is present.
-*
-* We should implement simple "savefile extenders" using some form of
-* "sized" chunks of bytes, with a {size,type,data} format, so everyone
-* can know the size, interested people can know the type, and the actual
-* data is available to the parsing routines that acknowledge the type.
-*
-*
-* XXX XXX XXX
+ * ADDENDUM 2007 : Current maintainer Konijn does NOT care about savefile compatibility
+ *
+ * This file loads savefiles from Hellband 1.0.0 onwards
+ *
+ * We attempt to prevent corrupt savefiles from inducing memory errors.
+ *
+ * Note that this file should not use the random number generator, the
+ * object flavors, the visual attr/char mappings, or anything else which
+ * is initialized *after* or *during* the "load character" function.
+ *
+ * This file assumes that the monster/object records are initialized
+ * to zero, and the race/kind tables have been loaded correctly.  The
+ * order of object stacks is currently not saved in the savefiles, but
+ * the "next" pointers are saved, so all necessary knowledge is present.
+ *
+ * We should implement simple "savefile extenders" using some form of
+ * "sized" chunks of bytes, with a {size,type,data} format, so everyone
+ * can know the size, interested people can know the type, and the actual
+ * data is available to the parsing routines that acknowledge the type.
+ *
+ *
+ * XXX XXX XXX
 */
-
-
-
-
 
 /*
 * Local "savefile" pointer

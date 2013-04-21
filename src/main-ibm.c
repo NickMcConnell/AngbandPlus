@@ -3,9 +3,19 @@
 /*
  * Copyright (c) 1997 Ben Harrison, and others
  *
+ *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.
+ *
+ * Ben Harrison, and others released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license.
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license.  
  */
 
 /* Purpose: Visual Display Support for "term.c", for the IBM */
@@ -15,14 +25,30 @@
  * Original code by "Billy Tanksley (wtanksle@ucsd.edu)"
  * Use "Makefile.ibm" to compile Angband using this file.
  *
- * Support for DJGPP v2 by "Scott Egashira (egashira@u.washington.edu)"
+ * Billy Tanksley released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * Support for DJGPP v2 by "Scott Egashira (egashira@drizzle.com)"
+ *
+ * Scott Egashira released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
  *
  * Extensive modifications by "Ben Harrison (benh@phial.com)",
  * including "collation" of the Watcom C/C++ and DOS-286 patches.
  *
- * Watcom C/C++ changes by "David Boeren (akemi@netcom.com)"
+ * Ben Harrison released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * Watcom C/C++ changes by "David Boeren (david.boeren@jboss.com)"
  * Use "Makefile.wat" to compile this file with Watcom C/C++, and
  * be sure to define "USE_IBM" and "USE_WAT".
+ *
+ * David Boeren released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
  *
  * DOS-286 (conio.h) changes by (Roland Jay Roberts (jay@map.com)
  * Use "Makefile.286" (not ready) to compile this file for DOS-286,
@@ -31,6 +57,10 @@
  *
  * True color palette support by "Mike Marcelais (michmarc@microsoft.com)",
  * with interface to the "color_table" array by Ben Harrison.
+ *
+ * Mike Marcelais released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license.                                  
  *
  * Both "shift" keys are treated as "identical", and all the modifier keys
  * (control, shift, alt) are ignored when used with "normal" keys, unless
@@ -278,6 +308,10 @@ static byte ibm_color_simple[16] =
  *
  * Code by Mike Marcelais, with help from "The programmer's guide
  * to the EGA and VGA video cards" [Farraro].
+ *
+ * Mike Marcelais released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
  *
  * On VGA cards, colors go through a double-indirection when looking
  * up the `real' color when in 16 color mode.  The color value in the

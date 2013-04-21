@@ -3,19 +3,24 @@
 /* Purpose: Inventory commands */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ *
+ *
+ * James E. Wilson and Robert A. Koeneke released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */ 
 
 #include "angband.h"
-
-
-
-
-
 
 /*
 * Display inventory
@@ -163,9 +168,8 @@ void do_cmd_wield(void)
 	item_tester_hook = item_tester_hook_wear;
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Wear/Wield which item? ", FALSE, TRUE, TRUE))
+	if (!get_item(&item, "Wear/Wield which item? ","You have nothing you can wear or wield." , USE_INVEN | USE_FLOOR))
 	{
-		if (item == -2) msg_print("You have nothing you can wear or wield.");
 		return;
 	}
 
@@ -332,9 +336,8 @@ void do_cmd_takeoff(void)
 
 
 	/* Get an item (from equip) */
-	if (!get_item(&item, "Take off which item? ", TRUE, FALSE, FALSE))
+	if (!get_item(&item, "Take off which item? ", "You are not wearing anything to take off.", USE_EQUIP))
 	{
-		if (item == -2) msg_print("You are not wearing anything to take off.");
 		return;
 	}
 
@@ -382,9 +385,8 @@ void do_cmd_drop(void)
 	object_type *o_ptr;
 
 	/* Get an item (from equip or inven) */
-	if (!get_item(&item, "Drop which item? ", TRUE, TRUE, FALSE))
+	if (!get_item(&item, "Drop which item? ", "You have nothing to drop.", USE_EQUIP | USE_INVEN))
 	{
-		if (item == -2) msg_print("You have nothing to drop.");
 		return;
 	}
 
@@ -525,9 +527,8 @@ void do_cmd_destroy(void)
 
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Destroy which item? ", FALSE, TRUE, TRUE))
+	if (!get_item(&item, "Destroy which item? ", "You have nothing to destroy." , USE_INVEN | USE_FLOOR))
 	{
-		if (item == -2) msg_print("You have nothing to destroy.");
 		return;
 	}
 
@@ -709,9 +710,8 @@ void do_cmd_observe(void)
 
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Examine which item? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Examine which item? ", "You have nothing to examine.", USE_EQUIP | USE_INVEN | USE_FLOOR))
 	{
-		if (item == -2) msg_print("You have nothing to examine.");
 		return;
 	}
 
@@ -761,9 +761,8 @@ void do_cmd_uninscribe(void)
 
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Un-inscribe which item? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Un-inscribe which item? ", "You have nothing to un-inscribe." , USE_EQUIP | USE_FLOOR | USE_INVEN))
 	{
-		if (item == -2) msg_print("You have nothing to un-inscribe.");
 		return;
 	}
 
@@ -815,9 +814,8 @@ void do_cmd_inscribe(void)
 
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Inscribe which item? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Inscribe which item? ", "You have nothing to inscribe.", USE_FLOOR | USE_EQUIP | USE_INVEN))
 	{
-		if (item == -2) msg_print("You have nothing to inscribe.");
 		return;
 	}
 
@@ -900,9 +898,8 @@ static void do_cmd_refill_lamp(int item)
 	if (item == -999)
 	{
 		/* Get an item (from inven or floor) */
-		if (!get_item(&item, "Refill with which flask? ", TRUE, TRUE, TRUE))
+		if (!get_item(&item, "Refill with which flask? ", "You have no flasks of oil." ,  USE_INVEN | USE_FLOOR))
 		{
-			if (item == -2) msg_print("You have no flasks of oil.");
 			return;
 		}
 	}
@@ -1000,9 +997,8 @@ static void do_cmd_refill_torch(int item)
 	if(item == -999)
 	{
 		/* Get an item (from inven or floor) */
-		if (!get_item(&item, "Refuel with which torch? ", FALSE, TRUE, TRUE))
+		if (!get_item(&item, "Refuel with which torch? ", "You have no extra torches." , USE_INVEN | USE_FLOOR))
 		{
-			if (item == -2) msg_print("You have no extra torches.");
 			return;
 		}
 	}
@@ -1366,7 +1362,65 @@ static cptr ident_info[] =
 		NULL
 };
 
+bool ang_sort_comp_r_idx( u16b why , int w1 , int w2 )
+{
+   	int z1, z2;
 
+	/* Sort by player kills */
+	if (why >= 4)
+	{
+		/* Extract player kills */
+		z1 = r_info[w1].r_pkills;
+		z2 = r_info[w2].r_pkills;
+        
+		/* Compare player kills */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+    
+    
+	/* Sort by total kills */
+	if (why >= 3)
+	{
+		/* Extract total kills */
+		z1 = r_info[w1].r_tkills;
+		z2 = r_info[w2].r_tkills;
+        
+		/* Compare total kills */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+    
+    
+	/* Sort by monster level */
+	if (why >= 2)
+	{
+		/* Extract levels */
+		z1 = r_info[w1].level;
+		z2 = r_info[w2].level;
+        
+		/* Compare levels */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+    
+    
+	/* Sort by monster experience */
+	if (why >= 1)
+	{
+		/* Extract experience */
+		z1 = r_info[w1].mexp;
+		z2 = r_info[w2].mexp;
+        
+		/* Compare experience */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+    
+    
+	/* Compare indexes */
+	return (w1 <= w2);
+}
 
 /*
 * Sorting hook -- Comp function -- see below
@@ -1374,7 +1428,7 @@ static cptr ident_info[] =
 * We use "u" to point to array of monster indexes,
 * and "v" to select the type of sorting to perform on "u".
 */
-static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
+bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1383,65 +1437,20 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	int w1 = who[a];
 	int w2 = who[b];
 
-	int z1, z2;
-
-
-	/* Sort by player kills */
-	if (*why >= 4)
-	{
-		/* Extract player kills */
-		z1 = r_info[w1].r_pkills;
-		z2 = r_info[w2].r_pkills;
-
-		/* Compare player kills */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-
-	/* Sort by total kills */
-	if (*why >= 3)
-	{
-		/* Extract total kills */
-		z1 = r_info[w1].r_tkills;
-		z2 = r_info[w2].r_tkills;
-
-		/* Compare total kills */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-
-	/* Sort by monster level */
-	if (*why >= 2)
-	{
-		/* Extract levels */
-		z1 = r_info[w1].level;
-		z2 = r_info[w2].level;
-
-		/* Compare levels */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-
-	/* Sort by monster experience */
-	if (*why >= 1)
-	{
-		/* Extract experience */
-		z1 = r_info[w1].mexp;
-		z2 = r_info[w2].mexp;
-
-		/* Compare experience */
-		if (z1 < z2) return (TRUE);
-		if (z1 > z2) return (FALSE);
-	}
-
-
-	/* Compare indexes */
-	return (w1 <= w2);
+    return ang_sort_comp_r_idx( *why , w1 , w2 );
 }
 
+bool ang_sort_comp_visible_hook(vptr u, vptr v, int a, int b)
+{
+	monster_list_entry *who = (monster_list_entry*)(u);
+    
+	u16b *why = (u16b*)(v);
+    
+	int w1 = who[a].r_idx;
+	int w2 = who[b].r_idx;
+    
+    return ang_sort_comp_r_idx( *why , w1 , w2 );
+}
 
 /*
 * Sorting hook -- Swap function -- see below
@@ -1449,7 +1458,7 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 * We use "u" to point to array of monster indexes,
 * and "v" to select the type of sorting to perform.
 */
-static void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
+void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1458,6 +1467,21 @@ static void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 	/* XXX XXX */
 	v = v ? v : 0;
 
+	/* Swap */
+	holder = who[a];
+	who[a] = who[b];
+	who[b] = holder;
+}
+
+void ang_sort_swap_visible_hook(vptr u, vptr v, int a, int b)
+{
+	monster_list_entry *who = (monster_list_entry*)(u);
+    
+	monster_list_entry holder;
+    
+	/* XXX XXX */
+	v = v ? v : 0;
+    
 	/* Swap */
 	holder = who[a];
 	who[a] = who[b];
@@ -1736,9 +1760,8 @@ void do_cmd_handle(void)
 	object_type *o_ptr;
 
 	/* Get an item (from equip or inven) */
-	if (!get_item(&item, "Use which item? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Use which item? ", "You have nothing to use.", USE_EQUIP | USE_INVEN | USE_FLOOR ))
 	{
-		if (item == -2) msg_print("You have nothing to use.");
 		return;
 	}
 

@@ -1,0 +1,34 @@
+This file documents which makefiles you should use for each system.
+I modified the makefile.WHICH of the most excellent ToME for this. ( www.t-o-m-e.net )
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////// Tested and approved makefiles                                  ////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+ * makefile.org:   	Most Unix/linux/OSX users should use this. Currently the only makefile with a real   	install rule. More instructions are found in the file itself.
+
+ * makefile.sid:   	This makefile can be used for
+        - when makefile.std does not work
+        - when cross compiling in *nix to windows ( works wonderfully )
+        - when cross compiling in *nix to Risc OS
+
+ * makefile.cyg:   	A makefile for people using Cygwin for windows, tested under win2k and winxp.
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////// Broken makefiles                                               ////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+ * makefile.win:   	A makefile for people using Borland C 4.5x for windows. It doesnt work for 5.5, too bad.
+        If any one knows how to fix this one. Let me know!
+
+ * makefile.acn:   	main.acn is empty, Takkaria let me know that it is better left empty than leaving the
+        non-working legacy cruft in it.
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////// Untested makefiles                                             ////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+ * makefile.ami:   	Amiga makefile. * makefile.emx:   	A makefile for OS/2. You need the EMX packages and ReXX installed for   	this to work. * makefile.ibm:   	Another makefile for people using DOS and DJGPP. Ideally will be rolled   	into makefile.dos eventually.
+
+* makefile.dos
+   	Makefile for DOS with gcc * makefile.lsl:   	If you want to try to use SVGAlib, this might provide a start. * makefile.wat:   	Watcom C/C++ for DOS makefile.

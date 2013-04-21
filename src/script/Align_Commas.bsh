@@ -1,0 +1,106 @@
+/*
+ * Based on Reverse_Lines.bsh - Konijn
+ * Copyright (C) 2002-2004 Ollie Rutherfurd, oliver@rutherfurd.net
+ *
+ * :mode=beanshell:tabSize=4:indentSize=4:maxLineLen=0:noTabs=false:
+ * :indentOnTab=true:indentOnEnter=true:folding=explicit:collapseFolds=1:
+ *
+ * $Id: Reverse_Lines.bsh,v 1.1 2004/03/19 15:58:00 spestov Exp $
+ */
+
+void alignCommas(textArea)
+{
+	Buffer buffer = textArea.getBuffer();
+	Selection[] selections = textArea.getSelection();
+	//64 comma's should be good enough for any one
+	int[] sizes = new int[64];
+	String[] pieces;
+
+	buffer.beginCompoundEdit();
+	//REReplace(string,'("[^"]*")?([^"]),','\1\2;','ALL') 
+
+		StringBuffer sb = new StringBuffer(buffer.getLength());
+		for(int i = 0; i < buffer.getLineCount() ; i++)
+		{
+			String line = buffer.getLineText(i);
+			//pieces = line.split("((?:[^\",]|(?:\"(?:\\{2}|\\\"|[^\"])*?\"))*)");
+			pieces = splitIt(line);
+			for( int pieceCounter = 0 ; pieceCounter < pieces.length ; pieceCounter++ ){
+				if( pieces[pieceCounter] == null )pieces[pieceCounter] = "";				
+				pieces[pieceCounter] = pieces[pieceCounter].trim();
+				int currentLength = pieces[pieceCounter].length()+1;
+				if(  currentLength > sizes[pieceCounter] )
+					sizes[pieceCounter] = currentLength;
+			}
+		}
+		for(int i = 0; i < buffer.getLineCount() ; i++)
+		{
+			
+			String line = buffer.getLineText(i);
+			//pieces = line.split("((?:[^\",]|(?:\"(?:\\{2}|\\\"|[^\"])*?\"))*)");
+			pieces = splitIt(line);
+			sb.append("    ");
+			for( int pieceCounter = 0 ; pieceCounter < pieces.length ; pieceCounter++ ){
+				if( pieces[pieceCounter] == null )pieces[pieceCounter] = "";
+				pieces[pieceCounter] = pieces[pieceCounter].trim();
+				sb.append(pieces[pieceCounter]);
+				if( pieceCounter+1<pieces.length )
+					sb.append( ",");
+				sb.append("                                                                                                                                                                              ".substring(0 ,sizes[pieceCounter] - pieces[pieceCounter].length() ) );
+			}								
+			sb.append("\n");
+			
+		}
+
+
+		
+		buffer.remove(0, buffer.getLength());
+		buffer.insert(0, sb.toString());
+		
+		
+
+	buffer.endCompoundEdit();
+}
+
+String[] splitIt( s ){
+
+  Vector v = new Vector();
+  String currentString= "";
+  char currentChar;
+  boolean quoteMode = false;
+  String[] prototype = {""};
+  
+  for( int i = 0 ; i < s.length(); i++ ){
+	  currentChar = s.charAt( i );
+	  if( currentChar == '"' )
+		  quoteMode = !quoteMode;
+	  if( !quoteMode && currentChar == ',' ){
+		  v.add( currentString );
+		  currentString = "";
+	  }else{
+		  currentString = currentString.concat( String.valueOf( currentChar ) );
+	  }
+  }
+  if( !quoteMode && !currentString.equals("") )
+	  v.add( currentString );
+ 
+  return v.toArray( prototype );
+
+
+}
+
+if(buffer.isReadOnly())
+	Macros.error(view, "Buffer is read-only.");
+else
+	alignCommas(textArea);
+
+/*
+	Macro index entry (in DocBook XML)
+
+<listitem>
+	<para><filename>Align_Commas.bsh</filename></para>
+	<abstract><para>
+		Do yar thing
+	</para></abstract>
+</listitem>
+*/

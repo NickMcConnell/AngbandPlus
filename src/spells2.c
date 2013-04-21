@@ -3,12 +3,21 @@
 /* Purpose: Spell code (part 2) */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
 
@@ -498,9 +507,8 @@ bool alchemy(void) /* Turns an object into gold, gain some of its value in a sho
 
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Turn which item to gold? ", FALSE, TRUE, TRUE))
+	if (!get_item(&item, "Turn which item to gold? ", "You have nothing to turn to gold.", USE_INVEN | USE_FLOOR))
 	{
-		if (item == -2) msg_print("You have nothing to turn to gold.");
 		return FALSE;
 	}
 
@@ -643,18 +651,29 @@ bool alchemy(void) /* Turns an object into gold, gain some of its value in a sho
 void self_knowledge(void)
 {
 	int             i = 0, j, k;
+	
+	int corruption_counter;
+	int timed_counter;	
+	
+	u32b *muta_class = 0;
 
 	u32b    f1 = 0L, f2 = 0L, f3 = 0L;
 
 	object_type     *o_ptr;
 
-	char Dummy[80];
+	char dummy[80];
+	char sign_ability[80];
+	char race_ability[80];
 
 	cptr    info[128];
+	cptr    timed_info[TIMED_COUNT];
 
 	int plev = p_ptr->lev;
 
-	strcpy (Dummy, "");
+	/*Paranoid*/
+	strcpy (dummy, "");
+	strcpy (sign_ability, "");
+	strcpy (race_ability, "");
 
 	/* Acquire item flags from equipment */
 	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
@@ -676,623 +695,68 @@ void self_knowledge(void)
 	}
 
 	/* Birth sign powers ... */
-	switch (p_ptr->psign)
-	{
-		case SIGN_PLUTUS:
-			if (plev > 4)
-				info[i++] = "You can find traps, doors and stairs (cost 5).";
-			break;
-		case SIGN_MORUI:
+	if(p_ptr->psign){
+		for( j = 0 ; sign_powers[j].description != NULL ; j++ )
 		{
-			if (plev > 8)
+			if( sign_powers[j].idx == p_ptr->psign && plev >= sign_powers[j].level )
 			{
-				sprintf(Dummy, "You can spit acid, dam. %d (cost 9).",
-						plev);
-				info[i++] = Dummy;
+				/*Show power and start description with cost*/
+				sprintf(sign_ability,"You can %s (cost %d", sign_powers[j].description , sign_powers[j].cost );
+				/*Show cost that rises with level if there is one*/
+				if( racial_powers[j].cost_level > 0 )
+					sprintf(sign_ability,"%s + lvl/%d", sign_ability, sign_powers[j].cost_level );
+				/*Show extra info if there is*/
+				if( racial_powers[j].info != NULL )
+					sprintf(sign_ability,"%s, %s", sign_ability, sign_powers[j].info );
+				/*End with stat used*/
+				sprintf(sign_ability,"%s, %s based)", sign_ability, stats_short[sign_powers[j].stat] );		
+				info[i++] = sign_ability;
 			}
 		}
-		break;
-		case SIGN_DRACO:
-		{
-			sprintf(Dummy, "You can breathe, dam. %d (cost %d).", 2 * plev,
-					plev);
-			info[i++] = Dummy;
-		}
-		break;			
 	}
 
-	/* Racial powers... */
-	switch (p_ptr->prace)
+	
+	for( j = 0 ; racial_powers[j].description != NULL ; j++ )
 	{
-	case DWARF:
+		if( racial_powers[j].idx == p_ptr->prace && plev >= racial_powers[j].level )
 		{
-			if (plev > 4)
-				info[i++] = "You can find traps, doors and stairs (cost 5).";
+			/*Show power and start description with cost*/
+			sprintf(race_ability,"You can %s (cost %d", racial_powers[j].description , racial_powers[j].cost );
+			/*Show cost that rises with level if there is one*/
+			if( racial_powers[j].cost_level > 0 )
+				sprintf(race_ability,"%s + lvl/%d", race_ability, racial_powers[j].cost_level );
+			/*Show extra info if there is*/
+			if( racial_powers[j].info != NULL )
+				sprintf(race_ability,"%s, %s", race_ability, racial_powers[j].info );
+			/*End with stat used*/
+			sprintf(race_ability,"%s, %s based)", race_ability, stats_short[racial_powers[j].stat] );		
+			info[i++] = race_ability;
 		}
-		break;
-	case GNOME: case LEPRECHAUN:
-		{
-			if (plev > 4)
-			{
-				sprintf(Dummy, "You can teleport, range %d (cost %d).",
-					(1+plev), (5 + (plev/5)));
-				info[i++] = Dummy;
-			}
-		}
-		break;
-	case TROLL:
-		{
-			if (plev > 9)
-				info[i++] = "You enter berserk fury (cost 12).";
-		}
-		break;
-	case NEPHILIM:
-		{
-			if (plev > 29)
-				info[i++] = "You can dream travel (cost 50).";
-			if (plev > 39)
-				info[i++] = "You can dream a better self (cost 75).";
-		}
-		break;
-	case NORDIC:
-		{
-			if (plev > 7)
-				info[i++] = "You can enter berserk fury (cost 10).";
-		}
-		break;
-	case OGRE:
-		{
-			if (plev > 24)
-				info[i++] = "You can set an Explosive Rune (cost 35).";
-		}
-		break;
-	case GIANT:
-		{
-			if (plev > 19)
-				info[i++] = "You can break stone walls (cost 10).";
-		}
-		break;
-	case TITAN:
-		{
-			if (plev > 34)
-				info[i++] = "You can probe monsters (cost 20).";
-		}
-		break;
-/*		
-	case :
-		{
-			if (plev > 19)
-			{
-				sprintf(Dummy, "You can throw a boulder, dam. %d (cost 15).",
-					3 * plev);
-				info[i++] = Dummy;
-			}
-		}
-		break;
-	case :
-		{
-			if (plev > 14)
-				info[i++] = "You can make a terrifying scream (cost 15).";
-		}
-		break;
-*/		
-	case KOBOLD:
-		{
-			if (plev > 11)
-			{
-				sprintf(Dummy,
-					"You can throw a dart of poison, dam. %d (cost 8).",
-					plev);
-				info[i++] = Dummy;
-			}
-		}
-		break;
-	case ATLANTIAN:
-		{
-			if (plev > 1)
-			{
-				sprintf(Dummy, "You can cast a Magic Missile, dam %d (cost 2).",
-					( 3 + ((plev-1) / 5) ) );
-				info[i++] = Dummy;
-			}
-		}
-		break;
-	case HORROR:
-		{
-			if (plev > 14)
-				sprintf(Dummy, "You can mind blast your enemies, dam %d (cost 12).",
-				plev);
-			info[i++] = Dummy;
-		}
-		break;
-	case IMP:
-		{
-			if (plev > 29)
-			{
-				sprintf(Dummy, "You can cast a Fire Ball, dam. %d (cost 15).",
-					plev);
-				info[i++] = Dummy;
-			}
-			else if (plev > 8)
-			{
-				sprintf(Dummy, "You can cast a Fire Bolt, dam. %d (cost 15).",
-					plev);
-				info[i++] = Dummy;
-			}
-		}
-		break;
-	case GUARDIAN:
-		{
-			if (plev > 19)
-				info[i++] = "You can turn your skin to stone, dur d20+30 (cost 15).";
-		}
-		break;
-	case MUMMY: case SKELETON:
-		{
-			if (plev > 29)
-				info[i++] = "You can restore lost life forces (cost 30).";
-		}
-		break;
-	case VAMPIRE:
-		{
-			if (plev > 1)
-			{
-				sprintf(Dummy, "You can steal life from a foe, dam. %d-%d (cost %d).",
-					plev+MAX(1, plev/10), plev+plev*MAX(1, plev/10), 1+(plev/3));
-				info[i++] = Dummy;
-			}
-		}
-		break;
-	case SPECTRE:
-		{
-			if (plev > 3)
-			{
-				info[i++] = "You can wail to terrify your enemies (cost 3).";
-			}
-		}
-		break;
-	case FAE:
-		{
-			if (plev > 11)
-			{
-				info[i++] = "You can throw magic dust which induces sleep (cost 12).";
-			}
-		}
-		break;
-	default:
-		break;
 	}
 
 	/* Handle corruptions */
-
-	if (p_ptr->muta1)
+	/* Because of ancient history, the other corruption descriptions start with a space, we skip that space with the +1*/
+	/* Also because of ancient history we are not directly accessing the corruptions flag, TODO */
+	
+	for( corruption_counter = 0 ; corruption_counter < COUNT_CORRUPTIONS ; corruption_counter++ )
 	{
-		if (p_ptr->muta1 & COR1_SPIT_ACID)
+		muta_class = corruption_idx_to_u32b( corruptions[corruption_counter].idx );	
+		if (*(muta_class) & corruptions[corruption_counter].bitflag )
 		{
-			info[i++] = "You can spit acid (dam lvl).";
+			info[i++] = (corruptions[corruption_counter].description)+1;			
 		}
-		if (p_ptr->muta1 & COR1_BR_FIRE)
-		{
-			info[i++] = "You can breathe fire (dam lvl * 2).";
-		}
-		if (p_ptr->muta1 & COR1_HYPN_GAZE)
-		{
-			info[i++] = "Your gaze is hypnotic.";
-		}
-		if (p_ptr->muta1 & COR1_TELEKINES)
-		{
-			info[i++] = "You are telekinetic.";
-		}
-		if (p_ptr->muta1 & COR1_VTELEPORT)
-		{
-			info[i++] = "You can teleport at will.";
-		}
-		if (p_ptr->muta1 & COR1_MIND_BLST)
-		{
-			info[i++] = "You can Mind Blast your enemies (3 to 12d3 dam).";
-		}
-		if (p_ptr->muta1 & COR1_SLIME)
-		{
-			info[i++] = "You can summon waves of hellslime (dam lvl * 2).";
-		}
-		if (p_ptr->muta1 & COR1_VAMPIRISM)
-		{
-			info[i++] = "You can drain life from a foe like a vampire (dam lvl * 2).";
-		}
-		if (p_ptr->muta1 & COR1_SMELL_MET)
-		{
-			info[i++] = "You can smell nearby precious metal.";
-		}
-		if (p_ptr->muta1 & COR1_SMELL_MON)
-		{
-			info[i++] = "You can smell nearby monsters.";
-		}
-		if (p_ptr->muta1 & COR1_BLINK)
-		{
-			info[i++] = "You can teleport yourself short distances.";
-		}
-		if (p_ptr->muta1 & COR1_EAT_ROCK)
-		{
-			info[i++] = "You can consume solid rock.";
-		}
-		if (p_ptr->muta1 & COR1_SWAP_POS)
-		{
-			info[i++] = "You can switch locations with another being.";
-		}
-		if (p_ptr->muta1 & COR1_SHRIEK)
-		{
-			info[i++] = "You can emit a horrible shriek (dam 4 * lvl).";
-		}
-		if (p_ptr->muta1 & COR1_ILLUMINE)
-		{
-			info[i++] = "You can emit bright light.";
-		}
-		if (p_ptr->muta1 & COR1_DET_CURSE)
-		{
-			info[i++] = "You can feel the danger of evil magic.";
-		}
-		if (p_ptr->muta1 & COR1_BERSERK)
-		{
-			info[i++] = "You can drive yourself into a berserk frenzy.";
-		}
-		if (p_ptr->muta1 & COR1_POLYMORPH)
-		{
-			info[i++] = "You can polymorph yourself at will.";
-		}
-		if (p_ptr->muta1 & COR1_MIDAS_TCH)
-		{
-			info[i++] = "You can turn ordinary items to gold.";
-		}
-		if (p_ptr->muta1 & COR1_GROW_MOLD)
-		{
-			info[i++] = "You can cause mold to grow near you.";
-		}
-		if (p_ptr->muta1 & COR1_RESIST)
-		{
-			info[i++] = "You can harden yourself to the ravages of the elements.";
-		}
-		if (p_ptr->muta1 & COR1_EARTHQUAKE)
-		{
-			info[i++] = "You can bring down the dungeon around your ears.";
-		}
-		if (p_ptr->muta1 & COR1_EAT_MAGIC)
-		{
-			info[i++] = "You can consume magic energy for your own use.";
-		}
-		if (p_ptr->muta1 & COR1_WEIGH_MAG)
-		{
-			info[i++] = "You can feel the strength of the magics affecting you.";
-		}
-		if (p_ptr->muta1 & COR1_STERILITY)
-		{
-			info[i++] = "You can cause mass impotence.";
-		}
-		if (p_ptr->muta1 & COR1_PANIC_HIT)
-		{
-			info[i++] = "You can run for your life after hitting something.";
-		}
-		if (p_ptr->muta1 & COR1_DAZZLE)
-		{
-			info[i++] = "You can emit confusing, blinding lights.";
-		}
-		if (p_ptr->muta1 & COR1_EYE_BEAM)
-		{
-			info[i++] = "Your eyes can fire beams of light (dam 2 * lvl).";
-		}
-		if (p_ptr->muta1 & COR1_RECALL)
-		{
-			info[i++] = "You can travel between town and the depths.";
-		}
-		if (p_ptr->muta1 & COR1_BANISH)
-		{
-			info[i++] = "You can send evil creatures directly to Hell.";
-		}
-		if (p_ptr->muta1 & COR1_COLD_TOUCH)
-		{
-			info[i++] = "You can freeze things with a touch (dam 3 * lvl).";
-		}
-		if (p_ptr->muta1 & COR1_LAUNCHER)
-		{
-			info[i++] = "You can hurl objects with great force.";
-		}
-	}
-	if (p_ptr->muta2)
+	}	
+	
+	/* Handle timed effects */
+	
+	for( timed_counter = 0 ; timed_counter < TIMED_COUNT ; timed_counter++)
 	{
-		if (p_ptr->muta2 & COR2_BERS_RAGE)
+		if(  *(timed[timed_counter].timer) > 0   )
 		{
-			info[i++] = "You are subject to berserker fits.";
+			info[i] = NULL;
+			timed_info[i++] = timed[timed_counter].status;
 		}
-		if (p_ptr->muta2 & COR2_COWARDICE)
-		{
-			info[i++] = "You are subject to cowardice.";
-		}
-		if (p_ptr->muta2 & COR2_RTELEPORT)
-		{
-			info[i++] = "You are teleporting randomly.";
-		}
-		if (p_ptr->muta2 & COR2_FORGET)
-		{
-			info[i++] = "You are subject to fits of amnesia.";
-		}
-		if (p_ptr->muta2 & COR2_HALLU)
-		{
-			info[i++] = "You have a hallucinatory insanity.";
-		}
-		if (p_ptr->muta2 & COR2_BRIMSTONE)
-		{
-			info[i++] = "You are occasionally surrounded with brimstone.";
-		}
-		if (p_ptr->muta2 & COR2_PROD_MANA)
-		{
-			info[i++] = "You are producing magical energy uncontrollably.";
-		}
-		if (p_ptr->muta2 & COR2_ATT_DEMON)
-		{
-			info[i++] = "You attract demons.";
-		}
-		if (p_ptr->muta2 & COR2_POISON_FANGS)
-		{
-			info[i++] = "You have poison fangs (poison, 3d7).";
-		}
-		if (p_ptr->muta2 & COR2_CLAWS)
-		{
-			info[i++] = "You have razor sharp claws (dam. 2d6).";
-		}
-		if (p_ptr->muta2 & COR2_LARGE_HORNS)
-		{
-			info[i++] = "You have large horns on your head (dam. 2d4).";
-		}
-		if (p_ptr->muta2 & COR2_SPEED_FLUX)
-		{
-			info[i++] = "You move faster or slower randomly.";
-		}
-		if (p_ptr->muta2 & COR2_BANISH_ALL)
-		{
-			info[i++] = "You sometimes cause nearby creatures to vanish.";
-		}
-		if (p_ptr->muta2 & COR2_EAT_LIGHT)
-		{
-			info[i++] = "You sometimes feed off of the light around you.";
-		}
-		if (p_ptr->muta2 & COR2_SMALL_HORNS)
-		{
-			info[i++] = "You have small horns on your head (dam 1d4).";
-		}
-		if (p_ptr->muta2 & COR2_ATT_ANIMAL)
-		{
-			info[i++] = "You attract animals.";
-		}
-		if (p_ptr->muta2 & COR2_SPINES)
-		{
-			info[i++] = "You have bony spines on your joints (dam 2d5).";
-		}
-		if (p_ptr->muta2 & COR2_RAW_CHAOS)
-		{
-			info[i++] = "You occasionally are surrounded with raw chaos.";
-		}
-		if (p_ptr->muta2 & COR2_NORMALITY)
-		{
-			info[i++] = "You may be corrupted, but you're recovering.";
-		}
-		if (p_ptr->muta2 & COR2_WRAITH)
-		{
-			info[i++] = "You fade in and out of physical reality.";
-		}
-		if (p_ptr->muta2 & COR2_POLY_WOUND)
-		{
-			info[i++] = "Your health is subject to chaotic forces.";
-		}
-		if (p_ptr->muta2 & COR2_WASTING)
-		{
-			info[i++] = "You have a horrible wasting disease.";
-		}
-		if (p_ptr->muta2 & COR2_ATT_DRAGON)
-		{
-			info[i++] = "You attract dragons.";
-		}
-		if (p_ptr->muta2 & COR2_WEIRD_MIND)
-		{
-			info[i++] = "Your mind randomly expands and contracts.";
-		}
-		if (p_ptr->muta2 & COR2_NAUSEA)
-		{
-			info[i++] = "You have a seriously upset stomach.";
-		}
-		if (p_ptr->muta2 & COR2_PATRON)
-		{
-			info[i++] = "An infernal patron gives you gifts.";
-		}
-		if (p_ptr->muta2 & COR2_INTUITION)
-		{
-			info[i++] = "You notice when miracles change the world.";
-		}
-		if (p_ptr->muta2 & COR2_WARNING)
-		{
-			info[i++] = "You receive warnings about your foes.";
-		}
-		if (p_ptr->muta2 & COR2_INVULN)
-		{
-			info[i++] = "You occasionally feel invincible.";
-		}
-		if (p_ptr->muta2 & COR2_SP_TO_HP)
-		{
-			info[i++] = "Your blood sometimes rushes to your muscles.";
-		}
-		if (p_ptr->muta2 & COR2_HP_TO_SP)
-		{
-			info[i++] = "Your blood sometimes rushes to your head.";
-		}
-		if (p_ptr->muta2 & COR2_DISARM)
-		{
-			info[i++] = "You occasionally stumble and drop things.";
-		}
-	}
-
-	if (p_ptr->muta3)
-	{
-		if (p_ptr->muta3 & COR3_HYPER_STR)
-		{
-			info[i++] = "You are superhumanly strong (+4 STR).";
-		}
-		if (p_ptr->muta3 & COR3_PUNY)
-		{
-			info[i++] = "You are puny (-4 STR).";
-		}
-		if (p_ptr->muta3 & COR3_HYPER_INT)
-		{
-			info[i++] = "You are a genius (+4 INT/WIS).";
-		}
-		if (p_ptr->muta3 & COR3_IDIOTIC)
-		{
-			info[i++] = "You are an idiot (-4 INT/WIS).";
-		}
-		if (p_ptr->muta3 & COR3_RESILIENT)
-		{
-			info[i++] = "You are very resilient (+4 CON).";
-		}
-		if (p_ptr->muta3 & COR3_XTRA_FAT)
-		{
-			info[i++] = "You are extremely fat (+2 CON, -2 speed).";
-		}
-		if (p_ptr->muta3 & COR3_ALBINO)
-		{
-			info[i++] = "You are albino (-4 CON).";
-		}
-		if (p_ptr->muta3 & COR3_FLESH_ROT)
-		{
-			info[i++] = "Your flesh is rotting (-2 CON, -1 CHA).";
-		}
-		if (p_ptr->muta3 & COR3_SILLY_VOI)
-		{
-			info[i++] = "Your voice is a hoarse rasp (-4 CHA).";
-		}
-		if (p_ptr->muta3 & COR3_FORKED_TONGUE)
-		{
-			info[i++] = "You have a forked tongue (-1 CHA).";
-		}
-		if (p_ptr->muta3 & COR3_ILL_NORM)
-		{
-			info[i++] = "Your appearance is masked with illusion.";
-		}
-		if (p_ptr->muta3 & COR3_GLOW_EYES)
-		{
-			info[i++] = "You have glowing eyes (+15 search).";
-		}
-		if (p_ptr->muta3 & COR3_MAGIC_RES)
-		{
-			info[i++] = "You are resistant to magic.";
-		}
-		if (p_ptr->muta3 & COR3_STENCH)
-		{
-			info[i++] = "You have a stench of the grave about you (-3 stealth).";
-		}
-		if (p_ptr->muta3 & COR3_INFRAVIS)
-		{
-			info[i++] = "You have remarkable infravision (+3).";
-		}
-		if (p_ptr->muta3 & COR3_GOAT_LEGS)
-		{
-			info[i++] = "You have goat legs with cloven hooves (+3 speed).";
-		}
-		if (p_ptr->muta3 & COR3_SHORT_LEG)
-		{
-			info[i++] = "Your legs are short stubs (-3 speed).";
-		}
-		if (p_ptr->muta3 & COR3_ELEC_TOUC)
-		{
-			info[i++] = "Electricity is running through your veins.";
-		}
-		if (p_ptr->muta3 & COR3_FIRE_BODY)
-		{
-#if 0
-			/* Unnecessary, actually... */
-			info[i++] = "Your body is enveloped in flames.";
-#endif
-		}
-		if (p_ptr->muta3 & COR3_WART_SKIN)
-		{
-			info[i++] = "Your skin is covered with warts (-2 CHA, +5 AC).";
-		}
-		if (p_ptr->muta3 & COR3_SCALES)
-		{
-			info[i++] = "Your skin has turned into scales (-1 CHA, +10 AC).";
-		}
-		if (p_ptr->muta3 & COR3_IRON_SKIN)
-		{
-			info[i++] = "Your skin is made of steel (-1 DEX, +25 AC).";
-		}
-		if (p_ptr->muta3 & COR3_WINGS)
-		{
-			info[i++] = "You have wings.";
-		}
-		if (p_ptr->muta3 & COR3_FEARLESS)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & COR3_REGEN)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & COR3_ESP)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & COR3_LIMBER)
-		{
-			info[i++] = "Your body is very limber (+3 DEX).";
-		}
-		if (p_ptr->muta3 & COR3_ARTHRITIS)
-		{
-			info[i++] = "Your joints ache constantly (-3 DEX).";
-		}
-		if (p_ptr->muta3 & COR3_RES_TIME)
-		{
-			info[i++] = "You are protected from the ravages of time.";
-		}
-		if (p_ptr->muta3 & COR3_VULN_ELEM)
-		{
-			info[i++] = "You are susceptible to damage from the elements.";
-		}
-		if (p_ptr->muta3 & COR3_MOTION)
-		{
-			info[i++] = "Your movements are precise and forceful (+1 STL).";
-		}
-		if (p_ptr->muta3 & COR3_SUS_STATS)
-		{
-			/* Unnecessary */
-		}
-	}
-
-
-
-	if (p_ptr->blind)
-	{
-		info[i++] = "You cannot see.";
-	}
-	if (p_ptr->confused)
-	{
-		info[i++] = "You are confused.";
-	}
-	if (p_ptr->afraid)
-	{
-		info[i++] = "You are terrified.";
-	}
-	if (p_ptr->cut)
-	{
-		info[i++] = "You are bleeding.";
-	}
-	if (p_ptr->stun)
-	{
-		info[i++] = "You are stunned.";
-	}
-	if (p_ptr->poisoned)
-	{
-		info[i++] = "You are poisoned.";
-	}
-	if (p_ptr->image)
-	{
-		info[i++] = "You are hallucinating.";
-	}
+	}	
 
 	if (p_ptr->aggravate)
 	{
@@ -1301,36 +765,8 @@ void self_knowledge(void)
 	if (p_ptr->teleport)
 	{
 		info[i++] = "Your position is very uncertain.";
-	}
-
-	if (p_ptr->blessed)
-	{
-		info[i++] = "You feel rightous.";
-	}
-	if (p_ptr->hero)
-	{
-		info[i++] = "You feel heroic.";
-	}
-	if (p_ptr->shero)
-	{
-		info[i++] = "You are in a battle rage.";
-	}
-	if (p_ptr->protevil)
-	{
-		info[i++] = "You are protected from evil.";
-	}
-	if (p_ptr->shield)
-	{
-		info[i++] = "You are protected by a mystic shield.";
-	}
-	if (p_ptr->invuln)
-	{
-		info[i++] = "You are temporarily invulnerable.";
-	}
-	if (p_ptr->wraith_form)
-	{
-		info[i++] = "You are temporarily incorporeal.";
-	}
+	}		
+	
 	if (p_ptr->confusing)
 	{
 		info[i++] = "Your hands are glowing dull red.";
@@ -1394,7 +830,7 @@ void self_knowledge(void)
 		info[i++] = "You are surrounded with electricity.";
 	}
 
-	if (p_ptr->anti_magic || p_ptr->magic_shell)
+	if (p_ptr->anti_magic)
 	{
 		info[i++] = "You are surrounded by an anti-magic shell.";
 	}
@@ -1415,7 +851,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You resist acid exceptionally well.";
 	}
-	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
+	else if ((p_ptr->resist_acid))
 	{
 		info[i++] = "You are resistant to acid.";
 	}
@@ -1428,11 +864,10 @@ void self_knowledge(void)
 	{
 		info[i++] = "You resist lightning exceptionally well.";
 	}
-	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
+	else if ((p_ptr->resist_elec))
 	{
 		info[i++] = "You are resistant to lightning.";
 	}
-
 	if (p_ptr->immune_fire)
 	{
 		info[i++] = "You are completely immune to fire.";
@@ -1441,7 +876,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You resist fire exceptionally well.";
 	}
-	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
+	else if ((p_ptr->resist_fire))
 	{
 		info[i++] = "You are resistant to fire.";
 	}
@@ -1454,7 +889,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You resist cold exceptionally well.";
 	}
-	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
+	else if ((p_ptr->resist_cold))
 	{
 		info[i++] = "You are resistant to cold.";
 	}
@@ -1463,7 +898,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You resist poison exceptionally well.";
 	}
-	else if ((p_ptr->resist_pois) || (p_ptr->oppose_pois))
+	else if ((p_ptr->resist_pois))
 	{
 		info[i++] = "You are resistant to poison.";
 	}
@@ -1604,7 +1039,7 @@ void self_knowledge(void)
 
 		if (f1 & (TR1_CHAOTIC))
 		{
-			info[i++] = "Your weapon is branded with the Yellow Sign.";
+			info[i++] = "Your weapon is branded with Abyssal runes.";
 		}
 		/* Hack */
 		if (f1 & (TR1_IMPACT))
@@ -1645,8 +1080,6 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon poisons your foes.";
 		}
-
-
 
 		/* Special "slay" flags */
 		if (f1 & (TR1_SLAY_ANIMAL))
@@ -1702,8 +1135,19 @@ void self_knowledge(void)
 	/* We will print on top of the map (column 13) */
 	for (k = 2, j = 0; j < i; j++)
 	{
-		/* Show the info */
-		prt(info[j], k++, 15);
+		
+		if( info[j] != NULL )
+		{
+			/* Show the info */
+			prt(info[j], k++, 15);			
+		}
+		else 
+		{
+			/*Prepare and dump the info */
+			sprintf(dummy, "You are temporarily %s.", timed_info[j]);
+			prt(dummy, k++, 15);			
+
+		}
 
 		/* Every 20 entries (lines 2 to 21), start over */
 		if ((k == 22) && (j+1 < i))
@@ -2846,9 +2290,8 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	if (num_ac) item_tester_hook = item_tester_hook_armour;
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Enchant which item? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Enchant which item? ", "You have nothing to enchant.", USE_FLOOR | USE_EQUIP | USE_INVEN))
 	{
-		if (item == -2) msg_print("You have nothing to enchant.");
 		return (FALSE);
 	}
 
@@ -4315,9 +3758,8 @@ bool artefact_scroll()
 	item_tester_hook = item_tester_hook_weapon;
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Enchant which item? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Enchant which item? ", "You have nothing to enchant.", USE_FLOOR | USE_EQUIP | USE_INVEN))
 	{
-		if (item == -2) msg_print("You have nothing to enchant.");
 		return (FALSE);
 	}
 
@@ -4399,9 +3841,8 @@ bool ident_spell(void)
 
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Identify which item? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Identify which item? ", "You have nothing to identify.", USE_FLOOR | USE_EQUIP | USE_INVEN))
 	{
-		if (item == -2) msg_print("You have nothing to identify.");
 		return (FALSE);
 	}
 
@@ -4471,9 +3912,8 @@ bool identify_fully(void)
 
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Identify which item? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Identify which item? ", "You have nothing to identify.", USE_FLOOR | USE_EQUIP | USE_INVEN))
 	{
-		if (item == -2) msg_print("You have nothing to identify.");
 		return (FALSE);
 	}
 
@@ -4586,9 +4026,8 @@ bool recharge(int num)
 	item_tester_hook = item_tester_hook_recharge;
 
 	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Recharge which item? ", FALSE, TRUE, TRUE))
+	if (!get_item(&item, "Recharge which item? ", "You have nothing to recharge.", USE_FLOOR | USE_EQUIP | USE_INVEN))
 	{
-		if (item == -2) msg_print("You have nothing to recharge.");
 		return (FALSE);
 	}
 
@@ -5219,7 +4658,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
 		{
 			/* Become blind */
-			(void)set_blind(p_ptr->blind + 10 + randint(10));
+			(void)set_timed_effect( TIMED_BLIND , p_ptr->blind + 10 + randint(10));
 		}
 	}
 
@@ -5394,14 +4833,14 @@ void earthquake(int cy, int cx, int r)
 				{
 					msg_print("You are bashed by rubble!");
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint(50));
+					(void)set_timed_effect( TIMED_STUN, p_ptr->stun + randint(50));
 					break;
 				}
 			case 3:
 				{
 					msg_print("You are crushed between the floor and ceiling!");
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint(50));
+					(void)set_timed_effect( TIMED_STUN, p_ptr->stun + randint(50));
 					break;
 				}
 			}
@@ -6306,9 +5745,9 @@ void activate_ty_curse()
 			{
 				msg_print("You feel like a statue!");
 				if (p_ptr->free_act)
-					set_paralyzed (p_ptr->paralyzed + randint(3));
+					set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + randint(3));
 				else
-					set_paralyzed (p_ptr->paralyzed + randint(13));
+					set_timed_effect( TIMED_PARALYZED , p_ptr->paralyzed + randint(13));
 			}
 			if (randint(6)!=1) break;
 		case 21: case 22: case 23:
@@ -6442,9 +5881,8 @@ void bless_weapon(void)
 
 
 	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Bless which weapon? ", TRUE, TRUE, TRUE))
+	if (!get_item(&item, "Bless which weapon? ", "You have no weapon to bless." , USE_FLOOR | USE_EQUIP | USE_INVEN))
 	{
-		if (item == -2) msg_print("You have weapon to bless.");
 		return;
 	}
 
@@ -6865,112 +6303,33 @@ static cptr report_magic_durations[] =
 void report_magics(void)
 {
 	int             i = 0, j, k;
+	int             timed_counter;
 
 	char Dummy[80];
 
 	cptr    info[128];
 	int     info2[128];
-
-	if (p_ptr->blind)
+	
+	/* Handle timed effects */
+	
+	for( timed_counter = 0 ; timed_counter < TIMED_COUNT ; timed_counter++)
 	{
-		info2[i]  = report_magics_aux(p_ptr->blind);
-		info[i++] = "You cannot see";
-	}
-	if (p_ptr->confused)
-	{
-		info2[i]  = report_magics_aux(p_ptr->confused);
-		info[i++] = "You are confused";
-	}
-	if (p_ptr->afraid)
-	{
-		info2[i]  = report_magics_aux(p_ptr->afraid);
-		info[i++] = "You are terrified";
-	}
-	if (p_ptr->poisoned)
-	{
-		info2[i]  = report_magics_aux(p_ptr->poisoned);
-		info[i++] = "You are poisoned";
-	}
-	if (p_ptr->image)
-	{
-		info2[i]  = report_magics_aux(p_ptr->image);
-		info[i++] = "You are hallucinating";
-	}
-
-	if (p_ptr->blessed)
-	{
-		info2[i]  = report_magics_aux(p_ptr->blessed);
-		info[i++] = "You feel rightous";
-	}
-	if (p_ptr->hero)
-	{
-		info2[i]  = report_magics_aux(p_ptr->hero);
-		info[i++] = "You feel heroic";
-	}
-	if (p_ptr->shero)
-	{
-		info2[i]  = report_magics_aux(p_ptr->shero);
-		info[i++] = "You are in a battle rage";
-	}
-	if (p_ptr->magic_shell)
-	{
-		info2[i]  = report_magics_aux(p_ptr->magic_shell);
-		info[i++] = "You are in an anti-magic shell";
+		if(  *(timed[timed_counter].timer) > 0   )
+		{
+			info2[i]  = report_magics_aux( *(timed[timed_counter].timer) );
+			info[i++] = timed[timed_counter].status;
+		}
 	}	
-	if (p_ptr->protevil)
-	{
-		info2[i]  = report_magics_aux(p_ptr->protevil);
-		info[i++] = "You are protected from evil";
-	}
-	if (p_ptr->shield)
-	{
-		info2[i]  = report_magics_aux(p_ptr->shield);
-		info[i++] = "You are protected by a mystic shield";
-	}
-	if (p_ptr->invuln)
-	{
-		info2[i]  = report_magics_aux(p_ptr->invuln);
-		info[i++] = "You are invulnerable";
-	}
-	if (p_ptr->wraith_form)
-	{
-		info2[i]  = report_magics_aux(p_ptr->wraith_form);
-		info[i++] = "You are incorporeal";
-	}
+
 	if (p_ptr->confusing)
 	{
 		info2[i]  = 7;
-		info[i++] = "Your hands are glowing dull red.";
+		info[i++] = "covered with confusing magics";
 	}
 	if (p_ptr->word_recall)
 	{
 		info2[i]  = report_magics_aux(p_ptr->word_recall);
-		info[i++] = "You waiting to be recalled";
-	}
-	if (p_ptr->oppose_acid)
-	{
-		info2[i]  = report_magics_aux(p_ptr->oppose_acid);
-		info[i++] = "You are resistant to acid";
-	}
-	if (p_ptr->oppose_elec)
-	{
-		info2[i]  = report_magics_aux(p_ptr->oppose_elec);
-		info[i++] = "You are resistant to lightning";
-	}
-	if (p_ptr->oppose_fire)
-	{
-		info2[i]  = report_magics_aux(p_ptr->oppose_fire);
-		info[i++] = "You are resistant to fire";
-	}
-	if (p_ptr->oppose_cold)
-	{
-		info2[i]  = report_magics_aux(p_ptr->oppose_cold);
-		info[i++] = "You are resistant to cold";
-	}
-	if (p_ptr->oppose_pois)
-	{
-		info2[i]  = report_magics_aux(p_ptr->oppose_pois);
-		info[i++] = "You are resistant to poison";
+		info[i++] = "waiting to be recalled";
 	}
 
 	/* Save the screen */
@@ -6986,7 +6345,7 @@ void report_magics(void)
 	for (k = 2, j = 0; j < i; j++)
 	{
 		/* Show the info */
-		sprintf( Dummy, "%s %s.", info[j],
+		sprintf( Dummy, "You are %s %s.", info[j],
 			report_magic_durations[info2[j]] );
 		prt(Dummy, k++, 15);
 

@@ -239,7 +239,7 @@
 #Nicomedian
 #
 
-V:0.8.4
+V:0.8.5
 
 
 ##### The Player #####
@@ -1822,9 +1822,9 @@ N:134:Pluto
 G:U:y
 I:120:4:24d10:20:60:20
 W:8:3:0:300
-B:BITE:HURT:2d6
+B:CLAW:HURT:2d6
 F:UNIQUE | MALE | 
-F:FORCE_MAXHP | BASH_DOOR |
+F:FORCE_MAXHP | BASH_DOOR | DROP_60 | DROP_90 | ONLY_GOLD | DROP_4D2 | DROP_3D2
 F:EVIL | IM_FIRE | IM_COLD | RES_ELEC | RES_POIS | DEMON
 D:Pluto is meant to symbolize riches, as he is the god of wealth that 
 D:springs from soil in ancient mythology. This is appropriate because he 
@@ -4458,7 +4458,7 @@ I:110:2:25d12:16:60:30
 W:22:3:0:270
 B:BITE:HURT:5d4
 B:WAIL:TERRIFY:5d6
-F:WEIRD_MIND | BASH_DOOR | UNIQUE
+F:WEIRD_MIND | BASH_DOOR | UNIQUE | REBORN
 D:Fra Dolcino in 1300 headed the Apostolic Brothers, an outlawed religious sect 
 D:that was forcibly suppressed; he was burned at the stake in 1307. 
 
@@ -4468,7 +4468,7 @@ I:110:2:25d12:16:60:30
 W:22:3:0:270
 B:BITE:HURT:5d4
 B:WAIL:TERRIFY:5d6
-F:WEIRD_MIND | BASH_DOOR | UNIQUE
+F:WEIRD_MIND | BASH_DOOR | UNIQUE | REBORN
 D:Pier da Medicina, driven from Romagna in 1287, intrigued among its rulers 
 D:to turn them against themselves. 
 
@@ -4478,7 +4478,7 @@ I:110:2:25d12:16:60:30
 W:22:3:0:270
 B:BITE:HURT:5d4
 B:WAIL:TERRIFY:5d6
-F:WEIRD_MIND | BASH_DOOR | UNIQUE
+F:WEIRD_MIND | BASH_DOOR | UNIQUE | REBORN
 D:To acquire Fano for himself, invited Angiolello da Carignano and Guido del Cassero, 
 D:two of the town’s leaders, to meet him at La Cattolica, a cape between the two towns, 
 D:and had them drowned. 
@@ -4489,7 +4489,7 @@ I:110:2:25d12:16:60:30
 W:22:3:0:270
 B:BITE:HURT:5d4
 B:WAIL:TERRIFY:5d6
-F:WEIRD_MIND | BASH_DOOR | UNIQUE
+F:WEIRD_MIND | BASH_DOOR | UNIQUE | REBORN
 D:Curio is said by the Roman poet Lucan to have urged Caesar to cross the Rubicon, 
 D:declaring war on the Republic in 49 B.C. 
 
@@ -4499,7 +4499,7 @@ I:110:2:25d12:16:60:30
 W:22:3:0:270
 B:BITE:HURT:5d4
 B:WAIL:TERRIFY:5d6
-F:WEIRD_MIND | BASH_DOOR | UNIQUE
+F:WEIRD_MIND | BASH_DOOR | UNIQUE | REBORN
 D:Mosca dei Lamberti suggested that one of the Buondelmonti be murdered rather than 
 D:beaten; the act resulted in the strife between Ghibellines and Guelphs. 
 
@@ -4509,7 +4509,7 @@ I:110:2:25d12:16:60:30
 W:22:3:0:270
 B:BITE:HURT:5d4
 B:WAIL:TERRIFY:5d6
-F:WEIRD_MIND | BASH_DOOR | UNIQUE
+F:WEIRD_MIND | BASH_DOOR | UNIQUE | REBORN
 D:Bertran de Born (1140-1215), a knight and troubadour, who was believed to have 
 D:instigated a quarrel between Henry II of England and his son. He now walks around 
 D:carrying his head in his hands. 
@@ -4520,7 +4520,7 @@ I:110:2:25d12:16:60:30
 W:22:3:0:270
 B:BITE:HURT:5d4
 B:WAIL:TERRIFY:5d6
-F:WEIRD_MIND | BASH_DOOR | UNIQUE
+F:WEIRD_MIND | BASH_DOOR | UNIQUE | REBORN
 D:Geri del Bello was a first cousin of Dante’s father. Since he was slain in a feud, 
 D:the family is called to revenge his death.. 
 
@@ -4703,9 +4703,9 @@ B:HIT:HURT:5d5
 B:BITE:HURT:2d10
 B:HIT:COLD:5d5
 B:BITE:COLD:2d10
-F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL
+F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL | REBORN
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
-F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
+F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE 
 S:1_IN_2 | 
 S:TELE_TO | BO_ICEE | BA_CHAO
 D:Nimrod is commonly credited with building the Tower of Babel (Genesis 10: 8-10, 11:1-9), which is the cause for the different languages among people. 
@@ -4718,7 +4718,7 @@ B:HIT:HURT:5d5
 B:BITE:HURT:2d10
 B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
-F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL
+F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL | REBORN
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
 F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_8 | 
@@ -4733,7 +4733,7 @@ B:HIT:HURT:5d5
 B:BITE:HURT:2d10
 B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
-F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL
+F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL | REBORN
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
 F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_2 | 
@@ -4748,7 +4748,7 @@ B:HIT:HURT:5d5
 B:BITE:HURT:2d10
 B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
-F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL
+F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL | REBORN
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
 F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_2 | 
@@ -4763,7 +4763,7 @@ B:HIT:HURT:5d5
 B:BITE:HURT:2d10
 B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
-F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL
+F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL | REBORN
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
 F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_2 | 
@@ -4778,7 +4778,7 @@ B:HIT:HURT:5d5
 B:BITE:HURT:2d10
 B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
-F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL
+F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL | REBORN
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
 F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_2 | 
@@ -4793,7 +4793,7 @@ B:HIT:HURT:5d5
 B:BITE:HURT:2d10
 B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
-F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL
+F:UNIQUE | MALE | NEVER_MOVE | NEUTRAL | REBORN
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
 F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_2 | 
@@ -6732,7 +6732,7 @@ D:lightning speed and its powers make it a tornado of death and destruction.
 N:477:Nalfeshnee
 G:U:r
 I:110:4:450d1:20:50:80
-W:41:1:0:50000
+W:41:1:0:5000
 B:HIT:POISON:3d4
 B:HIT:POISON:3d4
 B:HIT:POISON:3d4
@@ -7174,7 +7174,7 @@ D:defiance.
 N:502:Barbazu
 G:U:G
 I:120:4:530d1:25:60:80
-W:47:2:0:100000
+W:47:2:0:9500
 B:HIT:POISON:4d10
 B:HIT:POISON:4d10
 B:HIT:LOSE_CON:10d2
@@ -7407,7 +7407,7 @@ D:and riding a bear. Before him you hear many trumpets sounding.
 
 N:515:Revenant
 G:W:u
-I:125:3:83d2:30:35:5
+I:125:3:830d4:30:35:5
 W:53:1:0:23000
 B:HIT:HURT:2d10
 B:HIT:HURT:2d10
@@ -7874,7 +7874,7 @@ D:cloaked figure floats towards you.
 N:540:Osyluth
 G:U:W
 I:130:6:1750d1:20:75:80
-W:64:2:0:800000
+W:64:2:0:16000
 B:BITE:POISON:8d8
 B:HIT:LOSE_CHA:6d6
 B:HIT:POISON:6d6
@@ -8320,7 +8320,7 @@ D:"I am called Envy. For I delight to devour heads, being desirous to secure for
 N:563:Pit Fiend
 G:U:o
 I:130:7:2770d1:30:120:75
-W:76:2:0:2300000
+W:76:2:0:18000
 B:BITE:LOSE_CON:5d10
 B:BITE:POISON:5d10
 B:CLAW:FIRE:6d10
@@ -8337,7 +8337,7 @@ D:commanders of vast demon armies.
 N:564:Hell knight
 G:p:s
 I:120:3:15d70:20:65:10
-W:76:1:0:460000
+W:76:1:0:9000
 B:HIT:HURT:10d5
 B:HIT:HURT:10d5
 B:HIT:HURT:10d5

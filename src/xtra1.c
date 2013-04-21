@@ -3,12 +3,21 @@
 /* Purpose: misc code */
 
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ *
+ * James E. Wilson and Robert A. Koeneke and Ben Harrison have released all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2 or any later version), 
+ * or under the terms of the traditional Angband license. 
+ *
+ * All changes in Hellband are Copyright (c) 2005-2007 Konijn
+ * I Konijn  release all changes to the Angband code under the terms of the GNU General Public License (version 2),
+ * as well as under the traditional Angband license. It may be redistributed under the terms of the GPL (version 2), 
+ * or under the terms of the traditional Angband license. 
+ */
 
 #include "angband.h"
 
@@ -331,8 +340,15 @@ static void prt_level(void)
 static void prt_exp(void)
 {
 	char out_val[32];
-
-	(void)sprintf(out_val, "%8ld", (long)p_ptr->exp);
+    
+    if (p_ptr->lev >= PY_MAX_LEVEL)
+	{
+        (void)sprintf(out_val, "********");
+	}
+	else
+	{
+		(void)sprintf(out_val, "%8ld",  reverse_xp?(long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L - p_ptr->exp):(long)p_ptr->exp);
+	}
 
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
@@ -1407,7 +1423,7 @@ static void fix_monster(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(window_flag[j] & (PW_MONSTER))) continue;
+		if (!(window_flag[j] & (PW_VISIBLE))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -1456,9 +1472,40 @@ static void fix_object(void)
 	}
 }
 
+/*
+ * Hack -- display visible monster list in sub-windows
+ */
+static void fix_visible(void)
+{
+	int j;
+    
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+        
+		/* No window */
+		if (!angband_term[j]) continue;
+        
+		/* No relevant flags */
+        if (!(window_flag[j] & (PW_VISIBLE))) continue;
+        
+		/* Activate */
+		Term_activate(angband_term[j]);
+        
+		/* Display monster list */
+		display_visible();
+        
+		/* Fresh */
+		Term_fresh();
+        
+		/* Restore */
+		Term_activate(old);
+	}
+}
 
 /*
-* Calculate number of spells player should have, and forget,
+ * Calculate number of spells player should have, and forget,
 * or remember, spells until that number is properly reflected.
 *
 * Note that this function induces various "status" messages,
@@ -1473,6 +1520,9 @@ static void calc_spells(void)
 	int use_realm2 = p_ptr->realm2 - 1;
 	int which;
 	int max_spells;
+    
+    magic_type   s_magic;
+    magic_type  *s_ptr = &s_magic;
 
 	cptr p = ((mp_ptr->spell_book == TV_SORCERY_BOOK) ? "spell" : "prayer");
 
@@ -1533,11 +1583,11 @@ static void calc_spells(void)
 		/* Get the spell */
 		if (j < 32){
 		/* Access the spell */
-			get_spell_info( use_realm1, j , s_ptr );
+			get_extended_spell_info( use_realm1, j , s_ptr );
 		}
 		else{
 		/* Access the spell */
-			get_spell_info( use_realm2, j%32 , s_ptr );
+			get_extended_spell_info( use_realm2, j%32 , s_ptr );
 		}
 
 		/* Skip spells we are allowed to know */
@@ -1651,10 +1701,10 @@ static void calc_spells(void)
 
 		/* Get the spell */
 		if (j < 32){
-			get_spell_info( use_realm1, j , s_ptr );
+			get_extended_spell_info( use_realm1, j , s_ptr );
 		}
 		else{
-			get_spell_info( use_realm2, j%32 , s_ptr );
+			get_extended_spell_info( use_realm2, j%32 , s_ptr );
 		}
 
 		/* Skip spells we cannot remember */
@@ -1706,10 +1756,10 @@ static void calc_spells(void)
 	{
 		/* Get the spell */
 		if (j < 32){
-			get_spell_info( use_realm1, j , s_ptr );
+			get_extended_spell_info( use_realm1, j , s_ptr );
 		}
 		else{
-			get_spell_info( use_realm2, j%32 , s_ptr );
+			get_extended_spell_info( use_realm2, j%32 , s_ptr );
 		}
 		
 		/* Skip spells we cannot remember */
@@ -3563,7 +3613,6 @@ void update_stuff(void)
 	/* Update stuff */
 	if (!p_ptr->update) return;
 
-	if(arg_fiddle)msg_note( "About to calc_bonuses" );
 	if (p_ptr->update & (PU_BONUS))
 	{
 		p_ptr->update &= ~(PU_BONUS);
@@ -3588,13 +3637,12 @@ void update_stuff(void)
 		calc_mana();
 	}
 	
-	if(arg_fiddle)msg_note( "About to calc_spells" );
+
 	if (p_ptr->update & (PU_SPELLS))
 	{
 		p_ptr->update &= ~(PU_SPELLS);
 		calc_spells();
 	}
-	if(arg_fiddle)msg_note( "Post calc_spells" );	
 
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;
@@ -3933,6 +3981,13 @@ void window_stuff(void)
 	{
 		p_ptr->window &= ~(PW_OBJECT);
 		fix_object();
+	}
+    
+    /* Display monster list */
+	if (p_ptr->window & (PW_VISIBLE))
+	{
+		p_ptr->window &= ~(PW_VISIBLE);
+		fix_visible();
 	}
 }
 
