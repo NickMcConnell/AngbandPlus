@@ -3,7 +3,7 @@
 #|
 
 DESC: print.lisp - various display code
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -134,7 +134,7 @@ ADD_DESC: Various code which just prints stuff somewhere
   "Prints AC to left frame."
   
   (let ((ac (+ (player.base-ac pl)
-	       (player.ac-bonus pl)))
+	       (player.ac-modifier pl)))
 	(ac-set (slot-value setting 'ac)))
 
     (c-prt-token! +term-white+ +token-cur-ac+ (car ac-set) (cdr ac-set))
@@ -364,7 +364,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 
     (c-put-str! "Armour" 10 col)
     (c-col-put-str! +term-l-blue+
-		   (format nil "~12@a" (format nil "[~d,~@d]" (player.base-ac pl) (player.ac-bonus pl)))
+		   (format nil "~12@a" (format nil "[~d,~@d]" (player.base-ac pl) (player.ac-modifier pl)))
 		   10 (1+ f-col))
 
 ;;    (let ((weapon (get-weapon pl)))
@@ -519,4 +519,127 @@ ADD_DESC: Various code which just prints stuff somewhere
 
   )
 
-;;(trace print-basic-frame)
+
+;; no warning on duplicates
+(defun register-help-topic& (variant topic)
+  "Registers a help-topic with the variant."
+  (setf (gethash (help-topic-id topic) (variant.help-topics variant)) topic))
+
+
+(defun display-help-topics (variant title start-row)
+  "Displays help-topics to screen and asks for input on further help."
+  (let ((topics (variant.help-topics variant))
+	(title-len (length title)))
+
+    (flet ((show-title ()
+	     (c-col-put-str! +term-l-blue+ title start-row 12)
+	     (c-col-put-str! +term-l-blue+ (make-string title-len :initial-element #\=)
+			     (1+ start-row) 12))
+	   (show-entries ()
+	     (loop for cnt from 3
+		   for i being the hash-values of topics
+		   do
+		   (let ((key (help-topic-key i)))
+		     (c-col-put-str! +term-l-green+ (format nil "~a." key) (+ start-row cnt) 3)
+		     (c-col-put-str! +term-l-green+ (help-topic-name i) (+ start-row cnt) 6)
+		     )))
+	   (get-valid-key ()
+	     (c-col-put-str! +term-l-blue+ "-> Please enter selection (Esc to exit): " 20 3)
+	     (read-one-character)))
+
+      (loop 
+       (show-title)
+       (show-entries)
+       (let ((key (get-valid-key)))
+	 (when (eql key +escape+)
+	   (return-from display-help-topics nil)))
+       ))))
+
+(defun print-attack-graph (var-obj player)
+;;  (declare (ignore player))
+    (c-clear-from! 0)
+    
+    (dotimes (i 10)
+      (let ((y (- 19 (* i 2))))
+	(c-col-put-str! +term-l-blue+ (format nil "~3d%" (* i 10))
+			y 3)))
+    (dotimes (i 20)
+      (c-col-put-str! +term-l-blue+ "|" i 7))
+
+    (c-col-put-str! +term-l-blue+ "CHANCE TO HIT" 1 64)
+    (c-col-put-str! +term-l-blue+ "=============" 2 64)
+    
+    (c-col-put-str! +term-l-red+ "Unarm." 20 8)
+    (c-col-put-str! +term-white+ "Leath." 21 13)
+    (c-col-put-str! +term-orange+ "L. met." 22 18)
+    (c-col-put-str! +term-yellow+ "Met." 20 22)
+    (c-col-put-str! +term-violet+ "H. Met." 21 26)
+    (c-col-put-str! +term-l-green+ "Plate" 22 30)
+    (c-col-put-str! +term-l-red+ "H. Plate" 20 35)
+    (c-col-put-str! +term-white+ "Dragon" 21 40)
+    (c-col-put-str! +term-orange+ "H. Dragon" 22 44)
+    (c-col-put-str! +term-yellow+ "Ench Drg" 20 50)
+    (c-col-put-str! +term-violet+ "Legend" 21 62)
+    (c-col-put-str! +term-l-green+ "Myth" 22 74)
+
+    (let ((skill (get-known-combat-skill var-obj player)))
+      
+      (flet ((get-x (val)
+	       (+ 8 val))
+	     (get-y (val)
+	       (- 19 (int-/ val 5))))
+	(loop for i from 5 to 180 by 5
+	      for j from 1 by 2
+	      do
+	      (let ((chance (get-chance var-obj skill i))
+		    (desc (get-armour-desc var-obj i)))
+		(check-type desc cons)
+		(c-col-put-str! (cdr desc) "*" (get-y chance)
+				(get-x j)))
+	      
+	      )))
+      
+			    
+    (c-pause-line! *last-console-line*)
+    )
+
+(defun print-attack-table (var-obj player)
+;;  (declare (ignore player))
+    (c-clear-from! 0)
+
+    (c-col-put-str! +term-l-blue+ "CHANCE TO HIT" 0 2)
+    (c-col-put-str! +term-l-blue+ "=============" 1 2)
+    (let ((last-colour +term-green+)
+	  (count 2)
+	  (skill (get-known-combat-skill var-obj player)))
+      (loop for i from 5 to 200 by 10
+	    
+	    do
+	    (let ((desc (get-armour-desc var-obj i))
+		  (chance (get-chance var-obj skill i)))
+	      (check-type desc cons)
+	      (cond ((equal last-colour (cdr desc))
+		     ;; next
+		     )
+		    (t
+		     (setf last-colour (cdr desc))
+		     (incf count)
+		     (c-col-put-str! (cdr desc) (format nil "~40a: ~a%" (car desc) chance)
+				     count 4)
+		     ))
+	      ))
+
+      (c-print-text! 2 16 +term-l-blue+ "
+The armour-value describes a full set-up of armour, including
+    helmet, shield, gloves, boots, cloak and body-armour.  Parts of
+    the outfit is expected to have appropriate enchantments, e.g a
+    dragon-armour will always be slightly enchanted, just as a
+    full-plate combat armour is enchanted to allow it's wearer to move
+    at all.  A creature can have natural armour, but
+    it might be just as tough as plated armour and as such use the
+    plated armour label. " :end-col 75)
+
+      
+      
+      (c-pause-line! *last-console-line*)
+      ))

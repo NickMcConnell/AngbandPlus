@@ -1,3 +1,66 @@
+2002-01-05  Stig E Sandø <stig@users.sourceforge.net>
+	* Renamed slots in the game-values object to be more precise and
+	then updated all places these are used.
+	* Made all creation of game-values go via an error-checking
+	function.
+	* Added message when you stand atop items in dungeons after a
+	move.
+	* Altered player stat-system to be slightly simpler and more
+	logical
+	* Tweaked more effect and element-code and fixed bugs that were
+	found for elements.  Made game-values use bit-fields for elements.
+	* Renamed high-score file
+	* Added copy-function for active-object
+	* Added code to display to-hit vs armour in the game
+	* Simplified update of player slightly.. does not cons anymore
+	* Altered some stat-keywords
+	* Fixed some bugs in the store
+	* Made a new splash-screen
+	* Tried to update compat-code slightly.. it is fairly broken
+	* Other minor tweaks
+	
+	
+2001-12-16  Stig E Sandø <stig@users.sourceforge.net>
+	* Started to add code for effects and elements (core.lisp)
+	* Updated more of the tests to work with current source-base
+	* Minor tweaks
+	
+2001-12-15  Stig E Sandø <stig@users.sourceforge.net>
+	* Removed parts of the C-code and moved simpler C-functions to
+	lisp-side.
+	* Added search-code, hackish but it works
+	* Added improved activation info for dungeon/level
+	* Several minor tweaks
+	
+2001-12-09  Stig E Sandø <stig@users.sourceforge.net>
+	* Added verify-id to base.lisp
+	* Made monster.lisp verify ids during define-*, also made it more
+	picky and added a few keywords.
+	* Better combat-message for misses
+	* Quitters do not enter the high-score
+	* Started on the help-code (core.lisp,print.lisp)
+	* Minor tweaks
+
+2001-12-08  Stig E Sandø <stig@users.sourceforge.net>
+	* Enforced id-policy, ie all savable objects should have a
+	lowercase string as id, not a symbol.  
+	* Made sex a struct and a sexes-entry in the variant object for
+	the variant to tailour the alternatives. Removed old +sexes+
+	constant.  Edited all code that depended on this.
+	* Updated id/symbol policy for class and race and altered the
+	classes and helper-functions slightly to do things gracefully.
+	The classes and races tables in variants are indexed both by
+	symbol and string, so any attempts to get all entries should
+	remove-duplicates.
+	* Fixed several save/load issues that has been problematic and
+	hidden, and now the saved code should not differ between
+	lowercase/upcase and lisp-system.  Also needed to tune some parts
+	to factories.
+	* Updated id/symbol policy wrt levels
+	* Updated some docs about id/policy
+	* Fixed crash which prevented people from selling to shops.
+	* Several small fixes
+	
 2001-12-07  Stig E Sandø <stig@users.sourceforge.net>
 	* Improved repainting-code through active flag-use, borrowed
 	heavily from angband.  Should give speedup. (may still have bugs)

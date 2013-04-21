@@ -75,9 +75,9 @@ the Free Software Foundation; either version 2 of the License, or
      (:module basic
               :source-pathname ""
               :components ((:file "memoize")
-			   (:file "base")
-			   (:file "constants")
-			   (:file "dyn-vars")
+			   (:file "base" :depends-on ("memoize"))
+			   (:file "constants" :depends-on ("base"))
+			   (:file "dyn-vars" :depends-on ("base"))
 			   (:file "generics")
 			   (:file "sys")
 			   (:file "event" :depends-on ("generics"))

@@ -65,21 +65,20 @@ How to play:
     d - drop an item to the ground
     e - show worn equipment
     E - eat something
+    f - fire a missile
     g - get an item from the ground
     i - show backpack equipment
     o - open all surrounding doors
-    p - prints a map of dungeon to map.ascii (debugging)
-    P - prints a ppm map to map.ppm (debugging)
+    p - invoke a spell (not working)
     q - quaff a potion
     Q - quit the game
     r - read a scroll
     S - save the game (save-file will be used on restart)
     u - use an item
     w - wear an item from backpack
-    z - "zap" the game (expert debugging)
 
 
-  The keys and their code may be found in lib/common/keys.lisp
+  The keys and their code may be found in variants/vanilla/keys.lisp
 
   
 What to do on crash or bugs:

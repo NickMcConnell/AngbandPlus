@@ -3,7 +3,7 @@
 #|
 
 DESC: stores.lisp - code which deals with stores and their owners
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -185,6 +185,7 @@ should be an exisiting id."
 		    (c-prt! "Illegal selection!" 0 0)
 		    nil))))
 	  (t
+	   #-cmu
 	   (c-prt! "Odd return-value!" 0 0)
 	   nil))))
 		 
@@ -192,7 +193,8 @@ should be an exisiting id."
 (defun %store-buy-item (player level store)
   (declare (ignore level))
   (block buying
-    (let* ((items (store.items store))
+    (let* ((var-obj *variant*)
+	   (items (store.items store))
 	   (item-len (items.cur-size items)))
   
       (c-col-put-str! +term-white+
@@ -201,7 +203,8 @@ should be an exisiting id."
 		      0 0)
       (let ((selected (%store-select-item 0 (1- item-len))))
 	(when (and selected (numberp selected))
-	  (let* ((act-obj (item-table-find items selected))
+	  (let* ((retval nil)
+		 (act-obj (item-table-find items selected))
 		 (the-price (get-price act-obj store))
 		 (backpack (aobj.contains (player.inventory player))))
 	    ;;(warn "Buying ~s for ~s" act-obj the-price)
@@ -213,47 +216,63 @@ should be an exisiting id."
 	      (c-prt! "No room in backpack!" 0 0)
 	      (return-from buying nil))
 
-	    (item-table-add! backpack act-obj)
-	    (item-table-remove! items act-obj)
+	    (cond ((= 1 (aobj.number act-obj))
+		   (possible-identify! player act-obj) ;; fix?
+		   (item-table-add! backpack act-obj)
+		   (item-table-remove! items act-obj)
+		   (setf retval act-obj))
+		  
+		  ((> (aobj.number act-obj) 1)
+		   (let ((new-obj (copy-active-object var-obj act-obj)))
+		     (decf (aobj.number act-obj))
+		     (setf (aobj.number new-obj) 1)
+		     (item-table-add! backpack new-obj)
+		     (possible-identify! player new-obj)
+		     (setf retval new-obj))
+		   ))
+
 	    ;; add identify for it
 	    (decf (player.gold player) the-price)
+	    (bit-flag-add! *redraw* +print-gold+)
 	    
-	    act-obj)
+	    
+	    retval)
 	  )))))
 
 ;;(trace %store-buy-item)
 
 (defun %store-sell-item (player level store)
-  (declare (ignore level))
-  (block selling
+  
+  (let ((dungeon (level.dungeon level)))
+    (block selling
 
-    (when-bind (selection (select-item nil player '(:backpack :equip)
-				       :prompt "Sell which item?"
-				       :where :backpack))
+      (when-bind (selection (select-item dungeon player '(:backpack :equip)
+					 :prompt "Sell which item?"
+					 :where :backpack))
       
 
-      (let* ((the-table (get-item-table nil player (car selection)))
-	     (removed-obj (item-table-remove! the-table (cdr selection) :only-single-items t)))
+	(let* ((the-table (get-item-table dungeon player (car selection)))
+	       (removed-obj (item-table-remove! the-table (cdr selection) :only-single-items t)))
 
-	(when removed-obj
+	  (when removed-obj
 
-	  (let ((price (get-offer removed-obj store))
-		(shop-items (store.items store)))
+	    (let ((price (get-offer removed-obj store))
+		  (shop-items (store.items store)))
 
-	    (cond ((and (plusp price)
-			(item-table-more-room? shop-items))
+	      (cond ((and (plusp price)
+			  (item-table-more-room? shop-items))
 		   
-		   (item-table-add! shop-items removed-obj)
-		   ;;	       (item-table-remove! the-table removed-obj)
-		   (incf (player.gold player) price)
-		   (return-from %store-sell-item t))
-		  ;; something screwed up, put it back.
-		  (t 
-		   (item-table-add! the-table removed-obj)))
-	    ))
-	))
+		     (item-table-add! shop-items removed-obj)
+		;;	       (item-table-remove! the-table removed-obj)
+		     (incf (player.gold player) price)
+		     (return-from %store-sell-item t))
+		    ;; something screwed up, put it back.
+		    (t 
+		     (item-table-add! the-table removed-obj)))
+	      ))
+	  ))
       
-    nil))
+      nil)))
 
 (defun %store-display (player store)
 

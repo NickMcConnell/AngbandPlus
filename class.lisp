@@ -3,7 +3,7 @@
 #|
 
 DESC: class.lisp - character class code
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@ ADD_DESC: This file contains basics for dealing with character classes
 
 
 (defclass character-class ()
-    (
-     (id           :accessor class.id           :initform nil)
+    ((id           :accessor class.id           :initform nil)
+     (symbol       :accessor class.symbol       :initform nil)
      (name         :accessor class.name         :initform nil)
      (desc         :accessor class.desc         :initform nil)
      (hit-dice     :accessor class.hit-dice     :initform 0)
@@ -30,18 +30,9 @@ ADD_DESC: This file contains basics for dealing with character classes
      (abilities    :accessor class.abilities    :initform nil)
      (titles       :accessor class.titles       :initform nil)
      (starting-eq  :accessor class.start-eq     :initform nil)
-     (skills       :accessor class.skills       :initform nil)
-     )
+     (skills       :accessor class.skills       :initform nil))
     (:documentation "Information about a character class."))
 
-
-(defmethod print-object ((inst character-class) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~A ~A]" (class-name (class-of inst))
-	   (class.id inst)
-	   (class.name inst)))
-  inst)
 
 (defun (setf get-char-class) (class id)
   "Adds class to appropriate tables id'ed by id."
@@ -57,11 +48,18 @@ ADD_DESC: This file contains basics for dealing with character classes
 	(table (variant.classes *variant*)))
     (gethash key table)))
 
+(defun register-class& (class)
+  "Registers a race in the right places."
+  ;; add it to table
+  (check-type class character-class) 
+  (setf (get-char-class (class.id class)) class
+	(get-char-class (class.symbol class)) class))
+
+
 (defun get-classes-as-a-list ()
   "Returns all available classes."
-  (let ((table (variant.classes *variant*)))
-    (loop for v being each hash-value of table
-	  collecting v)))
+  (remove-duplicates (loop for v being each hash-value of (variant.classes *variant*)
+			   collecting v)))
 
 (defun get-classes-in-list (the-list)
   "Returns the classes for id's in the the-list."
@@ -69,7 +67,7 @@ ADD_DESC: This file contains basics for dealing with character classes
     (loop for i in the-list
 	  collecting (gethash i table))))
 
-(defun define-class (id name &key desc xp-extra stat-changes abilities titles
+(defun define-class (id name &key symbol desc xp-extra stat-changes abilities titles
 		     starting-equipment hit-dice skills)
   "Defines and establishes a class."
 
@@ -78,7 +76,16 @@ ADD_DESC: This file contains basics for dealing with character classes
   (let ((my-class (make-instance 'character-class)))
 ;;    (warn "Creating class ~a [~a]" name desc)
 
-    (setf (class.id my-class) id)
+    (unless (stringp id)
+      (warn "Id ~s for class ~s must be a string, use symbol for class-symbol."))
+    ;;      (warn "Creating race ~a [~a]" name desc)
+
+    (unless (and (symbolp symbol) (not (eq symbol nil)))
+      (warn "Symbol for class ~s is ~s, please use a normal symbol" name symbol))
+
+    (setf (class.id my-class) id
+	  (class.symbol my-class) symbol)
+    
     (setf (class.name my-class) name)
     (when desc
       (setf (class.desc my-class) desc))
@@ -101,9 +108,9 @@ ADD_DESC: This file contains basics for dealing with character classes
 
     (setf (class.skills my-class)
 	  (build-skills-obj-from-list *variant* skills))
-    
+
     ;; adding it to the table
-    (setf (get-char-class id) my-class)
+    (register-class& my-class)
     ;; returning the class
     my-class))
 
@@ -114,3 +121,12 @@ ADD_DESC: This file contains basics for dealing with character classes
   (let ((titles (class.titles class)))
     (elt titles (int-/ (1- level) 5))))
 
+
+
+(defmethod print-object ((inst character-class) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~A ~A]" (class-name (class-of inst))
+	   (class.id inst)
+	   (class.name inst)))
+  inst)

@@ -3,7 +3,7 @@
 #|
 
 DESC: actions.lisp - various actions from the kbd/player
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,7 +19,8 @@ the Free Software Foundation; either version 2 of the License, or
   "Moves the player, in a direction, if possible.
 The direction is a number from the keypad."
 
-  (let* ((cur-x (location-x pl))
+  (let* ((var-obj *variant*)
+	 (cur-x (location-x pl))
 	 (cur-y (location-y pl))
 	 (wanted-x cur-x)
 	 (wanted-y cur-y))
@@ -73,14 +74,57 @@ The direction is a number from the keypad."
 	     )
 	    ))
 
-    (bit-flag-add! *update* +pl-upd-update-view+)
+    (let ((new-x (location-x pl))
+	  (new-y (location-y pl)))
+      
+      (when-bind (objs (cave-objects dun new-x new-y))
+	(check-type objs item-table)
+	(assert (plusp (items.cur-size objs)))
+	(let ((obj (item-table-find objs 0)))
+	  (check-type obj active-object)
+	  (c-print-message! (format nil "You see ~a."
+				    (with-output-to-string (s)
+				      (write-obj-description var-obj obj s))))
+	  ))
+      
+      (bit-flag-add! *update* +pl-upd-update-view+)
 
-    ;; hack
-    (apply-possible-coord-trigger dun
-				  (location-x pl)
-				  (location-y pl))
+      
+      ;; hack
+      (apply-possible-coord-trigger dun new-x new-y))
+
     pl))
 
+
+(defun search-area! (dun pl)
+  "Searches nearby grids."
+
+  (let ((chance (skills.searching (player.skills pl)))
+	(x (location-x pl))
+	(y (location-y pl))
+	)
+    
+    (check-type chance fixnum)
+    
+    (incf (player.energy-use pl) +energy-normal-action+)
+    
+    ;; hack, improve with diagonal later
+    (dolist (i (list (cons x (1- y))
+		     (cons x (1+ y))
+		     (cons (1- x) y)
+		     (cons (1+ x) y)))
+      (when (< (random 100) chance)
+	(let ((feat (cave-feature dun (car i) (cdr i))))
+	  (cond ((= feat +feature-secret+)
+		 (c-print-message! "You found a secret door!")
+		 (place-closed-door! dun (car i) (cdr i))
+		 t)
+		(t
+		 ;; add more here, traps, chests.. 
+		 ))))
+      )))
+
+	
   
 
 (defun use-stair! (dun pl dir)
@@ -133,7 +177,8 @@ is above a stair.  DIR can be :UP or :DOWN"
   "Tries to pick up from floor.  Should be implemented with selection from
 a list if more items occupy the same place."
   
-  (let* ((x (location-x player))
+  (let* ((var-obj *variant*)
+	 (x (location-x player))
 	 (y (location-y player))
 	 (objs (cave-objects dungeon x y)))
 
@@ -162,9 +207,9 @@ a list if more items occupy the same place."
 			 (retval (item-table-add! backpack removed-obj)))
 
 		    (cond (retval
-			   (c-print-message! (format nil "You pick up ~a"
+			   (c-print-message! (format nil "You pick up ~a."
 						     (with-output-to-string (s)
-						       (write-obj-description *variant* removed-obj s))))
+						       (write-obj-description var-obj removed-obj s))))
 			   ;; succesful
 			   (when (= 0 (items.cur-size objs))
 			     (setf (cave-objects dungeon x y) nil)))
@@ -262,7 +307,7 @@ a list if more items occupy the same place."
   
     (when (is-eatable? pl obj)
       (alter-food! pl (+ (player.food pl)
-			 (gval.food-val gvals))))
+			 (gval.food-value gvals))))
     
     
     t))

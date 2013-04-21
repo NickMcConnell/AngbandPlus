@@ -88,6 +88,7 @@ extern struct passwd *getpwuid();
 extern struct passwd *getpwnam();
 
 
+
 /*
  * Find a default user name from the system.
  */
@@ -329,6 +330,11 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 				/* Check length */
 				if (i >= n) break;
 			}
+			/* hack to allow 8-bit, must be fixed later */
+			else if (!(*s > 0 && *s < 32)) {
+			    buf[i++] = *s;
+			    if (i >= n) break;
+			}
 		}
 	}
 
@@ -367,312 +373,6 @@ my_fputs(FILE *fff, cptr buf, huge n) {
 #ifndef O_BINARY
 # define O_BINARY 0
 #endif /* O_BINARY */
-
-
-/*
- * Hack -- attempt to delete a file
- */
-errr fd_kill(cptr file)
-{
-	char buf[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
-
-	/* Remove */
-	(void)remove(buf);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to move a file
- */
-errr fd_move(cptr file, cptr what)
-{
-	char buf[1024];
-	char aux[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(aux, 1024, what)) return (-1);
-
-	/* Rename */
-	(void)rename(buf, aux);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to copy a file
- */
-errr fd_copy(cptr file, cptr what)
-{
-	char buf[1024];
-	char aux[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(aux, 1024, what)) return (-1);
-
-	/* Copy XXX XXX XXX */
-	/* (void)rename(buf, aux); */
-
-	/* Assume success XXX XXX XXX */
-	return (1);
-}
-
-
-/*
- * Hack -- attempt to open a file descriptor (create file)
- *
- * This function should fail if the file already exists
- *
- * Note that we assume that the file should be "binary"
- */
-int fd_make(cptr file, int mode)
-{
-	char buf[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
-
-#if defined(MACINTOSH)
-
-	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY));
-
-#else
-
-	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
-
-#endif
-
-}
-
-
-/*
- * Hack -- attempt to open a file descriptor (existing file)
- *
- * Note that we assume that the file should be "binary"
- */
-int fd_open(cptr file, int flags)
-{
-	char buf[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
-
-#if defined(MACINTOSH) || defined(WINDOWS)
-
-	/* Attempt to open the file */
-	return (open(buf, flags | O_BINARY));
-
-#else
-
-	/* Attempt to open the file */
-	return (open(buf, flags | O_BINARY, 0));
-
-#endif
-
-}
-
-
-/*
- * Hack -- attempt to lock a file descriptor
- *
- * Legal lock types -- F_UNLCK, F_RDLCK, F_WRLCK
- */
-errr fd_lock(int fd, int what)
-{
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#ifdef SET_UID
-
-# ifdef USG
-
-#  if defined(F_ULOCK) && defined(F_LOCK)
-
-	/* Un-Lock */
-	if (what == F_UNLCK)
-	{
-		/* Unlock it, Ignore errors */
-		lockf(fd, F_ULOCK, 0);
-	}
-
-	/* Lock */
-	else
-	{
-		/* Lock the score file */
-		if (lockf(fd, F_LOCK, 0) != 0) return (1);
-	}
-
-#  endif
-
-# else
-
-#  if defined(LOCK_UN) && defined(LOCK_EX)
-
-	/* Un-Lock */
-	if (what == F_UNLCK)
-	{
-		/* Unlock it, Ignore errors */
-		(void)flock(fd, LOCK_UN);
-	}
-
-	/* Lock */
-	else
-	{
-		/* Lock the score file */
-		if (flock(fd, LOCK_EX) != 0) return (1);
-	}
-
-#  endif
-
-# endif
-
-#endif
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to seek on a file descriptor
- */
-errr fd_seek(int fd, huge n) {
-
-    //huge p;
-    long p;
-
-	/* Verify fd */
-	if (fd < 0) return (-1);
-
-	/* Seek to the given position */
-	p = lseek(fd, n, SEEK_SET);
-
-	/* Failure */
-	if (p < 0) return (1);
-
-	/* Failure */
-	if ((huge)p != n) return (1);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to truncate a file descriptor
- */
-errr fd_chop(int fd, huge n) {
-
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#if defined(SUNOS) || defined(ULTRIX) || defined(NeXT)
-	/* Truncate */
-	ftruncate(fd, n);
-#else
-	n = 7; // to avoid warning
-#endif
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to read data from a file descriptor
- */
-errr fd_read(int fd, char *buf, huge n)
-{
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#ifndef SET_UID
-
-	/* Read pieces */
-	while (n >= 16384)
-	{
-		/* Read a piece */
-		if (read(fd, buf, 16384) != 16384) return (1);
-
-		/* Shorten the task */
-		buf += 16384;
-
-		/* Shorten the task */
-		n -= 16384;
-	}
-
-#endif
-
-	/* Read the final piece */
-	if (read(fd, buf, n) != (int)n) return (1);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- Attempt to write data to a file descriptor
- */
-errr fd_write(int fd, cptr buf, huge n)
-{
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#ifndef SET_UID
-
-	/* Write pieces */
-	while (n >= 16384)
-	{
-		/* Write a piece */
-		if (write(fd, buf, 16384) != 16384) return (1);
-
-		/* Shorten the task */
-		buf += 16384;
-
-		/* Shorten the task */
-		n -= 16384;
-	}
-
-#endif
-
-	/* Write the final piece */
-	if (write(fd, buf, n) != (int)n) return (1);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to close a file descriptor
- */
-errr fd_close(int fd)
-{
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-	/* Close */
-	(void)close(fd);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
-}
 
 
 
@@ -2004,31 +1704,6 @@ void msg_print(cptr msg)
 	if (fresh_after) Term_fresh();
 }
 
-#if 0
-
-/*
- * Display a formatted message, using "vstrnfmt()" and "msg_print()".
- */
-void msg_format(cptr fmt, ...)
-{
-	va_list vp;
-
-	char buf[1024];
-
-	/* Begin the Varargs Stuff */
-	va_start(vp, fmt);
-
-	/* Format the args, save the length */
-	(void)vstrnfmt(buf, 1024, fmt, vp);
-
-	/* End the Varargs Stuff */
-	va_end(vp);
-
-	/* Display */
-	msg_print(buf);
-}
-
-#endif /* 0 */
 
 
 /*
@@ -2115,8 +1790,24 @@ void clear_from(int row)
 }
 
 
+/*
+ * Pause for user response
+ *
+ * This function is stupid.  XXX XXX XXX
+ */
+void pause_line(int row)
+{
+	char ch;
+	prt("", row, 0);
+	put_str("[Press any key to continue]", row, 23);
+	ch = inkey();
+	prt("", row, 0);
+}
 
 
+
+
+#ifdef NOT_DEFINED
 /*
  * Get some input at the cursor location.
  *
@@ -2288,20 +1979,339 @@ bool get_com(cptr prompt, char *command)
 	/* Done */
 	return (ch != ESCAPE);
 }
+#endif /* NOT_DEFINED */
 
+#if 0
 
 /*
- * Pause for user response
- *
- * This function is stupid.  XXX XXX XXX
+ * Display a formatted message, using "vstrnfmt()" and "msg_print()".
  */
-void pause_line(int row)
+void msg_format(cptr fmt, ...)
 {
-	char ch;
-	prt("", row, 0);
-	put_str("[Press any key to continue]", row, 23);
-	ch = inkey();
-	prt("", row, 0);
+	va_list vp;
+
+	char buf[1024];
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, 1024, fmt, vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	/* Display */
+	msg_print(buf);
+}
+
+#endif /* 0 */
+
+
+#ifdef NOT_DEFINED
+/*
+ * Hack -- attempt to delete a file
+ */
+errr fd_kill(cptr file)
+{
+	char buf[1024];
+
+	/* Hack -- Try to parse the path */
+	if (path_parse(buf, 1024, file)) return (-1);
+
+	/* Remove */
+	(void)remove(buf);
+
+	/* Assume success XXX XXX XXX */
+	return (0);
 }
 
 
+/*
+ * Hack -- attempt to move a file
+ */
+errr fd_move(cptr file, cptr what)
+{
+	char buf[1024];
+	char aux[1024];
+
+	/* Hack -- Try to parse the path */
+	if (path_parse(buf, 1024, file)) return (-1);
+
+	/* Hack -- Try to parse the path */
+	if (path_parse(aux, 1024, what)) return (-1);
+
+	/* Rename */
+	(void)rename(buf, aux);
+
+	/* Assume success XXX XXX XXX */
+	return (0);
+}
+
+
+/*
+ * Hack -- attempt to copy a file
+ */
+errr fd_copy(cptr file, cptr what)
+{
+	char buf[1024];
+	char aux[1024];
+
+	/* Hack -- Try to parse the path */
+	if (path_parse(buf, 1024, file)) return (-1);
+
+	/* Hack -- Try to parse the path */
+	if (path_parse(aux, 1024, what)) return (-1);
+
+	/* Copy XXX XXX XXX */
+	/* (void)rename(buf, aux); */
+
+	/* Assume success XXX XXX XXX */
+	return (1);
+}
+
+
+/*
+ * Hack -- attempt to open a file descriptor (create file)
+ *
+ * This function should fail if the file already exists
+ *
+ * Note that we assume that the file should be "binary"
+ */
+int fd_make(cptr file, int mode)
+{
+	char buf[1024];
+
+	/* Hack -- Try to parse the path */
+	if (path_parse(buf, 1024, file)) return (-1);
+
+#if defined(MACINTOSH)
+
+	/* Create the file, fail if exists, write-only, binary */
+	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY));
+
+#else
+
+	/* Create the file, fail if exists, write-only, binary */
+	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
+
+#endif
+
+}
+
+
+/*
+ * Hack -- attempt to open a file descriptor (existing file)
+ *
+ * Note that we assume that the file should be "binary"
+ */
+int fd_open(cptr file, int flags)
+{
+	char buf[1024];
+
+	/* Hack -- Try to parse the path */
+	if (path_parse(buf, 1024, file)) return (-1);
+
+#if defined(MACINTOSH) || defined(WINDOWS)
+
+	/* Attempt to open the file */
+	return (open(buf, flags | O_BINARY));
+
+#else
+
+	/* Attempt to open the file */
+	return (open(buf, flags | O_BINARY, 0));
+
+#endif
+
+}
+
+
+/*
+ * Hack -- attempt to lock a file descriptor
+ *
+ * Legal lock types -- F_UNLCK, F_RDLCK, F_WRLCK
+ */
+errr fd_lock(int fd, int what)
+{
+	/* Verify the fd */
+	if (fd < 0) return (-1);
+
+#ifdef SET_UID
+
+# ifdef USG
+
+#  if defined(F_ULOCK) && defined(F_LOCK)
+
+	/* Un-Lock */
+	if (what == F_UNLCK)
+	{
+		/* Unlock it, Ignore errors */
+		lockf(fd, F_ULOCK, 0);
+	}
+
+	/* Lock */
+	else
+	{
+		/* Lock the score file */
+		if (lockf(fd, F_LOCK, 0) != 0) return (1);
+	}
+
+#  endif
+
+# else
+
+#  if defined(LOCK_UN) && defined(LOCK_EX)
+
+	/* Un-Lock */
+	if (what == F_UNLCK)
+	{
+		/* Unlock it, Ignore errors */
+		(void)flock(fd, LOCK_UN);
+	}
+
+	/* Lock */
+	else
+	{
+		/* Lock the score file */
+		if (flock(fd, LOCK_EX) != 0) return (1);
+	}
+
+#  endif
+
+# endif
+
+#endif
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Hack -- attempt to seek on a file descriptor
+ */
+errr fd_seek(int fd, huge n) {
+
+    //huge p;
+    long p;
+
+	/* Verify fd */
+	if (fd < 0) return (-1);
+
+	/* Seek to the given position */
+	p = lseek(fd, n, SEEK_SET);
+
+	/* Failure */
+	if (p < 0) return (1);
+
+	/* Failure */
+	if ((huge)p != n) return (1);
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Hack -- attempt to truncate a file descriptor
+ */
+errr fd_chop(int fd, huge n) {
+
+	/* Verify the fd */
+	if (fd < 0) return (-1);
+
+#if defined(SUNOS) || defined(ULTRIX) || defined(NeXT)
+	/* Truncate */
+	ftruncate(fd, n);
+#else
+	n = 7; // to avoid warning
+#endif
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Hack -- attempt to read data from a file descriptor
+ */
+errr fd_read(int fd, char *buf, huge n)
+{
+	/* Verify the fd */
+	if (fd < 0) return (-1);
+
+#ifndef SET_UID
+
+	/* Read pieces */
+	while (n >= 16384)
+	{
+		/* Read a piece */
+		if (read(fd, buf, 16384) != 16384) return (1);
+
+		/* Shorten the task */
+		buf += 16384;
+
+		/* Shorten the task */
+		n -= 16384;
+	}
+
+#endif
+
+	/* Read the final piece */
+	if (read(fd, buf, n) != (int)n) return (1);
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Hack -- Attempt to write data to a file descriptor
+ */
+errr fd_write(int fd, cptr buf, huge n)
+{
+	/* Verify the fd */
+	if (fd < 0) return (-1);
+
+#ifndef SET_UID
+
+	/* Write pieces */
+	while (n >= 16384)
+	{
+		/* Write a piece */
+		if (write(fd, buf, 16384) != 16384) return (1);
+
+		/* Shorten the task */
+		buf += 16384;
+
+		/* Shorten the task */
+		n -= 16384;
+	}
+
+#endif
+
+	/* Write the final piece */
+	if (write(fd, buf, n) != (int)n) return (1);
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Hack -- attempt to close a file descriptor
+ */
+errr fd_close(int fd)
+{
+	/* Verify the fd */
+	if (fd < 0) return (-1);
+
+	/* Close */
+	(void)close(fd);
+
+	/* Assume success XXX XXX XXX */
+	return (0);
+}
+
+#endif /* not defined */

@@ -314,7 +314,7 @@ the Free Software Foundation; either version 2 of the License, or
   (let* ((the-race (cond ((symbolp race)
 			  race)
 			 ((typep race 'race)
-			  (race.id race))
+			  (race.symbol race))
 			 (t
 			  (error "Unknown race-object ~s" race))))
 	 (ptr (ecase the-race
@@ -330,5 +330,7 @@ the Free Software Foundation; either version 2 of the License, or
       (concatenate 'string (rand-elm (first ptr)) (rand-elm (second ptr)) (rand-elm (third ptr))))
     ))
 
-
-;;(trace teleport-creature!)
+;; seems to be original depth + 4 which is the basis for when groups appear
+(defun van-novice-appears-in-group? (level mon)
+  (declare (ignore level mon))
+  (< (random 10) 5))

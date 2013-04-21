@@ -17,7 +17,7 @@
 			  :components ((:file "package")
 				       (:file "base"
 					      :depends-on ("package"))
-				       (:file "equal"))
+				       (:file "equal")))
 		 (:module usual
 			  :source-pathname ""
 			  :components ((:file "core")
@@ -26,9 +26,11 @@
 				       (:file "player")
 				       (:file "building")
 				       (:file "save")
+				       #+never
 				       (:file "ffi")
 				       (:file "format")
 				       (:file "monster")
 				       )
 			  :depends-on (basic))
 		 ))
+

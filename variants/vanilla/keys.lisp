@@ -64,10 +64,27 @@ the Free Software Foundation; either version 2 of the License, or
   
 (define-key-operation 'show-character
     #'(lambda (dun pl)
-	(declare (ignore dun))
 	(with-new-screen ()
-	  (display-creature *variant* pl)
-	  (c-pause-line! *last-console-line*))))
+	  (block display-input 
+	    (let ((loc-table (gethash :display *current-key-table*)))
+	      (loop
+	       (c-clear-from! 0)
+	       (display-creature *variant* pl)
+	       (c-prt! "['C' to show combat-info, ESC to continue]"
+		       *last-console-line* 12)
+
+	       (let* ((ch (read-one-character))
+		      (fun (check-keypress loc-table ch)))
+		 (cond ((and fun (functionp fun))
+			(funcall fun dun pl))
+		       ((eql ch +escape+)
+			(return-from display-input t))
+		       (t
+			;; nil
+			)))
+	       )))
+	  )))
+
 
 (define-key-operation 'go-downstairs
     #'(lambda (dun pl) (use-stair! dun pl :down)))
@@ -79,11 +96,16 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dun pl)
 	(declare (ignore dun))
 ;;	(warn "Quitting")
-	(setf (player.dead-p pl) t
-	      (player.dead-from pl) "quitting"
-	      (player.leaving-p pl) :quit)
+	(c-prt! "Are you sure you wish to quit? " 0 0)
+	(let ((chr (read-one-character)))
+	  (when (or (equal chr #\y)
+		    (equal chr #\Y))
+	    (setf (player.dead-p pl) t
+		  (player.dead-from pl) "quitting"
+		  (player.leaving-p pl) :quit)
 ;;	(c-quit! +c-null-value+) ;; how to quit cleanly to the REPL?
 	
+	    ))
 	))
 
 (define-key-operation 'get-item
@@ -143,40 +165,16 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'open-all
     #'(lambda (dun pl) (open-all! dun pl)))
 
+(define-key-operation 'search-area
+    #'(lambda (dun pl) (search-area! dun pl)))
+
+
+;; unused
 (define-key-operation 'print-mapper
     #'(lambda (dun pl)
 	(print-map dun pl)))
 
-(define-key-operation 'print-map
-    #'(lambda (dun pl)
-	(declare (ignore pl))
-	(print-map-to-file dun "./map.ascii")))
 
-(define-key-operation 'print-map-as-ppm
-    #'(lambda (dun pl)
-	(declare (ignore pl))
-	(print-map-as-ppm dun "./map.ppm")))
-
-(define-key-operation 'halt-program
-    #'(lambda (dun pl)
-	(declare (ignore dun))
-	(assert (eq pl nil))))
-
-(define-key-operation 'in-game-test
-    #'(lambda (dun pl)
-	(declare (ignore dun pl))
-	;; temporary place
-	#+xp-testing
-	(do-a-test :in)
-	#||
-	  ;; for those times when things crash
-	  (when-bind (func (get-late-bind-function 'lb-test '%loc-save-test))
-	      (funcall func lb::*variant* :variant)
-	      (funcall func lb::*level* :level)
-	      (funcall func lb::*player* :player)))
-	  ||#
-
-	))
 
 (define-key-operation 'save-game
     #'(lambda (dun pl)
@@ -195,66 +193,37 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 
-(define-key-operation 'inspect-coord
-    #'(lambda (dun pl)
-	(let* ((cur-x (location-x pl))
-	       (cur-y (location-y pl))
-	       (coord-obj (cave-coord dun cur-x cur-y)))
-	  (warn "Describing [~a,~a]" cur-x cur-y)
-	  (describe coord-obj)
-	  (multiple-value-bind (the-attr the-char)
-	      (map-info dun cur-x cur-y)
-	    (warn "Mapped to (~s . ~s)" the-attr the-char)))))
-
-(define-key-operation 'print-keys
+(define-key-operation 'show-help
     #'(lambda (dun pl)
 	(declare (ignore dun pl))
-	(print-key-table (gethash :global *ang-keys*)
-			 "table.keys")))
+	(with-new-screen ()
+	  (c-clear-from! 0)
+	  (display-help-topics *variant* "LAangband help (Vanilla)" 3)
 
-(define-key-operation 'wamp-monsters
+;;	  (c-pause-line *last-console-line*)
+	  )))
+
+
+
+
+(define-key-operation 'fire-missile
     #'(lambda (dun pl)
-	(declare (ignore dun pl))
-	(dump-features "dumps/feat.list")
-	(dump-monsters "dumps/mon.list" :monster-list (get-all-monsters))
-	(dump-objects "dumps/obj.list")
+	(interactive-fire-a-missile dun pl)))
+
+
+(define-key-operation 'print-attack-table
+    #'(lambda (dun pl)
+	(declare (ignore dun))
+;;	(with-new-screen ()
+	  (print-attack-table *variant* pl)
+	  (print-attack-graph *variant* pl)
 	))
 
-(define-key-operation 'fire-something
-    #'(lambda (dun pl)
-	(temp-shoot-an-arrow dun pl)))
-
-(define-key-operation 'projecteur
-    #'(lambda (dun pl)
-	(project-hack dun pl)))
-
-(define-key-operation 'break-game
-    #'(lambda (dun pl)
-	(declare (ignore dun pl))
-	(break)))
-
-(define-key-operation 'summon
-    #'(lambda (dun pl)
-	(let* ((summon (get-string-input "Monster to summon: "))
-	       (mon (if summon (produce-active-monster *variant* summon))))
-	  (when mon
-	    (block mon-placement
-	      (let ((px (location-x pl))
-		    (py (location-y pl)))
-		(flet ((put-mon (x y)
-			 (when (cave-floor-bold? dun x y)
-			   (place-single-monster! dun pl mon x y nil)
-			   (light-spot! dun x y)
-			   (return-from mon-placement nil))))
-		  (put-mon (1+ px) py)
-		  (put-mon px (1+ py))
-		  (put-mon (1+ px) (1+ py)))))
-	    mon))))
 
 
 (define-keypress *ang-keys* :global #\d 'drop-item)
 (define-keypress *ang-keys* :global #\e 'show-equipment)
-(define-keypress *ang-keys* :global #\f 'fire-something) ;; hackish still
+(define-keypress *ang-keys* :global #\f 'fire-missile)
 (define-keypress *ang-keys* :global #\g 'get-item)
 (define-keypress *ang-keys* :global #\i 'show-inventory)
 (define-keypress *ang-keys* :global #\m 'invoke-spell)
@@ -262,29 +231,22 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :global #\p 'invoke-spell)
 (define-keypress *ang-keys* :global #\q 'quaff-potion)
 (define-keypress *ang-keys* :global #\r 'read-text)
+(define-keypress *ang-keys* :global #\s 'search-area)
 (define-keypress *ang-keys* :global #\u 'use-item)
 (define-keypress *ang-keys* :global #\w 'wear-item)
-(define-keypress *ang-keys* :global #\z 'halt-program)
 
 (define-keypress *ang-keys* :global #\C 'show-character)
 (define-keypress *ang-keys* :global #\E 'eat-something)
-(define-keypress *ang-keys* :global #\I 'inspect-coord)
-(define-keypress *ang-keys* :global #\K 'print-keys) 
 (define-keypress *ang-keys* :global #\Q 'quit-game)
 (define-keypress *ang-keys* :global #\S 'save-game)
-(define-keypress *ang-keys* :global #\Z 'in-game-test)
+(define-keypress *ang-keys* :global #\? 'show-help)
 
 (define-keypress *ang-keys* :global #\> 'go-downstairs)
 (define-keypress *ang-keys* :global #\< 'go-upstairs)
 
 ;; these can die later..
-(define-keypress *ang-keys* :global #\A 'print-mapper)
-(define-keypress *ang-keys* :global #\B 'break-game)
-(define-keypress *ang-keys* :global #\F 'wamp-monsters)
-(define-keypress *ang-keys* :global #\P 'print-map-as-ppm)
-(define-keypress *ang-keys* :global #\T 'print-map)
-(define-keypress *ang-keys* :global #\U 'summon)
-(define-keypress *ang-keys* :global #\Y 'projecteur)
+;;(define-keypress *ang-keys* :global #\A 'print-mapper)
+
 
 
 (define-keypress *ang-keys* :global #\. 'stand-still)
@@ -297,6 +259,11 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :global #\7 'move-up-left)
 (define-keypress *ang-keys* :global #\8 'move-up)
 (define-keypress *ang-keys* :global #\9 'move-up-right)
+
+;; then those keys used for display
+(define-keypress *ang-keys* :display #\C 'print-attack-table)
+
+
 
 #||
 (define-keypress *ang-keys* :global #\k 'move-up)

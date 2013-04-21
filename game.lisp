@@ -3,7 +3,7 @@
 #|
 
 DESC: game.lisp - simple load of the game
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ ADD_DESC: This file just contains simple init and loading of the game
 ;;  #-clisp
 ;;  (push :using-sound *features*)
   ;; this one should be turned on in releases and in curses
-;;  (pushnew :hide-warnings *features*)
+  (pushnew :hide-warnings *features*)
 
 ;;  (pushnew :maintainer-mode *features*)
   #+(or cmu clisp allegro (and lispworks unix))
@@ -173,7 +173,8 @@ ADD_DESC: This file just contains simple init and loading of the game
 	  "various" "rooms"
 	  "levels" "spells"
 	  "potions" "scrolls"
-	  "food" "keys"))
+	  "food" "wizard"
+	  "keys"))
 
     (progress-msg "Variant loaded...")
     t))

@@ -3,7 +3,7 @@
 #||
 
 DESC: util.lisp - utility-code dependant on other code
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -324,19 +324,19 @@ a number or a symbol identifying the place."
       (setf the-form (list 'make-instance ''game-values))
       
       (possibly-add :base-ac (gval.base-ac object) 0)
-      (possibly-add :ac-bonus (gval.ac-bonus object) 0)
+      (possibly-add :ac-modifier (gval.ac-modifier object) 0)
       (possibly-add :base-dice (gval.base-dice object) 0)
       (possibly-add :num-dice (gval.num-dice object) 0)
-      (possibly-add :tohit-bonus (gval.tohit-bonus object) 0)
-      (possibly-add :dmg-bonus (gval.dmg-bonus object) 0)
+      (possibly-add :tohit-modifier (gval.tohit-modifier object) 0)
+      (possibly-add :dmg-modifier (gval.dmg-modifier object) 0)
       (possibly-add :mana (gval.mana object) 0)
       (possibly-add :charges (gval.charges object) 0)
-      (possibly-add :food-val (gval.food-val object) 0)
+      (possibly-add :food-value (gval.food-value object) 0)
       (possibly-add :light-radius (gval.light-radius object) 0)
       (possibly-add :tunnel (gval.tunnel object) 0)
       (possibly-add :speed (gval.speed object) 0)
-      (possibly-add :skill-bonuses (gval.skill-bonuses object))
-      (possibly-add :stat-bonuses (gval.stat-bonuses object))
+      (possibly-add :skill-modifiers (gval.skill-modifiers object))
+      (possibly-add :stat-modifiers (gval.stat-modifiers object))
       (possibly-add :ignores (gval.ignores object))
       (possibly-add :resists (gval.resists object))
       (possibly-add :immunities (gval.immunities object))

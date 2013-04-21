@@ -15,7 +15,7 @@
   :obj-type '(<soft-leather> <boots>)
   :sort-value 3302
   :the-kind '<boots>
-  :game-values (make-instance 'game-values :base-ac 2 :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 2 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "hard-leather-boots" "& pair~ of hard leather boots"
   :numeric-id 92
@@ -30,7 +30,7 @@
   :obj-type '(<hard-leather> <boots>)
   :sort-value 3303
   :the-kind '<boots>
-  :game-values (make-instance 'game-values :base-ac 3 :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 3 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "metal-boots" "& pair~ of metal shod boots"
   :numeric-id 93
@@ -45,7 +45,7 @@
   :obj-type '(<metal-shod> <boots>)
   :sort-value 3306
   :the-kind '<boots>
-  :game-values (make-instance 'game-values :base-ac 6 :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 6 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "hard-leather-cap" "& hard leather cap~"
   :numeric-id 94
@@ -60,7 +60,7 @@
   :obj-type '(<hard-leather> <headgear> <helmet>)
   :sort-value 3502
   :the-kind '<headgear>
-  :game-values (make-instance 'game-values :base-ac 2)) 
+  :game-values (make-game-values :base-ac 2)) 
 
 (define-object-kind "metal-cap" "& metal cap~"
   :numeric-id 95
@@ -75,7 +75,7 @@
   :obj-type '(<metal-cap> <headgear> <helmet>)
   :sort-value 3503
   :the-kind '<headgear>
-  :game-values (make-instance 'game-values :base-ac 3 :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 3 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "iron-helm" "& iron helm~"
   :numeric-id 96
@@ -90,7 +90,7 @@
   :obj-type '(<iron-helm> <headgear> <helmet>)
   :sort-value 3505
   :the-kind '<headgear>
-  :game-values (make-instance 'game-values :base-ac 5 :base-dice 3 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 5 :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "steel-helm" "& steel helm~"
   :numeric-id 97
@@ -105,7 +105,7 @@
   :obj-type '(<steel-helm> <headgear> <helmet>)
   :sort-value 3506
   :the-kind '<headgear>
-  :game-values (make-instance 'game-values :base-ac 6 :base-dice 3 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 6 :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "iron-crown" "& iron crown~"
   :numeric-id 98
@@ -120,7 +120,7 @@
   :obj-type '(<iron> <headgear> <crown>)
   :sort-value 3610
   :the-kind '<headgear>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "golden-crown" "& golden crown~"
   :numeric-id 99
@@ -135,7 +135,7 @@
   :obj-type '(<golden> <headgear> <crown>)
   :sort-value 3611
   :the-kind '<headgear>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
 
 (define-object-kind "jewel-crown" "& jewel encrusted crown~"
   :numeric-id 100
@@ -150,7 +150,7 @@
   :obj-type '(<jeweled> <headgear> <crown>)
   :sort-value 3612
   :the-kind '<headgear>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
 
 (define-object-kind "robe" "& robe~"
   :numeric-id 101
@@ -165,7 +165,7 @@
   :obj-type '(<robe> <body-armour> <soft>)
   :sort-value 3902
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 2)) 
+  :game-values (make-game-values :base-ac 2)) 
 
 (define-object-kind "filthy-rag" "& filthy rag~"
   :numeric-id 102
@@ -180,7 +180,7 @@
   :obj-type '(<filthy-rag> <body-armour> <soft>)
   :sort-value 3901
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 1 :ac-bonus -1)) 
+  :game-values (make-game-values :base-ac 1 :ac-modifier -1)) 
 
 (define-object-kind "soft-leather-armour" "soft leather armour~"
   :numeric-id 103
@@ -195,7 +195,7 @@
   :obj-type '(<soft-leather> <body-armour> <soft>)
   :sort-value 3904
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 4)) 
+  :game-values (make-game-values :base-ac 4)) 
 
 (define-object-kind "soft-studded-leather" "soft studded leather~"
   :numeric-id 104
@@ -210,7 +210,7 @@
   :obj-type '(<soft-studded> <body-armour> <soft>)
   :sort-value 3905
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 5 :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 5 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "hard-leather-armour" "hard leather armour~"
   :numeric-id 105
@@ -225,7 +225,7 @@
   :obj-type '(<hard-leather> <body-armour> <soft>)
   :sort-value 3906
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 6 :base-dice 1 :num-dice 1 :tohit-bonus -1)) 
+  :game-values (make-game-values :base-ac 6 :base-dice 1 :num-dice 1 :tohit-modifier -1)) 
 
 (define-object-kind "hard-studded-leather" "hard studded leather~"
   :numeric-id 106
@@ -240,7 +240,7 @@
   :obj-type '(<hard-studded> <body-armour> <soft>)
   :sort-value 3907
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 7 :base-dice 2 :num-dice 1 :tohit-bonus -1)) 
+  :game-values (make-game-values :base-ac 7 :base-dice 2 :num-dice 1 :tohit-modifier -1)) 
 
 (define-object-kind "leather-scale-mail" "leather scale mail~"
   :numeric-id 107
@@ -255,7 +255,7 @@
   :obj-type '(<leather-scale> <body-armour> <soft>)
   :sort-value 3911
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 11 :base-dice 1 :num-dice 1 :tohit-bonus -1)) 
+  :game-values (make-game-values :base-ac 11 :base-dice 1 :num-dice 1 :tohit-modifier -1)) 
 
 (define-object-kind "metal-scale-mail" "metal scale mail~"
   :numeric-id 108
@@ -270,7 +270,7 @@
   :obj-type '(<metal-scale> <body-armour> <hard>)
   :sort-value 4003
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 13 :base-dice 4 :num-dice 1 :tohit-bonus -2)) 
+  :game-values (make-game-values :base-ac 13 :base-dice 4 :num-dice 1 :tohit-modifier -2)) 
 
 (define-object-kind "chain-mail" "chain mail~"
   :numeric-id 109
@@ -285,7 +285,7 @@
   :obj-type '(<chain> <body-armour> <hard>)
   :sort-value 4004
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 14 :base-dice 4 :num-dice 1 :tohit-bonus -2)) 
+  :game-values (make-game-values :base-ac 14 :base-dice 4 :num-dice 1 :tohit-modifier -2)) 
 
 (define-object-kind "rusty-chain-mail" "rusty chain mail~"
   :numeric-id 110
@@ -300,7 +300,7 @@
   :obj-type '(<rusty-chain> <body-armour> <hard>)
   :sort-value 4001
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 14 :ac-bonus -8 :base-dice 4 :num-dice 1 :tohit-bonus -5)) 
+  :game-values (make-game-values :base-ac 14 :ac-modifier -8 :base-dice 4 :num-dice 1 :tohit-modifier -5)) 
 
 (define-object-kind "augm-chain-mail" "augmented chain mail~"
   :numeric-id 111
@@ -315,7 +315,7 @@
   :obj-type '(<augmented-chain> <body-armour> <hard>)
   :sort-value 4006
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 16 :base-dice 4 :num-dice 1 :tohit-bonus -2)) 
+  :game-values (make-game-values :base-ac 16 :base-dice 4 :num-dice 1 :tohit-modifier -2)) 
 
 (define-object-kind "bar-chain-mail" "bar chain mail~"
   :numeric-id 112
@@ -330,7 +330,7 @@
   :obj-type '(<bar-chain> <body-armour> <hard>)
   :sort-value 4008
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 18 :base-dice 4 :num-dice 1 :tohit-bonus -2)) 
+  :game-values (make-game-values :base-ac 18 :base-dice 4 :num-dice 1 :tohit-modifier -2)) 
 
 (define-object-kind "metal-brigandine" "metal brigandine armour~"
   :numeric-id 113
@@ -345,7 +345,7 @@
   :obj-type '(<metal-brigandine> <body-armour> <hard>)
   :sort-value 4009
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 19 :base-dice 4 :num-dice 1 :tohit-bonus -3)) 
+  :game-values (make-game-values :base-ac 19 :base-dice 4 :num-dice 1 :tohit-modifier -3)) 
 
 (define-object-kind "partial-plate" "partial plate armour~"
   :numeric-id 114
@@ -360,7 +360,7 @@
   :obj-type '(<partial-plate> <body-armour> <hard>)
   :sort-value 4012
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 22 :base-dice 6 :num-dice 1 :tohit-bonus -3)) 
+  :game-values (make-game-values :base-ac 22 :base-dice 6 :num-dice 1 :tohit-modifier -3)) 
 
 (define-object-kind "metal-lamellar" "metal lamellar armour~"
   :numeric-id 115
@@ -375,7 +375,7 @@
   :obj-type '(<metal-lamellar> <body-armour> <hard>)
   :sort-value 4013
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 23 :base-dice 6 :num-dice 1 :tohit-bonus -3)) 
+  :game-values (make-game-values :base-ac 23 :base-dice 6 :num-dice 1 :tohit-modifier -3)) 
 
 (define-object-kind "full-plate" "full plate armour~"
   :numeric-id 116
@@ -390,7 +390,7 @@
   :obj-type '(<full-plate> <body-armour> <hard>)
   :sort-value 4015
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 25 :base-dice 4 :num-dice 2 :tohit-bonus -3)) 
+  :game-values (make-game-values :base-ac 25 :base-dice 4 :num-dice 2 :tohit-modifier -3)) 
 
 (define-object-kind "ribbed-plate" "ribbed plate armour~"
   :numeric-id 117
@@ -405,7 +405,7 @@
   :obj-type '(<ribbed-plate> <body-armour> <hard>)
   :sort-value 4018
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 28 :base-dice 4 :num-dice 2 :tohit-bonus -3)) 
+  :game-values (make-game-values :base-ac 28 :base-dice 4 :num-dice 2 :tohit-modifier -3)) 
 
 (define-object-kind "adamantite-plater" "adamantite plate mail~"
   :numeric-id 118
@@ -420,7 +420,7 @@
   :obj-type '(<adamantite-plate> <body-armour> <hard>)
   :sort-value 4030
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 40 :base-dice 4 :num-dice 2 :tohit-bonus -4 :ignores '(<acid>))) 
+  :game-values (make-game-values :base-ac 40 :base-dice 4 :num-dice 2 :tohit-modifier -4 :ignores '(<acid>))) 
 
 (define-object-kind "mithril-plate" "mithril plate mail~"
   :numeric-id 119
@@ -435,7 +435,7 @@
   :obj-type '(<mithril-plate> <body-armour> <hard>)
   :sort-value 4025
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 35 :base-dice 4 :num-dice 2 :tohit-bonus -3 :ignores '(<acid>))) 
+  :game-values (make-game-values :base-ac 35 :base-dice 4 :num-dice 2 :tohit-modifier -3 :ignores '(<acid>))) 
 
 (define-object-kind "mithril-chain-mail" "mithril chain mail~"
   :numeric-id 120
@@ -450,7 +450,7 @@
   :obj-type '(<mithril-chain> <body-armour> <hard>)
   :sort-value 4020
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 28 :base-dice 4 :num-dice 1 :tohit-bonus -1 :ignores '(<acid>))) 
+  :game-values (make-game-values :base-ac 28 :base-dice 4 :num-dice 1 :tohit-modifier -1 :ignores '(<acid>))) 
 
 (define-object-kind "double-chain-mail" "double chain mail~"
   :numeric-id 121
@@ -465,7 +465,7 @@
   :obj-type '(<double-chain> <body-armour> <hard>)
   :sort-value 4007
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 16 :base-dice 4 :num-dice 1 :tohit-bonus -2)) 
+  :game-values (make-game-values :base-ac 16 :base-dice 4 :num-dice 1 :tohit-modifier -2)) 
 
 (define-object-kind "deflection-shield" "& shield~ of deflection"
   :numeric-id 122
@@ -480,7 +480,7 @@
   :obj-type '(<shield> <large> <metal> <deflection>)
   :sort-value 3710
   :the-kind '<shield>
-  :game-values (make-instance 'game-values :base-ac 10 :ac-bonus 10 :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
+  :game-values (make-game-values :base-ac 10 :ac-modifier 10 :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
 
 (define-object-kind "cloak" "& cloak~"
   :numeric-id 123
@@ -495,7 +495,7 @@
   :obj-type '(<cloth> <cloak>)
   :sort-value 3801
   :the-kind '<cloak>
-  :game-values (make-instance 'game-values :base-ac 1)) 
+  :game-values (make-game-values :base-ac 1)) 
 
 (define-object-kind "shadow-cloak" "& shadow cloak~"
   :numeric-id 124
@@ -510,7 +510,7 @@
   :obj-type '(<shadow> <cloak>)
   :sort-value 3806
   :the-kind '<cloak>
-  :game-values (make-instance 'game-values :base-ac 6 :ac-bonus 4)) 
+  :game-values (make-game-values :base-ac 6 :ac-modifier 4)) 
 
 (define-object-kind "leather-gloves" "& set~ of leather gloves"
   :numeric-id 125
@@ -525,7 +525,7 @@
   :obj-type '(<leather> <gloves>)
   :sort-value 3401
   :the-kind '<gloves>
-  :game-values (make-instance 'game-values :base-ac 1)) 
+  :game-values (make-game-values :base-ac 1)) 
 
 (define-object-kind "gauntlets" "& set~ of gauntlets"
   :numeric-id 126
@@ -540,7 +540,7 @@
   :obj-type '(<gauntlets> <gloves>)
   :sort-value 3402
   :the-kind '<gloves>
-  :game-values (make-instance 'game-values :base-ac 2 :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 2 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "cesti" "& set~ of cesti"
   :numeric-id 127
@@ -555,7 +555,7 @@
   :obj-type '(<cesti> <gloves>)
   :sort-value 3405
   :the-kind '<gloves>
-  :game-values (make-instance 'game-values :base-ac 5 :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 5 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "small-leather-shield" "& small leather shield~"
   :numeric-id 128
@@ -570,7 +570,7 @@
   :obj-type '(<shield> <small> <leather>)
   :sort-value 3702
   :the-kind '<shield>
-  :game-values (make-instance 'game-values :base-ac 2 :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 2 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "large-leather-shield" "& large leather shield~"
   :numeric-id 129
@@ -585,7 +585,7 @@
   :obj-type '(<shield> <large> <leather>)
   :sort-value 3704
   :the-kind '<shield>
-  :game-values (make-instance 'game-values :base-ac 4 :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 4 :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "small-metal-shield" "& small metal shield~"
   :numeric-id 130
@@ -600,7 +600,7 @@
   :obj-type '(<shield> <small> <metal>)
   :sort-value 3703
   :the-kind '<shield>
-  :game-values (make-instance 'game-values :base-ac 3 :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 3 :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "large-metal-shield" "& large metal shield~"
   :numeric-id 131
@@ -615,7 +615,7 @@
   :obj-type '(<shield> <large> <metal>)
   :sort-value 3705
   :the-kind '<shield>
-  :game-values (make-instance 'game-values :base-ac 5 :base-dice 3 :num-dice 1)) 
+  :game-values (make-game-values :base-ac 5 :base-dice 3 :num-dice 1)) 
 
 
 (define-object-kind "object-400" "black dragon scale mail~"
@@ -632,7 +632,7 @@
   :flags '(<activation>)
   :sort-value 4101
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<acid>))) 
 
 (define-object-kind "object-401" "blue dragon scale mail~"
@@ -649,7 +649,7 @@
   :flags '(<activation>)
   :sort-value 4102
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<electricity>))) 
 
 (define-object-kind "object-402" "white dragon scale mail~"
@@ -666,7 +666,7 @@
   :flags '(<activation>)
   :sort-value 4103
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<cold>))) 
 
 (define-object-kind "object-403" "red dragon scale mail~"
@@ -683,7 +683,7 @@
   :flags '(<activation>)
   :sort-value 4104
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<fire>))) 
 
 (define-object-kind "object-404" "green dragon scale mail~"
@@ -700,7 +700,7 @@
   :flags '(<activation>)
   :sort-value 4105
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<poison>))) 
 
 (define-object-kind "object-405" "multi-hued dragon scale mail~"
@@ -717,7 +717,7 @@
   :flags '(<activation>)
   :sort-value 4106
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists
                               '(<poison> <cold> <fire> <electricity> <acid>))) 
 
@@ -735,8 +735,8 @@
   :flags '(<activation>)
   :sort-value 4110
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
-                              '(<cold> <fire> <electricity> <acid>) :resists '(<dark> <light>))) 
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
+                              '(<cold> <fire> <electricity> <acid>) :resists '(<darkness> <light>))) 
 
 (define-object-kind "object-407" "law dragon scale mail~"
   :numeric-id 407
@@ -752,8 +752,8 @@
   :flags '(<activation>)
   :sort-value 4112
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
-                              '(<cold> <fire> <electricity> <acid>) :resists '(<shard> <sound>))) 
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
+                              '(<cold> <fire> <electricity> <acid>) :resists '(<shards> <sound>))) 
 
 (define-object-kind "object-408" "bronze dragon scale mail~"
   :numeric-id 408
@@ -769,7 +769,7 @@
   :flags '(<activation>)
   :sort-value 4114
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<confusion>))) 
 
 (define-object-kind "object-409" "gold dragon scale mail~"
@@ -786,7 +786,7 @@
   :flags '(<activation>)
   :sort-value 4116
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<sound>))) 
 
 (define-object-kind "object-410" "chaos dragon scale mail~"
@@ -803,7 +803,7 @@
   :flags '(<activation>)
   :sort-value 4118
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<disenchant> <chaos> <confusion>))) 
 
 (define-object-kind "object-411" "balance dragon scale mail~"
@@ -820,9 +820,9 @@
   :flags '(<activation>)
   :sort-value 4120
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
+  :game-values (make-game-values :base-ac 30 :ac-modifier 10 :base-dice 4 :num-dice 2 :tohit-modifier -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists
-                              '(<disenchant> <chaos> <shard> <sound> <confusion>))) 
+                              '(<disenchant> <chaos> <shards> <sound> <confusion>))) 
 
 (define-object-kind "power-dsm" "power dragon scale mail~"
   :numeric-id 412
@@ -838,12 +838,12 @@
   :flags '(<activation>)
   :sort-value 4130
   :the-kind '<body-armour>
-  :game-values (make-instance 'game-values :base-ac 40 :ac-bonus 15 :base-dice 4 :num-dice 2 :tohit-bonus -3 :ignores
+  :game-values (make-game-values :base-ac 40 :ac-modifier 15 :base-dice 4 :num-dice 2 :tohit-modifier -3 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists
-                              '(<chaos> <nether> <nexus> <dark> <light> <confusion> <poison> <electricity> <cold>
+                              '(<chaos> <nether> <nexus> <darkness> <light> <confusion> <poison> <electricity> <cold>
                                 <fire> <acid>))) 
 
-(define-object-kind "ircon-crown" "& massive iron crown~"
+(define-object-kind "massive-iron-crown" "& massive iron crown~"
   :numeric-id 499
   :x-attr #\D
   :x-char #\]
@@ -857,5 +857,5 @@
   :flags '(<instant-artifact>)
   :sort-value 3650
   :the-kind '<headgear>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 

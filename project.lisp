@@ -3,7 +3,7 @@
 #|
 
 DESC: project.lisp - code for doing projections
-Copyright (c) 2001 - Stig Erik Sandø
+Copyright (c) 2001-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -115,35 +115,6 @@ the Free Software Foundation; either version 2 of the License, or
 	    )
       )))
 
-;;(trace project-path)
-
-(defun project-hack (dungeon player)
-  "a hack"
-  (let* ((pvx (location-x player))
-	 (pvy (location-y player))
-	 (tx (+ 5 pvx))
-	 (ty (+ 4 pvy))
-	 (path-arr (make-array 40 :fill-pointer 0))
-	 (miss-char #\-)
-	 (miss-attr +term-l-blue+)
-	 )
-
-    (let ((path-len (project-path dungeon 18 path-arr pvx pvy tx ty 0))
-;;	  (lst '())
-	  )
-;;      (warn "len from ~s to ~s with ~s is ~s" (cons pvx pvy) (cons tx ty) path-arr path-len)
-      (declare (ignore path-len))
-
-      (loop for g across path-arr
-	    do
-	    (let ((x (grid-x g))
-		  (y (grid-y g)))
-;;	      (push (cons x y) lst)
-	      (display-moving-object dungeon x y miss-char miss-attr)
-	      ))
-
-;;      (warn "did ~s" lst)
-      nil)))
 
 (defun display-moving-object (dungeon x y obj-char obj-attr)
   "Prints the OBJ-CHAR with OBJ-ATTR at given coordinates with proper delay."
@@ -154,7 +125,7 @@ the Free Software Foundation; either version 2 of the License, or
   (light-spot! dungeon x y)
   (c-term-fresh!))
 
-(defun temp-shoot-an-arrow (dungeon player)
+(defun interactive-fire-a-missile (dungeon player)
   "Hackish shoot-code."
   (block missile-shooting
     (let ((the-bow (get-missile-weapon player))
@@ -185,8 +156,8 @@ the Free Software Foundation; either version 2 of the License, or
       (return-from missile-hit-creature? (< num 5)))
 
   
-    (let* ((bonus (+ 0 (gval.tohit-bonus (aobj.game-values missile-weapon))
-		     (gval.tohit-bonus (aobj.game-values missile))))
+    (let* ((bonus (+ 0 (gval.tohit-modifier (aobj.game-values missile-weapon))
+		     (gval.tohit-modifier (aobj.game-values missile))))
 	   (chance (+ (skills.shooting (player.skills attacker)) (* 3 bonus))) ;; hack
 	   (dist (distance (location-x attacker) (location-y attacker)
 			   (location-x target) (location-y target)))
@@ -194,7 +165,8 @@ the Free Software Foundation; either version 2 of the License, or
 	   (target-ac (get-creature-ac target))
 	   )
 
-      ;; fix invisible later      
+      ;; fix invisible later
+      #+never
       (warn "chance to hit is ~s on ac ~s" red-chance target-ac)
       
       (when (and (plusp red-chance)
@@ -293,3 +265,33 @@ the Free Software Foundation; either version 2 of the License, or
 	      (return-from read-loop nil))
 	     (t
 	      (c-prt! "Unknown direction!" 0 0)))))))
+
+;;(trace project-path)
+#+never
+(defun project-hack (dungeon player)
+  "a hack"
+  (let* ((pvx (location-x player))
+	 (pvy (location-y player))
+	 (tx (+ 5 pvx))
+	 (ty (+ 4 pvy))
+	 (path-arr (make-array 40 :fill-pointer 0))
+	 (miss-char #\-)
+	 (miss-attr +term-l-blue+)
+	 )
+
+    (let ((path-len (project-path dungeon 18 path-arr pvx pvy tx ty 0))
+;;	  (lst '())
+	  )
+;;      (warn "len from ~s to ~s with ~s is ~s" (cons pvx pvy) (cons tx ty) path-arr path-len)
+      (declare (ignore path-len))
+
+      (loop for g across path-arr
+	    do
+	    (let ((x (grid-x g))
+		  (y (grid-y g)))
+;;	      (push (cons x y) lst)
+	      (display-moving-object dungeon x y miss-char miss-attr)
+	      ))
+
+;;      (warn "did ~s" lst)
+      nil)))

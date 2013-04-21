@@ -19,7 +19,8 @@ ADD_DESC: Contains definition of races in sexp.
 (in-package :langband)
 
 
-(define-race '<human> "Human"
+(define-race "human" "Human"
+  :symbol '<human>
   :desc "
                The human is the base character.  All other races are compared
                to them.  Humans can choose any class and are average at
@@ -42,7 +43,8 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race '<half-elf> "Half-elf"
+(define-race "half-elf" "Half-elf"
+  :symbol '<half-elf>
   :desc "
                Half-elves tend to be smarter and faster than a  human,  but
                not as strong.  Half-elves are slightly better at searching,
@@ -70,7 +72,8 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race '<elf> "Elf"
+(define-race "elf" "Elf"
+  :symbol '<elf>
   :desc "
                Elves are better magicians then humans, but not as good at
                fighting.  They tend to be smarter and faster than either
@@ -101,7 +104,8 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race '<hobbit> "Hobbit"
+(define-race "hobbit" "Hobbit"
+  :symbol '<hobbit>
   :desc "
                Hobbits, or Halflings, are very good at bows, throwing,  and
                have good saving throws.  They also are very good at searching,
@@ -133,7 +137,8 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race '<gnome>  "Gnome"
+(define-race "gnome"  "Gnome"
+  :symbol '<gnome>
   :desc "
                Gnomes are smaller than dwarves but larger than halflings.
                They, like  the halflings, live in the earth in burrow-like
@@ -167,7 +172,8 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race '<dwarf> "Dwarf"
+(define-race "dwarf" "Dwarf"
+  :symbol '<dwarf>
   :desc "
                Dwarves are the headstrong miners and fighters of legend.
                Since dungeons are the natural home of a dwarf, they are
@@ -203,7 +209,8 @@ ADD_DESC: Contains definition of races in sexp.
   
   )
 
-(define-race '<half-orc> "Half-orc"
+(define-race "half-orc" "Half-orc"
+  :symbol '<half-orc>
   :desc "
                Half-Orcs make excellent warriors and decent priests, but
                are terrible at magic.  They are as bad as dwarves at stealth,
@@ -236,7 +243,8 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race '<half-troll> "Half-troll"
+(define-race "half-troll" "Half-troll"
+  :symbol '<half-troll>
   :desc "
                Half-Trolls are incredibly strong, and have more hit points
                than any other character race.  They are also very stupid and
@@ -267,7 +275,8 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race '<dunedan> "Dunedan"
+(define-race "dunedan" "Dunedan"
+  :symbol '<dunedan>
   :desc "
                Dunedain are a race of hardy men from the West.  This elder
                race surpasses human abilities in every field, especially
@@ -295,7 +304,8 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race '<high-elf> "High-elf"
+(define-race "high-elf" "High-elf"
+  :symbol '<high-elf>
   :desc "
                High-elves are a race of immortal beings dating from the
                beginning of time.  Levels are even harder for them to gain 

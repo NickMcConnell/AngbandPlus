@@ -18,9 +18,6 @@
 (fli:define-foreign-function (c_bell! "bell") ((msg :pointer))
    :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
 
-(fli:define-foreign-function (c-pause-line! "pause_line") ((row :int))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
 (fli:define-foreign-function (c-clear-from! "clear_from") ((row :int))
    :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
 
@@ -139,11 +136,11 @@
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (export
-   '(c_current_ui c_quit! c_bell! c-pause-line! c-clear-from! c_prt!
-     c-prt-token! c-prt-stat! c-prt-number! c_msg_print! c_term_putstr!
-     c-term-queue-char! c-term-gotoxy! c-set-cursor& c-term-clear!
-     c-term-fresh! c-term-save! c-term-load! c-term-xtra& c-term-inkey&
-     c-inkey! init_c-side& cleanup-c-side& c_macro_add& c-set-lisp-system!
-     c-set-lisp-callback! c-set-hinst! c-load-sound&)))
+   '(c_current_ui c_quit! c_bell! c-clear-from! c_prt! c-prt-token! c-prt-stat!
+     c-prt-number! c_msg_print! c_term_putstr! c-term-queue-char!
+     c-term-gotoxy! c-set-cursor& c-term-clear! c-term-fresh! c-term-save!
+     c-term-load! c-term-xtra& c-term-inkey& c-inkey! init_c-side&
+     cleanup-c-side& c_macro_add& c-set-lisp-system! c-set-lisp-callback!
+     c-set-hinst! c-load-sound&)))
 
 ;;; End of generated file.

@@ -118,6 +118,11 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
 	  (lisp-name (foreign-fun-lisp-name i))
 	  (when-restrict (foreign-fun-only-when i)))
 
+
+      (print-restrict when-restrict stream)
+      (pprint `(declaim (inline ,lisp-name))
+	      stream)
+      
       (print-restrict when-restrict stream)
       
       (pprint `(alien:def-alien-routine (,c-name ,lisp-name)

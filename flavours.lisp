@@ -3,7 +3,7 @@
 #|
 
 DESC: flavours.lisp - basic code for flavour
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

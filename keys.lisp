@@ -3,7 +3,7 @@
 #|
 
 DESC: keys.lisp - keypressing code
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -89,7 +89,7 @@ operation."
 	      (let ((retval (funcall fun dun pl)))
 		(return-from get-and-process-command! retval)))
 	     (t
-	      (warn "fell through key with ~a ~a" ch (char-code ch))))
+	      (warn "fell through key with ~a ~a ~s" ch (char-code ch) ch)))
        ))
     ))
 
@@ -108,8 +108,10 @@ operation."
   "opens all doors around.."
   (let ((x (location-x pl))
 	(y (location-y pl))
-	(collected '()))
-    
+;;	(collected '())
+	)
+
+    ;; hack, fix later
     (dolist (i (list (cons x (1- y))
 		     (cons x (1+ y))
 		     (cons (1- x) y)

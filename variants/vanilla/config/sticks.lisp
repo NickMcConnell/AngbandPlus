@@ -16,9 +16,9 @@
   :obj-type '(<light> <wand>)
   :sort-value 4807
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-270" "lightning bolts"
+(define-object-kind "wand-lightning-bolt" "lightning bolts"
   :numeric-id 270
   :x-attr #\d
   :x-char #\-
@@ -31,9 +31,9 @@
   :obj-type '(<wand> <bolt> <lightning>)
   :sort-value 4817
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-271" "frost bolts"
+(define-object-kind "wand-frost-bolt" "frost bolts"
   :numeric-id 271
   :x-attr #\d
   :x-char #\-
@@ -46,7 +46,7 @@
   :obj-type '(<wand> <bolt> <cold>)
   :sort-value 4819
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-272" "fire bolts"
   :numeric-id 272
@@ -61,7 +61,7 @@
   :obj-type '(<wand> <bolt> <fire>)
   :sort-value 4818
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-273" "stone to mud"
   :numeric-id 273
@@ -76,7 +76,7 @@
   :obj-type '(<stone-to-mud> <wand>)
   :sort-value 4806
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-polymorph" "polymorph"
   :numeric-id 274
@@ -91,7 +91,7 @@
   :obj-type '(<polymorph> <wand>)
   :sort-value 4813
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-heal-monster" "heal monster"
   :numeric-id 275
@@ -106,7 +106,7 @@
   :obj-type '(<heal-monster> <wand>)
   :sort-value 4800
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-haste-monster" "haste monster"
   :numeric-id 276
@@ -121,7 +121,7 @@
   :obj-type '(<haste-monster> <wand>)
   :sort-value 4801
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-slow-monster" "slow monster"
   :numeric-id 277
@@ -136,7 +136,7 @@
   :obj-type '(<slow-monster> <wand>)
   :sort-value 4809
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-confuse-monster" "confuse monster"
   :numeric-id 278
@@ -151,7 +151,7 @@
   :obj-type '(<confuse-monster> <wand>)
   :sort-value 4810
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-sleep-monster" "sleep monster"
   :numeric-id 279
@@ -166,7 +166,7 @@
   :obj-type '(<sleep-monster> <wand>)
   :sort-value 4808
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-drain-life" "drain life"
   :numeric-id 280
@@ -181,7 +181,7 @@
   :obj-type '(<drain-life> <wand>)
   :sort-value 4812
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-destroy-door" "trap/door destruction"
   :numeric-id 281
@@ -196,7 +196,7 @@
   :obj-type '(<trap/door-destruction> <wand>)
   :sort-value 4805
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-magic-missile" "magic missile"
   :numeric-id 282
@@ -211,7 +211,7 @@
   :obj-type '(<magic-missile> <wand>)
   :sort-value 4815
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-clone-monster" "clone monster"
   :numeric-id 283
@@ -226,7 +226,7 @@
   :obj-type '(<clone-monster> <wand>)
   :sort-value 4802
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-scare-monster" "scare monster"
   :numeric-id 284
@@ -241,7 +241,7 @@
   :obj-type '(<fear-monster> <wand>)
   :sort-value 4811
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-teleport-other" "teleport other"
   :numeric-id 285
@@ -256,7 +256,7 @@
   :obj-type '(<teleport-away> <wand>)
   :sort-value 4803
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-disarming" "disarming"
   :numeric-id 286
@@ -271,7 +271,7 @@
   :obj-type '(<disarm> <wand>)
   :sort-value 4804
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-lightning-balls" "lightning balls"
   :numeric-id 287
@@ -286,7 +286,7 @@
   :obj-type '(<wand> <ball> <lightning>)
   :sort-value 4821
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<electricity>))) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<electricity>))) 
 
 (define-object-kind "wand-cold-balls" "cold balls"
   :numeric-id 288
@@ -301,7 +301,7 @@
   :obj-type '(<wand> <ball> <cold>)
   :sort-value 4823
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold>))) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold>))) 
 
 (define-object-kind "wand-fire-balls" "fire balls"
   :numeric-id 289
@@ -316,7 +316,7 @@
   :obj-type '(<wand> <ball> <fire>)
   :sort-value 4822
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<fire>))) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<fire>))) 
 
 (define-object-kind "wand-stinking-cloud" "stinking cloud"
   :numeric-id 290
@@ -331,7 +331,7 @@
   :obj-type '(<stinking-cloud> <wand>)
   :sort-value 4814
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-291" "acid balls"
   :numeric-id 291
@@ -346,7 +346,7 @@
   :obj-type '(<wand> <ball> <acid>)
   :sort-value 4820
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
 
 (define-object-kind "wand-wonder" "wonder"
   :numeric-id 292
@@ -361,7 +361,7 @@
   :obj-type '(<wonder> <wand>)
   :sort-value 4824
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-294" "acid bolts"
   :numeric-id 294
@@ -376,7 +376,7 @@
   :obj-type '(<wand> <bolt> <acid>)
   :sort-value 4816
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-295" "dragon's flame"
   :numeric-id 295
@@ -391,7 +391,7 @@
   :obj-type '(<wand> <dragon> <fire>)
   :sort-value 4826
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-296" "dragon's frost"
   :numeric-id 296
@@ -406,7 +406,7 @@
   :obj-type '(<wand> <dragon> <cold>)
   :sort-value 4827
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-297" "dragon's breath"
   :numeric-id 297
@@ -421,7 +421,7 @@
   :obj-type '(<wand> <dragon> <breath>)
   :sort-value 4828
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-298" "annihilation"
   :numeric-id 298
@@ -436,7 +436,7 @@
   :obj-type '(<annihiliation> <wand>)
   :sort-value 4825
   :the-kind '<wand>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>)))
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>)))
 
 ;;; Staves
 
@@ -453,7 +453,7 @@
   :obj-type '(<staff> <detect> <trap>)
   :sort-value 4612
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-gold" "treasure location"
   :numeric-id 301
@@ -468,7 +468,7 @@
   :obj-type '(<staff> <detect> <money>)
   :sort-value 4610
   :the-kind '<money>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-item" "object location"
   :numeric-id 302
@@ -483,7 +483,7 @@
   :obj-type '(<staff> <detect> <item>)
   :sort-value 4611
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-teleport" "teleportation"
   :numeric-id 303
@@ -498,7 +498,7 @@
   :obj-type '(<teleportation> <staff>)
   :sort-value 4604
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-304" "earthquakes"
   :numeric-id 304
@@ -513,7 +513,7 @@
   :obj-type '(<earthquake> <staff>)
   :sort-value 4628
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-summoning" "summoning"
   :numeric-id 305
@@ -528,7 +528,7 @@
   :obj-type '(<summoning> <staff>)
   :sort-value 4603
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-light" "light"
   :numeric-id 306
@@ -543,7 +543,7 @@
   :obj-type '(<light> <staff>)
   :sort-value 4608
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-307" "*destruction*"
   :numeric-id 307
@@ -558,7 +558,7 @@
   :obj-type '(<destruction> <staff>)
   :sort-value 4629
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-308" "starlight"
   :numeric-id 308
@@ -573,7 +573,7 @@
   :obj-type '(<star-light> <staff>)
   :sort-value 4607
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-309" "haste monsters"
   :numeric-id 309
@@ -588,7 +588,7 @@
   :obj-type '(<haste-monster> <staff>)
   :sort-value 4602
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-slow-monsters" "slow monsters"
   :numeric-id 310
@@ -603,7 +603,7 @@
   :obj-type '(<slow-monster> <staff>)
   :sort-value 4621
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-311" "sleep monsters"
   :numeric-id 311
@@ -618,7 +618,7 @@
   :obj-type '(<sleep-monster> <staff>)
   :sort-value 4620
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-cure-light" "cure light wounds"
   :numeric-id 312
@@ -633,7 +633,7 @@
   :obj-type '(<staff> <cure> <light>)
   :sort-value 4616
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-inv" "detect invisible"
   :numeric-id 313
@@ -648,7 +648,7 @@
   :obj-type '(<staff> <detect> <invisible>)
   :sort-value 4614
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-speed" "speed"
   :numeric-id 314
@@ -663,7 +663,7 @@
   :obj-type '(<speed> <staff>)
   :sort-value 4622
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-slowness" "slowness"
   :numeric-id 315
@@ -678,7 +678,7 @@
   :obj-type '(<slowness> <staff>)
   :sort-value 4601
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-door" "door/stair location"
   :numeric-id 316
@@ -693,7 +693,7 @@
   :obj-type '(<staff> <detect> <door>)
   :sort-value 4613
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-317" "remove curse"
   :numeric-id 317
@@ -708,7 +708,7 @@
   :obj-type '(<remove-curse> <staff>)
   :sort-value 4606
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-evil" "detect evil"
   :numeric-id 318
@@ -723,7 +723,7 @@
   :obj-type '(<staff> <detect> <evil>)
   :sort-value 4615
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-319" "curing"
   :numeric-id 319
@@ -738,7 +738,7 @@
   :obj-type '(<staff> <cure> <curing>)
   :sort-value 4617
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-dispel-evil" "dispel evil"
   :numeric-id 320
@@ -753,7 +753,7 @@
   :obj-type '(<staff> <dispel> <evil>)
   :sort-value 4624
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-321" "probing"
   :numeric-id 321
@@ -768,7 +768,7 @@
   :obj-type '(<probing> <staff>)
   :sort-value 4623
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-darkness" "darkness"
   :numeric-id 322
@@ -783,7 +783,7 @@
   :obj-type '(<darkness> <staff>)
   :sort-value 4600
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-323" "genocide"
   :numeric-id 323
@@ -798,7 +798,7 @@
   :obj-type '(<genocide> <staff>)
   :sort-value 4627
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-power" "power"
   :numeric-id 324
@@ -813,7 +813,7 @@
   :obj-type '(<power> <staff>)
   :sort-value 4625
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-magi" "the magi"
   :numeric-id 325
@@ -828,7 +828,7 @@
   :obj-type '(<magi> <staff>)
   :sort-value 4619
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-identify" "perception"
   :numeric-id 326
@@ -843,7 +843,7 @@
   :obj-type '(<identify> <staff>)
   :sort-value 4605
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-holiness" "holiness"
   :numeric-id 327
@@ -858,7 +858,7 @@
   :obj-type '(<holiness> <staff>)
   :sort-value 4626
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-mapping" "enlightenment"
   :numeric-id 328
@@ -873,7 +873,7 @@
   :obj-type '(<mapping> <staff>)
   :sort-value 4609
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-healing" "healing"
   :numeric-id 329
@@ -888,7 +888,7 @@
   :obj-type '(<staff> <cure> <healing>)
   :sort-value 4618
   :the-kind '<staff>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 ;;; rods
 
@@ -905,7 +905,7 @@
   :obj-type '(<rod> <detect> <door>)
   :sort-value 4501
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-352" "trap location"
   :numeric-id 352
@@ -920,7 +920,7 @@
   :obj-type '(<rod> <detect> <trap>)
   :sort-value 4500
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-353" "probing"
   :numeric-id 353
@@ -935,7 +935,7 @@
   :obj-type '(<probing> <rod>)
   :sort-value 4507
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-354" "recall"
   :numeric-id 354
@@ -950,7 +950,7 @@
   :obj-type '(<recall> <rod>)
   :sort-value 4503
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-355" "illumination"
   :numeric-id 355
@@ -965,7 +965,7 @@
   :obj-type '(<illumination> <rod>)
   :sort-value 4504
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-356" "light"
   :numeric-id 356
@@ -980,7 +980,7 @@
   :obj-type '(<light> <rod>)
   :sort-value 4515
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-357" "lightning bolts"
   :numeric-id 357
@@ -995,7 +995,7 @@
   :obj-type '(<rod> <bolt> <lightning>)
   :sort-value 4521
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-358" "frost bolts"
   :numeric-id 358
@@ -1010,7 +1010,7 @@
   :obj-type '(<rod> <bolt> <cold>)
   :sort-value 4523
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-359" "fire bolts"
   :numeric-id 359
@@ -1025,7 +1025,7 @@
   :obj-type '(<rod> <bolt> <fire>)
   :sort-value 4522
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-360" "polymorph"
   :numeric-id 360
@@ -1040,7 +1040,7 @@
   :obj-type '(<polymorph> <rod>)
   :sort-value 4519
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-361" "slow monster"
   :numeric-id 361
@@ -1055,7 +1055,7 @@
   :obj-type '(<slow-monster> <rod>)
   :sort-value 4517
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-362" "sleep monster"
   :numeric-id 362
@@ -1070,7 +1070,7 @@
   :obj-type '(<sleep-monster> <rod>)
   :sort-value 4516
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-363" "drain life"
   :numeric-id 363
@@ -1085,7 +1085,7 @@
   :obj-type '(<drain-life> <rod>)
   :sort-value 4518
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-364" "teleport other"
   :numeric-id 364
@@ -1100,7 +1100,7 @@
   :obj-type '(<teleport-away> <rod>)
   :sort-value 4513
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-365" "disarming"
   :numeric-id 365
@@ -1115,7 +1115,7 @@
   :obj-type '(<disarming> <rod>)
   :sort-value 4514
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-366" "lightning balls"
   :numeric-id 366
@@ -1130,7 +1130,7 @@
   :obj-type '(<rod> <ball> <lightning)
   :sort-value 4525
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-367" "cold balls"
   :numeric-id 367
@@ -1145,7 +1145,7 @@
   :obj-type '(<rod> <ball> <cold)
   :sort-value 4527
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-368" "fire balls"
   :numeric-id 368
@@ -1160,7 +1160,7 @@
   :obj-type '(<rod> <ball> <fire>)
   :sort-value 4526
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-369" "acid balls"
   :numeric-id 369
@@ -1175,7 +1175,7 @@
   :obj-type '(<rod> <ball> <acid>)
   :sort-value 4524
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-370" "acid bolts"
   :numeric-id 370
@@ -1190,7 +1190,7 @@
   :obj-type '(<rod> <bolt> <acid>)
   :sort-value 4520
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-371" "enlightenment"
   :numeric-id 371
@@ -1205,7 +1205,7 @@
   :obj-type '(<mapping> <rod>)
   :sort-value 4505
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-372" "perception"
   :numeric-id 372
@@ -1220,7 +1220,7 @@
   :obj-type '(<identify> <rod>)
   :sort-value 4502
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-373" "curing"
   :numeric-id 373
@@ -1235,7 +1235,7 @@
   :obj-type '(<curing> <rod>)
   :sort-value 4508
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-374" "healing"
   :numeric-id 374
@@ -1250,7 +1250,7 @@
   :obj-type '(<healing> <rod>)
   :sort-value 4509
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-detection" "detection"
   :numeric-id 375
@@ -1265,7 +1265,7 @@
   :obj-type '(<detection> <rod>)
   :sort-value 4506
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-376" "restoration"
   :numeric-id 376
@@ -1280,7 +1280,7 @@
   :obj-type '(<restoration> <rod>)
   :sort-value 4510
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-speed" "speed"
   :numeric-id 377
@@ -1295,4 +1295,4 @@
   :obj-type '(<speed> <rod>)
   :sort-value 4511
   :the-kind '<rod>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 

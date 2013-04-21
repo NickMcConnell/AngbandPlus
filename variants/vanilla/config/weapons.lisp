@@ -15,7 +15,7 @@
   :flags '(<show-modififers>)
   :sort-value 3201
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :tohit-bonus -2 :dmg-bonus -4)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :tohit-modifier -2 :dmg-modifier -4)) 
 
 (define-object-kind "bastard-sword" "& bastard sword~"
   :numeric-id 31
@@ -31,7 +31,7 @@
   :flags '(<show-modififers>)
   :sort-value 3221
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 4 :num-dice 3)) 
+  :game-values (make-game-values :base-dice 4 :num-dice 3)) 
 
 (define-object-kind "scimitar" "& scimitar~"
   :numeric-id 32
@@ -47,7 +47,7 @@
   :flags '(<show-modififers>)
   :sort-value 3218
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 5 :num-dice 2)) 
 
 (define-object-kind "tulwar" "& tulwar~"
   :numeric-id 33
@@ -63,7 +63,7 @@
   :flags '(<show-modififers>)
   :sort-value 3215
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 4 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 4 :num-dice 2)) 
 
 (define-object-kind "broad-sword" "& broad sword~"
   :numeric-id 34
@@ -79,7 +79,7 @@
   :flags '(<show-modififers>)
   :sort-value 3216
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 5 :num-dice 2)) 
 
 (define-object-kind "short-sword" "& short sword~"
   :numeric-id 35
@@ -95,7 +95,7 @@
   :flags '(<show-modififers>)
   :sort-value 3210
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 7 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 7 :num-dice 1)) 
 
 (define-object-kind "chaos-blade" "& blade~ of chaos"
   :numeric-id 36
@@ -111,7 +111,7 @@
   :flags '(<show-modififers>)
   :sort-value 3230
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 5 :num-dice 6 :resists '(<chaos> <confusion>))) 
+  :game-values (make-game-values :base-dice 5 :num-dice 6 :resists '(<chaos> <confusion>))) 
 
 (define-object-kind "two-h-sword" "& two-handed sword~"
   :numeric-id 37
@@ -127,7 +127,7 @@
   :flags '(<show-modififers>)
   :sort-value 3225
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 6 :num-dice 3)) 
+  :game-values (make-game-values :base-dice 6 :num-dice 3)) 
 
 (define-object-kind "dirk" "& dirk~"
   :numeric-id 38
@@ -143,7 +143,7 @@
   :flags '(<show-modififers>)
   :sort-value 3205
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 5 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 5 :num-dice 1)) 
 
 (define-object-kind "cutlass" "& cutlass~"
   :numeric-id 39
@@ -159,7 +159,7 @@
   :flags '(<show-modififers>)
   :sort-value 3212
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 7 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 7 :num-dice 1)) 
 
 (define-object-kind "exec-sword" "& executioner's sword~"
   :numeric-id 40
@@ -175,7 +175,7 @@
   :flags '(<show-modififers>)
   :sort-value 3228
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 5 :num-dice 4)) 
+  :game-values (make-game-values :base-dice 5 :num-dice 4)) 
 
 (define-object-kind "katana" "& katana~"
   :numeric-id 41
@@ -191,7 +191,7 @@
   :flags '(<show-modififers>)
   :sort-value 3220
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 4 :num-dice 3)) 
+  :game-values (make-game-values :base-dice 4 :num-dice 3)) 
 
 (define-object-kind "long-sword" "& long sword~"
   :numeric-id 42
@@ -207,7 +207,7 @@
   :flags '(<show-modififers>)
   :sort-value 3217
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 5 :num-dice 2)) 
 
 (define-object-kind "dagger" "& dagger~"
   :numeric-id 43
@@ -223,7 +223,7 @@
   :flags '(<show-modififers>)
   :sort-value 3204
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 4 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 4 :num-dice 1)) 
 
 (define-object-kind "rapier" "& rapier~"
   :numeric-id 44
@@ -239,7 +239,7 @@
   :flags '(<show-modififers>)
   :sort-value 3207
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 6 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 6 :num-dice 1)) 
 
 (define-object-kind "sabre" "& sabre~"
   :numeric-id 45
@@ -255,7 +255,7 @@
   :flags '(<show-modififers>)
   :sort-value 3211
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 7 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 7 :num-dice 1)) 
 
 (define-object-kind "small-sword" "& small sword~"
   :numeric-id 46
@@ -271,7 +271,7 @@
   :flags '(<show-modififers>)
   :sort-value 3208
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 6 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 6 :num-dice 1)) 
 
 (define-object-kind "broken-sword" "& broken sword~"
   :numeric-id 47
@@ -287,7 +287,7 @@
   :flags '(<show-modififers>)
   :sort-value 3202
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1 :tohit-bonus -2 :dmg-bonus -4)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1 :tohit-modifier -2 :dmg-modifier -4)) 
 
 (define-object-kind "ball-and-chain" "& ball-and-chain~"
   :numeric-id 48
@@ -303,7 +303,7 @@
   :flags '(<show-modififers>)
   :sort-value 3006
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 4 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 4 :num-dice 2)) 
 
 (define-object-kind "whip" "& whip~"
   :numeric-id 49
@@ -319,7 +319,7 @@
   :flags '(<show-modififers>)
   :sort-value 3002
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 6 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 6 :num-dice 1)) 
 
 (define-object-kind "flail" "& flail~"
   :numeric-id 50
@@ -335,7 +335,7 @@
   :flags '(<show-modififers>)
   :sort-value 3013
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "two-h-flail" "& two-handed flail~"
   :numeric-id 51
@@ -351,7 +351,7 @@
   :flags '(<show-modififers>)
   :sort-value 3018
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 6 :num-dice 3)) 
+  :game-values (make-game-values :base-dice 6 :num-dice 3)) 
 
 (define-object-kind "morning-star" "& morning star~"
   :numeric-id 52
@@ -367,7 +367,7 @@
   :flags '(<show-modififers>)
   :sort-value 3012
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "mace" "& mace~"
   :numeric-id 53
@@ -383,7 +383,7 @@
   :flags '(<show-modififers>)
   :sort-value 3005
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 4 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 4 :num-dice 2)) 
 
 (define-object-kind "quarterstaff" "& quarterstaff~"
   :numeric-id 54
@@ -399,7 +399,7 @@
   :flags '(<show-modififers>)
   :sort-value 3003
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 9 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 9 :num-dice 1)) 
 
 (define-object-kind "war-hammer" "& war hammer~"
   :numeric-id 55
@@ -415,7 +415,7 @@
   :flags '(<show-modififers>)
   :sort-value 3008
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 3 :num-dice 3)) 
+  :game-values (make-game-values :base-dice 3 :num-dice 3)) 
 
 (define-object-kind "lead-mace" "& lead-filled mace~"
   :numeric-id 56
@@ -431,7 +431,7 @@
   :flags '(<show-modififers>)
   :sort-value 3015
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 4 :num-dice 3)) 
+  :game-values (make-game-values :base-dice 4 :num-dice 3)) 
 
 (define-object-kind "disruption-mace" "& mace~ of disruption"
   :numeric-id 57
@@ -447,7 +447,7 @@
   :flags '(<show-modififers>)
   :sort-value 3020
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 8 :num-dice 5 :slays '(<undead>))) 
+  :game-values (make-game-values :base-dice 8 :num-dice 5 :slays '(<undead>))) 
 
 (define-object-kind "lucerne-hammer" "& lucerne hammer~"
   :numeric-id 58
@@ -463,7 +463,7 @@
   :flags '(<show-modififers>)
   :sort-value 3010
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 5 :num-dice 2)) 
 
 (define-object-kind "beaked-axe" "& beaked axe~"
   :numeric-id 59
@@ -479,7 +479,7 @@
   :flags '(<show-modififers>)
   :sort-value 3110
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "glaive" "& glaive~"
   :numeric-id 60
@@ -495,7 +495,7 @@
   :flags '(<show-modififers>)
   :sort-value 3113
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "halberd" "& halberd~"
   :numeric-id 61
@@ -511,7 +511,7 @@
   :flags '(<show-modififers>)
   :sort-value 3115
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 5 :num-dice 3)) 
+  :game-values (make-game-values :base-dice 5 :num-dice 3)) 
 
 (define-object-kind "awl-pike" "& awl-pike~"
   :numeric-id 62
@@ -527,7 +527,7 @@
   :flags '(<show-modififers>)
   :sort-value 3104
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 8 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 8 :num-dice 1)) 
 
 (define-object-kind "pike" "& pike~"
   :numeric-id 63
@@ -543,7 +543,7 @@
   :flags '(<show-modififers>)
   :sort-value 3108
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 5 :num-dice 2)) 
 
 (define-object-kind "spear" "& spear~"
   :numeric-id 64
@@ -559,7 +559,7 @@
   :flags '(<show-modififers>)
   :sort-value 3102
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 6 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 6 :num-dice 1)) 
 
 (define-object-kind "trident" "& trident~"
   :numeric-id 65
@@ -575,7 +575,7 @@
   :flags '(<show-modififers>)
   :sort-value 3105
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 8 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 8 :num-dice 1)) 
 
 (define-object-kind "lance" "& lance~"
   :numeric-id 66
@@ -591,7 +591,7 @@
   :flags '(<show-modififers>)
   :sort-value 3120
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 8 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 8 :num-dice 2)) 
 
 (define-object-kind "great-axe" "& great axe~"
   :numeric-id 67
@@ -607,7 +607,7 @@
   :flags '(<show-modififers>)
   :sort-value 3125
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 4 :num-dice 4)) 
+  :game-values (make-game-values :base-dice 4 :num-dice 4)) 
 
 (define-object-kind "battle-axe" "& battle axe~"
   :numeric-id 68
@@ -623,7 +623,7 @@
   :flags '(<show-modififers>)
   :sort-value 3122
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 8 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 8 :num-dice 2)) 
 
 (define-object-kind "lochaber-axe" "& lochaber axe~"
   :numeric-id 69
@@ -639,7 +639,7 @@
   :flags '(<show-modififers>)
   :sort-value 3128
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 8 :num-dice 3)) 
+  :game-values (make-game-values :base-dice 8 :num-dice 3)) 
 
 (define-object-kind "broad-axe" "& broad axe~"
   :numeric-id 70
@@ -655,7 +655,7 @@
   :flags '(<show-modififers>)
   :sort-value 3111
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
+  :game-values (make-game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "scythe" "& scythe~"
   :numeric-id 71
@@ -671,7 +671,7 @@
   :flags '(<show-modififers>)
   :sort-value 3117
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 3 :num-dice 5)) 
+  :game-values (make-game-values :base-dice 3 :num-dice 5)) 
 
 (define-object-kind "scythe-slicing" "& scythe~ of slicing"
   :numeric-id 72
@@ -687,7 +687,7 @@
   :flags '(<show-modififers>)
   :sort-value 3130
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 4 :num-dice 8)) 
+  :game-values (make-game-values :base-dice 4 :num-dice 8)) 
 
 (define-object-kind "short-bow" "& short bow~"
   :numeric-id 73
@@ -704,7 +704,7 @@
   :flags '(<show-modififers>)
   :sort-value 2812
   :the-kind '<bow>
-  :game-values (make-instance 'game-values)) 
+  :game-values (make-game-values)) 
 
 (define-object-kind "long-bow" "& long bow~"
   :numeric-id 74
@@ -721,7 +721,7 @@
   :flags '(<show-modififers>)
   :sort-value 2813
   :the-kind '<bow>
-  :game-values (make-instance 'game-values)) 
+  :game-values (make-game-values)) 
 
 (define-object-kind "light-xbow" "& light crossbow~"
   :numeric-id 75
@@ -738,7 +738,7 @@
   :flags '(<show-modififers>)
   :sort-value 2823
   :the-kind '<bow>
-  :game-values (make-instance 'game-values)) 
+  :game-values (make-game-values)) 
 
 (define-object-kind "heavy-xbow" "& heavy crossbow~"
   :numeric-id 76
@@ -755,7 +755,7 @@
   :flags '(<show-modififers>)
   :sort-value 2824
   :the-kind '<bow>
-  :game-values (make-instance 'game-values)) 
+  :game-values (make-game-values)) 
 
 (define-object-kind "sling" "& sling~"
   :numeric-id 77
@@ -772,7 +772,7 @@
   :flags '(<show-modififers>)
   :sort-value 2802
   :the-kind '<bow>
-  :game-values (make-instance 'game-values)) 
+  :game-values (make-game-values)) 
 
 (define-object-kind "arrow" "& arrow~"
   :numeric-id 78
@@ -788,7 +788,7 @@
   :flags '(<show-modififers>)
   :sort-value 2601
   :the-kind '<ammo>
-  :game-values (make-instance 'game-values :base-dice 4 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 4 :num-dice 1)) 
 
 (define-object-kind "seeker-arrow" "& seeker arrow~"
   :numeric-id 79
@@ -804,7 +804,7 @@
   :flags '(<show-modififers>)
   :sort-value 2602
   :the-kind '<ammo>
-  :game-values (make-instance 'game-values :base-dice 4 :num-dice 4)) 
+  :game-values (make-game-values :base-dice 4 :num-dice 4)) 
 
 (define-object-kind "bolt" "& bolt~"
   :numeric-id 80
@@ -820,7 +820,7 @@
   :flags '(<show-modififers>)
   :sort-value 2701
   :the-kind '<ammo>
-  :game-values (make-instance 'game-values :base-dice 5 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 5 :num-dice 1)) 
 
 (define-object-kind "seeker-bolt" "& seeker bolt~"
   :numeric-id 81
@@ -836,7 +836,7 @@
   :flags '(<show-modififers>)
   :sort-value 2702
   :the-kind '<ammo>
-  :game-values (make-instance 'game-values :base-dice 5 :num-dice 4)) 
+  :game-values (make-game-values :base-dice 5 :num-dice 4)) 
 
 (define-object-kind "round-pebble" "& rounded pebble~"
   :numeric-id 82
@@ -852,7 +852,7 @@
   :flags '(<show-modififers>)
   :sort-value 2500
   :the-kind '<ammo>
-  :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "iron-shot" "& iron shot~"
   :numeric-id 83
@@ -868,7 +868,7 @@
   :flags '(<show-modififers>)
   :sort-value 2501
   :the-kind '<ammo>
-  :game-values (make-instance 'game-values :base-dice 3 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "mighty-hammer" "& mighty hammer~"
   :numeric-id 498
@@ -884,4 +884,4 @@
   :flags '(<instant-artifact> <show-modififers>)
   :sort-value 3050
   :the-kind '<weapon>
-  :game-values (make-instance 'game-values :base-dice 9 :num-dice 3)) 
+  :game-values (make-game-values :base-dice 9 :num-dice 3)) 

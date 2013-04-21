@@ -3,7 +3,7 @@
 #||
 
 DESC: variants/vanilla/spells.lisp - spell-effects
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software  ; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -90,14 +90,14 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	     ;; improve later
 	     (ecase type
 	       (<weapon>
-		(when (< (gval.tohit-bonus gvals) 10)
-		  (incf (gval.tohit-bonus gvals) bonus)
-		  (incf (gval.dmg-bonus gvals) bonus)
+		(when (< (gval.tohit-modifier gvals) +10)
+		  (incf (gval.tohit-modifier gvals) bonus)
+		  (incf (gval.dmg-modifier gvals) bonus)
 		  :used))
 	       
 	       (<armour>
-		(when (< (gval.ac-bonus gvals) 10)
-		  (incf (gval.ac-bonus gvals) bonus)
+		(when (< (gval.ac-modifier gvals) +10)
+		  (incf (gval.ac-modifier gvals) bonus)
 		  :used))))))
   
     (let ((retval :still-useful)

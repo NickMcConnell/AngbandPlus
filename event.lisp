@@ -3,7 +3,7 @@
 #||
 
 DESC: event.lisp - general event-classes and functionality
-Copyright (c) 2001 - Stig Erik Sandø
+Copyright (c) 2001-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

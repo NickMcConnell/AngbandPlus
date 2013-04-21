@@ -14,7 +14,7 @@
   :obj-type '(<slime-mold> <potion>)
   :sort-value 5502
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 400)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 400)) 
 
 (define-object-kind "apple-juice" "apple juice"
   :numeric-id 223
@@ -29,7 +29,7 @@
   :obj-type '(<apple-juice> <potion>)
   :sort-value 5501
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 250)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 250)) 
 
 (define-object-kind "water" "water"
   :numeric-id 224
@@ -44,7 +44,7 @@
   :obj-type '(<water> <potion>)
   :sort-value 5500
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 200)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 200)) 
 
 (define-object-kind "potion-str" "strength"
   :numeric-id 225
@@ -59,7 +59,7 @@
   :obj-type '(<potion> <increase> <str>)
   :sort-value 5548
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-reduce-str" "weakness"
   :numeric-id 226
@@ -74,7 +74,7 @@
   :obj-type '(<potion> <reduce> <str>)
   :sort-value 5516
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-str" "restore strength"
   :numeric-id 227
@@ -89,7 +89,7 @@
   :obj-type '(<potion> <restore> <str>)
   :sort-value 5542
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-int" "intelligence"
   :numeric-id 228
@@ -104,7 +104,7 @@
   :obj-type '(<potion> <increase> <int>)
   :sort-value 5549
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-reduce-int" "stupidity"
   :numeric-id 229
@@ -119,7 +119,7 @@
   :obj-type '(<potion> <reduce> <int>)
   :sort-value 5517
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-int" "restore intelligence"
   :numeric-id 230
@@ -134,7 +134,7 @@
   :obj-type '(<potion> <restore> <int>)
   :sort-value 5543
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-wis" "wisdom"
   :numeric-id 231
@@ -149,7 +149,7 @@
   :obj-type '(<potion> <increase> <wis>)
   :sort-value 5550
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-reduce-wis" "naivety"
   :numeric-id 232
@@ -164,7 +164,7 @@
   :obj-type '(<potion> <reduce> <wis>)
   :sort-value 5518
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-wis" "restore wisdom"
   :numeric-id 233
@@ -179,7 +179,7 @@
   :obj-type '(<potion> <restore> <wis>)
   :sort-value 5544
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-chr" "charisma"
   :numeric-id 234
@@ -194,7 +194,7 @@
   :obj-type '(<potion> <increase> <chr>)
   :sort-value 5553
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-reduce-chr" "ugliness"
   :numeric-id 235
@@ -209,7 +209,7 @@
   :obj-type '(<potion> <reduce> <chr>)
   :sort-value 5521
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-chr" "restore charisma"
   :numeric-id 236
@@ -224,7 +224,7 @@
   :obj-type '(<potion> <restore> <chr>)
   :sort-value 5547
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-cure-light" "cure light wounds"
   :numeric-id 237
@@ -239,7 +239,7 @@
   :obj-type '(<potion> <cure> <light>)
   :sort-value 5534
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 50)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 50)) 
 
 (define-object-kind "potion-reduce-dex" "clumsiness"
   :numeric-id 238
@@ -254,7 +254,7 @@
   :obj-type '(<potion> <reduce> <dex>)
   :sort-value 5519
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-reduce-con" "sickliness"
   :numeric-id 239
@@ -269,7 +269,7 @@
   :obj-type '(<potion> <reduce> <con>)
   :sort-value 5520
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-cure-serious" "cure serious wounds"
   :numeric-id 240
@@ -284,7 +284,7 @@
   :obj-type '(<potion> <cure> <serious>)
   :sort-value 5535
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 100)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 100)) 
 
 (define-object-kind "potion-cure-critical" "cure critical wounds"
   :numeric-id 241
@@ -299,7 +299,7 @@
   :obj-type '(<potion> <cure> <critical>)
   :sort-value 5536
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 100)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 100)) 
 
 (define-object-kind "potion-healing" "healing"
   :numeric-id 242
@@ -314,7 +314,7 @@
   :obj-type '(<potion> <cure> <healing> <normal>)
   :sort-value 5537
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 200)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 200)) 
 
 (define-object-kind "potion-con" "constitution"
   :numeric-id 243
@@ -329,7 +329,7 @@
   :obj-type '(<potion> <increase> <con>)
   :sort-value 5552
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-xp" "experience"
   :numeric-id 244
@@ -344,7 +344,7 @@
   :obj-type '(<xp> <potion>)
   :sort-value 5559
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-sleep" "sleep"
   :numeric-id 245
@@ -359,7 +359,7 @@
   :obj-type '(<sleep> <potion>)
   :sort-value 5511
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 100)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 100)) 
 
 (define-object-kind "potion-blindness" "blindness"
   :numeric-id 246
@@ -374,7 +374,7 @@
   :obj-type '(<blindness> <potion>)
   :sort-value 5507
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-confusion" "confusion"
   :numeric-id 247
@@ -389,7 +389,7 @@
   :obj-type '(<confusion> <potion>)
   :sort-value 5509
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 50)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 50)) 
 
 (define-object-kind "potion-poison" "poison"
   :numeric-id 248
@@ -404,7 +404,7 @@
   :obj-type '(<poison> <potion>)
   :sort-value 5506
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-speed" "speed"
   :numeric-id 249
@@ -419,7 +419,7 @@
   :obj-type '(<speed> <potion>)
   :sort-value 5529
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-slowness" "slowness"
   :numeric-id 250
@@ -434,7 +434,7 @@
   :obj-type '(<slowness> <potion>)
   :sort-value 5504
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 50)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 50)) 
 
 (define-object-kind "potion-dex" "dexterity"
   :numeric-id 251
@@ -449,7 +449,7 @@
   :obj-type '(<potion> <increase> <dex>)
   :sort-value 5551
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-dex" "restore dexterity"
   :numeric-id 252
@@ -464,7 +464,7 @@
   :obj-type '(<potion> <restore> <dex>)
   :sort-value 5545
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-con" "restore constitution"
   :numeric-id 253
@@ -479,7 +479,7 @@
   :obj-type '(<potion> <restore> <con>)
   :sort-value 5546
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-lose-memory" "lose memories"
   :numeric-id 254
@@ -494,7 +494,7 @@
   :obj-type '(<amnesia> <potion>)
   :sort-value 5513
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-255" "salt water"
   :numeric-id 255
@@ -509,7 +509,7 @@
   :obj-type '(<salt-water> <potion>)
   :sort-value 5505
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-self-know" "enlightenment"
   :numeric-id 256
@@ -524,7 +524,7 @@
   :obj-type '(<potion> <enlightenment> <normal>)
   :sort-value 5556
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-heroism" "heroism"
   :numeric-id 257
@@ -539,7 +539,7 @@
   :obj-type '(<heroism> <potion>)
   :sort-value 5532
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-berserk" "berserk strength"
   :numeric-id 258
@@ -554,7 +554,7 @@
   :obj-type '(<berserk-strength> <potion>)
   :sort-value 5533
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-boldness" "boldness"
   :numeric-id 259
@@ -569,7 +569,7 @@
   :obj-type '(<boldness> <potion>)
   :sort-value 5528
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-xp" "restore life levels"
   :numeric-id 260
@@ -584,7 +584,7 @@
   :obj-type '(<potion> <restore> <xp>)
   :sort-value 5541
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-resist-heat" "resist heat"
   :numeric-id 261
@@ -599,7 +599,7 @@
   :obj-type '(<potion> <resist> <fire>)
   :sort-value 5530
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-resist-cold" "resist cold"
   :numeric-id 262
@@ -614,7 +614,7 @@
   :obj-type '(<potion> <resist> <cold>)
   :sort-value 5531
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-det-inv" "detect invisible"
   :numeric-id 263
@@ -629,7 +629,7 @@
   :obj-type '(<potion> <detect> <invisible>)
   :sort-value 5525
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-slow-poison" "slow poison"
   :numeric-id 264
@@ -644,7 +644,7 @@
   :obj-type '(<slow-poison> <potion>)
   :sort-value 5526
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-cure-poison" "neutralize poison"
   :numeric-id 265
@@ -659,7 +659,7 @@
   :obj-type '(<potion> <cure> <poison>)
   :sort-value 5527
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-mana" "restore mana"
   :numeric-id 266
@@ -674,7 +674,7 @@
   :obj-type '(<potion> <restore> <mana>)
   :sort-value 5540
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-infravision" "infravision"
   :numeric-id 267
@@ -689,7 +689,7 @@
   :obj-type '(<infravision> <potion>)
   :sort-value 5524
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-death" "death"
   :numeric-id 415
@@ -704,7 +704,7 @@
   :obj-type '(<death> <potion>)
   :sort-value 5523
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-416" "ruination"
   :numeric-id 416
@@ -719,7 +719,7 @@
   :obj-type '(<ruination> <potion>)
   :sort-value 5515
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-417" "detonations"
   :numeric-id 417
@@ -734,7 +734,7 @@
   :obj-type '(<detonations> <potion>)
   :sort-value 5522
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 25 :num-dice 25)) 
+  :game-values (make-game-values :base-dice 25 :num-dice 25)) 
 
 (define-object-kind "object-418" "augmentation"
   :numeric-id 418
@@ -749,7 +749,7 @@
   :obj-type '(<augmentation> <potion>)
   :sort-value 5555
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-419" "*healing*"
   :numeric-id 419
@@ -764,7 +764,7 @@
   :obj-type '(<potion> <cure> <healing> <powerful>)
   :sort-value 5538
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-life" "life"
   :numeric-id 420
@@ -779,7 +779,7 @@
   :obj-type '(<life> <potion>)
   :sort-value 5539
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-421" "self knowledge"
   :numeric-id 421
@@ -794,7 +794,7 @@
   :obj-type '(<self-knowledge> <potion>)
   :sort-value 5558
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-*enlightenment*" "*enlightenment*"
   :numeric-id 422
@@ -809,4 +809,4 @@
   :obj-type '(<potion> <enlightenment> <powerful>)
   :sort-value 5557
   :the-kind '<potion>
-  :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
+  :game-values (make-game-values :base-dice 1 :num-dice 1)) 

@@ -3,7 +3,7 @@
 #|
 
 DESC: death.lisp - the boggling concept: death (and high-scores)
-Copyright (c) 2001 - Stig Erik Sandø
+Copyright (c) 2001-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ the Free Software Foundation; either version 2 of the License, or
   
     (let ((race-key (to-string (race.id (player.race player))))
 	  (class-key (to-string (class.id (player.class player))))
-	  (sex-key (to-string (player.sex player)))
+	  (sex-key (sex.id (player.sex player)))
 	  (death-reason (if (and (stringp (player.dead-from player)) (> (length (player.dead-from player)) 1))
 			    (player.dead-from player)
 			    "Unknown"))
@@ -143,7 +143,9 @@ the Free Software Foundation; either version 2 of the License, or
       ;; returns how many entries it printed. 
       len)))
 
-	
+
+(defun %sort-hscores (hlist)
+  (stable-sort hlist #'> :key #'hs-entry.score))
   
 (defmethod save-high-score& ((variant variant) hs fname)
   "Returns number of hs."
@@ -151,7 +153,7 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((hscores (get-high-scores variant fname))
 	(the-path (pathname fname)))
 
-    (let* ((sorted-hscores (stable-sort (cons hs hscores) #'> :key #'hs-entry.score))
+    (let* ((sorted-hscores (%sort-hscores (cons hs hscores)))
 	   (pos (position hs sorted-hscores :test #'eq)))
 
 ;;      (warn "bob ~s ~s" hs sorted-hscores)
@@ -176,6 +178,7 @@ the Free Software Foundation; either version 2 of the License, or
 
   ;; temporary
   (let ((hs (produce-high-score-object variant player)))
+
 ;;    (declare (ignore hs))
     (with-open-file (s (game-data-path "dead.txt")
 		       :direction :input)
@@ -217,15 +220,20 @@ the Free Software Foundation; either version 2 of the License, or
 (defun organise-death& (pl var-obj)
   "Organises things dealing with death of a player..
 Thanks for all the fish."
-  
-  (let* ((home-path (home-langband-path))
-	 (fname (concatenate 'string home-path ".high-scores")))
+
+
+  (let* ((hs (produce-high-score-object var-obj pl))
+	 (home-path (home-langband-path))
+	 (fname (concatenate 'string home-path "high-scores"))
+	 (enter-high-score (if (eq (player.leaving-p pl) :quit) nil t))
+	 (hs-pos 12)
+	 ) ;; must do something smart here
 
     (lbsys/make-sure-dirs-exist& home-path)
     
-;;    (warn "writing to ~s" fname)
-    (let* ((hs (produce-high-score-object var-obj pl))
-	   (hs-pos (save-high-score& var-obj hs fname)))
+    (when enter-high-score
+	;;    (warn "writing to ~s" fname)
+	(setf hs-pos (save-high-score& var-obj hs fname)))
     
     (c-prt! "Oops.. you died.. " 0 0)
     
@@ -234,8 +242,12 @@ Thanks for all the fish."
       (print-tomb var-obj pl))
     
     (c-pause-line! *last-console-line*)
-    
-    (progn
+
+    (let ((hlist (get-high-scores var-obj fname)))
+      (unless enter-high-score
+	(setf hlist (%sort-hscores (cons hs hlist)))
+	(setf hs-pos (position hs hlist)))
       (c-clear-from! 0)
-      (display-high-scores var-obj (get-high-scores var-obj fname) :current hs-pos))
-    t)))
+      (display-high-scores var-obj hlist :current hs-pos))
+    
+    t))

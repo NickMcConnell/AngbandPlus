@@ -3,7 +3,7 @@
 #|
 
 DESC: birth.lisp - character creation
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -166,15 +166,16 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 
     (block input-loop
       (loop
-       (let ((alt-len (length +sexes+))
-	     (inp (%birth-input quest-col quest-row
-				(mapcar #'cadr +sexes+)
-				:ask-for "sex")))
+       (let* ((sexes (variant.sexes variant))
+	      (alt-len (length sexes))
+	      (inp (%birth-input quest-col quest-row
+				 (mapcar #'sex.name sexes)
+				 :ask-for "sex")))
 	 (cond ((eq inp nil)
 		(return-from query-for-character-basics! nil))
 	       
 	       ((and (numberp inp) (<= 0 inp) (< inp alt-len))
-		(setf (player.sex the-player) (car (nth inp +sexes+)))
+		(setf (player.sex the-player) (nth inp sexes))
 		(return-from input-loop nil))
 	       
 	       (t
@@ -240,7 +241,9 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 	       (let ((all-classes (get-classes-as-a-list))
 		     (tmp-classes nil))
 		 (dolist (i all-classes)
-		   (if (find (class.id i) cur-classes :test #'eq)
+;;		   (warn "Checking for ~s in ~s" (class.symbol i) cur-classes)
+		   ;; maybe let this handle symbols and strings?
+		   (if (find (class.symbol i) cur-classes :test #'eq)
 		       (push i tmp-classes)
 		       (push i other-classes)))
 		 (setq cur-classes tmp-classes)))
@@ -297,7 +300,7 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 Returns the base-stats as an array or NIL if something failed."
   
   (setf (player.base-stats player)    (make-stat-array)
-	(player.curbase-stats player) (make-stat-array)
+	(player.cur-statmods player) (make-stat-array)
 	(player.modbase-stats player) (make-stat-array)
 	(player.active-stats player)  (make-stat-array))
   
@@ -325,7 +328,8 @@ Returns the base-stats as an array or NIL if something failed."
 			 (svref rolls (+ 2 arr-offset)))))
 	
 	(setf (svref (player.base-stats player) i) stat-val
-	      (svref (player.curbase-stats player) i) stat-val))))
+	      (svref (player.cur-statmods player) i) 0)
+	)))
 
   ;; returns the array
   (player.base-stats player))
@@ -350,7 +354,9 @@ Returns the base-stats as an array or NIL if something failed."
 	  (current-hp player) hit-dice))
 
   (update-xp-table! variant player) ;; hack
-  (update-player! variant player)
+
+  ;; improve?  hackish.
+  (calculate-creature-bonuses! variant player)
   
 ;;  (c-pause-line *last-console-line*)
   

@@ -3,7 +3,7 @@
 #|
 
 DESC: core.lisp - core classes, generics and functions
-Copyright (c) 2001 - Stig Erik Sandø
+Copyright (c) 2001-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,12 +33,16 @@ the Free Software Foundation; either version 2 of the License, or
 	      :initform nil
 	      :initarg :sys-file)
 
-   (config-path :accessor variant.config-path;; where is the configuration-files?
+   (config-path :accessor variant.config-path;; where are the configuration-files?
 		:initform nil
 		:initarg :config-path)
 
    ;; the rest can be done lazily
-     
+
+   (sexes     :accessor variant.sexes
+	      :initform '()
+	      :initarg :sexes
+	      :documentation "List of legal sexes for players and monsters.")
    (races     :accessor variant.races
 	      :initform (make-hash-table :test #'equal)
 	      :initarg :races)
@@ -47,6 +51,16 @@ the Free Software Foundation; either version 2 of the License, or
 	      :initform (make-hash-table :test #'equal)
 	      :initarg :classes)
 
+   (effects   :accessor variant.effects
+	      :initform '()
+	      :initarg :effects
+	      :documentation "List of legal effects and effects to handle for variant.")
+   
+   (elements  :accessor variant.elements
+	      :initform '()
+	      :initarg :elements
+	      :documentation "List of legal elements and elements to handle for variant.")
+   
    (turn      :accessor variant.turn
 	      :initform 0
 	      :initarg :turn)
@@ -87,15 +101,15 @@ the Free Software Foundation; either version 2 of the License, or
 
    ;; these are just types.. not actual monsters
    (monsters :accessor variant.monsters
-	     :initform (make-hash-table :test #'eq)
+	     :initform (make-hash-table :test #'equal)
 	     :initarg :monsters)
 
    (objects :accessor variant.objects
-	    :initform (make-hash-table :test #'eq)
+	    :initform (make-hash-table :test #'equal)
 	    :initarg :objects)
      
    (filters :accessor variant.filters
-	    :initform (make-hash-table :test #'eq)
+	    :initform (make-hash-table :test #'equal)
 	    :initarg :filters)
      
    (flavour-types :accessor variant.flavour-types
@@ -121,8 +135,91 @@ the Free Software Foundation; either version 2 of the License, or
    (day-length      :accessor variant.day-length
 		    :initarg :day-length
 		    :initform 10000)
-     
+
+   (help-topics :accessor variant.help-topics
+		:initarg :help-topics
+		:initform (make-hash-table :test #'equal))
+   
    ))
+
+
+(defstruct help-topic
+  id
+  key
+  name
+  data)
+
+(defclass effect ()
+  ((symbol :reader effect.symbol :initarg :symbol)
+   (name   :reader effect.name   :initarg :name)
+   (index  :reader effect.index  :initarg :index)
+   ))
+
+;;; effects
+;; fast, slow, blind, prot-evil, shielded, afraid, cut, stun, blessed,
+;; hero, super-hero, berserk, poisoned, slow-digest, invulnerable,
+;; hallucinate, confused, paralysed, telepathy, invisibility, see-inv,
+;; random-teleport, hold-life, ... 
+
+(defun define-effect (symbol name index)
+  (let ((var-obj *variant*))
+    (pushnew (make-instance 'effect :symbol symbol :name name :index index)
+	     (variant.effects var-obj) :test #'eq :key #'effect.symbol)))
+
+(defun is-legal-effect? (variant effect)
+  "Returns T if the given effect is legal."
+  (assert (and (symbolp effect) (not (eq nil effect))))
+  (if (find effect (variant.effects variant) :test #'eq :key #'effect.symbol)
+      t
+      nil))
+
+
+(defclass element ()
+  ((symbol :reader element.symbol :initarg :symbol)
+   (name   :reader element.name   :initarg :name)
+   (index  :reader element.index  :initarg :index)
+   ))
+
+;; see variants/vanilla/config/defines.lisp for examples
+
+(defun define-element (symbol name index)
+  (let ((var-obj *variant*))
+    (pushnew (make-instance 'element :symbol symbol :name name :index index)
+	     (variant.elements var-obj) :test #'eq :key #'element.symbol)))
+
+
+
+(defun is-legal-element? (variant element)
+  "Returns T if the given element is legal."
+  (assert (and (symbolp element) (not (eq nil element))))
+  (if (find element (variant.elements variant) :test #'eq :key #'element.symbol)
+      t
+      nil))
+
+(defun get-element-flag (variant element)
+  (check-type variant variant)
+  (assert (and (symbolp element) (not (eq nil element))))
+  (let ((elm (find element (variant.elements variant) :test #'eq :key #'element.symbol)))
+    (if (and elm (typep elm 'element))
+	(element.index elm)
+	(error "The element ~s is not registered for variant '~a'"
+	       element (variant.name variant)))))
+
+
+#||
+(defclass temporary-effects ()
+  (fast slow blind paralysed confused afraid hallucinating poisoned cut stun
+	prot-from-evil invulnerable hero super-hero shielded blessed see-invisible
+	infravision
+	resists
+	immunities))
+
+(defclass calculated-effects ()
+  (immunities resists sustains slow-digest feather-fall, light
+	      regenerate telepathy see-invisible free-action
+	      hold-life aggravate random-teleport))
+||#
+
 
 (defclass player ()
 
@@ -136,10 +233,10 @@ the Free Software Foundation; either version 2 of the License, or
    
    (base-stats    :accessor player.base-stats
 		  :initform nil
-		  :documentation "this is the base stats")
-   (curbase-stats :accessor player.curbase-stats
-		  :initform nil
-		  :documentation "this is the current (possibly drained) base stats")
+		  :documentation "This is the base stats")
+   (current-statmods :accessor player.cur-statmods
+		     :initform nil
+		     :documentation "This is the diff (possibly drained or raised values) of the base stats")
    (hp-table      :accessor player.hp-table
 		  :initform nil
 		  :documentation "Note: should be saved.")
@@ -189,7 +286,7 @@ the Free Software Foundation; either version 2 of the License, or
    
    
    (base-ac      :accessor player.base-ac      :initform 0)
-   (ac-bonus     :accessor player.ac-bonus     :initform 0)
+   (ac-modifier  :accessor player.ac-modifier  :initform 0)
    (light-radius :accessor player.light-radius :initform 0)
    
    (infravision :accessor player.infravision
@@ -202,10 +299,10 @@ the Free Software Foundation; either version 2 of the License, or
    
    (modbase-stats :accessor player.modbase-stats
 		  :initform nil
-		  :documentation "this is the modified base stats (base + race + class + eq)")
+		  :documentation "This is the modified base stats (base + race + class + eq)")
    (active-stats :accessor player.active-stats
 		 :initform nil
-		 :documentation "this is the current active stat-value (curbase + race + class + eq)")
+		 :documentation "This is the current active stat-value (base + curstatmods + race + class + eq)")
    
    ))
 
@@ -313,3 +410,8 @@ the Free Software Foundation; either version 2 of the License, or
 	(key (if (symbolp id) (symbol-name id) id)))
     (setf (gethash key table) builder)))
 
+(defmethod get-sex ((variant variant) (key string))
+  (find key (variant.sexes variant) :key #'sex.id :test #'equal))
+
+(defmethod get-sex ((variant variant) (key symbol))
+  (find key (variant.sexes variant) :key #'sex.symbol :test #'eq))

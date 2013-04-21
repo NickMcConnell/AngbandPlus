@@ -79,6 +79,14 @@ the rest of the game is init'ed."
 	      4500000
 	      5000000))
 
+  (pushnew (make-sex :id "male" :symbol '<male> :name "Male" :win-title "King")
+	(variant.sexes var-obj) :test #'eql :key #'sex.symbol)
+  (pushnew (make-sex :id "female" :symbol '<female> :name "Female" :win-title "Queen")
+	(variant.sexes var-obj) :test #'eql :key #'sex.symbol)
+
+  (register-help-topic& var-obj (make-help-topic :id "keys" :key #\k :name "Show commands/keys"))
+  (register-help-topic& var-obj (make-help-topic :id "chlog" :key #\c :name "Show changelog"))
+  
   (van-register-levels! var-obj)
 
   (van-init-skill-system var-obj)
@@ -98,10 +106,11 @@ the rest of the game is init'ed."
 
 (defun van-register-levels! (var-obj)
   "registering the levels this variant will use."
-  (register-level! var-obj 'level
+  
+  (register-level! var-obj "level"
 		   :object-filter
 		   #'(lambda (var-obj obj)
-		       (let* ((table (get-otype-table var-obj 'level))
+		       (let* ((table (get-otype-table var-obj "level"))
 			      (id (slot-value obj 'id))
 			      (obj-table (gobj-table.obj-table table)))
 			 (multiple-value-bind (val f-p)
@@ -114,26 +123,42 @@ the rest of the game is init'ed."
 
 			 t))
   
-  (register-level! var-obj 'random-level
+  (register-level! var-obj "random-level"
 		   :monster-filter
 		   #'(lambda (var-obj obj)
 		       ;; all below 0
 		       (when (> (slot-value obj 'depth) 0)
-			 (let ((table (get-mtype-table var-obj 'random-level)))
-			   (setf (gethash (slot-value obj 'id)
-					  (gobj-table.obj-table table))
-				 obj)
-			   t))))
-  (register-level! var-obj 'town-level
+			 (let* ((which-lvl "random-level")
+				(table (get-mtype-table var-obj which-lvl))
+				(id (slot-value obj 'id))
+				(mon-table (gobj-table.obj-table table)))
+			   (multiple-value-bind (val f-p)
+			       (gethash id mon-table)
+			     (declare (ignore val))
+			     (if f-p
+				 (error "Monster-id ~s already exist for ~s, not unique id."
+					id which-lvl)
+				 (setf (gethash id mon-table) obj))))
+			 t)))
+
+  (register-level! var-obj "town-level"
 		   :monster-filter
 		   #'(lambda (var-obj obj)
 		       ;; all equal to 0
 		       (when (= (slot-value obj 'depth) 0)
-			 (let ((table (get-mtype-table var-obj 'town-level)))
-			   (setf (gethash (slot-value obj 'id)
-					  (gobj-table.obj-table table))
-				 obj)
-			   t))))
+			 (let* ((which-lvl "town-level")
+				(table (get-mtype-table var-obj which-lvl))
+				(id (slot-value obj 'id))
+				(mon-table (gobj-table.obj-table table)))
+			   (multiple-value-bind (val f-p)
+			       (gethash id mon-table)
+			     (declare (ignore val))
+			     (if f-p
+				 (error "Monster-id ~s already exist for ~s, not unique id."
+					id which-lvl)
+				 (setf (gethash id mon-table) obj))))
+			 t)))
+
   )
 			   
 
@@ -192,11 +217,11 @@ the rest of the game is init'ed."
 	))
   
   ;; register level-constructors
-  (register-level-builder! 'random-level
+  (register-level-builder! "random-level"
 			   (get-late-bind-function 'langband
 						   'make-random-level-obj))
   
-  (register-level-builder! 'town-level
+  (register-level-builder! "town-level"
 			   (get-late-bind-function 'langband
 						   'van-create-bare-town-level-obj))
   
@@ -313,6 +338,7 @@ the rest of the game is init'ed."
   (initialise-objects&  var-obj :file "scrolls")
   (initialise-objects&  var-obj :file "sticks")
   (initialise-objects&  var-obj :file "books")
+  (initialise-objects&  var-obj :file "gold")
 
   (initialise-monsters& var-obj :file "monsters")
   (initialise-monsters& var-obj :file "town-monsters")

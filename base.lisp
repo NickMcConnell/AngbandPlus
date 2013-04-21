@@ -3,7 +3,7 @@
 #|
 
 DESC: base.lisp - basic code for the rest of the game
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -57,7 +57,11 @@ situation where the system assumes the object is invalid."))
   (:documentation "Tries to convert the OBJ to the TO form, in pretty
 much the same way as COERCE."))
 
-
+(defstruct (sex (:conc-name sex.))
+  id  ;; saves of players should use id, not symbol
+  symbol
+  name
+  win-title)
 
 ;; some binary types
 (bt:define-unsigned u64 8)
@@ -390,6 +394,22 @@ and NIL if unsuccesful."
 (defun bit-flag-and (pos1 pos2)
   (/= 0 (logand pos1 pos2)))
 
+(defun verify-id (id)
+  "Verifies the id, returns NIL on failure, T when ok."
+  (flet ((char-checker (x)
+	   (cond ((eql x #\-)
+		  t)
+		 ((alpha-char-p x) ;; fix to only lowercase later
+		  t)
+		 ;; a temporary one, remove later
+		 ((digit-char-p x)
+		  t)
+		 (t nil))))
+    (if (stringp id)
+	(every #'char-checker id)
+	nil)))
+		      
+   
 (defsubst read-one-character ()
   "Reads one character from the C-side."
 

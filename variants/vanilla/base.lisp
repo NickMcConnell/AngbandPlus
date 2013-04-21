@@ -22,10 +22,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defclass van-town-level (themed-level)
-  ((id :initform 'town-level)
+  ((id     :initform "town-level")
+   (symbol :initform 'town-level)
    (stores        :initarg :stores     :initform nil  :accessor level.stores)
-   (num-stores    :initarg :num-stores :initform 8 :accessor level.num-stores)
-   (home-num      :initarg :home-num   :initform 7 :accessor level.home-num))
+   (num-stores    :initarg :num-stores :initform 8    :accessor level.num-stores)
+   (home-num      :initarg :home-num   :initform 7    :accessor level.home-num))
 
   (:documentation "The Vanilla variant has a special town-level with
 stores and special behaviour.  The class is used for dispatching."))

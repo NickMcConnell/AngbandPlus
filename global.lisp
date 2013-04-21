@@ -3,7 +3,7 @@
 #||
 
 DESC: global.lisp - globally available functions/classes
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   ((base-ac       :accessor gval.base-ac
 		  :initarg :base-ac
 		  :initform 0)
-   (ac-bonus      :accessor gval.ac-bonus
-		  :initarg :ac-bonus
+   (ac-modifier   :accessor gval.ac-modifier
+		  :initarg :ac-modifier
 		  :initform 0)
    (base-dice     :accessor gval.base-dice
 		  :initarg :base-dice
@@ -33,11 +33,11 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
    (num-dice      :accessor gval.num-dice
 		  :initarg :num-dice
 		  :initform 0)
-   (tohit-bonus   :accessor gval.tohit-bonus
-		  :initarg :tohit-bonus
-		  :initform 0)
-   (dmg-bonus     :accessor gval.dmg-bonus
-		  :initarg :dmg-bonus
+   (tohit-modifier :accessor gval.tohit-modifier
+		   :initarg :tohit-modifier
+		   :initform 0)
+   (dmg-modifier  :accessor gval.dmg-modifier
+		  :initarg :dmg-modifier
 		  :initform 0)
    (mana          :accessor gval.mana
 		  :initarg :mana
@@ -45,8 +45,8 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
    (charges       :accessor gval.charges
 		  :initarg :charges
 		  :initform 0)
-   (food-val      :accessor gval.food-val
-		  :initarg :food-val
+   (food-value    :accessor gval.food-value
+		  :initarg :food-value
 		  :initform 0)
    (light-radius  :accessor gval.light-radius
 		  :initarg :light-radius
@@ -57,30 +57,33 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
    (speed         :accessor gval.speed
 		  :initarg :speed
 		  :initform 0)
-   (skill-bonuses :accessor gval.skill-bonuses
-		  :initarg :skill-bonuses
-		  :initform nil)
-   (stat-bonuses  :accessor gval.stat-bonuses
-		  :initarg :stat-bonuses
-		  :initform nil)
+   (skill-modifiers :accessor gval.skill-modifiers
+		    :initarg :skill-modifiers
+		    :initform '())
+   (stat-modifiers :accessor gval.stat-modifiers
+		   :initarg :stat-modifiers
+		   :initform '())
    (ignores       :accessor gval.ignores
 		  :initarg :ignores
-		  :initform nil)
+		  :initform 0
+		  :documentation "The value is tied to registered elements.")
    (resists       :accessor gval.resists
 		  :initarg :resists
-		  :initform nil)
+		  :initform 0
+		  :documentation "The value is tied to registered elements.")
    (immunities    :accessor gval.immunities
 		  :initarg :immunities
-		  :initform nil)
+		  :initform 0
+		  :documentation "The value is tied to registered elements.")
    (abilities     :accessor gval.abilities
 		  :initarg :abilities
-		  :initform nil)
+		  :initform '())
    (sustains      :accessor gval.sustains
 		  :initarg :sustains
-		  :initform nil)
+		  :initform '())
    (slays         :accessor gval.slays
 		  :initarg :slays
-		  :initform nil)
+		  :initform '())
    )
   
   (:documentation "necessary game-values for an object."))
@@ -236,14 +239,107 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   "Copies the given OBJ and returns a new object that is equal."
   
   (let ((new-obj (produce-game-values-object variant)))
-    (dolist (i '(base-ac ac-bonus base-dice num-dice tohit-bonus
-		 dmg-bonus mana charges food-val light-radius tunnel
-		 speed skill-bonuses stat-bonuses ignores resists
+    (dolist (i '(base-ac ac-modifier base-dice num-dice tohit-modifier
+		 dmg-modifier mana charges food-value light-radius tunnel
+		 speed skill-modifiers stat-modifiers ignores resists
 		 immunities abilities sustains slays))
       ;; doesn't handle shared-structures well
       (setf (slot-value new-obj i) (slot-value obj i)))
     new-obj))
 
+(defun make-game-values (&key (base-dice :unspec)
+			 (num-dice :unspec)
+			 (base-ac :unspec)
+			 (ac-modifier :unspec)
+			 (tohit-modifier :unspec)
+			 (dmg-modifier :unspec)
+			 (ignores :unspec)
+			 (resists :unspec)
+			 (sustains :unspec)
+			 (stat-modifiers :unspec)
+			 (skill-modifiers :unspec)
+			 (abilities :unspec)
+			 (slays :unspec)
+			 (food-value :unspec)
+			 (charges :unspec)
+			 (light-radius :unspec))
+  "This one checks the incoming values exhaustively."
+  (let* ((var-obj *variant*)
+	 (gval (produce-game-values-object var-obj)))
+    
+    (cond ((eq ignores :unspec))
+	  ((listp ignores)
+	   (dolist (i ignores)
+	     (bit-flag-add! (gval.ignores gval) (get-element-flag var-obj i))))
+	  (t
+	   (error "Value of ignores is odd: ~s" ignores)))
+    
+    (cond ((eq resists :unspec))
+	  ((listp resists)
+	   (dolist (i resists)
+	     (bit-flag-add! (gval.resists gval) (get-element-flag var-obj i))))
+	  (t
+	   (error "Value of resists is odd: ~s" resists)))
+
+    ;; improve this?
+    (cond ((eq stat-modifiers :unspec))
+	  ((listp stat-modifiers)
+	   (setf (gval.stat-modifiers gval) stat-modifiers))
+	  (t
+	   (error "Value of stat-modifiers is odd: ~s" stat-modifiers)))
+    
+    ;; improve this?
+    (cond ((eq skill-modifiers :unspec))
+	  ((listp skill-modifiers)
+	   (setf (gval.skill-modifiers gval) skill-modifiers))
+	  (t
+	   (error "Value of skill-modifiers is odd: ~s" skill-modifiers)))
+
+    ;; improve this?
+    (cond ((eq abilities :unspec))
+	  ((listp abilities)
+	   (setf (gval.abilities gval) abilities))
+	  (t
+	   (error "Value of abilities is odd: ~s" abilities)))
+
+    ;; improve this?
+    (cond ((eq sustains :unspec))
+	  ((listp sustains)
+	   (setf (gval.sustains gval) sustains))
+	  (t
+	   (error "Value of sustains is odd: ~s" sustains)))
+
+    ;; improve this?
+    (cond ((eq slays :unspec))
+	  ((listp slays)
+	   (setf (gval.slays gval) slays))
+	  (t
+	   (error "Value of slays is odd: ~s" slays)))
+
+    
+    (flet ((handle-value (constraint slot value)
+	     (cond ((eq value :unspec))
+		   ((funcall constraint value)
+		    (setf (slot-value gval slot) value))
+		   (t
+		    (error "Value for ~s is quite odd: ~s" slot value))))
+	   (pos-num? (x)
+	     (and (integerp x) (>= x 0))))
+
+      (handle-value #'pos-num? 'food-value   food-value)
+      (handle-value #'pos-num? 'charges      charges)
+      (handle-value #'pos-num? 'light-radius light-radius)
+      (handle-value #'pos-num? 'base-dice    base-dice)
+      (handle-value #'pos-num? 'num-dice     num-dice)
+      (handle-value #'pos-num? 'base-ac      base-ac)
+      (handle-value #'integerp 'ac-modifier     ac-modifier)
+      (handle-value #'integerp 'dmg-modifier    dmg-modifier)
+      (handle-value #'integerp 'tohit-modifier  tohit-modifier)
+
+      )
+    
+    gval))
+     
 
 (defmethod produce-skills-object ((variant variant) &key (default-value 0))
   "Returns a skills object."
@@ -307,6 +403,45 @@ information from the list skills whose content depends on variant."
 						  (if lvl-arg lvl-arg 0))))
 		    )))))
       skill-obj))
+
+(defun get-armour-desc (variant number)
+  "Returns a description of the armour-number."
+  (declare (ignore variant))
+  
+  (cond ((<= number 10)
+	 (cons "Unarmoured" +term-l-red+))
+	((<= number 20)
+	 (cons "Leather/hide armour" +term-white+))
+	((<= number 30)
+	 (cons "Light metal/bone armour" +term-orange+))
+	((<= number 40)
+	 (cons "Metal/bone armour" +term-yellow+))
+	((<= number 50)
+	 (cons "Heavy metal-armour" +term-violet+))
+	((<= number 60)
+	 (cons "Plated armour" +term-l-green+))
+	((<= number 70)
+	 (cons "Heavy plated armour" +term-l-red+))
+	((<= number 80)
+	 (cons "Dragon armour" +term-white+))
+	((<= number 100)
+	 (cons "Heavy dragon armour" +term-orange+))
+	((<= number 130)
+	 (cons "Enchanted dragon armour" +term-yellow+))
+	((<= number 170)
+	 (cons "Legendary magic armour" +term-violet+))
+	(t
+	 (cons "Mythical power-armour" +term-l-green+))
+	))
+
+(defun get-known-combat-skill (variant player)
+  (declare (ignore variant))
+
+  (let* ((skills (player.skills player))
+	 (combat-skill (skills.fighting skills)))
+    ;; fix
+    combat-skill))
+
 
 (defmethod convert-obj ((letter character) (to (eql :colour-code)) &key)
   ;; make this one into an array-access later
@@ -532,6 +667,12 @@ information from the list skills whose content depends on variant."
     text
     (org.langband.ffi:c_bell! base-ptr))
   (values))
+
+(defun c-pause-line! (row)
+  (c-prt! "" row 0)
+  (c-term-putstr! 23 row -1 +term-white+ "[Press any key to continue]")
+  (read-one-character)
+  (c-prt! "" row 0))
 
 (defun init-c-side& (ui base-path debug-level)
   #-lispworks

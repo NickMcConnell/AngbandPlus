@@ -19,7 +19,8 @@ ADD_DESC: Contains definition of classes in sexp.
 (in-package :langband)
 
 
-(define-class '<warrior> "Warrior"
+(define-class "warrior" "Warrior"
+  :symbol '<warrior>
   :desc "
                A Warrior is a hack-and-slash character, who solves most  of
                his  problems  by cutting them to pieces, but will occasionally
@@ -62,7 +63,8 @@ ADD_DESC: Contains definition of classes in sexp.
 	    (<shooting> 55 45))
   )
 
-(define-class '<paladin> "Paladin"
+(define-class "paladin" "Paladin"
+  :symbol '<paladin>
   :desc "
                A Paladin is a warrior/priest.  He is a very  good  fighter,
                second  only to the warrior class, but not very good at missile
@@ -109,7 +111,8 @@ ADD_DESC: Contains definition of classes in sexp.
 
     )
 
-(define-class '<ranger> "Ranger"
+(define-class "ranger" "Ranger"
+  :symbol '<ranger>
   :desc "
                A Ranger is a warrior/mage.  He is a good fighter,  and  the
                best  of  the  classes  with a missile weapon such as a bow.
@@ -156,7 +159,8 @@ ADD_DESC: Contains definition of classes in sexp.
 
     )
 
-(define-class '<priest> "Priest"
+(define-class "priest" "Priest"
+  :symbol '<priest>
   :desc "
                A Priest is a character of holy devotion.  They explore  the
                dungeon  only  to destroy the evil that lurks within, and if
@@ -204,7 +208,8 @@ ADD_DESC: Contains definition of classes in sexp.
   
 )
 
-(define-class '<mage> "Mage"
+(define-class "mage" "Mage"
+  :symbol '<mage>
   :desc "
                A Mage must live by his wits.  He cannot hope to simply hack
                his  way  through the dungeon, and so must therefore use his
@@ -255,7 +260,8 @@ ADD_DESC: Contains definition of classes in sexp.
 	      (<shooting> 20 15))
     )
 
-(define-class '<rogue> "Rogue"
+(define-class "rogue" "Rogue"
+  :symbol '<rogue>
   :desc "
                A Rogue is a character that prefers to live by his  cunning,
                but  is capable of fighting his way out of a tight spot.  He

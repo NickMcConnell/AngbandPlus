@@ -95,7 +95,8 @@ VANSRC = \
 	variants/vanilla/rooms.lisp \
 	variants/vanilla/scrolls.lisp \
 	variants/vanilla/spells.lisp \
-	variants/vanilla/various.lisp 
+	variants/vanilla/various.lisp \
+	variants/vanilla/wizard.lisp 
 
 
 
@@ -106,6 +107,7 @@ VANCONFSRC = \
 	variants/vanilla/config/defines.lisp \
 	variants/vanilla/config/flavours.lisp \
 	variants/vanilla/config/floors.lisp \
+	variants/vanilla/config/gold.lisp \
 	variants/vanilla/config/monsters.lisp \
 	variants/vanilla/config/objects.lisp \
 	variants/vanilla/config/potions.lisp \

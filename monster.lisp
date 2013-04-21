@@ -3,7 +3,7 @@
 #||
 
 DESC: monster.lisp - monster-code
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -195,21 +195,27 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 			    immunities alertness
 			    vulnerabilities
 			    vision attacks special-abilities
-			    treasures sex)
+			    treasures sex appear-in-group?)
   "Defines a critter you might bump into when you least expect it. It uses
 the *VARIANT* object so it has to be properly initialised."
   
 ;;  (lang-warn "Creating monster ~a [~a]" name id)
 
+  (declare (ignore appear-in-group?))
+  
   (assert (or (stringp id) (symbolp id)))
   (assert (stringp name))
-    
+  (check-type *variant* variant)
+  
+  (when (symbolp id)
+    (warn "Deprecated id ~s for object ~s, use a legal string" id name))
+
+  (unless (verify-id id)
+    (error "Id ~s is not valid for a monster (~a)" id name)) 
+  
   (let* ((var-obj *variant*)
-	 (m-obj (produce-monster-kind var-obj
-				      (if (symbolp id)
-					  (string-downcase (symbol-name id))
-					  id)
-				      name)))
+	 (m-obj (produce-monster-kind var-obj id name)))
+
     
     (if (stringp desc)
 	(setf (monster.desc m-obj) desc)

@@ -3,7 +3,7 @@
 #|
 
 DESC: save.lisp - saving of various parts of the game
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -291,11 +291,11 @@ the Free Software Foundation; either version 2 of the License, or
 	    ind (player.name obj)
 	    (string (race.id (player.race obj)))
 	    (string (class.id (player.class obj)))
-	    (string (player.sex obj))
+	    (string (sex.id (player.sex obj)))
 	    )
     
-    (format str "~a  :base-stats ~s :curbase-stats ~s ~%"
-	    ind (player.base-stats obj) (player.curbase-stats obj))
+    (format str "~a  :base-stats ~s :cur-statmods ~s ~%"
+	    ind (player.base-stats obj) (player.cur-statmods obj))
     
     (format str "~a  :hp-table ~s ~%"
 	    ind (player.hp-table obj))
@@ -352,10 +352,10 @@ the Free Software Foundation; either version 2 of the License, or
     (%bin-save-string (player.name obj) str)
     (%bin-save-string (string (race.id (player.race obj))) str)
     (%bin-save-string (string (class.id (player.class obj))) str)
-    (%bin-save-string (string (player.sex obj)) str)
+    (%bin-save-string (string (sex.id (player.sex obj))) str)
 
     (%bin-write-array (player.base-stats obj) 'bt:u16 str)
-    (%bin-write-array (player.curbase-stats obj) 'bt:u16 str)
+    (%bin-write-array (player.cur-statmods obj) 'bt:u16 str)
     (%bin-write-array (player.hp-table obj) 'bt:u16 str)
 
     (save-object variant (player.equipment obj) stream indent)

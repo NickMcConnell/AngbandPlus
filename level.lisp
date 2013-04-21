@@ -3,7 +3,7 @@
 #|
 
 DESC: level.lisp - describing a level
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defclass level (activatable)
-  ((id      :accessor level.id      :initarg :id      :initform 'level)
+  ((id      :accessor level.id      :initarg :id      :initform "level")
+   (symbol  :accessor level.symbol  :initarg :symbol  :initform 'level)
    (dungeon :accessor level.dungeon :initarg :dungeon :initform nil)
    (rating  :accessor level.rating  :initarg :rating  :initform 0)
    (depth   :accessor level.depth   :initarg :depth   :initform 0))
@@ -24,39 +25,16 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defclass random-level (level)
-  ((id :initform 'random-level)))
+  ((id     :initform "random-level")
+   (symbol :initform 'random-level)))
+   
 
 
 (defclass themed-level (level)
-  ((id :initform 'themed-level)))
-     
-
-
-(defmethod find-appropriate-monster (level room player)
-  (declare (ignore player))
-  (error "No (FIND-APPROPRIATE-MONSTER ~s ~s player)" (type-of level) (type-of room)))
+  ((id :initform "themed-level")
+   (symbol :initform 'themed-level)))
+   
  
-(defmethod generate-level! (variant level player)
-  (declare (ignore player))
-  (error "(GENERATE-LEVEL ~s ~s player) is not implemented." (type-of variant) (type-of level))
-  nil)
-
-
-;;; see generics.lisp for generics.
-
-(defmethod create-appropriate-level (variant old-level player depth)
-  (declare (ignore player))
-  (error "(CREATE-APPROPRIATE-LEVEL ~s ~s player ~s) not implemented." 
-	 (type-of variant) (type-of old-level) depth))
-
-
-
-(defmethod level-ready? (level)
-  (error "(LEVEL-READY? ~s) not implemented." (type-of level)))
-
-
-;;; random levels (see also generate.lisp)
-
 ;; a simple builder, register it in your variant as 'random-level
 (defun make-random-level-obj ()
   (make-instance 'random-level :depth 0 :rating 0))
@@ -66,9 +44,9 @@ the Free Software Foundation; either version 2 of the License, or
     t))
 
 
-(defmethod register-level! (var-obj id  &key object-filter monster-filter &allow-other-keys)
-  (assert (not (eq nil var-obj)))
-  (assert (symbolp id))
+(defmethod register-level! ((var-obj variant) (id  string) &key object-filter monster-filter &allow-other-keys)
+;;  (assert (not (eq nil var-obj)))
+;;  (assert (symbolp id))
   (assert (hash-table-p (variant.monsters var-obj)))
   (assert (hash-table-p (variant.objects var-obj)))
   (assert (hash-table-p (variant.filters var-obj)))
@@ -103,25 +81,7 @@ the Free Software Foundation; either version 2 of the License, or
   ""
   (let ((id (etypecase key
 	      (level (level.id key))
-	      (symbol key))))
+	      (string key))))
     (let ((mon-table (slot-value var-obj slot)))
       (when mon-table
 	(gethash id mon-table)))))
-
-
-
-(defmethod get-otype-table ((var-obj variant) (level level))
-  (%get-var-table var-obj level 'objects))
-
-(defmethod get-otype-table ((var-obj variant) (level (eql 'level)))
-  (%get-var-table var-obj level 'objects))
-
-
-
-(defmethod get-mtype-table ((var-obj variant) (level level))
-;;  (declare (ignore var-obj))
-  (error "WRONG MTYPE"))
-
-(defmethod get-mtype-table ((var-obj variant) (level (eql 'level)))
-;;  (declare (ignore var-obj))
-  (error "WRONG MTYPE"))

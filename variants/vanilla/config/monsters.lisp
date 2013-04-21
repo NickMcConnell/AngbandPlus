@@ -1,6 +1,7 @@
 
 (in-package :langband)
 
+;;; === depth 1
 (define-monster-kind "fruit-bat" "fruit bat"
   :desc "A fast-moving pest."
   :symbol #\b
@@ -275,8 +276,163 @@
   :vision 2
   :attacks '((<spore> :type <confuse> :damage (1 . 4)))) 
 
-;;; end level 1 monsters
+;;; end depth 1 monsters
 
+;;; === depth 2
+
+(define-monster-kind "green-worm" "green worm mass"
+  :desc "It is a large slimy mass of worms."
+  :symbol #\w
+  :colour #\g
+  :type '(<animal>)
+  :depth 2
+  :rarity 1
+  :hitpoints '(6 . 4)
+  :armour 3
+  :speed 100
+  :xp 3
+  :abilities '(<breeder> <weird-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
+  :immunities '(<fear> <acid>)
+  :vulnerabilities '(<light>)
+  :alertness 10
+  :vision 7
+  :attacks '((<crawl> :type <acid> :damage (1 . 3)))) 
+
+
+(define-monster-kind "white-harpy" "white harpy"
+  :desc "A flying, screeching bird with a woman's face."
+  :symbol #\H
+  :colour #\w
+  :alignment '<evil>
+  :type '(<animal>)
+  :depth 2
+  :rarity 1
+  :hitpoints '(2 . 5)
+  :armour 17
+  :speed 110
+  :xp 5
+  :abilities '((<random-mover> 1/2))
+  :alertness 10
+  :vision 16
+  :attacks '((<bite> :type <hurt> :damage (1 . 2)) (<claw> :type <hurt> :damage (1 . 1))
+             (<claw> :type <hurt> :damage (1 . 1)))
+  :sex '<female>) 
+
+
+(define-monster-kind "salamander" "salamander"
+  :desc "A small black and orange lizard."
+  :symbol #\R
+  :colour #\o
+  :type '(<animal>)
+  :depth 2
+  :rarity 1
+  :hitpoints '(4 . 6)
+  :armour 20
+  :speed 110
+  :xp 10
+  :abilities '((<random-mover> 1/4))
+  :immunities '(<fire>)
+  :alertness 80
+  :vision 8
+  :attacks '((<bite> :type <fire> :damage (1 . 3)))) 
+
+(define-monster-kind "yellow-snake" "large yellow snake"
+  :desc "It is about ten feet long."
+  :symbol #\J
+  :colour #\y
+  :type '(<animal>)
+  :depth 2
+  :rarity 1
+  :hitpoints '(4 . 8)
+  :armour 38
+  :speed 100
+  :xp 9
+  :abilities '(<bash-door> (<random-mover> 1/4))
+  :alertness 75
+  :vision 5
+  :attacks '((<crush> :type <hurt> :damage (1 . 6)) (<bite> :type <hurt> :damage (1 . 4)))) 
+
+
+(define-monster-kind "black-ant" "giant black ant"
+  :desc "It is about three feet long."
+  :symbol #\a
+  :colour #\D
+  :type '(<animal>)
+  :depth 2
+  :rarity 1
+  :hitpoints '(3 . 6)
+  :armour 20
+  :speed 110
+  :xp 8
+  :abilities '(<bash-door> <weird-mind> (<random-mover> 1/4))
+  :alertness 80
+  :vision 8
+  :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
+
+(define-monster-kind "green-frog" "giant green frog"
+  :desc "It is as big as a wolf."
+  :symbol #\R
+  :colour #\g
+  :type '(<animal>)
+  :depth 2
+  :rarity 1
+  :hitpoints '(2 . 8)
+  :armour 8
+  :speed 110
+  :xp 6
+  :abilities '(<bash-door> (<random-mover> 1/4))
+  :alertness 30
+  :vision 12
+  :attacks '((<bite> :type <hurt> :damage (1 . 3)))) 
+
+(define-monster-kind "white-jelly" "white jelly"
+  :desc "Its a large pile of white flesh."
+  :symbol #\j
+  :colour #\w
+  :depth 2
+  :rarity 1
+  :hitpoints '(8 . 8)
+  :armour 1
+  :speed 120
+  :xp 10
+  :abilities '(<empty-mind> <stupid> <never-move>)
+  :immunities '(<fear> <sleep> <confuse> <poison>)
+  :vulnerabilities '(<light>)
+  :alertness 99
+  :vision 2
+  :attacks '((<touch> :type <poison> :damage (1 . 2)))) 
+
+(define-monster-kind "yellow-mushroom" "yellow mushroom patch"
+  :desc "Yum!  It looks quite tasty."
+  :symbol #\,
+  :colour #\y
+  :depth 2
+  :rarity 1
+  :hitpoints '(1 . 1)
+  :armour 1
+  :speed 110
+  :xp 2
+  :abilities '(<empty-mind> <stupid> <never-move>)
+  :immunities '(<fear> <sleep> <confuse> <poison>)
+  :alertness 0
+  :vision 2
+  :attacks '((<spore> :type <terrify> :damage (1 . 6)))) 
+
+(define-monster-kind "cave-spider" "cave spider"
+  :desc "It is a black spider that moves in fits and starts."
+  :symbol #\S
+  :colour #\D
+  :type '(<animal>)
+  :depth 2
+  :rarity 1
+  :hitpoints '(2 . 6)
+  :armour 16
+  :speed 120
+  :xp 7
+  :abilities '(<bash-door> <weird-mind>)
+  :alertness 80
+  :vision 8
+  :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
 
 (define-monster-kind "wild-cat" "wild cat"
   :desc "A larger than normal feline, hissing loudly.  Its velvet claws conceal a  fistful of needles."
@@ -327,7 +483,8 @@
   :attacks '((<hit> :type <hurt> :damage (1 . 5)))
   :treasures '((<drop-chance> 3/5))
   :sex '<male>
-  :special-abilities '((<spell> (<cause> 1)) (<spell> <scare>) (<spell> <heal>) (<frequency> 1/12))) 
+  :special-abilities '((<spell> (<cause> 1)) (<spell> <scare>) (<spell> <heal>) (<frequency> 1/12))
+  :appear-in-group? #'van-novice-appears-in-group?)
 
 (define-monster-kind "novice-rogue" "novice rogue"
   :desc "A rather shifty individual."
@@ -345,9 +502,10 @@
   :vision 20
   :attacks '((<touch> :type <eat-gold> :damage nil) (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop-chance> 3/5))
-  :sex '<male>) 
+  :sex '<male>
+  :appear-in-group? #'van-novice-appears-in-group?)
 
-(define-monster-kind "novice-warrior" "novice warrior"
+(define-monster-kind "novice-warriour" "novice warriour"
   :desc "He looks inexperienced but tough."
   :symbol #\p
   :colour #\u
@@ -362,7 +520,9 @@
   :vision 20
   :attacks '((<hit> :type <hurt> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 7)))
   :treasures '((<drop-chance> 3/5))
-  :sex '<male>) 
+  :sex '<male>
+  :appear-in-group? #'van-novice-appears-in-group?)
+
 
 (define-monster-kind "metallic-green-centipede" "metallic green centipede"
   :desc "It is about four feet long and carnivorous."
@@ -413,7 +573,796 @@
   :attacks '((<crawl> :type <eat-food> :damage nil) (<crawl> :type <poison> :damage (1 . 4)))
   :treasures '((<drop-chance> 9/10))) 
 
-;;; end level 2 monsters
+
+(define-monster-kind "novice-mage" "novice mage"
+  :desc "He is leaving behind a trail of dropped spell components."
+  :symbol #\p
+  :colour #\r
+  :depth 2
+  :rarity 1
+  :hitpoints '(6 . 4)
+  :armour 6
+  :speed 110
+  :xp 7
+  :abilities '(<bash-door> <open-door> <initial-sleeper>)
+  :alertness 5
+  :vision 20
+  :attacks '((<hit> :type <hurt> :damage (1 . 4)))
+  :treasures '((<drop-chance> 3/5))
+  :sex '<male>
+  :special-abilities '((<spell> <missile>) (<spell> <confusion>) (<spell> <blindness>) (<spell> <blink>)
+                       (<frequency> 1/12))
+  :appear-in-group? #'van-novice-appears-in-group?)
+
+
+;;; end depth 2 monsters
+
+;;; === depth 3
+
+(define-monster-kind "green-ooze" "green ooze"
+  :desc "It's green and it's oozing."
+  :symbol #\j
+  :colour #\g
+  :depth 3
+  :rarity 2
+  :hitpoints '(3 . 4)
+  :armour 16
+  :speed 120
+  :xp 4
+  :abilities '(<empty-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
+  :immunities '(<fear> <sleep> <confuse> <poison> <acid>)
+  :alertness 80
+  :vision 8
+  :attacks '((<crawl> :type <acid> :damage (1 . 3)))
+  :treasures '((<drop-chance> 9/10))) 
+
+
+(define-monster-kind "poltergeist" "poltergeist"
+  :desc "It is a ghastly, ghostly form."
+  :symbol #\G
+  :colour #\W
+  :alignment '<evil>
+  :type '(<undead>)
+  :depth 3
+  :rarity 1
+  :hitpoints '(2 . 5)
+  :armour 15
+  :speed 130
+  :xp 8
+  :abilities '(<pick-up-item> <pass-wall> <cold-blood> <invisible> (<random-mover> 1/4) (<random-mover> 1/2))
+  :immunities '(<sleep> <confuse> <poison> <cold>)
+  :vulnerabilities '(<light>)
+  :alertness 10
+  :vision 8
+  :attacks '((<touch> :type <terrify> :damage nil))
+  :treasures '((<drop-chance> 9/10) (<drop-chance> 3/5))
+  :special-abilities '((<spell> <blink>) (<frequency> 1/15))) 
+
+
+(define-monster-kind "blue-centipede" "metallic blue centipede"
+  :desc "It is about four feet long and carnivorous."
+  :symbol #\c
+  :colour #\b
+  :type '(<animal>)
+  :depth 3
+  :rarity 1
+  :hitpoints '(4 . 5)
+  :armour 6
+  :speed 120
+  :xp 7
+  :abilities '(<bash-door> <weird-mind> (<random-mover> 1/2))
+  :alertness 15
+  :vision 6
+  :attacks '((<crawl> :type <hurt> :damage (1 . 2)))) 
+
+(define-monster-kind "white-louse" "giant white louse"
+  :desc "It is six inches long."
+  :symbol #\l
+  :colour #\w
+  :type '(<animal>)
+  :depth 3
+  :rarity 1
+  :hitpoints '(1 . 1)
+  :armour 5
+  :speed 120
+  :xp 1
+  :abilities '(<weird-mind> <breeder> (<random-mover> 1/4) (<random-mover> 1/2))
+  :alertness 10
+  :vision 6
+  :attacks '((<bite> :type <hurt> :damage (1 . 1)))) 
+
+(define-monster-kind "black-naga" "black naga"
+  :desc "A large black serpent's body with a female torso."
+  :symbol #\n
+  :colour #\D
+  :alignment '<evil>
+  :depth 3
+  :rarity 1
+  :hitpoints '(6 . 8)
+  :armour 40
+  :speed 110
+  :xp 20
+  :abilities '(<bash-door> (<random-mover> 1/4))
+  :alertness 120
+  :vision 16
+  :attacks '((<crush> :type <hurt> :damage (1 . 8)))
+  :treasures '((<drop-chance> 3/5))
+  :sex '<female>) 
+
+(define-monster-kind "spotted-mushroom" "spotted mushroom patch"
+  :desc "Yum!  It looks quite tasty."
+  :symbol #\,
+  :colour #\o
+  :depth 3
+  :rarity 1
+  :hitpoints '(1 . 1)
+  :armour 1
+  :speed 110
+  :xp 3
+  :abilities '(<empty-mind> <stupid> <never-move>)
+  :immunities '(<fear> <sleep> <confuse> <poison>)
+  :alertness 0
+  :vision 2
+  :attacks '((<spore> :type <poison> :damage (2 . 4)))) 
+
+(define-monster-kind "silver-jelly" "silver jelly"
+  :desc "It is a large pile of silver flesh that sucks all light from its  surroundings."
+  :symbol #\j
+  :colour #\W
+  :depth 3
+  :rarity 2
+  :hitpoints '(10 . 8)
+  :armour 1
+  :speed 120
+  :xp 12
+  :abilities '(<empty-mind> <stupid> <never-move>)
+  :immunities '(<fear> <sleep> <confuse> <poison>)
+  :vulnerabilities '(<light>)
+  :alertness 99
+  :vision 2
+  :attacks '((<touch> :type <eat_lite> :damage (1 . 3)) (<touch> :type <eat_lite> :damage (1 . 3)))
+  :special-abilities '((<spell> <drain-mana>) (<frequency> 1/15))) 
+
+
+(define-monster-kind "yellow-jelly" "yellow jelly"
+  :desc "It's a large pile of yellow flesh."
+  :symbol #\j
+  :colour #\y
+  :depth 3
+  :rarity 1
+  :hitpoints '(10 . 8)
+  :armour 1
+  :speed 120
+  :xp 12
+  :abilities '(<empty-mind> <stupid> <never-move>)
+  :immunities '(<fear> <sleep> <confuse> <poison>)
+  :vulnerabilities '(<light>)
+  :alertness 99
+  :vision 2
+  :attacks '((<touch> :type <poison> :damage (1 . 3)))
+  :special-abilities '((<spell> <drain-mana>) (<frequency> 1/15))) 
+
+(define-monster-kind "scruffy-hobbit" "scruffy looking hobbit"
+  :desc "A short little guy, in bedraggled clothes.  He appears to be looking  for a good tavern."
+  :symbol #\h
+  :colour #\b
+  :alignment '<evil>
+  :depth 3
+  :rarity 1
+  :hitpoints '(3 . 5)
+  :armour 8
+  :speed 110
+  :xp 4
+  :abilities '(<bash-door> <open-door> <pick-up-item>)
+  :alertness 10
+  :vision 16
+  :attacks '((<touch> :type <eat-gold> :damage nil) (<hit> :type <hurt> :damage (1 . 4)))
+  :treasures '((<drop-chance> 3/5))
+  :sex '<male>) 
+
+(define-monster-kind "white-ant" "giant white ant"
+  :desc "It is about two feet long and has sharp pincers."
+  :symbol #\a
+  :colour #\w
+  :type '(<animal>)
+  :depth 3
+  :rarity 1
+  :hitpoints '(3 . 6)
+  :armour 16
+  :speed 110
+  :xp 7
+  :abilities '(<bash-door> <weird-mind>)
+  :alertness 80
+  :vision 8
+  :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
+
+(define-monster-kind "yellow-mold" "yellow mold"
+  :desc "It is a strange growth on the dungeon floor."
+  :symbol #\m
+  :colour #\y
+  :depth 3
+  :rarity 1
+  :hitpoints '(8 . 8)
+  :armour 10
+  :speed 110
+  :xp 9
+  :abilities '(<empty-mind> <stupid> <never-move>)
+  :immunities '(<fear> <sleep> <confuse> <poison>)
+  :alertness 99
+  :vision 2
+  :attacks '((<hit> :type <hurt> :damage (1 . 4)))) 
+
+(define-monster-kind "red-centipede" "metallic red centipede"
+  :desc "It is about four feet long and carnivorous."
+  :symbol #\c
+  :colour #\r
+  :type '(<animal>)
+  :depth 3
+  :rarity 1
+  :hitpoints '(4 . 8)
+  :armour 9
+  :speed 120
+  :xp 12
+  :abilities '(<bash-door> <weird-mind> (<random-mover> 1/4))
+  :alertness 20
+  :vision 8
+  :attacks '((<crawl> :type <hurt> :damage (1 . 2)))) 
+
+(define-monster-kind "yellow-worm" "yellow worm mass"
+  :desc "It is a large slimy mass of worms."
+  :symbol #\w
+  :colour #\y
+  :type '(<animal>)
+  :depth 3
+  :rarity 2
+  :hitpoints '(4 . 8)
+  :armour 4
+  :speed 100
+  :xp 4
+  :abilities '(<breeder> <weird-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
+  :immunities '(<fear>)
+  :vulnerabilities '(<light>)
+  :alertness 10
+  :vision 7
+  :attacks '((<crawl> :type <lose_dex> :damage (1 . 3)))) 
+
+(define-monster-kind "clear-worm" "clear worm mass"
+  :desc "It is a disgusting mass of poisonous worms."
+  :symbol #\w
+  :colour #\w
+  :type '(<animal>)
+  :depth 3
+  :rarity 2
+  :hitpoints '(4 . 4)
+  :armour 1
+  :speed 100
+  :xp 4
+  :abilities '(<breeder> <invisible> <weird-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2) <see-through>)
+  :immunities '(<fear> <poison>)
+  :vulnerabilities '(<light>)
+  :alertness 10
+  :vision 7
+  :attacks '((<crawl> :type <poison> :damage (1 . 2)))) 
+
+(define-monster-kind "radiation-eye" "radiation eye"
+  :desc "A disembodied eye, crackling with energy."
+  :symbol #\e
+  :colour #\R
+  :depth 3
+  :rarity 1
+  :hitpoints '(3 . 6)
+  :armour 6
+  :speed 110
+  :xp 6
+  :abilities '(<never-move>)
+  :immunities '(<fear>)
+  :vulnerabilities '(<light>)
+  :alertness 10
+  :vision 2
+  :attacks '((<gaze> :type <lose-str> :damage (1 . 6)))
+  :special-abilities '((<spell> <drain-mana>) (<frequency> 1/11))) 
+
+
+;;; end depth 3 monsters
+
+;;; === depth 4
+
+
+(define-monster-kind "cave-lizard" "cave lizard"
+  :desc "It is an armoured lizard with a powerful bite."
+  :symbol #\R
+  :colour #\u
+  :type '(<animal>)
+  :depth 4
+  :rarity 1
+  :hitpoints '(3 . 6)
+  :armour 16
+  :speed 110
+  :xp 8
+  :alertness 80
+  :vision 8
+  :attacks '((<bite> :type <hurt> :damage (1 . 5)))) 
+
+(define-monster-kind "novice-ranger" "novice ranger"
+  :desc "An agile hunter, ready and relaxed."
+  :symbol #\p
+  :colour #\W
+  :depth 4
+  :rarity 1
+  :hitpoints '(6 . 8)
+  :armour 6
+  :speed 110
+  :xp 18
+  :abilities '(<bash-door> <open-door> <initial-sleeper>)
+  :alertness 5
+  :vision 20
+  :attacks '((<hit> :type <hurt> :damage (1 . 5)) (<hit> :type <hurt> :damage (1 . 5)))
+  :treasures '((<drop-chance> 3/5))
+  :sex '<male>
+  :special-abilities '((<spell> <missile>) (<arrow> 2) (<frequency> 1/9))
+  :appear-in-group? #'van-novice-appears-in-group?)
+
+
+
+(define-monster-kind "novice-paladin" "novice paladin"
+  :desc "An adventurer both devoutly religious and skillful in combat."
+  :symbol #\p
+  :colour #\w
+  :depth 4
+  :rarity 1
+  :hitpoints '(6 . 8)
+  :armour 16
+  :speed 110
+  :xp 20
+  :abilities '(<bash-door> <open-door> <initial-sleeper>)
+  :alertness 5
+  :vision 20
+  :attacks '((<hit> :type <hurt> :damage (1 . 7)) (<hit> :type <hurt> :damage (1 . 7)))
+  :treasures '((<drop-chance> 3/5))
+  :sex '<male>
+  :special-abilities '((<spell> (<cause> 1)) (<spell> <scare>) (<frequency> 1/9))
+  :appear-in-group? #'van-novice-appears-in-group?)
+
+
+(define-monster-kind "blue-jelly" "blue jelly"
+  :desc "It's a large pile of pulsing blue flesh."
+  :symbol #\j
+  :colour #\b
+  :depth 4
+  :rarity 1
+  :hitpoints '(12 . 8)
+  :armour 1
+  :speed 110
+  :xp 14
+  :abilities '(<empty-mind> <stupid> <cold-blood> <never-move>)
+  :immunities '(<fear> <sleep> <confuse> <cold>)
+  :vulnerabilities '(<light>)
+  :alertness 99
+  :vision 2
+  :attacks '((<touch> :type <cold> :damage (1 . 6)))) 
+
+(define-monster-kind "creeping-copper" "creeping copper coins"
+  :desc "It is a pile of coins."
+  :symbol #\$
+  :colour #\u
+  :type '(<animal>)
+  :depth 4
+  :rarity 2
+  :hitpoints '(7 . 8)
+  :armour 24
+  :speed 100
+  :xp 9
+  :abilities '(<bash-door> <cold-blood>)
+  :immunities '(<sleep> <confuse> <poison>)
+  :alertness 10
+  :vision 3
+  :attacks '((<touch> :type <poison> :damage (2 . 4)) (<hit> :type <hurt> :damage (1 . 4)))
+  :treasures '((<drop> "1d2") <only-drop-gold>)) 
+
+(define-monster-kind "white-rat" "giant white rat"
+  :desc "It is a very vicious rodent."
+  :symbol #\r
+  :colour #\W
+  :type '(<animal>)
+  :depth 4
+  :rarity 1
+  :hitpoints '(2 . 2)
+  :armour 7
+  :speed 110
+  :xp 1
+  :abilities '(<breeder> (<random-mover> 1/4))
+  :alertness 30
+  :vision 8
+  :attacks '((<bite> :type <poison> :damage (1 . 3)))) 
+
+(define-monster-kind "blue-worm" "blue worm mass"
+  :desc "It is a large slimy mass of worms."
+  :symbol #\w
+  :colour #\b
+  :type '(<animal>)
+  :depth 4
+  :rarity 1
+  :hitpoints '(5 . 8)
+  :armour 12
+  :speed 100
+  :xp 5
+  :abilities '(<breeder> <cold-blood> <weird-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
+  :immunities '(<fear> <cold>)
+  :vulnerabilities '(<light>)
+  :alertness 10
+  :vision 7
+  :attacks '((<crawl> :type <cold> :damage (1 . 4)))) 
+
+(define-monster-kind "grey-snake" "large grey snake"
+  :desc "It is about ten feet long."
+  :symbol #\J
+  :colour #\s
+  :type '(<animal>)
+  :depth 4
+  :rarity 1
+  :hitpoints '(6 . 8)
+  :armour 41
+  :speed 100
+  :xp 14
+  :abilities '(<bash-door> (<random-mover> 1/4))
+  :alertness 50
+  :vision 6
+  :attacks '((<crush> :type <hurt> :damage (1 . 8)) (<bite> :type <hurt> :damage (1 . 5)))) 
+
+
+
+;;; end depth 4 monsters
+
+;;; === depth 5
+
+
+(define-monster-kind "green-naga" "green naga"
+  :desc "A large green serpent with a female's torso.  Her green skin glistens with  acid."
+  :symbol #\n
+  :colour #\g
+  :alignment '<evil>
+  :depth 5
+  :rarity 1
+  :hitpoints '(9 . 8)
+  :armour 40
+  :speed 110
+  :xp 30
+  :abilities '(<bash-door> <pick-up-item> (<random-mover> 1/4))
+  :immunities '(<acid>)
+  :alertness 120
+  :vision 18
+  :attacks '((<spit> :type <acid> :damage (2 . 6)) (<crush> :type <hurt> :damage (1 . 8)))
+  :treasures '((<drop-chance> 3/5))
+  :sex '<female>) 
+
+(define-monster-kind "blue-ooze" "blue ooze"
+  :desc "It's blue and it's oozing."
+  :symbol #\j
+  :colour #\b
+  :depth 5
+  :rarity 1
+  :hitpoints '(3 . 4)
+  :armour 16
+  :speed 110
+  :xp 7
+  :abilities '(<empty-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
+  :immunities '(<fear> <sleep> <confuse> <cold>)
+  :alertness 80
+  :vision 8
+  :attacks '((<crawl> :type <cold> :damage (1 . 4)))
+  :treasures '((<drop-chance> 3/5))) 
+
+
+(define-monster-kind "glutton-ghost" "green glutton ghost"
+  :desc "It is a very ugly green ghost with a voracious appetite."
+  :symbol #\G
+  :colour #\g
+  :alignment '<evil>
+  :type '(<undead>)
+  :depth 5
+  :rarity 1
+  :hitpoints '(3 . 4)
+  :armour 20
+  :speed 130
+  :xp 15
+  :abilities '(<pass-wall> <cold-blood> <invisible> (<random-mover> 1/4) (<random-mover> 1/2))
+  :immunities '(<sleep> <confuse>)
+  :alertness 10
+  :vision 10
+  :attacks '((<touch> :type <eat_food> :damage (1 . 1)))
+  :treasures '((<drop-chance> 9/10) (<drop-chance> 3/5))) 
+
+(define-monster-kind "green-jelly" "green jelly"
+  :desc "It is a large pile of pulsing green flesh."
+  :symbol #\j
+  :colour #\g
+  :depth 5
+  :rarity 1
+  :hitpoints '(22 . 8)
+  :armour 1
+  :speed 120
+  :xp 18
+  :abilities '(<empty-mind> <stupid> <never-move>)
+  :immunities '(<fear> <sleep> <confuse> <acid>)
+  :vulnerabilities '(<light>)
+  :alertness 99
+  :vision 2
+  :attacks '((<touch> :type <acid> :damage (1 . 2)))) 
+
+(define-monster-kind "large-kobold" "large kobold"
+  :desc "It a man-sized figure with the all too recognizable face of a kobold."
+  :symbol #\k
+  :colour #\b
+  :alignment '<evil>
+  :depth 5
+  :rarity 1
+  :hitpoints '(13 . 9)
+  :armour 32
+  :speed 110
+  :xp 25
+  :abilities '(<bash-door> <open-door>)
+  :immunities '(<poison>)
+  :alertness 30
+  :vision 20
+  :attacks '((<hit> :type <hurt> :damage (1 . 10)))
+  :treasures '((<drop-chance> 9/10))) 
+
+(define-monster-kind "skeleton-kobold" "skeleton kobold"
+  :desc "It is a small animated kobold skeleton."
+  :symbol #\s
+  :colour #\w
+  :alignment '<evil>
+  :type '(<undead>)
+  :depth 5
+  :rarity 1
+  :hitpoints '(5 . 8)
+  :armour 26
+  :speed 110
+  :xp 12
+  :abilities '(<bash-door> <open-door> <empty-mind> <cold-blood>)
+  :immunities '(<fear> <sleep> <confuse> <poison> <cold>)
+  :alertness 40
+  :vision 20
+  :attacks '((<hit> :type <hurt> :damage (1 . 6)))) 
+
+(define-monster-kind "grey-icky" "grey icky thing"
+  :desc "It is a smallish, slimy, icky, nasty creature."
+  :symbol #\i
+  :colour #\s
+  :depth 5
+  :rarity 1
+  :hitpoints '(4 . 8)
+  :armour 12
+  :speed 110
+  :xp 10
+  :abilities '(<empty-mind> (<random-mover> 1/2))
+  :alertness 15
+  :vision 14
+  :attacks '((<touch> :type <hurt> :damage (1 . 5)))) 
+
+(define-monster-kind "disenchanter-eye" "disenchanter eye"
+  :desc "A disembodied eye, crackling with magic."
+  :symbol #\e
+  :colour #\v
+  :depth 5
+  :rarity 2
+  :hitpoints '(7 . 8)
+  :armour 10
+  :speed 100
+  :xp 20
+  :abilities '(<never-move> <colour-changing>)
+  :immunities '(<fear>)
+  :vulnerabilities '(<light>)
+  :alertness 10
+  :vision 2
+  :attacks '((<gaze> :type <un_bonus> :damage nil))
+  :special-abilities '((<spell> <drain-mana>) (<frequency> 1/9))) 
+
+(define-monster-kind "red-worm" "red worm mass"
+  :desc "It is a large slimy mass of worms."
+  :symbol #\w
+  :colour #\r
+  :type '(<animal>)
+  :depth 5
+  :rarity 1
+  :hitpoints '(5 . 8)
+  :armour 12
+  :speed 100
+  :xp 6
+  :abilities '(<bash-door> <breeder> <empty-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
+  :immunities '(<fear> <fire>)
+  :vulnerabilities '(<light>)
+  :alertness 10
+  :vision 7
+  :attacks '((<crawl> :type <fire> :damage (1 . 6)))) 
+
+(define-monster-kind "copper-snake" "copperhead snake"
+  :desc "It has a copper head and sharp venomous fangs."
+  :symbol #\J
+  :colour #\o
+  :type '(<animal>)
+  :depth 5
+  :rarity 1
+  :hitpoints '(4 . 6)
+  :armour 20
+  :speed 110
+  :xp 15
+  :abilities '(<bash-door> (<random-mover> 1/2))
+  :immunities '(<poison>)
+  :alertness 1
+  :vision 6
+  :attacks '((<bite> :type <poison> :damage (2 . 4)))) 
+
+
+;;; end depth 5 monsters
+
+;;; === depth 6
+
+
+(define-monster-kind "purple-mushroom" "purple mushroom patch"
+  :desc "Yum!  It looks quite tasty."
+  :symbol #\,
+  :colour #\v
+  :depth 6
+  :rarity 2
+  :hitpoints '(1 . 1)
+  :armour 1
+  :speed 110
+  :xp 15
+  :abilities '(<empty-mind> <stupid> <never-move>)
+  :immunities '(<fear> <sleep> <confuse>)
+  :alertness 0
+  :vision 2
+  :attacks '((<spore> :type <lose_con> :damage (1 . 2)) (<spore> :type <lose_con> :damage (1 . 2))
+             (<spore> :type <lose_con> :damage (1 . 2)))) 
+
+
+(define-monster-kind "brown-mold" "brown mold"
+  :desc "A strange brown growth on the dungeon floor."
+  :symbol #\m
+  :colour #\u
+  :depth 6
+  :rarity 1
+  :hitpoints '(15 . 8)
+  :armour 12
+  :speed 110
+  :xp 20
+  :abilities '(<empty-mind> <stupid> <never-move>)
+  :immunities '(<fear> <sleep> <confuse> <poison>)
+  :alertness 99
+  :vision 2
+  :attacks '((<hit> :type <confuse> :damage (1 . 4)))) 
+
+(define-monster-kind "brown-bat" "giant brown bat"
+  :desc "It screeches as it attacks."
+  :symbol #\b
+  :colour #\u
+  :type '(<animal>)
+  :depth 6
+  :rarity 1
+  :hitpoints '(3 . 8)
+  :armour 15
+  :speed 130
+  :xp 10
+  :abilities '((<random-mover> 1/2))
+  :alertness 30
+  :vision 10
+  :attacks '((<bite> :type <hurt> :damage (1 . 3)))) 
+
+(define-monster-kind "novice-archer" "novice archer"
+  :desc "A nasty little fellow with a bow and arrow."
+  :symbol #\p
+  :colour #\W
+  :depth 6
+  :rarity 2
+  :hitpoints '(6 . 8)
+  :armour 10
+  :speed 120
+  :xp 20
+  :abilities '(<bash-door> <open-door> <initial-sleeper>)
+  :alertness 5
+  :vision 20
+  :attacks '((<hit> :type <hurt> :damage (1 . 4)) (<hit> :type <hurt> :damage (1 . 4)))
+  :treasures '((<drop> "1d2") <only-drop-gold>)
+  :sex '<male>
+  :special-abilities '((<arrow> 1) (<frequency> 1/3))) 
+
+(define-monster-kind "creeping-silver" "creeping silver coins"
+  :desc "It is a pile of coins, crawling forward on thousands of tiny legs."
+  :symbol #\$
+  :colour #\s
+  :type '(<animal>)
+  :depth 6
+  :rarity 2
+  :hitpoints '(12 . 8)
+  :armour 30
+  :speed 100
+  :xp 18
+  :abilities '(<bash-door> <cold-blood>)
+  :immunities '(<sleep> <confuse> <poison>)
+  :alertness 10
+  :vision 4
+  :attacks '((<touch> :type <poison> :damage (2 . 6)) (<hit> :type <hurt> :damage (1 . 6)))
+  :treasures '((<drop> "1d2") (<drop-chance> 3/5) <only-drop-gold>)) 
+
+(define-monster-kind "snaga" "snaga"
+  :desc "He is one of the many weaker 'slave' orcs, often mistakenly known as a  goblin."
+  :symbol #\o
+  :colour #\U
+  :alignment '<evil>
+  :type '(<orc>)
+  :depth 6
+  :rarity 1
+  :hitpoints '(8 . 8)
+  :armour 32
+  :speed 110
+  :xp 15
+  :abilities '(<bash-door> <open-door>)
+  :vulnerabilities '(<light>)
+  :alertness 30
+  :vision 20
+  :attacks '((<hit> :type <hurt> :damage (1 . 8)))
+  :treasures '((<drop-chance> 3/5))
+  :sex '<male>) 
+
+(define-monster-kind "rattlesnake" "rattlesnake"
+  :desc "It is recognized by the hard-scaled end of its body that is often rattled  to frighten its prey."
+  :symbol #\J
+  :colour #\r
+  :type '(<animal>)
+  :depth 6
+  :rarity 1
+  :hitpoints '(6 . 7)
+  :armour 24
+  :speed 110
+  :xp 20
+  :abilities '(<bash-door> (<random-mover> 1/2))
+  :immunities '(<poison>)
+  :alertness 1
+  :vision 6
+  :attacks '((<bite> :type <poison> :damage (2 . 5)))) 
+
+
+;;; end depth 6 monsters
+
+;;; === depth 7
+
+(define-monster-kind "cave-orc" "cave orc"
+  :desc "He is often found in huge numbers in deep caves."
+  :symbol #\o
+  :colour #\G
+  :alignment '<evil>
+  :type '(<orc>)
+  :depth 7
+  :rarity 1
+  :hitpoints '(11 . 9)
+  :armour 32
+  :speed 110
+  :xp 20
+  :abilities '(<bash-door> <open-door>)
+  :vulnerabilities '(<light>)
+  :alertness 30
+  :vision 20
+  :attacks '((<hit> :type <hurt> :damage (1 . 8)))
+  :treasures '((<drop-chance> 3/5))
+  :sex '<male>) 
+
+(define-monster-kind "wood-spider" "wood spider"
+  :desc "It scuttles towards you."
+  :symbol #\S
+  :colour #\U
+  :type '(<animal>)
+  :depth 7
+  :rarity 3
+  :hitpoints '(3 . 6)
+  :armour 16
+  :speed 120
+  :xp 15
+  :abilities '(<bash-door> <weird-mind>)
+  :immunities '(<poison>)
+  :alertness 80
+  :vision 8
+  :attacks '((<sting> :type <poison> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 3)))) 
 
 (define-monster-kind "manes" "manes"
   :desc "It is a minor but aggressive demon."
@@ -592,6 +1541,11 @@
   :attacks '((<bite> :type <hurt> :damage (1 . 6)) (<bite> :type <hurt> :damage (1 . 6)))) 
 
 
+;;; end depth 7 monsters
+
+;;; === depth 8
+
+
 (define-monster-kind "brown-yeek" "brown yeek"
   :desc "It is a strange small humanoid."
   :symbol #\y
@@ -609,23 +1563,6 @@
   :attacks '((<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop-chance> 3/5))) 
 
-(define-monster-kind "novice-ranger" "novice ranger"
-  :desc "An agile hunter, ready and relaxed."
-  :symbol #\p
-  :colour #\W
-  :depth 8
-  :rarity 1
-  :hitpoints '(6 . 8)
-  :armour 6
-  :speed 110
-  :xp 18
-  :abilities '(<bash-door> <open-door> <initial-sleeper>)
-  :alertness 5
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 5)) (<hit> :type <hurt> :damage (1 . 5)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>
-  :special-abilities '((<spell> <missile>) (<arrow> 2) (<frequency> 1/9))) 
 
 (define-monster-kind "giant-salamander" "giant salamander"
   :desc "A large black and yellow lizard.  You'd better run away!"
@@ -645,7 +1582,7 @@
   :attacks '((<bite> :type <fire> :damage (3 . 6)))
   :special-abilities '((<breath> <fire>) (<frequency> 1/9))) 
 
-(define-monster-kind "monster-116" "green mold"
+(define-monster-kind "green-mold" "green mold"
   :desc "It is a strange growth on the dungeon floor."
   :symbol #\m
   :colour #\g
@@ -661,7 +1598,7 @@
   :vision 2
   :attacks '((<hit> :type <terrify> :damage (1 . 4)))) 
 
-(define-monster-kind "monster-117" "skeleton orc"
+(define-monster-kind "skeleton-orc" "skeleton orc"
   :desc "It is an animated orc skeleton."
   :symbol #\s
   :colour #\w
@@ -679,25 +1616,8 @@
   :vision 20
   :attacks '((<hit> :type <hurt> :damage (2 . 5)))) 
 
-(define-monster-kind "monster-118" "novice paladin"
-  :desc "An adventurer both devoutly religious and skillful in combat."
-  :symbol #\p
-  :colour #\w
-  :depth 8
-  :rarity 2
-  :hitpoints '(6 . 8)
-  :armour 16
-  :speed 110
-  :xp 20
-  :abilities '(<bash-door> <open-door> <initial-sleeper>)
-  :alertness 5
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 7)) (<hit> :type <hurt> :damage (1 . 7)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>
-  :special-abilities '((<spell> (<cause> 1)) (<spell> <scare>) (<frequency> 1/9))) 
 
-(define-monster-kind "monster-119" "lemure"
+(define-monster-kind "lemure" "lemure"
   :desc "It is the larval form of a major demon."
   :symbol #\u
   :colour #\U
@@ -753,6 +1673,12 @@
   :treasures '((<drop> "1d2"))
   :sex '<male>) 
 
+
+;;; end depth 8 monsters
+
+;;; === depth 9
+
+
 (define-monster-kind "yeti" "yeti"
   :desc "A large white figure covered in shaggy fur."
   :symbol #\Y
@@ -771,7 +1697,7 @@
   :attacks '((<bite> :type <hurt> :damage (1 . 4)) (<claw> :type <hurt> :damage (1 . 3))
              (<claw> :type <hurt> :damage (1 . 3)))) 
 
-(define-monster-kind "monster-123" "bloodshot icky thing"
+(define-monster-kind "bloodshot-icky" "bloodshot icky thing"
   :desc "It is a strange, slimy, icky creature."
   :symbol #\i
   :colour #\r
@@ -788,7 +1714,7 @@
   :attacks '((<crawl> :type <acid> :damage (2 . 4)) (<touch> :type <hurt> :damage (1 . 4)))
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/11))) 
 
-(define-monster-kind "monster-124" "giant grey rat"
+(define-monster-kind "grey-rat" "giant grey rat"
   :desc "It is a rodent of unusual size."
   :symbol #\r
   :colour #\s
@@ -805,7 +1731,7 @@
   :vision 8
   :attacks '((<bite> :type <poison> :damage (1 . 4)))) 
 
-(define-monster-kind "monster-125" "black harpy"
+(define-monster-kind "black-harpy" "black harpy"
   :desc "A woman's face on the body of a vicious black bird."
   :symbol #\H
   :colour #\D
@@ -824,7 +1750,7 @@
              (<claw> :type <hurt> :damage (1 . 2)))
   :sex '<female>) 
 
-(define-monster-kind "monster-126" "orc shaman"
+(define-monster-kind "orc-shaman" "orc shaman"
   :desc "An orc dressed in skins who gestures wildly."
   :symbol #\o
   :colour #\r
@@ -845,7 +1771,7 @@
   :sex '<male>
   :special-abilities '((<spell> <missile>) (<spell> (<cause> 1)) (<spell> <blink>) (<frequency> 1/8))) 
 
-(define-monster-kind "monster-127" "baby blue dragon"
+(define-monster-kind "baby-blue-dragon" "baby blue dragon"
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and  its scales a pale blue."
   :symbol #\d
   :colour #\b
@@ -866,7 +1792,7 @@
   :treasures '((<drop> "1d2") (<drop-chance> 3/5) <only-drop-gold>)
   :special-abilities '((<breath> <lightning>) (<frequency> 1/11))) 
 
-(define-monster-kind "monster-128" "baby white dragon"
+(define-monster-kind "baby-white-dragon" "baby white dragon"
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and  its scales a pale white."
   :symbol #\d
   :colour #\w
@@ -887,7 +1813,7 @@
   :treasures '((<drop> "1d2") (<drop-chance> 3/5) <only-drop-gold>)
   :special-abilities '((<breath> <cold>) (<frequency> 1/11))) 
 
-(define-monster-kind "monster-129" "baby green dragon"
+(define-monster-kind "baby-green-dragon" "baby green dragon"
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and  its scales a sickly green."
   :symbol #\d
   :colour #\g
@@ -909,7 +1835,7 @@
   :special-abilities '((<breath> <poison>) (<frequency> 1/11))) 
 
 
-(define-monster-kind "monster-130" "baby black dragon"
+(define-monster-kind "baby-black-dragon" "baby black dragon"
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and  its scales a dull black."
   :symbol #\d
   :colour #\s
@@ -930,7 +1856,7 @@
   :treasures '((<drop> "1d2") (<drop-chance> 3/5) <only-drop-gold>)
   :special-abilities '((<breath> <acid>) (<frequency> 1/11))) 
 
-(define-monster-kind "monster-131" "baby red dragon"
+(define-monster-kind "baby-red-dragon" "baby red dragon"
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and  its scales a pale red."
   :symbol #\d
   :colour #\r
@@ -951,7 +1877,7 @@
   :treasures '((<drop> "1d2") (<drop-chance> 3/5) <only-drop-gold>)
   :special-abilities '((<breath> <fire>) (<frequency> 1/11))) 
 
-(define-monster-kind "monster-132" "giant pink ant"
+(define-monster-kind "pink-ant" "giant pink ant"
   :desc "It is large and has venomous mandibles."
   :symbol #\a
   :colour #\R
@@ -968,7 +1894,7 @@
   :attacks '((<sting> :type <lose-str> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 4)))) 
 
 
-(define-monster-kind "monster-134" "king cobra"
+(define-monster-kind "king-cobra" "king cobra"
   :desc "It is a large snake with a hooded face."
   :symbol #\J
   :colour #\g
@@ -984,6 +1910,13 @@
   :alertness 1
   :vision 8
   :attacks '((<bite> :type <poison> :damage (3 . 4)) (<spit> :type <blind> :damage (1 . 2)))) 
+
+
+;;; end depth 9 monsters
+
+;;; === depth 10 and up
+
+
 
 (define-monster-kind "giant-spider" "giant spider"
   :desc "It is a vast black spider whose bulbous body is bloated with poison."
@@ -1003,7 +1936,7 @@
   :attacks '((<bite> :type <hurt> :damage (1 . 10)) (<bite> :type <poison> :damage (1 . 6))
              (<bite> :type <poison> :damage (1 . 6)) (<bite> :type <hurt> :damage (1 . 10)))) 
 
-(define-monster-kind "monster-136" "dark elven mage"
+(define-monster-kind "dark-elf-mage" "dark elven mage"
   :desc "A dark elven figure, dressed all in black, hurling spells at you."
   :symbol #\h
   :colour #\v
@@ -1026,7 +1959,7 @@
                        (<spell> <blindness>) (<frequency> 1/5))) 
 
 
-(define-monster-kind "monster-138" "dark elven warrior"
+(define-monster-kind "dark-elf-warriour" "dark elven warriour"
   :desc "A dark elven figure in armour and ready with his sword."
   :symbol #\h
   :colour #\u
@@ -1045,7 +1978,7 @@
   :treasures '((<drop> "1d2"))
   :sex '<male>) 
 
-(define-monster-kind "monster-139" "clear mushroom patch"
+(define-monster-kind "clear-mushroom" "clear mushroom patch"
   :desc "Yum!  It looks quite tasty."
   :symbol #\,
   :colour #\w
@@ -1061,7 +1994,7 @@
   :vision 4
   :attacks '((<spore> :type <hurt> :damage (1 . 1)))) 
 
-(define-monster-kind "monster-141" "giant white tick"
+(define-monster-kind "white-tick" "giant white tick"
   :desc "It is moving slowly towards you."
   :symbol #\S
   :colour #\w
@@ -1078,7 +2011,7 @@
   :vision 12
   :attacks '((<bite> :type <poison> :damage (2 . 6)))) 
 
-(define-monster-kind "monster-142" "hairy mold"
+(define-monster-kind "hairy-mold" "hairy mold"
   :desc "It is a strange hairy growth on the dungeon floor."
   :symbol #\m
   :colour #\o
@@ -1094,7 +2027,7 @@
   :vision 2
   :attacks '((<hit> :type <poison> :damage (1 . 3)))) 
 
-(define-monster-kind "monster-143" "disenchanter mold"
+(define-monster-kind "disenchanter-mold" "disenchanter mold"
   :desc "It is a strange glowing growth on the dungeon floor."
   :symbol #\m
   :colour #\v
@@ -1150,7 +2083,7 @@
   :attacks '((<hit> :type <hurt> :damage (1 . 8)))
   :special-abilities '((<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/3))) 
 
-(define-monster-kind "monster-146" "creeping gold coins"
+(define-monster-kind "creeping-gold" "creeping gold coins"
   :desc "It is a pile of coins, crawling forward on thousands of tiny legs."
   :symbol #\$
   :colour #\y
@@ -1168,7 +2101,7 @@
   :attacks '((<touch> :type <poison> :damage (3 . 5)) (<hit> :type <hurt> :damage (2 . 5)))
   :treasures '((<drop> "1d2") (<drop-chance> 9/10) <only-drop-gold>)) 
 
-(define-monster-kind "monster-147" "wolf"
+(define-monster-kind "wolf" "wolf"
   :desc "It howls and snaps at you."
   :symbol #\C
   :colour #\u
@@ -1184,7 +2117,7 @@
   :vision 30
   :attacks '((<bite> :type <hurt> :damage (1 . 6)))) 
 
-(define-monster-kind "monster-148" "giant fruit fly"
+(define-monster-kind "giant-fruit-fly" "giant fruit fly"
   :desc "A fast-breeding, annoying pest."
   :symbol #\I
   :colour #\G
@@ -1216,7 +2149,7 @@
   :vision 40
   :attacks '((<claw> :type <hurt> :damage (1 . 8)) (<claw> :type <hurt> :damage (1 . 8)))) 
 
-(define-monster-kind "monster-150" "brigand"
+(define-monster-kind "brigand" "brigand"
   :desc "He is eyeing your backpack."
   :symbol #\p
   :colour #\b
@@ -1234,7 +2167,7 @@
   :treasures '((<drop> "1d2"))
   :sex '<male>) 
 
-(define-monster-kind "monster-151" "baby multi-hued dragon"
+(define-monster-kind "baby-mh-dragon" "baby multi-hued dragon"
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and  its scales shimmering with a hint of colour."
   :symbol #\d
   :colour #\v
@@ -1256,7 +2189,7 @@
   :special-abilities '((<breath> <poison>) (<breath> <lightning>) (<breath> <cold>) (<breath> <fire>) (<breath> <acid>)
                        (<frequency> 1/11))) 
 
-(define-monster-kind "monster-152" "hippogriff"
+(define-monster-kind "hippogriff" "hippogriff"
   :desc "A strange hybrid of eagle, lion and horse.  It looks weird."
   :symbol #\H
   :colour #\U
@@ -1272,7 +2205,7 @@
   :vision 12
   :attacks '((<bite> :type <hurt> :damage (2 . 5)) (<hit> :type <hurt> :damage (2 . 5)))) 
 
-(define-monster-kind "monster-153" "zombified orc"
+(define-monster-kind "zombie-orc" "zombified orc"
   :desc "It is a shambling orcish corpse leaving behind a trail of flesh."
   :symbol #\z
   :colour #\s
@@ -1291,7 +2224,7 @@
   :attacks '((<hit> :type <hurt> :damage (1 . 4)) (<hit> :type <hurt> :damage (1 . 4))
              (<hit> :type <hurt> :damage (1 . 4)))) 
 
-(define-monster-kind "monster-154" "gnome mage"
+(define-monster-kind "gnome-mage" "gnome mage"
   :desc "A mage of short stature."
   :symbol #\h
   :colour #\r
@@ -1309,9 +2242,11 @@
   :treasures '((<drop> "1d2"))
   :sex '<male>
   :special-abilities '((<summon> <monster>) (<spell> (<bolt> <cold>)) (<spell> <darkness>) (<spell> <blink>)
-                       (<frequency> 1/4))) 
+                       (<frequency> 1/4))
+  :appear-in-group? #'van-novice-appears-in-group?)
 
-(define-monster-kind "monster-155" "black mamba"
+
+(define-monster-kind "black-mamba" "black mamba"
   :desc "It has glistening black skin, a sleek body and highly venomous fangs."
   :symbol #\J
   :colour #\D
@@ -1328,7 +2263,7 @@
   :vision 10
   :attacks '((<bite> :type <poison> :damage (4 . 4)))) 
 
-(define-monster-kind "monster-156" "white wolf"
+(define-monster-kind "white-wolf" "white wolf"
   :desc "A large and muscled wolf from the northern wastes.  Its breath is cold and  icy and its fur coated in frost."
   :symbol #\C
   :colour #\w
@@ -1345,7 +2280,7 @@
   :vision 30
   :attacks '((<bite> :type <hurt> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 3)))) 
 
-(define-monster-kind "monster-157" "grape jelly"
+(define-monster-kind "grape-jelly" "grape jelly"
   :desc "It is a pulsing mound of glowing flesh."
   :symbol #\j
   :colour #\v
@@ -1363,7 +2298,7 @@
   :attacks '((<touch> :type <exp-10> :damage nil))
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/11))) 
 
-(define-monster-kind "monster-158" "nether worm mass"
+(define-monster-kind "nether-worm" "nether worm mass"
   :desc "It is a disgusting mass of dark worms, eating each other, the floor,  the air, you...."
   :symbol #\w
   :colour #\D
@@ -1381,7 +2316,7 @@
   :vision 10
   :attacks '((<touch> :type <exp-10> :damage nil))) 
 
-(define-monster-kind "monster-160" "master yeek"
+(define-monster-kind "master-yeek" "master yeek"
   :desc "A small humanoid that radiates some power."
   :symbol #\y
   :colour #\U
@@ -1401,7 +2336,7 @@
   :special-abilities '((<summon> <monster>) (<spell> (<ball> <poison>)) (<spell> <slow>) (<spell> <blindness>)
                        (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/4))) 
 
-(define-monster-kind "monster-161" "priest"
+(define-monster-kind "priest" "priest"
   :desc "A robed humanoid dedicated to his god."
   :symbol #\p
   :colour #\g
@@ -1420,7 +2355,7 @@
   :sex '<male>
   :special-abilities '((<summon> <monster>) (<spell> (<cause> 2)) (<spell> <scare>) (<spell> <heal>) (<frequency> 1/3))) 
 
-(define-monster-kind "monster-162" "dark elven priest"
+(define-monster-kind "dark-elf-priest" "dark elven priest"
   :desc "A dark elven figure, dressed all in black, chanting curses and waiting to  deliver your soul to hell."
   :symbol #\h
   :colour #\g
@@ -1441,7 +2376,7 @@
   :special-abilities '((<spell> <darkness>) (<spell> (<cause> 2)) (<spell> <confusion>) (<spell> <blindness>)
                        (<spell> <heal>) (<frequency> 1/5))) 
 
-(define-monster-kind "monster-163" "air spirit"
+(define-monster-kind "air-spirit" "air spirit"
   :desc "A whirlwind of sentient air."
   :symbol #\E
   :colour #\B
@@ -2106,25 +3041,6 @@
   :vision 20
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <paralyze> :damage (1 . 2)))) 
 
-(define-monster-kind "gnome-mage" "gnome mage"
-  :desc "A mage of short stature."
-  :symbol #\h
-  :colour #\r
-  :alignment '<evil>
-  :depth 15
-  :rarity 2
-  :hitpoints '(7 . 8)
-  :armour 20
-  :speed 110
-  :xp 40
-  :abilities '(<bash-door> <open-door> <initial-sleeper>)
-  :alertness 20
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 5)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>
-  :special-abilities '((<summon> <monster>) (<spell> (<bolt> <cold>)) (<spell> <darkness>) (<spell> <blink>)
-                       (<frequency> 1/4))) 
 
 (define-monster-kind "monster-203" "clear hound"
   :desc "A completely translucent hound."
@@ -4882,7 +5798,8 @@
              (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '((<drop> "2d2") (<drop-chance> 3/5) <only-drop-items>)
   :special-abilities '((<spell> (<bolt> <nether>)) (<spell> <drain-mana>) (<spell> <confusion>) (<spell> <paralysis>)
-                       (<spell> <blindness>) (<frequency> 1/15))) 
+                       (<spell> <blindness>) (<frequency> 1/15))
+  :appear-in-group? #'van-novice-appears-in-group?)
 
 
 (define-monster-kind "monster-370" "ooze elemental"
@@ -4959,9 +5876,11 @@
   :alertness 100
   :vision 20
   :attacks '((<crush> :type <hurt> :damage (4 . 4)) (<butt> :type <hurt> :damage (4 . 6))
-             (<butt> :type <hurt> :damage (4 . 6)))) 
+             (<butt> :type <hurt> :damage (4 . 6)))
+  :appear-in-group? #'van-novice-appears-in-group?)
 
-(define-monster-kind "monster-374" "giant red ant"
+
+(define-monster-kind "red-ant" "giant red ant"
   :desc "A giant ant covered in shaggy fur.  Its powerful jaws glow with heat."
   :symbol #\a
   :colour #\r
@@ -4978,7 +5897,7 @@
   :vision 14
   :attacks '((<bite> :type <fire> :damage (3 . 12)) (<bite> :type <fire> :damage (3 . 12)))) 
 
-(define-monster-kind "monster-375" "mature white dragon"
+(define-monster-kind "mature-white-dragon" "mature white dragon"
   :desc "A large dragon, scales gleaming bright white."
   :symbol #\d
   :colour #\w
@@ -5081,25 +6000,6 @@
   :treasures '((<drop-chance> 9/10) (<drop-chance> 3/5))
   :special-abilities '((<spell> <darkness>) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
                        (<frequency> 1/7))) 
-
-(define-monster-kind "monster-38" "novice mage"
-  :desc "He is leaving behind a trail of dropped spell components."
-  :symbol #\p
-  :colour #\r
-  :depth 2
-  :rarity 1
-  :hitpoints '(6 . 4)
-  :armour 6
-  :speed 110
-  :xp 7
-  :abilities '(<bash-door> <open-door> <initial-sleeper>)
-  :alertness 5
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 4)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>
-  :special-abilities '((<spell> <missile>) (<spell> <confusion>) (<spell> <blindness>) (<spell> <blink>)
-                       (<frequency> 1/12))) 
 
 (define-monster-kind "monster-380" "young multi-hued dragon"
   :desc "It has a form that legends are made of.  Beautiful scales of shimmering  and magical colours cover it."
@@ -5280,21 +6180,6 @@
              (<hit> :type <fire> :damage (4 . 6)))
   :special-abilities '((<summon> <demon>) (<spell> (<ball> <fire>)) (<spell> (<bolt> <fire>)) (<frequency> 1/4))) 
 
-(define-monster-kind "monster-39" "yellow mushroom patch"
-  :desc "Yum!  It looks quite tasty."
-  :symbol #\,
-  :colour #\y
-  :depth 2
-  :rarity 1
-  :hitpoints '(1 . 1)
-  :armour 1
-  :speed 110
-  :xp 2
-  :abilities '(<empty-mind> <stupid> <never-move>)
-  :immunities '(<fear> <sleep> <confuse> <poison>)
-  :alertness 0
-  :vision 2
-  :attacks '((<spore> :type <terrify> :damage (1 . 6)))) 
 
 (define-monster-kind "monster-390" "ice elemental"
   :desc "It is a towering glacier of ice."
@@ -5453,22 +6338,6 @@
   :attacks '((<gaze> :type <paralyze> :damage nil) (<claw> :type <elec> :damage (1 . 12))
              (<claw> :type <elec> :damage (1 . 12)))) 
 
-(define-monster-kind "monster-40" "white jelly"
-  :desc "Its a large pile of white flesh."
-  :symbol #\j
-  :colour #\w
-  :depth 2
-  :rarity 1
-  :hitpoints '(8 . 8)
-  :armour 1
-  :speed 120
-  :xp 10
-  :abilities '(<empty-mind> <stupid> <never-move>)
-  :immunities '(<fear> <sleep> <confuse> <poison>)
-  :vulnerabilities '(<light>)
-  :alertness 99
-  :vision 2
-  :attacks '((<touch> :type <poison> :damage (1 . 2)))) 
 
 (define-monster-kind "monster-400" "nexus vortex"
   :desc "A maelstrom of potent magical energy."
@@ -5648,21 +6517,6 @@
   :attacks '((<engulf> :type <hurt> :damage (5 . 5)))
   :special-abilities '((<breath> <time>) (<frequency> 1/6))) 
 
-(define-monster-kind "monster-41" "giant green frog"
-  :desc "It is as big as a wolf."
-  :symbol #\R
-  :colour #\g
-  :type '(<animal>)
-  :depth 2
-  :rarity 1
-  :hitpoints '(2 . 8)
-  :armour 8
-  :speed 110
-  :xp 6
-  :abilities '(<bash-door> (<random-mover> 1/4))
-  :alertness 30
-  :vision 12
-  :attacks '((<bite> :type <hurt> :damage (1 . 3)))) 
 
 (define-monster-kind "monster-410" "shimmering vortex"
   :desc "A strange pillar of shining light that hurts your eyes.  Its shape changes  constantly as it cuts through the air towards you.  It is like a beacon,  waking monsters from their slumber."
@@ -5859,21 +6713,6 @@
   :special-abilities '((<spell> (<bolt> <nether>)) (<spell> <darkness>) (<spell> <mind-blast>) (<spell> (<cause> 3))
                        (<spell> <scare>) (<spell> <blindness>) (<frequency> 1/6))) 
 
-(define-monster-kind "monster-42" "giant black ant"
-  :desc "It is about three feet long."
-  :symbol #\a
-  :colour #\D
-  :type '(<animal>)
-  :depth 2
-  :rarity 1
-  :hitpoints '(3 . 6)
-  :armour 20
-  :speed 110
-  :xp 8
-  :abilities '(<bash-door> <weird-mind> (<random-mover> 1/4))
-  :alertness 80
-  :vision 8
-  :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
 
 (define-monster-kind "monster-420" "eldrak"
   :desc "A massive troll, larger and stronger than many men together."
@@ -6046,22 +6885,6 @@
   :special-abilities '((<breath> <acid>) (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>)
                        (<frequency> 1/9))) 
 
-(define-monster-kind "monster-43" "salamander"
-  :desc "A small black and orange lizard."
-  :symbol #\R
-  :colour #\o
-  :type '(<animal>)
-  :depth 2
-  :rarity 1
-  :hitpoints '(4 . 6)
-  :armour 20
-  :speed 110
-  :xp 10
-  :abilities '((<random-mover> 1/4))
-  :immunities '(<fire>)
-  :alertness 80
-  :vision 8
-  :attacks '((<bite> :type <fire> :damage (1 . 3)))) 
 
 (define-monster-kind "monster-430" "disenchanter worm mass"
   :desc "It is a strange mass of squirming worms.  Magical energy crackles  around its disgusting form."
@@ -6262,25 +7085,6 @@
   :vision 20
   :attacks '((<hit> :type <elec> :damage (12 . 12)) (<crush> :type <hurt> :damage (8 . 12))
              (<crush> :type <hurt> :damage (8 . 12)))) 
-
-(define-monster-kind "monster-44" "white harpy"
-  :desc "A flying, screeching bird with a woman's face."
-  :symbol #\H
-  :colour #\w
-  :alignment '<evil>
-  :type '(<animal>)
-  :depth 2
-  :rarity 1
-  :hitpoints '(2 . 5)
-  :armour 17
-  :speed 110
-  :xp 5
-  :abilities '((<random-mover> 1/2))
-  :alertness 10
-  :vision 16
-  :attacks '((<bite> :type <hurt> :damage (1 . 2)) (<claw> :type <hurt> :damage (1 . 1))
-             (<claw> :type <hurt> :damage (1 . 1)))
-  :sex '<female>) 
 
 
 (define-monster-kind "monster-441" "minotaur"
@@ -6588,44 +7392,7 @@
                        (<frequency> 1/2))) 
 
 
-(define-monster-kind "dread" "dread"
-  :desc "It is a form that screams its presence against the eye.  Death incarnate,  its hideous black body seems to struggle against reality as the universe  itself struggles to banish it."
-  :symbol #\G
-  :colour #\o
-  :alignment '<evil>
-  :type '(<undead>)
-  :depth 42
-  :rarity 1
-  :hitpoints '(25 . 20)
-  :armour 30
-  :speed 120
-  :xp 600
-  :abilities '(<pass-wall> <cold-blood> <invisible> <pick-up-item> (<random-mover> 1/4) <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold>)
-  :alertness 10
-  :vision 20
-  :attacks '((<hit> :type <lose-str> :damage (3 . 4)) (<hit> :type <hurt> :damage (6 . 6))
-             (<hit> :type <hurt> :damage (6 . 6)))
-  :treasures '((<drop-chance> 3/5) <only-drop-items>)
-  :special-abilities '((<spell> (<bolt> <nether>)) (<spell> <drain-mana>) (<spell> <confusion>) (<spell> <paralysis>)
-                       (<spell> <blindness>) (<frequency> 1/15))) 
 
-(define-monster-kind "mumak" "mumak"
-  :desc "A massive elephantine form with eyes twisted by madness."
-  :symbol #\q
-  :colour #\s
-  :type '(<animal>)
-  :depth 43
-  :rarity 2
-  :hitpoints '(90 . 10)
-  :armour 55
-  :speed 110
-  :xp 2100
-  :abilities '(<bash-door>)
-  :alertness 100
-  :vision 20
-  :attacks '((<crush> :type <hurt> :damage (4 . 4)) (<butt> :type <hurt> :damage (4 . 6))
-             (<butt> :type <hurt> :damage (4 . 6)))) 
 
 (define-monster-kind "anc-mh-dragon" "ancient multi-hued dragon"
   :desc "A huge draconic form.  Many colours ripple down its massive frame.  Few  live to see another."
@@ -6672,7 +7439,7 @@
                        (<spell> <blindness>) (<frequency> 1/5))) 
 
 
-(define-monster-kind "monster-465" "marilith"
+(define-monster-kind "marilith" "marilith"
   :desc "She is a demon of female form with many arms, each bearing deadly weapons."
   :symbol #\U
   :colour #\y
@@ -6867,26 +7634,8 @@
   :attacks '((<hit> :type <exp_80> :damage (5 . 5)) (<hit> :type <un_bonus> :damage (7 . 7))
              (<hit> :type <un_bonus> :damage (7 . 7)) (<hit> :type <un_bonus> :damage (7 . 7)))) 
 
-(define-monster-kind "monster-48" "green worm mass"
-  :desc "It is a large slimy mass of worms."
-  :symbol #\w
-  :colour #\g
-  :type '(<animal>)
-  :depth 2
-  :rarity 1
-  :hitpoints '(6 . 4)
-  :armour 3
-  :speed 100
-  :xp 3
-  :abilities '(<breeder> <weird-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
-  :immunities '(<fear> <acid>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 7
-  :attacks '((<crawl> :type <acid> :damage (1 . 3)))) 
 
-
-(define-monster-kind "monster-482" "master mystic"
+(define-monster-kind "master-mystic" "master mystic"
   :desc "A lord of all that is natural, skilled in the mystic ways.  He is a master  of martial arts and is at one with nature, able to summon help from the  wild if need be."
   :symbol #\p
   :colour #\o
@@ -7028,22 +7777,6 @@
   :special-abilities '((<breath> <lightning>) (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>)
                        (<frequency> 1/6))) 
 
-(define-monster-kind "monster-49" "large yellow snake"
-  :desc "It is about ten feet long."
-  :symbol #\J
-  :colour #\y
-  :type '(<animal>)
-  :depth 2
-  :rarity 1
-  :hitpoints '(4 . 8)
-  :armour 38
-  :speed 100
-  :xp 9
-  :abilities '(<bash-door> (<random-mover> 1/4))
-  :alertness 75
-  :vision 5
-  :attacks '((<crush> :type <hurt> :damage (1 . 6)) (<bite> :type <hurt> :damage (1 . 4)))) 
-
 
 (define-monster-kind "monster-493" "grand master mystic"
   :desc "He is one of the few true masters of the art, being extremely skillful in  all forms of unarmed combat and controlling the world's natural creatures  with disdainful ease."
@@ -7152,21 +7885,6 @@
   :special-abilities '((<spell> <darkness>) (<spell> <forget>) (<spell> (<cause> 3)) (<spell> <scare>)
                        (<spell> <confusion>) (<spell> <blindness>) (<spell> <teleport-away>) (<frequency> 1))) 
 
-(define-monster-kind "cave-spider" "cave spider"
-  :desc "It is a black spider that moves in fits and starts."
-  :symbol #\S
-  :colour #\D
-  :type '(<animal>)
-  :depth 2
-  :rarity 1
-  :hitpoints '(2 . 6)
-  :armour 16
-  :speed 120
-  :xp 7
-  :abilities '(<bash-door> <weird-mind>)
-  :alertness 80
-  :vision 8
-  :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
 
 (define-monster-kind "monster-500" "eye druj"
   :desc "A bloodshot eyeball floating in the air, you'd be forgiven for assuming it  harmless."
@@ -7526,22 +8244,6 @@
   :special-abilities '((<summon> <high-undead>) (<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/2))) 
 
 
-(define-monster-kind "monster-53" "green ooze"
-  :desc "It's green and it's oozing."
-  :symbol #\j
-  :colour #\g
-  :depth 3
-  :rarity 2
-  :hitpoints '(3 . 4)
-  :armour 16
-  :speed 120
-  :xp 4
-  :abilities '(<empty-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
-  :immunities '(<fear> <sleep> <confuse> <poison> <acid>)
-  :alertness 80
-  :vision 8
-  :attacks '((<crawl> :type <acid> :damage (1 . 3)))
-  :treasures '((<drop-chance> 9/10))) 
 
 
 (define-monster-kind "monster-531" "aether hound"
@@ -7588,798 +8290,6 @@
              (<bite> :type <fire> :damage (3 . 12)))
   :special-abilities '((<breath> <fire>) (<frequency> 1/5))) 
 
-
-(define-monster-kind "monster-54" "poltergeist"
-  :desc "It is a ghastly, ghostly form."
-  :symbol #\G
-  :colour #\W
-  :alignment '<evil>
-  :type '(<undead>)
-  :depth 3
-  :rarity 1
-  :hitpoints '(2 . 5)
-  :armour 15
-  :speed 130
-  :xp 8
-  :abilities '(<pick-up-item> <pass-wall> <cold-blood> <invisible> (<random-mover> 1/4) (<random-mover> 1/2))
-  :immunities '(<sleep> <confuse> <poison> <cold>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 8
-  :attacks '((<touch> :type <terrify> :damage nil))
-  :treasures '((<drop-chance> 9/10) (<drop-chance> 3/5))
-  :special-abilities '((<spell> <blink>) (<frequency> 1/15))) 
-
-
-(define-monster-kind "monster-55" "metallic blue centipede"
-  :desc "It is about four feet long and carnivorous."
-  :symbol #\c
-  :colour #\b
-  :type '(<animal>)
-  :depth 3
-  :rarity 1
-  :hitpoints '(4 . 5)
-  :armour 6
-  :speed 120
-  :xp 7
-  :abilities '(<bash-door> <weird-mind> (<random-mover> 1/2))
-  :alertness 15
-  :vision 6
-  :attacks '((<crawl> :type <hurt> :damage (1 . 2)))) 
-
-(define-monster-kind "white-louse" "giant white louse"
-  :desc "It is six inches long."
-  :symbol #\l
-  :colour #\w
-  :type '(<animal>)
-  :depth 3
-  :rarity 1
-  :hitpoints '(1 . 1)
-  :armour 5
-  :speed 120
-  :xp 1
-  :abilities '(<weird-mind> <breeder> (<random-mover> 1/4) (<random-mover> 1/2))
-  :alertness 10
-  :vision 6
-  :attacks '((<bite> :type <hurt> :damage (1 . 1)))) 
-
-(define-monster-kind "black-naga" "black naga"
-  :desc "A large black serpent's body with a female torso."
-  :symbol #\n
-  :colour #\D
-  :alignment '<evil>
-  :depth 3
-  :rarity 1
-  :hitpoints '(6 . 8)
-  :armour 40
-  :speed 110
-  :xp 20
-  :abilities '(<bash-door> (<random-mover> 1/4))
-  :alertness 120
-  :vision 16
-  :attacks '((<crush> :type <hurt> :damage (1 . 8)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<female>) 
-
-(define-monster-kind "monster-58" "spotted mushroom patch"
-  :desc "Yum!  It looks quite tasty."
-  :symbol #\,
-  :colour #\o
-  :depth 3
-  :rarity 1
-  :hitpoints '(1 . 1)
-  :armour 1
-  :speed 110
-  :xp 3
-  :abilities '(<empty-mind> <stupid> <never-move>)
-  :immunities '(<fear> <sleep> <confuse> <poison>)
-  :alertness 0
-  :vision 2
-  :attacks '((<spore> :type <poison> :damage (2 . 4)))) 
-
-(define-monster-kind "monster-59" "silver jelly"
-  :desc "It is a large pile of silver flesh that sucks all light from its  surroundings."
-  :symbol #\j
-  :colour #\W
-  :depth 3
-  :rarity 2
-  :hitpoints '(10 . 8)
-  :armour 1
-  :speed 120
-  :xp 12
-  :abilities '(<empty-mind> <stupid> <never-move>)
-  :immunities '(<fear> <sleep> <confuse> <poison>)
-  :vulnerabilities '(<light>)
-  :alertness 99
-  :vision 2
-  :attacks '((<touch> :type <eat_lite> :damage (1 . 3)) (<touch> :type <eat_lite> :damage (1 . 3)))
-  :special-abilities '((<spell> <drain-mana>) (<frequency> 1/15))) 
-
-
-(define-monster-kind "yellow-jelly" "yellow jelly"
-  :desc "It's a large pile of yellow flesh."
-  :symbol #\j
-  :colour #\y
-  :depth 3
-  :rarity 1
-  :hitpoints '(10 . 8)
-  :armour 1
-  :speed 120
-  :xp 12
-  :abilities '(<empty-mind> <stupid> <never-move>)
-  :immunities '(<fear> <sleep> <confuse> <poison>)
-  :vulnerabilities '(<light>)
-  :alertness 99
-  :vision 2
-  :attacks '((<touch> :type <poison> :damage (1 . 3)))
-  :special-abilities '((<spell> <drain-mana>) (<frequency> 1/15))) 
-
-(define-monster-kind "scruffy-hobbit" "scruffy looking hobbit"
-  :desc "A short little guy, in bedraggled clothes.  He appears to be looking  for a good tavern."
-  :symbol #\h
-  :colour #\b
-  :alignment '<evil>
-  :depth 3
-  :rarity 1
-  :hitpoints '(3 . 5)
-  :armour 8
-  :speed 110
-  :xp 4
-  :abilities '(<bash-door> <open-door> <pick-up-item>)
-  :alertness 10
-  :vision 16
-  :attacks '((<touch> :type <eat-gold> :damage nil) (<hit> :type <hurt> :damage (1 . 4)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>) 
-
-(define-monster-kind "white-ant" "giant white ant"
-  :desc "It is about two feet long and has sharp pincers."
-  :symbol #\a
-  :colour #\w
-  :type '(<animal>)
-  :depth 3
-  :rarity 1
-  :hitpoints '(3 . 6)
-  :armour 16
-  :speed 110
-  :xp 7
-  :abilities '(<bash-door> <weird-mind>)
-  :alertness 80
-  :vision 8
-  :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
-
-(define-monster-kind "yellow-mold" "yellow mold"
-  :desc "It is a strange growth on the dungeon floor."
-  :symbol #\m
-  :colour #\y
-  :depth 3
-  :rarity 1
-  :hitpoints '(8 . 8)
-  :armour 10
-  :speed 110
-  :xp 9
-  :abilities '(<empty-mind> <stupid> <never-move>)
-  :immunities '(<fear> <sleep> <confuse> <poison>)
-  :alertness 99
-  :vision 2
-  :attacks '((<hit> :type <hurt> :damage (1 . 4)))) 
-
-(define-monster-kind "red-centipede" "metallic red centipede"
-  :desc "It is about four feet long and carnivorous."
-  :symbol #\c
-  :colour #\r
-  :type '(<animal>)
-  :depth 3
-  :rarity 1
-  :hitpoints '(4 . 8)
-  :armour 9
-  :speed 120
-  :xp 12
-  :abilities '(<bash-door> <weird-mind> (<random-mover> 1/4))
-  :alertness 20
-  :vision 8
-  :attacks '((<crawl> :type <hurt> :damage (1 . 2)))) 
-
-(define-monster-kind "yellow-worm" "yellow worm mass"
-  :desc "It is a large slimy mass of worms."
-  :symbol #\w
-  :colour #\y
-  :type '(<animal>)
-  :depth 3
-  :rarity 2
-  :hitpoints '(4 . 8)
-  :armour 4
-  :speed 100
-  :xp 4
-  :abilities '(<breeder> <weird-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
-  :immunities '(<fear>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 7
-  :attacks '((<crawl> :type <lose_dex> :damage (1 . 3)))) 
-
-(define-monster-kind "clear-worm" "clear worm mass"
-  :desc "It is a disgusting mass of poisonous worms."
-  :symbol #\w
-  :colour #\w
-  :type '(<animal>)
-  :depth 3
-  :rarity 2
-  :hitpoints '(4 . 4)
-  :armour 1
-  :speed 100
-  :xp 4
-  :abilities '(<breeder> <invisible> <weird-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2) <see-through>)
-  :immunities '(<fear> <poison>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 7
-  :attacks '((<crawl> :type <poison> :damage (1 . 2)))) 
-
-(define-monster-kind "monster-67" "radiation eye"
-  :desc "A disembodied eye, crackling with energy."
-  :symbol #\e
-  :colour #\R
-  :depth 3
-  :rarity 1
-  :hitpoints '(3 . 6)
-  :armour 6
-  :speed 110
-  :xp 6
-  :abilities '(<never-move>)
-  :immunities '(<fear>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 2
-  :attacks '((<gaze> :type <lose-str> :damage (1 . 6)))
-  :special-abilities '((<spell> <drain-mana>) (<frequency> 1/11))) 
-
-(define-monster-kind "monster-68" "cave lizard"
-  :desc "It is an armoured lizard with a powerful bite."
-  :symbol #\R
-  :colour #\u
-  :type '(<animal>)
-  :depth 4
-  :rarity 1
-  :hitpoints '(3 . 6)
-  :armour 16
-  :speed 110
-  :xp 8
-  :alertness 80
-  :vision 8
-  :attacks '((<bite> :type <hurt> :damage (1 . 5)))) 
-
-(define-monster-kind "monster-69" "novice ranger"
-  :desc "An agile hunter, ready and relaxed."
-  :symbol #\p
-  :colour #\W
-  :depth 4
-  :rarity 1
-  :hitpoints '(6 . 8)
-  :armour 6
-  :speed 110
-  :xp 18
-  :abilities '(<bash-door> <open-door> <initial-sleeper>)
-  :alertness 5
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 5)) (<hit> :type <hurt> :damage (1 . 5)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>
-  :special-abilities '((<spell> <missile>) (<arrow> 2) (<frequency> 1/9))) 
-
-
-(define-monster-kind "monster-70" "novice paladin"
-  :desc "An adventurer both devoutly religious and skillful in combat."
-  :symbol #\p
-  :colour #\w
-  :depth 4
-  :rarity 1
-  :hitpoints '(6 . 8)
-  :armour 16
-  :speed 110
-  :xp 20
-  :abilities '(<bash-door> <open-door> <initial-sleeper>)
-  :alertness 5
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 7)) (<hit> :type <hurt> :damage (1 . 7)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>
-  :special-abilities '((<spell> (<cause> 1)) (<spell> <scare>) (<frequency> 1/9))) 
-
-(define-monster-kind "monster-71" "blue jelly"
-  :desc "It's a large pile of pulsing blue flesh."
-  :symbol #\j
-  :colour #\b
-  :depth 4
-  :rarity 1
-  :hitpoints '(12 . 8)
-  :armour 1
-  :speed 110
-  :xp 14
-  :abilities '(<empty-mind> <stupid> <cold-blood> <never-move>)
-  :immunities '(<fear> <sleep> <confuse> <cold>)
-  :vulnerabilities '(<light>)
-  :alertness 99
-  :vision 2
-  :attacks '((<touch> :type <cold> :damage (1 . 6)))) 
-
-(define-monster-kind "monster-72" "creeping copper coins"
-  :desc "It is a pile of coins."
-  :symbol #\$
-  :colour #\u
-  :type '(<animal>)
-  :depth 4
-  :rarity 2
-  :hitpoints '(7 . 8)
-  :armour 24
-  :speed 100
-  :xp 9
-  :abilities '(<bash-door> <cold-blood>)
-  :immunities '(<sleep> <confuse> <poison>)
-  :alertness 10
-  :vision 3
-  :attacks '((<touch> :type <poison> :damage (2 . 4)) (<hit> :type <hurt> :damage (1 . 4)))
-  :treasures '((<drop> "1d2") <only-drop-gold>)) 
-
-(define-monster-kind "monster-73" "giant white rat"
-  :desc "It is a very vicious rodent."
-  :symbol #\r
-  :colour #\W
-  :type '(<animal>)
-  :depth 4
-  :rarity 1
-  :hitpoints '(2 . 2)
-  :armour 7
-  :speed 110
-  :xp 1
-  :abilities '(<breeder> (<random-mover> 1/4))
-  :alertness 30
-  :vision 8
-  :attacks '((<bite> :type <poison> :damage (1 . 3)))) 
-
-(define-monster-kind "monster-74" "blue worm mass"
-  :desc "It is a large slimy mass of worms."
-  :symbol #\w
-  :colour #\b
-  :type '(<animal>)
-  :depth 4
-  :rarity 1
-  :hitpoints '(5 . 8)
-  :armour 12
-  :speed 100
-  :xp 5
-  :abilities '(<breeder> <cold-blood> <weird-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
-  :immunities '(<fear> <cold>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 7
-  :attacks '((<crawl> :type <cold> :damage (1 . 4)))) 
-
-(define-monster-kind "monster-75" "large grey snake"
-  :desc "It is about ten feet long."
-  :symbol #\J
-  :colour #\s
-  :type '(<animal>)
-  :depth 4
-  :rarity 1
-  :hitpoints '(6 . 8)
-  :armour 41
-  :speed 100
-  :xp 14
-  :abilities '(<bash-door> (<random-mover> 1/4))
-  :alertness 50
-  :vision 6
-  :attacks '((<crush> :type <hurt> :damage (1 . 8)) (<bite> :type <hurt> :damage (1 . 5)))) 
-
-
-(define-monster-kind "novice-mage" "novice mage"
-  :desc "He is leaving behind a trail of dropped spell components."
-  :symbol #\p
-  :colour #\r
-  :depth 5
-  :rarity 2
-  :hitpoints '(6 . 4)
-  :armour 6
-  :speed 110
-  :xp 7
-  :abilities '(<bash-door> <open-door> <initial-sleeper>)
-  :alertness 10
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 4)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>
-  :special-abilities '((<spell> <missile>) (<spell> <confusion>) (<spell> <blindness>) (<spell> <blink>)
-                       (<frequency> 1/12))) 
-
-(define-monster-kind "green-naga" "green naga"
-  :desc "A large green serpent with a female's torso.  Her green skin glistens with  acid."
-  :symbol #\n
-  :colour #\g
-  :alignment '<evil>
-  :depth 5
-  :rarity 1
-  :hitpoints '(9 . 8)
-  :armour 40
-  :speed 110
-  :xp 30
-  :abilities '(<bash-door> <pick-up-item> (<random-mover> 1/4))
-  :immunities '(<acid>)
-  :alertness 120
-  :vision 18
-  :attacks '((<spit> :type <acid> :damage (2 . 6)) (<crush> :type <hurt> :damage (1 . 8)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<female>) 
-
-(define-monster-kind "monster-79" "blue ooze"
-  :desc "It's blue and it's oozing."
-  :symbol #\j
-  :colour #\b
-  :depth 5
-  :rarity 1
-  :hitpoints '(3 . 4)
-  :armour 16
-  :speed 110
-  :xp 7
-  :abilities '(<empty-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
-  :immunities '(<fear> <sleep> <confuse> <cold>)
-  :alertness 80
-  :vision 8
-  :attacks '((<crawl> :type <cold> :damage (1 . 4)))
-  :treasures '((<drop-chance> 3/5))) 
-
-
-(define-monster-kind "monster-80" "green glutton ghost"
-  :desc "It is a very ugly green ghost with a voracious appetite."
-  :symbol #\G
-  :colour #\g
-  :alignment '<evil>
-  :type '(<undead>)
-  :depth 5
-  :rarity 1
-  :hitpoints '(3 . 4)
-  :armour 20
-  :speed 130
-  :xp 15
-  :abilities '(<pass-wall> <cold-blood> <invisible> (<random-mover> 1/4) (<random-mover> 1/2))
-  :immunities '(<sleep> <confuse>)
-  :alertness 10
-  :vision 10
-  :attacks '((<touch> :type <eat_food> :damage (1 . 1)))
-  :treasures '((<drop-chance> 9/10) (<drop-chance> 3/5))) 
-
-(define-monster-kind "monster-81" "green jelly"
-  :desc "It is a large pile of pulsing green flesh."
-  :symbol #\j
-  :colour #\g
-  :depth 5
-  :rarity 1
-  :hitpoints '(22 . 8)
-  :armour 1
-  :speed 120
-  :xp 18
-  :abilities '(<empty-mind> <stupid> <never-move>)
-  :immunities '(<fear> <sleep> <confuse> <acid>)
-  :vulnerabilities '(<light>)
-  :alertness 99
-  :vision 2
-  :attacks '((<touch> :type <acid> :damage (1 . 2)))) 
-
-(define-monster-kind "large-kobold" "large kobold"
-  :desc "It a man-sized figure with the all too recognizable face of a kobold."
-  :symbol #\k
-  :colour #\b
-  :alignment '<evil>
-  :depth 5
-  :rarity 1
-  :hitpoints '(13 . 9)
-  :armour 32
-  :speed 110
-  :xp 25
-  :abilities '(<bash-door> <open-door>)
-  :immunities '(<poison>)
-  :alertness 30
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 10)))
-  :treasures '((<drop-chance> 9/10))) 
-
-(define-monster-kind "monster-83" "skeleton kobold"
-  :desc "It is a small animated kobold skeleton."
-  :symbol #\s
-  :colour #\w
-  :alignment '<evil>
-  :type '(<undead>)
-  :depth 5
-  :rarity 1
-  :hitpoints '(5 . 8)
-  :armour 26
-  :speed 110
-  :xp 12
-  :abilities '(<bash-door> <open-door> <empty-mind> <cold-blood>)
-  :immunities '(<fear> <sleep> <confuse> <poison> <cold>)
-  :alertness 40
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 6)))) 
-
-(define-monster-kind "monster-84" "grey icky thing"
-  :desc "It is a smallish, slimy, icky, nasty creature."
-  :symbol #\i
-  :colour #\s
-  :depth 5
-  :rarity 1
-  :hitpoints '(4 . 8)
-  :armour 12
-  :speed 110
-  :xp 10
-  :abilities '(<empty-mind> (<random-mover> 1/2))
-  :alertness 15
-  :vision 14
-  :attacks '((<touch> :type <hurt> :damage (1 . 5)))) 
-
-(define-monster-kind "monster-85" "disenchanter eye"
-  :desc "A disembodied eye, crackling with magic."
-  :symbol #\e
-  :colour #\v
-  :depth 5
-  :rarity 2
-  :hitpoints '(7 . 8)
-  :armour 10
-  :speed 100
-  :xp 20
-  :abilities '(<never-move> <colour-changing>)
-  :immunities '(<fear>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 2
-  :attacks '((<gaze> :type <un_bonus> :damage nil))
-  :special-abilities '((<spell> <drain-mana>) (<frequency> 1/9))) 
-
-(define-monster-kind "monster-86" "red worm mass"
-  :desc "It is a large slimy mass of worms."
-  :symbol #\w
-  :colour #\r
-  :type '(<animal>)
-  :depth 5
-  :rarity 1
-  :hitpoints '(5 . 8)
-  :armour 12
-  :speed 100
-  :xp 6
-  :abilities '(<bash-door> <breeder> <empty-mind> <stupid> (<random-mover> 1/4) (<random-mover> 1/2))
-  :immunities '(<fear> <fire>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 7
-  :attacks '((<crawl> :type <fire> :damage (1 . 6)))) 
-
-(define-monster-kind "monster-87" "copperhead snake"
-  :desc "It has a copper head and sharp venomous fangs."
-  :symbol #\J
-  :colour #\o
-  :type '(<animal>)
-  :depth 5
-  :rarity 1
-  :hitpoints '(4 . 6)
-  :armour 20
-  :speed 110
-  :xp 15
-  :abilities '(<bash-door> (<random-mover> 1/2))
-  :immunities '(<poison>)
-  :alertness 1
-  :vision 6
-  :attacks '((<bite> :type <poison> :damage (2 . 4)))) 
-
-(define-monster-kind "monster-88" "purple mushroom patch"
-  :desc "Yum!  It looks quite tasty."
-  :symbol #\,
-  :colour #\v
-  :depth 6
-  :rarity 2
-  :hitpoints '(1 . 1)
-  :armour 1
-  :speed 110
-  :xp 15
-  :abilities '(<empty-mind> <stupid> <never-move>)
-  :immunities '(<fear> <sleep> <confuse>)
-  :alertness 0
-  :vision 2
-  :attacks '((<spore> :type <lose_con> :damage (1 . 2)) (<spore> :type <lose_con> :damage (1 . 2))
-             (<spore> :type <lose_con> :damage (1 . 2)))) 
-
-(define-monster-kind "monster-89" "novice priest"
-  :desc "He is tripping over his priestly robes."
-  :symbol #\p
-  :colour #\g
-  :depth 6
-  :rarity 2
-  :hitpoints '(7 . 4)
-  :armour 10
-  :speed 110
-  :xp 7
-  :abilities '(<bash-door> <open-door> <initial-sleeper>)
-  :alertness 5
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 5)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>
-  :special-abilities '((<spell> (<cause> 1)) (<spell> <scare>) (<spell> <heal>) (<frequency> 1/12))) 
-
-
-(define-monster-kind "monster-90" "novice warrior"
-  :desc "He looks inexperienced but tough."
-  :symbol #\p
-  :colour #\u
-  :depth 6
-  :rarity 2
-  :hitpoints '(9 . 4)
-  :armour 16
-  :speed 110
-  :xp 6
-  :abilities '(<bash-door> <open-door>)
-  :alertness 5
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 7)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>) 
-
-(define-monster-kind "monster-91" "novice rogue"
-  :desc "A rather shifty individual."
-  :symbol #\p
-  :colour #\b
-  :alignment '<evil>
-  :depth 6
-  :rarity 2
-  :hitpoints '(8 . 4)
-  :armour 12
-  :speed 110
-  :xp 6
-  :abilities '(<bash-door> <open-door> <pick-up-item>)
-  :alertness 5
-  :vision 20
-  :attacks '((<touch> :type <eat-gold> :damage nil) (<hit> :type <hurt> :damage (1 . 6)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>) 
-
-(define-monster-kind "brown-mold" "brown mold"
-  :desc "A strange brown growth on the dungeon floor."
-  :symbol #\m
-  :colour #\u
-  :depth 6
-  :rarity 1
-  :hitpoints '(15 . 8)
-  :armour 12
-  :speed 110
-  :xp 20
-  :abilities '(<empty-mind> <stupid> <never-move>)
-  :immunities '(<fear> <sleep> <confuse> <poison>)
-  :alertness 99
-  :vision 2
-  :attacks '((<hit> :type <confuse> :damage (1 . 4)))) 
-
-(define-monster-kind "monster-93" "giant brown bat"
-  :desc "It screeches as it attacks."
-  :symbol #\b
-  :colour #\u
-  :type '(<animal>)
-  :depth 6
-  :rarity 1
-  :hitpoints '(3 . 8)
-  :armour 15
-  :speed 130
-  :xp 10
-  :abilities '((<random-mover> 1/2))
-  :alertness 30
-  :vision 10
-  :attacks '((<bite> :type <hurt> :damage (1 . 3)))) 
-
-(define-monster-kind "novice-archer" "novice archer"
-  :desc "A nasty little fellow with a bow and arrow."
-  :symbol #\p
-  :colour #\W
-  :depth 6
-  :rarity 2
-  :hitpoints '(6 . 8)
-  :armour 10
-  :speed 120
-  :xp 20
-  :abilities '(<bash-door> <open-door> <initial-sleeper>)
-  :alertness 5
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 4)) (<hit> :type <hurt> :damage (1 . 4)))
-  :treasures '((<drop> "1d2") <only-drop-gold>)
-  :sex '<male>
-  :special-abilities '((<arrow> 1) (<frequency> 1/3))) 
-
-(define-monster-kind "monster-95" "creeping silver coins"
-  :desc "It is a pile of coins, crawling forward on thousands of tiny legs."
-  :symbol #\$
-  :colour #\s
-  :type '(<animal>)
-  :depth 6
-  :rarity 2
-  :hitpoints '(12 . 8)
-  :armour 30
-  :speed 100
-  :xp 18
-  :abilities '(<bash-door> <cold-blood>)
-  :immunities '(<sleep> <confuse> <poison>)
-  :alertness 10
-  :vision 4
-  :attacks '((<touch> :type <poison> :damage (2 . 6)) (<hit> :type <hurt> :damage (1 . 6)))
-  :treasures '((<drop> "1d2") (<drop-chance> 3/5) <only-drop-gold>)) 
-
-(define-monster-kind "snaga" "snaga"
-  :desc "He is one of the many weaker 'slave' orcs, often mistakenly known as a  goblin."
-  :symbol #\o
-  :colour #\U
-  :alignment '<evil>
-  :type '(<orc>)
-  :depth 6
-  :rarity 1
-  :hitpoints '(8 . 8)
-  :armour 32
-  :speed 110
-  :xp 15
-  :abilities '(<bash-door> <open-door>)
-  :vulnerabilities '(<light>)
-  :alertness 30
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 8)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>) 
-
-(define-monster-kind "rattlesnake" "rattlesnake"
-  :desc "It is recognized by the hard-scaled end of its body that is often rattled  to frighten its prey."
-  :symbol #\J
-  :colour #\r
-  :type '(<animal>)
-  :depth 6
-  :rarity 1
-  :hitpoints '(6 . 7)
-  :armour 24
-  :speed 110
-  :xp 20
-  :abilities '(<bash-door> (<random-mover> 1/2))
-  :immunities '(<poison>)
-  :alertness 1
-  :vision 6
-  :attacks '((<bite> :type <poison> :damage (2 . 5)))) 
-
-(define-monster-kind "cave-orc" "cave orc"
-  :desc "He is often found in huge numbers in deep caves."
-  :symbol #\o
-  :colour #\G
-  :alignment '<evil>
-  :type '(<orc>)
-  :depth 7
-  :rarity 1
-  :hitpoints '(11 . 9)
-  :armour 32
-  :speed 110
-  :xp 20
-  :abilities '(<bash-door> <open-door>)
-  :vulnerabilities '(<light>)
-  :alertness 30
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 8)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>) 
-
-(define-monster-kind "wood-spider" "wood spider"
-  :desc "It scuttles towards you."
-  :symbol #\S
-  :colour #\U
-  :type '(<animal>)
-  :depth 7
-  :rarity 3
-  :hitpoints '(3 . 6)
-  :armour 16
-  :speed 120
-  :xp 15
-  :abilities '(<bash-door> <weird-mind>)
-  :immunities '(<poison>)
-  :alertness 80
-  :vision 8
-  :attacks '((<sting> :type <poison> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 3)))) 
 
 (define-monster-kind "dracolich" "dracolich"
   :desc "The skeletal form of a once-great dragon, enchanted by magic most  perilous.  Its animated form strikes with speed and drains life from its  prey to satisfy its hunger."
@@ -8444,4 +8354,3 @@
   :attacks '((<touch> :type <acid> :damage (2 . 6)))
   :treasures '((<drop-chance> 3/5))
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/11))) 
-

@@ -3,7 +3,7 @@
 #|
 
 DESC: dungeon.lisp - basic code for the dungeon
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ ADD_DESC: Simple code to access the dungeon object(s)
   (monsters nil)
   (objects nil)
   (rooms nil)
+  (active nil)
   (triggers nil) ;; can't be used yet
   )
   
@@ -120,7 +121,6 @@ the monster
       ;; we're not a a wall or a door.. 
       (bit-flag-remove! (coord.flags coord) +cave-wall+)
       )
-
   )
 
 (defun clean-coord! (coord)
@@ -222,6 +222,10 @@ the monster
 
     ;; hack
     (setf (coord-feature coord) val)
+    
+    (when (dungeon.active dungeon)
+      (light-spot! dungeon x y)
+      (note-spot! dungeon x y))
 
   
   ;; redraw
@@ -659,7 +663,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     
     (with-open-file (s (pathname fname)
 		       :direction :output 
-		       :if-exists :supersede)
+		       :if-exists :supersede
+		       :if-does-not-exist :create)
 
       (let* ((cnt 0)
 	     (jump 0)
@@ -730,7 +735,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     
   (with-open-file (s (pathname fname)
 		     :direction :output 
-		     :if-exists :supersede)
+		     :if-exists :supersede
+		     :if-does-not-exist :create)
     (let ((dungeon-height (dungeon.height dungeon))
 	  (dungeon-width (dungeon.width dungeon)))
       
@@ -808,3 +814,23 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun add-room-to-dungeon! (dungeon room)
   (push room (dungeon.rooms dungeon)))
+
+
+;; alters the dungeon object.
+(defmethod activate-object :around ((obj level) &key)
+   (unless (next-method-p)
+     ;; this will never happen
+     (lang-warn "Unable to find ACTIVATE-OBJECT for type ~a" (type-of obj))
+     (return-from activate-object nil))
+
+   ;; we pass along the same arguments.. 
+   (let* ((result (call-next-method))
+	  (dun (level.dungeon result)))
+     (cond ((and dun (typep dun 'dungeon))
+	    (setf (dungeon.active dun) t)
+	    result)
+	   (t
+	    (lang-warn "Activation of object ~a failed, return was ~a" obj result)
+	    nil))
+     ))
+

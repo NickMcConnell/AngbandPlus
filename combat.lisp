@@ -3,7 +3,7 @@
 #|
 
 DESC: combat.lisp - the combat-system
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,11 +41,15 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod cmb-describe-miss (attacker target)
 
-  (with-foreign-str (s)
-    (lb-format s "~a misses the ~a."
-	       (get-creature-name attacker)
-	       (get-creature-name target))
-    (c-print-message! s))
+  ;; update with uniques later
+  (let ((p-or-u? (typep target 'player)))
+  
+    (with-foreign-str (s)
+      (lb-format s "~a misses ~a~a."
+		 (get-creature-name attacker)
+		 (if p-or-u? "" "the ")
+		 (get-creature-name target))
+      (c-print-message! s)))
   nil)
 
 
@@ -80,6 +84,12 @@ the Free Software Foundation; either version 2 of the License, or
       t
       nil))
 
+(defun get-chance (variant skill the-ac)
+  (let* ((ac-factor (int-/ (* 3 the-ac) 4))
+	 (calc-chance (int-/ (* 90 (- skill ac-factor)) skill)))
+    (if (plusp calc-chance)
+	(+ 5 calc-chance)
+	5)))
 		    
 (defmethod melee-hit-creature? ((attacker player) (target active-monster) the-attack)
   (declare (ignore the-attack))
@@ -142,7 +152,7 @@ the Free Software Foundation; either version 2 of the License, or
 	   (let ((gval (object.game-values weapon)))
 	     (assert gval)
 	     (let ((dmg (roll-dice (gval.num-dice gval) (gval.base-dice gval))))
-	       (incf dmg (gval.dmg-bonus gval))
+	       (incf dmg (gval.dmg-modifier gval))
 	       (when (< dmg 1) (setf dmg 1)) ;; minimum damage
 ;;	       (warn "~ad~a gave ~a dmg to attacker (~a -> ~a hps)"
 ;;		     (gval.num-dice gval) (gval.base-dice gval) dmg
@@ -223,6 +233,8 @@ the Free Software Foundation; either version 2 of the License, or
     (when (and (creature-alive? mon) (creature-alive? pl))
       (attack-target! dun mon pl the-x the-y the-attack))))
 
+    
+  
 #||
   (let ((mon-name (monster.name mon)))
   

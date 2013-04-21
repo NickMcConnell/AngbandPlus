@@ -17,18 +17,18 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
     :returns 'void
     :args '((char-arr msg)))
 
+;; kill
 (def-foreign-function ("bell" c_bell!)
     :returns 'void
     :args '((char-arr msg)))
 
-(def-foreign-function ("pause_line" c-pause-line!)
-    :returns 'void
-    :args '((int row)))
 
+;; kill
 (def-foreign-function ("clear_from" c-clear-from!)
     :returns 'void
     :args '((int row)))
 
+;; kill
 (def-foreign-function ("prt" c_prt!)
     :returns 'void
     :args '(;;(cptr text)
@@ -69,6 +69,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
     :args '((char-arr msg)))
 ;;    :args '((cptr msg)))
 
+;; possible kill
 (def-foreign-function ("Term_putstr" c_term_putstr!)
     :returns 'errr
     :args '(
@@ -201,5 +202,11 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 
 (def-foreign-function ("init_angband" c-init.angband!)
     :returns 'void)
+
+;; kill
+#+never
+(def-foreign-function ("pause_line" c-pause-line!)
+    :returns 'void
+    :args '((int row)))
 
 ||#

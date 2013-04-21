@@ -3,7 +3,7 @@
 #|
 
 DESC: loop.lisp - the game loop(s)
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -90,6 +90,19 @@ ADD_DESC: Most of the code which deals with the game loops.
       (print-hit-points pl pr-set)
       (setf retval t))
 
+    (when (bit-flag-set? *redraw* +print-mana+)
+      (bit-flag-remove! *redraw* +print-mana+)
+      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (print-mana-points pl pr-set)
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-gold+)
+      (bit-flag-remove! *redraw* +print-gold+)
+      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (print-gold pl pr-set)
+      (setf retval t))
+
+    
     ;; more stuff here
       
     
@@ -530,8 +543,6 @@ ADD_DESC: Most of the code which deals with the game loops.
 
 
        (energise-creatures! dun pl)
-       ;; do player
-;;       (update-player! var-obj pl) ;; remove later
 
        (when (/= 0 *update*) (update-stuff dun pl))
 	      

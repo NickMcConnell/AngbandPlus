@@ -32,3 +32,9 @@ SPELLS and MAGICAL ITEMS
 
 OTHER
  - point-based system missing [don't need it]
+
+NOTES
+ - make sure that gnome-mage differences (friends/no-friends)
+   get correct awards. (same with dread and mumak)
+ - all monster-info misses escort and friends-flags.. must be added
+   back when engine supports those.

@@ -113,7 +113,7 @@
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :sex '<male>) 
 
-(define-monster-kind 'wormtongue "Wormtongue, Agent of Saruman"
+(define-monster-kind "wormtongue" "Wormtongue, Agent of Saruman"
   :desc "He's been spying for Saruman.  He is a snivelling wretch with no morals  and disgusting habits."
   :symbol #\p
   :colour #\b
@@ -135,7 +135,7 @@
   :special-abilities '((<spell> (<ball> <poison>)) (<spell> (<bolt> <cold>)) (<spell> <traps>) (<spell> <slow>)
                        (<spell> <heal>) (<frequency> 1/5))) 
 
-(define-monster-kind 'lagduf "Lagduf, the Snaga"
+(define-monster-kind "lagduf" "Lagduf, the Snaga"
   :desc "A captain of a regiment of weaker orcs, Lagduf keeps his troop in order  with displays of excessive violence."
   :symbol #\o
   :colour #\o
@@ -155,7 +155,7 @@
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :sex '<male>) 
 
-(define-monster-kind 'brodda "Brodda, the easterling"
+(define-monster-kind "brodda" "Brodda, the easterling"
   :desc "A nasty piece of work, Brodda picks on defenseless women and children."
   :symbol #\p
   :colour #\u
@@ -174,7 +174,7 @@
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :sex '<male>) 
 
-(define-monster-kind 'orfax "Orfax, son of Boldor"
+(define-monster-kind "orfax" "Orfax, son of Boldor"
   :desc "He's just like daddy!  He knows mighty spells, but fortunately he is a  yeek."
   :symbol #\y
   :colour #\b
@@ -196,7 +196,7 @@
   :special-abilities '((<summon> <monster>) (<spell> <confusion>) (<spell> <slow>) (<spell> <teleport-player>)
                        (<spell> <blink>) (<spell> <heal>) (<frequency> 1/4))) 
 
-(define-monster-kind 'grishnakh "Grishnakh, the hill-orc"
+(define-monster-kind "grishnakh" "Grishnakh, the hill-orc"
   :desc "He is a cunning and devious orc with a chaotic nature."
   :symbol #\o
   :colour #\U
@@ -217,7 +217,7 @@
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :sex '<male>) 
 
-(define-monster-kind 'castamir "Castamir the Usurper"
+(define-monster-kind "castamir" "Castamir the Usurper"
   :desc "A Black Numenorean who usurped the throne of Gondor, he is treacherous and  evil."
   :symbol #\p
   :colour #\R
@@ -239,7 +239,7 @@
   :special-abilities '((<spell> (<bolt> <ice>)) (<spell> (<bolt> <lightning>)) (<spell> (<bolt> <cold>))
                        (<spell> (<bolt> <fire>)) (<spell> <traps>) (<spell> <heal>) (<frequency> 1/2))) 
 
-(define-monster-kind 'vargo "Vargo, Tyrant of Fire"
+(define-monster-kind "vargo" "Vargo, Tyrant of Fire"
   :desc "A towering fire elemental, Vargo burns everything beyond recognition."
   :symbol #\E
   :colour #\r
@@ -260,7 +260,7 @@
              (<hit> :type <fire> :damage (4 . 6)) (<hit> :type <fire> :damage (4 . 6)))
   :special-abilities '((<spell> (<ball> <fire>)) (<spell> (<bolt> <plasma>)) (<frequency> 1/4))) 
 
-(define-monster-kind 'waldern "Waldern, King of Water"
+(define-monster-kind "waldern" "Waldern, King of Water"
   :desc "A towering water elemental, Waldern is master of all things liquid.  Wave after wave drowns your frail body."
   :symbol #\E
   :colour #\s
@@ -282,7 +282,7 @@
   :special-abilities '((<spell> (<ball> <water>)) (<spell> (<ball> <cold>)) (<spell> (<bolt> <water>))
                        (<spell> (<bolt> <ice>)) (<frequency> 1/4))) 
 
-(define-monster-kind 'kavlax "Kavlax the Many-headed"
+(define-monster-kind "kavlax" "Kavlax the Many-headed"
   :desc "A large dragon with a selection of heads, all shouting and arguing as they  look for prey, but each with its own deadly breath weapon."
   :symbol #\d
   :colour #\v
@@ -306,7 +306,7 @@
                        (<breath> <sound>) (<breath> <lightning>) (<breath> <cold>) (<breath> <fire>) (<breath> <acid>)
                        (<frequency> 1/4))) 
 
-(define-monster-kind 'uvatha "Uvatha the Horseman"
+(define-monster-kind "uvatha" "Uvatha the Horseman"
   :desc "A tall black cloaked Ringwraith, he is a master of horsemanship.  He longs  to taste your blood."
   :symbol #\W
   :colour #\D
@@ -871,7 +871,7 @@
   :immunities '(<sleep> <confuse> <poison> <lightning> <cold> <fire> <acid>)
   :alertness 20
   :vision 20
-  :attacks '((<hit> :type <un_bonus> :damage nil) (<hit> :type <hurt> :damage (3 . 8))
+  :attacks '((<hit> :type <un-bonus> :damage nil) (<hit> :type <hurt> :damage (3 . 8))
              (<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :sex '<male>
@@ -1183,7 +1183,7 @@
   :immunities '(<sleep> <confuse> <poison> <lightning> <cold> <acid>)
   :alertness 40
   :vision 20
-  :attacks '((<hit> :type <un_bonus> :damage (6 . 8)) (<hit> :type <un_bonus> :damage (6 . 8))
+  :attacks '((<hit> :type <un-bonus> :damage (6 . 8)) (<hit> :type <un-bonus> :damage (6 . 8))
              (<hit> :type <hurt> :damage (8 . 6)) (<hit> :type <hurt> :damage (8 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :sex '<male>
@@ -1250,7 +1250,7 @@
   :immunities '(<sleep> <confuse> <fire>)
   :alertness 80
   :vision 20
-  :attacks '((<touch> :type <un_power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
+  :attacks '((<touch> :type <un-power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
              (<hit> :type <fire> :damage (8 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :sex '<male>
@@ -1529,7 +1529,7 @@
   :alertness 10
   :vision 40
   :attacks '((<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10))
-             (<hit> :type <fire> :damage (4 . 6)) (<hit> :type <un_bonus> :damage (6 . 8)))
+             (<hit> :type <fire> :damage (4 . 6)) (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :sex '<male>
   :special-abilities '((<summon> <kin>) (<summon> <angel>) (<spell> (<bolt> <mana>)) (<spell> <blindness>)
@@ -1552,7 +1552,7 @@
   :alertness 0
   :vision 100
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
-             (<hit> :type <un_bonus> :damage (6 . 8)) (<hit> :type <un_bonus> :damage (6 . 8)))
+             (<hit> :type <un-bonus> :damage (6 . 8)) (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :sex '<male>
   :special-abilities '((<summon> <dragon>) (<summon> <demon>) (<summon> <undead>) (<spell> (<ball> <water>))
@@ -1649,7 +1649,7 @@
   :alertness 50
   :vision 20
   :attacks '((<touch> :type <lose_dex> :damage (2 . 12)) (<touch> :type <lose_dex> :damage (2 . 12))
-             (<touch> :type <un_power> :damage nil) (<touch> :type <exp_80> :damage nil))
+             (<touch> :type <un-power> :damage nil) (<touch> :type <exp_80> :damage nil))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "2d2") <only-drop-items>)
   :sex '<male>
   :special-abilities '((<summon> <undead>) (<summon> <monsters>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <mana>))
@@ -1673,7 +1673,7 @@
   :immunities '(<sleep> <confuse> <poison>)
   :alertness 10
   :vision 30
-  :attacks '((<gaze> :type <lose_int> :damage (2 . 6)) (<gaze> :type <un_power> :damage (2 . 6))
+  :attacks '((<gaze> :type <lose_int> :damage (2 . 6)) (<gaze> :type <un-power> :damage (2 . 6))
              (<gaze> :type <paralyze> :damage (2 . 6)) (<gaze> :type <exp_40> :damage (2 . 6)))
   :sex '<male>
   :special-abilities '((<summon> <kin>) (<spell> (<bolt> <cold>)) (<spell> (<bolt> <fire>)) (<spell> (<bolt> <acid>))
@@ -1722,8 +1722,8 @@
   :immunities '(<sleep> <confuse> <lightning> <cold> <fire>)
   :alertness 10
   :vision 60
-  :attacks '((<touch> :type <un_power> :damage nil) (<touch> :type <un_power> :damage nil)
-             (<hit> :type <un_bonus> :damage (6 . 8)) (<hit> :type <un_bonus> :damage (6 . 8)))
+  :attacks '((<touch> :type <un-power> :damage nil) (<touch> :type <un-power> :damage nil)
+             (<hit> :type <un-bonus> :damage (6 . 8)) (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "1d2") <only-drop-items>)
   :sex '<male>
   :special-abilities '((<spell> (<ball> <nether>)) (<spell> (<ball> <water>)) (<spell> (<ball> <fire>))
@@ -1863,7 +1863,7 @@
   :immunities '(<sleep> <confuse> <cold> <fire>)
   :alertness 20
   :vision 50
-  :attacks '((<touch> :type <un_power> :damage nil) (<touch> :type <un_power> :damage nil)
+  :attacks '((<touch> :type <un-power> :damage nil) (<touch> :type <un-power> :damage nil)
              (<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "2d2") <only-drop-items>)
   :special-abilities '((<breath> <disenchant>) (<breath> <cold>) (<breath> <fire>) (<frequency> 1/2))) 
@@ -1884,7 +1884,7 @@
   :immunities '(<sleep> <confuse> <fire>)
   :alertness 80
   :vision 20
-  :attacks '((<touch> :type <un_power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
+  :attacks '((<touch> :type <un-power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
              (<hit> :type <fire> :damage (8 . 12)) (<hit> :type <fire> :damage (8 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :sex '<male>
@@ -1931,7 +1931,7 @@
   :alertness 0
   :vision 100
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
-             (<hit> :type <un_bonus> :damage (6 . 8)) (<hit> :type <un_bonus> :damage (6 . 8)))
+             (<hit> :type <un-bonus> :damage (6 . 8)) (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :sex '<male>
   :special-abilities '((<summon> <kin>) (<summon> <high-undead>) (<summon> <demon>) (<summon> <monsters>)
@@ -2001,7 +2001,7 @@
   :immunities '(<sleep> <confuse> <lightning> <fire>)
   :alertness 0
   :vision 100
-  :attacks '((<touch> :type <un_power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
+  :attacks '((<touch> :type <un-power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
              (<hit> :type <fire> :damage (9 . 12)) (<hit> :type <fire> :damage (9 . 12)))
   :treasures '(<drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :sex '<male>
@@ -2025,8 +2025,8 @@
   :immunities '(<fear> <sleep> <confuse> <poison> <lightning> <cold> <fire>)
   :alertness 0
   :vision 100
-  :attacks '((<touch> :type <un_power> :damage nil) (<touch> :type <un_power> :damage nil)
-             (<hit> :type <un_bonus> :damage (10 . 12)) (<hit> :type <un_bonus> :damage (10 . 12)))
+  :attacks '((<touch> :type <un-power> :damage nil) (<touch> :type <un-power> :damage nil)
+             (<hit> :type <un-bonus> :damage (10 . 12)) (<hit> :type <un-bonus> :damage (10 . 12)))
   :treasures '(<drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :sex '<male>
   :special-abilities '((<summon> <high-dragon>) (<summon> <high-undead>) (<summon> <high-demon>) (<summon> <monsters>)
@@ -2052,7 +2052,7 @@
   :immunities '(<fear> <sleep> <confuse> <poison> <lightning> <cold> <fire> <acid>)
   :alertness 0
   :vision 100
-  :attacks '((<touch> :type <un_power> :damage nil) (<hit> :type <lose_all> :damage (10 . 12))
+  :attacks '((<touch> :type <un-power> :damage nil) (<hit> :type <lose-all> :damage (10 . 12))
              (<hit> :type <shatter> :damage (20 . 10)) (<hit> :type <shatter> :damage (20 . 10)))
   :treasures '(<drop-planned> <drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") (<drop> "1d2")
                <only-drop-items>)

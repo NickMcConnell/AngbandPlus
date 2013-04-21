@@ -3,7 +3,7 @@
 #|
 
 DESC: constants.lisp - constants for the game code
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -165,13 +165,6 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 ;;(defconst +escape+ =char-code= (charify-number 27) "escape-key")
 (defconstant +escape+ #\Escape)
 
-;;(defconstant +max-depth+ 128)
-#||
-;; stores.lisp mostly
-(defconst +max-stores+ u-fixnum 8 "max stores..")
-(defconst +the-home+ u-fixnum 7 "house number.") ;; the num is displayed as 8
-||#
-
 (defconstant +store-item-limit+ 24)
 (defconstant +store-maximum-items+ 18)
 (defconstant +store-minimum-items+ 6)
@@ -189,8 +182,6 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +start-row-of-map+ 1)
 (defconstant +start-column-of-map+ 13)
 
-(defconstant +sexes+ '((<male> . ("Male" "King"))
-		       (<female> . ("Female" "Queen"))))
 
 
 (defconst +max-sight+ u-fixnum 20 "maximum distance seen")
@@ -294,5 +285,3 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 (defconstant +scale+ 100000)
 
-;; mapping flags, unused
-;;(defconst +mapped-seen+ u-fixnum #x01 "seen flag")

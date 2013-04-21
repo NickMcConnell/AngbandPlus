@@ -3,7 +3,7 @@
 #|
 
 DESC: load.lisp - loading of various parts of the game
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -172,13 +172,14 @@ the Free Software Foundation; either version 2 of the License, or
     
     ret-obj))
 
-(defun %filed-player-info (pl-obj &key name class race sex base-stats curbase-stats
+(defun %filed-player-info (pl-obj &key name class race sex base-stats cur-statmods
 			   hp-table equipment)
   "modifies the PL-OBJ with the extra info and returns the modified PL-OBJ."
-  
+
+
   (let ((the-class (get-char-class class))
 	(the-race (get-char-race race))
-	(the-sex (find-symbol sex (find-package :langband))))
+	(the-sex (get-sex *variant* sex)))
 
     (setf (player.name pl-obj) name)
     
@@ -194,8 +195,9 @@ the Free Software Foundation; either version 2 of the License, or
 	  (lang-warn "Unable to find sex ~s, assume male" sex)
 	  (setf (player.sex pl-obj) '<male>)))
 
-    (setf (player.base-stats pl-obj) base-stats
-	  (player.curbase-stats pl-obj) curbase-stats)
+    (setf (player.base-stats pl-obj) base-stats)
+    (when (and cur-statmods (arrayp cur-statmods))
+      (setf (player.cur-statmods pl-obj) cur-statmods))
 
     (unless equipment
       (error "When constructing a player, the equipment-list _must_ be kosher."))
@@ -208,7 +210,7 @@ the Free Software Foundation; either version 2 of the License, or
     pl-obj))
   
 (defun %filed-player (&key name race class sex
-		      base-stats curbase-stats hp-table equipment
+		      base-stats cur-statmods hp-table equipment
 		      loc-x loc-y view-x view-y
 		      depth max-depth max-xp cur-xp fraction-xp
 		      cur-hp fraction-hp cur-mana fraction-mana
@@ -240,10 +242,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 
     (%filed-player-info pl-obj :name name :race race :class class :sex sex
-			:base-stats base-stats :curbase-stats curbase-stats
+			:base-stats base-stats :cur-statmods cur-statmods
 			:hp-table hp-table :equipment equipment)
+
     
-    (update-player! var-obj pl-obj)
+    (calculate-creature-bonuses! var-obj pl-obj)
     
     pl-obj))
 
@@ -383,14 +386,14 @@ the Free Software Foundation; either version 2 of the License, or
 			:class  (%bin-read-string str)
 			:sex  (%bin-read-string str)
 			:base-stats (%bin-read-array +stat-length+ 'bt:u16 str)
-			:curbase-stats (%bin-read-array +stat-length+ 'bt:u16 str)
+			:cur-statmods (%bin-read-array +stat-length+ 'bt:u16 str)
 			:hp-table (%bin-read-array (variant.max-charlevel *variant*) 'bt:u16 str)
 			:equipment (load-object variant :items-worn stream) 
 			)
 
     
     ;; recalculate rest
-    (update-player! variant pl-obj)		
+    (calculate-creature-bonuses! variant pl-obj)		
     pl-obj))
 
 (defmethod load-object ((variant variant) (type (eql :items-in-container)) (stream l-binary-stream))

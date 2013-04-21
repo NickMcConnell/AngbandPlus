@@ -218,7 +218,7 @@ the Free Software Foundation; either version 2 of the License, or
        (report-equal (player.sex x) 	       (player.sex y))
 
        (report-equalp (player.base-stats x)    (player.base-stats y))
-       (report-equalp (player.curbase-stats x) (player.curbase-stats y))
+       (report-equalp (player.cur-statmods x)  (player.cur-statmods y))
        (report-equalp (player.modbase-stats x) (player.modbase-stats y))
        (report-equalp (player.active-stats x)  (player.active-stats y))
 
@@ -256,7 +256,7 @@ the Free Software Foundation; either version 2 of the License, or
        (report-equal (player.energy x)       (player.energy y))
        
        (report-equal (player.base-ac x)        (player.base-ac y))
-       (report-equal (player.ac-bonus x)       (player.ac-bonus y))
+       (report-equal (player.ac-modifier x)    (player.ac-modifier y))
        (report-equal (player.light-radius x)   (player.light-radius y))
        (report-equal (player.infravision x)    (player.infravision y))
 
@@ -379,19 +379,19 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod lang-equal ((x game-values) (y game-values))
   (and (report-equal (gval.base-ac x) (gval.base-ac y))
-       (report-equal (gval.ac-bonus x) (gval.ac-bonus y))
+       (report-equal (gval.ac-modifier x) (gval.ac-modifier y))
        (report-equal (gval.base-dice x) (gval.base-dice y))
        (report-equal (gval.num-dice x) (gval.num-dice y))
-       (report-equal (gval.tohit-bonus x) (gval.tohit-bonus y))
-       (report-equal (gval.dmg-bonus x) (gval.dmg-bonus y))
+       (report-equal (gval.tohit-modifier x) (gval.tohit-modifier y))
+       (report-equal (gval.dmg-modifier x) (gval.dmg-modifier y))
        (report-equal (gval.mana x) (gval.mana y))
        (report-equal (gval.charges x) (gval.charges y))
-       (report-equal (gval.food-val x) (gval.food-val y))
+       (report-equal (gval.food-value x) (gval.food-value y))
        (report-equal (gval.light-radius x) (gval.light-radius y))
        (report-equal (gval.tunnel x) (gval.tunnel y))
        (report-equal (gval.speed x) (gval.speed y))
-       (report-equal (gval.skill-bonuses x) (gval.skill-bonuses y))
-       (report-equal (gval.stat-bonuses x) (gval.stat-bonuses y))
+       (report-equal (gval.skill-modifiers x) (gval.skill-modifiers y))
+       (report-equal (gval.stat-modifiers x) (gval.stat-modifiers y))
        (report-equal (gval.ignores x) (gval.ignores y))
        (report-equal (gval.resists x) (gval.resists y))
        (report-equal (gval.immunities x) (gval.immunities y))

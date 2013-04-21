@@ -3,7 +3,7 @@
 #|
 
 DESC: verify.lisp - verification of objects
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -50,12 +50,12 @@ the Free Software Foundation; either version 2 of the License, or
 	 (stringp (player.dead-from player))
 	 
 	 (arrayp (player.base-stats player))
-	 (arrayp (player.curbase-stats player))
+	 (arrayp (player.cur-statmods player))
 	 (arrayp (player.active-stats player))
 	 (arrayp (player.modbase-stats player))
 
 	 (let ((bstat-table (player.base-stats player))
-	       (cstat-table (player.curbase-stats player))
+	       (cstat-table (player.cur-statmods player))
 	       (mstat-table (player.modbase-stats player))
 	       (astat-table (player.active-stats player)))
 	   

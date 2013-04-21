@@ -3,7 +3,7 @@
 #|
 
 DESC: object.lisp - code for object-kinds
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -371,7 +371,7 @@ with k-info.txt numbers. NUM is the numeric id."
   (let* ((o-type (aobj.kind obj))
 	 (name (object.name obj))
 	 (flavour (if store nil (object.flavour o-type)))
-	 (known-type (or store (object.aware o-type)))
+	 (known-type (or store (is-object-known? obj)))
 	 (number (aobj.number obj))
 	 ;;(o-tlist (object.obj-type o-type))
 	 ;;(plural-string nil)
@@ -388,19 +388,17 @@ with k-info.txt numbers. NUM is the numeric id."
 	  ((obj-is? o-type '<potion>)
 	   (plural-name number "& # potion~@" flavour known-type name))
 	  ((obj-is? o-type '<ring>)
-	   (plural-name number "& #ring~@" flavour known-type name))
-	  ((obj-is? o-type '<potion>)
-	   (plural-name number "& #amulet~@" flavour known-type name))
+	   (plural-name number "& # ring~@" flavour known-type name))
 	  ((obj-is? o-type '<staff>)
-	   (plural-name number "& #staff~@" flavour known-type name))
+	   (plural-name number "& # staff~@" flavour known-type name))
 	  ((obj-is? o-type '<wand>)
-	   (plural-name number "& #wand~@" flavour known-type name))
+	   (plural-name number "& # wand~@" flavour known-type name))
 	  ((obj-is? o-type '<rod>)
-	   (plural-name number "& #rod~@" flavour known-type name))
+	   (plural-name number "& # rod~@" flavour known-type name))
 	  ((obj-is? o-type '<scroll>)
 	   (plural-name number "& scroll~ #@" flavour known-type name))
 	  ((obj-is? o-type '<amulet>)
-	   (plural-name number "& #amulet~@" flavour known-type name))
+	   (plural-name number "& # amulet~@" flavour known-type name))
 	  (t
 ;;	   (warn "Fell through with object ~a ~s" name (object.obj-type o-type)) 
 	   (plural-name number name nil known-type nil)))
@@ -420,11 +418,11 @@ with k-info.txt numbers. NUM is the numeric id."
 	 (known-obj (is-object-known? obj))
 	 (base (plural-name number (object.name o-type) nil (or store known-obj) nil))
 	 (gvals (object.game-values obj))
-	 (tohit-bonus (if gvals (gval.tohit-bonus gvals) 0))
-	 (dmg-bonus (if gvals (gval.dmg-bonus gvals) 0))
+	 (tohit-mod (if gvals (gval.tohit-modifier gvals) 0))
+	 (dmg-mod (if gvals (gval.dmg-modifier gvals) 0))
 	 )
     (cond (known-obj
-	   (format stream "~a (~@d,~@d)" base tohit-bonus dmg-bonus))
+	   (format stream "~a (~@d,~@d)" base tohit-mod dmg-mod))
 	  (t
 	   (write-string base stream)))))
 
@@ -476,6 +474,21 @@ with k-info.txt numbers. NUM is the numeric id."
 		 :key #'object.numeric-id)))
 
 
+(defmethod copy-active-object ((variant variant) (obj active-object))
+  "Copies the given OBJ and returns a new object that is equal."
+  
+  (let ((new-obj (make-instance (class-of obj))))
+;;    (warn "Old ~s and new ~s" (class-of obj) (class-of new-obj))
+    ;; needs improvement
+    (dolist (i '(kind inscription number loc-x loc-y identify marked))
+      ;; doesn't handle shared-structures well
+      (setf (slot-value new-obj i) (slot-value obj i)))
+    (when-bind (gvals (aobj.game-values obj))
+      (setf (aobj.game-values new-obj) (copy-game-values variant gvals)))
+    ;; skip contains
+    ;; skip events
+    new-obj))
+
 
 (defun define-object-kind (id name
 			   &key numeric-id x-attr x-char depth rarity
@@ -488,7 +501,12 @@ the *VARIANT* object so it has to be properly initialised."
   (declare (ignore flavour desc))
   (let* ((var-obj *variant*)
 	 (new-obj (produce-object-kind var-obj id name obj-type :the-kind the-kind))
-	 (key (if (symbolp id) (symbol-name id) id)))
+	 (key (if (symbolp id)
+		  (string-downcase (symbol-name id))
+		  id)))
+
+    (when (symbolp id)
+      (warn "Deprecated id for object ~s" id))
     
     (when flags
       (when (find '<easy-know> flags)

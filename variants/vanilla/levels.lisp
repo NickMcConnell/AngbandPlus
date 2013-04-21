@@ -128,7 +128,7 @@ part of the new level."
   "A sucky function which should be simplified greatly."
 
   (flet ((do-generation (seed)
-	   (let* ((builder (get-level-builder 'town-level))
+	   (let* ((builder (get-level-builder "town-level"))
 		  (town (funcall builder))
 		  (cl:*random-state* (cl:make-random-state seed)))
 
@@ -154,7 +154,7 @@ part of the new level."
     (cond ((= depth 0)
 	   (setf level (van-make-town-level-obj variant player)))
 	  (t ;; the rest
-	   (let ((builder (get-level-builder 'random-level)))
+	   (let ((builder (get-level-builder "random-level")))
 	     (unless builder
 	       (error "Can't find random-level builder"))
 	     (setf level (funcall builder)))))
@@ -230,11 +230,10 @@ part of the new level."
   )
 	 
 
-(defmethod get-otype-table ((var-obj vanilla-variant) (level random-level))
-  (%get-var-table var-obj 'level 'objects))
-
-(defmethod get-otype-table ((var-obj vanilla-variant) (level van-town-level))
-  (%get-var-table var-obj 'level 'objects))
+;; this one does the job for all.. only one table for objects in vanilla
+(defmethod get-otype-table ((var-obj vanilla-variant) level)
+  (declare (ignore level))
+  (%get-var-table var-obj "level" 'objects))
 
 (defmethod get-mtype-table ((var-obj vanilla-variant) (level random-level))
   (%get-var-table var-obj level 'monsters))
@@ -242,29 +241,6 @@ part of the new level."
 (defmethod get-mtype-table ((var-obj vanilla-variant) (level van-town-level))
   (%get-var-table var-obj level 'monsters))
 
-(defmethod get-mtype-table ((var-obj vanilla-variant) (level (eql 'random-level)))
+;; when we pass a string
+(defmethod get-mtype-table ((var-obj vanilla-variant) (level string))
   (%get-var-table var-obj level 'monsters))
-
-(defmethod get-mtype-table ((var-obj vanilla-variant) (level (eql 'town-level)))
-  (%get-var-table var-obj level 'monsters))
-
-
-#||
-(defun van-store-build! (dungeon number xx yy
-			 &key
-			 (y-offset +screen-height+)
-			 (x-offset +screen-width+))
-			 
-  "more or less taken directly"
-
-  (let ((the-house (get-house number)))
-    (when the-house
-      (build-house! *level* the-house xx yy))))
-  
-       ;; fake it
-;;       (setf (get-coord-trigger dungeon x y) #'(lambda (dun x y)
-;;						 (warn "Entering shop ~a" number)))
-;;       (setf (cave-feature dungeon x y) (+ +feature-shop-head+ number)))
-
-||#
-     

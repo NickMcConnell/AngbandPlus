@@ -3,7 +3,7 @@
 #|
 
 DESC: equipment.lisp - code for any equipment in all containers.
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -320,7 +320,6 @@ to variant obj."
 	  (if (obj-is-in? obj type-list)
 	      (let ((old-obj (aref (items.objs table) real-key)))
 		(setf (aref (items.objs table) real-key) obj)
-		;;(update-player! *player*) ;; hack.. remove later
 		(if old-obj old-obj t)) ;; return T if succesful or object
 	      (progn
 		(warn "Object ~a cannot be equipped.." obj)

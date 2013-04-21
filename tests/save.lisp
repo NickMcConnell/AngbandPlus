@@ -16,12 +16,13 @@ DESC: tests/save.lisp - testing code for save/load of game
 (defmethod perform-test ((fix save-fixture))
 
 ;;  (%loc-save-test lb::*dungeon* :dungeon)
-  (%loc-save-test lb::*variant* :variant)
-  (%loc-save-test lb::*level* :level)
-  (%loc-save-test lb::*player* :player)
-  )
+  (let ((var-obj lb::*variant*))
+    (%loc-save-test var-obj :variant :load-variant nil :save-variant var-obj)
+    (%loc-save-test lb::*level* :level :load-variant var-obj :save-variant var-obj)
+    (%loc-save-test lb::*player* :player :load-variant var-obj :save-variant var-obj)
+    ))
 
-(defun %loc-save-test (obj type)
+(defun %loc-save-test (obj type &key load-variant save-variant)
   "Type should be a string."
 
   (test-assert (lb::ok-object? obj))
@@ -29,14 +30,16 @@ DESC: tests/save.lisp - testing code for save/load of game
   (flet ((scat (a b)
 	   (concatenate 'string (string a) (string b))))
     (let ((r-save (scat "dumps/rsave." type))
-	  (b-save (scat "dumps/bsave." type)))
+	  (b-save (scat "dumps/bsave." type))
+	  (*variant* nil)
+	  )
       
-      (lb::do-save :readable r-save obj)
-      (lb::do-save :binary   b-save obj)
+      (lb::do-save save-variant r-save obj :readable)
+      (lb::do-save save-variant b-save obj :binary)
     
-      (let ((readable (lb::do-load :readable r-save type))
-	    (binary   (lb::do-load :binary b-save type))
-	    (original obj))
+      (let* ((readable (lb::do-load load-variant r-save type :readable))
+	     (binary   (lb::do-load load-variant b-save type :binary))
+	     (original obj))
 
 	(when (listp readable)
 	  (setf readable (car readable)))

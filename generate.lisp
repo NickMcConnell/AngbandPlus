@@ -3,7 +3,7 @@
 #|
 
 DESC: generate.lisp - generation of dungeon levels
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -229,9 +229,10 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 (defmethod create-object ((variant variant) (dungeon dungeon) good-p great-p)
   "Creates an object for the given dungeon-object."
-  
+
+  (declare (ignore great-p))
   ;; skip good and great
-  (let* ((prob-sp-object (if good-p 10 1000))
+  (let* (;;(prob-sp-object (if good-p 10 1000))
 	 (depth (dungeon.depth dungeon))
 	 (level *level*)
 	 (base-obj-depth (if good-p (+ depth 10) depth))

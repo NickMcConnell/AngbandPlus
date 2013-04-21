@@ -9,12 +9,16 @@ the vanilla-variant is in variants/vanilla/TODO.
 
 DUNGEON
  - trap-support not implemented
- - searching not implemented
- - integrate Room-code much more. 
+ - searching not implemented [more or less fixed]
+ - integrate room-code much more.
 
-TOWN
- - only black market-type stores "works" [FIXED]
- - no specialisable shops yet
+
+STORES/TOWN
+ - specialised shops has no restrictions on buy
+ - buying ignores amount
+ - no home-code
+ - no restock of shops
+  
 
 SPELLS
  - no support for spells and spell-casting
@@ -28,10 +32,7 @@ MAGICAL ITEMS
 
 SAVE/LOAD, SCORE and DEATH
  - 2/3 of save/load implemented
- - save/load misses events, shops, etc.
- - high-score saving not implemented [fixed, report detailed bugs now]
- - central saving of high-score and save-files not implemented
-   [fixed, saves to ~/.langband/]
+ - save/load misses events, shops, flavours, ...
 
 
 MONSTERS
@@ -40,8 +41,8 @@ MONSTERS
  - do not carry items or use items
  - no monster-memory
  - no monster-drops
- - no support for invisible or multi-hued monsters [FIXED]
- - does not know that monsters are unique 
+ - does not know that monsters are unique
+ - does not generate groups of monsters
 
 COMBAT
  - no magical weapons done [barely started]
@@ -53,10 +54,9 @@ COMBAT
 MOVING ABOUT
  - no torch-charges used or oil wasted for light (overridable?) :-)
  - no running
- - no stay still command [Maybe the key 5, stand-still is ok]
  - no resting and no regeneration [simple regen for hits added]
  - no map function
- - can see objects even outside range-of-vision [FIXED]
+ - no infravision, invisible support
 
 
 CONTAINERS
@@ -68,6 +68,7 @@ COMMANDS
  - no directed 'o'pen command
  - no wizard-mode
  - no 'D'estroy item command
+ - no 't'akeoff command
  - eating, drinking, etc not implemented [q and u should work on potions]
  - no redraw of a screwed up screen
  - no 'L'ook command
@@ -76,10 +77,18 @@ COMMANDS
 
 
 OTHER
+ - fix updating of fields, bonuses, etc on player and monsters in an
+   extensible way.
+ - integrate effect and element-code in a good way.
  - optimise FFI-code to be fast and not generate garbage, esp strings
  - missing project() which a lot of features need
- - messages are not saved or kept
+ - messages are not saved or kept, should be done on the c-side.
  - no option-system [bad settings and parameter-system now]
  - no visual changing
  - no macro-system from within the game
  - fix protocol for "using" items in the game
+ - fix the problematic area on object-creation/definition
+   in a way that is overridable by variants. 
+ - fix a more spiffy home-page [got mascot]
+ - find a way to copy active-objects in a rational way (and which
+   respects subclasses), e.g for picking up one of a group of objects

@@ -1,3 +1,35 @@
+2002-01-05  Stig E Sandø <stig@users.sourceforge.net>
+	* Added wizard.lisp with wizard-command keys, and updated
+	key-commands.
+	* Updated objects for game-values changes in engine and other
+	minor changes.
+	* Minor tweaks
+
+2001-12-16  Stig E Sandø <stig@users.sourceforge.net>
+	* Tweaked some key-presses with more info, and added start of
+	help-topic key, and a key to display effects/elements/... and
+	other odd info.  Also added 's' key to search. (keys.lisp)
+	* Added elements and effects to config/defines.lisp but this info
+	may not be complete.  But it's a start.
+	* Added some ids and minor tweaking. 
+	
+2001-12-08  Stig E Sandø <stig@users.sourceforge.net>
+	* Rearranged and updated ids in monster-list (monster.lisp).  Removed
+	duplicate monsters and added hackish function to determine if the
+	monster comes in a group, instead of having separate individual
+	and group-monsters.
+	* Made monster-selection more picky and disallow strictly
+	duplicate ids (quirks.lisp)
+	* Minor fixes
+	
+2001-12-08  Stig E Sandø <stig@users.sourceforge.net>
+	* Split gold-related objects into gold.lisp
+	* Updated race/class ids to reflect changes in engine demands.
+	* Updated monsters with symbol ids to use a lowercase string to
+	reflect id-policy in engine.
+	* Updated level-code to reflect changes in engine-policy
+	* Minor fixes
+	
 2001-12-07  Stig E Sandø <stig@users.sourceforge.net>
 	* Added more ids to objects and monsters
 	* Moved spellbooks into books.lisp

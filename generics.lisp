@@ -1,7 +1,7 @@
 #|
 
 DESC: generics.lisp - the generic function interfaces
-Copyright (c) 2001 - Stig Erik Sandø
+Copyright (c) 2001-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,6 +22,10 @@ the Free Software Foundation; either version 2 of the License, or
   (:documentation "Produces an object-kind."))
 (defgeneric produce-active-object (variant okind)
   (:documentation "Produces an active object based on given object-kind."))
+
+(defgeneric copy-active-object (variant obj)
+  (:documentation "Returns a copy of the given active-object."))
+
 
 (defgeneric produce-monster-kind (variant id name &key the-kind)
   (:documentation "Produces a monster-kind."))
@@ -79,6 +83,10 @@ scoring-system."))
 
 (defgeneric variant-data-fname (var-obj data-fname)
   (:documentation "Returns a fname for a data-file for the variant."))
+
+(defgeneric get-sex (var-obj key)
+  (:documentation "Tries to find a sex that matches KEY and returns it.
+Returns NIL on failure."))
 
 ;;; ===
 
@@ -338,8 +346,6 @@ but one that works with langband-objects."))
   (:documentation "Pretty much similar to MAKE-LOAD-FORM."))
 
 ;; overridable player interface
-(defgeneric update-player! (variant player)
-  (:documentation "Recalculates all needed values for the player."))
 (defgeneric update-xp-table! (variant player)
   (:documentation "Updates the xp-table on the player, and returns updated player."))
 

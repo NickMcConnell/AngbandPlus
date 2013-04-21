@@ -1,24 +1,24 @@
 
+        ((                                                   ))
+       ((   \\     ___            ___  __   ___          __    ))   
+      ((     \\   // \\ |\  ||  //    |  \ // \\ |\  || || \\   ))
+      ((     /\\  |---| ||\ || ||  == |==| |---| ||\ || || ||   ))
+       ((   // \\ || || || \||  \\__/ |__/ || || || \|| ||_//  ))
+        ((                                                   )) 
+       
 
-              **************************************************
-              **   Langband 0.1.0   **   The Lithping Scare   **
-              **************************************************
+                 Version 0.1.0  --  The Lithping Scare
+	   
+       Written by:  Stig E Sandø <stig@users.sourceforge.net>
 
-           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
-               and Umoria:   Copyright (c) 1989 James E. Wilson
+          A dungeon-exploring game written in Common Lisp
 
-                       Angband 2.0 - 2.4 - 2.6.2 by:
-                   Alex Cutler, Andy Astrand, Sean Marsh,
-                 Geoff Hill, Charles Teague, Charles Swiger
+      Inspired by Angband (written by Robert Ruehlmann, et.al)
+     
 
-                   Angband 2.7.0 - 2.8.5 by Ben Harrison
+                 http://langband.sourceforge.net/
+                 news:rec.games.roguelike.angband
 
-                     Angband 2.9.0 by Robert Ruehlmann
 
-                       Langband 0.1.0 by Stig E Sand{\o}
-
-   Send comments, bug reports, and patches, to "stig@users.sourceforge.net"
-      Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
-    Read the online help files, especially "general.txt" and "version.txt"
 
 

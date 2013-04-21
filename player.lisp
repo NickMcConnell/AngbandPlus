@@ -3,7 +3,7 @@
 #|
 
 DESC: player.lisp - code for the character object
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,11 +44,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun get-sex-name (player)
   "Returns a string with the name of the sex."
-  (cadr (assoc (player.sex player) +sexes+)))
+  (sex.name (player.sex player)))
 
 (defmethod get-creature-ac ((crt player))
   (the fixnum (+ (the fixnum (player.base-ac crt))
-		 (the fixnum (player.ac-bonus crt)))))
+		 (the fixnum (player.ac-modifier crt)))))
 
 (defmethod get-creature-energy ((crt player))
   (the fixnum (player.energy crt)))
@@ -75,12 +75,13 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((t-p (make-instance 'player)))
   
     (setf (player.base-stats t-p)    (make-stat-array)
-	  (player.curbase-stats t-p) (make-stat-array)
+	  (player.cur-statmods t-p) (make-stat-array)
 	  (player.modbase-stats t-p) (make-stat-array)
 	  (player.active-stats t-p)  (make-stat-array))
 
+    #+xp-testing
     (assert (let ((bstat-table (player.base-stats t-p))
-		  (cstat-table (player.curbase-stats t-p))
+		  (cstat-table (player.cur-statmods t-p))
 		  (mstat-table (player.modbase-stats t-p))
 		  (astat-table (player.active-stats t-p)))
 	      
@@ -107,10 +108,10 @@ the Free Software Foundation; either version 2 of the License, or
       
       (let ((backpack-val (game-parameter-value :initial-backpack)))
 	(case backpack-val
-	  (:backpack (make-and-assign-backpack! :backpack))
+	  (:backpack (make-and-assign-backpack! "backpack"))
 	  (otherwise
-	   (warn "No initial known backpack-setting, assuming :backpack")
-	   (make-and-assign-backpack! :backpack)))))
+	   (warn "No initial known backpack-setting, assuming \"backpack\"")
+	   (make-and-assign-backpack! "backpack")))))
 
     ;; hack
     ;;    (setf (player.light-radius t-p) 3)
@@ -159,10 +160,11 @@ the Free Software Foundation; either version 2 of the License, or
 	       (< num +stat-length+)))
   
   (let ((bstat-table (player.base-stats player))
-	(cstat-table (player.curbase-stats player))
+	(cstat-table (player.cur-statmods player))
 	(mstat-table (player.modbase-stats player))
 	(astat-table (player.active-stats player)))
 
+    #+xp-testing
     (assert (and (not (eq bstat-table cstat-table))
 		 (not (eq bstat-table mstat-table))
 		 (not (eq bstat-table astat-table))
@@ -178,7 +180,8 @@ the Free Software Foundation; either version 2 of the License, or
 	  (bonus (get-stat-bonus player num)))
 
       (setf (svref mstat-table num) (add-stat-bonus base-stat bonus))
-      (setf (svref astat-table num) (add-stat-bonus cur-stat bonus))
+      (setf (svref astat-table num) (+ (svref cstat-table num)
+				       (svref mstat-table num)))
       )
     
     (values)))
@@ -212,84 +215,62 @@ the Free Software Foundation; either version 2 of the License, or
       t)))
      
 
+(defvar *hack-old/stats* (make-stat-array))
+
 (defmethod calculate-creature-bonuses! ((variant variant) (player player))
+
+  #+xp-testing
+  (assert (and (arrayp (player.base-stats player))
+	       (arrayp (player.cur-statmods player))
+	       (arrayp (player.active-stats player))
+	       (arrayp (player.modbase-stats player))))
 
   ;; let us skim through items and update variables
   (let ((slots (player.eq player))
-	(old-base-ac (player.base-ac player))
-	(old-ac-bonus (player.ac-bonus player)))
-
-    ;; reset values
-    (setf (player.base-ac player) 0
-	  (player.ac-bonus player) 0)
+	(race (player.race player))
+	(active-stats (player.active-stats player))
+	(modbase-stats (player.modbase-stats player))
+	  
 	
-    (unless slots
-      (error "Can't find equipment-slots for player, bad."))
-    (flet ((item-iterator (table key obj)
-	     (declare (ignore table key))
-	     (when obj
-	       (when-bind (gvals (aobj.game-values obj))
-		 (incf (player.base-ac player) (gval.base-ac gvals))
-		 (incf (player.ac-bonus player) (gval.ac-bonus gvals))
-		 ))))
-      
-      (declare (dynamic-extent #'item-iterator))
-      (item-table-iterate! slots #'item-iterator))
-
-    (when (or (/= old-base-ac (player.base-ac player))
-	      (/= old-ac-bonus (player.ac-bonus player)))
-      (bit-flag-add! *redraw* +print-armour+)
-      ;; skip window
-      )
-
-	      
-    t))
-
-(defmethod update-player! ((variant variant) (player player))
-  "modifies player object appropriately"
-
-  ;; FIX move into calculate functions instead!
-  
-  ;; we start the show by reseting variables
-
-  ;; reset some key variables
-  (setf (player.base-ac player) 0
-	(player.ac-bonus player) 0
-	(player.light-radius player) 0
-	(player.speed player) +speed-base+)
-  
-  
-  (let ((race (player.race player)))
-
-    ;; if cur and base are missing, that should be fixed elsewhere
-    
-    (unless (arrayp (player.modbase-stats player))
-      (setf (player.modbase-stats player) (make-stat-array)))
-    (unless (arrayp (player.active-stats player))
-      (setf (player.active-stats player) (make-stat-array)))
-
-    ;; check that they're all there
-    (assert (and (arrayp (player.base-stats player))
-		 (arrayp (player.curbase-stats player))
-		 (arrayp (player.active-stats player))
-		 (arrayp (player.modbase-stats player))))
-
+	(old/speed (player.speed player))
+	(old/base-ac (player.base-ac player))
+	(old/ac-modifier (player.ac-modifier player))
+	(old/stats *hack-old/stats*)
+	
+	)
 
     (dotimes (i +stat-length+)
-;;      (warn ">B fore ~s" (svref (player.base-stats player) i))
-      (calculate-stat! player i)
-;;      (warn ">B after ~s" (svref (player.base-stats player) i))
-      )
+      (setf (aref old/stats i) (aref active-stats i)))
+    
+    
+    ;; reset values
+    (setf (player.base-ac player) 0
+	  (player.ac-modifier player) 0
+	  (player.speed player) 110)
+
+    (dotimes (i +stat-length+)
+      (setf (aref active-stats i) 0)
+      (setf (aref modbase-stats i) 0))
+    
+
     
 
 
+    ;; recalculate stats, still needed?
+    (dotimes (i +stat-length+)
+      ;;      (warn ">B fore ~s" (svref (player.base-stats player) i))
+      (calculate-stat! player i))
+					;
+      
     ;; hackish, change later
     (let ((race-ab (race.abilities race)))
       (dolist (i race-ab)
 ;;	(Warn "checking ~a" i)
 	(when (consp i)
 	  (case (car i)
-	    (<infravision> (setf (player.infravision player) (cadr i)))
+	    (<infravision>
+	     (when (and (numberp (cadr i)) (> (cadr i) (player.infravision player)))
+	       (setf (player.infravision player) (cadr i))))
 	    (<resist> ;; handle later
 	     )
 	    (<sustain> ;; handle later
@@ -299,30 +280,30 @@ the Free Software Foundation; either version 2 of the License, or
 	     (warn "Unhandled racial ability ~a" (car i))
 	     )))))
 
+	
+    (unless slots
+      (error "Can't find equipment-slots for player, bad."))
+    (flet ((item-iterator (table key obj)
+	     (declare (ignore table key))
+	     (when obj
+	       (when-bind (gvals (aobj.game-values obj))
+		 (incf (player.base-ac player) (gval.base-ac gvals))
+		 (incf (player.ac-modifier player) (gval.ac-modifier gvals))
+		 ))))
+      
+      (declare (dynamic-extent #'item-iterator))
+      (item-table-iterate! slots #'item-iterator))
 
-    (calculate-creature-bonuses! variant player)
-
-
-    ;; do this more intelligently later..
-    (let ((tbl (player.xp-table player)))
-      (when (or (eq nil tbl) (and (arrayp tbl)
-				  (= 0 (aref tbl 1)))) ;; hack
-	(update-xp-table! variant player)))
-
-    (let ((xp-table (player.xp-table player)))
-      (setf (player.level player) (find-level-for-xp (player.cur-xp player)
-						     xp-table)
-	    (player.max-level player) (find-level-for-xp (player.max-xp player)
-							 xp-table)))
-
-    (update-max-hp! player)
     (update-skills! player (player.skills player))
     
-    (bit-flag-add! *redraw* +print-basic+)
+    (when (or (/= old/base-ac (player.base-ac player))
+	      (/= old/ac-modifier (player.ac-modifier player)))
+      (bit-flag-add! *redraw* +print-armour+)
+      ;; skip window
+      )
 
-    ;; when leavin we should be ok
-    (assert (ok-object? player))
-    player))
+	      
+    t))
 
 
 (defun gain-level! (player)
@@ -607,4 +588,3 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;(trace calculate-creature-bonuses!)
 ;;(trace calculate-creature-light-radius!)
-;;(trace update-player!)
