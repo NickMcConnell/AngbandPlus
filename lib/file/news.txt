@@ -11,7 +11,7 @@
 
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
                      Angband 2.9.1 by Robert Ruehlmann
-                Isometric view addon by Hansjoerg Malthaner
+              Isometric view addon 0.2.1 by Hansjoerg Malthaner
 
     Send comments, bug reports, and patches for Angband to "rr9@angband.org"
                Send comments, bug reports, and patches for the 
