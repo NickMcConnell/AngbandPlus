@@ -2957,6 +2957,10 @@ static void target_set_interactive_prepare(int mode)
 	{
 		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
 		{
+			if(x < 0 || y < 0 || x>=DUNGEON_WID || y>=DUNGEON_HGT) {
+				continue;
+			}
+
 			/* Require line of sight, unless "look" is "expanded" */
 			if (!expand_look && !player_has_los_bold(y, x)) continue;
 
