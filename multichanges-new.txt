@@ -50,3 +50,26 @@ Boosts to infravision/stealth (from spells, potions, etc) give +3 now
 
 Added scroll of Mundanify, returns weapon or armour to base type,
 without enchantments
+
+-1.0.3-
+
+Changed Elf to Grey-Elf - has sustain intelligence as well as resist
+light, intelligent but weak, good at devices, poor at melee, 2
+classes, likes bows
+
+Examining an item in the home displayed the item as if it was
+identified, even if it wasn't.
+The spell-info for the mage's fire-bolt spell was used for the stone
+to mud spell.
+Potions of life will now restore stats before healing to provide full
+health even if CON was drained.
+
+Berserkers now gain the effects of berserk rage while confused or cut
+(in addition to potions/spells and being near death), and while raging
+gain better bonuses to hit, bonuses to damage, and worse AC
+Berserkers can now stun monsters only when scoring a critical hit
+
+Added potion of rejuvenation - restores 1/3rd of total HP and mana
+
+Unworking spells (from illusion/death realms) are not shown in books anymore
+Boccob's and Bigby's books have the right spells in them now

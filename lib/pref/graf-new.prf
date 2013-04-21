@@ -1938,11 +1938,14 @@ K:581:0x85/0x85
 # Scroll of Mass Identify
 K:582:0x83/0x9C
 
-# Potion of Amnesia
+# Potion of Rejuvenation
 K:583:0x85/0x85
 
 # Scroll of Mundanify
 K:584:0x83/0x9C
+
+# Potion of Amnesia
+K:585:0x85/0x85
 
 
 ##### Monster attr/char definitions #####

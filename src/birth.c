@@ -1126,9 +1126,9 @@ static bool player_birth_aux_1(void)
 		}
 	    }
 
-	    /* Hack : Non-recommended combinations cannot be first class */
+	    /* Hack : No more classes after choosing non-recommended class */
 	    if (!(rp_ptr->choice & (1L << p_ptr->pclass[0])))
-	      listnum = 0;
+	      break;
 
 	    /* If there are allowed choices */
 	    if (listnum > 0)

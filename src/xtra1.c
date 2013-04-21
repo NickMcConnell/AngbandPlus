@@ -2614,12 +2614,34 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary "Beserk" */
-	if (p_ptr->shero)
+	if ((p_ptr->shero) || ((player_has_class(CLASS_BERSERKER, 0)) && (p_ptr->confused || p_ptr->cut)))
 	{
-		p_ptr->to_h += 24;
-		p_ptr->dis_to_h += 24;
-		p_ptr->to_a -= 10;
-		p_ptr->dis_to_a -= 10;
+	        /* Berserkers get better bonuses and worse penalties */
+	        if (player_has_class(CLASS_BERSERKER, 0))
+		{
+		  /* shorten the code */
+		  int temp = (level_of_class(CLASS_BERSERKER) + 1) / 2;
+
+		  /* 25 to 49 */
+		  p_ptr->to_h += (24 + temp);
+		  p_ptr->dis_to_h += (24 + temp);
+
+		  /* 1 to 25 */
+		  p_ptr->to_d += temp;
+		  p_ptr->dis_to_d += temp;
+
+		  /* -11 to -60 */
+		  p_ptr->to_a -= (10 + level_of_class(CLASS_BERSERKER));
+		  p_ptr->dis_to_a -= (10 + level_of_class(CLASS_BERSERKER));
+		}
+		else /* Original effects */
+		{
+		  p_ptr->to_h += 24;
+		  p_ptr->dis_to_h += 24;
+		  
+		  p_ptr->to_a -= 10;
+		  p_ptr->dis_to_a -= 10;
+		}
 	}
 
 	/* Temporary "fast" */

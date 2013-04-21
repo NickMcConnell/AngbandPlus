@@ -2,13 +2,15 @@
 
 Yet another variant of Angband. Like we need more. Anyway...
 
-Adds classes (Monk, Berserker, Archer, Illusionist (from Kangband), Trickster, Death Priest.
+Adds classes (Monk, Berserker, Archer, Illusionist (from Kangband),
+Trickster, Death Priest.
 
 Added Yeek, Maia, Dark Elf, Wood Elf, Kobold, Nibelung. New race : Caveman.
 
 Added easy mode, nightmare mode, astral, hide all character info mode.
 
-Added multiclassing. Can become a new class when all current classses are level 25 or more. XP is divided between all classes usually.
+Added multiclassing. Can become a new class when all current classses
+are level 25 or more. XP is divided between all classes usually.
 
 -Options-
 

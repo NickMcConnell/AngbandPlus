@@ -18,7 +18,7 @@
 #define MAX_AMULETS    24       /* Used with amulets (min 23) */
 #define MAX_WOODS      35       /* Used with staffs (min 32) */
 #define MAX_METALS     32       /* Used with wands/rods (min 29/30) */
-#define MAX_COLORS     68       /* Used with potions (min 61) */
+#define MAX_COLORS     69       /* Used with potions (min 61) */
 #define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
 #define MAX_TITLES     53       /* Used with scrolls (min 52) */
 #define MAX_SYLLABLES 158       /* Used with scrolls (see below) */

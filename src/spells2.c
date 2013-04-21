@@ -2572,6 +2572,14 @@ bool sleep_monsters(int class)
 	return (project_hack(GF_OLD_SLEEP, p_ptr->lev[class]));
 }
 
+/*
+ * Scare monsters
+ */
+bool scare_monsters(int class)
+{
+	return (project_hack(GF_TURN_ALL, p_ptr->lev[class]));
+}
+
 
 /*
  * Banish evil monsters

@@ -2645,13 +2645,13 @@ const u32b spell_flags[MAX_REALM][9][2] =
 	  BOOK( 0,  1,  2,  3,  4,  5,  6,  7,  8),
 	  BOOK( 9, 10, 11, 12, 13, 14, 15, 16, 17),
 	  BOOK(18, 19, 20, 21, 22, 23, 24, 25, -1),
-	  BOOK(26, 27, 28, 29, 30, 31, 32, -1, -1),
+	  BOOK(26, 27, -1, 29, 30, 31, 32, -1, -1), /* 28 is uncoded */
 
 	  BOOK(52, 53, 54, 55, 56, 57, -1, -1, -1),
-	  BOOK(33, 34, 35, 36, 37, 38, -1, -1, -1),
+	  BOOK(-1, 34, 35, 36, 37, 38, -1, -1, -1), /* 33 is uncoded */
 	  BOOK(46, 47, 48, 49, 50, 51, -1, -1, -1),
-	  BOOK(39, 40, 41, 42, 43, 44, 45, -1, -1),
-	  BOOK(58, 59, 60, 61, 62, 63, -1, -1, -1)
+	  BOOK(-1, 59, 60, 61, 62, -1, -1, -1, -1), /* 58 and 63 are uncoded */
+	  BOOK(39, 40, 41, 42, 43, 44, 45, -1, -1)
 	},
 
 	{ /*** Death books ***/
@@ -2664,7 +2664,7 @@ const u32b spell_flags[MAX_REALM][9][2] =
 	     BOOK(33, 34, 35, 36, 37, -1, -1, -1, -1),
 	     BOOK(38, 39, 40, 41, 42, -1, -1, -1, -1),
 	     BOOK(50, 51, 52, 53, 54, -1, -1, -1, -1),
-	     BOOK(43, 44, 45, 46, 47, 48, 49, -1, -1)
+	     BOOK(43, -1, 45, 46, -1, 48, 49, -1, -1) /* 44 and 47 are uncoded */
 	}
 };
 
@@ -4396,7 +4396,6 @@ char effects_info[MAX_EFFECTS][30] =
   "Enchant Weapon To-Hit",
   "Enchant Weapon To-Damage",
   "Explosion",
-  "Fear (Scare) Monster",
   "Fire Bolt",
   "Fire Ball",
   "Fog Cloud",
@@ -4423,6 +4422,7 @@ char effects_info[MAX_EFFECTS][30] =
   "Malediction",
   "Mana Storm",
   "Mass Genocide",
+  "Mass Identify",
   "Mental Barrier",
   "Meteor Swarm",
   "Monster Confusion",
@@ -4441,6 +4441,7 @@ char effects_info[MAX_EFFECTS][30] =
   "Recharge, Medium",
   "Recharge, Large",
   "Regeneration",
+  "Rejuvenation",
   "Remove Curse",
   "Remove Fear",
   "Resist Acid",
@@ -4463,6 +4464,8 @@ char effects_info[MAX_EFFECTS][30] =
   "Restore Charisma",
   "Restore Experience",
   "Satisfy Hunger",
+  "Scare Monster",
+  "Scare Monsters",
   "Sense Invisible",
   "Self Knowledge",
   "Shadow Ball",

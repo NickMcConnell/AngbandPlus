@@ -92,6 +92,10 @@ bool set_confused(int v)
 		if (!p_ptr->confused)
 		{
 			msg_print("You are confused!");
+
+			/* Berserker rages while confused */
+			if (player_has_class(CLASS_BERSERKER, 0))
+			  msg_print("You feel angry!");
 			notice = TRUE;
 		}
 	}
@@ -102,6 +106,10 @@ bool set_confused(int v)
 		if (p_ptr->confused)
 		{
 			msg_print("You feel less confused now.");
+
+			/* Berserker rages while confused */
+			if (player_has_class(CLASS_BERSERKER, 0))
+			  msg_print("You feel less angry.");
 			notice = TRUE;
 		}
 	}
@@ -114,6 +122,10 @@ bool set_confused(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses for berserkers */
+	if (player_has_class(CLASS_BERSERKER, 0))
+	  p_ptr->update |= (PU_BONUS);
 
 	/* Redraw the "confused" */
 	p_ptr->redraw |= (PR_CONFUSED);
@@ -2336,6 +2348,14 @@ bool set_cut(int v)
 		/* Notice */
 		notice = TRUE;
 	}
+
+	/* Berserker enters a rage when first wounded */
+	if ((new_aux) && (!old_aux) && (player_has_class(CLASS_BERSERKER, 0)))
+	  msg_print("You feel angry!");
+
+	/* Berserker leaves rage when no longer wounded */
+	if ((!new_aux) && (old_aux) && (player_has_class(CLASS_BERSERKER, 0)))
+	  msg_print("You feel less angry.");
 
 	/* Use the value */
 	p_ptr->cut = v;

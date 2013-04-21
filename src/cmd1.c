@@ -1192,15 +1192,15 @@ void py_attack(int y, int x)
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
 			
-			/* Berserker has chance of stunning monster */
+			/* Berserker has chance of stunning monster on
+                         * critical hits */
 			if (player_has_class(CLASS_BERSERKER, 0))
 			{
-			     /* 10-50 + 1-50 = 11-100 */
-			     int stun_chance = stunning + 
-				  level_of_class(CLASS_BERSERKER);
-
 			     /* Stunned monster */
-			     if (rand_int(100) < stun_chance)
+			     if ((stunning) && 
+				 (rand_int(100) < 
+				  /* 10-50 + 1-50 = 11-100 */
+				  stunning + level_of_class(CLASS_BERSERKER)))
 			     {
 				  int tmp;
 				  
@@ -1212,8 +1212,7 @@ void py_attack(int y, int x)
 				       {
 					    msg_format("%^s is more dazed.", 
 						       m_name);
-					    tmp = randint(stunning / 2) +
-						 stunning / 2;
+					    tmp = randint(stunning);
 					    if (tmp < 2) tmp = 2;
 				       }
 				       else /* Stunned */

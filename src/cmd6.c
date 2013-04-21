@@ -750,6 +750,12 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_LIFE:
 		{
 			msg_print("You feel life flow through your body!");
+			if (do_res_stat(A_STR)) effects[EFFECT_RESTORE_STR]++;
+			if (do_res_stat(A_CON)) effects[EFFECT_RESTORE_CON]++;
+			if (do_res_stat(A_DEX)) effects[EFFECT_RESTORE_DEX]++;
+			if (do_res_stat(A_WIS)) effects[EFFECT_RESTORE_WIS]++;
+			if (do_res_stat(A_INT)) effects[EFFECT_RESTORE_INT]++;
+			if (do_res_stat(A_CHR)) effects[EFFECT_RESTORE_CHR]++;
 			restore_level();
 			hp_player(5000);
 			effects[EFFECT_RESTORE_EXP]++; 
@@ -760,12 +766,6 @@ void do_cmd_quaff_potion(void)
 			(void)set_image(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
-			if (do_res_stat(A_STR)) effects[EFFECT_RESTORE_STR]++;
-			if (do_res_stat(A_CON)) effects[EFFECT_RESTORE_CON]++;
-			if (do_res_stat(A_DEX)) effects[EFFECT_RESTORE_DEX]++;
-			if (do_res_stat(A_WIS)) effects[EFFECT_RESTORE_WIS]++;
-			if (do_res_stat(A_INT)) effects[EFFECT_RESTORE_INT]++;
-			if (do_res_stat(A_CHR)) effects[EFFECT_RESTORE_CHR]++;
 			ident = TRUE;
 			break;
 		}
@@ -912,6 +912,7 @@ void do_cmd_quaff_potion(void)
 			identify_pack();
 			self_knowledge();
 			effects[EFFECT_SELF_KNOWLEDGE]++;
+			effects[EFFECT_MASS_IDENTIFY]++;
 			ident = TRUE;
 			break;
 		}
@@ -988,6 +989,34 @@ void do_cmd_quaff_potion(void)
 		{
 		     if (set_tim_amnesia(p_ptr->tim_amnesia + 50 + randint(50))) ident = TRUE;
 		     break;
+		}
+
+		/* Restores 1/3 of total HP */
+	        case SV_POTION_REJUVE:
+	        {
+		    bool done = FALSE;
+
+		    if (hp_player(p_ptr->mhp / 3)) 
+		    { 
+		      done = TRUE; 
+		    }
+		    if (p_ptr->csp < p_ptr->msp)
+		    {
+		      p_ptr->csp += (p_ptr->msp / 3);
+		      if (p_ptr->csp > p_ptr->msp)
+			p_ptr->csp = p_ptr->msp;
+		      p_ptr->csp_frac = 0;
+		      msg_print("Your feel your head clear a little.");
+		      p_ptr->redraw |= (PR_MANA);
+		      p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		      done = TRUE;
+		    }
+		    if (done)
+		    {
+		      ident = TRUE; 
+		      effects[EFFECT_REJUVE]++; 
+		    }
+		    break;
 		}
 	}
 
@@ -1614,6 +1643,7 @@ void do_cmd_read_scroll(void)
 		     ident = TRUE;
 		     identify_pack();
 		     used_up = TRUE;
+		     effects[EFFECT_MASS_IDENTIFY]++;
 		     break;
 		}
 

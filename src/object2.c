@@ -4525,7 +4525,7 @@ void spell_info(char *p, int spell)
 			case SPELL_FROST_BOLT:
 				sprintf(p, " dam %dd8", (5 + ((plev - 5) / 4)));
 				break;
-			case SPELL_TURN_STONE_TO_MUD:
+			case SPELL_FIRE_BOLT:
 				sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4)));
 				break;
 			case SPELL_FROST_BALL:

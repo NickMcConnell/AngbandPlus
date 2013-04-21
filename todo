@@ -1,3 +1,16 @@
 
-Make hiscore list show all classes
+Make hiscore list show class information
 Add realms
+
+Reject non-Multiband savefiles, do conversions for older Multiband savefiles
+Then I can change VERSION_MAJOR/MINOR/PATCH and headers in *_info.txt's
+
+---
+
+Allow half-elves and cavemen to have 3 classes ? They're human-like,
+and don't really have much else going for them...
+Add auto-more option
+Show permanent walls in different colour - cyan or umber?
+
+Add code for set_shadow, wizard_lock, set_invis, SUMMON_SHADOWS, and
+then fix spell_flags so those spells can be seen in books again

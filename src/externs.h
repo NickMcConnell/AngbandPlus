@@ -598,6 +598,7 @@ extern bool mundane_spell();
 extern bool speed_monsters(int class);
 extern bool slow_monsters(int class);
 extern bool sleep_monsters(int class);
+extern bool scare_monsters(int class);
 extern bool banish_evil(int dist);
 extern bool banish_undead(int dist);
 extern bool turn_undead(int class);

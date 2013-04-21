@@ -1957,7 +1957,7 @@ void cast_spell(int realm, int spell)
 	  case 33:
 	    {
 	      /* wizard lock */
-	      /* do_cmd_spike(); */
+	      /* wizard_lock(); */
 	      /* effects[EFFECT_LOCK]++; */
 	      msg_print("This spell not currently available");
 	      break;
@@ -2073,7 +2073,6 @@ void cast_spell(int realm, int spell)
 	  case 45:
 	    {
 	      /* force blast */
-	      if (!get_aim_dir(&dir)) return;
 	      fire_ball(GF_FORCE, 5,
 			300 + (plev * 2), 3);
 	      effects[EFFECT_FORCE_BLAST]++;
@@ -2493,9 +2492,8 @@ void cast_spell(int realm, int spell)
 
 	  case 28: /* Terror */
 	    {
-	      /* (void)scare_monsters(); */
-	      /* effects[EFFECT_SCARE_ALL]++; */
-	      msg_print("This prayer not currently available");
+	      (void)scare_monsters(p_ptr->current_class);
+	      effects[EFFECT_FEAR_ALL]++;
 	      break;
 	    }
 
