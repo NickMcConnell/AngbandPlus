@@ -8,8 +8,8 @@ SRCS = \
   object1.c object2.c monster1.c monster2.c \
   xtra1.c xtra2.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c \
-  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load1.c load2.c \
+  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c multi.c \
+  store.c birth.c load.c \
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c randart.c \
   main-lsl.c main.c
@@ -20,8 +20,8 @@ OBJS = \
   object1.o object2.o monster1.o monster2.o \
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load1.o load2.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o multi.o \
+  store.o birth.o load.o \
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o randart.o \
   main-lsl.o main.o
@@ -81,14 +81,14 @@ cmd3.o: cmd3.c $(INCS)
 cmd4.o: cmd4.c $(INCS)
 cmd5.o: cmd5.c $(INCS)
 cmd6.o: cmd6.c $(INCS)
+multi.o: multi.c $(INCS)
 dungeon.o: dungeon.c $(INCS)
 files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
 randart.o: randart.c $(INCS)
-load1.o: load1.c $(INCS)
-load2.o: load2.c $(INCS)
+load.o: load.c $(INCS)
 main-cap.o: main-cap.c $(INCS)
 main-gcu.o: main-gcu.c $(INCS)
 main-x11.o: main-x11.c $(INCS)

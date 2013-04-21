@@ -2353,7 +2353,7 @@ static int mon_will_run(int m_idx)
 	if (m_ptr->cdis <= 5) return (FALSE);
 
 	/* Examine player power (level) */
-	p_lev = p_ptr->lev;
+	p_lev = p_ptr->lev[best_class()];
 
 	/* Examine monster power (level plus morale) */
 	m_lev = r_ptr->level + (m_idx & 0x08) + 25;

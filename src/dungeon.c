@@ -85,18 +85,16 @@ static int value_check_aux2(const object_type *o_ptr)
 /*
  * Sense the inventory
  *
- *   Class 0 = Warrior --> fast and heavy
- *   Class 1 = Mage    --> slow and light
- *   Class 2 = Priest  --> fast but light
- *   Class 3 = Rogue   --> okay and heavy
- *   Class 4 = Ranger  --> slow and light
+ *   Class 0 = Warrior --> fast and heavy (and Archer, Berserker)
+ *   Class 1 = Mage    --> slow and light (and Illusionist)
+ *   Class 2 = Priest  --> fast but light (and Death Priest)
+ *   Class 3 = Rogue   --> okay and heavy (and Trickster)
+ *   Class 4 = Ranger  --> slow and light (and Monk)
  *   Class 5 = Paladin --> slow but heavy
  */
 static void sense_inventory(void)
 {
 	int i;
-
-	int plev = p_ptr->lev;
 
 	bool heavy = FALSE;
 
@@ -106,79 +104,65 @@ static void sense_inventory(void)
 
 	char o_name[80];
 
+	int new_test, test = 0, pseudo_class = 0; /* Get fastest pseudo-id */
 
 	/*** Check for "sensing" ***/
 
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
 
-	/* Analyze the class */
-	switch (p_ptr->pclass)
+	/* Find out how often each class would pseudo-id */
+	for (i = 0; i < p_ptr->available_classes; i++)
 	{
-		case CLASS_WARRIOR:
-		{
-			/* Good sensing */
-			if (0 != rand_int(9000L / (plev * plev + 40))) return;
+	    int plev = p_ptr->lev[i];
 
-			/* Heavy sensing */
-			heavy = TRUE;
+	    /* Look at current class */
+	    switch (p_ptr->pclass[i])
+	      {
+	      case CLASS_WARRIOR:
+		new_test = 9000L / (plev * plev + 40);
+		break;
+	      case CLASS_PRIEST:
+	      case CLASS_DEATH_PRIEST:
+		new_test = 10000L / (plev * plev + 40);
+		break;
+	      case CLASS_ROGUE:
+	      case CLASS_ARCHER:
+	      case CLASS_TRICKSTER:
+		new_test = 20000L / (plev * plev + 40);
+		break;
+	      case CLASS_RANGER:
+	      case CLASS_MONK:
+		new_test = 120000L / (plev + 5);
+		break;
+	      case CLASS_BERSERKER:
+	      case CLASS_PALADIN:
+		new_test = 80000L / (plev * plev + 40);
+		break;
+	      default: /* Mage and Illusionist */
+		new_test = 240000L / (plev + 5);
+		break;
+	      }
 
-			/* Done */
-			break;
-		}
+	    /* Most likely to pseudo-id */
+	    if (new_test > test) test = new_test;
 
-		case CLASS_MAGE:
-		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
+	    pseudo_class = i; /* Store class */
 
-			/* Done */
-			break;
-		}
-
-		case CLASS_PRIEST:
-		{
-			/* Good (light) sensing */
-			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_ROGUE:
-		{
-			/* Okay sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_RANGER:
-		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(120000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_PALADIN:
-		{
-			/* Bad sensing */
-			if (0 != rand_int(80000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
+	    /* These classes get better pseudo-id */
+	    if (pseudo_class == CLASS_WARRIOR || 
+		pseudo_class == CLASS_ROGUE ||
+		pseudo_class == CLASS_TRICKSTER ||
+		pseudo_class == CLASS_PALADIN ||
+		pseudo_class == CLASS_ARCHER ||
+		pseudo_class == CLASS_BERSERKER)
+	      {
+		heavy = TRUE;
+	      }
 	}
 
+	/* Continue with pseudo id ? */
+	if (0 != rand_int(test)) return;
 
 	/*** Sense everything ***/
 
@@ -331,24 +315,29 @@ static void regenhp(int percent)
 	}
 }
 
-
 /*
  * Regenerate mana points
  */
 static void regenmana(int percent)
 {
 	s32b new_mana, new_mana_frac;
+
 	int old_csp;
 
 	old_csp = p_ptr->csp;
+
 	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
+
 	p_ptr->csp += (s16b)(new_mana >> 16);	/* div 65536 */
+
 	/* check for overflow */
 	if ((p_ptr->csp < 0) && (old_csp > 0))
 	{
 		p_ptr->csp = MAX_SHORT;
 	}
+
 	new_mana_frac = (new_mana & 0xFFFF) + p_ptr->csp_frac;	/* mod 65536 */
+
 	if (new_mana_frac >= 0x10000L)
 	{
 		p_ptr->csp_frac = (u16b)(new_mana_frac - 0x10000L);
@@ -368,6 +357,57 @@ static void regenmana(int percent)
 
 	/* Redraw mana */
 	if (old_csp != p_ptr->csp)
+	{
+		/* Redraw */
+		p_ptr->redraw |= (PR_MANA);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	}
+}
+
+/*
+ * Regenerate piety points
+ */
+static void regenpiety(int percent)
+{
+	s32b new_piety, new_piety_frac;
+
+	int old_cpp;
+
+	old_cpp = p_ptr->cpp;
+
+	new_piety = ((long)p_ptr->mpp) * percent + PY_REGEN_MNBASE;
+
+	p_ptr->cpp += (s16b)(new_piety >> 16);	/* div 65536 */
+
+	/* check for overflow */
+	if ((p_ptr->cpp < 0) && (old_cpp > 0))
+	{
+		p_ptr->cpp = MAX_SHORT;
+	}
+
+	new_piety_frac = (new_piety & 0xFFFF) + p_ptr->cpp_frac;	/* mod 65536 */
+
+	if (new_piety_frac >= 0x10000L)
+	{
+		p_ptr->cpp_frac = (u16b)(new_piety_frac - 0x10000L);
+		p_ptr->cpp++;
+	}
+	else
+	{
+		p_ptr->cpp_frac = (u16b)new_piety_frac;
+	}
+
+	/* Must set frac to zero even if equal */
+	if (p_ptr->cpp >= p_ptr->mpp)
+	{
+		p_ptr->cpp = p_ptr->mpp;
+		p_ptr->cpp_frac = 0;
+	}
+
+	/* Redraw piety */
+	if (old_cpp != p_ptr->cpp)
 	{
 		/* Redraw */
 		p_ptr->redraw |= (PR_MANA);
@@ -439,9 +479,17 @@ static void process_world(void)
 	object_type *o_ptr;
 
 
-
 	/* Every 10 game turns */
 	if (turn % 10) return;
+
+	/* Stop being astral once in the town */
+	if (p_ptr->astral && !(p_ptr->depth))
+	{
+	     msg_print("You regain your body!");
+	     p_ptr->astral = FALSE;
+	     p_ptr->max_depth = p_ptr->depth;
+	     msg_print("Unfortunately, that means you'll have to walk back down again...");
+	}
 
 
 	/*** Check the Time and Load ***/
@@ -479,7 +527,6 @@ static void process_world(void)
 			}
 		}
 	}
-
 
 	/*** Handle the "town" (stores and sunshine) ***/
 
@@ -622,6 +669,9 @@ static void process_world(void)
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
 
+			/* Fast digestion takes more food */
+			if (p_ptr->fast_digestion) i += 30;
+
 			/* Slow digestion takes less food */
 			if (p_ptr->slow_digest) i -= 10;
 
@@ -698,11 +748,9 @@ static void process_world(void)
 		regen_amount = regen_amount * 2;
 	}
 
-	/* Regenerate the mana */
-	if (p_ptr->csp < p_ptr->msp)
-	{
-		regenmana(regen_amount);
-	}
+	/* Regenerate mana and piety */
+	if (p_ptr->csp < p_ptr->msp) regenmana(regen_amount);
+	if (p_ptr->cpp < p_ptr->mpp) regenpiety(regen_amount);
 
 	/* Various things interfere with healing */
 	if (p_ptr->paralyzed) regen_amount = 0;
@@ -717,128 +765,280 @@ static void process_world(void)
 	}
 
 
-	/*** Timeout Various Things ***/
-
-	/* Hack -- Hallucinating */
-	if (p_ptr->image)
+	/*** Timeout Various Things (unless persistence interferes) ***/
+	if (!p_ptr->persistence)
 	{
-		(void)set_image(p_ptr->image - 1);
-	}
+	     /* Hack -- Hallucinating */
+	     if (p_ptr->image)
+	     {
+		  if (rp_ptr->flags3 & (TR3_BLESSED))
+		       (void)set_image(p_ptr->image - 2);
+		  else
+		       (void)set_image(p_ptr->image - 1);
+	     }
 
-	/* Blindness */
-	if (p_ptr->blind)
-	{
-		(void)set_blind(p_ptr->blind - 1);
-	}
+	     /* Blindness */
+	     if (p_ptr->blind)
+	     {
+		  if (rp_ptr->flags3 & (TR3_BLESSED))
+		       (void)set_blind(p_ptr->blind - 2);
+		  else
+		       (void)set_blind(p_ptr->blind - 1);
+	     }
 
-	/* Times see-invisible */
-	if (p_ptr->tim_invis)
-	{
-		(void)set_tim_invis(p_ptr->tim_invis - 1);
-	}
+	     /* Times see-invisible */
+	     if (p_ptr->tim_invis)
+	     {
+		  (void)set_tim_invis(p_ptr->tim_invis - 1);
+	     }
 
-	/* Timed infra-vision */
-	if (p_ptr->tim_infra)
-	{
-		(void)set_tim_infra(p_ptr->tim_infra - 1);
+	     /* Timed infra-vision */
+	     if (p_ptr->tim_infra)
+	     {
+		  (void)set_tim_infra(p_ptr->tim_infra - 1);
+	     }
+
+	     /* Confusion */
+	     if (p_ptr->confused)
+	     {
+		  if (rp_ptr->flags3 & (TR3_BLESSED))
+		       (void)set_confused(p_ptr->confused - 2);
+		  else
+		       (void)set_confused(p_ptr->confused - 1);
+	     }
+
+	     /* Afraid */
+	     if (p_ptr->afraid)
+	     {
+		  if (rp_ptr->flags3 & (TR3_BLESSED))
+		       (void)set_afraid(p_ptr->afraid - 2);
+		  else
+		       (void)set_afraid(p_ptr->afraid - 1);
+	     }
+
+	     /* Fast */
+	     if (p_ptr->fast)
+	     {
+		  (void)set_fast(p_ptr->fast - 1);
+	     }
+
+	     /* Slow */
+	     if (p_ptr->slow)
+	     {
+		  if (rp_ptr->flags3 & (TR3_BLESSED))
+		       (void)set_slow(p_ptr->slow - 2);
+		  else
+		       (void)set_slow(p_ptr->slow - 1);
+	     }
+
+	     /* Protection from evil */
+	     if (p_ptr->protevil)
+	     {
+		  (void)set_protevil(p_ptr->protevil - 1);
+	     }
+
+	     /* Invulnerability */
+	     if (p_ptr->invuln)
+	     {
+		  (void)set_invuln(p_ptr->invuln - 1);
+	     }
+
+	     /* Heroism */
+	     if (p_ptr->hero)
+	     {
+		  (void)set_hero(p_ptr->hero - 1);
+	     }
+
+	     /* Super Heroism */
+	     if (p_ptr->shero)
+	     {
+		  (void)set_shero(p_ptr->shero - 1);
+	     }
+
+	     /* Blessed */
+	     if (p_ptr->blessed)
+	     {
+		  (void)set_blessed(p_ptr->blessed - 1);
+	     }
+
+	     /* Shield */
+	     if (p_ptr->shield)
+	     {
+		  (void)set_shield(p_ptr->shield - 1);
+	     }
+
+	     /* Oppose Acid */
+	     if (p_ptr->oppose_acid)
+	     {
+		  (void)set_oppose_acid(p_ptr->oppose_acid - 1);
+	     }
+
+	     /* Oppose Lightning */
+	     if (p_ptr->oppose_elec)
+	     {
+		  (void)set_oppose_elec(p_ptr->oppose_elec - 1);
+	     }
+
+	     /* Oppose Fire */
+	     if (p_ptr->oppose_fire)
+	     {
+		  (void)set_oppose_fire(p_ptr->oppose_fire - 1);
+	     }
+
+	     /* Oppose Cold */
+	     if (p_ptr->oppose_cold)
+	     {
+		  (void)set_oppose_cold(p_ptr->oppose_cold - 1);
+	     }
+
+	     /* Oppose Poison */
+	     if (p_ptr->oppose_pois)
+	     {
+		  (void)set_oppose_pois(p_ptr->oppose_pois - 1);
+	     }
+
+	     /* Light and Darkness */
+	     if (p_ptr->oppose_ld)
+	     {
+		  (void)set_oppose_ld(p_ptr->oppose_ld - 1);
+	     }
+
+	     /* Chaos and Confusion */
+	     if (p_ptr->oppose_cc)
+	     {
+		  (void)set_oppose_cc(p_ptr->oppose_cc - 1);
+	     }
+	
+	     /* Sound and Shards */
+	     if (p_ptr->oppose_ss)
+	     {
+		  (void)set_oppose_ss(p_ptr->oppose_ss - 1);
+	     }
+	
+	     /* Nexus */
+	     if (p_ptr->oppose_nex)
+	     {
+		  (void)set_oppose_nex(p_ptr->oppose_nex - 1);
+	     }
+	
+	     /* Mental Barrier */
+	     if (p_ptr->mental_barrier)
+	     {
+		  (void)set_mental_barrier(p_ptr->mental_barrier - 1);
+	     }
+	
+	     /* Timed stealth */
+	     if (p_ptr->tim_stealth)
+	     {
+		  (void)set_tim_stealth(p_ptr->tim_stealth - 1);
+	     }
+
+	     /* Timed res nether */
+	     if (p_ptr->oppose_nether)
+	     {
+		  (void)set_oppose_nether(p_ptr->oppose_nether - 1);
+	     }
+
+	     /* Timed res disenchantment */
+	     if (p_ptr->oppose_disen)
+	     {
+		  (void)set_oppose_disen(p_ptr->oppose_disen - 1);
+	     }
+
+	     /* Timed sustain str/con/dex */
+	     if (p_ptr->sustain_body)
+	     {
+		  (void)set_sustain_body(p_ptr->sustain_body - 1);
+	     }
+
+	     /* Timed telepathy */
+	     if (p_ptr->tim_telepathy)
+	     {
+		  (void)set_tim_telepathy(p_ptr->tim_telepathy - 1);
+	     }
+
+	     /* Protection from undead */
+	     if (p_ptr->prot_undead)
+	     {
+		  (void)set_prot_undead(p_ptr->prot_undead - 1);
+	     }
+
+	     /* Protection from animals */
+	     if (p_ptr->prot_animal)
+	     {
+		  (void)set_prot_animal(p_ptr->prot_animal - 1);
+	     }
+
+	     /* Timed no-breeders */
+	     if (no_breeders)
+	     {
+		  (void)set_no_breeders(no_breeders - 1);
+	     }
+
+	     /* Timed aggravation */
+	     if (p_ptr->tim_aggravate)
+	     {
+		  if (rp_ptr->flags3 & (TR3_BLESSED))
+		       (void)set_tim_aggravate(p_ptr->tim_aggravate - 2);
+		  else
+		       (void)set_tim_aggravate(p_ptr->tim_aggravate - 1);
+	     }
+
+	     /* Timed teleportitus */
+	     if (p_ptr->tim_teleportitus)
+	     {
+		  if (rp_ptr->flags3 & (TR3_BLESSED))
+		       (void)set_tim_teleportitus(p_ptr->tim_teleportitus - 2);
+		  else
+		       (void)set_tim_teleportitus(p_ptr->tim_teleportitus - 1);
+	     }
+
+	     /* Timed no teleportation */
+	     if (p_ptr->tim_no_teleport)
+	     {
+		  (void)set_no_teleport(p_ptr->tim_no_teleport - 1);
+	     }
+
+	     /* Timed fast digestion */
+	     if (p_ptr->tim_fast_digestion)
+	     {
+		  if (rp_ptr->flags3 & (TR3_BLESSED))
+		       (void)set_tim_fast_digestion(p_ptr->tim_fast_digestion - 2);
+		  else
+		       (void)set_tim_fast_digestion(p_ptr->tim_fast_digestion - 1);
+	     }
+
+	     /* Timed amnesia */
+	     if (p_ptr->tim_amnesia)
+	     {
+		  if (rp_ptr->flags3 & (TR3_BLESSED))
+		       (void)set_tim_amnesia(p_ptr->tim_amnesia - 2);
+		  else
+		       (void)set_tim_amnesia(p_ptr->tim_amnesia - 1);
+	     }
+
+	     /* Continual Lite */
+	     if (p_ptr->tim_lite)
+	     {
+		  (void)set_tim_lite(p_ptr->tim_lite - 1);
+	     }
+	
+	     /* Timed regeneration */
+	     if (p_ptr->tim_regen)
+	     {
+		  (void)set_tim_regen(p_ptr->tim_regen - 1);	     
+	     }
+
 	}
 
 	/* Paralysis */
 	if (p_ptr->paralyzed)
 	{
-		(void)set_paralyzed(p_ptr->paralyzed - 1);
+	     if (rp_ptr->flags3 & (TR3_BLESSED))
+		  (void)set_paralyzed(p_ptr->paralyzed - 2);
+	     else
+		  (void)set_paralyzed(p_ptr->paralyzed - 1);
 	}
-
-	/* Confusion */
-	if (p_ptr->confused)
-	{
-		(void)set_confused(p_ptr->confused - 1);
-	}
-
-	/* Afraid */
-	if (p_ptr->afraid)
-	{
-		(void)set_afraid(p_ptr->afraid - 1);
-	}
-
-	/* Fast */
-	if (p_ptr->fast)
-	{
-		(void)set_fast(p_ptr->fast - 1);
-	}
-
-	/* Slow */
-	if (p_ptr->slow)
-	{
-		(void)set_slow(p_ptr->slow - 1);
-	}
-
-	/* Protection from evil */
-	if (p_ptr->protevil)
-	{
-		(void)set_protevil(p_ptr->protevil - 1);
-	}
-
-	/* Invulnerability */
-	if (p_ptr->invuln)
-	{
-		(void)set_invuln(p_ptr->invuln - 1);
-	}
-
-	/* Heroism */
-	if (p_ptr->hero)
-	{
-		(void)set_hero(p_ptr->hero - 1);
-	}
-
-	/* Super Heroism */
-	if (p_ptr->shero)
-	{
-		(void)set_shero(p_ptr->shero - 1);
-	}
-
-	/* Blessed */
-	if (p_ptr->blessed)
-	{
-		(void)set_blessed(p_ptr->blessed - 1);
-	}
-
-	/* Shield */
-	if (p_ptr->shield)
-	{
-		(void)set_shield(p_ptr->shield - 1);
-	}
-
-	/* Oppose Acid */
-	if (p_ptr->oppose_acid)
-	{
-		(void)set_oppose_acid(p_ptr->oppose_acid - 1);
-	}
-
-	/* Oppose Lightning */
-	if (p_ptr->oppose_elec)
-	{
-		(void)set_oppose_elec(p_ptr->oppose_elec - 1);
-	}
-
-	/* Oppose Fire */
-	if (p_ptr->oppose_fire)
-	{
-		(void)set_oppose_fire(p_ptr->oppose_fire - 1);
-	}
-
-	/* Oppose Cold */
-	if (p_ptr->oppose_cold)
-	{
-		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
-	}
-
-	/* Oppose Poison */
-	if (p_ptr->oppose_pois)
-	{
-		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
-	}
-
 
 	/*** Poison and Stun and Cut ***/
 
@@ -846,6 +1046,10 @@ static void process_world(void)
 	if (p_ptr->poisoned)
 	{
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+
+		/* Maiar recover quickly from anything. */
+		if (rp_ptr->flags3 & (TR3_BLESSED)) 
+		     adjust = 3 * adjust / 2;
 
 		/* Apply some healing */
 		(void)set_poisoned(p_ptr->poisoned - adjust);
@@ -856,6 +1060,13 @@ static void process_world(void)
 	{
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
+		/* Berserkers recover from stunning twice as fast */
+		if (player_has_class(CLASS_BERSERKER, 0)) adjust *= 2;
+
+		/* Maiar recover quickly from anything. */
+		if (rp_ptr->flags3 & (TR3_BLESSED)) 
+		     adjust = 3 * adjust / 2;
+
 		/* Apply some healing */
 		(void)set_stun(p_ptr->stun - adjust);
 	}
@@ -865,14 +1076,16 @@ static void process_world(void)
 	{
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
+		/* Maiar recover quickly from anything. */
+		if (rp_ptr->flags3 & (TR3_BLESSED)) 
+		     adjust = 3 * adjust / 2;
+
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
 
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust);
 	}
-
-
 
 	/*** Process Light ***/
 
@@ -906,14 +1119,14 @@ static void process_world(void)
 			else if (o_ptr->pval == 0)
 			{
 				disturb(0, 0);
-				msg_print("Your light has gone out!");
+				cmsg_print(TERM_YELLOW, "Your light has gone out!");
 			}
 
 			/* The light is getting dim */
 			else if ((o_ptr->pval < 100) && (!(o_ptr->pval % 10)))
 			{
 				if (disturb_minor) disturb(0, 0);
-				msg_print("Your light is growing faint.");
+				cmsg_print(TERM_YELLOW, "Your light is growing faint.");
 			}
 		}
 	}
@@ -927,10 +1140,11 @@ static void process_world(void)
 	/* Handle experience draining */
 	if (p_ptr->exp_drain)
 	{
-		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
+	        /* Affects a random class */
+		if ((rand_int(100) < 10) && (p_ptr->exp[rand_int(p_ptr->available_classes)] > 0))
 		{
-			p_ptr->exp--;
-			p_ptr->max_exp--;
+			p_ptr->exp[rand_int(p_ptr->available_classes)]--;
+			p_ptr->max_exp[rand_int(p_ptr->available_classes)]--;
 			check_experience();
 		}
 	}
@@ -1058,6 +1272,15 @@ static void process_world(void)
 				p_ptr->leaving = TRUE;
 			}
 		}
+	}
+
+	/*** Occasional effects */
+
+	/* Amnesia */
+	if (p_ptr->amnesia)
+	{
+	     /* Forget the map */
+	     wiz_dark();
 	}
 }
 
@@ -1464,17 +1687,42 @@ static void process_command(void)
 		/* Cast a spell */
 		case 'm':
 		{
-			do_cmd_cast();
-			break;
+		     if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_ILLUSION_BOOK)
+			  do_cmd_cast_illusion();
+		     else
+			  do_cmd_cast();
+		     break;
 		}
 
 		/* Pray a prayer */
 		case 'p':
 		{
-			do_cmd_pray();
-			break;
+		     if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_DEATH_BOOK)
+			  do_cmd_cast_death();
+		     else
+			  do_cmd_pray();
+		     break;
 		}
 
+		/*** Multiclass commands ***/
+
+	        case 'N': /* Create a new class */
+		  {
+		    do_cmd_create_multi_class();
+		    break;
+		  }
+
+	        case ']': /* Switch class forwards */
+		  {
+		    do_cmd_switch_multi_class(0);
+		    break;
+		  }
+
+	        case '[': /* Switch class backwards */
+		  {
+		    do_cmd_switch_multi_class(1);
+		    break;
+		  }
 
 		/*** Use various objects ***/
 
@@ -1871,7 +2119,6 @@ static void process_player(void)
 {
 	int i;
 
-
 	/*** Check for interrupts ***/
 
 	/* Complete resting */
@@ -1882,7 +2129,8 @@ static void process_player(void)
 		{
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp == p_ptr->msp))
+			    (p_ptr->csp == p_ptr->msp) &&
+			    (p_ptr->cpp == p_ptr->mpp))
 			{
 				disturb(0, 0);
 			}
@@ -1894,6 +2142,7 @@ static void process_player(void)
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
 			    (p_ptr->csp == p_ptr->msp) &&
+			    (p_ptr->cpp == p_ptr->mpp) &&
 			    !p_ptr->blind && !p_ptr->confused &&
 			    !p_ptr->poisoned && !p_ptr->afraid &&
 			    !p_ptr->stun && !p_ptr->cut &&
@@ -2273,10 +2522,16 @@ static void dungeon(void)
 	disturb(1, 0);
 
 
-	/* Track maximum player level */
-	if (p_ptr->max_lev < p_ptr->lev)
+	/* Track maximum player level for each class */
 	{
-		p_ptr->max_lev = p_ptr->lev;
+	    int class;
+	    for (class = 0; class < p_ptr->available_classes; class++)
+	    {
+	        if (p_ptr->max_lev[class] < p_ptr->lev[class])
+		{
+		    p_ptr->max_lev[class] = p_ptr->lev[class];
+		}
+	    }
 	}
 
 
@@ -2287,14 +2542,16 @@ static void dungeon(void)
 	}
 
 
-	/* No stairs down from Quest */
-	if (is_quest(p_ptr->depth))
-	{
-		p_ptr->create_down_stair = FALSE;
-	}
+	/* No stairs down from Quest (unless astral) */
+	if (is_quest(p_ptr->depth) && !(p_ptr->astral))
+	     p_ptr->create_down_stair = FALSE;
+	
+	/* No stairs down from level 97 if astral */
+	if (p_ptr->astral && (p_ptr->depth == 97))
+	     p_ptr->create_down_stair = FALSE;
 
 	/* No stairs from town or if not allowed */
-	if (!p_ptr->depth || !dungeon_stair)
+	if (!p_ptr->depth || !dungeon_stair || adult_nightmare)
 	{
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
@@ -2694,6 +2951,9 @@ void play_game(bool new_game)
 		/* Roll up a new character */
 		player_birth();
 
+		/* Astral beings start in the dungeon */
+		if (p_ptr->astral) p_ptr->depth = 95;
+
 #ifdef GJW_RANDART
 
 		/* Randomize the artifacts */
@@ -2851,6 +3111,8 @@ void play_game(bool new_game)
 				/* Restore spell points */
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
+				p_ptr->cpp = p_ptr->mpp;
+				p_ptr->cpp_frac = 0;
 
 				/* Hack -- Healing */
 				(void)set_blind(0);
@@ -2882,7 +3144,6 @@ void play_game(bool new_game)
 				/* New depth */
 				p_ptr->depth = 0;
 
-				/* Leaving */
 				p_ptr->leaving = TRUE;
 			}
 		}

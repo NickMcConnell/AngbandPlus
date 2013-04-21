@@ -1313,15 +1313,21 @@ static errr rd_extra(void)
 		return (-1);
 	}
 
-	/* Player class */
-	rd_byte(&p_ptr->pclass);
+	rd_byte(&p_ptr->current_class);
+	rd_byte(&p_ptr->available_classes);
 
-	/* Verify player class */
-	if (p_ptr->pclass >= MAX_CLASS)
-	{
-		note(format("Invalid player class (%d).", p_ptr->pclass));
+	/* Player class */
+	for (i = 0; i < MAX_CLASS; i++)
+	  {
+	    rd_byte(&p_ptr->pclass[i]);
+
+	    /* Verify player class */
+	    if (p_ptr->pclass[i] >= MAX_CLASS)
+	      {
+		note(format("Invalid player class (%d).", p_ptr->pclass[i]));
 		return (-1);
-	}
+	      }
+	  }
 
 	/* Player gender */
 	rd_byte(&p_ptr->psex);
@@ -1333,7 +1339,7 @@ static errr rd_extra(void)
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
-	rd_byte(&p_ptr->expfact);
+	for (i = 0; i < MAX_CLASS; i++) rd_u16b(&p_ptr->expfact[i]);
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
@@ -1348,17 +1354,19 @@ static errr rd_extra(void)
 
 	rd_s32b(&p_ptr->au);
 
-	rd_s32b(&p_ptr->max_exp);
-	rd_s32b(&p_ptr->exp);
-	rd_u16b(&p_ptr->exp_frac);
-
-	rd_s16b(&p_ptr->lev);
-
-	/* Verify player level */
-	if ((p_ptr->lev < 1) || (p_ptr->lev > PY_MAX_LEVEL))
+	for (i = 0; i < MAX_CLASS; i++)
 	{
-		note(format("Invalid player level (%d).", p_ptr->lev));
+	  rd_s32b(&p_ptr->max_exp[i]);
+	  rd_s32b(&p_ptr->exp[i]);
+	  rd_u16b(&p_ptr->exp_frac[i]);
+	  rd_s16b(&p_ptr->lev[i]);
+
+	    /* Verify player level */
+	    if ((p_ptr->lev[i] < 1) || (p_ptr->lev[i] > PY_MAX_LEVEL))
+	      {
+		note(format("Invalid player level (%d).", p_ptr->lev[i]));
 		return (-1);
+	      }
 	}
 
 	rd_s16b(&p_ptr->mhp);
@@ -1369,11 +1377,15 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
 
-	rd_s16b(&p_ptr->max_lev);
+	rd_s16b(&p_ptr->mpp);
+	rd_s16b(&p_ptr->cpp);
+	rd_u16b(&p_ptr->cpp_frac);
+
+	for (i = 0; i < MAX_CLASS; i++) rd_s16b(&p_ptr->max_lev[i]);
 	rd_s16b(&p_ptr->max_depth);
 
 	/* Hack -- Repair maximum player level */
-	if (p_ptr->max_lev < p_ptr->lev) p_ptr->max_lev = p_ptr->lev;
+	for (i = 0; i < MAX_CLASS; i++) if (p_ptr->max_lev[i] < p_ptr->lev[i]) p_ptr->max_lev[i] = p_ptr->lev[i];
 
 	/* Hack -- Repair maximum dungeon level */
 	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
@@ -1416,6 +1428,29 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+	rd_s16b(&p_ptr->oppose_ld);
+	rd_s16b(&p_ptr->oppose_cc);
+	rd_s16b(&p_ptr->oppose_ss);
+	rd_s16b(&p_ptr->oppose_nex);
+	rd_s16b(&p_ptr->mental_barrier);
+	rd_s16b(&p_ptr->tim_stealth);
+	rd_s16b(&p_ptr->oppose_nether);
+	rd_s16b(&p_ptr->oppose_disen);
+	rd_s16b(&p_ptr->sustain_body);
+	rd_s16b(&p_ptr->tim_telepathy);
+	rd_s16b(&p_ptr->prot_undead);
+	rd_s16b(&p_ptr->prot_animal);
+	rd_s16b(&no_breeders); 
+	rd_s16b(&p_ptr->tim_aggravate);
+	rd_s16b(&p_ptr->tim_teleportitus);
+	rd_s16b(&p_ptr->tim_no_teleport);
+	rd_s16b(&p_ptr->tim_fast_digestion);
+	rd_s16b(&p_ptr->tim_amnesia);
+	rd_s16b(&p_ptr->tim_lite);
+	rd_s16b(&p_ptr->tim_regen);
+
+	rd_byte(&p_ptr->astral);
+	rd_byte(&p_ptr->astral_start);
 
 	/* Old redundant flags */
 	if (older_than(2, 7, 7)) strip_bytes(34);
@@ -1522,18 +1557,28 @@ static errr rd_extra(void)
 	}
 
 
-	/* Read spell info */
-	rd_u32b(&p_ptr->spell_learned1);
-	rd_u32b(&p_ptr->spell_learned2);
-	rd_u32b(&p_ptr->spell_worked1);
-	rd_u32b(&p_ptr->spell_worked2);
-	rd_u32b(&p_ptr->spell_forgotten1);
-	rd_u32b(&p_ptr->spell_forgotten2);
-
-	for (i = 0; i < PY_MAX_SPELLS; i++)
+	for (i = 0; i < MAX_EFFECTS; i++)
 	{
-		rd_byte(&p_ptr->spell_order[i]);
+	        rd_u16b(&effects[i]);
 	}
+
+	/* Read spell info */
+	for (i = 0; i < 2; i++)
+	  {
+	    rd_u32b(&p_ptr->spell_learned1[i]);
+	    rd_u32b(&p_ptr->spell_learned2[i]);
+	    rd_u32b(&p_ptr->spell_worked1[i]);
+	    rd_u32b(&p_ptr->spell_worked2[i]);
+	    rd_u32b(&p_ptr->spell_forgotten1[i]);
+	    rd_u32b(&p_ptr->spell_forgotten2[i]);
+	  }
+
+	/* Read the ordered spells */
+	for (i = 0; i < PY_MAX_SPELLS; i++)
+	  {
+	    rd_byte(&p_ptr->spell_order[0][i]);
+	    rd_byte(&p_ptr->spell_order[1][i]);
+	  }
 
 	return (0);
 }
@@ -2806,11 +2851,14 @@ static errr rd_savefile_new_aux(void)
 
 	/* Important -- Initialize the race/class */
 	rp_ptr = &p_info[p_ptr->prace];
-	cp_ptr = &class_info[p_ptr->pclass];
 
-	/* Important -- Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
+	for (i = 0; i < MAX_CLASS; i++)
+	  {
+	    cp_ptr[i] = &class_info[i];
 
+	    /* Important -- Initialize the magic */
+	    mp_ptr[i] = &magic_info[i];
+	  }
 
 	/* Read the inventory */
 	if (rd_inventory())

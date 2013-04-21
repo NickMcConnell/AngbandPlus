@@ -1270,7 +1270,6 @@ const player_sex sex_info[MAX_SEXES] =
  * Player Classes
  *
  *	Title,
- *	{STR,INT,WIS,DEX,CON,CHR},
  *	c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
  *	x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
  *	HD, Exp
@@ -1281,7 +1280,7 @@ const player_class class_info[MAX_CLASS] =
 		"Warrior",
 		{ 5, -2, -2, 2, 2, -1},
 		25, 18, 18, 1,  14, 2, 70, 55,
-		10, 7,  10, 0,  0,  0,  45, 45,
+		10, 7,  10, 0,  0,  0, 45, 45,
 		9,  0
 	},
 
@@ -1294,7 +1293,7 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"Priest",
+		"Holy Priest",
 		{-1, -3, 3, -1, 0, 2},
 		25, 30, 32, 2,  16, 8, 48, 35,
 		7,  10, 12, 0,  0,  0, 20, 20,
@@ -1321,13 +1320,58 @@ const player_class class_info[MAX_CLASS] =
 		"Paladin",
 		{ 3, -3, 1, 0, 2, 2},
 		20, 24, 25, 1,  12, 2, 68, 40,
-		7,  10, 11, 0,  0,  0,  35, 30,
+		7,  10, 11, 0,  0,  0, 35, 30,
 		6, 35
+	},
+
+	{ /* Added -KMW- */
+		"Illusionist",
+		{-5, 3, 0, 1, -2, 1},
+		30, 36, 30, 2,  16, 20, 34, 20,
+		7,  13, 9,  0,  0,  0,  15, 15,
+		0, 30
+	},
+
+	{
+                "Archer",
+                { 2, 0, 0, 3, 1, 1},
+                25, 18, 18, 3,  24, 16, 34, 85,
+		10,  7, 10, 0,  0,  0,  15, 45,
+		4, 30
+	},
+
+	{
+		"Death Priest",
+		{-1, -3, 3, -1, 0, 2},
+		25, 10, 32, 2,  16, 8, 48, 35,
+		7,   1, 12, 0,  0,  0, 20, 20,
+		2, 20
+	},
+
+	{
+		"Berserker",
+		{ 6, -4, -2, 2, 4, -2},
+		25, 0,  18, 1,  14, 2,  75, 10,
+		7,  0,  10, 0,  0,  0,  45,  5,
+		10, 35
+	},
+
+	{
+		"Monk",
+		{ 2, -1, -1, 4, 3, -1},
+		45, 24, 32, 5, 32, 24, 75, 20,
+		15, 10, 12, 0,  0,  0, 45, 10,
+		8, 35
+	},
+
+	{
+		"Trickster",
+		{ 2, 1, -2, 3, 1, -1},
+		45, 32, 28, 5, 32, 24, 60, 66,
+		15, 10, 10, 0,  0,  0, 40, 30,
+		6, 25
 	}
 };
-
-
-
 
 
 
@@ -1343,7 +1387,6 @@ const player_class class_info[MAX_CLASS] =
  *   Spell Type,
  *
  *   Spell Level,
- *   Spell Encumbrance,
  *
  *   Array of { Lev, Mana, Fail, Exp/Lev }
  */
@@ -1445,7 +1488,7 @@ const player_magic magic_info[MAX_CLASS] =
 		0,
 
 		A_INT,
-		0,
+		REALM_MAGIC,
 
 		1,
 		300,
@@ -1534,7 +1577,7 @@ const player_magic magic_info[MAX_CLASS] =
 		0,
 
 		A_WIS,
-		1,
+		REALM_PRAYER,
 
 		1,
 		350,
@@ -1623,7 +1666,7 @@ const player_magic magic_info[MAX_CLASS] =
 		0,
 
 		A_INT,
-		0,
+		REALM_MAGIC,
 
 		5,
 		350,
@@ -1712,13 +1755,13 @@ const player_magic magic_info[MAX_CLASS] =
 		0,
 
 		A_INT,
-		0,
+		REALM_MAGIC,
 
 		3,
 		400,
 
 		{
-			{  3,  1, 30,   1},
+			{ 99,  0,  0,   0},
 			{  3,  2, 35,   2},
 			{  3,  2, 35,   2},
 			{  5,  3, 35,   1},
@@ -1801,7 +1844,7 @@ const player_magic magic_info[MAX_CLASS] =
 		0,
 
 		A_WIS,
-		1,
+		REALM_PRAYER,
 
 		1,
 		400,
@@ -1878,6 +1921,538 @@ const player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0}
 		}
+	},
+
+	{	/* Added this class -KMW- */
+		/*** Illusionist ***/
+
+                TV_ILLUSION_BOOK,
+		0,
+
+                A_INT,
+		REALM_ILLUSION,
+
+		1,
+		300,
+
+		{
+			{  1,  1, 22,   4},
+			{  1,  1, 23,   4},
+			{  1,  2, 24,   4},
+			{  1,  2, 26,   4},
+			{  1,  2, 25,   3},
+			{  3,  3, 25,   3},
+			{  3,  3, 26,   3},
+			{  3,  3, 25,   1},
+			{  3,  3, 27,   3},
+
+			{  3,  4, 30,   1},
+			{  5,  4, 30,   4},
+			{  5,  5, 30,   6},
+			{  5,  5, 30,   4},
+			{  5,  5, 35,   4},
+			{  7,  6, 35,   5},
+			{  7,  6, 30,   5},
+			{  7,  6, 40,   6},
+			{  9,  7, 44,   8},
+
+			{  9,  7, 45,   8},
+			{  9,  7, 75,   9},
+			{  9,  7, 45,   8},
+			{ 11,  7, 45,   9},
+			{ 11,  7, 75,   6},
+			{ 13,  7, 50,   6},
+			{ 15,  9, 50,   6},
+			{ 17,  9, 50,   7},
+
+			{ 19, 12, 55,   8},
+			{ 21, 12, 90,   8},
+			{ 23, 12, 60,   8},
+			{ 25, 12, 65,  10},
+			{ 29, 18, 65,  12},
+			{ 33, 21, 80,  15},
+			{ 37, 25, 95,  21},
+
+			{  7,  7, 20,  28},
+			{  9, 12, 40,  44},
+			{ 15, 17, 60,  29},
+			{ 20, 18, 60,  24},
+			{ 25, 25, 75,  19},
+			{ 45, 50, 60,  30},
+
+			{ 10,  6, 50,  12},
+			{ 12,  9, 60,  16},
+			{ 20, 15, 70,  20},
+			{ 27, 25, 75,  29},
+			{ 35, 35, 85,  34},
+			{ 40, 40, 80,  50},
+			{ 42, 45, 95, 200},
+
+			{ 5,  5,  50,   8},
+			{ 10, 10, 70,  40},
+			{ 15, 20, 80,  50},
+			{ 25, 30, 95, 160},
+			{ 30, 50, 70,  40},
+			{ 40, 75, 80, 100},
+
+			{  4,  5, 50,  20},
+			{  4,  5, 50,  20},
+			{  4,  5, 50,  20},
+			{  8, 10, 75,  40},
+			{ 15, 15, 90,  45},
+			{ 15, 20, 85,  60},
+
+			{  5,  5, 50,  80},
+			{ 10, 12, 75, 120},
+			{ 15, 20, 80, 200},
+			{ 20, 30, 50,  75},
+			{ 22, 30, 50, 250},	/* 350 */
+			{ 45, 70, 75, 250}	/* 450 */
+                },
+	},
+
+	{
+		/*** Archer ***/
+
+		0,
+		0,
+
+		A_DEX,
+		0,
+
+		99,
+		0,
+
+		{
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0}
+		}
+	},
+
+	{
+		/*** Death Priest ***/
+
+		TV_DEATH_BOOK,
+		0,
+
+		A_WIS,
+		REALM_DEATH,
+
+		1,
+		350,
+
+		{
+		     {  1,  1, 10,   5}, 
+		     {  1,  1, 10,   4}, 
+		     {  1,  2, 15,   1}, 
+		     {  3,  2, 15,   4}, 
+		     {  3,  3, 20,   4}, 
+		     {  3,  3, 20,   4}, 
+		     {  5,  4, 25,   5}, 
+		     {  5,  4, 25,   2}, 
+		     {  5,  5, 30,   4}, 
+
+		     {  7,  5, 35,   4}, 
+		     {  7,  6, 35,   4}, 
+		     {  7,  6, 40,   1}, 
+		     {  9,  7, 40,   4}, 
+		     {  9,  7, 45,   4}, 
+		     {  9,  8, 45,   4}, 
+		     { 11,  8, 50,   5}, 
+		     { 11,  9, 50,   4}, 
+		     { 11, 10, 55,   2}, 
+
+		     { 13, 11, 55,   2}, 
+		     { 13, 12, 55,   4}, 
+		     { 15, 12, 60,   5}, 
+		     { 15, 14, 60,   1}, 
+		     { 17, 16, 65,   4}, 
+		     { 17, 16, 65,   4}, 
+		     { 19, 18, 70,   4}, 
+		     { 21, 20, 75,   5}, 
+
+		     { 23, 20, 75,   4}, 
+		     { 25, 22, 80,   4}, 
+		     { 27, 25, 80,   5}, 
+		     { 31, 28, 80,  10}, 
+		     { 33, 30, 85,   5}, 
+		     { 35, 35, 90,  15}, 
+		     { 37, 40, 95,  10}, 
+
+		     { 17,  5, 50,  25}, 
+		     { 23,  7, 60,  45}, 
+		     { 35, 50, 80,  65}, 
+		     { 40, 70, 90, 115}, 
+		     { 45, 70, 90, 125}, 
+
+		     { 15,  7, 60,  25}, 
+		     { 25, 25, 80,  60}, 
+		     { 30, 50, 70,  80}, 
+		     { 40, 75, 80, 100}, 
+		     { 42, 60, 75, 125}, 
+
+		     {  4,  5, 50,  20}, 
+		     {  6,  5, 50,  40}, 
+		     {  8, 10, 60,  50}, 
+		     { 12, 10, 75,  60}, 
+		     { 20, 12, 80,  80}, 
+		     { 30, 12, 85, 100}, 
+		     { 45, 70, 90, 120}, 
+
+		     { 25, 20, 80,  25}, 
+		     { 30, 40, 80,  80}, 
+		     { 40, 50, 80, 115}, 
+		     { 45, 60, 85, 125}, 
+		     { 45, 95, 85, 125}, 
+
+		     {  7,  3, 50,   6}, 
+		     { 10,  6, 50,  15}, 
+		     { 25, 25, 80,  20}, 
+		     { 30, 20, 80,  20}, 
+		     { 45, 50, 75,  30}, 
+
+		     { 99,  0,  0,   0},
+		     { 99,  0,  0,   0},
+		     { 99,  0,  0,   0},
+		     { 99,  0,  0,   0}
+		}
+	},
+
+	{
+		/*** Berserker ***/
+
+		0,
+		0,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+
+		{
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0}
+		}
+	},
+
+	{
+		/*** Monk ***/
+
+		0,
+		0,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+
+		{
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0}
+		}
+	},
+
+	{
+		/*** Trickster ***/
+
+		TV_ILLUSION_BOOK,
+		0,
+
+		A_INT,
+		REALM_ILLUSION,
+
+		5,
+		350,
+
+		{
+			{ 99,  0,  0,   0},
+			{  5,  1, 23,   2},
+			{  5,  2, 25,   2},
+			{  5,  2, 27,   2},
+			{  7,  3, 25,   2},
+			{  9,  4, 29,   1},
+			{  9,  3, 27,   2},
+			{  9,  3, 30,   2},
+			{ 99,  0,  0,   0},
+
+			{ 11,  4, 30,   2},
+			{ 13,  6, 35,   2},
+			{ 13,  4, 30,   3},
+			{ 99,  0,  0,   0},
+			{ 15,  8, 40,   2},
+			{ 99,  0,  0,   0},
+			{ 15, 10, 40,   2},
+			{ 99,  0,  0,   0},
+			{ 17, 10, 35,   3},
+
+			{ 17,  8, 35,   3},
+			{ 99,  0,  0,   0},
+			{ 19, 15, 45,   4},
+			{ 21, 12, 45,   4},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 23, 18, 75,   4},
+			{ 25, 12, 75,   4},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 30, 20, 75,   6},
+			{ 30, 20, 75,   6},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 40, 30, 95,   6},
+
+			{  7, 15, 30,  14},
+			{ 99,  0,  0,   0},
+			{ 20, 25, 75,  14},
+			{ 25, 30, 65,  12},
+			{ 30, 40, 70,  10},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 10, 10, 75,   4},
+			{ 20, 20, 80,  20},
+			{ 30, 40, 90,  20},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{  8, 10, 65,  10},
+			{  8, 10, 75,  10},
+			{  8, 10, 75,  10},
+			{ 16, 20, 90,  20},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 10, 15, 75,  20},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 35, 40, 60,  20},	/* 350 */
+			{ 99,  0,  0,   0}	/* 450 */
+		}
 	}
 };
 
@@ -1885,7 +2460,7 @@ const player_magic magic_info[MAX_CLASS] =
 /*
  * Spells in each book (mage spells then priest spells)
  */
-const u32b spell_flags[2][9][2] =
+const u32b spell_flags[MAX_REALM][9][2] =
 {
 	{
 		/*** Mage spell books ***/
@@ -2055,6 +2630,32 @@ const u32b spell_flags[2][9][2] =
 			 -1,
 			 -1,
 			 -1)
+	},
+
+	{ /*** Illusionist books ***/
+	  BOOK( 0,  1,  2,  3,  4,  5,  6,  7,  8),
+	  BOOK( 9, 10, 11, 12, 13, 14, 15, 16, 17),
+	  BOOK(18, 19, 20, 21, 22, 23, 24, 25, -1),
+	  BOOK(26, 27, 28, 29, 30, 31, 32, -1, -1),
+
+	  BOOK(52, 53, 54, 55, 56, 57, -1, -1, -1),
+	  BOOK(33, 34, 35, 36, 37, 38, -1, -1, -1),
+	  BOOK(46, 47, 48, 49, 50, 51, -1, -1, -1),
+	  BOOK(39, 40, 41, 42, 43, 44, 45, -1, -1),
+	  BOOK(58, 59, 60, 61, 62, 63, -1, -1, -1)
+	},
+
+	{ /*** Death books ***/
+	     BOOK( 0,  1,  2,  3,  4,  5,  6,  7,  8),
+	     BOOK( 9, 10, 11, 12, 13, 14, 15, 16, 17),
+	     BOOK(18, 19, 20, 21, 22, 23, 24, 25, -1),
+	     BOOK(26, 27, 28, 29, 30, 31, 32, -1, -1),
+
+	     BOOK(55, 56, 57, 58, 59, -1, -1, -1, -1),
+	     BOOK(33, 34, 35, 36, 37, -1, -1, -1, -1),
+	     BOOK(38, 39, 40, 41, 42, -1, -1, -1, -1),
+	     BOOK(50, 51, 52, 53, 54, -1, -1, -1, -1),
+	     BOOK(43, 44, 45, 46, 47, 48, 49, -1, -1)
 	}
 };
 
@@ -2062,7 +2663,7 @@ const u32b spell_flags[2][9][2] =
 /*
  * Names of the spells (mage spells then priest spells)
  */
-cptr spell_names[2][PY_MAX_SPELLS] =
+cptr spell_names[MAX_REALM][PY_MAX_SPELLS] =
 {
 	/*** Mage Spells ***/
 
@@ -2237,6 +2838,175 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"(blank)",
 		"(blank)",
 		"(blank)"
+	},
+
+	/*** Illusionist Spells ***/
+	/* Added by -KMW- */
+
+	{
+		/* Illusions for Beginners (sval 0) */
+		"Confusion Bolt",
+		"Detect Monsters",
+		"Phase Door",
+		"Light Area",
+		"Treasure Detection",
+		"Fear",
+		"Object Detection",
+		"Find Hidden Traps/Doors",
+		"Stinking Cloud",
+
+		/* Tricks and Visions (sval 1) */
+		"Infravision",
+		"Sleep",
+		"Trap/Door Destruction",
+		"Fog Cloud",
+		"Cure Poison",
+		"Satisfy Hunger",
+		"Shadow Door",
+		"Shadow Monster",
+		"Turn Stone to Mud",
+
+		/* Phantasms and Illusions (sval 2) */
+		"Detect Invisible",
+		"Recharge Item",
+		"Brand Ammo",
+		"Spear of Light",
+		"Chaos",
+		"Mental Barrier",
+		"True Sight",
+		"Slow Monster",
+
+		/* Shadows and Prisms (sval 3) */
+		"Shadow Ball",
+		"Bolt of Darkness",
+		"Shadow Form",
+		"Haste Self",
+		"Prismatic Wall",
+		"Prismatic Spray",
+		"Chromatic Shield",
+
+		/* Knowledge of Kenault (sval 5) */
+		"Wizard Lock",
+		"Bedlam",
+		"Word of Recall",
+		"Detect Enchantment",
+		"Probing",
+		"Sunfire",
+
+		/* Bigby's Handbook (sval 8) */
+		"Bigby's Interposing Hand",
+		"Bigby's Phantom Hand",
+		"Bigby's Forceful Hand",
+		"Bigby's Grasping Hand",
+		"Bigby's Clenched Fist",
+		"Bigby's Crushing Hand",
+		"Force Blast",
+
+		/* Otiluke's Spheres (sval 6) */
+		"Sphere of Light",
+		"Sphere of Darkness",
+		"Sphere of Confusion",
+		"Sphere of Chaos",
+		"Sphere of Sound",
+		"Explosion",
+
+		/* Serten's Immunities (sval 4) */
+		"Remove Fear",
+		"Resist Light & Dark",
+		"Resist Poison",
+		"Resist Chaos & Confusion",
+		"Resist Sound & Shards",
+		"Resist Nexus",
+
+		/* Boccob's Book of Shadows (sval 7) */
+		"Invisibility",
+		"Shadow Monsters",
+		"Shadow Ball",
+		"Life for Mana",
+		"Shadow Gate",
+		"Summon Shadows"
+	},
+
+	/*** Death spells ***/
+
+	{
+	     /* Black Prayers */
+	     "Malediction",
+	     "Detect Undead",
+	     "Cure Light Wounds",
+	     "Dark Blessing",
+	     "Remove Fear",
+	     "Infravision",
+	     "Horrify",
+	     "Slow Poison",
+	     "Stealth",
+
+	     /* Darker Elements */
+	     "Call Light",
+	     "Find Hidden Traps/Doors",
+	     "Cure Serious Wounds",
+	     "Heroism",
+	     "Sanctuary",
+	     "Resist Cold",
+	     "Noxious Fumes",
+	     "Break Curse",
+	     "Sustenance",
+
+	     /* Death Mastery */
+	     "Neutralize Poison",
+	     "Shield",
+	     "Orb of Enthropy",
+	     "Cure Critical Wounds",
+	     "Protection from Undead",
+	     "Sense Invisibile",
+	     "Turn Undead",
+	     "Drain Life",
+
+	     /* Necronomicon */
+	     "Sense Shadows",
+	     "Cure Mortal Wounds",
+	     "Terror",
+	     "Dispel Undead",
+	     "Heal",
+	     "Darkness Storm",
+	     "Glyph of Warding",
+
+	     /* Controlling Life */
+	     "Cure Serious Wounds",
+	     "Cure Mortal Wounds",
+	     "Healing",
+	     "Restore Life",
+	     "Restoration",
+
+	     /* Annihilations */
+	     "Dispel Undead",
+	     "Banish Undead",
+	     "Genocide",
+	     "Mass Genocide",
+	     "Annihilation",
+
+	     /* Unholy Protection */
+	     "Resist Light and Darkness",
+	     "Invisibility",
+	     "Regeneration",
+	     "Resist Nether",
+	     "Wraithform",
+	     "Berserk Strength",
+	     "Invulnerability",
+
+	     /* Channeling the Void */
+	     "Recharging",
+	     "Dispel Curse",
+	     "Enchant Weapon",
+	     "Enchant Armour",
+	     "Poison Weapon",
+
+	     /* Material Shadows */
+	     "Shadow Door",
+	     "Unbarring Ways",
+	     "Perception",
+	     "Probing",
+	     "Word of Recall"
 	}
 };
 
@@ -2414,6 +3184,90 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Low Paladin",
 		"High Paladin",
 		"Paladin Lord",
+	},
+
+	/* Illusionist -KMW- */
+	{
+		"Novice",
+		"Apprentice",
+		"Trickster",
+		"Cabalist",
+		"Visionist",
+		"Phantasmist",
+		"Spellbinder",
+		"Illusionist",
+		"Shadow",
+		"Shadow Lord",
+	},
+
+        /* Archer */
+	{
+                "Rock Thrower",
+                "Slinger",
+                "Great Slinger",
+                "Bowsen",
+                "Bowsen",
+                "Great Bowmen",
+                "Great Bowmen",
+                "Archer",
+                "Archer",
+                "Great Archer",
+	},
+
+	/* Death Knight */
+	{
+		"Acolyte",
+		"Curser",
+		"Dark Student",
+		"Initiate",
+		"Slavemaster",
+		"Summoner",
+		"Controller",
+		"Commander",
+		"Dark Master",
+		"Night Lord",
+	},
+
+	/* Berserker */
+	{
+		"Rookie",
+		"Soldier",
+		"Mercenary",
+		"Veteran",
+		"Swordsman",
+		"Champion",
+		"Hero",
+		"Baron",
+		"Duke",
+		"Lord",
+	},
+
+	/* Monk */
+	{
+		"Initiate",
+		"Brother",
+		"Disciple",
+		"Immaculate",
+		"Master",
+		"Soft Master",
+		"Hard Master",
+		"Flower Master",
+		"Dragon Master",
+		"Grand Master",
+	},
+
+	/* Tricksters */
+	{
+		"Vagabond",
+		"Cutpurse",
+		"Robber",
+		"Burglar",
+		"Filcher",
+		"Sharper",
+		"Low Thief",
+		"High Thief",
+		"Master Thief",
+		"Assassin",
 	}
 };
 
@@ -2646,9 +3500,9 @@ cptr option_text[OPT_MAX] =
 	"birth_no_stores",			/* OPT_birth_no_stores */
 	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"birth_hidden",		        /* OPT_birth_hidden */
+	"birth_nightmare",
+	"birth_easy",
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2710,9 +3564,9 @@ cptr option_text[OPT_MAX] =
 	"adult_no_stores",			/* OPT_adult_no_stores */
 	"adult_no_artifacts",		/* OPT_adult_no_artifacts */
 	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"adult_hidden",		       /* OPT_adult_hidden */
+	"adult_nightmare",
+	"adult_easy",
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2910,9 +3764,9 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
 	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Birth: Hide all character knowledge", /* OPT_birth_hidden */
+	"Birth: Nightmare mode (doubles score)",
+	"Birth: Easy mode (halves score)",
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2974,10 +3828,10 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
 	"Adult: Randomize some of the artifacts (beta)",	/* OPT_adult_rand_artifacts */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Adult: Hide all character knowledge", /* OPT_adult_hidden */
+	"Adult: Nightmare mode!",
+	"Adult: Start with some basic equipment",
+	"Adult: Easy mode!",
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3040,30 +3894,30 @@ const bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */
 	TRUE,		/* OPT_quick_messages */
-	FALSE,		/* OPT_floor_query_flag */
-	TRUE,		/* OPT_carry_query_flag */
+	TRUE,		/* OPT_floor_query_flag */
+	FALSE,		/* OPT_carry_query_flag */
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
-	FALSE,		/* OPT_always_repeat */
+	TRUE,		/* OPT_always_repeat */
 	FALSE,		/* OPT_depth_in_feet */
-	FALSE,		/* OPT_stack_force_notes */
-	FALSE,		/* OPT_stack_force_costs */
+	TRUE,		/* OPT_stack_force_notes */
+	TRUE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
 	TRUE,		/* OPT_show_weights */
 	TRUE,		/* OPT_show_choices */
 	TRUE,		/* OPT_show_details */
-	TRUE,		/* OPT_ring_bell */
-	TRUE,		/* OPT_show_flavors */
-	TRUE,		/* OPT_run_ignore_stairs */
+	FALSE,		/* OPT_ring_bell */
+	FALSE,		/* OPT_show_flavors */
+	FALSE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
 	TRUE,		/* OPT_run_use_corners */
-	TRUE,		/* OPT_disturb_move */
+	FALSE,		/* OPT_disturb_move */
 	TRUE,		/* OPT_disturb_near */
 	TRUE,		/* OPT_disturb_panel */
-	TRUE,		/* OPT_disturb_state */
-	TRUE,		/* OPT_disturb_minor */
-	TRUE,		/* OPT_disturb_other */
+	FALSE,		/* OPT_disturb_state */
+	FALSE,		/* OPT_disturb_minor */
+	FALSE,		/* OPT_disturb_other */
 	FALSE,		/* OPT_alert_hitpoint */
 	FALSE,		/* OPT_alert_failure */
 	TRUE,		/* OPT_verify_destroy */
@@ -3071,47 +3925,47 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_allow_quantity */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_auto_haggle */
-	FALSE,		/* OPT_auto_scum */
+	TRUE,		/* OPT_auto_scum */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_expand_look */
 	TRUE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
-	FALSE,		/* OPT_view_torch_grids */
-	TRUE,		/* OPT_dungeon_align */
+	TRUE,		/* OPT_view_torch_grids */
+	FALSE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
-	FALSE,		/* OPT_flow_by_sound */
-	FALSE,		/* OPT_flow_by_smell */
-	FALSE,		/* xxx track_follow */
-	FALSE,		/* xxx track_target */
-	FALSE,		/* OPT_smart_learn */
-	FALSE,		/* OPT_smart_cheat */
+	TRUE,		/* OPT_flow_by_sound */
+	TRUE,		/* OPT_flow_by_smell */
+	TRUE,		/* xxx track_follow */
+	TRUE,		/* xxx track_target */
+	TRUE,		/* OPT_smart_learn */
+	TRUE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
 	FALSE,		/* OPT_hidden_player */
 	FALSE,		/* OPT_avoid_abort */
 	FALSE,		/* OPT_avoid_other */
-	TRUE,		/* OPT_flush_failure */
-	FALSE,		/* OPT_flush_disturb */
+	FALSE,		/* OPT_flush_failure */
+	TRUE,		/* OPT_flush_disturb */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_fresh_before */
 	FALSE,		/* OPT_fresh_after */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_compress_savefile */
-	FALSE,		/* OPT_hilite_player */
-	FALSE,		/* OPT_view_yellow_lite */
-	FALSE,		/* OPT_view_bright_lite */
-	FALSE,		/* OPT_view_granite_lite */
-	FALSE,		/* OPT_view_special_lite */
-	FALSE,		/* OPT_easy_open */
-	FALSE,		/* OPT_easy_alter */
-	FALSE,		/* OPT_easy_floor */
+	TRUE,		/* OPT_hilite_player */
+	TRUE,		/* OPT_view_yellow_lite */
+	TRUE,		/* OPT_view_bright_lite */
+	TRUE,		/* OPT_view_granite_lite */
+	TRUE,		/* OPT_view_special_lite */
+	TRUE,		/* OPT_easy_open */
+	TRUE,		/* OPT_easy_alter */
+	TRUE,		/* OPT_easy_floor */
 	FALSE,		/* OPT_show_piles */
-	FALSE,		/* OPT_center_player */
+	TRUE,		/* OPT_center_player */
 	FALSE,		/* OPT_run_avoid_center */
-	FALSE,		/* OPT_scroll_target */
+	TRUE,		/* OPT_scroll_target */
 	FALSE,		/* OPT_auto_more */
-	FALSE,		/* OPT_smart_monsters */
-	FALSE,		/* OPT_smart_packs */
+	TRUE,		/* OPT_smart_monsters */
+	TRUE,		/* OPT_smart_packs */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3167,16 +4021,16 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_birth_point_based */
-	FALSE,		/* OPT_birth_auto_roller */
+	TRUE,		/* OPT_birth_auto_roller */
 	TRUE,		/* OPT_birth_maximize */
 	TRUE,		/* OPT_birth_preserve */
 	FALSE,		/* OPT_birth_ironman */
 	FALSE,		/* OPT_birth_no_stores */
 	FALSE,		/* OPT_birth_no_artifacts */
-	FALSE,		/* OPT_birth_rand_artifacts */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_birth_rand_artifacts */
+	FALSE,		/* OPT_birth_hidden */
+	FALSE,		/* OPT_birth_nightmare */
+	FALSE,		/* OPT_birth_easy */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3231,16 +4085,16 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_adult_point_based */
-	FALSE,		/* OPT_adult_auto_roller */
+	TRUE,		/* OPT_adult_auto_roller */
 	TRUE,		/* OPT_adult_maximize */
 	TRUE,		/* OPT_adult_preserve */
 	FALSE,		/* OPT_adult_ironman */
 	FALSE,		/* OPT_adult_no_stores */
 	FALSE,		/* OPT_adult_no_artifacts */
-	FALSE,		/* OPT_adult_rand_artifacts */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_adult_rand_artifacts */
+	FALSE,		/* OPT_adult_hidden */
+	FALSE,		/* OPT_adult_nightmare */
+	FALSE,		/* OPT_adult_easy */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3415,9 +4269,9 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_stores,
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
-		255,
-		255,
-		255,
+		OPT_birth_hidden,
+		OPT_birth_nightmare,
+		OPT_birth_easy,
 		255,
 		255,
 		255,
@@ -3471,3 +4325,169 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"indestructible"
 };
 
+char effects_info[MAX_EFFECTS][30] =
+{
+  "Acid Bolt",
+  "Acid Ball",
+  "Alter Reality",
+  "Banish Evil",
+  "Banish Undead",
+  "Bedlam",
+  "Berserk Strength",
+  "Bigby's Phantom Hand",
+  "Bigby's Forceful Hand",
+  "Bigby's Clenched Fist",
+  "Bigby's Crushing Hand",
+  "Bless",
+  "Bolt of Darkness",
+  "Cancellation",
+  "Chant",
+  "Chaos Ball",
+  "Clone Monster",
+  "Cloud Kill",
+  "Cold Bolt",
+  "Cold Ball",
+  "Confuse Monster",
+  "Confusion Bolt",
+  "Continual Light",
+  "Cure Blindness",
+  "Cure Confusion",
+  "Cure Light Wounds",
+  "Cure Serious Wounds",
+  "Cure Critical Wounds",
+  "Cure Mortal WOunds",
+  "Cure Poison",
+  "Darkness Storm",
+  "Detect Animals",
+  "Detect Monsters",
+  "Detect Evil",
+  "Detect Undead",
+  "Detect Invisible",
+  "Detect Traps",
+  "Detect Doors/Stairs",
+  "Detect Treasure",
+  "Detect Objects",
+  "Detect Enchantment",
+  "Detection",
+  "Disarm Trap",
+  "Dispel Curse",
+  "Dispel Evil",
+  "Dispel Undead",
+  "Dispel Monsters",
+  "Door Creation",
+  "Destroy Traps/Doors",
+  "Destroy Nearby Traps/Doors",
+  "Dragon Fire",
+  "Dragon Cold",
+  "Dragon Breath",
+  "Drain Life",
+  "Earthquake",
+  "Elemental Brand",
+  "Elemental Brand, Ammo",
+  "Enchant Armour",
+  "Enchant Weapon To-Hit",
+  "Enchant Weapon To-Damage",
+  "Explosion",
+  "Fear (Scare) Monster",
+  "Fire Bolt",
+  "Fire Ball",
+  "Fog Cloud",
+  "Force Bolt",
+  "Force Ball",
+  "Force Blast",
+  "Genocide",
+  "Globe of Invulnerability",
+  "Glyph of Warding",
+  "Haste Self",
+  "Healing",
+  "Heroism",
+  "Ice Storm",
+  "Identify",
+  "Infravision",
+  "Life for Mana",
+  "Light Area",
+  "Lightning Bolt",
+  "Lightning Ball",
+  "Lock, Wizard",
+  "Magic Arrow",
+  "Magic Missile",
+  "Magic Mapping",
+  "Malediction",
+  "Mana Storm",
+  "Mass Genocide",
+  "Mental Barrier",
+  "Meteor Swarm",
+  "Monster Confusion",
+  "Orb of Draining",
+  "Orb of Enthropy",
+  "Phase Door",
+  "Poison Ball",
+  "Poison Weapon",
+  "Polymorph Other",
+  "Prayer",
+  "Prismatic Spray",
+  "Probing",
+  "Protection from Evil",
+  "Protection from Undead",
+  "Recharge, Small",
+  "Recharge, Medium",
+  "Recharge, Large",
+  "Regeneration",
+  "Remove Curse",
+  "Remove Fear",
+  "Resist Acid",
+  "Resist Chaos and Confusion",
+  "Resist Cold",
+  "Resist Electricity",
+  "Resist Fire",
+  "Resist Light and Darkness",
+  "Resist Poison",
+  "Resist Nether",
+  "Resist Nexus",
+  "Resist Sound and Shards",
+  "Restore Mana",
+  "Restore Piety",
+  "Restore Strength",
+  "Restore Constitution",
+  "Restore Dexterity",
+  "Restore Intelligence",
+  "Restore Wisdom",
+  "Restore Charisma",
+  "Restore Experience",
+  "Satisfy Hunger",
+  "Sense Invisible",
+  "Self Knowledge",
+  "Shadow Ball",
+  "Shadow Monster",
+  "Shadow Monsters",
+  "Shield",
+  "Sleep Monster",
+  "Sleep Nearby Monsters",
+  "Sleep All",
+  "Slow Monster",
+  "Slow All",
+  "Slow Poison",
+  "Spatial Anchor",
+  "Spear of Light",
+  "Sphere of Light",
+  "Sphere of Darkness",
+  "Sphere of Confusion",
+  "Sphere of Chaos",
+  "Sphere of Sound",
+  "Stair Creation",
+  "Starlight",
+  "Stealth",
+  "Stinking Cloud",
+  "Stone to Mud",
+  "Sunfire",
+  "Telepathy",
+  "Teleport Self",
+  "Teleport Other",
+  "Teleport Level",
+  "Turn Undead",
+  "Wizard Light",
+  "Word of Destruction",
+  "Word of Recall",
+  "*Destruction*",
+  "*Identify*",
+};

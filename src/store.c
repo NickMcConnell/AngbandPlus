@@ -453,6 +453,8 @@ static void mass_produce(object_type *o_ptr)
 
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_ILLUSION_BOOK:
+		case TV_DEATH_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -774,6 +776,7 @@ static bool store_will_buy(const object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 				case TV_PRAYER_BOOK:
+				case TV_DEATH_BOOK:
 				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:
@@ -812,6 +815,7 @@ static bool store_will_buy(const object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 				case TV_MAGIC_BOOK:
+				case TV_ILLUSION_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -884,10 +888,10 @@ static int home_carry(object_type *o_ptr)
 		j_ptr = &st_ptr->stock[slot];
 
 		/* Hack -- readable books always come first */
-		if ((o_ptr->tval == mp_ptr->spell_book) &&
-		    (j_ptr->tval != mp_ptr->spell_book)) break;
-		if ((j_ptr->tval == mp_ptr->spell_book) &&
-		    (o_ptr->tval != mp_ptr->spell_book)) continue;
+		if ((o_ptr->tval == mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book) &&
+		    (j_ptr->tval != mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book)) break;
+		if ((j_ptr->tval == mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book) &&
+		    (o_ptr->tval != mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book)) continue;
 
 		/* Objects sort by decreasing type */
 		if (o_ptr->tval > j_ptr->tval) break;
@@ -1173,8 +1177,12 @@ static void store_create(void)
 		/* Black Market */
 		if (store_num == STORE_B_MARKET)
 		{
-			/* Pick a level for object/magic */
-			level = 25 + rand_int(25);
+			/* Pick a level for object/magic, adjusted by recall 
+			   depth */
+		        level = rand_range(p_ptr->max_depth, 
+					   p_ptr->max_depth + 20);
+			/* Easy mode gives better items */
+			if (adult_easy) level += (level < 20) ? 20 : level;
 
 			/* Random object kind (usually of given level) */
 			k_idx = get_obj_num(level);

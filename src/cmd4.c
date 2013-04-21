@@ -2866,6 +2866,51 @@ static void do_cmd_knowledge_objects(void)
 
 
 /*
+ * Display effects used
+ */
+void do_cmd_check_effects(void)
+{
+        int s;
+	bool used_any = FALSE;
+
+	FILE *fff;
+
+	char file_name[1024];
+
+	/* Temporary file */
+	fff = my_fopen_temp(file_name, 1024);
+
+	/* Failure */
+	if (!fff) return;
+
+	/* Scan the effects */
+	for (s = 1; s < MAX_EFFECTS; s++)
+	{
+	    if (effects[s] == 0) continue;
+
+	    /* Print a message */
+	    fprintf(fff, "%3d %s\n", effects[s], effects_info[s]);
+
+	    used_any = TRUE;
+	}
+
+	if (used_any == FALSE)
+	{
+	    fprintf(fff,"You have not used any effects!\n");
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "Effects", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
+/*
  * Interact with "knowledge"
  */
 void do_cmd_knowledge(void)
@@ -2894,9 +2939,10 @@ void do_cmd_knowledge(void)
 		prt("(1) Display known artifacts", 4, 5);
 		prt("(2) Display known uniques", 5, 5);
 		prt("(3) Display known objects", 6, 5);
+		prt("(4) Display effects used", 7, 5);
 
 		/* Prompt */
-		prt("Command: ", 8, 0);
+		prt("Command: ", 9, 0);
 
 		/* Prompt */
 		ch = inkey();
@@ -2923,6 +2969,13 @@ void do_cmd_knowledge(void)
 		{
 			/* Spawn */
 			do_cmd_knowledge_objects();
+		}
+
+		/* Spells */
+		else if (ch == '4')
+		{
+			/* Spawn */
+			do_cmd_check_effects();
 		}
 
 		/* Unknown option */

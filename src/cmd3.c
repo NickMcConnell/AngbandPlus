@@ -125,7 +125,7 @@ static bool item_tester_hook_wear(const object_type *o_ptr)
  */
 void do_cmd_wield(void)
 {
-	int item, slot;
+	int item, slot, num = 1;
 
 	object_type *o_ptr;
 
@@ -187,20 +187,22 @@ void do_cmd_wield(void)
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
+        if (slot == INVEN_AMMO) num = o_ptr->number; 
+
 	/* Modify quantity */
-	i_ptr->number = 1;
+	i_ptr->number = num;
 
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
 	{
-		inven_item_increase(item, -1);
+		inven_item_increase(item, -num);
 		inven_item_optimize(item);
 	}
 
 	/* Decrease the item (from the floor) */
 	else
 	{
-		floor_item_increase(0 - item, -1);
+		floor_item_increase(0 - item, -num);
 		floor_item_optimize(0 - item);
 	}
 
@@ -208,11 +210,29 @@ void do_cmd_wield(void)
 	o_ptr = &inventory[slot];
 
 	/* Take off existing item */
-	if (o_ptr->k_idx)
-	{
-		/* Take off existing item */
-		(void)inven_takeoff(slot, 255);
-	}
+        if (slot != INVEN_AMMO)
+        {
+                if (o_ptr->k_idx)
+                {
+                        /* Take off existing item */
+                        (void)inven_takeoff(slot, 255);
+                }
+        }
+        else
+        {
+                if (o_ptr->k_idx)
+                {
+                        if (!object_similar(o_ptr, i_ptr))
+                        {
+                                /* Take off existing item */
+                                (void)inven_takeoff(slot, 255);
+                        }
+                        else
+                        {
+                                i_ptr->number += o_ptr->number;
+                        }
+                }                
+        }
 
 	/* Wear the new stuff */
 	object_copy(o_ptr, i_ptr);
@@ -235,6 +255,10 @@ void do_cmd_wield(void)
 	else if (slot == INVEN_LITE)
 	{
 		act = "Your light source is";
+	}
+        else if (slot == INVEN_AMMO)
+	{
+                act = "In your quiver you have";
 	}
 	else
 	{

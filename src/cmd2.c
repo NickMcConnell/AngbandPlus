@@ -71,6 +71,18 @@ void do_cmd_go_down(void)
 	/* New level */
 	p_ptr->depth++;
 
+	/* Nightmare mode somtimes means you go down another level */
+	if (adult_nightmare && rand_int(3) == 1)
+	{
+	     p_ptr->depth++;
+
+	     /* And another */
+	     if (rand_int(3) == 1)
+		  p_ptr->depth++;
+
+	     message(MSG_STAIRS, 0, "You came out deeper than you'd expected!");
+	}
+
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 }
@@ -368,7 +380,10 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		if (rand_int(100) < j)
 		{
 			msg_print("You have picked the lock.");
-			gain_exp(1);
+			if (player_has_class(CLASS_ROGUE, 0))
+			  gain_exp(2, index_of_class(CLASS_ROGUE));
+			if (player_has_class(CLASS_TRICKSTER, 0))
+			  gain_exp(2, index_of_class(CLASS_TRICKSTER));
 			flag = TRUE;
 		}
 
@@ -448,7 +463,10 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	else if (rand_int(100) < j)
 	{
 		msg_print("You have disarmed the chest.");
-		gain_exp(o_ptr->pval);
+		if (player_has_class(CLASS_ROGUE, 0))
+		  gain_exp(o_ptr->pval, index_of_class(CLASS_ROGUE));
+		if (player_has_class(CLASS_TRICKSTER, 0))
+		  gain_exp(o_ptr->pval, index_of_class(CLASS_TRICKSTER));
 		o_ptr->pval = (0 - o_ptr->pval);
 	}
 
@@ -664,7 +682,10 @@ static bool do_cmd_open_aux(int y, int x)
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 			/* Experience */
-			gain_exp(1);
+			if (player_has_class(CLASS_ROGUE, 0))
+			  gain_exp(2, index_of_class(CLASS_ROGUE));
+			if (player_has_class(CLASS_TRICKSTER, 0))
+			  gain_exp(2, index_of_class(CLASS_TRICKSTER));
 		}
 
 		/* Failure */
@@ -1364,7 +1385,10 @@ static bool do_cmd_disarm_aux(int y, int x)
 		msg_format("You have disarmed the %s.", name);
 
 		/* Reward */
-		gain_exp(power);
+		if (player_has_class(CLASS_ROGUE, 0))
+		  gain_exp(power, index_of_class(CLASS_ROGUE));
+		if (player_has_class(CLASS_TRICKSTER, 0))
+		  gain_exp(power, index_of_class(CLASS_TRICKSTER));
 
 		/* Forget the trap */
 		cave_info[y][x] &= ~(CAVE_MARK);
@@ -1588,7 +1612,7 @@ static bool do_cmd_bash_aux(int y, int x)
 
 	/* Saving throw against stun */
 	else if (rand_int(100) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-	         p_ptr->lev)
+	         p_ptr->lev[best_class()])
 	{
 		/* Message */
 		msg_print("The door holds firm.");
@@ -2379,7 +2403,7 @@ void do_cmd_fire(void)
 		return;
 	}
 
-
+#if 0   /* Old code without the quiver slot */
 	/* Require proper missile */
 	item_tester_tval = p_ptr->ammo_tval;
 
@@ -2397,11 +2421,40 @@ void do_cmd_fire(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+#else   /* New code with the quiver slot */
+        /* Get the "ammo" (if any) */
+        o_ptr = &inventory[INVEN_AMMO];
 
+        item = INVEN_AMMO;
+
+        /* If nothing correct try to choose from the backpack */
+        if ((p_ptr->ammo_tval != o_ptr->tval) || (!o_ptr->k_idx))
+	{
+		msg_print("You have nothing to fire with.");
+
+                /* Require proper missile */
+                item_tester_tval = p_ptr->ammo_tval;
+
+                /* Get an item */
+                q = "Fire which item? ";
+                s = "You have nothing to fire.";
+                if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+
+                /* Access the item (if in the pack) */
+                if (item >= 0)
+                {
+                        o_ptr = &inventory[item];
+                }
+                else
+                {
+                        o_ptr = &o_list[0 - item];
+                }
+	}
+#endif
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
-
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -2447,7 +2500,26 @@ void do_cmd_fire(void)
 	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d + j_ptr->to_d;
 
 	/* Actually "fire" the object */
+
+	/* Calculate to-hit bonus */
 	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
+
+	/* Penalty for archers wielding the wrong missile weapon */
+	if (player_has_class(CLASS_ARCHER, 0))
+	{
+	     if ((rp_ptr->archer_type == 1 && 
+		  inventory[INVEN_BOW].sval >= 10) ||
+		 (rp_ptr->archer_type == 2 && 
+		  (inventory[INVEN_BOW].sval < 10 || 
+		   inventory[INVEN_BOW].sval >= 20)) ||
+		 (rp_ptr->archer_type == 3 && 
+		  inventory[INVEN_BOW].sval < 20))
+	     {
+		  bonus -= 10;
+	     }
+	}
+
+	/* Chance to hit */
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 
 	/* Assume a base multiplier */
@@ -2462,7 +2534,6 @@ void do_cmd_fire(void)
 
 	/* Take a (partial) turn */
 	p_ptr->energy_use = (100 / thits);
-
 
 	/* Start at the player */
 	y = p_ptr->py;

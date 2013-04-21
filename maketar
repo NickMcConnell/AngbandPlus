@@ -1,0 +1,19 @@
+# Create an archive file
+
+# Remove all top level backup files
+rm *~
+
+# Remove all src/ and */ backup files
+rm */*~
+
+# Remove all lib/*/ backup files
+rm lib/*/*~
+
+# Make the archive
+tar -cvzf multiband-new.tgz src/Makefile src/makefile.* src/*.[ch] lib/edit/*.txt lib/help/*.txt lib/help/*.hlp lib/pref/*.prf docs/* *.txt todo maketar
+
+# Copy it to top level archive directory
+cp multiband-new.tgz /usr/local/arch/
+
+
+

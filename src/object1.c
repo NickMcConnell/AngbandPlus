@@ -15,12 +15,12 @@
  * Max sizes of the following arrays.
  */
 #define MAX_ROCKS      42       /* Used with rings (min 38) */
-#define MAX_AMULETS    16       /* Used with amulets (min 13) */
-#define MAX_WOODS      32       /* Used with staffs (min 30) */
-#define MAX_METALS     32       /* Used with wands/rods (min 29/28) */
-#define MAX_COLORS     60       /* Used with potions (min 60) */
+#define MAX_AMULETS    24       /* Used with amulets (min 23) */
+#define MAX_WOODS      35       /* Used with staffs (min 32) */
+#define MAX_METALS     32       /* Used with wands/rods (min 29/30) */
+#define MAX_COLORS     68       /* Used with potions (min 61) */
 #define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     50       /* Used with scrolls (min 48) */
+#define MAX_TITLES     52       /* Used with scrolls (min 52) */
 #define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
 
 
@@ -64,7 +64,8 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper"
+	"Copper", "Platinum", "Carved Oak", "Aluminum", "Sapphire",
+	"Ruby", "Emerald", "Flint", "White Gold"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -72,7 +73,8 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_UMBER
+	TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_L_BLUE, TERM_BLUE,
+	TERM_RED, TERM_L_GREEN, TERM_SLATE, TERM_WHITE
 };
 
 
@@ -88,7 +90,7 @@ static cptr staff_adj[MAX_WOODS] =
 	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
 	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
 	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
-	"Golden", "Ashen"/*,"Gnarled","Ivory","Willow"*/
+	"Golden", "Ashen", "Gnarled", "Ivory", "Willow"
 };
 
 static byte staff_col[MAX_WOODS] =
@@ -99,7 +101,7 @@ static byte staff_col[MAX_WOODS] =
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
 	TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
 	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
-	TERM_YELLOW, TERM_SLATE, /*???,???,???*/
+	TERM_YELLOW, TERM_SLATE, TERM_L_UMBER, TERM_L_WHITE, TERM_L_UMBER,
 };
 
 
@@ -182,7 +184,9 @@ static cptr potion_adj[MAX_COLORS] =
 	"Red", "Red Speckled", "Silver Speckled", "Smoky", "Tangerine",
 	"Violet", "Vermilion", "White", "Yellow", "Violet Speckled",
 	"Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow", "Gloopy Green",
-	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold"
+	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold",
+	"Foaming", "Stinking", "Oily Black", "Ichor", "Ivory White",
+	"Lavender", "Luminescent", "Sky Blue"
 };
 
 static byte potion_col[MAX_COLORS] =
@@ -198,7 +202,9 @@ static byte potion_col[MAX_COLORS] =
 	TERM_RED, TERM_RED, TERM_L_WHITE, TERM_L_DARK, TERM_ORANGE,
 	TERM_VIOLET, TERM_RED, TERM_WHITE, TERM_YELLOW, TERM_VIOLET,
 	TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_VIOLET, TERM_RED, TERM_YELLOW, TERM_YELLOW
+	TERM_VIOLET, TERM_RED, TERM_YELLOW, TERM_YELLOW,
+	TERM_WHITE, TERM_UMBER, TERM_L_DARK, TERM_RED, TERM_WHITE,
+	TERM_L_WHITE, TERM_YELLOW, TERM_L_BLUE
 };
 
 
@@ -326,6 +332,8 @@ static bool object_easy_know(int i)
 		/* Spellbooks */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_ILLUSION_BOOK:
+	        case TV_DEATH_BOOK:
 		{
 			return (TRUE);
 		}
@@ -340,7 +348,7 @@ static bool object_easy_know(int i)
 			return (TRUE);
 		}
 
-		/* All Food, Potions, Scrolls, Rods */
+		/* All Food, Potions, Scrolls, Rods, Runes */
 		case TV_FOOD:
 		case TV_POTION:
 		case TV_SCROLL:
@@ -1010,10 +1018,11 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 	bool flavor;
 
-	bool append_name;
+	bool append_name = FALSE;
 
-	bool show_weapon;
-	bool show_armour;
+	bool show_weapon = FALSE;
+	bool show_weapon_extended = FALSE;
+	bool show_armour = FALSE;
 
 	char *b;
 
@@ -1053,15 +1062,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* Allow flavors to be hidden when aware */
 	if (aware && !show_flavors) flavor = FALSE;
 
-	/* Assume no name appending */
-	append_name = FALSE;
-
-	/* Assume no need to show "weapon" bonuses */
-	show_weapon = FALSE;
-
-	/* Assume no need to show "armour" bonuses */
-	show_armour = FALSE;
-
 	/* Extract default "base" string */
 	basenm = (k_name + k_ptr->name);
 
@@ -1093,7 +1093,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			show_weapon = TRUE;
+			show_weapon_extended = TRUE;
 			break;
 		}
 
@@ -1234,6 +1234,22 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 			basenm = "& Holy Book~ of Prayers #";
+			break;
+		}
+
+		/* Illusion Books */
+		case TV_ILLUSION_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Illusions #";
+			break;
+		}
+
+		/* Death Books */
+		case TV_DEATH_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Death #";
 			break;
 		}
 
@@ -1526,16 +1542,40 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			/* Append a "damage" string */
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, p1);
-			object_desc_num_macro(t, o_ptr->dd);
-			object_desc_chr_macro(t, 'd');
-			object_desc_num_macro(t, o_ptr->ds);
-			object_desc_chr_macro(t, p2);
+		     if (show_weapon_extended)
+		     {
+			  /* Beginning '(' */
+			  object_desc_chr_macro(t, ' ');
+			  object_desc_chr_macro(t, p1);
+		     
+			  /* Modifier to-hit */
+			  if (known)
+			  {
+			       object_desc_int_macro(t, o_ptr->to_h);
+			       object_desc_chr_macro(t, ',');
+			       object_desc_chr_macro(t, ' ');
+			  }
 
-			/* All done */
-			break;
+			  /* Base damage */
+			  if (o_ptr->dd && o_ptr->ds)
+			  {
+			       object_desc_num_macro(t, o_ptr->dd);
+			       object_desc_chr_macro(t, 'd');
+			       object_desc_num_macro(t, o_ptr->ds);
+			  }
+			  
+			  /* Modifier to damage */
+			  if (known)
+			  {
+			       object_desc_int_macro(t, o_ptr->to_d);
+			  }
+		     
+			  /* Closing ')' */
+			  object_desc_chr_macro(t, p2);		    
+		     }
+
+		     /* All done */
+		     break;
 		}
 
 		/* Bows */
@@ -1551,14 +1591,24 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			object_desc_num_macro(t, power);
 			object_desc_chr_macro(t, p2);
 
+			if (show_weapon_extended && known)
+			{
+			     object_desc_chr_macro(t, ' ');
+			     object_desc_chr_macro(t, p1);
+			     object_desc_int_macro(t, o_ptr->to_h);
+			     object_desc_chr_macro(t, ',');
+			     object_desc_chr_macro(t, ' ');
+			     object_desc_int_macro(t, o_ptr->to_d);
+			     object_desc_chr_macro(t, p2);
+			}
+
 			/* All done */
 			break;
 		}
 	}
 
-
-	/* Add the weapon bonuses */
-	if (known)
+	/* Add the weapon bonuses unless already shown */
+	if (known && !show_weapon_extended)
 	{
 		/* Show the tohit/todam on request */
 		if (show_weapon)
@@ -1652,7 +1702,16 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		/* Hack -- Dump " (charging)" if relevant */
 		if (o_ptr->pval)
 		{
-			object_desc_str_macro(t, " (charging)");
+		     if (adult_hidden)
+		     {
+			  object_desc_str_macro(t, " (charging)");
+		     }
+		     else
+		     {
+			  object_desc_str_macro(t, " (");
+			  object_desc_num_macro(t, o_ptr->pval);
+			  object_desc_str_macro(t, " turns left)");
+		     }
 		}
 	}
 
@@ -1758,12 +1817,11 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		object_desc_chr_macro(t, p2);
 	}
 
-
 	/* Indicate "charging" artifacts */
 	if (known && o_ptr->timeout)
 	{
-		/* Hack -- Dump " (charging)" if relevant */
-		object_desc_str_macro(t, " (charging)");
+	     /* Hack -- Dump " (charging)" if relevant */
+	     object_desc_str_macro(t, " (charging)");
 	}
 
 
@@ -2010,6 +2068,34 @@ cptr item_activation(const object_type *o_ptr)
 		return (act_description[a_ptr->activation]);
 	}
 
+	/* Hack -- other items can be activated as well */
+	if (o_ptr->tval == TV_AMULET)
+	{
+	     switch (o_ptr->sval)
+	     {
+		  case SV_AMULET_TELEPORT:
+		       return "blink every 10+d10 turns";
+	     }
+	}	
+	if (o_ptr->tval == TV_RING)
+	{
+	     switch(o_ptr->sval)
+	     {
+		  case SV_RING_AGGRAVATION:
+		       return "remove fear every 5+d5 turns";
+		  case SV_RING_TELEPORTATION:
+		       return "blink every 10+d10 turns";
+		  case SV_RING_ACID:
+		       return "resist acid (20+d20) every 40+d40 turns";
+		  case SV_RING_FLAMES:
+		       return "resist fire (20+d20) every 40+d40 turns";
+		  case SV_RING_ICE:
+		       return "resist cold (20+d20) every 40+d40 turns";
+		  case SV_RING_LIGHTNING:
+		       return "resist electricity (20+d20) every 40+d40 turns";
+	     }
+	}
+
 	/* Require dragon scale mail */
 	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
 
@@ -2097,7 +2183,6 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 
 	/* Extract the "known" and "random" flags */
 	object_flags_aux(mode, o_ptr, &f1, &f2, &f3);
-
 
 	/* Mega-Hack -- describe activation */
 	if (f3 & (TR3_ACTIVATE))
@@ -2222,6 +2307,11 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	if (f1 & (TR1_KILL_DRAGON))
 	{
 		info[i++] = "It is a great bane of dragons.";
+	}
+
+	if (f1 & (TR1_PERSISTENCE))
+	{
+	     info[i++] = "It stops conditions from timing out naturally.";
 	}
 
 	if (f1 & (TR1_BRAND_ACID))
@@ -2404,6 +2494,26 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	if (f3 & (TR3_HOLD_LIFE))
 	{
 		info[i++] = "It provides resistance to life draining.";
+	}
+
+	if (f3 & (TR3_R_MAGERY))
+	{
+	     info[i++] = "It improves your ability to cast magical spells.";
+	}
+
+	if (f3 & (TR3_R_HOLY))
+	{
+	     info[i++] = "It improves your ability to use holy prayers.";
+	}
+
+	if (f3 & (TR3_R_ILLUSION))
+	{
+	     info[i++] = "It improves your ability to cast illusion spells.";
+	}
+
+	if (f3 & (TR3_R_DEATH))
+	{
+	     info[i++] = "It improves your ability to use death prayers.";
 	}
 
 	if (f3 & (TR3_IMPACT))
@@ -2686,6 +2796,33 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			return (INVEN_FEET);
 		}
+                case TV_SHOT:
+		{
+                        if(inventory[INVEN_BOW].k_idx)
+                        {
+                                if(inventory[INVEN_BOW].sval < 10)
+                                        return (INVEN_AMMO);
+                        }
+                        return -1;
+        	}
+                case TV_ARROW:
+		{
+                        if(inventory[INVEN_BOW].k_idx)
+                        {
+                                if((inventory[INVEN_BOW].sval >= 10)&&(inventory[INVEN_BOW].sval < 20))
+                                        return (INVEN_AMMO);
+                        }
+                        return -1;
+        	}
+                case TV_BOLT:
+		{                        
+                        if(inventory[INVEN_BOW].k_idx)
+                        {
+                                if(inventory[INVEN_BOW].sval >= 20)
+                                        return (INVEN_AMMO);
+                        }
+                        return -1;
+        	}
 	}
 
 	/* No slot available */
@@ -2705,6 +2842,7 @@ cptr mention_use(int i)
 	{
 		case INVEN_WIELD: p = "Wielding"; break;
 		case INVEN_BOW:   p = "Shooting"; break;
+		case INVEN_AMMO:  p = "Quiver"; break;
 		case INVEN_LEFT:  p = "On left hand"; break;
 		case INVEN_RIGHT: p = "On right hand"; break;
 		case INVEN_NECK:  p = "Around neck"; break;
@@ -2757,6 +2895,7 @@ cptr describe_use(int i)
 	{
 		case INVEN_WIELD: p = "attacking monsters with"; break;
 		case INVEN_BOW:   p = "shooting missiles with"; break;
+		case INVEN_AMMO:  p = "carrying missiles with"; break;
 		case INVEN_LEFT:  p = "wearing on your left hand"; break;
 		case INVEN_RIGHT: p = "wearing on your right hand"; break;
 		case INVEN_NECK:  p = "wearing around your neck"; break;

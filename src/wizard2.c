@@ -14,7 +14,6 @@
 
 #ifdef ALLOW_DEBUG
 
-
 /*
  * Hack -- quick debugging hook
  */
@@ -138,6 +137,8 @@ static void do_cmd_wiz_change_aux(void)
 {
 	int i;
 
+	int class;
+
 	int tmp_int;
 
 	long tmp_long;
@@ -187,41 +188,47 @@ static void do_cmd_wiz_change_aux(void)
 	p_ptr->au = tmp_long;
 
 
-	/* Default */
-	sprintf(tmp_val, "%ld", (long)(p_ptr->exp));
+	/* Experience for each class */
+	for (class = 0; class < p_ptr->available_classes; class++)
+	{
 
-	/* Query */
-	if (!get_string("Experience: ", tmp_val, 9)) return;
+	  /* Default */
+	  sprintf(tmp_val, "%ld", (long)(p_ptr->exp[class]));
 
-	/* Extract */
-	tmp_long = atol(tmp_val);
+	  /* Query */
+	  if (!get_string(format("Experience %s: ", cp_ptr[p_ptr->pclass[class]]->title), 
+			  tmp_val, 9)) return;
 
-	/* Verify */
-	if (tmp_long < 0) tmp_long = 0L;
+	  /* Extract */
+	  tmp_long = atol(tmp_val);
+	  
+	  /* Verify */
+	  if (tmp_long < 0) tmp_long = 0L;
 
-	/* Save */
-	p_ptr->exp = tmp_long;
+	  /* Save */
+	  p_ptr->exp[class] = tmp_long;
 
-	/* Update */
-	check_experience();
+	  /* Update */
+	  check_experience();
+	
+	  /* Default */
+	  sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp[class]));
 
-	/* Default */
-	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
+	  /* Query */
+	  if (!get_string("Max Exp: ", tmp_val, 9)) return;
 
-	/* Query */
-	if (!get_string("Max Exp: ", tmp_val, 9)) return;
+	  /* Extract */
+	  tmp_long = atol(tmp_val);
 
-	/* Extract */
-	tmp_long = atol(tmp_val);
+	  /* Verify */
+	  if (tmp_long < 0) tmp_long = 0L;
+	  
+	  /* Save */
+	  p_ptr->max_exp[class] = tmp_long;
 
-	/* Verify */
-	if (tmp_long < 0) tmp_long = 0L;
-
-	/* Save */
-	p_ptr->max_exp = tmp_long;
-
-	/* Update */
-	check_experience();
+	  /* Update */
+	  check_experience();
+	}
 }
 
 
@@ -324,7 +331,7 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(format("name1 = %-4d  name2 = %-4d  cost = %ld",
 	           o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr)), 7, j);
 
-	prt(format("ident = %04x  timeout = %-d",
+	prt(format("ident = %04x  timeout = %-d   ",
 	           o_ptr->ident, o_ptr->timeout), 8, j);
 
 	prt("+------------FLAGS1------------+", 10, j);
@@ -394,8 +401,10 @@ static const tval_desc tvals[] =
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
 	{ TV_ROD,               "Rod"                  },
-	{ TV_PRAYER_BOOK,       "Priest Book"          },
 	{ TV_MAGIC_BOOK,        "Magic Book"           },
+	{ TV_PRAYER_BOOK,       "Holy Book"            },
+	{ TV_ILLUSION_BOOK,     "Illusion Book"        },
+	{ TV_DEATH_BOOK,        "Death Book"           },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -1129,9 +1138,11 @@ static void do_cmd_wiz_cure_all(void)
 	p_ptr->chp = p_ptr->mhp;
 	p_ptr->chp_frac = 0;
 
-	/* Restore mana */
+	/* Restore mana/piety */
 	p_ptr->csp = p_ptr->msp;
 	p_ptr->csp_frac = 0;
+	p_ptr->cpp = p_ptr->mpp;
+	p_ptr->cpp_frac = 0;
 
 	/* Cure stuff */
 	(void)set_blind(0);
@@ -1469,8 +1480,6 @@ extern void do_cmd_spoilers(void);
 
 #endif
 
-
-
 /*
  * Ask for and parse a "debug command"
  *
@@ -1624,6 +1633,13 @@ void do_cmd_debug(void)
 			break;
 		}
 
+		/* Multiclass */
+	        case 'N':
+		{
+		     do_cmd_wiz_create_multi_class();
+		     break;
+		}
+
 		/* Object playing routines */
 		case 'o':
 		{
@@ -1688,11 +1704,15 @@ void do_cmd_debug(void)
 		{
 			if (p_ptr->command_arg)
 			{
-				gain_exp(p_ptr->command_arg);
+			  /* Give specified amount to all classes */
+			  gain_exp_all(p_ptr->command_arg);
 			}
 			else
 			{
-				gain_exp(p_ptr->exp + 1);
+			  int class;
+			  /* Gain current amount + 1, for each class */
+			  for (class = 0; class < p_ptr->available_classes; class++)
+			    gain_exp(p_ptr->exp[class] + 1, class);
 			}
 			break;
 		}

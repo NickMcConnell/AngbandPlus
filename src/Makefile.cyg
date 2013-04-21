@@ -22,13 +22,13 @@ SRCS = \
 	cmd4.c \
 	cmd5.c \
 	cmd6.c \
+	multi.c \
 	dungeon.c \
 	files.c \
 	generate.c \
 	init1.c \
 	init2.c \
-	load1.c \
-	load2.c \
+	load.c \
 	main-win.c \
 	melee1.c \
 	melee2.c \
@@ -66,13 +66,13 @@ EXOBJS = \
 	cmd4.o \
 	cmd5.o \
 	cmd6.o \
+	multi.o \
 	dungeon.o \
 	files.o \
 	generate.o \
 	init1.o \
 	init2.o \
-	load1.o \
-	load2.o \
+	load.o \
 	main-win.o \
 	melee1.o \
 	melee2.o \
@@ -190,6 +190,9 @@ cmd5.o: cmd5.c $(INCS)
 cmd6.o: cmd6.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
+multi.o: multi.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
 dungeon.o: dungeon.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
@@ -205,10 +208,7 @@ init1.o: init1.c $(INCS) init.h
 init2.o: init2.c $(INCS) init.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-load1.o: load1.c $(INCS)
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
-
-load2.o: load2.c $(INCS)
+load.o: load.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 main.o: main.c $(INCS)

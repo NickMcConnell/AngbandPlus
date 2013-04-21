@@ -393,8 +393,8 @@ static cptr k_info_flags1[] =
 	"SLAY_GIANT",
 	"SLAY_DRAGON",
 	"KILL_DRAGON",
-	"XXX5",
-	"XXX6",
+	"PERSISTENCE",
+	"XXX3",
 	"BRAND_POIS",
 	"BRAND_ACID",
 	"BRAND_ELEC",
@@ -454,10 +454,10 @@ static cptr k_info_flags3[] =
 	"SEE_INVIS",
 	"FREE_ACT",
 	"HOLD_LIFE",
-	"XXX1",
-	"XXX2",
-	"XXX3",
-	"XXX4",
+	"R_MAGERY",
+	"R_HOLY",
+	"R_ILLUSION",
+	"R_DEATH",
 	"IMPACT",
 	"TELEPORT",
 	"AGGRAVATE",
@@ -2982,16 +2982,18 @@ errr init_p_info_txt(FILE *fp, char *buf, header *head)
 		/* Process 'X' for "Extra Info" (one line only) */
 		if (buf[0] == 'X')
 		{
-			int mhp, exp, infra;
+			int mhp, exp, infra, type, multi;
 
 			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &mhp, &exp, &infra)) return (PARSE_ERROR_GENERIC);
+			if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			                &mhp, &exp, &infra, &type, &multi)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
 			pr_ptr->r_mhp = mhp;
 			pr_ptr->r_exp = exp;
 			pr_ptr->infra = infra;
+			pr_ptr->archer_type = type;
+			pr_ptr->max_multi = multi;
 
 			/* Next... */
 			continue;
@@ -3103,7 +3105,6 @@ errr init_p_info_txt(FILE *fp, char *buf, header *head)
 			/* Next... */
 			continue;
 		}
-
 
 		/* Oops */
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);

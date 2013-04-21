@@ -482,7 +482,6 @@ bool set_shield(int v)
 }
 
 
-
 /*
  * Set "p_ptr->blessed", notice observable changes
  */
@@ -1076,6 +1075,942 @@ bool set_oppose_pois(int v)
 	return (TRUE);
 }
 
+/*
+ * Set "p_ptr->oppose_ld", notice observable changes
+ */
+bool set_oppose_ld(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_ld)
+		{
+                        msg_print("You feel protected against the light's fluctuation.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_ld)
+		{
+                        msg_print("You are no longer protected against the light's fluctuation.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_ld = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->oppose_cc", notice observable changes
+ */
+bool set_oppose_cc(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_cc)
+		{
+                        msg_print("You feel protected against raw chaos.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_cc)
+		{
+                        msg_print("You are no longer protected against chaos.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_cc = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->oppose_ss", notice observable changes
+ */
+bool set_oppose_ss(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_ss)
+		{
+                        msg_print("You feel protected against the ravages of sound and shards.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_ss)
+		{
+                        msg_print("You are no longer protected against the ravages of sound and shards.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_ss = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->oppose_nex", notice observable changes
+ */
+bool set_oppose_nex(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_nex)
+		{
+                        msg_print("You feel protected against the strange forces of nexus.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_nex)
+		{
+                        msg_print("You are no longer protected against the strange forces of nexus.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_nex = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->mental_barrier", notice observable changes
+ */
+bool set_mental_barrier(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->mental_barrier)
+		{
+			msg_print("Your mind grows stronger!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->mental_barrier)
+		{
+			msg_print("Your mind is no longer especially strong.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->mental_barrier = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_stealth(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_stealth)
+		{
+			msg_print("You feel stealthy!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_stealth)
+		{
+			msg_print("You stop feeling stealthy.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_stealth = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters XXX */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_oppose_nether(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_nether)
+		{
+			msg_print("You feel resistant to nether!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_nether)
+		{
+			msg_print("You feel less resistant to nether.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_nether = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters XXX */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_oppose_disen(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->oppose_disen)
+		{
+			msg_print("You feel resistant to disenchantment!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_disen)
+		{
+			msg_print("You feel less resistant to disenchantment.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->oppose_disen = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters XXX */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_sustain_body(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->sustain_body)
+		{
+			msg_print("Your body feels sustained!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->sustain_body)
+		{
+			msg_print("Your body feels less sustained.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->sustain_body = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters XXX */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_telepathy(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_telepathy)
+		{
+			msg_print("Your mind expands!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_telepathy)
+		{
+			msg_print("Your mind contracts.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_telepathy = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters XXX */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->prot_undead", notice observable changes
+ */
+bool set_prot_undead(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->prot_undead)
+		{
+			msg_print("You feel safe from undead!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->prot_undead)
+		{
+			msg_print("You no longer feel safe from undead.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->prot_undead = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->prot_animal", notice observable changes
+ */
+bool set_prot_animal(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->prot_animal)
+		{
+			msg_print("You feel safe from animals!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->prot_animal)
+		{
+			msg_print("You no longer feel safe from animals.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->prot_animal = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "no_breeders"
+ */
+bool set_no_breeders(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!no_breeders)
+		{
+                        msg_print("You feel an anti-sexual aura.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (no_breeders)
+		{
+                        msg_print("You no longer feel an anti-sexual aura.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        no_breeders = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_", notice observable changes
+ */
+bool set_tim_aggravate(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_aggravate)
+		{
+			msg_print("You are aggravating monsters!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_aggravate)
+		{
+			msg_print("You stop aggravating monsters.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_aggravate = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_teleportitus", notice observable changes
+ */
+bool set_tim_teleportitus(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_teleportitus)
+		{
+			msg_print("Your position is very uncertain!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_teleportitus)
+		{
+			msg_print("Your position is less uncertain.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_teleportitus = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_no_teleport", notice observable changes
+ */
+bool set_no_teleport(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_no_teleport)
+		{
+			msg_print("A mysterious force prevents you from teleporting!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_no_teleport)
+		{
+			msg_print("A mysterious force loosens its hold on you.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_no_teleport = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_fast_digestion", notice observable changes
+ */
+bool set_tim_fast_digestion(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_fast_digestion)
+		{
+			msg_print("Your appetite increases!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_fast_digestion)
+		{
+			msg_print("Your appetite decreases.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_fast_digestion = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_amnesia", notice observable changes
+ */
+bool set_tim_amnesia(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_amnesia)
+		{
+			msg_print("You lose track of where you are!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_amnesia)
+		{
+			msg_print("You can remember your location now.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_amnesia = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_lite", notice observable changes
+ */
+bool set_tim_lite(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_lite)
+		{
+			msg_print("You start glowing!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_lite)
+		{
+			msg_print("You stop glowing.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_lite = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_regen", notice observable changes
+ */
+bool set_tim_regen(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_regen)
+		{
+			msg_print("You start regenerating!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_regen)
+		{
+			msg_print("You stop regenerating.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_regen = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 /*
  * Set "p_ptr->stun", notice observable changes
@@ -1649,93 +2584,108 @@ bool set_food(int v)
 /*
  * Advance experience levels and print experience
  */
-void check_experience(void)
+void check_experience()
 {
-	/* Hack -- lower limit */
-	if (p_ptr->exp < 0) p_ptr->exp = 0;
+        /* Index of class currently being checked */
+	int class;
 
-	/* Hack -- lower limit */
-	if (p_ptr->max_exp < 0) p_ptr->max_exp = 0;
+        /* Default is nothing changes */
+        bool changed = FALSE;
 
-	/* Hack -- upper limit */
-	if (p_ptr->exp > PY_MAX_EXP) p_ptr->exp = PY_MAX_EXP;
+	/* For each class */
+	for (class = 0; class < p_ptr->available_classes; class++)
+	{
+	  /* Hack -- lower limit */
+	  if (p_ptr->exp[class] < 0) p_ptr->exp[class] = 0;
+	  
+	  /* Hack -- lower limit */
+	  if (p_ptr->max_exp[class] < 0) p_ptr->max_exp[class] = 0;
 
-	/* Hack -- upper limit */
-	if (p_ptr->max_exp > PY_MAX_EXP) p_ptr->max_exp = PY_MAX_EXP;
+	  /* Hack -- upper limit */
+	  if (p_ptr->exp[class] > PY_MAX_EXP) p_ptr->exp[class] = PY_MAX_EXP;
+
+	  /* Hack -- upper limit */
+	  if (p_ptr->max_exp[class] > PY_MAX_EXP) p_ptr->max_exp[class] = PY_MAX_EXP;
 
 
-	/* Hack -- maintain "max" experience */
-	if (p_ptr->exp > p_ptr->max_exp) p_ptr->max_exp = p_ptr->exp;
+	  /* Hack -- maintain "max" experience */
+	  if (p_ptr->exp[class] > p_ptr->max_exp[class]) 
+	    p_ptr->max_exp[class] = p_ptr->exp[class];
+
+	}
 
 	/* Redraw experience */
 	p_ptr->redraw |= (PR_EXP);
 
 	/* Handle stuff */
 	handle_stuff();
-
-
-	/* Lose levels while possible */
-	while ((p_ptr->lev > 1) &&
-	       (p_ptr->exp < (player_exp[p_ptr->lev-2] *
-	                      p_ptr->expfact / 100L)))
+	
+	/* For each class, Lose levels while possible */
+	for (class = 0; class < p_ptr->available_classes; class++)
 	{
+	  while ((p_ptr->lev[class] > 1) &&
+		 (p_ptr->exp[class] < (player_exp[p_ptr->lev[class]-2] *
+				       p_ptr->expfact[class] / 100L)))
+	  {
 		/* Lose a level */
-		p_ptr->lev--;
+		p_ptr->lev[class]--;
 
-		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		/* Need to show changes */
+		changed = TRUE;
 
-		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-
-		/* Handle stuff */
-		handle_stuff();
+		/* Inform player of lost levels */
+		msg_print(format("You are now a level %d %s!", p_ptr->lev[class], cp_ptr[p_ptr->pclass[class]]->title));
+	  }
 	}
+	  
 
-
-	/* Gain levels while possible */
-	while ((p_ptr->lev < PY_MAX_LEVEL) &&
-	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] *
-	                       p_ptr->expfact / 100L)))
+	/* For each class, Gain levels while possible */
+	for (class = 0; class < p_ptr->available_classes; class++)
 	{
+	  while ((p_ptr->lev[class] < PY_MAX_LEVEL) &&
+		 (p_ptr->exp[class] >= (player_exp[p_ptr->lev[class]-1] *
+					p_ptr->expfact[class] / 100L)))
+	  {
 		/* Gain a level */
-		p_ptr->lev++;
+		p_ptr->lev[class]++;
 
 		/* Save the highest level */
-		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
+		if (p_ptr->lev[class] > p_ptr->max_lev[class]) 
+		  p_ptr->max_lev[class] = p_ptr->lev[class];
 
 		/* Message */
-		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
+      		cmsg_format(TERM_L_GREEN, "You are now a level %d %s!", 
+			    p_ptr->lev[class], 
+			    cp_ptr[p_ptr->pclass[class]]->title);
 
-		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-
-		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-
-		/* Handle stuff */
-		handle_stuff();
+		/* Need to show changes */
+		changed = TRUE;
+	  }
 	}
 
-	/* Gain max levels while possible */
-	while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
-	       (p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1] *
-	                           p_ptr->expfact / 100L)))
+	/* For each class, Gain max levels while possible */
+	for (class = 0; class < p_ptr->available_classes; class++)
 	{
+	  while ((p_ptr->max_lev[class] < PY_MAX_LEVEL) &&
+		 (p_ptr->max_exp[class] >= (player_exp[p_ptr->max_lev[class]-1] *
+					    p_ptr->expfact[class] / 100L)))
+	  {
 		/* Gain max level */
-		p_ptr->max_lev++;
+		p_ptr->max_lev[class]++;
 
+		/* Need to show changes */
+		changed = TRUE;
+	  }
+	}
+
+	/* Show changes */
+	if (changed)
+	{
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_EXP | PR_TITLE);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1747,41 +2697,66 @@ void check_experience(void)
 
 
 /*
- * Gain experience
+ * Gain same amount of experience in all multiclasses
  */
-void gain_exp(s32b amount)
+void gain_exp_all(s32b amount)
 {
-	/* Gain some experience */
-	p_ptr->exp += amount;
+        /* Index of class */
+        int class;
 
-	/* Slowly recover from experience drainage */
-	if (p_ptr->exp < p_ptr->max_exp)
+	/* For each class */
+	for (class = 0; class < p_ptr->available_classes; class++)
 	{
-		/* Gain max experience (10%) */
-		p_ptr->max_exp += amount / 10;
-	}
+	    /* Gain some experience */
+	    p_ptr->exp[class] += amount;
 
+	    /* Slowly recover from experience drainage */
+	    if (p_ptr->exp[class] < p_ptr->max_exp[class])
+	    {
+	        /* Gain max experience (10%) */
+	        p_ptr->max_exp[class] += amount / 10;
+	    }
+	}
+	  
 	/* Check Experience */
 	check_experience();
 }
 
 
 /*
- * Lose experience
+ * Gain experience in one class only
  */
-void lose_exp(s32b amount)
+void gain_exp(s32b amount, int class)
+{
+        /* Gain some experience */
+        p_ptr->exp[class] += amount;
+  
+	/* Slowly recover from experience drainage */
+	if (p_ptr->exp[class] < p_ptr->max_exp[class])
+	{
+	    /* Gain max experience (10%) */
+	    p_ptr->max_exp[class] += amount / 10;
+	}
+	  
+	/* Check Experience */
+	check_experience();
+}
+
+
+/*
+ * Lose experience in one class only
+ */
+void lose_exp(s32b amount, int class)
 {
 	/* Never drop below zero experience */
-	if (amount > p_ptr->exp) amount = p_ptr->exp;
+	if (amount > p_ptr->exp[class]) amount = p_ptr->exp[class];
 
 	/* Lose some experience */
-	p_ptr->exp -= amount;
+	p_ptr->exp[class] -= amount;
 
 	/* Check Experience */
 	check_experience();
 }
-
-
 
 
 /*
@@ -2059,9 +3034,9 @@ void monster_death(int m_idx)
 		p_ptr->redraw |= (PR_TITLE);
 
 		/* Congratulations */
-		msg_print("*** CONGRATULATIONS ***");
-		msg_print("You have won the game!");
-		msg_print("You may retire (commit suicide) when you are ready.");
+		cmsg_print(TERM_L_GREEN, "*** CONGRATULATIONS ***");
+		cmsg_print(TERM_L_GREEN, "You have won the game!");
+		cmsg_print(TERM_L_GREEN, "You may retire (commit suicide) when you are ready.");
 	}
 }
 
@@ -2115,7 +3090,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* It is dead now */
 	if (m_ptr->hp < 0)
 	{
-		char m_name[80];
+	        char m_name[80];
+		int class;
 
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
@@ -2123,13 +3099,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Death by Missile/Spell attack */
 		if (note)
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
+                        cmsg_format(TERM_L_RED, "%^s%s", m_name, note);
 		}
 
 		/* Death by physical attack -- invisible monster */
 		else if (!m_ptr->ml)
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "You have killed %s.", m_name);
+                        cmsg_format(TERM_L_RED, "You have killed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- non-living monster */
@@ -2138,38 +3114,42 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		         (r_ptr->flags2 & (RF2_STUPID)) ||
 		         (strchr("Evg", r_ptr->d_char)))
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
+                        cmsg_format(TERM_L_RED, "You have destroyed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- living monster */
 		else
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
+                        cmsg_format(TERM_L_RED, "You have slain %s.", m_name);
 		}
 
-		/* Maximum player level */
-		div = p_ptr->max_lev;
-
-		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
-
-		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-		                * 0x10000L / div) + p_ptr->exp_frac;
-
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
+		/* Gain experience in each class */
+		for (class = 0; class < p_ptr->available_classes; class++)
 		{
-			new_exp++;
-			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
-		}
-		else
-		{
-			p_ptr->exp_frac = (u16b)new_exp_frac;
-		}
+		  /* Player level in current class * number of classes */
+		  div = p_ptr->max_lev[class] * p_ptr->available_classes;
 
-		/* Gain experience */
-		gain_exp(new_exp);
+		  /* Give some experience for the kill */
+		  new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
+
+		  /* Handle fractional experience */
+		  new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
+				  * 0x10000L / div) + p_ptr->exp_frac[class];
+
+		  /* Keep track of experience */
+		  if (new_exp_frac >= 0x10000L)
+		    {
+		      new_exp++;
+		      p_ptr->exp_frac[class] = (u16b)(new_exp_frac - 0x10000L);
+		    }
+		  else
+		    {
+		      p_ptr->exp_frac[class] = (u16b)new_exp_frac;
+		    }
+		  
+		  /* Gain experience */
+		  gain_exp(new_exp, class);
+		}
 
 		/* Generate treasure */
 		monster_death(m_idx);

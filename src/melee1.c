@@ -238,8 +238,8 @@ bool make_attack_normal(int m_idx)
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->protevil > 0) &&
 			    (r_ptr->flags3 & (RF3_EVIL)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
+			    (p_ptr->lev[best_class()] >= rlev) &&
+			    ((rand_int(100) + p_ptr->lev[best_class()]) > 50))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
@@ -254,6 +254,43 @@ bool make_attack_normal(int m_idx)
 				continue;
 			}
 
+			/* Hack -- Apply "protection from undead" */
+			if ((p_ptr->prot_undead > 0) &&
+			    (r_ptr->flags3 & (RF3_UNDEAD)) &&
+			    (p_ptr->lev[best_class()] >= rlev) &&
+			    ((rand_int(100) + p_ptr->lev[best_class()]) > 50))
+			{
+				/* Remember the Undead-ness */
+				if (m_ptr->ml)
+				{
+					l_ptr->r_flags3 |= (RF3_UNDEAD);
+				}
+
+				/* Message */
+				msg_format("%^s is repelled.", m_name);
+
+				/* Hack -- Next attack */
+				continue;
+			}
+
+			/* Hack -- Apply "protection from animals" */
+			if ((p_ptr->prot_animal > 0) &&
+			    (r_ptr->flags3 & (RF3_ANIMAL)) &&
+			    (p_ptr->lev[best_class()] >= rlev) &&
+			    ((rand_int(100) + p_ptr->lev[best_class()]) > 50))
+			{
+				/* Remember the Animal-ness */
+				if (m_ptr->ml)
+				{
+					l_ptr->r_flags3 |= (RF3_ANIMAL);
+				}
+
+				/* Message */
+				msg_format("%^s is repelled.", m_name);
+
+				/* Hack -- Next attack */
+				continue;
+			}
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -553,7 +590,7 @@ bool make_attack_normal(int m_idx)
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
 					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+					                      p_ptr->lev[best_class()])))
 					{
 						/* Saving throw message */
 						msg_print("You quickly protect your money pouch!");
@@ -606,7 +643,7 @@ bool make_attack_normal(int m_idx)
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
 					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+					                      p_ptr->lev[best_class()])))
 					{
 						/* Saving throw message */
 						msg_print("You grab hold of your backpack!");
@@ -1031,17 +1068,17 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+						s32b d = damroll(10, 6) + (p_ptr->exp[best_class()]/100) * MON_DRAIN_LIFE;
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
-							lose_exp(d/10);
+							lose_exp(d/10, best_class());
 						}
 						else
 						{
 							msg_print("You feel your life draining away!");
-							lose_exp(d);
-						}
+							lose_exp(d, best_class());
+ 						}
 					}
 					break;
 				}
@@ -1060,17 +1097,17 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(20, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+						s32b d = damroll(20, 6) + (p_ptr->exp[best_class()] / 100) * MON_DRAIN_LIFE;
 
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
-							lose_exp(d / 10);
+							lose_exp(d / 10, best_class());
 						}
 						else
 						{
 							msg_print("You feel your life draining away!");
-							lose_exp(d);
+							lose_exp(d, best_class());
 						}
 					}
 					break;
@@ -1090,17 +1127,17 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(40, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+						s32b d = damroll(40, 6) + (p_ptr->exp[best_class()] / 100) * MON_DRAIN_LIFE;
 
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
-							lose_exp(d / 10);
+							lose_exp(d / 10, best_class());
 						}
 						else
 						{
 							msg_print("You feel your life draining away!");
-							lose_exp(d);
+							lose_exp(d, best_class());
 						}
 					}
 					break;
@@ -1120,17 +1157,17 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(80, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+						s32b d = damroll(80, 6) + (p_ptr->exp[best_class()] / 100) * MON_DRAIN_LIFE;
 
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
-							lose_exp(d / 10);
+							lose_exp(d / 10, best_class());
 						}
 						else
 						{
 							msg_print("You feel your life draining away!");
-							lose_exp(d);
+							lose_exp(d, best_class());
 						}
 					}
 					break;

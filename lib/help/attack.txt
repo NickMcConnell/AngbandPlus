@@ -13,8 +13,11 @@ you to attack any creature in the wall. This applies to creatures which
 "pass through" walls: if they "bore through" walls, the wall is no longer
 there, and the creature can be targetted normally.
 
-If you are wielding a weapon, the damage for the weapon is used when you hit
-a creature.  Otherwise you get a single punch which does minimal damage.
+If you are wielding a weapon, the damage for the weapon is used when you 
+hit a creature.  Otherwise you get a single unarmed attack which does 
+minimal damage, but which can benefit from the use of cesti and spiked 
+leather boots.  Monks excel in unarmed combat, and can make more than one 
+unarmed attack per round.
 
 You may "w"ield one weapon for melee combat, and also one missile launcher
 (bow, crossbow or sling.) You may also wear one amulet (around the one and 

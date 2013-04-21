@@ -1024,6 +1024,8 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags1 & TR1_INFRA) p += (a_ptr->pval + sign(a_ptr->pval)) / 2;
 	if (a_ptr->flags1 & TR1_SPEED) p += (a_ptr->pval * 3) / 2;
 
+	if (a_ptr->flags1 & TR1_PERSISTENCE) p += 18;
+
 	if (a_ptr->flags2 & TR2_SUST_STR) p += 6;
 	if (a_ptr->flags2 & TR2_SUST_INT) p += 4;
 	if (a_ptr->flags2 & TR2_SUST_WIS) p += 4;
@@ -1148,7 +1150,8 @@ static void choose_item(int a_idx)
 		else if (r2 < 60) sval = SV_GNOMISH_SHOVEL;
 		else if (r2 < 90) sval = SV_ORCISH_PICK;
 		else if (r2 < 120) sval = SV_DWARVEN_SHOVEL;
-		else sval = SV_DWARVEN_PICK;
+		else if (r2 < 150) sval = SV_DWARVEN_PICK;
+		else sval = SV_MATTOCK;
 	}
 	else if (r < 19)
 	{
@@ -1158,7 +1161,7 @@ static void choose_item(int a_idx)
 		if (r2 < 6) sval = SV_WHIP;
 		else if (r2 < 12) sval = SV_MACE;
 		else if (r2 < 20) sval = SV_WAR_HAMMER;
-		else if (r2 < 30) sval = SV_QUARTERSTAFF;
+		else if (r2 < 28) sval = SV_QUARTERSTAFF;
 		else if (r2 < 34) sval = SV_LUCERN_HAMMER;
 		else if (r2 < 38) sval = SV_MORNING_STAR;
 		else if (r2 < 45) sval = SV_FLAIL;
@@ -1286,7 +1289,7 @@ static void choose_item(int a_idx)
 		else if (r2 < 60) sval = SV_LARGE_METAL_SHIELD;
 		else sval = SV_SHIELD_OF_DEFLECTION;
 	}
-	else
+	else 
 	{
 		/* Make a cloak. */
 		tval = TV_CLOAK;
@@ -1655,7 +1658,7 @@ static void add_ability(artifact_type *a_ptr)
 	}
 	else			/* Pick something universally useful. */
 	{
-		r = rand_int(43);
+		r = rand_int(44);
 		switch (r)
 		{
 			case 0:
@@ -1813,6 +1816,7 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
 			case 42: a_ptr->flags3 |= TR3_REGEN; break;
+		        case 43: a_ptr->flags1 |= TR1_PERSISTENCE; break;
 		}
 	}
 

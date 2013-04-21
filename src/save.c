@@ -369,19 +369,22 @@ static errr wr_savefile(void)
 
 
 	/* Write spell data */
-	wr_u32b(spell_learned1);
-	wr_u32b(spell_learned2);
-	wr_u32b(spell_worked1);
-	wr_u32b(spell_worked2);
-	wr_u32b(spell_forgotten1);
-	wr_u32b(spell_forgotten2);
+	for (i = 0; i < 2; i++)
+	  {
+	    wr_u32b(spell_learned1[i]);
+	    wr_u32b(spell_learned2[i]);
+	    wr_u32b(spell_worked1[i]);
+	    wr_u32b(spell_worked2[i]);
+	    wr_u32b(spell_forgotten1[i]);
+	    wr_u32b(spell_forgotten2[i]);
+	  }
 
 	/* Dump the ordered spells */
 	for (i = 0; i < PY_MAX_SPELLS; i++)
-	{
-		wr_byte(spell_order[i]);
-	}
-
+	  {
+	    wr_byte(spell_order[0][i]);
+	    wr_byte(spell_order[1][i]);
+	  }
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1019,12 +1022,18 @@ static void wr_extra(void)
 
 	/* Race/Class/Gender/Spells */
 	wr_byte(p_ptr->prace);
-	wr_byte(p_ptr->pclass);
+
+	wr_byte(p_ptr->current_class);
+	wr_byte(p_ptr->available_classes);
+
+	for (i = 0; i < MAX_CLASS; i++)
+	  wr_byte(p_ptr->pclass[i]);
+
 	wr_byte(p_ptr->psex);
 	wr_byte(0);	/* oops */
 
 	wr_byte(p_ptr->hitdie);
-	wr_byte(p_ptr->expfact);
+	for (i = 0; i < MAX_CLASS; i++) wr_u16b(p_ptr->expfact[i]);
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
@@ -1039,10 +1048,13 @@ static void wr_extra(void)
 
 	wr_u32b(p_ptr->au);
 
-	wr_u32b(p_ptr->max_exp);
-	wr_u32b(p_ptr->exp);
-	wr_u16b(p_ptr->exp_frac);
-	wr_s16b(p_ptr->lev);
+	for (i = 0; i < MAX_CLASS; i++)
+	  { 
+	    wr_u32b(p_ptr->max_exp [i]);
+	    wr_u32b(p_ptr->exp[i]);
+	    wr_u16b(p_ptr->exp_frac[i]);
+	    wr_s16b(p_ptr->lev[i]);
+	  }
 
 	wr_s16b(p_ptr->mhp);
 	wr_s16b(p_ptr->chp);
@@ -1052,8 +1064,12 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->csp);
 	wr_u16b(p_ptr->csp_frac);
 
+	wr_s16b(p_ptr->mpp);
+	wr_s16b(p_ptr->cpp);
+	wr_u16b(p_ptr->cpp_frac);
+
 	/* Max Player and Dungeon Levels */
-	wr_s16b(p_ptr->max_lev);
+	for (i = 0; i < MAX_CLASS; i++) wr_s16b(p_ptr->max_lev[i]);
 	wr_s16b(p_ptr->max_depth);
 
 	/* More info */
@@ -1094,6 +1110,29 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+	wr_s16b(p_ptr->oppose_ld);
+	wr_s16b(p_ptr->oppose_cc);
+	wr_s16b(p_ptr->oppose_ss);
+	wr_s16b(p_ptr->oppose_nex);
+	wr_s16b(p_ptr->mental_barrier);
+	wr_s16b(p_ptr->tim_stealth);
+	wr_s16b(p_ptr->oppose_nether);
+	wr_s16b(p_ptr->oppose_disen);
+	wr_s16b(p_ptr->sustain_body);
+	wr_s16b(p_ptr->tim_telepathy);
+	wr_s16b(p_ptr->prot_undead);
+	wr_s16b(p_ptr->prot_animal);
+	wr_s16b(no_breeders); 
+	wr_s16b(p_ptr->tim_aggravate);
+	wr_s16b(p_ptr->tim_teleportitus);
+	wr_s16b(p_ptr->tim_no_teleport);
+	wr_s16b(p_ptr->tim_fast_digestion);
+	wr_s16b(p_ptr->tim_amnesia);
+	wr_s16b(p_ptr->tim_lite);
+	wr_s16b(p_ptr->tim_regen);
+
+	wr_byte(p_ptr->astral);
+	wr_byte(p_ptr->astral_start);
 
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);	/* oops */
@@ -1432,20 +1471,28 @@ static bool wr_savefile_new(void)
 	}
 
 
+	for (i = 0; i < MAX_EFFECTS; i++)
+	{
+	        wr_u16b(effects[i]);
+	}
+
 	/* Write spell data */
-	wr_u32b(p_ptr->spell_learned1);
-	wr_u32b(p_ptr->spell_learned2);
-	wr_u32b(p_ptr->spell_worked1);
-	wr_u32b(p_ptr->spell_worked2);
-	wr_u32b(p_ptr->spell_forgotten1);
-	wr_u32b(p_ptr->spell_forgotten2);
+	for (i = 0; i < 2; i++)
+	  {
+	    wr_u32b(p_ptr->spell_learned1[i]);
+	    wr_u32b(p_ptr->spell_learned2[i]);
+	    wr_u32b(p_ptr->spell_worked1[i]);
+	    wr_u32b(p_ptr->spell_worked2[i]);
+	    wr_u32b(p_ptr->spell_forgotten1[i]);
+	    wr_u32b(p_ptr->spell_forgotten2[i]);
+	  }
 
 	/* Dump the ordered spells */
 	for (i = 0; i < PY_MAX_SPELLS; i++)
-	{
-		wr_byte(p_ptr->spell_order[i]);
-	}
-
+	  {
+	    wr_byte(p_ptr->spell_order[0][i]);
+	    wr_byte(p_ptr->spell_order[1][i]);
+	  }
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1897,15 +1944,15 @@ bool load_player(void)
 		/* Parse "ancient" savefiles */
 		if (sf_major < 2)
 		{
-			/* Attempt to load */
-			err = rd_savefile_old();
+		     /* Error  */
+		     err = -1;
 		}
 
 		/* Parse "old" savefiles */
 		else if ((sf_major == 2) && (sf_minor < 7))
 		{
-			/* Attempt to load */
-			err = rd_savefile_old();
+		     /* Error  */
+		     err = -1;
 		}
 
 		/* Parse "new" savefiles */

@@ -210,7 +210,7 @@ X:33:15:3
 W:0:4:0:7500
 C:0:0:0:3
 T:33:0:99
-F:INT | SUST_INT | 
+F:INT | SUST_INT | R_MAGERY | R_ILLUSION | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -705,13 +705,43 @@ T:22:0:99
 T:23:0:99
 F:CON | SLAY_DRAGON | KILL_DRAGON
 
-# 96 (unused)
+#
+# These affect spellcasting
+#
 
-# 97 (unused)
+# Small blades (up to 2d5) and staffs
+N:96:of Magery
+X:24:15:0
+W:0:3:0:4000
+C:0:0:0:5
+T:23:0:19
+T:21:3:3
+F:SUST_INT | INT | R_MAGERY
 
-# 98 (unused)
+# Any hafted weapon
+N:97:of Holiness
+X:24:15:0
+W:0:3:0:4000
+C:0:0:0:5
+T:21:0:99
+F:SUST_WIS | WIS | R_HOLY
 
-# 99 (unused)
+# Small blades (up to 2d5) and staffs
+N:98:of Illusion
+X:24:15:0
+W:0:3:0:4000
+C:0:0:0:5
+T:23:0:19
+T:21:3:3
+F:SUST_INT | INT | R_ILLUSION
+
+# Any hafted weapon
+N:99:of Death
+X:24:15:0
+W:0:3:0:4000
+C:0:0:0:5
+T:21:0:99
+F:SUST_WIS | WIS | R_DEATH
 
 N:100:of Digging
 X:24:4:0
@@ -721,7 +751,12 @@ T:20:0:99
 F:TUNNEL | BRAND_ACID | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 101 (unused)
+N:101:of Persistence
+X:24:20:0
+W:0:10:0:30000
+C:0:0:0:0
+T:21:3:3
+F:PERSISTENCE
 
 # Weapons of Morgul are level 127 items to force the "old" generation probability.
 # Note that the "depth" of cursed ego-items is used in a different way than for "good"

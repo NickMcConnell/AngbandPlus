@@ -23,13 +23,13 @@ OBJS = \
   cmd4.o \
   cmd5.o \
   cmd6.o \
+  multi.o \
   dungeon.o \
   files.o \
   generate.o \
   init1.o \
   init2.o \
-  load1.o \
-  load2.o \
+  load.o \
   melee1.o \
   melee2.o \
   monster1.o \

@@ -595,7 +595,7 @@ K:133:0/-109
 # Constitution
 K:134:0/-109
 
-# Intelligence
+# Extra Attacks
 K:135:0/-109
 
 # Speed
@@ -658,22 +658,22 @@ K:154:0/-109
 # See Invisible
 K:155:0/-109
 
-# Sustain Strength
+# Sustain Strength/Dex
 K:156:0/-109
 
-# Sustain Intelligence
+# Sustain Intelligence/Wis
 K:157:0/-109
 
-# Sustain Wisdom
+# Sustain Con/Chr
 K:158:0/-109
 
-# Sustain Constitution
+# 
 K:159:0/-109
 
-# Sustain Dexterity
+# 
 K:160:0/-109
 
-# Sustain Charisma
+# 
 K:161:0/-109
 
 # Slaying
@@ -1507,6 +1507,49 @@ K:510:0/-109
 # & Ring~
 K:511:11/-109
 
+# Some new items
+
+# Illusion Books = 529-537
+# Scroll
+K:538:0/-107
+# Potion
+K:539:0/-110
+# Scroll
+K:540:0/-107
+# Staffs
+K:541:0/-102
+K:542:0/-102
+K:543:0/-102
+# Scroll
+K:544:0/-107
+# Death Books = 545-553
+# Ring
+K:554:0/-109
+# Misc Items = 555-561
+# Amulets
+K:562:0/-126
+K:563:0/-126
+K:564:0/-126
+K:565:0/-126
+K:566:0/-126
+# Rings
+K:567:0/-109
+K:568:0/-109
+K:569:0/-109
+# Rods
+K:570:0/-108
+K:571:0/-108
+K:572:0/-108
+# Misc Items = 573-578
+# Amulets
+K:579:0/-126
+K:580:0/-126
+# Potion
+K:581:0/-110
+# Scroll
+K:582:0/-107
+# Potion
+K:583:0/-110
 
 # The following things should use the "S:<code>:<attr>/<char>" mechanism
 

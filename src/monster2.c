@@ -413,7 +413,8 @@ s16b get_mon_num(int level)
 	if (level > 0)
 	{
 		/* Occasional "nasty" monster */
-		if (rand_int(NASTY_MON) == 0)
+		if ( (rand_int(NASTY_MON) == 0) || 
+		     (adult_nightmare && rand_int(2) == 0) )
 		{
 			/* Pick a level bonus */
 			int d = level / 4 + 2;
@@ -463,7 +464,7 @@ s16b get_mon_num(int level)
 		}
 
 		/* Depth Monsters never appear out of depth */
-		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
+		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth) && !(adult_nightmare))
 		{
 			continue;
 		}
@@ -1410,7 +1411,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Depth monsters may NOT be created out of depth */
-	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
+	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level) && !(adult_nightmare))
 	{
 		/* Cannot create */
 		return (FALSE);
@@ -1461,7 +1462,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Enforce sleeping if needed */
-	if (slp && r_ptr->sleep)
+	if (slp && r_ptr->sleep && !(adult_nightmare))
 	{
 		int val = r_ptr->sleep;
 		n_ptr->csleep = ((val * 2) + randint(val * 10));
@@ -1469,7 +1470,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Assign maximal hitpoints */
-	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
+	if (r_ptr->flags1 & (RF1_FORCE_MAXHP) || (adult_nightmare))
 	{
 		n_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
 	}
@@ -1498,7 +1499,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	n_ptr->energy = (byte)rand_int(100);
 
 	/* Force monster to wait for player */
-	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
+	if (r_ptr->flags1 & (RF1_FORCE_SLEEP) && !(adult_nightmare))
 	{
 		/* Monster is still being nice */
 		n_ptr->mflag |= (MFLAG_NICE);
@@ -1682,8 +1683,9 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	if (!grp) return (TRUE);
 
 
-	/* Friends for certain monsters */
-	if (r_ptr->flags1 & (RF1_FRIENDS))
+	/* Friends for certain monsters (and 10% in nightmare mode) */
+	if ( (r_ptr->flags1 & (RF1_FRIENDS)) || 
+	     (adult_nightmare && rand_int(10) == 1) )
 	{
 		/* Attempt to place a group */
 		(void)place_monster_group(y, x, r_idx, slp);
@@ -2104,6 +2106,12 @@ bool multiply_monster(int m_idx)
 	int i, y, x;
 
 	bool result = FALSE;
+
+	if (no_breeders)
+	{
+	     msg_print("It tries to breed but it fails!");
+	     return (FALSE);
+	}
 
 	/* Try up to 18 times */
 	for (i = 0; i < 18; i++)

@@ -75,7 +75,7 @@ sint critical_shot(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "shot" power */
-	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
+	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev[best_class()] * 2));
 
 	/* Critical hit */
 	if (randint(5000) <= i)
@@ -114,7 +114,7 @@ sint critical_norm(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "blow" power */
-	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev[best_class()] * 3));
 
 	/* Chance */
 	if (randint(5000) <= i)
@@ -1151,6 +1151,9 @@ void py_attack(int y, int x)
 		/* Test for hit */
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 		{
+		        /* Berserker stuns monsters on critical hits */
+		        int stunning = 0; 
+
 			/* Message */
 			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
 
@@ -1160,12 +1163,19 @@ void py_attack(int y, int x)
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
 			{
-				k = damroll(o_ptr->dd, o_ptr->ds);
-				k = tot_dam_aux(o_ptr, k, m_ptr);
-				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
-				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
-				k += o_ptr->to_d;
+			     int temp;
+			     k = damroll(o_ptr->dd, o_ptr->ds);
+			     k = tot_dam_aux(o_ptr, k, m_ptr);
+			     if (p_ptr->impact && (k > 50)) do_quake = TRUE;
+			     temp = critical_norm(o_ptr->weight, o_ptr->to_h, k);
+			     /* if damage was *2, stunning chance +  20 */
+			     /* if damage was *6, stunning chance + 100 */
+			     /* if damage was *1, stunning = 0 */
+			     stunning = (((temp * 10) / k) - 10) * 2;
+			     k = temp;
+			     k += o_ptr->to_d;
 			}
+			else if (player_has_class(CLASS_MONK, 0))
 
 			/* Apply the player damage bonuses */
 			k += p_ptr->to_d;
@@ -1181,6 +1191,43 @@ void py_attack(int y, int x)
 
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
+			
+			/* Berserker has chance of stunning monster */
+			if (player_has_class(CLASS_BERSERKER, 0))
+			{
+			     /* 10-50 + 1-50 = 11-100 */
+			     int stun_chance = stunning + 
+				  level_of_class(CLASS_BERSERKER);
+
+			     /* Stunned monster */
+			     if (rand_int(100) < stun_chance)
+			     {
+				  int tmp;
+				  
+				  /* Sound and Impact breathers never stun */
+				  if (!(r_ptr->flags4 & (RF4_BR_SOUN)) &&
+				      !(r_ptr->flags4 & (RF4_BR_WALL)))
+				  {
+				       if (m_ptr->stunned) /* More stunned */
+				       {
+					    msg_format("%^s is more dazed.", 
+						       m_name);
+					    tmp = randint(stunning / 2) +
+						 stunning / 2;
+					    if (tmp < 2) tmp = 2;
+				       }
+				       else /* Stunned */
+				       {
+					    msg_format("%^s is dazed.", 
+						       m_name);
+					    tmp = randint(stunning) + stunning;
+					    if (tmp < 2) tmp = 2;
+				       }
+				       m_ptr->stunned = 
+					    (tmp < 200) ? tmp : 200;
+				  }
+			     }
+			}
 
 			/* Confusion attack */
 			if (p_ptr->confusing)
@@ -1208,7 +1255,7 @@ void py_attack(int y, int x)
 				else
 				{
 					msg_format("%^s appears confused.", m_name);
-					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
+					m_ptr->confused += 10 + rand_int(p_ptr->lev[best_class()]) / 5;
 				}
 			}
 		}

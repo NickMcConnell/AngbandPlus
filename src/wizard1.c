@@ -107,7 +107,9 @@ static const grouper group_item[] =
 	{ TV_STAFF,		"Staffs" },
 
 	{ TV_MAGIC_BOOK,	"Books (Mage)" },
-	{ TV_PRAYER_BOOK,	"Books (Priest)" },
+	{ TV_PRAYER_BOOK,	"Books (Holy)" },
+	{ TV_ILLUSION_BOOK,	"Books (Illusion)" },
+	{ TV_DEATH_BOOK,        "Books (Death)" },
 
 	{ TV_CHEST,		"Chests" },
 
@@ -390,6 +392,7 @@ static const grouper group_artifact[] =
 	{ TV_BOW,		"Bows" },
 	{ TV_DIGGING,	"Diggers" },
 
+
 	{ TV_SOFT_ARMOR,	"Body Armor" },
 	{ TV_HARD_ARMOR,	  NULL },
 	{ TV_DRAG_ARMOR,	  NULL },
@@ -558,6 +561,10 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_SEE_INVIS,          "See Invisible" },
 	{ TR3_FREE_ACT,           "Free Action" },
 	{ TR3_HOLD_LIFE,          "Hold Life" },
+	{ TR3_R_MAGERY,           "Magery" },
+	{ TR3_R_HOLY,             "Holy" },
+	{ TR3_R_ILLUSION,         "Illusion" },
+	{ TR3_R_DEATH,            "Death" },
 	{ TR3_BLESSED,            "Blessed Blade" },
 	{ TR3_IMPACT,             "Earthquake impact on hit" },
 	{ TR3_AGGRAVATE,          "Aggravates" },

@@ -399,7 +399,12 @@ static void place_random_stairs(int y, int x)
 	{
 		place_down_stairs(y, x);
 	}
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if (p_ptr->astral && (p_ptr->depth == 97))
+	{
+		place_up_stairs(y, x);
+	}
+	else if ((is_quest(p_ptr->depth) && !p_ptr->astral) || 
+		 (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		place_up_stairs(y, x);
 	}
@@ -447,9 +452,14 @@ static void alloc_stairs(int feat, int num, int walls)
 					/* Clear previous contents, add down stairs */
 					cave_set_feat(y, x, FEAT_MORE);
 				}
-
+				else if (p_ptr->astral && (p_ptr->depth == 97))
+				{
+					cave_set_feat(y, x, FEAT_LESS);
+				}
 				/* Quest -- must go up */
-				else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+				else if ((is_quest(p_ptr->depth) && 
+					  !p_ptr->astral) || 
+					 (p_ptr->depth >= MAX_DEPTH-1))
 				{
 					/* Clear previous contents, add up stairs */
 					cave_set_feat(y, x, FEAT_LESS);
@@ -3029,11 +3039,13 @@ static void cave_gen(void)
 	/* Place 1 or 2 up stairs near some walls */
 	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
 
-
 	/* Basic "amount" */
 	k = (p_ptr->depth / 3);
 	if (k > 10) k = 10;
 	if (k < 2) k = 2;
+
+	/* Many traps... */
+	if (adult_nightmare) k = 10;
 
 	/* Put some rubble in corridors */
 	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
@@ -3444,6 +3456,14 @@ void generate_cave(void)
 		{
 			/* Make a dungeon */
 			cave_gen();
+
+			/* Astrals get some stairs */
+			if (p_ptr->astral_start)
+			{
+			     place_random_stairs(p_ptr->py, p_ptr->px);
+			     p_ptr->astral_start = FALSE;
+			}
+
 		}
 
 
@@ -3531,6 +3551,15 @@ void generate_cave(void)
 
 	/* Remember when this level was "created" */
 	old_turn = turn;
+
+	/* Astrals already know the dungeon, and move first when entering
+	   a level */
+	if (p_ptr->astral)
+	{
+	     msg_print("You sense the living rock beneath your feet.");
+	     wiz_lite();
+	     p_ptr->energy = 100;
+	}
 }
 
 

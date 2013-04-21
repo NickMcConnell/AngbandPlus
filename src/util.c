@@ -2470,36 +2470,173 @@ static void msg_print_aux(u16b type, cptr msg)
 	if (fresh_after) Term_fresh();
 }
 
-
 /*
- * Print a message in the default color (white)
- */
+* Output a message to the top line of the screen.
+*
+* Break long messages into multiple pieces (40-72 chars).
+*
+* Allow multiple short messages to "share" the top line.
+*
+* Prompt the user to make sure he has a chance to read them.
+*
+* These messages are memorized for later reference (see above).
+*
+* We could do "Term_fresh()" to provide "flicker" if needed.
+*
+* The global "msg_flag" variable can be cleared to tell us to
+* "erase" any "pending" messages still on the screen.
+*
+* XXX XXX XXX Note that we must be very careful about using the
+* "msg_print()" functions without explicitly calling the special
+* "msg_print(NULL)" function, since this may result in the loss
+* of information if the screen is cleared, or if anything is
+* displayed on the top line.
+*
+* XXX XXX XXX Note that "msg_print(NULL)" will clear the top line
+* even if no messages are pending.  This is probably a hack.
+*/
+void cmsg_print(byte color, cptr msg)
+{
+	int n;	
+	char *t;
+	char buf[1024];
+		
+	/* Hack -- Reset */
+	if (!msg_flag) message_column = 0;
+	
+	/* Message Length */
+	n = (msg ? strlen(msg) : 0);
+	
+	/* Hack -- flush when requested or needed */
+	if (message_column && (!msg || ((message_column + n) > 72)))
+	{
+		/* Flush */
+		msg_flush(message_column);
+		
+		/* Forget it */
+		msg_flag = FALSE;
+		
+		/* Reset */
+		message_column = 0;
+	}
+		
+	/* No message */
+	if (!msg) return;
+	
+	/* Paranoia */
+	if (n > 1000) return;
+       	
+	/* Memorize the message */
+        if (character_generated) message_add(msg, MSG_GENERIC);
+		
+	/* Window stuff */
+	p_ptr->window |= (PW_MESSAGE);
+	
+	/* Copy it */
+	strcpy(buf, msg);
+	
+	/* Analyze the buffer */
+	t = buf;
+	
+	/* Split message */
+	while (n > 72)
+	{
+		char oops;
+		
+		int check, split;
+		
+		/* Default split */
+		split = 72;
+		
+		/* Find the "best" split point */
+		for (check = 40; check < 72; check++)
+		{
+			/* Found a valid split point */
+			if (t[check] == ' ') split = check;
+		}
+		
+		/* Save the split character */
+		oops = t[split];
+		
+		/* Split the message */
+		t[split] = '\0';
+		
+		/* Display part of the message */
+                Term_putstr(0, 0, split, color, t);
+		
+		/* Flush it */
+		msg_flush(split + 1);
+		
+		/* Restore the split character */
+		t[split] = oops;
+		
+		/* Insert a space */
+		t[--split] = ' ';
+		
+		/* Prepare to recurse on the rest of "buf" */
+		t += split; n -= split;
+	}
+		
+	/* Display the tail of the message */
+        Term_putstr(message_column, 0, n, color, t);
+	
+	/* Memorize the tail */
+	/* if (character_generated) message_add(t); */
+	
+	/* Remember the message */
+	msg_flag = TRUE;
+	
+	/* Remember the position */
+	message_column += n + 1;
+}
+
+
+/* Hack -- for compatibility and easy sake */
 void msg_print(cptr msg)
 {
-	msg_print_aux(MSG_GENERIC, msg);
+        cmsg_print(TERM_WHITE, msg);
 }
 
 
 /*
- * Display a formatted message, using "vstrnfmt()" and "msg_print()".
- */
+* Display a formatted message, using "vstrnfmt()" and "msg_print()".
+*/
 void msg_format(cptr fmt, ...)
 {
 	va_list vp;
-
+	
 	char buf[1024];
-
+	
 	/* Begin the Varargs Stuff */
 	va_start(vp, fmt);
-
+	
 	/* Format the args, save the length */
 	(void)vstrnfmt(buf, 1024, fmt, vp);
-
+	
 	/* End the Varargs Stuff */
 	va_end(vp);
-
+	
 	/* Display */
-	msg_print_aux(MSG_GENERIC, buf);
+        msg_print(buf);
+}
+
+void cmsg_format(byte color, cptr fmt, ...)
+{
+	va_list vp;
+	
+	char buf[1024];
+	
+	/* Begin the Varargs Stuff */
+        va_start(vp, fmt);
+	
+	/* Format the args, save the length */
+        (void)vstrnfmt(buf, 1024, fmt, vp);
+	
+	/* End the Varargs Stuff */
+	va_end(vp);
+	
+	/* Display */
+        cmsg_print(color, buf);
 }
 
 
@@ -2514,7 +2651,6 @@ void message(u16b message_type, s16b extra, cptr message)
 
 	msg_print_aux(message_type, message);
 }
-
 
 
 /*

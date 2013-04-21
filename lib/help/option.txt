@@ -542,6 +542,38 @@ Randomize some of the artifacts    [birth_rand_artifacts]
      them.  Note that savefiles with random artifacts are not guaranteed
      to be compatible between different Angband versions!
 
+***** <birth_hidden>
+Hide player knowledge              [birth_hidden]
+     Hide lots of information from the player, including information about
+     attributes, experience, HP, mana, piety, spells and intrinstics.
+     Attributes are shown in a similar fashion to skills, while HP, mana,
+     piety and experience are shown like the monster health bar.    
+     When using 'C' to view character information, only the first and most
+     basic screen can be used.
+     Also, self-knowledge will not work.
+
+***** <birth_nightmare>
+Nightmare mode                     [birth_nightmare]
+     The game becomes more difficult, with harder monsters which always start
+     at full health and awake, more frequent traps, and unconnected stairs.
+     The player permanently aggravates monsters, and has no memory of 
+     previous locations.
+     Nightmare mode doubles your final score.
+
+***** <birth_easy>
+Easy mode                          [birth_easy]
+     You start the game with 500 extra gold, much better equipment,
+     and find better objects in the dungeon and the black
+     market. Playing with this option halves your final score.
+
+***** <birth_astral>
+Astral mode                        [birth_astral]
+     Start on level 95 of the dungeon with 75 scrolls of identify. Cannot use
+     word of recall until surface is reached, where recall depth will be reset
+     to 0. They must visit the town before they can go below level 97 of the
+     dungeon. Astral beings are faster, have an aura of light, can see
+     invisible and sense nearby minds, need less food and automatically know
+     the surrounding level.
 
 === Option Set 6 -- Cheating Options ===
 

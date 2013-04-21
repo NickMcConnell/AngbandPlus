@@ -45,16 +45,16 @@ M:3:w
 M:4:w
 
 # MSG_KILL
-M:5:w
+M:5:R
 
 # MSG_LEVEL
-M:6:w
+M:6:G
 
 # MSG_DEATH
-M:7:w
+M:7:R
 
 # MSG_STUDY
-M:8:w
+M:8:B
 
 # MSG_TELEPORT
 M:9:w

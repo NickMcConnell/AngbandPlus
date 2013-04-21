@@ -930,6 +930,11 @@ static s32b object_value_real(const object_type *o_ptr)
 			/* Give credit for speed bonus */
 			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 30000L);
 
+			/* Spellcasting bonus */
+			if ((f3 & (TR3_R_MAGERY)) || (f3 & (TR3_R_HOLY)) ||
+			    (f3 & (TR3_R_ILLUSION)) || (f3 & (TR3_R_DEATH)))
+			     value += (o_ptr->pval * 50L);
+
 			break;
 		}
 	}
@@ -1034,6 +1039,7 @@ static s32b object_value_real(const object_type *o_ptr)
 		}
 	}
 
+
 	/* No negative value */
 	if (value < 0) value = 0;
 
@@ -1120,7 +1126,6 @@ s32b object_value(const object_type *o_ptr)
 bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
-
 
 	/* Require identical object types */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
@@ -1292,7 +1297,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			if (!stack_force_costs) return (0);
 		}
 	}
-
+       
 
 	/* Maximal "stacking" limit */
 	if (total >= MAX_STACK_SIZE) return (0);
@@ -1879,6 +1884,9 @@ static void charge_staff(object_type *o_ptr)
 		case SV_STAFF_GENOCIDE:			o_ptr->pval = randint(2)  + 1; break;
 		case SV_STAFF_EARTHQUAKES:		o_ptr->pval = randint(5)  + 3; break;
 		case SV_STAFF_DESTRUCTION:		o_ptr->pval = randint(3)  + 1; break;
+	        case SV_STAFF_DISPEL_UNDEAD:            o_ptr->pval = randint(3)  + 4; break;
+	        case SV_STAFF_DETECT_UNDEAD:            o_ptr->pval = randint(15) + 8; break;
+	        case SV_STAFF_DETECT_ANIMALS:           o_ptr->pval = randint(15) + 8; break;
 	}
 }
 
@@ -2093,90 +2101,117 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Strength, Constitution, Dexterity, Intelligence */
+			        /* Extra Attacks */
+			        case SV_RING_EXTRA_ATTACKS:
+				{
+				     /* Usually +1 */
+				     o_ptr->pval = 1;
+				     
+				     /* One in 7 */
+				     if (rand_int(7) == 1) o_ptr->pval = 2;
+
+				     /* Cursed */
+				     if (power < 0)
+				     {
+					  /* Broken */
+					  o_ptr->ident |= (IDENT_BROKEN);
+					  
+					  /* Cursed */
+					  o_ptr->ident |= (IDENT_CURSED);
+
+					  /* Reverse pval */
+					  o_ptr->pval = 0 - (o_ptr->pval);
+				     }
+
+				     /* Mention the item */
+				     if (cheat_peek) object_mention(o_ptr);
+
+				     break;
+				}
+				/* Strength, Constitution, Dexterity */
 				case SV_RING_STR:
 				case SV_RING_CON:
 				case SV_RING_DEX:
-				case SV_RING_INT:
 				{
-					/* Stat bonus */
-					o_ptr->pval = 1 + m_bonus(5, level);
+				     /* Stat bonus */
+				     o_ptr->pval = 1 + m_bonus(5, level);
 
-					/* Cursed */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
-
-					break;
+				     /* Cursed */
+				     if (power < 0)
+				     {
+					  /* Broken */
+					  o_ptr->ident |= (IDENT_BROKEN);
+					  
+					  /* Cursed */
+					  o_ptr->ident |= (IDENT_CURSED);
+					  
+					  /* Reverse pval */
+					  o_ptr->pval = 0 - (o_ptr->pval);
+				     }
+				     
+				     break;
 				}
 
 				/* Ring of Speed! */
 				case SV_RING_SPEED:
 				{
-					/* Base speed (1 to 10) */
-					o_ptr->pval = randint(5) + m_bonus(5, level);
+				     /* Base speed (1 to 10) */
+				     o_ptr->pval = randint(5) + m_bonus(5, level);
 
-					/* Super-charge the ring */
-					while (rand_int(100) < 50) o_ptr->pval++;
+				     /* Super-charge the ring */
+				     while (rand_int(100) < 50) o_ptr->pval++;
 
-					/* Cursed Ring */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+				     /* Cursed Ring */
+				     if (power < 0)
+				     {
+					  /* Broken */
+					  o_ptr->ident |= (IDENT_BROKEN);
+					  
+					  /* Cursed */
+					  o_ptr->ident |= (IDENT_CURSED);
 
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+					  /* Reverse pval */
+					  o_ptr->pval = 0 - (o_ptr->pval);
 
-						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
+					  break;
+				     }
 
-						break;
-					}
+				     /* Rating boost */
+				     rating += 25;
 
-					/* Rating boost */
-					rating += 25;
+				     /* Mention the item */
+				     if (cheat_peek) object_mention(o_ptr);
 
-					/* Mention the item */
-					if (cheat_peek) object_mention(o_ptr);
-
-					break;
+				     break;
 				}
 
 				/* Searching */
 				case SV_RING_SEARCHING:
 				{
-					/* Bonus to searching */
-					o_ptr->pval = 1 + m_bonus(5, level);
+				     /* Bonus to searching */
+				     o_ptr->pval = 1 + m_bonus(5, level);
 
-					/* Cursed */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+				     /* Cursed */
+				     if (power < 0)
+				     {
+					  /* Broken */
+					  o_ptr->ident |= (IDENT_BROKEN);
+					  
+					  /* Cursed */
+					  o_ptr->ident |= (IDENT_CURSED);
+					  
+					  /* Reverse pval */
+					  o_ptr->pval = 0 - (o_ptr->pval);
+				     }
 
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
-
-					break;
+				     break;
 				}
 
-				/* Flames, Acid, Ice */
+				/* Flames, Acid, Ice, Lightning */
 				case SV_RING_FLAMES:
 				case SV_RING_ACID:
 				case SV_RING_ICE:
+				case SV_RING_LIGHTNING:
 				{
 					/* Bonus to armor class */
 					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
@@ -2317,6 +2352,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* Amulet of wisdom/charisma */
 				case SV_AMULET_WISDOM:
 				case SV_AMULET_CHARISMA:
+				case SV_AMULET_INTELLIGENCE:
 				{
 					o_ptr->pval = 1 + m_bonus(5, level);
 
@@ -2355,6 +2391,13 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					}
 
 					break;
+				}
+
+                                /* Amulet of Brightness -- never cursed */
+			        case SV_AMULET_BRIGHTNESS:
+				{
+				     o_ptr->pval = 1;
+				     break;
 				}
 
 				/* Amulet of the Magi -- never cursed */
@@ -2551,7 +2594,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		if (make_artifact(o_ptr)) break;
 	}
 
-
+	
 	/* Hack -- analyze artifacts */
 	if (o_ptr->name1)
 	{
@@ -2782,6 +2825,8 @@ static bool kind_is_good(int k_idx)
 		/* Books -- High level books are good */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_ILLUSION_BOOK:
+		case TV_DEATH_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
@@ -2821,6 +2866,20 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 {
 	int prob, base;
 
+	/* Easy mode gives better objects */
+	if (adult_easy)
+	  {
+		/* Increase depth (up to four times) */
+		if (rand_int(100) < GREAT_OBJ) object_level += 1;
+		if (rand_int(100) < GREAT_OBJ) object_level += 2;
+		if (rand_int(100) < GREAT_OBJ) object_level += 3;
+		if (rand_int(100) < GREAT_OBJ) object_level += 4;
+		/* Chance of improving object "quality" */
+		if (!good && (rand_int(100) < GREAT_OBJ)) 
+		     good = TRUE; 
+		if (!great && good && (rand_int(200) < GREAT_OBJ)) 
+		     great = TRUE;
+	  }
 
 	/* Chance of "special object" */
 	prob = (good ? 10 : 1000);
@@ -3354,6 +3413,10 @@ void pick_trap(int y, int x)
 		/* Hack -- no trap doors on the deepest level */
 		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->depth >= MAX_DEPTH-1)) continue;
 
+		/* Hack -- no trap doors on level 97 for astrals */
+		if ((feat == FEAT_TRAP_HEAD + 0x00) && 
+		    (p_ptr->depth == 97) && p_ptr->astral) continue;
+
 		/* Done */
 		break;
 	}
@@ -3800,10 +3863,10 @@ s16b inven_carry(object_type *o_ptr)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == mp_ptr->spell_book) &&
-			    (j_ptr->tval != mp_ptr->spell_book)) break;
-			if ((j_ptr->tval == mp_ptr->spell_book) &&
-			    (o_ptr->tval != mp_ptr->spell_book)) continue;
+			if ((o_ptr->tval == mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book) &&
+			    (j_ptr->tval != mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book)) break;
+			if ((j_ptr->tval == mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book) &&
+			    (o_ptr->tval != mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book)) continue;
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
@@ -3964,6 +4027,12 @@ s16b inven_takeoff(int item, int amt)
 	else if (item == INVEN_LITE)
 	{
 		act = "You were holding";
+	}
+
+        /* Took off ammo */
+        else if (item == INVEN_AMMO)
+	{
+                act = "You were carrying in your quiver";
 	}
 
 	/* Took off something */
@@ -4167,10 +4236,10 @@ void reorder_pack(void)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == mp_ptr->spell_book) &&
-			    (j_ptr->tval != mp_ptr->spell_book)) break;
-			if ((j_ptr->tval == mp_ptr->spell_book) &&
-			    (o_ptr->tval != mp_ptr->spell_book)) continue;
+			if ((o_ptr->tval == mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book) &&
+			    (j_ptr->tval != mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book)) break;
+			if ((j_ptr->tval == mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book) &&
+			    (o_ptr->tval != mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book)) continue;
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
@@ -4258,39 +4327,95 @@ s16b spell_chance(int spell)
 
 	const magic_type *s_ptr;
 
+	int priest = ((mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_PRAYER_BOOK || mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_DEATH_BOOK) ? 1 : 0);
 
 	/* Paranoia -- must be literate */
-	if (!mp_ptr->spell_book) return (100);
+	if (!mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book) return (100);
 
 	/* Get the spell */
-	s_ptr = &mp_ptr->info[spell];
+	s_ptr = &mp_ptr[p_ptr->pclass[p_ptr->current_class]]->info[spell];
 
 	/* Extract the base spell failure rate */
 	chance = s_ptr->sfail;
 
 	/* Reduce failure rate by "effective" level adjustment */
-	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
+	chance -= 3 * (p_ptr->lev[p_ptr->current_class] - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[ ((priest) ? A_WIS : A_INT) ]] - 1);
 
-	/* Not enough mana to cast */
-	if (s_ptr->smana > p_ptr->csp)
+	/* Increase failure rate if encumbered by gloves */
+        if (p_ptr->cumber_glove && !(priest))
 	{
-		chance += 5 * (s_ptr->smana - p_ptr->csp);
+	     /* Depends on sval of gloves, could be 10%, 20% or 50% */
+	     chance += 10 * (p_ptr->cumber_glove);
 	}
 
+	/* Increase failure rate if encumbered by armor */
+        if (p_ptr->cumber_armor_wizard && !(priest))
+	{
+	     /* Depends on weight of armour */
+	     chance += p_ptr->cumber_armor_wizard;
+	}
+
+	/* Increase failure rate if encumbered by armor */
+        if (p_ptr->cumber_armor_priest && (priest))
+	{
+	     /* Depends on weight of armour */
+	     chance += p_ptr->cumber_armor_priest;
+	}
+
+	/* Increase failure rate if stunned, berserking or hallucinating */
+	if (p_ptr->stun > 50)
+	     chance += 20;
+	else if (p_ptr->stun)
+	     chance += 10;
+	if (p_ptr->shero)
+	     chance += 25;
+	if (p_ptr->image)
+	  chance += 50;
+
+	/* Decrease failure rate for spellcasting bonus from equipment */
+	switch (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book)
+	{
+	case TV_MAGIC_BOOK: chance -= (p_ptr->r_magery * 5); break;
+	case TV_PRAYER_BOOK: chance -= (p_ptr->r_holy * 5); 
+	     chance += (p_ptr->r_death * 5); break;
+	case TV_ILLUSION_BOOK: chance -= (p_ptr->r_illusion * 5); break;
+	case TV_DEATH_BOOK: chance -= (p_ptr->r_death * 5); 
+	     chance += (p_ptr->r_holy * 5); break;
+	}
+
+	/* Not enough mana/piety to cast */
+	if (priest)
+	  {
+	    if (s_ptr->smana > p_ptr->cpp)
+	      {
+		chance += 5 * (s_ptr->smana - p_ptr->cpp);
+	      }
+	  }
+	else
+	  {
+	    if (s_ptr->smana > p_ptr->csp)
+	      {
+		chance += 5 * (s_ptr->smana - p_ptr->csp);
+	      }
+	  }
+
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+	minfail = adj_mag_fail[p_ptr->stat_ind[ ((priest) ? A_WIS : A_INT) ]];
 
 	/* Non mage/priest characters never get better than 5 percent */
-	if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_PRIEST))
+	if ((p_ptr->pclass[p_ptr->current_class] != CLASS_MAGE) && 
+	    (p_ptr->pclass[p_ptr->current_class] != CLASS_PRIEST) && 
+	    (p_ptr->pclass[p_ptr->current_class] != CLASS_ILLUSIONIST) &&
+	    (p_ptr->pclass[p_ptr->current_class] != CLASS_DEATH_PRIEST))
 	{
 		if (minfail < 5) minfail = 5;
 	}
 
 	/* Priest prayer penalty for "edged" weapons (before minfail) */
-	if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
+	if ((priest) && (p_ptr->icky_blunt))
 	{
 		chance += 25;
 	}
@@ -4320,16 +4445,18 @@ bool spell_okay(int spell, bool known)
 {
 	const magic_type *s_ptr;
 
+	int priest = ((mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_PRAYER_BOOK || mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_DEATH_BOOK) ? 1 : 0);
+
 	/* Get the spell */
-	s_ptr = &mp_ptr->info[spell];
+	s_ptr = &mp_ptr[p_ptr->pclass[p_ptr->current_class]]->info[spell];
 
 	/* Spell is illegal */
-	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
+	if (s_ptr->slevel > p_ptr->lev[p_ptr->current_class]) return (FALSE);
 
 	/* Spell is forgotten */
 	if ((spell < 32) ?
-	    (p_ptr->spell_forgotten1 & (1L << spell)) :
-	    (p_ptr->spell_forgotten2 & (1L << (spell - 32))))
+	    (p_ptr->spell_forgotten1[(priest)] & (1L << spell)) :
+	    (p_ptr->spell_forgotten2[(priest)] & (1L << (spell - 32))))
 	{
 		/* Never okay */
 		return (FALSE);
@@ -4337,8 +4464,8 @@ bool spell_okay(int spell, bool known)
 
 	/* Spell is learned */
 	if ((spell < 32) ?
-	    (p_ptr->spell_learned1 & (1L << spell)) :
-	    (p_ptr->spell_learned2 & (1L << (spell - 32))))
+	    (p_ptr->spell_learned1[(priest)] & (1L << spell)) :
+	    (p_ptr->spell_learned2[(priest)] & (1L << (spell - 32))))
 	{
 		/* Okay to cast, not to study */
 		return (known);
@@ -4363,10 +4490,13 @@ void spell_info(char *p, int spell)
 	/* Default */
 	strcpy(p, "");
 
+	/* Hide spell information */
+	if (adult_hidden) return;
+
 	/* Mage spells */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
+	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_MAGIC_BOOK)
 	{
-		int plev = p_ptr->lev;
+		int plev = p_ptr->lev[p_ptr->current_class];
 
 		/* Analyze the spell */
 		switch (spell)
@@ -4441,13 +4571,19 @@ void spell_info(char *p, int spell)
 				strcpy(p, " dur 20+d20");
 				break;
 			case SPELL_HEROISM:
-				strcpy(p, " dur 25+d25");
+			        if (player_has_class(CLASS_BERSERKER, 0))
+				     strcpy(p, " dur 50+d50");
+				else
+				     strcpy(p, " dur 25+d25");
 				break;
 			case SPELL_SHIELD:
 				strcpy(p, " dur 30+d20");
 				break;
 			case SPELL_BERSERKER:
-				strcpy(p, " dur 25+d25");
+			        if (player_has_class(CLASS_BERSERKER, 0))
+				     strcpy(p, " dur 50+d50");
+				else
+				     strcpy(p, " dur 25+d25");
 				break;
 			case SPELL_ESSENCE_OF_SPEED:
 				sprintf(p, " dur %d+d30", 30 + plev);
@@ -4459,12 +4595,12 @@ void spell_info(char *p, int spell)
 	}
 
 	/* Priest spells */
-	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_PRAYER_BOOK)
 	{
-		int plev = p_ptr->lev;
+		int plev = p_ptr->lev[p_ptr->current_class];
 
 		/* See below */
-		int orb = (plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4));
+		int orb = (plev / ((p_ptr->pclass[p_ptr->current_class] == CLASS_PRIEST) ? 2 : 4));
 
 		/* Analyze the spell */
 		switch (spell)
@@ -4543,8 +4679,113 @@ void spell_info(char *p, int spell)
 				break;
 		}
 	}
+
+	/* Illusion spells */
+	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_ILLUSION_BOOK)
+	{
+		int plev = p_ptr->lev[p_ptr->current_class];
+
+		/* Analyze the spell */
+		switch (spell)
+		{
+		case 0: sprintf(p, " dam %dd%d", 2+((plev-1)/5), 4); break;
+		case 2: sprintf(p, " range %d", 10); break;
+		case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+		case 9: sprintf(p, " dur %d+d100", 200); break;
+		case 12: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+		case 16: sprintf(p, " dam %dd%d", (5+((plev-6)/4)), 8); break;
+		case 18: sprintf(p, " dur %d+d24", 24); break;
+		case 21: sprintf(p, " dam %dd%d", (2+((plev-5)/4)), 6); break;
+		case 22: sprintf(p, " dam %d", 25 + plev); break;
+		case 26: sprintf(p, " dam %d", 35 + plev); break;
+		case 27: sprintf(p, " dam %dd%d", (8+((plev-5)/4)), 8); break;
+		case 28: sprintf(p ," dur %d+d24", plev); break;
+		case 29: sprintf(p, " dur %d+d20", plev); break;
+		case 31: sprintf(p, " dam %dd%d", (8+((plev-5)/4)), 8); break;
+		case 32: sprintf(p, " dur %d+d30", 30); break;
+		case 34: sprintf(p, " dam %d", 50 + plev); break;
+		case 38: sprintf(p, " dam %d", 50 + plev); break;
+		case 40: sprintf(p, " dam %dd%d", (2+((plev-5)/4)), 8); break;
+		case 41: sprintf(p, " dam %dd%d", (6+((plev-5)/4)), 8); break;
+		case 43: sprintf(p, " dam %dd%d", (10+((plev-5)/4)), 8); break;
+		case 44: sprintf(p, " dam %dd%d", (12+((plev-5)/4)), 8); break;
+		case 45: sprintf(p, " dam %d", 300 + (plev*2)); break;
+		case 46: sprintf(p, " dam %d", 30 + plev); break;
+		case 47: sprintf(p, " dam %d", 35 + plev); break;
+		case 48: sprintf(p, " dam %d", 40 + plev); break;
+		case 49: sprintf(p, " dam %d", 45 + plev); break;
+		case 50: sprintf(p, " dam %d", 50 + plev); break;
+		case 51: sprintf(p, " dam %d", 80 + plev); break;
+		case 53: sprintf(p, " dur %d+d20", 20); break;
+		case 54: sprintf(p, " dur %d+d20", 20); break;
+		case 55: sprintf(p, " dur %d+d20", 20); break;
+		case 56: sprintf(p, " dur %d+d20", 20); break;
+		case 57: sprintf(p, " dur %d+d20", 20); break;
+		case 58: sprintf(p, " dur %d+d24", 24); break;
+		case 59: sprintf(p, " dam %dd%d", (6+((plev-5)/4)), 8); break;
+		case 60: sprintf(p, " dam %d", 40 + plev); break;     
+		case 62: sprintf(p, " range %d", (plev * 7)); break;
+		}
+	}
+
+	/* Death spells */
+	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_DEATH_BOOK)
+	{
+		int plev = p_ptr->lev[p_ptr->current_class];
+
+		/* Analyze the spell */
+		switch (spell)
+		{
+		case 0: sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5));
+		     break;
+		case 2: strcpy(p, " heal 2d10"); break;
+		case 3: strcpy(p, " dur 12+d12"); break;
+		case 5: case 8: 
+		     sprintf(p, " dur %d+d100", 200); break;
+		case 11: strcpy(p, " heal 4d10"); break;
+		case 12: case 48:
+		     if (player_has_class(CLASS_BERSERKER, 0))
+			  strcpy(p, " dur 50+d50");
+		     else
+			  strcpy(p, " dur 25+d25"); 
+		     break;
+		case 14: case 43: case 45: case 46: 
+		     strcpy(p, " dur 20+d20"); break;
+		case 15: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+		case 19: strcpy(p, " dur 30+d20"); break;
+		case 20: sprintf(p, " dam %d+3d6", plev + (plev / 2)); break;
+		case 21: strcpy(p, " heal 6d10"); break;
+		case 23: case 44: 
+		     strcpy(p, " dur 24+d24"); break;
+		case 25: strcpy(p, " dam 50"); break;
+		case 27: strcpy(p, " heal 8d10"); break;
+		case 29: sprintf(p, " dam d%d", 3 * plev); break;
+		case 30: strcpy(p, " heal 300"); break;
+		case 31: sprintf(p, " dam %d", plev + 35); break;
+		case 33: strcpy(p, " heal 4d10"); break;
+		case 34: strcpy(p, " heal 8d10"); break;
+		case 35: strcpy(p, " heal 2000"); break;
+		case 38: sprintf(p, " dam d%d", 4 * plev); break;
+		case 42: strcpy(p, " dam 200"); break;
+		case 47: sprintf(p ," dur %d+d24", plev); break;
+		case 49: strcpy(p, " dur 8+d8"); break;
+		case 55: strcpy(p, " range 10"); break;
+		}
+	}
 }
 
+
+/*
+ * Returns a "rating" of x
+ */
+static cptr likert_spell_chance(int x)
+{
+     if (x <=  5) return ("Excellent"); 
+     if (x <= 20) return ("Good");      
+     if (x <= 50) return ("Fair");      
+     if (x <= 90) return ("Poor");      
+     return ("Bad");                    
+}
 
 /*
  * Print a list of spells (for browsing or casting or viewing).
@@ -4563,10 +4804,15 @@ void print_spells(const byte *spells, int num, int y, int x)
 
 	byte line_attr;
 
+	int priest = ((mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_PRAYER_BOOK || mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_DEATH_BOOK) ? 1 : 0);
+
 	/* Title the list */
 	prt("", y, x);
 	put_str("Name", y, x + 5);
-	put_str("Lv Mana Fail Info", y, x + 35);
+	if (adult_hidden) /* Hide spell information */
+	     put_str("   Fail      Info", y, x + 35);
+	else /* Show spell information */
+	     put_str("Lv Mana Fail Info", y, x + 35);
 
 	/* Dump the spells */
 	for (i = 0; i < num; i++)
@@ -4575,7 +4821,7 @@ void print_spells(const byte *spells, int num, int y, int x)
 		spell = spells[i];
 
 		/* Get the spell info */
-		s_ptr = &mp_ptr->info[spell];
+		s_ptr = &mp_ptr[p_ptr->pclass[p_ptr->current_class]]->info[spell];
 
 		/* Skip illegible spells */
 		if (s_ptr->slevel >= 99)
@@ -4596,40 +4842,54 @@ void print_spells(const byte *spells, int num, int y, int x)
 
 		/* Analyze the spell */
 		if ((spell < 32) ?
-		    ((p_ptr->spell_forgotten1 & (1L << spell))) :
-		    ((p_ptr->spell_forgotten2 & (1L << (spell - 32)))))
+		    ((p_ptr->spell_forgotten1[(priest)] & (1L << spell))) :
+		    ((p_ptr->spell_forgotten2[(priest)] & (1L << (spell - 32)))))
 		{
 			comment = " forgotten";
 			line_attr = TERM_YELLOW;
 		}
 		else if (!((spell < 32) ?
-		           (p_ptr->spell_learned1 & (1L << spell)) :
-		           (p_ptr->spell_learned2 & (1L << (spell - 32)))))
+		           (p_ptr->spell_learned1[(priest)] & (1L << spell)) :
+		           (p_ptr->spell_learned2[(priest)] & (1L << (spell - 32)))))
 		{
-			if (s_ptr->slevel <= p_ptr->lev)
+			if (s_ptr->slevel <= p_ptr->lev[p_ptr->current_class])
 			{
 				comment = " unknown";
 				line_attr = TERM_L_BLUE;
 			}
 			else
 			{
-				comment = " difficult";
+				comment = " too hard";
 				line_attr = TERM_RED;
 			}
 		}
 		else if (!((spell < 32) ?
-		           (p_ptr->spell_worked1 & (1L << spell)) :
-		           (p_ptr->spell_worked2 & (1L << (spell - 32)))))
+		           (p_ptr->spell_worked1[(priest)] & (1L << spell)) :
+		           (p_ptr->spell_worked2[(priest)] & (1L << (spell - 32)))))
 		{
 			comment = " untried";
 			line_attr = TERM_L_GREEN;
 		}
 
-		/* Dump the spell --(-- */
-		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
-		        I2A(i), spell_names[mp_ptr->spell_type][spell],
-		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
-		c_prt(line_attr, out_val, y + i + 1, x);
+		if (adult_hidden)
+		{
+		  cptr desc;
+		  desc = likert_spell_chance(spell_chance(spell));
+
+		  /* Dump the spell --(-- */
+		  sprintf(out_val, "  %c) %-30s   %-9s%s",
+			  I2A(i), spell_names[mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_type][spell],
+			  desc, comment);
+		  c_prt(line_attr, out_val, y + i + 1, x);
+		}
+		else
+		{
+		  /* Dump the spell --(-- */
+		  sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
+			  I2A(i), spell_names[mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_type][spell],
+			  s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
+		  c_prt(line_attr, out_val, y + i + 1, x);
+		}
 	}
 
 	/* Clear the bottom line */
@@ -4682,10 +4942,10 @@ void display_koff(int k_idx)
 
 
 	/* Warriors are illiterate */
-	if (!mp_ptr->spell_book) return;
+	if (!mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book) return;
 
 	/* Display spells in readible books */
-	if (i_ptr->tval == mp_ptr->spell_book)
+	if (i_ptr->tval == mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book)
 	{
 		int sval;
 
@@ -4703,8 +4963,8 @@ void display_koff(int k_idx)
 		{
 			/* Check for this spell */
 			if ((spell < 32) ?
-			    (spell_flags[mp_ptr->spell_type][sval][0] & (1L << spell)) :
-			    (spell_flags[mp_ptr->spell_type][sval][1] & (1L << (spell - 32))))
+			    (spell_flags[mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_type][sval][0] & (1L << spell)) :
+			    (spell_flags[mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_type][sval][1] & (1L << (spell - 32))))
 			{
 				/* Collect this spell */
 				spells[num++] = spell;

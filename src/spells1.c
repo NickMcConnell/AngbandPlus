@@ -155,6 +155,12 @@ void teleport_player(int dis)
 	bool look = TRUE;
 
 
+	if (p_ptr->no_teleport)
+	{
+	     msg_print("A mysterious force prevents you from teleporting!");
+	     return;
+	}
+
 	/* Initialize */
 	y = py;
 	x = px;
@@ -230,6 +236,12 @@ void teleport_player_to(int ny, int nx)
 
 	int dis = 0, ctr = 0;
 
+	if (p_ptr->no_teleport)
+	{
+	     msg_print("A mysterious force prevents you from teleporting!");
+	     return;
+	}
+
 	/* Initialize */
 	y = py;
 	x = px;
@@ -279,6 +291,12 @@ void teleport_player_level(void)
 		return;
 	}
 
+	if (p_ptr->no_teleport)
+	{
+	     msg_print("A mysterious force prevents you from teleporting!");
+	     return;
+	}
+
 
 	if (!p_ptr->depth)
 	{
@@ -290,8 +308,8 @@ void teleport_player_level(void)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
-
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1) ||
+		 (p_ptr->astral && (p_ptr->depth == 97)))
 	{
 		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
@@ -301,7 +319,6 @@ void teleport_player_level(void)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
-
 	else if (rand_int(100) < 50)
 	{
 		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
@@ -312,7 +329,6 @@ void teleport_player_level(void)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
-
 	else
 	{
 		message(MSG_TPLEVEL, 0, "You sink through the floor.");
@@ -448,8 +464,36 @@ void take_hit(int dam, cptr kb_str)
 	/* Mega-Hack -- Apply "invulnerability" */
 	if (p_ptr->invuln && (dam < 9000)) return;
 
-	/* Hurt the player */
-	p_ptr->chp -= dam;
+	/* Berserker takes damage from mana if hp = 0 */
+	if (player_has_class(CLASS_BERSERKER, 0))
+	{
+	     /* If damage would kill player */
+	     if (dam > p_ptr->chp)
+	     {
+		  /* Die if damage is left after taking from mana */
+		  if ((dam - p_ptr->chp) > p_ptr->csp)
+		       p_ptr->chp -= (dam - p_ptr->csp);
+		  else
+		  {
+		       /* No hp left */
+		       p_ptr->chp = 0;
+
+		       /* Reduce mana */
+		       p_ptr->csp -= (dam - p_ptr->chp);
+
+		       /* Rage! */
+		       (void)set_shero(p_ptr->shero + randint(3));
+		  }
+	     }
+	     else
+		  /* Hurt player */
+		  p_ptr->chp -= dam;
+	}
+	else
+	{
+	     /* Hurt the player */
+	     p_ptr->chp -= dam;
+	}
 
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
@@ -461,8 +505,8 @@ void take_hit(int dam, cptr kb_str)
 	if (p_ptr->chp < 0)
 	{
 		/* Hack -- Note death */
-		message(MSG_DEATH, 0, "You die.");
-		message_flush();
+	        cmsg_print(TERM_RED, "You die.");
+	        msg_print(NULL);
 
 		/* Note cause of death */
 		strcpy(p_ptr->died_from, kb_str);
@@ -599,6 +643,8 @@ static bool hates_fire(const object_type *o_ptr)
 		/* Books */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_ILLUSION_BOOK:
+		case TV_DEATH_BOOK:
 		{
 			return (TRUE);
 		}
@@ -1967,7 +2013,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
  */
 static bool project_m(int who, int r, int y, int x, int dam, int typ)
 {
-	int tmp;
+	int tmp, color = TERM_WHITE;
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -2932,6 +2978,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Check for death */
 	if (dam > m_ptr->hp)
 	{
+	        /* Message is shown in light red */
+	        color = TERM_L_RED;
+
 		/* Extract method of death */
 		note = note_dies;
 	}
@@ -3075,7 +3124,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			delete_monster_idx(cave_m_idx[y][x]);
 
 			/* Give detailed messages if destroyed */
-			if (note) msg_format("%^s%s", m_name, note);
+			if (note) cmsg_format(color, "%^s%s", m_name, note);
 		}
 
 		/* Damaged monster */
@@ -3333,12 +3382,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				else if (p_ptr->hold_life)
 				{
 					msg_print("You feel your life slipping away!");
-					lose_exp(200 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
+					lose_exp(200 + (p_ptr->exp[best_class()]/1000) * MON_DRAIN_LIFE, best_class());
 				}
 				else
 				{
 					msg_print("You feel your life draining away!");
-					lose_exp(200 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
+					lose_exp(200 + (p_ptr->exp[best_class()]/100) * MON_DRAIN_LIFE, best_class());
 				}
 			}
 			take_hit(dam, killer);
@@ -3369,11 +3418,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			if (!p_ptr->resist_confu)
+			if (!(p_ptr->resist_confu))
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
-			if (!p_ptr->resist_chaos)
+			if (!(p_ptr->resist_chaos))
 			{
 				(void)set_image(p_ptr->image + randint(10));
 			}
@@ -3386,12 +3435,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				else if (p_ptr->hold_life)
 				{
 					msg_print("You feel your life slipping away!");
-					lose_exp(500 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
+					lose_exp(500 + (p_ptr->exp[best_class()]/1000) * MON_DRAIN_LIFE, best_class());
 				}
 				else
 				{
 					msg_print("You feel your life draining away!");
-					lose_exp(5000 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
+					lose_exp(5000 + (p_ptr->exp[best_class()]/100) * MON_DRAIN_LIFE, best_class());
 				}
 			}
 			take_hit(dam, killer);
@@ -3439,7 +3488,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 5; dam /= (randint(6) + 6);
 			}
-			if (!p_ptr->resist_confu)
+			if (!(p_ptr->resist_confu))
 			{
 				(void)set_confused(p_ptr->confused + randint(20) + 10);
 			}
@@ -3542,7 +3591,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				case 1: case 2: case 3: case 4: case 5:
 				{
 					msg_print("You feel life has clocked back.");
-					lose_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+					lose_exp(100 + (p_ptr->exp[best_class()] / 100) * MON_DRAIN_LIFE, best_class());
 					break;
 				}
 
@@ -3588,7 +3637,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
 			msg_print("Gravity warps around you.");
-			teleport_player(5);
+			if (!p_ptr->ffall) teleport_player(5);
 			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
 			if (!p_ptr->resist_sound)
 			{

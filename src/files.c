@@ -734,7 +734,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			/* Class */
 			else if (streq(b+1, "CLASS"))
 			{
-				v = cp_ptr->title;
+				v = cp_ptr[p_ptr->pclass[p_ptr->current_class]]->title;
 			}
 
 			/* Player */
@@ -1150,6 +1150,9 @@ errr check_load_init(void)
  * Hack -- pass color info around this file
  */
 static byte likert_color = TERM_WHITE;
+static byte likert_infra_color = TERM_WHITE;
+
+
 
 
 /*
@@ -1228,6 +1231,59 @@ static cptr likert(int x, int y)
 	}
 }
 
+/*
+ * Returns a "rating" of x depending on y
+ */
+static cptr likert_infra(int x)
+{
+	/* Negative value */
+	if (x < 0)
+	{
+		likert_infra_color = TERM_RED;
+		return ("None");
+	}
+
+	/* Analyze the value */
+	switch (x)
+	{
+		case 0:
+		{
+			likert_infra_color = TERM_RED;
+			return ("None");
+		}
+		case 1:
+		{
+			likert_infra_color = TERM_RED;
+			return ("Poor");
+		}
+		case 2:
+		{
+			likert_infra_color = TERM_YELLOW;
+			return ("Fair");
+		}
+		case 3:
+		{
+			likert_infra_color = TERM_YELLOW;
+			return ("Good");
+		}
+		case 4:
+		{
+			likert_infra_color = TERM_YELLOW;
+			return ("Very Good");
+		}
+		case 5:
+		{
+			likert_infra_color = TERM_L_GREEN;
+			return ("Excellent");
+		}
+	        default:
+		{
+			likert_infra_color = TERM_L_GREEN;
+			return ("Superb");
+		}
+	}
+}
+
 
 /*
  * Prints some "extra" information on the screen.
@@ -1251,180 +1307,187 @@ static void display_player_xtra_info(void)
 
 	char buf[160];
 
-
 	/* Upper middle */
 	col = 26;
-
-
+	
 	/* Age */
-	Term_putstr(col, 3, -1, TERM_WHITE, "Age");
-	Term_putstr(col+9, 3, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->age));
+	Term_putstr(col, 1, -1, TERM_WHITE, "Age");
+	Term_putstr(col+9, 1, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->age));
 
 	/* Height */
-	Term_putstr(col, 4, -1, TERM_WHITE, "Height");
-	Term_putstr(col+9, 4, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->ht));
+	Term_putstr(col, 2, -1, TERM_WHITE, "Height");
+	Term_putstr(col+9, 2, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->ht));
 
 	/* Weight */
-	Term_putstr(col, 5, -1, TERM_WHITE, "Weight");
-	Term_putstr(col+9, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->wt));
+	Term_putstr(col, 3, -1, TERM_WHITE, "Weight");
+	Term_putstr(col+9, 3, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->wt));
 
-	/* Status */
-	Term_putstr(col, 6, -1, TERM_WHITE, "Status");
-	Term_putstr(col+9, 6, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
-
+	if (!adult_hidden)
+	{
+	    /* Status */
+	    Term_putstr(col, 5, -1, TERM_WHITE, "Status");
+	    Term_putstr(col+9, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
+	}
+	
 	/* Maximize */
-	Term_putstr(col, 7, -1, TERM_WHITE, "Maximize");
-	Term_putstr(col+12, 7, -1, TERM_L_BLUE, adult_maximize ? "Y" : "N");
+	Term_putstr(col, 6, -1, TERM_WHITE, "Maximize");
+	Term_putstr(col+12, 6, -1, TERM_L_BLUE, adult_maximize ? "Y" : "N");
 
 	/* Preserve */
-	Term_putstr(col, 8, -1, TERM_WHITE, "Preserve");
-	Term_putstr(col+12, 8, -1, TERM_L_BLUE, adult_preserve ? "Y" : "N");
-
+	Term_putstr(col, 7, -1, TERM_WHITE, "Preserve");
+	Term_putstr(col+12, 7, -1, TERM_L_BLUE, adult_preserve ? "Y" : "N");
 
 	/* Left */
 	col = 1;
 
-
-	/* Level */
-	Term_putstr(col, 10, -1, TERM_WHITE, "Level");
-	if (p_ptr->lev >= p_ptr->max_lev)
-	{
-		Term_putstr(col+8, 10, -1, TERM_L_GREEN,
-		            format("%10d", p_ptr->lev));
-	}
-	else
-	{
-		Term_putstr(col+8, 10, -1, TERM_YELLOW,
-		            format("%10d", p_ptr->lev));
-	}
-
-
-	/* Current Experience */
-	Term_putstr(col, 11, -1, TERM_WHITE, "Cur Exp");
-	if (p_ptr->exp >= p_ptr->max_exp)
-	{
-		Term_putstr(col+8, 11, -1, TERM_L_GREEN,
-		            format("%10ld", p_ptr->exp));
-	}
-	else
-	{
-		Term_putstr(col+8, 11, -1, TERM_YELLOW,
-		            format("%10ld", p_ptr->exp));
-	}
-
-
-	/* Maximum Experience */
-	Term_putstr(col, 12, -1, TERM_WHITE, "Max Exp");
-	Term_putstr(col+8, 12, -1, TERM_L_GREEN,
-	            format("%10ld", p_ptr->max_exp));
-
-
-	/* Advance Experience */
-	Term_putstr(col, 13, -1, TERM_WHITE, "Adv Exp");
-	if (p_ptr->lev < PY_MAX_LEVEL)
-	{
-		s32b advance = (player_exp[p_ptr->lev - 1] *
-		                p_ptr->expfact / 100L);
-		Term_putstr(col+8, 13, -1, TERM_L_GREEN,
-		            format("%10ld", advance));
-	}
-	else
-	{
-		Term_putstr(col+8, 13, -1, TERM_L_GREEN,
-		            format("%10s", "********"));
-	}
-
-
 	/* Gold */
-	Term_putstr(col, 15, -1, TERM_WHITE, "Gold");
-	Term_putstr(col+8, 15, -1, TERM_L_GREEN,
-	            format("%10ld", p_ptr->au));
+	Term_putstr(col, 9, -1, TERM_WHITE, "Gold");
+	Term_putstr(col+8, 9, -1, TERM_L_GREEN,
+		    format("%10ld", p_ptr->au));
 
-
-	/* Burden */
-	sprintf(buf, "%ld.%ld lbs",
-	        p_ptr->total_weight / 10,
-	        p_ptr->total_weight % 10);
-	Term_putstr(col, 17, -1, TERM_WHITE, "Burden");
-	Term_putstr(col+8, 17, -1, TERM_L_GREEN,
-	            format("%10s", buf));
-
+	/* Only show if info is not being hidden */
+	if (!adult_hidden)
+	{
+	    /* Burden */
+	    sprintf(buf, "%ld.%ld lbs",
+		    p_ptr->total_weight / 10,
+		    p_ptr->total_weight % 10);
+	    Term_putstr(col, 11, -1, TERM_WHITE, "Burden");
+	    Term_putstr(col+8, 11, -1, TERM_L_GREEN,
+			format("%10s", buf));
+	}
 
 	/* Middle */
 	col = 26;
 
+	if (!adult_hidden)
+	{
+	    /* Armor */
+	    base = p_ptr->dis_ac;
+	    plus = p_ptr->dis_to_a;
 
-	/* Armor */
-	base = p_ptr->dis_ac;
-	plus = p_ptr->dis_to_a;
-
-	/* Total Armor */
-	sprintf(buf, "[%d,%+d]", base, plus);
-	Term_putstr(col, 10, -1, TERM_WHITE, "Armor");
-	Term_putstr(col+5, 10, -1, TERM_L_BLUE, format("%13s", buf));
-
-
-	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = p_ptr->dis_to_d;
-
-	/* Basic fighting */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
-	Term_putstr(col, 11, -1, TERM_WHITE, "Fight");
-	Term_putstr(col+5, 11, -1, TERM_L_BLUE, format("%13s", buf));
+	    /* Total Armor */
+	    sprintf(buf, "[%d,%+d]", base, plus);
+	    Term_putstr(col, 9, -1, TERM_WHITE, "Armor");
+	    Term_putstr(col+5, 9, -1, TERM_L_BLUE, format("%13s", buf));
 
 
-	/* Melee weapon */
-	o_ptr = &inventory[INVEN_WIELD];
+	    /* Base skill */
+	    hit = p_ptr->dis_to_h;
+	    dam = p_ptr->dis_to_d;
 
-	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = p_ptr->dis_to_d;
+	    /* Basic fighting */
+	    sprintf(buf, "(%+d,%+d)", hit, dam);
+	    Term_putstr(col, 10, -1, TERM_WHITE, "Fight");
+	    Term_putstr(col+5, 10, -1, TERM_L_BLUE, format("%13s", buf));
 
-	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	    
+	    /* Melee weapon */
+	    o_ptr = &inventory[INVEN_WIELD];
 
-	/* Melee attacks */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
-	Term_putstr(col, 12, -1, TERM_WHITE, "Melee");
-	Term_putstr(col+5, 12, -1, TERM_L_BLUE, format("%13s", buf));
+	    /* Base skill */
+	    hit = p_ptr->dis_to_h;
+	    dam = p_ptr->dis_to_d;
 
+	    /* Apply weapon bonuses */
+	    if (object_known_p(o_ptr)) hit += o_ptr->to_h;
+	    if (object_known_p(o_ptr)) dam += o_ptr->to_d;
 
-	/* Range weapon */
-	o_ptr = &inventory[INVEN_BOW];
+	    if (o_ptr->k_idx)
+		sprintf(buf, "(%+d,%dd%d%+d)", hit, o_ptr->dd, o_ptr->ds, dam);
+	    else if (player_has_class(CLASS_MONK, 0))
+	    {
+		int plev = level_of_class(CLASS_MONK), damage = 1;
+		if (plev < 7) damage = plev + 2;
+		else if (plev < 22) damage = (plev + 10) / 2;
+		else damage = (plev + 25) / 3;
+		sprintf(buf, "(%+d,%dd%d%+d)", hit, 1, damage, dam);
+	    }
+	    else
+	    {
+		 sprintf(buf, "(%+d,%+d)", hit, dam);
+	    }
+	    Term_putstr(col, 11, -1, TERM_WHITE, "Melee");
+	    Term_putstr(col+5, 11, -1, TERM_L_BLUE, format("%13s", buf));
+	    
 
-	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = 0;
+	    /* Range weapon */
+	    o_ptr = &inventory[INVEN_BOW];
 
-	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	    /* Base skill */
+	    hit = p_ptr->dis_to_h;
+	    dam = 0;
 
-	/* Range attacks */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
-	Term_putstr(col, 13, -1, TERM_WHITE, "Shoot");
-	Term_putstr(col+5, 13, -1, TERM_L_BLUE, format("%13s", buf));
+	    /* Apply weapon bonuses */
+	    if (object_known_p(o_ptr)) hit += o_ptr->to_h;
+	    if (object_known_p(o_ptr)) dam += o_ptr->to_d;
 
+	    /* Penalty for archers wielding the wrong missile weapon */
+	    if (player_has_class(CLASS_ARCHER, 0))
+	    {
+		 if ((rp_ptr->archer_type == 1 && o_ptr->sval >= 10) ||
+		     (rp_ptr->archer_type == 2 && 
+		      (o_ptr->sval < 10 || o_ptr->sval >= 20)) ||
+		     (rp_ptr->archer_type == 3 && o_ptr->sval < 20))
+		 {
+		      hit -= 10;
+		 }
+	    }
 
-	/* Blows */
-	sprintf(buf, "%d/turn", p_ptr->num_blow);
-	Term_putstr(col, 14, -1, TERM_WHITE, "Blows");
-	Term_putstr(col+5, 14, -1, TERM_L_BLUE, format("%13s", buf));
+	    /* Range attacks */
+	    if (o_ptr->k_idx)
+	    {
+		 object_type *ammo_ptr;
+		 ammo_ptr = &inventory[INVEN_AMMO];
 
+		 /* With useable ammo */
+		 if (ammo_ptr->k_idx && (p_ptr->ammo_tval == ammo_ptr->tval))
+		      sprintf(buf, "(%+d,%dd%d%+d)", hit + ammo_ptr->to_h, 
+			      ammo_ptr->dd * p_ptr->ammo_mult, ammo_ptr->ds, 
+			      (dam + ammo_ptr->to_d) * p_ptr->ammo_mult);
+		 else /* Without useable ammo */
+		      sprintf(buf, "(%+d,%dd%d%+d)", 0,
+			      p_ptr->ammo_mult, hit, dam);
+	    }
+	    else /* No useable missile weapon */
+		 sprintf(buf, " ");
+	    Term_putstr(col, 12, -1, TERM_WHITE, "Shoot");
+	    Term_putstr(col+5, 12, -1, TERM_L_BLUE, format("%13s", buf));
 
-	/* Shots */
-	sprintf(buf, "%d/turn", p_ptr->num_fire);
-	Term_putstr(col, 15, -1, TERM_WHITE, "Shots");
-	Term_putstr(col+5, 15, -1, TERM_L_BLUE, format("%13s", buf));
+	    /* Blows */
+	    sprintf(buf, "%d/turn", p_ptr->num_blow);
+	    Term_putstr(col, 13, -1, TERM_WHITE, "Blows");
+	    Term_putstr(col+5, 13, -1, TERM_L_BLUE, format("%13s", buf));
 
+	    /* Shots */
+	    sprintf(buf, "%d/turn", p_ptr->num_fire);
+	    Term_putstr(col, 14, -1, TERM_WHITE, "Shots");
+	    Term_putstr(col+5, 14, -1, TERM_L_BLUE, format("%13s", buf));
+	    
+	    /* Infra */
+	    sprintf(buf, "%d ft", p_ptr->see_infra * 10);
+	    Term_putstr(col, 16, -1, TERM_WHITE, "Infra");
+	    Term_putstr(col+5, 16, -1, TERM_L_BLUE, format("%13s", buf));
+	}
+	else /* Just show blows/shots/infra, but higher up screen */
+	{
+	    cptr desc;
 
-	/* Infra */
-	sprintf(buf, "%d ft", p_ptr->see_infra * 10);
-	Term_putstr(col, 17, -1, TERM_WHITE, "Infra");
-	Term_putstr(col+5, 17, -1, TERM_L_BLUE, format("%13s", buf));
+	    /* Blows */
+	    sprintf(buf, "%d/turn", p_ptr->num_blow);
+	    Term_putstr(col, 9, -1, TERM_WHITE, "Blows");
+	    Term_putstr(col+5, 9, -1, TERM_L_BLUE, format("%13s", buf));
 
+	    /* Shots */
+	    sprintf(buf, "%d/turn", p_ptr->num_fire);
+	    Term_putstr(col, 10, -1, TERM_WHITE, "Shots");
+	    Term_putstr(col+5, 10, -1, TERM_L_BLUE, format("%13s", buf));
+
+	    /* Infra - show description, not true value */
+	    desc = likert_infra(p_ptr->see_infra);
+	    Term_putstr(col, 12, -1, TERM_WHITE, "Infra");
+	    Term_putstr(col+5, 12, -1, likert_infra_color, format("%13s", desc));
+	}
 
 	/* Right */
 	col = 49;
@@ -1449,46 +1512,131 @@ static void display_player_xtra_info(void)
 	xfos = p_ptr->skill_fos;
 
 
-	put_str("Saving Throw", 10, col);
+	put_str("Saving Throw", 9, col);
 	desc = likert(xsav, 6);
+	c_put_str(likert_color, format("%9s", desc), 9, col+14);
+
+	put_str("Stealth", 10, col);
+	desc = likert(xstl, 1);
 	c_put_str(likert_color, format("%9s", desc), 10, col+14);
 
-	put_str("Stealth", 11, col);
-	desc = likert(xstl, 1);
+	put_str("Fighting", 11, col);
+	desc = likert(xthn, 12);
 	c_put_str(likert_color, format("%9s", desc), 11, col+14);
 
-	put_str("Fighting", 12, col);
-	desc = likert(xthn, 12);
-	c_put_str(likert_color, format("%9s", desc), 12, col+14);
-
-	put_str("Shooting", 13, col);
+	put_str("Shooting", 12, col);
 	desc = likert(xthb, 12);
+	c_put_str(likert_color, format("%9s", desc, xthb), 12, col+14);
+
+	put_str("Disarming", 13, col);
+	desc = likert(xdis, 8);
 	c_put_str(likert_color, format("%9s", desc), 13, col+14);
 
-	put_str("Disarming", 14, col);
-	desc = likert(xdis, 8);
+	put_str("Magic Device", 14, col);
+	desc = likert(xdev, 6);
 	c_put_str(likert_color, format("%9s", desc), 14, col+14);
 
-	put_str("Magic Device", 15, col);
-	desc = likert(xdev, 6);
+	put_str("Perception", 15, col);
+	desc = likert(xfos, 6);
 	c_put_str(likert_color, format("%9s", desc), 15, col+14);
 
-	put_str("Perception", 16, col);
-	desc = likert(xfos, 6);
+	put_str("Searching", 16, col);
+	desc = likert(xsrh, 6);
 	c_put_str(likert_color, format("%9s", desc), 16, col+14);
 
-	put_str("Searching", 17, col);
-	desc = likert(xsrh, 6);
-	c_put_str(likert_color, format("%9s", desc), 17, col+14);
-
-
-	/* Bottom */
+	/* History - no longer used */
+	/* 
 	col = 5;
-
-	/* History */
 	for (i = 0; i < 4; i++)
 	{
-		put_str(p_ptr->history[i], i + 19, col);
+		put_str(p_ptr->history[i], i + 18, col);
+	}
+	*/
+
+	/* New experience display */
+	{
+	  int class;
+
+	  /* Headings */
+	  put_str("Class", 18, 1);
+	  put_str("Lvl", 18, 16);
+	  if (adult_hidden)
+	  { 
+	      put_str("Experience", 18, 20);
+	  }
+	  else
+	  {
+	      put_str("Cur XP", 18, 23);
+	      put_str("Max XP", 18, 33);
+	      put_str("Adv XP", 18, 43);
+	      put_str("Exp %", 18, 50);
+	  }
+	  put_str("Title", 18, 67);
+
+	  /* For each class */
+	  for (class = 0; class < p_ptr->available_classes; class++)
+	  {
+	      /* Title */
+	      c_put_str(TERM_L_BLUE, format("%s", cp_ptr[p_ptr->pclass[class]]->title), 19 + class, 1);
+
+	      /* Current XP level */
+	      if (p_ptr->lev[class] >= p_ptr->max_lev[class])
+	      {
+		  Term_putstr(16, 19 + class, -1, TERM_L_GREEN,
+			      format("%3d", p_ptr->lev[class]));
+	      }
+	      else
+	      {
+		  Term_putstr(16, 19 + class, -1, TERM_YELLOW,
+			      format("%3d", p_ptr->lev[class]));
+	      }
+
+	      /* Only show if info is not being hidden */
+	      if (!adult_hidden)
+	      {
+		  byte xp_color = (p_ptr->exp[class] >= p_ptr->max_exp[class]) ? TERM_L_GREEN : TERM_YELLOW;
+
+		  /* Current Experience */
+		  Term_putstr(19, 19 + class, -1, xp_color,
+			      format("%10ld", p_ptr->exp[class])); 
+		  
+		  /* Maximum Experience */
+		  Term_putstr(29, 19 + class, -1, TERM_L_GREEN,
+			      format("%10ld", p_ptr->max_exp[class]));
+
+		  /* Advance Experience */
+		  if (p_ptr->lev[class] < PY_MAX_LEVEL)
+		  {
+		      s32b advance = (player_exp[p_ptr->lev[class] - 1] *
+				      p_ptr->expfact[class] / 100L);
+		      Term_putstr(39, 19 + class, -1, TERM_L_GREEN,
+				  format("%10ld", advance));
+
+		      /* Exp factor */
+		      Term_putstr(51, 19 + class, -1, TERM_L_GREEN,
+				  format("%3ld", p_ptr->expfact[class]));
+		  }
+		  else
+		  {
+		       Term_putstr(39, 19 + class, -1, TERM_L_GREEN,
+				   format("%10s", "********"));
+		  }
+	      }
+	      else /* Show XP bar and gold, + in different positions */
+	      {
+		long xp_needed = (long)player_exp[p_ptr->lev[class]-1] * p_ptr->expfact[class]/100L;
+		long last_needed = (p_ptr->lev[class] == 1) ? 0 : (long)player_exp[p_ptr->lev[class]-2] * p_ptr->expfact[class]/100L;
+		long diff = xp_needed - last_needed;
+		long achieved = p_ptr->exp[class] - last_needed;
+		long pct = achieved * 100 / diff;
+		int len = (pct < 3) ? 0 : (pct < 96) ? (pct / 3) : 32;
+		Term_putstr(20, 19 + class, 35, TERM_WHITE, "[---------------------------------]");
+		Term_putstr(21, 19 + class, len, TERM_L_GREEN, "*********************************");
+	      }
+
+	      /* Title */
+	      Term_putstr(57, 19 + class, -1, TERM_L_BLUE, format("%15s", player_title[p_ptr->pclass[class]][(p_ptr->lev[class]-1)/5]));
+	  }
 	}
 }
 
@@ -1507,9 +1655,71 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	(*f2) |= rp_ptr->flags2;
 	(*f3) |= rp_ptr->flags3;
 
-	if (p_ptr->pclass == CLASS_WARRIOR)
+	/* Add class flags */
+	if (player_has_class(CLASS_WARRIOR, 30)) (*f2) |= (TR2_RES_FEAR);
+	if (player_has_class(CLASS_BERSERKER, 0)) (*f2) |= (TR2_RES_FEAR);
+	if (player_has_class(CLASS_BERSERKER, 30)) (*f2) |= (TR2_SUST_STR);
+	if (player_has_class(CLASS_MONK, 15)) (*f3) |= (TR3_SLOW_DIGEST); 
+	if (player_has_class(CLASS_MONK, 30)) (*f2) |= (TR2_RES_CONFU); 
+
+	/* Known timed effects */
+	if (p_ptr->fast) (*f1) |= (TR1_SPEED);
+	if (p_ptr->tim_invis) (*f3) |= (TR3_SEE_INVIS);
+	if (p_ptr->tim_infra) (*f1) |= (TR1_INFRA);
+	if (p_ptr->oppose_acid) (*f2) |= (TR2_RES_ACID);
+	if (p_ptr->oppose_elec) (*f2) |= (TR2_RES_ELEC);
+	if (p_ptr->oppose_fire) (*f2) |= (TR2_RES_FIRE);
+	if (p_ptr->oppose_cold) (*f2) |= (TR2_RES_COLD);
+	if (p_ptr->oppose_pois) (*f2) |= (TR2_RES_POIS);
+	if (p_ptr->oppose_ld)
+	{ 
+	     (*f2) |= (TR2_RES_LITE); 
+	     (*f2) |= (TR2_RES_DARK); 
+	}
+	if (p_ptr->oppose_cc) 
+	{ 
+	     (*f2) |= (TR2_RES_CONFU); 
+	     (*f2) |= (TR2_RES_CHAOS); 
+	}
+	if (p_ptr->oppose_ss) 
+	{ 
+	     (*f2) |= (TR2_RES_SOUND); 
+	     (*f2) |= (TR2_RES_SHARD); 
+	}
+	if (p_ptr->oppose_nex) (*f2) |= (TR2_RES_NEXUS);
+	if (p_ptr->mental_barrier) 
+	{ 
+	     (*f2) |= (TR2_SUST_INT); 
+	     (*f2) |= (TR2_SUST_WIS); 
+	     (*f2) |= (TR2_RES_CONFU); 
+	}
+	if (p_ptr->tim_stealth) (*f1) |= (TR1_STEALTH);
+	if (p_ptr->oppose_nether) (*f2) |= (TR2_RES_NETHR);
+	if (p_ptr->oppose_disen) (*f2) |= (TR2_RES_DISEN);
+	if (p_ptr->sustain_body) 
+	{ 
+	     (*f2) |= (TR2_SUST_STR); 
+	     (*f2) |= (TR2_SUST_DEX); 
+	     (*f2) |= (TR2_SUST_CON); 
+	}
+	if (p_ptr->tim_telepathy) (*f3) |= (TR3_TELEPATHY);
+	if (p_ptr->tim_aggravate) (*f3) |= (TR3_AGGRAVATE);
+	if (p_ptr->tim_teleportitus) (*f3) |= (TR3_TELEPORT);
+	if (p_ptr->tim_lite) (*f3) |= (TR3_LITE);
+	if (p_ptr->tim_regen) (*f3) |= (TR3_REGEN);
+
+	if (p_ptr->astral)
 	{
-		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
+	     (*f1) |= (TR1_SPEED);
+	     (*f3) |= (TR3_LITE);
+	     (*f3) |= (TR3_SEE_INVIS);
+	     (*f3) |= (TR3_TELEPATHY);
+	     (*f3) |= (TR3_SLOW_DIGEST); 
+	}
+
+	if (adult_nightmare)
+	{
+	     (*f3) |= (TR3_AGGRAVATE);
 	}
 }
 
@@ -1525,7 +1735,6 @@ static void display_player_equippy(int y, int x)
 	char c;
 
 	object_type *o_ptr;
-
 
 	/* Dump equippy chars */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
@@ -1741,64 +1950,115 @@ static void display_player_misc_info(void)
 
 	char buf[80];
 
-
 	/* Name */
-	put_str("Name", 2, 1);
-	c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 8);
-
+	put_str("Name", 1, 1);
+	c_put_str(TERM_L_BLUE, op_ptr->full_name, 1, 8);
 
 	/* Sex */
-	put_str("Sex", 3, 1);
-	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 8);
-
+	put_str("Sex", 2, 1);
+	c_put_str(TERM_L_BLUE, sp_ptr->title, 2, 8);
 
 	/* Race */
-	put_str("Race", 4, 1);
-	c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 8);
-
-
-	/* Class */
-	put_str("Class", 5, 1);
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 8);
-
-
-	/* Title */
-	put_str("Title", 6, 1);
+	put_str("Race", 3, 1);
+	c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 3, 8);
 
 	/* Wizard */
 	if (p_ptr->wizard)
 	{
-		p = "[=-WIZARD-=]";
+		p = "[=-W-I-Z-A-R-D-=]";
+
+		/* Dump it */
+		c_put_str(TERM_L_BLUE, p, 4, 1);
 	}
 
 	/* Winner */
-	else if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+	else if (p_ptr->total_winner)
 	{
-		p = "***WINNER***";
+		p = "***W*I*N*N*E*R***";
+
+		/* Dump it */
+		c_put_str(TERM_L_BLUE, p, 4, 1);
 	}
 
-	/* Normal */
-	else
+	if (!adult_hidden)
 	{
-		p = player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
+	     /* Hit Points */
+	     put_str("HP", 5, 1);
+	     sprintf(buf, "%d/%d", p_ptr->chp, p_ptr->mhp);
+	     c_put_str(TERM_L_BLUE, buf, 5, 8);
+
+	     /* Spell Points */
+	     if (p_ptr->msp > 0)
+	     {
+		  put_str("SP", 6, 1);
+		  sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
+		  c_put_str(TERM_L_BLUE, buf, 6, 8);
+	     }
+	     
+	     /* Piety */
+	     if (p_ptr->mpp > 0)
+	     {
+		  put_str("PP", 7, 1);
+		  sprintf(buf, "%d/%d", p_ptr->cpp, p_ptr->mpp);
+		  c_put_str(TERM_L_BLUE, buf, 7, 8);
+	     }
 	}
-
-	/* Dump it */
-	c_put_str(TERM_L_BLUE, p, 6, 8);
-
-
-	/* Hit Points */
-	put_str("HP", 7, 1);
-	sprintf(buf, "%d/%d", p_ptr->chp, p_ptr->mhp);
-	c_put_str(TERM_L_BLUE, buf, 7, 8);
-
-
-	/* Spell Points */
-	put_str("SP", 8, 1);
-	sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
-	c_put_str(TERM_L_BLUE, buf, 8, 8);
 }
 
+
+static byte likert_stat_color = TERM_WHITE;
+
+static cptr likert_stat(int x)
+{
+	/* Negative value */
+	if (x < 0)
+	{
+		likert_stat_color = TERM_RED;
+		return ("None");
+	}
+
+	/* Analyze the value */
+	switch (x)
+	{
+	case 0: case 1: case 2: case 3: case 4: case 5:
+		{
+			likert_stat_color = TERM_RED;
+			return ("Bad");
+		}
+	case 6: case 7: case 8: 
+		{
+			likert_stat_color = TERM_RED;
+			return ("Poor");
+		}
+	case 9: case 10: case 11:
+		{
+			likert_stat_color = TERM_YELLOW;
+			return ("Average");
+		}
+	case 12: case 13: case 14:
+		{
+			likert_stat_color = TERM_YELLOW;
+			return ("Fair");
+		}
+	case 15: case 16: case 17:
+		{
+			likert_stat_color = TERM_YELLOW;
+			return ("Good");
+		}
+	default:
+		{
+			likert_stat_color = TERM_L_GREEN;
+			if (x < 48)             /* 18    - 18/29 */
+			     return ("Very Good");
+			if (x < 78)             /* 18/30 - 18/59 */
+			     return ("Excellent");
+			else if (x < 118)       /* 18/60 - 18/99 */
+			     return ("Superb");
+			else                    /* 18/100 + */
+			     return ("Legendary");
+		}
+	}
+}
 
 /*
  * Special display, part 2b
@@ -1811,17 +2071,24 @@ static void display_player_stat_info(void)
 
 
 	/* Row */
-	row = 3;
+	row = 2;
 
 	/* Column */
 	col = 42;
 
+	/* Line up adjusted knowledge */
+	if (adult_hidden) col += 7;
+
 	/* Print out the labels for the columns */
-	c_put_str(TERM_WHITE, "  Self", row-1, col+5);
-	c_put_str(TERM_WHITE, " RB", row-1, col+12);
-	c_put_str(TERM_WHITE, " CB", row-1, col+16);
-	c_put_str(TERM_WHITE, " EB", row-1, col+20);
-	c_put_str(TERM_WHITE, "  Best", row-1, col+24);
+	if (!adult_hidden)
+	  {
+	    c_put_str(TERM_WHITE, "  Self", row-1, col+5);
+	    c_put_str(TERM_WHITE, " RB", row-1, col+12);
+	    c_put_str(TERM_WHITE, " CB", row-1, col+16);
+	    c_put_str(TERM_WHITE, " EB", row-1, col+20);
+	    c_put_str(TERM_WHITE, "  Best", row-1, col+24);
+	    c_put_str(TERM_WHITE, "Current", row-1, col+5);
+	  }
 
 	/* Display the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -1840,37 +2107,48 @@ static void display_player_stat_info(void)
 			put_str(stat_names[i], row+i, col);
 		}
 
-		/* Indicate natural maximum */
-		if (p_ptr->stat_max[i] == 18+100)
+	        if (!adult_hidden)
 		{
+		    /* Indicate natural maximum */
+		    if (p_ptr->stat_max[i] == 18+100)
+		    {
 			put_str("!", row+i, col+3);
-		}
+		    }
 
-		/* Internal "natural" maximum value */
-		cnv_stat(p_ptr->stat_max[i], buf);
-		c_put_str(TERM_L_GREEN, buf, row+i, col+5);
+		    /* Internal "natural" maximum value */
+		    cnv_stat(p_ptr->stat_max[i], buf);
+		    c_put_str(TERM_L_GREEN, buf, row+i, col+5);
 
-		/* Race Bonus */
-		sprintf(buf, "%+3d", rp_ptr->r_adj[i]);
-		c_put_str(TERM_L_BLUE, buf, row+i, col+12);
+		    /* Race Bonus */
+		    sprintf(buf, "%+3d", rp_ptr->r_adj[i]);
+		    c_put_str(TERM_L_BLUE, buf, row+i, col+12);
 
-		/* Class Bonus */
-		sprintf(buf, "%+3d", cp_ptr->c_adj[i]);
-		c_put_str(TERM_L_BLUE, buf, row+i, col+16);
+		    /* Class Bonus */
+		    sprintf(buf, "%+3d", cp_ptr[p_ptr->pclass[0]]->c_adj[i]);
+		    c_put_str(TERM_L_BLUE, buf, row+i, col+16);
 
-		/* Equipment Bonus */
-		sprintf(buf, "%+3d", p_ptr->stat_add[i]);
-		c_put_str(TERM_L_BLUE, buf, row+i, col+20);
-
-		/* Resulting "modified" maximum value */
-		cnv_stat(p_ptr->stat_top[i], buf);
-		c_put_str(TERM_L_GREEN, buf, row+i, col+24);
-
-		/* Only display stat_use if not maximal */
-		if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
-		{
+		    /* Equipment Bonus */
+		    sprintf(buf, "%+3d", p_ptr->stat_add[i]);
+		    c_put_str(TERM_L_BLUE, buf, row+i, col+20);
+		
+		    /* Resulting "modified" maximum value */
+		    cnv_stat(p_ptr->stat_top[i], buf);
+		    c_put_str(TERM_L_GREEN, buf, row+i, col+24);
+	    
+		    /* Only display stat_use if not maximal */
+		    if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
+		    {
 			cnv_stat(p_ptr->stat_use[i], buf);
 			c_put_str(TERM_YELLOW, buf, row+i, col+31);
+		    }
+		}	    
+		else
+		{
+		    cptr desc;
+
+		    desc = likert_stat(p_ptr->stat_use[i]);
+		    c_put_str(likert_stat_color, desc, row+i, col+5);
+	    
 		}
 	}
 }
@@ -1900,7 +2178,7 @@ static void display_player_sust_info(void)
 
 
 	/* Row */
-	row = 3;
+	row = 2;
 
 	/* Column */
 	col = 26;
@@ -2025,12 +2303,8 @@ void display_player(int mode)
 	display_player_stat_info();
 
 	/* Special */
-	if (mode)
+	if (mode && !adult_hidden)
 	{
-		/* Hack -- Level */
-		put_str("Level", 9, 1);
-		c_put_str(TERM_L_BLUE, format("%d", p_ptr->lev), 9, 8);
-
 		/* Stat/Sustain flags */
 		display_player_sust_info();
 
@@ -2965,7 +3239,31 @@ void do_cmd_save_game(void)
  */
 long total_points(void)
 {
-	return (p_ptr->max_exp + (100 * p_ptr->max_depth));
+  int i, max_exp = 0, temp = 0, mult = 100;
+
+  /* Get max exp for each class */
+  for (i = 0; i < p_ptr->available_classes; i++)
+    {
+      max_exp += p_ptr->max_exp[i];
+    }
+
+  temp = max_exp + (100 * p_ptr->max_depth);
+
+  /* Nightmare mode doubles score */
+  if (adult_nightmare) mult *= 2;
+
+  /* Easy mode halves score */
+  if (adult_easy) mult /= 2;
+  
+  /* Maia get half score */
+  if (rp_ptr->flags3 & (TR3_BLESSED)) mult /= 2;
+
+  /* At least 5% of the original score */
+  if (mult < 5) mult = 5;
+
+  temp = (temp * mult) / 100;
+  
+  return temp;
 }
 
 
@@ -3048,7 +3346,7 @@ static void make_bones(void)
 			fprintf(fp, "%s\n", op_ptr->full_name);
 			fprintf(fp, "%d\n", p_ptr->mhp);
 			fprintf(fp, "%d\n", p_ptr->prace);
-			fprintf(fp, "%d\n", p_ptr->pclass);
+			fprintf(fp, "%d\n", p_ptr->pclass[best_class()]);
 
 			/* Close and save the Bones file */
 			my_fclose(fp);
@@ -3078,6 +3376,7 @@ static void print_tomb(void)
 
 	FILE *fp;
 
+	int i;
 
 	/* Clear screen */
 	Term_clear();
@@ -3104,9 +3403,8 @@ static void print_tomb(void)
 		my_fclose(fp);
 	}
 
-
 	/* King or Queen */
-	if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+	if (p_ptr->total_winner || (p_ptr->lev[best_class()] > PY_MAX_LEVEL))
 	{
 		p = "Magnificent";
 	}
@@ -3114,42 +3412,35 @@ static void print_tomb(void)
 	/* Normal */
 	else
 	{
-		p = player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
+		p = player_title[p_ptr->pclass[best_class()]][ (p_ptr->lev[best_class()] - 1) / 5 ];
 	}
 
 	center_string(buf, op_ptr->full_name);
 	put_str(buf, 6, 11);
 
-	center_string(buf, "the");
+	sprintf(tmp, "the %s", p);
+
+	center_string(buf, tmp);
 	put_str(buf, 7, 11);
 
-	center_string(buf, p);
-	put_str(buf, 8, 11);
-
-
-	center_string(buf, cp_ptr->title);
-	put_str(buf, 10, 11);
-
-	sprintf(tmp, "Level: %d", (int)p_ptr->lev);
-	center_string(buf, tmp);
-	put_str(buf, 11, 11);
-
-	sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
-	center_string(buf, tmp);
-	put_str(buf, 12, 11);
+	for (i = 0; i < p_ptr->available_classes; i++)
+	{
+	     sprintf(tmp, "%s (Level %d)", cp_ptr[p_ptr->pclass[i]]->title, p_ptr->lev[i]);
+	     center_string(buf, tmp);
+	     put_str(buf, 9 + i, 11);
+	}
 
 	sprintf(tmp, "AU: %ld", (long)p_ptr->au);
 	center_string(buf, tmp);
-	put_str(buf, 13, 11);
+	put_str(buf, 14, 11);
 
 	sprintf(tmp, "Killed on Level %d", p_ptr->depth);
 	center_string(buf, tmp);
-	put_str(buf, 14, 11);
+	put_str(buf, 15, 11);
 
 	sprintf(tmp, "by %s.", p_ptr->died_from);
 	center_string(buf, tmp);
-	put_str(buf, 15, 11);
-
+	put_str(buf, 16, 11);
 
 	sprintf(tmp, "%-.24s", ctime(&death_time));
 	center_string(buf, tmp);
@@ -3576,10 +3867,21 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			}
 
 			/* Dump some info */
-			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
+			sprintf(out_val, "%3d.%9s  %s the ",
 			        place, the_score.pts, the_score.who,
-			        p_name + p_info[pr].name, class_info[pc].title,
-			        clev);
+			        p_name + p_info[pr].name);
+
+			if (the_score.n_c > 1)
+			{
+			  strcat(out_val, format("multiclassed %s",
+						 p_name + p_info[pr].name));
+			}
+			else
+			{
+			  strcat(out_val, format("%s %s, Level %d", 
+						 p_name + p_info[pr].name, 
+						 class_info[pc].title, clev));
+			}
 
 			/* Append a "maximum level" */
 			if (mlev > clev) strcat(out_val, format(" (Max %d)", mlev));
@@ -3783,12 +4085,13 @@ static errr enter_score(void)
 	sprintf(the_score.uid, "%7u", player_uid);
 	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
 	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
+        the_score.n_c = p_ptr->available_classes;
+	sprintf(the_score.p_c, "%2d", p_ptr->pclass[best_class()]);
 
 	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
+	sprintf(the_score.cur_lev, "%3d", p_ptr->lev[best_class()]);
 	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
+	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev[best_class()]);
 	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
 
 	/* Save the cause of death (31 chars) */
@@ -3907,12 +4210,12 @@ errr predict_score(void)
 	sprintf(the_score.uid, "%7u", player_uid);
 	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
 	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
+	sprintf(the_score.p_c, "%2d", p_ptr->pclass[best_class()]);
 
 	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
+	sprintf(the_score.cur_lev, "%3d", p_ptr->lev[best_class()]);
 	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
+	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev[best_class()]);
 	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
 
 	/* Hack -- no cause of death */
@@ -3960,10 +4263,10 @@ static void kingly(void)
 	strcpy(p_ptr->died_from, "Ripe Old Age");
 
 	/* Restore the experience */
-	p_ptr->exp = p_ptr->max_exp;
+	p_ptr->exp[best_class()] = p_ptr->max_exp[best_class()];
 
 	/* Restore the level */
-	p_ptr->lev = p_ptr->max_lev;
+	p_ptr->lev[best_class()] = p_ptr->max_lev[best_class()];
 
 	/* Hack -- Instant Gold */
 	p_ptr->au += 10000000L;
@@ -4008,7 +4311,7 @@ static void close_game_aux(void)
 	cptr p;
 
 	/* Prompt */
-	p = "['i' for info, 'f' to file, 't' for scores, 'x' to examine, or ESC]";
+	p = "['i' for info, 'f' to file, 't' for scores, 'x' to examine, 'e'ffects, or ESC]";
 
 	/* Handle retirement */
 	if (p_ptr->total_winner) kingly();
@@ -4121,6 +4424,19 @@ static void close_game_aux(void)
 		else if (ch == 'x')
 		{
 			death_examine();
+		}
+
+		/* List effects used */
+		else if (ch == 'e')
+		{
+			/* Save screen */
+			screen_save();
+
+			/* Show effects used */
+			do_cmd_check_effects();
+		
+			/* Load screen */
+			screen_load();
 		}
 	}
 

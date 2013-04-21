@@ -271,6 +271,18 @@ static const int enchant_table[16] =
 
 
 /*
+ * Used by the "enchant" function (chance of failure)
+ */
+static const int enchant_rings_table[32] =
+{
+	0, 5,  10, 25, 50, 75, 100, 150, 
+	200, 250, 300, 350, 400, 450, 500, 550,
+	600, 650, 700, 750, 775, 800, 825, 850,
+	875, 900, 925, 950, 975, 985, 990, 995
+};
+
+
+/*
  * Hack -- Removes curse from an object.
  */
 static void uncurse_object(object_type *o_ptr)
@@ -366,24 +378,29 @@ bool remove_all_curse(void)
  */
 bool restore_level(void)
 {
+  int i;
+  bool did_something = FALSE;
+
+  for (i = 0; i < p_ptr->available_classes; i++)
+    {  
 	/* Restore experience */
-	if (p_ptr->exp < p_ptr->max_exp)
+	if (p_ptr->exp[i] < p_ptr->max_exp[i])
 	{
 		/* Message */
 		msg_print("You feel your life energies returning.");
 
 		/* Restore the experience */
-		p_ptr->exp = p_ptr->max_exp;
+		p_ptr->exp[i] = p_ptr->max_exp[i];
 
 		/* Check the experience */
 		check_experience();
 
-		/* Did something */
-		return (TRUE);
+		did_something = TRUE;
 	}
+    }
 
-	/* No effect */
-	return (FALSE);
+  /* Did something */
+  return (did_something);
 }
 
 
@@ -410,6 +427,13 @@ void self_knowledge(void)
 
 	cptr info[128];
 
+	/* Disallow self knowledge */
+	if (adult_hidden)
+	{
+	  msg_print("Nothing happens!");
+
+	  return;
+	}
 
 	/* Get item flags from equipment */
 	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
@@ -430,7 +454,10 @@ void self_knowledge(void)
 		f3 |= t3;
 	}
 
-
+	if (p_ptr->astral)
+	{
+		info[i++] = "You are currently an astral being.";
+	}
 	if (p_ptr->blind)
 	{
 		info[i++] = "You cannot see.";
@@ -467,6 +494,18 @@ void self_knowledge(void)
 	if (p_ptr->teleport)
 	{
 		info[i++] = "Your position is very uncertain.";
+	}
+	if (p_ptr->no_teleport)
+	{
+	     info[i++] = "A mysterious force prevents you from teleporting.";
+	}
+	if (p_ptr->fast_digestion)
+	{
+	     info[i++] = "Your appetite is temporarily large.";
+	}
+	if (p_ptr->amnesia)
+	{
+	     info[i++] = "You cannot remember where you are!";
 	}
 
 	if (p_ptr->blessed)
@@ -545,6 +584,26 @@ void self_knowledge(void)
 	if (p_ptr->hold_life)
 	{
 		info[i++] = "You have a firm hold on your life force.";
+	}
+
+	if (p_ptr->r_magery)
+	{
+	     info[i++] = "Your ability to cast magical spells is improved.";
+	}
+
+	if (p_ptr->r_holy)
+	{
+	     info[i++] = "Your ability to use holy prayers is improved.";
+	}
+
+	if (p_ptr->r_illusion)
+	{
+	     info[i++] = "Your ability to cast illusion spells is improved.";
+	}
+
+	if (p_ptr->r_death)
+	{
+	     info[i++] = "Your ability to use death prayers is improved.";
 	}
 
 	if (p_ptr->immune_acid)
@@ -677,6 +736,19 @@ void self_knowledge(void)
 	if (p_ptr->sustain_chr)
 	{
 		info[i++] = "Your charisma is sustained.";
+	}
+
+	if (p_ptr->prot_undead)
+	{
+		info[i++] = "You are protected from undead.";
+	}
+	if (p_ptr->prot_animal)
+	{
+		info[i++] = "You are protected from animals.";
+	}
+	if (p_ptr->persistence)
+	{
+		info[i++] = "Conditions do not timeout for you.";
 	}
 
 	if (f1 & (TR1_STR))
@@ -1287,8 +1359,9 @@ bool detect_objects_magic(void)
 		if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
 		    (tv == TV_AMULET) || (tv == TV_RING) ||
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
-		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
+		    (tv == TV_SCROLL) || (tv == TV_POTION) || 
+		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) || 
+		    (tv == TV_ILLUSION_BOOK) || (tv == TV_DEATH_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1501,6 +1574,137 @@ bool detect_monsters_evil(void)
 }
 
 
+/*
+ * Detect all "undead" monsters on current panel
+ */
+bool detect_monsters_undead(void)
+{
+	int i, y, x;
+
+	bool flag = FALSE;
+
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+
+		/* Detect undead monsters */
+		if (r_ptr->flags3 & (RF3_UNDEAD))
+		{
+			/* Take note that they are undead */
+			l_ptr->r_flags3 |= (RF3_UNDEAD);
+
+			/* Update monster recall window */
+			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Optimize -- Repair flags */
+			repair_mflag_mark = repair_mflag_show = TRUE;
+
+			/* Detect the monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Update the monster */
+			update_mon(i, FALSE);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of undead creatures!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+/*
+ * Detect all animals on current panel
+ */
+bool detect_monsters_animal(void)
+{
+	int i, y, x;
+
+	bool flag = FALSE;
+
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+
+		/* Detect animal monsters */
+		if (r_ptr->flags3 & (RF3_ANIMAL))
+		{
+			/* Take note that they are animal */
+			l_ptr->r_flags3 |= (RF3_ANIMAL);
+
+			/* Update monster recall window */
+			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Optimize -- Repair flags */
+			repair_mflag_mark = repair_mflag_show = TRUE;
+
+			/* Detect the monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Update the monster */
+			update_mon(i, FALSE);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of animals!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+
 
 /*
  * Detect everything
@@ -1568,6 +1772,7 @@ void stair_creation(void)
 /*
  * Hook to specify "weapon"
  */
+/* No longer used */ /*
 static bool item_tester_hook_weapon(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
@@ -1587,7 +1792,59 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
 
 	return (FALSE);
 }
+*/
 
+/*
+ * Hook to specify "weapon"
+ */
+static bool item_tester_hook_weapon_hit(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_BOW:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			return (TRUE);
+		}
+	}
+
+	/* Rings and amulets */
+	if ((o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) && o_ptr->to_h) return (TRUE);
+
+	return (FALSE);
+}
+
+/*
+ * Hook to specify "weapon"
+ */
+static bool item_tester_hook_weapon_dam(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_BOW:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			return (TRUE);
+		}
+	}
+
+	/* Rings and amulets */
+	if ((o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) && o_ptr->to_d) return (TRUE);
+
+	return (FALSE);
+}
 
 /*
  * Hook to specify "armour"
@@ -1609,6 +1866,9 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 			return (TRUE);
 		}
 	}
+
+	/* Rings and amulets */
+	if ((o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) && o_ptr->to_a) return (TRUE);
 
 	return (FALSE);
 }
@@ -1683,6 +1943,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		{
 			if (o_ptr->to_h < 0) chance = 0;
 			else if (o_ptr->to_h > 15) chance = 1000;
+			else if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) 
+			  chance = enchant_rings_table[o_ptr->to_h];
 			else chance = enchant_table[o_ptr->to_h];
 
 			/* Attempt to enchant */
@@ -1711,6 +1973,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		{
 			if (o_ptr->to_d < 0) chance = 0;
 			else if (o_ptr->to_d > 15) chance = 1000;
+			else if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) 
+			  chance = enchant_rings_table[o_ptr->to_d];
 			else chance = enchant_table[o_ptr->to_d];
 
 			/* Attempt to enchant */
@@ -1739,6 +2003,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		{
 			if (o_ptr->to_a < 0) chance = 0;
 			else if (o_ptr->to_a > 15) chance = 1000;
+			else if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET) 
+			  chance = enchant_rings_table[o_ptr->to_a];
 			else chance = enchant_table[o_ptr->to_a];
 
 			/* Attempt to enchant */
@@ -1797,12 +2063,14 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 	cptr q, s;
 
+	/* Assume enchant armour */
+	item_tester_hook = item_tester_hook_armour;
+	  
+	/* Enchant weapon to hit if requested */
+	if (num_hit) item_tester_hook = item_tester_hook_weapon_hit;
 
-	/* Assume enchant weapon */
-	item_tester_hook = item_tester_hook_weapon;
-
-	/* Enchant armor if requested */
-	if (num_ac) item_tester_hook = item_tester_hook_armour;
+	/* Enchant weapon to dam if requested */
+	if (num_dam) item_tester_hook = item_tester_hook_weapon_dam;
 
 	/* Get an item */
 	q = "Enchant which item? ";
@@ -2231,25 +2499,25 @@ static bool project_hack(int typ, int dam)
 /*
  * Speed monsters
  */
-bool speed_monsters(void)
+bool speed_monsters(int class)
 {
-	return (project_hack(GF_OLD_SPEED, p_ptr->lev));
+	return (project_hack(GF_OLD_SPEED, p_ptr->lev[class]));
 }
 
 /*
  * Slow monsters
  */
-bool slow_monsters(void)
+bool slow_monsters(int class)
 {
-	return (project_hack(GF_OLD_SLOW, p_ptr->lev));
+	return (project_hack(GF_OLD_SLOW, p_ptr->lev[class]));
 }
 
 /*
  * Sleep monsters
  */
-bool sleep_monsters(void)
+bool sleep_monsters(int class)
 {
-	return (project_hack(GF_OLD_SLEEP, p_ptr->lev));
+	return (project_hack(GF_OLD_SLEEP, p_ptr->lev[class]));
 }
 
 
@@ -2263,11 +2531,20 @@ bool banish_evil(int dist)
 
 
 /*
+ * Banish undead
+ */
+bool banish_undead(int dist)
+{
+	return (project_hack(GF_AWAY_UNDEAD, dist));
+}
+
+
+/*
  * Turn undead
  */
-bool turn_undead(void)
+bool turn_undead(int class)
 {
-	return (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
+	return (project_hack(GF_TURN_UNDEAD, p_ptr->lev[class]));
 }
 
 
@@ -2852,7 +3129,7 @@ void earthquake(int cy, int cx, int r)
 					if (m_ptr->hp < 0)
 					{
 						/* Message */
-						msg_format("%^s is embedded in the rock!", m_name);
+						cmsg_format(TERM_L_RED, "%^s is embedded in the rock!", m_name);
 
 						/* Delete the monster */
 						delete_monster(yy, xx);
@@ -3397,22 +3674,22 @@ bool heal_monster(int dir)
 	return (project_hook(GF_OLD_HEAL, dir, damroll(4, 6), flg));
 }
 
-bool speed_monster(int dir)
+bool speed_monster(int dir, int class)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev[class], flg));
 }
 
-bool slow_monster(int dir)
+bool slow_monster(int dir, int class)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLOW, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLOW, dir, p_ptr->lev[class], flg));
 }
 
-bool sleep_monster(int dir)
+bool sleep_monster(int dir, int class)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev[class], flg));
 }
 
 bool confuse_monster(int dir, int plev)
@@ -3421,10 +3698,10 @@ bool confuse_monster(int dir, int plev)
 	return (project_hook(GF_OLD_CONF, dir, plev, flg));
 }
 
-bool poly_monster(int dir)
+bool poly_monster(int dir, int class)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_POLY, dir, p_ptr->lev[class], flg));
 }
 
 bool clone_monster(int dir)
@@ -3478,11 +3755,11 @@ bool destroy_doors_touch(void)
 	return (project(-1, 1, py, px, 0, GF_KILL_DOOR, flg));
 }
 
-bool sleep_monsters_touch(void)
+bool sleep_monsters_touch(int class)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	int flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
+	return (project(-1, 1, py, px, p_ptr->lev[class], GF_OLD_SLEEP, flg));
 }

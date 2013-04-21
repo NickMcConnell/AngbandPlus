@@ -474,8 +474,8 @@ cptr keymap_act[KEYMAP_MODES][256];
  */
 const player_sex *sp_ptr;
 const player_race *rp_ptr;
-const player_class *cp_ptr;
-const player_magic *mp_ptr;
+const player_class *cp_ptr[MAX_CLASS];
+const player_magic *mp_ptr[MAX_CLASS];
 
 /*
  * The player other record (static)
@@ -723,3 +723,10 @@ bool use_transparency = FALSE;
  * Game can be saved
  */
 bool can_save = TRUE;
+
+u16b no_breeders; 
+
+/* Count how many times an effect has been used */
+u16b effects[MAX_EFFECTS];
+
+

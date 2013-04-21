@@ -646,3 +646,16 @@ Save screen dump (right-paren)
         This command dumps a "snap-shot" of the current screen to the file
         "dump.txt", including encoded color information.
 
+--- Multiclass Commands ---
+
+Enter new class
+        See lib/help/multi.txt
+
+Switch class forwards
+        This command is used to switch between different classes, if you are
+        multiclassing. Currently, you will be switched to the next class
+        which you are a member of.
+
+Switch class backwards
+        Like switch class forwards, but switches to previous class.
+

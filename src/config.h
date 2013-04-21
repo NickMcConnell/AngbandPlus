@@ -299,7 +299,7 @@
 /*
  * OPTION: Allow "Wizards" to yield "high scores"
  */
-/* #define SCORE_WIZARDS */
+#define SCORE_WIZARDS
 
 /*
  * OPTION: Allow "Borgs" to yield "high scores"
@@ -309,7 +309,7 @@
 /*
  * OPTION: Allow "Cheaters" to yield "high scores"
  */
-/* #define SCORE_CHEATERS */
+#define SCORE_CHEATERS
 
 
 

@@ -97,7 +97,7 @@ A:CLAIRVOYANCE:100:100
 # The Amulet of Carlammas
 
 N:4:of Carlammas
-I:40:10:2
+I:40:20:2
 W:50:10:3:60000
 F:CON | HIDE_TYPE | 
 F:ACTIVATE | RES_FIRE | 
@@ -108,7 +108,7 @@ A:PROT_EVIL:225:225
 # The Amulet of Ingwe
 
 N:5:of Ingwe
-I:40:11:3
+I:40:21:3
 W:65:30:3:90000
 F:WIS | CHR | INFRA | HIDE_TYPE | 
 F:SEE_INVIS | FREE_ACT | ACTIVATE | 
@@ -120,7 +120,7 @@ A:DISP_EVIL:300:300
 # The Necklace of the Dwarves
 
 N:6:of the Dwarves
-I:40:12:3
+I:40:22:3
 W:70:50:3:75000
 F:STR | CON | INFRA | HIDE_TYPE | 
 F:SEE_INVIS | FREE_ACT | REGEN | LITE | 

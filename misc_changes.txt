@@ -1,0 +1,225 @@
+
+-- also see multi_changes.txt --
+
+OPTIONS
+
+Removed delay from autoroller
+
+Changed default settings of options
+
+Rearranged character info screen
+
+Hidden birth option
+       autoroller uses stat descriptions rather than values
+       show XP needed for next level like monster health bar
+       show attributes, infravision, spell chances like skills are shown
+       simplify character info screen
+       no self-knowledge allowed
+       show hp and mana/piety like monster health bar, with labels
+       hide spell information
+       do not show how much experience monsters are worth
+       do not show how long rods take to recharge
+(monster health bar now has a red background)
+
+Nightmare mode
+    all monsters have maximum HP and are never generated asleep
+    10% chance of monsters being generated in a group
+    1/2 chance of inflating monster level, depth monsters CAN appear out of 
+    depth
+    more traps
+    no connected stairs, and sometimes more than one level is descended
+    player aggravates monsters
+    player forgets location constantly
+    doubles final score
+
+Easy mode
+    starts with 500 extra gold, lantern, flasks, scrolls of phase door, id, 
+    recall and potions of cure serious wounds
+    all wearable equipment will be enchanted, but will be worth only 90%
+    finds better objects, more chance of finding good and excellent objects
+    gets better objects in black market
+    halves final score
+
+Astral mode
+     start on level 95 of the dungeon with 75 scrolls of identify
+     cannot use recall or descend below 97 til surface is reached, then recall 
+     depth reset to 0 and loses all benefits
+     has speed +10, lite, see invis, telepathy. slow digestion and wiz lite
+     every level
+     can move first when entering a level   
+
+RACES
+
+Added Wood-Elf and Dark-Elf
+Added Caveman - variation of the human
+Added Yeek - pathetic at everything but fast learners
+Added Nibelung and Kobold
+Added Maiar (from Oangband)
+
+Can specify in p_info.txt which missile weapon each race prefers, wood-elfs do 
+extra damage with bows
+
+Added info on races in birth.txt
+
+CLASSES
+
+Changed the name of Priest to Holy Priest
+
+Added Illusionist (from kangband)
+      Mental Barrier spell also gives resistance to confusion
+      Shadow Form, Wizard Lock, Invisibility and Summon Shadows spells not 
+      implemented
+Added Archer (pernband, but no special abilities), penalized for using wrong
+      missile weapon, humans can use any missile weapon (racial preference is
+      found in p_info.txt)
+Added Death Priest (Priest with Death spells)
+      Terror, Invisibility and Wraithform prayers not implements
+Added Berserker
+      Chance to stun monsters, resist fear, sustain strength at level 30, no
+      Dex bonus to AC, heroism and berserk strength last twice as long (spells
+      and items), recovers from stunning twice as fast
+      If character is hit by a killing blow, excess damage is taken from
+      mana (hidden), hp is set to 0, and character enters a berserk rage for
+      1d3 rounds. Berserker has half normal mana, uses Str as spell stat
+Added Monk      
+      Can use unarmed combat, uses XP level instead of Str and weapon
+      weight to calculate number of blows, and starts with 2 (when
+      unarmed), damage done and chance of critical hits increase as
+      experience is gained
+
+      Has difficulty using weapons, only one attack per round without magic,
+      penalty of -10 to hit and damage
+      Slow digestion at level 15 and resist confusion at level 30
+Added Trickster (Rogue with Illusion spells)
+
+Added info on classes in birth.txt
+
+ADDED ITEMS
+
+mattock, wooden club, giant club, large hammer, hand axe, knife, great
+scimitar, leather sandals, spiked leather boots, silk gloves, wizard hat,
+wooden shield, fur cloak
+
+amulets - hold life, brightness, intelligence, resist electricity,
+regeneration, telepathy, persistence
+
+rings - res fear, res conf, res disen, extra attacks (was intelligence),
+lightning
+
+devices - rod of satisfy hunger, rod of force bolt, rod of force ball, staff of
+dispel undead, staff of detect undead, staff of detect animals
+
+scrolls and potions - scroll of protection from undead, potion of telepathy,
+scroll of dispel evil, scroll of restore piety, potion of cancellation (remove
+most conditions), scroll of mass identify, potion of amnesia
+
+ego-items of magery/holiness/illusion/death, which sustain and increase
+relevant spellcasting stat, and decrease chance of spell failure 
+magery and illusion : small blades (up to 2d5 dmg), quarterstaff and mage staff
+holiness and death  : any blunt weapon (also penalizes the opposing realm) 
+crown of the Magi   : gives a bonus to both magic and illusion spells
+
+CHANGES TO ITEMS
+
+Skeletons (the items) now appear as 's' instead of '~'
+
+Combined rings of sustain ability - now they are Str+Dex, Int+Wis and Con+Chr
+
+Amulets and rings of teleport can be activated for phase door, rings of
+aggravation can be activated for remove fear, and rings of acid/flames/
+ice/lightning can be activated for temporary resistance to the relevant
+element
+
+Can now enchant rings/amulets with enchant to-hit, to-dam, to-AC if relevant
+
+Rods show how many more turns are left till they can be used again
+
+Staff of Holiness also restores piety
+
+Scrolls and staffs of darkness no longer blind the player
+
+Changed format of melee weapons and missiles from (2d5) (+5, +5) to (+5, 2d5+5)
+
+Staff of Cure Light Wounds (1d8) changed to Cure Medium Wounds (2d8)
+
+STORES
+
+Armoury now sells Soft Studded Leather
+Temple sells Death books (for Death Priest)
+Alchemist now sells Scrolls of *Identify*
+Magic Shop sells Illusion books
+
+Quality of items in Black Market depends on recall depth
+
+COMBAT
+
+Added Quiver slot
+
+On player info screen where melee and shooting damage is shown, include damage
+dice. If weapon is not being wielded, show adjustments only. With a missile
+launcher but no useable ammo wielded, show multiplier only. (Unlike (all?)
+other *bands, show only the damage done each attack, not each turn)
+
+Increased priest weapon penalties from -2 to -10
+
+SPELLCASTING
+
+Ranger no longer gets access to Magic Missile - starts with missiles anyway
+
+Study display shows how many more spells can be learned
+
+Priest uses Piety, Mage and Illusionist use Mana
+
+Gloves and armor affect failure rates of spells rather than mana
+Split up cumber_armor into cumber_armor_wizard and cumber_armor_priest
+Armour encumbrance is 300 for magery/illusion and 400 for prayers
+Cumber_gloves only affects sfail of magery/illusion
+Silk gloves do not penalize spellcasters
+
+Chance to cast spells is decreased if player is stunned, berserking or 
+hallucinating
+
+When priests fail to recite prayers, damage WIS instead of CON
+
+EFFECTS
+
+Added effect of persistence, which means all timed conditions do not time-out,
+currently used by an amulet and an ego-item for quarterstaffs
+
+Feather fall prevents player being thrown around by gravity
+
+Added timed effects of stealth, res nether, res disenchantment, sustain body 
+(str/con/dex), telepathy, protection from undead, and protection from animals
+Added timed effects of aggravation, teleportitus, no teleport, fast digestion
+and amnesia (occasionally forget where you are).
+Added timed lite and timed regeneration
+
+Added an effects counter - how many times have I used each (magic) effect 
+(idea from angband/64)
+
+Added option to display effects list at tombstone
+
+Most timed effects are now shown on player flag list on character info screen
+
+MISC
+
+If below level 50, show XP needed to advance to next level
+
+Cumulative lite
+
+Multicolored messages
+    Yellow     	light growing faint and going out
+    Red         death, low hitpoint warning
+    Light Blue  becoming able to learn more spells, forgetting and remembering
+    Light Red   killing monsters
+    Light Green gaining or losing a level, winning
+--- messages in message memory are still white
+
+Monster memory
+- changed 'it a liferating of x' to 'it takes an average x successful blows to
+  kill with your current weapon' (based on known weapon damage)
+- colored messages - description is slate, creature type in various colors, 
+  innate attacks, breaths and spells in violet, the message above in light red,
+  and 'you feel an intense desire to kill this monster' in yellow
+
+

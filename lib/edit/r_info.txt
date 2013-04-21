@@ -56,6 +56,22 @@
 # 'v' = Multihued/Chaos/Disenchantment/etc, 'y' = Gold/Sound, 'R' = Nexus,
 # 'G' = Nether, 'B' = Left-overs, and 'U' = Bronze/Confusion).
 
+# l_white	Cold
+# white		Inertia, Gravity, Slow, Paralyze
+# slate		Acid, Water
+# umber		Earth, Force, Shards
+# l_umber	Confusion, Drain Mana, Mind Blast, Brain Smash, Terrify, 
+#		Amnesia
+# red		Fire
+# l_red	Nexus 	Plasma
+# orange	Lite, Dark, Blindness
+# yellow	Sound
+# l_green	Nether, Time
+# green		Poison
+# l_blue	Cause xxx Wounds
+# blue		Elec
+# violet	Chaos, Disenchantment, Mana, Magic Missiles
+
 # In several situations, two or more monsters with identical symbols and
 # colors were changed so that maximal information is conveyed by the symbol
 # and color.

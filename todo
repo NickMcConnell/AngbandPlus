@@ -1,0 +1,41 @@
+
+Make hiscore list show all classes
+
+---
+
+potion of amnesia - timed forgetfulness (renamd lose memories to lose
+life levels)
+
+---
+
+Add combination powers for multi-classed characters, gained when both
+classes are level 25+
+
+Warrior		Mage		Can wear more armour without penalty
+Warrior		HolyPriest	Slay evil wth any melee weapon
+Warrior		Rogue		Gains an extra blow with blades < 5lbs
+Warrior		Illusionist	Gains a bonus to AC
+Warrior		DeathPriest	Slay Undead with any melee weapon
+Warrior		Trickster	Confuse monsters on criticals with melee wpns
+Mage		HolyPriest	* Can choose which prayers to learn
+Mage		Archer		Missiles gain a bonus to damage
+Mage		DeathPriest	* Can choose which prayers to learn
+Mage		Monk		Chance to dodge spells
+HolyPriest      Illusionist	???
+HolyPriest	Archer		Slay Evil with missiles
+HolyPriest	Berserker	Can survive twice as long when frenzying
+HolyPriest	Monk		Slay Evil when unarmed
+HolyPriest      Trickster	???
+Rogue		Archer		Psuedo-id launchers and missiles instantly
+Rogue		DeathPriest	Can use blades without penalties
+Rogue		Monk		Cannot gain aggravation
+Illusionist	Archer		Chance to dodge missiles
+Illusionist	DeathPriest	Invisibility intrinstic
+Illusionist	Monk		Maximises searching
+Archer		DeathPriest	Slay Undead with missiles
+Archer		Monk		Chance to catch missiles
+Archer		Trickster	Missiles gain a bonus to accuracy
+DeathPriest	Berserker	Does double damage when berserking
+DeathPriest	Monk		Vampiric when unarmed
+DeathPriest	Trickster	Aura of fear
+Monk		Trickster	Confuse monsters on critical hits when unarmed

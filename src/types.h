@@ -737,13 +737,16 @@ struct player_race
 
 	byte infra;			/* Infra-vision	range */
 
-	byte choice;		/* Legal class choices */
+	u16b choice;		/* Legal class choices */
 
 	s16b hist;			/* Starting history index */
 
 	u32b flags1;		/* Racial Flags, set 1 */
 	u32b flags2;		/* Racial Flags, set 2 */
 	u32b flags3;		/* Racial Flags, set 3 */
+
+        int  archer_type;       /* 0 : any, 1 : slings, 2 : bows, 3 : xbows */
+        int  max_multi;         /* Max number of classes */
 };
 
 
@@ -833,11 +836,13 @@ struct player_type
 
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
-	byte pclass;		/* Class index */
+	byte pclass[MAX_CLASS];		/* Class index */
+        byte current_class;             /* Current class */
+        byte available_classes;         /* Current class */
 	byte oops;			/* Unused */
 
 	byte hitdie;		/* Hit dice (sides) */
-	byte expfact;		/* Experience factor */
+	u16b expfact[MAX_CLASS];		/* Experience factor */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -849,12 +854,12 @@ struct player_type
 	s16b max_depth;		/* Max depth */
 	s16b depth;			/* Cur depth */
 
-	s16b max_lev;		/* Max level */
-	s16b lev;			/* Cur level */
+	s16b max_lev[MAX_CLASS];		/* Max level */
+	s16b lev[MAX_CLASS];			/* Cur level */
 
-	s32b max_exp;		/* Max experience */
-	s32b exp;			/* Cur experience */
-	u16b exp_frac;		/* Cur exp frac (times 2^16) */
+	s32b max_exp[MAX_CLASS];		/* Max experience */
+	s32b exp[MAX_CLASS];			/* Cur experience */
+	u16b exp_frac[MAX_CLASS];		/* Cur exp frac (times 2^16) */
 
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
@@ -864,10 +869,14 @@ struct player_type
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
+	s16b mpp;			/* Max piety pts */
+	s16b cpp;			/* Cur piety pts */
+	u16b cpp_frac;		/* Cur piety frac (times 2^16) */
+
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
 
-	s16b fast;			/* Timed -- Fast */
+        s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
 	s16b blind;			/* Timed -- Blindness */
 	s16b paralyzed;		/* Timed -- Paralysis */
@@ -892,6 +901,28 @@ struct player_type
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
+	s16b oppose_ld; 	/* Timed -- oppose light and darkness */
+	s16b oppose_cc; 	/* Timed -- oppose chaos and confusion */
+        s16b oppose_ss; 	/* Timed -- oppose sound and shards */
+	s16b oppose_nex;	/* Timed -- oppose nexus */
+	s16b mental_barrier;	/* Timed -- sustain int and wis */
+        s16b tim_stealth;     
+	s16b oppose_nether;   
+	s16b oppose_disen;    
+	s16b sustain_body;    
+        s16b tim_telepathy;   
+	s16b prot_undead;
+	s16b prot_animal;	
+        s16b tim_aggravate;
+        s16b tim_teleportitus;
+        s16b tim_no_teleport;
+        s16b tim_fast_digestion;
+        s16b tim_amnesia;
+        s16b tim_lite;
+        s16b tim_regen;
+
+        byte astral;
+        byte astral_start;
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -902,14 +933,14 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
-	u32b spell_learned1;	/* Spell flags */
-	u32b spell_learned2;	/* Spell flags */
-	u32b spell_worked1;		/* Spell flags */
-	u32b spell_worked2;		/* Spell flags */
-	u32b spell_forgotten1;	/* Spell flags */
-	u32b spell_forgotten2;	/* Spell flags */
+	u32b spell_learned1[2];	/* Spell flags */
+	u32b spell_learned2[2];	/* Spell flags */
+	u32b spell_worked1[2];		/* Spell flags */
+	u32b spell_worked2[2];		/* Spell flags */
+	u32b spell_forgotten1[2];	/* Spell flags */
+	u32b spell_forgotten2[2];	/* Spell flags */
 
-	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
+	byte spell_order[2][PY_MAX_SPELLS];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
@@ -924,7 +955,6 @@ struct player_type
 	bool is_dead;			/* Player is dead */
 
 	bool wizard;			/* Player is in wizard mode */
-
 
 	/*** Temporary fields ***/
 
@@ -980,10 +1010,13 @@ struct player_type
 
 	s16b old_spells;
 
-	bool old_cumber_armor;
-	bool old_cumber_glove;
+	char old_cumber_armor_wizard;
+	char old_cumber_armor_priest;
+	char old_cumber_glove;
 	bool old_heavy_wield;
 	bool old_heavy_shoot;
+	bool old_icky_blunt;
+	bool old_icky_shoot;
 	bool old_icky_wield;
 
 	s16b old_lite;		/* Old radius of lite (if any) */
@@ -991,11 +1024,14 @@ struct player_type
 
 	s16b old_food_aux;	/* Old value of food */
 
-	bool cumber_armor;	/* Mana draining armor */
-	bool cumber_glove;	/* Mana draining gloves */
+	char cumber_armor_wizard;	/* Spells become harder if heavy armor */
+	char cumber_armor_priest;	/* Spells become harder if heavy armor */
+	char cumber_glove;	/* Spells become harder if  gloves */
 	bool heavy_wield;	/* Heavy weapon */
 	bool heavy_shoot;	/* Heavy shooter */
-	bool icky_wield;	/* Icky weapon */
+	bool icky_blunt;	/* Icky weapon (priests) */
+	bool icky_shoot;	/* Icky weapon */
+	bool icky_wield;	/* Icky weapon (monks) */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 
@@ -1051,10 +1087,20 @@ struct player_type
 	bool free_act;		/* Free action */
 	bool hold_life;		/* Hold life */
 
+        bool persistence;       /* Persistent conditions */
+
+        byte r_magery; /* Improves mage spells */
+        byte r_holy; /* holy prayers */
+        byte r_illusion; /* illusions */
+        byte r_death; /* death prayers */
+
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */
 	bool teleport;		/* Random teleporting */
+        bool no_teleport;       /* Prevent teleporting */
 	bool exp_drain;		/* Experience draining */
+        bool fast_digestion;    /* Needs more food */
+        bool amnesia;           /* Occasional forgetting */
 
 	bool bless_blade;	/* Blessed blade */
 
@@ -1128,6 +1174,7 @@ struct high_score
 	char sex[2];		/* Player Sex (string) */
 	char p_r[3];		/* Player Race (number) */
 	char p_c[3];		/* Player Class (number) */
+        char n_c;
 
 	char cur_lev[4];		/* Current Player Level (number) */
 	char cur_dun[4];		/* Current Dungeon Level (number) */
