@@ -385,7 +385,6 @@ static void place_down_stairs(int y, int x)
 
 
 
-
 /*
  * Place an up/down staircase at given location
  */
@@ -395,21 +394,13 @@ static void place_random_stairs(int y, int x)
 	if (!cave_clean_bold(y, x)) return;
 
 	/* Choose a staircase */
-	if (!p_ptr->depth)
-	{
-		place_down_stairs(y, x);
-	}
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		place_up_stairs(y, x);
-	}
-	else if (rand_int(100) < 50)
-	{
-		place_down_stairs(y, x);
 	}
 	else
 	{
-		place_up_stairs(y, x);
+		place_down_stairs(y, x);
 	}
 }
 
@@ -3215,7 +3206,7 @@ static void cave_gen(void)
 	alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
 
 	/* Place 1 or 2 up stairs near some walls */
-	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
+	alloc_stairs(FEAT_LESS, 1, 3);
 
 
 	/* Determine the character location */
@@ -3441,9 +3432,8 @@ static void town_gen_hack(void)
  *
  * We place the player on the stairs at the same time we make them.
  *
- * Hack -- since the player always leaves the dungeon by the stairs,
- * he is always placed on the stairs, even if he left the dungeon via
- * word of recall or teleport level.
+ * Since this basically does all we need for an empty level, this is
+ * also called when the player has used an up-staircase.
  */
 static void town_gen(void)
 {
@@ -3490,39 +3480,49 @@ static void town_gen(void)
 		}
 	}
 
-	/* Then place some floors */
-	for (y = qy+1; y < qy+SCREEN_HGT-1; y++)
-	{
-		for (x = qx+1; x < qx+SCREEN_WID-1; x++)
+	if ( !p_ptr->depth ) {
+		/* Then place some floors, if we are not in the dungeon */
+		for (y = qy+1; y < qy+SCREEN_HGT-1; y++)
 		{
-			/* Create empty floor */
-			cave_feat[y][x] = FEAT_FLOOR;
-
-			/* Darken and forget the floors */
-			cave_info[y][x] &= ~(CAVE_GLOW | CAVE_MARK);
-
-			/* Day time */
-			if (daytime)
+			for (x = qx+1; x < qx+SCREEN_WID-1; x++)
 			{
-				/* Perma-Lite */
-				cave_info[y][x] |= (CAVE_GLOW);
+				/* Create empty floor */
+				cave_feat[y][x] = FEAT_FLOOR;
 
-				/* Memorize */
-				if (view_perma_grids) cave_info[y][x] |= (CAVE_MARK);
+				/* Darken and forget the floors */
+				cave_info[y][x] &= ~(CAVE_GLOW | CAVE_MARK);
+
+				/* Day time */
+				if (daytime)
+				{
+					/* Perma-Lite */
+					cave_info[y][x] |= (CAVE_GLOW);
+
+					/* Memorize */
+					if (view_perma_grids) cave_info[y][x] |= (CAVE_MARK);
+				}
 			}
 		}
-	}
 
+		/* Add in the town stuff */
 
-	/* Build the buildings/stairs (from memory) */
-	town_gen_hack();
+		/* Build the buildings/stairs (from memory) */
+		town_gen_hack();
 
+		/* Make some residents */
+		for (i = 0; i < residents; i++)
+		{
+			/* Make a resident */
+			(void)alloc_monster(3, TRUE);
+		}
+	} else { /* in the dungeon! */
 
-	/* Make some residents */
-	for (i = 0; i < residents; i++)
-	{
-		/* Make a resident */
-		(void)alloc_monster(3, TRUE);
+		/* Need to create a down staircase and place the player */
+		y = qy + SCREEN_HGT / 2;
+		x = qx + SCREEN_WID / 2;
+		cave_feat[y][x] = FEAT_MORE;
+		cave_info[y][x] |= CAVE_MARK;
+		player_place( y, x );
 	}
 }
 
@@ -3531,8 +3531,6 @@ static void town_gen(void)
  * Generate a random dungeon level
  *
  * Hack -- regenerate any "overflow" levels
- *
- * Hack -- allow auto-scumming via a gameplay option.
  */
 void generate_cave(void)
 {
@@ -3605,10 +3603,8 @@ void generate_cave(void)
 		rating = 0;
 
 
-		/* Build the town */
-		if (!p_ptr->depth)
-		{
-			/* Make a town */
+		/* Build the town, or an empty level */
+		if (!p_ptr->depth || p_ptr->going_up) {
 			town_gen();
 		}
 
@@ -3631,13 +3627,10 @@ void generate_cave(void)
 		else if (rating > 0) feeling = 9;
 		else feeling = 10;
 
-		/* Hack -- Have a special feeling sometimes */
-		if (good_item_flag && !p_ptr->preserve) feeling = 1;
+		/* Have a special feeling sometimes */
+		if (good_item_flag) feeling = 1;
 
-		/* It takes 1000 game turns for "feelings" to recharge */
-		if ((turn - old_turn) < 1000) feeling = 0;
-
-		/* Hack -- no feeling in the town */
+		/* No feeling in the town */
 		if (!p_ptr->depth) feeling = 0;
 
 
@@ -3661,29 +3654,6 @@ void generate_cave(void)
 			okay = FALSE;
 		}
 
-		/* Mega-Hack -- "auto-scum" */
-		if (auto_scum && (num < 100))
-		{
-			/* Require "goodness" */
-			if ((feeling > 9) ||
-			    ((p_ptr->depth >= 5) && (feeling > 8)) ||
-			    ((p_ptr->depth >= 10) && (feeling > 7)) ||
-			    ((p_ptr->depth >= 20) && (feeling > 6)) ||
-			    ((p_ptr->depth >= 40) && (feeling > 5)))
-			{
-				/* Give message to cheaters */
-				if (cheat_room || cheat_hear ||
-				    cheat_peek || cheat_xtra)
-				{
-					/* Message */
-					why = "boring level";
-				}
-
-				/* Try again */
-				okay = FALSE;
-			}
-		}
-
 		/* Accept */
 		if (okay) break;
 
@@ -3701,9 +3671,6 @@ void generate_cave(void)
 
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
-
-	/* Remember when this level was "created" */
-	old_turn = turn;
 }
 
 

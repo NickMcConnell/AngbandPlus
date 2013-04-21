@@ -1,7 +1,7 @@
 === Playing the Game ===
 
-    Most of your interaction with Angband will take the form of "commands".
-Every Angband command consists of an "underlying command" plus a variety of
+    Most of your interaction with Ingband will take the form of "commands".
+Every Ingband command consists of an "underlying command" plus a variety of
 optional or required arguments, such as a repeat count, a direction, or the
 index of an inventory object.  Commands are normally specified by typing a
 series of keypresses, from which the underlying command is extracted, along
@@ -205,7 +205,7 @@ the host machine, causing unexpected results.  In general, these special keys
 are control keys, and often, you can disable their special effects.
 
         If you are playing on a UNIX or similar system, then Ctrl-C will
-interrupt Angband.  The second and third interrupt will induce a warning
+interrupt Ingband.  The second and third interrupt will induce a warning
 bell, and the fourth will induce both a warning bell and a special message,
 since the fifth will quit the game, after killing your character.  Also,
 Ctrl-Z will suspend the game, and return you to the original command shell,
@@ -259,7 +259,7 @@ character.  This character is ignored, but it is safest to use a SPACE or
 ESCAPE which are always ignored as commands in case you type the command
 just after the count expires.
 
-        You can tell Angband to automatically use a repeat count of 99
+        You can tell Ingband to automatically use a repeat count of 99
 with commands you normally want to repeat (open, disarm, tunnel, bash,
 alter, etc) by setting the "always_repeat" option.
  
@@ -459,8 +459,8 @@ must do so, remember that you are only cheating yourself.
 internal values used to display various colors.  This command may or may
 not have any effect on your machine.  Advanced machines may allow you to
 change the actual RGB values used to represent each of the 16 colors used
-by Angband, and perhaps even allow you to define new colors which are not
-currently used by Angband.
+by Ingband, and perhaps even allow you to define new colors which are not
+currently used by Ingband.
 
 --- User Pref Files (Options) ---
 

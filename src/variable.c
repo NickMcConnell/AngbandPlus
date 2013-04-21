@@ -14,8 +14,9 @@
 /*
  * Hack -- Link a copyright message into the executable
  */
-cptr copyright[5] =
+cptr copyright[6] =
 {
+	"Copyright (C)1997 by Robert Shiells, and",
 	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke",
 	"",
 	"This software may be copied and distributed for educational, research,",
@@ -51,10 +52,10 @@ u16b sf_saves;			/* Number of "saves" during this life */
 /*
  * Run-time arguments
  */
-bool arg_fiddle;			/* Command arg -- Request fiddle mode */
-bool arg_wizard;			/* Command arg -- Request wizard mode */
-bool arg_sound;				/* Command arg -- Request special sounds */
-bool arg_graphics;			/* Command arg -- Request graphics mode */
+bool arg_fiddle;		/* Command arg -- Request fiddle mode */
+bool arg_wizard;		/* Command arg -- Request wizard mode */
+bool arg_sound;			/* Command arg -- Request special sounds */
+bool arg_graphics;		/* Command arg -- Request graphics mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
 
@@ -77,9 +78,7 @@ s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
 
-s32b turn;				/* Current game turn */
-
-s32b old_turn;			/* Hack -- Level feeling counter */
+s32b turn;			/* Current game turn */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
@@ -119,7 +118,7 @@ s16b m_cnt = 0;			/* Number of live monsters */
 s16b feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
 
-bool good_item_flag;	/* True if "Artifact" on this level */
+bool good_item_flag;		/* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
 
@@ -239,7 +238,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"Angband",
+	"Ingband",
 	"Term-1",
 	"Term-2",
 	"Term-3",

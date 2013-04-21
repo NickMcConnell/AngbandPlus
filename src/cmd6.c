@@ -1181,22 +1181,6 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_WORD_OF_RECALL:
-		{
-			if (p_ptr->word_recall == 0)
-			{
-				p_ptr->word_recall = randint(20) + 15;
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
-			ident = TRUE;
-			break;
-		}
-
 		case SV_SCROLL_IDENTIFY:
 		{
 			ident = TRUE;
@@ -2396,23 +2380,6 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_RECALL:
-		{
-			if (p_ptr->word_recall == 0)
-			{
-				msg_print("The air about you becomes charged...");
-				p_ptr->word_recall = 15 + randint(20);
-			}
-			else
-			{
-				msg_print("A tension leaves the air around you...");
-				p_ptr->word_recall = 0;
-			}
-			ident = TRUE;
-			o_ptr->pval = 60;
-			break;
-		}
-
 		case SV_ROD_ILLUMINATION:
 		{
 			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
@@ -3324,17 +3291,8 @@ void do_cmd_activate(void)
 
 			case ART_AVAVIR:
 			{
-				msg_print("Your scythe glows soft white...");
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				msg_print("Your scythe twists space around you...");
+				teleport_player(100);
 				o_ptr->timeout = 200;
 				break;
 			}

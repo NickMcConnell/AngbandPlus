@@ -20,91 +20,30 @@ Please continue to press Space to view the rest of this file...
 
 === General Information ===
 
-Angband is basically a complex single player dungeon simulation.  A player
+Ingband is basically a complex single player dungeon simulation.  A player
 creates a character, choosing from a variety of sexes, races and classes,
 and then "runs" that character over a period of days, weeks, even months.
 
-The player will begin his adventure on the town level where he may acquire
-supplies, weapons, armor, and magical devices by bartering with various shop
-owners.  Then the player can descend into the Pits of Angband, where he will
+The player will begin his adventure on the town level.
+From here, the player can descend into the Pits of Angband, where he will
 explore the many levels of the dungeon, gaining experience by killing fierce
-creatures, collecting powerful objects and valuable treasure, and returning
-to town occasionally to barter for new supplies.  Eventually, as the player
+creatures, collecting powerful objects and valuable treasure.
+Eventually, as the player
 grows more experienced, he may attempt to win the game by defeating Morgoth,
 the Lord of Darkness, who resides far below the surface.
 
-Note that Angband is a very complex game, and it may be difficult to grasp
+Note that Ingband is a very complex game, and it may be difficult to grasp
 everything at first, especially if you have never played a "roguelike" game
 before.  You should probably browse through all of the "online help files",
 especially this one, before beginning any serious adventuring...
 
-=== A Note from the Maintainer ===
-
-Welcome to Angband 2.8.X.
-
-My name is Ben Harrison, and I have been the maintainer of Angband since
-November 1994.  I have been responsible for many improvements to the game
-over the past few years, and I have many more planned for the future.
-
-Angband 2.8.X is available for almost every known system (including Unix,
-Macintosh, Amiga, Windows, DOS, OS/2, etc).  It is written entirely in C,
-and the source code is freely available.  Creating a version for a new
-platform involves writing as few as 100 lines of code and recompiling.
-
-Angband 2.7.8 was the most recent official "stable" version.  However,
-it contained a few minor (non-fatal) bugs (see the web page).  You can
-give Angband 2.7.8 to your friends while they wait for Angband 2.8.2.
-
-Angband 2.8.2 will be the next official "stable" version.  A whole lot of
-changes have been made since Angband 2.7.8 was released, and there is now
-a web page listing all of the changes made in each version since that one.
-Angband 2.7.9v1, 2.7.9v2, 2.7.9v3, 2.7.9v4, 2.7.9v5, 2.7.9v6, 2.8.0, and
-2.8.1 are intended as "transition" versions leading up to Angband 2.8.2,
-and they are all still available (for now) at the ftp sites.  Note that
-Angband 2.8.2 is based on Angband 2.8.1, and will incorporate only those
-changes needed to fix problems encountered in Angband 2.8.1, so it should
-be available as soon as the public beta testing phase is complete.
-
-See the Official Angband Home Page "http://www.voicenet.com/~benh/Angband"
-for up to date information about the latest version of Angband, including
-a complete list of recent modifications and known bugs.
-
-You can obtain the latest source and pre-compiled executables from various
-places, try "ftp://ftp.cis.ksu.edu/pub/Games/Angband/Angband-2.7.x" and
-the developer site at "ftp://export.andrew.cmu.edu/angband".
-
-You can email compliments, complaints, bug reports, and presents to
-me ("benh@voicenet.com"), and you can post interesting experiences,
-general questions, compilation questions and code suggestions to the
-newsgroup ("rec.games.roguelike.angband").
-
-You may freely distribute the game, and its source, though you are bound
-not only by the existing copyright notice from 1984, but also whatever
-restrictions may be present on various other pieces of the code, including
-the fact that any source written by me is technically automatically placed
-under copyright and may thus not be used for commercial purposes.  Remember
-to read the "version.txt" help file for some more copyright information.
-
-The basic help files supplied with this game are more or less up to date,
-but when in doubt, you should ask the newsgroup for confirmation.
-
-The documentation is very easy to modify and update, so you may want to
-check in to the ftp site occasionally to see if there are any new help
-files (or spoiler files) for you to acquire.  Note that the spoiler files
-are not distributed with the source since they are so huge, but you can
-obtain them from various places as with the source and executables.  New
-spoiler files may be placed into the "lib/info" directory, or into a user
-specified external directory, to allow access via the "online help" system.
-
-Remember to tell all your friends about how much you like Angband...
-
 === A quick demonstration ===
 
-Angband is, as mentioned above, a very complex game, so you may want to
+Ingband is, as mentioned above, a very complex game, so you may want to
 try the following quick demonstration.  The following instructions are
 for demonstration purposes only, and so they are intentionally boring.
 
-For this demo, I will assume that you have never played Angband before,
+For this demo, I will assume that you have never played Ingband before,
 that you have not requested any special "sub-windows", that you have not
 requested any special "graphics" modes, that you have a "numeric keypad"
 on your computer, and that you are using the default options, including,
@@ -131,7 +70,7 @@ escape three times and your character will be placed into the "town".
 
 You should now be looking at the basic dungeon interaction screen.  To the
 left is some information about your character.  To the right is an overhead
-view of the town.  Nothing happens in Angband while the game is waiting for
+view of the town.  Nothing happens in Ingband while the game is waiting for
 you to specify a command, so take a good look at the town.  You will see a
 variety of symbols on the screen.  Each symbol normally represents a terrain
 feature, an object, or a monster.  The "@" symbol is special, it represents
@@ -198,14 +137,10 @@ and the "7", "9", "1" and "3" keys move your character diagonally.  When your
 character first moves, observe the ">" symbol that is left behind.  This is
 the "staircase" that she was standing on earlier in the demo.
 
-Attempting to stay away from monsters, try and move your character towards
-the entrance to the "general store", which is represented as a "1" on the
-screen.  As your character moves around, use the "l" command to look around.
-You can press escape at any time to cancel the looking.  If you die, start
-over.  As you get close to the general store, your character will be able
-to "see" the entrance.  Note that you can see the entrance no matter where
-your character is, but your character cannot see it unless she is close to
-it, and there are no walls between her and the entrance.
+You cannot enter any of the stores in Ingband - the owners have left town
+so you are on your own.  You can enter your home, though (8).  Just go on
+down into the dungeon (press > when standing on the stairs) and cross your
+fingers...
 
 One of the hardest things for people to get used to, when playing games of
 this nature for the first time, is that the character is not the same as the
@@ -238,45 +173,7 @@ list", in which the pronoun changes back and forth from the real world to
 the virtual one several times in the same sentence.  So, from this point on
 you may have to separate the player and the character for yourself.
 
-So anyway, keep walking towards the entrance to the general store until you
-actually walk into it.  At this point, the screen should change to the store
-interaction screen.  You will see the name of the shop-keeper, and the name
-of the shop, and a list of objects which are available.  If there are more
-than twelve different objects, you can use the space key to advance to the
-next page of objects.  Hopefully, when you arrive, the general store will
-be selling some flasks of oil.  If so, press the "p" key to purchase some
-oil, and when asked which item you want, press the letter shown to the left
-of the flasks of oil.  If you are asked how many you want, just hit return.
-Any time you are asked a question and there is already something under the
-cursor, pressing return will accept that choice.  You will then see a few
-messages describing the transaction, as always, hit space at each "-more-"
-prompt, and eventually you will be asked to make an offer for the flask of
-oil.  Since flasks of oil are so cheap, you will not be given the chance to
-haggle, but instead will simply be told how much you must pay.  Hit return
-to accept the price.  Many commands work inside the store, for example, use
-the "i" command to see your inventory, with the new flask of oil.  Note that
-your inventory is always kept sorted in a semi-logical order, so the indexes
-of some of the objects may change as your inventory changes.
-
-Purchase another flask of oil, if possible.  Note that this time you were not
-asked to make an offer, because once you purchase something at the "optimal"
-price, it becomes "fixed" at that price, as indicated by the letter "F" after
-the price.  Purchase a few more flasks of oil, if possible, this time, when
-asked how many you want, press "3" plus return to buy three flasks at once.
-Flasks of oil are very important for low level characters, because not only
-can they be used to fuel a lantern (which gives more light than a torch), but
-also, they can be ignited and thrown at monsters from a distance.  So it is
-often a good idea to have a few extra flasks of oil.  Press escape to leave
-the store.  If you want, take time to visit the rest of the stores.  One of
-the buildings, marked with an "8", is your "home", and is not a real store.
-
-Now move to the staircase, represented by the ">" symbol, and press ">", to
-go down the stairs.  At this point, you are in the dungeon.  Use the "l"
-command to look around.  Note that you are standing on a staircase leading
-back to town.  Use the "<" command to take the stairs back to town.  Now use
-the ">" command to go back down the stairs into the dungeon.  You are now in
-a different part of the dungeon than you were in before.  The dungeon is so
-huge, once you leave one part of the dungeon, you will never find it again.
+Anyway, you are now in the dungeon.  Use the "l" command to look around.
 
 Now look the screen.  Your character may be in a lit room, represented as a
 large rectangle of illuminated floor grids ("."), surrounded by walls ("#").
@@ -318,7 +215,7 @@ directly to the east, press "v" + "b" + "6" to throw a flask of oil at the
 monster.  To drop an item from your inventory, press "d" plus the index of
 that item.  You can use the "^X" key to quit and save the game.
 
-You now know enough to play a quick game of Angband.  There is a lot more for
+You now know enough to play a quick game of Ingband.  There is a lot more for
 you to learn, including how to interpret information about your character, how
 to create different kinds of characters, how to determine which equipment to
 wield/wear, how to use various kinds of objects, and how to use the more than

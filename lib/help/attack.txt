@@ -1,6 +1,6 @@
 === Attacking and Being Attacked ===
  
-Attacking is simple in Angband.  If you move into a creature, you attack him.
+Attacking is simple in Ingband.  If you move into a creature, you attack him.
 You can attack from a distance by firing a missile or by magical means (such
 as aiming a wand).  Creatures attack in the same way.  If they move into you,
 they attack you.  Some creatures can also cast spells from a distance, and
@@ -33,7 +33,7 @@ actually occurs.
 
 === Monster Memories ===
 
-There are hundreds of different creatures in the pits of Angband, many of
+There are hundreds of different creatures in the pits of Ingband, many of
 which have the same letter symbol and color on the screen.  The exact species
 of a creature can be discovered by looking at it.  It is also very difficult
 to keep track of the capabilities of various creatures.  Luckily, Angband
@@ -66,7 +66,7 @@ player.  Cursed weapons cannot be unwielded until the curse is lifted.
 Identifying a weapon will inform you of the magical bonuses and penalties
 and whether or not it is cursed.
 
-Angband assumes that your youth in the rough environment near the dungeons
+Ingband assumes that your youth in the rough environment near the dungeons
 has taught you the relative merits of different weapons, and displays as
 part of their description the damage dice which define their capabilities.
 Any damage enchantment is added to the dice roll for that weapon.  The dice

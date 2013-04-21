@@ -1,17 +1,64 @@
-This is the README file for Angband 2.8.2 (09/01/97)
+This is the README file for Ingband 0.1.0 (19971008)
 
-Angband 2.8.2 is a stable official release (hopefully!) incorporating all
-of the improvements added since the last official release (Angband 2.7.8).
+Ironman-Angband (Ingband) is based on Angband 2.8.2, with the following
+changes (in order of implementation):
+	All stores are locked (the owners have left town!)
+	Only one up-staircase on any one level
+	Removed connected stairs
+	Removed auto-scumming
+	Start with more food
+	Start with more light
+	Always have preserve mode on
+	Removed limit on maximum dice rolls for character birth
+	Increased minimum value of dice rolls for character birth
+	"Create stairs" only creates down staircases
+	"Teleport level" only teleports downwards
+	Added quantity prompting for drop & destroy
+	Removed redundant tables
+	Modified save and load code
+	Minor changes to levels and rarity of some objects
+	Farmer Maggot now appears at 50ft and drops 1 or 2 exceptional items
+	Allow attacking of monsters in walls by moving (no need to tunnel)
+	Cannot use up-staircases unless current hp <= 1/4 max hp
+	Removed auto-roller
+	Up-staircases lead to an empty level (with just a down-staircase)
+	Mages start with Scroll of Identify instead of Word of Recall
+	Fixed problem with "empty" levels crashing
+	Added random starting items
+	Always play in "maximize" mode (option removed)
+	Removed mage spell Word of Recall
+	Removed priest spells Word of Recall and Alter Reality
+	Changed activation of Avavir
 
-See the Official Angband Home Page "http://www.voicenet.com/~benh/Angband/"
-for more information about exactly what has changed recently.
+Ironman-Angband was developed by elemental (aka Robert Shiells) in response
+to some discussions of the playing style in the Usenet group
+alt.games.roguelike.angband.
 
-See the various Angband ftp sites (including "export.andrew.cmu.edu" and
-"ftp.cis.ksu.edu") for the latest files, patches, and executables.
+Information on this release can be found on the Official Ingband Site:
+	http://www.elemental.demon.co.uk/ingband/
 
-Contact Ben Harrison ("benh@voicenet.com") to report any bugs or make any
-suggestions.  Use the newsgroup "rec.games.roguelike.angband" to ask any
-general questions about the game.
+General ethos
+=============
+(This needs to be put into the online help, someday)
+The character is a hard nut.  As such, he will not lower himself into entering
+a mere mortal's shop!  He will not wimp out of going into the dungeon, and
+actually has an intense desire you travel deeper into the dungeon at every
+available opertunity.  He wouldn't dream of going back up, except in dire
+emergency!  This type of character is likely to die young, but then again, who
+knows...?
+
+Ironman-Angband makes for a fun, short(er) game, for experienced players and
+maybe not-so-experienced players alike...  So long as you can take dying
+frequently ;)
+
+The first player to mail me with a (legitimate) character dump of a character
+who has reached level 50 wins the prize of a mention in the next release :)
+Just to clarify:  I mean character level, not dungeon level!
+
+
+--- elemental ---
+
+Edited extracts from the README file for Angband 2.8.2 follow (to end):
 
 
 === General information ===
@@ -31,35 +78,6 @@ See "Makefile.xxx" and "main-xxx.c" for various supported systems.
 Visit the Angband Home Page ("http://www.voicenet.com/~benh/Angband/"),
 and browse through the Angband newsgroup ("rec.games.roguelike.angband").
 
-Send bug reports, suggestions, etc, to Ben Harrison ("benh@voicenet.com").
-
-
-=== Quick and dirty compilation instructions === 
-
-For many platforms (including Macintosh and Windows), a "pre-compiled"
-archive is available, which contains everything you need to install and
-play Angband.  For other platforms, including most UNIX systems, you must
-compile the source code yourself.  Try the following non-trivial steps:
-
-Step 1: Acquire.  Ftp to "export.andrew.cmu.edu:/angband/Source"
-                  Try "bin" and "mget angband*.tar.gz" and "y"
-Step 2: Extract.  Try "gunzip *.gz" then "tar -xvf *.tar"
-Step 3: Prepare.  Try "cd angband*/src", then edit "Makefile"
-                  You may also edit "h-config.h" and "config.h"
-Step 4: Compile.  Try "make", and then "cd .." if successful
-Step 5: Execute.  Try "angband -uTest" to initialize stuff
-Step 6: Play....  Read the "online help" via the "?" command.
-
-Of course, if you have a compiler, you can compile a (possibly customized)
-executable on almost any system.  You will need the "source archive" (as
-above), which contains the standard "src" and "lib" directories, and for
-some platforms (including Macintosh and Windows), you will also need an
-appropriate "extra archive", which contains some extra platform specific
-files, and instructions about how to use them.  Some "extra archives" may
-be found at the ftp site (including "/angband/Macintosh/ext-mac.sit.bin"
-and "/angband/Windows/ext-win.zip"), but be sure that you get a version
-of the "extra archive" designed for Angband 2.8.2.
-
 
 === Special instructions for certain platforms ===
 
@@ -73,42 +91,6 @@ If you move the "lib" folder (or any ancestor folder) while a game is
 in progress, you may not be able to save your game.  To use a savefile
 from another platform (or really old version of Angband) you must use
 the "Import..." menu command instead of the "Open..." menu command.
-
-Some archive generation programs refuse to handle empty directories,
-so special "fake" files with names like "DELETEME.TXT" may have been
-placed into certain directories to avoid this problem.  You may safely
-delete these files if you so desire.
-
-
-=== Upgrading from older versions (and/or other platforms) ===
-
-If you have been using an older version of Angband (and/or playing on a
-different platform), you can "upgrade" (or "sidegrade") to Angband 2.8.X,
-bringing your old savefiles, high score list, and other files with you.
-
-Angband 2.8.X uses a platform independant file format for the binary files
-that store information about games in progress, known as "savefiles", and
-is able to translate savefiles from all known versions of Angband.  To use
-an "old" savefile, simply copy it into the "lib/save" directory, changing
-the name of the savefile (if necessary) to satisfy the requirements of the
-platform you are using.  In general, the savefile should be named "UUU.NNN"
-or "NNN" where "UUU" is the userid of the player (on "multiuser" systems),
-and "NNN" is the name of the "character" in the savefile.  Note that only
-"multiuser" platforms use the "UUU.NNN" form, and the "dot" is required.
-
-Angband 2.8.X uses a platform independant file format for the binary file
-used to store the high score list.  This file is named "scores.raw".  To
-use an "old" high score list, simply copy it into the "lib/apex" directory.
-
-Angband 2.8.X uses a set of special ascii "configuration files" which are
-kept in the "lib/file" directory.  These files should not be modified (or
-imported from older versions) unless you know exactly what you are doing,
-but often you can use "old" versions of these files with little trouble.
-
-Angband 2.8.X uses a set of ascii "user pref files" which are kept in the
-"lib/user" directory.  Most of these files can only be used on a small set
-of platforms, and may need slight modifications when imported from older
-versions.  Note that only some of these files are auto-loaded by the game.
 
 
 === Directory "src" ===

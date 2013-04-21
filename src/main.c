@@ -75,7 +75,7 @@ extern unsigned _ovrbuffer = 0x1500;
  * since the "init_file_paths()" function will simply append the
  * relevant "sub-directory names" to the given path.
  *
- * Note that the "path" must be "Angband:" for the Amiga, and it
+ * Note that the "path" must be "Ingband:" for the Amiga, and it
  * is ignored for "VM/ESA", so I just combined the two.
  */
 static void init_stuff(void)
@@ -85,14 +85,14 @@ static void init_stuff(void)
 #if defined(AMIGA) || defined(VM)
 
 	/* Hack -- prepare "path" */
-	strcpy(path, "Angband:");
+	strcpy(path, "Ingband:");
 
 #else /* AMIGA / VM */
 
 	cptr tail;
 
 	/* Get the environment variable */
-	tail = getenv("ANGBAND_PATH");
+	tail = getenv("INGBAND_PATH");
 
 	/* Use the angband_path, or a default */
 	strcpy(path, tail ? tail : DEFAULT_PATH);
@@ -438,7 +438,7 @@ int main(int argc, char *argv[])
 			usage:
 			{
 				/* Dump usage information */
-				puts("Usage: angband [options] [-- subopts]");
+				puts("Usage: ingband [options] [-- subopts]");
 				puts("  -n       Start a new character");
 				puts("  -f       Request fiddle mode");
 				puts("  -w       Request wizard mode");

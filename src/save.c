@@ -837,21 +837,8 @@ static void wr_store(store_type *st_ptr)
 {
 	int j;
 
-	/* Save the "open" counter */
-	wr_u32b(st_ptr->store_open);
-
-	/* Save the "insults" */
-	wr_s16b(st_ptr->insult_cur);
-
-	/* Save the current owner */
-	wr_byte(st_ptr->owner);
-
 	/* Save the stock size */
 	wr_byte(st_ptr->stock_num);
-
-	/* Save the "haggle" info */
-	wr_s16b(st_ptr->good_buy);
-	wr_s16b(st_ptr->bad_buy);
 
 	/* Save the stock */
 	for (j = 0; j < st_ptr->stock_num; j++)
@@ -1096,7 +1083,6 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->shield);
 	wr_s16b(p_ptr->blessed);
 	wr_s16b(p_ptr->tim_invis);
-	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
 	wr_s16b(p_ptr->oppose_fire);
@@ -1110,8 +1096,6 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
 	wr_byte(p_ptr->searching);
-	wr_byte(p_ptr->maximize);
-	wr_byte(p_ptr->preserve);
 	wr_byte(0);
 
 	/* Future use */
@@ -1139,9 +1123,6 @@ static void wr_extra(void)
 
 	/* Write feeling */
 	wr_byte(feeling);
-
-	/* Turn of last "feeling" */
-	wr_s32b(old_turn);
 
 	/* Current turn */
 	wr_s32b(turn);
@@ -1324,6 +1305,8 @@ static bool wr_savefile_new(void)
 	/*** Actually write the file ***/
 
 	/* Dump the file header */
+	xor_byte = 0;
+	wr_byte(73); /* ASCII 'I' - Ingband identifier */
 	xor_byte = 0;
 	wr_byte(VERSION_MAJOR);
 	xor_byte = 0;
@@ -1686,13 +1669,13 @@ bool load_player(void)
 
 	errr err = 0;
 
-	byte vvv[4];
+	byte vvv[5];
 
 #ifdef VERIFY_TIMESTAMP
 	struct stat	statbuf;
 #endif
 
-	cptr what = "generic";
+	cptr what = NULL;
 
 
 	/* Paranoia */
@@ -1789,8 +1772,8 @@ bool load_player(void)
 		(void)fstat(fd, &statbuf);
 #endif
 
-		/* Read the first four bytes */
-		if (fd_read(fd, (char*)(vvv), 4)) err = -1;
+		/* Read the first five bytes */
+		if (fd_read(fd, (char*)(vvv), 5)) err = -1;
 
 		/* What */
 		if (err) what = "Cannot read savefile";
@@ -1803,57 +1786,32 @@ bool load_player(void)
 	if (!err)
 	{
 		/* Extract version */
-		sf_major = vvv[0];
-		sf_minor = vvv[1];
-		sf_patch = vvv[2];
-		sf_extra = vvv[3];
-
-		/* Very old savefiles */
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-
-		/* Extremely old savefiles */
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
+		sf_major = vvv[1];
+		sf_minor = vvv[2];
+		sf_patch = vvv[3];
+		sf_extra = vvv[4];
 
 		/* Clear screen */
 		Term_clear();
 
-		/* Parse "ancient" savefiles */
-		if (sf_major < 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
+		if ( vvv[0] != 73 ) {
+			err = -1;
+			what = "Cannot read non-Ingband savefiles!";
+		} else
 
-		/* Parse "old" savefiles */
-		else if ((sf_major == 2) && (sf_minor < 7))
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "new" savefiles */
-		else if (sf_major == 2)
+		/* Parse current savefiles */
+		if ((sf_major == 0) && (sf_minor == 1))
 		{
 			/* Attempt to load */
 			err = rd_savefile_new();
-		}
-
+			if (err) what = "Possibly corrupt savefile";
+		} 
 		/* Parse "future" savefiles */
 		else
 		{
-			/* Error XXX XXX XXX */
 			err = -1;
+			what = "Newer savefile";
 		}
-
-		/* Message (below) */
-		if (err) what = "Cannot parse savefile";
 	}
 
 	/* Paranoia */
@@ -1918,7 +1876,7 @@ bool load_player(void)
 			sf_lives++;
 
 			/* Forget turns */
-			turn = old_turn = 0;
+			turn = 0;
 
 			/* Done */
 			return (TRUE);

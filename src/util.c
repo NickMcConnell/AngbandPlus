@@ -3228,4 +3228,56 @@ static bool insert_str(char *buf, cptr target, cptr insert)
 #endif
 
 
+/*
+ * Request a "quantity" from the user; uses p_ptr->command_arg
+ * if it is not zero without any prompting
+ */
+s16b get_quantity( cptr prompt, int max )
+{
+	int amt;
+	char tmp[80];
+	char buf[80];
+
+	/* Use p_ptr->command_arg if != 0 */
+	if ( p_ptr->command_arg )
+	{
+		amt = p_ptr->command_arg; /* get the number */
+		p_ptr->command_arg = 0;
+
+		if (amt > max) amt = max; /* don't go above max! */
+
+		return (amt);
+	}
+
+	/* Build a prompt if none supplied */
+	if (!prompt)
+	{
+		sprintf(tmp, "Quantity (1-%d): ", max);
+		prompt = tmp;
+	}
+
+
+	amt = 1; /* Default */
+
+	/* Build the prompt with default count */
+	sprintf(buf, "%d", amt);
+
+	/* Ask for a quantity */
+	if (!get_string(prompt, buf, 6)) return (0);
+
+	/* Extract a number */
+	amt = atoi(buf);
+
+	/* A letter means "all" */
+	if (isalpha(buf[0])) amt = max;
+
+	/* Enforce the maximum */
+	if (amt > max) amt = max;
+
+	/* Enforce the minimum */
+	if (amt < 0) amt = 0;
+
+	/* Return the result */
+	return (amt);
+}
 

@@ -69,7 +69,7 @@ extern bool option_norm[OPT_MAX];
 extern byte option_page[4][16];
 
 /* variable.c */
-extern cptr copyright[5];
+extern cptr copyright[6];
 extern byte version_major;
 extern byte version_minor;
 extern byte version_patch;
@@ -100,7 +100,6 @@ extern s16b num_repro;
 extern s16b object_level;
 extern s16b monster_level;
 extern s32b turn;
-extern s32b old_turn;
 extern bool use_sound;
 extern bool use_graphics;
 extern s16b signal_count;
@@ -392,10 +391,7 @@ extern errr init_r_info_txt(FILE *fp, char *buf);
 extern void init_file_paths(char *path);
 extern void init_angband(void);
 
-/* load1.c */
-extern errr rd_savefile_old(void);
-
-/* load2.c */
+/* loader.c */
 extern errr rd_savefile_new(void);
 
 /* melee1.c */
@@ -600,9 +596,7 @@ extern bool sleep_monsters_touch(void);
 
 /* store.c */
 extern void do_cmd_store(void);
-extern void store_shuffle(int which);
-extern void store_maint(int which);
-extern void store_init(int which);
+extern void store_init();
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);
@@ -653,6 +647,7 @@ extern bool get_com(cptr prompt, char *command);
 extern void pause_line(int row);
 extern void request_command(bool shopping);
 extern bool is_a_vowel(int ch);
+extern s16b get_quantity(cptr prompt, int max);
 
 /* xtra1.c */
 extern void cnv_stat(int val, char *out_val);

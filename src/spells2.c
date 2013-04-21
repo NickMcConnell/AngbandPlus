@@ -481,10 +481,6 @@ void self_knowledge(void)
 	{
 		info[i++] = "You can learn some spells/prayers.";
 	}
-	if (p_ptr->word_recall)
-	{
-		info[i++] = "You will soon be recalled.";
-	}
 	if (p_ptr->see_infra)
 	{
 		info[i++] = "Your eyes are sensitive to infrared light.";
@@ -1499,21 +1495,13 @@ void stair_creation(void)
 	delete_object(py, px);
 
 	/* Create a staircase */
-	if (!p_ptr->depth)
-	{
-		cave_set_feat(py, px, FEAT_MORE);
-	}
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		cave_set_feat(py, px, FEAT_LESS);
-	}
-	else if (rand_int(100) < 50)
-	{
-		cave_set_feat(py, px, FEAT_MORE);
 	}
 	else
 	{
-		cave_set_feat(py, px, FEAT_LESS);
+		cave_set_feat(py, px, FEAT_MORE);
 	}
 }
 

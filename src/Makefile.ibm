@@ -32,15 +32,15 @@ GLIBS= -lgrx20
 
 # Name of Program
 
-PROGRAM = angband.exe makepref.exe gredit.exe
+PROGRAM = ingband.exe makepref.exe gredit.exe
 
 
 all: $(PROGRAM)
 
 # Generate binary file
 
-angband.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o angband.bin $(OBJS) $(LIBS)
+ingband.exe: $(OBJS)
+	$(CC) $(CFLAGS) -o ingband.bin $(OBJS) $(LIBS)
 
 gredit.exe: gredit.o
 	$(CC) $(CFLAGS) -o gredit.bin gredit.o $(LIBS) $(GLIBS)

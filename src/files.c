@@ -1899,7 +1899,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "  [Ingband %d.%d.%d Character Dump]\n\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 
@@ -2257,7 +2257,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
+		prt(format("[Ingband %d.%d.%d, %s, Line %d/%d]",
 		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
 		           caption, line, size), 0, 0);
 
@@ -2688,8 +2688,7 @@ static void center_string(char *buf, cptr str)
 /*
  * Save a "bones" file for a dead character
  *
- * Note that we will not use these files until Angband 2.8.0, and
- * then we will only use the name and level on which death occured.
+ * Note that these files are currently unused.
  *
  * Should probably attempt some form of locking...
  */
@@ -3213,7 +3212,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str("                Angband Hall of Fame", 0, 0);
+		put_str("                Ingband Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)

@@ -23,7 +23,7 @@
 
 # Version stamp (required)
 
-V:2.8.2
+V:0.1.0
 
 
 ##### Something special #####
@@ -91,32 +91,32 @@ A:10/1
 N:10:Unhealth
 G:,:d
 I:80:10:500
-W:15:0:1:50
+W:10:0:1:50
 A:15/1
 P:0:10d10:0:0:0
 
 N:11:Restore Constitution
 G:,:d
 I:80:18:500
-W:20:0:1:350
-A:20/1
+W:10:0:1:350
+A:15/1
 
 N:12:Restoring
 G:,:d
 I:80:19:500
-W:20:0:1:1000
+W:15:0:1:1000
 A:20/8:30/4:40/1
 
 N:13:Stupidity
 G:,:d
 I:80:8:500
-W:15:0:1:0
+W:10:0:1:0
 A:15/1
 
 N:14:Naivety
 G:,:d
 I:80:9:500
-W:15:0:1:0
+W:10:0:1:0
 A:15/1
 
 N:15:Poison
@@ -140,7 +140,7 @@ A:20/1
 N:18:Restore Strength
 G:,:d
 I:80:17:500
-W:20:0:1:350
+W:15:0:1:350
 A:20/1
 
 N:19:Disease
@@ -183,7 +183,7 @@ A:1/1
 N:25:& Piece~ of Elvish Waybread
 G:,:B
 I:80:37:7500
-W:5:0:3:10
+W:2:0:3:10
 A:5/1:10/1:20/1
 
 N:26:& Pint~ of Fine Ale
@@ -1316,12 +1316,12 @@ N:176:Identify
 G:?:d
 I:70:12:0
 W:1:0:5:50
-A:1/1:5/1:10/1:30/1
+A:1/1:5/1:10/1
 
 N:177:*Identify*
 G:?:d
 I:70:13:0
-W:30:0:5:1000
+W:20:0:5:1000
 A:30/1
 
 ## XXX 178 XXX ##
@@ -1331,7 +1331,7 @@ A:30/1
 N:180:Remove Curse
 G:?:d
 I:70:14:0
-W:10:0:5:100
+W:8:0:5:100
 A:10/1
 
 N:181:Light
@@ -1503,25 +1503,25 @@ A:40/1
 N:212:*Enchant Weapon*
 G:?:d
 I:70:21:0
-W:50:0:5:500
+W:40:0:5:500
 A:50/1
 
 N:213:Curse Weapon
 G:?:d
 I:70:3:0
-W:50:0:5:0
+W:40:0:5:0
 A:50/1
 
 N:214:*Enchant Armor*
 G:?:d
 I:70:20:0
-W:50:0:5:500
+W:40:0:5:500
 A:50/1:50/1
 
 N:215:Curse Armor
 G:?:d
 I:70:2:0
-W:50:0:5:0
+W:40:0:5:0
 A:50/1
 
 N:216:Summon Undead
@@ -1548,11 +1548,7 @@ I:70:35:0
 W:25:0:5:80
 A:25/1
 
-N:220:Word of Recall
-G:?:d
-I:70:11:0
-W:5:0:5:150
-A:5/1
+### 220 (used to be Word of Recall) ###
 
 N:221:*Destruction*
 G:?:d
@@ -1593,14 +1589,14 @@ P:0:1d1:0:0:0
 N:226:Weakness
 G:!:d
 I:75:16:0
-W:3:0:4:0
-A:3/1
+W:5:0:4:0
+A:5/1
 P:0:1d1:0:0:0
 
 N:227:Restore Strength
 G:!:d
 I:75:42:0
-W:25:0:4:300
+W:15:0:4:300
 A:25/1
 P:0:1d1:0:0:0
 
@@ -1621,8 +1617,8 @@ P:0:1d1:0:0:0
 N:230:Restore Intelligence
 G:!:d
 I:75:43:0
-W:25:0:4:300
-A:25/1
+W:20:0:4:300
+A:20/1
 P:0:1d1:0:0:0
 
 N:231:Wisdom
@@ -1642,8 +1638,8 @@ P:0:1d1:0:0:0
 N:233:Restore Wisdom
 G:!:d
 I:75:44:0
-W:25:0:4:300
-A:25/1
+W:20:0:4:300
+A:20/1
 P:0:1d1:0:0:0
 
 N:234:Charisma
@@ -1656,14 +1652,14 @@ P:0:1d1:0:0:0
 N:235:Ugliness
 G:!:d
 I:75:21:0
-W:20:0:4:0
+W:15:0:4:0
 A:20/1
 P:0:1d1:0:0:0
 
 N:236:Restore Charisma
 G:!:d
 I:75:47:0
-W:20:0:4:300
+W:15:0:4:300
 A:20/1
 P:0:1d1:0:0:0
 
@@ -1677,8 +1673,8 @@ P:0:1d1:0:0:0
 N:238:Clumsiness
 G:!:d
 I:75:19:0
-W:5:0:4:0
-A:5/1
+W:7:0:4:0
+A:10/1
 P:0:1d1:0:0:0
 
 N:239:Sickliness
@@ -1775,15 +1771,15 @@ P:0:1d1:0:0:0
 N:252:Restore Dexterity
 G:!:d
 I:75:45:0
-W:25:0:4:300
-A:25/1
+W:15:0:4:300
+A:20/1
 P:0:1d1:0:0:0
 
 N:253:Restore Constitution
 G:!:d
 I:75:46:0
-W:25:0:4:300
-A:25/1
+W:15:0:4:300
+A:20/1
 P:0:1d1:0:0:0
 
 N:254:Lose Memories
@@ -1831,7 +1827,7 @@ P:0:1d1:0:0:0
 N:260:Restore Life Levels
 G:!:d
 I:75:41:0
-W:40:0:4:400
+W:30:0:4:400
 A:40/1
 P:0:1d1:0:0:0
 
@@ -2495,12 +2491,7 @@ W:40:0:15:4000
 A:40/4
 P:0:1d1:0:0:0
 
-N:354:Recall
-G:-:d
-I:66:3:0
-W:30:0:15:4000
-A:30/4
-P:0:1d1:0:0:0
+### 354 (used to be Recall) ###
 
 N:355:Illumination
 G:-:d
@@ -2749,78 +2740,78 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### Junk #####
 
-N:389:& Shard~ of Pottery
-G:~:r
-I:3:3:0
-W:0:0:5:0
-A:0/1
-P:0:1d1:0:0:0
+#N:389:& Shard~ of Pottery
+#G:~:r
+#I:3:3:0
+#W:0:0:5:0
+#A:0/1
+#P:0:1d1:0:0:0
 
-N:390:& Broken Stick~
-G:~:r
-I:3:6:0
-W:0:0:3:0
-A:0/1
-P:0:1d1:0:0:0
+#N:390:& Broken Stick~
+#G:~:r
+#I:3:6:0
+#W:0:0:3:0
+#A:0/1
+#P:0:1d1:0:0:0
 
 
 ##### Skeletons #####
 
-N:391:& Broken Skull~
-G:~:w
-I:1:1:0
-W:0:0:1:0
-A:0/1
-P:0:1d1:0:0:0
+#N:391:& Broken Skull~
+#G:~:w
+#I:1:1:0
+#W:0:0:1:0
+#A:0/1
+#P:0:1d1:0:0:0
 
-N:392:& Broken Bone~
-G:~:w
-I:1:2:0
-W:0:0:2:0
-A:0/1
-P:0:1d1:0:0:0
+#N:392:& Broken Bone~
+#G:~:w
+#I:1:2:0
+#W:0:0:2:0
+#A:0/1
+#P:0:1d1:0:0:0
 
-N:393:& Canine Skeleton~
-G:~:w
-I:1:4:0
-W:1:0:10:0
-A:1/1
-P:0:1d1:0:0:0
+#N:393:& Canine Skeleton~
+#G:~:w
+#I:1:4:0
+#W:1:0:10:0
+#A:1/1
+#P:0:1d1:0:0:0
 
-N:394:& Rodent Skeleton~
-G:~:w
-I:1:3:0
-W:1:0:10:0
-A:1/1
-P:0:1d1:0:0:0
+#N:394:& Rodent Skeleton~
+#G:~:w
+#I:1:3:0
+#W:1:0:10:0
+#A:1/1
+#P:0:1d1:0:0:0
 
-N:395:& Human Skeleton~
-G:~:w
-I:1:8:0
-W:5:0:60:0
-A:5/1
-P:0:1d2:0:0:0
+#N:395:& Human Skeleton~
+#G:~:w
+#I:1:8:0
+#W:5:0:60:0
+#A:5/1
+#P:0:1d2:0:0:0
 
-N:396:& Dwarf Skeleton~
-G:~:w
-I:1:7:0
-W:5:0:50:0
-A:5/1
-P:0:1d2:0:0:0
+#N:396:& Dwarf Skeleton~
+#G:~:w
+#I:1:7:0
+#W:5:0:50:0
+#A:5/1
+#P:0:1d2:0:0:0
 
-N:397:& Elf Skeleton~
-G:~:w
-I:1:6:0
-W:5:0:40:0
-A:5/1
-P:0:1d2:0:0:0
+#N:397:& Elf Skeleton~
+#G:~:w
+#I:1:6:0
+#W:5:0:40:0
+#A:5/1
+#P:0:1d2:0:0:0
 
-N:398:& Gnome Skeleton~
-G:~:w
-I:1:5:0
-W:5:0:30:0
-A:5/1
-P:0:1d2:0:0:0
+#N:398:& Gnome Skeleton~
+#G:~:w
+#I:1:5:0
+#W:5:0:30:0
+#A:5/1
+#P:0:1d2:0:0:0
 
 ## XXX 399 XXX ##
 
@@ -2941,8 +2932,8 @@ I:38:30:0
 W:110:0:200:300000
 A:110/64
 P:40:2d4:-3:0:15
-F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
-F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | RES_LITE |
+F:RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | RES_DISEN |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ## XXX 413 XXX ##
@@ -2955,15 +2946,15 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:415:Death
 G:!:d
 I:75:23:0
-W:55:0:4:0
-A:55/4
+W:80:0:4:0
+A:80/4
 P:0:1d1:0:0:0
 
 N:416:Ruination
 G:!:d
 I:75:15:0
-W:40:0:4:0
-A:40/8
+W:50:0:4:0
+A:50/8
 P:0:1d1:0:0:0
 
 N:417:Detonations

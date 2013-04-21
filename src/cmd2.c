@@ -26,14 +26,17 @@ void do_cmd_go_up(void)
 		return;
 	}
 
-	/* Hack -- take a turn */
+	/* Cannot go upstairs unless chp <= mhp\4 */
+	if ( p_ptr->chp > p_ptr->mhp/4 ) { msg_print( "Going upstairs is for wimps!"); return;
+	}
+
+	/* Takes a full turn */
 	p_ptr->energy_use = 100;
 
-	/* Success */
 	msg_print("You enter a maze of up staircases.");
 
-	/* Create a way back */
-	p_ptr->create_down_stair = TRUE;
+	/* Flag that we are going up... */
+	p_ptr->going_up = TRUE;
 
 	/* New depth */
 	p_ptr->depth--;
@@ -64,8 +67,7 @@ void do_cmd_go_down(void)
 	/* Success */
 	msg_print("You enter a maze of down staircases.");
 
-	/* Create a way back */
-	p_ptr->create_up_stair = TRUE;
+	p_ptr->going_up = FALSE;
 
 	/* New level */
 	p_ptr->depth++;
@@ -1849,8 +1851,12 @@ static bool do_cmd_walk_test(int y, int x)
 		/* Wall */
 		else
 		{
-			/* Message */
-			msg_print("There is a wall in the way!");
+			if ( cave_m_idx[y][x] > 0 ) {
+				/* Attack the monster */
+				py_attack( y, x );
+			} else
+				/* Message */
+				msg_print("There is a wall in the way!");
 		}
 
 		/* Nope */

@@ -34,5 +34,5 @@ LIBS = -lvgagl -lvga
 # Build the program
 
 angsvga: $(SRCS) $(OBJS)
-	$(CC) $(CFLAGS)  -o angband $(OBJS) $(LDFLAGS) $(LIBS)
+	$(CC) $(CFLAGS)  -o ingband $(OBJS) $(LDFLAGS) $(LIBS)
 

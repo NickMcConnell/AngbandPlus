@@ -2,7 +2,7 @@
 #
 # Amiga SAS/C 6.50
 
-all: angband
+all: ingband
 
 # Object files
 OBJS = \
@@ -29,9 +29,9 @@ INCS = \
   z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
 
 # Linking
-angband: $(OBJS)
+ingband: $(OBJS)
   echo Linking
-  slink QUIET WITH angband.lnk
+  slink QUIET WITH ingband.lnk
 
 # Compiling
 .c.o:
@@ -40,15 +40,6 @@ angband: $(OBJS)
 
 # Dependencies
 birth.o: birth.c $(INCS)
-borg-aux.o: borg-aux.c $(INCS) borg-aux.h borg-ext.h
-borg-aux.o: borg-obj.h borg-map.h borg.h
-borg-ben.o: borg-ben.c $(INCS) borg-ben.h borg-aux.h borg-ext.h
-borg-ben.o: borg-obj.h borg-map.h borg.h
-borg-ext.o: borg-ext.c $(INCS) borg-ext.h
-borg-ext.o: borg-obj.h borg-map.h borg.h
-borg-obj.o: borg-obj.c $(INCS) borg-obj.h borg.h
-borg-map.o: borg-map.c $(INCS) borg-map.h borg.h
-borg.o: borg.c $(INCS) borg.h
 cave.o: cave.c $(INCS)
 cmd1.o: cmd1.c $(INCS)
 cmd2.o: cmd2.c $(INCS)

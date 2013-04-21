@@ -108,7 +108,7 @@
 
 # Version stamp (required)
 
-V:2.8.2
+V:0.1.0
 
 
 ##### The Player #####
@@ -148,21 +148,7 @@ F:RAND_25 |
 F:ANIMAL
 D:A thin flea-ridden mutt, growling as you get close.
 
-N:4:Farmer Maggot
-G:h:w
-I:110:35d10:40:10:3
-W:0:4:0:0
-B:MOAN
-B:MOAN
-F:UNIQUE | MALE | 
-F:FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:NO_CONF | NO_SLEEP
-D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy 
-D:hobbit!
-
-N:5:Blubbering idiot
+N:4:Blubbering idiot
 G:t:W
 I:110:1d2:6:1:0
 W:0:1:0:0
@@ -172,7 +158,7 @@ F:RAND_25 |
 F:TAKE_ITEM
 D:He tends to blubber a lot.
 
-N:6:Boil-covered wretch
+N:5:Boil-covered wretch
 G:t:g
 I:110:1d2:6:1:0
 W:0:1:0:0
@@ -182,7 +168,7 @@ F:RAND_25 |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:Ugly doesn't begin to describe him.
 
-N:7:Village idiot
+N:6:Village idiot
 G:t:G
 I:120:4d4:6:1:0
 W:0:1:0:0
@@ -192,7 +178,7 @@ F:RAND_25 |
 F:TAKE_ITEM
 D:Drooling and comical, but then, what do you expect?
 
-N:8:Pitiful looking beggar
+N:7:Pitiful looking beggar
 G:t:U
 I:110:1d4:10:1:40
 W:0:1:0:0
@@ -202,7 +188,7 @@ F:RAND_25 |
 F:TAKE_ITEM | OPEN_DOOR
 D:You just can't help feeling sorry for him.
 
-N:9:Mangy looking leper
+N:8:Mangy looking leper
 G:t:u
 I:110:1d1:10:1:50
 W:0:1:0:0
@@ -212,7 +198,7 @@ F:RAND_25 |
 F:TAKE_ITEM | OPEN_DOOR
 D:You feel it isn't safe to touch him.
 
-N:10:Squint eyed rogue
+N:9:Squint eyed rogue
 G:t:b
 I:110:2d8:10:8:99
 W:0:1:0:0
@@ -224,7 +210,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 D:A hardy, street-wise crook that knows an easy catch when it sees one.
 
-N:11:Singing, happy drunk
+N:10:Singing, happy drunk
 G:t:y
 I:110:2d3:10:1:0
 W:0:1:0:0
@@ -235,7 +221,7 @@ F:ONLY_GOLD | DROP_60 |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:He makes you glad to be sober.
 
-N:12:Aimless looking merchant
+N:11:Aimless looking merchant
 G:t:o
 I:110:3d3:10:1:255
 W:0:1:0:0
@@ -247,7 +233,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:The typical ponce around town, with purse jingling, and looking for more 
 D:amulets of adornment to buy.
 
-N:13:Mean looking mercenary
+N:12:Mean looking mercenary
 G:t:r
 I:110:5d8:10:20:250
 W:0:1:0:0
@@ -258,7 +244,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 D:No job is too low for him.
 
-N:14:Battle scarred veteran
+N:13:Battle scarred veteran
 G:t:B
 I:110:7d8:10:30:250
 W:0:1:0:0
@@ -268,8 +254,21 @@ F:RAND_50 | DROP_90 |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:He doesn't take to strangers kindly.
 
-
 ##### Normal monsters #####
+
+N:14:Farmer Maggot
+G:h:w
+I:110:35d10:40:10:3
+W:1:4:0:3
+B:MOAN
+B:MOAN
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GREAT | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:NO_CONF | NO_SLEEP
+D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy 
+D:hobbit!
 
 N:15:Grey mold
 G:m:s

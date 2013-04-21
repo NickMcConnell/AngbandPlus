@@ -26,7 +26,7 @@
 #
 
 VERSION         = 279v5
-EXPORT          = angband-$(VERSION).os2.zip
+EXPORT          = ingband-$(VERSION).os2.zip
 
 CC 		= gcc
 AR		= ar
@@ -42,10 +42,10 @@ NICE 		= nice -i -n -30
 
 default: all depends :-)
 
-install: ..\angband.exe ..\aclient.exe ..\startwnd.cmd
+install: ..\ingband.exe ..\aclient.exe ..\startwnd.cmd
 
 clean:
-    -+@ del angband.exe
+    -+@ del ingband.exe
     -+@ del aclient.exe
     -+@ del depends
     -+@ del _state.mk
@@ -75,13 +75,13 @@ OBJS = \
 .c.o:
     $(NICE) $(CC) $(CFLAGS) -c $*.c
 
-all .PHONY: angband.exe aclient.exe 
+all .PHONY: ingband.exe aclient.exe 
     +@echo. 
     +@echo Now type 
     +@echo. 
     +@echo       '$(MAKECMD) $(MFLAGS) $(MAKEFILE) install'
     +@echo. 
-    +@echo to install Angband in the parent directory, and/or
+    +@echo to install Ingband in the parent directory, and/or
     +@echo. 
     +@echo       '$(MAKECMD) $(MFLAGS) $(MAKEFILE) clean'
     +@echo. 
@@ -90,7 +90,7 @@ all .PHONY: angband.exe aclient.exe
     +@echo working executables.
     +@echo. 
 
-EXPFILES = angband.exe;aclient.exe;patches.txt;readme;startwnd.cmd
+EXPFILES = ingband.exe;aclient.exe;patches.txt;readme;startwnd.cmd
 
 ..\exp\$(EXPORT) .PHONY .IGNORE: install patches
 # Needs 4OS2!
@@ -147,9 +147,9 @@ depends .IGNORE: $(OBJS)
     + echo. > depends
     + for %a in (*.d) type %a >> depends
 
-..\angband.exe: angband.exe
-    + copy angband.exe ..
-    emxbind -s ..\angband.exe
+..\ingband.exe: ingband.exe
+    + copy ingband.exe ..
+    emxbind -s ..\ingband.exe
 
 ..\aclient.exe: aclient.exe
     + copy aclient.exe ..
@@ -160,7 +160,7 @@ ECF=>> ..\startwnd.cmd
 
 ..\startwnd.cmd: 
  $(EC) @echo off                                             > ..\startwnd.cmd
- $(EC) REM This file starts up Angband and up to three other views. The $(ECF)
+ $(EC) REM This file starts up Ingband and up to three other views. The $(ECF)
  $(EC) REM optional number behind the name sets the number of lines for $(ECF)
  $(EC) REM that screen.                                                 $(ECF)
  $(EC) REM                                                              $(ECF)
@@ -177,13 +177,13 @@ ECF=>> ..\startwnd.cmd
  $(EC) start /win /n aclient choice                                     $(ECF)
  $(EC) rem start /win /n aclient mirror                                 $(ECF)
  $(EC) delay                                                            $(ECF)
- $(EC) angband %1 %2 %3 %4 %5 %6 %7 %8 %9                               $(ECF)
+ $(EC) ingband %1 %2 %3 %4 %5 %6 %7 %8 %9                               $(ECF)
 
-angband.exe: angband.a main.o main-emx.o main-epm.o
-    $(CC) -o angband.exe main.o main-emx.o angband.a $(LFLAGS) 
+ingband.exe: ingband.a main.o main-emx.o main-epm.o
+    $(CC) -o ingband.exe main.o main-emx.o ingband.a $(LFLAGS) 
 
-angband.a: $(OBJS)
-    $(AR) r angband.a $(OBJS)
+ingband.a: $(OBJS)
+    $(AR) r ingband.a $(OBJS)
 
 aclient.exe: main-emx.c
     $(NICE) $(CC) $(CFLAGS) -Wall -D__EMX__CLIENT__ -o aclient.exe main-emx.c -lvideo

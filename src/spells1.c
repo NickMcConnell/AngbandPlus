@@ -273,18 +273,9 @@ void teleport_player_to(int ny, int nx)
  */
 void teleport_player_level(void)
 {
-	if (!p_ptr->depth)
-	{
-		msg_print("You sink through the floor.");
+	/* only ever go up if level is quest or deepest */
 
-		/* New depth */
-		p_ptr->depth++;
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		msg_print("You rise up through the ceiling.");
 
@@ -294,18 +285,6 @@ void teleport_player_level(void)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
-
-	else if (rand_int(100) < 50)
-	{
-		msg_print("You rise up through the ceiling.");
-
-		/* New depth */
-		p_ptr->depth--;
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-
 	else
 	{
 		msg_print("You sink through the floor.");

@@ -843,16 +843,7 @@ void do_cmd_cast(void)
 
 			case 37:
 			{
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				msg_print("Nothing happens.");
 				break;
 			}
 
@@ -1605,27 +1596,9 @@ void do_cmd_pray(void)
 			}
 
 			case 56:
-			{
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = rand_int(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
-				break;
-			}
-
 			case 57:
 			{
-				msg_print("The world changes!");
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-
+				msg_print("Nothing happens.");
 				break;
 			}
 		}

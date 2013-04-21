@@ -13,7 +13,7 @@ LINK32 = c:\apps\bc45\bin\tlink32.exe
 RC = c:\apps\bc45\bin\brc.exe
 RC32 = c:\apps\bc45\bin\brc32.exe
 LIBDIR = c:\apps\bc45\lib
-INCLDIR = c:\apps\bc45\include;c:\angband\ext-win\src
+INCLDIR = c:\apps\bc45\include;c:\ingband\ext-win\src
 
 # shouldn't need to change anything below
 
@@ -53,12 +53,12 @@ OBJS32 = \
   generate.o32 dungeon.o32 init1.o32 init2.o32 \
   main-win.o32 readdib.o32 itsybits.o32
 
-default: bccw16.cfg angband cleanobj bccw32.cfg angband32 cleanobj32
+default: bccw16.cfg ingband cleanobj bccw32.cfg ingband32 cleanobj32
 
 clean:
 	del *.obj
 	del ..\*.map
-	del ..\angband.exe
+	del ..\ingband.exe
 
 cleanobj:
 	del *.obj
@@ -69,7 +69,7 @@ cleanobj32:
 	del bccw32.cfg
 
 bccw16.cfg: makefile.win
-	if not exist ..\angband.ini copy ..\ext-win\src\angband.ini ..
+	if not exist ..\ingband.ini copy ..\ext-win\src\ingband.ini ..
 	copy &&|
 -I$(INCLDIR)
 -L$(LIBDIR)

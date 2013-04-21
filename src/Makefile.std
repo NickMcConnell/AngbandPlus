@@ -215,16 +215,16 @@ LIBS = -lX11 -lcurses -ltermcap
 # Hack -- "install" as the base target
 #
 
-install: angband
-	cp angband ..
+install: ingband
+	cp ingband ..
 
 
 #
-# Build the "Angband" program
+# Build the "Ingband" program
 #
 
-angband: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
+ingband: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o ingband $(OBJS) $(LIBS)
 
 
 #

@@ -189,6 +189,9 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
+			/* These are in order of magnitude, so that */
+			/* The highest multiplier has effect */
+
 			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & (RF3_ANIMAL)))
@@ -198,7 +201,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_ANIMAL);
 				}
 
-				if (mult < 2) mult = 2;
+				mult = 2;
 			}
 
 			/* Slay Evil */
@@ -210,7 +213,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_EVIL);
 				}
 
-				if (mult < 2) mult = 2;
+				mult = 2;
 			}
 
 			/* Slay Undead */
@@ -222,7 +225,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_UNDEAD);
 				}
 
-				if (mult < 3) mult = 3;
+				mult = 3;
 			}
 
 			/* Slay Demon */
@@ -234,7 +237,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_DEMON);
 				}
 
-				if (mult < 3) mult = 3;
+				mult = 3;
 			}
 
 			/* Slay Orc */
@@ -246,7 +249,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_ORC);
 				}
 
-				if (mult < 3) mult = 3;
+				mult = 3;
 			}
 
 			/* Slay Troll */
@@ -258,7 +261,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_TROLL);
 				}
 
-				if (mult < 3) mult = 3;
+				mult = 3;
 			}
 
 			/* Slay Giant */
@@ -270,7 +273,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_GIANT);
 				}
 
-				if (mult < 3) mult = 3;
+				mult = 3;
 			}
 
 			/* Slay Dragon  */
@@ -282,21 +285,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
-				if (mult < 3) mult = 3;
+				mult = 3;
 			}
-
-			/* Execute Dragon */
-			if ((f1 & (TR1_KILL_DRAGON)) &&
-			    (r_ptr->flags3 & (RF3_DRAGON)))
-			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
-				}
-
-				if (mult < 5) mult = 5;
-			}
-
 
 			/* Brand (Acid) */
 			if (f1 & (TR1_BRAND_ACID))
@@ -313,7 +303,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					mult = 3;
 				}
 			}
 
@@ -332,7 +322,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					mult = 3;
 				}
 			}
 
@@ -351,7 +341,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					mult = 3;
 				}
 			}
 
@@ -370,8 +360,20 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					mult = 3;
 				}
+			}
+
+			/* Execute Dragon */
+			if ((f1 & (TR1_KILL_DRAGON)) &&
+			    (r_ptr->flags3 & (RF3_DRAGON)))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= (RF3_DRAGON);
+				}
+
+				mult = 5;
 			}
 
 			break;
@@ -1943,4 +1945,3 @@ void run_step(int dir)
 	/* Move the player, using the "pickup" flag */
 	move_player(p_ptr->run_cur_dir, always_pickup);
 }
-

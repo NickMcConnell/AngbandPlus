@@ -13,8 +13,6 @@
 
 
 
-
-
 /*
  * Display inventory
  */
@@ -342,7 +340,7 @@ void do_cmd_takeoff(void)
  */
 void do_cmd_drop(void)
 {
-	int item, amt;
+	int item, amt = 1;
 
 	object_type *o_ptr;
 
@@ -366,29 +364,16 @@ void do_cmd_drop(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Assume one item */
-	amt = 1;
-
-	/* Use "p_ptr->command_arg" */
-	if (p_ptr->command_arg)
-	{
-		/* Extract a number */
-		amt = p_ptr->command_arg;
-
-		/* Clear "p_ptr->command_arg" */
-		p_ptr->command_arg = 0;
-
-		/* Enforce the maximum */
-		if (amt > o_ptr->number) amt = o_ptr->number;
+	/* prompt for quantity (or use p_ptr->command_arg) */
+	if ( o_ptr->number > 1 ) {
+		amt = get_quantity( NULL, o_ptr->number );
+		if ( amt <= 0 ) return; /* allow abort */
 	}
 
-	/* Hack -- Cannot remove cursed items */
+	/* Cannot remove cursed items */
 	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
 	{
-		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
-
-		/* Nope */
 		return;
 	}
 
@@ -406,7 +391,7 @@ void do_cmd_drop(void)
  */
 void do_cmd_destroy(void)
 {
-	int item, amt;
+	int item, amt = 1;
 	int old_number;
 
 	object_type *o_ptr;
@@ -416,8 +401,6 @@ void do_cmd_destroy(void)
 	char out_val[160];
 
 	cptr q, s;
-
-	bool force = FALSE;
 
 
 	/* Get an item */
@@ -437,23 +420,10 @@ void do_cmd_destroy(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Assume one item */
-	amt = 1;
-
-	/* Use "p_ptr->command_arg" */
-	if (p_ptr->command_arg)
-	{
-		/* Hack XXX XXX */
-		force = TRUE;
-
-		/* Extract a number */
-		amt = p_ptr->command_arg;
-
-		/* Clear "p_ptr->command_arg" */
-		p_ptr->command_arg = 0;
-
-		/* Enforce the maximum */
-		if (amt > o_ptr->number) amt = o_ptr->number;
+	/* prompt for quantity (or use p_ptr->command_arg) */
+	if ( o_ptr->number > 1 ) {
+		amt = get_quantity( NULL, o_ptr->number );
+		if ( amt <= 0 ) return; /* allow abort */
 	}
 
 	/* Describe the object */
@@ -462,12 +432,9 @@ void do_cmd_destroy(void)
 	object_desc(o_name, o_ptr, TRUE, 3);
 	o_ptr->number = old_number;
 
-	/* Hack -- Verify destruction XXX XXX XXX */
-	if (!force)
-	{
-		sprintf(out_val, "Really destroy %s? ", o_name);
-		if (!get_check(out_val)) return;
-	}
+	/* Verify destruction */
+	sprintf(out_val, "Really destroy %s? ", o_name);
+	if (!get_check(out_val)) return;
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -480,10 +447,10 @@ void do_cmd_destroy(void)
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
-		/* Hack -- Handle icky artifacts */
+		/* Handle icky artifacts */
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
 
-		/* Hack -- inscribe the artifact */
+		/* inscribe the artifact */
 		o_ptr->note = quark_add(feel);
 
 		/* We have "felt" it (again) */

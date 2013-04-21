@@ -169,19 +169,14 @@
 
 
 /*
- * OPTION: Hack -- Compile in support for "Cyborg" mode
- */
-/* #define ALLOW_BORG */
-
-/*
  * OPTION: Hack -- Compile in support for "Wizard Commands"
  */
-/* #define ALLOW_WIZARD */
+#define ALLOW_WIZARD
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
  */
-/* #define ALLOW_SPOILERS */
+#define ALLOW_SPOILERS
 
 
 /*
@@ -201,12 +196,6 @@
 
 
 /*
- * OPTION: Allow characteres to be "auto-rolled"
- */
-#define ALLOW_AUTOROLLER
-
-
-/*
  * OPTION: Allow monsters to "flee" when hit hard
  */
 #define ALLOW_FEAR
@@ -223,13 +212,6 @@
  * It should be usually be defined anyway to allow easy "updating".
  */
 #define ALLOW_TEMPLATES
-
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-#define ALLOW_OLD_SAVEFILES
 
 
 /*
@@ -336,18 +318,18 @@
 /*
  * OPTION: Allow the use of "sound" in various places.
  */
-#define USE_SOUND
+/* #define USE_SOUND */
 
 /*
  * OPTION: Allow the use of "graphics" in various places
  */
-#define USE_GRAPHICS
+/* #define USE_GRAPHICS */
 
 
 /*
- * OPTION: Hack -- Macintosh stuff
+ * Macintosh, Windows and EMX versions should not handle signals
  */
-#ifdef MACINTOSH
+#if defined( MACINTOSH ) || defined ( WINDOWS ) || defined ( USE_EMX )
 
 /* Do not handle signals */
 # undef HANDLE_SIGNALS
@@ -356,29 +338,7 @@
 
 
 /*
- * OPTION: Hack -- Windows stuff
- */
-#ifdef WINDOWS
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
-
-
-/*
- * OPTION: Hack -- EMX stuff
- */
-#ifdef USE_EMX
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
-
-
-/*
- * OPTION: Set the "default" path to the angband "lib" directory.
+ * OPTION: Set the "default" path to the ingband "lib" directory.
  *
  * See "main.c" for usage, and note that this value is only used on
  * certain machines, primarily Unix machines.  If this value is used,
@@ -395,7 +355,8 @@
  * or "/usr/games/lib/angband/", or "/pkg/angband/lib".
  */
 #ifndef DEFAULT_PATH
-# define DEFAULT_PATH "./lib/"
+/* # define DEFAULT_PATH "./lib/" */
+#define DEFAULT_PATH "/usr/src/ingband/lib/"
 #endif
 
 
@@ -444,9 +405,9 @@
 
 
 /*
- * OPTION: Person to bother if something goes wrong.
+ * Person to bother if something goes wrong.
  */
-#define MAINTAINER	"benh@voicenet.com"
+#define MAINTAINER	"elemental@elemental.demon.co.uk"
 
 
 /*
@@ -490,8 +451,6 @@
 # undef MONSTER_FLOW
 # undef WDT_TRACK_OPTIONS
 # undef DRS_SMART_OPTIONS
-# undef ALLOW_OLD_SAVEFILES
-# undef ALLOW_BORG
 # undef ALLOW_WIZARD
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES

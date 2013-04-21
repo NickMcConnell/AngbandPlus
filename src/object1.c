@@ -2055,7 +2055,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_AVAVIR:
 		{
-			return "word of recall every 200 turns";
+			return "teleport every 200 turns";
 		}
 		case ART_TARATOL:
 		{

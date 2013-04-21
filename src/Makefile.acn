@@ -43,9 +43,9 @@ LDFLAGS = -s symbols #-d
 
 .c.o:;	$(CC) $(CFLAGS) -c -o $@ $<
 
-angband: $(OBJS)
-	$(LD) $(LDFLAGS) -o angband $(OBJS)
-	Squeeze angband ^.!RunImage
+ingband: $(OBJS)
+	$(LD) $(LDFLAGS) -o ingband $(OBJS)
+	Squeeze ingband ^.!RunImage
 
 
 # Dynamic dependencies:

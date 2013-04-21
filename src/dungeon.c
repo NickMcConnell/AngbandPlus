@@ -545,47 +545,10 @@ static void process_world(void)
 	}
 
 
-	/* While in the dungeon */
-	else
-	{
-		/*** Update the Stores ***/
-
-		/* Update the stores once a day (while in dungeon) */
-		if (!(turn % (10L * STORE_TURNS)))
-		{
-			int n;
-
-			/* Message */
-			if (cheat_xtra) msg_print("Updating Shops...");
-
-			/* Maintain each shop (except home) */
-			for (n = 0; n < MAX_STORES - 1; n++)
-			{
-				/* Maintain */
-				store_maint(n);
-			}
-
-			/* Sometimes, shuffle the shop-keepers */
-			if (rand_int(STORE_SHUFFLE) == 0)
-			{
-				/* Message */
-				if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
-
-				/* Shuffle a random shop (except home) */
-				store_shuffle(rand_int(MAX_STORES - 1));
-			}
-
-			/* Message */
-			if (cheat_xtra) msg_print("Done.");
-		}
-	}
-
-
 	/*** Process the monsters ***/
 
-	/* Check for creature generation */
-	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)
-	{
+	/* Check for creature generation, except on "empty" levels */
+	if ( !p_ptr->going_up && ( rand_int(MAX_M_ALLOC_CHANCE) == 0 ) ) {
 		/* Make a new monster */
 		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
 	}
@@ -1039,46 +1002,6 @@ static void process_world(void)
 	{
 		/* Teleport player */
 		teleport_player(40);
-	}
-
-	/* Delayed Word-of-Recall */
-	if (p_ptr->word_recall)
-	{
-		/* Count down towards recall */
-		p_ptr->word_recall--;
-
-		/* Activate the recall */
-		if (!p_ptr->word_recall)
-		{
-			/* Disturbing! */
-			disturb(0, 0);
-
-			/* Determine the level */
-			if (p_ptr->depth)
-			{
-				msg_print("You feel yourself yanked upwards!");
-
-				/* New depth */
-				p_ptr->depth = 0;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-			else
-			{
-				msg_print("You feel yourself yanked downwards!");
-
-				/* New depth */
-				p_ptr->depth = p_ptr->max_depth;
-				if (p_ptr->depth < 1) p_ptr->depth = 1;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-
-			/* Sound */
-			sound(SOUND_TPLEVEL);
-		}
 	}
 }
 
@@ -1929,7 +1852,7 @@ static void process_player(void)
 			    !p_ptr->poisoned && !p_ptr->afraid &&
 			    !p_ptr->stun && !p_ptr->cut &&
 			    !p_ptr->slow && !p_ptr->paralyzed &&
-			    !p_ptr->image && !p_ptr->word_recall)
+			    !p_ptr->image )
 			{
 				disturb(0, 0);
 			}
@@ -2255,10 +2178,6 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-
 	/* Hack -- enforce illegal panel */
 	p_ptr->wy = DUNGEON_HGT;
 	p_ptr->wx = DUNGEON_WID;
@@ -2309,43 +2228,6 @@ static void dungeon(void)
 	if (p_ptr->max_depth < p_ptr->depth)
 	{
 		p_ptr->max_depth = p_ptr->depth;
-	}
-
-
-	/* No stairs down from Quest */
-	if (is_quest(p_ptr->depth))
-	{
-		p_ptr->create_down_stair = FALSE;
-	}
-
-	/* No stairs from town or if not allowed */
-	if (!p_ptr->depth || !dungeon_stair)
-	{
-		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
-	}
-
-	/* Make a staircase */
-	if (p_ptr->create_down_stair || p_ptr->create_up_stair)
-	{
-		/* Place a staircase */
-		if (cave_valid_bold(py, px))
-		{
-			/* XXX XXX XXX */
-			delete_object(py, px);
-
-			/* Make stairs */
-			if (p_ptr->create_down_stair)
-			{
-				cave_set_feat(py, px, FEAT_MORE);
-			}
-			else
-			{
-				cave_set_feat(py, px, FEAT_LESS);
-			}
-		}
-
-		/* Cancel the stair request */
-		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
 
 
@@ -2797,17 +2679,6 @@ void play_game(bool new_game)
 
 				/* Hack -- Prevent starvation */
 				(void)set_food(PY_FOOD_MAX - 1);
-
-				/* Hack -- cancel recall */
-				if (p_ptr->word_recall)
-				{
-					/* Message */
-					msg_print("A tension leaves the air around you...");
-					msg_print(NULL);
-
-					/* Hack -- Prevent recall */
-					p_ptr->word_recall = 0;
-				}
 
 				/* Note cause of death XXX XXX XXX */
 				strcpy(p_ptr->died_from, "Cheating death");
