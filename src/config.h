@@ -1,360 +1,518 @@
-/* config.h: configuration definitions
+/* File: config.h */
+
+/*
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * Copyright (c) 1989 James E. Wilson
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ */
+
+
+/*
+ * Look through the following lines, and where a comment includes the
+ * tag "OPTION:", examine the associated "#define" statements, and decide
+ * whether you wish to keep, comment, or uncomment them.  You should not
+ * have to modify any lines not indicated by "OPTION".
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * Note: Also examine the "system" configuration file "h-config.h"
+ * and the variable initialization file "variable.c".  If you change
+ * anything in "variable.c", you only need to recompile that file.
+ *
+ * And finally, remember that the "Makefile" will specify some rather
+ * important compile time options, like what visual module to use.
  */
 
-/* Person to bother if something goes wrong.
- * Recompile files.c and misc2.c if these change.
+
+/*
+ * OPTION: See the Makefile(s), where several options may be declared.
+ *
+ * Some popular options include "USE_GCU" (allow use with Unix "curses"),
+ * "USE_X11" (allow basic use with Unix X11), "USE_XAW" (allow use with
+ * Unix X11 plus the Athena Widget set), and "USE_CAP" (allow use with
+ * the "termcap" library, or with hard-coded vt100 terminals).
+ *
+ * The old "USE_NCU" option has been replaced with "USE_GCU".
+ *
+ * Several other such options are available for non-unix machines,
+ * such as "MACINTOSH", "WINDOWS", "USE_IBM", "USE_EMX".
+ *
+ * You may also need to specify the "system", using defines such as
+ * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
  */
 
-#define WIZARD	"root"
 
-/* There's a bug that results in invisible monsters for some reason.  I have a
- * workaround that may fix this, but it is a HACK and may result in other
- * problems, as I have not tested it enough.  Comment out the
- * "#define GROSS_HACK" to disable this.  (this is in creature.c at line 73)
- ******
- * This should no longer be needed for Angband 2.6, but it doesn't hurt to
- * leave it in. -CWS
+/*
+ * OPTION: define "SPECIAL_BSD" for using certain versions of UNIX
+ * that use the 4.4BSD Lite version of Curses in "main-gcu.c"
  */
+/* #define SPECIAL_BSD */
 
-#define GROSS_HACK
 
-
-/* Other miscellaneous defines that can be configured as the local maintainer
- * wishes.
+/*
+ * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
  */
+/* #define USE_TPOSIX */
 
-#define SET_UID		         /* define on multi-user systems                 */
-#undef CHECKHOURS            /* define if checking the 'hours' file          */
-#define ALLOW_FIDDLING       /* Allow the players to copy save files         */
-#define ALLOW_SCORE          /* Allow the user to check his score (v-key)    */
-#define ALLOW_ARTIFACT_CHECK /* Allow the user to check artifacts            */
-#define ALLOW_CHECK_UNIQUES  /* Allow player to check (dead) unique monsters */
-#define TARGET               /* Enable targeting mode                        */
-#define AUTOROLLER           /* Allow autorolling of characters              */
-#undef NICE		             /* Be nice to other users during autorolling    */
-#define SATISFY_HUNGER		 /* Do 'satisfy hunger' rather then 'create food'
-								to reduce the tedium for handling food. -CWS */
-
-
-/*****************************************************
- * files used by moria, set these to valid pathnames *
- *****************************************************/
-
-/* Define OLD_FILEPATHS to use the old, nasty way of putting complete
- * paths directly into Angband.  Define NEW_FILEPATHS to use the new,
- * studly method (which uses the ANGBAND_PATH environment variable to
- * look for the files).                                         [cjh]
+/*
+ * OPTION: Use the "termio" methods in "main-gcu.c"
  */
+/* #define USE_TERMIO */
 
-#undef  OLD_FILEPATHS
-#define NEW_FILEPATHS
-
-
-/* Change this to something sensible, if necessary.  Angband will look
- * in this directory if the ANGBAND_PATH environment variable isn't   
- * set, or if the files aren't found in ANGBAND_PATH.            [cjh]
+/*
+ * OPTION: Use the icky BSD "tchars" methods in "main-gcu.c"
  */
+/* #define USE_TCHARS */
 
-#ifdef NEW_FILEPATHS
-#define DEFAULT_PATH "/User/games/lib/angband"
+
+/*
+ * OPTION: Use "blocking getch() calls" in "main-gcu.c".
+ * Hack -- Note that this option will NOT work on many BSD machines
+ * Currently used whenever available, if you get a warning about
+ * "nodelay()" undefined, then make sure to undefine this.
+ */
+#if defined(SYS_V) || defined(AMIGA)
+# define USE_GETCH
 #endif
 
-#ifdef OLD_FILEPATHS
 
-/* Try to fix filename inclusion in a portable fashion.
- * John Whitly@cs.Buffalo.edu says this works under gcc 2.5.5, but my
- * older version chokes.  I dunno. -CWS
+/*
+ * OPTION: Use the "curs_set()" call in "main-gcu.c".
+ * Hack -- This option will not work on most BSD machines
  */
-
-#ifdef __STDC__
-#define LIBDIR(FILE) "/User/games/lib/angband/" #FILE
-#else
-#define LIBDIR(FILE) "/User/games/lib/angband/FILE"
+#ifdef SYS_V
+# define USE_CURS_SET
 #endif
 
-/* probably unix */
-#define ANGBAND_TST       LIBDIR(test)
-#define ANGBAND_HOU       LIBDIR(files/hours)
-#define ANGBAND_MOR       LIBDIR(files/news)
-#define ANGBAND_TOP       LIBDIR(files/newscores)
-#define ANGBAND_BONES     LIBDIR(bones)
-#define ANGBAND_HELP      LIBDIR(files/roglcmds.hlp)
-#define ANGBAND_ORIG_HELP LIBDIR(files/origcmds.hlp)
-#define ANGBAND_WIZ_HELP  LIBDIR(files/rwizcmds.hlp)
-#define ANGBAND_OWIZ_HELP LIBDIR(files/owizcmds.hlp)
-#define ANGBAND_WELCOME   LIBDIR(files/welcome.hlp)
-#define ANGBAND_LOG       LIBDIR(files/ANGBAND.log)
-#define ANGBAND_VER       LIBDIR(files/version.hlp)
-#define ANGBAND_LOAD      LIBDIR(files/loadcheck)
-#define ANGBAND_WIZ       LIBDIR(files/wizards)
-#define ANGBAND_SAV       LIBDIR(save)
-#endif /* OLD_FILEPATHS */
+
+/*
+ * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
+ */
+/* #define USE_NCURSES */
 
 
-/* this sets the default user interface
- * to use the original key bindings (keypad for movement) set ROGUE_LIKE
- * to FALSE, to use the rogue-like key bindings (vi style movement)
- * set ROGUE_LIKE to TRUE
- * if you change this, you only need to recompile main.c */
+/*
+ * OPTION: for multi-user machines running the game setuid to some other
+ * user (like 'games') this SAFE_SETUID option allows the program to drop
+ * its privileges when saving files that allow for user specified pathnames.
+ * This lets the game be installed system wide without major security
+ * concerns.  There should not be any side effects on any machines.
+ *
+ * This will handle "gids" correctly once the permissions are set right.
+ */
+#define SAFE_SETUID
 
-#define ROGUE_LIKE TRUE
+
+/*
+ * This flag enables the "POSIX" methods for "SAFE_SETUID".
+ */
+#ifdef _POSIX_SAVED_IDS
+# define SAFE_SETUID_POSIX
+#endif
 
 
-/* for the AFS distributed file system, define this to ensure that
-   the program is secure with respect to the setuid code, this prohibits
-   inferior shells, also does not relinquish setuid priviledges at the start,
-   but instead calls the AFS library routines bePlayer(), beGames(),
-   and Authenticate() */
+/*
+ * Prevent problems on (non-Solaris) Suns using "SAFE_SETUID".
+ * The SAFE_SETUID code is weird, use it at your own risk...
+ */
+#if defined(SUNOS) && !defined(SOLARIS)
+# undef SAFE_SETUID_POSIX
+#endif
 
+
+
+
+/*
+ * OPTION: for the AFS distributed file system, define this to ensure that
+ * the program is secure with respect to the setuid code.  This option has
+ * not been tested (to the best of my knowledge).  This option may require
+ * some weird tricks with "player_uid" and such involving "defines".
+ * Note that this option used the AFS library routines Authenticate(),
+ * bePlayer(), beGames() to enforce the proper priviledges.
+ * You may need to turn "SAFE_SETUID" off to use this option.
+ */
 /* #define SECURE */
 
 
-/* Note that any reasonably modern compiler does better when you *don't* use
- * "register".  I've hacked it out here because I don't want to change every
- * arg list in the game.  You might want to undo this if your compiler sucks.
- *                   -CWS
+
+
+/*
+ * OPTION: Verify savefile Checksums (Angband 2.7.0 and up)
+ * This option can help prevent "corruption" of savefiles, and also
+ * stop intentional modification by amateur users.
  */
-
-#define register
-
-
-/* this allows intelligent compilers to do better, as they know more
- * about how certain functions behave -CWS */
-
-#if !(defined(__GNUC__) || defined(__STDC__))
-#define const
-#endif
+#define VERIFY_CHECKSUMS
 
 
-/* no system definitions are needed for 4.3BSD, SUN OS, DG/UX */
-
-/* if you are compiling on an ultrix/4.2BSD/Dynix/etc. version of UNIX,
-   define this, not needed for SUNs */
-/* #ifndef ultrix
-#define ultrix
-#endif */
-
-#if defined(SOLARIS)
-#define SYS_V
-#include <netdb.h>
-#endif
-
-/* if you are compiling on a SYS V version of UNIX, define this */
-/* #define SYS_V */
-
-/* if you are compiling on a SYS III version of UNIX, define this */
-/* #define SYS_III */
-
-/* if you are compiling on an ATARI ST with Mark Williams C, define this */
-/* #define ATARIST_MWC */
-
-/* if you are compiling on a Macintosh with MPW C 3.0, define this */
-/* #define MAC */
-
-/* if you are compiling on a HPUX version of UNIX, define this */
-/* #define HPUX */
-
-/****************************************************************************
- * System dependent defines follow, you should not need to change anything  *
- * below (if you have a supported system).  If you run into problems during *
- * compilation, you might want to check the defines below.                  *
- ****************************************************************************/
-
-/* For the NEW_FILEPATHS option, we'll use PATH_SEP as the path separator;
- * this will help make at least one section of Angband more portable.  If
- * you don't seem something sensible here, either add a section for your
- * filesystem, or just define PATH_SEP to something useful.          [cjh]
+/*
+ * OPTION: Forbid the use of "fiddled" savefiles.  As far as I can tell,
+ * a fiddled savefile is one with an internal timestamp different from
+ * the actual timestamp.  Thus, turning this option on forbids one from
+ * copying a savefile to a different name.  Combined with disabling the
+ * ability to save the game without quitting, and with some method of
+ * stopping the user from killing the process at the tombstone screen,
+ * this should prevent the use of backup savefiles.  It may also stop
+ * the use of savefiles from other platforms, so be careful.
  */
+/* #define VERIFY_TIMESTAMP */
 
-/* NOTE: This is 100% untested on all but Atari, UNIX, and OS/2...  I'm
- *       guessing at the Mac and VMS PATH_SEP values!                [cjh]
+
+/*
+ * OPTION: Forbid the "savefile over-write" cheat, in which you simply
+ * run another copy of the game, loading a previously saved savefile,
+ * and let that copy over-write the "dead" savefile later.  This option
+ * either locks the savefile, or creates a fake "xxx.lok" file to prevent
+ * the use of the savefile until the file is deleted.  Not ready yet.
  */
-
-#if defined(ultrix) || defined(SYS_V) || defined(SYS_III) \
- || defined(__MINT__) || defined(HPUX) || defined(unix) \
- || defined(BSD)
-#  define PATH_SEP "/"
-#else
-#  if defined(__EMX__) || defined(MSDOS) || defined(OS2) || defined(WINNT) \
-   || defined(ATARIST_MWC) || defined(ATARI) || defined(ATARIST)
-#    define PATH_SEP "\\"
-#  else
-#    ifdef MAC
-#      define PATH_SEP ":" /* or is it "::"? */
-#    else
-#      ifdef VMS
-#        define PATH_SEP "."
-#      endif /* VMS */
-#    endif /* Mac */
-#  endif /* DOS filesystems */
-#endif /* UNIX filesystems */
+/* #define VERIFY_SAVEFILE */
 
 
-/* Note that you'll be happier if you have a case-insensitive string
- * comparision routine on your system.  If your system lacks this,
- * you're still in luck, as we now provide one.  -CWS
+
+/*
+ * OPTION: Hack -- Compile in support for "Cyborg" mode
  */
+/* #define ALLOW_BORG */
 
-#if defined (NeXT) || defined(HPUX) || defined(ultrix) \
-|| defined(NCR3K) || defined(linux) || defined(ibm032) \
-|| defined(__386BSD__) || defined(SOLARIS) || defined (__osf__)
-#define stricmp strcasecmp
-#else
-/* Let's make this work on systems lacking a such a routine. */
-#define stricmp my_stricmp
-#define NEEDS_STRICMP
-#endif
+/*
+ * OPTION: Hack -- Compile in support for "Wizard Commands"
+ */
+#define ALLOW_WIZARD
 
-
-/* this takes care of almost all "implicit declaration" warnings -CWS */
-
-#if defined(NeXT)
-#include <libc.h>
-#else
-#include <unistd.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#endif
-
-#ifdef __MINT__
-#include <support.h>
-#endif
+/*
+ * OPTION: Hack -- Compile in support for "Spoiler Generation"
+ */
+#define ALLOW_SPOILERS
 
 
-/* fix systems lacking usleep() -CWS 
+/*
+ * OPTION: Allow "do_cmd_colors" at run-time
+ */
+#define ALLOW_COLORS
+
+/*
+ * OPTION: Allow "do_cmd_visuals" at run-time
+ */
+#define ALLOW_VISUALS
+
+/*
+ * OPTION: Allow "do_cmd_macros" at run-time
+ */
+#define ALLOW_MACROS
+
+
+/*
+ * OPTION: Allow characteres to be "auto-rolled"
+ */
+#define ALLOW_AUTOROLLER
+
+
+/*
+ * OPTION: Allow monsters to "flee" when hit hard
+ */
+#define ALLOW_FEAR
+
+/*
+ * OPTION: Allow monsters to "flee" from strong players
+ */
+#define ALLOW_TERROR
+
+
+/*
+ * OPTION: Allow parsing of the ascii template files in "init.c".
+ * This must be defined if you do not have valid binary image files.
+ * It should be usually be defined anyway to allow easy "updating".
+ */
+#define ALLOW_TEMPLATES
+
+/*
+ * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
+ * about 15K of code in "save-old.c" to parse the old savefile format.
+ * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
  *
- * Note that Solaris 2.x users without the BSD compatibilty kit need to
- * define this as well.
+ * Note that with this variant of Angband, there have been additions
+ * to the player file that are necessary for Kangband and therefore
+ * would not make sense to parse old savefiles.  -KMW-
+ *
  */
-
-#if defined(HPUX) || defined(ultrix)
-#define NEEDS_USLEEP
-#endif
-
-#ifdef NEEDS_USLEEP
-#define usleep microsleep
-
-#ifdef __STDC__
-int microsleep(unsigned long);
-#else
-int microsleep();
-#endif /* __STDC__ */
-
-#endif
+/* #define ALLOW_OLD_SAVEFILES */
 
 
-/* substitute strchr for index on USG versions of UNIX */
-#if defined(SYS_V) || defined(MSDOS) || defined(MAC)
-#define index strchr
-#endif
-
-#ifdef SYS_III
-char *index();
-#endif
-
-#if defined(SYS_III) || defined(SYS_V) || defined(MSDOS) || defined(MAC) || defined(HPUX)
-#ifndef USG
-#define USG
-#endif
-#endif
-
-#if defined(ATARIST_MWC) || defined (__MINT__)
-#ifndef USG
-#define USG
-#endif
-#endif
-
-/* Pyramid runs 4.2BSD-like UNIX version */
-#if defined(Pyramid)
-#define ultrix
-#endif
-
-#ifdef MSDOS
-#define register      /* MSC 4.0 still has a problem with register bugs ... */
-#endif
-
-#ifdef MAC
-#ifdef RSRC
-#define MACRSRC		/* i.e., we're building the resources */
-#else
-#define MACGAME		/* i.e., we're building the game */
-#endif
-#endif
-
-#ifdef MAC
-/* Screen dimensions */
-#define SCRN_ROWS	24
-#define SCRN_COLS	80
-#endif
-
-#if vms
-#define getch _getch
-#define unlink delete
-#define index strchr
-#define lstat stat
-#define exit uexit
-#endif
-
-#if defined(SYS_V) && defined(lint)
-/* to prevent <string.h> from including <NLchar.h>, this prevents a bunch
-   of lint errors. */
-#define RTPC_NO_NLS
-#endif
-
-#ifdef SECURE
-extern int PlayerUID;
-#define getuid() PlayerUID
-#define geteuid() PlayerUID
-#endif
-
-
-/*****************************************************************************/
-
-/* Here's some functions that've been macroized rather than being called
- * from everywhere.  They're short enough so that inlining them will probably
- * result in a smaller executable, and speed things up, to boot. -CWS
+/*
+ * OPTION: Delay the loading of the "f_text" array until it is actually
+ * needed, saving ~1K, since "feature" descriptions are unused.
  */
+#define DELAY_LOAD_F_TEXT
 
-#define MY_MAX(a,b) ((a) > (b) ? (a) : (b))
-#define MY_MIN(a,b) ((a) < (b) ? (a) : (b))
-
-
-/* Checks a co-ordinate for in bounds status		-RAK-	*/
-
-#define in_bounds(y, x) \
-   ((((y) > 0) && ((y) < cur_height-1) && ((x) > 0) && ((x) < cur_width-1)) ? \
-    (TRUE) : (FALSE))
-
-
-/* Checks if we can see this point (includes map edges) -CWS */
-#define in_bounds2(y, x) \
-   ((((y) >= 0) && ((y) < cur_height) && ((x) >= 0) && ((x) < cur_width)) ? \
-    (TRUE) : (FALSE))
-
-
-/* Tests a given point to see if it is within the screen -RAK-
- * boundaries.
+/*
+ * OPTION: Delay the loading of the "k_text" array until it is actually
+ * needed, saving ~1K, since "object" descriptions are unused.
  */
+#define DELAY_LOAD_K_TEXT
 
-#define panel_contains(y, x) \
-  ((((y) >= panel_row_min) && ((y) <= panel_row_max) && \
-    ((x) >= panel_col_min) && ((x) <= panel_col_max)) ? (TRUE) : (FALSE))
-
-
-/* Generates a random integer X where 1<=X<=MAXVAL	-RAK-	*/
-
-#define randint(maxval) (((maxval) < 1) ? (1) : ((random() % (maxval)) + 1))
-
-/* You would think that most compilers can do an integral abs() quickly,
- * wouldn't you?  Nope.  [But fabs is a lot worse on most machines!] -CWS
+/*
+ * OPTION: Delay the loading of the "a_text" array until it is actually
+ * needed, saving ~1K, since "artifact" descriptions are unused.
  */
+#define DELAY_LOAD_A_TEXT
 
-#define MY_ABS(x) (((x)<0) ? (-x) : (x))
+/*
+ * OPTION: Delay the loading of the "e_text" array until it is actually
+ * needed, saving ~1K, since "ego-item" descriptions are unused.
+ */
+#define DELAY_LOAD_E_TEXT
 
-/*****************************************************************************/
+/*
+ * OPTION: Delay the loading of the "r_text" array until it is actually
+ * needed, saving ~60K, but "simplifying" the "monster" descriptions.
+ */
+/* #define DELAY_LOAD_R_TEXT */
+
+
+/*
+ * OPTION: Handle signals
+ */
+#define HANDLE_SIGNALS
+
+
+/*
+ * Allow "Wizards" to yield "high scores"
+ */
+/* #define SCORE_WIZARDS */
+
+/*
+ * Allow "Borgs" to yield "high scores"
+ */
+/* #define SCORE_BORGS */
+
+/*
+ * Allow "Cheaters" to yield "high scores"
+ */
+/* #define SCORE_CHEATERS */
+
+
+
+/*
+ * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
+ * software options, which enable "monster flowing".
+ */
+#define MONSTER_FLOW
+
+
+/*
+ * OPTION: Maximum flow depth when using "MONSTER_FLOW"
+ */
+#define MONSTER_FLOW_DEPTH 32
+
+
+
+/*
+ * OPTION: Enable the "smart_learn" and "smart_cheat" options.
+ * They let monsters make more "intelligent" choices about attacks
+ * (including spell attacks) based on their observations of the
+ * player's reactions to previous attacks.  The "smart_cheat" option
+ * lets the monster know how the player would react to an attack
+ * without actually needing to make the attack.  The "smart_learn"
+ * option requires that a monster make a "failed" attack before
+ * learning that the player is not harmed by that attack.
+ *
+ * This adds about 3K to the memory and about 5K to the executable.
+ */
+#define DRS_SMART_OPTIONS
+
+
+
+/*
+ * OPTION: Enable the "track_follow" and "track_target" options.
+ * They let monsters follow the player's foot-prints, or remember
+ * the player's recent locations.  This code has been removed from
+ * the current version because it is being rewritten by Billy, and
+ * until it is ready, it will not work.  Do not define this option.
+ */
+/* #define WDT_TRACK_OPTIONS */
+
+
+
+/*
+ * OPTION: Allow the use of "sound" in various places.
+ */
+#define USE_SOUND
+
+/*
+ * OPTION: Allow the use of "graphics" in various places
+ */
+#define USE_GRAPHICS
+
+
+/*
+ * OPTION: Hack -- Macintosh stuff
+ */
+#ifdef MACINTOSH
+
+/* Do not handle signals */
+# undef HANDLE_SIGNALS
+
+#endif
+
+
+/*
+ * OPTION: Hack -- Windows stuff
+ */
+#ifdef WINDOWS
+
+/* Do not handle signals */
+# undef HANDLE_SIGNALS
+
+#endif
+
+
+/*
+ * OPTION: Hack -- EMX stuff
+ */
+#ifdef USE_EMX
+
+/* Do not handle signals */
+# undef HANDLE_SIGNALS
+
+#endif
+
+
+/*
+ * OPTION: Set the "default" path to the angband "lib" directory.
+ *
+ * See "main.c" for usage, and note that this value is only used on
+ * certain machines, primarily Unix machines.  If this value is used,
+ * it will be over-ridden by the "ANGBAND_PATH" environment variable,
+ * if that variable is defined and accessable.  The final slash is
+ * optional, but it may eventually be required.
+ *
+ * Using the value "./lib/" below tells Angband that, by default,
+ * the user will run "angband" from the same directory that contains
+ * the "lib" directory.  This is a reasonable (but imperfect) default.
+ *
+ * If at all possible, you should change this value to refer to the
+ * actual location of the "lib" folder, for example, "/tmp/angband/lib/"
+ * or "/usr/games/lib/angband/", or "/pkg/angband/lib".
+ */
+#ifndef DEFAULT_PATH
+# define DEFAULT_PATH "./lib/"
+#endif
+
+
+/*
+ * On multiuser systems, add the "uid" to savefile names
+ */
+#ifdef SET_UID
+# define SAVEFILE_USE_UID
+#endif
+
+
+/*
+ * OPTION: Check the "time" against "lib/file/hours.txt"
+ */
+/* #define CHECK_TIME */
+
+/*
+ * OPTION: Check the "load" against "lib/file/load.txt"
+ * This may require the 'rpcsvs' library
+ */
+/* #define CHECK_LOAD */
+
+
+/*
+ * OPTION: For some brain-dead computers with no command line interface,
+ * namely Macintosh, there has to be some way of "naming" your savefiles.
+ * The current "Macintosh" hack is to make it so whenever the character
+ * name changes, the savefile is renamed accordingly.  But on normal
+ * machines, once you manage to "load" a savefile, it stays that way.
+ * Macintosh is particularly weird because you can load savefiles that
+ * are not contained in the "lib:save:" folder, and if you change the
+ * player's name, it will then save the savefile elsewhere.  Note that
+ * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
+ */
+#if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
+# define SAVEFILE_MUTABLE
+#endif
+
+
+/*
+ * OPTION: Capitalize the "user_name" (for "default" player name)
+ * This option is only relevant on SET_UID machines.
+ */
+#define CAPITALIZE_USER_NAME
+
+
+
+/*
+ * OPTION: Person to bother if something goes wrong.
+ */
+#define MAINTAINER	"benh@voicenet.com"
+
+
+/*
+ * OPTION: Default font (when using X11).
+ */
+#define DEFAULT_X11_FONT		"9x15"
+
+/*
+ * OPTION: Default fonts (when using X11)
+ */
+#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
+
+
+
+/*
+ * Hack -- Special "ancient machine" versions
+ */
+#if defined(USE_286) || defined(ANGBAND_LITE_MAC)
+# ifndef ANGBAND_LITE
+#  define ANGBAND_LITE
+# endif
+#endif
+
+/*
+ * OPTION: Attempt to minimize the size of the game
+ */
+#ifndef ANGBAND_LITE
+/* #define ANGBAND_LITE */
+#endif
+
+/*
+ * Hack -- React to the "ANGBAND_LITE" flag
+ */
+#ifdef ANGBAND_LITE
+# undef ALLOW_COLORS
+# undef ALLOW_VISUALS
+# undef ALLOW_MACROS
+# undef MONSTER_FLOW
+# undef WDT_TRACK_OPTIONS
+# undef DRS_SMART_OPTIONS
+# undef ALLOW_OLD_SAVEFILES
+# undef ALLOW_BORG
+# undef ALLOW_WIZARD
+# undef ALLOW_SPOILERS
+# undef ALLOW_TEMPLATES
+# undef DELAY_LOAD_R_TEXT
+# define DELAY_LOAD_R_TEXT
+#endif
+
+
+
+/*
+ * OPTION: Attempt to prevent all "cheating"
+ */
+/* #define VERIFY_HONOR */
+
+
+/*
+ * React to the "VERIFY_HONOR" flag
+ */
+#ifdef VERIFY_HONOR
+# define VERIFY_SAVEFILE
+# define VERIFY_CHECKSUMS
+# define VERIFY_TIMESTAMP
+#endif
+
+

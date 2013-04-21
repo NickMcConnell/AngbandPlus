@@ -285,14 +285,14 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_JERKY:
 		case SV_FOOD_SLIME_MOLD:
 		{
-			msg_print("That tastes good.");
+			mprint(MSG_TEMP, "That tastes good.");
 			ident = TRUE;
 			break;
 		}
 
 		case SV_FOOD_WAYBREAD:
 		{
-			msg_print("That tastes good.");
+			mprint(MSG_TEMP, "That tastes good.");
 			(void)set_poisoned(0);
 			(void)hp_player(damroll(4, 8));
 			ident = TRUE;
@@ -302,7 +302,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_PINT_OF_ALE:
 		case SV_FOOD_PINT_OF_WINE:
 		{
-			msg_print("That tastes good.");
+			mprint(MSG_TEMP, "That tastes good.");
 			ident = TRUE;
 			break;
 		}
@@ -362,6 +362,13 @@ void do_cmd_quaff_potion(void)
 	cptr q, s;
 
 
+	/* Inside arena */
+	if (p_ptr->inside_special == 1) {
+	  msg_print("The arena absorbs all attempted magic!");
+	  msg_print(NULL);
+	  return;
+	}
+
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
 
@@ -396,6 +403,15 @@ void do_cmd_quaff_potion(void)
 	/* Object level */
 	lev = k_info[o_ptr->k_idx].level;
 
+
+	/* See if this potion changes shape. */
+	if (o_ptr->sval > SV_POTION_MORPH_HEAD &&
+	    o_ptr->sval < SV_POTION_MORPH_TAIL) {
+	  msg_print("Your body starts twisting in weird ways!");
+	  change_shape(o_ptr->sval - SV_POTION_MORPH_HEAD);
+	  ident = TRUE;
+	} else {
+
 	/* Analyze the potion */
 	switch (o_ptr->sval)
 	{
@@ -403,7 +419,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_APPLE_JUICE:
 		case SV_POTION_SLIME_MOLD:
 		{
-			msg_print("You feel less thirsty.");
+			mprint(MSG_TEMP, "You feel less thirsty.");
 			ident = TRUE;
 			break;
 		}
@@ -416,7 +432,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_SALT_WATER:
 		{
-			msg_print("The potion makes you vomit!");
+			mprint(MSG_STUPID, "The potion makes you vomit!");
 			(void)set_food(PY_FOOD_STARVE - 1);
 			(void)set_poisoned(0);
 			(void)set_paralyzed(p_ptr->paralyzed + 4);
@@ -476,7 +492,7 @@ void do_cmd_quaff_potion(void)
 		{
 			if (!p_ptr->hold_life && (p_ptr->exp > 0))
 			{
-				msg_print("You feel your memories fade.");
+				mprint(MSG_WARNING, "You feel your memories fade.");
 				lose_exp(p_ptr->exp / 4);
 				ident = TRUE;
 			}
@@ -485,7 +501,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_RUINATION:
 		{
-			msg_print("Your nerves and muscles feel weak and lifeless!");
+			mprint(MSG_DEADLY, "Your nerves and muscles feel weak and lifeless!");
 			take_hit(damroll(10, 10), "a potion of Ruination");
 			(void)dec_stat(A_DEX, 25, TRUE);
 			(void)dec_stat(A_WIS, 25, TRUE);
@@ -535,7 +551,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_DETONATIONS:
 		{
-			msg_print("Massive explosions rupture your body!");
+			mprint(MSG_DEADLY, "Massive explosions rupture your body!");
 			take_hit(damroll(50, 20), "a potion of Detonation");
 			(void)set_stun(p_ptr->stun + 75);
 			(void)set_cut(p_ptr->cut + 5000);
@@ -545,7 +561,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_DEATH:
 		{
-			msg_print("A feeling of Death flows through your body.");
+			mprint(MSG_DEADLY, "A feeling of Death flows through your body.");
 			take_hit(5000, "a potion of Death");
 			ident = TRUE;
 			break;
@@ -642,6 +658,13 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
+	case SV_POTION_INSANE_LIGHT:
+	  {
+	    if (heal_insanity(damroll(4, 8))) ident = TRUE;
+	    break;
+	  }
+
+
 		case SV_POTION_CURE_SERIOUS:
 		{
 			if (hp_player(damroll(4, 8))) ident = TRUE;
@@ -650,6 +673,12 @@ void do_cmd_quaff_potion(void)
 			if (set_cut((p_ptr->cut / 2) - 50)) ident = TRUE;
 			break;
 		}
+
+	case SV_POTION_INSANE_SERIOUS:
+	  {
+	    if (heal_insanity(damroll(8, 8))) ident = TRUE;
+	    break;
+	  }
 
 		case SV_POTION_CURE_CRITICAL:
 		{
@@ -662,6 +691,12 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
+	case SV_POTION_INSANE_CRIT:
+	  {
+	    if (heal_insanity(damroll(12, 8))) ident = TRUE;
+	    break;
+	  }
+
 		case SV_POTION_HEALING:
 		{
 			if (hp_player(300)) ident = TRUE;
@@ -672,6 +707,12 @@ void do_cmd_quaff_potion(void)
 			if (set_cut(0)) ident = TRUE;
 			break;
 		}
+
+	case SV_POTION_INSANE_CURE:
+	  {
+	    if (heal_insanity(600)) ident = TRUE;
+	    break;
+	  }
 
 		case SV_POTION_STAR_HEALING:
 		{
@@ -686,7 +727,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_LIFE:
 		{
-			msg_print("You feel life flow through your body!");
+			mprint(MSG_BIG_BONUS, "You feel life flow through your body!");
 			restore_level();
 			hp_player(5000);
 			(void)set_poisoned(0);
@@ -711,7 +752,7 @@ void do_cmd_quaff_potion(void)
 			{
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
-				msg_print("Your feel your head clear.");
+				mprint(MSG_BONUS, "Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
 				p_ptr->window |= (PW_SPELL | PW_PLAYER);
 				ident = TRUE;
@@ -810,7 +851,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_ENLIGHTENMENT:
 		{
-			msg_print("An image of your surroundings forms in your mind...");
+			mprint(MSG_BONUS, "An image of your surroundings forms in your mind...");
 			wiz_lite();
 			ident = TRUE;
 			break;
@@ -818,7 +859,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_STAR_ENLIGHTENMENT:
 		{
-			msg_print("You begin to feel more enlightened...");
+			mprint(MSG_BONUS, "You begin to feel more enlightened...");
 			msg_print(NULL);
 			wiz_lite();
 			(void)do_inc_stat(A_INT);
@@ -829,7 +870,7 @@ void do_cmd_quaff_potion(void)
 			(void)detect_treasure();
 			(void)detect_objects_gold();
 			(void)detect_objects_normal();
-			identify_pack(0);
+			identify_pack();
 			self_knowledge();
 			ident = TRUE;
 			break;
@@ -837,7 +878,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_SELF_KNOWLEDGE:
 		{
-			msg_print("You begin to know yourself a little better...");
+			mprint(MSG_BONUS, "You begin to know yourself a little better...");
 			msg_print(NULL);
 			self_knowledge();
 			ident = TRUE;
@@ -850,14 +891,41 @@ void do_cmd_quaff_potion(void)
 			{
 				s32b ee = (p_ptr->exp / 2) + 10;
 				if (ee > 100000L) ee = 100000L;
-				msg_print("You feel more experienced.");
+				mprint(MSG_BIG_BONUS, "You feel more experienced.");
 				gain_exp(ee);
 				ident = TRUE;
 			}
 			break;
 		}
-	}
 
+	case SV_POTION_MUTATION:
+	  {
+	    int i;
+	    int j = randint(4);
+
+	    mprint(MSG_WARNING, "You mutate!");
+
+	    for (i = 0; i < j; i++) {
+	      generate_mutation();
+	    }
+	    ident = TRUE;
+	    break;
+	  }
+
+	case SV_POTION_CURE_MUTATION:
+	  {
+	    int i;
+	    int j = randint(4);
+
+	    for (i = 0; i < j; i++) {
+	      remove_mutation();
+	    }
+	    ident = TRUE;
+	    break;
+	  }
+
+	}
+	}
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -901,7 +969,7 @@ void do_cmd_quaff_potion(void)
 /*
  * Curse the players armor
  */
-static bool curse_armor(void)
+bool curse_armor(void)
 {
 	object_type *o_ptr;
 
@@ -930,7 +998,7 @@ static bool curse_armor(void)
 	else
 	{
 		/* Oops */
-		msg_format("A terrible black aura blasts your %s!", o_name);
+		mformat(MSG_WARNING, "A terrible black aura blasts your %s!", o_name);
 
 		/* Blast the armor */
 		o_ptr->name1 = 0;
@@ -965,7 +1033,7 @@ static bool curse_armor(void)
 /*
  * Curse the players weapon
  */
-static bool curse_weapon(void)
+bool curse_weapon(void)
 {
 	object_type *o_ptr;
 
@@ -994,7 +1062,7 @@ static bool curse_weapon(void)
 	else
 	{
 		/* Oops */
-		msg_format("A terrible black aura blasts your %s!", o_name);
+		mformat(MSG_WARNING, "A terrible black aura blasts your %s!", o_name);
 
 		/* Shatter the weapon */
 		o_ptr->name1 = 0;
@@ -1027,6 +1095,25 @@ static bool curse_weapon(void)
 }
 
 
+void show_book_number(int num) {
+  char buf[1024];
+
+  path_build(buf, 1024, ANGBAND_DIR_FILE, format("book-%d.txt", num));
+
+  character_icky = TRUE;
+  Term_save();
+  
+  show_file(buf, "Arcane Knowledge", 0, 0);
+
+  Term_load();
+  character_icky = FALSE;
+}
+
+static bool item_tester_hook_read(object_type* o_ptr) {
+  if (o_ptr->tval == TV_SCROLL || o_ptr->tval == TV_TEXT) return TRUE;
+  return FALSE;
+}
+
 /*
  * Read a scroll (from the pack or floor).
  *
@@ -1046,26 +1133,33 @@ void do_cmd_read_scroll(void)
 	cptr q, s;
 
 
+	/* Inside arena */
+	if (p_ptr->inside_special == 1) {
+	  msg_print("The arena absorbs all attempted magic!");
+	  msg_print(NULL);
+	  return;
+	}
+
 	/* Check some conditions */
 	if (p_ptr->blind)
 	{
-		msg_print("You can't see anything.");
+		mprint(MSG_TEMP, "You can't see anything.");
 		return;
 	}
 	if (no_lite())
 	{
-		msg_print("You have no light to read by.");
+		mprint(MSG_TEMP, "You have no light to read by.");
 		return;
 	}
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		mprint(MSG_TEMP, "You are too confused!");
 		return;
 	}
 
 
 	/* Restrict choices to scrolls */
-	item_tester_tval = TV_SCROLL;
+	item_tester_hook = item_tester_hook_read;
 
 	/* Get an item */
 	q = "Read which scroll? ";
@@ -1097,6 +1191,12 @@ void do_cmd_read_scroll(void)
 	/* Assume the scroll will get used up */
 	used_up = TRUE;
 
+	/* Display some text */
+
+	if (o_ptr->tval == TV_TEXT) {
+	  show_book_number(o_ptr->sval);
+	} else {
+
 	/* Analyze the scroll */
 	switch (o_ptr->sval)
 	{
@@ -1112,7 +1212,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_AGGRAVATE_MONSTER:
 		{
-			msg_print("There is a high pitched humming noise.");
+			mprint(MSG_WARNING, "There is a high pitched humming noise.");
 			aggravate_monsters(1);
 			ident = TRUE;
 			break;
@@ -1154,6 +1254,15 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
+	case SV_SCROLL_SUMMON_PET:
+	  {
+	    for (k = 0; k < randint(3); k++) {
+	      summon_pet_monster();
+	      ident = TRUE;
+	    }
+	    break;
+	  }
+
 		case SV_SCROLL_TRAP_CREATION:
 		{
 			if (trap_creation()) ident = TRUE;
@@ -1186,7 +1295,7 @@ void do_cmd_read_scroll(void)
 			if (p_ptr->word_recall == 0)
 			{
 				p_ptr->word_recall = randint(20) + 15;
-				msg_print("The air about you becomes charged...");
+				mprint(MSG_BONUS, "The air about you becomes charged...");
 			}
 			else
 			{
@@ -1215,7 +1324,7 @@ void do_cmd_read_scroll(void)
 		{
 			if (remove_curse())
 			{
-				msg_print("You feel as if someone is watching over you.");
+				mprint(MSG_BONUS, "You feel as if someone is watching over you.");
 				ident = TRUE;
 			}
 			break;
@@ -1343,7 +1452,7 @@ void do_cmd_read_scroll(void)
 		{
 			if (p_ptr->confusing == 0)
 			{
-				msg_print("Your hands begin to glow.");
+				mprint(MSG_BONUS, "Your hands begin to glow.");
 				p_ptr->confusing = TRUE;
 				ident = TRUE;
 			}
@@ -1410,6 +1519,29 @@ void do_cmd_read_scroll(void)
 			ident = TRUE;
 			break;
 		}
+
+	case SV_SCROLL_RECIPE:
+	  {
+	    int num = rand_range(2, 4);
+	    int j;
+	    int foo = num;
+
+	    while (1) {
+	      j = randint(MAX_RECIPES);
+
+	      if (recipe_info[j].ingrs) {
+		recipe_recall[j] = 1;
+		num--;
+	      }
+
+	      if (num == 0) break;
+	    }
+
+	    mformat(MSG_BONUS, "You learn %d new arcane formulae.", foo);
+	    ident = TRUE;
+	    break;
+	  }
+		
 	}
 
 
@@ -1449,6 +1581,7 @@ void do_cmd_read_scroll(void)
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
+	}
 }
 
 
@@ -1479,6 +1612,13 @@ void do_cmd_use_staff(void)
 	cptr q, s;
 
 
+	/* Inside arena */
+	if (p_ptr->inside_special == 1) {
+	  msg_print("The arena absorbs all attempted magic!");
+	  msg_print(NULL);
+	  return;
+	}
+
 	/* Restrict choices to wands */
 	item_tester_tval = TV_STAFF;
 
@@ -1503,7 +1643,7 @@ void do_cmd_use_staff(void)
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
-		msg_print("You must first pick up the staffs.");
+		mprint(MSG_TEMP, "You must first pick up the staffs.");
 		return;
 	}
 
@@ -1544,7 +1684,7 @@ void do_cmd_use_staff(void)
 	if (o_ptr->pval <= 0)
 	{
 		if (flush_failure) flush();
-		msg_print("The staff has no charges left.");
+		mprint(MSG_TEMP, "The staff has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
 		return;
 	}
@@ -1611,7 +1751,7 @@ void do_cmd_use_staff(void)
 			{
 				if (!p_ptr->blind)
 				{
-					msg_print("The staff glows blue for a moment...");
+					mprint(MSG_BONUS, "The staff glows blue for a moment...");
 				}
 				ident = TRUE;
 			}
@@ -1712,7 +1852,7 @@ void do_cmd_use_staff(void)
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
 				ident = TRUE;
-				msg_print("Your feel your head clear.");
+				mprint(MSG_BONUS, "Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
 				p_ptr->window |= (PW_SPELL | PW_PLAYER);
 			}
@@ -1785,7 +1925,7 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_EARTHQUAKES:
 		{
-			earthquake(py, px, 10);
+			earthquake();
 			ident = TRUE;
 			break;
 		}
@@ -1847,7 +1987,7 @@ void do_cmd_use_staff(void)
 		item = inven_carry(i_ptr);
 
 		/* Message */
-		msg_print("You unstack your staff.");
+		mprint(MSG_TEMP, "You unstack your staff.");
 	}
 
 	/* Describe charges in the pack */
@@ -1896,6 +2036,14 @@ void do_cmd_aim_wand(void)
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
 
+	/* Inside arena */
+	if (p_ptr->inside_special == 1) {
+	  msg_print("The arena absorbs all attempted magic!");
+	  msg_print(NULL);
+	  return;
+	}
+
+
 	/* Get an item */
 	q = "Aim which wand? ";
 	s = "You have no wand to aim.";
@@ -1917,7 +2065,7 @@ void do_cmd_aim_wand(void)
 	/* Mega-Hack -- refuse to aim a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
-		msg_print("You must first pick up the wands.");
+		mprint(MSG_TEMP, "You must first pick up the wands.");
 		return;
 	}
 
@@ -1962,7 +2110,7 @@ void do_cmd_aim_wand(void)
 	if (o_ptr->pval <= 0)
 	{
 		if (flush_failure) flush();
-		msg_print("The wand has no charges left.");
+		mprint(MSG_TEMP, "The wand has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
 		return;
 	}
@@ -2248,7 +2396,7 @@ void do_cmd_aim_wand(void)
 		item = inven_carry(i_ptr);
 
 		/* Message */
-		msg_print("You unstack your wand.");
+		mprint(MSG_TEMP, "You unstack your wand.");
 	}
 
 	/* Describe the charges in the pack */
@@ -2288,6 +2436,13 @@ void do_cmd_zap_rod(void)
 	cptr q, s;
 
 
+	/* Inside arena */
+	if (p_ptr->inside_special == 1) {
+	  msg_print("The arena absorbs all attempted magic!");
+	  msg_print(NULL);
+	  return;
+	}
+
 	/* Restrict choices to rods */
 	item_tester_tval = TV_ROD;
 
@@ -2312,7 +2467,7 @@ void do_cmd_zap_rod(void)
 	/* Mega-Hack -- refuse to zap a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
-		msg_print("You must first pick up the rods.");
+		mprint(MSG_TEMP, "You must first pick up the rods.");
 		return;
 	}
 
@@ -2361,7 +2516,7 @@ void do_cmd_zap_rod(void)
 	if (o_ptr->pval)
 	{
 		if (flush_failure) flush();
-		msg_print("The rod is still charging.");
+		mprint(MSG_TEMP, "The rod is still charging.");
 		return;
 	}
 
@@ -2400,7 +2555,7 @@ void do_cmd_zap_rod(void)
 		{
 			if (p_ptr->word_recall == 0)
 			{
-				msg_print("The air about you becomes charged...");
+				mprint(MSG_BONUS, "The air about you becomes charged...");
 				p_ptr->word_recall = 15 + randint(20);
 			}
 			else
@@ -2656,7 +2811,7 @@ void do_cmd_zap_rod(void)
 		item = inven_carry(i_ptr);
 
 		/* Message */
-		msg_print("You unstack your rod.");
+		mprint(MSG_TEMP, "You unstack your rod.");
 	}
 }
 
@@ -2669,6 +2824,8 @@ void do_cmd_zap_rod(void)
 static bool item_tester_hook_activate(object_type *o_ptr)
 {
 	u32b f1, f2, f3;
+
+	if (o_ptr->tval == TV_RANDART) return TRUE;
 
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
@@ -2697,7 +2854,7 @@ static void ring_of_power(int dir)
 		case 2:
 		{
 			/* Message */
-			msg_print("You are surrounded by a malignant aura.");
+			mprint(MSG_DEADLY, "You are surrounded by a malignant aura.");
 
 			/* Decrease all stats (permanently) */
 			(void)dec_stat(A_STR, 50, TRUE);
@@ -2718,7 +2875,7 @@ static void ring_of_power(int dir)
 		case 3:
 		{
 			/* Message */
-			msg_print("You are surrounded by a powerful aura.");
+			mprint(MSG_BIG_BONUS, "You are surrounded by a powerful aura.");
 
 			/* Dispel monsters */
 			dispel_monsters(1000);
@@ -2763,6 +2920,300 @@ static bool brand_bolts(void)
 
 
 /*
+ * Activate a random artifact.
+ */
+
+static void random_artifact_effect(byte type, byte arg) {
+  int foo, bar, i;
+
+
+  switch (type) {
+  case T_ACT_DEATH:
+    mprint(MSG_DEADLY, "You feel a deathly chill come over you...");
+    take_hit(5000, "an ancient artifact");
+    break;
+
+  case T_ACT_RUIN:
+    mprint(MSG_DEADLY, "Your nerves and muscles feel weak and lifeless!");
+    take_hit(damroll(10, 10), "an ancient artifact");
+    (void)dec_stat(A_DEX, 25, TRUE);
+    (void)dec_stat(A_WIS, 25, TRUE);
+    (void)dec_stat(A_CON, 25, TRUE);
+    (void)dec_stat(A_STR, 25, TRUE);
+    (void)dec_stat(A_CHR, 25, TRUE);
+    (void)dec_stat(A_INT, 25, TRUE);
+    break;
+
+  case T_ACT_DESTRUC:
+    destroy_area(p_ptr->py, p_ptr->px, (arg/5)+1, TRUE);
+    break;
+
+  case T_ACT_STUPID:
+    do_dec_stat(A_INT);
+    break;
+
+  case T_ACT_UNHEALTH:
+    do_dec_stat(A_CON);
+    break;
+
+  case T_ACT_UGLY:
+    do_dec_stat(A_CHR);
+    break;
+      
+  case T_ACT_CLUMSY:
+    do_dec_stat(A_DEX);
+    break;
+
+  case T_ACT_NAIVE:
+    do_dec_stat(A_WIS);
+    break;
+
+  case T_ACT_STAT_LOSS:
+    do_dec_stat(A_INT);
+    do_dec_stat(A_WIS);
+    do_dec_stat(A_CON);
+    do_dec_stat(A_CHR);
+    do_dec_stat(A_STR);
+    do_dec_stat(A_DEX);
+    break;
+
+  case T_ACT_HUGE_STAT_LOSS:
+    mprint(MSG_DEADLY, "Your nerves and muscles feel weak and lifeless!");
+    (void)dec_stat(A_DEX, 15, TRUE);
+    (void)dec_stat(A_WIS, 15, TRUE);
+    (void)dec_stat(A_CON, 15, TRUE);
+    (void)dec_stat(A_STR, 15, TRUE);
+    (void)dec_stat(A_CHR, 15, TRUE);
+    (void)dec_stat(A_INT, 15, TRUE);
+    break;
+
+  case T_ACT_EXP_LOSS:
+    if (p_ptr->hold_life) {
+      mprint(MSG_URGENT, "You feel your life slipping away!");
+      lose_exp(p_ptr->exp / (40));
+    } else {
+      mprint(MSG_DEADLY, "You feel your life draining away!");
+      lose_exp(p_ptr->exp / 4);
+    }
+    break;
+
+  case T_ACT_HUGE_EXP_LOSS:
+    mprint(MSG_DEADLY, "You are surrounded by a malignant aura!");
+
+    if (p_ptr->hold_life) {
+      p_ptr->exp -= (p_ptr->exp / (20));
+      p_ptr->max_exp -= (p_ptr->max_exp / (20));
+    } else {
+      p_ptr->exp -= (p_ptr->exp / 2);
+      p_ptr->max_exp -= (p_ptr->max_exp / 2);
+    }
+    check_experience();
+    break;
+
+  case T_ACT_TELE:
+    teleport_player(arg+10);
+    break;
+
+  case T_ACT_SUMMON:
+    foo = (arg / 10)+1;
+    bar = arg;
+
+    if (bar >= MAX_DEPTH) bar = MAX_DEPTH - 1;
+
+    if (foo == 1) {
+      mprint(MSG_STUPID, "A dimensional gate appears, and a monster tries to enter it.");
+    } else {
+      mprint(MSG_STUPID, "A dimensional gate appears, and several monsters try to enter it.");
+    }
+
+    for (i = 0; i < foo; i++) {
+      summon_specific(p_ptr->py, p_ptr->px, bar, 0);
+    }
+    break;
+
+  case T_ACT_PARALYZE:
+    set_paralyzed(p_ptr->paralyzed + arg*5+10);
+    break;
+
+  case T_ACT_HALLUC:
+    set_image(p_ptr->image + arg*5+10);
+    break;
+
+  case T_ACT_POIS:
+    set_poisoned(p_ptr->poisoned + arg*5+10);
+    break;
+
+  case T_ACT_HUNGER:
+    set_food(p_ptr->food - arg*10);
+    break;
+
+  case T_ACT_STUN:
+    set_stun(p_ptr->stun + arg*5+10);
+    break;
+
+  case T_ACT_CUT:
+    set_cut(p_ptr->cut + arg*5+10);
+    break;
+
+  case T_ACT_FEAR:
+    set_afraid(p_ptr->afraid + arg*5+10);
+    break;
+
+  case T_ACT_CONFUSE:
+    set_confused(p_ptr->confused + arg*5+10);
+    break;
+
+  case T_ACT_BLIND:
+    set_blind(p_ptr->blind + arg*5+10);
+    break;
+
+  case T_ACT_PET_SUMMON:
+    foo = (arg / 10)+1;
+    bar = arg;
+
+    if (bar >= MAX_DEPTH) bar = MAX_DEPTH - 1;
+
+    if (foo == 1) {
+      mprint(MSG_BONUS, "A dimensional gate appears, and an ally tries to enters it.");
+    } else {
+      mprint(MSG_BIG_BONUS, "A dimensional gate appears, and several allies try to enter it.");
+    }
+
+    for (i = 0; i < foo; i++) {
+      summon_specific_friendly(p_ptr->py, p_ptr->px, bar, 0);
+    }
+    break;
+
+  case T_ACT_CURE_PARALYZE:
+    set_paralyzed(p_ptr->paralyzed - arg*5+10);
+    break;
+
+  case T_ACT_CURE_HALLUC:
+    set_image(p_ptr->image - arg*5+10);
+    break;
+
+  case T_ACT_CURE_POIS:
+    set_poisoned(p_ptr->poisoned - arg*5+10);
+    break;
+
+  case T_ACT_CURE_HUNGER:
+    set_food(p_ptr->food + arg*10);
+    break;
+
+  case T_ACT_CURE_STUN:
+    set_stun(p_ptr->stun - arg*5+10);
+    break;
+
+  case T_ACT_CURE_CUT:
+    set_cut(p_ptr->cut - arg*5+10);
+    break;
+
+  case T_ACT_CURE_FEAR:
+    set_afraid(p_ptr->afraid - arg*5+10);
+    break;
+
+  case T_ACT_CURE_CONFUSE:
+    set_confused(p_ptr->confused - arg*5+10);
+    break;
+
+  case T_ACT_CURE_BLIND:
+    set_blind(p_ptr->blind - arg*5+10);
+    break;
+
+  case T_ACT_CURE_L_WOUND:
+    hp_player(damroll(2, 8));
+    set_blind(0);
+    set_cut(p_ptr->cut - 10);
+    break;
+
+  case T_ACT_CURE_S_WOUND:
+    hp_player(damroll(4, 8));
+    set_blind(0);
+    set_confused(0);
+    set_cut((p_ptr->cut / 2) - 50);
+    break;
+
+  case T_ACT_CURE_C_WOUND:
+    hp_player(damroll(6, 8));
+    set_blind(0);
+    set_confused(0);
+    set_poisoned(0);
+    set_stun(0);
+    set_cut(0);
+    break;
+
+  case T_ACT_CURE:
+    hp_player(arg+100);
+    set_blind(0);
+    set_confused(0);
+    set_poisoned(0);
+    set_stun(0);
+    set_cut(0);
+    break;
+
+  case T_ACT_GENO:
+    genocide();
+    break;
+
+  case T_ACT_MASS_GENO:
+    mass_genocide();
+    break;
+
+  case T_ACT_RESTORE:
+    do_res_stat(A_STR);
+    do_res_stat(A_INT);
+    do_res_stat(A_WIS);
+    do_res_stat(A_DEX);
+    do_res_stat(A_CON);
+    do_res_stat(A_CHR);
+    break;
+
+  case T_ACT_LIGHT:
+    lite_area(arg, (arg/15)+1);
+    break;
+
+  case T_ACT_DARKNESS:
+    unlite_area(arg, (arg/15)+1);
+    break;
+
+  case T_ACT_TELEPORT:
+    teleport_player(arg+10);
+    break;
+
+  case T_ACT_TPORT_VERT:
+    teleport_player_level();
+    break;
+
+  case T_ACT_ACQUIREMENT:
+    object_level = (arg/5)+1;
+    acquirement(p_ptr->py, p_ptr->px, 1, FALSE);
+    object_level = p_ptr->depth;
+    break;
+
+  case T_ACT_WONDER:
+    random_artifact_effect(rand_int(MAX_T_ACT), arg);
+    break;
+
+  case T_ACT_AGGRAVATE:
+    aggravate_monsters(1);
+    break;
+
+  case T_ACT_MUTATE:
+    mprint(MSG_WARNING, "Your body mutates!");
+    generate_mutation();
+    break;
+
+  case T_ACT_CURE_INSANITY:
+    heal_insanity(damroll((arg/10)+1, 8));
+    break;
+
+  case T_ACT_CURE_MUTATE:
+    remove_mutation();
+    break;
+  }
+}
+
+/*
  * Activate a wielded object.  Wielded objects never stack.
  * And even if they did, activatable objects never stack.
  *
@@ -2781,13 +3232,19 @@ void do_cmd_activate(void)
 	cptr q, s;
 
 
+	if (p_ptr->inside_special == 1) {
+	  msg_print("The arena absorbs all attempted magic!");
+	  msg_print(NULL);
+	  return;
+	}
+
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;
 
 	/* Get an item */
 	q = "Activate which item? ";
 	s = "You have nothing to activate.";
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2809,7 +3266,13 @@ void do_cmd_activate(void)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Hack -- use artifact level instead */
-	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
+	if (artifact_p(o_ptr)) {
+	  if (o_ptr->tval == TV_RANDART) {
+	    lev = random_artifacts[o_ptr->sval].level;
+	  } else {
+	    lev = a_info[o_ptr->name1].level;
+	  }
+	}
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;
@@ -2837,17 +3300,29 @@ void do_cmd_activate(void)
 	/* Check the recharge */
 	if (o_ptr->timeout)
 	{
-		msg_print("It whines, glows and fades...");
+		mprint(MSG_TEMP, "It whines, glows and fades...");
 		return;
 	}
 
 
 	/* Activate the artifact */
-	msg_print("You activate it...");
+	mprint(MSG_TEMP, "You activate it...");
 
 	/* Sound */
 	sound(SOUND_ZAP);
 
+	if (o_ptr->tval == TV_RANDART) {
+	  random_artifact* rart = &random_artifacts[o_ptr->sval];
+	  random_artifact_effect(rart->tact, rart->sact);
+
+	  o_ptr->timeout = rart->sact*5 + randnor(0, 10);
+	  
+	  /* Window stuff */
+	  p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+	  /* Done */
+	  return;
+	}
 
 	/* Artifacts */
 	if (o_ptr->name1)
@@ -2857,7 +3332,7 @@ void do_cmd_activate(void)
 		{
 			case ART_GALADRIEL:
 			{
-				msg_print("The phial wells with clear light...");
+				mprint(MSG_BONUS, "The phial wells with clear light...");
 				lite_area(damroll(2, 15), 3);
 				o_ptr->timeout = rand_int(10) + 10;
 				break;
@@ -2865,7 +3340,7 @@ void do_cmd_activate(void)
 
 			case ART_ELENDIL:
 			{
-				msg_print("The star shines brightly...");
+				mprint(MSG_BONUS, "The star shines brightly...");
 				map_area();
 				o_ptr->timeout = rand_int(50) + 50;
 				break;
@@ -2873,7 +3348,7 @@ void do_cmd_activate(void)
 
 			case ART_THRAIN:
 			{
-				msg_print("The stone glows a deep green...");
+				mprint(MSG_BONUS, "The stone glows a deep green...");
 				wiz_lite();
 				(void)detect_traps();
 				(void)detect_doors();
@@ -2885,7 +3360,7 @@ void do_cmd_activate(void)
 
 			case ART_CARLAMMAS:
 			{
-				msg_print("The amulet lets out a shrill wail...");
+				mprint(MSG_BONUS, "The amulet lets out a shrill wail...");
 				k = 3 * p_ptr->lev;
 				(void)set_protevil(p_ptr->protevil + randint(25) + k);
 				o_ptr->timeout = rand_int(225) + 225;
@@ -2894,7 +3369,7 @@ void do_cmd_activate(void)
 
 			case ART_INGWE:
 			{
-				msg_print("The amulet floods the area with goodness...");
+				mprint(MSG_BONUS, "The amulet floods the area with goodness...");
 				dispel_evil(p_ptr->lev * 5);
 				o_ptr->timeout = rand_int(300) + 300;
 				break;
@@ -2903,7 +3378,7 @@ void do_cmd_activate(void)
 
 			case ART_TULKAS:
 			{
-				msg_print("The ring glows brightly...");
+				mprint(MSG_BONUS, "The ring glows brightly...");
 				if (!p_ptr->fast)
 				{
 					(void)set_fast(randint(75) + 75);
@@ -2918,7 +3393,7 @@ void do_cmd_activate(void)
 
 			case ART_NARYA:
 			{
-				msg_print("The ring glows deep red...");
+				mprint(MSG_BONUS, "The ring glows deep red...");
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir, 120, 3);
 				o_ptr->timeout = rand_int(225) + 225;
@@ -2927,7 +3402,7 @@ void do_cmd_activate(void)
 
 			case ART_NENYA:
 			{
-				msg_print("The ring glows bright white...");
+				mprint(MSG_BONUS, "The ring glows bright white...");
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir, 200, 3);
 				o_ptr->timeout = rand_int(325) + 325;
@@ -2936,7 +3411,7 @@ void do_cmd_activate(void)
 
 			case ART_VILYA:
 			{
-				msg_print("The ring glows deep blue...");
+				mprint(MSG_BONUS, "The ring glows deep blue...");
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_ELEC, dir, 250, 3);
 				o_ptr->timeout = rand_int(425) + 425;
@@ -2945,7 +3420,7 @@ void do_cmd_activate(void)
 
 			case ART_POWER:
 			{
-				msg_print("The ring glows intensely black...");
+				mprint(MSG_WARNING, "The ring glows intensely black...");
 				if (!get_aim_dir(&dir)) return;
 				ring_of_power(dir);
 				o_ptr->timeout = rand_int(450) + 450;
@@ -2955,7 +3430,7 @@ void do_cmd_activate(void)
 
 			case ART_RAZORBACK:
 			{
-				msg_print("Your armor is surrounded by lightning...");
+				mprint(MSG_BONUS, "Your armor is surrounded by lightning...");
 				for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3);
 				o_ptr->timeout = 1000;
 				break;
@@ -2963,7 +3438,7 @@ void do_cmd_activate(void)
 
 			case ART_BLADETURNER:
 			{
-				msg_print("Your armor glows many colours...");
+				mprint(MSG_BONUS, "Your armor glows many colours...");
 				(void)hp_player(30);
 				(void)set_afraid(0);
 				(void)set_shero(p_ptr->shero + randint(50) + 50);
@@ -2980,8 +3455,8 @@ void do_cmd_activate(void)
 
 			case ART_SOULKEEPER:
 			{
-				msg_print("Your armor glows a bright white...");
-				msg_print("You feel much better...");
+				mprint(MSG_BIG_BONUS, "Your armor glows a bright white...");
+				mprint(MSG_BIG_BONUS, "You feel much better...");
 				(void)hp_player(1000);
 				(void)set_cut(0);
 				o_ptr->timeout = 888;
@@ -2990,7 +3465,7 @@ void do_cmd_activate(void)
 
 			case ART_BELEGENNON:
 			{
-				msg_print("Your armor twists space around you...");
+				mprint(MSG_BONUS, "Your armor twists space around you...");
 				teleport_player(10);
 				o_ptr->timeout = 2;
 				break;
@@ -2998,7 +3473,7 @@ void do_cmd_activate(void)
 
 			case ART_CELEBORN:
 			{
-				msg_print("Your armor glows deep blue...");
+				mprint(MSG_BONUS, "Your armor glows deep blue...");
 				(void)genocide();
 				o_ptr->timeout = 500;
 				break;
@@ -3006,7 +3481,7 @@ void do_cmd_activate(void)
 
 			case ART_CASPANION:
 			{
-				msg_print("Your armor glows bright red...");
+				mprint(MSG_BONUS, "Your armor glows bright red...");
 				destroy_doors_touch();
 				o_ptr->timeout = 10;
 				break;
@@ -3015,8 +3490,8 @@ void do_cmd_activate(void)
 
 			case ART_HOLHENNETH:
 			{
-				msg_print("Your helm glows bright white...");
-				msg_print("An image forms in your mind...");
+				mprint(MSG_BONUS, "Your helm glows bright white...");
+				mprint(MSG_BONUS, "An image forms in your mind...");
 				detect_all();
 				o_ptr->timeout = rand_int(55) + 55;
 				break;
@@ -3024,8 +3499,8 @@ void do_cmd_activate(void)
 
 			case ART_GONDOR:
 			{
-				msg_print("Your crown glows deep blue...");
-				msg_print("You feel a warm tingling inside...");
+				mprint(MSG_BONUS, "Your crown glows deep blue...");
+				mprint(MSG_BONUS, "You feel a warm tingling inside...");
 				(void)hp_player(500);
 				(void)set_cut(0);
 				o_ptr->timeout = 500;
@@ -3035,7 +3510,7 @@ void do_cmd_activate(void)
 
 			case ART_COLLUIN:
 			{
-				msg_print("Your cloak glows many colours...");
+				mprint(MSG_BONUS, "Your cloak glows many colours...");
 				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
 				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
 				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
@@ -3047,7 +3522,7 @@ void do_cmd_activate(void)
 
 			case ART_HOLCOLLETH:
 			{
-				msg_print("Your cloak glows deep blue...");
+				mprint(MSG_BONUS, "Your cloak glows deep blue...");
 				sleep_monsters_touch();
 				o_ptr->timeout = 55;
 				break;
@@ -3055,7 +3530,7 @@ void do_cmd_activate(void)
 
 			case ART_THINGOL:
 			{
-				msg_print("Your cloak glows bright yellow...");
+				mprint(MSG_BONUS, "Your cloak glows bright yellow...");
 				recharge(60);
 				o_ptr->timeout = 70;
 				break;
@@ -3063,7 +3538,7 @@ void do_cmd_activate(void)
 
 			case ART_COLANNON:
 			{
-				msg_print("Your cloak twists space around you...");
+				mprint(MSG_BONUS, "Your cloak twists space around you...");
 				teleport_player(100);
 				o_ptr->timeout = 45;
 				break;
@@ -3071,7 +3546,7 @@ void do_cmd_activate(void)
 
 			case ART_LUTHIEN:
 			{
-				msg_print("Your cloak glows a deep red...");
+				mprint(MSG_BONUS, "Your cloak glows a deep red...");
 				restore_level();
 				o_ptr->timeout = 450;
 				break;
@@ -3080,7 +3555,7 @@ void do_cmd_activate(void)
 
 			case ART_CAMMITHRIM:
 			{
-				msg_print("Your gloves glow extremely brightly...");
+				mprint(MSG_BONUS, "Your gloves glow extremely brightly...");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
 				o_ptr->timeout = 2;
@@ -3089,7 +3564,7 @@ void do_cmd_activate(void)
 
 			case ART_PAURHACH:
 			{
-				msg_print("Your gauntlets are covered in fire...");
+				mprint(MSG_BONUS, "Your gauntlets are covered in fire...");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_FIRE, dir, damroll(9, 8));
 				o_ptr->timeout = rand_int(8) + 8;
@@ -3098,7 +3573,7 @@ void do_cmd_activate(void)
 
 			case ART_PAURNIMMEN:
 			{
-				msg_print("Your gauntlets are covered in frost...");
+				mprint(MSG_BONUS, "Your gauntlets are covered in frost...");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_COLD, dir, damroll(6, 8));
 				o_ptr->timeout = rand_int(7) + 7;
@@ -3107,7 +3582,7 @@ void do_cmd_activate(void)
 
 			case ART_PAURAEGEN:
 			{
-				msg_print("Your gauntlets are covered in sparks...");
+				mprint(MSG_BONUS, "Your gauntlets are covered in sparks...");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ELEC, dir, damroll(4, 8));
 				o_ptr->timeout = rand_int(6) + 6;
@@ -3116,7 +3591,7 @@ void do_cmd_activate(void)
 
 			case ART_PAURNEN:
 			{
-				msg_print("Your gauntlets are covered in acid...");
+				mprint(MSG_BONUS, "Your gauntlets are covered in acid...");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ACID, dir, damroll(5, 8));
 				o_ptr->timeout = rand_int(5) + 5;
@@ -3125,7 +3600,7 @@ void do_cmd_activate(void)
 
 			case ART_FINGOLFIN:
 			{
-				msg_print("Your cesti grows magical spikes...");
+				mprint(MSG_BONUS, "Your cesti grows magical spikes...");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ARROW, dir, 150);
 				o_ptr->timeout = rand_int(90) + 90;
@@ -3135,7 +3610,7 @@ void do_cmd_activate(void)
 
 			case ART_FEANOR:
 			{
-				msg_print("Your boots glow bright green...");
+				mprint(MSG_BIG_BONUS, "Your boots glow bright green...");
 				if (!p_ptr->fast)
 				{
 					(void)set_fast(randint(20) + 20);
@@ -3150,7 +3625,7 @@ void do_cmd_activate(void)
 
 			case ART_DAL:
 			{
-				msg_print("Your boots glow deep blue...");
+				mprint(MSG_BONUS, "Your boots glow deep blue...");
 				(void)set_afraid(0);
 				(void)set_poisoned(0);
 				o_ptr->timeout = 5;
@@ -3160,7 +3635,7 @@ void do_cmd_activate(void)
 
 			case ART_NARTHANC:
 			{
-				msg_print("Your dagger is covered in fire...");
+				mprint(MSG_BONUS, "Your dagger is covered in fire...");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_FIRE, dir, damroll(9, 8));
 				o_ptr->timeout = rand_int(8) + 8;
@@ -3169,7 +3644,7 @@ void do_cmd_activate(void)
 
 			case ART_NIMTHANC:
 			{
-				msg_print("Your dagger is covered in frost...");
+				mprint(MSG_BONUS, "Your dagger is covered in frost...");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_COLD, dir, damroll(6, 8));
 				o_ptr->timeout = rand_int(7) + 7;
@@ -3178,7 +3653,7 @@ void do_cmd_activate(void)
 
 			case ART_DETHANC:
 			{
-				msg_print("Your dagger is covered in sparks...");
+				mprint(MSG_BONUS, "Your dagger is covered in sparks...");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ELEC, dir, damroll(4, 8));
 				o_ptr->timeout = rand_int(6) + 6;
@@ -3187,7 +3662,7 @@ void do_cmd_activate(void)
 
 			case ART_RILIA:
 			{
-				msg_print("Your dagger throbs deep green...");
+				mprint(MSG_BONUS, "Your dagger throbs deep green...");
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_POIS, dir, 12, 3);
 				o_ptr->timeout = rand_int(4) + 4;
@@ -3196,7 +3671,7 @@ void do_cmd_activate(void)
 
 			case ART_BELANGIL:
 			{
-				msg_print("Your dagger is covered in frost...");
+				mprint(MSG_BONUS, "Your dagger is covered in frost...");
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir, 48, 2);
 				o_ptr->timeout = rand_int(5) + 5;
@@ -3205,7 +3680,7 @@ void do_cmd_activate(void)
 
 			case ART_ARUNRUTH:
 			{
-				msg_print("Your sword glows a pale blue...");
+				mprint(MSG_BONUS, "Your sword glows a pale blue...");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_COLD, dir, damroll(12, 8));
 				o_ptr->timeout = 500;
@@ -3214,7 +3689,7 @@ void do_cmd_activate(void)
 
 			case ART_RINGIL:
 			{
-				msg_print("Your sword glows an intense blue...");
+				mprint(MSG_BONUS, "Your sword glows an intense blue...");
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir, 100, 2);
 				o_ptr->timeout = 300;
@@ -3223,7 +3698,7 @@ void do_cmd_activate(void)
 
 			case ART_ANDURIL:
 			{
-				msg_print("Your sword glows an intense red...");
+				mprint(MSG_BONUS, "Your sword glows an intense red...");
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir, 72, 2);
 				o_ptr->timeout = 400;
@@ -3233,7 +3708,7 @@ void do_cmd_activate(void)
 
 			case ART_THEODEN:
 			{
-				msg_print("Your axe blade glows black...");
+				mprint(MSG_BONUS, "Your axe blade glows black...");
 				if (!get_aim_dir(&dir)) return;
 				drain_life(dir, 120);
 				o_ptr->timeout = 400;
@@ -3242,7 +3717,7 @@ void do_cmd_activate(void)
 
 			case ART_AEGLOS:
 			{
-				msg_print("Your spear glows a bright white...");
+				mprint(MSG_BONUS, "Your spear glows a bright white...");
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir, 100, 2);
 				o_ptr->timeout = 500;
@@ -3251,7 +3726,7 @@ void do_cmd_activate(void)
 
 			case ART_OROME:
 			{
-				msg_print("Your spear pulsates...");
+				mprint(MSG_BONUS, "Your spear pulsates...");
 				if (!get_aim_dir(&dir)) return;
 				wall_to_mud(dir);
 				o_ptr->timeout = 5;
@@ -3260,7 +3735,7 @@ void do_cmd_activate(void)
 
 			case ART_EONWE:
 			{
-				msg_print("Your axe lets out a long, shrill note...");
+				mprint(MSG_BONUS, "Your axe lets out a long, shrill note...");
 				(void)mass_genocide();
 				o_ptr->timeout = 1000;
 				break;
@@ -3268,7 +3743,7 @@ void do_cmd_activate(void)
 
 			case ART_LOTHARANG:
 			{
-				msg_print("Your battle axe radiates deep purple...");
+				mprint(MSG_BONUS, "Your battle axe radiates deep purple...");
 				hp_player(damroll(4, 8));
 				(void)set_cut((p_ptr->cut / 2) - 50);
 				o_ptr->timeout = rand_int(3) + 3;
@@ -3277,7 +3752,7 @@ void do_cmd_activate(void)
 
 			case ART_ULMO:
 			{
-				msg_print("Your trident glows deep red...");
+				mprint(MSG_BONUS, "Your trident glows deep red...");
 				if (!get_aim_dir(&dir)) return;
 				teleport_monster(dir);
 				o_ptr->timeout = 150;
@@ -3286,11 +3761,11 @@ void do_cmd_activate(void)
 
 			case ART_AVAVIR:
 			{
-				msg_print("Your scythe glows soft white...");
+				mprint(MSG_BONUS, "Your scythe glows soft white...");
 				if (p_ptr->word_recall == 0)
 				{
 					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
+					mprint(MSG_BONUS, "The air about you becomes charged...");
 				}
 				else
 				{
@@ -3304,7 +3779,7 @@ void do_cmd_activate(void)
 
 			case ART_TOTILA:
 			{
-				msg_print("Your flail glows in scintillating colours...");
+				mprint(MSG_BONUS, "Your flail glows in scintillating colours...");
 				if (!get_aim_dir(&dir)) return;
 				confuse_monster(dir, 20);
 				o_ptr->timeout = 15;
@@ -3313,7 +3788,7 @@ void do_cmd_activate(void)
 
 			case ART_FIRESTAR:
 			{
-				msg_print("Your morning star rages in fire...");
+				mprint(MSG_BONUS, "Your morning star rages in fire...");
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir, 72, 3);
 				o_ptr->timeout = 100;
@@ -3322,7 +3797,7 @@ void do_cmd_activate(void)
 
 			case ART_TARATOL:
 			{
-				msg_print("Your mace glows bright green...");
+				mprint(MSG_BIG_BONUS, "Your mace glows bright green...");
 				if (!p_ptr->fast)
 				{
 					(void)set_fast(randint(20) + 20);
@@ -3337,7 +3812,7 @@ void do_cmd_activate(void)
 
 			case ART_ERIRIL:
 			{
-				msg_print("Your quarterstaff glows yellow...");
+				mprint(MSG_BONUS, "Your quarterstaff glows yellow...");
 				if (!ident_spell()) return;
 				o_ptr->timeout = 10;
 				break;
@@ -3345,7 +3820,7 @@ void do_cmd_activate(void)
 
 			case ART_OLORIN:
 			{
-				msg_print("Your quarterstaff glows brightly...");
+				mprint(MSG_BONUS, "Your quarterstaff glows brightly...");
 				probing();
 				o_ptr->timeout = 20;
 				break;
@@ -3353,7 +3828,7 @@ void do_cmd_activate(void)
 
 			case ART_TURMIL:
 			{
-				msg_print("Your hammer glows white...");
+				mprint(MSG_BONUS, "Your hammer glows white...");
 				if (!get_aim_dir(&dir)) return;
 				drain_life(dir, 90);
 				o_ptr->timeout = 70;
@@ -3363,7 +3838,7 @@ void do_cmd_activate(void)
 
 			case ART_CUBRAGOL:
 			{
-				msg_print("Your crossbow glows deep red...");
+				mprint(MSG_BONUS, "Your crossbow glows deep red...");
 				(void)brand_bolts();
 				o_ptr->timeout = 999;
 				break;
@@ -3389,7 +3864,7 @@ void do_cmd_activate(void)
 		{
 			case SV_DRAGON_BLUE:
 			{
-				msg_print("You breathe lightning.");
+				mprint(MSG_BONUS, "You breathe lightning.");
 				fire_ball(GF_ELEC, dir, 100, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -3397,7 +3872,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_WHITE:
 			{
-				msg_print("You breathe frost.");
+				mprint(MSG_BONUS, "You breathe frost.");
 				fire_ball(GF_COLD, dir, 110, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -3405,7 +3880,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_BLACK:
 			{
-				msg_print("You breathe acid.");
+				mprint(MSG_BONUS, "You breathe acid.");
 				fire_ball(GF_ACID, dir, 130, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -3413,7 +3888,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_GREEN:
 			{
-				msg_print("You breathe poison gas.");
+				mprint(MSG_BONUS, "You breathe poison gas.");
 				fire_ball(GF_POIS, dir, 150, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -3421,7 +3896,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_RED:
 			{
-				msg_print("You breathe fire.");
+				mprint(MSG_BONUS, "You breathe fire.");
 				fire_ball(GF_FIRE, dir, 200, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -3430,7 +3905,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_MULTIHUED:
 			{
 				chance = rand_int(5);
-				msg_format("You breathe %s.",
+				mformat(MSG_BONUS, "You breathe %s.",
 				           ((chance == 1) ? "lightning" :
 				            ((chance == 2) ? "frost" :
 				             ((chance == 3) ? "acid" :
@@ -3446,7 +3921,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_BRONZE:
 			{
-				msg_print("You breathe confusion.");
+				mprint(MSG_BONUS, "You breathe confusion.");
 				fire_ball(GF_CONFUSION, dir, 120, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -3454,7 +3929,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_GOLD:
 			{
-				msg_print("You breathe sound.");
+				mprint(MSG_BONUS, "You breathe sound.");
 				fire_ball(GF_SOUND, dir, 130, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -3463,7 +3938,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_CHAOS:
 			{
 				chance = rand_int(2);
-				msg_format("You breathe %s.",
+				mformat(MSG_BONUS, "You breathe %s.",
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
 				          dir, 220, 2);
@@ -3474,7 +3949,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_LAW:
 			{
 				chance = rand_int(2);
-				msg_format("You breathe %s.",
+				mformat(MSG_BONUS, "You breathe %s.",
 				           ((chance == 1 ? "sound" : "shards")));
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
 				          dir, 230, 2);
@@ -3485,7 +3960,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_BALANCE:
 			{
 				chance = rand_int(4);
-				msg_format("You breathe %s.",
+				mformat(MSG_BONUS, "You breathe %s.",
 				           ((chance == 1) ? "chaos" :
 				            ((chance == 2) ? "disenchantment" :
 				             ((chance == 3) ? "sound" : "shards"))));
@@ -3500,7 +3975,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_SHINING:
 			{
 				chance = rand_int(2);
-				msg_format("You breathe %s.",
+				mformat(MSG_BONUS, "You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
 				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
 				o_ptr->timeout = rand_int(300) + 300;
@@ -3509,7 +3984,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_POWER:
 			{
-				msg_print("You breathe the elements.");
+				mprint(MSG_BONUS, "You breathe the elements.");
 				fire_ball(GF_MISSILE, dir, 300, 2);
 				o_ptr->timeout = rand_int(300) + 300;
 				break;
@@ -3525,7 +4000,613 @@ void do_cmd_activate(void)
 
 
 	/* Mistake */
-	msg_print("Oops.  That object cannot be activated.");
+	mprint(MSG_TEMP, "Oops.  That object cannot be activated.");
 }
 
+
+
+/* Test for an ingredient. */
+
+static bool item_tester_hook_ingr(object_type *o_ptr) {
+	if (o_ptr->tval == TV_INGRED) return (TRUE);
+	return (FALSE);
+}
+
+
+/* Make something using alchemical formulae. */
+
+void do_cmd_brew_stuff(void) {
+  int item, i, level;
+  long mask, ingrs;
+  bool made_ok = FALSE;
+  object_type tmp_obj;
+  cptr q, s;
+
+  mask = 0;
+  q = "Combine what? ";
+  s = "You don't have any ingredients left!";
+
+  while (TRUE) {
+    item_tester_hook = item_tester_hook_ingr;
+    if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) break;
+    mask |= (1L << inventory[item].sval);
+    inven_item_increase(item, -1);
+    inven_item_optimize(item);
+  }
+
+  p_ptr->energy_use = 100;
+
+  if (mask) {
+    for (i = 0; i < MAX_RECIPES; i++) {
+
+      ingrs = recipe_info[i].ingrs;
+      if (ingrs == 0) break;
+
+      if (mask == ingrs) {
+	object_prep(&tmp_obj, recipe_info[i].result_kind);
+	apply_magic(&tmp_obj, p_ptr->lev, TRUE, FALSE, FALSE);
+	object_aware(&tmp_obj);
+	object_known(&tmp_obj);
+
+	level = k_info[tmp_obj.k_idx].level;
+
+	/* All items should be possible */
+	if (level > 50) level = 50;
+
+	if (p_ptr->lev > level+randnor(0, 7)) {
+	  made_ok = TRUE;
+	}
+
+	if (level <= p_ptr->lev && made_ok) {
+	  mprint(MSG_BONUS, "You have made something.");
+	} else if (level > p_ptr->lev && made_ok) {
+	  mprint(MSG_BONUS, "Somehow you managed to make something.");
+	} else if (level <= p_ptr->lev && !made_ok) {
+	  mprint(MSG_WARNING, "You messed up somewhere.");
+	} else if (level > p_ptr->lev && !made_ok) {
+	  mprint(MSG_WARNING, "The mix explodes in your face!");
+	}
+
+	if (made_ok) {
+	  drop_near(&tmp_obj, -1, p_ptr->py, p_ptr->px);
+	  recipe_recall[i] = 1;
+
+	  return;
+	} else {
+	  nasty_side_effect();
+
+	  if (!recipe_recall[i]) recipe_recall[i] = -1;
+
+	  return;
+	}
+      }
+    }
+
+    msg_print("You mix something gloppy and evil-smelling.");
+  }
+}
+
+
+/*
+ * Handle sacrifices.
+ * Grace is increased by value of sacrifice.
+ */
+
+void do_cmd_sacrifice(void) {
+  int item, val, numb = 1;
+  cptr q, s;
+
+  byte on_what = cave_feat[p_ptr->py][p_ptr->px];
+  byte what_god;
+
+  /* Check valididty */
+
+  if (on_what < FEAT_ALTAR_HEAD || on_what > FEAT_ALTAR_TAIL) {
+    show_god_info(FALSE);
+    return;
+  }
+
+  what_god = on_what-FEAT_ALTAR_HEAD+1;
+
+  q = "Sacrifice what? ";
+  s = "You don't have anything to sacrifice.";
+
+  /* Get sacrifice */
+
+  if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
+
+  if (inventory[item].number > 1) {
+    numb = get_quantity(NULL, inventory[item].number);
+    if (numb <= 0) return;
+  }
+
+  p_ptr->energy_use = 100;
+
+  val = object_value(&inventory[item])*numb;
+
+  /* Modify grace */
+
+  if (val) {
+    if (p_ptr->pgod == 0) {
+      p_ptr->pgod = what_god;
+      set_grace(p_ptr->grace + val);
+      p_ptr->god_favor = -60000;
+
+    } else if (p_ptr->pgod != what_god) {
+      mformat(MSG_DEADLY, "%s thunders in outrage at your blasphemy!", 
+		 deity_info[p_ptr->pgod-1].name);
+      set_grace(p_ptr->grace - val*10);
+
+      if (val > 2500) {
+	mformat(MSG_WARNING, "You feel %s abandon you.", deity_info[p_ptr->pgod-1].name);
+	p_ptr->pgod = what_god;
+	set_grace(val);
+	p_ptr->god_favor = -60000;
+      }
+
+    } else {
+      set_grace(p_ptr->grace + val*5);
+    }
+
+    inven_item_increase(item, -numb);
+    inven_item_optimize(item);
+
+  } else {
+    msg_format("%s is not interested in your trifles.", 
+	       deity_info[what_god-1].name);
+  }
+}
+
+
+/* 
+ * Handle CLI commands 
+ */
+
+void do_cmd_cli(void) {
+  char buff[80];
+  int i;
+
+  strcpy(buff, "");
+  
+  if (!get_string_cli("Command: ", buff, 30)) return;
+
+  for (i = 0; i < MAX_COMMANDS && cli_info[i].comm1; i++) {
+    if (!strcmp(buff, cli_info[i].comm1)) {
+      cli_info[i].func();
+      return;
+    } else if (cli_info[i].comm2 && !strcmp(buff, cli_info[i].comm2)) {
+      cli_info[i].func();
+      return;
+    }
+  }
+
+  mformat(MSG_TEMP, "No such command: %s", buff);
+}
+
+/* Front-end to spell learning commands */
+
+void do_cmd_gain_helper(void) {
+  if (p_ptr->pclass == CLASS_CORRUPTED) {
+    do_cmd_study();
+  } else if (p_ptr->prace == RACE_GHOST) {
+    msg_print("You try to recall a spell from your past...");
+    do_cmd_study();
+  } else if (p_ptr->prace == RACE_MUNCHKIN ||
+	     p_ptr->munchkin) {
+    do_cmd_study();
+  } else {
+    mprint(MSG_TEMP, "You must visit your superiors and be taught.");
+    msg_print(NULL);
+  }
+}
+
+/* Save and quit */
+
+void do_cmd_save_quit(void) {
+  /* Stop playing */
+  p_ptr->playing = FALSE;
+
+  /* Leaving */
+  p_ptr->leaving = TRUE;
+}
+
+
+/* 
+ * Print CLI help 
+ */
+
+void do_cmd_command_help(void) {
+  int i;
+  FILE* fff;
+  char file_name[1024];
+
+  if (path_temp(file_name, 1024)) return;
+
+  fff = my_fopen(file_name, "w");
+
+  for (i = 0; i < MAX_COMMANDS && cli_info[i].comm1; i++) {
+    if (cli_info[i].comm2) {
+      fprintf(fff, "    %s, %s -- %s\n", cli_info[i].comm1,
+	      cli_info[i].comm2, cli_info[i].descrip);
+    } else {
+      fprintf(fff, "    %s -- %s\n", cli_info[i].comm1, 
+	      cli_info[i].descrip);
+    }
+  }
+
+  my_fclose(fff);
+  
+  show_file(file_name, "Command Line Interface Help", 0, 0);
+
+  fd_kill(file_name);
+  do_cmd_redraw();
+}
+
+
+/*
+ * Move up or down 50'
+ * If the argument is true, that means to move down, up otherwise.
+ */
+
+static bool tport_vertically(bool how) {
+  if (p_ptr->inside_special > 0) { /* arena or quest -KMW- */
+    mprint(MSG_TEMP, "There is no effect.");
+    return FALSE;
+  }
+
+  /* Go down */
+
+  if (how) {
+    if (p_ptr->inside_special == 2 || p_ptr->depth >= MAX_DEPTH-1) {
+      mformat(MSG_TEMP, "The floor is impermeable.");
+      return FALSE;
+    }
+
+    msg_print("You sink through the floor.");
+    p_ptr->depth++;
+    p_ptr->leaving = TRUE;
+  } else {
+    if (!p_ptr->depth) {
+      mprint(MSG_TEMP, "The only thing above you is air.");
+      return FALSE;
+    }
+
+    msg_print("You rise through the ceiling.");
+    p_ptr->depth--;
+    p_ptr->leaving = TRUE;
+  }
+  return TRUE;
+}
+
+/*
+ * Do a special ``movement'' action. Meant to be used for ``immovable''
+ * characters.
+ */
+
+void do_cmd_immovable_special(void) {
+  int i;
+  int foo = p_ptr->immov_cntr;
+  int lose_sp = 0;
+  int lose_hp = 0;
+  bool did_act = FALSE;
+  bool did_load = FALSE;
+
+  if (foo > 1) {
+    if (p_ptr->csp > foo/2) {
+
+      mformat(MSG_WARNING, "This will drain %d mana points!", foo/2);
+      if (!get_check("Proceed? "))
+	return;
+
+      lose_sp = foo/2;
+
+    } else if (p_ptr->chp > foo/2) {
+
+      mformat(MSG_WARNING, "Warning: This will drain %d hit points!", foo/2);
+      if (!get_check("Proceed? "))
+	return;
+
+      lose_hp = foo/2;
+
+    } else {
+      msg_print("You can't use your powers yet.");
+      return;
+    }
+  }
+
+  /* Enter "icky" mode */
+  character_icky = TRUE;
+
+  /* Save the screen */
+  Term_save();
+
+
+  /* Interact until done */
+  while (1) {
+    /* Clear screen */
+    Term_clear();
+
+    /* Ask for a choice */
+    prt("Do what special action:", 2, 0);
+
+    /* Give some choices */
+    prt("(1) Teleport to a specific place.", 4, 5);
+    prt("(2) Fetch an item.", 5, 5);
+    prt("(3) Go up 50'", 6, 5);
+    prt("(4) Go down 50'", 7, 5);
+
+    /* Prompt */
+    prt("Command: ", 9, 0);
+
+    /* Prompt */
+    i = inkey();
+
+    /* Done */
+    if (i == ESCAPE) break;
+
+    /* Tele-to */
+    if (i == '1') {
+      Term_load();
+      character_icky = FALSE;
+      did_load = TRUE;
+
+      if (!target_set(TARGET_GRID)) break;
+
+      /* Teleport to the target */
+      teleport_player_to(p_ptr->target_row, p_ptr->target_col); 
+
+      did_act = TRUE;
+      break;
+    }
+
+    /* Fetch item */
+    else if (i == '2') {
+      Term_load();
+      character_icky = FALSE;
+      did_load = TRUE;
+
+      if (!target_set(TARGET_GRID)) return;
+
+      if (!fetch_item(p_ptr->lev*15, -1, -1)) return;
+
+      did_act = TRUE;
+      break;
+    }
+
+    /* Move up */
+    else if (i == '3') {
+      Term_load();
+      character_icky = FALSE;
+      did_load = TRUE;
+
+      if (!tport_vertically(FALSE)) return;
+
+      did_act = TRUE;
+      break;
+    }
+
+    /* Move down */
+    else if (i == '4') {
+      Term_load();
+      character_icky = FALSE;
+      did_load = TRUE;
+
+      if (!tport_vertically(TRUE)) return;
+
+      did_act = TRUE;
+      break;
+    }
+
+    /* Unknown option */
+    else {
+      bell();
+    }
+
+  }
+
+  /* Check if screen was restored before */
+  if (!did_load) {
+    /* Restore the screen */
+    Term_load();
+
+    /* Leave "icky" mode */
+    character_icky = FALSE;
+  }
+
+  /* Apply stat losses if something was done */
+  if (did_act) {
+    p_ptr->immov_cntr += 101-(p_ptr->lev*2);
+
+    if (lose_sp) {
+      p_ptr->csp -= lose_sp;
+      p_ptr->redraw |= (PR_MANA);
+    }
+
+    if (lose_hp) {
+      p_ptr->chp -= lose_hp;
+      p_ptr->redraw |= (PR_HP);
+    }
+  }
+}
+
+
+/*
+ * Figure out your shape-change chance.
+ */
+
+static int get_mimic_change_chance(int chance) {
+  chance -= (p_ptr->lev*3);
+  chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]] - 1);
+
+  if (chance < 2) chance = 2;
+
+  /* Stunning makes spells harder */
+  if (p_ptr->stun > 50) chance += 25;
+  else if (p_ptr->stun) chance += 15;
+
+  /* Always a 5 percent chance of working */
+  if (chance > 95) chance = 95;
+
+  /* Return the chance */
+  return (chance);
+}
+
+/* 
+ * Change your shape, using mimic books. Change into abomination
+ * when failed.
+ */
+
+void do_cmd_change_shape(void) {
+
+  int item, chance;
+  object_type *o_ptr;     
+  cptr q, s;
+
+  if (cp_ptr->spell_book != TV_MIMIC_BOOK) {
+    mprint(MSG_TEMP, "You do not have shape-shifting abilities.");
+    return;
+  }
+
+  if (p_ptr->blind || no_lite()) {
+    mprint(MSG_TEMP, "You cannot see!");
+    return;
+  }
+
+  if (p_ptr->confused) {
+    mprint(MSG_TEMP, "You are too confused!");
+    return;
+  }
+
+  item_tester_tval = TV_MIMIC_BOOK;
+  
+  /* Get an item */
+  q = "Use which book? ";
+  s = "You have no books of lore!";
+  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+  
+  /* Get the item (in the pack) */
+  if (item >= 0) {
+    o_ptr = &inventory[item];
+  }
+
+  /* Get the item (on the floor) */
+  else {
+    o_ptr = &o_list[0 - item];
+  }
+  
+  /* Track the object kind */
+  object_kind_track(o_ptr->k_idx);
+
+  /* Hack -- Handle stuff */
+  handle_stuff();
+
+  chance = get_mimic_change_chance(o_ptr->pval);
+
+  if (chance > 75) {
+    mprint(MSG_WARNING, "You feel uneasy with this shape-change.");
+    if (!get_check("Try it anyway? ")) {
+      return;
+    }
+  }
+
+  if (randint(100) < chance) {
+    mprint(MSG_WARNING, "Your shape-change goes horribly wrong!");
+
+    if (randint(100) < p_ptr->skill_sav) {
+      msg_print("You manage to wrest your body back under control.");
+    } else {
+      change_shape(SHAPE_ABOMINATION);
+    }
+  } else {
+    change_shape(o_ptr->sval);
+  }
+}
+  
+/* Front-end to spell casting commands */
+
+void do_cmd_cast_helper(void) {
+  if (p_ptr->pclass == CLASS_BEASTMASTER || p_ptr->shape == SHAPE_QUYL) {
+    summon_pet_monster();
+  } else if (p_ptr->pclass == CLASS_LYCANTH) {
+    change_shape(SHAPE_WOLF);
+  } else if (p_ptr->pclass == CLASS_MIMIC) {
+    do_cmd_change_shape();
+  } else {
+    do_cmd_cast_power();
+  }
+}
+
+/*
+ * Command to ask favors from your god.
+ */
+
+void do_cmd_pray(void) {
+  int level;
+  cptr name;
+
+  if (p_ptr->pgod == 0) {
+    mprint(MSG_TEMP, "Pray hard enough and your prayers might be answered.");
+    return;
+  }
+  
+  if (confirm_prayers && !get_check("Are you sure you want to disturb your God? ")) return;
+
+  level = interpret_grace() - interpret_favor();
+  name = deity_info[p_ptr->pgod-1].name;
+
+  if (p_ptr->pclass == CLASS_PRIEST && magik(30)) {
+    level++;
+  }
+
+  if (p_ptr->pclass == CLASS_PALADIN && magik(10)) {
+    level++;
+  }
+
+  if (level < 0) level = 0;
+  if (level > 10) level = 10;
+
+  p_ptr->energy_use = 100;
+
+  switch (level) {
+  case 10:
+    mformat(MSG_BIG_BONUS, "%s thunders: ``Thou hast pleaseth me, mortal.''", name);
+    great_side_effect();
+    break;
+
+  case 9:
+    mformat(MSG_BIG_BONUS, "%s booms out: ``Thy deeds earn thou a worthy reward.''", name);
+    good_side_effect();
+    break;
+
+  case 8:
+    mformat(MSG_BONUS, "%s thunders: ``Well done, motal.''", name);
+    ok_side_effect();
+    break;
+
+  case 7:
+  case 6:
+    mformat(MSG_STUPID, "%s hisses: ``Thou shouldst not have done that, mortal!''", name);
+    neutral_side_effect();
+    if (magik(30)) set_grace(p_ptr->grace - 1000);
+    break;
+
+  case 5:
+  case 4:
+  case 3:
+    mformat(MSG_URGENT, "%s quakes in rage: ``Thou art supremely insolent, mortal!''", name);
+    nasty_side_effect();
+    set_grace(p_ptr->grace - 5000);
+    break;
+
+  case 2:
+  case 1:
+  case 0:
+    mformat(MSG_DEADLY, "%s whipsers: ``Prepare to die, mortal...''", name);
+    deadly_side_effect(TRUE);
+    set_grace(p_ptr->grace - 20000);
+    break;
+  }
+
+  p_ptr->god_favor = 25000;
+}
 

@@ -1,0 +1,28 @@
+
+			  Advanced Theology
+			  -----------------
+
+Herein is presented a carefully compiled list of benefits for high-level
+disciples of the 16 elemental Gods controlling the pits of Angband:
+Note that the entry-level and medium-level benefits still apply.
+
+Chernobog, the God of Night -- Telepathy, an unholy aura of light, and 
+                               aggravation.
+Belobog, the God of Day     -- N/A
+Melkor, the God of Shadow   -- Resistance to cold, regeneration.
+Svarog, the God of Fire     -- Immunity to fire.
+Chthon, the God of Blood    -- A more dextrous body.
+Mokosh, the God of Nature   -- N/A
+Naunet, the God of Water    -- Slow digestion.
+Voltumna, the God of Stone  -- Resistance to shards.
+Shaitan, the God of Evil    -- Resistance to disenchantment and chaos, as well
+                               as permanent berserk.
+Amon-Ras, the God of Good   -- A wiser mind.
+Apep, the God of Chaos      -- Resistance to life drain.
+Radogast, the God of Sun    -- Regeneration.
+Herovit, the God of Rage    -- Free action, resistance to blindness and 
+                               confusion.
+Veles, the God of Beasts    -- A stronger and more dextrous body.
+Stribog, the God of Winds   -- Permanent speed.
+Chenti, the God of Spheres  -- Resistance to blindness, confusion, and fear.
+

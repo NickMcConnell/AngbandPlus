@@ -1,7 +1,7 @@
 
 
                         ***********************
-                        **   Kangband 2.8.2c **
+                        **   KaMband   1.3   **
                         ***********************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -18,5 +18,5 @@
  Angband 2.8.2 is available for Unix, X11, Macintosh, IBM, Windows, etc.
  Be sure to read the online help, especially "general.txt" and "version.txt".
 
- Visit the Angband Home Page at "http://www.voicenet.com/~benh/Angband/".
- Send all comments, bug reports, patches, etc, to "wigle@niktow.canisius.edu"
+ Visit the Angband Home Page at "http://www.phial.com/angband/".
+ Send all comments, bug reports, patches, etc, to "tkatchev@cs.purdue.edu"

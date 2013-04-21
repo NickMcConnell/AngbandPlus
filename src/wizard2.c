@@ -20,12 +20,74 @@
  */
 static void do_cmd_wiz_hack_ben(void)
 {
-	/* Oops */
-	msg_print("Oops.");
+  /* Oops */
+  msg_print("Oops.");
 }
 
 
+/*
+ * Make a bunch of shape-shifting potions.
+ */
 
+static void do_cmd_wiz_ss_potions(void) {
+  int i;
+  object_type tmp_obj;
+
+  for (i = 536; i < 550; i++) {
+    object_prep(&tmp_obj, i);
+    drop_near(&tmp_obj, -1, p_ptr->py, p_ptr->px);
+  }
+}
+
+/*
+ * Switch to any shape.
+ */
+
+static void do_cmd_any_shape(void) {
+  int i, j;
+
+  FILE_TYPE(FILE_TYPE_TEXT);
+
+  /* Enter "icky" mode */
+  character_icky = TRUE;
+
+  /* Save the screen */
+  Term_save();
+
+  while (1) {
+    Term_clear();
+
+    /* Ask for a choice */
+    prt("Polymorph to what? ", 2, 0);
+
+    for (i = 0; i < MAX_SHAPES; i++) {
+      if (shape_info[i].name) {
+	prt(format("(%c) Shape of %^s.", 'a'+i, shape_info[i].name), 
+	    4+(i % 15), 30*(i / 15)+2);
+      }
+    }
+
+    /* Prompt */
+    prt("Which shape: ", 20, 0);
+
+    j = inkey();
+
+    /* Done */
+    if (j == ESCAPE) break;
+
+    if (!isgraph(j) || (j-'a'+1) > SHAPE_DEITY || (j-'a'+1) < 1) {
+      bell();
+    } else {
+      /* Hack -- SHAPE_FOO constants begin with 1. */
+      change_shape(j-'a'+1);
+      break;
+    }
+  }
+
+  Term_load();
+  character_icky = FALSE;
+}
+  
 /*
  * Output a long int in binary format.
  */
@@ -311,14 +373,16 @@ static tval_desc tvals[] =
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
 	{ TV_ROD,               "Rod"                  },
-	{ TV_PRAYER_BOOK,       "Priest Book"          },
-	{ TV_MAGIC_BOOK,        "Magic Book"           },
-	{ TV_ILLUSION_BOOK,        "Illusion Book"           }, /* -KMW- */
+	{ TV_SPELLBOOK,         "Spellbook"           },
+	{ TV_MIMIC_BOOK,        "Book of Lore" },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
+	{ TV_INGRED,            "Ingredients" },
+	{ TV_TEXT,              "Parchments" },
+	{ TV_RANDART,           "Random Artifacts" },
 	{ 0,                    NULL                   }
 };
 
@@ -422,8 +486,9 @@ static int wiz_create_itemtype(void)
 		/* Analyze matching items */
 		if (k_ptr->tval == tval)
 		{
-			/* Hack -- Skip instant artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+		  /* Hack -- Skip instant artifacts */
+		  /* Disabled for now */
+		  /* if (k_ptr->flags3 & (TR3_INSTA_ART)) continue; */
 
 			/* Prepare it */
 			row = 2 + (num % 20);
@@ -616,8 +681,13 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
-
+	if (artifact_p(o_ptr)) {
+	  if (o_ptr->tval == TV_RANDART) {
+	    random_artifacts[o_ptr->sval].generated = FALSE;
+	  } else {
+	    a_info[o_ptr->name1].cur_num = 0;
+	  }
+	}
 
 	/* Interact */
 	while (TRUE)
@@ -699,8 +769,13 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 			/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
-			if (artifact_p(i_ptr)) a_info[i_ptr->name1].cur_num = 0;
-
+			if (artifact_p(i_ptr)) {
+			  if (i_ptr->tval == TV_RANDART) {
+			    random_artifacts[i_ptr->sval].generated = FALSE;
+			  } else {
+			    a_info[i_ptr->name1].cur_num = 0;
+			  }
+			}
 
 			/* Test for the same tval and sval. */
 			if ((o_ptr->tval) != (i_ptr->tval)) continue;
@@ -747,7 +822,13 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Hack -- Normally only make a single artifact */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 1;
+	if (artifact_p(o_ptr)) {
+	  if (o_ptr->tval == TV_RANDART) {
+	    random_artifacts[o_ptr->sval].generated = TRUE;
+	  } else {
+	    a_info[o_ptr->name1].cur_num = 1;
+	  }
+	}
 }
 
 
@@ -1001,6 +1082,10 @@ static void do_cmd_wiz_cure_all(void)
 	p_ptr->csp = p_ptr->msp;
 	p_ptr->csp_frac = 0;
 
+	/* Cure insanity */
+	p_ptr->csane = p_ptr->msane;
+	p_ptr->csane_frac = 0;
+
 	/* Cure stuff */
 	(void)set_blind(0);
 	(void)set_confused(0);
@@ -1058,7 +1143,6 @@ static void do_cmd_wiz_jump(void)
 	p_ptr->depth = p_ptr->command_arg;
 
 	p_ptr->inside_special = 0;
-	p_ptr->leftbldg = FALSE;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -1189,7 +1273,7 @@ static void do_cmd_wiz_named(int r_idx, int slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
+		if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE)) break;
 	}
 }
 
@@ -1276,7 +1360,7 @@ void do_cmd_debug(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-	int i2, i, x,y; /* -KMW- */
+	int x, y; /* -KMW- */
 	char tmp_str[80]; /* -KMW- */
 
 	char cmd;
@@ -1431,22 +1515,42 @@ void do_cmd_debug(void)
 		/* Complete a Quest -KMW- */
 		case 'q':
 		{
-			for(i2=QUEST_REWARD_HEAD; i2 < QUEST_REWARD_TAIL; i2++) {
-				i = i2 - QUEST_DIFF;
-				if (p_ptr->rewards[i] == 1) {
-					p_ptr->rewards[i]++;
-					msg_print("Completed Quest");
-					msg_print(NULL);
-					wilderness_gen(1);
-					break;
-				}
-			}
-			if (i2 == QUEST_REWARD_TAIL) {
-				msg_print("No current quest");
-				msg_print(NULL);
-			}
-			break;
+		  complete_quest();
+		  break;
 		}
+
+		/* Re-generate a new town/arena layout. */
+	case 'T':
+	  {
+	    int vindex;
+	    vault_type* v_ptr;
+	    bool foo = FALSE;
+	    bool bar = FALSE;
+
+	    while (TRUE) {
+	      vindex = rand_int(MAX_V_IDX);
+	      v_ptr = &v_info[vindex];
+
+	      if (v_ptr->typ == 10) {
+		p_ptr->which_town = vindex;
+		foo = TRUE;
+	      } else if (v_ptr->typ == 11) {
+		p_ptr->which_arena_layout = vindex;
+		bar = TRUE;
+	      }
+	      
+	      if (foo && bar) break;
+	    }
+
+	    break;
+	  }
+
+	  /* Fire a giant blast of space-time distortion. */
+	case 'F':
+	  {
+	    fire_explosion(p_ptr->py, p_ptr->px, GF_QUAKE, 19, 1);
+	    break;
+	  }
 
 		/* Make every dungeon square "known" to test streamers -KMW- */
 		case 'r':
@@ -1515,11 +1619,14 @@ void do_cmd_debug(void)
 		/* DEBUG -KMW- */
 		case 'y':
 		{
-			sprintf(tmp_str,"py: %d, px: %d, oldpy: %d, oldpx: %d, leftbldg: %d, insspe: %d",
-                            p_ptr->py, p_ptr->px, p_ptr->oldpy, p_ptr->oldpx, p_ptr->leftbldg,
+			sprintf(tmp_str,"py: %d, px: %d, oldpy: %d, oldpx: %d, insspe: %d",
+                            p_ptr->py, p_ptr->px, p_ptr->oldpy, p_ptr->oldpx,
                             p_ptr->inside_special);
 			msg_print(tmp_str);
+
+			msg_format("%d %d %d", FEAT_TREES, FEAT_CHAOS_FOG, FEAT_SHAL_WATER);
 			msg_print(NULL);
+			break;
 		}
 
 		/* Zap Monsters (Genocide) */
@@ -1530,6 +1637,52 @@ void do_cmd_debug(void)
 			break;
 		}
 
+	case 'G':
+	  {
+	    show_god_info(TRUE);
+	    msg_format("Your current grace: %d", p_ptr->grace);
+	    break;
+	  }
+
+	case 'S':
+	  {
+	    do_cmd_any_shape();
+	    break;
+	  }
+
+	case 'M':
+	  {
+	    generate_mutation();
+	    break;
+	  }
+	  
+	case 'C':
+	  {
+	    do_cmd_wiz_ss_potions();
+	    break;
+	  }
+
+	case 'I':
+	  {
+	    msg_format("CSane: %d  MSane: %d", p_ptr->csane, p_ptr->msane);
+	    take_sanity_hit(1, "Debug Mode");
+	    break;
+	  }
+
+        case 'P':
+          {
+	    int i;
+
+	    spell_num = 0;
+            init_s_info_txt(cp_ptr->spell_book);
+
+            msg_print("Your spell-list has been updated.");
+	    
+	    for (i = 0; i < spell_num; i++) {
+	      spells[i].unknown = FALSE;
+            }
+            break;
+          }
 		/* Hack */
 		case '_':
 		{

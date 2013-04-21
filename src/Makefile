@@ -1,196 +1,302 @@
-####
-# Please take a look at config.h for *critical* configuration steps needed.
-# BINDIR is the directory where the angband binary will be installed
+# File: Makefile
 
-BINDIR = /User/games/bin
-PROGRAM = angband
+# This is not a very "nice" Makefile, but it usually works.
 
-####
-# If you use gcc, you may find that adding '-traditional-cpp' will fix
-# defining the LIBDIR in config.h.  '-Dconst' may also help if your compiler
-# complains about conflicting definitions
-
-CC = cc
-
-####
-# Compiler flags
-####
-# '-O' means optimize.  '-g' is for debugging.
 #
-# If you are using gcc, you may combine both '-O' and '-g'.  Also:
-# '-pipe' uses pipes rather than temporary files (which is faster).
-# '-pg' enables profiling (for coders only).  '-W<something>' provides
-# additional warnings.
-####
-# Remove one of the '#' from the list of compiler flag choices below:
-####
-
-# For normal compilers (ie, 'cc' on anything but a NeXT).
-# Once you are sure it works, you can and should use '-O' instead.
-# CFLAGS = -Wall -O1
-
-# For HPUX, the compiler flags for 'cc' should be:
-#CFLAGS = -Ae -Dunix -g
-
-####
-# For gcc (or NeXT) users only.
- 
-# Normal gcc users:
-# For SunOS 5.X (Solaris 2.X), add '-DSOLARIS'
-CFLAGS = -g -O1 -pipe
-
-# Full optimization (but only when you know it works right!):
-#CFLAGS = -O4 -pipe -fomit-frame-pointer
-
-# Developers:
-#CFLAGS = -g -O1 -pipe -Wall -Wcast-align -Wpointer-arith -Wwrite-strings
-
-# Anal developers:     [ :-) ]
-#CFLAGS = -g -O1 -pipe -Wall -Wcast-align -Wpointer-arith -Wwrite-strings \
- -Wshadow -Wcast-align -Waggregate-return 
-
-# Profiling:
-#CFLAGS = -pg -g -O1 -pipe-Wall -Wcast-align -Wpointer-arith -Wwrite-strings
-
-####
-# Libraries to link from
-####
-# some people might be able to (or even might have to) remove '-lrpcsvc'
-
-LIBS = -lcurses -ltermcap -lrpcsvc
-
-####
-# For Linux systems, this line should look like:
-# LIBS = -lncurses -ltermcap -lbsd
-
-####
-# For NCR System 3000, you'll probably need this:
-# LIBS=-lcurses -ltermcap -lmalloc -L/usr/ucblib -lucb
-
-####
-# For SunOS 5.X (Solaris 2.X), this line should look like:
-# LIBS = -ltermlib -ltermcap -lrpcsvc -lnsl -lucb
-
-# For SunOS 5.X (Solaris 2.X), this line should look like:
-# ....unless you don't have the BSD/SunOS 4.x compatibility kit:
-# LIBS = -ltermlib -ltermcap -lrpcsvc -lnsl
+# Note that you may have to make modifications below according
+# to your machine, available libraries, compilation options,
+# and your "visual module" of choice.  This Makefile is intended
+# for use with Unix machines running X11, Curses, Ncurses, or Vt100,
+# or possibly for "Atari" or "Amiga" computers with "Curses" ports,
+# see below for more information.
+#
+# Note that "main-mac.c", the visual module for the Macintosh,
+# must be compiled in a special way, see elsewhere.
+#
+# Note that "main-win.c", the visual module for Windows,
+# must be compiled in a special way, see elsewhere.
+#
+# Note that "main-ibm.c", "main-emx.c", and "main-286.c",
+# the visual modules for various types of IBM-PC computers,
+# must be compiled with special Makefiles, see elsewhere.
+#
+# Note that "main-lsl.c", the visual module for ???,
+# must be compiled with "Makefile.lsl", see elsewhere.
+#
+# Note that "main-acn.c", the visual module for Risc Acorn,
+# must be compiled with "Makefile.acn", see elsewhere.
+#
+# Note that "Makefile.w31" and "Makefile.wat" are slight variations
+# on "Makefile.win" and "Makefile.ibm", respectively, which allow
+# the use of the "main-win.c" and "main-ibm.c" files, respectively,
+# with special compilers.
+#
+# If you are able to construct "main-xxx.c" and/or "Makefile.xxx"
+# files for a currently unsupported system, please send them to me
+# (benh@voicenet.com) for inclusion in future versions.
+#
+# This Makefile comes with "default" dependancies that may be obsolete.
+#
 
 
-####
-# If your system lacks the random() call, define EXTRAOBJS to include
-# random.o.  Otherwise, you can leave it out.
+#
+# The "source" and "object" files.
+#
 
-#EXTRAOBJS=random.o
+SRCS = \
+  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
+  variable.c tables.c util.c cave.c \
+  object1.c object2.c monster1.c monster2.c \
+  xtra1.c xtra2.c spells1.c spells2.c \
+  melee1.c melee2.c save.c files.c \
+  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
+  store.c bldg.c birth.c load.c \
+  wizard1.c wizard2.c \
+  generate.c dungeon.c init1.c init2.c \
+  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
 
-####
-# For SunOS 5.X (Solaris 2.X), if you don't have the BSD/SunOS 4.x
-# compatibility kit.  Also, be sure to define NEEDS_USLEEP in config.h
-# EXTRAOBJS=random.o bzero.o
+OBJS = \
+  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
+  variable.o tables.o util.o cave.o \
+  object1.o object2.o monster1.o monster2.o \
+  xtra1.o xtra2.o spells1.o spells2.o \
+  melee1.o melee2.o save.o files.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+  store.o bldg.o birth.o load.o \
+  wizard1.o wizard2.o \
+  generate.o dungeon.o init1.o init2.o \
+  main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
 
-# Otherwise, just use this:
-EXTRAOBJS=
 
-# end of user configurable stuff
-#######
 
-SOURCES = main.c misc1.c misc2.c store1.c files.c io.c create.c desc.c\
-	generate.c sets.c dungeon.c creature.c death.c eat.c help.c magic.c\
-	potions.c prayer.c save.c staffs.c wands.c scrolls.c spells.c\
-	wizard.c store2.c signals.c moria1.c moria2.c monsters.c\
-	treasure.c variable.c recall.c unix.c undef.c\
-	player.c tables.c describe_mon.c rods.c random.c util.c bzero.c
+##
+## Following are some "system" definitions
+##
+## No changes are needed to compile a version that will run on both
+## X11 and Curses, in debugging mode, with maximal warnings, on many
+## normal Unix machines of the Sun OS variety (non-solaris).
+##
+## To use an "alternative" definition, simply "modify" (or "replace")
+## the definition below with one that you like.  For example, you can
+## change the compiler to "cc", or remove the "debugging" options, or
+## remove the X11 or Curses support, etc, as desired.
+##
+## See also "config.h" and "h-config.h" for important information.
+##
+## Some "examples" are given below, they can be used by simply
+## removing the FIRST column of "#" signs from the "block" of lines
+## you wish to use, and commenting out "standard" block below.
+##
+## This is not intended to be a "good" Makefile, just a "simple" one.
+##
 
-OBJECTS = main.o misc1.o misc2.o store1.o files.o io.o create.o desc.o\
-	generate.o sets.o dungeon.o creature.o death.o eat.o help.o magic.o\
-	potions.o prayer.o save.o staffs.o wands.o scrolls.o spells.o\
-	wizard.o store2.o signals.o moria1.o moria2.o monsters.o\
-	treasure.o variable.o recall.o unix.o undef.o\
-	player.o tables.o describe_mon.o rods.o util.o $(EXTRAOBJS)
 
-LIBFILES = hours news origcmds.hlp owizcmds.hlp roglcmds.hlp rwizcmds.hlp \
-	scores version.hlp welcome.hlp
+#
+# This is my compiler of choice, it seems to work most everywhere
+#
+CC = gcc
 
-default: all
 
-all: $(PROGRAM)
+#
+# Standard version (see main-x11.c and main-gcu.c)
+#
+# This version supports both "X11" and "curses" in a single executable.
+#
+# You may have to add various X11 include/library directories to the
+# "CFLAGS", if your machine places files in a weird location.
+#
+# You may be able to remove "-ltermcap" on some machines (ex: Solaris).
+#
+# You may have to replace "-lcurses" with "-lncurses" to use the
+# "new curses" library instead of the "old curses" library, and
+# you may have to add "-l/usr/include/ncurses" to the "CFLAGS".
+#
+# See "main-gcu.c" and "config.h" for some optional "curses" defines,
+# including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
+# attempt to "guess" at many of these flags based on your system.
+#
+CFLAGS = -Wall -g -O1 -pipe -D"USE_X11"
+LIBS = -L/usr/X11R6/lib -lX11 #-lefence
 
-.c.o:
-	$(CC) $(CFLAGS) -c $*.c
 
-$(PROGRAM): $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $(PROGRAM) $(LIBS)
+##
+## Variation -- Only support "main-x11.c" (not "main-gcu.c")
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11"
+#LIBS = -lX11
 
-install:	$(PROGRAM)
-	cp $(PROGRAM) $(BINDIR)/$(PROGRAM)
-	chown games.bin $(BINDIR)/$(PROGRAM)
-	chmod 4511 $(BINDIR)/$(PROGRAM)
 
-clean:;
-	rm -f *.o ./core *~ .*~ temp1 temp2 gmon.*
+##
+## Variation -- Only support "main-gcu.c" (not "main-x11.c")
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU"
+#LIBS = -lcurses -ltermcap
 
-realclean: clean
-	rm -f $(PROGRAM)
 
-spotless: clean
-	rm -f $(PROGRAM)
-	rm -f $(BINDIR)/$(PROGRAM)
+##
+## Variation -- Use "main-xaw.c" instead of "main-x11.c"
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_XAW" -D"USE_GCU"
+#LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap
+
+
+##
+## Variation -- Use "main-cap.c" instead of "main-gcu.c"
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_CAP"
+#LIBS = -lX11 -ltermcap
+
+
+##
+## Variation -- Only work on simple vt100 terminals
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_CAP" -D"USE_HARDCODE"
+
+
+##
+## Variation -- this might work for Linux 1.1.93 using ncurses-1.8.7.
+##
+#CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses \
+#         -Wall -O2 -fomit-frame-pointer -m486 \
+#         -D"USE_X11" -D"USE_GCU"
+#LIBS = -L/usr/X11R6/lib -lX11 -lncurses -ltermcap
+
+##
+## Variation -- this might work better than the suggestion above
+##
+#CFLAGS = -I/usr/include/ncurses \
+#         -Wall -O2 -fomit-frame-pointer \
+#         -D"USE_X11" -D"USE_GCU" \
+#         -D"USE_TPOSIX" -D"USE_CURS_SET"
+#LIBS = -lX11 -lncurses
+#LDFLAGS = -s
+
+
+##
+## Variation -- compile for Solaris
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"SOLARIS"
+#LIBS = -lX11 -lsocket -lcurses
+
+
+##
+## Variation -- compile for SGI Indigo runnig Irix
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"SGI"
+#LIBS = -lX11 -lcurses -ltermcap -lsun
+
+
+
+##
+## Variation -- compile for Dec ALPHA OSF/1 v2.0
+##
+#CC     = cc
+##CFLAGS = -std -O -g3 -Olimit 4000 -D"USE_X11" -D"USE_GCU"
+#CFLAGS = -std -g -D"USE_X11" -D"USE_GCU"
+#LIBS   = -lX11 -lcurses -ltermcap -lrpcsvc
+
+
+##
+## Variation -- compile for Interactive Unix (ISC) systems
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"ISC"
+#LIBS = -lX11 -lcurses -lnsl_s -linet -lcposix
+
+
+##
+## Variation -- Support fat binaries under NEXTSTEP
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU" -arch m68k -arch i386
+#LIBS = -lcurses -ltermcap
+
+
+
+#
+# Hack -- "install" as the base target
+#
+
+install: angband
+	cp angband ..
+
+
+#
+# Build the "Angband" program
+#
+
+angband: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
+
+
+#
+# Clean up old junk
+#
+
+clean:
+	\rm *.bak *.o
+
+
+#
+# Generate dependancies automatically
+#
 
 depend:
-	/usr/local/bin/X11/makedepend $(INCLUDES) -p$(OBJDIR)/ $(SRCS)
+	makedepend -D__MAKEDEPEND__ $(SRCS)
 
-####
-# verify that the monsters.c and describe_mon.c files correspond
 
-check:
-	@/bin/rm -f temp1 temp2
-	@egrep '^{' monsters.c | awk -F\" '{print $$2}' > temp1
-	@egrep '^{' describe_mon.c | awk -F\" '{print $$2}' > temp2
-	@echo Monster name problems present:
-	@diff -c1 temp1 temp2
+#
+# Hack -- some file dependencies
+#
 
-query:
-	@echo "Monsters.c:"
-	egrep '^{"' monsters.c | wc -l
-	@echo "Describe_Mon.c:"
-	egrep '^{"' describe_mon.c | wc -l
+HDRS = \
+  h-basic.h \
+  h-define.h h-type.h h-system.h h-config.h
 
-create.o: constant.h types.h externs.h config.h
-creature.o: constant.h types.h externs.h config.h monster.h
-death.o: constant.h types.h externs.h config.h
-desc.o: constant.h types.h externs.h config.h
-dungeon.o: constant.h types.h externs.h config.h
-eat.o: constant.h types.h externs.h config.h
-files.o: constant.h types.h externs.h config.h
-generate.o: constant.h types.h externs.h config.h
-help.o: constant.h types.h externs.h config.h monster.h
-io.o: constant.h types.h externs.h config.h
-magic.o: constant.h types.h externs.h config.h
-main.o: constant.h types.h externs.h config.h
-misc1.o: constant.h types.h externs.h config.h monster.h
-misc2.o: constant.h types.h externs.h config.h monster.h
-monsters.o: constant.h types.h config.h monster.h
-moria1.o: constant.h types.h externs.h config.h monster.h
-moria2.o: constant.h types.h externs.h config.h monster.h
-player.o: constant.h types.h config.h
-potions.o: constant.h types.h externs.h config.h
-prayer.o: constant.h types.h externs.h config.h monster.h
-recall.o: constant.h config.h types.h externs.h monster.h
-rnd.o: constant.h types.h
-save.o: constant.h types.h externs.h config.h
-scrolls.o: constant.h types.h externs.h config.h monster.h
-sets.o: constant.h config.h types.h
-signals.o: constant.h types.h externs.h config.h
-spells.o: constant.h types.h externs.h config.h monster.h
-staffs.o: constant.h types.h externs.h config.h monster.h
-store1.o: constant.h types.h externs.h config.h
-store2.o: constant.h types.h externs.h config.h
-tables.o: constant.h types.h config.h
-treasure.o: constant.h types.h config.h
-unix.o: constant.h config.h types.h externs.h
-variable.o: constant.h types.h config.h
-rods.o: constant.h types.h externs.h config.h monster.h
-wands.o: constant.h types.h externs.h config.h monster.h
-wizard.o: constant.h types.h externs.h config.h
-describe_mon.o: monster.h externs.h types.h
+INCS = \
+  angband.h \
+  config.h defines.h types.h externs.h \
+  z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+birth.o: birth.c $(INCS)
+cave.o: cave.c $(INCS)
+cmd1.o: cmd1.c $(INCS)
+cmd2.o: cmd2.c $(INCS)
+cmd3.o: cmd3.c $(INCS)
+cmd4.o: cmd4.c $(INCS)
+cmd5.o: cmd5.c $(INCS)
+cmd6.o: cmd6.c $(INCS)
+dungeon.o: dungeon.c $(INCS)
+files.o: files.c $(INCS)
+generate.o: generate.c $(INCS)
+init1.o: init1.c $(INCS)
+init2.o: init2.c $(INCS)
+load.o: load.c $(INCS)
+main-cap.o: main-cap.c $(INCS)
+main-gcu.o: main-gcu.c $(INCS)
+main-x11.o: main-x11.c $(INCS)
+main-xaw.o: main-xaw.c $(INCS)
+main.o: main.c $(INCS)
+melee1.o: melee1.c $(INCS)
+melee2.o: melee2.c $(INCS)
+monster1.o: monster1.c $(INCS)
+monster2.o: monster2.c $(INCS)
+object1.o: object1.c $(INCS)
+object2.o: object2.c $(INCS)
+save.o: save.c $(INCS)
+spells1.o: spells1.c $(INCS)
+spells2.o: spells2.c $(INCS)
+store.o: store.c $(INCS)
+bldg.o: bldg.c $(INCS)
+tables.o: tables.c $(INCS)
+util.o: util.c $(INCS)
+variable.o: variable.c $(INCS)
+wizard1.o: wizard1.c $(INCS)
+wizard2.o: wizard2.c $(INCS)
+xtra1.o: xtra1.c $(INCS)
+xtra2.o: xtra2.c $(INCS)
+z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
+z-rand.o: z-rand.c $(HDRS) z-rand.h
+z-term.o: z-term.c $(HDRS) z-term.h z-virt.h
+z-util.o: z-util.c $(HDRS) z-util.h
+z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
+

@@ -46,7 +46,7 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_TORCH);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
 
 	/* Forget lite/view */
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
@@ -174,7 +174,7 @@ void do_cmd_change_name(void)
 void do_cmd_message_one(void)
 {
 	/* Recall one message XXX XXX XXX */
-	prt(format("> %s", message_str(0)), 0, 0);
+	c_prt(message_prior(0), format("> %s", message_str(0)), 0, 0);
 }
 
 
@@ -233,13 +233,14 @@ void do_cmd_messages(void)
 		/* Dump up to 20 lines of messages */
 		for (j = 0; (j < 20) && (i + j < n); j++)
 		{
-			cptr msg = message_str(i+j);
+		  cptr msg = message_str(i+j);
+		  byte color = message_prior(i+j);
 
 			/* Apply horizontal scroll */
 			msg = (strlen(msg) >= q) ? (msg + q) : "";
 
 			/* Dump the messages, bottom to top */
-			Term_putstr(0, 21-j, -1, TERM_WHITE, msg);
+			Term_putstr(0, 21-j, -1, color, msg);
 
 			/* Hilite "shower" */
 			if (shower[0])
@@ -303,7 +304,7 @@ void do_cmd_messages(void)
 			prt("Show: ", 23, 0);
 
 			/* Get a "shower" string, or continue */
-			if (!askfor_aux(shower, 80)) continue;
+			if (!askfor_aux(shower, 80, FALSE)) continue;
 
 			/* Okay */
 			continue;
@@ -318,7 +319,7 @@ void do_cmd_messages(void)
 			prt("Find: ", 23, 0);
 
 			/* Get a "finder" string, or continue */
-			if (!askfor_aux(finder, 80)) continue;
+			if (!askfor_aux(finder, 80, FALSE)) continue;
 
 			/* Show it */
 			strcpy(shower, finder);
@@ -534,6 +535,8 @@ static void do_cmd_options_cheat(cptr info)
 			}
 		}
 	}
+
+	do_cmd_redraw();
 }
 
 
@@ -546,13 +549,13 @@ static void do_cmd_options_aux(int page, cptr info)
 
 	int i, k = 0, n = 0;
 
-	int opt[16];
+	int opt[20];
 
 	char buf[80];
 
 
 	/* Scan the options */
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < 20; i++)
 	{
 		/* Collect options on this "page" */
 		if (option_page[page][i] != 255)
@@ -841,7 +844,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Kangband options", 2, 0);
+		prt("Angband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -1215,7 +1218,7 @@ void do_cmd_macros(void)
 			sprintf(tmp, "user.prf");
 
 			/* Ask for a file */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor_aux(tmp, 70, FALSE)) continue;
 
 			/* Process the given filename */
 			(void)process_pref_file(tmp);
@@ -1236,7 +1239,7 @@ void do_cmd_macros(void)
 			sprintf(tmp, "user.prf");
 
 			/* Ask for a file */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor_aux(tmp, 70, FALSE)) continue;
 
 			/* Drop priv's */
 			safe_setuid_drop();
@@ -1261,7 +1264,7 @@ void do_cmd_macros(void)
 			tmp[80] = '\0';
 
 			/* Get an encoded action */
-			if (!askfor_aux(buf, 80)) continue;
+			if (!askfor_aux(buf, 80, FALSE)) continue;
 
 			/* Extract an action */
 			text_to_ascii(macro__buf, buf);
@@ -1283,7 +1286,7 @@ void do_cmd_macros(void)
 #endif
 
 			/* XXX XXX XXX */
-			msg_print("Command not ready.");
+			mprint(MSG_TEMP, "Command not ready.");
 		}
 
 		/* Create a command macro */
@@ -1302,7 +1305,7 @@ void do_cmd_macros(void)
 			macro_add(buf, macro__buf, TRUE);
 
 			/* Message */
-			msg_print("Created a new command macro.");
+			mprint(MSG_TEMP, "Created a new command macro.");
 		}
 
 		/* Create a normal macro */
@@ -1321,7 +1324,7 @@ void do_cmd_macros(void)
 			macro_add(buf, macro__buf, FALSE);
 
 			/* Message */
-			msg_print("Created a new normal macro.");
+			mprint(MSG_TEMP, "Created a new normal macro.");
 		}
 
 		/* Create an identity macro */
@@ -1340,7 +1343,7 @@ void do_cmd_macros(void)
 			macro_add(buf, buf, FALSE);
 
 			/* Message */
-			msg_print("Created a new identity macro.");
+			mprint(MSG_TEMP, "Created a new identity macro.");
 		}
 
 		/* Create an empty macro */
@@ -1359,7 +1362,7 @@ void do_cmd_macros(void)
 			macro_add(buf, "", FALSE);
 
 			/* Message */
-			msg_print("Created a new empty macro.");
+			mprint(MSG_TEMP, "Created a new empty macro.");
 		}
 
 		/* Define a keymap */
@@ -1387,7 +1390,7 @@ void do_cmd_macros(void)
 				keymap_dirs[k] = (isdigit(d) ? (d - '0') : keymap_dirs[d]);
 
 				/* Success */
-				msg_format("Keypress 0x%02x mapped to 0x%02x (direction %d)",
+				mformat(MSG_TEMP, "Keypress 0x%02x mapped to 0x%02x (direction %d)",
 				           k, keymap_cmds[k], keymap_dirs[k]);
 			}
 		}
@@ -1485,7 +1488,7 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "user.prf");
 
 			/* Query */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor_aux(tmp, 70, FALSE)) continue;
 
 			/* Process the given filename */
 			(void)process_pref_file(tmp);
@@ -1506,7 +1509,7 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "user.prf");
 
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor_aux(tmp, 70, FALSE)) continue;
 
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
@@ -1550,7 +1553,7 @@ void do_cmd_visuals(void)
 			my_fclose(fff);
 
 			/* Message */
-			msg_print("Dumped monster attr/chars.");
+			mprint(MSG_TEMP, "Dumped monster attr/chars.");
 		}
 
 		/* Dump object attr/chars */
@@ -1566,7 +1569,7 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "user.prf");
 
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor_aux(tmp, 70, FALSE)) continue;
 
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
@@ -1610,7 +1613,7 @@ void do_cmd_visuals(void)
 			my_fclose(fff);
 
 			/* Message */
-			msg_print("Dumped object attr/chars.");
+			mprint(MSG_TEMP, "Dumped object attr/chars.");
 		}
 
 		/* Dump feature attr/chars */
@@ -1626,7 +1629,7 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "user.prf");
 
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor_aux(tmp, 70, FALSE)) continue;
 
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
@@ -1670,7 +1673,7 @@ void do_cmd_visuals(void)
 			my_fclose(fff);
 
 			/* Message */
-			msg_print("Dumped feature attr/chars.");
+			mprint(MSG_TEMP, "Dumped feature attr/chars.");
 		}
 
 		/* Modify monster attr/chars */
@@ -1847,7 +1850,7 @@ void do_cmd_visuals(void)
 			reset_visuals(TRUE);
 
 			/* Message */
-			msg_print("Visual attr/char tables reset.");
+			mprint(MSG_TEMP, "Visual attr/char tables reset.");
 		}
 
 		/* Unknown option */
@@ -1932,7 +1935,7 @@ void do_cmd_colors(void)
 			sprintf(tmp, "user.prf");
 
 			/* Query */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor_aux(tmp, 70, FALSE)) continue;
 
 			/* Process the given filename */
 			(void)process_pref_file(tmp);
@@ -1959,7 +1962,7 @@ void do_cmd_colors(void)
 			sprintf(tmp, "user.prf");
 
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70)) continue;
+			if (!askfor_aux(tmp, 70, FALSE)) continue;
 
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
@@ -2011,7 +2014,7 @@ void do_cmd_colors(void)
 			my_fclose(fff);
 
 			/* Message */
-			msg_print("Dumped color redefinitions.");
+			mprint(MSG_TEMP, "Dumped color redefinitions.");
 		}
 
 		/* Edit colors */
@@ -2123,7 +2126,7 @@ void do_cmd_note(void)
 	if (!buf[0] || (buf[0] == ' ')) return;
 
 	/* Add the note to the message recall */
-	msg_format("Note: %s", buf);
+	mformat(MSG_WARNING, "Note: %s", buf);
 }
 
 
@@ -2133,8 +2136,8 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing Kangband %d.%d.%d.  Type '?' for more info.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	msg_format("You are playing Kamband %d.%d.  Type '?' for more info.",
+	           KAM_VERSION_MAJOR, KAM_VERSION_MINOR);
 }
 
 
@@ -2158,6 +2161,24 @@ static cptr do_cmd_feeling_text[11] =
 };
 
 
+/* 
+ * Array of pet feeling strings.
+ */
+
+static cptr do_cmd_pet_feeling_text[11] = {
+  "You sense a small friendly aura.",
+  "You sense a friendly aura.",
+  "You have a feeling of friendship.",
+  "You feel supported by your allies.",
+  "You feel a sense of true friendship.",
+  "You sense you are deeply respected.",
+  "You feel the adoration your followers.",
+  "You feel like a true leader.",
+  "You feel that your followers will do anything for you.",
+  "You feel as if you are in charge of this level."
+};
+
+
 /*
  * Note that "feeling" is set to zero unless some time has passed.
  * Note that this is done when the level is GENERATED, not entered.
@@ -2177,10 +2198,11 @@ void do_cmd_feeling(void)
 
 	/* Display the feeling */
 	msg_print(do_cmd_feeling_text[feeling]);
+	
+	if (pet_rating) {
+	  msg_print(do_cmd_pet_feeling_text[pet_rating-1]);
+	}
 }
-
-
-
 
 
 /*
@@ -2281,7 +2303,7 @@ void do_cmd_load_screen(void)
 
 
 	/* Message */
-	msg_print("Screen dump loaded.");
+	mprint(MSG_TEMP, "Screen dump loaded.");
 	msg_print(NULL);
 
 
@@ -2387,7 +2409,7 @@ void do_cmd_save_screen(void)
 
 
 	/* Message */
-	msg_print("Screen dump saved.");
+	mprint(MSG_TEMP, "Screen dump saved.");
 	msg_print(NULL);
 
 
@@ -2459,6 +2481,9 @@ static void do_cmd_knowledge_artifacts(void)
 				/* Acquire next object */
 				next_o_idx = o_ptr->next_o_idx;
 
+				/* Ignore random artifacts */
+				if (o_ptr->tval == TV_RANDART) continue;
+
 				/* Ignore non-artifacts */
 				if (!artifact_p(o_ptr)) continue;
 
@@ -2478,6 +2503,9 @@ static void do_cmd_knowledge_artifacts(void)
 
 		/* Ignore non-objects */
 		if (!o_ptr->k_idx) continue;
+
+		/* Ignore random artifacts */
+		if (o_ptr->tval == TV_RANDART) continue;
 
 		/* Ignore non-artifacts */
 		if (!artifact_p(o_ptr)) continue;
@@ -2647,6 +2675,142 @@ static void do_cmd_knowledge_objects(void)
 	fd_kill(file_name);
 }
 
+/*
+ * Display known recipes.
+ */
+
+static void do_cmd_knowledge_recipes(void) {
+  int k, i;
+  long mask;
+  FILE* fff;
+  char o_name[80];
+  char ingr_names[80];
+  char file_name[1024];
+  object_type tmp_obj;
+
+  if (path_temp(file_name, 1024)) return;
+
+  fff = my_fopen(file_name, "w");
+
+  ingr_names[0] = '\0';
+
+  for (k = 0; k < MAX_RECIPES; k++) {
+
+    /*
+      for (i = 0; i < MAX_RECIPES; i++) {
+      if (k != i) {
+      if (recipe_info[k].ingrs == recipe_info[i].ingrs &&
+      recipe_info[k].result_kind != 0) {
+      printf("Illegal mismatch: %d vs %d\n", recipe_info[k].result_kind,
+      recipe_info[i].result_kind);
+      }
+      }
+      }
+    */
+
+    if (recipe_recall[k]) {
+      mask = recipe_info[k].ingrs;
+
+      if (recipe_recall[k] == 1) {
+	/* Get resulting object description. */	
+
+	object_prep(&tmp_obj, recipe_info[k].result_kind);
+	object_desc_store(o_name, &tmp_obj, FALSE, 0);
+      } else {
+	strcpy(o_name, "Something");
+      }
+
+      for (i = 0; i < 16; i++) {
+	if (mask & (1L << i)) {
+	  strcat(ingr_names, ingr_short_names[i]);
+	  strcat(ingr_names, " ");
+	}
+      }
+
+      fprintf(fff, "  %s -- %s\n", o_name, ingr_names);
+      ingr_names[0] = '\0';
+    }
+  }
+  
+  my_fclose(fff);
+  
+  show_file(file_name, "Known Formulae", 0, 0);
+
+  fd_kill(file_name);
+}
+
+
+
+
+/*
+ * Display your mutations.
+ */
+
+static void do_cmd_knowledge_mutations(void) {
+  int i;
+  FILE* fff;
+  char file_name[1024];
+
+  if (path_temp(file_name, 1024)) return;
+
+  fff = my_fopen(file_name, "w");
+
+  for (i = 0; i < 32; i++) {
+    if (p_ptr->mutations1 & (1L << i)) {
+      fprintf(fff, "%s\n", mutation_names[i][0]);
+    }
+
+    if (p_ptr->mutations2 & (1L << i)) {
+      fprintf(fff, "%s\n", mutation_names[i+32][0]);
+    }
+
+    if (p_ptr->mutations3 & (1L << i)) {
+      fprintf(fff, "%s\n", mutation_names[i+64][0]);
+    }
+  }
+
+  my_fclose(fff);
+  
+  show_file(file_name, "Your mutations", 0, 0);
+
+  fd_kill(file_name);
+}
+
+
+/*
+ * Display completed quests.
+ */
+
+static void do_cmd_knowledge_quests(void) {
+  int i, q_stat;
+  FILE* fff;
+  char file_name[1024];
+
+  if (path_temp(file_name, 1024)) return;
+
+  fff = my_fopen(file_name, "w");
+
+  for (i = 0; i < max_quests; i++) {
+    q_stat = quest_status[i];
+
+    if (q_stat == QUEST_COMPLETED) {
+      fprintf(fff, "%15s: Completed\n", v_name + q_v_ptrs[i]->name);
+
+    } else if (q_stat == QUEST_IN_PROGRESS) {
+      fprintf(fff, "%15s: In progress\n", v_name + q_v_ptrs[i]->name);
+
+    } else if (q_stat == QUEST_ASSIGNED) {
+      fprintf(fff, "%15s: Assigned\n", v_name + q_v_ptrs[i]->name);
+    }
+  }
+
+  my_fclose(fff);
+  
+  show_file(file_name, "Your completed quests", 0, 0);
+
+  fd_kill(file_name);
+}
+
 
 /*
  * Interact with "knowledge"
@@ -2680,9 +2844,12 @@ void do_cmd_knowledge(void)
 		prt("(1) Display known artifacts", 4, 5);
 		prt("(2) Display known uniques", 5, 5);
 		prt("(3) Display known objects", 6, 5);
+		prt("(4) Display known formulae", 7, 5);
+		prt("(5) Display your mutations", 8, 5);
+		prt("(6) Display your quests", 9, 5);
 
 		/* Prompt */
-		prt("Command: ", 8, 0);
+		prt("Command: ", 11, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -2711,6 +2878,18 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_objects();
 		}
 
+		else if (i == '4') {
+		  do_cmd_knowledge_recipes();
+		}
+
+		else if (i == '5') {
+		  do_cmd_knowledge_mutations();
+		}
+
+		else if (i == '6') {
+		  do_cmd_knowledge_quests();
+		}
+
 		/* Unknown option */
 		else
 		{
@@ -2730,51 +2909,3 @@ void do_cmd_knowledge(void)
 }
 
 
-/*
- * Check on the status of an active quest -KMW-
- * TODO: Spill out status when not a simple kill # monster.
- */
-void do_cmd_checkquest(void)
-{
-	int i2, i,j;
-	char tmp_str[80];
-	char tmp_str2[80];
-	monster_race *r_ptr;
-	cptr name;
-
-	for (i2=QUEST_REWARD_HEAD;i2 < QUEST_REWARD_TAIL;i2++) {
-		i = i2 - QUEST_DIFF;
-		if (p_ptr->rewards[i] == 0) {
-			sprintf(tmp_str,"No current quest");
-			break;
-		} else if (p_ptr->rewards[i] == 1) {
-			j = i2 - QUEST_OFFSET1;
-			if ((q_list[j].quest_type == 1) ||
-			    (q_list[j].quest_type == 2)) 
-			{
-				r_ptr = &r_info[q_list[j].r_idx];
-				name = r_name + r_ptr->name;
-				sprintf(tmp_str,"Quest Status: Kill %d %s, have killed %d",
-				    q_list[j].max_num, name, q_list[j].cur_num);
-				break;
-			} else {
-				strcpy(tmp_str2,q_list[j].qname);
-				if (q_list[j].quest_type == 3)
-					sprintf(tmp_str,"%s - find object",tmp_str2);
-				else if (q_list[j].quest_type == 4)
-					sprintf(tmp_str,"%s - find exit",tmp_str2);
-				else if (q_list[j].quest_type == 5)
-					sprintf(tmp_str,"%s: Kill %d creatures, have killed %d",
-					    tmp_str2, q_list[j].num_mon, q_list[j].cur_num);
-				else if (q_list[j].quest_type == 6)
-					sprintf(tmp_str,"%s: Kill all monsters", tmp_str2);
-				break;
-			}
-		} else if (p_ptr->rewards[i] == 2) {
-			sprintf(tmp_str,"Current Quest Complete - Unrewarded");
-			break;
-		}
-	}
-	msg_print(tmp_str);
-	msg_print(NULL);
-}

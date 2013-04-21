@@ -1,0 +1,155 @@
+The Failed experiment is a common monster, 
+occuring at surface depths. 
+It is laughably weak, not one little bit dangerous, 
+and has no magical powers. 
+
+The Mutant clansman is a common monster, 
+occuring at surface depths. 
+He is laughably weak, not one little bit dangerous, 
+and has small magical powers. 
+
+The Mutant clanleader is a common monster, 
+occuring at surface depths. 
+He is laughably weak, not at all dangerous, 
+and has average magical powers. 
+
+The Mutant elder is a common monster, 
+occuring at very shallow depths. 
+He is extremely weak, just a little bit dangerous, 
+and has arcane magical powers. 
+
+The Novice beastmaster is a common monster, 
+occuring at surface depths. 
+He is laughably weak, not one little bit dangerous, 
+and has no magical powers. 
+
+The Beastmaster is a common monster, 
+occuring at somewhat shallow depths. 
+He is very weak, not one little bit dangerous, 
+and has an inkling of magical powers. 
+
+It is a unique monster, 
+occuring at somewhat shallow depths. 
+It is very strong, very dangerous, 
+and has hellishly powerful magical powers. 
+
+The Brain maggot is a common monster, 
+occuring at surface depths. 
+It is laughably weak, somewhat dangerous, 
+and has arcane magical powers. 
+
+The Ancestral spirit is a somewhat rare undead monster, 
+occuring at surface depths. 
+It is laughably weak, moderately dangerous, 
+and has no magical powers. 
+
+The Ancestral spirit is a somewhat rare undead monster, 
+occuring at very shallow depths. 
+It is laughably weak, moderately dangerous, 
+and has no magical powers. 
+
+The Ancestral spirit is a somewhat rare undead monster, 
+occuring at shallow-to-moderate depths. 
+It is laughably weak, moderately dangerous, 
+and has no magical powers. 
+
+The Ancestral spirit is a somewhat rare undead monster, 
+occuring at moderate-to-deep depths. 
+It is extremely weak, moderately dangerous, 
+and has no magical powers. 
+
+The Ancestral spirit is a somewhat rare undead monster, 
+occuring at extremely deep depths. 
+It is extremely weak, moderately dangerous, 
+and has no magical powers. 
+
+The Venus flytrap is a common monster, 
+occuring at very shallow depths. 
+It is very weak, somewhat dangerous, 
+and has no magical powers. 
+
+The Black Death is a unique monster, 
+occuring at surface depths. 
+He is somewhat weak, very dangerous, 
+and has no magical powers. 
+
+The Octopus is a common monster, 
+occuring at somewhat shallow depths. 
+It is strong, somewhat dangerous, 
+and has no magical powers. 
+
+The Brain mold is a common monster, 
+occuring at shallow depths. 
+It is moderatly strong, alarmingly dangerous, 
+and has no magical powers. 
+
+The Automaton is a common monster, 
+occuring at somewhat shallow depths. 
+It is laughably weak, moderately dangerous, 
+and has no magical powers. 
+
+The Thinking Machine is a common monster, 
+occuring at shallow depths. 
+It is very weak, moderately dangerous, 
+and has advanced magical powers. 
+
+The Rock fiend is a common monster, 
+occuring at very shallow depths. 
+It is laughably weak, somewhat dangerous, 
+and has no magical powers. 
+
+The Ent is a common monster, 
+occuring at very shallow depths. 
+It is somewhat weak, not one little bit dangerous, 
+and has no magical powers. 
+
+The Red Death is a common undead monster, 
+occuring at surface depths. 
+It is extremely weak, moderately dangerous, 
+and has an inkling of magical powers. 
+
+The Warlock is a unique monster, 
+occuring at somewhat shallow depths. 
+He is very weak, just a small bit dangerous, 
+and has hellishly powerful magical powers. 
+
+The Slugoid is a common monster, 
+occuring at somewhat shallow depths. 
+It is laughably weak, somewhat dangerous, 
+and has no magical powers. 
+
+The Tapeworm is a common animal, 
+occuring at very shallow depths. 
+It is laughably weak, moderately dangerous, 
+and has no magical powers. 
+
+The Stalker is a common animal, 
+occuring at shallow depths. 
+It is moderatly strong, just a little bit dangerous, 
+and has unremarkable magical powers. 
+
+The Python is a somewhat rare animal, 
+occuring at very shallow depths. 
+It is very weak, not one little bit dangerous, 
+and has no magical powers. 
+
+Demoniac is a unique monster, 
+occuring at shallow depths. 
+He is unimaginably strong, moderately dangerous, 
+and has no magical powers. 
+
+The Landshark is a somewhat rare animal, 
+occuring at shallow depths. 
+It is alarmingly strong, not one little bit dangerous, 
+and has no magical powers. 
+
+The Fungusoid is a common monster, 
+occuring at very shallow depths. 
+It is laughably weak, somewhat dangerous, 
+and has no magical powers. 
+
+The Bone dragon is a somewhat rare undead monster, 
+occuring at shallow depths. 
+It is hellishly strong, somewhat dangerous, 
+and has no magical powers. 
+

@@ -108,6 +108,8 @@ static void roff_aux(int r_idx, int remem)
 	bool old = FALSE;
 	bool sin = FALSE;
 
+	bool god_liked, god_hated;
+
 	int m, n, r;
 
 	cptr p, q;
@@ -123,6 +125,7 @@ static void roff_aux(int r_idx, int remem)
 	u32b flags4;
 	u32b flags5;
 	u32b flags6;
+	u32b flags7;
 
 	int vn = 0;
 	cptr vp[64];
@@ -147,10 +150,13 @@ static void roff_aux(int r_idx, int remem)
 
 #endif
 
-
 	/* Access the race and lore */
 	r_ptr = &r_info[r_idx];
 
+	/* Find out religious info. */
+	god_liked = sacred_monster(r_ptr);
+	god_hated = despised_monster(r_ptr);
+	
 
 	/* Cheat -- know everything */
 	if (cheat_know)
@@ -201,6 +207,7 @@ static void roff_aux(int r_idx, int remem)
 		r_ptr->r_flags4 = r_ptr->flags4;
 		r_ptr->r_flags5 = r_ptr->flags5;
 		r_ptr->r_flags6 = r_ptr->flags6;
+		r_ptr->r_flags7 = r_ptr->flags7;
 	}
 
 
@@ -216,6 +223,7 @@ static void roff_aux(int r_idx, int remem)
 	flags4 = (r_ptr->flags4 & r_ptr->r_flags4);
 	flags5 = (r_ptr->flags5 & r_ptr->r_flags5);
 	flags6 = (r_ptr->flags6 & r_ptr->r_flags6);
+	flags7 = (r_ptr->flags7 & r_ptr->r_flags7);
 
 
 	/* Assume some "obvious" flags */
@@ -567,6 +575,13 @@ static void roff_aux(int r_idx, int remem)
 			j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
 			      (long)1000 / p_ptr->lev + 5) / 10);
 
+
+			/* Hack -- Give triple exp for hated monsters. */
+
+			if (god_hated) {
+			  i *= 3;
+			}
+
 			/* Mention the experience */
 			roff(format(" is worth %ld.%02ld point%s",
 			            (long)i, (long)j,
@@ -663,9 +678,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags4 & (RF4_BR_PLAS))		vp[vn++] = "plasma";
 	if (flags4 & (RF4_BR_WALL))		vp[vn++] = "force";
 	if (flags4 & (RF4_BR_MANA))		vp[vn++] = "mana";
-	if (flags4 & (RF4_XXX5))		vp[vn++] = "something";
-	if (flags4 & (RF4_XXX6))		vp[vn++] = "something";
-	if (flags4 & (RF4_XXX7))		vp[vn++] = "something";
+	if (flags4 & (RF4_BR_QUAKE)) vp[vn++] = "space-time distortion";
 	if (flags4 & (RF4_XXX8))		vp[vn++] = "something";
 
 	/* Describe breaths */
@@ -742,7 +755,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
 	if (flags6 & (RF6_XXX6))		vp[vn++] = "do something";
 	if (flags6 & (RF6_XXX7))		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX8))		vp[vn++] = "do something";
+	if (flags6 & (RF6_S_GOOD_UNIQUE)) vp[vn++] = "summon lawful Unique Beings";
 	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";
 	if (flags6 & (RF6_S_MONSTERS))	vp[vn++] = "summon monsters";
 	if (flags6 & (RF6_S_ANT))		vp[vn++] = "summon ants";
@@ -903,6 +916,46 @@ static void roff_aux(int r_idx, int remem)
 	if (flags2 & (RF2_REGENERATE))
 	{
 		roff(format("%^s regenerates quickly.  ", wd_he[msex]));
+	}
+
+	/* Collect weapon resistances. */
+	vn = 0;
+	if (flags7 & RF7_RES_BASH) vp[vn++] = "hafted weapons";
+	if (flags7 & RF7_RES_STAB) vp[vn++] = "polearms";
+	if (flags7 & RF7_RES_SLASH) vp[vn++] = "slashing weapons";
+
+	if (vn) {
+	  roff(format("%^s", wd_he[msex]));
+
+	  for (n = 0; n < vn; n++) {
+	    if (n == 0) roff(" is protected against ");
+	    else if (n < vn-1) roff(", ");
+	    else roff(" and ");
+
+	    roff(vp[n]);
+	  }
+
+	  roff(".  ");
+	}
+
+	/* Collect weapon immunities. */
+	vn = 0;
+	if (flags7 & RF7_IMM_BASH) vp[vn++] = "hafted weapons";
+	if (flags7 & RF7_IMM_STAB) vp[vn++] = "polearms";
+	if (flags7 & RF7_IMM_SLASH) vp[vn++] = "slashing weapons";
+
+	if (vn) {
+	  roff(format("%^s", wd_he[msex]));
+
+	  for (n = 0; n < vn; n++) {
+	    if (n == 0) roff(" is unhurt by ");
+	    else if (n < vn-1) roff(", ");
+	    else roff(" and ");
+
+	    roff(vp[n]);
+	  }
+
+	  roff(".  ");
 	}
 
 
@@ -1216,7 +1269,7 @@ static void roff_aux(int r_idx, int remem)
 			case RBM_CLAW:	p = "claw"; break;
 			case RBM_BITE:	p = "bite"; break;
 			case RBM_STING:	p = "sting"; break;
-			case RBM_XXX1:	break;
+			case RBM_RIDDLE:p = "speak in riddles";	break;
 			case RBM_BUTT:	p = "butt"; break;
 			case RBM_CRUSH:	p = "crush"; break;
 			case RBM_ENGULF:	p = "engulf"; break;
@@ -1231,8 +1284,9 @@ static void roff_aux(int r_idx, int remem)
 			case RBM_XXX4:	break;
 			case RBM_BEG:	p = "beg"; break;
 			case RBM_INSULT:	p = "insult"; break;
-			case RBM_MOAN:	p = "moan"; break;
-			case RBM_XXX5:	break;
+		case RBM_DISGUST: p = "be disgusting"; break;
+		case RBM_PROJECT: p = "project mental images"; break;
+		case RBM_HALT:	p = "shout ``Halt'' alot"; break;
 		}
 
 
@@ -1270,6 +1324,7 @@ static void roff_aux(int r_idx, int remem)
 			case RBE_EXP_20:	q = "lower experience (by 20d6+)"; break;
 			case RBE_EXP_40:	q = "lower experience (by 40d6+)"; break;
 			case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
+		case RBE_INSANITY: q = "cause insanity"; break;
 		}
 
 
@@ -1341,6 +1396,27 @@ static void roff_aux(int r_idx, int remem)
 		roff("You feel an intense desire to kill this monster...  ");
 	}
 
+	/* Monster is innocent. */
+	if (r_ptr->flags2 & (RF2_INNOCENT)) {
+	  roff(format("%^s is protected by law. ", wd_he[msex]));
+	}
+
+	/* Monster is an insta-pet */
+	if (r_ptr->flags2 & (RF2_INSTAPET)) {
+	  roff(format("%^s is your faithfull ally. ", wd_he[msex]));
+	}
+
+	if (r_ptr->flags3 & RF3_FRIENDLY) {
+	  roff(format("%^s has a friendly disposition. ", wd_he[msex]));
+	}
+
+	if (god_liked) {
+	  roff(format("%^s is sacred to your religion. ", wd_he[msex]));
+	}
+
+	if (god_hated) {
+	  roff(format("%^s is despised by your religion. ", wd_he[msex]));
+	}
 
 	/* All done */
 	roff("\n");

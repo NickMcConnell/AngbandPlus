@@ -1,0 +1,27 @@
+
+			Introductory Theology
+			---------------------
+
+Herein is presented a carefully compiled list of benefits for entry-level
+disciples of the 16 elemental Gods controlling the pits of Angband:
+
+Chernobog, the God of Night -- Resistance to cold and dark.
+Belobog, the God of Day     -- Resistance to light and confusion.
+Melkor, the God of Shadow   -- Immateriality, and resistance to blindness,
+                               fear, and life drain.
+Svarog, the God of Fire     -- Resistance to fire and sustained dexterity.
+Chthon, the God of Blood    -- Resistance to poisons and life drain.
+Mokosh, the God of Nature   -- Telepathy.
+Naunet, the God of Water    -- Slow digestion.
+Voltumna, the God of Stone  -- Feather-falling.
+Shaitan, the God of Evil    -- Resistance to life drain, sustained strength
+                               and constitution, and aggravation.
+Amon-Ras, the God of Good   -- See invisible.
+Apep, the God of Chaos      -- Resistance to chaos, and regeneration.
+Radogast, the God of Sun    -- Holy aura of light.
+Herovit, the God of Rage    -- Permanent heroism.
+Veles, the God of Beasts    -- Telepathy, free action, see invisible.
+Stribog, the God of Winds   -- Free action, sustain dexterity, resist sound.
+Chenti, the God of Spheres  -- Sustain wisdom and intelligence, 
+                               communication with the living rock.
+

@@ -55,7 +55,7 @@ extern s16b error_line;
  * Hack -- size of the "fake" arrays
  */
 extern u16b fake_name_size;
-extern u16b fake_text_size;
+extern u32b fake_text_size;
 
 
 
@@ -74,7 +74,7 @@ static cptr r_info_blow_method[] =
 	"CLAW",
 	"BITE",
 	"STING",
-	"XXX1",
+	"RIDDLE",
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
@@ -89,8 +89,10 @@ static cptr r_info_blow_method[] =
 	"XXX4",
 	"BEG",
 	"INSULT",
-	"MOAN",
 	"XXX5",
+	"HALT",
+	"DISGUST",
+	"PROJECT",
 	NULL
 };
 
@@ -129,6 +131,7 @@ static cptr r_info_blow_effect[] =
 	"EXP_20",
 	"EXP_40",
 	"EXP_80",
+	"INSANITY",
 	NULL
 };
 
@@ -180,14 +183,14 @@ static cptr r_info_flags2[] =
 	"STUPID",
 	"SMART",
 	"QUESTOR2", /* -KMW- */
-	"XXX2X2",
+	"INNOCENT",
 	"INVISIBLE",
 	"COLD_BLOOD",
 	"EMPTY_MIND",
 	"WEIRD_MIND",
 	"MULTIPLY",
 	"REGENERATE",
-	"XXX3X2",
+	"INSTAPET",
 	"DEEPLAVA", /* -KMW- */
 	"POWERFUL",
 	"SWIM", /* -KMW- */
@@ -224,9 +227,9 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"XXX1X3",
-	"XXX2X3",
-	"XXX3X3",
+	"RANDOM_NAME",
+	"FRIENDLY",
+	"SILENT",
 	"XXX4X3",
 	"HURT_LITE",
 	"HURT_ROCK",
@@ -237,7 +240,7 @@ static cptr r_info_flags3[] =
 	"IM_FIRE",
 	"IM_COLD",
 	"IM_POIS",
-	"XXX5X3",
+	"STAR_GOOD",
 	"RES_NETH",
 	"RES_WATE",
 	"RES_PLAS",
@@ -283,7 +286,7 @@ static cptr r_info_flags4[] =
 	"BR_PLAS",
 	"BR_WALL",
 	"BR_MANA",
-	"XXX5X4",
+	"BR_QUAKE",
 	"XXX6X4",
 	"XXX7X4",
 	"XXX8X4"
@@ -350,7 +353,7 @@ static cptr r_info_flags6[] =
 	"FORGET",
 	"XXX6X6",
 	"XXX7X6",
-	"XXX8X6",
+	"S_GOOD_UNIQUE",
 	"S_MONSTER",
 	"S_MONSTERS",
 	"S_ANT",
@@ -365,6 +368,46 @@ static cptr r_info_flags6[] =
 	"S_HI_DRAGON",
 	"S_WRAITH",
 	"S_UNIQUE"
+};
+
+
+/*
+ * Monster race flags
+ */
+static cptr r_info_flags7[] =
+{
+	"RES_STAB",
+	"IMM_STAB",
+	"RES_SLASH",
+	"IMM_SLASH",
+	"RES_BASH",
+	"IMM_BASH",
+	"ENDGAME",
+	"XXX8X7",
+	"XXX9X7",
+	"XXX10X7",
+	"XXX11X7",
+	"XXX12X7",
+	"XXX13X7",
+	"XXX14X7",
+	"XXX15X7",
+	"XXX16X7",
+	"XXX17X7",
+	"XXX18X7",
+	"XXX19X7"
+	"XXX20X7",
+	"XXX21X7",
+	"XXX22X7",
+	"XXX23X7",
+	"XXX24X7",
+	"XXX25X7",
+	"XXX26X7",
+	"XXX27X7",
+	"XXX28X7",
+	"XXX29X7",
+	"XXX30X7",
+	"XXX31X7",
+	"XXX32X7"
 };
 
 
@@ -460,8 +503,8 @@ static cptr k_info_flags3[] =
 	"FREE_ACT",
 	"HOLD_LIFE",
 	"QUESTITEM", /* -KMW- */
-	"XXX2",
-	"XXX3",
+	"MUNCHKINISH",
+	"WEIRD_ATTACK",
 	"XXX4",
 	"IMPACT",
 	"TELEPORT",
@@ -471,8 +514,8 @@ static cptr k_info_flags3[] =
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"XXX5",
-	"XXX6",
+	"FLYING",
+	"VAMPIRIC",
 	"BLESSED",
 	"ACTIVATE",
 	"INSTA_ART",
@@ -483,6 +526,190 @@ static cptr k_info_flags3[] =
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
+};
+
+
+/*
+ * Spellbooks.
+ */
+
+static cptr s_info_books[] = {
+  "MAGE",
+  "PRIEST",
+  "ILLUSIONIST",
+  "ROGUE",
+  "RANGER",
+  NULL
+};
+
+
+/*
+ * Flags to ``project''.
+ */
+
+static cptr s_info_flags[32] = {
+  "KILL",
+  "ITEM",
+  "GRID",
+
+  "STOP",
+  "BEAM",
+
+  "ETHER",
+
+  "VIEWABLE",
+  "METEOR_SHOWER",
+  "PLAYER",
+  "BLAST",
+
+  "PANEL",
+  "ALL",
+  "GENOCIDE",
+  "XXX5",
+  "XXX6",
+  "XXX7",
+  "XXX8",
+  "XXX9",
+  "XXX10",
+  "XXX11",
+  "XXX12",
+  "XXX13",
+  "XXX14",
+  "XXX15",
+  "XXX16",
+  "XXX17",
+  "XXX18",
+  "XXX19",
+  "XXX20",
+  "XXX21",
+  "XXX22",
+  "XXX23"
+};
+
+
+/*
+ * Spell attack types. (i.e. GF_FOO)
+ */
+
+static cptr s_info_attack_types[] = {
+  "",
+  "XXX1",
+  "ARROW",
+  "MISSILE",
+  "MANA",
+  "HOLY_ORB",
+  "LITE_WEAK",
+  "DARK_WEAK",
+  "WATER",
+  "PLASMA",
+  "METEOR",
+  "ICE",
+  "GRAVITY",
+  "INERTIA",
+  "FORCE",
+  "TIME",
+  "ACID",
+  "ELEC",
+  "FIRE",
+  "COLD",
+  "POIS",
+  "XXX2",
+  "LITE",
+  "DARK",
+  "XXX3",
+  "CONFUSION",
+  "SOUND",
+  "SHARD",
+  "NEXUS",
+  "NETHER",
+  "CHAOS",
+  "DISENCHANT",
+  "XXX4",
+  "KILL_WALL",
+  "KILL_DOOR",
+  "KILL_TRAP",
+  "MAKE_WALL",
+  "MAKE_DOOR",
+  "MAKE_TRAP",
+  "MAKE_GLYPH",
+  "MAKE_STAIR",
+  "AWAY_UNDEAD",
+  "AWAY_EVIL",
+  "AWAY_ALL",
+  "TURN_UNDEAD",
+  "TURN_EVIL",
+  "TURN_ALL",
+  "DISP_UNDEAD",
+  "DISP_EVIL",
+  "DISP_ALL",
+  "WORD_OF_DESTRUCTION",
+  "CLONE",
+  "POLY",
+  "HEAL",
+  "SPEED",
+  "SLOW",
+  "CONF",
+  "SLEEP",
+  "DRAIN",
+  "QUAKE",
+  "WALL_TO_CHAOS",
+  "MIND_BLAST",
+  "BRAIN_SMASH",
+  "CHAOS_DESTRUCTION",
+  "EARTHQUAKE",
+
+  "AWAY_ALL_VERT",
+  "RECALL",
+  "ALTER",
+  "DETECT_DOOR",
+  "DETECT_TRAP",
+  "DETECT_STAIR",
+  "DETECT_TREASURE",
+  "DETECT_GOLD",
+  "DETECT_OBJECT",
+  "DETECT_MAGIC",
+  "DETECT_MONSTER",
+  "DETECT_INVIS",
+  "DETECT_EVIL",
+  "DETECT_ANY",
+  "HEAL_INSANITY",
+  "HEAL_FEAR",
+  "HEAL_CUT",
+  "HEAL_STUN",
+  "HEAL_POISON",
+  "HEAL_DEX",
+  "HEAL_CHR",
+  "HEAL_STR",
+  "HEAL_CON",
+  "HEAL_WIS",
+  "HEAL_INT",
+  "HEAL_LIFE",
+  "SHIELD",
+  "HEROISM",
+  "BLESS",
+  "FOOD",
+  "UNCURSE",
+  "RECHARGE",
+  "HEAVY_UNCURSE",
+  "IDENT",
+  "HEAVY_IDENT",
+  "SUPER_IDENT",
+  "RES_FIRE",
+  "RES_COLD",
+  "RES_ELEC",
+  "RES_ACID",
+  "RES_POIS",
+  "GENOCIDE",
+  "MASS_GENOCIDE",
+  "ENCHANT_TO_HIT",
+  "ENCHANT_TO_DAM",
+  "ENCHANT_AC",
+  "BRAND_AMMO",
+  "BRAND_WEAPON",
+  "MAKE_MONSTER",
+  "MAKE_PET",
+  "HEAL_CONF",
+  NULL
 };
 
 
@@ -535,7 +762,6 @@ errr init_v_info_txt(FILE *fp, char *buf)
 
 	/* Current entry */
 	vault_type *v_ptr = NULL;
-
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -634,36 +860,90 @@ errr init_v_info_txt(FILE *fp, char *buf)
 		if (!v_ptr) return (3);
 
 		/* Process monster, item and level info for special levels */
-		if (buf[0] == 'Y')
-		{
 
-			int mon1,mon2,mon3,mon4,mon5,mon6,mon7,mon8,mon9;
-			int mon10,item1,item2,item3,item4,item5;
+		if (buf[0] == 'Y') {
+		  int i;
+		  char* foo = buf+2;
+		  char* bar;
 
-			/* Scan for the values */
-		if (15 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-			    &mon1, &mon2, &mon3, &mon4, &mon5, &mon6, &mon7, &mon8,
-			    &mon9, &mon10,&item1,&item2,&item3,&item4, &item5)) return (1);
+		  /* Fetch up to ten monster indexes */
 
-			/* Save the values */
-			v_ptr->mon1 = mon1;
-			v_ptr->mon2 = mon2;
-			v_ptr->mon3 = mon3;
-			v_ptr->mon4 = mon4;
-			v_ptr->mon5 = mon5;
-			v_ptr->mon6 = mon6;
-			v_ptr->mon7 = mon7;
-			v_ptr->mon8 = mon8;
-			v_ptr->mon9 = mon9;
-			v_ptr->mon10 = mon10;
-			v_ptr->item1 = item1;
-			v_ptr->item2 = item2;
-			v_ptr->item3 = item3;
-			v_ptr->item4 = item4;
-			v_ptr->item5 = item5;
+		  for (i = 0; i < 10; i++) {
+		    bar = strchr(foo, ':');
 
-			/* Next... */
-			continue;
+		    if (bar == NULL) {
+		      v_ptr->mon[i] = atoi(foo);
+		      break;
+		    }
+
+		    bar[0] = '\0';
+		    v_ptr->mon[i] = atoi(foo);
+		    foo = bar+1;
+		  }
+
+		  /* Next... */
+		  continue;
+		}
+
+		/* Get some artifact indexes */
+
+		if (buf[0] == 'Z') {
+		  int i;
+		  char* foo = buf+2;
+		  char* bar;
+
+		  /* Fetch up to ten monster indexes */
+
+		  for (i = 0; i < 5; i++) {
+		    bar = strchr(foo, ':');
+
+		    if (bar == NULL) {
+		      v_ptr->item[i] = atoi(foo);
+		      break;
+		    }
+
+		    bar[0] = '\0';
+		    v_ptr->item[i] = atoi(foo);
+		    foo = bar+1;
+		  }
+
+		  /* Next */
+		  continue;
+		}
+
+
+		/* Get the quest info */
+
+		if (buf[0] == 'Q') {
+		  int foo, bar;
+
+		  if (2 != sscanf(buf+2, "%d:%d", &foo, &bar)) return (1);
+
+		  v_ptr->q_idx = foo;
+		  v_ptr->q_type = bar;
+		  continue;
+		}
+
+		/* Get quest text */
+
+		if (buf[0] == 'U') {
+		  s = buf+2;
+
+		  /* Verify space */
+		  if (v_head->text2_size + strlen(s) + 8 > fake_text_size)
+		    return (7);
+
+		  /* Advance and save the text index */
+		  if (!v_ptr->q_text) v_ptr->q_text = ++v_head->text2_size;
+
+		  /* Append to the name */
+		  strcpy(q_text + v_head->text2_size, s);
+
+		  /* Advance the index */
+		  v_head->text2_size += strlen(s);
+
+		  /* Next */
+		  continue;
 		}
 
 		/* Process 'D' for "Description" */
@@ -928,122 +1208,6 @@ errr init_f_info_txt(FILE *fp, char *buf)
 	/* Success */
 	return (0);
 }
-
-
-/*
- * Initialize the "q_info" array, by parsing an ascii "template" file
- * -KMW-
- */
-errr init_q_info_txt(FILE *fp, char *buf)
-{
-	int i;
-	int qidx;
-
-	char *s;
-
-	/* Just before the first record */
-	error_idx = -1;
-
-	/* Just before the first line */
-	error_line = -1;
-
-	qidx = 0;
-
-	/* Parse */
-	while (0 == my_fgets(fp, buf, 1024))
-	{
-		/* Advance the line number */
-		error_line++;
-
-		/* Skip comments and blank lines */
-		if (!buf[0] || (buf[0] == '#')) continue;
-
-		/* Verify correct "colon" format */
-		if ((buf[1] != ':') && (buf[0] != 'T')) return (1);
-		if ((buf[0] == 'T') && (buf[2] != ':')) return (1);
-
-		/* Process 'N' for "New/Number/Name" */
-		if (buf[0] == 'N')
-		{
-			/* Find the colon before the name */
-			s = strchr(buf+2, ':');
-
-			/* Verify that colon */
-			if (!s) return (1);
-
-			/* Nuke the colon, advance to the name */
-			*s++ = '\0';
-
-			/* Get the index */
-			i = atoi(buf+2);
-
-			/* Point at the "info" */
-			qidx = i - QUEST_OFFSET1;
-			strcpy(q_list[qidx].qname,s);
-
-			/* Next... */
-			continue;
-		}
-
-		/* Process 'T#' for "Quest Description" */
-		if (buf[0] == 'T')
-		{
-			/* Acquire the text */
-			s = buf+3;
-
-			if (buf[1] == '1')
-				strcpy(q_list[qidx].qtext1,s);
-			else if (buf[1] == '2')
-				strcpy(q_list[qidx].qtext2,s);
-			else if (buf[1] == '3')
-				strcpy(q_list[qidx].qtext3,s);
-			else if (buf[1] == '4')
-				strcpy(q_list[qidx].qtext4,s);
-			else if (buf[1] == '5')
-				strcpy(q_list[qidx].qtext5,s);
-			else if (buf[1] == '6')
-				strcpy(q_list[qidx].qtext6,s);
-			else if (buf[1] == '7')
-				strcpy(q_list[qidx].qtext7,s);
-			else if (buf[1] == '8')
-				strcpy(q_list[qidx].qtext8,s);
-			else if (buf[1] == '9')
-				strcpy(q_list[qidx].qtext9,s);
-
-			continue;
-		}
-
-		/* Process 'Q' for Quest Details -KMW- */
-		if (buf[0] == 'Q')
-		{
-			int qtyp, nm, cn, mn, lv, ri, ii, qy, qx, qrd, vn;
-
-			/* Scan for the values */
-			if (11 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-			    &qtyp, &nm, &cn, &mn, &lv, &ri, &ii, &qy, &qx, &qrd, &vn)) return (1);
-
-			/* Save the values */
-			q_list[qidx].quest_type = qtyp;
-			q_list[qidx].num_mon = nm;
-			q_list[qidx].cur_num = cn;
-			q_list[qidx].max_num = mn;
-			q_list[qidx].level = lv;
-			q_list[qidx].r_idx = ri;
-			q_list[qidx].k_idx = ii;
-			q_list[qidx].questy = qy;
-			q_list[qidx].questx = qx;
-			q_list[qidx].roadneed = qrd;
-			q_list[qidx].vaultused = vn;
-
-			continue;
-		}
-
-	}
-
-	/* Success */
-	return (0);
-}
-
 
 
 /*
@@ -2016,6 +2180,15 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 		}
 	}
 
+
+	/* Scan flags7 */
+	for (i = 0; i < 32; i++) {
+	  if (streq(what, r_info_flags7[i])) {
+	    r_ptr->flags7 |= (1L << i);
+	    return (0);
+	  }
+	}
+
 	/* Oops */
 	msg_format("Unknown monster flag '%s'.", what);
 
@@ -2085,7 +2258,6 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 	/* Current entry */
 	monster_race *r_ptr = NULL;
-
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -2185,6 +2357,42 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		/* There better be a current r_ptr */
 		if (!r_ptr) return (3);
 
+		/* Process 'Y' for speech. */
+		if (buf[0] == 'Y') {
+		  int foo;
+
+		  if (1 != sscanf(buf+2, "%d", &foo)) {
+		    return 1;
+		  }
+
+		  r_ptr->sayings_inx = foo;
+		  
+		  continue;
+		}
+		    
+		
+		/* Process 'X' for speech. */
+		if (buf[0] == 'X') {
+		  /* Acquire it. */
+		  s = buf+2;
+
+		  /* Checking */
+		  if (r_head->text2_size + strlen(s) + 8 > fake_text_size)
+		    return (7);
+
+		  /* Save the text index. */
+		  if (!r_ptr->sayings)
+		    r_ptr->sayings = ++r_head->text2_size;
+
+		  r_ptr->num_sayings++;
+
+		  /* Save the string. */
+		  strcpy(sayings_text + r_head->text2_size, s);
+		  r_head->text2_size += (strlen(s) + 1);
+
+		  /* Next */
+		  continue;
+		}
 
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
@@ -2409,7 +2617,6 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		return (6);
 	}
 
-
 	/* Complete the "name" and "text" sizes */
 	++r_head->name_size;
 	++r_head->text_size;
@@ -2458,6 +2665,285 @@ errr init_r_info_txt(FILE *fp, char *buf)
 }
 
 
+
+
+/*
+ * Initialize the spell array. Note that this function is very different 
+ * from the others:
+ * a) No .raw file is made.
+ * b) There is no s_info array.
+ * c) It is only called when a new character is created.
+ * d) Only selected entries in s_info.txt are parsed.
+ */
+
+/*
+ * Note that this fn. is supposed to be equivalent to ``strsep''. 
+ */
+
+static char* grab_token(char** line, char delim) {
+  char* ret = *line;
+
+  while (**line) {
+    if ((**line) == delim) {
+      (**line) = '\0';
+      (*line)++;
+      return ret;
+    }
+    (*line)++;
+  }
+  return ret;
+}
+  
+static int grab_number(char* line, cptr arr[]) {
+  int i;
+
+  for (i = 0; arr[i] != NULL; i++) {
+    if (strcmp(line, arr[i]) == 0) return i;
+  }
+  return -1;
+}
+
+static errr grab_one_proj_flag(proj_node* node, cptr what) {
+  int i = 0;
+  int j = 0;
+  char buf[80];
+
+  /* Remove whitespace */
+  while (what[i]) {
+    if (!isspace(what[i])) {
+      buf[j] = what[i];
+      j++;
+    }
+
+    i++;
+  }
+
+  buf[j] = '\0';
+
+  /* Check flags */
+  for (i = 0; i < 32; i++) {
+    if (streq(buf, s_info_flags[i])) {
+      node->proj_flags |= (1L << i);
+      return (1);
+    }
+  }
+
+  /* Error */
+  return (0);
+}
+
+static void s_info_error(int line, cptr name, char* buf) {
+  msg_format("Error on line %d of 's_info.txt'.", line);
+  msg_format("'%s' when parsing '%s'.", name, buf);
+  msg_print(NULL);
+
+  quit("Error in 's_info.txt' file.");
+}
+
+
+/**********************/
+
+void init_s_info_txt(byte sbook) {
+  char buf[1024];
+  int line_number = 0;
+  FILE* fp;
+
+  char* token;
+  char* line;
+
+  char foo;
+
+  spell* s_ptr = NULL;
+
+  /* Hack -- current node for the ``F'' parameter. */
+  proj_node* flag_node = NULL;
+  proj_node* flag_node_prev = NULL;
+
+  /* Hack -- current node for the ``T'' parameter. */
+  proj_node* type_node = NULL;
+  proj_node* type_node_prev = NULL;
+
+  /* Build the filename */
+  path_build(buf, 1024, ANGBAND_DIR_EDIT, "s_info.txt");
+
+  /* Open the file */
+  fp = my_fopen(buf, "r");
+
+  if (!fp) quit("Cannot open 's_info.txt' file.");
+
+
+  while (0 == my_fgets(fp, buf, 1024)) {
+    line_number++;
+    line = buf;
+
+    /* Skip whitespace/comments. */
+    if (!buf[0] || buf[0] == '#') continue;
+
+    /* First token */
+    foo = grab_token(&line, ':')[0];
+
+    if (foo == 'V') continue;
+
+    /* Process 'N' -- New spell. */
+    if (foo == 'N') {
+      int book, index;
+
+      token = grab_token(&line, ':');
+      if (line[0] == '\0') s_info_error(line_number, "No spell index", buf);
+      book = grab_number(token, s_info_books);
+
+      /* No such book */
+      if (book < 0) {
+	char tmp[80];
+
+	sprintf(tmp, "No such book -- %s", token);
+	s_info_error(line_number, tmp, buf);
+      }
+      
+      /* Wrong book. */
+      if (book != sbook) {
+	s_ptr = NULL;
+	continue;
+      }
+
+      token = grab_token(&line, ':');
+      if (line[0] == '\0') s_info_error(line_number, "No spell name", buf);
+      index = atoi(token);
+
+      s_ptr = &spells[index];
+
+      strncpy(s_ptr->name, line, 29);
+
+      /* Safety net. */
+      s_ptr->name[29] = '\0';
+
+      s_ptr->unknown = TRUE;
+      s_ptr->untried = TRUE;
+
+      /* Ugly, ugly hack -- remove the last node off the previously 
+       * initialized spell, since the last one will always be unused. */
+      if (flag_node_prev != NULL) {
+	KILL(flag_node_prev->next, proj_node);
+      }
+
+      /* Create a new projectable */
+      MAKE(flag_node, proj_node);
+      type_node = flag_node;
+      s_ptr->proj_list = flag_node;
+
+      /* One more spell. */
+      spell_num++;
+    }
+
+
+    /* Other parameters make no sense if there is no current spell. */
+    if (s_ptr == NULL) continue;
+
+
+    /* Process 'F' -- Spell flags. */
+
+    if (foo == 'F') {
+
+      /* Fill the current node with values */
+      while (line[0]) {
+	token = grab_token(&line, '|');
+
+	if (!grab_one_proj_flag(flag_node, token)) {
+	  char temp[80];
+	  
+	  sprintf(temp, "Unknown spell flag '%s'", token);
+	  s_info_error(line_number, temp, buf);
+	}
+      }
+
+      /* Save the current node */
+      flag_node_prev = flag_node;
+      
+      /* Create a new node, if needed */
+      if (flag_node->next == NULL) {
+	MAKE(flag_node->next, proj_node);
+      }
+
+      /* Advance to the next node */
+      flag_node = flag_node->next;
+    }
+
+
+    /* Process 'T' -- Spell type. */
+
+    if (foo == 'T') {
+      char temp1[80];
+      char temp2[80];
+      int dd = 0, ds = 0, r = 0, check;
+
+      check = sscanf(line, "%[^:]:%[^:]:%dd%d:%d", temp1, temp2, &dd, &ds, &r);
+
+      if (check < 2) {
+	s_info_error(line_number, "Spell type must include safety flag "
+		     "and spell type.", buf);
+      }
+
+      if (streq(temp1, "SAFE")) {
+	type_node->safe = TRUE;
+
+      } else if (streq(temp1, "UNSAFE")) {
+	type_node->safe = FALSE;
+
+      } else {
+	s_info_error(line_number, "Format is: `T:SAFE:...' or `T:UNSAFE:...'",
+		     buf);
+      }
+
+      check = grab_number(temp2, s_info_attack_types);
+
+      if (check < 0) {
+	char tmp[80];
+
+	sprintf(tmp, "No such spell type -- %s", temp2);
+	s_info_error(line_number, tmp, buf);
+      }
+
+      type_node->attack_kind = check;
+      type_node->dam_dice = dd;
+      type_node->dam_sides = ds;
+      type_node->radius = r;
+
+      /* Save the current node */
+      type_node_prev = type_node;
+
+      /* Create a new node, if needed */
+      if (type_node->next == NULL) {
+	MAKE(type_node->next, proj_node);
+      }
+
+      /* Advance to the next node */
+      type_node = type_node->next;
+    }
+
+
+
+    /* Process 'P' -- Spell power. */
+
+    if (foo == 'P') {
+      int lev, mana;
+
+      if (2 != sscanf(line, "%d:%d", &lev, &mana)) {
+	s_info_error(line_number, "Must include level and mana cost info.", buf);
+      }
+
+      s_ptr->level = lev;
+      s_ptr->mana = mana;
+    }
+  }
+
+
+  /* Ugly, ugly hack -- remove the last node off the previously 
+   * initialized spell, since the last one will always be unused. */
+  if (flag_node_prev != NULL) {
+    KILL(flag_node_prev->next, proj_node);
+  }
+}
+
 #else	/* ALLOW_TEMPLATES */
 
 #ifdef MACINTOSH
@@ -2465,4 +2951,3 @@ static int i = 0;
 #endif
 
 #endif	/* ALLOW_TEMPLATES */
-

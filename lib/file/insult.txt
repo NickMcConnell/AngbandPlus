@@ -1,0 +1,78 @@
+77
+cackles evilly.
+shrieks in rage.
+howls in rage.
+stomps impatiently.
+gestures obscenely.
+calls on the Gods to smite you.
+chants strange incantations.
+scribbles designs on the floor.
+drinks from a strange bottle.
+whispers in an evil language.
+traces a strange pattern in the air.
+pounds on the floor in rage.
+sizes you up.
+sights you with a weapon.
+shouts for help.
+hisses in rage.
+hisses magical incantations.
+glows in an unholy light.
+takes a combative stance.
+relights a torch.
+refills a lantern.
+activates a strange artifact.
+laughs sadistically.
+prays to a strange God.
+points at you.
+grins evilly.
+squints in concentration.
+hums a dirge.
+roars bawdy lyrics.
+looks around for help.
+looks in a magical tome.
+charges at you screaming incoherently.
+looks at you and laughs.
+spits in your direction.
+picks something up from the dust.
+reads from a scroll.
+twirls around a wand.
+aims a rod at you.
+throws a clump of mud at you.
+chants ``Die, die'' over and over.
+laughs at your pathetic attempts at combat.
+looks at you contemptuously.
+grins.
+laughs.
+says: ``Leave while you can, intruder.''
+says: ``Methinks you have strayed too far in your travels.''
+says: ``Go back to your village before it's too late!''
+says: ``Methinks you found your end, babe.''
+shouts: ``I am sending you straight too hell!''
+shouts: ``Die!''
+shouts: ``I hear your death approaching, and it is me!''
+says: ``I am king of this domain, coming to crush this little upstart!''
+whispers: ``I am the emissary of pure evil...''
+says: ``Feel the power of pure dark, weakling.''
+says: ``Shrivel in this holy light, manling!''
+bellows: ``Aaaaaarrrrrrgggggghhhhhhhh!!!''
+says: ``The dice have been rolled, and you lost.''
+shouts: ``You don't belong here, landcrawler!''
+says: ``Do not challenge me, you may bite off more than you can chew.''
+hisses: ``Who do you think you are?''
+whispers: ``You have no idea who I am...''
+says: ``You are out of your league, manling.''
+says: ``Ha, ha, very funny.''
+roars: ``You're dead!''
+cackles: ``Look at this, a living corpse!''
+says: ``Are you threatening me?''
+says: ``Go back to your mommy, babe.''
+says: ``Do not meddle with wizards, weakling.''
+says: ``Your little game is over.''
+says: ``Babies do not belong in the realm of Morgoth.''
+says: ``Send my greetings to Hell.''
+says: ``Methinks we'll have fresh meat tonight!''
+says: ``You're in over your head, towndweller''
+hisses: ``Do you think you can stand up to the likes of me?''
+whispers: ``I am the emissary from the Gods...''
+shouts: ``I love blood!''
+shouts: ``I smell a surface creature!''

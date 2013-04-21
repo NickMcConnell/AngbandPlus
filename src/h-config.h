@@ -32,7 +32,7 @@
  * OPTION: Compile on an MSDOS machine
  */
 #ifndef MSDOS
-#define MSDOS
+/* #define MSDOS */
 #endif
 
 /*

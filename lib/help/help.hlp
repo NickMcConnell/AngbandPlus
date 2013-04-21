@@ -11,8 +11,9 @@ Please choose one of the following online help files:
     (7) Option Descriptions        (option.txt)
     (8) Version Information        (version.txt)
     (9) Spoiler Menu (if any)      (spoiler.hlp)
-    (0) User Menu (if any)         (user.hlp)
 
+    (0) README for KamBand         (README)
+    
 ***** [1] general.txt
 ***** [2] birth.txt
 ***** [3] dungeon.txt
@@ -22,4 +23,4 @@ Please choose one of the following online help files:
 ***** [7] option.txt
 ***** [8] version.txt
 ***** [9] spoiler.hlp
-***** [0] user.hlp
+***** [0] README

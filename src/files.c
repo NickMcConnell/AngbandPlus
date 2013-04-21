@@ -1017,7 +1017,6 @@ static void prt_num(cptr header, int num, int row, int col, byte color)
 }
 
 
-
 /*
  * Prints the following information on the screen.
  *
@@ -1029,7 +1028,15 @@ static void display_player_middle(void)
 	int show_tohit = p_ptr->dis_to_h;
 	int show_todam = p_ptr->dis_to_d;
 
+	int sane_p;
+
 	object_type *o_ptr = &inventory[INVEN_WIELD];
+
+	if (p_ptr->msane == 0) {
+	  sane_p = 100;
+	} else {
+	  sane_p = (100*p_ptr->csane)/p_ptr->msane;
+	}
 
 	/* Hack -- add in weapon info if known */
 	if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
@@ -1100,6 +1107,14 @@ static void display_player_middle(void)
 	else
 	{
 		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_RED);
+	}
+
+	if (sane_p >= 100) {
+	  prt_num("Sanity         ", p_ptr->csane, 13, 52, TERM_L_GREEN);
+	} else if (sane_p > (op_ptr->hitpoint_warn * 10)) {
+	  prt_num("Sanity         ", p_ptr->csane, 13, 52, TERM_YELLOW);
+	} else {
+	  prt_num("Sanity         ", p_ptr->csane, 13, 52, TERM_RED);
 	}
 }
 
@@ -1301,6 +1316,51 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	/* High Elf */
 	if (p_ptr->prace == RACE_HIGH_ELF) (*f2) |= (TR2_RES_LITE);
 	if (p_ptr->prace == RACE_HIGH_ELF) (*f3) |= (TR3_SEE_INVIS);
+
+	if (p_ptr->prace == RACE_KOBOLD) (*f2) |= TR2_RES_POIS;
+	if (p_ptr->prace == RACE_MUTANT) {
+	  (*f2) |= TR2_RES_CHAOS;
+	  switch (p_ptr->prace_info) {
+	  case 1:
+	    (*f2) |= TR2_RES_POIS;
+            break;
+          case 2:
+	    (*f2) |= TR2_RES_BLIND;
+            break;
+          case 3:
+	    (*f2) |= TR2_RES_ACID;
+            break;
+          case 4:
+	    (*f2) |= TR2_RES_ELEC;
+            break;
+          case 5:
+	    (*f2) |= TR2_RES_FEAR;
+            break;
+          default:
+            break;
+          }
+	}
+
+	if (p_ptr->prace == RACE_GOLEM) {
+	  (*f2) |= TR2_RES_FEAR;
+	  (*f2) |= TR2_RES_CONFU;
+	}
+
+	if (p_ptr->prace == RACE_LEPRECHAUN) {
+	  (*f2) |= TR2_RES_BLIND;
+	  (*f2) |= TR2_SUST_DEX;
+	}
+
+	if (p_ptr->prace == RACE_MOLD) {
+	  (*f2) |= TR2_RES_NETHR;
+	  (*f2) |= TR2_RES_NEXUS;
+	  (*f3) |= TR3_HOLD_LIFE;
+	}
+
+	if (p_ptr->prace == RACE_GHOST) {
+	  (*f3) |= TR3_HOLD_LIFE;
+	  (*f2) |= TR2_RES_NETHR;
+	}
 }
 
 
@@ -1899,8 +1959,8 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Kangband %d.%d.%d Character Dump]\n\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "  [Kamband %d.%d Character Dump]\n\n",
+	        KAM_VERSION_MAJOR, KAM_VERSION_MINOR);
 
 
 	/* Display player */
@@ -1951,6 +2011,57 @@ errr file_character(cptr name, bool full)
 
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
+
+	/* Dump the mutations */
+
+	fprintf(fff, "  [Character Mutations]\n\n");
+
+	for (i = 0; i < 32; i++) {
+	  if (p_ptr->mutations1 & (1L << i)) {
+	    fprintf(fff, "%s\n", mutation_names[i][0]);
+	  }
+
+	  if (p_ptr->mutations2 & (1L << i)) {
+	    fprintf(fff, "%s\n", mutation_names[i+32][0]);
+	  }
+
+	  if (p_ptr->mutations3 & (1L << i)) {
+	    fprintf(fff, "%s\n", mutation_names[i+64][0]);
+	  }
+	}
+
+	fprintf(fff, "\n\n");
+
+
+	/* Dump the random spells */
+	if (spell_num) {
+	  spell* rspell;
+
+	  fprintf(fff, "  [Character Spells]\n\n");
+
+	  for (i = 0; i < spell_num; i++) {
+	    rspell = &spells[i];
+
+	    if (rspell->unknown) continue;
+
+	    fprintf(fff, "%3d%s %-30s %4d%% %3d\n", i+1, paren,
+		    rspell->name, spell_chance(rspell), rspell->mana);
+	  }
+
+	  fprintf(fff, "\n\n");
+	}
+
+	/* Dump religious info */
+	if (p_ptr->pgod) {
+	  int pgod = p_ptr->pgod-1;
+	  int badness = interpret_grace();
+
+	  fprintf(fff, "You worship %s, the God of %s, "
+		  "and you are %s by him.\n\n", deity_info[pgod].name,
+		  deity_info[pgod].god_of, deity_standing[badness]);
+	}
+
+	  
 
 
 	/* Dump the equipment */
@@ -2257,8 +2368,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[Kangband %d.%d.%d, %s, Line %d/%d]",
-		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
+		prt(format("[Kamband %d.%d, %s, Line %d/%d]",
+		           KAM_VERSION_MAJOR, KAM_VERSION_MINOR, 
 		           caption, line, size), 0, 0);
 
 
@@ -2294,7 +2405,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		{
 			/* Get "shower" */
 			prt("Show: ", 23, 0);
-			(void)askfor_aux(shower, 80);
+			(void)askfor_aux(shower, 80, FALSE);
 		}
 
 		/* Hack -- try finding */
@@ -2302,7 +2413,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		{
 			/* Get "finder" */
 			prt("Find: ", 23, 0);
-			if (askfor_aux(finder, 80))
+			if (askfor_aux(finder, 80, FALSE))
 			{
 				/* Find it */
 				find = finder;
@@ -2320,7 +2431,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			char tmp[80];
 			prt("Goto Line: ", 23, 0);
 			strcpy(tmp, "0");
-			if (askfor_aux(tmp, 80))
+			if (askfor_aux(tmp, 80, FALSE))
 			{
 				line = atoi(tmp);
 			}
@@ -2332,7 +2443,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			char tmp[80];
 			prt("Goto File: ", 23, 0);
 			strcpy(tmp, "help.hlp");
-			if (askfor_aux(tmp, 80))
+			if (askfor_aux(tmp, 80, FALSE))
 			{
 				if (!show_file(tmp, NULL, 0, mode)) k = ESCAPE;
 			}
@@ -2537,7 +2648,7 @@ void get_name(void)
 		strcpy(tmp, op_ptr->full_name);
 
 		/* Get an input, ignore "Escape" */
-		if (askfor_aux(tmp, 15)) strcpy(op_ptr->full_name, tmp);
+		if (askfor_aux(tmp, 15, FALSE)) strcpy(op_ptr->full_name, tmp);
 
 		/* Process the player name */
 		process_player_name(FALSE);
@@ -2659,9 +2770,16 @@ void do_cmd_save_game(void)
  */
 long total_points(void)
 {
-	return (p_ptr->max_exp + (100 * p_ptr->max_depth));
-}
+  /* Yuck -- ugly hack for ghosts. */
+  if (p_ptr->prace == RACE_GHOST) {
+    if (p_ptr->prace_info)
+      return (p_ptr->max_exp + 2500 + (50 * p_ptr->max_depth));
+    else
+      return (p_ptr->max_exp + (50 * (p_ptr->max_depth - p_ptr->depth)));
+  }
 
+  return (p_ptr->max_exp + (100 * p_ptr->max_depth));
+}
 
 
 /*
@@ -2796,6 +2914,12 @@ static void print_tomb(void)
 		p = "Magnificent";
 	}
 
+	/* Shape-shifted */
+
+	else if (p_ptr->shape) {
+	  p = format("[%^s]", shape_info[p_ptr->shape-1].name);
+	}
+
 	/* Normal */
 	else
 	{
@@ -2909,7 +3033,7 @@ static void show_info(void)
 		strcpy(out_val, "");
 
 		/* Ask for filename (or abort) */
-		if (!askfor_aux(out_val, 60)) return;
+		if (!askfor_aux(out_val, 60, FALSE)) return;
 
 		/* Return means "show on screen" */
 		if (!out_val[0]) break;
@@ -3047,7 +3171,7 @@ struct high_score
 	char max_lev[4];		/* Max Player Level (number) */
 	char max_dun[4];		/* Max Dungeon Level (number) */
 
-	char arena_number[4];	/* Arena level attained -KMW- */
+	char arena_number[MAX_ARENAS][4];   /* Arena levels attained -KMW- */
 	char inside_special[4];   /* Did the player die in the arena? -KMW- */
 	char exit_bldg[4];	/* Can the player exit arena? Goal obtained? -KMW- */
 
@@ -3217,7 +3341,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str("                Kangband Hall of Fame", 0, 0);
+		put_str("                Kamband Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)
@@ -3362,212 +3486,80 @@ void display_scores(int from, int to)
 	quit(NULL);
 }
 
-
 /*
- * show_highclass - selectively list highscores based on class
- * -KMW-
+ * Open the highscore file.
  */
-void show_highclass(int building)
-{
 
-	register int i = 0, j, m = 0;
-	int pr, pc, clev, al;
-	high_score the_score;
-	char buf[1024], out_val[256];
+void open_highscore(void) {
+  char buf[1024];
 
-	switch(building)
-	{
-		case 1:
-			prt("               Busts of Greatest Kings", 5, 0);
-			break;
-		case 2:
-			prt("               Plaque - Greatest Arena Champions", 5, 0);
-			break;
-		case 10:
-			prt("               Plaque - Greatest Fighters", 5, 0);
-			break;
-		case 11:
-			prt("               Spires of the Greatest Magic-Users", 5, 0);
-			break;
-		case 12:
-			prt("               Busts of Greatest Priests", 5, 0);
-			break;
-		case 13:
-			prt("               Wall Inscriptions - Greatest Thieves", 5, 0);
-			break;
-		case 14:
-			prt("               Plaque - Greatest Rangers", 5, 0);
-			break;
-		case 15:
-			prt("               Plaque - Greatest Paladins", 5, 0);
-			break;
-		case 16:
-			prt("               Spires of the Greatest Illusionists", 5, 0);
-			break;
-		default: 
-			bell();
-			break;
-	}
+  /* Already open */
+  if (highscore_fd >= 0) return;
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+  path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+  highscore_fd = fd_open(buf, O_RDONLY);
 
-	highscore_fd = fd_open(buf, O_RDONLY);
+  if (highscore_seek(0)) {
+    highscore_fd = -1;
+  }  
 
-	if (highscore_fd < 0)
-	{
-		msg_print("Score file unavailable.");
-		msg_print(NULL);
-		return;
-	}
-
-	if (highscore_seek(0)) return;
-
-	for (i = 0; i < MAX_HISCORES; i++)
-		if (highscore_read(&the_score)) break;
-
-	m=0;
-	j=0;
-	clev = 0;
-
-	while ((m < 9) || (j < MAX_HISCORES))
-	{
-		if (highscore_seek(j)) break;
-		if (highscore_read(&the_score)) break;
-		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
-		clev = atoi(the_score.cur_lev);
-		al = atoi(the_score.arena_number);
-		if (((pc == (building - 10)) && (building != 1) && (building != 2)) ||
-		    ((building == 1) && (clev >= PY_MAX_LEVEL)) ||
-		    ((building == 2) && (al > MAX_ARENA_MONS)))
-		{
-			sprintf(out_val, "%3d) %s the %s (Level %2d)",
-			    (m + 1), the_score.who,race_info[pr].title, clev);
-			prt(out_val, (m + 7), 0);
-			m++;
-		}
-		j++;
-	}
-
-	/* Now, list the active player if they qualify */
-	if ((building == 1) && (p_ptr->lev >= PY_MAX_LEVEL))
-	{
-		sprintf(out_val, "You) %s the %s (Level %2d)",
-		    op_ptr->full_name,race_info[p_ptr->prace].title, p_ptr->lev);
-		prt(out_val, (m + 8), 0);
-	}
-	else if ((building == 2) && (p_ptr->arena_number > MAX_ARENA_MONS))
-	{
-		sprintf(out_val, "You) %s the %s (Level %2d)",
-		    op_ptr->full_name,race_info[p_ptr->prace].title, p_ptr->lev);
-		prt(out_val, (m + 8), 0);
-	}
-	else if ((building != 1) && (building != 2))
-	{
-		if ((p_ptr->lev > clev) && (p_ptr->pclass == (building - 10)))
-		{
-			sprintf(out_val, "You) %s the %s (Level %2d)",
-			    op_ptr->full_name,race_info[p_ptr->prace].title, p_ptr->lev);
-			prt(out_val, (m + 8), 0);
-		}
-	}
-
-	(void)fd_close(highscore_fd);
-	highscore_fd = -1;
-	msg_print("Hit any key to continue");
-	msg_print(NULL);
-	for (j=5;j<18;j++)
-		prt("",j,0);
+  if (highscore_fd < 0) {
+    msg_print("Score file unavailable.");
+    msg_print(NULL);
+  }
 }
 
-
 /*
- * Race Legends
- * -KMW- 
+ * Close the highscore file.
  */
-void race_score(int race_num)
-{
-	register int i = 0, j, m = 0;
-	int pr, pc, clev, al, lastlev;
-	high_score the_score;
-	char buf[1024], out_val[256], tmp_str[80];
-	static const char *race_name[MAX_RACES]={"Humans", "Half-Elves", "Elves", 
-	    "Hobbits", "Gnomes", "Dwarves", "Half-Orcs", "Half-Trolls",
-	    "Dunadain", "High Elves", "Kobolds"}; 
 
-	lastlev = 0;
-	(void) sprintf(tmp_str,"The Greatest of all the %s",race_name[race_num]);
-	prt(tmp_str, 5, 15);
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
-
-	highscore_fd = fd_open(buf, O_RDONLY);
-
-	if (highscore_fd < 0)
-	{
-		msg_print("Score file unavailable.");
-		msg_print(NULL);
-		return;
-	}
-
-	if (highscore_seek(0)) return;
-
-	for (i = 0; i < MAX_HISCORES; i++) {
-		if (highscore_read(&the_score)) break;
-	}
-
-	m=0;
-	j=0;
-
-	while ((m < 10) || (j < MAX_HISCORES))
-	{
-		if (highscore_seek(j)) break;
-		if (highscore_read(&the_score)) break;
-		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
-		clev = atoi(the_score.cur_lev);
-		al = atoi(the_score.arena_number);
-		if (pr == race_num)
-		{
-			sprintf(out_val, "%3d) %s the %s (Level %3d)",
-			    (m + 1), the_score.who,
-			race_info[pr].title, clev);
-			prt(out_val, (m + 7), 0);
-			m++;
-			lastlev = clev;  
-		}
-		j++;
-	}
-
-	/* add player if qualified */
-	if ((p_ptr->prace == race_num) && (p_ptr->lev >= lastlev)) {
-		sprintf(out_val, "You) %s the %s (Level %3d)",
-		    op_ptr->full_name, race_info[p_ptr->prace].title, p_ptr->lev);
-		prt(out_val, (m + 8), 0);
-	}
-
-	(void)fd_close(highscore_fd);
-	highscore_fd = -1;
+void close_highscore(void) {
+  if (highscore_fd >= 0) {
+    fd_close(highscore_fd);
+    highscore_fd = -1;
+  }
 }
 
+/*
+ * Rewind the highscore file 
+ */
+
+void rewind_highscore(void) {
+  if (highscore_seek(0)) {
+    highscore_fd = -1;
+  }
+}
 
 /*
- * Race Legends
- * -KMW-
+ * Return a nicely formatted high-score entry
  */
-void race_legends()
-{
-	int i,j;
 
-	for (i=0;i < MAX_RACES;i++) {
-		race_score(i);
-		msg_print("Hit any key to continue");
-		msg_print(NULL);
-		for (j=5;j<19;j++)
-			prt("",j,0);
-	}
+bool next_highscore(score_info* s_info) {
+  high_score score;
+  int i;
+
+  if (highscore_fd < 0) {
+    msg_print("Score file unavailable.");
+    msg_print(NULL);
+    return FALSE;
+  }
+
+  if (highscore_read(&score)) return FALSE;
+
+  s_info->points = atoi(score.pts);
+  s_info->turns = atoi(score.turns);
+  s_info->race = atoi(score.p_r);
+  s_info->class = atoi(score.p_c);
+  s_info->plev = atoi(score.cur_lev);
+  s_info->dlev = atoi(score.cur_dun);
+    
+  for (i = 0; i < MAX_ARENAS; i++) {
+    s_info->arena_number[i] = atoi(score.arena_number[i]);
+  }
+
+  strcpy(s_info->name, score.who);
+
+  return TRUE;
 }
 
 
@@ -3681,7 +3673,9 @@ static errr top_twenty(void)
 
 	/* Save the player info XXX XXX XXX */
 	sprintf(the_score.uid, "%7u", player_uid);
-	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
+	sprintf(the_score.sex, "%c", (p_ptr->psex ? 
+				      (p_ptr->psex == 1 ? 'm' : 'n')
+				      : 'f'));
 	sprintf(the_score.p_r, "%2d", p_ptr->prace);
 	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
 
@@ -3691,7 +3685,11 @@ static errr top_twenty(void)
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
 	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
 
-	sprintf(the_score.arena_number,"%3d", p_ptr->arena_number); /* -KMW- */
+	for (j = 0; j < MAX_ARENAS; j++) {
+	  /* -KMW- */
+	  sprintf(the_score.arena_number[j],"%3d", p_ptr->arena_number[j]); 
+	}
+
 	sprintf(the_score.inside_special,"%3d", p_ptr->inside_special);   /* -KMW- */
 	sprintf(the_score.exit_bldg,"%3d", p_ptr->exit_bldg); /* -KMW- */
 
@@ -3778,7 +3776,11 @@ static errr predict_score(void)
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
 	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
 
-	sprintf(the_score.arena_number,"%3d", p_ptr->arena_number); /* -KMW- */
+	for (j = 0; j < MAX_ARENAS; j++) {
+	  /* -KMW- */
+	  sprintf(the_score.arena_number[j],"%3d", p_ptr->arena_number[j]);
+	}
+
 	sprintf(the_score.inside_special,"%3d", p_ptr->inside_special);   /* -KMW- */
 	sprintf(the_score.exit_bldg,"%3d", p_ptr->exit_bldg); /* -KMW- */
 
@@ -4327,3 +4329,107 @@ void signals_init(void)
 #endif	/* HANDLE_SIGNALS */
 
 
+
+/* 
+ * Fetch a random line from a file.
+ * Note that code is stolen from Zangband, but cleaned up somewhat.
+ */
+
+errr get_random_line(char* fname, char* output) {
+  FILE* fp;
+  char buf[1024];
+  int line, num_lines, i;
+
+  /* Build the filename */
+  path_build(buf, 1024, ANGBAND_DIR_FILE, fname);
+
+  /* Open the file */
+  fp = my_fopen(buf, "r");
+
+  /* Failed */
+  if (!fp) return -1;
+
+  /* Parse the file */
+  if (my_fgets(fp, buf, 80) == 0) {
+    num_lines = atoi(buf);
+  } else {
+    my_fclose(fp);
+    return 1;
+  }
+
+  line = randint(num_lines);
+
+  for (i = 1; i <= line; i++) {
+    if (my_fgets(fp, buf, 80) != 0) {
+      my_fclose(fp);
+      return 1;
+    }
+  }
+
+  strcpy(output, buf);
+  my_fclose(fp);
+  return 0;
+}
+
+
+/*
+ * Return the number of lines in a file.
+ */
+
+int get_num_lines(char* fname) {
+  FILE* fp;
+  char buf[1024];
+
+  /* Build the filename */
+  path_build(buf, 1024, ANGBAND_DIR_FILE, fname);
+
+  /* Open the file */
+  fp = my_fopen(buf, "r");
+
+  /* Failed */
+  if (!fp) return -1;
+
+  /* Parse the file */
+  if (my_fgets(fp, buf, 80) == 0) {
+    my_fclose(fp);
+    return atoi(buf);
+  } else {
+    my_fclose(fp);
+    return 0;
+  }
+}
+
+
+/*
+ * Get a specific line from a file.
+ * Note: The first line is 1, not 0, since line 0 is the file size.
+ * (see get_random_line)
+ */
+
+errr get_line(char* fname, char* output, int line) {
+  FILE* fp;
+  char buf[1024];
+  int i;
+
+  line++;
+
+  /* Build the filename */
+  path_build(buf, 1024, ANGBAND_DIR_FILE, fname);
+
+  /* Open the file */
+  fp = my_fopen(buf, "r");
+
+  /* Failed */
+  if (!fp) return -1;
+
+  for (i = 0; i <= line; i++) {
+    if (my_fgets(fp, buf, 80) != 0) {
+      my_fclose(fp);
+      return 1;
+    }
+  }
+
+  strcpy(output, buf);
+  my_fclose(fp);
+  return 0;
+}

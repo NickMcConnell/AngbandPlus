@@ -21,6 +21,9 @@
 
 ##### System Specific Subfiles #####
 
+?:[EQU $SYS x11]
+%:font-x11.prf
+
 ?:[EQU $SYS ami]
 %:font-ami.prf
 

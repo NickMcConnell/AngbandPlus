@@ -24,6 +24,11 @@ bool set_blind(int v)
 {
 	bool notice = FALSE;
 
+	if (p_ptr->perma_blind) {
+	  p_ptr->blind = 10000;
+	  return FALSE;
+	}
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -32,7 +37,7 @@ bool set_blind(int v)
 	{
 		if (!p_ptr->blind)
 		{
-			msg_print("You are blind!");
+			mprint(MSG_URGENT, "You are blind!");
 			notice = TRUE;
 		}
 	}
@@ -97,7 +102,7 @@ bool set_confused(int v)
 	{
 		if (!p_ptr->confused)
 		{
-			msg_print("You are confused!");
+			mprint(MSG_WARNING, "You are confused!");
 			notice = TRUE;
 		}
 	}
@@ -147,7 +152,7 @@ bool set_poisoned(int v)
 	{
 		if (!p_ptr->poisoned)
 		{
-			msg_print("You are poisoned!");
+			mprint(MSG_URGENT, "You are poisoned!");
 			notice = TRUE;
 		}
 	}
@@ -181,6 +186,116 @@ bool set_poisoned(int v)
 	return (TRUE);
 }
 
+/*
+ * Try to drop something.
+ */
+
+static void try_drop_armor(int slot) {
+  if (!inventory[slot].k_idx) return;
+
+  if (inventory[slot].ident & (IDENT_CURSED)) {
+    mprint(MSG_STUPID, "Ouch, your armor is stuck!");
+    take_hit(damroll(5, 10), "constricting armor");
+  } else {
+    inven_drop(slot, 1);
+  }
+}
+
+
+/*
+ * Drop the armor you're wearing.
+ */
+
+static void drop_armor(void) {
+  mprint(MSG_WARNING, "Your armor pops off!");
+  p_ptr->energy_use = 100;
+
+  try_drop_armor(INVEN_BODY);
+  try_drop_armor(INVEN_OUTER);
+  try_drop_armor(INVEN_ARM);
+  try_drop_armor(INVEN_HEAD);
+  try_drop_armor(INVEN_HANDS);
+  try_drop_armor(INVEN_FEET);
+};
+
+/*
+ * Set call ``set_shape'' with default values. 
+ */
+
+bool change_shape(byte shape) {
+  return set_shape(shape, shape_info[shape-1].duration);
+}
+
+/*
+ * Set "p_ptr->shape" and "p_ptr->shape_timed", notice observable changes
+ */
+bool set_shape(byte shape, int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Mega-hack -- Return to natural shape */
+	if (v == 0 && shape == 0) {
+	    msg_print("You return to your natural shape.");
+	    msg_print(NULL);
+	    notice = TRUE;
+	} else {
+	    /* Open */
+	    if (v)
+	    {
+		  if (!p_ptr->shape || p_ptr->shape != shape)
+		  {
+			msg_print(shape_info[shape-1].mesg_on);
+			msg_print(NULL);
+			notice = TRUE;
+			drop_armor();
+		  }
+	    }
+
+	    /* Shut */
+	    else
+	    {
+		  if (p_ptr->shape)
+		  {
+			msg_print(shape_info[shape-1].mesg_off);
+			msg_print(NULL);
+			shape = 0;
+			notice = TRUE;
+		  }
+	    }
+	}
+
+	/* Use the value */
+	p_ptr->shape_timed = v;
+	p_ptr->shape = shape;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	p_ptr->update |= (PU_BONUS | PU_MANA | PU_SPELLS | 
+ 			  PU_HP | PU_SANITY);
+	p_ptr->redraw |= (PR_STATE | PR_MISC | PR_MAP | PR_STUDY);
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->grace", notice observable changes
+ */
+void set_grace(s32b v) {
+  p_ptr->grace = v;
+  p_ptr->update |= PU_BONUS;
+  handle_stuff();
+}
 
 /*
  * Set "p_ptr->afraid", notice observable changes
@@ -197,7 +312,7 @@ bool set_afraid(int v)
 	{
 		if (!p_ptr->afraid)
 		{
-			msg_print("You are terrified!");
+			mprint(MSG_WARNING, "You are terrified!");
 			notice = TRUE;
 		}
 	}
@@ -247,7 +362,7 @@ bool set_paralyzed(int v)
 	{
 		if (!p_ptr->paralyzed)
 		{
-			msg_print("You are paralyzed!");
+			mprint(MSG_URGENT, "You are paralyzed!");
 			notice = TRUE;
 		}
 	}
@@ -299,7 +414,7 @@ bool set_image(int v)
 	{
 		if (!p_ptr->image)
 		{
-			msg_print("You feel drugged!");
+			mprint(MSG_STUPID, "You feel drugged!");
 			notice = TRUE;
 		}
 	}
@@ -355,7 +470,7 @@ bool set_fast(int v)
 	{
 		if (!p_ptr->fast)
 		{
-			msg_print("You feel yourself moving faster!");
+			mprint(MSG_BONUS, "You feel yourself moving faster!");
 			notice = TRUE;
 		}
 	}
@@ -405,7 +520,7 @@ bool set_slow(int v)
 	{
 		if (!p_ptr->slow)
 		{
-			msg_print("You feel yourself moving slower!");
+			mprint(MSG_WARNING, "You feel yourself moving slower!");
 			notice = TRUE;
 		}
 	}
@@ -455,7 +570,7 @@ bool set_shield(int v)
 	{
 		if (!p_ptr->shield)
 		{
-			msg_print("A mystic shield forms around your body!");
+			mprint(MSG_BONUS, "A mystic shield forms around your body!");
 			notice = TRUE;
 		}
 	}
@@ -465,7 +580,7 @@ bool set_shield(int v)
 	{
 		if (p_ptr->shield)
 		{
-			msg_print("Your mystic shield crumbles away.");
+			mprint(MSG_WARNING, "Your mystic shield crumbles away.");
 			notice = TRUE;
 		}
 	}
@@ -506,7 +621,7 @@ bool set_blessed(int v)
 	{
 		if (!p_ptr->blessed)
 		{
-			msg_print("You feel righteous!");
+			mprint(MSG_BONUS, "You feel righteous!");
 			notice = TRUE;
 		}
 	}
@@ -556,7 +671,7 @@ bool set_hero(int v)
 	{
 		if (!p_ptr->hero)
 		{
-			msg_print("You feel like a hero!");
+			mprint(MSG_BONUS, "You feel like a hero!");
 			notice = TRUE;
 		}
 	}
@@ -606,7 +721,7 @@ bool set_shero(int v)
 	{
 		if (!p_ptr->shero)
 		{
-			msg_print("You feel like a killing machine!");
+			mprint(MSG_BONUS, "You feel like a killing machine!");
 			notice = TRUE;
 		}
 	}
@@ -656,7 +771,7 @@ bool set_protevil(int v)
 	{
 		if (!p_ptr->protevil)
 		{
-			msg_print("You feel safe from evil!");
+			mprint(MSG_BONUS, "You feel safe from evil!");
 			notice = TRUE;
 		}
 	}
@@ -666,7 +781,7 @@ bool set_protevil(int v)
 	{
 		if (p_ptr->protevil)
 		{
-			msg_print("You no longer feel safe from evil.");
+			mprint(MSG_WARNING, "You no longer feel safe from evil.");
 			notice = TRUE;
 		}
 	}
@@ -703,7 +818,7 @@ bool set_invuln(int v)
 	{
 		if (!p_ptr->invuln)
 		{
-			msg_print("You feel invulnerable!");
+			mprint(MSG_BIG_BONUS, "You feel invulnerable!");
 			notice = TRUE;
 		}
 	}
@@ -713,7 +828,7 @@ bool set_invuln(int v)
 	{
 		if (p_ptr->invuln)
 		{
-			msg_print("You feel vulnerable once more.");
+			mprint(MSG_URGENT, "You feel vulnerable once more.");
 			notice = TRUE;
 		}
 	}
@@ -753,7 +868,7 @@ bool set_tim_invis(int v)
 	{
 		if (!p_ptr->tim_invis)
 		{
-			msg_print("Your eyes feel very sensitive!");
+			mprint(MSG_BONUS, "Your eyes feel very sensitive!");
 			notice = TRUE;
 		}
 	}
@@ -806,7 +921,7 @@ bool set_tim_infra(int v)
 	{
 		if (!p_ptr->tim_infra)
 		{
-			msg_print("Your eyes begin to tingle!");
+			mprint(MSG_BONUS, "Your eyes begin to tingle!");
 			notice = TRUE;
 		}
 	}
@@ -859,7 +974,7 @@ bool set_oppose_acid(int v)
 	{
 		if (!p_ptr->oppose_acid)
 		{
-			msg_print("You feel resistant to acid!");
+			mprint(MSG_BONUS, "You feel resistant to acid!");
 			notice = TRUE;
 		}
 	}
@@ -906,7 +1021,7 @@ bool set_oppose_elec(int v)
 	{
 		if (!p_ptr->oppose_elec)
 		{
-			msg_print("You feel resistant to electricity!");
+			mprint(MSG_BONUS, "You feel resistant to electricity!");
 			notice = TRUE;
 		}
 	}
@@ -953,7 +1068,7 @@ bool set_oppose_fire(int v)
 	{
 		if (!p_ptr->oppose_fire)
 		{
-			msg_print("You feel resistant to fire!");
+			mprint(MSG_BONUS, "You feel resistant to fire!");
 			notice = TRUE;
 		}
 	}
@@ -1000,7 +1115,7 @@ bool set_oppose_cold(int v)
 	{
 		if (!p_ptr->oppose_cold)
 		{
-			msg_print("You feel resistant to cold!");
+			mprint(MSG_BONUS, "You feel resistant to cold!");
 			notice = TRUE;
 		}
 	}
@@ -1030,7 +1145,7 @@ bool set_oppose_cold(int v)
 	/* Result */
 	return (TRUE);
 }
-
+  
 
 /*
  * Set "p_ptr->oppose_pois", notice observable changes
@@ -1047,7 +1162,7 @@ bool set_oppose_pois(int v)
 	{
 		if (!p_ptr->oppose_pois)
 		{
-			msg_print("You feel resistant to poison!");
+			mprint(MSG_BONUS, "You feel resistant to poison!");
 			notice = TRUE;
 		}
 	}
@@ -1150,21 +1265,21 @@ bool set_stun(int v)
 			/* Stun */
 			case 1:
 			{
-				msg_print("You have been stunned.");
+				mprint(MSG_WARNING, "You have been stunned.");
 				break;
 			}
 
 			/* Heavy stun */
 			case 2:
 			{
-				msg_print("You have been heavily stunned.");
+				mprint(MSG_WARNING, "You have been heavily stunned.");
 				break;
 			}
 
 			/* Knocked out */
 			case 3:
 			{
-				msg_print("You have been knocked out.");
+				mprint(MSG_URGENT, "You have been knocked out.");
 				break;
 			}
 		}
@@ -1334,49 +1449,49 @@ bool set_cut(int v)
 			/* Graze */
 			case 1:
 			{
-				msg_print("You have been given a graze.");
+				mprint(MSG_WARNING, "You have been given a graze.");
 				break;
 			}
 
 			/* Light cut */
 			case 2:
 			{
-				msg_print("You have been given a light cut.");
+				mprint(MSG_WARNING, "You have been given a light cut.");
 				break;
 			}
 
 			/* Bad cut */
 			case 3:
 			{
-				msg_print("You have been given a bad cut.");
+				mprint(MSG_WARNING, "You have been given a bad cut.");
 				break;
 			}
 
 			/* Nasty cut */
 			case 4:
 			{
-				msg_print("You have been given a nasty cut.");
+				mprint(MSG_URGENT, "You have been given a nasty cut.");
 				break;
 			}
 
 			/* Severe cut */
 			case 5:
 			{
-				msg_print("You have been given a severe cut.");
+				mprint(MSG_URGENT, "You have been given a severe cut.");
 				break;
 			}
 
 			/* Deep gash */
 			case 6:
 			{
-				msg_print("You have been given a deep gash.");
+				mprint(MSG_URGENT, "You have been given a deep gash.");
 				break;
 			}
 
 			/* Mortal wound */
 			case 7:
 			{
-				msg_print("You have been given a mortal wound.");
+				mprint(MSG_URGENT, "You have been given a mortal wound.");
 				break;
 			}
 		}
@@ -1539,14 +1654,14 @@ bool set_food(int v)
 			/* Weak */
 			case 1:
 			{
-				msg_print("You are still weak.");
+				mprint(MSG_WARNING, "You are still weak.");
 				break;
 			}
 
 			/* Hungry */
 			case 2:
 			{
-				msg_print("You are still hungry.");
+				mprint(MSG_WARNING, "You are still hungry.");
 				break;
 			}
 
@@ -1560,14 +1675,14 @@ bool set_food(int v)
 			/* Full */
 			case 4:
 			{
-				msg_print("You are full!");
+				mprint(MSG_BONUS, "You are full!");
 				break;
 			}
 
 			/* Bloated */
 			case 5:
 			{
-				msg_print("You have gorged yourself!");
+				mprint(MSG_STUPID, "You have gorged yourself!");
 				break;
 			}
 		}
@@ -1585,21 +1700,21 @@ bool set_food(int v)
 			/* Fainting / Starving */
 			case 0:
 			{
-				msg_print("You are getting faint from hunger!");
+				mprint(MSG_STUPID, "You are getting faint from hunger!");
 				break;
 			}
 
 			/* Weak */
 			case 1:
 			{
-				msg_print("You are getting weak from hunger!");
+				mprint(MSG_STUPID, "You are getting weak from hunger!");
 				break;
 			}
 
 			/* Hungry */
 			case 2:
 			{
-				msg_print("You are getting hungry.");
+				mprint(MSG_STUPID, "You are getting hungry.");
 				break;
 			}
 
@@ -1655,7 +1770,6 @@ void check_experience(void)
 {
 	int i;
 
-
 	/* Note current level */
 	i = p_ptr->lev;
 
@@ -1692,7 +1806,7 @@ void check_experience(void)
 		p_ptr->lev--;
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
@@ -1720,10 +1834,10 @@ void check_experience(void)
 		sound(SOUND_LEVEL);
 
 		/* Message */
-		msg_format("Welcome to level %d.", p_ptr->lev);
+		mformat(MSG_BONUS, "Welcome to level %d.", p_ptr->lev);
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
@@ -1733,6 +1847,18 @@ void check_experience(void)
 
 		/* Handle stuff */
 		handle_stuff();
+
+		if (p_ptr->pclass == CLASS_CORRUPTED) {
+		  if (p_ptr->lev % 5 == 0 && p_ptr->prace != RACE_MUTANT) {
+		    mprint(MSG_WARNING, "You can't resist the corrupting power of chaos!");
+		    do_dec_stat(A_STR);
+		    do_dec_stat(A_DEX);
+		    do_dec_stat(A_CON);
+		    do_dec_stat(A_INT);
+		    do_dec_stat(A_WIS);
+		    do_dec_stat(A_CHR);
+		  }
+		}
 	}
 }
 
@@ -1824,10 +1950,9 @@ static int get_coin_type(monster_race *r_ptr)
  */
 void monster_death(int m_idx)
 {
-	int i, j, y, x, ny, nx, i2, j2;
+	int j, y, x, ny, nx;
 	int dump_item = 0;
 	int dump_gold = 0;
-	int number_mon;
 
 	int number = 0;
 
@@ -1854,13 +1979,6 @@ void monster_death(int m_idx)
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
-
-	/* Handle the possibility of player vanquishing arena combatant -KMW- */
-	if (p_ptr->inside_special == 1) {       /* -KMW- */
-		p_ptr->exit_bldg = TRUE;
-		msg_print("Victorious! You're on your way to becoming Champion.");
-		p_ptr->arena_number++;
-	}
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1991,100 +2109,47 @@ void monster_death(int m_idx)
 	}
 
 
-	/* Process "any level" quest monster completion -KMW- */
-	for(i=0; i < MAX_QUESTS; i++) {
-		if (p_ptr->rewards[i+QUEST_REWARD] != 1)
-			continue;
-		if ((q_list[i].quest_type == 1) && (q_list[i].r_idx == m_ptr->r_idx)) {
-			p_ptr->rewards[i+QUEST_REWARD] = 2; /* completed quest */
-			msg_print("You just completed your quest!");
-			msg_print(NULL);
-			break;
-		}
-	else if ((q_list[i].quest_type == 2) && (q_list[i].r_idx == m_ptr->r_idx)) {
-			q_list[i].cur_num++;
-			if (q_list[i].cur_num >= q_list[i].max_num) {
-				p_ptr->rewards[i+QUEST_REWARD] = 2; /* completed quest */
-				msg_print("You just completed your quest!");
-				msg_print(NULL);
-				q_list[i].cur_num = 0;
-			}
-			break;
-		}
-		else if ((q_list[i].quest_type == 5) && (p_ptr->inside_special == 2)) {
-			q_list[i].cur_num++;
-			if (q_list[i].cur_num >= q_list[i].num_mon) {
-				p_ptr->rewards[i+QUEST_REWARD] = 2; /* completed quest */
-				msg_print("You just completed your quest!");
-				msg_print(NULL);
-				q_list[i].cur_num = 0;
-			}
-			break;
-		}
-		else if ((q_list[i].quest_type == 6) && (p_ptr->inside_special == 2)) {
-			number_mon = 0;
-			for (i2 = 0; i2 < DUNGEON_WID; ++i2)
-				for (j2 = 0; j2 < DUNGEON_HGT; j2++)
-			if (cave_m_idx[j2][i2] > 0)
-				number_mon++;
-			if ((number_mon - 1) == 0) {
-				p_ptr->rewards[i+QUEST_REWARD] = 2; /* completed */
-				msg_print("You just completed your quest!");
-				msg_print(NULL);
-			}
-			break;
-		}
-	}
-
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
 
-	if (i == MAX_QUESTS) return; /* no more quests -KMW- */
+	/* Stagger around */
+	while (!cave_valid_bold(y, x)) {
+	  int d = 1;
+	  
+	  /* Pick a location */
+	  scatter(&ny, &nx, y, x, d, 0);
 
-	/* Need some stairs */
-	if ((i == ((MAX_QUESTS) - 2)) || (m_ptr->r_idx == q_list[MAX_QUESTS-2].r_idx))
-	/* i.e. Sauron */
-	{
-		/* Stagger around */
-		while (!cave_valid_bold(y, x))
-		{
-			int d = 1;
-
-			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
-
-			/* Stagger */
-			y = ny; x = nx;
-		}
-
-		/* XXX XXX XXX */
-		delete_object(y, x);
-
-		/* Explain the staircase */
-		msg_print("A magical staircase appears...");
-
-		/* Create stairs down */
-		cave_set_feat(y, x, FEAT_MORE);
-
-		/* Remember to update everything */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
+	  /* Stagger */
+	  y = ny; x = nx;
 	}
 
+	/* XXX XXX XXX */
+	delete_object(y, x);
+		
+	/* Explain the staircase */
+	mprint(MSG_BONUS, "A magical staircase appears...");
+
+	/* Create stairs down */
+	cave_set_feat(y, x, FEAT_MORE);
+
+	/* Remember to update everything */
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
+
+
+	/* Only process "Endgame monsters" */
+	if (!(r_ptr->flags7 & (RF7_ENDGAME))) return;
 
 	/* Nothing left, game over... */
-	else
-	{
-		/* Total winner */
-		p_ptr->total_winner = TRUE;
+	/* Total winner */
+	p_ptr->total_winner = TRUE;
 
-		/* Redraw the "title" */
-		p_ptr->redraw |= (PR_TITLE);
+	/* Redraw the "title" */
+	p_ptr->redraw |= (PR_TITLE);
 
-		/* Congratulations */
-		msg_print("*** CONGRATULATIONS ***");
-		msg_print("You have won the game!");
-		msg_print("You may retire (commit suicide) when you are ready.");
-	}
+	/* Congratulations */
+	mprint(MSG_BIG_BONUS, "*** CONGRATULATIONS ***");
+	mprint(MSG_BIG_BONUS, "You have won the game!");
+	mprint(MSG_BIG_BONUS, "You may retire (commit suicide) when you are ready.");
 }
 
 
@@ -2112,8 +2177,12 @@ void monster_death(int m_idx)
  * of simply "(m_exp * m_lev) / (p_lev)", to make the first monster
  * worth more than subsequent monsters.  This would also need to
  * induce changes in the monster recall code.  XXX XXX XXX
+ *
+ * The next-to-last argument desides whether to award exp to the player.
+ * The last argument tells the fn. whether a pet did the fighting.
  */
-bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
+bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool give_exp,
+		  bool hit_by_pet)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
@@ -2121,16 +2190,22 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	s32b div, new_exp, new_exp_frac;
 
+	bool god_liked, god_hated;
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 
-	/* Wake it up */
-	m_ptr->csleep = 0;
+	/* Wake it up if it's hurt */
+	if (dam > 0)
+	  m_ptr->csleep = 0;
 
 	/* Hurt it */
 	m_ptr->hp -= dam;
+
+	/* Find out religious info */
+	god_liked = sacred_monster(r_ptr);
+	god_hated = despised_monster(r_ptr);
 
 	/* It is dead now */
 	if (m_ptr->hp < 0)
@@ -2138,7 +2213,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		char m_name[80];
 
 		/* Extract monster name */
-		monster_desc(m_name, m_ptr, 0);
+		if (hit_by_pet) {
+		  monster_desc(m_name, m_ptr, 0x88);
+		} else {
+		  monster_desc(m_name, m_ptr, 0);
+		}
 
 		/* Make a sound */
 		sound(SOUND_KILL);
@@ -2170,6 +2249,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			msg_format("You have slain %s.", m_name);
 		}
 
+
 		/* Maximum player level */
 		div = p_ptr->max_lev;
 
@@ -2178,21 +2258,38 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Handle fractional experience */
 		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-		                * 0x10000L / div) + p_ptr->exp_frac;
+				  * 0x10000L / div) + p_ptr->exp_frac;
+
+
+		/* Give triple exp. for hated monsters. */
+
+		if (god_hated) {
+		  new_exp *= 3;
+		  new_exp_frac *= 3;
+		}
 
 		/* Keep track of experience */
 		if (new_exp_frac >= 0x10000L)
-		{
-			new_exp++;
-			p_ptr->exp_frac = new_exp_frac - 0x10000L;
-		}
+		  {
+		    new_exp++;
+		    p_ptr->exp_frac = new_exp_frac - 0x10000L;
+		  }
 		else
-		{
-			p_ptr->exp_frac = new_exp_frac;
+		  {
+		    p_ptr->exp_frac = new_exp_frac;
+		  }
+		
+		/* Gain experience */
+		if (give_exp) {
+		  gain_exp(new_exp);
 		}
 
-		/* Gain experience */
-		gain_exp(new_exp);
+		/* Player vanquishing arena combatant -KMW- */
+		if (p_ptr->inside_special == 1) {
+		  p_ptr->exit_bldg = TRUE;
+		  mprint(MSG_BONUS, "Victorious! You're on your way to becoming Champion.");
+		  p_ptr->arena_number[p_ptr->which_arena]++;
+		}
 
 		/* Generate treasure */
 		monster_death(m_idx);
@@ -2219,6 +2316,68 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Not afraid */
 		(*fear) = FALSE;
 
+		/* Wake up nerby monsters */
+
+		if (!hit_by_pet) {
+		  awake_monsters(1);
+		}
+
+		/* Handle religous consequenses. */
+
+		if (give_exp && !hit_by_pet) {
+		  if (god_hated) {
+		    char tmp_name[80];
+
+		    strcpy(tmp_name, deity_info[p_ptr->pgod-1].name);
+
+		    mformat(MSG_BONUS, "%s seems pleased.", tmp_name);
+		    set_grace(p_ptr->grace + new_exp*5);
+		  }
+
+ 		  if (god_liked) {
+		    char tmp_name[80]; 
+
+		    strcpy(tmp_name, deity_info[p_ptr->pgod-1].name);
+		  
+		    mformat(MSG_STUPID, "%s howls in rage! You have killed a sacred creature!", tmp_name);
+		    set_grace(p_ptr->grace - new_exp*15);
+		    godly_wrath_blast();
+		  }
+		}
+
+
+		/* Has a crime been commited? */
+		if ((r_ptr->flags2 & RF2_INNOCENT) && give_exp) {
+		  /* Activate generators */
+		  activate_generators();
+
+		}
+
+		/* Has the quest been completed? */
+		if (p_ptr->inside_special == 2 && p_ptr->which_quest) {
+		  vault_type* v_ptr = q_v_ptrs[p_ptr->which_quest-1];
+
+		  if (v_ptr->q_type == QT_KILL) {
+		    int i;
+		    bool comp = TRUE;
+		    monster_type* m_ptr;
+
+		    for (i = 1; i < m_max; i++) {
+		      m_ptr = &m_list[i];
+
+		      if (!m_ptr->r_idx) continue;
+
+		      if (!m_ptr->is_pet) {
+			comp = FALSE;
+			break;
+		      }
+		    }
+		    
+		    if (comp) 
+		      complete_quest();
+		  }
+		}
+		
 		/* Monster is dead */
 		return (TRUE);
 	}
@@ -2249,6 +2408,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 	}
 
+
 	/* Sometimes a monster gets scared by damage */
 	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)))
 	{
@@ -2275,7 +2435,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	}
 
 #endif
-
 
 	/* Not dead yet */
 	return (FALSE);
@@ -2349,7 +2508,6 @@ void verify_panel(void)
 		/* Scroll */
 		scroll = TRUE;
 	}
-
 
 	/* Scroll */
 	if (scroll)
@@ -2526,7 +2684,9 @@ bool target_able(int m_idx)
 	if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) return (FALSE);
 
 	/* Hack -- no targeting hallucinations */
-	if (p_ptr->image) return (FALSE);
+	/* Got rid of this for now.
+	   if (p_ptr->image) return (FALSE);
+	*/
 
 	/* XXX XXX XXX Hack -- Never target trappers */
 	/* if (CLEAR_ATTR && (CLEAR_CHAR)) return (FALSE); */
@@ -2697,8 +2857,9 @@ static bool target_set_accept(int y, int x)
 
 
 	/* Handle hallucination */
-	if (p_ptr->image) return (FALSE);
-
+	/* Got rid of this for now.
+	   if (p_ptr->image) return (FALSE);
+	*/
 
 	/* Visible monsters */
 	if (cave_m_idx[y][x] > 0)
@@ -2769,6 +2930,13 @@ static bool target_set_accept(int y, int x)
 		if (cave_feat[y][x] == FEAT_TREES) return (TRUE);
 		if (cave_feat[y][x] == FEAT_MOUNTAIN) return (TRUE);
 
+		/* Notice Chaos Fog */
+		if (cave_feat[y][x] == FEAT_CHAOS_FOG) return TRUE;
+
+		/* Notice altars. */
+		if (cave_feat[y][x] >= FEAT_ALTAR_HEAD &&
+		    cave_feat[y][x] <= FEAT_ALTAR_TAIL) return TRUE;
+		
 	}
 
 	/* Nope */
@@ -2884,25 +3052,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 			/* Preposition */
 			s2 = "on ";
-		}
-
-
-		/* Hack -- hallucination */
-		if (p_ptr->image)
-		{
-			cptr name = "something strange";
-
-			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
-			prt(out_val, 0, 0);
-			move_cursor_relative(y, x);
-			query = inkey();
-
-			/* Stop on everything but "return" */
-			if ((query != '\r') && (query != '\n')) break;
-
-			/* Repeat forever */
-			continue;
 		}
 
 
@@ -3531,7 +3680,7 @@ bool get_aim_dir(int *dp)
 	if (p_ptr->command_dir != dir)
 	{
 		/* Warn the user */
-		msg_print("You are confused.");
+		mprint(MSG_TEMP, "You are confused.");
 	}
 
 	/* Save direction */
@@ -3628,7 +3777,7 @@ bool confuse_dir(int *dp)
 	if ((*dp) != dir)
 	{
 		/* Warn the user */
-		msg_print("You are confused.");
+		mprint(MSG_TEMP, "You are confused.");
 
 		/* Save direction */
 		(*dp) = dir;
@@ -3641,3 +3790,790 @@ bool confuse_dir(int *dp)
 	return (FALSE);
 }
 
+/*
+ * Here come the side effect functions. They are classified according
+ * to how beneficial they are, to avoid a giant nested switch/case
+ * statement. 
+ */
+
+/* Great side effect. */
+
+void great_side_effect(void) {
+  int tmp;
+
+  tmp = randint(100);
+
+  if (tmp <= 10) {
+    if (summon_specific_friendly(p_ptr->py, p_ptr->px, 
+				 p_ptr->depth+rand_spread(10, 5), 0)) {
+      mprint(MSG_BIG_BONUS, "Something materializes out of thin air.");
+    } else {
+      msg_print("You feel a strange tingling, but the feeling passes.");
+    }
+  } else if (tmp <= 20) {
+    acquirement(p_ptr->py, p_ptr->px, 1, 1);
+  } else if (tmp <= 30) {
+    enchant_spell(0, 0, randint(3) + 2);
+  } else if (tmp <= 40) {
+    enchant_spell(randint(3), randint(3), 0);
+  } else if (tmp <= 50) {
+    fire_explosion(p_ptr->py, p_ptr->px, GF_MAKE_GLYPH, 9, 0);
+  } else if (tmp <= 60) {
+    recharge(100);
+  } else if (tmp <= 70) {
+    remove_all_curse();
+  } else if (tmp <= 80) {
+    identify_fully();
+  } else if (tmp <= 90) {
+    restore_level();
+    hp_player(5000);
+    (void)set_poisoned(0);
+    (void)set_blind(0);
+    (void)set_confused(0);
+    (void)set_image(0);
+    (void)set_stun(0);
+    (void)set_cut(0);
+    (void)do_res_stat(A_STR);
+    (void)do_res_stat(A_CON);
+    (void)do_res_stat(A_DEX);
+    (void)do_res_stat(A_WIS);
+    (void)do_res_stat(A_INT);
+    (void)do_res_stat(A_CHR);
+  } else if (tmp <= 100) {
+    do_inc_stat(A_STR);
+    do_inc_stat(A_INT);
+    do_inc_stat(A_WIS);
+    do_inc_stat(A_DEX);
+    do_inc_stat(A_CON);
+    do_inc_stat(A_CHR);
+  }
+}
+
+
+
+/* Good side effect. */
+
+void good_side_effect(void) {
+  int tmp;
+
+  tmp = randint(100);
+
+  if (tmp <= 10) {
+    if (summon_specific_friendly(p_ptr->py, p_ptr->px, 
+				 p_ptr->depth, 0)) {
+      mprint(MSG_BIG_BONUS, "Something materializes out of thin air.");
+    } else {
+      msg_print("You feel a strange tingling, but the feeling passes.");
+    }
+  } else if (tmp <= 20) {
+    acquirement(p_ptr->py, p_ptr->px, 1, 0);
+  } else if (tmp <= 30) {
+    enchant_spell(0, 0, 1);
+  } else if (tmp <= 40) {
+    enchant_spell(1, 1, 0);
+  } else if (tmp <= 50) {
+    fire_explosion(p_ptr->py, p_ptr->px, GF_MAKE_GLYPH, 4, 0);
+  } else if (tmp <= 60) {
+    recharge(60);
+  } else if (tmp <= 70) {
+    remove_curse();
+  } else if (tmp <= 80) {
+    ident_spell();
+  } else if (tmp <= 90) {
+    hp_player(1200);
+    (void)set_poisoned(0);
+    (void)set_blind(0);
+    (void)set_confused(0);
+    (void)set_image(0);
+    (void)set_stun(0);
+    (void)set_cut(0);
+  } else if (tmp <= 100) {
+    wiz_lite();
+  }
+}
+
+
+/* OK side effect */
+
+void ok_side_effect(void) {
+  int tmp;
+
+  tmp = randint(100);
+
+  if (tmp <= 10) {
+    teleport_player(50);
+  } else if (tmp <= 20) {
+    destroy_area(p_ptr->py, p_ptr->px, 7, TRUE);
+  } else if (tmp <= 30) {
+    int i;
+    
+    mprint(MSG_WARNING, "A dimensional gate appears!");
+
+    for (i = 0; i < 60; i++) {
+      summon_specific(p_ptr->py, p_ptr->px, 1, 0);
+    }
+
+  } else if (tmp <= 40) {
+    lite_area(1, 6);
+  } else if (tmp <= 50) {
+    unlite_area(1, 6);
+  } else if (tmp <= 60) {
+    fire_explosion(p_ptr->py, p_ptr->px, GF_MAKE_DOOR, 9, 0);
+  } else if (tmp <= 70) {
+    mprint(MSG_WARNING, "The world twists.");
+    chaos_destroy_area(p_ptr->py, p_ptr->px, 7);
+  } else if (tmp <= 80) {
+    mprint(MSG_WARNING, "Your body mutates!");
+    generate_mutation();
+  } else if (tmp <= 90) {
+    remove_mutation();
+  } else if (tmp <= 100) {
+    change_shape(rand_range(SHAPE_ABOMINATION, SHAPE_COLD_CLOUD));
+  }
+}
+
+
+/* Neutral side effect. */
+
+void neutral_side_effect(void) {
+  int tmp;
+
+  tmp = randint(100);
+
+  if (tmp <= 10) {
+    if (summon_specific(p_ptr->py, p_ptr->px, 
+			p_ptr->depth, 0)) {
+      mprint(MSG_WARNING, "Something materializes out of thin air.");
+    } else {
+      msg_print("You feel a strange tingling, but the feeling passes.");
+    }
+  } else if (tmp <= 20) {
+    curse_armor();
+  } else if (tmp <= 30) {
+    curse_weapon();
+  } else if (tmp <= 40) {
+    msg_print("Hundreds of voices wail in agony...");
+    genocide();
+  } else if (tmp <= 50) {
+    msg_print("Thousands of voices wail in agony...");
+    mass_genocide();
+  } else if (tmp <= 60) {
+    mprint(MSG_WARNING, "Your body mutates!");
+    generate_mutation();
+  } else if (tmp <= 70) {
+    teleport_player_level();
+  } else if (tmp <= 80) {
+    change_shape(SHAPE_ABOMINATION);
+  } else if (tmp <= 90) {
+    earthquake();
+  } else if (tmp <= 100) {
+    fire_explosion(p_ptr->py, p_ptr->px, GF_QUAKE, 6, 20);
+  }
+}
+
+
+/* Nasty side effect. */
+
+void nasty_side_effect(void) {
+  int tmp;
+
+  tmp = randint(100);
+  if (tmp < 10) {
+    set_poisoned(p_ptr->poisoned + 10 + randint(10));
+  } else if (tmp < 20) {
+    set_confused(p_ptr->confused + 10 + randint(10));
+  } else if (tmp < 30) {
+    set_blind(p_ptr->blind + 10 + randint(10));
+  } else if (tmp < 40) {
+    set_slow(p_ptr->slow + 10 + randint(10));
+  } else if (tmp < 50) {
+    set_cut(p_ptr->cut + 10 + randint(100));
+  } else if (tmp < 60) {
+    set_stun(p_ptr->stun + randint(110));
+  } else if (tmp < 70) {
+    mprint(MSG_WARNING, "You hear a loud shriek!");
+    aggravate_monsters(1);
+  } else if (tmp < 80) {
+    set_image(p_ptr->image + 20 + randint(20));
+  } else if (tmp < 90) {
+    mprint(MSG_WARNING, "You feel very sick.");
+    set_slow(p_ptr->slow + 10 + randint(10));
+    set_confused(p_ptr->confused + 10 + randint(10));
+    set_poisoned(p_ptr->poisoned + 10 + randint(10));
+  } else if (tmp < 100) {
+    if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+randint(7), 0)) {
+      mprint(MSG_WARNING, "Something materializes out of thin air.");
+    } else {
+      msg_print("You feel a strange tingling, but the feeling passes.");
+    }
+  } else {
+    chaos_destroy_area(p_ptr->py, p_ptr->px, 15);
+  }
+}
+
+
+/* Deadly side effect. */
+
+void deadly_side_effect(bool god) {
+  int tmp;
+  bool (*boom)(int, int, int, int, int);
+
+  /* Lisp-like hack to save typing. */
+  if (god) {
+    boom = fire_godly_wrath;
+  } else {
+    boom = fire_explosion;
+  }
+
+  tmp = randint(100);
+
+  if (tmp <= 10) {
+    if (summon_specific(p_ptr->py, p_ptr->px, 
+			p_ptr->depth+20, 0)) {
+      mprint(MSG_URGENT, "Something materializes out of thin air.");
+    } else {
+      msg_print("You feel a strange tingling, but the feeling passes.");
+    }
+  } else if (tmp <= 20) {
+    boom(p_ptr->py, p_ptr->px, GF_MAKE_WALL, 9, 0);
+  } else if (tmp <= 30) {
+    mprint(MSG_WARNING, "The world twists!");
+    boom(p_ptr->py, p_ptr->px, GF_QUAKE, 9, 60);
+  } else if (tmp <= 40) {
+    mprint(MSG_URGENT, "Your nerves and muscles feel weak and lifeless.");
+    (void)dec_stat(A_STR, 50, TRUE);
+    (void)dec_stat(A_INT, 50, TRUE);
+    (void)dec_stat(A_WIS, 50, TRUE);
+    (void)dec_stat(A_DEX, 50, TRUE);
+    (void)dec_stat(A_CON, 50, TRUE);
+    (void)dec_stat(A_CHR, 50, TRUE);    
+  } else if (tmp <= 50) {
+    mprint(MSG_URGENT, "You feel somehow inadequate...");
+    p_ptr->exp -= (p_ptr->exp / 4);
+    p_ptr->max_exp -= (p_ptr->exp / 4);
+    check_experience();
+  } else if (tmp <= 60) {
+    mprint(MSG_URGENT, "Your whole life flashes before your eyes.");
+    boom(p_ptr->py, p_ptr->px, GF_TIME, 5, 100);
+  } else if (tmp <= 70) {
+    mprint(MSG_URGENT, "Everything seems grayer somehow...");
+    boom(p_ptr->py, p_ptr->px, GF_DISENCHANT, 5, 100);
+  } else if (tmp <= 80) {
+    boom(p_ptr->py, p_ptr->px, GF_MAKE_TRAP, 9, 0);
+  } else if (tmp <= 90) {
+    mprint(MSG_URGENT, "Something is trying to destroy your brain!");
+    boom(p_ptr->py, p_ptr->px, GF_BRAIN_SMASH, 5, 100);
+  } else if (tmp <= 100) {
+    godly_wrath_blast();
+  }
+}
+
+
+/* 
+ * Fire a godly blast from the sky. 
+ * Note that only attacks which are not resisted are used.
+ * (Gods are omnipotent, aren't they?)
+ */
+
+void godly_wrath_blast(void) {
+  int tmp;
+  int type = 0;
+  bool ok = FALSE;
+
+  while (1) {
+    tmp = randint(10);
+
+    switch (tmp) {
+    case 1:
+      if (!p_ptr->immune_acid) {
+	type = GF_ACID;
+	ok = TRUE;
+	mprint(MSG_STUPID, "You are blasted by acid from the sky!");
+      }
+      break;
+
+    case 2:
+      if (!p_ptr->immune_elec) {
+	type = GF_ELEC;
+	ok = TRUE;
+	mprint(MSG_STUPID, "You are blasted by a giant ball lightning from the sky!");
+      }
+      break;
+
+    case 3:
+      if (!(p_ptr->resist_pois || p_ptr->oppose_pois)) {
+	type = GF_POIS;
+	ok = TRUE;
+	mprint(MSG_STUPID, "A poisonous cloud descends from the sky!");
+      }
+      break;
+
+    case 4:
+      if (!p_ptr->resist_nethr) {
+	type = GF_NETHER;
+	ok = TRUE;
+	mprint(MSG_STUPID, "A force of death surrounds you!");
+      }
+      break;
+
+    case 5:
+      if (!(p_ptr->resist_sound || p_ptr->resist_confu)) {
+	type = GF_WATER;
+	ok = TRUE;
+	mprint(MSG_STUPID, "A flood of water falls from the sky!");
+      }
+      break;
+
+    case 6:
+      if (!p_ptr->resist_chaos) {
+	type = GF_CHAOS;
+	ok = TRUE;
+	mprint(MSG_STUPID, "You are blasted by a gale of chaos!");
+      }
+      break;
+
+    case 7:
+      if (!p_ptr->resist_shard) {
+	type = GF_SHARD;
+	ok = TRUE;
+	mprint(MSG_STUPID, "A multitude of shards descends on you from the sky!");
+      }
+      break;
+
+    case 8:
+      if (!p_ptr->resist_disen) {
+	type = GF_DISENCHANT;
+	ok = TRUE;
+	mprint(MSG_STUPID, "You feel your magical aura wane!");
+      }
+      break;
+
+    case 9:
+      type = GF_TIME;
+      ok = TRUE;
+      mprint(MSG_STUPID, "A dizzying array of blinking dots falls from the sky!");
+      break;
+
+    case 10:
+      type = GF_METEOR;
+      ok = TRUE;
+      mprint(MSG_STUPID, "A giant meteor falls on you from the sky!");
+      break;
+    }
+    
+    if (ok) break;
+  }
+
+  fire_godly_wrath(p_ptr->py, p_ptr->px, type, 1, damroll(4, 5));
+}
+
+/*
+ * Return a description of a given attack type.
+ */
+
+void describe_attack(int type, char* r) {
+  switch (type) {
+  case GF_ARROW:       strcpy(r, "small arrows"); break; 
+  case GF_MISSILE:     strcpy(r, "small darts"); break;
+  case GF_MANA:        strcpy(r, "pure energy"); break;
+  case GF_HOLY_ORB:    strcpy(r, "holy aura"); break;
+  case GF_LITE_WEAK:   strcpy(r, "light"); break;
+  case GF_DARK_WEAK:   strcpy(r, "dark"); break;
+  case GF_WATER:       strcpy(r, "water"); break;
+  case GF_PLASMA:      strcpy(r, "white-hot fire"); break;
+  case GF_METEOR:      strcpy(r, "meteors"); break;
+  case GF_ICE:         strcpy(r, "ice"); break;
+  case GF_GRAVITY:     strcpy(r, "heavyness"); break;
+  case GF_INERTIA:     strcpy(r, "impelling force"); break;
+  case GF_FORCE:       strcpy(r, "force"); break;
+  case GF_TIME:        strcpy(r, "pure time"); break;
+  case GF_ACID:        strcpy(r, "acid"); break;
+  case GF_ELEC:        strcpy(r, "lightning"); break;
+  case GF_FIRE:        strcpy(r, "flames"); break;
+  case GF_COLD:        strcpy(r, "cold"); break;
+  case GF_POIS:        strcpy(r, "pungent gas"); break;
+  case GF_LITE:        strcpy(r, "pure light"); break;
+  case GF_DARK:        strcpy(r, "pure dark"); break;
+  case GF_CONFUSION:   strcpy(r, "scintillating colors"); break;
+  case GF_SOUND:       strcpy(r, "high-pitched noise"); break;
+  case GF_SHARD:       strcpy(r, "shards"); break;
+  case GF_NEXUS:       strcpy(r, "black, heavy clouds"); break;
+  case GF_NETHER:      strcpy(r, "nothingness"); break;
+  case GF_CHAOS:       strcpy(r, "chaos"); break;
+  case GF_DISENCHANT:  strcpy(r, "emptyness"); break;
+  case GF_QUAKE:       strcpy(r, "space-time distortion"); break;
+  case GF_KILL_WALL:
+  case GF_KILL_DOOR:
+  case GF_KILL_TRAP:
+  case GF_MAKE_WALL:
+  case GF_MAKE_DOOR:
+  case GF_MAKE_TRAP:
+  case GF_MAKE_GLYPH:
+  case GF_MAKE_STAIR:
+    strcpy(r, "swirling pebbles");
+    break;
+  case GF_AWAY_UNDEAD:
+  case GF_AWAY_EVIL:
+  case GF_AWAY_ALL:
+  case GF_AWAY_ALL_VERT:
+  case GF_RECALL:
+    strcpy(r, "forbidding noise"); 
+    break;
+  case GF_DISP_UNDEAD:
+  case GF_DISP_EVIL:
+  case GF_DISP_ALL:
+    strcpy(r, "terrifying noise");
+    break;
+  case GF_CLONE:   strcpy(r, "popping sounds"); break;
+  case GF_POLY:    strcpy(r, "echoing sounds"); break;
+  case GF_SPEED:   strcpy(r, "fast-pased rhythmic sounds"); break;
+  case GF_SLOW:    strcpy(r, "slow, sonorous music"); break;
+  case GF_CONF:    strcpy(r, "discordant sounds"); break;
+  case GF_SLEEP:   strcpy(r, "soothing music"); break;
+  case GF_DRAIN:   strcpy(r, "sucking noise"); break;
+  case GF_CHAOS_DESTRUCTION:
+  case GF_WALL_TO_CHAOS: strcpy(r, "swirling motes of chaos"); break;
+  case GF_MIND_BLAST:  strcpy(r, "stifling, smelly air"); break;
+  case GF_BRAIN_SMASH: strcpy(r, "essence of stupidity"); break;
+  case GF_EARTHQUAKE:
+  case GF_WORD_OF_DESTRUCTION: strcpy(r, "minuature whirlwinds"); break;
+
+  case GF_DETECT_DOOR:
+  case GF_DETECT_TRAP:
+  case GF_DETECT_STAIR:
+  case GF_DETECT_TREASURE:
+  case GF_DETECT_GOLD:
+  case GF_DETECT_OBJECT:
+  case GF_DETECT_MAGIC:
+  case GF_DETECT_MONSTER:
+  case GF_DETECT_INVIS:
+  case GF_DETECT_EVIL:
+  case GF_DETECT_ANY:
+    strcpy(r, "blinking lights");
+    break;
+
+  case GF_HEAL:
+  case GF_HEAL_INSANITY:
+  case GF_HEAL_FEAR:
+  case GF_HEAL_CUT:
+  case GF_HEAL_STUN:
+  case GF_HEAL_POISON:
+  case GF_HEAL_DEX:
+  case GF_HEAL_CHR:
+  case GF_HEAL_STR:
+  case GF_HEAL_CON:
+  case GF_HEAL_WIS:
+  case GF_HEAL_INT:
+  case GF_HEAL_LIFE:
+    strcpy(r, "soothing noise");
+    break;
+
+  case GF_SHIELD:   strcpy(r, "solidified air"); break;
+  case GF_HEROISM:  strcpy(r, "exciting music"); break;
+  case GF_BLESS:    strcpy(r, "serene hymns"); break;
+  case GF_FOOD:     strcpy(r, "delicious smells"); break;
+  case GF_HEAVY_UNCURSE:
+  case GF_UNCURSE:  strcpy(r, "high-pitched noise"); break;
+  case GF_RECHARGE: strcpy(r, "miniature lightnings"); break;
+  case GF_IDENT:
+  case GF_HEAVY_IDENT:
+  case GF_SUPER_IDENT:
+    strcpy(r, "low-pitched mumbling"); break;
+
+  case GF_RES_FIRE: strcpy(r, "heatless flames"); break;
+  case GF_RES_COLD: strcpy(r, "snowflakes"); break;
+  case GF_RES_ACID: strcpy(r, "acidic raindrops"); break;
+  case GF_RES_ELEC: strcpy(r, "crackling sparks"); break;
+  case GF_RES_POIS: strcpy(r, "smelly slime"); break;
+
+  case GF_MASS_GENOCIDE:
+  case GF_GENOCIDE: strcpy(r, "terrifying shrieking"); break;
+
+  case GF_ENCHANT_TO_HIT:
+  case GF_ENCHANT_TO_DAM:
+  case GF_ENCHANT_AC:
+  case GF_BRAND_AMMO:
+  case GF_BRAND_WEAPON:
+    strcpy(r, "blue glow"); break;
+
+  case GF_MAKE_MONSTER:
+  case GF_MAKE_PET:
+    strcpy(r, "beckoning whispering"); break;
+
+  case GF_ALTER: strcpy(r, "deranged sounds"); break;
+    
+  default:
+    /* Get something silly randomly */
+    get_random_line("sfail.txt", r);
+    break;
+  }
+}
+
+
+/*
+ * Describe the attack using normal names. 
+ */
+
+void describe_attack_fully(int type, char* r) {
+  switch (type) {
+  case GF_ARROW:       strcpy(r, "arrows"); break; 
+  case GF_MISSILE:     strcpy(r, "magic missiles"); break;
+  case GF_MANA:        strcpy(r, "mana"); break;
+  case GF_HOLY_ORB:    strcpy(r, "holy aura"); break;
+  case GF_LITE_WEAK:   strcpy(r, "light"); break;
+  case GF_DARK_WEAK:   strcpy(r, "dark"); break;
+  case GF_WATER:       strcpy(r, "water"); break;
+  case GF_PLASMA:      strcpy(r, "plasma"); break;
+  case GF_METEOR:      strcpy(r, "meteors"); break;
+  case GF_ICE:         strcpy(r, "ice"); break;
+  case GF_GRAVITY:     strcpy(r, "gravity"); break;
+  case GF_INERTIA:     strcpy(r, "inertia"); break;
+  case GF_FORCE:       strcpy(r, "force"); break;
+  case GF_TIME:        strcpy(r, "pure time"); break;
+  case GF_ACID:        strcpy(r, "acid"); break;
+  case GF_ELEC:        strcpy(r, "lightning"); break;
+  case GF_FIRE:        strcpy(r, "flames"); break;
+  case GF_COLD:        strcpy(r, "cold"); break;
+  case GF_POIS:        strcpy(r, "poison"); break;
+  case GF_LITE:        strcpy(r, "pure light"); break;
+  case GF_DARK:        strcpy(r, "pure dark"); break;
+  case GF_CONFUSION:   strcpy(r, "confusion"); break;
+  case GF_SOUND:       strcpy(r, "sound"); break;
+  case GF_SHARD:       strcpy(r, "shards"); break;
+  case GF_NEXUS:       strcpy(r, "nexus"); break;
+  case GF_NETHER:      strcpy(r, "nether"); break;
+  case GF_CHAOS:       strcpy(r, "chaos"); break;
+  case GF_DISENCHANT:  strcpy(r, "disenchantment"); break;
+  case GF_QUAKE:       strcpy(r, "space-time distortion"); break;
+  case GF_KILL_WALL:   strcpy(r, "wall destruction"); break;
+  case GF_KILL_DOOR:   strcpy(r, "door destruction"); break;
+  case GF_KILL_TRAP:   strcpy(r, "trap destruction"); break;
+  case GF_MAKE_WALL:   strcpy(r, "wall creation"); break;
+  case GF_MAKE_DOOR:   strcpy(r, "door creation"); break;
+  case GF_MAKE_TRAP:   strcpy(r, "trap creation"); break;
+  case GF_MAKE_GLYPH:   strcpy(r, "glyph of warding"); break;
+  case GF_MAKE_STAIR:   strcpy(r, "stair creation"); break;
+
+  case GF_AWAY_UNDEAD:  strcpy(r, "teleport undead"); break;
+  case GF_AWAY_EVIL:    strcpy(r, "teleport evil");   break;
+  case GF_AWAY_ALL:     strcpy(r, "teleport monster"); break;
+
+  case GF_DISP_UNDEAD:  strcpy(r, "turn undead"); break;
+  case GF_DISP_EVIL:    strcpy(r, "turn evil");   break;
+  case GF_DISP_ALL:     strcpy(r, "fear");        break;
+
+  case GF_CLONE:   strcpy(r, "clone monster"); break;
+  case GF_POLY:    strcpy(r, "polymorph"); break;
+  case GF_HEAL:    strcpy(r, "healing"); break;
+  case GF_SPEED:   strcpy(r, "speed"); break;
+  case GF_SLOW:    strcpy(r, "slowness"); break;
+  case GF_CONF:    strcpy(r, "confusion"); break;
+  case GF_SLEEP:   strcpy(r, "sleep"); break;
+  case GF_DRAIN:   strcpy(r, "life leech"); break;
+  case GF_WALL_TO_CHAOS:
+  case GF_CHAOS_DESTRUCTION:
+    strcpy(r, "chaotic destruction"); break;
+  case GF_MIND_BLAST:  strcpy(r, "mind blast"); break;
+  case GF_BRAIN_SMASH: strcpy(r, "brain smash"); break;
+  case GF_EARTHQUAKE:
+    strcpy(r, "earthquake"); break;
+  case GF_WORD_OF_DESTRUCTION:
+    strcpy(r, "destruction"); break;
+
+
+  case GF_AWAY_ALL_VERT:   strcpy(r, "teleport vertically"); break;
+  case GF_RECALL:          strcpy(r, "recall"); break;
+  case GF_ALTER:           strcpy(r, "alteration"); break;
+  case GF_DETECT_DOOR:     strcpy(r, "detect doors"); break;
+  case GF_DETECT_TRAP:     strcpy(r, "detect traps"); break;
+  case GF_DETECT_STAIR:    strcpy(r, "detect stairs"); break;
+  case GF_DETECT_TREASURE: strcpy(r, "detect treasure"); break;
+  case GF_DETECT_GOLD:     strcpy(r, "detect gold"); break;
+  case GF_DETECT_OBJECT:   strcpy(r, "detect object"); break;
+  case GF_DETECT_MAGIC:    strcpy(r, "detect magic"); break;
+  case GF_DETECT_MONSTER:  strcpy(r, "detect monster"); break;
+  case GF_DETECT_INVIS:    strcpy(r, "detect invisible"); break;
+  case GF_DETECT_EVIL:     strcpy(r, "detect evil"); break;
+  case GF_DETECT_ANY:      strcpy(r, "detection"); break;
+  case GF_HEAL_INSANITY:   strcpy(r, "heal insanity"); break;
+  case GF_HEAL_FEAR:       strcpy(r, "remove fear"); break;
+  case GF_HEAL_CUT:        strcpy(r, "heal cuts"); break;
+  case GF_HEAL_STUN:       strcpy(r, "heal stun"); break;
+  case GF_HEAL_POISON:     strcpy(r, "neutralize poison"); break;
+  case GF_HEAL_DEX:        strcpy(r, "restore dexterity"); break;
+  case GF_HEAL_CHR:        strcpy(r, "restore charisma"); break;
+  case GF_HEAL_STR:        strcpy(r, "restore strength"); break;
+  case GF_HEAL_CON:        strcpy(r, "restore constitution"); break;
+  case GF_HEAL_WIS:        strcpy(r, "restore wisdom"); break;
+  case GF_HEAL_INT:        strcpy(r, "restore intelligence"); break;
+  case GF_HEAL_LIFE:       strcpy(r, "restore life levels"); break;
+  case GF_SHIELD:          strcpy(r, "shield"); break;
+  case GF_HEROISM:         strcpy(r, "heroism"); break;
+  case GF_BLESS:           strcpy(r, "blessing"); break;
+  case GF_FOOD:            strcpy(r, "satisfy hunger"); break;
+  case GF_UNCURSE:         strcpy(r, "remove curse"); break;
+  case GF_RECHARGE:        strcpy(r, "recharge"); break;
+  case GF_HEAVY_UNCURSE:   strcpy(r, "*remove curse*"); break;
+  case GF_IDENT:           strcpy(r, "identify"); break;
+  case GF_HEAVY_IDENT:     strcpy(r, "*identify*"); break;
+  case GF_SUPER_IDENT:     strcpy(r, "**identify**"); break;
+  case GF_RES_FIRE:        strcpy(r, "resist fire"); break;
+  case GF_RES_COLD:        strcpy(r, "resist cold"); break;
+  case GF_RES_ELEC:        strcpy(r, "resist electricity"); break;
+  case GF_RES_ACID:        strcpy(r, "resist acid"); break;
+  case GF_RES_POIS:        strcpy(r, "resist poison"); break;
+  case GF_GENOCIDE:        strcpy(r, "genocide"); break;
+  case GF_MASS_GENOCIDE:   strcpy(r, "mass genocide"); break;
+  case GF_ENCHANT_TO_HIT:  strcpy(r, "enchant to-hit"); break;
+  case GF_ENCHANT_TO_DAM:  strcpy(r, "enchant to-dam"); break;
+  case GF_ENCHANT_AC:      strcpy(r, "enchant AC"); break;
+  case GF_BRAND_AMMO:      strcpy(r, "brand ammo"); break;
+  case GF_BRAND_WEAPON:    strcpy(r, "brand weapon"); break;
+  case GF_MAKE_MONSTER:    strcpy(r, "summon monster"); break;
+  case GF_MAKE_PET:        strcpy(r, "summon pet"); break;
+
+  default:
+    strcpy(r, "something unknown");
+    break;
+  }
+}
+
+
+/*
+ * Explode an object, currently only potions and flasks.
+ */
+
+bool explode_object(object_type* o_ptr, cptr o_name, int y, int x) {
+  int type;
+  int rad = 5;
+  int dam = 0;
+
+  if (!o_ptr->k_idx) {
+    return FALSE;
+  }
+
+  if (o_ptr->tval != TV_POTION && o_ptr->tval != TV_FLASK) {
+    return FALSE;
+  }
+
+  if (o_ptr->tval == TV_FLASK) {
+    type = GF_FIRE;
+    dam = damroll(2, 6);
+    rad = 2;
+  } else {
+
+    switch (o_ptr->sval) {
+    case SV_POTION_SLOWNESS:
+      type = GF_SLOW;
+      break;
+
+    case SV_POTION_POISON:
+      type = GF_POIS;
+      break;
+
+    case SV_POTION_BLINDNESS:
+      type = GF_DARK_WEAK;
+      break;
+
+    case SV_POTION_CONFUSION:
+      type = GF_CONF;
+      break;
+
+    case SV_POTION_SLEEP:
+      type = GF_SLEEP;
+      break;
+
+    case SV_POTION_RUINATION:
+      type = GF_TIME;
+      dam = damroll(10, 40);
+      break;
+
+    case SV_POTION_DEATH:
+      type = GF_NETHER;
+      dam = 5000;
+      break;
+
+    case SV_POTION_DETONATIONS:
+      type = GF_PLASMA;
+      dam = damroll(50, 20);
+      break;
+
+    case SV_POTION_SPEED:
+      type = GF_SPEED;
+      break;
+
+    case SV_POTION_STAR_HEALING:
+      dam += damroll(2, 6);
+    case SV_POTION_HEALING:
+      dam += damroll(2, 6);
+    case SV_POTION_CURE_CRITICAL:
+      dam += damroll(2, 6);
+    case SV_POTION_CURE_SERIOUS:
+      dam += damroll(2, 6);
+    case SV_POTION_CURE_LIGHT:
+      dam += damroll(2, 6);
+      type = GF_HEAL;
+      break;
+
+    case SV_POTION_MUTATION:
+      type = GF_CHAOS;
+      break;
+
+    default:
+      return FALSE;
+    }
+  }
+
+  mformat(MSG_WARNING, "The %s explodes!", o_name);
+  fire_explosion(y, x, type, rad, dam);  
+  return TRUE;
+}
+
+
+/*
+ * Return a number denoting your current standing with your god,
+ * ranging from 0 (really bad) to 10 (really good).
+ * Note that 0-5 mean ``cursed'', 6-7 mean ``neutral'',
+ * and 8-10 mean ``blessed''.
+ */
+
+int interpret_grace(void) {
+  if (p_ptr->grace <      -60000) return 0;
+  else if (p_ptr->grace < -50000) return 1;
+  else if (p_ptr->grace < -40000) return 2;
+  else if (p_ptr->grace < -30000) return 3;
+  else if (p_ptr->grace < -20000) return 4;
+  else if (p_ptr->grace < -10000) return 5;
+  else if (p_ptr->grace <      0) return 6;
+  
+  else if (p_ptr->grace >  20000) return 10;
+  else if (p_ptr->grace >  10000) return 9;
+  else if (p_ptr->grace >    200) return 8;
+  else if (p_ptr->grace >      0) return 7;
+
+  /* Should never happen! */
+  return -1;
+}
+
+
+/*
+ * Same as interpret_grace, but for p_ptr->god_favor.
+ */
+
+int interpret_favor(void) {
+  if (p_ptr->god_favor <      -60000) return 0;
+  else if (p_ptr->god_favor < -50000) return 1;
+  else if (p_ptr->god_favor < -40000) return 2;
+  else if (p_ptr->god_favor < -30000) return 3;
+  else if (p_ptr->god_favor < -20000) return 4;
+  else if (p_ptr->god_favor < -10000) return 5;
+  else if (p_ptr->god_favor <      0) return 6;
+  
+  else if (p_ptr->god_favor >  20000) return 10;
+  else if (p_ptr->god_favor >  10000) return 9;
+  else if (p_ptr->god_favor >    200) return 8;
+  else if (p_ptr->god_favor >      0) return 7;
+
+  /* Should never happen! */
+  return -1;
+}

@@ -221,9 +221,10 @@ s16b error_line;
 /*
  * Hack -- help initialize the fake "name" and "text" arrays when
  * parsing an "ascii" template file.
+ * Note that some text arrays could be huge -- i.e. v_text.
  */
 u16b fake_name_size;
-u16b fake_text_size;
+u32b fake_text_size;
 
 
 /*
@@ -1288,7 +1289,6 @@ static errr init_r_info_raw(int fd)
 	/* Accept the header */
 	(*r_head) = test;
 
-
 	/* Allocate the "r_info" array */
 	C_MAKE(r_info, r_head->info_num, monster_race);
 
@@ -1310,6 +1310,12 @@ static errr init_r_info_raw(int fd)
 
 	/* Read the "r_text" array */
 	fd_read(fd, (char*)(r_text), r_head->text_size);
+
+	/* Allocate the "sayings_text" array */
+	C_MAKE(sayings_text, r_head->text2_size, char);
+
+	/* Read the "sayings_text" array */
+	fd_read(fd, (char*)(sayings_text), r_head->text2_size);
 
 #endif
 
@@ -1400,6 +1406,7 @@ static errr init_r_info(void)
 	/* Hack -- make "fake" arrays */
 	C_MAKE(r_name, fake_name_size, char);
 	C_MAKE(r_text, fake_text_size, char);
+	C_MAKE(sayings_text, fake_text_size, char);
 
 
 	/*** Load the ascii template file ***/
@@ -1467,6 +1474,9 @@ static errr init_r_info(void)
 		/* Dump the "r_text" array */
 		fd_write(fd, (char*)(r_text), r_head->text_size);
 
+		/* Dump the "sayings_text" array */
+		fd_write(fd, (char*)(sayings_text), r_head->text2_size);
+
 		/* Close */
 		fd_close(fd);
 	}
@@ -1480,6 +1490,8 @@ static errr init_r_info(void)
 	/* Hack -- Free the "fake" arrays */
 	C_KILL(r_name, fake_name_size, char);
 	C_KILL(r_text, fake_text_size, char);
+	C_KILL(sayings_text, fake_text_size, char);
+	
 
 	/* Forget the array sizes */
 	fake_name_size = 0;
@@ -1541,7 +1553,6 @@ static errr init_v_info_raw(int fd)
 	/* Accept the header */
 	(*v_head) = test;
 
-
 	/* Allocate the "v_info" array */
 	C_MAKE(v_info, v_head->info_num, vault_type);
 
@@ -1556,15 +1567,17 @@ static errr init_v_info_raw(int fd)
 	fd_read(fd, (char*)(v_name), v_head->name_size);
 
 
-#ifndef DELAY_LOAD_V_TEXT
-
 	/* Allocate the "v_text" array */
 	C_MAKE(v_text, v_head->text_size, char);
 
 	/* Read the "v_text" array */
 	fd_read(fd, (char*)(v_text), v_head->text_size);
 
-#endif
+	/* Allocate the "q_text" array */
+	C_MAKE(q_text, v_head->text2_size, char);
+
+	/* Read the "q_text" array */
+	fd_read(fd, (char*)(q_text), v_head->text2_size);
 
 	/* Success */
 	return (0);
@@ -1642,9 +1655,12 @@ static errr init_v_info(void)
 
 	/*** Make the fake arrays ***/
 
-	/* Fake the size of "v_name" and "v_text" */
+	/* Fake the size of "v_name" and "v_text" 
+	 * Note that v_text should be very large, since some custom
+	 * levels could be huge.
+	 */
 	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
+	fake_text_size = 70 * 1024L;
 
 	/* Allocate the "k_info" array */
 	C_MAKE(v_info, v_head->info_num, vault_type);
@@ -1652,6 +1668,7 @@ static errr init_v_info(void)
 	/* Hack -- make "fake" arrays */
 	C_MAKE(v_name, fake_name_size, char);
 	C_MAKE(v_text, fake_text_size, char);
+	C_MAKE(q_text, fake_text_size, char);
 
 
 	/*** Load the ascii template file ***/
@@ -1718,6 +1735,9 @@ static errr init_v_info(void)
 		/* Dump the "v_text" array */
 		fd_write(fd, (char*)(v_text), v_head->text_size);
 
+		/* Dump the "q_text" array */
+		fd_write(fd, (char*)(q_text), v_head->text2_size);
+
 		/* Close */
 		fd_close(fd);
 	}
@@ -1730,6 +1750,7 @@ static errr init_v_info(void)
 	/* Hack -- Free the "fake" arrays */
 	C_KILL(v_name, fake_name_size, char);
 	C_KILL(v_text, fake_text_size, char);
+	C_KILL(q_text, fake_text_size, char);
 
 	/* Forget the array sizes */
 	fake_name_size = 0;
@@ -1761,61 +1782,6 @@ static errr init_v_info(void)
 	/* Success */
 	return (0);
 }
-
-
-
-/*
- * Initialize the "q_info" array -KMW-
- *
- * Note that we let each entry have a unique "name".
- */
-static errr init_q_info(void)
-{
-	errr err;
-
-	FILE *fp;
-
-	/* General buffer */
-	char buf[1024];
-
-	/*** Load the ascii template file ***/
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "q_info.txt");
-
-	/* Open the file */
-	fp = my_fopen(buf, "r");
-
-	/* Parse it */
-	if (!fp) quit("Cannot open 'q_info.txt' file.");
-
-	/* Parse the file */
-	err = init_q_info_txt(fp, buf);
-
-	/* Close it */
-	my_fclose(fp);
-
-	/* Errors */
-	if (err)
-	{
-		cptr oops;
-
-		/* Error string */
-		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
-
-		/* Oops */
-		msg_format("Error %d at line %d of 'q_info.txt'.", err, error_line);
-		msg_format("Record %d contains a '%s' error.", error_idx, oops);
-		msg_format("Parsing '%s'.", buf);
-		msg_print(NULL);
-
-		/* Quit */
-		quit("Error in 'q_info.txt' file.");
-	}
-	/* Success */
-	return (0);
-}
-
 
 
 /*** Initialize others ***/
@@ -1976,14 +1942,15 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 3 }
+		{ TV_SPELLBOOK, SV_SPELLBOOK_PRIEST },
+		{ TV_SPELLBOOK, SV_SPELLBOOK_PRIEST },
+		{ TV_SPELLBOOK, SV_SPELLBOOK_PRIEST },
+
+		{ TV_POTION, SV_POTION_INSANE_LIGHT },
+		{ TV_POTION, SV_POTION_INSANE_LIGHT },
+		{ TV_POTION, SV_POTION_INSANE_LIGHT },
+		{ TV_SCROLL, SV_SCROLL_HOLY_PRAYER },
+		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
 	},
 
 	{
@@ -2003,8 +1970,8 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
 		{ TV_SCROLL, SV_SCROLL_MAPPING },
-		{ TV_SCROLL, SV_SCROLL_DETECT_GOLD },
-		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
+		{ TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },
+		{ TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },
 		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
 
 		{ TV_SCROLL, SV_SCROLL_DETECT_DOOR },
@@ -2023,7 +1990,25 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RES_WIS },
 		{ TV_POTION, SV_POTION_RES_DEX },
 		{ TV_POTION, SV_POTION_RES_CON },
-		{ TV_POTION, SV_POTION_RES_CHR }
+		{ TV_POTION, SV_POTION_RES_CHR },
+
+		{ TV_INGRED, 0 },
+		{ TV_INGRED, 1 },
+		{ TV_INGRED, 2 },
+		{ TV_INGRED, 3 },
+		{ TV_INGRED, 4 },
+		{ TV_INGRED, 5 },
+		{ TV_INGRED, 6 },
+		{ TV_INGRED, 7 },
+		{ TV_INGRED, 8 },
+		{ TV_INGRED, 9 },
+		{ TV_INGRED, 10 },
+		{ TV_INGRED, 11 },
+		{ TV_INGRED, 12 },
+		{ TV_INGRED, 13 },
+		{ TV_INGRED, 14 },
+		{ TV_INGRED, 15 }
+
 	},
 
 	{
@@ -2057,14 +2042,16 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 
 		/* Added Illusion books -KMW- */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 3 },
-		{ TV_ILLUSION_BOOK, 0 },
-		{ TV_ILLUSION_BOOK, 1 },
-		{ TV_ILLUSION_BOOK, 2 },
-		{ TV_ILLUSION_BOOK, 3 }
+		{ TV_SPELLBOOK, SV_SPELLBOOK_MAGE },
+		{ TV_SPELLBOOK, SV_SPELLBOOK_MAGE },
+		{ TV_SPELLBOOK, SV_SPELLBOOK_ROGUE },
+
+		{ TV_SPELLBOOK, SV_SPELLBOOK_ILLUSIONIST },
+		{ TV_SPELLBOOK, SV_SPELLBOOK_ILLUSIONIST },
+		{ TV_SPELLBOOK, SV_SPELLBOOK_RANGER },
+
+		{ TV_WAND, SV_WAND_WONDER },
+		{ TV_STAFF, SV_STAFF_IDENTIFY },
 	}
 };
 
@@ -2076,7 +2063,8 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
  */
 static errr init_other(void)
 {
-	int i, k, n;
+  int i, k, n;
+	vault_type* v_ptr = NULL;
 
 
 	/*** Prepare the various "bizarre" arrays ***/
@@ -2094,11 +2082,25 @@ static errr init_other(void)
 
 	/* Message variables */
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
+	C_MAKE(message__pty, MESSAGE_MAX, byte);
 	C_MAKE(message__buf, MESSAGE_BUF, char);
 
 	/* Hack -- No messages yet */
 	message__tail = MESSAGE_BUF;
 
+	/*** Prepare quest tables ***/
+
+	C_WIPE(q_v_ptrs, MAX_QUESTS, vault_type*);
+	max_quests = 0;
+
+	for (i = 0; i < MAX_V_IDX; i++) {
+	  v_ptr = &v_info[i];
+
+	  if (v_ptr->typ == 99) {
+	    q_v_ptrs[v_ptr->q_idx] = v_ptr;
+	    max_quests++;
+	  }
+	}
 
 	/*** Prepare the Player inventory ***/
 
@@ -2613,10 +2615,6 @@ void init_angband(void)
 	/* Initialize vault info */
 	note("[Initializing arrays... (vaults)]");
 	if (init_v_info()) quit("Cannot initialize vaults");
-
-	/* Initialize quest info -KMW- */
-	note("[Initializing arrays... (quests)]");
-	if (init_q_info()) quit("Cannot initialize quests");
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");

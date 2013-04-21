@@ -1,0 +1,610 @@
+
+---- Release 0.1 ----
+
+Added ``Mutant'' race:
+    
+    Str: -5
+    Int: +5
+    Wis: +4
+    Dex: -1
+    Con: -3
+    Chr: -5
+
+    Each stat is also adjusted by plus or minus one.
+
+    Resist Chaos, and one of:
+	a) Poison
+	b) Blind
+	c) Acid
+	d) Electricity
+	e) Fear
+
+Added ``Corrupted'' class:
+
+    Str: -5
+    Int: +5
+    Wis: +5
+    Dex: -5
+    Con: -10
+    Chr: -5
+
+    The ``Corrupted'' get a new set of spells vaguely based on the
+Illusionist spells, although the spells are more powerfull.
+They can gain spells at any time, but the spell gained is random. 
+The ``Corrupted'' books can't be bought, sold, or found.
+Instead, a random book is received every 5 levels. If your race
+is other than a ``Mutant'', all your stats are reduced at the same time.
+The ``Corrupted'' cannot wield any weapon or wear any armor comfortably.
+They also have twice as much mana as the other classes. All in all, 
+this class is designed to be played without ANY weapons or armor.
+
+Added ``Neuter'' sex. (For the Mutant class, ``Neuter Elf'' sounds pretty
+ridiculous.)
+
+---- Release 0.2 ----
+
+Added a building for the Corrupted class.
+
+Added new terrain -- chaos fog.
+
+Added two new spells -- wall_to_chaos, chaos_destroy_area.
+
+Added bad side effects when Corrupted spells fail.
+
+It's possible to place chaos fog in vaults -- use 'F'.
+
+Added alchemy. You can now find alchemical ingredients in the dungeon and
+alchemy shop. You can use the ``$'' command to combine one or more
+ingredients together. When the right recipe is used, you can get something
+good. If you try to make something above your level, you'll fail and
+get a side effect. Note that almost all recipes use 3 ingredients, and
+the recipes are fixed for every game. Also note that the recipes
+are not random and follow a rudimentary pattern, so that you can
+build on top of your alchemical knowledge.
+
+Added memory for alchemical recipes, under the ``general knowledge''
+command. When the right recipe is used, even if it fails, the recipe
+is remembered. Each character starts with a couple randomly known
+recipes.
+
+Added pets. They don't ever attack the player, and can fight other
+monsters. The pets are downright viscious -- they track other monsters 
+(somewhat stupidly) and cast spells at other monsters. Pets will act 
+independently of the player, chasing other monsters on their own.
+Regular monsters keep their old behaviour, i.e. chase the player exclusively.
+The player can't attack his pet hand-to-hand, and casting damaging spells
+on the pet will cause the pet to turn on the player.
+The pets choose their spells carefully, and will not hurt the
+player, but will nonetheless cast bolt and breath attacks at other
+monsters. Monsters killed by pets give full experience, as if
+the player physically killed the monster.
+
+Breeder pets breed more pets, and summoners summon more pets.
+
+Note that pets disappear along with other monsters when the 
+player leaves the level. 
+
+Also note that pets don't act if the player isn't around. This
+is the normal angband behaviour for all monsters, and changing it 
+would be slow and unbalancing.
+
+Added new command -- ``#''. This will attract your pet's 
+attention, and ``un-attract'' it if the pet is currently paying attention.
+This works for all pets at the same time.
+This will also aggravate monsters.
+Use this command frequently to steer your pets around. (They tend to get
+stuck frequently.)
+
+---- Release 0.3 ----
+
+Changed scroll ``flavor names'' to be readable. Now they sound like
+real words. (Albeit non-english.)
+
+Here are some examples from my save game:
+
+forevsarok sunasha heripe ridela solulkupayd nelgausabyt tursaksawed
+binite nejodal wergizun petunataz medalatem munoxa manabaman rosodo solisha
+kligausakis mikodo bieranuval nisume redausa skiarze medevsarok nesisha
+beko cosiona binaga fridionaplex seeinin xipe shuorne seearze sanala ninany
+denornenej satagamil tuelorne tabornebar credishasna bekinge snolelapod 
+binulkumar banasha sneypejor rolargo milyerge toxyergether tiliona rhovargo
+satoode hereshe vlygumebek joreshebin dokuru rogeepe
+
+Added a new class -- Beastmaster.
+These are fighters who can summon pets. (Based on charisma).
+
+    Str: +5
+    Int: -10
+    Wis: 0
+    Dex: +5
+    Con: 0
+    Chr: +5
+
+You can summon a finite amount of pets every 50', using the ``m''
+command. (For consistency with the spellcasters.)
+
+Added a display if the player is currently attracting pets.
+
+Added a Scroll of Summon Pet.
+
+---- Release 0.4 ----
+
+Added religions. You can find altars in dungeons, and use the "O" command
+to sacrifice something. The more you sacrifice, the better your standing
+with your god. Eventually you will get many bonuses. If you neglect to
+sacrifice, your standing will gradually go down, untill you get many bad
+things happening to you. Once you pick a god, it is hard to switch, so
+don't sacrifice at just any altar. There are currently 16 gods.
+
+Added new option -- ``show_pet_messages''. Turn this off if you
+don't want the screen to get flooded with messages from pets.
+
+Added sacred and hated monsters. Depending on your religion, certain
+monsters are sacred to your god. Killing them will cause your god
+to retaliate. (By shooting blasts from the sky, of course.) Killing
+a despised monster will give you triple exp.
+
+Info on a monster's relation to your religion will show up in the
+monster recall.
+
+---- Release 0.5 ----
+
+Fixed bugs with pet movements, and you also won't get exp for killed pets
+anymore.
+
+Added new race, ``Ghost''.
+Ghosts start at around 5000', so beware! They can also pass through walls,
+they have natural permanent light, speed +10, telepathy, and
+a full map of each level.
+They do not need a special building to learn spells.
+They cannot use ``Word of Recall''.
+
+
+    Str: +2
+    Int: +2
+    Wis: +3
+    Dex: +3
+    Con: +2
+    Chr: -15
+
+
+Added a command-line interface, by which I mean that most game commands
+can now be typed as strings while inside the game. To access this, type
+a single quote and type in your command. To get a list of all commands,
+press a single quote and type ``help''.
+You can press TAB for command completion.
+
+Using the sacrificing commands while not on an altar shows you
+info on your god, like what types of monsters are aligned with your god.
+
+You can now find ``open'' dungeons, like the ones in Zangband -- i.e. 
+the space between rooms is not rock, but floor, water, chaos fog, etc.
+
+Added new race -- Munchkin. Warning: This class is strictly for cheaters!
+
+Munchkins get +15 to all stats, pass-through-wall, permanent light,
++10 speed, telepathy, and a full map for each level. They automatically
+identify every item on the floor. They also get a bunch of great items
+every 50'. They don't need a building to gain spells, they start around
+2500', and finally they gain levels very quickly. Also, the option
+``cheat_live'' is set automatically.
+
+Gods will never punish you while you are in town.
+
+The One Ring will now grant you munchkinish powers.
+
+You can now find dungeons which simulate the wilderness. These are
+based on the ``plasma'' fractal, so they are quite realistic. 
+(Considering the resolution is so low.) 
+
+Added my own personal ``feature'' and ``color'' pref files for X11
+to ``user.prf''.
+
+---- Release 0.6 ----
+
+If you have high charisma, low-level monsters sacred to your religion
+will be generated automatically as ``pets''. Note that these pets do NOT
+count towards your total count of pets. These pets do not appear next
+to you but are scattered throughout the dungeon like normal monsters.
+This provides an incentive to worship gods with lots of sacred monsters.
+
+Replaced the battle-scarred veteran with the ``Town Guardsman''.
+
+Added another fighter-derivative class -- Lycanthrope. You can use
+the ``m'' command to turn yourself into a killing machine for a while.
+Beware -- while turned you cannot use armor. (Plus you aggravate monsters.)
+
+Added another race -- Golem. 
+
+   Str:   +20
+   Int:     0
+   Wis:   -10
+   Dex:   -10
+   Con:    10
+   Cha:     0
+
+These get resist fear, resist confusion, absolutely MASSIVE damage bonuses,
+and -10 speed. This really shifts the balance to make group monsters
+extremely tough. (i.e. A level two golem warrior can kill a hardened
+warrior in a couple turns, but gets devastated by cave spiders.)
+
+Added two new monster flags -- ``INNOCENT'' means that Guards will
+be summoned if the monster is killed.
+``INSTAPET'' means the monster will always be generated as a pet.
+
+The appropriate town monsters are now flagged ``INNOCENT'' and ``INSTAPET''.
+Beware of killing the town guardsmen, as this could set off a nasty
+``chain reaction''!
+
+Added another race -- Leprechaun.
+
+   Str: -20
+   Int:   0
+   Wis:   6
+   Dex:  20
+   Con: -10
+   Chr: -10
+
+They get sustain dexterity and reisist blind. 
+As special destinguishing characteristics, they have speed +10 and
+cause strange things to happen when attacking monsters. (Try it to see
+what I mean.)
+
+Added a new item flag -- ``WEIRD_ATTACK'' to grant weird attacks (like
+with the Leprechaun) when weilded. Added two types of ego items --
+``of Insanity'' and ``of the Jesters'' to provide this flag.
+
+Added three artifacts to take advantage of ``WEIRD_ATTACK'' --
+The Scythe 'Abominator'
+The Quarterstaff 'Laughingstock'
+The Dagger 'Pestilence'
+
+Changed so that all intelligent monsters have the ``SMART'' flag set.
+
+Added customizable insults from smart monsters. Smart monsters
+will print a random insult from the ``insult.txt'' file.
+(Stolen from Zangband)
+
+Added silly messages when spells fail. These messages are gotten from
+``sfail.txt''.
+
+---- Release 0.7 ----
+
+Added yet another race -- ``Death Mold''.
+
++20 to all stats, resist nether and nexus. Death molds cannot move.
+Pressing an arrow key will first try to ``alter'' that terrain; 
+Otherwise a ``phase door'' will be cast. Pressing the period
+(run) key will bring up a menu of some special commands. Once
+one of these is used, you have to wait a fixed amount of turns
+before using these again.
+
+Changed default options to my own preferences. 
+
+Changed the game so that different races have different 
+colors / symbols. That means that, i.e. a mutant is a purple `Q', 
+an elf is a white `h', a half-orc is an `o', etc.
+
+I know this is breaking a fundamental roguelike law, but I think
+this is much better.
+
+Changed the semantics of ``hallucinations''. Now you will get
+useless descriptions of monsters and objects. (Gotten from
+the silly.txt and silly_it.txt files.)
+
+Added new flag, ``RANDOM_NAME'', which will prepend a random name
+(gotten from ``mon_name.txt'') to the monster race name.
+i.e. ``Foobar, the Village Idiot'' instead of ``the Village Idiot''.
+These names are constant for a monster lifetime.
+
+Set ``RANDOM_NAME'' for all humanoids. 
+
+Note: The ``mon_name.txt'' included is a list of (mostly) randomly
+generated names. 
+
+Killing a monster will cause all other monsters in your LOS to
+be awoken. 
+
+Added a generalized shape-shifting mechanism. That means that a player
+can assume one of the special shapes for a short while. Note that
+it is impossible to wear armor while shape-shifted. While shifted,
+the ``Title'' line on the main screen will show the name of your
+current shape within square brackets. 
+
+Added new option, ``race_chars'' to toggle whether the special race
+player symbols get displayed.
+
+Added 25, yes, 25 possible shapes to shift into. 
+They are:
+  Aboination, Wolf, Ghost, Insect, Goat, Ape, Statue, Chaos cloud, Sparrow,
+  Kobold, Fire cloud, Cold cloud, Dragon, Hound, Vampire, Quylthulg, Angel,
+  Serpent, Mana ball, Giant, Spider, Mold, Zombie, and Deity.
+
+Note: When in the Quylthulg form, the ``m'' command is overriden to summon
+pets, like a beastmaster!
+
+You can use the debugging command ``control-a-shift-s''
+to change into any shape. 
+
+Added vampirism (Note: not related to Zangband) and levitation.
+
+Added two new item flags -- 'FLYING', to grant levitation, and
+'VAMPIRISM', to grant vampirism.
+
+Added two new ego items -- Boots of Levitation, and Weapon of Vampirism.
+
+Added new artifact -- The Scimitar of Undeath
+
+Added new class -- ``Mimic''. A mimic is a class that takes advantage
+of the shape-shifting code. You can now find books in the dungeon --
+one for each shape. Using the ``m'' command on the book will try
+to change into the shape corresponding to the book.
+
+Added several potions to change the player's shape. Note that the 
+more useful shapes cannot be achieved by potions.
+
+---- Release 0.8 ----
+
+Added gory messages in ``dam_*.txt'' files. When a monster is hit, 
+instead of ``You hit foo'', there is now a more colorful message --
+ex. ``You twist foo's leg!''. These are purely cosmetic.
+
+Added some new monsters. Among them -- mutants, beastmasters, and
+the infamous It.
+
+Added readable scrolls. (Parchments) These will display a specific 
+``book-*.txt'' file when read. 
+
+---- Release 0.9 ----
+
+Streamers will not mess up vaults anymore.
+
+Added ``Themed vaults''. These are vaults that have a specific
+``theme'' to them -- i.e. Dragon Lair, Orc Cave, Undead Laboratory, etc.
+These have a much higher chance of appearing than regular vaults --
+there is a flat chance of one being generated for any level.
+These have been added to the end of v_info.txt.
+
+You won't anger your God anymore when your pet kills a sacred creature.
+
+Pet breathers won't turn on each other anymore. This makes hounds & such
+viable pets again.
+ 
+If the player is heavily damaged then sacred monsters will act differently --
+if the sacred monster is smart, it will run away. Unintelligent monsters
+will attack the player once and then will be punished by the God.
+
+The `g' and `,' commands have been changed for immovable characters.
+`g' will try to pick up objects on the ground, and `,' will activate
+phase door. This means death molds can teleport when surrounded by
+monsters. 
+
+The `teleport-to' spell has been made more liberal -- you can now
+teleport onto shops, stairs, quests, and items. 
+
+When a Ghost character reaches the town level, he is granted the
+ability to use word-of-recall. (i.e. WoR scrolls can be used.)
+
+Persistent dungeons have been added. This is now an option on the
+character creation screen. Note that levels are NOT saved to disk,
+only the RNG seed is saved. Item and monster generation and player
+memory is not persistent!
+
+Made spell failure chances for Corrupted a lot smaller.
+
+---- Release 1.0 ----
+
+Removed the minimum spell failure chance restriction for Corrupted.
+
+Made side effects a lot less dangerous.
+
+Monsters will now hunt down pets if they can't see the player.
+Note: This introduces a slight performance loss.
+
+Added a new option, ``confirm_blasphemy'', that will prompt you
+in case you try to attack a sacred monster. This goes under
+the ``Disturbance'' menu.
+
+Made pets more intelligent when tracking the player.
+
+COMPLETELY reworked Corrupted spells. There are no more books,
+instead you get a new random spell each level. The spell effects are
+also random! 
+
+To rename your Corrupted powers: when selecting or browsing a power,
+press '/' then the letter of the power, then type the new name.
+
+Potions and flasks will now explode when thrown or destroyed.
+(A side effect of this is that a potion of death becomes an extremely
+powerful weapon.)
+
+If you are in very high favor with your god, you will be resurrected if
+you die -- however, you will lose all your experience, and your stats
+will be lowered permanently.
+
+Added two new options -- ``allow_open_levels'', which toggles whether
+open levels are generated, and ``cripple_pets'', which will forbid
+summoning unique pets.
+
+Stairs will now be generated at the player's location even on a 
+flooded level.
+
+Ghosts now start on a stair.
+
+Added three more options, ``allow_theme_vaults'', which toggles
+generation of theme vaults, ``weirdness_is_rare'', which makes open
+levels and themed vaults rarer, and finally ``named_monsters'', which
+toggles naming of humanoid monsters.
+
+Changed special powers for death molds a bit -- it is now possible
+to use your powers prematurely if you are willing to lose some
+mana/health.
+
+Changed movement for death molds -- now instead of teleporting
+randomly, you will teleport somewhere to the direction you pressed on
+the keyboard. This makes it possible to navigate through a corridor.
+
+Added a new type of open level -- this one looks a bit like the whole
+level has been destroyed, and then the rooms have been built.
+
+
+---- Release 1.1 ----
+
+Changed corrupted spells once again. Now the most of the spells will
+be offensive ones. Also, offensive spells will now be named automatically.
+
+The size of the monster race array has been increased to 32 bit capacity.
+The reason for this is to allow more monster flags, as well as to 
+remove the extremely annoying monster number limit. This is supposed to
+break compatibility on 16 bit machines, though.
+
+Enlarged the arena, and split it into 3 different monster sets based
+on monster type. You can select the monster set you want when you
+enter the arena. (Idea thanks to prfnoff@aol.com)
+
+Different types of weapons now act differently. First of all, many monster
+resist or are immune to particular weapon types. Second of all, sword
+and polearm damage is now more random, while hafted weapons will affect 
+monsters in weird ways on critical hits.
+
+The monster attacks that used to be player-only (i.e. Mind Blast, Brain Smash,
+Confuse, Fear, etc.) are now breath/bolt attacks. 
+
+Added mutations, similar to Zangband. Note that none of the mutations
+have activations, though some of them are spontaneously activated.
+The mutations are about equally split between good and bad.
+There are currently 66 different mutations.
+You can view your mutations under the knowledge menu.
+
+Mutants will now start with several mutations, though you won't
+gain any when you gain levels.
+
+Getting breathed on by chaos can now give you mutations, if you don't
+resist chaos.
+
+Added new monsters -- mutant kobolds.
+
+Monsters won't fire/breathe at each other anymore.
+
+Character dumps will now include a list of mutations, and the list
+of Corrupted powers.
+
+Added a potion of mutation.
+
+Town guardsmen will now leave from the guard tower when you commit a
+crime instead of appearing around you.
+
+---- Release 1.2 ----
+
+Added Yet Another random artifact scheme. This one is a little different
+as random artifacts are ``miscellaneous'' magic items that have a
+high chance of being nasty ``junk'' items. You cannot weild random
+artifacts, but you can activate them even if it is not identified.
+
+Added another stat, ``Sanity''. This acts like hitpoints for the most
+part -- the most notable exception is that the only way to cure 
+insanity is to drink a potion. You cannot cure insanity by resting.
+Some monsters and magical attacks damage sanity instead of hitpoints.
+If your sanity goes down below zero, you die.
+You also get bonuses to sanity from high wisdom.
+
+Added a Scroll of Recipe.
+
+Totally revamped spell handling. There is now only one spellbook
+for each class. The spells are now initialized from s_info.txt when
+a new character is created. Note that there is no s_info.raw file,
+as the character's spells are stored in the savefile.
+Also note that the s_info.txt in version 1.2 should be
+rewritten so that each class has it's own spellbook; There will
+also be playbalance problems. In the future the s_info.txt will
+be improved.
+
+Mimics are now tougher fighters, and will start with the Book of
+Sparrow.
+
+Ghosts will now lose their ``ghostlike'' abilities when they reach
+surface.
+
+All recipes are now possible.
+
+Added a new option to turn off flavored attack messages.
+
+Added a Potion of Cure Mutation
+
+Added the facility to ask your god for favors. Use ``p'' to pray, and
+if your status is high enough you will get a reward. Note that if you
+try to pray too often, you'll get really bad results!
+
+(Note that priests will now use the ``m'' command to cast spells)
+
+Priests and paladins will have a slightly higher chance of getting
+better results from prayer.
+
+Preists can pray about twice as much as other classes,
+and Paladins about 1.5 times as much.
+
+You can now see how likely your prayers are to be answered in the
+priest building.
+
+There is now a new option, ``confirm_prayers'', that will ask for 
+confirmation when the player attempts to pray.
+
+Completely revamped the vault/town/quest code. This was mainly done 
+for code cleanup/maintainability, but there are some side-effects.
+
+Most notably:
+
+1. The town layout is now gotten from the v_info.txt. There is no limit
+   on the number of town layouts there could be -- one will always be
+   chosen at birth.
+2. Arena layouts are generated the same way as town layouts are generated.
+3. Quests are now REQUIRED to include a special level. i.e. There are no
+   more ``kill x foo'' quests. 
+4. Any quest can be requested at any time, though you can only have one
+   quest at a time.
+5. The building commands and prices have been changed. In particular,
+   rumors have been implemented, the Weaponsmaster now costs more, but
+   is open to everyone. You always have access to your home now.
+   In general, you don't have to wait a certain time perioid to access
+   building rewards.
+6. The ``q_info.txt'' has been removed. All quest information is stored
+   in v_info.txt
+
+
+The message system has been improved. There is now a ``priority'' to
+every message. Currently, the following priorities have been implemented:
+
+``Temporary'', will not register in message recall.
+``Normal'',    shows the message in white.
+``Warning'',   shows the message in light green.
+``Urgent'',    shows the message in yellow.
+``Deadly'',    player is in high risk of death, red.
+``Bonus'',     player has just been rewarded, light blue
+``Big Bonus'', player has just been rewarded really well, blue
+``Stupidity alert'', player has just done something stupid, purple.
+
+There is now a concept of a ``monster generator''. That is, certain
+locations will generate unlimited numbers of monsters when activated.
+This is how guard towers in the town work.
+
+---- Release 1.3 ----
+
+Completely reworked the spell routines, yet again. Now all spells are
+projectable -- for example, it is possible to cast a ball of identify
+on a room of items, or confuse every monster in your field of view, etc.
+The possibilities are pretty much endless since you can match any spell
+effect with any spell projection. This also means that it will be
+possible in the future to store item activations in a *_info.txt file.
+
+Added a spellbook for the rogue and the ranger. The paladin still has
+the priest spellbook.
+
+Added several new neat spells -- for example, casting Word of Recall
+on an item fetches that item, and casting WoR on a monster will teleport
+the monster to the player.
+
+Added individual monster sayings. You can specify lines for the
+monster to speak by using the X: field in the r_info.txt. Note
+that currently there are only a few monster sayings.
+You can use Y: to reuse sayings in a different monster race.
+

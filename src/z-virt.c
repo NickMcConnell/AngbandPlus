@@ -15,6 +15,8 @@
 #include "z-util.h"
 
 
+#undef VERBOSE_RALLOC
+
 /*
  * Allow debugging messages to track memory usage.
  */

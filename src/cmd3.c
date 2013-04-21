@@ -179,6 +179,12 @@ void do_cmd_wield(void)
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
+	/* Can't wear armor while shape-shifted */
+	if (p_ptr->shape && slot >= INVEN_BODY) {
+	  msg_format("Your body does not fit into this.");
+	  return;
+	}
+
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
 	{
@@ -267,7 +273,7 @@ void do_cmd_wield(void)
 	if (cursed_p(o_ptr))
 	{
 		/* Warn the player */
-		msg_print("Oops! It feels deathly cold!");
+		mprint(MSG_URGENT, "Oops! It feels deathly cold!");
 
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -579,7 +585,7 @@ void do_cmd_uninscribe(void)
 	/* Nothing to remove */
 	if (!o_ptr->note)
 	{
-		msg_print("That item had no inscription to remove.");
+		mprint(MSG_TEMP, "That item had no inscription to remove.");
 		return;
 	}
 
@@ -864,7 +870,7 @@ void do_cmd_refill(void)
 	/* It is nothing */
 	if (o_ptr->tval != TV_LITE)
 	{
-		msg_print("You are not wielding a light.");
+		mprint(MSG_TEMP, "You are not wielding a light.");
 	}
 
 	/* It's a lamp */
@@ -899,13 +905,13 @@ void do_cmd_target(void)
 	/* Target set */
 	if (target_set(TARGET_KILL))
 	{
-		msg_print("Target Selected.");
+		mprint(MSG_TEMP, "Target Selected.");
 	}
 
 	/* Target aborted */
 	else
 	{
-		msg_print("Target Aborted.");
+		mprint(MSG_TEMP, "Target Aborted.");
 	}
 }
 
@@ -919,7 +925,7 @@ void do_cmd_look(void)
 	/* Look around */
 	if (target_set(TARGET_LOOK))
 	{
-		msg_print("Target Selected.");
+		mprint(MSG_TEMP, "Target Selected.");
 	}
 }
 
@@ -1085,7 +1091,7 @@ static cptr ident_info[] =
 	"K:Killer Beetle",
 	"L:Lich",
 	"M:Multi-Headed Reptile",
-	/* "N:unused", */
+	"N:Demigod",
 	"O:Ogre",
 	"P:Giant Humanoid",
 	"Q:Quylthulg (Pulsing Flesh Mound)",

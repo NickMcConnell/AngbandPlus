@@ -10,8 +10,70 @@
 # After modifying this file, delete the "lib/raw/v_info.raw" file.
 
 # Note that the "spacing" in the "description" lines is very important!
+# Also note that a dash is equivalent to a space; this is useful
+# if you want to use e.g. Emacs picture mode.
 
 # Version stamp (required)
+
+
+# Kamband 1.2 greatly improved vault generation -- Now shops,
+# buildings, town/arena levels, and even quest information
+# is stored in this file.
+#
+# Vault type 10 means a town level, and type 11 means arena level.
+# One of the arena/town levels will be chosen at birth.
+#
+# Format:
+#
+# N:number:name
+# X:type:rating:height:width
+# Y:monster index:... (up to ten)
+# Z:artifact index:... (up to five)
+# Q:quest index:quest type
+# U:quest description...
+# D:vault description...
+#
+#
+# Quest type is 1 for ``eliminate'', 2 for ``scout''.
+#
+#
+# Symbols:
+#
+# a-z for towns => building
+# 0-9 for towns => shop
+#
+# a-j otherwise => monster
+# 1-5 otherwise => artifact
+#
+# % => Wall, outer
+# # => Wall, inner
+# X => Wall, permanent
+# Q => Quest entrance
+# E => Quest exit
+# < => Stairs up
+# > => Stairs down
+# V => Shallow water
+# W => Deep water
+# K => Shallow lava
+# L => Deep lava
+# F => Chaos fog
+# ; => Glyph of warding
+# Y => Trees
+# * => Treasure/Trap
+# T => Treasure
+# + => Secret door
+# D => Door
+# ^ => Trap
+# G => Generator of monster 1.
+# M => Mountain
+#
+# & => Monster, possibly the arena monster.
+# @ => Meaner Monster
+# 9 => Meaner monster + treasure
+# 8 => Nasty monster
+# , => Monster and/or object
+# P => Player
+
 
 V:2.8.2
 
@@ -21,25 +83,25 @@ V:2.8.2
 
 N:1:Lesser vault (round)
 X:7:5:12:20
-D:       %%%%%%       
-D:    %%%..##..%%%    
-D:  %%....####....%%  
-D: %......#**#......% 
+D:       %%%%%%-------
+D:    %%%..##..%%%----
+D:  %%....####....%%--
+D: %......#**#......%-
 D:%...,.##+##+##.,...%
 D:%.,.,.#*#*&#*#.,.,.%
 D:%.,.,.#*#&*#*#.,.,.%
 D:%...,.##+##+##.,...%
-D: %......#**#......% 
-D:  %%....####....%%  
-D:    %%%..##..%%%    
-D:       %%%%%%       
+D: %......#**#......%-
+D:  %%....####....%%--
+D:    %%%..##..%%%----
+D:       %%%%%%-------
 
 
 N:2:Lesser vault (octagon)
 X:7:5:14:20
-D:   %%%%%%%%%%%%%%   
-D:  %%.##########.%%  
-D: %%..#..,,,,..#..%% 
+D:   %%%%%%%%%%%%%%---
+D:  %%.##########.%%--
+D: %%..#..,,,,..#..%%-
 D:%%,..#.,####,.#..,%%
 D:%....#.,#**#,.#....%
 D:%.###+,##&&##,+###.%
@@ -48,25 +110,25 @@ D:%.#..,,#**&*#,,..#.%
 D:%.###+,##&&##,+###.%
 D:%....#.,#**#,.#....%
 D:%%,..#.,####,.#..,%%
-D: %%..#..,,,,..#..%% 
-D:  %%.##########.%%  
-D:   %%%%%%%%%%%%%%   
+D: %%..#..,,,,..#..%%-
+D:  %%.##########.%%--
+D:   %%%%%%%%%%%%%%---
 
 
 N:3:Lesser vault (octagon)
 X:7:5:12:20
-D:    %%%%%%%%%%%%    
-D: %%%%..........%%%% 
-D: %...###+##+###...% 
+D:    %%%%%%%%%%%%----
+D: %%%%..........%%%%-
+D: %...###+##+###...%-
 D:%%...#,,#,,#,,#...%%
 D:%.###+##+##+##+###.%
 D:%.#,,#&&#**#&&#,,#.%
 D:%.#,,#&&#**#&&#,,#.%
 D:%.###+##+##+##+###.%
 D:%%...#,,#,,#,,#...%%
-D: %...###+##+###...% 
-D: %%%%..........%%%% 
-D:    %%%%%%%%%%%%    
+D: %...###+##+###...%-
+D: %%%%..........%%%%-
+D:    %%%%%%%%%%%%----
 
 
 N:4:Lesser vault (square)
@@ -87,9 +149,9 @@ D:%%%%%%%%%%%%%%%%%%%%
 
 N:5:Lesser vault (diagonal)
 X:7:5:12:20
-D:%%%%%%%%%%%%%%%%%   
-D:%,,,##,,,,##....%%  
-D:%,,,,##,,,,##....%% 
+D:%%%%%%%%%%%%%%%%%---
+D:%,,,##,,,,##....%%--
+D:%,,,,##,,,,##....%%-
 D:%#,,,,##,,,,##....%%
 D:%##,,,,##,,,,##....%
 D:%.##,,,,,,,,,,#+...%
@@ -112,9 +174,9 @@ D:%...+#,,,,,,,,,,##.%
 D:%..##,,,,,,,,,,+#..%
 D:%.##,,,,##,,,,##...%
 D:%##,,,,##,,,,##...%%
-D:%#,,,,##,,,,##...%% 
-D:%,,,,##,,,,##...%%  
-D:%%%%%%%%%%%%%%%%%   
+D:%#,,,,##,,,,##...%%-
+D:%,,,,##,,,,##...%%--
+D:%%%%%%%%%%%%%%%%%---
 
 
 N:7:Lesser vault (square)
@@ -135,36 +197,36 @@ D:%%%%%%%%%%%%%%%%%%%%
 
 N:8:Elemental vault (round)
 X:7:5:12:20
-D:       %%%%%%       
-D:    %%%..ww..%%%    
-D:  %%....wwww....%%  
-D: %......w**w......% 
-D:%...,.wwwwwwww.,...%
-D:%.,.,.w*w*&w*w.,.,.%
-D:%.,.,.w*w&*w*w.,.,.%
-D:%...,.wwwwwwww.,...%
-D: %......w**w......% 
-D:  %%....wwww....%%  
-D:    %%%..ww..%%%    
-D:       %%%%%%       
+D:       %%%%%%-------
+D:    %%%..VV..%%%----
+D:  %%....VVVV....%%--
+D: %......V**V......%-
+D:%...,.VVVVVVVV.,...%
+D:%.,.,.V*V*&V*V.,.,.%
+D:%.,.,.V*V&*V*V.,.,.%
+D:%...,.VVVVVVVV.,...%
+D: %......V**V......%-
+D:  %%....VVVV....%%--
+D:    %%%..VV..%%%----
+D:       %%%%%%-------
 
 
 N:9:Elemental vault (octagon)
 X:7:5:14:20
-D:   %%%%%%%%%%%%%%   
-D:  %%.llllllllll.%%  
-D: %%..lll,,,,lll..%% 
-D:%%,.lll,####,lll.,%%
-D:%..lll.,#**#,.lll..%
-D:%lllll,##&&##,lllll%
-D:%lll.,,#*&**#,,.lll%
-D:%lll.,,#**&*#,,.lll%
-D:%lllll,##&&##,lllll%
-D:%..lll.,#**#,.lll..%
-D:%%,.lll,####,lll.,%%
-D: %%..lll,,,,lll..%% 
-D:  %%.llllllllll.%%  
-D:   %%%%%%%%%%%%%%   
+D:   %%%%%%%%%%%%%%---
+D:  %%.KKKKKKKKKK.%%--
+D: %%..KKK,,,,KKK..%%-
+D:%%,.KKK,####,KKK.,%%
+D:%..KKK.,#**#,.KKK..%
+D:%KKKKK,##&&##,KKKKK%
+D:%KKK.,,#*&**#,,.KKK%
+D:%KKK.,,#**&*#,,.KKK%
+D:%KKKKK,##&&##,KKKKK%
+D:%..KKK.,#**#,.KKK..%
+D:%%,.KKK,####,KKK.,%%
+D: %%..KKK,,,,KKK..%%-
+D:  %%.KKKKKKKKKK.%%--
+D:   %%%%%%%%%%%%%%---
 
 # This vault was originally from Zangband by Topi Ylinen
 # Modified to include treasure
@@ -676,33 +738,33 @@ D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 N:35:Lesser vault (round sanctum)
 X:7:10:12:20
-D:       %%%%%%       
-D:    %%%......%%%    
-D:  %%............%%  
-D: %......####......% 
+D:       %%%%%%-------
+D:    %%%......%%%----
+D:  %%............%%--
+D: %......####......%-
 D:%......##TT##......%
 D:%.....##T99T##.....%
 D:%......##TT##......%
 D:%.......####.......%
-D: %................% 
-D:  %%............%%  
-D:    %%%......%%%    
-D:       %%%%%%       
+D: %................%-
+D:  %%............%%--
+D:    %%%......%%%----
+D:       %%%%%%-------
 
 N:36:Lesser vault (lesser water temple)
 X:7:10:12:20
-D:    XXXXXXXXXXXX    
-D: XXXX...TTTT...XXXX 
-D: %.......TT.......% 
+D:    XXXXXXXXXXXX----
+D: XXXX...TTTT...XXXX-
+D: %.......TT.......%-
 D:%%................%%
 D:%...#..&....&..#...%
-D:%..###...ww...###..%
-D:%...#...wwww...#...%
-D:%........ww........%
+D:%..###...VV...###..%
+D:%...#...VVVV...#...%
+D:%........VV........%
 D:%%.....&....&.....%%
-D: %%%............%%% 
-D:   %%%%......%%%% 
-D:      %%%%%%%%    
+D: %%%............%%%-
+D:   %%%%......%%%%---
+D:      %%%%%%%%------
 
 
 ### Greater vaults (type 8) -- maximum size 66x44 ###
@@ -796,20 +858,20 @@ N:54:Greater Elemental vault (butterfly)
 X:8:25:18:40
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXWWWWXXXXXXXXXXXXXXXXXXXXXWWWWXXXX%
-D:%X*9..WWw***LLLLLLLLLLLLLLLL***wWWW.*9X%
-D:%X9..WWw,,,,,LLLLLLLLLLLLLL,,,,,wWW..*X%
-D:%X..WWw.....,.LLLLLLLLLLLL..&....wWW..X%
-D:%X.WWw..,.&....LLLLLLLLLL..,...&..wWW.X%
-D:%XWWw..*...&.^..LLLLLLLL..*....,..,wWWX%
-D:%wwwwwXXXXXXXXXXLLLLLLLLXXXXXXXXXXwwwww%
-D:%+....,.,.X&&&&***llll***&&&&X,.,.,...+%
-D:%+...,.,.,X&&&&***llll***&&&&X.,.,....+%
-D:%wwwwwXXXXXXXXXXLLLLLLLLXXXXXXXXXXwwwww%
-D:%XWWw..*....&...LLLLLLLL...*...&,..wWWX%
-D:%X.WWw..&.^....LLLLLLLLLL....&....wWW.X%
-D:%X..WWw....&..LLLLLLLLLLLL..,..*.wWW..X%
-D:%X*..WWw,,,,,LLLLLLLLLLLLLL,,,,,wWW..9X%
-D:%X9*..WWw***LLLLLLLLLLLLLLLL***wWW..*9X%
+D:%X*9..WWV***LLLLLLLLLLLLLLLL***VWWW.*9X%
+D:%X9..WWV,,,,,LLLLLLLLLLLLLL,,,,,VWW..*X%
+D:%X..WWV.....,.LLLLLLLLLLLL..&....VWW..X%
+D:%X.WWV..,.&....LLLLLLLLLL..,...&..VWW.X%
+D:%XWWV..*...&.^..LLLLLLLL..*....,..,VWWX%
+D:%VVVVVXXXXXXXXXXLLLLLLLLXXXXXXXXXXVVVVV%
+D:%+....,.,.X&&&&***KKKK***&&&&X,.,.,...+%
+D:%+...,.,.,X&&&&***KKKK***&&&&X.,.,....+%
+D:%VVVVVXXXXXXXXXXLLLLLLLLXXXXXXXXXXVVVVV%
+D:%XWWV..*....&...LLLLLLLL...*...&,..VWWX%
+D:%X.WWV..&.^....LLLLLLLLLL....&....VWW.X%
+D:%X..WWV....&..LLLLLLLLLLLL..,..*.VWW..X%
+D:%X*..WWV,,,,,LLLLLLLLLLLLLL,,,,,VWW..9X%
+D:%X9*..WWV***LLLLLLLLLLLLLLLL***VWW..*9X%
 D:%XXXXWWWWXXXXXXXXXXXXXXXXXXXXXXWWWWXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1164,56 +1226,61 @@ D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 N:68:Greater vault (greater water temple)
 X:8:30:17:34
-D:        XXXXXXXXXXXXXXXXXX
-D:     XXXX....TTTTTTTT....XXXX
-D:  XXXXw.......8TTTT8.......wXXXX
-D: XX....www..............www....XX
-D:XX........w............w........XX
-D:X..........ww...WW...ww..........X
-D:%............wWWWWWWw............%
+D:        XXXXXXXXXXXXXXXXXX--------
+D:     XXXX....TTTTTTTT....XXXX-----
+D:  XXXXV.......8TTTT8.......VXXXX--
+D: XX....VVV..............VVV....XX-
+D:XX........V............V........XX
+D:X..........VV...WW...VV..........X
+D:%............VWWWWWWV............%
 D:%....#.......WWWWWWWW.......#....%
 D:%...###..8..WWWWWWWWWW..8..###...%
 D:%....#.......WWWWWWWW.......#....%
-D:%............wWWWWWWw............%
-D:X..........ww...WW...ww..........X
-D:XX.......ww............ww.......XX
-D: XX....ww................ww....XX
-D:  XXXXw....................wXXXX
-D:     XXXX................XXXX
-D:        XXX%%%%%%%%%%%%XXX
+D:%............VWWWWWWV............%
+D:X..........VV...WW...VV..........X
+D:XX.......VV............VV.......XX
+D: XX....VV................VV....XX-
+D:  XXXXV....................VXXXX--
+D:     XXXX................XXXX-----
+D:        XXX%%%%%%%%%%%%XXX--------
 
 N:69:Greater vault (circle of fire)
 X:8:30:17:34
-D:        XXX%%%%%%%%%%%%XXX
-D:     XXXX................XXXX
-D:  XXXX......................XXXX
-D: XX.............###............XX
-D:XX.....LLLl....#####...lLLL.....XX
+D:        XXX%%%%%%%%%%%%XXX--------
+D:     XXXX................XXXX-----
+D:  XXXX......................XXXX--
+D: XX.............###............XX-
+D:XX.....LLLK....#####...KLLL.....XX
 D:X.....LLLLL.....###....LLLLL.....X
-D:%.....lLLLT............TLLLl.....%
+D:%.....KLLLT............TLLLK.....%
 D:%..##............9...........##..%
 D:%.####..........9T9.........####.%
 D:%..##............9...........##..%
-D:%.....lLLLT............TLLLl.....%
+D:%.....KLLLT............TLLLK.....%
 D:X.....LLLLL.....###....LLLLL.....X
-D:XX.....LLLl....#####...lLLL.....XX
-D: XX.............###............XX
-D:  XXXX......................XXXX
-D:     XXXX................XXXX
-D:        XXX%%%%%%%%%%%%XXX
+D:XX.....LLLK....#####...KLLL.....XX
+D: XX.............###............XX-
+D:  XXXX......................XXXX--
+D:     XXXX................XXXX-----
+D:        XXX%%%%%%%%%%%%XXX--------
 
 
-### Quest Levels (type 99) maximum size ??x?? 
+### Quest Levels (type 99) maximum size ??x??
 ### Code originally written by Glenn Vanzanden
 ### Code altered/modified by Ken Wigle
-### Q:questtype:nummon:curnum:maxnum:level:r_idx:k_idx
 ### -KMW-
 
 # Numbers 100 - 127 reserved for quests
 
 N:101:Thieves Hideout
-Y:36:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:10:15
+Y:36
+Q:0:1
+U:There are thieves robbing my people! They live in a small
+U: burrow outside the city walls robbing people as they pass
+U: on the roads. They even sneak inside the town to mug and
+U: pillage! Your task is to go to the burrow and kill these
+U: ruffians.
 D:XXXXXXXXXXXXXXX
 D:XT...a....X..TX
 D:XT........D..TX
@@ -1226,58 +1293,72 @@ D:X<P.D.........X
 D:XXXXXXXXXXXXXXX
 
 N:103:The Sewer
-Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:24:69
+Q:1:1
+U:The sewer underneath the city has been acting strange
+U: lately. There are rumors of monsters living beneath our
+U: fair city. I need you to exterminate the vermin and
+U: bring the sewer back to its normal, if dirty, self.
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.P.<.............%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-D:%wwwwwwwwwwwwwwww.........%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-D:%...............wwwwwwwww.....................%%%%%%%%%%%%%%%%%%%%%%%
-D:%%%%%%%%%%%%%%%.........wwwwwwwwwwwwwwwwwwwww...........WWWWW%%%%%%%%
-D:%%%%%%%%%%%%%%%%%%%%%%%..w.%................wwwwwwww...WWWWWWW%%%%%%%
-D:%%%%%%%%%%%%%%%%%%%%%%%%.w.%%%%%%%%%%%%%%%%........wwwwWWWWWWW%%%%%%%
-D:%%%%%%%%%%%%%%%%%%%%%%%%.w...........%%%%%%%%%%%%%9....WWWWWWW%%%%%%%
-D:%%%%%%%%%%%%%%%%%%%%%%%%.wwwwwwwwwww.%%%%%%%%%%%%%%%%%%WWWWW%%%%%%%%%
-D:%%%%%%%%%%%%%%%%%%%%%%%%.......WWWWw.%%%%%%WWWWW%%%%%%%%%%%%%%%%W%%%%
-D:%%%%%%.w9%%%%%%%%%%%%%.........WWWWw9%%%%%%WWWWW%%%%%%%%%%%%..WWW.%%%
-D:%%%%%%.w.%%%%%%%%%%%%%.wwwwwwwwwwwww.%%%%%%%WWWW%%%%%%%%%%%%9..WW.%%%
-D:%%%%%%.w.%%%%%%%%%%%%..w.............%%%%%%%.WW9%%%%%%%%%%%.......%%%
-D:%%%%%%%w%%%%%%%%%%%%%.ww.%%%%%%%%%%%%%%%%%%%%...%%%%%%%%%%%%.%%.%%%%%
-D:%%%%%%%w%%%%%%%%%%%...w..%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%%
-D:%%%%%%%w%%%%%%%%%%%.www.%%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%%
-D:%%%%%%%wwwwwwwwwwwwww...............%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%%
-D:%%%%%%%%%%%%%%%%%%%.wwwwwwwwwwwwwww.................9%%%%%%%%%%.%%%%%
-D:%%%%%%%%%%%%%%%%%%%..w............wwwwwwwwwwwwwwwwww.%%%%%%%%%%.%%%%%
-D:%%%%%%%%%%%..%%%%%%%%w%%%%%%%%%%%..................w............%%%%%
-D:%%%%%%%%%%%..%%%%%%%%w%%%%%%%%%%%%%%%%%%%%%%%%%%%%.wwwwwwwwwwww.....%
-D:%%%%%%%%%%%wwwwwwwwwww%%%%%%%%%%%%%%%%%%%%%%%%%%%%............wwwww.%
+D:%VVVVVVVVVVVVVVVV.........%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%...............VVVVVVVVV.....................%%%%%%%%%%%%%%%%%%%%%%%
+D:%%%%%%%%%%%%%%%.........VVVVVVVVVVVVVVVVVVVVV...........WWWWW%%%%%%%%
+D:%%%%%%%%%%%%%%%%%%%%%%%..V.%................VVVVVVVV...WWWWWWW%%%%%%%
+D:%%%%%%%%%%%%%%%%%%%%%%%%.V.%%%%%%%%%%%%%%%%........VVVVWWWWWWW%%%%%%%
+D:%%%%%%%%%%%%%%%%%%%%%%%%.V...........%%%%%%%%%%%%%@....WWWWWWW%%%%%%%
+D:%%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVV.%%%%%%%%%%%%%%%%%%WWWWW%%%%%%%%%
+D:%%%%%%%%%%%%%%%%%%%%%%%%.......WWWWV.%%%%%%WWWWW%%%%%%%%%%%%%%%%W%%%%
+D:%%%%%%.V@%%%%%%%%%%%%%.........WWWWV8%%%%%%WWWWW%%%%%%%%%%%%..WWW.%%%
+D:%%%%%%.V.%%%%%%%%%%%%%.VVVVVVVVVVVVV.%%%%%%%WWWW%%%%%%%%%%%%@..WW.%%%
+D:%%%%%%.V.%%%%%%%%%%%%..V.............%%%%%%%.WW@%%%%%%%%%%%.......%%%
+D:%%%%%%%V%%%%%%%%%%%%%.VV.%%%%%%%%%%%%%%%%%%%%...%%%%%%%%%%%%.%%.%%%%%
+D:%%%%%%%V%%%%%%%%%%%...V..%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%%
+D:%%%%%%%V%%%%%%%%%%%.VVV.%%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%%
+D:%%%%%%%VVVVVVVVVVVVVV...............%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%%
+D:%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVVVVV.................@%%%%%%%%%%.%%%%%
+D:%%%%%%%%%%%%%%%%%%%..V............VVVVVVVVVVVVVVVVVV.%%%%%%%%%%.%%%%%
+D:%%%%%%%%%%%.8%%%%%%%%V%%%%%%%%%%%..................V............%%%%%
+D:%%%%%%%%%%%..%%%%%%%%V%%%%%%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVV.....%
+D:%%%%%%%%%%%VVVVVVVVVVV%%%%%%%%%%%%%%%%%%%%%%%%%%%%............VVVVV.%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.......%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 N:105:Volcano
-Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:18:55
+Q:2:2
+U:A volcano has been rumbling in the southeast part of our
+U: territory. I need you to enter the volcano and find the
+U: exit, which will in turn plug it up. Watch for creatures
+U: trying to make a home for themselves. Just get to the exit!
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXX..XX..XXXXX..XX....XXXXXXXXXXX..........lllllllLLX
-D:XX...........X.............XXXXX9.......llLLLLLllllLLLX
-D:XX..........................X........llllllllLLLlllLLLX
-D:XXX.................................llllllllllLLLlLLLLX
-D:XX................................lllllllllllELLLLLLLLX
-D:XX...................................llllLLLLLLLLLLLLLX
-D:XX..................................llllllllllLLLLLLLLX
-D:X...................................lllllllllLLLlllLLLX
-D:X.....................................llllllLLLllllLLLX
-D:XX....................................lllllLllllllllllX
-D:XX......................................llllllllllllllX
-D:XX.........................................lllllllllllX
-D:XXX............................................llllll.X
-D:XX.................X..................................X
-D:X<P.............XXXXX9...XXX..........................X
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9..XXXX...XXXXX....XXXXXX
+D:XXXXX..XX..XXXXX..XX....XXXXXXXXXXX..........KKKKKKKLLX
+D:XX...........X.............XXXXX8.......KKLLLLLKKKKLLLX
+D:XX..........................X........KKKKKKKKLLLKKKLLLX
+D:XXX.................................KKKKKKKKKKLLLKLLLLX
+D:XX.....................8......8...KKKKKKKKKKKELLLLLLLLX
+D:XX.........8...............8.........KKKKLLLLLLLLLLLLLX
+D:XX..................................KKKKKKKKKKLLLLLLLLX
+D:X.................8.......8..8......KKKKKKKKKLLLKKKLLLX
+D:X.........8...........................KKKKKKLLLKKKKLLLX
+D:XX.....................8.......8......KKKKKLKKKKKKKKKKX
+D:XX........................8.............KKKKKKKKKKKKKKX
+D:XX.............................8...8.......KKKKKKKKKKKX
+D:XXX.....................8...8........8.........KKKKKK.X
+D:XX.................X...........8......................X
+D:X<P.............XXXXX8...XXX..........................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8..XXXX...XXXXX....XXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:109:Druid's Shop
-Y:177:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:10:15
+Y:177
+Q:3:1
+U:There is a new shop that has opened up in town. But,
+U: due to political reasons, we cannot have a druid setting
+U: up shop in town.  We also cannot act directly against him
+U: without alarming the other shopkeepers.
+U: I need you to take him out.
 D:XXXXXXXXXXXXXXX
 D:X.............X
 D:X.........a...X
@@ -1290,30 +1371,43 @@ D:X<P...........X
 D:XXXXXXXXXXXXXXX
 
 N:111:Poisoning of Water
-Y:348:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:18:74
+Y:348
+Q:4:1
+U:Water trolls are poisoning the lake outside the town. As this
+U: is the primary source of water for our fair city, you can
+U: see the dire consequences! Hurry and eliminate the trolls
+U: so the water can return to a normal state naturally.
+U: Be prepared, rumor has it there approximately 20 water trolls
+U: at the lake.
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X........................................................................X
-D:X................................wwww....................................X
-D:X................X.............wwwWWwwww......wwww.......................X
-D:X.............................wwWWWWWWWwwww.wwwWWww......................X
-D:X................X........a...wWWWWWWWWWWWwwwWWWWWwww....................X
-D:X.......................aa...wwWWWWWWWWWWWWWWWWWWWWWwww..................X
-D:X................Xa........wwwWWWWWWWWWWWWWWWWWWWWWWWWwww................X
-D:X.........................wwWWWWWW..aaaaa......WWWWWWww..................X
-D:X................Xa.....a.wwWWWW.....aWW.aa.....WWWWww...................X
-D:X..........................wwwWW...a..WWaa.....WWwwww....................X
-D:X................X...........wwWWW...aaaa....WWWWw.......................X
-D:X.......................a.....wwWWW.......WWWWwwww.......................X
-D:X................Xa.......a....wwWWWWWWWWWWWwww..........................X
-D:X.<P.............................wwWWWWWWWwww............................X
-D:X..................................wwwwwwww..............................X
+D:X................................VVVV....................................X
+D:X................X.............VVVWWVVVV......VVVV.......................X
+D:X.............................VVWWWWWWWVVVV.VVVWWVV......................X
+D:X................X........a...VWWWWWWWWWWWVVVWWWWWVVV....................X
+D:X.......................aa...VVWWWWWWWWWWWWWWWWWWWWWVVV..................X
+D:X................Xa........VVVWWWWWWWWWWWWWWWWWWWWWWWWVVV................X
+D:X.........................VVWWWWWW..aaaaa......WWWWWWVV..................X
+D:X................Xa.....a.VVWWWW.....aWW.aa.....WWWWVV...................X
+D:X..........................VVVWW...a..WWaa.....WWVVVV....................X
+D:X................X...........VVWWW...aaaa....WWWWV.......................X
+D:X.......................a.....VVWWW.......WWWWVVVV.......................X
+D:X................Xa.......a....VVWWWWWWWWWWWVVV..........................X
+D:X.<P.............................VVWWWWWWWVVV............................X
+D:X..................................VVVVVVVV..............................X
 D:X........................................................................X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:112:Red Dragon Nest
-Y:131:387:402:444:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:10:31
+Y:131:387:402:444
+Q:5:1
+U:A family of red dragons has set up their home in the northeast
+U: mountains. They have been swooping down on farms and feeding
+U: on our livestock.
+U: Please eliminate this threat and kill all the dragons.
+U: Scouts have reported that the dragons are of ALL ages.
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X.......................cca...X
 D:X...bb..................caaa..X
@@ -1326,94 +1420,119 @@ D:X<P...........XXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:113:The Gauntlet
-Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:20:60
+Q:6:2
+U:Consider this a quest to determine the full extent of your
+U: valor, courage, and cunning. You must pass this test before
+U: we entrust you with the most important quests.  There is a
+U: cave to the east filled with vile monsters. There is also
+U: an exit on the other side of the cave.
+U: This highly dangerous quest requires you to run the gauntlet
+U: and make it to the exit alive.
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X.....T....................................................X
-D:X......................................&...............E...X
+D:X......................................8...............E...X
 D:X...........T....T.........................................X
-D:X...T......................................&...............X
+D:X...T......................................8...............X
 D:X..........................................................X
-D:X.....&................T............9..........&...........X
+D:X.....8................T............8..........8...........X
 D:X..........................................................X
-D:X.........&..........................................&.....X
+D:X.........8..........................................8.....X
 D:X.........................T................................X
-D:X...9..........&............................9..............X
+D:X...8..........8............................8..............X
 D:X..............................T...........................X
-D:X.......9..................................................X
-D:X...................&......................................X
-D:X...........9.......................T......................X
+D:X.......8..................................................X
+D:X...................8......................................X
+D:X...........8.......................T......................X
 D:X..............................................T...........X
-D:X...............9........&.................................X
+D:X...............8........8.................................X
 D:X.<P.....................................T............T....X
 D:X..........................................................X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:114:The Vault
-Y:0:0:0:0:0:0:0:0:0:0:88:0:0:0:0
 X:99:110:36:52
+Z:88
+Q:7:1
+U:The vault was used outside the town as a minor fortress and
+U: stored many valuable items.  It has since been overrun.
+U: I need you to clean out the vault. There are rumors of
+U: powerful artifacts in there, so watch out for loot when
+U: you explore it.
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXX..........XXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXX................XXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXX........****....XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX.......8.8......XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX...8.8..****8...XXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXX..........***.....XXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXX..........***.....XXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXX........%.%.%.....XXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXX...........**.....XXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXX...........*....XXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXX................XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX...8.8.8..***.88..XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX......8.%.%.%...8.XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX.....8.....**.8...XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX...8..8.8.8*....XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX....8.8.....8...XXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXX..........XXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXX.....****1XXXXXXXXXX..XXXXXXXXXX.....*****XXXXX
-D:XX.......*********XXXXXXX..XXXXXXX............****XX
-D:XX...........9....XXXXXXX..XXXXXXX.....%......****XX
-D:X..........%.......XXXXX....XXXXX.......%.......***X
-D:X.........%........D.....<P.....D........%......***X
-D:X..........%.......D............D.........%.....***X
-D:X...........%......XXXXX....XXXXX........%.........X
-D:XX................XXXXXXX..XXXXXXX................XX
-D:XX................XXXXXXX..XXXXXXX................XX
+D:XXXXX.....****0XXXXXXXXXX..XXXXXXXXXX.....*****XXXXX
+D:XX.......*********XXXXXXX..XXXXXXX....8.......****XX
+D:XX......88.8.8.8..XXXXXXX..XXXXXXX.....%8.....****XX
+D:X..........%.8..8..XXXXX....XXXXX...8...%.8.8...***X
+D:X.......8.%..8.88..D.....<P.....D.....8..%....8.***X
+D:X........8.%..88...D............D...8..8..%..8..***X
+D:X......8....%.8....XXXXX....XXXXX...88...%..8..8...X
+D:XX.......88.8.8.8.XXXXXXX..XXXXXXX......8..8......XX
+D:XX......8.8.......XXXXXXX..XXXXXXX....8...8.8.....XX
 D:XXXXX..........XXXXXXXXXX..XXXXXXXXXX..........XXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXXXXX..........XXXXXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXX................XXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXX................XXXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXX...........@..@...XXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXX........@.........XXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXX.....@............XXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXX.........****.....XXXXXXXXXXXXXXXXX
-D:XXXXXXXXXXXXXXXXXX..........**....XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXX......8...XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX...........8....XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX.....8..8.......XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX....8......8..8...XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX........8..8......XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX..8..8........8...XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX.......8.****.....XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX...8......**....XXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXX....********....XXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXX.*****....XXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:115:Volcano II
-Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 X:99:0:18:70
+Q:8:1
+U:The volcano is acting up again.  But, we do not think
+U: it is natural. Now, it is time to eliminate all creatures
+U: that are making their home at the volcano. You must exterminate
+U: them all if we are to avoid having lava ruin our crops!
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:XXXXX..XX..XXXXX..XX....XXXXXXXXXXX..........lllllllLLlllllll......XXX
-D:XX...........X.............XXXXX9.......llLLLLLllllLLLllllllll......XX
-D:XX..........................X........llllllllLLLlllLLLllllllllll9...XX
-D:XXX.................................llllllllllLLLlLLLLllllllllllll...X
-D:XX................................lllllllllllLLLLLLLLLLlllllllllll...X
-D:XX...................................llllLLLLLLLLLLLLLlllllllllll....X
-D:XX..................................llllllllllLLLLLLLLllllllllll.....X
-D:X...................................lllllllllLLLlllLLLlllllllll9....XX
-D:X.....................................llllllLLLllllLLLllllllllll.....X
-D:XX....................................lllllLlllllllLLLlllllll........X
-D:XX......................................llllllllllLLLlllllll........XX
-D:XX.........................................lllllllLLLllllll.........XX
-D:XXX............................................llLLlllllll...........X
-D:XX.................X..............................lllllll............X
-D:X<P.............XXXXX9...XXX........................................XX
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9..XXXX...XXXXX....XXXXXXXXXX9......XXXX
+D:XXXXX..XX..XXXXX..XX....XXXXXXXXXXX..........KKKKKKKLLKKKKKKK......XXX
+D:XX...........X.8....8.8....XXXXX8..8....KKLLLLLKKKKLLLKKKKKKKK......XX
+D:XX................8.8...8...X....8...KKKKKKKKLLLKKKLLLKKKKKKKKKK8...XX
+D:XXX..............8.....8.8..........KKKKKKKKKKLLLKLLLLKKKKKKKKKKKK...X
+D:XX.............8..8.8...8...8.8...KKKKKKKKKKKLLLLLLLLLLKKKKKKKKKKK...X
+D:XX............8.......8..............KKKKLLLLLLLLLLLLLKKKKKKKKKKK....X
+D:XX..............8.8.8.888..8..88....KKKKKKKKKKLLLLLLLLKKKKKKKKKK.....X
+D:X...................8....8......88..KKKKKKKKKLLLKKKLLLKKKKKKKKK8....XX
+D:X.................8...8.88.8.8.8......KKKKKKLLLKKKKLLLKKKKKKKKKK.....X
+D:XX..................8......88..88.....KKKKKLKKKKKKKLLLKKKKKKK........X
+D:XX......................88...8.....88...KKKKKKKKKKLLLKKKKKKK........XX
+D:XX....................8.8.8.8..8.88...8....KKKKKKKLLLKKKKKK.........XX
+D:XXX........................8..8.8..8....8......KKLLKKKKKKK...........X
+D:XX.................X.............8......88........KKKKKKK............X
+D:X<P.............XXXXX8...XXX........................................XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8..XXXX...XXXXX....XXXXXXXXXX8......XXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:116:Graveyard
-Y:338:356:451:476:324:337:346:347:377:378:0:0:0:0:0
 X:99:0:52:127
+Y:338:356:451:476:324:337:346:347:377:378
+Q:9:2
+U:There is a crypt to the east where we have buried all of our
+U: past rulers and heroes. Now, it is being overrun by undead!
+U: Is nothing sacred to Morgoth?! You must travel through the passageways
+U: of this underground and find the exit. The exit will trigger a
+U: powerful dispel undead spell which will free this holy spot from
+U: the undead. The spell must have dissipated over time. You can
+U: reactivate it!
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X XXXXXXXXXXXX                                                                                                                X
 D:X X..........X        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                                 X
@@ -1467,7 +1586,706 @@ D:X    X.................X                                                 %+%%.
 D:X    XXXXXXXXXXXXXXXXXXX                                                    XXXXXX..........X..X.....XXX      XXXXXXXXXXXXXXX X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-# numbers 110 - 127 are reserved for quests
+########## Town layouts.
+########## Type 10
+
+# Meaning:
+# a: Library
+# b: Castle
+# c: Arena
+# d: Gambling House
+# e: Inn
+# f: Beastmaster
+# g: Weaponsmaster
+#
+# h: Guard Tower
+#
+# k: Fighter's Hall
+# l: Tower of Sorcery
+# m: Inner Temple
+# n: House of Thieves
+# o: Ranger's Tavern
+# p: Order of Paladins
+# q: Tower of Illusion
+# r: Tower of Corruption
+# s: Tower of Mimicry
 
 
+
+
+N:117:Mountain village
+X:10:0:60:100
+Y:584
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XWWVVVVV...........YYYYYYYYYYYYYYY.YYY.YYYYYYYY..Y.YYYYYY...YYYYYYYY...YYYY.Y.YYYYYYYYYYYYYYY.Y.Y..X
+D:XWVVVV...............YYYYYYYYY.Y.YY.YYYY.Y.YY.....Y.Y.YYY..Y.YYYY.Y.....YYY.YY............Y..Y.Y.Y.X
+D:XVVV...............Y.YYYYYYY..Y..Y..YYY.YY.Y.Y...YY.Y.YY.Y..Y..Y.Y.Y.......Y..........YYYYYY...Y...X
+D:XVVV..#########.......YYY.Y.YY.YY..Y..Y..Y..Y......Y.Y........Y......Y..Y...#########....YY.YY.Y.Y.X
+D:XVV...#########..........Y......Y......Y........Y.YY.Y......Y..Y...Y........#########.......YY.Y...X
+D:XVV...##.....#################################################################.....##...Y.Y.Y.YYY..X
+D:XV....##.....#################################################################.....##.Y.Y..Y.Y.Y.Y.X
+D:X.....####.####....................................Y...Y..Y.....################.####...YY.YY..Y.Y.X
+D:X.....####.####...................................YYY.Y.YY..Y.##################.####...Y..YYY..YY.X
+D:X.......##.##.....########...##1#####...########.Y.Y.YY.YY...###YYYYYYYYYYYYY###.##...Y...Y.Y.YY..YX
+D:X.......##.##.....########...########...2#######.YY.Y.YY...Y.##YY...........Y###.##.Y....Y...Y..Y..X
+D:X.......##.##.....#######0...########...########...Y.Y.Y.Y..###Y.#..#..#..#.Y###.##...Y.Y..Y...Y.Y.X
+D:X.......##.##.....##e#####...##f##g##...#####o##..Y..YYY.Y.Y##YY............Y###.##...Y..Y.....Y...X
+D:X.......##.##....................................YY.Y.Y.Y.Y.##Y..#..#..#...YY###.##.Y...Y....Y...Y.X
+D:X.......##.##.............###YYYYYYYY###...........Y.Y..Y...##Y............Y####.##..Y.Y.Y.Y....Y..X
+D:X.......##+##h............###Y......Y###.........Y.......Y.###Y..#..#..#...#####+##.Y...YY....Y....X
+D:X.......D...DG............YYYY..mm..YYYY....................DD..............b+D...D....YY..YY....Y.X
+D:X.......D...DG..P.........YYYY..mm..YYYY....................DD..............b+D...D..YY...Y...YY...X
+D:X.......##+##h............###Y......Y###...............Y...###Y..#..#..#...#####+##....Y..Y.Y....Y.X
+D:X.......##.##.............###YYYYYYYY###............Y....Y..##Y............Y####.##..YY.....YY..YY.X
+D:X.......##.##....................................Y..Y.Y.Y.Y.##Y..#..#..#...YY###.##...Y.Y..........X
+D:X.......##.##.....#####a##...####k###...##p#####...Y.YYY....##YY............Y###.##..YY..YY..YY....X
+D:X.......##.##.....########...########...#######3..Y.Y..Y.Y..###Y.#..#..#..#.Y###.##.....Y..YY..Y...X
+D:X.......##.##.....########...########...########...Y.YY.Y....##YYY..........Y###.##..Y...Y..Y.Y....X
+D:X.......##.##.....####5###...##4#####...########...Y...Y..Y..####YYYYYYYYYYYY###.##..YY...Y.....Y..X
+D:X.....####.####..................................Y...Y..Y.Y...##################.####..Y..Y...Y..Y.X
+D:X.....####.####.....................................Y..Y..Y.Y...################.####..Y...Y..Y.Y..X
+D:X.....##.....#################################################################.....##.Y.YY.YYY.YY..X
+D:X.....##.....#################################################################.....##....YYY.YY....X
+D:X.....#########.............................................................#########.Y.Y..YYY.Y.Y.X
+D:X.....#########.............................................................#########.YYY.YYY..YY..X
+D:X...............................................................................YY...YY..YYYYYYYYYYX
+D:X...............................................................................YYYY.YYYYYYYYYYYYYYX
+D:X................................Y.....................................l#...#q.YYYYYYYYYYYYYYYYYYYMX
+D:X............................Y...YYY.Y............YYYY...........YY....###.###..YYYYYYYYYYYYYYYYYYMX
+D:X..YY..Y.Y....................Y.YYYY............YYYYY.YYYY......YYYY......#..........YYYYYYYYYYYYMMX
+D:XVVY.Y.YY.YY..Y............Y.Y....6YY.Y..Y..Y..Y.YYYY......YYYY..YY..Y.###.###.........YYYYYYYMMMMMX
+D:XMVVVVV.YYYY...............Y..Y.YYYYYY...Y...Y.Y..YYY.YY..YYYYYYYYY....s#...#r.......YYYYYYYMYMMMMMX
+D:XMYVVVVVVY..Y..Y.............Y.Y.Y.Y...Y..Y..Y..Y..Y.YYY.YYYYYYYYYY.Y..............YYY...MMMMMMMMMMX
+D:XM...YYVV.7.Y...................Y..YY.Y.YY.Y..Y.Y.Y...Y..YYYYYYYYYY................YYY.MMMMMMMMMMMMX
+D:XMM....MYV.YY.Y...................Y.YYYYY.Y.Y..Y........YY.YY.YYYYYY..............YYYM.MMMMMMMMMMMMX
+D:XMM..M.MM.V.YY.....................YY.Y.YYY.Y....Y.Y.Y...YY.YYYYYY..............M.YYYMMMMMMMMMMMMMMX
+D:XMMM.MMMMMV.YY...................Y..YYYYYYY.......Y...Y...YYYY..Y........MM..M.MMMMMMMMMMMMMMMMMMMMX
+D:XMMM.MMMMVMMM................M.....Y..MnY..Y......M.....................MMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMMMVMMMM>..MMM.....MMM..MMM...MMMMMMMM.MMM..MM..M....M..M.M....MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMMMVMMMMMMMMMMQMMMMMMMMMMMMM.MMMMMMMM..MMMM.MMM.MM.MMM.MMMM.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMVVMMMVMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMVVMVMMMMMMMMMMMMMMMMMMMMMMMMMM.....................MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMVVVMMMMMMMMMMMMMMMMMMMMMMMMMMM..MMMMMMMcMdMMMMMMM..MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM..MMMMMMMMMMMMMMMMM..MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.....................MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+N:118:Atlantis
+X:10:0:45:75
+Y:584
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X..Y....Y...Y...Y....Y...........................................V.VVVWWWWX
+D:X.....Y...YY.YY.Y.YY.Y..Y.......##YYYYYYYY##.....Y..Y...Y..V..V..V.VVVWWWWX
+D:X.Y.###############..Y.Y..Y..Y.####......####................V.VV.VVVWWWWWX
+D:XY..#;;;;;;;;;;;;;#....Y..Y..Y.Y##YYYYYYYY##Y....########..V..V..VVWWVWWWWX
+D:X...#;;;;;;;;;;;;;######.Y.Y...Y..Y......Y..Y....#YYYYYY#..V.V..VWVVVWWWWWX
+D:X.Y.#;;.@.......;;######.....Y.Y..Y..mm..Y..Y....YY.pp.YY.....VVVVVVWWWWWWX
+D:X..Y#;;.......@.;;Y...##..Y....Y..Y..mm..Y..Y....YY.pp.YY...V.VVVVVWVWWWWWX
+D:XY..#;;.........;;#f......Y.Y..Y..Y......Y..Y....#YYYYYY#....VVVVVWWVWWWWWX
+D:X...#;;....@....;;Y...##.......Y##YYYYYYYY##Y....########.V.VVWVWWWVWWWWWWX
+D:X.Y.#;;.@.......;;######.Y.Y...####......####..............VVVVWVVWWWWWWWWX
+D:X...#;;;;;;;;;;;;;######...Y.Y..##YYYYYYYY##.....##.##...V..VWVVVWWVWWWWWWX
+D:X.Y.#;;;;;;;;;;;;;#......Y.Y.......................3.......VVVVVVVWVWWWWWWX
+D:X...###############...YYY..........Y.............##.##..V..V.VVVVVVWWWWWWWX
+D:X.Y.................Y....Y.Y...Y.....Y.Y.Y...............VV..V..VVVVWWWWWWX
+D:X...Y.Y...Y..###......###.........Y.Y.YY...Y.Y.........V..V...V..VVVWWWWWWX
+D:X.Y.Y..YY....############...###.....YY.Y.Y.....Y.Y.........V..VV.WVVVVWWWWX
+D:X.Y.Y.Y..Y....#YYYYYYYY##...##hG...Y..Y.Y...Y..........V.....V..VVVVVVWWWWX
+D:XY.Y..Y...Y.Y.#Y......Y##...###....Y.Y.Y......Y....Y....V.V..V.V.VVVVWWWWWX
+D:X.Y.Y.Y..Y....#Y..##..########......Y.Y.Y.Y..Y..Y.....V....V..VVVVVWVWWWWWX
+D:X..YY.Y.Y.Y...#Y.#YY#.########...Y...Y.Y.........Y..P....VV.V.V.VWVWVWWWWWX
+D:X..Y....Y.Y...#b.........YYY.........Y...Y.Y...Y..........V.V.VVVVWVVWWWWWX
+D:X.YY..Y.......#Y.#YY#.########....Y....Y.....Y....Y..Y..VV.V...VWWVWWWWWWWX
+D:X....Y...Y.Y..#Y..##..########......Y..Y..Y....Y....Y.....V..V.VVWVWVWWWWWX
+D:X...Y..Y..Y...#Y......Y##...###...Y.......Y...Y..Y......VV.V.V.VWVVVVWWWWWX
+D:X.....Y.Y.Y...#YYYYYYYY##...##hG...Y..YY.Y..Y........Y...V.V.V..V.WVVWWWWWX
+D:X...Y.Y.YY...############...###...........Y......Y.Y.......VV.V.VVWWWWWWWWX
+D:X..YY.YY.Y...###......###.....Y..YY.Y.Y.Y.....................V..VWWVWWWWWX
+D:X.....Y....Y......Y............Y............YYYYYYYYYY.......V.V.VVVWWWWWWX
+D:X............Y..Y..Y...Y..Y..Y......Y.......Y........Y.....V...V..VWVWWWWWX
+D:X.##2##1##....Y..Y...Y....Y..Y...Y..........Y.######.....V..V.V.VVWVWWWWWWX
+D:X.########...Y.YY....Y...........Y...YY.....Y.o####e.......VV.V..WWWVWWWWWX
+D:X.#######g..Y..YYY.....#ll#..........Y......Y.##0###......V.V..VVVVWWVWWWWX
+D:X.########...YY.Y...##########...Y.Y....Y...Y........Y.....V..V.VVVVVWWWWWX
+D:X.#######k....Y....############....Y.Y..Y...YYYYYYYYYY....VVVVV.VVVWVWWWWWX
+D:X.########..Y..Y..##############.....YYY....................V.VVVV.VWVWWWWX
+D:X.########..Y.Y...q############r....Y..YY........Y..Y..Y.V..V.V..V.VWVWWWWX
+D:X......Y..Y.Y.....q############r....Y..Y....Y..Y..Y..Y........VVV.VVVVWWWWX
+D:X..Y.Y....YYY.....##############..........Y..Y...............V...V.VVWWWWWX
+D:X.Y.Y.Y.Y.Y....################.....Y..Y...Y.Y.Y..######cdc######..VVVWWWWX
+D:XY.Y.YY....YY..4##############...Y.Y.Y.Y.Y..Y.Y.Y#################.VWVWWWWX
+D:XY.Y.YYYYY..Y..5####...#ss#.......Y.Y.Y.Y..Y..YYY###...........###.VVVWWWWX
+D:XY>.YY.YY.7.Y..##a##.......Y.Y.Y..Y.QY..Y.Y.YYYY6##.............##.VWWWWWWX
+D:XYYYY.Y....................Y....Y.Y..Y.YY.YY.YYnY##.............##.VVVWWWWX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+########## Arena vaults.
+
+N:126:Hide-n-seek
+X:11:0:15:35
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXF.F.F.F.FXcXF.F.F.F.FXXXXXXX
+D:XXXXF.F.F.F.F.F.FPF.F.F.F.F.F.FXXXX
+D:XX.F.F.F.F.F.F.F.F.F.F.F.F.F.F.F.XX
+D:XXF.F.F.F.F.F.F.F.F.F.F.F.F.F.F.FXX
+D:XF.F.F.F.F.F.F.F.F.F.F.F.F.F.F.F.FX
+D:X.F.F.F.F.F.F.F.F.F.F.F.F.F.F.F.F.X
+D:XF.F.F.F.F.F.F.F.F.F.F.F.F.F.F.F.FX
+D:X.F.F.F.F.F.F.F.F.F.F.F.F.F.F.F.F.X
+D:XF.F.F.F.F.F.F.F.F.F.F.F.F.F.F.F.FX
+D:XXF.F.F.F.F.F.F.F.F.F.F.F.F.F.F.FXX
+D:XX.F.F.F.F.F.F.F.&.F.F.F.F.F.F.F.XX
+D:XXXXF.F.F.F.F.F.F.F.F.F.F.F.F.FXXXX
+D:XXXXXXXF.F.F.F.F.F.F.F.F.F.FXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:127:Arena, simple
+X:11:0:15:35
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXX.........XcX.........XXXXXXX
+D:XXXX.............P.............XXXX
+D:XX...............................XX
+D:XX...............................XX
+D:X.................................X
+D:X.................................X
+D:X.................................X
+D:X.................................X
+D:X.................................X
+D:XX...............................XX
+D:XX...............&...............XX
+D:XXXX...........................XXXX
+D:XXXXXXX.....................XXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+########## Here are the themed vaults.
+########## Type 9
+
+N:128:Sea Monster
+Y:564
+X:9:5:15:15
+D:%%%%%%%%%%%%%%%
+D:%VVVVVVVVVVVVV%
+D:%VVVVWWWWWVVVV%
+D:%VVVWWWWWWWVVV%
+D:%VVWWWWWWWWWVV%
+D:%VWWWWWTWWWWWV%
+D:%VWWWWWWWWWWWV%
+D:%VWWWTWaWTWWWV%
+D:%VWWWWWWWWWWWV%
+D:%VWWWWWTWWWWWV%
+D:%VVWWWWWWWWWVV%
+D:%VVVWWWWWWWVVV%
+D:%VVVVWWWWWVVVV%
+D:%VVVVVVVVVVVVV%
+D:%%%%%%%%%%%%%%%
+
+N:129:Vampire Mansion
+Y:298
+X:9:5:19:34
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%................................%
+D:%.........XXXXXXXXXXXXXX.........%
+D:%..XXXXXXXX.9....9...9.XXXXXXXX..%
+D:%..X9.....X............X.....9X..%
+D:%..X......XXXXXXDDXXXXXX......X..%
+D:%..X......D............D......X..%
+D:%.XXXXXXXDXXXXXXXXXXXXXXDXXXXXXX.%
+D:%;X.....X.X.....T......X.X.....X;%
+D:%;D..9..D.D.9..TaT...9.D.D..9..D;%
+D:%;X.....X.X.....T......X.X.....X;%
+D:%.XXXXXXXDXXXXXXXXXXXXXXDXXXXXXX.%
+D:%..X......D............D......X..%
+D:%..X......XXXXXXDDXXXXXX......X..%
+D:%..X9.....X............X.....9X..%
+D:%..XXXXXXXX.9...9....9.XXXXXXXX..%
+D:%.........XXXXXXXXXXXXXX.........%
+D:%................................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:130:Dragon's Lair
+Y:380
+X:9:7:22:34
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%................................%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.XXXXXXXXXXXXXXXXX.K....XXXXT.X.%
+D:%.XXXXXXXXXXXXX....K..9..XXXXT.X.%
+D:%.XXXXXXXXXX......KK.....XXXXT.X.%
+D:%.XXXXXXXX......KKLLK.....XXXT.X.%
+D:%.XXXXXXX..9..KK.KLLK.....XXX^.X.%
+D:%.XXXXXX.....K....KK.......X^^.X.%
+D:%;XX.........K.............X^^.X.%
+D:%;;...........K.......a....+^^.X.%
+D:%;;............K...........+^^.X.%
+D:%;XX..........KK...........X^^.X.%
+D:%.XXXXXX.....K..K.KK.......X^^.X.%
+D:%.XXXXXXX.KKK....KLLK.....XXX^.X.%
+D:%.XXXXXXXX.......KLLK.....XXXT.X.%
+D:%.XXXXXXXXXX......KKK....XXXXT.X.%
+D:%.XXXXXXXXXXXXX......K.9.XXXXT.X.%
+D:%.XXXXXXXXXXXXXXXXX...K..XXXXT.X.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%................................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:131:Orc Cave
+Y:96:98:120:126:178
+X:9:7:22:33
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%...............................%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXVVVXX.%
+D:%.XXXXXXXXXaaXXXXXXXXXXXXVVTTVX.%
+D:%.XXXXXXaaaaaaXXXXXbbXXXVVTTVVX.%
+D:%.XXXXXXaaaaaaaXXbbbbXXXVTTVVXX.%
+D:%.XXXXaaa....aaaXbb.bbXXVVVVXXX.%
+D:%.XXe.................V+XXXXXXX.%
+D:%;Xe............c.cc..VVXXXXXXX.%
+D:%;D............ccc...V..XXdXXXX.%
+D:%;Xe...........cccc..V....dXXXX.%
+D:%.XeXb..bbbb....ccc.V.....ddXXX.%
+D:%.XXXbbbbbXb........V..XddXXXXX.%
+D:%.XXXbbXXXXb....cc...V.XXXXXXXX.%
+D:%.XXXXXXXXXXXa....cc..V.XXXXXXX.%
+D:%.XXXXXXXXXXXaaaaaa.c..V.XXXXXX.%
+D:%.XXXXXXXXXXXXaXXaaabbbbV.XXXXX.%
+D:%.XXXXXXXXXXXXXXXXXXabbbXXXXXXX.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%...............................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# Monsters:
+# Poltergeist GGGhost ZKobold LostSoul ZOrc ZHuman BoneDragon Necro
+#     a          b       c       d      e     f         g       h
+
+N:132:Undead Laboratory
+Y:54:80:106:107:153:165:579:391
+X:9:10:22:47
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%.............................................%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.XXXaaXbbbbbXcccccXdddddXeeeeeXfffffX..TTXXX.%
+D:%.XXXaaX.....X.....X.....X.....X.....X..TXXXX.%
+D:%.Xaaa.X.....X.....X.....X.....X.....X..XXXTX.%
+D:%.Xaa..X.....X.....X.....X.....X.....X..XXTTX.%
+D:%.X..........X.....X.....X.....X.....X......X.%
+D:%.XXXXX......X.....X.....X.....X.....X..XXXXX.%
+D:%;X.......X.....X.....X.....X.....X.........X.%
+D:%;D......XXX...XXX...XXX...XXX...XXX.....h..X.%
+D:%;D......XXX...XXX...XXX...XXX...XXX.g...h..X.%
+D:%;X.......X.....X.....X.....X.....X.........X.%
+D:%.XXXXX......X.....X.....X.....X.....X..XXXXX.%
+D:%.X..........X.....X.....X.....X.....X......X.%
+D:%.Xaa..X.....X.....X.....X.....X.....X..XXTTX.%
+D:%.Xaaa.X.....X.....X.....X.....X.....X..XXXTX.%
+D:%.XXXaaX.....X.....X.....X.....X.....X..TXXXX.%
+D:%.XXXaaXbbbbbXcccccXdddddXeeeeeXfffffX..TTXXX.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.............................................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:133:Chaos Vortex
+Y:502
+X:9:20:22:32
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%..............................%
+D:%.;XXXXXXXXXXXXXXXXXXXXXXXXXX;.%
+D:%.X.XFTFTFTFT.TFTFTFTFTFTFTX.X.%
+D:%.XX.FFFFFFFFF.FF.FFFFFFFFF.XX.%
+D:%.XTF.FFFFFFFFF..FFFFFFFFF.FFX.%
+D:%.XFFF.FFFFFFFF..FFFFFFFF.FFTX.%
+D:%.XTFFF.FFFFFF....FFFFFF.FFFFX.%
+D:%.XFFFFF.FFFF..FF..FFFF.FFFFTX.%
+D:%.XTFFFFF.FF..FFFF..FF.FFFFFFX.%
+D:%.XFFFFFFF...FFa.FF...FFFFFFTX.%
+D:%.XTFFFFFF...FF..FF...FFFFFFFX.%
+D:%.XFFFFFF.FF..FFFF..FF.FFFFFTX.%
+D:%.XTFFFF.FFFF..FF..FFFF.FFFFFX.%
+D:%.XFFFF.FFFFFF....FFFFFF.FFFTX.%
+D:%.XTFF.FFFFFFFF..FFFFFFFF.FFFX.%
+D:%.XFF.FFFFFFFFF..FFFFFFFFF.FTX.%
+D:%.XX.FFFFFFFFF.FF.FFFFFFFFF.XX.%
+D:%.X.XTFTFTFTFTFTFT.TFTFTFTFX.X.%
+D:%.;XXXXXXXXXXXXXXXXXXXXXXXXXX;.%
+D:%..............................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:134:Arena
+X:9:5:19:34
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%.............;;;;;..............%
+D:%.XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX.%
+D:%.XXXXXXXXXX..........XXXXXXXXXX.%
+D:%.XXXXXX.................XXXXXXX.%
+D:%.XXX.......................XXXX.%
+D:%.XX.......XXX......XXX.......XX.%
+D:%;X........XXX......XXX........X;%
+D:%;D........XXX..WW..XXX........D;%
+D:%;D............W8.W............D;%
+D:%;X........XXX..WW..XXX........X;%
+D:%.XX.......XXX......XXX.......XX.%
+D:%.XX.......XXX......XXX......XXX.%
+D:%.XXX.......................XXXX.%
+D:%.XXXXXX.................XXXXXXX.%
+D:%.XXXXXXXXXX..........XXXXXXXXXX.%
+D:%.XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX.%
+D:%.............;;;;;..............%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# Monsters:
+#  Demonologist DarkElf DEDruid DEMage DEWarrior DEPriest DELord DESorc
+#      a           b      c        d      e        f        g      h
+
+N:135:Unholy Altar
+Y:339:108:277:136:138:162:246:450
+X:9:15:34:24
+D:%%%%%%%%%%%%%%%%%%%%%%%%
+D:%......KKK;;;;KKK......%
+D:%......KXXXDDXXXK......%
+D:%......KXXX..XXXK......%
+D:%......KXX....XXK......%
+D:%......KXbbbbbbXK......%
+D:%......KXX....XXK......%
+D:%......KXbbbbbbXK......%
+D:%......KXX....XXK......%
+D:%......KXbbbbbbXK......%
+D:%......KXX....XXK......%
+D:%......KXccccccXK......%
+D:%......KXX....XXK......%
+D:%......KXddddddXK......%
+D:%......KXX....XXK......%
+D:%......KXeeeeeeXK......%
+D:%......KXX....XXK......%
+D:%......KXhhhhhhXK......%
+D:%......KXX.gg.XXK......%
+D:%KKKKKKKX..gg..XKKKKKKK%
+D:%KXXXXXXX.KKKK.XXXXXXXK%
+D:%KXX.....KWWWWK.....XXK%
+D:%KX...f.KWLLLLWK.f...XK%
+D:%KX...f.KWLLLLWK.f...XK%
+D:%KXX.....KWWWWK.....XXK%
+D:%KXXXXXXX.KKKK.XXXXXXXK%
+D:%KKKKKKKX......XKKKKKKK%
+D:%......KX..ff..XK......%
+D:%......KX..aa..XK......%
+D:%......KXX....XXK......%
+D:%......KXXX..XXXK......%
+D:%......KXXXXXXXXK......%
+D:%......KKKKKKKKKK......%
+D:%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:136:Mutant village
+Y:550:551:552
+X:9:5:22:32
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%...............;;;;;..........%
+D:%.YYYYYYYYYYYYYYY.V.YYYYYYYYYY.%
+D:%.YYYY....YYYYY..V.YYYYYYYYYYY.%
+D:%.YY.aaaaa.YYY.VV.YYYYYYTTTYYY.%
+D:%.Y.aaaaaa.cYY.V.....YYYTTTYYY.%
+D:%.Y.aaaaaa.cYY..VVVVV.YYTTTYYY.%
+D:%.YY.aaaa.YYYYY......V.YYY.YYY.%
+D:%.YYY.bbbbYYYY...YYY..V.YY.YYY.%
+D:%.YYYY.bbbYYY.VVV..YY.V.YY.YYY.%
+D:%.YYYYYY..YY.V...VV..V.YYY.YYY.%
+D:%.YYYYYY.....V.YY..VV.YYYY.YYY.%
+D:%.YYYYYYY.VVV.YYYYY..YYYYY.YYY.%
+D:%.YYY.cc.V...YYYYYY..YYYY..YYY.%
+D:%.YY.VVVV.YYYYYYY..aaaa.c.YYYY.%
+D:%.YcVWWWVcYYYYYY.aaaaaaa.YYYYY.%
+D:%.YcVWWWVcYYYYYcaaabbaaaa.YYYY.%
+D:%.YY.VVV.YYYYYY.aaabbbaaa.YYYY.%
+D:%.YYYcc.YYYYYYYaabbbbaaaa.YYYY.%
+D:%.YYYYYYYYYYYYYYYYYYYYYYYYYYYY.%
+D:%..............................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:137:Computer lab
+Y:567
+X:9:20:16:29
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%...........................%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.XTTX..XaXaXaXaXaXaXaXaXaX.%
+D:%.XTTX....................X.%
+D:%.XXX+....................X.%
+D:%;X.....XaXaXaXaXaXaXaXaXaX.%
+D:%;D.....XXXXXXXXXXXXXXXXXXX.%
+D:%;D.....XXXXXXXXXXXXXXXXXXX.%
+D:%;X.....XaXaXaXaXaXaXaXaXaX.%
+D:%.XXX+....................X.%
+D:%.XTTX....................X.%
+D:%.XTTX..XaXaXaXaXaXaXaXaXaX.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%...........................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:138:Dread castle
+Y:303:407
+X:9:5:19:34
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%.WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.%
+D:%WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW%
+D:%WWWXXXWWWWWWWWWWWWWWWWWWWWXXXWWW%
+D:%WWXXaXXWWWWWWWWWWWWWWWWWWXXaXXWW%
+D:%WWXXTTXXXXXXXXXXXXXXXXXXXXTTXXWW%
+D:%WWWXXXD..................DXXXWWW%
+D:%WWWWX..XXXXXXXXXXXXXXXXXX..XWWWW%
+D:%WWWWX.XX..X...X..X...X..XX.XWWWW%
+D:%WWWWX.D..aD..aD.bDa..Da..D.XWWWW%
+D:%WWWWX.XX..X...X..X...X..XX.XWWWW%
+D:%WWWWX..XXXXXXXXXXXXXXXXXX..XWWWW%
+D:%WWWXXXD..................DXXXWWW%
+D:%WWXXTTX..XXXXX;;;;XXXXX..XTTXXWW%
+D:%WWXXaXXXXXWWWXXDDXXWWWXXXXXaXXWW%
+D:%WWWXXXWWWWWWWWWWWWWWWWWWWWXXXWWW%
+D:%WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW%
+D:%.WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:139:Demonologist
+Y:393:467
+X:9:30:22:32
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%..............................%
+D:%..............................%
+D:%...............;..............%
+D:%.....KK.......;;;......KK.....%
+D:%....KLLK.....;;a;;....KLLK....%
+D:%....KLLK....;;...;;...KLLK....%
+D:%.....KK....;;.....;;...KK.....%
+D:%..........;;a.....a;;.........%
+D:%..;;;;;;;;;;;;;;;;;;;;;;;;;;..%
+D:%...;;;;a.;..........;.a;;;;...%
+D:%.....;;;;......b.....;;;;.....%
+D:%......;;.;;;......;;;.;;......%
+D:%.....;;....a;;;;;;a....;;.....%
+D:%....;;......;;;;;;......;;....%
+D:%....;;...;;;;....;;;;...;;....%
+D:%...;;a;;;;....KK....;;;;a;;...%
+D:%..;;;;;......KLLK......;;;;;..%
+D:%..;;.........KLLK.........;;..%
+D:%..............KK..............%
+D:%..............................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# ForestTroll StoneTroll TrollPriest Algoroth IceTroll
+#    a            b           c         d         e
+
+N:140:Troll den
+Y:214:278:279:293:309
+X:9:9:22:33
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%...............................%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.XXXXXXXXXXXXX.deeeXXXXXXXXXXX.%
+D:%.XXXXXbbXXXXXK.ddddeXXXKKKXXXX.%
+D:%.XXXXbbbXXXXXKK..XddXXXXKKXXXX.%
+D:%.XXbbbbbbXXXXXXXXX..dXXX...XXX.%
+D:%.X..bbb.VXXXXXXXX......X...cXX.%
+D:%;X.....VVVXXXXXXX...aa.....XXX.%
+D:%;..aa..VVVWWWXXXV..aaaa..ccXXX.%
+D:%;Xaaaa.VVWWWWWVVV..aaaa.cXXXXX.%
+D:%.Xaaaa..VVVVVVVVV..aaaa.XXXXXX.%
+D:%.X.aa.X...VVV..V.........XXXKX.%
+D:%.XX...XX...V.....XXXX....XXXKX.%
+D:%.XXbbbXXXcccccXccXXXXXddXXXXKX.%
+D:%.XXbXbbXXXXXccXXccXXXXeddXX..X.%
+D:%.XXXXXbbXXXXXXXXXcXXXXXedddd.X.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXeeddXX.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%...............................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# ClearWorms GiantRat GiantGrayRat NetherWorms BlueIcky BrainMaggot Tapeworm
+#    66         73        124          158        183      556         573
+#     a          b          c            d          e        f           g
+
+N:141:Sewage pit
+Y:66:73:124:158:183:556:573
+X:9:7:22:33
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%...............................%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.XXXXcbbbbbbbbbbdXXXXXXdddddXX.%
+D:%.XbbXcXXXXXXXXXXdXaaaaXdXXXaXX.%
+D:%.XXbXcXfXfXfXXgXdXXXaXXdXXXaXX.%
+D:%.XXbXcfffffffXgXdcccccccXbXaXX.%
+D:%.XbbXXXXXXXXfXgXXXXXXXXXXbXaXX.%
+D:%.XXffcccccfXfXddddddXXXXXbXaXX.%
+D:%;XXXXXXXXXfXfXXaXXXfXbbbbbXaXX.%
+D:%;aaaaaaXXXfXbXXaXfXfXXXcXXXaXX.%
+D:%;XXXXXaXXXfXbXXaXfXcccccffffXX.%
+D:%.XeeXXaeeeeXbXXaXfXXXXXXXXXXXX.%
+D:%.XeeXXbXXXXXbXXaXfXeffXfgggXcX.%
+D:%.XXeXbbXaaaXeXXeeeeeXfffXXgXcX.%
+D:%.XXeXXbXXaXXeXXXXXXXXXXXXXgXcX.%
+D:%.XXeXXbaaaeeeXgbbbbgXXaXaXgXcX.%
+D:%.XXgXXXXXXXXXXgXXXXgaaaaaccccX.%
+D:%.XXgggdddddddggXbbbgXXXXXXXXXX.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%...............................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# F.Giant F.Spirit F.Vortex F.Elem
+
+N:142:Volcano
+Y:209:220:252:349
+X:9:7:22:33
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%...............................%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.Xbba.......KKKKKKK.......abbX.%
+D:%.Xba....KKLKKKKKKKKKLKK....abX.%
+D:%.Xa..KKKLKLKKKKKKKKKKLKKKK..aX.%
+D:%.X..KLLKKLKLKKKKKKKKKLKKLLL..X.%
+D:%;X.KKKLLLKLKKKKKKKKLLKLLKKKK.X.%
+D:%;..KKKKKKKKLKKKKKKLKKKKKKKKK.X.%
+D:%;.KKKKKKKKKLKXXXXXLKKKKKKKKKKX.%
+D:%;.KKKKKKKKKKX.dcd.XKKKKKKKKKKX.%
+D:%;.KKKKKKKKKLX.cdc.XKKKKKKKKKKX.%
+D:%;.KKKKKKKKKLKXXXXXKKKKKKKKKKKX.%
+D:%;..KKKKKKLLKKKKKKKLKKKKKKKKK.X.%
+D:%;X.KKKKLLKKKKKKKKKKLKKKKKKKK.X.%
+D:%.X..KKLKKKKKKKKKKKKLLKKKKKK..X.%
+D:%.Xa..KLKKKKKKKKKKKLKLLLKKK..aX.%
+D:%.Xba....KKKKKKKKKKLKKKK....abX.%
+D:%.Xbba.......KKKKKKK.......abbX.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%...............................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:143:Death spiral
+X:9:7:22:33
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%...............................%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.X999.XXXX....8.......XXXX999X.%
+D:%.X9..XX...XXXXXXXXXXXX...XX.9X.%
+D:%.X9.XX.XXXX...8......XXXX..X9X.%
+D:%.X.X..XX...XXXXXXXXXX...XX.XXX.%
+D:%.X.X.XX.XXXX..8.....XXXX.XX.XX.%
+D:%.XXX.X.XX...XXXXXXXX...XX.X.XX.%
+D:%.XX.XX.X.XXXX......XXXX.X.XX.X.%
+D:%.XX8X8XX8X8..X.88.X..8X.XX.X.X.%
+D:%.XX.X.XX.X8..X.88.X..8X8XX8X8X.%
+D:%.XX.XX.X.XX........XXXX.X.XX.X.%
+D:%.XXX.X.XX...XXXXXXXX...XX.X.XX.%
+D:%.X.X.XX.XXXXX....8..XXXX.XX.XX.%
+D:%.X.X..XX.....XXXXXXXX...XX.XXX.%
+D:%.X9.XX.XXXXXXX...8...XXXX.X.9X.%
+D:%.X9..XX.......XXXXXXXX...XX.9X.%
+D:%.X999.XXXXXXXXX..8....XXXX999X.%
+D:%.XXXXXXXXXXXXXX.XXXXXXXXXXXXXX.%
+D:%..............;;;..............%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:144:Labyrinth
+X:9:7:22:33
+Y:441
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%..............;;;..............%
+D:%.XXXXXXXXXXXXXX.XXXXXXXXXXXXXX.%
+D:%.X.X....8.......X.......8....X.%
+D:%.X8X.XXXXXXXX.XXX.XXXXXXXXXX.X.%
+D:%.X.X.X...8..X.X...X....8...X.X.%
+D:%.X.X.X.XXXX.X.X.XXXXXXXXXX.X.X.%
+D:%.X.X8X.Xa.X.X.X.X.....8....X8X.%
+D:%.X.X.X.XX.X.X.X.X.XXXXXXXX.X.X.%
+D:%.X.X.X.XX.X.X.X8X.X..8...X.X.X.%
+D:%.X.X.X...8X.X.X.X.X.XXX.aX.X.X.%
+D:%.X8X.XXXXXX.X.X.X8X.XXXXXX.X.X.%
+D:%.X.X.X.8....X.X.X.X........X8X.%
+D:%.X.X.X.XXXXXX.X.X.XXXXXXXXXX.X.%
+D:%.X.X.X....8...X.X.....8....X.X.%
+D:%.X.X.XXXXXXXXXX.XXXXXXXXXX.X.X.%
+D:%.X.X.....8....X8.......8...X.X.%
+D:%.X.XXXXXXXXXX.XXXXXXXXXXXXXX.X.%
+D:%.X....8.......X..8...........X.%
+D:%.XXXXXXXXXXXXXX.XXXXXXXXXXXXXX.%
+D:%..............;;;..............%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:145:Sanctuary
+X:9:10:14:24
+D:%%%%%%%%%%%%%%%%%%%%%%%%
+D:%......................%
+D:%.;;XXXXXXXXXXXXXXXX;;.%
+D:%.;.X..X.^X..X^.X..X.;.%
+D:%.XX....^^WWWW^^....XX.%
+D:%.X.....^WWTTWW^.....X.%
+D:%.XX....^WTTTTW^....XX.%
+D:%.XX....^WTTTTW^....XX.%
+D:%.X.....^WWTTWW^.....X.%
+D:%.XX....^^WWWW^^....XX.%
+D:%.;.X..X.^X..X^.X..X.;.%
+D:%.;;XXXXXXXXXXXXXXXX;;.%
+D:%......................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%
+
+# NoviceW Swordsman HardenedW Dagashi Ninja
+#   90       168       261      364     331
+
+N:146:Barracks
+Y:90:168:261:364:331
+X:9:15:20:38
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%................................;;;;%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDD;%
+D:%.X.............................bbbD;%
+D:%.X...XXX..b.XXXXXXXXXXXX.XXXXXXXXbX;%
+D:%.X..XXTXX...X..XbccbX..XXX.bccb.XbX.%
+D:%.X.XXTTTXX..D.b.ceec.b.D.D.ceec.D.X.%
+D:%.X.XXTTTXX..X..XbccbX..XXX.bccb.X.X.%
+D:%.X..XXTXX.b.XXXXXXXXXXXX.XXXDDXXX.X.%
+D:%.X...X+X.................b.X..X...X.%
+D:%.X...X.X.b..b..aaYYaY..b...X..X...X.%
+D:%.X.XXX+XXXX..aYaYaYYaY...XXXDDXXX.X.%
+D:%.X.XXccccXX.YYaYVVVYYa...X..dd..X.X.%
+D:%.X.XccccccD.aYYYVVVYYY..bD.dddd.X.X.%
+D:%.X.XXccccXX.aYaYVVVaYaa..X..dd..X.X.%
+D:%.X.XXXXXXXX.YaYaYaYYaYY..XXXXXXXX.X.%
+D:%.X......b..b.YaaaYaaYaab.b........X.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%....................................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# NoviceM GnomeM Mage OgreMage
+#    77     202   305    296
+
+N:147:Magic academy
+Y:77:202:305:296
+X:9:15:20:38
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%....................................%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.X...XX...XXXX........XXXX...XX...X.%
+D:%.X..XX..XXX....XXXXXX....XXX..XX..X.%
+D:%.X..X..XX...XXXX....XXXX...XX..X..X.%
+D:%.X..X.XX..XXX....VV....XXX..XX.X..X.%
+D:%.XaaXbXc.XXd..VVVVVVVV..dXX.cXbXaaX.%
+D:%;XaaXbXcXXddVVVTTTTTTVVVddXXcXbXaaX;%
+D:%;DaaDbDcDddVV.TTKKKKTT.VVddDcDbDaaD;%
+D:%;DaaDbDcDddVV.TTKKKKTT.VVddDcDbDaaD;%
+D:%;XaaXbXcXXddVVVTTTTTTVVVddXXcXbXaaX;%
+D:%.XaaXbXc.XXd..VVVVVVVV..dXX.cXbXaaX.%
+D:%.X..X.XX..XXX....VV....XXX..XX.X..X.%
+D:%.X..X..XX...XXXX....XXXX...XX..X..X.%
+D:%.X..XX..XXX....XXXXXX....XXX..XX..X.%
+D:%.X...XX...XXXX........XXXX...XX...X.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%....................................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

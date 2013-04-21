@@ -1,0 +1,1595 @@
+
+#
+# Format:
+#
+# N:MAGE:0:Name 'o Death
+# F:GRID | KILL | ITEM | BEAM
+# T:SAFE:PLASMA:3d5:radius
+# F:KILL | PLAYER
+# T:UNSAFE:IDENTIFY
+# P:level:mana
+#
+#
+# Explanation:
+#
+# N:
+#   Spellbook in which to put the spell, corresponds to class.
+#   Index of the spell, starts with 0 and goes to 100, no duplicates.
+#   Name for the spell.
+#
+# F:
+#   Any number of flags for one spell effect, on one line only!
+#   Multiple `F' fields for one spell will create many several spell
+#   effects for one casting.
+#
+# T:
+#   SAFE or UNSAFE; SAFE means player won't get hurt and will recieve exp
+#         for kills. UNSAFE means that the player _will_ get hurt, and will
+#         _not_ recieve experience for kills.
+#   Spell effect type.
+#   Damage done by the spell -- for many spell types, ``damage'' means things 
+#         like how much to teleport the player, how much to heal a monster,
+#         etc.
+#   Radius, used for ball spells.
+#   
+#   NOTE: `T' fields should correspond with `F' fields! i.e. The second
+#   spell effect is described by the second `F' field and the second `T'
+#   field.
+#
+#
+# P:
+#   Level of the spell.
+#   Mana cost of the spell.
+#
+#
+###########################################################
+#							  #
+###########################################################
+#
+#
+# Allowed spellbooks:
+#     MAGE, ILLUSIONIST, PRIEST, ROGUE, RANGER
+# 
+# Flags:
+#     KILL  --  Affect monsters, and player if the spells is ``unsafe''. 
+#               (See below.)
+#     ITEM  --  Affect objects.
+#     GRID  --  Affect terrain features.
+#     ETHER --  Spell will not be stopped by walls.
+#
+#   Only one of the below flags should be used -- using more than one
+#   won't break anything, but you'll get unpredictable results.
+#
+#     STOP  --  Act like a bolt spell. Use this for bolts and balls, the
+#               difference beeing the radius, since a bolt is just a ball
+#               spell with a radius of zero.
+#     BEAM  --  Act like a beam spell.
+#     VIEWABLE  --  Affect all monsters in the player's field of view.
+#     METEOR_SHOWER  --  Affect random grids throughout the level.
+#     PLAYER  --   Affect only the player. Note that the ``KILL'' flag
+#		   should be set, and the spell should be ``unsafe''.
+#     BLAST  --  A large ball centered around the player.
+#     PANEL  --  Affect all the grids in the current panel, use for detection
+#                spells.
+#     ALL  --  Affect every grid on the level.
+#     GENOCIDE  --  Affect all monsters matching the symbol selected by the
+#                   player.
+#
+#
+#  The ``safety'' setting is a misnomer, since what it really controls is
+#  the originator of the spell. 
+#
+#  ``SAFE'' means that the player has cast the
+#  spell, so the player will be awarded experience for kills, the player 
+#  will not be affected by the spell, ball/bolt spells will originate
+#  at the player.
+#
+#  ``UNSAFE'' means the opposite -- the player WILL be affected, the player
+#  won't get experience, ball/bolt spells will originate at the target, and
+#  uniques won't be killed. It is important for spells that affect the player
+#  to be UNSAFE! i.e. The player won't be healed by a SAFE spell.
+#
+#
+#  The allowed spell effect types:
+#
+#  Terrain effects:
+#
+#    QUAKE -- Randomly scramble terrains.
+#    KILL_TRAP -- Destroy traps and locks.
+#    KILL_DOOR -- Destroy doors and traps.
+#    WALL_TO_CHAOS -- Turn walls into chaos fog.
+#    KILL_WALL -- Turn walls into floor.
+#    MAKE_MONSTER -- Generate a monster.
+#    MAKE_PET -- Generate a pet. The damage is the type of pet to summon --
+#             11. Ant
+#	      12. Spider
+#	      13. Hound
+#	      14. Hydra
+#	      15. Angel
+#	      16. Demon
+#	      17. Undead
+#	      18. Dragon
+#	      21. High Undead
+#	      22. High Dragon
+#	      31. Wraith
+#	      32. Unique
+#	      33. Snake
+#	      34. Person
+#	      35. Jelly
+#	      36. Mold
+#    MAKE_WALL -- Create a wall.
+#    MAKE_GLYPH -- Create a glyph of warding.
+#    MAKE_STAIR -- Create an up or down stair.
+#    MAKE_DOOR -- Create a door.
+#    MAKE_TRAP -- Create a trap.
+#    LITE_WEAK, LITE -- Lite up the grid.
+#    DARK_WEAK, DARK -- Darken the grid.
+#    WORD_OF_DESTRUCTION -- Convert the grid to either a wall or a floor.
+#    CHAOS_DESTRUCTION -- Convert the grid to chaos fog.
+#    ALTER, EARTHQUAKE -- Either make the terrain ``higher'' or make it
+#                         ``lower''.
+#    DETECT_TRAP -- Lite up the grid if it's a trap.
+#    DETECT_DOOR -- ditto if it's a door.
+#    DETECT_SIAR -- ditto if it's a stair.
+#    DETECT_TREASURE -- ditto if the wall holds a treasure.
+#    DETECT_ANY -- ditto if the grid is not a floor or a wall.
+#
+#  Object effects, note that these only work on objects on the ground:
+#
+#    ACID -- Destroy objects that hate acid.
+#    ELEC -- Destroy rings and wands.
+#    FIRE -- Destroy flammable objects.
+#    COLD, SHARD, FORCE, SOUND --  Destroy Potions.
+#    PLASMA -- Combines fire and electricity.
+#    METEOR --- Combines fire and cold.
+#    MANA, QUAKE, CHAOS_DESTRUCTION, WORD_OF_DESTRUCTION, EARTHQUAKE -- 
+#         Destroys all items.
+#    BLESS, HOLY_ORB -- Destroys cursed items.
+#    KILL_TRAP, KILL_DOOR -- Unlocks chests.
+#    DETECT_GOLD -- Memorize items that are gold/treasure.
+#    DETECT_OBJECT -- Memorize items that are not gold/treasure.
+#    DETECT_MAGIC -- Memorize magical objects.
+#    DETECT_ANY -- Memorize any object.
+#    ALTER -- Polymorph an object.
+#    RECALL -- Teleport an object to the player, damage means the 
+#	       maximum weight of the object.
+#    UNCURSE -- Remove curse.
+#    HEAVY_UNCURSE -- Remove heavy curse.
+#    SHIELD, ENCHANT_AC -- Enchant armor class.
+#    HEROISM, ENCHANT_TO_HIT -- Enchant to-hit.
+#    ENCHANT_TO_DAM -- Enchant damage bonus.
+#    DISENCHANT -- Disenchant items.
+#    IDENT -- Identify.
+#    HEAVY_IDENT, SUPER_IDENT -- Fully identify.
+#    RECHARGE -- Recharge item, use damage as recharge ``power''.
+#
+#  Monster effects:
+#
+#    MISSILE, ARROW, MANA, METEOR, DISP_ALL -- Damage the monster.
+#    ACID -- Damage monster, lessen damage if monster resists acid.
+#    ELEC -- ditto for electricity.
+#    FIRE -- ditto for fire.
+#    COLD -- ditto for cold.
+#    POIS -- ditto for poison.
+#    PLASMA -- ditto for plasma.
+#    HOLY_ORB -- Hurt monster, doubly hurt it if it's evil.
+#    NETHER -- Hurt monster, lessen damage if it's undead/evil.
+#    WATER -- Damage monster unless it's a water elemental.
+#    CHAOS -- Damage/confuse monster, lessen damage for chaos breathers.
+#    SHARD -- Damage monsters, lessen damage if monster breathes shards.
+#    SOUND -- Sound breathers resist.
+#    CONFUSION -- Damage and confuse monsters.
+#    DISENCHANT -- Damage monsters, less for those that disenchant.
+#    NEXUS -- Damage, less for resiters.
+#    FORCE, INERTIA, TIME, GRAVITY, LITE, DARK -- ditto.
+#    QUAKE -- 30% change of monster not being hurt.
+#    ICE -- Damage + stun.
+#    DRAIN -- Damage monsters that are living and not demons/undead.
+#    ALTER, POLY -- Polymorph monster.
+#    CLONE -- Clone monsters.
+#    HEAL -- Heal monster.
+#    SPEED -- Speed up monster.
+#    SLOW -- Slow down the monster.
+#    SLEEP -- Put the monster to sleep.
+#    CONF -- Pure confusion.
+#    LITE_WEAK -- Hurt susceptible monsters.
+#    KILL_WALL -- Hurt susceptible monsters.
+#    AWAY_UNDEAD -- Teleport undead.
+#    AWAY_EVIL -- Teleport evil.
+#    AWAY_ALL -- Teleport monster,
+#    TURN_UNDEAD -- Scare undead.
+#    TURN_EVIL -- Scare evil.
+#    TURN_ALL -- Scare monster.
+#    DISP_UNDEAD -- Damage undead.
+#    DISP_EVIL, BLESS, UNCURSE, HEAVY_UNCURSE -- Damage evil monsters.
+#    BRAIN_SMASH -- Damage, stun, and confuse non-stupid monsters.
+#    MIND_BLAST -- Damage and confuse non-stupid monsters.
+#    CHAOS_DESTRUCTION, WORD_OF_DESTRUCTION, AWAY_ALL_VERT,
+#      EARTHQUAKE -- Delete monster.
+#    RECALL -- Teleport monster to player.
+#    HEAL_FEAR -- Heal fear.
+#    HEAL_STUN -- Heal stun.
+#    DETECT_MONSTER -- Memorize non-invisible monsters.
+#    DETECT_INVIS -- Memorize invisible monsters.
+#    DETECT_EVIL -- Memorize evil monsters.
+#    DETECT_ANY -- Memorize monster.
+#    IDENT, HEAVY_IDENT, SUPER_IDENT -- Learn all monster info.
+#    GENOCIDE -- Delete monster, take damage.
+#    MASS_GENOCIDE -- Delete monster if in range, take damage.
+#    
+#  Player spell effects:
+# 
+#    ACID -- Take acid damage.
+#    FIRE -- Take fire damage.
+#    COLD -- Take cold damage.
+#    ELEC -- Take electrical damage.
+#    POIS -- Damage + poisoning.
+#    MISSILE, ARROW, MANA, METEOR -- Damage.
+#    HOLY_ORB -- Partial damage.
+#    PLASMA -- Damage + stun.
+#    NETHER -- Damage, insanity, exp drain.
+#    WATER -- Damage, stun, confusion.
+#    CHAOS -- Damage, confusion, hallucination, insanity, exp loss, mutation.
+#    SHARD -- Damage, cuts.
+#    SOUND -- Damage, stun.
+#    CONFUSION -- Damage, confusion.
+#    DISENCHANT -- Damage, disenchantment.
+#    NEXUS -- Damage, insanity, teleportation, teleport to monster, teleport
+#             level, scramble stats.
+#    FORCE -- Damage, stun.
+#    INERTIA -- Slowness, damage.
+#    LITE, DARK -- Damage, blindness.
+#    TIME -- Damage, insanity, lower stats, lose exp.
+#    GRAVITY -- Damage, stun, slowness, teleport.
+#    QUAKE -- Take damage 70% of the time.
+#    ICE -- Cold damage, stun, cuts.
+#    BRAIN_SMASH -- Insanity, blindness, confusion, paralyzation, slowness.
+#    MIND_BLAST -- Insanity, confusion.
+#    AWAY_ALL_LEVEL -- Teleport level.
+#    RECALL -- Set word-of-recall counter to damage.
+#    HEAL -- Heal by damage.
+#    HEAL_INSANITY -- Heal insanity by damage.
+#    HEAL_FEAR -- Heal fear.
+#    HEAL_CUT -- Heal cuts.
+#    HEAL_STUN -- Heal stun.
+#    HEAL_POISON -- Heal poison.
+#    HEAL_DEX, HEAL_CHR, HEAL_STR, HEAL_CON, HEAL_WIS, HEAL_INT -- Restore 
+#        stats.
+#    HEAL_LIFE -- Restore life levels.
+#    SHIELD -- Shield by damage.
+#    HEROISM -- Heroism by damage.
+#    BLESS -- Blessing by damage.
+#    FOOD -- Satisfy hunger by damage.
+#    UNCURSE -- Remove curse.
+#    HEAVY_UNCURSE -- Remove heavy curse.
+#    RECHARGE -- Recharge item, use damage as power.
+#    IDENT -- Indentify.
+#    HEAVY_IDENT -- *Identify*
+#    SUPER_IDENT -- Self knowledge.
+#    RES_FIRE, RES_COLD, RES_ELEC, RES_ACID, RES_POIS -- Restitances
+#    MASS_GENOIDE -- Kill the player.
+#    ENCHANT_TO_HIT, ENCHANT_TO_DAM, ENCHANT_AC -- Enchant weapon/armor.
+#    BRAND_AMMO, BRAND_WEAPON -- Brand ammo/weapon.
+#    ALTER -- Regenerate level.
+#    SPEED -- Plus 1d5 to speed.
+#    SLOW -- Minus 1d4+4 to speed.
+#    SLEEP -- Paralyzation by damage.
+#    AWAY_ALL -- Teleportation by damage.
+#    DISP_ALL -- Take damage if failed saving throw.
+#    TURN_ALL -- Be afraid, subject to saving throw.
+#    CHAOS_DESTURCTION, WORD_OF_DESTRUCTION -- Blindness.
+#    EARTHQUAKE -- Optional damage/stun.
+#
+#
+#
+#
+
+
+
+V:2.8.2
+
+
+# Mage:
+#
+# 1. Magic Missile
+# 2. Phase Door
+# 3. Detect monsters in view
+# 4. Wall to mud
+# 5. Confuse monster
+# 6. Spear of light
+#    Daylight
+# 7. Nexus blast
+# 8. Ball of darkness
+# 9. Scare/confuse monsters in view
+# 10. Recall monster
+#     Detect Invisible
+# 11. Polymorph monster
+# 12. Create monster
+# 13. Volcano
+#     Detect Magic
+# 14. Blizzard
+# 15. Entombement
+# 16. Finger of Death
+# 17. Identify
+#     Detect Objects
+# 18. Mass Identify
+# 19. Ether Flames
+#     Word of Recall
+#     Fetch Item
+#     Nether Beam
+# 20. Dungeonkill
+# 21. Genocide
+#     Detection
+# 22. Mass Genocide
+#     Brilliance
+# 23. Stasis
+#     Mass Detection
+# 24. Tunneling
+# 25. Destruction
+# 26. Chaos Destruction
+# 27. Swarm of Chaos
+# 28. Sanctuary
+# 29. Mass Tunneling
+# 30. Alteration
+# 31. Mass Polymorph
+# 32. Mana Storm
+# 33. Summon Pet
+# 34. Target Practice
+# 35. Sonic Blast
+# 36. Magic Dust
+#     Recharge
+#     Breathing space
+
+#
+# Illusionist:
+#
+# 1. Evil Eye
+# 2. Mask of Terror
+# 3. Gaze of Confusion
+# 4. Panic
+# 5. Deadly Murmur
+# 6. Deathly Chant
+# 7. Shockwave
+# 8. Beam of Insanity
+# 9. Shadow Portal
+# 10. Scorching Beam
+# 11. Detect Unseen
+# 12. Detect Living
+# 13. Radiance
+# 14. Mind Wave
+# 15. Brain Smash
+# 16. Shadow Servant
+# 17. Blast of Insanity
+# 18. Heal Insanity
+# 19. Shadow Gate
+# 20. Word of Recall
+# 21. Genocide
+# 22. Mass Genocide
+# 23. Massive Mind Blast
+# 24. Massive Brain Smash
+# 25. Polymorph
+# 26. Dispell Undead
+# 27. Domination
+# 28. Heal Confusion
+# 29. Heal Fear
+# 30. Identify
+# 31. Mass Identify
+# 32. Polymorph Item
+# 33. Alteration
+# 34. Solar Gate
+# 35. Brain Destruction
+# 36. Insanity
+
+
+#
+# Priest spells:
+#
+# 1. Astral Gate
+# 2. Healing Words
+# 3. Courage
+# 4. Cure Wounds
+# 5. Purification
+# 6. Heroism
+#    Turn Undead
+# 7. Blessings
+# 8. Satisfy Hunger
+#    Detect Evil
+# 9. Astral Shield
+#    Detect Unseen
+# 10. Remove Curse
+#     Detect Living
+#     Detect Magic
+# 11. Fiery Aura
+# 12. Frigid Aura
+# 13. Electric Aura
+# 14. Acidic Aura
+# 15. Poisonois Aura
+#     Restore Life Essence
+#     Word of Recall
+# 16. Identify
+#     Astral Gate II
+#     Mass Remove Curse
+#     Resistance
+#     Healing I
+#     Heal Insanity
+# 17. Brand Ammo
+# 18. Brand Weapon
+# 19. Recharging
+# 20. Mass Identify
+#     Restoration
+#     Healing II
+# 21. Identify Self
+# 22. Mass Recharging
+# 23. *Identify*
+# 24. *Remove Curse*
+# 25. Mass *Identify*
+# 26. Genocide
+# 27. Mass Genocide
+# 28. Alter Self
+# 29. Alter Other
+#     Healing III
+# 30. Enchant Weapon
+# 31. Enchant Armor
+# 32. Time Distortion
+# 33. Dispell Evil
+#     Dispell Undead
+# 34. Holy Orb
+# 35. Holy Chant
+# 36. Dispell All
+# 37. Mass Enchantment
+
+
+# Rogue spells
+#
+# 1. Shadow Portal
+# 2. Identify
+# 3. Destroy Doors
+# 4. Destroy Traps
+# 5. Detect Gold
+# 6. Detect Teasure
+# 7. Detect Magic
+# 8. Detect Objects
+#    Shadow Portal II
+#    Mass Identify
+# 9. Polymorph Object
+# 10. Fetching
+# 11. Remove Curse
+# 12. *Identify*
+# 13. Mass Remove Curse
+# 14. Mass *Identify*
+# 15. Recharging
+# 16. Mass Recharging
+# 17. Brand Weapon
+# 18. Brand Ammo
+# 19. Enchant Weapon
+# 20. Enchant Armor
+# 21. Mass Enchantment 
+# 22. Haste
+
+# Ranger spells:
+#
+# 1. Forceful Calm
+# 2. Berserk Rage
+#    Light Area
+# 3. Teleport Others
+# 4. Recall Others
+# 5. Dimensional Gate
+# 6. Magic Arrow
+# 7. Ether Shield
+# 8. Detect Living
+# 9. First Aid
+#     Destroy Traps
+#     Confusion
+#     Morass
+#     Polymorph
+#     Foraging
+#     Mass Teleport
+#     Dimensional Gate II
+# 10. Detect Doors/Traps
+#     Detect Stairs
+# 11. Detect Unseen
+# 12. Stone to Mud
+#     Glyph of Warding
+#     Brilliance
+#     Word of Recall
+#     Summon Molds
+#     Summon Jellies
+# 13. Summon Ants
+# 14. Summon Spiders
+# 15. Summon Snakes
+# 16. Summon Allies
+# 17. Summon Hounds
+#     Identify
+#     Entombment
+#     Probing
+#     Summoning
+
+
+########## Mage spells. These are supposed to be 
+########## damage/destruction oriented.
+
+
+N:MAGE:0:Magic Missile
+F:KILL | STOP
+T:SAFE:MISSILE:2d4:0
+P:1:1
+
+N:MAGE:1:Phase Door
+F:KILL | PLAYER
+T:UNSAFE:AWAY_ALL:10d1:0
+P:2:1
+
+N:MAGE:2:Sense Living
+F:KILL | PANEL
+T:SAFE:DETECT_MONSTER:1d1:0
+P:3:2
+
+N:MAGE:3:Wall to Mud
+F:GRID | KILL | STOP
+T:SAFE:KILL_WALL:3d5:0
+P:3:2
+
+N:MAGE:4:Confusion
+F:KILL | STOP
+T:SAFE:CONF:10d20:0
+P:4:4
+
+N:MAGE:5:Spear of Light
+F:GRID | KILL | BEAM
+T:SAFE:LITE_WEAK:5d7:0
+P:5:1
+
+N:MAGE:6:Daylight
+F:GRID | KILL | BLAST
+T:SAFE:LITE_WEAK:2d2:20
+P:5:2
+
+N:MAGE:7:Nexus Vortex
+F:KILL | BLAST
+T:UNSAFE:NEXUS:2d8:15
+P:6:4
+
+N:MAGE:8:Darkness
+F:GRID | KILL | BLAST
+T:SAFE:DARK:3d6:10
+P:7:5
+
+N:MAGE:9:Puppetmaster
+F:KILL | VIEWABLE
+T:SAFE:CONF:10d20:0
+F:KILL | VIEWABLE
+T:SAFE:TURN_ALL:10d20:0
+P:7:6
+
+N:MAGE:10:Recall Monster
+F:KILL | STOP
+T:SAFE:RECALL:1d1:0
+P:8:6
+
+N:MAGE:11:Detect Unseen
+F:KILL | PANEL
+T:SAFE:DETECT_INVIS:1d1:0
+P:8:7
+
+N:MAGE:12:Polymorph Monster
+F:KILL | STOP
+T:SAFE:POLY:1d10:0
+P:9:9
+
+N:MAGE:13:Adversary
+F:GRID | STOP
+T:UNSAFE:MAKE_MONSTER:1d1:0
+P:9:10
+
+N:MAGE:14:Volcano
+F:KILL | BLAST
+T:SAFE:FIRE:10d2:17
+P:10:12
+
+N:MAGE:15:Detect Magic
+F:ITEM | PANEL
+T:SAFE:DETECT_MAGIC:1d1:0
+P:11:14
+
+N:MAGE:16:Blizzard
+F:KILL | BLAST
+T:SAFE:ICE:7d2:17
+P:12:15
+
+N:MAGE:17:Entombment
+F:GRID | STOP
+T:SAFE:MAKE_WALL:1d1:3
+P:13:16
+
+N:MAGE:18:Finger of Death
+F:KILL | STOP
+T:UNSAFE:MANA:10d5:0
+P:14:17
+
+N:MAGE:19:Identify
+F:KILL | PLAYER
+T:UNSAFE:IDENT:1d1:0
+P:15:18
+
+N:MAGE:20:Detect Objects
+F:ITEM | PANEL
+T:SAFE:DETECT_OBJECT:1d1:0
+P:16:16
+
+N:MAGE:21:Mass Identify
+F:ITEM | KILL | BLAST
+T:UNSAFE:IDENT:1d1:3
+P:17:26
+
+N:MAGE:22:Ether Flames
+F:KILL | ETHER | BEAM
+T:SAFE:FIRE:5d6:0
+P:18:20
+
+N:MAGE:23:Word of Recall
+F:KILL | PLAYER
+T:UNSAFE:RECALL:10d4:0
+P:19:17
+
+N:MAGE:24:Fetch Item
+F:ITEM | STOP
+T:SAFE:RECALL:10d3:0
+P:20:21
+
+N:MAGE:25:Nether Beam
+F:KILL | BEAM
+T:SAFE:NETHER:10d4:0
+P:21:17
+
+N:MAGE:26:Dungeonkill
+F:GRID | KILL | METEOR_SHOWER
+T:SAFE:KILL_WALL:10d3:0
+P:22:20
+
+N:MAGE:27:Genocide
+F:KILL | GENOCIDE
+T:SAFE:GENOCIDE:1d1:0
+P:23:27
+
+N:MAGE:28:Detection
+F:GRID | KILL | ITEM | PANEL
+T:SAFE:DETECT_ANY:1d1:0
+P:24:25
+
+N:MAGE:29:Mass Genocide
+F:KILL | ALL
+T:SAFE:MASS_GENOCIDE:1d1:0
+P:25:34
+
+N:MAGE:30:Brilliance
+F:GRID | KILL | BLAST
+T:SAFE:LITE:15d4:14
+P:26:31
+
+N:MAGE:31:Stasis
+F:GRID | KILL | STOP
+T:SAFE:MAKE_GLYPH:1d1:3
+P:27:40
+
+N:MAGE:32:Mass Detection
+F:GRID | ITEM | KILL | ALL
+T:SAFE:DETECT_ANY:1d1:0
+P:27:32
+
+N:MAGE:33:Tunneling
+F:GRID | KILL | ETHER | BEAM
+T:SAFE:KILL_WALL:10d5:0
+P:26:25
+
+N:MAGE:34:Destruction
+F:GRID | BLAST | ETHER
+T:UNSAFE:WORD_OF_DESTRUCTION:1d1:15
+P:27:20
+
+N:MAGE:35:Chaos Destruction
+F:GRID | BLAST | ETHER
+T:UNSAFE:CHAOS_DESTRUCTION:1d1:25
+P:27:20
+
+N:MAGE:36:Swarm of Chaos
+F:KILL | STOP
+T:SAFE:CHAOS:20d4:4
+P:28:34
+
+N:MAGE:37:Sanctuary
+F:GRID | BLAST
+T:SAFE:MAKE_GLYPH:1d1:5
+P:29:45
+
+N:MAGE:38:Mass Tunneling
+F:GRID | KILL | ETHER | STOP
+T:SAFE:KILL_WALL:10d6:6
+P:30:35
+
+N:MAGE:39:Alteration
+F:KILL | PLAYER
+T:UNSAFE:ALTER:1d1:0
+P:30:39
+
+N:MAGE:40:Mass Polymorph
+F:KILL | VIEWABLE
+T:SAFE:POLY:10d3:0
+P:31:34
+
+N:MAGE:41:Mana Storm
+F:KILL | BLAST
+T:SAFE:MANA:10d8:20
+P:32:37
+
+N:MAGE:42:Summon Pet
+F:GRID | PLAYER
+T:SAFE:MAKE_PET:1d1:0
+P:33:40
+
+N:MAGE:43:Target Practice
+F:GRID | STOP
+T:SAFE:MAKE_MONSTER:1d1:3
+P:34:35
+
+N:MAGE:44:Sonic Blast
+F:KILL | ETHER | BLAST
+T:SAFE:SOUND:20d6:10
+P:35:46
+
+N:MAGE:45:Magic Dust
+F:KILL | ALL
+T:SAFE:SLEEP:100d10:0
+P:36:48
+
+N:MAGE:46:Charges
+F:KILL | ITEM | BLAST
+T:UNSAFE:RECHARGE:80d1:4
+P:37:47
+
+N:MAGE:47:Breathing Space
+F:GRID | KILL | ETHER | BLAST
+T:SAFE:KILL_WALL:10d7:15
+F:GRID | BLAST
+T:SAFE:MAKE_GLYPH:1d1:15
+P:38:49
+
+N:MAGE:48:Deathly Spores
+F:KILL | VIEWABLE
+T:SAFE:POIS:10d30:0
+P:39:50
+
+N:MAGE:49:Soulcatcher
+F:KILL | ETHER | BLAST
+T:SAFE:NETHER:15d30:0
+P:40:55
+
+
+########## Illusionist spells. These are supposed to be
+########## battle oriented.
+
+N:ILLUSIONIST:0:Evil Eye
+F:KILL | STOP
+T:SAFE:MIND_BLAST:3d4:0
+P:1:1
+
+N:ILLUSIONIST:1:Mask of Terror
+F:KILL | BEAM
+T:SAFE:AWAY_ALL:10d50:0
+P:1:1
+
+N:ILLUSIONIST:2:Gaze of Confusion
+F:KILL | BEAM
+T:SAFE:CONF:2d10:0
+P:2:2
+
+N:ILLUSIONIST:3:Panic
+F:KILL | VIEWABLE
+T:SAFE:TURN_ALL:10d50:0
+F:KILL | VIEWABLE
+T:SAFE:CONF:2d10:0
+P:3:4
+
+N:ILLUSIONIST:4:Deathly Murmur
+F:KILL | ETHER | STOP
+T:SAFE:BRAIN_SMASH:3d5:0
+P:4:3
+
+N:ILLUSIONIST:5:Deathly Chant
+F:KILL | ETHER | STOP
+T:SAFE:BRAIN_SMASH:2d5:4
+P:5:5
+
+N:ILLUSIONIST:6:Shockwave
+F:KILL | ETHER | BLAST
+T:SAFE:SOUND:2d30:20
+F:GRID | ETHER | KILL | BLAST
+T:UNSAFE:WORD_OF_DESTRUCTION:2d30:20
+P:6:8
+
+N:ILLUSIONIST:7:Beam of Insanity
+F:KILL | BEAM
+T:SAFE:MIND_BLAST:2d6:0
+P:6:5
+
+N:ILLUSIONIST:8:Shadow Portal
+F:KILL | PLAYER
+T:SAFE:AWAY_ALL:15d1:0
+P:7:5
+
+N:ILLUSIONIST:9:Scorching Beam
+F:KILL | GRID | BEAM
+T:SAFE:LITE:3d10:0
+P:8:7
+
+N:ILLUSIONIST:10:Detect Unseen
+F:KILL | PANEL
+T:SAFE:DETECT_INVIS:1d1:0
+P:8:5
+
+N:ILLUSIONIST:11:Detect Living
+F:KILL | PANEL
+T:SAFE:DETECT_MONSTER:1d1:0
+P:8:5
+
+N:ILLUSIONIST:12:Radiance
+F:KILL | GRID | BLAST
+T:SAFE:LITE:2d15:0
+P:9:7
+
+N:ILLUSIONIST:13:Mind Wave
+F:KILL | STOP
+T:SAFE:MIND_BLAST:3d30:3
+P:10:8
+
+N:ILLUSIONIST:14:Brain Smash
+F:KILL | STOP
+T:SAFE:BRAIN_SMASH:4d30:0
+P:11:10
+
+N:ILLUSIONIST:15:Shadow Servant
+F:GRID | STOP
+T:UNSAFE:MAKE_PET:17d1:0
+P:12:11
+
+N:ILLUSIONIST:16:Blast of Insanity
+F:KILL | STOP
+T:SAFE:BRAIN_SMASH:2d30:5
+P:12:13
+
+N:ILLUSIONIST:17:Heal Insanity
+F:KILL | PLAYER
+T:UNSAFE:HEAL_INSANITY:3d10:0
+P:12:10
+
+N:ILLUSIONIST:18:Shadow Gate
+F:KILL | PLAYER
+T:UNSAFE:AWAY_ALL:200d1:0
+P:12:5
+
+N:ILLUSIONIST:19:Word of Recall
+F:KILL | PLAYER
+T:UNSAFE:RECALL:5d20:0
+P:13:8
+
+N:ILLUSIONIST:20:Genocide
+F:KILL | GENOCIDE
+T:UNSAFE:GENOCIDE:1d1:0
+P:14:15
+
+N:ILLUSIONIST:21:Mass Genocide
+F:KILL | ALL
+T:UNSAFE:MASS_GENOCIDE:1d1:0
+P:15:20
+
+N:ILLUSIONIST:22:Massive Mind Blast
+F:KILL | BLAST
+T:SAFE:MIND_BLAST:5d25:25
+P:16:15
+
+N:ILLUSIONIST:23:Massive Brain Smash
+F:KILL | BLAST
+T:SAFE:BRAIN_SMASH:5d20:15
+P:16:15
+
+N:ILLUSIONIST:24:Polymorph
+F:KILL | STOP
+T:SAFE:POLY:100d1:0
+P:17:15
+
+N:ILLUSIONIST:25:Dispell Undead
+F:KILL | VIEWABLE
+T:SAFE:DISP_UNDEAD:100d2:0
+P:18:25
+
+N:ILLUSIONIST:26:Domination
+F:KILL | VIEWABLE
+T:SAFE:BRAIN_SMASH:2d30:0
+F:KILL | VIEWABLE
+T:SAFE:CONF:100d10:0
+F:KILL | VIEWABLE
+T:SAFE:AWAY_ALL:100d10:0
+P:19:25
+
+N:ILLUSIONIST:27:Heal Confusion
+F:KILL | PLAYER
+T:UNSAFE:HEAL_CONF:5d20:0
+P:20:15
+
+N:ILLUSIONIST:28:Heal Fear
+F:KILL | PLAYER
+T:UNSAFE:HEAL_FEAR:5d20:0
+P:20:15
+
+N:ILLUSIONIST:29:Identify
+F:KILL | PLAYER
+T:UNSAFE:IDENT:1d1:0
+P:20:15
+
+N:ILLUSIONIST:30:Mass Identify
+F:KILL | STOP
+T:UNSAFE:IDENT:1d1:3
+P:21:25
+
+N:ILLUSIONIST:31:Polymorph Item
+F:ITEM | STOP
+T:UNSAFE:ALTER:1d1:0
+P:22:15
+
+N:ILLUSIONIST:32:Alteration
+F:KILL | PLAYER
+T:UNSAFE:ALTER:1d1:0
+P:23:15
+
+N:ILLUSIONIST:33:Solar Gate
+F:GRID | ALL
+T:UNSAFE:LITE:1d1:0
+P:24:25
+
+N:ILLUSIONIST:34:Brain Destruction
+F:KILL | STOP
+T:SAFE:BRAIN_SMASH:10d30:0
+P:25:30
+
+N:ILLUSIONIST:35:Insanity
+F:KILL | VIEWABLE
+T:SAFE:BRAIN_SMASH:10d30:0
+P:25:50
+
+
+############# Priest spells. These are supposed to be self/healing
+############# oriented.
+
+N:PRIEST:0:Astral Gate
+F:KILL | PLAYER
+T:UNSAFE:AWAY_ALL:20d1:0
+P:1:1
+
+N:PRIEST:1:Healing Words
+F:KILL | PLAYER
+T:UNSAFE:HEAL:1d8:0
+P:2:2
+
+N:PRIEST:2:Courage
+F:KILL | PLAYER
+T:UNSAFE:HEAL_FEAR:3d10:0
+P:2:2
+
+N:PRIEST:3:Cure Wounds
+F:KILL | PLAYER
+T:UNSAFE:HEAL_CUT:2d8:0
+P:2:2
+
+N:PRIEST:4:Purification
+F:KILL | PLAYER
+T:UNSAFE:HEAL_POISON:2d8:0
+P:3:3
+
+N:PRIEST:5:Heroism
+F:KILL | PLAYER
+T:UNSAFE:HEROISM:2d15:0
+P:4:3
+
+N:PRIEST:6:Turn Undead
+F:KILL | VIEWABLE
+T:SAFE:TURN_UNDEAD:1d1:0
+P:5:4
+
+N:PRIEST:7:Blessings
+F:KILL | PLAYER
+T:UNSAFE:BLESS:3d10:0
+P:5:3
+
+N:PRIEST:8:Satisfy Hunger
+F:KILL | PLAYER
+T:UNSAFE:FOOD:4d50:0
+P:6:5
+
+N:PRIEST:9:Detect Evil
+F:KILL | PANEL
+T:SAFE:DETECT_EVIL:1d1:0
+P:7:3
+
+N:PRIEST:10:Astral Shield
+F:KILL | PLAYER
+T:UNSAFE:SHIELD:2d45:0
+P:8:5
+
+N:PRIEST:11:Detect Unseen
+F:KILL | PANEL
+T:SAFE:DETECT_INVIS:1d1:0
+P:8:3
+
+N:PRIEST:12:Remove Curse
+F:KILL | PLAYER
+T:UNSAFE:UNCURSE:1d1:0
+P:9:8
+
+N:PRIEST:13:Detect Living
+F:KILL | PANEL
+T:SAFE:DETECT_MONSTER:1d1:0
+P:10:5
+
+N:PRIEST:14:Detect Magic
+F:ITEM | PANEL
+T:SAFE:DETECT_MAGIC:1d1:0
+P:10:5
+
+N:PRIEST:15:Fiery Aura
+F:KILL | PLAYER
+T:UNSAFE:RES_FIRE:20d10:0
+P:11:7
+
+N:PRIEST:16:Frigid Aura
+F:KILL | PLAYER
+T:UNSAFE:RES_COLD:20d10:0
+P:11:7
+
+N:PRIEST:17:Electric Aura
+F:KILL | PLAYER
+T:UNSAFE:RES_ELEC:20d10:0
+P:11:7
+
+N:PRIEST:18:Acidic Aura
+F:KILL | PLAYER
+T:UNSAFE:RES_ACID:20d10:0
+P:11:7
+
+N:PRIEST:19:Poisonous Aura
+F:KILL | PLAYER
+T:UNSAFE:RES_POIS:20d10:0
+P:11:7
+
+N:PRIEST:20:Restore Life Essence
+F:KILL | PLAYER
+T:UNSAFE:HEAL_LIFE:1d1:0
+P:12:13
+
+N:PRIEST:21:Word of Recall
+F:KILL | PLAYER
+T:UNSAFE:RECALL:10d5:0
+P:13:8
+
+N:PRIEST:22:Identify
+F:KILL | PLAYER
+T:UNSAFE:IDENT:1d1:0
+P:14:7
+
+N:PRIEST:23:Astral Gate II
+F:KILL | PLAYER
+T:UNSAFE:AWAY_ALL:150d1:0
+P:14:7
+
+N:PRIEST:24:Mass Remove Curse
+F:KILL | ITEM | STOP
+T:UNSAFE:UNCURSE:1d1:3
+P:15:11
+
+N:PRIEST:25:Resistance
+F:KILL | PLAYER
+T:UNSAFE:RES_FIRE:20d10:0
+F:KILL | PLAYER
+T:UNSAFE:RES_COLD:20d10:0
+F:KILL | PLAYER
+T:UNSAFE:RES_ELEC:20d10:0
+F:KILL | PLAYER
+T:UNSAFE:RES_ACID:20d10:0
+F:KILL | PLAYER
+T:UNSAFE:RES_POIS:20d10:0
+P:16:15
+
+N:PRIEST:26:Healing I
+F:KILL | PLAYER
+T:UNSAFE:HEAL:10d3:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_FEAR:100d3:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_CUT:10d3:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_STUN:10d3:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_POISON:10d3:0
+P:17:20
+
+N:PRIEST:27:Heal Insanity
+F:KILL | PLAYER
+T:UNSAFE:HEAL_INSANITY:10d3:0
+P:17:15
+
+N:PRIEST:28:Brand Ammo
+F:KILL | PLAYER
+T:UNSAFE:BRAND_AMMO:1d1:0
+P:18:10
+
+N:PRIEST:29:Brand Weapon
+F:KILL | PLAYER
+T:UNSAFE:BRAND_WEAPON:1d1:0
+P:18:20
+
+N:PRIEST:30:Recharging
+F:KILL | PLAYER
+T:UNSAFE:RECHARGE:10d10:0
+P:19:20
+
+N:PRIEST:31:Mass Identify
+F:KILL | ITEM | STOP
+T:UNSAFE:IDENT:1d1:5
+P:20:13
+
+N:PRIEST:32:Restoration
+F:KILL | PLAYER
+T:UNSAFE:HEAL_STR:1d1:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_INT:1d1:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_WIS:1d1:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_DEX:1d1:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_CON:1d1:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_CHR:1d1:0
+P:21:23
+
+N:PRIEST:33:Healing II
+F:KILL | PLAYER
+T:UNSAFE:HEAL:10d6:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_FEAR:100d3:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_CUT:10d6:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_STUN:10d6:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_POISON:10d6:0
+P:22:30
+
+N:PRIEST:34:Identify Self
+F:KILL | PLAYER
+T:UNSAFE:SUPER_IDENT:1d1:0
+P:23:24
+
+N:PRIEST:35:Mass Recharging
+F:KILL | ITEM | STOP
+T:UNSAFE:RECHARGE:10d10:5
+P:24:20
+
+N:PRIEST:36:*Identify*
+F:KILL | PLAYER
+T:UNSAFE:HEAVY_IDENT:1d1:0
+P:25:25
+
+N:PRIEST:37:*Remove Curse*
+F:KILL | PLAYER
+T:UNSAFE:HEAVY_UNCURSE:1d1:0
+P:26:27
+
+N:PRIEST:38:Mass *Identify*
+F:KILL | ITEM | STOP
+T:UNSAFE:HEAVY_IDENT:1d1:5
+P:27:30
+
+N:PRIEST:39:Genocide
+F:KILL | GENOCIDE
+T:SAFE:GENOCIDE:1d1:0
+P:28:25
+
+N:PRIEST:40:Mass Genocide
+F:KILL | ALL
+T:SAFE:MASS_GENOCIDE:1d1:0
+P:29:30
+
+N:PRIEST:41:Alter Self
+F:KILL | PLAYER
+T:UNSAFE:ALTER:1d1:0
+P:30:22
+
+N:PRIEST:42:Alter Other
+F:KILL | ITEM | STOP
+T:SAFE:ALTER:1d1:5
+P:31:30
+
+N:PRIEST:43:Healing III
+F:KILL | PLAYER
+T:UNSAFE:HEAL:10d9:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_FEAR:100d3:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_CUT:10d9:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_STUN:10d9:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_POISON:10d9:0
+P:32:31
+
+N:PRIEST:44:Enchant Armor
+F:KILL | PLAYER
+T:UNSAFE:ENCHANT_AC:1d1:0
+P:33:35
+
+N:PRIEST:45:Enchant Weapon
+F:KILL | PLAYER
+T:UNSAFE:ENCHANT_TO_DAM:1d1:0
+F:KILL | PLAYER
+T:UNSAFE:ENCHANT_TO_HIT:1d1:0
+P:33:35
+
+N:PRIEST:46:Time Distortion
+F:KILL | PLAYER
+T:UNSAFE:SPEED:1d1:0
+P:34:30
+
+N:PRIEST:47:Dispell Evil
+F:KILL | VIEWABLE
+T:SAFE:DISP_EVIL:4d30:0
+P:35:35
+
+N:PRIEST:48:Dispell Undead
+F:KILL | VIEWABLE
+T:SAFE:DISP_UNDEAD:4d30:0
+P:35:35
+
+N:PRIEST:49:Holy Orb
+F:KILL | STOP
+T:SAFE:HOLY_ORB:4d30:4
+P:36:40
+
+N:PRIEST:50:Holy Chant
+F:KILL | STOP
+T:SAFE:HOLY_ORB:6d30:0
+P:36:40
+
+N:PRIEST:51:Dispell All
+F:KILL | VIEWABLE
+T:SAFE:DISP_ALL:3d30:0
+P:37:45
+
+N:PRIEST:52:Mass Enchantment
+F:KILL | ITEM | STOP
+T:UNSAFE:ENCHANT_AC:1d1:0
+F:KILL | ITEM | STOP
+T:UNSAFE:ENCHANT_TO_HIT:1d1:0
+F:KILL | ITEM | STOP
+T:UNSAFE:ENCHANT_TO_DAM:1d1:0
+P:38:45
+
+
+################ Rogue spells. These are supposed to be 
+################ object-oriented. :)
+
+N:ROGUE:0:Shadow Portal
+F:KILL | PLAYER
+T:UNSAFE:AWAY_ALL:15d1:0
+P:1:1
+
+N:ROGUE:1:Identify
+F:KILL | PLAYER
+T:UNSAFE:IDENT:1d1:0
+P:3:2
+
+N:ROGUE:2:Destroy Doors
+F:GRID | ITEM | STOP
+T:SAFE:KILL_DOOR:1d1:0
+P:4:2
+
+N:ROGUE:3:Destroy Traps
+F:GRID | ITEM | STOP
+T:SAFE:KILL_DOOR:1d1:4
+P:4:2
+
+N:ROGUE:4:Detect Doors and Traps
+F:GRID | PANEL
+T:SAFE:DETECT_DOOR:1d1:0
+F:GRID | PANEL
+T:SAFE:DETECT_TRAP:1d1:0
+P:5:2
+
+N:ROGUE:5:Detect Gold
+F:ITEM | PANEL
+T:SAFE:DETECT_GOLD:1d1:0
+P:5:2
+
+N:ROGUE:6:Detect Treasure
+F:GRID | PANEL
+T:SAFE:DETECT_TREASURE:1d1:0
+P:5:2
+
+N:ROGUE:7:Detect Magic
+F:ITEM | PANEL
+T:SAFE:DETECT_MAGIC:1d1:0
+P:6:4
+
+N:ROGUE:8:Detect Objects
+F:ITEM | PANEL
+T:SAFE:DETECT_OBJECT:1d1:0
+P:8:4
+
+N:ROGUE:9:Shadow Portal II
+F:KILL | PLAYER
+T:UNSAFE:AWAY_ALL:150d1:0
+P:9:3
+
+N:ROGUE:10:Mass Identify
+F:KILL | ITEM | STOP
+T:UNSAFE:IDENT:1d1:7
+P:10:6
+
+N:ROGUE:11:Polymorph Objects
+F:ITEM | STOP
+T:SAFE:ALTER:1d1:7
+P:10:6
+
+N:ROGUE:12:Fetching
+F:ITEM | BEAM
+T:SAFE:RECALL:1d1:0
+P:11:7
+
+N:ROGUE:13:Uncursing
+F:KILL | PLAYER
+T:UNSAFE:UNCURSE:1d1:0
+P:12:11
+
+N:ROGUE:14:*Identify*
+F:KILL | PLAYER
+T:UNSAFE:HEAVY_IDENT:1d1:0
+P:13:9
+
+N:ROGUE:15:Mass Uncursing
+F:KILL | ITEM | STOP
+T:UNSAFE:UNCURSE:1d1:0
+P:14:13
+
+N:ROGUE:16:Mass *Identify*
+F:KILL | ITEM | STOP
+T:UNSAFE:HEAVY_IDENT:1d1:0
+P:15:15
+
+N:ROGUE:17:Recharging
+F:KILL | PLAYER
+T:UNSAFE:RECHARGE:10d4:0
+P:16:10
+
+N:ROGUE:18:Mass Recharging
+F:KILL | ITEM | STOP
+T:UNSAFE:RECHARGE:10d4:0
+P:17:16
+
+N:ROGUE:19:Brand Weapon
+F:KILL | PLAYER
+T:UNSAFE:BRAND_WEAPON:1d1:0
+P:18:20
+
+N:ROGUE:20:Brand Ammo
+F:KILL | PLAYER
+T:UNSAFE:BRAND_AMMO:1d1:0
+P:18:14
+
+N:ROGUE:21:Enchant Weapon
+F:KILL | PLAYER
+T:UNSAFE:ENCHANT_TO_HIT:1d1:0
+F:KILL | PLAYER
+T:UNSAFE:ENCHANT_TO_DAM:1d1:0
+P:19:25
+
+N:ROGUE:22:Enchant Armor
+F:KILL | PLAYER
+T:UNSAFE:ENCHANT_AC:1d1:0
+P:19:25
+
+N:ROGUE:23:Mass Enchantment
+F:KILL | ITEM | STOP
+T:UNSAFE:ENCHANT_AC:1d1:0
+F:KILL | ITEM | STOP
+T:UNSAFE:ENCHANT_TO_HIT:1d1:0
+F:KILL | ITEM | STOP
+T:UNSAFE:ENCHANT_TO_DAM:1d1:0
+P:20:32
+
+N:ROGUE:24:Haste
+F:KILL | PLAYER
+T:UNSAFE:SPEED:1d1:0
+P:21:23
+
+
+################ Ranger spells. These are supposed to 
+################ be nature/summoning oriented.
+
+N:RANGER:0:Forceful Calm
+F:KILL | STOP
+T:SAFE:SLEEP:10d2:0
+P:1:1
+
+N:RANGER:1:Berserk Rage
+F:KILL | STOP
+T:SAFE:CONF:10d6:0
+F:KILL | STOP
+T:SAFE:SPEED:10d6:0
+P:1:1
+
+N:RANGER:2:Light Area
+F:GRID | KILL | BLAST
+T:SAFE:LITE_WEAK:2d10:17
+P:2:2
+
+N:RANGER:3:Teleport Other
+F:KILL | STOP
+T:SAFE:AWAY_ALL:10d1:0
+P:3:3
+
+N:RANGER:4:Recall Other
+F:KILL | STOP
+T:SAFE:RECALL:1d1:0
+P:3:3
+
+N:RANGER:5:Dimensional Gate
+F:KILL | PLAYER
+T:UNSAFE:AWAY_ALL:25d1:0
+P:4:2
+
+N:RANGER:6:Magic Arrow
+F:KILL | STOP
+T:SAFE:ARROW:2d4:0
+P:4:2
+
+N:RANGER:7:Ether Shield
+F:KILL | PLAYER
+T:UNSAFE:SHIELD:10d5:0
+P:5:4
+
+N:RANGER:8:Detect Living
+F:KILL | PANEL
+T:SAFE:DETECT_MONSTER:1d1:0
+P:5:3
+
+N:RANGER:9:First Aid
+F:KILL | PLAYER
+T:UNSAFE:HEAL:3d5:0
+F:KILL | PLAYER
+T:UNSAFE:HEAL_POISON:3d2:0
+P:6:5
+
+N:RANGER:10:Destroy Traps
+F:ITEM | GRID | STOP
+T:SAFE:KILL_TRAP:1d1:5
+P:6:4
+
+N:RANGER:11:Confusion
+F:KILL | VIEWABLE
+T:SAFE:CONF:10d4:0
+P:7:5
+
+N:RANGER:12:Morass
+F:KILL | VIEWABLE
+T:SAFE:SLOW:10d3:0
+P:8:6
+
+N:RANGER:13:Polymorph
+F:KILL | VIEWABLE
+T:SAFE:POLY:10d3:0
+P:9:6
+
+N:RANGER:14:Foraging
+F:KILL | PLAYER
+T:UNSAFE:FOOD:10d30:0
+P:10:10
+
+N:RANGER:15:Mass Teleport
+F:KILL | VIEWABLE
+T:SAFE:AWAY_ALL:10d3:0
+P:11:7
+
+N:RANGER:16:Dimensional Gate II
+F:KILL | PLAYER
+T:UNSAFE:AWAY_ALL:250d1:0
+P:12:7
+
+N:RANGER:17:Detect Doors and Traps
+F:GRID | PANEL
+T:SAFE:DETECT_DOOR:1d1:0
+F:ITEM | PANEL
+T:SAFE:DETECT_TRAP:1d1:0
+P:13:5
+
+N:RANGER:18:Detect Stairs
+F:GRID | PANEL
+T:SAFE:DETECT_STAIR:1d1:0
+P:13:5
+
+N:RANGER:19:Detect Unseen
+F:KILL | PANEL
+T:SAFE:DETECT_INVIS:1d1:0
+P:13:5
+
+N:RANGER:20:Stone to Mud
+F:GRID | KILL | BEAM
+T:SAFE:KILL_WALL:10d3:0
+P:14:7
+
+N:RANGER:21:Glyph of Warding
+F:GRID | PLAYER
+T:SAFE:MAKE_GLYPH:1d1:0
+P:15:8
+
+N:RANGER:22:Brilliance
+F:GRID | KILL | BLAST
+T:SAFE:LITE_WEAK:10d4:0
+P:16:10
+
+N:RANGER:23:Word of Recall
+F:KILL | PLAYER
+T:UNSAFE:RECALL:10d8:0
+P:17:15
+
+N:RANGER:24:Summon Molds
+F:GRID | STOP
+T:UNSAFE:MAKE_PET:36d1:0
+P:18:5
+
+N:RANGER:25:Summon Jellies
+F:GRID | STOP
+T:UNSAFE:MAKE_PET:35d1:0
+P:18:5
+
+N:RANGER:26:Summon Ants
+F:GRID | STOP
+T:UNSAFE:MAKE_PET:11d1:0
+P:19:8
+
+N:RANGER:27:Summon Spiders
+F:GRID | STOP
+T:UNSAFE:MAKE_PET:12d1:0
+P:19:8
+
+N:RANGER:28:Summon Snakes
+F:GRID | STOP
+T:UNSAFE:MAKE_PET:33d1:0
+P:20:10
+
+N:RANGER:29:Summon Allies
+F:GRID | STOP
+T:UNSAFE:MAKE_PET:34d1:0
+P:21:16
+
+N:RANGER:30:Summon Hounds
+F:GRID | STOP
+T:UNSAFE:MAKE_PET:13d1:0
+P:22:23
+
+N:RANGER:31:Identify
+F:KILL | PLAYER
+T:UNSAFE:IDENT:1d1:0
+P:23:15
+
+N:RANGER:32:Entombment
+F:GRID | BEAM
+T:UNSAFE:MAKE_WALL:1d1:0
+P:24:17
+
+N:RANGER:33:Probing
+F:KILL | STOP
+T:SAFE:IDENT:1d1:0
+P:25:25
+
+N:RANGER:34:Summoning
+F:GRID | STOP
+T:UNSAFE:MAKE_PET:1d1:0
+P:26:25
