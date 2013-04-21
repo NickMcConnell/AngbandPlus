@@ -1662,6 +1662,18 @@ void do_cmd_debug(void)
 			break;
 		}
 
+		/* Shuffle stores */
+	        case 'S':
+		{
+		     int i;
+		     for (i = 0; i < 10; ++i)
+		     {
+			  if (i == STORE_HOME) continue;
+			  store_maint(i);
+		     }
+		     break;
+		}
+
 		/* Teleport */
 		case 't':
 		{

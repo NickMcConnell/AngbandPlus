@@ -1558,6 +1558,18 @@ K:584:0/-107
 K:585:0/-110
 # Amulet of Aid
 K:586:0/-126
+# Spell Scroll
+K:587:0/-107
+K:588:0/-107
+K:589:0/-107
+K:590:0/-107
+# Talisman
+K:591:0/-126
+# Charm
+K:592:0/-109
+# Book of Infinite Spells
+K:593:0/-107
+
 
 # The following things should use the "S:<code>:<attr>/<char>" mechanism
 

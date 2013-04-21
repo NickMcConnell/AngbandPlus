@@ -498,6 +498,123 @@ void do_cmd_destroy(void)
 	/* Message */
 	msg_format("You destroy %s.", o_name);
 
+	/* Give spell scrolls from spell books */
+	if (o_ptr->tval >= TV_FIRST_BOOK && o_ptr->tval < TV_LAST_BOOK)
+	{
+	     int num_pages, chance, i, j, spell, num = 0;
+	     byte spells[PY_MAX_SPELLS];
+	     
+	     /* Extract spells */
+	     for (spell = 0; spell < PY_MAX_SPELLS; spell++)
+	     {
+		  /* Check for this spell */
+		  if ((spell < 32) ?
+		      (spell_flags[o_ptr->tval - TV_FIRST_BOOK][o_ptr->sval][0] & (1L << spell)) :
+		      (spell_flags[o_ptr->tval - TV_FIRST_BOOK][o_ptr->sval][1] & (1L << (spell - 32))))
+		  {
+		       /* Collect this spell */
+		       spells[num++] = spell;
+		  }
+	     }			  
+
+	     if (player_has_class(CLASS_RUNECASTER, 0))
+	     {
+		  int boost = level_of_class(CLASS_RUNECASTER) / 10;
+		  int min_pages = 0;
+
+		  if (o_ptr->sval < SV_BOOK_MIN_GOOD) chance = (((4+boost) - o_ptr->sval) / 2) + 1;
+		  else chance = (boost / 2) + 1;
+
+		  if (chance < 1)
+		  {
+		       /* 1 in 4 chance anyway */
+		       if (rand_int(4) == 0) num_pages = 1; else num_pages = 0;
+		  } else {
+		       /* Get number of pages */
+		       num_pages = rand_int(chance+1);
+		  }
+
+		  /* Runecasters are guaranteed some pages */
+		  if (o_ptr->sval < SV_BOOK_MIN_GOOD)
+		       min_pages = ((level_of_class(CLASS_RUNECASTER) / 15) + 1) - o_ptr->sval;
+		  else
+		       min_pages = (level_of_class(CLASS_RUNECASTER) / 25);
+		  
+		  if (num_pages < min_pages)
+		       num_pages = min_pages;
+
+		  /* Summary
+		   * lvl             svals
+		   *       0     1     2     3    4-8
+		   *  0   90&   70%   50%   30%   10%
+		   *  1   1-3   0-2   0-2   50%   50%
+		   * 10   1-3   0-3   0-2   0-2   50%
+		   * 15   2-3   1-3   0-2   0-2   50%
+		   * 20   2-4   1-3   0-3   0-2   0-2
+		   * 25   2-4   1-3   0-3   0-2   1-2
+		   * 30   3-4   2-4   1-3   0-3   1-2
+		   * 35   3-4   2-4   1-3   0-3   1-2
+		   * 40   3-5   2-4   1-4   0-3   1-3
+		   * 45   4-5   3-4   2-4   1-3   1-3
+		   * 50   4-5   3-5   2-4   1-4   2-3
+		   */
+	     }
+	     else
+	     {
+		  if (o_ptr->sval < SV_BOOK_MIN_GOOD) chance = 9 - (o_ptr->sval * 2);
+		  else chance = 1;
+
+		  /* chance in 10 of getting a page */
+		  if (rand_int(10) < chance) num_pages = 1;
+		  else num_pages = 0;
+	     }
+
+	     /* Pages were created */
+	     if (num_pages == 1)
+		  msg_format("A page from the book survives your act of destruction!", num_pages);
+	     else if (num_pages)
+		  msg_format("%d pages from the book survive your act of destruction!", num_pages);
+
+	     /* Get each page */
+	     for (i = 0; i < num_pages; i++)
+	     {
+		  /* Get a random spell */
+		  int random_spell = rand_int(num);
+		  int slot; 
+		  char o_name[80];
+		  
+		  /* Get the item */
+		  object_type *i_ptr;
+		  object_type object_type_body;
+		  i_ptr = &object_type_body;
+		  object_prep(i_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SPELL + o_ptr->tval - TV_FIRST_BOOK));
+		  /* Set the pval */
+		  i_ptr->pval = spells[random_spell];
+		  
+		  /* Know it */
+		  object_aware(i_ptr);
+		  object_known(i_ptr);
+		  slot = inven_carry(i_ptr);
+		  object_desc(o_name, i_ptr, FALSE, 0);
+
+		  if (slot >= 0)
+		  {
+		       msg_format("You have %s (%c).", o_name, index_to_label(slot));
+		  }
+		  else
+		  {
+		       /* Drop it near the player */
+		       drop_near(i_ptr, 0, p_ptr->py, p_ptr->px);
+		       msg_format("You drop the %s.", o_name);
+		  }
+
+		  /* Shorten the list by one spell */
+		  for (j = random_spell; j < num; j++)
+		       spells[j] = spells[j+1];
+		  num--;
+	     }
+	}
+
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
 	{

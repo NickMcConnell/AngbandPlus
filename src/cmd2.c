@@ -391,10 +391,8 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		if (rand_int(100) < j)
 		{
 			msg_print("You have picked the lock.");
-			if (player_has_class(CLASS_ROGUE, 0))
-			  gain_exp(2, index_of_class(CLASS_ROGUE));
-			if (player_has_class(CLASS_TRICKSTER, 0))
-			  gain_exp(2, index_of_class(CLASS_TRICKSTER));
+			if (player_has_class(CLASS_THIEF, 0))
+			  gain_exp(2, index_of_class(CLASS_THIEF));
 			flag = TRUE;
 		}
 
@@ -474,10 +472,8 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	else if (rand_int(100) < j)
 	{
 		msg_print("You have disarmed the chest.");
-		if (player_has_class(CLASS_ROGUE, 0))
-		  gain_exp(o_ptr->pval, index_of_class(CLASS_ROGUE));
-		if (player_has_class(CLASS_TRICKSTER, 0))
-		  gain_exp(o_ptr->pval, index_of_class(CLASS_TRICKSTER));
+		if (player_has_class(CLASS_THIEF, 0))
+		  gain_exp(o_ptr->pval, index_of_class(CLASS_THIEF));
 		o_ptr->pval = (0 - o_ptr->pval);
 	}
 
@@ -693,10 +689,8 @@ static bool do_cmd_open_aux(int y, int x)
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 			/* Experience */
-			if (player_has_class(CLASS_ROGUE, 0))
-			  gain_exp(2, index_of_class(CLASS_ROGUE));
-			if (player_has_class(CLASS_TRICKSTER, 0))
-			  gain_exp(2, index_of_class(CLASS_TRICKSTER));
+			if (player_has_class(CLASS_THIEF, 0))
+			  gain_exp(2, index_of_class(CLASS_THIEF));
 		}
 
 		/* Failure */
@@ -1396,10 +1390,8 @@ static bool do_cmd_disarm_aux(int y, int x)
 		msg_format("You have disarmed the %s.", name);
 
 		/* Reward */
-		if (player_has_class(CLASS_ROGUE, 0))
-		  gain_exp(power, index_of_class(CLASS_ROGUE));
-		if (player_has_class(CLASS_TRICKSTER, 0))
-		  gain_exp(power, index_of_class(CLASS_TRICKSTER));
+		if (player_has_class(CLASS_THIEF, 0))
+		  gain_exp(power, index_of_class(CLASS_THIEF));
 
 		/* Forget the trap */
 		cave_info[y][x] &= ~(CAVE_MARK);

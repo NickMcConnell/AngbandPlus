@@ -186,8 +186,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
-			if (((f1 & (TR1_SLAY_ANIMAL)) &&
-			     (p_ptr->crusader_active == CRUSADER_SLAY_ANIMAL)) &&
+			if ((f1 & (TR1_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
 				if (m_ptr->ml)
@@ -212,7 +211,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Undead */
-			if (((f1 & (TR1_SLAY_UNDEAD)) &&
+			if (((f1 & (TR1_SLAY_UNDEAD)) ||
 			     (p_ptr->crusader_active == CRUSADER_SLAY_UNDEAD)) &&
 			    (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
@@ -317,8 +316,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Elec) */
-			if ((f1 & (TR1_BRAND_ELEC))
-			    || (p_ptr->crusader_active == CRUSADER_WPN_SHOCK))
+			if (f1 & (TR1_BRAND_ELEC))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_ELEC))
@@ -357,8 +355,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Cold) */
-			if ((f1 & (TR1_BRAND_COLD))
-			    || (p_ptr->crusader_active == CRUSADER_WPN_FROST))
+			if (f1 & (TR1_BRAND_COLD))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_COLD))
@@ -377,8 +374,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Poison) */
-			if ((f1 & (TR1_BRAND_POIS))
-			    || (p_ptr->crusader_active == CRUSADER_WPN_POISON))
+			if (f1 & (TR1_BRAND_POIS))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_POIS))
@@ -417,8 +413,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 	if (player_has_class(CLASS_MONK, 0))
 	{
-	     o_ptr = &inventory[INVEN_WIELD];
-	     if (!(o_ptr->k_idx))
+	     if (!(inventory[INVEN_WIELD].k_idx))
 	     {
 		  switch (p_ptr->crusader_active)
 		  {
@@ -430,14 +425,6 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				      l_ptr->r_flags3 |= (RF3_HURT_LITE);
 			    }
 			    break;
-		       case CRUSADER_WPN_SHOCK:
-			    if (r_ptr->flags3 & (RF3_IM_ELEC))
-			    {
-				 if (m_ptr->ml)
-				      l_ptr->r_flags3 |= (RF3_IM_ELEC);
-			    }
-			    else if (mult < 3) mult = 3;
-			    break;
 		       case CRUSADER_WPN_FLAME:
 			    if (r_ptr->flags3 & (RF3_IM_FIRE))
 			    {
@@ -446,20 +433,12 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			    }
 			    else if (mult < 3) mult = 3;
 			    break;
-		       case CRUSADER_WPN_FROST:
-			    if (r_ptr->flags3 & (RF3_IM_COLD))
+		       case CRUSADER_SLAY_UNDEAD:
+			    if (r_ptr->flags3 & (RF3_UNDEAD))
 			    {
+				 if (mult < 3) mult = 3;
 				 if (m_ptr->ml)
-				      l_ptr->r_flags3 |= (RF3_IM_COLD);
-			    }
-			    else if (mult < 3) mult = 3;
-			    break;
-		       case CRUSADER_SLAY_ANIMAL:
-			    if (r_ptr->flags3 & (RF3_ANIMAL))
-			    {
-				 if (mult < 2) mult = 2;
-				 if (m_ptr->ml)
-					l_ptr->r_flags3 |= (RF3_ANIMAL);
+					l_ptr->r_flags3 |= (RF3_UNDEAD);
 			    }
 			    break;
 		       case CRUSADER_SLAY_EVIL:
@@ -470,22 +449,34 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 					l_ptr->r_flags3 |= (RF3_EVIL);
 			    }
 			    break;
-		       case CRUSADER_SLAY_UNDEAD:
-			    if (r_ptr->flags3 & (RF3_UNDEAD))
-			    {
-				 if (mult < 3) mult = 3;
-				 if (m_ptr->ml)
-					l_ptr->r_flags3 |= (RF3_UNDEAD);
-			    }
-			    break;
-		       case CRUSADER_WPN_POISON:
-			    if (r_ptr->flags3 & (RF3_IM_POIS))
-			    {
-				 if (m_ptr->ml)
-				      l_ptr->r_flags3 |= (RF3_IM_POIS);
-			    }
-			    else if (mult < 3) mult = 3;
-			    break;
+		  }
+
+		  switch (p_ptr->shapeshift)
+		  {
+		  case FORM_COLBRAN:
+		       if (r_ptr->flags3 & (RF3_IM_ELEC))
+		       {
+			    if (m_ptr->ml)
+				 l_ptr->r_flags3 |= (RF3_IM_ELEC);
+		       }
+		       else if (mult < 3) mult = 3;
+		       break;
+		  case FORM_ICE_TROLL:
+		       if (r_ptr->flags3 & (RF3_IM_COLD))
+		       {
+			    if (m_ptr->ml)
+				 l_ptr->r_flags3 |= (RF3_IM_COLD);
+		       }
+		       else if (mult < 3) mult = 3;
+		       break;
+		  case FORM_CHAOS_DRAKE:
+		       if (r_ptr->flags3 & (RF3_IM_FIRE))
+		       {
+			    if (m_ptr->ml)
+				 l_ptr->r_flags3 |= (RF3_IM_FIRE);
+		       }
+		       else if (mult < 3) mult = 3;
+		       break;
 		  }
 	     }
 	}
@@ -1175,6 +1166,53 @@ void hit_trap(int y, int x)
 
 
 
+int monk_damage()
+{
+     int plev = level_of_class(CLASS_MONK), dmg = 1;
+
+     /* Get equipment */
+     object_type *boots_ptr;
+     object_type *gloves_ptr;
+     boots_ptr = &inventory[INVEN_FEET];
+     gloves_ptr = &inventory[INVEN_HANDS];	
+
+     /* Based on level */
+     if (plev < 7) dmg = plev + 2;
+     else if (plev < 22) dmg = (plev + 10) / 2;
+     else dmg = (plev + 25) / 3;
+
+     /* Can gain damage from shifter forms */
+     switch (p_ptr->shapeshift)
+     {
+     case FORM_ARCTIC_BEAR: dmg += 2; break; 
+     case FORM_WYVERN: dmg += 3; break; 
+     case FORM_UMBER_HULK: dmg += 6; break; 
+     case FORM_CHAOS_DRAKE: dmg += 12; break;
+     }
+
+     /* Add bonuses from equipment */
+     if (boots_ptr->k_idx)
+     {
+	  switch (boots_ptr->sval)
+	  {
+	  case SV_PAIR_OF_SANDALS: dmg -= 1; break;
+	  case SV_PAIR_OF_HARD_LEATHER_BOOTS: dmg += 1; break;
+	  case SV_PAIR_OF_SPIKED_LEATHER_BOOTS: dmg += 3; break;
+	  case SV_PAIR_OF_METAL_SHOD_BOOTS: dmg += 2; break;
+	  }
+     }
+     if (gloves_ptr->k_idx)
+     {
+	  switch (gloves_ptr->sval)
+	  {
+	  case SV_SET_OF_GAUNTLETS: dmg += 2; break;
+	  case SV_SET_OF_CESTI: dmg += 3; break;
+	  }
+     }
+
+     return (dmg);
+}
+
 /*
  * Attack the monster at the given location
  *
@@ -1264,14 +1302,25 @@ void py_attack(int y, int x)
 			     k = tot_dam_aux(o_ptr, k, m_ptr);
 			     if (p_ptr->impact && (k > 50)) do_quake = TRUE;
 			     temp = critical_norm(o_ptr->weight, o_ptr->to_h, k);
-			     /* if damage was *2, stunning chance +  20 */
-			     /* if damage was *6, stunning chance + 100 */
+			     /* if damage was *2, stunning chance +  10 */
+			     /* if damage was *6, stunning chance +  50 */
 			     /* if damage was *1, stunning = 0 */
-			     stunning = (((temp * 10) / k) - 10) * 2;
+			     stunning = ((temp * 10) / k) - 10;
 			     k = temp;
 			     k += o_ptr->to_d;
 			}
 			else if (player_has_class(CLASS_MONK, 0))
+			{
+			     int temp;
+
+			     /* Get damage from earlier function */
+			     k = damroll(1, monk_damage());
+
+			     /* Chance of critical hit is based on level */
+			     temp = critical_norm(level_of_class(CLASS_MONK), p_ptr->to_h, k);
+			     stunning = ((temp * 10) / k) - 10;
+			     k = temp;
+			}
 
 			/* Apply the player damage bonuses */
 			k += p_ptr->to_d;
@@ -1292,11 +1341,12 @@ void py_attack(int y, int x)
                          * critical hits */
 			if (player_has_class(CLASS_BERSERKER, 0))
 			{
+			     /* 10-50 + 1-50 = 11-100 */
+			     int stun_power = stunning + level_of_class(CLASS_BERSERKER);
+
 			     /* Stunned monster */
 			     if ((stunning) && 
-				 (rand_int(100) < 
-				  /* 10-50 + 1-50 = 11-100 */
-				  stunning + level_of_class(CLASS_BERSERKER)))
+				 (rand_int(100) < stun_power))
 			     {
 				  int tmp;
 				  
@@ -1308,18 +1358,20 @@ void py_attack(int y, int x)
 				       {
 					    msg_format("%^s is more dazed.", 
 						       m_name);
-					    tmp = randint(stunning);
+					    /* d2 to d20 */
+					    tmp = randint(stun_power / 5);
 					    if (tmp < 2) tmp = 2;
 				       }
 				       else /* Stunned */
 				       {
 					    msg_format("%^s is dazed.", 
 						       m_name);
-					    tmp = randint(stunning) + stunning;
+					    /* d5 to d50 */
+					    tmp = randint(stun_power / 2);
 					    if (tmp < 2) tmp = 2;
 				       }
 				       m_ptr->stunned = 
-					    (tmp < 200) ? tmp : 200;
+					    (tmp < 100) ? tmp : 100;
 				  }
 			     }
 			}

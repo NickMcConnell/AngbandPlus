@@ -825,7 +825,7 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon melts your foes.";
 		}
-		if ((f1 & (TR1_BRAND_ELEC)) || (p_ptr->crusader_active == CRUSADER_WPN_SHOCK))
+		if (f1 & (TR1_BRAND_ELEC))
 		{
 			info[i++] = "Your weapon shocks your foes.";
 		}
@@ -833,11 +833,11 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon burns your foes.";
 		}
-		if ((f1 & (TR1_BRAND_COLD)) || (p_ptr->crusader_active == CRUSADER_WPN_FROST))
+		if (f1 & (TR1_BRAND_COLD))
 		{
 			info[i++] = "Your weapon freezes your foes.";
 		}
-		if ((f1 & (TR1_BRAND_POIS)) || (p_ptr->crusader_active == CRUSADER_WPN_POISON))
+		if (f1 & (TR1_BRAND_POIS))
 		{
 			info[i++] = "Your weapon poisons your foes.";
 		}
@@ -847,7 +847,7 @@ void self_knowledge(void)
 		}
 
 		/* Special "slay" flags */
-		if ((f1 & (TR1_SLAY_ANIMAL)) || (p_ptr->crusader_active == CRUSADER_SLAY_ANIMAL))
+		if (f1 & (TR1_SLAY_ANIMAL))
 		{
 			info[i++] = "Your weapon strikes at animals with extra force.";
 		}
@@ -906,27 +906,32 @@ void self_knowledge(void)
 	     case CRUSADER_WPN_LIGHT:
 		  info[i++] = "Your hands are shining with a bright light.";
 		  break;
-	     case CRUSADER_WPN_SHOCK:
-		  info[i++] = "Your hands shock your foes.";
-		  break;
 	     case CRUSADER_WPN_FLAME:
-		  info[i++] = "Your hands burn your foes.";
-		  break;
-	     case CRUSADER_WPN_FROST:
-		  info[i++] = "Your hands freeze your foes.";
-		  break;
-	     case CRUSADER_WPN_POISON:
-		  info[i++] = "Your hands inflict poison damage.";
-		  break;
-	     case CRUSADER_SLAY_ANIMAL:
-		  info[i++] = "You strike at animals with extra force.";
-		  break;
-	     case CRUSADER_SLAY_EVIL:
-		  info[i++] = "You strike at evil with extra force.";
+		  if (p_ptr->shapeshift != FORM_CHAOS_DRAKE)
+		       info[i++] = "Your fists burn your foes.";
 		  break;
 	     case CRUSADER_SLAY_UNDEAD:
 		  info[i++] = "You strike at undead with holy wrath.";
 		  break;
+	     case CRUSADER_SLAY_EVIL:
+		  info[i++] = "You strike at evil with extra force.";
+		  break;
+	     }
+
+	     switch (p_ptr->shapeshift)
+	     {
+	     case FORM_ARCTIC_BEAR:
+		  info[i++] = "You have small claws."; break;
+	     case FORM_WYVERN:
+		  info[i++] = "You have claws."; break;
+	     case FORM_UMBER_HULK:
+		  info[i++] = "You have large claws."; break;
+	     case FORM_COLBRAN:
+		  info[i++] = "You strike with hands of electricity."; break;
+	     case FORM_ICE_TROLL:
+		  info[i++] = "Your fistss do freezing damage."; break;
+	     case FORM_CHAOS_DRAKE:
+		  info[i++] = "Your large claws do fire damage."; break;
 	     }
 	}
 
@@ -2625,6 +2630,15 @@ bool scare_monsters(int class)
 bool banish_evil(int dist)
 {
 	return (project_hack(GF_AWAY_EVIL, dist));
+}
+
+
+/*
+ * Banish demons
+ */
+bool banish_demons(int dist)
+{
+	return (project_hack(GF_AWAY_DEMONS, dist));
 }
 
 

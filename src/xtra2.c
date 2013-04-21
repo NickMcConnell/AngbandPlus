@@ -3099,20 +3099,51 @@ void monster_death(int m_idx)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
-
-	/* Undead Slayer : gain piety from killing undead */
-	if ((r_ptr->flags3 & (RF3_UNDEAD)) && (player_has_class(CLASS_SLAYER, 0)))
+	/* Crusader : gain piety from killing undead, demons and evil */
+	if (player_has_class(CLASS_CRUSADER, 0))
 	{
-	     /* Add monster level (twice if unique) */
-	     p_ptr->mpp += r_ptr->level;
-	     if (rp_ptr->flags1 & (RF1_UNIQUE))
+	     if ((r_ptr->flags3 & (RF3_EVIL)) || 
+		 (r_ptr->flags3 & (RF3_UNDEAD)) ||
+		 (r_ptr->flags3 & (RF3_DEMON)))
 	     {
-		  p_ptr->mpp += r_ptr->level;
-	     }
+		  int multiplier = 1;
 
-	     /* Redraw piety */
-	     p_ptr->redraw |= (PR_MANA);
-	     redraw_stuff();
+		  /* Evil = 1/2, Undead or Demon = 1, 
+		     Evil unique = 3/2, Undead or Demon unique = 2 */
+		  if (r_ptr->flags3 & (RF3_UNDEAD)) multiplier++;
+		  if (r_ptr->flags3 & (RF3_DEMON)) multiplier++;
+		  if (r_ptr->flags1 & (RF1_UNIQUE)) multiplier += 2;
+		  
+		  /* Add monster level */
+		  p_ptr->mpp += (r_ptr->level * multiplier) / 2;
+		  p_ptr->cpp = p_ptr->mpp;
+
+		  /* Redraw piety */
+		  p_ptr->redraw |= (PR_MANA);
+		  redraw_stuff();
+	     }
+	}
+
+	/* Slayer : gain piety from killing anything living, with a mind, not cold blooded */
+	if (player_has_class(CLASS_SLAYER, 0))
+	{
+	     if ((!(r_ptr->flags3 & (RF3_UNDEAD))) &&
+		 (!(r_ptr->flags3 & (RF3_DEMON))) &&
+		 (!(r_ptr->flags2 & (RF2_EMPTY_MIND))) &&
+		 (!(r_ptr->flags2 & (RF2_COLD_BLOOD))))
+	     {
+		  int multiplier = 1;
+
+		  if (r_ptr->flags1 & (RF1_UNIQUE)) multiplier ++;
+		  
+		  /* Add monster level */
+		  p_ptr->mpp += (r_ptr->level * multiplier) / 2;
+		  p_ptr->cpp = p_ptr->mpp;
+
+		  /* Redraw piety */
+		  p_ptr->redraw |= (PR_MANA);
+		  redraw_stuff();
+	     }
 	}
 
 	/* Only process "Quest Monsters" */

@@ -949,6 +949,9 @@ void fire_dam(int dam, cptr kb_str)
 	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
 	if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
 
+	/* Double damage for Ents */
+	if (p_ptr->shapeshift == FORM_ENT) dam *= 2;
+
 	/* Take damage */
 	take_hit(dam, kb_str);
 
@@ -2060,8 +2063,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	cptr note_dies = " dies.";
 
 
-	/* Walls protect monsters */
-	if (!cave_floor_bold(y,x)) return (FALSE);
+	/* Walls DONT protect monsters */
+	/* if (!cave_floor_bold(y,x)) return (FALSE); */
 
 
 	/* No monster here */
@@ -2700,6 +2703,30 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam = 0;
 			}
 
+			break;
+		}
+
+
+		/* Teleport demons (Use "dam" as "power") */
+		case GF_AWAY_DEMONS:
+		{
+			/* Only affect demons */
+			if (r_ptr->flags3 & (RF3_DEMON))
+			{
+				if (seen) obvious = TRUE;
+				if (seen) l_ptr->r_flags3 |= (RF3_DEMON);
+				do_dist = dam;
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+			}
+
+			/* No "real" damage */
+			dam = 0;
 			break;
 		}
 

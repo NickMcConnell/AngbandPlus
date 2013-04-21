@@ -1,4 +1,4 @@
--1.0.1-
+ -1.0.1-
 
 Fixed priest/paladin spell list, dungeon books were broken
 Changed title in files.txt, 'V' command gives correct info now
@@ -188,3 +188,120 @@ Now, Crusaders, Shifters and other spellcasters (which use the 'm' key) cannot c
 
 Updated table of allowed multiclass cominations in lib/help/multi.txt and explanations
 
+-1.0.7-
+
+Added spell scrolls - can find spell scrolls in shops, and the dungeon. Temple
+only sells/buys priestly scrolls, magic shop only sells/buys magery/illusion
+scrolls, alchemist buys both (but does not sell them). 
+Spell is cast at level 1 by default, or at player's level if the player has a
+relevant class.
+There are four svals - one for each type of spell book. The sval of the scroll
+is always obvious, but the actual spell is not known unless the scroll has been
+identified (even if it has been used/encountered before).
+
+When destroying spell books, create (and put in inventory) a random number of
+scrolls from spells in the book.
+
+Added wizard command to 'S'huffle stores - sometimes causes segmentation fault tho.
+
+Hide success chance of using magical devices when in hidden knowledge mode
+
+Fixed message given when creating spell scrolls from spellbooks to deal with
+pluralization correctly. No message is given if no scrolls are created
+
+Switch automagically when using 'G' or 'b' commands if there is only one class
+which can use books and that class is not active.
+Ask player to switch classes manually if there is more than one class.
+
+Fade out price of items in stores if they're not affordable
+Fixed psuedo-id (again) - now uses average value of all available classes, but
+gives heavy psuedo-id if player has one of Warrior, Rogue, Trickster, Paladin,
+Berserker or Slayer
+
+Recognize picked-up spell scrolls if the spell is known
+
+Added Talismans (amulets of spell) - contain a random spell. Can be activated
+once identified. Timeout is randomly between spell level * 5 and spell level *
+10. Sold by Magic shop.
+
+Changed Rogue to Thief
+Thief gains bonuses to stealth and searching from level, but has less spells
+available now
+Removed Trickster
+
+Added Runecaster class
+      Starts with a talisman of Magic Missile
+      If in easy mode, also gets talismans of Detect Monsters and Cure Light
+      Wounds
+      When reading an identified spell/prayer scroll, can copy it into a
+      talisman (if one is being worn) instead of casting it
+      Can use mana to activate (charging) talismans, cost = turns left / 5 + 1
+      Uses Runecaster level when casting spells from scrolls/talismans	
+      Gets more pages from books
+      - + (level / 20) to random number of pages generated
+      - 1 + (level / 15) guaranteed pages from town books
+      - (level / 25) guaranteed pages from dungeon books
+
+Inform player when rods and talismans recharge
+Talismans have a 1/10 chance of recharging each turn if in the inventory - this
+chance is decreased by Runecrafter level
+
+Fixed food giving only 1/10th of nutrition it should have done
+
+Update charging rods/talismans in inventory/equipment windows
+Drop scrolls from destoryed books if no room in inventory
+Added charms - same as talismans, but rings
+Now can add spells to any charm/talisman in inventory or equipment
+Fixed game crashing when 'I'nspecting an amulet of Aid
+
+Added Book of Infinite Spells - read like a scroll, but with a 1/100 chance of
+disappearing, and a 1/3 chance of changing spell every time it is
+used. Runecasters can copy spells from it to talismans and charms. It is a very
+rare and deep item
+
+-1.0.8-
+
+Merged Crusader and Undead Slayer classes. Now Crusaders can use both powers
+(with 'm') and prayers (with 'p'). They gain piety from killing evil monsters,
+demons and undead. Changed prayers and powers
+
+Non-Runecasters can only get a max of 1 page from books now, and not always
+that
+Changed how many scrolls Runecasters get from destroying books
+Non-Runecasters now find it twice as hard to use talismans/charms
+Fixed talismans/charms of mage spells Treasure/Object Detection being level 99
+
+At class selection, really can't hit ESCAPE before choosing one class now
+
+Monsters can now target spells at players in walls, and are themselves not
+protected by walls
+
+Added Dark Slayer class - uses Death prayer books, gets piety from killing
+living monsters (without empty minds or cold blood), which decreases over time.
+
+Decrease piety of Crusaders over time, takes longer as Crusader level increases
+Maia cannot be Death Priest or Slayer now
+Changed slightly which classes can combine with which, updated explanations in multi.txt
+Crusaders/Slayers start with more piety now
+Crusaders/Slayers are now not left completely in the dark about their piety
+rating when in 'hidden' mode
+Crusaders get difrerent powered versions of some prayers, ie Healing and Dispel Evil
+Shifters get forms earlier, added Ent and Mind Flayer forms, changed intrinstics given
+
+Increased number of traps in nightmare mode
+
+Book spells which caster doesn't have enough mana/piety to use are darkened
+
+Changed how long Berserkers can stun monsters for, it was too long
+
+Added some Shifter powers and forms
+Fixed Shifter stat bonusese from forms, added some intrinstics to some forms
+Monks have half the normal number of blows if they are wearing a shield
+Monk/Shifters do extra damage when in Arctic Bear, Wyvern, Umber Hulk and Chaos
+Drake forms, and also Colbrans/Ice Trolls/Chaos Drakes get an elemental brand
+with their unarmed attacks
+Calculation of blows needed to kill monster (in monster memory) takes account
+of crusader and shifter modifiers (brands and claws)
+Damage shown in character info screen takes account of shifter claws, but not brands
+Some gloves and boots help monks do more damage, but sandals penalize them slightly
+Added ego-item boots of Kicking (not sandals or soft leather boots tho)

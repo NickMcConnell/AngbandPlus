@@ -3040,12 +3040,9 @@ static void cave_gen(void)
 	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
 
 	/* Basic "amount" */
-	k = (p_ptr->depth / 3);
+	k = ((adult_nightmare) ? p_ptr->depth : (p_ptr->depth / 3));
 	if ((!adult_nightmare) && (k > 10)) k = 10;
 	if (k < 2) k = 2;
-
-	/* Many, many traps... */
-	if (adult_nightmare) k *= 2;
 
 	/* Put some rubble in corridors */
 	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
@@ -3055,6 +3052,13 @@ static void cave_gen(void)
 
 	/* Determine the character location */
 	new_player_spot();
+
+	/* Make some stairs for starting astral characters */
+	if (p_ptr->astral && (p_ptr->depth == 95) && p_ptr->astral_start)
+	{
+		place_random_stairs(p_ptr->py, p_ptr->px);
+		p_ptr->astral_start = FALSE;
+	}
 
 	/* Pick a base number of monsters */
 	i = MIN_M_ALLOC_LEVEL + randint(8);

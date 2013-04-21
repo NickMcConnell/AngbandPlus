@@ -1030,6 +1030,7 @@ struct player_type
 	bool old_icky_blunt;
 	bool old_icky_shoot;
 	bool old_icky_wield;
+        bool old_icky_shield;
 
 	s16b old_lite;		/* Old radius of lite (if any) */
 	s16b old_view;		/* Old radius of view (if any) */
@@ -1044,6 +1045,7 @@ struct player_type
 	bool icky_blunt;	/* Icky weapon (priests) */
 	bool icky_shoot;	/* Icky weapon */
 	bool icky_wield;	/* Icky weapon (monks) */
+        bool icky_shield;       /* Icky shield (monks) */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 

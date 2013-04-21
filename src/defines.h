@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.0.6"
+#define VERSION_STRING	"1.0.8"
 
 
 /*
@@ -519,7 +519,8 @@
 }
 
 /* Crusaders */
-#define MAX_CRUSADER_POWERS   16
+#define MAX_CRUSADER_PRAYERS  17
+#define MAX_CRUSADER_POWERS   12
 #define CRUSADER_BLESSING      0
 #define CRUSADER_HEROISM       1
 #define CRUSADER_WPN_LIGHT     2
@@ -527,21 +528,90 @@
 #define CRUSADER_SHIELD        4
 #define CRUSADER_REGEN         5
 #define CRUSADER_RESISTANCE    6
-#define CRUSADER_WPN_SHOCK     7
-#define CRUSADER_WPN_FLAME     8
-#define CRUSADER_WPN_FROST     9
-#define CRUSADER_HASTE        10
-#define CRUSADER_SLAY_ANIMAL  11
-#define CRUSADER_SLAY_EVIL    12
-#define CRUSADER_SLAY_UNDEAD  13
-#define CRUSADER_WPN_POISON   14
-#define CRUSADER_PROT_EVIL    15
-
-/* Undead Slayer powers */
-#define MAX_SLAYER_POWERS     19
+#define CRUSADER_WPN_FLAME     7
+#define CRUSADER_HASTE         8
+#define CRUSADER_SLAY_UNDEAD   9
+#define CRUSADER_PROT_EVIL    10
+#define CRUSADER_SLAY_EVIL    11
 
 /* Shifter powers */
-#define MAX_SHIFTER_POWERS    43
+#define MAX_SHIFTER_POWERS     62
+#define FORM_GIANT_SPIDER       1
+#define FORM_TENGU              2
+#define FORM_ARCTIC_BEAR        3
+#define FORM_WYVERN             4
+#define FORM_ENT                5
+#define FORM_UMBER_HULK         6
+#define FORM_GORGON             7
+#define FORM_PHASE_SPIDER       8
+#define FORM_MINDFLAYER         9
+#define FORM_COLBRAN           10
+#define FORM_ICE_TROLL         11
+#define FORM_BEHOLDER          12
+#define FORM_VAMPIRE           13
+#define FORM_CHAOS_DRAKE       14
+#define SHIFTER_GIANT_SPIDER    0
+#define SHIFTER_STING           1
+#define SHIFTER_STINKING_CLOUD  2
+#define SHIFTER_RES_POIS        3
+#define SHIFTER_TENGU           4
+#define SHIFTER_PHASE_DOOR      5
+#define SHIFTER_TELE_SELF       6
+#define SHIFTER_ARCTIC_BEAR     7
+#define SHIFTER_HEROISM         8
+#define SHIFTER_RES_COLD        9
+#define SHIFTER_BERSERK        10
+#define SHIFTER_WYVERN         11
+#define SHIFTER_LIGHT_AREA     12
+#define SHIFTER_RES_FIRE       13
+#define SHIFTER_BR_FIRE        14
+#define SHIFTER_ENT            15
+#define SHIFTER_FIRST_AID      16
+#define SHIFTER_SAT_HUNGER     17
+#define SHIFTER_HERBAL_HEALING 18
+#define SHIFTER_ENTANGLE       19
+#define SHIFTER_UMBER_HULK     20
+#define SHIFTER_CONFUSE        21
+#define SHIFTER_STONE_TO_MUD   22
+#define SHIFTER_EARTHQUAKE     23
+#define SHIFTER_GORGON         24
+#define SHIFTER_RES_ACID       25
+#define SHIFTER_SLEEP          26
+#define SHIFTER_BR_ACID        27
+#define SHIFTER_PHASE_SPIDER   28
+#define SHIFTER_STING2         29
+#define SHIFTER_PHASE_DOOR2    30
+#define SHIFTER_HASTE          31
+#define SHIFTER_MINDFLAYER     32
+#define SHIFTER_CONFUSE2       33
+#define SHIFTER_SCARE2         34
+#define SHIFTER_TELE_SELF2     35
+#define SHIFTER_MIND_BLAST     36
+#define SHIFTER_COLBRAN        37
+#define SHIFTER_L_BOLT         38
+#define SHIFTER_RES_ELEC       39
+#define SHIFTER_L_BALL         40
+#define SHIFTER_HASTE2         41
+#define SHIFTER_ICE_TROLL      42
+#define SHIFTER_SLOW           43
+#define SHIFTER_SHIELD         44
+#define SHIFTER_ICE_BOLT       45
+#define SHIFTER_BEHOLDER       46
+#define SHIFTER_DETECT_MONS    47
+#define SHIFTER_MAGIC_MAP      48
+#define SHIFTER_TELE_OTHER     49
+#define SHIFTER_CONF_BALL      50
+#define SHIFTER_TERROR         51
+#define SHIFTER_MASS_SLEEP     52
+#define SHIFTER_VAMPIRE        53
+#define SHIFTER_SCARE          54
+#define SHIFTER_DRAIN_LIFE     55
+#define SHIFTER_NETHER_BOLT    56
+#define SHIFTER_LIFE_MANA      57
+#define SHIFTER_CHAOS_DRAKE    58
+#define SHIFTER_POLY_OTHER     59
+#define SHIFTER_CHAOS_BOLT     60
+#define SHIFTER_NEXUS_BOLT     61
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -612,7 +682,7 @@
 #define CLASS_WARRIOR	        0
 #define CLASS_MAGE		1
 #define CLASS_PRIEST	        2
-#define CLASS_ROGUE		3
+#define CLASS_THIEF		3
 #define CLASS_RANGER	        4
 #define CLASS_PALADIN	        5
 #define CLASS_ILLUSIONIST       6
@@ -620,10 +690,10 @@
 #define CLASS_DEATH_PRIEST      8
 #define CLASS_BERSERKER         9
 #define CLASS_MONK              10
-#define CLASS_TRICKSTER         11
+#define CLASS_RUNECASTER        11
 #define CLASS_CRUSADER          12
-#define CLASS_SLAYER            13
-#define CLASS_SHIFTER           14
+#define CLASS_SHIFTER           13
+#define CLASS_SLAYER            14
 
 #define MAX_REALM      4
 #define REALM_MAGIC    0
@@ -781,7 +851,7 @@
 #define GF_MAKE_DOOR	37
 #define GF_MAKE_TRAP	38
 #define GF_XXX5			39
-#define GF_XXX6			40
+#define GF_AWAY_DEMONS	40
 #define GF_AWAY_UNDEAD	41
 #define GF_AWAY_EVIL	42
 #define GF_AWAY_ALL		43
@@ -1125,7 +1195,7 @@
 #define EGO_QUIET			57
 #define EGO_MOTION			58
 #define EGO_SPEED			59
-/* xxx */
+#define EGO_KICKING                     60
 #define EGO_NOISE			61
 #define EGO_SLOWNESS		62
 #define EGO_ANNOYANCE		63
@@ -1439,6 +1509,7 @@
 #define SV_AMULET_TELEPATHY             14
 #define SV_AMULET_PERSISTENCE           15
 #define SV_AMULET_AID                   16
+#define SV_AMULET_SPELL                 17
 #define SV_AMULET_CARLAMMAS		20
 #define SV_AMULET_INGWE			21
 #define SV_AMULET_DWARVES		22
@@ -1482,6 +1553,7 @@
 #define SV_RING_NENYA			35
 #define SV_RING_VILYA			36
 #define SV_RING_POWER			37
+#define SV_RING_SPELL                   38
 
 
 /* The "sval" codes for TV_STAFF */
@@ -1638,6 +1710,11 @@
 #define SV_SCROLL_RESTORE_PIETY                 50
 #define SV_SCROLL_MASS_IDENTIFY                 51
 #define SV_SCROLL_MUNDANIFY                     52
+#define SV_SCROLL_SPELL                         53
+#define SV_SCROLL_PRAYER                        54
+#define SV_SCROLL_ILLUSION                      55
+#define SV_SCROLL_DEATH                         56
+#define SV_SCROLL_INFINITE_SPELL                57
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER				0
@@ -3351,6 +3428,7 @@ enum EFFECTS
   EFFECT_ACID_BALL,
   EFFECT_ALTER_REALITY,
   EFFECT_BANISH_EVIL,
+  EFFECT_BANISH_DEMONS,
   EFFECT_BANISH_UNDEAD,
   EFFECT_BEDLAM,
   EFFECT_BERSERK,

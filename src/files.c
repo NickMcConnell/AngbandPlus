@@ -1407,11 +1407,7 @@ static void display_player_xtra_info(void)
 		sprintf(buf, "(%+d,%dd%d%+d)", hit, o_ptr->dd, o_ptr->ds, dam);
 	    else if (player_has_class(CLASS_MONK, 0))
 	    {
-		int plev = level_of_class(CLASS_MONK), damage = 1;
-		if (plev < 7) damage = plev + 2;
-		else if (plev < 22) damage = (plev + 10) / 2;
-		else damage = (plev + 25) / 3;
-		sprintf(buf, "(%+d,%dd%d%+d)", hit, 1, damage, dam);
+		sprintf(buf, "(%+d,%dd%d%+d)", hit, 1, monk_damage(), dam);
 	    }
 	    else
 	    {
@@ -1680,23 +1676,39 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	/* Shapeshifter */
 	switch (p_ptr->shapeshift)
 	{
-	case 1: (*f2) |= (TR2_RES_POIS); (*f1) |= (TR1_STEALTH); (*f1) |= (TR1_DEX); break;
-	case 2: (*f1) |= (TR1_SPEED); (*f2) |= (TR2_RES_CONFU); (*f3) |= (TR3_TELEPORT); 
+	case FORM_GIANT_SPIDER: 
+	     (*f2) |= (TR2_RES_POIS); (*f1) |= (TR1_STEALTH); (*f1) |= (TR1_DEX); break;
+	case FORM_TENGU: 
+	     (*f1) |= (TR1_SPEED); (*f2) |= (TR2_RES_CONFU); (*f3) |= (TR3_TELEPORT); 
 	     (*f1) |= (TR1_DEX); break;
-	case 3: (*f2) |= (TR2_RES_COLD); (*f2) |= (TR2_RES_FEAR); (*f1) |= (TR1_STR); break;
-	case 4: (*f2) |= (TR2_RES_FIRE); (*f3) |= (TR3_FEATHER); (*f1) |= (TR1_INT); break;
-	case 5:  (*f3) |= (TR3_FREE_ACT); (*f1) |= (TR1_CON); break;
-	case 6: (*f2) |= (TR2_RES_POIS); (*f1) |= (TR1_SPEED); (*f2) |= (TR2_SUST_DEX); 
+	case FORM_ARCTIC_BEAR: 
+	     (*f2) |= (TR2_RES_COLD); (*f2) |= (TR2_RES_FEAR); (*f1) |= (TR1_STR); break;
+	case FORM_WYVERN: 
+	     (*f2) |= (TR2_RES_FIRE); (*f3) |= (TR3_FEATHER); (*f1) |= (TR1_INT); break;
+	case FORM_UMBER_HULK: 
+	     (*f3) |= (TR3_FREE_ACT); (*f1) |= (TR1_CON); break;
+	case FORM_GORGON: 
+	     (*f2) |= (TR2_RES_ACID); (*f2) |= (TR2_SUST_INT); (*f1) |= (TR1_INT); break;
+	case FORM_PHASE_SPIDER: 
+	     (*f2) |= (TR2_RES_POIS); (*f1) |= (TR1_SPEED); (*f2) |= (TR2_SUST_DEX); 
 	     (*f1) |= (TR1_STEALTH); (*f3) |= (TR3_FREE_ACT); (*f1) |= (TR1_DEX); break;
-	case 7: (*f2) |= (TR2_RES_ACID); (*f2) |= (TR2_SUST_INT); (*f1) |= (TR1_INT); break;
-	case 8: (*f2) |= (TR2_RES_ELEC); (*f1) |= (TR1_STR); break;
-	case 9: (*f2) |= (TR2_RES_COLD); (*f2) |= (TR2_SUST_STR); (*f3) |= (TR3_REGEN); 
+	case FORM_ENT: (*f1) |= (TR1_STR);  (*f3) |= (TR3_SLOW_DIGEST);
+	case FORM_MINDFLAYER: 
+	     (*f1) |= (TR1_INT); (*f2) |= (TR2_SUST_INT); (*f3) |= (TR3_TELEPATHY); 
+	     (*f2) |= (TR2_RES_CONFU); break;
+	case FORM_COLBRAN: 
+	     (*f2) |= (TR2_RES_ELEC); (*f1) |= (TR1_STR); (*f2) |= (TR2_RES_SHARD); break;
+	case FORM_ICE_TROLL: (*f2) |= (TR2_IM_COLD); (*f2) |= (TR2_SUST_STR); (*f3) |= (TR3_REGEN); 
 	     (*f2) |= (TR2_RES_FEAR); (*f1) |= (TR1_STR); break;
-	case 10: (*f3) |= (TR3_SEE_INVIS); (*f2) |= (TR2_SUST_INT); (*f2) |= (TR2_SUST_WIS); 
-	     (*f3) |= (TR3_TELEPATHY); (*f2) |= (TR2_RES_BLIND); break;
-	case 11: (*f2) |= (TR2_RES_POIS); (*f2) |= (TR2_RES_COLD); (*f2) |= (TR2_RES_DARK); 
-	     (*f2) |= (TR2_RES_NETHR); (*f3) |= (TR3_REGEN); (*f3) |= (TR3_HOLD_LIFE); break;
-	case 12: (*f2) |= (TR2_RES_CONFU); (*f2) |= (TR2_RES_CHAOS); (*f2) |= (TR2_RES_NEXUS);
+	case FORM_BEHOLDER: 
+	     (*f3) |= (TR3_SEE_INVIS); (*f2) |= (TR2_RES_BLIND); (*f1) |= (TR1_SEARCH); 
+	     break;
+	case FORM_VAMPIRE: 
+	     (*f2) |= (TR2_RES_POIS); (*f2) |= (TR2_RES_COLD); (*f2) |= (TR2_RES_DARK); 
+	     (*f2) |= (TR2_RES_NETHR); (*f3) |= (TR3_REGEN); (*f3) |= (TR3_HOLD_LIFE); 
+	     (*f3) |= (TR3_SEE_INVIS); break;
+	case FORM_CHAOS_DRAKE: 
+	     (*f2) |= (TR2_RES_CONFU); (*f2) |= (TR2_RES_CHAOS); (*f2) |= (TR2_RES_NEXUS);
 	     (*f3) |= (TR3_LITE); (*f2) |= (TR2_IM_FIRE); (*f3) |= (TR3_FEATHER); break;
 	}	
 
@@ -2063,7 +2075,8 @@ static void display_player_misc_info(void)
 	     /* Spell Points */
 	     if (p_ptr->realm_magery == REALM_MAGIC+1 || 
 		 p_ptr->realm_magery == REALM_ILLUSION+1 ||
-		 player_has_class(CLASS_SHIFTER, 0))
+		 player_has_class(CLASS_SHIFTER, 0) ||
+		 player_has_class(CLASS_RUNECASTER, 0))
 	     {
 		  put_str("SP", 6, 1);
 		  sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
@@ -2071,8 +2084,8 @@ static void display_player_misc_info(void)
 	     }
 	     
 	     /* Piety */
-	     /* Undead slayer uses only one measure for piety */
-	     if (player_has_class(CLASS_SLAYER, 0))
+	     /* Crusaders and Slayers use only one measure for piety */
+	     if (player_has_class(CLASS_CRUSADER, 0) || player_has_class(CLASS_SLAYER, 0))
 	     {
 		  /* Don't show if knowledge is hidden */
 		  if (!adult_hidden)

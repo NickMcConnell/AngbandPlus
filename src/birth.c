@@ -631,7 +631,7 @@ static const byte player_init[MAX_CLASS][2] =
   { /* Priest */
     TV_POTION, SV_POTION_CURE_CRITICAL
   },
-  { /* Rogue */
+  { /* Thief */
     TV_SCROLL, SV_SCROLL_TELEPORT
   },
   { /* Ranger */
@@ -653,20 +653,20 @@ static const byte player_init[MAX_CLASS][2] =
     TV_POTION, SV_POTION_BESERK_STRENGTH
   },
   { /* Monk */
-    TV_BOOTS, SV_PAIR_OF_SANDALS
+    TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS
   },
-  { /* Trickster */
-    TV_SCROLL, SV_SCROLL_TELEPORT
+  { /* Runecaster */
+    TV_AMULET, SV_AMULET_SPELL /* pval 0 = Magic Missile */
   },
   { /* Crusader */
-    TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL
-  },
-  { /* Undead Slayer */
     TV_POTION, SV_POTION_DETECT_INVIS
   },
   { /* Shifter */
     TV_FOOD, SV_FOOD_RESTORING
   },
+  { /* Slayer */
+    TV_POTION, SV_POTION_CURE_CRITICAL
+  }
 };
 
 /*
@@ -776,24 +776,16 @@ static void player_outfit(void)
 
 	     if (player_has_class(CLASS_CRUSADER, 0))
 	     {
-		  /* Blunt weapon if character has a priest class */
-		  if (player_has_class(CLASS_PRIEST, 0) ||
-		      player_has_class(CLASS_DEATH_PRIEST, 0))
-		  {
-		       tv = TV_HAFTED; sv = SV_LUCERN_HAMMER;
-		  }
-		  else
-		  {
-		       tv = TV_SWORD; sv = SV_BROAD_SWORD;
-		  }
+		  tv = TV_HAFTED; sv = SV_LUCERN_HAMMER;
 		  got_weapon = TRUE;
 	     }	       
 	     
 	     if (player_has_class(CLASS_SLAYER, 0))
 	     {
-		  tv = TV_HAFTED, sv = SV_MACE; got_weapon = TRUE;
-	     }
-
+		  tv = TV_SWORD; sv = SV_KNIFE;
+		  got_weapon = TRUE;
+	     }	       
+	     
 	     /* Only grant berserker weapon if no other has been granted */
 	     if (player_has_class(CLASS_BERSERKER, 0) && (!got_weapon))
 	     {
@@ -852,8 +844,11 @@ static void player_outfit(void)
 		       random_ego[num] = EGO_SLAY_EVIL; num++; }
 		  if (player_has_class(CLASS_RANGER, 0)) {
 		       random_ego[num] = EGO_SLAY_ANIMAL; num++; }
-		  if (player_has_class(CLASS_SLAYER, 0)) {
-		       random_ego[num] = EGO_SLAY_UNDEAD; num++; }
+		  if (player_has_class(CLASS_CRUSADER, 0)) {
+		       random_ego[num] = EGO_SLAY_UNDEAD; num++; 
+		       random_ego[num] = EGO_SLAY_DEMON; num++; 
+		       random_ego[num] = EGO_SLAY_EVIL; num++; 
+		  }
 
 		  /* Anyone can gain these ego-items */
 		  random_ego[num] = EGO_BRAND_ELEC; num++;
@@ -974,6 +969,24 @@ static void player_outfit(void)
 	     (void)inven_carry(i_ptr);
 	}	  
 
+	/* Hack -- Give runecasters some more talismans */
+	if (player_has_class(CLASS_RUNECASTER, 0) && adult_easy)
+	{
+	     i_ptr = &object_type_body;
+	     object_prep(i_ptr, lookup_kind(TV_RING, SV_RING_SPELL));
+	     i_ptr->pval = SPELL_DETECT_MONSTERS; 
+	     object_aware(i_ptr);
+	     object_known(i_ptr);
+	     (void)inven_carry(i_ptr);	     
+		  
+	     i_ptr = &object_type_body;
+	     object_prep(i_ptr, lookup_kind(TV_RING, SV_RING_SPELL));
+	     i_ptr->pval = PRAYER_CURE_LIGHT_WOUNDS + 64; 
+	     object_aware(i_ptr);
+	     object_known(i_ptr);
+	     (void)inven_carry(i_ptr);	     
+	}
+
 	/* Hack -- Give the player some objects */
 	for (i = 0; i < MAX_CLASS; i++)
 	{
@@ -987,6 +1000,15 @@ static void player_outfit(void)
 		{
 		    apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
 		    i_ptr->discount = 90;
+		}
+		/* Boots of Kicking for Monks */
+		if (adult_easy && tv == TV_BOOTS && player_has_class(CLASS_MONK, 0))
+		{
+		     i_ptr->name2 = EGO_KICKING;
+		     {
+			  ego_item_type *e_ptr = &e_info[i_ptr->name2];
+			  i_ptr->to_d = randint(e_ptr->max_to_d);
+		     }
 		}
 		object_aware(i_ptr);
 		object_known(i_ptr);
@@ -1246,7 +1268,7 @@ static bool player_birth_aux_1(void)
 		    if (ch == 'Q') quit(NULL);
 		    if (ch == 'S') return (FALSE);
 		    k = (islower(ch) ? A2I(ch) : -1);
-		    if (ch == ESCAPE) break;
+		    if (ch == ESCAPE && p_ptr->available_classes > 0) break;
 		    if (ch == '*')
 		    {
 			 if (p_ptr->available_classes > 0)
@@ -1508,9 +1530,14 @@ static bool player_birth_aux_2(void)
 		/* Update stuff */
 		update_stuff();
 
-		/* HACK - Give undead slayer some piety, based on wisdom */
-		if (player_has_class(CLASS_SLAYER, 0)) 
-		     p_ptr->mpp = adj_mag_mana[p_ptr->stat_ind[A_WIS]] + 1;
+		/* HACK - Give crusader/slayer some piety, based on wisdom */
+		if (player_has_class(CLASS_CRUSADER, 0) || player_has_class(CLASS_SLAYER, 0) )
+		{
+		     /* +1 = 2-3, +2 = 3-6, +3 = 4-9, d4 = 5-12 */
+		     p_ptr->mpp = randint(adj_mag_mana[p_ptr->stat_ind[A_WIS]] * 2) + 
+			  adj_mag_mana[p_ptr->stat_ind[A_WIS]] + 1;
+		     p_ptr->cpp = p_ptr->mpp;
+		}
 
 		/* Fully healed */
 		p_ptr->chp = p_ptr->mhp;
@@ -1968,9 +1995,14 @@ static bool player_birth_aux_3(void)
 			/* Update stuff */
 			update_stuff();
 
-			/* HACK - Give undead slayer some piety, based on wisdom */
-			if (player_has_class(CLASS_SLAYER, 0))
-			     p_ptr->mpp = adj_mag_mana[p_ptr->stat_ind[A_WIS]] + 1;
+			/* HACK - Give crusader/slayer some piety, based on wisdom */
+			if (player_has_class(CLASS_CRUSADER, 0) || player_has_class(CLASS_SLAYER, 0))
+			{
+			     /* +1 = 2-3, +2 = 3-6, +3 = 4-9, d4 = 5-12 */
+			     p_ptr->mpp = randint(adj_mag_mana[p_ptr->stat_ind[A_WIS]] * 2) + 
+				  adj_mag_mana[p_ptr->stat_ind[A_WIS]] + 1;
+			     p_ptr->cpp = p_ptr->mpp;
+			}
 
 			/* Fully healed */
 			p_ptr->chp = p_ptr->mhp;

@@ -357,19 +357,19 @@ have intrinsic abilities.
                priest's primary stats. Note : Priests use piety rather than
                mana to fuel their spells.
  
-          Rogue
-               A Rogue is a character that prefers to live by his  cunning,
+          Thief
+               A Thief is a character that prefers to live by his  cunning,
                but  is capable of fighting his way out of a tight spot. He
                is the master of traps and locks, no device being impossible
-               for  him  to  overcome. A rogue has a high stealth allowing
+               for  him  to  overcome. A thief has a high stealth allowing
                him to sneak around many creatures without having to  fight,
-               or sneak up and get the first blow. A rogue's perception is
+               or sneak up and get the first blow. A thief's perception is
                higher than any other class, and many times he will notice a
-               trap  or  secret  door  before having to search. A rogue is
+               trap  or  secret  door  before having to search. A thief is
                better than warriors or paladins with magical  devices,  but
-               still  can  not  rely on their performance. Rogues can also
+               still  can  not  rely on their performance. Thiefs can also
                learn a few spells, but not the  powerful  offensive  spells
-               magi  can use. A rogue's primary stats are Intelligence and
+               magi  can use. A thief's primary stats are Intelligence and
                Dexterity. 
  
           Ranger
@@ -440,33 +440,32 @@ have intrinsic abilities.
                 very difficult to use. At higher levels, monks learn to
                 subsist on little food and resist confusion. 
 
-          Trickster
-                A trickster is mostly the same as the Rogue class, but uses
-                illusion magic rather than mage spells.
+          Runecaster
+                Runecasters specialise in using spell/prayer scrolls and
+                talismans. They are better than others at taking apart books
+                for the scrolls contained in them. They know how to copy spells
+                and prayers to talismans, and can use their personal mana
+                reserves to activate talismans which haven't been recharged.
+                Runecasters are somewhat similar to mages, but less physically
+                robust, and with greater skill in using magical devices. They
+                also require slightly more experience to advance.
 
           Crusader
-                Crusaders are similar to Warriors, but have the additional
-                ability of having 2 powers in action at all times. These
-                powers do not cost mana to use and are effective as long as
-                they are selected. One of these is an 'active' power which
-                helps the crusader in their fight against monsters by
-                affecting their weapon (and unarmed combat, if the character
-                is also a monk). Active powers are shown in blue. The other
-                is a 'passive' power which affects the crusader themselves.
-                Passive powers are shown in green. Crusaders gain access to
-                more powers as they gain in experience, and can use them
-                with the 'm' key. Currently selected powers are shown in a
-                lighter colour.
-
-          Undead Slayer
-                Undead slayers are warriors with access to some priest-like
-                prayers, which they use in their fight against all
-                undead. Using these powers costs them piety, which is increased
-                by killing undead. Unlike priests/paladins, this piety does not
-                regenerate over time, so undead slayers must be diligent in
-                their quest if they are to remain powerful.
-                Undead slayers are strong, wise and healthy, with good saving
-                throws, but not very intelligent, and gain levels quite slowly.
+                Crusaders are a powerful class, good at combat and with access
+                to powers and prayers, which help them in their fight against
+                evil, demons and undead.
+                Their powers do not cost mana to use and are effective as long
+                as they are selected. One of these is an 'active' power which
+                helps the crusader in their fight against monsters by affecting
+                their weapon (and unarmed combat, if the character is also a
+                monk). Active powers are shown in blue. The other is a
+                'passive' power which affects the crusader themselves.  Passive
+                powers are shown in green. Powers are used with the 'm'
+                key. Currently selected powers are shown in a lighter colour.
+                Crusader's prayers depend on their piety, which increases only
+                when they kill evil monsters, demons and undead, and decreases
+                over time. This means that Crusaders must be diligent if they
+                are to remain powerful.
 
           Shifter
                 Shifters are a mage-like class, which can change into a number
@@ -483,6 +482,16 @@ have intrinsic abilities.
                 Tengu: fast, dextrous, resists confusion, teleports randomly
                 Arctic Bear: strong, resists cold and fear
                 Wyvern: intelligent, has small wings, resists fire
+
+          Dark Slayer
+                Dark Slayers are paladins of Death. Unlike holy Paladins, and
+                like Crusaders, they gain piety from killing - most living
+                monsters are fodder to them. They use this piety to pray from
+                Death prayer books. They need to be even more diligent than
+                Crusaders in killing, as their piety decreases much
+                quicker. Also unlike Paladins, Dark Slayers can
+                multiclass. They are also not as restricted in how much armour
+                they can wear or which weapons they can use.
 
 
 === Stats ===
@@ -612,24 +621,24 @@ have intrinsic abilities.
 
 === Combinations of Race and Class (not enforced) ===
 
-             Warri Mage Prie Rogu Rang Pala Illu Arce Deat Bers Monk Tric Crus Slay Shift
-Human         Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes
-Half-Elf      Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes
-Grey Elf      Yes  Yes  Yes  No   No   No   Yes  Yes  Yes  No   Yes  No   No   No   No
-Hobbit        Yes  Yes  No   Yes  No   No   No   Yes  No   No   No   Yes  No   Yes  No
-Gnome         Yes  Yes  Yes  Yes  No   No   Yes  Yes  No   No   Yes  Yes  No   No   No
-Dwarf         Yes  No   Yes  No   No   Yes  No   No   No   Yes  No   No   Yes  Yes  No
-Half-Orc      Yes  No   Yes  Yes  No   No   No   Yes  No   Yes  No   Yes  Yes  No   No
-Half-Troll    Yes  No   Yes  No   No   No   No   Yes  No   Yes  No   No   Yes  No   No
-Dunadan       Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  No   Yes  Yes  Yes  Yes  Yes  No
-High-Elf      Yes  Yes  Yes  Yes  Yes  No   Yes  Yes  No   No   Yes  Yes  No   No   No
-Nibelung      Yes  Yes  No   Yes  No   No   Yes  Yes  Yes  Yes  No   Yes  Yes  Yes  No
-Dark-Elf      Yes  Yes  No   Yes  No   No   Yes  Yes  Yes  No   Yes  Yes  No   Yes  No
-Wood-Elf      Yes  Yes  No   No   Yes  No   Yes  Yes  No   No   Yes  No   No   No   No
-Kobold        Yes  Yes  No   Yes  Yes  No   Yes  Yes  No   Yes  No   Yes  No   No   No
-Caveman       Yes  No   Yes  Yes  Yes  No   No   Yes  No   Yes  No   Yes  Yes  No   Yes
-Yeek          Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes
-Maia          Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes
+             Warri Mage Prie Thie Rang Pala Illu Arce Deat Bers Monk Rune Crus Shift Slay
+Human         Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes   Yes
+Half-Elf      Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes   Yes
+Grey Elf      Yes  Yes  Yes  No   No   No   Yes  Yes  Yes  No   Yes  Yes  No   No    No
+Hobbit        Yes  Yes  No   Yes  No   No   No   Yes  No   No   No   Yes  No   No    No
+Gnome         Yes  Yes  Yes  Yes  No   No   Yes  Yes  No   No   Yes  Yes  No   No    No
+Dwarf         Yes  No   Yes  No   No   Yes  No   No   No   Yes  No   Yes  Yes  No    No
+Half-Orc      Yes  No   Yes  Yes  No   No   No   Yes  No   Yes  No   Yes  No   No    No
+Half-Troll    Yes  No   Yes  No   No   No   No   Yes  No   Yes  No   Yes  No   No    No
+Dunadan       Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  No   Yes  Yes  Yes  Yes  No    No
+High-Elf      Yes  Yes  Yes  Yes  Yes  No   Yes  Yes  No   No   Yes  Yes  Yes  No    No
+Nibelung      Yes  Yes  No   Yes  No   No   Yes  Yes  Yes  Yes  No   Yes  No   No    Yes
+Dark-Elf      Yes  Yes  No   Yes  No   No   Yes  Yes  Yes  No   Yes  Yes  No   No    Yes
+Wood-Elf      Yes  Yes  No   Yes  Yes  No   Yes  Yes  No   No   Yes  Yes  No   No    No
+Kobold        Yes  Yes  No   Yes  Yes  No   Yes  Yes  No   Yes  No   Yes  No   No    No
+Caveman       Yes  No   Yes  Yes  Yes  No   No   Yes  No   Yes  No   Yes  No   Yes   No
+Yeek          Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes   Yes
+Maia          Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  No   Yes  Yes  Yes  Yes  Yes   No
 
 Note : non-recommended combinations cannot multiclass
 
@@ -676,7 +685,7 @@ are listed in the following table.
            Warrior       +5      -2      -2      +2      +2      -1
            Mage          -5      +3       0      +1      -2      +1
            Priest        -1      -3      +3      -1       0      +2
-           Rogue         +2      +1      -2      +3      +1      -1
+           Thief         +2      +1      -2      +3      +1      -1
            Ranger        +2      +2       0      +1      +1      +1
            Paladin       +3      -3      +1       0      +2      +2
            Illusionist   -5      +3       0      +1      -2      +1
@@ -684,10 +693,10 @@ are listed in the following table.
            Death Priest  -1      -3      +3      -1       0      +2
            Berserker     +6      -4      -2      +2      +4      -2
            Monk          +2      -1      -1      +4      +3      -1
-           Trickster     +2      +1      -2      +3      +1      -1
-           Crusader      +4      -3       0      +1      +1       0
-           Undead Slayer +4      -2      +2      +1      +2       0
+           Runecaster    -6      +2       0      +2      -3       0
+           Crusader      +4      -3      +2      +1      +2      +1
            Shifter       +2      +1       0      +3      +1       0
+           Dark Slayer   +3      -3      +1       0      +3       0
  
 
 === Ability Tables ===
@@ -712,11 +721,10 @@ are listed in the following table.
            Maia        10     15     16      1      5      4      4  None
  
                        Disarm Device Save Stealth Search Fight Bows Exp/Lev
-
            Warrior     25     18     18      1     14     70     55     +0%
            Mage        30     36     30      2     16     34     20    +30%
            Priest      25     30     32      2     16     48     35    +20%
-           Rogue       45     32     28      5     32     60     66    +25%
+           Thief       45     32     28      5     32     60     66    +25%
            Ranger      30     32     28      3     24     56     72    +30%
            Paladin     20     24     25      1     12     68     40    +35%
            Illusionist 30     36     30      2     16     34     20    +30%
@@ -724,7 +732,7 @@ are listed in the following table.
            Death Pries 25     30     32      2     16     48     35    +20%
            Berserker   25     18     18      1     14     75     10    +30%
            Monk        45     24     32      5     32     75     25    +35%
-           Trickster   45     32     28      5     32     60     66    +25%
-           Crusader    20     18     25      1     14     68     44    +35%
-           Undead Slay 20     18     32      1     14     65     50    +35%
+           Runecaster  30     50     30      2     16     20     15    +35%
+           Crusader    20     18     32      1     14     68     40    +35%
            Shifter     20     18     18      1     14     56     40    +10%
+           Dark Slayer 20     18     25      1     12     68     40    +35%

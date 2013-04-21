@@ -295,6 +295,7 @@ extern sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *
 extern void search(void);
 extern void py_pickup(int pickup);
 extern void hit_trap(int y, int x);
+extern int monk_damage();
 extern void py_attack(int y, int x);
 extern void move_player(int dir, int jumping);
 extern void run_step(int dir);
@@ -359,12 +360,13 @@ extern void do_cmd_knowledge(void);
 /* cmd5.c */
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
+extern void cast_spell(int realm, int spell);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
 extern void do_cmd_cast_illusion(void);
 extern void do_cmd_cast_death(void);
 extern void do_cmd_crusader(void);
-extern void do_cmd_slayer(void);
+extern void do_cmd_crusader_prayer(void);
 extern void do_cmd_shifter(void);
 
 /* cmd6.c */
@@ -385,8 +387,8 @@ extern bool player_has_class(int class, int level);
 extern int level_of_class(int class);
 extern int best_class();
 extern int index_of_class(int class_sought);
-extern int magery_class();
-extern int priest_class();
+extern int magery_class(bool bookcaster);
+extern int priest_class(bool bookcaster);
 extern int max_player_level();
 
 /* dungeon.c */
@@ -512,6 +514,7 @@ extern s16b lookup_kind(int tval, int sval);
 extern void object_wipe(object_type *o_ptr);
 extern void object_copy(object_type *o_ptr, const object_type *j_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
+extern int get_item_spell(const object_type *o_ptr, int level, bool uses_sval);
 extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great);
 extern bool make_object(object_type *j_ptr, bool good, bool great);
 extern bool make_gold(object_type *j_ptr);
@@ -605,6 +608,7 @@ extern bool slow_monsters(int class);
 extern bool sleep_monsters(int class);
 extern bool scare_monsters(int class);
 extern bool banish_evil(int dist);
+extern bool banish_demons(int dist);
 extern bool banish_undead(int dist);
 extern bool turn_undead(int class);
 extern bool dispel_undead(int dam);

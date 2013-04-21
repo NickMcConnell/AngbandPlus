@@ -812,6 +812,31 @@ static s32b object_value_base(const object_type *o_ptr)
 	return (0L);
 }
 
+static int get_spell_level(const object_type *o_ptr, bool uses_sval)
+{
+     int class;
+     int level;
+
+     int realm = (uses_sval ? o_ptr->sval - SV_SCROLL_SPELL : o_ptr->pval / 64);
+     switch (realm)
+     {
+     case REALM_MAGIC: class = CLASS_MAGE; break;
+     case REALM_PRAYER: class = CLASS_PRIEST; break;
+     case REALM_ILLUSION: class = CLASS_ILLUSIONIST; break; 
+     case REALM_DEATH: class = CLASS_DEATH_PRIEST; break;
+     }
+
+     /* Get spell level */
+     if (uses_sval)
+	  level = magic_info[class].info[o_ptr->pval].slevel;
+     else
+	  level = magic_info[class].info[o_ptr->pval % 64].slevel;
+
+     /* Hack - Object/Treasure Detction */
+     if (level == 99) level = 10;
+
+     return level;
+}
 
 /*
  * Return the "real" price of a "known" item, not including discounts.
@@ -943,6 +968,26 @@ static s32b object_value_real(const object_type *o_ptr)
 	/* Analyze the item */
 	switch (o_ptr->tval)
 	{
+	        /* Spell Scrolls */
+	        case TV_SCROLL:
+		{
+		     if (o_ptr->sval >= SV_SCROLL_SPELL && o_ptr->sval <= SV_SCROLL_DEATH)
+		     {
+			  int level = get_spell_level(o_ptr, TRUE);
+			  /* 10 * spell level squared, so from 10 to 25,000 */
+			  value = level * level * 10;
+		     }
+
+		     if (o_ptr->sval == SV_SCROLL_INFINITE_SPELL)
+		     {
+			  int level = get_spell_level(o_ptr, FALSE);
+			  /* 10 * spell level squared, so from 10 to 25,000 */
+			  value = level * level * 10;
+		     }
+
+		     break;
+		}
+
 		/* Wands/Staffs */
 		case TV_WAND:
 		case TV_STAFF:
@@ -965,6 +1010,14 @@ static s32b object_value_real(const object_type *o_ptr)
 
 			/* Give credit for bonuses */
 			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+
+			if ((o_ptr->tval == TV_AMULET && o_ptr->sval == SV_AMULET_SPELL) ||
+			    (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SPELL))
+			{
+			     int level = get_spell_level(o_ptr, FALSE);
+			     /* 10 * spell level cubed, so from 10 to 1,250,000 */
+			     value += level * level * level * 10;
+			}
 
 			/* Done */
 			break;
@@ -1144,10 +1197,25 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		/* Food and Potions and Scrolls */
 		case TV_FOOD:
 		case TV_POTION:
-		case TV_SCROLL:
 		{
 			/* Assume okay */
 			break;
+		}
+
+		/* Scrolls */
+		case TV_SCROLL:
+		{
+		     if (o_ptr->sval >= SV_SCROLL_SPELL && o_ptr->sval <= SV_SCROLL_INFINITE_SPELL)
+		     {
+			  /* Require identical spells */
+			  if (o_ptr->pval != j_ptr->pval) return (0);
+			  /* If both known, then OK. If neither known, then OK. */
+			  if (!object_known_p(o_ptr) && object_known_p(j_ptr)) return (0);
+			  if (object_known_p(o_ptr) && !object_known_p(j_ptr)) return (0);
+		     }
+		     
+		     /* Okay */
+		     break;
 		}
 
 		/* Staffs and Wands */
@@ -2083,6 +2151,54 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 
 
+int get_item_spell(const object_type *o_ptr, int level, bool uses_sval)
+{
+     /* Get a realm (each realm having max of 64 spells */
+     int class, current_level, i, spellist[64], current_spell = 0, count_spellevels = 0;
+     int randrealm = rand_int(4);
+     int realm = (uses_sval ? o_ptr->sval - SV_SCROLL_SPELL : randrealm);
+
+     switch (realm)
+     {
+     case REALM_MAGIC: class = CLASS_MAGE; break;
+     case REALM_PRAYER: class = CLASS_PRIEST; break;
+     case REALM_ILLUSION: class = CLASS_ILLUSIONIST; break; 
+     case REALM_DEATH: class = CLASS_DEATH_PRIEST; break;
+     }
+     
+     /* For each spell level */
+     for (current_level = 1; current_level < 51; current_level++)
+     {
+	  /* Get ordered list of spells */
+	  for (i = 0; i < 64; i++)
+	  {
+	       /* If spell is of this spell level */
+	       if (magic_info[class].info[i].slevel == current_level)
+	       {
+		    /* Save it to spell list */
+		    spellist[current_spell] = i;
+		    
+		    /* Increment index */
+		    current_spell++;
+		    
+		    /* This spell level has one more spell in it */
+		    if (current_level < 6) count_spellevels++;
+	       }
+	  }
+     }
+     
+     /* Limit random spell found to those available */
+     if (level > current_spell) level = current_spell;
+     
+     /* Make spells of up to spell level 5 available at dlevel 0 */
+     if (level < count_spellevels) level = count_spellevels;
+
+     if (uses_sval)
+	  return spellist[rand_int(level)];
+     else
+	  return spellist[rand_int(level)] + (randrealm * 64);
+}
+
 /*
  * Apply magic to an item known to be a "ring" or "amulet"
  *
@@ -2339,6 +2455,15 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					break;
 				}
+
+			        case SV_RING_SPELL:
+				{
+				     o_ptr->pval = get_item_spell(o_ptr, level, FALSE);
+
+				     if (cheat_peek) object_mention(o_ptr);
+
+				     break;
+				}
 			}
 
 			break;
@@ -2430,6 +2555,15 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					break;
 				}
+
+			        case SV_AMULET_SPELL:
+				{
+				     o_ptr->pval = get_item_spell(o_ptr, level, FALSE);
+				     
+				     if (cheat_peek) object_mention(o_ptr);
+
+				     break;
+				}
 			}
 
 			break;
@@ -2448,6 +2582,27 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 	/* Apply magic (good or bad) according to type */
 	switch (o_ptr->tval)
 	{
+	        case TV_SCROLL:
+		{
+
+		     if (o_ptr->sval == SV_SCROLL_INFINITE_SPELL)
+		     {
+			  o_ptr->pval = get_item_spell(o_ptr, level, FALSE);
+			  
+			  if (cheat_peek) object_mention(o_ptr);
+		     
+			  break;
+		     }
+
+		     if (o_ptr->sval >= SV_SCROLL_SPELL && o_ptr->sval <= SV_SCROLL_DEATH)
+		     {
+			  o_ptr->pval = get_item_spell(o_ptr, level, TRUE);
+
+			  if (cheat_peek) object_mention(o_ptr);
+		     }
+		     break;
+		}
+
 		case TV_LITE:
 		{
 			/* Hack -- Torches -- random fuel */
@@ -3797,6 +3952,31 @@ s16b inven_carry(object_type *o_ptr)
 	object_type *j_ptr;
 
 
+	/* Identify spell scrolls if spell is known */
+	if (o_ptr->tval == TV_SCROLL && 
+	    o_ptr->sval >= SV_SCROLL_SPELL && o_ptr->sval <= SV_SCROLL_DEATH)
+	{
+	     /* Check that realms match */
+	     if (((p_ptr->realm_magery == REALM_MAGIC+1) && (o_ptr->sval == SV_SCROLL_SPELL)) ||
+		 ((p_ptr->realm_priest == REALM_PRAYER+1) && (o_ptr->sval == SV_SCROLL_PRAYER)) ||
+		 ((p_ptr->realm_magery == REALM_ILLUSION+1) && (o_ptr->sval == SV_SCROLL_ILLUSION)) ||
+		 ((p_ptr->realm_priest == REALM_DEATH+1) && (o_ptr->sval == SV_SCROLL_DEATH)))
+	     {
+		  int priest = ((o_ptr->sval == SV_SCROLL_PRAYER || o_ptr->sval == SV_SCROLL_DEATH) ?
+		       TRUE : FALSE);
+
+		  /* If spell is known */
+		  if ((o_ptr->pval < 32) ?
+		      (p_ptr->spell_learned1[(priest)] & (1L << o_ptr->pval)) :
+		      (p_ptr->spell_learned2[(priest)] & (1L << (o_ptr->pval - 32))))
+		  {
+		       object_aware(o_ptr);
+		       object_known(o_ptr);
+		       msg_format("You recognize the %s on this scroll.", ((priest) ? "prayer" : "spell"));
+		  }
+	     }
+	}
+
 	/* Check for combining */
 	for (j = 0; j < INVEN_PACK; j++)
 	{
@@ -3845,7 +4025,6 @@ s16b inven_carry(object_type *o_ptr)
 	/* Use that slot */
 	i = j;
 
-
 	/* Reorder the pack */
 	if (i < INVEN_PACK)
 	{
@@ -3883,6 +4062,14 @@ s16b inven_carry(object_type *o_ptr)
 			/* Unidentified objects always come last */
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
+
+			/* Spell scrolls sort by increasing power */
+			if (o_ptr->tval == TV_SCROLL && 
+			    (o_ptr->sval >= SV_SCROLL_SPELL && o_ptr->sval <= SV_SCROLL_INFINITE_SPELL))
+			{
+				if (o_ptr->pval < j_ptr->pval) break;
+				if (o_ptr->pval > j_ptr->pval) continue;
+			}
 
 			/* Rods sort by increasing recharge time */
 			if (o_ptr->tval == TV_ROD)
@@ -4257,6 +4444,16 @@ void reorder_pack(bool silent)
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
 
+			if (o_ptr->tval == TV_SCROLL && o_ptr->sval == SV_SCROLL_INFINITE_SPELL) break;
+
+			/* Spell Scrolls sort by spell */
+			if (o_ptr->tval == TV_SCROLL && 
+			    (o_ptr->sval >= SV_SCROLL_SPELL && o_ptr->sval <= SV_SCROLL_DEATH))
+			{
+			     if (o_ptr->pval < j_ptr->pval) break;
+			     if (o_ptr->pval > j_ptr->pval) continue;
+			}
+
 			/* Rods sort by increasing recharge time */
 			if (o_ptr->tval == TV_ROD)
 			{
@@ -4388,19 +4585,20 @@ s16b spell_chance(int spell)
 
 	/* Not enough mana/piety to cast */
 	if (priest)
-	  {
-	    if (s_ptr->smana > p_ptr->cpp)
-	      {
-		chance += 5 * (s_ptr->smana - p_ptr->cpp);
-	      }
-	  }
+	{
+	     /* Slayers cannot pray without enough piety */
+	     if ((s_ptr->smana > p_ptr->cpp) && (!player_has_class(CLASS_SLAYER, 0)))
+	     {
+		  chance += 5 * (s_ptr->smana - p_ptr->cpp);
+	     }
+	}
 	else
-	  {
-	    if (s_ptr->smana > p_ptr->csp)
-	      {
-		chance += 5 * (s_ptr->smana - p_ptr->csp);
-	      }
-	  }
+	{
+	     if (s_ptr->smana > p_ptr->csp)
+	     {
+		  chance += 5 * (s_ptr->smana - p_ptr->csp);
+	     }
+	}
 
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[ ((priest) ? A_WIS : A_INT) ]];
@@ -4804,6 +5002,11 @@ void print_spells(const byte *spells, int num, int y, int x)
 	/* Dump the spells */
 	for (i = 0; i < num; i++)
 	{
+	        int rating;
+		if (player_has_class(CLASS_SLAYER, 0)) rating = p_ptr->mpp;
+		else if (priest) rating = p_ptr->cpp;
+		else rating = p_ptr->csp;
+
 		/* Get the spell index */
 		spell = spells[i];
 
@@ -4826,6 +5029,12 @@ void print_spells(const byte *spells, int num, int y, int x)
 
 		/* Assume spell is known and tried */
 		line_attr = TERM_WHITE;
+
+		/* Darken if not enough mana/piety */
+		if (s_ptr->smana > rating)
+		{
+		     line_attr = TERM_L_DARK;
+		}
 
 		/* Analyze the spell */
 		if ((spell < 32) ?
@@ -4856,6 +5065,12 @@ void print_spells(const byte *spells, int num, int y, int x)
 		{
 			comment = " untried";
 			line_attr = TERM_L_GREEN;
+
+			/* Darken if not enough mana/piety */
+			if (s_ptr->smana > rating)
+			{
+			     line_attr = TERM_GREEN;
+			}
 		}
 
 		if (adult_hidden)

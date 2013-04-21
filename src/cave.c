@@ -3767,7 +3767,7 @@ bool projectable(int y1, int x1, int y2, int x2)
 	x = GRID_X(grid_g[grid_n-1]);
 
 	/* May not end in a wall grid */
-	if (!cave_floor_bold(y, x)) return (FALSE);
+        /* if (!cave_floor_bold(y, x)) return (FALSE); */
 
 	/* May not end in an unrequested grid */
 	if ((y != y2) || (x != x2)) return (FALSE);

@@ -1,8 +1,0 @@
-rm lib/data/*.raw
-rm lib/save/500.*
-rm lib/*/*~
-rm src/angband
-rm src/*.o
-rm src/*~
-rm *~
-rm angband

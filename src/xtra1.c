@@ -470,7 +470,7 @@ static void mana_player_redraw(void)
   /* Default to none */
   byte attr = TERM_RED;
 
-  if ((p_ptr->realm_magery == 0) && (!player_has_class(CLASS_SHIFTER, 0)))
+  if ((p_ptr->realm_magery == 0) && (!player_has_class(CLASS_SHIFTER, 0)) && (!player_has_class(CLASS_RUNECASTER, 0)))
        return; /* Show nothing if no mana */
   
   /* Change info */
@@ -513,8 +513,9 @@ static void piety_player_redraw(void)
   /* Default to none */
   byte attr = TERM_RED;
 
-  if (p_ptr->realm_priest == 0)
-       return; /* Show nothing if no piety (undead slayers don't use this function) */
+  /* Show nothing if no piety */
+  if ((p_ptr->realm_priest == 0) && (!player_has_class(CLASS_CRUSADER, 0)) &&
+      (!player_has_class(CLASS_SLAYER, 0))) return; 
 
   /* Change info and move up if mana is not shown */
   if (p_ptr->realm_magery == 0)
@@ -528,31 +529,49 @@ static void piety_player_redraw(void)
       row = ROW_PIETY;
     }
 
-  /* base "piety" bar (use '-' symbols) */
-  Term_putstr(COL_INFO, row, 12, TERM_L_BLUE, "[----------]");
+  if (player_has_class(CLASS_CRUSADER, 0) || player_has_class(CLASS_SLAYER, 0))
+  {
+       cptr pietyrt;
+       if (p_ptr->mpp == 0)         pietyrt = "     None";
+       else if (p_ptr->mpp < 6)     pietyrt = "  Abysmal";
+       else if (p_ptr->mpp < 16) {  pietyrt = "     Poor"; attr = TERM_UMBER; }
+       else if (p_ptr->mpp < 36) {  pietyrt = " Mediocre"; attr = TERM_UMBER; }
+       else if (p_ptr->mpp < 76) {  pietyrt = "     Good"; attr = TERM_YELLOW; }
+       else if (p_ptr->mpp < 151) { pietyrt = "Very Good"; attr = TERM_YELLOW; }
+       else if (p_ptr->mpp < 251) { pietyrt = "Excellent"; attr = TERM_L_GREEN; }
+       else if (p_ptr->mpp < 501) { pietyrt = "   Superb"; attr = TERM_L_GREEN; }
+       else {                       pietyrt = "Legendary"; attr = TERM_WHITE; }
+       Term_putstr(COL_INFO, row, 12, TERM_WHITE, "PP");
+       Term_putstr(COL_INFO+3, row, 12, attr, pietyrt);
+  }
+  else
+  {
+       /* base "piety" bar (use '-' symbols) */
+       Term_putstr(COL_INFO, row, 12, TERM_L_BLUE, "[----------]");
 
-  if (p_ptr->cpp < 1) return;
+       if (p_ptr->cpp < 1) return;
 
-  /* Extract the "percent" of piety */
-  pct = 100L * p_ptr->cpp / p_ptr->mpp;
+       /* Extract the "percent" of piety */
+       pct = 100L * p_ptr->cpp / p_ptr->mpp;
 
-  /* Badly drained */
-  if (pct >= 10) attr = TERM_L_RED;
+       /* Badly drained */
+       if (pct >= 10) attr = TERM_L_RED;
 
-  /* Drained */
-  if (pct >= 25) attr = TERM_ORANGE;
+       /* Drained */
+       if (pct >= 25) attr = TERM_ORANGE;
 
-  /* Somewhat drained */
-  if (pct >= 60) attr = TERM_YELLOW;
-
-  /* Okay */
-  if (pct >= 100) attr = TERM_L_GREEN;
-
-  /* Convert percent into "piety" */
-  len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
-
-  /* Dump the current "piety" (use '*' symbols) */
-  Term_putstr(COL_INFO + 1, row, len, attr, "**********");
+       /* Somewhat drained */
+       if (pct >= 60) attr = TERM_YELLOW;
+       
+       /* Okay */
+       if (pct >= 100) attr = TERM_L_GREEN;
+       
+       /* Convert percent into "piety" */
+       len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
+       
+       /* Dump the current "piety" (use '*' symbols) */
+       Term_putstr(COL_INFO + 1, row, len, attr, "**********");
+  }
 }
 
 /*
@@ -564,7 +583,7 @@ static void prt_sp(void)
 	byte color;
 
 	/* Do not show mana unless it matters */
-	if ((p_ptr->realm_magery == 0) && (!player_has_class(CLASS_SHIFTER, 0)))
+	if ((p_ptr->realm_magery == 0) && (!player_has_class(CLASS_SHIFTER, 0)) && (!player_has_class(CLASS_RUNECASTER, 0)))
 	     return;
 	
 	if (adult_hidden)
@@ -605,27 +624,32 @@ static void prt_pp(void)
 	int row;
 
 	/* Do not show piety unless it matters */
-	if ((p_ptr->realm_priest == 0) && (!player_has_class(CLASS_SLAYER, 0)))
-	     return;
-
-	/* If hidden knowledge, then don't show piety of undead slayers */
-	if (adult_hidden && (player_has_class(CLASS_SLAYER,  0))) return;
+	if ((p_ptr->realm_priest == 0) && (!player_has_class(CLASS_CRUSADER, 0)) &&
+	    (!player_has_class(CLASS_SLAYER, 0))) return;
 
 	/* Move up if mana is not shown */
-	if ((p_ptr->realm_magery == 0) || (player_has_class(CLASS_SHIFTER, 0)))
-	    row = ROW_PIETY; else row = ROW_MANA;
+	if ((p_ptr->realm_magery != 0) || (player_has_class(CLASS_SHIFTER, 0)) || (player_has_class(CLASS_RUNECASTER, 0)))
+	    row = ROW_PIETY; 
+	else row = ROW_MANA;
 
-	/* Show only maximum value for undead slayers, as this is what they use only */
-	if (player_has_class(CLASS_SLAYER, 0))
+	/* Hide values if desired */
+	if (adult_hidden)
+	{
+	    piety_player_redraw();
+	}
+	/* Show only maximum value for crusaders, as this is what they use only */
+	else if (player_has_class(CLASS_CRUSADER, 0))
 	{
 	    put_str("PP ", row, COL_PIETY);
 	    sprintf(tmp, "%9d", p_ptr->mpp);
 	    c_put_str(TERM_L_GREEN, tmp, row, COL_PIETY + 3);	    
 	}
-	/* Hide values if desired */
-	else if (adult_hidden)
+	/* Show only maximum value for slayers, as this is what they use only */
+	else if (player_has_class(CLASS_SLAYER, 0))
 	{
-	    piety_player_redraw();
+	    put_str("PP ", row, COL_PIETY);
+	    sprintf(tmp, "%9d", p_ptr->mpp);
+	    c_put_str(TERM_L_GREEN, tmp, row, COL_PIETY + 3);	    
 	}
 	/* Otherwise, normal display */
 	else
@@ -1764,10 +1788,9 @@ static void calc_cumber(void)
 
 	/* Only check if relevant */
 	if (player_has_class(CLASS_MAGE, 0) || 
-	    player_has_class(CLASS_ROGUE, 0) || 
+	    player_has_class(CLASS_THIEF, 0) || 
 	    player_has_class(CLASS_RANGER, 0) || 
-	    player_has_class(CLASS_ILLUSIONIST, 0) ||
-	    player_has_class(CLASS_TRICKSTER, 0))
+	    player_has_class(CLASS_ILLUSIONIST, 0))
 	{
 	     
 	     /* Get the gloves */
@@ -1802,10 +1825,9 @@ static void calc_cumber(void)
 	/* Heavy armor penalizes sfail (magic users and illusionists) */
 	if ((cur_wgt > max_wgt) && (max_wgt > 0) &&
 	    (player_has_class(CLASS_MAGE, 0) ||
-	     player_has_class(CLASS_ROGUE, 0) ||
+	     player_has_class(CLASS_THIEF, 0) ||
 	     player_has_class(CLASS_RANGER, 0) ||
-	     player_has_class(CLASS_ILLUSIONIST, 0) ||
-	     player_has_class(CLASS_TRICKSTER, 0)))
+	     player_has_class(CLASS_ILLUSIONIST, 0)))
 	{
 	     /* Encumbered */
 	     p_ptr->cumber_armor_wizard = 
@@ -1820,7 +1842,8 @@ static void calc_cumber(void)
 	if ((cur_wgt > max_wgt) && (max_wgt > 0) &&
 	    (player_has_class(CLASS_PRIEST, 0) ||
 	     player_has_class(CLASS_PALADIN, 0) ||
-	     player_has_class(CLASS_DEATH_PRIEST, 0)))
+	     player_has_class(CLASS_DEATH_PRIEST, 0) ||
+	     player_has_class(CLASS_SLAYER, 0)))
 	{
 	     /* Encumbered */
 	     p_ptr->cumber_armor_priest = 
@@ -1834,10 +1857,9 @@ static void calc_cumber(void)
 	/* Take note when "glove state" changes (only if relevant) */
 	if ((p_ptr->old_cumber_glove != p_ptr->cumber_glove) &&
 	    (p_ptr->pclass[p_ptr->current_class] == CLASS_MAGE || 
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_ROGUE || 
+	     p_ptr->pclass[p_ptr->current_class] == CLASS_THIEF || 
 	     p_ptr->pclass[p_ptr->current_class] == CLASS_RANGER || 
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_ILLUSIONIST ||
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_TRICKSTER)) 
+	     p_ptr->pclass[p_ptr->current_class] == CLASS_ILLUSIONIST))
 	{
 		/* Message */
 		if (p_ptr->cumber_glove)
@@ -1856,10 +1878,9 @@ static void calc_cumber(void)
 	/* Take note when "armor state" changes */
 	if ((p_ptr->old_cumber_armor_wizard != p_ptr->cumber_armor_wizard) &&
 	    (p_ptr->pclass[p_ptr->current_class] == CLASS_MAGE || 
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_ROGUE || 
+	     p_ptr->pclass[p_ptr->current_class] == CLASS_THIEF || 
 	     p_ptr->pclass[p_ptr->current_class] == CLASS_RANGER || 
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_ILLUSIONIST ||
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_TRICKSTER))
+	     p_ptr->pclass[p_ptr->current_class] == CLASS_ILLUSIONIST))
 	{
 		/* Message */
 		if (p_ptr->cumber_armor_wizard)
@@ -1879,7 +1900,8 @@ static void calc_cumber(void)
 	if ((p_ptr->old_cumber_armor_priest != p_ptr->cumber_armor_priest) &&
 	    (p_ptr->pclass[p_ptr->current_class] == CLASS_PRIEST ||
 	     p_ptr->pclass[p_ptr->current_class] == CLASS_PALADIN ||
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_DEATH_PRIEST))
+	     p_ptr->pclass[p_ptr->current_class] == CLASS_DEATH_PRIEST ||
+	     p_ptr->pclass[p_ptr->current_class] == CLASS_SLAYER))
 	{
 		/* Message */
 		if (p_ptr->cumber_armor_priest)
@@ -1907,23 +1929,26 @@ static void calc_mana(void)
 	/* Hack -- Must be literate */
 	if ((p_ptr->realm_magery == 0) && 
 	    (!player_has_class(CLASS_BERSERKER, 0)) && 
-	    (!player_has_class(CLASS_SHIFTER, 0)))
+	    (!player_has_class(CLASS_SHIFTER, 0)) &&
+	    (!player_has_class(CLASS_RUNECASTER, 0)))
 	  return;
 
 	/* Extract "effective" player level */
 	if (player_has_class(CLASS_BERSERKER, 0))
-	     levels = (level_of_class(CLASS_BERSERKER) + 1) / 2;
+	     levels = level_of_class(CLASS_BERSERKER) + 1;
 	else if (player_has_class(CLASS_SHIFTER, 0))
-	     levels = (level_of_class(CLASS_SHIFTER) + 1);
+	     levels = level_of_class(CLASS_SHIFTER) + 1;
+	else if (player_has_class(CLASS_RUNECASTER, 0))
+	     levels = level_of_class(CLASS_RUNECASTER) + 1;
 	else
-	  levels = level_of_class(magery_class()) - mp_ptr[magery_class()]->spell_first + 1;
+	  levels = level_of_class(magery_class(TRUE)) - mp_ptr[magery_class(TRUE)]->spell_first + 1;
 
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
 	if (player_has_class(CLASS_BERSERKER, 0))
-	     msp = adj_mag_mana[p_ptr->stat_ind[A_STR]] * levels / 4;
+	     msp = adj_mag_mana[p_ptr->stat_ind[A_STR]] * levels;
 	else
 	     msp = adj_mag_mana[p_ptr->stat_ind[A_INT]] * levels / 2;
 
@@ -1966,12 +1991,14 @@ static void calc_piety(void)
 {
 	int mpp, levels;
 
-	/* Hack -- Must be literate (slayers don't use this function to get piety) */
-	if (p_ptr->realm_priest == 0)
+	/* Hack -- Must be literate (cruasders/slayers don't use this function to get piety) */
+	if (p_ptr->realm_priest == 0 || 
+	    player_has_class(CLASS_CRUSADER, 0) || 
+	    player_has_class(CLASS_SLAYER, 0))
 	    return;
 
 	/* Extract "effective" player level */
-	levels = level_of_class(priest_class()) - mp_ptr[priest_class()]->spell_first + 1;
+	levels = level_of_class(priest_class(FALSE)) - mp_ptr[priest_class(FALSE)]->spell_first + 1;
 
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
@@ -2800,24 +2827,40 @@ static void calc_bonuses(void)
 	/* Shapeshifter */
 	switch (p_ptr->shapeshift)
 	{
-	case 1: p_ptr->resist_pois = TRUE; p_ptr->stat_use[A_DEX] += 1; p_ptr->skill_stl += 3; break;
-	case 2: p_ptr->pspeed += 5; p_ptr->resist_confu = TRUE; p_ptr->stat_use[A_DEX] += 2; 
-	     p_ptr->teleport = TRUE; break;
-	case 3: p_ptr->stat_use[A_STR] += 1; p_ptr->resist_cold = TRUE; p_ptr->resist_fear = TRUE; break;
-	case 4: p_ptr->stat_use[A_INT] += 2; p_ptr->ffall = TRUE; p_ptr->resist_fire = TRUE; break;
-	case 5: p_ptr->free_act = TRUE; p_ptr->stat_use[A_CON] += 3; break;
-	case 6: p_ptr->stat_use[A_DEX] += 3; p_ptr->sustain_dex = TRUE; p_ptr->free_act = TRUE; 
-	     p_ptr->pspeed += 5;  p_ptr->resist_pois = TRUE; p_ptr->skill_stl += 2; break;
-	case 7: p_ptr->resist_acid = TRUE; p_ptr->stat_use[A_INT] += 3; p_ptr->sustain_int = TRUE; break;
-	case 8: p_ptr->resist_elec = TRUE; p_ptr->stat_use[A_STR] += 2; break;
-	case 9: p_ptr->stat_use[A_STR] += 3; p_ptr->sustain_str = TRUE; p_ptr->regenerate = TRUE; 
-	     p_ptr->resist_fear = TRUE; p_ptr->resist_cold = TRUE; break;
-	case 10: p_ptr->sustain_int = TRUE; p_ptr->sustain_wis = TRUE; p_ptr->resist_blind = TRUE;
-	     p_ptr->telepathy = TRUE; p_ptr->see_inv = TRUE; break;
-	case 11: p_ptr->resist_cold = TRUE; p_ptr->resist_dark = TRUE; p_ptr->resist_pois = TRUE;
-	     p_ptr->resist_nethr = TRUE; p_ptr->hold_life = TRUE; p_ptr->regenerate = TRUE; break;
-	case 12: p_ptr->resist_confu = TRUE; p_ptr->resist_chaos = TRUE; p_ptr->resist_nexus = TRUE;
-	     p_ptr->immune_fire = TRUE; p_ptr->ffall = TRUE; break;
+	case FORM_GIANT_SPIDER: p_ptr->resist_pois = TRUE; p_ptr->skill_stl += 3; 
+	     p_ptr->stat_use[A_DEX] = modify_stat_value(p_ptr->stat_use[A_DEX], 1); break;
+	case FORM_TENGU: p_ptr->pspeed += 5; p_ptr->resist_confu = TRUE; p_ptr->teleport = TRUE;
+	     p_ptr->stat_use[A_DEX] = modify_stat_value(p_ptr->stat_use[A_DEX], 2); break;
+	case FORM_ARCTIC_BEAR: p_ptr->resist_cold = TRUE; p_ptr->resist_fear = TRUE; 
+	     p_ptr->stat_use[A_STR] = modify_stat_value(p_ptr->stat_use[A_STR], 2); break;
+	case FORM_WYVERN: p_ptr->ffall = TRUE; p_ptr->resist_fire = TRUE; 
+	     p_ptr->stat_use[A_INT] = modify_stat_value(p_ptr->stat_use[A_INT], 2); break;
+	case FORM_UMBER_HULK: p_ptr->free_act = TRUE; 
+	     p_ptr->stat_use[A_CON] = modify_stat_value(p_ptr->stat_use[A_CON], 3); break;
+	case FORM_GORGON: p_ptr->resist_acid = TRUE; p_ptr->sustain_int = TRUE; 
+	     p_ptr->stat_use[A_INT] = modify_stat_value(p_ptr->stat_use[A_INT], 3); break;
+	case FORM_PHASE_SPIDER: p_ptr->sustain_dex = TRUE; p_ptr->free_act = TRUE; 
+	     p_ptr->pspeed += 5;  p_ptr->resist_pois = TRUE; p_ptr->skill_stl += 2; 
+	     p_ptr->stat_use[A_DEX] = modify_stat_value(p_ptr->stat_use[A_DEX], 3); break;
+	case FORM_ENT: p_ptr->slow_digest = TRUE; p_ptr->pspeed -= 5;
+	     p_ptr->stat_use[A_STR] = modify_stat_value(p_ptr->stat_use[A_STR], 2); break;
+	case FORM_MINDFLAYER: p_ptr->sustain_int = TRUE; p_ptr->resist_confu = TRUE; 
+	     p_ptr->telepathy = TRUE;
+	     p_ptr->stat_use[A_STR] = modify_stat_value(p_ptr->stat_use[A_STR], 2); 
+	     p_ptr->stat_use[A_CON] = modify_stat_value(p_ptr->stat_use[A_CON], 2); 
+	     p_ptr->stat_use[A_INT] = modify_stat_value(p_ptr->stat_use[A_INT], 5); break;
+	case FORM_COLBRAN: p_ptr->resist_elec = TRUE; p_ptr->resist_shard = TRUE; 
+	     p_ptr->stat_use[A_STR] = modify_stat_value(p_ptr->stat_use[A_STR], 3); break;
+	case FORM_ICE_TROLL: p_ptr->sustain_str = TRUE; p_ptr->regenerate = TRUE; 
+	     p_ptr->resist_fear = TRUE; p_ptr->immune_cold = TRUE; 
+	     p_ptr->stat_use[A_STR] = modify_stat_value(p_ptr->stat_use[A_STR], 3); break;
+	case FORM_BEHOLDER: p_ptr->resist_blind = TRUE; p_ptr->see_inv = TRUE; 
+	     p_ptr->skill_srh += 5; p_ptr->pspeed -= 10; break;
+	case FORM_VAMPIRE: p_ptr->resist_cold = TRUE; p_ptr->resist_dark = TRUE; 
+	     p_ptr->resist_pois = TRUE; p_ptr->resist_nethr = TRUE; p_ptr->hold_life = TRUE; 
+	     p_ptr->regenerate = TRUE; p_ptr->see_inv = TRUE; break;
+	case FORM_CHAOS_DRAKE: p_ptr->resist_confu = TRUE; p_ptr->resist_chaos = TRUE; 
+	     p_ptr->resist_nexus = TRUE; p_ptr->immune_fire = TRUE; p_ptr->ffall = TRUE; break;
 	}
 
 	/*** Analyze weight ***/
@@ -3074,21 +3117,21 @@ static void calc_bonuses(void)
 		  { num = 6; wgt = 30; mul = 5; } 
 		else if (player_has_class(CLASS_PALADIN, 0) ||
 			 player_has_class(CLASS_CRUSADER, 0) ||
-			 player_has_class(CLASS_SLAYER, 0) ||
-			 player_has_class(CLASS_SHIFTER, 0))
+			 player_has_class(CLASS_SHIFTER, 0) ||
+			 player_has_class(CLASS_SLAYER, 0))
 		  { num = 5; wgt = 30; mul = 4; } 
 		else if (player_has_class(CLASS_RANGER, 0))
 		  { num = 5; wgt = 35; mul = 4; } 
 		else if (player_has_class(CLASS_ARCHER, 0))
 		  { num = 4; wgt = 35; mul = 4; } 
-		else if (player_has_class(CLASS_ROGUE, 0) ||
-			 player_has_class(CLASS_TRICKSTER, 0))
+		else if (player_has_class(CLASS_THIEF, 0))
 		  { num = 5; wgt = 30; mul = 3; } 
 		else if (player_has_class(CLASS_PRIEST, 0) ||
 			 player_has_class(CLASS_DEATH_PRIEST, 0))
 		  { num = 5; wgt = 35; mul = 3; } 
 		else if (player_has_class(CLASS_MAGE, 0) ||
-			 player_has_class(CLASS_ILLUSIONIST, 0))
+			 player_has_class(CLASS_ILLUSIONIST, 0) ||
+			 player_has_class(CLASS_RUNECASTER, 0))
 		  { num = 4; wgt = 40; mul = 2; }
 		else /* Monks */
 		  { num = 1; wgt = 60; mul = 1; }
@@ -3134,9 +3177,12 @@ static void calc_bonuses(void)
 		  if (dex_index > 11) dex_index = 11;
 		  p_ptr->num_blow = blows_table[level][dex_index];
 		  
-		  // Bounds checking
+		  /* Bounds checking */
 		  if (p_ptr->num_blow > 6) p_ptr->num_blow = 6;
 		  if (p_ptr->num_blow < 2) p_ptr->num_blow = 2;
+
+		  /* Halve blows if wearing a shield */
+		  if (inventory[INVEN_ARM].k_idx) p_ptr->num_blow /= 2;		  
 	     }
 	     else p_ptr->num_blow = 1;
 	}
@@ -3146,6 +3192,7 @@ static void calc_bonuses(void)
 	p_ptr->icky_blunt = FALSE;
 	p_ptr->icky_shoot = FALSE;
 	p_ptr->icky_wield = FALSE;
+	p_ptr->icky_shield = FALSE;
 
 	/* Priest weapon penalty for non-blessed edged weapons */
 	if ((player_has_class(CLASS_PRIEST, 0) ||
@@ -3177,19 +3224,27 @@ static void calc_bonuses(void)
 	    }
 	}
 
-	/* Monk penalty for using weapons */
-	if (player_has_class(CLASS_MONK, 0) && (o_ptr->k_idx))
+	/* Monk penalty for having weapon/shield in hands */
+	if (player_has_class(CLASS_MONK, 0))
 	{
-		/* Reduce the real bonuses */
-		p_ptr->to_h -= 10;
-		p_ptr->to_d -= 10;
+		/* Check existence of shield */
+		if (inventory[INVEN_ARM].k_idx)
+		     p_ptr->icky_shield = TRUE;
 
-		/* Reduce the mental bonuses */
-		p_ptr->dis_to_h -= 10;
-		p_ptr->dis_to_d -= 10;
+		/* Check existence of weapon */
+		if (o_ptr->k_idx)
+		{
+		     /* Reduce the real bonuses */
+		     p_ptr->to_h -= 10;
+		     p_ptr->to_d -= 10;
 
-		/* Icky weapon */
-		p_ptr->icky_wield = TRUE;
+		     /* Reduce the mental bonuses */
+		     p_ptr->dis_to_h -= 10;
+		     p_ptr->dis_to_d -= 10;
+
+		     /* Icky weapon */
+		     p_ptr->icky_wield = TRUE;
+		}
 	}
 
 	/*** Notice changes ***/
@@ -3383,6 +3438,27 @@ static void calc_bonuses(void)
 
 		/* Save it */
 		p_ptr->old_icky_wield = p_ptr->icky_wield;
+	}
+
+	/* Take note when "illegal shield" changes */
+	if (p_ptr->old_icky_shield != p_ptr->icky_shield)
+	{
+		/* Message */
+		if (p_ptr->icky_shield)
+		{
+			msg_print("You feel uncomfortable holding a shield.");
+		}
+		else if (inventory[INVEN_ARM].k_idx)
+		{
+			msg_print("You feel more comfortable after removing your shield.");
+		}
+		else
+		{
+			msg_print("You feel more comfortable after removing your shield.");
+		}
+
+		/* Save it */
+		p_ptr->old_icky_shield = p_ptr->icky_shield;
 	}
 }
 

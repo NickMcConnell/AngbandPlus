@@ -777,10 +777,14 @@ static bool store_will_buy(const object_type *o_ptr)
 			{
 				case TV_PRAYER_BOOK:
 				case TV_DEATH_BOOK:
-				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:
 				break;
+				case TV_SCROLL:
+				     /* Reject magery and illusion scrolls */
+				     if (o_ptr->sval == SV_SCROLL_SPELL || o_ptr->sval == SV_SCROLL_ILLUSION)
+					       return (FALSE);
+				     break;
 				case TV_POLEARM:
 				case TV_SWORD:
 				{
@@ -821,9 +825,13 @@ static bool store_will_buy(const object_type *o_ptr)
 				case TV_STAFF:
 				case TV_WAND:
 				case TV_ROD:
-				case TV_SCROLL:
 				case TV_POTION:
 				break;
+				case TV_SCROLL:
+				     /* Reject priestly scrolls */
+				     if (o_ptr->sval == SV_SCROLL_PRAYER || o_ptr->sval == SV_SCROLL_DEATH)
+					       return (FALSE);
+				     break;
 				default:
 				return (FALSE);
 			}
@@ -1409,9 +1417,11 @@ static void display_entry(int item)
 			/* Extract the "minimum" price */
 			x = price_item(o_ptr, ot_ptr->min_inflate, FALSE);
 
+			attr = (x <= p_ptr->au ? TERM_WHITE : TERM_L_DARK);
+
 			/* Actually draw the price (not fixed) */
 			sprintf(out_val, "%9ld F", (long)x);
-			put_str(out_val, y, 68);
+			c_put_str(attr, out_val, y, 68);
 		}
 
 		/* Display a "taxed" cost */
@@ -1423,9 +1433,11 @@ static void display_entry(int item)
 			/* Hack -- Apply Sales Tax if needed */
 			if (!noneedtobargain(x)) x += x / 10;
 
+			attr = (x <= p_ptr->au ? TERM_WHITE : TERM_L_DARK);
+
 			/* Actually draw the price (with tax) */
 			sprintf(out_val, "%9ld  ", (long)x);
-			put_str(out_val, y, 68);
+			c_put_str(attr, out_val, y, 68);
 		}
 
 		/* Display a "haggle" cost */
@@ -1434,9 +1446,11 @@ static void display_entry(int item)
 			/* Extrect the "maximum" price */
 			x = price_item(o_ptr, ot_ptr->max_inflate, FALSE);
 
+			attr = (x <= p_ptr->au ? TERM_WHITE : TERM_L_DARK);
+
 			/* Actually draw the price (not fixed) */
 			sprintf(out_val, "%9ld  ", (long)x);
-			put_str(out_val, y, 68);
+			c_put_str(attr, out_val, y, 68);
 		}
 	}
 }

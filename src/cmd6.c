@@ -343,7 +343,7 @@ void do_cmd_eat_food(void)
 
 
 	/* Food can feed the player */
-	(void)set_food(p_ptr->food + (o_ptr->pval / 10));
+	(void)set_food(p_ptr->food + o_ptr->pval);
 
 	/* Destroy a food in the pack */
 	if (item >= 0)
@@ -1173,6 +1173,17 @@ static bool curse_weapon(void)
 
 
 /*
+ * Hook to specify "weapon"
+ */
+static bool item_tester_hook_spell_item(const object_type *o_ptr)
+{
+     if (o_ptr->tval == TV_AMULET && o_ptr->sval == SV_AMULET_SPELL) return (TRUE);
+     if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SPELL) return (TRUE);
+
+     return (FALSE);
+}
+
+/*
  * Read a scroll (from the pack or floor).
  *
  * Certain scrolls can be "aborted" without losing the scroll.  These
@@ -1620,7 +1631,6 @@ void do_cmd_read_scroll(void)
 		     msg_print("You know more about your possesions.");
 		     ident = TRUE;
 		     identify_pack();
-		     used_up = TRUE;
 		     effects[EFFECT_MASS_IDENTIFY]++;
 		     break;
 		}
@@ -1631,8 +1641,170 @@ void do_cmd_read_scroll(void)
 		    ident = TRUE;
 		  else
 		    msg_print("The scroll disappears!");
-		  used_up = TRUE;
 		  break;
+		}
+
+	        case SV_SCROLL_SPELL:
+	        case SV_SCROLL_PRAYER:
+	        case SV_SCROLL_ILLUSION:
+	        case SV_SCROLL_DEATH:
+		{
+
+		     /* Runecasters can copy spells to talismans */
+		     if (player_has_class(CLASS_RUNECASTER, 0))
+		     {
+			  /* Must be a known scroll */
+			  if (object_known_p(o_ptr))
+			  {
+			       char out_val[160];
+			       /* Ask */
+			       sprintf(out_val, "Cast %s? ", 
+				       spell_names[o_ptr->sval - SV_SCROLL_SPELL][o_ptr->pval]);
+
+			       if (!get_check(out_val)) /* Copy the spell */
+			       {
+				    /* Choose a talisman or charm */
+				    object_type *i_ptr;
+				    cptr q, s;
+				    int target;
+
+				    /* Restrict choices to items that can hold spells */
+				    item_tester_hook = item_tester_hook_spell_item;
+
+				    /* Get an item */
+				    q = "Inscribe on which item? ";
+				    s = "You have nothing to scribe this scroll on.";
+				    if (get_item(&target, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR)))
+				    {
+					 char o_name[80];
+					 char i_name[80];
+
+					 /* Get the item (in the pack) */
+					 if (target >= 0)
+					 {
+					      i_ptr = &inventory[target];
+					 }
+					 
+					 /* Get the item (on the floor) */
+					 else
+					 {
+					      i_ptr = &o_list[0 - target];
+					 }
+
+					 /* Get old object */
+					 object_desc(o_name, i_ptr, FALSE, 0);
+					 
+					 /* Convert pval */
+					 i_ptr->pval = ((o_ptr->sval - SV_SCROLL_SPELL) * 64) + o_ptr->pval;
+					      
+					 /* Recharge */
+					 i_ptr->timeout = 0;
+					      
+					 /* Identify */
+					 object_aware(i_ptr);
+					 object_known(i_ptr);
+					      
+					 /* Get new object */
+					 object_desc(i_name, i_ptr, FALSE, 0);
+
+ 					 /* Inform */
+					 msg_format("Your %s is now %s.", 
+						    o_name, i_name);
+				    }
+				    else used_up = FALSE; /* Don't copy or cast */
+			       } 
+			       else cast_spell(o_ptr->sval - SV_SCROLL_SPELL, o_ptr->pval); /* Cast */
+			  } 
+			  else cast_spell(o_ptr->sval - SV_SCROLL_SPELL, o_ptr->pval); /* No talisman */
+		     } 
+		     else cast_spell(o_ptr->sval - SV_SCROLL_SPELL, o_ptr->pval); /* Not runecaster */
+		     ident = TRUE;
+		     break;
+		}
+
+	        case SV_SCROLL_INFINITE_SPELL:
+		{
+
+		     /* Runecasters can copy spells to talismans */
+		     if (player_has_class(CLASS_RUNECASTER, 0))
+		     {
+			  /* Must be a known scroll */
+			  if (object_known_p(o_ptr))
+			  {
+			       char out_val[160];
+			       /* Ask */
+			       sprintf(out_val, "Cast %s? ", 
+				       spell_names[o_ptr->pval / 64][o_ptr->pval % 64]);
+
+			       if (!get_check(out_val)) /* Copy the spell */
+			       {
+				    /* Choose a talisman or charm */
+				    object_type *i_ptr;
+				    cptr q, s;
+				    int target;
+
+				    /* Restrict choices to items that can hold spells */
+				    item_tester_hook = item_tester_hook_spell_item;
+
+				    /* Get an item */
+				    q = "Inscribe on which item? ";
+				    s = "You have nothing to scribe this scroll on.";
+				    if (get_item(&target, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR)))
+				    {
+					 char o_name[80];
+					 char i_name[80];
+
+					 /* Get the item (in the pack) */
+					 if (target >= 0)
+					 {
+					      i_ptr = &inventory[target];
+					 }
+					 
+					 /* Get the item (on the floor) */
+					 else
+					 {
+					      i_ptr = &o_list[0 - target];
+					 }
+
+					 /* Get old object */
+					 object_desc(o_name, i_ptr, FALSE, 0);
+					 
+					 /* Convert pval */
+					 i_ptr->pval = o_ptr->pval;
+					      
+					 /* Recharge */
+					 i_ptr->timeout = 0;
+					      
+					 /* Identify */
+					 object_aware(i_ptr);
+					 object_known(i_ptr);
+					      
+					 /* Get new object */
+					 object_desc(i_name, i_ptr, FALSE, 0);
+
+ 					 /* Inform */
+					 msg_format("Your %s is now %s.", 
+						    o_name, i_name);
+				    }
+			       } 
+			       else cast_spell(o_ptr->pval / 64, o_ptr->pval % 64); /* Cast */
+			  } 
+			  else cast_spell(o_ptr->pval / 64, o_ptr->pval % 64); /* No talisman */
+		     } 
+		     else cast_spell(o_ptr->pval / 64, o_ptr->pval % 64); /* Not runecaster */
+
+		     /* 1 in 100 chance of being used up */
+		     if (rand_int(100)) used_up = FALSE;
+
+		     /* 1 in 3 times */
+		     if (rand_int(3) == 0) 
+		     {
+			  o_ptr->pval = get_item_spell(o_ptr, 50, FALSE);
+			  
+			  msg_print("The words on the scroll warp!");
+		     }
+
+		     break;
 		}
 	}
 
@@ -3262,8 +3434,28 @@ void do_cmd_activate(void)
 	/* Check the recharge */
 	if (o_ptr->timeout)
 	{
-		msg_print("It whines, glows and fades...");
-		return;
+	     /* Runecasters can activate charging amulets with mana */
+	     if (((o_ptr->tval == TV_AMULET && o_ptr->sval == SV_AMULET_SPELL) ||
+		  (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SPELL)) && 
+		 player_has_class(CLASS_RUNECASTER, 0))
+	     {
+		  if (p_ptr->csp < (o_ptr->timeout / 5) + 1)
+		  {
+		       msg_print("You don't have enough mana!");
+		       return;
+		  }
+		  else
+		  {
+		       p_ptr->csp -= (o_ptr->timeout / 5) + 1;
+		       p_ptr->redraw |= (PR_MANA);
+		       p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		  }
+	     }
+	     else
+	     {
+		  msg_print("It whines, glows and fades...");
+		  return;
+	     }
 	}
 
 	/* Activate the artifact */
@@ -3953,6 +4145,22 @@ void do_cmd_activate(void)
 			    msg_print("Nothing happens.");
 		       break;
 		  }
+	          case SV_AMULET_SPELL:
+		  {
+		       int class;
+		       int level; 
+		       switch (o_ptr->pval / 64)
+		       {
+		       case REALM_MAGIC: class = CLASS_MAGE; break;
+		       case REALM_PRAYER: class = CLASS_PRIEST; break;
+		       case REALM_ILLUSION: class = CLASS_ILLUSIONIST; break;
+		       case REALM_DEATH: class = CLASS_DEATH_PRIEST; break;
+		       }
+		       cast_spell(o_ptr->pval / 64, o_ptr->pval % 64);
+		       level = magic_info[class].info[o_ptr->pval % 64].slevel;
+		       o_ptr->timeout = (level * 5) + rand_int(level * 5);
+		       break;
+		  }
 	     }
 
 	     /* Window stuff */
@@ -4010,6 +4218,22 @@ void do_cmd_activate(void)
 					     randint(20) + 20);
 		       effects[EFFECT_RES_ELEC]++;
 		       o_ptr->timeout = 40 + rand_int(40);
+		       break;
+		  }
+	          case SV_RING_SPELL:
+		  {
+		       int class;
+		       int level; 
+		       switch (o_ptr->pval / 64)
+		       {
+		       case REALM_MAGIC: class = CLASS_MAGE; break;
+		       case REALM_PRAYER: class = CLASS_PRIEST; break;
+		       case REALM_ILLUSION: class = CLASS_ILLUSIONIST; break;
+		       case REALM_DEATH: class = CLASS_DEATH_PRIEST; break;
+		       }
+		       cast_spell(o_ptr->pval / 64, o_ptr->pval % 64);
+		       level = magic_info[class].info[o_ptr->pval % 64].slevel;
+		       o_ptr->timeout = (level * 5) + rand_int(level * 5);
 		       break;
 		  }
 	     }

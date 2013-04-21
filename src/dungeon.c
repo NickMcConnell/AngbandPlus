@@ -86,9 +86,9 @@ static int value_check_aux2(const object_type *o_ptr)
  * Sense the inventory
  *
  *   Class 0 = Warrior --> fast and heavy (and Archer, Berserker)
- *   Class 1 = Mage    --> slow and light (and Illusionist)
+ *   Class 1 = Mage    --> slow and light (and Illusionist, Runecaster)
  *   Class 2 = Priest  --> fast but light (and Death Priest)
- *   Class 3 = Rogue   --> okay and heavy (and Trickster)
+ *   Class 3 = Thief   --> okay and heavy
  *   Class 4 = Ranger  --> slow and light (and Monk)
  *   Class 5 = Paladin --> slow but heavy
  */
@@ -104,17 +104,15 @@ static void sense_inventory(void)
 
 	char o_name[80];
 
-        /* Get fastest pseudo-id */
-	int new_test, test = 0;
-	/* Default is first class chosen */
-	int pseudo_class = p_ptr->pclass[0]; 
+        /* Get average pseudo-id */
+	int test = 0;
 
 	/*** Check for "sensing" ***/
 
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
 
-	/* Find out how often each class would pseudo-id */
+	/* Get total */
 	for (i = 0; i < p_ptr->available_classes; i++)
 	{
 	    int plev = p_ptr->lev[i];
@@ -124,48 +122,43 @@ static void sense_inventory(void)
 	      {
 	      case CLASS_WARRIOR: 
 	      case CLASS_BERSERKER: /* 225 - 2 */
-		new_test = 9000L / (plev * plev + 40);
+		test += 9000L / (plev * plev + 40);
 		break;
 	      case CLASS_PRIEST:
 	      case CLASS_DEATH_PRIEST: /* 300 - 2 */
-		new_test = 12000L / (plev * plev + 40);
+		test += 12000L / (plev * plev + 40);
 		break;
-	      case CLASS_ROGUE:
-	      case CLASS_ARCHER:
-	      case CLASS_TRICKSTER: /* 500 - 4 */
-		new_test = 20000L / (plev * plev + 40);
+	      case CLASS_THIEF:
+	      case CLASS_ARCHER: /* 500 - 4 */
+		test += 20000L / (plev * plev + 40);
 		break;
 	      case CLASS_RANGER: /* 750 - 6 */
-		new_test = 30000L / (plev * plev + 40);
+		test += 30000L / (plev * plev + 40);
 		break;
 	      case CLASS_PALADIN:
 	      case CLASS_CRUSADER: 
 	      case CLASS_MONK: /* 2000 - 17 */
-	      case CLASS_SLAYER:
 	      case CLASS_SHIFTER:
-		new_test = 80000L / (plev * plev + 40);
+	      case CLASS_SLAYER:
+		test += 80000L / (plev * plev + 40);
 		break;
+	      case CLASS_RUNECASTER: 
 	      default: /* Mage and Illusionist 40000 - 4800 */
-		new_test = 240000L / (plev + 5);
+		test += 240000L / (plev + 5);
 		break;
 	      }
-
-	    /* Most likely to pseudo-id */
-	    if (new_test < test) 
-	    {
-		 test = new_test;
-		 pseudo_class = i; /* Store class */
-	    }
 	}
 
+	/* Get average */
+	test /= p_ptr->available_classes;
+
 	/* These classes get better pseudo-id */
-	if (p_ptr->pclass[pseudo_class] == CLASS_WARRIOR || 
-	    p_ptr->pclass[pseudo_class] == CLASS_ROGUE ||
-	    p_ptr->pclass[pseudo_class] == CLASS_TRICKSTER ||
-	    p_ptr->pclass[pseudo_class] == CLASS_PALADIN ||
-	    p_ptr->pclass[pseudo_class] == CLASS_BERSERKER ||
-	    p_ptr->pclass[pseudo_class] == CLASS_CRUSADER ||
-	    p_ptr->pclass[pseudo_class] == CLASS_SLAYER)
+	if (player_has_class(CLASS_WARRIOR, 0) || 
+	    player_has_class(CLASS_THIEF, 0) ||
+	    player_has_class(CLASS_PALADIN, 0) ||
+	    player_has_class(CLASS_BERSERKER, 0) ||
+	    player_has_class(CLASS_CRUSADER, 0) ||
+	    player_has_class(CLASS_SLAYER, 0))
 	{
 	     heavy = TRUE;
 	}
@@ -384,8 +377,8 @@ static void regenpiety(int percent)
 
 	int old_cpp;
 
-	/* Don't regenerate piety if udnead slayer */
-	if (player_has_class(CLASS_SLAYER, 0)) return;
+	/* Don't regenerate piety if crusader/slayer */
+	if (player_has_class(CLASS_CRUSADER, 0) || player_has_class(CLASS_SLAYER, 0)) return;
 
 	old_cpp = p_ptr->cpp;
 
@@ -726,6 +719,20 @@ static void process_world(void)
 
 		/* Take damage */
 		take_hit(i, "starvation");
+	}
+
+	/* Decrease piety of Crusaders/Slayers over time */
+	if ( ((player_has_class(CLASS_CRUSADER, 0) &&  
+	       (turn % (250 + level_of_class(CLASS_CRUSADER) * 50) == 0)) ||
+	      (player_has_class(CLASS_SLAYER, 0) &&
+		   (turn % (50 + level_of_class(CLASS_SLAYER) * 10) == 0))) &&
+	     (p_ptr->mpp > 0))
+	{
+	     p_ptr->mpp--;
+	     
+	     /* Redraw piety */
+	     p_ptr->redraw |= (PR_MANA);
+	     redraw_stuff();
 	}
 
 	/* Default regeneration */
@@ -1198,7 +1205,20 @@ static void process_world(void)
 
 			/* Notice changes */
 			if (!(o_ptr->timeout)) j++;
+
+			if (((o_ptr->tval == TV_AMULET && o_ptr->sval == SV_AMULET_SPELL) ||
+			    (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SPELL)) &&
+			    o_ptr->timeout == 0)
+			{
+			     char o_name[80];
+			     object_desc(o_name, o_ptr, FALSE, 3);
+			     msg_format("Your %s has recharged!", o_name);
+			}
+
+			/* Window stuff */
+			p_ptr->window |= (PW_EQUIP);
 		}
+
 	}
 
 	/* Notice changes */
@@ -1208,7 +1228,7 @@ static void process_world(void)
 		p_ptr->window |= (PW_EQUIP);
 	}
 
-	/* Recharge rods */
+	/* Recharge rods and talismans */
 	for (j = 0, i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
@@ -1224,6 +1244,39 @@ static void process_world(void)
 
 			/* Notice changes */
 			if (!(o_ptr->pval)) j++;
+
+			if (o_ptr->tval == TV_ROD && 
+			    o_ptr->pval == 0)
+			{
+			     char o_name[80];
+			     object_desc(o_name, o_ptr, FALSE, 3);
+			     msg_format("Your %s has recharged!", o_name);
+			}
+
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN);
+		}
+
+		/* Recharge talismans in the inventory 1/20 times */
+		if (((o_ptr->tval == TV_AMULET && o_ptr->sval == SV_AMULET_SPELL) ||
+		     (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SPELL)) &&
+		    o_ptr->timeout > 0 && !rand_int(10 - (level_of_class(CLASS_RUNECASTER) / 5)))
+		{
+			/* Recharge */
+			o_ptr->timeout--;
+
+			/* Notice changes */
+			if (!(o_ptr->timeout)) j++;
+
+			if (o_ptr->timeout == 0)
+			{
+			     char o_name[80];
+			     object_desc(o_name, o_ptr, FALSE, 3);
+			     msg_format("Your %s has recharged!", o_name);
+			}
+
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN);
 		}
 	}
 
@@ -1698,35 +1751,82 @@ static void process_command(void)
 		/* Gain new spells/prayers */
 		case 'G':
 		{
-			do_cmd_study();
-			break;
+		     if (magery_class(TRUE) != -1)
+		     {
+			  /* Has both a priest class and a magery class */
+			  if (priest_class(TRUE) != -1)
+			  {
+			       /* Force player to switch manually */
+			       if (p_ptr->pclass[p_ptr->current_class] != priest_class(TRUE) &&
+				   p_ptr->pclass[p_ptr->current_class] != magery_class(TRUE))
+				    msg_print("Please switch to the class that can study from books.");
+			       /* Unless current class can study */
+			       else do_cmd_study();
+			  }
+			  else /* Has a magery class, but not a priest class */
+			  {
+			       switch_until(magery_class(TRUE));
+			       do_cmd_study();
+			  }
+		     }
+		     else if (priest_class(TRUE) != -1) /* Has a priest class, but not a magery class */
+		     {
+			  switch_until(priest_class(TRUE));
+			  do_cmd_study();
+		     }
+		     else do_cmd_study(); /* Should fail */
+
+		     break;
 		}
 
 		/* Browse a book */
 		case 'b':
 		{
-			do_cmd_browse();
-			break;
+		     if (magery_class(TRUE) != -1)
+		     {
+			  /* Has both a priest class and a magery class */
+			  if (priest_class(TRUE) != -1)
+			  {
+			       /* Force player to switch manually */
+			       if (p_ptr->pclass[p_ptr->current_class] != priest_class(TRUE) &&
+				   p_ptr->pclass[p_ptr->current_class] != magery_class(TRUE))
+				    msg_print("Please switch to the class that can browse books.");
+			       /* Unless current class can study */
+			       else do_cmd_browse();
+			  }
+			  else /* Has a magery class, but not a priest class */
+			  {
+			       switch_until(magery_class(TRUE));
+			       do_cmd_browse();
+			  }
+		     }
+		     else if (priest_class(TRUE) != -1) /* Has a priest class, but not a magery class */
+		     {
+			  switch_until(priest_class(TRUE));
+			  do_cmd_browse();
+		     }
+		     else do_cmd_browse(); /* Should fail */
+		     
+		     break;
 		}
 
 		/* Cast a spell */
 	        case 'm':
 		{
-		     if (magery_class() != -1)
+		     if (magery_class(FALSE) != -1)
 		     {
-			  switch_until(magery_class());
+			  switch_until(magery_class(FALSE));
 			  
-			  switch (magery_class())
+			  switch (magery_class(FALSE))
 			  {
 			  case CLASS_CRUSADER:
 			       do_cmd_crusader(); break;
 			  case CLASS_SHIFTER:
 			       do_cmd_shifter(); break;
 			  case CLASS_ILLUSIONIST:
-			  case CLASS_TRICKSTER:
 			       do_cmd_cast_illusion(); break;
 			  case CLASS_MAGE:
-			  case CLASS_ROGUE:
+			  case CLASS_THIEF:
 			  case CLASS_RANGER:
 			       do_cmd_cast(); break;
 			  }
@@ -1739,15 +1839,16 @@ static void process_command(void)
 		/* Pray a prayer */
 		case 'p':
 		{
-		     if (priest_class() != -1)
+		     if (priest_class(FALSE) != -1)
 		     {
-			  switch_until(priest_class());
+			  switch_until(priest_class(FALSE));
 
-			  switch (priest_class())
+			  switch (priest_class(FALSE))
 			  {
-			  case CLASS_SLAYER:
-			       do_cmd_slayer(); break;
+			  case CLASS_CRUSADER:
+			       do_cmd_crusader_prayer(); break;
 			  case CLASS_DEATH_PRIEST:
+			  case CLASS_SLAYER:
 			       do_cmd_cast_death(); break;
 			  case CLASS_PRIEST:
 			  case CLASS_PALADIN:
@@ -2180,8 +2281,9 @@ static void process_player(void)
 			if ((p_ptr->chp == p_ptr->mhp) &&
 			    (p_ptr->csp == p_ptr->msp))
 			{
-			     /* Undead slayers do not regenerate mana */
-			     if (player_has_class(CLASS_SLAYER, 0))
+			     /* Crusaders do not regenerate piety */
+			     if (player_has_class(CLASS_CRUSADER, 0) ||
+				 player_has_class(CLASS_SLAYER, 0))
 				  disturb(0, 0);
 			     else if (p_ptr->cpp == p_ptr->mpp)
 				  disturb(0, 0);
@@ -2198,11 +2300,27 @@ static void process_player(void)
 			 !p_ptr->stun && !p_ptr->paralyzed &&
 			 !p_ptr->poisoned && !p_ptr->word_recall)
 		     {
-			  /* Undead slayers do not regenerate mana */
-			  if (player_has_class(CLASS_SLAYER, 0))
-			       disturb(0, 0);
-			  else if (p_ptr->cpp == p_ptr->mpp)
-			       disturb(0, 0);
+			  /* Ignore some effects if they are persisting */
+			  if (p_ptr->persistence)
+			  {
+			       /* Crusaders do not regenerate piety */
+			       if (player_has_class(CLASS_CRUSADER, 0) ||
+				   player_has_class(CLASS_SLAYER, 0))
+				    disturb(0, 0);
+			       else if (p_ptr->cpp == p_ptr->mpp)
+				    disturb(0, 0);
+			  }
+			  else if (!p_ptr->blind && !p_ptr->confused &&
+				   !p_ptr->afraid && !p_ptr->slow && 
+				   !p_ptr->image)
+			  {
+			       /* Crusaders do not regenerate piety */
+			       if (player_has_class(CLASS_CRUSADER, 0) ||
+				   player_has_class(CLASS_SLAYER, 0))
+				    disturb(0, 0);
+			       else if (p_ptr->cpp == p_ptr->mpp)
+				    disturb(0, 0);
+			  }
 		     }
 		} 
 	}

@@ -20,7 +20,7 @@
 #define MAX_METALS     32       /* Used with wands/rods (min 29/30) */
 #define MAX_COLORS     69       /* Used with potions (min 61) */
 #define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     53       /* Used with scrolls (min 52) */
+#define MAX_TITLES     58       /* Used with scrolls (min 58) */
 #define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
 
 
@@ -293,7 +293,7 @@ static bool object_flavor(int k_idx)
 
 		case TV_SCROLL:
 		{
-			return (0xD0 + scroll_col[k_ptr->sval]);
+		     return (0xD0 + scroll_col[k_ptr->sval]);
 		}
 
 		case TV_POTION:
@@ -353,17 +353,36 @@ static bool object_easy_know(int i)
 		/* All Food, Potions, Scrolls, Rods, Runes */
 		case TV_FOOD:
 		case TV_POTION:
-		case TV_SCROLL:
 		case TV_ROD:
 		{
 			return (TRUE);
 		}
 
+		/* Scrolls */
+		case TV_SCROLL:
+		{
+		     if (k_ptr->sval >= SV_SCROLL_SPELL && k_ptr->sval <= SV_SCROLL_INFINITE_SPELL)
+		     {
+			  return (FALSE);
+		     }
+		     return (TRUE);
+		}
+
 		/* Some Rings, Amulets, Lites */
 		case TV_RING:
-		case TV_AMULET:
+		{
+		        if (k_ptr->sval == SV_RING_SPELL) return (FALSE);
+			if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
+			return (FALSE);
+		}
 		case TV_LITE:
 		{
+			if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
+			return (FALSE);
+		}
+		case TV_AMULET:
+		{
+		        if (k_ptr->sval == SV_AMULET_SPELL) return (FALSE);
 			if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
 			return (FALSE);
 		}
@@ -1126,11 +1145,19 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			/* Hack -- Known artifacts */
 			if (artifact_p(o_ptr) && aware) break;
 
-			/* Color the object */
-			modstr = amulet_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
-
+			if (o_ptr->sval == SV_AMULET_SPELL)
+			{
+			     modstr = amulet_adj[o_ptr->sval];
+			     if (known) append_name = TRUE;
+			     basenm = "& Talisman~"; 
+			}
+			else
+			{
+			     /* Color the object */
+			     modstr = amulet_adj[o_ptr->sval];
+			     if (aware) append_name = TRUE;
+			     basenm = (flavor ? "& # Amulet~" : "& Amulet~");
+			}
 			break;
 		}
 
@@ -1140,10 +1167,19 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			/* Hack -- Known artifacts */
 			if (artifact_p(o_ptr) && aware) break;
 
-			/* Color the object */
-			modstr = ring_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Ring~" : "& Ring~");
+			if (o_ptr->sval == SV_RING_SPELL)
+			{
+			     modstr = ring_adj[o_ptr->sval];
+			     if (known) append_name = TRUE;
+			     basenm = "& Charm~"; 
+			}
+			else
+			{
+			     /* Color the object */
+			     modstr = ring_adj[o_ptr->sval];
+			     if (aware) append_name = TRUE;
+			     basenm = (flavor ? "& # Ring~" : "& Ring~");
+			}
 
 			/* Mega-Hack -- The One Ring */
 			if (!aware && (o_ptr->sval == SV_RING_POWER))
@@ -1191,10 +1227,38 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_SCROLL:
 		{
 			/* Color the object */
-			modstr = scroll_adj[o_ptr->sval];
-			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& Scroll~ titled \"#\"" : "& Scroll~");
+		        if (o_ptr->sval == SV_SCROLL_INFINITE_SPELL)
+			{
+			     modstr = scroll_adj[o_ptr->sval];
+			     if (aware) append_name = TRUE;
+			     basenm = "& Book~ of Infinite Spells";
+			}
+			else if (o_ptr->sval < SV_SCROLL_SPELL || o_ptr->sval > SV_SCROLL_DEATH)
+			{
+			     modstr = scroll_adj[o_ptr->sval];
+			     if (aware) append_name = TRUE;
+			     basenm = (flavor ? "& Scroll~ titled \"#\"" : "& Scroll~");
+			}
+			else
+			{
+			     modstr = scroll_adj[o_ptr->sval];
+			     if (known) append_name = TRUE;
 
+			     /* Describe realm of scroll */
+			     switch (o_ptr->sval - SV_SCROLL_SPELL)
+			     {
+			     case REALM_MAGIC:
+				  basenm = "& Magic Spell Scroll~"; break;
+			     case REALM_PRAYER:
+				  basenm = "& Holy Prayer Scroll~"; break;
+			     case REALM_ILLUSION:
+				  basenm = "& Illusion Scroll~"; break;
+			     case REALM_DEATH:
+				  basenm = "& Death Prayer Scroll~"; break;
+			     default:
+				  basenm = "& Magic Spell Scroll~"; break;
+			     }
+			}
 			break;
 		}
 
@@ -1402,9 +1466,17 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	if (append_name)
 	{
 		object_desc_str_macro(t, " of ");
-		object_desc_str_macro(t, (k_name + k_ptr->name));
+		/* Describe spell scrolls */
+		if (o_ptr->tval == TV_SCROLL && 
+		    (o_ptr->sval >= SV_SCROLL_SPELL && o_ptr->sval <= SV_SCROLL_DEATH))
+		     object_desc_str_macro(t, spell_names[o_ptr->sval - SV_SCROLL_SPELL][o_ptr->pval]);
+		else if ((o_ptr->tval == TV_AMULET && o_ptr->sval == SV_AMULET_SPELL) ||
+			 (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SPELL) ||
+			 (o_ptr->tval == TV_SCROLL && o_ptr->sval == SV_SCROLL_INFINITE_SPELL))
+		     object_desc_str_macro(t, spell_names[o_ptr->pval / 64][o_ptr->pval % 64]);
+		else /* Normal code */
+		     object_desc_str_macro(t, (k_name + k_ptr->name));
 	}
-
 
 	/* Hack -- Append "Artifact" or "Special" names */
 	if (known)
@@ -1822,8 +1894,21 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* Indicate "charging" artifacts */
 	if (known && o_ptr->timeout)
 	{
-	     /* Hack -- Dump " (charging)" if relevant */
-	     object_desc_str_macro(t, " (charging)");
+	     /* Runecasters know how long amulets take to recharge */
+	     if (((o_ptr->tval == TV_AMULET && o_ptr->sval == SV_AMULET_SPELL) ||
+		  (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SPELL)) && 
+		 player_has_class(CLASS_RUNECASTER, 0) && (!adult_hidden))
+	     {
+		  
+		  object_desc_str_macro(t, " (");
+		  object_desc_num_macro(t, (o_ptr->timeout / 5) + 1);
+		  object_desc_str_macro(t, " mana)");
+	     }
+	     else
+	     {
+		  /* Hack -- Dump " (charging)" if relevant */
+		  object_desc_str_macro(t, " (charging)");
+	     }
 	}
 
 
@@ -2077,6 +2162,10 @@ cptr item_activation(const object_type *o_ptr)
 	     {
 		  case SV_AMULET_TELEPORT:
 		       return "blink every 10+d10 turns";
+	          case SV_AMULET_AID:
+		       return ("cure a random condition every 10d10 turns");
+		  case SV_AMULET_SPELL:
+		       return (spell_names[o_ptr->pval / 64][o_ptr->pval % 64]);
 	     }
 	}	
 	if (o_ptr->tval == TV_RING)
@@ -2095,6 +2184,8 @@ cptr item_activation(const object_type *o_ptr)
 		       return "resist cold (20+d20) every 40+d40 turns";
 		  case SV_RING_LIGHTNING:
 		       return "resist electricity (20+d20) every 40+d40 turns";
+	          case SV_RING_SPELL:
+		       return (spell_names[o_ptr->pval / 64][o_ptr->pval % 64]);
 	     }
 	}
 
@@ -2172,9 +2263,30 @@ static cptr device_chance(const object_type *o_ptr, bool artifact)
      int lev, num = USE_DEVICE, denom = p_ptr->skill_dev, chance;
 
      /* Get the item level */
-     lev = k_info[o_ptr->k_idx].level;
-     if (lev > 50) lev = 50;
-     
+     if ((o_ptr->tval == TV_AMULET && o_ptr->sval == SV_AMULET_SPELL) ||
+	 (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SPELL))
+     {
+	  int class;
+	  switch (o_ptr->pval / 64)
+	  {
+	  case REALM_MAGIC: class = CLASS_MAGE; break;
+	  case REALM_PRAYER: class = CLASS_PRIEST; break;
+	  case REALM_ILLUSION: class = CLASS_ILLUSIONIST; break; 
+	  case REALM_DEATH: class = CLASS_DEATH_PRIEST; break;
+	  }
+	  lev = magic_info[class].info[o_ptr->pval % 64].slevel;
+
+	  /* Hack - Object/Treasure Detction */
+	  if (lev == 99) lev = 10;
+
+	  /* Non-Runecasters are penalized */
+	  if (!player_has_class(CLASS_RUNECASTER, 0)) lev *= 2;
+     }
+     else 
+     {
+	  lev = k_info[o_ptr->k_idx].level;
+     }
+
      /* Confusion hurts skill */
      if (p_ptr->confused) denom /= 2;
 
@@ -2194,36 +2306,46 @@ static cptr device_chance(const object_type *o_ptr, bool artifact)
 
      /* Perncentage */
      chance = 100 * num / denom;
-     
-     if (artifact)
+
+     if (adult_hidden)
      {
-	  if (chance < 3) return ("You have almost no chance of activating it for..."); 	  
-	  else if (chance < 6) return ("You have around a 1/20 chance of activating it for..."); 
-	  else if (chance < 16) return ("You have around a 1/10 chance of activating it for...");
-	  else if (chance < 26) return ("You have around a 2/10 chance of activating it for...");
-	  else if (chance < 36) return ("You have around a 3/10 chance of activating it for...");
-	  else if (chance < 46) return ("You have around a 4/10 chance of activating it for...");
-	  else if (chance < 56) return ("You have around a 5/10 chance of activating it for...");
-	  else if (chance < 66) return ("You have around a 6/10 chance of activating it for...");
-	  else if (chance < 76) return ("You have around a 7/10 chance of activating it for...");
-	  else if (chance < 86) return ("You have around a 8/10 chance of activating it for...");
-	  else if (chance < 96) return ("You have around a 9/10 chance of activating it for...");
-	  else return ("You have an almost certain chance of activating it for...");
+	  if (artifact)
+	       return ("You can activate it for...");
+	  else
+	       return ("Bug!");
      }
      else
-     {
-	  if (chance < 3) return ("You have almost no chance of using it."); 
-	  else if (chance < 6) return ("You have around a 1/20 chance of using it."); 
-	  else if (chance < 16) return ("You have around a 1/10 chance of using it.");
-	  else if (chance < 26) return ("You have around a 2/10 chance of using it.");
-	  else if (chance < 36) return ("You have around a 3/10 chance of using it.");
-	  else if (chance < 46) return ("You have around a 4/10 chance of using it.");
-	  else if (chance < 56) return ("You have around a 5/10 chance of using it.");
-	  else if (chance < 66) return ("You have around a 6/10 chance of using it.");
-	  else if (chance < 76) return ("You have around a 7/10 chance of using it.");
-	  else if (chance < 86) return ("You have around a 8/10 chance of using it.");
-	  else if (chance < 96) return ("You have around a 9/10 chance of using it.");
-	  else return ("You have an almost certain chance of using it.");
+     {         
+	  if (artifact)
+	  {
+	       if (chance < 3) return ("You have almost no chance of activating it for..."); 	  
+	       else if (chance < 6) return ("You have around a 1/20 chance of activating it for..."); 
+	       else if (chance < 16) return ("You have around a 1/10 chance of activating it for...");
+	       else if (chance < 26) return ("You have around a 2/10 chance of activating it for...");
+	       else if (chance < 36) return ("You have around a 3/10 chance of activating it for...");
+	       else if (chance < 46) return ("You have around a 4/10 chance of activating it for...");
+	       else if (chance < 56) return ("You have around a 5/10 chance of activating it for...");
+	       else if (chance < 66) return ("You have around a 6/10 chance of activating it for...");
+	       else if (chance < 76) return ("You have around a 7/10 chance of activating it for...");
+	       else if (chance < 86) return ("You have around a 8/10 chance of activating it for...");
+	       else if (chance < 96) return ("You have around a 9/10 chance of activating it for...");
+	       else return ("You have an almost certain chance of activating it for...");
+	  }
+	  else
+	  {
+	       if (chance < 3) return ("You have almost no chance of using it."); 
+	       else if (chance < 6) return ("You have around a 1/20 chance of using it."); 
+	       else if (chance < 16) return ("You have around a 1/10 chance of using it.");
+	       else if (chance < 26) return ("You have around a 2/10 chance of using it.");
+	       else if (chance < 36) return ("You have around a 3/10 chance of using it.");
+	       else if (chance < 46) return ("You have around a 4/10 chance of using it.");
+	       else if (chance < 56) return ("You have around a 5/10 chance of using it.");
+	       else if (chance < 66) return ("You have around a 6/10 chance of using it.");
+	       else if (chance < 76) return ("You have around a 7/10 chance of using it.");
+	       else if (chance < 86) return ("You have around a 8/10 chance of using it.");
+	       else if (chance < 96) return ("You have around a 9/10 chance of using it.");
+	       else return ("You have an almost certain chance of using it.");
+	  }
      }
 }
 
@@ -2277,7 +2399,8 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	}
 
 	/* Show chance of activating devices */
-	if (o_ptr->tval == TV_ROD || o_ptr->tval == TV_WAND || o_ptr->tval == TV_STAFF)
+	if ((o_ptr->tval == TV_ROD || o_ptr->tval == TV_WAND || o_ptr->tval == TV_STAFF) &&
+	    (!adult_hidden))
 	{
 	     if (object_aware_p(o_ptr) || object_known_p(o_ptr))
 		  info[i++] = device_chance(o_ptr, FALSE);

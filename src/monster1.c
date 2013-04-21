@@ -900,48 +900,67 @@ static void roff_aux(int r_idx)
 
 	     /* Get average damage */
 	     if (o_ptr->k_idx) /* With weapon */
+	     {
 		  average_damage = (o_ptr->dd * (o_ptr->ds+1) / 2);
-	     else if (player_has_class(CLASS_MONK, 0)) /* Unarmed monk */
-	     {
-		  int plev = level_of_class(CLASS_MONK), temp = 1;
-		  if (plev < 7) temp = plev + 2;
-		  else if (plev < 22) temp = (plev + 10) / 2;
-		  else temp = (plev + 25) / 3;
-		  average_damage = ((temp+1) / 2);
-	     }
 
-	     /* Get damage multiplier from some crusader powers */
-	     if (player_has_class(CLASS_CRUSADER, 0))
-	     {
-		  bool do_mult = FALSE;
-		  if (o_ptr->k_idx) do_mult = TRUE;
-		  else if (player_has_class(CLASS_MONK, 0)) do_mult = TRUE;
-		  if (do_mult)
+		  /* intrinstic brands */
+		  if (player_has_class(CLASS_CRUSADER, 0))
 		  {
 		       int mult = 1;
 		       switch (p_ptr->crusader_active)
 		       {
 		       case CRUSADER_WPN_LIGHT:
 			    if ((flags3 & (RF3_HURT_LITE)) && (mult < 3)) mult = 3; break;
-		       case CRUSADER_WPN_SHOCK:
-			    if (!(flags3 & (RF3_IM_ELEC)) && (mult < 3)) mult = 3; break;
 		       case CRUSADER_WPN_FLAME:
 			    if (!(flags3 & (RF3_IM_FIRE)) && (mult < 3)) mult = 3; break;
-		       case CRUSADER_WPN_FROST:
-			    if (!(flags3 & (RF3_IM_COLD)) && (mult < 3)) mult = 3; break;
-		       case CRUSADER_SLAY_ANIMAL:
-			    if ((flags3 & (RF3_ANIMAL)) && (mult < 2)) mult = 2; break;
-		       case CRUSADER_SLAY_EVIL:
-			    if ((flags3 & (RF3_EVIL)) && (mult < 2)) mult = 2; break;
 		       case CRUSADER_SLAY_UNDEAD:
 			    if ((flags3 & (RF3_UNDEAD)) && (mult < 3)) mult = 3; break;
-		       case CRUSADER_WPN_POISON:
-			    if (!(flags3 & (RF3_IM_POIS)) && (mult < 3)) mult = 3; break;
+		       case CRUSADER_SLAY_EVIL:
+			    if ((flags3 & (RF3_EVIL)) && (mult < 2)) mult = 2; break;
 		       }
 		       average_damage *= mult;
 		  }
 	     }
-	     
+	     else if (player_has_class(CLASS_MONK, 0)) /* Unarmed monk */
+	     {
+		  int mult = 1;
+
+		  /* Get base damage */
+		  int temp = monk_damage();
+		  
+		  /* Average */
+		  average_damage = ((temp+1) / 2);
+		  
+		  /* Can add brands from shifter forms */
+		  switch (p_ptr->shapeshift)
+		  {
+		  case FORM_COLBRAN:
+		       if (!(flags3 & (RF3_IM_ELEC)) && (mult < 3)) mult = 3; break;
+		  case FORM_ICE_TROLL:
+		       if (!(flags3 & (RF3_IM_COLD)) && (mult < 3)) mult = 3; break;
+		  case FORM_CHAOS_DRAKE:
+		       if (!(flags3 & (RF3_IM_FIRE)) && (mult < 3)) mult = 3; break;
+		  }
+
+		  /* intrinstic brands */
+		  if (player_has_class(CLASS_CRUSADER, 0))
+		  {
+		       switch (p_ptr->crusader_active)
+		       {
+		       case CRUSADER_WPN_LIGHT:
+			    if ((flags3 & (RF3_HURT_LITE)) && (mult < 3)) mult = 3; break;
+		       case CRUSADER_WPN_FLAME:
+			    if (!(flags3 & (RF3_IM_FIRE)) && (mult < 3)) mult = 3; break;
+		       case CRUSADER_SLAY_UNDEAD:
+			    if ((flags3 & (RF3_UNDEAD)) && (mult < 3)) mult = 3; break;
+		       case CRUSADER_SLAY_EVIL:
+			    if ((flags3 & (RF3_EVIL)) && (mult < 2)) mult = 2; break;
+		       }
+		  }
+
+		  average_damage *= mult;
+	     }
+
 	     /* Add known modifier */
 	     average_damage += mod;
 

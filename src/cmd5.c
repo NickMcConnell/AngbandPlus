@@ -677,7 +677,8 @@ void cast_spell(int realm, int spell)
   int beam, dir;
   int py = p_ptr->py;
   int px = p_ptr->px;
-  int plev = 1;
+  /* Runecasters can cast spells from amulets or scrolls at their class level */
+  int plev = (player_has_class(CLASS_RUNECASTER, 0) ? level_of_class(CLASS_RUNECASTER) : 1);
 
   switch (realm)
   {
@@ -686,8 +687,8 @@ void cast_spell(int realm, int spell)
 	/* Only one of these classes can be chosen */
 	if (player_has_class(CLASS_MAGE, 0)) 
 	  plev = level_of_class(CLASS_MAGE);
-	if (player_has_class(CLASS_ROGUE, 0)) 
-	  plev = level_of_class(CLASS_ROGUE);
+	if (player_has_class(CLASS_THIEF, 0)) 
+	  plev = level_of_class(CLASS_THIEF);
 	if (player_has_class(CLASS_RANGER, 0)) 
 	  plev = level_of_class(CLASS_RANGER);
 
@@ -1664,8 +1665,6 @@ void cast_spell(int realm, int spell)
 	/* Only one of these classes can be chosen */
 	if (player_has_class(CLASS_ILLUSIONIST, 0))
 	  plev = level_of_class(CLASS_ILLUSIONIST);
-	if (player_has_class(CLASS_TRICKSTER, 0))
-	  plev = level_of_class(CLASS_TRICKSTER);
 	
 	/* Hack -- chance of "beam" instead of "bolt" */
 	beam = ((player_has_class(CLASS_ILLUSIONIST, 0)) ? plev : (plev / 2));
@@ -2259,6 +2258,8 @@ void cast_spell(int realm, int spell)
 	/* Only one of these classes can be chosen */
 	if (player_has_class(CLASS_DEATH_PRIEST, 0))
 	  plev = level_of_class(CLASS_DEATH_PRIEST);
+	if (player_has_class(CLASS_SLAYER, 0))
+	  plev = level_of_class(CLASS_SLAYER);
 
 	/* Spells.  */
 	switch (spell)
@@ -2884,8 +2885,8 @@ void do_cmd_cast(void)
 			/* Gain experience */
 			if (player_has_class(CLASS_MAGE, 0))
 			  gain_exp(e * s_ptr->slevel, index_of_class(CLASS_MAGE));
-			if (player_has_class(CLASS_ROGUE, 0))
-			  gain_exp(e * s_ptr->slevel, index_of_class(CLASS_ROGUE));
+			if (player_has_class(CLASS_THIEF, 0))
+			  gain_exp(e * s_ptr->slevel, index_of_class(CLASS_THIEF));
 			if (player_has_class(CLASS_RANGER, 0))
 			  gain_exp(e * s_ptr->slevel, index_of_class(CLASS_RANGER));
 
@@ -3253,9 +3254,6 @@ void do_cmd_cast_illusion(void)
 			if (player_has_class(CLASS_ILLUSIONIST, 0))
 			  gain_exp(e * s_ptr->slevel, 
 				   index_of_class(CLASS_ILLUSIONIST));
-			if (player_has_class(CLASS_TRICKSTER, 0))
-			  gain_exp(e * s_ptr->slevel, 
-				   index_of_class(CLASS_TRICKSTER));
 
 			/* Redraw object recall */
 			p_ptr->window |= (PW_OBJECT);
@@ -3388,7 +3386,18 @@ void do_cmd_cast_death(void)
 
 
 	/* Verify "dangerous" spells */
-	if (s_ptr->smana > p_ptr->cpp)
+	if (player_has_class(CLASS_SLAYER, 0) && (s_ptr->smana > p_ptr->mpp))
+	{
+		/* Warning */
+		msg_print("You do not have enough piety to recite this prayer.");
+
+		/* Flush input */
+		flush();
+
+		/* No chance */
+		return;
+	}
+	else if (s_ptr->smana > p_ptr->cpp)
 	{
 		/* Warning */
 		msg_print("You do not have enough piety to recite this prayer.");
@@ -3438,6 +3447,9 @@ void do_cmd_cast_death(void)
 			if (player_has_class(CLASS_DEATH_PRIEST, 0))
 			  gain_exp(e * s_ptr->slevel, 
 				   index_of_class(CLASS_DEATH_PRIEST));
+			if (player_has_class(CLASS_SLAYER, 0))
+			  gain_exp(e * s_ptr->slevel, 
+				   index_of_class(CLASS_SLAYER));
 
 			/* Redraw object recall */
 			p_ptr->window |= (PW_OBJECT);
@@ -3448,7 +3460,12 @@ void do_cmd_cast_death(void)
 	p_ptr->energy_use = 100;
 
 	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->cpp)
+	if (player_has_class(CLASS_SLAYER, 0))
+	{
+	     p_ptr->mpp -= s_ptr->smana;
+	     p_ptr->cpp = p_ptr->mpp;
+	}
+	else if (s_ptr->smana <= p_ptr->cpp)
 	{
 		/* Use some mana */
 		p_ptr->cpp -= s_ptr->smana;
@@ -3506,15 +3523,11 @@ struct crusader_power crusader_powers[MAX_CRUSADER_POWERS] =
      {  9, "Shield",               FALSE },
      { 12, "Regeneration",         FALSE },
      { 15, "Resistance",           FALSE },
-     { 18, "Weapon: Shock",        TRUE },
-     { 21, "Weapon: Flame",        TRUE },
-     { 21, "Weapon: Frost",        TRUE },
-     { 24, "Haste Self",           FALSE },
-     { 27, "Weapon : Slay Animal", TRUE },
-     { 27, "Weapon : Slay Evil",   TRUE },
+     { 20, "Weapon: Flame",        TRUE },
+     { 25, "Haste Self",           FALSE },
      { 30, "Weapon : Slay Undead", TRUE },
-     { 30, "Weapon : Poison",      TRUE },
      { 35, "Protection from Evil", FALSE },
+     { 40, "Weapon : Slay Evil",   TRUE },
 };
 
 static int get_crusader_power(int *sn)
@@ -3725,34 +3738,22 @@ void do_cmd_crusader(void)
 	      effects[EFFECT_RES_COLD]++;
 	      if (level_of_class(CLASS_CRUSADER) >= 24) effects[EFFECT_RES_POIS]++;
 	      break;
-     case CRUSADER_WPN_SHOCK:
-	      p_ptr->crusader_active = CRUSADER_WPN_SHOCK;
-	      break;
      case CRUSADER_WPN_FLAME:
 	      p_ptr->crusader_active = CRUSADER_WPN_FLAME;
-	      break;
-     case CRUSADER_WPN_FROST:
-	      p_ptr->crusader_active = CRUSADER_WPN_FROST;
 	      break;
      case CRUSADER_HASTE:
 	      p_ptr->crusader_passive = CRUSADER_HASTE;
 	      effects[EFFECT_HASTE]++;
 	      break;
-     case CRUSADER_SLAY_ANIMAL:
-	      p_ptr->crusader_active = CRUSADER_SLAY_ANIMAL;
-	      break;
-     case CRUSADER_SLAY_EVIL:
-	      p_ptr->crusader_active = CRUSADER_SLAY_EVIL;
-	      break;
      case CRUSADER_SLAY_UNDEAD:
 	      p_ptr->crusader_active = CRUSADER_SLAY_UNDEAD;
-	      break;
-     case CRUSADER_WPN_POISON:
-	      p_ptr->crusader_active = CRUSADER_WPN_POISON;
 	      break;
      case CRUSADER_PROT_EVIL:
 	      p_ptr->crusader_passive = CRUSADER_PROT_EVIL;
 	      effects[EFFECT_PRO_EVIL]++;
+	      break;
+     case CRUSADER_SLAY_EVIL:
+	      p_ptr->crusader_active = CRUSADER_SLAY_EVIL;
 	      break;
      }
 
@@ -3768,27 +3769,14 @@ void do_cmd_crusader(void)
 	  case CRUSADER_WPN_LIGHT:
 	       msg_format("Your %s shining.", close);
 	       break;
-	  case CRUSADER_WPN_SHOCK:
-	       msg_format("Your %s emitting sparks.", close);
-	       break;
 	  case CRUSADER_WPN_FLAME:
 	       msg_format("Your %s burning.", close);
-	       break;
-	  case CRUSADER_WPN_FROST:
-	       msg_format("Your %s it's freezing aura.", 
-			 ((player_has_class(CLASS_MONK, 0)) ? "hands lose" : "weapon loses"));
-	       break;
-	  case CRUSADER_SLAY_ANIMAL:
-	       msg_format("Your %s being more effective against animals.", close);
-	       break;
-	  case CRUSADER_SLAY_EVIL:
-	       msg_format("Your %s being more effective against evil.", close);
 	       break;
 	  case CRUSADER_SLAY_UNDEAD:
 	       msg_format("Your %s being more effective against undead.", close);
 	       break;
-	  case CRUSADER_WPN_POISON:
-	       msg_format("Your %s dripping poison.", close);
+	  case CRUSADER_SLAY_EVIL:
+	       msg_format("Your %s being more effective against evil.", close);
 	       break;
 	  }
 	  /* Notice beginning of new power */
@@ -3797,27 +3785,14 @@ void do_cmd_crusader(void)
 	  case CRUSADER_WPN_LIGHT:
 	       msg_format("Your %s shining!", open);
 	       break;
-	  case CRUSADER_WPN_SHOCK:
-	       msg_format("Your %s emitting sparks!", open);
-	       break;
 	  case CRUSADER_WPN_FLAME:
 	       msg_format("Your %s burning!", open);
-	       break;
-	  case CRUSADER_WPN_FROST:
-	       msg_format("Your %s a freezing aura!",
-			 ((player_has_class(CLASS_MONK, 0)) ? "hands gain" : "weapon gains"));
-	       break;
-	  case CRUSADER_SLAY_ANIMAL:
-	       msg_format("Your %s being more effective against animals!", open);
-	       break;
-	  case CRUSADER_SLAY_EVIL:
-	       msg_format("Your %s being more effective against evil!", open);
 	       break;
 	  case CRUSADER_SLAY_UNDEAD:
 	       msg_format("Your %s being more effective against undead!", open);
 	       break;
-	  case CRUSADER_WPN_POISON:
-	       msg_format("Your %s dripping poison!", open);
+	  case CRUSADER_SLAY_EVIL:
+	       msg_format("Your %s being more effective against evil!", open);
 	       break;
 	  }
 
@@ -3912,38 +3887,36 @@ void do_cmd_crusader(void)
 
 
 
-/*** Undead Slayers ***/
+/*** Crusader Prayers ***/
 
-struct slayer_power {
+struct crusader_prayer {
      cptr name;
      int  smana;
 };
 
-struct slayer_power slayer_powers[MAX_SLAYER_POWERS] =
+struct crusader_prayer crusader_prayers[MAX_CRUSADER_PRAYERS] =
 {
      /* Name, piety cost, failure rate */
-     { "Detect Undead",               1 },
-     { "Blessing",                    2 },
+     { "Detect Evil",                 1 },
+     { "Call Light",                  2 },
      { "First Aid",                   3 },
-     { "Remove Fear",                 5 },
-     { "Call Light",                  7 },
-     { "Sense Invisible",            10 },
-     { "Resist Cold",                12 },
+     { "Sense Invisible",             6 },
+     { "Spear of Light",              9 },
      { "Turn Undead",                15 },
      { "Remove Curse",               20 },
-     { "Spear of Light",             25 },
-     { "Shield",                     30 },
-     { "Healing",                    45 },
-     { "Resist Nether",              60 },
-     { "Protection from Undead",     75 },
-     { "Banish Undead",             100 },
-     { "Dispel Undead",             200 },
+     { "Healing",                    30 },
+     { "Healing II",                 60 },
+     { "Healing III",               120 },
+     { "Banish Undead",             150 },
+     { "Banish Demons",             180 },
+     { "Dispel Evil",               200 },
      { "Restore Life Levels",       300 },
+     { "Dispel Evil II",            400 },
      { "Enchant Armour",            450 },
      { "Enchant Weapon",            500 },
 };
 
-static void slayer_info(char *p, int power)
+static void crusader_prayer_info(char *p, int power)
 {
      int plev = level_of_class(CLASS_CRUSADER);
 
@@ -3955,19 +3928,21 @@ static void slayer_info(char *p, int power)
 
      switch (power)
      {
-     case 1: sprintf(p, " dur %d+d%d", plev+10, plev+10); break;
-     case 5: case 6: case 11: case 12: sprintf(p, " dur %d+d%d", plev+20, plev+20); break;
+     case 1: sprintf(p, " dam 2d%d, r%d", plev, (plev/10)+2); break;
      case 2: sprintf(p, " cure 2d%d", plev+5); break;
-     case 4: sprintf(p, " dam 2d%d, r%d", plev, (plev/10) + 2); break;
-     case 9: sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4))); break;
-     case 10: sprintf(p, " cure %d", plev * 10); break;
-     case 13: sprintf(p, " dur %d+d%d", (plev/2) + 10, plev+30); break;
-     case 14: sprintf(p, " range %d", (plev*5)+5); break;
-     case 15: sprintf(p, " dam %d", plev*5); break;
+     case 3: strcpy(p, " dur 24+d24"); break;
+     case 4: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
+     case 7: sprintf(p, " cure %d", plev*2); break;
+     case 8: sprintf(p, " cure %d", plev*5); break;
+     case 9: sprintf(p, " cure %d", plev*10); break;
+     case 10: sprintf(p, " range %d", (plev*5)+5); break;
+     case 11: sprintf(p, " range %d", (plev*5)+5); break;
+     case 12: sprintf(p, " dam %d", plev*5); break;
+     case 14: sprintf(p, " dam %d", plev*10); break;
      }
 }
 
-static int get_slayer_power(int *sn)
+static int get_crusader_prayer(int *sn)
 {
         int             i = -1, ask, y = 1, x = 20;
 	char		choice;
@@ -3992,8 +3967,8 @@ static int get_slayer_power(int *sn)
 	(*sn) = -1;
 
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(Powers %c-%c, *=List, ESC=exit) Use which power? ",
-						I2A(0), I2A(MAX_SLAYER_POWERS - 1));
+	strnfmt(out_val, 78, "(Prayers %c-%c, *=List, ESC=exit) Use which prayer? ",
+						I2A(0), I2A(MAX_CRUSADER_PRAYERS - 1));
 	
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
@@ -4023,31 +3998,31 @@ static int get_slayer_power(int *sn)
 				}
 
 				/* Dump the spells */
-				for (i = 0; i < MAX_SLAYER_POWERS; i++)
+				for (i = 0; i < MAX_CRUSADER_PRAYERS; i++)
 				{
 					/* Color */
 					line_attr = TERM_WHITE;
 
-					if (slayer_powers[i].smana > p_ptr->mpp)
+					if (crusader_prayers[i].smana > p_ptr->mpp)
 					     line_attr = TERM_L_DARK;
 					else line_attr = TERM_WHITE;
 
 					/* Get information */
-					slayer_info(info, i);
+					crusader_prayer_info(info, i);
 					comment = info;
 
 					/* Dump the spell */
 					if (adult_hidden)
 					{
 					     sprintf(power_desc, "  %c) %-30s",
-						     I2A(i), slayer_powers[i].name);
+						     I2A(i), crusader_prayers[i].name);
 					     c_prt(line_attr, power_desc, y + i, x + 30);
 					}
 					else
 					{
 					     sprintf(power_desc, "  %c) %-30s%3d %s",
-						     I2A(i), slayer_powers[i].name, 
-						     slayer_powers[i].smana, comment);
+						     I2A(i), crusader_prayers[i].name, 
+						     crusader_prayers[i].smana, comment);
 					     c_prt(line_attr, power_desc, y + i + 1, x);
 					}
 				}
@@ -4080,9 +4055,9 @@ static int get_slayer_power(int *sn)
 		i = (islower(choice) ? A2I(choice) : -1);
 
 		/* Totally Illegal */
-		if ((i < 0) || (i >= MAX_SLAYER_POWERS))
+		if ((i < 0) || (i >= MAX_CRUSADER_PRAYERS))
 		{
-			bell("Illegal power choice!");
+			bell("Illegal prayer choice!");
 			continue;
 		}
 		
@@ -4092,7 +4067,7 @@ static int get_slayer_power(int *sn)
 			char tmp_val[160];
 
 			/* Prompt */
-			strnfmt(tmp_val, 78, "Use %s? ", slayer_powers[i].name);
+			strnfmt(tmp_val, 78, "Use %s? ", crusader_prayers[i].name);
 
 			/* Belay that order */
 			if (!get_check(tmp_val)) continue;
@@ -4121,16 +4096,16 @@ static int get_slayer_power(int *sn)
 	return (TRUE);	
 }
 
-void do_cmd_slayer()
+void do_cmd_crusader_prayer()
 {
      int power;
-     int plev = level_of_class(CLASS_SLAYER);
+     int plev = level_of_class(CLASS_CRUSADER);
 
      /* Ask for a power */
-     if (!get_slayer_power(&power)) return;
+     if (!get_crusader_prayer(&power)) return;
      
      /* Not enough piety */
-     if (slayer_powers[power].smana > p_ptr->mpp)
+     if (crusader_prayers[power].smana > p_ptr->mpp)
      {
 	  /* Warning */
 	  msg_print("You do not have enough piety to recite this prayer.");
@@ -4145,12 +4120,12 @@ void do_cmd_slayer()
      switch (power)
      {
      case 0:
-	  (void)detect_monsters_undead();
-	  effects[EFFECT_DETECT_UNDEAD]++;	  
+	  (void)detect_monsters_evil();
+	  effects[EFFECT_DETECT_EVIL]++;	  
 	  break;
      case 1:
-	  (void)set_blessed(p_ptr->blessed + randint(10) + 10);
-	  effects[EFFECT_BLESS]++;
+	  (void)lite_area(damroll(2, plev), (plev / 10) + 2);
+	  effects[EFFECT_LIGHT_AREA]++;
 	  break;
      case 2:
 	  (void)hp_player(damroll(2, plev+5));
@@ -4160,30 +4135,10 @@ void do_cmd_slayer()
 	  effects[EFFECT_SLOW_POISON]++;
 	  break;
      case 3:
-	  (void)set_afraid(0);
-	  effects[EFFECT_REMOVE_FEAR]++;
-	  break;
-     case 4:
-	  (void)lite_area(damroll(2, plev), (plev / 10) + 2);
-	  effects[EFFECT_LIGHT_AREA]++;
-	  break;
-     case 5:
-	  (void)set_tim_invis(p_ptr->tim_invis + randint(20 + plev) + 20 + plev);
+	  (void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
 	  effects[EFFECT_SEE_INVIS]++;
 	  break;
-     case 6:
-	  (void)set_oppose_cold(p_ptr->oppose_cold + randint(20 + plev) + 20 + plev);
-	  effects[EFFECT_RES_COLD]++;
-	  break;
-     case 7:
-	  (void)turn_undead(p_ptr->current_class);
-	  effects[EFFECT_TURN_UNDEAD]++;
-	  break;
-     case 8:
-	  remove_curse();
-	  effects[EFFECT_REMOVE_CURSE]++;
-	  break;
-     case 9:
+     case 4:
      {
 	  int dir;
 	  if (!get_aim_dir(&dir)) return;
@@ -4192,7 +4147,31 @@ void do_cmd_slayer()
 	  effects[EFFECT_SPEAR_LIGHT]++;
 	  break;
      }
-     case 10:
+     case 5:
+	  (void)turn_undead(p_ptr->current_class);
+	  effects[EFFECT_TURN_UNDEAD]++;
+	  break;
+     case 6:
+	  remove_curse();
+	  effects[EFFECT_REMOVE_CURSE]++;
+	  break;
+     case 7:
+	  (void)hp_player(plev * 2);
+	  (void)set_stun(0);
+	  (void)set_cut(0);
+	  (void)set_poisoned(0);
+	  effects[EFFECT_HEAL]++;
+	  effects[EFFECT_CURE_POISON]++;
+	  break;
+     case 8:
+	  (void)hp_player(plev * 5);
+	  (void)set_stun(0);
+	  (void)set_cut(0);
+	  (void)set_poisoned(0);
+	  effects[EFFECT_HEAL]++;
+	  effects[EFFECT_CURE_POISON]++;
+	  break;
+     case 9:
 	  (void)hp_player(plev * 10);
 	  (void)set_stun(0);
 	  (void)set_cut(0);
@@ -4200,38 +4179,37 @@ void do_cmd_slayer()
 	  effects[EFFECT_HEAL]++;
 	  effects[EFFECT_CURE_POISON]++;
 	  break;
-     case 11:
-	  (void)set_shield(p_ptr->shield + randint(20) + 20);
-	  effects[EFFECT_SHIELD]++;
-	  break;
-     case 12:
-	  (void)set_oppose_nether(p_ptr->oppose_nether + randint(20 + plev) + 20 + plev);
-	  effects[EFFECT_OPPOSE_NETHER]++;
-	  break;
-     case 13:
-	  (void)set_prot_undead(p_ptr->prot_undead + randint(30 + plev) + (plev / 2) + 10);
-	  effects[EFFECT_PRO_UNDEAD]++;
-	  break;
-     case 14:
+     case 10:
 	  if (banish_undead((plev * 5) + 5))
 	  {
-	       msg_print("You banish the undead!");
+	       msg_print("You banish undead!");
 	  }
 	  effects[EFFECT_BANISH_UNDEAD]++;
 	  break;
-     case 15:
-	  (void)dispel_undead(randint(plev * 5));
-	  effects[EFFECT_DISPEL_UNDEAD]++;
+     case 11:
+	  if (banish_demons((plev * 5) + 5))
+	  {
+	       msg_print("You banish demons!");
+	  }
+	  effects[EFFECT_BANISH_DEMONS]++;
 	  break;
-     case 16:
+     case 12:
+	  (void)dispel_evil(randint(plev * 5));
+	  effects[EFFECT_DISPEL_EVIL]++;
+	  break;
+     case 13:
 	  (void)restore_level();
 	  effects[EFFECT_RESTORE_EXP]++;
 	  break;
-     case 17:
+     case 14:
+	  (void)dispel_evil(randint(plev * 10));
+	  effects[EFFECT_DISPEL_EVIL]++;
+	  break;
+     case 15:
 	  (void)enchant_spell(0, 0, rand_int(3) + 2);
 	  effects[EFFECT_ENCHANT_ARMOUR]++;
 	  break;
-     case 18:
+     case 16:
 	  (void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
 	  effects[EFFECT_ENCHANT_WEAPON_HIT]++;
 	  effects[EFFECT_ENCHANT_WEAPON_DAM]++;
@@ -4242,7 +4220,7 @@ void do_cmd_slayer()
      p_ptr->energy_use = 100;
 
      /* Use piety */
-     p_ptr->mpp -= slayer_powers[power].smana;
+     p_ptr->mpp -= crusader_prayers[power].smana;
      p_ptr->cpp = p_ptr->mpp;
 
      /* Redraw mana */
@@ -4264,49 +4242,82 @@ struct shifter_power {
 
 struct shifter_power shifter_powers[MAX_SHIFTER_POWERS] =
 {
-     {  1, "Giant Spider",      TRUE,  1, 10 },
-     {  1, "Sting",            FALSE,  1,  2 },
-     {  1, "Stinking Cloud",   FALSE,  1,  5 },
-     {  5, "Tengu",             TRUE,  2, 15 },
-     {  5, "Phase Door",       FALSE,  2,  2 },
-     {  5, "Teleport Self",    FALSE,  2, 10 },
-     { 10, "Arctic Bear",       TRUE,  3, 20 },
-     { 10, "Heroism",          FALSE,  3,  5 },
-     { 10, "Berserk Strength", FALSE,  3, 10 },
-     { 10, "Wyvern",            TRUE,  4, 30 },
-     { 10, "Light Area",       FALSE,  4,  2 },
-     { 10, "Breathe Fire",     FALSE,  4, 15 },
-     { 15, "Umber Hulk",        TRUE,  5, 40 },
-     { 15, "Confuse Monster",  FALSE,  5,  5 },
-     { 15, "Stone to Mud",     FALSE,  5, 10 },
-     { 15, "Earthquake",       FALSE,  5, 20 },
-     { 15, "Phase Spider",      TRUE,  6, 50 },
-     { 15, "Sting",            FALSE,  6,  2 },
-     { 15, "Phase Door",       FALSE,  6,  2 },
-     { 15, "Haste Self",       FALSE,  6, 15 },
-     { 20, "Gorgon",            TRUE,  7, 60 },
-     { 20, "Sleep Monster",    FALSE,  7, 10 },
-     { 20, "Breathe Acid",     FALSE,  7, 15 },
-     { 25, "Colbran",           TRUE,  8, 70 },
-     { 25, "Lightning Bolt",   FALSE,  8,  5 },
-     { 25, "Lightning Ball",   FALSE,  8, 15 },
-     { 25, "Haste Self",       FALSE,  8, 15 },
-     { 30, "Ice Troll",         TRUE,  9, 75 },
-     { 30, "Slow Monster",     FALSE,  9, 10 },
-     { 30, "Ice Bolt",         FALSE,  9, 15 },
-     { 35, "Beholder",          TRUE, 10, 80 },
-     { 35, "Teleport Other",   FALSE, 10, 15 },
-     { 35, "Confusion Ball",   FALSE, 10, 25 },
-     { 35, "Terror",           FALSE, 10, 25 },
-     { 35, "Mass Sleep",       FALSE, 10, 30 },
-     { 40, "Vampire",           TRUE, 11, 85 },
-     { 40, "Scare Monster",    FALSE, 11,  5 },
-     { 40, "Drain Life",       FALSE, 11, 15 },
-     { 40, "Nether Bolt",      FALSE, 11, 25 },
-     { 45, "Chaos Drake",       TRUE, 12, 90 },
-     { 45, "Polymorph Monster",FALSE, 12, 20 },
-     { 45, "Chaos Bolt",       FALSE, 12, 30 },
-     { 45, "Nexus Bolt",       FALSE, 12, 40 },
+     /* Giant Spider : res pois, dex +1, stealth +3 */
+     {  1,     "Giant Spider",  TRUE,  FORM_GIANT_SPIDER, 10 },
+     {  1, "Sting",            FALSE,  FORM_GIANT_SPIDER,  1 },
+     {  1, "Stinking Cloud",   FALSE,  FORM_GIANT_SPIDER,  3 },
+     {  1, "Resist Poison",    FALSE,  FORM_GIANT_SPIDER, 12 }, 
+     /* Tengu : speed +5, res conf, dex +2, teleportitus */
+     {  4,            "Tengu",  TRUE,  FORM_TENGU,        15 },
+     {  4, "Phase Door",       FALSE,  FORM_TENGU,         2 },
+     {  4, "Teleport Self",    FALSE,  FORM_TENGU,         9 },
+     /* Arctic Bear : str +2, res cold, res fear, claws +2 */
+     {  7,      "Arctic Bear",  TRUE,  FORM_ARCTIC_BEAR,  20 },
+     {  7, "Heroism",          FALSE,  FORM_ARCTIC_BEAR,   3 },
+     {  7, "Resist Cold",      FALSE,  FORM_ARCTIC_BEAR,   6 }, 
+     {  7, "Berserk Strength", FALSE,  FORM_ARCTIC_BEAR,  12 },
+     /* Wyvern : int +2, feather fall, res fire, claws +3 */
+     { 10,           "Wyvern",  TRUE,  FORM_WYVERN,       30 },
+     { 10, "Light Area",       FALSE,  FORM_WYVERN,        2 },
+     { 10, "Resist Fire",      FALSE,  FORM_WYVERN,        6 }, 
+     { 10, "Breathe Fire",     FALSE,  FORM_WYVERN,       15 },
+     /* Ent : str +2, slow -5, slow digestion, susteptible to fire */
+     { 13,              "Ent",  TRUE,  FORM_ENT,          40 },
+     { 13, "First Aid",        FALSE,  FORM_ENT,           3 },
+     { 13, "Satisfy Hunger",   FALSE,  FORM_ENT,           6 },
+     { 13, "Herbal Healing",   FALSE,  FORM_ENT,           9 },
+     { 13, "Entangle",         FALSE,  FORM_ENT,          25 },
+     /* Umber Hulk : free act, con +3, claws +6 */
+     { 16,       "Umber Hulk",  TRUE,  FORM_UMBER_HULK,   50 },
+     { 16, "Confuse Monster",  FALSE,  FORM_UMBER_HULK,    2 },
+     { 16, "Stone to Mud",     FALSE,  FORM_UMBER_HULK,    9 },
+     { 16, "Earthquake",       FALSE,  FORM_UMBER_HULK,   20 },
+     /* Gorgon : res acid, int +3, sust int */
+     { 19,           "Gorgon",  TRUE,  FORM_GORGON,       60 },
+     { 19, "Resist Acid",      FALSE,  FORM_GORGON,        6 }, 
+     { 19, "Sleep Monster",    FALSE,  FORM_GORGON,        9 },
+     { 19, "Breathe Acid",     FALSE,  FORM_GORGON,       15 },
+     /* Phase Spider : dex +3, sust dex, free act, speed +5, res pois, stealth +2 */
+     { 22,     "Phase Spider",  TRUE,  FORM_PHASE_SPIDER, 65 },
+     { 22, "Sting",            FALSE,  FORM_PHASE_SPIDER,  1 },
+     { 22, "Phase Door",       FALSE,  FORM_PHASE_SPIDER,  2 },
+     { 22, "Haste Self",       FALSE,  FORM_PHASE_SPIDER, 15 },
+     /* Mind Flayer : int +5, sust int, res conf, telepathy, str -2, con -2 */
+     { 25,      "Mind Flayer",  TRUE,  FORM_MINDFLAYER,   70 },
+     { 25, "Confuse Monster",  FALSE,  FORM_MINDFLAYER,    2 },
+     { 25, "Scare",            FALSE,  FORM_MINDFLAYER,    6 },
+     { 25, "Teleport Self",    FALSE,  FORM_MINDFLAYER,    9 },
+     { 25, "Mind Blast",       FALSE,  FORM_MINDFLAYER,   15 },
+     /* Colbran : res elec, str +3, res shards, monks get brand elec */
+     { 28,          "Colbran",  TRUE,  FORM_COLBRAN,      75 },
+     { 28, "Lightning Bolt",   FALSE,  FORM_COLBRAN,       3 },
+     { 28, "Resist Electricity",FALSE, FORM_COLBRAN,       6 }, 
+     { 28, "Lightning Ball",   FALSE,  FORM_COLBRAN,      12 },
+     { 28, "Haste Self",       FALSE,  FORM_COLBRAN,      15 },
+     /* Ice Troll : str +5, sust str, regen, res fear, im cold, monks get brand cold */
+     { 31,        "Ice Troll",  TRUE,  FORM_ICE_TROLL,    80 },
+     { 31, "Slow Monster",     FALSE,  FORM_ICE_TROLL,     9 },
+     { 31, "Shield",           FALSE,  FORM_ICE_TROLL,    12 }, 
+     { 31, "Ice Bolt",         FALSE,  FORM_ICE_TROLL,    15 },
+     /* Beholder : res blind, searching +5, see invis, slow -10 */
+     { 34,         "Beholder",  TRUE,  FORM_BEHOLDER,     85 },
+     { 34, "Detect Monsters",  FALSE,  FORM_BEHOLDER,      1 }, 
+     { 34, "Magic Mapping",    FALSE,  FORM_BEHOLDER,      9 }, 
+     { 34, "Teleport Other",   FALSE,  FORM_BEHOLDER,     12 },
+     { 34, "Confusion Ball",   FALSE,  FORM_BEHOLDER,     20 },
+     { 34, "Terror",           FALSE,  FORM_BEHOLDER,     25 },
+     { 34, "Mass Sleep",       FALSE,  FORM_BEHOLDER,     30 },
+     /* Vampire : res cold, res dark, res pois, res nether, hold life, regen, see invis */
+     { 37,          "Vampire",  TRUE,  FORM_VAMPIRE,      90 },
+     { 37, "Scare Monster",    FALSE,  FORM_VAMPIRE,       6 },
+     { 37, "Drain Life",       FALSE,  FORM_VAMPIRE,      15 },
+     { 37, "Nether Bolt",      FALSE,  FORM_VAMPIRE,      25 },
+     { 37, "Life for Mana",    FALSE,  FORM_VAMPIRE,      30 }, 
+     /* Chaos Drake : res conf, res chaos, res nexus, im fire, feather fall */
+     { 40,      "Chaos Drake",  TRUE,  FORM_CHAOS_DRAKE,  95 },
+     { 40, "Polymorph Monster",FALSE,  FORM_CHAOS_DRAKE,  20 },
+     { 40, "Chaos Bolt",       FALSE,  FORM_CHAOS_DRAKE,  30 },
+     { 40, "Nexus Bolt",       FALSE,  FORM_CHAOS_DRAKE,  40 },
 };
 
 static void shifter_info(char *p, int power)
@@ -4321,18 +4332,28 @@ static void shifter_info(char *p, int power)
 
      switch (power)
      {
-     case 1: sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5)); break;
-     case 2: case 17: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-     case 5: sprintf(p, " range %d", plev * 5); break;
-     case 7: case 8: strcpy(p, " dur 25+d25"); break;
-     case 11: case 22: case 25: sprintf(p, " dam %d, r2", 55 + plev); break;
-     case 19: case 26: sprintf(p, " dur %d+d20", plev); break;
-     case 24: sprintf(p, " dam %dd6", 3 + ((plev - 5) / 4)); break;
-     case 29: sprintf(p, " dam %dd8", 6 + ((plev - 5) / 4)); break;
-     case 32: sprintf(p, " dam %d, r3", 40 + plev); break;
-     case 38: sprintf(p, " dam %dd8", 9 + ((plev - 5) / 4)); break;
-     case 41: sprintf(p, " dam %dd8", 6 + ((plev - 5) / 3)); break;
-     case 42: sprintf(p, " dam %dd8", 6 + ((plev - 5) / 2)); break;
+     case SHIFTER_STING: case SHIFTER_STING2: 
+	  sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5)); break;
+     case SHIFTER_STINKING_CLOUD: 
+	  sprintf(p, " dam %d", 10 + (plev / 2)); break;
+     case SHIFTER_RES_POIS: case SHIFTER_RES_FIRE: case SHIFTER_RES_COLD: 
+     case SHIFTER_RES_ACID: case SHIFTER_RES_ELEC: strcpy(p, " dur 20+d20"); break;	  
+     case SHIFTER_TELE_SELF: case SHIFTER_TELE_SELF2:  printf(p, " range %d", plev * 5); break;
+     case SHIFTER_HEROISM: case SHIFTER_BERSERK: strcpy(p, " dur 25+d25"); break;
+     case SHIFTER_BR_FIRE: case SHIFTER_BR_ACID: case SHIFTER_L_BALL:
+	  sprintf(p, " dam %d, r2", 55 + plev); break;
+     case SHIFTER_HASTE: case SHIFTER_HASTE2:
+	  sprintf(p, " dur %d+d20", plev); break;
+     case SHIFTER_FIRST_AID: sprintf(p, " cure 2d%d", plev+5); break;
+     case SHIFTER_HERBAL_HEALING: sprintf(p, " cure %d", plev*2); break;
+     case SHIFTER_L_BOLT: sprintf(p, " dam %dd6", 3 + ((plev - 5) / 4)); break;
+     case SHIFTER_SHIELD: strcpy(p, " dur 30+d30"); break;
+     case SHIFTER_MIND_BLAST: case SHIFTER_ICE_BOLT: 
+	  sprintf(p, " dam %dd8", 6 + ((plev - 5) / 4)); break;
+     case SHIFTER_CONF_BALL: sprintf(p, " dam %d, r3", 40 + plev); break;
+     case SHIFTER_NETHER_BOLT: sprintf(p, " dam %dd8", 9 + ((plev - 5) / 4)); break;
+     case SHIFTER_CHAOS_BOLT: sprintf(p, " dam %dd8", 6 + ((plev - 5) / 3)); break;
+     case SHIFTER_NEXUS_BOLT: sprintf(p, " dam %dd8", 6 + ((plev - 5) / 2)); break;
      }
 }
 
@@ -4578,44 +4599,51 @@ void do_cmd_shifter()
      /* Use the power */
      switch (power)
      {
-     case 0: /* Giant Spider */
-     case 3: /* Tengu */
-     case 6: /* Arctic Bear */
-     case 9: /* Wyvern */
-     case 12: /* Umber Hulk */
-     case 16: /* Phase Spider */
-     case 20: /* Gorgon */
-     case 23: /* Colbran */
-     case 27: /* Ice Troll */
-     case 30: /* Beholder */
-     case 35: /* Vampire */
-     case 39: /* Chaos Drake */
+     case SHIFTER_GIANT_SPIDER:
+     case SHIFTER_TENGU:
+     case SHIFTER_ARCTIC_BEAR:
+     case SHIFTER_WYVERN:
+     case SHIFTER_UMBER_HULK:
+     case SHIFTER_GORGON:
+     case SHIFTER_PHASE_SPIDER:
+     case SHIFTER_ENT:
+     case SHIFTER_COLBRAN:
+     case SHIFTER_ICE_TROLL:
+     case SHIFTER_MINDFLAYER:
+     case SHIFTER_BEHOLDER:
+     case SHIFTER_VAMPIRE:
+     case SHIFTER_CHAOS_DRAKE:
 	  msg_format("You become a %s!", shifter_powers[power].name);
 	  p_ptr->shapeshift = shifter_powers[power].form;
 	  notice = TRUE;
 	  break;
-     case 1:
+     case SHIFTER_STING:
+     case SHIFTER_STING2:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt(GF_POIS, dir, damroll(3 + ((plev - 1) / 5), 4));
 	  effects[EFFECT_STING] += 1;
 	  break;
-     case 2:
-     case 17:
+     case SHIFTER_STINKING_CLOUD:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_ball(GF_POIS, dir,
 		    10 + (plev / 2), 2);
 	  effects[EFFECT_STINKING_CLOUD]++;
 	  break;
-     case 4:
-     case 18:
+     case SHIFTER_RES_POIS:
+	  (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+	  effects[EFFECT_RES_POIS]++;
+	  break;
+     case SHIFTER_PHASE_DOOR:
+     case SHIFTER_PHASE_DOOR2:
 	  teleport_player(10);
 	  effects[EFFECT_BLINK]++;
 	  break;
-     case 5:
+     case SHIFTER_TELE_SELF:
+     case SHIFTER_TELE_SELF2:
 	  teleport_player(plev * 5);
 	  effects[EFFECT_TELEPORT]++;
 	  break;
-     case 7:
+     case SHIFTER_HEROISM:
 	  (void)hp_player(10);
 	  (void)set_hero(p_ptr->hero + 
 			 randint(25) + 25);
@@ -4623,7 +4651,11 @@ void do_cmd_shifter()
 	       effects[EFFECT_REMOVE_FEAR]++;
 	  effects[EFFECT_HEROISM]++;
 	  break;
-     case 8:
+     case SHIFTER_RES_COLD:
+	  (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+	  effects[EFFECT_RES_COLD]++;
+	  break;
+     case SHIFTER_BERSERK:
 	  (void)hp_player(30);
 	  (void)set_shero(p_ptr->shero + 
 			  randint(25) + 25);
@@ -4631,32 +4663,37 @@ void do_cmd_shifter()
 	       effects[EFFECT_REMOVE_FEAR]++;
 	  effects[EFFECT_BERSERK]++;
 	  break;
-     case 10:
+     case SHIFTER_LIGHT_AREA:
 	  (void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 	  effects[EFFECT_LIGHT_AREA]++;
 	  break;
-     case 11:
+     case SHIFTER_RES_FIRE:
+	  (void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+	  effects[EFFECT_RES_FIRE]++;
+	  break;
+     case SHIFTER_BR_FIRE:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_ball(GF_FIRE, dir,
 		    55 + (plev), 2);
 	  effects[EFFECT_FIRE_BALL]++;
 	  break;
-     case 13:
+     case SHIFTER_CONFUSE:
+     case SHIFTER_CONFUSE2:
 	  if (!get_aim_dir(&dir)) return;
 	  (void)confuse_monster(dir, plev);
 	  effects[EFFECT_CONFUSE_MONSTER]++;
 	  break;
-     case 14:
+     case SHIFTER_STONE_TO_MUD:
 	  if (!get_aim_dir(&dir)) return;
 	  (void)wall_to_mud(dir);
 	  effects[EFFECT_STONE_TO_MUD]++;
 	  break;
-     case 15:
+     case SHIFTER_EARTHQUAKE:
 	  earthquake(py, px, 10);
 	  effects[EFFECT_EARTHQUAKE]++;
 	  break;
-     case 19:
-     case 26:
+     case SHIFTER_HASTE:
+     case SHIFTER_HASTE2:
 	  if (!p_ptr->fast)
 	  {
 	       (void)set_fast(randint(20) + plev);
@@ -4667,87 +4704,156 @@ void do_cmd_shifter()
 	  }
 	  effects[EFFECT_HASTE]++;
 	  break;
-     case 21:
+     case SHIFTER_RES_ACID:
+	  (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+	  effects[EFFECT_RES_ACID]++;
+	  break;
+     case SHIFTER_SLEEP:
 	  if (!get_aim_dir(&dir)) return;
 	  (void)sleep_monster(dir, p_ptr->current_class);
 	  effects[EFFECT_SLEEP_MONSTER]++;
 	  break;
-     case 22:
+     case SHIFTER_BR_ACID:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_ball(GF_ACID, dir,
 		    55 + (plev), 2);
 	  effects[EFFECT_ACID_BALL]++;
 	  break;
-     case 24:
+     case SHIFTER_FIRST_AID:
+	  (void)hp_player(damroll(2, plev+5));
+	  (void)set_cut(p_ptr->cut - (plev+10));
+	  (void)set_poisoned(p_ptr->poisoned / 2);
+	  effects[EFFECT_CURE_LIGHT]++;
+	  effects[EFFECT_SLOW_POISON]++;
+	  break;
+     case SHIFTER_HERBAL_HEALING:
+	  (void)hp_player(plev * 2);
+	  (void)set_stun(0);
+	  (void)set_cut(0);
+	  (void)set_poisoned(0);
+	  effects[EFFECT_HEAL]++;
+	  effects[EFFECT_CURE_POISON]++;
+	  break;
+     case SHIFTER_SAT_HUNGER:
+	  (void)set_food(PY_FOOD_MAX - 1);
+	  effects[EFFECT_SATISFY_HUNGER]++;
+	  break;
+     case SHIFTER_ENTANGLE:
+	  (void)slow_monsters(p_ptr->current_class);
+	  effects[EFFECT_SLOW_ALL]++;
+	  break;
+     case SHIFTER_MIND_BLAST:
+	  if (!get_aim_dir(&dir)) return;
+	  fire_bolt_or_beam(plev, GF_CONFUSION, dir,
+			    damroll(6+((plev-5)/4), 8));
+	  effects[EFFECT_ICE_BOLT]++;
+	  break;
+     case SHIFTER_L_BOLT:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt_or_beam(plev, GF_ELEC, dir,
 			    damroll(3+((plev-5)/4), 6));
 	  effects[EFFECT_LIGHTNING_BOLT]++;
 	  break;
-     case 25:
+     case SHIFTER_RES_ELEC:
+	  (void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+	  effects[EFFECT_RES_ELEC]++;
+	  break;
+     case SHIFTER_L_BALL:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_ball(GF_ELEC, dir,
 		    55 + (plev), 2);
 	  effects[EFFECT_LIGHTNING_BALL]++;
 	  break;
-     case 28:
+     case SHIFTER_SLOW:
 	  if (!get_aim_dir(&dir)) return;
 	  (void)slow_monster(dir, p_ptr->current_class);
 	  effects[EFFECT_SLOW_MONSTER]++;
 	  break;
-     case 29:
+     case SHIFTER_SHIELD:
+	  (void)set_shield(p_ptr->shield + randint(30) + 30);
+	  effects[EFFECT_SHIELD]++;
+	  break;
+     case SHIFTER_ICE_BOLT:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt_or_beam(plev, GF_ICE, dir,
 			    damroll(6+((plev-5)/4), 8));
 	  effects[EFFECT_ICE_BOLT]++;
 	  break;
-     case 31:
+     case SHIFTER_DETECT_MONS:
+	  (void)detect_monsters_normal();
+	  effects[EFFECT_DETECT_MONSTERS]++;
+	  break;
+     case SHIFTER_MAGIC_MAP:
+	  map_area();
+	  effects[EFFECT_MAPPING]++;
+	  break;
+     case SHIFTER_TELE_OTHER:
 	  if (!get_aim_dir(&dir)) return;
 	  (void)teleport_monster(dir);
 	  effects[EFFECT_TELEPORT_OTHER]++;
 	  break;
-     case 32:
+     case SHIFTER_CONF_BALL:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_ball(GF_CONFUSION, dir,
 		    40 + (plev), 3);
 	  effects[EFFECT_CONF_SPHERE]++;
 	  break;
-     case 33:
+     case SHIFTER_TERROR:
 	  (void)scare_monsters(p_ptr->current_class);
 	  effects[EFFECT_FEAR_ALL]++;
 	  break;
-     case 34:
+     case SHIFTER_MASS_SLEEP:
 	  (void)sleep_monsters(p_ptr->current_class);
 	  effects[EFFECT_SLEEP_ALL]++;
 	  break;
-     case 36:
+     case SHIFTER_SCARE:
+     case SHIFTER_SCARE2:
 	  if (!get_aim_dir(&dir)) return;
 	  (void)fear_monster(dir, plev);
 	  effects[EFFECT_FEAR_MONSTER]++;
 	  break;
-     case 37:
+     case SHIFTER_DRAIN_LIFE:
 	  if (!get_aim_dir(&dir)) return;
 	  drain_life(dir, 200);
 	  effects[EFFECT_DRAIN_LIFE]++;
 	  break;
-     case 38:
+     case SHIFTER_NETHER_BOLT:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt_or_beam(plev-10, GF_NETHER, dir,
 		    damroll(9 + ((plev-5)/4), 8));
 	  effects[EFFECT_NETHER_BOLT] += 1;
 	  break;
-     case 40:
+     case SHIFTER_LIFE_MANA:
+     {
+	  /* life for mana */
+	  int m = 0;
+	  m = get_quantity("How much mana?",999);
+	  if (!m) return;
+	  if (m<0) return;
+	  if (m > p_ptr->chp) {
+	       msg_print("You don't have that much life!");
+	       return;
+	  }
+	  if ((p_ptr->csp + m) > p_ptr->msp)
+	       m = p_ptr->msp - p_ptr->csp;
+	  p_ptr->csp += m;
+	  take_hit(m,"spellcasting");
+	  msg_print("You convert life into mana.");
+	  effects[EFFECT_LIFE_FOR_MANA]++;
+	  break;
+     }
+     case SHIFTER_POLY_OTHER:
 	  if (!get_aim_dir(&dir)) return;
 	  (void)poly_monster(dir, p_ptr->current_class);
 	  effects[EFFECT_POLY_OTHER]++;
 	  break;
-     case 41:
+     case SHIFTER_CHAOS_BOLT:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt(GF_CHAOS, dir,
 		    damroll(6 + ((plev-5)/3), 8));
 	  effects[EFFECT_CHAOS_BOLT] += 1;
 	  break;
-     case 42:
+     case SHIFTER_NEXUS_BOLT:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt(GF_NEXUS, dir,
 		    damroll(6 + ((plev-5)/2), 8));

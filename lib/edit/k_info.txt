@@ -3731,3 +3731,53 @@ W:30:0:3:1200
 A:30/1
 F:ACTIVATE | EASY_KNOW
 
+# Spell Scrolls
+
+N:587:& Spell Scroll~
+G:?:d
+I:70:53:0
+W:1:0:5:1
+A:1/1:5/1:10/1:25/1
+F:EASY_KNOW
+
+N:588:& Prayer Scroll~
+G:?:d
+I:70:54:0
+W:1:0:5:1
+A:1/1:5/1:10/1:25/1
+F:EASY_KNOW
+
+N:589:& Illusion Scroll~
+G:?:d
+I:70:55:0
+W:1:0:5:1
+A:1/1:5/1:10/1:25/1
+F:EASY_KNOW
+
+N:590:& Death Scroll~
+G:?:d
+I:70:56:0
+W:1:0:5:1
+A:1/1:5/1:10/1:25/1
+F:EASY_KNOW
+
+N:591:& Talisman~
+G:":d
+I:40:17:0
+W:10:0:3:1200
+A:10/1:25/1:50/1:75/1
+F:ACTIVATE | EASY_KNOW
+
+N:592:& Charm~
+G:=:d
+I:45:38:0
+W:10:0:2:1200
+A:10/1:25/1:50/1:75/1
+F:ACTIVATE | EASY_KNOW
+
+N:593:& Book~ of Infinite Spells
+G:?:y
+I:70:57:0
+W:80:0:5:125000
+A:80/16
+F:ACTIVATE | EASY_KNOW | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD

@@ -433,7 +433,13 @@ C:0:0:0:10
 T:30:0:99
 F:SPEED | HIDE_TYPE
 
-# 60 (unused)
+N:60:of Kicking
+X:35:17:0
+W:0:4:0:500
+C:0:5:0:0
+# Not Sandals or Soft Leather Boots
+T:30:3:99
+F:SHOW_MODS
 
 N:61:of Noise
 X:35:0:0
@@ -720,7 +726,7 @@ F:CON | SLAY_DRAGON | KILL_DRAGON
 N:96:of Magery
 X:24:15:3
 W:0:6:0:4000
-C:0:0:0:5
+C:5:5:0:5
 T:23:0:19
 T:21:3:3
 F:SUST_INT | INT | R_MAGERY
@@ -729,7 +735,7 @@ F:SUST_INT | INT | R_MAGERY
 N:97:of Holiness
 X:24:15:3
 W:0:6:0:4000
-C:0:0:0:5
+C:5:5:0:5
 T:21:0:99
 F:SUST_WIS | WIS | R_HOLY
 
@@ -737,7 +743,7 @@ F:SUST_WIS | WIS | R_HOLY
 N:98:of Illusion
 X:24:15:3
 W:0:6:0:4000
-C:0:0:0:5
+C:5:5:0:5
 T:23:0:19
 T:21:3:3
 F:SUST_INT | INT | R_ILLUSION
@@ -746,7 +752,7 @@ F:SUST_INT | INT | R_ILLUSION
 N:99:of Death
 X:24:15:3
 W:0:6:0:4000
-C:0:0:0:5
+C:5:5:0:5
 T:21:0:99
 F:SUST_WIS | WIS | R_DEATH
 
