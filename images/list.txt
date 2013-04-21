@@ -1,18 +1,18 @@
 Image list. Mostly complete
 
 
-000 wall block (unused) (Hajo)
-001 open floor (unused) (Hajo)
-002 rock wall           (Hajo)
-003 brick wall (unused) (Hajo)
-004 clean floor         (Hajo)
-005 clean wall          (Hajo)
+000 Quartz vein         (Hajo)
+001 Open floor (unused) (Hajo)
+002 Magma vein          (Hajo)
+003 Brick wall (unused) (Hajo)
+004 Clean floor         (Hajo)
+005 Clean wall          (Hajo)
 006-027 unused
 028 Line mushroom       (Hajo)
 029 Line rodent         (Hajo)
 030 Line Snake          (Mitsuhiro/Hajo)
 031 Line Centipede      (Hajo)
-032 empty tile          (Hajo)
+032 Empty tile          (Hajo)
 033-126 ASCII chars     (Hajo)
 127 Line Torch          (Hajo)
 128 Line scroll         (Hajo)
@@ -44,9 +44,9 @@ Image list. Mostly complete
 160 large white snake   (Mitsuhiro/Hajo)
 161 large brown snake   (Mitsuhiro/Hajo)
 162 cobra               (Mitsuhiro)
-163 (unused)            (Maarten)
-164 (unused)
-165 (unused)
+163 Line floating eye   (Hajo)
+164 Line icky thing     (Hajo)
+165 Line spider         (Hajo)
 166 (unused)
 167 (unused)
 168 insect swarm        (Hajo)
@@ -60,7 +60,11 @@ Image list. Mostly complete
 177 Line jackal         (Hajo)
 178 Line mold           (Hajo)
 179 Line bat            (M. Woxberg/Hajo)
-180-199 added by M. Woxberg
+180-181 added by M. Woxberg
+182 Line warrior        (Maarten/Hajo)
+183-197 added by M. Woxberg
+198 Line mage           (Maarten/Hajo)
+199 added by M. Woxberg
 200 copper 3            (Hajo)
 201 copper 2            (Hajo)
 202 copper 1            (Hajo)
@@ -76,12 +80,18 @@ Image list. Mostly complete
 212 Line club           (Hajo)
 213 Line shovel         (Hajo)
 214 Line pickaxe        (Hajo)
-215-222 added by M. Woxberg
+215 Line mace           (Hajo)
+216 Line bow            (Hajo)
+217 Line arrow          (Hajo)
+218 Line hammer         (Hajo)
+219 Line pike           (Hajo)
+220-222 added by M. Woxberg
 223 (unused)
 224-231 Shop entrances  (Hajo)
 232-239 bottles (unused)(Hajo)
 240-279 9 part walls    (Hajo)
-280-319 9 part walls    (Hajo)
+280-318 9 part walls    (Hajo)
+319 Town outside tile   (Hajo)
 
 David:     David E. Gervais
 Hajo:      Hansjörg Malthaner
@@ -91,6 +101,6 @@ Mitsuhiro: Mitsohiro Itakura
 
 Started by Hj. Malthaner, March 2001
 Stuff added by M. Woxberg, 27th March 2001
-Last update by Hj. Malthaner, 25-Sep-2009
+Last update by Hj. Malthaner, 30-Sep-2009
 
 Contact: hansjoerg.malthaner@gmx.de

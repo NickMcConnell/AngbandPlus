@@ -30,7 +30,7 @@
 /* world_adaptor.c
  *
  * adaption between angband world and simugraph data model
- * Hj. Maltahner, Jan. 2001
+ * Hj. Malthaner, Jan. 2001
  */
 
 #include "hackdef.h"

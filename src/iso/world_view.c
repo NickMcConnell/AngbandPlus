@@ -51,6 +51,10 @@ extern unsigned char **iso_cp;
 extern unsigned char **iso_atp;
 extern unsigned char **iso_ctp;
 
+/* Hajo: Constant definitions */
+const int OUTSIDE_TOWN = 319;
+const int SHADOW = 153;
+
 
 
 #ifdef USE_SMALL_ISO_HACK
@@ -232,6 +236,40 @@ static int is_wall_or_door(int x, int y)
 
 #endif
 
+static int is_player_in_town()
+{
+  /* Hajo: I bet this is specific for each angband variant again. */
+
+  /* this is for Angband 2.9.1 */
+  return (p_ptr) && (p_ptr->depth == 0);	
+}
+
+
+static int is_location_outside_town(int x, int y)
+{
+    const int qy = SCREEN_HGT;
+    const int qx = SCREEN_WID;
+
+    /* Hajo: check for area outside town */
+    return x < qx || y < qy ||  x>= qx+ SCREEN_WID || y >= qy+SCREEN_HGT;
+}
+
+
+/**
+ * Calculate a suitable image for display outside the
+ * town walls.
+ * @author Hj. Malthaner
+ */
+static int calc_town_outside(int x, int y)
+{
+  int image = OUTSIDE_TOWN;
+  
+  /* Hajo: randomize image by coordinate */
+  /* image += (y*3 + x) & 3; */
+	
+  return image;
+}
+
 
 /**
  * Draw ground of location i,j onto screen position xpos,ypos
@@ -292,7 +330,7 @@ void display_dinge(int x, int y, int xpos, int ypos)
 {
   const int grid = get_grid();
   int feat_nc = -1;
-  int obj_nc;
+  int obj_nc;	
 
   /* relative to view position */
   int xoff = x - p_ptr->px + (SCREEN_WID/2+13);
@@ -323,23 +361,26 @@ void display_dinge(int x, int y, int xpos, int ypos)
     } 
   }
 
-
   /* Text mode code */
 
   feat_nc = calc_nc_text(tc, ta);
   obj_nc = calc_nc_text(c, a);
-
+  
+  /* Hajo: if we are in town, we should display only one row of wall */
+  if(is_player_in_town()) {
+    if(is_location_outside_town(x, y)) {
+      obj_nc = feat_nc = calc_town_outside(x, y);
+    }
+  }
 
   if(feat_nc == 0x27) {
     /* open doors */   
     display_img(138+door_direction(x,y), xpos, ypos, TRUE);
-    
-      
   } else if(feat_nc == 0x2B) {
     /* closed doors */
     display_img(136+door_direction(x,y), xpos, ypos, TRUE);
   } else {
-
+    /* display floor/wall */
     display_color_img(feat_nc, xpos, ypos, ta & 0xF, TRUE);
   }  
 
@@ -359,7 +400,7 @@ void display_dinge(int x, int y, int xpos, int ypos)
 
     /* Hajo: display a shadow below items/monsters if the user wants to */
     if(shadow) {
-      display_color_img(153, xpos, ypos, ta & 0xF, TRUE);
+      display_color_img(SHADOW, xpos, ypos, ta & 0xF, TRUE);
     }
 
     if((a & 0xF) == 0) {

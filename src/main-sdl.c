@@ -1962,7 +1962,7 @@ errr init_sdl(int oargc, char **oargv)
 
 	td = &(data[0]);
 	(void)WIPE(td, term_data);
-	td->name = "Iso-Angband 0.2.5";
+	td->name = "Iso-Angband 0.2.6";
 	td->face = NULL;
 
 	td->fd = &screen_font;
