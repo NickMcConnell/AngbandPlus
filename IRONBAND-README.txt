@@ -5,7 +5,7 @@ It is written for players who are used to *banding and want to know
 how Ironband is different from other variants. I do suggest you read
 it as there are some important changes!
 
-Antoine (mail@guildgame.com)
+Antoine (antoine.from.rgrd@gmail.com)
 
 =================================================================
 
@@ -14,7 +14,7 @@ The big picture
 
 1. The dungeon is just 50 levels deep. The final boss is The Witch
 King of Angmar. He hangs out on DL 50 and to reach him you first have
-to kill another level boss on DL49.
+to kill another level boss on DL 49.
 
 2. As the name implies, this is an ironman game. You can never go up
 stairs, only down. You start in the dungeon and can never get back to
@@ -121,7 +121,8 @@ just need the correct spellbook.
 
 3. Wands now work differently - each type of wand allows you to cast
 the matching spell. You still need to make the spell failure check and
-pay the SP (though the spell cost is reduced by 1).
+pay the SP - but the spell cost is reduced by 1 and the failure chance
+is reduced.
 
 4. There are no staffs or rods. However there are Talismans. A
 talisman allows you to cast a family of spells more cheaply when it is
@@ -133,10 +134,13 @@ in conserving SP.
 instance an Amulet of Regeneration, when you put it on, allows you to
 cast healing spells for reduced cost.
 
-6. Spellbooks are now fairly resistant to damage (but can sometimes be
-burnt by really big fire attacks).
+6. Talismans and similar items do not make wands cost less SP.
 
-7. Sleep, confusion and slow spells are more effective than before.
+7. Spellbooks are now fairly resistant to damage, but can sometimes be
+burnt by really big fire attacks. Similarly, wands and talismans can 
+sometimes be destroyed by really big lighting attacks.
+
+8. Sleep, confusion and slow spells are more effective than before.
 
 
 Combat
@@ -161,8 +165,8 @@ good weapon can do really quite a lot of damage (if it has good base
 dice).
 
 5. High Perception gives you better missile hit/dam, and high Stealth
-gives you melee bonuses when you sneak up on a monster. High Agility
-increases your speed and AC.
+gives you hit and damage bonuses when you hit or shoot a sleeping monster.
+High Agility increases your speed and AC.
 
 6. Heavy body armors now reduce your Stealth. Some boots can also reduce
 your Stealth, and some helms reduce your Perception.
@@ -170,6 +174,14 @@ your Stealth, and some helms reduce your Perception.
 7. Tough armors with big base AC can now be enchanted a lot higher. On 
 the other hand, light armors with low base AC cannot take a lot of 
 enchantment, and are usually found with low plusses.
+
+8. If you have low Dexterity and try to shoot a monster, you may sometimes
+fire off your missile in the wrong direction.
+
+9. Two-handed weapons give more critical hits than one-handed ones. 
+However, two-handed weapons cannot be wielded with a shield, and can 
+never be wielded by dwarves, gnomes, or halflings (who are too short to
+use them properly).
 
 
 So - why are these changes good?
@@ -212,5 +224,5 @@ monsters :) (or sneak around them).
 With thanks to the developers and maintainers of
 NPPAngband, Angband and Moria.
 
-Antoine (mail@guildgame.com)
+Antoine (antoine.from.rgrd@gmail.com)
 =================================================================

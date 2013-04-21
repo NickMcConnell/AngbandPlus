@@ -9,37 +9,34 @@ at others.
 that these stat points will tend to go on the stats most suited to your race
 (especially below DL 7).
 
-***** <Human>
 Human:
      A flexible and adaptive race, humans are found all over Middle-Earth, from
 desert Harad to icy Horodwaith.  They have no special adjustments to stats, and
 no special strengths or weaknesses.  
 
-***** <Half-Elf>
 Half-Elf:
      The descendants of Elves and Humans, Half-elves are better at magic than 
 humans, more dextrous, stealthier and have longer sight, but are not so strong 
 or tough. Half-elves sustain dexterity inherently, and are native to forest.
 
-***** <Hobbit>
 Hobbit:
      Hobbits are shy, retiring folk with enough good sense to share.  They live
 in homes with circular entranceways built partially underground, and are the
 smallest of all the races.  They are weak, have few hit points, are slow movers 
 and are very poor at melee. But many of their other abilities are excellent. As 
 well as having good skills, Hobbits are stealthy, lucky, and dextrous. They are 
-also resistant to experience draining and loss of constitution.
+also resistant to experience draining and loss of constitution. 
+Hobbits cannot use two-handed weapons like halberds or greatswords.
 
-***** <Gnome>
 Gnome:
      Gnomes are the pudgy pranksters of the dungeon; if they can kill something
 in a humorous way, so much the better.  They may be small and ugly, but can
 outbargain and outwit just about anyone.  They are among the frailer races, and
 not powerful in combat, but are very good at magic, are stealthy and have good 
 eyesight. They have innate infravision, and -- most importantly -- are immune to
-paralyzation.
+paralyzation. 
+Gnomes cannot use two-handed weapons like halberds or greatswords.
 
-***** <Dwarf>
 Dwarf:
      Dwarves are the headstrong miners and fighters of legend.  They are strong,
 and tough, but not very good at casting spells. They are slow moving but have
@@ -48,9 +45,9 @@ combat, have innate infravision, and -- a major advantage -- can never be
 blinded.  They do have one big drawback, though:  Dwarves are loudmouthed and
 proud, singing in loud voices, arguing with themselves for no good reason,
 screaming out challenges at imagined foes.  In other words, dwarves have a
-miserable stealth.
+miserable stealth. 
+Dwarves cannot use two-handed weapons like halberds or greatswords.
 
-***** <Half-Orc>
 Half-Orc:
      The bastard offspring of humans and orcs, half-orcs are ugly, strong, and
 have very bad attitudes.  Their magic is poor, as are most of their skills, but 
@@ -58,7 +55,6 @@ they know how to fight and can take as much damage as they dish out. They are
 sneaky, but have poor eyesight. On the other hand, half-orcs have innate 
 infravision and, like orcs themselves, resist darkness and its effects.
 
-***** <Half-Troll>
 Half-Troll:
      Half-trolls are built like blocks of granite; no other race can match their
 strength or recover hitpoints as quickly.  Their hand-to-hand combat prowess is
@@ -67,7 +63,6 @@ everything else. They are very bad at magic, are very noisy, have bad eyesight
 and are often klutzes. At least they have innate infravision and always have 
 their strength sustained.  
 
-***** <High-Elf>
 High-Elf:
       High-Elves are descended from those among the Elves who heard and answered
 the call from the Valar at the very beginning of time, before the sun and moon

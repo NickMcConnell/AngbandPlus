@@ -73,7 +73,7 @@
 
 # Version stamp (required)
 
-V:0.1.0
+V:0.1.1
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -303,7 +303,7 @@ P:2:0d0:0:0:0
 A:1/1:50/1
 
 
-N:23:Soft Leather Armour~
+N:23:Leather Armour~
 G:(:U
 I:36:4:0
 W:3:0:80:18
@@ -311,7 +311,7 @@ P:4:0d0:0:0:0
 A:3/1
 
 
-N:24:Leather Cuirass~
+N:24:& Leather Cuirass~
 G:(:U1
 I:36:5:0
 W:3:0:90:35
@@ -319,7 +319,7 @@ P:5:1d1:0:0:0
 A:3/1
 
 
-N:25:Wolfskin~
+N:25:& Wolfskin~
 G:(:U
 I:36:6:0
 W:5:0:100:150
@@ -360,7 +360,7 @@ P:14:1d4:-3:0:-8
 A:25/1
 
 
-N:30:Habergeon~
+N:30:& Habergeon~
 G:[:s
 I:37:3:0
 W:25:0:250:550
@@ -368,7 +368,7 @@ P:13:1d4:-1:0:0
 A:25/1
 
 
-N:31:Hauberk~
+N:31:& Hauberk~
 G:[:s
 I:37:4:0
 W:25:0:220:750
@@ -376,7 +376,7 @@ P:14:1d4:-2:0:0
 A:25/1
 
 
-N:32:Mail-coat~
+N:32:& Mail-coat~
 G:[:s
 I:37:7:0
 W:30:0:250:850
@@ -384,7 +384,7 @@ P:16:1d4:-2:0:0
 A:30/1
 
 
-N:33:Breastplate~
+N:33:& Breastplate~
 G:[:s1
 I:37:9:0
 W:35:0:290:1100
@@ -392,7 +392,7 @@ P:19:1d4:-1:0:0
 A:35/1
 
 
-N:34:Cuirass~
+N:34:& Cuirass~
 G:[:W
 I:37:12:0
 W:45:0:260:1200
@@ -424,7 +424,7 @@ P:28:2d4:-2:0:0
 A:50/1
 
 
-N:38:Mithril Mail-coat~
+N:38:& Mithril Mail-coat~
 G:[:B
 I:37:20:0
 W:55:0:150:7000
@@ -494,7 +494,7 @@ P:10:1d1:0:0:10
 A:60/4
 F:IGNORE_ACID | RES_SHARD
 D:Wearing this shield makes all your resistance spells (such as Resist Poison) cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 
 
 ##### Dragon Armor #####
@@ -524,7 +524,7 @@ G:[:R
 I:38:3:0
 W:60:0:200:60000
 P:30:1d1:-2:0:15
-A:60/32
+A:50/32
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A set of armor made from the scales of an ancient dragon.
 
@@ -534,7 +534,7 @@ G:[:v
 I:38:4:0
 W:90:0:240:100000
 P:45:1d1:-3:0:25
-A:70/64
+A:60/64
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A set of armor made from the scales of a great wyrm.
 
@@ -564,7 +564,7 @@ G:):R
 I:41:3:0
 W:60:0:60:40000
 P:10:1d1:0:0:10
-A:60/32
+A:50/32
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A shield made from the scales of an ancient dragon.
 
@@ -574,7 +574,7 @@ G:):v
 I:41:4:0
 W:90:0:80:80000
 P:12:1d1:0:0:15
-A:70/64
+A:60/64
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A shield made from the scales of a great wyrm.
 
@@ -678,7 +678,7 @@ I:23:25:0
 W:30:0:180:775
 P:0:3d6:0:0:0
 A:40/1:50/1
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:69:& Fell Blade~
@@ -687,7 +687,7 @@ I:23:28:0
 W:40:0:260:850
 P:0:5d4:0:0:0
 A:45/1
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:70:& Blade~ of Chaos
@@ -696,7 +696,7 @@ I:23:30:0
 W:70:0:320:14000
 P:0:5d5:0:0:0
 A:60/5
-F:RES_CHAOS | SHOW_MODS
+F:RES_CHAOS | SHOW_MODS | 2H
 
 
 
@@ -726,7 +726,7 @@ I:22:8:0
 W:15:0:170:358
 P:0:1d12:0:0:0
 A:15/1
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:75:& War Axe~
@@ -753,7 +753,7 @@ I:22:13:0
 W:20:0:200:363
 P:0:3d4:0:0:0
 A:20/1
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:79:& Halberd~
@@ -762,7 +762,7 @@ I:22:15:0
 W:25:0:200:430
 P:0:2d9:0:0:0
 A:32/1
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:80:& Scythe~
@@ -771,7 +771,7 @@ I:22:17:0
 W:45:0:180:2800
 P:0:4d4:0:0:0
 A:40/2
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:81:& Battle Axe~
@@ -780,7 +780,7 @@ I:22:22:0
 W:15:0:170:334
 P:0:3d5:0:0:0
 A:30/1
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:82:& Great Axe~
@@ -789,7 +789,7 @@ I:22:25:0
 W:40:0:230:500
 P:0:2d10:0:0:0
 A:40/1
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:83:& Berserker Axe~
@@ -798,7 +798,7 @@ I:22:28:0
 W:45:0:250:750
 P:0:3d8:0:0:0
 A:45/1
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:84:& Scythe~ of Slicing
@@ -807,7 +807,7 @@ I:22:30:0
 W:60:0:300:3500
 P:0:4d8:0:0:0
 A:60/3
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 
@@ -828,7 +828,7 @@ I:21:3:0
 W:10:0:80:200
 P:0:1d9:0:0:0
 A:12/1
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:87:& Mace~
@@ -882,7 +882,7 @@ I:21:13:0
 W:10:0:150:353
 P:0:2d6:0:0:0
 A:20/1
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:94:& Great Spiked Flail~
@@ -891,7 +891,7 @@ I:21:15:0
 W:15:0:220:502
 P:0:2d7:0:0:0
 A:25/1
-F:SHOW_MODS
+F:SHOW_MODS | 2H
 
 
 N:95:& Mace~ of Disruption
@@ -900,9 +900,9 @@ I:21:20:0
 W:80:0:340:14300
 P:0:3d9:0:0:0
 A:60/5
-F:SLAY_UNDEAD | SHOW_MODS
+F:SLAY_UNDEAD | SHOW_MODS | 2H
 D:Wielding this mace makes all your blessing spells cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 
 
 
@@ -1224,7 +1224,7 @@ G:~:u
 I:39:0:0
 W:1:0:30:2
 P:0:1d1:0:0:0
-A:1/1
+A:1/1:3/1
 F:EASY_KNOW
 D:It is equippable as a light source with a radius of 1 square.  It may
 D: also be used to fuel another torch, up to a maximum of 1000 turns of
@@ -1236,7 +1236,7 @@ G:~:U
 I:39:1:0
 W:3:0:50:35
 P:0:1d1:0:0:0
-A:3/1:20/2
+A:5/1:20/2
 F:IGNORE_FIRE
 D:It is equippable as a light source with a radius of 2 squares.  It may
 D: also be used to fuel another lantern. 
@@ -1263,7 +1263,7 @@ P:0:0d0:0:0:0
 A:10/2
 F:TELEPORT | EASY_KNOW | LIGHT_CURSE
 D:Wearing this amulet causes random teleportation, but it also makes all your teleportation spells cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 
 N:132:Adornment
 G:":d
@@ -1273,7 +1273,7 @@ P:0:0d0:0:0:0
 A:10/2
 F:EASY_KNOW
 D:Wearing this amulet makes all your enchantment spells (such as Sleep or Slow) cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 
 
 N:133:Slow Digestion
@@ -1331,7 +1331,7 @@ F:INT | PER | SUST_INT | RES_CONFU | SEE_INVIS
 F:FREE_ACT | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:HIDE_TYPE
 D:Wearing this amulet makes all your identification spells cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 
 
 N:139:Sustenance
@@ -1374,7 +1374,7 @@ P:0:0d0:0:0:0
 A:30/3
 F:REGEN | EASY_KNOW
 D:Wearing this amulet makes all your healing spells cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 
 
 N:143:Devotion
@@ -1386,7 +1386,7 @@ A:60/8
 F:WIS | SUST_WIS | RES_FIRE
 F:RES_LITE | RES_DARK | LITE | HOLD_LIFE | HIDE_TYPE
 D:Wearing this amulet makes all your blessing spells cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 
 
 N:144:Weaponmastery
@@ -1456,7 +1456,7 @@ P:0:0d0:0:0:0
 A:5/2
 F:TELEPORT | EASY_KNOW | LIGHT_CURSE
 D:Wearing this ring causes random teleportation, but it also makes all your teleportation spells cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 
 
 N:153:Slow Digestion
@@ -1556,7 +1556,7 @@ P:0:0d0:0:0:15
 A:40/6
 F:IM_FIRE | IGNORE_FIRE | ACTIVATE
 D:Wearing this ring makes all your fire and light spells cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 
 
 N:166:Ice
@@ -1667,13 +1667,13 @@ F:SHOW_MODS
 D:It boosts your to-hit and to-dam values. 
 
 
-N:179:Speed
+N:179:Agility
 G:=:d
 I:45:31:0
-W:75:0:2:100000
+W:30:0:2:500
 P:0:0d0:0:0:0
-A:60/4
-F:SPEED | HIDE_TYPE
+A:30/1
+F:AGI | SUST_AGI | HIDE_TYPE
 
 
 N:180:Lightning
@@ -1693,154 +1693,154 @@ G:_:d
 I:55:0:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:15/12:35/12
 D:This talisman makes all your detection spells cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:182:Lore
 G:_:d
 I:55:1:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:15/12:35/12
 D:This talisman makes all your identification spells cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:183:Healing
 G:_:d
 I:55:2:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:20/12:35/12
 D:This talisman makes all your healing spells cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:184:Holiness
 G:_:d
 I:55:3:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:15/12:35/12
 D:This talisman makes all your priestly spells (such as Bless) cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:185:Bewitchment
 G:_:d
 I:55:4:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:15/12:35/12
 D:This talisman makes all your enchantment spells (such as Sleep) cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:186:Battle
 G:_:d
 I:55:5:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:20/12:35/12
 D:This talisman makes all your battle spells (such as Fire Bolt) cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:187:Warping
 G:_:d
 I:55:6:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:20/12:35/12
 D:This talisman makes all your teleportation spells cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:188:Protection
 G:_:d
 I:55:7:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:15/12:35/12
 D:This talisman makes all your resistance spells (such as Resist Poison) cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:189:Incandescence
 G:_:d
 I:55:8:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:15/12:35/12
 D:This talisman makes all your fire and light spells cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:190:Enhancement
 G:_:d
 I:55:9:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:15/12:35/12
 D:This talisman makes all your buffing spells (such as Barkskin) cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:191:Conjuration
 G:_:d
 I:55:10:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:15/12:35/12
 D:This talisman makes all your creation spells (such as Create Food) cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:192:Force
 G:_:d
 I:55:11:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:20/12:35/12
 D:This talisman makes all your force spells (such as Mana Bolt) cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:193:Nature
 G:_:d
 I:55:12:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:15/12:35/12
 D:This talisman makes all your nature spells (such as Barkskin) cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 N:194:Time
 G:_:d
 I:55:13:0
 W:25:0:20:0
 P:0:1d2:0:0:0
-A:15/12:35/12:50/12
+A:20/12:35/12
 D:This talisman makes all your time spells (such as Haste Self) cost less mana.
 D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
-D: Its effects are cumulative with wands, other types of talismans, and some special
-D: magic items which also make spells cheaper - but not with more talismans of the same kind.
+D: Its effects are cumulative with other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with wands, or more talismans of the same kind.
 
 
 
@@ -2161,7 +2161,7 @@ G:?:w
 I:70:1:0
 W:5:0:5:0
 P:0:0d0:0:0:0
-A:5/4
+A:10/4
 F:EASY_KNOW
 D:It awakens all sleeping monsters within 40 squares of you, and hastes
 D: all monsters within line of sight unless they are already hasted. 
@@ -2197,7 +2197,7 @@ G:?:w
 I:70:4:0
 W:1:0:5:0
 P:0:0d0:0:0:0
-A:1/2
+A:5/2
 F:EASY_KNOW
 D:It summons 1d3 monsters that are generated at the current dungeon
 D: level.  If a monster normally appears in groups, a whole group will
@@ -2234,7 +2234,7 @@ G:?:w
 I:70:7:0
 W:10:0:5:0
 P:0:0d0:0:0:0
-A:10/4
+A:15/4
 F:EASY_KNOW
 D:It creates traps on all empty squares within a 1-square radius of you. 
 
@@ -2275,7 +2275,7 @@ G:?:w
 I:70:13:0
 W:30:0:5:1000
 P:0:0d0:0:0:0
-A:25/1:40/2
+A:10/12:25/2:40/2
 F:EASY_KNOW
 D:It reveals all normal and hidden powers of one object, and also
 D: permanently implants this knowledge into your mind, so that you will
@@ -2299,7 +2299,7 @@ G:?:w
 I:70:15:0
 W:50:0:5:8000
 P:0:0d0:0:0:0
-A:50/3
+A:25/8:40/4
 F:EASY_KNOW
 D:It removes all ordinary and heavy curses from all equipped objects. 
 D: Permanent curses are unaffected. 
@@ -2360,7 +2360,7 @@ G:?:w
 I:70:22:0
 W:40:0:5:500
 P:0:0d0:0:0:0
-A:30/5
+A:30/4
 F:EASY_KNOW
 D:It can put many monsters to sleep at once.
 
@@ -2369,7 +2369,7 @@ G:?:w
 I:70:23:0
 W:40:0:5:500
 P:0:0d0:0:0:0
-A:40/5
+A:40/4
 F:EASY_KNOW
 D:It can confuse many monsters at once.
 
@@ -2391,7 +2391,7 @@ G:?:w
 I:70:25:0
 W:5:0:5:40
 P:0:0d0:0:0:0
-A:5/1
+A:10/1
 F:EASY_KNOW
 D:It maps out a portion of the level centered on you. 
 
@@ -2441,7 +2441,7 @@ G:?:w
 I:70:30:0
 W:1:0:5:15
 P:0:0d0:0:0:0
-A:1/1
+A:10/1
 F:EASY_KNOW
 D:It detects all invisible monsters in the immediate area. 
 
@@ -2451,7 +2451,7 @@ G:?:w
 I:70:32:0
 W:5:0:5:10
 P:0:0d0:0:0:0
-A:5/1:20/2:35/2
+A:5/2:20/2:35/2
 F:EASY_KNOW
 D:It magically renders you well-fed (but not satiated).  This will also
 D: cure a bloated stomach. 
@@ -2473,7 +2473,7 @@ G:?:w
 I:70:34:0
 W:10:0:5:40
 P:0:0d0:0:0:0
-A:10/1
+A:12/1
 F:EASY_KNOW
 D:It blesses you (a bonus of +5 to armor class and +10 to-hit) for
 D: 12+1d24 turns. 
@@ -2531,7 +2531,7 @@ G:?:w
 I:70:39:0
 W:10:0:5:50
 P:0:0d0:0:0:0
-A:10/1
+A:17/1
 F:EASY_KNOW
 D:It destroys all traps and doors within a 1-square radius of you. 
 
@@ -2682,7 +2682,7 @@ G:!:d
 I:75:7:0
 W:0:0:4:0
 P:0:1d1:0:0:0
-A:0/4
+A:5/4
 F:EASY_KNOW
 D:It induces blindness for 99+1d100 turns, unless you have resistance to
 D: blindness. 
@@ -2693,7 +2693,7 @@ G:!:d
 I:75:9:50
 W:0:0:4:0
 P:0:1d1:0:0:0
-A:0/4
+A:8/4
 F:EASY_KNOW
 D:It induces confusion for 14+1d20 turns, unless you have resistance to
 D: confusion.  It also provides nourishment for about 25 turns under
@@ -2705,7 +2705,7 @@ G:!:d
 I:75:11:100
 W:0:0:4:0
 P:0:1d1:0:0:0
-A:0/4
+A:10/4
 F:EASY_KNOW
 D:It induces paralyzation for 3+1d4 turns, unless you have free action. 
 D: It also provides nourishment for about 50 turns under normal
@@ -2717,7 +2717,7 @@ G:!:d
 I:75:13:0
 W:10:0:4:0
 P:0:1d1:0:0:0
-A:10/4
+A:15/4
 F:EASY_KNOW
 D:It drains 25% of your experience total, unless you have hold life. 
 
@@ -2829,7 +2829,7 @@ G:!:d
 I:75:25:0
 W:3:0:4:50
 P:0:1d1:0:0:0
-A:3/1
+A:7/1
 F:EASY_KNOW
 D:It enables you to see invisible creatures for 12+1d12 turns. 
 
@@ -2859,7 +2859,7 @@ G:!:d
 I:75:29:0
 W:1:0:4:75
 P:0:1d1:0:0:0
-A:1/1:40/4
+A:3/1:40/4
 F:EASY_KNOW
 D:It hastes you (+10 to speed) for 15+1d25 turns (or 5 additional turns
 D: if you already are under the effect of a temporary haste
@@ -2871,7 +2871,7 @@ G:!:d
 I:75:30:0
 W:1:0:4:30
 P:0:1d1:0:0:0
-A:10/2
+A:12/2
 F:EASY_KNOW
 D:It grants you temporary resistance to fire for 10+1d10 turns. 
 D: Temporary resistance is cumulative with permanent resistance, if one
@@ -2884,7 +2884,7 @@ G:!:d
 I:75:31:0
 W:1:0:4:30
 P:0:1d1:0:0:0
-A:10/2
+A:12/2
 F:IGNORE_COLD | EASY_KNOW
 D:It grants you temporary resistance to cold for 10+1d10 turns. 
 D: Temporary resistance is cumulative with permanent resistance, if one
@@ -2908,7 +2908,7 @@ G:!:d
 I:75:33:0
 W:3:0:4:100
 P:0:1d1:0:0:0
-A:3/1
+A:5/1
 F:EASY_KNOW
 D:It cures 30 points of damage, removes fear and grants you berserk
 D: strength (resistance to fear, a bonus of +12 to-hit in melee, 
@@ -2969,7 +2969,7 @@ G:!:d
 I:75:38:0
 W:40:0:4:1500
 P:0:1d1:0:0:0
-A:20/8:40/4:60/4
+A:20/8:40/8:60/4
 F:EASY_KNOW
 D:It cures 1500 points of damage, cures all stunning, heals all cut
 D: damage, neutralizes poison, and cures blindness and confusion. 
@@ -2992,10 +2992,9 @@ G:!:d
 I:75:40:0
 W:25:0:4:350
 P:0:1d1:0:0:0
-A:25/1:40/1
+A:25/4:40/4
 F:EASY_KNOW
-D:It restores mana points to maximum if they are currently below
-D: maximum. 
+D:It restores up to a tenth of your SPs.
 
 
 N:350:Restore Life Levels
@@ -3280,21 +3279,21 @@ F:IGNORE_ACID | IGNORE_FIRE
 
 N:398:& Apple~
 G:,:g
-I:80:34:500
+I:80:34:600
 W:1:0:5:2
 P:0:0d0:0:0:0
-A:3/2
+A:2/1:6/2
 F:EASY_KNOW
-D:It provides nourishment for about 250 turns under normal conditions. 
+D:It provides nourishment for about 300 turns under normal conditions. 
 
 N:399:& Ration~ of Food
 G:,:U
-I:80:35:3000
+I:80:35:4000
 W:0:0:10:3
 P:0:0d0:0:0:0
 A:5/1:15/1
 F:EASY_KNOW
-D:It provides nourishment for about 1500 turns under normal conditions. 
+D:It provides nourishment for about 2000 turns under normal conditions. 
 
 
 N:400:& Piece~ of Beef Jerky
@@ -3302,19 +3301,19 @@ G:,:R
 I:80:36:1000
 W:1:0:5:2
 P:0:0d0:0:0:0
-A:3/2
+A:2/1:6/2
 F:EASY_KNOW
 D:It provides nourishment for about 500 turns under normal conditions. 
 
 N:401:& Piece~ of Elvish Waybread
 G:,:B
-I:80:37:4000
+I:80:37:5000
 W:5:0:3:10
 P:0:0d0:0:0:0
-A:10/1:20/2
+A:10/2:20/3
 F:EASY_KNOW
 D:It cures 4d8 points of damage and neutralizes poison.  It provides
-D: nourishment for about 2000 turns under normal conditions. 
+D: nourishment for about 2500 turns under normal conditions. 
 
 
 N:402:& Flask~ of oil
@@ -3322,7 +3321,7 @@ G:!:y
 I:77:0:3000
 W:1:0:10:3
 P:0:2d6:0:0:0
-A:3/1:10/1
+A:5/1:10/1
 F:EASY_KNOW
 D:It can be used to fuel a brass lantern with 3000 turns of light, up to
 D: a maximum of 5000 turns of light.  When thrown, it is considered
@@ -3515,7 +3514,7 @@ G:?:o
 I:90:4:0
 W:30:0:30:10000
 P:0:1d1:0:0:0
-A:20/10:30/6:40/4
+A:24/10:30/6:40/4
 F:EASY_KNOW
 
 N:427:[Bigby's Handy Handbook]
@@ -3523,7 +3522,7 @@ G:?:R
 I:90:5:0
 W:30:0:30:10000
 P:0:1d1:0:0:0
-A:20/10:30/6:40/4
+A:24/10:30/6:40/4
 F:EASY_KNOW
 
 N:428:[Otiluke's Damp Libram]
@@ -3531,7 +3530,7 @@ G:?:G
 I:90:6:0
 W:30:0:30:10000
 P:0:1d1:0:0:0
-A:20/10:30/6:40/4
+A:24/10:30/6:40/4
 F:EASY_KNOW
 
 N:429:[Raal's Tome of Destruction]
@@ -3539,7 +3538,7 @@ G:?:r
 I:90:7:0
 W:45:0:30:90000
 P:0:1d1:0:0:0
-A:35/16:45/10
+A:40/16:50/16
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
 N:430:[Kelek's Grimoire of Power]
@@ -3547,7 +3546,7 @@ G:?:D
 I:90:8:0
 W:45:0:30:90000
 P:0:1d1:0:0:0
-A:35/16:45/10
+A:40/16:50/16
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
 
@@ -3610,7 +3609,7 @@ P:2:1d1:0:0:0
 A:40/4
 F:IGNORE_ACID
 D:Wearing this hat makes all your identification spells cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 
 N:471:& Warlock Sword~
 G:|:D
@@ -3618,9 +3617,9 @@ I:23:31:0
 W:40:0:100:3000
 P:0:2d7:0:0:0
 A:40/4
-F:SHOW_MODS | IGNORE_ACID | SEE_INVIS | SUST_INT | SLAY_DEMON
+F:SHOW_MODS | IGNORE_ACID | SEE_INVIS | SUST_INT | SLAY_DEMON | 2H
 D:Wielding this sword makes all your battle spells (such as Fireball) cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 
 N:472:& Displacer Cloak~
 G:(:D
@@ -3629,5 +3628,5 @@ W:40:0:5:4000
 P:6:0d0:0:0:10
 A:40/4
 D:Wearing this cloak makes all your teleportation spells cost less mana.
-D: Its effects are cumulative with wands and talismans.
+D: Its effects are cumulative with talismans (but not wands).
 F:SHOW_MODS | IGNORE_ACID | RES_NEXUS

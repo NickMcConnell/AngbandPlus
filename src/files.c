@@ -4448,7 +4448,11 @@ void do_cmd_save_game(void)
  */
 long total_points(void)
 {
-	return (p_ptr->max_exp + (100 * p_ptr->max_depth));
+	if (adult_easy_start){
+		return (p_ptr->max_exp + (100 * p_ptr->max_depth)) / 10;
+	} else {
+		return (p_ptr->max_exp + (100 * p_ptr->max_depth));
+	}
 }
 
 

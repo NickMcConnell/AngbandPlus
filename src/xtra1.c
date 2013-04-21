@@ -2171,6 +2171,9 @@ static void calc_torch(void)
 
 	if (p_ptr->cur_lite){
 		p_ptr->cur_lite += adj_per_lite[p_ptr->stat_ind[A_PER]];
+		if (p_ptr->cur_lite <= 0){
+			p_ptr->cur_lite = 1;
+		}
 	}
 
 	/* Reduce lite when running if requested */
@@ -2449,6 +2452,7 @@ static void calc_bonuses(void)
 
 	/* Clear all the flags */
 	p_ptr->aggravate = FALSE;
+	p_ptr->temp_aggravate = 0;
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
 	p_ptr->bless_blade = FALSE;
@@ -2493,6 +2497,8 @@ static void calc_bonuses(void)
 	p_ptr->immune_fire = FALSE;
 	p_ptr->immune_cold = FALSE;
 	p_ptr->immune_pois = FALSE;
+	p_ptr->vampire = 0;
+	p_ptr->twoh_weapon = 0;
 
 	p_ptr->n_woken = 0;
 
@@ -2523,13 +2529,13 @@ static void calc_bonuses(void)
 	}
 
 	/* Base skill -- combat (normal) */
-	p_ptr->skill_thn = rp_ptr->r_thn + cp_ptr->c_thn;
+	p_ptr->skill_thn = (rp_ptr->r_thn * 3)/4 + cp_ptr->c_thn;
 
 	/* Base skill -- combat (shooting) */
-	p_ptr->skill_thb = rp_ptr->r_thb + cp_ptr->c_thb;
+	p_ptr->skill_thb = (rp_ptr->r_thb * 3)/4 + cp_ptr->c_thb;
 
 	/* Base skill -- combat (throwing) */
-	p_ptr->skill_tht = rp_ptr->r_thb + cp_ptr->c_thb;
+	p_ptr->skill_tht = (rp_ptr->r_thb * 3)/4 + cp_ptr->c_thb;
 
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
@@ -2649,6 +2655,8 @@ static void calc_bonuses(void)
 
 		/* Affect Might */
 		if (f1 & (TR1_MIGHT)) extra_might += o_ptr->pval;
+
+		if (f2 & (TR2_2H)) p_ptr->twoh_weapon = TRUE;
 
 		/* Good flags */
 		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;

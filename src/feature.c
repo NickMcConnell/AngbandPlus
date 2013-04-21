@@ -761,9 +761,9 @@ void hit_trap(int f_idx, int y, int x, byte mode, int might_escape)
 				/* New depth */
 				p_ptr->depth++;
 
-				regenmana(100);
-
 				potential_effect_on_stats();
+
+				regenmana(100);
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;

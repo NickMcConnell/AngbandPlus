@@ -5693,6 +5693,7 @@ static s16b process_monster(monster_type *m_ptr)
  */
 static void recover_monster(monster_type *m_ptr)
 {
+
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
@@ -5754,7 +5755,7 @@ static void recover_monster(monster_type *m_ptr)
 	if ((m_ptr->csleep) && (m_ptr->cdis <= r_ptr->aaf))
 	{
 		/* Aggravated by the player */
-		if (p_ptr->aggravate)
+		if (p_ptr->aggravate || p_ptr->temp_aggravate)
 		{
 			/* Reset sleep counter */
 			m_ptr->csleep = 0;

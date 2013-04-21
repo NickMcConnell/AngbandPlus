@@ -333,8 +333,10 @@ void regenmana(int percent)
 {
 	int old_csp;
 
+	update_stuff();
+
 	old_csp = p_ptr->csp;
-	p_ptr->csp = p_ptr->csp + (percent * p_ptr->msp)/100;
+	p_ptr->csp = p_ptr->csp + MAX((percent * p_ptr->msp)/100,1);
 
 	if (p_ptr->csp >= p_ptr->msp)
 	{
@@ -1005,6 +1007,15 @@ static void process_world(void)
 			(void)set_confused(0);
 		} else {
 			(void)set_confused(p_ptr->confused - 1);
+		}
+	}
+
+	if (p_ptr->temp_aggravate > 0){
+		p_ptr->temp_aggravate = p_ptr->temp_aggravate - 1;
+	} else if (adj_ste_noisy_chance[p_ptr->stat_ind[A_STE]] > 0){
+		if (one_in_(adj_ste_noisy_chance[p_ptr->stat_ind[A_STE]])){
+			msg_print("Your steps are noisy!");
+			p_ptr->temp_aggravate = 2;
 		}
 	}
 
@@ -3487,19 +3498,19 @@ void play_game(bool new_game)
 int danger(int actual){
 	if (actual < 2) return actual;
 	if (actual == 2) return actual+1;
-	if (actual == 3) return actual+2;
-	if (actual == 4) return actual+3;
-	if (actual == 5) return actual+4;
-	if (actual == 6) return actual+5;
-	if (actual <= 40) return actual+6;
-	if (actual <= 41) return actual+7;
-	if (actual <= 42) return actual+8;
-	if (actual <= 43) return actual+9;
-	if (actual <= 44) return actual+10;
-	if (actual <= 45) return actual+11;
-	if (actual <= 46) return actual+12;
-	if (actual <= 47) return actual+13;
-	if (actual <= 48) return actual+14;
-	if (actual <= 49) return actual+15;
+	if (actual <= 4) return actual+2;
+	if (actual <= 6) return actual+3;
+	if (actual <= 8) return actual+4;
+	if (actual <= 10) return actual+5;
+	if (actual <= 20) return actual+6;
+	if (actual <= 22) return actual+7;
+	if (actual <= 24) return actual+8;
+	if (actual <= 26) return actual+9;
+	if (actual <= 28) return actual+10;
+	if (actual <= 38) return actual+11;
+	if (actual <= 40) return actual+12;
+	if (actual <= 42) return actual+13;
+	if (actual <= 44) return actual+14;
+	if (actual <= 46) return actual+15;
 	return actual+16;
 }

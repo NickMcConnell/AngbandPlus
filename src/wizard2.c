@@ -1840,11 +1840,12 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Good Objects */
+		/* Random Objects */
 		case 'g':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, FALSE);
+			place_object(py, px, 0, 0, DROP_TYPE_UNTHEMED);
+			(void)identify_fully();
 			break;
 		}
 

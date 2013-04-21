@@ -2361,7 +2361,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	}
 
 	/* Failure */
-	if (!res && (eflag & (ENCH_TOAC)) && o_ptr->to_a >= ceiling){
+	if (!res && (eflag & (ENCH_TOAC)) && (n>0) && o_ptr->to_a >= ceiling){
 		msg_print("That armour is not heavy enough to receive the enchantment.");
 	}
 

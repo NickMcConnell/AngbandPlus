@@ -1,4 +1,5 @@
 Ironband pre-release
+--------------------
 
 Re-branded
 Changed the victory condition
@@ -80,3 +81,41 @@ Heavy boots can reduce your Stealth, heavy helms your Perception.
 Ordinary Remove Curse can reduce the penalties on heavily cursed items.
 Light armors are not likely to be generated with high plusses, and cannot be enchanted to high plusses. Conversely heavy armors appear well enchanted and can be boosted up a lot.
 
+After pre-release
+-----------------
+
+Talismans only give 1/4 cost reduction (rounded down) rather than 1/3 as previously.
+High elves have wisdom sustained.
+Increased XP requirements.
+Dungeon doesn't get dangerous as fast initially, but does get more dangerous around 1000'.
+Fixed bug where wand activation cost does not display correctly.
+Various tweaks to objects file.
+Fixed bug with Enchant Weapon returning an armor message.
+Chest drops are toned down.
+Replaced rings of Speed with Agility.
+Readjusted maximum plusses for stat rings and amulets.
+You can now 'snipe' (shoot a sleeping opponent for extra damage)
+New birth option 'no discovery' - set this to 'true' and you no longer get big random stat changes at DL 2, 4, 6.
+New birth option 'easy start' - set this to 'true' and you get more starting kit - but it takes longer to gain XP in the midgame, and your score is reduced greatly.
+Talismans and similar items are no longer cumulative with wands.
+Wands improve spell failure rates a little.
+Spellbooks are more burnable, and wands and talismans can be destroyed by powerful lightning attacks.
+Restore Mana potions are less effective than before.
+Some item frequencies have been changed.
+Characters with low Int will now struggle with more complicated spells.
+Spell levels revised.
+No single item can drop the mana cost of a spell by more than 4.
+When you gain a level, you get an indication of what your stats do.
+Player speed is reduced slightly.
+Racial hit bonuses are reduced slightly.
+Low Perception now reduces light radius.
+Character starts with more helpful equipment.
+Low Dexterity now sometimes makes missile weapons misfire.
+Some changes to Stealth and sleeping. Low stealth is worse than before, high stealth is better.
+You cannot use a two-handed weapon with a shield. To compensate, two-handed weapons get more criticals than one-handed.
+Hobbits, gnomes and dwarves cannot use two-handed weapons.
+Changed good, great, terrible, and artifact drop probs.
+Fixed bug where SP do not refill when you gain Wis when descending stairs.
+Added some more entries to the notes file.
+Added some more uniques.
+More objects found in the first few dungeon levels, especially weapons and armor.

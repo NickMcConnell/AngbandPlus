@@ -2237,12 +2237,16 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_CON:
 				case SV_RING_DEX:
 				case SV_RING_INT:
+				case SV_RING_AGI:
 				{
 					/* Stat bonus */
-					o_ptr->pval = 1 + m_bonus(5 + (level / 35), level);
+					o_ptr->pval = m_bonus(5, level)+1;
 
-					/*cut it off at 6*/
-					if (o_ptr->pval > 6) o_ptr->pval = 6;
+					/*cut it off at 5*/
+					if (o_ptr->pval <= 1) o_ptr->pval = 1;
+					if (o_ptr->pval == 4 && !(one_in_(2))) o_ptr->pval = 3;
+					if (o_ptr->pval == 5 && !(one_in_(6))) o_ptr->pval = 4;
+					if (o_ptr->pval > 5) o_ptr->pval = 5;
 
 					/* Cursed */
 					if (power < 0)
@@ -2256,39 +2260,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
 					}
-
-					break;
-				}
-
-				/* Ring of Speed! */
-				case SV_RING_SPEED:
-				{
-					/* Base speed (1 to 10) */
-					o_ptr->pval = randint(5) + m_bonus(5, level);
-
-					/* Super-charge the ring */
-					while (one_in_(2)) o_ptr->pval++;
-
-					/* Cursed Ring */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
-
-						break;
-					}
-
-					/* Rating boost for rings of speed that are not cursed */
-					else rating += 25;
-
-					/* Mention the item */
-					if (cheat_peek) object_mention(o_ptr);
 
 					break;
 				}
@@ -2423,8 +2394,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_SLAYING:
 				{
 					/* Bonus to damage and to hit */
-					o_ptr->to_d = randint(5) + m_bonus(5, level) + (level / 10);
-					o_ptr->to_h = randint(5) + m_bonus(5, level) + (level / 10);
+					o_ptr->to_d = randint(5) + m_bonus(5, level) + (level / 20);
+					o_ptr->to_h = randint(5) + m_bonus(5, level) + (level / 20);
 
 					/* Cursed */
 					if (power < 0)
@@ -2458,10 +2429,13 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_AMULET_LUCK:
 				{
 					/* Stat bonus */
-					o_ptr->pval = 1 + m_bonus(5 + (level / 35), level);
+					o_ptr->pval = m_bonus(5, level)+1;
 
-					/*cut it off at 6*/
-					if (o_ptr->pval > 6) o_ptr->pval = 6;
+					/*cut it off at 5*/
+					if (o_ptr->pval <= 1) o_ptr->pval = 1;
+					if (o_ptr->pval == 4 && !(one_in_(2))) o_ptr->pval = 3;
+					if (o_ptr->pval == 5 && !(one_in_(6))) o_ptr->pval = 4;
+					if (o_ptr->pval > 5) o_ptr->pval = 5;
 
 					/* Cursed */
 					if (power < 0)
@@ -2783,26 +2757,19 @@ int ac_ceiling(object_type *o_ptr){
  */
 void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, bool interesting)
 {
-	int i, rolls, test_good, test_great, power, ceiling;
+	int i, rolls_times_ten, rolls, test_good, test_great, power, ceiling, num_artifacts_already;
 
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
 	/* Base chance of being "good" */
-	test_good = lev + 10 + adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]/2;
-
-	/* Maximal chance of being "good" */
-	if (test_good > 75) test_good = 75;
-
+	test_good = MIN(60,15+((lev+adj_luc_good_chance[p_ptr->stat_ind[A_LUC]])*3)/4);
+	
 	/* Base chance of being "great" */
-	test_great = (lev + 10) / 2;
-
-	/* Maximal chance of being "great" */
-	if (test_great > 20) test_great = 20;
-
-	test_great = test_great + adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]/2;
+	test_great = 7+(lev*3+adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]*5)/8;
 
 	/* Assume normal */
+
 	power = 0;
 
 	/* Roll for "good", notice that great items don't necessarily need the good flag */
@@ -2824,31 +2791,55 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		power = -1;
 
 		/* Roll for "broken" */
-		if (rand_int(100) < test_great) power = -2;
+		if (rand_int(100) < MIN(10,lev)) power = -2;
 	}
 
 	/* Assume no rolls */
-	rolls = 0;
+	rolls_times_ten = 0;
 
 	/* Get one roll if excellent */
-	if (power >= 2) rolls = 1;
+	if (power >= 2) rolls_times_ten = 10;
 
 	/*
 	 * Get three rolls if good and great flags are true,
 	 */
 	if ((good) && (great))
 	{
-		rolls = 3;
+		rolls_times_ten = 30;
 	}
 
-	if (rolls > 0){
-		if (adj_luc_good_chance[p_ptr->stat_ind[A_LUC]] > 0 && one_in_(2)){
-			rolls = rolls + adj_luc_good_chance[p_ptr->stat_ind[A_LUC]] / 10;
+	if (rolls_times_ten > 0){
+		if (adj_luc_good_chance[p_ptr->stat_ind[A_LUC]] > 0){
+			rolls_times_ten = rolls_times_ten + adj_luc_good_chance[p_ptr->stat_ind[A_LUC]] / 2;
 		}
 	}
 
+	num_artifacts_already = 0;
+	for (i = z_info->art_spec_max; i < z_info->art_norm_max; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+
+		/* Skip "empty" items */
+		if (a_ptr->tval + a_ptr->sval == 0) continue;
+
+		if (a_ptr->a_cur_num) {
+			num_artifacts_already = num_artifacts_already + 1;
+		}
+	}
+
+	if (!great){
+		rolls_times_ten = MAX(3,(rolls_times_ten * (MAX(40-num_artifacts_already,adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]/2))) / 40);
+	} else {
+		rolls_times_ten = MAX(5,(rolls_times_ten * (MAX(60-num_artifacts_already,adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]))) / 60);
+	}
+
 	/* Get no rolls if not allowed */
-	if (!okay || o_ptr->art_num) rolls = 0;
+	if (!okay || o_ptr->art_num) rolls_times_ten = 0;
+
+	rolls = rolls_times_ten / 10;
+	if (randint(10) <= (rolls_times_ten - rolls*10)){
+		rolls += 1;
+	}
 
 	/* Roll for artifacts if allowed */
 	for (i = 0; i < rolls; i++)
@@ -3898,13 +3889,6 @@ static bool kind_is_great(int k_idx)
 			return (TRUE);
 		}
 
-		/* Rings -- Rings of Speed are great */
-		case TV_RING:
-		{
-			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
-			return (FALSE);
-		}
-
 		/*scrolls of Acquirement are great*/
 		case TV_SCROLL:
 		{
@@ -4474,10 +4458,14 @@ static bool kind_is_jewelry(int k_idx)
 			return (TRUE);
 		}
 
-		/*  Rings of Speed are suitable for a chest */
+		/* Some Rings are suitable for a chest*/
 		case TV_RING:
+
 		{
-			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
+		  	if (k_ptr->sval == SV_RING_FLAMES) return (TRUE);
+			if (k_ptr->sval == SV_RING_ACID) return (TRUE);
+			if (k_ptr->sval == SV_RING_ICE) return (TRUE);
+			if (k_ptr->sval == SV_RING_LIGHTNING) return (TRUE);
 			return (FALSE);
 		}
 
@@ -4563,10 +4551,13 @@ static bool kind_is_good(int k_idx)
 			return (FALSE);
 		}
 
-		/* Rings -- Rings of Speed are good */
+		/* Rings -- some rings are good */
 		case TV_RING:
 		{
-			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
+		  	if (k_ptr->sval == SV_RING_FLAMES) return (TRUE);
+			if (k_ptr->sval == SV_RING_ACID) return (TRUE);
+			if (k_ptr->sval == SV_RING_ICE) return (TRUE);
+			if (k_ptr->sval == SV_RING_LIGHTNING) return (TRUE);
 			return (FALSE);
 		}
 
@@ -4597,7 +4588,7 @@ static bool kind_is_good(int k_idx)
 			if ((k_ptr->sval == SV_POTION_RESTORING) ||
 				(k_ptr->sval == SV_POTION_CURE_CRITICAL) ||
 				(k_ptr->sval == SV_POTION_HEALING) ||
-				(k_ptr->sval == SV_POTION_LIFE))
+				(k_ptr->sval == SV_POTION_STAR_HEALING))
 		   	{
 			    return (TRUE);
 			}
@@ -4724,13 +4715,15 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype, bool
 
 			k_ptr = &k_info[k_idx];
 			tval = k_ptr->tval;
-			if (tval==TV_BOOTS || tval==TV_GLOVES || tval==TV_HELM || tval==TV_CROWN || tval==TV_SHIELD || tval==TV_CLOAK || tval==TV_SOFT_ARMOR || tval==TV_HARD_ARMOR || tval==TV_DRAG_ARMOR || tval==TV_DRAG_SHIELD){
-				if (one_in_(2)) break;
-			} else if (tval==TV_BOW || tval==TV_DIGGING || tval==TV_HAFTED || tval==TV_POLEARM || tval==TV_SWORD){
-				if (one_in_(2)) break;
-			} else {
-				break;
-			}
+			if (object_level > 10){
+				if (tval==TV_BOOTS || tval==TV_GLOVES || tval==TV_HELM || tval==TV_CROWN || tval==TV_SHIELD || tval==TV_CLOAK || tval==TV_SOFT_ARMOR || tval==TV_HARD_ARMOR || tval==TV_DRAG_ARMOR || tval==TV_DRAG_SHIELD){
+					if (one_in_(2)) break;
+				} else if (tval==TV_BOW || tval==TV_DIGGING || tval==TV_HAFTED || tval==TV_POLEARM || tval==TV_SWORD){
+					if (one_in_(2)) break;
+				} else {
+					break;
+				}
+			} else break;
 		}
 
 		/* Clear the objects template*/

@@ -542,8 +542,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (p_ptr->csp < p_ptr->msp)
 			{
-				regenmana(20);
-				msg_print("You feel your head clear.");
+				regenmana(10);
+				msg_print("You feel your head clear a little.");
 				p_ptr->redraw |= (PR_MANA);
 				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 				*ident = TRUE;
@@ -1446,8 +1446,8 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 	sval = o_ptr->sval;
 
-	mana_cost = get_mana_cost(sval) - 1; 
-	chance = get_success_prob(sval);
+	mana_cost = get_mana_cost(sval,1) - 1; 
+	chance = get_success_prob(sval,1);
 
 	/* Disallow "dangerous" spells */
 	if (mana_cost > p_ptr->csp || p_ptr->csp<=0)

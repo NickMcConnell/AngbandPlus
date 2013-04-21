@@ -10371,7 +10371,15 @@ static int get_monster_count_default(void)
  */
 static int get_object_count_default(void)
 {
-	return (Rand_normal(DUN_AMT_ROOM, 3));
+	int this_danger;
+	this_danger = danger(p_ptr->depth);
+	if (this_danger <= 10){
+		return (Rand_normal(DUN_AMT_ROOM+5, 3));
+	} else if (this_danger <= 15){
+		return (Rand_normal(DUN_AMT_ROOM+3, 3));
+	} else {
+		return (Rand_normal(DUN_AMT_ROOM+1, 3));
+	}
 }
 
 /*
@@ -10379,7 +10387,13 @@ static int get_object_count_default(void)
  */
 static int get_gold_count_default(void)
 {
-	return (Rand_normal(DUN_AMT_GOLD, 3));
+	int this_danger;
+	this_danger = danger(p_ptr->depth);
+	if (this_danger <= 10){
+		return (Rand_normal(DUN_AMT_GOLD+2, 3));
+	} else {
+		return (Rand_normal(DUN_AMT_GOLD, 3));
+	}
 }
 
 /*
@@ -10387,7 +10401,13 @@ static int get_gold_count_default(void)
  */
 static int get_extra_object_count_default(void)
 {
-	return (Rand_normal(DUN_AMT_ITEM, 3));
+	int this_danger;
+	this_danger = danger(p_ptr->depth);
+	if (this_danger <= 10){
+		return (Rand_normal(DUN_AMT_ITEM+2, 3));
+	} else {
+		return (Rand_normal(DUN_AMT_ITEM, 3));
+	}
 }
 
 /*

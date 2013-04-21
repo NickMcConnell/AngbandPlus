@@ -369,6 +369,95 @@ const byte adj_dex_dis[] =
 	20	/* 18/220+ */
 };
 
+/*
+ * Stat Table (DEX) -- chance of misfire missile weapon
+ */
+const byte adj_dex_misfire_chance[] =
+{
+	50	/* 3 */,
+	50	/* 4 */,
+	50  /* 5 */,
+	40	/* 6 */,
+	35	/* 7 */,
+	30	/* 8 */,
+	25	/* 9 */,
+	20	/* 10 */,
+	15	/* 11 */,
+	10	/* 12 */,
+	7	/* 13 */,
+	5	/* 14 */,
+	3	/* 15 */,
+	2	/* 16 */,
+	1	/* 17 */,
+	0	/* 18/00-18/09 */,
+	0	/* 18/10-18/19 */,
+	0	/* 18/20-18/29 */,
+	0 	/* 18/30-18/39 */,
+	0 	/* 18/40-18/49 */,
+	0 	/* 18/50-18/59 */,
+	0 	/* 18/60-18/69 */,
+	0 	/* 18/70-18/79 */,
+	0 	/* 18/80-18/89 */,
+	0 	/* 18/90-18/99 */,
+	0 	/* 18/100-18/109 */,
+	0 	/* 18/110-18/119 */,
+	0 	/* 18/120-18/129 */,
+	0 	/* 18/130-18/139 */,
+	0 	/* 18/140-18/149 */,
+	0 	/* 18/150-18/159 */,
+	0 	/* 18/160-18/169 */,
+	0 	/* 18/170-18/179 */,
+	0 	/* 18/180-18/189 */,
+	0 	/* 18/190-18/199 */,
+	0 	/* 18/200-18/209 */,
+	0 	/* 18/210-18/219 */,
+	0 	/* 18/220+ */
+};
+
+/*
+ * Stat Table (STE) -- chance of waking up lots of monsters, expressed as 1-in-...
+ */
+const int adj_ste_noisy_chance[] =
+{
+	20	/* 3 */,
+	20	/* 4 */,
+	20  /* 5 */,
+	40	/* 6 */,
+	60	/* 7 */,
+	80	/* 8 */,
+	100	/* 9 */,
+	150	/* 10 */,
+	200	/* 11 */,
+	300	/* 12 */,
+	500	/* 13 */,
+	700	/* 14 */,
+	1000	/* 15 */,
+	2000	/* 16 */,
+	5000	/* 17 */,
+	0	/* 18/00-18/09 */,
+	0	/* 18/10-18/19 */,
+	0	/* 18/20-18/29 */,
+	0 	/* 18/30-18/39 */,
+	0 	/* 18/40-18/49 */,
+	0 	/* 18/50-18/59 */,
+	0 	/* 18/60-18/69 */,
+	0 	/* 18/70-18/79 */,
+	0 	/* 18/80-18/89 */,
+	0 	/* 18/90-18/99 */,
+	0 	/* 18/100-18/109 */,
+	0 	/* 18/110-18/119 */,
+	0 	/* 18/120-18/129 */,
+	0 	/* 18/130-18/139 */,
+	0 	/* 18/140-18/149 */,
+	0 	/* 18/150-18/159 */,
+	0 	/* 18/160-18/169 */,
+	0 	/* 18/170-18/179 */,
+	0 	/* 18/180-18/189 */,
+	0 	/* 18/190-18/199 */,
+	0 	/* 18/200-18/209 */,
+	0 	/* 18/210-18/219 */,
+	0 	/* 18/220+ */
+};
 
 /*
  * Stat Table (INT) -- disarming
@@ -1052,44 +1141,44 @@ const byte adj_ste_stealth[] =
  */
 const int adj_agi_speed[] =
 {
-	-4	/* 3 */,
-	-4	/* 4 */,
-	-3	/* 5 */,
-	-3	/* 6 */,
-	-2	/* 7 */,
-	-2	/* 8 */,
-	-1	/* 9 */,
-	0	/* 10 */,
-	0	/* 11 */,
+	-5	/* 3 */,
+	-5	/* 4 */,
+	-4	/* 5 */,
+	-4	/* 6 */,
+	-3	/* 7 */,
+	-3	/* 8 */,
+	-2	/* 9 */,
+	-1	/* 10 */,
+	-1	/* 11 */,
 	0	/* 12 */,
 	0	/* 13 */,
-	1	/* 14 */,
+	0	/* 14 */,
 	1	/* 15 */,
-	2	/* 16 */,
+	1	/* 16 */,
 	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	4	/* 18/10-18/19 */,
-	4	/* 18/20-18/29 */,
-	5	/* 18/30-18/39 */,
-	6	/* 18/40-18/49 */,
-	6	/* 18/50-18/59 */,
-	7	/* 18/60-18/69 */,
-	8	/* 18/70-18/79 */,
-	8	/* 18/80-18/89 */,
-	9	/* 18/90-18/99 */,
-	10	/* 18/100-18/109 */,
-	10	/* 18/110-18/119 */,
-	11	/* 18/120-18/129 */,
-	11	/* 18/130-18/139 */,
-	12	/* 18/140-18/149 */,
-	12	/* 18/150-18/159 */,
-	13	/* 18/160-18/169 */,
-	13	/* 18/170-18/179 */,
-	14	/* 18/180-18/189 */,
-	14	/* 18/190-18/199 */,
-	15	/* 18/200-18/209 */,
-	15	/* 18/210-18/219 */,
-	15	/* 18/220+ */
+	2	/* 18/00-18/09 */,
+	3	/* 18/10-18/19 */,
+	3	/* 18/20-18/29 */,
+	4	/* 18/30-18/39 */,
+	5	/* 18/40-18/49 */,
+	5	/* 18/50-18/59 */,
+	6	/* 18/60-18/69 */,
+	7	/* 18/70-18/79 */,
+	7	/* 18/80-18/89 */,
+	8	/* 18/90-18/99 */,
+	9	/* 18/100-18/109 */,
+	9	/* 18/110-18/119 */,
+	10	/* 18/120-18/129 */,
+	10	/* 18/130-18/139 */,
+	11	/* 18/140-18/149 */,
+	11	/* 18/150-18/159 */,
+	12	/* 18/160-18/169 */,
+	12	/* 18/170-18/179 */,
+	13	/* 18/180-18/189 */,
+	13	/* 18/190-18/199 */,
+	14	/* 18/200-18/209 */,
+	14	/* 18/210-18/219 */,
+	14	/* 18/220+ */
 };
 
 /*
@@ -1501,17 +1590,17 @@ const int adj_per_search[] =
 /*
  * Stat Table (PER) -- extra light radius
  */
-const byte adj_per_lite[] =
+const int adj_per_lite[] =
 {
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	0	/* 8 */,
-	0	/* 9 */,
-	0	/* 10 */,
-	0	/* 11 */,
+	-3	/* 3 */,
+	-3	/* 4 */,
+	-3	/* 5 */,
+	-3	/* 6 */,
+	-3	/* 7 */,
+	-2	/* 8 */,
+	-2	/* 9 */,
+	-1	/* 10 */,
+	-1	/* 11 */,
 	0	/* 12 */,
 	0	/* 13 */,
 	0	/* 14 */,
@@ -1963,32 +2052,32 @@ const s32b player_exp[PY_MAX_LEVEL] =
 		550,		/* Experience needed to gain level 9 */
 		750,		/* Experience needed to gain level 10 */
 		1000,		/* Experience needed to gain level 11 */
-		1300,		/* Experience needed to gain level 12 */
-		1700,		/* Experience needed to gain level 13 */
-		2200,		/* Experience needed to gain level 14 */
-		2800,		/* Experience needed to gain level 15 */
-		3500,		/* Experience needed to gain level 16 */
-		4500,		/* Experience needed to gain level 17 */
-		6000,		/* Experience needed to gain level 18 */
-		7800,		/* Experience needed to gain level 19 */
-		10000,		/* Experience needed to gain level 20 */
-		13000,		/* Experience needed to gain level 21 */
-		17000,		/* Experience needed to gain level 22 */
-		22000L,		/* Experience needed to gain level 23 */
-		28000L,		/* Experience needed to gain level 24 */
-		35000L,		/* Experience needed to gain level 25 */
-		45000L,		/* Experience needed to gain level 26 */
-		60000L,		/* Experience needed to gain level 27 */
-		78000L,		/* Experience needed to gain level 28 */
-		100000L,	/* Experience needed to gain level 29 */
-		130000L,	/* Experience needed to gain level 30 */
-		180000L,	/* Experience needed to gain level 31 */
-		250000L,	/* Experience needed to gain level 32 */
-		350000L,	/* Experience needed to gain level 33 */
-		500000L,	/* Experience needed to gain level 34 */
-		650000L,	/* Experience needed to gain level 35 */
-		800000L,	/* Experience needed to gain level 36 */
-		5000000L,	/* Level 36 */
+		1400,		/* Experience needed to gain level 12 */
+		1900,		/* Experience needed to gain level 13 */
+		2500,		/* Experience needed to gain level 14 */
+		3500,		/* Experience needed to gain level 15 */
+		4500,		/* Experience needed to gain level 16 */
+		6000,		/* Experience needed to gain level 17 */
+		7500,		/* Experience needed to gain level 18 */
+		10000,		/* Experience needed to gain level 19 */
+		13500,		/* Experience needed to gain level 20 */
+		18000,		/* Experience needed to gain level 21 */
+		25000L,		/* Experience needed to gain level 22 */
+		35000L,		/* Experience needed to gain level 23 */
+		45000L,		/* Experience needed to gain level 24 */
+		60000L,		/* Experience needed to gain level 25 */
+		75000L,		/* Experience needed to gain level 26 */
+		100000L,		/* Experience needed to gain level 27 */
+		135000L,		/* Experience needed to gain level 28 */
+		180000L,	/* Experience needed to gain level 29 */
+		250000L,	/* Experience needed to gain level 30 */
+		350000L,	/* Experience needed to gain level 31 */
+		500000L,	/* Experience needed to gain level 32 */
+		700000L,	/* Experience needed to gain level 33 */
+		1000000L,	/* Experience needed to gain level 34 */
+		1500000L,	/* Experience needed to gain level 35 */
+		2000000L,	/* Experience needed to gain level 36 */
+		9000000L,	/* Level 36 */
 };
 
 
@@ -2369,8 +2458,8 @@ option_type options[OPT_MAX] =
 	{"birth_force_small_lev",	"Birth: All levels will be generated as small",	FALSE},	/* OPT_birth_force_small_lev */
 	{"birth_retain_squelch", 	"Birth: Retain squelch settings",				FALSE},	/* OPT_birth_retain_squelch */
 	{"birth_no_xtra_artifacts", "Birth: Disable extra artifacts",				FALSE},	/* OPT_birth_no_xtra_artifacts*/
-	{NULL,NULL,	FALSE},/* xxx */
-	{NULL,NULL,	FALSE},/* xxx */
+	{"birth_no_discovery",		"Birth: No special statgain at DL 2, 4, 6",		FALSE},	/* OPT_birth_no_discovery*/
+	{"birth_easy_start",		"Birth: Easy start (but mid game is harder)",	FALSE},	/* OPT_birth_easy_start*/
 	{NULL,NULL,	FALSE},/* xxx */
 	{NULL,NULL,	FALSE},/* xxx */
 	{NULL,NULL,	FALSE},/* xxx */
@@ -2433,8 +2522,8 @@ option_type options[OPT_MAX] =
 	{"adult_force_small_lev",	"Adult: All levels generated small",			FALSE},	/* OPT_adult_force_small_lev*/
 	{"adult_retain_squelch",	"Adult: Retain squelch settings",				FALSE},	/* OPT_adult_retain_squelch */
 	{"adult_no_xtra_artifacts",	"Adult: Disable extra artifacts",				FALSE},	/* OPT_adult_no_xtra_artifacts*/
-	{NULL,NULL,FALSE},/* xxx */
-	{NULL,NULL,FALSE},/* xxx */
+	{"adult_no_discovery",		"Adult: No special statgain at DL 2, 4, 6",		FALSE},	/* OPT_adult_no_discovery*/
+	{"adult_no_easy_start",		"Adult: Easy start (but mid game is harder)",	FALSE},	/* OPT_adult_no_easy_start*/
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -2631,8 +2720,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_force_small_lev,
 		OPT_birth_retain_squelch,
 		OPT_birth_no_xtra_artifacts,
-		OPT_NONE,
-		OPT_NONE,
+		OPT_birth_no_discovery,
+		OPT_birth_easy_start,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,

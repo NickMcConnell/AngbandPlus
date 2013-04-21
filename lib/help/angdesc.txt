@@ -3,7 +3,7 @@
 This file was last updated for Angband 3.0.1. and NPPAngband 0.5.0.
 It has not been updated for Ironband, which does not have an illustrious 
 history :)
-Ironband is maintained by Antoine < mail@guildgame.com >.
+Ironband is maintained by Antoine < antoine.from.rgrd@gmail.com >.
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the Official Angband Home Page ("http://www.thangorodrim.net") for the most

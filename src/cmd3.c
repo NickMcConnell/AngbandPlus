@@ -216,7 +216,9 @@ void do_cmd_wield(void)
 {
 	int item, slot;
 
-	object_type *o_ptr;
+	u32b f1, f2, f3, fn, pf1, pf2, pf3, pf4;
+
+	object_type *o_ptr, *shield_ptr;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -284,6 +286,26 @@ void do_cmd_wield(void)
 		return;
 	}
 
+
+	if (p_ptr->twoh_weapon && slot==INVEN_ARM){
+		msg_format("You cannot wear a shield when you are wielding a two-handed weapon.");
+		return;
+	} 
+
+	if (slot==INVEN_WIELD){
+		object_flags(o_ptr, &f1, &f2, &f3, &fn);
+		if (f2 & (TR2_2H)){
+			player_flags(&pf1, &pf2, &pf3, &pf4);
+			shield_ptr = &inventory[INVEN_ARM];
+			if (pf2 & (TR2_NO_2H)){
+				msg_format("Embarrassingly, you are too short to wield such a long weapon.");
+				return;	
+			} else if (shield_ptr->k_idx){
+				msg_format("You cannot wield a two-handed weapon when you are wearing a shield.");
+				return;		
+			}
+		}
+	}
 
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;

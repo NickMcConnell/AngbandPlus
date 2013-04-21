@@ -103,7 +103,7 @@
 
 # Version stamp (required)
 
-V:0.1.0
+V:0.1.1
 
 ##### Non-race (contains the player picture) #####
 N:0:<player>
@@ -211,7 +211,7 @@ D:He makes you glad to be sober.
 
 N:14:Black Lotus
 G:,:D
-I:110:1d4:2:8:10
+I:110:1d4:2:8:0
 W:5:4:0:3
 B:BEGUILE:BEGUILE:0d0
 F:NEVER_MOVE | EMPTY_MIND | IM_POIS | NO_FEAR
@@ -688,7 +688,7 @@ D:It is a ghastly, ghostly form.
 
 N:63:Yellow mold
 G:m:y
-I:110:8d8:2:10:99
+I:110:8d8:2:10:0
 W:3:1:0:9
 B:SPORE:HURT:1d4
 F:NEVER_MOVE | STUPID | EMPTY_MIND | IM_POIS | NO_FEAR
@@ -911,7 +911,7 @@ W:5:1:0:15
 B:SLIME:EAT_FOOD:1d1
 F:RAND_25 | RAND_50 | DROP_60 | DROP_90 | INVISIBLE
 F:COLD_BLOOD | FLYING | PASS_WALL | UNDEAD | EVIL
-F:HURT_FIRE | NO_CONF | NO_SLEEP
+F:HURT_FIRE | NO_CONF | NO_SLEEP | TAKE_ITEM
 D:It is a very ugly green ghost with a voracious appetite.
 
 
@@ -3188,7 +3188,7 @@ D:It is a massive metal statue that moves steadily towards you.
 
 N:273:Ice ogre
 G:O:w
-I:110:40d10:25:40:0
+I:110:40d10:25:40:10
 W:22:1:0:200
 B:HIT:BATTER:1d5
 B:HIT:BATTER:1d5
@@ -6989,10 +6989,7 @@ F:FORCE_SLEEP | FLYING | ANIMAL | IM_COLD | IM_POIS
 F:RES_NETHR
 S:SPELL_PCT_18 | POW_0
 S:BRTH_POIS | BRTH_DARK | BRTH_NETHR
-D:A terrifying sight: a winged creature greater than any bird you have
-D: ever seen, and with no feathers on its horrid black leathery wings. 
-D: Descended from a creature of an older world perhaps, bred by Sauron
-D: to be a winged steed for his Ringwraiths.
+D:Not 'the', just 'a' Winged Horror.
 
 
 N:533:Ren the Unclean
@@ -7558,7 +7555,7 @@ B:HIT:UN_BONUS:6d8
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 F:UNIQUE | MALE | ATTR_MULTI | FORCE_MAXHP | FORCE_SLEEP
-F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD
 F:DROP_GREAT | SMART | HAS_LITE | OPEN_DOOR | BASH_DOOR
 F:LOW_MANA_RUN | EVIL | IM_ELEC | IM_FIRE | IM_COLD
 F:IM_POIS | NO_CONF | NO_SLEEP
@@ -7754,7 +7751,7 @@ D: immaterial state.
 N:581:Hoarmurath of Dir
 G:W:D1
 I:120:45d100:90:100:10
-W:64:3:119:30000
+W:61:3:119:30000
 B:HIT:HURT:9d9
 B:HIT:LOSE_PER:9d9
 B:TOUCH:EXP_80:6d7
@@ -7797,7 +7794,7 @@ D:A strange reptilian hybrid with fourteen heads.
 N:585:The Mouth of Sauron
 G:p:v1
 I:130:70d100:60:100:10
-W:65:3:147:28000
+W:62:3:147:28000
 B:HIT:UN_BONUS:6d8
 B:HIT:UN_BONUS:6d8
 B:HIT:CONFUSE:5d5
@@ -7875,7 +7872,7 @@ D: eating away the very stones of the dungeon - what could it do to you?
 N:590:Thuringwethil, the Vampire Messenger
 G:V:v1
 I:130:50d100:20:145:10
-W:67:4:176:23000
+W:63:4:176:23000
 B:BITE:EXP_80:6d6
 B:BITE:EXP_80:6d6
 B:HIT:CONFUSE:6d6
@@ -7980,7 +7977,7 @@ D: terrible chill runs down your spine as you face it.
 
 N:604:The Giant Mutant Troll
 G:T:R
-I:130:80d100:100:110:0
+I:130:80d100:100:110:10
 W:49:1:160:30000
 B:HIT:BATTER:14d10
 B:HIT:BATTER:14d10
@@ -8007,7 +8004,7 @@ D:King on level 50.
 
 N:629:The Witch-King of Angmar
 G:W:D1
-I:130:80d100:90:120:10
+I:130:80d100:90:120:0
 W:50:1:200:100000
 B:HIT:LOSE_ALL:10d10
 B:HIT:TERRIFY:10d10
@@ -8143,6 +8140,83 @@ S:SPELL_PCT_50 | POW_0
 S:BLINK | S_DRAGON | S_UNDEAD | S_DEMON | S_KIN
 D:Great is OEDE-Shoggog, who is the servant of the Elder Gods. Iah! 
 D:OEDE-Shoggog!
+
+
+N:636:Geung, Treasurer of the Witch-King
+G:y:o
+I:120:25d100:40:90:10
+W:51:4:80:5000
+B:TOUCH:HURT:5d5
+B:TOUCH:CONFUSE:5d5
+F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM
+F:DROP_3D2 | DROP_GOOD | DROP_GREAT | EVASIVE | OPEN_DOOR
+F:BASH_DOOR | TAKE_ITEM | IM_POIS | NO_SLOW | INVISIBLE
+S:SPELL_PCT_50 | POW_35
+S:HEAL | CURE | TRAPS | SLOW | BLINK | TPORT | HOLD 
+S:ADD_MANA | TELE_AWAY
+D:The Witch-King entrusts his treasures to Geung, who scurries away
+D: with them and hides them in the dark and secret places of the earth.
+D: (Except when he drops them somewhere along the way, or loses them
+D: gambling, or a passing monster beats him up and takes them.)
+D: Geung is not powerful, but he is a cunning little creature, and he
+D: will take some catching. 
+
+N:637:The ghost of Tathor
+G:G:B
+I:120:13d10:20:20:10
+W:10:3:50:120
+B:TOUCH:TERRIFY:1d6
+B:TOUCH:EAT_LITE:1d6
+F:MALE | UNIQUE | FORCE_MAXHP
+F:ONLY_ITEM | DROP_GOOD | DROP_2D2 | RAND_25
+F:INVISIBLE | COLD_BLOOD | FLYING | PASS_WALL | UNDEAD | EVIL
+F:HURT_FIRE | IM_COLD | NO_CONF | NO_SLEEP | LOW_MANA_RUN
+S:SPELL_PCT_25 | POW_10
+S:BLINK | DARKNESS | SCARE | S_MONSTER 
+D:Tathor was an early victim of the pits of Ironband. A Hill Orc
+D: struck him down from behind as he was about to deal the death
+D: blow to a Kobold. Now Tathor's ghost roams the shallower halls 
+D: eternally. Be wary, so that you do not suffer Tathor's fate!
+
+
+N:638:Nugrush, the Goblin Lobber
+G:o:R
+I:110:40d10:20:20:10
+W:20:4:30:400
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+F:UNIQUE | MALE | FORCE_MAXHP
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR
+F:ORC | EVIL | IM_POIS | RAND_25 | IM_FIRE
+S:SPELL_PCT_50 | POW_7
+S:MISSL | BALL_FIRE
+D:Nugrush is not particularly strong or clever or devious,
+D: but he is a great shot and is widely considered to be a
+D: dab hand with a Molotov cocktail.
+
+N:639:The Lord of the Nazgul's Steed
+G:B:W
+I:125:45d80:90:60:0
+W:60:4:60:40000
+B:CLAW:TERRIFY:7d8
+B:CLAW:HURT:7d8
+B:BITE:EXP_80:9d6
+B:BITE:EXP_80:9d6
+F:UNIQUE | FORCE_MAXHP | EVIL
+F:FLYING | ANIMAL | IM_COLD | IM_POIS | IM_FIRE
+F:NO_CONF | NO_SLOW
+F:OPEN_DOOR | BASH_DOOR
+F:RES_NETHR
+S:SPELL_PCT_25 | POW_20
+S:BRTH_POIS | BRTH_DARK | BRTH_NETHR | S_KIN
+D: "The great shadow descended like a falling cloud, and behold! it
+D: was a winged creature: if bird, then greater than all other birds,
+D: and it was naked, and neither quill nor feather did it bear, and its
+D: vast pinions were as webs of hide between horned fingers; and it
+D: stank. A creature of an older world maybe it was, whose kind,
+D: lingering in forgotten mountains cold beneath the Moon, outstayed
+D: their day, and in hideous eyrie bred this last untimely brood, apt
+D: to evil."
 
 # N: serial number : monster name
 # G: symbol : color

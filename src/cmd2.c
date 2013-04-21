@@ -194,7 +194,7 @@ void potential_effect_on_stats(){
 	int change1, change2, change3;
 
 	if (p_ptr->max_depth < p_ptr->depth){
-		if (p_ptr->depth == 2 || p_ptr->depth == 4 || p_ptr->depth == 6){
+		if ((p_ptr->depth == 2 || p_ptr->depth == 4 || p_ptr->depth == 6) && (!(adult_no_discovery))){
 			if (p_ptr->depth == 2){
 				change1 = p_ptr->statgain1;
 				change2 = p_ptr->statgain2;
@@ -302,8 +302,6 @@ void do_cmd_go_down(void)
 	/* Success */
 	message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
-	regenmana(100);
-
 	/* Create a way back (usually) */
 	p_ptr->create_stair = FEAT_LESS;
 
@@ -311,6 +309,8 @@ void do_cmd_go_down(void)
 	p_ptr->depth++;
 
 	potential_effect_on_stats();
+
+	regenmana(100);
 
 	/*find out if entering a quest level*/
 	quest = quest_check(p_ptr->depth);
@@ -463,8 +463,8 @@ static void chest_death(int y, int x, s16b o_idx)
 	/* large chests get 5-7*/
 	if (o_ptr->sval >= SV_CHEST_MIN_LARGE) number += 2;
 
-	/*Jeweled chests get 7-10*/
-	if (o_ptr->sval == SV_CHEST_JEWELED_LARGE) number += randint (3);
+	/*Jeweled chests get 7-9*/
+	if (o_ptr->sval == SV_CHEST_JEWELED_LARGE) number += randint (2);
 
 	/* Zero pval means empty chest */
 	if (!o_ptr->pval) return;
@@ -530,13 +530,13 @@ static void chest_death(int y, int x, s16b o_idx)
 			}
 		    else if (quality < 51)
 			{
-				good = TRUE;
+				good = one_in_(2);
 			 	great = FALSE;
 			}
 			else if (quality < 81)
 			{
-				good = FALSE;
-			 	great = TRUE;
+			 	great = one_in_(2);
+				good = 1-great;
 			}
 			else
 			{
@@ -2690,8 +2690,8 @@ void do_cmd_fire(void)
 {
 	int dir, item;
 	int i, j, y, x, ty, tx;
-	int tdam, tdis, thits_times_ten, tmul;
-	int bonus, chance;
+	int tdam, tdis, thits_times_ten, tmul, sleeping_bonus;
+	int bonus, chance, misfire;
 
 	object_type *o_ptr;
 	object_type *j_ptr;
@@ -2750,6 +2750,17 @@ void do_cmd_fire(void)
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir, FALSE)) return;
+	
+	misfire = 0;
+	if (randint(100) <= adj_dex_misfire_chance[p_ptr->stat_ind[A_DEX]]){
+		msg_print("You clumsily misfire!");
+		misfire = 1;
+		if (one_in_(2)){
+			dir = randint(4);
+		} else {
+			dir = randint(4) + 5;
+		}
+	}
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -2795,6 +2806,9 @@ void do_cmd_fire(void)
 	/* Actually "fire" the object */
 	bonus = (p_ptr->to_h_missile + i_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
+	if (misfire){
+		chance = chance - 100;
+	}
 
 	/* Assume a base multiplier */
 	tmul = p_ptr->ammo_mult;
@@ -2880,7 +2894,36 @@ void do_cmd_fire(void)
 
 			int visible = m_ptr->ml;
 
+			if ((m_ptr->csleep) && (m_ptr->ml))
+			{
+				sleeping_bonus =  5 + p_ptr->lev / 5;
 
+				if (p_ptr->stat_use[A_STE] >= 18+100)
+				{
+					/*100 % increase*/
+					sleeping_bonus *= 2;
+				} else if (p_ptr->stat_use[A_STE] >= 18+50)
+				{
+					/*75 % increase*/
+					sleeping_bonus *= 7;
+					sleeping_bonus /= 4;
+				} else if (p_ptr->stat_use[A_STE] >= 18)
+				{
+					/*50 % increase*/
+					sleeping_bonus *= 3;
+					sleeping_bonus /= 2;
+				} else if (p_ptr->stat_use[A_STE] >= 15)
+				{
+					/*25 % increase*/
+					sleeping_bonus *= 5;
+					sleeping_bonus /= 4;
+				}
+			} else {
+				sleeping_bonus = 0;
+			}
+
+			chance = chance + sleeping_bonus * BTH_PLUS_ADJ;
+			
 			/*Adjust for player terrain*/
 			chance = feat_adjust_combat_for_player(chance, FALSE);
 
@@ -2960,7 +3003,11 @@ void do_cmd_fire(void)
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 					/* Message */
-					message_format(MSG_SHOOT_HIT, 0, "The %s hits %s.", o_name, m_name);
+					if (sleeping_bonus){
+						message_format(MSG_SHOOT_HIT, 0, "You snipe the %s.", m_name);
+					} else {
+						message_format(MSG_SHOOT_HIT, 0, "The %s hits %s.", o_name, m_name);
+					}
 
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -2972,12 +3019,8 @@ void do_cmd_fire(void)
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr, FALSE);
 				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
-
-				/*rogues are deadly with slings*/
-				if ((cp_ptr->flags & CF_ROGUE_COMBAT) && (p_ptr->ammo_tval == TV_SHOT))
-				{
-
-					tdam += p_ptr->lev * 2 / 3;
+				if (sleeping_bonus){
+					tdam = (tdam * (20 + sleeping_bonus)) / 20;
 				}
 
 				/* No negative damage */

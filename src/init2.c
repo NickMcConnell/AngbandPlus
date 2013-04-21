@@ -2095,7 +2095,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_BLESS].code =    NEWSPELL_BLESS;
 	newspells[NEWSPELL_BLESS].school1 = SCHOOL_BLESSINGS;
 	newspells[NEWSPELL_BLESS].school2 = SCHOOL_BUFFS;
-	newspells[NEWSPELL_BLESS].level =   4;
+	newspells[NEWSPELL_BLESS].level =   5;
 	newspells[NEWSPELL_BLESS].cost =    2;
 	my_strcpy(newspells[NEWSPELL_BLESS].name,"Bless",80);
 	newspells[NEWSPELL_BLESS].book =    0;
@@ -2104,7 +2104,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_CLW].code =    NEWSPELL_CLW;
 	newspells[NEWSPELL_CLW].school1 = SCHOOL_HEALING;
 	newspells[NEWSPELL_CLW].school2 = -1;
-	newspells[NEWSPELL_CLW].level =   10;
+	newspells[NEWSPELL_CLW].level =   8;
 	newspells[NEWSPELL_CLW].cost =    2;
 	my_strcpy(newspells[NEWSPELL_CLW].name,"Cure Light Wounds",80);
 	newspells[NEWSPELL_CLW].book =    0;
@@ -2113,7 +2113,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_MAGIC_MISSILE].code =    NEWSPELL_MAGIC_MISSILE;
 	newspells[NEWSPELL_MAGIC_MISSILE].school1 = SCHOOL_BATTLE;
 	newspells[NEWSPELL_MAGIC_MISSILE].school2 = SCHOOL_FORCE;
-	newspells[NEWSPELL_MAGIC_MISSILE].level =   13;
+	newspells[NEWSPELL_MAGIC_MISSILE].level =   11;
 	newspells[NEWSPELL_MAGIC_MISSILE].cost =    2;
 	my_strcpy(newspells[NEWSPELL_MAGIC_MISSILE].name,"Magic Missile",80);
 	newspells[NEWSPELL_MAGIC_MISSILE].book =    0;
@@ -2122,7 +2122,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_LIGHT].code =    NEWSPELL_LIGHT;
 	newspells[NEWSPELL_LIGHT].school1 = SCHOOL_FIRE_AND_LIGHT;
 	newspells[NEWSPELL_LIGHT].school2 = -1;
-	newspells[NEWSPELL_LIGHT].level =   6;
+	newspells[NEWSPELL_LIGHT].level =   9;
 	newspells[NEWSPELL_LIGHT].cost =    2;
 	my_strcpy(newspells[NEWSPELL_LIGHT].name,"Light",80);
 	newspells[NEWSPELL_LIGHT].book =    0;
@@ -2131,7 +2131,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_DETECT_ANIMALS].code =    NEWSPELL_DETECT_ANIMALS;
 	newspells[NEWSPELL_DETECT_ANIMALS].school1 = SCHOOL_DETECTION;
 	newspells[NEWSPELL_DETECT_ANIMALS].school2 = SCHOOL_NATURE;
-	newspells[NEWSPELL_DETECT_ANIMALS].level =   12;
+	newspells[NEWSPELL_DETECT_ANIMALS].level =   11;
 	newspells[NEWSPELL_DETECT_ANIMALS].cost =    2;
 	my_strcpy(newspells[NEWSPELL_DETECT_ANIMALS].name,"Detect Animals",80);
 	newspells[NEWSPELL_DETECT_ANIMALS].book =    0;
@@ -2140,7 +2140,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_SLEEP].code =    NEWSPELL_SLEEP;
 	newspells[NEWSPELL_SLEEP].school1 = SCHOOL_ENCHANTMENT;
 	newspells[NEWSPELL_SLEEP].school2 = -1;
-	newspells[NEWSPELL_SLEEP].level =   15;
+	newspells[NEWSPELL_SLEEP].level =   13;
 	newspells[NEWSPELL_SLEEP].cost =    5;
 	my_strcpy(newspells[NEWSPELL_SLEEP].name,"Sleep",80);
 	newspells[NEWSPELL_SLEEP].book =    0;
@@ -2149,7 +2149,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_CREATE_FOOD].code =    NEWSPELL_CREATE_FOOD;
 	newspells[NEWSPELL_CREATE_FOOD].school1 = SCHOOL_CONJURATIONS;
 	newspells[NEWSPELL_CREATE_FOOD].school2 = -1;
-	newspells[NEWSPELL_CREATE_FOOD].level =   24;
+	newspells[NEWSPELL_CREATE_FOOD].level =   18;
 	newspells[NEWSPELL_CREATE_FOOD].cost =    9;
 	my_strcpy(newspells[NEWSPELL_CREATE_FOOD].name,"Create Food",80);
 	newspells[NEWSPELL_CREATE_FOOD].book =    1;
@@ -2185,7 +2185,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_REMOVE_FEAR].code =    NEWSPELL_REMOVE_FEAR;
 	newspells[NEWSPELL_REMOVE_FEAR].school1 = SCHOOL_BLESSINGS;
 	newspells[NEWSPELL_REMOVE_FEAR].school2 = -1;
-	newspells[NEWSPELL_REMOVE_FEAR].level =   13;
+	newspells[NEWSPELL_REMOVE_FEAR].level =   22;
 	newspells[NEWSPELL_REMOVE_FEAR].cost =    3;
 	my_strcpy(newspells[NEWSPELL_REMOVE_FEAR].name,"Remove Fear",80);
 	newspells[NEWSPELL_REMOVE_FEAR].book =    1;
@@ -2194,7 +2194,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_FIRE_BOLT].code =    NEWSPELL_FIRE_BOLT;
 	newspells[NEWSPELL_FIRE_BOLT].school1 = SCHOOL_BATTLE;
 	newspells[NEWSPELL_FIRE_BOLT].school2 = SCHOOL_FIRE_AND_LIGHT;
-	newspells[NEWSPELL_FIRE_BOLT].level =   24;
+	newspells[NEWSPELL_FIRE_BOLT].level =   19;
 	newspells[NEWSPELL_FIRE_BOLT].cost =    6;
 	my_strcpy(newspells[NEWSPELL_FIRE_BOLT].name,"Firebolt",80);
 	newspells[NEWSPELL_FIRE_BOLT].book =    1;
@@ -2203,7 +2203,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_MAGELIGHT].code =    NEWSPELL_MAGELIGHT;
 	newspells[NEWSPELL_MAGELIGHT].school1 = SCHOOL_FIRE_AND_LIGHT;
 	newspells[NEWSPELL_MAGELIGHT].school2 = SCHOOL_CONJURATIONS;
-	newspells[NEWSPELL_MAGELIGHT].level =   25;
+	newspells[NEWSPELL_MAGELIGHT].level =   22;
 	newspells[NEWSPELL_MAGELIGHT].cost =    10;
 	my_strcpy(newspells[NEWSPELL_MAGELIGHT].name,"Magelight",80);
 	newspells[NEWSPELL_MAGELIGHT].book =    2;
@@ -2212,7 +2212,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_REMOVE_CURSE].code =    NEWSPELL_REMOVE_CURSE;
 	newspells[NEWSPELL_REMOVE_CURSE].school1 = SCHOOL_BLESSINGS;
 	newspells[NEWSPELL_REMOVE_CURSE].school2 = -1;
-	newspells[NEWSPELL_REMOVE_CURSE].level =   19;
+	newspells[NEWSPELL_REMOVE_CURSE].level =   18;
 	newspells[NEWSPELL_REMOVE_CURSE].cost =    9;
 	my_strcpy(newspells[NEWSPELL_REMOVE_CURSE].name,"Remove Curse",80);
 	newspells[NEWSPELL_REMOVE_CURSE].book =    2;
@@ -2230,7 +2230,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_CSW].code =    NEWSPELL_CSW;
 	newspells[NEWSPELL_CSW].school1 = SCHOOL_HEALING;
 	newspells[NEWSPELL_CSW].school2 = -1;
-	newspells[NEWSPELL_CSW].level =   23;
+	newspells[NEWSPELL_CSW].level =   20;
 	newspells[NEWSPELL_CSW].cost =    6;
 	my_strcpy(newspells[NEWSPELL_CSW].name,"Cure Serious Wounds",80);
 	newspells[NEWSPELL_CSW].book =    2;
@@ -2239,7 +2239,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_CONFUSION].code =    NEWSPELL_CONFUSION;
 	newspells[NEWSPELL_CONFUSION].school1 = SCHOOL_ENCHANTMENT;
 	newspells[NEWSPELL_CONFUSION].school2 = -1;
-	newspells[NEWSPELL_CONFUSION].level =   18;
+	newspells[NEWSPELL_CONFUSION].level =   16;
 	newspells[NEWSPELL_CONFUSION].cost =    6;
 	my_strcpy(newspells[NEWSPELL_CONFUSION].name,"Confusion",80);
 	newspells[NEWSPELL_CONFUSION].book =    2;
@@ -2248,7 +2248,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_MANA_BOLT].code =    NEWSPELL_MANA_BOLT;
 	newspells[NEWSPELL_MANA_BOLT].school1 = SCHOOL_BATTLE;
 	newspells[NEWSPELL_MANA_BOLT].school2 = SCHOOL_FORCE;
-	newspells[NEWSPELL_MANA_BOLT].level =   30;
+	newspells[NEWSPELL_MANA_BOLT].level =   25;
 	newspells[NEWSPELL_MANA_BOLT].cost =    7;
 	my_strcpy(newspells[NEWSPELL_MANA_BOLT].name,"Mana Bolt",80);
 	newspells[NEWSPELL_MANA_BOLT].book =    2;
@@ -2257,7 +2257,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_IDENTIFY].code =    NEWSPELL_IDENTIFY;
 	newspells[NEWSPELL_IDENTIFY].school1 = SCHOOL_IDENTIFICATION;
 	newspells[NEWSPELL_IDENTIFY].school2 = -1;
-	newspells[NEWSPELL_IDENTIFY].level =   21;
+	newspells[NEWSPELL_IDENTIFY].level =   17;
 	newspells[NEWSPELL_IDENTIFY].cost =    7;
 	my_strcpy(newspells[NEWSPELL_IDENTIFY].name,"Identify",80);
 	newspells[NEWSPELL_IDENTIFY].book =    3;
@@ -2275,7 +2275,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_PHASE_DOOR].code =    NEWSPELL_PHASE_DOOR;
 	newspells[NEWSPELL_PHASE_DOOR].school1 = SCHOOL_TELEPORTATION;
 	newspells[NEWSPELL_PHASE_DOOR].school2 = -1;
-	newspells[NEWSPELL_PHASE_DOOR].level =   13;
+	newspells[NEWSPELL_PHASE_DOOR].level =   15;
 	newspells[NEWSPELL_PHASE_DOOR].cost =    3;
 	my_strcpy(newspells[NEWSPELL_PHASE_DOOR].name,"Phase Door",80);
 	newspells[NEWSPELL_PHASE_DOOR].book =    3;
@@ -2284,7 +2284,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_RESIST_HEAT_AND_COLD].code =    NEWSPELL_RESIST_HEAT_AND_COLD;
 	newspells[NEWSPELL_RESIST_HEAT_AND_COLD].school1 = SCHOOL_RESISTANCE;
 	newspells[NEWSPELL_RESIST_HEAT_AND_COLD].school2 = SCHOOL_FIRE_AND_LIGHT;
-	newspells[NEWSPELL_RESIST_HEAT_AND_COLD].level =   21;
+	newspells[NEWSPELL_RESIST_HEAT_AND_COLD].level =   24;
 	newspells[NEWSPELL_RESIST_HEAT_AND_COLD].cost =    5;
 	my_strcpy(newspells[NEWSPELL_RESIST_HEAT_AND_COLD].name,"Resist Heat and Cold",80);
 	newspells[NEWSPELL_RESIST_HEAT_AND_COLD].book =    3;
@@ -2293,7 +2293,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_FROST_BOLT].code =    NEWSPELL_FROST_BOLT;
 	newspells[NEWSPELL_FROST_BOLT].school1 = SCHOOL_BATTLE;
 	newspells[NEWSPELL_FROST_BOLT].school2 = -1;
-	newspells[NEWSPELL_FROST_BOLT].level =   24;
+	newspells[NEWSPELL_FROST_BOLT].level =   22;
 	newspells[NEWSPELL_FROST_BOLT].cost =    6;
 	my_strcpy(newspells[NEWSPELL_FROST_BOLT].name,"Frost Bolt",80);
 	newspells[NEWSPELL_FROST_BOLT].book =    3;
@@ -2302,7 +2302,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_DETECT_MONSTERS].code =    NEWSPELL_DETECT_MONSTERS;
 	newspells[NEWSPELL_DETECT_MONSTERS].school1 = SCHOOL_DETECTION;
 	newspells[NEWSPELL_DETECT_MONSTERS].school2 = -1;
-	newspells[NEWSPELL_DETECT_MONSTERS].level =   18;
+	newspells[NEWSPELL_DETECT_MONSTERS].level =   21;
 	newspells[NEWSPELL_DETECT_MONSTERS].cost =    3;
 	my_strcpy(newspells[NEWSPELL_DETECT_MONSTERS].name,"Detect Monsters",80);
 	newspells[NEWSPELL_DETECT_MONSTERS].book =    3;
@@ -2311,7 +2311,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_RESTORE_LIFE_LEVELS].code =    NEWSPELL_RESTORE_LIFE_LEVELS;
 	newspells[NEWSPELL_RESTORE_LIFE_LEVELS].school1 = SCHOOL_BLESSINGS;
 	newspells[NEWSPELL_RESTORE_LIFE_LEVELS].school2 = SCHOOL_HEALING;
-	newspells[NEWSPELL_RESTORE_LIFE_LEVELS].level =   38;
+	newspells[NEWSPELL_RESTORE_LIFE_LEVELS].level =   31;
 	newspells[NEWSPELL_RESTORE_LIFE_LEVELS].cost =    13;
 	my_strcpy(newspells[NEWSPELL_RESTORE_LIFE_LEVELS].name,"Restore Life Levels",80);
 	newspells[NEWSPELL_RESTORE_LIFE_LEVELS].book =    4;
@@ -2320,7 +2320,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_TELEPORT_AWAY].code =    NEWSPELL_TELEPORT_AWAY;
 	newspells[NEWSPELL_TELEPORT_AWAY].school1 = SCHOOL_TELEPORTATION;
 	newspells[NEWSPELL_TELEPORT_AWAY].school2 = SCHOOL_FORCE;
-	newspells[NEWSPELL_TELEPORT_AWAY].level =   33;
+	newspells[NEWSPELL_TELEPORT_AWAY].level =   29;
 	newspells[NEWSPELL_TELEPORT_AWAY].cost =    6;
 	my_strcpy(newspells[NEWSPELL_TELEPORT_AWAY].name,"Teleport Away",80);
 	newspells[NEWSPELL_TELEPORT_AWAY].book =    4;
@@ -2329,7 +2329,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_MASS_IDENTIFY].code =    NEWSPELL_MASS_IDENTIFY;
 	newspells[NEWSPELL_MASS_IDENTIFY].school1 = SCHOOL_IDENTIFICATION;
 	newspells[NEWSPELL_MASS_IDENTIFY].school2 = -1;
-	newspells[NEWSPELL_MASS_IDENTIFY].level =   50;
+	newspells[NEWSPELL_MASS_IDENTIFY].level =   38;
 	newspells[NEWSPELL_MASS_IDENTIFY].cost =    14;
 	my_strcpy(newspells[NEWSPELL_MASS_IDENTIFY].name,"Mass Identify",80);
 	newspells[NEWSPELL_MASS_IDENTIFY].book =    4;
@@ -2338,7 +2338,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_RESIST_POISON].code =    NEWSPELL_RESIST_POISON;
 	newspells[NEWSPELL_RESIST_POISON].school1 = SCHOOL_RESISTANCE;
 	newspells[NEWSPELL_RESIST_POISON].school2 = SCHOOL_HEALING;
-	newspells[NEWSPELL_RESIST_POISON].level =   33;
+	newspells[NEWSPELL_RESIST_POISON].level =   28;
 	newspells[NEWSPELL_RESIST_POISON].cost =    9;
 	my_strcpy(newspells[NEWSPELL_RESIST_POISON].name,"Resist Poison",80);
 	newspells[NEWSPELL_RESIST_POISON].book =    4;
@@ -2347,8 +2347,8 @@ void build_new_spells(void)
 	newspells[NEWSPELL_CCW].code =    NEWSPELL_CCW;
 	newspells[NEWSPELL_CCW].school1 = SCHOOL_HEALING;
 	newspells[NEWSPELL_CCW].school2 = -1;
-	newspells[NEWSPELL_CCW].level =   35;
-	newspells[NEWSPELL_CCW].cost =    9;
+	newspells[NEWSPELL_CCW].level =   26;
+	newspells[NEWSPELL_CCW].cost =    10;
 	my_strcpy(newspells[NEWSPELL_CCW].name,"Cure Critical Wounds",80);
 	newspells[NEWSPELL_CCW].book =    4;
 	}
@@ -2356,8 +2356,8 @@ void build_new_spells(void)
 	newspells[NEWSPELL_FIREBALL].code =    NEWSPELL_FIREBALL;
 	newspells[NEWSPELL_FIREBALL].school1 = SCHOOL_BATTLE;
 	newspells[NEWSPELL_FIREBALL].school2 = SCHOOL_FIRE_AND_LIGHT;
-	newspells[NEWSPELL_FIREBALL].level =   31;
-	newspells[NEWSPELL_FIREBALL].cost =    8;
+	newspells[NEWSPELL_FIREBALL].level =   32;
+	newspells[NEWSPELL_FIREBALL].cost =    10;
 	my_strcpy(newspells[NEWSPELL_FIREBALL].name,"Fireball",80);
 	newspells[NEWSPELL_FIREBALL].book =    4;
 	}
@@ -2365,7 +2365,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_STARIDENTIFYSTAR].code =    NEWSPELL_STARIDENTIFYSTAR;
 	newspells[NEWSPELL_STARIDENTIFYSTAR].school1 = SCHOOL_IDENTIFICATION;
 	newspells[NEWSPELL_STARIDENTIFYSTAR].school2 = -1;
-	newspells[NEWSPELL_STARIDENTIFYSTAR].level =   40;
+	newspells[NEWSPELL_STARIDENTIFYSTAR].level =   23;
 	newspells[NEWSPELL_STARIDENTIFYSTAR].cost =    15;
 	my_strcpy(newspells[NEWSPELL_STARIDENTIFYSTAR].name,"*Identify*",80);
 	newspells[NEWSPELL_STARIDENTIFYSTAR].book =    5;
@@ -2374,8 +2374,8 @@ void build_new_spells(void)
 	newspells[NEWSPELL_STARREMOVE_CURSESTAR].code =    NEWSPELL_STARREMOVE_CURSESTAR;
 	newspells[NEWSPELL_STARREMOVE_CURSESTAR].school1 = SCHOOL_BLESSINGS;
 	newspells[NEWSPELL_STARREMOVE_CURSESTAR].school2 = -1;
-	newspells[NEWSPELL_STARREMOVE_CURSESTAR].level =   31;
-	newspells[NEWSPELL_STARREMOVE_CURSESTAR].cost =    18;
+	newspells[NEWSPELL_STARREMOVE_CURSESTAR].level =   28;
+	newspells[NEWSPELL_STARREMOVE_CURSESTAR].cost =    20;
 	my_strcpy(newspells[NEWSPELL_STARREMOVE_CURSESTAR].name,"*Remove Curse*",80);
 	newspells[NEWSPELL_STARREMOVE_CURSESTAR].book =    5;
 	}
@@ -2383,7 +2383,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_SEE_INVISIBLE].code =    NEWSPELL_SEE_INVISIBLE;
 	newspells[NEWSPELL_SEE_INVISIBLE].school1 = SCHOOL_DETECTION;
 	newspells[NEWSPELL_SEE_INVISIBLE].school2 = -1;
-	newspells[NEWSPELL_SEE_INVISIBLE].level =   24;
+	newspells[NEWSPELL_SEE_INVISIBLE].level =   30;
 	newspells[NEWSPELL_SEE_INVISIBLE].cost =    8;
 	my_strcpy(newspells[NEWSPELL_SEE_INVISIBLE].name,"See Invisible",80);
 	newspells[NEWSPELL_SEE_INVISIBLE].book =    5;
@@ -2392,7 +2392,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_DETECT_OBJECTS].code =    NEWSPELL_DETECT_OBJECTS;
 	newspells[NEWSPELL_DETECT_OBJECTS].school1 = SCHOOL_DETECTION;
 	newspells[NEWSPELL_DETECT_OBJECTS].school2 = -1;
-	newspells[NEWSPELL_DETECT_OBJECTS].level =   16;
+	newspells[NEWSPELL_DETECT_OBJECTS].level =   20;
 	newspells[NEWSPELL_DETECT_OBJECTS].cost =    3;
 	my_strcpy(newspells[NEWSPELL_DETECT_OBJECTS].name,"Detect Objects",80);
 	newspells[NEWSPELL_DETECT_OBJECTS].book =    5;
@@ -2401,7 +2401,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_PORTAL].code =    NEWSPELL_PORTAL;
 	newspells[NEWSPELL_PORTAL].school1 = SCHOOL_TELEPORTATION;
 	newspells[NEWSPELL_PORTAL].school2 = -1;
-	newspells[NEWSPELL_PORTAL].level =   21;
+	newspells[NEWSPELL_PORTAL].level =   22;
 	newspells[NEWSPELL_PORTAL].cost =    7;
 	my_strcpy(newspells[NEWSPELL_PORTAL].name,"Portal",80);
 	newspells[NEWSPELL_PORTAL].book =    5;
@@ -2410,8 +2410,8 @@ void build_new_spells(void)
 	newspells[NEWSPELL_ACID_BALL].code =    NEWSPELL_ACID_BALL;
 	newspells[NEWSPELL_ACID_BALL].school1 = SCHOOL_BATTLE;
 	newspells[NEWSPELL_ACID_BALL].school2 = -1;
-	newspells[NEWSPELL_ACID_BALL].level =   35;
-	newspells[NEWSPELL_ACID_BALL].cost =    9;
+	newspells[NEWSPELL_ACID_BALL].level =   31;
+	newspells[NEWSPELL_ACID_BALL].cost =    10;
 	my_strcpy(newspells[NEWSPELL_ACID_BALL].name,"Acid Ball",80);
 	newspells[NEWSPELL_ACID_BALL].book =    5;
 	}
@@ -2428,7 +2428,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_MAGIC_MAPPING].code =    NEWSPELL_MAGIC_MAPPING;
 	newspells[NEWSPELL_MAGIC_MAPPING].school1 = SCHOOL_DETECTION;
 	newspells[NEWSPELL_MAGIC_MAPPING].school2 = -1;
-	newspells[NEWSPELL_MAGIC_MAPPING].level =   35;
+	newspells[NEWSPELL_MAGIC_MAPPING].level =   33;
 	newspells[NEWSPELL_MAGIC_MAPPING].cost =    5;
 	my_strcpy(newspells[NEWSPELL_MAGIC_MAPPING].name,"Magic Mapping",80);
 	newspells[NEWSPELL_MAGIC_MAPPING].book =    6;
@@ -2437,7 +2437,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_NEUTRALIZE_POISON].code =    NEWSPELL_NEUTRALIZE_POISON;
 	newspells[NEWSPELL_NEUTRALIZE_POISON].school1 = SCHOOL_HEALING;
 	newspells[NEWSPELL_NEUTRALIZE_POISON].school2 = -1;
-	newspells[NEWSPELL_NEUTRALIZE_POISON].level =   27;
+	newspells[NEWSPELL_NEUTRALIZE_POISON].level =   23;
 	newspells[NEWSPELL_NEUTRALIZE_POISON].cost =    5;
 	my_strcpy(newspells[NEWSPELL_NEUTRALIZE_POISON].name,"Neutralize Poison",80);
 	newspells[NEWSPELL_NEUTRALIZE_POISON].book =    6;
@@ -2446,7 +2446,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_CREATE_MISSILES].code =    NEWSPELL_CREATE_MISSILES;
 	newspells[NEWSPELL_CREATE_MISSILES].school1 = SCHOOL_CONJURATIONS;
 	newspells[NEWSPELL_CREATE_MISSILES].school2 = -1;
-	newspells[NEWSPELL_CREATE_MISSILES].level =   30;
+	newspells[NEWSPELL_CREATE_MISSILES].level =   26;
 	newspells[NEWSPELL_CREATE_MISSILES].cost =    15;
 	my_strcpy(newspells[NEWSPELL_CREATE_MISSILES].name,"Create Missiles",80);
 	newspells[NEWSPELL_CREATE_MISSILES].book =    6;
@@ -2455,7 +2455,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_ENCHANT_ARMOR].code =    NEWSPELL_ENCHANT_ARMOR;
 	newspells[NEWSPELL_ENCHANT_ARMOR].school1 = SCHOOL_BUFFS;
 	newspells[NEWSPELL_ENCHANT_ARMOR].school2 = SCHOOL_RESISTANCE;
-	newspells[NEWSPELL_ENCHANT_ARMOR].level =   28;
+	newspells[NEWSPELL_ENCHANT_ARMOR].level =   25;
 	newspells[NEWSPELL_ENCHANT_ARMOR].cost =    12;
 	my_strcpy(newspells[NEWSPELL_ENCHANT_ARMOR].name,"Enchant Armor",80);
 	newspells[NEWSPELL_ENCHANT_ARMOR].book =    6;
@@ -2464,7 +2464,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_STONE_TO_MUD].code =    NEWSPELL_STONE_TO_MUD;
 	newspells[NEWSPELL_STONE_TO_MUD].school1 = SCHOOL_NATURE;
 	newspells[NEWSPELL_STONE_TO_MUD].school2 = -1;
-	newspells[NEWSPELL_STONE_TO_MUD].level =   37;
+	newspells[NEWSPELL_STONE_TO_MUD].level =   33;
 	newspells[NEWSPELL_STONE_TO_MUD].cost =    6;
 	my_strcpy(newspells[NEWSPELL_STONE_TO_MUD].name,"Stone to Mud",80);
 	newspells[NEWSPELL_STONE_TO_MUD].book =    6;
@@ -2473,7 +2473,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_DETECTION].code =    NEWSPELL_DETECTION;
 	newspells[NEWSPELL_DETECTION].school1 = SCHOOL_DETECTION;
 	newspells[NEWSPELL_DETECTION].school2 = -1;
-	newspells[NEWSPELL_DETECTION].level =   39;
+	newspells[NEWSPELL_DETECTION].level =   32;
 	newspells[NEWSPELL_DETECTION].cost =    7;
 	my_strcpy(newspells[NEWSPELL_DETECTION].name,"Detection",80);
 	newspells[NEWSPELL_DETECTION].book =    7;
@@ -2482,7 +2482,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_TELEPORTATION].code =    NEWSPELL_TELEPORTATION;
 	newspells[NEWSPELL_TELEPORTATION].school1 = SCHOOL_TELEPORTATION;
 	newspells[NEWSPELL_TELEPORTATION].school2 = -1;
-	newspells[NEWSPELL_TELEPORTATION].level =   33;
+	newspells[NEWSPELL_TELEPORTATION].level =   30;
 	newspells[NEWSPELL_TELEPORTATION].cost =    9;
 	my_strcpy(newspells[NEWSPELL_TELEPORTATION].name,"Teleportation",80);
 	newspells[NEWSPELL_TELEPORTATION].book =    7;
@@ -2491,7 +2491,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_HEALING].code =    NEWSPELL_HEALING;
 	newspells[NEWSPELL_HEALING].school1 = SCHOOL_HEALING;
 	newspells[NEWSPELL_HEALING].school2 = -1;
-	newspells[NEWSPELL_HEALING].level =   45;
+	newspells[NEWSPELL_HEALING].level =   39;
 	newspells[NEWSPELL_HEALING].cost =    20;
 	my_strcpy(newspells[NEWSPELL_HEALING].name,"Healing",80);
 	newspells[NEWSPELL_HEALING].book =    7;
@@ -2500,7 +2500,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_MANA_STORM].code =    NEWSPELL_MANA_STORM;
 	newspells[NEWSPELL_MANA_STORM].school1 = SCHOOL_BATTLE;
 	newspells[NEWSPELL_MANA_STORM].school2 = SCHOOL_FORCE;
-	newspells[NEWSPELL_MANA_STORM].level =   60;
+	newspells[NEWSPELL_MANA_STORM].level =   45;
 	newspells[NEWSPELL_MANA_STORM].cost =    30;
 	my_strcpy(newspells[NEWSPELL_MANA_STORM].name,"Mana Storm",80);
 	newspells[NEWSPELL_MANA_STORM].book =    7;
@@ -2509,7 +2509,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_PROTECTION_FROM_EVIL].code =    NEWSPELL_PROTECTION_FROM_EVIL;
 	newspells[NEWSPELL_PROTECTION_FROM_EVIL].school1 = SCHOOL_BLESSINGS;
 	newspells[NEWSPELL_PROTECTION_FROM_EVIL].school2 = SCHOOL_BUFFS;
-	newspells[NEWSPELL_PROTECTION_FROM_EVIL].level =   40;
+	newspells[NEWSPELL_PROTECTION_FROM_EVIL].level =   28;
 	newspells[NEWSPELL_PROTECTION_FROM_EVIL].cost =    7;
 	my_strcpy(newspells[NEWSPELL_PROTECTION_FROM_EVIL].name,"Protection from Evil",80);
 	newspells[NEWSPELL_PROTECTION_FROM_EVIL].book =    7;
@@ -2518,8 +2518,8 @@ void build_new_spells(void)
 	newspells[NEWSPELL_GLOBE_OF_INVULNERABILITY].code =    NEWSPELL_GLOBE_OF_INVULNERABILITY;
 	newspells[NEWSPELL_GLOBE_OF_INVULNERABILITY].school1 = SCHOOL_FORCE;
 	newspells[NEWSPELL_GLOBE_OF_INVULNERABILITY].school2 = SCHOOL_BUFFS;
-	newspells[NEWSPELL_GLOBE_OF_INVULNERABILITY].level =   57;
-	newspells[NEWSPELL_GLOBE_OF_INVULNERABILITY].cost =    19;
+	newspells[NEWSPELL_GLOBE_OF_INVULNERABILITY].level =   44;
+	newspells[NEWSPELL_GLOBE_OF_INVULNERABILITY].cost =    22;
 	my_strcpy(newspells[NEWSPELL_GLOBE_OF_INVULNERABILITY].name,"Globe of Invulnerability",80);
 	newspells[NEWSPELL_GLOBE_OF_INVULNERABILITY].book =    7;
 	}
@@ -2527,7 +2527,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_CREATE_STAIRS].code =    NEWSPELL_CREATE_STAIRS;
 	newspells[NEWSPELL_CREATE_STAIRS].school1 = SCHOOL_CONJURATIONS;
 	newspells[NEWSPELL_CREATE_STAIRS].school2 = SCHOOL_TELEPORTATION;
-	newspells[NEWSPELL_CREATE_STAIRS].level =   41;
+	newspells[NEWSPELL_CREATE_STAIRS].level =   40;
 	newspells[NEWSPELL_CREATE_STAIRS].cost =    28;
 	my_strcpy(newspells[NEWSPELL_CREATE_STAIRS].name,"Create Stairs",80);
 	newspells[NEWSPELL_CREATE_STAIRS].book =    8;
@@ -2536,7 +2536,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_RESTORATION].code =    NEWSPELL_RESTORATION;
 	newspells[NEWSPELL_RESTORATION].school1 = SCHOOL_BLESSINGS;
 	newspells[NEWSPELL_RESTORATION].school2 = SCHOOL_TIME;
-	newspells[NEWSPELL_RESTORATION].level =   47;
+	newspells[NEWSPELL_RESTORATION].level =   34;
 	newspells[NEWSPELL_RESTORATION].cost =    25;
 	my_strcpy(newspells[NEWSPELL_RESTORATION].name,"Restoration",80);
 	newspells[NEWSPELL_RESTORATION].book =    8;
@@ -2545,7 +2545,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_HASTE_SELF].code =    NEWSPELL_HASTE_SELF;
 	newspells[NEWSPELL_HASTE_SELF].school1 = SCHOOL_BUFFS;
 	newspells[NEWSPELL_HASTE_SELF].school2 = SCHOOL_TIME;
-	newspells[NEWSPELL_HASTE_SELF].level =   44;
+	newspells[NEWSPELL_HASTE_SELF].level =   36;
 	newspells[NEWSPELL_HASTE_SELF].cost =    12;
 	my_strcpy(newspells[NEWSPELL_HASTE_SELF].name,"Haste Self",80);
 	newspells[NEWSPELL_HASTE_SELF].book =    8;
@@ -2554,7 +2554,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_RIFT].code =    NEWSPELL_RIFT;
 	newspells[NEWSPELL_RIFT].school1 = SCHOOL_BATTLE;
 	newspells[NEWSPELL_RIFT].school2 = SCHOOL_TELEPORTATION;
-	newspells[NEWSPELL_RIFT].level =   54;
+	newspells[NEWSPELL_RIFT].level =   40;
 	newspells[NEWSPELL_RIFT].cost =    20;
 	my_strcpy(newspells[NEWSPELL_RIFT].name,"Rift",80);
 	newspells[NEWSPELL_RIFT].book =    8;
@@ -2563,7 +2563,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_RESISTANCE].code =    NEWSPELL_RESISTANCE;
 	newspells[NEWSPELL_RESISTANCE].school1 = SCHOOL_RESISTANCE;
 	newspells[NEWSPELL_RESISTANCE].school2 = -1;
-	newspells[NEWSPELL_RESISTANCE].level =   48;
+	newspells[NEWSPELL_RESISTANCE].level =   39;
 	newspells[NEWSPELL_RESISTANCE].cost =    20;
 	my_strcpy(newspells[NEWSPELL_RESISTANCE].name,"Resistance",80);
 	newspells[NEWSPELL_RESISTANCE].book =    8;
@@ -2572,7 +2572,7 @@ void build_new_spells(void)
 	newspells[NEWSPELL_NATIVITY].code =    NEWSPELL_NATIVITY;
 	newspells[NEWSPELL_NATIVITY].school1 = SCHOOL_NATURE;
 	newspells[NEWSPELL_NATIVITY].school2 = SCHOOL_RESISTANCE;
-	newspells[NEWSPELL_NATIVITY].level =   50;
+	newspells[NEWSPELL_NATIVITY].level =   37;
 	newspells[NEWSPELL_NATIVITY].cost =    10;
 	my_strcpy(newspells[NEWSPELL_NATIVITY].name,"Nativity",80);
 	newspells[NEWSPELL_NATIVITY].book =    8;

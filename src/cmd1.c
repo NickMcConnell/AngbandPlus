@@ -94,10 +94,19 @@ int critical_norm(int weight, int plus, int dam)
 	/* Extract "blow" power */
 	i = (weight + ((p_ptr->to_h_melee + plus) * 5) + (p_ptr->lev * 3));
 
+	if (p_ptr->twoh_weapon){
+		i = (i * 11) / 9;
+	} else {
+		i = (i * 6) / 9;
+	}
+
 	/* Chance */
 	if (randint(5000) <= i)
 	{
 		k = weight + randint(650);
+		if (p_ptr->twoh_weapon){
+			k = k + 100;
+		}
 
 		if (k < 400)
 		{
@@ -1958,7 +1967,7 @@ void py_attack(int y, int x)
 			sleeping_bonus /= 4;
 		}
 	}
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ) + sleeping_bonus);
+	chance = (p_ptr->skill_thn + ((bonus + sleeping_bonus) * BTH_PLUS_ADJ));
 
 	/*Mark the monster as attacked*/
 	m_ptr->mflag |= (MFLAG_HIT_BY_MELEE);
@@ -2017,7 +2026,7 @@ void py_attack(int y, int x)
 				my_strcpy(verb,"hit",20);
 			}
 
-			p = p + sleeping_bonus*5;
+			p = p + sleeping_bonus*7;
 
 			k = (k * (p + 100)) / 100;
 

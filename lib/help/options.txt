@@ -457,6 +457,23 @@ Adult: 	Disable extra artifacts		      [birth_no_xtra_artifacts](off) :
     If birth_no_artifacts option is set to true, no artifacts are generated and
     this option has no effect.
 
+***** <birth_no_discovery>
+Adult: 	No special statgain at DL 2, 4, 6     [birth_no_discovery](off) :
+    If this option is set, you no longer 'discover your potential' at 
+    DL 2, 4, and 6. Instead, you gain a single point to a random stat
+    at each of these levels (like you do at DL 8, 10, 12...)
+    This option makes it easier to control what kind of character you want
+    to play, but you will end up with lower stats overall.
+
+***** <birth_easy_start>
+Adult: 	Easy start (but mid game is harder)     [birth_easy_start](off) :
+    If this option is set, your character will start with better equipment.
+    This makes it easier to get through the first few levels.
+    However, to counterbalance this, it will cost you a lot more XP to
+    gain levels later on. Also, your score will be reduced.
+    This option can make it easy to get started, but try to stop using it
+    when you've gotten used to the game.
+
 --- Option Set #7:  Cheat ---
 
 ***** <cheat_peek>

@@ -15,14 +15,14 @@
 
 # Version stamp (required)
 
-V:0.1.0
+V:0.1.1
 
 # This slot for the adventurer's guild quests.  This must be 0, as it is hard coded in 
 # the source code
 N:0:Guild quest
 W:0:0:0:0
 
-N:1:Rogrog
+N:1:The Giant Mutant Troll
 W:49:604:0:1
 
 N:2:The Witch-King

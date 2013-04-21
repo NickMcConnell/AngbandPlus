@@ -68,7 +68,7 @@ As you go deeper in the dungeon, your stats will get better in several ways.
 - When you reach DL 2, 4, and 6, one of your stats will go up a lot, one a little
 and one actually go down. This reflects your character discovering their true
 potential (and is designed to make you play a character different from what you
-might have expected).
+might have expected). [You can turn this feature off using the 'no discovery' birth option.]
 - When you reach DL 8, 10, 12... one of your stats will go up 1 point. The stat is
 chosen at random, but is influenced by your race to some extent.
 - Whenever you gain a CL you can increase one of your stats - you choose which.
@@ -97,7 +97,8 @@ chosen at random, but is influenced by your race to some extent.
                your melee attacks per round, and your missile shot speed as 
                well if it is high enough. It also improves your chance of 
                hitting in melee.  Dexterity is useful in picking locks and 
-               disarming traps.
+               disarming traps. If your dexterity is low, you may sometimes 
+               misfire when you try to shoot a missile weapon.
  
           Constitution
                Constitution is a character's ability to resist damage to his
@@ -116,19 +117,19 @@ chosen at random, but is influenced by your race to some extent.
           Stealth
                Stealth allows you to sneak around the dungeon without being
                noticed and attacked by monsters. Picking your fights is a big
-               advantage. Also, if you sneak up to a monster and attack it in
-               melee, you will get a combat bonus - the more stealthy you are,
-               the bigger the bonus. And at high Stealth levels you gain resistance 
-               to darkness attacks.
-               Stealth is reduced by heavy body armour or big clunky boots.
+               advantage. If you attack a sleeping monster, either in melee or by
+               firing a missile weapon, you will get a hit and damage bonus - the 
+               more stealthy you are, the bigger the bonus. And at high Stealth 
+               levels you gain resistance to darkness attacks.
+               Stealth is reduced by heavy body armour and big clunky boots.
                
           Perception
                Perception has many advantages. Characters with high perception
                have 'eagle eyes' and get bonuses to hit and damage with missile
                weapons. They have a chance of spotting and avoiding traps. They
                are better at searching, and get information on the magic bonuses
-               of items they pick up more quickly. At high levels of perception
-               you can get infravision, increased light radius, and even a limited
+               of items they pick up more quickly. Their light radius is increased.
+               At high levels of perception you can get infravision, and even a limited
                form of ESP which indicates your ability to hear and smell nearby 
                monsters. Perception can also help you recover from blindness quicker.
                Perception is reduced by the heavier helmets.

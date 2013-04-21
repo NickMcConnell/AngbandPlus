@@ -2446,14 +2446,23 @@ void check_experience(void)
 				Term_clear();
 				display_player_stat_info(2, 5);
 				put_str("(a)",2,1);
+				put_str("(Heavier weapons, carry more, melee damage)",2,40);
 				put_str("(b)",3,1);
+				put_str("(Spell success, confusion recovery, disarming, scrolls)",3,40);
 				put_str("(c)",4,1);
+				put_str("(SP, saving throws)",4,40);
 				put_str("(d)",5,1);
+				put_str("(Blows, shots, melee to-hit, avoiding misfire, disarming)",5,40);
 				put_str("(e)",6,1);
+				put_str("(HP, Slow Digestion at high levels)",6,40);
 				put_str("(f)",7,1);
+				put_str("(Speed, AC, avoiding theft, paralysis recovery)",7,40);
 				put_str("(g)",8,1);
+				put_str("(Sneaking, backstab, sniping, RDark at high levels)",8,40);
 				put_str("(h)",9,1);
+				put_str("(Missile fire, vision, searching, traps, ESP, RBlind)",9,40);
 				put_str("(i)",10,1);
+				put_str("(Finding better items, avoiding curses, escaping death)",10,40);
 				my_strcpy(prompt, "Which stat do you want to increase? (a-i) ",
 					sizeof(prompt));
 				choice = get_menu_choice(A_MAX, prompt);
@@ -3072,11 +3081,15 @@ static s32b calc_mon_exp(const monster_race *r_ptr)
 
 	s16b new_level = p_ptr->max_lev;
 
+	if ((adult_easy_start) && p_ptr->lev >= 10){
+		new_exp = new_exp / 2;
+	}
+
 	/*not a full point of experience to gain*/
 	if (new_exp < 1) return (0);
 
 	/*
-	 * Check to make sure player is at level 50, so no adjustmetn necessary,
+	 * Check to make sure player is at level 50, so no adjustment necessary,
 	 * also prevents next line from crashing the game
 	 */
 	while (new_level < PY_MAX_LEVEL)
@@ -3182,7 +3195,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 		/* Increase the noise level slightly. */
-		if (add_wakeup_chance <= 8000) add_wakeup_chance += 300;
+		if (add_wakeup_chance <= 8000) add_wakeup_chance += MIN((5*p_ptr->base_wakeup_chance),300);
 
 		/* Death by Missile/Spell attack */
 		if (note)

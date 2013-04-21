@@ -434,9 +434,10 @@ void teleport_player_level(int who)
 
 		/* New depth */
 		p_ptr->depth++;
-		regenmana(100);
 
 		potential_effect_on_stats();
+
+		regenmana(100);
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -889,6 +890,14 @@ void take_hit(int dam, cptr kb_str)
 			p_ptr->redraw |= (PR_STATS);
 			new_dec_stat(A_LUC,randint(3)+2,1);
 			msg_print("You feel you have had a lucky escape!");
+			if (adult_take_notes){
+		    	char note[120];
+		    	char *fmt = "Was lucky to escape death.";
+
+		    	strnfmt(note, sizeof(note), fmt);
+
+		    	do_cmd_note(note, p_ptr->depth);
+			}
 		}
 	}
 
@@ -954,6 +963,14 @@ void take_hit(int dam, cptr kb_str)
 		return;
 	} else if (p_ptr->chp==0){
 		msg_format("You are on the verge of death!");
+		if (adult_take_notes){
+		    	char note[120];
+		    	char *fmt = "Came close to death.";
+
+		    	strnfmt(note, sizeof(note), fmt);
+
+		    	do_cmd_note(note, p_ptr->depth);
+		}
 	}
 
 	/* Hitpoint warning */
@@ -1045,8 +1062,11 @@ static bool dislikes_elec(const object_type *o_ptr)
 	/* Analyze the type */
 	switch (o_ptr->tval)
 	{
-		/* Wearable */
 		case TV_WAND:
+		{
+			return (TRUE);
+		}
+		case TV_TALISMAN:
 		{
 			return (TRUE);
 		}
@@ -1378,7 +1398,7 @@ static int set_elec_destroy(const object_type *o_ptr)
 }
 
 /*
- * Electrical damage can destroy wands if enough
+ * Electrical damage can destroy wands and talismans if enough
  */
 static int set_elec_destroy_tough(const object_type *o_ptr)
 {
@@ -1823,8 +1843,8 @@ void elec_dam(int dam, cptr kb_str)
 	/* Inventory damage */
 	inven_damage(set_elec_destroy, inv, double_resist);
 
-	if (dam>=100){
-		inv = (dam < 150) ? 1 : (dam < 200) ? 2 : 3;
+	if (dam>=50){
+		inv = (dam < 100) ? 1 : (dam < 150) ? 2 : 3;
 		inven_damage(set_elec_destroy_tough, inv, double_resist);
 	}
 }
@@ -1856,8 +1876,8 @@ void fire_dam(int dam, cptr kb_str)
 	/* Inventory damage */
 	inven_damage(set_fire_destroy, inv, double_resist);
 
-	if (dam>=100){
-		inv = (dam < 150) ? 1 : (dam < 200) ? 2 : 3;
+	if (dam>=50){
+		inv = (dam < 100) ? 1 : (dam < 150) ? 2 : 3;
 		inven_damage(set_fire_destroy_tough, inv, double_resist);
 	}
 }
@@ -3680,7 +3700,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
 				}
-				if (dislikes_elec(o_ptr) && dam > (100+rand_int(200)))
+				if (dislikes_elec(o_ptr) && dam > (50+rand_int(200)))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
@@ -3700,7 +3720,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
 					if (fn & (ELEMENT_LAVA | ELEMENT_FIRE)) ignore = TRUE;
 				}
-				if (dislikes_fire(o_ptr) && dam > (100+rand_int(200)))
+				if (dislikes_fire(o_ptr) && dam > (50+rand_int(200)))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
@@ -3734,7 +3754,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
 					if (fn & (ELEMENT_LAVA)) ignore = TRUE;
 				}
-				if (dislikes_fire(o_ptr) && (dam > (100+rand_int(200))))
+				if (dislikes_fire(o_ptr) && (dam > (50+rand_int(200))))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
@@ -3748,7 +3768,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
 				}
-				if (dislikes_elec(o_ptr) && dam > (100+rand_int(200)))
+				if (dislikes_elec(o_ptr) && dam > (50+rand_int(200)))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
@@ -3767,7 +3787,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
 					if (fn & (ELEMENT_LAVA)) ignore = TRUE;
 				}
-				if (dislikes_fire(o_ptr) && (dam > (100+rand_int(200))))
+				if (dislikes_fire(o_ptr) && (dam > (50+rand_int(200))))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");

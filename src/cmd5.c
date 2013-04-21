@@ -140,14 +140,14 @@ void print_spells(const byte *spells, int num, int row, int col)
 		line_attr = TERM_WHITE;
 
 		/* Dump the spell --(-- */
-		if (get_mana_cost(spell) >= 1){
+		if (get_mana_cost(spell,0) >= 1){
 			strnfmt(out_val, sizeof(out_val), "  %c) %-27s%2d  %3d%% %s",
 		        I2A(i), get_spell_name(cp_ptr->spell_book, spell),
-		        get_mana_cost(spell), 100-get_success_prob(spell), comment);
+		        get_mana_cost(spell,0), 100-get_success_prob(spell,0), comment);
 		} else {	
 			strnfmt(out_val, sizeof(out_val), "  %c) %-27s%3s  %3d%% %s",
 		        I2A(i), get_spell_name(cp_ptr->spell_book, spell),
-		        nice_mana_cost(get_mana_cost(spell)), 100-get_success_prob(spell), comment);
+		        nice_mana_cost(get_mana_cost(spell,0)), 100-get_success_prob(spell,0), comment);
 		}
 
 		length = strlen(out_val);
@@ -476,14 +476,14 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 			s_ptr = &mp_ptr->info[spell];
 
 			/* Prompt */
-			if (get_mana_cost(spell) >= 1){
+			if (get_mana_cost(spell,0) >= 1){
 				strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
 			        prompt, get_spell_name(cp_ptr->spell_book, spell),
-			        get_mana_cost(spell), 100-get_success_prob(spell));
+			        get_mana_cost(spell,0), 100-get_success_prob(spell,0));
 			} else {
 				strnfmt(tmp_val, 78, "%^s %s (%s mana, %d%% fail)? ",
 			        prompt, get_spell_name(cp_ptr->spell_book, spell),
-			        nice_mana_cost(get_mana_cost(spell)), 100-get_success_prob(spell));
+			        nice_mana_cost(get_mana_cost(spell,0)), 100-get_success_prob(spell,0));
 			}
 
 			/* Belay that order */
@@ -4194,7 +4194,7 @@ void do_cmd_study(void)
 	p_ptr->window |= (PW_OBJECT);
 }
 
-int get_mana_cost(int spell_code) /* does not include wand bonus */
+int get_mana_cost(int spell_code, int talismans_dont_help) /* does not include wand bonus */
 {
 	int result, school1_talisman=0, school1_other=0, school2_talisman=0, school2_other=0;
 	object_type *o_ptr;
@@ -4337,34 +4337,37 @@ int get_mana_cost(int spell_code) /* does not include wand bonus */
 }
 
 	result = newspells[spell_code].cost;
-	if (school1_talisman){
-		if (result >= 5){
-			result = ((result-1)*2)/3 + 1;
-		} else {
-			result = result - 1;
+	if (!talismans_dont_help){
+		if (school1_talisman){
+			if (result > 6){
+				result = MAX((result-4),((result*75 - 50) / 100 + 1));
+			} else {
+				result = result - 1;
+			}
+		}
+		if (school1_other){
+			if (result > 6){
+				result = MAX((result-4),((result*75 - 50) / 100 + 1));
+			} else {
+				result = result - 1;
+			}
+		}
+		if (school2_talisman){
+			if (result > 6){
+				result = MAX((result-4),((result*75 - 50) / 100 + 1));
+			} else {
+				result = result - 1;
+			}
+		}
+		if (school2_other){
+			if (result > 6){
+				result = MAX((result-4),((result*75 - 50) / 100 + 1));
+			} else {
+				result = result - 1;
+			}
 		}
 	}
-	if (school1_other){
-		if (result >= 4){
-			result = ((result-1)*2)/3 + 1;
-		} else {
-			result = result - 1;
-		}
-	}
-	if (school2_talisman){
-		if (result >= 4){
-			result = ((result-1)*2)/3 + 1;
-		} else {
-			result = result - 1;
-		}
-	}
-	if (school2_other){
-		if (result >= 4){
-			result = ((result-1)*2)/3 + 1;
-		} else {
-			result = result - 1;
-		}
-	}
+	
 	return result;
 }
 
@@ -4382,18 +4385,14 @@ cptr nice_mana_cost(int raw_cost)
 }
 
 
-int get_success_prob(int spell_code)
+int get_success_prob(int spell_code, int wand_bonus)
 {
 	int spell_level, caster_level, chance;
 
 	spell_level = newspells[spell_code].level;
-	caster_level = p_ptr->lev + adj_int_success[p_ptr->stat_ind[A_INT]];
-	if (spell_level >= 10){
+	caster_level = p_ptr->lev/2 + adj_int_success[p_ptr->stat_ind[A_INT]];
+	if (wand_bonus){
 		spell_level = spell_level - 1;
-	} else if (spell_level >= 20){
-		spell_level = spell_level - 2;
-	} else if (spell_level >= 40){
-		spell_level = spell_level - 3;
 	}
 	if (caster_level >= spell_level+5) chance = 100;
 	else if (caster_level >= spell_level + 2) chance = 99;
@@ -4478,8 +4477,8 @@ void do_cmd_cast(bool pray)
 
 	if (spell < 0) return;
 
-	mana_cost = get_mana_cost(spell); 
-	chance = get_success_prob(spell);
+	mana_cost = get_mana_cost(spell,0); 
+	chance = get_success_prob(spell,0);
 
 	/* Disallow "dangerous" spells */
 	if (mana_cost > p_ptr->csp || p_ptr->csp<=0)

@@ -300,7 +300,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"mail@guildgame.com"
+#define MAINTAINER	"antoine.from.rgrd@gmail.com"
 
 
 /*

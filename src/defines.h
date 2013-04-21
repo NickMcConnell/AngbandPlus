@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"Pre-release"
+#define VERSION_STRING	"Beta release"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	1
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -542,15 +542,15 @@ enum {
 #define NEWSPELL_DETECT_EVIL            7
 #define NEWSPELL_BARKSKIN               8
 #define NEWSPELL_SLOW                   9
-#define NEWSPELL_REMOVE_FEAR	 		10	
+#define NEWSPELL_REMOVE_FEAR	 		10
 #define NEWSPELL_FIRE_BOLT              11
 
 /* book 2 */
 #define NEWSPELL_MAGELIGHT              12
-#define NEWSPELL_REMOVE_CURSE			13	
+#define NEWSPELL_REMOVE_CURSE			13
 #define NEWSPELL_DETECT_TREASURE        14
 #define NEWSPELL_CSW                    15
-#define NEWSPELL_CONFUSION   			16	
+#define NEWSPELL_CONFUSION   			16
 #define NEWSPELL_MANA_BOLT              17
 
 /* book 3 */
@@ -558,7 +558,7 @@ enum {
 #define NEWSPELL_DETECT_TRAPS_AND_DOORS 19
 #define NEWSPELL_PHASE_DOOR             20
 #define NEWSPELL_RESIST_HEAT_AND_COLD   21
-#define NEWSPELL_FROST_BOLT  			22	
+#define NEWSPELL_FROST_BOLT  			22
 #define NEWSPELL_DETECT_MONSTERS        23
 
 /* book 4 */
@@ -566,7 +566,7 @@ enum {
 #define NEWSPELL_TELEPORT_AWAY          25
 #define NEWSPELL_MASS_IDENTIFY          26
 #define NEWSPELL_RESIST_POISON          27
-#define NEWSPELL_CCW					28	
+#define NEWSPELL_CCW					28
 #define NEWSPELL_FIREBALL               29
 
 /* book 5 */
@@ -574,7 +574,7 @@ enum {
 #define NEWSPELL_STARREMOVE_CURSESTAR   31
 #define NEWSPELL_SEE_INVISIBLE          32
 #define NEWSPELL_DETECT_OBJECTS         33
-#define NEWSPELL_PORTAL      			34	
+#define NEWSPELL_PORTAL      			34
 #define NEWSPELL_ACID_BALL              35
 
 /* book 6 */
@@ -582,7 +582,7 @@ enum {
 #define NEWSPELL_MAGIC_MAPPING			37
 #define NEWSPELL_NEUTRALIZE_POISON      38
 #define NEWSPELL_ENCHANT_ARMOR          39
-#define NEWSPELL_STONE_TO_MUD			40	
+#define NEWSPELL_STONE_TO_MUD			40
 #define NEWSPELL_CREATE_MISSILES        41
 
 /* book 7 */
@@ -598,7 +598,7 @@ enum {
 #define NEWSPELL_RESTORATION            49
 #define NEWSPELL_HASTE_SELF             50
 #define NEWSPELL_RIFT                   51
-#define NEWSPELL_RESISTANCE  			52	
+#define NEWSPELL_RESISTANCE  			52
 #define NEWSPELL_NATIVITY               53
 
 #define N_NEWSPELLS                     54
@@ -1603,7 +1603,7 @@ enum {
 #define SV_RING_ACCURACY		28
 #define SV_RING_DAMAGE			29
 #define SV_RING_SLAYING			30
-#define SV_RING_SPEED			31
+#define SV_RING_AGI				31
 #define SV_RING_BARAHIR			32
 #define SV_RING_TULKAS			33
 #define SV_RING_NARYA			34
@@ -2681,8 +2681,8 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define TR2_SUST_STE        0x00000040L /* Sustain STE */
 #define TR2_SUST_PER        0x00000080L /* Sustain PER */
 #define TR2_SUST_LUC        0x00000100L /* Sustain LUC */
-#define TR2_TR2XXX4         0x00000200L /* (reserved) */
-#define TR2_TR2XXX5         0x00000400L /* (reserved) */
+#define TR2_2H              0x00000200L /* (reserved) */
+#define TR2_NO_2H         0x00000400L /* (reserved) */
 #define TR2_IM_ACID         0x00000800L /* Immunity to acid */
 #define TR2_IM_ELEC         0x00001000L /* Immunity to elec */
 #define TR2_IM_FIRE         0x00002000L /* Immunity to fire */
@@ -3963,6 +3963,8 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define OPT_birth_force_small_lev	(OPT_BIRTH+7)
 #define OPT_birth_retain_squelch	(OPT_BIRTH+8)
 #define OPT_birth_no_xtra_artifacts (OPT_BIRTH+9)
+#define OPT_birth_no_discovery		(OPT_BIRTH+10)
+#define OPT_birth_easy_start	    (OPT_BIRTH+11)
 
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
@@ -3982,6 +3984,8 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define OPT_adult_force_small_lev   (OPT_ADULT+7)
 #define OPT_adult_retain_squelch	(OPT_ADULT+8)
 #define OPT_adult_no_xtra_artifacts (OPT_ADULT+9)
+#define OPT_adult_no_discovery		(OPT_ADULT+10)
+#define OPT_adult_easy_start		(OPT_ADULT+11)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -4087,6 +4091,8 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define birth_no_quests			1
 #define birth_no_player ghosts	1
 #define birth_no_store_services	1
+#define birth_no_discovery		op_ptr->opt[OPT_birth_no_discovery]
+#define birth_easy_start		op_ptr->opt[OPT_birth_easy_start]
 #define birth_no_xtra_artifacts	op_ptr->opt[OPT_birth_no_xtra_artifacts]
 
 
@@ -4114,6 +4120,8 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define adult_no_player_ghosts	1
 #define adult_no_store_services	1
 #define adult_no_xtra_artifacts	op_ptr->opt[OPT_adult_no_xtra_artifacts]
+#define adult_no_discovery		op_ptr->opt[OPT_adult_no_discovery]
+#define adult_easy_start		op_ptr->opt[OPT_adult_easy_start]
 #define hp_changes_color  		op_ptr->opt[OPT_hp_changes_color]
 #define verify_leave_quest 		0
 #define mark_squelch_items		op_ptr->opt[OPT_mark_squelch_items]

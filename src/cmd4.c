@@ -5002,7 +5002,7 @@ void apply_magic_fake(object_type *o_ptr)
 				case SV_RING_CON:
 				case SV_RING_DEX:
 				case SV_RING_INT:
-				case SV_RING_SPEED:
+				case SV_RING_AGI:
 				case SV_RING_SEARCHING:
 				{
 					o_ptr->pval = 1;

@@ -6,7 +6,7 @@ rec.games.roguelike.angband
      The Angband Newsgroup.  Lots of friendly people.  You may post character
 dumps there and ask for and offer advice.
 
-mail@guildgame.com 
+antoine.from.rgrd@gmail.com
      The current maintainer's email address.
 
 http://angband.oook.cz/index.php

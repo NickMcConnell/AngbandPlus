@@ -58,6 +58,7 @@ Critical Hits:
      The number of critical hits you get depends on your total bonuses to melee
 skill, your level, and your weapon weight.  Their power depends on weapon
 weight. A heavy weapon does truly gnarly criticals.
+     Two-handed weapons are more likely to do a critical hit than one-handed weapons.
 
 Number of Blows:
      Your character screen also displays the number of blows you can get per
@@ -91,6 +92,9 @@ you're ready.
      You shoot at a monster by typing 'f' (or 't' in the rogue-like command
 set), then selecting a missile you would like to fire.  This activates the
 targeting interface described in the section on commands.
+
+Misfires:
+     If your Dexterity is low, your shots may sometimes go in the wrong direction.
 
 Chance of hitting:
      Your chance of hitting a monster depends on your innate missile skill,

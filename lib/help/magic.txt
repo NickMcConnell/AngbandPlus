@@ -34,10 +34,11 @@ to cast.
 
 Wands and talismans:
      Wands let you cast a particular spell, just as if you were casting it from a spellbook.
-The spell can still fail, and still costs mana (but 1 less than usual).
+The spell can still fail and still costs mana, but the failure chance is reduced and the
+mana cost is 1 less than usual.
      Talismans don't give you any new spells, but they let you cast some spells cheaper.
-The cost of all spells in a group is reduced by one third (e.g. healing spells, or 
-fire spells).
+The cost of all spells in a group is reduced by up to a quarter (e.g. healing spells, or 
+fire spells). Talismans do not stack with wands, or with other Talismans of the same type.
      Some weapons, armor and other equipment can convey the powers of a Talisman if wielded.
 For example, an Amulet of Regeneration, once worn, makes your healing spells cheaper.
      If you have enough magic objects, the cost of a spell can drop below 1.

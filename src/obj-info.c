@@ -242,7 +242,23 @@ static bool describe_brand(const object_type *o_ptr, u32b f1)
 	return (cnt ? TRUE : FALSE);
 }
 
+static bool describe_handedness(const object_type *o_ptr, u32b f2)
+{
+	cptr descs[1];
+	int cnt = 0;
 
+	/* Unused parameter */
+	(void)o_ptr;
+
+	/* Collect brands */
+	if (f2 & (TR2_2H)) descs[cnt++] = "two-handed";
+
+	/* Describe brands */
+	output_desc_list("It is ", descs, cnt);
+
+	/* We are done here */
+	return (cnt ? TRUE : FALSE);
+}
 /*
  * Describe immunities granted by an object.
  *
@@ -935,6 +951,7 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_activation(o_ptr, f3)) something = TRUE;
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
 	if (describe_attacks(o_ptr, f1)) something = TRUE;
+	if (describe_handedness(o_ptr, f2)) something = TRUE;
 
 	/* Unknown extra powers (artifact) */
 	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
@@ -992,20 +1009,21 @@ static bool screen_out_head(const object_type *o_ptr)
 		p_text_out("It enables you to cast the spell ");
 		p_text_out(newspells[o_ptr->sval].name);
 		p_text_out(", if you have enough mana and you are high enough level.\n\n  The mana cost of the spell is reduced to ");
-		if (get_mana_cost(o_ptr->sval) - 2 <= -3){
+		if (get_mana_cost(o_ptr->sval,1) - 1 <= -3){
 			p_text_out("1/16");
-		} else if (get_mana_cost(o_ptr->sval) - 2 > 0){
-			p_text_out(format("%d",get_mana_cost(o_ptr->sval) - 2));
+		} else if (get_mana_cost(o_ptr->sval,1) - 1 > 0){
+			p_text_out(format("%d",get_mana_cost(o_ptr->sval,1) - 1));
 		} else {
-			p_text_out(nice_mana_cost(get_mana_cost(o_ptr->sval) - 2)); 
+			p_text_out(nice_mana_cost(get_mana_cost(o_ptr->sval,1) - 1)); 
 		}
-		if (get_success_prob(o_ptr->sval) == 0){
+		if (get_success_prob(o_ptr->sval,1) == 0){
 			p_text_out(" but the success rate is currently 0. Try boosting your Int.");
 		} else {
 			p_text_out(" and the success rate is ");
-			p_text_out(format("%d",get_success_prob(o_ptr->sval)));
+			p_text_out(format("%d",get_success_prob(o_ptr->sval,1)));
 			p_text_out("%.");
 		}
+		p_text_out("\n\n  Note that talismans (if you have any) will not help with wands.");
 		p_text_out("\n\n  Press 'z' to zap the wand.");
 		has_description = TRUE;		
 	}

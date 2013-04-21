@@ -1231,9 +1231,11 @@ struct player_type
 	bool free_act;		/* Free action */
 	bool hold_life;		/* Hold life */
 	bool vampire;       /* Draining */
+	bool twoh_weapon;   /* crits bonus, but no shield */
 
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */
+	int temp_aggravate; /* Stumbled in the last couple of turns! */
 	bool teleport;		/* Random teleporting */
 	bool exp_drain;		/* Experience draining */
 

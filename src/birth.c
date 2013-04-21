@@ -2063,7 +2063,7 @@ static bool player_birth_aux(void)
 	return (TRUE);
 }
 
-/*outfit the player with food and torches*/
+/*outfit the player with torches*/
 
 static void player_birth_done_hook(void)
 {
@@ -2076,12 +2076,66 @@ static void player_birth_done_hook(void)
 
 	/* Hack -- Give the player some torches */
 	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-	i_ptr->number = (byte)rand_range(4, 6);
+	if (adult_easy_start){
+		i_ptr->number = (byte)rand_range(8, 12);
+	} else {
+		i_ptr->number = (byte)rand_range(4, 6);
+	}
 	i_ptr->timeout = 1000;
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	object_history(i_ptr, ORIGIN_BIRTH, 0);
 	(void)inven_carry(i_ptr);
+
+	if (adult_easy_start){
+		if (adult_take_notes){
+			do_cmd_note("Began with extra equipment.", 1);
+		}
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Hack -- Give the player some food */
+		object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_WAYBREAD));
+		i_ptr->number = (byte)rand_range(3, 4);
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		object_history(i_ptr, ORIGIN_BIRTH, 0);
+		(void)inven_carry(i_ptr);
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Hack -- Give the player some healing */
+		object_prep(i_ptr, lookup_kind(TV_POTION, SV_POTION_CURE_SERIOUS));
+		i_ptr->number = 2;
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		object_history(i_ptr, ORIGIN_BIRTH, 0);
+		(void)inven_carry(i_ptr);
+		
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Hack -- Give the player some escapes */
+		object_prep(i_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT));
+		i_ptr->number = (byte)rand_range(2, 3);
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		object_history(i_ptr, ORIGIN_BIRTH, 0);
+		(void)inven_carry(i_ptr);	
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Hack -- Give the player some decent missiles */
+		object_prep(i_ptr, lookup_kind(TV_SHOT, SV_AMMO_NORMAL));
+		i_ptr->number = (byte)rand_range(10, 20);
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		object_history(i_ptr, ORIGIN_BIRTH, 0);
+		(void)inven_carry(i_ptr);	
+	}
 
 	/* Get local object */
 	i_ptr = &object_type_body;

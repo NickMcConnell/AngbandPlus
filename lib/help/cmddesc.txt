@@ -140,7 +140,8 @@ activate its special power.  This command takes a full turn.
 
 Aim a wand (a) / (z) :
      Use a wand to cast a spell. There is a chance that the spell will fail, and 
-it also costs some mana (though less than if you had cast it using a spellbook).
+it also costs some mana (though the mana cost is reduced, and the spell failure
+chance is reduced).
 Note that wands in Ironband do not have charges - you can keep using them as
 long as you have mana. This command takes a full turn.
 
