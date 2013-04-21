@@ -235,8 +235,8 @@ the Free Software Foundation; either version 2 of the License, or
    (report-equal (player.depth x)         (player.depth y))
    (report-equal (player.max-depth x)     (player.max-depth y))
 
-   (report-equal (player.max-xp x)        (player.max-xp y))
-   (report-equal (player.cur-xp x)        (player.cur-xp y))
+   (report-equal (player.maximum-xp x)    (player.maximum-xp y))
+   (report-equal (player.current-xp x)    (player.current-xp y))
    (report-equal (player.fraction-xp x)   (player.fraction-xp y))
    
    (report-equal (current-hp x)           (current-hp y))
@@ -246,10 +246,10 @@ the Free Software Foundation; either version 2 of the License, or
    (report-equal (player.fraction-mana x) (player.fraction-mana y))
 
    (report-equal (player.gold x)         (player.gold y))
-   (report-equal (player.food x)         (player.food y))
+   (report-equal (player.satiation x)    (player.satiation y))
    (report-equal (player.energy x)       (player.energy y))
 
-   (report-equal (player.level x)         (player.level y))
+   (report-equal (player.power-lvl x)     (player.power-lvl y))
    (report-equal (player.max-level x)     (player.max-level y))   
 
 
@@ -345,7 +345,7 @@ the Free Software Foundation; either version 2 of the License, or
        (report-equal (x-attr x) (x-attr y))
        (report-equal (monster.alignment x) (monster.alignment y))
        (report-equal (monster.type x) (monster.type y))
-       (report-equalp (monster.locations x) (monster.locations y))
+       (report-equalp (alloc-locations x) (alloc-locations y))
        (report-equal (monster.hitpoints x) (monster.hitpoints y))
        (report-equal (monster.armour x) (monster.armour y))
        (report-equal (monster.speed x) (monster.speed y))
@@ -374,7 +374,7 @@ the Free Software Foundation; either version 2 of the License, or
        (report-equal (object.name x) (object.name y))
        (report-equal (x-attr x) (x-attr y))
        (report-equal (x-char x) (x-char y))
-       (report-equalp (object.locations x) (object.locations y))
+       (report-equalp (alloc-locations x) (alloc-locations y))
        (report-equal (object.weight x) (object.weight y))
        (report-equal (object.cost x) (object.cost y))
        (report-equal (object.flags x) (object.flags y))

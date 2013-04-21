@@ -1,25 +1,26 @@
 #include "langband.h"
 #include "lbwindows.h"
+#include "lbtools.h"
 
-int num_predefinedFrames = -1;
-int max_predefinedFrames = -1;
-LangbandFrame **predefinedFrames = NULL;
-int num_activeFrames = -1;
-int max_activeFrames = -1;
-LangbandFrame **activeFrames = NULL;
+int lbui_num_predefinedFrames = -1;
+int lbui_max_predefinedFrames = -1;
+LangbandFrame **lbui_predefinedFrames = NULL;
+int lbui_num_activeFrames = -1;
+int lbui_max_activeFrames = -1;
+LangbandFrame **lbui_activeFrames = NULL;
 
 int
-init_frame_system(int active_size, int predefined_size) {
+lbui_init_frame_system(int active_size, int predefined_size) {
     int i;
 
     //DBGPUT("Sizes %d and %d\n", active_size, predefined_size);
     
     if (active_size > 0) {
-	max_activeFrames = active_size;
-	num_activeFrames = 0;
-	activeFrames = malloc(active_size * sizeof(LangbandFrame*));
+	lbui_max_activeFrames = active_size;
+	lbui_num_activeFrames = 0;
+	lbui_activeFrames = malloc(active_size * sizeof(LangbandFrame*));
 	for (i=0; i < active_size; i++) {
-	    activeFrames[i] = NULL;
+	    lbui_activeFrames[i] = NULL;
 	}
     }
     else {
@@ -28,11 +29,11 @@ init_frame_system(int active_size, int predefined_size) {
     }
 
     if (predefined_size > 0) {
-	max_predefinedFrames = predefined_size;
-	num_predefinedFrames = predefined_size; 
-	predefinedFrames = malloc(predefined_size * sizeof(LangbandFrame*));
+	lbui_max_predefinedFrames = predefined_size;
+	lbui_num_predefinedFrames = predefined_size; 
+	lbui_predefinedFrames = malloc(predefined_size * sizeof(LangbandFrame*));
 	for (i=0; i < predefined_size; i++) {
-	    predefinedFrames[i] = NULL;
+	    lbui_predefinedFrames[i] = NULL;
 	}
     }
     else {
@@ -44,50 +45,50 @@ init_frame_system(int active_size, int predefined_size) {
 }
 
 int
-cleanup_frame_system() {
+lbui_cleanup_frame_system() {
     int i;
 
     //DBGPUT("Cleaning frame-system\n");
     
-    if (max_predefinedFrames > 0) {
-        for (i=0; i < max_predefinedFrames; i++) {
-	    if (predefinedFrames[i]) {
-		free(predefinedFrames[i]);
-		predefinedFrames[i] = NULL;
+    if (lbui_max_predefinedFrames > 0) {
+        for (i=0; i < lbui_max_predefinedFrames; i++) {
+	    if (lbui_predefinedFrames[i]) {
+		free(lbui_predefinedFrames[i]);
+		lbui_predefinedFrames[i] = NULL;
 	    }
 	}
-	free(predefinedFrames);
-	predefinedFrames = NULL;
+	free(lbui_predefinedFrames);
+	lbui_predefinedFrames = NULL;
 	
-	max_predefinedFrames = num_predefinedFrames = -1;
+	lbui_max_predefinedFrames = lbui_num_predefinedFrames = -1;
     }
 
-    if (max_activeFrames > 0) {
-        for (i=0; i < max_activeFrames; i++) {
-	    if (activeFrames[i]) {
+    if (lbui_max_activeFrames > 0) {
+        for (i=0; i < lbui_max_activeFrames; i++) {
+	    if (lbui_activeFrames[i]) {
 		// just pointers to already cleaned predefined frames
 		//free(activeFrames[i]);
-		activeFrames[i] = NULL;
+		lbui_activeFrames[i] = NULL;
 	    }
 	}
-	free(activeFrames);
-	activeFrames = NULL;
+	free(lbui_activeFrames);
+	lbui_activeFrames = NULL;
 	
-	max_activeFrames = num_activeFrames = -1;
+	lbui_max_activeFrames = lbui_num_activeFrames = -1;
     }
     
     return 0;
 }
 
 int
-legal_frame_key_p(int key, FrameType ft) {
+lbui_legal_frame_key_p(int key, FrameType ft) {
     int cur_size = -1;
     
     if (ft == ACTIVE) {
-	cur_size = max_activeFrames;
+	cur_size = lbui_max_activeFrames;
     }
     else if (ft == PREDEFINED) {
-	cur_size = max_predefinedFrames;
+	cur_size = lbui_max_predefinedFrames;
     }
     else {
 	ERRORMSG("Illegal frametype %d\n", ft);
@@ -102,13 +103,13 @@ legal_frame_key_p(int key, FrameType ft) {
 }
 
 LangbandFrame *
-make_frame(int key, const char *name) {
+lbui_make_frame(int key, const char *name) {
     if (!name) {
 	ERRORMSG("Empty name passed to make_frame(), please supply a real name.\n");
 	return NULL;
     }
     
-    if (legal_frame_key_p(key, PREDEFINED)) {
+    if (lbui_legal_frame_key_p(key, PREDEFINED)) {
 	LangbandFrame *lf = malloc(sizeof(LangbandFrame));
 	memset(lf, 0, sizeof(LangbandFrame));
 	lf->key = key;
@@ -124,9 +125,9 @@ make_frame(int key, const char *name) {
 }
 
 int
-add_frame(int key, const char *name) {
+lbui_add_frame(int key, const char *name) {
     
-    LangbandFrame *lf = make_frame(key, name);
+    LangbandFrame *lf = lbui_make_frame(key, name);
     
     if (!lf) {
 	ERRORMSG("Unable to produce a LangbandFrame [%d,%s], returning.\n",
@@ -135,21 +136,21 @@ add_frame(int key, const char *name) {
     }
 
     //DBGPUT("Added frame %s at %d.\n", name, key);
-    predefinedFrames[key] = lf;
+    lbui_predefinedFrames[key] = lf;
     
     return 0;
 }
 
 
 int
-add_frame_coords(int key, int x, int y, int w, int h) {
+lbui_add_frame_coords(int key, int x, int y, int w, int h) {
 
-    if (!legal_frame_key_p(key,PREDEFINED)) {
+    if (!lbui_legal_frame_key_p(key,PREDEFINED)) {
 	ERRORMSG("Illegal key %d for frame.\n", key);
 	return -1;
     }
     else {
-    	LangbandFrame *lf = predefinedFrames[key];
+    	LangbandFrame *lf = lbui_predefinedFrames[key];
 
 	if (!lf) {
 	    ERRORMSG("No frame registered for key key %d.\n", key);
@@ -166,21 +167,45 @@ add_frame_coords(int key, int x, int y, int w, int h) {
 }
 
 int
-add_frame_tileinfo(int key, int tw, int th, const char *font) {
+lbui_add_frame_fontinfo(int key, const char *font, int ptsize, int style) {
 
-    if (legal_frame_key_p(key, PREDEFINED)) {
-	LangbandFrame *lf = predefinedFrames[key];
+    if (lbui_legal_frame_key_p(key, PREDEFINED)) {
+	LangbandFrame *lf = lbui_predefinedFrames[key];
 
-	lf->tile_width = tw;
-	lf->tile_height = th;
 	if (font && strlen(font)>1) {
 	    lf->fontname = malloc(strlen(font)+1);
 	    strcpy(lf->fontname, font);
 	}
-//	if (bg && strlen(bg) > 1) {
-//	    lf->backgroundfile = malloc(strlen(bg)+1);
-//	    strcpy(lf->backgroundfile, bg);
-//	}
+	if (ptsize > 0) {
+	    lf->wanted_fontsize = ptsize;
+	}
+	else {
+	    lf->wanted_fontsize = 16; // default
+	}
+
+	if (style > 0) {
+	    lf->wanted_fontstyle = style;
+	}
+	else {
+	    lf->wanted_fontstyle = 0;
+	}
+	
+	return 0;
+    }
+    else {
+	ERRORMSG("Illegal key %d for subwindow.\n", key);
+	return -1;
+    }
+}
+
+int
+lbui_add_frame_tileinfo(int key, int tw, int th) {
+
+    if (lbui_legal_frame_key_p(key, PREDEFINED)) {
+	LangbandFrame *lf = lbui_predefinedFrames[key];
+
+	lf->tile_width = tw;
+	lf->tile_height = th;
 		
 	return 0;
     }
@@ -191,10 +216,10 @@ add_frame_tileinfo(int key, int tw, int th, const char *font) {
 }
 
 int
-add_frame_gfxinfo(int key, int use_tiles) {
+lbui_add_frame_gfxinfo(int key, int use_tiles) {
 
-    if (legal_frame_key_p(key, PREDEFINED)) {
-	LangbandFrame *lf = predefinedFrames[key];
+    if (lbui_legal_frame_key_p(key, PREDEFINED)) {
+	LangbandFrame *lf = lbui_predefinedFrames[key];
 
 	lf->use_gfx_tiles = use_tiles;
 		
@@ -207,9 +232,10 @@ add_frame_gfxinfo(int key, int use_tiles) {
 }
 
 int
-add_frame_bg(int key, int img_idx) {
-    if (legal_frame_key_p(key, PREDEFINED)) {
-	LangbandFrame *lf = predefinedFrames[key];
+lbui_add_frame_bg(int key, int img_idx) {
+    
+    if (lbui_legal_frame_key_p(key, PREDEFINED)) {
+	LangbandFrame *lf = lbui_predefinedFrames[key];
 
 	if (!lf) {
 	    return -2;
@@ -228,14 +254,15 @@ add_frame_bg(int key, int img_idx) {
 
 
 LangbandFrame *
-get_frame(int key, FrameType ft) {
+lbui_get_frame(int key, FrameType ft) {
+    
     //DBGPUT("Getting frame %d %d which is %p %p.\n", key, ft, activeFrames[key], predefinedFrames[key]);
-    if (legal_frame_key_p(key, ft)) {
+    if (lbui_legal_frame_key_p(key, ft)) {
 	if (ft == ACTIVE) {
-	    return activeFrames[key];
+	    return lbui_activeFrames[key];
 	}
 	else if (ft == PREDEFINED) {
-	    return predefinedFrames[key];
+	    return lbui_predefinedFrames[key];
 	}
 	else {
 	    ERRORMSG("Illegal frametype %d for frame %d.\n", ft, key);
@@ -248,8 +275,8 @@ get_frame(int key, FrameType ft) {
 }
 
 int
-has_frame(int key, FrameType ft) {
-    LangbandFrame *lf = get_frame(key, ft);
+lbui_has_frame(int key, FrameType ft) {
+    LangbandFrame *lf = lbui_get_frame(key, ft);
     if (lf)
 	return 1;
     else
@@ -257,8 +284,8 @@ has_frame(int key, FrameType ft) {
 }
 
 int
-get_frame_columns(int key, FrameType ft) {
-    LangbandFrame *lf = get_frame(key, ft);
+lbui_get_frame_columns(int key, FrameType ft) {
+    LangbandFrame *lf = lbui_get_frame(key, ft);
     if (lf)
 	return lf->columns;
     else
@@ -266,8 +293,8 @@ get_frame_columns(int key, FrameType ft) {
 }
 
 int
-get_frame_rows(int key, FrameType ft) {
-    LangbandFrame *lf = get_frame(key, ft);
+lbui_get_frame_rows(int key, FrameType ft) {
+    LangbandFrame *lf = lbui_get_frame(key, ft);
     if (lf)
 	return lf->rows;
     else
@@ -275,8 +302,8 @@ get_frame_rows(int key, FrameType ft) {
 }
 
 int
-get_frame_tile_width(int key, FrameType ft) {
-    LangbandFrame *lf = get_frame(key, ft);
+lbui_get_frame_tile_width(int key, FrameType ft) {
+    LangbandFrame *lf = lbui_get_frame(key, ft);
     if (lf)
 	return lf->tile_width;
     else
@@ -284,8 +311,8 @@ get_frame_tile_width(int key, FrameType ft) {
 }
 
 int
-get_frame_tile_height(int key, FrameType ft) {
-    LangbandFrame *lf = get_frame(key, ft);
+lbui_get_frame_tile_height(int key, FrameType ft) {
+    LangbandFrame *lf = lbui_get_frame(key, ft);
     if (lf)
 	return lf->tile_height;
     else
@@ -293,8 +320,8 @@ get_frame_tile_height(int key, FrameType ft) {
 }
 
 int
-get_frame_gfx_tiles(int key, FrameType ft) {
-    LangbandFrame *lf = get_frame(key, ft);
+lbui_get_frame_gfx_tiles(int key, FrameType ft) {
+    LangbandFrame *lf = lbui_get_frame(key, ft);
     if (lf)
 	return lf->use_gfx_tiles;
     else
@@ -302,8 +329,8 @@ get_frame_gfx_tiles(int key, FrameType ft) {
 }
 
 int
-clean_frame(int key) {
-    LangbandFrame *lf = get_frame(key, ACTIVE);
+lbui_clean_frame(int key) {
+    LangbandFrame *lf = lbui_get_frame(key, ACTIVE);
     if (lf && lf->visible) {
 	DEBUGPUT("CLEANING FRAME.. BAD!");
 #if 0
@@ -321,8 +348,8 @@ clean_frame(int key) {
 }
 
 int
-wipe_frame(int key) {
-    LangbandFrame *lf = get_frame(key, ACTIVE);
+lbui_wipe_frame(int key) {
+    LangbandFrame *lf = lbui_get_frame(key, ACTIVE);
 
     if (lf && lf->visible) {
 	DBGPUT("Wiping FRAME %d.\n", key);
@@ -363,22 +390,22 @@ wipe_frame(int key) {
 }
 
 int
-activate_frame(int key) {
+lbui_activate_frame(int key) {
     LangbandFrame *lf = NULL;
 
-    if (!legal_frame_key_p(key, PREDEFINED)) {
+    if (!lbui_legal_frame_key_p(key, PREDEFINED)) {
         ERRORMSG("Illegal key %d given to activate_frame().\n", key);
         return -1;
     }
 
     //DBGPUT("Activate frame %d.\n", key);
     
-    lf = predefinedFrames[key];
+    lf = lbui_predefinedFrames[key];
 
     if (lf) {
         lf->visible = 1;
-        activeFrames[key] = lf;
-        num_activeFrames++;
+        lbui_activeFrames[key] = lf;
+        lbui_num_activeFrames++;
         return key;
     }
     else {
@@ -388,22 +415,22 @@ activate_frame(int key) {
 }
 
 int
-deactivate_frame(int key) {
+lbui_deactivate_frame(int key) {
     LangbandFrame *lf = NULL;
     
-    if (!legal_frame_key_p(key, PREDEFINED)) {
+    if (!lbui_legal_frame_key_p(key, PREDEFINED)) {
         ERRORMSG("Illegal key %d given to activate_frame().\n", key);
         return -1;
     }
     
     //DBGPUT("Deactivate frame %d.\n", key);
     
-    lf = predefinedFrames[key];
+    lf = lbui_predefinedFrames[key];
 
     if (lf) {
         lf->visible = 0;
-        activeFrames[key] = NULL;
-        num_activeFrames--;
+        lbui_activeFrames[key] = NULL;
+        lbui_num_activeFrames--;
         return key;
     }
     else {

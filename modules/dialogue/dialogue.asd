@@ -21,7 +21,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (asdf:defsystem :lbmodule-dialogue
     :version "0.1.4"
-    :components ((:file "base")
-		 (:file "conversation" :depends-on ("base")))
+    :components ((:file "package")
+		 (:file "base" :depends-on ("package"))
+		 (:file "conversation" :depends-on ("base"))
+		 ;; remove the example from the system at some point,
+		 ;; but nice to have right now
+		 (:file "example" :depends-on ("conversation")))
     :depends-on (langband-engine))
 

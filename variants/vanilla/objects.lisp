@@ -24,6 +24,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 (defun %dummy-eat-fun (dun pl item)
   "A hack to ensure all food-objects can be eaten."
   (declare (ignore dun pl item))
+  ;;(warn "eating ~s" item)
   :used)
 
 
@@ -127,6 +128,9 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	  (format stream " [~@d]" ac-bonus)))
       )
 
+    (when-bind (inscr (aobj.inscr obj))
+      (when (plusp (length inscr))
+	(format stream " {~A}" inscr)))
     
     ))
 
@@ -188,11 +192,27 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (defmethod write-obj-description ((variant vanilla-variant) (obj active-object/book) stream
 				  &key (store nil) (verbosity 1) (numeric-prefix t))
+  (declare (ignore verbosity store))
+  (write-pluralised-string stream "& ritual-book~" (aobj.number obj)
+			   :numeric-prefix numeric-prefix)
+  (format stream " called '~A'" (object.name obj)))
+
+
+(defmethod write-obj-description ((variant vanilla-variant) (obj active-object/scroll) stream
+				  &key (store nil) (verbosity 1) (numeric-prefix t))
   (declare (ignore verbosity))
-  (let ((known-type (or store (object.aware (aobj.kind obj)))))
-    (write-pluralised-string stream "& ritual-book~ @" (aobj.number obj)
-			     :numeric-prefix numeric-prefix
-			     :ident known-type :actual-name (object.name obj))))
+  (let* ((o-type (aobj.kind obj))
+	 (flavour (if store nil (object.flavour o-type)))
+	 (known-type (or store (object.aware (aobj.kind obj)))))
+    
+    (write-pluralised-string stream "& scroll~" (aobj.number obj)
+			     :numeric-prefix numeric-prefix)
+    
+    (cond ((and (not known-type) flavour)
+	   (format stream " \"~A\"" (flavour.name flavour)))
+	  (t
+	   (format stream " of ~A" (object.name o-type))))))
+      
   
 (defmethod write-obj-description ((variant vanilla-variant) (obj active-object/weapon) stream
 				  &key (store nil) (verbosity 1) (numeric-prefix t))
@@ -240,8 +260,6 @@ the Free Software Foundation	 ; either version 2 of the License, or
 		  (plural-name number "& #wand~@" flavour known-type name :numeric-prefix numeric-prefix))
 		 (active-object/rod
 		  (plural-name number "& #rod~@" flavour known-type name :numeric-prefix numeric-prefix))
-		 (active-object/scroll
-		  (plural-name number "& scroll~ #@" flavour known-type name :numeric-prefix numeric-prefix))
 		 (active-object/amulet
 		  (plural-name number "& #amulet~@" flavour known-type name :numeric-prefix numeric-prefix))
 		 (otherwise
@@ -249,6 +267,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 		 )))
       (write-string str stream))
 
+    (when (typep obj 'active-object/rod)
+      (when (plusp (aobj.recharge-time obj))
+	(write-string " {recharging}" stream)))
+    
     ))
 
 
@@ -256,23 +278,18 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
   (call-next-method)
 
-  (when-bind (depth (getf keyword-args :depth))
-    (assert (>= depth 0))
-    (setf (object.power-lvl new-obj) depth))
+  (let ((id (object.id new-obj)))
 
-  (let ((locale (getf keyword-args :locale))
-	(chance (getf keyword-args :chance)))
-    (when (or locale chance)
-      (check-type chance vector)
-      (check-type locale vector)
-      (setf (object.locations new-obj) (loop for x across locale
-					     for y across chance
-					     when (plusp y)
-					     collecting (cons x y)))))
-  
-  ;; add stuff here
-
-  new-obj)
+    (when (getf keyword-args :depth)
+      (signal-condition 'illegal-object-data :id id :desc "Found deprecated :depth keyword, use :power-lvl instead."))
+    (when (getf keyword-args :locale)
+      (signal-condition 'illegal-object-data :id id :desc "Found deprecated :locale keyword, use :locations instead."))
+    (when (getf keyword-args :chance)
+      (signal-condition 'illegal-object-data :id id :desc "Found deprecated :chance keyword, use :locations instead."))
+    
+    ;; add stuff here
+    
+    new-obj))
 
 (defmethod initialise-object-kind! ((var-obj vanilla-variant) (new-obj object-kind/ammo) keyword-args)
 
@@ -289,35 +306,42 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
   (call-next-method)
 
-  (let ((spells (getf keyword-args :spells)))
-    (when (consp spells)
-      (let ((book (create-spellbook (object.name new-obj) (object.id new-obj) spells)))
-	(register-spellbook& var-obj book))))
+  (let ((id (object.id new-obj)))
+    (when-bind (spells (getf keyword-args :spells))
+      (cond ((consp spells)
+	     (let ((book (create-spellbook (object.name new-obj) (object.id new-obj) spells)))
+	       (register-spellbook& var-obj book)))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format of :spells data for spellbook."))))
 
-  new-obj)
+    new-obj))
 
 (defmethod initialise-object-kind! ((var-obj vanilla-variant) (new-obj object-kind/prayerbook) keyword-args)
 
   (call-next-method)
 
-  (let ((spells (getf keyword-args :spells)))
-    (when (consp spells)
-      (let ((book (create-spellbook (object.name new-obj) (object.id new-obj) spells)))
-	(register-spellbook& var-obj book))))
-
-  new-obj)
+  (let ((id (object.id new-obj)))
+    (when-bind (spells (getf keyword-args :spells))
+      (cond ((consp spells)
+	     (let ((book (create-spellbook (object.name new-obj) (object.id new-obj) spells)))
+	       (register-spellbook& var-obj book)))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format for :spells data for prayerbook"))))
+    new-obj))
 
 (defmethod initialise-object-kind! ((var-obj vanilla-variant) (new-obj object-kind/bow) keyword-args)
 
   (call-next-method)
 
-  (let ((multiplier (getf keyword-args :multiplier)))
+  (let ((id (object.id new-obj)))
     ;; get bow multiplier
-    (when (and multiplier (numberp multiplier))
-;;      (warn "Multiplier for ~s is ~s" new-obj multiplier)
-      (setf (object.multiplier new-obj) multiplier)))
+    (when-bind (multiplier (getf keyword-args :multiplier))
+      (cond ((non-negative-integer? multiplier)
+	     (setf (object.multiplier new-obj) multiplier))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format for multiplier data for bow"))))
 
-  new-obj)
+    new-obj))
 
 
 (defmethod get-visual-projectile ((obj active-object/wand))
@@ -334,29 +358,37 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
   (call-next-method)
 
-  (when-bind (e-t (getf keyword-args :effect-type))
-    (unless (is-legal-effect-type? e-t)
-      (warn "Uknown effect-type ~s for object ~s" e-t new-obj))
-    ;; get effect-type
-    (when-bind (lookup (gethash e-t (variant.visual-effects var-obj)))
-      
-      (setf (object.effect-type new-obj) lookup)))
+  (let ((id (object.id new-obj)))
+    
+    (when-bind (e-t (getf keyword-args :effect-type))
+      (unless (is-legal-effect-type? e-t)
+	(signal-condition 'illegal-object-data :id id :desc "Uknown effect-type for wand."))
+      ;; get effect-type
+      (when-bind (lookup (gethash e-t (variant.visual-effects var-obj)))
+	
+	(setf (object.effect-type new-obj) lookup)))
 
-  new-obj)
-
+    new-obj))
+  
 (defmethod initialise-object-kind! ((var-obj vanilla-variant) (new-obj object-kind/rod) keyword-args)
 
   (call-next-method)
 
-  (when-bind (e-t (getf keyword-args :effect-type))
-    (unless (is-legal-effect-type? e-t)
-      (warn "Uknown effect-type ~s for object ~s" e-t new-obj))
-    ;; get effect-type
-    (when-bind (lookup (gethash e-t (variant.visual-effects var-obj)))
-      
-      (setf (object.effect-type new-obj) lookup)))
+  (let ((id (object.id new-obj)))
+    (when-bind (e-t (getf keyword-args :effect-type))
+      (unless (is-legal-effect-type? e-t)
+	(signal-condition 'illegal-object-data :id id :desc "Uknown effect-type for rod."))
+      ;; get effect-type
+      (when-bind (lookup (gethash e-t (variant.visual-effects var-obj)))
+	
+	(setf (object.effect-type new-obj) lookup)))
 
-  new-obj)
+    (when-bind (recharge (getf keyword-args :recharge-time))
+      (unless (positive-integer? recharge)
+	(signal-condition 'illegal-object-data :id id :desc "Uknown recharge-time for rod."))
+      (setf (object.recharge-time new-obj) recharge))
+    
+    new-obj))
 
 
 (defmethod get-charge-status ((obj active-object))
@@ -390,21 +422,25 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
   (call-next-method)
 
-  (when-bind (descs (getf keyword-args :status-descs))
-    (if (listp descs)
-	(setf (object.status-descs new-obj) descs)
-	(warn "Status-descriptions for light-source ~a is not a list, but ~s"
-	      (object.name new-obj) descs)))
+  (let ((id (object.id new-obj)))
+    
+    (when-bind (descs (getf keyword-args :status-descs))
+      (cond ((consp descs)
+	     (setf (object.status-descs new-obj) descs))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Status-desc format for light-source unknown."))))
+    
+    (when-bind (fuel (getf keyword-args :max-fuel))
+      (cond ((non-negative-integer? fuel)
+	     (setf (object.max-fuel new-obj) fuel))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Format of max-fuel for light-source unknown."))))
+    
+    new-obj))
 
-  (when-bind (fuel (getf keyword-args :max-fuel))
-    (if (numberp fuel)
-	(setf (object.max-fuel new-obj) fuel)
-	(warn "Max-fuel for light-source ~a is not a number, but ~s"
-	      (object.name new-obj) fuel)))
-
-  
-  new-obj)
-
+(defun magic-bonus-for-level (max level)
+  "Wrapper for get-level-appropriate-enchantment."
+  (get-level-appropriate-enchantment *variant* level max))
 
 (defmethod add-magic-to-item! ((variant vanilla-variant) (item active-object/ring) depth quality)
 
@@ -424,7 +460,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
     ;; skip boost
 
     (let ((total 0)
-	  (table (gobj-table.alloc-table (%get-var-table variant "level" 'ego-items-by-level))))
+	  (table (gobj-table.alloc-table (get-named-gameobj-table variant "level"
+								  'ego-items-by-level))))
 
       (loop named counting-area
 	    for a-obj across table
@@ -473,10 +510,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
     (ensure-game-values! item)
   
-    (let ((to-hit (+ (randint 5) (magic-bonus-for-level 5 depth)))
-	  (to-dmg (+ (randint 5) (magic-bonus-for-level 5 depth)))
-	  (to-hit-extra (+ (magic-bonus-for-level 10 depth)))
-	  (to-dmg-extra (+ (magic-bonus-for-level 10 depth)))
+    (let ((to-hit (+ (randint 5) (get-level-appropriate-enchantment variant depth 5)))
+	  (to-dmg (+ (randint 5) (get-level-appropriate-enchantment variant depth 5)))
+	  (to-hit-extra (+ (get-level-appropriate-enchantment variant depth 10)))
+	  (to-dmg-extra (+ (get-level-appropriate-enchantment variant depth 10)))
 	  (gvals (aobj.game-values item))
 	  )
 
@@ -520,8 +557,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
   (ensure-game-values! item)
   
-  (let ((to-ac1 (+ (randint 5) (magic-bonus-for-level 5 depth)))
-	(to-ac2 (+ (magic-bonus-for-level 10 depth)))
+  (let ((to-ac1 (+ (randint 5) (get-level-appropriate-enchantment variant depth 5)))
+	(to-ac2 (+ (get-level-appropriate-enchantment variant depth 10)))
 	(gvals (aobj.game-values item))
 	)
 

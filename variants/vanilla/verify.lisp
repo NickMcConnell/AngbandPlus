@@ -16,7 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod ok-object? ((obj object-kind/wand) &key context warn-on-failure)
   (declare (ignore context))
-  (%ok-check (call-next-method))
+  (verify-check (call-next-method))
   (let ((zap (get-object-effect *variant* obj :zap)))
     (unless zap
       (warn "No zap-effect on wand '~a'" (object.name obj))))
@@ -30,7 +30,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod ok-object? ((obj object-kind/staff) &key context warn-on-failure)
   (declare (ignore context))
-  (%ok-check (call-next-method))
+  (verify-check (call-next-method))
   (let ((zap (get-object-effect *variant* obj :zap)))
     (unless zap
       (warn "No-zap-effect on staff '~a'" (object.name obj))))
@@ -44,7 +44,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod ok-object? ((obj object-kind/rod) &key context warn-on-failure)
   (declare (ignore context))
-  (%ok-check (call-next-method))
+  (verify-check (call-next-method))
   (let ((zap (get-object-effect *variant* obj :zap)))
     (unless zap
       (warn "No zap-effect on rod '~a'" (object.name obj))))
@@ -59,7 +59,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod ok-object? ((obj object-kind/potion) &key context warn-on-failure)
   (declare (ignore context))
-  (%ok-check (call-next-method))
+  (verify-check (call-next-method))
   (let ((zap (get-object-effect *variant* obj :quaff)))
     (unless zap
       (warn "No quaff-effect on potion '~a'" (object.name obj))))
@@ -71,7 +71,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod ok-object? ((obj object-kind/scroll) &key context warn-on-failure)
   (declare (ignore context))
-  (%ok-check (call-next-method))
+  (verify-check (call-next-method))
   (let ((zap (get-object-effect *variant* obj :read)))
     (unless zap
       (warn "No read-effect on scroll '~a'" (object.name obj))))
@@ -86,7 +86,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;; mushrooms should have extra effect
 (defmethod ok-object? ((obj object-kind/mushroom) &key context warn-on-failure)
   (declare (ignore context))
-  (%ok-check (call-next-method))
+  (verify-check (call-next-method))
   (let ((eat (get-object-effect *variant* obj :eat)))
     (unless eat
       (warn "No eat-effect on mushroom '~a'" (object.name obj))))
@@ -100,19 +100,19 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod ok-object? ((obj active-object/wand) &key context warn-on-failure)
   (declare (ignore context))
-  (%ok-check (call-next-method))
-  (%ok-check (typep (aobj.game-values obj) 'game-values))
+  (verify-check (call-next-method))
+  (verify-check (typep (aobj.game-values obj) 'game-values))
   t)
 
 (defmethod ok-object? ((obj active-object/staff) &key context warn-on-failure)
   (declare (ignore context))
-  (%ok-check (call-next-method))
-  (%ok-check (typep (aobj.game-values obj) 'game-values))
+  (verify-check (call-next-method))
+  (verify-check (typep (aobj.game-values obj) 'game-values))
   t)
 
 (defmethod ok-object? ((obj magic-spell) &key context warn-on-failure)
   (declare (ignore context))
-  (%ok-check (stringp (spell.id obj)))
+  (verify-check (stringp (spell.id obj)))
   (unless (spell.effect obj)
     (warn "The spell '~a' has no effect yet" (spell.name obj)))
   t)

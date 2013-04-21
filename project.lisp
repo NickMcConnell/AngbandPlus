@@ -14,8 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
-(defconstant +draw-delay+ 25) ;; hackish, remove later
-
 (defun project-path (dungeon max-range path-array x1 y1 x2 y2 flag)
   "Tries to project a path from (x1,y1) to (x2,y2)."
   (declare (optimize (safety 0) (speed 3) (debug 0)
@@ -73,6 +71,8 @@ the Free Software Foundation; either version 2 of the License, or
 			  (and (bit-flag-set? flag +project-stop+)
 			       (and (> len 0)
 				    (cave-monsters dungeon x y))))
+		  (warn "return ~s ~s,~s ~s ~s" len x y (bit-flag-set? flag +project-through+)
+			(cave-floor-bold? dungeon x y))
 		  (return-from go-direction len))
 		
 		(unless (= m 0)
@@ -118,6 +118,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defun is-legal-target? (dungeon target)
+  "Checks if it is a legal target and it's to a projectable location"
   (and target
        (typep target 'target)
        (if (typep (target.obj target) 'active-monster)
@@ -128,18 +129,29 @@ the Free Software Foundation; either version 2 of the License, or
 		     (location-x *player*) (location-y *player*)
 		     (target.x target) (target.y target))))
 
-;; rename later
-(defun %get-dest-coords (source destination &optional (mult-factor 1))
-  "Returns dest-x and dest-y for given destination."
+
+(defun get-destination-coords (source destination &optional (mult-factor 1))
+  "Returns dest-x and dest-y for projection in given destination.
+Destination of 5 or a target object will use (current) target."
 
   (let ((dest-x nil)
 	(dest-y nil)
-	(check-target (or (= destination 5) (typep destination 'target))))
+	(check-target nil))
+
+    (when (is-player? source) ;; only relevant if the player is the source
+      (when (and (integerp destination) (= destination 5))
+	(setf check-target t))
+      (when (typep destination 'target)
+	(setf check-target t)))
     
     (cond ((and check-target (is-legal-target? *dungeon* (player.target source)))
 	   (let ((target (player.target source)))
 	     (setf dest-x (target.x target)
 		   dest-y (target.y target))))
+	  ((or (typep destination 'active-monster)
+	       (typep destination 'player))
+	   (setf dest-x (location-x destination)
+		 dest-y (location-y destination)))
 	  (t
 	   (setf dest-x (+ (* mult-factor (aref *ddx* destination)) (location-x source))
 		 dest-y (+ (* mult-factor (aref *ddy* destination)) (location-y source)))
@@ -185,8 +197,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod do-projection (source target-x target-y flag &key
 				 (effect nil) (projected-object nil)
-				 (damage 0) (radius 0) (range +max-range+))
+				 (damage 0) (radius 0) (range +max-range+)
+				 (sound nil))
 
+  ;;(warn "projection from ~s,~s to ~s,~s" (location-x source) (location-y source) target-x target-y)
   
   (let ((source-x (location-x source))
 	(source-y (location-y source))
@@ -251,7 +265,10 @@ the Free Software Foundation; either version 2 of the License, or
 	   (explosion-area (make-array max-explosion :initial-element nil))
 	   )
 
-;;      (warn "Projection from (~s,~s) to (~s,~s) [target: ~s,~s]" start-x start-y dest-x dest-y target-x target-y)
+      (when sound
+	(play-sound sound))
+      
+      ;;(warn "Projection [~s] from (~s,~s) to (~s,~s) [target: ~s,~s]" path-len start-x start-y dest-x dest-y target-x target-y)
 
       (loop named path-tracer
 	    for i from 0 to (1- path-len)
@@ -287,9 +304,9 @@ the Free Software Foundation; either version 2 of the License, or
 			 
 			 (when-bind (vis (get-visual-projectile projected-object))
 			   (setf gfx-sym (aref (projectile.gfx-path vis)
-					       (get-direction-from-diff diff-x diff-y)))
+					       (get-direction-from-coord-diff diff-x diff-y)))
 			   (setf text-sym (aref (projectile.text-path vis)
-						(get-direction-from-diff diff-x diff-y))))
+						(get-direction-from-coord-diff diff-x diff-y))))
 			 
 			 (display-moving-object dungeon cur-x cur-y
 						text-sym gfx-sym)
@@ -423,24 +440,24 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod apply-projection-effect-to-target! ((variant variant) source target &key
 					       (x 0) (y 0) (damage 0) (effect nil) (distance 0))
-  (declare (ignore x y damage effect distance source))
-  (warn "Applying effect to ~s" target)
+  (declare (ignore x y damage effect distance source target))
+  ;;(warn "Fell through APPLY-PROJ-EFFECT-TO-TARGET ~s ~s ~s" source target effect)
   
-  )
+  nil)
 
 (defmethod apply-projection-effect-to-target! ((variant variant) source (target active-object)
 					       &key
 					       (x 0) (y 0) (damage 0) (effect nil) (distance 0))
   (declare (ignore x y damage effect distance source))
-  (warn "OBJ: Applying effect to ~s" target)
-  )
+  ;;(warn "OBJ: Applying effect to ~s" target)
+  nil)
 
 (defmethod apply-projection-effect-to-target! ((variant variant) source (target floor-type)
 					       &key
 					       (x 0) (y 0) (damage 0) (effect nil) (distance 0))
   (declare (ignore x y damage effect distance source))
 ;;  (warn "FLOOR: Applying effect to ~s" (floor.name target))
-  )
+  nil)
 
 
 
@@ -452,19 +469,21 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((notice nil)
 	(dungeon *dungeon*))
 
-;;    (warn "We're going to dish out effect ~s" effect)
+    (warn "APE(V): We're going to dish out effect from ~s" (get-creature-name source))
     
     (flet ((apply-to! (target distance grid)
-	     (when (apply-projection-effect-to-target! variant source target
-						       :x (grid-x grid) :y (grid-y grid)
-						       :damage damage :effect effect
-						       :distance distance)
-	       (setf notice t))))
+	     (when target
+	       (when (apply-projection-effect-to-target! variant source target
+							 :x (grid-x grid) :y (grid-y grid)
+							 :damage damage :effect effect
+							 :distance distance)
+		 (setf notice t)))))
     
     ;; check floors
       (when (bit-flag-set? flag +project-grid+)
 	(flet ((apply-to-floor! (grid distance)
-		 (apply-to! (cave-floor dungeon (grid-x grid) (grid-y grid)) distance grid)))
+		 (apply-to! (cave-floor dungeon (grid-x grid) (grid-y grid)) distance grid)
+		 (apply-to! (cave-decor dungeon (grid-x grid) (grid-y grid)) distance grid)))
 	  
 	  ;; first do beam
 	  (loop for g across path-array do
@@ -502,10 +521,14 @@ the Free Software Foundation; either version 2 of the License, or
 	(flet ((apply-to-monsters! (grid distance)
 		 (let ((loc-x (grid-x grid))
 		       (loc-y (grid-y grid)))
+
 		   (when (cave-floor-bold? dungeon loc-x loc-y) ;; monsters in wall are safe
 		     (dolist (m (cave-monsters dungeon loc-x loc-y))
 		       (unless (eq source m)
-			 (apply-to! m distance grid)))))))
+			 (apply-to! m distance grid)))
+		     (when (player-is-at? *player* loc-x loc-y)
+		       (apply-to! *player* distance grid))
+		     ))))
 		   
 	;; first do beam
 	(loop for g across path-array do

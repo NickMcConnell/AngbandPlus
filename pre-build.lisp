@@ -59,7 +59,7 @@ the Free Software Foundation; either version 2 of the License, or
 	cl:*compile-print* nil)
   ;; to avoid exit-problems with cmucl on debian
   ;;#+direct-syscall
-  (pushnew :disable-sound cl:*features*)
+  ;;(pushnew :disable-sound cl:*features*)
   #+pcl
   (pushnew 'compile pcl::*defclass-times*))
 
@@ -72,7 +72,9 @@ the Free Software Foundation; either version 2 of the License, or
   ;; to avoid exit-problems with sbcl
   ;;(pushnew :disable-sound cl:*features*)
   )
-  
+
+#+win32
+(pushnew :disable-sound cl:*features*) ;; will change, but safest now
 
 #+allegro
 (progn

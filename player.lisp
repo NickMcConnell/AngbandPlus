@@ -18,6 +18,14 @@ the Free Software Foundation; either version 2 of the License, or
   "Is the object a player-object?"
   (typep obj 'player))
 
+(defun player-is-at? (player x y)
+  "Checks if the player is at x,y"
+  (and (= (location-x player) x)
+       (= (location-y player) y)))
+
+(defmethod is-blind? ((creature player))
+  nil)
+
 (defun make-old-player-info (variant)
   "creates and returns a freshly init'ed OLD-PLAYER-INFO object."
   (let ((old (make-instance 'old-player-info)))
@@ -71,7 +79,7 @@ the Free Software Foundation; either version 2 of the License, or
     
 
 (defmethod get-xp-value ((crt player))
-  (* (player.level crt) 20))
+  (* (player.power-lvl crt) 20))
 
 
 (defun get-race-name (player)
@@ -111,7 +119,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod (setf get-creature-speed) (val (crt player))
   (setf (player.speed crt) val))
 
-(defun get-chance (variant skill the-ac)
+(defun get-tohit-chance (variant skill the-ac)
   (declare (ignore variant))
   (let* ((ac-factor (int-/ (* 3 the-ac) 4))
 	 (calc-chance (int-/ (* 90 (- skill ac-factor)) skill)))
@@ -281,7 +289,7 @@ the Free Software Foundation; either version 2 of the License, or
       (bit-flag-add! *redraw* +print-armour+)
       ;; skip window
       )
-    
+
     (when (/= (player.speed player) (old.speed old))
       (bit-flag-add! *redraw* +print-speed+))
 
@@ -333,7 +341,8 @@ the Free Software Foundation; either version 2 of the License, or
     
     t))
 
-(defun alter-attribute! (key table new-value)
+(defun modify-attribute! (key table new-value)
+  "Tries to change a named creature-attribute."
   (let ((attr (gethash key table)))
     (check-type attr creature-attribute)
     (setf (attr.value attr) new-value)
@@ -351,7 +360,6 @@ the Free Software Foundation; either version 2 of the License, or
 	    (t
 	     (warn "Unknown format ~s for stat-changes for race ~s" stat-changes race)))))
   
-
   t)
 
 
@@ -461,30 +469,33 @@ the Free Software Foundation; either version 2 of the License, or
       
     t))
 
+(defmethod roll-hitpoints-for-new-level ((variant variant) (player player))
+  (let ((the-class (player.class player))
+	(the-race (player.race player)))
+    (randint (+ (class.hit-dice the-class) (race.hit-dice the-race)))))
 
-(defmethod gain-level! ((variant variant) (player player))
+(defmethod get-power-lvl ((player player))
+  (player.power-lvl player))
+
+(defmethod gain-power-level! ((variant variant) (player player))
   "lets the player gain a level.. woah!  must be updated later"
 
-  (let* ((the-level (player.level player))
+  (let* ((the-level (player.power-lvl player))
 	 (hp-table (player.hp-table player))
 	 (next-hp (aref hp-table the-level)))
 
     ;; we have been to this level earlier..
     (when (or (eq next-hp nil) (< next-hp 1))
-      (let* ((the-class (player.class player))
-	     (the-race (player.race player))
-	     (hit-dice (the fixnum (+ (the fixnum (class.hit-dice the-class))
-				      (the fixnum (race.hit-dice the-race))))))
-	(setq next-hp (randint hit-dice))
-	(setf (aref hp-table the-level) next-hp)))
+      (setq next-hp (roll-hitpoints-for-new-level variant player))
+      (setf (aref hp-table the-level) next-hp))
 
     (incf (maximum-hp player) next-hp)
-    (incf (player.level player))
+    (incf (player.power-lvl player))
 
-    (when (< (player.max-level player) (player.level player))
-      (setf (player.max-level player)  (player.level player)))
+    (when (< (player.max-level player) (player.power-lvl player))
+      (setf (player.max-level player)  (player.power-lvl player)))
 
-    (format-message! "You attain level ~d and ~d new hitpoints. " (player.level player) next-hp)
+    (format-message! "You attain level ~d and ~d new hitpoints. " (player.power-lvl player) next-hp)
 
     (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-bonuses+)
     (bit-flag-add! *redraw* +print-basic+ +print-extra+) ;; to be on the safe side
@@ -501,32 +512,38 @@ the Free Software Foundation; either version 2 of the License, or
 	  (return-from find-level-for-xp (1- i))))
   1) ;; fix me later
 
-(defmethod alter-xp! ((player player) amount)
+(defmethod modify-gold! ((player player) amount)
+  (when (/= amount 0)
+    (incf (player.gold player) amount)
+    (bit-flag-add! *redraw* +print-basic+)))
+
+
+(defmethod modify-xp! ((player player) amount)
   "Alters the xp for the player with the given amount."
 
   (assert (numberp amount))
   
   (when (minusp amount)
     (warn "Not implemented reduction in XP yet.")
-    (return-from alter-xp! nil))
+    (return-from modify-xp! nil))
 
   (when (= amount 0)
-    (return-from alter-xp! nil))
+    (return-from modify-xp! nil))
   
-  (incf (player.cur-xp player) amount)
-  (incf (player.max-xp player) amount)
+  (incf (player.current-xp player) amount)
+  (incf (player.maximum-xp player) amount)
 
   (bit-flag-add! *redraw* +print-xp+)
 
   (loop
-   (let* ((cur-level (player.level player))
+   (let* ((cur-level (player.power-lvl player))
 	  (next-limit (aref (player.xp-table player) cur-level))
-	  (cur-xp (player.cur-xp player)))
+	  (cur-xp (player.current-xp player)))
 
 ;;     (warn "comparing ~s and ~s at lvl ~s -> ~a" cur-xp next-limit cur-level (> cur-xp next-limit))
      (if (>= cur-xp next-limit)
-	 (gain-level! *variant* player)
-	 (return-from alter-xp! nil)))
+	 (gain-power-level! *variant* player)
+	 (return-from modify-xp! nil)))
   
    ))
 
@@ -556,7 +573,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod update-max-hp! ((variant variant) (player player))
   "Updates the maximum number of hitpoints.  Returns an updated player."
 
-  (let ((lvl (player.level player))
+  (let ((lvl (player.power-lvl player))
 	(hp-table (player.hp-table player)))
     
     (setf (maximum-hp player)
@@ -665,10 +682,53 @@ the Free Software Foundation; either version 2 of the License, or
       
       nil))
 
+(defun %get-hungerlvl (satiation)
+  "Returns (lvl colour description init-msg)."
+  ;; level colour desc positive-desc negative-desc
+  (cond ((< satiation +food-starving+)
+	 `(6 ,+term-red+     "Dying   " "IMPOSSIBLE_1" "You're dying of hunger."))
+	((< satiation +food-fainting+)
+	 `(5 ,+term-orange+  "Fainting" "You're still fainting." "You faint for lack of food."))
+	((< satiation +food-weak+)
+	 `(4 ,+term-yellow+  "Weak    " "You're still weakened by hunger." "You're severly weakend for lack of food."))
+	((< satiation +food-hungry+)
+	 `(3 ,+term-yellow+  "Hungry  " "You're still hungry." "You are getting hungry."))
+	((< satiation +food-full+)
+	 `(2 ,+term-white+   "        " "You're no longer hungry." "You're no longer full."))
+	((< satiation +food-max+)
+	 `(1 ,+term-l-green+ "Full    " "You are full." "You're no longer gorged."))
+	(t
+	 `(0 ,+term-l-green+ "Gorged  " "You have gorged yourself." "IMPOSSIBLE_2"))
+	))
 
-(defun alter-food! (player new-food-amount)
+
+(defun modify-satiation! (player new-food-amount)
+  ;;(warn "Modify satiation ~s" new-food-amount)
   ;; lots of minor pooh
-  (setf (player.food player) new-food-amount))
+  (let* ((old-val (player.satiation player))
+	 (old-desc (%get-hungerlvl old-val))
+	 (old-lvl (car old-desc)))
+    
+    (incf (player.satiation player) new-food-amount)
+
+    (when (minusp (player.satiation player))
+      (setf (player.satiation player) 0))
+    
+    (let* ((new-val (player.satiation player))
+	   (new-desc (%get-hungerlvl new-val))
+	   (new-lvl (car new-desc)))
+      
+      (when (/= new-lvl old-lvl)
+	(bit-flag-add! *update* +pl-upd-bonuses+)
+	(bit-flag-add! *redraw* +print-hunger+))
+      
+      (when (< new-lvl old-lvl) ;; increase
+	(print-message! (fourth new-desc)))
+      
+      (when (> new-lvl old-lvl) ;; decrease
+	(print-message! (fifth new-desc)))
+      
+      )))
 
 (defmethod copy-player-abilities ((variant variant) (ab player-abilities))
   (let ((new-ab (make-instance 'player-abilities)))
@@ -738,3 +798,4 @@ the Free Software Foundation; either version 2 of the License, or
 (defun add-object-knowledge-flag! (player object flag)
   (let ((know (get-object-knowledge player object)))
     (pushnew flag (object.flags know))))
+

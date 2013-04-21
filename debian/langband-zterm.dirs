@@ -1,4 +1,5 @@
 usr/lib
+usr/lib/langband
+usr/bin
 usr/share/doc/langband-zterm
-
-
+usr/share/man/man1

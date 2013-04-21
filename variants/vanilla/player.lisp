@@ -541,7 +541,7 @@ the Free Software Foundation; either version 2 of the License, or
 			 :update-fun #'%modify-boolean-effect
 			 :on-update #'(lambda (player attr)
 					(declare (ignore player attr))
-					(bit-flag-add! *redraw* +print-state+))
+					(bit-flag-add! *redraw* +print-paralysis+))
 			 :desc "boolean, either paralysed or not")
 
       (install-attribute "confusion" '<confusion> :type :temporary
@@ -693,6 +693,19 @@ the Free Software Foundation; either version 2 of the License, or
 
       (install-attribute "recalling" '<recalling> :type :temporary
 			 :value nil :default-value nil
+			 :update-fun #'%modify-boolean-effect
+			 :on-update #'(lambda (player attr)
+					(when (eq (attr.value attr) nil)
+					  (cond ((plusp (player.depth player))
+						 (setf (player.depth player) 0
+						       (player.leaving? player) :wor)
+						 (print-message! "You feel yourself yanked upwards!"))
+						(t
+						 (setf (player.depth player) (player.max-depth player)
+						       (player.leaving? player) :wor)
+						 (print-message! "You feel yourself yanked downwards!")))
+					  t))
+			 
 			 :desc "boolean, is recalling or not")
 
 
@@ -727,7 +740,7 @@ the Free Software Foundation; either version 2 of the License, or
   (dolist (i (variant.skill-translations variant))
     (van/add-to-a-skill! (cdr i)
 			 (player.skills player)
-			 (player.level player)
+			 (player.power-lvl player)
 			 (class.skills cls)))
   
   ;; add resists
@@ -736,7 +749,7 @@ the Free Software Foundation; either version 2 of the License, or
     (%van-fill-resists variant resist-array (class.resists cls) +calculated-effect+)
 
     ;; hack, add fear resist for warriors
-    (when (and (eq (class.id cls) '<warrior>) (>= (player.level player) 30))
+    (when (and (eq (class.id cls) '<warrior>) (>= (player.power-lvl player) 30))
       (setf (aref resist-array (get-element-number variant '<fear>)) +calculated-effect+))
     )
 
@@ -765,7 +778,7 @@ the Free Software Foundation; either version 2 of the License, or
   (dolist (i (variant.skill-translations variant))
       (van/add-to-a-skill! (cdr i)
 			   (player.skills player)
-			   (player.level player)
+			   (player.power-lvl player)
 			   (race.skills race)))
 
   ;; add resists
@@ -797,15 +810,15 @@ the Free Software Foundation; either version 2 of the License, or
 	       (case (car i)
 		 (<infravision>
 		  (when (integerp (second i))
-		    (alter-attribute! '<infravision> calc-attrs (second i))))
+		    (modify-attribute! '<infravision> calc-attrs (second i))))
 		 (otherwise
 		  (warn "Unhandled racial ability ~a" (car i)))))
 	      ((symbolp i)
 	       (case i
 		 (<see-invisible>
-		  (alter-attribute! '<see-invisible> calc-attrs +max-sight+)) ;; radius
+		  (modify-attribute! '<see-invisible> calc-attrs +max-sight+)) ;; radius
 		 (<free-action>
-		  (alter-attribute! '<free-action> calc-attrs t)) ;; boolean
+		  (modify-attribute! '<free-action> calc-attrs t)) ;; boolean
 		 (otherwise 
 		  (warn "Unhandled racial ability ~a" i))))
 	      (t
@@ -848,15 +861,15 @@ the Free Software Foundation; either version 2 of the License, or
 	      (dolist (i (gval.abilities gvals))
 		(case i
 		  (<feather-fall>
-		   (alter-attribute! '<feather-fall> calc-attrs t)) ;; boolean
+		   (modify-attribute! '<feather-fall> calc-attrs t)) ;; boolean
 		  (<free-action>
-		   (alter-attribute! '<free-action> calc-attrs t)) ;; boolean
+		   (modify-attribute! '<free-action> calc-attrs t)) ;; boolean
 		  (<see-invisible>
-		   (alter-attribute! '<see-invisible> calc-attrs +max-sight+))
+		   (modify-attribute! '<see-invisible> calc-attrs +max-sight+))
 		  (<random-teleport>
-		   (alter-attribute! '<random-teleport> calc-attrs t)) ;; boolean
+		   (modify-attribute! '<random-teleport> calc-attrs t)) ;; boolean
 		  (<slow-digestion>
-		   (alter-attribute! '<slow-digest> calc-attrs 10)) 
+		   (modify-attribute! '<slow-digest> calc-attrs 10)) 
 		  (t
 		   (warn "Unhandled item-ability ~s for item ~s" i obj))))
 	      
@@ -965,6 +978,8 @@ the Free Software Foundation; either version 2 of the License, or
 
     ;;; do full weight analysis
 
+    (when (>= (player.satiation player) +food-max+) ;; move slower when gorged
+      (decf (player.speed player) 10))
 
     ;;; add stats bonuses
 
@@ -1200,7 +1215,7 @@ the Free Software Foundation; either version 2 of the License, or
 	     nil))
       )))
 
-(defmethod gain-level! ((variant vanilla-variant) player)
+(defmethod gain-power-level! ((variant vanilla-variant) player)
 
   (bit-flag-add! *redraw* +print-study+)
   (bit-flag-add! *update* +pl-upd-mana+ +pl-upd-spells+)
@@ -1280,3 +1295,49 @@ the Free Software Foundation; either version 2 of the License, or
     (setf (class.skills my-class) (build-skills-obj-from-list var-obj skills)))
 
   my-class)
+
+(defmethod is-blind? ((creature player))
+  "Returns T if the creature is blind."
+  (let ((temp-attrs (player.temp-attrs creature)))
+    (get-attribute-value '<blindness> temp-attrs)))
+
+
+(defmethod can-melee-attack? ((variant vanilla-variant) (player player) (mon active-monster))
+  (if (get-attribute-value '<fear> (player.temp-attrs player))
+      (format nil "You're too afraid to attack ~A." (get-creature-desc mon #x00))
+      t))
+
+(defmethod handle-turn ((variant vanilla-variant) (player player) (activity (eql :resting)))
+
+  (let ((mode (get-information "rest-mode"))
+	(dungeon *dungeon*))
+    (move-player! dungeon player 5)
+
+    (when (integerp mode)
+      (decf mode)
+      (if (plusp mode)
+	  (setf (get-information "rest-mode") mode)
+	  (setf (get-information "rest-mode") nil
+		(get-information "resting") nil)))
+    
+    (when (eq mode :normal-rest)
+      (when (and (= (current-hp player) (maximum-hp player))
+		 (= (current-mana player) (maximum-mana player)))
+	(setf (get-information "rest-mode") nil
+	      (get-information "resting") nil)))
+
+    (when (eq mode :full-rest) ;; everything should be kosher
+      (let ((temp-attrs (player.temp-attrs player)))
+	(when (and (= (current-hp player) (maximum-hp player))
+		   (= (current-mana player) (maximum-mana player))
+		   (eq nil (get-attribute-value '<blindness> temp-attrs))
+		   (eq nil (get-attribute-value '<confusion> temp-attrs))
+		   (= 0 (get-attribute-value '<stun> temp-attrs))
+		   (eq nil (get-attribute-value '<paralysed> temp-attrs))
+		   (eq nil (get-attribute-value '<fear> temp-attrs))
+		   (eq nil (get-attribute-value '<hallucinate> temp-attrs)))
+	
+	  (setf (get-information "rest-mode") nil
+		(get-information "resting") nil))))
+      
+    t))

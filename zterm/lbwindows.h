@@ -65,6 +65,8 @@ struct LangbandFrame {
     void *ui_connection; // pointer to a struct with information for an ui
 
     char *fontname; /* maybe only used by some UIs */
+    int wanted_fontsize;
+    int wanted_fontstyle;
     //char *backgroundfile;
 
     int background;
@@ -74,35 +76,44 @@ struct LangbandFrame {
 
 typedef struct LangbandFrame LangbandFrame;
 
-extern int num_predefinedFrames;
-extern int max_predefinedFrames;
-extern LangbandFrame **predefinedFrames;
-extern int num_activeFrames;
-extern int max_activeFrames;
-extern LangbandFrame **activeFrames;
 
-INTERFACE int init_frame_system(int active_size, int predefined_size);
-INTERFACE int legal_frame_key_p(int key, FrameType ft);
-LangbandFrame *get_frame(int key, FrameType ft);
-INTERFACE int has_frame(int key, FrameType ft);
+extern int lbui_num_predefinedFrames;
+extern int lbui_max_predefinedFrames;
+extern LangbandFrame **lbui_predefinedFrames;
+extern int lbui_num_activeFrames;
+extern int lbui_max_activeFrames;
+extern LangbandFrame **lbui_activeFrames;
 
 
-INTERFACE int add_frame(int key, const char *name);
-INTERFACE int add_frame_coords(int key, int x, int y, int w, int h);
-INTERFACE int add_frame_tileinfo(int key, int tw, int th, const char *font);
-INTERFACE int add_frame_gfxinfo(int key, int use_tiles);
-INTERFACE int add_frame_bg(int key, int img_idx);
-INTERFACE int activate_frame(int key);
-INTERFACE int deactivate_frame(int key);
-INTERFACE int clean_frame(int key);
-INTERFACE int wipe_frame(int key);
+INTERFACE int lbui_init_frame_system(int active_size, int predefined_size);
+INTERFACE int lbui_legal_frame_key_p(int key, FrameType ft);
+LangbandFrame *lbui_get_frame(int key, FrameType ft);
+INTERFACE int lbui_has_frame(int key, FrameType ft);
 
 
-INTERFACE int get_frame_columns(int key, FrameType ft);
-INTERFACE int get_frame_rows(int key, FrameType ft);
-INTERFACE int get_frame_tile_width(int key, FrameType ft);
-INTERFACE int get_frame_tile_height(int key, FrameType ft);
-INTERFACE int get_frame_gfx_tiles(int key, FrameType ft);
+INTERFACE int lbui_add_frame(int key, const char *name);
+INTERFACE int lbui_add_frame_coords(int key, int x, int y, int w, int h);
+INTERFACE int lbui_add_frame_fontinfo(int key, const char *font, int ptsize, int style);
+INTERFACE int lbui_add_frame_tileinfo(int key, int tw, int th);
+INTERFACE int lbui_add_frame_gfxinfo(int key, int use_tiles);
+INTERFACE int lbui_add_frame_bg(int key, int img_idx);
+INTERFACE int lbui_activate_frame(int key);
+INTERFACE int lbui_deactivate_frame(int key);
+INTERFACE int lbui_clean_frame(int key);
+INTERFACE int lbui_wipe_frame(int key);
+
+
+INTERFACE int lbui_get_frame_columns(int key, FrameType ft);
+INTERFACE int lbui_get_frame_rows(int key, FrameType ft);
+INTERFACE int lbui_get_frame_tile_width(int key, FrameType ft);
+INTERFACE int lbui_get_frame_tile_height(int key, FrameType ft);
+INTERFACE int lbui_get_frame_gfx_tiles(int key, FrameType ft);
+
+INTERFACE int lbui_recalculate_frame_placements(int arg);
+
+#ifdef USE_SDL
+extern LangbandFrame *sdl_install_font_in_frame(LangbandFrame *lf);
+#endif
 
 
 #endif /* lb_windows_h */

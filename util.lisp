@@ -21,7 +21,8 @@ ADD_DESC: classes and must be loaded late.
 
     
 (defmethod select-item ((dungeon dungeon) (player player) allow-from
-			&key prompt (where :backpack)
+			&key prompt prompt-frame
+			(where :backpack)
 			selection-function)
   "Selects and returns a CONS (where . which) when succesful or
 NIL.  Where is a keyword :floor, :backpack or :equip and which is either
@@ -43,61 +44,88 @@ a number or a symbol identifying the place."
 			    nil))
 	(the-prompt (if prompt prompt "Inventory command:"))
 
-	(show-mode nil)
 	(the-place where)
 	(printed-prompt nil)
 	)
 
+    (flet ((do-query (show-mode prompt-win display-win)
+	     ;;(warn "select item ~s ~s" prompt-win display-win) 
+	     (setq printed-prompt (format nil "~a " the-prompt))
+	     (let ((*cur-win* prompt-win))
+	       (put-coloured-line! +term-white+ printed-prompt 0 0))
+	     
+	     (when show-mode
+	       (let ((*cur-win* display-win))
+		 (item-table-print (get-item-table dungeon player the-place)
+				   :show-pause nil
+				   :print-selection selection-function)))
+	       
+	     
+	     ;; add setting of cursor.
+	     
+	     ;; how to do graceful exit of loop?
+	     (let ((read-char (read-one-character))
+		   (*cur-win* prompt-win))
+	       
+	       ;;(warn "read-char ~s" read-char)
+	       (cond ((eql read-char +escape+)
+		      (return-from select-item nil))
+		     
+		     ((eql read-char #\*)
+		      (return-from do-query :show))
+		     
+		     ((eql read-char #\/)
+		      (when (or (and allow-equip    (eq the-place :backpack))
+				(and allow-backpack (eq the-place :equip))
+				allow-floor)
+			(when show-mode
+			  (loop for i from 1 below (1+ (items.cur-size (get-item-table dungeon player the-place)))
+				do (clear-row display-win 0 i)))
+			(setq the-place (if (eq the-place :backpack) :equip :backpack))))
 
-    (with-dialogue ()
+		     
+		     ((and allow-floor (eq read-char #\-))
+		      (when show-mode
+			(loop for i from 1 below (1+ (items.cur-size (get-item-table dungeon player the-place)))
+			      do (clear-row display-win 0 i)))
+		      (setq the-place :floor))
+		     
+		     
+		     ;; improve this code, it just bails out now.
+		     ((alpha-char-p read-char)
+		      (put-coloured-line! +term-white+ "" 0 0)
+		      (let ((num (a2i read-char)))
+			(if (>= num 0)
+			    (return-from select-item (cons the-place num))
+			    (return-from select-item nil))))
+		     
+		     (t
+		      ;; maybe go through loop again instead?
+		      ;;(error "Fell through on read-char in select-item ~s" read-char)
+		      ))
+	       
+	       (put-coloured-line! +term-white+ "" 0 0))))
+
+      ;; hackish, first try a query in the message-frame, if show-mode is asked for
+      ;; jump to the loop embedded in a with-dialogue so that we stay there
       (block read-loop
-	(loop
+	(let ((prompt-win (cond ((non-negative-integer? prompt-frame)
+				 (aref *windows* prompt-frame))
+				((typep prompt-frame 'window)
+				 prompt-frame)
+				(t
+				 (aref *windows* +query-frame+))))
+	      (display-win (aref *windows* +dialogue-frame+))
+	      (show-mode nil))
+	  (loop until show-mode
+		do (when (eq :show (do-query nil prompt-win display-win))
+		     (setf show-mode t)))
 
-	 (setq printed-prompt (format nil "~a " the-prompt))
-	 (put-coloured-line! +term-white+ printed-prompt 0 0)
-       
-	 (when show-mode
-	   (item-table-print (get-item-table dungeon player the-place)
-			     :show-pause nil
-			     :print-selection selection-function))
-
-
-	 ;; add setting of cursor.
-
-	 ;; how to do graceful exit of loop?
-	 (let ((read-char (read-one-character)))
-
-	   ;;(warn "read-char ~s" read-char)
-	   (cond ((eql read-char +escape+)
-		  (return-from select-item nil))
-	       
-		 ((eql read-char #\*)
-		  (setq show-mode t))
-	       
-		 ((eql read-char #\/)
-		  (when (or (and allow-equip    (eq the-place :backpack))
-			    (and allow-backpack (eq the-place :equip)))
-		    (setq the-place (if (eq the-place :backpack) :equip :backpack))))
-	       
-		 ((and allow-floor (eq read-char #\-))
-		  (select-item dungeon player allow-from
-			       :prompt prompt :where :floor))
-
-		 ;; improve this code, it just bails out now.
-		 ((alpha-char-p read-char)
-		  (put-coloured-line! +term-white+ "" 0 0)
-		  (let ((num (a2i read-char)))
-		    (if (>= num 0)
-			(return-from select-item (cons the-place num))
-			(return-from select-item nil))))
-	       
-		 (t
-		  ;; maybe go through loop again instead?
-		  ;;(error "Fell through on read-char in select-item ~s" read-char)
-		  ))
-	       
-	   (put-coloured-line! +term-white+ "" 0 0))))
-	    
+	  (with-dialogue ()
+	    (loop (do-query t display-win display-win)))
+	  
+	  ))
+      
    
       ;; clear prompt
       #-(or cmu sbcl)
@@ -105,9 +133,9 @@ a number or a symbol identifying the place."
     
       nil)))
 
-(defun grab-a-selection-item (dungeon player  allow-from
-			     &key prompt (where :backpack)
-			     selection-function)
+(defun select-and-return-item (dungeon player allow-from
+			       &key prompt (where :backpack)
+			       selection-function)
   "Wrapper for select-item which just gets and returns the 'removed' object, or NIL."
   (when-bind (selection (select-item dungeon player allow-from
 				     :prompt prompt
@@ -118,6 +146,8 @@ a number or a symbol identifying the place."
 			(cdr selection) :only-single-items t)))
 
 (defun get-ensured-floor-table (dungeon the-x the-y)
+  "Tries to get the items-on-floor for given coordinate, if it doesn't
+exist it will be created, assigned to the coordinate and returned."
   (let ((cur-objs (cave-objects dungeon the-x the-y)))
     (unless cur-objs
       (setf cur-objs (make-floor-container dungeon the-x the-y))
@@ -133,9 +163,10 @@ a number or a symbol identifying the place."
 	    (the-y (if y y (location-y player))))
        (get-ensured-floor-table dungeon the-x the-y)))
     (:backpack (aobj.contains (player.inventory player)))
-    (:equip (player.equipment player))))
-
-
+    (:inventory (aobj.contains (player.inventory player)))
+    (:equip (player.equipment player))
+    (:equipment (player.equipment player))
+    ))
 
 ;;; === Equipment-implementation for floors ===
 
@@ -221,11 +252,42 @@ a number or a symbol identifying the place."
   (declare (ignore obj))
   t)
 
+(defmethod item-table-print ((table items-on-floor)
+			     &key show-pause start-x start-y
+			     print-selection)
+  
+  (let ((x (if start-x start-x 5));; 25))
+	(y (if start-y start-y 1))
+	(i 0))
+
+    (flet ((iterator-fun (a-table key val)
+	     (declare (ignore a-table))
+	     (when (and (functionp print-selection) (eq nil (funcall print-selection val))) ;; should it be printed?
+	       ;;(warn "obj ~s is not to be printed, cur-key ~s" val key)
+	       (return-from iterator-fun nil))
+
+	     (assert (integerp key))
+	     (let ((attr (get-text-colour val))
+		   (desc (with-output-to-string (s)
+			   (write-obj-description *variant* val s))))
+	       (put-coloured-line! +term-white+ "" (- x 2) (+ i y))
+	       (put-coloured-str! +term-white+ (format nil "~a) " (i2a key)) x (+ i y))
+	       (put-coloured-str! attr desc (+ x 4) (+ i y))
+	       (incf i))))
+      
+    (item-table-iterate! table #'iterator-fun)
+    
+    (when show-pause
+      (pause-last-line!))
+
+    )))
+
+
 
 
 (defmethod calculate-score (variant player)
   (declare (ignore variant))
-  (+ (player.max-xp player) (* 100 (player.depth player))))
+  (+ (player.maximum-xp player) (* 100 (player.depth player))))
 
 ;;; === Some simple code for actual rooms, move them later.
 
@@ -254,6 +316,7 @@ a number or a symbol identifying the place."
     room))
 
 (defun %room-has-light? (room dungeon &optional (chance 25))
+  "Checks if a given room should have initial light."
   (declare (ignore room))
   (<= (dungeon.depth dungeon) (randint chance)))
 
@@ -426,7 +489,7 @@ a number or a symbol identifying the place."
     (when mon-1
       (dolist (i mon-1)
 	(when (and target (eq (target.obj target) i))
-	  (%remove-target target)
+	  (remove-target-display target)
 	  (setf (target.x target) to-x
 		(target.y target) to-y))
 	(setf (location-x i) to-x
@@ -438,7 +501,7 @@ a number or a symbol identifying the place."
       (dolist (i mon-2)
 
 	(when (and target (eq (target.obj target) i))
-	  (%remove-target target)
+	  (remove-target-display target)
 	  (setf (target.x target) from-x
 		(target.y target) from-y))
 	(setf (location-x i) from-x
@@ -542,8 +605,10 @@ a number or a symbol identifying the place."
 
 (defmethod deliver-damage! ((variant variant) source (target active-monster) damage &key note dying-note)
   "Delivers damage to someone."
-  (declare (ignore source note))
+  (declare (ignore note))
 
+  ;;(warn "deliver-damage ~s to ~s from ~s" damage (get-creature-name target) (get-creature-name source))
+  
   (let ((did-target-die? nil))
   
     ;; wake it up
@@ -555,14 +620,19 @@ a number or a symbol identifying the place."
       (setf did-target-die? t)
       ;; make a message about it
       (cond (dying-note
-	     (format-message! "The ~a~a" (monster.name target) dying-note))
+	     (format-message! "~@(~A~) ~a." (get-creature-desc target #x00) dying-note))
+	    ((is-player? source)
+	     (format-message! "You have slain ~a." (get-creature-desc target #x00)))
+	    ((is-monster? source)
+	     (format-message! "~@(~A~) has slain ~a." (get-creature-desc source #x04)
+			      (get-creature-desc target #x00)))
 	    (t
-	     (format-message! "You have slain ~a." (monster.name target))))
+	     (warn "HEEEELP")))
 
       (let ((attacker *player*)
 	    (dungeon *dungeon*)
 	    (target-xp (get-xp-value target)))
-	(alter-xp! attacker (if target-xp target-xp 0))
+	(modify-xp! attacker (if target-xp target-xp 0))
 	(kill-target! dungeon attacker target (location-x target) (location-y target))
 	))
 
@@ -596,41 +666,41 @@ a number or a symbol identifying the place."
 (defconstant +random-normal-deviation+ 64 "The standard deviation of the table.")
 
 (defparameter *random-normal-table* #256(
-          206     613    1022    1430    1838       2245    2652    3058
-         3463    3867    4271    4673    5075       5475    5874    6271
-         6667    7061    7454    7845    8234       8621    9006    9389
-         9770   10148   10524   10898   11269      11638   12004   12367
-        12727   13085   13440   13792   14140      14486   14828   15168
-        15504   15836   16166   16492   16814      17133   17449   17761
-        18069   18374   18675   18972   19266      19556   19842   20124
-        20403   20678   20949   21216   21479      21738   21994   22245
+          206     613    1022    1430    1838    2245    2652    3058
+         3463    3867    4271    4673    5075    5475    5874    6271
+         6667    7061    7454    7845    8234    8621    9006    9389
+         9770   10148   10524   10898   11269   11638   12004   12367
+        12727   13085   13440   13792   14140   14486   14828   15168
+        15504   15836   16166   16492   16814   17133   17449   17761
+        18069   18374   18675   18972   19266   19556   19842   20124
+        20403   20678   20949   21216   21479   21738   21994   22245
 
-        22493   22737   22977   23213   23446      23674   23899   24120
-        24336   24550   24759   24965   25166      25365   25559   25750
-        25937   26120   26300   26476   26649      26818   26983   27146
-        27304   27460   27612   27760   27906      28048   28187   28323
-        28455   28585   28711   28835   28955      29073   29188   29299
-        29409   29515   29619   29720   29818      29914   30007   30098
-        30186   30272   30356   30437   30516      30593   30668   30740
-        30810   30879   30945   31010   31072      31133   31192   31249
+        22493   22737   22977   23213   23446   23674   23899   24120
+        24336   24550   24759   24965   25166   25365   25559   25750
+        25937   26120   26300   26476   26649   26818   26983   27146
+        27304   27460   27612   27760   27906   28048   28187   28323
+        28455   28585   28711   28835   28955   29073   29188   29299
+        29409   29515   29619   29720   29818   29914   30007   30098
+        30186   30272   30356   30437   30516   30593   30668   30740
+        30810   30879   30945   31010   31072   31133   31192   31249
 
-        31304   31358   31410   31460   31509      31556   31601   31646
-        31688   31730   31770   31808   31846      31882   31917   31950
-        31983   32014   32044   32074   32102      32129   32155   32180
-        32205   32228   32251   32273   32294      32314   32333   32352
-        32370   32387   32404   32420   32435      32450   32464   32477
-        32490   32503   32515   32526   32537      32548   32558   32568
-        32577   32586   32595   32603   32611      32618   32625   32632
-        32639   32645   32651   32657   32662      32667   32672   32677
+        31304   31358   31410   31460   31509   31556   31601   31646
+        31688   31730   31770   31808   31846   31882   31917   31950
+        31983   32014   32044   32074   32102   32129   32155   32180
+        32205   32228   32251   32273   32294   32314   32333   32352
+        32370   32387   32404   32420   32435   32450   32464   32477
+        32490   32503   32515   32526   32537   32548   32558   32568
+        32577   32586   32595   32603   32611   32618   32625   32632
+        32639   32645   32651   32657   32662   32667   32672   32677
 
-        32682   32686   32690   32694   32698      32702   32705   32708
-        32711   32714   32717   32720   32722      32725   32727   32729
-        32731   32733   32735   32737   32739      32740   32742   32743
-        32745   32746   32747   32748   32749      32750   32751   32752
-        32753   32754   32755   32756   32757      32757   32758   32758
-        32759   32760   32760   32761   32761      32761   32762   32762
-        32763   32763   32763   32764   32764      32764   32764   32765
-        32765   32765   32765   32766   32766      32766   32766   32767))
+        32682   32686   32690   32694   32698   32702   32705   32708
+        32711   32714   32717   32720   32722   32725   32727   32729
+        32731   32733   32735   32737   32739   32740   32742   32743
+        32745   32746   32747   32748   32749   32750   32751   32752
+        32753   32754   32755   32756   32757   32757   32758   32758
+        32759   32760   32760   32761   32761   32761   32762   32762
+        32763   32763   32763   32764   32764   32764   32764   32765
+        32765   32765   32765   32766   32766   32766   32766   32767))
 
 
 (defun normalised-random (mean stand)
@@ -661,10 +731,13 @@ a number or a symbol identifying the place."
 	  (+ mean offset)))))
   
 
-(defun magic-bonus-for-level (max level)
-  "Returns an appropriate bonus for the level."
-  (let* ((variant *variant*)
-	 (max-depth (variant.max-depth variant)))
+(defun get-level-appropriate-enchantment (variant level max)
+  "Returns an appropriate bonus for items generated on the level."
+  
+  (let ((max-depth (variant.max-depth variant)))
+    ;; hack
+    (when (typep level 'level)
+      (setf level (level.depth level)))
     (assert (numberp max))
     (assert (numberp level))
     (when (> level (1- max-depth))
@@ -697,8 +770,8 @@ a number or a symbol identifying the place."
 (defun update-inventory-row (player)
   (unless (eq (get-system-type) 'sdl)
     (return-from update-inventory-row t))
-  (let ((off-button (tile-file 38))
-	(on-button (tile-file 39))
+  (let ((off-button (logior (tile-file +tilefile-buttons+) (tile-number 0)))
+	(on-button (logior (tile-file +tilefile-buttons+) (tile-number 1)))
 	(win (aref *windows* +inv-frame+)))
     
     (with-frame (+inv-frame+)
@@ -736,9 +809,9 @@ a number or a symbol identifying the place."
 			     off-button)))
 
 	(setf (window-coord win +foreground+ col 0) (logior (tile-file 10) (tile-number 0))
-	      (window-coord win +background+ col 0) (logior back-button (tile-number 0))
-	      (window-coord win +foreground+ col 1) (logior (tile-file 3) (tile-number 34))
-	      (window-coord win +background+ col 1) (logior equip-button (tile-number 0))
+	      (window-coord win +background+ col 0) back-button
+	      (window-coord win +foreground+ col 1) (logior (tile-file +tilefile-armour+) (tile-number 34))
+	      (window-coord win +background+ col 1) equip-button
 	      )
 
 	(let ((col (- (get-frame-width +inv-frame+) 2))
@@ -750,9 +823,9 @@ a number or a symbol identifying the place."
 				off-button)))
 
 	  (setf (window-coord win +foreground+ col 0) (logior (tile-file 10) (tile-number 19))
-		(window-coord win +background+ col 0) (logior map-button (tile-number 0))
+		(window-coord win +background+ col 0) map-button
 		(window-coord win +foreground+ col 1) (text-paint-value +term-l-blue+ #.(char-code #\A))
-		(window-coord win +background+ col 1) (logior ascii-button (tile-number 0)))
+		(window-coord win +background+ col 1) ascii-button)
 	      
 	  )
 
@@ -760,9 +833,7 @@ a number or a symbol identifying the place."
       
 	;; should do all the actual painting
 	(refresh-window win)
-    
-
-	))))
+    	))))
 
 (defun switch-inventory-view ()
   (if (eq *currently-showing-inv* :inventory)
@@ -832,7 +903,22 @@ this function."
 
     ))
 
-(defmethod decor-operation ((variant variant) (door active-trap) operation &key value)
+(defmethod decor-operation ((variant variant) (door active-door) (operation (eql :visible)) &key value)
+  (unless (eq value t)
+    (warn "Visible with non-T argument ~s" value))
+
+  (setf (decor.visible? door) t)
+  ;;(light-spot! dungeon x y)
+  )
+
+(defmethod decor-operation ((variant variant) (door active-trap) (operation (eql :visible)) &key value)
+  (unless (eq value t)
+    (warn "Visible with non-T argument ~s" value))
+  (setf (decor.visible? door) t)
+  ;;(light-spot! dungeon x y)
+  )
+
+(defmethod decor-operation ((variant variant) (trap active-trap) operation &key value)
 
   (warn "trap operation ~s (~s) not implemented." operation value)
 
@@ -913,12 +999,12 @@ MOD-VALUE is how much space should be between rows (I think)"
     (labels ((display-alternatives (highlight-num)
 	       (let* ((desc (when display-fun
 			     (funcall display-fun highlight-num)))
-		      (text-col (setting-value settings 'text-x 2))
-		      (text-row (setting-value settings 'text-y 10))
-		      (text-attr (setting-value settings 'text-attr +term-white+))
-		      (text-wid (setting-value settings 'text-w 75))
-		      (alt-colour (setting-value settings 'altern-attr +term-white+))
-		      (salt-colour (setting-value settings 'altern-sattr +term-l-blue+))
+		      (text-col (setting-lookup settings "text-x" 2))
+		      (text-row (setting-lookup settings "text-y" 10))
+		      (text-attr (setting-lookup settings "text-attr" +term-white+))
+		      (text-wid (setting-lookup settings "text-w" 75))
+		      (alt-colour (setting-lookup settings "altern-attr" +term-white+))
+		      (salt-colour (setting-lookup settings "altern-sattr" +term-l-blue+))
 		      (clear-row (if desc text-row row)))
 
 		 
@@ -945,8 +1031,8 @@ MOD-VALUE is how much space should be between rows (I think)"
 		       )))
 	     
 	     (get-a-value (cur-sel)
-	       (let* ((query-colour (setting-value settings 'query-attr +term-l-red+))
-		      (red-query (setting-value settings 'query-reduced nil))
+	       (let* ((query-colour (setting-lookup settings "query-attr" +term-l-red+))
+		      (red-query (setting-lookup settings "query-reduced" nil))
 		      (query-str (if red-query
 				     "Choose a ~a (~c-~c): "
 				     "Choose a ~a (~c-~c, or * for random): ")))
@@ -972,34 +1058,44 @@ MOD-VALUE is how much space should be between rows (I think)"
       
       (get-a-value 0))))
 
-(defun let-player-run! (dungeon player direction)
+(defun run-in-direction (dungeon player direction)
+  "Tries to run in the given direction."
   (let ((next (run-along-corridor dungeon player direction)))
 ;;    (warn "Tried to run ~s, got next ~s" direction next)
-    (when (plusp next)
-      (move-player! dungeon player next)
-      (setf (get-information "run-direction") next)
-      t)))
+    (cond ((plusp next)
+	   ;;(sleep 0.1)
+	   (move-player! dungeon player next)
+	   (setf (get-information "run-direction") next)
+	   t)
+	  (t
+	   (stop-creature-activity *variant* player :running)
+	   ))))
 
-(defun %stop-running ()
-  (setf (get-information "run-direction") -1
-	(get-information "running") nil)
-  t)
-
-(defun %stop-resting ()
-  (setf (get-information "rest-mode") nil
-	(get-information "resting") nil)
+(defmethod stop-creature-activity ((variant variant) (player player) activity)
+  "Tries to stop given activity for a creature."
+  (case activity
+    (:running
+     (halt-sound-effects 0)
+     (setf (get-information "run-direction") -1
+	   (get-information "running") nil))
+    (:resting
+     (setf (get-information "rest-mode") nil
+	   (get-information "resting") nil))
+    (otherwise
+     (warn "Unknown player-activity ~s" activity)))
   t)
 
 (defmethod disturbance ((variant variant) (player player) source level)
   (declare (ignore source))
   (when (or (eq level :max) (eq level :major))
-    (%stop-running))
+    (stop-creature-activity variant player :running))
   (when (or (eq level :max) (eq level :major))
-    (%stop-resting))
+    (stop-creature-activity variant player :resting))
 
   t)
 
 (defun is-resting? (creature)
+  "Returns T if the creature is resting."
   (declare (ignore creature))
   (get-information "resting" :default nil))
 
@@ -1085,3 +1181,133 @@ on success.  Returns NIL on failure or user-termination (esc)."
     (let ((retval (read-loop)))
       (put-coloured-line! +term-white+ "" 0 0)
       retval))))
+
+
+#||
+ * Desc-type Flags:
+ *   0x01 --> Objective (or Reflexive)
+ *   0x02 --> Possessive (or Reflexive)
+ *   0x04 --> Use indefinites for hidden monsters ("something")
+ *   0x08 --> Use indefinites for visible monsters ("a kobold")
+ *   0x10 --> Pronominalize hidden monsters
+ *   0x20 --> Pronominalize visible monsters
+ *   0x40 --> Assume the monster is hidden
+ *   0x80 --> Assume the monster is visible
+ *
+ * Useful desc-types:
+ *   0x00 --> Full nominative name ("the kobold") or "it"
+ *   0x04 --> Full nominative name ("the kobold") or "something"
+ *   0x80 --> Banishment resistance name ("the kobold")
+ *   0x88 --> Killing name ("a kobold")
+ *   0x22 --> Possessive, genderized if visable ("his") or "its"
+ *   0x23 --> Reflexive, genderized if visable ("himself") or "itself"
+||#
+
+(defmethod get-creature-desc (creature desc-type)
+  "Returns a string with monster-desc."
+  (let* ((name (get-creature-name creature))
+	 (seen (or (bit-flag-and desc-type #x80)
+		   (is-player? creature)
+		   (and (not (bit-flag-and desc-type #x40))
+			(amon.seen-by-player? creature))))
+	 (pronoun (or (and seen
+			   (bit-flag-and desc-type #x20))
+		      (and (not seen)
+			   (bit-flag-and desc-type #x10))))
+	 (retval name))
+   
+    (cond ((or (not seen) pronoun)
+	   ;; not seen monsters and pronouns
+
+	   (let ((kind (cond ((is-player? creature)
+			      #x30)
+			     ((is-female? creature)
+			      #x20)
+			     ((is-male? creature)
+			      #x10)
+			     (t
+			      #x00))))
+	     
+	     (unless pronoun
+	       (setf kind #x00))
+
+	     (setf retval
+		   (case (+ kind (logand desc-type #x07))
+		     ;; neuter/unknown
+		     (#x00 "it")
+		     (#x01 "it")
+		     (#x02 "its")
+		     (#x03 "itself")
+		     (#x04 "something")
+		     (#x05 "something")
+		     (#x06 "something's")
+		     (#x07 "itself")
+		     ;; male
+		     (#x10 "he")
+		     (#x11 "him")
+		     (#x12 "his")
+		     (#x13 "himself")
+		     (#x14 "someone")
+		     (#x15 "someone")
+		     (#x16 "someone's")
+		     (#x17 "himself")
+		     ;; female
+		     (#x20 "she")
+		     (#x21 "her")
+		     (#x22 "her")
+		     (#x23 "herself")
+		     (#x24 "someone")
+		     (#x25 "someone")
+		     (#x26 "someone's")
+		     (#x27 "herself")
+		     ;; player
+		     (#x30 "you")
+		     (#x31 "you")
+		     (#x32 "your")
+		     (#x33 "yourself")
+		     (#x34 "yourself")
+		     (#x35 "yourself")
+		     (#x36 "your")
+		     (#x37 "yourself")
+		     (otherwise "it")))
+	     ))
+
+	  ;; visible monster, reflexive request
+	  ((and (bit-flag-and desc-type #x02)
+		(bit-flag-and desc-type #x01))
+	   (setf retval (cond ((is-player? creature)
+			       "yourself")
+			      ((is-male? creature)
+			       "himself")
+			      ((is-female? creature)
+				"herself")
+			      (t
+			       "itself"))))
+
+	  ;; all other visible monsters
+	  (t
+	   
+	   (cond ((or (is-unique-monster? creature)
+		      (is-player? creature))
+		  (setf retval name))
+		 ((bit-flag-and desc-type #x08)
+		  (let ((article (if (is-vowel? (aref name 0))
+				     "an " "a ")))
+		    (setf retval (concatenate 'string article name))))
+		 (t
+		  ;; a definite monster
+		  (setf retval (concatenate 'string "the " name))))
+
+
+	   ;; possesive
+	   (when (bit-flag-and desc-type #x02)
+	     ;; check last char for safety
+	     (setf retval (concatenate 'string retval "'s")))
+
+	   
+	   ;; check offscreen
+	   
+	   ))
+    (assert (stringp retval))
+    
+    retval))

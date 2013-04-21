@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Changelog v0.1.6</title>
+</head>
+
+<body>
+<h1>Changelog v0.1.6 (Engine)</h1>
+<pre>
+2003-05-08  Stig E Sandø &lt;stig@users.sourceforge.net&gt;
+	* Moved to ogg-format for sound-effects
+	* Added external (ie not in Lisp) sound-daemon
+	* Made simple strategy-system for monsters, including a primitive
+	attacker and a peaceful mover
+	* Improved checking of variant-data
+	* Revamped settings-system to use simple hashtable-inheritance
+	instead of classes.  Easier to maintain and change for users.
+	* Upgraded theme-code to do more sophisticated calculations of
+	positioning based on other windows' sizes.
+	* Added bigscreen-support to curses/gcu
+	* Added system to show visual states graphically in SDL-version
+	* Split engine and variants into separate Common Lisp packages,
+	and added necessary exports.
+	* Added hunger
+	* Fixed several TTF-issues and overall font-code
+	* Made sure that all parts of lbui.so/lbui.dll use common prefixes
+	to avoid namespace collisions.
+	* Made select-item reduce flashing windows
+	* Fixed targeting bugs
+	* Many other small improvements, bug-fixes and issues. 
+</pre>
+
+<h1>Changelog v0.1.6 (Vanilla)</h1>
+<pre>
+2003-05-08  Stig E Sandø &lt;stig@users.sourceforge.net&gt;
+	* Updated code to reflect upgraded engine.
+	* Changed variant to use .png for all graphics and .ogg for all
+	sound-effects
+	* Added vicious special abilities to many monsters
+	* Added several effects for spells, sticks, scrolls, etc
+	* Made rods behave as they should. (stacking not right yet though)
+	* Added proper resting
+	* Added word of recall
+	* Make player-states use the new player-state sytstem in the
+	engine
+	* Added left-click looking, click most stuff to see what it means
+	* Plus many other code-fixes, bug-fixes and improvements.
+</pre>
+
+<hr>
+<address>stig@user.sourceforge.net</address>
+<!-- hhmts start --> Last modified: Sat Mar  8 23:34:25 CET 2003 <!-- hhmts end -->
+</body> </html>

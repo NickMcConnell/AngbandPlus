@@ -1,8 +1,9 @@
+#include "autoconf.h"
 
 #ifdef USE_GCU
 
 #include "langband.h"
-
+#include "lbtools.h"
 
 /*
  * Include the proper "header" file

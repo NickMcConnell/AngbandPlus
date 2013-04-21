@@ -20,21 +20,21 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
 
 (defun %query-for-gender (variant player settings)
   (block query-block
-    (let* ((info-col (slot-value settings 'info-x))
-	   (info-row (slot-value settings 'info-y))
-	   (info-colour (slot-value settings 'info-attr))
-	   (quest-row (slot-value settings 'query-y))
-	   (quest-col (slot-value settings 'query-x))
-	   (choice-col (slot-value settings 'choice-x))
-	   (choice-row (slot-value settings 'choice-y))
-	   (choice-colour (slot-value settings 'choice-attr))
-	   (choice-tcolour (slot-value settings 'choice-tattr))
+    (let* ((info-col (setting-lookup settings "info-x"))
+	   (info-row (setting-lookup settings "info-y"))
+	   (info-colour (setting-lookup settings "info-attr"))
+	   (quest-row (setting-lookup settings "query-y"))
+	   (quest-col (setting-lookup settings "query-x"))
+	   (choice-col (setting-lookup settings "choice-x"))
+	   (choice-row (setting-lookup settings "choice-y"))
+	   (choice-colour (setting-lookup settings "choice-attr"))
+	   (choice-tcolour (setting-lookup settings "choice-tattr"))
 	   (genders (variant.genders variant))
 	   (alt-len (length genders))
 	   (inp nil))
       (print-text! info-col info-row info-colour
 		   "Your 'gender' does not have any significant gameplay effects."
-		   :end-col (slot-value settings 'instr-w))
+		   :end-col (setting-lookup settings "instr-w"))
   
       (block input-loop
 	(loop
@@ -60,16 +60,16 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
 
 (defun %query-for-race (variant player settings &key (race-name "Race"))
   (block query-block
-    (let* ((info-col (slot-value settings 'info-x))
-	   (info-row (slot-value settings 'info-y))
-	   (info-colour (slot-value settings 'info-attr))
-	   (quest-row (slot-value settings 'query-y))
-	   (quest-col (slot-value settings 'query-x))
-	   (choice-col (slot-value settings 'choice-x))
-	   (choice-row (slot-value settings 'choice-y))
-	   (choice-colour (slot-value settings 'choice-attr))
-	   (choice-tcolour (slot-value settings 'choice-tattr))
-	   (mod-value (slot-value settings 'altern-cols))
+    (let* ((info-col (setting-lookup settings "info-x"))
+	   (info-row (setting-lookup settings "info-y"))
+	   (info-colour (setting-lookup settings "info-attr"))
+	   (quest-row (setting-lookup settings "query-y"))
+	   (quest-col (setting-lookup settings "query-x"))
+	   (choice-col (setting-lookup settings "choice-x"))
+	   (choice-row (setting-lookup settings "choice-y"))
+	   (choice-colour (setting-lookup settings "choice-attr"))
+	   (choice-tcolour (setting-lookup settings "choice-tattr"))
+	   (mod-value (setting-lookup settings "altern-cols"))
 	   (cur-races (get-races-as-a-list variant))
 	   (alt-len (length cur-races))
 	   (inp nil))
@@ -77,7 +77,7 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
       (print-text! info-col info-row info-colour
 		   (format nil "Your '~a' determines various intrinsic factors and bonuses."
 			   (string-downcase race-name))
-		   :end-col (slot-value settings 'instr-w))
+		   :end-col (setting-lookup settings "instr-w"))
 
 
       (block input-loop
@@ -111,16 +111,16 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
 
 (defun %query-for-class (variant player settings)
   (block query-block
-    (let* ((info-col (slot-value settings 'info-x))
-	   (info-row (slot-value settings 'info-y))
-	   (info-colour (slot-value settings 'info-attr))
-	   (quest-row (slot-value settings 'query-y))
-	   (quest-col (slot-value settings 'query-x))
-	   (choice-col (slot-value settings 'choice-x))
-	   (choice-row (slot-value settings 'choice-y))
-	   ;;(choice-colour (slot-value settings 'choice-attr))
-	   ;;(choice-tcolour (slot-value settings 'choice-tattr))
-	   (mod-value (slot-value settings 'altern-cols))
+    (let* ((info-col (setting-lookup settings "info-x"))
+	   (info-row (setting-lookup settings "info-y"))
+	   (info-colour (setting-lookup settings "info-attr"))
+	   (quest-row (setting-lookup settings "query-y"))
+	   (quest-col (setting-lookup settings "query-x"))
+	   (choice-col (setting-lookup settings "choice-x"))
+	   (choice-row (setting-lookup settings "choice-y"))
+	   ;;(choice-colour (setting-lookup settings "choice-attr"))
+	   ;;(choice-tcolour (setting-lookup settings "choice-tattr"))
+	   (mod-value (setting-lookup settings "altern-cols"))
 	   (cur-classes (race.classes (player.race player)))
 	   (other-classes nil)
 	   (combined-classes nil)
@@ -134,7 +134,7 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
 				  "Any entries inside (parantheses) should only be used by advanced players."
 				  )
 		   
-		   :end-col (slot-value settings 'instr-w))
+		   :end-col (setting-lookup settings "instr-w"))
 
       (cond ((eq cur-classes t)
 	     (setq cur-classes (get-classes-as-a-list variant)))
@@ -192,16 +192,16 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
       t)))
 
 (defmethod query-for-character-basics! ((variant variant) (player player)
-					(settings birth-settings))
+					settings)
   "Interactive questioning to select the basics of the character.
 Modififes the passed player object THE-PLAYER.  This is a long function."
 
-  (let* (;;(info-col (slot-value settings 'info-x))
-	 (info-row (slot-value settings 'info-y))
-	 (instr-col (slot-value settings 'instr-x))
-	 (instr-row (slot-value settings 'instr-y))
-	 (instr-colour (slot-value settings 'instr-attr))
-	 (instr-width (slot-value settings 'instr-w))
+  (let* (;;(info-col (setting-lookup settings "info-x"))
+	 (info-row (setting-lookup settings "info-y"))
+	 (instr-col (setting-lookup settings "instr-x"))
+	 (instr-row (setting-lookup settings "instr-y"))
+	 (instr-colour (setting-lookup settings "instr-attr"))
+	 (instr-width (setting-lookup settings "instr-w"))
 	 (win *cur-win*))
 	 
 
@@ -335,15 +335,14 @@ Returns the base-stats as an array or NIL if something failed."
 
 (defmethod equip-character! ((variant variant) player settings)
   "Equips the character with basic equipment.
-Triggers the events :ON-PRE-EQUIP and :ON-POST-EQUIP
 
 The equipment specififed for class and race will be added to the
 player.
 "
-  
+  (declare (ignorable settings))
   ;; trigger an event if something should be done
   ;; before character is equipped
-  (trigger-event settings :on-pre-equip (list player nil))
+  ;;(trigger-event settings :on-pre-equip (list player nil))
   
   ;; first check race and class
   (let* ((race (player.race player))
@@ -372,6 +371,11 @@ player.
       ;; iterate over possible start-equipment
       (dolist (i start-eq)
 	(let ((obj (%create-obj-from-spec variant i)))
+	  (when (and obj (is-cursed? obj)) ;; give it a new shot
+	    (setf obj (%create-obj-from-spec variant i)))
+	  (when (and obj (is-cursed? obj)) ;; give it a new shot
+	    (setf obj (%create-obj-from-spec variant i)))
+	  ;; by now we should be ok
 	  (if obj
 	      (add-obj-to-player! obj player)
 	      (warn "Unable to find starting-object with id ~s" i))))
@@ -381,7 +385,7 @@ player.
       (setf (player.gold player) (random 200))
 
       ;; trigger an event that should be done right after equip.
-      (trigger-event settings :on-post-equip (list player nil))
+      ;;(trigger-event settings :on-post-equip (list player nil))
       )))
 
 (defun %get-name-input! (the-player)
@@ -397,9 +401,7 @@ Returns the new PLAYER object or NIL on failure."
 
   (let* ((player (produce-player-object variant))
 	 (birth-settings (get-setting variant :birth))
-	 (note-colour (if birth-settings
-			  (slot-value birth-settings 'note-colour)
-			  +term-white+)))
+	 (note-colour (setting-lookup birth-settings "note-colour" +term-white+)))
     
     (clear-window +full-frame+)
     (refresh-window +full-frame+)

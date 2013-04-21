@@ -16,23 +16,29 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'toggle-run-mode
     #'(lambda (dungeon player)
-	(declare (ignore dungeon player))
+	(declare (ignore dungeon))
 	(let ((run-status (get-information "running" :default nil)))
-	  ;;(warn "toggle to ~s" run-status)
-	  (setf (get-information "running") (not run-status)
-		(get-information "run-direction") -1
-		))))
+	  (cond (run-status
+		 (stop-creature-activity *variant* player :running))
+		(t
+		 ;;(warn "toggle to ~s" run-status)
+		 (setf (get-information "running") (not run-status)
+		       (get-information "run-direction") -1
+		       ))))
+	))
 
 (defun van-move-player! (dungeon player direction)
 ;;  (warn "move -> ~s" direction)
   (cond ((get-information "running" :default nil)
-	 (unless (let-player-run! dungeon player direction)
-	   (setf (get-information "run-direction") -1
-		 (get-information "running") nil)))
+	 (unless (run-in-direction dungeon player direction)
+	   (stop-creature-activity *variant* player :running)
+	   ))
 	(t
 	 (move-player! dungeon player direction))))
 
 (defun %run-direction (dungeon player dir)
+  ;;(warn "Start walking-sound")
+  (play-sound "walking" :channel 0 :loops 200)
   (setf (get-information "running") t)
   (van-move-player! dungeon player dir))
 
@@ -303,7 +309,7 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(declare (ignore dungeon))
 	(when-bind (func (get-late-bind-function 'langband 'save-the-game))
-	  (let ((save-path (variant-save-dir *variant*)))
+	  (let ((save-path (variant-save-directory *variant*)))
 	    (lbsys/make-sure-dirs-exist& save-path)
 	    #-langband-release
 	    (funcall func *variant* player *level* :format :readable)
@@ -377,13 +383,13 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(declare (ignore dungeon))
 	(let ((var *variant*))
-	  (print-resists var player (get-setting var :resists-display)))
+	  (print-resistance-table var player (get-setting var :resists-display)))
 	))
 
 (define-key-operation 'print-misc
     #'(lambda (dungeon player)
 	(declare (ignore dungeon))
-	(print-misc-info *variant* player)
+	(print-misc-info *variant* player (get-setting *variant* :misc-display))
 	))
 
 (define-key-operation 'redraw-all
@@ -427,4 +433,4 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
 	(warn "play music again..")
-	(play-music 1)))
+	(play-music 1 0)))

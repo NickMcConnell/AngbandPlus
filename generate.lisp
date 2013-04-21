@@ -74,7 +74,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	   (setf (decor.visible? the-door) nil)
 	   )
 	  
-	  ((< val 900)
+	  ((< val 850)
 	   ;; normal closed door
 	   (setf the-door (%retrieve-door variant "closed-door" :close x y)))
 
@@ -164,7 +164,8 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	   y (rand-range 1 max-y))
 
      (when (and (can-place? dungeon x y :creature)
-		(not (cave-icky? dungeon x y)))
+		(not (cave-icky? dungeon x y))
+		(eq nil (cave-objects dungeon x y)))
 ;;       (warn "placing player at ~s,~s" x y)
        (place-player! dungeon player x y)
        (return-from new-player-spot! nil)))))
@@ -173,10 +174,6 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
   (declare (type fixnum x y))
   (setf (cave-floor dungeon x y) "rubble"))
 
-(defun make-trap-visible! (the-trap dungeon x y)
-  (setf (decor.visible? the-trap) t)
-  (light-spot! dungeon x y))
-
 (defun %execute-trap (the-trap dungeon x y)
   (cond ((and (typep the-trap 'active-trap) (typep (decor.type the-trap) 'trap-type))
 	 (let ((trap-type (decor.type the-trap)))
@@ -184,7 +181,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 		  (funcall (trap.effect trap-type) the-trap dungeon x y)
 		  ;; assuming everything went ok
 		  (disturbance *variant* *player* the-trap :max)
-		  (make-trap-visible! the-trap dungeon x y))
+		  (decor-operation *variant* the-trap :visible))
 		 (t
 		  (warn "Trap ~s does not have a funcallable effect." (trap.id trap-type))))))
 	(t
@@ -356,8 +353,9 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
   (declare (type fixnum x y))
   
   (flet  ((%is-wall? (nx ny)
-	    (bit-flag-set? (floor.flags (cave-floor dungeon nx ny))
-			   +floor-flag-wall+)))
+	    (and (bit-flag-set? (floor.flags (cave-floor dungeon nx ny))
+				+floor-flag-wall+)
+		 (eq (cave-decor dungeon nx ny) nil))))
     (let ((k 0))
       (when (%is-wall? (1+ x) y) (incf k))
       (when (%is-wall? (1- x) y) (incf k))
@@ -402,7 +400,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
     (values)))
 
 (defun allocate-stairs! (dungeon dir how-many walls)
-  "Allocates stairs."
+  "Allocates stairs in the given dungeon."
   
   (let ((dungeon-height (dungeon.height dungeon))
 	(dungeon-width  (dungeon.width dungeon)))
@@ -656,8 +654,8 @@ argument is passed it will be used as new dungeon and returned."
 
   (let* ((*level* level)
 	 (settings (get-setting variant :random-level))
-	 (dungeon-height (slot-value settings 'max-height))
-	 (dungeon-width (slot-value settings 'max-width))
+	 (dungeon-height (setting-lookup settings "max-height"))
+	 (dungeon-width (setting-lookup settings "max-width"))
 	 (dungeon (create-dungeon dungeon-width dungeon-height
 				  :its-depth (level.depth level)))
 	 (*cur-dun* (make-dun-data))
@@ -685,7 +683,7 @@ argument is passed it will be used as new dungeon and returned."
     
     ;; build rooms
     (block room-building
-      (let ((dungeon-rooms (slot-value settings 'room-number)))
+      (let ((dungeon-rooms (setting-lookup settings "room-number")))
 ;;	(warn "ROOMS ~s" dungeon-rooms)
 	(loop for i of-type u-fixnum from 0 to dungeon-rooms;; fix
 	      do
@@ -770,8 +768,8 @@ argument is passed it will be used as new dungeon and returned."
 	  (try-door! variant dungeon x (1- y))
 	  (try-door! variant dungeon x (1+ y)))))
     
-    (let ((stairs-up (slot-value settings 'stairs-up))
-	  (stairs-down (slot-value settings 'stairs-down)))
+    (let ((stairs-up (setting-lookup settings "stairs-up"))
+	  (stairs-down (setting-lookup settings "stairs-down")))
 
 ;;      (warn "UP: ~s" stairs-up)
       (allocate-stairs! dungeon :down (rand-range (car stairs-down)
@@ -793,15 +791,14 @@ argument is passed it will be used as new dungeon and returned."
 	(allocate-monster! variant dungeon player 0 t)))
 
     
-    (new-player-spot! dungeon player)
-
-    
     ;; in rooms
     (allocate-object! variant dungeon 'alloc-set-room 'alloc-type-object 9)
 	
     (allocate-object! variant dungeon 'alloc-set-both 'alloc-type-gold 4)
     (allocate-object! variant dungeon 'alloc-set-both 'alloc-type-object 4)
 
+    (new-player-spot! dungeon player)
+    
     (setf (level.dungeon level) dungeon)
     
     level))

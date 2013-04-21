@@ -64,7 +64,7 @@ the Free Software Foundation; either version 2 of the License, or
    ))
 
 
-(defclass van-town-level (themed-level)
+(defclass van/town-level (themed-level)
   ((id     :initform "town-level")
    (symbol :initform 'town-level)
    (stores        :initarg :stores     :initform nil  :accessor level.stores)
@@ -200,7 +200,7 @@ the spell is usually the same."))
 		      :documentation "An array with ids to learnt spells (in order).  Is saved with the player-object."))
   (:documentation "A subclass of the class character-class.  Represents a class with spell-castin capabilities."))
 
-(defclass spell-effect (visual-projectile)
+(defclass van/spell-effect (visual-projectile)
   ((gfx-beam :initform 0 :accessor spell-effect.gfx-beam :documentation "gfx code for beam.")
    (text-beam :initform 0 :accessor spell-effect.text-beam :documentation "text code for beam.")
    ))
@@ -212,38 +212,13 @@ the spell is usually the same."))
    (note       :initform nil      :initarg :note       :accessor meff.note)
    (seen       :initform nil      :initarg :seen       :accessor meff.seen)
    (obvious    :initform nil      :initarg :obvious    :accessor meff.obvious)
-   (dying-note :initform " dies." :initarg :dying-note :accessor meff.dying-note)
+   (dying-note :initform "dies"   :initarg :dying-note :accessor meff.dying-note)
    ))
 
 
 (defclass black-market (store)
   ()
   (:documentation "A store with steep prices, used as a dispatch class."))
-
-;; change to (col row) format
-(defclass vanilla-basic-frame-locations (basic-frame-locations)
-  ((max-mana :initarg :max-mana :initform '(18 . 0))
-   (cur-mana :initarg :cur-mana :initform '(19 . 0))
-
-   (target   :initarg :target  :initform '(20 . 0))
-   (cut      :initarg :cut     :initform '(21 . 0))
-   (stun     :initarg :stun    :initform '(22 . 0))
-   )
-  (:documentation "Locations and various settings when printing stuff.
-Each location should be a cons with (row . col)."))
-  
-(defclass vanilla-bottom-row-locations (bottom-row-locations)
-  ((blind    :initarg :blind    :initform 7)
-   (confused :initarg :confused :initform 13)
-   (afraid   :initarg :afraid   :initform 22)
-   (poisoned :initarg :poisoned :initform 29)
-   (study    :initarg :study    :initform 64))
-   
-  (:documentation "Locations and various settings when printing stuff.
-Each location is a fixnum with column in the last row."))
-
-(defclass vanilla-birth (birth-settings)
-  ())
 
 (defclass vanilla-skills ()
   ((fighting     :accessor skills.fighting      :initform 0)
@@ -283,29 +258,8 @@ should return NIL or the state-object (with possibly updated state."))
 (defgeneric get-charge-status (object)
   (:documentation "Returns the charge-status of the given object or NIL."))
 
-(defgeneric print-cut (variant player settings)
-  (:documentation "Prints cut-info according to settings."))
-
-(defgeneric print-stun (variant player settings)
-  (:documentation "Prints stun-info according to settings."))
-
-(defgeneric print-poisoned (variant player settings)
-  (:documentation "Prints poison-info according to settings."))
-
-(defgeneric print-afraid (variant player settings)
-  (:documentation "Prints fear-info according to settings."))
-
-(defgeneric print-confused (variant player settings)
-  (:documentation "Prints confusion-info according to settings."))
-
-(defgeneric print-mana-points (variant creature setting)
-  (:documentation "prints mana points according to setting."))
-
 (defgeneric calculate-creature-mana! (variant creature)
   (:documentation "Does a walk-through of the creature and recalculates mana."))
-
-(defgeneric print-can-study-more (variant player setting)
-  (:documentation "Prints if the player can study more spells."))
 
 (defgeneric produce-skills-object (variant &key default-value)
   (:documentation "Returns a skills-object for the given variant."))
@@ -319,63 +273,86 @@ should return NIL or the state-object (with possibly updated state."))
 (defgeneric register-skill-translation& (variant translation)
   (:documentation "Registers a skill-translation with the variant."))
 
+(defgeneric roll-saving-throw (creature attack-power)
+  (:documentation "Rolls a saving throw for creature against an attack-power."))
 
 ;;; define relevant object-types for vanilla.
-(def-obj-type vanilla-object
+(define-object-type vanilla-object
     :aobj-slots ((ego :accessor aobj.ego :initform nil)))
-(def-obj-type weapon :key <weapon> :is vanilla-object)
-(def-obj-type melee-weapon :is weapon)
-(def-obj-type sword :key <sword> :is melee-weapon)
-(def-obj-type pole-arm :key <pole-arm> :is melee-weapon)
-(def-obj-type hafted :key <hafted> :is melee-weapon)
+(define-object-type weapon :key <weapon> :is vanilla-object
+		    :kind-slots ((text-colour :initform +term-white+)))
 
-(def-obj-type missile-weapon :key <missile-weapon> :is weapon) ;; clash with bow?
-(def-obj-type bow :is missile-weapon :key <bow>
+(define-object-type melee-weapon :is weapon)
+(define-object-type sword :key <sword> :is melee-weapon)
+(define-object-type pole-arm :key <pole-arm> :is melee-weapon)
+(define-object-type hafted :key <hafted> :is melee-weapon)
+
+(define-object-type missile-weapon :key <missile-weapon> :is weapon) ;; clash with bow?
+(define-object-type bow :is missile-weapon :key <bow>
 	      :kind-slots ((multiplier :accessor object.multiplier :initform 1 :initarg :multiplier)))
-(def-obj-type ammo :is vanilla-object :key <ammo>
+(define-object-type ammo :is vanilla-object :key <ammo>
 	      :kind-slots ((effect-type :accessor object.effect-type :initform nil)))
-(def-obj-type digger :is weapon :key <digger>)
+(define-object-type digger :is weapon :key <digger>)
 
-(def-obj-type armour :is vanilla-object :key <armour>)
-(def-obj-type body-armour :is armour :key <body-armour>)
-(def-obj-type soft-body-armour :is body-armour :key <soft-body-armour>)
-(def-obj-type hard-body-armour :is body-armour :key <hard-body-armour>)
-(def-obj-type dragonscale-armour :is body-armour :key <dsm-armour>)
-(def-obj-type boots :is armour :key <boots>)
-(def-obj-type gloves :is armour :key <gloves>)
-(def-obj-type shield :is armour :key <shield>)
-(def-obj-type headgear :is armour :key <headgear>)
-(def-obj-type helmet :is headgear :key <helmet>)
-(def-obj-type crown :is headgear :key <crown>)
-(def-obj-type cloak :is armour :key <cloak>)
+(define-object-type armour :is vanilla-object :key <armour>
+		    :kind-slots ((text-colour :initform +term-l-umber+)))
 
-(def-obj-type potion :is vanilla-object :key <potion>)
-(def-obj-type money  :is vanilla-object :key <money>)
-(def-obj-type scroll :is vanilla-object :key <scroll>)
-(def-obj-type wand   :is vanilla-object :key <wand>
-	      :kind-slots ((effect-type :accessor object.effect-type :initform nil)))
-(def-obj-type staff  :is vanilla-object :key <staff>)
-(def-obj-type rod    :is vanilla-object :key <rod>
-	      :kind-slots ((effect-type :accessor object.effect-type :initform nil))
-	      :aobj-slots ((recharge-time :accessor aobj.recharge-time :initform 0 :initarg :recharge-time)))
-(def-obj-type book   :is vanilla-object :key <book>)
-(def-obj-type spellbook :is book :key <spellbook>)
-(def-obj-type prayerbook :is book :key <prayerbook>)
-(def-obj-type ring   :is vanilla-object :key <ring>)
-(def-obj-type chest  :is vanilla-object  :key <chest>)
-(def-obj-type light-source :is vanilla-object :key <light-source>
-	      :kind-slots ((status-descs :accessor object.status-descs :initform nil :initarg :status-descs)
-			   (max-fuel     :accessor object.max-fuel     :initform nil :initarg :max-fuel)))
+(define-object-type body-armour :is armour :key <body-armour>
+		    :kind-slots ((text-colour :initform +term-l-white+)))
+(define-object-type soft-body-armour :is body-armour :key <soft-body-armour>)
+(define-object-type hard-body-armour :is body-armour :key <hard-body-armour>)
+(define-object-type dragonscale-armour :is body-armour :key <dsm-armour>)
+(define-object-type boots :is armour :key <boots>)
+(define-object-type gloves :is armour :key <gloves>)
+(define-object-type shield :is armour :key <shield>)
+(define-object-type headgear :is armour :key <headgear>)
+(define-object-type helmet :is headgear :key <helmet>)
+(define-object-type crown :is headgear :key <crown>)
+(define-object-type cloak :is armour :key <cloak>)
+
+(define-object-type potion :is vanilla-object :key <potion>
+		    :kind-slots ((text-colour :initform +term-l-blue+)))
+
+(define-object-type money  :is vanilla-object :key <money>)
+(define-object-type scroll :is vanilla-object :key <scroll>
+		    :kind-slots ((text-colour :initform +term-white+)))
+(define-object-type wand   :is vanilla-object :key <wand>
+		    :kind-slots ((effect-type :accessor object.effect-type :initform nil)
+				 (text-colour :initform +term-l-green+)))
+(define-object-type staff  :is vanilla-object :key <staff>
+		    :kind-slots ((text-colour :initform +term-yellow+)))
+
+(define-object-type rod    :is vanilla-object :key <rod>
+		    :kind-slots ((effect-type :accessor object.effect-type :initform nil)
+				 (text-colour :initform +term-violet+)
+				 (recharge-time :accessor object.recharge-time :initform 0))
+		    :aobj-slots ((recharge-time :accessor aobj.recharge-time :initform 0)))
+(define-object-type book   :is vanilla-object :key <book>)
+(define-object-type spellbook :is book :key <spellbook>
+		    :kind-slots ((text-colour :initform +term-l-red+)))
+(define-object-type prayerbook :is book :key <prayerbook>
+		    :kind-slots ((text-colour :initform +term-l-green+)))
+(define-object-type ring   :is vanilla-object :key <ring>
+		    :kind-slots ((text-colour :initform +term-l-red+)))
+
+(define-object-type chest  :is vanilla-object  :key <chest>)
+(define-object-type light-source :is vanilla-object :key <light-source>
+		    :kind-slots ((status-descs :accessor object.status-descs :initform nil :initarg :status-descs)
+				 (max-fuel     :accessor object.max-fuel     :initform nil :initarg :max-fuel)
+				 (text-colour :initform +term-yellow+)))
 	      
-(def-obj-type container :is vanilla-object :key <container>)
+(define-object-type container :is vanilla-object :key <container>)
 
-(def-obj-type food :is vanilla-object :key <food>)
-(def-obj-type mushroom :is food :key <mushroom>)
-(def-obj-type neckwear :is vanilla-object :key <neckwear>)
-(def-obj-type amulet :is neckwear :key <amulet>)
+(define-object-type food :is vanilla-object :key <food>
+		    :kind-slots ((text-colour :initform +term-l-umber+)))
+(define-object-type mushroom :is food :key <mushroom>)
+(define-object-type neckwear :is vanilla-object :key <neckwear>)
+(define-object-type amulet :is neckwear :key <amulet>
+		    :kind-slots ((text-colour :initform +term-orange+)))
 
-(def-obj-type junk :is vanilla-object :key <junk>)
-(def-obj-type skeleton :is junk :key <skeleton>)
+
+(define-object-type junk :is vanilla-object :key <junk>)
+(define-object-type skeleton :is junk :key <skeleton>)
 
 ;; move away later
 
@@ -383,45 +360,45 @@ should return NIL or the state-object (with possibly updated state."))
 #| 0 |# "" 
         "" 
         "" 
-        (engine-gfx "tiles/dg_armor32.bmp")
-        (engine-gfx "tiles/dg_effects32.bmp")
-#| 5 |# (engine-gfx "tiles/dg_food32.bmp")
-        (engine-gfx "tiles/dg_classm32.bmp")
-        (engine-gfx "tiles/dg_humans32.bmp")
-        (or (engine-gfx "tiles/upd_jewels.png") (engine-gfx "tiles/dg_jewls32.bmp"))
-        (engine-gfx "tiles/dg_magic32.bmp") 
-#| 10 |#(engine-gfx "tiles/dg_misc32.bmp")
-        (engine-gfx "tiles/dg_potions32.bmp")
-        (engine-gfx "tiles/dg_wands32.bmp")
-        (engine-gfx "tiles/dg_weapons32.bmp")
-        (engine-gfx "tiles/dg_people32.bmp")
-#| 15 |#(engine-gfx "tiles/dg_dragon32.bmp")
-        (engine-gfx "tiles/dg_monster132.bmp")
-        (engine-gfx "tiles/dg_monster232.bmp")
-        (engine-gfx "tiles/dg_monster332.bmp")
-        (engine-gfx "tiles/dg_monster432.bmp")
-#| 20 |#(engine-gfx "tiles/dg_monster532.bmp")
-        (engine-gfx "tiles/dg_monster632.bmp")
-        (engine-gfx "tiles/dg_monster732.bmp") 
-        (engine-gfx "tiles/dg_undead32.bmp") 
-        (engine-gfx "tiles/dg_uniques32.bmp")
-#| 25 |#(engine-gfx "tiles/dg_dungeon32.bmp")
-        (engine-gfx "tiles/dg_grounds32.bmp") 
-        (engine-gfx "tiles/dg_extra132.bmp") 
-        (engine-gfx "tiles/dg_town032.bmp")
-        (engine-gfx "tiles/dg_town132.bmp")
-#| 30 |#(engine-gfx "tiles/dg_town232.bmp")
-        (engine-gfx "tiles/dg_town332.bmp")
-        (engine-gfx "tiles/dg_town432.bmp")
-        (engine-gfx "tiles/dg_town532.bmp")
-        (engine-gfx "tiles/dg_town632.bmp") 
-#| 35 |#(engine-gfx "tiles/dg_town732.bmp") 
-        (engine-gfx "tiles/dg_town832.bmp")
-        (engine-gfx "tiles/dg_town932.bmp")
-	(engine-gfx "tiles/button.bmp")
-	(engine-gfx "tiles/button2.bmp")
+        (engine-gfx "tiles/dg_armor32.png")
+        (engine-gfx "tiles/dg_effects32.png")
+#| 5 |# (engine-gfx "tiles/dg_food32.png")
+        (engine-gfx "tiles/dg_classm32.png")
+        (engine-gfx "tiles/dg_humans32.png")
+        (engine-gfx "tiles/upd_jewels.png")
+        (engine-gfx "tiles/dg_magic32.png") 
+#| 10 |#(engine-gfx "tiles/dg_misc32.png")
+        (engine-gfx "tiles/dg_potions32.png")
+        (engine-gfx "tiles/dg_wands32.png")
+        (engine-gfx "tiles/dg_weapons32.png")
+        (engine-gfx "tiles/dg_people32.png")
+#| 15 |#(engine-gfx "tiles/dg_dragon32.png")
+        (engine-gfx "tiles/dg_monster132.png")
+        (engine-gfx "tiles/dg_monster232.png")
+        (engine-gfx "tiles/dg_monster332.png")
+        (engine-gfx "tiles/dg_monster432.png")
+#| 20 |#(engine-gfx "tiles/dg_monster532.png")
+        (engine-gfx "tiles/dg_monster632.png")
+        (engine-gfx "tiles/dg_monster732.png") 
+        (engine-gfx "tiles/dg_undead32.png") 
+        (engine-gfx "tiles/dg_uniques32.png")
+#| 25 |#(engine-gfx "tiles/dg_dungeon32.png")
+        (engine-gfx "tiles/dg_grounds32.png") 
+        (engine-gfx "tiles/dg_extra132.png") 
+        (engine-gfx "tiles/dg_town032.png")
+        (engine-gfx "tiles/dg_town132.png")
+#| 30 |#(engine-gfx "tiles/dg_town232.png")
+        (engine-gfx "tiles/dg_town332.png")
+        (engine-gfx "tiles/dg_town432.png")
+        (engine-gfx "tiles/dg_town532.png")
+        (engine-gfx "tiles/dg_town632.png") 
+#| 35 |#(engine-gfx "tiles/dg_town732.png") 
+        (engine-gfx "tiles/dg_town832.png")
+        (engine-gfx "tiles/dg_town932.png")
+	(engine-gfx "tiles/buttons.png")
+	""
 #| 40 |#(engine-gfx "tiles/crosshair.png")
-;;        "tiles/runes.png" 			   
+	(engine-gfx "tiles/states.png")		   
 	))
 
 
@@ -432,7 +409,7 @@ should return NIL or the state-object (with possibly updated state."))
   (make-instance 'vanilla-variant
 		 :id "vanilla"
 		 :name "Vanilla"
-		 :version "0.1.5"
+		 :version "0.1.6"
 		 :num-version 15
 		 :stat-length 6
 		 

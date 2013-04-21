@@ -52,15 +52,15 @@ to do both ascii info, ascii maps and graphics."
 
     ;; graphic tiles are simple.. 
     (cond ((window.gfx-tiles? win)
-	   (c-full-blit win-num x y bg flag)
+	   (org.langband.ffi:c-full-blit win-num x y bg flag)
 	   (dotimes (i #.(1- +num-gfx-layers+))
 	     (setf bg (window-coord win (1+ i) x y))
 	     (when (> bg 0)
-	       (c-transparent-blit win-num x y bg flag))))
+	       (org.langband.ffi:c-transparent-blit win-num x y bg flag))))
 	  ;; characters are nasty, only the top one should be done
 	  (t
 	   ;; first do background
-	   (c-full-blit win-num x y bg flag)
+	   (org.langband.ffi:c-full-blit win-num x y bg flag)
 	   ;; then do only the top-most
 	   (loop named paint
 		 for i from #.(1- +num-gfx-layers+) downto 1
@@ -69,8 +69,8 @@ to do both ascii info, ascii maps and graphics."
 		 (when (> bg 0)
 		   ;; ultra-ugly hack!! nasty nasty
 		   (if (= win-num *map-frame*)
-		       (c-full-blit win-num x y bg flag)
-		       (c-transparent-blit win-num x y bg flag))
+		       (org.langband.ffi:c-full-blit win-num x y bg flag)
+		       (org.langband.ffi:c-transparent-blit win-num x y bg flag))
 		       
 		   (return-from paint nil)))
 	   ))
@@ -91,7 +91,7 @@ to do both ascii info, ascii maps and graphics."
 		do
 		(paint-coord win x y flag)))
     
-    (c-flush-coords! (window.num-id win) 0 0 wid hgt)
+    (org.langband.ffi:c-flush-coords! (window.num-id win) 0 0 wid hgt)
     ))
 
 
@@ -115,11 +115,11 @@ to do both ascii info, ascii maps and graphics."
 		  (paint-coord win x y flag) ;; implicitly resets flagmap
 		  )))
     (when (and anything-painted (bit-flag-set? flag +winflag-delay-paint+))
-      (c-flush-coords! (window.num-id win) 0 0 (1- wid) (1- hgt)))
+      (org.langband.ffi:c-flush-coords! (window.num-id win) 0 0 (1- wid) (1- hgt)))
     ))
 
 (defun flush-coords (win x y w h)
-  (c-flush-coords! (window.num-id win) x y w h))
+  (org.langband.ffi:c-flush-coords! (window.num-id win) x y w h))
 
 (defun clear-coord (win x y)
   "Clears the coord of any values.  Does not force repaint"
@@ -227,6 +227,8 @@ to length cleared from x,y  LEN will be chopped if it exceeds boundaries."
 
 ;; should be enough
 (defvar *write-int-dummy* "                                        ")
+(defvar *winformat-forced-numbersign* nil)
+(defvar *winformat-padchar* #\Space)
 
 (defun win/write-int (win x y int padding)
   "Borrowed and modified from CMUCL."
@@ -238,7 +240,10 @@ to length cleared from x,y  LEN will be chopped if it exceeds boundaries."
     ;;(warn "num is ~s, pad is ~s" quotient padding)
     (when (minusp quotient)
       (setf quotient (- quotient)
-	    minus-sign t)
+	    minus-sign t))
+
+    ;; eat a padding for sign
+    (when (or minus-sign *winformat-forced-numbersign*)
       (when (integerp padding)
 	(decf padding)))
 
@@ -265,11 +270,13 @@ to length cleared from x,y  LEN will be chopped if it exceeds boundaries."
     (when (integerp padding)
       (when (> padding count)
 	(dotimes (i (- padding count))
-	  (win/write-char win (+ i x) y #\Space))
+	  (win/write-char win (+ i x) y *winformat-padchar*))
 	(incf x (- padding count))))
 
-    (when minus-sign
-      (win/write-char win x y #\-)
+    (when (or minus-sign *winformat-forced-numbersign*)
+      (if minus-sign
+	  (win/write-char win x y #\-)
+	  (win/write-char win x y #\+))
       (incf x))
     
     (loop for j from 0
@@ -280,7 +287,10 @@ to length cleared from x,y  LEN will be chopped if it exceeds boundaries."
 	    ;;(warn "writing ~s from ~s to ~s" val i col)
 	    (win/write-char win col y val)))
 
-    count))
+    (if (and (integerp padding) (> padding count))
+	padding
+	count)))
+
 
 
 (defun win/format (win x y colour format-str &rest args)
@@ -295,8 +305,7 @@ arguments)."
     (flet ((output-int (arg padding)
 	     (let ((*print-base* 10))
 	       (cond ((< arg 0)
-		      (when (integerp padding)
-			(decf padding))
+		      ;;(when (integerp padding) (decf padding))
 		      (incf col (win/write-int win col row arg padding)))
 		     (t					  
 		      (incf col (win/write-int win col row arg padding))))

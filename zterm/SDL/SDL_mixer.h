@@ -20,7 +20,7 @@
     slouken@libsdl.org
 */
 
-/* $Id: SDL_mixer.h,v 1.1 2002/11/04 22:08:14 stig Exp $ */
+/* $Id: SDL_mixer.h,v 1.2 2003/05/05 16:47:28 stig Exp $ */
 
 #ifndef _MIXER_H_
 #define _MIXER_H_
@@ -41,7 +41,7 @@ extern "C" {
 */
 #define MIX_MAJOR_VERSION	1
 #define MIX_MINOR_VERSION	2
-#define MIX_PATCHLEVEL		4
+#define MIX_PATCHLEVEL		5
 
 /* This macro can be used to fill a version structure with the compile-time
  * version of the SDL_mixer library.

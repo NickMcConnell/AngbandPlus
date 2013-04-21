@@ -15,6 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.engine)
 
 (defun is-store? (obj)
+  "Returns T if the object is a store."
   (typep obj 'store))
 
 ;;; Current implementation ignores haggling, selling-season, buying-season, etc
@@ -23,7 +24,7 @@ the Free Software Foundation; either version 2 of the License, or
 				       &key
 				       (var-obj *variant*)
 				       (selection :random))
-  
+  "Tries to find an owner for the given house.  The owner is returned."
   (declare (ignore level))
   
   (let ((poss-owners (store.possible-owners house))
@@ -82,7 +83,7 @@ should be an exisiting id."
 
 (defun define-store (id &key (type 'store) name number
 		     (sells nil) (buys nil) (owner :random) (no-items nil))
-  "creates a store object and adds it to the appropriate table"
+  "Creates a store object and adds it to the appropriate table(s)."
 ;;  (declare (ignore args))
   (let ((var-obj *variant*)
 	(store (make-instance type :id id :name name :number number :owner owner)))
@@ -91,7 +92,7 @@ should be an exisiting id."
       (setf (store.sells store) sells))
     
     (when (and (eq type 'store) buys)
-      (setf (store.buys store) buys))
+      (setf (store.will-buy store) buys))
     
     ;; hackish
     (unless no-items
@@ -136,6 +137,7 @@ should be an exisiting id."
     owner))
 
 (defmethod get-price ((object active-object) (store store))
+  "Returns an appropriate shop-price for an object."
   (let* ((okind (aobj.kind object))
 	 (default-price (object.cost okind)))
 
@@ -146,6 +148,7 @@ should be an exisiting id."
 
 
 (defmethod get-offer ((object active-object) (store store))
+  "Returns a shopkeeper's offer for a given object."
   (int-/ (get-price object store) 2)) ;; decent value, eh?
 
 (defun %print-shop-message! (str)
@@ -155,7 +158,9 @@ should be an exisiting id."
 
 
 
-(defun %store-select-item (low top)
+(defun select-item-from-store (store low top)
+  "Reads input from keyboard for selecting an item from a store."
+  (declare (ignore store))
   (let ((the-char (read-one-character)))
     (cond ((eql the-char #\Escape)
 	   nil)
@@ -184,7 +189,7 @@ should be an exisiting id."
 			 (format nil "(Items ~a-~a, ESC to exit) Which item are you interested in?"
 				 (i2a 0) (i2a (1- item-len)))
 			 0 0)
-      (let ((selected (%store-select-item 0 (1- item-len))))
+      (let ((selected (select-item-from-store store 0 (1- item-len))))
 	(when (and selected (numberp selected))
 	  (let* ((retval nil)
 		 (act-obj (item-table-find items selected))
@@ -273,7 +278,7 @@ should be an exisiting id."
 
 
 (defmethod display-house ((player player) (store store) &key (offset 0))
-
+  "Tries to display the store to the screen."
   (declare (ignore offset))
   
   (let ((store-name (store.name store))
@@ -307,8 +312,8 @@ should be an exisiting id."
 
 	  (paint-gfx-image& owner-picture 1 1)
 	  
-;;      (load-scaled-image& "./graphics/people/grim-elf.bmp" -1 6 5)
-;;      (paint-image& "./graphics/people/grim-elf.bmp" 1 1))
+;;      (load-scaled-image& "./graphics/people/grim-elf.png" -1 6 5)
+;;      (paint-image& "./graphics/people/grim-elf.png" 1 1))
 
 	  )))
 	  
@@ -403,12 +408,18 @@ should be an exisiting id."
   "this is just for a regular store, not a black market"
 
   (when-bind (sells (store.sells the-store))
+    ;;(warn "Shop ~s sells ~s" the-store sells)
     (when-bind (kind (rand-elm sells))
       (when (typep kind 'object-kind)
 	(let ((aobj (create-aobj-from-kind kind :variant variant)))
 	  ;; possibly add magic
 	  (apply-magic! variant aobj (store.object-depth the-store) :allow-artifact nil)
 	  (store-mass-produce! variant the-store aobj)
+
+	  (when (or (is-cursed? aobj)
+		    (is-broken? aobj))
+	    (setf aobj nil))
+	  
 	  (return-from store-generate-object aobj)))))
 
   (warn "Fell through in obj-generation for store ~s" the-store)
@@ -417,7 +428,7 @@ should be an exisiting id."
 
 
 (defun store-delete-obj! (the-store &optional obj-key)
-  "just wipes an object.."
+  "Just wipes an object from the store."
   (let* ((store-items (store.items the-store))
 	 (cur-size (items.cur-size store-items))) 
     (when (plusp cur-size)
@@ -425,7 +436,8 @@ should be an exisiting id."
 	;;(warn "Removing ~s" key)
 	(item-table-remove! store-items key)))))
 
-(defun store-add-obj! (variant the-store)
+(defun allocate-object-in-store! (variant the-store)
+  "Tries to generate and add an object to the given store."
   (when-bind (new-obj (store-generate-object variant the-store))
     ;;(warn "Adding ~s" (object.name new-obj))
     (item-table-add! (store.items the-store) new-obj)))
@@ -443,12 +455,12 @@ should be an exisiting id."
     
     (zerop count)))
     
-(defun equip-store! (variant store)
-  ;;(warn "EQUIP ~a" (store.id store))
-  (dotimes (j 10)
-    (store-maintenance! variant store)))
+(defun fill-up-store! (variant store &optional (attempts 10))
+  "Tries several attempts (default 10) to run maintenace on the store."
+  (when (integerp attempts)
+    (dotimes (j attempts)
+      (store-maintenance! variant store))))
 
-;;(trace equip-store!)
 
 (defmethod activate-object ((obj store) &key)
 
@@ -460,13 +472,11 @@ should be an exisiting id."
     ;; late-init basically
     (setf (store.sells obj) (make-store-sales-list *variant* (store.id obj) sells)))
     
-  ;;(equip-store! *variant* obj)
-  
   obj)
 
 
 (defmethod store-maintenance! ((variant variant) (the-store store))
-  "hackish, fix later."
+  "This method does a full maintenance of the shop, restocks and cleans as necessary."
 
   (let ((min (store.min-items the-store))
 	(max (store.max-items the-store))
@@ -498,7 +508,7 @@ should be an exisiting id."
 
     (while (< (items.cur-size (store.items the-store)) cur-num)
       ;;(warn "+Compare ~s ~s" (items.cur-size (store.items the-store)) cur-num)
-      (store-add-obj! variant the-store))
+      (allocate-object-in-store! variant the-store))
 
     ;;(warn "Return")
     the-store))

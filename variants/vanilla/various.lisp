@@ -132,7 +132,7 @@ the Free Software Foundation; either version 2 of the License, or
 		(text-char #\?))
 	    
 	    ;; ultra-hack
-	    (when (load-gfx-tiles?)
+	    (when (engine-allows-gfx-tiles?)
 	      (setf x-attr (tile-file 10)
 		    x-char (tile-number (+ 18 (random 4)))))
 	    
@@ -164,7 +164,7 @@ the Free Software Foundation; either version 2 of the License, or
       (create-aobj-from-kind gold-kind :amount amount :variant variant))))
 
 
-(defmethod use-object! ((var vanilla-variant) dungeon player the-object &key (which-use :use))
+(defmethod use-object! ((variant vanilla-variant) dungeon player the-object &key (which-use :use))
 ;;  (declare (ignore var))
   (check-type the-object active-object)
   
@@ -178,7 +178,11 @@ the Free Software Foundation; either version 2 of the License, or
     (unless the-effect 
       (warn "Didn't find ~s effect for ~s" which-use (object.id okind))
       (return-from use-object! retval))
-	    
+
+    (when (typep the-object 'active-object/rod)
+      (when (plusp (aobj.recharge-time the-object))
+	(print-message! "The rod is still recharging.")
+	(return-from use-object! :not-used)))
     
     (when the-effect
       (assert (and (effect-entry-p the-effect)
@@ -191,6 +195,8 @@ the Free Software Foundation; either version 2 of the License, or
       (cond ((eq retval :used)
 	     (incf (player.energy-use player) (effect-entry-energy-use the-effect)))
 	    ((eq retval :still-useful)
+	     (when (typep the-object 'active-object/rod)
+	       (setf (aobj.recharge-time the-object) (object.recharge-time (aobj.kind the-object))))
 	     (incf (player.energy-use player) (effect-entry-energy-use the-effect)))
 	    ;; do nothing
 	    ((eq retval :not-used) nil)
@@ -216,21 +222,21 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind/mushroom)) t)
 
 (defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/potion))
-  (%flavour-obj-kind! obj))
+  (flavour-simple-object-kind! var-obj obj))
 (defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/mushroom))
-  (%flavour-obj-kind! obj))
+  (flavour-simple-object-kind! var-obj obj))
 (defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/scroll))
-  (%flavour-obj-kind! obj))
+  (flavour-simple-object-kind! var-obj obj))
 (defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/ring))
-  (%flavour-obj-kind! obj))
+  (flavour-simple-object-kind! var-obj obj))
 (defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/wand))
-  (%flavour-obj-kind! obj))
+  (flavour-simple-object-kind! var-obj obj))
 (defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/staff))
-  (%flavour-obj-kind! obj))
+  (flavour-simple-object-kind! var-obj obj))
 (defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/rod))
-  (%flavour-obj-kind! obj))
+  (flavour-simple-object-kind! var-obj obj))
 (defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/amulet))
-  (%flavour-obj-kind! obj))
+  (flavour-simple-object-kind! var-obj obj))
 
 (defmethod distribute-flavours! ((var-obj vanilla-variant))
   "Allocates flavours for objects that need it."
@@ -257,7 +263,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod store-buys-item? ((object active-object) (store store))
   ;; hackish
-  (let ((buy-value (store.buys store)))
+  (let ((buy-value (store.will-buy store)))
     (cond ((eq nil buy-value)
 	   buy-value)
 	  
@@ -321,156 +327,6 @@ the Free Software Foundation; either version 2 of the License, or
       (concatenate 'string (rand-elm (first ptr)) (rand-elm (second ptr)) (rand-elm (third ptr))))
     ))
 
-(defun van-group-chance (id mon-depth lvl-depth)
-  (declare (ignore id))
-  (let* ((diff (- lvl-depth mon-depth))
-	 (chance (if (plusp diff)
-		     (* 10 diff)
-		     0)))
-      
-      (when (> chance 60)
-	(setq chance 60))
-
-;;      (warn "Group chance for ~a (~a) at depth ~a is ~a%" id mon-depth lvl-depth chance)
-      
-      (if (plusp chance)
-	  (< (random 100) chance)
-	  nil)))
-
-;; seems to be original depth + 4 which is the basis for when groups appear
-(defun van-novice-appears-in-group? (level mon)
-
-  (when (typep mon 'active-monster)
-    (setq mon (amon.kind mon)))
-
-  (unless (typep mon 'monster-kind)
-    (error "Unknown object ~s given to grouping-function, should be a monster."
-	   mon))
-  
-  (when (typep mon 'unique-monster)
-    (error "A unique-monster ~s should not have a grouping-function."
-	   (monster.id mon)))
-
-  (let ((mon-depth (monster.power-lvl mon)) ;; a bit more tricky than vanilla, but gets increasingly worse
-	(lvl-depth (level.depth level)))
-    (van-group-chance (monster.id mon)
-		      mon-depth
-		      lvl-depth
-		      )))
-
-
-(defmethod apply-projection-effect-to-target! ((variant vanilla-variant) source (target active-monster)
-					       &key
-					       (x 0) (y 0) (damage 0) (effect nil) (distance 0))
-;;  (declare (ignore x y damage effect distance source))
-
-  (let* ((dungeon *dungeon*)
-	 (the-monster target)
-	 (the-kind (amon.kind the-monster))
-	 (balanced-damage (int-/ (+ damage distance) (1+ distance)))
-	 (cur-hp (current-hp the-monster))
-	 (meff (make-instance 'vanilla-monster-effect :seen (amon.seen-by-player? the-monster)
-			      :damage balanced-damage
-			      :note nil :dying-note " dies.")))
-
-    (let ((type (monster.type the-kind)))
-      (when (or (eq type '<demon>)
-		(eq type '<undead>)
-		(eq type '<stupid>)) ;; fix
-	(setf (meff.dying-note meff) " is destroyed.")))
-    
-    
-	(cond ((functionp effect)
-;;	       (warn "Function-effect not implemented for project-monster")
-	       (let ((retval (funcall effect variant source the-monster :x x :y y :damage balanced-damage
-				      :state-object meff)))
-		 (when (typep retval 'vanilla-monster-effect)
-		   (setf meff retval))))
-	      (t
-;;	       (warn "Hit monster ~s at (~s,~s) from ~s at (~s,~s) [~s]" (monster.name the-monster) loc-x loc-y
-;;		     (if (typep source 'player) "player" "someone")
-;;		     (location-x source) (location-y source) distance)
-	       ))
-
-	;; add skip!
-	
-	;; we simplify greatly here!
-
-	(setf balanced-damage (meff.damage meff))
-	
-	;; uniques only killed by player
-	(when (and (is-unique-monster? the-monster)
-		   (is-player? source) 
-		   (< cur-hp balanced-damage))
-	  (setf balanced-damage cur-hp))
-
-
-	(cond ((> balanced-damage cur-hp)
-	       (setf (meff.note meff) (meff.dying-note meff)))
-	      ;; skip polymorph
-	      ;; skip teleport
-	      ;; skip stun
-	      ;; skip confusion
-	      (t))
-	;; skip fear
-
-	(cond ((is-monster? source)
-	       (warn "Monster attacked.."))
-	      ((is-player? source)
-	       (let ((is-dead? (deliver-damage! variant source target balanced-damage
-						:dying-note (meff.dying-note meff))))
-		 (unless is-dead? ;; he died
-		   ;; improve message later
-		   (format-message! "~a was hurt." (monster.name target))
-		   ;; skip fear
-		   ;; skip sleep
-		   )))
-	      (t
-	       (warn "Who was source?? ~s" source)))
-
-
-	      
-	(update-monster! variant the-monster nil)
-	(light-spot! dungeon x y)
-
-	
-	;; skip window
-
-	;, return if the object was obviously seen
-	(meff.obvious meff)))
-
-
-(defmethod apply-projection-effect-to-target! ((variant vanilla-variant) source (target active-object)
-					       &key
-					       (x 0) (y 0) (damage 0) (effect nil) (distance 0))
-  (declare (ignore distance))
-;;  (warn "VAN-OBJ: Applying effect ~s to ~s" effect target)
-  (when (and effect (functionp effect))
-    (funcall effect variant source target :x x :y y :damage damage)))
-
-
-
-(defmethod damaged-by-element? ((variant vanilla-variant) (object active-monster) element)
-  (declare (ignore element))
-  t)
-
-(defmethod damaged-by-element? ((variant vanilla-variant) (object active-object) element)
-  ;; must be improved by looking not only at general type, but also at ignores and resists!
-  (let* ((okind (aobj.kind object))
-	 (otype (object.the-kind okind)))
-
-    (assert (symbolp otype))
-;;    (warn "Checking if ~s resists ~s" otype element)
-    
-    (case element
-      (<cold> (member otype '(<potion> ))) ;; flask bottle
-      (<electricity> (member otype '(<ring> <wand>)))
-      (<fire> (member otype '(<bow> <cloak> <gloves> <boots> <book> <light-source> <staff> <scroll>))) ;; add more
-      (<acid> t)
-      )))
-
-
-
 (defun boost-stats! (item amount)
   "Boosts stat-modifiers by AMOUNT is the modifiers are not equal to 0."
   (let* ((gvals (aobj.game-values item))
@@ -488,9 +344,6 @@ the Free Software Foundation; either version 2 of the License, or
     (setf (gval.stat-modifiers gvals) stat-table)
     
     item))
-  
-
-
 
 
 (defmethod process-world& ((variant vanilla-variant) (dungeon dungeon) (player player))
@@ -549,7 +402,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  (deliver-damage! variant "fatal wound" player dmg)
 	  )))
     
-    (cond ((< (player.food player) +food-max+) ;; normal amount of food
+    (cond ((< (player.satiation player) +food-max+) ;; normal amount of food
 	   ;; only every 100th turn
 	   (when (= 0 (mod the-turn 100))
 	     (let ((amount (* 2 (energy-for-speed player))))
@@ -559,19 +412,24 @@ the Free Software Foundation; either version 2 of the License, or
 	       (when (< amount 1)
 		 (setf amount 1)) ;; always digest some
 	       ;;(warn "Digest ~s" amount)
-	       (alter-food! player (- (player.food player) amount)))))
+	       (modify-satiation! player (- amount)))))
 	  
 	  ;; we've been overeating.. digest a lot
 	  (t
-	   (alter-food! player (- (player.food player) 100))))
+	   (modify-satiation! player -100)
+	   ))
 
-    ;; add starvation damage
+    ;; starvation damage
+
+    (let ((sat (player.satiation player)))
+      (when (< sat +food-starving+)
+	(deliver-damage! variant "starvation" player (int-/ (- +food-starving+ sat) 10))))
 
 
     ;; possible regenerate    
     (let ((con-based-regen-rate (get-stat-info-value variant player '<con> :regeneration))
 	  (regen-amount 197)
-	  (food-level (player.food player)))
+	  (food-level (player.satiation player)))
 
       (when (< food-level +food-weak+)
 	(cond ((< food-level +food-starving+)
@@ -580,8 +438,17 @@ the Free Software Foundation; either version 2 of the License, or
 	       (setf regen-amount 33))
 	      (t
 	       (setf regen-amount 98)))
-	;; skip fainting
-	)
+
+	;; we might faint
+	(when (< food-level +food-fainting+)
+	  (when (and (not (get-attribute-value '<paralysed> temp-attrs))
+		     (< (random 100) 10)) ;; 10% chance of fainting
+	    (print-message! "You faint from lack of food!")
+	    (disturbance variant player player :major)
+	    
+	    (modify-creature-state! player '<paralysed> :add (1+ (randint 5)))
+	    )))
+	  
 
       (let ((regen-factor (get-attribute-value '<regenerate> calc-attrs)))
 	(when (plusp regen-factor)
@@ -651,7 +518,14 @@ the Free Software Foundation; either version 2 of the License, or
     ;; check for timeouts on equipment
     
     ;; recharge rods
-
+    (let ((table (get-item-table dungeon player :backpack)))
+      (loop for x across (items.objs table)
+	    do
+	    (when (and x (typep x 'active-object/rod))
+	      (when (plusp (aobj.recharge-time x))
+		(decf (aobj.recharge-time x))))))
+	      
+    
     ;; recharge things on the ground
     
     ;; random teleport/WoR
@@ -661,52 +535,6 @@ the Free Software Foundation; either version 2 of the License, or
     
     )))
 
-
-
-;; we override to add our own stuff
-(defmethod produce-active-monster ((variant vanilla-variant) mon-type)
-  
-  (let ((amon (call-next-method)))
-
-    (flet ((install-attribute (&rest args)
-	     (let ((attr (apply #'make-creature-attribute args)))
-	       (unless (is-legal-effect? variant (attr.key attr))
-		 (warn "The attribute ~s does not seem legal" attr))
-	       (add-creature-attribute amon attr))))
-      
-      (install-attribute "stun" '<stun> :type :temporary ;; stun has special code
-			 :value 0 :default-value 0 :value-type 'integer
-			 :update-fun #'%modify-leveled-effect
-			 :desc "number, stun-power")
-            
-      (install-attribute "hasted" '<hasted> :type :temporary
-			 :value nil :default-value nil
-			 :update-fun #'%modify-boolean-effect
-			 :desc "boolean, in vanilla hasted means +10")
-      
-      (install-attribute "slowed" '<slowed> :type :temporary
-			 :value nil :default-value nil
-			 :update-fun #'%modify-boolean-effect
-			 :desc "boolean, in vanilla slowed means -10")
-      
-      (install-attribute "sleeping" '<sleeping> :type :temporary
-			 :value 0 :default-value 0 :value-type 'integer
-			 :update-fun #'%modify-leveled-effect
-			 :desc "integer, how sound asleep")
-
-      (install-attribute "confusion" '<confusion> :type :temporary
-			 :value 0 :default-value 0 :value-type 'integer
-			 :update-fun #'%modify-leveled-effect
-			 :desc "integer, how confused")
-
-      (install-attribute "fear" '<fear> :type :temporary
-			 :value 0 :default-value 0 :value-type 'integer
-			 :update-fun #'%modify-boolean-effect
-			 :desc "integer, how afraid")
-      
-	   )
-      
-      amon))
 
 (defmethod attempt-multi-creation! ((variant vanilla-variant) (obj active-object) depth)
   (declare (ignore depth))
@@ -719,11 +547,19 @@ the Free Software Foundation; either version 2 of the License, or
   ;; ammo is always in groups
   (setf (aobj.number obj) (roll-dice 6 7)))
 
+(defvar *misc-clear* nil)
+
 (defmethod handle-mouse-click ((variant vanilla-variant) window button x y)
 
+  
   (let ((num-id (window.num-id window))
 	(player *player*)
-	(dungeon *dungeon*))
+	(dungeon *dungeon*)
+	(max-misc-wid (- (window.width (aref *windows* +misc-frame+)) 10)))
+
+    (unless *misc-clear*
+      (setf *misc-clear* (make-array max-misc-wid :initial-element #\Space)))
+
   
     (cond ((= num-id +inv-frame+)
 	   (when (eq button :left)
@@ -733,26 +569,111 @@ the Free Software Foundation; either version 2 of the License, or
 	       (cond ((> x (- wid tile-wid)) ;; last tile
 		      (switch-inventory-view))
 		     ((> x (- wid (* 2 tile-wid))) ;; second last tile 
-		      (switch-map-mode *dungeon* *player*)))
+		      (switch-map-mode *dungeon* *player*))
+		     (t
+		      ;; let us try to describe the obj displayed
+		      (let ((pos (int-/ x tile-wid))
+			    (obj nil))
+
+			(cond ((eq *currently-showing-inv* :equipment)
+			       (setf obj (item-table-find (get-item-table *dungeon* *player* :equipment)
+							  pos)))
+			      ((eq *currently-showing-inv* :inventory)
+			       (setf obj (item-table-find (get-item-table *dungeon* *player* :backpack)
+							  pos))))
+			(output-string! +misc-frame+ 0 0 +term-l-green+ *misc-clear*)
+	       
+
+
+			(when obj
+			  (output-string! +misc-frame+ 0 0 +term-l-green+ 
+					  (with-output-to-string (s)
+					    (write-obj-description variant obj s))))
+			)))
 	       )))
-	  ((and (= num-id *map-frame*)
-		(eq button :right))
+	       
+
+	  ((= num-id +infodisp-frame+)
+	   (when (eq button :left)
+	     (let* ((wid (window.width window))
+		    ;;(hgt (window.height window))
+		    (tile-wid (window.tile-width window))
+		    (tile-hgt (window.tile-height window))
+		    (num (+ (* wid (int-/ y tile-hgt)) (int-/ x tile-wid)))
+		    (state (get-visual-state variant num)))
+	       ;; describe symbols here
+
+	       (output-string! +misc-frame+ 0 0 +term-l-green+ *misc-clear*)
+	       
+	       (when state
+		 (output-string! +misc-frame+ 0 0 +term-l-green+ (visual-state.desc state)))
+	       
+	       )))
+	  
+	  ((= num-id *map-frame*)
+
 	   ;; first get panel coords, then translate to real coords
 	   (let* ((loc-x (int-/ x (window.tile-width window)))
 		  (loc-y (int-/ y (window.tile-height window)))
 		  (rx (+ loc-x (player.view-x player)))
-		  (ry (+ loc-y (player.view-y player)))
-		  (tgt (%get-target dungeon rx ry)))
+		  (ry (+ loc-y (player.view-y player))))
 
-	     (when (is-legal-target? dungeon tgt)
-	       (when (player.target player)
-		 (%remove-target (player.target player)))
-	       (%highlight-target dungeon tgt)
-	       (setf (player.target player) tgt))
+	     (cond ((eq button :right)
+		    (let ((tgt (get-target-at-coordinate dungeon rx ry)))
+		      (when (is-legal-target? dungeon tgt)
+			(when (player.target player)
+			  (remove-target-display (player.target player)))
+			(display-target dungeon tgt)
+			(setf (player.target player) tgt))
+		      ))
+		   
+		   ;; info
+		   ((eq button :left)
+		    (let ((col 0)
+			  (flags (cave-flags dungeon rx ry)))
+		      
+		      (flet ((output-desc (val)
+			       (cond ((< (+ 2 (length val)) max-misc-wid)
+				      (output-string! +misc-frame+ col 0 +term-l-green+ val)
+				      (incf col (length val))
+				      (output-string! +misc-frame+ col 0 +term-l-green+ ", ")
+				      (incf col 2))
+				     (t
+				      ;; oops we ran out of room
+				      ;; better safe than sorry
+				      (return-from handle-mouse-click t)))))
 
-	     
-	     ;;(warn "right click in square ~s ~s" loc-x loc-y)
-	     ))
+			(output-string! +misc-frame+ 0 0 +term-l-green+ *misc-clear*)
+			
+			(when-bind (mon (cave-monsters dungeon rx ry))
+			  (when (amon.seen-by-player? (car mon))
+			    (output-desc (get-creature-desc (car mon) #x08))))
+
+			(when (or (bit-flag-set? flags +cave-mark+)
+				  (bit-flag-set? flags +cave-seen+))
+			  (when-bind (decor (cave-decor dungeon rx ry))
+			    (when (decor.visible? decor)
+			      (output-desc (get-decor-name decor)))))
+
+			(when (or (bit-flag-set? flags +cave-mark+)
+				  (bit-flag-set? flags +cave-seen+))
+			  (when-bind (objs (cave-objects dungeon rx ry))
+			    (if (> (items.cur-size objs) 1)
+				(output-desc "pile of objects")
+				(output-desc (with-output-to-string (s)
+					       (write-obj-description variant (item-table-find objs 0) s)))
+				)))
+
+			(when (or (bit-flag-set? flags +cave-mark+)
+				  (bit-flag-set? flags +cave-seen+))
+			  (when-bind (floor (cave-floor dungeon rx ry))
+			    ;;(warn "floname ~s" (floor.name floor))
+			    (output-desc (floor.name floor))))
+		     
+			)))
+
+		   )))
+
 	  
 	  (t nil))
     
@@ -804,11 +725,12 @@ the Free Software Foundation; either version 2 of the License, or
 
     ;; time to use the select-fun to find the obj
 
-    (when-bind (selection (with-frame (+query-frame+)
-			    (select-item dungeon player '(:backpack :floor)
-					 :prompt "Refill with: "
-					 :where :backpack
-					 :selection-function select-fun)))
+    (let ((selection (select-item dungeon player '(:backpack :floor)
+				  :prompt "Refill with: "
+				  :where :backpack
+				  :selection-function select-fun)))
+      (unless selection
+	(return-from interactive-refill-item! nil))
 
       (let* ((var-obj *variant*)
 	     (the-table (get-item-table dungeon player (car selection)))
@@ -875,40 +797,17 @@ the Free Software Foundation; either version 2 of the License, or
 	  )))
     nil))
 
-(defmethod initialise-monster-kind! ((var-obj vanilla-variant) (m-obj monster-kind) keyword-args)
-
-  (call-next-method)
-
-  (let ((id (monster.id m-obj)))
-
-    (when-bind (depth (getf keyword-args :depth))
-      (assert (>= depth 0))
-      (setf (monster.power-lvl m-obj) depth))
-
-    (let ((depth (getf keyword-args :depth))
-	  (rarity (getf keyword-args :rarity)))
-
-      (cond ((and depth rarity)
-	     (assert (>= depth 0))
-	     (assert (>= rarity 0))
-	     (push (cons depth rarity) (monster.locations m-obj)))
-	    ((and (eq depth nil) (eq depth rarity)))
-	    (t
-	     (warn "Weird depth/rarity ~s/~s for monster ~s" depth rarity id))))
-  
-    m-obj))
-
 (defmethod print-tomb ((variant vanilla-variant) (player player))
   "Prints a tombstone."
   (let* ((hs (produce-high-score-object variant player))
-	 (title (get-title-for-level (player.class player) (player.level player)))
+	 (title (get-title-for-level (player.class player) (player.power-lvl player)))
 	 (class-name (class.name (player.class player)))
 	 (name (player.name player))
 	 (max-width 31))
     
     (when (eq (get-system-type) 'gcu)
       (flet ((dump-str (str y x)
-	       (put-coloured-str! +term-white+ (%centred-string str max-width) x y)))
+	       (put-coloured-str! +term-white+ (centre-string str max-width) x y)))
       
 	(with-open-file (s (variant-data-fname variant "dead.txt")
 			   :direction :input)
@@ -940,10 +839,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 
     (when (eq (get-system-type) 'sdl)
-      (let* ((is-male? (if (eq (gender.symbol (player.gender player)) '<male>)
-			   t nil))
-	     (pronoun (if is-male? "he" "she"))
-	     (owning (if is-male? "his" "her"))
+      (let* ((pronoun (if (is-male? player) "he" "she"))
+	     (owning (if (is-male? player) "his" "her"))
 	     (text (format nil
 			   #.(concatenate 'string "And so it has come to pass, ~a the ~a ~a has died.  "
 					  "The might of Morgoth's armies has so far proven too strong "
@@ -1074,7 +971,7 @@ the Free Software Foundation; either version 2 of the License, or
   "Displays recall for given monster-knowledge to *cur-win* starting from row 1."
   (declare (ignore player))
   (let ((kind (get-monster-kind variant (monster.id mon)))
-	(num (monster.killed mon)))
+	(num (monster.num-killed mon)))
     (put-coloured-line! +term-yellow+ (monster.name kind) 2 1)
     (put-coloured-line! +term-l-blue+
 			(cond ((> num 0)
@@ -1146,25 +1043,142 @@ the Free Software Foundation; either version 2 of the License, or
       
     t))
 
+;; this shouldn't cons anymore
 #-langband-release
 (defmethod on-move-to-coord ((variant vanilla-variant) (player player) x y)
 
-  (with-frame (+charinfo-frame+)
-    (let ((row (- (window.height *cur-win*) 3)))
+  (let* ((win (aref *windows* +charinfo-frame+))
+	 (row (- (window.height win) 3)))
+    
+    (win/format win 3 row +term-l-blue+ "~v,~v" 3 x 3 y)
       
-      (put-coloured-line! +term-l-blue+ (format nil "~3d,~3d" x y)
-			  0 row)
+    (win/format win 0 (1+ row) +term-l-blue+ "~v" 11 (variant.turn variant))
+    
+    (let* ((time (mod (variant.turn variant) +van/turns-in-24hours+))
+	   (hour (int-/ time +van/turns-in-hour+))
+	   (minute (int-/ (- time (* hour +van/turns-in-hour+)) +van/turns-in-minute+))
+	   (am (< time (/ +van/turns-in-24hours+ 2)))
+	   (*winformat-padchar* #\0))
       
-      (put-coloured-line! +term-l-blue+ (format nil "~12d" (variant.turn variant)) 0 (1+ row))
+      (win/format win 1 (+ 2 row) +term-l-blue+ "~v:~v ~a" 2 hour 2 minute (if am "am" "pm")))
+
+    player))
+
+
+(defun get-armour-desc (variant number)
+  "Returns a description of the armour-number."
+  (declare (ignore variant))
+  
+  (cond ((<= number 10)
+	 (cons "Unarmoured" +term-l-red+))
+	((<= number 20)
+	 (cons "Leather/hide armour" +term-white+))
+	((<= number 30)
+	 (cons "Light metal/bone armour" +term-orange+))
+	((<= number 40)
+	 (cons "Metal/bone armour" +term-yellow+))
+	((<= number 50)
+	 (cons "Heavy metal-armour" +term-violet+))
+	((<= number 60)
+	 (cons "Plated armour" +term-l-green+))
+	((<= number 70)
+	 (cons "Heavy plated armour" +term-l-red+))
+	((<= number 80)
+	 (cons "Dragon armour" +term-white+))
+	((<= number 100)
+	 (cons "Heavy dragon armour" +term-orange+))
+	((<= number 130)
+	 (cons "Enchanted dragon armour" +term-yellow+))
+	((<= number 170)
+	 (cons "Legendary magic armour" +term-violet+))
+	(t
+	 (cons "Mythical power-armour" +term-l-green+))
+	))
+
+(defun print-attack-graph (var-obj player)
+;;  (declare (ignore player))
+    (clear-window *cur-win*)
+    
+    (dotimes (i 10)
+      (let ((y (- 19 (* i 2))))
+	(put-coloured-str! +term-l-blue+ (format nil "~3d%" (* i 10))
+			3 y)))
+    (dotimes (i 20)
+      (put-coloured-str! +term-l-blue+ "|" 7 i))
+
+    (put-coloured-str! +term-l-blue+ "CHANCE TO HIT" 64 1)
+    (put-coloured-str! +term-l-blue+ "=============" 64 2)
+    
+    (put-coloured-str! +term-l-red+ "Unarm." 8 20)
+    (put-coloured-str! +term-white+ "Leath." 13 21)
+    (put-coloured-str! +term-orange+ "L. met." 18 22)
+    (put-coloured-str! +term-yellow+ "Met." 22 20)
+    (put-coloured-str! +term-violet+ "H. Met." 26 21)
+    (put-coloured-str! +term-l-green+ "Plate" 30 22)
+    (put-coloured-str! +term-l-red+ "H. Plate" 35 20)
+    (put-coloured-str! +term-white+ "Dragon" 40 21)
+    (put-coloured-str! +term-orange+ "H. Dragon" 44 22)
+    (put-coloured-str! +term-yellow+ "Ench Drg" 50 20)
+    (put-coloured-str! +term-violet+ "Legend" 62 21)
+    (put-coloured-str! +term-l-green+ "Myth" 74 22)
+
+    (let ((skill (get-melee-attack-skill var-obj player)))
+      
+      (flet ((get-x (val)
+	       (+ 8 val))
+	     (get-y (val)
+	       (- 19 (int-/ val 5))))
+	(loop for i from 5 to 180 by 5
+	      for j from 1 by 2
+	      do
+	      (let ((chance (get-tohit-chance var-obj skill i))
+		    (desc (get-armour-desc var-obj i)))
+		(check-type desc cons)
+		(put-coloured-str! (cdr desc) "*" (get-x j) (get-y chance)))
+	      
+	      )))
+      
+			    
+    (pause-last-line!)
+    )
+
+(defun print-attack-table (var-obj player)
+;;  (declare (ignore player))
+    (clear-window *cur-win*)
+
+    (put-coloured-str! +term-l-blue+ "CHANCE TO HIT" 2 0)
+    (put-coloured-str! +term-l-blue+ "=============" 2 1)
+    (let ((last-colour +term-green+)
+	  (count 2)
+	  (skill (get-melee-attack-skill var-obj player)))
+      (loop for i from 5 to 200 by 10
+	    
+	    do
+	    (let ((desc (get-armour-desc var-obj i))
+		  (chance (get-tohit-chance var-obj skill i)))
+	      (check-type desc cons)
+	      (cond ((equal last-colour (cdr desc))
+		     ;; next
+		     )
+		    (t
+		     (setf last-colour (cdr desc))
+		     (incf count)
+		     (put-coloured-str! (cdr desc) (format nil "~40a: ~a%" (car desc) chance)
+					4 count)
+		     ))
+	      ))
+
+      (print-text! 2 16 +term-l-blue+ "
+The armour-value describes a full set-up of armour, including
+    helmet, shield, gloves, boots, cloak and body-armour.  Parts of
+    the outfit is expected to have appropriate enchantments, e.g a
+    dragon-armour will always be slightly enchanted, just as a
+    full-plate combat armour is enchanted to allow it's wearer to move
+    at all.  A creature can have natural armour, but
+    it might be just as tough as plated armour and as such use the
+    plated armour label. " :end-col 75)
 
       
-      (let* ((time (mod (variant.turn variant) +van/turns-in-24hours+))
-	     (hour (int-/ time +van/turns-in-hour+))
-	     (minute (int-/ (- time (* hour +van/turns-in-hour+)) +van/turns-in-minute+))
-	     (am (< time (/ +van/turns-in-24hours+ 2))))
-	(put-coloured-line! +term-l-blue+ (format nil "~2,'0d:~2,'0d ~a" hour minute (if am "am" "pm"))
-			    0 (+ 2 row)))
       
+      (pause-last-line!)
       ))
-  
-  player)

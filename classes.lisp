@@ -5,9 +5,9 @@
 DESC: classes.lisp - The major classes and structs for langband
 Copyright (c) 2002-2003 - Stig Erik Sandø
 
-This program is free software  ; you can redistribute it and/or modify
+This program is free software, you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation	 ; either version 2 of the License, or
+the Free Software Foundation, either version 2 of the License, or
 (at your option) any later version.
 
 ||#
@@ -23,7 +23,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (defclass activatable ()
   ((activated :reader activated? :initform nil))
-  (:documentation "Mixin-class for activatation of objects,
+  (:documentation "Mixin-class for activation of objects,
 may be removed later for efficiency-reasons.  It enforces a
 protocol that allows activated? to be set automagically after
 a succesful ACTIVATE-OBJECT."))
@@ -155,14 +155,18 @@ for display, num-version for active-use. u16b should be enough.")
    (house-owners :accessor variant.house-owners
 		 :initform (make-hash-table))
 
-   (attk-descs :accessor variant.attk-descs
-	       :initform (make-hash-table :test #'eq))
+   (attack-descriptions :accessor variant.attack-descriptions
+			:initform (make-hash-table :test #'eq))
    
    (attack-types :accessor variant.attack-types
 		 :initform (make-hash-table :test #'eq))
 
    (visual-effects :accessor variant.visual-effects
 		   :initform (make-hash-table :test #'equal))
+   
+   (visual-states :accessor variant.visual-states
+		  :initform '()
+		  :documentation "The various states that can be shown for the player.")
   
    (day-length      :accessor variant.day-length
 		    :initform 10000)
@@ -221,7 +225,7 @@ for display, num-version for active-use. u16b should be enough.")
   ;; enable these two later if the need should arise
 ;;  (up-stairs-p nil)
 ;;  (down-stairs-p nil)
-
+  (action-queue nil)
   (monsters nil)
   (objects nil)
   (rooms nil)
@@ -230,7 +234,7 @@ for display, num-version for active-use. u16b should be enough.")
   (triggers nil) ;; can't be used yet
   )
 
-
+#||
 (defclass settings ()
   ((name   :accessor setting.name
 	   :initform "No-name"
@@ -238,113 +242,7 @@ for display, num-version for active-use. u16b should be enough.")
    (events :accessor setting.events
 	   :initform nil
 	   :initarg nil)))
-
-(defclass birth-settings (settings)
-  ((allow-all-classes :accessor birth.allow-classes
-		      :initarg :allow-all-classes
-		      :initform nil)
-   (instr-x      :initarg :instr-x     :initform 23)
-   (instr-y      :initarg :instr-y     :initform 1)
-   (instr-w      :initarg :instr-w     :initform 75)
-   (instr-attr   :initarg :instr-attr  :initform +term-white+)
-   (info-x       :initarg :info-x      :initform 1)
-   (info-y       :initarg :info-y      :initform 8)
-   (info-attr    :initarg :info-attr   :initform +term-l-green+)
-   (query-x      :initarg :query-x     :initform 2)
-   (query-y      :initarg :query-y     :initform 21)
-   (query-attr   :initarg :query-attr  :initform +term-l-red+)
-   (query-reduced :initarg :query-reduced  :initform nil)
-   (choice-x     :initarg :choice-x     :initform 1)
-   (choice-y     :initarg :choice-y     :initform 2)
-   (choice-tattr :initarg :choice-attr  :initform +term-white+)
-   (choice-attr  :initarg :choice-tattr :initform +term-l-blue+)
-   (text-x       :initarg :text-x       :initform 2)
-   (text-y       :initarg :text-y       :initform 10)
-   (text-w       :initarg :text-w       :initform 75)
-   (text-attr    :initarg :text-attr    :initform +term-l-red+)
-   (altern-cols  :initarg :altern-cols  :initform 5)
-   (altern-attr  :initarg :altern-attr  :initform +term-white+)
-   (altern-sattr :initarg :altern-sattr :initform +term-l-blue+)
-   (note-colour  :initarg :note-colour  :initform +term-white+)
-
-   )
-   
-  (:documentation "Settings when creating characters."))
-
-(defclass chardisplay-settings (settings)
-  ((title-x       :initarg :title-x       :initform 1)
-   (title-y       :initarg :title-y       :initform 2)
-   (title-attr    :initarg :title-attr    :initform +term-white+)
-   (value-attr    :initarg :value-attr    :initform +term-l-blue+)
-   (value-badattr :initarg :value-badattr :initform +term-yellow+)
-   (picture-x     :initarg :picture-x     :initform 23)
-   (picture-y     :initarg :picture-y     :initform 2)
-   (extra-x       :initarg :extra-x       :initform 1)
-   (extra-y       :initarg :extra-y       :initform 18)
-   (elem-x        :initarg :elem-x        :initform 1)
-   (elem-y        :initarg :elem-y        :initform 10)
-   (combat-x      :initarg :combat-x      :initform 28)
-   (combat-y      :initarg :combat-y      :initform 10)
-   (stats-x       :initarg :stats-x       :initform 42)
-   (stats-y       :initarg :stats-y       :initform 3)
-   (stats-attr    :initarg :stats-attr    :initform +term-white+)
-   (statok-attr   :initarg :statok-attr   :initform +term-l-green+)
-   (statbad-attr  :initarg :statbad-attr  :initform +term-yellow+)
-   (skills-x      :initarg :skills-x      :initform 50)
-   (skills-y      :initarg :skills-y      :initform 10)
-   
-   ))
-
-(defclass resistdisplay-settings (settings)
-  ((title-x      :initarg :title-x     :initform 2)
-   (title-y      :initarg :title-y     :initform 0)
-   (title-attr   :initarg :title-attr  :initform +term-l-blue+)
-   (list-x       :initarg :list-x      :initform 2)
-   (list-y       :initarg :list-y      :initform 3)
-   (res-attr     :initarg :res-attr    :initform +term-l-green+)
-   (unres-attr   :initarg :unres-attr  :initform +term-l-red+)))
-
-
-(defclass dungeon-settings (settings)
-  ((max-width   :initarg :max-width   :initform 198)
-   (max-height  :initarg :max-height  :initform 66)
-   ;; how many rooms
-   (room-number :initarg :room-number :initform 50)
-   ;; ranges
-   (stairs-down :initarg :stairs-down :initform '(3 4))
-   (stairs-up   :initarg :stairs-up   :initform '(1 2)))
-  (:documentation "A class I will be expanding later.."))
-
-(defclass basic-frame-locations (settings)
-  ((name                        :initform "Basic frame locations")
-   (race     :initarg :race     :initform '(1 . 0))
-   (class    :initarg :class    :initform '(2 . 0))
-   (title    :initarg :title    :initform '(3 . 0))
-   (level    :initarg :level    :initform '(4 . 0))
-   (xp       :initarg :xp       :initform '(5 . 0))
-   (gold     :initarg :gold     :initform '(6 . 0))
-
-   (stat     :initarg :stat     :initform '(8 . 0))
-   (ac       :initarg :ac       :initform '(15 . 0))
-   (max-hp   :initarg :max-hp   :initform '(16 . 0))
-   (cur-hp   :initarg :cur-hp   :initform '(17 . 0))
-   ;; more slots?
-   )
-  (:documentation "Locations and various settings when printing stuff.
-Each location should be a cons with (row . col)."))
-
-(defclass bottom-row-locations (settings)
-  ((name                        :initform "Bottom row locations")
-   (hungry   :initarg :hungry   :initform 0)
-   ;; more slots?
-   (state    :initarg :state    :initform 38)
-   (speed    :initarg :speed    :initform 49)
-   ;; more?
-   (depth    :initarg :depth    :initform 70))
-   
-  (:documentation "Locations and various settings when printing stuff.
-Each location is a fixnum with column in the last row."))
-
+||#
 
 (defclass effect ()
   ((symbol   :reader effect.symbol   :initarg :symbol)
@@ -465,21 +363,25 @@ Each location is a fixnum with column in the last row."))
   (
     ;; === Need Special saving ===
   
-   (name   :accessor player.name   :initform nil)
-   (class  :accessor player.class  :initform nil)
-   (race   :accessor player.race   :initform nil)
-   (gender :accessor player.gender :initform nil)
+   (name   :accessor player.name   :initform nil :documentation "The name of the player.")
+   (class  :accessor player.class  :initform nil :documentation "The character-class of the player.")
+   (race   :accessor player.race   :initform nil :documentation "Pointer to the player-race.")
+   (gender :accessor player.gender :initform nil :documentation "Pointer to the player-gender.")
    
    (base-stats    :accessor player.base-stats
 		  :initform nil
-		  :documentation "This is the base stats")
+		  :documentation "An array with the base stats")
    (current-statmods :accessor player.cur-statmods
 		     :initform nil
-		     :documentation "This is the diff (possibly drained or raised values) of the base stats")
+		     :documentation "An array with the diff (possibly drained or raised values) of the base stats")
+
    (hp-table      :accessor player.hp-table
 		  :initform nil
-		  :documentation "Note: should be saved.")
-   (equipment     :accessor player.equipment :initform nil)
+		  :documentation "An array of hitpoints gained each character-level. Note: should be saved.")
+   
+   (equipment     :accessor player.equipment
+		  :initform nil
+		  :documentation "A pointer to the items worn.")
    
    ;; add save-code for this as well
    (misc          :accessor player.misc
@@ -489,7 +391,7 @@ Each location is a fixnum with column in the last row."))
    
    (dead-from     :accessor player.dead-from
 		  :initform ""
-		  :documentation "who killed the player?")
+		  :documentation "Who killed the player?")
 
    (monster-knowledge :accessor player.monster-knowledge
 		      :initform (make-hash-table :test #'equal)
@@ -508,26 +410,26 @@ Each location is a fixnum with column in the last row."))
    (view-x :accessor player.view-x :initform +illegal-loc-x+);; wx
    (view-y :accessor player.view-y :initform +illegal-loc-y+);; wy
    
-   (depth     :accessor player.depth     :initform 0)
-   (max-depth :accessor player.max-depth :initform 0)
+   (depth       :accessor player.depth     :initform 0)
+   (max-depth   :accessor player.max-depth :initform 0)
    
-   (max-xp      :accessor player.max-xp      :initform 0)
-   (cur-xp      :accessor player.cur-xp      :initform 0)
+   (maximum-xp  :accessor player.maximum-xp  :initform 0)
+   (current-xp  :accessor player.current-xp  :initform 0)
    (fraction-xp :accessor player.fraction-xp :initform 0) 
    
-   (cur-hp      :accessor current-hp         :initform 0)
+   (current-hp  :accessor current-hp         :initform 0)
    (fraction-hp :accessor player.fraction-hp :initform 0)
    
-   (cur-mana      :accessor current-mana         :initform 0)
+   (current-mana  :accessor current-mana         :initform 0)
    (fraction-mana :accessor player.fraction-mana :initform 0)
    
    (gold        :accessor player.gold   :initform 0)
-   (food        :accessor player.food   :initform (1- +food-full+))
+   (satiation   :accessor player.satiation   :initform (1- +food-full+))
    (energy      :accessor player.energy :initform 0)
    
    ;; === The remaining values can be calculated from the above ===
    
-   (level     :accessor player.level
+   (power-lvl :accessor player.power-lvl
 	      :initform 1
 	      :documentation "can be calculated from cur-xp")
    (max-level :accessor player.max-level
@@ -798,7 +700,10 @@ object is an array with index for each element, each element is an integer which
    (temp-attributes :accessor amon.temp-attrs
 		    :initform (make-hash-table :test #'eq)
 		    :documentation "Should be a hash-table with temporary attributes.")
-   
+
+   (strategies :accessor amon.strategies
+	       :initform '()
+	       :documentation "An ordered list of strategies the monster can choose.")
    ))
 
 
@@ -880,6 +785,11 @@ by variants."))
    (name      :initarg :name
 	      :accessor monster.name
 	      :initform "")
+   ;; possibly move to unique monster
+   (title     :initarg :title
+	      :accessor monster.title
+	      :initform nil
+	      :documentation "Some monsters have fancy titles.")
    (desc      :accessor monster.desc      :initform "") ;; string 
    (x-char    :accessor x-char            :initform nil) ;; number
    (x-attr    :accessor x-attr            :initform nil) ;; should be number
@@ -896,10 +806,10 @@ by variants."))
    (text-attr :accessor text-attr         :initform nil) ;; should be number
    (alignment :accessor monster.alignment :initform nil) ;; symbols/list
    (type      :accessor monster.type      :initform nil) ;; symbols/list
-   (locations :accessor monster.locations :initform '()) ;; list of conses (depth . rarity)
+   (locations :accessor alloc-locations   :initform '()) ;; list of conses (depth . rarity)
    (hitpoints :accessor monster.hitpoints :initform nil) ;; cons or a number I guess
    (armour    :accessor monster.armour    :initform nil) ;; integer
-   (power-lvl :accessor monster.power-lvl :initform 0) ;; positive integer
+   (power-lvl :accessor monster.power-lvl :initform 1) ;; positive integer
    (speed     :accessor monster.speed     :initform 0) ;; positive integer
    (xp        :accessor monster.xp        :initform 0) ;; positive integer
    (gender    :accessor monster.gender    :initform nil) ;; symbol? 
@@ -922,7 +832,7 @@ by variants."))
 
 (defclass unique-monster (monster-kind)
   ((already-dead :initarg :already-dead :accessor monster.already-dead :initform nil))
-  (:documentation "A quinque monster has this class."))
+  (:documentation "A unique monster has this class."))
 
 
 (defclass object-kind ()
@@ -963,20 +873,24 @@ by variants."))
 		 :documentation "A precoded 24-bit bitfield specifying whichtextual symbol to use.")
 
      (power-lvl  :accessor object.power-lvl
-		 :initform 0)
+		 :initform 0
+		 :documentation "A non-negative integer denoting how powerful the object is.")
      
-     ;; a list of conses (locale . chance)
-     (locations  :accessor object.locations
-		 :initform '())
+     (locations  :accessor alloc-locations
+		 :initform '()
+		 :documentation "A list of conses on the form (depth . chance)")
    
      (weight     :accessor object.weight
-		 :initform nil)
+		 :initform nil
+		 :documentation "Non-negative integer, each about 50g.")
    
      (cost       :accessor object.cost
-		 :initform nil)
+		 :initform 0
+		 :documentation "Non-negative integer, denoting one unit of the currency.")
 
      (flags      :accessor object.flags
-		 :initform nil)
+		 :initform nil
+		 :documentation "List of symbols, may be the empry list.")
    
      (game-values :accessor object.game-values
 		  :initarg :game-values
@@ -984,8 +898,7 @@ by variants."))
 
      (easy-know   :accessor object.easy-know
 		  :initform nil
-		  :documentation "Is it easy to understand what the object
-is all about?")
+		  :documentation "Is it easy to understand the use of the object?")
      
      (aware :accessor object.aware
 	    :initform nil
@@ -996,10 +909,12 @@ is all about?")
 		 :documentation "The player has 'tried' one of the items")
    
      (flavour    :accessor object.flavour
-		 :initform nil) ;; flavour is either nil or a cons (desc . colour)
+		 :initform nil
+		 :documentation "The flavour is either nil or a cons (desc . colour).")
 
      (sort-value :accessor object.sort-value
-		 :initform 0)
+		 :initform 0
+		 :documentation "Non-negative integer denoting where the object will be in an object-list.")
    
      (events     :accessor object.events
 		 :initform nil
@@ -1012,6 +927,10 @@ is all about?")
      (the-kind  :accessor object.the-kind
 		:initarg :the-kind
 		:initform nil)
+
+     (text-colour :accessor object.text-colour
+		  :initform +term-l-blue+
+		  :documentation "Colour used in textual descriptions of the object.")
      
      ))
 
@@ -1393,8 +1312,8 @@ is all about?")
    (name   :accessor store.name   :initform nil :initarg :name)
    (number :accessor store.number :initform nil :initarg :number)
      
-   (sells        :accessor store.sells        :initform nil :initarg :sells)
-   (buys         :accessor store.buys         :initform nil :initarg :buys)
+   (sells        :accessor store.sells        :initform nil)
+   (will-buy     :accessor store.will-buy     :initform nil)
    (turnover     :accessor store.turnover     :initform +store-turnover+)
    (min-items    :accessor store.min-items    :initform +store-minimum-items+)
    (max-items    :accessor store.max-items    :initform +store-maximum-items+)
@@ -1506,13 +1425,13 @@ is all about?")
 	  :documentation "Flags the monster has."
 	  :initform '())
    
-   (killed :accessor monster.killed
-	   :initarg :killed
-	   :initform 0
-	   :documentation "How many have you killed?")
+   (num-killed :accessor monster.num-killed
+	       :initarg :killed
+	       :initform 0
+	       :documentation "How many have you killed?")
    ))
 
-(defclass theme ()
+(defclass ui-theme ()
   ((key :accessor theme.key
 	:initarg :key
 	:documentation "string key for the theme."
@@ -1554,7 +1473,13 @@ is all about?")
   
   (:documentation "Class to keep information about visualisation of projectiles."))
 
-
+(defclass visual-state ()
+  ((key      :accessor visual-state.key      :initform nil)
+   (desc     :accessor visual-state.desc     :initform nil)
+   (priority :accessor visual-state.priority :initform 10)
+   (active   :accessor visual-state.active   :initform nil)
+   (gfx-sym  :accessor gfx-sym               :initform 0)
+   ))
 
 (defclass window ()
   ((id         :accessor window.id
@@ -1731,5 +1656,6 @@ is all about?")
   (type nil)
   (keypress nil)
   (mouseclick nil))
+
 
 ;;; end structs

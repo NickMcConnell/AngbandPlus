@@ -55,6 +55,10 @@ the Free Software Foundation; either version 2 of the License, or
 	  (location-x mon) x
 	  (location-y mon) y)
     (push mon (dungeon.monsters dungeon))
+
+
+    (incf (get-creature-energy mon) (random 10))
+    (lb-ds:pq-insert mon (get-creature-energy mon) (dungeon.action-queue dungeon))
     
     t))
 

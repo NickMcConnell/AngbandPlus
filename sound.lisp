@@ -19,18 +19,19 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun init-sound-system& (size)
   ;; put init here later
-  (c-init-sound-system& size)
-  (setf *music-table* (make-array size :fill-pointer 0))
-  t)
+  (let ((retval (org.langband.ffi:c-init-sound-system& size)))
+    (setf *music-table* (make-array size :fill-pointer 0))
+    ;; return this value
+    (not (minusp retval))))
 
-(defun play-sound (type)
+
+(defun play-sound (type &key (loops 0) (channel -1))
   "Plays the given sound(s) for type."
   (when (using-sound?)
-    (let (;;(xtra-code-sound 8)
-	  (sounds (gethash type *sound-table*)))
+    (let ((sounds (gethash type *sound-table*)))
       (when sounds
 	;; add sounds back in
-	(c-play-sound-effect (rand-elm sounds))
+	(org.langband.ffi:c-play-sound-effect (rand-elm sounds) channel loops)
 
 	))))
 
@@ -41,11 +42,11 @@ the Free Software Foundation; either version 2 of the License, or
     (let ((path (concatenate 'string *engine-data-dir* "audio/music/" fname)))
       (when (probe-file path)
 	(let ((idx (vector-push path *music-table*)))
-	  (lb-ffi:c-load-music-file& path idx)
+	  (org.langband.ffi:c-load-music-file& path idx)
 	  idx)))))
 
 
-(defun play-music (music)
+(defun play-music (music loops)
   "Tries to play given music."
 
   (let ((idx (etypecase music
@@ -53,9 +54,17 @@ the Free Software Foundation; either version 2 of the License, or
 	       (string (find music *music-table* :test #'equal)))))
 
     (when (and (integerp idx) (>= idx 0) (< idx (length *music-table*)))
-      (warn "Play ~s" idx)
-      (lb-ffi:c-play-music-file idx))))
- 
+      (warn "Play music ~s" idx)
+      (org.langband.ffi:c-play-music-file idx loops))))
+
+(defun halt-music ()
+  "Tries to stop any music playing."
+  (org.langband.ffi:c-halt-music))
+
+(defun halt-sound-effects (&optional (channel -1))
+  "Tries to stop any music playing."
+  (when (integerp channel)
+    (org.langband.ffi:c-halt-sound-effects channel)))
 
 (defun define-sound-effect (key &rest sounds)
   "Defines a sound.  Returns nil when sound is not loaded."
@@ -78,7 +87,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defun using-sound? ()
   "Returns either T or NIL."
   ;; fix: cache value to avoid ffi-call
-  (if (= 0 (c-get-sound-status))
+  (if (= 0 (org.langband.ffi:c-get-sound-status))
       nil
       t))
 

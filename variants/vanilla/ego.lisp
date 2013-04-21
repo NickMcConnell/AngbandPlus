@@ -24,6 +24,9 @@ the Free Software Foundation; either version 2 of the License, or
   (etypecase id
     (string (setf (gethash id (variant.ego-items variant)) value))))
 
+(defmethod get-power-lvl ((obj ego-item))
+  (ego.power-lvl obj))
+
 
 (defun define-ego-item (id name &key (numeric-id :unspec) (power-lvl :unspec)
 			(xtra :unspec) (max-to-ac :unspec) (max-to-hit :unspec)
@@ -163,7 +166,7 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((the-form '()))
     (flet ((possibly-add (initarg val &optional (def-val nil))
              (unless (equal val def-val)
-               (setf the-form (nconc the-form (list initarg (loadable-val val)))))))
+               (setf the-form (nconc the-form (list initarg (loadable-value val)))))))
 
     (setf the-form (list 'define-ego-item
                          (ego.id object)

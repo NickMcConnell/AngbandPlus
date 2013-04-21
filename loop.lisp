@@ -22,19 +22,20 @@ ADD_DESC: Most of the code which deals with the game loops.
   (let ((idx 50))
     (loop for x across *windows*
 	  for i from 0
-	  for bgfile = (window.backgroundfile x)
 	  do
-	  (when bgfile
-	    (incf idx)
-	    (lb-ffi:c-load-texture& idx
-				    (concatenate 'string *engine-data-dir* "graphics/" bgfile)
-				    (window.pixel-width x) (window.pixel-height x) 0)
-	    (setf (window.background x) idx)
-	    ;; c-side needs negative value for bad values
-	    (lb-ffi:c-add-frame-bg! i idx) 
-	    (register-image& variant bgfile idx)
-	    ;;(print x)
-	    ))))
+	  (when x
+	    (when-bind (bgfile (window.backgroundfile x))
+	      (incf idx)
+	      (org.langband.ffi:c-load-texture& idx
+						(concatenate 'string *engine-data-dir* "graphics/" bgfile)
+						(window.pixel-width x) (window.pixel-height x) 0)
+	      (setf (window.background x) idx)
+	      ;; c-side needs negative value for bad values
+	      (org.langband.ffi:c-add-frame-bg! i idx) 
+	      (register-image& variant bgfile idx)
+	      ;;(print x)
+	      ))
+	  )))
       
 
 
@@ -44,7 +45,6 @@ ADD_DESC: Most of the code which deals with the game loops.
   (when (= 0 *redraw*) (return-from redraw-stuff nil))
 
   (let ((retval nil)
-	(bot-set nil)
 	(pr-set nil))
 
     (when (bit-flag-set? *redraw* +print-map+)
@@ -55,7 +55,6 @@ ADD_DESC: Most of the code which deals with the game loops.
     (when (bit-flag-set? *redraw* +print-basic+)
       (bit-flag-remove! *redraw* +print-basic+)
       (bit-flag-remove! *redraw* +print-misc+)
-      (bit-flag-remove! *redraw* +print-title+)
       (bit-flag-remove! *redraw* +print-stats+)
       (bit-flag-remove! *redraw* +print-level+)
       (bit-flag-remove! *redraw* +print-xp+)
@@ -71,14 +70,8 @@ ADD_DESC: Most of the code which deals with the game loops.
       (bit-flag-remove! *redraw* +print-misc+)
       (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
 
-      (print-field (get-race-name player) (slot-value pr-set 'race) +charinfo-frame+)
-      (print-field (get-class-name player) (slot-value pr-set 'class) +charinfo-frame+)
-      (setf retval t))
-
-    (when (bit-flag-set? *redraw* +print-title+)
-      (bit-flag-remove! *redraw* +print-title+)
-      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
-      (print-title player pr-set)
+      (print-field (get-race-name player)  0 (setting-lookup pr-set "race") +charinfo-frame+)
+      (print-field (get-class-name player) 0 (setting-lookup pr-set "class") +charinfo-frame+)
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-level+)
@@ -103,7 +96,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     (when (bit-flag-set? *redraw* +print-armour+)
       (bit-flag-remove! *redraw* +print-armour+)
       (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
-      (print-armour-class player pr-set)
+      (print-armour-class variant player pr-set)
       (setf retval t))
     
     (when (bit-flag-set? *redraw* +print-hp+)
@@ -120,9 +113,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     (when (bit-flag-set? *redraw* +print-depth+)
       (bit-flag-remove! *redraw* +print-depth+)
-      (unless bot-set (setf bot-set (get-setting variant :bottom-row-printing)))
-      ;;(warn "Depth ~s ~s ~s" (dungeon.depth dungeon) bot-set (get-setting variant :bottom-row-printing))
-      (print-depth (dungeon.depth dungeon) bot-set)
+      (print-depth (dungeon.depth dungeon) nil)
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-health+)
@@ -138,21 +129,22 @@ ADD_DESC: Most of the code which deals with the game loops.
     ;; moved confused to variant
     ;; moved afraid to variant
     ;; poisoned moved to variant
-
-    (when (bit-flag-set? *redraw* +print-state+)
-      (bit-flag-remove! *redraw* +print-state+)
-      (unless bot-set (setf bot-set (get-setting variant :bottom-row-printing)))
-      (print-state variant player bot-set)
-      (setf retval t))
+    ;; old 'state' moved to variant
 
     (when (bit-flag-set? *redraw* +print-speed+)
       (bit-flag-remove! *redraw* +print-speed+)
-      (unless bot-set (setf bot-set (get-setting variant :bottom-row-printing)))
-      (print-speed variant player bot-set)
+      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
+      (print-speed variant player pr-set)
       (setf retval t))
 
 ;;    )
     ;; moved study to variant
+
+    (when (bit-flag-set? *redraw* +print-equip+)
+      (bit-flag-remove! *redraw* +print-equip+)
+      (update-inventory-row player)
+      (setf retval t))
+
     
     (when (/= 0 *redraw*)
       (warn "Unhandled redraw flags ~s" *redraw*))
@@ -306,6 +298,26 @@ ADD_DESC: Most of the code which deals with the game loops.
        ))
     ))
 
+(defmethod handle-turn ((variant variant) (player player) (activity (eql :resting)))
+
+  (let ((mode (get-information "rest-mode"))
+	(dungeon *dungeon*))
+    (move-player! dungeon player 5)
+    (when (integerp mode)
+      (decf mode)
+      (if (plusp mode)
+	  (setf (get-information "rest-mode") mode)
+	  (setf (get-information "rest-mode") nil
+		(get-information "resting") nil)))
+    ;; hack
+    (when (or (eq mode :full-rest)
+	      (eq mode :normal-rest))
+      (when (and (= (current-hp player) (maximum-hp player))
+		 (= (current-mana player) (maximum-mana player)))
+	(setf (get-information "rest-mode") nil
+	      (get-information "resting") nil)))
+    t))
+
 
 (defun process-player! (variant dungeon player)
   "processes the player in a given turn"
@@ -336,27 +348,12 @@ ADD_DESC: Most of the code which deals with the game loops.
 
 		(rest-status
 		 ;; this behaviour is in the wrong place.. it should be done in the regeneration phase
-		 (let ((mode (get-information "rest-mode")))
-		   (move-player! dungeon player 5)
-		   (when (integerp mode)
-		     (decf mode)
-		     (if (plusp mode)
-			 (setf (get-information "rest-mode") mode)
-			 (setf (get-information "rest-mode") nil
-			       (get-information "resting") nil)))
-		   ;; hack
-		   (when (or (eq mode :full-rest)
-			     (eq mode :normal-rest))
-		     (when (and (= (current-hp player) (maximum-hp player))
-				(= (current-mana player) (maximum-mana player)))
-		       (setf (get-information "rest-mode") nil
-			     (get-information "resting") nil)))))
-
+		 (handle-turn variant player :resting))
 		
 		;; skip resting
 		((and run-status (>= run-dir 0))
 		 ;;(warn "from loop")
-		 (unless (let-player-run! dungeon player run-dir)
+		 (unless (run-in-direction dungeon player run-dir)
 		   ;;(warn "turning off running")
 		   (setf (get-information "run-direction") -1
 			 (get-information "running") nil)))
@@ -452,7 +449,9 @@ ADD_DESC: Most of the code which deals with the game loops.
 	    (process-player! variant dungeon player))))
   )
 ||#
-  
+
+(defvar *action-priority-queue* nil)
+
 (defun run-level! (level player)
   "a loop which runs a dungeon level"
 
@@ -523,20 +522,36 @@ ADD_DESC: Most of the code which deals with the game loops.
       )
 
     
-    (let* ((mon-len (length (dungeon.monsters dungeon)))
-	   (pq (lb-ds:make-priority-queue :size (+ 5 (* 2 mon-len))))
-	   (pq-arr (make-array (+ 5 (* 2 mon-len)) :initial-element nil))
+    (let* (;;(mon-len (length (dungeon.monsters dungeon)))
+	   (pq (dungeon.action-queue dungeon)) ;;lb-ds:make-priority-queue :size (+ 5 (* 2 mon-len))))
+	   (pq-arr (make-array (lb-ds::heap-total-size pq) :initial-element nil))
 	   (last-world-process -1))
-
+#||
       ;; insert all entries
       (dolist (i (dungeon.monsters dungeon))
 	;; all monsters should get some randomness to actions
 	(incf (get-creature-energy i) (random 10))
 	(lb-ds:pq-insert i (get-creature-energy i) pq))
+      ||#
       ;; we let the player get some randomness too
       (incf (get-creature-energy player) (random 20))
       (lb-ds:pq-insert player (get-creature-energy player) pq)
 
+      #||
+      (dolist (i (dungeon.monsters dungeon))
+	(warn "L: ~s" i))
+      
+      (let ((arr (lb-ds::heap-array pq))
+	    (count 0))
+	(loop for i from 1 to (lb-ds::heap-total-size pq)
+	      do
+	      (let ((elm  (aref arr i)))
+		(when (lb-ds::pq-elem-p elm)
+		  (incf count)
+		  (warn "A: ~s" (lb-ds::pq-elem-value elm)))))
+	
+	(warn "Count ~s vs ~s" (length (dungeon.monsters dungeon)) count))
+      ||#
    
       (block main-dungeon-loop
 	
@@ -560,7 +575,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 		     (let* ((mon (lb-ds:pq-remove pq))
 			    (mx (location-x mon))
 			    (my (location-y mon)))
-		       (check-type mon active-monster)
+		       ;;(check-type mon active-monster)
 		       (when (creature-alive? mon)
 			 (decf (get-creature-energy mon) +energy-normal-action+)
 			 ;; skip the 'sensing' of player
@@ -625,12 +640,24 @@ ADD_DESC: Most of the code which deals with the game loops.
       
       )))
 
+(defun remove-monster-from-dungeon! (dungeon monster)
+  "Tries to remove the monster from the dungeon."
+  
+  (let ((mx (location-x monster))
+	(my (location-y monster)))
+    (setf (creature-alive? monster) nil
+	  (dungeon.monsters dungeon) (delete monster (dungeon.monsters dungeon))
+	  (cave-monsters dungeon mx my) nil)
+    (light-spot! dungeon mx my)
+    
+    monster))
+
 
 (defun game-loop& ()
   "This is the main game-loop.  and this function looks _ugly_."
   (multiple-value-setq (*player* *variant* *level*)
       (load-old-environment&))
-    (update-term-sizes!)    
+  ;;(update-term-sizes!)
     (loop
      ;; clean up to prevent too many delays while running the dungeon
      ;; it may take quite some time
@@ -752,7 +779,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     (return-from interactive-savefile-select nil))
   
   ;; now we should find savegames, or select new game
-  (let* ((files (directory (variant-save-dir variant-id))))
+  (let* ((files (directory (variant-save-directory variant-id))))
     
     (unless files ;; we have no files, assume new game
       (return-from interactive-savefile-select 'new-game))
@@ -802,15 +829,14 @@ ADD_DESC: Most of the code which deals with the game loops.
 				    collecting (pathname-name (car i))))
 		     (result nil))
 		 (clear-window-from *cur-win* (- hgt 6))
-		 (setf result  (interactive-alt-sel 5 (- hgt 3) (cons "<<NEW>>" to-show)
-						    :ask-for "savefile to use"
-						    :display-fun #'show-desc
-						    :mod-value 5
-						    ;; hack
-						    :settings (make-instance 'birth-settings
-									     :text-x 8
-									     :text-y (- hgt 5)
-									     :text-attr +term-yellow+)))
+		 (let ((sets (get-settings-obj "savefile-selection")))
+		   (setf (gethash "text-y" sets) (- hgt 5))
+		   (setf result  (interactive-alt-sel 5 (- hgt 3) (cons "<<NEW>>" to-show)
+						      :ask-for "savefile to use"
+						      :display-fun #'show-desc
+						      :mod-value 5
+						      ;; hack
+						    :settings sets)))
 		 
 		 (when (integerp result)
 		   (cond ((= result 0)
@@ -851,9 +877,14 @@ ADD_DESC: Most of the code which deals with the game loops.
 (defun play-game& ()
   "Should not be called directly."
 
-  ;;(warn "back in lisp!!")
+  (setf *screen-height* (lb-ffi:c-get-window-height)
+	*screen-width* (lb-ffi:c-get-window-width))
   
-  (update-term-sizes!)
+  (warn "back in lisp!! ~s ~s" (lb-ffi:c-get-window-width) (lb-ffi:c-get-window-height))
+
+  
+  (unless (update-term-sizes!)
+    (return-from play-game& nil))
   
   (let ((*player* nil)
 	(*level* nil)
@@ -878,10 +909,13 @@ ADD_DESC: Most of the code which deals with the game loops.
     
     ;; !!check if we use gfx first!!
     (cond ((eq (get-system-type) 'sdl)
-	   (let ((splash-idx (load-image& *variant* '(engine-gfx "other/langtitle.bmp") 1 0)))
+	   (let ((splash-idx (load-image& *variant* '(engine-gfx "other/langtitle.png") 1 0)))
 	     (when (plusp splash-idx)
-	       (fill-area *cur-win* splash-idx 0 0 0 99 36) ;; hack
-	       (paint-gfx-image *cur-win* splash-idx 5 0))))
+	       (fill-area *cur-win* splash-idx 0 0 0
+			  (1- (window.width *cur-win*))
+			  (1- (window.height *cur-win*))) ;; hack
+	       (paint-gfx-image *cur-win* splash-idx 5 0)
+	       )))
 	  
 	  ((eq (get-system-type) 'gcu)
 	   (with-open-file (s (game-data-path "text-splash.txt")
@@ -896,10 +930,13 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     ;;(read-one-character)
     ;;(pause-last-line!)
-	  
+
     (print-note! "[Initing sound-system]")
-	    
-    (init-sound-system& 40) ;; fix this later
+    
+    (let ((sstatus (init-sound-system& 40))) ;; fix this later
+      (when sstatus
+	(print-note! "[Activating sound-system]")
+	(org.langband.ffi:c-activate-sound-system&)))
 
     ;; disabled this until things are working properly
     #||
@@ -911,6 +948,8 @@ ADD_DESC: Most of the code which deals with the game loops.
     ;;(warn "play")
     (play-music 3)
     ||#
+    (load-music "langband_tune04.ogg")
+    (play-music 0 1)
     
     (print-note! "[Initialization complete]")
 
@@ -918,7 +957,8 @@ ADD_DESC: Most of the code which deals with the game loops.
      ;; end init_ang
      
     (let ((*load-verbose* nil))
-      (load-game-data "prefs.lisp"))
+      (load-game-data "prefs.lisp")
+      (load-game-data "settings.lisp"))
     
     (load-user-preference-file&)
 
@@ -977,7 +1017,8 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     ;; now we want normal layout!
     (switch-to-regular-frameset&)
-
+    (init-message-system&)
+    
     #||
     (loop for x across *windows*
 	  do

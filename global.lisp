@@ -111,7 +111,7 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   (let ((listen-arg (if only-poll 1 0))
 	(read-obj nil))
     (loop
-     (setf read-obj (c-listen-for-event listen-arg))
+     (setf read-obj (org.langband.ffi:c-listen-for-event listen-arg))
      (cond ((plusp read-obj)
 	    ;; analyze
 	    (cond ((bit-flag-set? read-obj #x01) ;; mouse-event
@@ -249,6 +249,18 @@ same arguments."
 
   t)
 
+;; some conveniance flagging functions (just shorthands for information table stuff)
+(defun set-flag (flag &optional (value t))
+  (setf (get-information flag) value))
+
+(defun unset-flag (flag)
+  ;; should remove flag?
+  (setf (get-information flag) nil))
+
+(defun flag (flag)
+  (get-information flag))
+
+
 ;; expanding function defined later in file.
 (defmacro format-message! (format-str &rest args)
   `(print-message! (format nil ,format-str ,@args)))
@@ -380,10 +392,10 @@ same arguments."
 	(concatenate 'string (lbsys/ensure-dir-name file-path) data-fname #+clisp ".lisp")
 	data-fname)))
 
-(defmethod variant-save-dir ((var-obj variant))
-  (variant-save-dir (variant.id var-obj)))
+(defmethod variant-save-directory ((var-obj variant))
+  (variant-save-directory (variant.id var-obj)))
 
-(defmethod variant-save-dir ((variant string))
+(defmethod variant-save-directory ((variant string))
   (concatenate 'string (variant-home-path variant) "saves/"))
 
 (defun load-variant-data& (var-obj data-file)
@@ -449,6 +461,16 @@ same arguments."
 	(key (if (symbolp id) (symbol-name id) id)))
     (setf (gethash key table) builder)))
 
+(defun get-named-gameobj-table (variant key slot)
+  "Returns a named (slot) gameobj-table from the variant for
+a level/identifier (key)."
+  (let ((id (etypecase key
+	      (level (level.id key))
+	      (string key))))
+    (when-bind (table (slot-value variant slot))
+      (gethash id table))))
+
+
 (defun make-gender (&key id symbol name win-title)
   (make-instance 'gender :id id :symbol symbol
 		 :name name :win-title win-title))
@@ -459,22 +481,6 @@ same arguments."
 (defmethod get-gender ((variant variant) (key symbol))
   (find key (variant.genders variant) :key #'gender.symbol :test #'eq))
 
-;; move this one somewhere else?
-
-(defun make-birth-settings (&key allow-all-classes)
-  "Returns a birth-settings object."
-  (let ((settings (make-instance 'birth-settings :name "Birth settings")))
-    (when allow-all-classes
-      (setf (birth.allow-classes settings) t))
-    settings))
-
-;; these two needed?
-(defmethod trigger-event ((obj settings) event arg-list)
-  "trigger events registered for the settings."
-  (apply-event event (setting.events obj) arg-list))
-
-(defmethod register-object-event! ((obj settings) event)
-  (push event (setting.events obj)))
 
 (defmethod get-setting ((variant variant) key)
   (gethash key (variant.settings variant)))
@@ -485,17 +491,6 @@ same arguments."
       (warn "Registered setting without a keyword as key [~s]"
 	    key))
     (setf (gethash key (variant.settings variant)) setting)))
-
-(defun setting-value (settings-obj slot default)
-  "Returns a setting-value when setting and slot is found, otherwise
-returns default value."
-  (let ((retval default))
-
-    (when (and settings-obj (typep settings-obj 'settings))
-      (ignore-errors
-	(setf retval (slot-value settings-obj slot))))
-
-    retval))
 
 (defmethod produce-game-values-object ((variant variant))
   "Returns an object of type game-values."
@@ -614,35 +609,6 @@ returns default value."
      
 
 
-(defun get-armour-desc (variant number)
-  "Returns a description of the armour-number."
-  (declare (ignore variant))
-  
-  (cond ((<= number 10)
-	 (cons "Unarmoured" +term-l-red+))
-	((<= number 20)
-	 (cons "Leather/hide armour" +term-white+))
-	((<= number 30)
-	 (cons "Light metal/bone armour" +term-orange+))
-	((<= number 40)
-	 (cons "Metal/bone armour" +term-yellow+))
-	((<= number 50)
-	 (cons "Heavy metal-armour" +term-violet+))
-	((<= number 60)
-	 (cons "Plated armour" +term-l-green+))
-	((<= number 70)
-	 (cons "Heavy plated armour" +term-l-red+))
-	((<= number 80)
-	 (cons "Dragon armour" +term-white+))
-	((<= number 100)
-	 (cons "Heavy dragon armour" +term-orange+))
-	((<= number 130)
-	 (cons "Enchanted dragon armour" +term-yellow+))
-	((<= number 170)
-	 (cons "Legendary magic armour" +term-violet+))
-	(t
-	 (cons "Mythical power-armour" +term-l-green+))
-	))
 
 (defmethod convert-obj ((htbl hash-table) (to (eql :vector))
 			&key sort-table-p sorted-by-key
@@ -758,7 +724,7 @@ returns default value."
 ;; move later
 (defun get-system-type ()
   ;; very hackish!
-  (let ((num (c_current_ui)))
+  (let ((num (org.langband.ffi:c_current_ui)))
     (ecase num
       (0 'x11)
       (1 'gcu)
@@ -807,7 +773,8 @@ returns default value."
   "Tries to read a named preference file."
   (load-game-data fname))
 
-(defun loadable-val (val)
+(defun loadable-value (val)
+  "Return VAL in a form that can be LOADed into Lisp again."
   (cond ((or (keywordp val) (stringp val) (characterp val)
 	     (numberp val) (arrayp val))
 	 val)
@@ -820,26 +787,43 @@ returns default value."
 
 ;; some wrappers for C-functions.
 
-(defun %flush-messages! (x-pos &optional (forced nil))
-  "Do not use unless you know what you're doing."
-  (with-frame (+message-frame+)
-    (output-string! *cur-win* x-pos 0 +term-l-blue+ "-more-")
-    
-    (unless forced
-      (block input-loop
-	(loop
-	 (read-one-character)
-	 (refresh-window +message-frame+)
-	 ;; see util.c for real code.. just skip now
-	 (return-from input-loop t))))
-    
-    (clear-row *cur-win* 0 0)))
-
-
 ;; this code is simpler than in C, but does the same job basically
 (let ((msg-col 0)
-      (end-col 72)
+      (msg-row 0)
+      (end-col 60) ;; this might screw up with several fonts
       (messages '())) ;; make into a limited and circular sequence
+
+  (defun init-message-system& ()
+    (setf end-col (get-frame-width +message-frame+)))
+
+  (defun %flush-messages! (x-pos &optional (forced nil))
+    "Do not use unless you know what you're doing."
+    
+    (with-frame (+message-frame+)
+      
+      (let ((num-rows (window.height *cur-win*)))
+	
+	(when (< msg-row (1- num-rows))
+	  (incf msg-row)
+	  (return-from %flush-messages! t))
+	
+	
+	(output-string! *cur-win* x-pos msg-row +term-l-blue+ "-more-")
+	
+	(unless forced
+	  (block input-loop
+	    (loop
+	     (read-one-character)
+	     (refresh-window +message-frame+)
+	     ;; see util.c for real code.. just skip now
+	     (return-from input-loop t))))
+	
+	(dotimes (i num-rows)
+	  (clear-row *cur-win* 0 i))
+      
+	(setf msg-row 0)
+	
+	)))
   
   (defun print-message! (msg &optional (attr +term-white+))
     "If msg is nil, things are flushed."
@@ -849,7 +833,7 @@ returns default value."
     
       (when (and (> msg-col 0)
 		 (or (eq msg nil)
-		     (> (+ msg-len msg-col) end-col)))
+		     (> (+ 8 msg-len msg-col) end-col)))
 	(%flush-messages! msg-col)
 	;; skip msg-flag
 	(setf msg-col 0))
@@ -864,12 +848,13 @@ returns default value."
 	    messages)
       ;; skip msg-add
       (with-frame (+message-frame+)
-	(output-string! *cur-win* msg-col 0 attr msg))
+	(output-string! *cur-win* msg-col msg-row attr msg))
       (refresh-window +message-frame+)
       (incf msg-col (1+ msg-len))
       
       t))
-  
+
+
   (defun flush-messages! (&optional (forced nil))
     ;; add reset-later
     (when (plusp msg-col)
@@ -877,7 +862,8 @@ returns default value."
       ;; skip reset of msg-flag
       (setf msg-col 0))
     ;; we also fake a check of the length here
-    (setf end-col (- (get-frame-width +message-frame+) 8)))
+    (setf end-col (- (get-frame-width +message-frame+) 10)))
+
 
   (defun show-messages (&key (offset 0))
     (declare (ignore offset))
@@ -917,6 +903,7 @@ returns default value."
 
 
 (defun pause-at-line! (row &key msg attr)
+  "Puts a 'press any key' prompt at the given row, returns after key has been pressed."
   (unless msg
     (setf msg "[Press any key to continue]"))
   (unless attr
@@ -936,10 +923,13 @@ returns default value."
 
 
 (defun pause-last-line! (&key msg attr)
+  "Calls pause-at-line! at the last line of *cur-win*"
   (pause-at-line! (get-last-console-line) :msg msg :attr attr))
 
 
 (defun paint-gfx-image& (fname x y)
+  "Paints the given gfx image with x,y as top-left coordinates.
+If the file has not been loaded, it will be loaded."
   (let ((idx (find-image *variant* fname)))
     (unless idx ;; try to load then
       (setf idx (load-image& *variant* fname -1 0)))
@@ -947,12 +937,14 @@ returns default value."
       (paint-gfx-image *cur-win* idx x y))))
 
 (defun paint-gfx-image (window idx x y &optional (layer +foreground+))
+  "Paints a graphic image with given index with x,y as top-left coordinates.
+Can also specify what layer it should be at."
 ;;  (warn "Paint ~s ~s to ~s" idx (aref (variant.images *variant*) idx) window)
 
   (let* ((tile-wid 8) ;; hack
 	 (tile-hgt 16) ;; hack
-	 (img-wid (lb-ffi:c-get-image-width idx))
-	 (img-hgt (lb-ffi:c-get-image-height idx))
+	 (img-wid (org.langband.ffi:c-get-image-width idx))
+	 (img-hgt (org.langband.ffi:c-get-image-height idx))
 	 (wid (int-/ img-wid tile-wid))
 	 (hgt (int-/ img-hgt tile-hgt)))
 
@@ -1007,7 +999,6 @@ in window WINDOW."
 
   (flet ((load-op (fname idx tr)
            (org.langband.ffi:load-gfx-image& fname idx tr)))
-               
 
     (block negative-idx
       (when (minusp idx)
@@ -1078,31 +1069,51 @@ in window WINDOW."
 	(cur-col col)
 	(cur-row row)
 ;;	(end-col 80)
-	(splitted (mapcar #'(lambda (x) (string-trim '(#\Space #\Tab #\Newline #\Return #\Linefeed) x))
-			  (split-seq-on text #\Space))))
+	(splitted nil))
 
-;;    (warn "text ~s -> ~s" text splitted)
+    (unless (consp text)
+      (setf text (list text)))
+
+    (dolist (piece text)
+      (let ((cur-colour colour)
+	    (text nil))
+
+	(cond ((consp piece)
+	       (setf cur-colour (first piece)
+		     text (second piece)))
+	      (t
+	       (setf text piece)))
     
-    (flet ((print-word (word)
-	     (let ((word-len (length word)))
-;;	     (warn "Printing word ~s at ~s,~s" word cur-col cur-row)
-	       (put-coloured-str! colour word cur-col cur-row)
-	       (incf cur-col word-len)
-	       (put-coloured-str! colour " " cur-col cur-row)
-	       (incf cur-col)
-	       (1+ word-len))))
+	(setf text (nsubstitute #\Space #\Newline text))
+	(setf text (nsubstitute #\Space #\Return text))
+	(setf text (nsubstitute #\Space #\Linefeed text))
+	(setf splitted (mapcar #'(lambda (x) (string-trim '(#\Space #\Tab #\Newline #\Return #\Linefeed) x))
+			       (split-seq-on text #\Space)))
+	
+	;;    (warn "text ~s -> ~s" text splitted)
+	
+	(flet ((print-word (word)
+		 (let ((word-len (length word)))
+		   ;;	     (warn "Printing word ~s at ~s,~s" word cur-col cur-row)
+		   (put-coloured-str! cur-colour word cur-col cur-row)
+		   (incf cur-col word-len)
+		   (put-coloured-str! cur-colour " " cur-col cur-row)
+		   (incf cur-col)
+		   (1+ word-len))))
 
-      (loop for cur-word in splitted
-	    for i from 0
-	    do
-	    (when (plusp (length cur-word))
-	      (cond ((< (+ cur-col (length cur-word) 1) end-col)
-		     (print-word cur-word))
-		    (t
-		     (incf cur-row)
-		     (setf cur-col startcol)
-		     (print-word cur-word))))
-	    finally (return cur-row)))))
+	  (loop for cur-word in splitted
+		for i from 0
+		do
+		(when (plusp (length cur-word))
+		  (cond ((< (+ cur-col (length cur-word) 1) end-col)
+			 (print-word cur-word))
+			(t
+			 (incf cur-row)
+			 (setf cur-col startcol)
+			 (print-word cur-word)))))
+	  )))
+    
+    cur-row))
 
 
 (defun quit-game& ()
@@ -1118,7 +1129,7 @@ in window WINDOW."
   (finish-output cl:*trace-output*)
   (case (get-system-type)
     ((x11 gcu sdl)
-     (cleanup-c-side&)
+     (org.langband.ffi:c-cleanup-c-side&)
      (signal (make-condition 'langband-quit)))
     (otherwise
      (format t "~&Thanks for helping to test Langband.~2%")
@@ -1356,6 +1367,12 @@ or removed.  Conses up a new list."
 	    (cadr i)))
     table))
 
+(defmethod get-decor-name ((decor decor))
+  (decor.name decor))
+
+(defmethod get-decor-name ((decor active-trap))
+  (trap.name (decor.type decor)))
+
 (defmethod x-attr ((obj active-trap))
   (x-attr (decor.type obj)))
 
@@ -1413,24 +1430,128 @@ or removed.  Conses up a new list."
 ;;    (warn "Def is ~s" def)
     `(function ,def)))
 
-(defun c-has-frame? (key type)
+(defun has-frame? (key type)
   (if (= (org.langband.ffi:c-has_frame key type) 1)
       t
       nil))
 
-(defun c-get-frame-gfx-tiles? (key type)
+(defun get-frame-gfx-tiles? (key type)
   (if (= (org.langband.ffi:c-get_frame-gfx-tiles key type) 1)
       t
       nil))
 
+(defun install-window-font! (window theme)
+  "Tries to install a font in the window, might fall back on theme value."  
 
+  (flet ((get-font-values (font)
+	   (let ((fontname "unknown")
+		 (size 16)
+		 (style 0))
+	     (cond ((consp font)
+		    (setf fontname (first font))
+		    (when (nonboolsym? (second font))
+		      (ecase (second font)
+			(normal nil)
+			(bold (bit-flag-add! style #x01))
+			(italic (bit-flag-add! style #x02))))
+		    (when (positive-integer? (third font))
+		      (setf size (third font))))
+		   ((stringp font)
+		    (setf fontname font))
+		   (t
+		    (error-condition 'illegal-ui-theme-data :id (theme.key theme)
+				     :desc (format nil "Unknown font-value ~s in window ~s" font window))))
+	     (values fontname style size))))
+
+    (let ((retval -1))
+      (multiple-value-bind (fontname size style)
+	  (get-font-values (window.font window))
+
+	(unless (stringp fontname)
+	  (error-condition 'illegal-ui-theme-data :id (theme.key theme)
+			   :desc (format nil "Fontname is not a string, but ~s in window ~s" fontname window)))
+	
+	(setf fontname (concatenate 'string *engine-data-dir* "fonts/" fontname))
+	;;(warn "A. Font ~s,~s,~s for ~s" fontname size style (window.id window))
+	(setf retval (org.langband.ffi:c-install-font-in-frame! (window.num-id window) fontname size style))
+
+	;;(warn "A. retval is ~s" retval)
+	    
+	(when (minusp retval) ;; something screwed up, try default font
+	  (multiple-value-setq (fontname size style)
+	    (get-font-values (theme.font theme)))
+	    
+	  (setf fontname (concatenate 'string *engine-data-dir* "fonts/" (theme.font theme)))
+	  
+	  ;;(warn "B. Font ~s,~s,~s for ~s" fontname size style (window.id window))
+	  (setf retval (org.langband.ffi:c-install-font-in-frame! (window.num-id window) fontname size style))
+	  ;;(warn "B. retval is ~s" retval)
+	  )
+
+	;; return if it was success or not
+	(if (minusp retval)
+	    nil
+	    t)))))
+
+
+  
 (defun update-term-sizes! ()
+  "Calls the C-side to get the accurate sizes of windows."
+
+  ;; first ensure that we have legal frames
   (dotimes (i +predefined-frames+)
     (let ((var (aref *windows* i)))
       
       (unless var
 	;; check if there should be one
-	(when (c-has-frame? i +frametype-predefined+)
+	(when (has-frame? i +frametype-predefined+)
+	  (warn "Must create a dummy window, lacking a themed version.")
+	  (setf var (make-instance 'window :num-id i)))
+	(setf (aref *windows* i) var))))
+
+  
+  ;; first install fonts
+  (dotimes (frame +predefined-frames+)
+    (when-bind (win (aref *windows* frame))
+      (install-window-font! win *current-ui-theme*)))
+  
+  
+  ;;(warn "Update")
+  (dotimes (i +predefined-frames+)
+    (let ((var (aref *windows* i)))
+      
+      ;; we need the font-results
+      (when var
+	;; we need to update our info
+	(let ((wid (org.langband.ffi:c-get-frame-tile-width i +frametype-predefined+)))
+	  ;;(warn "wid is ~s for ~s" wid var)
+	  (setf (window.tile-width var) wid))
+	(let ((hgt (org.langband.ffi:c-get-frame-tile-height i +frametype-predefined+)))
+	  ;;(warn "hgt is ~s for ~s" hgt var)
+	  (setf (window.tile-height var) hgt))
+	;;(describe var)
+	)))
+
+  ;;(warn "Calculate")
+  ;; now do the calculations!
+  (handler-case
+      (establish-ui-theme-size-calculations& *current-ui-theme*)
+    (illegal-ui-theme-data (co)
+      (warn "Failed to calculate working sizes for subwindows for theme ~a: ~a"
+	    (illegal-data.id co) (illegal-data.desc co))
+      (return-from update-term-sizes! nil)))
+
+  ;;(warn "Recalc")
+  (org.langband.ffi:c-recalculate-frame-placements! 0)
+
+  ;;(warn "Read")
+  
+  (dotimes (i +predefined-frames+)
+    (let ((var (aref *windows* i)))
+      
+      (unless var
+	;; check if there should be one
+	(when (has-frame? i +frametype-predefined+)
 	  (warn "Must create a dummy window, lacking a themed version.")
 	  (setf var (make-instance 'window :num-id i))))
       
@@ -1438,14 +1559,15 @@ or removed.  Conses up a new list."
       ;; ok, we have a frame we need more info about
       (when var
 	;; we need to update our info
-	(setf (window.width var)       (c-get-frame-columns i +frametype-predefined+)
-	      (window.height var)      (c-get-frame-rows i +frametype-predefined+)
-	      (window.tile-width var)  (c-get-frame-tile-width i +frametype-predefined+)
-	      (window.tile-height var) (c-get-frame-tile-height i +frametype-predefined+)
-	      (window.gfx-tiles? var)  (c-get-frame-gfx-tiles? i +frametype-predefined+))
+	(setf (window.width var)       (org.langband.ffi:c-get-frame-columns i +frametype-predefined+)
+	      (window.height var)      (org.langband.ffi:c-get-frame-rows i +frametype-predefined+)
+	      ;;(window.tile-width var)  (org.langband.ffi:c-get-frame-tile-width i +frametype-predefined+)
+	      ;;(window.tile-height var) (org.langband.ffi:c-get-frame-tile-height i +frametype-predefined+)
+	      (window.gfx-tiles? var)  (get-frame-gfx-tiles? i +frametype-predefined+))
 
-	(assert (plusp (window.width var)))
-	(assert (plusp (window.height var)))
+	;;(describe var)
+	;;(assert (plusp (window.width var)))
+	;;(assert (plusp (window.height var)))
 	#+never
 	(warn "window ~s has size [~d,~d,~d,~d] and gfx ~s" i
 	      (window.width var) (window.height var)
@@ -1453,7 +1575,10 @@ or removed.  Conses up a new list."
 	      (window.gfx-tiles? var))
 
 	(setf (aref *windows* i) var))
-      )))
+      ))
+
+  t)
+
 
 
 (defun get-frame-width (&optional (term -1))
@@ -1473,22 +1598,25 @@ or removed.  Conses up a new list."
 	(t
 	 (window.height *cur-win*))))
 
-; bah!
-(defun load-gfx-tiles? ()
+(defun engine-allows-gfx-tiles? ()
+  "Return T if the running program uses gfx-tiles?"
   (eq (get-system-type) 'sdl))
 
-;; hackish!
-(defun use-gfx-tiles? (&optional (term -1))
-  (if (>= term 0)
-      (window.gfx-tiles? (aref *windows* term))
-      ;; bad style
-      (window.gfx-tiles? *cur-win*)))
-
+(defun window-allows-gfx-tiles? (&optional (term -1))
+  "Check if a given term or window uses gfx-tiles"
+  (cond ((typep term 'window)
+	 (window.gfx-tiles? term))
+	((>= term 0)
+	 (window.gfx-tiles? (aref *windows* term)))
+	(t
+	 (window.gfx-tiles? *cur-win*))))
 
 (defun graphical-map? ()
-  (use-gfx-tiles? *map-frame*))
+  "Is the current map allowing graphical tiles?"
+  (window-allows-gfx-tiles? *map-frame*))
 
 (defun use-images? ()
+  "Can we use inline images?"
   (if (eq (get-system-type) 'sdl)
       t
       nil))
@@ -1500,6 +1628,7 @@ or removed.  Conses up a new list."
   nil)
 
 (defun image-exists? (name)
+  "Checks if given filename for an image actually exists."
   (let ((fname (concatenate 'string *engine-data-dir* "graphics/" name)))
     (probe-file fname)))
 
@@ -1538,6 +1667,7 @@ or removed.  Conses up a new list."
 
 
 (defun texture-background! (win fname alpha)
+  "Tries to texture the background of WIN with image-data from FNAME."
   (declare (ignore alpha))
   (let ((idx nil)
 	(var *variant*)
@@ -1554,7 +1684,7 @@ or removed.  Conses up a new list."
     ;;(warn "Assigning background ~s ~s to window ~s" fname idx (window.id window))
     (setf (window.background window) idx)
     ;; c-side needs negative value for bad values
-    (lb-ffi::c-add-frame-bg! num-win (if (eq idx nil) -1 idx))))
+    (org.langband.ffi:c-add-frame-bg! num-win (if (eq idx nil) -1 idx))))
 
 (defun switch-to-full-frame& ()
   (loop for i from 1 below +max-frames+
@@ -1566,10 +1696,11 @@ or removed.  Conses up a new list."
 ;; fix to no-cons later
 (defun switch-to-regular-frameset& ()
   (deactivate-window +full-frame+)
-  (dolist (i (list +message-frame+ +charinfo-frame+
+  (dolist (i (list +message-frame+ +charinfo-frame+ +infodisp-frame+
 		   +misc-frame+ *map-frame* +inv-frame+))
-    (activate-window i)
-    (paint-window i)))
+    (when i
+      (activate-window i)
+      (paint-window i))))
 
 (defun invoke-in-dialogue (fun)
   (cond ((eql (window.num-id *cur-win*) +dialogue-frame+)
@@ -1590,6 +1721,8 @@ or removed.  Conses up a new list."
 	     (activate-window +charinfo-frame+)
 	     (activate-window *map-frame*)
 	     (paint-window (aref *windows* +charinfo-frame+))
+	     (when-bind (win (aref *windows* +infodisp-frame+))
+	       (paint-window win))
 	     (paint-window (aref *windows* *map-frame*))
 	     )))
 	))
@@ -1747,18 +1880,28 @@ operation."
   "Sets the specified cursor to x,y in the given window.  The
 cursor argument specifies the type of cursor.  Types are e.g
 :input and :crosshair."
+
   ;;(warn "Setting ~s cursor to ~s,~s" cursor x y)
-  (let ((painted nil))
+  
+  (let ((painted nil)
+	(gfx-use? nil))
     (when (integerp win)
       (setf win (aref *windows* win)))
+
+    (setf gfx-use? (window.gfx-tiles? win))
     
     (case cursor
       (:bad-crosshair
-       (setf (window-coord win +effect+ x y) (tile-paint-value 40 0)
-	     painted t))
+       (if gfx-use?
+	   (setf (window-coord win +effect+ x y) (tile-paint-value +tilefile-crosshairs+ 0))
+	   (setf (window-coord win +effect+ x y) (text-paint-value +term-red+ #\X)))
+       (setf painted t))
+      
       (:legal-crosshair
-       (setf (window-coord win +effect+ x y) (tile-paint-value 40 1)
-	     painted t))
+       (if gfx-use?
+	   (setf (window-coord win +effect+ x y) (tile-paint-value +tilefile-crosshairs+ 1))
+	   (setf (window-coord win +effect+ x y) (text-paint-value +term-l-green+ #\X)))
+       (setf painted t))
       (otherwise nil))
 
     (when painted
@@ -1769,7 +1912,8 @@ cursor argument specifies the type of cursor.  Types are e.g
     cursor))
 
 ;; haven't I implemented this somewhere else????
-(defun get-direction-from-diff (diff-x diff-y)
+(defun get-direction-from-coord-diff (diff-x diff-y)
+  "Return a numbered direction from coordinate diff."
   (cond ((plusp diff-x)
 	 (cond ((plusp diff-y) 3)
 	       ((minusp diff-y) 9)
@@ -1796,7 +1940,159 @@ cursor argument specifies the type of cursor.  Types are e.g
     (setf (gethash id (variant.visual-effects *variant*)) visual-effect)
     
     visual-effect))
+
+(defvar *settings* (make-hash-table :test #'equal)) ;; hack
+
+(defun copy-hash-table (htbl)
+  "Tries to return a copy of the hash-table.  Some values might
+be shared."
+  (let ((table (make-hash-table :test (hash-table-test htbl))))
+    (maphash #'(lambda (k v)
+		 (setf (gethash k table) v))
+	     htbl)
+    table))
+
+(defun setting-lookup (setting key &optional default)
+  "Looks up a setting in the setting-table and if the setting is not found it
+returns the optional default value. "
+  (assert (hash-table-p setting))
+  (assert (stringp key))
+  (multiple-value-bind (value found-p)
+      (gethash key setting)
+    (unless found-p
+      (setf value default))
+
+    ;;(warn "~s -> ~s (~s)" key value default)
     
+    value))
+
+(defun get-settings-obj (id)
+  "Returns a settings-table by id."
+  ;;(warn "Getting settings ~s" id)
+  (gethash id *settings*))
+
+(defun define-settings (id &rest settings)
+  "Defines a settings object with an id."
+  (assert (consp id))
+  
+  (let ((table nil))
+    
+    (when (cdr id)
+      (let ((parent (get-settings-obj (second id))))
+	(cond (parent
+	       (setf table (copy-hash-table parent)))
+	      (t
+	       (warn "Unable to find settings: ~s" (second id))))))
+
+    (unless table
+      (setf table (make-hash-table :test #'equal)))
+    
+    (loop for (k v) on settings do
+	  (setf (gethash k table) v))
+
+    ;;(warn "Registering settings at ~s" (first id))
+    (setf (gethash (first id) *settings*) table)
+    
+    table))
+
+(defun define-visual-state (key priority &key desc gfx-sym)
+  "Defines and registers a visual state in the variant."
+  (let ((state (make-instance 'visual-state)))
+    (setf (visual-state.key state) key
+	  (visual-state.priority state) priority
+	  (visual-state.desc state) desc
+	  (gfx-sym state) gfx-sym)
+
+    (pushnew state (variant.visual-states *variant*) :key #'visual-state.key)
+
+    (setf (variant.visual-states *variant*) (sort (variant.visual-states *variant*) #'<
+						  :key #'visual-state.priority))
+						  
+    state))
+
+(defun modify-visual-state! (variant key new-value)
+  "Activates the display of a visual state."
+  (dolist (i (variant.visual-states variant))
+    (when (eq key (visual-state.key i))
+      (setf (visual-state.active i) new-value)
+      ;;(warn "changed ~s to ~s" key new-value)
+      (return-from modify-visual-state! t)))
+  nil)
+
+(defun get-visual-state (variant pos)
+  "Asks for the state at visual position POS, returns
+a state or NIL."
+
+  (let ((states (variant.visual-states variant))
+	(count 0))
+    (loop for st in states 
+	  do
+	  (when (visual-state.active st)
+	    (when (= count pos)
+	      (return-from get-visual-state st))
+	    (incf count)))
+    nil))
+    
+
+(defun display-visual-states (variant)
+  "Tries to display the necessary visual states."
+  ;; first do infodisp
+  (when (eq (get-system-type) 'sdl)
+    (let ((win (aref *windows* +infodisp-frame+))
+	  (states (variant.visual-states variant)))
+    
+      (block infodisp-display 
+	(when (window.visible? win)
+	  ;;(warn "visuals")
+	  (let* ((wid (window.width win))
+		 (hgt (window.height win))
+		 ;;(max (* wid hgt))
+		 (cur-row 0)
+		 (cur-col 0))
+	
+	    (dotimes (j hgt)
+	      (dotimes (k wid)
+		(setf (window-coord win +foreground+ k j) 0)))
+	
+	    (dolist (i states)
+	      (when (visual-state.active i)
+		(setf (window-coord win +foreground+ cur-col cur-row) (gfx-sym i))
+		(incf cur-col)
+		(when (= cur-col wid)
+		  (setf cur-col 0
+			cur-row (1+ cur-row)))
+		(when (= cur-row hgt)
+		  (return-from infodisp-display t))
+		)))
+	  ))
+    
+      (paint-window win)))
+
+  (when (eq (get-system-type) 'gcu)
+
+    (let* ((win (aref *windows* +misc-frame+))
+	   (maxlen (- (window.width win) 15)) ;; what we can use
+	   (states (variant.visual-states variant))
+	   (cur-col 0)
+	   (len 0))
+
+      (loop for i from 0 below maxlen
+	    do
+	    (setf (window-coord win +foreground+ i 0) 0))
+    
+      (loop for i from 0
+	    for st in states
+	    do
+	    (when (visual-state.active st)
+	      (setf len (length (visual-state.desc st)))
+	      (win/format win cur-col 0 +term-l-green+ "~a, " (visual-state.desc st))
+	      (incf cur-col (+ 2 len))
+	  
+	      ))
+      (paint-window win)))
+
+  
+  t)
 
 ;;; === Deprecated functions
 

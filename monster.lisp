@@ -34,7 +34,10 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
   (if (monster.already-dead mon)
       nil
       t))
-  
+
+(defmethod is-blind? ((creature active-monster))
+  nil)
+
 (defmethod has-ability? ((mon monster-kind) ability)
   (dolist (i (monster.abilities mon))
     (cond ((and (symbolp i) (eq ability i))
@@ -72,12 +75,12 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 			 (get-monster-kind variant (symbol-name mon-type)))
 			((stringp mon-type)
 			 (get-monster-kind variant mon-type))
-			 ((typep mon-type 'monster-kind)
-			  mon-type)
-			 (t
-			  (error "Mon-type argument to produce-active-monster is not {symbol,string,mkind}, but is ~s"
-				 mon-type)))))
-
+			((typep mon-type 'monster-kind)
+			 mon-type)
+			(t
+			 (error "Mon-type argument to produce-active-monster is not {symbol,string,mkind}, but is ~s"
+				mon-type)))))
+    
     (unless (typep the-kind 'monster-kind)
       (warn "Unable to find the monster-kind ~s" mon-type)
       (return-from produce-active-monster nil))
@@ -85,27 +88,43 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
     (unless (is-creatable? variant the-kind)
       (warn "Tried to produce dead unique ~a, failed" (monster.id the-kind)) 
       (return-from produce-active-monster nil))
-    
-    (let ((amon (make-instance 'active-monster :kind the-kind))
-	  (num-hitdice (car (monster.hitpoints the-kind)))
-	  (hitdice (cdr (monster.hitpoints the-kind))))
 
+    (make-instance 'active-monster :kind the-kind)))
+
+
+;; a bit hackish
+(defmethod produce-active-monster :around ((variant variant) mon-type)
+  (let ((amon (call-next-method))
+	(the-kind nil))
+
+    (unless amon
+      (return-from produce-active-monster nil))
+    
+    ;;(warn "Amon in around is ~s" amon)
+    
+    (setf the-kind (amon.kind amon))
+
+    ;; ensure hitpoints are assigned!
+    (let ((num-hitdice (car (monster.hitpoints the-kind)))
+	  (hitdice (cdr (monster.hitpoints the-kind))))
+      
       (if (has-ability? the-kind '<max-hitpoints>)
 	  (setf (current-hp amon) (* num-hitdice hitdice))
 	  (setf (current-hp amon) (roll-dice num-hitdice hitdice)))
       
-      (setf (maximum-hp amon) (current-hp amon))
-      (setf (get-creature-speed amon) (monster.speed the-kind))
+      (setf (maximum-hp amon) (current-hp amon)))
+    
+    (setf (get-creature-speed amon) (monster.speed the-kind))
       ;;    (warn "Monster ~a got ~a hp from ~a dice" (get-creature-name amon)
       ;;	  (current-hp amon) (monster.hitpoints kind))
       ;; blah
+    
+    (when (has-ability? the-kind '<initial-sleeper>)
+      ;; sleepy!
+      )
 
-      (when (has-ability? the-kind '<initial-sleeper>)
-	;; sleepy!
-	)
-
-      amon)))
-
+    amon))
+   
 
 
 (defmethod get-xp-value ((creature active-monster))
@@ -121,14 +140,23 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 (defmethod monster.name ((creature active-monster)) ;; remove eventually
   (monster.name (amon.kind creature)))
 
+(defmethod monster.id ((creature active-monster)) ;; remove eventually
+  (monster.id (amon.kind creature)))
+
 (defmethod get-creature-name ((creature player))
   (player.name creature))
 
 (defmethod get-creature-name ((trap active-trap)) ;; :-)
   (trap.name (decor.type trap)))
 
+(defmethod get-power-lvl ((obj active-monster))
+  (get-power-lvl (amon.kind obj)))
 
-(defmethod alter-xp! ((mon active-monster) amount)
+(defmethod get-power-lvl ((obj monster-kind))
+  (monster.power-lvl obj))
+
+
+(defmethod modify-xp! ((mon active-monster) amount)
   (declare (ignore amount))
   nil)
 
@@ -270,161 +298,268 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
   (let ((id (monster.id m-obj)))
 
     (when-bind (numeric-id (getf keyword-args :numeric-id))
-      (if (integerp numeric-id)
-	  (setf (monster.numeric-id m-obj) numeric-id)
-	  (warn "Monster ~s does not have a numeric-id" id)))
+      (cond ((integerp numeric-id)
+	     (unless (non-negative-integer? numeric-id)
+	       (signal-condition 'illegal-monster-data :id id :desc "numeric-id negative for monster-kind"))
+	     (setf (monster.numeric-id m-obj) numeric-id))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown format for numeric-id data for mon-kind"))))
     
     (when-bind (desc (getf keyword-args :desc))
-      (if (stringp desc)
-	  (setf (monster.desc m-obj) desc)
-	  (warn "No description for monster ~a found" id)))
+      (cond ((stringp desc)
+	     (unless (plusp (length desc))
+	       (signal-condition 'illegal-monster-data :id id :desc "empty desc for monster-kind"))
+	     (setf (monster.desc m-obj) desc))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown format for desc data for monster-kind"))))
       
     (when-bind (xp (getf keyword-args :xp))
-      (check-type xp integer)
-      (setf (monster.xp m-obj) xp))
+      (cond ((integerp xp)
+	     (unless (non-negative-integer? xp)
+	       (signal-condition 'illegal-monster-data :id id :desc "xp negative for monster-kind"))
+	     (setf (monster.xp m-obj) xp))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown format for xp data for monster-kind"))))
+
     
     (when-bind (speed (getf keyword-args :speed))
-      (check-type speed integer)
-      (setf (monster.speed m-obj) speed))
+      (cond ((integerp speed)
+	     (unless (non-negative-integer? speed)
+	       (signal-condition 'illegal-monster-data :id id :desc "speed negative for monster-kind"))
+	     (setf (monster.speed m-obj) speed))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown format for speed data for monster-kind"))))
+
+    (when-bind (power-lvl (getf keyword-args :power-lvl))
+      (cond ((integerp power-lvl)
+	     (unless (non-negative-integer? power-lvl)
+	       (signal-condition 'illegal-monster-data :id id :desc "power-lvl negative for monster-kind"))
+	     
+	     (setf (monster.power-lvl m-obj) power-lvl))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown format on power-lvl data for mon-kind"))))
+
     
     (when-bind (armour (getf keyword-args :armour))
-      (check-type armour integer)
-      (setf (monster.armour m-obj) armour))
+      (cond ((integerp armour)
+	     (unless (non-negative-integer? armour)
+	       (signal-condition 'illegal-monster-data :id id :desc "armour negative for monster-kind"))
+	     (setf (monster.armour m-obj) armour))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown format for armour data for mon-kind"))))
+
+    (when-bind (alertness (getf keyword-args :alertness))
+      (cond ((integerp alertness)
+	     (unless (non-negative-integer? alertness)
+	       (signal-condition 'illegal-monster-data :id id :desc "alertness negative for monster-kind"))
+	     (setf (monster.alertness m-obj) alertness))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown format for alertness data for mon-kind"))))
+
+    (when-bind (vision (getf keyword-args :vision))
+      (cond ((integerp vision)
+	     (unless (non-negative-integer? vision)
+	       (signal-condition 'illegal-monster-data :id id :desc "vision negative for monster-kind"))
+	     (setf (monster.vision m-obj) vision))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown format for vision data for mon-kind"))))
+
 
     (when-bind (hitpoints (getf keyword-args :hitpoints))
-      (setf (monster.hitpoints m-obj) hitpoints))
+      (cond ((consp hitpoints)
+	     (unless (and (non-negative-integer? (car hitpoints)) (non-negative-integer? (cdr hitpoints)))
+	       (signal-condition 'illegal-monster-data :id id :desc "hitpoints for mon-kind not non-negative integers."))
+	     (setf (monster.hitpoints m-obj) hitpoints))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown format for hitpoints data for mon-kind"))))
 
     (when-bind (gender (getf keyword-args :gender))
-      (setf (monster.gender m-obj) gender))
+      (cond ((nonboolsym? gender)
+	     ;; check value?
+	     (setf (monster.gender m-obj) gender))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown gender for monster-kind"))))
     
+    ;; maybe move to variant?
     (when-bind (alignment (getf keyword-args :alignment))
-      (setf (monster.alignment m-obj) alignment))
+      (cond ((nonboolsym? alignment)
+	     ;; check value?
+	     (setf (monster.alignment m-obj) alignment))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown alignment for monster-kind"))))
 
 
-    ;; maybe move alignment to variant
-    (destructuring-bind (&key x-char x-attr (text-char :unspec)
-			      (text-attr :unspec) (type :unspec)  
-			      abilities alertness (immunities :unspec)
-			      vulnerabilities vision attacks special-abilities
-			      (treasures :unspec) (appear-in-group? :unspec)
-			      &allow-other-keys)
-	keyword-args
-
-      (update-monster-display m-obj :x-attr x-attr :x-char x-char
-			      :text-attr text-attr :text-char text-char)
-
-      (cond ((eq :unspec type))
-	    ((listp type)
+    (when-bind (type (getf keyword-args :type))
+      (cond ((consp type)
 	     (setf (monster.type m-obj) type))
 	    (t
-	     (error "Unknown type-info for monster-kind ~a" id)))
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown type-info for monster-kind"))))
 
-      (when abilities
-	(setf (monster.abilities m-obj) abilities))
-    
-      (when alertness
-	(setf (monster.alertness m-obj) alertness))
-
-      (cond ((eq immunities :unspec))
-	    ((listp immunities)
+    (when-bind (immunities (getf keyword-args :immunities))
+      (cond ((consp immunities)
 	     (dolist (i immunities)
 	       (cond ((and (symbolp i) (not (eq nil i)))
 		      (if (is-legal-element? var-obj i)
 			  (bit-flag-add! (monster.immunities m-obj) (get-element-flag var-obj i))
-			  (error "Illegal immunity-arg ~s for monster ~a"
-				 i (monster.name m-obj))))
+			  (signal-condition 'illegal-monster-data :id id :desc "Illegal immunity-arg for mon-kind")))
 		     (t
-		      (error "Unknown immunity argument ~s for monster ~a"
-			     i (monster.name m-obj))))))
+		      (signal-condition 'illegal-monster-data :id id :desc "Unknown immunity argument for mon-kind")))))
 	    (t
-	     (error "Unknown immunity argument ~s for race ~a"
-		    immunities (monster.name m-obj))))
-    
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown immunity argument for monster-kind"))))
 
-      (when vulnerabilities
-	(setf (monster.vulnerabilities m-obj) vulnerabilities))
-    
-      (when vision
-	(setf (monster.vision m-obj) vision))
-
+    (when-bind (attacks (getf keyword-args :attacks))
       (cond ((consp attacks)
 	     (let ((attks (convert-obj attacks :attacks)))
 	       (setf (monster.attacks m-obj) attks)))
-	    ((eq attacks nil) nil)
 	    (t
-	     (lang-warn "Unknown form of attacks-argument ~s for monster ~s" attacks id)))
+	     (signal-condition 'illegal-monster-data :id id :desc "Unknown attacks argument for monster-kind"))))
 
-      (cond ((eq treasures :unspec))
-	    ((consp treasures)
+    (when-bind (treasures (getf keyword-args :treasures))
+      (cond ((consp treasures)
 	     (setf (monster.treasures m-obj) (%parse-treasure-spec treasures)))
 	    (t
-	     (error "Illegal format for monster-treasures ~s" treasures)))
-    
-      ;; tough demand
-      (when-bind (treasures (monster.treasures m-obj))
-	(assert (every #'(lambda (x) (typep x 'treasure-drop)) treasures)))
-    
-      (when special-abilities
-	(setf (monster.sp-abilities m-obj) special-abilities))
+	     (signal-condition 'illegal-monster-data :id id :desc "Illegal format for monster-kind treasures"))))
 
-      (cond ((eq appear-in-group? :unspec))
-	    ((functionp appear-in-group?)
+    (when-bind (appear-in-group? (getf keyword-args :appear-in-group?))
+      (cond ((functionp appear-in-group?)
 	     (setf (monster.in-group m-obj) appear-in-group?))
 	    (t
-	     (error "in-group for ~s is not a function but ~s" id appear-in-group?)))
+	     (signal-condition 'illegal-monster-data :id id :desc "in-group for monster is not a function"))))
 
-      m-obj)))
+    (when-bind (abilities (getf keyword-args :abilities))
+      (cond ((consp abilities)
+	     (setf (monster.abilities m-obj) abilities))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Illegal format for monster-kind abilities."))))
+
+    (when-bind (special-abilities (getf keyword-args :special-abilities))
+      (cond ((consp special-abilities)
+	     (setf (monster.sp-abilities m-obj) special-abilities))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Illegal format for monster-kind sp-abilities."))))
     
+    (when-bind (vulnerabilities (getf keyword-args :vulnerabilities))
+      (cond ((consp vulnerabilities)
+	     (setf (monster.vulnerabilities m-obj) vulnerabilities))
+	    (t
+	     (signal-condition 'illegal-monster-data :id id :desc "Illegal format for mon-kind vulnerabilities."))))
+
+
+
+    (destructuring-bind (&key x-char x-attr (text-char :unspec) (text-attr :unspec)
+			      &allow-other-keys)
+	keyword-args
+      (update-monster-display m-obj :x-attr x-attr :x-char x-char
+			      :text-attr text-attr :text-char text-char))
+
+    
+    m-obj))
+
+(defvar *ab-list* '())
+
+#-langband-release
+(defmethod initialise-monster-kind! :after ((var-obj variant) (m-obj monster-kind) keyword-args)
+  "Used to verify data afterwards."
+
+  (declare (ignore keyword-args))
+  (let ((id (monster.id m-obj)))
+    ;; tough demand
+    (when-bind (treasures (monster.treasures m-obj))
+      (unless (every #'(lambda (x) (typep x 'treasure-drop)) treasures)
+	(signal-condition 'illegal-monster-data :id id :desc "Not all treasure-infos are monster-drops")))
+    (unless (integerp (monster.power-lvl m-obj))
+      (signal-condition 'illegal-monster-data :id id :desc "Non-integer power-lvl for monster-kind."))
+    (unless (>= (monster.power-lvl m-obj) 0)
+      (signal-condition 'illegal-monster-data :id id :desc "Negative power-lvl for monster-kind."))
+
+    ;; might be changed, check now
+    (unless (consp (monster.hitpoints m-obj))
+      (signal-condition 'illegal-monster-data :id id :desc "Hitpoints-data not a cons."))
+
+    (let ((descs (variant.attack-descriptions var-obj)))
+      (dolist (i (monster.attacks m-obj))
+	(unless (typep i 'attack)
+	  (signal-condition 'illegal-monster-data :id id :desc "monster.attack info not obj of type attack."))
+	(multiple-value-bind (val found-p)
+	    (gethash (attack.kind i) descs)
+	  (declare (ignore val))
+	  (unless found-p
+	    (signal-condition 'illegal-monster-data :id id
+			      :desc (format nil "Unable to find attack-kind: ~S" (attack.kind i)))))
+	
+	(when-bind (dmg-type (attack.dmg-type i))
+	  (unless (typep dmg-type 'attack-type)
+	    (signal-condition 'illegal-monster-data :id id
+			      :desc (format nil "Damage-type for attack ~s not known." dmg-type))))
+	
+	))
+
+    (dolist (i (monster.sp-abilities m-obj))
+      (pushnew i *ab-list* :test #'equalp))
+    
+    ))
+    
+
+
 (defun define-monster-kind (id name &rest keyword-args &key type &allow-other-keys)
   "Defines a critter you might bump into when you least expect it. It uses
 the *VARIANT* object so it has to be properly initialised."
-  
-  (assert (or (stringp id) (symbolp id)))
-  (assert (stringp name))
-  (check-type *variant* variant)
-  
-  (when (symbolp id)
-    (warn "Deprecated id ~s for object ~s, use a legal string" id name))
 
-  (unless (verify-id id)
-    (error "Id ~s is not valid for a monster (~a)" id name)) 
+  (handler-case
+      (progn 
+	(assert (or (stringp id) (symbolp id)))
+	(assert (stringp name))
+	(check-type *variant* variant)
   
-  (let* ((var-obj *variant*)
-	 (m-obj (produce-monster-kind var-obj id name :the-kind type)))
+	(when (symbolp id)
+	  (warn "Deprecated id ~s for object ~s, use a legal string" id name))
+
+	(unless (verify-id id)
+	  (signal-condition 'illegal-monster-data :id id :desc "Id is not valid for a monster"))
+  
+	(let* ((var-obj *variant*)
+	       (m-obj (produce-monster-kind var-obj id name :the-kind type)))
 
 
-    (initialise-monster-kind! var-obj m-obj keyword-args)
+	  (initialise-monster-kind! var-obj m-obj keyword-args)
 
     
-    ;; hackish addition to big object-table
-    (let ((main-obj-table (variant.monsters var-obj))
-	  (obj-id (monster.id m-obj)))
-      (multiple-value-bind (val found-p)
-	  (gethash obj-id main-obj-table)
-	(declare (ignore val))
-	(when found-p
-	  (warn "Replacing monster with id ~s" obj-id))
-	(setf (gethash obj-id main-obj-table) m-obj)))
+	  ;; hackish addition to big object-table
+	  (let ((main-obj-table (variant.monsters var-obj))
+		(obj-id (monster.id m-obj)))
+	    (multiple-value-bind (val found-p)
+		(gethash obj-id main-obj-table)
+	      (declare (ignore val))
+	      (when found-p
+		(warn "Replacing monster with id ~s" obj-id))
+	      (setf (gethash obj-id main-obj-table) m-obj)))
 
-    ;; applies the filters registered for newly read monsters
-    (apply-filters-on-obj :monsters var-obj m-obj)
-    ;;(add-new-mkind! m-obj id)
+	  ;; applies the filters registered for newly read monsters
+	  (apply-filters-on-obj :monsters var-obj m-obj)
+	  ;;(add-new-mkind! m-obj id)
     
-    m-obj))
+	  m-obj))
+    
+    (illegal-monster-data (co)
+      (warn "Failed to initialise monster-kind [~a]: ~a"
+	    (illegal-data.id co) (illegal-data.desc co))
+      nil)))
 
 
 (defun define-monster-attack (key &key power hit-effect)
   (let ((akind (make-instance 'attack-type :key key)))
-    (cond ((numberp power)
-	   (setf (attack-type.power akind) power))
-	  (t
-	   (warn "Unknown format for power ~s for attack-type ~s"
-		 power key)))
-    (cond ((functionp hit-effect)
-	   (setf (attack-type.hit-effect akind) (compile nil hit-effect)))
-	  (t
-	   (warn "No legal hit-effect ~s passed to attack-type ~s"
-		 hit-effect key)))
+    
+    (unless (non-negative-integer? power)
+      (error-condition 'illegal-attack-data :id key :desc "Power of attack no positive integer."))
+
+    (when (non-negative-integer? power)
+      (setf (attack-type.power akind) power))
+
+    (unless (functionp hit-effect)
+      (error-condition 'illegal-attack-data :id key :desc "Hit-effect for attack not a function."))
+
+    (when (functionp hit-effect)
+      (setf (attack-type.hit-effect akind) (compile nil hit-effect)))
     
     (setf (gethash key (variant.attack-types *variant*)) akind)
 
@@ -442,3 +577,29 @@ the *VARIANT* object so it has to be properly initialised."
 
 (defmethod appears-in-group? ((variant variant) (level level) (monster unique-monster))
   nil)
+
+(defmethod trigger-special-ability (variant creature ability target dungeon)
+  (declare (ignore variant creature target dungeon))
+  (warn "Special ability ~s not implemented" ability)
+  t)
+
+(defun is-male? (creature)
+  "Is the creature male, if so return T."
+  (etypecase creature
+      (active-monster
+       (is-male? (amon.kind creature)))
+      (player
+       (eq (player.gender creature) '<male>))
+      (monster-kind
+       (eq (monster.gender creature) '<male>))))
+
+(defun is-female? (creature)
+  "Is the creature female, if so return T."
+  (etypecase creature
+      (active-monster
+       (is-female? (amon.kind creature)))
+      (player
+       (eq (player.gender creature) '<female>))
+      (monster-kind
+       (eq (monster.gender creature) '<female>))))
+

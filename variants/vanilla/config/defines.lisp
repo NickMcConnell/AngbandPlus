@@ -13,12 +13,6 @@ the Free Software Foundation; either version 2 of the License, or
 |#
 
 (in-package :org.langband.vanilla)
-#||
-(define-normal-event ()
-    :backpack-creation
-  :on-create
-  #'common-creating-backpack)
-||#
 
 (defconstant +common-backpack-size+ 23)
 
@@ -61,6 +55,13 @@ the Free Software Foundation; either version 2 of the License, or
 (define-element '<chaos>       "chaos"       :bit-flag #x00008000 :number 15)
 (define-element '<fear>        "fear"        :bit-flag #x00010000 :number 16)
 (define-element '<sleep>       "sleep"       :bit-flag #x00020000 :number 17)
+(define-element '<plasma>      "plasma"      :bit-flag #x00040000 :number 18)
+(define-element '<mana>        "mana"        :bit-flag #x00080000 :number 19)
+(define-element '<water>       "water"       :bit-flag #x00100000 :number 20)
+(define-element '<time>        "time"        :bit-flag #x00200000 :number 21)
+(define-element '<inertia>     "inertia"     :bit-flag #x00400000 :number 22)
+(define-element '<force>       "force"       :bit-flag #x00800000 :number 23)
+(define-element '<holiness>    "holiness"    :bit-flag #x01000000 :number 24)
 
 ;; various effects for the players and the monsters in vanilla
 
@@ -101,3 +102,35 @@ the Free Software Foundation; either version 2 of the License, or
 (define-effect '<resist-cold>     "resist cold"         :number 34 :bit-flag #x400000000)
 (define-effect '<resist-poison>   "resist poison"       :number 35 :bit-flag #x800000000)
 (define-effect '<sleeping>        "sleeping"            :number 36 :bit-flag #x1000000000)
+
+;;; move this later
+(define-visual-state :blind 1
+  :desc "Blind"
+  :gfx-sym (tile-paint-value +tilefile-states+ 0))
+
+(define-visual-state :paralysed 2
+  :desc "Paralysed"
+  :gfx-sym (tile-paint-value +tilefile-people+ 4))
+
+(define-visual-state :afraid 4
+  :desc "Afraid"
+  :gfx-sym (tile-paint-value +tilefile-undeads+ 23))
+
+(define-visual-state :poisoned 5
+  :desc "Poisoned"
+  :gfx-sym (tile-paint-value +tilefile-states+ 2))
+
+(define-visual-state :confused 6
+  :desc "Confused"
+  :gfx-sym (tile-paint-value +tilefile-states+ 1))
+
+(define-visual-state :hungry 7
+  :desc "Hungry"
+  :gfx-sym (tile-paint-value +tilefile-misc+ 102))
+
+(define-visual-state :can-study 9
+  :desc "Can Study"
+  :gfx-sym (tile-paint-value +tilefile-magic+ 7))
+
+
+

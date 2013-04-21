@@ -18,10 +18,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 1
   :text-attr #\d
   :text-char #\,
-  :depth 5
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :power-lvl 5
+  :locations '((5 . 1))
   :weight 1
   :cost 0
   :sort-value 6001
@@ -36,10 +34,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 2
   :text-attr #\d
   :text-char #\,
-  :depth 5
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :power-lvl 5
+  :locations '((5 . 1))
   :weight 1
   :cost 0
   :sort-value 6002
@@ -54,10 +50,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 3
   :text-attr #\d
   :text-char #\,
-  :depth 5
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :power-lvl 5
+  :locations '((5 . 1))
   :weight 1
   :cost 0
   :sort-value 6003
@@ -72,10 +66,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 4
   :text-attr #\d
   :text-char #\,
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 1
   :cost 0
   :sort-value 6004
@@ -90,10 +82,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 5
   :text-attr #\d
   :text-char #\,
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 1
   :cost 60
   :sort-value 6012
@@ -108,10 +98,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 6
   :text-attr #\d
   :text-char #\,
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 1
   :cost 50
   :sort-value 6013
@@ -126,10 +114,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 7
   :text-attr #\d
   :text-char #\,
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 1
   :cost 25
   :sort-value 6014
@@ -145,10 +131,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 8
   :text-attr #\d
   :text-char #\,
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 1
   :cost 50
   :sort-value 6015
@@ -163,10 +147,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 9
   :text-attr #\d
   :text-char #\,
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 1
   :cost 0
   :sort-value 6006
@@ -183,10 +165,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 10
   :text-attr #\d
   :text-char #\,
-  :depth 15
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
+  :power-lvl 15
+  :locations '((15 . 1))
   :weight 1
   :cost 50
   :sort-value 6010
@@ -197,10 +177,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 11
   :text-attr #\d
   :text-char #\,
-  :depth 20
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :power-lvl 20
+  :locations '((20 . 1))
   :weight 1
   :cost 350
   :sort-value 6018
@@ -215,10 +193,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 12
   :text-attr #\d
   :text-char #\,
-  :depth 20
-  :rarity 0
-  :chance #(8 4 1 0)
-  :locale #(20 30 40 0)
+  :power-lvl 20
+  :locations '((20 . 8) (30 . 4) (40 . 1))
   :weight 1
   :cost 1000
   :sort-value 6019
@@ -238,10 +214,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 13
   :text-attr #\d
   :text-char #\,
-  :depth 15
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
+  :power-lvl 15
+  :locations '((15 . 1))
   :weight 1
   :cost 0
   :sort-value 6008
@@ -258,10 +232,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 14
   :text-attr #\d
   :text-char #\,
-  :depth 15
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
+  :power-lvl 15
+  :locations '((15 . 1))
   :weight 1
   :cost 0
   :sort-value 6009
@@ -277,10 +249,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 15
   :text-attr #\d
   :text-char #\,
-  :depth 5
-  :rarity 0
-  :chance #(1 1 0 0)
-  :locale #(5 5 0 0)
+  :power-lvl 5
+  :locations '((5 . 1) (5 . 1))
   :weight 1
   :cost 0
   :sort-value 6000
@@ -295,10 +265,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 16
   :text-attr #\d
   :text-char #\,
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 1
   :cost 0
   :sort-value 6007
@@ -314,10 +282,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 17
   :text-attr #\d
   :text-char #\,
-  :depth 20
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :power-lvl 20
+  :locations '((20 . 1))
   :weight 1
   :cost 0
   :sort-value 6005
@@ -333,10 +299,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 18
   :text-attr #\d
   :text-char #\,
-  :depth 20
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :power-lvl 20
+  :locations '((20 . 1))
   :weight 1
   :cost 350
   :sort-value 6017
@@ -351,10 +315,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 19
   :text-attr #\d
   :text-char #\,
-  :depth 20
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :power-lvl 20
+  :locations '((20 . 1))
   :weight 1
   :cost 50
   :sort-value 6011
@@ -366,10 +328,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 20
   :text-attr #\d
   :text-char #\,
-  :depth 15
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
+  :power-lvl 15
+  :locations '((15 . 1))
   :weight 2
   :cost 75
   :sort-value 6016
@@ -385,10 +345,8 @@ the Free Software Foundation; either version 2 of the License, or
   :text-attr #\U
   :text-char #\,
   :x-attr (tile-file 5) :x-char (tile-number 4)
-  :depth 0
-  :rarity 0
-  :chance #(1 1 1 0)
-  :locale #(0 5 10 0)
+  :power-lvl 0
+  :locations '((0 . 1) (5 . 1) (10 . 1))
   :weight 10
   :cost 3
   :sort-value 6035
@@ -401,10 +359,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-attr #\U
   :text-char #\,
   :x-attr (tile-file 5) :x-char (tile-number 2)
-  :depth 0
-  :rarity 0
-  :chance #(0 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
   :weight 2
   :cost 1
   :sort-value 6032
@@ -417,10 +372,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-attr #\u
   :text-char #\,
   :x-attr (tile-file 5) :x-char (tile-number 3)
-  :depth 0
-  :rarity 0
-  :chance #(0 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
   :weight 2
   :cost 2
   :sort-value 6033
@@ -433,10 +385,8 @@ the Free Software Foundation; either version 2 of the License, or
   :text-attr #\g
   :text-char #\,
   :x-attr (tile-file 5) :x-char (tile-number 5)
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 5
   :cost 2
   :sort-value 6036
@@ -449,10 +399,8 @@ the Free Software Foundation; either version 2 of the License, or
   :text-attr #\B
   :text-char #\,
   :x-attr (tile-file 5) :x-char (tile-number 6)
-  :depth 5
-  :rarity 0
-  :chance #(1 1 1 0)
-  :locale #(5 10 20 0)
+  :power-lvl 5
+  :locations '((5 . 1) (10 . 1) (20 . 1))
   :weight 3
   :cost 10
   :sort-value 6037
@@ -466,10 +414,7 @@ the Free Software Foundation; either version 2 of the License, or
   :x-char (tile-number 0)
   :text-attr #\y
   :text-char #\,
-  :depth 0
-  :rarity 0
-  :chance #(0 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
   :weight 5
   :cost 1
   :sort-value 6038
@@ -483,10 +428,7 @@ the Free Software Foundation; either version 2 of the License, or
   :x-char (tile-number 1)
   :text-attr #\r
   :text-char #\,
-  :depth 0
-  :rarity 0
-  :chance #(0 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
   :weight 10
   :cost 2
   :sort-value 6039

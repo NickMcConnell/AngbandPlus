@@ -31,7 +31,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 		     (deliver-damage! variant the-trap player (roll-dice 2 8))))
 
 	      ;; increase depth and set leave to true
-	      (change-depth! dungeon player :direction :down :amount level-num :type :trapdoor)
+	      (move-creature-to-depth! dungeon player :direction :down :amount level-num :type :trapdoor)
 	      ))
   :min-depth 1
   :max-depth nil

@@ -1,0 +1,47 @@
+# Some paths
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+
+CC = @CC@
+SDL_CFLAGS = @SDL_CFLAGS@
+SDL_LIBS = @SDL_LIBS@
+
+LBUI_CFLAGS = @LBUI_CFLAGS@
+LBUI_OBJS = @LBUI_OBJS@
+LBUI_LIBS = @LBUI_LIBS@
+
+LBE_OBJS = @LBE_OBJS@
+LBE_LIBS = @LBE_LIBS@
+LBE_CFLAGS = @LBE_CFLAGS@
+LBE_LINKFLAGS = @LBE_LINKFLAGS@
+
+LBSND_LIBS = @LBSND_LIBS@
+LBSND_SRC = @LBSND_SRC@
+LBSND_CFLAGS = @LBSND_CFLAGS@
+
+MAKE_EXTSOUND=@MAKE_EXTSOUND@
+
+DLLEXT=@DLLEXT@
+DLLCOPY=@DLLCOPY@
+
+all: shared_objs lbsd dll_copy
+
+clean:
+	$(RM) *.o lbui.so dircall.so lbui.dll dircall.dll *.fasl *.a *~ lbsd
+
+%.o : %.c
+	${CC} ${LBE_CFLAGS} ${LBUI_CFLAGS} -c $<
+
+shared_objs: ${LBE_OBJS} ${LBUI_OBJS} dummy_call.o
+	${CC} ${LBE_LINKFLAGS} -shared -o lbui.$(DLLEXT) ${LBE_OBJS} ${LBUI_OBJS} ${LBE_LIBS} ${LBUI_LIBS}
+	${CC} ${LBE_LINKFLAGS} -shared -o dircall.$(DLLEXT) dummy_call.o
+
+
+dll_copy:
+	${DLLCOPY}
+
+lbsd: ${LBSND_SRC}
+	if test "${MAKE_EXTSOUND}" = "yes"; then \
+	  ${CC} ${LBE_CFLAGS} ${LBSND_CFLAGS} -o lbsd ${LBSND_SRC} ${LBSND_LIBS}; \
+	fi

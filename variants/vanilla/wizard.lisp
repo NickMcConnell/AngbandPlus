@@ -52,7 +52,7 @@ the Free Software Foundation; either version 2 of the License, or
   
   (let ((mon-list (if monster-list
 		       monster-list
-		       (lb-engine:get-monster-list var-obj)))
+		       (lb-engine::get-monster-list var-obj)))
 	(*print-case* :downcase)
 	(*print-right-margin* 120))
     
@@ -151,7 +151,7 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
 	(let ((var-obj *variant*)
-	      (fname (concatenate 'string *dumps-directory* "odd.info"))
+	      (fname (concatenate 'string lb-engine::*dumps-directory* "odd.info"))
 	      (*print-case* :downcase))
 	  (with-open-file (s (pathname fname)
 			     :direction :output 
@@ -172,7 +172,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    (loop for i from 5 to 200 by 10
 		  do
 		  (format s "~&~a% chance to hit armour ~a (~a)~%"
-			  (get-chance var-obj 80 i)
+			  (get-tohit-chance var-obj 80 i)
 			  i
 			  (get-armour-desc var-obj i)))
 	    
@@ -190,22 +190,22 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
 	(let ((var-obj *variant*))
-	  (van-dump-monsters (concatenate 'string *dumps-directory* "mon-by-id.list")
-			     :monster-list (get-monster-list var-obj
-							     :predicate #'string<
-							     :sort-key #'monster.id))
-	  (van-dump-monsters (concatenate 'string *dumps-directory* "mon-by-id-short.list")
-			     :monster-list (get-monster-list var-obj
-							     :predicate #'string<
-							     :sort-key #'monster.id)
+	  (van-dump-monsters (concatenate 'string lb-engine::*dumps-directory* "mon-by-id.list")
+			     :monster-list (lb-engine::get-monster-list var-obj
+									:predicate #'string<
+									:sort-key #'monster.id))
+	  (van-dump-monsters (concatenate 'string lb-engine::*dumps-directory* "mon-by-id-short.list")
+			     :monster-list (lb-engine::get-monster-list var-obj
+									:predicate #'string<
+									:sort-key #'monster.id)
 			     :action-fun #'(lambda (file obj)
 					     (format file "~&~30a ~30a~%" (monster.id obj)
 						     (monster.power-lvl obj))))
 
-	  (van-dump-monsters (concatenate 'string *dumps-directory* "mon-by-depth.list")
-			     :monster-list (get-monster-list var-obj
-							     :predicate #'<
-							     :sort-key #'monster.power-lvl)
+	  (van-dump-monsters (concatenate 'string lb-engine::*dumps-directory* "mon-by-depth.list")
+			     :monster-list (lb-engine::get-monster-list var-obj
+									:predicate #'<
+									:sort-key #'monster.power-lvl)
 			     :action-fun #'(lambda (file obj)
 					     (format file "~&~30a ~30a~%" (monster.id obj)
 						     (monster.power-lvl obj))))
@@ -214,13 +214,13 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'dump-objects
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
-	(dump-objects (concatenate 'string *dumps-directory* "obj.list"))
+	(lb-engine::dump-objects (concatenate 'string lb-engine::*dumps-directory* "obj.list"))
 	))
 
 (define-key-operation 'show-objects
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
-	(let ((objs (get-object-list))
+	(let ((objs (lb-engine::get-object-list))
 	      (win (aref *windows* *map-frame*)))
 	  (clear-window win)
 	  (loop for i from 0 
@@ -249,7 +249,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'show-monsters
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
-	(let ((objs (get-monster-list *variant*))
+	(let ((objs (lb-engine::get-monster-list *variant*))
 	      (win (aref *windows* *map-frame*)))
 	  (clear-window win)
 	  (loop for i from 0 
@@ -278,40 +278,46 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'show-format
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
-	(let ((win (aref *windows* *map-frame*)))
-	  (clear-window win)
+	(with-dialogue ()
+	  (let ((win (aref *windows* +dialogue-frame+))
+		(colour +term-l-green+))
+	    (clear-window win)
 
-	  (win/format win 1 1 +term-red+ "~d" 50)
-	  (win/format win 1 2 +term-red+ "~d" -50)
-	  (win/format win 1 3 +term-red+ "~d" 5000)
-	  (win/format win 1 4 +term-red+ "~d" -5000)
-	  (win/format win 1 5 +term-red+ "~v" 10 5000)
-	  (win/format win 1 6 +term-red+ "~v" 10 -5000)
-	  ;;(win/format win 1 7 +term-red+ "~v" 15 5000)
-	  ;;(win/format win 1 8 +term-red+ "~v" 15 -5000)
+	  (win/format win 1 1 colour "~d" 50)
+	  (win/format win 1 2 colour "~d" -50)
+	  (win/format win 1 3 colour "~d" 5000)
+	  (win/format win 1 4 colour "~d" -5000)
+	  (win/format win 1 5 colour "~v" 10 5000)
+	  (win/format win 1 6 colour "~v" 10 -5000)
+	  ;;(win/format win 1 7 colour "~v" 15 5000)
+	  ;;(win/format win 1 8 colour "~v" 15 -5000)
 
-	  (win/format win 1 7 +term-red+ "~a" 'hei)
-	  (win/format win 1 8 +term-red+ "~a" :hei)
+	  (win/format win 1 7 colour "~a" 'hei)
+	  (win/format win 1 8 colour "~a" :hei)
 	  
 	  
-	  (win/format win 1 9 +term-red+ "~v" 2 5000)
-	  (win/format win 1 10 +term-red+ "~v" 2 -5000)
+	  (win/format win 1 9 colour "~v" 2 5000)
+	  (win/format win 1 10 colour "~v" 2 -5000)
 
-	  (win/format win 1 11 +term-red+ "~a" "hei")
-	  (win/format win 1 12 +term-red+ "~a~a" "hei" "hei")
-	  (win/format win 1 13 +term-red+ "~~")
-	  (win/format win 1 14 +term-red+ "~a~~~a" "hei" "hei")
+	  (win/format win 1 11 colour "~a" "hei")
+	  (win/format win 1 12 colour "~a~a" "hei" "hei")
+	  (win/format win 1 13 colour "~~")
+	  (win/format win 1 14 colour "~a~~~a" "hei" "hei")
+
+	  (win/format win 1 15 colour "~v,~v" 3 1 3 1)
+	  (win/format win 1 16 colour "~v,~v" 3 12 3 12)
+	  (win/format win 1 17 colour "~v,~v" 3 123 3 123)
 	  
 	  (refresh-window win)
 	  (read-one-character)
-	  (clear-window win)
-	  )))
+	  ;;(clear-window win)
+	  ))))
 
 
 (define-key-operation 'dump-features
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
-	(dump-floors (concatenate 'string *dumps-directory* "floors.list"))
+	(lb-engine::dump-floors (concatenate 'string lb-engine::*dumps-directory* "floors.list"))
 	))
 
 (define-key-operation 'inspect-coord
@@ -362,10 +368,10 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'gain-level
     #'(lambda (dungeon player)
 	(declare (ignore dungeon))
-	(let* ((cur-level (player.level player))
+	(let* ((cur-level (player.power-lvl player))
 	       (next-limit (aref (player.xp-table player) cur-level))
-	       (lacks (- next-limit (player.cur-xp player))))
-	  (alter-xp! player lacks))
+	       (lacks (- next-limit (player.current-xp player))))
+	  (modify-xp! player lacks))
 	))
 
 (define-key-operation 'heal-player
@@ -416,12 +422,12 @@ the Free Software Foundation; either version 2 of the License, or
 	(let ((wanted-level 25)
 	      (depth 40))
 	;; get decent 
-	(loop while (< (player.level player) wanted-level)
+	(loop while (< (player.power-lvl player) wanted-level)
 	      do
-	      (alter-xp! player (+ 100 (player.max-xp player))))
+	      (modify-xp! player (+ 100 (player.maximum-xp player))))
 	
 	(heal-creature! player 7000)
-	
+	#||
 	(when (and (integerp depth) (plusp depth))
 	  (setf (player.depth player) depth
 		(dungeon.depth dungeon) depth)
@@ -431,6 +437,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  
 	  (setf (player.leaving? player) :teleport)
 	  t)
+	||#
 
 	)))
 

@@ -593,7 +593,7 @@ claws conceal a fistful of needles."
   :attacks '((<hit> :type <hurt> :damage (1 . 5)))
   :treasures '((<drop-chance> 3/5))
   :gender '<male>
-  :special-abilities '((<spell> (<cause> 1)) (<spell> <scare>) (<spell> <heal>) (<frequency> 1/12))
+  :special-abilities '((<dmg-spell> 1) (<spell> <scare>) (<spell> <heal>) (<frequency> 1/12))
   :appear-in-group? #'van-novice-appears-in-group?)
 
 (define-monster-kind "rogue-novice" "novice rogue"
@@ -677,7 +677,7 @@ claws conceal a fistful of needles."
   :immunities '(<fear> <sleep> <confusion> <poison>)
   :alertness 0
   :vision 4
-  :special-abilities '(<shriek> (<frequency> 1/4)))
+  :special-abilities '((<spell> <shriek>) (<frequency> 1/4)))
 
 (define-monster-kind "icky-blubbering" "blubbering icky thing"
   :numeric-id 33
@@ -696,7 +696,8 @@ claws conceal a fistful of needles."
   :immunities '(<poison>)
   :alertness 10
   :vision 14
-  :attacks '((<crawl> :type <eat-food> :damage nil) (<crawl> :type <poison> :damage (1 . 4)))
+  :attacks '((<crawl> :type <eat-food> :damage nil)
+	     (<crawl> :type <poison> :damage (1 . 4)))
   :treasures '((<drop-chance> 9/10)))
 
 (define-monster-kind "mage-novice" "novice mage"
@@ -1091,7 +1092,7 @@ claws conceal a fistful of needles."
   :attacks '((<hit> :type <hurt> :damage (1 . 7)) (<hit> :type <hurt> :damage (1 . 7)))
   :treasures '((<drop-chance> 3/5))
   :gender '<male>
-  :special-abilities '((<spell> (<cause> 1)) (<spell> <scare>) (<frequency> 1/9))
+  :special-abilities '((<dmg-spell> 1) (<spell> <scare>) (<frequency> 1/9))
   :appear-in-group? #'van-novice-appears-in-group?)
 
 (define-monster-kind "jelly-blue" "blue jelly"
@@ -2051,7 +2052,7 @@ twisted with evil."
   :attacks '((<hit> :type <hurt> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop-chance> 9/10))
   :gender '<male>
-  :special-abilities '((<spell> <missile>) (<spell> (<cause> 1)) (<spell> <blink>) (<frequency> 1/8)))
+  :special-abilities '((<spell> <missile>) (<dmg-spell> 1) (<spell> <blink>) (<frequency> 1/8)))
 
 (define-monster-kind "baby-dragon-blue" "baby blue dragon"
   :numeric-id 127
@@ -2257,7 +2258,7 @@ twisted with evil."
   :attacks '((<hit> :type <hurt> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> (<ball> <poison>)) (<spell> <darkness>) (<spell> <missile>) (<spell> <confusion>)
+  :special-abilities '((<ball-spell> <poison>) (<spell> <darkness>) (<spell> <missile>) (<spell> <confusion>)
 		       (<spell> <blindness>) (<frequency> 1/5)))
 
 (define-monster-kind "dark-elf-warriour" "dark elven warriour"
@@ -2590,7 +2591,7 @@ twisted with evil."
   :attacks '((<hit> :type <hurt> :damage (1 . 5)))
   :treasures '((<drop> "1d2"))
   :gender '<male>
-  :special-abilities '((<summon> <monster>) (<spell> (<bolt> <cold>)) (<spell> <darkness>) (<spell> <blink>)
+  :special-abilities '((<summon> <monster>) (<bolt-spell> <cold>) (<spell> <darkness>) (<spell> <blink>)
 		       (<frequency> 1/4))
   :appear-in-group? #'van-novice-appears-in-group?)
 
@@ -2696,7 +2697,7 @@ twisted with evil."
   :vision 18
   :attacks '((<hit> :type <hurt> :damage (1 . 8)))
   :treasures '((<drop-chance> 3/5))
-  :special-abilities '((<summon> <monster>) (<spell> (<ball> <poison>)) (<spell> <slow>) (<spell> <blindness>)
+  :special-abilities '((<summon> <monster>) (<ball-spell> <poison>) (<spell> <slow>) (<spell> <blindness>)
 		       (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/4)))
 
 (define-monster-kind "priest" "priest"
@@ -2719,7 +2720,7 @@ twisted with evil."
   :attacks '((<hit> :type <hurt> :damage (2 . 3)) (<hit> :type <hurt> :damage (2 . 3)))
   :treasures '((<drop> "1d2"))
   :gender '<male>
-  :special-abilities '((<summon> <monster>) (<spell> (<cause> 2)) (<spell> <scare>) (<spell> <heal>) (<frequency> 1/3)))
+  :special-abilities '((<summon> <monster>) (<dmg-spell> 2) (<spell> <scare>) (<spell> <heal>) (<frequency> 1/3)))
 
 (define-monster-kind "dark-elf-priest" "dark elven priest"
   :numeric-id 162
@@ -2743,7 +2744,7 @@ deliver your soul to hell."
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 9)))
   :treasures '((<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> <darkness>) (<spell> (<cause> 2)) (<spell> <confusion>) (<spell> <blindness>)
+  :special-abilities '((<spell> <darkness>) (<dmg-spell> 2) (<spell> <confusion>) (<spell> <blindness>)
 		       (<spell> <heal>) (<frequency> 1/5)))
 
 (define-monster-kind "spirit-air" "air spirit"
@@ -2933,7 +2934,7 @@ towards you, ready to pounce."
   :vision 8
   :attacks '((<bite> :type <poison> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 12))
 	     (<hit> :type <hurt> :damage (1 . 12)))
-  :special-abilities '((<spell> <darkness>) (<spell> (<cause> 1)) (<spell> <confusion>) (<frequency> 1/8)))
+  :special-abilities '((<spell> <darkness>) (<dmg-spell> 1) (<spell> <confusion>) (<frequency> 1/8)))
 
 (define-monster-kind "beetle-brown" "killer brown beetle"
   :numeric-id 172
@@ -3040,7 +3041,7 @@ towards you, ready to pounce."
   :attacks '((<hit> :type <hurt> :damage (2 . 4)) (<hit> :type <hurt> :damage (2 . 4)))
   :treasures '((<drop> "1d2"))
   :gender '<male>
-  :special-abilities '((<spell> (<bolt> <electricity>)) (<spell> (<bolt> <fire>)) (<spell> <slow>) (<spell> <paralysis>)
+  :special-abilities '((<bolt-spell> <electricity>) (<bolt-spell> <fire>) (<spell> <slow>) (<spell> <paralysis>)
 		       (<spell> <blindness>) (<spell> <blink>) (<spell> <haste>) (<frequency> 1/3)))
 
 (define-monster-kind "orc-black" "black orc"
@@ -3271,7 +3272,7 @@ relishing in filth and disease."
   :attacks '((<bite> :type <hurt> :damage (2 . 6)) (<claw> :type <hurt> :damage (1 . 8))
 	     (<claw> :type <hurt> :damage (1 . 8)))
   :treasures '((<drop-chance> 3/5) <only-drop-gold>)
-  :special-abilities '((<spell> (<ball> <poison>)) (<spell> (<bolt> <cold>)) (<spell> (<cause> 2)) (<spell> <blink>)
+  :special-abilities '((<ball-spell> <poison>) (<bolt-spell> <cold>) (<dmg-spell> 2) (<spell> <blink>)
 		       (<frequency> 1/9)))
 
 (define-monster-kind "ogre-black" "black ogre"
@@ -3779,7 +3780,7 @@ few corpses as well."
   :speed 120
   :xp 58
   :abilities '(<bash-door> <cold-blood> <empty-mind> (<random-mover> 1/4))
-  :immunities '(<fear> <sleep> <confusion> <poison>)
+  :immunities '(<fear> <sleep> <confusion> <poison> <water>)
   :alertness 40
   :vision 12
   :attacks '((<hit> :type <hurt> :damage (2 . 4)) (<hit> :type <hurt> :damage (2 . 4))))
@@ -3933,7 +3934,7 @@ unsuspecting adventurers within reach of its venomous claws."
   :vision 25
   :attacks '((<hit> :type <hurt> :damage (2 . 3)) (<hit> :type <hurt> :damage (2 . 3))
 	     (<hit> :type <poison> :damage (3 . 4)))
-  :special-abilities '((<spell> (<bolt> <cold>)) (<spell> (<cause> 2)) (<spell> <scare>) (<spell> <confusion>)
+  :special-abilities '((<bolt-spell> <cold>) (<dmg-spell> 2) (<spell> <scare>) (<spell> <confusion>)
 		       (<spell> <blindness>) (<frequency> 1/6)))
 
 (define-monster-kind "dog-blink" "blink dog"
@@ -4001,7 +4002,7 @@ waking all it nears."
   :vision 20
   :attacks '((<hit> :type <hurt> :damage (1 . 8)) (<hit> :type <hurt> :damage (1 . 8)))
   :treasures '((<drop-chance> 9/10) <only-drop-gold>)
-  :special-abilities '(<shriek> (<frequency> 1/4)))
+  :special-abilities '((<spell> <shriek>) (<frequency> 1/4)))
 
 (define-monster-kind "giant-stone" "stone giant"
   :numeric-id 230
@@ -4210,7 +4211,7 @@ walking on air.  Noxious gases sting your throat."
   :attacks '((<bite> :type <hurt> :damage (1 . 10)) (<bite> :type <hurt> :damage (1 . 10))
 	     (<claw> :type <hurt> :damage (1 . 10)) (<claw> :type <hurt> :damage (1 . 10))))
 
-(define-monster-kind "hound-water" "water hound"
+(define-monster-kind "hound-acid" "acid hound"
   :numeric-id 241
   :x-attr (tile-file 19)
   :x-char (tile-number 71)
@@ -4336,7 +4337,7 @@ but very avoidable."
   :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 8)))
   :treasures '((<drop> "2d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> (<bolt> <cold>)) (<spell> (<bolt> <fire>)) (<spell> <darkness>) (<spell> <confusion>)
+  :special-abilities '((<bolt-spell> <cold>) (<bolt-spell> <fire>) (<spell> <darkness>) (<spell> <confusion>)
 		       (<spell> <blindness>) (<spell> <haste>) (<frequency> 1/5)))
 
 (define-monster-kind "giant-cloud" "cloud giant"
@@ -4401,7 +4402,7 @@ but very avoidable."
   :vision 30
   :attacks '((<hit> :type <hurt> :damage (2 . 3)) (<hit> :type <hurt> :damage (2 . 3))
 	     (<hit> :type <poison> :damage (3 . 4)) (<hit> :type <poison> :damage (3 . 4)))
-  :special-abilities '((<summon> <monster>) (<spell> (<bolt> <fire>)) (<spell> (<cause> 2)) (<spell> <scare>)
+  :special-abilities '((<summon> <monster>) (<bolt-spell> <fire>) (<dmg-spell> 2) (<spell> <scare>)
 		       (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/5)))
 
 (define-monster-kind "vortex-fire" "fire vortex"
@@ -4441,8 +4442,8 @@ but very avoidable."
   :immunities '(<sleep> <confusion> <fear> <acid>)
   :alertness 0
   :vision 100
-  :attacks '((<engulf> :type <acid> :damage (3 . 3)))
-  :special-abilities '((<breath> <acid>) (<frequency> 1/6)))
+  :attacks '((<engulf> :type <water> :damage (3 . 3)))
+  :special-abilities '((<breath> <water>) (<frequency> 1/6)))
 
 (define-monster-kind "vortex-cold" "cold vortex"
   :numeric-id 254
@@ -4795,7 +4796,7 @@ but very avoidable."
   :alertness 10
   :vision 12
   :attacks '((<hit> :type <hurt> :damage (3 . 6)) (<hit> :type <hurt> :damage (1 . 12)))
-  :special-abilities '((<spell> (<bolt> <acid>)) (<spell> <confusion>) (<spell> <slow>) (<frequency> 1/4)))
+  :special-abilities '((<bolt-spell> <acid>) (<spell> <confusion>) (<spell> <slow>) (<frequency> 1/4)))
 
 (define-monster-kind "dark-elf-druid" "dark elven druid"
   :numeric-id 277
@@ -4870,7 +4871,7 @@ but very avoidable."
 	     (<hit> :type <hurt> :damage (1 . 8)))
   :treasures '((<drop-chance> 9/10))
   :gender '<male>
-  :special-abilities '((<spell> <darkness>) (<spell> <missile>) (<spell> (<cause> 1)) (<spell> <scare>)
+  :special-abilities '((<spell> <darkness>) (<spell> <missile>) (<dmg-spell> 1) (<spell> <scare>)
 		       (<spell> <blink>) (<frequency> 1/5)))
 (define-monster-kind "worm-were" "wereworm"
   :numeric-id 280
@@ -5034,7 +5035,7 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :attacks '((<touch> :type <exp-20> :damage nil) (<hit> :type <hurt> :damage (1 . 6))
 	     (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop> "1d2"))
-  :special-abilities '((<spell> <darkness>) (<spell> (<cause> 2)) (<spell> <scare>) (<frequency> 1/8)))
+  :special-abilities '((<spell> <darkness>) (<dmg-spell> 2) (<spell> <scare>) (<frequency> 1/8)))
 (define-monster-kind "deva-monadic" "monadic deva"
   :numeric-id 289
   :x-attr (tile-file 17)
@@ -5186,7 +5187,7 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :attacks '((<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8))
 	     (<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8)))
   :treasures '((<drop> "1d2"))
-  :special-abilities '((<summon> <monster>) (<spell> (<ball> <cold>)) (<spell> <traps>) (<spell> <paralysis>)
+  :special-abilities '((<summon> <monster>) (<ball-spell> <cold>) (<spell> <traps>) (<spell> <paralysis>)
 		       (<spell> <heal>) (<frequency> 1/4)))
 (define-monster-kind "vampire" "vampire"
   :numeric-id 298
@@ -5211,7 +5212,7 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :attacks '((<bite> :type <exp-20> :damage (1 . 4)) (<bite> :type <exp-20> :damage (1 . 4))
 	     (<hit> :type <hurt> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop> "1d2") (<drop-chance> 3/5))
-  :special-abilities '((<spell> <darkness>) (<spell> <forget>) (<spell> <mind-blast>) (<spell> (<cause> 2))
+  :special-abilities '((<spell> <darkness>) (<spell> <forget>) (<spell> <mind-blast>) (<dmg-spell> 2)
 		       (<spell> <scare>) (<spell> <paralysis>) (<spell> <teleport-player>) (<frequency> 1/9)))
 
 (define-monster-kind "gorgimera" "gorgimera"
@@ -5254,7 +5255,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :alertness 10
   :vision 12
   :attacks '((<hit> :type <electricity> :damage (3 . 8)) (<hit> :type <electricity> :damage (3 . 8)))
-  :special-abilities '((<spell> (<bolt> <electricity>)) (<frequency> 1/3)))
+  :special-abilities '((<bolt-spell> <electricity>) (<frequency> 1/3)))
 
 (define-monster-kind "naga-spirit" "spirit naga"
   :numeric-id 301
@@ -5302,7 +5303,8 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<bite> :type <poison> :damage (4 . 4)) (<bite> :type <poison> :damage (4 . 4))
 	     (<bite> :type <poison> :damage (4 . 4)) (<bite> :type <poison> :damage (4 . 4)))
   :treasures '((<drop> "4d2") (<drop> "1d2") <only-drop-gold>)
-  :special-abilities '((<spell> (<ball> <poison>)) (<spell> <scare>) (<frequency> 1/5)))
+  :special-abilities '((<ball-spell> <poison>) (<spell> <scare>) (<frequency> 1/5)))
+
 (define-monster-kind "knight-black" "black knight"
   :numeric-id 303
   :x-attr (tile-file 7)
@@ -5324,8 +5326,9 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 	     (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '((<drop> "1d2"))
   :gender '<male>
-  :special-abilities '((<spell> <darkness>) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <blindness>)
+  :special-abilities '((<spell> <darkness>) (<dmg-spell> 3) (<spell> <scare>) (<spell> <blindness>)
 		       (<frequency> 1/8)))
+
 (define-monster-kind "mage" "mage"
   :numeric-id 305
   :x-attr (tile-file 7)
@@ -5346,8 +5349,8 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<hit> :type <hurt> :damage (2 . 5)) (<hit> :type <hurt> :damage (2 . 5)))
   :treasures '((<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <monster>) (<spell> (<bolt> <electricity>)) (<spell> (<bolt> <cold>))
-		       (<spell> (<bolt> <fire>)) (<spell> <confusion>) (<spell> <blindness>)
+  :special-abilities '((<summon> <monster>) (<bolt-spell> <electricity>) (<bolt-spell> <cold>)
+		       (<bolt-spell> <fire>) (<spell> <confusion>) (<spell> <blindness>)
 		       (<spell> <teleport-player>) (<spell> <teleport>) (<spell> <haste>) (<frequency> 1/3)))
 
 (define-monster-kind "mind-flayer" "mind flayer"
@@ -5503,9 +5506,10 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :vision 30
   :attacks '((<hit> :type <poison> :damage (3 . 4)) (<hit> :type <poison> :damage (3 . 4))
 	     (<hit> :type <poison> :damage (3 . 4)) (<hit> :type <poison> :damage (3 . 4)))
-  :special-abilities '((<summon> <monster>) (<spell> (<bolt> <electricity>)) (<spell> (<bolt> <cold>))
-		       (<spell> (<bolt> <fire>)) (<spell> (<bolt> <acid>)) (<spell> <forget>) (<spell> (<cause> 2))
+  :special-abilities '((<summon> <monster>) (<bolt-spell> <electricity>) (<bolt-spell> <cold>)
+		       (<bolt-spell> <fire>) (<bolt-spell> <acid>) (<spell> <forget>) (<dmg-spell> 2)
 		       (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/4)))
+
 (define-monster-kind "young-dragon-blue" "young blue dragon"
   :numeric-id 314
   :x-attr (tile-file 15)
@@ -5744,7 +5748,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<touch> :type <exp-20> :damage nil) (<hit> :type <hurt> :damage (1 . 7))
 	     (<hit> :type <hurt> :damage (1 . 7)))
   :treasures '((<drop> "1d2") <only-drop-items>)
-  :special-abilities '((<spell> <darkness>) (<spell> (<cause> 3)) (<spell> <scare>) (<frequency> 1/8)))
+  :special-abilities '((<spell> <darkness>) (<dmg-spell> 3) (<spell> <scare>) (<frequency> 1/8)))
 (define-monster-kind "beetle-slicer" "killer slicer beetle"
   :numeric-id 325
   :x-attr (tile-file 22)
@@ -5825,7 +5829,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<hit> :type <hurt> :damage (3 . 6)) (<hit> :type <hurt> :damage (3 . 6))
 	     (<hit> :type <hurt> :damage (3 . 6)))
   :treasures '((<drop-chance> 9/10) <only-drop-items>)
-  :special-abilities '((<summon> <monster>) (<spell> (<bolt> <fire>)) (<spell> <traps>) (<spell> (<cause> 2))
+  :special-abilities '((<summon> <monster>) (<bolt-spell> <fire>) (<spell> <traps>) (<dmg-spell> 2)
 		       (<spell> <scare>) (<spell> <paralysis>) (<spell> <teleport>) (<frequency> 1/5)))
 
 (define-monster-kind "quylthulg-nexus" "nexus quylthulg"
@@ -5912,7 +5916,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<hit> :type <electricity> :damage (3 . 8)) (<hit> :type <electricity> :damage (3 . 8))
 	     (<hit> :type <electricity> :damage (3 . 8)))
   :treasures '((<drop> "1d2"))
-  :special-abilities '((<spell> (<ball> <electricity>)) (<spell> (<bolt> <electricity>)) (<spell> <scare>)
+  :special-abilities '((<ball-spell> <electricity>) (<bolt-spell> <electricity>) (<spell> <scare>)
 		       (<spell> <confusion>) (<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/8)))
 
 (define-monster-kind "troll-cave" "cave troll"
@@ -6010,7 +6014,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<touch> :type <exp-40> :damage nil) (<hit> :type <hurt> :damage (1 . 8))
 	     (<hit> :type <hurt> :damage (1 . 8)))
   :treasures '((<drop-chance> 3/5))
-  :special-abilities '((<spell> <darkness>) (<spell> (<cause> 2)) (<spell> <scare>) (<spell> <paralysis>)
+  :special-abilities '((<spell> <darkness>) (<dmg-spell> 2) (<spell> <scare>) (<spell> <paralysis>)
 		       (<frequency> 1/8)))
 
 (define-monster-kind "troll-giant-skeleton" "giant skeleton troll"
@@ -6182,6 +6186,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop> "2d2") (<drop-chance> 9/10) <only-drop-items>)
   :special-abilities '((<spell> <forget>) (<spell> <drain-mana>) (<spell> <paralysis>) (<spell> <blindness>)
 		       (<frequency> 1/15)))
+
 (define-monster-kind "troll-water" "water troll"
   :numeric-id 348
   :x-attr (tile-file 21)
@@ -6198,7 +6203,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :speed 110
   :xp 420
   :abilities '(<bash-door> <open-door> <max-hitpoints>)
-  :immunities '(<poison> <cold>)
+  :immunities '(<water> <poison> <cold>)
   :vulnerabilities '(<light>)
   :alertness 50
   :vision 20
@@ -6206,6 +6211,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 	     (<hit> :type <hurt> :damage (1 . 9)) (<hit> :type <hurt> :damage (1 . 9)))
   :treasures '((<drop-chance> 3/5))
   :gender '<male>)
+
 (define-monster-kind "elemental-fire" "fire elemental"
   :numeric-id 349
   :x-attr (tile-file 18)
@@ -6226,7 +6232,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :alertness 50
   :vision 12
   :attacks '((<hit> :type <fire> :damage (4 . 6)) (<hit> :type <fire> :damage (4 . 6)))
-  :special-abilities '((<spell> (<bolt> <fire>)) (<frequency> 1/6)))
+  :special-abilities '((<bolt-spell> <fire>) (<frequency> 1/6)))
 (define-monster-kind "deva-astral" "astral deva"
   :numeric-id 350
   :x-attr (tile-file 17)
@@ -6248,7 +6254,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (4 . 3))
 	     (<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (4 . 3)))
   :treasures '((<drop> "2d2") (<drop> "1d2") <only-drop-items>)
-  :special-abilities '((<summon> <monsters>) (<spell> (<bolt> <fire>)) (<spell> <mind-blast>) (<spell> <scare>)
+  :special-abilities '((<summon> <monsters>) (<bolt-spell> <fire>) (<spell> <mind-blast>) (<spell> <scare>)
 		       (<spell> <blindness>) (<spell> <haste>) (<spell> <heal>) (<frequency> 1/3)))
 
 (define-monster-kind "elemental-water" "water elemental"
@@ -6267,12 +6273,13 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :xp 325
   :abilities '(<powerful-breath> <bash-door> <overrun-items> <overrun-others> <cold-blood> <empty-mind>
 	       (<random-mover> 1/4) <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confusion> <poison>)
+  :immunities '(<fear> <sleep> <confusion> <poison> <water> <acid>)
   :alertness 50
   :vision 12
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 10))
 	     (<hit> :type <hurt> :damage (1 . 10)))
-  :special-abilities '((<spell> (<bolt> <cold>)) (<frequency> 1/6)))
+  :special-abilities '((<bolt-spell> <cold>) (<frequency> 1/6)))
+
 (define-monster-kind "invisible-stalker" "invisible stalker"
   :numeric-id 352
   :x-attr (tile-file 18)
@@ -6337,7 +6344,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<touch> :type <lose-dex> :damage (2 . 8)) (<touch> :type <lose-dex> :damage (2 . 8))
 	     (<touch> :type <un-power> :damage nil) (<touch> :type <exp-40> :damage nil))
   :treasures '((<drop> "1d2"))
-  :special-abilities '((<spell> <brain-smash>) (<spell> <drain-mana>) (<spell> (<cause> 3)) (<spell> <scare>)
+  :special-abilities '((<spell> <brain-smash>) (<spell> <drain-mana>) (<dmg-spell> 3) (<spell> <scare>)
 		       (<spell> <slow>) (<spell> <paralysis>) (<spell> <blindness>) (<spell> <teleport-away>)
 		       (<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/4)))
 (define-monster-kind "vampire-master" "master vampire"
@@ -6363,9 +6370,10 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<bite> :type <exp-40> :damage (1 . 4)) (<bite> :type <exp-40> :damage (1 . 4))
 	     (<hit> :type <hurt> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop> "4d2"))
-  :special-abilities '((<spell> (<bolt> <nether>)) (<spell> <darkness>) (<spell> <forget>) (<spell> <mind-blast>)
-		       (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <confusion>) (<spell> <paralysis>)
+  :special-abilities '((<bolt-spell> <nether>) (<spell> <darkness>) (<spell> <forget>) (<spell> <mind-blast>)
+		       (<dmg-spell> 3) (<spell> <scare>) (<spell> <confusion>) (<spell> <paralysis>)
 		       (<spell> <teleport-player>) (<frequency> 1/6)))
+
 (define-monster-kind "scorpion-grey" "giant grey scorpion"
   :numeric-id 358
   :x-attr (tile-file 21)
@@ -6384,6 +6392,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :alertness 40
   :vision 12
   :attacks '((<sting> :type <poison> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 6))))
+
 (define-monster-kind "elemental-earth" "earth elemental"
   :numeric-id 359
   :x-attr (tile-file 18)
@@ -6406,7 +6415,8 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :vision 10
   :attacks '((<hit> :type <hurt> :damage (4 . 6)) (<hit> :type <hurt> :damage (4 . 6))
 	     (<hit> :type <hurt> :damage (4 . 6)))
-  :special-abilities '((<spell> (<bolt> <acid>)) (<frequency> 1/8)))
+  :special-abilities '((<bolt-spell> <acid>) (<frequency> 1/8)))
+
 (define-monster-kind "elemental-air" "air elemental"
   :numeric-id 360
   :x-attr (tile-file 18)
@@ -6428,7 +6438,7 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :vision 12
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <confusion> :damage (1 . 4))
 	     (<hit> :type <hurt> :damage (1 . 10)))
-  :special-abilities '((<spell> (<bolt> <electricity>)) (<frequency> 1/8)))
+  :special-abilities '((<bolt-spell> <electricity>) (<frequency> 1/8)))
 
 (define-monster-kind "hound-hell" "hell hound"
   :numeric-id 361
@@ -6634,7 +6644,7 @@ hideous black body seems to struggle against reality as the universe  itself str
   :attacks '((<hit> :type <lose-str> :damage (3 . 4)) (<hit> :type <hurt> :damage (6 . 6))
 	     (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '((<drop> "2d2") (<drop-chance> 3/5) <only-drop-items>)
-  :special-abilities '((<spell> (<bolt> <nether>)) (<spell> <drain-mana>) (<spell> <confusion>) (<spell> <paralysis>)
+  :special-abilities '((<bolt-spell> <nether>) (<spell> <drain-mana>) (<spell> <confusion>) (<spell> <paralysis>)
 		       (<spell> <blindness>) (<frequency> 1/15))
   :appear-in-group? #'van-novice-appears-in-group?)
 
@@ -6659,7 +6669,7 @@ hideous black body seems to struggle against reality as the universe  itself str
   :vision 10
   :attacks '((<touch> :type <acid> :damage (1 . 10)) (<touch> :type <acid> :damage (1 . 10))
 	     (<touch> :type <acid> :damage (1 . 10)))
-  :special-abilities '((<spell> (<ball> <acid>)) (<spell> (<bolt> <acid>)) (<frequency> 1/5)))
+  :special-abilities '((<ball-spell> <acid>) (<bolt-spell> <acid>) (<frequency> 1/5)))
 
 (define-monster-kind "elemental-smoke" "smoke elemental"
   :numeric-id 371
@@ -6680,7 +6690,7 @@ hideous black body seems to struggle against reality as the universe  itself str
   :alertness 90
   :vision 10
   :attacks '((<bite> :type <hurt> :damage (2 . 6)) (<bite> :type <hurt> :damage (2 . 6)))
-  :special-abilities '((<spell> (<bolt> <fire>)) (<spell> <darkness>) (<frequency> 1/5)))
+  :special-abilities '((<bolt-spell> <fire>) (<spell> <darkness>) (<frequency> 1/5)))
 
 (define-monster-kind "young-dragon-black" "young black dragon"
   :numeric-id 372
@@ -6867,7 +6877,7 @@ energy from your soul to feed its power."
   :attacks '((<touch> :type <exp-40> :damage nil) (<hit> :type <hurt> :damage (1 . 10))
 	     (<hit> :type <hurt> :damage (1 . 10)))
   :treasures '((<drop-chance> 9/10) (<drop-chance> 3/5))
-  :special-abilities '((<spell> <darkness>) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
+  :special-abilities '((<spell> <darkness>) (<dmg-spell> 3) (<spell> <scare>) (<spell> <paralysis>)
 		       (<frequency> 1/7)))
 
 (define-monster-kind "young-dragon-mh" "young multi-hued dragon"
@@ -7072,7 +7082,7 @@ energy from your soul to feed its power."
   :vision 10
   :attacks '((<gaze> :type <exp-20> :damage nil) (<hit> :type <fire> :damage (4 . 6))
 	     (<hit> :type <fire> :damage (4 . 6)))
-  :special-abilities '((<summon> <demon>) (<spell> (<ball> <fire>)) (<spell> (<bolt> <fire>)) (<frequency> 1/4)))
+  :special-abilities '((<summon> <demon>) (<ball-spell> <fire>) (<bolt-spell> <fire>) (<frequency> 1/4)))
 
 (define-monster-kind "elemental-ice" "ice elemental"
   :numeric-id 390
@@ -7095,7 +7105,7 @@ energy from your soul to feed its power."
   :vision 10
   :attacks '((<bite> :type <cold> :damage (1 . 3)) (<hit> :type <hurt> :damage (4 . 6))
 	     (<bite> :type <cold> :damage (1 . 3)))
-  :special-abilities '((<spell> (<ball> <cold>)) (<spell> (<bolt> <ice>)) (<frequency> 1/5)))
+  :special-abilities '((<ball-spell> <cold>) (<bolt-spell> <cold>) (<frequency> 1/5)))
 
 (define-monster-kind "necromancer" "necromancer"
   :numeric-id 391
@@ -7117,7 +7127,7 @@ energy from your soul to feed its power."
   :attacks '((<hit> :type <hurt> :damage (2 . 6)) (<hit> :type <hurt> :damage (2 . 6)))
   :treasures '((<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <undead>) (<spell> (<bolt> <nether>)) (<spell> (<cause> 3)) (<spell> <scare>)
+  :special-abilities '((<summon> <undead>) (<bolt-spell> <nether>) (<dmg-spell> 3) (<spell> <scare>)
 		       (<spell> <paralysis>) (<spell> <blindness>) (<spell> <teleport-player>) (<spell> <teleport>)
 		       (<spell> <haste>) (<frequency> 1/3)))
 
@@ -7186,7 +7196,7 @@ energy from your soul to feed its power."
   :vision 30
   :attacks '((<hit> :type <hurt> :damage (1 . 9)) (<hit> :type <hurt> :damage (1 . 9))
 	     (<hit> :type <hurt> :damage (1 . 9)) (<hit> :type <hurt> :damage (1 . 9)))
-  :special-abilities '((<spell> (<cause> 2)) (<spell> <confusion>) (<spell> <teleport>) (<spell> <blink>)
+  :special-abilities '((<dmg-spell> 2) (<spell> <confusion>) (<spell> <teleport>) (<spell> <blink>)
 		       (<frequency> 1/2)))
 
 (define-monster-kind "elemental-magma" "magma elemental"
@@ -7209,7 +7219,7 @@ energy from your soul to feed its power."
   :vision 10
   :attacks '((<hit> :type <fire> :damage (3 . 7)) (<hit> :type <hurt> :damage (4 . 6))
 	     (<hit> :type <fire> :damage (3 . 7)))
-  :special-abilities '((<spell> (<ball> <fire>)) (<spell> (<bolt> <plasma>)) (<frequency> 1/7)))
+  :special-abilities '((<ball-spell> <fire>) (<bolt-spell> <plasma>) (<frequency> 1/7)))
 
 (define-monster-kind "pudding-black" "black pudding"
   :numeric-id 398
@@ -7432,7 +7442,7 @@ energy from your soul to feed its power."
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
 	     (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '((<drop> "2d2") (<drop> "1d2") <only-drop-items>)
-  :special-abilities '((<summon> <monsters>) (<spell> (<bolt> <nether>)) (<spell> (<cause> 3)) (<spell> <scare>)
+  :special-abilities '((<summon> <monsters>) (<bolt-spell> <nether>) (<dmg-spell> 3) (<spell> <scare>)
 		       (<spell> <blindness>) (<frequency> 1/5)))
 
 (define-monster-kind "vortex-time" "time vortex"
@@ -7459,7 +7469,7 @@ energy from your soul to feed its power."
   :numeric-id 410
   :x-attr (tile-file 21)
   :x-char (tile-number 43)
-  :desc "A strange pillar of shining light that hurts your eyes.  Its shape changes  constantly as it cuts through the air towards you.  It is like a beacon, waking monsters from their slumber."
+  :desc "A strange pillar of shining light that hurts your eyes.  Its shape changes constantly as it cuts through the air towards you.  It is like a beacon, waking monsters from their slumber."
   :text-char #\v
   :text-attr #\v
   :depth 38
@@ -7473,7 +7483,7 @@ energy from your soul to feed its power."
   :immunities '(<fear> <sleep> <confusion>)
   :alertness 0
   :vision 100
-  :special-abilities '(<shriek> (<breath> <light>) (<frequency> 1/4)))
+  :special-abilities '((<spell> <shriek>) (<breath> <light>) (<frequency> 1/4)))
 
 (define-monster-kind "ancient-dragon-blue" "ancient blue dragon"
   :numeric-id 411
@@ -7547,7 +7557,7 @@ energy from your soul to feed its power."
 	     (<gaze> :type <lose-int> :damage (2 . 6))
 	     (<gaze> :type <paralyse> :damage (2 . 4))
 	     (<gaze> :type <exp-20> :damage (2 . 4)))
-  :special-abilities '((<spell> (<bolt> <cold>)) (<spell> (<bolt> <fire>)) (<spell> (<bolt> <acid>))
+  :special-abilities '((<bolt-spell> <cold>) (<bolt-spell> <fire>) (<bolt-spell> <acid>)
 		       (<spell> <darkness>) (<spell> <forget>) (<spell> <mind-blast>) (<spell> <drain-mana>)
 		       (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>) (<spell> <blindness>)
 		       (<frequency> 1/2)))
@@ -7575,7 +7585,7 @@ energy from your soul to feed its power."
   :attacks '((<touch> :type <exp-80> :damage nil) (<touch> :type <exp-80> :damage nil)
 	     (<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12)))
   :treasures '((<drop> "4d2") (<drop-chance> 9/10) <only-drop-items>)
-  :special-abilities '((<spell> (<bolt> <nether>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
+  :special-abilities '((<bolt-spell> <nether>) (<dmg-spell> 3) (<spell> <scare>) (<spell> <paralysis>)
 		       (<frequency> 1/6)))
 
 (define-monster-kind "angel-planetar" "planetar"
@@ -7591,7 +7601,8 @@ energy from your soul to feed its power."
   :armour 68
   :speed 120
   :xp 1800
-  :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <pick-up-item> <smart> <max-hitpoints>
+  :abilities '(<push-others> <powerful-breath> <bash-door> <open-door>
+	       <pick-up-item> <smart> <max-hitpoints>
 	       <initial-sleeper>)
   :immunities '(<sleep> <confusion> <poison> <electricity> <cold> <fire> <acid>)
   :alertness 255
@@ -7599,8 +7610,10 @@ energy from your soul to feed its power."
   :attacks '((<hit> :type <hurt> :damage (4 . 6)) (<hit> :type <hurt> :damage (5 . 5))
 	     (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (4 . 6)))
   :treasures '((<drop> "2d2") (<drop> "1d2") <only-drop-items>)
-  :special-abilities '((<summon> <angel>) (<summon> <monsters>) (<spell> (<bolt> <plasma>)) (<spell> (<bolt> <mana>))
-		       (<spell> <confusion>) (<spell> <teleport-away>) (<spell> <haste>) (<spell> <heal>)
+  :special-abilities '((<summon> <angel>) (<summon> <monsters>)
+		       (<bolt-spell> <plasma>) (<bolt-spell> <mana>)
+		       (<spell> <confusion>) (<spell> <teleport-away>)
+		       (<spell> <haste>) (<spell> <heal>)
 		       (<frequency> 1/11)))
 
 (define-monster-kind "wraith-black" "black wraith"
@@ -7626,7 +7639,7 @@ energy from your soul to feed its power."
   :attacks '((<touch> :type <exp-40> :damage nil) (<touch> :type <exp-40> :damage nil)
 	     (<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12)))
   :treasures '((<drop> "2d2") (<drop> "1d2") <only-drop-items>)
-  :special-abilities '((<spell> (<bolt> <nether>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
+  :special-abilities '((<bolt-spell> <nether>) (<dmg-spell> 3) (<spell> <scare>) (<spell> <paralysis>)
 		       (<spell> <blindness>) (<frequency> 1/7)))
 
 (define-monster-kind "erinyes" "erinyes"
@@ -7651,7 +7664,7 @@ energy from your soul to feed its power."
   :attacks '((<touch> :type <lose-str> :damage (1 . 5)) (<hit> :type <hurt> :damage (3 . 4)))
   :treasures '((<drop-chance> 3/5) <only-drop-items>)
   :gender '<female>
-  :special-abilities '((<spell> (<bolt> <fire>)) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/7)))
+  :special-abilities '((<bolt-spell> <fire>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/7)))
 
 (define-monster-kind "wraith-nether" "nether wraith"
   :numeric-id 419
@@ -7676,7 +7689,7 @@ energy from your soul to feed its power."
   :attacks '((<touch> :type <exp-80> :damage nil) (<touch> :type <exp-80> :damage nil)
 	     (<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12)))
   :treasures '((<drop> "4d2") (<drop-chance> 9/10) <only-drop-items>)
-  :special-abilities '((<spell> (<bolt> <nether>)) (<spell> <darkness>) (<spell> <mind-blast>) (<spell> (<cause> 3))
+  :special-abilities '((<bolt-spell> <nether>) (<spell> <darkness>) (<spell> <mind-blast>) (<dmg-spell> 3)
 		       (<spell> <scare>) (<spell> <blindness>) (<frequency> 1/6)))
 
 (define-monster-kind "troll-eldrak" "eldrak"
@@ -7796,7 +7809,7 @@ energy from your soul to feed its power."
   :attacks '((<spit> :type <blind> :damage (1 . 2)) (<bite> :type <poison> :damage (3 . 9))
 	     (<bite> :type <poison> :damage (3 . 9)) (<bite> :type <poison> :damage (3 . 9)))
   :treasures '((<drop> "4d2") (<drop> "2d2") <only-drop-gold>)
-  :special-abilities '((<breath> <poison>) (<spell> (<ball> <poison>)) (<spell> <scare>) (<frequency> 1/5)))
+  :special-abilities '((<breath> <poison>) (<ball-spell> <poison>) (<spell> <scare>) (<frequency> 1/5)))
 
 (define-monster-kind "night-mare" "night mare"
   :numeric-id 427
@@ -7844,8 +7857,8 @@ energy from your soul to feed its power."
   :attacks '((<bite> :type <exp-80> :damage (1 . 6)) (<bite> :type <exp-80> :damage (1 . 6))
 	     (<hit> :type <hurt> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop> "4d2") (<drop-chance> 3/5))
-  :special-abilities '((<spell> (<bolt> <nether>)) (<spell> <darkness>) (<spell> <brain-smash>) (<spell> <drain-mana>)
-		       (<spell> (<cause> 4)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
+  :special-abilities '((<bolt-spell> <nether>) (<spell> <darkness>) (<spell> <brain-smash>) (<spell> <drain-mana>)
+		       (<dmg-spell> 4) (<dmg-spell> 3) (<spell> <scare>) (<spell> <paralysis>)
 		       (<spell> <blindness>) (<frequency> 1/7)))
 
 (define-monster-kind "ancient-dragon-black" "ancient black dragon"
@@ -7987,7 +8000,7 @@ energy from your soul to feed its power."
 	     (<bite> :type <fire> :damage (3 . 6))
 	     (<bite> :type <fire> :damage (3 . 6)))
   :treasures '((<drop> "4d2") (<drop> "2d2") <only-drop-gold>)
-  :special-abilities '((<breath> <fire>) (<spell> (<bolt> <fire>)) (<spell> <scare>) (<frequency> 1/4)))
+  :special-abilities '((<breath> <fire>) (<bolt-spell> <fire>) (<spell> <scare>) (<frequency> 1/4)))
 
 (define-monster-kind "enchantress" "enchantress"
   :numeric-id 435
@@ -8037,7 +8050,7 @@ energy from your soul to feed its power."
 	     (<hit> :type <hurt> :damage (3 . 4)))
   :treasures '((<drop> "2d2") (<drop-chance> 9/10) <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <undead>) (<summon> <monster>) (<spell> (<cause> 3)) (<spell> <confusion>)
+  :special-abilities '((<summon> <undead>) (<summon> <monster>) (<dmg-spell> 3) (<spell> <confusion>)
 		       (<spell> <paralysis>) (<spell> <blindness>) (<spell> <heal>) (<frequency> 1/2)))
 
 (define-monster-kind "sorcerer" "sorcerer"
@@ -8063,8 +8076,8 @@ energy from your soul to feed its power."
 	     (<hit> :type <hurt> :damage (2 . 8)))
   :treasures '((<drop> "4d2") (<drop-chance> 9/10) <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <dragon>) (<summon> <undead>) (<summon> <monster>) (<spell> (<ball> <cold>))
-		       (<spell> (<ball> <fire>)) (<spell> (<bolt> <acid>)) (<spell> <traps>) (<spell> (<cause> 3))
+  :special-abilities '((<summon> <dragon>) (<summon> <undead>) (<summon> <monster>) (<ball-spell> <cold>)
+		       (<ball-spell> <fire>) (<bolt-spell> <acid>) (<spell> <traps>) (<dmg-spell> 3)
 		       (<spell> <confusion>) (<spell> <blindness>) (<spell> <teleport-player>) (<spell> <blink>)
 		       (<frequency> 1/2)))
 
@@ -8288,7 +8301,7 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
 	     (<claw> :type <hurt> :damage (3 . 3))
 	     (<bite> :type <lose-dex> :damage (3 . 6)))
   :treasures '((<drop> "4d2") (<drop> "2d2") (<drop-chance> 9/10) <only-drop-items>)
-  :special-abilities '((<summon> <demon>) (<spell> <forget>) (<spell> (<cause> 3)) (<spell> <scare>)
+  :special-abilities '((<summon> <demon>) (<spell> <forget>) (<dmg-spell> 3) (<spell> <scare>)
 		       (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/10)))
 
 (define-monster-kind "dark-elf-sorceror" "dark elven sorceror"
@@ -8315,8 +8328,8 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
 	     (<hit> :type <hurt> :damage (2 . 8)))
   :treasures '((<drop> "4d2") (<drop-chance> 9/10) <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <demon>) (<summon> <undead>) (<summon> <monster>) (<spell> (<ball> <cold>))
-		       (<spell> (<ball> <fire>)) (<spell> (<bolt> <acid>)) (<spell> <darkness>) (<spell> (<cause> 3))
+  :special-abilities '((<summon> <demon>) (<summon> <undead>) (<summon> <monster>) (<ball-spell> <cold>)
+		       (<ball-spell> <fire>) (<bolt-spell> <acid>) (<spell> <darkness>) (<dmg-spell> 3)
 		       (<spell> <confusion>) (<spell> <blindness>) (<spell> <teleport-player>) (<spell> <blink>)
 		       (<spell> <heal>) (<frequency> 1/2)))
 
@@ -8344,8 +8357,8 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
 	     (<touch> :type <un-power> :damage nil)
 	     (<touch> :type <exp-80> :damage nil))
   :treasures '((<drop> "4d2") (<drop> "2d2") <only-drop-items>)
-  :special-abilities '((<summon> <undead>) (<spell> <brain-smash>) (<spell> <drain-mana>) (<spell> (<cause> 4))
-		       (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <confusion>) (<spell> <paralysis>)
+  :special-abilities '((<summon> <undead>) (<spell> <brain-smash>) (<spell> <drain-mana>) (<dmg-spell> 4)
+		       (<dmg-spell> 3) (<spell> <scare>) (<spell> <confusion>) (<spell> <paralysis>)
 		       (<spell> <blindness>) (<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/3)))
 
 (define-monster-kind "hezrou" "hezrou"
@@ -8370,7 +8383,7 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
   :attacks '((<hit> :type <hurt> :damage (3 . 4))
 	     (<hit> :type <hurt> :damage (3 . 4)))
   :treasures '((<drop> "2d2") <only-drop-items>)
-  :special-abilities '((<summon> <demon>) (<spell> (<bolt> <fire>)) (<frequency> 1/9)))
+  :special-abilities '((<summon> <demon>) (<bolt-spell> <fire>) (<frequency> 1/9)))
 
 (define-monster-kind "angel-solar" "solar"
   :numeric-id 455
@@ -8394,7 +8407,7 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
 	     (<gaze> :type <terrify> :damage (4 . 4))
 	     (<gaze> :type <terrify> :damage (4 . 4)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :special-abilities '((<summon> <angel>) (<spell> (<bolt> <mana>)) (<spell> (<cause> 4)) (<spell> (<cause> 2))
+  :special-abilities '((<summon> <angel>) (<bolt-spell> <mana>) (<dmg-spell> 4) (<dmg-spell> 2)
 		       (<spell> <scare>) (<spell> <blindness>) (<spell> <teleport-player>) (<frequency> 1/3)))
 (define-monster-kind "glabrezu" "glabrezu"
   :numeric-id 456
@@ -8418,7 +8431,7 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
   :attacks '((<hit> :type <hurt> :damage (3 . 4))
 	     (<hit> :type <hurt> :damage (3 . 4)))
   :treasures '((<drop-chance> 9/10) <only-drop-items>)
-  :special-abilities '((<summon> <demon>) (<spell> (<bolt> <fire>)) (<frequency> 1/9)))
+  :special-abilities '((<summon> <demon>) (<bolt-spell> <fire>) (<frequency> 1/9)))
 (define-monster-kind "nalfeshnee" "nalfeshnee"
   :numeric-id 458
   :x-attr (tile-file 16)
@@ -8468,8 +8481,8 @@ floating in the air.  Black nether storms rage around  its bloodshot pupil and l
 	     (<gaze> :type <lose-int> :damage (2 . 6))
 	     (<gaze> :type <paralyse> :damage nil)
 	     (<gaze> :type <exp-40> :damage nil))
-  :special-abilities '((<summon> <undead>) (<spell> (<bolt> <mana>)) (<spell> <forget>) (<spell> <brain-smash>)
-		       (<spell> <mind-blast>) (<spell> <drain-mana>) (<spell> (<cause> 4)) (<spell> <slow>)
+  :special-abilities '((<summon> <undead>) (<bolt-spell> <mana>) (<spell> <forget>) (<spell> <brain-smash>)
+		       (<spell> <mind-blast>) (<spell> <drain-mana>) (<dmg-spell> 4) (<spell> <slow>)
 		       (<frequency> 1/2)))
 (define-monster-kind "ancient-dragon-mh" "ancient multi-hued dragon"
   :numeric-id 462
@@ -8548,7 +8561,7 @@ each bearing deadly weapons."
 	     (<hit> :type <hurt> :damage (3 . 6)))
   :treasures '((<drop> "1d2") <only-drop-items>)
   :gender '<female>
-  :special-abilities '((<summon> <demon>) (<spell> (<cause> 2)) (<spell> <blindness>) (<frequency> 1/9)))
+  :special-abilities '((<summon> <demon>) (<dmg-spell> 2) (<spell> <blindness>) (<frequency> 1/9)))
 (define-monster-kind "balrog-lesser" "lesser balrog"
   :numeric-id 467
   :x-attr (tile-file 16)
@@ -8598,8 +8611,8 @@ each bearing deadly weapons."
 	     (<bite> :type <fire> :damage (3 . 12))
 	     (<bite> :type <fire> :damage (3 . 12)))
   :treasures '((<drop> "4d2") (<drop> "2d2") <only-drop-gold>)
-  :special-abilities '((<breath> <fire>) (<spell> (<ball> <fire>)) (<spell> (<bolt> <plasma>))
-		       (<spell> (<bolt> <fire>)) (<spell> <scare>) (<frequency> 1/4)))
+  :special-abilities '((<breath> <fire>) (<ball-spell> <fire>) (<bolt-spell> <plasma>)
+		       (<bolt-spell> <fire>) (<spell> <scare>) (<frequency> 1/4)))
 
 (define-monster-kind "priest-patriarch" "patriarch"
   :numeric-id 470
@@ -8624,7 +8637,7 @@ each bearing deadly weapons."
 	     (<hit> :type <hurt> :damage (3 . 4)))
   :treasures '((<drop> "4d2") (<drop-chance> 9/10) <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <undead>) (<summon> <monsters>) (<spell> <brain-smash>) (<spell> (<cause> 4))
+  :special-abilities '((<summon> <undead>) (<summon> <monsters>) (<spell> <brain-smash>) (<dmg-spell> 4)
 		       (<spell> <paralysis>) (<spell> <blindness>) (<spell> <heal>) (<frequency> 1/2)))
 
 (define-monster-kind "dreadmaster" "dreadmaster"
@@ -8652,7 +8665,7 @@ each bearing deadly weapons."
 	     (<hit> :type <hurt> :damage (6 . 6))
 	     (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '((<drop> "4d2") (<drop> "1d2") <only-drop-items>)
-  :special-abilities '((<summon> <undead>) (<spell> (<bolt> <nether>)) (<spell> <drain-mana>) (<spell> (<cause> 4))
+  :special-abilities '((<summon> <undead>) (<bolt-spell> <nether>) (<spell> <drain-mana>) (<dmg-spell> 4)
 		       (<spell> <confusion>) (<spell> <paralysis>) (<spell> <blindness>) (<spell> <teleport-level>)
 		       (<frequency> 1/9)))
 (define-monster-kind "drolem" "drolem"
@@ -8802,8 +8815,8 @@ each bearing deadly weapons."
 	     (<touch> :type <poison> :damage (3 . 5))
 	     (<touch> :type <poison> :damage (3 . 5)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :special-abilities '((<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <nether>))
-		       (<spell> (<bolt> <mana>)) (<spell> <brain-smash>) (<spell> (<cause> 4)) (<spell> <scare>)
+  :special-abilities '((<summon> <undead>) (<ball-spell> <nether>) (<bolt-spell> <nether>)
+		       (<bolt-spell> <mana>) (<spell> <brain-smash>) (<dmg-spell> 4) (<spell> <scare>)
 		       (<spell> <blindness>) (<frequency> 1/4)))
 
 (define-monster-kind "hound-nether" "nether hound"
@@ -9034,8 +9047,8 @@ and a terrible chill runs  down your spine as you face it."
 	     (<sting> :type <lose-con> :damage (8 . 8))
 	     (<sting> :type <lose-con> :damage (8 . 8)))
   :treasures '(<drop-good> (<drop> "2d2") (<drop> "1d2") <only-drop-items>)
-  :special-abilities '((<summon> <undead>) (<breath> <nether>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <nether>))
-		       (<spell> (<bolt> <mana>)) (<spell> <brain-smash>) (<spell> <scare>) (<spell> <blindness>)
+  :special-abilities '((<summon> <undead>) (<breath> <nether>) (<ball-spell> <nether>) (<bolt-spell> <nether>)
+		       (<bolt-spell> <mana>) (<spell> <brain-smash>) (<spell> <scare>) (<spell> <blindness>)
 		       (<frequency> 1/4)))
 
 (define-monster-kind "druj-hand" "hand druj"
@@ -9057,7 +9070,7 @@ and a terrible chill runs  down your spine as you face it."
   :immunities '(<fear> <sleep> <confusion> <poison> <cold>)
   :alertness 10
   :vision 20
-  :special-abilities '((<spell> <darkness>) (<spell> <forget>) (<spell> (<cause> 3)) (<spell> <scare>)
+  :special-abilities '((<spell> <darkness>) (<spell> <forget>) (<dmg-spell> 3) (<spell> <scare>)
 		       (<spell> <confusion>) (<spell> <blindness>) (<spell> <teleport-away>) (<frequency> 1)))
 
 (define-monster-kind "druj-eye" "eye druj"
@@ -9081,8 +9094,8 @@ and a terrible chill runs  down your spine as you face it."
   :vision 20
   :attacks '((<gaze> :type <exp-80> :damage nil)
 	     (<gaze> :type <exp-80> :damage nil))
-  :special-abilities '((<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <nether>))
-		       (<spell> (<bolt> <mana>)) (<frequency> 1)))
+  :special-abilities '((<summon> <undead>) (<ball-spell> <nether>) (<bolt-spell> <nether>)
+		       (<bolt-spell> <mana>) (<frequency> 1)))
 
 (define-monster-kind "druj-skull" "skull druj"
   :numeric-id 501
@@ -9108,9 +9121,9 @@ but merely blast you with mighty magic."
 	     (<bite> :type <lose-int> :damage (4 . 4))
 	     (<bite> :type <paralyse> :damage (4 . 4))
 	     (<bite> :type <exp-80> :damage (4 . 4)))
-  :special-abilities '((<summon> <undead>) (<spell> (<ball> <water>)) (<spell> (<bolt> <nether>))
-		       (<spell> (<bolt> <plasma>)) (<spell> <traps>) (<spell> <brain-smash>) (<spell> <mind-blast>)
-		       (<spell> (<cause> 4)) (<spell> <slow>) (<frequency> 1)))
+  :special-abilities '((<summon> <undead>) (<ball-spell> <water>) (<bolt-spell> <nether>)
+		       (<bolt-spell> <plasma>) (<spell> <traps>) (<spell> <brain-smash>) (<spell> <mind-blast>)
+		       (<dmg-spell> 4) (<spell> <slow>) (<frequency> 1)))
 
 (define-monster-kind "vortex-chaos" "chaos vortex"
   :numeric-id 502
@@ -9235,8 +9248,8 @@ as this ghastly figure strides towards you menacingly."
   :attacks '((<hit> :type <un-bonus> :damage (7 . 7)) (<hit> :type <un-bonus> :damage (7 . 7))
 	     (<hit> :type <un-bonus> :damage (10 . 10)) (<hit> :type <un-bonus> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :special-abilities '((<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <nether>))
-		       (<spell> (<bolt> <mana>)) (<spell> <brain-smash>) (<spell> <scare>) (<spell> <blindness>)
+  :special-abilities '((<summon> <undead>) (<ball-spell> <nether>) (<bolt-spell> <nether>)
+		       (<bolt-spell> <mana>) (<spell> <brain-smash>) (<spell> <scare>) (<spell> <blindness>)
 		       (<frequency> 1/4)))
 
 (define-monster-kind "dread-lord" "dreadlord"
@@ -9264,7 +9277,7 @@ nothing but the stealing of souls and the stench of death.  Flee its hunger!"
   :attacks '((<hit> :type <lose-str> :damage (4 . 6)) (<hit> :type <lose-str> :damage (4 . 6))
 	     (<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '((<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
-  :special-abilities '((<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> <drain-mana>) (<spell> <confusion>)
+  :special-abilities '((<summon> <undead>) (<ball-spell> <nether>) (<spell> <drain-mana>) (<spell> <confusion>)
 		       (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/4)))
 
 (define-monster-kind "beetle-chaos" "chaos beetle"
@@ -9288,7 +9301,7 @@ death incarnate chasing behind you!"
   :attacks '((<bite> :type <hurt> :damage (10 . 10)) (<bite> :type <hurt> :damage (10 . 10))
 	     (<claw> :type <hurt> :damage (10 . 10)) (<claw> :type <hurt> :damage (10 . 10)))
   :treasures '((<drop-chance> 9/10) (<drop-chance> 3/5) <only-drop-items>)
-  :special-abilities '((<breath> <chaos>) (<spell> (<cause> 4)) (<frequency> 1/5)))
+  :special-abilities '((<breath> <chaos>) (<dmg-spell> 4) (<frequency> 1/5)))
 
 (define-monster-kind "hound-chaos" "chaos hound"
   :numeric-id 518
@@ -9416,8 +9429,8 @@ wisdom to control your actions.  It will destroy you."
   :attacks '((<hit> :type <lose-str> :damage (4 . 6)) (<hit> :type <lose-str> :damage (4 . 6))
 	     (<hit> :type <un-bonus> :damage (6 . 8)) (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-good> (<drop> "2d2") (<drop> "1d2") <only-drop-items>)
-  :special-abilities '((<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<ball> <mana>))
-		       (<spell> <brain-smash>) (<spell> <drain-mana>) (<spell> (<cause> 4)) (<spell> (<cause> 3))
+  :special-abilities '((<summon> <undead>) (<ball-spell> <nether>) (<ball-spell> <mana>)
+		       (<spell> <brain-smash>) (<spell> <drain-mana>) (<dmg-spell> 4) (<dmg-spell> 3)
 		       (<spell> <confusion>) (<spell> <paralysis>) (<spell> <blindness>) (<spell> <teleport-player>)
 		       (<frequency> 1/3)))
 

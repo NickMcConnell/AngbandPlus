@@ -18,10 +18,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 173
   :text-attr #\d
   :text-char #\?
-  :depth 15
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
+  :power-lvl 15
+  :locations '((15 . 1))
   :weight 5
   :cost 125
   :sort-value 5017
@@ -35,10 +33,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 174
   :text-attr #\d
   :text-char #\?
-  :depth 15
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
+  :power-lvl 15
+  :locations '((15 . 1))
   :weight 5
   :cost 125
   :sort-value 5018
@@ -52,10 +48,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 175
   :text-attr #\d
   :text-char #\?
-  :depth 15
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
+  :power-lvl 15
+  :locations '((15 . 1))
   :weight 5
   :cost 125
   :sort-value 5016
@@ -69,10 +63,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 176
   :text-attr #\d
   :text-char #\?
-  :depth 1
-  :rarity 0
-  :chance #(1 1 1 1)
-  :locale #(1 5 10 30)
+  :power-lvl 1
+  :locations '((1 . 1) (5 . 1) (10 . 1) (30 . 1))
   :weight 5
   :cost 50
   :sort-value 5012
@@ -87,10 +79,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 177
   :text-attr #\d
   :text-char #\?
-  :depth 30
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(30 0 0 0)
+  :power-lvl 30
+  :locations '((30 . 1))
   :weight 5
   :cost 1000
   :sort-value 5013
@@ -105,29 +95,32 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 180
   :text-attr #\d
   :text-char #\?
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 5
   :cost 100
   :sort-value 5014
-  :the-kind '<scroll>) 
+  :the-kind '<scroll>
+  :on-read (object-effect (dungeon player item)
+	     (when (plusp (remove-curse! player :light))
+	       (print-message! "You feel as if someone is watching over you.")
+	       (possible-identify! player item))
+	    :used))
 
 (define-object-kind "scroll-illumination" "illumination"
   :numeric-id 181
   :text-attr #\d
   :text-char #\?
-  :depth 0
-  :rarity 0
-  :chance #(1 1 1 0)
-  :locale #(0 3 10 0)
+  :power-lvl 0
+  :locations '((0 . 1) (3 . 1) (10 . 1))
   :weight 5
   :cost 15
   :sort-value 5024
   :on-read (object-effect (dungeon player item)
-	     (warn "illumination.")
-	     (when (light-area! dungeon player (roll-dice 2 8) 2 :type '<light>) ;; 2d8 dmg, radius 2
+	     ;;(warn "illumination.")
+	     (when (light-area! dungeon player (location-x player)
+				(location-y player) (roll-dice 2 8)
+				2 :type '<light>) ;; 2d8 dmg, radius 2
 	       (possible-identify! player item))
 	     :used)
   :the-kind '<scroll>) 
@@ -136,10 +129,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 184
   :text-attr #\d
   :text-char #\?
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 5
   :cost 0
   :sort-value 5004
@@ -156,10 +147,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 185
   :text-attr #\d
   :text-char #\?
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 5
   :cost 15
   :sort-value 5008
@@ -173,10 +162,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 186
   :text-attr #\d
   :text-char #\?
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 5
   :cost 40
   :sort-value 5009
@@ -191,10 +178,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 187
   :text-attr #\d
   :text-char #\?
-  :depth 20
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :power-lvl 20
+  :locations '((20 . 1))
   :weight 5
   :cost 50
   :sort-value 5010
@@ -210,7 +195,7 @@ the Free Software Foundation; either version 2 of the License, or
 		   (print-message! "You rise up through the ceiling.")
 		   (print-message! "You sink through the floor."))
 
-	       (change-depth! dungeon player :direction dir :amount 1 :type :teleport)
+	       (move-creature-to-depth! dungeon player :direction dir :amount 1 :type :teleport)
 
 	       (possible-identify! player item)
 	       :used))
@@ -221,10 +206,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 188
   :text-attr #\d
   :text-char #\?
-  :depth 5
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :power-lvl 5
+  :locations '((5 . 1))
   :weight 5
   :cost 30
   :sort-value 5036
@@ -234,10 +217,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 189
   :text-attr #\d
   :text-char #\?
-  :depth 5
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :power-lvl 5
+  :locations '((5 . 1))
   :weight 5
   :cost 40
   :sort-value 5025
@@ -247,10 +228,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 190
   :text-attr #\d
   :text-char #\?
-  :depth 60
-  :rarity 0
-  :chance #(2 4 0 0)
-  :locale #(60 90 0 0)
+  :power-lvl 60
+  :locations '((60 . 2) (90 . 4))
   :weight 5
   :cost 500
   :sort-value 5038
@@ -260,23 +239,23 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 191
   :text-attr #\d
   :text-char #\?
-  :depth 50
-  :rarity 0
-  :chance #(2 0 0 0)
-  :locale #(50 0 0 0)
+  :power-lvl 50
+  :locations '((50 . 2))
   :weight 5
   :cost 8000
   :sort-value 5015
-  :the-kind '<scroll>) 
+  :the-kind '<scroll>
+  :on-read (object-effect (dungeon player item)
+	     (remove-curse! player :heavy)
+	     (possible-identify! player item)
+	     :used))
 
 (define-object-kind "scroll-det-gold" "treasure detection"
   :numeric-id 192
   :text-attr #\d
   :text-char #\?
-  :depth 0
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
+  :locations '((0 . 1))
   :weight 5
   :cost 15
   :sort-value 5026
@@ -290,10 +269,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 193
   :text-attr #\d
   :text-char #\?
-  :depth 0
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
+  :locations '((0 . 1))
   :weight 5
   :cost 15
   :sort-value 5027
@@ -307,10 +284,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 194
   :text-attr #\d
   :text-char #\?
-  :depth 5
-  :rarity 0
-  :chance #(1 1 0 0)
-  :locale #(5 10 0 0)
+  :power-lvl 5
+  :locations '((5 . 1) (10 . 1))
   :weight 5
   :cost 35
   :sort-value 5028
@@ -324,10 +299,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 197
   :text-attr #\d
   :text-char #\?
-  :depth 5
-  :rarity 0
-  :chance #(1 1 1 0)
-  :locale #(5 10 15 0)
+  :power-lvl 5
+  :locations '((5 . 1) (10 . 1) (15 . 1))
   :weight 5
   :cost 35
   :sort-value 5029
@@ -342,10 +315,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 198
   :text-attr #\d
   :text-char #\?
-  :depth 20
-  :rarity 0
-  :chance #(8 0 0 0)
-  :locale #(20 0 0 0)
+  :power-lvl 20
+  :locations '((20 . 8))
   :weight 5
   :cost 100000
   :sort-value 5046
@@ -355,10 +326,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 199
   :text-attr #\d
   :text-char #\?
-  :depth 60
-  :rarity 0
-  :chance #(16 0 0 0)
-  :locale #(60 0 0 0)
+  :power-lvl 60
+  :locations '((60 . 16))
   :weight 5
   :cost 200000
   :sort-value 5047
@@ -368,10 +337,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 200
   :text-attr #\d
   :text-char #\?
-  :depth 50
-  :rarity 0
-  :chance #(4 0 0 0)
-  :locale #(50 0 0 0)
+  :power-lvl 50
+  :locations '((50 . 4))
   :weight 5
   :cost 1000
   :sort-value 5045
@@ -381,10 +348,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 201
   :text-attr #\d
   :text-char #\?
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 5
   :cost 15
   :sort-value 5030
@@ -399,10 +364,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 202
   :text-attr #\d
   :text-char #\?
-  :depth 5
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :power-lvl 5
+  :locations '((5 . 1))
   :weight 5
   :cost 0
   :sort-value 5001
@@ -412,10 +375,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 203
   :text-attr #\d
   :text-char #\?
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 5
   :cost 0
   :sort-value 5007
@@ -425,10 +386,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 204
   :text-attr #\d
   :text-char #\?
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 5
   :cost 50
   :sort-value 5039
@@ -438,10 +397,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 206
   :text-attr #\d
   :text-char #\?
-  :depth 40
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(40 0 0 0)
+  :power-lvl 40
+  :locations '((40 . 1))
   :weight 5
   :cost 200
   :sort-value 5022
@@ -451,10 +408,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 207
   :text-attr #\d
   :text-char #\?
-  :depth 40
-  :rarity 0
-  :chance #(4 0 0 0)
-  :locale #(40 0 0 0)
+  :power-lvl 40
+  :locations '((40 . 4))
   :weight 5
   :cost 750
   :sort-value 5044
@@ -464,15 +419,15 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 208
   :text-attr #\d
   :text-char #\?
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 5
   :cost 0
   :sort-value 5000
   :on-read (object-effect (dungeon player item)
-	     (when (light-area! dungeon player (roll-dice 2 8) 2 :type '<darkness>) ;; 2d8 dmg, radius 2
+	     (when (light-area! dungeon player (location-x player)
+				(location-y player) (roll-dice 2 8)
+				2 :type '<darkness>) ;; 2d8 dmg, radius 2
 	       (possible-identify! player item))
 	     :used)
   :the-kind '<scroll>) 
@@ -481,16 +436,14 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 209
   :text-attr #\d
   :text-char #\?
-  :depth 30
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(30 0 0 0)
+  :power-lvl 30
+  :locations '((30 . 1))
   :weight 5
   :cost 50
   :sort-value 5037
   :on-read (object-effect (dungeon player item)
 	     (modify-creature-state! player '<prot-from-evil>
-				     :add (+ (* 3 (player.level player)) (random 25)))
+				     :add (+ (* 3 (player.power-lvl player)) (random 25)))
 	     (possible-identify! player item)
 	     :used)
   :the-kind '<scroll>) 
@@ -499,16 +452,16 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 210
   :text-attr #\d
   :text-char #\?
-  :depth 5
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :power-lvl 5
+  :locations '((5 . 1))
   :weight 5
   :cost 10
   :sort-value 5032
   :on-read (object-effect (dungeon player item)
-	    (alter-food! player (1- +food-max+))
-	    (possible-identify! player item)
+	     (let ((curamount (player.satiation player)))
+	       (when (< curamount +food-max+)
+		 (possible-identify! player item)
+		 (modify-satiation! player (- +food-max+ curamount 1))))
 	    :used)
   :the-kind '<scroll>) 
 
@@ -516,10 +469,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 211
   :text-attr #\d
   :text-char #\?
-  :depth 40
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(40 0 0 0)
+  :power-lvl 40
+  :locations '((40 . 1))
   :weight 5
   :cost 200
   :sort-value 5042
@@ -529,10 +480,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 212
   :text-attr #\d
   :text-char #\?
-  :depth 50
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(50 0 0 0)
+  :power-lvl 50
+  :locations '((50 . 1))
   :weight 5
   :cost 500
   :sort-value 5021
@@ -546,10 +495,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 213
   :text-attr #\d
   :text-char #\?
-  :depth 50
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(50 0 0 0)
+  :power-lvl 50
+  :locations '((50 . 1))
   :weight 5
   :cost 0
   :sort-value 5003
@@ -559,10 +506,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 214
   :text-attr #\d
   :text-char #\?
-  :depth 50
-  :rarity 0
-  :chance #(1 1 0 0)
-  :locale #(50 50 0 0)
+  :power-lvl 50
+  :locations '((50 . 1) (50 . 1))
   :weight 5
   :cost 500
   :sort-value 5020
@@ -576,10 +521,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 215
   :text-attr #\d
   :text-char #\?
-  :depth 50
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(50 0 0 0)
+  :power-lvl 50
+  :locations '((50 . 1))
   :weight 5
   :cost 0
   :sort-value 5002
@@ -589,10 +532,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 216
   :text-attr #\d
   :text-char #\?
-  :depth 15
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
+  :power-lvl 15
+  :locations '((15 . 1))
   :weight 5
   :cost 0
   :sort-value 5005
@@ -610,10 +551,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 217
   :text-attr #\d
   :text-char #\?
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 5
   :cost 15
   :sort-value 5033
@@ -627,10 +566,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 218
   :text-attr #\d
   :text-char #\?
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 5
   :cost 40
   :sort-value 5034
@@ -644,10 +581,8 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 219
   :text-attr #\d
   :text-char #\?
-  :depth 25
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(25 0 0 0)
+  :power-lvl 25
+  :locations '((25 . 1))
   :weight 5
   :cost 80
   :sort-value 5035
@@ -661,23 +596,23 @@ the Free Software Foundation; either version 2 of the License, or
   :numeric-id 220
   :text-attr #\d
   :text-char #\?
-  :depth 5
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :power-lvl 5
+  :locations '((5 . 1))
   :weight 5
   :cost 150
   :sort-value 5011
+  :on-read (object-effect (dungeon player item)
+	     (when (toggle-word-of-recall! player)
+	       (possible-identify! player item))
+	     :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-*destruction*" "*destruction*"
   :numeric-id 221
   :text-attr #\d
   :text-char #\?
-  :depth 40
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(40 0 0 0)
+  :power-lvl 40
+  :locations '((40 . 1))
   :weight 5
   :cost 250
   :sort-value 5041

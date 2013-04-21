@@ -73,10 +73,10 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "equipment" :depends-on ("global" "object"))
 			   (:file "player" :depends-on ("classes" "global" "character" "equipment"))
 			   (:file "monster" :depends-on ("classes" "global"))
-			   (:file "dungeon" :depends-on ("base" "monster" "classes" "constants" "window"))
+			   (:file "dungeon" :depends-on ("base" "monster" "classes" "constants" "window" "adts"))
 			   (:file "building" :depends-on ("generics" "base" "global" "dungeon" "equipment"))
 			   
-			   (:file "allocate" :depends-on ("generics" "dungeon" "constants" "object"))
+			   (:file "allocate" :depends-on ("generics" "dungeon" "constants" "object" "adts"))
 			   (:file "generate" :depends-on ("dungeon" "allocate" "classes" "object"
 								    "equipment" "generics"))
 			   (:file "print" :depends-on ("generics" "player"))
@@ -91,7 +91,7 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "save" :depends-on ("player" "dungeon" "classes" "global" "generics"))
 			   (:file "load" :depends-on ("save" "generate"))
 			   (:file "death" :depends-on ("global" "player" "character" "save"))
-			   (:file "ai" :depends-on ("generics" "monster" "project"))
+			   (:file "ai" :depends-on ("generics" "monster" "project" "util"))
 			   (:file "loop" :depends-on ("classes" "player" "death" "ai" "print" "actions"
 								"view" "util" "adts" "load" "window"))
 			   (:file "birth" :depends-on ("generics" "constants" "classes" "player" "loop"))

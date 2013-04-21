@@ -20,13 +20,13 @@ ADD_DESC: available in the game.
 (in-package :org.langband.engine)
 
 
-(defmacro def-obj-type (name &key is key kind-slots aobj-slots)
+(defmacro define-object-type (name &key is key kind-slots aobj-slots)
   "Creates necessary objects and registers them."
   (let* ((ok-name (concat-pnames 'object-kind/ name))
 	 (act-name (concat-pnames 'active-object/ name))
 	 (ok-par-name (if is (concat-pnames 'object-kind/ is) 'object-kind))
 	 (act-par-name (if is (concat-pnames 'active-object/ is) 'active-object))
-	 (reg-call (when key `(setf (gethash ',key *obj-type-mappings*) (cons ',ok-name ',act-name)))))
+	 (reg-call (when key `(setf (gethash ',key lb-engine::*obj-type-mappings*) (cons ',ok-name ',act-name)))))
     
     (let ((retval `(progn
 		    (defclass ,ok-name (,ok-par-name) ,kind-slots)
@@ -38,6 +38,7 @@ ADD_DESC: available in the game.
       retval)))
 
 (defun satisfies-obj-type? (type obj)
+  "Checks if the OBJ satisifies the object-type TYPE."
   ;; hackish
   (let ((mapping (gethash type *obj-type-mappings*)))
     (unless mapping
@@ -93,10 +94,14 @@ ADD_DESC: available in the game.
   (get-text-colour (aobj.kind obj)))
 
 (defmethod get-text-colour ((kind object-kind))
+  #||
   (let ((flavour (object.flavour kind)))
     (if flavour
 	(text-attr flavour)
-	(text-attr kind))))
+	(text-attr kind)))
+  ||#
+  (object.text-colour kind))
+
 
 (defmethod get-okind-table ((var-obj variant) (level level))
   
@@ -128,6 +133,12 @@ ADD_DESC: available in the game.
 
 (defmethod object.id ((obj active-object))
   (object.id (aobj.kind obj)))
+
+(defmethod get-power-lvl ((obj active-object))
+  (get-power-lvl (aobj.kind obj)))
+
+(defmethod get-power-lvl ((obj object-kind))
+  (object.power-lvl obj))
 
 
 (defmethod object.game-values ((obj active-object))
@@ -331,6 +342,21 @@ with k-info.txt numbers. NUM is the numeric id."
 (defmethod is-broken? ((obj active-object))
   (bit-flag-set? (aobj.identify obj) +ident-broken+))
 
+;; should also check power argument
+(defmethod uncurse-object! ((obj active-object) power)
+  (declare (ignore power))
+  (when (is-cursed? obj)
+    (bit-flag-remove! (aobj.identify obj) +ident-cursed+)
+    (let ((inscr (aobj.inscr obj)))
+      (when (or (eq inscr nil)
+		(= (length inscr) 0)
+		(equal inscr "cursed"))
+	(setf (aobj.inscr obj) "uncursed")))
+    ;; check inscription here
+    (bit-flag-add! (aobj.identify obj) +ident-sense+)
+    t))
+
+    
 
 (defun get-object-list (&key (var-obj *variant*) (level *level*))
   "returns a fresh list.  Remove me!"
@@ -406,97 +432,156 @@ with k-info.txt numbers. NUM is the numeric id."
   
   ;; hackish, gradually move variant-specific stuff to variant. 
 
-  (let* ((id (object.id new-obj))
-	 ;;(name (object.name new-obj))
-	 (key (if (symbolp id)
-		  (string-downcase (symbol-name id))
-		  id))
-	 )
+  (let ((id (object.id new-obj)))
+
+    (when-bind (numeric-id (getf keyword-args :numeric-id))
+      (cond ((integerp numeric-id)
+	     (unless (>= numeric-id 0)
+	       (signal-condition 'illegal-object-data :id id :desc "numeric-id negative"))
+	     
+	     (setf (object.numeric-id new-obj) numeric-id))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format on numeric-id data"))))
+
+    (when-bind (flags (getf keyword-args :flags))
+      (cond ((consp flags)
+	     (when (find '<easy-know> flags)
+	       (setf (object.easy-know new-obj) t)
+	       (setf flags (remove '<easy-know> flags)))
+	     (setf (object.flags new-obj) flags))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format on flags data"))))
 
     
-  (destructuring-bind (&key numeric-id x-attr x-char
-			    locations weight cost sort-value
-			    events game-values flags flavour desc the-kind
-			    multiplier
-			    (text-attr :unspec) (text-char :unspec)
-			    (on-quaff :unspec)
-			    (on-read :unspec) (on-eat :unspec)
-			    (on-create :unspec) (on-add-magic :unspec)
-			    (on-wear :unspec) (on-drop :unspec)
-			    (on-takeoff :unspec) (on-destroy :unspec)
-			    (on-zap :unspec) (on-hit :unspec) (on-miss :unspec)
-			    (on-calculate :unspec)
-			    &allow-other-keys)
-      keyword-args
-    ;; depth and rarity is deprecated, remove in sources
-    (declare (ignore flavour desc the-kind multiplier))
+    (when-bind (game-values (getf keyword-args :game-values))
+      (cond ((typep game-values 'game-values)
+	     (setf (object.game-values new-obj) game-values))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format on game-values data"))))
 
-    (when flags
-      (when (find '<easy-know> flags)
-	(setf (object.easy-know new-obj) t)
-	(setf flags (remove '<easy-know> flags)))
-      (setf (object.flags new-obj) flags))
+    (when-bind (sort-value (getf keyword-args :sort-value))
+      (cond ((integerp sort-value)
+	     (unless (>= sort-value 0)
+	       (signal-condition 'illegal-object-data :id id :desc "sort-value negative for object-kind."))
+	     (setf (object.sort-value new-obj) sort-value))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format on sort-value data for obj-kind"))))
+    
+    (when-bind (power-lvl (getf keyword-args :power-lvl))
+      (cond ((integerp power-lvl)
+	     (unless (non-negative-integer? power-lvl)
+	       (signal-condition 'illegal-object-data :id id :desc "power-lvl negative for object-kind"))
+	     (setf (object.power-lvl new-obj) power-lvl))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format on power-lvl data for obj-kind"))))
 
 
-    (setf (object.numeric-id new-obj) (if numeric-id
-					  numeric-id
-					  key)
-	  (object.weight new-obj) weight
-	  (object.cost new-obj) cost
-	  (object.sort-value new-obj) (if (numberp sort-value)
-					  sort-value
-					  0) ;; hack
-	  (object.events new-obj) (get-legal-events events)
-	  (object.game-values new-obj) game-values)
+    (when-bind (cost (getf keyword-args :cost))
+      (cond ((integerp cost)
+	     (unless (non-negative-integer? cost)
+	       (signal-condition 'illegal-object-data :id id :desc "cost negative for object-kind"))
+	     (setf (object.cost new-obj) cost))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format on cost data"))))
+
+    (when-bind (weight (getf keyword-args :weight))
+      (cond ((integerp weight)
+	     (unless (non-negative-integer? weight)
+	       (signal-condition 'illegal-object-data :id id :desc "weight negative"))
+	     (setf (object.weight new-obj) weight))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format on weight data"))))
+
+    (when-bind (locations (getf keyword-args :locations))
+      (cond ((consp locations)
+	     (setf (alloc-locations new-obj) locations))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format on locations data"))))
+
+    (when-bind (text-colour (getf keyword-args :text-colour))
+      (cond ((integerp text-colour)
+	     (unless (>= text-colour 0)
+	       (signal-condition 'illegal-object-data :id id :desc "text-colour negative"))
+	     (unless (<= text-colour +term-l-umber+)
+	       (signal-condition 'illegal-object-data :id id :desc "text-colour too high"))
+	     (setf (object.text-colour new-obj) text-colour))
+	    (t
+	     (signal-condition 'illegal-object-data :id id :desc "Unknown format on text-colour data"))))
+
+    ;; when do we get :events ??
+    (when-bind (events (getf keyword-args :events))
+      (warn "Found :events in obj-kind ~s" id)
+      (setf (object.events new-obj) (get-legal-events events)))
 
     
-    (when (consp locations)
-      (setf (object.locations new-obj) locations))
-
-    (assert (listp (object.locations new-obj)))
-    #-langband-release
-    (when (consp (object.locations new-obj))
-      (dolist (i (object.locations new-obj))
-	(assert (<= 0 (car i)))
-	(assert (<= 0 (cdr i)))))
-	
-    
-    (update-kind-display new-obj :x-attr x-attr :x-char x-char
-			 :text-attr text-attr :text-char text-char)
-
-    
-    (flet ((possible-add-effect (effect var &optional (energy +energy-normal-action+))
-	     (cond ((eq :unspec var))
-		   ((is-object-effect? var)
-		    ;;(warn "Compiling ~s for ~s" effect id)
-		    (let ((entry (make-effect-entry :type effect
+    (flet ((possible-add-effect (effect varkey &optional (energy +energy-normal-action+))
+	     (when-bind (var (getf keyword-args varkey))
+	       (cond ((is-object-effect? var)
+		      ;;(warn "Compiling ~s for ~s" effect id)
+		      (let ((entry (make-effect-entry :type effect
 						    ;;;; somehow allegro trips up when passed a compiled function
-						    ;;:fun #+allegro var
-						    ;;#-allegro (compile nil var)
-						    :fun var
-						    :energy-use energy)))
-		      (pushnew entry (object.effects new-obj) :key #'effect-entry-type)))
-		   (t
-		    (error "Unknown value ~s for ~s for ~s" var effect key)))))
+						      ;;:fun #+allegro var
+						      ;;#-allegro (compile nil var)
+						      :fun var
+						      :energy-use energy)))
+			(pushnew entry (object.effects new-obj) :key #'effect-entry-type)))
+		     (t
+		      (signal-condition 'illegal-object-data :id id
+					:desc (format nil "Unknown effect-value ~s for ~s" var effect)
+					))))))
       
-      (possible-add-effect :quaff on-quaff)
-      (possible-add-effect :read on-read)
-      (possible-add-effect :eat on-eat)
-      (possible-add-effect :create on-create)
-      (possible-add-effect :add-magic on-add-magic)
-      (possible-add-effect :wear on-wear)
-      (possible-add-effect :drop on-drop)
-      (possible-add-effect :takeoff on-takeoff)
-      (possible-add-effect :destroy on-destroy)
-      (possible-add-effect :zap on-zap)
-      (possible-add-effect :hit on-hit)
-      (possible-add-effect :miss on-miss)
-      (possible-add-effect :calculate on-calculate)
+      (declare (dynamic-extent #'possible-add-effect))
+      
+      (possible-add-effect :quaff :on-quaff)
+      (possible-add-effect :read :on-read)
+      (possible-add-effect :eat :on-eat)
+      (possible-add-effect :create :on-create)
+      (possible-add-effect :add-magic :on-add-magic)
+      (possible-add-effect :wear :on-wear)
+      (possible-add-effect :drop :on-drop)
+      (possible-add-effect :takeoff :on-takeoff)
+      (possible-add-effect :destroy :on-destroy)
+      (possible-add-effect :zap :on-zap)
+      (possible-add-effect :hit :on-hit)
+      (possible-add-effect :miss :on-miss)
+      (possible-add-effect :calculate :on-calculate)
       )
+    
+    (destructuring-bind (&key x-attr x-char (text-attr :unspec) (text-char :unspec)
+			      &allow-other-keys)
+	keyword-args
+      
+      (update-kind-display new-obj :x-attr x-attr :x-char x-char
+			   :text-attr text-attr :text-char text-char))
+    
+  new-obj))
+
+#-langband-release
+(defmethod initialise-object-kind! :after ((var-obj variant) (new-obj object-kind) keyword-args)
+  "Used to verify data after obj-kind has been init'ed."
+
+  (declare (ignore keyword-args))
+  (let ((id (object.id new-obj)))
+    (unless (listp (alloc-locations new-obj))
+      (signal-condition 'illegal-object-data :id id :desc "Non-list locations data for object-kind."))
+    (unless (integerp (object.power-lvl new-obj))
+      (signal-condition 'illegal-object-data :id id :desc "Non-integer power-lvl for object-kind."))
+    (unless (>= (object.power-lvl new-obj) 0)
+      (signal-condition 'illegal-object-data :id id :desc "Negative power-lvl for object-kind."))
 
 
-    new-obj)))
+    (dolist (i (alloc-locations new-obj))
+      (unless (consp i)
+	(signal-condition 'illegal-object-data :id id :desc "location-data for object-kind not a cons"))
+      (unless (and (integerp (car i)) (>= (car i) 0))
+	(signal-condition 'illegal-object-data :id id :desc "car-part of location-data not legal"))
+      (unless (and (integerp (cdr i)) (>= (cdr i) 0))
+	(signal-condition 'illegal-object-data :id id :desc "cdr-part of location-data not legal")))
+
+    ))
+
   
+
 
 ;; must be fixed!!
 (defun define-object-kind (id name &rest keyword-args
@@ -504,29 +589,36 @@ with k-info.txt numbers. NUM is the numeric id."
   "creates and establishes an object corresponding to parameters.  It uses
 the *VARIANT* object so it has to be properly initialised."
 
-  (let* ((var-obj *variant*)
-	 (new-obj (produce-object-kind var-obj id name :the-kind the-kind))
-	 )
+  (handler-case
+      (let* ((var-obj *variant*)
+	     (new-obj (produce-object-kind var-obj id name :the-kind the-kind))
+	     )
 
-    (when (symbolp id)
-      (warn "Deprecated id for object ~s" id))
+	(when (symbolp id)
+	  (warn "Deprecated id for object ~s" id))
 
-    (initialise-object-kind! var-obj new-obj keyword-args)
+	(initialise-object-kind! var-obj new-obj keyword-args)
     
-    ;; hackish addition to big object-table
-    (let ((main-obj-table (variant.objects var-obj))
-	  (obj-id (object.id new-obj)))
-      (multiple-value-bind (val found-p)
-	  (gethash obj-id main-obj-table)
-	(declare (ignore val))
-	(when found-p
-	  (warn "Replacing object with id ~s" obj-id))
-	(setf (gethash obj-id main-obj-table) new-obj)))
+	;; hackish addition to big object-table
+	(let ((main-obj-table (variant.objects var-obj))
+	      (obj-id (object.id new-obj)))
+	  (multiple-value-bind (val found-p)
+	      (gethash obj-id main-obj-table)
+	    (declare (ignore val))
+	    (when found-p
+	      (warn "Replacing object with id ~s" obj-id))
+	    (setf (gethash obj-id main-obj-table) new-obj)))
     
-    ;; apply object-filters on the new object.    
-    (apply-filters-on-obj :objects var-obj new-obj)
+	;; apply object-filters on the new object.    
+	(apply-filters-on-obj :objects var-obj new-obj)
     
-    new-obj))
+	new-obj)
+    
+    (illegal-object-data (co)
+      (warn "Failed to initialise object-kind [~a]: ~a"
+	    (illegal-data.id co) (illegal-data.desc co))
+      nil)))
+
 
 
 (defmethod produce-active-object ((variant variant) (okind object-kind))
@@ -660,13 +752,13 @@ of objects.  all entries are copied, not shared."
 
 (defmethod flavour-object! ((variant variant) (obj object-kind))
   ;; do nothing
-  (warn "Not added flavouring to ~a" obj)
+  (warn "Not added flavouring for object-kind ~a" obj)
   nil)
 
-(defun %flavour-obj-kind! (kind)
-  "Flavours the given object OBJ."
-  (let* ((var-obj *variant*)
-	 (f-type (gethash (object.the-kind kind) (variant.flavour-types var-obj))))
+(defun flavour-simple-object-kind! (var-obj kind)
+  "This is a helper function that flavours an object-kind where
+the flavouring follows a simple pattern."
+  (let* ((f-type (gethash (object.the-kind kind) (variant.flavour-types var-obj))))
     (when f-type
       (cond ((flavour-type.generator-fn f-type)
 	     (setf (object.flavour kind) (funcall (flavour-type.generator-fn f-type)

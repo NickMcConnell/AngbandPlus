@@ -28,8 +28,8 @@ the Free Software Foundation; either version 2 of the License, or
   :xp-extra 0
   :stat-changes '((<str> +5) (<int> -2) (<wis> -2)
 		  (<dex> +2) (<con> +2) (<chr> -1))
-  :abilities '(;; need to be handled better
-	       (<resist> <fear> :level 30)
+  :abilities '(;; need to be handled better, is now hard-coded in vanilla/player.lisp
+	       ;;(<resist> <fear> :level 30)
 	       )
   :hit-dice 9
   :titles '(
@@ -48,11 +48,22 @@ the Free Software Foundation; either version 2 of the License, or
 			(obj :id "chain-mail")
 			(obj :id "potion-berserk")
 			#||
+			(obj :id "lantern")
+			(obj :id "mithril-plate")
+			(obj :id "broken-stick" :amount 5)
+			(obj :id "ring-resist-fire" :amount 7)
+			(obj :id "magic-beginner" :amount 5)
+			(obj :id "scroll-identify" :amount 80)
+			(obj :id "wand-fire-bolts" :amount 5)
+			(obj :id "rod-lightning-bolts" :amount 5)
+			(obj :id "scroll-illumination" :amount 80)
+			(obj :id "potion-poison" :amount 5)
+			
 			(obj :id "amulet-slow-digest")
 			(obj :id "ring-resist-poison")
 			(obj :id "amulet-resist-acid")
 			
-			(obj :id "lantern")
+			
 			(obj :id "oil-flask")
 			(obj :id "empty-bottle")
 			
@@ -135,7 +146,21 @@ the Free Software Foundation; either version 2 of the License, or
     :starting-equipment '((obj :id "broad-sword")
 			  (obj :id "scroll-protect-from-evil")
 			  (obj :id "beginner-handbook")
+			  #||
+			  ;; hacks
+			  (obj :id "potion-poison" :amount 5)
+			  (obj :id "potion-confusion" :amount 5)
+			  (obj :id "potion-blindness" :amount 5)
+			  (obj :id "potion-speed" :amount 5)
+			  (obj :id "potion-slowness" :amount 5)
+			  (obj :id "potion-sleep" :amount 5)
+			  (obj :id "potion-restore-mana" :amount 5)
+			  (obj :id "ring-stupid")
+			  (obj :id "scroll-remove-curse" :amount 5)
+			  (obj :id "scroll-wor" :amount 5)
+			  ||#
 			  )
+    
 
     :skills '((<disarming> 20 7)
 	      (<device> 24 10)

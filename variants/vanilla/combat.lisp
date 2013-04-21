@@ -42,6 +42,8 @@ the Free Software Foundation; either version 2 of the License, or
   ;; to avoid warnings
   (declare (ignore note dying-note))
   
+  ;;(warn "deliver ~s damage to player from ~s" damage (get-creature-name source))
+  
   (let ((did-target-die? nil))
   
     ;; wake it up
@@ -51,13 +53,16 @@ the Free Software Foundation; either version 2 of the License, or
     (bit-flag-add! *redraw* +print-hp+)
     
     (when (minusp (current-hp target))
-      (setf did-target-die? t)
+      (let ((killer (etypecase source
+		      (string source)
+		      (active-monster (get-creature-desc source #x88)))))
+	(setf did-target-die? t)
 
-      ;; this might fail badly, but at least it will be visible!
-      (format-message! "You were killed by ~a" source)
+	;; this might fail badly, but at least it will be visible!
+	(format-message! "You were killed by ~a." killer)
 
       (kill-target! *dungeon* source target (location-x target) (location-y target))
-      )
+      ))
 
     did-target-die?))
 
@@ -113,7 +118,7 @@ the Free Software Foundation; either version 2 of the License, or
 		  (when (< (current-hp fmon) 0)
 		    (format-message! "The ~a died." mon-name)
 		    (let ((target-xp (get-xp-value fmon)))
-		      (alter-xp! player (if target-xp target-xp 0)))
+		      (modify-xp! player (if target-xp target-xp 0)))
 		    (kill-target! dungeon player fmon x y)
 		    ;; repaint spot
 		    (light-spot! dungeon x y))
@@ -150,7 +155,7 @@ the Free Software Foundation; either version 2 of the License, or
       ;;(warn "dir is ~s with ~s + ~s" dir missile-weapon arrow)
 
       (multiple-value-bind (tx ty)
-	  (%get-dest-coords player dir 99)
+	  (get-destination-coords player dir 99)
       
       (let* ((pvx (location-x player))
 	     (pvy (location-y player))
@@ -188,23 +193,23 @@ the Free Software Foundation; either version 2 of the License, or
 		  (when-bind (vis (get-visual-projectile arrow))
 		    ;;(warn "Got ~s for arrow ~s" vis arrow)
 		    (setf gfx-sym (aref (projectile.gfx-path vis)
-					(get-direction-from-diff diff-x diff-y)))
+					(get-direction-from-coord-diff diff-x diff-y)))
 		    (setf text-sym (aref (projectile.text-path vis)
-					 (get-direction-from-diff diff-x diff-y))))
+					 (get-direction-from-coord-diff diff-x diff-y))))
 		  ;; do better check on getting this.. 
 		  (display-moving-object dungeon x y text-sym gfx-sym))
 	      
 		(when-bind (monsters (cave-monsters dungeon x y))
 		  (let* ((fmon (if (consp monsters) (car monsters) monsters))
-			 (mon-name (get-creature-name fmon)))
+			 (mon-name (get-creature-desc fmon #x00)))
 		    (when (missile-hit-creature? player fmon missile-weapon arrow)
 		      
-		      (format-message! "The ~a was hit." mon-name)
+		      (format-message! "~@(~A~) was hit." mon-name)
 		      (missile-inflict-damage! player fmon missile-weapon arrow)
 		      (when (< (current-hp fmon) 0)
-			(format-message! "The ~a died." mon-name)
+			(format-message! "~@(~A~) died." mon-name)
 			(let ((target-xp (get-xp-value fmon)))
-			  (alter-xp! player (if target-xp target-xp 0)))
+			  (modify-xp! player (if target-xp target-xp 0)))
 			(kill-target! dungeon player fmon x y)
 			;; repaint spot
 			(light-spot! dungeon x y))
@@ -276,10 +281,11 @@ the Free Software Foundation; either version 2 of the License, or
 	  (return-from missile-shooting nil))
 	
 	(with-dialogue ()
-	  (setq the-missile (grab-a-selection-item dungeon player '(:backpack :floor)
-						   :prompt "Select missile:"
-						   :selection-function #'sel-fun
-						   :where :backpack)))
+	  (setq the-missile (select-and-return-item
+			     dungeon player '(:backpack :floor)
+			     :prompt "Select missile:"
+			     :selection-function #'sel-fun
+			     :where :backpack)))
 	
 	
 	(cond ((and the-missile (typep the-missile 'active-object/ammo))
@@ -287,4 +293,20 @@ the Free Software Foundation; either version 2 of the License, or
 	      (t
 	       (print-message! "No missile selected!")))
 	))
+    ))
+
+;; move to variant
+(defmethod get-power-of-attack ((variant vanilla-variant) kind)
+  (ccase kind
+    ;; these are not too common below 1000'
+    (<eat-item> 5)
+    (<eat-food> 5)
+    (<eat-light> 5)
+    (<un-power> 15)
+    (<un-bonus> 20)
+    (<exp-10> 5)
+    (<exp-20> 5)
+    (<exp-80> 5)
+    (nil nil)
+    ;; the rest should be defined in variant  (combat.lisp)
     ))

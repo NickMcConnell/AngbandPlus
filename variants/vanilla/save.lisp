@@ -20,12 +20,12 @@ the Free Software Foundation; either version 2 of the License, or
   (when (is-spellcaster? player)
     (let ((str (lang.stream stream))
 	  (learnt-spells (class.learnt-spells (player.class player))))
-      (bt:write-binary 'u16 str (length learnt-spells))
+      (bt:write-binary 'bt:u16 str (length learnt-spells))
       (loop for x across learnt-spells
 	    do
 	    (progn
 	      ;;(warn "Saving spell ~s of ~s spells" x (length learnt-spells))
-	      (%bin-save-string x str)))))
+	      (save-binary-string x str)))))
 
   nil)
 
@@ -35,7 +35,7 @@ the Free Software Foundation; either version 2 of the License, or
   
   (when (is-spellcaster? player)
     (let ((str (lang.stream stream))
-	  (ind (%get-indent-str indent)))
+	  (ind (get-indent-string indent)))
       
       (format str "~a (filed-player-data *variant* *player* :learnt-spells '~s)~%"
 	      ind (loop for i across (class.learnt-spells (player.class player))
@@ -49,11 +49,11 @@ the Free Software Foundation; either version 2 of the License, or
     (when (and (is-spellcaster? player)
 	       (>= (saveheader.engine-num-version *saveheader*) 124))
       (let* ((str (lang.stream stream))
-	     (len (read-binary 'bt:u16 str))
+	     (len (bt:read-binary 'bt:u16 str))
 	     (lspell-arr (class.learnt-spells (player.class player))))
 	;;(warn "Spell-len ~s" len)
 	(dotimes (i len)
-	  (let ((id (%bin-read-string str)))
+	  (let ((id (load-binary-string str)))
 	    ;;(warn "id is ~s" id)
 	    (vector-push id lspell-arr)))
 
@@ -89,7 +89,7 @@ the Free Software Foundation; either version 2 of the License, or
 
   (let ((str (lang.stream stream)))
 
-    (write-binary 'u16 str 8) ;; number of houses
+    (bt:write-binary 'bt:u16 str 8) ;; number of houses
     
     ;; let's do homes and shops
     (dotimes (i 8)
@@ -100,8 +100,8 @@ the Free Software Foundation; either version 2 of the License, or
 	    
 	  ;;(warn "Saving house ~s with ~s items" house (items.cur-size items))
 	  
-	  (write-binary 'u16 str (1+ i)) ;; house number
-	  (write-binary 'u16 str (items.cur-size items))
+	  (bt:write-binary 'bt:u16 str (1+ i)) ;; house number
+	  (bt:write-binary 'bt:u16 str (items.cur-size items))
 	  (loop for x across objs
 		when x
 		do
@@ -118,7 +118,7 @@ the Free Software Foundation; either version 2 of the License, or
   (call-next-method)
 
   (let ((str (lang.stream stream))
-	(ind (%get-indent-str indent)))
+	(ind (get-indent-string indent)))
 
     ;; let's do homes and shops
     (dotimes (i 8)
@@ -163,8 +163,8 @@ the Free Software Foundation; either version 2 of the License, or
   (when (>= (saveheader.engine-num-version *saveheader*) 125)
     (let* ((str (lang.stream stream)))
       (dotimes (i (bt:read-binary 'bt:u16 str))
-	(let* ((house-num (bt:read-binary 'u16 str))
-	       (house-size (bt:read-binary 'u16 str))
+	(let* ((house-num (bt:read-binary 'bt:u16 str))
+	       (house-size (bt:read-binary 'bt:u16 str))
 	       (items (loop for i from 0 below house-size
 			    collecting (load-object variant :active-object stream))))
 	  (filed-variant-data variant :house-number house-num

@@ -432,11 +432,11 @@ the Free Software Foundation; either version 2 of the License, or
 
   ;; handle cur-xp
   (when-bind (cur-xp (getf kwd-args :cur-xp))
-    (setf (player.cur-xp player) cur-xp))
+    (setf (player.current-xp player) cur-xp))
 
   ;; handle max-xp
   (when-bind (max-xp (getf kwd-args :max-xp))
-    (setf (player.max-xp player) max-xp))
+    (setf (player.maximum-xp player) max-xp))
   
   ;; handle fraction-xp
   (when-bind (fraction-xp (getf kwd-args :fraction-xp))
@@ -464,7 +464,7 @@ the Free Software Foundation; either version 2 of the License, or
 
   ;; handle food
   (when-bind (food (getf kwd-args :food))
-    (setf (player.food player) food))
+    (setf (player.satiation player) food))
 
   ;; handle energy
   (when-bind (energy (getf kwd-args :energy))
@@ -581,16 +581,16 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod load-object ((variant variant) (type (eql :dungeon)) (stream l-binary-stream))
 
   (let* ((str (lang.stream stream))
-	 (depth (read-binary 'bt:s16 str))
-	 (width (read-binary 'bt:u16 str))
-	 (height (read-binary 'bt:u16 str)))
+	 (depth (bt:read-binary 'bt:s16 str))
+	 (width (bt:read-binary 'bt:u16 str))
+	 (height (bt:read-binary 'bt:u16 str)))
 
     (let ((dungeon (create-dungeon width height :its-depth depth)))
 
       (with-dungeon (dungeon (coord x y))
 	(declare (ignore x y))
-	(let* ((feat (read-binary 'bt:u16 str))
-	       (flag (read-binary 'bt:u16 str)))
+	(let* ((feat (bt:read-binary 'bt:u16 str))
+	       (flag (bt:read-binary 'bt:u16 str)))
 	  (setf (coord.flags coord) flag ;; flag first
 		(coord-floor coord) feat ;; then floor
 		)))
@@ -626,7 +626,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod load-object ((variant variant) (type (eql :active-monster)) (stream l-binary-stream))
 
   (let* ((str (lang.stream stream))
-	 (kind-id (%bin-read-string str)))
+	 (kind-id (load-binary-string str)))
     (%filed-monster :kind kind-id :cur-hp (bt:read-binary 'bt:u16 str)
 		    :max-hp (bt:read-binary 'bt:u16 str) :speed (bt:read-binary 'bt:u16 str)
 		    :energy (bt:read-binary 'bt:u16 str) :mana (bt:read-binary 'bt:u16 str)
@@ -639,9 +639,9 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod load-object ((variant variant) (type (eql :active-object)) (stream l-binary-stream))
 
   (let* ((str (lang.stream stream))
-	 (kind-id (%bin-read-string str)))
+	 (kind-id (load-binary-string str)))
 
-    (%filed-object :kind kind-id :inscr (%bin-read-string str)
+    (%filed-object :kind kind-id :inscr (load-binary-string str)
 		   :number (bt:read-binary 'bt:u16 str)
 		   :identify (bt:read-binary 'bt:u32 str)
 		   :loc-x (bt:read-binary 'bt:u16 str)
@@ -659,7 +659,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod load-object ((variant variant) (type (eql :active-room)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
-	 (id (%bin-read-string str)))
+	 (id (load-binary-string str)))
 
     (%filed-room :type id :loc-x (bt:read-binary 'bt:u16 str)
 		 :loc-y (bt:read-binary 'bt:u16 str))))
@@ -668,7 +668,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod load-object ((variant variant) (type (eql :decor)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
-	 (decortype (%bin-read-string str)))
+	 (decortype (load-binary-string str)))
 
     (cond ((string-equal decortype "trap")
 	   (load-object variant :active-trap stream))
@@ -681,7 +681,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod load-object ((variant variant) (type (eql :active-door)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
-	 (id (%bin-read-string str)))
+	 (id (load-binary-string str)))
 
     (%filed-door :type id :loc-x (bt:read-binary 'bt:u16 str)
 		 :loc-y (bt:read-binary 'bt:u16 str)
@@ -690,7 +690,7 @@ the Free Software Foundation; either version 2 of the License, or
   
 (defmethod load-object ((variant variant) (type (eql :active-trap)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
-	 (id (%bin-read-string str)))
+	 (id (load-binary-string str)))
 
     (%filed-trap :type id :loc-x (bt:read-binary 'bt:u16 str)
 		 :loc-y (bt:read-binary 'bt:u16 str))))
@@ -698,7 +698,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod load-object ((variant variant) (type (eql :temp-creature-attribute)) (stream l-binary-stream))
   (let ((str (lang.stream stream)))
-    (list :attr (%bin-read-string str) :value (bt:read-binary 'bt:s32 str)
+    (list :attr (load-binary-string str) :value (bt:read-binary 'bt:s32 str)
 	  :duration (bt:read-binary 'bt:u16 str))))
 
 
@@ -706,34 +706,34 @@ the Free Software Foundation; either version 2 of the License, or
   (let* ((str (lang.stream stream))
 	 (pl-obj (produce-player-object variant))
 	 (stat-len (variant.stat-length variant))
-	 (loc-x (read-binary 'bt:u16 str))
-	 (loc-y (read-binary 'bt:u16 str))
-	 (view-x (read-binary 'bt:u16 str))
-	 (view-y (read-binary 'bt:u16 str))
-	 (depth (read-binary 'bt:s16 str))
-	 (max-depth (read-binary 'bt:s16 str))
-	 (max-xp (read-binary 'bt:u32 str))
-	 (cur-xp (read-binary 'bt:u32 str))
-	 (frac-xp (read-binary 'bt:u32 str))
-	 (cur-hp (read-binary 'bt:u32 str))
-	 (frac-hp (read-binary 'bt:u32 str))
-	 (cur-mana (read-binary 'bt:u32 str))
-	 (frac-mana (read-binary 'bt:u32 str))
-	 (gold (read-binary 'bt:u32 str))
-	 (food (read-binary 'bt:u32 str))
-	 (energy (read-binary 'bt:u16 str))
-	 (misc (%filed-player-misc :age (read-binary 'bt:u16 str)
-				   :status (read-binary 'bt:u16 str)
-				   :height (read-binary 'bt:u16 str)
-				   :weight (read-binary 'bt:u16 str)))
+	 (loc-x (bt:read-binary 'bt:u16 str))
+	 (loc-y (bt:read-binary 'bt:u16 str))
+	 (view-x (bt:read-binary 'bt:u16 str))
+	 (view-y (bt:read-binary 'bt:u16 str))
+	 (depth (bt:read-binary 'bt:s16 str))
+	 (max-depth (bt:read-binary 'bt:s16 str))
+	 (max-xp (bt:read-binary 'bt:u32 str))
+	 (cur-xp (bt:read-binary 'bt:u32 str))
+	 (frac-xp (bt:read-binary 'bt:u32 str))
+	 (cur-hp (bt:read-binary 'bt:u32 str))
+	 (frac-hp (bt:read-binary 'bt:u32 str))
+	 (cur-mana (bt:read-binary 'bt:u32 str))
+	 (frac-mana (bt:read-binary 'bt:u32 str))
+	 (gold (bt:read-binary 'bt:u32 str))
+	 (food (bt:read-binary 'bt:u32 str))
+	 (energy (bt:read-binary 'bt:u16 str))
+	 (misc (%filed-player-misc :age (bt:read-binary 'bt:u16 str)
+				   :status (bt:read-binary 'bt:u16 str)
+				   :height (bt:read-binary 'bt:u16 str)
+				   :weight (bt:read-binary 'bt:u16 str)))
 	 )
 	   
 	 
     (filed-player-data variant pl-obj
-			:name (%bin-read-string str)
-			:race  (%bin-read-string str)
-			:class  (%bin-read-string str)
-			:gender  (%bin-read-string str)
+			:name (load-binary-string str)
+			:race  (load-binary-string str)
+			:class  (load-binary-string str)
+			:gender  (load-binary-string str)
 			:loc-x loc-x
 			:loc-y loc-y
 			:view-x view-x
@@ -751,9 +751,9 @@ the Free Software Foundation; either version 2 of the License, or
 			:food food
 			:energy energy
 			:misc misc
-			:base-stats (%bin-read-array stat-len 'bt:u16 str)
-			:cur-statmods (%bin-read-array stat-len 'bt:u16 str)
-			:hp-table (%bin-read-array (variant.max-charlevel *variant*) 'bt:u16 str)
+			:base-stats (load-binary-array stat-len 'bt:u16 str)
+			:cur-statmods (load-binary-array stat-len 'bt:u16 str)
+			:hp-table (load-binary-array (variant.max-charlevel *variant*) 'bt:u16 str)
 			:equipment (load-object variant :items-worn stream)
 			:temp-attrs (loop for i from 1 to (bt:read-binary 'bt:u16 str)
 					  collecting
@@ -794,7 +794,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod load-object ((variant variant) (type (eql :level)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
-	 (the-id (%bin-read-string str))
+	 (the-id (load-binary-string str))
 	 (builder (get-level-builder the-id)))
     (unless builder
       (error "Unable to find builder for level ~s" the-id))
@@ -811,9 +811,9 @@ the Free Software Foundation; either version 2 of the License, or
 	 (info-len (bt:read-binary 'bt:u32 str))
 	 (info (loop for i from 0 below info-len
 		     collecting 
-		     (let* ((key (%bin-read-string str))
+		     (let* ((key (load-binary-string str))
 			    (val-type (bt:read-binary 'bt:u16 str))
-			    (val (%bin-read-string str))
+			    (val (load-binary-string str))
 			    (val-obj (ecase val-type
 				       (1 val)
 				       (2 (read-from-string val))
@@ -839,7 +839,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod load-object (variant (type (eql :variant)) (stream l-binary-stream))
   (assert (eq variant nil))
   (let* ((str (lang.stream stream))
-	 (id (%bin-read-string str))
+	 (id (load-binary-string str))
 	 (turn (bt:read-binary 'bt:u32 str))
 	 (var-obj (%filed-variant :id id 
 				  :turn turn
@@ -859,21 +859,21 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod load-object ((variant variant) (type (eql :object-kind)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
-	 (id (%bin-read-string str))
+	 (id (load-binary-string str))
 	 (aware-info (bt:read-binary 'bt:s16 str))
 	 (flavoured (bt:read-binary 'bt:s16 str))
 	 (aware (when (= aware-info 1) t))
 	 (flavour nil))
 
     (when (= flavoured 1)
-      (setf flavour (%bin-read-string str)))
+      (setf flavour (load-binary-string str)))
     
     (%filed-object-kind :id id :aware aware :flavour flavour)
     ))
 
 (defmethod load-object ((variant variant) (type (eql :monster-kind)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
-	 (id (%bin-read-string str))
+	 (id (load-binary-string str))
 	 (wiped-flag (bt:read-binary 'bt:s16 str)))
     
     (%filed-monster-kind :id id

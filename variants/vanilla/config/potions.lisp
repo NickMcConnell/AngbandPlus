@@ -18,10 +18,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 222
   :text-attr #\d
   :text-char #\!
-  :depth 0
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
+  :locations '((0 . 1))
   :weight 4
   :cost 2
   :sort-value 5502
@@ -36,10 +34,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 223
   :text-attr #\d
   :text-char #\!
-  :depth 0
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
+  :locations '((0 . 1))
   :weight 4
   :cost 1
   :sort-value 5501
@@ -55,10 +51,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 224
   :text-attr #\d
   :text-char #\!
-  :depth 0
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
+  :locations '((0 . 1))
   :weight 4
   :cost 1
   :sort-value 5500
@@ -74,10 +68,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 225
   :text-attr #\d
   :text-char #\!
-  :depth 30
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(30 0 0 0)
+  :power-lvl 30
+  :locations '((30 . 1))
   :weight 4
   :cost 8000
   :sort-value 5548
@@ -92,10 +84,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 226
   :text-attr #\d
   :text-char #\!
-  :depth 3
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(3 0 0 0)
+  :power-lvl 3
+  :locations '((3 . 1))
   :weight 4
   :cost 0
   :sort-value 5516
@@ -110,10 +100,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 227
   :text-attr #\d
   :text-char #\!
-  :depth 25
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(25 0 0 0)
+  :power-lvl 25
+  :locations '((25 . 1))
   :weight 4
   :cost 300
   :sort-value 5542
@@ -128,10 +116,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 228
   :text-attr #\d
   :text-char #\!
-  :depth 30
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(30 0 0 0)
+  :power-lvl 30
+  :locations '((30 . 1))
   :weight 4
   :cost 8000
   :sort-value 5549
@@ -146,10 +132,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 229
   :text-attr #\d
   :text-char #\!
-  :depth 20
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :power-lvl 20
+  :locations '((20 . 1))
   :weight 4
   :cost 0
   :sort-value 5517
@@ -165,10 +149,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 230
   :text-attr #\d
   :text-char #\!
-  :depth 25
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(25 0 0 0)
+  :power-lvl 25
+  :locations '((25 . 1))
   :weight 4
   :cost 300
   :sort-value 5543
@@ -183,10 +165,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 231
   :text-attr #\d
   :text-char #\!
-  :depth 30
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(30 0 0 0)
+  :power-lvl 30
+  :locations '((30 . 1))
   :weight 4
   :cost 8000
   :sort-value 5550
@@ -202,10 +182,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 232
   :text-attr #\d
   :text-char #\!
-  :depth 20
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :power-lvl 20
+  :locations '((20 . 1))
   :weight 4
   :cost 0
   :sort-value 5518
@@ -221,10 +199,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 233
   :text-attr #\d
   :text-char #\!
-  :depth 25
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(25 0 0 0)
+  :power-lvl 25
+  :locations '((25 . 1))
   :weight 4
   :cost 300
   :sort-value 5544
@@ -239,10 +215,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 234
   :text-attr #\d
   :text-char #\!
-  :depth 20
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :power-lvl 20
+  :locations '((20 . 1))
   :weight 4
   :cost 1000
   :sort-value 5553
@@ -258,10 +232,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 235
   :text-attr #\d
   :text-char #\!
-  :depth 20
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :power-lvl 20
+  :locations '((20 . 1))
   :weight 4
   :cost 0
   :sort-value 5521
@@ -277,10 +249,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 236
   :text-attr #\d
   :text-char #\!
-  :depth 20
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :power-lvl 20
+  :locations '((20 . 1))
   :weight 4
   :cost 300
   :sort-value 5547
@@ -295,10 +265,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 237
   :text-attr #\d
   :text-char #\!
-  :depth 0
-  :rarity 0
-  :chance #(1 1 1 0)
-  :locale #(0 1 3 0)
+  :power-lvl 0
+  :locations '((0 . 1) (1 . 1) (3 . 1))
   :weight 4
   :cost 15
   :sort-value 5534
@@ -318,10 +286,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 238
   :text-attr #\d
   :text-char #\!
-  :depth 5
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :power-lvl 5
+  :locations '((5 . 1))
   :weight 4
   :cost 0
   :sort-value 5519
@@ -336,10 +302,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 239
   :text-attr #\d
   :text-char #\!
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 4
   :cost 0
   :sort-value 5520
@@ -355,10 +319,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 240
   :text-attr #\d
   :text-char #\!
-  :depth 3
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(3 0 0 0)
+  :power-lvl 3
+  :locations '((3 . 1))
   :weight 4
   :cost 40
   :sort-value 5535
@@ -380,10 +342,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 241
   :text-attr #\d
   :text-char #\!
-  :depth 5
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :power-lvl 5
+  :locations '((5 . 1))
   :weight 4
   :cost 100
   :sort-value 5536
@@ -410,10 +370,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 242
   :text-attr #\d
   :text-char #\!
-  :depth 15
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
+  :power-lvl 15
+  :locations '((15 . 1))
   :weight 4
   :cost 300
   :sort-value 5537
@@ -439,10 +397,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 243
   :text-attr #\d
   :text-char #\!
-  :depth 30
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(30 0 0 0)
+  :power-lvl 30
+  :locations '((30 . 1))
   :weight 4
   :cost 8000
   :sort-value 5552
@@ -458,10 +414,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 244
   :text-attr #\d
   :text-char #\!
-  :depth 65
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(65 0 0 0)
+  :power-lvl 65
+  :locations '((65 . 1))
   :weight 4
   :cost 25000
   :sort-value 5559
@@ -472,10 +426,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 245
   :text-attr #\d
   :text-char #\!
-  :depth 0
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
+  :locations '((0 . 1))
   :weight 4
   :cost 0
   :sort-value 5511
@@ -491,17 +443,15 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 246
   :text-attr #\d
   :text-char #\!
-  :depth 0
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
+  :locations '((0 . 1))
   :weight 4
   :cost 0
   :sort-value 5507
   :the-kind '<potion>
   :on-quaff (object-effect (dungeon player item)
 	      (unless (resists-element? player '<blindness>)
-		(when (modify-creature-state! player '<poisoned> :add (+ 100 (random 100)))
+		(when (modify-creature-state! player '<blindness> :add (+ 100 (random 100)))
 		  (possible-identify! player item)))
 	      :used)
 
@@ -511,10 +461,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 247
   :text-attr #\d
   :text-char #\!
-  :depth 0
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
+  :locations '((0 . 1))
   :weight 4
   :cost 0
   :sort-value 5509
@@ -531,10 +479,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 248
   :text-attr #\d
   :text-char #\!
-  :depth 3
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(3 0 0 0)
+  :power-lvl 3
+  :locations '((3 . 1))
   :weight 4
   :cost 0
   :sort-value 5506
@@ -551,17 +497,15 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 249
   :text-attr #\d
   :text-char #\!
-  :depth 1
-  :rarity 0
-  :chance #(1 1 0 0)
-  :locale #(1 40 0 0)
+  :power-lvl 1
+  :locations '((1 . 1) (40 . 1))
   :weight 4
   :cost 75
   :sort-value 5529
   :the-kind '<potion>
   :on-quaff (object-effect (dungeon player item)
 	      ;; FIX, check if he's already hasted.  also fix for potion and staff
-	      (when (modify-creature-state! player '<hasted> :add (+ 15 (random 25)))
+	      (when (haste-creature! player +10 (+ 15 (random 25)))
 		(possible-identify! player item))
 	      :used)
   
@@ -571,10 +515,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 250
   :text-attr #\d
   :text-char #\!
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 4
   :cost 0
   :sort-value 5504
@@ -589,10 +531,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 251
   :text-attr #\d
   :text-char #\!
-  :depth 30
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(30 0 0 0)
+  :power-lvl 30
+  :locations '((30 . 1))
   :weight 4
   :cost 8000
   :sort-value 5551
@@ -608,10 +548,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 252
   :text-attr #\d
   :text-char #\!
-  :depth 25
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(25 0 0 0)
+  :power-lvl 25
+  :locations '((25 . 1))
   :weight 4
   :cost 300
   :sort-value 5545
@@ -626,10 +564,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 253
   :text-attr #\d
   :text-char #\!
-  :depth 25
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(25 0 0 0)
+  :power-lvl 25
+  :locations '((25 . 1))
   :weight 4
   :cost 300
   :sort-value 5546
@@ -644,10 +580,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 254
   :text-attr #\d
   :text-char #\!
-  :depth 10
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :power-lvl 10
+  :locations '((10 . 1))
   :weight 4
   :cost 0
   :sort-value 5513
@@ -658,10 +592,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 255
   :text-attr #\d
   :text-char #\!
-  :depth 0
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(0 0 0 0)
+  :power-lvl 0
+  :locations '((0 . 1))
   :weight 4
   :cost 0
   :sort-value 5505
@@ -672,10 +604,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 256
   :text-attr #\d
   :text-char #\!
-  :depth 25
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(25 0 0 0)
+  :power-lvl 25
+  :locations '((25 . 1))
   :weight 4
   :cost 800
   :sort-value 5556
@@ -686,10 +616,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 257
   :text-attr #\d
   :text-char #\!
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 4
   :cost 35
   :sort-value 5532
@@ -708,10 +636,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 258
   :text-attr #\d
   :text-char #\!
-  :depth 3
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(3 0 0 0)
+  :power-lvl 3
+  :locations '((3 . 1))
   :weight 4
   :cost 100
   :sort-value 5533
@@ -730,10 +656,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 259
   :text-attr #\d
   :text-char #\!
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 4
   :cost 10
   :sort-value 5528
@@ -748,10 +672,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 260
   :text-attr #\d
   :text-char #\!
-  :depth 40
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(40 0 0 0)
+  :power-lvl 40
+  :locations '((40 . 1))
   :weight 4
   :cost 400
   :sort-value 5541
@@ -762,10 +684,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 261
   :text-attr #\d
   :text-char #\!
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 4
   :cost 30
   :sort-value 5530
@@ -781,10 +701,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 262
   :text-attr #\d
   :text-char #\!
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 4
   :cost 30
   :sort-value 5531
@@ -799,10 +717,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 263
   :text-attr #\d
   :text-char #\!
-  :depth 3
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(3 0 0 0)
+  :power-lvl 3
+  :locations '((3 . 1))
   :weight 4
   :cost 50
   :sort-value 5525
@@ -818,10 +734,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 264
   :text-attr #\d
   :text-char #\!
-  :depth 1
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :power-lvl 1
+  :locations '((1 . 1))
   :weight 4
   :cost 25
   :sort-value 5526
@@ -836,10 +750,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 265
   :text-attr #\d
   :text-char #\!
-  :depth 5
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :power-lvl 5
+  :locations '((5 . 1))
   :weight 4
   :cost 75
   :sort-value 5527
@@ -854,24 +766,28 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 266
   :text-attr #\d
   :text-char #\!
-  :depth 25
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(25 0 0 0)
+  :power-lvl 25
+  :locations '((25 . 1))
   :weight 4
   :cost 350
   :sort-value 5540
   :the-kind '<potion>
+  :on-quaff (object-effect (dungeon player item)
+	      (when (< (current-mana player) (maximum-mana player))
+		(setf (current-mana player) (maximum-mana player))
+		(setf (player.fraction-mana player) 0)
+		(print-message! "You feel your head clear.")
+		(bit-flag-add! *redraw* +print-mana+)
+		(possible-identify! player item))
+	      :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-infravision" "infravision"
   :numeric-id 267
   :text-attr #\d
   :text-char #\!
-  :depth 3
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(3 0 0 0)
+  :power-lvl 3
+  :locations '((3 . 1))
   :weight 4
   :cost 20
   :sort-value 5524
@@ -886,10 +802,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 415
   :text-attr #\d
   :text-char #\!
-  :depth 55
-  :rarity 0
-  :chance #(4 0 0 0)
-  :locale #(55 0 0 0)
+  :power-lvl 55
+  :locations '((55 . 4))
   :weight 4
   :cost 0
   :sort-value 5523
@@ -900,10 +814,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 416
   :text-attr #\d
   :text-char #\!
-  :depth 40
-  :rarity 0
-  :chance #(8 0 0 0)
-  :locale #(40 0 0 0)
+  :power-lvl 40
+  :locations '((40 . 8))
   :weight 4
   :cost 0
   :sort-value 5515
@@ -914,10 +826,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 417
   :text-attr #\d
   :text-char #\!
-  :depth 60
-  :rarity 0
-  :chance #(8 0 0 0)
-  :locale #(60 0 0 0)
+  :power-lvl 60
+  :locations '((60 . 8))
   :weight 4
   :cost 10000
   :sort-value 5522
@@ -928,10 +838,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 418
   :text-attr #\d
   :text-char #\!
-  :depth 40
-  :rarity 0
-  :chance #(16 0 0 0)
-  :locale #(40 0 0 0)
+  :power-lvl 40
+  :locations '((40 . 16))
   :weight 4
   :cost 60000
   :sort-value 5555
@@ -956,10 +864,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 419
   :text-attr #\d
   :text-char #\!
-  :depth 40
-  :rarity 0
-  :chance #(4 0 0 0)
-  :locale #(40 0 0 0)
+  :power-lvl 40
+  :locations '((40 . 4))
   :weight 4
   :cost 1500
   :sort-value 5538
@@ -985,10 +891,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 420
   :text-attr #\d
   :text-char #\!
-  :depth 60
-  :rarity 0
-  :chance #(4 0 0 0)
-  :locale #(60 0 0 0)
+  :power-lvl 60
+  :locations '((60 . 4))
   :weight 4
   :cost 5000
   :sort-value 5539
@@ -1022,10 +926,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 421
   :text-attr #\d
   :text-char #\!
-  :depth 40
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(40 0 0 0)
+  :power-lvl 40
+  :locations '((40 . 1))
   :weight 4
   :cost 2000
   :sort-value 5558
@@ -1036,10 +938,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :numeric-id 422
   :text-attr #\d
   :text-char #\!
-  :depth 70
-  :rarity 0
-  :chance #(4 0 0 0)
-  :locale #(70 0 0 0)
+  :power-lvl 70
+  :locations '((70 . 4))
   :weight 4
   :cost 80000
   :sort-value 5557

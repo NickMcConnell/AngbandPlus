@@ -11,6 +11,7 @@
  * (at your option) any later version.
  */
 
+#include "autoconf.h"
 
 #ifndef INTERFACE
 #if defined(WIN_MAKEDLL)
@@ -201,12 +202,6 @@ typedef enum {
     UITYPE_BAD        = 20
 } UITYPES;
 
-typedef enum {
-    SOUNDSYSTEM_NONE      = 0,
-    SOUNDSYSTEM_SDL_MIXER = 1,
-    SOUNDSYSTEM_OPENAL    = 2
-} SOUNDSYSTEM;
-
 /*
  * Define some simple constants
  */
@@ -288,99 +283,88 @@ typedef enum {
 #define LANGBAND_TEXT_END 0x80
 #define LANGBAND_GFX_START 0x100
 
-#define IMAGE_ARRAY_SIZE 64
 
 // Gervais values!
 #define GFXTILE_WIDTH 32
 #define GFXTILE_HEIGHT 32
 
-extern const char *base_source_path;
-extern const char *base_config_path;
-extern const char *base_data_path;
+extern const char *lbui_base_source_path;
+extern const char *lbui_base_config_path;
+extern const char *lbui_base_data_path;
+//extern int lbui_use_sound;
+/** will we access lisp through callbacks? */
+extern int lbui_will_use_callback;
+extern LISP_SYSTEMS lbui_current_lisp_system;
 
-extern void lb_format(FILE *ofile, int priority, const char *fmt, ...);
-#ifdef DEBUG
-extern void DBGPUT(const char *fmt, ...);
-#else
-#define DBGPUT if(1){}else printf
-#endif
 
-extern void ERRORMSG(const char *fmt, ...);
-#define INFOMSG ERRORMSG
-#define DEBUGPUT DBGPUT
+//INTERFACE int lbui_init_graphics(void);
 
-INTERFACE int init_graphics();
-INTERFACE int init_sound_system(int size);
 
-INTERFACE int paint_image(const char *fname, int x, int y);
-INTERFACE int load_gfx_image(const char *fname, int idx, unsigned int transcolour);
-INTERFACE int paint_gfx_image(const char *fname, const char *name, int x, int y);
-INTERFACE int load_texture(int idx, const char*filename, int twid, int thgt, int alpha);
-INTERFACE int init_tile_files();
-INTERFACE int fill_area(int image_index, int tile_num, int x1, int y1, int x2, int y2);
+INTERFACE int lbui_paint_image(const char *fname, int x, int y);
+INTERFACE int lbui_load_gfx_image(const char *fname, int idx, unsigned int transcolour);
+INTERFACE int lbui_paint_gfx_image(const char *fname, const char *name, int x, int y);
+INTERFACE int lbui_load_texture(int idx, const char*filename, int twid, int thgt, int alpha);
+INTERFACE int lbui_init_tile_files(void);
+INTERFACE int lbui_fill_area(int image_index, int tile_num, int x1, int y1, int x2, int y2);
 
-INTERFACE int get_sound_status();
-INTERFACE int load_sound_effect(const char *fname, int idx);
-INTERFACE int play_sound_effect(int sound_idx);
-INTERFACE int load_music_file(const char *fname, int idx);
-INTERFACE int play_music_file(int sound_idx);
 
 /* remove later */
-extern void print_image_list();
+extern void lbui_print_image_list();
 
-INTERFACE int load_scaled_image(const char *filename, int image_index, int width,
+INTERFACE int lbui_load_scaled_image(const char *filename, int image_index, int width,
 				int height, unsigned int transcolour);
 
-INTERFACE int get_image_width(int idx);
-INTERFACE int get_image_height(int idx);
+INTERFACE int lbui_get_image_width(int idx);
+INTERFACE int lbui_get_image_height(int idx);
+INTERFACE int lbui_get_window_width();
+INTERFACE int lbui_get_window_height();
 
-extern int use_sound;
+INTERFACE int lbui_install_font_in_frame(int win_num, const char *font, int ptsize, int style);
 
-INTERFACE int current_ui();
-INTERFACE int current_soundsystem();
-INTERFACE void print_coloured_token(int wantedTerm, int colour, int token, int row, int col);
-INTERFACE void print_coloured_stat(int wantedTerm, int colour, int stat, int row, int col);
-INTERFACE void print_coloured_number(int wantedTerm, int colour, long number, int padding, int row, int col);
-INTERFACE int init_c_side(const char *ui, const char *sourcePath,
+
+INTERFACE int lbui_current_ui();
+INTERFACE int lbui_current_soundsystem();
+//INTERFACE void print_coloured_token(int wantedTerm, int colour, int token, int row, int col);
+//INTERFACE void print_coloured_stat(int wantedTerm, int colour, int stat, int row, int col);
+//INTERFACE void print_coloured_number(int wantedTerm, int colour, long number, int padding, int row, int col);
+INTERFACE int lbui_init_c_side(const char *ui, const char *sourcePath,
 			  const char *confPath, const char *gfxPath,
 			  int extra_flags);
-INTERFACE char *load_sound(int msg, char *fname);
-int play_game_lisp();
-void readjust_screen_lisp(int width, int height);
-void mouse_clicked(int button, int x, int y);
+INTERFACE char *lbui_load_sound(int msg, char *fname);
+
+int lbui_play_game_lisp();
+void lbui_readjust_screen_lisp(int width, int height);
+void lbui_mouse_clicked(int button, int x, int y);
 
 
-/** will we access lisp through callbacks? */
-extern int lisp_will_use_callback;
-extern LISP_SYSTEMS current_lisp_system;
-INTERFACE void set_lisp_system(LISP_SYSTEMS type);
+
+INTERFACE void lbui_set_lisp_system(LISP_SYSTEMS type);
 
 //#ifdef WIN32
 //INTERFACE int setHINST(long val);
 //#else
-INTERFACE void set_lisp_callback(char *name, void *ptr);
+INTERFACE void lbui_set_lisp_callback(char *name, void *ptr);
 //#endif
 
 
-INTERFACE int exp_complex_blit(short win_num, short x, short y, unsigned int img, int flags);
-INTERFACE int exp_transparent_blit(short win_num, short x, short y, unsigned int img, short flags);
-INTERFACE int exp_full_blit(short win_num, short x, short y, unsigned int img, short flags);
-INTERFACE int exp_clear_coords(short win_num, short x, short y, short w, short h);
-INTERFACE int exp_flush_coords(short win_num, short x, short y, short w, short h);
-INTERFACE int sdl_getEvent(int option);
-INTERFACE int listenForEvent(int option);
-INTERFACE int cleanup_c_side(void);
 
-#ifdef USE_X11
-int cleanup_X11(void);
-#endif
+INTERFACE int lbui_transparent_blit(short win_num, short x, short y, unsigned int img, short flags);
+INTERFACE int lbui_full_blit(short win_num, short x, short y, unsigned int img, short flags);
+INTERFACE int lbui_clear_coords(short win_num, short x, short y, short w, short h);
+INTERFACE int lbui_flush_coords(short win_num, short x, short y, short w, short h);
+//INTERFACE int lbui_get_event(int option);
+INTERFACE int lbui_cleanup_c_side(void);
+
+INTERFACE int lbui_listen_for_event(int option);
+//INTERFACE int sdl_complex_blit(short win_num, short x, short y, unsigned int img, int flags);
+
 
 #ifdef USE_GCU
-INTERFACE int cleanup_GCU(void);
+INTERFACE int gcu_cleanup(void);
 #endif
 
 #ifdef USE_SDL
-INTERFACE int cleanup_SDL(void);
+INTERFACE int sdl_cleanup(void);
 #endif
 
 
@@ -388,36 +372,26 @@ INTERFACE int cleanup_SDL(void);
 INTERFACE int main(int argc, char *argv[]);
 #endif
 
-typedef struct sound_handle sound_effect;
-typedef struct sound_handle music_handle;
-
-struct sound_handle {
-    char *filename;
-    int buffer_idx;
-    void *handle; // probably a Mix_Chunk* for SDL
-};
-
-extern sound_effect **sound_effects;
-extern music_handle **music_handles;
-
 #ifdef USE_SDL
 
 #include "SDL.h"
 
-//#include "SDL_mixer.h"
-
-#define MAX_IMAGES 64
-
 #define FONT_TYPE_TTF 5
 #define FONT_TYPE_HEX 6
+#define MAX_FONT_CHAR_NUMBER 256
+
+#define LBUI_FONT_STYLE_NORMAL 0
+#define LBUI_FONT_STYLE_BOLD 0x01
+#define LBUI_FONT_STYLE_ITALIC 0x02
 
 struct FontData {
+    char *fontname;
     int width;
     int height;
     
     void *theFont;
     int font_type;
-    SDL_Surface *letters[256];
+    SDL_Surface *letters[MAX_FONT_CHAR_NUMBER];
 };
 
 struct graf_tiles {
@@ -442,9 +416,10 @@ struct graf_tiles {
 
 struct tile_information {
 
-    SDL_Surface *tiles[MAX_IMAGES];
-    char *tile_files[MAX_IMAGES];
-    int tile_columns[MAX_IMAGES]; // 
+    int array_size;
+    SDL_Surface **tiles;
+    char **tile_files;
+    int *tile_columns;
     int num_tiles;
 
     int tile_width;
@@ -456,13 +431,15 @@ typedef struct FontData FontData; /* must be here to avoid fwd. ref. */
 typedef struct graf_tiles graf_tiles; 
 typedef struct tile_information TileInformation;
 
-FontData *load_hex_font(const char *filename, int justmetrics);
+FontData *sdl_load_font(const char *fname, int ptsize, int style);
+
+FontData *sdl_load_hex_font(const char *filename, int justmetrics);
 //int load_HEX_font_sdl(FontData *fd, const char *filename, int justmetrics);
-int strtoii(const char *str, Uint32 *w, Uint32 *h);
+int sdl_strtoii(const char *str, Uint32 *w, Uint32 *h);
 
 #ifdef ALLOW_TTF
-int display_char(SDL_Surface *surface, SDL_Rect *dest, FontData *fdata, s16b attr, s16b ch);
-FontData *load_ttf_font(const char *fname, int size);
+int sdl_display_char(SDL_Surface *surface, SDL_Rect *dest, FontData *fdata, s16b attr, s16b ch);
+FontData *sdl_load_ttf_font(const char *fname, int size, int style);
 #endif /* use_ttf */
 
 
@@ -475,32 +452,38 @@ extern int sdl_load_gfx_image(const char *fname, int idx, unsigned int transcolo
 extern int sdl_paint_gfx_image(const char *fname, const char *name, int x, int y);
 extern int sdl_load_scaled_image(const char *filename, int image_index, int width,
 				 int height, unsigned int transcolour);
-extern int sdl_switch_terms(int bigterm);
+//extern int sdl_switch_terms(int bigterm);
 //extern int sdl_term_gfx_use_p(term *t);
-extern int sdl_swap_map();
+//extern int sdl_swap_map();
+extern int sdl_recalculate_frame_placements(int arg);
 
-extern int sdl_loadTexture(int idx, const char *filename, int target_width, int target_height, int alpha);
-extern int sdl_getEvent(int option);
-extern int sdl_getImageWidth(int idx);
-extern int sdl_getImageHeight(int idx);
-extern int sdl_transparentBlit(short win_num, short x, short y, unsigned int img, short flags);
-extern int sdl_fullBlit(short win_num, short x, short y, unsigned int img, short flags);
-extern int sdl_clearCoords(short win_num, short x, short y, short w, short h);
-extern int sdl_flushCoords(short win_num, short x, short y, short w, short h);
+extern int sdl_load_texture(int idx, const char *filename, int target_width, int target_height, int alpha);
+extern int sdl_get_event(int option);
+extern int sdl_get_image_width(int idx);
+extern int sdl_get_image_height(int idx);
+extern int sdl_get_window_width();
+extern int sdl_get_window_height();
+extern int sdl_transparent_blit(short win_num, short x, short y, unsigned int img, short flags);
+extern int sdl_full_blit(short win_num, short x, short y, unsigned int img, short flags);
+extern int sdl_clear_coords(short win_num, short x, short y, short w, short h);
+extern int sdl_flush_coords(short win_num, short x, short y, short w, short h);
 
-extern SDL_Color color_data_sdl[16];
+extern SDL_Color sdl_colour_data[16];
 
 #endif /* use sdl */
 
 #ifdef USE_GCU
 
 extern int gcu_switch_terms(int bigterm);
-extern int gcu_getEvent(int option);
-extern int gcu_fullBlit(short win_num, short x, short y, unsigned int img, short flags);
-extern int gcu_transparentBlit(short win_num, short x, short y, unsigned int img, short flags);
-extern int gcu_clearCoords(short win_num, short x, short y, short w, short h);
-extern int gcu_flushCoords(short win_num, short x, short y, short w, short h);
+extern int gcu_get_event(int option);
+extern int gcu_full_blit(short win_num, short x, short y, unsigned int img, short flags);
+extern int gcu_transparent_blit(short win_num, short x, short y, unsigned int img, short flags);
+extern int gcu_clear_coords(short win_num, short x, short y, short w, short h);
+extern int gcu_flush_coords(short win_num, short x, short y, short w, short h);
+extern int gcu_get_window_width();
+extern int gcu_get_window_height();
 
+extern int gcu_recalculate_frame_placements(int arg);
 #endif /* use gcu */
 
 #endif /* langband_h */

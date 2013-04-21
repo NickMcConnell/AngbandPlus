@@ -18,6 +18,7 @@ the Free Software Foundation; either version 2 of the License, or
   ;; 28 bits
   (deftype u-fixnum () '(unsigned-byte 28))
   ;; 16 bits
+  (deftype u8b () '(unsigned-byte 8))
   (deftype u16b () '(unsigned-byte 16))
   (deftype u24b () '(unsigned-byte 24))
   (deftype u32b () '(unsigned-byte 32))
@@ -37,13 +38,42 @@ the Free Software Foundation; either version 2 of the License, or
     `(member :remove-event :keep-event))
 
   (deftype event-types ()
-    '(member :on-create :on-pre-equip :on-post-equip :step-on-coord))
+    '(member :on-create :step-on-coord))
   )
 
-  
+;; the conditions should be used more..
 (define-condition langband-quit (condition) ()) 
 (define-condition savefile-problem (serious-condition)
   ((desc :initarg :desc :reader saveproblem.desc)))
+
+(define-condition illegal-data-definition (serious-condition)
+  ((id   :initarg :id   :reader illegal-data.id)
+   (desc :initarg :desc :reader illegal-data.desc)))
+
+(define-condition illegal-object-data (illegal-data-definition)
+  ())
+
+(define-condition illegal-monster-data (illegal-data-definition)
+  ())
+
+(define-condition illegal-attack-data (illegal-data-definition)
+  ())
+
+(define-condition illegal-char-class-data (illegal-data-definition)
+  ())
+
+(define-condition illegal-char-race-data (illegal-data-definition)
+  ())
+
+(define-condition illegal-ui-theme-data (illegal-data-definition)
+  ())
+
+
+(defmacro signal-condition (type &rest args)
+  `(signal (make-condition ,type ,@args)))
+
+(defmacro error-condition (type &rest args)
+  `(error (make-condition ,type ,@args)))
 
 ;;; === Some binary types
 (bt:define-unsigned u64 8)
@@ -70,6 +100,14 @@ the Free Software Foundation; either version 2 of the License, or
     (declaim (type ,type ,name))
     (defconstant ,name (the ,type ,init) ,doc)))
 
+(defmacro def-exportconst (name init &optional doc)
+  "Define a typed constant."
+  `(progn
+    (eval-when (:execute :load-toplevel :compile-toplevel)
+      (export ',name))
+    (defconstant ,name ,init ,doc)))
+
+
 ;;; === End important/general macros
 
 ;;; === Some dynamic variables of importance for the rest of the system:
@@ -84,6 +122,7 @@ too frequently.")
 (defvar *dungeon* nil "global dungeon object")
 (defvar *player* nil "the player object")
 
+(defvar *strategy* nil "Bound by the AI-controller to the active strategy.")
 
 (defcustom *redraw* u-fixnum 0 "what to redraw, bitfield")
 (defcustom *update* u-fixnum 0 "what to update, bitfield")
@@ -107,7 +146,7 @@ consing up a new one.")
 (defvar *obj-type-mappings* (make-hash-table :test #'eq)
   "keeps track of mapping from key to object-types, used by factories.")
 
-(defvar *engine-version* "0.1.5" "A version specifier that can be used for
+(defvar *engine-version* "0.1.6" "A version specifier that can be used for
 display and listings, not useful for internal code.")
 (defvar *engine-num-version* 125 "A numeric version for the engine that can
 be used by internal code.  It will typically be incremented with every
@@ -122,6 +161,10 @@ the number you should look at. It's quick to compare against and it's unambigiou
 (defvar *graphics-supported* nil)
 
 (defvar *dumps-directory* "dumps/" "Where should various debug-dumps go?")
+
+(defvar *current-ui-theme* nil "The ui-theme currently being used.")
+(defvar *screen-width* 800)
+(defvar *screen-height* 600)
 
 ;;; === End dynamic variables
 
@@ -191,6 +234,14 @@ but optimized for vectors."
   `(char-code ,chr)
   )
 
+(defun positive-integer? (obj)
+  "Returns T if obj is an integer and > 0."
+  (and (integerp obj) (> obj 0)))
+
+(defun non-negative-integer? (obj)
+  "Returns T if obj is an integer and >= 0."
+  (and (integerp obj) (>= obj 0)))
+
 ;; turn into a deftype later
 (defun nonboolsym? (sym)
   (and sym (not (eq sym t)) (symbolp sym)))
@@ -255,7 +306,8 @@ but optimized for vectors."
   "Integer division, as in C."
   `(prog1 (floor ,a ,b)))
 
-
+(defun round-/ (a b)
+  (prog1 (floor (+ (/ a b) 1/2))))
 
 (defun shrink-array! (arr)
   "Shrinks the array and removes NIL gaps. Returns the new size."
@@ -270,9 +322,12 @@ but optimized for vectors."
 	  (setq cur-obj (aref arr cur-read))
 	  (when cur-obj
 	    (setf (aref arr cur-write) cur-obj)
-	    (incf cur-write)))
+	    (incf cur-write))
+	  )
 
-    (setf (aref arr cur-write) nil)
+    (loop for i of-type fixnum from cur-write below len
+	  do
+	  (setf (aref arr i) nil))
     
     cur-write))
 
@@ -477,6 +532,10 @@ or load time, ie totally dynamic."
   #-(or allegro cmu clisp lispworks sbcl)
   (lang-warn "explicit GC not implemented."))
 
+(defun centre-string (str max-len)
+  "Tries to return a centred version of the string."
+  (format nil (format nil "~~~a:@<~a~~>" max-len str)))
+
 (defun lang-warn (format-string &rest format-args)
   "Prints a warning for Langband-system.  It works almost like
 regular WARN except that no condition is sent, use regular WARN for such
@@ -559,3 +618,13 @@ symbol which can be passed to e.g defun (as name of function)."
 
 (defmacro make-legal-attr (attr)
   `(dpb ,attr (byte 8 8) 0))
+
+(defun is-vowel? (the-char)
+  "Returns T if THE-CHAR is a vowel."
+  (find the-char '(#\a #\e #\i #\o #\u #\y)))
+
+(defun max-cap (max val)
+  "If val is less than max, return val, else return max."
+  (if (> val max)
+      max
+      val))

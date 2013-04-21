@@ -1,4 +1,4 @@
-;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
+;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.dialogue -*-
 
 #|
 
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :org.langband.engine)
+(in-package :org.langband.dialogue)
 
 
 (defstruct (conversation-node (:conc-name cnode.))
@@ -22,7 +22,6 @@ the Free Software Foundation; either version 2 of the License, or
   (options '())       ; all possible replies (including hidden ones)
   (skip-test nil)     ; function to test for "skipping" this node
   (skip-dest nil)     ; destination to skip to: node or id string
-  (include nil)       ; list of "parents" to collect options from
   )
 
 (defstruct (conversation-option (:conc-name copt.))

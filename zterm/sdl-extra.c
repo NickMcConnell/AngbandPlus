@@ -48,6 +48,8 @@
 */
 
 
+#include "autoconf.h"
+
 #ifdef USE_SDL
 
 #include "SDL.h"
@@ -57,7 +59,7 @@
 #include <string.h>
 #include <math.h> /* for scaling blits */
 #include "langband.h"
-
+#include "lbtools.h"
 
 /* The following function will extract height and width info from a filename
  * such as 16x16.xyz or 8X13.bar or even argle8ook16.foo
@@ -67,7 +69,7 @@
  */
 
 int
-strtoii(const char *str, Uint32 *w, Uint32 *h) {
+sdl_strtoii(const char *str, Uint32 *w, Uint32 *h) {
 
     char buf[1024];
     char *s = buf;
@@ -156,69 +158,79 @@ int JAI_BlitSurfaceAlpha(SDL_Surface *src, SDL_Rect *srcrect,
 	SDL_Rect sr,dr, sr2,dr2;
 	int retval;
 
-	if(srcrect)
-	{
-		memcpy(&sr,srcrect,sizeof(SDL_Rect));
-		memcpy(&sr2,srcrect,sizeof(SDL_Rect));
+	if (srcrect) {
+	    memcpy(&sr,srcrect,sizeof(SDL_Rect));
+	    memcpy(&sr2,srcrect,sizeof(SDL_Rect));
 	}
-	else
-		memcpy(&sr,&src->clip_rect,sizeof(SDL_Rect));
-	if(dstrect)
-	{
-		memcpy(&dr,dstrect,sizeof(SDL_Rect));
+	else {
+	    memcpy(&sr,&src->clip_rect,sizeof(SDL_Rect));
 	}
-	else
-		memcpy(&dr,&dst->clip_rect,sizeof(SDL_Rect));
-	memcpy(&sr2,&sr,sizeof(SDL_Rect));
-	memcpy(&dr2,&dr,sizeof(SDL_Rect));
-	retval=SDL_BlitSurface(src, &sr2, dst, &dr2);
-	if(retval<0)
-		return retval;
-	if(dst->flags&SDL_SRCALPHA && src->flags&SDL_SRCALPHA)
-	{
-		Uint8 as,ad,*ps,*pd,rgb;
+	
+	if (dstrect) {
+
+	    memcpy(&dr,dstrect,sizeof(SDL_Rect));
+	}
+	else {
+	    memcpy(&dr,&dst->clip_rect,sizeof(SDL_Rect));
+	}
+	memcpy(&sr2, &sr, sizeof(SDL_Rect));
+	memcpy(&dr2, &dr, sizeof(SDL_Rect));
+	retval = SDL_BlitSurface(src, &sr2, dst, &dr2);
+	
+	if(retval < 0) {
+	    return retval;
+	}
+	
+	if((dst->flags & SDL_SRCALPHA) && (src->flags & SDL_SRCALPHA)) {
+
+		Uint8 as, ad, *ps, *pd, rgb;
 		SDL_Color cd;
 		int bpps, bppd, x, y;
 		Uint32 p;
 
-//		debug("JAI_BlitSurfaceAlpha: before %dx%d+%d+%d to %dx%d+%d+%d\n",
-//				sr.w,sr.h,sr.x,sr.y, dr.w,dr.h,dr.x,dr.y);
-		if(dr.x<0)
-		{
+		// debug("JAI_BlitSurfaceAlpha: before %dx%d+%d+%d to %dx%d+%d+%d\n",
+		//	sr.w,sr.h,sr.x,sr.y, dr.w,dr.h,dr.x,dr.y);
+		if (dr.x < 0) {
+
 			sr.x-=dr.x;
 			sr.w+=dr.x;
 			dr.w+=dr.x;
 			dr.x=0;
 		}
-		if(dr.y<0)
-		{
+		
+		if (dr.y < 0) {
+
 			sr.y-=dr.y;
 			sr.h+=dr.y;
 			dr.h+=dr.y;
 			dr.y=0;
 		}
-//		debug("JAI_BlitSurfaceAlpha: after  %dx%d+%d+%d to %dx%d+%d+%d\n",
-//				sr.w,sr.h,sr.x,sr.y, dr.w,dr.h,dr.x,dr.y);
+		// debug("JAI_BlitSurfaceAlpha: after  %dx%d+%d+%d to %dx%d+%d+%d\n",
+		//	sr.w,sr.h,sr.x,sr.y, dr.w,dr.h,dr.x,dr.y);
 		SDL_LockSurface(src);
 		SDL_LockSurface(dst);
-		bpps=src->format->BytesPerPixel;
-		bppd=dst->format->BytesPerPixel;
-		for(y=0; y<sr.h && y+dr.y<dst->clip_rect.h; y++)
-		{
-			ps=src->pixels + bpps*sr.x + src->pitch*(sr.y+y);
-			pd=dst->pixels + bppd*dr.x + dst->pitch*(dr.y+y);
-			for(x=0; x<sr.w && x+dr.x<dst->clip_rect.w; x++)
-			{
-				p=JAI_GetRawPixel(ps,bpps);
-				SDL_GetRGBA(p,src->format, &rgb,&rgb,&rgb,&as);
-				p=JAI_GetRawPixel(pd,bppd);
-				SDL_GetRGBA(p,dst->format, &cd.r,&cd.g,&cd.b,&ad);
-				if(as>ad)
-					ad=as;
-				p=SDL_MapRGBA(dst->format,cd.r,cd.g,cd.b,ad);
-				JAI_PutRawPixel(pd,p,bppd);
-				ps+=bpps;
-				pd+=bppd;
+		
+		bpps = src->format->BytesPerPixel;
+		bppd = dst->format->BytesPerPixel;
+		
+		for (y=0; (y < sr.h) && ((y+dr.y) < dst->clip_rect.h); y++) {
+
+			ps = src->pixels + bpps*sr.x + src->pitch*(sr.y+y);
+			pd = dst->pixels + bppd*dr.x + dst->pitch*(dr.y+y);
+			
+			for(x=0; (x<sr.w) && ((x+dr.x) < dst->clip_rect.w); x++) {
+
+				p = JAI_GetRawPixel(ps, bpps);
+				SDL_GetRGBA(p,src->format, &rgb, &rgb, &rgb, &as);
+				p = JAI_GetRawPixel(pd, bppd);
+				SDL_GetRGBA(p,dst->format, &cd.r, &cd.g, &cd.b, &ad);
+				if (as > ad) {
+				    ad = as;
+				}
+				p = SDL_MapRGBA(dst->format, cd.r, cd.g, cd.b, ad);
+				JAI_PutRawPixel(pd, p, bppd);
+				ps += bpps;
+				pd += bppd;
 			}
 		}
 		SDL_UnlockSurface(src);
@@ -263,7 +275,7 @@ load_HEX_font_sdl(FontData *fd, const char *filename, int justmetrics) {
 
 	char gs[MAX_HEX_FONT_LINE]; /* glyph string */
 
-	Uint32 i,j;
+	int i,j;
 
 	int fail = 0; /* did we fail? */
 
@@ -290,7 +302,7 @@ load_HEX_font_sdl(FontData *fd, const char *filename, int justmetrics) {
 	}
 
 	/* Build the filename */
-//	sprintf(buf, "%s/%s", ANGBAND_DIR_XTRA, filename);
+	//sprintf(buf, "%s/%s", ANGBAND_DIR_XTRA, filename);
 	//sprintf(buf, "%s%s/%s", base_config_path, "fonts", filename);
 	strcpy(buf, filename);
 
@@ -299,6 +311,7 @@ load_HEX_font_sdl(FontData *fd, const char *filename, int justmetrics) {
 	if (!f) 
 	{
 	    ERRORMSG("Hexfont: Couldn't open: %s\n", buf);
+	    justmetrics++; // to avoid warning
 	    return -1;
 	}
 
@@ -363,7 +376,7 @@ load_HEX_font_sdl(FontData *fd, const char *filename, int justmetrics) {
 	}
 
 	/* analyze the file name */
-	if(!strtoii(filename, &mw, &mh)) {
+	if(!sdl_strtoii(filename, &mw, &mh)) {
 
 		/* success! */
 		dw = mw;
@@ -373,13 +386,14 @@ load_HEX_font_sdl(FontData *fd, const char *filename, int justmetrics) {
 
 	    INFOMSG("You may wish to incude the dimensions of a font in its file name. ie \"vga8x16.hex\"");
 	}
-/*
+	/*
 	if (justmetrics) 
 	{
 		fclose(f);
 		return fail;
 	}
-*/
+	*/
+	
 	/* Might as well allocate the bitmap here. */
 	/* XXX I'm not sure what pixel format to use but the text blitter is 
 	 * probably the wrong thing to start optimizing.
@@ -486,7 +500,7 @@ load_HEX_font_sdl(FontData *fd, const char *filename, int justmetrics) {
 }
 
 FontData *
-load_hex_font(const char *filename, int justmetrics) {
+sdl_load_hex_font(const char *filename, int justmetrics) {
     
     int retval;
     FontData *fdata = malloc(sizeof(FontData));
@@ -503,6 +517,8 @@ load_hex_font(const char *filename, int justmetrics) {
 	return NULL;
     }
     else {
+	fdata->fontname = malloc((strlen(filename)+1)*sizeof(char));
+	strcpy(fdata->fontname, filename);
 	return fdata;
     }
 }
@@ -510,21 +526,35 @@ load_hex_font(const char *filename, int justmetrics) {
 #ifdef ALLOW_TTF
 
 FontData *
-load_ttf_font(const char *fname, int ptsize) {
+sdl_load_ttf_font(const char *fname, int ptsize, int style) {
 
     int renderstyle = TTF_STYLE_NORMAL;
-    int max_width = -1;
+    //int renderstyle = TTF_STYLE_BOLD;
+    int max_width = -1, max_height = -1;
+    int firstchar = 32, lastchar = 127;
+    int i;
     char buf[128];
-    
+    //static int count = 1;
+    SDL_Surface * all = NULL;
+    SDL_Rect sr, dest;
+    Uint32 rmask, gmask, bmask, amask;    
     TTF_Font *theFont;
     FontData *fdata = malloc(sizeof(FontData));
+    SDL_Color *white = &sdl_colour_data[TERM_WHITE]; //{ 0xFF, 0xFF, 0xFF, 0 };
+//    SDL_Color *black = &sdl_colour_data[TERM_DARK]; //{ 0x00, 0x00, 0x00, 0 };
+    SDL_Palette *palette;
 
+    if (style & LBUI_FONT_STYLE_BOLD) {
+	renderstyle = TTF_STYLE_BOLD;
+    }
     
-//    DBGPUT("Opening font %s\n", fname);
-    
-   
-    TTF_Init();
+    DBGPUT("Opening font %s\n", fname);
 
+    if (!TTF_WasInit()) {
+	TTF_Init();
+	DBGPUT("Done ttf-init\n");
+    }
+    
     strcpy(buf, fname);
     //sprintf(buf, "%s%s/%s", base_config_path, "fonts", fname);
     
@@ -536,36 +566,165 @@ load_ttf_font(const char *fname, int ptsize) {
     }
     
     TTF_SetFontStyle(theFont, renderstyle);
-
-    // DBGPUT("Font %s loaded", fname);
+    
+    DBGPUT("Font %s loaded\n", fname);
 
     fdata->theFont = theFont;
     fdata->font_type = FONT_TYPE_TTF;
-        
+
+    for (i=0; i < lastchar; i++) {
+	fdata->letters[i] = NULL;
+    }
+
     {
-	int i;
-	//char buf[10];
-	SDL_Color white = { 0xFF, 0xFF, 0xFF, 0 };
-	for (i=0; i < 256; i++) {
-	    SDL_Surface *text;
-	    text = TTF_RenderGlyph_Solid(theFont, i, white);
+	char buf[10];	
+	SDL_Surface *text;
+	
+	for (i=firstchar; i < lastchar; i++) {
+
+	    sprintf(buf, "%c", i);
+	    //DBGPUT("Doing char '%c' %d.\n", i, i);
+	    
+	    text = TTF_RenderText_Solid(theFont, buf, *white);
+	    //text = TTF_RenderText_Blended(theFont, buf, white);
+	    //text = TTF_RenderText_Shaded(theFont, buf, white, black);
+	    if (!text) {
+		ERRORMSG("Unable to render char '%c' (%d) with font %s, giving up.\n", i, i, fname);
+		return NULL;
+	    }
+	    //DBGPUT("Hmm. %p %d %d\n", text, max_width, max_height);
 	    if (text->w > max_width) {
 		max_width = text->w;
 	    }
+	    if (text->h > max_height) {
+		max_height = text->h;
+	    }
+	    //DBGPUT("Assign.\n");
 	    fdata->letters[i] = text;
+	    //DBGPUT("Bah!");
 	}
 
 	//max_width -= 2; // hack
     }
 
+    //DBGPUT("H = %d (%d), W = %d\n", max_height, TTF_FontHeight(theFont), max_width);
+
+	
+    /* SDL interprets each pixel as a 32-bit number, so our masks must depend
+       on the endianness (byte order) of the machine */
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+    amask = 0x000000ff;
+#else
+    rmask = 0x000000ff;
+    gmask = 0x0000ff00;
+    bmask = 0x00ff0000;
+    amask = 0xff000000;
+#endif
+    all = SDL_AllocSurface(SDL_SWSURFACE, MAX_FONT_CHAR_NUMBER * max_width, max_height, 8,0,0,0,0);
+
+    palette = all->format->palette;
+    palette->colors[0].r = 255 - white->r;
+    palette->colors[0].g = 255 - white->g;
+    palette->colors[0].b = 255 - white->b;
+    palette->colors[1].r = white->r;
+    palette->colors[1].g = white->g;
+    palette->colors[1].b = white->b;
+    SDL_SetColorKey( all, SDL_SRCCOLORKEY, 0 );
+    
+    {
+	sr.x = sr.y = 0;
+	dest.x = dest.y = 0;
+	for (i=firstchar; i < lastchar; i++) {
+	    dest.x = i * max_width;
+	    //dest.y = max_height - fdata->letters[i]->h;
+	    sr.w = fdata->letters[i]->w;
+	    sr.h = fdata->letters[i]->h;
+	    dest.w = fdata->letters[i]->w;
+	    dest.h = fdata->letters[i]->h;
+	    
+//	    DBGPUT(">For %d, copy from (%d,%d,%d,%d) -> (%d,%d,%d,%d)\n",
+//		   i, sr.x, sr.y, sr.w, sr.h, dest.x, dest.y, dest.w, dest.h);
+	    
+	    SDL_BlitSurface(fdata->letters[i], &sr, all, &dest);
+	}
+    }
+    
+    // clean up stuff
+    for (i = 0; i < lastchar; i++) {
+	if (fdata->letters[i]) {
+	    SDL_FreeSurface(fdata->letters[i]);
+	}
+    }
+
+    //fdata->theFont = all;
+#if 0
+    {
+	char buffer[1024];
+	sprintf(buffer, "foo/all-%d.bmp", count++);
+	SDL_SaveBMP(all, buffer);
+	//all = SDL_LoadBMP(buffer);
+    }
+#endif    
+	
+    {
+	int retval;
+
+	sr.x = sr.y = 0;
+	dest.x = dest.y = 0;
+	dest.w = sr.w = max_width;
+	dest.h = sr.h = max_height;
+	for (i = firstchar; i < lastchar; i++) {
+	    //fdata->letters[i] = SDL_CreateRGBSurface(SDL_SWSURFACE, max_width, max_height, 32,
+	    //				     rmask, gmask, bmask, amask);
+	    fdata->letters[i] = SDL_CreateRGBSurface(SDL_SWSURFACE, max_width, max_height, 8, 0, 0, 0, 0);
+	    palette = fdata->letters[i]->format->palette;
+	    palette->colors[0].r = 255 - white->r;
+	    palette->colors[0].g = 255 - white->g;
+	    palette->colors[0].b = 255 - white->b;
+	    palette->colors[1].r = white->r;
+	    palette->colors[1].g = white->g;
+	    palette->colors[1].b = white->b;
+
+	    SDL_SetColorKey( fdata->letters[i], SDL_SRCCOLORKEY, 0 );
+
+//	    fdata->letters[i]->format->colorkey = all->format->colorkey;
+//	    fdata->letters[i]->format->palette = all->format->palette;
+	    sr.x = i * max_width;
+	    retval = SDL_BlitSurface(all, &sr, fdata->letters[i], &dest);
+//	    DBGPUT("For %d, copy from (%d,%d,%d,%d) -> (%d,%d,%d,%d) -> %d\n",
+//		   i, sr.x, sr.y, sr.w, sr.h, dest.x, dest.y, dest.w, dest.h, retval);
+	    
+	}
+	
+	SDL_FreeSurface(all);
+    }
+
+#if 0
+    {
+	char buffer[1024];
+	for (i = firstchar; i < lastchar; i++) {
+	    sprintf(buffer,"foo/char-%d-%d.bmp", count, i);
+	    SDL_SaveBMP(fdata->letters[i], buffer);
+	}
+	
+    }
+#endif
+
+    //DBGPUT("All done for font.\n");
     fdata->width = max_width;
-    fdata->height = TTF_FontHeight(theFont);
+    fdata->height = max_height; //TTF_FontHeight(theFont);
+
+    fdata->fontname = malloc((strlen(fname)+1)*sizeof(char));
+    strcpy(fdata->fontname, fname);
     
     return fdata;
 }
 
 int
-display_char(SDL_Surface *surface, SDL_Rect *dest, FontData *fdata, s16b attr, s16b ch) {
+sdl_display_char(SDL_Surface *surface, SDL_Rect *dest, FontData *fdata, s16b attr, s16b ch) {
 
     SDL_Surface *letter = NULL;
     
@@ -573,21 +732,21 @@ display_char(SDL_Surface *surface, SDL_Rect *dest, FontData *fdata, s16b attr, s
     // DBGPUT("fff %c %d\n", ch, attr & 0xf);
 
     // This is the socalled fast/blit version
-/*
+    /*
     letter = fdata->letters[ch];  
     {
 	SDL_PixelFormat *format = letter->format;
 	// DBGPUT( "Ckey %ld depth %d\n", format->colorkey, format->BitsPerPixel);
-	format->palette->colors[1] = color_data_sdl[attr & 0xf];
+	format->palette->colors[1] = sdl_colour_data[attr & 0xf];
     }
-*/  
-    // SDL_SetColors(letter, &(color_data_sdl[attr & 0xf]), 0xff, 1);
-    // SDL_SetColors(letter, &(color_data_sdl[colour&0xf]), 0xff, 1);
+    */  
+    // SDL_SetColors(letter, &(sdl_colour_data[attr & 0xf]), 0xff, 1);
+    // SDL_SetColors(letter, &(sdl_colour_data[colour&0xf]), 0xff, 1);
     
     // this is the socalled render version which renders anew every time
     {
 	TTF_Font *font = (TTF_Font *)(fdata->theFont);
-	letter = TTF_RenderGlyph_Solid(font, ch, color_data_sdl[attr & 0xf]);
+	letter = TTF_RenderGlyph_Solid(font, ch, sdl_colour_data[attr & 0xf]);
 	// DBGPUT("managed to render\n");
     }
 	

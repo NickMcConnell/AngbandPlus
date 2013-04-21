@@ -45,11 +45,15 @@
 
 */
 
+#include "autoconf.h"
+
+#ifdef USE_SDL
 
 #include "langband.h"
 #include "lbwindows.h"
+#include "lbsound.h"
+#include "lbtools.h"
 
-#ifdef USE_SDL
 
 /* 
  *
@@ -82,7 +86,7 @@ struct sdl_winconnection {
 
 typedef struct sdl_winconnection sdl_winconnection;
 
-extern int strtoii(const char *str, Uint32 *w, Uint32 *h);
+//extern int strtoii(const char *str, Uint32 *w, Uint32 *h);
 extern char *formatsdlflags(Uint32 flags);
 
 extern void Multikeypress(char *k);
@@ -92,16 +96,6 @@ extern char *SDL_keysymtostr(SDL_keysym *ks); /* this is the important one. */
 extern int SDL_init_screen_cursor(Uint32 w, Uint32 h);
 extern int SDL_DrawCursor(SDL_Surface *dst, SDL_Rect *dr);
 
-#ifdef USE_SDL_MIXER
-// fix later
-extern int sdl_init_mixer();
-extern int sdl_close_mixer();
-#endif
-
-#ifdef USE_OPENAL
-extern int al_init_mixer();
-extern int al_close_mixer();
-#endif
 
 #ifndef SDL_DISABLE
 #define SDL_DISABLE 0
@@ -125,15 +119,15 @@ extern int al_close_mixer();
 
 
 
-SDL_Surface *theWindow = NULL;
+static SDL_Surface *theWindow = NULL;
 
-TileInformation *tileInfo = NULL;
+static TileInformation *tileInfo = NULL;
 
 //FontData *screen_font = NULL;
-graf_tiles *screen_tiles = NULL;
+static graf_tiles *screen_tiles = NULL;
 
 /* color data copied straight from main-xxx.c */
-SDL_Color color_data_sdl[16] =
+SDL_Color sdl_colour_data[16] =
 {
 /* 0 */	{0, 0, 0, 0}, 
 	{4, 4, 4, 0}, 
@@ -154,17 +148,23 @@ SDL_Color color_data_sdl[16] =
 };
 
 
-void
-init_tile_information(TileInformation *ti) {
+static void
+sdl_init_tile_information(TileInformation *ti, int arrsize) {
     int i = 0;
     
     if (!ti) return;
-    
+    if (arrsize < 1) return;
+
+    ti->array_size = arrsize;
     ti->num_tiles = 0;
     ti->tile_width = 0;
     ti->tile_height = 0;
+
+    ti->tiles = malloc(arrsize * sizeof(SDL_Surface*));
+    ti->tile_files = malloc(arrsize * sizeof(char*));
+    ti->tile_columns = malloc(arrsize * sizeof(int));
     
-    for (i=0; i < MAX_IMAGES; i++) {
+    for (i=0; i < ti->array_size; i++) {
 	ti->tiles[i] = NULL;
 	ti->tile_files[i] = NULL;
 	ti->tile_columns[i] = 0;
@@ -172,7 +172,7 @@ init_tile_information(TileInformation *ti) {
 }
 
 int
-find_image(const char *fname) {
+sdl_find_image(const char *fname) {
     int i = 0;
     //term_data *td = &loc_terms[i];
     
@@ -188,7 +188,7 @@ find_image(const char *fname) {
 
 
 static int
-load_image_data(const char *filename, int image_index, int tiled,
+sdl_load_image_data(const char *filename, int image_index, int tiled,
 		int tile_width, int tile_height, unsigned int transcolour) {
     SDL_Surface *surf = NULL;
     surf = IMG_Load(filename);
@@ -218,13 +218,14 @@ load_image_data(const char *filename, int image_index, int tiled,
 }
 
 int
-load_plain_image(const char *filename, int image_index, unsigned int transcolour) {
-    return load_image_data(filename,image_index, 0, -1, -1, transcolour);
+sdl_load_plain_image(const char *filename, int image_index, unsigned int transcolour) {
+    return sdl_load_image_data(filename,image_index, 0, -1, -1, transcolour);
 }
 
 int
-sdl_getImageWidth(int idx) {
-    if (idx >= 0 && idx < MAX_IMAGES) {
+sdl_get_image_width(int idx) {
+    int max = tileInfo->array_size;
+    if (idx >= 0 && idx < max) {
 	return tileInfo->tiles[idx]->w;
     }
     else {
@@ -233,8 +234,9 @@ sdl_getImageWidth(int idx) {
 }
 
 int
-sdl_getImageHeight(int idx) {
-    if (idx >= 0 && idx < MAX_IMAGES) {
+sdl_get_image_height(int idx) {
+    int max = tileInfo->array_size;
+    if (idx >= 0 && idx < max) {
 	return tileInfo->tiles[idx]->h;
     }
     else {
@@ -246,17 +248,16 @@ sdl_getImageHeight(int idx) {
 int
 sdl_load_gfx_image(const char *fname, int idx, unsigned int transcolour) {
 
-//    char filename[1024];
-    
-//    sprintf(filename, "%s%s/%s", base_gfx_path, type , fname);
+    // char filename[1024];
 
+    // sprintf(filename, "%s%s/%s", base_gfx_path, type , fname);
 
     if (idx < 0) {
 	return -1;
     }
 
     if (idx >= 0) {
-	return load_plain_image(fname, idx, transcolour);
+	return sdl_load_plain_image(fname, idx, transcolour);
     }
     else {
 	ERRORMSG("Somehow loading of image %s screwed up.", fname);
@@ -268,26 +269,58 @@ sdl_load_gfx_image(const char *fname, int idx, unsigned int transcolour) {
 /*#define SCALETOCOLOR(x) (x=((x)*63+((x)-1)))*/
 #define ScaleToColor(x) ((x)=((x)*60)+15)
 /*#define ScaleToColor(x) ((x)=((x)*63))*/
-void init_color_data_sdl() {
+void sdl_init_colour_data() {
     Uint8 i;
+    static int already_done_init = 0;
     
+    // we only wish to do this once!
+    if (already_done_init) return;
+    
+    //DBGPUT("INIT COLOURS!!!\n");
     for (i = 0; i < 16; ++i) {
-	color_data_sdl[i].unused = 255; /* no reason. */
-	if(!color_data_sdl[i].r && !color_data_sdl[i].g && !color_data_sdl[i].b)
+	sdl_colour_data[i].unused = 255; /* no reason. */
+	if(!sdl_colour_data[i].r && !sdl_colour_data[i].g && !sdl_colour_data[i].b)
 	    continue;
-	ScaleToColor(color_data_sdl[i].r);
-	ScaleToColor(color_data_sdl[i].g);
-	ScaleToColor(color_data_sdl[i].b);
+	ScaleToColor(sdl_colour_data[i].r);
+	ScaleToColor(sdl_colour_data[i].g);
+	ScaleToColor(sdl_colour_data[i].b);
     }
+    already_done_init = 1;
 }
 
-
+int num_loaded_fonts = 0;
+FontData **loaded_fonts = NULL;
 
 FontData *
-sdl_load_font(const char *fname, int ptsize) {
+sdl_load_font(const char *fname, int ptsize, int style) {
 
     FontData *fd = NULL;
-    const char *extension = strrchr(fname, '.');
+    const char *extension = NULL;
+    int i;
+        
+    if (!fname) {
+	ERRORMSG("No fontname provided.\n");
+	return NULL;
+    }
+
+    if (!loaded_fonts) {
+
+	loaded_fonts = malloc(20 * sizeof(FontData*));
+	for (i = 0; i < 20; i++) {
+	    loaded_fonts[i] = NULL;
+	}
+    }
+
+    for (i = 0; i < num_loaded_fonts; i++) {
+	if (loaded_fonts[i]) {
+	    if (!strcmp(fname, loaded_fonts[i]->fontname)) {
+		return loaded_fonts[i];
+	    }
+	}
+    }
+    
+    
+    extension = strrchr(fname, '.');
 
     if (!extension) {
 	ERRORMSG("Don't know font-type for file %s.\n",
@@ -299,11 +332,11 @@ sdl_load_font(const char *fname, int ptsize) {
 
     if (0) { }
     else if (!strcmp(extension, "hex")) {
-	fd = load_hex_font(fname, 1);
+	fd = sdl_load_hex_font(fname, 1);
     }
 #ifdef ALLOW_TTF
     else if (!strcmp(extension, "ttf")) {
-	fd = load_ttf_font(fname, ptsize);
+	fd = sdl_load_ttf_font(fname, ptsize, style);
     }
 #endif
     else {
@@ -311,18 +344,51 @@ sdl_load_font(const char *fname, int ptsize) {
 		 extension, fname);
     }
 
+    if (fd) {
+	loaded_fonts[num_loaded_fonts++] = fd;
+    }
+    
     return fd;
 }
 
 LangbandFrame *
-sdlify_frame(LangbandFrame *lf) {
+sdl_install_font_in_frame(LangbandFrame *lf) {
 
     sdl_winconnection *wc = NULL;
-    int max_col = 0, max_row = 0;
-    FontData *fd = NULL;
+    
+    if (lf) {
+	wc = (sdl_winconnection*)lf->ui_connection;
+    }
+
+    if (!wc)
+	return NULL;
+
+    DBGPUT("Trying to install font %s in frame %s\n", lf->fontname, lf->name);
+    wc->font_data = sdl_load_font(lf->fontname, lf->wanted_fontsize, lf->wanted_fontstyle);
+	
+    if (!wc->font_data) {
+	
+	return NULL;
+    }
+    
+    if (lf->tile_width < wc->font_data->width)
+	lf->tile_width = wc->font_data->width; 
+    if (lf->tile_height < wc->font_data->height)
+	lf->tile_height = wc->font_data->height; 
+
+    DBGPUT("Frame %s has twid %d and thgt %d, fwid %d fhgt %d\n",
+	   lf->name, lf->tile_width, lf->tile_height, wc->font_data->width, wc->font_data->height);
+
+    return lf;
+}
+
+LangbandFrame *
+sdl_connect_to_frame(LangbandFrame *lf) {
+
+    sdl_winconnection *wc = NULL;
 
     if (!lf) {
-	ERRORMSG("Illegal frame given to sdlify_term_frame().\n");
+	ERRORMSG("Illegal frame given to sdl_connect_to_frame().\n");
 	return NULL;
     }
 
@@ -335,28 +401,27 @@ sdlify_frame(LangbandFrame *lf) {
     lf->ui_connection = wc;
 
     //DBGPUT("Making window %d with tw %d and th %d\n", lf->key, lf->tile_width, lf->tile_height);
-
-    if (!(lf->fontname)) {
-	ERRORMSG("No legal fontname provided for frame '%s'.", lf->name);
-	return NULL;
-    }
+//    if (!sdl_install_font_in_frame(lf))
+//	return NULL;
     
-    fd = sdl_load_font(lf->fontname, 16);
-
-    if (!fd) {
-	ERRORMSG("Something screwed up with font-loading of '%s'\n", lf->fontname);
-	return NULL;
-    }
-    
-    wc->font_data = fd;
-	
-    if (lf->tile_width < wc->font_data->width)
-	lf->tile_width = wc->font_data->width; 
-    if (lf->tile_height < wc->font_data->height)
-	lf->tile_height = wc->font_data->height; 
-
     wc->background = NULL;
+    wc->face = theWindow;
 
+    return lf;
+}
+
+static LangbandFrame *
+sdl_update_frame_size(LangbandFrame *lf) {
+    
+    int max_col = 0, max_row = 0;
+
+    if (lf->tile_width <= 0 || lf->tile_height <= 0) {
+	ERRORMSG("Somehow tilewidth is %d and tileheight is %d, this is illegal.\n",
+		 lf->tile_width, lf->tile_width);
+	return NULL;
+    }
+
+    
     if (lf->allowed_width < 1) {
 	lf->allowed_width = theWindow->w - lf->xoffset;
     }
@@ -364,37 +429,43 @@ sdlify_frame(LangbandFrame *lf) {
 	lf->allowed_height = theWindow->h - lf->yoffset;
     }
 
-    if (lf->tile_width == 0 || lf->tile_height == 0) {
-	ERRORMSG("Somehow tilewidth is %d and tileheight is %d, this is illegal.\n",
-		 lf->tile_width, lf->tile_width);
-	return NULL;
-    }
-    else {
-        max_col = lf->allowed_width / lf->tile_width;
-	max_row = lf->allowed_height / lf->tile_height;
-    }
+    max_col = lf->allowed_width / lf->tile_width;
+    max_row = lf->allowed_height / lf->tile_height;
+    
 
     //DBGPUT("gah %p %p\n", Term, lf->azt);
     lf->columns = max_col;
     lf->rows = max_row;
-	
 
     lf->frame_width  = lf->columns * lf->tile_width;
     lf->frame_height = lf->rows * lf->tile_height;
 
     //term_data_link(lf, max_col, max_row);
 
-    
-    wc->face = theWindow;
-
     //DBGPUT("returning %p\n", lf);
-    
+
     return lf;
+}
+
+int
+sdl_recalculate_frame_placements(int arg) {
+    int i;
+    
+    for (i = 0; i < lbui_num_predefinedFrames; i++) {
+	LangbandFrame *lf = lbui_get_frame(i, PREDEFINED);
+	lf = sdl_update_frame_size(lf);
+	if (!lf) {
+	    ERRORMSG("Problems with frame %d\n", i);
+	    arg++; // to avoide warning
+	    return -1;
+	}
+    }
+    return 0;
 }
 
 
 int
-sdl_loadTexture(int idx, const char *filename, int target_width, int target_height, int alpha) {
+sdl_load_texture(int idx, const char *filename, int target_width, int target_height, int alpha) {
     // loads a texture in the given idx spot.
     int i, j;
     SDL_Surface *bg = NULL, *texture = NULL;
@@ -412,7 +483,7 @@ sdl_loadTexture(int idx, const char *filename, int target_width, int target_heig
 	return -1;
     }
 
-//    SDL_SetAlpha(texture, SDL_SRCALPHA,SDL_ALPHA_TRANSPARENT);
+    // SDL_SetAlpha(texture, SDL_SRCALPHA,SDL_ALPHA_TRANSPARENT);
     
     bg = SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA,
 			      target_width, target_height, 32,
@@ -459,13 +530,14 @@ sdl_loadTexture(int idx, const char *filename, int target_width, int target_heig
 
 
 int
-init_sdl(int initarguments) {
+lbui_init_sdl(int initarguments) {
 
     Uint32 initflags = SDL_INIT_VIDEO; /* What's the point, if not video? */
     //int fullscreen = 0;
 
     int i = 0;
     int sdl_window_flags = 0;
+    int imgarrsize = 100;
 
     TileInformation *ti = NULL; // maybe update this later?
     
@@ -485,31 +557,8 @@ init_sdl(int initarguments) {
     if (SDL_Init(initflags) != 0) {
 	return -1;
     }
-
-    // postponed for WIN32 until later
-
-    if (use_sound) {
-	int retval = -1;
-	if (0) { return -1;}
-#ifdef USE_OPENAL
-	else if (current_soundsystem() == SOUNDSYSTEM_OPENAL) {
-	    retval = al_init_mixer();
-	}
-#endif
-#ifdef USE_SDL_MIXER
-	else if (current_soundsystem() == SOUNDSYSTEM_SDL_MIXER) {
-	    retval = sdl_init_mixer();
-	}
-#endif
-	if (retval != 0) {
-	    // the game can go on, but no sound!
-	    use_sound = 0;
-	}
-    }
     
-//    DBGPUT("opened audio.\n");
-    
-    init_color_data_sdl();
+    sdl_init_colour_data();
 
     if (initarguments & LANGBAND_FULLSCREEN) {
 	sdl_window_flags |= SDL_FULLSCREEN;
@@ -534,7 +583,7 @@ init_sdl(int initarguments) {
 	    width = 1280;
 	    height = 1024;
 	}
-	INFOMSG("Wid %d, hgt %d and flag %d\n", width, height, initarguments);
+	//INFOMSG("Wid %d, hgt %d and flag %d\n", width, height, initarguments);
 	theWindow = SDL_SetVideoMode(width, height, 0, sdl_window_flags);
     }
 
@@ -546,13 +595,15 @@ init_sdl(int initarguments) {
 	
     SDL_WM_SetCaption("Langband", "Langband Main Screen");
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-//	SDL_ShowCursor(SDL_DISABLE);
+    // SDL_ShowCursor(SDL_DISABLE);
     SDL_EnableUNICODE((1 == 1));
 
     //DBGPUT("tile init\n");
     {
 	// Initing tiles
 	ti = malloc(sizeof(TileInformation));
+	sdl_init_tile_information(ti, imgarrsize);
+	tileInfo = ti;
 	
 	screen_tiles = malloc(sizeof(graf_tiles));
 	
@@ -567,14 +618,14 @@ init_sdl(int initarguments) {
 	screen_tiles->face = NULL;
 
 	// DBGPUT("read tile\n");
-	init_tile_information(ti);
+
 	//read_tiles(ti, david_gervais_tile_files);
-	tileInfo = ti;
+
     }
 
     //DBGPUT("Doing windows\n");
-    for (i = 0; i < num_predefinedFrames; i++) {
-	LangbandFrame *lf = get_frame(i, PREDEFINED);
+    for (i = 0; i < lbui_num_predefinedFrames; i++) {
+	LangbandFrame *lf = lbui_get_frame(i, PREDEFINED);
 	const char *frameName = NULL;
 	//DBGPUT("Checking sub %d\n", i);
 	if (!lf) {
@@ -583,7 +634,7 @@ init_sdl(int initarguments) {
 	}
 	frameName = lf->name;
 	
-	lf = sdlify_frame(lf);
+	lf = sdl_connect_to_frame(lf);
 	
 	//DBGPUT("did sdlify %p\n", lf);
 	
@@ -601,7 +652,7 @@ init_sdl(int initarguments) {
     }
 
 
-    activate_frame(FULL_TERM_IDX);
+    lbui_activate_frame(FULL_TERM_IDX);
     
     //DBGPUT("return to sender\n");
     
@@ -609,9 +660,9 @@ init_sdl(int initarguments) {
 }
 
 int
-cleanup_SDL(void) {
+sdl_cleanup(void) {
 
-    DBGPUT("cleaning up SDL %d %d\n", use_sound, current_soundsystem());
+    //DBGPUT("cleaning up SDL %d %d\n", use_sound, current_soundsystem());
     
     if (theWindow) {
 	SDL_FreeSurface(theWindow);
@@ -627,24 +678,11 @@ cleanup_SDL(void) {
 	free(screen_tiles);
 	screen_tiles = NULL;
     }
-    if (use_sound) {
-	if (0) { return -1;}
-#ifdef USE_OPENAL
-	else if (current_soundsystem() == SOUNDSYSTEM_OPENAL) {
-	    al_close_mixer();
-	}
-#endif
-#ifdef USE_SDL_MIXER
-	else if (current_soundsystem() == SOUNDSYSTEM_SDL_MIXER) {
-	    sdl_close_mixer();
-	}
-#endif
-    }
-
+    
     // this one seems to create nasty problems :-(
     //SDL_Quit();
     SDL_QuitSubSystem(SDL_INIT_EVERYTHING); // hack
-    DBGPUT("cleaned SDL\n");
+    //DBGPUT("cleaned SDL\n");
     
     return 0;
 }
@@ -653,9 +691,10 @@ cleanup_SDL(void) {
 #define DONT_PAINT 0x02
 
 int
-exp_complex_blit(short win_num, short x, short y, unsigned int img, int flags) {
-//inefficient but should work
-    LangbandFrame *lf = predefinedFrames[win_num];
+sdl_complex_blit(short win_num, short x, short y, unsigned int img, int flags) {
+
+    // inefficient but should work
+    LangbandFrame *lf = lbui_predefinedFrames[win_num];
     sdl_winconnection *wc = NULL;
     SDL_Rect sr, dr;
     SDL_Surface *orig = NULL;
@@ -666,8 +705,8 @@ exp_complex_blit(short win_num, short x, short y, unsigned int img, int flags) {
     else {
 	return 2;
     }
-	
-//    if (!(lf->visible)) return 1;
+
+    // if (!(lf->visible)) return 1;
 
 
     dr.x = x * lf->tile_width  + lf->xoffset;
@@ -676,6 +715,8 @@ exp_complex_blit(short win_num, short x, short y, unsigned int img, int flags) {
     sr.h = dr.h = lf->tile_height;
     
 
+    //DBGPUT("Writing %u to %d,%d,%d\n", img, win_num, x, y);
+    
     if (img == 0) {
 	if (lf->background >= 0 && tileInfo->tiles[lf->background]) {
 	    sr.x = x * lf->tile_width;
@@ -700,32 +741,58 @@ exp_complex_blit(short win_num, short x, short y, unsigned int img, int flags) {
 	int yadj = (lf->tile_height > wc->font_data->height) ? (lf->tile_height - wc->font_data->height) : 0;
 	xadj >>= 1;
 	yadj >>= 1;
+
+	//DBGPUT("1. Char = %c, attr = %d\n", thechar, attr);
 	
 	dr.x = (x * lf->tile_width)  + xadj + lf->xoffset;
 	dr.y = (y * lf->tile_height) + yadj + lf->yoffset;
 	dr.w = lf->tile_width;
 	dr.h = lf->tile_height;
+
+	//DBGPUT("2. Char = %c, attr = %d\n", thechar, attr);
 	
 	sr.w = fd->width;
 	sr.h = fd->height;
 	
 	sr.x = 0;
 	sr.y = thechar * fd->height;
+
+	//DBGPUT("3. Char = %c, attr = %d\n", thechar, attr);
 	
 	if (thechar != 32) {// space will clean
-	    orig = fd->theFont;
+	    if (fd->font_type == FONT_TYPE_HEX) {
+		orig = fd->theFont;
+		//DBGPUT("3.1. Char = %c, attr = %d\n", thechar, attr);
 	    // SDL_BlitSurface(fd->theFont, &sr, f, dr);
-	    SDL_SetColors(fd->theFont, &(color_data_sdl[attr & 0xf]), 0xff, 1);
-	    // SDL_SetColors(fd->face, &(color_data_sdl[a&0xf]), 0xff, 1); 
-	    SDL_SetColorKey(fd->theFont, SDL_SRCCOLORKEY, 0);
-
-	    /*
-	    if (thechar != '#' && thechar != '.') {
-		DBGPUT("Writing '%c' (%d) char and %u attr to %d,%d (%d,%d,%d,%d -> %d,%d,%d,%d) %d\n",
-		       thechar, thechar, attr, x, y, sr.x, sr.y, sr.w, sr.h, dr.x, dr.y, dr.w, dr.h, flags);
+	    
+		SDL_SetColors(fd->theFont, &(sdl_colour_data[attr & 0xf]), 0xff, 1);
+		// SDL_SetColors(fd->face, &(sdl_colour_data[a&0xf]), 0xff, 1); 
+		SDL_SetColorKey(fd->theFont, SDL_SRCCOLORKEY, 0);
+		
 	    }
-	    */
+	    else if (fd->font_type == FONT_TYPE_TTF) {
+		
+		orig = fd->letters[thechar];
+		//DBGPUT("Doing '%c' in col %d\n", thechar, attr);
+		SDL_SetColors(orig, &(sdl_colour_data[attr & 0xf]), 1, 1);
+		
+		//SDL_SetColorKey(orig, SDL_SRCCOLORKEY, 0);
+
+		//fd->letters[thechar]->format->palette[1]
+		sr.y = 0;
+		//sdl_display_char(
+	    }
+
 	}
+	//DBGPUT("4. Char = %c, attr = %d\n", thechar, attr);
+		
+	/*    
+	if (thechar != '#' && thechar != '.') {
+	    DBGPUT("Writing '%c' (%d) char and %u attr to %d,%d (%d,%d,%d,%d -> %d,%d,%d,%d) %d\n",
+		   thechar, thechar, attr, x, y, sr.x, sr.y, sr.w, sr.h, dr.x, dr.y, dr.w, dr.h, flags);
+	}
+	*/
+		
     }
     
     else { // gfx
@@ -765,21 +832,21 @@ exp_complex_blit(short win_num, short x, short y, unsigned int img, int flags) {
 }
 
 int
-sdl_fullBlit(short win_num, short x, short y, unsigned int img, short flag) {
+sdl_full_blit(short win_num, short x, short y, unsigned int img, short flag) {
     // also flushes
-    return exp_complex_blit(win_num, x, y, img, ALSO_CLEAR_BG | flag);
+    return sdl_complex_blit(win_num, x, y, img, ALSO_CLEAR_BG | flag);
 }
 
 int
-sdl_transparentBlit(short win_num, short x, short y, unsigned int img, short flag) {
+sdl_transparent_blit(short win_num, short x, short y, unsigned int img, short flag) {
     // also flushes
-    return exp_complex_blit(win_num, x, y, img, flag);
+    return sdl_complex_blit(win_num, x, y, img, flag);
 }
 
 int
-sdl_clearCoords(short win_num, short x, short y, short w, short h) {
+sdl_clear_coords(short win_num, short x, short y, short w, short h) {
     // also flushes
-    LangbandFrame *lf = predefinedFrames[win_num];
+    LangbandFrame *lf = lbui_predefinedFrames[win_num];
     sdl_winconnection *wc = NULL;
     SDL_Rect dr;
     
@@ -789,8 +856,8 @@ sdl_clearCoords(short win_num, short x, short y, short w, short h) {
     else {
 	return 2;
     }
-	
-//    if (!(lf->visible)) return 1;
+
+    // if (!(lf->visible)) return 1;
     
     dr.x = x * lf->tile_width  + lf->xoffset;
     dr.y = y * lf->tile_height + lf->yoffset;
@@ -820,8 +887,9 @@ sdl_clearCoords(short win_num, short x, short y, short w, short h) {
 }
 
 int
-sdl_flushCoords(short win_num, short x, short y, short w, short h) {
-    LangbandFrame *lf = predefinedFrames[win_num];
+sdl_flush_coords(short win_num, short x, short y, short w, short h) {
+    
+    LangbandFrame *lf = lbui_predefinedFrames[win_num];
     sdl_winconnection *wc = NULL;
     SDL_Rect dr;
     
@@ -845,7 +913,7 @@ sdl_flushCoords(short win_num, short x, short y, short w, short h) {
 	dr.w = (lf->allowed_width - (x * lf->tile_width));
     }
     
-    //DBGPUT("Flush %d,%d,%d,%d\n", dr.x, dr.y, dr.w, dr.h);
+    // DBGPUT("Flush %d,%d,%d,%d\n", dr.x, dr.y, dr.w, dr.h);
     SDL_UpdateRect(wc->face, dr.x, dr.y, dr.w, dr.h);
     
     return 0;
@@ -865,7 +933,8 @@ sdl_flushCoords(short win_num, short x, short y, short w, short h) {
 #define M_M_BT 0x08
 
 int
-sdl_getEvent(int option) {
+sdl_get_event(int option) {
+    
     SDL_Event event; /* just a temporary place to hold an event */
     int retval = 0;
     int eventcode = 0;
@@ -896,7 +965,7 @@ sdl_getEvent(int option) {
 	//DEBUGPUT("Key state %d\n", event.key.state);
 	if (event.key.state == SDL_PRESSED) {
 	    int charcode = event.key.keysym.unicode & 0xff;
-	    int keycode = charcode ? charcode : event.key.keysym.sym;
+	    int keycode = charcode ? charcode : (int)(event.key.keysym.sym);
 	    
 	    eventcode |= KBD_EVT;
 	    if (event.key.keysym.mod & (KMOD_LCTRL|KMOD_RCTRL))
@@ -934,6 +1003,22 @@ sdl_getEvent(int option) {
 
     return 0;
     
+}
+
+int
+sdl_get_window_width() {
+    if (theWindow)
+	return theWindow->w;
+    else
+	return -2;
+}
+
+int
+sdl_get_window_height() {
+    if (theWindow)
+	return theWindow->h;
+    else
+	return -2;
 }
 
 #endif /* USE_SDL */

@@ -196,7 +196,7 @@ the Free Software Foundation; either version 2 of the License, or
     ))
 
 (define-character-stat '<wis> "wisdom"
-  :abbreviation "Wis" :number 4 :positive-desc "wise" :negative-desc "naïve"
+  :abbreviation "Wis" :number 4 :positive-desc "wise" :negative-desc "naive"
   :data
   '((3 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :saving-throw 0)
     (4 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :saving-throw 0)

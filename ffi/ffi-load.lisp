@@ -34,7 +34,7 @@ the Free Software Foundation; either version 2 of the License, or
   
   
   (defun load-shared-lib (&key
-			  (lib "./zterm/liblangband_ui.so")
+			  (lib "./zterm/lbui.so")
 			  (key :unknown))
     "Loads the necessary shared-lib."
     #-lispworks
@@ -74,7 +74,7 @@ the Free Software Foundation; either version 2 of the License, or
     (progn
       (setq lib-path
 	    #+langband-development "./zterm/"
-	    #-langband-development "/usr/lib/"))
+	    #-langband-development "/usr/lib/langband/"))
     #+win32
     (progn
       ;; hack
@@ -86,18 +86,17 @@ the Free Software Foundation; either version 2 of the License, or
     (progn
       #-(or cmu sbcl)
       (unless (find :dc *loaded-libs*)
-	(load-shared-lib :key :dc :lib (concatenate 'string lib-path "liblangband_dc.so"))
+	(load-shared-lib :key :dc :lib (concatenate 'string lib-path "dircall.so"))
 	(push :dc *loaded-libs*))
-			 
       
       ;; everyone
       (unless (find :ui *loaded-libs*)
-	(load-shared-lib :key :lang-ffi :lib (concatenate 'string lib-path "liblangband_ui.so"))
+	(load-shared-lib :key :lang-ffi :lib (concatenate 'string lib-path "lbui.so"))
 	(push :ui *loaded-libs*)))
     
     #+win32
     (progn
-      (load-shared-lib :key :lang-ffi :lib (concatenate 'string lib-path "liblangband_ui.dll"))
+      (load-shared-lib :key :lang-ffi :lib (concatenate 'string lib-path "lbui.dll"))
       
     )))
 

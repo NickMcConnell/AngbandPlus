@@ -14,126 +14,71 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
-(defmethod print-depth ((level level) (setting bottom-row-locations))
+(defmethod print-depth ((level level) setting)
   "prints current depth somewhere"
+  (declare (ignore setting))
   (with-frame (+misc-frame+)
-    (let ((column (- (get-frame-width +misc-frame+) 8))) ;;(slot-value setting 'depth)))
+    (let ((column (- (get-frame-width +misc-frame+) 8))) 
       (put-coloured-line! +term-l-blue+ (format nil "~d ft" (* 50 (level.depth level))) column 0))))
 
 
-(defmethod print-depth ((level van-town-level) (setting bottom-row-locations))
+(defmethod print-depth ((level van/town-level) setting)
   "prints current depth somewhere"
-  (let ((column (- (get-frame-width +misc-frame+) 8)));; (slot-value setting 'depth)))
+  (declare (ignore setting))
+  (let ((column (- (get-frame-width +misc-frame+) 8)))
     (with-frame (+misc-frame+)
       (put-coloured-line! +term-l-blue+ "Town"
 			 column
 			 0))))
 
-(defmethod print-cut ((variant vanilla-variant) (player player) 
-                      (setting vanilla-basic-frame-locations))
-
+(defun print-cut (variant player setting)
+  (declare (ignore variant))
   (let* ((cuts (get-attribute-value '<cut> (player.temp-attrs player)))
-         (loc (slot-value setting 'cut))
+         (loc (setting-lookup setting "cut"))
          (cut-info (%get-cutlvl cuts)))
 
     ;;(warn "print cut ~s ~s ~s" cuts cut-info loc) 
     (with-frame (+charinfo-frame+)
-      (put-coloured-str! (second cut-info) (third cut-info)
-			 (cdr loc) (car loc)))
+      (put-coloured-str! (second cut-info) (third cut-info) 0 loc))
     ))
 
 
-(defmethod print-stun ((variant vanilla-variant) (player player) 
-                      (setting vanilla-basic-frame-locations))
-  
+(defun print-stun (variant player setting)
+  (declare (ignore variant))
   (let* ((stun (get-attribute-value '<stun> (player.temp-attrs player)))
-         (loc (slot-value setting 'stun))
+         (loc (setting-lookup setting "stun"))
          (stun-info (%get-stunlvl stun)))
 
     (with-frame (+charinfo-frame+)
-      (put-coloured-str! (second stun-info) (third stun-info)
-			 (cdr loc) (car loc)))
+      (put-coloured-str! (second stun-info) (third stun-info) 0 loc))
     ))
 
-(defmethod print-poisoned ((variant vanilla-variant) (player player) 
-                           (setting vanilla-bottom-row-locations))
-  (with-frame (+misc-frame+)
-    (let ((column (slot-value setting 'poisoned))
-	  (row 0))
-
-      (if (get-attribute-value '<poisoned> (player.temp-attrs player))
-	  (put-coloured-str! +term-orange+ "Poisoned" column row)
-	  (put-coloured-str! +term-white+  "        " column row))
-      )))
-
-(defmethod print-state ((variant vanilla-variant) (player player) 
-			(setting vanilla-bottom-row-locations))
-
-  (with-frame (+misc-frame+)
-    (let ((word nil)
-	  (colour +term-white+)
-	  (temp-attrs (player.temp-attrs player))
-	  (column (slot-value setting 'state))
-	  (row 0))
-
-      (cond ((get-attribute-value '<paralysed> temp-attrs)
-	     (setf word "Paralysed!"
-		   colour +term-red+))
-	    ;; turn it off
-	    (t
-	     (setf word "          ")
-	     ))
-    
-      (put-coloured-str! colour word column row))
-    
-    t))
-
-(defmethod print-afraid ((variant vanilla-variant) (player player) 
-			 (setting vanilla-bottom-row-locations))
-
-  (with-frame (+misc-frame+)
-    (let ((column (slot-value setting 'afraid))
-	  (row 0))
-      (if (get-attribute-value '<fear> (player.temp-attrs player))
-	  (put-coloured-str! +term-orange+ "Afraid" column row)
-	  (put-coloured-str! +term-white+  "      " column row))
-      )))
-
-(defmethod print-confused ((variant vanilla-variant) (player player) 
-			   (setting vanilla-bottom-row-locations))
-  (with-frame (+misc-frame+)
-    
-    (let ((column (slot-value setting 'confused))
-	  (row 0))
-      (if (get-attribute-value '<confusion> (player.temp-attrs player))
-	  (put-coloured-str! +term-orange+ "Confused" column row)
-	  (put-coloured-str! +term-white+  "        " column row))
-      )))
-
-(defmethod print-can-study-more ((variant vanilla-variant) (player player) 
-				 (setting vanilla-bottom-row-locations))
-  
-  (with-frame (+misc-frame+)
-    (let ((column (slot-value setting 'study))
-	  (row 0))
-      (if (can-learn-more-spells? variant player)
-	  (put-coloured-str! +term-l-green+ "Study" column row)
-	  (put-coloured-str! +term-white+  "     " column row))
-      )))
-
-
 (defmethod print-extra-frame-content ((variant vanilla-variant) (dungeon dungeon) (player player))
-  (let ((pr-set (get-setting variant :basic-frame-printing))
-	(bot-set (get-setting variant :bottom-row-printing)))
+  (let ((pr-set (get-setting variant :basic-frame-printing)))
 	
     (print-cut variant player pr-set)
-    (print-poisoned variant player bot-set)
-    (print-afraid variant player bot-set)
-    (print-confused variant player bot-set)
+    (print-hunger variant player pr-set)
+    (print-speed variant player pr-set)
+    (print-stun variant player pr-set)
+    
+    (modify-visual-state! variant :poisoned
+			  (get-attribute-value '<poisoned> (player.temp-attrs player)))
+    (modify-visual-state! variant :afraid
+			  (get-attribute-value '<fear> (player.temp-attrs player)))
+    (modify-visual-state! variant :confused
+			  (get-attribute-value '<confusion> (player.temp-attrs player)))
+    (modify-visual-state! variant :paralysed
+			  (get-attribute-value '<paralysed> (player.temp-attrs player)))
+    (modify-visual-state! variant :blind
+			  (get-attribute-value '<blindness> (player.temp-attrs player)))
+    (modify-visual-state! variant :can-study
+			  (can-learn-more-spells? variant player))
+
     ;; more
-    (print-speed variant player bot-set)
     ;; more
-    (print-can-study-more variant player bot-set)
+    
+    (display-visual-states variant)
+    
     t))
 
 
@@ -144,7 +89,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
   (let ((retval nil)
 	(pr-set nil)
-        (bot-set nil))
+	)
 
     (when (bit-flag-set? *redraw* +print-extra+)
       (bit-flag-remove! *redraw* +print-extra+)
@@ -155,7 +100,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
       (bit-flag-remove! *redraw* +print-confused+)
       (bit-flag-remove! *redraw* +print-afraid+)
       (bit-flag-remove! *redraw* +print-poisoned+)
-      (bit-flag-remove! *redraw* +print-state+)
+      (bit-flag-remove! *redraw* +print-paralysis+)
       (bit-flag-remove! *redraw* +print-speed+)
       (bit-flag-remove! *redraw* +print-study+)
 ;;      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
@@ -178,39 +123,44 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
     (when (bit-flag-set? *redraw* +print-hunger+)
       (bit-flag-remove! *redraw* +print-hunger+)
-      ;; fix
+      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
+      (print-hunger variant player pr-set)
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-blind+)
       (bit-flag-remove! *redraw* +print-blind+)
-      ;; fix
+      (modify-visual-state! variant :blind (get-attribute-value '<blindness> (player.temp-attrs player)))
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-confused+)
       (bit-flag-remove! *redraw* +print-confused+)
-      (unless bot-set (setf bot-set (get-setting variant :bottom-row-printing)))
-      (print-confused variant player bot-set)
+      (modify-visual-state! variant :confused
+			    (get-attribute-value '<confusion> (player.temp-attrs player)))
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-afraid+)
       (bit-flag-remove! *redraw* +print-afraid+)
-      (unless bot-set (setf bot-set (get-setting variant :bottom-row-printing)))
-      (print-afraid variant player bot-set)
+      (modify-visual-state! variant :afraid
+			    (get-attribute-value '<fear> (player.temp-attrs player)))
       (setf retval t))
     
 
     (when (bit-flag-set? *redraw* +print-poisoned+)
       (bit-flag-remove! *redraw* +print-poisoned+)
-      (unless bot-set (setf bot-set (get-setting variant :bottom-row-printing)))
-      (print-poisoned variant player bot-set)
+      (modify-visual-state! variant :poisoned (get-attribute-value '<poisoned> (player.temp-attrs player)))
       (setf retval t))
 
-    ;; state and speed in engine
+
+    (when (bit-flag-set? *redraw* +print-paralysis+)
+      (bit-flag-remove! *redraw* +print-paralysis+)
+      (modify-visual-state! variant :paralysed (get-attribute-value '<paralysed> (player.temp-attrs player)))
+      (setf retval t))
+    
+    ;; speed in engine
 
     (when (bit-flag-set? *redraw* +print-study+)
       (bit-flag-remove! *redraw* +print-study+)
-      (unless bot-set (setf bot-set (get-setting variant :bottom-row-printing)))
-      (print-can-study-more variant player bot-set)
+      (modify-visual-state! variant :can-study (can-learn-more-spells? variant player))
       (setf retval t))
 
     (when (call-next-method)
@@ -222,39 +172,34 @@ the Free Software Foundation	 ; either version 2 of the License, or
       (print-mana-points variant player pr-set)
       (setf retval t))
 
+    (when retval
+      (display-visual-states variant))
 
-    t))
+    retval))
 
 
-(defmethod print-mana-points ((variant vanilla-variant) player setting)
+(defun print-mana-points (variant player setting)
   "Prints mana-points info to left frame."
-
+  (declare (ignore variant))
+  
   (when (is-spellcaster? player)
     (let ((cur-hp (current-mana player))
 	  (max-hp (maximum-mana player))
-	  (cur-set (slot-value setting 'cur-mana))
-	  (max-set (slot-value setting 'max-mana)))
+	  (row (setting-lookup setting "mana"))
+	  (win (aref *windows* +charinfo-frame+))
+	  )
       
-      (output-string! +charinfo-frame+ (cdr max-set) (car max-set) +term-white+ "Max MP")
-      (output-string! +charinfo-frame+ (cdr cur-set) (car cur-set) +term-white+ "Cur MP")
+      (output-string! +charinfo-frame+ 0 row +term-white+ "MP")
 
-      (print-number +charinfo-frame+ +term-l-green+
-		    max-hp
-		    5
-		    (car max-set)
-		    (+ (cdr max-set) 7))
-      
-      
-      (print-number +charinfo-frame+ (cond ((>= cur-hp max-hp) +term-l-green+)
-					   ((> cur-hp (int-/ (* max-hp *hitpoint-warning*) 10)) +term-yellow+)
-					   (t +term-red+))
-		    
-		    cur-hp
-		    5
-		    (car cur-set)
-		    (+ (cdr cur-set) 7))
-      
-      )))
+      (let ((colour (cond ((>= cur-hp max-hp) +term-l-green+)
+			  ((> cur-hp (int-/ (* max-hp *hitpoint-warning*) 10)) +term-yellow+)
+			  (t +term-red+))))
+	
+	(win/format win 4 row colour "~v" 3 cur-hp)
+	(win/format win 7 row +term-l-green+ "/~v" 3 max-hp)
+
+	t))))
+
 
 (defmethod print-basic-frame ((variant vanilla-variant) dungeon player)
   
@@ -271,18 +216,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (defmethod display-player-skills ((variant vanilla-variant) player term settings)
   (declare (ignore term))
-  (let* ((row (if settings
-		  (slot-value settings 'skills-y)
-		  10))
-	 (col (if settings
-		  (slot-value settings 'skills-x)
-		  42))
-	 (value-attr (if settings
-			 (slot-value settings 'value-attr)
-			 +term-l-green+))
-	 (sk-attr (if settings
-		      (slot-value settings 'title-attr)
-		      +term-white+)))
+  (let* ((row (setting-lookup settings "skills-y" 10))
+	 (col (setting-lookup settings "skills-x" 42))
+	 (value-attr (setting-lookup settings "value-attr" +term-l-green+))
+	 (sk-attr (setting-lookup settings "title-attr" +term-white+)))
 
     (flet ((print-skill (skill div row)
 	     (declare (ignore div))
@@ -321,18 +258,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 (defmethod display-player-combat-ratings ((variant vanilla-variant) player term settings)
   (declare (ignore term))
 
-  (let* ((title-attr (if settings
-			 (slot-value settings 'title-attr)
-			 +term-white+))
-	 (value-attr (if settings
-			 (slot-value settings 'value-attr)
-			 +term-l-blue+))
-	 (col (if settings
-		  (slot-value settings 'combat-x)
-		  26))
-	 (row (if settings
-		  (slot-value settings 'combat-y)
-		  13))
+  (let* ((title-attr (setting-lookup settings "title-attr" +term-white+))
+	 (value-attr (setting-lookup settings "value-attr" +term-l-blue+))
+	 (col (setting-lookup settings "combat-x" 26))
+	 (row (setting-lookup settings "combat-y" 13))
 	 (f-col (+ col 7))
 
 	 (perc (player.perceived-abilities player))

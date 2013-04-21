@@ -26,128 +26,128 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +graphics-start+ #x100 "The first graphics value.")
 
 ;;; === The colours that the TERM can display.
-(defconst +term-dark+    =char-code= (charify-number 0) "a colour")
-(defconst +term-white+   =char-code= (charify-number 1) "a colour")
-(defconst +term-slate+   =char-code= (charify-number 2) "a colour")
-(defconst +term-orange+  =char-code= (charify-number 3) "a colour")
-(defconst +term-red+     =char-code= (charify-number 4) "a colour")
-(defconst +term-green+   =char-code= (charify-number 5) "a colour")
-(defconst +term-blue+    =char-code= (charify-number 6) "a colour")
-(defconst +term-umber+   =char-code= (charify-number 7) "a colour")
-(defconst +term-l-dark+  =char-code= (charify-number 8) "a colour")
-(defconst +term-l-white+ =char-code= (charify-number 9) "a colour")
-(defconst +term-violet+  =char-code= (charify-number 10) "a colour")
-(defconst +term-yellow+  =char-code= (charify-number 11) "a colour")
-(defconst +term-l-red+   =char-code= (charify-number 12) "a colour")
-(defconst +term-l-green+ =char-code= (charify-number 13) "a colour")
-(defconst +term-l-blue+  =char-code= (charify-number 14) "a colour")
-(defconst +term-l-umber+ =char-code= (charify-number 15) "a colour")
+(def-exportconst +term-dark+     (charify-number 0) "a colour")
+(def-exportconst +term-white+    (charify-number 1) "a colour")
+(def-exportconst +term-slate+    (charify-number 2) "a colour")
+(def-exportconst +term-orange+   (charify-number 3) "a colour")
+(def-exportconst +term-red+      (charify-number 4) "a colour")
+(def-exportconst +term-green+    (charify-number 5) "a colour")
+(def-exportconst +term-blue+     (charify-number 6) "a colour")
+(def-exportconst +term-umber+    (charify-number 7) "a colour")
+(def-exportconst +term-l-dark+   (charify-number 8) "a colour")
+(def-exportconst +term-l-white+  (charify-number 9) "a colour")
+(def-exportconst +term-violet+   (charify-number 10) "a colour")
+(def-exportconst +term-yellow+   (charify-number 11) "a colour")
+(def-exportconst +term-l-red+    (charify-number 12) "a colour")
+(def-exportconst +term-l-green+  (charify-number 13) "a colour")
+(def-exportconst +term-l-blue+   (charify-number 14) "a colour")
+(def-exportconst +term-l-umber+  (charify-number 15) "a colour")
 ;;; === End colour-flags
 
 ;;; === The cave flags for coordinates in the dungeon.
-(defconst +cave-mark+ u-fixnum #x01 "memorized feature")
-(defconst +cave-glow+ u-fixnum #x02 "self-illuminating")
-(defconst +cave-icky+ u-fixnum #x04 "part of a vault")
-(defconst +cave-room+ u-fixnum #x08 "part of a room")
-(defconst +cave-seen+ u-fixnum #x10 "seen flag")
-(defconst +cave-view+ u-fixnum #x20 "view flag")
-(defconst +cave-temp+ u-fixnum #x40 "temp flag")
-(defconst +cave-wall+ u-fixnum #x80 "wall flag")
-(defconst +cave-no-tunnel+ u-fixnum #x100 "never tunnel here")
+(def-exportconst +cave-mark+  #x01 "memorized feature")
+(def-exportconst +cave-glow+  #x02 "self-illuminating")
+(def-exportconst +cave-icky+  #x04 "part of a vault")
+(def-exportconst +cave-room+  #x08 "part of a room")
+(def-exportconst +cave-seen+  #x10 "seen flag")
+(def-exportconst +cave-view+  #x20 "view flag")
+(def-exportconst +cave-temp+  #x40 "temp flag")
+(def-exportconst +cave-wall+  #x80 "wall flag")
+(def-exportconst +cave-no-tunnel+  #x100 "never tunnel here")
 ;;; === end cave-flags
 
 
 ;;; === Flags for floors
 
 ;; these flags are used
-(defconstant +floor-flag-wall+             #x01 "The floortype is some kind of a wall, can't see/move through.")
-(defconstant +floor-flag-permanent+        #x02 "The floortype is permanent and can never be changed.")
-(defconstant +floor-flag-floor+            #x04 "The floortype is some kind of floor.")
-(defconstant +floor-flag-allow-items+      #x08 "This floor-type allows items to be dropped on it.")
-(defconstant +floor-flag-allow-creatures+  #x10 "This floor-type allows creatures to move atop it
+(def-exportconst +floor-flag-wall+             #x01 "The floortype is some kind of a wall, can't see/move through.")
+(def-exportconst +floor-flag-permanent+        #x02 "The floortype is permanent and can never be changed.")
+(def-exportconst +floor-flag-floor+            #x04 "The floortype is some kind of floor.")
+(def-exportconst +floor-flag-allow-items+      #x08 "This floor-type allows items to be dropped on it.")
+(def-exportconst +floor-flag-allow-creatures+  #x10 "This floor-type allows creatures to move atop it
 and be constructed atop it.")
-(defconstant +floor-flag-exit-upwards+     #x20 "Can we go up here?")
-(defconstant +floor-flag-exit-downwards+   #x40 "Can we go down here?")
-(defconstant +floor-flag-use-light-effect+ #x80 "Should we use a light-effect on this floor?")
+(def-exportconst +floor-flag-exit-upwards+     #x20 "Can we go up here?")
+(def-exportconst +floor-flag-exit-downwards+   #x40 "Can we go down here?")
+(def-exportconst +floor-flag-use-light-effect+ #x80 "Should we use a light-effect on this floor?")
 ;;; === end floor flags
 
 
 ;;; === flags that control print/redraw
 ;; several ones have been moved to variant!!
 ;; will probably be altered to let variants have their own extra set
-(defconstant +print-misc+   #x00000001)
-(defconstant +print-title+  #x00000002)
-(defconstant +print-level+  #x00000004)
-(defconstant +print-xp+     #x00000008)
-(defconstant +print-stats+  #x00000010)
-(defconstant +print-armour+ #x00000020)
-(defconstant +print-hp+     #x00000040)
+(def-exportconst +print-misc+   #x00000001)
+(def-exportconst +print-level+  #x00000002)
+(def-exportconst +print-xp+     #x00000004)
+(def-exportconst +print-stats+  #x00000008)
 
-(defconstant +print-gold+   #x00000100)
-(defconstant +print-depth+  #x00000200)
+(def-exportconst +print-armour+ #x00000010)
+(def-exportconst +print-hp+     #x00000020)
+(def-exportconst +print-gold+   #x00000040)
+(def-exportconst +print-depth+  #x00000080)
 
-(defconstant +print-health+ #x00000800)
+(def-exportconst +print-health+ #x00000100)
+(def-exportconst +print-speed+  #x00000200)
+(def-exportconst +print-hunger+ #x00000400)
+(def-exportconst +print-blind+  #x00000800)
 
-(defconstant +print-state+  #x00100000)
-(defconstant +print-speed+  #x00200000)
+(def-exportconst +print-map+    #x00001000)
+(def-exportconst +print-extra+  #x00002000)
+(def-exportconst +print-basic+  #x00004000 "The panel on the left.")
+(def-exportconst +print-equip+  #x00008000 "Print inventory/equip row (if there).")
 
-(defconstant +print-extra+  #x01000000)
-(defconstant +print-basic+  #x02000000 "The panel on the left.")
-
-(defconstant +print-map+    #x08000000)
 
 ;;; === end redraw/print flags
 
 ;;; === flags for updating the player, the values differ from angband!!
-(defconstant +pl-upd-bonuses+        #x00000001)
-(defconstant +pl-upd-torch+          #x00000002)
-(defconstant +pl-upd-hp+             #x00000010)
+(def-exportconst +pl-upd-bonuses+        #x00000001)
+(def-exportconst +pl-upd-torch+          #x00000002)
+(def-exportconst +pl-upd-hp+             #x00000010)
 ;; spell/mana see variants
-(defconstant +pl-upd-forget-view+    #x00000100)
-(defconstant +pl-upd-update-view+    #x00000200)
-(defconstant +pl-upd-forget-flow+    #x00001000)
-(defconstant +pl-upd-update-flow+    #x00002000)
-(defconstant +pl-upd-monsters+       #x00010000)
-(defconstant +pl-upd-distance+       #x00020000)
-(defconstant +pl-upd-panel+          #x00080000)
+(def-exportconst +pl-upd-forget-view+    #x00000100)
+(def-exportconst +pl-upd-update-view+    #x00000200)
+(def-exportconst +pl-upd-forget-flow+    #x00001000)
+(def-exportconst +pl-upd-update-flow+    #x00002000)
+(def-exportconst +pl-upd-monsters+       #x00010000)
+(def-exportconst +pl-upd-distance+       #x00020000)
+(def-exportconst +pl-upd-panel+          #x00080000)
 
 ;;; === end flags for updating the player
 
-(defconstant +ident-sense+  #x01 "Item has been 'sensed'")
-(defconstant +ident-fixed+  #x02 "Item has been 'haggled'")
-(defconstant +ident-empty+  #x04 "Item charges are known")
-(defconstant +ident-known+  #x08 "Item abilities are known")
-(defconstant +ident-rumour+ #x10 "Item background is known")
-(defconstant +ident-mental+ #x20 "Item information is known")
-(defconstant +ident-cursed+ #x40 "Item is temporarily cursed")
-(defconstant +ident-broken+ #x80 "Item is permanently worthless")
+(def-exportconst +ident-sense+  #x01 "Item has been 'sensed'")
+(def-exportconst +ident-fixed+  #x02 "Item has been 'haggled'")
+(def-exportconst +ident-empty+  #x04 "Item charges are known")
+(def-exportconst +ident-known+  #x08 "Item abilities are known")
+(def-exportconst +ident-rumour+ #x10 "Item background is known")
+(def-exportconst +ident-mental+ #x20 "Item information is known")
+(def-exportconst +ident-cursed+ #x40 "Item is temporarily cursed")
+(def-exportconst +ident-broken+ #x80 "Item is permanently worthless")
 
 ;;; === Various monster-flags
 
-(defconstant +monster-flag-view+  #x01 "Monster is in line of sight")
+(def-exportconst +monster-flag-view+  #x01 "Monster is in line of sight")
 ;; ...
-(defconstant +monster-flag-born+  #x10 "Monster is being born")
-(defconstant +monster-flag-nice+  #x20 "Monster is being nice")
-(defconstant +monster-flag-show+  #x40 "Monster is recently memorised")
-(defconstant +monster-flag-mark+  #x80 "Monster is currently memorised")
+(def-exportconst +monster-flag-born+  #x10 "Monster is being born")
+(def-exportconst +monster-flag-nice+  #x20 "Monster is being nice")
+(def-exportconst +monster-flag-show+  #x40 "Monster is recently memorised")
+(def-exportconst +monster-flag-mark+  #x80 "Monster is currently memorised")
   
 (defconstant +block-height+ 11)
 (defconstant +block-width+ 11)
 
 
 ;;(defconst +escape+ =char-code= (charify-number 27) "escape-key")
-(defconstant +escape+ #\Escape)
+(def-exportconst +escape+ #\Escape)
 
-(defconstant +store-item-limit+ 24)
-(defconstant +store-maximum-items+ 18)
-(defconstant +store-minimum-items+ 6)
-(defconstant +store-turnover+ 9)
-(defconstant +max-itemstack-size+ 99)
+(def-exportconst +store-item-limit+ 24)
+(def-exportconst +store-maximum-items+ 18)
+(def-exportconst +store-minimum-items+ 6)
+(def-exportconst +store-turnover+ 9)
+(def-exportconst +max-itemstack-size+ 99)
 
 ;; make these into variables later.. 
 
 
-(defconst +max-sight+ u-fixnum 20 "maximum distance seen")
+(def-exportconst +max-sight+ 20 "maximum distance seen")
 
 (defconstant +dungeon-align+ t)
 
@@ -179,16 +179,16 @@ and be constructed atop it.")
 (defconstant +normal-direction-number+ 8 "basic nswe directions in ddd arrays plus diagonals")
 
 
-(defconstant +project-jump+ #x01)
-(defconstant +project-beam+ #x02)
-(defconstant +project-through+ #x04)
-(defconstant +project-stop+ #x08)
-(defconstant +project-grid+ #x10)
-(defconstant +project-item+ #x20)
-(defconstant +project-kill+ #x40)
-(defconstant +project-hide+ #x80)
+(def-exportconst +project-jump+ #x01)
+(def-exportconst +project-beam+ #x02)
+(def-exportconst +project-through+ #x04)
+(def-exportconst +project-stop+ #x08)
+(def-exportconst +project-grid+ #x10)
+(def-exportconst +project-item+ #x20)
+(def-exportconst +project-kill+ #x40)
+(def-exportconst +project-hide+ #x80)
 
-(defconstant +energy-normal-action+ 100)
+(def-exportconst +energy-normal-action+ 100)
 
 (defvar *energy-table*  #200(
     1  1  1  1  1  1  1  1  1  1 ;; Slow
@@ -214,20 +214,20 @@ and be constructed atop it.")
    ))
 
 
-(defconstant +speed-base+ 110)
+(def-exportconst +speed-base+ 110)
 
-(defconstant +food-max+      15000 "Bloated")
-(defconstant +food-full+     10000 "Normal")
-(defconstant +food-hungry+    2000 "Hungry")
-(defconstant +food-weak+      1000 "Weak")
-(defconstant +food-fainting+   500 "Fainting")
-(defconstant +food-starving+   100 "Starving")
+(def-exportconst +food-max+      15000 "Bloated")
+(def-exportconst +food-full+     10000 "Normal")
+(def-exportconst +food-hungry+    2000 "Hungry")
+(def-exportconst +food-weak+      1000 "Weak")
+(def-exportconst +food-fainting+   500 "Fainting")
+(def-exportconst +food-starving+   100 "Starving")
 
 (defconstant +illegal-loc-x+ 7777)
 (defconstant +illegal-loc-y+ 7777)
 (defconstant +room-size-arg-len+ 5)
 
-(defconstant +saved-cave-flags+ (logior +cave-mark+ +cave-glow+ +cave-icky+ +cave-room+))
+(def-exportconst +saved-cave-flags+ (logior +cave-mark+ +cave-glow+ +cave-icky+ +cave-room+))
 
 ;; stuff for view.lisp
 
@@ -248,29 +248,33 @@ and be constructed atop it.")
 
 (defconstant +scale+ 100000)
 
-
-(defconstant +calculated-effect+ #x01)
-(defconstant +temporary-effect+  #x02)
-
-(defconstant +max-range+ 18)
+;; for visual effects
+(defconstant +draw-delay+ 25) ;; hackish, remove later
 
 
-(defconstant +max-frames+ 8)
-(defconstant +predefined-frames+ 8)
+(def-exportconst +calculated-effect+ #x01)
+(def-exportconst +temporary-effect+  #x02)
+
+(def-exportconst +max-range+ 18)
+
+
+(def-exportconst +max-frames+ 9)
+(def-exportconst +predefined-frames+ 9)
 
 ;; the above need not be the same, but typically is the same
 
-(defconstant +full-frame+ 0)
-(defconstant +message-frame+ 1)
-(defconstant +charinfo-frame+ 2)
-(defconstant +misc-frame+ 3)
-(defconstant +gfxmap-frame+ 4)
-(defconstant +asciimap-frame+ 5)
-(defconstant +inv-frame+ 6)
-(defconstant +dialogue-frame+ 7)
+(def-exportconst +full-frame+ 0)
+(def-exportconst +message-frame+ 1)
+(def-exportconst +charinfo-frame+ 2)
+(def-exportconst +misc-frame+ 3)
+(def-exportconst +gfxmap-frame+ 4)
+(def-exportconst +asciimap-frame+ 5)
+(def-exportconst +inv-frame+ 6)
+(def-exportconst +dialogue-frame+ 7)
+(def-exportconst +infodisp-frame+ 8)
 
-(defconstant +frametype-active+ 0)
-(defconstant +frametype-predefined+ 1)
+(def-exportconst +frametype-active+ 0)
+(def-exportconst +frametype-predefined+ 1)
 
 ;; allowed to change between ascii and gfx
 (defvar *map-frame* +gfxmap-frame+)
@@ -279,23 +283,30 @@ and be constructed atop it.")
 (defvar *windows* (make-array +predefined-frames+ :initial-element nil)
   "A vector of the available windows.")
 
-(defconstant +winflag-clear-bg+ #x01)
-(defconstant +winflag-delay-paint+ #x02)
+(def-exportconst +winflag-clear-bg+ #x01)
+(def-exportconst +winflag-delay-paint+ #x02)
 
 ;; alias!
-(defconstant +query-frame+ +message-frame+)
+(def-exportconst +query-frame+ +message-frame+)
 
-(defconstant +tilefile-armour+ 3)
-(defconstant +tilefile-effects+ 4)
-(defconstant +tilefile-food+ 5)
-(defconstant +tilefile-classes+ 6)
-(defconstant +tilefile-humans+ 7)
+(def-exportconst +tilefile-armour+ 3)
+(def-exportconst +tilefile-effects+ 4)
+(def-exportconst +tilefile-food+ 5)
+(def-exportconst +tilefile-classes+ 6)
+(def-exportconst +tilefile-humans+ 7)
+(def-exportconst +tilefile-magic+ 9)
+(def-exportconst +tilefile-misc+ 10)
+(def-exportconst +tilefile-weapons+ 13)
+(def-exportconst +tilefile-people+ 14)
+(def-exportconst +tilefile-undeads+ 28)
+(def-exportconst +tilefile-buttons+ 38)
+(def-exportconst +tilefile-crosshairs+ 40)
 
 ;;; these are for the gfxtile system:
-(defconstant +num-gfx-layers+ 4)
-(defconstant +background+ 0)
-(defconstant +decor+ 1)
-(defconstant +foreground+ 2)
-(defconstant +effect+ 3)
+(def-exportconst +num-gfx-layers+ 4)
+(def-exportconst +background+ 0)
+(def-exportconst +decor+ 1)
+(def-exportconst +foreground+ 2)
+(def-exportconst +effect+ 3)
 
-(defconstant +coord-updated+ 1)
+(def-exportconst +coord-updated+ 1)

@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: CL-USER -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: cl-user -*-
 
 #|
 
@@ -15,43 +15,898 @@ DESC: package.lisp - package def for langband
 
 
 (defpackage :org.langband.engine
-  (:nicknames :lb :langband-engine :lb-engine :engine :langband
-	      :org.langband.vanilla :org.langband.contraband) ;; fix later
-  (:use :common-lisp
-	#-building-ffi-defs :binary-types
-	:org.langband.ffi)
-  (:export #:game-init&
-	   #:get-loadable-form
-	   #:get-monster-list
+  (:nicknames :lb :langband-engine :lb-engine :engine :langband)
+  (:use :common-lisp)
+  (:export 
+	   ;; dynamic variables
+	   #:*angband-keys*
+	   #:*cur-win*
+	   #:*current-key-table*
+	   #:*currently-showing-inv*
+	   #:*ddd*
+	   #:*ddx*
+	   #:*ddy*
+	   #:*ddx-ddd*
+	   #:*ddy-ddd*
+	   #:*dungeon*
+	   #:*engine-config-dir*
+	   #:*engine-data-dir*
+	   #:*engine-source-dir*
+	   #:*engine-num-version*
+	   #:*engine-version*
+	   #:*hitpoint-warning*
+	   #:*level*
+	   #:*map-frame*
+	   #:*player*
+	   #:*redraw*
+	   #:*roguelike-keys*
+	   #:*saveblock*
+	   #:*saveheader*
+	   #:*strategy*
+	   #:*update*
+	   #:*variant*
+	   #:*windows*
+	   #:*winformat-padchar*
 
-	   ;; unsorted added on need
-	   #:gval.dmg-modifier
-	   #:gval.ac-modifier
-	   #:aobj.game-values
-	   #:aobj.number
-	   #:write-obj-description
-	   #:create-aobj-from-id
-	   #:get-object-kind
-	   #:get-monster-kind
-	   #:produce-active-monster
-	   #:produce-active-object
+
+	   ;; classes/structs types
+	   #:activatable
+	   #:active-door
 	   #:active-monster
 	   #:active-object
-	   #:report-equal
-	   #:*level*
-	   #:*variant*
-	   #:*engine-version*
-	   #:*engine-num-version*
+	   #:active-room
+	   #:active-trap
+	   #:ai-strategy
+	   #:alloc-entry
+	   #:attack
+	   #:attack-type
+	   
+	   #:character-class
+	   #:character-race
+	   #:character-stat
+	   #:creature-attribute
+	   
+	   #:decor
+	   #:door-type
+	   #:dungeon
+	   #:dungeon-coord
 
+	   #:effect
+	   #:effect-entry
+	   #:element
+
+	   #:flavour
+	   #:flavour-type
+	   #:floor-type
+
+	   #:game-obj-table
+	   #:game-values
+	   #:gender
+
+	   #:help-topic
+	   #:house
+	   #:hs-entry
+
+	   #:illegal-char-class-data
+	   #:illegal-char-race-data
+	   #:illegal-data-definition
+	   #:illegal-monster-data
+	   #:illegal-object-data
+	   #:input-event
+	   #:item-table
+	   #:items-in-container
+	   #:items-in-house
+	   #:items-in-store
+	   #:items-on-floor
+	   #:items-worn
+
+	   #:keyboard-event
+	   
+	   #:l-binary-stream
+	   #:l-event
+	   #:l-readable-stream
+	   #:langband-quit
+	   #:level
+
+	   #:message
+	   #:misc-player-info
+	   #:monster-kind
+	   #:monster-knowledge
+	   #:mouse-event
+
+	   #:object-kind
+	   #:object-knowledge
+	   #:old-player-info
+	   #:owner
+
+	   #:peaceful-mover ;; possibly move
+	   #:player
+	   #:player-abilities
+	   #:primitive-melee-attacker
+	   
+	   #:random-level
+	   #:room-type
+
+	   #:saveblock
+	   #:savefile-problem
+	   #:saveheader
+	   #:stat-field ;; maybe remove later
+	   #:store
+	   #:store-owner
+
+	   #:target
+	   #:temp-creature-attribute
+	   #:themed-level
+	   #:trap-type
+	   #:treasure-drop
+	   
+	   #:u-fixnum
+	   #:ui-theme
+	   #:unique-monster
+
+	   #:variant
+	   #:visual-projectile
+
+	   #:window
+	   #:worn-item-slot
+
+	   
+	   ;;; methods and functions
+
+	   #:a2i
+	   #:activate-object
+	   #:activated?
+	   #:add-creature-attribute
+	   #:add-magic-to-item!
+	   #:add-monster-knowledge-flag!
+	   #:alloc-locations
+	   #:alloc.depth
+	   #:alloc.obj
+	   #:alloc.prob2
+	   #:alloc.prob3
+	   #:allocate-monster!
+	   #:amon.kind
+	   #:amon.seen-by-player?
+	   #:amon.strategies
+	   #:amon.temp-attrs
+	   #:amon.vis-flag
+	   #:aobj.contains
+	   #:aobj.game-values
+	   #:aobj.identify
+	   #:aobj.inscr
+	   #:aobj.kind
+	   #:aobj.marked
+	   #:aobj.number
+	   #:appears-in-group?
+	   #:apply-effect-to-area
+	   #:apply-filters-on-obj
+	   #:apply-magic!
+	   #:apply-projection-effect-to-target!
+	   #:arrange-game-exit&
+	   #:attack-effect
+	   #:attempt-multi-creation!
+	   #:attr.default-value
+	   #:attr.duration
+	   #:attr.key
+	   #:attr.on-update
+	   #:attr.turned-off-msg
+	   #:attr.turned-on-msg
+	   #:attr.update-fun
+	   #:attr.value
+
+	   #:bit-flag-add!
+	   #:bit-flag-and
+	   #:bit-flag-remove!
+	   #:bit-flag-set?
+	   #:build-house!
+	   #:build-room!
+
+	   #:calculate-abilities!
+	   #:calculate-creature-bonuses!
+	   #:calculate-creature-hit-points!
+	   #:calculate-creature-light-radius!
+	   #:calculate-score
+	   #:can-creature-drop?
+	   #:can-place?
+	   #:can-melee-attack?
+	   #:cave-coord
+	   #:cave-decor
+	   #:cave-empty-bold?
+	   #:cave-flags
+	   #:cave-floor
+	   #:cave-floor-bold?
+	   #:cave-icky?
+	   #:cave-monsters
+	   #:cave-objects
+	   #:centre-string
+	   #:check-keypress
+	   #:class.abilities
+	   #:class.id
+	   #:class.name
+	   #:class.resists
+	   #:class.skills
+	   #:class.stat-sustains
+	   #:class.symbol
+	   #:clear-coord
+	   #:clear-window
+	   #:clear-window-from
+	   #:common-make-simple-room ;; move/rename later
+	   #:common-make-overlapping-room ;; move/rename later
+	   #:convert-obj
+	   #:coord.decor
+	   #:coord.flags
+	   #:coord.floor
+	   #:coord.monsters
+	   #:coord.objects
+	   #:copy-active-object
+	   #:copy-hash-table
+	   #:create-aobj-from-id
+	   #:create-aobj-from-kind
+	   #:create-alloc-table-monsters
+	   #:create-alloc-table-objects
+	   #:create-aobj-from-id
+	   #:create-aobj-from-kind
+	   #:create-appropriate-level
+	   #:create-basic-allocation-table
+	   #:create-dungeon
+	   #:create-gold
+	   #:creature-alive?
+	   #:current-hp
+	   #:current-mana
+
+	   #:damaged-by-element?
+	   #:decor-operation
+	   #:decor.visible?
+	   #:deduct-hp!
+	   #:define-attack-description
+	   #:define-basic-flavour
+	   #:define-character-class
+	   #:define-character-race
+	   #:define-character-stat
+	   #:define-door-type
+	   #:define-effect
+	   #:define-element
+	   #:define-flavour-type
+	   #:define-floor-type
+	   #:define-floor-type*
+	   #:define-house
+	   #:define-key-operation
+	   #:define-keypress
+	   #:define-monster-attack
+	   #:define-monster-kind
+	   #:define-object-kind
+	   #:define-object-type
+	   #:define-room
+	   #:define-settings
+	   #:define-sound-effect
+	   #:define-store
+	   #:define-store-owner
+	   #:define-trap-type
+	   #:define-visual-projectile
+	   #:define-visual-state
+	   #:delay
+	   #:deliver-damage!
+	   #:deliver-elemental-damage!
+	   #:display-creature
+	   #:display-help-topics
+	   #:display-house
+	   #:display-moving-object
+	   #:display-player-combat-ratings
+	   #:display-player-skills
+	   #:display-target
+	   #:display-visual-states
+	   #:distance
+	   #:distribute-flavours!
+	   #:disturbance
+	   #:do-projection
+	   #:drop-near-location!
+	   #:dungeon.depth
+	   #:dungeon.height
+	   #:dungeon.table
+	   #:dungeon.width
+
+	   #:effect.name
+	   #:effect.number
+	   #:effect.symbol
+	   #:effect-entry-energy-use
+	   #:effect-entry-fun
+	   #:effect-entry-p
+	   #:effect-entry-type
+	   #:element.bit-flag
+	   #:element.name
+	   #:element.number
+	   #:element.symbol
+	   #:energy-for-speed
+	   #:engine-allows-gfx-tiles?
+	   #:ensure-game-values!
+	   #:equip-character!
+	   #:error-condition
+	   #:event.id
+	   #:execute-strategy
+
+	   #:fetch-event
+	   #:filed-player-data
+	   #:filed-variant-data
+	   #:fill-area
+	   #:fill-dungeon-part-with-floor!  ;; clash with next?
+	   #:fill-dungeon-with-floor!
+	   #:fill-up-store!
+	   #:find-appropriate-monster
+	   #:find-appropriate-room
+	   #:find-owner-for-house
+	   #:flag
+	   #:flavour.name
+	   #:flavour-object!
+	   #:flavour-simple-object-kind!
+	   #:flavour-type.generator-fn
+	   #:flavour-type.unused-flavours
+	   #:floor.flags
+	   #:floor.id
+	   #:floor.name
+	   #:floor.numeric-id
+	   #:flush-messages!
+	   #:format-message!
+	   #:format-note!
+
+	   #:gain-power-level!
+	   #:garbage-collect
+	   #:gender.symbol
+	   #:generate-level!
+	   #:generate-random-name
+	   #:get-active-monster-by-level
+	   #:get-active-object-by-level
+	   #:get-aim-direction
+	   #:get-array-with-numbers
+	   #:get-attack-description
+	   #:get-attribute-value
+	   #:get-character-picture
+	   #:get-class-tile
+	   #:get-coord-trigger
+	   #:get-creature-ac
+	   #:get-creature-burden
+	   #:get-creature-desc
+	   #:get-creature-energy
+	   #:get-creature-name
+	   #:get-creature-speed
+	   #:get-creature-state
+	   #:get-decor-name
+	   #:get-destination-coords
+	   #:get-direction-from-coord-diff
+	   #:get-element-flag
+	   #:get-element-number
+	   #:get-floor
+	   #:get-floor-type
+	   #:get-frame-width
+	   #:get-gender
+	   #:get-house
+	   #:get-indent-string
+	   #:get-information
+	   #:get-item-table
+	   #:get-key-operations
+	   #:get-last-console-line
+	   #:get-late-bind-function
+	   #:get-level-appropriate-enchantment
+	   #:get-level-builder
+	   #:get-loadable-form
+	   #:get-melee-attack-skill
+	   #:get-monster-kind
+	   #:get-monster-kind-by-level
+	   #:get-move-direction
+	   #:get-mtype-table
+	   #:get-named-gameobj-table
+	   #:get-object-effect
+	   #:get-object-kind
+	   #:get-object-kind-by-level
+	   #:get-offer
+	   #:get-otype-table
+	   #:get-power-lvl
+	   #:get-power-of-attack
+	   #:get-price
+	   #:get-ranged-attack-skill
+	   #:get-room
+	   #:get-search-skill
+	   #:get-setting
+	   #:get-settings-obj
+	   #:get-string-input
+	   #:get-system-type
+	   #:get-target-at-coordinate
+	   #:get-title-for-level
+	   #:get-tohit-chance
+	   #:get-visual-projectile
+	   #:get-visual-state
+	   #:get-xp-value
+	   #:gfx-sym
+	   #:gobj-table.alloc-table
+	   #:gobj-table.obj-table
+	   #:gobj-table.obj-table-by-lvl
+	   #:graphical-map?
+	   #:grid-x
+	   #:grid-y
+	   #:gval.abilities
+	   #:gval.ac-modifier
+	   #:gval.base-ac
+	   #:gval.base-dice
+	   #:gval.charges
+	   #:gval.dmg-modifier
+	   #:gval.ignores
+	   #:gval.light-radius
+	   #:gval.num-dice
+	   #:gval.resists
+	   #:gval.slays
+	   #:gval.speed
+	   #:gval.stat-modifiers
+	   #:gval.sustains
+	   #:gval.tohit-modifier
+
+	   #:handle-gfx-visual
+	   #:handle-mouse-click
+	   #:handle-player-updates!
+	   #:handle-stuff
+	   #:handle-turn
+	   #:handle-text-visual
+	   #:has-ability?
+	   #:has-frame?
+	   #:has-information?
+	   #:heal-creature!
+	   #:house.items
+	   #:hs-entry.cause-of-death
+	   #:hs-entry.depth
+	   #:hs-entry.gold
+	   #:hs-entry.level
+	   #:hs-entry.xp
+	   
+	   #:i2a
+	   #:in-bounds-fully?
+	   #:initialise-character-class!
+	   #:initialise-character-race!
+	   #:initialise-floors&
+	   #:initialise-monster-kind!
+	   #:initialise-monsters&
+	   #:initialise-object-kind!
+	   #:initialise-objects&
+	   #:int-/
+	   #:interactive-creation-of-player
+	   #:interactive-destroy-item!
+	   #:interactive-door-operation!
+	   #:interactive-drop-item!
+	   #:interactive-take-off-item!
+	   #:interactive-targeting!
+	   #:interactive-throw-item!
+	   #:interactive-trap-operation!
+	   #:interactive-use-item!
+	   #:interactive-wear-item!
+	   #:is-artifact?  ;; right place?
+	   #:is-blind?
+	   #:is-broken?
+	   #:is-creatable?
+	   #:is-cursed?
+	   #:is-door?
+	   #:is-eatable?
+	   #:is-event?
+	   #:is-female?
+	   #:is-legal-effect?
+	   #:is-legal-element?
+	   #:is-legal-target?
+	   #:is-magical?
+	   #:is-male?
+	   #:is-object-known?
+	   #:is-monster?
+	   #:is-player?
+	   #:is-resting?
+	   #:is-store?
+	   #:is-trap?
+	   #:is-unique-monster?
+	   #:is-variant?
+	   #:is-vowel?
+	   #:item-table-add!
+	   #:item-table-clean!
+	   #:item-table-find
+	   #:item-table-iterate!
+	   #:item-table-more-room?
+	   #:item-table-print
+	   #:item-table-remove!
+	   #:item-table-sort!
+	   #:item-table-verify-key
+	   #:items.cur-size
+	   #:items.objs
+
+	   #:kill-target!
+
+	   #:lang.stream
+	   #:lang-warn
+	   #:lbsys/class-name
+	   #:lbsys/ensure-dir-name
+	   #:lbsys/get-current-directory
+	   #:lbsys/make-sure-dirs-exist&
+	   #:learn-about-object!
+	   #:level.depth
+	   #:level.dungeon
+	   #:level-ready?
+	   #:light-spot!
+	   #:load-binary-array
+	   #:load-binary-string
+	   #:load-image-spec&
+	   #:load-object
+	   #:load-variant&
+	   #:load-variant-data&
+	   #:load-variant-object
+	   #:loadable-value
+	   #:location-x
+	   #:location-y
+
+	   #:magic-add
+	   #:make-container
+	   #:make-coord-event
+	   #:make-creature-attribute
+	   #:make-event
+	   #:make-game-obj-table
+	   #:make-game-values
+	   #:make-gender
+	   #:make-help-topic
+	   #:make-random-level-obj
+	   #:max-cap
+	   #:maximum-hp
+	   #:maximum-mana
+	   #:melee-hit-ac?
+	   #:melee-hit-creature?
+	   #:melee-inflict-damage!
+	   #:missile-hit-creature?
+	   #:missile-inflict-damage!
+	   #:modify-attribute!
+	   #:modify-creature-state!
+	   #:modify-gold!
+	   #:modify-satiation!
+	   #:modify-visual-state!
+	   #:modify-xp!
+	   #:monster.abilities
+	   #:monster.alignment
+	   #:monster.id
+	   #:monster.flags
+	   #:monster.gender
+	   #:monster.name
+	   #:monster.num-killed
+	   #:monster.numeric-id
+	   #:monster.power-lvl
+	   #:monster.sp-abilities
+	   #:monster.speed
+	   #:monster.title
+	   #:monster.type
+	   #:move-creature-to-depth!
+	   #:move-player!
+
+	   #:need-flavour?
+	   #:non-negative-integer?
+	   #:nonboolsym?
+	   
+	   #:object.aware
+	   #:object.cost
+	   #:object.effects
+	   #:object.events
+	   #:object.flags
+	   #:object.flavour
+	   #:object.game-values
+	   #:object.id
+	   #:object.name
+	   #:object.numeric-id
+	   #:object.power-lvl
+	   #:object.sort-value
+	   #:object.text-colour
+	   #:object.the-kind
+	   #:object.weight
+	   #:object-effect
+	   #:ok-object?
+	   #:old.heavy-bow
+	   #:old.heavy-weapon
+	   #:old.icky-weapon
+	   #:on-drop-object
+	   #:on-move-to-coord
+	   #:on-new-player
+	   #:on-pickup-object
+	   #:on-take-off-object
+	   #:on-wear-object
+	   #:output-string!
+
+	   #:paint-coord
+	   #:paint-gfx-image&
+	   #:parse-and-roll-dice
+	   #:parse-dice
+	   #:pause-at-line!
+	   #:pause-last-line!
+	   #:pick-up-from-floor!
+	   #:pl-ability.ac-modifier
+	   #:pl-ability.base-ac
+	   #:pl-ability.to-dmg-modifier
+	   #:pl-ability.to-hit-modifier
+	   #:place-monster!
+	   #:place-player!
+	   #:place-single-monster!
+	   #:play-music
+	   #:play-sound
+	   #:player-is-at?
+	   #:player.actual-abilities
+	   #:player.active-stats
+	   #:player.calc-attrs ;; maybe not export
+	   #:player.class
+	   #:player.current-xp
+	   #:player.dead?
+	   #:player.dead-from
+	   #:player.depth
+	   #:player.energy-use
+	   #:player.equipment
+	   #:player.fraction-mana
+	   #:player.gender
+	   #:player.gold
+	   #:player.inventory
+	   #:player.infravision
+	   #:player.leaving?
+	   #:player.max-depth
+	   #:player.maximum-xp
+	   #:player.monster-knowledge
+	   #:player.name
+	   #:player.perceived-abilities
+	   #:player.power-lvl
+	   #:player.race
+	   #:player.resists
+	   #:player.satiation
+	   #:player.see-invisible
+	   #:player.skills
+	   #:player.speed
+	   #:player.stat-sustains
+	   #:player.target
+	   #:player.temp-attrs ;; maybe not export
+	   #:player.view-x
+	   #:player.view-y
+	   #:player.xp-table
+	   #:plural-name
+	   #:positive-integer?
+	   #:possible-identify!
+	   #:print-armour-class
+	   #:print-basic-frame
+	   #:print-depth
+	   #:print-extra-frame-content
+	   #:print-hunger
+	   #:print-map
+	   #:print-message!
+	   #:print-misc-info
+	   #:print-note!
+	   #:print-number
+	   #:print-resistance-table
+	   #:print-speed
+	   #:print-text!
+	   #:print-tomb
+	   #:process-world&
+	   #:produce-active-monster
+	   #:produce-active-object
+	   #:produce-character-class
+	   #:produce-character-race
+	   #:produce-game-values-object
+	   #:produce-high-score-object
+	   #:produce-monster-kind
+	   #:produce-object-kind
+	   #:produce-player-object
+	   #:project-path
+	   #:projectile.gfx-explosion
+	   #:projectile.gfx-impact
+	   #:projectile.gfx-path
+	   #:projectile.id
+	   #:projectile.text-explosion
+	   #:projectile.text-impact
+	   #:projectile.text-path
+	   #:put-coloured-line!
+	   #:put-coloured-str!
+	   #:put-object-in-container!
+
+	   #:query-for-character-basics!
+	   #:quit-game&
+	   
+	   #:race.abilities
+	   #:race.id
+	   #:race.resists
+	   #:race.skills
+	   #:race.stat-sustains
+	   #:race.symbol
+	   #:rand-elm
+	   #:rand-range
+	   #:rand-spread
+	   #:randint
+	   #:read-map
+	   #:read-one-character
+	   #:read-pref-file
+	   #:redraw-stuff
+	   #:refresh-window
+	   #:regenerate-hp!
+	   #:register-event&
+	   #:register-help-topic&
+	   #:register-information&
+	   #:register-level!
+	   #:register-level-builder!
+	   #:register-slot-order&
+	   #:register-variant&
+	   #:remove-monster-from-dungeon!
+	   #:remove-target-display
+	   #:reset-player-object!
+	   #:roll-dice
+	   #:roll-hitpoints-for-new-level
+	   #:roll-stats!
+	   #:roll-up-character!
+	   #:round-/
+	   #:run-along-corridor
+	   #:run-in-direction
+
+	   #:satisfies-obj-type?
+	   #:save-binary-array
+	   #:save-binary-string
+	   #:save-object
+	   #:saveheader.engine-num-version
+	   #:search-area!
+	   #:set-cursor-to
+	   #:set-flag
+	   #:select-and-return-item
+	   #:select-item
+	   #:select-item-from-store
+	   #:set-cursor-visibility
+	   #:setting-lookup
+	   #:shoot-a-missile
+	   #:show-messages
+	   #:shrink-array!
+	   #:shuffle-array!
+	   #:signal-condition
+	   #:stat.fields
+	   #:stat.number
+	   #:stat.symbol
+	   #:stat-field-data
+	   #:stat-field-lower
+	   #:stat-field-p
+	   #:stat-field-upper
+	   #:stop-creature-activity
+	   #:store-buys-item?
+	   #:store-empty?
+	   #:store-generate-object
+	   #:store-maintenance!
+	   #:store-mass-produce!
+	   #:store.will-buy
+	   #:strategy.destinations
+	   #:strategy.id
+	   #:swap-monsters!
+	   #:switch-inventory-view
+	   #:switch-map-mode
+	   #:symbolify
+	   
 	   #:text-attr
 	   #:text-char
+	   #:text-paint-value
+	   #:text-sym
+	   #:text-to-ascii
+	   #:texture-background!
+	   #:throw-object
+	   #:tile-file
+	   #:tile-number
+	   #:tile-paint-value
+	   #:trap-effect
+	   #:trigger-special-ability
+
+	   #:uncurse-object!
+	   #:unless-bind
+	   #:unset-flag
+	   #:update-inventory-row
+	   #:update-monster!
+	   #:update-player-stat! ;; rename later?
+	   #:update-stuff
+	   #:update-xp-table!
+	   #:use-images?
+	   #:use-object!
+	   #:use-stair!
+
+	   #:variant-data-fname
+	   #:variant-home-path
+	   #:variant-save-directory
+	   #:variant.classes
+	   #:variant.day-length
+	   #:variant.effects
+	   #:variant.elements
+	   #:variant.filters
+	   #:variant.flavour-types
+	   #:variant.floor-types
+	   #:variant.genders
+	   #:variant.images
+	   #:variant.monsters-by-level
+	   #:variant.objects
+	   #:variant.objects-by-level
+	   #:variant.stats
+	   #:variant.turn
+	   #:variant.visual-effects
+	   #:verify-check
+	   #:verify-id
+	   #:visit-house
+	   #:visual-state.desc
+
+	   #:warn-on-failure
+	   #:when-bind
+	   #:while
+	   #:win/format
+	   #:window-allows-gfx-tiles?
+	   #:window-coord
+	   #:window.height
+	   #:window.num-id
+	   #:window.pixel-height
+	   #:window.pixel-width
+	   #:window.tile-height
+	   #:window.tile-width
+	   #:window.visible?
+	   #:window.width
+	   #:with-dialogue
+	   #:with-dungeon
+	   #:with-frame
+	   #:with-full-frame
+	   #:with-type
+	   #:write-obj-description
+	   #:write-pluralised-string
+	   
 	   #:x-attr
 	   #:x-char
-	   #:text-sym
-	   #:gfx-sym
-	   
-	   #:lbsys/get-current-directory
-	   #:lbsys/ensure-dir-name
+
+	   ;; exported symbols
+	   #:depth
+	   #:energy
+	   #:engine-gfx
+	   #:events
+	   #:eq.backpack
+	   #:gcu
+	   #:id
+	   #:loc-x
+	   #:loc-y
+	   #:locations
+	   #:max-charlevel
+	   #:monsters-by-level
+	   #:name
+	   #:numeric-id
+	   #:obj
+	   #:objects-by-level
+	   #:picture
+	   #:power-lvl
+	   #:sdl
+	   #:shift
+	   #:sort-value
+	   #:symbol
+	   #:temp-attributes
+	   #:text-colour
+	   #:variant-gfx
+	   #:x11
+	   #:xp-table
+
+	   ;; these are game-constants with special meaning
+	   #:<absorbs-symbol>
+	   #:<cold-blood>
+	   #:<colour-changing>
+	   #:<confusion>
+	   #:<curse>
+	   #:<cut>
+	   #:<drop>
+	   #:<drop-chance>
+	   #:<drop-good>
+	   #:<drop-great>
+	   #:<drop-planned>
+	   #:<easy-know>
+	   #:<female>
+	   #:<increase>
+	   #:<initial-sleeper>
+	   #:<invisible>
+	   #:<male>
+	   #:<max-hitpoints>
+	   #:<money>
+	   #:<never-attack>
+	   #:<never-move>
+	   #:<only-drop-gold>
+	   #:<only-drop-items>
+	   #:<paralysed>
+	   #:<random-mover>
+	   #:<reduce>
+	   #:<resist>
+	   #:<restore>
+	   #:<see-through>
+	   #:<sleeping>
+	   #:<unique>
+
 	   )
   #+lisp2csf
   (:documentation "This is the Langband game package."))
@@ -79,3 +934,4 @@ DESC: package.lisp - package def for langband
 	   #:enqueue
 	   #:dequeue
 	   ))
+

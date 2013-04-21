@@ -14,11 +14,6 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
-(defun is-legal-effect-type? (effect-type)
-  (find effect-type '(<teleport> "cold"> <light> "acid" "fire" <healing> <mana>
-		      <divination> <enhance> <meteor>
-		      "magic-missile" "poison" "electricity")
-	:test #'equal))
 
 ;; hack
 (defmacro spell-effect (arguments &body body)
@@ -29,41 +24,6 @@ the Free Software Foundation	 ; either version 2 of the License, or
 ;;    (warn "Def is ~s" def)
     `(function ,def)))
 
-(defun define-spell-effect (id &key gfx-beam text-beam gfx-ball text-ball
-			    gfx-orb text-orb gfx-bolts text-bolts)
-  (declare (ignore gfx-beam text-beam))
-  (assert (verify-id id))
-  
-  (let ((spell-effect (make-instance 'spell-effect :id id)))
-
-    (when (arrayp gfx-bolts)
-      (setf (projectile.gfx-path spell-effect) gfx-bolts))
-    (when (arrayp text-bolts)
-      (setf (projectile.text-path spell-effect) text-bolts))
-
-    (when (numberp gfx-ball)
-      (setf (projectile.gfx-explosion spell-effect) gfx-ball))
-    (when (numberp text-ball)
-      (setf (projectile.text-explosion spell-effect) text-ball))
-
-    (when (numberp gfx-orb)
-      (setf (projectile.gfx-impact spell-effect) gfx-orb))
-    (when (numberp text-orb)
-      (setf (projectile.text-impact spell-effect) text-orb))
-
-    
-    (setf (gethash id (variant.visual-effects *variant*)) spell-effect)
-    
-    spell-effect))
-
-    
-(defun get-spell-effect (type)
-  #'(lambda (var source target &key x y damage state-object)
-      (apply-spell-effect! var type source target :x x :y y :damage damage :state-object state-object)))
-
-;;(defmethod print-mana-points ((variant vanilla-variant) player setting)
-;;  (when (is-spellcaster? player)
-;;    (call-next-method)))
 
 (defmethod calculate-creature-mana! ((variant vanilla-variant) (player player))
 
@@ -74,7 +34,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
   (let* ((old-mana (maximum-mana player))
 	 (pl-class (player.class player))
-	 (pl-lvl (player.level player))
+	 (pl-lvl (player.power-lvl player))
 	 (pl-eqp (player.equipment player))
 	 (magic-level (+ 1 (- pl-lvl (class.spells-at-level pl-class))))
 	 (stats (variant.stats variant))
@@ -215,46 +175,72 @@ made."
 (defun %simple-projection (source destination flag effect damage &key projected-object)
   "Destination can be a target or a direction.  A direction of 5 is interpreted
 as target."
-  
-  (multiple-value-bind (dest-x dest-y)
-      (%get-dest-coords source destination)
-    (do-projection source dest-x dest-y flag :effect effect :damage damage :projected-object projected-object)))
+  (let ((sound (typecase projected-object
+		 (magic-spell (spell.effect-type projected-object))
+		 (active-object/wand (object.effect-type (aobj.kind projected-object)))
+		 (active-object/rod (object.effect-type (aobj.kind projected-object)))
+		 )))
+    (when (typep sound 'van/spell-effect)
+      (setf sound (projectile.id sound)))
+    ;;(warn "sound is ~s" sound)
+
+    (bit-flag-add! flag +project-through+) ;; go ahead
+    
+    (multiple-value-bind (dest-x dest-y)
+	(get-destination-coords source destination)
+      (do-projection source dest-x dest-y flag :effect effect :damage damage
+		     :projected-object projected-object :sound sound))
+  ))
 
 
-(defun van-fire-beam! (player destination effect damage &key projected-object)
+(defun van-fire-beam! (source destination effect damage &key projected-object)
   "Fires a beam in a direction."
-  (let ((flag (logior +project-kill+ +project-beam+ +project-through+)))
-    (%simple-projection player destination flag effect damage :projected-object projected-object)))
+  (let ((flag (logior +project-kill+ +project-beam+)))
+    (%simple-projection source destination flag effect damage :projected-object projected-object)))
 
-(defun van-fire-bolt! (player destination effect damage &key projected-object)
+(defun van-fire-bolt! (source destination effect damage &key projected-object)
   "Fires a bolt in a direction."
-  (let ((flag (logior +project-kill+ +project-stop+ +project-through+)))
-    (%simple-projection player destination flag effect damage :projected-object projected-object)))
+  (let ((flag (logior +project-kill+ +project-stop+)))
+    (%simple-projection source destination flag effect damage :projected-object projected-object)))
 
 
-(defun van-fire-bolt-or-beam! (player beam-chance destination effect damage &key projected-object)
+(defun van-fire-bolt-or-beam! (source beam-chance destination effect damage &key projected-object)
   "Will fire a beam if beam-chance/100 happens, otherwise a bolt."
   (cond ((< (random 100) beam-chance)
-	 (van-fire-beam! player destination effect damage :projected-object projected-object))
+	 (van-fire-beam! source destination effect damage :projected-object projected-object))
 	(t
-	 (van-fire-bolt! player destination effect damage :projected-object projected-object))))
+	 (van-fire-bolt! source destination effect damage :projected-object projected-object))))
 
 (defun van-fire-ball! (source destination effect damage radius &key projected-object)
   "Fires a ball in a direction."
   (let ((flag (logior +project-kill+ +project-grid+ +project-stop+ +project-item+)))
 
     (multiple-value-bind (dest-x dest-y)
-	(%get-dest-coords source destination 99)
+	(get-destination-coords source destination 99)
       (do-projection source dest-x dest-y flag
 		     :effect effect :damage damage
 		     :radius radius
 		     :projected-object projected-object)
       )))
-  
+
+(defun van-breath! (source destination effect damage radius &key projected-object)
+  "Fires a ball in a direction."
+  (let ((flag (logior +project-kill+ +project-stop+ +project-item+)))
+
+    (multiple-value-bind (dest-x dest-y)
+	(get-destination-coords source destination 99)
+      (do-projection source dest-x dest-y flag
+		     :effect effect :damage damage
+		     :radius radius
+		     :projected-object projected-object)
+      )))
+
+
   
 (defun light-room! (dungeon x y &key (type '<light>))
   "Lights the room."
-  (let ((coords (lb-ds:make-queue)))
+  (let ((coords (lb-ds:make-queue))
+	(as-list nil))
     (flet ((add-coord (bx by)
 	     (let ((flag (cave-flags dungeon bx by)))
 	       ;; no recursion
@@ -289,32 +275,39 @@ as target."
 	    ))))
 
     ;;(warn "coords ~s" coords)
+
+    (setf as-list (lb-ds:queue-as-list coords))
     
-    (dolist (i (lb-ds:queue-as-list coords))
+    (dolist (i as-list)
       (let ((flag (cave-flags dungeon (car i) (cdr i))))
+	;;(warn "~a changing ~s ~s from ~s" type (car i) (cdr i) flag)
 	(bit-flag-remove! flag +cave-temp+)
-	;;(warn "lighting ~s ~s" (car i) (cdr i))
 	(ecase type
 	  (<light>
 	   (bit-flag-add! flag +cave-glow+))
 	  (<darkness>
-	   (bit-flag-remove! flag +cave-glow+)))
+	   (bit-flag-remove! flag #.(logior +cave-mark+ +cave-glow+))))
+	;;(warn "~a changing ~s ~s to ~s" type (car i) (cdr i) flag)
 	(setf (cave-flags dungeon (car i) (cdr i)) flag)))
 
     ;; redraw things
     (bit-flag-add! *update* +pl-upd-forget-view+ +pl-upd-update-view+)
-    (bit-flag-add! *redraw* +print-map+)
+    (update-stuff *variant* dungeon *player*)
+
+    (dolist (i as-list)
+      (light-spot! dungeon (car i) (cdr i)))
+    
+    ;;(bit-flag-add! *redraw* +print-map+)
     
     t))
 
 
-(defun light-area! (dungeon player damage radius &key (type '<light>))
+(defun light-area! (dungeon source x y damage radius &key (type '<light>)
+		    projected-object)
   "Lights the area."
 
   ;; unless blind
-  (let ((blind-player nil)
-	(px (location-x player))
-	(py (location-y player)))
+  (let ((blind-player (is-blind? *player*)))
     
     (unless blind-player
       (ecase type
@@ -324,11 +317,12 @@ as target."
 	 (print-message! "Darkness surrounds you!"))
 	))
     
-    (do-projection player px py (logior +project-grid+ +project-kill+)
+    (do-projection source x y (logior +project-grid+ +project-kill+)
 		   :damage damage
 		   :radius radius
-		   :effect (get-spell-effect type))
-    (light-room! dungeon px py :type type))
+		   :effect (get-spell-effect type)
+		   :projected-object projected-object)
+    (light-room! dungeon x y :type type))
   
   t)
 
@@ -413,14 +407,14 @@ as target."
 
     (let ((spell-data (get-spell-data player spell-id)))
       (cond ((and (typep spell-data 'spell-classdata)
-		  (<= (spell.level spell-data) (player.level player)))
+		  (<= (spell.level spell-data) (player.power-lvl player)))
 	     (vector-push-extend spell-id learnt-spells)
 	     (format-message! "~a learnt." (spell.name spell))
 	     (bit-flag-add! *redraw* +print-study+)
 	     (return-from learn-spell! t))
 	    
 	    ((and (typep spell-data 'spell-classdata)
-		  (> (spell.level spell-data) (player.level player)))
+		  (> (spell.level spell-data) (player.power-lvl player)))
 	     (print-message! "You're not powerful enough to learn that spell yet."))
 	    
 	    ((eq spell-data nil)
@@ -455,7 +449,7 @@ returns T if the player knows the spell."
 	       (half-spells (get-stat-info stat-obj stat-val :half-spells))
 	       (learnt-spells (class.learnt-spells pl-class))
 	       (num-learnt (length learnt-spells))
-	       (max-spells (int-/ (* (player.level player) half-spells) 2)))
+	       (max-spells (int-/ (* (player.power-lvl player) half-spells) 2)))
 	  
 	  
 	  ;;(warn "Max spells ~s vs learnt ~s" max-spells num-learnt)
@@ -583,7 +577,7 @@ returns T if the player knows the spell."
 		   (unless (spell.tried spell-data)
 		     ;;(warn "Tried spell ~s" (spell.id spell-data))
 		     (setf (spell.tried spell-data) t)
-		     (alter-xp! player (spell.xp spell-data)))
+		     (modify-xp! player (spell.xp spell-data)))
 
 		   )
 		  (t
@@ -673,7 +667,7 @@ returns T if the player knows the spell."
 			 )
 		     
 		     ;; we have the spell readable at least
-		     (cond ((< (player.level player) base-level)
+		     (cond ((< (player.power-lvl player) base-level)
 			    (setf colour +term-red+
 				  comment "difficult"))
 			   
@@ -702,71 +696,11 @@ returns T if the player knows the spell."
     ))
      
 
-  
-(defun %destroy-floor-obj (variant dungeon x y obj msg)
-  (let ((item-table (cave-objects dungeon x y)) 
-	(desc (with-output-to-string (s)
-		(write-obj-description variant obj s))))
-	   (format-message! "~a ~a." desc msg)
-	   (item-table-remove! item-table obj)
-	   (when (= 0 (items.cur-size item-table))
-	     (setf (cave-objects dungeon x y) nil))
-	   (light-spot! dungeon x y)))
-
-
-(defmethod apply-spell-effect! ((variant vanilla-variant) type source target &key x y (damage 0) (state-object nil))
-  (declare (ignore x y type damage source target))
-  ;; do nothing default
-;;  (warn "Fell through for ~s ~s" type target)
-  state-object)
-
-
-;;(defmethod apply-fire-effect! ((variant vanilla-variant) source target &key x y (damage 0) (state-object nil))
-;;  (declare (ignore x y damage source target state-object))
-;;  )
-
-
-(defmethod apply-spell-effect! ((variant vanilla-variant) (type (eql '<fire>)) source (target active-object)
-				&key x y (damage 0) (state-object nil))
-  (declare (ignore source damage))
-  (cond ((damaged-by-element? variant target '<fire>)
-	 (%destroy-floor-obj variant *dungeon* x y target "burns"))
-	(t
-	 nil))
-  state-object)
-
-(defmethod apply-spell-effect! ((variant vanilla-variant) (type (eql '<magic-missile>)) source (target active-monster)
-			       &key
-			       x y (damage 0)  (state-object nil))
-  (declare (ignore x y source damage))
-  
-  (when (meff.seen state-object)
-    (setf (meff.obvious state-object) t))
-
-  state-object)
-
-    
-  
-(defmethod apply-spell-effect! ((variant vanilla-variant) (type (eql '<fire>)) source (target active-monster)
-			       &key
-			       x y (damage 0)  (state-object nil))
-  (declare (ignore x y source))
-
-  (when (meff.seen state-object)
-    (setf (meff.obvious state-object) t))
-  
-  (unless (damaged-by-element? variant target '<fire>)
-    ;; we're resisting
-    (setf (meff.note state-object) " resists a lot.")
-    (setf (meff.damage state-object) (int-/ damage 9))
-    ;; skip lore
-    )
-    
-  state-object)
-
-
 (defun teleport-creature! (dungeon player creature range)
-  (assert (numberp range))
+  "Teleports the creature some distance."
+  (unless (positive-integer? range)
+    (warn "Invalid argument to teleport-creature: ~s" range)
+    (return-from teleport-creature! nil))
 
   (let* ((minimum (floor range))
 	 (cx (location-x creature))
@@ -915,10 +849,11 @@ returns T if the player knows the spell."
 			   (- (location-y player) radius)
 			   (* radius 2) (* radius 2)
 			   #'(lambda (coord x y)
+			       (declare (ignorable x y))
 			       (when-bind (decor (coord.decor coord))
 				 (when (is-trap? decor)
 				   (bit-flag-add! (coord.flags coord) +cave-mark+)
-				   (make-trap-visible! decor dungeon x y)
+				   (decor-operation *variant* decor :visible)
 				   (setf detected-any t)))
 			       ))
      
@@ -938,10 +873,11 @@ returns T if the player knows the spell."
 			   (- (location-y player) radius)
 			   (* radius 2) (* radius 2)
 			   #'(lambda (coord x y)
+			       (declare (ignorable x y))
 			       (when-bind (decor (coord.decor coord))
 				 (when (is-door? decor)
 				   (bit-flag-add! (coord.flags coord) +cave-mark+)
-				   (make-door-visible! decor dungeon x y)
+				   (decor-operation *variant* decor :visible)
 				   (setf detected-any t)))
 			       ))
      
@@ -1065,7 +1001,7 @@ returns T if the player knows the spell."
 	   (learn-about-object! player removed-obj :fully-known)))
 
 	;; put object back where it was found
-	(%put-obj-in-cnt dungeon player the-table removed-obj)
+	(put-object-in-container! dungeon player the-table removed-obj)
 
 	(format-message! "Object is ~a."
 			 (with-output-to-string (s)
@@ -1115,3 +1051,63 @@ returns T if the player knows the spell."
 	      (return-from has-spell? x)))
       nil)))
 ||#
+
+(defun haste-creature! (creature amount duration)
+  "Tries to haste the creature."
+  (etypecase creature
+    ;; temporary for player
+    (player (modify-creature-state! creature '<hasted> :add duration))
+    (active-monster
+     (let ((target creature))
+       (cond ((< (get-creature-speed target)
+		 (+ amount (monster.speed (amon.kind target))))
+	      (incf (get-creature-speed target) amount))
+	     (t
+	      (incf (get-creature-speed target) 2))
+	     )))))
+
+;;(trace haste-creature!)
+
+(defun remove-curse! (creature power)
+  "Removes any curses on the creature."
+  
+  (unless (is-player? creature)
+    (warn "Uncursing creature ~s" creature)
+    (return-from remove-curse! nil))
+
+  (let ((count 0))
+  
+  (flet ((do-curse (tbl key item)
+	   (declare (ignore tbl key))
+	   (when item
+	     (when (uncurse-object! item power)
+	       (incf count)))))
+    
+    (declare (dynamic-extent #'do-curse))
+    
+    (when-bind (inv (player.inventory creature))
+      (when-bind (container (aobj.contains inv))
+	(item-table-iterate! container #'do-curse)))
+    
+    (when-bind (equ (player.equipment creature))
+      (item-table-iterate! equ #'do-curse))
+  
+    count)))
+
+(defun toggle-word-of-recall! (player)
+  "Toggles word of recall, not activate it."
+
+  (let* ((temp-attrs (player.temp-attrs player))
+	 (already-recalling (get-attribute-value '<recalling> temp-attrs)))
+
+    (cond (already-recalling
+	   ;; then we cancel it quietly
+	   (let ((attr (gethash '<recalling> temp-attrs)))
+	     (setf (attr.duration attr) 0
+		   (attr.value attr) nil)
+	     (print-message! "A tension leaves the air around you...")))
+	  (t
+	   (print-message! "The air about you becomes charged...")
+	   (modify-creature-state! player '<recalling> :add (+ 15 (random 20)))))
+
+    t))

@@ -105,14 +105,14 @@ the Free Software Foundation; either version 2 of the License, or
   :x-attr (tile-file 25) :x-char (tile-number 63)
   :flags #.(logior +floor-flag-wall+ +floor-flag-use-light-effect+))
 
-(define-floor-type* "stair-up" "stair-up"
+(define-floor-type* "stair-up" "staircase up"
   :text-attr +term-white+ :text-char #\<
   :numeric-id 77
   :x-attr (tile-file 25) :x-char (tile-number 21)
   :flags #.(logior +floor-flag-floor+ +floor-flag-allow-creatures+
 		   +floor-flag-exit-upwards+))
 
-(define-floor-type* "stair-down" "stair-down"
+(define-floor-type* "stair-down" "staircase down"
   :text-attr +term-white+ :text-char #\>
   :numeric-id 78
   :x-attr (tile-file 25) :x-char (tile-number 22)

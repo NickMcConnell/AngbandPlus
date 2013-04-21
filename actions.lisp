@@ -14,6 +14,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
+(defmethod can-melee-attack? ((variant variant) source target)
+  (declare (ignore source target))
+  t)
 
 (defun move-player! (dungeon player direction)
   "Moves the player, in a direction, if possible.
@@ -25,6 +28,7 @@ The direction is a number from the keypad."
 	 (wanted-x cur-x)
 	 (wanted-y cur-y))
 
+    (when (/= direction 5)
     ;; hack, move to variant later
     (when-bind (temp-attrs (player.temp-attrs player))
       (when (get-attribute-value '<confusion> temp-attrs)
@@ -33,7 +37,7 @@ The direction is a number from the keypad."
 	  (when (eql new-dir 5)
 	    (setf new-dir direction))
 	  (setf direction new-dir))))
- 
+    )
     
     (case direction
       (9 (decf wanted-y) (incf wanted-x))
@@ -64,8 +68,14 @@ The direction is a number from the keypad."
 
       ;; monsters to attack
       (cond (monsters
-	     (attack-location! dungeon player wanted-x wanted-y)
-	     )
+	     (let ((can-attack (can-melee-attack? var-obj player (car monsters))))
+	       (cond ((eq can-attack t)
+		      (attack-location! dungeon player wanted-x wanted-y))
+		     ((stringp can-attack)
+		      (print-message! can-attack))
+		     (t
+		      (print-message! "You're unable to do a melee-attack.")))))
+
 
 	    ((is-closed-door? dungeon wanted-x wanted-y)
 	     (open-door! dungeon wanted-x wanted-y))
@@ -132,17 +142,18 @@ The direction is a number from the keypad."
 		   (decor (coord.decor coord)))
 	      
 	      (when (typep decor 'active-trap)
-		(make-trap-visible! decor dungeon cur-x cur-y)
+		(print-message! "You have found a trap.")
+		(decor-operation *variant* decor :visible)
 		(disturbance *variant* player decor :major)
-		(print-message! "You have found a trap."))
+		(light-spot! dungeon cur-x cur-y))
 
 	      (when (and (typep decor 'active-door)
 			 (not (decor.visible? decor)))
 		(print-message! "You found a secret door.")
-		(make-door-visible! decor dungeon cur-x cur-y)
+		(decor-operation *variant* decor :visible)
 		(disturbance *variant* player decor :major)
 		;;(place-closed-door! dungeon cur-x cur-y)
-		;;(light-spot! dungeon cur-x cur-y)
+		(light-spot! dungeon cur-x cur-y)
 		)
 	  
 	      ;; add more here, traps, chests.. 
@@ -150,7 +161,7 @@ The direction is a number from the keypad."
     ))
 
 
-(defun change-depth! (dungeon player &key (direction :down) (amount 1) type)
+(defmethod move-creature-to-depth! (dungeon player &key (direction :down) (amount 1) type)
 
   (let* ((cur-depth (player.depth player))
 	 (wanted-depth (ecase direction
@@ -214,7 +225,7 @@ is above a stair.  DIR can be :UP or :DOWN"
 
 
 
-    (change-depth! dungeon player :direction dir :amount 1 :type leaving-sym)
+    (move-creature-to-depth! dungeon player :direction dir :amount 1 :type leaving-sym)
     
 
     t))
@@ -242,9 +253,7 @@ a list if more items occupy the same place."
 	   (let ((removed-type (object.the-kind (aobj.kind removed-obj))))
 	   (cond ((eq removed-type '<money>)
 		  ;; are we gold?
-		  (incf (player.gold player) (aobj.number removed-obj))
-		  ;; redraw left frame
-		  (bit-flag-add! *redraw* +print-basic+)
+		  (modify-gold! player (aobj.number removed-obj))
 		  
 		  (when (= 0 (items.cur-size objs))
 		    (setf (cave-objects dungeon x y) nil))
@@ -282,10 +291,11 @@ a list if more items occupy the same place."
 (defun interactive-destroy-item! (dungeon player)
   "Destroys some inventory"
 
-  (when-bind (selection (with-frame (+query-frame+)
-			  (select-item dungeon player '(:backpack :equip :floor)
-				       :prompt "Destroy item: "
-				       :where :backpack)))
+  (let ((selection (select-item dungeon player '(:backpack :equip :floor)
+				:prompt "Destroy item: "
+				:where :backpack)))
+    (unless selection
+      (return-from interactive-destroy-item! nil))
 
     (let* ((var-obj *variant*)
 	   (the-table (get-item-table dungeon player (car selection)))
@@ -313,10 +323,11 @@ a list if more items occupy the same place."
 (defun interactive-drop-item! (dungeon player)
   "Drop some inventory"
 
-  (when-bind (selection (with-frame (+query-frame+)
-			  (select-item dungeon player '(:backpack :equip)
-				       :prompt "Drop item: "
-				       :where :backpack)))
+  (let ((selection (select-item dungeon player '(:backpack :equip)
+				:prompt "Drop item: "
+				:where :backpack)))
+    (unless selection
+      (return-from interactive-drop-item! nil))
 
     (let* ((var-obj *variant*)
 	   (the-table (get-item-table dungeon player (car selection)))
@@ -342,10 +353,12 @@ a list if more items occupy the same place."
 			     
 (defun interactive-take-off-item! (dungeon player)
 
-  (when-bind (selection (with-frame (+query-frame+)
-			  (select-item dungeon player '(:equip)
-				       :prompt "Take off item: "
-				       :where :equip)))
+  (let ((selection (select-item dungeon player '(:equip)
+				:prompt "Take off item: "
+				:where :equip)))
+    (unless selection
+      (return-from interactive-take-off-item! nil))
+    
 
     (let* ((the-table (get-item-table dungeon player (car selection)))
 	   (removed-obj (item-table-remove! the-table (cdr selection))))
@@ -357,7 +370,7 @@ a list if more items occupy the same place."
       
       (cond ((typep removed-obj 'active-object)
 	     ;; an object was returned
-	     (%put-obj-in-cnt dungeon player :backpack removed-obj)
+	     (put-object-in-container! dungeon player :backpack removed-obj)
 	     (on-take-off-object *variant* player removed-obj)
 	     ;;(bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+)
 	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+)
@@ -368,7 +381,9 @@ a list if more items occupy the same place."
 	     )))
     ))
 
-(defun %put-obj-in-cnt (dungeon player cnt obj)
+(defun put-object-in-container! (dungeon player cnt obj)
+  "Tries to put the given object in the container, if not
+it overflows to the floor."
   (let* ((the-table (if (typep cnt 'item-table) cnt (get-item-table dungeon player cnt)))
 	 (back-to-inventory (item-table-add! the-table obj)))
     (unless back-to-inventory
@@ -377,17 +392,14 @@ a list if more items occupy the same place."
 		       obj))
     ))
 
-;;(trace %put-obj-in-cnt)
-
 (defun interactive-wear-item! (dungeon player)
   "Puts something in an equipment-slot."
 
-  (when-bind (selection (with-frame (+query-frame+)
-			  (select-item dungeon player '(:backpack :floor)
-				       :prompt "Wear item"
-				       :where :backpack))
-	      		)
-    
+  (let ((selection (select-item dungeon player '(:backpack :floor)
+				     :prompt "Wear item: "
+				     :where :backpack)))
+    (unless selection
+      (return-from interactive-wear-item! nil))
     
     (let* ((the-table (get-item-table dungeon player (car selection)))
 	   (removed-obj (item-table-remove! the-table (cdr selection) :only-single-items t))
@@ -407,11 +419,15 @@ a list if more items occupy the same place."
 	(return-from interactive-wear-item! nil))
 
       (when (is-cursed? removed-obj)
-	(print-message! "Oops! It feels deathly cold!"))
+	(print-message! "Oops! It feels deathly cold!")
+	(when (or (eq (aobj.inscr removed-obj) nil)
+		  (= (length (aobj.inscr removed-obj)) 0))
+	  (setf (aobj.inscr removed-obj) "cursed")))
+
       
       (cond ((typep other-obj 'active-object)
 	     ;; an object was returned
-	     (%put-obj-in-cnt dungeon player :backpack other-obj)
+	     (put-object-in-container! dungeon player :backpack other-obj)
 	     (on-wear-object *variant* player removed-obj)
 	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+))
 	    
@@ -435,10 +451,9 @@ a list if more items occupy the same place."
   
   ;; we have tried object
   ;;(tried-object)
-  
+    ;;(warn "APPLY-USUAL ~s ~s" obj (is-eatable? player obj))
     (when (is-eatable? player obj)
-      (alter-food! player (+ (player.food player)
-			 (gval.food-value gvals))))
+      (modify-satiation! player (gval.food-value gvals)))
     
     
     t))
@@ -475,14 +490,13 @@ a list if more items occupy the same place."
 		    nil))))
   
   (let ((variant *variant*)
-	(selection (with-frame (+query-frame+)
-		     (select-item dungeon player limit-from
-				  :prompt prompt
-				  :where (first limit-from)
-				  :selection-function (if selection-function
-							  selection-function
-							  #'allowed-object)
-				  ))))
+	(selection (select-item dungeon player limit-from
+				:prompt prompt
+				:where (first limit-from)
+				:selection-function (if selection-function
+							selection-function
+							#'allowed-object)
+				)))
 
     (unless (and selection (consp selection))
       (return-from interactive-use-item! nil))
@@ -503,10 +517,10 @@ a list if more items occupy the same place."
 ;;	(warn "use returned ~s" retval)
 	(cond ((or (eq retval nil) ;; didn't use the object for some reason..
 		   (eq retval :not-used))
-	       (%put-obj-in-cnt dungeon player the-table removed-obj))
+	       (put-object-in-container! dungeon player the-table removed-obj))
 	      
 	      ((eq retval :still-useful) ;; we should keep it
-	       (let ((back-obj (%put-obj-in-cnt dungeon player the-table removed-obj)))
+	       (let ((back-obj (put-object-in-container! dungeon player the-table removed-obj)))
 		 ;; add energy use
 		 (apply-usual-effects-on-used-object! dungeon player removed-obj)
 		 (when sound
@@ -515,9 +529,12 @@ a list if more items occupy the same place."
 	      
 	      ((eq retval :used) ;; we have used the item
 	       ;; decrement number
-	       (when (> (aobj.number removed-obj) 1)
-		 (decf (aobj.number removed-obj))
-		 (%put-obj-in-cnt dungeon player the-table removed-obj))
+	       (cond ((> (aobj.number removed-obj) 1)
+		      (decf (aobj.number removed-obj))
+		      (put-object-in-container! dungeon player the-table removed-obj))
+		     (t
+		      (bit-flag-add! *redraw* +print-equip+)))
+
 ;;	       (warn "used object ~a" removed-obj)
 	       (apply-usual-effects-on-used-object! dungeon player removed-obj)
 	       (when sound
@@ -630,7 +647,7 @@ a list if more items occupy the same place."
   ;; hackish
   (let ((decor (cave-decor dungeon x y)))
     (when (and (typep decor 'active-trap)
-	       (= (random 4) 1))
+	       (= (random 4) 1)) ;; hack
       (setf (cave-decor dungeon x y) nil)
       (setf (dungeon.decor dungeon) (delete decor (dungeon.decor dungeon)))
       (print-message! "You disarm the trap.")
@@ -701,7 +718,7 @@ a list if more items occupy the same place."
     ))
 
 
-(defun %highlight-target (dungeon target)
+(defun display-target (dungeon target)
   (check-type target target)
   (let ((legal (is-legal-target? dungeon target)))
     ;;  (warn "is at ~s,~s" (target.x target)	(target.y target))
@@ -713,7 +730,7 @@ a list if more items occupy the same place."
 
 	 
 
-(defun %get-target (dungeon x y)
+(defun get-target-at-coordinate (dungeon x y)
   (cond ((and (eql x (location-x *player*))
 	      (eql y (location-y *player*)))
 	 (make-target :obj *player* :x x :y y))
@@ -757,7 +774,10 @@ a list if more items occupy the same place."
 
     ))
 
-(defun %remove-target (target)
+(defun remove-target-display (target)
+  "If target is a legal target this function will remove any target
+visualisation from the screen."
+
   (when (and target (typep target 'target))
     (let ((win (aref *windows* *map-frame*)))
       (multiple-value-bind (x y)
@@ -775,7 +795,7 @@ a list if more items occupy the same place."
     (when (and cur-target
 	       (typep (target.obj cur-target) 'active-monster)
 	       (not (creature-alive? (target.obj cur-target))))
-      (%remove-target cur-target)
+      (remove-target-display cur-target)
       (setf cur-target nil))
 
     ;; always start at player if we have no old target
@@ -788,7 +808,7 @@ a list if more items occupy the same place."
     (set-cursor-visibility t)
     (block target-input
       (loop
-       (%highlight-target dungeon cur-target)
+       (display-target dungeon cur-target)
 
        (let ((key (read-one-character))
 	     (old-target cur-target))
@@ -805,7 +825,7 @@ a list if more items occupy the same place."
 				     (target.y cur-target))))
 		    (when (and (in-bounds-fully? dungeon wanted-x wanted-y)
 			       (panel-contains? player wanted-x wanted-y))
-		      (setf cur-target (%get-target dungeon wanted-x wanted-y)))
+		      (setf cur-target (get-target-at-coordinate dungeon wanted-x wanted-y)))
 		    )))
 
 	       ((or (eql key #\q)
@@ -817,7 +837,7 @@ a list if more items occupy the same place."
 		(warn "weird key ~s" key))
 	       )
 	 (unless (eq old-target nil)
-	   (%remove-target old-target))
+	   (remove-target-display old-target))
 	 (cond ((is-legal-target? dungeon cur-target)
 		(%print-target dungeon cur-target))
 	       ((eq cur-target nil)
@@ -1053,11 +1073,12 @@ a corridor."
 
   (block object-shooting
 
-    (when-bind (selection (with-frame (+query-frame+)
-			    (select-item dungeon player '(:backpack :equip)
-					 :prompt "Throw item: "
-					 :where :backpack)))
-
+    (let ((selection (select-item dungeon player '(:backpack :equip)
+				  :prompt "Throw item: "
+				  :where :backpack)))
+      (unless selection
+	(return-from interactive-throw-item! nil))
+      
       (let* ((var-obj *variant*)
 	     (the-table (get-item-table dungeon player (car selection)))
 	     (removed-obj (item-table-remove! the-table (cdr selection))))
@@ -1079,7 +1100,7 @@ a corridor."
 	  (assert (and (numberp dir) (< dir 10)))
 	      
 	  (multiple-value-bind (tx ty)
-	      (%get-dest-coords player dir 99)
+	      (get-destination-coords player dir 99)
 
 	    (throw-object var-obj player removed-obj tx ty)
 	    

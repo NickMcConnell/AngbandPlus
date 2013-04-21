@@ -41,7 +41,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop-chance> 9/10) <only-drop-items>)
   :gender '<male>)
 
-(define-monster-kind "dog-fang" "Fang, Farmer Maggot's dog"
+(define-monster-kind "dog-fang" "Fang"
+  :title "Farmer Maggot's dog"
   :numeric-id  47
   :x-attr (tile-file 18)
   :x-char (tile-number 75)
@@ -59,8 +60,10 @@ the Free Software Foundation; either version 2 of the License, or
   :immunities '(<sleep> <confusion>)
   :alertness 0
   :vision 30
-  :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
-(define-monster-kind "dog-grip" "Grip, Farmer Maggot's dog"
+  :attacks '((<bite> :type <hurt> :damage (1 . 4))))
+
+(define-monster-kind "dog-grip" "Grip"
+  :title "Farmer Maggot's dog"
   :numeric-id  46
   :x-attr (tile-file 18)
   :x-char (tile-number 73)
@@ -104,7 +107,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '((<drop> "1d2") (<drop-chance> 3/5) <only-drop-gold>)
   :gender '<male>) 
 
-(define-monster-kind "hobbit-bullroarer" "Bullroarer the hobbit"
+(define-monster-kind "hobbit-bullroarer" "Bullroarer"
+  :title "the hobbit"
   :numeric-id  76
   :x-attr (tile-file 24)
   :x-char (tile-number 0)
@@ -127,7 +131,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :gender '<male>)
 
-(define-monster-kind "kobold-mughash" "Mughash the kobold lord"
+(define-monster-kind "kobold-mughash" "Mughash"
+  :title "the kobold lord"
   :numeric-id  110
   :x-attr (tile-file 24)
   :x-char (tile-number 1)
@@ -149,8 +154,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 10))
              (<hit> :type <hurt> :damage (1 . 10)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :gender '<male>) 
-(define-monster-kind "wormtongue" "Wormtongue, Agent of Saruman"
+  :gender '<male>)
+
+(define-monster-kind "wormtongue" "Wormtongue"
+  :title "Agent of Saruman"
   :numeric-id  111
   :x-attr (tile-file 24)
   :x-char (tile-number 2)
@@ -172,9 +179,11 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <hurt> :damage (1 . 5)))
   :treasures '(<drop-great> <drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> (<ball> <poison>)) (<spell> (<bolt> <cold>)) (<spell> <traps>) (<spell> <slow>)
+  :special-abilities '((<ball-spell> <poison>) (<bolt-spell> <cold>) (<spell> <traps>) (<spell> <slow>)
                        (<spell> <heal>) (<frequency> 1/5))) 
-(define-monster-kind "orc-lagduf" "Lagduf, the Snaga"
+
+(define-monster-kind "orc-lagduf" "Lagduf"
+  :title "the Snaga"
   :numeric-id  112
   :x-attr (tile-file 24)
   :x-char (tile-number 3)
@@ -196,7 +205,9 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 10)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>) 
-(define-monster-kind "brodda" "Brodda, the easterling"
+
+(define-monster-kind "brodda" "Brodda"
+  :title "the easterling"
   :numeric-id  133
   :x-attr (tile-file 24)
   :x-char (tile-number 4)
@@ -216,8 +227,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12))
              (<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :gender '<male>) 
-(define-monster-kind "yeek-orfax" "Orfax, son of Boldor"
+  :gender '<male>)
+
+(define-monster-kind "yeek-orfax" "Orfax"
+  :title "son of Boldor"
   :numeric-id  137
   :x-attr (tile-file 24)
   :x-char (tile-number 5)
@@ -241,7 +254,9 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>
   :special-abilities '((<summon> <monster>) (<spell> <confusion>) (<spell> <slow>) (<spell> <teleport-player>)
                        (<spell> <blink>) (<spell> <heal>) (<frequency> 1/4))) 
-(define-monster-kind "orc-grishnakh" "Grishnakh, the hill-orc"
+
+(define-monster-kind "orc-grishnakh" "Grishnakh"
+  :title "the hill-orc"
   :numeric-id 140
   :x-attr (tile-file 24)
   :x-char (tile-number 6)
@@ -264,7 +279,9 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 12)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>) 
-(define-monster-kind "castamir" "Castamir the Usurper"
+
+(define-monster-kind "castamir" "Castamir"
+  :title "the Usurper"
   :numeric-id  408
   :x-attr (tile-file 24)
   :x-char (tile-number 35)
@@ -286,9 +303,11 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> (<bolt> <ice>)) (<spell> (<bolt> <electricity>)) (<spell> (<bolt> <cold>))
-                       (<spell> (<bolt> <fire>)) (<spell> <traps>) (<spell> <heal>) (<frequency> 1/2))) 
-(define-monster-kind "elemental-vargo" "Vargo, Tyrant of Fire"
+  :special-abilities '((<bolt-spell> <cold>) (<bolt-spell> <electricity>) (<bolt-spell> <cold>)
+                       (<bolt-spell> <fire>) (<spell> <traps>) (<spell> <heal>) (<frequency> 1/2))) 
+
+(define-monster-kind "elemental-vargo" "Vargo"
+  :title "Tyrant of Fire"
   :numeric-id  416
   :x-attr (tile-file 24)
   :x-char (tile-number 36)
@@ -310,8 +329,10 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 12
   :attacks '((<hit> :type <fire> :damage (4 . 6)) (<hit> :type <fire> :damage (4 . 6))
              (<hit> :type <fire> :damage (4 . 6)) (<hit> :type <fire> :damage (4 . 6)))
-  :special-abilities '((<spell> (<ball> <fire>)) (<spell> (<bolt> <plasma>)) (<frequency> 1/4))) 
-(define-monster-kind "elemental-waldern" "Waldern, King of Water"
+  :special-abilities '((<ball-spell> <fire>) (<bolt-spell> <plasma>) (<frequency> 1/4)))
+
+(define-monster-kind "elemental-waldern" "Waldern"
+  :title "King of Water"
   :numeric-id  422
   :x-attr (tile-file 24)
   :x-char (tile-number 37)
@@ -333,9 +354,11 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 12
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
-  :special-abilities '((<spell> (<ball> <water>)) (<spell> (<ball> <cold>)) (<spell> (<bolt> <water>))
-                       (<spell> (<bolt> <ice>)) (<frequency> 1/4))) 
-(define-monster-kind "dragon-kavlax" "Kavlax the Many-headed"
+  :special-abilities '((<ball-spell> <water>) (<ball-spell> <cold>) (<bolt-spell> <water>)
+                       (<bolt-spell> <cold>) (<frequency> 1/4))) 
+
+(define-monster-kind "dragon-kavlax" "Kavlax"
+  :title "the many-headed"
   :numeric-id  423
   :x-attr (tile-file 24)
   :x-char (tile-number 38)
@@ -360,8 +383,10 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>
   :special-abilities '((<breath> <nexus>) (<breath> <gravity>) (<breath> <shards>) (<breath> <confusion>)
                        (<breath> <sound>) (<breath> <electricity>) (<breath> <cold>) (<breath> <fire>) (<breath> <acid>)
-                       (<frequency> 1/4))) 
-(define-monster-kind "uvatha" "Uvatha the Horseman"
+                       (<frequency> 1/4)))
+
+(define-monster-kind "uvatha" "Uvatha"
+  :title "the Horseman"
   :numeric-id  440
   :x-attr (tile-file 24)
   :x-char (tile-number 39)
@@ -384,8 +409,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <exp-80> :damage (4 . 6)) (<hit> :type <exp-80> :damage (4 . 6))
              (<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :gender '<male>) 
-(define-monster-kind "medusa" "Medusa, the Gorgon"
+  :gender '<male>)
+
+(define-monster-kind "medusa" "Medusa"
+  :title "the Gorgon"
   :numeric-id  442
   :x-attr (tile-file 24)
   :x-char (tile-number 40)
@@ -408,10 +435,12 @@ the Free Software Foundation; either version 2 of the License, or
              (<gaze> :type <paralyse> :damage nil) (<gaze> :type <exp-80> :damage nil))
   :treasures '(<drop-good> (<drop> "2d2") (<drop> "1d2") <only-drop-items>)
   :gender '<female>
-  :special-abilities '((<summon> <hydra>) (<spell> (<ball> <acid>)) (<spell> (<bolt> <plasma>))
-                       (<spell> (<bolt> <fire>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
-                       (<frequency> 1/2))) 
-(define-monster-kind "orc-golfimbul" "golfimbul, the hill orc chief"
+  :special-abilities '((<summon> <hydra>) (<ball-spell> <acid>) (<bolt-spell> <plasma>)
+                       (<bolt-spell> <fire>) (<dmg-spell> 3) (<spell> <scare>) (<spell> <paralysis>)
+                       (<frequency> 1/2)))
+
+(define-monster-kind "orc-golfimbul" "golfimbul"
+  :title "the hill orc chief"
   :numeric-id  159
   :x-attr (tile-file 24)
   :x-char (tile-number 7)
@@ -434,7 +463,9 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :gender '<male>) 
-(define-monster-kind "yeek-boldor" "Boldor, King of the yeeks"
+
+(define-monster-kind "yeek-boldor" "Boldor"
+  :title "King of the yeeks"
   :numeric-id  173
   :x-attr (tile-file 24)
   :x-char (tile-number 8)
@@ -458,7 +489,9 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>
   :special-abilities '((<summon> <kin>) (<summon> <monster>) (<spell> <slow>) (<spell> <blindness>)
                        (<spell> <teleport>) (<spell> <blink>) (<spell> <heal>) (<frequency> 1/3))) 
-(define-monster-kind "ufthak" "Ufthak of Cirith Ungol"
+
+(define-monster-kind "ufthak" "Ufthak"
+  :title "of Cirith Ungol"
   :numeric-id  181
   :x-attr (tile-file 24)
   :x-char (tile-number 9)
@@ -482,7 +515,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>)
 
-(define-monster-kind "ren" "Ren the Unclean"
+(define-monster-kind "ren" "Ren"
+  :title "the Unclean"
   :numeric-id  457
   :x-attr (tile-file 24)
   :x-char (tile-number 44)
@@ -506,8 +540,8 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <monster>) (<spell> (<ball> <fire>)) (<spell> (<bolt> <nether>))
-                       (<spell> (<bolt> <fire>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
+  :special-abilities '((<summon> <monster>) (<ball-spell> <fire>) (<bolt-spell> <nether>)
+                       (<bolt-spell> <fire>) (<dmg-spell> 3) (<spell> <scare>) (<spell> <paralysis>)
                        (<spell> <blindness>) (<frequency> 1/3))) 
 
 (define-monster-kind "dawndeath" "Ji Indur Dawndeath"
@@ -534,10 +568,11 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<ball> <fire>)) (<spell> (<cause> 3))
+  :special-abilities '((<summon> <undead>) (<ball-spell> <nether>) (<ball-spell> <fire>) (<dmg-spell> 3)
                        (<spell> <scare>) (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/3))) 
 
-(define-monster-kind "elemental-quaker" "Quaker, Master of Earth"
+(define-monster-kind "elemental-quaker" "Quaker"
+  :title "Master of Earth"
   :numeric-id  466
   :x-attr (tile-file 24)
   :x-char (tile-number 46)
@@ -561,8 +596,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <shatter> :damage (10 . 10)) (<hit> :type <hurt> :damage (6 . 6))
              (<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6)))
   :gender '<male>
-  :special-abilities '((<spell> (<ball> <acid>)) (<spell> (<bolt> <acid>)) (<frequency> 1/6))) 
-(define-monster-kind "elemental-ariel" "Ariel, Queen of Air"
+  :special-abilities '((<ball-spell> <acid>) (<bolt-spell> <acid>) (<frequency> 1/6)))
+
+(define-monster-kind "elemental-ariel" "Ariel"
+  :title "Queen of Air"
   :numeric-id  468
   :x-attr (tile-file 24)
   :x-char (tile-number 47)
@@ -585,9 +622,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <confusion> :damage (1 . 4)) (<hit> :type <hurt> :damage (4 . 6))
              (<hit> :type <confusion> :damage (1 . 4)) (<hit> :type <hurt> :damage (4 . 6)))
   :gender '<female>
-  :special-abilities '((<spell> (<ball> <electricity>)) (<spell> (<ball> <cold>)) (<spell> (<bolt> <electricity>))
+  :special-abilities '((<ball-spell> <electricity>) (<ball-spell> <cold>) (<bolt-spell> <electricity>)
                        (<frequency> 1/5))) 
-(define-monster-kind "scatha" "Scatha the Worm"
+
+(define-monster-kind "scatha" "Scatha"
+  :title "the Worm"
   :numeric-id  473
   :x-attr (tile-file 24)
   :x-char (tile-number 48)
@@ -612,9 +651,10 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<claw> :type <hurt> :damage (1 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<breath> <cold>) (<spell> (<cause> 3)) (<spell> <confusion>) (<frequency> 1/3))) 
+  :special-abilities '((<breath> <cold>) (<dmg-spell> 3) (<spell> <confusion>) (<frequency> 1/3))) 
 
-(define-monster-kind "dwar" "Dwar, Dog-lord of Waw"
+(define-monster-kind "dwar" "Dwar"
+  :title "Dog-lord of Waw"
   :numeric-id 474
   :x-attr (tile-file 24)
   :x-char (tile-number 49)
@@ -640,11 +680,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <hound>) (<summon> <undead>) (<summon> <monsters>) (<spell> (<ball> <nether>))
-                       (<spell> (<ball> <fire>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
+  :special-abilities '((<summon> <hound>) (<summon> <undead>) (<summon> <monsters>) (<ball-spell> <nether>)
+                       (<ball-spell> <fire>) (<dmg-spell> 3) (<spell> <scare>) (<spell> <paralysis>)
                        (<spell> <blindness>) (<frequency> 1/3))) 
 
-(define-monster-kind "smaug" "Smaug the Golden"
+(define-monster-kind "smaug" "Smaug"
+  :title "the Golden"
   :numeric-id  475
   :x-attr (tile-file 24)
   :x-char (tile-number 50)
@@ -669,9 +710,10 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<claw> :type <hurt> :damage (1 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<breath> <fire>) (<spell> (<cause> 3)) (<spell> <confusion>) (<frequency> 1/3))) 
+  :special-abilities '((<breath> <fire>) (<dmg-spell> 3) (<spell> <confusion>) (<frequency> 1/3))) 
 
-(define-monster-kind "ulfast" "Ulfast, son of Ulfang"
+(define-monster-kind "ulfast" "Ulfast"
+  :title "son of Ulfang"
   :numeric-id  211
   :x-attr (tile-file 24)
   :x-char (tile-number 10)
@@ -696,7 +738,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop-chance> 9/10) <only-drop-items>)
   :gender '<male>)
 
-(define-monster-kind "dwarf-nar" "Nar, the dwarf"
+(define-monster-kind "dwarf-nar" "Nar"
+  :title "the dwarf"
   :numeric-id  215
   :x-attr (tile-file 24)
   :x-char (tile-number 11)
@@ -720,10 +763,11 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (3 . 5)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> <mind-blast>) (<spell> (<cause> 2)) (<spell> <confusion>) (<spell> <blindness>)
+  :special-abilities '((<spell> <mind-blast>) (<dmg-spell> 2) (<spell> <confusion>) (<spell> <blindness>)
                        (<spell> <heal>) (<frequency> 1/6)))
 
-(define-monster-kind "orc-shagrat" "shagrat, the orc captain"
+(define-monster-kind "orc-shagrat" "shagrat"
+  :title "the orc captain"
   :numeric-id  227
   :x-attr (tile-file 24)
   :x-char (tile-number 12)
@@ -749,7 +793,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>)
 
-(define-monster-kind "orc-gorbag" "Gorbag, the orc captain"
+(define-monster-kind "orc-gorbag" "Gorbag"
+  :title "the orc captain"
   :numeric-id  228
   :x-attr (tile-file 24)
   :x-char (tile-number 13)
@@ -775,7 +820,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>)
 
-(define-monster-kind "orc-bolg" "Bolg, son of Azog"
+(define-monster-kind "orc-bolg" "Bolg"
+  :title "son of Azog"
   :numeric-id  235
   :x-attr (tile-file 24)
   :x-char (tile-number 14)
@@ -801,7 +847,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :gender '<male>)
 
-(define-monster-kind "orc-ugluk" "Ugluk, the uruk"
+(define-monster-kind "orc-ugluk" "Ugluk"
+  :title "the uruk"
   :numeric-id  248
   :x-attr (tile-file 24)
   :x-char (tile-number 15)
@@ -827,7 +874,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>)
 
-(define-monster-kind "orc-lugdush" "Lugdush, the uruk"
+(define-monster-kind "orc-lugdush" "Lugdush"
+  :title "the uruk"
   :numeric-id  249
   :x-attr (tile-file 24)
   :x-char (tile-number 16)
@@ -853,7 +901,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>)
 
-(define-monster-kind "orc-azog" "Azog, King of the uruk-hai"
+(define-monster-kind "orc-azog" "Azog"
+  :title "King of the uruk-hai"
   :numeric-id  262
   :x-attr (tile-file 24)
   :x-char (tile-number 17)
@@ -878,7 +927,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :gender '<male>)
 
-(define-monster-kind "dwarf-ibun" "Ibun, son of Mim"
+(define-monster-kind "dwarf-ibun" "Ibun"
+  :title "son of Mim"
   :numeric-id  268
   :x-attr (tile-file 24)
   :x-char (tile-number 18)
@@ -902,9 +952,10 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (3 . 6)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> (<bolt> <fire>)) (<spell> <slow>) (<spell> <heal>) (<frequency> 1/8))) 
+  :special-abilities '((<bolt-spell> <fire>) (<spell> <slow>) (<spell> <heal>) (<frequency> 1/8))) 
 
-(define-monster-kind "dwarf-khim" "Khim, son of Mim"
+(define-monster-kind "dwarf-khim" "Khim"
+  :title "son of Mim"
   :numeric-id  269
   :x-attr (tile-file 24)
   :x-char (tile-number 19)
@@ -928,9 +979,10 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (3 . 6)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> (<bolt> <fire>)) (<spell> <slow>) (<spell> <heal>) (<frequency> 1/8))) 
+  :special-abilities '((<bolt-spell> <fire>) (<spell> <slow>) (<spell> <heal>) (<frequency> 1/8))) 
 
-(define-monster-kind "sangahyando" "Sangahyando of Umbar"
+(define-monster-kind "sangahyando" "Sangahyando"
+  :title "of Umbar"
   :numeric-id  273
   :x-attr (tile-file 24)
   :x-char (tile-number 20)
@@ -957,7 +1009,8 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>
   :special-abilities '((<spell> <forget>) (<spell> <slow>) (<frequency> 1/4)))
 
-(define-monster-kind "angamaite" "Angamaite of Umbar"
+(define-monster-kind "angamaite" "Angamaite"
+  :title "of Umbar"
   :numeric-id  274
   :x-attr (tile-file 24)
   :x-char (tile-number 21)
@@ -984,7 +1037,8 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>
   :special-abilities '((<spell> <forget>) (<spell> <slow>) (<frequency> 1/4)))
 
-(define-monster-kind "ulwarth" "Ulwarth, son of Ulfang"
+(define-monster-kind "ulwarth" "Ulwarth"
+  :title "son of Ulfang"
   :numeric-id  284
   :x-attr (tile-file 24)
   :x-char (tile-number 22)
@@ -1006,8 +1060,10 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (4 . 6))
              (<hit> :type <hurt> :damage (4 . 6)))
   :treasures '(<drop-good> (<drop-chance> 9/10) <only-drop-items>)
-  :gender '<male>) 
-(define-monster-kind "dwarf-mim" "Mim, betrayer of turin"
+  :gender '<male>)
+
+(define-monster-kind "dwarf-mim" "Mim"
+  :title "betrayer of Turin"
   :numeric-id  290
   :x-attr (tile-file 24)
   :x-char (tile-number 23)
@@ -1032,9 +1088,11 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (3 . 8)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> (<ball> <acid>)) (<spell> (<bolt> <acid>)) (<spell> <scare>) (<spell> <heal>)
-                       (<frequency> 1/6))) 
-(define-monster-kind "ogre-lokkak" "Lokkak, the ogre chieftain"
+  :special-abilities '((<ball-spell> <acid>) (<bolt-spell> <acid>) (<spell> <scare>) (<spell> <heal>)
+                       (<frequency> 1/6)))
+
+(define-monster-kind "ogre-lokkak" "Lokkak"
+  :title "the ogre chieftain"
   :numeric-id  297
   :x-attr (tile-file 24)
   :x-char (tile-number 24)
@@ -1057,7 +1115,9 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :gender '<male>) 
-(define-monster-kind "uldor" "Uldor the accursed"
+
+(define-monster-kind "uldor" "Uldor"
+  :title "the accursed"
   :numeric-id  304
   :x-attr (tile-file 24)
   :x-char (tile-number 25)
@@ -1081,7 +1141,9 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (4 . 6)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>)
-(define-monster-kind "imp-draebor" "Draebor, the imp"
+
+(define-monster-kind "imp-draebor" "Draebor"
+  :title "the imp"
   :numeric-id  307
   :x-attr (tile-file 24)
   :x-char (tile-number 26)
@@ -1107,7 +1169,9 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<summon> <kin>) (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>)
                        (<spell> <teleport-level>) (<spell> <teleport-away>) (<spell> <teleport-player>)
                        (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/5))) 
-(define-monster-kind "shelob" "Shelob, spider of darkness"
+
+(define-monster-kind "shelob" "Shelob"
+  :title "spider of darkness"
   :numeric-id  330
   :x-attr (tile-file 24)
   :x-char (tile-number 27)
@@ -1133,11 +1197,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<bite> :type <hurt> :damage (2 . 10)))
   :treasures '(<drop-good> (<drop> "2d2") (<drop> "1d2") <only-drop-items>)
   :gender '<female>
-  :special-abilities '((<summon> <spider>) (<spell> <traps>) (<spell> (<cause> 4)) (<spell> (<cause> 3))
+  :special-abilities '((<summon> <spider>) (<spell> <traps>) (<dmg-spell> 4) (<dmg-spell> 3)
                        (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>) (<spell> <blindness>) (<spell> <heal>)
                        (<frequency> 1/2)))
 
-(define-monster-kind "troll-bert" "Bert the stone troll"
+(define-monster-kind "troll-bert" "Bert"
+  :title "the stone troll"
   :numeric-id  343
   :x-attr (tile-file 24)
   :x-char (tile-number 28)
@@ -1163,7 +1228,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>)
 
-(define-monster-kind "troll-bill" "Bill the stone troll"
+(define-monster-kind "troll-bill" "Bill"
+  :title "the stone troll"
   :numeric-id  344
   :x-attr (tile-file 24)
   :x-char (tile-number 29)
@@ -1189,7 +1255,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>) 
 
-(define-monster-kind "troll-tom" "Tom the stone troll"
+(define-monster-kind "troll-tom" "Tom"
+  :title "the stone troll"
   :numeric-id  345
   :x-attr (tile-file 24)
   :x-char (tile-number 30)
@@ -1215,7 +1282,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
   :gender '<male>) 
 
-(define-monster-kind "ulfang" "Ulfang the black"
+(define-monster-kind "ulfang" "Ulfang"
+  :title "the black"
   :numeric-id  355
   :x-attr (tile-file 24)
   :x-char (tile-number 31)
@@ -1240,7 +1308,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :gender '<male>) 
 
-(define-monster-kind "troll-rogrog" "Rogrog the black troll"
+(define-monster-kind "troll-rogrog" "Rogrog"
+  :title "the black troll"
   :numeric-id  383
   :x-attr (tile-file 24)
   :x-char (tile-number 32)
@@ -1266,7 +1335,8 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :gender '<male>) 
 
-(define-monster-kind "lorgan" "Lorgan, Chief of the easterlings"
+(define-monster-kind "lorgan" "Lorgan"
+  :title "Chief of the easterlings"
   :numeric-id  392
   :x-attr (tile-file 24)
   :x-char (tile-number 33)
@@ -1293,7 +1363,8 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>
   :special-abilities '((<summon> <monsters>) (<spell> <teleport-player>) (<frequency> 1/4))) 
 
-(define-monster-kind "ant-queen" "the queen ant"
+(define-monster-kind "ant-queen" "Formica"
+  :title "Queen of the antz"
   :numeric-id  395
   :x-attr (tile-file 24)
   :x-char (tile-number 34)
@@ -1319,7 +1390,8 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<female>
   :special-abilities '((<summon> <ant>) (<frequency> 1/2))) 
 
-(define-monster-kind "adunaphel" "Adunaphel the quiet"
+(define-monster-kind "adunaphel" "Adunaphel"
+  :title "the quiet"
   :numeric-id  449
   :x-attr (tile-file 24)
   :x-char (tile-number 41)
@@ -1344,15 +1416,16 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
   :gender '<female>
-  :special-abilities '((<summon> <monster>) (<spell> (<bolt> <nether>)) (<spell> (<bolt> <cold>))
-                       (<spell> (<bolt> <fire>)) (<spell> (<bolt> <acid>)) (<spell> <forget>) (<spell> (<cause> 3))
+  :special-abilities '((<summon> <monster>) (<bolt-spell> <nether>) (<bolt-spell> <cold>)
+                       (<bolt-spell> <fire>) (<bolt-spell> <acid>) (<spell> <forget>) (<dmg-spell> 3)
                        (<spell> <scare>) (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/3))) 
 
-(define-monster-kind "akhorahil" "Akhorahil the blind"
+(define-monster-kind "akhorahil" "Akhorahil"
+  :title "the blind"
   :numeric-id  453
   :x-attr (tile-file 24)
   :x-char (tile-number 42)
-  :desc "A mighty sorcerer King, Akhorahil was blind in life.  With powerful  enchantments, he created jewelled eyes that enabled him to see better than  any ordinary man ever could."
+  :desc "A mighty sorcerer King, Akhorahil was blind in life.  With powerful enchantments, he created jewelled eyes that enabled him to see better than any ordinary man ever could."
   :text-char #\W
   :text-attr #\D
   :alignment '<evil>
@@ -1374,11 +1447,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <monster>) (<spell> (<bolt> <nether>)) (<spell> (<bolt> <cold>))
-                       (<spell> (<bolt> <fire>)) (<spell> <darkness>) (<spell> (<cause> 3)) (<spell> <scare>)
+  :special-abilities '((<summon> <monster>) (<bolt-spell> <nether>) (<bolt-spell> <cold>)
+                       (<bolt-spell> <fire>) (<spell> <darkness>) (<dmg-spell> 3) (<spell> <scare>)
                        (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/3))) 
 
-(define-monster-kind "gorlim" "Gorlim, betrayer of Barahir"
+(define-monster-kind "gorlim" "Gorlim"
+  :title "betrayer of Barahir"
   :numeric-id  454
   :x-attr (tile-file 24)
   :x-char (tile-number 43)
@@ -1402,9 +1476,10 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (8 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> (<bolt> <mana>)) (<spell> (<bolt> <water>)) (<spell> (<cause> 3)) (<frequency> 1/2)))
+  :special-abilities '((<bolt-spell> <mana>) (<bolt-spell> <water>) (<dmg-spell> 3) (<frequency> 1/2)))
 
-(define-monster-kind "dragon-itangast" "Itangast the fire drake"
+(define-monster-kind "dragon-itangast" "Itangast"
+  :title "the fire drake"
   :numeric-id  480
   :x-attr (tile-file 24)
   :x-char (tile-number 51)
@@ -1429,9 +1504,10 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<claw> :type <hurt> :damage (1 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<breath> <fire>) (<spell> (<cause> 3)) (<spell> <confusion>) (<frequency> 1/3)))
+  :special-abilities '((<breath> <fire>) (<dmg-spell> 3) (<spell> <confusion>) (<frequency> 1/3)))
 
-(define-monster-kind "dragon-glaurung" "Glaurung, father of the dragons"
+(define-monster-kind "dragon-glaurung" "Glaurung"
+  :title "Father of the dragons"
   :numeric-id  481
   :x-attr (tile-file 24)
   :x-char (tile-number 52)
@@ -1456,10 +1532,11 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<claw> :type <hurt> :damage (4 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <dragon>) (<breath> <fire>) (<spell> (<cause> 3)) (<spell> <confusion>)
+  :special-abilities '((<summon> <dragon>) (<breath> <fire>) (<dmg-spell> 3) (<spell> <confusion>)
                        (<frequency> 1/5)))
 
-(define-monster-kind "balrog-muar" "muar, the balrog"
+(define-monster-kind "balrog-muar" "Muar"
+  :title "the balrog"
   :numeric-id  483
   :x-attr (tile-file 24)
   :x-char (tile-number 53)
@@ -1486,7 +1563,8 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<summon> <demon>) (<summon> <undead>) (<breath> <fire>) (<spell> <scare>) (<spell> <confusion>)
                        (<frequency> 1/4)))
 
-(define-monster-kind "minotaur-baphomet" "Baphomet the minotaur lord"
+(define-monster-kind "minotaur-baphomet" "Baphomet"
+  :title "the minotaur lord"
   :numeric-id  490
   :x-attr (tile-file 24)
   :x-char (tile-number 54)
@@ -1511,9 +1589,11 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<butt> :type <hurt> :damage (12 . 13)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<breath> <force>) (<spell> (<ball> <electricity>)) (<spell> (<bolt> <plasma>))
-                       (<spell> (<bolt> <mana>)) (<arrow> 4) (<spell> <slow>) (<frequency> 1/6))) 
-(define-monster-kind "harowen" "Harowen the black hand"
+  :special-abilities '((<breath> <force>) (<ball-spell> <electricity>) (<bolt-spell> <plasma>)
+                       (<bolt-spell> <mana>) (<arrow> 4) (<spell> <slow>) (<frequency> 1/6))) 
+
+(define-monster-kind "harowen" "Harowen"
+  :title "the black hand"
   :numeric-id  491
   :x-attr (tile-file 24)
   :x-char (tile-number 55)
@@ -1539,7 +1619,8 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>
   :special-abilities '((<spell> <traps>) (<frequency> 1/6)))
 
-(define-monster-kind "hoarmurath" "Hoarmurath of Dir"
+(define-monster-kind "hoarmurath" "Hoarmurath"
+  :title "of Dir"
   :numeric-id  492
   :x-attr (tile-file 24)
   :x-char (tile-number 56)
@@ -1565,11 +1646,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "2d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <kin>) (<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<ball> <cold>))
-                       (<spell> (<bolt> <cold>)) (<spell> <mind-blast>) (<spell> (<cause> 4)) (<spell> (<cause> 3))
+  :special-abilities '((<summon> <kin>) (<summon> <undead>) (<ball-spell> <nether>) (<ball-spell> <cold>)
+                       (<bolt-spell> <cold>) (<spell> <mind-blast>) (<dmg-spell> 4) (<dmg-spell> 3)
                        (<spell> <scare>) (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/3))) 
 
-(define-monster-kind "khamul" "Khamul the easterling"
+(define-monster-kind "khamul" "Khamul"
+  :title "the easterling"
   :numeric-id  494
   :x-attr (tile-file 24)
   :x-char (tile-number 57)
@@ -1595,12 +1677,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <kin>) (<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<ball> <cold>))
-                       (<spell> (<ball> <fire>)) (<spell> (<bolt> <mana>)) (<spell> (<cause> 4)) (<spell> (<cause> 3))
+  :special-abilities '((<summon> <kin>) (<summon> <undead>) (<ball-spell> <nether>) (<ball-spell> <cold>)
+                       (<ball-spell> <fire>) (<bolt-spell> <mana>) (<dmg-spell> 4) (<dmg-spell> 3)
                        (<spell> <scare>) (<spell> <paralysis>) (<spell> <blindness>) (<spell> <teleport-level>)
                        (<frequency> 1/2)))
 
-(define-monster-kind "phoenix" "the Phoenix"
+(define-monster-kind "phoenix" "Phoenix"
   :numeric-id  497
   :x-attr (tile-file 24)
   :x-char (tile-number 58)
@@ -1623,10 +1705,10 @@ the Free Software Foundation; either version 2 of the License, or
              (<bite> :type <fire> :damage (12 . 6))
 	     (<bite> :type <fire> :damage (12 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :special-abilities '((<breath> <plasma>) (<breath> <light>) (<breath> <fire>) (<spell> (<ball> <fire>))
-                       (<spell> (<bolt> <plasma>)) (<spell> (<bolt> <fire>)) (<frequency> 1/3))) 
+  :special-abilities '((<breath> <plasma>) (<breath> <light>) (<breath> <fire>) (<ball-spell> <fire>)
+                       (<bolt-spell> <plasma>) (<bolt-spell> <fire>) (<frequency> 1/3))) 
 
-(define-monster-kind "hydra-lernean" "the Lernean hydra"
+(define-monster-kind "hydra-lernean" "Lernean hydra"
   :numeric-id  504
   :x-attr (tile-file 24)
   :x-char (tile-number 59)
@@ -1647,11 +1729,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <fire> :damage (12 . 6)) (<bite> :type <fire> :damage (12 . 6))
              (<bite> :type <poison> :damage (8 . 6)) (<bite> :type <poison> :damage (8 . 6)))
   :treasures '((<drop> "4d2") (<drop> "3d2") <only-drop-gold>)
-  :special-abilities '((<summon> <hydra>) (<breath> <poison>) (<breath> <fire>) (<spell> (<ball> <poison>))
-                       (<spell> (<ball> <fire>)) (<spell> (<bolt> <plasma>)) (<spell> (<bolt> <fire>))
+  :special-abilities '((<summon> <hydra>) (<breath> <poison>) (<breath> <fire>) (<ball-spell> <poison>)
+                       (<ball-spell> <fire>) (<bolt-spell> <plasma>) (<bolt-spell> <fire>)
                        (<spell> <scare>) (<frequency> 1/3))) 
 
-(define-monster-kind "vampire-thuringwethil" "thuringwethil"
+(define-monster-kind "vampire-thuringwethil" "Thuringwethil"
   :numeric-id  505
   :x-attr (tile-file 24)
   :x-char (tile-number 60)
@@ -1675,8 +1757,8 @@ the Free Software Foundation; either version 2 of the License, or
              (<bite> :type <exp-80> :damage (6 . 6)) (<bite> :type <hurt> :damage (5 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :gender '<female>
-  :special-abilities '((<summon> <kin>) (<spell> (<ball> <nether>)) (<spell> <brain-smash>) (<spell> <drain-mana>)
-                       (<spell> (<cause> 4)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
+  :special-abilities '((<summon> <kin>) (<ball-spell> <nether>) (<spell> <brain-smash>) (<spell> <drain-mana>)
+                       (<dmg-spell> 4) (<dmg-spell> 3) (<spell> <scare>) (<spell> <paralysis>)
                        (<spell> <blindness>) (<frequency> 1/3))) 
 
 (define-monster-kind "dwarf-fundin" "Fundin Bluecloak"
@@ -1703,11 +1785,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <monsters>) (<spell> <forget>) (<spell> <brain-smash>) (<spell> (<cause> 4))
-                       (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>)
+  :special-abilities '((<summon> <monsters>) (<spell> <forget>) (<spell> <brain-smash>) (<dmg-spell> 4)
+                       (<dmg-spell> 3) (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>)
                        (<spell> <heal>) (<frequency> 1/4))) 
 
-(define-monster-kind "angel-uriel" "Uriel, angel of fire"
+(define-monster-kind "angel-uriel" "Uriel"
+  :title "angel of fire"
   :numeric-id  509
   :x-attr (tile-file 24)
   :x-char (tile-number 62)
@@ -1732,10 +1815,11 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <fire> :damage (9 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <angel>) (<breath> <fire>) (<spell> (<ball> <fire>)) (<spell> (<bolt> <mana>))
-                       (<spell> (<bolt> <fire>)) (<spell> <blindness>) (<spell> <teleport-player>) (<frequency> 1/2)))
+  :special-abilities '((<summon> <angel>) (<breath> <fire>) (<ball-spell> <fire>) (<bolt-spell> <mana>)
+                       (<bolt-spell> <fire>) (<spell> <blindness>) (<spell> <teleport-player>) (<frequency> 1/2)))
 
-(define-monster-kind "angel-azriel" "Azriel, angel of death"
+(define-monster-kind "angel-azriel" "Azriel"
+  :title "angel of death"
   :numeric-id  510
   :x-attr (tile-file 24)
   :x-char (tile-number 63)
@@ -1760,10 +1844,11 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<touch> :type <exp-80> :damage nil))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <angel>) (<breath> <nether>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <nether>))
-                       (<spell> (<bolt> <mana>)) (<spell> <blindness>) (<spell> <teleport-player>) (<frequency> 1/2))) 
+  :special-abilities '((<summon> <angel>) (<breath> <nether>) (<ball-spell> <nether>) (<bolt-spell> <nether>)
+                       (<bolt-spell> <mana>) (<spell> <blindness>) (<spell> <teleport-player>) (<frequency> 1/2))) 
 
-(define-monster-kind "dragon-ancalagon" "Ancalagon the black"
+(define-monster-kind "dragon-ancalagon" "Ancalagon"
+  :title "the black"
   :numeric-id  511
   :x-attr (tile-file 24)
   :x-char (tile-number 64)
@@ -1791,7 +1876,8 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<summon> <high-dragon>) (<summon> <dragon>) (<breath> <fire>) (<breath> <acid>)
                        (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/2)))
 
-(define-monster-kind "angel-gabriel" "Gabriel, the Messenger"
+(define-monster-kind "angel-gabriel" "Gabriel"
+  :title "the Messenger"
   :numeric-id  513
   :x-attr (tile-file 24)
   :x-char (tile-number 65)
@@ -1816,14 +1902,15 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <kin>) (<summon> <angel>) (<spell> (<bolt> <mana>)) (<spell> <blindness>)
+  :special-abilities '((<summon> <kin>) (<summon> <angel>) (<bolt-spell> <mana>) (<spell> <blindness>)
                        (<spell> <teleport-player>) (<frequency> 1/2))) 
 
-(define-monster-kind "saruman" "Saruman of many colours"
+(define-monster-kind "saruman" "Saruman"
+  :title "of many colours"
   :numeric-id  514
   :x-attr (tile-file 24)
   :x-char (tile-number 66)
-  :desc "Originally known as the White, Saruman fell prey to Sauron's wiles.  He  seeks to emulate him and breeds orcs and trolls to fight for him.  He  searches forever for the One Ring, to become a mighty Sorcerer-King of the  world."
+  :desc "Originally known as the White, Saruman fell prey to Sauron's wiles.  He seeks to emulate him and breeds orcs and trolls to fight for him.  He searches forever for the One Ring, to become a mighty Sorcerer-King of the world."
   :text-char #\p
   :text-attr #\v
   :alignment '<evil>
@@ -1844,14 +1931,14 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <dragon>) (<summon> <demon>) (<summon> <undead>) (<spell> (<ball> <water>))
-                       (<spell> (<ball> <cold>)) (<spell> (<ball> <fire>)) (<spell> (<ball> <acid>))
-                       (<spell> (<bolt> <ice>)) (<spell> <traps>) (<spell> <forget>) (<spell> <mind-blast>)
-                       (<spell> (<cause> 4)) (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>)
+  :special-abilities '((<summon> <dragon>) (<summon> <demon>) (<summon> <undead>) (<ball-spell> <water>)
+                       (<ball-spell> <cold>) (<ball-spell> <fire>) (<ball-spell> <acid>)
+                       (<bolt-spell> <cold>) (<spell> <traps>) (<spell> <forget>) (<spell> <mind-blast>)
+                       (<dmg-spell> 4) (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>)
                        (<spell> <teleport-away>) (<spell> <teleport>) (<spell> <haste>) (<spell> <heal>)
                        (<frequency> 1/2))) 
 
-(define-monster-kind "cat-lord" "the Cat Lord"
+(define-monster-kind "cat-lord" "Cat Lord"
   :numeric-id  516
   :x-attr (tile-file 24)
   :x-char (tile-number 67)
@@ -1877,7 +1964,8 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>
   :special-abilities '((<spell> <teleport-player>) (<frequency> 1/3)))
 
-(define-monster-kind "tselakus" "Tselakus, the Dreadlord"
+(define-monster-kind "tselakus" "Tselakus"
+  :title "the Dreadlord"
   :numeric-id  522
   :x-attr (tile-file 24)
   :x-char (tile-number 68)
@@ -1902,11 +1990,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <kin>) (<summon> <high-undead>) (<summon> <wraith>) (<spell> (<ball> <nether>))
-                       (<spell> (<ball> <darkness>)) (<spell> <confusion>) (<spell> <paralysis>) (<spell> <blindness>)
+  :special-abilities '((<summon> <kin>) (<summon> <high-undead>) (<summon> <wraith>) (<ball-spell> <nether>)
+                       (<ball-spell> <darkness>) (<spell> <confusion>) (<spell> <paralysis>) (<spell> <blindness>)
                        (<frequency> 1/3)))
 
-(define-monster-kind "tiamat" "Tiamat, Celestial dragon of evil"
+(define-monster-kind "tiamat" "Tiamat"
+  :title "Celestial dragon of evil"
   :numeric-id  523
   :x-attr (tile-file 24)
   :x-char (tile-number 69)
@@ -1936,7 +2025,8 @@ the Free Software Foundation; either version 2 of the License, or
                        (<breath> <fire>) (<breath> <acid>) (<spell> <scare>) (<spell> <confusion>)
                        (<spell> <blindness>) (<frequency> 1/2)))
 
-(define-monster-kind "vecna" "Vecna, the Emperor lich"
+(define-monster-kind "vecna" "Vecna"
+  :title "the Emperor lich"
   :numeric-id  528
   :x-attr (tile-file 24)
   :x-char (tile-number 70)
@@ -1959,12 +2049,13 @@ the Free Software Foundation; either version 2 of the License, or
              (<touch> :type <un-power> :damage nil) (<touch> :type <exp-80> :damage nil))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "2d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <undead>) (<summon> <monsters>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <mana>))
-                       (<spell> (<ball> <mana>)) (<spell> <traps>) (<spell> <brain-smash>) (<spell> (<cause> 4))
-                       (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <confusion>) (<spell> <paralysis>)
+  :special-abilities '((<summon> <undead>) (<summon> <monsters>) (<ball-spell> <nether>) (<bolt-spell> <mana>)
+                       (<ball-spell> <mana>) (<spell> <traps>) (<spell> <brain-smash>) (<dmg-spell> 4)
+                       (<dmg-spell> 3) (<spell> <scare>) (<spell> <confusion>) (<spell> <paralysis>)
                        (<spell> <blindness>) (<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/2)))
 
-(define-monster-kind "omarax" "Omarax the eye tyrant"
+(define-monster-kind "omarax" "Omarax"
+  :title "the eye tyrant"
   :numeric-id  529
   :x-attr (tile-file 24)
   :x-char (tile-number 71)
@@ -1988,12 +2079,13 @@ the Free Software Foundation; either version 2 of the License, or
              (<gaze> :type <paralyse> :damage (2 . 6))
 	     (<gaze> :type <exp-40> :damage (2 . 6)))
   :gender '<male>
-  :special-abilities '((<summon> <kin>) (<spell> (<bolt> <cold>)) (<spell> (<bolt> <fire>)) (<spell> (<bolt> <acid>))
-                       (<spell> (<ball> <darkness>)) (<spell> <darkness>) (<spell> <forget>) (<spell> <mind-blast>)
+  :special-abilities '((<summon> <kin>) (<bolt-spell> <cold>) (<bolt-spell> <fire>) (<bolt-spell> <acid>)
+                       (<ball-spell> <darkness>) (<spell> <darkness>) (<spell> <forget>) (<spell> <mind-blast>)
                        (<spell> <drain-mana>) (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>)
                        (<spell> <blindness>) (<frequency> 1/2)))
 
-(define-monster-kind "spider-ungoliant" "Ungoliant, the Unlight"
+(define-monster-kind "spider-ungoliant" "Ungoliant"
+  :title "the Unlight"
   :numeric-id  530
   :x-attr (tile-file 24)
   :x-char (tile-number 72)
@@ -2019,11 +2111,11 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<bite> :type <poison> :damage (3 . 9)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
   :gender '<female>
-  :special-abilities '((<summon> <spider>) (<breath> <darkness>) (<breath> <poison>) (<spell> (<ball> <darkness>))
+  :special-abilities '((<summon> <spider>) (<breath> <darkness>) (<breath> <poison>) (<ball-spell> <darkness>)
                        (<spell> <darkness>) (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>)
                        (<spell> <blindness>) (<spell> <heal>) (<frequency> 1/3)))
 
-(define-monster-kind "mouth-sauron" "the Mouth of Sauron"
+(define-monster-kind "mouth-sauron" "Mouth of Sauron"
   :numeric-id  532
   :x-attr (tile-file 24)
   :x-char (tile-number 73)
@@ -2048,12 +2140,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> (<ball> <nether>)) (<spell> (<ball> <water>)) (<spell> (<ball> <fire>))
-                       (<spell> (<ball> <mana>)) (<spell> (<ball> <darkness>)) (<spell> (<bolt> <plasma>))
-                       (<spell> <traps>) (<spell> (<cause> 3)) (<spell> <paralysis>) (<spell> <teleport-player>)
+  :special-abilities '((<ball-spell> <nether>) (<ball-spell> <water>) (<ball-spell> <fire>)
+                       (<ball-spell> <mana>) (<ball-spell> <darkness>) (<bolt-spell> <plasma>)
+                       (<spell> <traps>) (<dmg-spell> 3) (<spell> <paralysis>) (<spell> <teleport-player>)
                        (<frequency> 1/2)))
 
-(define-monster-kind "quylthulg-emperor" "the Emperor quylthulg"
+(define-monster-kind "quylthulg-emperor" "Emperor quylthulg"
   :numeric-id  533
   :x-attr (tile-file 24)
   :x-char (tile-number 74)
@@ -2076,11 +2168,12 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<summon> <high-demon>) (<summon> <high-dragon>) (<summon> <high-undead>)
                        (<spell> <brain-smash>) (<frequency> 1/2)))
 
-(define-monster-kind "qlzqqlzuup" "Qlzqqlzuup, the Lord of flesh"
+(define-monster-kind "qlzqqlzuup" "Qlzqqlzuup"
+  :title "the Lord of flesh"
   :numeric-id  534
   :x-attr (tile-file 24)
   :x-char (tile-number 75)
-  :desc "This disgusting creature squeals and snorts as it writhes on the floor.   It pulsates with evil.  Its intent is to overwhelm you with monster after  monster, until it can greedily dine on your remains."
+  :desc "This disgusting creature squeals and snorts as it writhes on the floor.   It pulsates with evil.  Its intent is to overwhelm you with monster after monster, until it can greedily dine on your remains."
   :text-char #\Q
   :text-attr #\o
   :alignment '<evil>
@@ -2100,11 +2193,13 @@ the Free Software Foundation; either version 2 of the License, or
                        (<summon> <wraith>) (<summon> <unique>) (<summon> <hound>) (<summon> <ant>) (<summon> <spider>)
                        (<summon> <hydra>) (<summon> <angel>) (<summon> <dragon>) (<summon> <demon>) (<summon> <undead>)
                        (<summon> <monsters>) (<summon> <monster>) (<frequency> 1))) 
-(define-monster-kind "murazor" "Murazor, the Witch-king of Angmar"
+
+(define-monster-kind "murazor" "Murazor"
+  :title "the Witch-king of Angmar"
   :numeric-id  535
   :x-attr (tile-file 24)
   :x-char (tile-number 76)
-  :desc "The Chief of the Ringwraiths.  A fell being of devastating power.  His  spells are lethal and his combat blows crushingly hard.  He moves at  speed, and commands legions of evil to do his bidding.  It is said that he is fated never to die by the hand of mortal man."
+  :desc "The Chief of the Ringwraiths.  A fell being of devastating power.  His  spells are lethal and his combat blows crushingly hard.  He moves at speed, and commands legions of evil to do his bidding.  It is said that he is fated never to die by the hand of mortal man."
   :text-char #\W
   :text-attr #\D
   :alignment '<evil>
@@ -2127,10 +2222,12 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :gender '<male>
   :special-abilities '((<summon> <kin>) (<summon> <high-demon>) (<summon> <high-dragon>) (<summon> <high-undead>)
-                       (<summon> <wraith>) (<summon> <monsters>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <mana>))
-                       (<spell> <brain-smash>) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
+                       (<summon> <wraith>) (<summon> <monsters>) (<ball-spell> <nether>) (<bolt-spell> <mana>)
+                       (<spell> <brain-smash>) (<dmg-spell> 3) (<spell> <scare>) (<spell> <paralysis>)
                        (<spell> <blindness>) (<spell> <teleport-away>) (<frequency> 1/2))) 
-(define-monster-kind "pazuzu" "Pazuzu, Lord of air"
+
+(define-monster-kind "pazuzu" "Pazuzu"
+  :title "Lord of air"
   :numeric-id  536
   :x-attr (tile-file 24)
   :x-char (tile-number 77)
@@ -2155,9 +2252,11 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <electricity> :damage (12 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <high-demon>) (<spell> (<ball> <electricity>)) (<spell> (<bolt> <mana>))
-                       (<spell> (<bolt> <electricity>)) (<spell> <mind-blast>) (<frequency> 1/3))) 
-(define-monster-kind "cantoras" "Cantoras, the skeletal Lord"
+  :special-abilities '((<summon> <high-demon>) (<ball-spell> <electricity>) (<bolt-spell> <mana>)
+                       (<bolt-spell> <electricity>) (<spell> <mind-blast>) (<frequency> 1/3))) 
+
+(define-monster-kind "cantoras" "Cantoras"
+  :title "the skeletal Lord"
   :numeric-id  538
   :x-attr (tile-file 24)
   :x-char (tile-number 78)
@@ -2182,11 +2281,11 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<gaze> :type <exp-80> :damage nil))
   :treasures '(<drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <high-undead>) (<spell> (<ball> <nether>)) (<spell> (<ball> <water>))
-                       (<spell> (<bolt> <mana>)) (<spell> (<bolt> <ice>)) (<spell> <brain-smash>) (<spell> (<cause> 4))
+  :special-abilities '((<summon> <high-undead>) (<ball-spell> <nether>) (<ball-spell> <water>)
+                       (<bolt-spell> <mana>) (<bolt-spell> <cold>) (<spell> <brain-smash>) (<dmg-spell> 4)
                        (<spell> <scare>) (<spell> <slow>) (<spell> <teleport-player>) (<frequency> 1))) 
 
-(define-monster-kind "tarrasque" "the Tarrasque"
+(define-monster-kind "tarrasque" "Tarrasque"
   :numeric-id  539
   :x-attr (tile-file 24)
   :x-char (tile-number 79)
@@ -2213,11 +2312,12 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "2d2") <only-drop-items>)
   :special-abilities '((<breath> <disenchant>) (<breath> <cold>) (<breath> <fire>) (<frequency> 1/2)))
 
-(define-monster-kind "balrog-lungorthin" "Lungorthin, the balrog of white fire"
+(define-monster-kind "balrog-lungorthin" "Lungorthin"
+  :title "the balrog of white fire"
   :numeric-id  540
   :x-attr (tile-file 24)
   :x-char (tile-number 80)
-  :desc "A massive form cloaked in flame.  Lungorthin stares balefully at you with  eyes that smoulder red.  The dungeon floor where he stands is scorched by  the heat of his body."
+  :desc "A massive form cloaked in flame.  Lungorthin stares balefully at you with eyes that smoulder red.  The dungeon floor where he stands is scorched by the heat of his body."
   :text-char #\U
   :text-attr #\w
   :alignment '<evil>
@@ -2241,7 +2341,8 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<summon> <high-demon>) (<summon> <high-undead>) (<summon> <demon>) (<breath> <fire>)
                        (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/4)))
 
-(define-monster-kind "wolf-draugluin" "Draugluin, Sire of all werewolves"
+(define-monster-kind "wolf-draugluin" "Draugluin"
+  :title "Sire of all werewolves"
   :numeric-id  541
   :x-attr (tile-file 24)
   :x-char (tile-number 81)
@@ -2269,7 +2370,8 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>
   :special-abilities '((<summon> <hound>) (<summon> <monsters>) (<spell> <scare>) (<frequency> 1/3))) 
 
-(define-monster-kind "feagwath" "Feagwath the undead sorceror"
+(define-monster-kind "feagwath" "Feagwath"
+  :title "the undead sorceror"
   :numeric-id  542
   :x-attr (tile-file 24)
   :x-char (tile-number 82)
@@ -2295,15 +2397,16 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :gender '<male>
   :special-abilities '((<summon> <kin>) (<summon> <high-undead>) (<summon> <demon>) (<summon> <monsters>)
-                       (<spell> (<ball> <fire>)) (<spell> (<bolt> <mana>)) (<spell> (<ball> <mana>))
-                       (<spell> <brain-smash>) (<spell> (<cause> 4)) (<spell> <scare>) (<spell> <blindness>)
+                       (<ball-spell> <fire>) (<bolt-spell> <mana>) (<ball-spell> <mana>)
+                       (<spell> <brain-smash>) (<dmg-spell> 4) (<spell> <scare>) (<spell> <blindness>)
                        (<spell> <teleport>) (<frequency> 1/3)))
 
-(define-monster-kind "wolf-carcharoth" "Carcharoth, the jaws of thirst"
+(define-monster-kind "wolf-carcharoth" "Carcharoth"
+  :title "the jaws of thirst"
   :numeric-id  543
   :x-attr (tile-file 24)
   :x-char (tile-number 83)
-  :desc "The first guard of Angband, Carcharoth, also known as 'The Red Maw', is  the largest wolf to ever walk the earth.  He is highly intelligent and a  deadly opponent in combat."
+  :desc "The first guard of Angband, Carcharoth, also known as 'The Red Maw', is the largest wolf to ever walk the earth.  He is highly intelligent and a deadly opponent in combat."
   :text-char #\C
   :text-attr #\D
   :alignment '<evil>
@@ -2328,11 +2431,12 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<summon> <hound>) (<breath> <fire>) (<spell> <brain-smash>) (<spell> <scare>) (<spell> <heal>)
                        (<frequency> 1/4)))
 
-(define-monster-kind "cerberus" "Cerberus, Guardian of Hades"
+(define-monster-kind "cerberus" "Cerberus"
+  :title "Guardian of Hades"
   :numeric-id  544
   :x-attr (tile-file 24)
   :x-char (tile-number 84)
-  :desc "A two-headed hell hound of fearsome aspect.  Flame burns merrily from its  hide as it snarls and roars its defiance."
+  :desc "A two-headed hell hound of fearsome aspect.  Flame burns merrily from its hide as it snarls and roars its defiance."
   :text-char #\C
   :text-attr #\r
   :alignment '<evil>
@@ -2352,14 +2456,15 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <fire> :damage (9 . 12))
 	     (<hit> :type <fire> :damage (9 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :special-abilities '((<summon> <hound>) (<breath> <nether>) (<breath> <fire>) (<spell> (<ball> <darkness>))
+  :special-abilities '((<summon> <hound>) (<breath> <nether>) (<breath> <fire>) (<ball-spell> <darkness>)
                        (<frequency> 1/3)))
 
-(define-monster-kind "balrog-gothmog" "Gothmog, the High Captain of balrogs"
+(define-monster-kind "balrog-gothmog" "Gothmog"
+  :title "the High Captain of balrogs"
   :numeric-id  545
   :x-attr (tile-file 24)
   :x-char (tile-number 85)
-  :desc "Gothmog is the Chief Balrog in Morgoth's personal guard.  He is renowned  for slaying Ecthelion the Warder of the Gates and he has never been  defeated in combat.  With his whip of flame and awesome fiery breath he  saved his master from Ungoliant's rage."
+  :desc "Gothmog is the Chief Balrog in Morgoth's personal guard.  He is renowned for slaying Ecthelion the Warder of the Gates and he has never been defeated in combat.  With his whip of flame and awesome fiery breath he saved his master from Ungoliant's rage."
   :text-char #\U
   :text-attr #\R
   :alignment '<evil>
@@ -2383,11 +2488,11 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<summon> <high-undead>) (<summon> <high-demon>) (<breath> <fire>) (<spell> <scare>)
                        (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/3)))
 
-(define-monster-kind "sauron" "Sauron, the Sorcerer"
+(define-monster-kind "sauron" "Sauron" ;; no title, he's sacry enough
   :numeric-id  546
   :x-attr (tile-file 17)
   :x-char (tile-number 95)
-  :desc "He is Morgoth's most powerful servant.  Mighty in spells and enchantments,  he created the One Ring.  His eyes glow with power and his gaze seeks to  destroy your soul.  He has many servants, and rarely fights without them."
+  :desc "He is Morgoth's most powerful servant.  Mighty in spells and enchantments, he created the One Ring.  His eyes glow with power and his gaze seeks to destroy your soul.  He has many servants, and rarely fights without them."
   :text-char #\p
   :text-attr #\v
   :alignment '<evil>
@@ -2411,17 +2516,18 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>
   :special-abilities '((<summon> <high-dragon>) (<summon> <high-undead>)
 		       (<summon> <high-demon>) (<summon> <monsters>)
-                       (<spell> (<ball> <darkness>)) (<spell> (<ball> <nether>)) (<spell> (<ball> <water>))
-                       (<spell> (<ball> <fire>)) (<spell> (<ball> <mana>)) (<spell> (<bolt> <plasma>))
-                       (<spell> (<bolt> <mana>)) (<spell> (<bolt> <ice>)) (<spell> <forget>) (<spell> <brain-smash>)
-                       (<spell> (<cause> 4)) (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>)
+                       (<ball-spell> <darkness>) (<ball-spell> <nether>) (<ball-spell> <water>)
+                       (<ball-spell> <fire>) (<ball-spell> <mana>) (<bolt-spell> <plasma>)
+                       (<bolt-spell> <mana>) (<bolt-spell> <cold>) (<spell> <forget>) (<spell> <brain-smash>)
+                       (<dmg-spell> 4) (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>)
                        (<spell> <teleport-level>) (<spell> <teleport>) (<frequency> 1/2)))
 
-(define-monster-kind "morgoth" "Morgoth, Lord of Darkness"
+(define-monster-kind "morgoth" "Morgoth"
+  :title "Lord of Darkness"
   :numeric-id  547
   :x-attr (tile-file 18)
   :x-char (tile-number 71)
-  :desc "He is the Master of the Pits of Angband.  His figure is like a black  mountain crowned with Lightning.  He rages with everlasting anger, his  body scarred by Fingolfin's eight mighty wounds.  He can never rest from  his pain, but seeks forever to dominate all that is light and good in the  world.  He is the origin of man's fear of darkness and created many foul  creatures with his evil powers.  Orcs, Dragons, and Trolls are his most  foul corruptions, causing much pain and suffering in the world to please  him.  His disgusting visage, twisted with evil, is crowned with iron, the  two remaining Silmarils forever burning him.  Grond, the mighty Hammer of  the Underworld, cries defiance as he strides towards you to crush you to a  pulp!"
+  :desc "He is the Master of the Pits of Angband.  His figure is like a black mountain crowned with Lightning.  He rages with everlasting anger, his body scarred by Fingolfin's eight mighty wounds.  He can never rest from his pain, but seeks forever to dominate all that is light and good in the world.  He is the origin of man's fear of darkness and created many foul creatures with his evil powers.  Orcs, Dragons, and Trolls are his most foul corruptions, causing much pain and suffering in the world to please him.  His disgusting visage, twisted with evil, is crowned with iron, the two remaining Silmarils forever burning him.  Grond, the mighty Hammer of  the Underworld, cries defiance as he strides towards you to crush you to a pulp!"
   :text-char #\P
   :text-attr #\D
   :alignment '<evil>
@@ -2448,6 +2554,6 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<summon> <high-demon>) (<summon> <high-dragon>)
 		       (<summon> <high-undead>) (<summon> <wraith>)
                        (<summon> <unique>) (<summon> <monsters>)
-		       (<spell> (<ball> <nether>)) (<spell> (<bolt> <mana>))
-                       (<spell> (<ball> <mana>)) (<spell> <brain-smash>) (<frequency> 1/3))) 
+		       (<ball-spell> <nether>) (<bolt-spell> <mana>)
+                       (<ball-spell> <mana>) (<spell> <brain-smash>) (<frequency> 1/3))) 
 

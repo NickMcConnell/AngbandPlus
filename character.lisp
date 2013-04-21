@@ -82,12 +82,18 @@ the Free Software Foundation; either version 2 of the License, or
 
     ;; handle titles
     (when-bind (titles (getf kwd-args :titles))
-      (assert (and (consp titles) (= (length titles) 10)))
+      (unless (and (consp titles) (= (length titles) 10))
+	(signal-condition 'illegal-char-class-data :id id :desc "Titles not a list of length 10."))
+      (dolist (i titles)
+	(when (> (length i) 15)
+	  (signal-condition 'illegal-char-class-data :id id
+			    :desc (format nil "Title ~s (~s) longer than 15 chars." i (length i)))))
       (setf (class.titles my-class) titles))
 
     ;; handle starting equipment
     (when-bind (starting-equipment (getf kwd-args :starting-equipment))
-      (assert (consp starting-equipment))
+      (unless (consp starting-equipment)
+	(signal-condition 'illegal-char-class-data :id id :desc "starting-equipment not a list."))
       (setf (class.start-eq my-class) starting-equipment))
 
     ;; handle abilities
@@ -130,21 +136,32 @@ the Free Software Foundation; either version 2 of the License, or
 (defun define-character-class (id name &rest keyword-args &key &allow-other-keys)
   "Defines and establishes a class."
 
-  (unless (and (stringp id) (verify-id id))
-    (warn "Id ~s for class ~s must be a string, use symbol for class-symbol."))
-  
-  (let ((my-class (apply #'produce-character-class *variant* id name keyword-args)))
-	
-    ;;    (warn "Creating class ~a [~a]" name desc)
-    (check-type my-class character-class)
+  (handler-case
+      (let ((my-class nil))
+	(unless (and (stringp id) (verify-id id))
+	  (signal-condition 'illegal-char-class-data :id id
+			    :desc "Id for class must be a string, use symbol for class-symbol."))
 
-    (initialise-character-class! *variant* my-class keyword-args)
+	(setf my-class (apply #'produce-character-class *variant* id name keyword-args))
+
+	;; (warn "Creating class ~a [~a]" name desc)
+	
+	(check-type my-class character-class)
+
+	(initialise-character-class! *variant* my-class keyword-args)
+	
+	;; adding it to the table
+	(register-class& my-class)
     
-    ;; adding it to the table
-    (register-class& my-class)
+	;; returning the class
+	my-class)
     
-    ;; returning the class
-    my-class))
+    (illegal-char-class-data (co)
+      (warn "Failed to initialise character-class [~a]: ~a"
+	    (illegal-data.id co) (illegal-data.desc co))
+      nil)))
+
+
 
 
 (defun get-title-for-level (class level)
@@ -190,9 +207,36 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod initialise-character-race! ((var-obj variant) (race character-race) keyword-args)
   (let ((id (race.id race)))
+
+    (when-bind (symbol (getf keyword-args :symbol))
+      (cond ((nonboolsym? symbol)
+	     (setf (race.symbol race) symbol))
+	    (t
+	     (signal-condition 'illegal-char-race-data :id id :desc "Illegal symbol for character-race"))))
+
+    (when-bind (desc (getf keyword-args :desc))
+      (cond ((stringp desc)
+	     (unless (plusp (length desc))
+	       (signal-condition 'illegal-char-race-data :id id :desc "empty desc for char-race"))
+	     (setf (race.desc race) desc))
+	    (t
+	     (signal-condition 'illegal-char-race-data :id id :desc "Unknown format for desc data for char-race"))))
+
+    (when-bind (xp-extra (getf keyword-args :xp-extra))
+      (cond ((non-negative-integer? xp-extra)
+	     (setf (race.xp-extra race) xp-extra))
+	    (t
+	     (signal-condition 'illegal-char-race-data :id id :desc "xp-extra argument not non-negative integer"))))
+
+    (when-bind (base-age (getf keyword-args :base-age))
+      (cond ((non-negative-integer? base-age)
+	     (setf (race.base-age race) base-age))
+	    (t
+	     (signal-condition 'illegal-char-race :id id :desc "base-age argument not non-negative integer"))))
+
+
     
-    (destructuring-bind (&key symbol desc xp-extra (base-age :unspec)
-			      (mod-age :unspec) (base-status :unspec)
+    (destructuring-bind (&key (mod-age :unspec) (base-status :unspec)
 			      (mod-status :unspec) stat-changes (abilities :unspec)
 			      (resists :unspec) (stat-sustains :unspec)
 			      (hit-dice :unspec)
@@ -202,25 +246,14 @@ the Free Software Foundation; either version 2 of the License, or
 			      (f-weight :unspec) (f-weight-mod :unspec)
 			      classes starting-equipment &allow-other-keys)
 	keyword-args
-      (unless (and (symbolp symbol) (not (eq symbol nil)))
-	(warn "Symbol for race ~s is ~s, please use a normal symbol" id symbol))
-    
-      (setf (race.symbol race) symbol)
-    
-      (when desc
-	(setf (race.desc race) desc))
-      (when xp-extra
-	(setf (race.xp-extra race) xp-extra))
+
       (when classes
 	(setf (race.classes race) classes))
-
-      (when (integerp base-age)
-	(setf (race.base-age race) base-age))
 
       (when (or (integerp mod-age) (consp mod-age) (functionp mod-age))
 	(setf (race.mod-age race) mod-age))
     
-      (when (integerp base-status)
+      (when (non-negative-integer? base-status)
 	(setf (race.base-status race) base-status))
 	
       (when (or (integerp mod-status) (consp mod-status) (functionp mod-status))
@@ -302,23 +335,30 @@ the Free Software Foundation; either version 2 of the License, or
   "defines a race and updates global race-list.  Both id and symbol will be
 in the global race-table for easy access."
 
-  (unless (and (stringp id) (verify-id id))
-    (warn "Id ~s for race ~s must be a string, use symbol for race-symbol."))
-  ;;      (warn "Creating race ~a [~a]" name desc)
+  (handler-case
+      (let ((race nil))
+	(unless (and (stringp id) (verify-id id))
+	  (signal-condition 'illegal-char-race-data "Id for race must be a string, use symbol for race-symbol."))
 
-  
-  (let ((race (apply #' produce-character-race *variant* id name keyword-args)))
+	(setf race (apply #' produce-character-race *variant* id name keyword-args))
 
-    (check-type race character-race)
+	(check-type race character-race)
+	
+	(initialise-character-race! *variant* race keyword-args)
+	
+	(register-race& race)
+	
+	;;    (warn "Race ~a resists ~s" (race.name race) (race.resists race))
+    
+	;; return the race
+	race)
+    
+    (illegal-char-class-data (co)
+      (warn "Failed to initialise character-class [~a]: ~a"
+	    (illegal-data.id co) (illegal-data.desc co))
+      nil)))
 
-    (initialise-character-race! *variant* race keyword-args)
-    
-    (register-race& race)
-    
-;;    (warn "Race ~a resists ~s" (race.name race) (race.resists race))
-    
-    ;; return the race
-    race))
+
 
 (defmethod get-character-picture ((variant variant) (player player))
   nil)

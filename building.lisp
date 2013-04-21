@@ -72,12 +72,12 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod text-sym ((obj active-door))
   (text-sym (decor.type obj)))
 
+(defmethod get-decor-name ((decor active-door))
+  (door.name (decor.type decor)))
+
+
 (defun is-door? (obj)
   (typep obj 'active-door))
-
-(defun make-door-visible! (the-door dungeon x y)
-  (setf (decor.visible? the-door) t)
-  (light-spot! dungeon x y))
 
 (defmethod get-door (variant key &key (visible t))
   (let ((door-type (gethash key (variant.doors variant))))

@@ -1013,7 +1013,7 @@ are sorted first.  Returns nothing."
 
 				     ;;	(warn "checking ~a which is ~a ~a" j locations chance) 
 				     (setf (svref (object.chance cur-obj) (1- i)) chance)
-				     (setf (svref (object.locations cur-obj) (1- i)) locations)
+				     (setf (svref (alloc-locations cur-obj) (1- i)) locations)
 				      
 				     ))
 				  ))

@@ -17,10 +17,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun van-create-bare-town-level-obj ()
   "Returns a bare town-level."
-  (make-instance 'van-town-level :depth 0 :rating 0))
+  (make-instance 'van/town-level :depth 0 :rating 0))
 
 
-(defmethod level-ready? ((level van-town-level))
+(defmethod level-ready? ((level van/town-level))
   (when (level.dungeon level)
     t))
 
@@ -86,7 +86,7 @@ the Free Software Foundation; either version 2 of the License, or
 				  (format nil "(Items ~a-~a, ESC to exit) Which item are you interested in?"
 					  (i2a 0) (i2a (1- item-len)))
 				  0 0)
-	       (let* ((selected (%store-select-item 0 (1- item-len))))
+	       (let* ((selected (select-item-from-store home 0 (1- item-len))))
 		 (when (and selected (numberp selected))
 		   (let* ((items (house.items home))
 			  (act-obj (item-table-find items selected))
@@ -148,7 +148,7 @@ the Free Software Foundation; either version 2 of the License, or
       ))
 
 
-(defmethod generate-level! ((variant vanilla-variant) (level van-town-level) player)
+(defmethod generate-level! ((variant vanilla-variant) (level van/town-level) player)
   "Generates a town and returns it.  If the dungeon
 argument is non-NIL it will be re-used and returned as
 part of the new level."
@@ -156,8 +156,8 @@ part of the new level."
   (let* ((*level* level)
 	 ;;	 (var-obj *variant*)
 	 (settings (get-setting variant :random-level))	;; hack
-	 (max-dungeon-width  (slot-value settings 'max-width))
-	 (max-dungeon-height (slot-value settings 'max-height))
+	 (max-dungeon-width  (setting-lookup settings "max-width"))
+	 (max-dungeon-height (setting-lookup settings "max-height"))
 	 (dungeon (create-dungeon max-dungeon-width
 				  max-dungeon-height
 				  :its-depth 0))
@@ -224,7 +224,7 @@ part of the new level."
 	  (activate-object house))
 
 	(when (and (is-store? house) (store-empty? variant house))
-	  (equip-store! variant house))))
+	  (fill-up-store! variant house))))
     
     
     ;; this is just wrong!
@@ -287,15 +287,14 @@ part of the new level."
     level))
 
 
-
-(defmethod activate-object :after ((level van-town-level) &key)
+(defmethod activate-object :after ((level van/town-level) &key)
   
   (let* ((dungeon (level.dungeon level))
 	 (player *player*)
 	 (var-obj *variant*)
 	 (turn (variant.turn var-obj))
 	 (mod-time (mod turn (variant.day-length var-obj)))
-	 ;; quick hack
+	 ;; quick hack to check how light should behave in town
 	 (time-of-day (if (< mod-time (variant.twilight var-obj))
 			  'day
 			  'night)))
@@ -362,17 +361,17 @@ part of the new level."
 ;; this one does the job for all.. only one table for objects in vanilla
 (defmethod get-otype-table ((var-obj vanilla-variant) level)
   (declare (ignore level))
-  (%get-var-table var-obj "level" 'objects-by-level))
+  (get-named-gameobj-table var-obj "level" 'objects-by-level))
 
 (defmethod get-mtype-table ((var-obj vanilla-variant) (level random-level))
-  (%get-var-table var-obj level 'monsters-by-level))
+  (get-named-gameobj-table var-obj level 'monsters-by-level))
 
-(defmethod get-mtype-table ((var-obj vanilla-variant) (level van-town-level))
-  (%get-var-table var-obj level 'monsters-by-level))
+(defmethod get-mtype-table ((var-obj vanilla-variant) (level van/town-level))
+  (get-named-gameobj-table var-obj level 'monsters-by-level))
 
 ;; when we pass a string
 (defmethod get-mtype-table ((var-obj vanilla-variant) (level string))
-  (%get-var-table var-obj level 'monsters-by-level))
+  (get-named-gameobj-table var-obj level 'monsters-by-level))
 
 (defmethod get-floor ((variant vanilla-variant) key)
   (gethash key (variant.floor-types variant)))

@@ -45,11 +45,13 @@
  * Consider the use of "savetty()" and "resetty()".  XXX XXX XXX
  */
 
+#include "autoconf.h"
 
 #ifdef USE_GCU
 
 #include "langband.h"
 #include "lbwindows.h"
+#include "lbtools.h"
 #include <errno.h>
 
 /*
@@ -151,41 +153,11 @@ cursify_frame(LangbandFrame *lf, int max_cols, int max_rows) {
 
     lf->ui_connection = wc;
 
-    DEBUGPUT("Cursify %s.\n", lf->name);
-    
-    {
-	int cols = lf->allowed_width;
-	int rows = lf->allowed_height;
-
-	if (cols <= 0 || rows <= 0) {
-	    ERRORMSG("Illegal values for window '%s': cols %d, rows %d. (%d,%d)\n",
-		     lf->name, cols, rows, max_cols, max_rows);
-	}
-	
-	DBGPUT("New window %s %d, %d, %d, %d\n", lf->name, cols, rows, lf->xoffset, lf->yoffset);
-	
-	/* Create new window */
-	wc->win = newwin(rows, cols, lf->yoffset, lf->xoffset);
-	
-	/* Check for failure */
-	if (!wc->win) {
-	    /* Error */
-	    ERRORMSG("Failed to setup curses window.");
-	    return NULL;
-	}
-	//DBGPUT("going init on %p with %d %d\n", lf->azt, cols, rows);
-	
-	/* Initialize the term */
-	//term_init(lf->azt, cols, rows, 256);
-    }
-
-    // time to assign some important values
-    lf->columns = lf->frame_width = lf->allowed_width;
-    lf->rows = lf->frame_width = lf->allowed_height;
-
     lf->tile_width = lf->tile_height = 1;
 
-    DEBUGPUT("Finished cursify of %s.\n", lf->name);
+    DEBUGPUT("Cursify %s.\n", lf->name);
+    max_cols = max_rows = 0; // to avoid warning
+    //DEBUGPUT("Finished cursify of %s.\n", lf->name);
     
     /* Success */
     return lf;
@@ -202,11 +174,13 @@ cursify_frame(LangbandFrame *lf, int max_cols, int max_rows) {
  * Someone should really check the semantics of "initscr()"
  */
 int
-init_gcu(int initflags) {
+lbui_init_gcu(int initflags) {
 
     int i;
     int use_big_screen = 0;
-
+    
+    //ERRORMSG("in init_gcu()\n");
+    
     /* Extract the normal keymap */
     gcu_keymap_norm_prepare();
 
@@ -243,8 +217,8 @@ init_gcu(int initflags) {
     /* Extract the game keymap */
     gcu_keymap_game_prepare();
 
-    for (i = 0; i < num_predefinedFrames; i++) {
-	LangbandFrame *lf = get_frame(i, PREDEFINED);
+    for (i = 0; i < lbui_num_predefinedFrames; i++) {
+	LangbandFrame *lf = lbui_get_frame(i, PREDEFINED);
 	const char *frameName = NULL;
 	//DBGPUT("Checking sub %d\n", i);
 	if (!lf) {
@@ -263,7 +237,7 @@ init_gcu(int initflags) {
 	}
 	// tweaking
 	{
-	    gcu_winconnection *wc = (gcu_winconnection*)lf->ui_connection;
+	    //gcu_winconnection *wc = (gcu_winconnection*)lf->ui_connection;
 	    //wc->gt = screen_tiles; // improve later
 	    lf->visible = 0;
 	}
@@ -276,15 +250,72 @@ init_gcu(int initflags) {
     ESCDELAY = 0;
 #endif
     
-    activate_frame(FULL_TERM_IDX);    
-    DEBUGPUT("Return to london\n");
-    
+    lbui_activate_frame(FULL_TERM_IDX);    
+    DEBUGPUT("Return from gcu-init\n");
+    initflags = 0; // to avoid warning
     return 0;
  
 }
 
+static LangbandFrame *
+gcu_update_frame_size(LangbandFrame *lf) {
+
+    int cols = lf->allowed_width;
+    int rows = lf->allowed_height;
+    
+    gcu_winconnection *wc = (gcu_winconnection*)lf->ui_connection;
+
+    DBGPUT("New window %s %d, %d, %d, %d\n", lf->name, cols, rows, lf->xoffset, lf->yoffset);
+    
+    if (cols <= 0 || rows <= 0) {
+	ERRORMSG("Illegal values for window '%s': cols %d, rows %d. (%d,%d)\n",
+		 lf->name, cols, rows, 0, 0 /*max_cols, max_rows*/);
+    }
+    
+    /* Create new window */
+    wc->win = newwin(rows, cols, lf->yoffset, lf->xoffset);
+    
+    /* Check for failure */
+    if (!wc->win) {
+	/* Error */
+	ERRORMSG("Failed to setup curses window.");
+	return NULL;
+    }
+    //DBGPUT("going init on %p with %d %d\n", lf->azt, cols, rows);
+    
+    /* Initialize the term */
+    //term_init(lf->azt, cols, rows, 256);
+
+
+    // time to assign some important values
+    lf->columns = lf->frame_width = lf->allowed_width;
+    lf->rows = lf->frame_width = lf->allowed_height;
+
+    DBGPUT("Return\n");
+
+    return lf;
+}
+
 int
-cleanup_GCU(void) {
+gcu_recalculate_frame_placements(int arg) {
+    int i;
+    //DBGPUT("recalc\n");
+    for (i = 0; i < lbui_num_predefinedFrames; i++) {
+	LangbandFrame *lf = lbui_get_frame(i, PREDEFINED);
+	if (!lf) continue;
+	lf = gcu_update_frame_size(lf);
+	if (!lf) {
+	    ERRORMSG("Problems with frame %d\n", i);
+	    arg++; // to avoid warning
+	    return -1;
+	}
+    }
+    return 0;
+}
+
+
+int
+gcu_cleanup(void) {
     int x, y;
     
     DBGPUT("CLEANUP\n");
@@ -325,7 +356,7 @@ cleanup_GCU(void) {
 #define DONT_PAINT 0x02
 
 static int
-gcu_putChar(WINDOW *win, short x, short y, int attr, int thechar) {
+gcu_put_char(WINDOW *win, short x, short y, int attr, int thechar) {
     if (!win) return -1;
 #ifdef A_COLOR
     /* Set the color */
@@ -339,10 +370,10 @@ gcu_putChar(WINDOW *win, short x, short y, int attr, int thechar) {
 }
 
 int
-gcu_transparentBlit(short win_num, short x, short y, unsigned int img, short flags) {
+gcu_transparent_blit(short win_num, short x, short y, unsigned int img, short flags) {
     // also flushes
 
-    LangbandFrame *lf = predefinedFrames[win_num];
+    LangbandFrame *lf = lbui_predefinedFrames[win_num];
     gcu_winconnection *wc = NULL;
     
     if (lf) {
@@ -355,12 +386,12 @@ gcu_transparentBlit(short win_num, short x, short y, unsigned int img, short fla
     //DBGPUT("tran blitting %ld %d to %d,%d\n", img, flag, x, y);
  
     if (img == 0) {
-	gcu_putChar(wc->win, x, y, 1, ' ');
+	gcu_put_char(wc->win, x, y, 1, ' ');
     }
     else if (img < 65536) { // character
 	unsigned int thechar = (img & 0x000000FF); // bits 1-8
 	unsigned int attr = (img & 0x0000FF00) >> 8; // bits 9-16
-	gcu_putChar(wc->win, x, y, attr, thechar);
+	gcu_put_char(wc->win, x, y, attr, thechar);
     }
     else {
     }
@@ -371,21 +402,21 @@ gcu_transparentBlit(short win_num, short x, short y, unsigned int img, short fla
     }
 
     
-    return -1; //exp_complex_blit(win_num, x, y, img, ALSO_CLEAR_BG | flag);
+    return -1; 
 }
 
 int
-gcu_fullBlit(short win_num, short x, short y, unsigned int img, short flags) {
+gcu_full_blit(short win_num, short x, short y, unsigned int img, short flags) {
     // also flushes
     //DBGPUT("full blitting %ld %d to %d,%d\n", img, flag, x, y);
     
-    return gcu_transparentBlit(win_num, x, y, img, flags);
+    return gcu_transparent_blit(win_num, x, y, img, flags);
 }
 
 int
-gcu_flushCoords(short win_num, short x, short y, short w, short h) {
+gcu_flush_coords(short win_num, short x, short y, short w, short h) {
     
-    LangbandFrame *lf = predefinedFrames[win_num];
+    LangbandFrame *lf = lbui_predefinedFrames[win_num];
     gcu_winconnection *wc = NULL;
 
     
@@ -402,9 +433,9 @@ gcu_flushCoords(short win_num, short x, short y, short w, short h) {
 }
 
 int
-gcu_clearCoords(short win_num, short x, short y, short w, short h) {
+gcu_clear_coords(short win_num, short x, short y, short w, short h) {
     // also flushes
-    LangbandFrame *lf = predefinedFrames[win_num];
+    LangbandFrame *lf = lbui_predefinedFrames[win_num];
     gcu_winconnection *wc = NULL;
     int i, j;
     
@@ -417,7 +448,7 @@ gcu_clearCoords(short win_num, short x, short y, short w, short h) {
     
     for (i=0; i < h; i++) {
 	for (j=0; j < w; j++) {
-	    gcu_putChar(wc->win, x+j, y+i, 1, ' ');
+	    gcu_put_char(wc->win, x+j, y+i, 1, ' ');
 	}
     }
 
@@ -442,7 +473,7 @@ gcu_clearCoords(short win_num, short x, short y, short w, short h) {
 #define M_M_BT 0x08
 
 static int
-getKey(int wait) {
+gcu_get_key(int wait) {
 
     int i, k;
     
@@ -531,7 +562,7 @@ getKey(int wait) {
 }
 
 int
-gcu_getEvent(int option) {
+gcu_get_event(int option) {
 
 
     //SDL_Event event; /* just a temporary place to hold an event */
@@ -552,12 +583,12 @@ gcu_getEvent(int option) {
 
     //DBGPUT("Asked for event %d\n", option);
     if (option & ONLY_POLL) {
-	retval = getKey(0);
+	retval = gcu_get_key(0);
 	if (retval < 0)
 	    return 0; // fix
     }
     else {
-	retval = getKey(1);
+	retval = gcu_get_key(1);
 	if (retval < 0)
 	    return 0;
     }
@@ -571,5 +602,14 @@ gcu_getEvent(int option) {
     
 }
 
+int
+gcu_get_window_width() {
+    return COLS;
+}
+
+int
+gcu_get_window_height() {
+    return LINES;
+}
 
 #endif /* USE_GCU */

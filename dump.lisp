@@ -20,7 +20,7 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((the-form '()))
     (flet ((possibly-add (initarg val &optional (def-val nil))
 	     (unless (equal val def-val)
-	       (setf the-form (nconc the-form (list initarg (loadable-val val)))))))
+	       (setf the-form (nconc the-form (list initarg (loadable-value val)))))))
       (setf the-form (list 'make-game-values))
       
       (possibly-add :base-ac (gval.base-ac object) 0)
@@ -52,7 +52,7 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((the-form '()))
     (flet ((possibly-add (initarg val &optional (def-val nil))
 	     (unless (equal val def-val)
-	       (setf the-form (nconc the-form (list initarg (loadable-val val)))))))
+	       (setf the-form (nconc the-form (list initarg (loadable-value val)))))))
     (setf the-form (list 'define-object-kind 
 			 (object.id object)
 			 (object.name object)))
@@ -60,7 +60,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;;    (possibly-add :desc (object.desc object))
     (possibly-add :x-attr (convert-obj (x-attr object) :letter))
     (possibly-add :x-char (x-char object))
-    (possibly-add :locations (object.locations object) nil)
+    (possibly-add :locations (alloc-locations object) nil)
     (possibly-add :weight (object.weight object))
     (possibly-add :cost (object.cost object))
     (possibly-add :flags (object.flags object))
@@ -83,7 +83,7 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((the-form '()))
     (flet ((possibly-add (initarg val &optional (def-val nil))
 	     (unless (equal val def-val)
-	       (setf the-form (nconc the-form (list initarg (loadable-val val)))))))
+	       (setf the-form (nconc the-form (list initarg (loadable-value val)))))))
       
       (setf the-form (list 'define-monster-kind 
 			   (monster.id object)
@@ -93,7 +93,7 @@ the Free Software Foundation; either version 2 of the License, or
       (possibly-add :x-char (x-char object))
       (possibly-add :x-attr (x-attr object))
       (possibly-add :alignment (monster.alignment object))
-      (possibly-add :locations (monster.locations object) '())
+      (possibly-add :locations (alloc-locations object) '())
       (possibly-add :type (monster.type object))
       (possibly-add :hitpoints (monster.hitpoints object))
       (possibly-add :armour (monster.armour object))
@@ -291,6 +291,34 @@ the Free Software Foundation; either version 2 of the License, or
            (projectile.id inst)))
 
   inst)
+
+(defmethod print-object ((inst visual-state) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S]" (lbsys/class-name inst)
+           (visual-state.key inst)))
+
+  inst)
+
+(defmethod print-object ((inst ai-strategy) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S]" (lbsys/class-name inst)
+           (strategy.id inst)))
+
+  inst)
+
+(defmethod print-object ((inst peaceful-mover) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S ~S]" (lbsys/class-name inst)
+           (strategy.id inst)
+	   (first (strategy.destinations inst))
+	   ))
+
+  inst)
+
+
 
 
 (defun dump-objects (out-file &optional object-list)

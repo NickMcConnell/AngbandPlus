@@ -64,17 +64,14 @@ ADD_DESC: Various code which just prints stuff somewhere
 (win/format (aref *windows* term) col row colour "    ~2d" stat))
 ||#
 
-(defun print-field (str coord term)
+(defun print-field (str x y term)
   "Print string at given coordinates in light-blue."
   ;; clear and then write
-  (let ((y (car coord))
-	(x (cdr coord)))
 
+  (with-frame (term)
+    (put-coloured-str! +term-white+ "            " x y)
+    (put-coloured-str! +term-l-blue+ str x y)))
 
-    (with-frame (term)
-      (put-coloured-str! +term-white+ "            " x y)
-      (put-coloured-str! +term-l-blue+ str x y))
-    ))
 
 (defun print-stat (player setting num)
   "Prints stats in the left frame."
@@ -82,9 +79,8 @@ ADD_DESC: Various code which just prints stuff somewhere
   (let* ((stat-val (svref (player.active-stats player) num))
 	 (max-val (svref (player.modbase-stats player) num))
 	 (reduced-stat-p (> max-val stat-val))
-	 (stat-set (slot-value setting 'stat))
-	 (row (car stat-set))
-	 (col (cdr stat-set))
+	 (row (setting-lookup setting "stat"))
+	 (col 0)
 	 (name (get-stat-name-from-num num))
 	 (term +charinfo-frame+)
 	 (win (aref *windows* term))
@@ -94,78 +90,63 @@ ADD_DESC: Various code which just prints stuff somewhere
     (output-string! win col (+ num row) +term-white+ name)
     
     (print-stat-value +charinfo-frame+ (if reduced-stat-p +term-yellow+ +term-l-green+)
-		      stat-val (+ row num) (+ col 6))
+		      stat-val (+ row num) (+ col 5))
     
     ))
 
-(defun print-title (player setting)
-  "Prints the title for the class at the player's level."
-  
-  (let* ((the-class (player.class player))
-	 (the-lvl (player.level player))
-	 (title-set (slot-value setting 'title))
-	 (title (get-title-for-level the-class the-lvl)))
-    (print-field title title-set +charinfo-frame+)))
 
 (defun print-level (player setting)
   "Prints level in the left frame."
   
-  (let* ((lev (player.level player))
-	 (lev-set (slot-value setting 'level))
+  (let* ((lev (player.power-lvl player))
+	 (row (setting-lookup setting "level"))
 	 (lower-lvl-p (< lev (player.max-level player))))
 
-    (output-string! +charinfo-frame+ (cdr lev-set) (car lev-set) +term-white+ "Level")
+    (output-string! +charinfo-frame+ 0 row +term-white+ "Level")
 
     (print-number +charinfo-frame+ (if lower-lvl-p +term-yellow+ +term-l-green+)
-		  lev
-		  6
-		  (car lev-set)
-		  (+ (cdr lev-set) 6))))
+		  lev 6 row 5)
+    ))
 
 (defun print-xp (player setting)
   "Prints xp in the left frame."
-  (let* ((xp (player.cur-xp player))
-	 (xp-set (slot-value setting 'xp))
-	 (lower-xp-p (< xp (player.max-xp player))))
+  (let* ((xp (player.current-xp player))
+	 (row (setting-lookup setting "xp"))
+	 (lower-xp-p (< xp (player.maximum-xp player))))
 
-    (output-string! +charinfo-frame+ (cdr xp-set) (car xp-set) +term-white+ "Exp")
+    (output-string! +charinfo-frame+ 0 row +term-white+ "Xp")
     
     (print-number +charinfo-frame+ (if lower-xp-p +term-yellow+ +term-l-green+)
-		  xp
-		  8
-		  (car xp-set)
-		  (+ (cdr xp-set) 4))))
+		  xp 8 row 3)
+    ))
 
 
 (defun print-gold (player setting)
   "Prints gold to left frame."
   
   (let ((gold (player.gold player))
-	(gold-set (slot-value setting 'gold)))
+	(row (setting-lookup setting "gold")))
 
-    (output-string! +charinfo-frame+ (cdr gold-set) (car gold-set) +term-white+ "Au")
+    (output-string! +charinfo-frame+ 0 row +term-white+ "Au")
 
-    (print-number +charinfo-frame+ +term-l-green+ gold 9
-		   (car gold-set)
-		   (+ (cdr gold-set) 3))
+    (print-number +charinfo-frame+ +term-l-green+ gold 9 row 2)
+
     ))
 
 
-(defun print-armour-class (player setting)
+(defmethod print-armour-class ((variant variant) (player player) setting)
   "Prints AC to left frame."
   
   (let* ((perc (player.perceived-abilities player))
 	 (ac (+ (pl-ability.base-ac perc)
 		(pl-ability.ac-modifier perc)))
-	(ac-set (slot-value setting 'ac)))
+	 (row (setting-lookup setting "ac")))
 
-    (output-string! +charinfo-frame+ (cdr ac-set) (car ac-set) +term-white+ "Armour")
+    (output-string! +charinfo-frame+ 0 row +term-white+ "Armour")
 
     (print-number +charinfo-frame+ +term-l-green+
-		   ac
-		   5
-		   (car ac-set)
-		   (+ (cdr ac-set) 7))))
+		   ac 5 row 6)
+    ))
 
 
 (defun print-hit-points (player setting)
@@ -173,30 +154,60 @@ ADD_DESC: Various code which just prints stuff somewhere
   
   (let ((cur-hp (current-hp player))
 	(max-hp (maximum-hp player))
-	(cur-set (slot-value setting 'cur-hp))
-	(max-set (slot-value setting 'max-hp)))
+	(row (setting-lookup setting "hp"))
+	)
 
-    (output-string! +charinfo-frame+ (cdr max-set) (car max-set) +term-white+ "Max HP")
-    (output-string! +charinfo-frame+ (cdr cur-set) (car cur-set) +term-white+ "Cur HP")
+    (output-string! +charinfo-frame+ 0 row +term-white+ "HP")
 
+    (print-number +charinfo-frame+ (cond ((>= cur-hp max-hp) +term-l-green+)
+					 ((> cur-hp (int-/ (* max-hp *hitpoint-warning*) 10)) +term-yellow+)
+					 (t +term-red+))
+		  cur-hp 5 row 2)
+
+    #||
     ;; max
     (print-number +charinfo-frame+ +term-l-green+
 		    max-hp
 		    5
-		    (car max-set)
-		    (+ (cdr max-set) 7))
-
-    ;; cur
-    (print-number +charinfo-frame+ (cond ((>= cur-hp max-hp) +term-l-green+)
-					 ((> cur-hp (int-/ (* max-hp *hitpoint-warning*) 10)) +term-yellow+)
-					 (t +term-red+))
-		  cur-hp
-		  5
-		  (car cur-set)
-		  (+ (cdr cur-set) 7))
+		    (car cur-set)
+		    (+ (cdr cur-set) 7))
     
+    ;; cur
+
+
+    (setf (window-coord (aref *windows* +charinfo-frame+) +foreground+ 8 (car cur-set))
+	  (text-paint-value +term-l-green+ #\/))
+    ||#
+    
+    (let ((win (aref *windows* +charinfo-frame+))
+	  (colour +term-l-green+))
+      (win/format win 7 row colour "/~v" 3 max-hp))
     ))
 
+(defmethod print-speed ((variant variant) (player player) setting)
+
+  (let ((factor (- (player.speed player) +speed-base+))
+	(row (setting-lookup setting "speed"))
+	(win (aref *windows* +charinfo-frame+)))
+    (cond ((= factor 0)
+	   (output-string! win 0 row +term-white+ "           "))
+	  (t
+	   (let ((colour (if (minusp factor) +term-yellow+ +term-l-green+))
+		 (*winformat-forced-numbersign* t))
+	     (output-string! win 0 row +term-white+ "Speed")
+	     (win/format win 8 row colour "~v" 3 factor) 
+	     )))
+    t))
+
+(defmethod print-hunger ((variant variant) (player player) setting)
+  
+  (let* ((hunger (player.satiation player))
+         (loc (setting-lookup setting "hunger"))
+         (hunger-info (%get-hungerlvl hunger)))
+
+    (with-frame (+charinfo-frame+)
+      (put-coloured-str! (second hunger-info) (third hunger-info) 0 loc))
+    ))
 
 
 (defmethod print-basic-frame ((variant variant) dungeon player)
@@ -208,9 +219,8 @@ ADD_DESC: Various code which just prints stuff somewhere
   (let ((pr-set (get-setting variant :basic-frame-printing))
 	(stat-len (variant.stat-length variant)))
     
-    (print-field (get-race-name player) (slot-value pr-set 'race) +charinfo-frame+)
-    (print-field (get-class-name player) (slot-value pr-set 'class) +charinfo-frame+)
-    (print-title player pr-set)
+    (print-field (get-race-name player)  0 (setting-lookup pr-set "race") +charinfo-frame+)
+    (print-field (get-class-name player) 0 (setting-lookup pr-set "class") +charinfo-frame+)
     
     (print-level player pr-set)
     (print-xp player pr-set) 
@@ -218,9 +228,10 @@ ADD_DESC: Various code which just prints stuff somewhere
     (dotimes (i stat-len)
       (print-stat player pr-set i))
     
-    (print-armour-class player pr-set)
+    (print-armour-class variant player pr-set)
     (print-hit-points player pr-set)
-    
+
+    (print-speed variant player pr-set)
     
     (print-gold player pr-set))
 
@@ -232,7 +243,7 @@ ADD_DESC: Various code which just prints stuff somewhere
       (print-field "Food" food-set +charinfo-frame+)
       (print-field "Energy" energy-set +charinfo-frame+)
       
-      (print-number +charinfo-frame+ +term-l-green+ (player.food player) 5
+      (print-number +charinfo-frame+ +term-l-green+ (player.satiation player) 5
 		     (car food-set) (+ (cdr food-set) 7))
       (print-number +charinfo-frame+ +term-l-green+ (player.energy player) 5
 		     (car energy-set) (+ (cdr energy-set) 7))
@@ -240,16 +251,13 @@ ADD_DESC: Various code which just prints stuff somewhere
     ||#
 
   ;; ADD LATER
-  (let ((bot-set (get-setting variant :bottom-row-printing)))
-    (print-depth *level* bot-set)))
+  (print-depth *level* nil))
 
 
 
-(defmethod print-speed ((variant variant) (player player) (setting bottom-row-locations))
-  (let ((column (slot-value setting 'speed))
-	(speed (player.speed player))
-        (colour +term-l-green+)
-	)
+
+
+#||    
     (let ((s nil))
       (cond ((= speed +speed-base+)
              (setf s "            "))
@@ -264,27 +272,22 @@ ADD_DESC: Various code which just prints stuff somewhere
       (with-frame (+misc-frame+)
 	(put-coloured-str! colour s column 0))
       
-      )))
+      )
+
+    t))
+    ||#
   
 (defun display-player-misc (variant player term settings)
   (declare (ignore term))
 
   (let* ((the-class (player.class player))
-	 (the-lvl (player.level player))
+	 (the-lvl (player.power-lvl player))
 	 (title (get-title-for-level the-class the-lvl))
-	 (title-attr (if settings
-			 (slot-value settings 'title-attr)
-			 +term-white+))
-	 (value-attr (if settings
-			 (slot-value settings 'value-attr)
-			 +term-l-blue+))
-	 (title-col  (if settings
-			 (slot-value settings 'title-x)
-			 1))
-	 (title-row  (if settings
-			 (slot-value settings 'title-y)
-			 2))
-	 )
+	 (title-attr (setting-lookup settings "title-attr" +term-white+))
+	 (value-attr (setting-lookup settings "value-attr" +term-blue+))
+	 (title-col  (setting-lookup settings "title-x" 1))
+	 (title-row  (setting-lookup settings "title-y" 2)))
+
 
     (flet ((print-info (title text row)
 	     (put-coloured-str! title-attr title title-col row)
@@ -308,12 +311,8 @@ ADD_DESC: Various code which just prints stuff somewhere
       ;; select better picture later
       (when (use-images?)
 	(when-bind (picture (get-character-picture variant player))
-	  (let ((pic-col  (if settings
-			      (slot-value settings 'picture-x)
-			      (+ 22 title-col)))
-		(pic-row  (if settings
-			      (slot-value settings 'picture-y)
-			      title-row)))
+	  (let ((pic-col  (setting-lookup settings "picture-x" (+ 22 title-col)))
+		(pic-row  (setting-lookup settings "picture-y" title-row)))
 	    
 	    (paint-gfx-image& picture pic-col pic-row))))
       
@@ -321,31 +320,18 @@ ADD_DESC: Various code which just prints stuff somewhere
 
 (defmethod display-player-extra ((variant variant) (player player) term settings)
 
-  (let* ((title-attr (if settings
-			 (slot-value settings 'title-attr)
-			 +term-white+))
-	 (value-attr (if settings
-			 (slot-value settings 'value-attr)
-			 +term-l-blue+))
-	 (badvalue-attr (if settings
-			    (slot-value settings 'value-badattr)
-			    +term-yellow+))
-
-	 (title-col  (if settings
-			 (slot-value settings 'extra-x)
-			 26))
-	 (title-row  (if settings
-			 (slot-value settings 'extra-y)
-			 3))
+  (let* ((title-attr (setting-lookup settings "title-attr" +term-white+))
+	 (value-attr (setting-lookup settings "value-attr" +term-l-blue+))
+	 (badvalue-attr (setting-lookup settings "value-badattr" +term-yellow+))
+	 (title-col  (setting-lookup settings "extra-x" 26))
+	 (title-row  (setting-lookup settings "extra-y" 3))
 	 (col title-col)
 	 (f-col (+ 7 title-col))
 	 (row title-row)
-	 (cur-xp (player.cur-xp player))
-	 (max-xp (player.max-xp player))
-	 (lvl (player.level player))
+	 (cur-xp (player.current-xp player))
+	 (max-xp (player.maximum-xp player))
+	 (lvl (player.power-lvl player))
 	 (misc (player.misc player))
-	 
-	 
 	 )
     
 
@@ -363,12 +349,8 @@ ADD_DESC: Various code which just prints stuff somewhere
     ;; always in maximize and preserve, do not include
 
     ;; another area
-    (setq col (if settings
-		  (slot-value settings 'elem-x)
-		  1))
-    (setq row (if settings
-		  (slot-value settings 'elem-y)
-		  11))
+    (setq col (setting-lookup settings "elem-x" 1))
+    (setq row (setting-lookup settings "elem-y" 11))
     (setq f-col (+ col 9))
 
     ;; hack, remove later
@@ -399,7 +381,7 @@ ADD_DESC: Various code which just prints stuff somewhere
     (put-coloured-str! title-attr "Adv Exp" col (+ row 8))
     (put-coloured-str! value-attr
 		       (format nil "~10d" (aref (player.xp-table player)
-						(player.level player)))
+						(player.power-lvl player)))
 		       f-col (+ row 8))
 
     
@@ -424,12 +406,8 @@ ADD_DESC: Various code which just prints stuff somewhere
 
 (defmethod display-player-skills ((variant variant) (player player) term settings)
 
-  (let ((row (if settings
-		  (slot-value settings 'skills-y)
-		  10))
-	(col (if settings
-		 (slot-value settings 'skills-x)
-		 42)))
+  (let ((row (setting-lookup settings "skills-y" 10))
+	(col (setting-lookup settings "skills-x" 42)))
 
     (when (integerp term)
       (setf term (aref *windows* term)))
@@ -440,21 +418,11 @@ ADD_DESC: Various code which just prints stuff somewhere
 (defun display-player-stats (variant player term settings)
   ;;  (warn "Displaying character.. ")
   
-  (let ((row (if settings
-		 (slot-value settings 'stats-y)
-		 3))
-	(col (if settings
-		 (slot-value settings 'stats-x)
-		 42))
-	(stats-attr (if settings
-			(slot-value settings 'stats-attr)
-			+term-white+))
-	(stats-ok-val (if settings
-			  (slot-value settings 'statok-attr)
-			  +term-l-green+))
-	(stats-bad-val (if settings
-			   (slot-value settings 'statbad-attr)
-			   +term-yellow+))
+  (let ((row (setting-lookup settings "stats-y" 3))
+	(col (setting-lookup settings "stats-x" 42))
+	(stats-attr    (setting-lookup settings "stats-attr" +term-white+))
+	(stats-ok-val  (setting-lookup settings "statok-attr" +term-l-green+))
+	(stats-bad-val (setting-lookup settings "statbad-attr" +term-yellow+))
 	
 ;;	(num-stats 6)
 	;; more pressing variables
@@ -628,119 +596,18 @@ ADD_DESC: Various code which just prints stuff somewhere
 	   (return-from display-help-topics nil)))
        ))))
 
-(defun print-attack-graph (var-obj player)
-;;  (declare (ignore player))
-    (clear-window *cur-win*)
-    
-    (dotimes (i 10)
-      (let ((y (- 19 (* i 2))))
-	(put-coloured-str! +term-l-blue+ (format nil "~3d%" (* i 10))
-			3 y)))
-    (dotimes (i 20)
-      (put-coloured-str! +term-l-blue+ "|" 7 i))
 
-    (put-coloured-str! +term-l-blue+ "CHANCE TO HIT" 64 1)
-    (put-coloured-str! +term-l-blue+ "=============" 64 2)
-    
-    (put-coloured-str! +term-l-red+ "Unarm." 8 20)
-    (put-coloured-str! +term-white+ "Leath." 13 21)
-    (put-coloured-str! +term-orange+ "L. met." 18 22)
-    (put-coloured-str! +term-yellow+ "Met." 22 20)
-    (put-coloured-str! +term-violet+ "H. Met." 26 21)
-    (put-coloured-str! +term-l-green+ "Plate" 30 22)
-    (put-coloured-str! +term-l-red+ "H. Plate" 35 20)
-    (put-coloured-str! +term-white+ "Dragon" 40 21)
-    (put-coloured-str! +term-orange+ "H. Dragon" 44 22)
-    (put-coloured-str! +term-yellow+ "Ench Drg" 50 20)
-    (put-coloured-str! +term-violet+ "Legend" 62 21)
-    (put-coloured-str! +term-l-green+ "Myth" 74 22)
-
-    (let ((skill (get-melee-attack-skill var-obj player)))
-      
-      (flet ((get-x (val)
-	       (+ 8 val))
-	     (get-y (val)
-	       (- 19 (int-/ val 5))))
-	(loop for i from 5 to 180 by 5
-	      for j from 1 by 2
-	      do
-	      (let ((chance (get-chance var-obj skill i))
-		    (desc (get-armour-desc var-obj i)))
-		(check-type desc cons)
-		(put-coloured-str! (cdr desc) "*" (get-x j) (get-y chance)))
-	      
-	      )))
-      
-			    
-    (pause-last-line!)
-    )
-
-(defun print-attack-table (var-obj player)
+(defmethod print-resistance-table ((var-obj variant) (player player) settings)
 ;;  (declare (ignore player))
     (clear-window *cur-win*)
 
-    (put-coloured-str! +term-l-blue+ "CHANCE TO HIT" 2 0)
-    (put-coloured-str! +term-l-blue+ "=============" 2 1)
-    (let ((last-colour +term-green+)
-	  (count 2)
-	  (skill (get-melee-attack-skill var-obj player)))
-      (loop for i from 5 to 200 by 10
-	    
-	    do
-	    (let ((desc (get-armour-desc var-obj i))
-		  (chance (get-chance var-obj skill i)))
-	      (check-type desc cons)
-	      (cond ((equal last-colour (cdr desc))
-		     ;; next
-		     )
-		    (t
-		     (setf last-colour (cdr desc))
-		     (incf count)
-		     (put-coloured-str! (cdr desc) (format nil "~40a: ~a%" (car desc) chance)
-					4 count)
-		     ))
-	      ))
-
-      (print-text! 2 16 +term-l-blue+ "
-The armour-value describes a full set-up of armour, including
-    helmet, shield, gloves, boots, cloak and body-armour.  Parts of
-    the outfit is expected to have appropriate enchantments, e.g a
-    dragon-armour will always be slightly enchanted, just as a
-    full-plate combat armour is enchanted to allow it's wearer to move
-    at all.  A creature can have natural armour, but
-    it might be just as tough as plated armour and as such use the
-    plated armour label. " :end-col 75)
-
-      
-      
-      (pause-last-line!)
-      ))
-
-(defun print-resists (var-obj player settings)
-;;  (declare (ignore player))
-    (clear-window *cur-win*)
-
-    (let ((title-attr (if settings
-			  (slot-value settings 'title-attr)
-			  +term-l-blue+))
-	  (unres-attr (if settings
-			  (slot-value settings 'unres-attr)
-			  +term-l-red+))
-	  (res-attr (if settings
-			(slot-value settings 'res-attr)
-			+term-l-green+))
-	  (title-col  (if settings
-			  (slot-value settings 'title-x)
-			  2))
-	  (title-row  (if settings
-			  (slot-value settings 'title-y)
-			  0))
-	  (list-col  (if settings
-			 (slot-value settings 'list-x)
-			 1))
-	  (list-row  (if settings
-			 (slot-value settings 'list-y)
-			 3)))
+    (let ((title-attr (setting-lookup settings "title-attr" +term-l-blue+))
+	  (unres-attr (setting-lookup settings "unres-attr" +term-l-red+))
+	  (res-attr   (setting-lookup settings "res-attr"   +term-l-green+))
+	  (title-col  (setting-lookup settings "title-x"    2))
+	  (title-row  (setting-lookup settings "title-y"    0))
+	  (list-col   (setting-lookup settings "list-x"     1))
+	  (list-row   (setting-lookup settings "list-y"     3)))
 
     (put-coloured-str! title-attr "RESISTANCES" title-col title-row)
     (put-coloured-str! title-attr "===========" title-col (1+ title-row))
@@ -755,7 +622,7 @@ The armour-value describes a full set-up of armour, including
 			 
       (dolist (i elms)
 	(let* ((idx (element.number i))
-	       (str (format nil "~13a ~14s ~7s" (element.name i) (element.symbol i) idx)))
+	       (str (format nil "~13a ~14a ~7s" (element.name i) (symbol-name (element.symbol i)) idx)))
 	  (cond ((plusp (aref resists idx))
 		 (put-coloured-str! res-attr "*" list-col row)
 		 (put-coloured-str! res-attr str (+ 2 list-col) row))
@@ -767,9 +634,8 @@ The armour-value describes a full set-up of armour, including
       (pause-last-line!)
       )))
 
-(defun print-misc-info (var-obj player)
-  (declare (ignore var-obj player))
-
+(defmethod print-misc-info ((variant variant) (player player) setting)
+  (declare (ignore setting))
   (clear-window *cur-win*)
   (put-coloured-str! +term-l-blue+ "MISC INFO" 2 0)
   (put-coloured-str! +term-l-blue+ "=========" 2 1)

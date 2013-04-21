@@ -89,6 +89,11 @@ but one that works with langband-objects."))
 (defgeneric (setf text-sym) (value object)
   (:documentation "Sets which text-symbol should be displayed for object."))
 
+(defgeneric alloc-locations (object)
+  (:documentation "Returns a list of conses (area . chance)."))
+
+(defgeneric (setf alloc-locations) (value object)
+  (:documentation "Returns a list of conses (area . chance)."))
 
 ;;; === End basic
 
@@ -182,7 +187,7 @@ Returns NIL on failure."))
   (:documentation "Returns the path to the given variant, possibly also for the
 current version."))
 
-(defgeneric variant-save-dir (variant)
+(defgeneric variant-save-directory (variant)
   (:documentation "Returns the path to the save-dir for a given variant, possibly
 also using version number."))
 
@@ -211,7 +216,6 @@ also using version number."))
 ;; must be implemented by a variant
 (defgeneric modify-creature-state! (creature state &key new-value add subtract)
   (:documentation "Modifies the creature-state appropriately."))
-
 
 (defgeneric get-creature-speed (creature)
   (:documentation "Returns a fixnum with speed for the given creature."))
@@ -245,8 +249,8 @@ also using version number."))
 (defgeneric get-xp-value (creature)
   (:documentation "Returns a positive integer with the xp-value for the creature."))
 
-(defgeneric alter-xp! (creature amount)
-  (:documentation "Alters the xp of the creature by AMOUNT."))
+(defgeneric modify-xp! (creature amount)
+  (:documentation "Modifies the xp of the creature by AMOUNT."))
 
 (defgeneric appears-in-group? (variant level monster)
   (:documentation "Returns T if the particular monster should appear in a group."))
@@ -324,6 +328,11 @@ variant and player."))
 (defgeneric find-appropriate-monster (level room player)
   (:documentation "Returns an appropriate monster for a given
 level/room/player combo.  Allowed to return NIL."))
+
+;; might change
+(defgeneric move-creature-to-depth! (dungeon player &key direction amount type)
+  (:documentation "Moves a creature off the current level/depth to another level/depth.
+Excellent for trapdoors."))
 
 (defgeneric print-depth (level setting)
   (:documentation "fix me later.. currently just prints depth."))
@@ -415,6 +424,9 @@ is supplied, stacking-rules will also be checked."))
 
 ;;; === Miscellaneous
 
+(defgeneric stop-creature-activity (variant creature activity)
+  (:documentation "Stops an activity that the creature is doing."))
+
 (defgeneric can-creature-drop? (variant creature)
   (:documentation "Checks if the creature can drop anything on death."))
 
@@ -423,6 +435,12 @@ is supplied, stacking-rules will also be checked."))
 
 (defgeneric shoot-a-missile (dungeon player missile-weapon missile)
   (:documentation "Shoots an arrow, queries for direction."))
+
+(defgeneric get-attack-description (variant the-attack)
+  (:documentation "Returns a string with description of the attack."))
+
+(defgeneric (setf get-attack-description) (value variant the-attack)
+  (:documentation "Registers a string with description of the attack with the variant."))
 
 (defgeneric melee-hit-creature? (attacker target the-attack)
   (:documentation "will the attacker hit the target?"))
@@ -441,9 +459,6 @@ is supplied, stacking-rules will also be checked."))
 
 (defgeneric trigger-event (obj event arg-list)
   (:documentation "Triggers a given event-type on the object. Recursive."))
-
-(defgeneric register-object-event! (obj event)
-  (:documentation "Registers an event on the object."))
 
 (defgeneric use-object! (variant dungeon player the-object &key which-use)
   (:documentation "Applies the object on the player in the dungeon."))
@@ -654,6 +669,10 @@ need to cons up a new object."))
   (:documentation "Updates screens, windows, ... after a recalculation of the player.
 It is passed the object returned by GET-OLD-PLAYER-INFO at start of recalculation."))
 
+(defgeneric roll-hitpoints-for-new-level (variant player)
+  (:documentation "Rolls new hitpoints for a new level for the player, and returns the number."))
+						   
+
 ;;; === End player-protocol
 
 ;;; === Various events that can be handled
@@ -730,10 +749,7 @@ but does not need to be 100% updated always."))
 (defgeneric print-speed (variant player setting)
   (:documentation "prints speed-info."))
 
-(defgeneric print-state (variant player setting)
-  (:documentation "prints state-info."))
-
-(defgeneric gain-level! (variant player)
+(defgeneric gain-power-level! (variant player)
   (:documentation "The player just gained a level."))
 
 (defgeneric redraw-stuff (variant dungeon player)
@@ -744,6 +760,15 @@ but does not need to be 100% updated always."))
 
 (defgeneric print-extra-frame-content (variant dungeon player)
   (:documentation "Prints extra frame content."))
+
+(defgeneric print-misc-info (variant player setting)
+  (:documentation "Tries to print misc-info about a player to a clear window."))
+
+(defgeneric print-armour-class (variant player setting)
+  (:documentation "Tries to print armour class data in the left column."))
+
+(defgeneric print-resistance-table (variant player settings)
+  (:documentation "Prints a table of resistance that the player has."))
 
 (defgeneric add-creature-attribute (creature attr)
   (:documentation "Adds an attribute to the creature."))
@@ -805,3 +830,33 @@ the disturbance is, e.g :minor, :major, .."))
 
 (defgeneric filed-player-data (variant player &rest kwd-args &key  &allow-other-keys)
   (:documentation "Overridable method for reading in data furing a LOAD."))
+
+(defgeneric get-power-lvl (obj)
+  (:documentation "Returns a fixnum with the power-lvl for the given object/creature."))
+
+(defgeneric trigger-special-ability (variant creature ability target dungeon)
+  (:documentation "Triggers a special ability on a creature in a given setting."))
+
+(defgeneric can-melee-attack? (variant source target)
+  (:documentation "Can the source do a melee attack on target? Returns T if it can,
+if it returns a string that means that an attack cannot be made and the string
+describes why."))
+
+(defgeneric is-blind? (creature)
+  (:documentation "Returns T if the creature is blind."))
+
+(defgeneric get-creature-desc (creature desc-type)
+  (:documentation "Returrns a string referring to the creature in a specified way,
+see util.lisp for legal desc-type."))
+
+(defgeneric get-power-of-attack (variant attack-kind)
+  (:documentation "Returns a non-neg integer for how powerful the attack is."))
+
+(defgeneric modify-gold! (creature amount)
+  (:documentation "Modifies the amount of gold this creature carries."))
+
+(defgeneric handle-turn (variant creature activity)
+  (:documentation "For creatures doing a specific activity, handle a turn."))
+
+(defgeneric get-decor-name (decor-obj)
+  (:documentation "Returns a string or NIL."))

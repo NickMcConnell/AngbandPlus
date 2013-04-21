@@ -3,14 +3,16 @@ all.  But I've tried to maintain a list.
 
 - #angband on IRC with it's many inhabitants.  Many of them
   know the angband sources well and have patiently answered
-  many of my questions.
+  many of my questions.  Others have tested various parts of Langband
+  and given good feedback. 
 
 - all those who have tested and reported bugs, problems and
   improvements for langband.
 
 - Knut A. Erstad for showing a workable way out of the DLL-hell on
-  Windows.  Karl Trygve Kalleberg for helping me get sound working
-  with SDL. 
+  Windows.  Knut has also done the marvelous dialogue-system that can
+  be found in the upcoming Contraband variant.  Karl Trygve Kalleberg
+  for helping me get sound working with SDL. 
 
 - Greg Velichansky for doing the first port of angband to SDL which
   was the basis I started with.  It has changed a lot, but his work is
@@ -28,7 +30,7 @@ all.  But I've tried to maintain a list.
   needed doing.
  
 - Most of the tiles in graphics/tiles have been made by David E
-  Gervais. (dg_*.bmp to be specific)
+  Gervais. (dg_*.png and upd_*.png to be specific)
 
 - The splendid character portraits (graphics/people/*.png) have been
   made by Claudio Pozas and you can find more of his work at:

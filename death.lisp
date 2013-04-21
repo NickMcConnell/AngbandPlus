@@ -14,12 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
-(defun %centred-string (str max-len)
-  "Tries to return a centred version of the string."
-  (format nil (format nil "~~~a:@<~a~~>" max-len str)))
-
-;;(trace %centred-string)
-
 (defun %pretty-date-line (univ-time)
   "Returns a pretty printed date-line."
   (let ((decoded-vals (cl:decode-universal-time univ-time)))
@@ -48,9 +42,9 @@ the Free Software Foundation; either version 2 of the License, or
        (hs-entry.gender hs) gender-key
        (hs-entry.cause-of-death hs) death-reason
 
-       (hs-entry.xp hs) (player.cur-xp player)
-       (hs-entry.max-xp hs) (player.max-xp player)
-       (hs-entry.level hs) (player.level player)
+       (hs-entry.xp hs) (player.current-xp player)
+       (hs-entry.max-xp hs) (player.maximum-xp player)
+       (hs-entry.level hs) (player.power-lvl player)
        (hs-entry.depth hs) (player.depth player)
        (hs-entry.max-depth hs) (player.max-depth player)
        (hs-entry.turn hs) (variant.turn variant)
@@ -67,27 +61,27 @@ the Free Software Foundation; either version 2 of the License, or
     (check-type stream stream)
   
     (bt:write-binary 'hs-entry stream hs)
-    (%bin-save-string (hs-entry.version hs) stream)
-    (%bin-save-string (hs-entry.variant hs) stream)
+    (save-binary-string (hs-entry.version hs) stream)
+    (save-binary-string (hs-entry.variant hs) stream)
     
-    (%bin-save-string (hs-entry.name hs) stream)
-    (%bin-save-string (hs-entry.race hs) stream)
-    (%bin-save-string (hs-entry.class hs) stream)
-    (%bin-save-string (hs-entry.gender hs) stream)
-    (%bin-save-string (hs-entry.cause-of-death hs) stream)
+    (save-binary-string (hs-entry.name hs) stream)
+    (save-binary-string (hs-entry.race hs) stream)
+    (save-binary-string (hs-entry.class hs) stream)
+    (save-binary-string (hs-entry.gender hs) stream)
+    (save-binary-string (hs-entry.cause-of-death hs) stream)
     ))
 
 (defmethod load-object ((variant variant) (type (eql :hs-entry)) (str l-binary-stream))
   "Loads a high-score entry from a stream and returns the entry."
   (let* ((stream (lang.stream str))
 	 (obj (bt:read-binary 'hs-entry stream)))
-    (setf (hs-entry.version obj) (%bin-read-string stream)
-	  (hs-entry.variant obj) (%bin-read-string stream)
-	  (hs-entry.name obj) (%bin-read-string stream)
-	  (hs-entry.race obj) (%bin-read-string stream)
-	  (hs-entry.class obj) (%bin-read-string stream)
-	  (hs-entry.gender obj) (%bin-read-string stream)
-	  (hs-entry.cause-of-death obj) (%bin-read-string stream)
+    (setf (hs-entry.version obj) (load-binary-string stream)
+	  (hs-entry.variant obj) (load-binary-string stream)
+	  (hs-entry.name obj) (load-binary-string stream)
+	  (hs-entry.race obj) (load-binary-string stream)
+	  (hs-entry.class obj) (load-binary-string stream)
+	  (hs-entry.gender obj) (load-binary-string stream)
+	  (hs-entry.cause-of-death obj) (load-binary-string stream)
 	  )
     
     obj))

@@ -32,6 +32,10 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod get-search-skill ((variant vanilla-variant) (player player))
   (skills.searching (player.skills player)))
 
+(defmethod roll-saving-throw ((player player) attack-power)
+  "Returns T if saving throw was made."
+  (< (random 100) (skills.saving-throw (player.skills player))))
+
 (defun van/reset-skills! (variant skills-obj reset-val)
   "Sets all skills to RESET-VAL."
   (dolist (i (variant.skill-translations variant))

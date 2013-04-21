@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE prefs SYSTEM "prefs.dtd">
+
+<prefs>
+   <project name="Langband">
+     <info type="fullname" value="A lispier Angband"/>
+     <info type="author"   value="Stig E Sandoe" info="stig@langband.org"/>
+     <info type="version"  value="0.1.5"/>
+     <info type="date"     value="Spring 2003"/>
+   </project>
+   
+
+   <output>
+     <info type="outdir" value="dumps/"/> 
+
+     <format name="docbook">
+         <info type="outdir"    value="dumps"/> 
+	 <info type="baseurl"   value="http://localhost/~stig/lang-doc/"/>
+	 <info type="bgcolor"   value="white"/>
+	 <info type="textcolor" value="black"/>
+         <info type="generate"  value="book"/>
+       </format>
+  
+   </output>
+
+</prefs>
+

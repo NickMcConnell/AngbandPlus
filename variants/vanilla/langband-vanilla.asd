@@ -29,7 +29,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (asdf:defsystem :langband-vanilla
     :version "0.1.5"
-    :components ((:file "constants")
+    :components ((:file "package")
+		 (:file "constants" :depends-on ("package"))
 		 (:file "base" :depends-on ("constants"))
 		 (:file "quirks" :depends-on ("base"))
 		 (:file "skills" :depends-on ("quirks"))
@@ -40,11 +41,13 @@ the Free Software Foundation; either version 2 of the License, or
 		 (:file "rooms" :depends-on ("base"))
 		 (:file "combat" :depends-on ("player"))
 		 (:file "spells" :depends-on ("base" "various" "quirks"))
+		 (:file "effects" :depends-on ("spells"))
 		 (:file "objects" :depends-on ("base" "spells"))
 		 (:file "ego" :depends-on ("objects"))
+		 (:file "monsters" :depends-on ("base" "spells" "effects"))
 		 (:file "print" :depends-on ("base" "player" "spells"))
 		 (:file "wizard" :depends-on ("spells"))
-		 (:file "keys" :depends-on ("wizard" "combat" "spells" "ego"))
+		 (:file "keys" :depends-on ("wizard" "combat" "spells" "ego" "monsters"))
 		 (:file "verify" :depends-on ("various"))
 	       )
   :depends-on (langband-engine))

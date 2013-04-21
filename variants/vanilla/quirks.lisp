@@ -19,7 +19,7 @@ the Free Software Foundation; either version 2 of the License, or
   "Initialises variant-variables that should be there before
 the rest of the game is init'ed."
 
-  (setf (variant.images var-obj) (make-array 64 :initial-element nil))
+  (setf (variant.images var-obj) (make-array 100 :initial-element nil))
 
   ;; hack, we start at 6.50am
   (setf (variant.turn var-obj) (+ (* 6 +van/turns-in-hour+)
@@ -83,7 +83,6 @@ the rest of the game is init'ed."
   (van/register-levels! var-obj)
 
   (van-init-skill-system var-obj)
-  (van-init-combat-system var-obj)
   
   (let ((*load-verbose* nil))
     (load-variant-data& var-obj "defines")
@@ -91,6 +90,8 @@ the rest of the game is init'ed."
     (load-variant-data& var-obj "stats")
     (load-variant-data& var-obj "flavours")
     (load-variant-data& var-obj "traps")
+
+    (load-variant-data& var-obj "settings")
 
     (load-variant-data& var-obj "effects")
     (load-variant-data& var-obj "spells")
@@ -134,7 +135,7 @@ the rest of the game is init'ed."
 		   :ego-filter
 		   #'(lambda (var-obj obj)
 		       ;;(warn "ego filter for ~s" obj)
-		       (let* ((table (%get-var-table var-obj "level" 'ego-items-by-level))
+		       (let* ((table (get-named-gameobj-table var-obj "level" 'ego-items-by-level))
 			      (id (slot-value obj 'id))
 			      (obj-table (gobj-table.obj-table table)))
 			 (multiple-value-bind (val f-p)
@@ -184,23 +185,20 @@ the rest of the game is init'ed."
 			 t)))
 
   )
-			   
 
-;; EVENT function
-(defun van-add-basic-equip (state player dungeon)
-  "Adds basic equipment to player.  Dungeon argument is NIL."
+(defmethod equip-character! ((variant vanilla-variant) player settings)
 
-  (declare (ignore state dungeon))
+  (call-next-method)
 
   (let* ((backpack (player.inventory player))
 	 (inventory (aobj.contains backpack)))
-
+    
     (dolist (i '("food-ration" "torch"))
       (let ((obj (create-aobj-from-id i :amount (rand-range 3 7))))
 	(item-table-add! inventory obj)))
-
+    
     t))
-
+  
 
 (defmethod activate-object :after ((var-obj vanilla-variant) &key)
   "Does post-initialisation of the game with variant tweaking."
@@ -210,103 +208,40 @@ the rest of the game is init'ed."
 ;;  (warn "Post-init of vanilla variant..")
 
   (setf (get-setting var-obj :basic-frame-printing)
-	(make-instance 'vanilla-basic-frame-locations))
-  
-  (setf (get-setting var-obj :bottom-row-printing)
-	(make-instance 'vanilla-bottom-row-locations))
-
-  (let ((birth-settings (make-instance 'vanilla-birth :allow-all-classes t))
-	(chdisp-settings (make-instance 'chardisplay-settings))
-	(res-settings (make-instance 'resistdisplay-settings)))
-	
-    (when (eq (get-system-type) 'sdl)
-      (setf (slot-value birth-settings 'instr-x) 15
-	    (slot-value birth-settings 'instr-y) 3
-	    (slot-value birth-settings 'instr-attr) +term-blue+
-	    (slot-value birth-settings 'instr-w) 45
-	    (slot-value birth-settings 'query-x) 15
-	    (slot-value birth-settings 'query-y) 24
-	    (slot-value birth-settings 'query-reduced) t
-	    (slot-value birth-settings 'query-attr) +term-blue+
-	    (slot-value birth-settings 'info-x) 15
-	    (slot-value birth-settings 'info-y) 16
-	    (slot-value birth-settings 'info-attr) +term-umber+
-	    (slot-value birth-settings 'choice-x) 52
-	    (slot-value birth-settings 'choice-y) 3
-	    (slot-value birth-settings 'choice-tattr) +term-blue+
-	    (slot-value birth-settings 'choice-attr) +term-l-red+
-	    (slot-value birth-settings 'text-x) 52
-	    (slot-value birth-settings 'text-y) 7
-	    (slot-value birth-settings 'text-w) 35
-	    (slot-value birth-settings 'text-attr) +term-umber+
-	    (slot-value birth-settings 'altern-cols) 2
-	    (slot-value birth-settings 'altern-attr) +term-umber+
-	    (slot-value birth-settings 'altern-sattr) +term-l-red+
-	    (slot-value birth-settings 'note-colour) +term-white+
-	    )
-      (setf (slot-value chdisp-settings 'title-x) 15
-	    (slot-value chdisp-settings 'title-y) 10
-	    (slot-value chdisp-settings 'title-attr) +term-blue+
-	    (slot-value chdisp-settings 'picture-x) 25
-	    (slot-value chdisp-settings 'picture-y) 2
-	    (slot-value chdisp-settings 'extra-x) 15
-	    (slot-value chdisp-settings 'extra-y) 18
-	    (slot-value chdisp-settings 'elem-x) 15
-	    (slot-value chdisp-settings 'elem-y) 24
-	    (slot-value chdisp-settings 'value-attr) +term-green+
-	    (slot-value chdisp-settings 'value-badattr) +term-red+
-	    (slot-value chdisp-settings 'stats-attr) +term-blue+
-	    (slot-value chdisp-settings 'statok-attr) +term-umber+
-	    (slot-value chdisp-settings 'statbad-attr) +term-l-red+
-	    (slot-value chdisp-settings 'stats-x) 53
-	    (slot-value chdisp-settings 'skills-x) 53
-	    (slot-value chdisp-settings 'combat-x) 53
-	    (slot-value chdisp-settings 'combat-y) 20
-	    )
-      (setf (slot-value res-settings 'title-x) 15
-	    (slot-value res-settings 'title-y) 3
-	    (slot-value res-settings 'title-attr) +term-blue+
-	    (slot-value res-settings 'list-x) 15
-	    (slot-value res-settings 'list-y) 6
-	    (slot-value res-settings 'unres-attr) +term-red+
-	    (slot-value res-settings 'res-attr) +term-green+
-	    ))
-
-	    
-    (setf (get-setting var-obj :birth) birth-settings
-	  (get-setting var-obj :char-display) chdisp-settings
-	  (get-setting var-obj :resists-display) res-settings
-	  ))
-	  
+	(get-settings-obj "vanilla-basic-frame"))
   
   (setf (get-setting var-obj :random-level)
-	(make-instance 'dungeon-settings
-		       :max-width 198
-		       :max-height 66
-		       ;; ranges
-		       :stairs-down '(10 . 20) ;; (3 4)
-		       :stairs-up '(10 . 20) ;; (1 2)
-		       ))
+	(get-settings-obj "vanilla-dungeon-settings"))
+  
+  (cond ((eq (get-system-type) 'sdl)
+	 (setf (get-setting var-obj :birth)
+	       (get-settings-obj "sdl-vanilla-birth-settings"))
 
-  ;; trying to make an event and register it. 
-  (let ((equip-event (make-event :vanilla-equipment-addition
-				   :on-pre-equip
-				   #'van-add-basic-equip))
-	(birth-settings (get-setting var-obj :birth)))
-    
-    (register-event& (event.id equip-event) equip-event :variant var-obj)
-    (if (not birth-settings)
-	(warn "Unable to find birth-settings, not registering event.")
-	(register-object-event! birth-settings equip-event)
-	))
+	 (setf (get-setting var-obj :char-display)
+	       (get-settings-obj "sdl-vanilla-chardisplay"))
 
+	 (setf (get-setting var-obj :resists-display)
+	       (get-settings-obj "sdl-vanilla-resist")))
+	
+	;; otherwise go for basic stuff
+	(t
+	 (setf (get-setting var-obj :birth)
+	       (get-settings-obj "vanilla-birth-settings"))
+
+	 (setf (get-setting var-obj :char-display)
+	       (get-settings-obj "chardisplay-settings"))
+
+	 (setf (get-setting var-obj :resists-display)
+	       (get-settings-obj "resistdisplay-settings"))))
+  
+  
   ;; register level-constructors
   (register-level-builder! "random-level"
-			   (get-late-bind-function 'langband
+			   (get-late-bind-function 'org.langband.engine
 						   'make-random-level-obj))
   
   (register-level-builder! "town-level"
-			   (get-late-bind-function 'langband
+			   (get-late-bind-function 'org.langband.vanilla
 						   'van-create-bare-town-level-obj))
   
   )
@@ -493,17 +428,6 @@ the rest of the game is init'ed."
 				 (<fighting> . fighting)
 				 (<shooting> . shooting))))
 
-(defun van-init-combat-system (var-obj)
-  "Tries to init all that deals with the combat-system."
-
-  (add-attk-desc var-obj '<beg> "begs you for money.")
-  (add-attk-desc var-obj '<touch> "touches you.")
-  (add-attk-desc var-obj '<claw> "claws you.")
-  (add-attk-desc var-obj '<bite> "bites you.")
-  (add-attk-desc var-obj '<sting> "stings you.")
-  (add-attk-desc var-obj '<drool> "drools on you.")
-  
-  )
 
 ;;; the rest of the file has a lot of odd functions
 

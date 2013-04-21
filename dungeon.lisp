@@ -77,6 +77,9 @@ the monster
       (setf (dungeon.depth d) its-depth))
     
     (setf (dungeon.table d) table)
+
+    ;; we guess that 40 is a good starting value
+    (setf (dungeon.action-queue d) (lb-ds:make-priority-queue :size 40))
     
     d))
 
@@ -308,7 +311,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	 (pl-obj *player*)
 	 ;;(trans-attr 0)
 	 ;;(trans-char 0)
-	 (using-gfx (use-gfx-tiles? *map-frame*))
+	 (using-gfx (window-allows-gfx-tiles? *map-frame*))
 	 ;;(name-return nil)
 ;;	 (attr-fun (if using-gfx #'x-attr #'text-attr)) ;; gradually remove
 ;;	 (char-fun (if using-gfx #'x-char #'text-char)) ;; gradually remove
@@ -401,7 +404,11 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	    (obj-len (items.cur-size obj-table))
 	    (first-obj (item-table-find obj-table 0)))
 
-	(cond ((and (> obj-len 1) (aobj.marked first-obj))
+	(cond ((= obj-len 0)
+	       ;; clean it up now
+	       (setf (coord.objects coord) nil))
+
+	      ((and (> obj-len 1) (aobj.marked first-obj))
 	       ;; bad hack
 	       (setf mid-sym (if using-gfx
 				 (tile-paint-value 10 54)
@@ -508,8 +515,9 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
     ;; hack to bring a long target
     (when-bind (target (player.target pl-obj))
-      (when (eq mon (target.obj target))
-	(setf (window-coord win +effect+ tx ty) (tile-paint-value 40 0))))
+      (when (eq mon (target.obj target))      
+	(display-target dungeon target)))
+    ;;(setf (window-coord win +effect+ tx ty) (tile-paint-value 40 0))))
     
 ;;    (when name-return
 ;;      (warn "Returns (~s,~s)" ret-attr ret-char))
@@ -546,7 +554,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		      (and (eq nil (coord.objects coord))
 			   (bit-flag-set? (floor.flags fl-type) +floor-flag-allow-items+)))))
       (:creature (and (eq nil (coord.monsters coord))
-		     (bit-flag-set? (floor.flags fl-type) +floor-flag-allow-creatures+)))
+		      (bit-flag-set? (floor.flags fl-type) +floor-flag-allow-creatures+)))
       (:trap (and (eq nil (coord.monsters coord))
 		  (eq nil (coord.objects coord))
 		  (eq nil (coord.decor coord))))
@@ -810,7 +818,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	  (setf (aobj.marked i) t)))
       
       (unless (bit-flag-set? flag +cave-mark+)
-	(let ((decor (coord.decor coord))
+	(let (;;(decor (coord.decor coord))
 	      (ft (coord.floor coord)))
 	  (cond ((bit-flag-set? (floor.flags ft) +floor-flag-floor+)
 		 (when (bit-flag-set? flag +cave-glow+)
@@ -1087,15 +1095,6 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		   :key #'car)))
     
     ))
-
-(defun %get-var-table (var-obj key slot)
-  ""
-  (let ((id (etypecase key
-	      (level (level.id key))
-	      (string key))))
-    (let ((mon-table (slot-value var-obj slot)))
-      (when mon-table
-	(gethash id mon-table)))))
 
 
 (defun read-map (variant fname)

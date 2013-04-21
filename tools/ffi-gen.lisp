@@ -198,7 +198,7 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
 
       (let ((args (mapcar #'(lambda (x) (get-arg-info x backend)) (foreign-fun-arguments i)))
 	    (the-retval (get-type-translation (foreign-fun-returns i) backend)))
-	(format stream "~&(ff:def-foreign-call (~a ~s) ~s :returning ~s)~%"
+	(format stream "~&(ff:def-foreign-call (~a ~s)~%   ~s~%   :returning ~s)~%"
 		lisp-name c-name args the-retval))
 
       #||
@@ -261,7 +261,7 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
 	  (when-restrict (foreign-fun-only-when i)))
       (print-restrict when-restrict stream)
       
-      (format stream "~&(fli:define-foreign-function (~a ~s) ~s~%   :result-type ~s :language :c :calling-convention :stdcall :module :lang-ffi)~%"
+      (format stream "~&(fli:define-foreign-function (~a ~s)~%    ~s~%    :result-type ~s :language :c ~%    :calling-convention :stdcall :module :lang-ffi)~%"
 	      lisp-name c-name args
 	      the-retval)
       (terpri stream)
@@ -278,7 +278,7 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
 
       (let ((args (mapcar #'(lambda (x) (get-arg-info x backend)) (foreign-fun-arguments i)))
 	    (the-retval (get-type-translation (foreign-fun-returns i) backend)))
-	(format stream "~&(ffi:def-call-out ~a (:name ~s) (:language :stdc) (:arguments ~{~s~}) (:return-type ~s))~%"
+	(format stream "~&(ffi:def-call-out ~a (:name ~s)~%   (:language :stdc)~%   (:arguments ~{~s ~})~%   (:return-type ~s))~%"
 		lisp-name c-name args the-retval))
 
       #||

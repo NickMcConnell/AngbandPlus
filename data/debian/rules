@@ -59,13 +59,13 @@ install: build
 	# Data package
 	$(INSTALL) $(INSTALLFLAGS) $(FONTS) $(FONTDEST)
 	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.png $(GFXDEST)/other
-	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.bmp $(GFXDEST)/other
+	#$(INSTALL) $(INSTALLFLAGS) graphics/other/*.bmp $(GFXDEST)/other
 	$(INSTALL) $(INSTALLFLAGS) graphics/people/*.png $(GFXDEST)/people
-	$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.bmp $(GFXDEST)/tiles
+	#$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.bmp $(GFXDEST)/tiles
 	$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.png $(GFXDEST)/tiles
 	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.png $(GFXDEST)/textures
-	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.bmp $(GFXDEST)/textures
-	$(INSTALL) $(INSTALLFLAGS) audio/effects/*.wav $(AUDIODEST)/effects
+	#$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.bmp $(GFXDEST)/textures
+	$(INSTALL) $(INSTALLFLAGS) audio/effects/*.ogg $(AUDIODEST)/effects
 	$(INSTALL) $(INSTALLFLAGS) debian/README.Debian $(DATADOC)
 
 	dh_movefiles

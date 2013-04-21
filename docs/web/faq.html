@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <meta name="Author" content="Stig E Sandø">
     <link rel="stylesheet" type="text/css" rev="content" href="langband.css">
-    <meta name="KeyWords" content="langband, roguelike, angband, dungeon">
+    <meta name="KeyWords" content="langband, lisp, roguelike, angband, dungeon">
     <title>(faq :topic 'Langband)</title>
   </head>
 
@@ -65,8 +65,8 @@
 		      <tr><td>CMUCL 18d</td><td>Debian x86</td><td>Well-tested</td></tr>
 		      <tr><td>SBCL 0.7.x</td><td>Debian x86</td><td>Well-tested</td></tr>	  
 		      <tr><td>ACL 6.0 (Prof)</td><td>Debian x86</td><td>Well-tested</td></tr>
-		      <tr><td>LispWorks 4.1.20</td><td>Debian x86</td><td>Tested bi-weekly.  not optimised</td></tr>
-		      <tr><td>LispWorks 4.1.20</td><td>Win XP</td><td>Tested bi-weekly.  not optimised</td></tr>
+		      <tr><td>LispWorks 4.2.x</td><td>Debian x86</td><td>Well-tested.  not optimised</td></tr>
+		      <tr><td>LispWorks 4.2.x</td><td>Win XP</td><td>Well-tested.  not optimised</td></tr>
 		      <tr><td>CLISP 2.30</td><td>Debian	x86</td><td>Rarely tested.  <u>not</u>optimised</td></tr>
 		      <tr><td>OpenMCL</td><td>Mac OSX</td><td>Tested once with GCU. Only for avid lispers</td></tr>
 		      <tr><td>Corman Lisp 1.5b</td><td>Win98</td><td>Incomplete port.  not finished</td></tr>
@@ -84,7 +84,7 @@
 		  For details on CLISP compile, see bottom of FAQ.
 		  Best results are obtained by using other
 		  implementations than CLISP.  For OpenMCL/MacOSX
-		  compilation, contact the me by mail.
+		  compilation, contact me by mail.
 		 
 		</li>
 		<br>
@@ -117,11 +117,16 @@
 
 		      
 		<li> <b>How do I get sounds working?</b><br>
-		    Some Lisps have problems with sound, notably
-		    Debian CMUCL, and SBCL and it is disabled in
-		Debian CMUCL and SBCL.
-		    All other lisps should by default use sound in SDL
-		    mode automagically.  If you use Linux it is
+		  On a unix/linux-system configure with
+		  <tt>--enable-extsound</tt> to use the langband
+		  sound-daemon.  Also link either OpenAL or
+		  SDL-mixer.  If the libraries are found, this will
+		  work nicely.<br>
+
+		  Windows will use SDL-mixer automagically and link it
+		  into the UI.<br>
+
+		    If you use Linux it is
 		recommended that you turn off ESound deamon and use
 		OSS directly.  Esound causes a half-second delay on
 		all sounds which is ok with music, but unbearabale with
@@ -149,9 +154,13 @@
 		  <ul>
 		    <li> SDL library
 		    <li> sdl image library (and libpng, libjpeg, libz)
-		    <li> sdl ttf library (and freetype2)
-		    <li> sdl mixer library (and underlying sound
-		    libraries)
+		  </ul>
+		  
+		  <b>Optional packages</b>:
+		  <ul>
+		    <li> sdl ttf library (and freetype2) for truetype fonts
+		    <li> sdl mixer library (and underlying sound libraries)
+		    <li> openal mixer library (and underlying sound libraries)
 		  </ul>
 		</li>
 		<br>  
@@ -186,9 +195,8 @@
 		  and Lispworks for Windows.  In the source-archive
 		  most include-files and DLLs are included.  Install langband e.g in
 		  <tt>c:/cygwin/home/username/langband/</tt>
-		  and edit zterm/Makefile to say ENVIRONMENTS=WIN
-		  Start a cygwin window, go to teh langband dir and
-		  run 'make'.  If all went ok, start lispworks from
+		  and run <tt>./configure</tt> in the langband dir,
+		  and then run 'make'.  If all went ok, start lispworks from
 		  that directory with e.g <tt>c:/Program\
 		  files/xanalys/lispworks/lispworks.exe</tt> (or
 		  something similar).  In lispworks do the normal:
@@ -317,7 +325,7 @@ $ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
 	  
 	  <tr>
 	    <td width="46" valign="bottom"><img src="leftcorner.png" width="46" height="46" alt=""></td>
-	    <td width="203"><center>Last updated March 2003<br>by <a
+	    <td width="203"><center>Last updated May 2003<br>by <a
 		  href="mailto:stig@langband.org">Stig E Sandø</a>.</center></td>
 	    <td width="203">
 	      <center>

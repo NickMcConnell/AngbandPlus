@@ -146,6 +146,7 @@ ADD_DESC: This file just contains simple init and loading of the game
 
 (compile-in-environment #'load-game)
 
+
 #||
 (defvar *defsystem-file*
   #+(or ecl cormanlisp) "tools/defsystem.lisp"

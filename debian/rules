@@ -12,6 +12,7 @@ ZTERMDESTDIR	:= `pwd`/debian/langband-zterm
 
 INSTALL         := install
 INSTALLFLAGS    := -g root -o root -m 0644
+BININSTALLFLAGS    := -g root -o root -m 0755
 INSTALLDIRFLAGS := -g root -o root -m 0755
 
 ENGINEDEST	:= $(DESTDIR)/usr/share/common-lisp/source/langband-engine
@@ -27,29 +28,55 @@ WEBDEST		:= $(ENGINEDOC)/web
 VANILLADOC	:= $(VANILLADESTDIR)/usr/share/doc/langband-vanilla
 ZTERMDOC	:= $(ZTERMDESTDIR)/usr/share/doc/langband-zterm
 
-CLIB_PATH	:= $(ZTERMDESTDIR)/usr/lib
-LIBS		:= zterm/liblangband_ui.so zterm/liblangband_dc.so
+CLIB_PATH	:= $(ZTERMDESTDIR)/usr/lib/langband
+LIBS		:= zterm/lbui.so zterm/dircall.so
+BIN_PATH	:= $(ZTERMDESTDIR)/usr/bin
+APPS		:= zterm/lbsd
 
 ENGINEMAN	:= $(DESTDIR)/usr/share/man/man3
 VANILLAMAN	:= $(VANILLADESTDIR)/usr/share/man/man3
+ZTERMMAN	:= $(ZTERMDESTDIR)/usr/share/man/man1
 
 INSTALLSOURCES	:= \
-	pre-build.lisp binary-types.lisp \
-	langband-engine.asd  langband-engine.system \
-	package.lisp  base.lisp  constants.lisp \
-	generics.lisp  sys.lisp classes.lisp \
-	global.lisp  sound.lisp \
-	character.lisp  object.lisp \
-	equipment.lisp  player.lisp \
-	monster.lisp  dungeon.lisp \
-	building.lisp  stores.lisp \
-	allocate.lisp  generate.lisp  print.lisp \
-	util.lisp  combat.lisp actions.lisp \
-	view.lisp project.lisp save.lisp \
-	load.lisp  death.lisp \
-	birth.lisp ai.lisp loop.lisp \
-	dump.lisp init.lisp verify.lisp \
-	window.lisp adts.lisp
+	actions.lisp \
+	adts.lisp \
+	ai.lisp \
+	allocate.lisp \
+	base.lisp \
+	birth.lisp \
+	binary-types.lisp \
+	classes.lisp \
+	building.lisp \
+	character.lisp \
+	combat.lisp \
+	constants.lisp \
+	death.lisp \
+	dump.lisp \
+	dungeon.lisp \
+	equipment.lisp \
+	generics.lisp \
+	generate.lisp \
+	global.lisp \
+	init.lisp \
+	langband-engine.asd \
+	langband-engine.system \
+	load.lisp \
+	loop.lisp \
+	monster.lisp  \
+	object.lisp \
+	pre-build.lisp \
+	package.lisp  \
+	player.lisp \
+	print.lisp \
+	project.lisp \
+	save.lisp \
+	sound.lisp \
+	stores.lisp \
+	sys.lisp \
+	util.lisp \
+	verify.lisp \
+	view.lisp \
+	window.lisp 
 
 FOREIGNSRC = \
 	ffi/ffi-acl.lisp \
@@ -66,6 +93,7 @@ FOREIGNSRC = \
 CONFSRC = \
 	config/text-splash.txt \
 	config/prefs.lisp \
+	config/settings.lisp \
 	config/theme.lisp 
 
 
@@ -75,10 +103,13 @@ VANSRC = \
 	variants/vanilla/base.lisp \
 	variants/vanilla/combat.lisp \
 	variants/vanilla/constants.lisp \
+	variants/vanilla/effects.lisp \
 	variants/vanilla/ego.lisp \
 	variants/vanilla/keys.lisp \
 	variants/vanilla/levels.lisp \
 	variants/vanilla/objects.lisp \
+	variants/vanilla/monsters.lisp \
+	variants/vanilla/package.lisp \
 	variants/vanilla/player.lisp \
 	variants/vanilla/print.lisp \
 	variants/vanilla/quirks.lisp \
@@ -111,6 +142,7 @@ VANCONFSRC = \
 	variants/vanilla/config/races.lisp \
 	variants/vanilla/config/rings.lisp \
 	variants/vanilla/config/scrolls.lisp \
+	variants/vanilla/config/settings.lisp \
 	variants/vanilla/config/sound.lisp \
 	variants/vanilla/config/spells.lisp \
 	variants/vanilla/config/stats.lisp \
@@ -128,7 +160,10 @@ build-arch: build-arch-stamp
 build-arch-stamp:
 	dh_testdir
 	# Add here command to compile/build the package.
-	$(MAKE) deb-all
+	./configure --prefix=/usr --disable-sdlmixer --enable-extsound \
+--enable-openal --disable-debug --disable-warn --enable-sdl --enable-gcu \
+--enable-only-installed
+	$(MAKE) all
 	touch build-arch-stamp
 
 build-indep: build-indep-stamp
@@ -176,8 +211,10 @@ install: build
 	$(INSTALL) $(INSTALLFLAGS) docs/man/langband-vanilla.3l $(VANILLAMAN)
 
 	# Zterm stuff
+	$(INSTALL) $(BININSTALLFLAGS) $(APPS) $(BIN_PATH)
 	$(INSTALL) $(INSTALLFLAGS) $(LIBS) $(CLIB_PATH)
 	$(INSTALL) $(INSTALLFLAGS) debian/README.Debian $(ZTERMDOC)
+	$(INSTALL) $(INSTALLFLAGS) docs/man/lbsd.1 $(ZTERMMAN)
 
 	dh_movefiles
 
@@ -205,6 +242,7 @@ binary-indep: build install
 	dh_compress -i
 	dh_fixperms -i
 	dh_installdeb -i
+	dh_shlibdeps -i
 #	dh_perl -i
 	dh_gencontrol -i
 	dh_md5sums -i
@@ -228,11 +266,11 @@ binary-arch: build install
 	dh_installinfo -a
 #	dh_undocumented -a
 	dh_installchangelogs -a
-	dh_strip -a
+	dh_strip -a -V
 	dh_link -a
 	dh_compress -a
 	dh_fixperms -a
-#	dh_makeshlibs -a
+#	dh_makeshlibs -a -V
 	dh_installdeb -a
 #	dh_perl -a
 	dh_shlibdeps -a

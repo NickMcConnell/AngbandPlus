@@ -40,7 +40,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     (when (is-player? attacker)
       (let ((mon-know (get-monster-knowledge attacker target)))
-	(incf (monster.killed mon-know))))
+	(incf (monster.num-killed mon-know))))
     
     t))
       
@@ -63,16 +63,16 @@ the Free Software Foundation; either version 2 of the License, or
   
   nil))
 
-(defmethod cmb-describe-miss (attacker target)
+(defmethod cmb-describe-miss ((attacker active-monster) (target player))
+
+  (format-message! "~@(~a~) misses you." (get-creature-desc attacker #x00))
+  nil)
+
+(defmethod cmb-describe-miss ((attacker player) (target active-monster))
 
   ;; update with uniques later
-  (let ((p-or-u? (is-player? target)))
-
-    (format-message! "~a misses ~a~a."
-		     (get-creature-name attacker)
-		     (if p-or-u? "" "the ")
-		     (get-creature-name target))
-    nil))
+  (format-message! "You miss ~a." (get-creature-desc target #x00))
+  nil)
 
 
 (defun %calc-perchance (chance the-ac)
@@ -118,23 +118,9 @@ the Free Software Foundation; either version 2 of the License, or
       (disturbance *variant* attacker target :max)
       (melee-hit-ac? target chance monster-ac visible-p)))
 
-    
-;; move to variant
-(defun get-power-of-attack (kind)
-  (ccase kind
-    ;; these are not too common below 1000'
-    (<eat-item> 5)
-    (<eat-food> 5)
-    (<eat-light> 5)
-    (<un-power> 15)
-    (<un-bonus> 20)
-    (<exp-10> 5)
-    (<exp-20> 5)
-    (<exp-80> 5)
-    (nil nil)
-    ;; the rest should be defined in variant  (combat.lisp)
-    ))
-
+(defmethod get-power-of-attack (variant attack-kind)
+  (declare (ignore variant attack-kind))
+  (error "fell through get-power-of-attack"))
 
 (defmethod melee-hit-creature? ((attacker active-monster) (target player) the-attack)
 
@@ -149,8 +135,8 @@ the Free Software Foundation; either version 2 of the License, or
     (let* ((power (cond ((typep atype 'attack-type)
 			 (attack-type.power atype))
 			(t
-			 (get-power-of-attack atype))))
-	   (mlvl (monster.power-lvl (amon.kind attacker)))
+			 (get-power-of-attack *variant* atype))))
+	   (mlvl (get-power-lvl attacker))
 	   (rlev (if (plusp mlvl) mlvl 1))
 	   (skill (+ power (* 3 rlev))))
       
@@ -189,28 +175,48 @@ the Free Software Foundation; either version 2 of the License, or
     damage))
 
 
-
+(defun define-attack-description (symbol desc)
+  "Adds a legit attack-description."
+  
+  (unless (nonboolsym? symbol)
+    (error-condition 'illegal-attack-data :id symbol :desc "Attack-desc symbol not legal."))
+  (unless (stringp desc)
+    (error-condition 'illegal-attack-data :id symbol :desc "Description of an attack not a string."))
+  
+  (setf (get-attack-description *variant* symbol) desc))
   
 
-(defun get-attk-desc (the-attack)
-  (let* ((descs (variant.attk-descs *variant*))
-	 (desc (gethash (attack.kind the-attack) descs)))
+(defmethod get-attack-description (variant the-attack)
+  "Checks the attack and tries to return an appropriate attack description."
+  (let ((descs (variant.attack-descriptions variant))
+	(desc nil))
+
+    (etypecase the-attack
+      (attack (setf desc (gethash (attack.kind the-attack) descs)))
+      (symbol (setf desc (gethash the-attack descs))))
+    
     (if desc
 	desc
 	"hits you.")))
 
-(defun add-attk-desc (var-obj key desc)
-  (setf (gethash key (variant.attk-descs var-obj)) desc))
+(defmethod (setf get-attack-description) (desc variant attack)
+  (assert (stringp desc))
+  (setf (gethash attack (variant.attack-descriptions variant)) desc))
+
 
 (defmethod cmb-describe-hit ((attacker active-monster) (target player) the-attack)
-  (let ((desc (get-attk-desc the-attack)))
-    (format-message! "The ~a ~a " (get-creature-name attacker) desc)
+  (let ((desc (get-attack-description *variant* the-attack)))
+    (format-message! "~@(~a~) ~A." (get-creature-desc attacker #x00) desc)
     ))
-    
+
+(defmethod cmb-describe-hit ((attacker player) (target active-monster) the-attack)
+  (declare (ignore the-attack))
+  (format-message! "You hit ~A." (get-creature-desc target #x00)))
+        
 
 (defmethod cmb-describe-hit (attacker target the-attack)
   (declare (ignore the-attack))
-  (format-message! "~a hits the ~a. " (get-creature-name attacker) (get-creature-name target))
+  (format-message! "~a hits ~A." (get-creature-name attacker) (get-creature-name target))
   nil)
 
 
@@ -218,10 +224,10 @@ the Free Software Foundation; either version 2 of the License, or
   (declare (ignore attacker))
   (typecase target
     (player
-     (format-message! "~a dies.. " (get-creature-name target)))
+     (format-message! "~a dies." (get-creature-name target)))
     (t
      (play-sound "kill-someone")
-     (format-message! "The ~a dies.. " (get-creature-name target))))
+     (format-message! "~@(~A~) dies." (get-creature-desc target 0))))
   nil)
 
 
@@ -253,7 +259,7 @@ the Free Software Foundation; either version 2 of the License, or
     ;; target actually died!
     (cmb-describe-death attacker target)
     (let ((target-xp (get-xp-value target)))
-      (alter-xp! attacker (if target-xp target-xp 0)))
+      (modify-xp! attacker (if target-xp target-xp 0)))
     
     (kill-target! dungeon attacker target x y)
     ;; repaint

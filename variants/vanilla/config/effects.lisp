@@ -85,20 +85,31 @@ the Free Software Foundation; either version 2 of the License, or
     :gfx-ball (tile-paint-value +effect-file+ 60)
     :text-ball (text-paint-value +term-red+ #\*)
     :gfx-orb (tile-paint-value +effect-file+ 96)
-    :text-orb (text-paint-value +term-yellow+ #\*)
+    :text-orb (text-paint-value +term-red+ #\*)
     :gfx-bolts (gfx-bolt-array 12)
-    :text-bolts (text-bolt-array +term-yellow+))
+    :text-bolts (text-bolt-array +term-red+))
 
 ;; green
 (define-spell-effect "acid"
     :gfx-beam (tile-paint-value +effect-file+ 49)
-    :text-beam (text-paint-value +term-red+ #\*)
+    :text-beam (text-paint-value +term-green+ #\*)
     :gfx-ball (tile-paint-value +effect-file+ 61)
-    :text-ball (text-paint-value +term-red+ #\*)
+    :text-ball (text-paint-value +term-green+ #\*)
     :gfx-orb (tile-paint-value +effect-file+ 97)
-    :text-orb (text-paint-value +term-yellow+ #\*)
+    :text-orb (text-paint-value +term-green+ #\*)
     :gfx-bolts (gfx-bolt-array 16)
-    :text-bolts (text-bolt-array +term-yellow+))
+    :text-bolts (text-bolt-array +term-green+))
+
+;; white
+(define-spell-effect "cold"
+    :gfx-beam (tile-paint-value +effect-file+ 56)
+    :text-beam (text-paint-value +term-white+ #\*)
+    :gfx-ball (tile-paint-value +effect-file+ 70)
+    :text-ball (text-paint-value +term-white+ #\*)
+    :gfx-orb (tile-paint-value +effect-file+ 101)
+    :text-orb (text-paint-value +term-white+ #\*)
+    :gfx-bolts (gfx-bolt-array 0)
+    :text-bolts (text-bolt-array +term-white+))
 
 ;; brown
 (define-spell-effect "poison"
@@ -110,6 +121,29 @@ the Free Software Foundation; either version 2 of the License, or
     :text-orb (text-paint-value +term-umber+ #\*)
     :gfx-bolts (gfx-bolt-array 28)
     :text-bolts (text-bolt-array +term-umber+))
+
+;; orange
+(define-spell-effect "light"
+    :gfx-beam (tile-paint-value +effect-file+ 55)
+    :text-beam (text-paint-value +term-orange+ #\*)
+    :gfx-ball (tile-paint-value +effect-file+ 68)
+    :text-ball (text-paint-value +term-orange+ #\*)
+    :gfx-orb (tile-paint-value +effect-file+ 99)
+    :text-orb (text-paint-value +term-orange+ #\*)
+    :gfx-bolts (gfx-bolt-array 40)
+    :text-bolts (text-bolt-array +term-orange+))
+
+;; l-dark
+(define-spell-effect "darkness"
+    :gfx-beam (tile-paint-value +effect-file+ 58)
+    :text-beam (text-paint-value +term-l-dark+ #\*)
+    :gfx-ball (tile-paint-value +effect-file+ 71)
+    :text-ball (text-paint-value +term-l-dark+ #\*)
+    :gfx-orb (tile-paint-value +effect-file+ 97)
+    :text-orb (text-paint-value +term-l-dark+ #\*)
+    :gfx-bolts (gfx-bolt-array 8)
+    :text-bolts (text-bolt-array +term-l-dark+))
+
 
 (define-visual-projectile "arrow"
     :gfx-path (gfx-missile-array 108)

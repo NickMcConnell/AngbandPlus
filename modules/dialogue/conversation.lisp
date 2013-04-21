@@ -1,4 +1,4 @@
-;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
+;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.dialogue -*-
 
 #|
 
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :org.langband.engine)
+(in-package :org.langband.dialogue)
 
 (defun pop-current-node ()
   (assert *current-conversation-nodes* ()
@@ -38,30 +38,23 @@ the Free Software Foundation; either version 2 of the License, or
     (pop-current-node))
   (car *current-conversation-nodes*))
 
-(defun get-parents (node)
-  (let ((list '()))
-    (dolist (x (cnode.include node))
-      ;; should be a string, but no harm in allowing conversation nodes, too...
-      (typecase x
-	(conversation-node (push x list))
-	(string (let ((pnode (gethash x *conversations*)))
-		  (if pnode
-		      (push pnode list)
-		      (warn "Included conversation node '~A' not found." pnode))))
-	(t (error "Only strings and conversation nodes allowed, not ~A."
-		  (type-of x)))))
-    (nreverse list)))
-
 (defun get-filtered-options (node cparam)
-  (let ((direct-options (loop for opt in (cnode.options node)
-			       when (or (null (copt.test opt))
-					(funcall (copt.test opt) cparam))
-			       collect opt))
-	(parent-options (loop for pnode in (get-parents node)
-			      nconc (get-filtered-options pnode cparam))))
-    (remove-duplicates (nconc direct-options parent-options)
-		       :test #'eql)))
-
+  (let ((options '()))
+    (dolist (opt (cnode.options node))
+      (if (conversation-option-p opt)
+	  (when (or (null (copt.test opt))
+		    (funcall (copt.test opt) cparam))
+	    (push opt options))
+	(let ((node (if (conversation-node-p opt)
+			opt
+		      (gethash opt *conversations*))))
+	  ;; get options from included nodes recursively
+	  (when node
+	    (let ((rec-options (get-filtered-options node cparam)))
+	      (setf options (nconc (nreverse rec-options) options)))))))
+    ;; delete duplicates from recursively included options before returning
+    ;; (doesn't hurt, and could be useful in some cases)
+    (nreverse (delete-duplicates options :test #'eql))))
 
 (defun get-node-text (node cparam)
   (let ((text (cnode.text node)))
@@ -127,6 +120,45 @@ the Free Software Foundation; either version 2 of the License, or
 (defun %dest-option (dest &optional (text "[continue]"))
   (%option :text text :dest dest))
 
+(defun text->color-list-text (string &key
+				     (normal-color +term-l-blue+)
+				     (action-color +term-yellow+)
+				     (action-start-char #\[)
+				     (action-end-char #\])
+				     (remove-action-chars nil))
+  "Convert text to list of color and text segments used by PRINT-TEXT!."
+
+  ;; this doesn't need to be fast, so use a slow, recursive algorithm
+  (labels ((split-text (string)
+	     (if (or (null string)
+		     (zerop (length string)))
+		 nil
+	       (let ((pos1 (position action-start-char string)))
+		 (if (null pos1)
+		     `((,normal-color ,string))
+		   (let ((pos2 (position action-end-char string :start pos1)))
+		     (cond ((null pos2)
+			    ;; this shouldn't happen
+			    ;; note that no nesting of [] is allowed
+			    (warn "TEXT->COLOR-LIST-TEXT: error in string ~S" string)
+			    `((,normal-color ,string)))
+			   ((zerop pos1)
+			    (let ((action-string
+				   (if remove-action-chars
+				       (subseq string (1+ pos1) pos2)
+				     (subseq string pos1 (1+ pos2)))))
+			      `((,action-color ,action-string)
+				,@(split-text (subseq string (1+ pos2))))))
+			   (t
+			    (let ((action-string
+				   (if remove-action-chars
+				       (subseq string (1+ pos1) pos2)
+				     (subseq string pos1 (1+ pos2)))))
+			      `((,normal-color ,(subseq string 0 pos1))
+				(,action-color ,action-string)
+				,@(split-text (subseq string (1+ pos2)))))))))))))
+    (split-text string)))
+
 (defun display-conversation-node (node cparam)
   "Display a single conversation node and its conversation options (replies)."
   (clear-window *cur-win*)
@@ -134,7 +166,11 @@ the Free Software Foundation; either version 2 of the License, or
   ;; maybe perform something
   (maybe-perform (cnode.perform node) cparam)
   ;; display text
-  (let* ((row-offset (+ (print-text! 6 2 +term-l-blue+ (get-node-text node cparam)) 2))
+  (let* ((row-offset (+ (print-text! 6 2 +term-l-blue+
+				     (text->color-list-text
+				      (get-node-text node cparam)
+				      :normal-color +term-l-blue+))
+			2))
 	 (row row-offset)
 	 (picture '(engine-gfx "people/male-hobbit-rogue.png"))
 	 (npc-name "Unknown person")
@@ -153,7 +189,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  (when (or (stringp pic) (consp pic))
 	    (setf picture pic)))))
 
-    (let ((name-col (- (get-frame-width +dialogue-frame+) 20)))
+    (let ((name-col (- (get-frame-width +dialogue-frame+) (+ 5 (length npc-name)))))
       (output-string! *cur-win* name-col 1 +term-l-green+ npc-name))
     
     ;; show picture (make it depend on conversation, should also have some checks on size and placement)
@@ -171,7 +207,9 @@ the Free Software Foundation; either version 2 of the License, or
 	     (text (get-option-text opt cparam)))
 	;; assume that there are not too many options to fit the screen
 	(put-coloured-str! +term-white+ (format nil "~A." c) col row)
-	(setf row (1+ (print-text! 6 row +term-l-green+ text)))))
+	(setf row (1+ (print-text! 6 row +term-l-green+
+				   (text->color-list-text
+				    text :normal-color +term-l-green+))))))
     ;; print prompt
     (put-coloured-str! +term-l-blue+ "-> Reply by pressing a key: " col (1+ row))
     ;; loop until we get a valid key
@@ -212,7 +250,7 @@ the Free Software Foundation; either version 2 of the License, or
     (display-conversation id (make-conversation-parameters :player player :npc npc))))
 
 ;; finding an npc
-(defun interactive-choose-npc (dungeon player &optional (max-distance 5))
+(defun interactive-choose-npc (dungeon player &key (max-distance 5) (can-talk-test nil))
   (let ((dir (get-aim-direction)))
     (when dir
       (assert (numberp dir))
@@ -228,12 +266,14 @@ the Free Software Foundation; either version 2 of the License, or
 	  (incf x dx)
 	  (incf y dy)
 	  (let ((npc (first (cave-monsters dungeon x y))))
-	    (when npc
-	      (return npc))))))))
+	    (when (and npc (or (not can-talk-test)
+			       (funcall can-talk-test player npc)))
+	      (return-from interactive-choose-npc npc)
+	      )))))))
 
-(defun lookup-conversation-id (dungeon player npc)
+(defun lookup-conversation-id (dungeon player npc &key (default nil))
   (declare (ignorable dungeon player))
-  (let ((retval "alfred"))
+  (let ((retval default))
     ;;(warn "Looking for ~s" npc)
     (when (typep npc 'active-monster)
       (when-bind (conv (gethash (monster.id (amon.kind npc)) *conversations*))
@@ -242,18 +282,36 @@ the Free Software Foundation; either version 2 of the License, or
     retval))
 
 
-(defun interactive-start-conversation (dungeon player)
-  (let* ((npc (interactive-choose-npc dungeon player))
-	 (id (lookup-conversation-id dungeon player npc)))
+(defun interactive-start-conversation (dungeon player &key will-talk-test can-talk-test (max-distance 5))
+  (let ((npc (interactive-choose-npc dungeon player
+				      :max-distance max-distance
+				      :can-talk-test can-talk-test)))
     (cond ((null npc)
 	   (print-message! "There is nobody to talk to there."))
 	  ((eql npc player)
 	   (print-message! "You chat with yourself for a while."))
-	  ((null id)
-	   (format-message! "The ~A has nothing to say." (get-creature-name npc)))
-	  (t
-	   (with-dialogue ()
-	     (activate-conversation id player npc))))))
+	  ((and will-talk-test
+		(not (funcall will-talk-test player npc)))
+	   (format-message! "~A refuses to talk to you." (get-creature-name npc)))
+	  ((or (not will-talk-test) ;; all ok
+	       (funcall will-talk-test player npc)) ;; safeguard
+	   (let ((conv (lookup-conversation-id dungeon player npc)))
+	     ;;(warn "Got conv ~s for id ~s" conv npc)
+	     (if (typep conv 'conversation-node)
+		 (with-dialogue ()
+		   (activate-conversation conv player npc))
+		 (format-message! "The ~A has nothing to say." (get-creature-name npc)))
+	     ))
+	  
+	  )))
+
+(defun wizard-start-conversation (dungeon player)
+  (let* ((id (get-string-input "Conversation ID: " :max-length 50))
+	 (node (gethash id *conversations*)))
+	(when node
+	  (assert (conversation-node-p node))
+	  (with-dialogue ()
+	    (activate-conversation node player nil)))))
 
 ;; macro stuff from here on
 (defun find-clause (keyword clauses)
@@ -317,6 +375,39 @@ the Free Software Foundation; either version 2 of the License, or
 	(t
 	 (convert-node-expression clause pc-sym npc-sym))))
 
+(defun convert-node-or-dest-clause (clause pc-sym npc-sym)
+  ;; figure out automatically if this is a :DEST expr, like ("foo")
+  ;; or a :NODE expr, something like ((:text "blah") ...)
+  (cond ((and (= (length clause) 1)
+	      (or (stringp (car clause))
+		  (keywordp (car clause))))
+	 (convert-dest-clause clause))
+	(t
+	 (convert-node-clause clause pc-sym npc-sym))))
+
+(defun test-cond-clause (clause)
+  (let ((otherwise-clauses (collect-clauses '(:otherwise) clause)))
+    (assert (= (length otherwise-clauses) 1) ()
+	    "Each :COND clause must have exactly one :OTHERWISE test.")
+    (assert (every #'consp clause) ()
+	    "Each :COND expression must be on the form (TEST EXPR ...).")
+    (let ((last (car (last clause))))
+      (assert (eql (car last) :otherwise) ()
+	      "The last test expression of a :COND clause must be :OTHERWISE."))))
+
+(defun convert-cond-clause (clause pc-sym npc-sym)
+  (cond ((null clause)
+	 nil)
+	(t
+	 (test-cond-clause clause)
+	 ;; note that we don't need to treat :otherwise specially here because
+	 ;; it already is true when used as a boolean
+	 (conv-closure
+	  pc-sym npc-sym
+	  `(cond ,@(loop for (test . inner-clauses) in clause
+			 collect `(,test ,(convert-node-or-dest-clause
+					   inner-clauses pc-sym npc-sym))))))))
+
 (defun convert-option-clause (clause pc-sym npc-sym)
   ;; test for unknown and required clauses
   (test-option-clauses clause)
@@ -328,9 +419,12 @@ the Free Software Foundation; either version 2 of the License, or
 					  pc-sym npc-sym))
 	(dest (convert-dest-clause (find-clause :dest clause)))
 	(node (convert-node-clause (find-clause :node clause)
-				   pc-sym npc-sym)))
+				   pc-sym npc-sym))
+	(cond-node (convert-cond-clause (find-clause :cond clause)
+					pc-sym npc-sym)))
     ;; assume everything is ok here
-    `(%option :text ,text :test ,test :perform ,perform :dest ,(or dest node))))
+    `(%option :text ,text :test ,test :perform ,perform
+	      :dest ,(or dest node cond-node))))
 
 (defun convert-quit-option-clause (clause)
   `(%quit-option ,@clause))
@@ -383,8 +477,9 @@ the Free Software Foundation; either version 2 of the License, or
 		     `(assert ,test ,places ,new-datum ,@new-args))))
 	(cassert (= (cnt :text) 1) ()
 		 "Each conversation node requires exactly one :TEXT clause.")
-	(cassert (>= (+ (cnt :option) (cnt :quit-option) (cnt :dest)) 1) ()
-		 "Each conversation node requires at least one :OPTION, :QUIT-OPTION or :DEST.")
+	(cassert (>= (+ (cnt :option) (cnt :quit-option) (cnt :dest) (cnt :include))
+		     1) ()
+		 "Each conversation node requires at least one :OPTION, :QUIT-OPTION, :INCLUDE or :DEST.")
 	(cassert (<= (cnt :dest) 1) ()
 		 "Too many :DEST clauses.")
 	(cassert (<= (cnt :id) 1) ()
@@ -393,8 +488,6 @@ the Free Software Foundation; either version 2 of the License, or
 		 "More than one :PERFORM clause in conversation node.")
 	(cassert (<= (cnt :skip-if) 1) ()
 		 "Too many :SKIP-IF clauses (more than one might be allowed in the future).")
-	(cassert (<= (cnt :include) 1) ()
-		 "More than one :INCLUDE clause in conversation node.")
 	))
     ;; make sure there are no unknown clauses
     (loop for key being the hash-keys of counts do
@@ -408,15 +501,15 @@ the Free Software Foundation; either version 2 of the License, or
 	     (or (gethash key counts) 0)))
       (assert (= (cnt :text) 1) ()
 	      "Each conversation option requires exactly one :TEXT clause.")
-      (assert (= (+ (cnt :dest) (cnt :node)) 1) ()
-	      "Each conversation option requires exactly one :DEST or :NODE clause.")
+      (assert (= (+ (cnt :dest) (cnt :node) (cnt :cond)) 1) ()
+	      "Each conversation option requires exactly one :DEST, :NODE or :COND clause.")
       (assert (<= (cnt :test) 1) ()
 	      "More than one :TEST clause in conversation option.")
       (assert (<= (cnt :perform) 1) ()
 	      "More than one :PERFORM clause in conversation option."))
     ;; make sure there are no unknown clauses
     (loop for key being the hash-keys of counts do
-	  (unless (member key '(:text :dest :node :test :perform))
+	  (unless (member key '(:text :dest :node :cond :test :perform))
 	    (error "Unknown clause ~S in conversation option." key)))))
 
 (defun convert-node-expression (clause pc-sym npc-sym)
@@ -431,15 +524,20 @@ the Free Software Foundation; either version 2 of the License, or
 	 (skip-clause (find-clause :skip-if clause))
 	 (skip-test (convert-skip-test skip-clause pc-sym npc-sym))
 	 (skip-dest (convert-skip-dest skip-clause pc-sym npc-sym))
-	 (include-clause (find-clause :include clause))
-	 (options (loop for (keyword . body) in (collect-clauses '(:option :quit-option :dest) clause)
-			collect (ecase keyword
-				  (:option (convert-option-clause body pc-sym npc-sym))
-				  (:quit-option (convert-quit-option-clause body))
-				  (:dest (convert-dest-option-clause body))))))
+	 (options (loop for (keyword . body)
+			in (collect-clauses
+			    '(:option :quit-option :dest :include) clause)
+			nconc (ecase keyword
+				(:option
+				 (list (convert-option-clause body pc-sym npc-sym)))
+				(:quit-option
+				 (list (convert-quit-option-clause body)))
+				(:include
+				 body)
+				(:dest
+				 (list (convert-dest-option-clause body)))))))
     `(%conversation :id ,id :text ,text :perform ,perform
       :skip-test ,skip-test :skip-dest ,skip-dest
-      :include (list ,@include-clause)
       :options (list ,@options))))
 
 
@@ -450,13 +548,3 @@ the Free Software Foundation; either version 2 of the License, or
   `(eval-when (:load-toplevel :execute)
     ,(convert-node-expression args pc-sym npc-sym)))
 
-;; some conveniance flagging functions (just shorthands for information table stuff)
-(defun set-flag (flag &optional (value t))
-  (setf (get-information flag) value))
-
-(defun unset-flag (flag)
-  ;; should remove flag?
-  (setf (get-information flag) nil))
-
-(defun flag (flag)
-  (get-information flag))

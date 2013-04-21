@@ -10,31 +10,45 @@ DESC: variants/vanilla/config/sound.lisp - sound-settings
 
 
 (define-sound-effect "hit-someone"
-    "hit1.wav" "hit3.wav")
+    "hit1.ogg" "hit3.ogg")
 
 (define-sound-effect "miss-someone"
-    "miss1.wav" "miss2.wav")
+    "miss1.ogg" "miss2.ogg")
 
 (define-sound-effect "kill-someone"
-    "TMaDth00.wav" "TMaDth01.wav")
+    "TMaDth00.ogg" "TMaDth01.ogg")
 
 (define-sound-effect "shut-door"
-    "Doorshut.wav")
+    "Doorshut.ogg")
 
 (define-sound-effect "eat-something"
-    "eat1.wav")
+    "eat1.ogg")
 
 (define-sound-effect "zap-something"
-    "magksnd2.wav" "magksnd8.wav")
+    "magksnd2.ogg" "magksnd8.ogg")
 
 (define-sound-effect "trapdoor"
-    "chain01.wav")
+    "chain01.ogg")
 
 (define-sound-effect "acid-splash"
-    "boat_waves01.wav")
+    "drips.ogg")
 
 (define-sound-effect "burning-fire"
-    "fire01.wav")
+    "fire01.ogg")
+
+(define-sound-effect "fire"
+    "magksnd8.ogg")
+
+(define-sound-effect "lightning"
+    "magksnd2.ogg")
+
+(define-sound-effect "teleport"
+    "magksnd1.ogg")
 
 (define-sound-effect "dart-trap"
-    "locksound.wav")
+    "locksound.ogg")
+
+(define-sound-effect "walking"
+    ;;"walk_stone01.ogg" "walk_stone02.ogg" "walk_stone03.ogg"
+    "walk_stone04.ogg" ;;"walk_stone05.ogg" "walk_stone06.ogg"
+  )

@@ -17,29 +17,24 @@ Might be used:
   - Allegro Common Lisp
     is not active dev-platform anymore due to license
 
-  - CLISP
-    is a bit tricky to get working, see the FAQ for more info
-
   - Lispworks on Linux
     Should work fairly well.
 
   - Lispworks on Win32
-    
     May have problems, and has not been tested recently.  See FAQ for
     more info on the Win32 port.
 
   - SBCL (on Linux)
-
     Should work fairly well, make sure you get v0.7.7 or newer.
 
-
+  - CLISP
+    is a bit tricky to get working, see the FAQ for more info
     
 How to start it:
 
-  - tweak zterm/Makefile
-    Probably only ENVIRONMENTS needs to be changed.
-    [GCU AND X11 HAVE BEEN DISABLED, ONLY SDL IS WORKING. FOR WINDOWS
-     USE 'WIN' AS ENVIRONMENT]
+  - run ./configure
+    You might want to check ./configure --help for options on Unix.
+    Windows/Cygwin-users can just use ./configure
 
   - run 'make'
     Where make is GNU Make
@@ -95,7 +90,7 @@ How to play:
     w - wear an item from backpack
    ^X - Save and exit the game. 
 
-  See also lib/help/keys.txt and the actual code in variants/vanilla/config/keys.lisp
+  See also docs/help/keys.txt and the actual code in variants/vanilla/config/keys.lisp
   
 What to do on crash or bugs:
 
@@ -106,15 +101,11 @@ What to do on crash or bugs:
   though. 
 
 Known bugs:
-  - Eat-command may not work
   - Windows port does not support TTF-fonts
-  - Themes are not awfully changable at the moment, and some parts of
-    the code (mouseclick) depend on hardcoded coordinates.  Braindead, I
-    know, but I wanted to toss out a release.
+  - Windows port does not use sounds/audio
   - See also list on Sourfeforge
- 
 
 Docs:
 
-  See the web/-directory.  
+  See the docs/-directory.  
 

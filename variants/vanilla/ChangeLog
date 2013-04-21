@@ -1,3 +1,17 @@
+2003-05-08  Stig E Sandø <stig@users.sourceforge.net>
+	* Updated code to reflect upgraded engine.
+	* Changed variant to use .png for all graphics and .ogg for all
+	sound-effects
+	* Added vicious special abilities to many monsters
+	* Added several effects for spells, sticks, scrolls, etc
+	* Made rods behave as they should. (stacking not right yet though)
+	* Added proper resting
+	* Added word of recall
+	* Make player-states use the new player-state sytstem in the
+	engine
+	* Added left-click looking, click most stuff to see what it means
+	* Plus many other code-fixes, bug-fixes and improvements.
+	
 2003-03-09  Stig E Sandø <stig@users.sourceforge.net>
 	* Tweaked some object-types to make it easier to dispatch on them.
 	* Added 't'hrow object code

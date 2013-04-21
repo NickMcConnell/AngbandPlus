@@ -272,10 +272,12 @@ the Free Software Foundation; either version 2 of the License, or
 	 (fast-temp *temp-view*)
 	 (vinfo *vinfo*)
 	 (vinfo-bit-fields *vinfo-bit-fields*)
+	 (dun-wid (dungeon.width dungeon))
+	 (dun-hgt (dungeon.height dungeon))
 	 ;;(fast-view (make-map dungeon))
 	 )
 
-    (declare (type u-fixnum py px pg radius))
+    (declare (type u-fixnum py px pg radius dun-wid dun-hgt))
     (declare (type (vector t 1536) fast-temp fast-view))
     
 ;;    (declare (:explain :boxing))
@@ -419,12 +421,14 @@ the Free Software Foundation; either version 2 of the License, or
 		    ;;(warn "Bit-arr[~a]: ~s vs ~s" queue-head bit-arr bits)
 
 		    ;; optimise this!!!
-		    (when (block check-equals
-			    (dotimes (i +vinfo-bit-field-len+)
-			       (when (bit-flag-and (aref bit-arr i)
-						   (aref bits i))
-				 (return-from check-equals t)))
-			    nil)
+		    (when (and (block check-equals
+				 (dotimes (i +vinfo-bit-field-len+)
+				   (when (bit-flag-and (aref bit-arr i)
+						       (aref bits i))
+				     (return-from check-equals t)))
+				 nil)
+			       (< x dun-wid)
+			       (< y dun-hgt))
 
 		      (when (minusp g)
 			(error "{pg=~s,px=~s,py=~s} -> {g=~s,x=~s,y=~s} -> {o2=~s,e=~s} -> ~s"
@@ -514,8 +518,12 @@ the Free Software Foundation; either version 2 of the License, or
 	)
 
       (block handle-blindness
-	;; later
-	)
+	(when (is-blind? player)
+	  (loop for the-grid across fast-view
+		for coord = (cave-coord dungeon (grid-x the-grid) (grid-y the-grid))
+		do
+		(bit-flag-remove! (coord.flags coord) +cave-seen+))))
+
 
       (block process-new-grids
       

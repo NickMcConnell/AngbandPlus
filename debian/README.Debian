@@ -18,9 +18,11 @@ To use it, I recommend that you get all langband-packages;
   langband-engine  <- the engine that does most of the job
   langband-vanilla <- a pluggable "variant" that mostly works as vanilla Angband
 
-To use it with CMUCL:
+To use langband, you need to install a Common Lisp
+compiler/interpreter.  SBCL is fairly straightforward to install: just
+"apt-get install sbcl"
 
-$ lisp
+$ sbcl
 > (require :langband-vanilla)
 > (gfx-langband)
 

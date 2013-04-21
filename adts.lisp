@@ -132,7 +132,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;;(trace heap-remove)
 (defvar *pq-elem-pool* nil)
   
-(defun make-priority-queue (&key (gte #'>=)(size 1)(adjust-factor 2))
+(defun make-priority-queue (&key (gte #'>=) (size 1) (adjust-factor 2))
   "Returns new priority-queue"
   (make-heap :gte gte 
 	     :key #'pq-elem-priority 
