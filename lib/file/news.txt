@@ -1,9 +1,7 @@
 
-
               **************************************************
               **   Angband 2.9.1   **   The Pits of Angband   **
               **************************************************
-
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:   Copyright (c) 1989 James E. Wilson
 
@@ -12,10 +10,13 @@
                  Geoff Hill, Charles Teague, Charles Swiger
 
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
-
                      Angband 2.9.1 by Robert Ruehlmann
+                Isometric view addon by Hansjoerg Malthaner
 
-        Send comments, bug reports, and patches, to "rr9@angband.org"
+    Send comments, bug reports, and patches for Angband to "rr9@angband.org"
+               Send comments, bug reports, and patches for the 
+             isometric view addon to "hansjoerg.malthaner@gmx.de"
+
        Visit the Angband Home Page at "http://thangorodrim.angband.org/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"
