@@ -229,18 +229,23 @@ a list if more items occupy the same place."
 (defun drop-something! (dun pl)
   "Drop some inventory"
 
-  (let ((selection (select-item dun pl '(:backpack :equip)
+  (let ((var-obj *variant*)
+	(selection (select-item dun pl '(:backpack :equip)
 				:prompt "Drop item: "
 				:where :backpack)))
     (cond (selection
 	   (let* ((the-table (get-item-table dun pl (car selection)))
 		  (removed-obj (item-table-remove! the-table (cdr selection))))
 	     (cond (removed-obj
-		    (item-table-add! (get-item-table dun pl :floor) removed-obj))
+		    (drop-near-location! var-obj dun removed-obj (location-x pl) (location-y pl)) 
+		    ;;(item-table-add! (get-item-table dun pl :floor) removed-obj)
+		    )
 		   (t
-		    (warn "Did not find selected obj ~a" selection)))))
+		    (c-print-message! (format nil "Did not find selected obj ~a" selection)
+				      )))))
 	  (t
-	   (warn "Did not select anything.")))
+	   ;;(warn "Did not select anything.")
+	   ))
     ))
 
 

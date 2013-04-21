@@ -21,7 +21,7 @@ DESC: package.lisp - package def for langband
 
 
 (defpackage :org.langband.engine
-  (:nicknames :lb :lb-engine :langband) ;; fix later
+  (:nicknames :lb :lb-engine :langband :org.langband.vanilla) ;; fix later
   (:use :common-lisp
 	#-building-ffi-defs :binary-types
 	:org.langband.ffi)

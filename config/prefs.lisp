@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -8,9 +8,12 @@ this file defines preferences done the lispy way
 
 |#
 
+(in-package :org.langband.engine)
+
 (when (or (eq (get-system-type) 'xaw)
-	  (eq (get-system-type) 'x11))
-  
+	  (eq (get-system-type) 'x11)
+	  (eq (get-system-type) 'gtk))
+	    
   (read-pref-file "x11-keys.lisp"))
 
 (when (eq (get-system-type) 'gcu)

@@ -1528,26 +1528,28 @@ void move_cursor(int row, int col)
 /*
  * Hack -- flush
  */
-static void msg_flush(int x)
-{
-	byte a = TERM_L_BLUE;
+static void msg_flush(int x) {
 
-	/* Pause for response */
-	Term_putstr(x, 0, -1, a, "-more-");
+    byte a = TERM_L_BLUE;
+    
+    
+    /*printf("Flush %d\n", x);*/
+    /* Pause for response */
+    Term_putstr(x, 0, -1, a, "-more-");
+    
+    /* Get an acceptable keypress */
+    while (1) {
 
-	/* Get an acceptable keypress */
-	while (1)
-	{
-		char ch;
-		ch = inkey();
-		if (quick_messages) break;
-		if ((ch == ESCAPE) || (ch == ' ')) break;
-		if ((ch == '\n') || (ch == '\r')) break;
-		bell("Illegal response to a 'more' prompt!");
-	}
+	char ch;
+	ch = inkey();
+	if (quick_messages) break;
+	if ((ch == ESCAPE) || (ch == ' ')) break;
+	if ((ch == '\n') || (ch == '\r')) break;
+	bell("Illegal response to a 'more' prompt!");
+    }
 
-	/* Clear the line */
-	Term_erase(0, 0, 255);
+    /* Clear the line */
+    Term_erase(0, 0, 255);
 }
 
 
@@ -1599,7 +1601,15 @@ void msg_print(cptr msg)
 	if (msg && strlen(msg)==0) {
 	    msg = NULL;
 	}
-	
+
+	/*
+	if (msg) {
+	    printf("Msg '%s'\n", msg);
+	}
+	else {
+	    printf("Msg 'NULL'\n");
+	}
+	*/
 
 	/* Hack -- Reset */
 	if (!msg_flag) p = 0;

@@ -47,8 +47,16 @@ the Free Software Foundation; either version 2 of the License, or
   (sex.name (player.sex player)))
 
 (defmethod get-creature-ac ((crt player))
-  (the fixnum (+ (the fixnum (player.base-ac crt))
-		 (the fixnum (player.ac-modifier crt)))))
+  (let ((actual (player.actual-abilities crt)))
+    (the fixnum (+ (the fixnum (pl-ability.base-ac actual))
+		   (the fixnum (pl-ability.ac-modifier actual))))))
+
+(defmethod get-creature-weight ((crt player))
+  (the fixnum (+ (the fixnum (player.burden crt))
+		 (the fixnum (playermisc.weight (player.misc crt))))))
+
+(defmethod get-creature-burden ((crt player))
+  (player.burden crt))
 
 (defmethod get-creature-energy ((crt player))
   (the fixnum (player.energy crt)))
@@ -62,6 +70,15 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod (setf get-creature-speed) (val (crt player))
   (setf (player.speed crt) val))
+
+(defun get-chance (variant skill the-ac)
+  (declare (ignore variant))
+  (let* ((ac-factor (int-/ (* 3 the-ac) 4))
+	 (calc-chance (int-/ (* 90 (- skill ac-factor)) skill)))
+    (if (plusp calc-chance)
+	(+ 5 calc-chance)
+	5)))
+
 
 (defun %make-level-array (var-obj)
   (check-type var-obj variant)
@@ -79,7 +96,11 @@ the Free Software Foundation; either version 2 of the License, or
 	  (player.modbase-stats t-p) (make-stat-array)
 	  (player.active-stats t-p)  (make-stat-array))
 
-    #+xp-testing
+    (setf (player.misc t-p) (make-instance 'misc-player-info) ;; fix to allow variants to override
+	  (player.perceived-abilities t-p) (make-instance 'player-abilities) ;; fix to allow variants to override
+	  (player.actual-abilities t-p) (make-instance 'player-abilities)) ;; fix to allow variants to override
+    
+    #+langband-extra-checks
     (assert (let ((bstat-table (player.base-stats t-p))
 		  (cstat-table (player.cur-statmods t-p))
 		  (mstat-table (player.modbase-stats t-p))
@@ -164,7 +185,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(mstat-table (player.modbase-stats player))
 	(astat-table (player.active-stats player)))
 
-    #+xp-testing
+    #+langband-extra-checks
     (assert (and (not (eq bstat-table cstat-table))
 		 (not (eq bstat-table mstat-table))
 		 (not (eq bstat-table astat-table))
@@ -176,7 +197,7 @@ the Free Software Foundation; either version 2 of the License, or
 
   
     (let ((base-stat (svref bstat-table num))
-	  (cur-stat (svref cstat-table num))
+;;	  (cur-stat (svref cstat-table num))
 	  (bonus (get-stat-bonus player num)))
 
       (setf (svref mstat-table num) (add-stat-bonus base-stat bonus))
@@ -216,10 +237,12 @@ the Free Software Foundation; either version 2 of the License, or
      
 
 (defvar *hack-old/stats* (make-stat-array))
+(defvar *hack-old/abilities* (make-instance 'player-abilities)) ;; hack
 
 (defmethod calculate-creature-bonuses! ((variant variant) (player player))
+  "This method is called often and should be fairly fast.  It must not cons!"
 
-  #+xp-testing
+  #+langband-extra-checks
   (assert (and (arrayp (player.base-stats player))
 	       (arrayp (player.cur-statmods player))
 	       (arrayp (player.active-stats player))
@@ -232,20 +255,26 @@ the Free Software Foundation; either version 2 of the License, or
 	(modbase-stats (player.modbase-stats player))
 	  
 	
-	(old/speed (player.speed player))
-	(old/base-ac (player.base-ac player))
-	(old/ac-modifier (player.ac-modifier player))
+;;	(old/speed (player.speed player))
 	(old/stats *hack-old/stats*)
-	
+	(old/abilities *hack-old/abilities*)
+	(actual-abs (player.actual-abilities player))
+	(perc-abs (player.perceived-abilities player))
+    
 	)
-
+    
+    (fill-player-abilities! variant old/abilities perc-abs)
+    
     (dotimes (i +stat-length+)
       (setf (aref old/stats i) (aref active-stats i)))
     
     
-    ;; reset values
-    (setf (player.base-ac player) 0
-	  (player.ac-modifier player) 0
+    ;; reset values, add reset of perceived values
+    (setf (pl-ability.base-ac actual-abs) 0
+	  (pl-ability.ac-modifier actual-abs) 0
+	  (pl-ability.base-ac perc-abs) 0
+	  (pl-ability.ac-modifier perc-abs) 0
+	  (player.burden player) 0
 	  (player.speed player) 110)
 
     (dotimes (i +stat-length+)
@@ -253,14 +282,14 @@ the Free Software Foundation; either version 2 of the License, or
       (setf (aref modbase-stats i) 0))
     
 
-    
-
-
     ;; recalculate stats, still needed?
     (dotimes (i +stat-length+)
       ;;      (warn ">B fore ~s" (svref (player.base-stats player) i))
       (calculate-stat! player i))
-					;
+
+
+    ;; add some racial stuff:
+    (bit-flag-add! (creature.resists player) (race.resists race))
       
     ;; hackish, change later
     (let ((race-ab (race.abilities race)))
@@ -272,6 +301,7 @@ the Free Software Foundation; either version 2 of the License, or
 	     (when (and (numberp (cadr i)) (> (cadr i) (player.infravision player)))
 	       (setf (player.infravision player) (cadr i))))
 	    (<resist> ;; handle later
+	     (error "Resist found in racial-abilities ~s" i)
 	     )
 	    (<sustain> ;; handle later
 	     )
@@ -283,24 +313,45 @@ the Free Software Foundation; either version 2 of the License, or
 	
     (unless slots
       (error "Can't find equipment-slots for player, bad."))
+    
     (flet ((item-iterator (table key obj)
 	     (declare (ignore table key))
 	     (when obj
 	       (when-bind (gvals (aobj.game-values obj))
-		 (incf (player.base-ac player) (gval.base-ac gvals))
-		 (incf (player.ac-modifier player) (gval.ac-modifier gvals))
+		 (incf (pl-ability.base-ac actual-abs) (gval.base-ac gvals))
+		 ;; armour-value always known?  (move to variant?)
+		 (incf (pl-ability.base-ac perc-abs) (gval.base-ac gvals))
+		 (incf (pl-ability.ac-modifier actual-abs) (gval.ac-modifier gvals))
+		 ;; sometimes we know bonus
+		 (when (is-object-known? obj)
+		   (incf (pl-ability.ac-modifier perc-abs) (gval.ac-modifier gvals)))
+		 (bit-flag-add! (creature.resists player) (gval.resists gvals))
+		 (incf (player.burden player) (object.weight obj))
 		 ))))
       
       (declare (dynamic-extent #'item-iterator))
       (item-table-iterate! slots #'item-iterator))
 
-    (update-skills! player (player.skills player))
+    ;; backpack
+    (flet ((item-iterator (table key obj)
+	     (declare (ignore table key))
+	     (when obj
+	        (incf (player.burden player) (object.weight obj)))))
+      (declare (dynamic-extent #'item-iterator))
+      (item-table-iterate! (aobj.contains (player.inventory player))
+			   #'item-iterator))
+
     
-    (when (or (/= old/base-ac (player.base-ac player))
-	      (/= old/ac-modifier (player.ac-modifier player)))
+    (update-skills! player (player.skills player))
+
+
+    ;; only check perceived changes!
+    (when (or (/= (pl-ability.base-ac old/abilities) (pl-ability.base-ac perc-abs))
+	      (/= (pl-ability.ac-modifier old/abilities) (pl-ability.ac-modifier perc-abs)))
       (bit-flag-add! *redraw* +print-armour+)
       ;; skip window
       )
+    
 
 	      
     t))
@@ -472,7 +523,7 @@ the Free Software Foundation; either version 2 of the License, or
 					   100))))
     player))
 
-(defun update-max-hp! (player)
+(defmethod update-max-hp! ((variant variant) (player player))
   "Updates the maximum number of hitpoints.  Returns an updated player."
 
   (let ((lvl (player.level player))
@@ -585,6 +636,18 @@ the Free Software Foundation; either version 2 of the License, or
 (defun alter-food! (pl new-food-amount)
   ;; lots of minor pooh
   (setf (player.food pl) new-food-amount))
+
+(defmethod copy-player-abilities ((variant variant) (ab player-abilities))
+  (let ((new-ab (make-instance 'player-abilities)))
+    (fill-player-abilities! variant new-ab ab)
+    new-ab))
+
+(defmethod fill-player-abilities! ((variant variant) (to player-abilities) (from player-abilities))
+  (dolist (i '(base-ac ac-modifier to-hit-modifier to-dmg-modifier))
+    (setf (slot-value to i) (slot-value from i)))
+  to)
+
+
 
 ;;(trace calculate-creature-bonuses!)
 ;;(trace calculate-creature-light-radius!)

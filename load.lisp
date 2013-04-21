@@ -61,11 +61,45 @@ the Free Software Foundation; either version 2 of the License, or
 	(error "Unable to find variant with id ~s" id)))
   
   (let ((var-obj *variant*)) ;; hackish
-    (setf (variant.turn var-obj) turn)
+   
     (unless (equal (string id) (string (variant.id var-obj)))
       (warn "Id of loaded variant (~s) doesn't match running variant (~s)"
 	    id (variant.id var-obj)))
+
+    (setf (variant.turn var-obj) turn)
+
+    
     var-obj))
+
+(defun %filed-object-kind (&key id (aware :unspec) (flavour :unspec))
+
+  ;; kind of hackish
+  (assert (stringp id))
+  (let* ((var-obj *variant*)
+	 (the-kind (gethash id (variant.objects var-obj))))
+    (unless the-kind
+      (warn "Unable to find object-kind with id ~s" id)
+      (return-from %filed-object-kind 0))
+
+    (cond ((eq aware :unspec))
+	  ((or (eq aware t) (eq aware nil))
+	   (setf (object.aware the-kind) aware))
+	  (t
+	   (error "Unknown aware-value ~s for kind ~s" aware id)))
+    
+    (cond ((eq flavour :unspec))
+	  ((or (eq flavour nil)
+	       (and (consp flavour)
+		    (stringp (car flavour))
+		    (characterp (cdr flavour))))
+	   (if flavour
+	       (setf (object.flavour the-kind) (cons (car flavour) (convert-obj (cdr flavour) :colour-code)))
+	       (setf (object.flavour the-kind) nil)))
+	       
+	  (t
+	   (error "Unknown flavour-value ~s for kind ~s" flavour id)))
+    t))
+
 
   
 (defun %filed-level (&key id rating depth dungeon)
@@ -85,7 +119,8 @@ the Free Software Foundation; either version 2 of the License, or
     (assert (equal (string id) (string (level.id the-level))))
     
     the-level))
-  
+
+
 (defun %filed-dungeon (&key width height depth table monsters objects rooms)
   "returns a dungeon-object or nil."
   
@@ -132,7 +167,9 @@ the Free Software Foundation; either version 2 of the License, or
     amon))
 
 
-(defun %filed-object (&key kind inscr number contains events loc-x loc-y)
+(defun %filed-object (&key kind inscr number (identify :unspec)
+		      (game-values :unspec)
+		      contains events loc-x loc-y)
   "returns an active-object or nil."
 
   ;; FIX: simplify, and let factory deal with kind id
@@ -152,6 +189,21 @@ the Free Software Foundation; either version 2 of the License, or
 		(aobj.contains aobj) contains
 		(aobj.events aobj) events)
 
+	  (cond ((eq identify :unspec))
+		((and (integerp identify)
+		      (>= identify 0))
+		 (setf (aobj.identify aobj) identify))
+		(t 
+		 (warn "Identify argument ~s to filed-object does not follow invariant."
+		       identify)))
+
+	  (cond ((eq game-values :unspec))
+		((or (eq game-values nil)
+		     (typep game-values 'game-values))
+		 (setf (aobj.game-values aobj) game-values))
+		(t
+		 (warn "Game-values argument to FILED-OBJECT does not follow invariant.")))
+		 
 	  (setf ret-obj aobj)))
     
     ret-obj))
@@ -173,13 +225,16 @@ the Free Software Foundation; either version 2 of the License, or
     ret-obj))
 
 (defun %filed-player-info (pl-obj &key name class race sex base-stats cur-statmods
-			   hp-table equipment)
+			   hp-table equipment variant)
   "modifies the PL-OBJ with the extra info and returns the modified PL-OBJ."
 
 
-  (let ((the-class (get-char-class class))
-	(the-race (get-char-race race))
-	(the-sex (get-sex *variant* sex)))
+  (let* ((var-obj (if (and variant (typep variant 'variant))
+		      variant
+		      *variant*))
+	 (the-class (get-char-class class :variant var-obj))
+	 (the-race (get-char-race race :variant var-obj))
+	 (the-sex (get-sex var-obj sex)))
 
     (setf (player.name pl-obj) name)
     
@@ -206,7 +261,11 @@ the Free Software Foundation; either version 2 of the License, or
 	  (player.equipment pl-obj) equipment
 	  ;; calculated
 	  (player.inventory pl-obj) (item-table-find equipment 'eq.backpack))
-	  
+
+    ;; then we need to recalculate the xp, as we now have race and class
+    (update-xp-table! var-obj pl-obj) ;; hack
+    (update-max-hp! var-obj pl-obj) ;; hack
+    
     pl-obj))
   
 (defun %filed-player (&key name race class sex
@@ -243,9 +302,8 @@ the Free Software Foundation; either version 2 of the License, or
 
     (%filed-player-info pl-obj :name name :race race :class class :sex sex
 			:base-stats base-stats :cur-statmods cur-statmods
-			:hp-table hp-table :equipment equipment)
+			:hp-table hp-table :equipment equipment :variant var-obj)
 
-    
     (calculate-creature-bonuses! var-obj pl-obj)
     
     pl-obj))
@@ -335,6 +393,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     (%filed-object :kind kind-id :inscr (%bin-read-string str)
 		   :number (bt:read-binary 'bt:u16 str)
+		   :identify (bt:read-binary 'bt:u32 str)
 		   :loc-x (bt:read-binary 'bt:u16 str)
 		   :loc-y (bt:read-binary 'bt:u16 str)
 		   :contains (let ((any-containment? (if (= 1 (bt:read-binary 'bt:u16 str))
@@ -393,7 +452,8 @@ the Free Software Foundation; either version 2 of the License, or
 
     
     ;; recalculate rest
-    (calculate-creature-bonuses! variant pl-obj)		
+    (calculate-creature-bonuses! variant pl-obj)
+    
     pl-obj))
 
 (defmethod load-object ((variant variant) (type (eql :items-in-container)) (stream l-binary-stream))
@@ -431,7 +491,30 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod load-object (variant (type (eql :variant)) (stream l-binary-stream))
   (assert (eq variant nil))
-  (let* ((str (lang.stream stream)))
-    (%filed-variant :id (%bin-read-string str)
-		    :turn (bt:read-binary 'bt:u32 str))
+  (let* ((str (lang.stream stream))
+	 (var-obj (%filed-variant :id (%bin-read-string str)
+				  :turn (bt:read-binary 'bt:u32 str))))
+
+    (check-type *variant* variant)
+
+    (let ((obj-len  (bt:read-binary 'bt:u32 str)))
+      (dotimes (i obj-len)
+	(load-object var-obj :object-kind  stream)))
+    
+    var-obj))
+
+(defmethod load-object ((variant variant) (type (eql :object-kind)) (stream l-binary-stream))
+  (let* ((str (lang.stream stream))
+	 (id (%bin-read-string str))
+	 (aware-info (bt:read-binary 'bt:s16 str))
+	 (flavoured (bt:read-binary 'bt:s16 str))
+	 (aware (when (= aware-info 1) t))
+	 (flavour nil))
+
+    (when (= flavoured 1)
+      (let* ((desc (%bin-read-string str))
+	     (letter (code-char (bt:read-binary 'bt:s16 str))))
+	(setf flavour (cons desc letter))))
+    
+    (%filed-object-kind :id id :aware aware :flavour flavour)
     ))

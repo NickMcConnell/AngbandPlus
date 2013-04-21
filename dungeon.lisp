@@ -284,6 +284,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	 (f-obj nil)
 	 (ret-attr +term-white+)
 	 (ret-char #\X)
+	 (pl-obj *player*)
 	 ;;(name-return nil)
 	 )
 
@@ -358,7 +359,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		 ;;  (object.x-attr kind) (object.x-char kind) )
 		 ;;(setq name-return t)
 		 (if flavour
-		     (setf ret-attr (cadr flavour)
+		     (setf ret-attr (cdr flavour)
 			   ret-char (object.x-char kind))
 		     (setf ret-attr (object.x-attr kind)
 			   ret-char (object.x-char kind)))
@@ -393,8 +394,9 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 ;;      (warn "Returns (~s,~s)" ret-attr ret-char))
     
     ;; remove this entry later..
-    (when (and (eql x (location-x *player*))
-	       (eql y (location-y *player*)))
+    (when (and pl-obj ;; only when we have a player
+	       (eql x (location-x pl-obj))
+	       (eql y (location-y pl-obj)))
 ;;      (warn "returning player at {~a,~a}" x y)
       (setf ret-attr +term-white+
 	    ret-char #\@))
@@ -616,28 +618,33 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
   (declare (type fixnum x y))
   
-  (let* ((pl *player*)
-	 (pvx (player.view-x pl))
-	 (pvy (player.view-y pl))
-	 (kx (- x pvx))
-	 (ky (- y pvy)))
+  (let ((pl *player*))
 
-    (declare (type fixnum pvx pvy kx ky))
+    (unless pl
+      (return-from print-relative! nil))
+    
+    (let* ((pvx (player.view-x pl))
+	   (pvy (player.view-y pl))
+	   (kx (- x pvx))
+	   (ky (- y pvy)))
+      
+      (declare (type fixnum pvx pvy kx ky))
 
-    ;; debugging
-;;    (when (or (minusp kx) (minusp ky))
-;;    (error "a value became negative.."))
+      ;; debugging
+      ;;    (when (or (minusp kx) (minusp ky))
+      ;;    (error "a value became negative.."))
 
     
-    ;, sometimes we cross a screen
-    (when (and (<= 0 kx)
-	       (<= 0 ky)
-	       (< ky +screen-height+)
-	       (< kx +screen-width+))
+					;, sometimes we cross a screen
+      (when (and (<= 0 kx)
+		 (<= 0 ky)
+		 (< ky +screen-height+)
+		 (< kx +screen-width+))
 
-      (%loc-queue-cons (+ +start-column-of-map+ kx)
-		       (+ +start-row-of-map+ ky)
-		       the-attr the-char))))
+	(%loc-queue-cons (+ +start-column-of-map+ kx)
+			 (+ +start-row-of-map+ ky)
+			 the-attr the-char))
+      )))
 
 
 (defun light-spot! (dungeon x y)

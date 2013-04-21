@@ -80,7 +80,14 @@
 	BTW: If you have extra
 	information on a non-fixed bug, please add it.</li>
 
-      <li> <b>The game hangs once in awhile, why?</b><br>
+      <li> <b>My save-game from last version does not work in the
+	  newest version, why?</b><br>
+	As long as the game is not really playable the save/load code
+	is not enhanced for backward-compatibility and is all-in-all
+	one of the more fragile parts of Langband.  But please report
+	bugs and they will be fixed.</li>
+      
+      <li> <b>The game is sluggish once in awhile, why?</b><br>
 	I have noticed this earlier though not frequently anymore.  It
 	might be the garbage-collector interfering.  This will be
 	adressed gradually and memory-allocation will be reduced when
@@ -90,6 +97,19 @@
 	win32-port if the lispworks-code isn't compiled.  Gradual
 	optimisation of the code will probably "remove" this
 	"problem".  </li>
+
+      <li> <b>The game holds for a few seconds when I change levels, why?</b><br>
+	There are two replies, choose the one that you feel
+	comfortable with.  <br>
+	<ul>
+	  <li> To prevent stair-scumming (a common exploit) a delay
+	  has been added to the use of stairs.  This has been designed
+	  into the game.</li>
+	  <li> To prevent the garbage-collector interfering with the game
+	  during normal game-play, full garbage-collects are run
+	  before and after level­generation.  This slows down change
+	  between levels.  This is very noticable in ACL. </li>
+	</ul>
       
       <li> <b>How do I get things working with CLISP?</b><br>
 	It's a bit tricky still but can be done.  Assuming csh/tcsh
@@ -127,6 +147,19 @@
 	href="tech.html">Technical description</a> for an hopefully
 	updated description.</li> 
 
+      <li> <b>You seem to favour classes with datamembers over
+	  bitfields, why?</b><br>
+	I tend to favour using clear and readable classes over
+	bitfields for one reason: it's easier to understand, use and
+	easier to extend.  However, I know that it is sometimes
+	beneficial to use bitfields but I'll try to hide that behind
+	declarative structures, ie make it an
+	implementation-detail.  Resistance and immunity to elements
+	are examples of bitfields that are generated from a
+	specification.
+      </li>
+
+      
       <li> <b>The code in CVS crashes/does not work, why?</b><br>
 	The code in CVS is development code, and might not even
 	compile, and much less work.  Please use releases if you want

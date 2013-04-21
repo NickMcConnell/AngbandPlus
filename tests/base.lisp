@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND-TEST -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.testing -*-
 
 #|
 
@@ -6,7 +6,7 @@ DESC: tests/base.lisp - base code for customising xptest to Langband
 
 |#
 
-(in-package :lb-test)
+(in-package :org.langband.testing)
 
 (defvar *pre-variant-load* (make-test-suite "pre-variant-load tests"
 					   "Tests prior to loading variant"

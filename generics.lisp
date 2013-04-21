@@ -53,10 +53,9 @@ the Free Software Foundation; either version 2 of the License, or
   (:documentation "Tries to save the object-list to the given filename.  STYLE
 specifi es what kind of saving should be done (e.g readable, binary, ..)"))
 
-(defgeneric do-load (variant fname obj-types style)
-  (:documentation "Tries to load given obj-types from the filename.
-If variant is NIL, the variant should be first in the obj-types list and
-will be used for subsequent loads."))
+(defgeneric load-a-saved-game (variant fname style)
+  (:documentation "Tries to load a saved-game from the filename.
+If variant is NIL the default loader will be used."))
 
 (defclass l-readable-stream ()
   ((the-stream :accessor lang.stream :initform nil :initarg :stream)))
@@ -124,8 +123,15 @@ Returns NIL on failure."))
 (defgeneric get-creature-ac (creature)
   (:documentation "Returns a fixnum with the armour-class for the given creature."))
 
+;; really needed?
 (defgeneric (setf get-creature-ac) (val creature)
   (:documentation "Alters the armour-class of the creature.  VALUE must be a fixnum."))
+
+(defgeneric get-creature-burden (creature)
+  (:documentation "Returns a fixnum with the burden the creature carries."))
+
+(defgeneric get-creature-weight (creature)
+  (:documentation "Returns a fixnum with the total weight of the creature + burden."))
 
 (defgeneric creature-alive? (creature)
   (:documentation "Returns T if the creature is alive, NIL if not."))
@@ -178,6 +184,15 @@ and if so, marks the object."))
 
 (defgeneric is-artifact? (object)
   (:documentation "Returns T if the object is an artifact, NIL otherwise."))
+
+(defgeneric need-flavour? (variant object)
+  (:documentation "Does this object need to be flavoured before use?  (t or nil)"))
+
+(defgeneric flavour-object! (variant object)
+  (:documentation "Tries to flavour the object."))
+
+(defgeneric distribute-flavours! (variant)
+  (:documentation "Tries to distribute flavours for the given objects."))
 
 ;;; === End object-generics
 
@@ -286,6 +301,12 @@ is supplied, stacking-rules will also be checked."))
 
 ;;; === Miscellaneous
 
+(defgeneric can-creature-drop? (variant creature)
+  (:documentation "Checks if the creature can drop anything on death."))
+
+(defgeneric creature-drop! (variant creatue dungeon)
+  (:documentation "Makes the dead creature drop items on death."))
+
 (defgeneric shoot-a-missile (dungeon player missile-weapon missile)
   (:documentation "Shoots an arrow, queries for direction."))
 
@@ -348,6 +369,8 @@ but one that works with langband-objects."))
 ;; overridable player interface
 (defgeneric update-xp-table! (variant player)
   (:documentation "Updates the xp-table on the player, and returns updated player."))
+(defgeneric update-max-hp! (variant player)
+  (:documentation "Updates the max-hp to fit with the hp-table."))
 
 
 (defgeneric generate-random-name (variant creature race)
@@ -356,6 +379,9 @@ but one that works with langband-objects."))
 (defgeneric interactive-creation-of-player (variant)
   (:documentation "Interactive creation of a player object.  Should return a
 player object or NIL."))
+
+(defgeneric drop-near-location! (variant dungeon object x y)
+  (:documentation "Tries to drop an object at given locaton."))
 
 ;;; === End misc
 

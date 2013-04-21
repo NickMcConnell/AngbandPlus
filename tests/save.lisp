@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND-TEST -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.testing -*-
 
 #|
 
@@ -6,7 +6,7 @@ DESC: tests/save.lisp - testing code for save/load of game
 
 |#
 
-(in-package :lb-test)
+(in-package :org.langband.testing)
 
 (def-lb-fixture save-fixture (in-game)
   ()
@@ -14,52 +14,80 @@ DESC: tests/save.lisp - testing code for save/load of game
 
 
 (defmethod perform-test ((fix save-fixture))
+  (%save/load-test lb::*variant* lb::*player* lb::*level*))
 
-;;  (%loc-save-test lb::*dungeon* :dungeon)
-  (let ((var-obj lb::*variant*))
-    (%loc-save-test var-obj :variant :load-variant nil :save-variant var-obj)
-    (%loc-save-test lb::*level* :level :load-variant var-obj :save-variant var-obj)
-    (%loc-save-test lb::*player* :player :load-variant var-obj :save-variant var-obj)
-    ))
+(defun %save/load-test (var-obj pl lvl)
 
-(defun %loc-save-test (obj type &key load-variant save-variant)
-  "Type should be a string."
+  (test-assert (lb::ok-object? var-obj :context :in-game :warn-on-failure t))
+  ;;    (format t "OK~%")
+  (test-assert (lb::ok-object? pl      :context :in-game :warn-on-failure t))
+  (test-assert (lb::ok-object? lvl     :context :in-game :warn-on-failure t))
 
-  (test-assert (lb::ok-object? obj))
-  
   (flet ((scat (a b)
-	   (concatenate 'string (string a) (string b))))
-    (let ((r-save (scat "dumps/rsave." type))
-	  (b-save (scat "dumps/bsave." type))
-	  (*variant* nil)
-	  )
-      
-      (lb::do-save save-variant r-save obj :readable)
-      (lb::do-save save-variant b-save obj :binary)
-    
-      (let* ((readable (lb::do-load load-variant r-save type :readable))
-	     (binary   (lb::do-load load-variant b-save type :binary))
-	     (original obj))
+	   (concatenate 'string (string a) (string b)))
+	 (do-a-load (fname type)
+	   (let* ((lb::*variant* nil)
+		  (lb::*player* nil)
+		  (lb::*level* nil))
+	     (lb::load-a-saved-game nil fname type))))
+      	   
+    (let* ((type "full")
+	   (lb::*variant* nil)
+	   (lb::*player* nil)
+	   (lb::*level* nil)
+	    
+	   (r-save (scat "dumps/rsave." type))
+	   (b-save (scat "dumps/bsave." type))
+	   )
 
-	(when (listp readable)
-	  (setf readable (car readable)))
-	(when (listp binary)
-	  (setf binary (car binary)))
-		
-	(test-assert (lb::ok-object? readable))
-	(test-assert (lb::ok-object? binary))
+      (lb::save-the-game var-obj pl lvl :fname r-save :format :readable)
+      (lb::save-the-game var-obj pl lvl :fname b-save :format :binary)
+
+      ;;	(trace do-a-load)
 	
+      (let ((readable (do-a-load r-save :readable))
+	    (binary   (do-a-load b-save :binary))
+	    (originals (list var-obj pl lvl))
+	    )
+
+	;;	  (format t "Readable is ~s~%" readable)
+	;;	  (format t "Binary is ~s~%" binary)
+	(assert (and (consp readable) (= (length readable) 3)))
+	(assert (and (consp binary) (= (length readable) 3)))
+	  
+					#||
+	(when (listp readable)
+	(setf readable (car readable)))
+	(when (listp binary)
+	(setf binary (car binary)))
+	||#
+	;; a quick test
+	(dolist (i readable)
+	  (test-assert (lb::ok-object? i :context :in-game :warn-on-failure t)))
+	(dolist (i binary)
+	  (test-assert (lb::ok-object? i :context :in-game :warn-on-failure t)))
+
+	(loop for read in readable
+	      for bin in binary
+	      do (test-assert (lb::lang-equal read bin)))
+	(loop for read in readable
+	      for orig in originals
+	      do (test-assert (lb::lang-equal read orig)))
+	(loop for bin in binary
+	      for orig in originals
+	      do (test-assert (lb::lang-equal bin orig)))
+
+	  
+					#||	
 	(lb::%save-obj readable (scat "dumps/rafter." type))
 	(lb::%save-obj binary   (scat "dumps/bafter." type))
 	(lb::%save-obj original (scat "dumps/oafter." type))
 
-	;; the following two are not interesting anymore as we have lang-equal
-;;	(test-assert (not (equal readable binary)))
-;;	(test-assert (not (equalp readable binary)))
+;; the following two are not interesting anymore as we have lang-equal
+	;;	(test-assert (not (equal readable binary)))
+	;;	(test-assert (not (equalp readable binary)))
 	(test-assert (lb::lang-equal readable binary))
 	(test-assert (lb::lang-equal original readable))
 	(test-assert (lb::lang-equal original binary)))
-      
-    )))
-
-
+      ||#
+      ))))

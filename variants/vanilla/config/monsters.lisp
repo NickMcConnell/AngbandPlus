@@ -1,5 +1,18 @@
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
-(in-package :langband)
+#|
+
+DESC: variants/vanilla/config/monsters.lisp - monsters for vanilla variant
+Copyright (c) 2000-2002 - Stig Erik Sandø
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+|#
+
+(in-package :org.langband.vanilla)
 
 ;;; === depth 1
 (define-monster-kind "fruit-bat" "fruit bat"
@@ -7656,7 +7669,7 @@
   :special-abilities '((<summon> <spider>) (<spell> <heal>) (<frequency> 1/3))) 
 
 
-(define-monster-kind "monster-484" "nightwing"
+(define-monster-kind "nightwing" "nightwing"
   :desc "Everywhere colours seem paler and the air chiller.  At the centre of the  cold stands a mighty figure.  Its wings envelop you in the chill of death  as the nightwing reaches out to draw you into oblivion.  Your muscles sag  and your mind loses all will to fight as you stand in awe of this mighty  being."
   :symbol #\W
   :colour #\D
@@ -8164,7 +8177,7 @@
                        (<spell> <blindness>) (<frequency> 1/3))) 
 
 
-(define-monster-kind "monster-524" "black reaver"
+(define-monster-kind "black-reaver" "black reaver"
   :desc "A humanoid form,  black as night, advancing steadily and unstoppably.   Flee!"
   :symbol #\L
   :colour #\D
@@ -8246,7 +8259,7 @@
 
 
 
-(define-monster-kind "monster-531" "aether hound"
+(define-monster-kind "aether-hound" "aether hound"
   :desc "A shifting, swirling form.  It seems to be all colours and sizes and  shapes, though the dominant form is that of a huge dog.  You feel very  uncertain all of a sudden."
   :symbol #\Z
   :colour #\v

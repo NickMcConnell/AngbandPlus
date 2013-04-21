@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -6,7 +6,7 @@ DESC: config/win-keys.lisp - key-definitions for windows keys
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 #||
 

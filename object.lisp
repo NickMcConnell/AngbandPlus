@@ -92,7 +92,7 @@ is all about?")
 		 :documentation "The player has 'tried' one of the items")
    
      (flavour    :accessor object.flavour
-		 :initform nil)
+		 :initform nil) ;; flavour is either nil or a cons (desc . colour)
 
      (sort-value :accessor object.sort-value
 		 :initarg :sort-value
@@ -205,7 +205,7 @@ is all about?")
 (defmethod get-attribute ((kind object-kind))
   (let ((flavour (object.flavour kind)))
     (if flavour
-	(cadr flavour)
+	(cdr flavour)
 	(object.x-attr kind))))
 
 (defmethod get-okind-table ((var-obj variant) (level level))
@@ -248,6 +248,9 @@ is all about?")
 
 (defmethod object.x-char ((obj active-object))
   (object.x-char (aobj.kind obj)))
+
+(defmethod object.weight ((obj active-object))
+  (* (aobj.number obj) (object.weight (aobj.kind obj))))
 
 (defun obj-is? (obj type-to-check)
   "Checks if given object satisfies given type"
@@ -550,7 +553,17 @@ the *VARIANT* object so it has to be properly initialised."
       (setf (object.multiplier new-obj) multiplier))
 
     
-    ;; apply object-filters on the new object.
+    ;; hackish addition to big object-table
+    (let ((main-obj-table (variant.objects var-obj))
+	  (obj-id (object.id new-obj)))
+      (multiple-value-bind (val found-p)
+	  (gethash obj-id main-obj-table)
+	(declare (ignore val))
+	(when found-p
+	  (warn "Replacing object with id ~s" obj-id))
+	(setf (gethash obj-id main-obj-table) new-obj)))
+    
+    ;; apply object-filters on the new object.    
     (apply-filters-on-obj :objects var-obj new-obj)
     
     new-obj))

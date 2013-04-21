@@ -184,6 +184,13 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   (room-map nil)
   (crowded nil))
 
+(defclass treasure-drop ()
+  ((chance  :initarg :chance  :initform 1       :accessor drop.chance)
+   (amount  :initarg :amount  :initform 1       :accessor drop.amount) ;; either positive integer or (cons int int)
+   (quality :initarg :quality :initform :normal :accessor drop.quality)
+   (type    :initarg :type    :initform :any    :accessor drop.type)
+   ))
+
 (bt:define-binary-struct (hs-entry (:conc-name hs-entry.)) ()
     
     (version nil) ;; string

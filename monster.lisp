@@ -17,31 +17,32 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 ||#
 
 (in-package :org.langband.engine)
-  
+
+;; check the initform values here more thoroughly
 (defclass monster-kind ()
-  ((id        :initarg :id   :accessor monster.id        :initform nil)
-   (name      :initarg :name :accessor monster.name      :initform nil)
-   (desc      :accessor monster.desc      :initform nil)
-   (symbol    :accessor monster.symbol    :initform nil)
-   (colour    :accessor monster.colour    :initform nil)
-   (alignment :accessor monster.alignment :initform nil)
-   (type      :accessor monster.type      :initform nil)
-   (depth     :accessor monster.depth     :initform nil)
-   (rarity    :accessor monster.rarity    :initform nil)
-   (hitpoints :accessor monster.hitpoints :initform nil)
-   (armour    :accessor monster.armour    :initform nil)
-   (speed     :accessor monster.speed     :initform 0)
-   (xp        :accessor monster.xp        :initform 0)
-   (sex       :accessor monster.sex       :initform nil)
+  ((id        :initarg :id   :accessor monster.id        :initform "")
+   (name      :initarg :name :accessor monster.name      :initform "")
+   (desc      :accessor monster.desc      :initform "") ;; string 
+   (symbol    :accessor monster.symbol    :initform nil) ;; character
+   (colour    :accessor monster.colour    :initform nil) ;; varies with implementation
+   (alignment :accessor monster.alignment :initform nil) ;; symbols/list
+   (type      :accessor monster.type      :initform nil) ;; symbols/list
+   (depth     :accessor monster.depth     :initform 0) ;; positive int
+   (rarity    :accessor monster.rarity    :initform 0) ;; positive int
+   (hitpoints :accessor monster.hitpoints :initform nil) ;; cons or a number I guess
+   (armour    :accessor monster.armour    :initform nil) ;; integer
+   (speed     :accessor monster.speed     :initform 0) ;; positive integer
+   (xp        :accessor monster.xp        :initform 0) ;; poistive integer
+   (sex       :accessor monster.sex       :initform nil) ;; symbol? 
 
    (abilities  :accessor monster.abilities  :initform nil)
    ;;   (resists :accessor monster.resists :initform nil)
    (immunities :accessor monster.immunities :initform nil)
 
-   (alertness  :accessor monster.alertness  :initform nil)
-   (vision     :accessor monster.vision     :initform nil)
-   (attacks    :accessor monster.attacks    :initform nil)
-   (treasures  :accessor monster.treasures  :initform nil)
+   (alertness  :accessor monster.alertness  :initform 0) ;; how sleepy
+   (vision     :accessor monster.vision     :initform 0) ;; how far can it see?
+   (attacks    :accessor monster.attacks    :initform '()) ;; a list
+   (treasures  :accessor monster.treasures  :initform '()) ;; a list
    
    (vulnerabilities   :accessor monster.vulnerabilities :initform nil)
    (special-abilities :accessor monster.sp-abilities    :initform nil)
@@ -179,14 +180,58 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
 (defun get-all-monsters (&key (var-obj *variant*))
   "Returns a fresh list."
-  (let* ((mon-info (variant.monsters var-obj))
-	 (mon-tables (loop for x being each hash-value of mon-info
-			   collecting (gobj-table.obj-table x)))
-	 (total-list '()))
-    (dolist (i mon-tables)
-      (loop for v being each hash-value of i
-	    do (push v total-list)))
+  (let ((total-list '()))
+    (loop for v being the hash-values of (variant.monsters var-obj)
+	  do (push v total-list))
     (stable-sort total-list #'string< :key #'monster.id)))
+   
+
+(defun %parse-treasure-spec (spec)
+  "Parses the spec and returns data in a good format."
+
+  (assert (consp spec))
+
+  (let ((drops '())
+	(quality :normal)
+	(type :any))
+    
+    (dolist (i spec)
+      (assert (or (consp i) (symbolp i)))
+      
+      (cond ((eq i '<drop-good>)
+	     (setf quality :good))
+	    ((eq i '<drop-great>)
+	     (setf quality :great))
+	    ((eq i '<drop-planned>)
+	     ;; fix this later
+	     )
+	    ((eq i '<only-drop-items>)
+	     (setf type :item))
+	    ((eq i '<only-drop-gold>)
+	     (setf type :gold))
+	    ((consp i)
+	     (ecase (car i)
+	       (<drop>
+		(check-type (cadr i) string)
+		(push (make-instance 'treasure-drop :amount (parse-dice (cadr i)))
+		      drops))
+	       (<drop-chance>
+		(check-type (cadr i) number)
+		(push (make-instance 'treasure-drop :chance (cadr i))
+		      drops))))
+	     
+	    (t
+	     (error "Unknown treasure-argument ~s" i)))
+	    
+
+      )
+
+      (dolist (i drops)
+	(setf (drop.quality i) quality)
+	(setf (drop.type i) type))
+      
+      drops))
+
 
 (defun define-monster-kind (id name &key desc symbol colour
 			    alignment type depth ;;level
@@ -195,7 +240,8 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 			    immunities alertness
 			    vulnerabilities
 			    vision attacks special-abilities
-			    treasures sex appear-in-group?)
+			    (treasures :unspec)
+			    sex appear-in-group?)
   "Defines a critter you might bump into when you least expect it. It uses
 the *VARIANT* object so it has to be properly initialised."
   
@@ -279,11 +325,31 @@ the *VARIANT* object so it has to be properly initialised."
 	    (t
 	     (lang-warn "Unknown form of attacks-argument ~s for monster ~s" attacks name))))
 
-    (when treasures
-      (setf (monster.treasures m-obj) treasures))
+    (cond ((eq treasures :unspec))
+	  ((consp treasures)
+	   (setf (monster.treasures m-obj) (%parse-treasure-spec treasures)))
+	  (t
+	   (error "Illegal format for monster-treasures ~s" treasures)))
+
+    ;; tough demand
+    (when-bind (treasures (monster.treasures m-obj))
+      (assert (every #'(lambda (x) (typep x 'treasure-drop)) treasures)))
+    
+;;    (when treasures
+;;      (setf (monster.treasures m-obj) treasures))
     (when special-abilities
       (setf (monster.sp-abilities m-obj) special-abilities))
     
+
+    ;; hackish addition to big object-table
+    (let ((main-obj-table (variant.monsters var-obj))
+	  (obj-id (monster.id m-obj)))
+      (multiple-value-bind (val found-p)
+	  (gethash obj-id main-obj-table)
+	(declare (ignore val))
+	(when found-p
+	  (warn "Replacing monster with id ~s" obj-id))
+	(setf (gethash obj-id main-obj-table) m-obj)))
 
     ;; applies the filters registered for newly read monsters
     (apply-filters-on-obj :monsters var-obj m-obj)
@@ -358,5 +424,12 @@ the *VARIANT* object so it has to be properly initialised."
    (inst stream :identity t)
    (format stream "~:(~a~) [~S, (~s,~s)]" (class-name (class-of inst)) 
 	   (amon.kind inst) (location-x inst) (location-y inst))
+  inst))
+
+(defmethod print-object ((inst treasure-drop) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~a~) [~a ~a ~a ~a]" (class-name (class-of inst)) 
+	   (drop.chance inst) (drop.quality inst) (drop.amount inst) (drop.type inst))
   inst))
 

@@ -1,9 +1,9 @@
-;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
 #|
 
 DESC: variants/vanilla/keys.lisp - assignment of keys
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.vanilla)
 
 
 (setf *current-key-table* *ang-keys*)
@@ -70,8 +70,8 @@ the Free Software Foundation; either version 2 of the License, or
 	      (loop
 	       (c-clear-from! 0)
 	       (display-creature *variant* pl)
-	       (c-prt! "['C' to show combat-info, ESC to continue]"
-		       *last-console-line* 12)
+	       (c-prt! "['C' to show combat-info, 'R' to show resists,  ESC to continue]"
+		       *last-console-line* 5)
 
 	       (let* ((ch (read-one-character))
 		      (fun (check-keypress loc-table ch)))
@@ -110,8 +110,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'get-item
     #'(lambda (dun pl)
-	(with-new-screen ()
-	  (pick-up-from-floor! dun pl))))
+;;	(with-new-screen ()
+	  (pick-up-from-floor! dun pl)))
+  
 
 (define-key-operation 'drop-item
     #'(lambda (dun pl)
@@ -219,6 +220,17 @@ the Free Software Foundation; either version 2 of the License, or
 	  (print-attack-graph *variant* pl)
 	))
 
+(define-key-operation 'print-resists
+    #'(lambda (dun pl)
+	(declare (ignore dun))
+	(print-resists *variant* pl)
+	))
+
+(define-key-operation 'print-misc
+    #'(lambda (dun pl)
+	(declare (ignore dun))
+	(print-misc-info *variant* pl)
+	))
 
 
 (define-keypress *ang-keys* :global #\d 'drop-item)
@@ -262,6 +274,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;; then those keys used for display
 (define-keypress *ang-keys* :display #\C 'print-attack-table)
+(define-keypress *ang-keys* :display #\M 'print-misc)
+(define-keypress *ang-keys* :display #\R 'print-resists)
 
 
 

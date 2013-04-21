@@ -44,21 +44,20 @@ the Free Software Foundation; either version 2 of the License, or
     t))
 
 
-(defmethod register-level! ((var-obj variant) (id  string) &key object-filter monster-filter &allow-other-keys)
+(defmethod register-level! ((var-obj variant) (id string) &key object-filter monster-filter &allow-other-keys)
 ;;  (assert (not (eq nil var-obj)))
 ;;  (assert (symbolp id))
-  (assert (hash-table-p (variant.monsters var-obj)))
-  (assert (hash-table-p (variant.objects var-obj)))
-  (assert (hash-table-p (variant.filters var-obj)))
+;;  #+langband-extra-checks
+;;  (assert (ok-object? var-obj))
 
   (let ((mon-table (make-game-obj-table))
 	(obj-table (make-game-obj-table)))
     
-    (setf (gobj-table.obj-table mon-table) (make-hash-table :test #'equal))
-    (setf (gobj-table.obj-table obj-table) (make-hash-table :test #'equal))
+    (setf (gobj-table.obj-table mon-table) (make-hash-table :test #'equal)
+	  (gobj-table.obj-table obj-table) (make-hash-table :test #'equal))
 
-    (setf (gethash id (variant.monsters var-obj)) mon-table)
-    (setf (gethash id (variant.objects var-obj))  obj-table)
+    (setf (gethash id (variant.monsters-by-level var-obj)) mon-table
+	  (gethash id (variant.objects-by-level var-obj))  obj-table)
 
     ;; fix
     (when object-filter

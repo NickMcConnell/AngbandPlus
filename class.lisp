@@ -27,7 +27,8 @@ ADD_DESC: This file contains basics for dealing with character classes
      (hit-dice     :accessor class.hit-dice     :initform 0)
      (xp-extra     :accessor class.xp-extra     :initform 0)
      (stat-changes :accessor class.stat-changes :initform nil)
-     (abilities    :accessor class.abilities    :initform nil)
+     (resists      :accessor class.resists      :initform 0)
+     (abilities    :accessor class.abilities    :initform '())
      (titles       :accessor class.titles       :initform nil)
      (starting-eq  :accessor class.start-eq     :initform nil)
      (skills       :accessor class.skills       :initform nil))
@@ -41,11 +42,11 @@ ADD_DESC: This file contains basics for dealing with character classes
 	(table (variant.classes *variant*)))
     (setf (gethash key table) class)))
 
-(defun get-char-class (id)
+(defun get-char-class (id &key (variant *variant*))
   "Gets the class id'ed by id."
   (assert (or (stringp id) (symbolp id)))
   (let ((key (if (symbolp id) (symbol-name id) id))
-	(table (variant.classes *variant*)))
+	(table (variant.classes variant)))
     (gethash key table)))
 
 (defun register-class& (class)
@@ -67,15 +68,23 @@ ADD_DESC: This file contains basics for dealing with character classes
     (loop for i in the-list
 	  collecting (gethash i table))))
 
-(defun define-class (id name &key symbol desc xp-extra stat-changes abilities titles
+(defun define-class (id name &key symbol desc xp-extra stat-changes (resists :unspec)
+		     (abilities :unspec) titles
 		     starting-equipment hit-dice skills)
   "Defines and establishes a class."
 
-  (declare (ignore abilities))
-  
+	    
   (let ((my-class (make-instance 'character-class)))
 ;;    (warn "Creating class ~a [~a]" name desc)
 
+    
+  (when (or (not (eq resists :unspec))
+	    (not (eq abilities :unspec)))
+    #+langband-extra-checks
+    (warn "Unhandled resists/abilities ~s/~s for class ~a"
+	  resists abilities name))
+
+    
     (unless (stringp id)
       (warn "Id ~s for class ~s must be a string, use symbol for class-symbol."))
     ;;      (warn "Creating race ~a [~a]" name desc)

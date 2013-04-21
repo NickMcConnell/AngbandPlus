@@ -1,5 +1,18 @@
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
-(in-package :langband)
+#|
+
+DESC: variants/vanilla/config/objects.lisp - objects for vanilla variant
+Copyright (c) 2000-2002 - Stig Erik Sandø
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+|#
+
+(in-package :org.langband.vanilla)
 
 (define-object-kind "pile" "<pile>"
   :numeric-id 0
@@ -84,7 +97,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "object-6" "cure blindness"
+(define-object-kind "muchroom-cure-blindness" "cure blindness"
   :numeric-id 6
   :x-attr #\d
   :x-char #\,
@@ -99,7 +112,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "object-7" "cure paranoia"
+(define-object-kind "mushroom-cure-paranoia" "cure paranoia"
   :numeric-id 7
   :x-attr #\d
   :x-char #\,
@@ -129,7 +142,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "mushroom-reduce-str" "weakness"
+(define-object-kind "mushroom-weakness" "weakness"
   :numeric-id 9
   :x-attr #\d
   :x-char #\,
@@ -144,7 +157,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "object-10" "unhealth"
+(define-object-kind "mushroom-unhealth" "unhealth"
   :numeric-id 10
   :x-attr #\d
   :x-char #\,
@@ -159,7 +172,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :base-dice 10 :num-dice 10 :food-value 500)) 
 
-(define-object-kind "object-11" "restore constitution"
+(define-object-kind "mushroom-restore-con" "restore constitution"
   :numeric-id 11
   :x-attr #\d
   :x-char #\,
@@ -174,7 +187,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "object-12" "restoring"
+(define-object-kind "mushroom-restoring" "restoring"
   :numeric-id 12
   :x-attr #\d
   :x-char #\,
@@ -189,7 +202,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "object-13" "stupidity"
+(define-object-kind "mushroom-stupidity" "stupidity"
   :numeric-id 13
   :x-attr #\d
   :x-char #\,
@@ -204,7 +217,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "object-14" "naivety"
+(define-object-kind "mushroom-naivety" "naivety"
   :numeric-id 14
   :x-attr #\d
   :x-char #\,
@@ -219,7 +232,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "object-15" "poison"
+(define-object-kind "mushroom-poison" "poison"
   :numeric-id 15
   :x-attr #\d
   :x-char #\,
@@ -234,7 +247,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "object-16" "sickness"
+(define-object-kind "mushroom-sickness" "sickness"
   :numeric-id 16
   :x-attr #\d
   :x-char #\,
@@ -249,7 +262,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "object-17" "paralysis"
+(define-object-kind "mushroom-paralysis" "paralysis"
   :numeric-id 17
   :x-attr #\d
   :x-char #\,
@@ -264,7 +277,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "object-18" "restore strength"
+(define-object-kind "mushroom-restore-str" "restore strength"
   :numeric-id 18
   :x-attr #\d
   :x-char #\,
@@ -279,7 +292,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "object-19" "disease"
+(define-object-kind "mushroom-disease" "disease"
   :numeric-id 19
   :x-attr #\d
   :x-char #\,
@@ -294,7 +307,7 @@
   :the-kind '<mushroom>
   :game-values (make-game-values :base-dice 10 :num-dice 10 :food-value 500)) 
 
-(define-object-kind "object-20" "cure serious wounds"
+(define-object-kind "mushroom-cure-serious" "cure serious wounds"
   :numeric-id 20
   :x-attr #\d
   :x-char #\,
@@ -369,7 +382,7 @@
   :the-kind '<food>
   :game-values (make-game-values :food-value 3000)) 
 
-(define-object-kind "object-25" "& piece~ of elvish waybread"
+(define-object-kind "elvish-bread" "& piece~ of elvish waybread"
   :numeric-id 25
   :x-attr #\B
   :x-char #\,
@@ -606,7 +619,7 @@
   :the-kind '<ring>
   :game-values (make-game-values :skill-modifiers '(<search>))) 
 
-(define-object-kind "object-138" "teleportation"
+(define-object-kind "ring-teleport" "teleportation"
   :numeric-id 138
   :x-attr #\d
   :x-char #\=
@@ -1464,7 +1477,7 @@
 
 ;;; artifact items
 
-(define-object-kind "object-500" "& phial~"
+(define-object-kind "the-phial" "& phial~"
   :numeric-id 500
   :x-attr #\y
   :x-char #\~
@@ -1480,7 +1493,7 @@
   :the-kind '<light-source>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :light-radius 3)) 
 
-(define-object-kind "object-501" "& star~"
+(define-object-kind "the-star" "& star~"
   :numeric-id 501
   :x-attr #\y
   :x-char #\~
@@ -1496,7 +1509,7 @@
   :the-kind '<light-source>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :light-radius 3)) 
 
-(define-object-kind "object-502" "& arkenstone~"
+(define-object-kind "the-arkenstone" "& arkenstone~"
   :numeric-id 502
   :x-attr #\y
   :x-char #\~
@@ -1512,7 +1525,7 @@
   :the-kind '<light-source>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :light-radius 3)) 
 
-(define-object-kind "object-503" "& amulet~"
+(define-object-kind "amulet-carlammas" "& amulet~"
   :numeric-id 503
   :x-attr #\d
   :x-char #\"
@@ -1528,7 +1541,7 @@
   :the-kind '<amulet>
   :game-values (make-game-values)) 
 
-(define-object-kind "object-504" "& amulet~"
+(define-object-kind "amulet-ingwe" "& amulet~"
   :numeric-id 504
   :x-attr #\d
   :x-char #\"
@@ -1544,7 +1557,7 @@
   :the-kind '<amulet>
   :game-values (make-game-values)) 
 
-(define-object-kind "object-505" "& necklace~"
+(define-object-kind "dwarven-necklace" "& necklace~"
   :numeric-id 505
   :x-attr #\d
   :x-char #\"
@@ -1640,7 +1653,7 @@
   :the-kind '<ring>
   :game-values (make-game-values)) 
 
-(define-object-kind "object-511" "& ring~"
+(define-object-kind "one-ring" "& ring~"
   :numeric-id 511
   :x-attr #\y
   :x-char #\=

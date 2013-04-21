@@ -544,6 +544,8 @@ Returns the new PLAYER object or NIL on failure."
 	       (t
 		nil)))))
 
+    ;; we have a new character ready for prime-time, let's flavour the objects
+    (distribute-flavours! variant)
   
     ;; time to give him some equipment
     (equip-character! variant the-player birth-settings)

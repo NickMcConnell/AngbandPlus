@@ -1,9 +1,9 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
 #|
 
 DESC: variants/vanilla/quirks.lisp - special settings for Vanilla
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.vanilla)
 
 (defmethod activate-object :before ((var-obj vanilla-variant) &key)
   "Initialises variant-variables that should be there before
@@ -99,6 +99,9 @@ the rest of the game is init'ed."
     (load-variant-data& var-obj "flavours")
     (load-variant-data& var-obj "stores"))
 
+  ;; we ensure that any elements in variant are sorted
+  (setf (variant.elements var-obj)
+	(sort (variant.elements var-obj) #'< :key #'element.index))
   
   (van-init-equipment-values var-obj)
 
@@ -266,7 +269,7 @@ the rest of the game is init'ed."
      (error "No file specified for monster-init.")))
     
   ;; initialise all tables
-  (let ((object-tables (variant.monsters var-obj)))
+  (let ((object-tables (variant.monsters-by-level var-obj)))
     (maphash #'(lambda (key obj)
 		 (update-gobj-table! var-obj key obj
 			#'create-alloc-table-monsters))
@@ -274,7 +277,6 @@ the rest of the game is init'ed."
   
   )
 
-  
 
   
 (defmethod initialise-floors& ((var-obj vanilla-variant) &key old-file (file "floors"))
@@ -311,10 +313,11 @@ the rest of the game is init'ed."
 
 
   ;; initialise all tables
-  (let ((object-tables (variant.objects var-obj)))
 ;;    (warn "Mapping ~a" object-tables)
-    ;; let us find some behaviour
-    (van-combine-effects-with-objects! object-tables)
+  ;; let us find some behaviour
+  (van-combine-effects-with-objects! (variant.objects var-obj))
+
+  (let ((object-tables (variant.objects-by-level var-obj)))
     
     (maphash #'(lambda (key obj)
 		 (update-gobj-table! var-obj key obj
@@ -349,6 +352,8 @@ the rest of the game is init'ed."
 ;;  (warn "flav")
   ;; after all objects are in
   (init-flavours& (variant.flavour-types var-obj))
+
+;;  (van-allocate-flavours! (variant.objects var-obj))
 
   ;;  (initialise-objects&  var-obj :old-file "k_info.txt")
   ;;  (initialise-monsters& var-obj :old-file "r_info.txt")

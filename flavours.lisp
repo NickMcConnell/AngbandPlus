@@ -25,25 +25,33 @@ ADD_DESC: flavouring of variants
 (defstruct (flavour-type (:conc-name flavour-type.))
   (symbol nil)
   (table (make-hash-table)) ;; this will be changed to a vector later
-  (generator-fn nil))
+  (generator-fn nil) ;; generator-function should return a cons
+  )
 
 
 (defun define-flavour-type (symbol &optional generator-fn)
   "Defines a flavour-type"
-  (let ((var-obj *variant*)
-	(ft-obj (make-flavour-type :symbol symbol
-				   :generator-fn generator-fn)))
-    (setf (variant.flavour-types var-obj) (remove symbol (variant.flavour-types var-obj) :test #'equal :key #'flavour-type.symbol))
-    (push ft-obj (variant.flavour-types var-obj))
+  (let* ((var-obj *variant*)
+	 (ft-obj (make-flavour-type :symbol symbol
+				    :generator-fn generator-fn))
+	 (table (variant.flavour-types var-obj)))
+    (setf (gethash symbol table) ft-obj)
     ft-obj))
 
+(defun legal-flavour-obj? (flav)
+  (and (consp flav)
+       (stringp (car flav))
+       (atom (car flav)) ;; integer 0..16 ?
+       ))
   
 (defun establish-flavour& (table name colour)
-  (setf (gethash name table) (list name colour)))
+  (setf (gethash name table) (cons name colour)))
 
 (defun find-flavour-type (variant-obj type)
   "Tries to find given flavour-type in given variant-obj."
-  (find type (variant.flavour-types variant-obj) :key #'flavour-type.symbol))
+  (gethash type (variant.flavour-types variant-obj)))
+
+;;(trace find-flavour-type)
 
 (defun define-basic-flavour (type name colour)
   "Defines a basic flavour.."
@@ -57,11 +65,11 @@ ADD_DESC: flavouring of variants
 	
 
 
-(defun use-flavour-table (flavour-to-use used-by)
+(defun use-flavour-table (flavour-to-use used-by &key (variant *variant*))
   "a handy way to re-use a flavour-table for another kind
 of objects.  all entries are copied, not shared."
   
-  (let* ((var-obj *variant*)
+  (let* ((var-obj variant)
 	 (used-by-type (find-flavour-type var-obj used-by))
 	 (type-to-use (find-flavour-type var-obj flavour-to-use))
 	 (old-table (flavour-type.table type-to-use))
@@ -76,39 +84,32 @@ of objects.  all entries are copied, not shared."
     
     used-by-type))
 
+(defmethod flavour-object! ((variant variant) (obj object-kind))
+  ;; do nothing
+  (warn "Not added flavouring to ~a" obj)
+  nil)
 
-;; move me later
-(defmethod activate-object ((obj active-object) &key)
-  "Ensures that the kind in question is flavoured."
-  
-  (block flavouring
-    (let ((the-kind (aobj.kind obj)))
-      ;; hack
-      (when (and the-kind (eq (object.flavour the-kind) nil))
-	(let ((flavour-type-list (variant.flavour-types *variant*)))
-	  (dolist (i flavour-type-list) 
-	    ;;(warn "Checking ~s vs ~s" (object.obj-type the-kind) (flavour-type.symbol i)) 
-	    (when (obj-is? the-kind (flavour-type.symbol i))
-	      (flavour-obj-kind! the-kind i)
-	      (return-from flavouring obj))))))
+(defun %flavour-obj-kind! (obj)
+  "Flavours the given object OBJ."
+  (let* ((kind obj) ;; hack
+	 (var-obj *variant*)
+	 (f-type (gethash (object.the-kind obj) (variant.flavour-types var-obj))))
+    (when f-type
+      (let ((gen-fn (flavour-type.generator-fn f-type))
+	    (table (flavour-type.table f-type)))
+	(cond (gen-fn
+	       (setf (object.flavour kind) (funcall gen-fn kind)))
+	      ((and table (typep table 'array))
+	       (let ((next-flavour (aref table (fill-pointer table))))
+		 (setf (object.flavour kind) next-flavour)
+		 (incf (fill-pointer table))))
+	      (t
+	       (describe f-type)
+	       (error "Unable to flavour object kind ~a with ~s" kind (flavour-type.symbol f-type))
+	       ))
     
+	(assert (legal-flavour-obj? (object.flavour kind)))))
     obj))
-	
 
-(defun flavour-obj-kind! (kind f-type)
-  "Tries to flavour a given object-kind with a given flavour-type object."
-  
-  (let ((gen-fn (flavour-type.generator-fn f-type))
-	(table (flavour-type.table f-type)))
-    (cond (gen-fn
-	   (setf (object.flavour kind) (funcall gen-fn kind)))
-	  ((and table (typep table 'array))
-	   (setf (object.flavour kind) (aref table (fill-pointer table)))
-	   (incf (fill-pointer table)))
-	  (t
-	   (warn "Unable to flavour object kind ~a with ~s" kind f-type)
-	   (describe f-type)
-	   ))
-    kind))
 
-;;(trace flavour-obj-kind!)
+

@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
 #|
 
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.vanilla)
 
 (define-normal-event ()
     :backpack-creation
@@ -65,6 +65,13 @@ the Free Software Foundation; either version 2 of the License, or
 (define-effect '<hasted>          "hasted"              #x00000800)
 (define-effect '<invulnerable>    "invulnerable"        #x00001000)
 (define-effect '<invisible>       "invisible"           #x00002000)
+;; infravision??
+;; recalling?
+;; feather fall??
+;; glowing??
+;; free action??
+;; earthquake?
+;; blessed-blade??
 
 ;; ill effects on player/monsters
 (define-effect '<slowed>          "slowed"          #x00004000)

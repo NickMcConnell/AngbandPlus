@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND-TEST -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.testing -*-
 
 #|
 
@@ -6,7 +6,7 @@ DESC: tests/building.lisp - testing code for buildings
 
 |#
 
-(in-package :lb-test)
+(in-package :org.langband.testing)
 
 (def-lb-fixture house-fixture (pre-variant)
   ()

@@ -17,7 +17,7 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
   old-name
   new-name)
 
-(defconstant +result-package+ :langband-ffi)
+(defconstant +result-package+ :org.langband.ffi)
 (defconstant +export-functions+ t)
 (defconstant +export-types+ t)
 

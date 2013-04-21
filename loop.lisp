@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -542,6 +542,16 @@ ADD_DESC: Most of the code which deals with the game loops.
 ;;       (warn "loop")
 
 
+       #+langband-extra-checks
+       (progn
+	 (assert (eq pl *player*))
+	 (assert (eq dun *dungeon*))
+	 (assert (eq var-obj *variant*))
+	 (assert (ok-object? pl :context :in-game :warn-on-failure t))
+	 (assert (ok-object? dun :context :in-game :warn-on-failure t))
+	 (assert (ok-object? var-obj :context :in-game :warn-on-failure t))
+	 )
+       
        (energise-creatures! dun pl)
 
        (when (/= 0 *update*) (update-stuff dun pl))
@@ -582,6 +592,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     
     (loop
      ;; clean up to prevent too many delays while running the dungeon
+     ;; it may take quite some time
      (garbage-collect :global t)
      
      ;; let's run this dungeon
@@ -604,7 +615,9 @@ ADD_DESC: Most of the code which deals with the game loops.
        
        (activate-object *level* :player *player*
 			:leave-method how-level-was-left)
-       
+
+       ;; do it again?
+       (garbage-collect :global t)
        ;; safety? we will reload in less than a second :-)
        (save-current-environment&)))
     ))
@@ -622,10 +635,11 @@ ADD_DESC: Most of the code which deals with the game loops.
 	  (get '*variant* 'last-value)
 	  (get '*level* 'last-value)))
 
-(defun load-saved-game (fname format)
+(defun %load-saved-game (fname format)
   "Returns three values."
-  
-  (let ((loaded (do-load nil fname (list :variant :player :level) format))
+
+  ;; use default loader
+  (let ((loaded (load-a-saved-game nil fname format))
 	(the-player nil)
 	(the-level nil)
 	(the-var nil))
@@ -642,7 +656,6 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     (values the-level the-player the-var)))
 
-;;(trace load-saved-game)
 
 (defun play-game& ()
   "Should not be called directly."
@@ -666,28 +679,31 @@ ADD_DESC: Most of the code which deals with the game loops.
        (let ((the-player nil)
 	     (the-level nil)
 	     (the-variant nil)
-	     (the-save-file (concatenate 'string (home-langband-path) +binary-save-file+))
-	     (format :binary)
-	     ;;(the-save-file +readable-save-file+)
-	     ;;(format :readable)
+	     (save-combos (list
+			   (cons (concatenate 'string (home-langband-path) +binary-save-file+)  :binary)
+			   (cons (concatenate 'string (home-langband-path) +readable-save-file+)  :readable)))
+	     
 	     )
 	 
-	 (when (probe-file (pathname the-save-file))
-	   ;; we can load a saved game
-	   (let ((*level* (make-instance 'level))) ;; evil hack
-	     (multiple-value-bind (lv pl var)
-		 (load-saved-game the-save-file format)
-	       (if (and pl (typep pl 'player))
-		   (setf the-player pl)
-		   (warn "Unable to load player from ~s" the-save-file))
-	       (if (and lv (typep lv 'level))
-		   (setf the-level lv)
-		   (warn "Unable to load level from ~s" the-save-file))
-	       (if (and var (typep var 'variant))
-		   (setf the-variant var)
-		   (warn "Unable to load variant from ~s" the-save-file))
-			
-	       )))
+	 (block possible-read-file
+	   (dolist (i save-combos)
+	     (let ((the-save-file (car i))
+		   (format (cdr i)))
+	       (when (probe-file (pathname the-save-file))
+		 ;; we can load a saved game
+		 (multiple-value-bind (lv pl var)
+		     (%load-saved-game the-save-file format)
+		   (if (and pl (typep pl 'player))
+		       (setf the-player pl)
+		       (warn "Unable to load player from ~s" the-save-file))
+		   (if (and lv (typep lv 'level))
+		       (setf the-level lv)
+		       (warn "Unable to load level from ~s" the-save-file))
+		   (if (and var (typep var 'variant))
+		       (setf the-variant var)
+		       (warn "Unable to load variant from ~s" the-save-file))
+		   (return-from possible-read-file t)
+		   )))))
 
 	 (unless the-player ;; unable to load one.
 	   

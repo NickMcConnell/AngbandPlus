@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND-TEST -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.testing -*-
 
 #|
 
@@ -6,7 +6,7 @@ DESC: tests/monster.lisp - testing code for monsters
 
 |#
 
-(in-package :lb-test)
+(in-package :org.langband.testing)
 
 (def-lb-fixture pre-monster-fixture (pre-variant)
   ()
@@ -17,7 +17,7 @@ DESC: tests/monster.lisp - testing code for monsters
   ()
   (:documentation "Simple fixture for testing monster."))
 
-
+;; this code needs revamping!
 (defun %compatibility-read-test (var-obj lvl-obj)
   (let ((orig-mon (lb::variant.monsters var-obj))
 	(orig-obj (lb::variant.objects var-obj))

@@ -209,70 +209,85 @@ the Free Software Foundation; either version 2 of the License, or
 	  (location-y y))))
 
 (defmethod lang-equal ((x player) (y player))
-
+  ;; add misc and abilities
   
-  (and (report-equal (class.id (player.class x))    (class.id (player.class y)))
-       (report-equal (race.id  (player.race x))     (race.id (player.race y)))
+  (and
 
-       (report-equal (player.name x) 	       (player.name y))
-       (report-equal (player.sex x) 	       (player.sex y))
+   (report-equal (player.name x) 	       (player.name y))
+   (report-equal (class.id (player.class x))   (class.id (player.class y)))
+   (report-equal (race.id  (player.race x))    (race.id (player.race y)))
+   (report-equal (player.sex x) 	       (player.sex y))
 
-       (report-equalp (player.base-stats x)    (player.base-stats y))
-       (report-equalp (player.cur-statmods x)  (player.cur-statmods y))
-       (report-equalp (player.modbase-stats x) (player.modbase-stats y))
-       (report-equalp (player.active-stats x)  (player.active-stats y))
+   (report-equalp (player.base-stats x)    (player.base-stats y))
+   (report-equalp (player.cur-statmods x)  (player.cur-statmods y))
+   
+   (report-equalp (player.hp-table x)      (player.hp-table y))
+   (lang-equal (player.equipment x) (player.equipment y))
+   (lang-equal (player.misc x)      (player.misc y))
 
-       (report-equal (player.view-x x)        (player.view-x y))
-       (report-equal (player.view-y x)        (player.view-y y))
+   (report-equal (player.dead-from x) 	       (player.dead-from y))
 
-       (report-equal (player.level x)         (player.level y))
-       (report-equal (player.max-level x)     (player.max-level y))
+   (report-equal (location-x x)         (location-x y))
+   (report-equal (location-y x)         (location-y y))
+   (report-equal (player.view-x x)        (player.view-x y))
+   (report-equal (player.view-y x)        (player.view-y y))
+
+   (report-equal (player.depth x)         (player.depth y))
+   (report-equal (player.max-depth x)     (player.max-depth y))
+
+   (report-equal (player.max-xp x)        (player.max-xp y))
+   (report-equal (player.cur-xp x)        (player.cur-xp y))
+   (report-equal (player.fraction-xp x)   (player.fraction-xp y))
+   
+   (report-equal (current-hp x)           (current-hp y))
+   (report-equal (player.fraction-hp x)   (player.fraction-hp y))
+
+   (report-equal (player.cur-mana x)      (player.cur-mana y))
+   (report-equal (player.fraction-mana x) (player.fraction-mana y))
+
+   (report-equal (player.gold x)         (player.gold y))
+   (report-equal (player.food x)         (player.food y))
+   (report-equal (player.energy x)       (player.energy y))
+
+   (report-equal (player.level x)         (player.level y))
+   (report-equal (player.max-level x)     (player.max-level y))   
+
+
+   (report-equal (maximum-hp x)           (maximum-hp y))
+   (report-equal (player.max-mana x)      (player.max-mana y))
+   (report-equalp (player.xp-table x)      (player.xp-table y))
+
+   (report-equal (player.energy-use x)    (player.energy-use y))
+   (report-equal (player.leaving-p x)     (player.leaving-p y))
        
-       (report-equal (maximum-hp x)        (maximum-hp y))
-       (report-equal (player.max-mana x)      (player.max-mana y))
-       (report-equalp (player.xp-table x)      (player.xp-table y))
-       (report-equalp (player.hp-table x)      (player.hp-table y))
+   (report-equal (player.dead-p x)        (player.dead-p y))
+   (report-equal (player.speed x)         (player.speed y))
 
-       (report-equal (player.energy-use x)    (player.energy-use y))
-       (report-equal (player.leaving-p x)     (player.leaving-p y))
+   (report-equal (player.burden x)         (player.burden y))
+   (report-equal (player.light-radius x)   (player.light-radius y))
+   (report-equal (player.infravision x)    (player.infravision y))
+
+   (lang-equal (player.inventory x) (player.inventory y))
+   (lang-equal (player.skills x)    (player.skills y))
+
+   (report-equalp (player.modbase-stats x) (player.modbase-stats y))
+   (report-equalp (player.active-stats x)  (player.active-stats y))
        
-       (report-equal (player.dead-p x)        (player.dead-p y))
-       (report-equal (player.speed x)         (player.speed y))
-       
-       (report-equal (location-x x)         (location-x y))
-       (report-equal (location-y x)         (location-y y))
+   (lang-equal (player.actual-abilities x)     (player.actual-abilities y))
+   (lang-equal (player.perceived-abilities x)  (player.perceived-abilities y))
 
-       (report-equal (player.depth x)         (player.depth y))
-       (report-equal (player.max-depth x)     (player.max-depth y))
-       (report-equal (player.max-xp x)        (player.max-xp y))
-       (report-equal (player.cur-xp x)        (player.cur-xp y))
-       (report-equal (player.fraction-xp x)   (player.fraction-xp y))
-       (report-equal (current-hp x)           (current-hp y))
-       (report-equal (player.fraction-hp x)   (player.fraction-hp y))
-       (report-equal (player.cur-mana x)      (player.cur-mana y))
-       (report-equal (player.fraction-mana x) (player.fraction-mana y))
-
-       (report-equal (player.gold x)         (player.gold y))
-       (report-equal (player.energy x)       (player.energy y))
-       
-       (report-equal (player.base-ac x)        (player.base-ac y))
-       (report-equal (player.ac-modifier x)    (player.ac-modifier y))
-       (report-equal (player.light-radius x)   (player.light-radius y))
-       (report-equal (player.infravision x)    (player.infravision y))
-
-       (lang-equal (player.equipment x) (player.equipment y))
-       (lang-equal (player.inventory x) (player.inventory y))
-       (lang-equal (player.skills x)    (player.skills y))
-       ))
+   (report-equal (creature.resists x)    (creature.resists y))
+   ))
 
 
 (defmethod lang-equal ((x skills) (y skills))
-  
-  (dolist (i (variant.skill-translations *variant*))
-    (unless (= (slot-value x (cdr i))
-	       (slot-value y (cdr i)))
-      (return-from lang-equal nil)))
-  t)
+  (let ((var-obj *variant*))
+    (when var-obj ;; fix this?
+      (dolist (i (variant.skill-translations var-obj))
+	(unless (= (slot-value x (cdr i))
+		   (slot-value y (cdr i)))
+	  (return-from lang-equal nil))))
+    t))
 
 (defmethod lang-equal ((x level) (y level))
 
@@ -399,3 +414,28 @@ the Free Software Foundation; either version 2 of the License, or
        (report-equal (gval.sustains x) (gval.sustains y))
        (report-equal (gval.slays x) (gval.slays y))
        ))
+
+(defmethod lang-equal ((x player-abilities) (y player-abilities))
+  (and (report-equal (pl-ability.base-ac x)         (pl-ability.base-ac y))
+       (report-equal (pl-ability.ac-modifier x)     (pl-ability.ac-modifier y))
+       (report-equal (pl-ability.to-hit-modifier x) (pl-ability.to-hit-modifier y))
+       (report-equal (pl-ability.to-dmg-modifier x) (pl-ability.to-dmg-modifier y))
+       ))
+
+
+(defmethod lang-equal ((x misc-player-info) (y misc-player-info))
+  (and (report-equal (playermisc.age x)         (playermisc.age y))
+       (report-equal (playermisc.status x)      (playermisc.status y))
+       (report-equal (playermisc.height x)      (playermisc.height y))
+       (report-equal (playermisc.weight x)      (playermisc.weight y))
+       ))
+
+(defmethod lang-equal ((x variant) (y variant))
+  (and
+   (report-equal  (variant.id x)       (variant.id y))
+   (report-equal  (variant.name x)     (variant.name y))
+   (report-equal  (variant.sys-file x) (variant.sys-file y))
+   (report-equalp (variant.sexes x)    (variant.sexes y))
+   (lang-equal    (variant.races x)    (variant.races y))
+   ;; add more
+   ))

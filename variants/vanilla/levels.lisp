@@ -1,9 +1,9 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
 #|
 
 DESC: variants/vanilla/levels.lisp - level customisation for Vanilla
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.vanilla)
 
 
 (defvar *van-saved-town-seed* nil "A saved seed to ensure that the town
@@ -233,14 +233,14 @@ part of the new level."
 ;; this one does the job for all.. only one table for objects in vanilla
 (defmethod get-otype-table ((var-obj vanilla-variant) level)
   (declare (ignore level))
-  (%get-var-table var-obj "level" 'objects))
+  (%get-var-table var-obj "level" 'objects-by-level))
 
 (defmethod get-mtype-table ((var-obj vanilla-variant) (level random-level))
-  (%get-var-table var-obj level 'monsters))
+  (%get-var-table var-obj level 'monsters-by-level))
 
 (defmethod get-mtype-table ((var-obj vanilla-variant) (level van-town-level))
-  (%get-var-table var-obj level 'monsters))
+  (%get-var-table var-obj level 'monsters-by-level))
 
 ;; when we pass a string
 (defmethod get-mtype-table ((var-obj vanilla-variant) (level string))
-  (%get-var-table var-obj level 'monsters))
+  (%get-var-table var-obj level 'monsters-by-level))

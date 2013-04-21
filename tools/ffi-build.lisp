@@ -15,7 +15,7 @@ DESC: tools/ffi-build.lisp - batch lisp-code for building FFI-declarations
 
 (load "../package.lisp")
 
-(in-package :langband-ffi)
+(in-package :org.langband.ffi)
 
 (load "ffi-gen")
 (load "../ffi/ffi-defs")

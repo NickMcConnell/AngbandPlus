@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND-TEST -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.testing -*-
 
 #|
 
@@ -6,7 +6,7 @@ DESC: tests/player.lisp - testing code for player-obj
 
 |#
 
-(in-package :lb-test)
+(in-package :org.langband.testing)
 
 (def-lb-fixture in-player-fixture (in-game)
   ()
@@ -14,4 +14,4 @@ DESC: tests/player.lisp - testing code for player-obj
 
 
 (defmethod perform-test ((fix in-player-fixture))
-  (test-assert (lb::ok-object? lb::*player*)))
+  (test-assert (lb::ok-object? lb::*player* :context :in-game :warn-on-failure t)))

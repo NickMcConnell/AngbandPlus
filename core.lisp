@@ -15,14 +15,14 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.engine)
   
 (defstruct (game-obj-table (:conc-name gobj-table.))
-  (obj-table nil)
-  (alloc-table nil)
+  (obj-table nil) ;; hash-table with all possible objects for the setting
+  (alloc-table nil) 
   (obj-table-by-lvl nil))
 
 
 (defclass variant (activatable)
   ((id        :accessor variant.id
-	      :initform :lithping
+	      :initform "lithping"
 	      :initarg :id)
    
    (name      :accessor variant.name
@@ -99,21 +99,30 @@ the Free Software Foundation; either version 2 of the License, or
 	      ;; it should be an array of size max-charlevel
 	      :initform nil)
 
-   ;; these are just types.. not actual monsters
+   ;; these are just monster-types.. not actual monsters
    (monsters :accessor variant.monsters
 	     :initform (make-hash-table :test #'equal)
-	     :initarg :monsters)
+	     :documentation "these are just monster-types.. not active monsters.")
 
    (objects :accessor variant.objects
 	    :initform (make-hash-table :test #'equal)
-	    :initarg :objects)
-     
+	    :documentation "these are just object-types.. not active objects.")
+
+   (monsters-by-level :accessor variant.monsters-by-level
+		      :initform (make-hash-table :test #'equal)
+		      :documentation "these are monster-types organised by levels.")
+
+   (objects-by-level :accessor variant.objects-by-level
+		     :initform (make-hash-table :test #'equal)
+		     :documentation "these are object-types organised by levels.")
+   
+   
    (filters :accessor variant.filters
 	    :initform (make-hash-table :test #'equal)
 	    :initarg :filters)
      
    (flavour-types :accessor variant.flavour-types
-		  :initform nil
+		  :initform (make-hash-table :test #'equal)
 		  :initarg :flavour-types)
 
    (house-types :accessor variant.house-types
@@ -220,6 +229,60 @@ the Free Software Foundation; either version 2 of the License, or
 	      hold-life aggravate random-teleport))
 ||#
 
+(defclass temporary-attributes ()
+  ((speed-mod      :accessor temp.speed-mod      :initform 0 :documentation "signed number") ;; <hasted> + <slowed>
+   (blind-mod      :accessor temp.blind-mod      :initform 0 :documentation "signed number")
+   (paralysed      :accessor temp.paralysed      :initform 0 :documentation "signed number")
+   (confused       :accessor temp.confused       :initform 0 :documentation "signed number")
+   (afraid         :accessor temp.afraid         :initform 0 :documentation "signed number")
+   (hallucinate    :accessor temp.hallucinate    :initform 0 :documentation "signed number")
+   (poisoned       :accessor temp.poisoned       :initform 0 :documentation "signed number")
+   (cut            :accessor temp.cut            :initform 0 :documentation "signed number")
+   (stunned        :accessor temp.stunned        :initform 0 :documentation "signed number")
+   (prot-from-evil :accessor temp.prot-from-evil :initform 0 :documentation "signed number")
+   (invulnerable   :accessor temp.invulnerable   :initform 0 :documentation "signed number")
+   (heroic         :accessor temp.heroic         :initform 0 :documentation "signed number")
+   (super-heroic   :accessor temp.super-heroic   :initform 0 :documentation "signed number")
+   (shield-spell   :accessor temp.shielded       :initform 0 :documentation "signed number")
+   (blessed        :accessor temp.blessed        :initform 0 :documentation "signed number")
+   (see-invisible  :accessor temp.see-invisible  :initform 0 :documentation "signed number")
+   (infravision    :accessor temp.infravision    :initform 0 :documentation "signed number")
+   (resists        :accessor temp.resists        :initform 0 :documentation "signed number") ;; split?
+   (recalling      :accessor temp.recalling      :initform 0 :documentation "signed number") ;; count till recall
+
+   ))
+
+(defclass calculated-attributes ()
+  ((slow-digest      :accessor calc.slow-digest     :initform 0   :documentation "number, specifies how slow")
+   (feather-fall     :accessor calc.feather-fall    :initform nil :documentation "boolean")
+   (glowing          :accessor calc.glowing         :initform 0   :documentation "number, specifies radius")
+   (regenerate       :accessor calc.regenerate      :initform 0   :documentation "number, specifies regenerate-speed")
+   (telepathy        :accessor calc.telepathy       :initform 0   :documentation "number, specifies radius")
+   (see-invisible    :accessor calc.see-invisible   :initform 0   :documentation "number, specifies radius")
+   (free-action      :accessor calc.free-action     :initform nil :documentation "boolean")
+   (hold-life        :accessor calc.hold-life       :initform nil :documentation "boolean")
+   (earthquake       :accessor calc.earthquake      :initform nil :documentation "boolean, blows cause earthquake")
+   (aggravate        :accessor calc.aggravate       :initform 0   :documentation "number, specifies radius")
+   (random-teleport  :accessor calc.random-teleport :initform nil :documentation "boolean")
+   (drain-xp         :accessor calc.drain-xp        :initform nil :documentation "boolean")
+   (blessed-blade    :accessor calc.blessed-blade   :initform nil :documentation "boolean")
+   ))
+
+(defclass misc-player-info ()
+  ((age    :accessor playermisc.age    :initform 0)
+   (status :accessor playermisc.status :initform 0)
+   (height :accessor playermisc.height :initform 0)
+   (weight :accessor playermisc.weight :initform 0))
+  (:documentation "A helper-class for the player-object."))
+
+(defclass player-abilities ()
+  ((base-ac         :accessor pl-ability.base-ac     :initform 0 :documentation "integer, >= 0")
+   (ac-modifier     :accessor pl-ability.ac-modifier :initform 0 :documentation "integer")
+   (to-hit-modifier :accessor pl-ability.to-hit-modifier :initform 0 :documentation "integer")
+   (to-dmg-modifier :accessor pl-ability.to-dmg-modifier :initform 0 :documentation "integer"))
+  
+  (:documentation "A helper-class for the player-object."))
+  
 
 (defclass player ()
 
@@ -241,9 +304,17 @@ the Free Software Foundation; either version 2 of the License, or
 		  :initform nil
 		  :documentation "Note: should be saved.")
    (equipment     :accessor player.equipment :initform nil)
+   
+   ;; add save-code for this as well
+   (misc          :accessor player.misc
+		  :initform nil
+		  :documentation "Pointer to an object with misc info about the player character.")
+
+   
    (dead-from     :accessor player.dead-from
 		  :initform ""
 		  :documentation "who killed the player?")
+
    
    ;; === Directly savable to binary ===
    
@@ -284,13 +355,14 @@ the Free Software Foundation; either version 2 of the License, or
    (dead-p     :accessor player.dead-p     :initform nil) ;; need to save it?
    (speed      :accessor player.speed      :initform +speed-base+)  ;; does this change?
    
-   
-   (base-ac      :accessor player.base-ac      :initform 0)
-   (ac-modifier  :accessor player.ac-modifier  :initform 0)
+
+   (burden       :accessor player.burden       :initform 0
+		 :documentation "Calculated value for how much player carries.")
    (light-radius :accessor player.light-radius :initform 0)
    
    (infravision :accessor player.infravision
-		:initform 0)
+		:initform 0
+		:documentation "How far does infravision reach?  0 for no infravision.")
    (inventory   :accessor player.inventory
 		:initform nil
 		:documentation "quick variable to equipment.backpack.content")
@@ -303,7 +375,17 @@ the Free Software Foundation; either version 2 of the License, or
    (active-stats :accessor player.active-stats
 		 :initform nil
 		 :documentation "This is the current active stat-value (base + curstatmods + race + class + eq)")
+
+   (perceived-abilites :accessor player.perceived-abilities
+		       :initform nil
+		       :documentation "Pointer to a player-abilities object with perceived abilties.")
+   (actual-abilites :accessor player.actual-abilities
+		    :initform nil
+		    :documentation "Pointer to a player-abilities object with actual abilties.")
    
+
+   ;; fix this later
+   (resists :accessor creature.resists :initform 0 :documentation "What does the player resist?")
    ))
 
 

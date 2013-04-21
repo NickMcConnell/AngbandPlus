@@ -1,4 +1,4 @@
-;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
 #|
 
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.vanilla)
 
 
 (setf *current-key-table* *ang-keys*)
@@ -157,6 +157,22 @@ the Free Software Foundation; either version 2 of the License, or
 	(c-print-message! "Map printed to map.ppm.")
 	))
 
+(define-key-operation 'gain-level
+    #'(lambda (dun player)
+	(declare (ignore dun))
+	(let* ((cur-level (player.level player))
+	       (next-limit (aref (player.xp-table player) cur-level))
+	       (lacks (- next-limit (player.cur-xp player))))
+	  (alter-xp! player lacks))
+	))
+
+(define-key-operation 'heal-player
+    #'(lambda (dun player)
+	(declare (ignore dun))
+	(setf (current-hp player) (maximum-hp player))
+	(bit-flag-add! *redraw* +print-hp+)
+	))
+
 
 (define-key-operation 'wizard-menu
     #'(lambda (dun pl)
@@ -196,8 +212,10 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :wizard #\D 'go-to-depth)
 (define-keypress *ang-keys* :wizard #\F 'wamp-monsters)
 (define-keypress *ang-keys* :wizard #\G 'set-gold)
+(define-keypress *ang-keys* :wizard #\H 'heal-player)
 (define-keypress *ang-keys* :wizard #\I 'inspect-coord)
-(define-keypress *ang-keys* :wizard #\K 'print-keys) 
+(define-keypress *ang-keys* :wizard #\K 'print-keys)
+(define-keypress *ang-keys* :wizard #\L 'gain-level) 
 (define-keypress *ang-keys* :wizard #\P 'print-map-as-ppm)
 (define-keypress *ang-keys* :wizard #\T 'print-map)
 (define-keypress *ang-keys* :wizard #\U 'summon)

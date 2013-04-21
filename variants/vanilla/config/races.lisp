@@ -1,9 +1,9 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
 #|
 
 DESC: variants/vanilla/config/races.lisp - races for vanilla variant
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ ADD_DESC: Contains definition of races in sexp.
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.vanilla)
 
 
 (define-race "human" "Human"
@@ -29,8 +29,8 @@ ADD_DESC: Contains definition of races in sexp.
                adjustments or intrinsics occur to characters choosing human."
   :xp-extra 0
   :hit-dice 10
-  :stat-changes nil
-  :abilities nil
+;;  :stat-changes nil
+;;  :abilities nil
   :classes t
   :skills '((<disarming> 0 0)
 	    (<device> 0 0)
@@ -227,7 +227,7 @@ ADD_DESC: Contains definition of races in sexp.
   :stat-changes '((<str> +2) (<int> -1) (<wis> 0)
 		  (<dex> 0) (<con> +1) (<chr> -4))
   :abilities '(
-	       (<resist> <dark>)
+	       (<resist> <darkness>)
 	       (<infravision> 3)
 	       )
   :classes '(<warrior> <rogue>)

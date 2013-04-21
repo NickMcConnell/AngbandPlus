@@ -1,9 +1,9 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
 #|
 
 DESC: variants/vanilla/various.lisp - various helper-stuff that should be compiled
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.vanilla)
 
 (defconstant +van-dwarf-syllables+
   '(("B" "D" "F" "G" "Gl" "H" "K" "L" "M" "N" "R" "S" "T" "Th" "V")
@@ -134,7 +134,7 @@ the Free Software Foundation; either version 2 of the License, or
 	do
 	(unless hash-val
 	  (setf (gethash name *van-used-scroll-names*) t)
-	  (return-from van-generate-scroll-flavour (list name +term-white+)))))
+	  (return-from van-generate-scroll-flavour (cons name +term-white+)))))
 
 
 (defconstant +legal-effects+ '(:use :quaff :read :eat))
@@ -192,36 +192,128 @@ the Free Software Foundation; either version 2 of the License, or
 		  collecting (make-effect-entry :type x :fun fun :energy-use cost))))
     (values)))
 
+(defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind))          nil)
+
+(defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind/potion))   t)
+(defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind/scroll))   t)
+(defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind/wand))     t)
+(defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind/rod))      t)
+(defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind/staff))    t)
+(defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind/ring))     t)
+(defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind/amulet))   t)
+(defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind/mushroom)) t)
+
+(defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/potion))
+  (%flavour-obj-kind! obj))
+(defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/mushroom))
+  (%flavour-obj-kind! obj))
+(defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/scroll))
+  (%flavour-obj-kind! obj))
+(defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/ring))
+  (%flavour-obj-kind! obj))
+(defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/wand))
+  (%flavour-obj-kind! obj))
+(defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/staff))
+  (%flavour-obj-kind! obj))
+(defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/rod))
+  (%flavour-obj-kind! obj))
+(defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/amulet))
+  (%flavour-obj-kind! obj))
+
+#||
+(defmethod ok-object? ((obj object-kind/staff) &key context warn-on-failure)
+
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/rod) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/wand) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/potion) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/mushroom) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/scroll) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/amulet) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/ring) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  (call-next-method))
+||#
+
+(defmethod distribute-flavours! ((var-obj vanilla-variant))
+  "Allocates flavours for objects that need it."
+  (let ((objects (variant.objects var-obj)))
+    (loop for obj being the hash-values of objects
+	  do
+	  (if (need-flavour? var-obj obj)
+	      (flavour-object! var-obj obj)
+	      ;; add aware-bit, seems like vanilla does that
+	      (setf (object.aware obj) t)))
+    var-obj))
+
 (defun van-combine-effects-with-objects! (objects)
   "Tries to hack things together."
   (assert (hash-table-p objects))
   (let ((htbl *van-object-effects*))
-    (unless (hash-table-p htbl)
-      (warn "Odd.. obj-effects is not a hash-table!"))
-    (when (hash-table-p htbl)
-      (loop for o-table being the hash-values of objects
-	    for okind-table = (gobj-table.obj-table o-table)
-	    do
-	    (loop for obj being the hash-values of okind-table
-		  do
-		  (let* ((the-types (%van-sort-obj-types (copy-seq (object.obj-type obj))))
-			 (effects (gethash the-types htbl)))
+    (cond ((not (hash-table-p htbl))
+	   (warn "Odd.. obj-effects is not a hash-table!"))
+	  (t 
+	   (loop for obj being the hash-values of objects
+		 do
+		 (let* ((the-types (%van-sort-obj-types (copy-seq (object.obj-type obj))))
+			(effects (gethash the-types htbl)))
+		   
+		   (assert (listp effects))
+		   
+		   (dolist (i effects)
+		     (assert (effect-entry-p i))
+		     (pushnew i (object.effects obj)))
+		   ;; let the info remain, maybe remove it in production
+	      #+langband-production
+	      (remhash the-types htbl)
+	      
+	      ))
+	   #+langband-production
+	   (loop for x being the hash-keys of htbl
+		 do
+		 (warn "Unable to find matching object for ~s effect." x))))
 
-		    (assert (listp effects))
-
-		    (dolist (i effects)
-		      (assert (effect-entry-p i))
-		      (pushnew i (object.effects obj)))
-		    ;; let the info remain, maybe remove it in production
-		    #+langband-production
-		    (remhash the-types htbl)
-		    
-		)))
-      #+langband-production
-      (loop for x being the hash-keys of htbl
-	    do
-	    (warn "Unable to find matching object for ~s effect." x))
-      )
     
     ;; remove all in production
     #+langband-production

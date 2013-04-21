@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -6,7 +6,7 @@ DESC: config/sound.lisp - sound-settings
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 (define-sound +sound-hit+
     "1unch" "hit" "hit1" "drop")

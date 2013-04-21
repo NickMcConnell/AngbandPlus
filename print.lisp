@@ -133,8 +133,9 @@ ADD_DESC: Various code which just prints stuff somewhere
 (defun print-armour-class (pl setting)
   "Prints AC to left frame."
   
-  (let ((ac (+ (player.base-ac pl)
-	       (player.ac-modifier pl)))
+  (let* ((perc (player.perceived-abilities pl))
+	 (ac (+ (pl-ability.base-ac perc)
+		(pl-ability.ac-modifier perc)))
 	(ac-set (slot-value setting 'ac)))
 
     (c-prt-token! +term-white+ +token-cur-ac+ (car ac-set) (cdr ac-set))
@@ -299,19 +300,20 @@ ADD_DESC: Various code which just prints stuff somewhere
 	(f-col (+ 9 25)) 
 	(cur-xp (player.cur-xp pl))
 	(max-xp (player.max-xp pl))
-	(lvl (player.level pl)))
+	(lvl (player.level pl))
+	(misc (player.misc pl)))
 
 
     (c-put-str! "Age" 3 col)
-    (c-col-put-str! +term-l-blue+ (%get-4str 0) 3 f-col)
+    (c-col-put-str! +term-l-blue+ (%get-4str (playermisc.age misc)) 3 f-col)
 
     (c-put-str! "Height" 4 col)
-    (c-col-put-str! +term-l-blue+ (%get-4str 0)  4 f-col)
+    (c-col-put-str! +term-l-blue+ (%get-4str (playermisc.height misc))  4 f-col)
 
     (c-put-str! "Weight" 5 col)
-    (c-col-put-str! +term-l-blue+ (%get-4str 0)  5 f-col)
+    (c-col-put-str! +term-l-blue+ (%get-4str (playermisc.weight misc))  5 f-col)
     (c-put-str! "Status" 6 col)
-    (c-col-put-str! +term-l-blue+ (%get-4str 0)  6 f-col)
+    (c-col-put-str! +term-l-blue+ (%get-4str (playermisc.status misc))  6 f-col)
 
     ;; always in maximize and preserve, do not include
 
@@ -355,17 +357,24 @@ ADD_DESC: Various code which just prints stuff somewhere
 		   (format nil "~10d" (player.gold pl))  15 f-col)
 
     (c-put-str! "Burden" 17 col)
-    (c-col-put-str! +term-l-green+
-		   (format nil "~10d lbs" 0)  17 f-col)
+    (let* ((weight (player.burden pl))
+	   (pound (int-/ weight 10))
+	   (frac (mod weight 10))
+	   (str (format nil "~10d.~d lbs" pound frac)))
+      (c-col-put-str! +term-l-green+ str 17 f-col))
 
     ;; middle again
     (setq col 26)
     (setq f-col (+ col 5))
 
     (c-put-str! "Armour" 10 col)
-    (c-col-put-str! +term-l-blue+
-		   (format nil "~12@a" (format nil "[~d,~@d]" (player.base-ac pl) (player.ac-modifier pl)))
-		   10 (1+ f-col))
+    (let* ((perc (player.perceived-abilities pl))
+	   (p-ac (pl-ability.base-ac perc))
+	   (p-acmod (pl-ability.ac-modifier perc)))
+         
+      (c-col-put-str! +term-l-blue+
+		      (format nil "~12@a" (format nil "[~d,~@d]" p-ac p-acmod))
+		   10 (1+ f-col)))
 
 ;;    (let ((weapon (get-weapon pl)))
 ;;     
@@ -643,3 +652,39 @@ The armour-value describes a full set-up of armour, including
       
       (c-pause-line! *last-console-line*)
       ))
+
+(defun print-resists (var-obj player)
+;;  (declare (ignore player))
+    (c-clear-from! 0)
+
+    (c-col-put-str! +term-l-blue+ "RESISTANCES" 0 2)
+    (c-col-put-str! +term-l-blue+ "===========" 1 2)
+
+    (let ((elms (variant.elements var-obj))
+	  (resists (creature.resists player))
+	  (row 3))
+
+      (dolist (i elms)
+	(let* ((idx (element.index i))
+	       (str (format nil "~20a ~20s ~10s" (element.name i) (element.symbol i) idx)))
+	  (when (bit-flag-set? idx resists)
+	    (c-col-put-str! +term-l-red+ "*" row 1)) 
+	  (c-col-put-str! +term-l-green+ str row 3)
+	  (incf row)))
+
+      (c-pause-line! *last-console-line*)
+      ))
+
+(defun print-misc-info (var-obj player)
+  (declare (ignore var-obj player))
+
+  (c-clear-from! 0)
+  (c-col-put-str! +term-l-blue+ "MISC INFO" 0 2)
+  (c-col-put-str! +term-l-blue+ "=========" 1 2)
+
+  (c-col-put-str! +term-l-green+ "Height:" 3 2)
+  (c-col-put-str! +term-yellow+ (format nil "~5d" 0) 3 12)
+;;  (c-col-put-str! +term-l-green+ "Weight:" 4 2)
+;;  (c-col-put-str! +term-yellow+ (format nil "~5d" (creature.weight player)) 4 12)
+  (c-pause-line! *last-console-line*)
+  )

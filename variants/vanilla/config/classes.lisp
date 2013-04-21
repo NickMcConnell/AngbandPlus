@@ -1,9 +1,9 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
 #|
 
 DESC: variants/vanilla/config/classes.lisp - classes for vanilla variant
-Copyright (c) 2000-2001 - Stig Erik Sandø
+Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ ADD_DESC: Contains definition of classes in sexp.
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.vanilla)
 
 
 (define-class "warrior" "Warrior"
@@ -81,7 +81,7 @@ ADD_DESC: Contains definition of classes in sexp.
   :hit-dice 6
   :stat-changes '((<str> +3) (<int> -3) (<wis> +1)
 		  (<dex> 0) (<con> +2) (<chr> +2))
-  :abilities nil
+;;  :abilities nil
   :titles '(
 	   "Gallant"
 	   "Keeper"
@@ -128,7 +128,7 @@ ADD_DESC: Contains definition of classes in sexp.
   :hit-dice 4
   :stat-changes '((<str> +2) (<int> +2) (<wis> 0)
 		  (<dex> +1) (<con> +1) (<chr> +1))
-  :abilities nil
+;;  :abilities nil
   :titles '(
 	    "Runner"
 	    "Strider"
@@ -178,7 +178,7 @@ ADD_DESC: Contains definition of classes in sexp.
   :hit-dice 2
   :stat-changes '((<str> -1) (<int> -3) (<wis> +3)
 		  (<dex> -1) (<con> 0) (<chr> +2))
-  :abilities nil
+;;  :abilities nil
   :titles '(
 	    "Believer"
 	    "Acolyte"
@@ -226,7 +226,7 @@ ADD_DESC: Contains definition of classes in sexp.
   :hit-dice 0
   :stat-changes '((<str> -5) (<int> +3) (<wis> 0)
 		  (<dex> +1) (<con> -2) (<chr> +1))
-  :abilities nil
+;;  :abilities nil
   :titles '(
 	    "Novice"
 	    "Apprentice"
@@ -281,7 +281,7 @@ ADD_DESC: Contains definition of classes in sexp.
   :hit-dice 6
   :stat-changes '((<str> +2) (<int> +1) (<wis> -2)
 		  (<dex> +3) (<con> +1) (<chr> -1))
-  :abilities nil
+;;  :abilities nil
   :titles '(
 	    "Vagabond"
 	    "Cutpurse"

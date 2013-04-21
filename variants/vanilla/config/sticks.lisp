@@ -1,5 +1,18 @@
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
-(in-package :org.langband.engine)
+#|
+
+DESC: variants/vanilla/config/sticks.lisp - wands/rods/staves for vanilla variant
+Copyright (c) 2000-2002 - Stig Erik Sandø
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+|#
+
+(in-package :org.langband.vanilla)
 
 ;;; Wands
 
@@ -48,7 +61,7 @@
   :the-kind '<wand>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-272" "fire bolts"
+(define-object-kind "wand-fire-bolts" "fire bolts"
   :numeric-id 272
   :x-attr #\d
   :x-char #\-
@@ -63,7 +76,7 @@
   :the-kind '<wand>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-273" "stone to mud"
+(define-object-kind "wand-stone-mud" "stone to mud"
   :numeric-id 273
   :x-attr #\d
   :x-char #\-
@@ -333,7 +346,7 @@
   :the-kind '<wand>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-291" "acid balls"
+(define-object-kind "wand-acid-balls" "acid balls"
   :numeric-id 291
   :x-attr #\d
   :x-char #\-
@@ -363,7 +376,7 @@
   :the-kind '<wand>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
-(define-object-kind "object-294" "acid bolts"
+(define-object-kind "wand-acid-bolts" "acid bolts"
   :numeric-id 294
   :x-attr #\d
   :x-char #\-
@@ -378,7 +391,7 @@
   :the-kind '<wand>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-295" "dragon's flame"
+(define-object-kind "wand-dragon-flame" "dragon's flame"
   :numeric-id 295
   :x-attr #\d
   :x-char #\-
@@ -393,7 +406,7 @@
   :the-kind '<wand>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
-(define-object-kind "object-296" "dragon's frost"
+(define-object-kind "wand-dragon-frost" "dragon's frost"
   :numeric-id 296
   :x-attr #\d
   :x-char #\-
@@ -408,7 +421,7 @@
   :the-kind '<wand>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
-(define-object-kind "object-297" "dragon's breath"
+(define-object-kind "owand-dragon-breath" "dragon's breath"
   :numeric-id 297
   :x-attr #\d
   :x-char #\-
@@ -423,7 +436,7 @@
   :the-kind '<wand>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
-(define-object-kind "object-298" "annihilation"
+(define-object-kind "wand-annihilation" "annihilation"
   :numeric-id 298
   :x-attr #\d
   :x-char #\-
@@ -467,7 +480,7 @@
   :cost 200
   :obj-type '(<staff> <detect> <money>)
   :sort-value 4610
-  :the-kind '<money>
+  :the-kind '<staff>
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-item" "object location"
@@ -500,7 +513,7 @@
   :the-kind '<staff>
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
-(define-object-kind "object-304" "earthquakes"
+(define-object-kind "staff-earthquakes" "earthquakes"
   :numeric-id 304
   :x-attr #\d
   :x-char #\_
@@ -545,7 +558,7 @@
   :the-kind '<staff>
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
-(define-object-kind "object-307" "*destruction*"
+(define-object-kind "staff-*destruction*" "*destruction*"
   :numeric-id 307
   :x-attr #\d
   :x-char #\_
@@ -560,7 +573,7 @@
   :the-kind '<staff>
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
-(define-object-kind "object-308" "starlight"
+(define-object-kind "staff-starlight" "starlight"
   :numeric-id 308
   :x-attr #\d
   :x-char #\_
@@ -575,7 +588,7 @@
   :the-kind '<staff>
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
-(define-object-kind "object-309" "haste monsters"
+(define-object-kind "staff-haste-monsters" "haste monsters"
   :numeric-id 309
   :x-attr #\d
   :x-char #\_
@@ -605,7 +618,7 @@
   :the-kind '<staff>
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
-(define-object-kind "object-311" "sleep monsters"
+(define-object-kind "staff-sleep-monsters" "sleep monsters"
   :numeric-id 311
   :x-attr #\d
   :x-char #\_
@@ -695,7 +708,7 @@
   :the-kind '<staff>
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
-(define-object-kind "object-317" "remove curse"
+(define-object-kind "staff-remove-curse" "remove curse"
   :numeric-id 317
   :x-attr #\d
   :x-char #\_
@@ -725,7 +738,7 @@
   :the-kind '<staff>
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
-(define-object-kind "object-319" "curing"
+(define-object-kind "staff-curing" "curing"
   :numeric-id 319
   :x-attr #\d
   :x-char #\_
@@ -755,7 +768,7 @@
   :the-kind '<staff>
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
-(define-object-kind "object-321" "probing"
+(define-object-kind "staff-probing" "probing"
   :numeric-id 321
   :x-attr #\d
   :x-char #\_
@@ -785,7 +798,7 @@
   :the-kind '<staff>
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
-(define-object-kind "object-323" "genocide"
+(define-object-kind "staff-genocide" "genocide"
   :numeric-id 323
   :x-attr #\d
   :x-char #\_
@@ -892,7 +905,7 @@
 
 ;;; rods
 
-(define-object-kind "object-351" "door/stair location"
+(define-object-kind "rod-door-loc" "door/stair location"
   :numeric-id 351
   :x-attr #\d
   :x-char #\-
@@ -907,7 +920,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-352" "trap location"
+(define-object-kind "rod-trap-loc" "trap location"
   :numeric-id 352
   :x-attr #\d
   :x-char #\-
@@ -922,7 +935,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-353" "probing"
+(define-object-kind "rod-probing" "probing"
   :numeric-id 353
   :x-attr #\d
   :x-char #\-
@@ -937,7 +950,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-354" "recall"
+(define-object-kind "rod-recall" "recall"
   :numeric-id 354
   :x-attr #\d
   :x-char #\-
@@ -952,7 +965,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-355" "illumination"
+(define-object-kind "rod-illumination" "illumination"
   :numeric-id 355
   :x-attr #\d
   :x-char #\-
@@ -967,7 +980,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-356" "light"
+(define-object-kind "rod-light" "light"
   :numeric-id 356
   :x-attr #\d
   :x-char #\-
@@ -982,7 +995,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-357" "lightning bolts"
+(define-object-kind "rod-lightning-bolts" "lightning bolts"
   :numeric-id 357
   :x-attr #\d
   :x-char #\-
@@ -997,7 +1010,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-358" "frost bolts"
+(define-object-kind "rod-frost-bolts" "frost bolts"
   :numeric-id 358
   :x-attr #\d
   :x-char #\-
@@ -1012,7 +1025,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-359" "fire bolts"
+(define-object-kind "rod-fire-bolts" "fire bolts"
   :numeric-id 359
   :x-attr #\d
   :x-char #\-
@@ -1027,7 +1040,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-360" "polymorph"
+(define-object-kind "rod-polymorph" "polymorph"
   :numeric-id 360
   :x-attr #\d
   :x-char #\-
@@ -1042,7 +1055,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-361" "slow monster"
+(define-object-kind "rod-slow-monster" "slow monster"
   :numeric-id 361
   :x-attr #\d
   :x-char #\-
@@ -1057,7 +1070,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-362" "sleep monster"
+(define-object-kind "rod-sleep-monster" "sleep monster"
   :numeric-id 362
   :x-attr #\d
   :x-char #\-
@@ -1072,7 +1085,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-363" "drain life"
+(define-object-kind "rod-drain-life" "drain life"
   :numeric-id 363
   :x-attr #\d
   :x-char #\-
@@ -1087,7 +1100,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-364" "teleport other"
+(define-object-kind "rod-teleport-other" "teleport other"
   :numeric-id 364
   :x-attr #\d
   :x-char #\-
@@ -1102,7 +1115,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-365" "disarming"
+(define-object-kind "rod-disarming" "disarming"
   :numeric-id 365
   :x-attr #\d
   :x-char #\-
@@ -1117,7 +1130,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-366" "lightning balls"
+(define-object-kind "rod-lightning-balls" "lightning balls"
   :numeric-id 366
   :x-attr #\d
   :x-char #\-
@@ -1132,7 +1145,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-367" "cold balls"
+(define-object-kind "rod-cold-balls" "cold balls"
   :numeric-id 367
   :x-attr #\d
   :x-char #\-
@@ -1147,7 +1160,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-368" "fire balls"
+(define-object-kind "rod-fire-balls" "fire balls"
   :numeric-id 368
   :x-attr #\d
   :x-char #\-
@@ -1162,7 +1175,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-369" "acid balls"
+(define-object-kind "rod-acid-balls" "acid balls"
   :numeric-id 369
   :x-attr #\d
   :x-char #\-
@@ -1177,7 +1190,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-370" "acid bolts"
+(define-object-kind "rod-acid-bolts" "acid bolts"
   :numeric-id 370
   :x-attr #\d
   :x-char #\-
@@ -1192,7 +1205,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-371" "enlightenment"
+(define-object-kind "rod-enlightenment" "enlightenment"
   :numeric-id 371
   :x-attr #\d
   :x-char #\-
@@ -1207,7 +1220,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-372" "perception"
+(define-object-kind "rod-perception" "perception"
   :numeric-id 372
   :x-attr #\d
   :x-char #\-
@@ -1222,7 +1235,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-373" "curing"
+(define-object-kind "rod-curing" "curing"
   :numeric-id 373
   :x-attr #\d
   :x-char #\-
@@ -1237,7 +1250,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-374" "healing"
+(define-object-kind "rod-healing" "healing"
   :numeric-id 374
   :x-attr #\d
   :x-char #\-
@@ -1267,7 +1280,7 @@
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-376" "restoration"
+(define-object-kind "rod-restoration" "restoration"
   :numeric-id 376
   :x-attr #\d
   :x-char #\-

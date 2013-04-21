@@ -6,7 +6,7 @@ DESC: tests/format.lisp - testing code for stats
 
 |#
 
-(in-package :lb-test)
+(in-package :org.langband.testing)
 
 (def-lb-fixture format-fixture (pre-variant)
   ()

@@ -1,3 +1,18 @@
+2002-01-14  Stig E Sandø <stig@users.sourceforge.net>
+	* Upgraded variant-code to work with engine-updates, primarily
+	flavour-related and changes in variant-class.
+	* Also updated lots of object-ids
+	* Minor tweaking and bug-fixing (e.g one staff that was money)
+
+2002-01-06  Stig E Sandø <stig@users.sourceforge.net>
+	* Added wizard-commands to heal and let player gain a level
+	* Fixed a -more- bug with 'g'et command (thanks to Eugene for
+	reporting. 
+	* Minor tweaking, and some new ids
+	
+2002-01-05  Stig E Sandø <stig@users.sourceforge.net>
+	* Sent out a release, 0.0.17
+	
 2002-01-05  Stig E Sandø <stig@users.sourceforge.net>
 	* Added wizard.lisp with wizard-command keys, and updated
 	key-commands.

@@ -19,11 +19,13 @@ ADD_DESC: at the start.
 
 (in-package :org.langband.engine)
 
-(defun init-flavours& (flavour-type-list)
+(defun init-flavours& (flavour-type-table)
   "initiates flavours and updates symbols relating to flavours"
-    
-  
-  (dolist (x flavour-type-list)
+
+  (assert (hash-table-p flavour-type-table))
+
+  (loop for x being the hash-values of flavour-type-table
+	do
     
     ;; we wish to avoid helping flavours with their own
     ;; functions
@@ -47,8 +49,9 @@ ADD_DESC: at the start.
 	(setf (fill-pointer flavour-array) 0) ;; set fill-pointer to start
 
 ;;	(warn "Val is ~a" (aref flavour-array 0))
-	(setf (flavour-type.table x) flavour-array))
-      )))
+	(setf (flavour-type.table x) flavour-array)))
+    ))
+
 
 
 (defmethod create-alloc-table-objects ((variant variant) obj-table)
@@ -285,7 +288,7 @@ call appropriately high-level init in correct order."
 ;;; hackish thing to start the game ever so long.
 (defun a (&optional (ui #+win32 "win" #-win32 "x11"))
   ;; to make sure dumps look pretty
-  (let ((*package* (find-package :langband))
+  (let ((*package* (find-package :org.langband.engine))
 	#+cmu (extensions:*gc-verbose* nil)
 	#+cmu (*compile-print* nil)
 	)

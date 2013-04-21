@@ -114,6 +114,12 @@ a number or a symbol identifying the place."
     (item-table-remove! (get-item-table dungeon player (car selection))
 			(cdr selection) :only-single-items t)))
 
+(defun get-ensured-floor-table (dungeon the-x the-y)
+  (let ((cur-objs (cave-objects dungeon the-x the-y)))
+    (unless cur-objs
+      (setf cur-objs (make-floor-container dungeon the-x the-y))
+      (setf (cave-objects dungeon the-x the-y) cur-objs))
+    cur-objs))
 
 (defmethod get-item-table ((dungeon dungeon) (player player) which-table &key x y)
   "Returns item-table or NIL."
@@ -121,12 +127,8 @@ a number or a symbol identifying the place."
   (ecase which-table
     (:floor
      (let* ((the-x (if x x (location-x player)))
-	    (the-y (if y y (location-y player)))
-	    (cur-objs (cave-objects dungeon the-x the-y)))
-       (unless cur-objs
-	 (setf cur-objs (make-floor-container dungeon the-x the-y))
-	 (setf (cave-objects dungeon the-x the-y) cur-objs))
-       cur-objs))
+	    (the-y (if y y (location-y player))))
+       (get-ensured-floor-table dungeon the-x the-y)))
     (:backpack (aobj.contains (player.inventory player)))
     (:equip (player.eq player))))
 
@@ -139,12 +141,21 @@ a number or a symbol identifying the place."
 ;;  (lang-warn "Pushing ~a [~a,~a] onto floor [~a,~a]"
 ;;	    obj (location-x obj) (location-y obj)
 ;;	    (location-x table) (location-y table))
-  (setf (location-x obj) (location-x table)
-	(location-y obj) (location-y table))
-  (push obj (dungeon.objects (items.dun table)))
-  (push obj (items.objs table))
-  (incf (items.cur-size table))
-  t)
+  (let ((tab-x (location-x table))
+	(tab-y (location-y table))
+	(dun (items.dun table)))
+	
+    (setf (location-x obj) tab-x
+	  (location-y obj) tab-y)
+    (push obj (dungeon.objects dun))
+    (push obj (items.objs table))
+    (incf (items.cur-size table))
+
+    ;; let's notify about the change
+    (note-spot! dun tab-x tab-y)
+    (light-spot! dun tab-x tab-y)
+    
+    t))
 
 (defmethod item-table-remove! ((table items-on-floor) key &key only-single-items)
   (cond ((item-table-verify-key table key)
@@ -316,12 +327,75 @@ a number or a symbol identifying the place."
     (generate-fill dungeon b-x1 b-y1 b-x2 b-y2 +feature-floor+)
     ))
 
+
+(defmethod can-creature-drop? ((variant variant) (mon active-monster))
+  (let ((kind (amon.kind mon)))
+    (if (monster.treasures kind)
+	t
+	nil)))
+
+(defmethod creature-drop! ((variant variant) (mon active-monster) (level level))
+  (let ((kind (amon.kind mon))
+	 (to-drop '()))
+     ;; first iterate over the drops and decide what is actually dropped
+     (dolist (i (monster.treasures kind))
+       (check-type i treasure-drop)
+       (when (< (random 100) (* 100 (drop.chance i)))
+	 (let ((amount (drop.amount i)))
+	   (when (consp amount)
+	     (setf amount (roll-dice (car amount) (cdr amount))))
+	   (when (plusp amount)
+	     (push (list amount (drop.quality i) (drop.type i)) to-drop)))))
+
+     ;; now process the actual drops
+     (flet ((drop-an-obj (quality type)
+	      (declare (ignore quality))
+	      (case type
+		((:any :item)
+		 (let ((new-obj (get-active-object-by-level variant level)))
+		   (drop-near-location! variant (level.dungeon level)
+					new-obj (location-x mon) (location-y mon)))
+		 )
+		(:gold
+		 (warn "Gold-drops not implemented yet."))
+		)
+
+	      ))
+;;	      (warn "Dropping ~s ~s at (~s,~s)" quality type (location-x mon) (location-y mon)
+     
+       ;; now we have a list of objects (hopefully) to drop
+       
+       (dolist (i to-drop)
+	 (assert (consp i))
+	 (dotimes (j (car i))
+	   (drop-an-obj (second i) (third i))))
+     
+
+     )))
+
+(defmethod drop-near-location! ((variant variant) (dungeon dungeon) (object active-object) x y)
+  ;; we do this hackish
+  (flet ((poss-drop (tx ty)
+	   (when (= (cave-feature dungeon tx ty) +feature-floor+) ;; must be a floor
+	     (let ((tbl (get-ensured-floor-table dungeon tx ty)))
+	       ;;(warn "Dropped ~s at (~s,~s)" object tx ty)
+	       (item-table-add! tbl object)
+	       (return-from drop-near-location! t)))))
+    (poss-drop x y)
+    (poss-drop (1+ x) y)
+    (poss-drop x (1+ y))
+    (poss-drop (1+ x) (1+ y))
+    nil))
+
+
+
 (defmethod get-loadable-form ((object game-values) &key)
+  
   (let ((the-form '()))
     (flet ((possibly-add (initarg val &optional (def-val nil))
 	     (unless (equal val def-val)
 	       (setf the-form (nconc the-form (list initarg (loadable-val val)))))))
-      (setf the-form (list 'make-instance ''game-values))
+      (setf the-form (list 'make-game-values))
       
       (possibly-add :base-ac (gval.base-ac object) 0)
       (possibly-add :ac-modifier (gval.ac-modifier object) 0)
@@ -337,9 +411,9 @@ a number or a symbol identifying the place."
       (possibly-add :speed (gval.speed object) 0)
       (possibly-add :skill-modifiers (gval.skill-modifiers object))
       (possibly-add :stat-modifiers (gval.stat-modifiers object))
-      (possibly-add :ignores (gval.ignores object))
-      (possibly-add :resists (gval.resists object))
-      (possibly-add :immunities (gval.immunities object))
+      (possibly-add :ignores (gval.ignores object) 0)
+      (possibly-add :resists (gval.resists object) 0)
+      (possibly-add :immunities (gval.immunities object) 0)
       (possibly-add :abilities (gval.abilities object))
       (possibly-add :sustains (gval.sustains object))
       (possibly-add :slays (gval.slays object))

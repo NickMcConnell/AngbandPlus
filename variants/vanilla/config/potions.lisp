@@ -1,5 +1,18 @@
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
-(in-package :langband)
+#|
+
+DESC: variants/vanilla/config/potions.lisp - potions for vanilla variant
+Copyright (c) 2000-2002 - Stig Erik Sandø
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+|#
+
+(in-package :org.langband.vanilla)
 
 (define-object-kind "slime-mold-juice" "slime mold juice"
   :numeric-id 222
@@ -496,7 +509,7 @@
   :the-kind '<potion>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-255" "salt water"
+(define-object-kind "salt-water" "salt water"
   :numeric-id 255
   :x-attr #\d
   :x-char #\!
@@ -706,7 +719,7 @@
   :the-kind '<potion>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-416" "ruination"
+(define-object-kind "potion-ruination" "ruination"
   :numeric-id 416
   :x-attr #\d
   :x-char #\!
@@ -721,7 +734,7 @@
   :the-kind '<potion>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-417" "detonations"
+(define-object-kind "potion-detonations" "detonations"
   :numeric-id 417
   :x-attr #\d
   :x-char #\!
@@ -736,7 +749,7 @@
   :the-kind '<potion>
   :game-values (make-game-values :base-dice 25 :num-dice 25)) 
 
-(define-object-kind "object-418" "augmentation"
+(define-object-kind "potion-augmentation" "augmentation"
   :numeric-id 418
   :x-attr #\d
   :x-char #\!
@@ -751,7 +764,7 @@
   :the-kind '<potion>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-419" "*healing*"
+(define-object-kind "potion-*healing*" "*healing*"
   :numeric-id 419
   :x-attr #\d
   :x-char #\!
@@ -781,7 +794,7 @@
   :the-kind '<potion>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "object-421" "self knowledge"
+(define-object-kind "potion-self-knowledge" "self knowledge"
   :numeric-id 421
   :x-attr #\d
   :x-char #\!

@@ -1,5 +1,18 @@
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
-(in-package :org.langband.engine)
+#|
+
+DESC: variants/vanilla/config/scrolls.lisp - scrolls for vanilla variant
+Copyright (c) 2000-2002 - Stig Erik Sandø
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+|#
+
+(in-package :org.langband.vanilla)
 
 (define-object-kind "scroll-enchant-wpn-hit" "enchant weapon to-hit"
   :numeric-id 173
@@ -449,7 +462,7 @@
   :sort-value 5042
   :the-kind '<scroll>) 
 
-(define-object-kind "object-212" "*enchant weapon*"
+(define-object-kind "scroll-*enchant-weapon*" "*enchant weapon*"
   :numeric-id 212
   :x-attr #\d
   :x-char #\?
@@ -477,7 +490,7 @@
   :sort-value 5003
   :the-kind '<scroll>) 
 
-(define-object-kind "object-214" "*enchant armour*"
+(define-object-kind "scroll-*enchant-armour*" "*enchant armour*"
   :numeric-id 214
   :x-attr #\d
   :x-char #\?
@@ -575,7 +588,7 @@
   :sort-value 5011
   :the-kind '<scroll>) 
 
-(define-object-kind "object-221" "*destruction*"
+(define-object-kind "scroll-*destruction*" "*destruction*"
   :numeric-id 221
   :x-attr #\d
   :x-char #\?

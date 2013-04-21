@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
 #||
 
@@ -12,7 +12,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 ||#
 
-(in-package :langband)
+(in-package :org.langband.vanilla)
 
 (defun light-room! (dungeon x y &key (type '<light>))
   "Lights the room."

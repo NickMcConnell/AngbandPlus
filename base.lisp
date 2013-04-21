@@ -22,7 +22,6 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  (deftype vinfo-bit-type () `(unsigned-byte 32))
   (deftype vinfo-bit-type () `(unsigned-byte 16))
 
-
   (deftype =char-code= ()
     #+handle-char-as-num
     'u-16b
@@ -50,8 +49,9 @@ should also be \"activated\", ie get proper values on all variables.
 The object in question must be returned, failure to do so may lead to a
 situation where the system assumes the object is invalid."))  
 
-(defgeneric ok-object? (obj)
-  (:documentation "Checks to make sure the object is ok."))
+(defgeneric ok-object? (obj &key warn-on-failure context)
+  (:documentation "Checks to make sure the object is ok.  Should not halt
+the program, just return NIL on failure.  Is allowed to print warnings."))
 
 (defgeneric convert-obj (obj to &key &allow-other-keys)
   (:documentation "Tries to convert the OBJ to the TO form, in pretty
@@ -203,7 +203,9 @@ before variant init-functions."
   `(char-code ,chr)
   )
 
-
+;; turn into a deftype later
+(defun nonboolsym? (sym)
+  (and sym (not (eq sym t)) (symbolp sym)))
 
 (defun symbolify (data)
   "Returns a symbol in a form which can be understood when reading code."

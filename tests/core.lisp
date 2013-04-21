@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND-TEST -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.testing -*-
 
 #|
 
@@ -6,7 +6,7 @@ DESC: tests/core.lisp - testing code for variant obj
 
 |#
 
-(in-package :lb-test)
+(in-package :org.langband.testing)
 
 (def-lb-fixture var-fixture (pre-variant)
   ()
@@ -49,7 +49,7 @@ DESC: tests/core.lisp - testing code for variant obj
     ;; simple checks to see that our variant has some valid values
     (test-assert (not (eq nil var-obj)))
     (test-assert (typep var-obj 'lb::variant))
-    (test-assert (lb::ok-object? var-obj))
+    (test-assert (lb::ok-object? var-obj :context :post-variant :warn-on-failure t))
     (test-assert (plusp (hash-table-count (lb::variant.races var-obj))))
     (test-assert (plusp (hash-table-count (lb::variant.classes var-obj))))
     (test-assert (plusp (hash-table-count (lb::variant.floor-features var-obj))))

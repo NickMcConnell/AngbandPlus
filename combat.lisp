@@ -22,22 +22,26 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod kill-target! (dun attacker target x y)
   "Tries to remove the monster at the location."
-  (setf (creature-alive? target) nil)
 
-  ;; let us generate drop.. 
-  (when (typep target 'active-monster)
-    (let ((dropping (has-ability? target '<drop>)))
-      (when dropping
-	(warn "Monster is dropping sth.. fix me."))))
+  (let ((var-obj *variant*)
+	(lvl-obj *level*))
+    (setf (creature-alive? target) nil)
+    
+    ;; let us generate drop.. 
+    (when (typep target 'active-monster)
+      (when (can-creature-drop? var-obj target)
+	(creature-drop! var-obj target lvl-obj))
+      )
+    
   
-  (when (typep target 'active-monster)
-    (setf (dungeon.monsters dun) (delete target (dungeon.monsters dun))
-	  (cave-monsters dun x y) nil))
-
-  (when (typep target 'player)
-    (setf (player.dead-from target) (get-creature-name attacker)))
+    (when (typep target 'active-monster)
+      (setf (dungeon.monsters dun) (delete target (dungeon.monsters dun))
+	    (cave-monsters dun x y) nil))
+    
+    (when (typep target 'player)
+      (setf (player.dead-from target) (get-creature-name attacker)))
   
-  nil)
+    nil))
 
 (defmethod cmb-describe-miss (attacker target)
 
@@ -84,13 +88,7 @@ the Free Software Foundation; either version 2 of the License, or
       t
       nil))
 
-(defun get-chance (variant skill the-ac)
-  (let* ((ac-factor (int-/ (* 3 the-ac) 4))
-	 (calc-chance (int-/ (* 90 (- skill ac-factor)) skill)))
-    (if (plusp calc-chance)
-	(+ 5 calc-chance)
-	5)))
-		    
+	    
 (defmethod melee-hit-creature? ((attacker player) (target active-monster) the-attack)
   (declare (ignore the-attack))
  

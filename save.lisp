@@ -43,7 +43,7 @@ the Free Software Foundation; either version 2 of the License, or
     (bt:write-binary type str (aref arr i))))
 
 (defvar +long-space-word+ "                                ")
-(defvar *save-hanger* nil)
+;;(defvar *save-hanger* nil)
 
 (defun %get-indent-str (indent)
   (subseq +long-space-word+ 0 indent))
@@ -52,21 +52,69 @@ the Free Software Foundation; either version 2 of the License, or
 
   (let ((str (lang.stream stream))
 	(ind (%get-indent-str indent)))
-
+    
     ;; do turn-events later
-    (format str "~a(%filed-variant :id ~s :turn ~s)~%"
+    (format str "~a(setf *variant* (%filed-variant :id ~s :turn ~s))~%"
 	    ind (string (variant.id obj)) (variant.turn obj))
 
+    (loop for x being the hash-values of (variant.objects obj)
+	  do (save-object variant x stream indent))
+    
     nil))
 
 (defmethod save-object ((variant variant) (obj variant) (stream l-binary-stream) indent)
-  (declare (ignore indent))
-  (let ((str (lang.stream stream)))
+  (let* ((str (lang.stream stream))
+	 (obj-table (variant.objects obj))
+	 (obj-len (hash-table-count obj-table)))
 
     (%bin-save-string (string (variant.id obj)) str)
     (write-binary 'u32 str (variant.turn obj))
+
+    ;; write out all object-kinds
+    (write-binary 'u32 str obj-len)
+    (loop for x being the hash-values of obj-table
+	  do
+	  (progn
+	    (assert (ok-object? x :context :in-game :warn-on-failure t))
+	    (save-object variant x stream indent)))
     
     nil))
+
+(defmethod save-object ((variant variant) (obj object-kind) (stream l-readable-stream) indent)
+  (let* ((str (lang.stream stream))
+	 (ind (%get-indent-str indent))
+	 (flavour-arg (object.flavour obj))
+	 (flav-to-print (if flavour-arg
+			    `(cons ,(car flavour-arg) ,(convert-obj (cdr flavour-arg) :letter))
+			    nil)))
+	    
+    #+langband-extra-checks
+    (assert (ok-object? obj :context :in-game :warn-on-failure t))
+    (format str "~a(%filed-object-kind :id ~s :flavour ~s :aware ~s)~%"
+	    ind (object.id obj) flav-to-print (object.aware obj))
+    nil))
+	 
+	 
+(defmethod save-object ((variant variant) (obj object-kind) (stream l-binary-stream) indent)
+  (declare (ignore indent))
+  (let* ((str (lang.stream stream))
+	 (aware-num (if (object.aware obj) 1 0))
+	 (flavour (object.flavour obj))
+	 (flav-num (if flavour 1 0))
+	 )
+    
+    (%bin-save-string (string (object.id obj)) str)
+    (write-binary 's16 str aware-num)
+    (write-binary 's16 str flav-num)
+    (when flavour
+      (assert (legal-flavour-obj? flavour))
+      (%bin-save-string (car flavour) str)
+      (write-binary 's16 str (char-code (convert-obj (cdr flavour) :letter))))
+
+
+    nil))
+   
+
 
  
 
@@ -156,15 +204,16 @@ the Free Software Foundation; either version 2 of the License, or
     
     ))
 
-(defmethod save-object ((variant variant) (object active-monster) (stream l-readable-stream) indent)
+(defmethod save-object ((variant variant) (monster active-monster) (stream l-readable-stream) indent)
   (let ((str (lang.stream stream))
+	(object monster)
 	(ind (%get-indent-str indent)))
     
     (format str "~a(%filed-monster :kind ~s :cur-hp ~a :max-hp ~a :speed ~a ~%"
-	    ind (monster.id (amon.kind object))
-	    (current-hp object)
-	    (maximum-hp object)
-	    (get-creature-speed object))
+	    ind (monster.id (amon.kind monster))
+	    (current-hp monster)
+	    (maximum-hp monster)
+	    (get-creature-speed monster))
     
     (format str "~a :energy ~a :mana ~a :loc-x ~a :loc-y ~a :alive? ~a) ;; end mon~%"
 	    ind (get-creature-energy object)
@@ -196,7 +245,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod save-object ((variant variant) (object active-object) (stream l-readable-stream) indent)
 
-  (assert (ok-object? object))
+  (assert (ok-object? object :context :in-game :warn-on-failure t))
 ;;  (warn "saving r-object ~a" object)
   (let ((str (lang.stream stream))
 	(ind (%get-indent-str indent))
@@ -205,25 +254,40 @@ the Free Software Foundation; either version 2 of the License, or
 	(number (aobj.number object))
 	(contains (aobj.contains object))
 	(events (aobj.events object))
+	(gvals (aobj.game-values object))
+	(identify (aobj.identify object))
 	(loc-x (location-x object))
 	(loc-y (location-y object)))
-    
+
+    (check-type number integer)   
+    (check-type loc-x integer)
+    (check-type loc-y integer)
+    (check-type identify integer)
+
+    (assert (and (plusp number) (plusp loc-x) (plusp loc-y)))
+    (assert (>= identify 0))
+	    
     (format str "~a(%filed-object :kind ~s :inscr ~s :number ~s~%"
 	    ind the-kind-id inscription number)
+
+    (when contains 
+      (format str "~a:contains~%" ind)
+      (save-object variant contains stream (+ 2 indent)))
+
+    (when events
+      (format str "~a:events ~s" ind events))
+
+    (when gvals
+      (format str "~a:game-values ~s" ind (get-loadable-form gvals)))
     
-    (format str "~a:contains~%" ind)
-    (if contains
-	(save-object variant contains stream (+ 2 indent))
-	(format str "~a  nil~%" ind))
-    
-    (format str "~a:events ~s :loc-x ~s :loc-y ~s) ;; end obj~%"
-	    ind events loc-x loc-y)
+    (format str "~a :identify ~s :loc-x ~s :loc-y ~s) ;; end obj~%"
+	    ind identify loc-x loc-y)
     
     ))
 
 (defmethod save-object ((variant variant) (object active-object) (stream l-binary-stream) indent)
 
-  (assert (ok-object? object))
+  (assert (ok-object? object :context :in-game :warn-on-failure t))
 	
 ;;  (warn "saving b-object ~a" object)
   (let ((str (lang.stream stream))
@@ -232,16 +296,28 @@ the Free Software Foundation; either version 2 of the License, or
 	(number (aobj.number object))
 	(contains (aobj.contains object))
 ;;	(events (aobj.events object))
+	(identify (aobj.identify object))
 	(loc-x (location-x object))
 	(loc-y (location-y object)))
+
+    (check-type number integer)
+    (check-type loc-x integer)
+    (check-type loc-y integer)
+    (check-type identify integer)
+    
+    (assert (and (plusp number) (plusp loc-x) (plusp loc-y)))
+    (assert (>= identify 0))
     
     (%bin-save-string the-kind-id str)
 
     (%bin-save-string inscription str)
 
+
     (bt:write-binary 'u16 str number)
+    (bt:write-binary 'u32 str identify)
     (bt:write-binary 'u16 str loc-x)
     (bt:write-binary 'u16 str loc-y)
+
     
     ;; dump out a digit if we have containment
     (bt:write-binary 'u16 str (if contains 1 0))
@@ -255,7 +331,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod save-object ((variant variant) (obj active-room) (stream l-readable-stream) indent)
   
-  (assert (ok-object? obj))
+  (assert (ok-object? obj :context :in-game :warn-on-failure t))
 
   (let ((str (lang.stream stream))
 	(ind (%get-indent-str indent)))
@@ -268,7 +344,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod save-object ((variant variant) (obj active-room) (stream l-binary-stream) indent)
   (declare (ignore indent))
-  (assert (ok-object? obj))
+  (assert (ok-object? obj :context :in-game :warn-on-failure t))
 
   (let ((str (lang.stream stream))
 	(loc-x (location-x obj))
@@ -282,11 +358,11 @@ the Free Software Foundation; either version 2 of the License, or
     nil))
 
 (defmethod save-object ((variant variant) (obj player) (stream l-readable-stream) indent)
-  (assert (ok-object? obj))
+  (assert (ok-object? obj :context :in-game :warn-on-failure t))
   (let ((str (lang.stream stream))
 	(ind (%get-indent-str indent)))
 	
-    (format str "~a(%filed-player ~%" ind)
+    (format str "~a(setf *player* (%filed-player ~%" ind)
     (format str "~a  :name ~s :race ~s :class ~s :sex ~s ~%"
 	    ind (player.name obj)
 	    (string (race.id (player.race obj)))
@@ -320,7 +396,7 @@ the Free Software Foundation; either version 2 of the License, or
     (format str "~a  :equipment ~%" ind)
     (save-object variant (player.equipment obj) stream (+ 2 indent))
   
-    (format str " ~a) ;; end player ~%" ind)
+    (format str " ~a)) ;; end player ~%" ind)
 
     nil))
 
@@ -443,7 +519,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(the-id (string (level.id obj))))
 
     ;; hackish
-    (format str "~a(let* ((builder (get-level-builder ~s))~%"
+    (format str "~a(setf *level* (let* ((builder (get-level-builder ~s))~%"
 	    ind the-id)
     (format str "~a       (*level* (funcall builder))) ;; evil hack~%"
 	    ind)
@@ -455,7 +531,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     (save-object variant (level.dungeon obj) stream (+ 4 indent))
     
-    (format str "  ~a)) ;; end lvl~%" ind)
+    (format str "  ~a))) ;; end lvl~%" ind)
     
     nil))
 
@@ -484,11 +560,13 @@ the Free Software Foundation; either version 2 of the License, or
 
            
       (format s "(in-package :langband)~2%")
-      (format s "(setf *save-hanger* nil)~2%")
+
+;;      (format s "(setf *save-hanger* nil)~2%")
       (dolist (i objs)
-	(format s "(push ~%")
+;;	(format s "(push ~%")
 	(save-object variant i the-lang-stream 0)
-	(format s " *save-hanger*)~2%"))
+	;;(format s " *save-hanger*)~2%")
+	)
       )))
 
 (defmethod do-save ((variant variant) fname obj-list (style (eql :binary)))
@@ -516,42 +594,61 @@ the Free Software Foundation; either version 2 of the License, or
 		     :if-does-not-exist :create)
     (print obj s)))
 
-(defmethod do-load (variant fname obj-types (style (eql :readable)))
-  (declare (ignore obj-types))
-  
-  (let ((*save-hanger* nil)
-	(*variant* variant))
+(defmethod load-a-saved-game (variant fname (style (eql :readable)))
+  (declare (ignore variant))
+
+;;  (warn "Doing load.. ")
+  (let ((*variant* nil)
+	(*player* nil)
+	(*dungeon* nil)
+	(*level* (make-instance 'level)) ;; ugly hack
+	)
+    
     (load fname)
+    (list *variant* *player* *level*)))
 
-    *save-hanger*))
 
-
-(defmethod do-load (variant fname obj-type-list (style (eql :binary)))
+(defmethod load-a-saved-game (variant fname (style (eql :binary)))
 ;;  #-cormanlisp
+  (declare (ignore variant))
   (bt:with-binary-file (s (pathname fname)
 			  :direction :input)
     
-    (let ((*variant* variant)
+    (let ((*variant* nil)
+	  (*dungeon* nil)
+	  (*player* nil)
+	  (*level* (make-instance 'level)) ;; hack
 	  (bt:*endian* :little-endian)
 	  (the-lang-stream (make-instance 'l-binary-stream :stream s))
-	  (objs (if (listp obj-type-list) obj-type-list (list obj-type-list)))
-	  (retval '()))
+;;	  (objs (if (listp obj-type-list) obj-type-list (list obj-type-list)))
+;;	  (retval '())
+	  )
 
-      (when (eq variant nil)
-	(cond ((not (eq (car objs) :variant))
-	       (error "Variant-argument is nil, but obj-type-list does not have :variant as first arg."))
+      ;; first we need the variant object
+      (let ((ret-obj (load-object nil :variant the-lang-stream)))
+	(cond ((and ret-obj (typep ret-obj 'variant))
+	       (setf *variant* ret-obj))
 	      (t
-	       (let ((ret-var (load-object nil :variant the-lang-stream)))
-		 (when (and ret-var (typep ret-var 'variant))
-		   (setf variant ret-var)
-		   (push ret-var retval))
-		 (setf objs (cdr objs))))))
-	
+	       (error "Unable to read variant-object from file ~a" fname))))
+
+      ;; then the player comes
+      (let ((ret-obj (load-object *variant* :player the-lang-stream)))
+	(cond ((and ret-obj (typep ret-obj 'player))
+	       (setf *player* ret-obj))
+	      (t
+	       (error "Unable to read player-object from file ~a" fname))))
       
-      (loop for obj-type in objs
-	    do (push (load-object variant obj-type the-lang-stream) retval))
+      ;; then we want the current level
+      (let ((ret-obj (load-object *variant* :level the-lang-stream)))
+	(cond ((and ret-obj (typep ret-obj 'level))
+	       (setf *level* ret-obj))
+	      (t
+	       (error "Unable to read level-object from file ~a" fname))))
       
-      (nreverse retval))))
+      
+      (list *variant* *player* *level*)
+      )))
+
 
 (defun save-the-game (var-obj player level &key (fname +readable-save-file+) (format :readable))
   "Tries to save the game."

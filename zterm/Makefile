@@ -2,7 +2,9 @@
 
 # what gui environments do you want
 # (currently only GCU, X11, WIN and GTK supported)
+
 ENVIRONMENTS=X11 GCU
+#ENVIRONMENTS=GTK
 #ENVIRONMENTS=WIN
 
 # do you want to use experimental sound
@@ -42,7 +44,7 @@ endif
 #GTK Settings
 ifeq ($(findstring GTK,$(ENVIRONMENTS)), GTK)
 UIDEFINES = -D"USE_GTK" 
-UIFLAGS = += `gtk-config --cflags`
+UIFLAGS += `gtk-config --cflags`
 UIOBJS += main-gtk.o
 UILIBS += `gtk-config --libs`
 endif
