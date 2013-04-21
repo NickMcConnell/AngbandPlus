@@ -1862,7 +1862,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 		else
 			text_out_c(TERM_SLATE, " is normally found ");
 
-		text_out_c(TERM_SLATE, "at depths of %d feet", r_ptr->level * 50);
+		text_out_c(TERM_SLATE, "at depths of %d feet", inverse_effective_depth(r_ptr->level) * 50);
 
 		old = TRUE;
 	}

@@ -1697,18 +1697,7 @@ static void mass_produce(object_type *o_ptr, int store)
 	{
 		discount = 25;
 	}
-	else if (one_in_(150))
-	{
-		discount = 50;
-	}
-	else if (one_in_(300))
-	{
-		discount = 75;
-	}
-	else if (one_in_(500))
-	{
-		discount = 90;
-	}
+
 
 	/* Save the discount */
 	o_ptr->discount = discount;
@@ -2457,8 +2446,9 @@ bool keep_in_stock(const object_type *o_ptr, int which)
 		{
 			/*only keep in the temple*/
 			if (which != STORE_TEMPLE) return (FALSE);
+			if (k_ptr->sval == SV_POTION_CURE_LIGHT) return (TRUE);
 			if (k_ptr->sval == SV_POTION_CURE_CRITICAL) return (TRUE);
-			if (k_ptr->sval == SV_POTION_RESTORE_EXP) return (TRUE);
+			if (k_ptr->sval == SV_POTION_CURING) return (TRUE);
 			return (FALSE);
 		}
 		case TV_SCROLL:
@@ -2466,8 +2456,8 @@ bool keep_in_stock(const object_type *o_ptr, int which)
 			/*only keep in the alchemy shop*/
 			if (which != STORE_ALCHEMY) return (FALSE);
 			if (k_ptr->sval == SV_SCROLL_PHASE_DOOR) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_SATISFY_HUNGER) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_IDENTIFY) return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_TELEPORT) return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_WORD_OF_RECALL) return (TRUE);
 			return (FALSE);
 
@@ -2707,6 +2697,9 @@ static void store_create_random(int which)
 		if ((which == STORE_B_MARKET) && !black_market_ok(i_ptr))
 			continue;
 
+		if ((which!=STORE_B_MARKET) && ego_item_p(i_ptr))
+			continue;
+
 		/* No "worthless" items */
 		if (object_value(i_ptr) <= 0) continue;
 
@@ -2733,7 +2726,7 @@ static void store_create_random(int which)
  */
 void store_maint(int which)
 {
-	int j;
+	int j, tries;
 	int alt_min = 0;
 
 	int old_rating = rating;
@@ -2842,10 +2835,14 @@ void store_maint(int which)
 	 * This should never be false unless a new store isn't set up properly.
 	 * Note this function sets the allocation table, which must be undone at the bottom.
 	 */
+	tries = 0;
 	if (prep_store_object(which))
 	{
 		/* Create some new items */
-		while (st_ptr->stock_num < j) store_create_random(which);
+		while (st_ptr->stock_num < j  && tries<100){
+			store_create_random(which);
+			tries = tries + 1;
+		}
 	}
 
 	/* Re-set all object generation settings and level rating. */
@@ -4345,12 +4342,10 @@ static void store_examine(int oid)
 		return;
 	}
 
-	/* else (entry type == ENTRY_OBJECT) */
-
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[entry_num];
 
-	text_out_hook = text_out_to_screen;
+ 	text_out_hook = text_out_to_screen;
 
 	/* Show full info in most stores, but normal info in player home */
 	object_info_screen(o_ptr);

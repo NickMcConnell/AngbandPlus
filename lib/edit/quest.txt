@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.5.4
+V:1.0.0
 
 # This slot for the adventurer's guild quests.  This must be 0, as it is hard coded in 
 # the source code
@@ -23,7 +23,7 @@ N:0:Guild quest
 W:0:0:0:0
 
 N:1:Sauron
-W:99:643:0:1
+W:49:643:0:1
 
 N:2:Morgoth
-W:100:644:0:1
+W:50:644:0:1

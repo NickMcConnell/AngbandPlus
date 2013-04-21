@@ -96,7 +96,7 @@
 
 # Version stamp (required)
 
-V:0.5.4
+V:1.0.0
 
 N:0:nothing
 G: :w
@@ -2182,7 +2182,7 @@ F:NOTICE | REMEMBER | CAN_TUNNEL | WALL | ATTR_LIGHT
 F:HURT_ROCK | ACID
 
 
-N:206:cobblestone street
+N:206:town ground
 G:.:s2
 W:0:1:15:0
 C:0:100:100:100:100:0

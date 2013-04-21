@@ -104,7 +104,7 @@
 /*
  * OPTION: Person to contact if something goes wrong.
  */
-#define MAINTAINER	"nppangbanddev@verizon.net"
+#define MAINTAINER	"antoine.from.rgrd@gmail.com"
 
 /*** X11 settings ***/
 

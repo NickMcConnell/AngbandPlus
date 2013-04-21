@@ -811,7 +811,7 @@ void do_cmd_cast(cmd_code code, cmd_arg args[])
 			p_ptr->spell_flags[spell] |= PY_SPELL_WORKED;
 
 			/* Gain experience */
-			gain_exp(e * s_ptr->slevel);
+			gain_exp(1);
 
 			/* Redraw object recall */
 			p_ptr->redraw |= (PR_OBJECT);

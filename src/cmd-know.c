@@ -1745,79 +1745,15 @@ void apply_magic_fake(object_type *o_ptr)
 		{
 			switch (o_ptr->sval)
 			{
-				case SV_RING_STR:
-				case SV_RING_CON:
-				case SV_RING_DEX:
-				case SV_RING_INT:
+				case SV_RING_MIGHT:
+				case SV_RING_MAGIC:
+				case SV_RING_YOUTH:
 				case SV_RING_SPEED:
-				case SV_RING_SEARCHING:
 				{
 					o_ptr->pval = 1;
 					break;
 				}
 
-				case SV_RING_AGGRAVATION:
-				{
-					o_ptr->ident |= (IDENT_CURSED);
-					break;
-				}
-				case SV_RING_WEAKNESS:
-				case SV_RING_STUPIDITY:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = -1;
-
-					break;
-				}
-				/* WOE */
-				case SV_RING_WOE:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->to_a = -1;
-					o_ptr->pval = -1;
-
-					break;
-				}
-				/* Ring that increase damage */
-				case SV_RING_DAMAGE:
-				{
-					/* Bonus to damage */
-					o_ptr->to_d = 1;
-
-					break;
-				}
-				/* Ring that increase accuracy */
-				case SV_RING_ACCURACY:
-				{
-					/* Bonus to hit */
-					o_ptr->to_h = 1;
-
-					break;
-				}
-				/* Rings that provide of Protection */
-				case SV_RING_PROTECTION:
-				case SV_RING_FLAMES:
-				case SV_RING_ACID:
-				case SV_RING_ICE:
-				case SV_RING_LIGHTNING:
-				{
-					/* Bonus to armor class */
-					o_ptr->to_a = 1;
-
-					break;
-				}
 				/*both to-hit and to-damage*/
 				case SV_RING_SLAYING:
 				{
@@ -1839,55 +1775,7 @@ void apply_magic_fake(object_type *o_ptr)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Amulet of wisdom/charisma/infravision */
-				case SV_AMULET_WISDOM:
-				case SV_AMULET_CHARISMA:
-				case SV_AMULET_INFRAVISION:
-				case SV_AMULET_SEARCHING:
-				case SV_AMULET_ESP:
-				case SV_AMULET_DEVOTION:
-				case SV_AMULET_TRICKERY:
-				{
-					/* Stat bonus */
-					o_ptr->pval = 1;
-
-					break;
-				}
-
-				/* Amulet of the Magi -- never cursed */
-				case SV_AMULET_THE_MAGI:
-				{
-					o_ptr->pval = 1;
-					o_ptr->to_a = 1;
-
-					break;
-				}
-
-				/* Amulet of Weaponmastery -- never cursed */
-				case SV_AMULET_WEAPONMASTERY:
-				{
-					o_ptr->to_h = 1;
-					o_ptr->to_d = 1;
-					o_ptr->pval = 1;
-
-					break;
-				}
-
-				/* Amulet of Doom -- always cursed */
-				case SV_AMULET_DOOM:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = -1;
-					o_ptr->to_a = -1;
-
-					break;
-				}
+				/* no amulets now have a pval */
 
 				default: break;
 

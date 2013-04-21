@@ -1,0 +1,43 @@
+v1.0.0
+
+## General gameplay
+Dungeon is now 50 levels
+Locked down some options
+Shrank the dungeon a bit
+Measures to discourage heavy stair scumming
+
+## Monster attacks
+Chaos attacks only have a 1 in 3 chance of making you hallucinate
+Max damage of elemental breaths is down to 1200
+If you are very poisoned, you lose multiple HP per turn
+If your stats are badly drained, you may resist further draining
+When a monster melees you, nearby sleeping monsters who have LOS to you are likely to wake up
+
+## Items
+Restricted artifact list, and some artifacts modified 
+Restricted ego list, and some egos modified
+Restricted object list, and some objects modified 
+Note in particular that ?ID is really ?*Identify* and that !CCW does not heal most status effects
+Different objects are store-eligible, store-kept, and class-initial-equipment
+Shops other than the black market do not carry egos or jewelery
+The commonest artifacts are rarer; the shallowest artifacts are deeper
+No artifact heals more than 300 HP or provides temp elemental resists
+Cursed weapons/armors are not found. However, some 'good' weapons can have negative to-hit
+
+## Classes and races
+Only four classes and five races
+Warriors never innately resist fear
+Priests suffer the pointy penalty if they use bows or crossbows (slings are OK)
+Rogues do not get special combat boosts or set traps. However, their stealth improves with level, and they can wear any gloves
+Elves get SI
+
+## Spells
+There are now only 3 town and 3 dungeon books per class, with just 6 spells each
+Casting spells only gets you 1 XP
+Teleport Other is a bolt not a beam
+OOD is less damaging and more expensive
+
+## Other character features
+High Dex gives a Speed bonus
+Extra shots aren't as quick as they used to be
+

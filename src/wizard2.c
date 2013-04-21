@@ -1676,7 +1676,6 @@ static void wiz_create_items(void)
 
 		/* Drop the object */
 		drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
-
 	}
 }
 

@@ -4097,10 +4097,14 @@ errr next_line_to_number(ang_file *fff, byte *dest)
 	return (TRUE);
 }
 
-int effective_depth(int depth)
-{
-	/* in Quickband this is different */
-	return depth;
+int effective_depth(int depth){
+  if (depth==49){
+	  return 99;
+  } else {
+	  return depth * 2;
+  }
 }
 
-
+int inverse_effective_depth(int depth){
+  return (depth + 1)/2;
+}

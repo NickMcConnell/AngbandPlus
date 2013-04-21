@@ -13,7 +13,7 @@
 
 # Version stamp (required)
 
-V:0.5.4
+V:1.0.0
 
 
 
@@ -51,10 +51,10 @@ M:G:21:20
 M:V:69
 
 # Maximum number of player races
-M:P:11
+M:P:5
 
 # Maximum number of player classes
-M:C:8
+M:C:4
 
 # Maximum number of player history lines
 M:H:165
@@ -69,7 +69,7 @@ M:Q:4
 M:L:348
 
 # Maximum number of objects on the level
-M:O:1024
+M:O:512
 
 # Maximum number of monsters on the level
 M:M:1024

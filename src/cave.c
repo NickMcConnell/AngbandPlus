@@ -1057,17 +1057,10 @@ static void get_dtrap_edge_char(byte *a, char *c)
 {
 	if (use_graphics)
 	{
-		if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
 		{
 			*a = (byte)0x9A;
 			*c = (char)0xC5;
 		}
-		else
-		{
-			*a = color_to_attr[TILE_BALL_INFO][TERM_GREEN];
-			*c = color_to_char[TILE_BALL_INFO][TERM_GREEN];
-		}
-
 	}
 	else
 	{

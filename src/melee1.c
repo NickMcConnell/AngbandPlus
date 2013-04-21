@@ -191,6 +191,7 @@ int drain_charges(object_type *o_ptr, u32b heal)
 bool make_attack_normal(monster_type *m_ptr)
 {
 	int m_idx = cave_m_idx[m_ptr->fy][m_ptr->fx];
+	int n_woken;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -1705,6 +1706,30 @@ bool make_attack_normal(monster_type *m_ptr)
 			}
 		}
 
+		/* New - have a go at waking up every monster within a few spaces who has LOS to the @ */
+		n_woken = 0;
+		for (i = 1; i < mon_max; i++)
+		{
+			m_ptr = &mon_list[i];
+			/* Paranoia -- Skip dead monsters */
+			if (!m_ptr->r_idx) continue;
+
+			if (distance(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx) > rand_int(20)) continue;
+			if (!(one_in_(3))) continue;
+
+			if (!(player_can_fire_bold(m_ptr->fy, m_ptr->fx))) continue;
+
+			/* Wake up */
+			if (m_ptr->m_timed[MON_TMD_SLEEP]) n_woken++;
+			m_ptr->m_timed[MON_TMD_SLEEP] = 0;
+		}
+		p_ptr->redraw |= PR_MONLIST;
+		if (n_woken>1){
+			msg_format("Some monsters are woken up.");
+		} else if (n_woken==1){
+			msg_format("A monster is woken up.");
+		}
+
 		/*hack - stop attacks if monster and player are no longer next to each other*/
 		if (do_break) break;
 
@@ -1835,7 +1860,7 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 		case GF_COLD:
 		{
 			dam = hit_points / 3;
-			max_dam = 1600;
+			max_dam = 1200;
 			break;
 		}
 		case GF_POIS:

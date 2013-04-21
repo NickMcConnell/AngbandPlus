@@ -784,48 +784,59 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_POTION_SALT_WATER:
+		case SV_POTION_MIGHT:
 		{
-			msg_print("The potion makes you vomit!");
-			(void)set_food(PY_FOOD_STARVE - 1);
-			(void)clear_timed(TMD_POISONED, TRUE);
-			(void)inc_timed(TMD_PARALYZED, 4, TRUE);
-			*ident = TRUE;
+			if (do_res_stat(A_STR)) *ident = TRUE;
+			else if (do_inc_stat(A_STR)) *ident = TRUE;
+			if (do_res_stat(A_CON)) *ident = TRUE;
+			else if (do_inc_stat(A_CON)) *ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_POISON:
+		case SV_POTION_MAGIC:
 		{
-			if (!(p_ptr->state.resist_pois || p_ptr->timed[TMD_OPP_POIS] || p_ptr->state.immune_pois))
-			{
-				if (inc_timed(TMD_POISONED, rand_int(15) + 10, TRUE))
-				{
-					*ident = TRUE;
-				}
+			if (do_res_stat(A_INT)) *ident = TRUE;
+			else if (do_inc_stat(A_INT)) *ident = TRUE;
+			if (do_res_stat(A_WIS)) *ident = TRUE;
+			else if (do_inc_stat(A_WIS)) *ident = TRUE;
+			break;
+		}
+
+		case SV_POTION_YOUTH:
+		{
+			if (do_res_stat(A_DEX)) *ident = TRUE;
+			else if (do_inc_stat(A_DEX)) *ident = TRUE;
+			if (do_res_stat(A_CHR)) *ident = TRUE;
+			else if (do_inc_stat(A_CHR)) *ident = TRUE;
+			break;
+
+		}
+
+		case SV_POTION_CURING:
+		{
+			if (clear_timed(TMD_BLIND, TRUE)){
+				*ident = TRUE;
+				break;
 			}
-			break;
-		}
-
-		case SV_POTION_BLINDNESS:
-		{
-			if (!p_ptr->state.resist_blind)
-			{
-				if (inc_timed(TMD_BLIND, rand_int(100) + 100, TRUE))
-				{
-					*ident = TRUE;
-				}
+			if (clear_timed(TMD_CONFUSED, TRUE)){
+				*ident = TRUE;
+				break;
 			}
-			break;
-		}
-
-		case SV_POTION_CONFUSION:
-		{
-			if (allow_player_confusion())
-			{
-				if (inc_timed(TMD_CONFUSED, rand_int(20) + 15, TRUE))
-				{
-					*ident = TRUE;
-				}
+			if (clear_timed(TMD_POISONED, TRUE)){
+				*ident = TRUE;
+				break;
+			}
+			if (set_stun(0)){
+				*ident = TRUE;
+				break;
+			}
+			if (set_cut(0)){
+				*ident = TRUE;
+				break;
+			}
+			if (clear_timed(TMD_AFRAID, TRUE)){
+				*ident = TRUE;
+				break;
 			}
 			break;
 		}
@@ -1019,8 +1030,6 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_CURE_LIGHT:
 		{
 			if (hp_player(damroll(3, 8))) *ident = TRUE;
-			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
-			if (set_cut(p_ptr->timed[TMD_CUT] - 10)) *ident = TRUE;
 			break;
 		}
 
@@ -1036,22 +1045,26 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_CURE_CRITICAL:
 		{
 			if (hp_player(damroll(8, 10))) *ident = TRUE;
-			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
-			if (clear_timed(TMD_CONFUSED, TRUE)) *ident = TRUE;
-			if (clear_timed(TMD_POISONED, TRUE)) *ident = TRUE;
-			if (set_stun(0)) *ident = TRUE;
 			if (set_cut(0)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_HEALING:
 		{
-			if (hp_player(325)) *ident = TRUE;
+			if (hp_player(300)) *ident = TRUE;
 			if (clear_timed(TMD_BLIND, TRUE)) *ident = TRUE;
 			if (clear_timed(TMD_CONFUSED, TRUE)) *ident = TRUE;
 			if (clear_timed(TMD_POISONED, TRUE)) *ident = TRUE;
 			if (set_stun(0)) *ident = TRUE;
 			if (set_cut(0)) *ident = TRUE;
+			if (p_ptr->csp < p_ptr->msp)
+			{
+				p_ptr->csp = MIN(p_ptr->csp+100,p_ptr->msp);
+				p_ptr->csp_frac = 0;
+				p_ptr->redraw |= (PR_MANA);
+				*ident = TRUE;
+			}
+			if (restore_level()) *ident = TRUE;
 			break;
 		}
 
@@ -1111,39 +1124,21 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_POTION_RES_STR:
+		case SV_POTION_RESTORATION:
 		{
-			if (do_res_stat(A_STR)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_RES_INT:
-		{
-			if (do_res_stat(A_INT)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_RES_WIS:
-		{
-			if (do_res_stat(A_WIS)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_RES_DEX:
-		{
-			if (do_res_stat(A_DEX)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_RES_CON:
-		{
-			if (do_res_stat(A_CON)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_RES_CHR:
-		{
-			if (do_res_stat(A_CHR)) *ident = TRUE;
+			int most_decreased_stat, biggest_decrease, i;
+			biggest_decrease = 0;
+			most_decreased_stat = -1;
+			for (i=0; i<A_MAX; i++){
+				if ((p_ptr->stat_max[i] - p_ptr->stat_cur[i]) > biggest_decrease){
+					biggest_decrease = p_ptr->stat_max[i] - p_ptr->stat_cur[i];
+					most_decreased_stat = i;
+				}
+			}
+			if (most_decreased_stat==-1){
+				break;
+			}
+			if (do_res_stat(most_decreased_stat)) *ident = TRUE;
 			break;
 		}
 
@@ -1270,7 +1265,6 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if(inc_timed(TMD_OPP_ELEC, act_time, TRUE)) *ident = TRUE;
 			if(inc_timed(TMD_OPP_FIRE, act_time, TRUE)) *ident = TRUE;
 			if(inc_timed(TMD_OPP_COLD, act_time, TRUE)) *ident = TRUE;
-			if(inc_timed(TMD_OPP_POIS, act_time, TRUE)) *ident = TRUE;
 			break;
 		}
 
@@ -1308,13 +1302,9 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 	/* Analyze the scroll */
 	switch (o_ptr->sval)
 	{
-		case SV_SCROLL_DARKNESS:
+		case SV_SCROLL_DETECT_EVIL:
 		{
-			if (!p_ptr->state.resist_blind)
-			{
-				(void)inc_timed(TMD_BLIND, 3 + randint(5), TRUE);
-			}
-			if (unlight_area(10, 3)) *ident = TRUE;
+			if (detect(DETECT_RADIUS, DETECT_EVIL)) *ident = TRUE;
 			break;
 		}
 
@@ -1447,9 +1437,9 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_SCROLL_ENCHANT_WEAPON_TO_HIT:
+		case SV_SCROLL_ENCHANT_WEAPON:
 		{
-			if (!enchant_spell(1, 0, 0)) used_up = FALSE;
+			if (!enchant_spell(1, 1, 0)) used_up = FALSE;
 			*ident = TRUE;
 			break;
 		}
@@ -1839,7 +1829,6 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_THE_MAGI:
 		{
-			if (do_res_stat(A_INT)) *ident = TRUE;
 			if (p_ptr->csp < p_ptr->msp)
 			{
 				p_ptr->csp = p_ptr->msp;
@@ -2242,6 +2231,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident, int dir)
 
 		case SV_ROD_DETECT_DOOR:
 		{
+			if (detect(DETECT_RADIUS, DETECT_TRAPS)) *ident = TRUE;
 			if (detect(DETECT_RADIUS, DETECT_DOORS_STAIRS)) *ident = TRUE;
 			break;
 		}
@@ -2607,7 +2597,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 			{
 				msg_format("Your %s glows a bright white...", o_name);
 				msg_print("You feel much better...");
-				(void)hp_player(1000);
+				(void)hp_player(300);
 				(void)set_cut(0);
 				break;
 			}
@@ -2645,7 +2635,7 @@ static bool activate_object(object_type *o_ptr, int dir)
 			{
 				msg_format("Your %s glows deep blue...", o_name);
 				msg_print("You feel a warm tingling inside...");
-				(void)hp_player(500);
+				(void)hp_player(300);
 				(void)set_cut(0);
 				break;
 			}
@@ -3166,52 +3156,6 @@ static bool activate_object(object_type *o_ptr, int dir)
 
 		/* Window stuff */
 		p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
-
-		/* Success */
-		return FALSE;
-	}
-
-	/* Hack -- some Rings can be activated for double resist and element ball */
-	if (o_ptr->tval == TV_RING)
-	{
-		/* Branch on the sub-type */
-		switch (o_ptr->sval)
-		{
-			case SV_RING_ACID:
-			{
-				fire_ball(GF_ACID, dir, 70, 2);
-				inc_timed(TMD_OPP_ACID, randint(20) + 20, TRUE);
-				o_ptr->timeout = rand_int(50) + 50;
-				break;
-			}
-
-			case SV_RING_FLAMES:
-			{
-				fire_ball(GF_FIRE, dir, 80, 2);
-				inc_timed(TMD_OPP_FIRE, randint(20) + 20, TRUE);
-				o_ptr->timeout = rand_int(50) + 50;
-				break;
-			}
-
-			case SV_RING_ICE:
-			{
-				fire_ball(GF_COLD, dir, 75, 2);
-				inc_timed(TMD_OPP_COLD, randint(20) + 20, TRUE);
-				o_ptr->timeout = rand_int(50) + 50;
-				break;
-			}
-
-			case SV_RING_LIGHTNING:
-			{
-				fire_ball(GF_ELEC, dir, 85, 2);
-				inc_timed(TMD_OPP_ELEC, randint(20) + 20, TRUE);
-				o_ptr->timeout = rand_int(50) + 50;
-				break;
-			}
-		}
-
-		/* Redraw stuff */
-		p_ptr->redraw |= (PR_EQUIP);
 
 		/* Success */
 		return FALSE;

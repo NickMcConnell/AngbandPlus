@@ -1261,6 +1261,9 @@ static void calc_bonuses(void)
 	/* Searching slows the player down */
 	if (p_ptr->searching) p_ptr->state.p_speed -= 10;
 
+	// BB added: Dex modifies speed
+	p_ptr->state.p_speed += adj_dex_spd[p_ptr->state.stat_ind[A_DEX]];
+
 	/* Sanity check on extreme speeds */
 	if (p_ptr->state.p_speed < 0) p_ptr->state.p_speed = 0;
 	if (p_ptr->state.p_speed > 199) p_ptr->state.p_speed = 199;
@@ -1345,6 +1348,9 @@ static void calc_bonuses(void)
 		p_ptr->heavy_shoot = TRUE;
 	}
 
+	/* Assume priests are okay */
+	p_ptr->icky_wield = FALSE;
+
 	/* Analyze launcher */
 	if (o_ptr->k_idx)
 	{
@@ -1420,6 +1426,23 @@ static void calc_bonuses(void)
 
 		/* Require at least one shot */
 		if (p_ptr->state.num_fire < 1) p_ptr->state.num_fire = 1;
+
+		/* Priest weapon penalty for bows and crossbows */
+		if ((cp_ptr->flags & CF_BLESS_WEAPON) &&
+			((o_ptr->sval == SV_SHORT_BOW) || (o_ptr->sval == SV_LONG_BOW) || (o_ptr->sval == SV_LIGHT_XBOW) || (o_ptr->sval == SV_HEAVY_XBOW)))
+		{
+			/* Reduce the real bonuses */
+			p_ptr->state.to_h -= 2;
+			p_ptr->state.to_d -= 2;
+
+			/* Reduce the mental bonuses */
+			p_ptr->state.dis_to_h -= 2;
+			p_ptr->state.dis_to_d -= 2;
+
+			/* Icky weapon */
+			p_ptr->icky_wield = TRUE;
+		}
+
 	}
 
 	/* Brigands get poison resistance */
@@ -1488,9 +1511,6 @@ static void calc_bonuses(void)
 		if ((p_ptr->lev >= LEV_EXTRA_COMBAT) && (cp_ptr->flags & CF_EXTRA_ATTACK))
 			p_ptr->state.num_blow += 1;
 	}
-
-	/* Assume okay */
-	p_ptr->icky_wield = FALSE;
 
 	/* Priest weapon penalty for non-blessed edged weapons */
 	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->state.bless_blade) &&
@@ -1852,7 +1872,6 @@ void redraw_stuff(void)
 		{
 			event_signal(hnd->event);
 		}
-
 	}
 
 	/* Then the ones that require parameters to be supplied. */

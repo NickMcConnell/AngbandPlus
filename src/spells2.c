@@ -360,7 +360,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Sustain */
-	if (sust)
+	if (sust || one_in_(MAX(1,p_ptr->state.stat_ind[stat]-4))|| one_in_(MAX(1,p_ptr->stat_cur[stat]-4)))
 	{
 		/* Message */
 		msg_format("You feel very %s for a moment, but the feeling passes.",
@@ -665,7 +665,7 @@ void self_knowledge(void)
 
 	if (cp_ptr->flags & CF_BLESS_WEAPON)
 	{
-		info[i++] = "You are only comfortable wielding blunt weapons or blessed weapons.";
+		info[i++] = "You are only comfortable wielding blunt or blessed melee weapons. You are not comfortable wielding bows or crossbows, but slings are OK.";
 	}
 
 	if (cp_ptr->flags & CF_CUMBER_GLOVE)
@@ -4875,7 +4875,8 @@ bool fear_monster(int dir, int plev)
 
 bool teleport_monster(int dir)
 {
-	return (fire_beam(GF_AWAY_ALL, dir, MAX_SIGHT * 5, 0L));
+	u32b flg = PROJECT_STOP;
+	return (fire_bolt_beam_special(GF_AWAY_ALL, dir, MAX_SIGHT * 5, MAX_RANGE, flg));
 }
 
 

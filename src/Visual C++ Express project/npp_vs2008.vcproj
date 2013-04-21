@@ -130,7 +130,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Gdi32.lib User32.lib Comdlg32.lib Shell32.lib winmm.lib"
-				OutputFile="$(OutDir)\Angband.exe"
+				OutputFile="$(OutDir)\Minimal.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"

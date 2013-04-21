@@ -64,6 +64,7 @@ Command Summary -- Original keyset
      \  (special - bypass keymap)            !  Port Specific preferences
      `  (special - escape)                   ~  Check knowledge
      /  Identify symbol                      ?  Help
+                                             |  Use Item
 
 
 ------
@@ -131,7 +132,7 @@ Command Summary -- Roguelike keyset
      <  Go up staircase                     ^X  Save and quit
      .  Stay still for one turn             ^Y  (alter - north west)
      >  Go down staircase                   ^Z  (special - borg command)
-     \  (special - bypass keymap)            |  (unused)
+     \  (special - bypass keymap)            |  Use Item
      `  (special - escape)                   ~  Check knowledge
      /  Identify symbol                      ?  Help
 

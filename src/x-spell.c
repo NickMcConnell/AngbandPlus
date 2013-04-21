@@ -1311,7 +1311,7 @@ cptr do_mage_spell(int mode, int spell, int dir)
 			dam = 280 + (plev * 4);
 			rad = 3;
 
-			if (name) return ("Darness Storm");
+			if (name) return ("Darkness Storm");
 			if (desc) return (format("Fires a radius %d explosion of powerful darkness for %d hp damage.", rad, dam));
 			if (desc_short) return (format("rad %d dam %d", rad, dam));
 			if (cast)
@@ -2607,14 +2607,14 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			break;
 		}
 
-		case PRAYER_FIND_TRAPS_DOORS_STAIRS:
+		case PRAYER_FIND_TRAPS:
 		{
-			if (name) return ("Find Doors/Stairs/Traps");
-			if (desc) return ("Detects nearby traps, doors and stairs.");
+			if (name) return ("Find Traps");
+			if (desc) return ("Detects nearby traps.");
 			if (desc_short) return (format("rad %d", DETECT_RADIUS));
 			if (cast)
 			{
-				(void)detect(DETECT_RADIUS, DETECT_DOORS_STAIRS_TRAPS);
+				(void)detect(DETECT_RADIUS, DETECT_TRAPS);
 			}
 
 			break;
@@ -2795,7 +2795,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		{
 			dice = 10;
 			sides = 5;
-			dam = plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 1 : 2);
+			dam = plev / 2;
 			rad = 2;
 
 			if (name) return ("Orb of Draining");
@@ -2969,7 +2969,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 		case PRAYER_HEAL:
 		{
-			dam = 325;
+			dam = 300;
 
 			if (name) return ("Heal");
 			if (desc) return (format("Eliminates stunning and cuts and heals %d hp.", dam));
@@ -3017,7 +3017,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			dam = 150;
 
 			if (name) return ("Holy Word");
-			if (desc) return (format("Dispels evil with %d hp damage, and Eliminates stunning, fear, poison and cuts and heals %d hp.", dam, dam));
+			if (desc) return (format("Dispels evil with %d hp damage, and eliminates stunning, fear, poison and cuts, and heals %d hp.", dam, dam));
 			if (desc_short) return (format("dam %d, heal %d", dam, dam));
 			if (cast)
 			{
@@ -3097,18 +3097,21 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 			break;
 		}
 
-		case PRAYER_CURE_SERIOUS_WOUNDS2:
+		case PRAYER_RESIST_ACID_ELEC:
 		{
-			dice = 5;
-			sides = 15;
+			dur = 10;
 
-			if (name) return ("Cure Serious Wounds");
-			if (desc) return (format("Eliminates cuts and heals %dd%d hp.", dice, sides));
-			if (desc_short) return (format("heal %dd%d", dice, sides));
+			if (name) return ("Resist Acid and Lightning");
+			if (desc) return (format("Temporary opposition to acid and lightning for %d+d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (desc_short) return (format("dur %d+1d%d turns.", dur, dur));
 			if (cast)
 			{
-				(void)hp_player(damroll(dice, sides));
-				(void)set_cut(0);
+
+				dur += randint1(dur);
+
+				(void)inc_timed(TMD_OPP_ACID, dur, TRUE);
+				(void)inc_timed(TMD_OPP_ELEC, dur, TRUE);
+
 			}
 
 			break;
@@ -3134,7 +3137,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 		case PRAYER_HEALING:
 		{
-			dam = 2000;
+			dam = 300;
 
 			if (name) return ("Healing");
 			if (desc) return (format("Eliminates stunning and cuts and heals %d hp.", dam));
@@ -3169,7 +3172,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 
 		case PRAYER_REMEMBRANCE:
 		{
-			if (name) return ("Remembrance");
+			if (name) return ("Restore Life Levels");
 			if (desc) return ("Restores experience to maximum.");
 			if (desc_short) return ("");
 			if (cast)

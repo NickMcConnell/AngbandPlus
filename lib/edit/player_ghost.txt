@@ -25,7 +25,7 @@
 #  as well.
 
 
-V:0.5.4
+V:1.0.0
 
 ##### Player Ghost information #####
 

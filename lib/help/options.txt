@@ -48,7 +48,8 @@ even if there is only one possible choice.  Turning off this option means
 if there is only one possible item to select it will be automatically selected.
 Note this means a potion could be automatically quaffed if it is the only 
 potion on the floor and you select 'q' to quaff, followed by '-' to select
-items on the floor.
+items on the floor.  In addition, if this option is false, and there is only 
+one item on the floor for you to pickup, it will automatically be picked up.
 
 ***** <carry_query_flag>
 Prompt before picking things up               [carry_query_flag]     (on) :

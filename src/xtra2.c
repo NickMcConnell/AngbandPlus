@@ -431,7 +431,7 @@ void monster_death(int m_idx, int who)
 		}
 
 		/* Make Gold */
-		if (do_gold && (!chest) && (!do_item || (rand_int(100) < 50)))
+		if (do_gold && (!chest) && (!do_item || (rand_int(100) < 70)))
 		{
 			/* Make some gold */
 			if (!make_gold(i_ptr)) continue;

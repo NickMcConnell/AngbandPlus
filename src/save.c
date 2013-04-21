@@ -644,6 +644,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->timed[TMD_NAT_MUD]);
 
 	wr_byte(p_ptr->confusing);
+	wr_byte(p_ptr->safe_to_ascend);
+	wr_s16b(p_ptr->safe_to_ascend_counter);
 	wr_s16b(p_ptr->timed[TMD_SLAY_ELEM]);
 	wr_byte(p_ptr->timed[TMD_FLYING]);
 	wr_byte(p_ptr->searching);
@@ -1107,7 +1109,6 @@ static bool wr_savefile_new(void)
 	wr_byte(VERSION_MAJOR);
 
 	xor_byte = 0;
-
 	wr_byte(VERSION_MINOR);
 	xor_byte = 0;
 	wr_byte(VERSION_PATCH);

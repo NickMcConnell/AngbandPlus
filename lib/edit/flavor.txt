@@ -13,8 +13,8 @@
 # D:<text>
 
 # Version stamp (required)
+V:1.0.0
 
-V:0.5.4
 # Plain Gold Ring     Fixed - The One Ring
 N:1:45:37
 G:=:y2

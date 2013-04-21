@@ -1442,7 +1442,6 @@ static void update_itemlist_subwindow(game_event_type type, game_event_data *dat
 	Term_activate(inv_term);
 
 	display_itemlist();
-
 	Term_fresh();
 
 	/* Restore */

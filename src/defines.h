@@ -47,30 +47,31 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "NPPAngband"
+#define VERSION_NAME "Minimal"
 #define SAVEFILE_NAME  "VNLA"
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.4"
+#define VERSION_STRING	"1.0.0"
 
 
 /*
  * Current version numbers
  */
-#define VERSION_MAJOR	0
-#define VERSION_MINOR	5
-#define VERSION_PATCH	4
+#define VERSION_MAJOR	1
+#define VERSION_MINOR	0
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 
 /*
  * Oldest version number that can still be imported
  */
-#define OLD_VERSION_MAJOR	0
-#define OLD_VERSION_MINOR	4
-#define OLD_VERSION_PATCH	2
+#define OLD_VERSION_MAJOR	1
+#define OLD_VERSION_MINOR	0
+#define OLD_VERSION_PATCH	0
+
 
 
 /*
@@ -127,14 +128,14 @@
  * Must be a multiple of PANEL_HGT
  * Must be less or equal to 256
  */
-#define MAX_DUNGEON_HGT		66
+#define MAX_DUNGEON_HGT		44
 
 /*
  * Number of grids in each dungeon (vertically)
  * Must be a multiple of PANEL_WID
  * Must be less or equal to 256
  */
-#define MAX_DUNGEON_WID		198
+#define MAX_DUNGEON_WID		132
 
 /*
  * Number of rooms to attempt to generate in dungeon.
@@ -285,7 +286,7 @@
  */
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
 #define STORE_TURNOVER	12		/* Normal shop turnover, per day */
-#define STORE_MIN_KEEP	8		/* Min slots to "always" keep full */
+#define STORE_MIN_KEEP	3		/* Min slots to "always" keep full */
 #define STORE_MAX_KEEP	20		/* Max slots to "always" keep full */
 #define STORE_SHUFFLE	25		/* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS		1000	/* Number of turns between turnovers */

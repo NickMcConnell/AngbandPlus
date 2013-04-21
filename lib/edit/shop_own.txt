@@ -12,7 +12,7 @@
 
 # Version stamp (required)
 
-V:0.5.4
+V:1.0.0
 
 # General Store
 N:0
@@ -60,7 +60,7 @@ S:30000:Cameronius the Conscientious (D['u]nadan)
 # Black Market
 N:6
 S:15000:Lo-Hak the Awful (Half-Troll)
-S:20000:Buzzkill the Infamous (Dwarf)
+S:20000:Histor the Goblin (Kobold)
 S:25000:Durwin the Shifty (Half-Orc)
 S:30000:Tim Bolger the Burglar(Hobbit)
 

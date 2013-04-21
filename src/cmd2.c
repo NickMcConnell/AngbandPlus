@@ -169,6 +169,17 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
 		if (adult_connected_stairs) p_ptr->create_stair = FEAT_MORE_SHAFT;
 	}
 
+	if (!(p_ptr->safe_to_ascend) && (p_ptr->depth > 2))
+	{
+		/* Haven't been on the level long enough */
+		if (one_in_(7))
+		{
+			p_ptr->create_stair = FALSE;
+			message_flush();
+			msg_print("The stairwell caves in behind you! You will not be able to get back down...");
+		}
+	}
+
 	/* Change level */
 	dungeon_change_level(p_ptr->depth - decrease);
 }

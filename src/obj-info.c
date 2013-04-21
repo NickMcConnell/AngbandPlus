@@ -440,6 +440,14 @@ static bool describe_attacks (const object_type *o_ptr, u32b f1, bool extra_info
 	int to_hit = ((int)(adj_dex_th[p_ptr->state.stat_ind[A_DEX]]) - 128);
 	to_hit 	  += ((int)(adj_str_th[p_ptr->state.stat_ind[A_STR]]) - 128);
 
+	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (n==TV_BOW) && ((o_ptr->sval == SV_SHORT_BOW) || (o_ptr->sval == SV_LONG_BOW) || (o_ptr->sval == SV_LIGHT_XBOW) || (o_ptr->sval == SV_HEAVY_XBOW))){
+		text_out("You are uncomfortable wielding this weapon.  ");
+
+		to_dam -= 2;
+		to_hit -= 2;
+		return (TRUE);
+	}
+
 	/* First check if we need this function */
 	if ((n != TV_DIGGING) && (n != TV_HAFTED) &&
 		(n != TV_POLEARM) && (n != TV_SWORD))
@@ -820,39 +828,6 @@ static void describe_item_activation(const object_type *o_ptr, char *random_name
 			return;
 		}
 	}
-
-	/* Now do the rings */
-	if (o_ptr->tval == TV_RING)
-	{
-		/* Branch on the sub-type */
-		switch (o_ptr->sval)
-		{
-			case SV_RING_ACID:
-			{
-				my_strcat(random_name, "acid resistance (20+d20 turns) and acid ball (70) every 50+d50 turns", max);
-				break;
-			}
-			case SV_RING_FLAMES:
-			{
-				my_strcat(random_name, "fire resistance (20+d20 turns) and fire ball (80) every 50+d50 turns", max);
-				break;
-			}
-			case SV_RING_ICE:
-			{
-				my_strcat(random_name, "cold resistance (20+d20 turns) and cold ball (75) every 50+d50 turns", max);
-				break;
-			}
-
-			case SV_RING_LIGHTNING:
-			{
-				my_strcat(random_name, "electricity resistance (20+d20 turns) and electricity ball (85) every 50+d50 turns", max);
-				break;
-			}
-		}
-
-		return;
-	}
-
 	/* Require dragon scale mail */
 	if ((o_ptr->tval != TV_DRAG_ARMOR) &&
 		(o_ptr->tval != TV_DRAG_SHIELD)) return;

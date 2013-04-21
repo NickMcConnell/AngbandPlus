@@ -345,36 +345,10 @@
 
 
 /* The sval codes for TV_RING */
-#define SV_RING_WOE				0
-#define SV_RING_AGGRAVATION		1
-#define SV_RING_WEAKNESS		2
-#define SV_RING_STUPIDITY		3
-#define SV_RING_TELEPORTATION	4
-/* xxx */
-#define SV_RING_SLOW_DIGESTION	6
-#define SV_RING_FEATHER_FALL	7
-#define SV_RING_RESIST_FIRE		8
-#define SV_RING_RESIST_COLD		9
-#define SV_RING_SUSTAIN_STR		10
-#define SV_RING_SUSTAIN_INT		11
-#define SV_RING_SUSTAIN_WIS		12
-#define SV_RING_SUSTAIN_DEX		13
-#define SV_RING_SUSTAIN_CON		14
-#define SV_RING_SUSTAIN_CHR		15
-#define SV_RING_PROTECTION		16
-#define SV_RING_ACID			17
-#define SV_RING_FLAMES			18
-#define SV_RING_ICE				19
-#define SV_RING_RESIST_POIS		20
-#define SV_RING_FREE_ACTION		21
+#define SV_RING_MIGHT		1
+#define SV_RING_MAGIC		2
+#define SV_RING_YOUTH		3
 #define SV_RING_SEE_INVIS		22
-#define SV_RING_SEARCHING		23
-#define SV_RING_STR				24
-#define SV_RING_INT				25
-#define SV_RING_DEX				26
-#define SV_RING_CON				27
-#define SV_RING_ACCURACY		28
-#define SV_RING_DAMAGE			29
 #define SV_RING_SLAYING			30
 #define SV_RING_SPEED			31
 #define SV_RING_BARAHIR			32
@@ -383,9 +357,6 @@
 #define SV_RING_NENYA			35
 #define SV_RING_VILYA			36
 #define SV_RING_POWER			37
-#define SV_RING_LIGHTNING		38
-#define SV_RING_RESIST_NETHER	39
-
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS		0
@@ -487,7 +458,7 @@
 
 /* The "sval" codes for TV_SCROLL */
 
-#define SV_SCROLL_DARKNESS				0
+#define SV_SCROLL_DETECT_EVIL			0
 #define SV_SCROLL_AGGRAVATE_MONSTER		1
 #define SV_SCROLL_CURSE_ARMOR			2
 #define SV_SCROLL_CURSE_WEAPON			3
@@ -504,7 +475,7 @@
 #define SV_SCROLL_REMOVE_CURSE			14
 #define SV_SCROLL_STAR_REMOVE_CURSE		15
 #define SV_SCROLL_ENCHANT_ARMOR			16
-#define SV_SCROLL_ENCHANT_WEAPON_TO_HIT	17
+#define SV_SCROLL_ENCHANT_WEAPON		17
 #define SV_SCROLL_ENCHANT_WEAPON_TO_DAM	18
 /* xxx enchant missile? */
 #define SV_SCROLL_STAR_ENCHANT_ARMOR	20
@@ -542,11 +513,11 @@
 #define SV_POTION_SLIME_MOLD		2
 /* xxx (fixed color) */
 #define SV_POTION_SLOWNESS			4
-#define SV_POTION_SALT_WATER		5
-#define SV_POTION_POISON			6
-#define SV_POTION_BLINDNESS			7
+#define SV_POTION_MIGHT		5
+#define SV_POTION_MAGIC			6
+#define SV_POTION_YOUTH			7
 /* xxx */
-#define SV_POTION_CONFUSION			9
+#define SV_POTION_CURING			9
 /* xxx */
 #define SV_POTION_SLEEP				11
 /* xxx */
@@ -579,7 +550,7 @@
 #define SV_POTION_LIFE				39
 #define SV_POTION_RESTORE_MANA		40
 #define SV_POTION_RESTORE_EXP		41
-#define SV_POTION_RES_STR			42
+#define SV_POTION_RESTORATION    	42
 #define SV_POTION_RES_INT			43
 #define SV_POTION_RES_WIS			44
 #define SV_POTION_RES_DEX			45

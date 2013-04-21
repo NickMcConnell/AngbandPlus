@@ -476,6 +476,51 @@ const byte adj_dex_dis[] =
 	10	/* 18/220+ */
 };
 
+/*
+ * Stat Table (DEX) -- speed
+ */
+const byte adj_dex_spd[] =
+{
+	0	/* 3 */,
+	0	/* 4 */,
+	0	/* 5 */,
+	0	/* 6 */,
+	0	/* 7 */,
+	0	/* 8 */,
+	0	/* 9 */,
+	0	/* 10 */,
+	0	/* 11 */,
+	0	/* 12 */,
+	1	/* 13 */,
+	1	/* 14 */,
+	1	/* 15 */,
+	1	/* 16 */,
+	1	/* 17 */,
+	2	/* 18/00-18/09 */,
+	2	/* 18/10-18/19 */,
+	2	/* 18/20-18/29 */,
+	2	/* 18/30-18/39 */,
+	2	/* 18/40-18/49 */,
+	3	/* 18/50-18/59 */,
+	3	/* 18/60-18/69 */,
+	3	/* 18/70-18/79 */,
+	3	/* 18/80-18/89 */,
+	3	/* 18/90-18/99 */,
+	4	/* 18/100-18/109 */,
+	4	/* 18/110-18/119 */,
+	4	/* 18/120-18/129 */,
+	4	/* 18/130-18/139 */,
+	4	/* 18/140-18/149 */,
+	5	/* 18/150-18/159 */,
+	5	/* 18/160-18/169 */,
+	5	/* 18/170-18/179 */,
+	5	/* 18/180-18/189 */,
+	5	/* 18/190-18/199 */,
+	6	/* 18/200-18/209 */,
+	6	/* 18/210-18/219 */,
+	6	/* 18/220+ */
+};
+
 
 /*
  * Stat Table (INT) -- disarming
@@ -1283,85 +1328,85 @@ const s16b spell_list[3][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 			SPELL_DETECT_MONSTERS,
 			SPELL_PHASE_DOOR,
 			SPELL_LIGHT_AREA,
-			SPELL_TREASURE_DETECTION,
-			SPELL_CURE_LIGHT_WOUNDS,
-			SPELL_OBJECT_DETECTION,
 			SPELL_FIND_TRAPS_DOORS,
 			SPELL_STINKING_CLOUD,
+			SPELL_OBJECT_DETECTION,
+			-1,
+			-1
 		},
 
 		/* Conjurings and Tricks */
 		{
-			SPELL_CONFUSE_MONSTER,
-			SPELL_SHOCK_WAVE,
-			SPELL_TRAP_DOOR_DESTRUCTION,
-			SPELL_CURE_POISON,
 			SPELL_SLEEP_MONSTER,
 			SPELL_TELEPORT_SELF,
 			SPELL_SPEAR_OF_LIGHT,
 			SPELL_ICE_BOLT,
-			SPELL_WAIL_OF_THE_BANSHEE,
+			SPELL_TURN_STONE_TO_MUD,
+			SPELL_SHARD_STORM,
+			-1,
+			-1,
+			-1
 		},
 
 		/* Incantations and Illusions */
 		{
-			SPELL_SATISFY_HUNGER,
-	    	SPELL_RECHARGE_ITEM_I,
-			SPELL_TURN_STONE_TO_MUD,
-			SPELL_SHARD_STORM,
-			SPELL_POLYMORPH_OTHER,
 			SPELL_IDENTIFY,
 			SPELL_DETECT_INVISIBLE,
-			SPELL_HURRICANE,
-			SPELL_SLOW_MONSTER,
+			SPELL_RESIST_POISON,
+			SPELL_HASTE_SELF,
+			SPELL_SHIELD,
+			SPELL_WATER_BOLT,
+			-1,
+			-1,
+			-1
 		},
 
 		/* Sorcery and Evocations */
 		{
-			SPELL_CALL_LIGHTNING,
-			SPELL_TELEPORT_OTHER,
-			SPELL_HASTE_SELF,
-			SPELL_MASS_SLEEP,
-			SPELL_WATER_BOLT,
-			SPELL_DETECT_ENCHANTMENT,
-			SPELL_MASS_IDENTIFY,
 			-1,
 			-1,
+			-1,
+			-1,
+			-1,
+			-1,
+			-1,
+			-1,
+			-1
 		},
 
 		/* Resistances of Scarabtarices */
 		{
-			SPELL_RESIST_COLD,
-			SPELL_RESIST_FIRE,
-			SPELL_RESIST_POISON,
-			SPELL_RESISTANCE,
-			SPELL_SHIELD,
 			-1,
 			-1,
 			-1,
 			-1,
+			-1,
+			-1,
+			-1,
+			-1,
+			-1
 		},
 
 		/* Raal's Tome of Destruction */
 		{
-			SPELL_NOVA,
-			SPELL_REND_SOUL,
-			SPELL_PRISMATIC_SPRAY,
-			SPELL_CLOUD_KILL,
+			SPELL_HURRICANE,
+			SPELL_STAIR_CREATION,
 			SPELL_ICE_STORM,
-			SPELL_PLASMA_BOLT,
-			SPELL_METEOR_STORM,
+			SPELL_WORD_OF_RECALL,
 			SPELL_RIFT,
+			SPELL_MASS_BANISHMENT,
+			-1,
+			-1,
 			-1,
 		},
 
 		/* Mordenkainen's Escapes */
 		{
-			SPELL_DOOR_CREATION,
-			SPELL_STAIR_CREATION,
+			SPELL_REND_SOUL,
+			SPELL_TELEPORT_OTHER,
 			SPELL_TELEPORT_LEVEL,
-			SPELL_WORD_OF_RECALL,
-			SPELL_RUNE_OF_PROTECTION,
+			SPELL_METEOR_STORM,
+			SPELL_WORD_OF_DESTRUCTION,
 			SPELL_FLIGHT,
 			-1,
 			-1,
@@ -1384,13 +1429,13 @@ const s16b spell_list[3][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 		/* Kelek's Grimoire of Power */
 		{
 			SPELL_EARTHQUAKE,
-			SPELL_BEDLAM,
 			SPELL_BANISHMENT,
-			SPELL_WORD_OF_DESTRUCTION,
-			SPELL_MASS_BANISHMENT,
+			SPELL_PLASMA_BOLT,
 			SPELL_DARKNESS_STORM,
-			SPELL_MANA_BOLT,
+			SPELL_RUNE_OF_PROTECTION,
 			SPELL_MANA_STORM,
+			-1,
+			-1,
 			-1,
 		},
 	},
@@ -1405,46 +1450,46 @@ const s16b spell_list[3][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 			PRAYER_BLESS,
 			PRAYER_REMOVE_FEAR,
 			PRAYER_CALL_LIGHT,
-			PRAYER_FIND_TRAPS_DOORS_STAIRS,
-			PRAYER_SHOCK_BOLT,
-			PRAYER_SLOW_POISON,
+			PRAYER_FIND_TRAPS,
+			-1,
+			-1,
 			-1,
 		},
 
 		/*Words of Wisdom*/
 		{
-			PRAYER_SCARE_MONSTER,
+			PRAYER_UNBARRING_WAYS,
 			PRAYER_PORTAL,
 			PRAYER_CURE_SERIOUS_WOUNDS,
-			PRAYER_CHANT,
-			PRAYER_SANCTUARY,
 			PRAYER_SATISFY_HUNGER,
-			PRAYER_REMOVE_CURSE,
 			PRAYER_RESIST_HEAT_COLD,
+			PRAYER_SENSE_INVISIBLE,
+			-1,
+			-1,
 			-1,
 		},
 
 		/*Chants and Blessings*/
 		{
-			PRAYER_NEUTRALIZE_POISON,
 			PRAYER_CURE_CRITICAL_WOUNDS,
-			PRAYER_SENSE_INVISIBLE,
-			PRAYER_PROTECTION_FROM_EVIL,
-			PRAYER_EARTHQUAKE,
-			PRAYER_SENSE_SURROUNDINGS,
-			PRAYER_CURE_MORTAL_WOUNDS,
-			PRAYER_TURN_UNDEAD,
 			PRAYER_ORB_OF_DRAINING,
+			PRAYER_TURN_UNDEAD,
+			PRAYER_PERCEPTION,
+			PRAYER_HEAL,
+			PRAYER_HOLY_WORD,
+			-1,
+			-1,
+			-1,
 		},
 
 		/*Exorcism and Dispelling*/
 		{
-			PRAYER_PRAYER,
-			PRAYER_SUN_BEAM,
-			PRAYER_HEAL,
-			PRAYER_DISPEL_EVIL,
-			PRAYER_GLYPH_OF_WARDING,
-			PRAYER_HOLY_WORD,
+			-1,
+			-1,
+			-1,
+			-1,
+			-1,
+			-1,
 			-1,
 			-1,
 			-1,
@@ -1452,38 +1497,38 @@ const s16b spell_list[3][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 
 		/*Ethereal Openings*/
 		{
-			PRAYER_BLINK,
-			PRAYER_UNBARRING_WAYS,
+			PRAYER_DETECT_MONSTERS,
 			PRAYER_TELEPORT_SELF,
-			PRAYER_TELEPORT_OTHER,
+			PRAYER_SENSE_SURROUNDINGS,
+			PRAYER_PROBING,
 			PRAYER_TELEPORT_LEVEL,
 			PRAYER_WORD_OF_RECALL,
-			PRAYER_ALTER_REALITY,
+			-1,
 			-1,
 			-1,
 		},
 
 		/*Godly Insights*/
 		{
-			PRAYER_DETECT_MONSTERS,
-			PRAYER_DETECTION,
-			PRAYER_RECHARGING,
-			PRAYER_PERCEPTION,
-			PRAYER_PROBING,
-			PRAYER_CLAIRVOYANCE,
-			PRAYER_MASS_IDENTIFY,
+			-1,
+			-1,
+			-1,
+			-1,
+			-1,
+			-1,
+			-1,
 			-1,
 			-1,
 		},
 
 		/*Purifications and Healing*/
 		{
-			PRAYER_CURE_SERIOUS_WOUNDS2,
+			PRAYER_NEUTRALIZE_POISON,
+			PRAYER_PROTECTION_FROM_EVIL,
+			PRAYER_RESIST_ACID_ELEC,
 			PRAYER_CURE_MORTAL_WOUNDS2,
-			PRAYER_HEALING,
 			PRAYER_RESTORATION,
 			PRAYER_REMEMBRANCE,
-			-1,
 			-1,
 			-1,
 			-1,
@@ -1504,12 +1549,12 @@ const s16b spell_list[3][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 
 		/*Wrath of God*/
 		{
+			PRAYER_CHANT,
+			PRAYER_EARTHQUAKE,
 			PRAYER_SUN_BURST,
 			PRAYER_DISPEL_EVIL2,
 			PRAYER_BANISH_EVIL,
-			PRAYER_WORD_OF_DESTRUCTION,
 			PRAYER_JUDGEMENT_OF_MANDOS,
-			-1,
 			-1,
 			-1,
 			-1,
@@ -1891,7 +1936,7 @@ option_entry options[OPT_MAX] =
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{"auto_scum",			"Auto-scum for good levels",			FALSE},		/* OPT_auto_scum */
-	{"allow_themed_levels","Allow the generation of themed levels",TRUE},		/* OPT_allow_themed_levels */
+	{"allow_themed_levels","Allow the generation of themed levels", FALSE},		/* OPT_allow_themed_levels */
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{NULL,					NULL,									FALSE},		/* xxx */
@@ -1997,12 +2042,12 @@ option_entry options[OPT_MAX] =
 	{"birth_take_notes",		"Birth: Have notes written to a file",			TRUE},	/* OPT_birth_auto_notes */
 	{"birth_force_small_lev",	"Birth: All levels will be generated as small",	FALSE},	/* OPT_birth_force_small_lev */
 	{"birth_connected_stairs",  "Birth: Generate connected stairs",       		TRUE},	/* OPT_birth_connected_stairs */
-	{"birth_no_quests",			"Birth: Disable quests",						FALSE},	/* OPT_birth_no_quests*/
-	{"birth_no_player ghosts",	"Birth: Disable player ghosts",					FALSE},	/* OPT_birth_no_player ghosts*/
-	{"birth_no_store_services",	"Birth: Disable store services",				FALSE},	/* OPT_birth_no_store_services*/
-	{"birth_no_xtra_artifacts", "Birth: Disable extra artifacts",				FALSE},	/* OPT_birth_no_xtra_artifacts*/
+	{"birth_no_quests",			"Birth: Disable quests",						TRUE},	/* OPT_birth_no_quests*/
+	{"birth_no_player ghosts",	"Birth: Disable player ghosts",					TRUE},	/* OPT_birth_no_player ghosts*/
+	{"birth_no_store_services",	"Birth: Disable store services",				TRUE},	/* OPT_birth_no_store_services*/
+	{"birth_no_xtra_artifacts", "Birth: Disable extra artifacts",				TRUE},	/* OPT_birth_no_xtra_artifacts*/
 	{"birth_money",             "Birth: Start with more money and no equipment",FALSE },/* OPT_birth_money */
-	{"birth_simple_dungeons",   "Birth: Prevent unusual terrains or dungeons",	FALSE },/* OPT_birth_birth_simple_dungeons */
+	{"birth_simple_dungeons",   "Birth: Prevent unusual terrains or dungeons",	TRUE },/* OPT_birth_birth_simple_dungeons */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -2061,12 +2106,12 @@ option_entry options[OPT_MAX] =
 	{"adult_take_notes",		"Adult: Have notes to written to a file",		TRUE},	/* OPT_adult_auto_notes */
 	{"adult_force_small_lev",	"Adult: All levels generated small",			FALSE},	/* OPT_adult_force_small_lev*/
 	{"adult_conected_stairs",   "Adult: Generate connected stairs",       		TRUE},	/* OPT_adult_connected_stairs */
-	{"adult_no_quests",			"Adult: Disable quests",						FALSE},	/* OPT_adult_no_quests*/
-	{"adult_no_player_ghosts",	"Adult: Disable player ghosts",					FALSE},	/* OPT_adult_no_player ghosts*/
-	{"adult_no_store_services",	"Adult: Disable store services",				FALSE},	/* OPT_adult_no_store_services*/
-	{"adult_no_xtra_artifacts",	"Adult: Disable extra artifacts",				FALSE},	/* OPT_adult_no_xtra_artifacts*/
+	{"adult_no_quests",			"Adult: Disable quests",						TRUE},	/* OPT_adult_no_quests*/
+	{"adult_no_player_ghosts",	"Adult: Disable player ghosts",					TRUE},	/* OPT_adult_no_player ghosts*/
+	{"adult_no_store_services",	"Adult: Disable store services",				TRUE},	/* OPT_adult_no_store_services*/
+	{"adult_no_xtra_artifacts",	"Adult: Disable extra artifacts",				TRUE},	/* OPT_adult_no_xtra_artifacts*/
 	{"adult_birth_money",      	"Adult: Start with more money and no equipment",FALSE },/* OPT_adult_birth_money*/
-	{"adult_simple_dungeons",   "Adult: Prevent unusual terrains or dungeons",	FALSE },/* OPT_adult_birth_simple_dungeons */
+	{"adult_simple_dungeons",   "Adult: Prevent unusual terrains or dungeons",	TRUE },/* OPT_adult_birth_simple_dungeons */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -2137,10 +2182,10 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_expand_inscribe,
 		OPT_mouse_movement,
 		OPT_mouse_buttons,
-		OPT_auto_scum,
-		OPT_allow_themed_levels,
 		OPT_smart_cheat,
 		OPT_xchars_to_file,
+		OPT_NONE,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE
 	},
@@ -2199,7 +2244,6 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 
 	{
 		OPT_birth_maximize,
-		OPT_birth_rand_artifacts,
 		OPT_birth_money,
 		OPT_birth_take_notes,
 		OPT_birth_force_small_lev,
@@ -2209,12 +2253,13 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_stacking,
 		OPT_birth_preserve,
 		OPT_birth_connected_stairs,
-		OPT_birth_no_quests,
-		OPT_birth_no_player_ghosts,
-		OPT_birth_no_store_services,
-		OPT_birth_no_xtra_artifacts,
 		OPT_birth_no_selling,
-		OPT_birth_simple_dungeons,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE

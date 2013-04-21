@@ -708,6 +708,16 @@ s16b move_player(int dir, int jumping)
 	/* Get the feature */
 	f_ptr = &f_info[cave_feat[y][x]];
 
+	/* Walk about enough and it becomes safe to ascend */
+	if (p_ptr->safe_to_ascend_counter>0)
+	{
+		p_ptr->safe_to_ascend_counter--;
+		if (p_ptr->safe_to_ascend_counter==0)
+		{
+			p_ptr->safe_to_ascend = 1;
+		}
+	}
+
 	/* Hack -- attack monsters */
 	if (cave_m_idx[y][x] > 0)
 	{

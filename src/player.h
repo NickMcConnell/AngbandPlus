@@ -171,7 +171,7 @@
 #define PRAYER_BLESS                    2
 #define PRAYER_REMOVE_FEAR              3
 #define PRAYER_CALL_LIGHT               4
-#define PRAYER_FIND_TRAPS_DOORS_STAIRS  5
+#define PRAYER_FIND_TRAPS  5
 #define PRAYER_SHOCK_BOLT	        6
 #define PRAYER_SLOW_POISON              7
 
@@ -213,7 +213,7 @@
 #define PRAYER_MASS_IDENTIFY		   58
 
 /* Purifications and Healing */
-#define PRAYER_CURE_SERIOUS_WOUNDS2    36
+#define PRAYER_RESIST_ACID_ELEC		   36
 #define PRAYER_CURE_MORTAL_WOUNDS2     37
 #define PRAYER_HEALING                 38
 #define PRAYER_RESTORATION             39

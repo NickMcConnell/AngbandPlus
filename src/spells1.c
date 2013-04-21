@@ -4957,7 +4957,7 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 			 * No "real" damage, but damage is
 			 * used to determine the length of the sleep.
 			 */
-			do_sleep = damage;
+			do_sleep = damage * 5;
 			damage = 0;
 			break;
 		}
@@ -6251,7 +6251,7 @@ bool project_p(int who, int y, int x, int dam, int typ, cptr msg)
 			{
 				(void)inc_timed(TMD_CONFUSED, rand_int(20) + 10, TRUE);
 			}
-			if (!p_ptr->state.resist_chaos)
+			if ((!p_ptr->state.resist_chaos) && one_in_(3))
 			{
 				(void)inc_timed(TMD_IMAGE, randint(10), TRUE);
 			}

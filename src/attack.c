@@ -1162,7 +1162,7 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 	tdis = 10 + 5 * tmul;
 
 	/* Take a (partial) turn */
-	p_ptr->p_energy_use = (BASE_ENERGY_MOVE / thits);
+	p_ptr->p_energy_use = ((BASE_ENERGY_MOVE * 2) / (thits+1));
 
 	/* Start at the player */
 	y = p_ptr->py;
@@ -1615,14 +1615,6 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 			/*slowness explosion at the site, radius 1*/
 			ident = explosion(SOURCE_PLAYER, 1, y, x, damroll (2, p_ptr->lev), GF_OLD_SLOW, flag);
 			break;
-		}
-
-		case SV_POTION_CONFUSION:
-		{
-			/*confusion explosion at the site, radius 1*/
-			ident = explosion(SOURCE_PLAYER, 1, y, x, damroll (2, p_ptr->lev), GF_OLD_CONF, flag);
-			break;
-
 		}
 
 		case SV_POTION_SLEEP:

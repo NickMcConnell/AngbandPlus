@@ -2457,10 +2457,7 @@ byte get_nest_theme(int nestlevel, bool quest_theme)
 
 	if ((whatnest <= 25)  && (nestlevel <= 35))
 	{
-		/*coins, jelly, or kobolds/yeeks/orcs*/
-		if (one_in_(3))			return LEV_THEME_CREEPING_COIN;
-		else if (one_in_(2))	return LEV_THEME_JELLY;
-		else					return LEV_THEME_ORC_NAGA_YEEK_KOBOLD;
+		return LEV_THEME_ORC_NAGA_YEEK_KOBOLD;
 	}
 
 	/*cave dwellers or young dragons*/
@@ -2512,8 +2509,7 @@ byte get_pit_theme(int pitlevel, bool quest_theme)
 	/* Orc pit */
 	if ((whatpit <= 20) && (pitlevel <= 35))
 	{
-		if (one_in_(2))	return LEV_THEME_CREEPING_COIN;
-		else 			return LEV_THEME_ORC;
+		return LEV_THEME_ORC;
 	}
 
 	/*troll or ogre*/
@@ -2525,9 +2521,7 @@ byte get_pit_theme(int pitlevel, bool quest_theme)
 	}
 	else if ((whatpit <= 50) && (effective_depth(p_ptr->depth) <= 60))
 	{
-		/* Hound, youngdragon, or hydra pit */
-		if (one_in_(2))			return LEV_THEME_HOUND;
-		else					return LEV_THEME_DRAGON_YOUNG;
+		return LEV_THEME_DRAGON_YOUNG;
 	}
 
 	/* Giant pit */

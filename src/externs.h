@@ -1460,3 +1460,7 @@ extern void write_mon_power(void);
 extern u16b lazymove_delay;
 
 #endif /* !INCLUDED_EXTERNS_H */
+
+extern const byte adj_dex_spd[];
+extern int effective_depth(int depth);
+extern int inverse_effective_depth(int depth);

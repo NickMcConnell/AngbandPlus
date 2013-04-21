@@ -1086,6 +1086,9 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
+	byte safe_to_ascend; /* if this is unset, taking a stair up can cause cavein */
+	s16b safe_to_ascend_counter;
+
 	s16b base_wakeup_chance;	/* Base amount of character noise */
 
 	byte spell_flags[PY_MAX_SPELLS]; /* Spell flags */

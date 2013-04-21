@@ -5526,17 +5526,7 @@ bool obj_needs_aim(object_type *o_ptr)
 		}
 		case TV_RING:
 		{
-			switch (o_ptr->sval)
-			{
-				case SV_RING_ACID:
-				case SV_RING_FLAMES:
-				case SV_RING_ICE:
-				case SV_RING_LIGHTNING:
-				{
-					return (TRUE);
-				}
-				default: return(FALSE);
-			}
+			return(FALSE);
 		}
 
 		default: /*fall through*/;

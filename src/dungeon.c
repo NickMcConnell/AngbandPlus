@@ -45,6 +45,13 @@ void dungeon_change_level(int dlev)
 	/* New depth */
 	p_ptr->depth = dlev;
 
+	/* Not safe yet */
+	if (dlev>0)
+	{
+		p_ptr->safe_to_ascend = FALSE;
+		p_ptr->safe_to_ascend_counter = 40 + rand_int(40);
+	}
+
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 
@@ -701,6 +708,12 @@ static void put_out_fires(void)
 	update_level_flag();
 }
 
+static int poison_level(int poison_counter){
+	int level = 1;
+	while (level*level*5 <= poison_counter) level++;
+	return level;
+}
+
 /*
  * Helper for process_world -- decrement p_ptr->timed[] fields.
  */
@@ -732,6 +745,12 @@ static void decrease_timeouts(void)
 				break;
 			}
 		}
+
+		if (i==TMD_POISONED)
+		{
+			decr *= poison_level(p_ptr->timed[TMD_POISONED]); /* new super poison */
+		}
+
 		/* Decrement the effect */
 		dec_timed(i, decr, FALSE);
 	}
@@ -1082,7 +1101,7 @@ static void process_world(void)
 	if (p_ptr->timed[TMD_POISONED])
 	{
 		/* Take damage */
-		if(!(p_ptr->state.immune_pois))take_hit(1, "poison");
+		if(!(p_ptr->state.immune_pois))take_hit(poison_level(p_ptr->timed[TMD_POISONED]), "poison");
 	}
 
 	/* Take damage from cuts */
@@ -2009,6 +2028,8 @@ void process_player(void)
 				}
 			}
 		}
+
+
 		/* Repair "show" flags */
 		if (repair_mflag_show)
 		{
@@ -2619,7 +2640,7 @@ void play_game(void)
 	event_signal(EVENT_ENTER_GAME);
 
 	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_MONSTER | PR_MESSAGE);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_MONSTER | PR_MESSAGE | PR_MONLIST | PR_ITEMLIST);
 
 	/* Window stuff */
 	handle_stuff();
