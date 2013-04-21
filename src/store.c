@@ -2521,6 +2521,13 @@ static void store_purchase(void)
 				msg_format("You have %s (%c).",
 				           o_name, index_to_label(item_new));
 
+				/* Now, reduce the original stack's pval. */
+				if ((o_ptr->tval == TV_ROD) ||
+				    (o_ptr->tval == TV_WAND))
+				{
+					o_ptr->pval -= i_ptr->pval;
+				}
+
 				/* Handle stuff */
 				handle_stuff();
 

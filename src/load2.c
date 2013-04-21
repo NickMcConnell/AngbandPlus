@@ -1072,8 +1072,8 @@ static void rd_randomizer(void)
 		rd_u32b(&tmp32u);
 	}
 
-	/* Accept */
-	Rand_quick = FALSE;
+	/* Force re-seeding */
+	Rand_quick = TRUE;
 }
 
 

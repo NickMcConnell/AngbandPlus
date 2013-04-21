@@ -53,7 +53,7 @@ In certain situations the character may gain additional benefit by setting
 the maximum desired blows per attack to a high value.  Consider monsters
 which are faster than the character, but who have low hit points.
 If the character takes one swing against the monster, it may miss, or
-not do enough damage to hit; but multiple swings may kill the monster.
+not do enough damage to kill; but multiple swings may kill the monster.
 By taking several swings at once, the character may avoid letting the
 monster attack in between the character's blows.  This benefit must be
 weighed against the flexibility gained by taking single swings.

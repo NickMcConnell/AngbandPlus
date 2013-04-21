@@ -1045,9 +1045,9 @@ byte adj_con_mhp[] =
 	128 + 1	/* 15 */,
 	128 + 1	/* 16 */,
 	128 + 2	/* 17 */,
-	128 + 3	/* 18/00-18/09 */,
-	128 + 4	/* 18/10-18/19 */,
-	128 + 4	/* 18/20-18/29 */,
+	128 + 2	/* 18/00-18/09 */,
+	128 + 3	/* 18/10-18/19 */,
+	128 + 3	/* 18/20-18/29 */,
 	128 + 4	/* 18/30-18/39 */,
 	128 + 4	/* 18/40-18/49 */,
 	128 + 5	/* 18/50-18/59 */,
@@ -1604,78 +1604,78 @@ player_magic magic_info[MAX_CLASS] =
 
 		{
 			{  1,  1, 22,   4}, /* magic missile 0 */
-			{  1,  1, 23,   4}, /* detect monster */
-			{  1,  2, 24,   4}, /* phase door */
-			{  1,  2, 26,   4}, /* light area */
+			{  1,  1, 23,   4}, /* detect monster 1 */
+			{  1,  2, 24,   4}, /* phase door 2 */
+			{  1,  2, 26,   4}, /* light area 3 */
+			{  3,  3, 25,   2}, /* find traps 4 */
+			{  3,  3, 25,   3}, /* cure light wounds 5 */
 
-			{  3,  3, 27,   3}, /* stinking cloud */
-			{  5,  4, 30,   4}, /* lightning bolt 5 */
-			{  7,  6, 40,   6}, /* frost bolt */
-			{ 10,  7, 50,   7}, /* acid bolt */
-			{ 15,  9, 50,   8}, /* fire bolt */
-			{ 16, 10, 40,   6}, /* shock wave */
-			{ 20, 20, 50,  10}, /* explosion 10 */
+			{ 99,  0,  0,   0}, /* detect treasure 6 */
+			{ 99,  0,  0,   0}, /* detect objects 7 */
+			{ 11,  7, 75,   6}, /* identify 8 */
+			{ 15,  5, 40,   6}, /* detect invisible 9 */
+			{ 30, 10, 70,  10}, /* detect enchantment 10 */
 
-			{ 17,  9, 50,   8}, /* cloudkill */
-			{ 19, 12, 55,   8}, /* frost ball */
-			{ 20, 15, 70,  20}, /* acid ball */
-			{ 26, 18, 65,  12}, /* fire ball */
-			{ 27, 22, 75,  24}, /* ice storm 15 */
-			{ 15,  8, 30,  12}, /* wonder */
-			{ 30, 25, 85,  34}, /* meteor storm */
-			{ 42, 30, 95, 200}, /* mana storm */
+			{  3,  3, 27,   3}, /* stinking cloud 11 */
+			{  5,  4, 30,   4}, /* lightning bolt 12 */
+			{  5,  4, 30,   4}, /* confuse monster 13 */
+			{  7,  5, 30,   4}, /* sleep monster 14 */
+			{  7, 10, 50,   5}, /* wonder 15 */
+			{  7,  6, 40,   6}, /* frost bolt 16 */
+			{ 10,  7, 50,   7}, /* acid bolt 17 */
+			{ 15,  9, 50,   8}, /* fire bolt 18 */
 
-			{  3,  3, 25,   3}, /* cure light wounds */
-			{  3,  3, 25,   2}, /* find traps 20 */
-			{ 99,  0,  0,   0}, /* detect treasure */
-			{ 99,  0,  0,   0}, /* detect objects */
-			{ 11,  7, 75,   6}, /* identify */
-			{ 15,  5, 40,   6}, /* detect invisible */
-			{ 25,  5, 50,   8}, /* detect evil 25 */
-			{  5,  5, 30,   6}, /* trap destruction */
+			{  5,  5, 30,   6}, /* trap destruction 19 */
+			{  7,  6, 30,   5}, /* spear of light 20 */
+			{  9,  7, 44,   8}, /* stone to mud 21 */
+			{ 13,  9, 40,  12}, /* door creation 22 */
+			{ 20, 18, 60,  20}, /* earthquake 23 */
+			{ 24, 20, 50,  20}, /* stair creation 24 */
 
-			{  5,  5, 35,   4}, /* cure poison */
-			{  7,  6, 35,   5}, /* teleport self */
-			{ 17,  9, 50,   7}, /* slow monster */
-			{ 23, 12, 60,   8}, /* teleport other 30 */
-			{ 25, 12, 65,  10}, /* haste */
-			{ 28, 17, 65,  20}, /* teleport level */
+			{  5,  5, 35,   4}, /* cure poison 25 */
+			{  9,  7, 45,   8}, /* satisfy hunger 26 */
+			{ 99,  0,  0,   0}, /* heroism 27 */
+			{ 99,  0,  0,   0}, /* berserker 28 */
+			{ 25, 12, 65,  10}, /* haste self 29 */
 
-			{  7,  7, 20,  28}, /* door creation */
-			{  9,  7, 45,   8}, /* satisfy hunger */
-			{  7,  6, 30,   5}, /* spear of light 35 */
-			{  9,  7, 44,   8}, /* stone to mud */
-			{  9, 12, 40,  44}, /* stair creation */
-			{  9,  7, 75,   9}, /* recharge 1 */
-			{ 25, 30, 95, 160}, /* recharge 3 */
-			{ 32, 60, 95, 180}, /* elemental brand 40 */
+			{  7,  6, 35,   5}, /* teleport self 30 */
+			{ 17,  9, 50,   7}, /* slow monster 31 */
+			{ 23, 12, 60,   8}, /* teleport other 32 */
+			{ 28, 17, 65,  20}, /* teleport level 33 */
+			{ 30, 25, 75,  15}, /* word of recall 34 */
 
-			{  3,  4, 30,   1}, /* confusion */
-			{  5,  5, 30,   4}, /* sleep 1 */
-			{ 13,  7, 50,   6}, /* sleep 3 */
-			{ 20, 15, 60,  24}, /* bedlam */
-			{ 33, 40, 95,  25}, /* genocide 45 */
-			{ 40, 75, 80, 100}, /* mass genocide */
-			{ 45, 30, 80,  80}, /* rend soul */
+			{ 11,  7, 45,   9}, /* polymorph other 35 */
+			{ 16, 10, 40,   6}, /* shock wave 36 */
+			{ 20, 20, 50,  10}, /* explosion 37 */
+			{ 20,  9, 50,   8}, /* cloudkill 38 */
+			{ 25,  7, 50,   6}, /* mass sleep 39 */
+			{ 25, 15, 60,  24}, /* bedlam 40 */
+			{ 25, 30, 80,  30}, /* rend soul 41 */
+			{ 33, 21, 80,  35}, /* word of destruction 42 */
+			{ 38, 35, 90,  40}, /* chaos strike 43 */
 
-			{ 10,  5, 50,  10}, /* resist cold */
-			{ 10,  5, 50,  10}, /* resist fire */
-			{ 99,  0,  0,   0}, /* heroism 50 */
-			{ 99,  0,  0,   0}, /* berserker */
-			{ 25, 10, 45,  20}, /* resist poison */
-			{ 28, 20, 65,  30}, /* resistance */
-			{ 32, 24, 75,  30}, /* shield */
-			{ 36, 60, 70,  40}, /* rune of protection 55 */
+			{ 10,  5, 50,  10}, /* resist cold 44 */
+			{ 10,  5, 50,  10}, /* resist fire 45 */
+			{ 25, 10, 45,  20}, /* resist poison 46 */
+			{ 28, 20, 65,  30}, /* resistance 47 */
+			{ 32, 24, 75,  30}, /* shield 48 */
+			{ 36, 60, 70,  40}, /* rune of protection 49 */
 
-			{ 30, 10, 70,  10}, /* detect enchantment */
-			{ 30, 25, 75,  15}, /* WoR */
-			{ 11,  7, 45,   9}, /* polymorph other */
-			{ 20, 18, 60,  24}, /* earthquake */
-			{ 33, 21, 80,  15}, /* destruction 60 */
-			{ 35, 30, 60,  25}, /* rift */
-			{ 38, 35, 90,  40}, /* chaos strike */
+			{  9,  7, 75,  10}, /* lesser recharging 50 */
+			{ 99,  0,  0,   0}, /* enchant armor 51 */
+			{ 99,  0,  0,   0}, /* enchant weapon 52 */
+			{ 30, 30, 95, 100}, /* greater recharging 53 */
+			{ 32, 60, 95, 120}, /* elemental brand 54 */
 
-			{ 99,  0,  0,   0} /* (blank) */
+			{ 19, 12, 55,   8}, /* frost ball 55 */
+			{ 20, 15, 70,  20}, /* acid ball 56 */
+			{ 26, 18, 65,  12}, /* fire ball 57 */
+			{ 27, 22, 75,  24}, /* ice storm 58 */
+			{ 30, 45, 95,  25}, /* genocide 59 */
+			{ 30, 25, 85,  34}, /* meteor storm 60 */
+			{ 35, 75, 90, 100}, /* mass genocide 61 */
+			{ 35, 30, 60,  25}, /* rift 62 */
+			{ 42, 30, 95, 200}, /* mana storm 63 */
 		}
 	},
 
@@ -1787,75 +1787,75 @@ player_magic magic_info[MAX_CLASS] =
 			{  5,  1, 50,   1}, /* det m */
 			{  7,  2, 55,   1}, /* phase */
 			{  9,  3, 60,   1}, /* light */
-
-			{ 21, 12, 50,  10}, /* stinky */
-			{ 99,  0,  0,   0}, /* lightning 5 */
-			{ 99,  0,  0,   0}, /* frost */
-			{ 99,  0,  0,   0}, /* acid */
-			{ 99,  0,  0,   0}, /* fire */
-			{ 35, 25, 80,  50}, /* shock wave */
-			{ 99,  0,  0,   0}, /* explosion 10 */
-
-			{ 25, 20, 60,  15}, /* cloudkill */
-			{ 99,  0,  0,   0}, /* frost ball */
-			{ 99,  0,  0,   0}, /* acid ball */
-			{ 99,  0,  0,   0}, /* fire ball */
-			{ 99,  0,  0,   0}, /* ice storm 15 */
-			{ 10, 10, 70,  10}, /* wonder */
-			{ 99,  0,  0,   0}, /* meteor */
-			{ 99,  0,  0,   0}, /* mana */
-
+			{  8,  3, 50,   1}, /* traps */
 			{ 11,  4, 65,   1}, /* cure light */
-			{  8,  3, 50,   1}, /* traps 20 */
+
 			{ 10,  3, 60,   1}, /* treasure */
 			{ 12,  4, 65,   1}, /* objects */
 			{ 18, 18, 60,   2}, /* identify */
 			{ 20, 10, 50,   4}, /* invisible */
-			{ 30, 15, 70,   6}, /* evil 25 */
-			{ 14,  7, 60,   2}, /* trap destruct */
+			{ 27, 10, 50,  10}, /* detect enchantment */
 
-			{ 21,  9, 90,   1}, /* cure poison */
-			{ 22,  9, 50,   1}, /* teleport */
-			{ 28, 20, 70,   2}, /* slow mon */
-			{ 31, 25, 70,   3}, /* tele other 30 */
-			{ 32, 25, 70,   6}, /* haste */
-			{ 25, 20, 60,  20}, /* tele level */
-
-			{ 17,  7, 30,  15}, /* doors */
-			{ 25, 12, 95,   1}, /* hunger */
-			{ 23, 10, 95,   1}, /* spear light 35 */
-			{ 24, 11, 70,   1}, /* stone/mud */
-			{ 25, 12, 40,  25}, /* stairs */
-			{ 27, 15, 99,   1}, /* recharge 1 */
-			{ 35, 40, 95, 100}, /* recharge 3 */
-			{ 30, 60, 80, 120}, /* elemental brand 40 */
-
+			{ 21, 12, 50,  10}, /* stinky */
+			{ 99,  0,  0,   0}, /* lightning */
 			{ 15,  6, 75,   1}, /* confusion */
 			{ 19,  8, 85,   1}, /* sleep 1 */
+			{ 20, 10, 70,  20}, /* wonder */
+			{ 99,  0,  0,   0}, /* frost */
+			{ 99,  0,  0,   0}, /* acid */
+			{ 99,  0,  0,   0}, /* fire */
+
+			{ 14,  7, 60,   2}, /* trap destruct */
+			{ 23, 10, 95,   1}, /* spear light  */
+			{ 24, 11, 70,   1}, /* stone/mud */
+			{ 17,  7, 30,  15}, /* doors */
+			{ 99,  0,  0,   0}, /* quake */
+			{ 25, 12, 40,  25}, /* stairs */
+
+			{ 21,  9, 90,   1}, /* cure poison */
+			{ 25, 12, 95,   1}, /* hunger */
+			{ 26, 15, 50,  40}, /* hero */
+			{ 28, 20, 60,  60}, /* berserker */
+			{ 32, 25, 70,   6}, /* haste */
+
+			{ 22,  9, 50,   1}, /* teleport */
+			{ 28, 20, 70,   2}, /* slow mon */
+			{ 31, 25, 70,   3}, /* tele other */
+			{ 25, 20, 60,  20}, /* tele level */
+			{ 36, 40, 80,  18}, /* WoR */
+
+			{ 99,  0,  0,   0}, /* poly */
+			{ 35, 25, 80,  50}, /* shock wave */
+			{ 99,  0,  0,   0}, /* explosion */
+			{ 25, 20, 60,  15}, /* cloudkill */
 			{ 24, 15, 80,  10}, /* sleep 3 */
 			{ 29, 20, 70,  20}, /* bedlam */
-			{ 99,  0,  0,   0}, /* genocide 45 */
-			{ 99,  0,  0,   0}, /* mass genocide */
 			{ 99,  0,  0,   0}, /* rend soul */
+			{ 99,  0,  0,   0}, /* destruct */
+			{ 99,  0,  0,   0}, /* chaos */
 
 			{ 16, 12, 50,  40}, /* RC */
 			{ 19, 12, 50,  40}, /* RF */
-			{ 26, 15, 50,  40}, /* hero 50  */
-			{ 28, 20, 60,  60}, /* berserker */
 			{ 30, 25, 75,  60}, /* RP */
 			{ 31, 30, 85,  80}, /* R */
 			{ 34, 20, 75,  80}, /* shield */
-			{ 99,  0,  0,   0}, /* rune of protection 55 */
+			{ 99,  0,  0,   0}, /* rune of protection */
 
-			{ 27, 10, 50,  10}, /* detect enchantment */
-			{ 36, 40, 80,  18}, /* WoR */
-			{ 99,  0,  0,   0}, /* poly */
-			{ 99,  0,  0,   0}, /* quake */
-			{ 99,  0,  0,   0}, /* destruct 60 */
+			{ 27, 15, 99,   1}, /* recharge 1 */
+			{ 31, 50, 95,  90}, /* enchant armor */
+			{ 33, 55, 90,  90}, /* enchant weapon */
+			{ 35, 40, 95, 100}, /* recharge 3 */
+			{ 37, 60, 80, 120}, /* elemental brand */
+
+			{ 99,  0,  0,   0}, /* frost ball */
+			{ 99,  0,  0,   0}, /* acid ball */
+			{ 99,  0,  0,   0}, /* fire ball */
+			{ 99,  0,  0,   0}, /* ice storm */
+			{ 99,  0,  0,   0}, /* genocide */
+			{ 99,  0,  0,   0}, /* meteor */
+			{ 99,  0,  0,   0}, /* mass genocide */
 			{ 99,  0,  0,   0}, /* rift */
-			{ 99,  0,  0,   0}, /* chaos */
-
-			{ 99,  0,  0,   0} /* (blank) */
+			{ 99,  0,  0,   0}, /* mana */
 		}
 	},
 
@@ -1876,75 +1876,75 @@ player_magic magic_info[MAX_CLASS] =
 			{  3,  2, 35,   2}, /* detect mon */
 			{  3,  2, 35,   2}, /* phase */
 			{  5,  3, 35,   1}, /* light */
-
-			{  7,  5, 40,   3}, /* stinky */
-			{  9,  7, 40,   3}, /* lightning 5 */
-			{ 15, 12, 50,   4}, /* frost */
-			{ 20, 16, 50,   6}, /* acid */
-			{ 25, 20, 60,   3}, /* fire */
-			{ 99,  0,  0,   0}, /* shock */
-			{ 99,  0,  0,   0}, /* explosion 10 */
-
-			{ 22, 19, 60,   6}, /* cloudkill */
-			{ 27, 21, 65,   6}, /* frost ball */
-			{ 30, 24, 70,   6}, /* acid ball */
-			{ 34, 28, 80,   9}, /* fire ball */
-			{ 35, 35, 70,  10}, /* ice storm 15 */
-			{ 20, 15, 80,  10}, /* wonder */
-			{ 36, 45, 80,  35}, /* meteor */
-			{ 99,  0,  0,   0}, /* mana */
-
+			{  5,  4, 45,   2}, /* traps */
 			{  5,  3, 40,   1}, /* cure light */
-			{  5,  4, 45,   2}, /* traps 20 */
+
 			{ 99,  0,  0,   0}, /* treasure */
 			{ 99,  0,  0,   0}, /* objects */
 			{ 23, 25, 90,   3}, /* identify */
 			{ 25, 15, 50,   4}, /* invisible */
-			{ 30, 15, 50,   6}, /* evil 25 */
-			{  9,  8, 45,   3}, /* trap destruct */
+			{ 35, 20, 70,  10}, /* enchantment */
 
-			{ 11,  9, 45,   3}, /* cure poison */
-			{ 13, 10, 45,   3}, /* teleport */
-			{ 25, 21, 65,   3}, /* slow mon */
-			{ 31, 25, 70,   3}, /* tele other 30 */
-			{ 33, 25, 75,   4}, /* haste */
-			{ 34, 27, 60,  15}, /* tele level */
-
-			{  8, 17, 20,  25}, /* door create */
-			{ 17, 17, 55,   3}, /* satisfy hunger */
-			{ 13, 11, 55,   4}, /* spear light 35 */
-			{ 15, 13, 50,   4}, /* stone/mud */
-			{ 18, 22, 40,  21}, /* stairs */
-			{ 29, 17, 90,   4}, /* recharge 1 */
-			{ 35, 50, 95, 115}, /* recharge 3 */
-			{ 31, 60, 95, 180}, /* elemental brand 40 */
-
+			{  7,  5, 40,   3}, /* stinky */
+			{  9,  7, 40,   3}, /* lightning */
 			{  7,  6, 40,   2}, /* confusion */
 			{ 11,  8, 40,   3}, /* sleep 1 */
+			{ 15, 18, 80,  10}, /* wonder */
+			{ 15, 12, 50,   4}, /* frost */
+			{ 20, 16, 50,   6}, /* acid */
+			{ 25, 20, 60,   3}, /* fire */
+
+			{  9,  8, 45,   3}, /* trap destruct */
+			{ 13, 11, 55,   4}, /* spear light */
+			{ 15, 13, 50,   4}, /* stone/mud */
+			{ 20, 17, 20,  25}, /* door create */
+			{ 30, 28, 60,  16}, /* quake */
+			{ 32, 32, 50,  40}, /* stairs */
+
+			{ 11,  9, 45,   3}, /* cure poison */
+			{ 17, 17, 55,   3}, /* satisfy hunger */
+			{ 18, 15, 50,  40}, /* heroism */
+			{ 23, 30, 80,  35}, /* berserk */
+			{ 33, 25, 75,   4}, /* haste */
+
+			{ 13, 10, 45,   3}, /* teleport */
+			{ 25, 21, 65,   3}, /* slow mon */
+			{ 31, 25, 70,   3}, /* tele other */
+			{ 34, 27, 60,  15}, /* tele level */
+			{ 35, 35, 75,  16}, /* WoR */
+
+			{ 21, 19, 60,   3}, /* poly */
+			{ 99,  0,  0,   0}, /* shock */
+			{ 99,  0,  0,   0}, /* explosion */
+			{ 22, 19, 60,   6}, /* cloudkill */
 			{ 23, 20, 60,   4}, /* sleep 3 */
 			{ 32, 30, 70,  12}, /* bedlam */
-			{ 99,  0,  0,   0}, /* geno 45 */
-			{ 99,  0,  0,   0}, /* mass geno */
 			{ 99,  0,  0,   0}, /* rend soul */
+			{ 37, 30, 95,  30}, /* destruct */
+			{ 99,  0,  0,   0}, /* chaos */
 
 			{  8, 15, 50,  30}, /* RC */
 			{  8, 15, 50,  30}, /* RF */
-			{ 18, 15, 50,  40}, /* heroism 50 */
-			{ 23, 30, 80,  35}, /* berserk */
 			{ 26, 25, 75,  50}, /* RP */
 			{ 31, 40, 85,  70}, /* R */
 			{ 35, 30, 75,  80}, /* shield */
-			{ 40, 75, 80,  80}, /* rune of protection 55 */
+			{ 40, 75, 80,  80}, /* rune of protection */
 
-			{ 35, 20, 70,  10}, /* enchantment */
-			{ 35, 35, 75,  16}, /* WoR */
-			{ 21, 19, 60,   3}, /* poly */
-			{ 30, 28, 60,  16}, /* quake */
-			{ 37, 30, 95,  10}, /* destruct 60 */
+			{ 29, 17, 90,   4}, /* recharge 1 */
+			{ 33, 45, 90,  50}, /* enchant armor */
+			{ 34, 50, 90,  60}, /* enchant weapon */
+			{ 35, 50, 95, 115}, /* recharge 3 */
+			{ 31, 60, 95, 180}, /* elemental brand */
+
+			{ 27, 21, 65,   6}, /* frost ball */
+			{ 30, 24, 70,   6}, /* acid ball */
+			{ 34, 28, 80,   9}, /* fire ball */
+			{ 35, 35, 70,  10}, /* ice storm */
+			{ 99,  0,  0,   0}, /* geno */
+			{ 36, 45, 80,  35}, /* meteor */
+			{ 99,  0,  0,   0}, /* mass geno */
 			{ 99,  0,  0,   0}, /* rift */
-			{ 99,  0,  0,   0}, /* chaos */
-
-			{ 99,  0,  0,   0} /* (blank) */
+			{ 99,  0,  0,   0}, /* mana */
 		}
 	},
 
@@ -2048,18 +2048,18 @@ u32b spell_flags[2][12][2] =
 {
 	{
 		/*** Mage spell books ***/
-		{ 0x0018000f, 0x00000000 },
-		{ 0x03f00002, 0x01000000 },
-		{ 0x000007f1, 0x00000000 },
-		{ 0xf0000004, 0x02000001 },
-		{ 0x08080000, 0x001c0004 },
-		{ 0x04000008, 0x000001fa },
-		{ 0x00000000, 0x0000fe00 },
-		{ 0x0006f800, 0x00000000 },
-		{ 0x00000000, 0x00f30000 },
-		{ 0x00010000, 0x7c000000 },
+		{ 0x0000003f, 0x00000000 },	/* intro */
+		{ 0x000007d2, 0x00000000 },	/* divination */
+		{ 0x0007f801, 0x00000000 },	/* evocations */
+		{ 0x01f80008, 0x00000000 },	/* conjuration */
+		{ 0x3e000020, 0x00000000 },	/* anatomy */
+		{ 0xc0000004, 0x00000007 },	/* time-space */
+		{ 0x00000000, 0x00000ff8 },	/* grimoire */
+		{ 0x00000000, 0x0003f000 },	/* armor */
+		{ 0x00000000, 0x007c0000 },	/* energy */
+		{ 0x00000000, 0xff800000 },	/* destruction */
 		{ 0x00000000, 0x00000000 },
-		{ 0x00000000, 0x00000000 }
+		{ 0x00000000, 0x00000000 },
 	},
 
 	{
@@ -2088,15 +2088,22 @@ cptr spell_names[2][64] =
 	/*** Mage Spells ***/
 
 	{
-		/* I apologize for the order of these spells.  They were
-		   shuffled around more than once as I experimented with
-		   various combinations of books/levels/classes/etc. -GJW */
 		/* This first group is isolated so that the beginner's book is
 		   in the "right" order, or as close as it'll get. */
 		"Magic Missile",
 		"Detect Monsters",
 		"Phase Door",
 		"Light Area",
+		"Find Hidden Traps/Doors",
+		"Cure Light Wounds",
+
+		/* The Art of Divination -- information spells */
+		/* includes detect monsters and find hidden traps/doors */
+		"Detect Treasure",
+		"Detect Objects",
+		"Identify",
+		"Detect Invisible",
+		"Detect Enchantment",
 
 		/* Evocations -- offensive spells (includes magic missile)
 			"Kill, kill, hate, hate,
@@ -2104,91 +2111,75 @@ cptr spell_names[2][64] =
 			 -- CWRU Marching Spartans, traditional cheer */
 		"Stinking Cloud",
 		"Lightning Bolt",
+		"Confuse Monster",
+		"Sleep Monster",
+		"Wonder",
 		"Frost Bolt",
 		"Acid Bolt",
 		"Fire Bolt",
-		"Shock Wave",
-		"Explosion",
 
-		/* Advanced Evocations -- some more of the offensive spells
-		   have been scattered....  (Wonder is actually in Chaos.) */
-		"Cloudkill",
-		"Frost Ball",
-		"Acid Ball",
-		"Fire Ball",
-		"Ice Storm",
-		"Wonder",
-		"Meteor Swarm",
-		"Mana Storm",
-
-		/* Here for obscure reasons.... */
-		"Cure Light Wounds",
-
-		/* Divinations -- informative spells (includes detect monster
-		   and detect enchantment) */
-		"Find Hidden Traps/Doors",
-		"Treasure Detection",
-		"Object Detection",
-		"Identify",
-		"Detect Invisible",
-		"Detect Evil",
-
-		/* Here for obscure reasons.... */
+		/* Applied Conjuration -- dungeon manipulations */
+		/* includes light area */
 		"Trap/Door Destruction",
+		"Spear of Light",
+		"Turn Stone to Mud",
+		"Door Creation",
+		"Earthquake",
+		"Stair Creation",
+
+		/* Anatomy and Physiology -- healing and self-improvement */
+		/* includes cure light wounds */
 		"Cure Poison",
+		"Satisfy Hunger",
+		"Heroism",
+		"Berserker",
+		"Haste Self",
 
 		/* Manipluations of Time and Space; we need more of these
 		   (Rift??).  Includes phase door. */
 		"Teleport Self",
 		"Slow Monster",
 		"Teleport Other",
-		"Haste Self",
 		"Teleport Level",
+		"Word of Recall",
 
-		/* Spells of Creation and Alteration; sort of a "utility" book
-		   (incl. light area & stone to mud, but not satisfy hunger) */
-		"Door Creation",
-		"Satisfy Hunger",
-		"Spear of Light",
-		"Turn Stone to Mud",
-		"Stair Creation",
-		"Lesser Recharging",
-		"Greater Recharging",
-		"Elemental Brand",
-
-		/* Black Magic (mua-ha-ha) */
-		"Confuse Monster",
-		"Sleep Monster",
+		/* Grimoire of Black Magic (note removal of genocide) */
+		"Polymorph Other",
+		"Shock Wave",
+		"Explosion",
+		"Cloudkill",
 		"Mass Sleep",
 		"Bedlam",
-		"Genocide",
-		"Mass Genocide",
 		"Rend Soul",
+		"Word of Destruction",
+		"Chaos Strike",
 
 		/* Resistances and Defenses; "White Magic".  Some work is
 		   needed here. */
 		"Resist Cold",
 		"Resist Fire",
-		"Heroism",
-		"Berserker",
 		"Resist Poison",
 		"Resistance",
 		"Shield",
 		"Rune of Protection",
 
-		/* Here for obscure reasons.... */
-		"Detect Enchantment",
-		"Word of Recall",
+		/* Energy Transference */
+		"Lesser Recharging",
+		"Enchant Armor",
+		"Enchant Weapon",
+		"Greater Recharging",
+		"Elemental Brand",
 
-		/* Chaos; Wild Magic; Assorted Mayhem and Destruction.  More of
-		   these are needed.  Includes Wonder. */
-		"Polymorph Other",
-		"Earthquake",
-		"Word of Destruction",
+		/* Tome of Destruction.  Wholesale slaughter. */
+		"Frost Ball",
+		"Acid Ball",
+		"Fire Ball",
+		"Ice Storm",
+		"Genocide",
+		"Meteor Swarm",
+		"Mass Genocide",
 		"Rift",
-		"Chaos Strike",
-
-		"(blank)"	/* reserved for future expansion */
+		"Mana Storm"
 	},
 
 

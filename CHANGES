@@ -1,3 +1,69 @@
+The following changes were made for GW-Angband 2.8.3v3:
+
+  * Bug fix: the complex RNG is now initialized properly when a new character
+    is started with the memories of a previous character.  (This actually
+    affected all cases where the game was loaded with an existing save file,
+    though it was generally only noticeable at character birth.)
+
+  * Locked and jammed doors are now detected by door detection spells.  When
+    a secret door is revealed, sometimes a locked door is created rather than
+    an unlocked door.
+
+  * Weapons of Quickness no longer say "+N attacks".
+
+  * The 10% energy cost reduction for each plus on a weapon or shooter of
+    Quickness is computed more intuitively: +2 gives 20% and +3 gives 30%.
+
+  * The Angband wrapper functions my_fopen() and my_fclose() are used in
+    randart.c instead of the ANSI standard fopen() and fclose(), for
+    compatibility with certain platforms.
+
+  * The Makefile.dos has been updated to match Makefile.ibm and Makefile.std.
+    (Other makefiles haven't been updated -- you may need to add randart.o
+    or the equivalent to the list of object files, and/or add randart.c to
+    the list of source files.)
+
+  * The Bless Weapon spell now gives a non-zero WIS bonus.
+
+  * The hit point bonus for CON scores in the 17 to 18/50 range has been
+    smoothed a bit (though not as much as some people might have wanted).
+
+  * Targeting trappers and lurkers is possible again.
+
+  * When throwing a wand or rod from a stack, charges/timeout are now handled
+    correctly (no more free recharging!).
+
+  * Merged Robert Ruehlmann's DOS port changes, which allow compile-time
+    support for Adam Bolt's tileset and special effects.  (Use
+    Makefile.dos, requires the Allegro library.)
+
+  * Reorganized Mage spells again.  Detect Evil is gone, but Enchant Armor
+    and Enchant Weapon (Rogue/Ranger only) have been added to take up
+    the slack.  Many low-level spells now appear in earlier books (in
+    particular, confuse monster and sleep monster), and some high-level
+    spells have been moved to later books.
+
+  * Rings of poison resistance are now 2000' items to make up for the lack
+    of an early poison resistance Mage spell.  (But rarity is higher
+    and price is a bit lower.)
+
+  * Wands of magic missile now do 3d4 damage.
+
+  * Scrolls of teleportation are a bit more expensive but have a small
+    chance of appearing in the Alchemist's shop; the staves are a bit
+    less expensive and appear at 750' instead of 1000'.  (This helps
+    make up for the fact that all spell-casters now get Teleport Self
+    or the equivalent spell later than they did in Angband.)
+
+  * Characters now get more (and more useful) starting equipment.
+
+  * Silver jellies (which touch to absorb light) are no longer hurt by
+    bright light.
+
+  * Some more vanilla Angband bug fixes have been included.
+
+-------------------------------------------------------------------------------
+
 The following changes were made for GW-Angband 2.8.3v2:
 
   * Player combat rules are significantly altered.  Instead of getting
@@ -107,12 +173,14 @@ The following changes were made for GW-Angband 2.8.3v2:
   * All dragons/drakes/wyrms (except baby dragons) have had their melee
     attack damage doubled.
 
-  * Living creatures hit by gravity damage have a 50% chance of resisting
-    the short-range teleport effect.  (This reduces the abusivenss of
-    certain tactics with the Rift spell.)
+  * Creatures (including player characters) hit by gravity damage have a 50%
+    chance of resisting the short-range teleport effect.  (This reduces the
+    abusiveness of certain tactics with the Rift spell.)
 
   * Mages (and Rangers) get the Rune of Protection spell, in a dungeon book.
     However, the glyph feature isn't as powerful as in Angband -- it
-    prevents monster movement, but not monster melee attacks (the monsters
+    prevents monster movement, but not monster melee attacks (the mosnters
     may reach a claw/tentacle/etc. over the edge -- they just can't step
     through it).
+
+  * Some vanilla Angband bug fixes have been included.

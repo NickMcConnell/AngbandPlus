@@ -1011,13 +1011,17 @@ bool detect_doors(void)
 			/* Detect secret doors */
 			if (cave_feat[y][x] == FEAT_SECRET)
 			{
-				/* Pick a door XXX XXX XXX */
-				cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+				/* Is door locked?  How strong is the lock? */
+				int lock = randint(10) - 5;
+				if (lock < 0) lock = 0;
+
+				/* Pick a door */
+				cave_set_feat(y, x, FEAT_DOOR_HEAD + lock);
 			}
 
 			/* Detect doors */
 			if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-			     (cave_feat[y][x] <= FEAT_DOOR_HEAD)) ||
+			     (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
 			    ((cave_feat[y][x] == FEAT_OPEN) ||
 			     (cave_feat[y][x] == FEAT_BROKEN)))
 			{

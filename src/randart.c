@@ -99,13 +99,13 @@ int init_names (void)
 	int i;
 
 	path_build (buf, BUFLEN, ANGBAND_DIR_FILE, NAMES_FILE);
-	if ((f = fopen (buf, "r")) == NULL)
+	if ((f = my_fopen (buf, "r")) == NULL)
 	{
 		msg_format ("could not open '" NAMES_FILE "'\n");
 		return 1;
 	}
 	build_prob (f);
-	fclose (f);
+	my_fclose (f);
 
 	for (i = 0; i < MAX_A_IDX; i++)
 	{

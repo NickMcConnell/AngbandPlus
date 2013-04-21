@@ -365,6 +365,13 @@
 #define USE_GRAPHICS
 
 
+#ifdef USE_GRAPHICS
+# if defined(WINDOWS) || defined(USE_DOS)
+#  define USE_AB_TILES
+# endif /* defined(WINDOWS) || defined(USE_DOS) */
+#endif /* USE_GRAPHICS */
+
+
 /*
  * OPTION: Hack -- Macintosh stuff
  */

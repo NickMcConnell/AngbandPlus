@@ -511,6 +511,12 @@ char *r_text;
 cptr ANGBAND_SYS = "xxx";
 
 /*
+ * Hack -- The special Angband "Graphics Suffix"
+ * This variable is used to choose an appropriate "graf-xxx" file
+ */
+cptr ANGBAND_GRAF = "old";
+
+/*
  * Path name: The main "lib" directory
  * This variable is not actually used anywhere in the code
  */
@@ -623,6 +629,3 @@ bool (*get_mon_num_hook)(int r_idx);
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
-
-
-

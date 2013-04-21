@@ -1085,8 +1085,8 @@ F:FEATHER | EASY_KNOW
 N:143:Poison Resistance
 G:=:d
 I:45:20:0
-W:60:0:2:16000
-A:60/2
+W:40:0:2:15000
+A:40/4
 F:RES_POIS | EASY_KNOW
 
 N:144:Free Action
@@ -1359,13 +1359,13 @@ A:1/1
 N:186:Teleportation
 G:?:d
 I:70:9:0
-W:10:0:5:40
+W:10:0:5:60
 A:10/1
 
 N:187:Teleport Level
 G:?:d
 I:70:10:0
-W:20:0:5:50
+W:20:0:5:100
 A:20/1
 
 N:188:Monster Confusion
@@ -1383,7 +1383,7 @@ A:5/1
 N:190:Rune of Protection
 G:?:d
 I:70:38:0
-W:60:0:5:500
+W:60:0:5:2000
 A:60/2:90/4
 
 N:191:*Remove Curse*
@@ -2132,8 +2132,8 @@ P:0:1d2:0:0:0
 N:303:Teleportation
 G:_:d
 I:55:4:0
-W:20:0:50:2000
-A:20/1
+W:15:0:50:1600
+A:15/1
 P:0:1d2:0:0:0
 
 N:304:Earthquakes
@@ -2342,7 +2342,7 @@ W:15:0:30:200
 A:15/1
 P:0:1d1:0:0:0
 
-N:333:[The Space-Time Continuum]
+N:333:[Applied Conjuration]
 G:?:R
 I:90:3:0
 W:20:0:30:300
@@ -2667,7 +2667,7 @@ P:0:1d1:0:0:0
 ##### Special Books (note resistances) #####
 
 # This one is borderline.  It's really tempting to make it non-resistant.
-N:379:[Matter and Energy]
+N:379:[The Space-Time Continuum]
 G:?:r
 I:90:5:0
 W:30:0:30:5000
@@ -2683,7 +2683,7 @@ A:35/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:381:[Evocations for Experts]
+N:381:[Ethereal Armor]
 G:?:r
 I:90:7:0
 W:40:0:30:20000
@@ -2691,7 +2691,7 @@ A:40/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:382:[Defensive Magic]
+N:382:[Energy Transference]
 G:?:r
 I:90:8:0
 W:60:0:30:40000
@@ -2699,7 +2699,7 @@ A:60/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:383:[The Chaos Compendium]
+N:383:[Tome of Destruction]
 G:?:r
 I:90:9:0
 W:80:0:30:100000

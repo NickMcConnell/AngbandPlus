@@ -15,6 +15,10 @@ features.
 GW-Angband 2.8.3v2 adds many new features -- see the file CHANGES in this
 directory for details.
 
+GW-Angband 2.8.3v3 fixes some bugs introduced in 2.8.3v2 (as well as
+some long-standing bugs) and adds a few minor features for better game
+consistency -- see the file CHANGES in this directory for details.
+
 === Angband Information ===
 
 

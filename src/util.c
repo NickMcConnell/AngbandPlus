@@ -558,7 +558,7 @@ int fd_make(cptr file, int mode)
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (-1);
 
-#if defined(MACINTOSH) || defined(WINDOWS)
+#if defined(MACINTOSH)
 
 	/* Create the file, fail if exists, write-only, binary */
 	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY));

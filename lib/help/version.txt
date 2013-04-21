@@ -1,21 +1,34 @@
 === Version Information ===
 
-This file was last updated for GW-Angband 2.8.3.
+This file was last updated for GW-Angband 2.8.3v3.
 
 GW-Angband is a variant of Angband 2.7.X and 2.8.X.  This variant attempts
-primarily to address certain inconsistencies in the original Angband game --
-most specifically, in the Mage clas.  The biggest changes between Angband
-and GW-Angband are in the mage spells, which are in some cases altered
-dramatically.  This is accompanied bya minor revision of the combat system,
-which further weakens mage/priest combat, but gives a slight advantage to
-warriors and rogues, both of whom rely extensively on combat.
+primarily to address several inconsistencies and imbalances in the original
+Angband game -- most noticeably, in the Mage class.  The biggest changes
+between Angband and GW-Angband are:
+
+  * Spell lists have been reorganized, and offensive spells are more
+    varied and powerful.
+
+  * Attack speed is now expressed as a cost per blow (or per shot),
+    instead of as a number of blows per "turn".  This gives a smoother,
+    more gradual range of melee/missile power (instead of a system of
+    arbitrary "break points" at which one's power is suddenly doubled).
+
+  * Light weapons are no longer automatically superior for melee characters,
+    because of:
+    
+      * the attack speed changes mentioned above
+      * a reduction in the power of rings of damage
+      * a change to weapon damage enchantment, which is now based on the
+        weapon's base damage dice
 
 As long as I was doing all that, I thought it would be worthwhile to add some
 new features to the game.  However, I have attempted wherever possible to
 maintain the "spirit" of the original game; thus, most of my changes are
-subtle.  Priests and paladins may not notice much of a change at all, and
-in some cases the player may easily forget that (s)he is playing a variant
-and not the original game.
+subtle.  A few monsters have been tweaked slightly, for example, and certain
+user interface enhancements (written by other people) have been added.  (The
+most noticeable of the new features is probably the rod and wand stacking.)
 
 Information on GW-Angband is available from my web page:
 

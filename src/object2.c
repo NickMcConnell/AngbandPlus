@@ -4604,15 +4604,20 @@ void inven_drop(int item, int amt)
 	/* If rods/wands are dropped, divvy up total max timeout or charges. */
 	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
 	{
-		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-		if (amt < o_ptr->number) o_ptr->pval -= i_ptr->pval;
+		if (o_ptr->tval == TV_WAND)
+		{
+			i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+			if (amt < o_ptr->number) o_ptr->pval -= i_ptr->pval;
+		}
 
 		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
-			if (i_ptr->pval > o_ptr->timeout)
+			object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+			if (k_ptr->pval > o_ptr->timeout)
 				i_ptr->timeout = o_ptr->timeout;
 			else
-				i_ptr->timeout = i_ptr->pval;
+				i_ptr->timeout = k_ptr->pval;
 
 			if (amt < o_ptr->number)
 				o_ptr->timeout -= i_ptr->timeout;
@@ -4937,37 +4942,131 @@ void spell_info(char *p, int spell)
 		/* Analyze the spell */
 		switch (spell)
 		{
-			case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
-			case 2: strcpy(p, " range 10"); break;
-			case 4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-			case 5: sprintf(p, " dam %dd6", (3+((plev-5)/6))); break;
-			case 6: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
-			case 7: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-			case 8: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-		    	case 9: sprintf(p, " dam %d", 10 + plev); break;
-		    	case 10: sprintf(p, " dam %d", 20 + plev * 2); break;
-			case 11: sprintf(p, " dam %d", 40 + plev/2); break;
-			case 12: sprintf(p, " dam %d", 30 + plev); break;
-			case 13: sprintf(p, " dam %d", 40 + plev); break;
-			case 14: sprintf(p, " dam %d", 55 + plev); break;
-			case 15: sprintf(p, " dam %d", 50 + plev * 2); break;
-			case 17: sprintf(p, " dam %dx%d", 30+plev/2, 2+plev/20); break;
-			case 18: sprintf(p, " dam %d", 300 + plev*2); break;
-			case 19: strcpy(p, " heal 2d8"); break;
-			case 28: sprintf(p, " range %d", plev * 5); break;
-			case 31: sprintf(p, " dur %d+d20", plev); break;
-			case 35: strcpy(p, " dam 6d8"); break;
-			case 47: sprintf(p, " dam 17d%d", plev); break;
-			case 48: strcpy(p, " dur 20+d20"); break;
-			case 49: strcpy(p, " dur 20+d20"); break;
-			case 50: strcpy(p, " dur 25+d25"); break;
-			case 51: strcpy(p, " dur 25+d25"); break;
-			case 52: strcpy(p, " dur 20+d20"); break;
-			case 53: strcpy(p, " dur 20+d20"); break;
-			case 54: strcpy(p, " dur 30+d20"); break;
-			/* case 55: strcpy(p, " dur 6+d8"); break; */
-			case 61: sprintf(p, " dam 40+%dd7", plev); break;
-			case 62: sprintf(p, " dam 13d%d", plev); break;
+			case 0: /* magic missile */
+			{
+				sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
+			}
+			case 2: /* phase door */
+			{
+				strcpy(p, " range 10"); break;
+			}
+			case 5: /* cure light wounds */
+			{
+				strcpy(p, " heal 2d8"); break;
+			}
+			case 11: /* stinking cloud */
+			{
+				sprintf(p, " dam %d", 10 + (plev / 2)); break;
+			}
+			case 12: /* lightning bolt */
+			{
+				sprintf(p, " dam %dd6", (3+((plev-5)/6)));
+				break;
+			}
+			case 16: /* frost bolt */
+			{
+				sprintf(p, " dam %dd8", (5+((plev-5)/4)));
+				break;
+			}
+			case 17: /* acid bolt */
+			{
+				sprintf(p, " dam %dd8", (6+((plev-5)/4)));
+				break;
+			}
+			case 18: /* fire bolt */
+			{
+				sprintf(p, " dam %dd8", (8+((plev-5)/4)));
+				break;
+			}
+			case 20: /* spear of light */
+			{
+				strcpy(p, " dam 6d8"); break;
+			}
+			case 27: /* heroism */
+			{
+				strcpy(p, " dur 25+d25"); break;
+			}
+			case 28: /* berserker */
+			{
+				strcpy(p, " dur 25+d25"); break;
+			}
+			case 29: /* haste self */
+			{
+				sprintf(p, " dur %d+d20", plev); break;
+			}
+			case 30: /* teleport self */
+			{
+				sprintf(p, " range %d", plev * 5); break;
+			}
+		    	case 36: /* shock wave */
+			{
+				sprintf(p, " dam %d", 10 + plev); break;
+			}
+		    	case 37: /* explosion */
+			{
+				sprintf(p, " dam %d", 20 + plev * 2); break;
+			}
+			case 38: /* cloudkill */
+			{
+				sprintf(p, " dam %d", 40 + plev/2); break;
+			}
+			case 41: /* rend soul */
+			{
+				sprintf(p, " dam 11d%d", plev); break;
+			}
+			case 43: /* chaos strike */
+			{
+				sprintf(p, " dam 13d%d", plev); break;
+			}
+			case 44: /* resist cold */
+			{
+				strcpy(p, " dur 20+d20"); break;
+			}
+			case 45: /* resist fire */
+			{
+				strcpy(p, " dur 20+d20"); break;
+			}
+			case 46: /* resist poison */
+			{
+				strcpy(p, " dur 20+d20"); break;
+			}
+			case 47: /* resistance */
+			{
+				strcpy(p, " dur 20+d20"); break;
+			}
+			case 48: /* shield */
+			{
+				strcpy(p, " dur 30+d20"); break;
+			}
+			case 55: /* frost ball */
+			{
+				sprintf(p, " dam %d", 30 + plev); break;
+			}
+			case 56: /* acid ball */
+			{
+				sprintf(p, " dam %d", 40 + plev); break;
+			}
+			case 57: /* fire ball */
+			{
+				sprintf(p, " dam %d", 55 + plev); break;
+			}
+			case 58: /* ice storm */
+			{
+				sprintf(p, " dam %d", 50 + plev * 2); break;
+			}
+			case 60: /* meteor swarm */
+			{
+				sprintf(p, " dam %dx%d", 30+plev/2, 2+plev/20);
+				break;
+			}
+			case 62: /* rift */
+			{
+				sprintf(p, " dam 40+%dd7", plev); break;
+			}
+			case 63: /* mana storm */
+			{
+				sprintf(p, " dam %d", 300 + plev*2); break;
+			}
 		}
 	}
 

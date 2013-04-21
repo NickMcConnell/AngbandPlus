@@ -1732,6 +1732,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			tail = " to speed";
 		}
 
+#if 0
 		/* Blows */
 		else if (f1 & (TR1_BLOWS))
 		{
@@ -1741,6 +1742,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Add "attacks" */
 			if (ABS(o_ptr->pval) != 1) tail2 = "s";
 		}
+#endif
 
 #if 0
 
@@ -2589,6 +2591,9 @@ bool identify_fully_aux(object_type *o_ptr)
 
 			/* Label the information */
 			prt("     Item Attributes:", 1, 0);
+
+			/* Jump to top of screen -GJW */
+			k = 2;
 		}
 	}
 

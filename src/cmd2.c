@@ -2857,6 +2857,32 @@ void do_cmd_throw(void)
 	/* Obtain a local object */
 	object_copy(i_ptr, o_ptr);
 
+	/* If wands/rods are thrown, divvy up the charges or timeout. */
+	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
+	{
+		/* For wands, split up the charges. */
+		if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
+		{
+			i_ptr->pval = o_ptr->pval / o_ptr->number;
+			o_ptr->pval -= i_ptr->pval;
+		}
+
+		/* For rods, the thrown rod should accept all the time
+		 * remaining (the player is assumed to throw a discharged
+		 * rod, if any, not a charged one). */
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		{
+			object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+			if (k_ptr->pval > o_ptr->timeout)
+				i_ptr->timeout = o_ptr->timeout;
+			else
+				i_ptr->timeout = k_ptr->pval;
+			if (o_ptr->number > 1)
+				o_ptr->timeout -= i_ptr->timeout;
+		}
+	}
+
 	/* Single object */
 	i_ptr->number = 1;
 

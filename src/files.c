@@ -674,6 +674,14 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 				v = ANGBAND_SYS;
 			}
 
+#ifdef USE_AB_TILES
+			/* Graphics */
+			else if (streq(b+1, "GRAF"))
+			{
+				v = ANGBAND_GRAF;
+			}
+#endif /* USE_AB_TILES */
+
 			/* Race */
 			else if (streq(b+1, "RACE"))
 			{
@@ -1868,6 +1876,12 @@ static void display_player_sust_info(void)
 			a = TERM_SLATE;
 			c = '.';
 
+			/* Sustain part 1: "s" (may be overridden) */
+			if (f2 & 1<<stat)
+			{
+				c = 's';
+			}
+
 			/* Boost */
 			if (f1 & 1<<stat)
 			{
@@ -1895,12 +1909,13 @@ static void display_player_sust_info(void)
 				}
 			}
 
-			/* Sustain */
+			/*
+			 * Sustain part 2: make it dark green.  This may
+			 * apply to a number, or to an "s".
+			 */
 			if (f2 & 1<<stat)
 			{
-				/* Dark green "s" */
 				a = TERM_GREEN;
-				c = 's';
 			}
 
 			/* Dump proper character */
@@ -3104,56 +3119,10 @@ static void show_info(void)
 }
 
 
-
-
-
-/*
- * Semi-Portable High Score List Entry (128 bytes)
- *
- * All fields listed below are null terminated ascii strings.
- *
- * In addition, the "number" fields are right justified, and
- * space padded, to the full available length (minus the "null").
- *
- * Note that "string comparisons" are thus valid on "pts".
- */
-
-typedef struct high_score high_score;
-
-struct high_score
-{
-	char what[8];		/* Version info (string) */
-
-	char pts[10];		/* Total Score (number) */
-
-	char gold[10];		/* Total Gold (number) */
-
-	char turns[10];		/* Turns Taken (number) */
-
-	char day[10];		/* Time stamp (string) */
-
-	char who[16];		/* Player Name (string) */
-
-	char uid[8];		/* Player UID (number) */
-
-	char sex[2];		/* Player Sex (string) */
-	char p_r[3];		/* Player Race (number) */
-	char p_c[3];		/* Player Class (number) */
-
-	char cur_lev[4];		/* Current Player Level (number) */
-	char cur_dun[4];		/* Current Dungeon Level (number) */
-	char max_lev[4];		/* Max Player Level (number) */
-	char max_dun[4];		/* Max Dungeon Level (number) */
-
-	char how[32];		/* Method of death (string) */
-};
-
-
-
 /*
  * The "highscore" file descriptor, if available.
  */
-static int highscore_fd = -1;
+int highscore_fd = -1;
 
 
 /*
@@ -3268,7 +3237,7 @@ static int highscore_add(high_score *score)
  *
  * Mega-Hack -- allow "fake" entry at the given position.
  */
-static void display_scores_aux(int from, int to, int note, high_score *score)
+void display_scores_aux(int from, int to, int note, high_score *score)
 {
 	int i, j, k, n, attr, place;
 

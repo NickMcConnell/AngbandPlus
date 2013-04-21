@@ -205,6 +205,9 @@ extern monster_race *r_info;
 extern char *r_name;
 extern char *r_text;
 extern cptr ANGBAND_SYS;
+#ifdef USE_AB_TILES
+extern cptr ANGBAND_GRAF;
+#endif /* USE_AB_TILES */
 extern cptr ANGBAND_DIR;
 extern cptr ANGBAND_DIR_APEX;
 extern cptr ANGBAND_DIR_BONE;
@@ -237,7 +240,11 @@ extern sint distance(int y1, int x1, int y2, int x2);
 extern bool los(int y1, int x1, int y2, int x2);
 extern bool no_lite(void);
 extern bool cave_valid_bold(int y, int x);
+#ifdef USE_TRANSPARENCY
+extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
+#else /* USE_TRANSPARENCY */
 extern void map_info(int y, int x, byte *ap, char *cp);
+#endif /* USE_TRANSPARENCY */
 extern void move_cursor_relative(int y, int x);
 extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
@@ -352,6 +359,8 @@ extern void do_cmd_activate(void);
 extern void play_game(bool new_game);
 
 /* files.c */
+extern int highscore_fd;
+extern void display_scores_aux(int from, int to, int note, high_score *score);
 extern void safe_setuid_drop(void);
 extern void safe_setuid_grab(void);
 extern s16b tokenize(char *buf, s16b num, char **tokens);

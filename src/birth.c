@@ -970,48 +970,54 @@ static void player_wipe(void)
  * In addition, he always has some food and a few torches.
  */
 
-static byte player_init[MAX_CLASS][3][2] =
+static byte player_init[MAX_CLASS][4][3] =
 {
 	{
 		/* Warrior */
-		{ TV_POTION, SV_POTION_BESERK_STRENGTH },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
+		{ TV_POTION, SV_POTION_HEROISM, 1 },
+		{ TV_SWORD, SV_BROAD_SWORD, 1 },
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL, 1 },
+		{ TV_SHIELD, SV_SMALL_METAL_SHIELD, 1 }
 	},
 
 	{
 		/* Mage */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
+		{ TV_MAGIC_BOOK, 0, 1 },
+		{ TV_MAGIC_BOOK, 2, 1 },
+		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR, 2 },
+		{ TV_SCROLL, SV_SCROLL_TELEPORT, 1 }
 	},
 
 	{
 		/* Priest */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_HEALING }
+		{ TV_PRAYER_BOOK, 0, 1 },
+		{ TV_PRAYER_BOOK, 1, 1 },
+		{ TV_HAFTED, SV_MACE, 1 },
+		{ TV_POTION, SV_POTION_CURE_SERIOUS, 2 }
 	},
 
 	{
 		/* Rogue */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
+		{ TV_SWORD, SV_DAGGER, 1 },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 1 },
+		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS, 1 },
+		{ TV_POTION, SV_POTION_SPEED, 1 }
 	},
 
 	{
 		/* Ranger */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_BOW, SV_LONG_BOW }
+		{ TV_MAGIC_BOOK, 0, 1 },
+		{ TV_SWORD, SV_SABRE, 1 },
+		{ TV_BOW, SV_LONG_BOW, 1 },
+		{ TV_ARROW, SV_AMMO_NORMAL, 12 }
 	},
 
 	{
 		/* Paladin */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
+		{ TV_PRAYER_BOOK, 0, 1 },
+		{ TV_SWORD, SV_BROAD_SWORD, 1 },
+		{ TV_POTION, SV_POTION_HEROISM, 2 },
+		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL, 1 }
 	}
 };
 
@@ -1024,7 +1030,7 @@ static byte player_init[MAX_CLASS][3][2] =
  */
 static void player_outfit(void)
 {
-	int i, tv, sv;
+	int i, tv, sv, num;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -1052,18 +1058,20 @@ static void player_outfit(void)
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
 
-	/* Hack -- Give the player three useful objects */
-	for (i = 0; i < 3; i++)
+	/* Hack -- Give the player four useful objects */
+	for (i = 0; i < 4; i++)
 	{
 		/* Look up standard equipment */
 		tv = player_init[p_ptr->pclass][i][0];
 		sv = player_init[p_ptr->pclass][i][1];
+		num = player_init[p_ptr->pclass][i][2];
 
 		/* Get local object */
 		i_ptr = &object_type_body;
 
 		/* Hack -- Give the player an object */
 		object_prep(i_ptr, lookup_kind(tv, sv));
+		i_ptr->number = num;
 		object_aware(i_ptr);
 		object_known(i_ptr);
 		(void)inven_carry(i_ptr);

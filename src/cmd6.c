@@ -2076,7 +2076,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(4, 6));
+			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(3, 4));
 			ident = TRUE;
 			break;
 		}

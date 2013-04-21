@@ -27,11 +27,11 @@ Mage Spells
     physical objects, so the traveler will be perfectly safe.)
   Light Area
     This spell illuminates a room, or a small section of a corridor.
-  Cure Light Wounds
-    This spell heals a small amount of physical damage (hit points).
   Find Hidden Traps/Doors
     This spell reveals the locations of any nearby traps and doors (including
     secret doors).
+  Cure Light Wounds
+    This spell heals a small amount of physical damage (hit points).
 
   The Art of Divination
   ---------------------
@@ -64,12 +64,6 @@ Mage Spells
     This spell permits the caster to obtain a brief glimpse of the ethereal
     plane in the local vicinity.  Any monsters which hide their visible forms
     on this plane will become known to the caster.
-  Detect Evil
-    This spell reveals the locations of nearby evil monsters (including
-    any which are normally invisible).  This spell was researched by careful
-    observation of the energy flow around priests as they obtain this
-    information by divine agency; as such, the magical schools may mimic
-    the effect, but do so with low efficiency.
   Detect Enchantment
     This spell reveals the locations of nearby objects which have been
     magically altered.
@@ -78,8 +72,8 @@ Mage Spells
   ---------------------
   This is the favored magical school of the pure Mage, who cannot rely upon
   physical combat for self defense.  Mages and Rangers may learn all the
-  spells in this book; Rogues may learn only Stinking Cloud and Shock Wave,
-  and even those are learned only after a great amount of study.
+  spells in this book; Rogues may learn only Stinking Cloud, Confuse Monster,
+  Sleep Monster and Wonder.
 
   Magic Missile
     This spell throws a small burst of pure magical energy (or mana) which
@@ -91,6 +85,16 @@ Mage Spells
   Lightning Bolt
     This spell calls forth a burst of electrical energy which is useful for
     punishing monsters who foolishly line up in narrow corridors.
+  Confuse Monster
+    This spell temporarily clouds the mind of the target, rendering it
+    unable to focus upon complex activities such as walking, fighting or
+    casting spells.
+  Sleep Monster
+    This spell causes the target to fall asleep.
+  Wonder
+    This dangerous spell allows even novice casters to tap the planes of
+    chaos and unleash the forces of wild magic.  The effects of this are
+    unpredictable, but generally destructive.
   Frost Bolt
     This spell projects a magical field which, upon impact with living (or,
     in some cases, animated) flesh, causes molecular motion to stop briefly.
@@ -107,61 +111,44 @@ Mage Spells
     This spell shoots a superheated soft pellet at a specified target.  This
     pellet may stick to the target, causing severe burns, or it may burn its
     way through to affect others.
-  Shock Wave
-    This spell allows the caster to create a burst of sound at a distance.
-    The resulting damage is not great, but this often stuns monsters.
-  Explosion
-    With this spell, the caster conjures thousands of bits of rock from his
-    surroundings and places them in a state of compression some distance away.
-    The compression is released, and the shards fly outward in all directions,
-    ripping apart anything in their path.
 
-  The Space-Time Continuum
-  ------------------------
-  This book is an introductory study of the most basic forces of physics and
-  the universe in which we live.  It contains spells which are useful for
-  transportation, and spells which give the caster an advantage by allowing
-  her to move more quickly.  Although these spells require dedicated study,
-  once mastered they are among the most useful.  All the magical schools
-  may learn all the spells in this book.
+  Applied Conjuration
+  -------------------
+  The study of conjuration is rooted in the desire to shape the environment
+  to better suit the caster's needs.  These spells allow the caster to
+  either create, or move, or remove large objects.  Mages and Rangers may
+  learn all the spells in this book; Rogues may learn all except Earthquake.
 
-  Phase Door
-    This spell opens a low-power gateway through space.  It allows the caster
-    to traverse short distances nearly instantaneously; unfortunately, the
-    destination is unpredictable.  (Note, however, that quantum laws
-    prohibit the simultaneous occupancy of a single space by multiple
-    physical objects, so the traveler will be perfectly safe.)
-  Teleport Self
-    This spell opens a high-power gateway through space.  The caster may step
-    through it, traversing longer distances nearly instantaneously.  As with
-    Phase Door, however, there is no time to arrange for a specific
-    destination before the gate destabilizes.
-  Slow Monster
-    This spell alters the local temporal field surrounding a creature chosen
-    by the caster.  If the creature does not dodge aside in time, it will
-    be encased in a relativistic reference frame which will cause time to pass
-    more slowly for it than for the caster or other nearby creatures.
-  Teleport Other
-    This spell opens a high-power gateway through space, but along a line
-    specified by the caster.  Creatures intersected by this line will be
-    transported to unpredictable distant locations.
-  Haste Self
-    This spell temporarily alters the local temporal field surrounding the
-    caster.  The caster will be encased in a relativistic reference frame
-    which will cause time to pass more quickly for the caster than for other
-    nearby creatures.
-  Teleport Level
-    This spell opens a high-power gateway through space, allowing the caster
-    to move vertically (perpendicular to the surface of the earth).  The
-    caster may end up at a higher altitude or at a lower altitude than
-    before.  However, there are built-in safeguards which require the
-    caster to end up between 1 and 3 inches above a horizontal stone surface.
-  Word of Recall
-    This spell opens an extremely-high-power gateway through space.  However,
-    the spell takes the time to partially specify a destination.  A few
-    minutes after the spell has been cast, the destination will have been
-    completely codified, and the gateway will open, allowing the caster
-    to traverse a distance of up to several thousand feet vertically.
+  Light Area
+    This spell illuminates a room, or a small section of a corridor.
+  Trap/Door Destruction
+    This spell cleverly disintegrates the locking or triggering mechanisms
+    in all of the commonly used locks and traps.  By focusing upon a very
+    small piece of the larger structure, the spell remains effecient.
+  Spear of Light
+    This spell illuminates a long section of a corridor (or part of a room).
+    It is useful for seeing areas at a distance without relying upon
+    multiple castings of various Divination spells.  Also, many monsters
+    who live underground are highly sensitive to bright light.
+  Turn Stone to Mud
+    This spell replaces (some) stone molecules in a region with water
+    molecules; the resulting mixture is highly porous and easily removed.
+    Also note that some magical creatures made of stone may be incapacitated
+    or destroyed by this spell.
+  Door Creation
+    This spell surrounds the caster with a circular region of closed
+    doorways.  The origin of this spell is not certain; it is suspected
+    that it was devised by a Gnomish jester as a practical joke.  However,
+    there are times when one wishes a bit of privacy....
+  Earthquake
+    This spell causes geological upheavals centered upon the ground beneath
+    the caster's feet.  The surrounding terrain may be rearranged
+    significantly, often to the dismay of creatures in the vicinity.
+  Stair Creation
+    This spell creates a physical stairway from the caster's vicinity to
+    a region up to 50' away.  While this spell does not permit the caster
+    to specify whether the stairs will ascend or descend, choosy casters
+    may simply try again in another place....
 
   Anatomy and Physiology
   ----------------------
@@ -193,146 +180,104 @@ Mage Spells
     fighting, but suffers from such a severe slowing of the flight response
     that normal dodging reflexes are impaired.  (These hormones are available
     only by prescription, or through illicit markets.)
-  Resist Poison
-    This spell creates a chemomagical aura around the caster which causes
-    toxic substances to be partially neutralized upon contact.  This
-    dramatically reduces the effectivess of poisonous gases used against
-    the caster.
+  Haste Self
+    This spell temporarily but dramatically increases the rate at which
+    biological processes occur within the caster's body.  As a result,
+    the caster will be able to act or react more quickly to external events.
 
-  Matter and Energy
-  -----------------
-  This book contains an assortment of spells which focus on conversion
-  processes between matter and energy.  It is a highly electic study,
-  practical rather than elegant.  "Serious" (i.e., theoretical) scholars
-  generally disdain this realm as clumsy, but many field practitioners
-  find these spells useful.  All of the magical schools may learn all
-  the spells in this book.
+  The Space-Time Continuum
+  ------------------------
+  This book is an introductory study of the most basic forces of physics and
+  the universe in which we live.  It contains spells which are useful for
+  transportation, and spells which give the caster an advantage by allowing
+  her to move more quickly.  Although these spells require dedicated study,
+  once mastered they are among the most useful.  All the magical schools
+  may learn all the spells in this book.
 
-  Light Area
-    This spell illuminates a room, or a small section of a corridor.
-  Trap/Door Destruction
-    This spell cleverly disintegrates the locking or triggering mechanisms
-    in all of the commonly used locks and traps.  By focusing upon a very
-    small piece of the larger structure, the spell remains effecient.
-  Door Creation
-    This spell surrounds the caster with a circular region of closed
-    doorways.  The origin of this spell is not certain; it is suspected
-    that it was devised by a Gnomish jester as a practical joke.  However,
-    there are times when one wishes a bit of privacy....
-  Spear of Light
-    This spell illuminates a long section of a corridor (or part of a room).
-    It is useful for seeing areas at a distance without relying upon
-    multiple castings of various Divination spells.  Also, many monsters
-    who live underground are highly sensitive to bright light.
-  Turn Stone to Mud
-    This spell replaces (some) stone molecules in a region with water
-    molecules; the resulting mixture is highly porous and easily removed.
-    Also note that some magical creatures made of stone may be incapacitated
-    or destroyed by this spell.
-  Stair Creation
-    This spell creates a physical stairway from the caster's vicinity to
-    a region up to 50' away.  While this spell does not permit the caster
-    to specify whether the stairs will ascend or descend, choosy casters
-    may simply try again in another place....
-  Lesser Recharging
-    This spell attempts to store magical energy in a device (a wand, staff
-    or rod) which uses such energy.  This spell utilizes only small amounts
-    of energy and does not contain a full set of safeguards; for best
-    results, the device being charged should be fully (or almost fully)
-    discharged.  This spell should not be used on valuable or complex
-    magical devices.
-  Greater Recharging
-    Like Lesser Recharging, this spell replenishes the spent magical energy
-    in a device.  However, this spell utilizes much greater amounts of
-    energy, and contains a wider range of safeguards.  It can handle more
-    complex devices safely -- or at least, more safely....
-  Elemental Brand
-    This spell allows a caster of moderate skill to create a permanent
-    enchantment on a very small area, such as the head of an arrow.  In
-    order to be suitable for non-masters, this spell does not allow the
-    caster to focus on a particular element; rather, the caster simply
-    wills an elemental force to comply, and the first element which
-    responds is the one which is branded onto the area.  (Note that
-    because of their studies of toxins, Rogues will always receive a
-    response from the elements of poison.)
+  Phase Door
+    This spell opens a low-power gateway through space.  It allows the caster
+    to traverse short distances nearly instantaneously; unfortunately, the
+    destination is unpredictable.  (Note, however, that quantum laws
+    prohibit the simultaneous occupancy of a single space by multiple
+    physical objects, so the traveler will be perfectly safe.)
+  Teleport Self
+    This spell opens a high-power gateway through space.  The caster may step
+    through it, traversing longer distances nearly instantaneously.  As with
+    Phase Door, however, there is no time to arrange for a specific
+    destination before the gate destabilizes.
+  Slow Monster
+    This spell alters the local temporal field surrounding a creature chosen
+    by the caster.  If the creature does not dodge aside in time, it will
+    be encased in a relativistic reference frame which will cause time to pass
+    more slowly for it than for the caster or other nearby creatures.
+  Teleport Other
+    This spell opens a high-power gateway through space, but along a line
+    specified by the caster.  Creatures intersected by this line will be
+    transported to unpredictable distant locations.
+  Teleport Level
+    This spell opens a high-power gateway through space, allowing the caster
+    to move vertically (perpendicular to the surface of the earth).  The
+    caster may end up at a higher altitude or at a lower altitude than
+    before.  However, there are built-in safeguards which require the
+    caster to end up between 1 and 3 inches above a horizontal stone surface.
+  Word of Recall
+    This spell opens an extremely-high-power gateway through space.  However,
+    the spell takes the time to partially specify a destination.  A few
+    minutes after the spell has been cast, the destination will have been
+    completely codified, and the gateway will open, allowing the caster
+    to traverse a distance of up to several thousand feet vertically.
 
   Grimoire of Black Magic
   -----------------------
   This book contains spells normally associated with "witchcraft" or
   "necromancy".  These spells generally affect the mind or soul of
-  a creature, and are quite difficult to master.  In many cases, the
+  a creature, and are quite difficult to master.  In some cases, the
   target creature may not be affected; the mind naturally resists such
   interference, and the stronger the creature (relative to the caster),
-  the less likely it is that the spell will succeed.  Rogues and Rangers
-  may learn only the first four spells in this book.
+  the less likely it is that the spell will succeed.
 
-  Confuse Monster
-    This spell temporarily clouds the mind of the target, rendering it
-    unable to focus upon complex activities such as walking, fighting or
-    casting spells.
-  Sleep Monster
-    This spell causes the target to fall asleep.
+  Polymorph Other
+    This spell attempts to transform a creature into a different species
+    (which may not necessarily be an improvement from the caster's point
+    of view).
+  Shock Wave
+    This spell allows the caster to create a burst of sound at a distance.
+    The resulting damage is not great, but this often stuns monsters.
+  Explosion
+    With this spell, the caster conjures thousands of bits of rock from his
+    surroundings and places them in a state of compression some distance away.
+    The compression is released, and the shards fly outward in all directions,
+    ripping apart anything in their path.
+  Cloudkill
+    This spell is a more powerful version of Stinking Cloud.
   Mass Sleep
     This spell causes all nearby creatures to fall asleep.
   Bedlam
     This spell creates a large psychomagical field over a region specified
     by the caster.  Creatures within the field may become confused (as per
     Confuse Monster).  The effect is strongest near the center of the region.
-  Genocide
-    This spell kills all the creatures of a specific family on the current
-    dungeon level.  It draws power from the caster's body; caution must be
-    exercised before using this spell on common monsters, because the spell
-    might completely drain the caster's life.
-  Mass Genocide
-    This spell kills all creatures near the caster, without regard for the
-    creature's family or species.  Like Genocide, this spell draws upon
-    the caster's body for power; it may be fatal to the caster if there are
-    many creatures nearby.
   Rend Soul
     This spell is the favorite of great necromancers.  The caster opens a
     channel between the nether planes and her victim; the result is
-    unpleasant and often fatal.
+    exceedingly unpleasant and often messy.
+  Word of Destruction
+    This spell unleashes a powerful wave of force centered upon the caster.
+    Any creatures or objects caught in the wave are instantly destroyed.
+    The surrounding terrain is often unrecognizable afterward.
+  Chaos Strike
+    The caster invoking this spell hurls a small piece of the primordial
+    chaos.  This chaos is unstable in our universe, and quickly transforms
+    into more ordered substances, but anything struck by this chaos will
+    be subject to its destructive nature.  Chaos has been known to warp
+    the mind and body.
 
-  Evocations for Experts
-  ----------------------
-  This book continues the study of the direct projection of energy and
-  matter for purposes of destruction.  The spells in this book are
-  difficult to master, but the results are often spectacular.  Rangers
-  may not learn Mana Storm; Rogues may learn only Cloudkill.
-
-  Cloudkill
-    This spell is a more powerful version of Stinking Cloud.
-  Frost Ball
-    This spell creates a region in which molecular motion is suppressed.
-    Creatures and liquids caught in this region are frozen.  Liquids stored
-    in glass containers will expand, causing their containers to shatter.
-  Acid Ball
-    This spell conjures a ball of highly corrosive fluid in a region specified
-    by the caster.  Living flesh and many types of objects will be dissolved.
-  Fire Ball
-    This spell conjures a flammable gas (usually hydrogen) in a region
-    specified by the caster, and ignites it.  Creatures and objects caught
-    in the region may be burned quite severely.
-  Ice Storm
-    This spell lowers the temperature of a region specified by the caster,
-    and also sends water through the region at high velocity.  The water
-    is frozen into ice, which pounds the frozen flesh of creatures caught
-    in the region.  Blows to the head may cause temporary incapacitation
-    of creatures who survive.
-  Meteor Swarm
-    This spell conjures superheated chunks of iron and rock and directs
-    them toward a target specified by the caster.  These projectiles pummel
-    hapless creature in their path, and may burn objects on the ground.
-  Mana Storm
-    This spell creates a burst of pure magical energy in a region chosen
-    by the caster.  Any creature within the region will be seared, often
-    killed.
-
-  Defensive Magic
-  ---------------
-  These spells are favored by practitioners who wish to continue their
-  practice in dangerous places.  All the magical schools may learn all
-  the spells in this book.
+  Ethereal Armor
+  --------------
+  Most of the spells in this realm focus on the creation of fields of
+  energy centered upon the caster.  In the case of Rune of Protection,
+  the field is centered upon a physical diagram drawn upon the ground or
+  other flat surface.  These spells often draw their power from other
+  planes of existence.
 
   Resist Cold
     This spell sets up a magical aura about the caster's body which
@@ -361,40 +306,102 @@ Mage Spells
     creatures may still attack the caster while she is standing in the
     pentagram....
 
-  The Chaos Compendium
-  --------------------
-  This book contains some of the most powerful and dangerous incantations
-  available to mortals.  Those who use these spells are advised to do so
-  with extreme caution.  Rangers may learn all but the last two spells in
-  this book; Rogues may learn only Wonder.
+  Energy Transference
+  -------------------
+  This realm is favored by the Craftsman-Mage, for it allows the caster to
+  imbue physical objects with permanent magical abilities.  These spells
+  are among the most demanding; in fact, the typical Mage will forego many
+  of these, preferring to study a broader selection of realms rather than
+  dedicating the time to master this one.
 
-  Wonder
-    This dangerous spell allows even novice casters to tap the planes of
-    chaos and unleash the forces of wild magic.  The effects of this are
-    unpredictable, but generally destructive.
-  Polymorph Other
-    This spell attempts to transform a creature into a different species
-    (which may not necessarily be an improvement from the caster's point
-    of view).
-  Earthquake
-    This spell causes geological upheavals centered upon the ground beneath
-    the caster's feet.  The surrounding terrain may be rearranged
-    significantly, often to the dismay of creatures in the vicinity.
-  Word of Destruction
-    This spell unleashes a powerful wave of chaos centered upon the caster.
-    Any creatures or objects caught in the wave are instantly destroyed.
-    The surrounding terrain is often unrecognizable afterward.
+  Lesser Recharging
+    This spell attempts to store magical energy in a device (a wand, staff
+    or rod) which uses such energy.  This spell utilizes only small amounts
+    of energy and does not contain a full set of safeguards; for best
+    results, the device being charged should be fully (or almost fully)
+    discharged.  This spell should not be used on valuable or complex
+    magical devices.
+  Enchant Armor
+    This spell draws from the realm of field theory.  It lets the caster
+    imbue an object (typically a shield or other piece of armor) with a
+    field which suppresses a small amount of inertial energy on one side.
+    As a result, incoming blows are slowed slightly, allowing the bearer
+    a chance to dodge; and if the blow still lands, it does less damage.
+    ("Enchanted" armor is highly prized by professional soldiers and by
+    paranoid nobility.  Many Mages who choose to dedicate their time to
+    the study of this realm find they can make a modest, if tedious,
+    living by the resale of "enchanted" items.)
+  Enchant Weapon
+    This spell is the natural counterpart to Enchant Armor.  It allows the
+    caster to imbue a small object (often a sword) with a field which
+    weakens molecular bonds at very short range, on one side of the field.
+    An object so enhanced will cut through living tissue or armor more
+    easily, giving the bearer a distinct advantage in combat.  ("Enchanted"
+    weaponry is in great demand by professional soldiers and by assassins,
+    for obvious reasons.  As with Enchant Armor, the resale of such items
+    can provide a reasonable income.)
+  Greater Recharging
+    Like Lesser Recharging, this spell replenishes the spent magical energy
+    in a device.  However, this spell utilizes much greater amounts of
+    energy, and contains a wider range of safeguards.  It can handle more
+    complex devices safely -- or at least, somewhat more safely....
+  Elemental Brand
+    This spell allows a caster of moderate skill to create a permanent
+    elemental field on a very small area, such as the head of an arrow.  In
+    order to be suitable for non-masters, this spell does not allow the
+    caster to focus on a particular element; rather, the caster simply
+    wills an elemental force to comply, and the first element which
+    responds is the one which is branded onto the area.  (Note that
+    because of their studies of toxins, Rogues will always receive a
+    response from the elements of poison.)
+
+  Tome of Destruction
+  -------------------
+  This book contains the most fearsome and potent of all the magical spells
+  known.  These spells are exceedingly difficult to master and dangerous to
+  employ....
+
+  Frost Ball
+    This spell creates a region in which molecular motion is suppressed.
+    Creatures and liquids caught in this region are frozen.  Liquids stored
+    in glass containers will expand, causing their containers to shatter.
+  Acid Ball
+    This spell conjures a ball of highly corrosive fluid in a region specified
+    by the caster.  Living flesh and many types of objects will be dissolved.
+  Fire Ball
+    This spell conjures a flammable gas (usually hydrogen) in a region
+    specified by the caster, and ignites it.  Creatures and objects caught
+    in the region may be burned quite severely.
+  Ice Storm
+    This spell lowers the temperature of a region specified by the caster,
+    and also sends water through the region at high velocity.  The water
+    is frozen into ice, which pounds the frozen flesh of creatures caught
+    in the region.  Blows to the head may cause temporary incapacitation
+    of creatures who survive.
+  Genocide
+    This spell kills all the creatures of a specific genus on the current
+    dungeon level.  It draws power from the caster's body; caution must be
+    exercised before using this spell on common monsters, because the spell
+    might completely drain the caster's life.
+  Meteor Swarm
+    This spell conjures superheated chunks of iron and rock and directs
+    them toward a target specified by the caster.  These projectiles pummel
+    hapless creature in their path, and may burn objects on the ground.
+  Mass Genocide
+    This spell kills all creatures near the caster, without regard for the
+    creature's genus or species.  Like Genocide, this spell draws upon
+    the caster's body for power; it may be fatal to the caster if there are
+    many creatures nearby.
   Rift
     Powerful casters may temporarily fold the planes of space along a
     line.  Anything caught on this line will be torn apart by extreme
     gravitational forces as the planes unfold themselves.  Creatures which
     dodge to one side of the rift may survive, but will often be carried a
     short distance by the unfolding planes.
-  Chaos Strike
-    The caster invoking this spell hurls a small piece of the primordial
-    chaos.  This chaos is unstable in our universe, and quickly dissipates,
-    but anything struck by this chaos will be subject to its destructive
-    nature.  Chaos has been known to warp the mind and body.
+  Mana Storm
+    This spell creates a burst of pure magical energy in a region chosen
+    by the caster.  Any creature within the region will be seared, often
+    killed.
 
 Priest Prayers
 --------------

@@ -2388,10 +2388,8 @@ static void calc_bonuses(void)
 			/* Give 10% energy bonus for each "extra shot". -GJW */
 			if (extra_shots)
 			{
-				s32b energy = p_ptr->fire_energy;
-				for (i = 0; i < extra_shots; i++) energy *= 9;
-				for (i = 0; i < extra_shots; i++) energy /= 10;
-				p_ptr->fire_energy = energy;
+				p_ptr->fire_energy *= (10 - extra_shots);
+				p_ptr->fire_energy /= 10;
 			}
 		}
 	}
@@ -2419,20 +2417,14 @@ static void calc_bonuses(void)
 	/* Normal weapons */
 	if (o_ptr->k_idx && !p_ptr->heavy_wield)
 	{
-		int i;
-
 		/* Get combat speed (energy cost per blow). -GJW */
 		p_ptr->blow_energy = compute_blow_energy (o_ptr->weight);
 
 		/* HACK: Get 10% off blow_energy for each "extra blow". -GJW */
 		if (extra_blows)
 		{
-			/* Use temporary variable large enough to hold the
-			 * inflated energy cost (prevents overflow). */
-			s32b energy = p_ptr->blow_energy;
-			for (i = 0; i < extra_blows; i++) energy *= 9;
-			for (i = 0; i < extra_blows; i++) energy /= 10;
-			p_ptr->blow_energy = (s16b) energy;
+			p_ptr->blow_energy *= (10 - extra_blows);
+			p_ptr->blow_energy /= 10;
 		}
 
 		/* Boost digging skill by weapon weight */

@@ -2774,7 +2774,7 @@ bool target_able(int m_idx)
 	if (p_ptr->image) return (FALSE);
 
 	/* Hack -- Never target trappers XXX XXX XXX */
-	if ((r_ptr->flags1 & RF1_CHAR_CLEAR) && (r_ptr->flags1 & RF1_ATTR_CLEAR)) return (FALSE);
+	/* if ((r_ptr->flags1 & RF1_CHAR_CLEAR) && (r_ptr->flags1 & RF1_ATTR_CLEAR)) return (FALSE); */
 
 	/* Assume okay */
 	return (TRUE);
@@ -3012,7 +3012,7 @@ static bool target_set_interactive_accept(int y, int x)
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* XXX XXX XXX Hack -- Never target trappers */
-		if ((r_ptr->flags1 & RF1_CHAR_CLEAR) && (r_ptr->flags1 & RF1_ATTR_CLEAR)) return (FALSE);
+		/* if ((r_ptr->flags1 & RF1_CHAR_CLEAR) && (r_ptr->flags1 & RF1_ATTR_CLEAR)) return (FALSE); */
 
 		/* Visible monsters */
 		if (m_ptr->ml) return (TRUE);

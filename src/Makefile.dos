@@ -12,8 +12,10 @@
 #
 
 # Objects
+MAIN_OBJS = \
+  main.o main-dos.o main-ibm.o
+
 OBJS = \
-  main.o main-dos.o main-ibm.o \
   generate.o dungeon.o init1.o init2.o \
   store.o birth.o wizard1.o wizard2.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
@@ -21,48 +23,59 @@ OBJS = \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o monster1.o monster2.o \
   variable.o tables.o util.o cave.o \
-  z-term.o z-rand.o z-form.o z-virt.o z-util.o
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o \
+  randart.o
 
 # Compiler
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM
+CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND -DUSE_TRANSPARENCY
 
 # Libraries
-LIBS = -lpc
+LIBS = -lpc -lalleg
 
 
 #
 # Targets
 #
 
-default: angband.exe
+default: angband.exe randart.exe
 	copy angband.exe ..
 	del angband.exe
+	copy randart.exe ..
+	del randart.exe
 
-install: angband.exe makepref.exe gredit.exe
+install: angband.exe randart.exe
 	copy angband.exe ..
-	copy makepref.exe ..
-	copy gredit.exe ..
+	copy randart.exe ..
 
-all: angband.exe makepref.exe gredit.exe
+all: angband.exe randart.exe
 	@echo All done.  Use 'make install' to install.
 
+
+_randart.o: randart.c
+	copy randart.c _randart.c
+	$(CC) $(CFLAGS) -DSTANDALONE_RANDART -c _randart.c
+	del _randart.c
+
+#
+# Build the Angband function library
+#
+
+libangb.a: $(OBJS)
+	ar rc $@ $(OBJS)
+	ranlib $@
 
 #
 # Link executables
 #
 
-angband.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS) -lalleg
+angband.exe: $(MAIN_OBJS) libangb.a
+	$(CC) $(CFLAGS) -o $@ $(MAIN_OBJS) libangb.a $(LIBS)
 
-makepref.exe: makepref.o
-	$(CC) $(CFLAGS) -o $@ makepref.o $(LIBS)
-
-gredit.exe: gredit.o
-	$(CC) $(CFLAGS) -o $@ gredit.o $(LIBS) -lgrx20
-
+randart.exe: _randart.o randmain.o libangb.a
+	$(CC) $(CFLAGS) -o $@ _randart.o randmain.o libangb.a
 
 #
 # Compile source files
@@ -79,7 +92,8 @@ gredit.exe: gredit.o
 clean:
 	del *.o
 	del *.bin
+	del libangb.a
+	del _randart.c
 
 cleanall: clean
 	del *.exe
-
