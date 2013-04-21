@@ -1,6 +1,27 @@
 === Version Information ===
 
-This file was last updated for Angband 2.7.9.
+This file was last updated for GW-Angband 2.7.11.
+
+GW-Angband is a variant of Angband 2.7.9.  This variant attempts primarily
+to address certain inconsistencies in the original Angband game -- most
+specifically, in the Mage class.  The biggest changes between Angband and
+GW-Angband are in the mage spells, which are in some cases altered
+dramatically.  This is accompanied by a minor revision of the combat system,
+which further weakens mage/priest combat, but giving a slight advantage to
+warriors and rogues, both of whom rely extensively on combat.
+
+As long as I was doing all that, I thought it would be worthwhile to add some
+new features to the game.  However, I have attempted wherever possible to
+maintain the "spirit" of the original game; thus, most of my changes are
+subtle.  Priests and paladins may not notice much of a change at all, and
+in some cases the player may easily forget that (s)he is playing a variant
+and not the original game.
+
+Information on GW-Angband is available from my web page:
+
+http://kellnet.com/~wooledge/angband.html
+
+=== Original Angband Information ===
 
 Make sure to read the newsgroup "rec.games.roguelike.angband" if possible.
 

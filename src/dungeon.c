@@ -121,7 +121,7 @@ static void sense_inventory(void)
     switch (p_ptr->pclass)
     {
         /* Warriors */
-        case 0:
+        case CLASS_WARRIOR:
 
             /* Good sensing */
             if (0 != rand_int(9000L / (plev * plev + 40))) return;
@@ -133,7 +133,7 @@ static void sense_inventory(void)
             break;
 
         /* Mages */
-        case 1:
+        case CLASS_MAGE:
 
             /* Very bad (light) sensing */
             if (0 != rand_int(240000L / (plev + 5))) return;
@@ -142,7 +142,7 @@ static void sense_inventory(void)
             break;
 
         /* Priests */
-        case 2:
+        case CLASS_PRIEST:
 
             /* Good (light) sensing */
             if (0 != rand_int(10000L / (plev * plev + 40))) return;
@@ -151,7 +151,7 @@ static void sense_inventory(void)
             break;
 
         /* Rogues */
-        case 3:
+        case CLASS_ROGUE:
 
             /* Okay sensing */
             if (0 != rand_int(20000L / (plev * plev + 40))) return;
@@ -163,7 +163,7 @@ static void sense_inventory(void)
             break;
 
         /* Rangers */
-        case 4:
+        case CLASS_RANGER:
 
             /* Very bad (light) sensing */
             if (0 != rand_int(120000L / (plev + 5))) return;
@@ -172,7 +172,7 @@ static void sense_inventory(void)
             break;
 
         /* Paladins */
-        case 5:
+        case CLASS_PALADIN:
 
             /* Bad sensing */
             if (0 != rand_int(80000L / (plev * plev + 40))) return;
@@ -774,11 +774,13 @@ static void process_world(void)
         (void)set_protevil(p_ptr->protevil - 1);
     }
 
+#if 0
     /* Invulnerability */
     if (p_ptr->invuln)
     {
         (void)set_invuln(p_ptr->invuln - 1);
     }
+#endif
 
     /* Heroism */
     if (p_ptr->hero)

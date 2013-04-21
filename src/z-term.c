@@ -1885,7 +1885,7 @@ errr Term_flush()
     if (Term_inkey_hook)
     {
         /* Special "Borg" hook (flush keys) */
-        return ((*Term_inkey_hook)(NULL, NULL, NULL));
+        return ((*Term_inkey_hook)(NULL, 0, 0));
     }
 
     /* Hack -- Flush all events */

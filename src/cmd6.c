@@ -2342,7 +2342,7 @@ static void ring_of_power(int dir)
  */
 void do_cmd_activate(void)
 {
-    int         item, i, k, a, dir, lev, chance;
+    int         item, i, k, dir, lev, chance;
 
     object_type *i_ptr;
 
@@ -2567,30 +2567,7 @@ void do_cmd_activate(void)
                 break;
 
             case ART_CUBRAGOL:
-
-                /* Use the first (XXX) acceptable bolts */
-                for (a = 0; a < INVEN_PACK; a++)
-                {
-                    object_type *j_ptr = &inventory[a];
-                    if ((j_ptr->tval == TV_BOLT) &&
-                        (!artifact_p(j_ptr)) && (!ego_item_p(j_ptr)) &&
-                        (!cursed_p(j_ptr) && !broken_p(j_ptr))) break;
-                }
-
-                /* Enchant the bolts (or fail) */
-                if ((a < INVEN_PACK) && (rand_int(100) < 25))
-                {
-                    object_type *j_ptr = &inventory[a];
-                    msg_print("Your bolts are covered in a fiery aura!");
-                    j_ptr->name2 = EGO_FLAME;
-                    enchant(j_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-                }
-                else
-                {
-                    if (flush_failure) flush();
-                    msg_print("The fiery enchantment failed.");
-                }
-
+                brand_ammo (1);
                 i_ptr->timeout = 999;
                 break;
 

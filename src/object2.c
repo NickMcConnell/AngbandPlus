@@ -1667,7 +1667,7 @@ static void a_m_aux_1(object_type *i_ptr, int level, int power)
             if (power > 1)
             {
                 /* Roll for ego-item */
-                switch (randint(10))
+                switch (randint(11))
                 {
                     case 1: case 2: case 3:
                         i_ptr->name2 = EGO_WOUNDING;
@@ -1692,10 +1692,14 @@ static void a_m_aux_1(object_type *i_ptr, int level, int power)
                     case 10:
                         i_ptr->name2 = EGO_HURT_DRAGON;
                         break;
+
+		    case 11:
+		    	i_ptr->name2 = EGO_VENOM;
+		    	break;
                 }
 
                 /* Hack -- super-charge the damage dice */
-                while (rand_int(10L * i_ptr->dd * i_ptr->ds) == 0) i_ptr->dd++;
+                while (rand_int(4L * i_ptr->dd * i_ptr->ds) == 0) i_ptr->dd++;
 
                 /* Hack -- restrict the damage dice */
                 if (i_ptr->dd > 9) i_ptr->dd = 9;
@@ -2261,7 +2265,7 @@ static void a_m_aux_3(object_type *i_ptr, int level, int power)
                 case SV_RING_DAMAGE:
                 {
                     /* Bonus to damage */
-                    i_ptr->to_d = 5 + randint(5) + m_bonus(10, level);
+                    i_ptr->to_d = 1 + randint(5) + m_bonus(6, level);
 
                     /* Cursed */
                     if (power < 0)
@@ -2283,7 +2287,7 @@ static void a_m_aux_3(object_type *i_ptr, int level, int power)
                 case SV_RING_ACCURACY:
                 {
                     /* Bonus to hit */
-                    i_ptr->to_h = 5 + randint(5) + m_bonus(10, level);
+                    i_ptr->to_h = 1 + randint(5) + m_bonus(6, level);
 
                     /* Cursed */
                     if (power < 0)
@@ -2327,8 +2331,8 @@ static void a_m_aux_3(object_type *i_ptr, int level, int power)
                 case SV_RING_SLAYING:
                 {
                     /* Bonus to damage and to hit */
-                    i_ptr->to_d = randint(5) + m_bonus(10, level);
-                    i_ptr->to_h = randint(5) + m_bonus(10, level);
+                    i_ptr->to_d = 1 + randint(5) + m_bonus(6, level);
+                    i_ptr->to_h = 1 + randint(5) + m_bonus(6, level);
 
                     /* Cursed */
                     if (power < 0)
@@ -2809,26 +2813,26 @@ static bool kind_is_good(int k_idx)
             if (k_ptr->to_d < 0) return (FALSE);
             return (TRUE);
 
-        /* Ammo -- Arrows/Bolts are good */
+        /* Ammo -- Arrows/Bolts are good unless damaged*/
         case TV_BOLT:
         case TV_ARROW:
+            if (k_ptr->to_h < 0) return (FALSE);
+            if (k_ptr->to_d < 0) return (FALSE);
             return (TRUE);
 
         /* Books -- High level books are good */
         case TV_MAGIC_BOOK:
+            return (k_ptr->sval >= SV_MBOOK_MIN_GOOD);
         case TV_PRAYER_BOOK:
-            if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
-            return (FALSE);
+            return (k_ptr->sval >= SV_PBOOK_MIN_GOOD);
 
         /* Rings -- Rings of Speed are good */
         case TV_RING:
-            if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
-            return (FALSE);
+            return (k_ptr->sval == SV_RING_SPEED);
 
         /* Amulets -- Amulets of the Magi are good */
         case TV_AMULET:
-            if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
-            return (FALSE);
+            return (k_ptr->sval == SV_AMULET_THE_MAGI);
     }
 
     /* Assume not good */
@@ -3672,6 +3676,13 @@ s16b inven_carry(object_type *i_ptr)
             if (!object_known_p(i_ptr)) continue;
             if (!object_known_p(j_ptr)) break;
 
+	    /* Hack - otherwise identical rods sort by increasing
+	       recharge time  --dsb */
+            if (i_ptr->tval == TV_ROD) {
+            	if (i_ptr->pval < j_ptr->pval) break;
+            	if (i_ptr->pval > j_ptr->pval) continue;
+            }
+
             /* Determine the "value" of the pack item */
             j_value = object_value(j_ptr);
 
@@ -3855,6 +3866,14 @@ void reorder_pack(void)
             /* Unidentified objects always come last */
             if (!object_known_p(i_ptr)) continue;
             if (!object_known_p(j_ptr)) break;
+
+	    /* Hack -- otherwise identical rods sort by increasing
+	       recharge time  --dsb */
+            if (i_ptr->tval == TV_ROD)
+            {
+            	if (i_ptr->pval < j_ptr->pval) break;
+            	if (i_ptr->pval > j_ptr->pval) continue;
+            }
 
             /* Determine the "value" of the pack item */
             j_value = object_value(j_ptr);

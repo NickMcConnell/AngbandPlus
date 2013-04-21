@@ -1,8 +1,7 @@
 
-
-                        ***********************
-                        **  Angband 2.7.9v6  **
-                        ***********************
+                       *************************
+                       ** GW-Angband (2.7.11) **
+                       *************************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
              and Umoria:    Copyright (c) 1989 James E. Wilson
@@ -10,13 +9,10 @@
        Angband 2.0 - 2.4.?: Alex Cutler, Andy Astrand, Sean Marsh, 
                             Geoff Hill, Charles Teague, and others
        Angband 2.5 - 2.6.2: Charles Swiger (cs4w+@andrew.cmu.edu)
-
        Angband 2.7 - 2.7.9: Ben Harrison (benh@voicenet.com)
-
        Curses/X11 Versions: Ben Harrison, Torbj|rn Lindgren
 
- Angband 2.7.9v6 is available for Unix, X11, Macintosh, IBM, Windows, etc.
- Be sure to read the online help, especially "general.txt" and "version.txt".
-
- Visit the Angband Home Page at "http://www.voicenet.com/~benh/Angband/".
- Send all comments, bug reports, patches, etc, to "benh@voicenet.com".
+ This is a variant of Angband by Greg Wooledge "wooledge@kellnet.com".
+ Send all general comments, bug reports, patches, etc, to the above
+ address, unless they also apply to Angband 2.7.9, in which case send
+ them to "benh@voicenet.com".

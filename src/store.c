@@ -326,18 +326,19 @@ static owner_type *ot_ptr = NULL;
  */
 static byte rgold_adj[MAX_RACES][MAX_RACES] =
 {
-                        /*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE*/
+                        /*Hum, HfE, Elf, Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Kob*/
 
-/* Human	*/	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
-/* Half-Elf	*/	{ 110, 100, 100, 105, 110, 120, 125, 130, 110, 100},
-/* Elf		*/	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100},
-/* Halfling	*/	{ 115, 110, 105,  95, 105, 110, 115, 130, 115, 105},
-/* Gnome	*/	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110},
-/* Dwarf	*/	{ 115, 120, 120, 110, 110,  95, 125, 135, 115, 120},
-/* Half-Orc	*/	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125},
-/* Half-Troll	*/	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115},
-/* Dunedain 	*/	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
-/* High_Elf	*/	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100}
+/* Human	*/	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 120},
+/* Half-Elf	*/	{ 110, 100, 100, 105, 110, 120, 125, 130, 110, 100, 115},
+/* Elf		*/	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 120},
+/* Halfling	*/	{ 115, 110, 105,  95, 105, 110, 115, 130, 115, 105, 115},
+/* Gnome	*/	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 110},
+/* Dwarf	*/	{ 115, 120, 120, 110, 110,  95, 125, 135, 115, 120, 115},
+/* Half-Orc	*/	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115},
+/* Half-Troll	*/	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 115},
+/* Dunedain 	*/	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 120},
+/* High_Elf	*/	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 125},
+/* Kobold	*/	{ 110, 115, 120, 110, 105, 110, 110, 120, 110, 125,  90}
 
 };
 
@@ -844,6 +845,13 @@ static int home_carry(object_type *i_ptr)
         if (!object_known_p(i_ptr)) continue;
         if (!object_known_p(j_ptr)) break;
 
+        /* Hack -- otherwise identical rods sort by increasing
+           recharge time  --dsb */
+        if (i_ptr->tval == TV_ROD) {
+            if (i_ptr->pval < j_ptr->pval) break;
+            if (i_ptr->pval > j_ptr->pval) continue;
+        }
+
         /* Objects sort by decreasing value */
         j_value = object_value(j_ptr);
         if (value > j_value) break;
@@ -930,6 +938,13 @@ static int store_carry(object_type *i_ptr)
         /* Objects sort by increasing sval */
         if (i_ptr->sval < j_ptr->sval) break;
         if (i_ptr->sval > j_ptr->sval) continue;
+
+        /* Hack -- otherwise identical rods sort by increasing
+           recharge time  --dsb */
+        if (i_ptr->tval == TV_ROD) {
+            if (i_ptr->pval < j_ptr->pval) break;
+            if (i_ptr->pval > j_ptr->pval) continue;
+        }
 
         /* Evaluate that slot */
         j_value = object_value(j_ptr);

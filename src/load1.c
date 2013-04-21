@@ -171,10 +171,12 @@ static void rd_byte(byte *ip)
     *ip = sf_get();
 }
 
+/*
 static void rd_char(char *ip)
 {
     rd_byte((byte*)ip);
 }
+*/
 
 static void rd_u16b(u16b *ip)
 {

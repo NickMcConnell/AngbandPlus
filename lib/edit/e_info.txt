@@ -23,7 +23,7 @@
 
 # Version stamp
 
-V:2.7.9
+V:2.7.11
 
 
 ### Body Armor ###
@@ -615,7 +615,10 @@ W:0:0:0:35
 
 # 120 (unused)
 
-# 121 (unused)
+N:121:of Venom
+X:23:8
+F:BRAND_POIS
+W:0:0:0:20
 
 N:122:of Flame
 X:23:10

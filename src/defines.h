@@ -33,11 +33,11 @@
 
 
 /*
- * Current version number of Angband: 2.7.9
+ * Current version number of GW-Angband: 2.7.11
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	7
-#define VERSION_PATCH	9
+#define VERSION_PATCH	11
 
 /*
  * This value is not currently used
@@ -84,7 +84,7 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           10
+#define MAX_RACES           11
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
@@ -367,6 +367,7 @@
 #define RACE_HALF_TROLL	7
 #define RACE_DUNADAN	8
 #define RACE_HIGH_ELF	9
+#define RACE_KOBOLD	10
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
@@ -753,7 +754,7 @@
 /* xxx */
 #define EGO_HURT_DRAGON		119
 /* xxx */
-/* xxx */
+#define EGO_VENOM		121
 #define EGO_FLAME		122
 #define EGO_FROST		123
 #define EGO_WOUNDING		124
@@ -1281,7 +1282,8 @@
 /*
  * Special "sval" limit -- first "good" magic/prayer book
  */
-#define SV_BOOK_MIN_GOOD	4
+#define SV_MBOOK_MIN_GOOD	5
+#define SV_PBOOK_MIN_GOOD	4
 
 
 
@@ -1641,7 +1643,7 @@
 #define TR1_KILL_DRAGON		0x01000000L	/* Execute Dragon */
 #define TR1_XXX5		0x02000000L	/* Later */
 #define TR1_IMPACT		0x04000000L	/* Cause Earthquakes */
-#define TR1_XXX6		0x08000000L	/* Later */
+#define TR1_BRAND_POIS		0x08000000L
 #define TR1_BRAND_ACID		0x10000000L
 #define TR1_BRAND_ELEC		0x20000000L
 #define TR1_BRAND_FIRE		0x40000000L

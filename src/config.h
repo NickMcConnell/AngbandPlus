@@ -54,7 +54,7 @@
 /*
  * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
  */
-/* #define USE_TPOSIX */
+#define USE_TPOSIX
 
 /*
  * OPTION: Use the "termio" methods in "main-gcu.c"
@@ -419,6 +419,7 @@
  * or "/usr/games/lib/angband/", or "/pkg/angband/lib".
  */
 #define DEFAULT_PATH "./lib/"
+/* #define DEFAULT_PATH "/usr/games/lib/gw-angband.2.7.11/" */
 
 
 /*

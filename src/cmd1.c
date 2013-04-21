@@ -116,7 +116,7 @@ s16b critical_shot(int weight, int plus, int dam)
  *
  * Factor in weapon weight, total plusses, player level.
  */
-s16b critical_norm(int weight, int plus, int dam)
+s16b critical_norm(int weight, int plus, int dam, monster_type *m_ptr)
 {
     int i, k;
 
@@ -124,7 +124,9 @@ s16b critical_norm(int weight, int plus, int dam)
     i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
 
     /* Chance */
-    if (randint(5000) <= i)
+    /* Rogues automatically make a critical hit against a sleeping foe. -GJW */
+    if ( (p_ptr->pclass == CLASS_ROGUE && m_ptr->csleep > 0) ||
+	 (randint(5000) <= i) )
     {
         k = weight + randint(650);
 
@@ -321,6 +323,22 @@ s16b tot_dam_aux(object_type *i_ptr, int tdam, monster_type *m_ptr)
                 }
             }
 
+            /* Brand (Poison) */
+            if (f1 & TR1_BRAND_POIS)
+            {
+                /* Notice immunity */
+                if (r_ptr->flags3 & RF3_IM_POIS)
+                {
+                    if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_POIS;
+                }
+
+                /* Otherwise, take the damage */
+                else
+                {
+                    if (mult < 3) mult = 3;
+                }
+            }
+
             /* Brand (Cold) */
             if (f1 & TR1_BRAND_COLD)
             {
@@ -335,7 +353,7 @@ s16b tot_dam_aux(object_type *i_ptr, int tdam, monster_type *m_ptr)
                 {
                     if (mult < 3) mult = 3;
                 }
-          }
+            }
     }
 
 
@@ -834,10 +852,6 @@ void py_attack(int y, int x)
     disturb(0, 0);
 
 
-    /* Disturb the monster */
-    m_ptr->csleep = 0;
-
-
     /* Extract monster name (or "it") */
     monster_desc(m_name, m_ptr, 0);
 
@@ -889,7 +903,7 @@ void py_attack(int y, int x)
                 k = damroll(i_ptr->dd, i_ptr->ds);
                 k = tot_dam_aux(i_ptr, k, m_ptr);
                 if (p_ptr->impact && (k > 50)) do_quake = TRUE;
-                k = critical_norm(i_ptr->weight, i_ptr->to_h, k);
+                k = critical_norm(i_ptr->weight, i_ptr->to_h, k, m_ptr);
                 k += i_ptr->to_d;
             }
 
@@ -907,6 +921,9 @@ void py_attack(int y, int x)
 
             /* Damage, check for fear and death */
             if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL)) break;
+
+	    /* Disturb the monster (only AFTER damage is done -GJW) */
+	    m_ptr->csleep = 0;
 
             /* Confusion attack */
             if (p_ptr->confusing)

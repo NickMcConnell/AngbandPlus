@@ -1055,6 +1055,8 @@ static void roff_aux(int r_idx)
     if (flags3 & RF3_IM_FIRE) vp[vn++] = "fire";
     if (flags3 & RF3_IM_COLD) vp[vn++] = "cold";
     if (flags3 & RF3_IM_POIS) vp[vn++] = "poison";
+    if (flags3 & RF3_NO_CONF) vp[vn++] = "confusion";
+    if (flags3 & RF3_NO_SLEEP) vp[vn++] = "sleep";
 
     /* Describe immunities */
     if (vn)
@@ -1114,8 +1116,8 @@ static void roff_aux(int r_idx)
     vn = 0;
     if (flags3 & RF3_NO_STUN) vp[vn++] = "stunned";
     if (flags3 & RF3_NO_FEAR) vp[vn++] = "frightened";
-    if (flags3 & RF3_NO_CONF) vp[vn++] = "confused";
-    if (flags3 & RF3_NO_SLEEP) vp[vn++] = "slept";
+/*    if (flags3 & RF3_NO_CONF) vp[vn++] = "confused"; */
+/*    if (flags3 & RF3_NO_SLEEP) vp[vn++] = "slept"; */
 
     /* Describe non-effects */
     if (vn)

@@ -115,8 +115,8 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
-CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
-LIBS = -lX11 -lcurses -ltermcap
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
+#LIBS = -lX11 -lcurses -ltermcap
 
 
 ##
@@ -129,15 +129,17 @@ LIBS = -lX11 -lcurses -ltermcap
 ##
 ## Variation -- Only support "main-gcu.c" (not "main-x11.c")
 ##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU"
+#CFLAGS = -O2 -pipe -g -D"USE_GCU" -D"USE_CAP"
 #LIBS = -lcurses -ltermcap
 
 
 ##
 ## Variation -- Use "main-xaw.c" instead of "main-x11.c"
 ##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_XAW" -D"USE_GCU"
-#LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap
+#CFLAGS = -Wall -g -D"USE_XAW" -D"USE_GCU"
+#LIBS = -L /usr/X11/lib -lXaw -lXt -lSM -lICE -lXmu -lXext -lX11 -lcurses 
+CFLAGS = -O -D"USE_XAW" -D"USE_GCU"
+LIBS = -L /usr/X11/lib -lXaw -lXt -lSM -lICE -lXmu -lXext -lX11 -lcurses 
 
 
 ##
@@ -214,10 +216,20 @@ LIBS = -lX11 -lcurses -ltermcap
 #
 # Hack -- "install" as the base target
 #
+# NOT!
+
+all: angband
+	@echo done
+
+DESTINATION = /usr/games/gw-angband
+
+#install: angband
+#	cp angband $(DESTINATION)
+#	chown games $(DESTINATION)
+#	chmod 4555 $(DESTINATION)
 
 install: angband
-	cp angband ..
-
+	mv angband ..
 
 #
 # Build the "Angband" program
@@ -232,7 +244,7 @@ angband: $(OBJS)
 #
 
 clean:
-	\rm *.bak *.o
+	rm -f *.bak *.o angband
 
 
 #

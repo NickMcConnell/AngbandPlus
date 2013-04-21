@@ -690,6 +690,7 @@ bool set_protevil(int v)
 }
 
 
+#if 0
 /*
  * Set "p_ptr->invuln", notice observable changes
  */
@@ -738,6 +739,7 @@ bool set_invuln(int v)
     /* Result */
     return (TRUE);
 }
+#endif
 
 
 /*

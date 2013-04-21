@@ -250,6 +250,13 @@ static int enchant_table[16] =
     1000
 };
 
+static int enchant_table_dam[20] =
+{
+    0, 10, 50, 100, 100,
+    100, 200, 300, 400, 500,
+    600, 700, 700, 700, 800,
+    800, 850, 900, 950, 975
+};
 
 /*
  * Removes curses from items in inventory
@@ -727,6 +734,10 @@ void self_knowledge()
         if (f1 & TR1_BRAND_COLD)
         {
             info[i++] = "Your weapon freezes your foes.";
+        }
+        if (f1 & TR1_BRAND_POIS)
+        {
+            info[i++] = "Your weapon poisons your foes.";
         }
 
         /* Special "slay" flags */
@@ -1555,8 +1566,24 @@ bool enchant(object_type *i_ptr, int n, int eflag)
         if (eflag & ENCH_TODAM)
         {
             if (i_ptr->to_d < 0) chance = 0;
-            else if (i_ptr->to_d > 15) chance = 1000;
-            else chance = enchant_table[i_ptr->to_d];
+            else if (i_ptr->to_d > 19) chance = 1000;
+            else
+            {
+                if (i_ptr->tval == TV_BOW)
+                {
+                    chance = enchant_table[i_ptr->to_d];
+                }
+                else
+                /* Greg Wooledge -- generally limit +to-dam to weapon's natural
+                   damage limitation.  E.g., a tulwar (2d4) can go to +8.  Note
+                   the effect upon missiles.... */
+                {
+                    chance = enchant_table_dam[i_ptr->to_d];
+                    if ( (i_ptr->dd * i_ptr->ds <= i_ptr->to_d) &&
+                         (chance < 995))
+                            chance = 995;
+                }
+	    }
 
             if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
             {

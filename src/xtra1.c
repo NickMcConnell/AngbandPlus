@@ -733,6 +733,11 @@ static void health_redraw(void)
     else
     {
         int pct, len;
+        /* Customized monster health bar -- colorless fear/sleep status */
+        const char hb_normal[] = "**********";
+        const char hb_fearful[] = "FFFFFFFFFF";
+        const char hb_sleeping[] = "SSSSSSSSSS";
+        const char *hb_ptr = hb_normal;
 
         monster_type *m_ptr = &m_list[health_who];
 
@@ -755,10 +760,10 @@ static void health_redraw(void)
         if (pct >= 100) attr = TERM_L_GREEN;
 
         /* Afraid */
-        if (m_ptr->monfear) attr = TERM_VIOLET;
+        if (m_ptr->monfear) { attr = TERM_VIOLET; hb_ptr = hb_fearful; }
 
         /* Asleep */
-        if (m_ptr->csleep) attr = TERM_BLUE;
+        if (m_ptr->csleep) { attr = TERM_BLUE; hb_ptr = hb_sleeping; }
 
         /* Convert percent into "health" */
         len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
@@ -766,8 +771,8 @@ static void health_redraw(void)
         /* Default to "unknown" */
         Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
 
-        /* Dump the current "health" (use '*' symbols) */
-        Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
+        /* Dump the current "health" (use appropriate symbols) */
+        Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, hb_ptr);
     }
 
 #endif
@@ -1718,6 +1723,8 @@ static void calc_bonuses(void)
     if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->resist_lite = TRUE;
     if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->see_inv = TRUE;
 
+    /* Kobold */
+    if (p_ptr->prace == RACE_KOBOLD) p_ptr->resist_pois = TRUE;
 
     /* Start with "normal" speed */
     p_ptr->pspeed = 110;
@@ -2133,7 +2140,7 @@ static void calc_bonuses(void)
         }
 
         /* Hack -- Reward High Level Rangers using Bows */
-        if ((p_ptr->pclass == 4) && (p_ptr->tval_ammo == TV_ARROW))
+        if ((p_ptr->pclass == CLASS_RANGER) && (p_ptr->tval_ammo == TV_ARROW))
         {
             /* Extra shot at level 20 */
             if (p_ptr->lev >= 20) p_ptr->num_fire++;
@@ -2147,6 +2154,12 @@ static void calc_bonuses(void)
 
         /* Require at least one shot */
         if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
+
+        /* Hack -- Give high-level Warriors Fear resistance */
+        if ((p_ptr->pclass == CLASS_WARRIOR) && (p_ptr->lev >= 25))
+        {
+            p_ptr->resist_fear = TRUE;
+        }
     }
 
 
@@ -2184,10 +2197,10 @@ static void calc_bonuses(void)
             case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
 
             /* Mage */
-            case CLASS_MAGE:    num = 4; wgt = 40; mul = 2; break;
+            case CLASS_MAGE:    num = 4; wgt = 35; mul = 3; div *= 2; break;
 
             /* Priest */
-            case CLASS_PRIEST:  num = 5; wgt = 35; mul = 3; break;
+            case CLASS_PRIEST:  num = 5; wgt = 40; mul = 2; break;
 
             /* Rogue */
             case CLASS_ROGUE:   num = 5; wgt = 30; mul = 3; break;
@@ -2196,7 +2209,7 @@ static void calc_bonuses(void)
             case CLASS_RANGER:  num = 5; wgt = 35; mul = 4; break;
 
             /* Paladin */
-            case CLASS_PALADIN: num = 5; wgt = 30; mul = 4; break;
+            case CLASS_PALADIN: num = 5; wgt = 35; mul = 4; break;
         }
 
         /* Enforce a minimum "weight" (tenth pounds) */
@@ -2235,7 +2248,7 @@ static void calc_bonuses(void)
     p_ptr->icky_wield = FALSE;
 
     /* Priest weapon penalty for non-blessed edged weapons */
-    if ((p_ptr->pclass == 2) && (!p_ptr->bless_blade) &&
+    if ((p_ptr->pclass == CLASS_PRIEST) && (!p_ptr->bless_blade) &&
         ((i_ptr->tval == TV_SWORD) || (i_ptr->tval == TV_POLEARM)))
     {
         /* Reduce the real bonuses */

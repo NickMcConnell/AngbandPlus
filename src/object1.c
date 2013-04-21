@@ -2086,6 +2086,10 @@ bool identify_fully_aux(object_type *i_ptr)
     {
         info[i++] = "It does extra damage from frost.";
     }
+    if (f1 & TR1_BRAND_POIS)
+    {
+    	info[i++] = "It does extra damage from poison.";
+    }
 
     if (f1 & TR1_IMPACT)
     {

@@ -183,7 +183,7 @@ static void chest_death(int y, int x, object_type *i_ptr)
                 object_level = ABS(i_ptr->pval);
 
                 /* Small chests often drop gold */
-                if (small && (rand_int(100) < 75))
+                if (small && (rand_int(100) < 60))
                 {
                     place_gold(ny, nx);
                 }
@@ -1957,7 +1957,7 @@ void do_cmd_throw(void)
     object_type         throw_obj;
     object_type		*i_ptr;
 
-    bool		ok_throw = FALSE;
+/*    bool		ok_throw = FALSE; */
 
     bool		hit_body = FALSE;
 

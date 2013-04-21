@@ -1186,7 +1186,7 @@ errr file_character(cptr name, bool full)
 
 
     /* Begin dump */
-    fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
+    fprintf(fff, "  [GW-Angband %d.%d.%d Character Dump]\n\n",
             VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 
@@ -1521,7 +1521,7 @@ static bool do_cmd_help_aux(cptr name, cptr what, int line)
 
 
         /* Show a general "title" */
-        prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
+        prt(format("[GW-Angband %d.%d.%d, %s, Line %d/%d]",
                    VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
                    caption, line, size), 0, 0);
 
@@ -1857,10 +1857,10 @@ void do_cmd_suicide(void)
     else
     {
         /* Verify */
-        if (!get_check("Do you really want to quit? ")) return;
+        if (!get_check("Do you really want to commit suicide? ")) return;
 
         /* Special Verification for suicide */
-        prt("Please verify QUITTING by typing the '@' sign: ", 0, 0);
+        prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
         flush();
         i = inkey();
         prt("", 0, 0);
@@ -2120,7 +2120,7 @@ static void show_info(void)
 
     store_type		*st_ptr = &store[7];
 
-    char		p1 = '(', p2 = ')';
+    /* char		p1 = '(', p2 = ')'; */
 
 
     /* Hack -- Know everything in the inven/equip */
@@ -2462,7 +2462,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
         clear_screen();
 
         /* Title */
-        put_str("                Angband Hall of Fame", 0, 0);
+        put_str("                GW-Angband Hall of Fame", 0, 0);
 
         /* Indicate non-top scores */
         if (k > 0)

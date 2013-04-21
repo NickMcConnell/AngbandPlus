@@ -246,7 +246,7 @@ static void do_ce(void)
 /*
  * Set the cursor visibility (0 = invis, 1 = normal, 2 = bright)
  */
-static void curs_set(int vis)
+/*static*/ void curs_set(int vis)
 {
     char *v = NULL;
 

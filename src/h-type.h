@@ -80,8 +80,9 @@ typedef int errr;
 /*
  * Hack -- prevent problems with C++
  */
+/*
 #undef bool
-#define bool bool_hack
+#define bool bool_hack */
 
 
 /* Note that "signed char" is not always "defined" */

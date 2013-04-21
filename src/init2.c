@@ -2159,13 +2159,13 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
         { TV_MAGIC_BOOK, 0 },
         { TV_MAGIC_BOOK, 0 },
         { TV_MAGIC_BOOK, 0 },
-        { TV_MAGIC_BOOK, 0 },
         { TV_MAGIC_BOOK, 1 },
         { TV_MAGIC_BOOK, 1 },
         { TV_MAGIC_BOOK, 1 },
         { TV_MAGIC_BOOK, 2 },
         { TV_MAGIC_BOOK, 2 },
-        { TV_MAGIC_BOOK, 3 }
+        { TV_MAGIC_BOOK, 3 },
+        { TV_MAGIC_BOOK, 4 }
     }
 };
 

@@ -2020,7 +2020,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
     /* Polymorph setting (true or false) */
-    int do_poly = 0;
+    int do_poly = FALSE;
 
     /* Teleport setting (max distance) */
     int do_dist = 0;
@@ -2043,8 +2043,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
     /* Assume no note */
     cptr note = NULL;
-
-    /* Assume a default death */
+    cptr note_unaffected = " is unaffected!";
     cptr note_dies = " dies.";
 
 
@@ -2209,13 +2208,28 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
         /* Chaos -- Chaos breathers resist */
         case GF_CHAOS:
             if (seen) obvious = TRUE;
-            do_poly = TRUE;
+
+            /* Start with the assumption that the monster will be confused. */
             do_conf = (5 + randint(11)) / div;
+
+            /* Then, factor in special powers. */
+	    if ((r_ptr->flags3 & RF3_NO_CONF) || (r_ptr->flags1 & RF1_UNIQUE))
+	        if (rand_int(100) < 70)
+	            do_conf = 0;
+
             if (r_ptr->flags4 & RF4_BR_CHAO)
             {
                 note = " resists.";
                 dam *= 3; dam /= (randint(6)+6);
-                do_poly = FALSE;
+            }
+            else
+            {
+            	/* 60% chance to attempt polymorph; then monster gets a
+            	   sort of saving throw.  Note that the chaos-wielder's level
+            	   is irrelevant, as is the damage done by the chaos. -GJW */
+                 if (rand_int (100) < 60)
+                 	if (rand_int(3000) > r_ptr->level * r_ptr->level)
+                 		do_poly = TRUE;
             }
             break;
 
@@ -2253,6 +2267,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
             {
                 note = " resists somewhat.";
                 dam /= 2;
+                do_conf /= 2;	/* These guys can now be confused! -GJW */
             }
             break;
 
@@ -2312,7 +2327,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
         /* Gravity -- breathers resist */
         case GF_GRAVITY:
             if (seen) obvious = TRUE;
-            do_dist = 10;
+            do_dist = 10 - (r_ptr->level / 20);
             if (r_ptr->flags4 & RF4_BR_GRAV)
             {
                 note = " resists.";
@@ -2360,7 +2375,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
                     if (seen) r_ptr->r_flags3 |= RF3_DEMON;
                 }
 
-                note = " is unaffected!";
+                note = note_unaffected;
                 obvious = FALSE;
                 dam = 0;
             }
@@ -2377,9 +2392,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
             /* Powerful monsters can resist */
             if ((r_ptr->flags1 & RF1_UNIQUE) ||
-                (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+/*               (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10)) */
+                (monster_saves (r_ptr->level, dam - 10)))
             {
-                note = " is unaffected!";
+                note = note_unaffected;
                 do_poly = FALSE;
                 obvious = FALSE;
             }
@@ -2444,7 +2460,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
             if (seen) obvious = TRUE;
 
             /* Speed up */
-            if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
+            if (m_ptr->mspeed < 150) m_ptr->mspeed += 5;
             note = " starts moving faster.";
 
             /* No "real" damage */
@@ -2458,17 +2474,19 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
             if (seen) obvious = TRUE;
 
             /* Powerful monsters can resist */
+            /* Uniques can't be slowed, because slow monster is permanent. */
             if ((r_ptr->flags1 & RF1_UNIQUE) ||
-                (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+/*                (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10)) */
+		  (monster_saves (r_ptr->level, dam)))
             {
-                note = " is unaffected!";
+                note = note_unaffected;
                 obvious = FALSE;
             }
 
             /* Normal monsters slow down */
             else
             {
-                if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
+                if (m_ptr->mspeed > 60) m_ptr->mspeed -= 5;
                 note = " starts moving slower.";
             }
 
@@ -2483,9 +2501,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
             if (seen) obvious = TRUE;
 
             /* Attempt a saving throw */
-            if ((r_ptr->flags1 & RF1_UNIQUE) ||
-                (r_ptr->flags3 & RF3_NO_SLEEP) ||
-                (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+            if (((r_ptr->flags1 & RF1_UNIQUE) && (rand_int(100) < 75)) ||
+/*                (r_ptr->flags3 & RF3_NO_SLEEP) || */
+/*                (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10)) */
+		(monster_saves (r_ptr->level,
+			dam - ((r_ptr->flags3 & RF3_NO_SLEEP) ? 10 : 0))))
             {
                 /* Memorize a flag */
                 if (r_ptr->flags3 & RF3_NO_SLEEP)
@@ -2494,7 +2514,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
                 }
 
                 /* No obvious effect */
-                note = " is unaffected!";
+                note = note_unaffected;
                 obvious = FALSE;
             }
             else
@@ -2518,9 +2538,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
             do_conf = damroll(3, (dam / 2)) + 1;
 
             /* Attempt a saving throw */
-            if ((r_ptr->flags1 & RF1_UNIQUE) ||
-                (r_ptr->flags3 & RF3_NO_CONF) ||
-                (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+            if (((r_ptr->flags1 & RF1_UNIQUE) && (rand_int(100) < 75)) ||
+/*                (r_ptr->flags3 & RF3_NO_CONF) || */
+/*                (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10)) */
+		(monster_saves (r_ptr->level,
+			dam - ((r_ptr->flags3 & RF3_NO_CONF) ? 10 : 0))))
             {
                 /* Memorize a flag */
                 if (r_ptr->flags3 & RF3_NO_CONF)
@@ -2532,7 +2554,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
                 do_conf = 0;
 
                 /* No obvious effect */
-                note = " is unaffected!";
+                note = note_unaffected;
                 obvious = FALSE;
             }
 
@@ -2688,10 +2710,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
                 do_fear = damroll(3, (dam / 2)) + 1;
 
                 /* Attempt a saving throw */
-                if (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
+/*                if (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10) */
+		if (monster_saves (r_ptr->level, dam))
                 {
                     /* No obvious effect */
-                    note = " is unaffected!";
+                    note = note_unaffected;
                     obvious = FALSE;
                     do_fear = 0;
                 }
@@ -2718,10 +2741,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
                 do_fear = damroll(3, (dam / 2)) + 1;
 
                 /* Attempt a saving throw */
-                if (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
+/*                if (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10) */
+		if (monster_saves (r_ptr->level, dam))
                 {
                     /* No obvious effect */
-                    note = " is unaffected!";
+                    note = note_unaffected;
                     obvious = FALSE;
                     do_fear = 0;
                 }
@@ -2744,10 +2768,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
             /* Attempt a saving throw */
             if ((r_ptr->flags1 & RF1_UNIQUE) ||
                 (r_ptr->flags3 & RF3_NO_FEAR) ||
-                (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+/*                (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10)) */
+		(monster_saves (r_ptr->level, dam)))
             {
                 /* No obvious effect */
-                note = " is unaffected!";
+                note = note_unaffected;
                 obvious = FALSE;
                 do_fear = 0;
             }
@@ -2836,7 +2861,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
     /* "Unique" monsters cannot be polymorphed */
-    if (r_ptr->flags1 & RF1_UNIQUE) do_poly = FALSE;
+    /* This was already enforced above! -GJW */
+/*    if (r_ptr->flags1 & RF1_UNIQUE) do_poly = FALSE; */
 
 
     /* "Unique" monsters can only be "killed" by the player */
@@ -2855,10 +2881,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
     }
 
     /* Mega-Hack -- Handle "polymorph" -- monsters get a saving throw */
-    else if (do_poly && (randint(90) > r_ptr->level))
+/*    else if (do_poly && (randint(90) > r_ptr->level)) */
+    else if (do_poly)
     {
         /* Default -- assume no polymorph */
-        note = " is unaffected!";
+        note = note_unaffected;
 
         /* Pick a "new" monster race */
         i = poly_r_idx(m_ptr->r_idx);
@@ -2937,7 +2964,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
     /* Confusion and Chaos breathers (and sleepers) never confuse */
     else if (do_conf &&
-            !(r_ptr->flags3 & RF3_NO_CONF) &&
+/*            !(r_ptr->flags3 & RF3_NO_CONF) && */
             !(r_ptr->flags4 & RF4_BR_CONF) &&
             !(r_ptr->flags4 & RF4_BR_CHAO))
     {

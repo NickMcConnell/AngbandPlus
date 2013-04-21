@@ -49,7 +49,7 @@ extern s32b player_exp[PY_MAX_LEVEL];
 extern player_race race_info[MAX_RACES];
 extern player_class class_info[MAX_CLASS];
 extern player_magic magic_info[MAX_CLASS];
-extern u32b spell_flags[2][9][2];
+extern u32b spell_flags[2][12][2];
 extern cptr spell_names[2][64];
 extern byte chest_traps[64];
 extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
@@ -391,7 +391,7 @@ extern bool is_quest(int level);
 extern bool test_hit_fire(int chance, int ac, int vis);
 extern bool test_hit_norm(int chance, int ac, int vis);
 extern s16b critical_shot(int weight, int plus, int dam);
-extern s16b critical_norm(int weight, int plus, int dam);
+extern s16b critical_norm(int weight, int plus, int dam, monster_type *m_ptr);
 extern s16b tot_dam_aux(object_type *i_ptr, int tdam, monster_type *m_ptr);
 extern void search(void);
 extern void carry(int pickup);
@@ -453,6 +453,7 @@ extern void do_cmd_check_artifacts(void);
 extern void do_cmd_check_uniques(void);
 
 /* cmd5.c */
+extern void brand_ammo (int fire_only);
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
@@ -547,6 +548,9 @@ extern bool alloc_monster(int dis, int slp);
 extern bool summon_specific(int y1, int x1, int lev, int type);
 extern bool multiply_monster(int m_idx);
 extern void update_smart_learn(int m_idx, int what);
+
+/* monster2.c */
+extern bool monster_saves (int mlev, int plev);
 
 /* object1.c */
 /* object2.c */
@@ -772,7 +776,7 @@ extern bool set_blessed(int v);
 extern bool set_hero(int v);
 extern bool set_shero(int v);
 extern bool set_protevil(int v);
-extern bool set_invuln(int v);
+/* extern bool set_invuln(int v); */
 extern bool set_tim_invis(int v);
 extern bool set_tim_infra(int v);
 extern bool set_oppose_acid(int v);
