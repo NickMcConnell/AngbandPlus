@@ -2306,6 +2306,10 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It does extra damage from frost.";
 	}
+	if (f1 & (TR1_BRAND_POIS))
+	{
+		info[i++] = "It does extra damage from poison.";
+	}
 
 	if (f2 & (TR2_SUST_STR))
 	{
@@ -2451,10 +2455,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f3 & (TR3_TELEPATHY))
 	{
 		info[i++] = "It gives telepathic powers.";
-	}
-	if (f1 & (TR1_BRAND_POIS))
-	{
-		info[i++] = "It does extra damage from poison.";
 	}
 
 	if (f3 & (TR3_SEE_INVIS))

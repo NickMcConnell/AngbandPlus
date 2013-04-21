@@ -73,7 +73,7 @@ struct hist_type
  *   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
  *   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
  *   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
- *   Kobols        --> 24 --> 25 --> 26 --> 27 --> 28 --> 29 --> 30
+ *   Kobold        --> 24 --> 25 --> 26 --> 27 --> 28 --> 29 --> 30
  *
  * XXX XXX XXX This table *must* be correct or drastic errors may occur!
  */

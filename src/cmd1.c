@@ -995,6 +995,9 @@ void py_attack(int y, int x)
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
 
+			/* Disturb the monster (AFTER damage is done -GJW) */
+			m_ptr->csleep = 0;
+
 			/* Confusion attack */
 			if (p_ptr->confusing)
 			{
@@ -1002,9 +1005,6 @@ void py_attack(int y, int x)
 				p_ptr->confusing = FALSE;
 
 				/* Message */
-
-			/* Disturb the monster (AFTER damage is done -GJW) */
-			m_ptr->csleep = 0;
 
 				msg_print("Your hands stop glowing.");
 

@@ -1,4 +1,4 @@
-This is the GW-Angband 2.8.3 source patch distribution.  In order to use
+This is the GW-Angband 2.8.3v1 source patch distribution.  In order to use
 this, you will need a copy of the Angband 2.8.3 source code.  Angband can
 be found at http://www.phial.com/angband/ .
 
@@ -12,11 +12,11 @@ These instructions assume a Unix build environment.
 (1) Extract the patch archive:
 
 	cd /some/where/angband-283
-	gzip -dc gw-angband-283-diff.tar.gz | tar xvf -
+	gzip -dc gw-angband-283v1-diff.tar.gz | tar xvf -
 
 (2) Apply the source code patches:
 
-	gzip -dc gw-angband-283-diff.gz | patch -p1
+	gzip -dc gw-angband-283v1-diff.gz | patch -p1
 
 (3) Edit configuration files:
 
@@ -44,6 +44,6 @@ These instructions assume a Unix build environment.
 
 	./angband
 
-GW-Angband 2.8.3 includes my random artifact generation code,
+GW-Angband 2.8.3v1 includes my random artifact generation code,
 version 0.6.2.  For more information about the random artifacts, see
 http://www.kellnet.com/wooledge/randart.html .

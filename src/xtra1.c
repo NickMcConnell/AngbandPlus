@@ -2313,10 +2313,6 @@ static void calc_bonuses(void)
 
 		/* Require at least one shot */
 		if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
-
-		/* Hack -- give high-level warriors fear resistance -GJW */
-		if ((p_ptr->pclass == CLASS_WARRIOR) && (p_ptr->lev >= 25))
-			p_ptr->resist_fear = TRUE;
 	}
 
 
@@ -2353,7 +2349,7 @@ static void calc_bonuses(void)
 			case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
 
 			/* Mage */
-			case CLASS_MAGE:    num = 4; wgt = 35; mul = 3; div *= 2; break;
+			case CLASS_MAGE:    num = 4; wgt = 35; mul = 3; break;
 
 			/* Priest */
 			case CLASS_PRIEST:  num = 5; wgt = 40; mul = 2; break;
@@ -2370,6 +2366,9 @@ static void calc_bonuses(void)
 
 		/* Enforce a minimum "weight" (tenth pounds) */
 		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
+
+		/* Mages actually get mul = 3/2 not 3. */
+		if (p_ptr->pclass == CLASS_MAGE) div *= 2;
 
 		/* Access the strength vs weight */
 		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);

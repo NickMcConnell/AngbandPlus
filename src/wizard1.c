@@ -954,9 +954,24 @@ static void print_header(void)
 {
 	char buf[80];
 
+#ifdef GJW_RANDART
+	if (p_ptr->random_artifacts)
+	{
+		fprintf(fff, "Artifact Spoilers for GW-Angband Version %d.%d.%d\n",
+			VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		sprintf(buf, "  [Random artifacts version " RANDART_VERSION
+			", seed %lu]", (unsigned long) seed_randart);
+		spoiler_underline(buf);
+	} else {
+		sprintf(buf, "Artifact Spoilers for GW-Angband Version %d.%d.%d",
+			VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		spoiler_underline(buf);
+	}
+#else
 	sprintf(buf, "Artifact Spoilers for GW-Angband Version %d.%d.%d",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
+#endif
 }
 
 /*

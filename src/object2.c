@@ -1992,7 +1992,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				/* Roll for ego-item */
-				switch (randint(11))
+				switch (randint(10))
 				{
 					case 1:
 					{
