@@ -2,8 +2,8 @@
 
 #|
 
-compat/obj-kind.lisp - code to be compatible with k_info.txt
-Copyright (c) 2000 - Stig Erik Sandø
+DESC: lib/compat/obj-kind.lisp - code to be compatible with k_info.txt
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

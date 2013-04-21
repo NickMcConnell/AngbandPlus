@@ -2,8 +2,8 @@
 
 #|
 
-parameters.lisp - handling of special parameters
-Copyright (c) 2000 - Stig Erik Sandø
+DESC: lib/common/objects.lisp - handling of special parameters
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
-(defun comm-creating-backpack (dungeon player aobj)
+(defun common-creating-backpack (dungeon player aobj)
   "Assigns a container to aobj.contains."
   
   (declare (ignore player dungeon))
@@ -30,5 +30,5 @@ the Free Software Foundation; either version 2 of the License, or
 		    :level 0 :rarity nil :chance #(0 0 0 0)
 		    :locale #(0 0 0 0) :weight nil
 		    :cost 1200 :obj-type '(<container> <backpack>)
-		    :events (list (cons :on-create #'comm-creating-backpack)))
+		    :events (list (cons :on-create #'common-creating-backpack)))
 

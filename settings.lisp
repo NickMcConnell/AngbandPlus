@@ -3,7 +3,7 @@
 #|
 
 DESC: settings.lisp - code for keeping track of settings
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,9 +19,12 @@ ADD_DESC: for different parts of the code
 
 (in-package :langband)
 
-(defclass settings ()
-  ((name   :accessor setting.name   :initform "No-name" :initarg :name)
-   (events :accessor setting.events :initform nil :initarg nil)))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+ 
+  (defclass settings ()
+    ((name   :accessor setting.name   :initform "No-name" :initarg :name)
+     (events :accessor setting.events :initform nil :initarg nil))))
 
 
 (defmethod trigger-event ((obj settings) event arg-list)
@@ -50,26 +53,36 @@ ADD_DESC: for different parts of the code
 	(push event (setting.events setting)))))
 
 
-(defclass dungeon-settings (settings)
-  (max-width max-height)
-  (:documentation "A class I will be expanding later.."))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defclass dungeon-settings (settings)
+    ((max-width   :initarg :max-width   :initform 198)
+     (max-height  :initarg :max-height  :initform 66)
+     ;; how many rooms
+     (room-number :initarg :room-number :initform 50)
+     ;; ranges
+     (stairs-down :initarg :stairs-down :initform '(3 4))
+     (stairs-up   :initarg :stairs-up   :initform '(1 2)))
+    (:documentation "A class I will be expanding later..")))
 
-(defclass printing-settings (settings)
-  ((race   :initarg :race)
-   (class  :initarg :class)
-   (title  :initarg :title)
-   (level  :initarg :level)
-   (xp     :initarg :xp)
-   (gold   :initarg :gold)
-   (stat   :initarg :stat)
-   (ac     :initarg :ac)
-   (max-hp   :initarg :max-hp)
-   (cur-hp   :initarg :cur-hp)
-   (max-mana :initarg :max-mana)
-   (cur-mana :initarg :cur-mana))
 
-  (:documentation "Locations and various settings when printing stuff.
-Each location should be a cons with (row . col)."))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+ 
+  (defclass printing-settings (settings)
+    ((race   :initarg :race)
+     (class  :initarg :class)
+     (title  :initarg :title)
+     (level  :initarg :level)
+     (xp     :initarg :xp)
+     (gold   :initarg :gold)
+     (stat   :initarg :stat)
+     (ac     :initarg :ac)
+     (max-hp   :initarg :max-hp)
+     (cur-hp   :initarg :cur-hp)
+     (max-mana :initarg :max-mana)
+     (cur-mana :initarg :cur-mana))
+
+    (:documentation "Locations and various settings when printing stuff.
+Each location should be a cons with (row . col).")))
 	    
 
 (defun make-prt-settings ()
@@ -91,9 +104,11 @@ Each location should be a cons with (row . col)."))
 		 ))
 
 
-(defclass birth-settings (settings)
-  ((allow-all-classes :accessor birth.allow-classes :initform nil))
-  (:documentation "Settings when creating characters."))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defclass birth-settings (settings)
+    ((allow-all-classes :accessor birth.allow-classes :initform nil))
+    (:documentation "Settings when creating characters.")))
 
 (defun make-birth-settings (&key allow-all-classes)
   "Returns a birth-settings object."

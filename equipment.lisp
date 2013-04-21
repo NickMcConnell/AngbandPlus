@@ -3,7 +3,7 @@
 #|
 
 DESC: equipment.lisp - code for any equipment in all containers.
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,27 +14,31 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
-(defclass item-table ()
-  ((cur-size :accessor items.cur-size :initarg :cur-size :initform 0))
-  (:documentation "abstract interface for all item-tables."))
 
-(defclass items-on-floor (item-table)
-  ((obj-list :accessor items.objs     :initform nil))
-  (:documentation "Represents the items on the floor."))
+(eval-when (:compile-toplevel :load-toplevel :execute)
 
-(defclass items-in-container (item-table)
-  ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil)
-   (max-size :accessor items.max-size :initarg :max-size :initform 5))
-  (:documentation "A container for other objects, ie a backpack."))
+  (defclass item-table ()
+    ((cur-size :accessor items.cur-size :initarg :cur-size :initform 0))
+    (:documentation "abstract interface for all item-tables."))
 
-(defclass items-worn (item-table)
-  ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil))
-  (:documentation "What is worn."))  
+  (defclass items-on-floor (item-table)
+    ((obj-list :accessor items.objs     :initform nil))
+    (:documentation "Represents the items on the floor."))
 
-(defclass items-in-shop (item-table)
-  ((obj-list :accessor items.objs     :initarg :objs     :initform nil)
-   (max-size :accessor items.max-size :initarg :max-size :initform 5))
-  (:documentation "What is in a given shop."))  
+  (defclass items-in-container (item-table)
+    ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil)
+     (max-size :accessor items.max-size :initarg :max-size :initform 5))
+    (:documentation "A container for other objects, ie a backpack."))
+
+  (defclass items-worn (item-table)
+    ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil))
+    (:documentation "What is worn."))  
+
+  (defclass items-in-shop (item-table)
+    ((obj-list :accessor items.objs     :initarg :objs     :initform nil)
+     (max-size :accessor items.max-size :initarg :max-size :initform 5))
+    (:documentation "What is in a given shop."))
+  )
 
 
 (defgeneric item-table-add!       (table obj &optional key))  
@@ -90,6 +94,7 @@ the table, the key and the object itself."))
 
 
 (defmethod item-table-print (table &key show-pause start-x start-y)
+  (declare (ignore table show-pause start-x start-y))
   (warn "[Printing not implemented]"))
 
 
@@ -238,7 +243,8 @@ the table, the key and the object itself."))
 	(y (if start-y start-y 1))
 	(i 0))
 
-    (flet ((iterator-fun (table key val)
+    (flet ((iterator-fun (a-table key val)
+	     (declare (ignore a-table key))
 	     (c-prt "" (+ i y) (- x 2))
 	     (c-put-str (format nil "~a) ~a" (i2a i)
 				(object-description val))
@@ -367,7 +373,8 @@ and adds settings to various places."
 	(y (if start-y start-y 1))
 	(i 0))
 
-    (flet ((iterator-fun (table key val)
+    (flet ((iterator-fun (a-table key val)
+	     (declare (ignore a-table key))
 	     (c-prt "" (+ i y) (- x 2))
 	     (c-put-str (format nil "~a) ~13a : ~a" (i2a i)
 				 (get (aref *equip-slot-order* i) 'description)

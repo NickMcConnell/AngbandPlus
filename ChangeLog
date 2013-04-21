@@ -1,0 +1,79 @@
+2001-01-19  Stig E Sandø <stig@users.sourceforge.net>
+	* renamed dungeon.level to dungeon.depth
+	* moved the constant +xp-table+ to be a property of the variant
+	object and is now variant.xp-table
+	* moved the constant +max-level+ to be a property of the variant
+	object and is now variant.max-charlevel
+	* moved +dungeon-rooms+ constant to be part of dungeon-settings as
+	the slot room-number
+	* tried to ensure the same random state when generating the town
+	in vanilla
+	* added low-level c-term-save and c-term-load which are used by
+	screen-save and screen-load.  screen-save and screen-load are
+	neatly hidden beneath WITH-NEW-SCREEN though.  This new macro is
+	used for show-inventory and show-equipment.
+	* Fixed bug with RNG to allow the town to remain constant.
+	Hackish solution is limited to one function in the variant-code.
+	* Fixed bug in map-info which displayed things in corridors it
+	shouldn't display.  Also fixed bug in map-info which showed
+	monsters on map even if they were out of torch-scope
+	* fixed stair back to level where you came from, through a
+	POST-INITIALISATION of a level, which allows customisation for
+	individual levels.
+	* added hack to OPEN-DOOR! to ensure that an opened door is
+	relighted right away.
+	* removed some more details, warnings and made the lisp
+	environment more quiet.
+	
+
+2001-01-18  Stig E Sandø <stig@users.sourceforge.net>
+	* revamped room-code to be CLOS and the actual control is put in
+	the variant and the engine is simplified.
+	* prettified code, removed warnings and ensured that things look
+	kind of nice.  time to write real code again soon. 
+		
+2001-01-18  Stig E Sandø <stig@users.sourceforge.net>
+	* removed vanilla/[races|classes] from system file and let them be
+	loaded by variant init
+	* made a variant class, and made a subclass for the vanilla
+	variant.  this variant class contains more of the information
+	which was kept globally earlier.  an active variant-object will be
+	kept in *variant*.  the file for this is core.lisp
+	* added a level class which is the start of theming of levels.
+	the file for this is level.lisp and lib/vanilla/levels.lisp update
+	this with variant-specifics (ie town).  town-code largely moved
+	here. 
+	* removed global *level-rating* variable
+	* ensured that races and classes now access the variant-object
+	* separated vanilla and compat-code from the core engine
+	system-file.  The new vanilla system file is
+	lib/var-vanilla.system.  game.lisp has been changed to reflect
+	that.
+	* common files now use the COMMON prefix
+	* distributed room-code into lib/common and to variants, also
+	removed global table and moved it into the variant
+	* moved global floor-table into variant object and updated
+	floor-code
+	* made a common module in langband.system to pretty things up
+	* moved max-sizes of dungeons into variant object and removed
+	global variables.
+	* Slight change on PRINT-DEPTH
+	
+
+
+2001-01-17  Stig E Sandø <stig@users.sourceforge.net>
+        * fixed a bug which prevented the +cave-wall+ flag from being set
+	correctly.  added this check into (SETF COORD-FEATURE) which is
+	different from (SETF COORD.FEATURE), unfortunate I know.
+	* added a WITH-DUNGEON macro
+	* updated MAP-INFO to use +cave-seen+ and +cave-view+ flags
+	* made PRINT-MAP-TO-FILE only print features, ie it ignores what
+	has been seen
+	* removed a bug in UPDATE-VIEW! where initial-elements for arrays
+	were not explicitly set
+	* removed bug in VINFO-INIT! where the grid-array was not in
+	correct order.
+	* added a temporary FORGET-VIEW!
+	
+	
+        

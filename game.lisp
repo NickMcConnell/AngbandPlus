@@ -2,8 +2,8 @@
 
 #|
 
-DESC: game.lisp - simple init of the game
-Copyright (c) 2000 - Stig Erik Sandø
+DESC: game.lisp - simple load of the game
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,9 +25,12 @@ ADD_DESC: This file just contains simple init and loading of the game
 (proclaim '(optimize
 	    #+cmu (ext:inhibit-warnings 2)
             ;;    (speed 3)
-            (speed 1)
-            (compilation-speed 0)
-            (safety 1)
+            ;;(speed 1)
+	    (speed 0)
+;;            (compilation-speed 0)
+	    (compilation-speed 2)
+;;            (safety 1)
+	    (safety 2)
             ;;    (debug 1)
             (debug 3)
             )))
@@ -41,30 +44,40 @@ ADD_DESC: This file just contains simple init and loading of the game
 			 :if-does-not-exist :create)
     ))
 ||#
-(defun load-game ()
-  (let (#+cmu (*compile-print* nil)
-	;;(*load-verbose* nil)
-	(*load-print* nil)
-	;;#+cmu (*error-output* o-str)
-	#+cmu (extensions:*gc-verbose* nil)
-	      )
 
+#+allegro
+(setq *load-local-names-info* t)
+
+(defun compile-in-environment (func)
+  (let (#+cmu (*compile-print* nil)
+	      ;;(*load-verbose* nil)
+	      (*load-print* nil)
+	      ;;#+cmu (*error-output* o-str)
+	      #+cmu (extensions:*gc-verbose* nil)
+	      )
+    (funcall func)))
+ 
+
+(defun load-game ()
     #+cmu
     (progn
       (alien:load-foreign "./lib/zterm/liblang_ui.so")
       (pushnew :already-loaded *features*))
 
-
-    #+allegro
-    (setq *load-local-names-info* t)
     
     ;;  (push :langband-debug *features*)
     (load "langband.system")
     (mk:operate-on-system 'langband 'compile :verbose nil)
-    (format t "~&System loaded...~%")
-    ))
+    (format t "~&System loaded...~%"))
+    
 
-(load-game)
+(defun load-vanilla-variant ()
+  (load "lib/var-vanilla.system")
+  (mk:operate-on-system 'vanilla-variant 'compile :verbose nil)
+  (format t "~&Variant loaded...~%"))
+
+(compile-in-environment #'load-game)
+(compile-in-environment #'load-vanilla-variant)
 
 (in-package :langband)
 
@@ -72,5 +85,6 @@ ADD_DESC: This file just contains simple init and loading of the game
   ;; to make sure dumps look pretty
   (let ((*package* (find-package :langband))
 	#+cmu (extensions:*gc-verbose* nil)
+	#+cmu (*compile-print* nil)
 	)
     (game-init&)))

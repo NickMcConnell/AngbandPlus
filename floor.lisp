@@ -3,7 +3,7 @@
 #|
 
 DESC: floor.lisp - deals with floor/tile/feature code
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,12 +14,15 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
-(defclass feature-type ()
-  ((id :accessor feature.id :initform nil)
-   (name :accessor feature.name :initform nil)
-   (x-attr :accessor feature.x-attr :initform nil)
-   (x-char :accessor feature.x-char :initform nil)
-   (mimic :accessor feature.mimic :initform nil)))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+ 
+  (defclass feature-type ()
+    ((id     :accessor feature.id     :initform nil)
+     (name   :accessor feature.name   :initform nil)
+     (x-attr :accessor feature.x-attr :initform nil)
+     (x-char :accessor feature.x-char :initform nil)
+     (mimic  :accessor feature.mimic  :initform nil))))
 
 (defmethod print-object ((inst feature-type) stream)
   (print-unreadable-object
@@ -29,7 +32,11 @@ the Free Software Foundation; either version 2 of the License, or
   inst)
 
 (defun get-feature (id)
-  (gethash id *floor-feature-table*))
+  "Returns an object of type FEATURE-TYPE or NIL."
+  (let ((table (variant.floor-features *variant*)))
+    (gethash id table)))
 
 (defun (setf get-feature) (feature id)
-  (setf (gethash id *floor-feature-table*) feature))
+  "Adds a feature with given id to the appropriate table."
+  (let ((table (variant.floor-features *variant*)))
+    (setf (gethash id table) feature)))

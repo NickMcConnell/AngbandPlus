@@ -32,28 +32,42 @@
       <li> All game-related symbolic constants should be put between <code>&lt;</code> and <code>&gt;</code>,
 	ie <code>'&lt;RANGER&gt;</code></li>
       
-      <li> All functions and macros with a <code>DEFINE-</code> prefix implicitly have
-	global side-effects, ie <code>define-monster</code>.  They
-	will also return the object they have defined.  Do not use the
-	<code>&amp;</code> suffix. </li>
-      
+      <li> All functions and macros with a <code>DEFINE-</code> prefix
+	implicitly have global side-effects, ie
+	<code>define-monster</code>.  They will also return the object
+	they have defined.  Do not use the <code>&amp;</code>
+	suffix. </li> 
+       
       <li> The prefix <code>MAKE-</code> are restricted to non-sideeffect constructors of
 	objects, ie wrapped <code>MAKE-INSTANCE</code>s. An object is
 	returned from this kind of function.</li>
 
       <li> Functions whose purpose is to "add" something to "global" tables, maybe
-      from a <code>DEFINE-</code> function, should use the
+      from a <code>DEFINE-</code> function/macro, should use the
       <code>ESTABLISH-</code> prefix, and return the object in
       question.  A <code>&amp;</code> suffix is expected. These should
-      not be called by variant code though, they should use
+      not be called by variant code though, variants should use
       <code>DEFINE-</code>. However, if it seems reasonable with a
       <code>SETF</code>-match to a <code>GET-</code> function instead
       of an <code>ESTABLISH-</code>, use <code>SETF</code>.</li>
 
+      <li> Macros which create an environment to execute code in
+      whould use a <code>WITH-</code> prefix, and if it needs a
+      function to implement itself it should use a
+      <code>INVOKE-ON-</code> prefix.  An example is:
+      <code>WITH-DUNGEON</code> and it's implementation in
+      <code>INVOKE-ON-DUNGEON</code>.  These macros are allowed to
+      create side-effects on their arguments. </li>
+      
       <li> Variant-code should use their own special prefix for
       functions, variables, etc.  As an example, all vanilla functions
-      and variables use the <code>VAN-</code> prefix.</li>
+      and variables use the <code>VAN-</code> prefix.  Loading
+      variant-code is also allowed to induce side-effects, ie
+      registering the variant in appropriate places.</li>
 
+      <li> Code which is expected to be common to all variants should
+      be put in lib/common and have a <code>COMMON-</code> prefix.
+      Loading lib/common might also have side-effects.
 
     </ul>
     </p>

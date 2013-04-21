@@ -3,7 +3,7 @@
 #|
 
 DESC: base.lisp - basic code for the rest of the game
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -100,6 +100,8 @@ with given arg-list if any events match."
     (when (eq event (car i))
       (apply (cdr i) arg-list))))
 
+
+#||
 (defun register-variant& (id name &key before-game-init after-game-init)
   "Registers variant in appropriate places."
   
@@ -107,6 +109,7 @@ with given arg-list if any events match."
 	(get 'variant 'name) name
 	(get 'variant 'pre-init) before-game-init
 	(get 'variant 'post-init) after-game-init))
+||#
 
 (defun register-variant-common& (&key before-game-init after-game-init)
   "Registers callbacks for common functions for all variants. Called
@@ -129,16 +132,27 @@ before variant init-functions."
 (defsubst a2i (char)
   "Returns the number corresponding to the char given, where #\a is 0."
   (- (char-code char) (char-code #\a)))
-
+#||
 (defsubst randint (num)
   "Returns (1+ (random num))."
   (declare (type u-fixnum num))
   (with-type u-fixnum (1+ (random num))))
+||#
 
+;; hack ever so long
+(defun randint (num)
+  (1+ (random num)))
+
+#||
 (defsubst rand-range (a b)
   "Returns a random numer in the range [a..b]."
   (declare (type u-fixnum a b))
   (with-type u-fixnum (+ a (random (1+ (- b a))))))
+||#
+
+;; hack ever so long
+(defun rand-range (a b)
+  (+ a (random (1+ (- b a)))))
 
 #+cmu
 (defsubst int-/ (a b)
@@ -260,4 +274,19 @@ and NIL if unsuccesful."
   (c-term-clear)
   #+cmu
   (c-clear-from 0))
+
+;; move to better place later
+(defgeneric print-depth (level setting)
+  (:documentation "fix me later.. currently just prints depth."))
+
+;; see print.lisp
+
+;; move me later
+(defgeneric post-initialise (obj &key &allow-other-keys)
+  (:documentation "Is called to complete an initialisation of an object.
+Should return the object."))
+
+(defmethod post-initialise (obj &key)
+
+  obj)
 

@@ -3,7 +3,7 @@
 #|
 
 DESC: stores.lisp - code which deals with stores and their owners
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,28 +14,29 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
-(defclass l-store ()
-  ((id :accessor store.id :initform nil)
-   (name :accessor store.name :initform nil)
-   (owner :accessor store.owner :initform nil)
-   (number :accessor store.number :initform nil)
-   (items :accessor store.items :initform nil)
-   ))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defclass store ()
+    ((id :accessor store.id :initform nil)
+     (name :accessor store.name :initform nil)
+     (owner :accessor store.owner :initform nil)
+     (number :accessor store.number :initform nil)
+     (items :accessor store.items :initform nil)
+     ))
 
-(defclass l-store-owner ()
-  ((id :accessor owner.id :initform nil)
-   (name :accessor owner.name :initform nil)
-   (purse :accessor owner.purse :initform nil)
-   (max-greed :accessor owner.max-greed :initform nil)
-   (min-greed :accessor owner.min-greed :initform nil)
-   (haggle-num :accessor owner.haggle-num :initform nil)
-   (tolerance :accessor owner.tolerance :initform nil)
-   (race :accessor owner.race :initform nil)
+  (defclass store-owner ()
+    ((id :accessor owner.id :initform nil)
+     (name :accessor owner.name :initform nil)
+     (purse :accessor owner.purse :initform nil)
+     (max-greed :accessor owner.max-greed :initform nil)
+     (min-greed :accessor owner.min-greed :initform nil)
+     (haggle-num :accessor owner.haggle-num :initform nil)
+     (tolerance :accessor owner.tolerance :initform nil)
+     (race :accessor owner.race :initform nil)
 
-   ))
+     )))
 
 
-(defmethod print-object ((inst l-store) stream)
+(defmethod print-object ((inst store) stream)
   (print-unreadable-object
    (inst stream :identity t)
    (format stream "~:(~S~) [~A ~A]" (class-name (class-of inst))
@@ -44,7 +45,7 @@ the Free Software Foundation; either version 2 of the License, or
 	   
   inst)
 
-(defmethod print-object ((inst l-store-owner) stream)
+(defmethod print-object ((inst store-owner) stream)
   (print-unreadable-object
    (inst stream :identity t)
    (format stream "~:(~S~) [~A]" (class-name (class-of inst))
@@ -131,7 +132,9 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  (warn "maint on ~a" num)
 ;;  (warn "Active ~a" *active-stores*)
   (let ((the-store (aref *active-stores* num))
-	(*level-rating* 0))
+	;; fix level-rating to use new system
+	;;(*level-rating* 0)
+	)
     ;; we need to sell some stuff
     (let* ((len (length (store.items the-store)))
 	   (j len))
@@ -188,7 +191,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defun define-store (id &key name number)
   "creates a store object and adds it to the appropriate table"
 ;;  (declare (ignore args))
-  (let ((store (make-instance 'l-store)))
+  (let ((store (make-instance 'store)))
     (setf (store.id store) id
 	  (store.name store) name
 	  (store.number store) number)
@@ -204,7 +207,7 @@ the Free Software Foundation; either version 2 of the License, or
 			   special-owner)
   "creates an owner and adds him or her to appropriate tables"
   
-  (let ((owner (make-instance 'l-store-owner)))
+  (let ((owner (make-instance 'store-owner)))
     (setf (owner.id owner) id
 	  (owner.name owner) name
 	  (owner.purse owner) purse

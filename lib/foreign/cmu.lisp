@@ -115,6 +115,13 @@ ADD_DESC: in C from CMUCL.
 (alien:def-alien-routine ("Term_fresh" c-term-clear)
     errr)
 
+(alien:def-alien-routine ("Term_save" c-term-save)
+    errr)
+
+(alien:def-alien-routine ("Term_load" c-term-load)
+    errr)
+
+
 (alien:def-alien-routine ("Term_inkey" c-term-inkey&)
     errr
   (a cptr)

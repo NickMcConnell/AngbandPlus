@@ -3,7 +3,7 @@
 #|
 
 DESC: keys.lisp - keypressing code
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ ADD_DESC: Most of the code which deals with keyboard input.
 
 (defun define-key-table (name)
   "Returns a key-table."
+  (declare (ignore name))
   (make-hash-table :test #'eq))
 
 (defun make-inner-key-table ()
@@ -115,8 +116,9 @@ operation."
 	 (< feat +feature-door-tail+))))
 
 (defun open-door! (dun x y)
+  "hackish, fix me later.."
   (setf (cave-feature dun x y) +feature-open+)
-  ;;(light-spot! dun x y)
+  (light-spot! dun x y)
   )
 
 (defun open-all! (dun pl)

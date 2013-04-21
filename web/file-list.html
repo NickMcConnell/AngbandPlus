@@ -7,69 +7,66 @@
   <body bgcolor="white">
     
     <h1 align=center>Langband code</h1>
+    <div align=center>
 
-    <h3> Base engine </h3>
-    <pre>
-      ./abilities.lisp    -- unused
-      ./base.lisp         -- basic utilities
-      ./birth.lisp        -- character creation
-      ./class.lisp        -- code related to character classes
-      ./combat.lisp       -- combat-code
-      ./constants.lisp    -- constants for the game
-      ./dungeon.lisp      -- dungeon representation
-      ./equipment.lisp    -- equipment representation
-      ./flavours.lisp     -- object flavouring
-      ./floor.lisp        -- floor/feature code
-      ./foreign.lisp      -- linking to C-code
-      ./game.lisp         -- the code to load the game
-      ./generate.lisp     -- generate town/dungeon 
-      ./global.lisp       -- globally interesting classes
-      ./init.lisp         -- initialisation of game-tables
-      ./keys.lisp         -- code for keypresses
-      ./loop.lisp         -- the game loop
-      ./monster.lisp      -- monster code
-      ./util.lisp         -- utilities based on much Langband-code
-      ./object.lisp       -- code dealing with object-details
-      ./package.lisp      -- package definition
-      ./parameters.lisp   -- game-parameter code
-      ./player.lisp       -- the player-class and accompanying code
-      ./print.lisp        -- various code to print stuff
-      ./race.lisp         -- code related to character races
-      ./rooms.lisp        -- code for room-creation
-      ./settings.lisp     -- setting code for various parts of the game/code
-      ./stat.lisp         -- stat-related code
-      ./stores.lisp       -- store-related code
-      ./variables.lisp    -- global/dynamic variables
-    </pre>
+      <!-- Automatically generated. -->
+<table border=0 bgcolor="#D0F0D0">
+<tr><td><b>File</b></td><td><b>Purpose</b></td></tr>
+<tr><td>actions.lisp</td><td>various actions from the kbd/player</td></tr>
+<tr><td>allocate.lisp</td><td>allocation and placing of "things" in dungeon</td></tr>
+<tr><td>base.lisp</td><td>basic code for the rest of the game</td></tr>
+<tr><td>birth.lisp</td><td>character creation</td></tr>
+<tr><td>class.lisp</td><td>character class code</td></tr>
+<tr><td>combat.lisp</td><td>the combat-system</td></tr>
+<tr><td>constants.lisp</td><td>constants for the game code</td></tr>
+<tr><td>core.lisp</td><td>core classes, generics and functions</td></tr>
+<tr><td>dungeon.lisp</td><td>basic code for the dungeon</td></tr>
+<tr><td>equipment.lisp</td><td>code for any equipment in all containers.</td></tr>
+<tr><td>flavours.lisp</td><td>basic code for flavour</td></tr>
+<tr><td>floor.lisp</td><td>deals with floor/tile/feature code</td></tr>
+<tr><td>game.lisp</td><td>simple load of the game</td></tr>
+<tr><td>generate.lisp</td><td>generation of dungeon levels</td></tr>
+<tr><td>global.lisp</td><td>globally available functions/classes</td></tr>
+<tr><td>init.lisp</td><td>initialisation code</td></tr>
+<tr><td>keys.lisp</td><td>keypressing code</td></tr>
+<tr><td>level.lisp</td><td>describing a level</td></tr>
+<tr><td>lib/common/keys.lisp</td><td>assignment of keys</td></tr>
+<tr><td>lib/common/objects.lisp</td><td>handling of special parameters</td></tr>
+<tr><td>lib/common/parameters.lisp</td><td>parameters common to all variants</td></tr>
+<tr><td>lib/common/quirks.lisp</td><td>various variant settings which should be common.</td></tr>
+<tr><td>lib/common/rooms.lisp</td><td>room-builders that should be common</td></tr>
+<tr><td>lib/compat/floor.lisp</td><td>reads standard vanilla floors</td></tr>
+<tr><td>lib/compat/monster.lisp</td><td>code to be compatible with r_info.txt</td></tr>
+<tr><td>lib/compat/obj-kind.lisp</td><td>code to be compatible with k_info.txt</td></tr>
+<tr><td>lib/foreign/acl.lisp</td><td>deals with foreign code for ACL</td></tr>
+<tr><td>lib/foreign/cmu.lisp</td><td>deals with foreign code for CMUCL</td></tr>
+<tr><td>lib/vanilla/classes.lisp</td><td>classes for vanilla variant</td></tr>
+<tr><td>lib/vanilla/flavours.lisp</td><td>flavours for vanilla variant</td></tr>
+<tr><td>lib/vanilla/quirks.lisp</td><td>special settings for Vanilla</td></tr>
+<tr><td>lib/vanilla/quirks.lisp</td><td>special settings for Vanilla</td></tr>
+<tr><td>lib/vanilla/races.lisp</td><td>races for vanilla variant</td></tr>
+<tr><td>lib/vanilla/rooms.lisp</td><td>room-builders that should be common</td></tr>
+<tr><td>lib/vanilla/stores.lisp</td><td>stores and owners for vanilla variant</td></tr>
+<tr><td>loop.lisp</td><td>the game loop(s)</td></tr>
+<tr><td>monster.lisp</td><td>monster-code</td></tr>
+<tr><td>object.lisp</td><td>code for object-kinds</td></tr>
+<tr><td>package.lisp</td><td>&nbsp;</td></tr>
+<tr><td>parameters.lisp</td><td>handling of special parameters</td></tr>
+<tr><td>player.lisp</td><td>code for the character object</td></tr>
+<tr><td>print.lisp</td><td>various display code</td></tr>
+<tr><td>race.lisp</td><td>code for the character races</td></tr>
+<tr><td>rooms.lisp</td><td>contains room-builders</td></tr>
+<tr><td>settings.lisp</td><td>code for keeping track of settings</td></tr>
+<tr><td>stat.lisp</td><td>code which deals with character stats</td></tr>
+<tr><td>stores.lisp</td><td>code which deals with stores and their owners</td></tr>
+<tr><td>tools/defsystem.lisp</td><td>&nbsp;</td></tr>
+<tr><td>util.lisp</td><td>utility-code dependant on other code</td></tr>
+<tr><td>variables.lisp</td><td>global variables for the game code</td></tr>
+<tr><td>view.lisp</td><td>code for figuring out what is seen</td></tr>
+</table>
 
-    <h3> Tools </h3>
-    <pre>     
-      ./tools/defsystem.lisp   -- 'make' for Lisp
-    </pre>
 
-    <h3> Common code for all variants </h3>
-    <pre>
-      ./lib/common/parameters.lisp -- parameter-defintions for all variants
-      ./lib/common/objects.lisp    -- common objects for all variants
-      ./lib/common/quirks.lisp     -- settings for all variants
-    </pre>
-
-    <h3> Vanilla-code </h3>
-    <pre>  
-      ./lib/vanilla/classes.lisp  -- the classes in vanilla
-      ./lib/vanilla/new-mon.lisp  -- the monsters in vanilla
-      ./lib/vanilla/races.lisp    -- the character races in vanilla
-      ./lib/vanilla/stores.lisp   -- the stores in vanilla
-      ./lib/vanilla/flavours.lisp -- the flavours of vanilla
-      ./lib/vanilla/quirks.lisp   -- special vanilla settings for engine
-    </pre>
-
-    <h3> Backward-compatibility code </h3>
-    <pre>
-      ./lib/compat/monster.lisp    -- reads r_info.txt
-      ./lib/compat/obj-kind.lisp   -- reads k_info.txt
-      ./lib/compat/floor.lisp      -- reads f_info.txt
-    </pre>
-
+      
+    </div>
   </body>
 </html>

@@ -143,13 +143,13 @@ the Free Software Foundation; either version 2 of the License, or
 ;;    (warn "last part")
     (loop for i from 0 to (1- +vinfo-max-grids+)
 	  do
-	  (setf (svref vinfo i) (make-vinfo-type :grids (make-array 8)
-						   :bits (make-array 4)
-						   :x 0
-						   :y 0
-						   :d 0
-						   :r 0
-						   )))
+	  (setf (svref vinfo i) (make-vinfo-type :grids (make-array 8 :initial-element 0)
+						 :bits (make-array 4 :initial-element 0)
+						 :x 0
+						 :y 0
+						 :d 0
+						 :r 0
+						 )))
     
     (let ((queue-head 0)
 	  (queue-tail 0)
@@ -160,7 +160,7 @@ the Free Software Foundation; either version 2 of the License, or
       (incf queue-tail)
 
       (while (< queue-head queue-tail)
-;;	(warn "~a vs ~a" queue-head queue-tail)
+;;	(warn "~a vs ~a -> ~s" queue-head queue-tail (vinfo-type-grids (svref vinfo queue-head)))
 ;;	(when (> (incf counter) 160)
 ;;	  (error "blah"))
 	(let* ((e queue-head)
@@ -179,12 +179,12 @@ the Free Software Foundation; either version 2 of the License, or
 	  
 	  (setf (svref grid-array 0) (grid x y)
 		(svref grid-array 1) (grid y x)
-		(svref grid-array 2) (grid x (- y))
-		(svref grid-array 3) (grid y (- x))
+		(svref grid-array 2) (grid (- y) x)
+		(svref grid-array 3) (grid (- x) y)
 		(svref grid-array 4) (grid (- x) (- y))
 		(svref grid-array 5) (grid (- y) (- x))
-		(svref grid-array 6) (grid (- x) y)
-		(svref grid-array 7) (grid (- y) x))
+		(svref grid-array 6) (grid y (- x))
+		(svref grid-array 7) (grid x (- y)))
 
 	  ;; do slopes
 	  (dotimes (i num-slopes)
@@ -259,6 +259,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 	  )))
 
+    
 ;;    (%hidden-dump)
     
     (values)))
@@ -388,12 +389,15 @@ the Free Software Foundation; either version 2 of the License, or
 			      (bit-flag-and (svref bit-arr 3)
 					    (svref bits 3)))
 
-		      ;; (warn "VO: ~s ~s ~s" vinfo-obj grid-array g)
+		      (when (minusp g)
+			(error "{pg=~s,px=~s,py=~s} -> {g=~s,x=~s,y=~s} -> {o2=~s,e=~s} -> ~s"
+			       pg px py g x y o2 e grid-array))
+		      
 		      (let* ((coord (cave-coord dun x y))
 			     (info (coord.flags coord)))
 		      
 
-			;; (warn "bit ok at {~a,~a} -> ~a" x y info)
+;;			(warn "bit ok at {~a,~a} -> ~a" x y info)
 		      
 
 			;; we have a wall!
@@ -519,15 +523,27 @@ the Free Software Foundation; either version 2 of the License, or
 				       
 		  
 	
-#||
-
-(defun view-forget (fun pl)
+(defun forget-view! (dun pl)
   "Clears everything currently viewed."
+  (declare (ignore pl))
+  
+;;  (warn "(forget-view!)")
+
+  (dolist (i *view-hack-arr*)
+    (let* ((the-grid (car i))
+	   (x (grid-x the-grid))
+	   (y (grid-y the-grid))
+	   (flag (cave-flags dun x y)))
+
+      (setf (cave-flags dun x y) (bit-flag-remove! flag #.(logior +cave-view+ +cave-seen+)))
+      (light-spot! dun x y)
+      
+      
+      ))
+
+  (setf *view-hack-arr* nil))
 
 
-
-  )
-||#
 
 (defun %hidden-dump ()
   
@@ -542,13 +558,19 @@ the Free Software Foundation; either version 2 of the License, or
 		    (vinfo-type-d x)
 		    (vinfo-type-r x))||#
 	    do
-	    (format str "~d: ~s~%" i (vinfo-type-bits x))
-	    
+;;	    (format str "~d: ~s~%" i (vinfo-type-bits x))
+;;	    (format str "~d: ~s~%" i (vinfo-type-grids x))
+	    (format str "~d: ~s~%" i (vinfo-type-d x))
 	    ))
     )
 
 (in-package :cl-user)
 (defun kl ()
   (lb::vinfo-init))
+
+
+
+
+
 
 

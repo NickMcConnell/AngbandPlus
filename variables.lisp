@@ -3,7 +3,7 @@
 #|
 
 DESC: variables.lisp - global variables for the game code
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,12 +29,10 @@ ADD_DESC: The file should be kept small.
 (defcustom *turn* u-fixnum 0
   "Keeps track of which turn it is.")
 
-(defvar *level-rating* 0
-  "not used.. will be replaced by better system")
-
 
 (defvar *alloc-table-objects* nil
   "table used for figuring out objects to allocate")
+
 (defvar *alloc-table-monsters* nil
   "table used for figuring out monsters to allocate")
 
@@ -56,36 +54,16 @@ ADD_DESC: The file should be kept small.
   (make-hash-table :test #'equal)
   "table with all monsters (numeric ids)")
 
-(defvar *floor-feature-table*
-  (make-hash-table :test #'eql)
-  "read from the floor info file")
-
 (defvar *objects-by-level* nil "all objects sorted by level")
 (defvar *monsters-by-level* nil "all monsters sorted by level")
-
-
-(defvar *class-table*
-  (make-hash-table :test #'equal)
-  "the allowed character classes")
-(defvar *race-table*
-  (make-hash-table :test #'equal)
-  "the table with possible races")
-
 
 ;; two very important variables :-)
 (defvar *dungeon* nil "global dungeon object")
 (defvar *player* nil "the player object")
 
-;; move these later.. 
-(defcustom *dungeon-height* u-fixnum 66 "settable size of dungeon.")
-(defcustom *dungeon-width* u-fixnum 198 "settable size of dungeon.")
 
 (defcustom *redraw* u-fixnum 0 "what to redraw, bitfield")
 (defcustom *update* u-fixnum 0 "what to update, bitfield")
-
-(defvar *room-builders*
-  (make-hash-table :test #'eql)
-  "table of functions to build rooms")
 
 (defvar *cur-dun* nil
   "a dynamic variable which is set to an object
@@ -103,3 +81,8 @@ throughout dungeon-generation")
   (gethash key *sort-values*))
 
 (defvar *last-console-line* 23 "just a dummy for later use.")
+
+(defvar *variant* nil "variant in use.  one should not rebind this
+too frequently.")
+
+(defvar *level* nil "The current level, for good and bad.")

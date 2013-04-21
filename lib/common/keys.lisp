@@ -1,5 +1,17 @@
 ;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
 
+#|
+
+DESC: lib/common/keys.lisp - assignment of keys
+Copyright (c) 2000-2001 - Stig Erik Sandø
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+|#
+
 (in-package :langband)
 
 (defvar *ang-keys* (define-key-table "angband"))
@@ -21,16 +33,20 @@
 (define-key-operation 'show-equipment
      #'(lambda (dun pl)
 	 (declare (ignore dun))
-	 (let ((table (player.eq pl)))
-	   (item-table-print table :show-pause t))))
+	 (with-new-screen ()
+	   (let ((table (player.eq pl)))
+	     (item-table-print table :show-pause t)))
+	 ))
 
 (define-key-operation 'show-inventory
     #'(lambda (dun pl)
 	(declare (ignore dun))
-	(let* ((backpack (player.inventory pl))
-	       (inventory (aobj.contains backpack)))
-	  (item-table-print inventory :show-pause t))))
-
+	(with-new-screen ()
+	  (let* ((backpack (player.inventory pl))
+		 (inventory (aobj.contains backpack)))
+	    (item-table-print inventory :show-pause t)))
+	))
+  
 (define-key-operation 'show-character
     #'(lambda (dun pl)
 	(declare (ignore dun))
@@ -48,7 +64,7 @@
 (define-key-operation 'quit-game
     #'(lambda (dun pl)
 	(declare (ignore pl dun))
-	(warn "Quitting")
+;;	(warn "Quitting")
 	(c-quit! +c-null-value+)))
 
 (define-key-operation 'get-item
@@ -63,6 +79,14 @@
 ;; hackish
 (define-key-operation 'open-all
     #'(lambda (dun pl) (open-all! dun pl)))
+
+(define-key-operation 'print-map
+    #'(lambda (dun pl)
+	(declare (ignore pl)) (print-map-to-file dun "./map.ascii")))
+
+(define-key-operation 'print-map-as-ppm
+    #'(lambda (dun pl)
+	(declare (ignore pl)) (print-map-as-ppm dun "dumps/map.ppm")))
 
 (define-keypress *ang-keys* :global #\k 'move-up)
 (define-keypress *ang-keys* :global #\l 'move-right)
@@ -84,17 +108,15 @@
 (define-keypress *ang-keys* :global #\Q 'quit-game)
 
 
+(define-keypress *ang-keys* :global #\p 'print-map)
+(define-keypress *ang-keys* :global #\P 'print-map-as-ppm)
+
 ;; redefine these later
 #||
 (define-keypress :global #\S #\S
 		 #'(lambda (dun pl)
 		     (declare (ignore pl dun)) (show-store 6)))
-(define-keypress :global #\F #\F
-		 #'(lambda (dun pl)
-		     (declare (ignore pl)) (print-map-to-file dun "dumps/map.ascii")))
-(define-keypress :global #\P #\P
-		 #'(lambda (dun pl)
-		     (declare (ignore pl)) (print-map-as-ppm dun "dumps/map.ppm")))
+
 ||#
 
 #||

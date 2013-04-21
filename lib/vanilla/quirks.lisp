@@ -2,8 +2,8 @@
 
 #|
 
-vanilla/quirks.lisp - special settings for Vanilla
-Copyright (c) 2000 - Stig Erik Sandø
+DESC: lib/vanilla/quirks.lisp - special settings for Vanilla
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,6 +15,11 @@ the Free Software Foundation; either version 2 of the License, or
 |#
 
 (in-package :langband)
+
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defclass vanilla-variant (variant)
+    ()))
 
 (defun van-init-sorting-values ()
   "Initialises the sorting values for later reading of the vanilla objects."
@@ -60,7 +65,7 @@ the Free Software Foundation; either version 2 of the License, or
 	
 	  )))
 
-(defun van-pre-init ()
+(defun van-pre-init (var-obj)
   "Initialises variant-variables that should be there before
 the rest of the game is init'ed."
   
@@ -70,6 +75,9 @@ the rest of the game is init'ed."
      (:equipment-organisation . :vanilla)
      ))
 
+  (load-variant-data& var-obj "races")
+  (load-variant-data& var-obj "classes")
+  
   (van-init-sorting-values)
   
   (let ((equip-order '(
@@ -109,22 +117,97 @@ the rest of the game is init'ed."
 
     ))
 
-(defun van-post-init ()
+(defun van-post-init (var-obj)
   "Does post-initialisation of the game with variant tweaking."
 
+  (declare (ignore var-obj))
   ;; YES, this is a hack
 ;;  (warn "Post-init of vanilla..")
 
   (setf (get-setting :basic-frame-printing) (make-prt-settings))
   (setf (get-setting :birth) (make-birth-settings :allow-all-classes t))
-
-  (register-setting-event& :birth (cons :on-pre-equip #'van-add-basic-equip))
   
+  (setf (get-setting :random-level)
+	(make-instance 'dungeon-settings
+		       :max-width 198
+		       :max-height 66
+		       ;; ranges
+		       :stairs-down '(10 . 20) ;; (3 4)
+		       :stairs-up '(10 . 20) ;; (1 2)
+		       ))
+  
+  (register-setting-event& :birth (cons :on-pre-equip #'van-add-basic-equip))
+
   )
 
-(register-variant& :vanilla "Vanilla"
-		  :before-game-init #'van-pre-init
-		  :after-game-init #'van-post-init
-		  )
+(defun van-make-variant-obj ()
+  (let ((var-obj (make-instance 'vanilla-variant
+				:id :vanilla
+				:name "Vanilla"
+				:pre-init  #'van-pre-init
+				:post-init #'van-post-init
+				:file-path "lib/vanilla")))
+
+    ;; max lvl matches size of xp-table
+    (setf (variant.max-charlevel var-obj) 50)
+    (setf (variant.xp-table var-obj)
+	  #1A(
+	      10
+	      25
+	      45
+	      70
+	      100
+	      140
+	      200
+	      280
+	      380
+	      500
+	      650
+	      850
+	      1100
+	      1400
+	      1800
+	      2300
+	      2900
+	      3600
+	      4400
+	      5400
+	      6800
+	      8400
+	      10200
+	      12500
+	      17500
+	      25000
+	      35000
+	      50000
+	      75000
+	      100000
+	      150000
+	      200000
+	      275000
+	      350000
+	      450000
+	      550000
+	      700000
+	      850000
+	      1000000
+	      1250000
+	      1500000
+	      1800000
+	      2100000
+	      2400000
+	      2700000
+	      3000000
+	      3500000
+	      4000000
+	      4500000
+	      5000000))
+    var-obj))
+
+
+;; time to register our variant..
+
+(register-variant& (van-make-variant-obj))
+
 
 

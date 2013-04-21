@@ -3,13 +3,14 @@
 #|
 
 DESC: dungeon.lisp - basic code for the dungeon
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
+---
 ADD_DESC: Simple code to access the dungeon object(s) 
 
 |#
@@ -25,27 +26,42 @@ ADD_DESC: Simple code to access the dungeon object(s)
 
 (defstruct (dungeon (:conc-name dungeon.))
   (table nil)
-  (height *dungeon-height* :type fixnum)
-  (width *dungeon-width* :type fixnum)
+  (height 0 :type u-fixnum)
+  (width  0 :type u-fixnum)
 
   (up-stairs-p nil)
   (down-stairs-p nil)
 
-  (level nil)
-  (monsters nil))
+  (depth nil)
+  (monsters nil)
+  (rooms nil))
   
 
-#||
-(defmethod print-object ((inst dungeon) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
-	   (dungeon.level inst))
-  inst))
-||#
 
-(defun create-dungeon (width height &key its-level)
+(defun invoke-on-dungeon (dungeon fun)
+  "calls given FUN with four arguments:
+a COORD
+the X-coordinate of the COORD
+the Y-coordinate of the COORD
+"
+  (let ((table (dungeon.table dungeon)))
+
+    (dotimes (y (dungeon.height dungeon))
+      (dotimes (x (dungeon.width dungeon))
+	(funcall fun (aref table x y) x y)))
+    ))
+
+
+(defmacro with-dungeon (parameters &body code)
+  "a WITH- construct.  parameters should be: (dungeon-variable (arg-names to INVOKE))."
+
+ `(invoke-on-dungeon ,(car parameters) #'(lambda ,(cadr parameters) ,@code))) 
+
+
+(defun create-dungeon (width height &key its-depth) 
   "Creates and returns a dungeon of specified size"
+
+;;  (warn "Creating dungeon of size [~s ~s]" width height)
   
   (let ((d (make-dungeon :height height :width width))
 	(table (make-array (list width height))))
@@ -57,31 +73,51 @@ ADD_DESC: Simple code to access the dungeon object(s)
       (dotimes (i (dungeon.height d))
 	(setf (aref table j i) (make-dungeon-coord))))
 
-    (when its-level
-      (setf (dungeon.level d) its-level))
+    (when its-depth
+      (setf (dungeon.depth d) its-depth))
     
     (setf (dungeon.table d) table)
     
     d))
 
+;; hackish
+(defun (setf coord-feature) (val coord)
+  "this is an evil hack."
+
+  ;; fix me
+  (setf (coord.feature coord) val)
+  
+  (if (>= val +feature-door-head+)
+      ;; this is a wall or a door..
+      (bit-flag-add! (coord.flags coord) +cave-wall+)
+      ;; we're not a a wall or a door.. 
+      (bit-flag-remove! (coord.flags coord) +cave-wall+)
+      )
+
+  )
+
 (defun clean-coord! (coord)
   "Cleands the given coordinate."
   
-  (setf (coord.feature  coord) 0
+  (setf (coord-feature  coord) 0
 	(coord.flags    coord) 0
 	(coord.objects  coord) nil
 	(coord.monsters coord) nil)
   coord)
 
+
+
 (defun clean-dungeon! (dungeon)
   "Clears all flags and everything from the dungeon."
 
-  (dotimes (y (dungeon.height dungeon))
-    (dotimes (x (dungeon.width dungeon))
-      (clean-coord! (aref (dungeon.table dungeon) x y))))
+  (warn "!!! cleaning dungeon..")
   
+  (with-dungeon (dungeon (coord x y))
+    (declare (ignore x y))
+    (clean-coord! coord))
+
+
   dungeon)
-      
 
 
 (defun make-map (dungeon)
@@ -114,7 +150,8 @@ ADD_DESC: Simple code to access the dungeon object(s)
 
 (defun delete-monster! (dungeon monster)
   "Wipes the monster.."
-  (warn "Deleting monster ~a" monster))
+;;  (setf (dungeon.monsters dungeon) (remove monster (dungeon.monsters dungeon)))
+  (warn "Deleting monster ~a from ~a" monster (dungeon.monsters dungeon)))
 
 (defun (setf cave-objects) (val dungeon x y)
   (setf (coord.objects (aref (dungeon.table dungeon) x y)) val)
@@ -130,18 +167,8 @@ ADD_DESC: Simple code to access the dungeon object(s)
   (declare (type fixnum val))
   (let ((coord (aref (dungeon.table dungeon) x y)))
 
-    (setf (coord.feature coord) val)
-
-  ;; fix me
-  
-  (if (>= val +feature-door-head+)
-      ;; this is a wall or a door..
-      (bit-flag-add! (coord.flags coord) +cave-wall+)
-;;      (setf (coord.flags coord) (logior (coord.flags coord) +cave-wall+))
-      ;; we're not a a wall or a door.. I don't get this code..
-      (bit-flag-remove! (coord.flags coord) +cave-wall+)
-      )
-;;      (setf (cave-flags dungeon x y) (logandc2 (cave-flags dungeon x y) +cave-wall+))
+    ;; hack
+    (setf (coord-feature coord) val)
 
   
   ;; redraw
@@ -152,17 +179,29 @@ ADD_DESC: Simple code to access the dungeon object(s)
 (defun fill-dungeon-with-feature! (dungeon feature)
   "Cleans and then fills the dungeon with a given feature.
 Returns nothing."
-  (dotimes (y (dungeon.height dungeon))
-      (dotimes (x (dungeon.width dungeon))
-	(clean-coord! (aref (dungeon.table dungeon) x y))
-	(setf (cave-feature dungeon x y) feature)))
- 
+  
+;;  (warn "filling up dungeon with feature ~s.." feature)
+
+  (with-dungeon (dungeon (coord x y))
+    (declare (ignore x y))
+    (clean-coord! coord)
+    (setf (coord-feature coord) feature))
+
+  ;; check
+  (with-dungeon (dungeon (coord x y))
+    (declare (ignore x y))
+    (assert (and (= (coord.feature coord) feature)
+		 ;;(= (coord.flags coord) 0)
+		 (eq (coord.monsters coord) nil)
+		 (eq (coord.objects coord) nil))))
+  
   (values))
 
 (defun fill-dungeon-part-with-feature! (dungeon feature width-range height-range)
   "height-range and width-range should be conses where
 car is start and cdr is the non-included end  (ie [start, end> )"
 
+  #-allegro
   (declare (type (cons fixnum fixnum) width-range height-range))
   
 ;;  (warn "Filling h: ~a and w: ~a" height-range width-range)
@@ -176,65 +215,25 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	      (setf (cave-feature dungeon j i) feature)))
   (values))
 
-(defun %map-info (dungeon x y)
-  "Returns a CONS with the map-info (attr . char)"
-;;  (warn "info for {~a,~a}" x y)
-  
-  (cond ((let ((monsters (cave-monsters dungeon x y)))
-	   (when monsters
-	     (let ((kind (amon.kind (car monsters))))
-	       (cons (monster.colour kind)
-		     (monster.symbol kind))))))
-	 
-	 ;; remove this entry later..
-	 ((and (eql x (player.loc-x *player*))
-	       (eql y (player.loc-y *player*)))
-;;	  (warn "returning player at {~a,~a}" x y)
-	  (cons +term-white+ #\@))
-	 
-	 ((let ((obj (cave-objects dungeon x y)))
-	    (cond ((and obj (typep obj 'item-table))
-		  ;; do we have objects..
-		  (if (> (items.cur-size obj) 1)
-		      ;; pile symbol
-		      (cons +term-white+
-			    #\&)
-		      ;; single object
-		      (let* ((kind (aobj.kind (item-table-find obj 0)))
-			     (flavour (object.flavour kind)))
-			(if flavour
-			    (cons (cadr flavour)
-				  (object.x-char kind))
-			    (cons (object.x-attr kind)
-				  (object.x-char kind))))))
-		 (t
-		  ;; no objects
-		  nil))))
-	
-	;; otherwise something else
-	(t
-	 (let* ((feature-id (cave-feature dungeon x y))
-		(feature-obj (get-feature feature-id)))
-	   (cons (feature.x-attr feature-obj)
-		 (feature.x-char feature-obj))))))
-
 (defun map-info (dungeon x y)
+  "Returns a CONS with the map-info (attr . char)"
   
   ;; maybe get the coord in one go..
-  (let ((mon (cave-monsters dungeon x y))
-	(feat (cave-feature dungeon x y))
-	(flags (cave-flags dungeon x y))
-	(obj (cave-objects dungeon x y))
-	(f-obj nil)
-	(ret-obj nil))
+  (let* (;;(coord (cave-coord
+	 (mon (cave-monsters dungeon x y))
+	 (feat (cave-feature dungeon x y))
+	 (flags (cave-flags dungeon x y))
+	 (obj (cave-objects dungeon x y))
+	 (f-obj nil)
+	 (ret-obj nil))
 
     ;; skip hallucination
     
     ;; boring grids
     (cond ((<= feat +feature-invisible+)
 	   ;; something we see
-	   (cond ((or (bit-flag-set? flags +cave-seen+)
-		     (bit-flag-set? flags +cave-view+))
+	   (cond ((or (bit-flag-set? flags +cave-mark+)
+		      (bit-flag-set? flags +cave-seen+))
 
 		  (setf f-obj (get-feature +feature-floor+))
 		  (setf ret-obj (cons (feature.x-attr f-obj)
@@ -290,8 +289,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
     
     ;; do we have monsters?
-    (when (and mon (or (bit-flag-set? flags +cave-seen+)
-		       (bit-flag-set? flags +cave-view+)))
+    (when (and mon (and (bit-flag-set? flags +cave-seen+) 
+			(bit-flag-set? flags +cave-view+)))
       (let ((kind (amon.kind (car mon))))
 	(setf ret-obj (cons (monster.colour kind)
 			    (monster.symbol kind)))))
@@ -334,44 +333,6 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   t)
 
 
-(defun move-viewport! (dungeon player direction)
-  "moves the viewport in a direction"
-;;  (warn "moving viewport..")
-  
-  (let* ((vp-jump 12)
-	 (dungeon-height (dungeon.height dungeon))
-	 (dungeon-width (dungeon.width dungeon))
-	 (cur-view-x (player.view-x player))
-	 (cur-view-y (player.view-y player))
-	 (wanted-x cur-view-x)
-	 (wanted-y cur-view-y))
-    
-    (case direction
-      (8 (decf wanted-y vp-jump))
-      (6 (incf wanted-x vp-jump))
-      (2 (incf wanted-y vp-jump))
-      (4 (decf wanted-x vp-jump))
-      (otherwise (warn "Unknown direction")))
-
-    ;; don't go left or top
-    (when (< wanted-x 0) (setq wanted-x 0))
-    (when (< wanted-y 0) (setq wanted-y 0)) 
-
-    ;; don't go right or bottom
-    (let ((max-x (- dungeon-width +screen-width+))
-	  (max-y (- dungeon-height +screen-height+)))
-      
-      (when (> wanted-x max-x) (setq wanted-x max-x))
-      (when (> wanted-y max-y) (setq wanted-y max-y)))
-
-    (setf (player.view-x player) wanted-x
-	  (player.view-y player) wanted-y)
-
-    ;; redraw
-    (print-map dungeon player)
-    
-    ))
-   
 
 (defun print-map (dungeon player)
   "Prints a map of the given dungeon to the screen"
@@ -384,8 +345,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
     (declare (type fixnum ty tx))
 
-    (warn "printing map")
-
+;;    (warn "printing map")
     
     (loop for y of-type fixnum from (player.view-y player)
 	  for vy of-type fixnum from +start-row-of-map+ to (the fixnum (1- ty))
@@ -401,7 +361,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 
     ;; add a printing of depth here.. remove later
-    (print-depth (player.depth *player*))
+    (print-depth *level* nil)
     ))
 
 (defun %loc-queue-cons (vx vy point-info)
@@ -487,27 +447,27 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun distance (x1 y1 x2 y2)
   "returns a fixnum"
-  (declare (type fixnum x1 x2 y1 y2))
-  (declare (optimize (speed 3) (safety 0)))
+  (declare (type u-fixnum x1 x2 y1 y2))
+;;  (declare (optimize (speed 3) (safety 0) (debug 0)))
   
   (let ((ay (if (> y1 y2)
-		(the fixnum (- y1 y2))
-		(the fixnum (- y2 y1))))
+		(the u-fixnum (- y1 y2))
+		(the u-fixnum (- y2 y1))))
 	(ax (if (> x1 x2)
-		(the fixnum (- x1 x2))
-		(the fixnum (- x2 x1)))))
+		(the u-fixnum (- x1 x2))
+		(the u-fixnum (- x2 x1)))))
     
-    (declare (type fixnum ax ay))
+    (declare (type u-fixnum ax ay))
     
     (if (> ay ax)
-	(the fixnum (+ ay (the fixnum (int-/ ax 2))))
-	(the fixnum (+ ax (the fixnum (int-/ ay 2)))))
+	(the u-fixnum (+ ay (the u-fixnum (int-/ ax 2))))
+	(the u-fixnum (+ ax (the u-fixnum (int-/ ay 2)))))
     ))
 	     
   
 
 (defun note-spot! (dungeon x y)
-  "noting the spot.."
+  "noting the spot, does not remember objects yet."
 
   (let* ((coord (cave-coord dungeon x y))
 	 (flag (coord.flags coord)))
@@ -552,10 +512,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	    (+ +start-column-of-map+ kx)
 	    (+ +start-row-of-map+ ky)
 	    info))
-    )))
-
-
-
+    ))
 
 
 (defun print-map-as-ppm (dungeon fname)
@@ -567,7 +524,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	(str-dblue-colour "0 0 1")
 	(str-white-colour "2 2 2")
 	(str-gray-colour "1 1 1")
-	(str-black-colour "0 0 0"))
+	;;(str-black-colour "0 0 0")
+	)
 	
     
     (with-open-file (s (pathname fname)
@@ -636,6 +594,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 
 (defun print-map-to-file (dungeon fname)
+  "prints the feature-map to a file"
   ;; print ascii
     
   (with-open-file (s (pathname fname)
@@ -650,7 +609,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	    
 		(loop for x from 0 to (1- dungeon-width)
 		      do
-		      (let ((point-info (map-info dungeon x y)))
-			(format s "~a" (cdr point-info)))))
+		      (let ((point-info (cave-feature dungeon x y)))
+			(format s "~a" (feature.x-char (get-feature point-info))))))
 	  (format s "~%"))))
 

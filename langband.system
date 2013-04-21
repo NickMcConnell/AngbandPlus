@@ -11,6 +11,8 @@
               :components ((:file "base")
 			   (:file "constants")
 			   (:file "variables")
+			   
+			   (:file "core")
 			   #+allegro
 			   (:file "lib/foreign/acl")
 			   #+cmu
@@ -18,6 +20,7 @@
 			   (:file "parameters")
 			   (:file "global")
 			   (:file "settings")
+			   (:file "level")
 			   (:file "floor")
 ;;			   (:file "sex")
 			   (:file "stat")
@@ -28,35 +31,33 @@
 			   (:file "player")
 			   (:file "birth")
 			   (:file "flavours")
+			   (:file "monster")
 			   (:file "dungeon")
 			   (:file "stores")
-			   (:file "monster")
-			   (:file "generate")
+			   (:file "allocate")
 			   (:file "rooms")
+			   (:file "generate")
 			   (:file "print")
 			   (:file "util")
 			   (:file "combat")
-			   (:file "view")
 			   (:file "keys")
-			   
-			   (:file "lib/common/parameters")
-			   (:file "lib/common/objects")
-			   (:file "lib/common/quirks")
-			   (:file "lib/common/keys")
-			   			   
-			   (:file "lib/compat/monster")
-			   (:file "lib/compat/obj-kind")
-			   (:file "lib/compat/floor")
-			   
-			   (:file "lib/vanilla/quirks")
-			   (:file "lib/vanilla/classes")
-			   (:file "lib/vanilla/races")
-			   (:file "lib/vanilla/stores")
-			   (:file "lib/vanilla/flavours")
+			   (:file "actions"))
+	      :depends-on (decl))
+     
+     (:module common
+	      :source-pathname "lib/common"
+              :components ((:file "parameters")
+			   (:file "objects")
+			   (:file "quirks")
+			   (:file "rooms")
+			   (:file "keys"))
+	      :depends-on (basic))
 
+     (:module execution
+	      :source-pathname ""
+	      :components ((:file "view")
 			   (:file "loop")
-			   (:file "init")			   
-			   )
-                                  
-              :depends-on (decl))
+			   (:file "init"))
+              :depends-on (common))
      ))
+

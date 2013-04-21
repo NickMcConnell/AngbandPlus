@@ -2,8 +2,8 @@
 
 #|
 
-DEC: generate.lisp - generation of dungeon levels
-Copyright (c) 2000 - Stig Erik Sandø
+DESC: generate.lisp - generation of dungeon levels
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,58 +17,6 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 |#
 
 (in-package :langband)
-
-(defun generate-town! (player &optional dun)
-  "Generates a town and returns it.  If the optional dungeon
-argument is passed it will be used as new dungeon and returned."
-  (let ((dungeon (if dun dun (create-dungeon *dungeon-width*
-					     *dungeon-height*
-					     :its-level 0)))
-	(qy +screen-height+)
-	(qx +screen-width+))
-
-    (declare (type u-fixnum qy qx))
-    
-;;    (setf (player.map player) (make-map dungeon))
-    
-    (fill-dungeon-with-feature! dungeon +feature-perm-solid+)
-    
-    (fill-dungeon-part-with-feature! dungeon +feature-floor+
-				     (cons (1+ +screen-width+)  (+ +screen-width+ qx -1))
-				     (cons (1+ +screen-height+) (+ +screen-height+ qy -1)))
-
-    ;; we need stores
-    (let ((room-numbers (stable-sort (loop for x of-type u-fixnum from 0 to (1- +max-stores+)
-					   collecting x)
-				     #'(lambda (x y)
-					 (declare (ignore x y))
-					 (let ((val (random 100)))
-					   (oddp val))))))
-      (dotimes (y 2)
-	(dotimes (x 4)
-	  (store-build! dungeon (pop room-numbers) x y))))
-
-
-
-    (loop named place-the-player
-	  for x of-type u-fixnum = (with-type u-fixnum (+ qx (rand-range 3 (- +screen-width+ 4))))
-	  for y of-type u-fixnum = (with-type u-fixnum (+ qy (rand-range 3 (- +screen-height+ 4))))
-	  do
-	  (when (cave-boldly-naked? dungeon x y)
-	    (setf (cave-feature dungeon x y) +feature-more+)
-	    (place-player! dungeon player x y)
-	    (return-from place-the-player nil)))
-
-    
-    ;; add some inhabitants
-    (dotimes (i 3)
-      (allocate-monster! dungeon player 3 t))
-            
-    ;; an error..
-    dungeon))
-
-(defstruct dun-data
-  room-centres doors walls tunnels row-rooms col-rooms room-map crowded)
 
 
 #||
@@ -200,6 +148,7 @@ argument is passed it will be used as new dungeon and returned."
 
      (when (and (cave-boldly-naked? dungeon x y)
 		(not (cave-icky? dungeon x y)))
+;;       (warn "placing player at ~s,~s" x y)
        (place-player! dungeon player x y)
        (return-from new-player-spot! nil)))))
 
@@ -207,6 +156,8 @@ argument is passed it will be used as new dungeon and returned."
   (setf (cave-feature dungeon x y) +feature-rubble+))
 
 (defun place-trap! (dungeon x y)
+  
+  (declare (ignore dungeon x y))
   ;; add later
   (values))
 
@@ -223,15 +174,16 @@ argument is passed it will be used as new dungeon and returned."
   (values))
 
 (defun create-gold (dungeon)
-  
+  (declare (ignore dungeon))
   (let ((gold-obj (create-aobj-from-kind-num 480)))
     (setf (aobj.number gold-obj) (+ 10 (random 100))) ;; hack
     gold-obj))
 
 (defun create-object (dungeon good-p great-p)
-
+  (declare (ignore good-p great-p))
+  
   ;; skip good and great
-  (let* ((depth (dungeon.level dungeon))
+  (let* ((depth (dungeon.depth dungeon))
 	 (obj (get-obj-by-level depth)))
 
     obj))
@@ -401,7 +353,7 @@ argument is passed it will be used as new dungeon and returned."
 			    (setq row1 tmp-row
 				  col1 tmp-col)
 
-			    (push (cons col1 row1) (dun-data-walls *cur-dun*))
+			    (push (cons col1 row1) (dun-data.walls *cur-dun*))
 
 			    ;; make sure walls around piercing is solid
 			    (loop for wy of-type u-fixnum from (1- row1) to (1+ row1)
@@ -428,9 +380,9 @@ argument is passed it will be used as new dungeon and returned."
 				row1 tmp-row)
 			  
 			  ;; fix, inefficient
-;;			  (when (< (length (dun-data-tunnels *cur-dun*)) +tunnel-max+)
+;;			  (when (< (length (dun-data.tunnels *cur-dun*)) +tunnel-max+)
 
-			  (push (cons tmp-col tmp-row) (dun-data-tunnels *cur-dun*))
+			  (push (cons tmp-col tmp-row) (dun-data.tunnels *cur-dun*))
 			  (setq door-flag nil))
 
 			 ;; corridor intersections.. et al
@@ -441,7 +393,7 @@ argument is passed it will be used as new dungeon and returned."
 
 			  (unless door-flag
 			    ;; skip max-check
-			    (push (cons col1 row1) (dun-data-doors *cur-dun*))
+			    (push (cons col1 row1) (dun-data.doors *cur-dun*))
 			    (setq door-flag t))
 
 			  ;; end in nowhere
@@ -455,13 +407,13 @@ argument is passed it will be used as new dungeon and returned."
 		   ))))
 
       ;; turn it into corridor
-      (dolist (i (dun-data-tunnels *cur-dun*))
+      (dolist (i (dun-data.tunnels *cur-dun*))
 ;;	(warn "tunnel..~a" i)
 	(setf (cave-feature dungeon (car i) (cdr i)) +feature-floor+))
       
 
       ;; do piercing
-      (dolist (i (dun-data-walls *cur-dun*))
+      (dolist (i (dun-data.walls *cur-dun*))
 	(setf (cave-feature dungeon (car i) (cdr i)) +feature-floor+)
 	(when (< (random 100) +tunnel-door+)
 	  (place-random-door! dungeon (car i) (cdr i))))
@@ -481,7 +433,11 @@ argument is passed it will be used as new dungeon and returned."
 	    
 
 (defun generate-room (dungeon x1 y1 x2 y2 light)
-  ;; fix me
+  "simple helper function which marks an area as a room.  The
+light argument is a boolean."
+  
+  (declare (type u-fixnum x1 y1 x2 y2))
+  
   (loop for y of-type fixnum from y1 to y2
 	do
 	(loop for x of-type fixnum from x1 to x2
@@ -520,17 +476,19 @@ argument is passed it will be used as new dungeon and returned."
 
 
 
-(defun generate-dungeon! (player &optional dun)
+(defmethod generate-level! ((level random-level) player dun)
   "Generates a dungeon level and returns it.  If the optional dungeon
 argument is passed it will be used as new dungeon and returned."
  
-  (let* ((dungeon-height *dungeon-height*)
-	 (dungeon-width *dungeon-width*)
+  (let* ((settings (get-setting :random-level))
+	 (dungeon-height (slot-value settings 'max-height))
+	 (dungeon-width (slot-value settings 'max-width))
 	 (dungeon (if dun dun (create-dungeon dungeon-width
 					      dungeon-height)))
 	 (*cur-dun* (make-dun-data))
-	 (qy +screen-height+)
-	 (qx +screen-width+))
+	 ;;(qy +screen-height+)
+	 ;;(qx +screen-width+)
+	 )
 
 ;;    (setf (player.map player) (make-map dungeon))
     
@@ -539,38 +497,42 @@ argument is passed it will be used as new dungeon and returned."
 
     ;; skip destroyed levels
     
-    (setf (dun-data-row-rooms *cur-dun*) (int-/ dungeon-height +block-height+)
-	  (dun-data-col-rooms *cur-dun*) (int-/ dungeon-width +block-width+)
+    (setf (dun-data.row-rooms *cur-dun*) (int-/ dungeon-height +block-height+)
+	  (dun-data.col-rooms *cur-dun*) (int-/ dungeon-width +block-width+)
 
 	  ;; init room-table
-	  (dun-data-room-map *cur-dun*) (make-array (list (dun-data-col-rooms *cur-dun*)
-							  (dun-data-row-rooms *cur-dun*))
+	  (dun-data.room-map *cur-dun*) (make-array (list (dun-data.col-rooms *cur-dun*)
+							  (dun-data.row-rooms *cur-dun*))
 						    :initial-element nil)
-	  (dun-data-crowded *cur-dun*) nil)
+	  (dun-data.crowded *cur-dun*) nil)
 
     ;;    (warn "Roomie ~a" (eql *dungeon* dungeon))
     
     ;; build rooms
-    (loop for i of-type u-fixnum from 0 to +dungeon-rooms+;; fix
-	  do
+    (block room-building
+      (let ((dungeon-rooms (slot-value settings 'room-number)))
+;;	(warn "ROOMS ~s" dungeon-rooms)
+	(loop for i of-type u-fixnum from 0 to dungeon-rooms;; fix
+	      do
 
-	  (let ((by (random (dun-data-row-rooms *cur-dun*)))
-		(bx (random (dun-data-col-rooms *cur-dun*))))
+	      (let ((by (random (dun-data.row-rooms *cur-dun*)))
+		    (bx (random (dun-data.col-rooms *cur-dun*))))
 
-	    (when +dungeon-align+
-	      ;; slide left
-	      (when (= (mod bx 3) 0) (incf bx))
-	      ;; slide right
-	      (when (= (mod bx 3) 2) (decf bx)))
+		(when +dungeon-align+
+		  ;; slide left
+		  (when (= (mod bx 3) 0) (incf bx))
+		  ;; slide right
+		  (when (= (mod bx 3) 2) (decf bx)))
 	      
 	    
-	    ;; skip destroy
-	    ;; skip unusual
-	    (build-room! player dungeon bx by 1)
+		;; skip destroy
+		;; skip unusual
+		(let ((the-room (find-appropriate-room *variant* level player)))
+		  (construct-room! the-room dungeon player bx by))
 		
-	    ;; fill in
+		;; fill in
 	  
-	    ))
+		))))
 
     ;; perm walls on top and bottom
     (loop for y in (list 0 (1- dungeon-height))
@@ -586,7 +548,7 @@ argument is passed it will be used as new dungeon and returned."
     
     
     ;; make list into an array
-    (let* ((centre-list (dun-data-room-centres *cur-dun*))
+    (let* ((centre-list (dun-data.room-centres *cur-dun*))
 	   (len (length centre-list))
 	   (centres (make-array len)))
       
@@ -604,7 +566,7 @@ argument is passed it will be used as new dungeon and returned."
 	      (setf (svref centres pick1) (svref centres pick2))
 	      (setf (svref centres pick2) temp)))
 
-      (setf (dun-data-room-centres *cur-dun*) centres)
+      (setf (dun-data.room-centres *cur-dun*) centres)
 
       (let* ((last (svref centres (1- len)))
 	     (x (car last))
@@ -621,7 +583,7 @@ argument is passed it will be used as new dungeon and returned."
       )
 
     ;; place unplaced doors
-    (let ((doors (dun-data-doors *cur-dun*)))
+    (let ((doors (dun-data.doors *cur-dun*)))
       (dolist (i doors)
 	(let ((x (car i))
 	      (y (cdr i)))
@@ -631,12 +593,17 @@ argument is passed it will be used as new dungeon and returned."
 	  (try-door! dungeon x (1+ y)))))
     
 
+    (let ((stairs-up (slot-value settings 'stairs-up))
+	  (stairs-down (slot-value settings 'stairs-down)))
 
-    (allocate-stairs! dungeon :down (rand-range 3 4) 3)
-    (allocate-stairs! dungeon :up   (rand-range 1 2) 3)
+;;      (warn "UP: ~s" stairs-up)
+      (allocate-stairs! dungeon :down (rand-range (car stairs-down)
+						  (cdr stairs-down)) 3)
+      (allocate-stairs! dungeon :up   (rand-range (car stairs-up)
+						  (cdr stairs-up)) 3))
    
 
-    (let ((monster-amount (int-/ (dungeon.level dungeon) 3)))
+    (let ((monster-amount (int-/ (dungeon.depth dungeon) 3)))
       (when (> monster-amount 10) (setq monster-amount 10))
       (when (< monster-amount 2)  (setq monster-amount 2))
 
@@ -658,15 +625,32 @@ argument is passed it will be used as new dungeon and returned."
     ;;				    (cons (1+ +screen-width+)  (+ +screen-width+ qx -1))
     ;;				    (cons (1+ +screen-height+) (+ +screen-height+ qy -1)))
 
-    dungeon))
+    (setf (level.dungeon level) dungeon)
+    
+    level))
 
 
-(defun generate-cave! (player &optional dungeon)
-  "Returns a dungeon object.  If the optional dungeon is
-passed, this object will be used instead of a new one generated."
+(defmethod post-initialise ((obj random-level) &key leave-method player)
 
-  (if (> (player.depth player) 0)
-      (generate-dungeon! player dungeon)
-      (generate-town! player dungeon)))
+;;  (warn "post-init of random level, ~a" leave-method)
+
+  (when leave-method
+    (let* ((dun (level.dungeon obj))
+	   (pl (if player player *player*))
+	   (px (player.loc-x pl))
+	   (py (player.loc-y pl))
+	   (feat (case leave-method
+		   (:down-stair +feature-less+)
+		   (:up-stair +feature-more+)
+		   (otherwise nil))))
+
+      
+      (when feat
+;;	(warn "placing feature at ~s,~s" px py) 
+	(setf (cave-feature dun px py) feat))
+      ))
   
+
+  
+  obj)
 

@@ -1,0 +1,22 @@
+(mk:defsystem vanilla-variant
+    :source-pathname "lib"
+    :source-extension "lisp"
+    :components
+    (
+     ;; compatibility with classic angband
+     (:module compatibility
+	      :source-pathname "compat"
+              :components ((:file "monster")
+			   (:file "obj-kind")
+			   (:file "floor")
+			   ))
+     
+     (:module variant
+              :source-pathname "vanilla"
+              :components ((:file "quirks")
+			   (:file "stores")
+			   (:file "flavours")
+			   (:file "rooms")
+			   (:file "levels")
+			   ))
+     ))

@@ -16,14 +16,16 @@
 	which will allow me to combine the dynamic nature of easy
 	scripting with good compiler technology providing an
 	environment that allows a very high level of customisation and
-	the necessary speed.</li>
+	the necessary speed.  It is a toy project which I work on when
+	I find time, and the development-pace reflects this. </li>
 
       <li> <b>Where can I download it?</b><br>
 	It isn't finished yet and won't be finished for some time as
 	it will need go to through several stages, as all newly
 	written programs must.  I hope to have a minimal playable
-	version ready in October 2000 though.  A decent version will
-	be ready 1st quarter of 2001 I presume. </li>
+	version ready in the 1st quarter of 2001.  You can check it
+	out from CVS or download pre-alpha versions on Sourceforge
+	though. </li>
 
       <li> <b>Does it run on [insert OS]?</b><br>
 	The main development-platform is my x86 Debian-system,
@@ -34,8 +36,44 @@
 	the best possible result with newer systems, e.g ditch the
 	Athena-widget support to concentrate on Gtk+.  Gtk+ currently
 	do not work with CMU CL.</li>
-      
 
+      <li> <b>I found a bug, what do I do?</b><br>
+	Please check if the bug has been reported first in the <a
+	href="http://sourceforge.net/bugs/?group_id=6938">Sourceforge
+	bug-tracking</a>.  If it is not reported, please try to
+	describe what caused the crash, include any messages printed
+	before the crash, and if you were dumped into the
+	lisp-debugger please include a backtrace.  This is
+	accomplished in CMUCL with the command 'backtrace' and in ACL
+	with the command ':zo'.  These commands work in the
+	debugger.</li>
+      
+      <li> <b>How can I see if a bug is fixed?</b><br>
+	A reported bug will be marked as FIXED when it is fixed and
+	the updated code has been put in the CVS-tree.  It will be
+	marked as CLOSED when a new release have been made where the
+	bug is fixed.  If you reported the bug, you will be mailed
+	whenever there is an update on the bug.</li>
+
+      <li> <b>CMUCL freezes in lib/compat/obj-kind.lisp, or?</b><br>
+	It just takes a really really long time to compile in CMUCL,
+	several minutes.  This file is for compatibility with
+	traditional angband and isn't really needed when the necessary
+	files have been converted to lisp.  Please be patient. </li>
+      
+      <li> <b>How is the code structured?</b><br>
+	Currently the code is changed frequently and this question may
+	not be up-to-date.  One should remember a few things though.
+	The central structure with the most important information is
+	the *VARIANT* object which points to the variant in use.  This
+	object will be of type VARIANT. [add more]</li> 
+
+      <li> <b>The code in CVS crashes/does not work, why?</b><br>
+	The code in CVS is development code, and might not even
+	compile, and much less work.  Please use releases if you want
+	things to "work".  The CVS-version is bleeding edge though and
+	may have bug-fixes and features missing in releases.</li>
+      
     </ol>
 	
   </body>

@@ -2,8 +2,8 @@
 
 #|
 
-vanilla/races.lisp - races for vanilla variant
-Copyright (c) 2000 - Stig Erik Sandø
+DESC: lib/vanilla/races.lisp - races for vanilla variant
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ----
 
-Contains definition of races in sexp.
+ADD_DESC: Contains definition of races in sexp.
 
 |#
 

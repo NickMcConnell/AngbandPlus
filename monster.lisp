@@ -3,7 +3,7 @@
 #|
 
 DESC: monster.lisp - monster-code
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,40 +18,43 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
 (in-package :langband)
 
-(defclass monster-kind ()
-  (
-   (id :accessor monster.id :initform nil)
-   (name :accessor monster.name :initform nil)
-   (desc :accessor monster.desc :initform nil)
-   (symbol :accessor monster.symbol :initform nil)
-   (colour :accessor monster.colour :initform nil)
-   (alignment :accessor monster.alignment :initform nil)
-   (type :accessor monster.type :initform nil)
-   (level :accessor monster.level :initform nil)
-   (rarity :accessor monster.rarity :initform nil)
-   (hitpoints :accessor monster.hitpoints :initform nil)
-   (armour :accessor monster.armour :initform nil)
-   (speed :accessor monster.speed :initform nil)
-   (xp :accessor monster.xp :initform 0)
-   (abilities :accessor monster.abilities :initform nil)
-   ;;   (resists :accessor monster.resists :initform nil)
-   (immunities :accessor monster.immunities :initform nil)
-   (vulnerabilities :accessor monster.vulnerabilities :initform nil)
-   (alertness :accessor monster.alertness :initform nil)
-   (vision :accessor monster.vision :initform nil)
-   (attacks :accessor monster.attacks :initform nil)
-   (treasures :accessor monster.treasures :initform nil)
-   (sex :accessor monster.sex :initform nil)
-   (special-abilities :accessor monster.sp-abilities :initform nil)
-   )) 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  
+  (defclass monster-kind ()
+    (
+     (id :accessor monster.id :initform nil)
+     (name :accessor monster.name :initform nil)
+     (desc :accessor monster.desc :initform nil)
+     (symbol :accessor monster.symbol :initform nil)
+     (colour :accessor monster.colour :initform nil)
+     (alignment :accessor monster.alignment :initform nil)
+     (type :accessor monster.type :initform nil)
+     (level :accessor monster.level :initform nil)
+     (rarity :accessor monster.rarity :initform nil)
+     (hitpoints :accessor monster.hitpoints :initform nil)
+     (armour :accessor monster.armour :initform nil)
+     (speed :accessor monster.speed :initform nil)
+     (xp :accessor monster.xp :initform 0)
+     (abilities :accessor monster.abilities :initform nil)
+     ;;   (resists :accessor monster.resists :initform nil)
+     (immunities :accessor monster.immunities :initform nil)
+     (vulnerabilities :accessor monster.vulnerabilities :initform nil)
+     (alertness :accessor monster.alertness :initform nil)
+     (vision :accessor monster.vision :initform nil)
+     (attacks :accessor monster.attacks :initform nil)
+     (treasures :accessor monster.treasures :initform nil)
+     (sex :accessor monster.sex :initform nil)
+     (special-abilities :accessor monster.sp-abilities :initform nil)
+     )) 
 
-(defclass l-attack ()
-  (
-   (kind :accessor attack.kind :initform nil)
-   (dmg-type :accessor attack.dmg-type :initform nil)
-   (damage :accessor attack.damage :initform nil)
-   ))
+  (defclass attack ()
+    (
+     (kind :accessor attack.kind :initform nil)
+     (dmg-type :accessor attack.dmg-type :initform nil)
+     (damage :accessor attack.damage :initform nil)
+     ))
 
+  )
 
 (defun create-monster (id)
   "Returns an appropriate monster or NIL."
@@ -168,101 +171,6 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 	       #'string-equal
 	       :key #'monster.id))
 
-
-(defun allocate-monster! (dungeon player distance sleeping)
-  "distance is a fixnum, sleeping is either NIL or T."
-
-  (let ((x nil)
-	(y nil)
-	(dungeon-height (dungeon.height dungeon))
-	(dungeon-width  (dungeon.width dungeon))
-	(px (player.loc-x player))
-	(py (player.loc-y player)))
-
-    (loop named search-for-spot
-	  do
-	  (setq x (random dungeon-width)
-		y (random dungeon-height))
-
-	  (when (and (cave-boldly-naked? dungeon x y)
-		     (> (distance x y px py) distance))
-	    (return-from search-for-spot nil)))
-    
-  (if (place-monster! dungeon player x y sleeping t)
-      t
-      nil)
-  ))
-
-(defun place-single-monster! (dun pl mon x y sleeping)
-  "blah.."
-  (declare (ignore pl))
-  
-  (setf (cave-monsters dun x y) mon)
-  
-  )
-
-(defun place-monster! (dungeon player x y sleeping group)
-  "Tries to place a monster at given coordinates.."
-
-  (declare (ignore group))
-  
-  (let ((possible-monster (get-monster-by-level (dungeon.level dungeon))))
-    (when possible-monster
-      (place-single-monster! dungeon player possible-monster x y sleeping)))
-
-  
-  )
-
-(defun get-monster-kind-by-level (level)
-  "Returns a monster-kind for the given level."
-
-  ;; skipping boost
-  
-  (let ((total 0)
-	(counter 0)
-	(table *alloc-table-monsters*))
-
-;;    (warn "Table is ~a" (length table))
-
-    (loop named counting-area
-	  for a-obj across table
-	  do
-;;	  (warn "Checking ~a" a-obj)
-	  (when (> (alloc.level a-obj) level)
-	    (return-from counting-area nil))
-	  ;; skip chest-check
-	  (setf (alloc.prob3 a-obj) (alloc.prob2 a-obj))
-	  (incf total (alloc.prob3 a-obj))
-	  (incf counter))
-
-
-    (when (= 0 total)
-      (warn "No suitable objects at level ~a" level)
-      (return-from get-monster-kind-by-level nil))
-
-    (let ((val (random total)))
-;;      (warn "Counter is ~a and total is ~a and we got ~a" counter total val)
-
-      ;; loop through objects and find one
-      (loop for a-obj across table
-	    do
-	    (when (< val (alloc.prob3 a-obj))
-	      (return-from get-monster-kind-by-level (alloc.obj a-obj)))
-	    (decf val (alloc.prob3 a-obj)))
-      
-      ))
-  
-  nil)
-
-
-(defun get-monster-by-level (level)
-  "Returns an (active) object by level."
-  (let ((the-kind (get-monster-kind-by-level level)))
-    (if (not the-kind)
-	nil
-	(let ((a (make-instance 'active-monster :obj the-kind)))
-	  (setf (amon.cur-hp a) 5)
-	  a))))
 
 
 #||

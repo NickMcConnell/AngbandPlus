@@ -3,7 +3,7 @@
 #|
 
 DESC: race.lisp - code for the character races
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,21 +15,23 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband)
 
 
-(defclass l-race ()
-  (
-   (id           :accessor race.id           :initform nil)
-   (name         :accessor race.name         :initform nil)
-   (desc         :accessor race.desc         :initform nil)
-   (xp-extra     :accessor race.xp-extra     :initform 0)
-   (hit-dice     :accessor race.hit-dice     :initform 10)
-   (stat-changes :accessor race.stat-changes :initform nil)
-   (abilities    :accessor race.abilities    :initform nil)
-   (classes      :accessor race.classes      :initform nil)
-   (start-eq     :accessor race.start-eq     :initform nil)
-   )
-  (:documentation "Representation for a character race."))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  
+  (defclass race ()
+    (
+     (id           :accessor race.id           :initform nil)
+     (name         :accessor race.name         :initform nil)
+     (desc         :accessor race.desc         :initform nil)
+     (xp-extra     :accessor race.xp-extra     :initform 0)
+     (hit-dice     :accessor race.hit-dice     :initform 10)
+     (stat-changes :accessor race.stat-changes :initform nil)
+     (abilities    :accessor race.abilities    :initform nil)
+     (classes      :accessor race.classes      :initform nil)
+     (start-eq     :accessor race.start-eq     :initform nil)
+     )
+    (:documentation "Representation for a character race.")))
 
-(defmethod print-object ((inst l-race) stream)
+(defmethod print-object ((inst race) stream)
   (print-unreadable-object
    (inst stream :identity t)
    (format stream "~:(~S~) [~A ~A]" (class-name (class-of inst))
@@ -37,25 +39,27 @@ the Free Software Foundation; either version 2 of the License, or
 	   (race.name inst)))
   inst)
 
-
 (defun (setf get-char-race) (race id)
   "Puts the race in appropriate tables id'ed by id."
-  (setf (gethash id *race-table*) race))
+  (let ((table (variant.races *variant*)))
+    (setf (gethash id table) race)))
 
 (defun get-char-race (id)
   "Fetches the race id'ed by id from the appropriate table."
-  (gethash id *race-table*))
+  (let ((table (variant.races *variant*)))
+    (gethash id table)))
 
 (defun get-races-as-a-list ()
   "Returns a fresh list of all races."
-  (loop for v being each hash-value of *race-table*
-	collecting v))
+  (let ((table (variant.races *variant*)))
+    (loop for v being each hash-value of table
+	  collecting v)))
 
 (defun define-race (id name &key desc xp-extra stat-changes abilities
 		    hit-dice classes starting-equipment)
   "defines a race and updates global race-list"
   
-  (let ((race (make-instance 'l-race)))
+  (let ((race (make-instance 'race)))
     
     ;;      (warn "Creating race ~a [~a]" name desc)
     (setf (race.id race) id)

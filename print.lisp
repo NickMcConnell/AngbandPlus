@@ -194,15 +194,15 @@ ADD_DESC: Various code which just prints stuff somewhere
     (print-mana-points pl pr-set) 
   
     (print-gold pl pr-set)
-    (print-depth (player.depth pl) pr-set)
+    (print-depth *level* pr-set)
   
     ))
 
-(defun print-depth (depth &optional setting)
+
+(defmethod print-depth (level setting)
   "prints current depth somewhere"
-  
-  (c-prt (if (= depth 0) "Town" (format nil "~a ft" (* 50 depth)))
-	 *last-console-line* 70)) ;;fix 
+  (declare (ignore setting))
+  (c-prt (format nil "~a ft" (* 50 (level.depth level))) *last-console-line* 70)) ;;fix 
 
 
 (defun display-player (player &optional mode)
@@ -386,10 +386,10 @@ ADD_DESC: Various code which just prints stuff somewhere
   
   (let ((row 3)
 	(col 42)
-	(num-stats 6)
+;;	(num-stats 6)
 	;; more pressing variables	
 	(base (player.base-stats player))
-	(cur (player.curbase-stats player))
+;;	(cur (player.curbase-stats player))
 	(mod (player.modbase-stats player))
 	(active (player.active-stats player))
 	(racial-adding (race.stat-changes (player.race player)))
@@ -406,7 +406,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 
     (dotimes (i +stat-length+)
       (let ((its-base (gsdfn base i))
-	    (its-cur (gsdfn cur i))
+	    ;;(its-cur (gsdfn cur i))
 	    (its-mod (gsdfn mod i))
 	    (its-active (gsdfn active i))
 	      

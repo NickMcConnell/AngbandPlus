@@ -3,7 +3,7 @@
 #||
 
 DESC: init.lisp - initialisation code
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ ADD_DESC: at the start.
     (setq *alloc-table-objects* (create-alloc-table-objects *objects-by-level*))
     (init-flavours& *object-kind-table*)
 
+    #+langband-debug
     (%output-kinds-to-file "dumps/obj.lisp")
     ))
 
@@ -244,17 +245,18 @@ ADD_DESC: at the start.
   "This initialises the langband-game. No low-level
 stuff please."
   
-  (let ((variant-pre-init (get 'variant 'pre-init))
-	(variant-post-init (get 'variant 'post-init))
+  (let ((variant-pre-init (variant.pre-init *variant*))
+	(variant-post-init (variant.post-init *variant*))
 	(common-pre-init (get 'common 'pre-init))
 	(common-post-init (get 'common 'post-init))
 	)
 
     (when common-pre-init
+      (warn "common")
       (funcall common-pre-init))
     
     (when variant-pre-init
-      (funcall variant-pre-init))
+      (funcall variant-pre-init *variant*))
     
     
     ;;(dump-all-monsters "new-mon.lisp" (get-monster-list) :lispy)
@@ -274,7 +276,7 @@ stuff please."
       (funcall common-post-init))
     
     (when variant-post-init
-      (funcall variant-post-init))))
+      (funcall variant-post-init *variant*))))
 
 
 (defun game-init& ()
@@ -282,7 +284,7 @@ stuff please."
 start the whole show.  It will deal with low-level and
 call appropriately high-level init in correct order."
   
-  (setq *random-state* (make-random-state t))
+  (setq cl:*random-state* (cl:make-random-state t))
 
   (vinfo-init)
   (initialise-langband&)

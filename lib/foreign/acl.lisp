@@ -75,6 +75,8 @@ ADD_DESC: in C from ACL.
 
 (ff:def-foreign-call (c-term-clear "Term_clear") nil :returning errr)
 (ff:def-foreign-call (c-term-fresh "Term_fresh") nil :returning errr)
+(ff:def-foreign-call (c-term-save "Term_save") nil :returning errr)
+(ff:def-foreign-call (c-term-load "Term_load") nil :returning errr)
 
 (ff:def-foreign-call (c-init-angband! "init_angband") nil :returning :void)
 

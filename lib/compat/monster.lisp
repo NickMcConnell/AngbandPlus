@@ -2,8 +2,8 @@
 
 #|
 
-compat/monster.lisp - code to be compatible with r_info.txt
-Copyright (c) 2000 - Stig Erik Sandø
+DESC: lib/compat/monster.lisp - code to be compatible with r_info.txt
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -117,7 +117,7 @@ the Free Software Foundation; either version 2 of the License, or
 		((#\B #\b)
 		 (when cur-monster
 		   (let ((res (split-seq-on l #\:))
-			 (attk (make-instance 'l-attack)))
+			 (attk (make-instance 'attack)))
 
 		     ;; the first should be B
 		     (assert (string-equal (first res) "b"))

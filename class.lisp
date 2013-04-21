@@ -3,7 +3,7 @@
 #|
 
 DESC: class.lisp - character class code
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,22 +19,23 @@ ADD_DESC: This file contains basics for dealing with character classes
 (in-package :langband)
 
 
-(defclass l-class ()
-  (
-   (id           :accessor class.id           :initform nil)
-   (name         :accessor class.name         :initform nil)
-   (desc         :accessor class.desc         :initform nil)
-   (hit-dice     :accessor class.hit-dice     :initform 0)
-   (xp-extra     :accessor class.xp-extra     :initform 0)
-   (stat-changes :accessor class.stat-changes :initform nil)
-   (abilities    :accessor class.abilities    :initform nil)
-   (titles       :accessor class.titles       :initform nil)
-   (starting-eq  :accessor class.start-eq     :initform nil)
-   )
-  (:documentation "Information about a character class."))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defclass character-class ()
+    (
+     (id           :accessor class.id           :initform nil)
+     (name         :accessor class.name         :initform nil)
+     (desc         :accessor class.desc         :initform nil)
+     (hit-dice     :accessor class.hit-dice     :initform 0)
+     (xp-extra     :accessor class.xp-extra     :initform 0)
+     (stat-changes :accessor class.stat-changes :initform nil)
+     (abilities    :accessor class.abilities    :initform nil)
+     (titles       :accessor class.titles       :initform nil)
+     (starting-eq  :accessor class.start-eq     :initform nil)
+     )
+    (:documentation "Information about a character class.")))
 
 
-(defmethod print-object ((inst l-class) stream)
+(defmethod print-object ((inst character-class) stream)
   (print-unreadable-object
    (inst stream :identity t)
    (format stream "~:(~S~) [~A ~A]" (class-name (class-of inst))
@@ -44,27 +45,33 @@ ADD_DESC: This file contains basics for dealing with character classes
 
 (defun (setf get-char-class) (class id)
   "Adds class to appropriate tables id'ed by id."
-  (setf (gethash id *class-table*) class))
+  (let ((table (variant.classes *variant*)))
+    (setf (gethash id table) class)))
 
 (defun get-char-class (id)
   "Gets the class id'ed by id."
-  (gethash id *class-table*))
+  (let ((table (variant.classes *variant*)))
+    (gethash id table)))
 
 (defun get-classes-as-a-list ()
   "Returns all available classes."
-  (loop for v being each hash-value of *class-table*
-	collecting v))
+  (let ((table (variant.classes *variant*)))
+    (loop for v being each hash-value of table
+	  collecting v)))
 
 (defun get-classes-in-list (the-list)
   "Returns the classes for id's in the the-list."
-  (loop for i in the-list
-	collecting (gethash i *class-table*)))
+  (let ((table (variant.classes *variant*)))
+    (loop for i in the-list
+	  collecting (gethash i table))))
 
 (defun define-class (id name &key desc xp-extra stat-changes abilities titles
 		     starting-equipment hit-dice)
   "Defines and establishes a class."
+
+  (declare (ignore abilities))
   
-  (let ((my-class (make-instance 'l-class)))
+  (let ((my-class (make-instance 'character-class)))
 ;;    (warn "Creating class ~a [~a]" name desc)
 
     (setf (class.id my-class) id)

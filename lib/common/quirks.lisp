@@ -2,8 +2,8 @@
 
 #|
 
-common/quirks.lisp - various variant settings which should be common.
-Copyright (c) 2000 - Stig Erik Sandø
+DESC: lib/common/quirks.lisp - various variant settings which should be common.
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

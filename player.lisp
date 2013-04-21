@@ -16,6 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defstruct (player (:conc-name player.))
+  
   (name "Foo")
    (class nil)
    (race nil)
@@ -82,17 +83,19 @@ the Free Software Foundation; either version 2 of the License, or
 (defun (setf player.eq) (val pl-obj)
   (setf (player.equipment pl-obj) val))
 
-;; move this to variants later
-(defclass skills ()
-  ((saving-throw :accessor skills.saving-throw  :initform 0)
-   (stealth      :accessor skills.stealth       :initform 0)
-   (fighting     :accessor skills.fighting      :initform 0)
-   (shooting     :accessor skills.shooting      :initform 0)
-   (disarming    :accessor skills.disarming     :initform 0)
-   (device       :accessor skills.device        :initform 0)
-   (perception   :accessor skills.perception    :initform 0)
-   (searching    :accessor skills.searching     :initform 0))
-  (:documentation "Various skills.."))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  ;; move this to variants later
+  (defclass skills ()
+    ((saving-throw :accessor skills.saving-throw  :initform 0)
+     (stealth      :accessor skills.stealth       :initform 0)
+     (fighting     :accessor skills.fighting      :initform 0)
+     (shooting     :accessor skills.shooting      :initform 0)
+     (disarming    :accessor skills.disarming     :initform 0)
+     (device       :accessor skills.device        :initform 0)
+     (perception   :accessor skills.perception    :initform 0)
+     (searching    :accessor skills.searching     :initform 0))
+    (:documentation "Various skills..")))
 
 (defun make-skills ()
   "Returns a skills object."
@@ -123,8 +126,9 @@ the Free Software Foundation; either version 2 of the License, or
     (setf (player.skills t-p) (make-skills))
     (setf (player.eq t-p) (make-equipment-slots))
 
-    (setf (player.hp-table t-p) (make-array +max-level+ :initial-element nil))
-    (setf (player.xp-table t-p) (make-array +max-level+ :initial-element nil))
+    (let ((max-char-level (variant.max-charlevel *variant*)))
+      (setf (player.hp-table t-p) (make-array max-char-level :initial-element nil))
+      (setf (player.xp-table t-p) (make-array max-char-level :initial-element nil)))
     
     (flet ((make-and-assign-backpack! (id)
 	     (let ((back-obj (create-aobj-from-id id))
@@ -219,6 +223,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    ('<resist> ;; handle later
 	     )
 	    (otherwise
+	     #+cmu ;; FIX
 	     (warn "Unhandled racial ability ~a" (car i)))))))
 
     ;; reset some key variables
@@ -230,6 +235,7 @@ the Free Software Foundation; either version 2 of the License, or
     (let ((slots (player.eq player)))
       (item-table-iterate! slots
 			   #'(lambda (table key obj)
+			       (declare (ignore table key))
 			       (when obj
 				 (let* ((kind (aobj.kind obj))
 					(gval (object.game-values kind)))

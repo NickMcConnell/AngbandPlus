@@ -240,7 +240,9 @@ Modififes the given player object."
 		      (race.xp-extra the-race)
 		      (class.xp-extra the-class)))
 	 (hit-dice (+ (race.hit-dice the-race)
-		      (class.hit-dice the-class))))
+		      (class.hit-dice the-class)))
+	 (base-xp-table (variant.xp-table *variant*))
+	 (max-char-level (variant.max-charlevel *variant*)))
 
     ;; first level we have max
     (setf (aref (player.hp-table player) 0) hit-dice)
@@ -251,9 +253,9 @@ Modififes the given player object."
 ;;    (warn "xp-extra is ~a" xp-extra)
     ;; init xp-table
     (setf (aref (player.xp-table player) 0) 0)
-    (loop for i of-type u-fixnum from 1 to (1- +max-level+)
+    (loop for i of-type u-fixnum from 1 to (1- max-char-level)
 	  do
-	  (setf (aref (player.xp-table player) i) (int-/ (* (aref +xp-table+ (1- i)) xp-extra)
+	  (setf (aref (player.xp-table player) i) (int-/ (* (aref base-xp-table (1- i)) xp-extra)
 							 100)))
 
 ;;    (warn "xp-table is ~a" (player.xp-table player))

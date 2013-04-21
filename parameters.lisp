@@ -3,45 +3,46 @@
 #|
 
 DESC: parameters.lisp - handling of special parameters
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
-
 |#
 
 (in-package :langband)
 
-(defclass l-game-parameter ()
-  ((key :accessor param.key
-	:initarg :key :initform nil)
-   (name :accessor param.name
-	 :initarg :name :initform nil)
-   (desc :accessor param.desc
-	 :initarg :desc :initform nil)
-   (value :accessor param.value
-	  :initarg :value :initform nil)
-   (alternatives :accessor param.alts
-		 :initarg :alternatives
-		 :initform nil)))
+(eval-when (:compile-toplevel :load-toplevel :execute)
 
-(defclass l-param-alt ()
-  ((key :accessor param-alt.key :initarg :key :initform nil)
-   (name :accessor param-alt.name :initarg :name :initform nil)
-   (desc :accessor param-alt.desc :initarg :desc :initform nil)))
+  (defclass game-parameter ()
+    ((key :accessor param.key
+	  :initarg :key :initform nil)
+     (name :accessor param.name
+	   :initarg :name :initform nil)
+     (desc :accessor param.desc
+	   :initarg :desc :initform nil)
+     (value :accessor param.value
+	    :initarg :value :initform nil)
+     (alternatives :accessor param.alts
+		   :initarg :alternatives
+		   :initform nil)))
+
+  (defclass param-alt ()
+    ((key  :accessor param-alt.key :initarg :key :initform nil)
+     (name :accessor param-alt.name :initarg :name :initform nil)
+     (desc :accessor param-alt.desc :initarg :desc :initform nil))))
 
 
 (defun make-game-parameter (key name desc value alts)
   "Please look at DEFINE-PARAMETER."
-  (make-instance 'l-game-parameter :key key :name name :desc desc :value value
+  (make-instance 'game-parameter :key key :name name :desc desc :value value
 		 :alternatives alts))
 
 (defun make-parameter-alternative (key name desc)
   "Creates a parameter alternative and returns it."
-  (make-instance 'l-param-alt :key key :name name :desc desc))
+  (make-instance 'param-alt :key key :name name :desc desc))
 
 (defun game-parameter (key)
   "Returns the parameter identified by key."

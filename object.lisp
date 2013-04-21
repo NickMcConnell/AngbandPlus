@@ -19,82 +19,85 @@ ADD_DESC: available in the game.
 
 (in-package :langband)
 
-(defclass object-kind ()
-  ((id         :accessor object.id
-	       :initarg :id
-	       :initform nil)
-   
-   (numeric-id :accessor object.numeric-id
-	       :initarg :numeric-id
-	       :initform nil)
-   
-   (name       :accessor object.name
-	       :initarg :name
-	       :initform nil)
-   
-   (x-attr     :accessor object.x-attr
-	       :initarg :x-attr
-	       :initform nil)
-   
-   (x-char     :accessor object.x-char
-	       :initarg :x-char
-	       :initform nil)
-   
-   (level      :accessor object.level
-	       :initarg :level
-	       :initform 0) ;; fix later
-   
-   (rarity     :accessor object.rarity
-	       :initarg :rarity
-	       :initform nil)
-   
-   (chance     :accessor object.chance
-	       :initarg :chance
-	       :initform (make-array 4 :initial-element 0))
-   
-   (locale     :accessor object.locale
-	       :initarg :locale
-	       :initform (make-array 4 :initial-element 0))
-   
-   (weight     :accessor object.weight
-	       :initarg :weight
-	       :initform nil)
-   
-   (cost       :accessor object.cost
-	       :initarg :cost
-	       :initform nil)
-   
-   (obj-type   :accessor object.obj-type
-	       :initarg :obj-type
-	       :initform nil)  ;; replaces type-val/subtype-val
 
-   (flags      :accessor object.flags
-	       :initarg :flags
-	       :initform nil)
+(eval-when (:compile-toplevel :load-toplevel :execute)
+ 
+  (defclass object-kind ()
+    ((id         :accessor object.id
+		 :initarg :id
+		 :initform nil)
    
-   (game-values :accessor object.game-values
-		:initarg :game-values
-		:initform nil)
+     (numeric-id :accessor object.numeric-id
+		 :initarg :numeric-id
+		 :initform nil)
+   
+     (name       :accessor object.name
+		 :initarg :name
+		 :initform nil)
+   
+     (x-attr     :accessor object.x-attr
+		 :initarg :x-attr
+		 :initform nil)
+   
+     (x-char     :accessor object.x-char
+		 :initarg :x-char
+		 :initform nil)
+   
+     (level      :accessor object.level
+		 :initarg :level
+		 :initform 0);; fix later
+   
+     (rarity     :accessor object.rarity
+		 :initarg :rarity
+		 :initform nil)
+   
+     (chance     :accessor object.chance
+		 :initarg :chance
+		 :initform (make-array 4 :initial-element 0))
+   
+     (locale     :accessor object.locale
+		 :initarg :locale
+		 :initform (make-array 4 :initial-element 0))
+   
+     (weight     :accessor object.weight
+		 :initarg :weight
+		 :initform nil)
+   
+     (cost       :accessor object.cost
+		 :initarg :cost
+		 :initform nil)
+   
+     (obj-type   :accessor object.obj-type
+		 :initarg :obj-type
+		 :initform nil);; replaces type-val/subtype-val
 
-   (identified :accessor object.identified
-	       :initform nil)
+     (flags      :accessor object.flags
+		 :initarg :flags
+		 :initform nil)
    
-   (tried      :accessor object.tried
-	       :initform nil)
-   
-   (flavour    :accessor object.flavour
-	       :initform nil)
+     (game-values :accessor object.game-values
+		  :initarg :game-values
+		  :initform nil)
 
-   (sort-value :accessor object.sort-value
-	       :initarg :sort-value
-	       :initform 0)
+     (identified :accessor object.identified
+		 :initform nil)
    
-   ;; should be a list of conses (event . function-obj)
-   (events     :accessor object.events
-	       :initarg :events
-	       :initform nil)
+     (tried      :accessor object.tried
+		 :initform nil)
    
-   ))
+     (flavour    :accessor object.flavour
+		 :initform nil)
+
+     (sort-value :accessor object.sort-value
+		 :initarg :sort-value
+		 :initform 0)
+   
+     ;; should be a list of conses (event . function-obj)
+     (events     :accessor object.events
+		 :initarg :events
+		 :initform nil)
+   
+     )))
 
 
 (defun get-obj-kind (id)
@@ -319,7 +322,7 @@ with k-info.txt numbers. NUM is the numeric id."
   
   (let* ((o-type (aobj.kind item))
 	 (name (object.name o-type))
-	 (num (aobj.number item))
+;;	 (num (aobj.number item))
 ;;	 (plural (> num 1))
 	 (tot-str (plural-name (aobj.number item) name))
 	 (o-tlist (object.obj-type o-type))
