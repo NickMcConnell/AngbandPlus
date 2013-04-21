@@ -326,8 +326,28 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod save-object ((variant variant) (obj player) (stream l-binary-stream) indent)
   (let ((str (lang.stream stream)))
-	
-    (bt:write-binary 'player str obj)
+
+    ;; do numbers first:
+    (bt:write-binary 'u16 str (location-x obj))
+    (bt:write-binary 'u16 str (location-y obj))
+    (bt:write-binary 'u16 str (player.view-x obj))
+    (bt:write-binary 'u16 str (player.view-y obj))
+    (bt:write-binary 's16 str (player.depth obj))
+    (bt:write-binary 's16 str (player.max-depth obj))
+    (bt:write-binary 'u32 str (player.max-xp obj))
+    (bt:write-binary 'u32 str (player.cur-xp obj))
+    (bt:write-binary 'u32 str (player.fraction-xp obj))
+    (bt:write-binary 'u32 str (current-hp obj))
+    (bt:write-binary 'u32 str (player.fraction-hp obj))
+    (bt:write-binary 'u32 str (player.cur-mana obj))
+    (bt:write-binary 'u32 str (player.fraction-mana obj))
+    (bt:write-binary 'u32 str (player.gold obj))
+    (bt:write-binary 'u32 str (player.food obj))
+    (bt:write-binary 'u16 str (player.energy obj))
+
+
+    
+;;    (bt:write-binary 'player str obj)
     ;; then do the four first ones
     (%bin-save-string (player.name obj) str)
     (%bin-save-string (string (race.id (player.race obj))) str)
@@ -511,16 +531,30 @@ the Free Software Foundation; either version 2 of the License, or
   (bt:with-binary-file (s (pathname fname)
 			  :direction :input)
     
-    (let ((bt:*endian* :little-endian)
+    (let ((*variant* variant)
+	  (bt:*endian* :little-endian)
 	  (the-lang-stream (make-instance 'l-binary-stream :stream s))
-	  (objs (if (listp obj-type-list) obj-type-list (list obj-type-list))))
+	  (objs (if (listp obj-type-list) obj-type-list (list obj-type-list)))
+	  (retval '()))
 
+      (when (eq variant nil)
+	(cond ((not (eq (car objs) :variant))
+	       (error "Variant-argument is nil, but obj-type-list does not have :variant as first arg."))
+	      (t
+	       (let ((ret-var (load-object nil :variant the-lang-stream)))
+		 (when (and ret-var (typep ret-var 'variant))
+		   (setf variant ret-var)
+		   (push ret-var retval))
+		 (setf objs (cdr objs))))))
+	
+      
       (loop for obj-type in objs
-	    collecting (load-object variant obj-type the-lang-stream))
-      )))
+	    do (push (load-object variant obj-type the-lang-stream) retval))
+      
+      (nreverse retval))))
 
 (defun save-the-game (var-obj player level &key (fname +readable-save-file+) (format :readable))
   "Tries to save the game."
 
-  (do-save var-obj format fname (list var-obj player level))
+  (do-save var-obj fname (list var-obj player level) format)
   t)

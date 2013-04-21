@@ -57,7 +57,7 @@ operation."
 	(oper (find-key-operation operation)))
 
     (unless oper
-      (error "Unable to find operation '~a' in ~a for key '~a'"
+      (warn "Unable to find operation '~a' in ~a for key '~a'"
 	    operation (cons key-table where) key)
       #-cmu
       (return-from define-keypress nil))

@@ -20,6 +20,69 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  (warn "Adding obj with id ~s" id)
   (apply-filters-on-obj :objects *variant* obj))
 
+(defun compat-get-sorting-table (sort-values)
+  "The SORT-VALUES are a list where the CARs are CONSes. In
+each such CONS the CAR is an appropriate key and the CDR is
+the sorting-value which is a positive integer, lowest numbers
+are sorted first.  Returns nothing."
+
+  (let ((table (make-hash-table :test #'eql)))
+    (dolist (i sort-values)
+      (let ((key (car i))
+	    (sort-val (cdr i)))
+	(setf (gethash key table) sort-val)))
+    table))
+
+
+
+;; hackish list to convert to a bigger sorting-scheme
+(defvar *sort-values-vanilla* (compat-get-sorting-table
+			       '(
+				 
+				 (1 . 2000);; skeleton
+				 (2 . 2100);; bottle
+				 (3 . 2200);; junk
+				 (5 . 2300);; spike
+				 (7 . 2400);; chest
+				 (16 . 2500);; ammo, shot
+				 (17 . 2600);; ammo, arrow
+				 (18 . 2700);; ammo, bolt
+				 (19 . 2800);; bow
+				 (20 . 2900);; digging tool
+				 (21 . 3000);; hafted weapon
+				 (22 . 3100);; polearm
+				 (23 . 3200);; sword
+				 (30 . 3300);; boots
+				 (31 . 3400);; gloves
+				 (32 . 3500);; helmets
+				 (33 . 3600);; crowns
+				 (34 . 3700);; shields
+				 (35 . 3800);; cloaks
+				 (36 . 3900);; soft armours
+				 (37 . 4000);; hard armours
+				 (38 . 4100);; dragon-scale
+				 (39 . 4200);; light-source
+				 (40 . 4300);; neckwear
+				 (45 . 4400);; rings
+				 (66 . 4500);; rods
+				 (55 . 4600);; staves
+				 (65 . 4800);; wands
+				 (70 . 5000);; scrolls
+				 (75 . 5500);; potions
+				 (77 . 5700);; flasks
+				 (80 . 6000);; food
+				 (90 . 6900);; mage spellbook
+				 (91 . 7000);; priest spellbook
+				 (100 . 7100);; money
+				 ))
+  
+
+(defun compat-get-sort-value (key)
+  "Returns a number for the key, or NIL."
+  (let ((table *sort-values-vanilla*))
+    (gethash key table)))
+
+
 
 (defun compat-read-obj-kind& (fname)
   "not finished"
@@ -143,7 +206,7 @@ the Free Software Foundation; either version 2 of the License, or
 		       
 		       ;; The case-values are gotten from defines.h
 		       
-		       (setf (object.sort-value cur-obj) (+ (get-sort-value type-val) subtype-val))
+		       (setf (object.sort-value cur-obj) (+ (compat-get-sort-value type-val) subtype-val))
 
 		       (case type-val
 			 (1   (add-str-tval '<skeleton>))
@@ -745,8 +808,8 @@ the Free Software Foundation; either version 2 of the License, or
 		    (let ((res (split-seq-on l #\:)))
 		      ;; the first should be W
 		      (assert (string-equal (car res) "w"))
-		      ;; the second should be level
-		      (setf (object.level cur-obj) (parse-integer (second res)))
+		      ;; the second should be level/depth
+		      (setf (object.depth cur-obj) (parse-integer (second res)))
 		      ;; the third should be rarity
 		      (setf (object.rarity cur-obj) (parse-integer (third res)))
 		      ;; the fourth should be weight

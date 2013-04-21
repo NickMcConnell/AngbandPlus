@@ -26,7 +26,7 @@ Description: The Langband term-libs
 Package: langband-vanilla
 Provides: langband-variant
 Architecture: all
-Depends: langband-engine (>= 0.0.15)
+Depends: langband-engine (>= 0.0.16)
 Description: A Vanilla-Angband plugin to the langband-engine
  This package provides a plugin to the langband-engine that lets you play
  vanilla/standard Angband. 

@@ -29,7 +29,7 @@ the Free Software Foundation; either version 2 of the License, or
   (error 'not-implemented :proc (list 'getenv var)))
 
 
-(defun lbsys/make-sure-dirs-exist (dir &key (verbose nil))
+(defun lbsys/make-sure-dirs-exist& (dir &key (verbose nil))
   "mostly a call to ENSURE-DIRECTORIES-EXIST,
 but stops errors from floating out.. returns NIL instead."
   (let ((the-path (merge-pathnames (etypecase dir

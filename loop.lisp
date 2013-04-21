@@ -24,7 +24,8 @@ ADD_DESC: Most of the code which deals with the game loops.
   
   (when (= 0 *redraw*) (return-from redraw-stuff nil))
 
-  (let ((retval nil))
+  (let ((retval nil)
+	(pr-set nil))
     
     (when (bit-flag-set? *redraw* +print-map+)
       (bit-flag-remove! *redraw* +print-map+)
@@ -35,9 +36,66 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     (when (bit-flag-set? *redraw* +print-basic+)
       (bit-flag-remove! *redraw* +print-basic+)
+      (bit-flag-remove! *redraw* +print-misc+)
+      (bit-flag-remove! *redraw* +print-title+)
+      (bit-flag-remove! *redraw* +print-stats+)
+      (bit-flag-remove! *redraw* +print-level+)
+      (bit-flag-remove! *redraw* +print-xp+)
+      (bit-flag-remove! *redraw* +print-gold+)
+      (bit-flag-remove! *redraw* +print-armour+)
+      (bit-flag-remove! *redraw* +print-mana+)
+      (bit-flag-remove! *redraw* +print-hp+)
+      (bit-flag-remove! *redraw* +print-depth+)
+      (bit-flag-remove! *redraw* +print-health+)
       (print-basic-frame dun pl)
       (setf retval t))
 
+    (when (bit-flag-set? *redraw* +print-misc+)
+      (bit-flag-remove! *redraw* +print-misc+)
+      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+
+      (print-field (get-race-name pl) (slot-value pr-set 'race))
+      (print-field (get-class-name pl) (slot-value pr-set 'class))
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-title+)
+      (bit-flag-remove! *redraw* +print-title+)
+      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (print-title pl pr-set)
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-level+)
+      (bit-flag-remove! *redraw* +print-level+)
+      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (print-level pl pr-set)
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-xp+)
+      (bit-flag-remove! *redraw* +print-xp+)
+      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (print-xp pl pr-set)
+      (setf retval t))
+
+    ;; stats
+    
+    (when (bit-flag-set? *redraw* +print-armour+)
+      (bit-flag-remove! *redraw* +print-armour+)
+      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (print-armour-class pl pr-set)
+      (setf retval t))
+    
+    (when (bit-flag-set? *redraw* +print-hp+)
+      (bit-flag-remove! *redraw* +print-hp+)
+      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (print-hit-points pl pr-set)
+      (setf retval t))
+
+    ;; more stuff here
+      
+    
+    (when (/= 0 *redraw*)
+      (warn "Unhandled flags ~s" *redraw*))
+    
     retval))
 
 
@@ -46,22 +104,77 @@ ADD_DESC: Most of the code which deals with the game loops.
 
   (when (= 0 *update*) (return-from update-stuff nil))
   
-  (let ((retval nil))
-    (when (bit-flag-set? *update* +forget-view+)
-      (bit-flag-remove! *update* +forget-view+)
+  (let ((retval nil)
+	(var-obj *variant*))
+    
+    (when (bit-flag-set? *update* +pl-upd-bonuses+)
+      (bit-flag-remove! *update* +pl-upd-bonuses+)
+      (calculate-creature-bonuses! var-obj pl)
+      (setf retval t))
+    
+    (when (bit-flag-set? *update* +pl-upd-torch+)
+      (bit-flag-remove! *update* +pl-upd-torch+)
+      (calculate-creature-light-radius! var-obj pl)
+      (setf retval t))
+    
+    (when (bit-flag-set? *update* +pl-upd-hp+)
+      (bit-flag-remove! *update* +pl-upd-hp+)
+      (calculate-creature-hit-points! var-obj pl)
+      (setf retval t))
+    
+    (when (bit-flag-set? *update* +pl-upd-mana+)
+      (bit-flag-remove! *update* +pl-upd-mana+)
+;;      (calculate-creature-hit-points! var-obj pl)
+      (setf retval t))
+
+    (when (bit-flag-set? *update* +pl-upd-spells+)
+      (bit-flag-remove! *update* +pl-upd-spells+)
+;;      (calculate-creature-hit-points! var-obj pl)
+      (setf retval t))
+    
+    
+    
+    (when (bit-flag-set? *update* +pl-upd-forget-view+)
+      (bit-flag-remove! *update* +pl-upd-forget-view+)
       (forget-view! dun pl)
       (setf retval t))
 
-    (when (bit-flag-set? *update* +update-view+)
-      (bit-flag-remove! *update* +update-view+)
+    (when (bit-flag-set? *update* +pl-upd-update-view+)
+      (bit-flag-remove! *update* +pl-upd-update-view+)
       (update-view! dun pl)
       (setf retval t))
-  
-    (when (bit-flag-set? *update* +update-xp+)
-      (bit-flag-remove! *update* +update-xp+)
-      (update-xp-table! *variant* pl)
+
+    (when (bit-flag-set? *update* +pl-upd-forget-flow+)
+      (bit-flag-remove! *update* +pl-upd-forget-flow+)
+;;      (forget-view! dun pl)
       (setf retval t))
-  
+
+    (when (bit-flag-set? *update* +pl-upd-update-flow+)
+      (bit-flag-remove! *update* +pl-upd-update-flow+)
+;;      (update-view! dun pl)
+      (setf retval t))
+
+    (when (bit-flag-set? *update* +pl-upd-distance+)
+      (bit-flag-remove! *update* +pl-upd-distance+)
+      (bit-flag-remove! *update* +pl-upd-monsters+)
+;;      (update-view! dun pl)
+      (setf retval t))
+    
+    (when (bit-flag-set? *update* +pl-upd-monsters+)
+      (bit-flag-remove! *update* +pl-upd-monsters+)
+;;      (update-view! dun pl)
+      (setf retval t))
+    
+    (when (bit-flag-set? *update* +pl-upd-panel+)
+      (bit-flag-remove! *update* +pl-upd-panel+)
+      (verify-panel dun pl)
+      (setf retval t))
+
+
+    (when (/= 0 *update*)
+      (warn "Unhandled upd-flags ~s" *update*))
+
+    
     retval))
 
 (defun handle-stuff (dun pl)
@@ -200,7 +313,11 @@ ADD_DESC: Most of the code which deals with the game loops.
 
   (loop named waste-energy
 	do
+	(when (/= *update* 0) (update-stuff dun pl))
+	(when (/= *redraw* 0) (redraw-stuff dun pl))
+	
 	(put-cursor-relative! dun (location-x pl) (location-y pl))
+
 	;; assume no energy is used
 	(setf (player.energy-use pl) 0)
 	
@@ -309,6 +426,13 @@ ADD_DESC: Most of the code which deals with the game loops.
     ;; do timeout'ing of effects
     
     ;; burn fuel when needed
+    (when-bind (l-s (get-light-source pl))
+      (unless (is-artifact? l-s)
+	(let ((gvals (aobj.game-values l-s)))
+	  (decf (gval.charges gvals))
+	  (when (< (gval.charges gvals) 1)
+	    (setf (gval.light-radius gvals) 0)))))
+		 
     
     ;; drain xp
     
@@ -373,51 +497,63 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     ;; create stairs.. (postponed)
 
-    ;; postpone veri of panel
+    ;; postpone verify of panel
     (verify-panel dun pl)
     
     (c-print-message! +c-null-value+)
-  
-    (bit-flag-add! *redraw* +print-map+ +print-basic+)
-    (bit-flag-add! *update* +forget-view+ +update-view+)
-  
+
+    ;;; == this section needs serious rework.. see angband
     ;; postpone flush
 
     (clear-the-screen!)
 
+    (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+) 
+    (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-spells+ +pl-upd-mana+) 
+
+    (update-stuff dun pl)
+    
+    (bit-flag-add! *redraw* +print-map+ +print-basic+)
+    (bit-flag-add! *update* +pl-upd-forget-view+ +pl-upd-update-view+)
+  
+    
     ;; postpone stuff..
     (update-stuff dun pl)
 
     (redraw-stuff dun pl)
-  
+
+
     (block main-dungeon-loop
 
       (loop
        ;; postpone compact
 ;;       (warn "loop")
 
+
        (energise-creatures! dun pl)
        ;; do player
-       (update-player! var-obj pl) ;; remove later
+;;       (update-player! var-obj pl) ;; remove later
 
+       (when (/= 0 *update*) (update-stuff dun pl))
+	      
        (process-monsters& dun pl +energy-normal-action+)
        ;; stuff
 
        (let ((leave-sym (player.leaving-p pl)))
 	 (when leave-sym
 	   (return-from run-level! leave-sym)))
+
+       (when (/= 0 *update*) (update-stuff dun pl))
        
        (process-world& dun pl)
        ;; do other stuff
        ;; hack
        (verify-panel dun pl)
 
-       (when (/= 0 *update*)
-	 (update-stuff dun pl))
+       (when (/= 0 *update*) (update-stuff dun pl))
 
        ;; (warn "redraw is ~a" *redraw*)
-       (when (/= 0 *redraw*)
-	 (redraw-stuff dun pl))
+       (when (/= 0 *redraw*) (redraw-stuff dun pl))
+
 
        ;; do this till things are fixed..
 ;;       (print-map dun pl)
@@ -425,6 +561,7 @@ ADD_DESC: Most of the code which deals with the game loops.
        (incf (variant.turn var-obj))
 
        ))
+               
     ))
 
 (defun game-loop& ()
@@ -477,7 +614,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 (defun load-saved-game (fname format)
   "Returns three values."
   
-  (let ((loaded (do-load nil format fname (list :variant :player :level)))
+  (let ((loaded (do-load nil fname (list :variant :player :level) format))
 	(the-player nil)
 	(the-level nil)
 	(the-var nil))
@@ -494,6 +631,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     (values the-level the-player the-var)))
 
+;;(trace load-saved-game)
 
 (defun play-game& ()
   "Should not be called directly."
@@ -517,7 +655,7 @@ ADD_DESC: Most of the code which deals with the game loops.
        (let ((the-player nil)
 	     (the-level nil)
 	     (the-variant nil)
-	     (the-save-file +binary-save-file+)
+	     (the-save-file (concatenate 'string (home-langband-path) +binary-save-file+))
 	     (format :binary)
 	     ;;(the-save-file +readable-save-file+)
 	     ;;(format :readable)

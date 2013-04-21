@@ -140,7 +140,7 @@ ADD_DESC: at the start.
 	  do
 	  (when (< 0 (monster.rarity k-obj))
 	    (incf alloc-sz)
-	    (incf (aref level-org (monster.level k-obj)))
+	    (incf (aref level-org (monster.depth k-obj)))
 	    ))
       
     ;; then we sum up in level-org (init2.c)
@@ -161,7 +161,7 @@ ADD_DESC: at the start.
 	    ;;(warn "i")
 	    (when (< 0 (monster.rarity k-obj))
 	      
-	      (let* ((x (monster.level k-obj))
+	      (let* ((x (monster.depth k-obj))
 		     (p (int-/ 100 (monster.rarity k-obj)))
 		     (alloc-obj (make-alloc-entry :index k-idx
 						  :obj k-obj
@@ -220,9 +220,10 @@ call appropriately high-level init in correct order."
       ;;      (format t "~&Writing to file~%")
   
   ;; so far we just load vanilla
-  (let ((var-obj (load-variant& 'langband-vanilla :verbose t)))
+  (let* ((var-key "langband-vanilla")
+	 (var-obj (load-variant& var-key :verbose t)))
     (cond ((not var-obj)
-	   (warn "Unable to find variant")
+	   (warn "Unable to find variant ~s" var-key)
 	   (return-from game-init& nil))
 	  (t
 	   (setf *variant* var-obj)

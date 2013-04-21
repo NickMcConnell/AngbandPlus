@@ -41,8 +41,8 @@ ADD_DESC: available in the game.
 		 :initarg :x-char
 		 :initform nil)
    
-     (level      :accessor object.level
-		 :initarg :level
+     (depth      :accessor object.depth
+		 :initarg :depth
 		 :initform 0);; fix later
    
      (rarity     :accessor object.rarity
@@ -428,29 +428,44 @@ with k-info.txt numbers. NUM is the numeric id."
 	  (t
 	   (write-string base stream)))))
 
-(defmethod is-eatable? (player obj)
-  (declare (ignore obj player))
+(defmethod is-eatable? ((player player) (obj active-object))
   nil)
 
 ;; possibly add this for potions
-(defmethod is-eatable? (player (obj active-object/food))
-  (declare (ignore player))
+(defmethod is-eatable? ((player player) (obj active-object/food))
   t)
 
-(defmethod is-eatable? (player (obj object-kind/food))
-  (declare (ignore player))
+(defmethod is-eatable? ((player player) (obj object-kind/food))
   t)
 
+(defmethod is-magical? ((obj active-object))
+  nil)
+
+(defmethod is-artifact? ((obj active-object))
+  nil)
 
 (defmethod get-price ((object active-object) situation)
   (declare (ignore situation))
   (let* ((kind (aobj.kind object))
-	 (id (is-object-known? object)))
+	 (known-p (is-object-known? object)))
+
+    ;; skip broken/cursed
+
+    ;; also ignore discounts
     
-    (if id
+    (if known-p
 	(object.cost kind)
-	20) ;; just a default
-    ))
+	(typecase object
+	  (active-object/food 5)
+	  (active-object/potion 20)
+	  (active-object/scroll 20)
+	  (active-object/staff 70)
+	  (active-object/wand 50)
+	  (active-object/rod 90)
+	  (active-object/ring 45)
+	  (active-object/amulet 45)
+	  (otherwise 0)))))
+
 
 (defun get-object-list (&key (var-obj *variant*) (level *level*))
   "returns a fresh list.  Remove me!"
@@ -463,7 +478,7 @@ with k-info.txt numbers. NUM is the numeric id."
 
 
 (defun define-object-kind (id name
-			   &key numeric-id x-attr x-char level rarity
+			   &key numeric-id x-attr x-char depth rarity
 			   chance locale weight cost obj-type sort-value
 			   events game-values flags flavour desc the-kind
 			   multiplier)
@@ -481,6 +496,18 @@ the *VARIANT* object so it has to be properly initialised."
 	(setf flags (remove '<easy-know> flags)))
       (setf (object.flags new-obj) flags))
 
+;;    (when (and depth level)
+;;      (error "Object ~s given both level and depth." key))
+
+;;    (when level
+;;      (setf depth level))
+
+    (cond ((and depth (typep depth '(integer 0 *)))
+	   (setf (object.depth new-obj) depth))
+	  (t
+	   (lang-warn "Given illegal depth-value ~s for object ~s" depth key)
+	   (setf (object.depth new-obj) 1))) ;; hack
+
 
     (setf (object.numeric-id new-obj) (if numeric-id
 					  numeric-id
@@ -489,7 +516,6 @@ the *VARIANT* object so it has to be properly initialised."
 				    (character (convert-obj x-attr :colour-code))
 				    (number (charify-number x-attr)))
 	  (object.x-char new-obj) x-char
-	  (object.level new-obj) level
 	  (object.rarity new-obj) rarity
 	  (object.chance new-obj) chance
 	  (object.locale new-obj) locale
@@ -524,7 +550,7 @@ the *VARIANT* object so it has to be properly initialised."
 ;;    (possibly-add :desc (object.desc object))
     (possibly-add :x-attr (convert-obj (object.x-attr object) :letter))
     (possibly-add :x-char (object.x-char object))
-    (possibly-add :level (object.level object))
+    (possibly-add :depth (object.depth object))
     (possibly-add :rarity (object.rarity object))
     (possibly-add :chance (object.chance object) #(0 0 0 0))
     (possibly-add :locale (object.locale object) #(0 0 0 0))
@@ -610,7 +636,7 @@ the *VARIANT* object so it has to be properly initialised."
   (print-unreadable-object
    (inst stream :identity t)
    (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
-	   (object.name inst) (object.level inst)))
+	   (object.name inst) (object.depth inst)))
   inst)
 
 (defmethod print-object ((inst active-object) stream)

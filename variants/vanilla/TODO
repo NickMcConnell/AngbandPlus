@@ -9,10 +9,10 @@ DUNGEON
  - large rooms not implemented
  - monster nest not implemented
  - monster pits not implemented
- - no gold in dungeon
+ - no gold in dungeon [fixed, hackish]
 
 TOWN
- - only black market "works", no specialised shops yet
+ - only black market "works", no specialised shops yet [FIXED]
 
 SPELLS and MAGICAL ITEMS
  - priest-spells not implemented

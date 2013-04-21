@@ -1,3 +1,15 @@
+langband (0.0.16-1) unstable; urgency=low
+
+  * Upstream release, see upstream Changelogs.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Sat,  8 Dec 2001 00:33:00 +0100
+
+langband (0.0.15-2) unstable; urgency=low
+
+  * Minor reorganisations, no real release, just testing.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Tue,  4 Dec 2001 18:58:14 +0100
+
 langband (0.0.15-1) unstable; urgency=low
 
   * Upstream release, see upstream Changelog.

@@ -1,0 +1,21 @@
+2001-12-07  Stig E Sandø <stig@users.sourceforge.net>
+	* Added more ids to objects and monsters
+	* Moved spellbooks into books.lisp
+	* Reorganised files slightly and finally moved all unique monsters
+	into unique.lisp
+	* Edited all object and monster entries to use :depth and not the
+	old :level
+	* Other minor fixes to reflect changes in engine (id, save/load)
+
+2001-12-04  Stig E Sandø <stig@users.sourceforge.net>
+	* Split config/objects.lisp into armour.lisp, potions.lisp,
+	scrolls.lisp, weapons.lisp and sticks.lisp
+	* Updated quirks.lisp to load new files properly.
+	* Updated object-files with lots of proper object-ids.
+	* Updated stores.lisp with selling-lists for regular stores and
+	one or two new owners.
+	* Also made save/load go to ~/.langband/ instead of .
+	* Added terminating error if objects have conflicting ids
+	* A few other minor changes.
+
+	

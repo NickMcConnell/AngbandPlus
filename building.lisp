@@ -110,8 +110,6 @@ failure and owner on success."
       
       (gethash id table))))
 
-;;(trace get-house)
-
 (defun get-owner (id &optional (var-obj *variant*))
   "Returns an owner (non-activated) or NIL."
   
@@ -222,3 +220,6 @@ failure and owner on success."
       (establish-house& var-obj house :house-key number))
     
     house))
+
+
+;;(trace get-house)

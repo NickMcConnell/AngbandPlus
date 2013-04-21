@@ -1,4 +1,49 @@
-2001-11-26  Stig E Sandø <stig@users.sourceforge.net>
+2001-12-07  Stig E Sandø <stig@users.sourceforge.net>
+	* Improved repainting-code through active flag-use, borrowed
+	heavily from angband.  Should give speedup. (may still have bugs)
+	* Optimised dungeon-accesses and internal code in update-view
+	through macros and inlining.  Seems to help a lot on ACL.
+	* Updated several paint/update flags in constants.lisp
+	* Fixed save/load of variant, and redid save/load of player-object
+	to use factory on load and giving up binary-types.
+	* Made variant-registration use strings for ids
+	* Changed object.level to object.depth and monster.level to
+	monster.depth, also affected vanilla-variant.
+	* Added more deps to .system
+	* Split update-player! into more separate functions.  The split is
+	only half-done and there might be bugs
+	* Fixed missile-selection repaint-bug
+	* Other minor fixes.
+
+2001-12-05  Stig E Sandø <stig@users.sourceforge.net>
+	* Added to-hit, damage and killing to missile-combat. (project.lisp)
+	* Added message on item-pickup (action.lisp)
+	* Minor fixes
+		
+2001-12-04  Stig E Sandø <stig@users.sourceforge.net>
+	* Updated debian/rules file to reflect changes in vanilla-variant
+	file-organisation.
+	* Split ChangeLog in two.. this one now reflects changes in engine
+	and how things are organised.  The one in variants/vanilla/
+	reflects changes to the vanilla variant.
+	* Improved store-code with selling-list/restocking list and
+	mass-production code.
+	* Moved player struct/class to core.lisp to ease compilation in
+	other files.
+	* Added deduction of torch-charges if the object is not an
+	artifact.
+	* Can now display multihued monsters correctly, as well as not
+	displaying see-htrough monsters.
+	* Removed sorting-values from variant-code and variant-object,
+	belonged in compatibility-code and is now in
+	lib/compat/object.lisp
+	* Added summon-monster hack to key-set for maintainer-use.
+	* Improved safety in production of active-monsters (monsters.lisp)
+	* Reinstated code to generate gold in dungeon (only copper with
+	the hack now used though).
+	* Several minor fixes and tweaks
+		
+2001-12-01  Stig E Sandø <stig@users.sourceforge.net>
 	* Updated signatures to CREATE-AOBJ-* in object.lisp
 	* Added simplifying PARSE-AND-ROLL-DICE in base.lisp
 	* Extended syntax to specify starting equipment and improved

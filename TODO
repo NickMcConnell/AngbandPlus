@@ -10,9 +10,10 @@ the vanilla-variant is in variants/vanilla/TODO.
 DUNGEON
  - trap-support not implemented
  - searching not implemented
+ - integrate Room-code much more. 
 
 TOWN
- - only black market-type stores "works"
+ - only black market-type stores "works" [FIXED]
  - no specialisable shops yet
 
 SPELLS
@@ -30,6 +31,7 @@ SAVE/LOAD, SCORE and DEATH
  - save/load misses events, shops, etc.
  - high-score saving not implemented [fixed, report detailed bugs now]
  - central saving of high-score and save-files not implemented
+   [fixed, saves to ~/.langband/]
 
 
 MONSTERS
@@ -38,7 +40,7 @@ MONSTERS
  - do not carry items or use items
  - no monster-memory
  - no monster-drops
- - no support for invisible or multi-hued monsters
+ - no support for invisible or multi-hued monsters [FIXED]
  - does not know that monsters are unique 
 
 COMBAT
@@ -54,12 +56,12 @@ MOVING ABOUT
  - no stay still command [Maybe the key 5, stand-still is ok]
  - no resting and no regeneration [simple regen for hits added]
  - no map function
- - can see objects even outside range-of-vision
+ - can see objects even outside range-of-vision [FIXED]
 
 
 CONTAINERS
  - stacking doesn't work [barely working]
- - it doesn't understand that only one torch is used at a time. 
+ - it doesn't understand that only one torch is used at a time. [FIXED?]
 
 
 COMMANDS
@@ -70,6 +72,7 @@ COMMANDS
  - no redraw of a screwed up screen
  - no 'L'ook command
  - no targetting command, e.g for missiles, spells, ..
+ - no refill of lamps
 
 
 OTHER

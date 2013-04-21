@@ -100,16 +100,22 @@ VANSRC = \
 
 
 VANCONFSRC = \
+	variants/vanilla/config/armour.lisp \
+	variants/vanilla/config/books.lisp \
 	variants/vanilla/config/classes.lisp \
 	variants/vanilla/config/defines.lisp \
 	variants/vanilla/config/flavours.lisp \
 	variants/vanilla/config/floors.lisp \
 	variants/vanilla/config/monsters.lisp \
 	variants/vanilla/config/objects.lisp \
+	variants/vanilla/config/potions.lisp \
 	variants/vanilla/config/races.lisp \
+	variants/vanilla/config/scrolls.lisp \
+	variants/vanilla/config/sticks.lisp \
 	variants/vanilla/config/stores.lisp \
 	variants/vanilla/config/town-monsters.lisp \
-	variants/vanilla/config/uniques.lisp 
+	variants/vanilla/config/uniques.lisp \
+	variants/vanilla/config/weapons.lisp 
 
 
 build: 

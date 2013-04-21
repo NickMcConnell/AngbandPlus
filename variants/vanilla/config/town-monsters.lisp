@@ -4,7 +4,7 @@
   :desc "He looks squalid and thoroughly revolting."
   :symbol #\t
   :colour #\D
-  :level 0
+  :depth 0
   :rarity 2
   :hitpoints '(1 . 4)
   :armour 1
@@ -20,7 +20,7 @@
   :symbol #\t
   :colour #\b
   :alignment '<evil>
-  :level 0
+  :depth 0
   :rarity 1
   :hitpoints '(2 . 8)
   :armour 8
@@ -36,7 +36,7 @@
   :desc "He makes you glad to be sober."
   :symbol #\t
   :colour #\y
-  :level 0
+  :depth 0
   :rarity 1
   :hitpoints '(2 . 3)
   :armour 1
@@ -52,7 +52,7 @@
   :desc "The typical ponce around town, with purse jingling, and looking for more  amulets of adornment to buy."
   :symbol #\t
   :colour #\o
-  :level 0
+  :depth 0
   :rarity 1
   :hitpoints '(3 . 3)
   :armour 1
@@ -69,7 +69,7 @@
   :symbol #\t
   :colour #\r
   :alignment '<evil>
-  :level 0
+  :depth 0
   :rarity 1
   :hitpoints '(5 . 8)
   :armour 20
@@ -85,7 +85,7 @@
   :desc "He doesn't take to strangers kindly."
   :symbol #\t
   :colour #\B
-  :level 0
+  :depth 0
   :rarity 1
   :hitpoints '(7 . 8)
   :armour 30
@@ -102,7 +102,7 @@
   :symbol #\f
   :colour #\U
   :type '(<animal>)
-  :level 0
+  :depth 0
   :rarity 3
   :hitpoints '(1 . 2)
   :armour 1
@@ -117,7 +117,7 @@
   :symbol #\C
   :colour #\U
   :type '(<animal>)
-  :level 0
+  :depth 0
   :rarity 3
   :hitpoints '(1 . 3)
   :armour 1
@@ -131,7 +131,7 @@
   :desc "He tends to blubber a lot."
   :symbol #\t
   :colour #\W
-  :level 0
+  :depth 0
   :rarity 1
   :hitpoints '(1 . 2)
   :armour 1
@@ -146,7 +146,7 @@
   :desc "Ugly doesn't begin to describe him."
   :symbol #\t
   :colour #\g
-  :level 0
+  :depth 0
   :rarity 1
   :hitpoints '(1 . 2)
   :armour 1
@@ -161,7 +161,7 @@
   :desc "Drooling and comical, but then, what do you expect?"
   :symbol #\t
   :colour #\G
-  :level 0
+  :depth 0
   :rarity 1
   :hitpoints '(4 . 4)
   :armour 1
@@ -176,7 +176,7 @@
   :desc "You just can't help feeling sorry for him."
   :symbol #\t
   :colour #\U
-  :level 0
+  :depth 0
   :rarity 1
   :hitpoints '(1 . 4)
   :armour 1
@@ -191,7 +191,7 @@
   :desc "You feel it isn't safe to touch him."
   :symbol #\t
   :colour #\u
-  :level 0
+  :depth 0
   :rarity 1
   :hitpoints '(1 . 1)
   :armour 1

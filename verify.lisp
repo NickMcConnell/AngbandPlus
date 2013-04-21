@@ -87,6 +87,6 @@ the Free Software Foundation; either version 2 of the License, or
        ))
  
 (defmethod ok-object? ((obj monster-kind))
-  (and (numberp (monster.level obj))
+  (and (numberp (monster.depth obj))
        (numberp (monster.rarity obj))
        (symbolp (monster.id obj))))

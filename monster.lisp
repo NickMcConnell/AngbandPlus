@@ -26,7 +26,7 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
    (colour    :accessor monster.colour    :initform nil)
    (alignment :accessor monster.alignment :initform nil)
    (type      :accessor monster.type      :initform nil)
-   (level     :accessor monster.level     :initform nil)
+   (depth     :accessor monster.depth     :initform nil)
    (rarity    :accessor monster.rarity    :initform nil)
    (hitpoints :accessor monster.hitpoints :initform nil)
    (armour    :accessor monster.armour    :initform nil)
@@ -69,30 +69,34 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
   (assert (not (eq mon-type nil)))
 
   
-  (let* ((the-kind (cond ((symbolp mon-type)
-			  (get-monster-kind variant (symbol-name mon-type)))
-			 ((stringp mon-type)
-			  (get-monster-kind variant mon-type))
+  (let ((the-kind (cond ((symbolp mon-type)
+			 (get-monster-kind variant (symbol-name mon-type)))
+			((stringp mon-type)
+			 (get-monster-kind variant mon-type))
 			 ((typep mon-type 'monster-kind)
 			  mon-type)
 			 (t
 			  (error "Mon-type argument to produce-active-monster is not {symbol,string,mkind}, but is ~s"
-				 mon-type))))
-			  
-	 (amon (make-instance 'active-monster :kind the-kind))
-	 (num-hitdice (car (monster.hitpoints the-kind)))
-	 (hitdice (cdr (monster.hitpoints the-kind))))
-    
-    (if (has-ability? the-kind '<max-hitpoints>)
-	(setf (current-hp amon) (* num-hitdice hitdice))
-	(setf (current-hp amon) (roll-dice num-hitdice hitdice)))
+				 mon-type)))))
 
-    (setf (maximum-hp amon) (current-hp amon))
-    (setf (get-creature-speed amon) (monster.speed the-kind))
-;;    (warn "Monster ~a got ~a hp from ~a dice" (get-creature-name amon)
-;;	  (current-hp amon) (monster.hitpoints kind))
-    ;; blah
-    amon))
+    (unless (typep the-kind 'monster-kind)
+      (warn "Unable to find the monster-kind ~s" mon-type)
+      (return-from produce-active-monster nil))
+
+    (let ((amon (make-instance 'active-monster :kind the-kind))
+	  (num-hitdice (car (monster.hitpoints the-kind)))
+	  (hitdice (cdr (monster.hitpoints the-kind))))
+    
+      (if (has-ability? the-kind '<max-hitpoints>)
+	  (setf (current-hp amon) (* num-hitdice hitdice))
+	  (setf (current-hp amon) (roll-dice num-hitdice hitdice)))
+      
+      (setf (maximum-hp amon) (current-hp amon))
+      (setf (get-creature-speed amon) (monster.speed the-kind))
+      ;;    (warn "Monster ~a got ~a hp from ~a dice" (get-creature-name amon)
+      ;;	  (current-hp amon) (monster.hitpoints kind))
+      ;; blah
+      amon)))
 
 
 
@@ -185,7 +189,7 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
     (stable-sort total-list #'string< :key #'monster.id)))
 
 (defun define-monster-kind (id name &key desc symbol colour
-			    alignment type level
+			    alignment type depth ;;level
 			    rarity hitpoints armour
 			    speed xp abilities
 			    immunities alertness
@@ -232,12 +236,19 @@ the *VARIANT* object so it has to be properly initialised."
       (setf (monster.alignment m-obj) alignment))
     (when sex
       (setf (monster.sex m-obj) sex))
+
+;;    (when (and level depth)
+;;      (error "Both level and depth-arguments to define-mkind, please use only :depth"))
+
+    ;; hack for bwards-compatibility
+;;    (when level
+;;      (setf depth level))
     
-    (if (and level (typep level '(integer 0 *))) 
-	(setf (monster.level m-obj) level)
-	(progn
-	  (lang-warn "Given illegal level-value ~s for monster ~s" level name)
-	  (setf (monster.level m-obj) 1))) ;; hack
+    (cond ((and depth (typep depth '(integer 0 *)))
+	   (setf (monster.depth m-obj) depth))
+	  (t
+	   (lang-warn "Given illegal depth-value ~s for monster ~s" depth name)
+	   (setf (monster.depth m-obj) 1))) ;; hack
 
     (if (and rarity (typep rarity '(integer 0 *))) 
 	(setf (monster.rarity m-obj) rarity)
@@ -289,7 +300,7 @@ the *VARIANT* object so it has to be properly initialised."
       (possibly-add :colour (convert-obj (monster.colour object) :letter))
       (possibly-add :alignment (monster.alignment object))
       (possibly-add :type (monster.type object))
-      (possibly-add :level (monster.level object))
+      (possibly-add :depth (monster.depth object))
       (possibly-add :rarity (monster.rarity object))
       (possibly-add :hitpoints (monster.hitpoints object))
       (possibly-add :armour (monster.armour object))

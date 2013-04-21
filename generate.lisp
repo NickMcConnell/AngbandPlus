@@ -165,9 +165,8 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 (defmethod create-gold ((variant variant) (dungeon dungeon))
 
-  (let ((gold-obj (create-aobj-from-kind-num 480 :variant variant)))
-    (setf (aobj.number gold-obj) (+ 10 (random 100))) ;; hack
-    gold-obj))
+  ;; hackish deluxe
+  (create-aobj-from-id "object-480" :amount (+ 10 (random 100)) :variant variant))
 
 (defmethod add-magic-to-item! (dungeon item quality)
   (declare (ignore dungeon item quality))
@@ -176,7 +175,8 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 (defmethod add-magic-to-item! (dungeon (item active-object/weapon) quality)
   (declare (ignore dungeon quality))
-  (warn "checking for magic for weapon ~s." item))
+  ;;(warn "checking for magic for weapon ~s." item)
+  t)
 	
 
 (defun apply-magic! (dungeon obj base-level &key good-p great-p (allow-artifact t))
@@ -301,7 +301,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	(alloc-type-rubble (place-rubble! dungeon x y))
 	(alloc-type-trap   (place-trap! dungeon x y))
 	;; add again later
-;;	(alloc-type-gold   (place-gold! dungeon x y))
+	(alloc-type-gold   (place-gold! variant dungeon x y))
 	(alloc-type-object (place-object! variant dungeon x y nil nil))))
   
     (values)))

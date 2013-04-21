@@ -157,24 +157,58 @@ the Free Software Foundation; either version 2 of the License, or
 (defun temp-shoot-an-arrow (dungeon player)
   "Hackish shoot-code."
   (block missile-shooting
-    (let ((the-bow (get-missile-weapon player)))
+    (let ((the-bow (get-missile-weapon player))
+	  (the-missile nil))
       (unless (and the-bow (typep the-bow 'active-object/bow))
 	(c-print-message! "You have no missile weapon!")
 	(return-from missile-shooting nil))
 
-      (let ((the-missile (grab-a-selection-item dungeon player '(:backpack :floor)
-						:prompt "Select missile:"
-						:where :backpack)))
+      (with-new-screen ()
+	(setq the-missile (grab-a-selection-item dungeon player '(:backpack :floor)
+						 :prompt "Select missile:"
+						 :where :backpack)))
 
 	
-	(cond ((and the-missile (typep the-missile 'active-object/ammo))
-	       (shoot-an-arrow dungeon player the-bow the-missile))
-	      (t
-	       (c-print-message! "No missile selected!")))
-	))
-    ))
+      (cond ((and the-missile (typep the-missile 'active-object/ammo))
+	     (shoot-a-missile dungeon player the-bow the-missile))
+	    (t
+	     (c-print-message! "No missile selected!")))
+	)))
 
-(defmethod shoot-an-arrow ((dungeon dungeon) (player player)
+
+(defmethod missile-hit-creature? ((attacker player) (target active-monster) missile-weapon missile)
+;;  (declare (ignore missile-weapon missile))
+  
+  (let ((num (random 100)))
+    (when (< num 10)
+      ;; instant hit and miss 5%
+      (return-from missile-hit-creature? (< num 5)))
+
+  
+    (let* ((bonus (+ 0 (gval.tohit-bonus (aobj.game-values missile-weapon))
+		     (gval.tohit-bonus (aobj.game-values missile))))
+	   (chance (+ (skills.shooting (player.skills attacker)) (* 3 bonus))) ;; hack
+	   (dist (distance (location-x attacker) (location-y attacker)
+			   (location-x target) (location-y target)))
+	   (red-chance (- chance dist))
+	   (target-ac (get-creature-ac target))
+	   )
+
+      ;; fix invisible later      
+      (warn "chance to hit is ~s on ac ~s" red-chance target-ac)
+      
+      (when (and (plusp red-chance)
+		 (>= (random red-chance) (int-/ (* 3 target-ac) 4)))
+	(return-from missile-hit-creature? t))
+      
+      nil)))
+
+
+(defmethod missile-inflict-damage! ((attacker player) (target active-monster) missile-weapon missile)
+  (declare (ignore missile-weapon missile))
+  (deduct-hp! target (roll-dice 2 4)))
+
+(defmethod shoot-a-missile ((dungeon dungeon) (player player)
 			   (missile-weapon active-object/bow)
 			   (arrow active-object/ammo))
   
@@ -214,8 +248,21 @@ the Free Software Foundation; either version 2 of the License, or
 		(display-moving-object dungeon x y miss-char miss-attr)
 	      
 		(when-bind (monsters (cave-monsters dungeon x y))
-		  (warn "hit a monster.. ~s" monsters)
-		  (return-from follow-path nil))
+		  (let* ((fmon (if (consp monsters) (car monsters) monsters))
+			 (mon-name (get-creature-name fmon)))
+		    (when (missile-hit-creature? player fmon missile-weapon arrow)
+		      
+		      (c-print-message! (format nil "The ~a was hit." mon-name))
+		      (missile-inflict-damage! player fmon missile-weapon arrow)
+		      (when (< (current-hp fmon) 0)
+			(c-print-message! (format nil "The ~a died." mon-name))
+			(let ((target-xp (get-xp-value fmon)))
+			  (alter-xp! player (if target-xp target-xp 0)))
+			(kill-target! dungeon player fmon x y)
+			;; repaint spot
+			(light-spot! dungeon x y))
+
+		      (return-from follow-path nil))))
 		))
 
 	;; if it crashes in a wall, your arrow is gone.

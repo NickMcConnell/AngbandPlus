@@ -14,7 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
-
 (defclass store (house)
   ((id     :accessor store.id     :initform nil :initarg :id)
    (name   :accessor store.name   :initform nil :initarg :name)
@@ -25,6 +24,8 @@ the Free Software Foundation; either version 2 of the License, or
 		:initarg :poss-owners)
      
    ;; unsure on this
+
+   (sells      :accessor store.sells      :initform nil :initarg :sells)
    (items      :accessor store.items      :initform nil :initarg :items)
    (turnover   :accessor store.turnover   :initform 9   :initarg :turnover)
    (min-items  :accessor store.min-items  :initform 6   :initarg :min-items)
@@ -82,15 +83,45 @@ should be an exisiting id."
 	(pushnew (owner.id owner) (store.poss-owners store-type))
 	(warn "Unable to find store-type ~a" store-type-id))))
 	 
+(defun %make-priorities (variant store-id sale-list)
+  "Returns a list of sale-priorities, given a sale-spec."
+  (let ((ret-list '()))
+    (dolist (i sale-list)
+      (cond ((and (consp i) (eq (car i) 'obj))
+	     (destructuring-bind (dummy &key id type (weight 1))
+		 i
+	       (declare (ignore dummy))
+	       (cond (id
+		      (let ((k (get-object-kind variant id)))
+			(if k
+			    (dotimes (j weight)
+			      (push k ret-list))
+			    (warn "Unable to find kind for obj-id ~s" id))))
+		     (type
+		      (warn "Type-spec for store-objs not implemented."))
+		     (t
+		      (warn "Neither type or id is mentioned for obj-spec ~s for store ~s" i store-id)))
+	       ))
+	    (t
+	     (warn "Unknown format for spec ~s for store ~s" i store-id))))
+    
+    ret-list))
 
-(defun define-store (id &key (type 'store) name number x-attr x-char (owner :random) (no-items nil))
+
+(defun define-store (id &key (type 'store) name number
+		     (sells nil) 
+		     x-attr x-char (owner :random) (no-items nil))
   "creates a store object and adds it to the appropriate table"
 ;;  (declare (ignore args))
   (let ((var-obj *variant*)
 	(store (make-instance type :id id :name name :number number
 			      :x-attr x-attr :x-char x-char :owner owner)))
 
-        ;; hackish
+    
+    (when (and (eq type 'store) sells)
+      (setf (store.sells store) sells))
+    
+    ;; hackish
     (unless no-items
       (setf (house.items store) (make-container (store.max-items store)
 						'items-in-store)))
@@ -132,8 +163,9 @@ should be an exisiting id."
   (let* ((okind (aobj.kind object))
 	 (default-price (object.cost okind)))
 
+    ;; skip storekeeper, charisma, ...
     (if (and (numberp default-price) (>= default-price 0))
-	(floor (* 1.1 default-price) 1)
+	(floor (* 1.5 default-price) 1)
 	0)))
 
 
@@ -308,15 +340,62 @@ should be an exisiting id."
     
 ;;    (c-pause-line! *last-console-line*)
     ))
+
+(defmethod store-mass-produce! ((variant variant) (store store) (object active-object))
+  ;; hack
+
+  (let ((number 1)
+	(cost (get-price object store)))
+
+    (block increase-number
+      (cond ((or (typep object 'active-object/light-source)
+		 (typep object 'active-object/food))
+	     (when (<= cost 5) (incf number (roll-dice 3 5)))
+	     (when (<= cost 20) (incf number (roll-dice 3 5))))
+	     
+	    ((or (typep object 'active-object/potion)
+		 (typep object 'active-object/scroll))
+	     (when (<= cost 60) (incf number (roll-dice 3 5)))
+	     (when (<= cost 240) (incf number (roll-dice 3 5))))
+	    ;; skip food, flask, light
+	    ;; skip spellbooks
+	    ((or (typep object 'active-object/armour)
+		 (typep object 'active-object/weapon))
+	     ;; test for artifact
+	     (when (<= cost 10) (incf number (roll-dice 3 5)))
+	     (when (<= cost 100) (incf number (roll-dice 3 5))))
+	    ;; add spike
+	    ((typep object 'active-object/ammo)
+	     (when (<= cost 5) (incf number (roll-dice 5 5)))
+	     (when (<= cost 50) (incf number (roll-dice 5 5))))
+	    (t
+	     nil)))
+
+    ;; add discount..
+     
     
+  
+    (setf (aobj.number object) number)))
+
 
 ;; hackish  create/delete/maint
-(defmethod store-generate-object ((the-store store))
+(defmethod store-generate-object ((variant variant) (the-store store))
   "fix me.. works only as black market."
   ;; this is just a black market, fix for a regular store!
-  (let* ((var-obj *variant*)
+
+  (when-bind (sells (store.sells the-store))
+    (when-bind (kind (rand-elm sells))
+      (when (typep kind 'object-kind)
+	(let ((aobj (create-aobj-from-kind kind :variant variant)))
+	  ;; possibly add magic
+	  (store-mass-produce! variant the-store aobj)
+	  (return-from store-generate-object aobj)))))
+
+  (warn "Using outdated code in store..")
+
+  (let* (
 	 (level *level*)
-	 (some-obj (get-active-object-by-level var-obj level
+	 (some-obj (get-active-object-by-level variant level
 					       :depth (+ 25 (randint 25))))
 	 (o-type (when some-obj (aobj.kind some-obj))))
 
@@ -342,14 +421,20 @@ should be an exisiting id."
       (return-from activate-object res-obj)))
 
   ;; hackish
-  (dotimes (j 10) (store-maint! obj))
+  (let ((var-obj *variant*)
+	(sells (store.sells obj)))
+    ;; late-init basically
+    (when sells
+      (setf (store.sells obj) (%make-priorities var-obj (store.id obj) sells)))
+ 										 
+    (dotimes (j 10) (store-maintenance! var-obj obj)))
   
   obj)
 
 
-(defun store-maint! (the-store)
+(defmethod store-maintenance! ((variant variant) (the-store store))
   "hackish, fix later."
-  (when-bind (new-obj (store-generate-object the-store))
+  (when-bind (new-obj (store-generate-object variant the-store))
     (item-table-add! (store.items the-store) new-obj)))
 
 

@@ -39,7 +39,7 @@ looks the same.")
 (defun %van-visit-shop (dungeon x y house-num)
   "Visits shop.."
   (declare (ignore dungeon x y))
-  (warn "triggered..")
+;;  (warn "triggered..")
   (let ((house (get-house house-num)))
     (visit-house *level* house)))
   
@@ -223,7 +223,7 @@ part of the new level."
       ;; skip doorways yet
       )
 
-    (bit-flag-add! *update* +forget-view+ +update-view+)
+    (bit-flag-add! *update* +pl-upd-forget-view+ +pl-upd-update-view+)
     (bit-flag-add! *redraw* +print-map+)
 
 

@@ -190,7 +190,7 @@ ADD_DESC: Contains definition of classes in sexp.
   
   :starting-equipment '((obj :type <mace>)
 			(obj :type (<spellbook> <priest> <beginner>))
-			(obj :id "healing-potion")
+			(obj :id "potion-healing")
 			)
 
   :skills '((<disarming> 25 7)

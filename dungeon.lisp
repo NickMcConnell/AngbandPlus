@@ -156,23 +156,38 @@ the monster
 		    (dungeon.height dungeon))
 	      :element-type 'fixnum :initial-element 0))
 
-(defun cave-coord (dungeon x y)
+#+compiler-that-inlines
+(defsubst cave-coord (dungeon x y)
   (declare (type fixnum x y))
-  (assert (and (< x (dungeon.width dungeon))
-	       (< y (dungeon.height dungeon))))
+;;  (assert (and (< x (dungeon.width dungeon))
+;;	       (< y (dungeon.height dungeon))))
   (aref (dungeon.table dungeon) x y))
+
+#-compiler-that-inlines
+(defmacro cave-coord (dungeon x y)
+  `(aref (dungeon.table ,dungeon) ,x ,y))
 
 (defun cave-feature (dungeon x y)
   (declare (type fixnum x y))
   (coord.feature (cave-coord dungeon x y)))
 
-(defun cave-flags (dungeon x y)
+#+compiler-that-inlines
+(defsubst cave-flags (dungeon x y)
   (declare (type fixnum x y))
   (coord.flags (cave-coord dungeon x y)))
 
+#-compiler-that-inlines
+(defmacro cave-flags (dungeon x y)
+  `(coord.flags (cave-coord ,dungeon ,x ,y)))
+
+#+compiler-that-inlines
 (defun cave-objects (dungeon x y)
   (declare (type fixnum x y))
   (coord.objects (cave-coord dungeon x y)))
+
+#-compiler-that-inlines
+(defmacro cave-objects (dungeon x y)
+  `(coord.objects (cave-coord ,dungeon ,x ,y)))
 
 (defun cave-monsters (dungeon x y)
   (declare (type fixnum x y))
@@ -358,8 +373,17 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     (when (and mon (and (bit-flag-set? flags +cave-seen+) 
 			(bit-flag-set? flags +cave-view+)))
       (let ((kind (amon.kind (car mon))))
-	(setf ret-attr (monster.colour kind)
-	      ret-char (monster.symbol kind))))
+	;; rearrange order later
+	(cond ((has-ability? kind '<colour-changing>)
+	       (setf ret-attr (charify-number (randint 15))
+		     ret-char (monster.symbol kind)))
+	      ((has-ability? kind '<see-through>)
+	       ;; no nothing
+	       )
+	      (t
+	       (setf ret-attr (monster.colour kind)
+		     ret-char (monster.symbol kind))))
+	))
 
 ;;    (when name-return
 ;;      (warn "Returns (~s,~s)" ret-attr ret-char))

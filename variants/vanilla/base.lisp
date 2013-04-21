@@ -38,7 +38,7 @@ stores and special behaviour.  The class is used for dispatching."))
 
 (defun van-make-variant-obj ()
   (make-instance 'vanilla-variant
-		 :id 'langband-vanilla
+		 :id "langband-vanilla"
 		 :name "Vanilla"
 
 		 ;; only used by development

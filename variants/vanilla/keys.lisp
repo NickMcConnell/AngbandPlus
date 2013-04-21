@@ -180,10 +180,17 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'save-game
     #'(lambda (dun pl)
-	(declare (ignore dun pl))
+	(declare (ignore dun))
 	(when-bind (func (get-late-bind-function 'langband 'save-the-game))
-	  (funcall func *variant* *player* *level* :fname +readable-save-file+ :format :readable)
-	  (funcall func *variant* *player* *level* :fname +binary-save-file+ :format :binary)
+	  (let ((home-path  (home-langband-path)))
+	    (lbsys/make-sure-dirs-exist& home-path)
+	    (funcall func *variant* pl *level*
+		     :fname (concatenate 'string home-path +readable-save-file+)
+		     :format :readable)
+	    (funcall func *variant* pl *level*
+		     :fname (concatenate 'string home-path +binary-save-file+)
+		     :format :binary))
+	  (c-print-message! "Your game was saved [binary+source]")
 	  )))
 
 
@@ -226,6 +233,25 @@ the Free Software Foundation; either version 2 of the License, or
 	(declare (ignore dun pl))
 	(break)))
 
+(define-key-operation 'summon
+    #'(lambda (dun pl)
+	(let* ((summon (get-string-input "Monster to summon: "))
+	       (mon (if summon (produce-active-monster *variant* summon))))
+	  (when mon
+	    (block mon-placement
+	      (let ((px (location-x pl))
+		    (py (location-y pl)))
+		(flet ((put-mon (x y)
+			 (when (cave-floor-bold? dun x y)
+			   (place-single-monster! dun pl mon x y nil)
+			   (light-spot! dun x y)
+			   (return-from mon-placement nil))))
+		  (put-mon (1+ px) py)
+		  (put-mon px (1+ py))
+		  (put-mon (1+ px) (1+ py)))))
+	    mon))))
+
+
 (define-keypress *ang-keys* :global #\d 'drop-item)
 (define-keypress *ang-keys* :global #\e 'show-equipment)
 (define-keypress *ang-keys* :global #\f 'fire-something) ;; hackish still
@@ -252,11 +278,12 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :global #\< 'go-upstairs)
 
 ;; these can die later..
-(define-keypress *ang-keys* :global #\T 'print-map)
-(define-keypress *ang-keys* :global #\P 'print-map-as-ppm)
 (define-keypress *ang-keys* :global #\A 'print-mapper)
-(define-keypress *ang-keys* :global #\F 'wamp-monsters)
 (define-keypress *ang-keys* :global #\B 'break-game)
+(define-keypress *ang-keys* :global #\F 'wamp-monsters)
+(define-keypress *ang-keys* :global #\P 'print-map-as-ppm)
+(define-keypress *ang-keys* :global #\T 'print-map)
+(define-keypress *ang-keys* :global #\U 'summon)
 (define-keypress *ang-keys* :global #\Y 'projecteur)
 
 

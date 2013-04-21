@@ -464,7 +464,8 @@ on success.  Returns NIL on failure or user-termination (esc)."
 		
 		(setq return-value (coerce (nreverse collected) 'string))
 		     (return-from str-input nil))
-	       ((alphanumericp val)
+	       ((or (alphanumericp val)
+		    (eql val #\-))
 		(push val collected)
 		(incf cnt))
 	       (t

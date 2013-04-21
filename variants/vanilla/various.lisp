@@ -246,10 +246,10 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod get-offer ((object active-object) (store black-market))
   (int-/ (get-price object store) 4)) ;; decent value, eh?
 
-(defmethod store-generate-object ((the-store black-market))
-    (let* ((var-obj *variant*)
+(defmethod store-generate-object ((variant vanilla-variant) (the-store black-market))
+    (let* (
 	   (level *level*)
-	   (some-obj (get-active-object-by-level var-obj level
+	   (some-obj (get-active-object-by-level variant level
 						 :depth (+ 25 (randint 25))))
 	   (o-type (when some-obj (aobj.kind some-obj))))
 

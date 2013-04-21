@@ -221,7 +221,7 @@ Thanks for all the fish."
   (let* ((home-path (home-langband-path))
 	 (fname (concatenate 'string home-path ".high-scores")))
 
-    (lbsys/make-sure-dirs-exist home-path)
+    (lbsys/make-sure-dirs-exist& home-path)
     
 ;;    (warn "writing to ~s" fname)
     (let* ((hs (produce-high-score-object var-obj pl))

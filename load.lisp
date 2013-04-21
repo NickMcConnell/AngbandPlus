@@ -51,6 +51,15 @@ the Free Software Foundation; either version 2 of the License, or
   nil)
 
 (defun %filed-variant (&key id turn)
+
+  (unless (and id (stringp id))
+    (error "The saved variant-object does not have a legal id, it has ~s" id))
+
+  (let ((var-obj (load-variant& id)))
+    (if var-obj
+	(setf *variant* var-obj)
+	(error "Unable to find variant with id ~s" id)))
+  
   (let ((var-obj *variant*)) ;; hackish
     (setf (variant.turn var-obj) turn)
     (unless (equal (string id) (string (variant.id var-obj)))
@@ -108,7 +117,7 @@ the Free Software Foundation; either version 2 of the License, or
   "returns an active-monster object or nil."
   
   (let* ((var-obj *variant*)
-	 (ret-monster nil)
+	 ;;(ret-monster nil)
 	 (amon (produce-active-monster var-obj kind)))
     
     (setf (current-hp amon) cur-hp
@@ -227,11 +236,12 @@ the Free Software Foundation; either version 2 of the License, or
 	  (player.gold pl-obj) gold
 	  (player.food pl-obj) food
 	  (player.energy pl-obj) energy)
+    
+
 
     (%filed-player-info pl-obj :name name :race race :class class :sex sex
 			:base-stats base-stats :curbase-stats curbase-stats
 			:hp-table hp-table :equipment equipment)
-    
     
     (update-player! var-obj pl-obj)
     
@@ -344,7 +354,28 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod load-object ((variant variant) (type (eql :player)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
-	 (pl-obj (bt:read-binary 'player str)))
+	 (pl-obj (produce-player-object variant)))
+
+    ;; get basic values in
+    (setf (location-x pl-obj) (read-binary 'bt:u16 str)
+	  (location-y pl-obj) (read-binary 'bt:u16 str)
+	  (player.view-x pl-obj) (read-binary 'bt:u16 str)
+	  (player.view-y pl-obj) (read-binary 'bt:u16 str)
+	  (player.depth pl-obj) (read-binary 'bt:s16 str)
+	  (player.max-depth pl-obj) (read-binary 'bt:s16 str)
+	  (player.max-xp pl-obj) (read-binary 'bt:u32 str)
+	  (player.cur-xp pl-obj) (read-binary 'bt:u32 str)
+	  (player.fraction-xp pl-obj) (read-binary 'bt:u32 str)
+
+	  (current-hp pl-obj) (read-binary 'bt:u32 str)
+	  (player.fraction-hp pl-obj) (read-binary 'bt:u32 str)
+	  (player.cur-mana pl-obj) (read-binary 'bt:u32 str)
+	  (player.fraction-mana pl-obj) (read-binary 'bt:u32 str)
+	  (player.gold pl-obj) (read-binary 'bt:u32 str)
+	  (player.food pl-obj) (read-binary 'bt:u32 str)
+	  (player.energy pl-obj) (read-binary 'bt:u16 str))
+
+
 	 
     (%filed-player-info pl-obj
 			:name (%bin-read-string str)
@@ -356,6 +387,7 @@ the Free Software Foundation; either version 2 of the License, or
 			:hp-table (%bin-read-array (variant.max-charlevel *variant*) 'bt:u16 str)
 			:equipment (load-object variant :items-worn stream) 
 			)
+
     
     ;; recalculate rest
     (update-player! variant pl-obj)		
@@ -394,7 +426,8 @@ the Free Software Foundation; either version 2 of the License, or
 		    :dungeon (load-object variant :dungeon stream))
       )))
 
-(defmethod load-object ((variant variant) (type (eql :variant)) (stream l-binary-stream))
+(defmethod load-object (variant (type (eql :variant)) (stream l-binary-stream))
+  (assert (eq variant nil))
   (let* ((str (lang.stream stream)))
     (%filed-variant :id (%bin-read-string str)
 		    :turn (bt:read-binary 'bt:u32 str))

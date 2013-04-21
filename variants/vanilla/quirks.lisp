@@ -101,16 +101,24 @@ the rest of the game is init'ed."
   (register-level! var-obj 'level
 		   :object-filter
 		   #'(lambda (var-obj obj)
-		       (let ((table (get-otype-table var-obj 'level)))
-			 (setf (gethash (slot-value obj 'id)
-					(gobj-table.obj-table table))
-			       obj)
-			 t)))
+		       (let* ((table (get-otype-table var-obj 'level))
+			      (id (slot-value obj 'id))
+			      (obj-table (gobj-table.obj-table table)))
+			 (multiple-value-bind (val f-p)
+			     (gethash id obj-table)
+			   (declare (ignore val))
+			   (if f-p
+			     (error "Object-id ~s already exists in system, obviously not a unique id."
+				    id)
+			     (setf (gethash id obj-table) obj))))
+
+			 t))
+  
   (register-level! var-obj 'random-level
 		   :monster-filter
 		   #'(lambda (var-obj obj)
 		       ;; all below 0
-		       (when (> (slot-value obj 'level) 0)
+		       (when (> (slot-value obj 'depth) 0)
 			 (let ((table (get-mtype-table var-obj 'random-level)))
 			   (setf (gethash (slot-value obj 'id)
 					  (gobj-table.obj-table table))
@@ -120,7 +128,7 @@ the rest of the game is init'ed."
 		   :monster-filter
 		   #'(lambda (var-obj obj)
 		       ;; all equal to 0
-		       (when (= (slot-value obj 'level) 0)
+		       (when (= (slot-value obj 'depth) 0)
 			 (let ((table (get-mtype-table var-obj 'town-level)))
 			   (setf (gethash (slot-value obj 'id)
 					  (gobj-table.obj-table table))
@@ -204,7 +212,7 @@ the rest of the game is init'ed."
     
     (setf (gobj-table.obj-table-by-lvl o-table)
 	  (convert-obj okind-table :vector :sort-table-p t
-		       :sorted-by-key #'(lambda (x) (slot-value x 'level))))
+		       :sorted-by-key #'(lambda (x) (slot-value x 'depth))))
     
     (setf (gobj-table.alloc-table o-table)
 	  (funcall alloc-table-creator variant (gobj-table.obj-table-by-lvl o-table)))
@@ -288,8 +296,6 @@ the rest of the game is init'ed."
 				     #'create-alloc-table-objects))
 	     object-tables))
 
-
-  (init-flavours& (variant.flavour-types var-obj))
   
 ;;  #+langband-debug
 ;;  (%output-kinds-to-file "dumps/obj.lisp")
@@ -299,21 +305,35 @@ the rest of the game is init'ed."
 ;; The real McCoy
 (defmethod activate-object ((var-obj vanilla-variant) &key)
 
-;;  (initialise-objects&  var-obj :old-file "k_info.txt")
+;;  (warn "active..")
   (initialise-objects&  var-obj :file "objects")
-;;  (initialise-monsters& var-obj :old-file "r_info.txt")
+  (initialise-objects&  var-obj :file "armour")
+  (initialise-objects&  var-obj :file "weapons")
+  (initialise-objects&  var-obj :file "potions")
+  (initialise-objects&  var-obj :file "scrolls")
+  (initialise-objects&  var-obj :file "sticks")
+  (initialise-objects&  var-obj :file "books")
+
   (initialise-monsters& var-obj :file "monsters")
   (initialise-monsters& var-obj :file "town-monsters")
   (initialise-monsters& var-obj :file "uniques")
-;;  (initialise-floors& var-obj :old-file "f_info.txt")
+
   (initialise-floors& var-obj)
 
+;;  (warn "flav")
+  ;; after all objects are in
+  (init-flavours& (variant.flavour-types var-obj))
+
+  ;;  (initialise-objects&  var-obj :old-file "k_info.txt")
+  ;;  (initialise-monsters& var-obj :old-file "r_info.txt")
+  ;;  (initialise-floors& var-obj :old-file "f_info.txt")
+  
   var-obj)
 
 
 (defun van-init-equipment-values (var-obj)
   "Initialises values dealing with the equipment (sorting, worn slots)."
-
+  (declare (ignore var-obj))
   ;; move to variant object
   (let ((equip-order '(
 		       (eq.weapon   "Wielding"      <weapon>)
@@ -331,50 +351,8 @@ the rest of the game is init'ed."
 		       (eq.backpack "On back"       <container>))))
     
     (register-slot-order& equip-order))
+  )
 
-  (van-register-sorting-values! var-obj))
-
-(defun van-register-sorting-values! (var-obj)
-  ;; highest value listed first..
-  (register-sorting-values& var-obj
-			    '(
-    
-			      (1 . 2000);; skeleton
-			      (2 . 2100);; bottle
-			      (3 . 2200);; junk
-			      (5 . 2300);; spike
-			      (7 . 2400);; chest
-			      (16 . 2500);; ammo, shot
-			      (17 . 2600);; ammo, arrow
-			      (18 . 2700);; ammo, bolt
-			      (19 . 2800);; bow
-			      (20 . 2900);; digging tool
-			      (21 . 3000);; hafted weapon
-			      (22 . 3100);; polearm
-			      (23 . 3200);; sword
-			      (30 . 3300);; boots
-			      (31 . 3400);; gloves
-			      (32 . 3500);; helmets
-			      (33 . 3600);; crowns
-			      (34 . 3700);; shields
-			      (35 . 3800);; cloaks
-			      (36 . 3900);; soft armours
-			      (37 . 4000);; hard armours
-			      (38 . 4100);; dragon-scale
-			      (39 . 4200);; light-source
-			      (40 . 4300);; neckwear
-			      (45 . 4400);; rings
-			      (66 . 4500);; rods
-			      (55 . 4600);; staves
-			      (65 . 4800);; wands
-			      (70 . 5000);; scrolls
-			      (75 . 5500);; potions
-			      (77 . 5700);; flasks
-			      (80 . 6000);; food
-			      (90 . 6900);; mage spellbook
-			      (91 . 7000);; priest spellbook
-			      (100 . 7100);; money
-			      )))
 
 (defun van-init-skill-system (var-obj)
   "Tries to init all that deals with the skill-system."

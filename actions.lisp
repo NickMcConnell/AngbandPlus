@@ -73,7 +73,7 @@ The direction is a number from the keypad."
 	     )
 	    ))
 
-    (bit-flag-add! *update* +update-view+)
+    (bit-flag-add! *update* +pl-upd-update-view+)
 
     ;; hack
     (apply-possible-coord-trigger dun
@@ -116,7 +116,7 @@ is above a stair.  DIR can be :UP or :DOWN"
        ))
 
     (bit-flag-add! *redraw* +print-map+ +print-basic+)
-    (bit-flag-add! *update* +update-view+)
+    (bit-flag-add! *update* +pl-upd-update-view+)
     
     (setf (player.depth pl) depth
 	  (player.energy-use pl) +energy-normal-action+ 
@@ -161,15 +161,19 @@ a list if more items occupy the same place."
 		  (let* ((backpack (aobj.contains (player.inventory player)))
 			 (retval (item-table-add! backpack removed-obj)))
 
-		    (if retval
-			;; succesful
-			(when (= 0 (items.cur-size objs))
-			  (setf (cave-objects dungeon x y) nil))
-			;; not succesful.. put it back
-			(progn
-			  (item-table-add! objs removed-obj)
-			  (warn "No room in backpack.")
-			  (return-from pick-up-from-floor! nil))))))
+		    (cond (retval
+			   (c-print-message! (format nil "You pick up ~a"
+						     (with-output-to-string (s)
+						       (write-obj-description *variant* removed-obj s))))
+			   ;; succesful
+			   (when (= 0 (items.cur-size objs))
+			     (setf (cave-objects dungeon x y) nil)))
+
+			  (t 
+			   ;; not succesful.. put it back
+			   (item-table-add! objs removed-obj)
+			   (c-print-message! "No room in backpack.")
+			   (return-from pick-up-from-floor! nil))))))
 
 	   (unless (cave-objects dungeon x y)
 	     (return-from pick-up-from-floor! nil))))
@@ -236,8 +240,9 @@ a list if more items occupy the same place."
 		 ;; succesful and nothing returned.. do nothing, except waste energy
 		 (incf (player.energy-use pl) +energy-normal-action+)
 		 ;; hack, fix later
-		 (bit-flag-add! *update* +forget-view+ +update-view+)
-		 (bit-flag-add! *redraw* +print-map+)
+
+		 (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+)
+		 ;; add window-stuff
 		 ))
 	  
 	  ))

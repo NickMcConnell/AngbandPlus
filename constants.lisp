@@ -22,6 +22,7 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +false+ 0)
 (defconstant +true+ 1)
 
+;;; === The colours that the TERM can display.
 (defconst +term-dark+    =char-code= (charify-number 0) "a colour")
 (defconst +term-white+   =char-code= (charify-number 1) "a colour")
 (defconst +term-slate+   =char-code= (charify-number 2) "a colour")
@@ -38,8 +39,9 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconst +term-l-green+ =char-code= (charify-number 13) "a colour")
 (defconst +term-l-blue+  =char-code= (charify-number 14) "a colour")
 (defconst +term-l-umber+ =char-code= (charify-number 15) "a colour")
+;;; === End colour-flags
 
-;; cave flags
+;;; === The cave flags for coordinates in the dungeon.
 (defconst +cave-mark+ u-fixnum #x01 "memorized feature")
 (defconst +cave-glow+ u-fixnum #x02 "self-illuminating")
 (defconst +cave-icky+ u-fixnum #x04 "part of a vault")
@@ -48,11 +50,10 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconst +cave-view+ u-fixnum #x20 "view flag")
 (defconst +cave-temp+ u-fixnum #x40 "temp flag")
 (defconst +cave-wall+ u-fixnum #x80 "wall flag")
-
-;; mapping flags, unused
-;;(defconst +mapped-seen+ u-fixnum #x01 "seen flag")
+;;; === end cave-flags
 
 
+;;; === Flags for features/floors
 (defconst +feature-none+ u-fixnum #x00  "no feature")
 (defconst +feature-floor+ u-fixnum #x01 "a feature")
 (defconst +feature-invisible+ u-fixnum #x02 "a feature")
@@ -95,7 +96,10 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +feature-perm-inner+ #x3d)
 (defconstant +feature-perm-outer+ #x3e)
 (defconstant +feature-perm-solid+ #x3f)
+;;; === end feature/floor flags
 
+
+;;; === flags that control print/redraw
 
 (defconstant +print-misc+   #x00000001)
 (defconstant +print-title+  #x00000002)
@@ -122,14 +126,27 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +print-study+    #x00400000)
 
 (defconstant +print-extra+    #x01000000)
-(defconstant +print-basic+    #x02000000)
+(defconstant +print-basic+    #x02000000 "The panel on the left.")
 
 (defconstant +print-map+      #x08000000)
 
+;;; === end redraw/print flags
 
-(defconstant +forget-view+    #x00010000)
-(defconstant +update-view+    #x00020000)
-(defconstant +update-xp+      #x00040000)
+;;; === flags for updating the player, the values differ from angband!!
+(defconstant +pl-upd-bonuses+        #x00000001)
+(defconstant +pl-upd-torch+          #x00000002)
+(defconstant +pl-upd-hp+             #x00000010)
+(defconstant +pl-upd-mana+           #x00000020)
+(defconstant +pl-upd-spells+         #x00000040)
+(defconstant +pl-upd-forget-view+    #x00000100)
+(defconstant +pl-upd-update-view+    #x00000200)
+(defconstant +pl-upd-forget-flow+    #x00001000)
+(defconstant +pl-upd-update-flow+    #x00002000)
+(defconstant +pl-upd-monsters+       #x00010000)
+(defconstant +pl-upd-distance+       #x00020000)
+(defconstant +pl-upd-panel+          #x00080000)
+
+;;; === end flags for updating the player
 
 (defconstant +ident-sense+  #x01 "Item has been 'sensed'")
 (defconstant +ident-fixed+  #x02 "Item has been 'haggled'")
@@ -276,3 +293,6 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +vinfo-grid-field-len+ 8)
 
 (defconstant +scale+ 100000)
+
+;; mapping flags, unused
+;;(defconst +mapped-seen+ u-fixnum #x01 "seen flag")

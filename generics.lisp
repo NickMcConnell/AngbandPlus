@@ -50,7 +50,9 @@ the Free Software Foundation; either version 2 of the License, or
 specifi es what kind of saving should be done (e.g readable, binary, ..)"))
 
 (defgeneric do-load (variant fname obj-types style)
-  (:documentation "Tries to load given obj-types from the filename."))
+  (:documentation "Tries to load given obj-types from the filename.
+If variant is NIL, the variant should be first in the obj-types list and
+will be used for subsequent loads."))
 
 (defclass l-readable-stream ()
   ((the-stream :accessor lang.stream :initform nil :initarg :stream)))
@@ -82,6 +84,13 @@ scoring-system."))
 
 
 ;;; Creature (monster/player/...) related generics
+
+(defgeneric calculate-creature-bonuses! (variant creature)
+  (:documentation "Does a full walk-through of the creature and updates any and all bonuses."))
+(defgeneric calculate-creature-light-radius! (variant creature)
+  (:documentation "Does a walk-through of the creature and updates the light-radius."))
+(defgeneric calculate-creature-hit-points! (variant creature)
+  (:documentation "Does a walk-through of the creature and recalculates hit-points."))
 
 (defgeneric display-creature (variant creature &key mode)
   (:documentation "Displays the creature to the UI."))
@@ -128,6 +137,10 @@ scoring-system."))
 (defgeneric get-missile-weapon (creature)
   (:documentation "Returns the active-object that is used as missile-weapon."))
 
+;; maybe drop this in a more general system.. or?
+(defgeneric get-light-source (creature)
+  (:documentation "Returns the light-source used."))
+
 ;;; === End creature
 
 
@@ -151,6 +164,12 @@ and if so, marks the object."))
 
 (defgeneric apply-usual-effects-on-used-object! (dun pl obj)
   (:documentation "Not quite sure here yet.. should be sewn into the USE-protocol."))
+
+(defgeneric is-magical? (thing)
+  (:documentation "Returns T if the 'thing' is magical, return NIL otherwise."))
+
+(defgeneric is-artifact? (object)
+  (:documentation "Returns T if the object is an artifact, NIL otherwise."))
 
 ;;; === End object-generics
 
@@ -217,9 +236,15 @@ dungeon."))
 (defgeneric find-owner-for-house (level house &key)
   (:documentation "Tries to find an appropriate owner for the house."))
 
-(defgeneric store-generate-object (the-store)
+(defgeneric store-generate-object (variant the-store)
   (:documentation "Returns an object appropriate for the store, no side-effects."))
 
+(defgeneric store-maintenance! (variant the-store)
+  (:documentation "Does maintenance on a store, possibly changing it."))
+
+(defgeneric store-mass-produce! (variant store object)
+  (:documentation "Possibly mass-produces and alters the object, and may add discount."))
+  
 ;;; === End store
 
 
@@ -253,11 +278,20 @@ is supplied, stacking-rules will also be checked."))
 
 ;;; === Miscellaneous
 
-(defgeneric shoot-an-arrow (dungeon player missile-weapon missile)
+(defgeneric shoot-a-missile (dungeon player missile-weapon missile)
   (:documentation "Shoots an arrow, queries for direction."))
 
-(defgeneric cmb-hit-creature? (attacker target the-attack)
+(defgeneric melee-hit-creature? (attacker target the-attack)
   (:documentation "will the attacker hit the target?"))
+
+(defgeneric melee-inflict-damage! (attacker target the-attack)
+  (:documentation "inflict some damage after a successful hit."))
+
+(defgeneric missile-hit-creature? (attacker target missile-weapon missile)
+  (:documentation "Returns T if the missile hit the target, NIL otherwise."))
+
+(defgeneric missile-inflict-damage! (attacker target missile-weapon missile)
+  (:documentation "Rolls and applies damage to the target."))
 
 (defgeneric select-item (dungeon player allow-from &key prompt where selection-function)
   (:documentation "Interactive selection of an item."))

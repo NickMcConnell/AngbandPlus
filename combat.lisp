@@ -49,10 +49,6 @@ the Free Software Foundation; either version 2 of the License, or
   nil)
 
 
-(defmethod cmb-hit-creature? (attk target the-attack)
-  (declare (ignore attk target the-attack))
-  (error "not impl."))
-
 (defun %calc-perchance (chance the-ac)
   (let ((mid-res (int-/ (* 90 (- chance (int-/ (* 3 the-ac) 4))) chance)))
 ;;    (warn "mid-res is ~a" mid-res)
@@ -84,9 +80,8 @@ the Free Software Foundation; either version 2 of the License, or
       t
       nil))
 
-;;(trace %did-i-hit?)
 		    
-(defmethod cmb-hit-creature? ((attacker player) (target active-monster) the-attack)
+(defmethod melee-hit-creature? ((attacker player) (target active-monster) the-attack)
   (declare (ignore the-attack))
  
     (let* ((bonus 0) ;; (* (+ to-hit for weapon and dex/str) multiplier)
@@ -98,11 +93,11 @@ the Free Software Foundation; either version 2 of the License, or
     (%did-i-hit? target chance monster-ac visible-p)))
 
 
-(defmethod cmb-hit-creature? ((attacker active-monster) (target player) the-attack)
+(defmethod melee-hit-creature? ((attacker active-monster) (target player) the-attack)
   (declare (ignore the-attack))
     
   (let* ((power 60) ;; hit_hurt
-	 (mlvl (monster.level (amon.kind attacker)))
+	 (mlvl (monster.depth (amon.kind attacker)))
 	 (rlev (if (plusp mlvl) mlvl 1)))
     
     (%did-i-hit? target (+ power (* 3 rlev))
@@ -110,15 +105,10 @@ the Free Software Foundation; either version 2 of the License, or
 		 t)))
 
 
-(defmethod cmb-inflict-damage! (attacker target the-attack)
-  (declare (ignore the-attack))
-  (error "Unknown combo ~s ~s" attacker target))
-
-  
 (defun deduct-hp! (target amount)
   (decf (current-hp target) amount))
 
-(defmethod cmb-inflict-damage! ((attacker active-monster) target the-attack)
+(defmethod melee-inflict-damage! ((attacker active-monster) target the-attack)
   
   (let (;;(kind (amon.kind attacker))
 	(dmg-dice (attack.damage the-attack)))
@@ -132,12 +122,15 @@ the Free Software Foundation; either version 2 of the License, or
 ;;		   (car dmg-dice) (cdr dmg-dice) dmg
 ;;		   (current-hp target) (- (current-hp target) dmg))
 	     (deduct-hp! target dmg)
+	     (when (typep target 'player)
+	       (bit-flag-add! *redraw* +print-hp+))
+
 	     dmg))
 	  )))
 
 
   
-(defmethod cmb-inflict-damage! ((attacker player) target the-attack)
+(defmethod melee-inflict-damage! ((attacker player) target the-attack)
   (declare (ignore the-attack))
   (let* ((weapon (get-weapon attacker)))
 
@@ -195,11 +188,11 @@ the Free Software Foundation; either version 2 of the License, or
 (defun attack-target! (dun attacker target x y the-attack)
   (play-sound 1)
   ;;	(describe the-monster)
-  (if (not (cmb-hit-creature? attacker target the-attack))
+  (if (not (melee-hit-creature? attacker target the-attack))
       (cmb-describe-miss attacker target)
       (progn
 	(cmb-describe-hit attacker target the-attack)
-	(cmb-inflict-damage! attacker target the-attack)
+	(melee-inflict-damage! attacker target the-attack)
 	      	      
 	(when (< (current-hp target) 0)
 	  (cmb-describe-death attacker target)
@@ -233,10 +226,22 @@ the Free Software Foundation; either version 2 of the License, or
 #||
   (let ((mon-name (monster.name mon)))
   
-    (if (cmb-hit-creature? mon pl)
+    (if (melee-hit-creature? mon pl)
 	(warn "'~a' hit the player.." mon-name)
 	(warn "'~a' missed the player.." mon-name))
     ))
 ||#
 
+#||
+(defmethod melee-hit-creature? (attk target the-attack)
+  (declare (ignore attk target the-attack))
+  (error "not impl."))
+||#
+#||
+(defmethod melee-inflict-damage! (attacker target the-attack)
+  (declare (ignore the-attack))
+  (error "Unknown combo ~s ~s" attacker target))
+||#
+  
+;;(trace %did-i-hit?)
 ;;(trace kill-target!)

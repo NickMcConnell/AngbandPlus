@@ -70,9 +70,6 @@ the Free Software Foundation; either version 2 of the License, or
 		   :initform (make-hash-table :test #'equal)
 		   :initarg :room-builders)
 
-   (sort-values    :accessor variant.sort-values
-		   :initform (make-hash-table :test #'eql)
-		   :initarg :sort-values)
      
    (max-depth      :accessor variant.max-depth
 		   :initform 128
@@ -127,6 +124,94 @@ the Free Software Foundation; either version 2 of the License, or
      
    ))
 
+(defclass player ()
+
+  (
+    ;; === Need Special saving ===
+  
+   (name  :accessor player.name  :initform nil)
+   (class :accessor player.class :initform nil)
+   (race  :accessor player.race  :initform nil)
+   (sex   :accessor player.sex   :initform nil)
+   
+   (base-stats    :accessor player.base-stats
+		  :initform nil
+		  :documentation "this is the base stats")
+   (curbase-stats :accessor player.curbase-stats
+		  :initform nil
+		  :documentation "this is the current (possibly drained) base stats")
+   (hp-table      :accessor player.hp-table
+		  :initform nil
+		  :documentation "Note: should be saved.")
+   (equipment     :accessor player.equipment :initform nil)
+   (dead-from     :accessor player.dead-from
+		  :initform ""
+		  :documentation "who killed the player?")
+   
+   ;; === Directly savable to binary ===
+   
+   (loc-x :accessor location-x :initform +illegal-loc-x+)
+   (loc-y :accessor location-y :initform +illegal-loc-y+)
+   
+   (view-x :accessor player.view-x :initform +illegal-loc-x+);; wx
+   (view-y :accessor player.view-y :initform +illegal-loc-y+);; wy
+   
+   (depth     :accessor player.depth     :initform 0)
+   (max-depth :accessor player.max-depth :initform 0)
+   
+   (max-xp      :accessor player.max-xp      :initform 0)
+   (cur-xp      :accessor player.cur-xp      :initform 0)
+   (fraction-xp :accessor player.fraction-xp :initform 0) 
+   
+   (cur-hp      :accessor current-hp         :initform 0)
+   (fraction-hp :accessor player.fraction-hp :initform 0)
+   
+   (cur-mana      :accessor player.cur-mana      :initform 0)
+   (fraction-mana :accessor player.fraction-mana :initform 0)
+   
+   (gold        :accessor player.gold   :initform 0)
+   (food        :accessor player.food   :initform (1- +food-full+))
+   (energy      :accessor player.energy :initform 0)
+   
+   ;; === The remaining values can be calculated from the above ===
+   
+   (level     :accessor player.level     :initform 1)  ;; can be calculated from cur-xp
+   (max-level :accessor player.max-level :initform 1)  ;; can be calculated from max-xp
+
+   (max-hp    :accessor maximum-hp       :initform 0)   ;; can be calculated
+   (max-mana  :accessor player.max-mana  :initform 0)   ;; can be calculated
+   (xp-table  :accessor player.xp-table  :initform nil) ;; can be calculated
+   
+   (energy-use :accessor player.energy-use :initform 0)   ;; is just a temp-variable
+   (leaving-p  :accessor player.leaving-p  :initform nil) ;; need to save it?
+   (dead-p     :accessor player.dead-p     :initform nil) ;; need to save it?
+   (speed      :accessor player.speed      :initform +speed-base+)  ;; does this change?
+   
+   
+   (base-ac      :accessor player.base-ac      :initform 0)
+   (ac-bonus     :accessor player.ac-bonus     :initform 0)
+   (light-radius :accessor player.light-radius :initform 0)
+   
+   (infravision :accessor player.infravision
+		:initform 0)
+   (inventory   :accessor player.inventory
+		:initform nil
+		:documentation "quick variable to equipment.backpack.content")
+   (skills      :accessor player.skills
+		:initform nil)
+   
+   (modbase-stats :accessor player.modbase-stats
+		  :initform nil
+		  :documentation "this is the modified base stats (base + race + class + eq)")
+   (active-stats :accessor player.active-stats
+		 :initform nil
+		 :documentation "this is the current active stat-value (curbase + race + class + eq)")
+   
+   ))
+
+
+;;; == variant-related code
+
 (defmethod initialise-monsters& (variant &key)
   (error "No INIT-MONSTERS for ~s" (type-of variant)))
   
@@ -137,18 +222,31 @@ the Free Software Foundation; either version 2 of the License, or
   (error "No INIT-OBJECTS for ~s" (type-of variant)))
 
 
-(defun register-variant& (var-obj)
-  "Registers a variant-object."
+;; a small closure
+(let ((registered-variants (make-hash-table :test #'equal)))
+  
+  (defun register-variant& (var-obj)
+    "Registers a variant-object."
+    
+    (check-type var-obj variant)
+    (setf (gethash (variant.id var-obj) registered-variants) var-obj))
 
-;;  (warn "Trying to run variant ~a" (variant.name var-obj))
-  (setf (get 'variants (variant.id var-obj)) var-obj))
+  (defun load-variant& (id &key (verbose t))
+    "Tries to load a variant."
+    (declare (ignore verbose))
+    (let ((var-obj (gethash id registered-variants)))
+      (when (and var-obj (typep var-obj 'variant))
+	var-obj))))
 
-(defmethod variant-data-fname (var-obj data-fname)
+
+
+(defmethod variant-data-fname ((var-obj variant) data-fname)
   "Returns a full pathname for data."
   (let ((file-path (variant.config-path var-obj)))
     (if file-path
 	(concatenate 'string file-path "/" data-fname)
 	data-fname)))
+
 
 
 (defun load-variant-data& (var-obj data-file)
@@ -158,12 +256,6 @@ the Free Software Foundation; either version 2 of the License, or
     (load fname)))
 
 
-(defun load-variant& (id &key (verbose t))
-  "Tries to load a variant."
-  (declare (ignore verbose))
-  (let ((var-obj (get 'variants id)))
-    (when (and var-obj (typep var-obj 'variant))
-      var-obj)))
 #||
       (let ((sys-file (variant.sys-file var-obj)))
 	(when verbose
@@ -178,10 +270,6 @@ the Free Software Foundation; either version 2 of the License, or
 ||#
 	     
 
-(defun get-sort-value (key &optional (var-obj *variant*))
-  "Returns a number for the key, or NIL."
-  (let ((table (variant.sort-values var-obj)))
-    (gethash key table)))
 
 (defun execute-turn-events! (var-obj)
   "Executes any turn-events."
@@ -208,18 +296,6 @@ the Free Software Foundation; either version 2 of the License, or
     (dolist (i filters)
       (funcall (cdr i) var-obj obj))))
 
-(defun register-sorting-values& (var-obj sort-values)
-  "The SORT-VALUES are a list where the CARs are CONSes. In
-each such CONS the CAR is an appropriate key and the CDR is
-the sorting-value which is a positive integer, lowest numbers
-are sorted first.  Returns nothing."
-
-  (let ((table (variant.sort-values var-obj)))
-    (dolist (i sort-values)
-      (let ((key (car i))
-	    (sort-val (cdr i)))
-	(setf (gethash key table) sort-val)))
-    (values)))
 
 (defun get-level-builder (id &optional (var-obj *variant*))
   "Returns a level-builder or nil."

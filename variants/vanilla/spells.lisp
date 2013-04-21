@@ -64,7 +64,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	(setf (cave-flags dungeon (car i) (cdr i)) flag)))
 
     ;; redraw things
-    (bit-flag-add! *update* +forget-view+ +update-view+)
+    (bit-flag-add! *update* +pl-upd-forget-view+ +pl-upd-update-view+)
     (bit-flag-add! *redraw* +print-map+)
     
     t))

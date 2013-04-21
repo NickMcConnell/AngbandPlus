@@ -81,8 +81,10 @@ the Free Software Foundation; either version 2 of the License, or
 	    (location-y pl) to-y)
       ;; add more stuff here
 ;;      (warn "move pl (~s ~s) -> (~s ~s)" from-x from-y to-x to-y)
-      (bit-flag-add! *update* +update-view+)
-      (bit-flag-add! *redraw* +print-map+)
+      (bit-flag-add! *update* +pl-upd-update-view+ +pl-upd-distance+
+		     +pl-upd-panel+ +pl-upd-update-flow+)
+      ;; skip overhead-window
+;;      (bit-flag-add! *redraw* +print-map+)
       ) ;; hack, fix later
 
 

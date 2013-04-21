@@ -112,8 +112,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 		     ;; the first should be W
 		     (assert (string-equal (first res) "w"))
-		     ;; the second is level
-		     (setf (monster.level cur-monster) (parse-integer (second res)))
+		     ;; the second is level/depth
+		     (setf (monster.depth cur-monster) (parse-integer (second res)))
 		     ;; the third is rarity
 		     (setf (monster.rarity cur-monster) (parse-integer (third res)))
 		     ;; the fourth is unused

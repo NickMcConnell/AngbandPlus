@@ -280,13 +280,13 @@ a number or a symbol identifying the place."
 	  ((= 0 (random 50)) ;; ragged
 	   (loop for y from (+ y1 2) to (- y2 2) by 2
 		 do
-		 (setf (cave-feature dungeon x1 y) +feature-wall-inner+)
-		 (setf (cave-feature dungeon x2 y) +feature-wall-inner+))
+		 (setf (cave-feature dungeon x1 y) +feature-wall-inner+
+		       (cave-feature dungeon x2 y) +feature-wall-inner+))
 	   
 	   (loop for x from (+ x1 2) to (- x2 2) by 2
 		 do
-		 (setf (cave-feature dungeon x y1) +feature-wall-inner+)
-		 (setf (cave-feature dungeon x y2) +feature-wall-inner+))
+		 (setf (cave-feature dungeon x y1) +feature-wall-inner+
+		       (cave-feature dungeon x y2) +feature-wall-inner+))
 	   ))
 
     ))

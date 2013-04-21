@@ -14,92 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
-(bt:define-binary-class player ()
-
-  (
-    ;; === Need Special saving ===
-  
-    (name  :accessor player.name  :initform nil)
-    (class :accessor player.class :initform nil)
-    (race  :accessor player.race  :initform nil)
-    (sex   :accessor player.sex   :initform nil)
-
-    (base-stats    :accessor player.base-stats
-		   :initform nil
-		   :documentation "this is the base stats")
-    (curbase-stats :accessor player.curbase-stats
-		   :initform nil
-		   :documentation "this is the current (possibly drained) base stats")
-    (hp-table      :accessor player.hp-table
-		   :initform nil
-	           :documentation "Note: should be saved.")
-    (equipment     :accessor player.equipment :initform nil)
-    (dead-from     :accessor player.dead-from
-		   :initform ""
-	           :documentation "who killed the player?")
-
-    ;; === Directly savable to binary ===
-
-    (loc-x :accessor location-x :initform +illegal-loc-x+ :bt u16)
-    (loc-y :accessor location-y :initform +illegal-loc-y+ :bt u16)
-
-    (view-x :accessor player.view-x :initform +illegal-loc-x+ :bt u16);; wx
-    (view-y :accessor player.view-y :initform +illegal-loc-y+ :bt u16);; wy
-    
-    (depth     :accessor player.depth     :initform 0 :bt s16)
-    (max-depth :accessor player.max-depth :initform 0 :bt s16)
-    
-    (max-xp      :accessor player.max-xp      :initform 0 :bt u32)
-    (cur-xp      :accessor player.cur-xp      :initform 0 :bt u32)
-    (fraction-xp :accessor player.fraction-xp :initform 0 :bt u32) 
-
-    (cur-hp      :accessor current-hp         :initform 0 :bt u32)
-    (fraction-hp :accessor player.fraction-hp :initform 0 :bt u32)
-
-    (cur-mana      :accessor player.cur-mana      :initform 0 :bt u32)
-    (fraction-mana :accessor player.fraction-mana :initform 0 :bt u32)
-
-    (gold        :accessor player.gold   :initform 0 :bt u32)
-    (food        :accessor player.food   :initform (1- +food-full+) :bt u32)
-    (energy      :accessor player.energy :initform 0 :bt u16)
-
-    ;; === The remaining values can be calculated from the above ===
-    
-    (level     :accessor player.level     :initform 1)  ;; can be calculated from cur-xp
-    (max-level :accessor player.max-level :initform 1)  ;; can be calculated from max-xp
-
-    (max-hp    :accessor maximum-hp       :initform 0)   ;; can be calculated
-    (max-mana  :accessor player.max-mana  :initform 0)   ;; can be calculated
-    (xp-table  :accessor player.xp-table  :initform nil) ;; can be calculated
-    
-    (energy-use :accessor player.energy-use :initform 0)   ;; is just a temp-variable
-    (leaving-p  :accessor player.leaving-p  :initform nil) ;; need to save it?
-    (dead-p     :accessor player.dead-p     :initform nil) ;; need to save it?
-    (speed      :accessor player.speed      :initform +speed-base+)  ;; does this change?
-    
-
-    (base-ac      :accessor player.base-ac      :initform 0)
-    (ac-bonus     :accessor player.ac-bonus     :initform 0)
-    (light-radius :accessor player.light-radius :initform 0)
-   
-    (infravision :accessor player.infravision
-		 :initform 0)
-    (inventory   :accessor player.inventory
-		 :initform nil
-		 :documentation "quick variable to equipment.backpack.content")
-    (skills      :accessor player.skills
-		 :initform nil)
-
-    (modbase-stats :accessor player.modbase-stats
-		   :initform nil
-		   :documentation "this is the modified base stats (base + race + class + eq)")
-    (active-stats :accessor player.active-stats
-		  :initform nil
-		  :documentation "this is the current active stat-value (curbase + race + class + eq)")
-  
-    ))
-
-
 ;; hack, remove later
 (defun player.eq (pl-obj)
   (player.equipment pl-obj))
@@ -271,9 +185,71 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;(trace add-stat-bonus get-stat-bonus)
 
+(defmethod calculate-creature-hit-points! ((variant variant) (player player))
+
+  t)
+
+(defmethod calculate-creature-light-radius! ((variant variant) (player player))
+  (let ((old-val (player.light-radius player))
+	(slots (player.eq player)))
+    (unless slots
+      (error "Can't find equipment-slots for player, bad."))
+    
+    ;; hackish, simplify later
+    (flet ((item-iterator (table key obj)
+	     (declare (ignore table key))
+	     (when obj
+	       (when-bind (gvals (aobj.game-values obj))
+		 ;; fix light-radius first
+		 (when (> (gval.light-radius gvals) (player.light-radius player))
+		   (setf (player.light-radius player) (gval.light-radius gvals)))
+		 ))))
+      
+      (declare (dynamic-extent #'item-iterator))
+      (item-table-iterate! slots #'item-iterator))
+    (when (/= old-val (player.light-radius player))
+      (bit-flag-add! *update* +pl-upd-update-view+ +pl-upd-monsters+)
+      t)))
+     
+
+(defmethod calculate-creature-bonuses! ((variant variant) (player player))
+
+  ;; let us skim through items and update variables
+  (let ((slots (player.eq player))
+	(old-base-ac (player.base-ac player))
+	(old-ac-bonus (player.ac-bonus player)))
+
+    ;; reset values
+    (setf (player.base-ac player) 0
+	  (player.ac-bonus player) 0)
+	
+    (unless slots
+      (error "Can't find equipment-slots for player, bad."))
+    (flet ((item-iterator (table key obj)
+	     (declare (ignore table key))
+	     (when obj
+	       (when-bind (gvals (aobj.game-values obj))
+		 (incf (player.base-ac player) (gval.base-ac gvals))
+		 (incf (player.ac-bonus player) (gval.ac-bonus gvals))
+		 ))))
+      
+      (declare (dynamic-extent #'item-iterator))
+      (item-table-iterate! slots #'item-iterator))
+
+    (when (or (/= old-base-ac (player.base-ac player))
+	      (/= old-ac-bonus (player.ac-bonus player)))
+      (bit-flag-add! *redraw* +print-armour+)
+      ;; skip window
+      )
+
+	      
+    t))
+
 (defmethod update-player! ((variant variant) (player player))
   "modifies player object appropriately"
 
+  ;; FIX move into calculate functions instead!
+  
   ;; we start the show by reseting variables
 
   ;; reset some key variables
@@ -324,23 +300,7 @@ the Free Software Foundation; either version 2 of the License, or
 	     )))))
 
 
-     
-    ;; let us skim through items and update variables
-    (let ((slots (player.eq player)))
-      (unless slots
-	(error "Can't find equipment-slots for player, bad."))
-      (flet ((item-iterator (table key obj)
-	       (declare (ignore table key))
-	       (when obj
-		 (let* ((kind (aobj.kind obj))
-			(gval (object.game-values kind)))
-		   (when gval
-		     (when (> (gval.light-radius gval) (player.light-radius player))
-		       (setf (player.light-radius player) (gval.light-radius gval)))
-		     (incf (player.base-ac player) (gval.base-ac gval))
-		     (incf (player.ac-bonus player) (gval.ac-bonus gval)))))))
-	(declare (dynamic-extent #'item-iterator))
-	(item-table-iterate! slots #'item-iterator)))
+    (calculate-creature-bonuses! variant player)
 
 
     ;; do this more intelligently later..
@@ -390,6 +350,9 @@ the Free Software Foundation; either version 2 of the License, or
     (with-foreign-str (s)
       (lb-format s "You attain level ~d and ~d new hitpoints. " (player.level player) next-hp)
       (c-print-message! s))
+
+    (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-spells+)
+    (bit-flag-add! *redraw* +print-level+ +print-title+ +print-xp+)
     
     ))
 
@@ -420,6 +383,8 @@ the Free Software Foundation; either version 2 of the License, or
   (incf (player.cur-xp player) amount)
   (incf (player.max-xp player) amount)
 
+  (bit-flag-add! *redraw* +print-xp+)
+
   (loop
    (let* ((cur-level (player.level player))
 	  (next-limit (aref (player.xp-table player) cur-level))
@@ -444,6 +409,12 @@ the Free Software Foundation; either version 2 of the License, or
     (check-type the-eq item-table)
     
     (item-table-find the-eq 'eq.bow)))
+
+(defmethod get-light-source ((crt player))
+  (let ((the-eq (player.eq crt)))
+    (check-type the-eq item-table)
+    
+    (item-table-find the-eq 'eq.light)))
 
 
 (defun reset-skills! (variant skills-obj reset-val)
@@ -634,3 +605,6 @@ the Free Software Foundation; either version 2 of the License, or
   ;; lots of minor pooh
   (setf (player.food pl) new-food-amount))
 
+;;(trace calculate-creature-bonuses!)
+;;(trace calculate-creature-light-radius!)
+;;(trace update-player!)

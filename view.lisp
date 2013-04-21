@@ -300,11 +300,16 @@ the Free Software Foundation; either version 2 of the License, or
 	     (vector-push grid fast-temp) 
 ;;	     (push (cons grid flag) fast-temp)
 	     )
-	   (get-real-flag (grid)
-	     (declare (type fixnum grid))
-	     (cave-flags dun (grid-x grid) (grid-y grid)))
-	   (update-real-flags (grid flag)
-	     (setf (cave-flags dun (grid-x grid) (grid-y grid)) flag)))
+;;	   (get-real-flag (grid)
+;;	     (declare (type fixnum grid))
+;;	     (cave-flags dun (grid-x grid) (grid-y grid)))
+;;	   (update-real-flags (grid flag)
+;;	     (setf (cave-flags dun (grid-x grid) (grid-y grid)) flag))
+	   )
+      (macrolet ((get-real-flag (grid)
+		   `(cave-flags dun (grid-x ,grid) (grid-y ,grid)))
+		 (update-real-flags (grid flag)
+		   `(setf (cave-flags dun (grid-x ,grid) (grid-y ,grid)) ,flag)))
       
 ;;      (warn "player at {~a,~a}" px py)
     
@@ -552,7 +557,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;      (setf *view-hack-arr* fast-view)
     
-      (values))))
+      (values)))))
 	      
 				       
 		  
