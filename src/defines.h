@@ -642,11 +642,11 @@
 #define ROW_CURHP		17
 #define COL_CURHP		0	/* "Cur HP xxxxx" */
 
-#define ROW_MAXSP		18
-#define COL_MAXSP		0	/* "Max SP xxxxx" */
+#define ROW_MANA		18
+#define COL_MANA		0	/* "SP xxxx/xxxx" */
 
-#define ROW_CURSP		19
-#define COL_CURSP		0	/* "Cur SP xxxxx" */
+#define ROW_PIETY		19
+#define COL_PIETY		0	/* "PP xxxx/xxxx" */
 
 #define ROW_INFO		20
 #define COL_INFO		0	/* "xxxxxxxxxxxx" */
@@ -1224,10 +1224,12 @@
 #define TV_POTION       75
 #define TV_FLASK        77
 #define TV_FOOD         80
+#define TV_FIRST_BOOK   90
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
 #define TV_ILLUSION_BOOK 92
 #define TV_DEATH_BOOK   93
+#define TV_LAST_BOOK    94
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 
@@ -1607,6 +1609,7 @@
 #define SV_SCROLL_DISPEL_EVIL                   49
 #define SV_SCROLL_RESTORE_PIETY                 50
 #define SV_SCROLL_MASS_IDENTIFY                 51
+#define SV_SCROLL_MUNDANIFY                     52
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER				0

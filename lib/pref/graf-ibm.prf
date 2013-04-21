@@ -1550,6 +1550,8 @@ K:581:0/-110
 K:582:0/-107
 # Potion
 K:583:0/-110
+# Scroll
+K:584:0/-107
 
 # The following things should use the "S:<code>:<attr>/<char>" mechanism
 

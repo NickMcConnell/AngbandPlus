@@ -478,6 +478,12 @@ static void process_world(void)
 
 	object_type *o_ptr;
 
+	/* Amnesia */
+	if ((p_ptr->amnesia) && (!p_ptr->astral))
+	{
+	     /* Forget the map */
+	     wiz_dark();
+	}
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -1275,13 +1281,6 @@ static void process_world(void)
 	}
 
 	/*** Occasional effects */
-
-	/* Amnesia */
-	if (p_ptr->amnesia)
-	{
-	     /* Forget the map */
-	     wiz_dark();
-	}
 }
 
 
@@ -1705,12 +1704,6 @@ static void process_command(void)
 		}
 
 		/*** Multiclass commands ***/
-
-	        case 'N': /* Create a new class */
-		  {
-		    do_cmd_create_multi_class();
-		    break;
-		  }
 
 	        case ']': /* Switch class forwards */
 		  {
@@ -2551,10 +2544,12 @@ static void dungeon(void)
 	     p_ptr->create_down_stair = FALSE;
 
 	/* No stairs from town or if not allowed */
-	if (!p_ptr->depth || !dungeon_stair || adult_nightmare)
+	if (!p_ptr->depth || !dungeon_stair)
 	{
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
+	if (adult_nightmare)
+	    p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 
 	/* Make a staircase */
 	if (p_ptr->create_down_stair || p_ptr->create_up_stair)

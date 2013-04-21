@@ -247,6 +247,8 @@ static void get_stats(void)
 	/* Roll the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
+	        int n;
+
 		/* Extract 5 + 1d3 + 1d4 + 1d5 */
 		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
 
@@ -254,7 +256,9 @@ static void get_stats(void)
 		p_ptr->stat_max[i] = j;
 
 		/* Obtain a "bonus" for "race" and "class" */
-		bonus = rp_ptr->r_adj[i] + cp_ptr[p_ptr->pclass[0]]->c_adj[i];
+		bonus = rp_ptr->r_adj[i];
+		for (n = 0; n < p_ptr->available_classes; n++)
+		  bonus += cp_ptr[p_ptr->pclass[n]]->c_adj[i];
 
 		/* Variable stat maxes */
 		if (adult_maximize)
@@ -284,17 +288,17 @@ static void get_stats(void)
  */
 static void get_extra(void)
 {
-	int i, j, min_value, max_value;
-
-
-	/* Level one */
-	p_ptr->max_lev[0] = p_ptr->lev[0] = 1;
-
-	/* Experience factor */
-	p_ptr->expfact[0] = rp_ptr->r_exp + cp_ptr[p_ptr->pclass[0]]->c_exp;
+	int classHD = 0, i, j, min_value, max_value;
 
 	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr[p_ptr->pclass[0]]->c_mhp;
+	p_ptr->hitdie = rp_ptr->r_mhp;
+
+	/* Class-based HD is an average */
+	for (i = 0; i < p_ptr->available_classes; i++)
+	  classHD += cp_ptr[p_ptr->pclass[i]]->c_mhp;
+	classHD /= (p_ptr->available_classes + 1);
+
+	p_ptr->hitdie += classHD;
 
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->hitdie;
@@ -585,8 +589,11 @@ static void player_wipe(void)
 	    p_ptr->spell_order[1][i] = 99;
 	  }
 
-	p_ptr->current_class = 0; /* First class */
+	p_ptr->current_class = 0; /* First class is active */
 	p_ptr->available_classes = 1; /* One class only at start */
+
+	p_ptr->realm_magery = 0;
+	p_ptr->realm_priest = 0;
 
 	/* No effects have been used */
 	for (i = 0; i < MAX_EFFECTS; i++) effects[i] = 0;
@@ -603,99 +610,49 @@ static void player_wipe(void)
 }
 
 
-
-
 /*
- * Each player starts out with a few items, given as tval/sval/min/max.
+ * Each player starts out with a few items, given as tval/sval pairs.
+ * In addition, he always has some food and a few torches.
  */
-static const byte player_init[MAX_CLASS][3][2] =
+static const byte player_init[MAX_CLASS][2] =
 {
-	{
-		/* Warrior */
-		{ TV_POTION, SV_POTION_HEROISM },
-		{ TV_SWORD, SV_LONG_SWORD },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
-	},
-
-	{
-		/* Mage */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SCROLL, SV_SCROLL_TELEPORT }
-	},
-
-	{
-		/* Priest */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT }
-	},
-
-	{
-		/* Rogue */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_KNIFE },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
-	},
-
-	{
-		/* Ranger - bow and ammo given later */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_SCIMITAR },
-		{ TV_CLOAK, SV_FUR_CLOAK },
-	},
-
-	{
-		/* Paladin */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT }
-	},
-
-	{
-		/* Illusionist  -KMW-  */
-		{ TV_ILLUSION_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SCROLL, SV_SCROLL_TELEPORT }
-	},
-
-	{
-                /* Archer - bow and ammo given later */
-                { TV_SWORD, SV_KNIFE },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_CLOAK, SV_CLOAK },
-	},
-
-	{
-		/* Death Priest */
-		{ TV_DEATH_BOOK, 0 },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL }
-	},
-
-	{
-		/* Berserker */
-		{ TV_POTION, SV_POTION_HEROISM },
-		{ TV_HAFTED, SV_WOODEN_CLUB },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
-	},
-
-	{
-		/* Monk */
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_BOOTS, SV_PAIR_OF_SANDALS },
-	},
-
-	{
-		/* Trickster */
-		{ TV_ILLUSION_BOOK, 0 },
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
-	}
+  { /* Warrior */
+    TV_HARD_ARMOR, SV_CHAIN_MAIL
+  },
+  { /* Mage */
+    TV_HELM, SV_WIZARD_HAT
+  },
+  { /* Priest */
+    TV_POTION, SV_POTION_CURE_CRITICAL
+  },
+  { /* Rogue */
+    TV_SCROLL, SV_SCROLL_TELEPORT
+  },
+  { /* Ranger */
+    TV_CLOAK, SV_FUR_CLOAK
+  },
+  { /* Paladin */
+    TV_SHIELD, SV_LARGE_METAL_SHIELD
+  },
+  { /* Illusionist */
+    TV_HELM, SV_WIZARD_HAT
+  },
+  { /* Archer */
+    TV_POTION, SV_POTION_SPEED
+  },
+  { /* Death Priest */
+    TV_POTION, SV_POTION_CURE_CRITICAL
+  },
+  { /* Berserker */
+    TV_POTION, SV_POTION_BESERK_STRENGTH
+  },
+  { /* Monk */
+    TV_BOOTS, SV_PAIR_OF_SANDALS
+  },
+  { /* Trickster */
+    TV_SCROLL, SV_SCROLL_TELEPORT
+  },
 };
-
-
 
 /*
  * Init players with some belongings
@@ -725,62 +682,131 @@ static void player_outfit(void)
 	    object_aware(i_ptr);
 	    object_known(i_ptr);
 	    (void)inven_carry(i_ptr);
+	}
+
+	if (adult_easy) /* Lantern and some flasks */
+	{
+	    i_ptr = &object_type_body;
+	    object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_LANTERN));
+	    i_ptr->pval = rand_range(3, 7) * 500;
+	    object_aware(i_ptr);
+	    object_known(i_ptr);
+	    (void)inven_carry(i_ptr);
+	    
+	    i_ptr = &object_type_body;
+	    object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
+	    i_ptr->number = (byte)rand_range(2, 5);
+	    object_aware(i_ptr);
+	    object_known(i_ptr);
+	    (void)inven_carry(i_ptr);
+	}
+	else /* Hack -- Give the player some torches */
+	{
+	    i_ptr = &object_type_body;
+	    object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+	    i_ptr->number = (byte)rand_range(3, 7);
+	    i_ptr->pval = rand_range(3, 7) * 500;
+	    object_aware(i_ptr);
+	    object_known(i_ptr);
+	    (void)inven_carry(i_ptr);
+	}
+
+	/* Give spellbooks */
+	for (i = 0; i < p_ptr->available_classes; i++)
+	  {
+	    tv = mp_ptr[p_ptr->pclass[i]]->spell_book;
+	    if (tv != 0)
+	      {
+		  i_ptr = &object_type_body;
+		  object_prep(i_ptr, lookup_kind(tv, 0));
+		  object_aware(i_ptr);
+		  object_known(i_ptr);
+		  (void)inven_carry(i_ptr);		
+	      }
 	  }
-	else /* If not astral, give lites */
+
+	/* Grant a weapon */
 	{
-	     if (adult_easy) /* Lantern and some flasks */
-	     {
-		  i_ptr = &object_type_body;
-		  object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_LANTERN));
-		  i_ptr->pval = rand_range(3, 7) * 500;
-		  object_aware(i_ptr);
-		  object_known(i_ptr);
-		  (void)inven_carry(i_ptr);
+	  bool got_weapon = FALSE;
 
-		  i_ptr = &object_type_body;
-		  object_prep(i_ptr, lookup_kind(TV_FLASK, 0));
-		  i_ptr->number = (byte)rand_range(2, 5);
-		  object_aware(i_ptr);
-		  object_known(i_ptr);
-		  (void)inven_carry(i_ptr);
-	     }
-	     else /* Hack -- Give the player some torches */
-	     {
-		  i_ptr = &object_type_body;
-		  object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-		  i_ptr->number = (byte)rand_range(3, 7);
-		  i_ptr->pval = rand_range(3, 7) * 500;
-		  object_aware(i_ptr);
-		  object_known(i_ptr);
-		  (void)inven_carry(i_ptr);
-	     }
+	  if (player_has_class(CLASS_WARRIOR, 0))
+	  {
+	    if (player_has_class(CLASS_PRIEST, 0) ||
+		player_has_class(CLASS_DEATH_PRIEST, 0))
+	      {
+		tv = TV_HAFTED; sv = SV_MACE;
+	      }
+	    else
+	      {
+		tv = TV_SWORD; sv = SV_LONG_SWORD;
+	      }
+	    i_ptr = &object_type_body;
+	    object_prep(i_ptr, lookup_kind(tv, sv));
+	    if (adult_easy)
+	    {
+	        apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
+	        i_ptr->discount = 90;
+	    }
+	    object_aware(i_ptr);
+	    object_known(i_ptr);
+	    (void)inven_carry(i_ptr);
+	    got_weapon = TRUE;
+	  }
+	  if (player_has_class(CLASS_PALADIN, 0))
+	  {
+	    i_ptr = &object_type_body;
+	    object_prep(i_ptr, lookup_kind(TV_SWORD, SV_BROAD_SWORD));
+	    if (adult_easy)
+	    {
+	        apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
+	        i_ptr->discount = 90;
+	    }
+	    object_aware(i_ptr);
+	    object_known(i_ptr);
+	    (void)inven_carry(i_ptr);		
+	    got_weapon = TRUE;
+	  }
+	  if (player_has_class(CLASS_BERSERKER, 0))
+	  {
+	    i_ptr = &object_type_body;
+	    object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_WOODEN_CLUB));
+	    if (adult_easy)
+	    {
+	        apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
+	        i_ptr->discount = 90;
+	    }
+	    object_aware(i_ptr);
+	    object_known(i_ptr);
+	    (void)inven_carry(i_ptr);		
+	    got_weapon = TRUE;
+	  }
+	  if ((!got_weapon) && (!player_has_class(CLASS_MONK, 0)))
+	  {
+	    if (player_has_class(CLASS_PRIEST, 0) ||
+		player_has_class(CLASS_DEATH_PRIEST, 0))
+	      {
+		tv = TV_HAFTED; sv = SV_QUARTERSTAFF;
+	      }
+	    else
+	      {
+		tv = TV_SWORD; sv = SV_KNIFE;
+	      }
+	    i_ptr = &object_type_body;
+	    object_prep(i_ptr, lookup_kind(tv, sv));
+	    if (adult_easy)
+	    {
+	        apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
+	        i_ptr->discount = 90;
+	    }
+	    object_aware(i_ptr);
+	    object_known(i_ptr);
+	    (void)inven_carry(i_ptr);		
+	    got_weapon = TRUE;	    
+	  }
 	}
-	     
-	/* Hack -- Give the player three useful objects */
-	for (i = 0; i < 3; i++)
-	{
-		/* Look up standard equipment */
-		tv = player_init[p_ptr->pclass[0]][i][0];
-		sv = player_init[p_ptr->pclass[0]][i][1];
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Hack -- Give the player an object */
-		object_prep(i_ptr, lookup_kind(tv, sv));
-		if (adult_easy && (i_ptr->tval >= TV_SHOT && 
-				   i_ptr->tval <= TV_DRAG_ARMOR))
-		{
-		     apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
-		     i_ptr->discount = 90;
-		}
-		object_aware(i_ptr);
-		object_known(i_ptr);
-		(void)inven_carry(i_ptr);
-	}
-
+   
 	/* Give rangers a bow and some ammo */
-	if (p_ptr->pclass[0] == CLASS_RANGER)
+	if (player_has_class(CLASS_RANGER, 0))
 	{ 
 	     i_ptr = &object_type_body;
 	     if (rand_int(3) == 1)
@@ -811,35 +837,12 @@ static void player_outfit(void)
 	}
 
 	/* Give archers a bow and ammo, depending on race */
-	if (p_ptr->pclass[0] == CLASS_ARCHER)
+	if (player_has_class(CLASS_ARCHER, 0))
 	{ 
 	     int tv_ammo, sv_bow;
-	     
-	     switch (rp_ptr->archer_type)
+
+	     switch (rp_ptr->archer_type == 0 ? randint(3) : rp_ptr->archer_type)
 	     {
-	     case 0: /* Random/Any */
-		  switch (rand_int(3)) 
-		  {
-		  case 0: /* Slings */
-		       tv_ammo = TV_SHOT; sv_bow = SV_SLING; break;
-		  case 1: /* Bows */
-		       tv_ammo = TV_ARROW; 
-		       if (rand_int(4) == 1) 
-			    sv_bow = SV_LONG_BOW; 
-		       else /* 3 in 4 */
-			    sv_bow = SV_SHORT_BOW; 
-		       break;
-		  case 2: /* Crossbows */
-		       tv_ammo = TV_BOLT; 
-		       if (rand_int(5) == 1)
-			    sv_bow = SV_HEAVY_XBOW; 
-		       else /* 4 in 5 */
-			    sv_bow = SV_LIGHT_XBOW; 
-		       break;
-		  } 
-		  break;
-	     case 1: /* Slings */
-		  tv_ammo = TV_SHOT; sv_bow = SV_SLING; break;
 	     case 2: /* Bows */
 		  tv_ammo = TV_ARROW; 
 		  if (rand_int(4) == 1)
@@ -854,6 +857,9 @@ static void player_outfit(void)
 		  else /* 4 in 5 */
 		       sv_bow = SV_LIGHT_XBOW; 
 		  break;
+	     case 1: /* Slings */
+	     default:
+		  tv_ammo = TV_SHOT; sv_bow = SV_SLING; break;
 	     }
 	
 	     /* Create the missile launcher */
@@ -881,6 +887,26 @@ static void player_outfit(void)
 	     object_known(i_ptr);
 	     (void)inven_carry(i_ptr);
 	}	  
+
+	/* Hack -- Give the player some objects */
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+	    if (player_has_class(i, 0))
+	    {
+		tv = player_init[i][0];
+		sv = player_init[i][1];	     
+		i_ptr = &object_type_body;
+		object_prep(i_ptr, lookup_kind(tv, sv));
+		if (adult_easy && tv <= TV_HARD_ARMOR)
+		{
+		    apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
+		    i_ptr->discount = 90;
+		}
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		(void)inven_carry(i_ptr);	  
+	    }
+	}
 
 	/* Starting equipment */
 	if (adult_easy)
@@ -939,6 +965,7 @@ static bool player_birth_aux_1(void)
 
 	char buf[80];
 
+	int choice;
 
 	/*** Instructions ***/
 
@@ -946,13 +973,13 @@ static bool player_birth_aux_1(void)
 	Term_clear();
 
 	/* Display some helpful information */
-	Term_putstr(5, 9, -1, TERM_WHITE,
+	Term_putstr(5, 7, -1, TERM_WHITE,
 	            "Please answer the following questions.  Most of the questions");
-	Term_putstr(5, 10, -1, TERM_WHITE,
+	Term_putstr(5, 8, -1, TERM_WHITE,
 	            "display a set of standard answers, and many will also accept");
-	Term_putstr(5, 11, -1, TERM_WHITE,
+	Term_putstr(5, 9, -1, TERM_WHITE,
 	            "some special responses, including 'Q' to quit, 'S' to restart,");
-	Term_putstr(5, 12, -1, TERM_WHITE,
+	Term_putstr(5, 10, -1, TERM_WHITE,
 	            "and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
 
 
@@ -1056,68 +1083,151 @@ static bool player_birth_aux_1(void)
 
 	/* Extra info */
 	Term_putstr(5, 13, -1, TERM_WHITE,
-	            "Your 'class' determines various intrinsic abilities and bonuses.");
+	            "Your 'classes' determine various intrinsic abilities and bonuses.");
 	Term_putstr(5, 14, -1, TERM_WHITE,
 	            "Any entries with a (*) should only be used by advanced players.");
+	Term_putstr(5, 15, -1, TERM_WHITE,
+        	    "You may choose more than one class. To stop choosing classes, hit");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		    "ESCAPE instead of selecting a class.");
 
-	/* Dump classes */
-	for (n = 0; n < MAX_CLASS; n++)
+	p_ptr->available_classes = 0;
+
+	/* Get classes, up to racial limit */
+	for (choice = 0; choice < rp_ptr->max_multi; choice++)
 	{
-		cptr mod = "";
+ 	    bool disallowed;
+	    int list[MAX_CLASS], listnum = 0;
 
-		/* Analyze */
-		cp_ptr[n] = &class_info[n];
-		mp_ptr[n] = &magic_info[n];
-		str = cp_ptr[n]->title;
+	    /* Get list of allowed classes */
+	    for (n = 0; n < MAX_CLASS; n++)
+	    {
+	        int i;
 
-		/* Verify legality */
-		if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
+		disallowed = FALSE; /* Default is OK */
 
-		/* Display */
-		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
-		put_str(buf, 19 + (n/3), 2 + 20 * (n%3));
-	}
-
-	/* Get a class */
-	while (1)
-	{
-		sprintf(buf, "Choose a class (%c-%c, or * for random): ",
-		        I2A(0), I2A(n-1));
-		put_str(buf, 18, 2);
-		ch = inkey();
-		if (ch == 'Q') quit(NULL);
-		if (ch == 'S') return (FALSE);
-		k = (islower(ch) ? A2I(ch) : -1);
-		if (ch == ESCAPE) ch = '*';
-		if (ch == '*')
+		/* Check for dis-allowed combinations */
+		for (i = 0; i < p_ptr->available_classes; i++)
 		{
-			while (1)
-			{
-				k = rand_int(MAX_CLASS);
-
-				/* Try again if not a legal choice */
-				if (!(rp_ptr->choice & (1L << k))) continue;
-
-				break;
-			}
+		    /* Check table of disallowed combinations */
+		    if (not_allowed[p_ptr->pclass[i]][n]) disallowed = TRUE; 
 		}
-		if ((k >= 0) && (k < n)) break;
-		if (ch == '?') do_cmd_help();
-		else bell("Illegal class!");
+
+		/* Non-recommended combinations cannot be second+ class */
+		if (!(rp_ptr->choice & (1L << list[n])) && 
+		    p_ptr->available_classes > 0)
+		  disallowed = TRUE;
+
+		/* Add to list of allowed choices */
+		if (!disallowed)
+		{
+		    list[listnum] = n;
+		    listnum++;	      
+		}
+	    }
+
+	    /* Hack : Non-recommended combinations cannot be first class */
+	    if (!(rp_ptr->choice & (1L << p_ptr->pclass[0])))
+	      listnum = 0;
+
+	    /* If there are allowed choices */
+	    if (listnum > 0)
+	    {
+	        /* Display allowed choices */
+	        for (n = 0; n < listnum; n++)
+		{
+		    cptr mod = "";
+		  
+		    /* Analyze */		    
+		    cp_ptr[list[n]] = &class_info[list[n]];
+		    str = cp_ptr[list[n]]->title;
+		
+		    /* Verify legality */
+		    if (!(rp_ptr->choice & (1L << list[n]))) mod = " (*)";
+
+		    /* Display */
+		    sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
+		    put_str(buf, 19 + (n/3), 2 + 20 * (n%3));    
+		}
+	  
+		/* Get a class */
+		while (1)
+		{
+		    sprintf(buf, "Choose a class (%c-%c, or * for random): ",
+			    I2A(0), I2A(listnum-1));
+		    put_str(buf, 18, 2);
+		    ch = inkey();
+		    if (ch == 'Q') quit(NULL);
+		    if (ch == 'S') return (FALSE);
+		    k = (islower(ch) ? A2I(ch) : -1);
+		    if (ch == ESCAPE) break;
+		    if (ch == '*')
+		    {
+		        k = rand_int(listnum);
+		    }
+		    if ((k >= 0) && (k < n)) break;
+		    if (ch == '?') do_cmd_help();
+		    else bell("Illegal class!");
+		}
+
+		/* Stop choosing classes */
+		if (ch == ESCAPE) {
+		  /* Clean up */
+		  clear_from(13);
+		  break;
+		}
+
+		/* Set class */
+		p_ptr->pclass[choice] = list[k];
+		cp_ptr[p_ptr->pclass[choice]] = &class_info[list[k]];
+		mp_ptr[p_ptr->pclass[choice]] = &magic_info[list[k]];
+
+		if (mp_ptr[p_ptr->pclass[choice]]->spell_book != 0)
+		{
+		  int temp = mp_ptr[p_ptr->pclass[choice]]->spell_book - TV_FIRST_BOOK;
+		  switch (temp)
+		    {
+		    case REALM_MAGIC:
+		      p_ptr->realm_magery = REALM_MAGIC + 1;
+		      break;
+		    case REALM_PRAYER:
+		      p_ptr->realm_priest = REALM_PRAYER + 1;
+		      break;
+		    case REALM_ILLUSION:
+		      p_ptr->realm_magery = REALM_ILLUSION + 1;
+		      break;
+		    case REALM_DEATH:
+		      p_ptr->realm_priest = REALM_DEATH + 1;
+		      break;
+		    }
+		}
+
+		/* Level one */
+		p_ptr->max_lev[choice] = 
+		  p_ptr->lev[choice] = 1;
+		
+		/* Start with no experience */
+		p_ptr->max_exp[choice] = 
+		  p_ptr->exp[choice] = 0;
+
+		/* Experience factor */
+		{
+		  /* Based on race and class XP factors */
+		  int temp = rp_ptr->r_exp + cp_ptr[p_ptr->pclass[choice]]->c_exp;
+		  /* Penalty of *1, *2, *3 or *4 */
+		  p_ptr->expfact[choice] = temp * (choice + 1);
+		}
+
+		/* Increment number of classes */
+		p_ptr->available_classes++;
+		
+		/* Clean up */
+		clear_from(17);
+	    }
+	    else		
+		/* Clean up */
+		clear_from(13);
 	}
-
-	/* Set class */
-	p_ptr->pclass[0] = k;
-	cp_ptr[p_ptr->pclass[0]] = &class_info[k];
-	mp_ptr[p_ptr->pclass[0]] = &magic_info[k];
-
-	/* Class */
-	put_str("Class", 5, 1);
-	c_put_str(TERM_L_BLUE, cp_ptr[p_ptr->pclass[0]]->title, 5, 8);
-
-	/* Clean up */
-	clear_from(13);
-
 
 	/* Extra info */
 	Term_putstr(5, 13, -1, TERM_WHITE,
@@ -1269,27 +1379,18 @@ static bool player_birth_aux_2(void)
 		/* Process stats */
 		for (i = 0; i < A_MAX; i++)
 		{
-			/* Variable stat maxes */
-			if (adult_maximize)
-			{
-				/* Reset stats */
-				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
+		    /* Obtain a "bonus" for "race" and "class" */
+		    int bonus = rp_ptr->r_adj[i];
+		    int n;
+		    for (n = 0; n < p_ptr->available_classes; n++)
+		      bonus += cp_ptr[p_ptr->pclass[n]]->c_adj[i];
+		  
+		    /* Apply the racial/class bonuses */
+		    p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
+		      modify_stat_value(stats[i], bonus);
 
-			}
-
-			/* Fixed stat maxes */
-			else
-			{
-				/* Obtain a "bonus" for "race" and "class" */
-				int bonus = rp_ptr->r_adj[i] + cp_ptr[p_ptr->pclass[0]]->c_adj[i];
-
-				/* Apply the racial/class bonuses */
-				p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
-					modify_stat_value(stats[i], bonus);
-			}
-
-			/* Total cost */
-			cost += birth_stat_costs[stats[i] - 10];
+		    /* Total cost */
+		    cost += birth_stat_costs[stats[i] - 10];
 		}
 
 		/* Restrict cost */
@@ -1309,7 +1410,7 @@ static bool player_birth_aux_2(void)
 		p_ptr->au = (100 * (48 - cost)) + 100;
 
 		/* Calculate the bonuses and hitpoints */
-		p_ptr->update |= (PU_BONUS | PU_HP);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
 		/* Update stuff */
 		update_stuff();
@@ -1318,8 +1419,8 @@ static bool player_birth_aux_2(void)
 		p_ptr->chp = p_ptr->mhp;
 
 		/* Fully rested */
-		p_ptr->csp = p_ptr->msp;
-		p_ptr->cpp = p_ptr->mpp;
+		p_ptr->csp = p_ptr->msp; 
+		p_ptr->cpp = p_ptr->mpp; 
 
 		/* Display the player */
 		display_player(0);
@@ -1478,11 +1579,15 @@ static bool player_birth_aux_3(void)
 		/* Output the maximum stats */
 		for (i = 0; i < A_MAX; i++)
 		{
+		        int n;
+
 			/* Reset the "success" counter */
 			stat_match[i] = 0;
 
 			/* Race/Class bonus */
-			j = rp_ptr->r_adj[i] + cp_ptr[p_ptr->pclass[0]]->c_adj[i];
+			j = rp_ptr->r_adj[i];
+			for (n = 0; n < p_ptr->available_classes; n++)
+			  j += cp_ptr[p_ptr->pclass[n]]->c_adj[i];
 
 			/* Obtain the "maximal" stat */
 			m = adjust_stat(17, j, TRUE);
@@ -1761,7 +1866,7 @@ static bool player_birth_aux_3(void)
 		while (TRUE)
 		{
 			/* Calculate the bonuses and hitpoints */
-			p_ptr->update |= (PU_BONUS | PU_HP);
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
 			/* Update stuff */
 			update_stuff();

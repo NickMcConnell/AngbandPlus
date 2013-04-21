@@ -1633,13 +1633,6 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Multiclass */
-	        case 'N':
-		{
-		     do_cmd_wiz_create_multi_class();
-		     break;
-		}
-
 		/* Object playing routines */
 		case 'o':
 		{

@@ -1,37 +1,36 @@
 --- Basic Info ---
 
-Use 'N' to enter a new class (need at least level 2 in all existing 
-classes, many races can only have 2 classes, not all combinations are 
-allowed).
+At the start of the game, you will be asked to choose one or more
+classes. You may finish the choosing process by hitting the ESCAPE key
+instead of choosing a class. The order of your choices does matter, as
+classes which are chosen earlier will advance in levels much quicker.
 
-Use '[' and ']' to switch between classes.
+Note : If you wish to play a Ranger, Paladin, or non-recommended class
+(for your race), choose that class first.
 
 The player info screen (accessed with 'C') shows class and level info 
-for the current class.
+for each class.
 
 To use spell and prayer books, the relevant class must be active. 
+Use '[' and ']' to switch between classes.
 
 --- Entering a new class ---
 
-When you are at or above level 25 in all your current classes, you can
-choose to start at level 1 in a different class. Not all combinations
-are allowed (see below).
-
 With more than one class, you will get the best number of attacks and
 fastest pseudo-id out of all the classes that you are a member
-of. Skills will be detemined by whichever class is best at each
-skill. You will gain class intrinstics and abilities regardless of
-which class is active, although you will have to switch to a class if
-you want to use their spellcasting abilities.
+of. Skills are calculated as an average of how good each class is at
+each skill. You will gain class intrinstics and abilities regardless
+of which class is active, although you will have to switch to a class
+if you want to use their spellcasting abilities.
 
 Penalties to spell failure rates are imposed if you wear gloves
 (except for silk gloves) or if your total armour worn weighs more than
 300lbs. Likewise, prayer failure rates are penalized if you wield a
 bladed weapon or if your total armour worn weighs more than 400lbs.
 
-Your HP will be calculated using the class which would give the most
-HP. Mana has been split up into piety (which priests and paladins use) 
-and mana (which every other spellcaster uses).
+Your HP is calculated as an average of what each individual class
+would get. Mana has been split up into piety (which priests and
+paladins use) and mana (which every other spellcaster uses).
 
 Experience gained is usually divided between all available
 classes. However, rouges and tricksters are the only classes to gain
@@ -39,17 +38,15 @@ experience from unlocking and disarming chests, traps and
 doors. Likewise, when a spell or prayer is used for the first time,
 only the magic-using class will gain the experience.
 
-Most races can only have 2 classes. Half-elves, high-elves and Dunadan
-can have 3, humans and yeeks can have 4.
+Most races can only have 2 classes. High-elves and dunadan can have 3,
+humans, yeeks and maia can have 4.
 
 If you play a non-recommended combination of race and class, you will
-not be able to multiclass.
+not be able to choose any further classes. Likewise, you will not be
+able to choose a non-recommended class after choosing an okay one.
 
 Note : Experience draining affects the class which you have the highest
 level in.
-
-Note : Activations of items which look at player level to see how
-powerful they should be, always look at the highest level.
 
 --- Combinations allowed ---
 
@@ -64,8 +61,6 @@ with Berserker.
 
 Cannot choose both Holy Priest and Death Priest. Also, Holy Priest may
 not combine with Rogue.
-
-Rogues or Tricksters are limited to one other class.
 
 --- Combinations allowed (table) ---
 

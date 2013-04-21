@@ -1297,9 +1297,10 @@ static void display_player_xtra_info(void)
 	int col;
 	int hit, dam;
 	int base, plus;
-	int i, tmp;
+	int tmp;
 	int xthn, xthb, xfos, xsrh;
 	int xdis, xdev, xsav, xstl;
+	int row;
 
 	object_type *o_ptr;
 
@@ -1356,6 +1357,15 @@ static void display_player_xtra_info(void)
 	    Term_putstr(col+8, 11, -1, TERM_L_GREEN,
 			format("%10s", buf));
 	}
+
+	if (adult_hidden) row = 11; else row = 13;
+
+	Term_putstr(col, row, -1, TERM_WHITE, "Magery");
+	Term_putstr(col+8, row, -1, TERM_L_BLUE,
+		    format("%10s", realm_names[p_ptr->realm_magery]));
+	Term_putstr(col, row+1, -1, TERM_WHITE, "Prayer");
+	Term_putstr(col+8, row+1, -1, TERM_L_BLUE,
+		    format("%10s", realm_names[p_ptr->realm_priest]));
 
 	/* Middle */
 	col = 26;
@@ -1624,14 +1634,19 @@ static void display_player_xtra_info(void)
 	      }
 	      else /* Show XP bar and gold, + in different positions */
 	      {
-		long xp_needed = (long)player_exp[p_ptr->lev[class]-1] * p_ptr->expfact[class]/100L;
-		long last_needed = (p_ptr->lev[class] == 1) ? 0 : (long)player_exp[p_ptr->lev[class]-2] * p_ptr->expfact[class]/100L;
-		long diff = xp_needed - last_needed;
-		long achieved = p_ptr->exp[class] - last_needed;
-		long pct = achieved * 100 / diff;
-		int len = (pct < 3) ? 0 : (pct < 96) ? (pct / 3) : 32;
-		Term_putstr(20, 19 + class, 35, TERM_WHITE, "[---------------------------------]");
-		Term_putstr(21, 19 + class, len, TERM_L_GREEN, "*********************************");
+		  Term_putstr(20, 19 + class, 35, TERM_WHITE,   "[---------------------------------]");
+		  if (p_ptr->lev[class] < PY_MAX_LEVEL)
+		  {
+		    long xp_needed = (long)player_exp[p_ptr->lev[class]-1] * p_ptr->expfact[class]/100L;
+		    long last_needed = (p_ptr->lev[class] == 1) ? 0 : (long)player_exp[p_ptr->lev[class]-2] * p_ptr->expfact[class]/100L;
+		    long diff = xp_needed - last_needed;
+		    long achieved = p_ptr->exp[class] - last_needed;
+		    long pct = achieved * 100 / diff;
+		    int len = (pct < 3) ? 0 : (pct < 100) ? (pct / 3) : 33;
+		    Term_putstr(21, 19 + class, len, TERM_L_GREEN, "*********************************");
+		  }
+		  else
+		    Term_putstr(21, 19 + class, 33, TERM_L_GREEN, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");		    
 	      }
 
 	      /* Title */
@@ -1988,7 +2003,8 @@ static void display_player_misc_info(void)
 	     c_put_str(TERM_L_BLUE, buf, 5, 8);
 
 	     /* Spell Points */
-	     if (p_ptr->msp > 0)
+	     if (p_ptr->realm_magery == REALM_MAGIC+1 || 
+		 p_ptr->realm_magery == REALM_ILLUSION+1)
 	     {
 		  put_str("SP", 6, 1);
 		  sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
@@ -1996,7 +2012,8 @@ static void display_player_misc_info(void)
 	     }
 	     
 	     /* Piety */
-	     if (p_ptr->mpp > 0)
+	     if (p_ptr->realm_priest == REALM_PRAYER+1 ||
+		 p_ptr->realm_priest == REALM_DEATH+1)
 	     {
 		  put_str("PP", 7, 1);
 		  sprintf(buf, "%d/%d", p_ptr->cpp, p_ptr->mpp);
@@ -2124,7 +2141,13 @@ static void display_player_stat_info(void)
 		    c_put_str(TERM_L_BLUE, buf, row+i, col+12);
 
 		    /* Class Bonus */
-		    sprintf(buf, "%+3d", cp_ptr[p_ptr->pclass[0]]->c_adj[i]);
+		    {
+		      int n;
+		      int temp_adj = 0;
+		      for (n = 0; n < p_ptr->available_classes; n++)
+			temp_adj += cp_ptr[p_ptr->pclass[n]]->c_adj[i];
+		      sprintf(buf, "%+3d", temp_adj);
+		    }
 		    c_put_str(TERM_L_BLUE, buf, row+i, col+16);
 
 		    /* Equipment Bonus */
@@ -3868,8 +3891,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the ",
-			        place, the_score.pts, the_score.who,
-			        p_name + p_info[pr].name);
+			        place, the_score.pts, the_score.who);
 
 			if (the_score.n_c > 1)
 			{

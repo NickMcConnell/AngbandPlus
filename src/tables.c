@@ -2457,6 +2457,15 @@ const player_magic magic_info[MAX_CLASS] =
 };
 
 
+cptr realm_names[] =
+{
+  "None",
+  "Magic",
+  "Holy",
+  "Illusion",
+  "Death",
+};
+
 /*
  * Spells in each book (mage spells then priest spells)
  */

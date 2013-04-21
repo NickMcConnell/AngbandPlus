@@ -1772,27 +1772,34 @@ void stair_creation(void)
 /*
  * Hook to specify "weapon"
  */
-/* No longer used */ /*
-static bool item_tester_hook_weapon(const object_type *o_ptr)
+static bool item_tester_hook_weapon_armour(const object_type *o_ptr)
 {
-	switch (o_ptr->tval)
-	{
-		case TV_SWORD:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_DIGGING:
-		case TV_BOW:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_SHOT:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
+  switch (o_ptr->tval)
+    {
+    case TV_SWORD:
+    case TV_HAFTED:
+    case TV_POLEARM:
+    case TV_DIGGING:
+    case TV_BOW:
+    case TV_BOLT:
+    case TV_ARROW:
+    case TV_SHOT:
+    case TV_DRAG_ARMOR:
+    case TV_HARD_ARMOR:
+    case TV_SOFT_ARMOR:
+    case TV_SHIELD:
+    case TV_CLOAK:
+    case TV_CROWN:
+    case TV_HELM:
+    case TV_BOOTS:
+    case TV_GLOVES:
+      {
+	return (TRUE);
+      }
+    }
+  
+  return (FALSE);
 }
-*/
 
 /*
  * Hook to specify "weapon"
@@ -2454,6 +2461,51 @@ bool recharge(int num)
 
 
 
+/*
+ * Mundanify an object in the inventory (or on the floor)
+ * Returns TRUE if something was mundanified, else FALSE.
+ */
+bool mundane_spell()
+{
+	int             item;
+	object_type     *o_ptr;
+	cptr            q, s;
+	int             num;
+	byte            ident;
+
+	item_tester_hook = item_tester_hook_weapon_armour;
+
+	/* Get an item */
+	q = "Use which item? ";
+	s = "You have nothing you can use.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
+	  return (FALSE);
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	msg_print("There is a bright flash of light!");
+
+	num = o_ptr->number;
+	ident = o_ptr->ident;
+
+	/* Wipe it clean */
+	object_prep(o_ptr, o_ptr->k_idx);
+
+	o_ptr->number = num;
+	o_ptr->ident = ident;
+
+	/* Something happened */
+	return (TRUE);
+}
 
 
 
@@ -3763,3 +3815,4 @@ bool sleep_monsters_touch(int class)
 	int flg = PROJECT_KILL | PROJECT_HIDE;
 	return (project(-1, 1, py, px, p_ptr->lev[class], GF_OLD_SLEEP, flg));
 }
+

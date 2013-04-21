@@ -103,7 +103,10 @@ void do_cmd_change_name(void)
 	cptr p;
 
 	/* Prompt */
-	p = "['c' to change name, 'f' to file, 'h' to change mode, or ESC]";
+	if (adult_hidden)
+	  p = "['c' to change name, 'f' to file, 'or ESC]";
+	else
+	  p = "['c' to change name, 'f' to file, 'h' to change mode, or ESC]";
 
 	/* Save screen */
 	screen_save();

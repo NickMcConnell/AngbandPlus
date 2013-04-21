@@ -4810,7 +4810,7 @@ void print_spells(const byte *spells, int num, int y, int x)
 	prt("", y, x);
 	put_str("Name", y, x + 5);
 	if (adult_hidden) /* Hide spell information */
-	     put_str("   Fail      Info", y, x + 35);
+	     put_str("        Fail     ", y, x + 35);
 	else /* Show spell information */
 	     put_str("Lv Mana Fail Info", y, x + 35);
 
@@ -4877,9 +4877,8 @@ void print_spells(const byte *spells, int num, int y, int x)
 		  desc = likert_spell_chance(spell_chance(spell));
 
 		  /* Dump the spell --(-- */
-		  sprintf(out_val, "  %c) %-30s   %-9s%s",
-			  I2A(i), spell_names[mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_type][spell],
-			  desc, comment);
+		  sprintf(out_val, "  %c) %-30s        %-9s",
+			  I2A(i), spell_names[mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_type][spell], desc);
 		  c_prt(line_attr, out_val, y + i + 1, x);
 		}
 		else

@@ -303,6 +303,7 @@ errr path_parse(char *buf, int max, cptr file)
 
 #endif /* SET_UID */
 
+#ifndef HAVE_MKSTEMP
 
 /*
  * Hack -- acquire a "temporary" file name if possible
@@ -326,6 +327,7 @@ static errr path_temp(char *buf, int max)
 	return (0);
 }
 
+#endif
 
 /*
  * Create a new path by appending a file (or directory) to a path

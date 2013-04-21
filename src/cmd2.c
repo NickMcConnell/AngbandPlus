@@ -74,13 +74,24 @@ void do_cmd_go_down(void)
 	/* Nightmare mode somtimes means you go down another level */
 	if (adult_nightmare && rand_int(3) == 1)
 	{
-	     p_ptr->depth++;
+	     bool deepened = FALSE;
 
+	     if (p_ptr->depth < 97) 
+	       {
+		 p_ptr->depth++;
+		 deepened = TRUE;
+	       }
+	       
 	     /* And another */
 	     if (rand_int(3) == 1)
-		  p_ptr->depth++;
+	       if (p_ptr->depth < 97) 
+		 {
+		   p_ptr->depth++;
+		   deepened = TRUE;
+		 }
 
-	     message(MSG_STAIRS, 0, "You came out deeper than you'd expected!");
+	     if (deepened)
+	       message(MSG_STAIRS, 0, "You came out deeper than you'd expected!");
 	}
 
 	/* Leaving */
@@ -1991,6 +2002,10 @@ static bool do_cmd_walk_test(int y, int x)
 	/* Hack -- walking obtains knowledge XXX XXX */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
 
+	if (p_ptr->astral && 
+	    (cave_feat[y][x] < FEAT_PERM_EXTRA))
+	  return (TRUE);
+
 	/* Require open space */
 	if (!cave_floor_bold(y, x))
 	{
@@ -2018,7 +2033,7 @@ static bool do_cmd_walk_test(int y, int x)
 
 		/* Wall */
 		else
-		{
+		{		  
 			/* Message */
 			msg_print("There is a wall in the way!");
 		}

@@ -1182,7 +1182,7 @@ void note_spot(int y, int x)
 			    view_torch_grids)
 			{
 				/* Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
+			        cave_info[y][x] |= (CAVE_MARK);
 			}
 		}
 
@@ -1190,7 +1190,7 @@ void note_spot(int y, int x)
 		else
 		{
 			/* Memorize */
-			cave_info[y][x] |= (CAVE_MARK);
+		        cave_info[y][x] |= (CAVE_MARK);
 		}
 	}
 }

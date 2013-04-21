@@ -1056,6 +1056,9 @@ static void wr_extra(void)
 	    wr_s16b(p_ptr->lev[i]);
 	  }
 
+	wr_byte(p_ptr->realm_magery);
+	wr_byte(p_ptr->realm_priest);
+
 	wr_s16b(p_ptr->mhp);
 	wr_s16b(p_ptr->chp);
 	wr_u16b(p_ptr->chp_frac);

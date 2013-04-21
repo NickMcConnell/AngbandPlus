@@ -1369,6 +1369,9 @@ static errr rd_extra(void)
 	      }
 	}
 
+	rd_byte(&p_ptr->realm_magery);
+	rd_byte(&p_ptr->realm_priest);
+
 	rd_s16b(&p_ptr->mhp);
 	rd_s16b(&p_ptr->chp);
 	rd_u16b(&p_ptr->chp_frac);

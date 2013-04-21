@@ -1616,6 +1616,16 @@ void do_cmd_read_scroll(void)
 		     used_up = TRUE;
 		     break;
 		}
+
+	        case SV_SCROLL_MUNDANIFY:
+		{
+		  if (mundane_spell()) 
+		    ident = TRUE;
+		  else
+		    msg_print("The scroll disappears!");
+		  used_up = TRUE;
+		  break;
+		}
 	}
 
 
@@ -3196,7 +3206,7 @@ static bool brand_bolts(void)
  */
 void do_cmd_activate(void)
 {
-	int item, i, k, dir, lev, chance;
+	int item, i, dir, lev, chance;
 
 	object_type *o_ptr;
 

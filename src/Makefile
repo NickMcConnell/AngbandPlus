@@ -115,7 +115,7 @@ randart.o main-cap.o main-gcu.o main-x11.o main-xaw.o main.o maid-x11.o
 angband_LDADD = $(LDADD)
 angband_DEPENDENCIES = 
 angband_LDFLAGS = 
-CFLAGS =  -I/usr/X11R6/include -g -O2
+CFLAGS =  -I/usr/X11R6/include -Wall -g -O2
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@

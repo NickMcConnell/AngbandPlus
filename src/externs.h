@@ -53,6 +53,7 @@ extern const s32b player_exp[PY_MAX_LEVEL];
 extern const player_sex sex_info[MAX_SEXES];
 extern const player_class class_info[MAX_CLASS];
 extern const player_magic magic_info[MAX_CLASS];
+extern cptr realm_names[];
 extern const u32b spell_flags[MAX_REALM][9][2];
 extern cptr spell_names[MAX_REALM][PY_MAX_SPELLS];
 extern const byte chest_traps[64];
@@ -374,13 +375,14 @@ extern void do_cmd_activate(void);
 extern void do_cmd_socket_rune(void);
 
 /* multi.c */
-extern void do_cmd_create_multi_class(void);
-extern void do_cmd_wiz_create_multi_class();
+extern bool not_allowed[MAX_CLASS][MAX_CLASS];
 extern void do_cmd_switch_multi_class(int direction);
 extern bool player_has_class(int class, int level);
 extern int level_of_class(int class);
 extern int best_class();
 extern int index_of_class(int class_sought);
+extern int magery_class();
+extern int priest_class();
 
 /* dungeon.c */
 extern void play_game(bool new_game);
@@ -592,6 +594,7 @@ extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
 extern bool ident_spell(void);
 extern bool identify_fully(void);
 extern bool recharge(int num);
+extern bool mundane_spell();
 extern bool speed_monsters(int class);
 extern bool slow_monsters(int class);
 extern bool sleep_monsters(int class);

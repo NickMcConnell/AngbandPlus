@@ -648,9 +648,6 @@ Save screen dump (right-paren)
 
 --- Multiclass Commands ---
 
-Enter new class
-        See lib/help/multi.txt
-
 Switch class forwards
         This command is used to switch between different classes, if you are
         multiclassing. Currently, you will be switched to the next class

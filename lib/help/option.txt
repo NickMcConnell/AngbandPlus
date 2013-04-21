@@ -554,10 +554,11 @@ Hide player knowledge              [birth_hidden]
 
 ***** <birth_nightmare>
 Nightmare mode                     [birth_nightmare]
-     The game becomes more difficult, with harder monsters which always start
-     at full health and awake, more frequent traps, and unconnected stairs.
-     The player permanently aggravates monsters, and has no memory of 
-     previous locations.
+     The game becomes more difficult, with harder monsters which
+     always start at full health and awake, more frequent traps, and
+     unconnected stairs (unless also in astral mode), which may come
+     out one or two levels deeper than usual.  The player permanently
+     aggravates monsters, and has no memory of previous locations.
      Nightmare mode doubles your final score.
 
 ***** <birth_easy>

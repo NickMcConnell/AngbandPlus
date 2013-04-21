@@ -861,6 +861,9 @@ struct player_type
 	s32b exp[MAX_CLASS];			/* Cur experience */
 	u16b exp_frac[MAX_CLASS];		/* Cur exp frac (times 2^16) */
 
+        byte realm_magery;
+        byte realm_priest;
+
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
 	u16b chp_frac;		/* Cur hit frac (times 2^16) */

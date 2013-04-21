@@ -404,7 +404,7 @@ static void health_player_redraw(void)
   /* Convert percent into "health" */
   len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
 
-  put_str("Hitpoints", ROW_MAXHP, COL_MAXHP);
+  put_str("HP", ROW_MAXHP, COL_MAXHP);
 
   /* base "health" bar (use '-' symbols) */
   Term_putstr(COL_INFO, ROW_CURHP, 12, TERM_WHITE, "[----------]");
@@ -463,8 +463,16 @@ static void mana_player_redraw(void)
   /* Default to none */
   byte attr = TERM_RED;
 
-  if (p_ptr->msp < 1) return; /* Show nothing if no mana */
+  if (p_ptr->realm_magery == 0) return; /* Show nothing if no mana */
   
+  /* Change info */
+  put_str("HP/Mana", ROW_MAXHP, COL_MAXHP);
+
+  /* base "mana" bar (use '-' symbols) */
+  Term_putstr(COL_INFO, ROW_MANA, 12, TERM_L_GREEN, "[----------]");
+
+  if (p_ptr->csp < 1) return;
+
   /* Extract the "percent" of mana */
   pct = 100L * p_ptr->csp / p_ptr->msp;
 
@@ -483,13 +491,8 @@ static void mana_player_redraw(void)
   /* Convert percent into "mana" */
   len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
 
-  put_str("Mana", ROW_MAXSP, COL_MAXSP);
-
-  /* base "mana" bar (use '-' symbols) */
-  Term_putstr(COL_INFO, ROW_CURSP, 12, TERM_WHITE, "[----------]");
-
   /* Dump the current "mana" (use '*' symbols) */
-  Term_putstr(COL_INFO + 1, ROW_CURSP, len, attr, "**********");
+  Term_putstr(COL_INFO + 1, ROW_MANA, len, attr, "**********");
 }
 
 /*
@@ -497,13 +500,30 @@ static void mana_player_redraw(void)
  */
 static void piety_player_redraw(void)
 {
-  int pct, len;
+  int pct, len, row;
 
   /* Default to none */
   byte attr = TERM_RED;
 
-  if (p_ptr->mpp < 1) return; /* Show nothing if no piety */
- 
+  if (p_ptr->realm_priest == 0) return; /* Show nothing if no piety */
+
+  /* Change info and move up if mana is not shown */
+  if (p_ptr->realm_magery == 0)
+    {
+      put_str("HP/Piety", ROW_MAXHP, COL_MAXHP);
+      row = ROW_MANA;
+    }
+  else
+    {
+      put_str("HP/Mana/Piety", ROW_MAXHP, COL_MAXHP);
+      row = ROW_PIETY;
+    }
+
+  /* base "piety" bar (use '-' symbols) */
+  Term_putstr(COL_INFO, row, 12, TERM_L_BLUE, "[----------]");
+
+  if (p_ptr->cpp < 1) return;
+
   /* Extract the "percent" of piety */
   pct = 100L * p_ptr->cpp / p_ptr->mpp;
 
@@ -522,13 +542,8 @@ static void piety_player_redraw(void)
   /* Convert percent into "piety" */
   len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
 
-  put_str("Piety", ROW_MAXSP, COL_MAXSP);
-
-  /* base "piety" bar (use '-' symbols) */
-  Term_putstr(COL_INFO, ROW_CURSP, 12, TERM_WHITE, "[----------]");
-
   /* Dump the current "piety" (use '*' symbols) */
-  Term_putstr(COL_INFO + 1, ROW_CURSP, len, attr, "**********");
+  Term_putstr(COL_INFO + 1, row, len, attr, "**********");
 }
 
 /*
@@ -539,28 +554,18 @@ static void prt_sp(void)
 	char tmp[32];
 	byte color;
 
-
 	/* Do not show mana unless it matters */
-	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book != TV_MAGIC_BOOK && mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book != TV_ILLUSION_BOOK) return;
-
+	if (p_ptr->realm_magery == 0) return;
+	
 	if (adult_hidden)
 	{
 	    mana_player_redraw();
 	}
 	else
 	{
-	    put_str("Max SP ", ROW_MAXSP, COL_MAXSP);
+	    put_str("SP ", ROW_MANA, COL_MANA);
  
-	    sprintf(tmp, "%5d", p_ptr->msp);
-
-	    color = TERM_L_GREEN;
-
-	    c_put_str(color, tmp, ROW_MAXSP, COL_MAXSP + 7);	    
-
-
-	    put_str("Cur SP ", ROW_CURSP, COL_CURSP);
-
-	    sprintf(tmp, "%5d", p_ptr->csp);
+	    sprintf(tmp, "%4d", p_ptr->csp);
 	  
 	    if (p_ptr->csp >= p_ptr->msp)
 	      color = TERM_L_GREEN;
@@ -569,7 +574,13 @@ static void prt_sp(void)
 	    else
 	      color = TERM_RED;
 
-	    c_put_str(color, tmp, ROW_CURSP, COL_CURSP + 7);
+	    c_put_str(color, tmp, ROW_MANA, COL_MANA + 3);	    
+
+	    sprintf(tmp, "/%4d", p_ptr->msp);
+
+	    color = TERM_L_GREEN;
+
+	    c_put_str(color, tmp, ROW_MANA, COL_MANA + 7);
 	}
 }
 
@@ -581,11 +592,13 @@ static void prt_pp(void)
 {
 	char tmp[32];
 	byte color;
-
+	int row;
 
 	/* Do not show piety unless it matters */
-	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book != TV_PRAYER_BOOK && mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book != TV_DEATH_BOOK) return;
+	if (p_ptr->realm_priest == 0) return;
 
+	/* Move up if mana is not shown */
+	if (p_ptr->realm_magery == 0) row = ROW_MANA; else row = ROW_PIETY;
 
 	if (adult_hidden)
 	{
@@ -593,18 +606,9 @@ static void prt_pp(void)
 	}
 	else
 	{
-	    put_str("Max PP ", ROW_MAXSP, COL_MAXSP);
+	    put_str("PP ", row, COL_PIETY);
 
-	    sprintf(tmp, "%5d", p_ptr->mpp);
-
-	    color = TERM_L_GREEN;
-
-	    c_put_str(color, tmp, ROW_MAXSP, COL_MAXSP + 7);	    
-
-
-	    put_str("Cur PP ", ROW_CURSP, COL_CURSP);
-
-	    sprintf(tmp, "%5d", p_ptr->cpp);
+	    sprintf(tmp, "%4d", p_ptr->cpp);
 	  
 	    if (p_ptr->cpp >= p_ptr->mpp)
 	      color = TERM_L_GREEN;
@@ -613,7 +617,13 @@ static void prt_pp(void)
 	    else
 	      color = TERM_RED;
 
-	    c_put_str(color, tmp, ROW_CURSP, COL_CURSP + 7);
+	    c_put_str(color, tmp, row, COL_PIETY + 3);
+
+	    sprintf(tmp, "/%4d", p_ptr->mpp);
+
+	    color = TERM_L_GREEN;
+
+	    c_put_str(color, tmp, row, COL_PIETY + 7);	    
 	}
 }
 
@@ -1871,22 +1881,20 @@ static void calc_mana(void)
 	int msp, levels;
 
 	/* Hack -- Must be literate */
-	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book != TV_MAGIC_BOOK &&
-	    mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book != TV_ILLUSION_BOOK &&
-	    p_ptr->pclass[p_ptr->current_class] != CLASS_BERSERKER) 
-	     return;
+	if ((p_ptr->realm_magery == 0) && (!player_has_class(CLASS_BERSERKER, 0)))
+	  return;
 
 	/* Extract "effective" player level */
-	if (p_ptr->pclass[p_ptr->current_class] == CLASS_BERSERKER)
-	     levels = ((p_ptr->lev[p_ptr->current_class]) + 1) / 2;
+	if (player_has_class(CLASS_BERSERKER, 0))
+	     levels = (level_of_class(CLASS_BERSERKER) + 1) / 2;
 	else
-	     levels = (p_ptr->lev[p_ptr->current_class] - mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_first) + 1;
+	  levels = level_of_class(magery_class()) - mp_ptr[magery_class()]->spell_first + 1;
 
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-	if (p_ptr->pclass[p_ptr->current_class] == CLASS_BERSERKER)
+	if (player_has_class(CLASS_BERSERKER, 0))
 	     msp = adj_mag_mana[p_ptr->stat_ind[A_STR]] * levels / 4;
 	else
 	     msp = adj_mag_mana[p_ptr->stat_ind[A_INT]] * levels / 2;
@@ -1931,10 +1939,10 @@ static void calc_piety(void)
 	int mpp, levels;
 
 	/* Hack -- Must be literate */
-	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book != TV_PRAYER_BOOK && mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book != TV_DEATH_BOOK) return;
+	if (p_ptr->realm_priest == 0) return;
 
 	/* Extract "effective" player level */
-	levels = (p_ptr->lev[p_ptr->current_class] - mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_first) + 1;
+	levels = level_of_class(priest_class()) - mp_ptr[priest_class()]->spell_first + 1;
 
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
@@ -2260,59 +2268,39 @@ static void calc_bonuses(void)
 	/* Base infravision (purely racial) */
 	p_ptr->see_infra = rp_ptr->infra;
 
-	/* Start best values at 0 */
+	/* Start values at 0 */
 	temp_dis = temp_dev = temp_sav = temp_stl = temp_srh = temp_fos = 
 	     temp_thn = temp_thb = temp_tht = 0;
 
-	/* Get best values from available classes */
+	/* Get total values from all available classes */
 	for (i = 0; i < p_ptr->available_classes; i++)
 	{
-	    /* Replace lower values with higher ones */
-	    if (cp_ptr[p_ptr->pclass[i]]->c_dis + 
-		(cp_ptr[p_ptr->pclass[i]]->x_dis * p_ptr->lev[i] / 10) > temp_dis) 
-	      temp_dis = cp_ptr[p_ptr->pclass[i]]->c_dis + 
-		(cp_ptr[p_ptr->pclass[i]]->x_dis * p_ptr->lev[i] / 10);
-
-	    if (cp_ptr[p_ptr->pclass[i]]->c_dev + 
-		(cp_ptr[p_ptr->pclass[i]]->x_dev * p_ptr->lev[i] / 10) > temp_dev) 
-	      temp_dev = cp_ptr[p_ptr->pclass[i]]->c_dev + 
-		(cp_ptr[p_ptr->pclass[i]]->x_dev * p_ptr->lev[i] / 10);
-
-	    if (cp_ptr[p_ptr->pclass[i]]->c_sav + 
-		(cp_ptr[p_ptr->pclass[i]]->x_sav * p_ptr->lev[i] / 10) > temp_sav) 
-	      temp_sav = cp_ptr[p_ptr->pclass[i]]->c_sav + 
-		(cp_ptr[p_ptr->pclass[i]]->x_sav * p_ptr->lev[i] / 10);
-
-	    if (cp_ptr[p_ptr->pclass[i]]->c_stl + 
-		(cp_ptr[p_ptr->pclass[i]]->x_stl * p_ptr->lev[i] / 10) > temp_stl) 
-	      temp_stl = cp_ptr[p_ptr->pclass[i]]->c_stl + 
-		(cp_ptr[p_ptr->pclass[i]]->x_stl * p_ptr->lev[i] / 10);
-
-	    if (cp_ptr[p_ptr->pclass[i]]->c_srh + 
-		(cp_ptr[p_ptr->pclass[i]]->x_srh * p_ptr->lev[i] / 10) > temp_srh) 
-	      temp_srh = cp_ptr[p_ptr->pclass[i]]->c_srh + 
-		(cp_ptr[p_ptr->pclass[i]]->x_srh * p_ptr->lev[i] / 10);
-
-	    if (cp_ptr[p_ptr->pclass[i]]->c_fos + 
-		(cp_ptr[p_ptr->pclass[i]]->x_fos * p_ptr->lev[i] / 10) > temp_fos) 
-	      temp_fos = cp_ptr[p_ptr->pclass[i]]->c_fos + 
-		(cp_ptr[p_ptr->pclass[i]]->x_fos * p_ptr->lev[i] / 10);
-
-	    if (cp_ptr[p_ptr->pclass[i]]->c_thn + 
-		(cp_ptr[p_ptr->pclass[i]]->x_thn * p_ptr->lev[i] / 10) > temp_thn) 
-	      temp_thn = cp_ptr[p_ptr->pclass[i]]->c_thn + 
-		(cp_ptr[p_ptr->pclass[i]]->x_thn * p_ptr->lev[i] / 10);
-
-	    if (cp_ptr[p_ptr->pclass[i]]->c_thb + 
-		(cp_ptr[p_ptr->pclass[i]]->x_thb * p_ptr->lev[i] / 10) > temp_thb) 
-	      temp_thb = cp_ptr[p_ptr->pclass[i]]->c_thb + 
-		(cp_ptr[p_ptr->pclass[i]]->x_thb * p_ptr->lev[i] / 10);
-
-	    if (cp_ptr[p_ptr->pclass[i]]->c_thb + 
-		(cp_ptr[p_ptr->pclass[i]]->x_thb * p_ptr->lev[i] / 10) > temp_tht) 
-	      temp_tht = cp_ptr[p_ptr->pclass[i]]->c_thb + 
-		(cp_ptr[p_ptr->pclass[i]]->x_thb * p_ptr->lev[i] / 10);
+	  temp_dis += (cp_ptr[p_ptr->pclass[i]]->c_dis +
+		       (cp_ptr[p_ptr->pclass[i]]->x_dis * p_ptr->lev[i]) / 10);
+	  temp_dev += (cp_ptr[p_ptr->pclass[i]]->c_dev +
+		       (cp_ptr[p_ptr->pclass[i]]->x_dev * p_ptr->lev[i]) / 10);
+	  temp_sav += (cp_ptr[p_ptr->pclass[i]]->c_sav +
+		       (cp_ptr[p_ptr->pclass[i]]->x_sav * p_ptr->lev[i]) / 10);
+	  temp_stl += (cp_ptr[p_ptr->pclass[i]]->c_stl +
+		       (cp_ptr[p_ptr->pclass[i]]->x_stl * p_ptr->lev[i]) / 10);
+	  temp_srh += (cp_ptr[p_ptr->pclass[i]]->c_srh +
+		       (cp_ptr[p_ptr->pclass[i]]->x_srh * p_ptr->lev[i]) / 10);
+	  temp_fos += (cp_ptr[p_ptr->pclass[i]]->c_fos +
+		       (cp_ptr[p_ptr->pclass[i]]->x_fos * p_ptr->lev[i]) / 10);
+	  temp_thn += (cp_ptr[p_ptr->pclass[i]]->c_thn +
+		       (cp_ptr[p_ptr->pclass[i]]->x_thn * p_ptr->lev[i]) / 10);
+	  temp_thb += (cp_ptr[p_ptr->pclass[i]]->c_thb +
+		       (cp_ptr[p_ptr->pclass[i]]->x_thb * p_ptr->lev[i]) / 10);
 	}
+	/* Get average values */
+	temp_dis /= (p_ptr->available_classes + 1);
+	temp_dev /= (p_ptr->available_classes + 1);
+	temp_sav /= (p_ptr->available_classes + 1);
+	temp_stl /= (p_ptr->available_classes + 1);
+	temp_srh /= (p_ptr->available_classes + 1);
+	temp_fos /= (p_ptr->available_classes + 1);
+	temp_thn /= (p_ptr->available_classes + 1);
+	temp_thb /= (p_ptr->available_classes + 1);
 
 	/* Real skills are race skills + best class skills */
 	p_ptr->skill_dis = rp_ptr->r_dis + temp_dis;
@@ -2544,8 +2532,11 @@ static void calc_bonuses(void)
 		/* Maximize mode */
 		if (adult_maximize)
 		{
+		        int n;
 			/* Modify the stats for race/class */
-			add += (rp_ptr->r_adj[i] + cp_ptr[p_ptr->pclass[0]]->c_adj[i]);
+			add += rp_ptr->r_adj[i];
+			for (n = 0; n < p_ptr->available_classes; n++)
+			  add += cp_ptr[p_ptr->pclass[n]]->c_adj[i];
 		}
 
 		/* Extract the new "stat_top" value for the stat */
@@ -2652,9 +2643,8 @@ static void calc_bonuses(void)
 	/* Temporary infravision boost */
 	if (p_ptr->tim_infra)
 	{
-		p_ptr->see_infra++;
+		p_ptr->see_infra += 3;
 	}
-
 
 	/*** Special flags ***/
 
@@ -2773,6 +2763,7 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- stealth (bonus one) */
 	p_ptr->skill_stl += 1;
+	if (p_ptr->tim_stealth) p_ptr->skill_stl += 3;
 
 	/* Affect Skill -- disarming (DEX and INT) */
 	p_ptr->skill_dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
@@ -3523,7 +3514,7 @@ void redraw_stuff(void)
 
 	if (p_ptr->redraw & (PR_HEALTH))
 	{
-		p_ptr->redraw &= ~(PR_HEALTH);
+		p_ptr->redraw  &= ~(PR_HEALTH);
 		health_redraw();
 	}
 

@@ -1948,6 +1948,9 @@ K:582:0x86/0x81
 # Potion of Amnesia
 K:583:0x86/0x88
 
+# Scroll of Mundanify
+K:582:0x86/0x81
+
 
 ##### Monster attr/char definitions #####
 

@@ -210,10 +210,6 @@ C:1:X
 A:^V
 C:1:'
 
-# Create new multiclass
-A:N
-C:1:O
-
 # Message colors
 %:message.prf
 

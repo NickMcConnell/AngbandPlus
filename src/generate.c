@@ -3556,9 +3556,9 @@ void generate_cave(void)
 	   a level */
 	if (p_ptr->astral)
 	{
-	     msg_print("You sense the living rock beneath your feet.");
-	     wiz_lite();
-	     p_ptr->energy = 100;
+	      msg_print("You sense the living rock beneath your feet.");
+	      wiz_lite();
+	      p_ptr->energy = 100;
 	}
 }
 

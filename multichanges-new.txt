@@ -5,3 +5,48 @@ Changed title in files.txt, 'V' command gives correct info now
 Removed limit on number of traps when in nightmare mode
 Activations of wands/staffs/rods/artifacts do not use player level anymore
 
+-1.0.2-
+
+Nightmare mode clears the map every player turn now, instead of each round
+
+When in astral and nightmare modes, cannot get below level 97 when
+descending more than one level at a time
+Also, does not continuously forget the map
+
+Astral characters can now move through walls, and start with
+lanter/oil or torches, as walls are not lit up
+
+Choose classes at start of game. Hit ESCAPE to stop choosing classes
+
+Got rid of restriction on rogues/tricksters that they could only have
+one other class, can't remember why I decided to do that anyway...
+Half-elves can only have 2 classes now, not 3
+
+Gets attribute bonuses/penalties from all classes now
+Second class now needs twice as much experience, third *3. fourth *4
+Skills are an average of what is granted to each available class
+HP are based on average of hitdie from all available classes
+Mana/Piety are displayed regardless of which class is active, and are
+initialised properly at character birth
+
+Added realm information on character info screen. Character can have a
+magery realm (magic or illusion) and a prayer realm (holy or death)
+
+Equipment : spellcasters get first spellbooks, everyone except monks
+gets a melee weapon, archers and rangers get a missile weapon and ammo
+Warriors : chainmail
+Mages or Illusionists : wizard hat
+Priest or Death Priest : ! of cure critical wounds
+Rogue or Trickster : scroll of teleport
+Ranger : fur cloak
+Paladin : large metal shield
+Archer : potion of speed
+Berserker: ! of berserk strength
+Monk : pair of sandals
+
+Changed brand_ammo to be more efficient (thanks to takkaria)
+
+Boosts to infravision/stealth (from spells, potions, etc) give +3 now
+
+Added scroll of Mundanify, returns weapon or armour to base type,
+without enchantments

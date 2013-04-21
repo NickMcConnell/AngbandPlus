@@ -1300,11 +1300,20 @@ void move_player(int dir, int jumping)
 
 	int y, x;
 
+	bool p_can_pass_walls = FALSE;
 
 	/* Find the result of moving */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
+	
+	if (p_ptr->astral)
+	  p_can_pass_walls = TRUE;
 
+	if ((cave_feat[y][x] >= FEAT_PERM_EXTRA) &&
+	    (cave_feat[y][x] <= FEAT_PERM_SOLID))
+	{
+		p_can_pass_walls = FALSE;
+	}
 
 	/* Hack -- attack monsters */
 	if (cave_m_idx[y][x] > 0)
@@ -1341,8 +1350,8 @@ void move_player(int dir, int jumping)
 
 #endif /* ALLOW_EASY_ALTER */
 
-	/* Player can not walk through "walls" */
-	else if (!cave_floor_bold(y, x))
+	/* Player can not walk through "walls" unless astral */
+	else if ((!cave_floor_bold(y, x)) && (!p_can_pass_walls))
 	{
 		/* Disturb the player */
 		disturb(0, 0);
