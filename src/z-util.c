@@ -1,5 +1,13 @@
 /* File: z-util.c */
 
+/*
+ * Copyright (c) 1997 Ben Harrison
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
+
 /* Purpose: Low level utilities -BEN- */
 
 #include "z-util.h"
@@ -70,7 +78,7 @@ cptr argv0 = NULL;
  */
 void func_nothing(void)
 {
-    /* Do nothing */
+	/* Do nothing */
 }
 
 
@@ -79,7 +87,7 @@ void func_nothing(void)
  */
 errr func_success(void)
 {
-    return (0);
+	return (0);
 }
 
 
@@ -88,7 +96,7 @@ errr func_success(void)
  */
 errr func_problem(void)
 {
-    return (1);
+	return (1);
 }
 
 
@@ -97,7 +105,7 @@ errr func_problem(void)
  */
 errr func_failure(void)
 {
-    return (-1);
+	return (-1);
 }
 
 
@@ -107,7 +115,7 @@ errr func_failure(void)
  */
 bool func_true(void)
 {
-    return (1);
+	return (1);
 }
 
 
@@ -116,7 +124,7 @@ bool func_true(void)
  */
 bool func_false(void)
 {
-    return (0);
+	return (0);
 }
 
 
@@ -127,7 +135,7 @@ bool func_false(void)
  */
 bool streq(cptr a, cptr b)
 {
-    return (!strcmp(a,b));
+	return (!strcmp(a, b));
 }
 
 
@@ -136,14 +144,14 @@ bool streq(cptr a, cptr b)
  */
 bool suffix(cptr s, cptr t)
 {
-    int tlen = strlen(t);
-    int slen = strlen(s);
+	int tlen = strlen(t);
+	int slen = strlen(s);
 
-    /* Check for incompatible lengths */
-    if (tlen > slen) return (FALSE);
+	/* Check for incompatible lengths */
+	if (tlen > slen) return (FALSE);
 
-    /* Compare "t" to the end of "s" */
-    return (!strcmp(s + slen - tlen, t));
+	/* Compare "t" to the end of "s" */
+	return (!strcmp(s + slen - tlen, t));
 }
 
 
@@ -152,15 +160,15 @@ bool suffix(cptr s, cptr t)
  */
 bool prefix(cptr s, cptr t)
 {
-    /* Scan "t" */
-    while (*t)
-    {
-        /* Compare content and length */
-        if (*t++ != *s++) return (FALSE);
-    }
+	/* Scan "t" */
+	while (*t)
+	{
+		/* Compare content and length */
+		if (*t++ != *s++) return (FALSE);
+	}
 
-    /* Matched, we have a prefix */
-    return (TRUE);
+	/* Matched, we have a prefix */
+	return (TRUE);
 }
 
 
@@ -176,11 +184,11 @@ void (*plog_aux)(cptr) = NULL;
  */
 void plog(cptr str)
 {
-    /* Use the "alternative" function if possible */
-    if (plog_aux) (*plog_aux)(str);
+	/* Use the "alternative" function if possible */
+	if (plog_aux) (*plog_aux)(str);
 
-    /* Just do a labeled fprintf to stderr */
-    else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "???", str));
+	/* Just do a labeled fprintf to stderr */
+	else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "???", str));
 }
 
 
@@ -198,20 +206,20 @@ void (*quit_aux)(cptr) = NULL;
  */
 void quit(cptr str)
 {
-    /* Attempt to use the aux function */
-    if (quit_aux) (*quit_aux)(str);
+	/* Attempt to use the aux function */
+	if (quit_aux) (*quit_aux)(str);
 
-    /* Success */
-    if (!str) (void)(exit(0));
+	/* Success */
+	if (!str) (void)(exit(0));
 
-    /* Extract a "special error code" */
-    if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
+	/* Extract a "special error code" */
+	if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
 
-    /* Send the string to plog() */
-    plog(str);
+	/* Send the string to plog() */
+	plog(str);
 
-    /* Failure */
-    (void)(exit(-1));
+	/* Failure */
+	(void)(exit(-1));
 }
 
 
@@ -227,19 +235,19 @@ void (*core_aux)(cptr) = NULL;
  */
 void core(cptr str)
 {
-    char *crash = NULL;
+	char *crash = NULL;
 
-    /* Use the aux function */
-    if (core_aux) (*core_aux)(str);
+	/* Use the aux function */
+	if (core_aux) (*core_aux)(str);
 
-    /* Dump the warning string */
-    if (str) plog(str);
+	/* Dump the warning string */
+	if (str) plog(str);
 
-    /* Attempt to Crash */
-    (*crash) = (*crash);
+	/* Attempt to Crash */
+	(*crash) = (*crash);
 
-    /* Be sure we exited */
-    quit("core() failed");
+	/* Be sure we exited */
+	quit("core() failed");
 }
 
 

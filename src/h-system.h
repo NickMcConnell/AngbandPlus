@@ -12,7 +12,8 @@
  * This file is a big hack to make other files less of a hack.
  * This file has been rebuilt -- it may need a little more work.
  *
- * It is (very) unlikely that VMS will work without help.
+ * It is (very) unlikely that VMS will work without help, primarily
+ * because VMS does not use the "ASCII" character set.
  */
 
 
@@ -31,13 +32,14 @@
 
 # include <sys/types.h>
 
-# if defined(Pyramid) || defined(NeXT) || defined(sun) || \
-     defined(NCR3K) || defined(linux) || defined(ibm032) || \
-     defined(__osf__) || defined(ISC) || defined(SGI)
+# if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
+     defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
+     defined(__osf__) || defined(ISC) || defined(SGI) || \
+     defined(linux)
 #  include <sys/time.h>
 # endif
 
-# if !defined(sgi) && !defined(ultrix)
+# if !defined(SGI) && !defined(ULTRIX)
 #  include <sys/timeb.h>
 # endif
 
@@ -52,12 +54,12 @@
 # include <unix.h>
 #endif
 
-#if defined(WINDOWS) || defined(MSDOS)
+#if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
 # include <io.h>
 #endif
 
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(ACORN) && !defined(VM)
+    !defined(ACORN) && !defined(VM) && !defined(__MWERKS__)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
 #  include <mem.h>
 # else
@@ -101,8 +103,9 @@
 #  include <string.h>
 # else
 #  include <strings.h>
-   extern char *strchr();
-   extern char *strstr();
+extern char *strstr();
+extern char *strchr();
+extern char *strrchr();
 # endif
 
 #else
@@ -114,7 +117,7 @@
 
 
 #if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN)
-  extern long atol();
+extern long atol();
 #endif
 
 
@@ -122,4 +125,5 @@
 
 
 #endif
+
 

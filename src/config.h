@@ -1,13 +1,11 @@
 /* File: config.h */
 
-/* Purpose: Angband specific configuration stuff */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 
@@ -54,7 +52,7 @@
 /*
  * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
  */
-#define USE_TPOSIX
+/* #define USE_TPOSIX */
 
 /*
  * OPTION: Use the "termio" methods in "main-gcu.c"
@@ -114,10 +112,10 @@
 
 
 /*
- * This "fix" is from "Yoshiaki KASAHARA <kasahara@csce.kyushu-u.ac.jp>"
- * It prevents problems on (non-Solaris) Suns using "SAFE_SETUID".
+ * Prevent problems on (non-Solaris) Suns using "SAFE_SETUID".
+ * The SAFE_SETUID code is weird, use it at your own risk...
  */
-#if defined(sun) && !defined(SOLARIS)
+#if defined(SUNOS) && !defined(SOLARIS)
 # undef SAFE_SETUID_POSIX
 #endif
 
@@ -171,14 +169,14 @@
 
 
 /*
- * OPTION: Hack -- Compile in support for "Cyborg" mode
+ * OPTION: Hack -- Compile in support for "Borg mode"
  */
 /* #define ALLOW_BORG */
 
 /*
- * OPTION: Hack -- Compile in support for "Wizard Commands"
+ * OPTION: Hack -- Compile in support for "Debug Commands"
  */
-/* #define ALLOW_WIZARD */
+#define ALLOW_DEBUG
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
@@ -294,7 +292,6 @@
 
 
 
-
 /*
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
  * software options, which enable "monster flowing".
@@ -308,16 +305,21 @@
 #define MONSTER_FLOW_DEPTH 32
 
 
+/*
+ * OPTION: Support multiple "player" grids in "map_info()"
+ */
+/* #define MAP_INFO_MULTIPLE_PLAYERS */
+
 
 /*
- * OPTION: Allow use of extended spell info	-DRS-
+ * OPTION: Use the new "update_view()" algorithm
  */
-#define DRS_SHOW_SPELL_INFO
+#define UPDATE_VIEW_NEW
 
 /*
- * OPTION: Allow use of the monster health bar	-DRS-
+ * OPTION: Use the "complex" wall illumination code
  */
-#define DRS_SHOW_HEALTH_BAR
+/* #define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION */
 
 
 /*
@@ -348,16 +350,6 @@
 
 
 /*
- * OPTION: Allow the use of "color" in various places.  Disabling this
- * flag will remove some code, and auto-cast all colors to "White".
- * This will almost certainly speed up the program.  Note that there
- * is a software level flag as well ("use_color") which is almost as
- * good at speeding up the code.
- */
-#define USE_COLOR
-
-
-/*
  * OPTION: Allow the use of "sound" in various places.
  */
 #define USE_SOUND
@@ -367,6 +359,11 @@
  */
 #define USE_GRAPHICS
 
+
+/*
+ * OPTION: Allow the use of random artifacts.
+ */
+#define GJW_RANDART
 
 /*
  * OPTION: Hack -- Macintosh stuff
@@ -418,8 +415,9 @@
  * actual location of the "lib" folder, for example, "/tmp/angband/lib/"
  * or "/usr/games/lib/angband/", or "/pkg/angband/lib".
  */
-#define DEFAULT_PATH "./lib/"
-/* #define DEFAULT_PATH "/usr/games/lib/gw-angband.2.7.11/" */
+#ifndef DEFAULT_PATH
+# define DEFAULT_PATH "./lib/"
+#endif
 
 
 /*
@@ -443,56 +441,17 @@
 
 
 /*
- * OPTION: For some brain-dead computers with no command line interface,
- * namely Macintosh, there has to be some way of "naming" your savefiles.
- * The current "Macintosh" hack is to make it so whenever the character
- * name changes, the savefile is renamed accordingly.  But on normal
- * machines, once you manage to "load" a savefile, it stays that way.
- * Macintosh is particularly weird because you can load savefiles that
- * are not contained in the "lib:save:" folder, and if you change the
- * player's name, it will then save the savefile elsewhere.  Note that
- * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
- */
-#if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
-# define SAVEFILE_MUTABLE
-#endif
-
-
-/*
  * OPTION: Capitalize the "user_name" (for "default" player name)
  * This option is only relevant on SET_UID machines.
  */
 #define CAPITALIZE_USER_NAME
 
 
-/*
- * OPTION: Allow the use of a "Recall Window", if supported
- */
-#define GRAPHIC_RECALL
-
-/*
- * OPTION: Allow the use of a "Choice Window", if supported
- */
-#define GRAPHIC_CHOICE
-
-/*
- * OPTION: Allow the use of a "Mirror Window", if supported
- */
-#define GRAPHIC_MIRROR
-
-
-
-/*
- * OPTION: Shimmer Multi-Hued monsters/objects
- */
-#define SHIMMER_MONSTERS
-#define SHIMMER_OBJECTS
-
 
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"benh@voicenet.com"
+#define MAINTAINER	"benh@phial.com"
 
 
 /*
@@ -511,36 +470,25 @@
 
 
 /*
- * Hack -- Special "ancient DOS-286" version
+ * Hack -- Special "ancient machine" versions
  */
-#ifdef USE_286
-# define ANGBAND_LITE
-# undef DELAY_LOAD_R_TEXT
-# define DELAY_LOAD_R_TEXT
+#if defined(USE_286) || defined(ANGBAND_LITE_MAC)
+# ifndef ANGBAND_LITE
+#  define ANGBAND_LITE
+# endif
 #endif
-
-/*
- * Hack -- Special "ancient Macintosh" version
- */
-#ifdef ANGBAND_LITE_MAC
-# define ANGBAND_LITE
-# undef USE_COLOR
-# undef ALLOW_TEMPLATES
-#endif
-
 
 /*
  * OPTION: Attempt to minimize the size of the game
  */
+#ifndef ANGBAND_LITE
 /* #define ANGBAND_LITE */
+#endif
 
 /*
  * Hack -- React to the "ANGBAND_LITE" flag
  */
 #ifdef ANGBAND_LITE
-# undef GRAPHIC_RECALL
-# undef GRAPHIC_CHOICE
-# undef GRAPHIC_MIRROR
 # undef ALLOW_COLORS
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
@@ -549,8 +497,11 @@
 # undef DRS_SMART_OPTIONS
 # undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
-# undef ALLOW_WIZARD
+# undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
+# undef ALLOW_TEMPLATES
+# undef DELAY_LOAD_R_TEXT
+# define DELAY_LOAD_R_TEXT
 #endif
 
 
@@ -567,7 +518,7 @@
 #ifdef VERIFY_HONOR
 # define VERIFY_SAVEFILE
 # define VERIFY_CHECKSUMS
-# define VERIFY_TIMESTAMPS
+# define VERIFY_TIMESTAMP
 #endif
 
 

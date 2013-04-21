@@ -1,61 +1,107 @@
 # File: Makefile.ibm
 
-# Purpose: Makefile support for "main-ibm.c" and Gnu C
+#
+# Makefile support for "main-ibm.c"
+#
+# See "main-ibm.c" for more information.
+#
 
-# Note: Rename to "Makefile" before using
-# Added extra targets: mrmarcel@eos.ncsu.edu (Mike Marcelais)
+
+#
+# Basic definitions
+#
+
+# Objects
+MAIN_OBJS = \
+  main.o main-ibm.o
 
 OBJS = \
-  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-  variable.o tables.o util.o cave.o \
-  object1.o object2.o monster1.o monster2.o \
-  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
-  load1.o load2.o save.o files.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o \
-  main-ibm.o main.o
-
+  store.o birth.o wizard1.o wizard2.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+  load1.o load2.o save.o files.o \
+  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
+  object1.o object2.o monster1.o monster2.o \
+  variable.o tables.o util.o cave.o \
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o \
+  randart.o
 
 # Compiler
-
 CC = gcc
 
 # Compiler flags
-
-CFLAGS = -Wall -O2 -DUSE_IBM
+CFLAGS = -Wall -O2 -s -DUSE_IBM
 
 # Libraries
-
 LIBS = -lpc
-GLIBS= -lgrx20
-
-# Name of Program
-
-PROGRAM = angband.exe makepref.exe gredit.exe
 
 
-all: $(PROGRAM)
+#
+# Targets
+#
 
-# Generate binary file
+default: angband.exe randart.exe
+	copy angband.exe ..
+	copy randart.exe ..
+	del angband.exe
+	del randart.exe
 
-angband.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o angband.bin $(OBJS) $(LIBS)
+install: angband.exe makepref.exe gredit.exe
+	copy angband.exe ..
+	copy makepref.exe ..
+	copy gredit.exe ..
 
-gredit.exe: gredit.o
-	$(CC) $(CFLAGS) -o gredit.bin gredit.o $(LIBS) $(GLIBS)
+all: angband.exe makepref.exe gredit.exe randart.exe
+
+_randart.o: randart.c
+	copy randart.c _randart.c
+	$(CC) $(CFLAGS) -DSTANDALONE_RANDART -c _randart.c
+	del _randart.c
+
+#
+# Build the Angband function library
+#
+
+libangb.a: $(OBJS)
+	ar rcv $@ $(OBJS)
+	ranlib $@
+
+
+#
+# Link executables
+#
+
+angband.exe: $(MAIN_OBJS) libangb.a
+	$(CC) $(CFLAGS) -o $@ $(MAIN_OBJS) libangb.a $(LIBS)
+
+randart.exe: _randart.o randmain.o libangb.a
+	$(CC) $(CFLAGS) -o $@ _randart.o randmain.o libangb.a
 
 makepref.exe: makepref.o
-	$(CC) $(CFLAGS) -o makepref.bin makepref.o $(LIBS)
+	$(CC) $(CFLAGS) -o $@ makepref.o $(LIBS)
+
+gredit.exe: gredit.o
+	$(CC) $(CFLAGS) -o $@ gredit.o $(LIBS) -lgrx20
+
+
+#
 # Compile source files
+#
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
 
 
+#
 # Clean up
+#
 
 clean:
-	del *.o $(PROGRAM) *.bin
+	del *.o
+	del *.bin
+	del libangb.a
+	del _randart.c
 
+cleanall: clean
+	del *.exe
 

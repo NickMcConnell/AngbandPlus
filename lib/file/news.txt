@@ -1,18 +1,26 @@
 
-                       *************************
-                       ** GW-Angband (2.7.11) **
-                       *************************
 
-         Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
-             and Umoria:    Copyright (c) 1989 James E. Wilson
+              **************************************************
+              **  GW-Angband 2.8.3  **   The Pits of Angband  **
+              **************************************************
 
-       Angband 2.0 - 2.4.?: Alex Cutler, Andy Astrand, Sean Marsh, 
-                            Geoff Hill, Charles Teague, and others
-       Angband 2.5 - 2.6.2: Charles Swiger (cs4w+@andrew.cmu.edu)
-       Angband 2.7 - 2.7.9: Ben Harrison (benh@voicenet.com)
-       Curses/X11 Versions: Ben Harrison, Torbj|rn Lindgren
+           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
+               and Umoria:   Copyright (c) 1989 James E. Wilson
 
- This is a variant of Angband by Greg Wooledge "wooledge@kellnet.com".
- Send all general comments, bug reports, patches, etc, to the above
- address, unless they also apply to Angband 2.7.9, in which case send
- them to "benh@voicenet.com".
+                       Angband 2.0 - 2.4 - 2.6.2 by:
+                   Alex Cutler, Andy Astrand, Sean Marsh,
+                 Geoff Hill, Charles Teague, Charles Swiger
+
+               Angband 2.8.3:  Copyright (c) 1997 Ben Harrison
+
+        This is a variant of Angband by Greg Wooledge.  Send all general
+        comments, bug reports, patches, etc., to "wooledge@kellnet.com".
+
+   The GW-Angband Home Page is at "http://www.kellnet.com/wooledge/angband".
+        Visit the Angband Home Page at "http://www.phial.com/angband/".
+      Browse the Angband newsgroup at "news:rec.games.roguelike.angband".
+
+
+
+
+

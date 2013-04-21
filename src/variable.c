@@ -1,13 +1,11 @@
 /* File: variable.c */
 
-/* Purpose: Angband variables */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -16,35 +14,34 @@
 /*
  * Hack -- Link a copyright message into the executable
  */
-cptr copyright[5] = {
-    "Copyright (c) 1989 James E. Wilson, Robert A. Keoneke",
-    "",
-    "This software may be copied and distributed for educational, research,",
-    "and not for profit purposes provided that this copyright and statement",
-    "are included in all such copies."
+cptr copyright[5] =
+{
+	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke",
+	"",
+	"This software may be copied and distributed for educational, research,",
+	"and not for profit purposes provided that this copyright and statement",
+	"are included in all such copies.  Other copyrights may also apply."
 };
 
 
 /*
- * Hack -- Link the "version" into the executable
+ * Executable version
  */
 byte version_major = VERSION_MAJOR;
 byte version_minor = VERSION_MINOR;
 byte version_patch = VERSION_PATCH;
 byte version_extra = VERSION_EXTRA;
 
-
 /*
- * Hack -- Savefile version
+ * Savefile version
  */
 byte sf_major;			/* Savefile's "version_major" */
 byte sf_minor;			/* Savefile's "version_minor" */
 byte sf_patch;			/* Savefile's "version_patch" */
 byte sf_extra;			/* Savefile's "version_extra" */
 
-
 /*
- * Hack -- Savefile information
+ * Savefile information
  */
 u32b sf_xtra;			/* Operating system info */
 u32b sf_when;			/* Time when savefile created */
@@ -52,72 +49,47 @@ u16b sf_lives;			/* Number of past "lives" with this file */
 u16b sf_saves;			/* Number of "saves" during this life */
 
 /*
- * Hack -- Run-time arguments
+ * Run-time arguments
  */
-bool arg_wizard;		/* Command arg -- Enter wizard mode */
-bool arg_fiddle;		/* Command arg -- Enter fiddle mode */
-bool arg_force_original;	/* Command arg -- Force original keyset */
-bool arg_force_roguelike;	/* Command arg -- Force roguelike keyset */
+bool arg_fiddle;			/* Command arg -- Request fiddle mode */
+bool arg_wizard;			/* Command arg -- Request wizard mode */
+bool arg_sound;				/* Command arg -- Request special sounds */
+bool arg_graphics;			/* Command arg -- Request graphics mode */
+bool arg_force_original;	/* Command arg -- Request original keyset */
+bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
+
+/*
+ * Various things
+ */
 
 bool character_generated;	/* The character exists */
 bool character_dungeon;		/* The character has a dungeon */
 bool character_loaded;		/* The character was loaded from a savefile */
 bool character_saved;		/* The character was just saved to a savefile */
 
-bool character_icky;		/* The game is in an icky full screen mode */
-bool character_xtra;		/* The game is in an icky startup mode */
+s16b character_icky;		/* Depth of the game in special mode */
+s16b character_xtra;		/* Depth of the game in startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
+#ifdef GJW_RANDART
+u32b seed_randart;		/* Hack -- consistent random artifacts */
+#endif
 
-s16b command_cmd;		/* Current "Angband Command" */
-
-s16b command_arg;		/* Gives argument of current command */
-s16b command_rep;		/* Gives repetition of current command */
-s16b command_dir;		/* Gives direction of current command */
-
-s16b command_see;		/* See "cmd1.c" */
-s16b command_wrk;		/* See "cmd1.c" */
-
-s16b command_gap = 50;		/* See "cmd1.c" */
-
-s16b command_new;		/* Command chaining from inven/equip view */
-
-s16b energy_use;		/* Energy use this turn */
-
-s16b choose_default;		/* Default contents of choice window */
-
-bool create_up_stair;		/* Auto-create "up stairs" */
-bool create_down_stair;		/* Auto-create "down stairs" */
-
-bool msg_flag;			/* Used in msg_print() for "buffering" */
-
-bool alive;			/* True if game is running */
-
-bool death;			/* True if player has died */
-
-s16b running;			/* Current counter for running, if any */
-s16b resting;			/* Current counter for resting, if any */
-
-s16b cur_hgt;			/* Current dungeon height */
-s16b cur_wid;			/* Current dungeon width */
-s16b dun_level;			/* Current dungeon level */
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
 
-s32b turn;			/* Current game turn */
-s32b old_turn;			/* Turn when level began (feelings) */
+s32b turn;				/* Current game turn */
 
-bool wizard;			/* Is the player currently in Wizard mode? */
-bool can_be_wizard;		/* Does the player have wizard permissions? */
+s32b old_turn;			/* Hack -- Level feeling counter */
 
-u16b total_winner;		/* Semi-Hack -- Game has been won */
+bool use_sound;			/* The "sound" mode is enabled */
+bool use_graphics;		/* The "graphics" mode is enabled */
 
-u16b panic_save;		/* Track some special "conditions" */
-u16b noscore;			/* Track various "cheating" conditions */
+s16b signal_count;		/* Hack -- Count interupts */
 
-s16b signal_count = 0;		/* Hack -- Count interupts */
+bool msg_flag;			/* Player has pending message */
 
 bool inkey_base;		/* See the "inkey()" function */
 bool inkey_xtra;		/* See the "inkey()" function */
@@ -125,253 +97,48 @@ bool inkey_scan;		/* See the "inkey()" function */
 bool inkey_flag;		/* See the "inkey()" function */
 
 s16b coin_type;			/* Hack -- force coin type */
+
 bool opening_chest;		/* Hack -- prevent chest generation */
 
-bool use_graphics;		/* Hack -- Assume no graphics mapping */
+bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
+bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 
-bool use_sound;			/* Hack -- Assume no special sounds */
+bool repair_mflag_born;	/* Hack -- repair monster flags (born) */
+bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
+bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
+bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
 
-bool scan_monsters;		/* Hack -- optimize multi-hued code, etc */
-bool scan_objects;		/* Hack -- optimize multi-hued code, etc */
+s16b o_max = 1;			/* Number of allocated objects */
+s16b o_cnt = 0;			/* Number of live objects */
 
-s16b total_weight;		/* Total weight being carried */
-
-s16b inven_nxt;			/* Hack -- unused */
-
-s16b inven_cnt;			/* Number of items in inventory */
-s16b equip_cnt;			/* Number of items in equipment */
-
-s16b i_nxt = 1;			/* Object free scanner */
-s16b m_nxt = 1;			/* Monster free scanner */
-
-s16b i_max = 1;			/* Object heap size */
-s16b m_max = 1;			/* Monster heap size */
-
-s16b i_top = 0;			/* Object top size */
-s16b m_top = 0;			/* Monster top size */
+s16b m_max = 1;			/* Number of allocated monsters */
+s16b m_cnt = 0;			/* Number of live monsters */
 
 
-/* Software options (set via the '=' command).  See "tables.c" */
-
-/* General options */
-
-bool rogue_like_commands;	/* Use the rogue-like keyset */
-bool quick_messages;		/* Clear "-more-" with any key */
-bool other_query_flag;		/* Prompt before various actions */
-bool carry_query_flag;		/* Prompt when picking up things */
-bool always_pickup;		/* Pick things up by default */
-bool always_throw;		/* Throw things without asking */
-bool always_repeat;		/* Auto-repeat some commands */
-bool use_old_target;		/* Use old target when possible */
-
-bool show_equip_label;		/* Shop labels in equipment list */
-bool depth_in_feet;		/* Display the depth in "feet" */
-bool notice_seams;		/* Highlight mineral seams */
-
-bool use_color;			/* Use color if possible */
-
-bool compress_savefile;		/* Compress the savefile as possible */
-
-bool hilite_player;		/* Hilite the player */
-
-bool ring_bell;			/* Ring the bell */
-
-bool view_yellow_lite;		/* Use "yellow" for "torch lite" */
-bool view_bright_lite;		/* Use "bright" for (viewable) "perma-lite" */
-
-
-/* Option Set 2 -- Disturbance */
-
-bool find_ignore_stairs;	/* Run past stairs */
-bool find_ignore_doors;		/* Run through doors */
-bool find_cut;			/* Cut corners */
-bool find_examine;		/* Examine corners */
-
-bool disturb_near;		/* Disturbed by "local" motion */
-bool disturb_move;		/* Disturbed by monster movement */
-bool disturb_enter;		/* Disturbed by monster appearing */
-bool disturb_leave;		/* Disturbed by monster disappearing */
-
-bool disturb_panel;		/* Disturbed by map panel changing */
-bool disturb_other;		/* Disturbed by various things happening */
-
-bool flush_command;		/* Flush input before every command */
-bool flush_disturb;		/* Flush input on disturbance */
-bool flush_failure;		/* Flush input on any failure */
-
-bool fresh_before;		/* Flush output before normal commands */
-bool fresh_after;		/* Flush output after normal commands */
-bool fresh_message;		/* Flush output after all messages */
-
-bool alert_hitpoint;		/* Alert user to critical hitpoints */
-bool alert_failure;		/* Alert user to various failures */
-
-
-/* Gameplay options */
-
-bool scum_always;		/* Auto-scum for good levels (always) */
-bool scum_sometimes;		/* Auto-scum for good levels (sometimes) */
-
-bool dungeon_align;		/* Generate dungeons with align rooms */
-bool dungeon_stair;		/* Generate dungeons with connected stairs */
-
-bool view_perma_grids;		/* Map "remembers" perma-lit grids */
-bool view_torch_grids;		/* Map "remembers" torch-lit grids */
-
-bool flow_by_sound;		/* Monsters track new player location */
-bool flow_by_smell;		/* Monsters track old player location */
-
-bool track_follow;		/* Monsters follow the player */
-bool track_target;		/* Monsters target the player */
-
-bool smart_learn;		/* Monsters learn from their mistakes */
-bool smart_cheat;		/* Monsters exploit player weaknesses */
-
-bool no_haggle_flag;		/* Cancel haggling */
-bool shuffle_owners;		/* Shuffle store owners occasionally */
-
-bool show_health_bar;		/* Show monster health bar */
-
-bool show_inven_weight;		/* Show weights in inven */
-bool show_equip_weight;		/* Show weights in equip */
-bool show_store_weight;		/* Show weights in store */
-
-bool stack_allow_items;		/* Allow weapons and armor and such to stack */
-bool stack_allow_wands;		/* Allow wands and staffs and rods to stack */
-bool stack_force_notes;		/* Force items with different notes to stack */
-bool stack_force_costs;		/* Force items with different costs to stack */
-
-
-/* Efficiency options */
-
-bool view_reduce_lite;		/* Reduce lite radius when running */
-bool view_reduce_view;		/* Reduce view radius in town */
-
-bool optimize_display;		/* Optimize various things (visual display) */
-bool optimize_various;		/* Optimize various things (message recall) */
-
-
-/* Special options */
-
-bool use_mirror_debug;		/* Use "mirror" window -- debug messages */
-
-bool use_mirror_around;		/* Use "mirror" window -- auto-mapping */
-
-bool use_mirror_recent;		/* Use "mirror" window -- recent monsters */
-
-bool use_mirror_normal;		/* Use "mirror" window -- current stuff */
-bool use_mirror_choose;		/* Use "mirror" window -- show "choices" */
-bool use_mirror_spells;		/* Use "mirror" window -- show "spells" */
-
-bool use_recall_recent;		/* Use "recall" window -- recent monsters */
-
-bool use_choice_normal;		/* Use "choice" window -- current stuff */
-bool use_choice_choose;		/* Use "choice" window -- show "choices" */
-bool use_choice_spells;		/* Use "choice" window -- show "spells" */
-
-bool show_choose_info;		/* Show info in windows when "choosing" */
-bool show_choose_prompt;	/* Show prompt in windows when "choosing" */
-bool show_choose_weight;	/* Show weights in windows when "choosing" */
-bool show_choose_label;		/* Show labels in windows when "choosing"  */
-
-bool recall_show_desc;		/* Show monster descriptions when "recalling" */
-bool recall_show_kill;		/* Show monster kill info when "recalling" */
-
-
-/* Cheating options */
-
-bool cheat_peek;		/* Cheat -- note object creation */
-bool cheat_hear;		/* Cheat -- note monster creation */
-bool cheat_room;		/* Cheat -- note dungeon creation */
-bool cheat_xtra;		/* Cheat -- note something else */
-bool cheat_know;		/* Cheat -- complete monster recall */
-bool cheat_live;		/* Cheat -- allow death avoidance */
-
-
-s16b hitpoint_warn;		/* Hitpoint warning (0 to 9) */
-
-s16b delay_spd;			/* Delay factor (0 to 9) */
-
-
-term *term_screen;		/* The screen window */
-term *term_mirror;		/* The mirror window */
-term *term_recall;		/* The recall window */
-term *term_choice;		/* The choice window */
-
+/*
+ * Dungeon variables
+ */
 
 s16b feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
 
-bool good_item_flag;		/* True if "Artifact" on this level */
-
-bool new_level_flag;		/* Start a new level */
+bool good_item_flag;	/* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
 
 
 /*
- * Dungeon size info
+ * Player info
  */
-s16b max_panel_rows, max_panel_cols;
-s16b panel_row, panel_col;
-s16b panel_row_min, panel_row_max;
-s16b panel_col_min, panel_col_max;
-s16b panel_col_prt, panel_row_prt;
-
-/* Player location in dungeon */
-s16b py;
-s16b px;
-
-/* Targetting variables */
-s16b target_who;
-s16b target_col;
-s16b target_row;
-
-/* Health bar variable -DRS- */
-s16b health_who;
-
-/* Monster recall race */
-s16b recent_idx;
-
+int player_uid;
+int player_euid;
+int player_egid;
 
 
 /*
- * The player's UID and GID
+ * Buffer to hold the current savefile name
  */
-int player_uid = 0;
-int player_euid = 0;
-int player_egid = 0;
-
-/* Current player's character name */
-char player_name[32];
-
-/* Stripped version of "player_name" */
-char player_base[32];
-
-/* What killed the player */
-char died_from[80];
-
-/* Hack -- Textual "history" for the Player */
-char history[4][60];
-
-/* Buffer to hold the current savefile name */
 char savefile[1024];
-
-
-/* Array of grids lit by player lite (see "cave.c") [LITE_MAX] */
-s16b lite_n;
-byte lite_y[LITE_MAX];
-byte lite_x[LITE_MAX];
-
-/* Array of grids viewable to the player (see "cave.c") [VIEW_MAX] */
-s16b view_n;
-byte view_y[VIEW_MAX];
-byte view_x[VIEW_MAX];
-
-/* Array of grids for use by various functions (see "cave.c") [TEMP_MAX] */
-s16b temp_n;
-byte temp_y[TEMP_MAX];
-byte temp_x[TEMP_MAX];
 
 
 /*
@@ -389,24 +156,14 @@ cptr *macro__pat;
  */
 cptr *macro__act;
 
+
 /*
- * Array of macro types [MACRO_MAX]
+ * The number of quarks (first quark is NULL)
  */
-bool *macro__cmd;
+s16b quark__num = 1;
 
 /*
- * Current macro action [1024]
- */
-char *macro__buf;
-
-
-/*
- * The number of quarks
- */
-s16b quark__num;
-
-/*
- * The pointers to the quarks [QUARK_MAX]
+ * The array[QUARK_MAX] of pointers to the quarks
  */
 cptr *quark__str;
 
@@ -432,153 +189,270 @@ u16b message__head;
 u16b message__tail;
 
 /*
- * The array of offsets, by index [MESSAGE_MAX]
+ * The array[MESSAGE_MAX] of offsets, by index
  */
 u16b *message__ptr;
 
 /*
- * The array of chars, by offset [MESSAGE_BUF]
+ * The array[MESSAGE_BUF] of chars, by offset
  */
 char *message__buf;
 
 
 /*
- * The array of indexes of "live" objects
+ * The array[8] of window pointers
  */
-s16b i_fast[MAX_I_IDX];
-
-/*
- * The array of indexes of "live" monsters
- */
-s16b m_fast[MAX_M_IDX];
+term *angband_term[8];
 
 
 /*
- * The array of "cave grids" [MAX_WID][MAX_HGT].
- * Not completely allocated, that would be inefficient
- * Not completely hardcoded, that would overflow memory
+ * The array[8] of window names (modifiable?)
  */
-cave_type *cave[MAX_HGT];
+char angband_term_name[8][16] =
+{
+	"Angband",
+	"Term-1",
+	"Term-2",
+	"Term-3",
+	"Term-4",
+	"Term-5",
+	"Term-6",
+	"Term-7"
+};
+
 
 /*
- * The array of dungeon items [MAX_I_IDX]
+ * Global table of color definitions (mostly zeros)
  */
-object_type *i_list;
+byte angband_color_table[256][4] =
+{
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
+	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
+	{0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE */
+	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
+	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
+	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
+	{0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE */
+	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER */
+	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK */
+	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
+	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
+	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
+	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
+	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
+	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
+	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
+};
+
 
 /*
- * The array of dungeon monsters [MAX_M_IDX]
+ * Standard sound names (modifiable?)
+ */
+char angband_sound_name[SOUND_MAX][16] =
+{
+	"",
+	"hit",
+	"miss",
+	"flee",
+	"drop",
+	"kill",
+	"level",
+	"death",
+	"study",
+	"teleport",
+	"shoot",
+	"quaff",
+	"zap",
+	"walk",
+	"tpother",
+	"hitwall",
+	"eat",
+	"store1",
+	"store2",
+	"store3",
+	"store4",
+	"dig",
+	"opendoor",
+	"shutdoor",
+	"tplevel"
+};
+
+
+/*
+ * Array[VIEW_MAX] used by "update_view()"
+ */
+sint view_n = 0;
+u16b *view_g;
+
+/*
+ * Arrays[TEMP_MAX] used for various things
+ */
+sint temp_n = 0;
+u16b *temp_g;
+byte *temp_y;
+byte *temp_x;
+
+
+/*
+ * Array[DUNGEON_HGT][256] of cave grid info flags (padded)
+ *
+ * This array is padded to a width of 256 to allow fast access to elements
+ * in the array via "grid" values (see the GRID() macros).
+ */
+byte (*cave_info)[256];
+
+/*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
+ */
+byte (*cave_feat)[DUNGEON_WID];
+
+
+/*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid object indexes
+ *
+ * Note that this array yields the index of the top object in the stack of
+ * objects in a given grid, using the "next_o_idx" field in that object to
+ * indicate the next object in the stack, and so on, using zero to indicate
+ * "nothing".  This array replicates the information contained in the object
+ * list, for efficiency, providing extremely fast determination of whether
+ * any object is in a grid, and relatively fast determination of which objects
+ * are in a grid.
+ */
+s16b (*cave_o_idx)[DUNGEON_WID];
+
+/*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid monster indexes
+ *
+ * Note that this array yields the index of the monster or player in a grid,
+ * where negative numbers are used to represent the player, positive numbers
+ * are used to represent a monster, and zero is used to indicate "nobody".
+ * This array replicates the information contained in the monster list and
+ * the player structure, but provides extremely fast determination of which,
+ * if any, monster or player is in any given grid.
+ */
+s16b (*cave_m_idx)[DUNGEON_WID];
+
+
+#ifdef MONSTER_FLOW
+
+/*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
+ */
+byte (*cave_cost)[DUNGEON_WID];
+
+/*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps
+ */
+byte (*cave_when)[DUNGEON_WID];
+
+#endif	/* MONSTER_FLOW */
+
+/*
+ * Array[MAX_O_IDX] of dungeon objects
+ */
+object_type *o_list;
+
+/*
+ * Array[MAX_M_IDX] of dungeon monsters
  */
 monster_type *m_list;
 
 /*
- * Hack -- Quest array
+ * Hack -- Array[MAX_Q_IDX] of quests
  */
-quest q_list[MAX_Q_IDX];
+quest *q_list;
 
 
 /*
- * The stores [MAX_STORES]
+ * Array[MAX_STORES] of stores
  */
 store_type *store;
 
 /*
- * The player's inventory [INVEN_TOTAL]
+ * Array[INVEN_TOTAL] of objects in the player's inventory
  */
 object_type *inventory;
 
 
 /*
- * The size of the "kind allocator table"
+ * The size of "alloc_kind_table" (at most MAX_K_IDX * 4)
  */
 s16b alloc_kind_size;
 
 /*
- * The indexes into the "kind allocator table" by level [MAX_DEPTH]
+ * The array[alloc_kind_size] of entries in the "kind allocator table"
  */
-s16b *alloc_kind_index;
-
-/*
- * The "kind allocator table" [alloc_kind_size]
- */
-kind_entry *alloc_kind_table;
+alloc_entry *alloc_kind_table;
 
 
 /*
- * The size of the "race allocator table"
+ * The size of "alloc_race_table" (at most MAX_R_IDX)
  */
 s16b alloc_race_size;
 
 /*
- * The indexes into the "race allocator table" by level [MAX_DEPTH]
+ * The array[alloc_race_size] of entries in the "race allocator table"
  */
-s16b *alloc_race_index;
-
-/*
- * The "race allocator table" [alloc_race_size]
- */
-race_entry *alloc_race_table;
+alloc_entry *alloc_race_table;
 
 
 /*
- * Specify attr/char pairs for inventory items (by tval)
- * XXX XXX XXX Note the implied maximum "tval" of 128
+ * Specify attr/char pairs for visual special effects
+ * Be sure to use "index & 0xFF" to avoid illegal access
+ */
+byte misc_to_attr[256];
+char misc_to_char[256];
+
+
+/*
+ * Specify color for inventory item text display (by tval)
+ * Be sure to use "index & 0x7F" to avoid illegal access
  */
 byte tval_to_attr[128];
-char tval_to_char[128];
-
-/*
- * Simple keymap method, see "init.c" and "cmd6.c".
- * XXX XXX XXX Note the implied maximum "key" of 128
- */
-byte keymap_cmds[128];
-byte keymap_dirs[128];
 
 
 /*
- * Global table of color definitions
+ * Current (or recent) macro action
  */
-byte color_table[256][4];
+char macro_buffer[1024];
+
+
+/*
+ * Keymaps for each "mode" associated with each keypress.
+ */
+cptr keymap_act[KEYMAP_MODES][256];
+
 
 
 /*** Player information ***/
 
 /*
- * Static player info record
+ * Pointer to the player tables (sex, race, class, magic)
  */
-static player_type p_body;
-
-/*
- * Pointer to the player info
- */
-player_type *p_ptr = &p_body;
-
-/*
- * Pointer to the player tables (race, class, magic)
- */
+player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
 player_magic *mp_ptr;
 
+/*
+ * The player other record (static)
+ */
+static player_other player_other_body;
 
 /*
- * More spell info
+ * Pointer to the player other record
  */
-u32b spell_learned1;	/* bit mask of spells learned */
-u32b spell_learned2;	/* bit mask of spells learned */
-u32b spell_worked1;	/* bit mask of spells tried and worked */
-u32b spell_worked2;	/* bit mask of spells tried and worked */
-u32b spell_forgotten1;	/* bit mask of spells learned but forgotten */
-u32b spell_forgotten2;	/* bit mask of spells learned but forgotten */
-byte spell_order[64];	/* order spells learned/remembered/forgotten */
-
+player_other *op_ptr = &player_other_body;
 
 /*
- * Calculated base hp values for player at each level,
- * store them so that drain life + restore life does not
- * affect hit points.  Also prevents shameless use of backup
- * savefiles for hitpoint acquirement.
+ * The player info record (static)
  */
-s16b player_hp[PY_MAX_LEVEL];
+static player_type player_type_body;
+
+/*
+ * Pointer to the player info record
+ */
+player_type *p_ptr = &player_type_body;
 
 
 /*
@@ -620,7 +494,6 @@ header *e_head;
 ego_item_type *e_info;
 char *e_name;
 char *e_text;
-
 
 /*
  * The monster race arrays
@@ -740,15 +613,16 @@ void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 
 
 /*
- * Hack -- function hook to check "validity" of given race
+ * Hack -- function hook to restrict "get_mon_num_prep()" function
  */
 bool (*get_mon_num_hook)(int r_idx);
 
 
 
 /*
- * Hack -- function hook to check "validity" of given kind
+ * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
+
 
 

@@ -32,8 +32,8 @@
 # with special compilers.
 #
 # If you are able to construct "main-xxx.c" and/or "Makefile.xxx"
-# files for a currently unsupported system, please send them to me
-# (benh@voicenet.com) for inclusion in future versions.
+# files for a currently unsupported system, please send them to
+# Ben Harrison (benh@phial.com) for inclusion in future versions.
 #
 # This Makefile comes with "default" dependancies that may be obsolete.
 #
@@ -51,9 +51,10 @@ SRCS = \
   melee1.c melee2.c save.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
   store.c birth.c load1.c load2.c \
-  wizard1.c wizard2.c  \
+  wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c \
-  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
+  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c \
+  randart.c randmain.c
 
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
@@ -65,8 +66,10 @@ OBJS = \
   store.o birth.o load1.o load2.o \
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o \
-  main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
+  randart.o
 
+MAIN_OBJS = \
+  main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
 
 
 ##
@@ -129,17 +132,16 @@ CC = gcc
 ##
 ## Variation -- Only support "main-gcu.c" (not "main-x11.c")
 ##
-#CFLAGS = -O2 -pipe -g -D"USE_GCU" -D"USE_CAP"
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU"
 #LIBS = -lcurses -ltermcap
 
 
 ##
 ## Variation -- Use "main-xaw.c" instead of "main-x11.c"
+## (These are good settings for a Debian GNU/Linux 2.0 system.)
 ##
-#CFLAGS = -Wall -g -D"USE_XAW" -D"USE_GCU"
-#LIBS = -L /usr/X11/lib -lXaw -lXt -lSM -lICE -lXmu -lXext -lX11 -lcurses 
-CFLAGS = -O -D"USE_XAW" -D"USE_GCU"
-LIBS = -L /usr/X11/lib -lXaw -lXt -lSM -lICE -lXmu -lXext -lX11 -lcurses 
+CFLAGS = -Wall -O2 -pipe -g -D"USE_XAW" -D"USE_GCU"
+LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lcurses
 
 
 ##
@@ -216,35 +218,48 @@ LIBS = -L /usr/X11/lib -lXaw -lXt -lSM -lICE -lXmu -lXext -lX11 -lcurses
 #
 # Hack -- "install" as the base target
 #
-# NOT!
 
-all: angband
-	@echo done
+all: angband randart
+	@echo "All done.  Use 'make install' to copy them up one directory."
 
-DESTINATION = /usr/games/gw-angband
+install: angband randart
+	cp angband randart ..
 
-#install: angband
-#	cp angband $(DESTINATION)
-#	chown games $(DESTINATION)
-#	chmod 4555 $(DESTINATION)
-
-install: angband
-	mv angband ..
 
 #
 # Build the "Angband" program
 #
 
-angband: $(OBJS)
-	$(CC) $(CFLAGS) -o angband $(OBJS) $(LDFLAGS) $(LIBS)
+angband: $(MAIN_OBJS) libangband.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(MAIN_OBJS) libangband.a $(LIBS)
 
+#
+# Build the standalone randart program.  This typically doesn't need any
+# of the libraries that Angband does (curses, termcap, X11, etc.).  Note,
+# however, that it *does* need a slightly altered randart.o (which doesn't
+# try to use the Angband error message display).
+#
+
+randart: _randart.o randmain.o libangband.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ _randart.o randmain.o libangband.a
+
+_randart.o : randart.c
+	cp randart.c _randart.c
+	$(CC) $(CFLAGS) -DSTANDALONE_RANDART -c _randart.c
+	rm _randart.c
+
+libangband.a: $(OBJS)
+	ar rcv $@ $(OBJS)
+	@echo "If ranlib doesn't exist on your system, you can ignore the error."
+	-ranlib $@
 
 #
 # Clean up old junk
 #
 
 clean:
-	rm -f *.bak *.o angband
+	rm -f *.bak *.o
+	rm -f angband randart libangband.a _randart.c
 
 
 #

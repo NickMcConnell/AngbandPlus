@@ -8,69 +8,100 @@
  * Also, choose various "system level" compilation options.
  * A lot of these definitions take effect in "h-system.h"
  *
- * Note that you may find it simpler to define some of these
- * options in the "Makefile", especially any options describing
- * what "system" is being used.
+ * Note that most of these "options" are defined by the compiler,
+ * the "Makefile", the "project file", or something similar, and
+ * should not be defined by the user.
  */
 
 
 /*
- * no system definitions are needed for 4.3BSD, SUN OS, DG/UX
+ * OPTION: Compile on a Macintosh machine
  */
-
-/*
- * OPTION: Compile on a Macintosh (see "A-mac-h" or "A-mac-pch")
- */
+#ifndef MACINTOSH
 /* #define MACINTOSH */
+#endif
 
 /*
- * OPTION: Compile on Windows (automatic)
+ * OPTION: Compile on a Windows machine
  */
+#ifndef WINDOWS
 /* #define WINDOWS */
+#endif
 
 /*
- * OPTION: Compile on an IBM (automatic)
+ * OPTION: Compile on an MSDOS machine
  */
+#ifndef MSDOS
 /* #define MSDOS */
+#endif
 
 /*
  * OPTION: Compile on a SYS III version of UNIX
  */
+#ifndef SYS_III
 /* #define SYS_III */
+#endif
 
 /*
- * OPTION: Compile on a SYS V version of UNIX (not Solaris)
+ * OPTION: Compile on a SYS V version of UNIX
  */
+#ifndef SYS_V
 /* #define SYS_V */
+#endif
 
 /*
  * OPTION: Compile on a HPUX version of UNIX
  */
+#ifndef HPUX
 /* #define HPUX */
+#endif
 
 /*
  * OPTION: Compile on an SGI running IRIX
  */
+#ifndef SGI
 /* #define SGI */
+#endif
 
 /*
- * OPTION: Compile on Solaris, treat it as System V
+ * OPTION: Compile on a SunOS machine
  */
+#ifndef SUNOS
+/* #define SUNOS */
+#endif
+
+/*
+ * OPTION: Compile on a Solaris machine
+ */
+#ifndef SOLARIS
 /* #define SOLARIS */
+#endif
 
 /*
  * OPTION: Compile on an ultrix/4.2BSD/Dynix/etc. version of UNIX,
- * Do not define this if you are on any kind of SUN OS.
+ * Do not define this if you are on any kind of SunOS.
  */
-/* #define ultrix */
+#ifndef ULTRIX
+/* #define ULTRIX */
+#endif
+
 
 
 /*
- * OPTION: Compile on Pyramid, treat it as Ultrix
+ * Extract the "SUNOS" flag from the compiler
  */
-#if defined(Pyramid)
-# ifndef ultrix
-#  define ultrix
+#if defined(sun)
+# ifndef SUNOS
+#   define SUNOS
+# endif
+#endif
+
+/*
+ * Extract the "ULTRIX" flag from the compiler
+ */
+#if defined(ultrix) || defined(Pyramid)
+# ifndef ULTRIX
+#  define ULTRIX
 # endif
 #endif
 
@@ -93,6 +124,15 @@
 #endif
 
 /*
+ * Extract the "SGI" flag from the compiler
+ */
+#ifdef sgi
+# ifndef SGI
+#  define SGI
+# endif
+#endif
+
+/*
  * Extract the "MSDOS" flag from the compiler
  */
 #ifdef __MSDOS__
@@ -111,6 +151,25 @@
 #  define WINDOWS
 # endif
 #endif
+
+/*
+ * Remove the MSDOS flag when using WINDOWS
+ */
+#ifdef WINDOWS
+# ifdef MSDOS
+#  undef MSDOS
+# endif
+#endif
+
+/*
+ * Remove the WINDOWS flag when using MACINTOSH
+ */
+#ifdef MACINTOSH
+# ifdef WINDOWS
+#  undef WINDOWS
+# endif
+#endif
+
 
 
 /*
@@ -136,7 +195,7 @@
  * or for the "Atari" platform which is Unix-like, apparently
  */
 #if !defined(MACINTOSH) && !defined(WINDOWS) && \
-    !defined(MSDOS) && !defined(__EMX__) && \
+    !defined(MSDOS) && !defined(USE_EMX) && \
     !defined(AMIGA) && !defined(ACORN) && !defined(VM)
 # define SET_UID
 #endif
@@ -178,7 +237,7 @@
 # undef PATH_SEP
 # define PATH_SEP "\\"
 #endif
-#if defined(MSDOS) || defined(OS2) || defined(__EMX__)
+#if defined(MSDOS) || defined(OS2) || defined(USE_EMX)
 # undef PATH_SEP
 # define PATH_SEP "\\"
 #endif
@@ -197,18 +256,31 @@
 
 
 /*
- * OPTION: Hack -- Make sure "strchr" will work
+ * The Macintosh allows the use of a "file type" when creating a file
+ */
+#if defined(MACINTOSH) && !defined(applec)
+# define FILE_TYPE_TEXT 'TEXT'
+# define FILE_TYPE_DATA 'DATA'
+# define FILE_TYPE_SAVE 'SAVE'
+# define FILE_TYPE(X) (_ftype = (X))
+#else
+# define FILE_TYPE(X) ((void)0)
+#endif
+
+
+/*
+ * OPTION: Hack -- Make sure "strchr()" and "strrchr()" will work
  */
 #if defined(SYS_III) || defined(SYS_V) || defined(MSDOS)
-# if !defined(__TURBOC__) && !defined(__WATCOMC__)
-#  define strchr index
+# if !defined(__TURBOC__) && !defined(__WATCOMC__) && !defined(__DJGPP__)
+#  define strchr(S,C) index((S),(C))
+#  define strrchr(S,C) rindex((S),(C))
 # endif
 #endif
 
 
 /*
  * OPTION: Define "HAS_STRICMP" only if "stricmp()" exists.
- * Note that "stricmp()" is not actually used by Angband.
  */
 /* #define HAS_STRICMP */
 
@@ -217,24 +289,24 @@
  */
 #if defined(linux)
 # define HAS_STRICMP
-# define stricmp strcasecmp
+# define stricmp(S,T) strcasecmp((S),(T))
 #endif
 
 
 /*
  * OPTION: Define "HAS_MEMSET" only if "memset()" exists.
- * Note that the "memset()" routines are used in "z-virt.h"
  */
 #define HAS_MEMSET
 
 
 /*
  * OPTION: Define "HAS_USLEEP" only if "usleep()" exists.
- * Note that this is only relevant for "SET_UID" machines
+ *
+ * Note that this is only relevant for "SET_UID" machines.
+ * Note that new "SOLARIS" and "SGI" machines have "usleep()".
  */
 #ifdef SET_UID
-# if !defined(HPUX) && !defined(ultrix) && !defined(SOLARIS) && \
-     !defined(SGI) && !defined(ISC)
+# if !defined(HPUX) && !defined(ULTRIX) && !defined(ISC)
 #  define HAS_USLEEP
 # endif
 #endif
