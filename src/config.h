@@ -15,9 +15,7 @@
  * whether you wish to keep, comment, or uncomment them.  You should not
  * have to modify any lines not indicated by "OPTION".
  *
- * Note: Also examine the "system" configuration file "h-config.h"
- * and the variable initialization file "variable.c".  If you change
- * anything in "variable.c", you only need to recompile that file.
+ * Note: Also examine the "system" configuration file "h-config.h".
  *
  * And finally, remember that the "Makefile" will specify some rather
  * important compile time options, like what visual module to use.
@@ -40,13 +38,6 @@
  * You may also need to specify the "system", using defines such as
  * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
  */
-
-
-/*
- * OPTION: define "SPECIAL_BSD" for using certain versions of UNIX
- * that use the 4.4BSD Lite version of Curses in "main-gcu.c"
- */
-/* #define SPECIAL_BSD */
 
 
 /*
@@ -173,6 +164,7 @@
  */
 /* #define ALLOW_BORG */
 
+
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
@@ -298,17 +290,17 @@
 
 
 /*
- * Allow "Wizards" to yield "high scores"
+ * OPTION: Allow "Wizards" to yield "high scores"
  */
 /* #define SCORE_WIZARDS */
 
 /*
- * Allow "Borgs" to yield "high scores"
+ * OPTION: Allow "Borgs" to yield "high scores"
  */
 /* #define SCORE_BORGS */
 
 /*
- * Allow "Cheaters" to yield "high scores"
+ * OPTION: Allow "Cheaters" to yield "high scores"
  */
 /* #define SCORE_CHEATERS */
 
@@ -342,11 +334,6 @@
  */
 /* #define MAP_INFO_MULTIPLE_PLAYERS */
 
-
-/*
- * OPTION: Use the new "update_view()" algorithm
- */
-#define UPDATE_VIEW_NEW
 
 /*
  * OPTION: Use the "complex" wall illumination code
@@ -399,7 +386,7 @@
 
 
 /*
- * OPTION: Hack -- Macintosh stuff
+ * Hack -- Macintosh stuff
  */
 #ifdef MACINTOSH
 
@@ -410,7 +397,7 @@
 
 
 /*
- * OPTION: Hack -- Windows stuff
+ * Hack -- Windows stuff
  */
 #ifdef WINDOWS
 
@@ -421,7 +408,7 @@
 
 
 /*
- * OPTION: Hack -- EMX stuff
+ * Hack -- EMX stuff
  */
 #ifdef USE_EMX
 
@@ -435,10 +422,14 @@
  * OPTION: Set the "default" path to the angband "lib" directory.
  *
  * See "main.c" for usage, and note that this value is only used on
- * certain machines, primarily Unix machines.  If this value is used,
- * it will be over-ridden by the "ANGBAND_PATH" environment variable,
- * if that variable is defined and accessable.  The final "slash" is
- * required if the value supplied is in fact a directory.
+ * certain machines, primarily Unix machines.
+ *
+ * The configure script overrides this value.  Check the "--prefix=<dir>"
+ * option of the configure script.
+ *
+ * This value will be over-ridden by the "ANGBAND_PATH" environment
+ * variable, if that variable is defined and accessable.  The final
+ * "slash" is required if the value supplied is in fact a directory.
  *
  * Using the value "./lib/" below tells Angband that, by default,
  * the user will run "angband" from the same directory that contains
@@ -450,7 +441,16 @@
  */
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
-#endif
+#endif /* DEFAULT_PATH */
+
+
+/*
+ * OPTION: Create and use a hidden directory in the users home directory
+ * for storing pref-files and character-dumps.
+ */
+#ifdef SET_UID
+#define PRIVATE_USER_PATH "~/.angband"
+#endif /* SET_UID */
 
 
 /*
@@ -458,16 +458,8 @@
  */
 #ifdef SET_UID
 # define SAVEFILE_USE_UID
-#endif
+#endif /* SET_UID */
 
-/*
- * Allow players on UNIX systems to keep a ".angband.prf" user pref
- * file in their home-directory.
- *
- * WARNING - This may allow bypassing of some of the "security"
- * compilation options and may be a security risk!
- */
-#define ALLOW_PREF_IN_HOME
 
 /*
  * OPTION: Check the "time" against "lib/file/hours.txt"
@@ -479,6 +471,18 @@
  * This may require the 'rpcsvs' library
  */
 /* #define CHECK_LOAD */
+
+
+/*
+ * OPTION: Prevent usage of the "ANGBAND_PATH" environment variable and
+ * the '-d<what>=<path>' command line option (except for '-du=<path>').
+ *
+ * This prevents cheating in multi-user installs as well as possible
+ * security problems when running setgid.
+ */
+#ifdef SET_UID
+#define FIXED_PATHS
+#endif /* SET_UID */
 
 
 /*
@@ -540,7 +544,6 @@
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
 # undef ALLOW_TERROR
-# undef WDT_TRACK_OPTIONS
 # undef DRS_SMART_OPTIONS
 # undef GJW_RANDART
 # undef ALLOW_OLD_SAVEFILES
@@ -573,12 +576,9 @@
 
 /*
  * Allow the Borg to use graphics.
- *
- * XXX - Turned off by default since the Borg crashs when the graphics
- * mode changes after the Borg is initialized.
  */
 #ifdef ALLOW_BORG
 # ifdef USE_GRAPHICS
-/* #  define ALLOW_BORG_GRAPHICS */
+#  define ALLOW_BORG_GRAPHICS
 # endif /* USE_GRAPHICS */
 #endif /* ALLOW_BORG */

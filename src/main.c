@@ -30,8 +30,11 @@ static void quit_hook(cptr s)
 {
 	int j;
 
+	/* Unused parameter */
+	(void)s;
+
 	/* Scan windows */
-	for (j = 8 - 1; j >= 0; j--)
+	for (j = ANGBAND_TERM_MAX - 1; j >= 0; j--)
 	{
 		/* Unused */
 		if (!angband_term[j]) continue;
@@ -49,7 +52,7 @@ static void quit_hook(cptr s)
 #ifdef AMIGA
 # include <dos.h>
 __near long __stack = 32768L;
-#endif
+#endif /* AMIGA */
 
 
 /*
@@ -59,7 +62,38 @@ __near long __stack = 32768L;
 # include <dos.h>
 extern unsigned _stklen = 32768U;
 extern unsigned _ovrbuffer = 0x1500;
-#endif
+#endif /* USE_286 */
+
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+static void create_user_dir(void)
+{
+	char dirpath[1024];
+	char subdirpath[1024];
+
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
+
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the variant-specific sub-directory */
+	path_build(subdirpath, 1024, dirpath, VERSION_NAME);
+
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
+}
+
+#endif /* PRIVATE_USER_PATH */
+
 
 /*
  * Initialize and verify the file paths, and the score file.
@@ -78,6 +112,10 @@ extern unsigned _ovrbuffer = 0x1500;
  *
  * Note that the "path" must be "Angband:" for the Amiga, and it
  * is ignored for "VM/ESA", so I just combined the two.
+ *
+ * Make sure that the path doesn't overflow the buffer.  We have
+ * to leave enough space for the path separator, directory, and
+ * filenames.
  */
 static void init_stuff(void)
 {
@@ -90,13 +128,20 @@ static void init_stuff(void)
 
 #else /* AMIGA / VM */
 
-	cptr tail;
+	cptr tail = NULL;
+
+#ifndef FIXED_PATHS
 
 	/* Get the environment variable */
 	tail = getenv("ANGBAND_PATH");
 
+#endif /* FIXED_PATHS */
+
 	/* Use the angband_path, or a default */
-	strcpy(path, tail ? tail : DEFAULT_PATH);
+	strncpy(path, tail ? tail : DEFAULT_PATH, 511);
+
+	/* Make sure it's terminated */
+	path[511] = '\0';
 
 	/* Hack -- Add a path separator (only if needed) */
 	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
@@ -131,6 +176,7 @@ static void change_path(cptr info)
 	/* Analyze */
 	switch (tolower(info[0]))
 	{
+#ifndef FIXED_PATHS
 		case 'a':
 		{
 			string_free(ANGBAND_DIR_APEX);
@@ -156,13 +202,6 @@ static void change_path(cptr info)
 		{
 			string_free(ANGBAND_DIR_INFO);
 			ANGBAND_DIR_INFO = string_make(s+1);
-			break;
-		}
-
-		case 'u':
-		{
-			string_free(ANGBAND_DIR_USER);
-			ANGBAND_DIR_USER = string_make(s+1);
 			break;
 		}
 
@@ -215,6 +254,15 @@ static void change_path(cptr info)
 
 #endif /* VERIFY_SAVEFILE */
 
+#endif /* FIXED_PATHS */
+
+		case 'u':
+		{
+			string_free(ANGBAND_DIR_USER);
+			ANGBAND_DIR_USER = string_make(s+1);
+			break;
+		}
+
 		default:
 		{
 			quit_fmt("Bad semantics in '-d%s'", info);
@@ -255,7 +303,7 @@ int main(int argc, char *argv[])
 	{
 		_OvrInitEms(0, 0, 64);
 	}
-#endif
+#endif /* USE_286 */
 
 
 #ifdef SET_UID
@@ -266,9 +314,9 @@ int main(int argc, char *argv[])
 # ifdef SECURE
 	/* Authenticate */
 	Authenticate();
-# endif
+# endif /* SECURE */
 
-#endif
+#endif /* SET_UID */
 
 
 	/* Get the file paths */
@@ -283,19 +331,19 @@ int main(int argc, char *argv[])
 #ifdef VMS
 	/* Mega-Hack -- Factor group id */
 	player_uid += (getgid() * 1000);
-#endif
+#endif /* VMS */
 
 # ifdef SAFE_SETUID
 
-#  ifdef _POSIX_SAVED_IDS
+#  if defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX)
 
 	/* Save some info for later */
 	player_euid = geteuid();
 	player_egid = getegid();
 
-#  endif
+#  endif /* defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX) */
 
-#  if 0	/* XXX XXX XXX */
+#  if 0 /* XXX XXX XXX */
 
 	/* Redundant setting necessary in case root is running the game */
 	/* If not root or game not setuid the following two calls do nothing */
@@ -310,11 +358,15 @@ int main(int argc, char *argv[])
 		quit("setuid(): cannot set permissions correctly!");
 	}
 
-#  endif
+#  endif /* 0 */
 
-# endif
+# endif /* SAFE_SETUID */
 
-#endif
+#endif /* SET_UID */
+
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 
 #ifdef SET_UID
@@ -334,7 +386,14 @@ int main(int argc, char *argv[])
 	/* Get the "user name" as a default player name */
 	user_name(op_ptr->full_name, player_uid);
 
-#endif
+#ifdef PRIVATE_USER_PATH
+
+	/* Create a directory for the users files. */
+	create_user_dir();
+
+#endif /* PRIVATE_USER_PATH */
+
+#endif /* SET_UID */
 
 
 	/* Process the command line arguments */
@@ -407,7 +466,13 @@ int main(int argc, char *argv[])
 			case 'U':
 			{
 				if (!argv[i][2]) goto usage;
-				strcpy(op_ptr->full_name, &argv[i][2]);
+
+				/* Get the savefile name */
+				strncpy(op_ptr->full_name, &argv[i][2], 32);
+
+				/* Make sure it's terminated */
+				op_ptr->full_name[31] = '\0';
+
 				break;
 			}
 
@@ -474,38 +539,61 @@ int main(int argc, char *argv[])
 	quit_aux = quit_hook;
 
 
-	/* Drop privs (so X11 will work correctly), unless we are running */
-	/* the Linux-SVGALib version. */
-#ifndef USE_LSL
- 	safe_setuid_drop();
-#endif
+#ifdef USE_GTK
+	/* Attempt to use the "main-gtk.c" support */
+	if (!done && (!mstr || (streq(mstr, "gtk"))))
+	{
+		extern errr init_gtk(int argc, char **argv);
+		if (0 == init_gtk(argc, argv))
+		{
+			ANGBAND_SYS = "gtk";
+			done = TRUE;
+		}
+	}
+#endif /* USE_GTK */
 
 
 #ifdef USE_XAW
 	/* Attempt to use the "main-xaw.c" support */
 	if (!done && (!mstr || (streq(mstr, "xaw"))))
 	{
-		extern errr init_xaw(int, char**);
+		extern errr init_xaw(int argc, char** argv);
 		if (0 == init_xaw(argc, argv))
 		{
 			ANGBAND_SYS = "xaw";
 			done = TRUE;
 		}
 	}
-#endif
+#endif /* USE_XAW */
+
 
 #ifdef USE_X11
 	/* Attempt to use the "main-x11.c" support */
 	if (!done && (!mstr || (streq(mstr, "x11"))))
 	{
-		extern errr init_x11(int, char**);
+		extern errr init_x11(int argc, char** argv);
 		if (0 == init_x11(argc, argv))
 		{
 			ANGBAND_SYS = "x11";
 			done = TRUE;
 		}
 	}
-#endif
+#endif /* USE_X11 */
+
+
+#ifdef USE_XPJ
+        /* Attempt to use the "main-xpj.c" support */
+        if (!done && (!mstr || (streq(mstr, "xpj"))))
+        {
+                extern errr init_xpj(int argc, char** argv);
+                if (0 == init_xpj(argc, argv))
+                {
+                        ANGBAND_SYS = "xpj";
+                        done = TRUE;
+                }
+        }
+#endif /* USE_XPJ */ 
+
 
 
 #ifdef USE_ISOV_X11
@@ -540,27 +628,28 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-gcu.c" support */
 	if (!done && (!mstr || (streq(mstr, "gcu"))))
 	{
-		extern errr init_gcu(int, char**);
+		extern errr init_gcu(int argc, char** argv);
 		if (0 == init_gcu(argc, argv))
 		{
 			ANGBAND_SYS = "gcu";
 			done = TRUE;
 		}
 	}
-#endif
+#endif /* USE_GCU */
+
 
 #ifdef USE_CAP
 	/* Attempt to use the "main-cap.c" support */
 	if (!done && (!mstr || (streq(mstr, "cap"))))
 	{
-		extern errr init_cap(int, char**);
+		extern errr init_cap(int argc, char** argv);
 		if (0 == init_cap(argc, argv))
 		{
 			ANGBAND_SYS = "cap";
 			done = TRUE;
 		}
 	}
-#endif
+#endif /* USE_CAP */
 
 
 #ifdef USE_DOS
@@ -574,7 +663,8 @@ int main(int argc, char *argv[])
 			done = TRUE;
 		}
 	}
-#endif
+#endif /* USE_DOS */
+
 
 #ifdef USE_IBM
 	/* Attempt to use the "main-ibm.c" support */
@@ -587,7 +677,7 @@ int main(int argc, char *argv[])
 			done = TRUE;
 		}
 	}
-#endif
+#endif /* USE_IBM */
 
 
 #ifdef USE_EMX
@@ -601,7 +691,7 @@ int main(int argc, char *argv[])
 			done = TRUE;
 		}
 	}
-#endif
+#endif /* USE_EMX */
 
 
 #ifdef USE_SLA
@@ -615,7 +705,7 @@ int main(int argc, char *argv[])
 			done = TRUE;
 		}
 	}
-#endif
+#endif /* USE_SLA */
 
 
 #ifdef USE_LSL
@@ -629,7 +719,7 @@ int main(int argc, char *argv[])
 			done = TRUE;
 		}
 	}
-#endif
+#endif /* USE_LSL */
 
 
 #ifdef USE_AMI
@@ -643,7 +733,7 @@ int main(int argc, char *argv[])
 			done = TRUE;
 		}
 	}
-#endif
+#endif /* USE_AMI */
 
 
 #ifdef USE_VME
@@ -657,13 +747,21 @@ int main(int argc, char *argv[])
 			done = TRUE;
 		}
 	}
-#endif
+#endif /* USE_VME */
 
 
- 	/* Grab privs (dropped above for X11) */
-#ifndef USE_LSL
-	safe_setuid_grab();
-#endif
+#ifdef USE_VCS
+	/* Attempt to use the "main-vcs.c" support */
+	if (!done && (!mstr || (streq(mstr, "vcs"))))
+	{
+		extern errr init_vcs(int argc, char** argv);
+		if (0 == init_vcs(argc, argv))
+		{
+			ANGBAND_SYS = "vcs";
+			done = TRUE;
+		}
+	}
+#endif /* USE_VCS */
 
 
 	/* Make sure we have a display! */
@@ -684,6 +782,9 @@ int main(int argc, char *argv[])
 	/* Play the game */
 	play_game(new_game);
 
+	/* Free resources */
+	cleanup_angband();
+
 	/* Quit */
 	quit(NULL);
 
@@ -691,6 +792,7 @@ int main(int argc, char *argv[])
 	return (0);
 }
 
+#endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN) */
 
 #ifdef WINDOWS
 
@@ -705,7 +807,3 @@ extern int sdl_main_hook(int argc, char ** argv)
 }
 
 #endif
-
-
-#endif
-

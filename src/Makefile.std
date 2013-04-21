@@ -1,4 +1,4 @@
-# File: Makefile
+# File: Makefile.std
 
 # This is not a very "nice" Makefile, but it usually works.
 
@@ -16,17 +16,15 @@
 # Note that "main-win.c", the visual module for Windows,
 # must be compiled in a special way, see elsewhere.
 #
-# Note that "main-ibm.c", "main-dos.c", "main-emx.c", and "main-286.c",
+# Note that "main-ibm.c", "main-dos.c", and "main-emx.c",
 # the visual modules for various types of IBM-PC computers,
 # must be compiled with special Makefiles, see elsewhere.
 #
 # Note that "main-acn.c", the visual module for Risc Acorn,
 # must be compiled with "Makefile.acn", see elsewhere.
 #
-# Note that "Makefile.w31" and "Makefile.wat" are slight variations
-# on "Makefile.win" and "Makefile.ibm", respectively, which allow
-# the use of the "main-win.c" and "main-ibm.c" files, respectively,
-# with special compilers.
+# Note that "main-ami.c", the visual module for the Amiga,
+# must be compiled with "Makefile.ami", see elsewhere.
 #
 # If you are able to construct "main-xxx.c" and/or "Makefile.xxx"
 # files for a currently unsupported system, please send them to
@@ -50,7 +48,8 @@ SRCS = \
   store.c birth.c load1.c load2.c \
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c randart.c \
-  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
+  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c \
+  maid-x11.c
 
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
@@ -62,7 +61,8 @@ OBJS = \
   store.o birth.o load1.o load2.o \
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o randart.o \
-  main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
+  main-cap.o main-gcu.o main-x11.o main-xaw.o main.o \
+  maid-x11.o
 
 
 
@@ -106,7 +106,7 @@ CC = gcc
 #
 # You may have to replace "-lcurses" with "-lncurses" to use the
 # "new curses" library instead of the "old curses" library, and
-# you may have to add "-l/usr/include/ncurses" to the "CFLAGS".
+# you may have to add "-I/usr/include/ncurses" to the "CFLAGS".
 #
 # See "main-gcu.c" and "config.h" for some optional "curses" defines,
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
@@ -255,7 +255,7 @@ angband: $(OBJS)
 #
 
 clean:
-	\rm *.o angband
+	\rm -f *.o angband
 
 
 #

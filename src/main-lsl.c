@@ -9,6 +9,11 @@
  * (kligys@scf.usc.edu).
  ****************************************************************************/
 
+/* Angband header files */
+#include "angband.h"
+
+#ifdef USE_LSL
+
 /* Standard C header files */
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,9 +23,6 @@
 #include <vgagl.h>
 #include <vgakeyboard.h>
 #include <zlib.h>
-
-/* Angband header files */
-#include "angband.h"
 
 static cptr ANGBAND_DIR_XTRA_GRAF;
 
@@ -89,7 +91,8 @@ void *read_bmp_file(void)
 	FILE *infile;
 	int i, j;
 	int iswindows = 0;
-	int dummy, count, done, output_type;
+	int dummy, count, done;
+	int output_type = 0;
 	unsigned char *buf, *bmap;
 	unsigned char read[2];
 	unsigned char *p, *ptr, *dptr, *hptr;
@@ -165,7 +168,7 @@ void *read_bmp_file(void)
 	{
 	case 1:
 		if (w % 32)
-			w = (w / 32) * 32 + 32;;
+			w = (w / 32) * 32 + 32;
 		break;
 	case 4:
 		if (w % 8)
@@ -339,7 +342,7 @@ void *read_bmp_file(void)
 				}
 			}
 
-			flip(*bmap, bih.biWidth, bih.biHeight);
+			flip(bmap, bih.biWidth, bih.biHeight);
 		}
 
 		pp->width = w;
@@ -406,7 +409,7 @@ void *read_bmp_file(void)
 				}
 			}
 
-			flip(*bmap, bih.biWidth, bih.biHeight);
+			flip(bmap, bih.biWidth, bih.biHeight);
 		}
 
 		pp->numcols = 256;
@@ -461,10 +464,10 @@ void initfont(void)
 	void *temp;
 	long junk;
 
-	if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf.gz", "r")))
+	if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psfu.gz", "r")))
 	{
 		/* Try uncompressed */
-		if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf", "r")))
+		if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psfu", "r")))
 		{
 			printf("Error: could not open font file.  Aborting....\n");
 			exit(1);
@@ -762,3 +765,5 @@ errr init_lsl(void)
 
 	return (0);
 }
+
+#endif /* USE_LSL */

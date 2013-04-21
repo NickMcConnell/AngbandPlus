@@ -119,20 +119,29 @@ Nr. Description         Author
 260 Line kobold         (Hajo)
 261 Line salamander     (Hajo)
 262 Line worm mass      (Hajo)
-263 (unused)
+263 Line harpy          (Hajo)
 264 Humanoid skeleton   (Hajo)
 265 Canine skeleton     (Hajo)
 266 Rodent skeleton     (Hajo)
 267-279 9 part walls    (Hajo)
 280-285 9 part walls    (Hajo)
-286 Lantern             (Hajo)
-287-318 9 part walls    (Hajo)
+286 Line lantern        (Hajo)
+287 Line cat            (Hajo)
+288 Line ghost          (Hajo)
+289 Line hobbit         (Hajo)
+290 Line louse          (Hajo)
+291 Blubbering idiot    (Hajo)
+292 Pitiful beggar      (Hajo)
+293 Line killer beetle  (Hajo)
+294 Line vortex         (Hajo)
+295 Line dragon fly     (Hajo)
+296-318 9 part walls    (Hajo)
 319 Town outside tile   (Hajo)
 
 David:     David E. Gervais
 Hajo:      Hansjörg Malthaner
 Maarten:   Maarten Woxberg
-Mitsuhiro: Mitsohiro Itakura
+Mitsuhiro: Mitsuhiro Itakura
 
 -----------------------------------------------------------------
 

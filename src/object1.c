@@ -99,7 +99,7 @@ static byte staff_col[MAX_WOODS] =
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
 	TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
 	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
-	TERM_YELLOW, TERM_SLATE, /*???,???,???*/
+	TERM_YELLOW, TERM_SLATE, /* (?), (?), (?) */
 };
 
 
@@ -306,61 +306,6 @@ static bool object_flavor(int k_idx)
 
 	/* No flavor */
 	return (0);
-}
-
-
-/*
- * Certain items, if aware, are known instantly.
- *
- * This function is used only by "flavor_init()".
- *
- * Add "EASY_KNOW" flag to "k_info.txt" file.  XXX XXX XXX
- */
-static bool object_easy_know(int i)
-{
-	object_kind *k_ptr = &k_info[i];
-
-	/* Analyze the "tval" */
-	switch (k_ptr->tval)
-	{
-		/* Spellbooks */
-		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
-		{
-			return (TRUE);
-		}
-
-		/* Simple items */
-		case TV_FLASK:
-		case TV_JUNK:
-		case TV_BOTTLE:
-		case TV_SKELETON:
-		case TV_SPIKE:
-		{
-			return (TRUE);
-		}
-
-		/* All Food, Potions, Scrolls, Rods */
-		case TV_FOOD:
-		case TV_POTION:
-		case TV_SCROLL:
-		case TV_ROD:
-		{
-			return (TRUE);
-		}
-
-		/* Some Rings, Amulets, Lites */
-		case TV_RING:
-		case TV_AMULET:
-		case TV_LITE:
-		{
-			if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
-			return (FALSE);
-		}
-	}
-
-	/* Nope */
-	return (FALSE);
 }
 
 
@@ -594,9 +539,6 @@ void flavor_init(void)
 
 		/* No flavor yields aware */
 		if (!k_ptr->flavor) k_ptr->aware = TRUE;
-
-		/* Check for "easily known" */
-		k_ptr->easy_know = object_easy_know(i);
 	}
 }
 
@@ -625,6 +567,9 @@ void reset_visuals(bool unused)
 {
 	int i;
 
+
+	/* Unused parameter */
+	(void)unused;
 
 	/* Extract default attr/char code for features */
 	for (i = 0; i < z_info->f_max; i++)
@@ -697,7 +642,7 @@ void reset_visuals(bool unused)
 /*
  * Obtain the "flags" for an item
  */
-static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	object_kind *k_ptr;
 
@@ -826,7 +771,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3);
 }
@@ -836,7 +781,7 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3);
 }
@@ -998,7 +943,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  *   2 -- Amulet of Death [1,+3] (+2 to Stealth)
  *   3 -- Rings of Death [1,+3] (+2 to Stealth) {nifty}
  */
-void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
+void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 {
 	cptr basenm;
 	cptr modstr;
@@ -1352,7 +1297,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		if (*s == '~')
 		{
 			/* Add a plural if needed */
-			if (o_ptr->number != 1)
+			if ((o_ptr->number != 1) && !(known && artifact_p(o_ptr)))
 			{
 				char k = t[-1];
 
@@ -1876,40 +1821,46 @@ object_desc_done:
  * Hack -- describe an item currently in a store's inventory
  * This allows an item to *look* like the player is "aware" of it
  */
-void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
+void object_desc_store(char *buf, const object_type *o_ptr, int pref, int mode)
 {
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	byte hack_flavor;
+	bool hack_aware;
+
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Copy the object */
+	object_copy(i_ptr, o_ptr);
+
 	/* Save the "flavor" */
-	byte hack_flavor = k_info[o_ptr->k_idx].flavor;
+	hack_flavor = k_info[i_ptr->k_idx].flavor;
 
 	/* Save the "aware" flag */
-	bool hack_aware = k_info[o_ptr->k_idx].aware;
-
-	/* Save the "known" flag */
-	bool hack_known = (o_ptr->ident & (IDENT_KNOWN)) ? TRUE : FALSE;
-
+	hack_aware = k_info[i_ptr->k_idx].aware;
 
 	/* Clear the flavor */
-	k_info[o_ptr->k_idx].flavor = FALSE;
+	k_info[i_ptr->k_idx].flavor = FALSE;
 
 	/* Set the "known" flag */
-	o_ptr->ident |= (IDENT_KNOWN);
+	i_ptr->ident |= (IDENT_KNOWN);
 
 	/* Force "aware" for description */
-	k_info[o_ptr->k_idx].aware = TRUE;
+	k_info[i_ptr->k_idx].aware = TRUE;
 
 
 	/* Describe the object */
-	object_desc(buf, o_ptr, pref, mode);
+	object_desc(buf, i_ptr, pref, mode);
 
 
 	/* Restore "flavor" value */
-	k_info[o_ptr->k_idx].flavor = hack_flavor;
+	k_info[i_ptr->k_idx].flavor = hack_flavor;
 
 	/* Restore "aware" flag */
-	k_info[o_ptr->k_idx].aware = hack_aware;
-
-	/* Clear the known flag */
-	if (!hack_known) o_ptr->ident &= ~(IDENT_KNOWN);
+	k_info[i_ptr->k_idx].aware = hack_aware;
 }
 
 
@@ -1970,7 +1921,7 @@ static cptr act_description[ACT_MAX] =
  * Determine the "Activation" (if any) for an artifact
  * Return a string, or NULL for "no activation"
  */
-cptr item_activation(object_type *o_ptr)
+cptr item_activation(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -2089,11 +2040,15 @@ cptr item_activation(object_type *o_ptr)
  *
  * ToDo: Allow dynamic generation of strings.
  */
-bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
+static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, int len)
 {
 	int i = 0;
 
 	u32b f1, f2, f3;
+
+
+	/* Unused parameter */
+	(void)len;
 
 	/* Extract the "known" and "random" flags */
 	object_flags_aux(mode, o_ptr, &f1, &f2, &f3);
@@ -2239,6 +2194,10 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	if (f1 & (TR1_BRAND_COLD))
 	{
 		info[i++] = "It does extra damage from frost.";
+	}
+	if (f1 & (TR1_BRAND_POIS))
+	{
+		info[i++] = "It does extra damage from poison.";
 	}
 
 	if (f2 & (TR2_SUST_STR))
@@ -2443,21 +2402,29 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 		}
 	}
 
-	if (f3 & (TR3_IGNORE_ACID))
+	if ((f3 & (TR3_IGNORE_ACID)) && (f3 & (TR3_IGNORE_ELEC)) &&
+	    (f3 & (TR3_IGNORE_FIRE)) && (f3 & (TR3_IGNORE_COLD)))
 	{
-		info[i++] = "It cannot be harmed by acid.";
+		info[i++] = "It cannot be harmed by the elements.";
 	}
-	if (f3 & (TR3_IGNORE_ELEC))
+	else
 	{
-		info[i++] = "It cannot be harmed by electricity.";
-	}
-	if (f3 & (TR3_IGNORE_FIRE))
-	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & (TR3_IGNORE_COLD))
-	{
-		info[i++] = "It cannot be harmed by cold.";
+		if (f3 & (TR3_IGNORE_ACID))
+		{
+			info[i++] = "It cannot be harmed by acid.";
+		}
+		if (f3 & (TR3_IGNORE_ELEC))
+		{
+			info[i++] = "It cannot be harmed by electricity.";
+		}
+		if (f3 & (TR3_IGNORE_FIRE))
+		{
+			info[i++] = "It cannot be harmed by fire.";
+		}
+		if (f3 & (TR3_IGNORE_COLD))
+		{
+			info[i++] = "It cannot be harmed by cold.";
+		}
 	}
 
 	/* Unknown extra powers (ego-item with random extras or artifact) */
@@ -2465,7 +2432,7 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 		(!(o_ptr->ident & IDENT_MENTAL)) &&
 	    ((o_ptr->xtra1) || artifact_p(o_ptr)))
 	{
-		info[i++] = "It has hidden powers.";
+		info[i++] = "It might have hidden powers.";
 	}
 
 
@@ -2477,7 +2444,7 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 /*
  * Describe an item's random attributes for "character dumps"
  */
-int identify_random_gen(object_type *o_ptr, cptr *info, int len)
+int identify_random_gen(const object_type *o_ptr, cptr *info, int len)
 {
 	/* Fill the list of descriptions and return the count */
 	return identify_fully_aux2(o_ptr, OBJECT_FLAGS_RANDOM, info, len);
@@ -2487,7 +2454,7 @@ int identify_random_gen(object_type *o_ptr, cptr *info, int len)
 /*
  * Describe an item
  */
-bool identify_fully_aux(object_type *o_ptr)
+bool identify_fully_aux(const object_type *o_ptr)
 {
 	int i, j, k;
 	cptr info[128];
@@ -2613,7 +2580,7 @@ s16b label_to_equip(int c)
 /*
  * Determine which equipment slot (if any) an item likes
  */
-s16b wield_slot(object_type *o_ptr)
+s16b wield_slot(const object_type *o_ptr)
 {
 	/* Slot for equipment */
 	switch (o_ptr->tval)
@@ -2799,7 +2766,7 @@ cptr describe_use(int i)
 /*
  * Check an item against the item tester info
  */
-bool item_tester_okay(object_type *o_ptr)
+bool item_tester_okay(const object_type *o_ptr)
 {
 	/* Hack -- allow listing empty slots */
 	if (item_tester_full) return (TRUE);
@@ -3287,7 +3254,7 @@ void show_equip(void)
 /*
  * Display a list of the items on the floor at the given location.
  */
-void show_floor(int *floor_list, int floor_num)
+void show_floor(const int *floor_list, int floor_num)
 {
 	int i, j, k, l;
 	int col, len, lim;
@@ -3397,7 +3364,7 @@ void toggle_inven_equip(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		/* Unused */
 		if (!angband_term[j]) continue;
@@ -3717,7 +3684,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 
 	/* Paranoia XXX XXX XXX */
-	msg_print(NULL);
+	message_flush();
 
 
 	/* Not done */
@@ -3847,7 +3814,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			int ne = 0;
 
 			/* Scan windows */
-			for (j = 0; j < 8; j++)
+			for (j = 0; j < ANGBAND_TERM_MAX; j++)
 			{
 				/* Unused */
 				if (!angband_term[j]) continue;
@@ -4371,5 +4338,3 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Result */
 	return (item);
 }
-
-

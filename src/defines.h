@@ -39,16 +39,23 @@
 
 
 /*
+ * Name of the version/variant
+ */
+#define VERSION_NAME "Angband"
+
+
+/*
  * Current version string
  */
-#define VERSION_STRING	"2.9.1"
+#define VERSION_STRING	"2.9.3"
+
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	9
-#define VERSION_PATCH	1
+#define VERSION_PATCH	3
 #define VERSION_EXTRA	0
 
 
@@ -114,6 +121,12 @@
 
 
 /*
+ * Maximum amount of Angband windows.
+ */
+#define ANGBAND_TERM_MAX 8
+
+
+/*
  * Total number of stores (see "store.c", etc)
  */
 #define MAX_STORES	8
@@ -138,9 +151,9 @@
 
 
 /*
- * Maximum number of player "class" types (see "table.c", etc)
+ * Maximum amount of starting equipment
  */
-#define MAX_CLASS            6
+#define MAX_START_ITEMS	4
 
 
 /*
@@ -182,25 +195,25 @@
 
 
 /*
- * OPTION: Maximum number of macros (see "io.c")
+ * OPTION: Maximum number of macros (see "util.c")
  * Default: assume at most 256 macros are used
  */
 #define MACRO_MAX	256
 
 /*
- * OPTION: Maximum number of "quarks" (see "io.c")
+ * OPTION: Maximum number of "quarks" (see "util.c")
  * Default: assume at most 512 different inscriptions are used
  */
 #define QUARK_MAX	512
 
 /*
- * OPTION: Maximum number of messages to remember (see "io.c")
+ * OPTION: Maximum number of messages to remember (see "util.c")
  * Default: assume maximal memorization of 2048 total messages
  */
 #define MESSAGE_MAX	2048
 
 /*
- * OPTION: Maximum space for the message text buffer (see "io.c")
+ * OPTION: Maximum space for the message text buffer (see "util.c")
  * Default: assume that each of the 2048 messages is repeated an
  * average of three times, and has an average length of 48
  */
@@ -240,7 +253,7 @@
 #define MON_MULT_ADJ	8		/* High value slows multiplication */
 #define MON_SUMMON_ADJ	2		/* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE	2		/* Percent of player exp drained per hit */
-#define USE_DEVICE      3		/* x> Harder devices x< Easier devices     */
+#define USE_DEVICE      3		/* x> Harder devices x< Easier devices */
 
 /*
  * There is a 1/20 (5%) chance of inflating the requested object_level
@@ -337,6 +350,176 @@
 #define PY_REGEN_MNBASE		524		/* Min amount mana regen*2^16 */
 
 
+/*
+ * Maximum number of players spells
+ */
+#define PY_MAX_SPELLS 64
+
+/* Magic for Beginners */
+#define SPELL_MAGIC_MISSILE             0
+#define SPELL_DETECT_MONSTERS           1
+#define SPELL_PHASE_DOOR                2
+#define SPELL_LIGHT_AREA                3
+#define SPELL_TREASURE_DETECTION        4
+#define SPELL_CURE_LIGHT_WOUNDS         5
+#define SPELL_OBJECT_DETECTION          6
+#define SPELL_FIND_TRAPS_DOORS          7
+#define SPELL_STINKING_CLOUD            8
+
+/* Conjurings and Tricks */
+#define SPELL_CONFUSE_MONSTER           9
+#define SPELL_LIGHTNING_BOLT           10
+#define SPELL_TRAP_DOOR_DESTRUCTION    11
+#define SPELL_SLEEP_I                  12
+#define SPELL_CURE_POISON              13
+#define SPELL_TELEPORT_SELF            14
+#define SPELL_SPEAR_OF_LIGHT           15
+#define SPELL_FROST_BOLT               16
+#define SPELL_TURN_STONE_TO_MUD        17
+
+/* Incantations and Illusions */
+#define SPELL_SATISFY_HUNGER           18
+#define SPELL_RECHARGE_ITEM_I          19
+#define SPELL_SLEEP_II                 20
+#define SPELL_POLYMORPH_OTHER          21
+#define SPELL_IDENTIFY                 22
+#define SPELL_SLEEP_III                23
+#define SPELL_FIRE_BOLT                24
+#define SPELL_SLOW_MONSTER             25
+
+/* Sorcery and Evocations */
+#define SPELL_FROST_BALL               26
+#define SPELL_RECHARGE_ITEM_II         27
+#define SPELL_TELEPORT_OTHER           28
+#define SPELL_HASTE_SELF               29
+#define SPELL_FIRE_BALL                30
+#define SPELL_WORD_OF_DESTRUCTION      31
+#define SPELL_GENOCIDE                 32
+
+/* Mordenkainen's Escapes */
+#define SPELL_DOOR_CREATION            33
+#define SPELL_STAIR_CREATION           34
+#define SPELL_TELEPORT_LEVEL           35
+#define SPELL_EARTHQUAKE               36
+#define SPELL_WORD_OF_RECALL           37
+
+/* Raal's Tome of Destruction */
+#define SPELL_ACID_BOLT                38
+#define SPELL_CLOUD_KILL               39
+#define SPELL_ACID_BALL                40
+#define SPELL_ICE_STORM                41
+#define SPELL_METEOR_SWARM             42
+#define SPELL_MANA_STORM               43
+
+/* Kelek's Grimoire of Power */
+#define SPELL_DETECT_EVIL              44
+#define SPELL_DETECT_ENCHANTMENT       45
+#define SPELL_RECHARGE_ITEM_III        46
+#define SPELL_GENOCIDE2                47
+#define SPELL_MASS_GENOCIDE            48
+
+/* Resistance of Scarabtarices */
+#define SPELL_RESIST_FIRE              49
+#define SPELL_RESIST_COLD              50
+#define SPELL_RESIST_ACID              51
+#define SPELL_RESIST_POISON            52
+#define SPELL_RESISTANCE               53
+
+/* Tenser's transformations */
+#define SPELL_HEROISM                  54
+#define SPELL_SHIELD                   55
+#define SPELL_BERSERKER                56
+#define SPELL_ESSENCE_OF_SPEED         57
+#define SPELL_GLOBE_OF_INVULNERABILITY 58
+
+/* Beginners Handbook */
+#define PRAYER_DETECT_EVIL              0
+#define PRAYER_CURE_LIGHT_WOUNDS        1
+#define PRAYER_BLESS                    2
+#define PRAYER_REMOVE_FEAR              3
+#define PRAYER_CALL_LIGHT               4
+#define PRAYER_FIND_TRAPS               5
+#define PRAYER_DETECT_DOORS_STAIRS      6
+#define PRAYER_SLOW_POISON              7
+
+/* Words of Wisdom */
+#define PRAYER_SCARE_MONSTER            8
+#define PRAYER_PORTAL                   9
+#define PRAYER_CURE_SERIOUS_WOUNDS     10
+#define PRAYER_CHANT                   11
+#define PRAYER_SANCTUARY               12
+#define PRAYER_SATISFY_HUNGER          13
+#define PRAYER_REMOVE_CURSE            14
+#define PRAYER_RESIST_HEAT_COLD        15
+
+/* Chants and Blessings */
+#define PRAYER_NEUTRALIZE_POISON       16
+#define PRAYER_ORB_OF_DRAINING         17
+#define PRAYER_CURE_CRITICAL_WOUNDS    18
+#define PRAYER_SENSE_INVISIBLE         19
+#define PRAYER_PROTECTION_FROM_EVIL    20
+#define PRAYER_EARTHQUAKE              21
+#define PRAYER_SENSE_SURROUNDINGS      22
+#define PRAYER_CURE_MORTAL_WOUNDS      23
+#define PRAYER_TURN_UNDEAD             24
+
+/* Exorcism and Dispelling */
+#define PRAYER_PRAYER                  25
+#define PRAYER_DISPEL_UNDEAD           26
+#define PRAYER_HEAL                    27
+#define PRAYER_DISPEL_EVIL             28
+#define PRAYER_GLYPH_OF_WARDING        29
+#define PRAYER_HOLY_WORD               30
+
+/* Godly Insights */
+#define PRAYER_DETECT_MONSTERS         31
+#define PRAYER_DETECTION               32
+#define PRAYER_PERCEPTION              33
+#define PRAYER_PROBING                 34
+#define PRAYER_CLAIRVOYANCE            35
+
+/* Purifications and Healing */
+#define PRAYER_CURE_SERIOUS_WOUNDS2    36
+#define PRAYER_CURE_MORTAL_WOUNDS2     37
+#define PRAYER_HEALING                 38
+#define PRAYER_RESTORATION             39
+#define PRAYER_REMEMBRANCE             40
+
+/* Wrath of God */
+#define PRAYER_DISPEL_UNDEAD2          41
+#define PRAYER_DISPEL_EVIL2            42
+#define PRAYER_BANISHMENT              43
+#define PRAYER_WORD_OF_DESTRUCTION     44
+#define PRAYER_ANNIHILATION            45
+
+/* Holy Infusions */
+#define PRAYER_UNBARRING_WAYS          46
+#define PRAYER_RECHARGING              47
+#define PRAYER_DISPEL_CURSE            48
+#define PRAYER_ENCHANT_WEAPON          49
+#define PRAYER_ENCHANT_ARMOUR          50
+#define PRAYER_ELEMENTAL_BRAND         51
+
+/* Ethereal openings */
+#define PRAYER_BLINK                   52
+#define PRAYER_TELEPORT_SELF           53
+#define PRAYER_TELEPORT_OTHER          54
+#define PRAYER_TELEPORT_LEVEL          55
+#define PRAYER_WORD_OF_RECALL          56
+#define PRAYER_ALTER_REALITY           57
+
+
+#define BOOK1(x) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
+#define BOOK2(x) (((x) < 0) ? 0 : (x) < 32 ? 0 : (1L << ((x) % 32)))
+
+#define BOOK(a, b, c, d, e, f, g, h, i) \
+{ \
+	(BOOK1(a) | BOOK1(b) | BOOK1(c) | BOOK1(d) | BOOK1(e) | \
+	 BOOK1(f) | BOOK1(g) | BOOK1(h) | BOOK1(i)), \
+	(BOOK2(a) | BOOK2(b) | BOOK2(c) | BOOK2(d) | BOOK2(e) | \
+	 BOOK2(f) | BOOK2(g) | BOOK2(h) | BOOK2(i)) \
+}
+
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -398,18 +581,6 @@
  */
 #define SEX_FEMALE		0
 #define SEX_MALE		1
-
-
-/*
- * Player class constants (hard-coded by save-files, arrays, etc)
- */
-#define CLASS_WARRIOR	0
-#define CLASS_MAGE		1
-#define CLASS_PRIEST	2
-#define CLASS_ROGUE		3
-#define CLASS_RANGER	4
-#define CLASS_PALADIN	5
-
 
 
 /*** Screen Locations ***/
@@ -625,7 +796,7 @@
 #define KEYMAP_MODE_ROGUE	1
 
 
-/*** Feature Indexes (see "lib/edit/f_info.txt") ***/
+/*** Feature Indexes (see "lib/edit/feature.txt") ***/
 
 /* Nothing */
 #define FEAT_NONE		0x00
@@ -675,7 +846,7 @@
 
 
 
-/*** Artifact indexes (see "lib/edit/a_info.txt") ***/
+/*** Artifact indexes (see "lib/edit/artifact.txt") ***/
 
 
 /* Lites */
@@ -831,7 +1002,7 @@
 
 
 
-/*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
+/*** Ego-Item indexes (see "lib/edit/ego_item.txt") ***/
 
 
 /* Nothing */
@@ -924,7 +1095,7 @@
 #define EGO_BRAND_ELEC		73
 #define EGO_BRAND_FIRE		74
 #define EGO_BRAND_COLD		75
-/* xxx */
+#define EGO_BRAND_POIS		76
 /* xxx */
 /* xxx */
 /* xxx */
@@ -1422,7 +1593,7 @@
 #define SV_POTION_RESIST_HEAT		30
 #define SV_POTION_RESIST_COLD		31
 #define SV_POTION_HEROISM			32
-#define SV_POTION_BESERK_STRENGTH	33
+#define SV_POTION_BERSERK_STRENGTH	33
 #define SV_POTION_CURE_LIGHT		34
 #define SV_POTION_CURE_SERIOUS		35
 #define SV_POTION_CURE_CRITICAL		36
@@ -1772,21 +1943,22 @@
 /*
  * The special inscriptions.
  */
-#define INSCRIP_NULL		100
-#define INSCRIP_TERRIBLE	100+1
-#define INSCRIP_WORTHLESS	100+2
-#define INSCRIP_CURSED		100+3
-#define INSCRIP_BROKEN		100+4
-#define INSCRIP_AVERAGE		100+5
-#define INSCRIP_GOOD		100+6
-#define INSCRIP_EXCELLENT	100+7
-#define INSCRIP_SPECIAL		100+8
-#define INSCRIP_UNCURSED	100+9
+#define INSCRIP_NULL            100
+#define INSCRIP_TERRIBLE        100+1
+#define INSCRIP_WORTHLESS       100+2
+#define INSCRIP_CURSED          100+3
+#define INSCRIP_BROKEN          100+4
+#define INSCRIP_AVERAGE         100+5
+#define INSCRIP_GOOD            100+6
+#define INSCRIP_EXCELLENT       100+7
+#define INSCRIP_SPECIAL         100+8
+#define INSCRIP_UNCURSED        100+9
+#define INSCRIP_INDESTRUCTIBLE  100+10
 
 /*
  * Number of special inscriptions, plus one.
  */
-#define MAX_INSCRIP			10
+#define MAX_INSCRIP			11
 
 
 /*
@@ -1873,7 +2045,7 @@
 #define TR1_KILL_DRAGON		0x01000000L	/* Weapon kills dragon */
 #define TR1_XXX5			0x02000000L
 #define TR1_XXX6			0x04000000L
-#define TR1_XXX7			0x08000000L
+#define TR1_BRAND_POIS		0x08000000L /* Weapon has poison brand */
 #define TR1_BRAND_ACID		0x10000000L	/* Weapon has acid brand */
 #define TR1_BRAND_ELEC		0x20000000L	/* Weapon has elec brand */
 #define TR1_BRAND_FIRE		0x40000000L	/* Weapon has fire brand */
@@ -1887,10 +2059,10 @@
 #define TR2_SUST_CHR		0x00000020L	/* Sustain CHR */
 #define TR2_XXX1			0x00000040L	/* (reserved) */
 #define TR2_XXX2			0x00000080L	/* (reserved) */
-#define TR2_XXX3			0x00001000L	/* (reserved) */
-#define TR2_XXX4			0x00002000L	/* (reserved) */
-#define TR2_XXX5			0x00004000L	/* (reserved) */
-#define TR2_XXX6		 	0x00008000L	/* (reserved) */
+#define TR2_XXX3			0x00000100L	/* (reserved) */
+#define TR2_XXX4			0x00000200L	/* (reserved) */
+#define TR2_XXX5			0x00000400L	/* (reserved) */
+#define TR2_XXX6		 	0x00000800L	/* (reserved) */
 #define TR2_IM_ACID			0x00001000L	/* Immunity to acid */
 #define TR2_IM_ELEC			0x00002000L	/* Immunity to elec */
 #define TR2_IM_FIRE			0x00004000L	/* Immunity to fire */
@@ -1992,6 +2164,41 @@
 #define OBJECT_XTRA_SIZE_RESIST		12
 #define OBJECT_XTRA_SIZE_POWER		8
 
+
+/*** Class flags ***/
+
+#define CF_EXTRA_SHOT		0x00000001L	/* Extra shots */
+#define CF_BRAVERY_30		0x00000002L	/* Gains resist fear at plev 30 */
+#define CF_BLESS_WEAPON		0x00000004L	/* Requires blessed/hafted weapons */
+#define CF_CUMBER_GLOVE		0x00000008L	/* Gloves disturb spellcasting */
+#define CF_ZERO_FAIL		0x00000010L /* Fail rates can reach 0% */
+#define CF_BEAM				0x00000020L /* Higher chance of spells beaming */
+#define CF_CHOOSE_SPELLS	0x00000040L	/* Allow choice of spells */
+#define CF_PSEUDO_ID_HEAVY	0x00000080L /* Allow heavy pseudo-id */
+#define CF_PSEUDO_ID_IMPROV	0x00000100L /* Pseudo-id improves quicker with player-level */
+#define CF_XXX10			0x00000200L
+#define CF_XXX11			0x00000400L
+#define CF_XXX12			0x00000800L
+#define CF_XXX13			0x00001000L
+#define CF_XXX14			0x00002000L
+#define CF_XXX15			0x00004000L
+#define CF_XXX16			0x00008000L
+#define CF_XXX17			0x00010000L
+#define CF_XXX18			0x00020000L
+#define CF_XXX19			0x00040000L
+#define CF_XXX20			0x00080000L
+#define CF_XXX21			0x00100000L
+#define CF_XXX22			0x00200000L
+#define CF_XXX23			0x00400000L
+#define CF_XXX24			0x00800000L
+#define CF_XXX25			0x01000000L
+#define CF_XXX26			0x02000000L
+#define CF_XXX27			0x04000000L
+#define CF_XXX28			0x08000000L
+#define CF_XXX29			0x10000000L
+#define CF_XXX30			0x20000000L
+#define CF_XXX31			0x40000000L
+#define CF_XXX32			0x80000000L
 
 
 /*** Monster flags ***/
@@ -2206,7 +2413,7 @@
 #define RF6_DARKNESS		0x00001000	/* Create Darkness */
 #define RF6_TRAPS			0x00002000	/* Create Traps */
 #define RF6_FORGET			0x00004000	/* Cause amnesia */
-#define RF6_XXX6			0x00008000	/* ??? */
+#define RF6_XXX6			0x00008000	/* (?) */
 #define RF6_S_KIN			0x00010000	/* Summon Kin */
 #define RF6_S_HI_DEMON		0x00020000	/* Summon Greater Demons */
 #define RF6_S_MONSTER		0x00040000	/* Summon Monster */
@@ -2654,12 +2861,6 @@
  */
 #define term_screen	(angband_term[0])
 
-/*
- * Hack -- random number generation
- */
-#define randint(M) \
-	(rand_int(M) + 1)
-
 
 /*
  * Determine if a given inventory item is "aware"
@@ -2681,7 +2882,8 @@
  */
 #define object_known_p(T) \
 	(((T)->ident & (IDENT_KNOWN)) || \
-	 (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware))
+	 ((k_info[(T)->k_idx].flags3 & (TR3_EASY_KNOW)) && \
+	  k_info[(T)->k_idx].aware))
 
 
 /*
@@ -2944,8 +3146,9 @@ extern int PlayerUID;
 #define MSG_NOTHING_TO_OPEN 26
 #define MSG_LOCKPICK_FAIL   27
 #define MSG_STAIRS          28
+#define MSG_HITPOINT_WARN   29
 
-#define MSG_MAX             29
+#define MSG_MAX             30
 
 
 /*** Sound constants ***/
@@ -3009,36 +3212,11 @@ extern int PlayerUID;
 
 
 /*
- * Available graphic modes
- */
-#define GRAPHICS_NONE       0
-#define GRAPHICS_ORIGINAL   1
-#define GRAPHICS_ADAM_BOLT  2
-
-
-/*
  * r_info indices of the quest monsters
  * (required for loading old savefiles)
  */
 #define R_INFO_SAURON 546
 #define R_INFO_MORGOTH 547
-
-
-/*
- * Parse errors
- */
-#define PARSE_ERROR_GENERIC                  1
-#define PARSE_ERROR_OBSOLETE_FILE            2
-#define PARSE_ERROR_MISSING_RECORD_HEADER    3
-#define PARSE_ERROR_NON_SEQUENTIAL_RECORDS   4
-#define PARSE_ERROR_INVALID_FLAG             5
-#define PARSE_ERROR_UNDEFINED_DIRECTIVE      6
-#define PARSE_ERROR_OUT_OF_MEMORY            7
-#define PARSE_ERROR_OUT_OF_BOUNDS            8
-#define PARSE_ERROR_TOO_FEW_ARGUMENTS        9
-#define PARSE_ERROR_TOO_MANY_ARGUMENTS      10
-
-#define PARSE_ERROR_MAX                     11
 
 
 /*
@@ -3101,3 +3279,8 @@ extern int PlayerUID;
 #define ACT_FIREBRAND           46
 
 #define ACT_MAX                 47
+
+/*
+ * HACK - define if the source contains the cleanup_angband() function.
+ */
+#define HAS_CLEANUP

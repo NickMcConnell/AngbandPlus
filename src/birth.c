@@ -28,7 +28,7 @@ struct birther
 
 	s32b au;
 
-	s16b stat[6];
+	s16b stat[A_MAX];
 
 	char history[4][60];
 };
@@ -44,7 +44,7 @@ static birther prev;
 /*
  * Current stats (when rolling a character).
  */
-static s16b stat_use[6];
+static s16b stat_use[A_MAX];
 
 
 
@@ -577,61 +577,8 @@ static void player_wipe(void)
 
 
 	/* None of the spells have been learned yet */
-	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
+	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
 }
-
-
-
-
-/*
- * Each player starts out with a few items, given as tval/sval pairs.
- * In addition, he always has some food and a few torches.
- */
-
-static byte player_init[MAX_CLASS][3][2] =
-{
-	{
-		/* Warrior */
-		{ TV_POTION, SV_POTION_BESERK_STRENGTH },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
-	},
-
-	{
-		/* Mage */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
-	},
-
-	{
-		/* Priest */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_HEALING }
-	},
-
-	{
-		/* Rogue */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
-	},
-
-	{
-		/* Ranger */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_BOW, SV_LONG_BOW }
-	},
-
-	{
-		/* Paladin */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
-	}
-};
 
 
 
@@ -642,8 +589,8 @@ static byte player_init[MAX_CLASS][3][2] =
  */
 static void player_outfit(void)
 {
-	int i, tv, sv;
-
+	int i;
+	const start_item *e_ptr;
 	object_type *i_ptr;
 	object_type object_type_body;
 
@@ -670,21 +617,32 @@ static void player_outfit(void)
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
 
-	/* Hack -- Give the player three useful objects */
-	for (i = 0; i < 3; i++)
+	/* Hack -- Give the player his equipment */
+	for (i = 0; i < MAX_START_ITEMS; i++)
 	{
-		/* Look up standard equipment */
-		tv = player_init[p_ptr->pclass][i][0];
-		sv = player_init[p_ptr->pclass][i][1];
+		/* Access the item */
+		e_ptr = &(cp_ptr->start_items[i]);
 
 		/* Get local object */
 		i_ptr = &object_type_body;
 
-		/* Hack -- Give the player an object */
-		object_prep(i_ptr, lookup_kind(tv, sv));
-		object_aware(i_ptr);
-		object_known(i_ptr);
-		(void)inven_carry(i_ptr);
+		/* Hack	-- Give the player an object */
+		if (e_ptr->tval > 0)
+		{
+			/* Get the object_kind */
+			int k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+
+			/* Valid item? */
+			if (!k_idx) continue;
+
+			/* Prepare the item */
+			object_prep(i_ptr, k_idx);
+			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
+
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			(void)inven_carry(i_ptr);
+		}
 	}
 }
 
@@ -832,15 +790,15 @@ static bool player_birth_aux_1(void)
 	            "Any entries with a (*) should only be used by advanced players.");
 
 	/* Dump classes */
-	for (n = 0; n < MAX_CLASS; n++)
+	for (n = 0; n < z_info->c_max; n++)
 	{
 		cptr mod = "";
 
 		/* Analyze */
 		p_ptr->pclass = n;
-		cp_ptr = &class_info[p_ptr->pclass];
-		mp_ptr = &magic_info[p_ptr->pclass];
-		str = cp_ptr->title;
+		cp_ptr = &c_info[p_ptr->pclass];
+		mp_ptr = &cp_ptr->spells;
+		str = c_name + cp_ptr->name;
 
 		/* Verify legality */
 		if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
@@ -861,7 +819,18 @@ static bool player_birth_aux_1(void)
 		if (ch == 'S') return (FALSE);
 		k = (islower(ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
-		if (ch == '*') k = rand_int(MAX_CLASS);
+		if (ch == '*')
+		{
+			while (1)
+			{
+				k = rand_int(z_info->c_max);
+
+				/* Try again if not a legal choice */
+				if (!(rp_ptr->choice & (1L << k))) continue;
+
+				break;
+			}
+		}
 		if ((k >= 0) && (k < n)) break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal class!");
@@ -869,12 +838,12 @@ static bool player_birth_aux_1(void)
 
 	/* Set class */
 	p_ptr->pclass = k;
-	cp_ptr = &class_info[p_ptr->pclass];
-	mp_ptr = &magic_info[p_ptr->pclass];
+	cp_ptr = &c_info[p_ptr->pclass];
+	mp_ptr = &cp_ptr->spells;
 
 	/* Class */
 	put_str("Class", 5, 1);
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 8);
+	c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 5, 8);
 
 	/* Clean up */
 	clear_from(15);
@@ -932,7 +901,7 @@ static bool player_birth_aux_1(void)
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
-static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
 
 
 /*
@@ -1079,13 +1048,13 @@ static bool player_birth_aux_2(void)
 		/* Prev stat */
 		if (ch == '8')
 		{
-			stat = (stat + 5) % 6;
+			stat = (stat + A_MAX - 1) % A_MAX;
 		}
 
 		/* Next stat */
 		if (ch == '2')
 		{
-			stat = (stat + 1) % 6;
+			stat = (stat + 1) % A_MAX;
 		}
 
 		/* Decrease stat */
@@ -1133,9 +1102,9 @@ static bool player_birth_aux_3(void)
 
 #ifdef ALLOW_AUTOROLLER
 
-	s16b stat_limit[6];
+	s16b stat_limit[A_MAX];
 
-	s32b stat_match[6];
+	s32b stat_match[A_MAX];
 
 	s32b auto_round = 0L;
 
@@ -1147,7 +1116,7 @@ static bool player_birth_aux_3(void)
 	/* Initialize */
 	if (adult_auto_roller)
 	{
-		int mval[6];
+		int mval[A_MAX];
 
 		char inp[80];
 
@@ -1217,7 +1186,7 @@ static bool player_birth_aux_3(void)
 				strcpy(inp, "");
 
 				/* Get a response (or escape) */
-				if (!askfor_aux(inp, 8)) inp[0] = '\0';
+				if (!askfor_aux(inp, 9)) inp[0] = '\0';
 
 				/* Hack -- add a fake slash */
 				strcat(inp, "/");

@@ -438,7 +438,7 @@ static char alarm_file[2][260] = { "","" };			/* Alarm choices paths (read/write
 static int initialised = 0;		/* Used to determine whether to try to save */
 static int game_in_progress = 0;/* if Quit (or core() is called),  etc. */
 
-static char a_palette[256][4];		/* a copy of the raw Angband palette */
+static byte a_palette[256][4];		/* a copy of the raw Angband palette */
 static unsigned int palette[256];	/* palette as gamma'd bbggrrxx words */
 static unsigned int zpalette[256];	/* And our version for ZapRedraw */
 static double gamma = 1.0;			/* assume gamma of 1.0 if unspecified */
@@ -831,7 +831,7 @@ static int file_is_newer( const char *a, const char *b )
 
 	/* If 'b' doesn't exist then 'b' is OOD. */
 	if ( !b_type ) { return -1; }
-	/* If 'a' doesn't exist then 'b' isn't OOD. ??? */
+	/* If 'a' doesn't exist then 'b' isn't OOD. (?) */
 	if ( !a_type ) { return 0; }
 
 	/* Compare the timestamps (assume that the files are typed) */
@@ -1153,25 +1153,6 @@ errr fd_close( int handle )
 
 
 
-int access( const char *path, int mode )
-{
-	char *real_path = riscosify_name(path);
-	int handle;
-
-	/* Try to open the file */
-	handle = myFile_Open( real_path, 0x4f );
-
-	/* Failed? */
-	if ( !handle ) { return -1; }
-
-	/* Close the file */
-	myFile_Close(handle);
-
-	/* Sucess */
-	return 0;
-}
-
-
 /* Read some bytes from a file */
 errr fd_read( int handle, char *buf, huge nbytes )
 {
@@ -1216,7 +1197,7 @@ errr fd_lock( int handle, int what )
 
 
 /* Get a temporary filename */
-errr path_temp( char *buf, int max )
+static errr path_temp( char *buf, int max )
 {
 
 	/*

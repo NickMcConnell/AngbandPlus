@@ -626,7 +626,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_BESERK_STRENGTH:
+		case SV_POTION_BERSERK_STRENGTH:
 		{
 			if (hp_player(30)) ident = TRUE;
 			if (set_afraid(0)) ident = TRUE;
@@ -688,7 +688,6 @@ void do_cmd_quaff_potion(void)
 		{
 			msg_print("You feel life flow through your body!");
 			restore_level();
-			hp_player(5000);
 			(void)set_poisoned(0);
 			(void)set_blind(0);
 			(void)set_confused(0);
@@ -701,6 +700,12 @@ void do_cmd_quaff_potion(void)
 			(void)do_res_stat(A_WIS);
 			(void)do_res_stat(A_INT);
 			(void)do_res_stat(A_CHR);
+
+			/* Recalculate max. hitpoints */
+			update_stuff();
+
+			hp_player(5000);
+
 			ident = TRUE;
 			break;
 		}
@@ -819,7 +824,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_STAR_ENLIGHTENMENT:
 		{
 			msg_print("You begin to feel more enlightened...");
-			msg_print(NULL);
+			message_flush();
 			wiz_lite();
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
@@ -838,7 +843,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_SELF_KNOWLEDGE:
 		{
 			msg_print("You begin to know yourself a little better...");
-			msg_print(NULL);
+			message_flush();
 			self_knowledge();
 			ident = TRUE;
 			break;
@@ -1537,6 +1542,8 @@ void do_cmd_use_staff(void)
 		if (flush_failure) flush();
 		msg_print("The staff has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->window |= (PW_INVEN);
 		return;
 	}
 
@@ -1955,6 +1962,8 @@ void do_cmd_aim_wand(void)
 		if (flush_failure) flush();
 		msg_print("The wand has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->window |= (PW_INVEN);
 		return;
 	}
 
@@ -2648,7 +2657,7 @@ void do_cmd_zap_rod(void)
 /*
  * Hook to determine if an object is activatable
  */
-static bool item_tester_hook_activate(object_type *o_ptr)
+static bool item_tester_hook_activate(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -3011,7 +3020,7 @@ void do_cmd_activate(void)
 
 			case ACT_GENOCIDE:
 			{
-				msg_format("Your % glows deep blue...", o_name);
+				msg_format("Your %s glows deep blue...", o_name);
 				(void)genocide();
 				break;
 			}
@@ -3231,16 +3240,7 @@ void do_cmd_activate(void)
 			case ACT_WOR:
 			{
 				msg_format("Your %s glows soft white...", o_name);
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall();
 				break;
 			}
 

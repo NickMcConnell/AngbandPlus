@@ -14,14 +14,12 @@
 /*
  * Hack -- Link a copyright message into the executable
  */
-cptr copyright[5] =
-{
-	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke",
-	"",
-	"This software may be copied and distributed for educational, research,",
-	"and not for profit purposes provided that this copyright and statement",
-	"are included in all such copies.  Other copyrights may also apply."
-};
+cptr copyright =
+	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke\n"
+	"\n"
+	"This software may be copied and distributed for educational, research,\n"
+	"and not for profit purposes provided that this copyright and statement\n"
+	"are included in all such copies.  Other copyrights may also apply.\n";
 
 
 /*
@@ -165,70 +163,19 @@ cptr *macro__act;
 
 
 /*
- * The number of quarks (first quark is NULL)
+ * The array[ANGBAND_TERM_MAX] of window pointers
  */
-s16b quark__num = 1;
-
-/*
- * The array[QUARK_MAX] of pointers to the quarks
- */
-cptr *quark__str;
+term *angband_term[ANGBAND_TERM_MAX];
 
 
 /*
- * The next "free" index to use
+ * The array[ANGBAND_TERM_MAX] of window names (modifiable?)
+ *
+ * ToDo: Make the names independent of ANGBAND_TERM_MAX.
  */
-u16b message__next;
-
-/*
- * The index of the oldest message (none yet)
- */
-u16b message__last;
-
-/*
- * The next "free" offset
- */
-u16b message__head;
-
-/*
- * The offset to the oldest used char (none yet)
- */
-u16b message__tail;
-
-/*
- * The array[MESSAGE_MAX] of offsets, by index
- */
-u16b *message__ptr;
-
-/*
- * The array[MESSAGE_BUF] of chars, by offset
- */
-char *message__buf;
-
-/*
- * The array[MESSAGE_MAX] of u16b for the types of messages
- */
-u16b *message__type;
-
-
-/*
- * Table of colors associated to message-types
- */
-byte message__color[MSG_MAX];
-
-
-/*
- * The array[8] of window pointers
- */
-term *angband_term[8];
-
-
-/*
- * The array[8] of window names (modifiable?)
- */
-char angband_term_name[8][16] =
+char angband_term_name[ANGBAND_TERM_MAX][16] =
 {
-	"Angband",
+	VERSION_NAME,
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -266,7 +213,7 @@ byte angband_color_table[256][4] =
 /*
  * Standard sound (and message) names
  */
-char angband_sound_name[SOUND_MAX][16] =
+const char angband_sound_name[SOUND_MAX][16] =
 {
 	"",
 	"hit",
@@ -470,10 +417,10 @@ cptr keymap_act[KEYMAP_MODES][256];
 /*
  * Pointer to the player tables (sex, race, class, magic)
  */
-player_sex *sp_ptr;
-player_race *rp_ptr;
-player_class *cp_ptr;
-player_magic *mp_ptr;
+const player_sex *sp_ptr;
+const player_race *rp_ptr;
+const player_class *cp_ptr;
+const player_magic *mp_ptr;
 
 /*
  * The player other record (static)
@@ -499,13 +446,11 @@ player_type *p_ptr = &player_type_body;
 /*
  * Structure (not array) of size limits
  */
-header *z_head;
 maxima *z_info;
 
 /*
  * The vault generation arrays
  */
-header *v_head;
 vault_type *v_info;
 char *v_name;
 char *v_text;
@@ -513,7 +458,6 @@ char *v_text;
 /*
  * The terrain feature arrays
  */
-header *f_head;
 feature_type *f_info;
 char *f_name;
 char *f_text;
@@ -521,7 +465,6 @@ char *f_text;
 /*
  * The object kind arrays
  */
-header *k_head;
 object_kind *k_info;
 char *k_name;
 char *k_text;
@@ -529,7 +472,6 @@ char *k_text;
 /*
  * The artifact arrays
  */
-header *a_head;
 artifact_type *a_info;
 char *a_name;
 char *a_text;
@@ -537,15 +479,14 @@ char *a_text;
 /*
  * The ego-item arrays
  */
-header *e_head;
 ego_item_type *e_info;
 char *e_name;
 char *e_text;
 
+
 /*
  * The monster race arrays
  */
-header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
@@ -554,30 +495,36 @@ char *r_text;
 /*
  * The player race arrays
  */
-header *p_head;
 player_race *p_info;
 char *p_name;
 char *p_text;
 
 /*
+ * The player class arrays
+ */
+player_class *c_info;
+char *c_name;
+char *c_text;
+
+/*
  * The player history arrays
  */
-header *h_head;
 hist_type *h_info;
 char *h_text;
 
 /*
  * The shop owner arrays
  */
-header *b_head;
 owner_type *b_info;
 char *b_name;
+char *b_text;
 
 /*
  * The racial price adjustment arrays
  */
-header *g_head;
 byte *g_info;
+char *g_name;
+char *g_text;
 
 
 /*
@@ -647,7 +594,13 @@ cptr ANGBAND_DIR_INFO;
 cptr ANGBAND_DIR_SAVE;
 
 /*
- * User "preference" files (ascii)
+ * Default user "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
+
+/*
+ * User defined "preference" files (ascii)
  * These files are rarely portable between platforms
  */
 cptr ANGBAND_DIR_USER;
@@ -677,7 +630,7 @@ byte item_tester_tval;
  * Here is a "hook" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
-bool (*item_tester_hook)(object_type*);
+bool (*item_tester_hook)(const object_type*);
 
 
 

@@ -261,7 +261,7 @@ void identify_pack(void)
 /*
  * Used by the "enchant" function (chance of failure)
  */
-static int enchant_table[16] =
+static const int enchant_table[16] =
 {
 	0, 10,  50, 100, 200,
 	300, 400, 500, 700, 950,
@@ -471,7 +471,7 @@ void self_knowledge(void)
 
 	if (p_ptr->blessed)
 	{
-		info[i++] = "You feel rightous.";
+		info[i++] = "You feel righteous.";
 	}
 	if (p_ptr->hero)
 	{
@@ -761,6 +761,10 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon freezes your foes.";
 		}
+		if (f1 & (TR1_BRAND_POIS))
+		{
+			info[i++] = "Your weapon poisons your foes.";
+		}
 
 		/* Special "slay" flags */
 		if (f1 & (TR1_SLAY_ANIMAL))
@@ -914,7 +918,7 @@ bool lose_all_info(void)
 
 
 /*
- *  Set word of recall as appropriate
+ * Set word of recall as appropriate
  */
 void set_recall(void)
 {
@@ -1564,7 +1568,7 @@ void stair_creation(void)
 /*
  * Hook to specify "weapon"
  */
-static bool item_tester_hook_weapon(object_type *o_ptr)
+static bool item_tester_hook_weapon(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1588,7 +1592,7 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 /*
  * Hook to specify "armour"
  */
-static bool item_tester_hook_armour(object_type *o_ptr)
+static bool item_tester_hook_armour(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1610,7 +1614,7 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 }
 
 
-static bool item_tester_unknown(object_type *o_ptr)
+static bool item_tester_unknown(const object_type *o_ptr)
 {
 	if (object_known_p(o_ptr))
 		return FALSE;
@@ -1619,7 +1623,7 @@ static bool item_tester_unknown(object_type *o_ptr)
 }
 
 
-static bool item_tester_unknown_star(object_type *o_ptr)
+static bool item_tester_unknown_star(const object_type *o_ptr)
 {
 	if (o_ptr->ident & IDENT_MENTAL)
 		return FALSE;
@@ -2011,7 +2015,7 @@ bool identify_fully(void)
 /*
  * Hook for "get_item()".  Determine if something is rechargable.
  */
-static bool item_tester_hook_recharge(object_type *o_ptr)
+static bool item_tester_hook_recharge(const object_type *o_ptr)
 {
 	/* Recharge staffs */
 	if (o_ptr->tval == TV_STAFF) return (TRUE);
@@ -2502,6 +2506,9 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 	bool flag = FALSE;
 
+
+	/* Unused parameter */
+	(void)full;
 
 	/* Big area of affect */
 	for (y = (y1 - r); y <= (y1 + r); y++)

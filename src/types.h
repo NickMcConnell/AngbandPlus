@@ -46,11 +46,6 @@
  */
 typedef byte byte_256[256];
 
-/*
- * An array of 256 s16b's
- */
-typedef s16b s16b_256[256];
-
 
 /*
  * An array of DUNGEON_WID byte's
@@ -67,7 +62,6 @@ typedef s16b s16b_wid[DUNGEON_WID];
 /**** Available Structs ****/
 
 
-typedef struct header header;
 typedef struct maxima maxima;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
@@ -91,60 +85,11 @@ typedef struct player_class player_class;
 typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
+typedef struct start_item start_item;
 
 
 
 /**** Available structs ****/
-
-
-/*
- * Template file header information (see "init.c").  16 bytes.
- *
- * Note that the sizes of many of the "arrays" are between 32768 and
- * 65535, and so we must use "unsigned" values to hold the "sizes" of
- * these arrays below.  Normally, I try to avoid using unsigned values,
- * since they can cause all sorts of bizarre problems, but I have no
- * choice here, at least, until the "race" array is split into "normal"
- * and "unique" monsters, which may or may not actually help.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "read()" and "write()" functions cannot handle more than 32767 bytes
- * at one time, so we need replacement functions, see "util.c" for details.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "malloc()" function cannot handle more than 32767 bytes at one time,
- * but we may assume that the "ralloc()" function can handle up to 65535
- * butes at one time.  We should not, however, assume that the "ralloc()"
- * function can handle more than 65536 bytes at a time, since this might
- * result in segmentation problems on certain older machines, and in fact,
- * we should not assume that it can handle exactly 65536 bytes at a time,
- * since the internal functions may use an unsigned short to specify size.
- *
- * In general, these problems occur only on machines (such as most personal
- * computers) which use 2 byte "int" values, and which use "int" for the
- * arguments to the relevent functions.
- */
-struct header
-{
-	byte v_major;		/* Version -- major */
-	byte v_minor;		/* Version -- minor */
-	byte v_patch;		/* Version -- patch */
-	byte v_extra;		/* Version -- extra */
-
-
-	u16b info_num;		/* Number of "info" records */
-
-	u16b info_len;		/* Size of each "info" record */
-
-
-	u16b head_size;		/* Size of the "header" in bytes */
-
-	u16b info_size;		/* Size of the "info" array in bytes */
-
-	u32b name_size;		/* Size of the "name" array in bytes */
-
-	u32b text_size;		/* Size of the "text" array in bytes */
-};
 
 
 /*
@@ -158,18 +103,14 @@ struct maxima
 
 	u16b f_max;		/* Max size for "f_info[]" */
 	u16b k_max;		/* Max size for "k_info[]" */
-
 	u16b a_max;		/* Max size for "a_info[]" */
 	u16b e_max;		/* Max size for "e_info[]" */
-
 	u16b r_max;		/* Max size for "r_info[]" */
 	u16b v_max;		/* Max size for "v_info[]" */
-
 	u16b p_max;		/* Max size for "p_info[]" */
 	u16b h_max;		/* Max size for "h_info[]" */
-
 	u16b b_max;		/* Max size per element of "b_info[]" */
-	u16b unused;	/* Unused */
+	u16b c_max;		/* Max size for "c_info[]" */
 
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "m_list[]" */
@@ -247,8 +188,6 @@ struct object_kind
 
 
 	byte flavor;		/* Special object flavor (or zero) */
-
-	bool easy_know;		/* This object is always known (if aware) */
 
 
 	bool aware;			/* The player is "aware" of the item's effects */
@@ -372,7 +311,7 @@ struct monster_blow
  *
  * Maybe "x_attr", "x_char", "cur_num", and "max_num" should
  * be moved out of this array since they are not read from
- * "r_info.txt".
+ * "monster.txt".
  */
 struct monster_race
 {
@@ -404,21 +343,16 @@ struct monster_race
 
 	monster_blow blow[4];	/* Up to four blows per round */
 
-
 	byte level;				/* Level of creature */
 	byte rarity;			/* Rarity of creature */
-
 
 	byte d_attr;			/* Default monster attribute */
 	char d_char;			/* Default monster character */
 
-
 	byte x_attr;			/* Desired monster attribute */
 	char x_char;			/* Desired monster character */
 
-
 	byte max_num;			/* Maximum population allowed per level */
-
 	byte cur_num;			/* Monster population on current level */
 };
 
@@ -543,7 +477,7 @@ struct object_type
 
 	s16b timeout;		/* Timeout Counter */
 
-	byte ident;			/* Special flags  */
+	byte ident;			/* Special flags */
 
 	byte marked;		/* Object is marked */
 
@@ -597,7 +531,7 @@ struct monster_type
 
 	u32b smart;			/* Field for "smart_learn" */
 
-#endif
+#endif /* DRS_SMART_OPTIONS */
 
 };
 
@@ -658,7 +592,6 @@ struct quest
 struct owner_type
 {
 	u32b owner_name;	/* Name (offset) */
-	u32b unused;		/* Unused */
 
 	s16b max_cost;		/* Purse limit */
 
@@ -682,7 +615,6 @@ struct owner_type
 struct store_type
 {
 	byte owner;				/* Owner index */
-	byte extra;				/* Unused for now */
 
 	s16b insult_cur;		/* Insult counter */
 
@@ -690,8 +622,6 @@ struct store_type
 	s16b bad_buy;			/* Number of "bad" buys */
 
 	s32b store_open;		/* Closed until this turn */
-
-	s32b store_wrap;		/* Unused for now */
 
 	s16b table_num;			/* Table -- Number of entries */
 	s16b table_size;		/* Table -- Total Size of Array */
@@ -726,16 +656,7 @@ struct magic_type
  */
 struct player_magic
 {
-	byte spell_book;		/* Tval of spell books (if any) */
-	s16b spell_xtra;		/* Something for later */
-
-	s16b spell_stat;		/* Stat for spells (if any)  */
-	s16b spell_type;		/* Spell type (mage/priest) */
-
-	s16b spell_first;		/* Level of first spell */
-	s16b spell_weight;		/* Weight that hurts spells */
-
-	magic_type info[64];	/* The available spells */
+	magic_type info[PY_MAX_SPELLS];	/* The available spells */
 };
 
 
@@ -782,7 +703,7 @@ struct player_race
 	byte m_m_wt;		/* mod weight (males) */
 
 	byte f_b_ht;		/* base height (females) */
-	byte f_m_ht;		/* mod height (females)	  */
+	byte f_m_ht;		/* mod height (females) */
 	byte f_b_wt;		/* base weight (females) */
 	byte f_m_wt;		/* mod weight (females) */
 
@@ -799,11 +720,25 @@ struct player_race
 
 
 /*
+ * Starting equipment entry
+ */
+struct start_item
+{
+	byte tval;	/* Item's tval */
+	byte sval;	/* Item's sval */
+	byte min;	/* Minimum starting amount */
+	byte max;	/* Maximum starting amount */
+};
+
+
+/*
  * Player class info
  */
 struct player_class
 {
-	cptr title;			/* Type of class */
+	u32b name;			/* Name (offset) */
+
+	u32b title[10];		/* Titles - offset */
 
 	s16b c_adj[A_MAX];	/* Class stat modifier */
 
@@ -827,6 +762,25 @@ struct player_class
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
+
+	u32b flags;			/* Class Flags */
+
+	u16b max_attacks;	/* Maximum possible attacks */
+	u16b min_weight;	/* Minimum weapon weight for calculations */
+	u16b att_multiply;	/* Multiplier for attack calculations */
+
+	byte spell_book;	/* Tval of spell books (if any) */
+	u16b spell_stat;	/* Stat for spells (if any) */
+	byte spell_type;	/* Spell type (mage/priest) */
+	u16b spell_first;	/* Level of first spell */
+	u16b spell_weight;	/* Weight that hurts spells */
+
+	u32b sense_base;	/* Base pseudo-id value */
+	u16b sense_div;		/* Pseudo-id divisor */
+
+	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
+
+	player_magic spells; /* Magic spells */
 };
 
 
@@ -835,7 +789,6 @@ struct player_class
  */
 struct hist_type
 {
-	u32b unused;			/* Unused */
 	u32b text;			    /* Text (offset) */
 
 	byte roll;			    /* Frequency of this entry */
@@ -858,7 +811,7 @@ struct player_other
 
 	bool opt[OPT_MAX];		/* Options */
 
-	u32b window_flag[8];	/* Window flags */
+	u32b window_flag[ANGBAND_TERM_MAX];	/* Window flags */
 
 	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
@@ -889,9 +842,6 @@ struct player_type
 
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
-
-	byte maximize;		/* Maximize stats */
-	byte preserve;		/* Preserve artifacts */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -963,7 +913,7 @@ struct player_type
 	u32b spell_forgotten1;	/* Spell flags */
 	u32b spell_forgotten2;	/* Spell flags */
 
-	byte spell_order[64];	/* Spell order */
+	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
@@ -992,7 +942,7 @@ struct player_type
 	s16b wy;				/* Dungeon panel */
 	s16b wx;				/* Dungeon panel */
 
-	s16b total_weight;		/* Total weight being carried */
+	s32b total_weight;		/* Total weight being carried */
 
 	s16b inven_cnt;			/* Number of items in inventory */
 	s16b equip_cnt;			/* Number of items in equipment */

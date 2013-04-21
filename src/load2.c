@@ -113,7 +113,7 @@ static void note(cptr msg)
 /*
  * Hack -- determine if an item is "wearable" (or a missile)
  */
-static bool wearable_p(object_type *o_ptr)
+static bool wearable_p(const object_type *o_ptr)
 {
 	/* Valid "tval" codes */
 	switch (o_ptr->tval)
@@ -243,7 +243,7 @@ static void strip_bytes(int n)
  * Owner Conversion -- pre-2.7.8 to 2.7.8
  * Shop is column, Owner is Row, see "tables.c"
  */
-static byte convert_owner[24] =
+static const byte convert_owner[24] =
 {
 	1, 3, 1, 0, 2, 3, 2, 0,
 	0, 1, 3, 1, 0, 1, 1, 0,
@@ -302,7 +302,7 @@ static s16b convert_slot(int old)
 /*
  * Hack -- convert pre-2.7.8 ego-item indexes
  */
-static byte convert_ego_item[128] =
+static const byte convert_ego_item[128] =
 {
 	0,					/* 0 */
 	EGO_RESISTANCE,		/* 1 = EGO_RESIST (XXX) */
@@ -453,7 +453,7 @@ static byte convert_ego_item[128] =
  * a complete hack, items which are inscribed with "uncursed" will be
  * "uncursed" when imported from pre-2.7.9 savefiles.
  */
-static void rd_item(object_type *o_ptr)
+static errr rd_item(object_type *o_ptr)
 {
 	byte old_dd;
 	byte old_ds;
@@ -469,6 +469,10 @@ static void rd_item(object_type *o_ptr)
 
 	/* Kind */
 	rd_s16b(&o_ptr->k_idx);
+
+	/* Paranoia */
+	if ((o_ptr->k_idx < 0) || (o_ptr->k_idx >= z_info->k_max))
+		return (-1);
 
 	/* Location */
 	rd_byte(&o_ptr->iy);
@@ -573,8 +577,7 @@ static void rd_item(object_type *o_ptr)
 
 
 	/* Mega-Hack -- handle "dungeon objects" later */
-	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
-
+	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return (0);
 
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
@@ -595,7 +598,7 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->pval = (s16b)old_cost;
 
 		/* Done */
-		return;
+		return (0);
 	}
 
 
@@ -619,7 +622,7 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->name1 = o_ptr->name2 = 0;
 
 		/* All done */
-		return;
+		return (0);
 	}
 
 
@@ -629,6 +632,9 @@ static void rd_item(object_type *o_ptr)
 	/* The ego item indexes changed in 2.7.9 */
 	if (older_than(2, 7, 9) && o_ptr->name2)
 	{
+		/* Paranoia */
+		if (o_ptr->name2 >= 128) return (-1);
+
 		/* Convert the ego-item names */
 		o_ptr->name2 = convert_ego_item[o_ptr->name2];
 
@@ -742,6 +748,9 @@ static void rd_item(object_type *o_ptr)
 	{
 		artifact_type *a_ptr;
 
+		/* Paranoia */
+		if (o_ptr->name1 >= z_info->a_max) return (-1);
+
 		/* Obtain the artifact info */
 		a_ptr = &a_info[o_ptr->name1];
 
@@ -753,6 +762,9 @@ static void rd_item(object_type *o_ptr)
 	if (o_ptr->name2)
 	{
 		ego_item_type *e_ptr;
+
+		/* Paranoia */
+		if (o_ptr->name2 >= z_info->e_max) return (-1);
 
 		/* Obtain the ego-item info */
 		e_ptr = &e_info[o_ptr->name2];
@@ -771,7 +783,7 @@ static void rd_item(object_type *o_ptr)
 	o_ptr->weight = k_ptr->weight;
 
 	/* Hack -- extract the "broken" flag */
-	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
+	if (o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
 
 
 	/* Artifacts */
@@ -847,6 +859,9 @@ static void rd_item(object_type *o_ptr)
 		/* Hack -- apply "uncursed" incription */
 		if (streq(buf, "uncursed")) o_ptr->ident &= ~(IDENT_CURSED);
 	}
+
+	/* Success */
+	return (0);
 }
 
 
@@ -1004,6 +1019,7 @@ static errr rd_store(int n)
 
 	byte own, num;
 
+
 	/* Read the basic info */
 	rd_s32b(&st_ptr->store_open);
 	rd_s16b(&st_ptr->insult_cur);
@@ -1013,7 +1029,28 @@ static errr rd_store(int n)
 	rd_s16b(&st_ptr->bad_buy);
 
 	/* Extract the owner (see above) */
-	st_ptr->owner = (older_than(2, 7, 8) ? convert_owner[own] : own);
+	if (older_than(2, 7, 8))
+	{
+		/* Paranoia */
+		if (own >= 24)
+		{
+			note("Illegal store owner!");
+			return (-1);
+		}
+
+		st_ptr->owner = convert_owner[own];
+	}
+	else
+	{
+		/* Paranoia */
+		if (own >= z_info->b_max)
+		{
+			note("Illegal store owner!");
+			return (-1);
+		}
+
+		st_ptr->owner = own;
+	}
 
 	/* Read the items */
 	for (j = 0; j < num; j++)
@@ -1028,7 +1065,11 @@ static errr rd_store(int n)
 		object_wipe(i_ptr);
 
 		/* Read the item */
-		rd_item(i_ptr);
+		if (rd_item(i_ptr))
+		{
+			note("Error reading item");
+			return (-1);
+		}
 
 		/* Not marked XXX XXX */
 		if (older_than(2, 8, 2))
@@ -1104,6 +1145,8 @@ static void rd_options(void)
 
 	u32b flag[8];
 	u32b mask[8];
+	u32b window_flag[ANGBAND_TERM_MAX];
+	u32b window_mask[ANGBAND_TERM_MAX];
 
 
 	/*** Oops ***/
@@ -1170,13 +1213,19 @@ static void rd_options(void)
 	/*** Window Options ***/
 
 	/* Read the window flags */
-	for (n = 0; n < 8; n++) rd_u32b(&flag[n]);
+	for (n = 0; n < ANGBAND_TERM_MAX; n++)
+	{
+		rd_u32b(&window_flag[n]);
+	}
 
 	/* Read the window masks */
-	for (n = 0; n < 8; n++) rd_u32b(&mask[n]);
+	for (n = 0; n < ANGBAND_TERM_MAX; n++)
+	{
+		rd_u32b(&window_mask[n]);
+	}
 
 	/* Analyze the options */
-	for (n = 0; n < 8; n++)
+	for (n = 0; n < ANGBAND_TERM_MAX; n++)
 	{
 		/* Analyze the options */
 		for (i = 0; i < 32; i++)
@@ -1185,10 +1234,10 @@ static void rd_options(void)
 			if (window_flag_desc[i])
 			{
 				/* Process valid flags */
-				if (mask[n] & (1L << i))
+				if (window_mask[n] & (1L << i))
 				{
 					/* Set */
-					if (flag[n] & (1L << i))
+					if (window_flag[n] & (1L << i))
 					{
 						/* Set */
 						op_ptr->window_flag[n] |= (1L << i);
@@ -1231,6 +1280,7 @@ static void rd_ghost(void)
 }
 
 
+static u32b randart_version;
 
 
 /*
@@ -1243,7 +1293,6 @@ static errr rd_extra(void)
 	byte tmp8u;
 	u16b tmp16u;
 
-	u32b randart_version;
 
 	rd_string(op_ptr->full_name, 32);
 
@@ -1254,14 +1303,33 @@ static errr rd_extra(void)
 		rd_string(p_ptr->history[i], 60);
 	}
 
-	/* Class/Race/Gender/Spells */
+	/* Player race */
 	rd_byte(&p_ptr->prace);
+
+	/* Verify player race */
+	if (p_ptr->prace >= z_info->p_max)
+	{
+		note(format("Invalid player race (%d).", p_ptr->prace));
+		return (-1);
+	}
+
+	/* Player class */
 	rd_byte(&p_ptr->pclass);
+
+	/* Verify player class */
+	if (p_ptr->pclass >= z_info->c_max)
+	{
+		note(format("Invalid player class (%d).", p_ptr->pclass));
+		return (-1);
+	}
+
+	/* Player gender */
 	rd_byte(&p_ptr->psex);
-	rd_byte(&tmp8u);	/* oops */
 
 	/* Repair psex (2.8.1 beta) */
 	if (p_ptr->psex > MAX_SEXES - 1) p_ptr->psex = MAX_SEXES - 1;
+
+	strip_bytes(1);
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
@@ -1285,6 +1353,13 @@ static errr rd_extra(void)
 	rd_u16b(&p_ptr->exp_frac);
 
 	rd_s16b(&p_ptr->lev);
+
+	/* Verify player level */
+	if ((p_ptr->lev < 1) || (p_ptr->lev > PY_MAX_LEVEL))
+	{
+		note(format("Invalid player level (%d).", p_ptr->lev));
+		return (-1);
+	}
 
 	rd_s16b(&p_ptr->mhp);
 	rd_s16b(&p_ptr->chp);
@@ -1358,7 +1433,7 @@ static errr rd_extra(void)
 	if (older_than(2, 8, 5)) adult_rand_artifacts = tmp8u;
 
 	/* Future use */
-	for (i = 0; i < 40; i++) rd_byte(&tmp8u);
+	strip_bytes(40);
 
 	/* Read the randart version */
 	rd_u32b(&randart_version);
@@ -1385,40 +1460,6 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);
 	p_ptr->is_dead = tmp8u;
 
-	/* Initialize random artifacts */
-	if (adult_rand_artifacts && !(p_ptr->is_dead))
-	{
-#ifdef GJW_RANDART
-
-		/*
-		 * XXX XXX XXX
-		 * Importing old savefiles with random artifacts is dangerous
-		 * since the randart-generators differ and produce different
-		 * artifacts from the same random seed.
-		 *
-		 * Switching off the check for incompatible randart versions
-		 * allows to import such a savefile - do it at your own risk.
-		 */
-
-		/* Check for incompatible randart version */
-		if (randart_version != RANDART_VERSION)
-		{
-			note(format("Incompatible random artifacts version!"));
-			return (25);
-		}
-
-		/* Initialize randarts */
-		do_randart(seed_randart);
-
-#else /* GJW_RANDART */
-
-		note("Random artifacts are disabled in this binary.");
-		return (25);
-
-#endif /* GJW_RANDART */
-
-	}
-
 	/* Read "feeling" */
 	rd_byte(&tmp8u);
 	feeling = tmp8u;
@@ -1437,7 +1478,7 @@ static errr rd_extra(void)
 	if (tmp16u > PY_MAX_LEVEL)
 	{
 		note(format("Too many (%u) hitpoint entries!", tmp16u));
-		return (25);
+		return (-1);
 	}
 
 	/* Read the player_hp array */
@@ -1455,12 +1496,158 @@ static errr rd_extra(void)
 	rd_u32b(&p_ptr->spell_forgotten1);
 	rd_u32b(&p_ptr->spell_forgotten2);
 
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		rd_byte(&p_ptr->spell_order[i]);
 	}
 
 	return (0);
+}
+
+
+/*
+ * Read the random artifacts
+ */
+static errr rd_randarts(void)
+{
+
+#ifdef GJW_RANDART
+
+	int i;
+	byte tmp8u;
+	s16b tmp16s;
+	u16b tmp16u;
+	u16b artifact_count;
+	s32b tmp32s;
+	u32b tmp32u;
+
+
+	if (older_than(2, 9, 3))
+	{
+		/*
+		 * XXX XXX XXX
+		 * Importing old savefiles with random artifacts is dangerous
+		 * since the randart-generators differ and produce different
+		 * artifacts from the same random seed.
+		 *
+		 * Switching off the check for incompatible randart versions
+		 * allows to import such a savefile - do it at your own risk.
+		 */
+
+		/* Check for incompatible randart version */
+		if (randart_version != RANDART_VERSION)
+		{
+			note(format("Incompatible random artifacts version!"));
+			return (-1);
+		}
+
+		/* Initialize randarts */
+		do_randart(seed_randart, TRUE);
+	}
+	else
+	{
+		/* Read the number of artifacts */
+		rd_u16b(&artifact_count);
+
+		/* Alive or cheating death */
+		if (!p_ptr->is_dead || arg_wizard)
+		{
+			/* Incompatible save files */
+			if (artifact_count > z_info->a_max)
+			{
+				note(format("Too many (%u) random artifacts!", artifact_count));
+				return (-1);
+			}
+
+			/* Mark the old artifacts as "empty" */
+			for (i = 0; i < z_info->a_max; i++)
+			{
+				artifact_type *a_ptr = &a_info[i];
+				a_ptr->name = 0;
+				a_ptr->tval = 0;
+				a_ptr->sval = 0;
+			}
+
+			/* Read the artifacts */
+			for (i = 0; i < artifact_count; i++)
+			{
+				artifact_type *a_ptr = &a_info[i];
+
+				rd_byte(&a_ptr->tval);
+				rd_byte(&a_ptr->sval);
+				rd_s16b(&a_ptr->pval);
+
+				rd_s16b(&a_ptr->to_h);
+				rd_s16b(&a_ptr->to_d);
+				rd_s16b(&a_ptr->to_a);
+				rd_s16b(&a_ptr->ac);
+
+				rd_byte(&a_ptr->dd);
+				rd_byte(&a_ptr->ds);
+
+				rd_s16b(&a_ptr->weight);
+
+				rd_s32b(&a_ptr->cost);
+
+				rd_u32b(&a_ptr->flags1);
+				rd_u32b(&a_ptr->flags2);
+				rd_u32b(&a_ptr->flags3);
+
+				rd_byte(&a_ptr->level);
+				rd_byte(&a_ptr->rarity);
+
+				rd_byte(&a_ptr->activation);
+				rd_u16b(&a_ptr->time);
+				rd_u16b(&a_ptr->randtime);
+			}
+		}
+		else
+		{
+			/* Read the artifacts */
+			for (i = 0; i < artifact_count; i++)
+			{
+				rd_byte(&tmp8u); /* a_ptr->tval */
+				rd_byte(&tmp8u); /* a_ptr->sval */
+				rd_s16b(&tmp16s); /* a_ptr->pval */
+
+				rd_s16b(&tmp16s); /* a_ptr->to_h */
+				rd_s16b(&tmp16s); /* a_ptr->to_d */
+				rd_s16b(&tmp16s); /* a_ptr->to_a */
+				rd_s16b(&tmp16s); /* a_ptr->ac */
+
+				rd_byte(&tmp8u); /* a_ptr->dd */
+				rd_byte(&tmp8u); /* a_ptr->ds */
+
+				rd_s16b(&tmp16s); /* a_ptr->weight */
+
+				rd_s32b(&tmp32s); /* a_ptr->cost */
+
+				rd_u32b(&tmp32u); /* a_ptr->flags1 */
+				rd_u32b(&tmp32u); /* a_ptr->flags2 */
+				rd_u32b(&tmp32u); /* a_ptr->flags3 */
+
+				rd_byte(&tmp8u); /* a_ptr->level */
+				rd_byte(&tmp8u); /* a_ptr->rarity */
+
+				rd_byte(&tmp8u); /* a_ptr->activation */
+				rd_u16b(&tmp16u); /* a_ptr->time */
+				rd_u16b(&tmp16u); /* a_ptr->randtime */
+			}
+		}
+
+		/* Initialize only the randart names */
+		do_randart(seed_randart, FALSE);
+	}
+
+	return (0);
+
+#else /* GJW_RANDART */
+
+	note("Random artifacts are disabled in this binary.");
+	return (-1);
+
+#endif /* GJW_RANDART */
+
 }
 
 
@@ -1502,7 +1689,11 @@ static errr rd_inventory(void)
 		object_wipe(i_ptr);
 
 		/* Read the item */
-		rd_item(i_ptr);
+		if (rd_item(i_ptr))
+		{
+			note("Error reading item");
+			return (-1);
+		}
 
 		/* Not marked XXX XXX */
 		if (older_than(2, 8, 2))
@@ -1511,10 +1702,13 @@ static errr rd_inventory(void)
 		}
 
 		/* Hack -- verify item */
-		if (!i_ptr->k_idx) return (53);
+		if (!i_ptr->k_idx) return (-1);
 
 		/* Hack -- convert old slot numbers */
 		if (older_than(2, 7, 4)) n = convert_slot(n);
+
+		/* Verify slot */
+		if (n >= INVEN_TOTAL) return (-1);
 
 		/* Wield equipment */
 		if (n >= INVEN_WIELD)
@@ -1536,7 +1730,7 @@ static errr rd_inventory(void)
 			note("Too many items in the inventory!");
 
 			/* Fail */
-			return (54);
+			return (-1);
 		}
 
 		/* Carry inventory */
@@ -1813,7 +2007,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	if (!player_place(py, px))
 	{
 		note(format("Cannot place player (%d,%d)!", py, px));
-		return (162);
+		return (-1);
 	}
 
 
@@ -1826,7 +2020,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	if (limit >= 512)
 	{
 		note(format("Too many (%d) object entries!", limit));
-		return (151);
+		return (-1);
 	}
 
 	/* Read the dungeon items */
@@ -1843,7 +2037,11 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		object_wipe(i_ptr);
 
 		/* Read the item */
-		rd_item(i_ptr);
+		if (rd_item(i_ptr))
+		{
+			note("Error reading item");
+			return (-1);
+		}
 
 		/* Location */
 		y = i_ptr->iy;
@@ -2156,7 +2354,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		if (!floor_carry(y, x, i_ptr))
 		{
 			note(format("Cannot place object %d!", o_max));
-			return (152);
+			return (-1);
 		}
 	}
 
@@ -2173,7 +2371,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	if (limit >= 1024)
 	{
 		note(format("Too many (%d) monster entries!", limit));
-		return (161);
+		return (-1);
 	}
 
 	/* Read the monsters */
@@ -2204,7 +2402,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		if (!monster_place(n_ptr->fy, n_ptr->fx, n_ptr))
 		{
 			note(format("Cannot place monster %d!", i));
-			return (162);
+			return (-1);
 		}
 	}
 
@@ -2360,7 +2558,7 @@ static errr rd_dungeon(void)
 	if (!player_place(py, px))
 	{
 		note(format("Cannot place player (%d,%d)!", py, px));
-		return (162);
+		return (-1);
 	}
 
 
@@ -2373,7 +2571,7 @@ static errr rd_dungeon(void)
 	if (limit >= z_info->o_max)
 	{
 		note(format("Too many (%d) object entries!", limit));
-		return (151);
+		return (-1);
 	}
 
 	/* Read the dungeon items */
@@ -2393,8 +2591,11 @@ static errr rd_dungeon(void)
 		object_wipe(i_ptr);
 
 		/* Read the item */
-		rd_item(i_ptr);
-
+		if (rd_item(i_ptr))
+		{
+			note("Error reading item");
+			return (-1);
+		}
 
 		/* Make an object */
 		o_idx = o_pop();
@@ -2403,7 +2604,7 @@ static errr rd_dungeon(void)
 		if (o_idx != i)
 		{
 			note(format("Cannot place object %d!", i));
-			return (152);
+			return (-1);
 		}
 
 		/* Get the object */
@@ -2417,6 +2618,8 @@ static errr rd_dungeon(void)
 		{
 			int x = i_ptr->ix;
 			int y = i_ptr->iy;
+
+			/* ToDo: Verify coordinates */
 
 			/* Link the object to the pile */
 			o_ptr->next_o_idx = cave_o_idx[y][x];
@@ -2436,7 +2639,7 @@ static errr rd_dungeon(void)
 	if (limit >= z_info->m_max)
 	{
 		note(format("Too many (%d) monster entries!", limit));
-		return (161);
+		return (-1);
 	}
 
 	/* Read the monsters */
@@ -2460,7 +2663,7 @@ static errr rd_dungeon(void)
 		if (monster_place(n_ptr->fy, n_ptr->fx, n_ptr) != i)
 		{
 			note(format("Cannot place monster %d", i));
-			return (162);
+			return (-1);
 		}
 	}
 
@@ -2479,6 +2682,13 @@ static errr rd_dungeon(void)
 
 		/* Ignore dungeon objects */
 		if (!o_ptr->held_m_idx) continue;
+
+		/* Verify monster index */
+		if (o_ptr->held_m_idx >= z_info->m_max)
+		{
+			note("Invalid monster index");
+			return (-1);
+		}
 
 		/* Get the monster */
 		m_ptr = &m_list[o_ptr->held_m_idx];
@@ -2586,7 +2796,7 @@ static errr rd_savefile_new_aux(void)
 	if (tmp16u > z_info->r_max)
 	{
 		note(format("Too many (%u) monster races!", tmp16u));
-		return (21);
+		return (-1);
 	}
 
 	/* Read the available records */
@@ -2636,7 +2846,7 @@ static errr rd_savefile_new_aux(void)
 	if (tmp16u > z_info->k_max)
 	{
 		note(format("Too many (%u) object kinds!", tmp16u));
-		return (22);
+		return (-1);
 	}
 
 	/* Read the object memory */
@@ -2658,10 +2868,10 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > 4)
+	if (tmp16u > MAX_Q_IDX)
 	{
 		note(format("Too many (%u) quests!", tmp16u));
-		return (23);
+		return (-1);
 	}
 
 	/* Load the Quests */
@@ -2683,7 +2893,7 @@ static errr rd_savefile_new_aux(void)
 	if (tmp16u > z_info->a_max)
 	{
 		note(format("Too many (%u) artifacts!", tmp16u));
-		return (24);
+		return (-1);
 	}
 
 	/* Read the artifact flags */
@@ -2699,8 +2909,16 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Read the extra stuff */
-	if (rd_extra()) return (25);
+	if (rd_extra()) return (-1);
 	if (arg_fiddle) note("Loaded extra information");
+
+
+	/* Read random artifacts */
+	if (adult_rand_artifacts)
+	{
+		if (rd_randarts()) return (-1);
+		if (arg_fiddle) note("Loaded Random Artifacts");
+	}
 
 
 	/* Important -- Initialize the sex */
@@ -2708,17 +2926,17 @@ static errr rd_savefile_new_aux(void)
 
 	/* Important -- Initialize the race/class */
 	rp_ptr = &p_info[p_ptr->prace];
-	cp_ptr = &class_info[p_ptr->pclass];
+	cp_ptr = &c_info[p_ptr->pclass];
 
 	/* Important -- Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
+	mp_ptr = &cp_ptr->spells;
 
 
 	/* Read the inventory */
 	if (rd_inventory())
 	{
 		note("Unable to read inventory");
-		return (21);
+		return (-1);
 	}
 
 
@@ -2726,7 +2944,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		if (rd_store(i)) return (22);
+		if (rd_store(i)) return (-1);
 	}
 
 
@@ -2738,7 +2956,7 @@ static errr rd_savefile_new_aux(void)
 		if (rd_dungeon())
 		{
 			note("Error reading dungeon data");
-			return (34);
+			return (-1);
 		}
 
 		/* Read the ghost info */
@@ -2761,7 +2979,7 @@ static errr rd_savefile_new_aux(void)
 		if (o_v_check != n_v_check)
 		{
 			note("Invalid checksum");
-			return (11);
+			return (-1);
 		}
 
 		/* Save the encoded checksum */
@@ -2774,7 +2992,7 @@ static errr rd_savefile_new_aux(void)
 		if (o_x_check != n_x_check)
 		{
 			note("Invalid encoded checksum");
-			return (11);
+			return (-1);
 		}
 	}
 
@@ -2797,8 +3015,14 @@ errr rd_savefile_new(void)
 {
 	errr err;
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* The savefile is a binary file */
 	fff = my_fopen(savefile, "rb");
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* Paranoia */
 	if (!fff) return (-1);
@@ -2815,5 +3039,4 @@ errr rd_savefile_new(void)
 	/* Result */
 	return (err);
 }
-
 

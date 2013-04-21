@@ -462,7 +462,7 @@ void take_hit(int dam, cptr kb_str)
 	{
 		/* Hack -- Note death */
 		message(MSG_DEATH, 0, "You die.");
-		msg_print(NULL);
+		message_flush();
 
 		/* Note cause of death */
 		strcpy(p_ptr->died_from, kb_str);
@@ -490,8 +490,8 @@ void take_hit(int dam, cptr kb_str)
 		}
 
 		/* Message */
-		msg_print("*** LOW HITPOINT WARNING! ***");
-		msg_print(NULL);
+		message(MSG_HITPOINT_WARN, 0, "*** LOW HITPOINT WARNING! ***");
+		message_flush();
 	}
 }
 
@@ -503,7 +503,7 @@ void take_hit(int dam, cptr kb_str)
  * Does a given class of objects (usually) hate acid?
  * Note that acid can either melt or corrode something.
  */
-static bool hates_acid(object_type *o_ptr)
+static bool hates_acid(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -557,7 +557,7 @@ static bool hates_acid(object_type *o_ptr)
 /*
  * Does a given object (usually) hate electricity?
  */
-static bool hates_elec(object_type *o_ptr)
+static bool hates_elec(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -577,7 +577,7 @@ static bool hates_elec(object_type *o_ptr)
  * Hafted/Polearm weapons have wooden shafts.
  * Arrows/Bows are mostly wooden.
  */
-static bool hates_fire(object_type *o_ptr)
+static bool hates_fire(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -624,7 +624,7 @@ static bool hates_fire(object_type *o_ptr)
 /*
  * Does a given object (usually) hate cold?
  */
-static bool hates_cold(object_type *o_ptr)
+static bool hates_cold(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -650,7 +650,7 @@ static bool hates_cold(object_type *o_ptr)
 /*
  * Melt something
  */
-static int set_acid_destroy(object_type *o_ptr)
+static int set_acid_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_acid(o_ptr)) return (FALSE);
@@ -663,7 +663,7 @@ static int set_acid_destroy(object_type *o_ptr)
 /*
  * Electrical damage
  */
-static int set_elec_destroy(object_type *o_ptr)
+static int set_elec_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_elec(o_ptr)) return (FALSE);
@@ -676,7 +676,7 @@ static int set_elec_destroy(object_type *o_ptr)
 /*
  * Burn something
  */
-static int set_fire_destroy(object_type *o_ptr)
+static int set_fire_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_fire(o_ptr)) return (FALSE);
@@ -689,7 +689,7 @@ static int set_fire_destroy(object_type *o_ptr)
 /*
  * Freeze things
  */
-static int set_cold_destroy(object_type *o_ptr)
+static int set_cold_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_cold(o_ptr)) return (FALSE);
@@ -704,12 +704,12 @@ static int set_cold_destroy(object_type *o_ptr)
 /*
  * This seems like a pretty standard "typedef"
  */
-typedef int (*inven_func)(object_type *);
+typedef int (*inven_func)(const object_type *);
 
 /*
  * Destroys a type of item on a given percent chance
  * Note that missiles are no longer necessarily all destroyed
- * Destruction taken from "melee.c" code for "stealing".
+ *
  * Returns number of items destroyed.
  */
 static int inven_damage(inven_func typ, int perc)
@@ -1164,6 +1164,9 @@ bool apply_disenchant(int mode)
 	char o_name[80];
 
 
+	/* Unused parameter */
+	(void)mode;
+
 	/* Pick a random slot */
 	switch (randint(8))
 	{
@@ -1240,7 +1243,7 @@ bool apply_disenchant(int mode)
 /*
  * Apply Nexus
  */
-static void apply_nexus(monster_type *m_ptr)
+static void apply_nexus(const monster_type *m_ptr)
 {
 	int max1, cur1, max2, cur2, ii, jj;
 
@@ -1282,8 +1285,8 @@ static void apply_nexus(monster_type *m_ptr)
 			msg_print("Your body starts to scramble...");
 
 			/* Pick a pair of stats */
-			ii = rand_int(6);
-			for (jj = ii; jj == ii; jj = rand_int(6)) /* loop */;
+			ii = rand_int(A_MAX);
+			for (jj = ii; jj == ii; jj = rand_int(A_MAX)) /* loop */;
 
 			max1 = p_ptr->stat_max[ii];
 			cur1 = p_ptr->stat_cur[ii];
@@ -1334,6 +1337,11 @@ static int project_m_y;
 static bool project_f(int who, int r, int y, int x, int dam, int typ)
 {
 	bool obvious = FALSE;
+
+	/* Unused parameters */
+	(void)who;
+	(void)r;
+	(void)dam;
 
 #if 0 /* unused */
 	/* Reduce damage by distance */
@@ -1681,6 +1689,12 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 	u32b f1, f2, f3;
 
 	char o_name[80];
+
+
+	/* Unused parameters */
+	(void)who;
+	(void)r;
+	(void)dam;
 
 #if 0 /* unused */
 	/* Reduce damage by distance */
@@ -2945,7 +2959,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Pick a "new" monster race */
 		tmp = poly_r_idx(m_ptr->r_idx);
 
-		/* Handle polymorh */
+		/* Handle polymorph */
 		if (tmp != m_ptr->r_idx)
 		{
 			/* Obvious */
