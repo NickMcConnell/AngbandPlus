@@ -15,7 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband)
 
 
-(defun read-old-obj-kind& (fname)
+(defun compat-read-obj-kind& (fname)
   "not finished"
   (with-open-file (in-str (pathname fname)
 			  :direction :input)
@@ -39,7 +39,8 @@ the Free Software Foundation; either version 2 of the License, or
 		((#\n #\N)
 		 (let ((res (split-seq-on l #\:)))
 		   (when cur-obj
-		     (setf (get-obj-kind (object.id cur-obj)) cur-obj)
+		     (add-new-okind! cur-obj (object.id cur-obj))
+;;		     (setf (get-obj-kind (object.id cur-obj)) cur-obj)
 		     (setq cur-obj nil
 			   patch-val nil))
 		   
@@ -905,7 +906,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 		))
 	    (when cur-obj
-	      (setf (get-obj-kind (object.id cur-obj)) cur-obj)
+	      (add-new-okind! cur-obj (object.id cur-obj))
+;;	      (setf (get-obj-kind (object.id cur-obj)) cur-obj)
 	      (setq cur-obj nil))
       
 	    )))

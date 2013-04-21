@@ -19,26 +19,6 @@ ADD_DESC: at the start.
 
 (in-package :langband)
 
-(defun init-objects& (&key old-file) 
-  (when old-file
-    (read-old-obj-kind& old-file) ;; adds to *object-kind-table*
-    (setq *objects-by-level* (htbl-to-vector *object-kind-table* t
-					     :sorted-by-key #'object.level))
-    (setq *alloc-table-objects* (create-alloc-table-objects *objects-by-level*))
-    (init-flavours& *object-kind-table*)
-
-    #+langband-debug
-    (%output-kinds-to-file "dumps/obj.lisp")
-    ))
-
-(defun init-monsters& (&key old-file)
-  (when old-file
-    (read-old-monsters& old-file) ;; adds to *monster-kind-table*
-    (setq *monsters-by-level* (htbl-to-vector *monster-kind-table* t
-					      :sorted-by-key #'monster.level))
-    (setq *alloc-table-monsters* (create-alloc-table-monsters *monsters-by-level*))
-    ))
-
 (defun init-flavours& (obj-table)
   "initiates flavours and updates symbols relating to flavours"
     
@@ -105,7 +85,8 @@ ADD_DESC: at the start.
   ;; out level-organisation and number of allocation
   ;; slots
 
-  (let* ((org-size +max-depth+)
+  (let* ((var-obj *variant*)
+	 (org-size (variant.max-depth var-obj))
 	 (level-org (make-array org-size :initial-element 0))
 	 (alloc-sz 0))
     
@@ -184,7 +165,8 @@ ADD_DESC: at the start.
   ;; out level-organisation and number of allocation
   ;; slots
 
-  (let* ((org-size +max-depth+)
+  (let* ((var-obj *variant*)
+	 (org-size (variant.max-depth var-obj))
 	 (level-org (make-array org-size :initial-element 0))
 	 (alloc-sz 0))
     
@@ -241,44 +223,6 @@ ADD_DESC: at the start.
       table)))
 
 
-(defun initialise-langband& ()
-  "This initialises the langband-game. No low-level
-stuff please."
-  
-  (let ((variant-pre-init (variant.pre-init *variant*))
-	(variant-post-init (variant.post-init *variant*))
-	(common-pre-init (get 'common 'pre-init))
-	(common-post-init (get 'common 'post-init))
-	)
-
-    (when common-pre-init
-      (warn "common")
-      (funcall common-pre-init))
-    
-    (when variant-pre-init
-      (funcall variant-pre-init *variant*))
-    
-    
-    ;;(dump-all-monsters "new-mon.lisp" (get-monster-list) :lispy)
-
-    ;; read monsters later
-    ;;(load "new-mon.lisp")
-
-    (init-monsters& :old-file "lib/edit/r_info.txt")
-    (read-floor-file& "lib/edit/f_info.txt")
-    (init-objects& :old-file "lib/edit/k_info.txt")
-
-    ;; hackish
-    (unless *current-key-table*
-      (setf *current-key-table* *ang-keys*))
-    
-    (when common-post-init
-      (funcall common-post-init))
-    
-    (when variant-post-init
-      (funcall variant-post-init *variant*))))
-
-
 (defun game-init& ()
   "This function should be called from the outside to
 start the whole show.  It will deal with low-level and
@@ -287,7 +231,16 @@ call appropriately high-level init in correct order."
   (setq cl:*random-state* (cl:make-random-state t))
 
   (vinfo-init)
-  (initialise-langband&)
+
+  ;; so far we just load vanilla
+  (let ((var-obj (load-variant& 'vanilla-variant :verbose t)))
+
+    (when var-obj
+      (setf *variant* var-obj)
+      (activate-object var-obj)))
+
+  (unless *current-key-table*
+    (setf *current-key-table* *ang-keys*))
 
   #+allegro
   (set_lisp_callback (ff:register-foreign-callable `c-callable-play nil t))

@@ -49,8 +49,9 @@ ADD_DESC: This file just contains simple init and loading of the game
 (setq *load-local-names-info* t)
 
 (defun compile-in-environment (func)
-  (let (#+cmu (*compile-print* nil)
-	      ;;(*load-verbose* nil)
+  (let (
+	#+cmu (*compile-print* nil)
+	      #+cmu (*load-verbose* nil)
 	      (*load-print* nil)
 	      ;;#+cmu (*error-output* o-str)
 	      #+cmu (extensions:*gc-verbose* nil)
@@ -70,14 +71,16 @@ ADD_DESC: This file just contains simple init and loading of the game
     (mk:operate-on-system 'langband 'compile :verbose nil)
     (format t "~&System loaded...~%"))
     
-
-(defun load-vanilla-variant ()
+#||
+(defun load-variant (key)
+  (let ((var-obj 
   (load "lib/var-vanilla.system")
   (mk:operate-on-system 'vanilla-variant 'compile :verbose nil)
   (format t "~&Variant loaded...~%"))
-
+||#
+	
 (compile-in-environment #'load-game)
-(compile-in-environment #'load-vanilla-variant)
+;;(compile-in-environment #'load-vanilla-variant)
 
 (in-package :langband)
 

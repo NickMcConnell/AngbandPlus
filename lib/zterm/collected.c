@@ -146,7 +146,7 @@ set_lisp_callback(int (*fun)()) {
 
 void
 play_game_lisp() {
-    puts("play lisp-game");
+//    puts("play lisp-game");
     (*callback_fun)();
 //    void (*lisp_call)(),*lisp_call_address();
 //    lisp_call = lisp_call_address(callback_index);

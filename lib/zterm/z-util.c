@@ -204,7 +204,7 @@ void (*quit_aux)(cptr) = NULL;
  * Otherwise, plog() 'str' and exit with an error code of -1.
  * But always use 'quit_aux', if set, before anything else.
  */
-void quit(cptr str)
+void z_quit(cptr str)
 {
 	/* Attempt to use the aux function */
 	if (quit_aux) (*quit_aux)(str);
@@ -247,7 +247,7 @@ void core(cptr str)
 	(*crash) = (*crash);
 
 	/* Be sure we exited */
-	quit("core() failed");
+	z_quit("core() failed");
 }
 
 

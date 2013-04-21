@@ -16,7 +16,9 @@
               :components ((:file "quirks")
 			   (:file "stores")
 			   (:file "flavours")
+			   ;;(:file "objects")
 			   (:file "rooms")
 			   (:file "levels")
+
 			   ))
      ))

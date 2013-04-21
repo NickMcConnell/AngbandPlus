@@ -282,6 +282,20 @@ and NIL if unsuccesful."
 ;; see print.lisp
 
 ;; move me later
+(defgeneric activate-object (obj &key &allow-other-keys)
+  (:documentation "Most objects in Langband is created lazily.
+This means that an object may be created but may not be fully initialised
+and filled with appropriate values right away.  The normal CL/CLOS mechanisms
+deal with the actual creation of the bare object, but non-trivial objects
+should also be \"activated\", ie get proper values on all variables.
+The object in question should be returned."))  
+
+(defmethod activate-object (obj &key)
+
+  obj)
+
+#||
+;; move me later
 (defgeneric post-initialise (obj &key &allow-other-keys)
   (:documentation "Is called to complete an initialisation of an object.
 Should return the object."))
@@ -289,4 +303,44 @@ Should return the object."))
 (defmethod post-initialise (obj &key)
 
   obj)
+||#
 
+;; move me later
+
+(defgeneric find-appropriate-monster (level room player)
+  (:documentation "Returns an appropriate monster for a given
+level/room/player combo.  Allowed to return NIL."))
+
+(defmethod find-appropriate-monster (level room player)
+  (declare (ignore room player))
+  (error "No proper FIND-APPROPRIATE-MONSTER for ~s" (type-of level)))
+
+(defgeneric initialise-monsters& (variant &key &allow-other-keys)
+  (:documentation "Initialises monsters for the given variant."))
+  
+(defmethod initialise-monsters& (variant &key)
+  (error "No INIT-MONSTERS for ~s" (type-of variant)))
+
+(defgeneric initialise-features& (variant &key &allow-other-keys)
+  (:documentation "Initialises features for the given variant."))
+  
+(defmethod initialise-features& (variant &key)
+  (error "No INIT-FEATURES for ~s" (type-of variant)))
+
+(defgeneric initialise-objects& (variant &key &allow-other-keys)
+  (:documentation "Initialises objects for the given variant."))
+  
+(defmethod initialise-objects& (variant &key)
+  (error "No INIT-OBJECTS for ~s" (type-of variant)))
+
+;; move me later
+
+(defun compile-in-environment (func)
+  (let (
+	#+cmu (*compile-print* nil)
+	      #+cmu (*load-verbose* nil)
+	      (*load-print* nil)
+	      ;;#+cmu (*error-output* o-str)
+	      #+cmu (extensions:*gc-verbose* nil)
+	      )
+    (funcall func)))

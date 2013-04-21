@@ -26,7 +26,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defconstant +scale+ 100000)
 
-(defstruct vinfo-type
+(defstruct (vinfo-type (:conc-name vinfo-type.))
   grids ;; 8
   bits  ;; 4
   next-0
@@ -36,7 +36,7 @@ the Free Software Foundation; either version 2 of the License, or
   d
   r)
 
-(defstruct vinfo-hack
+(defstruct (vinfo-hack (:conc-name vinfo-hack.))
   num-slopes
   slopes
   slopes-min
@@ -44,23 +44,23 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defvar *vinfo* (make-array +vinfo-max-grids+))
     
-(defvar *view-size* 0)
-(defvar *view-array* (make-array +view-max+))
+;;(defvar *view-size* 0)
+;;(defvar *view-array* (make-array +view-max+))
 
 (defun create-vinfo-hack ()
   (let ((hack (make-vinfo-hack)))
-    (setf (vinfo-hack-num-slopes hack) 0
-	  (vinfo-hack-slopes hack) (make-array +vinfo-max-slopes+)
-	  (vinfo-hack-slopes-max hack) (make-array (list (1+ +max-sight+)
+    (setf (vinfo-hack.num-slopes hack) 0
+	  (vinfo-hack.slopes hack) (make-array +vinfo-max-slopes+)
+	  (vinfo-hack.slopes-max hack) (make-array (list (1+ +max-sight+)
 							 (1+ +max-sight+)))
-	  (vinfo-hack-slopes-min hack) (make-array (list (1+ +max-sight+)
+	  (vinfo-hack.slopes-min hack) (make-array (list (1+ +max-sight+)
 							 (1+ +max-sight+))))
     hack))
 	  
 
 (defun vinfo-init-aux (hack x y m)
   (let ((i 0)
-	(slope-num (vinfo-hack-num-slopes hack)))
+	(slope-num (vinfo-hack.num-slopes hack)))
     
     (when (and (> m 0)
 	       (<= m +scale+))
@@ -68,7 +68,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    for j from 0 to (1- slope-num)
 	    do
 	    (incf i)
-	    (when (= m (svref (vinfo-hack-slopes hack) j))
+	    (when (= m (svref (vinfo-hack.slopes hack) j))
 	      ;;(warn "hit on ~a" j)
 	      (setq i j)
 	      (return-from inner nil)))
@@ -76,14 +76,14 @@ the Free Software Foundation; either version 2 of the License, or
 ;;      (warn "compare ~a ~a" i slope-num) 
       (when (= i slope-num)
 	(assert (< slope-num +vinfo-max-slopes+))
-	(setf (svref (vinfo-hack-slopes hack) slope-num) m)
-	(incf (vinfo-hack-num-slopes hack))))
+	(setf (svref (vinfo-hack.slopes hack) slope-num) m)
+	(incf (vinfo-hack.num-slopes hack))))
 
-    (when (< m (aref (vinfo-hack-slopes-min hack) x y))
-      (setf (aref (vinfo-hack-slopes-min hack) x y) m))
+    (when (< m (aref (vinfo-hack.slopes-min hack) x y))
+      (setf (aref (vinfo-hack.slopes-min hack) x y) m))
 
-    (when (> m (aref (vinfo-hack-slopes-max hack) x y))
-      (setf (aref (vinfo-hack-slopes-max hack) x y) m))))
+    (when (> m (aref (vinfo-hack.slopes-max hack) x y))
+      (setf (aref (vinfo-hack.slopes-max hack) x y) m))))
 
 ;;(trace vinfo-init-aux)
 
@@ -108,8 +108,8 @@ the Free Software Foundation; either version 2 of the License, or
 		do
 		(unless (> (distance 0 0 x y) +max-sight+)
 		  ;; set wild values
-		  (setf (aref (vinfo-hack-slopes-max hack) x y) 0
-			(aref (vinfo-hack-slopes-min hack) x y) 999999999)
+		  (setf (aref (vinfo-hack.slopes-max hack) x y) 0
+			(aref (vinfo-hack.slopes-min hack) x y) 999999999)
 
 		  (assert (< num-grids +vinfo-max-grids+))
 
@@ -133,12 +133,12 @@ the Free Software Foundation; either version 2 of the License, or
 
 
     (assert (>= num-grids +vinfo-max-grids+))
-    (assert (>= (vinfo-hack-num-slopes hack) +vinfo-max-slopes+))
+    (assert (>= (vinfo-hack.num-slopes hack) +vinfo-max-slopes+))
 
-    (setf (vinfo-hack-slopes hack)
-	  (stable-sort (vinfo-hack-slopes hack) #'<))
+    (setf (vinfo-hack.slopes hack)
+	  (stable-sort (vinfo-hack.slopes hack) #'<))
 
-;;    (print (vinfo-hack-slopes hack))
+;;    (print (vinfo-hack.slopes hack))
 
 ;;    (warn "last part")
     (loop for i from 0 to (1- +vinfo-max-grids+)
@@ -154,20 +154,20 @@ the Free Software Foundation; either version 2 of the License, or
     (let ((queue-head 0)
 	  (queue-tail 0)
 	  (queue (make-array (* 2 +vinfo-max-grids+) :initial-element nil))
-	  (num-slopes (vinfo-hack-num-slopes hack)))
+	  (num-slopes (vinfo-hack.num-slopes hack)))
 
       (setf (svref queue queue-tail) (svref vinfo 0))
       (incf queue-tail)
 
       (while (< queue-head queue-tail)
-;;	(warn "~a vs ~a -> ~s" queue-head queue-tail (vinfo-type-grids (svref vinfo queue-head)))
+;;	(warn "~a vs ~a -> ~s" queue-head queue-tail (vinfo-type.grids (svref vinfo queue-head)))
 ;;	(when (> (incf counter) 160)
 ;;	  (error "blah"))
 	(let* ((e queue-head)
 	       ;; get next
 	       ;;(p (svref queue queue-head))
 	       (vinfo-obj (svref vinfo e))  ;; vinfo(e)
-	       (grid-array (vinfo-type-grids vinfo-obj))
+	       (grid-array (vinfo-type.grids vinfo-obj))
 	       (g (svref grid-array 0))
 	       (x (grid-x g))
 	       (y (grid-y g)))
@@ -188,65 +188,65 @@ the Free Software Foundation; either version 2 of the License, or
 
 	  ;; do slopes
 	  (dotimes (i num-slopes)
-	    (let ((m (svref (vinfo-hack-slopes hack) i)))
+	    (let ((m (svref (vinfo-hack.slopes hack) i)))
 	      (when (and (> e 0)
-			 (> m (aref (vinfo-hack-slopes-min hack) x y))
-			 (< m (aref (vinfo-hack-slopes-max hack) x y)))
+			 (> m (aref (vinfo-hack.slopes-min hack) x y))
+			 (< m (aref (vinfo-hack.slopes-max hack) x y)))
 		
-		(bit-flag-add! (svref (vinfo-type-bits vinfo-obj) (int-/ i 32))
+		(bit-flag-add! (svref (vinfo-type.bits vinfo-obj) (int-/ i 32))
 			       (expt 2 (mod i 32)))
 		)))
 	  
-	  (setf (vinfo-type-next-0 vinfo-obj) (svref vinfo 0))
+	  (setf (vinfo-type.next-0 vinfo-obj) (svref vinfo 0))
 
 	  (when (<= (distance 0 0 (1+ x) y)
 		    +max-sight+)
 	    (let* ((g (grid (1+ x) y))
 		   (last-qobj (svref queue (1- queue-tail)))
-		   (f-grdval (svref (vinfo-type-grids last-qobj)
+		   (f-grdval (svref (vinfo-type.grids last-qobj)
 						      0)))
 	      (unless (= g f-grdval)
 		(let ((some-vinfo (svref vinfo queue-tail)))
-		  (setf (svref (vinfo-type-grids some-vinfo) 0)
+		  (setf (svref (vinfo-type.grids some-vinfo) 0)
 			g)
 		 
 		  (setf (svref queue queue-tail) some-vinfo)
 		  (incf queue-tail)))
 
-	      (setf (vinfo-type-next-0 vinfo-obj) (svref vinfo (1- queue-tail)))
+	      (setf (vinfo-type.next-0 vinfo-obj) (svref vinfo (1- queue-tail)))
 	      ))
 	  
-	  (setf (vinfo-type-next-1 vinfo-obj) (svref vinfo 0))
+	  (setf (vinfo-type.next-1 vinfo-obj) (svref vinfo 0))
 	  
 	  (when (<= (distance 0 0 (1+ x) (1+ y))
 		    +max-sight+)
 	    (let* ((g (grid (1+ x) (1+ y)))
 		   (last-qobj (svref queue (1- queue-tail)))
-		   (f-grdval (svref (vinfo-type-grids last-qobj)
+		   (f-grdval (svref (vinfo-type.grids last-qobj)
 				    0)))
 	      (unless (= g f-grdval)
 		(let ((some-vinfo (svref vinfo queue-tail)))
-		  (setf (svref (vinfo-type-grids some-vinfo) 0)
+		  (setf (svref (vinfo-type.grids some-vinfo) 0)
 			g)
 		 
 		(setf (svref queue queue-tail) some-vinfo)
 		(incf queue-tail)))
 
-	      (setf (vinfo-type-next-1 vinfo-obj) (svref vinfo (1- queue-tail)))
+	      (setf (vinfo-type.next-1 vinfo-obj) (svref vinfo (1- queue-tail)))
 	      ))
 
 	  ;; hack
 	  (when (= y x)
-	    (setf (vinfo-type-next-0 vinfo-obj)
-		  (vinfo-type-next-1 vinfo-obj)))
+	    (setf (vinfo-type.next-0 vinfo-obj)
+		  (vinfo-type.next-1 vinfo-obj)))
 	  
 	  
-	  (setf (vinfo-type-y vinfo-obj) y
-		(vinfo-type-x vinfo-obj) x
-		(vinfo-type-d vinfo-obj) (if (> y x)
+	  (setf (vinfo-type.y vinfo-obj) y
+		(vinfo-type.x vinfo-obj) x
+		(vinfo-type.d vinfo-obj) (if (> y x)
 					(+ y (int-/ x 2))
 					(+ x (int-/ y 2)))
-		(vinfo-type-r vinfo-obj) (if (= y 0)
+		(vinfo-type.r vinfo-obj) (if (= y 0)
 					x
 					(if (= x 0)
 					    y
@@ -264,6 +264,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     (values)))
 
+;; seems to be a list, despite the name
 (defvar *view-hack-arr* nil)
 
 (defun update-view! (dun pl)
@@ -345,7 +346,7 @@ the Free Software Foundation; either version 2 of the License, or
 	      (let ((queue-head 0)
 		    (queue-tail 0)
 		    (queue (make-array (* 2 +vinfo-max-grids+) :initial-element nil))
-		    ;;(num-slopes (vinfo-hack-num-slopes hack))
+		    ;;(num-slopes (vinfo-hack.num-slopes hack))
 		    (bit-arr (vector +vinfo-bits-0+ +vinfo-bits-1+
 				     +vinfo-bits-2+ +vinfo-bits-3+))
 		    (last-v (svref vinfo 0))
@@ -368,9 +369,9 @@ the Free Software Foundation; either version 2 of the License, or
 			 ;; get next
 			 ;;(p (svref queue queue-head))
 			 (vinfo-obj (svref queue e))
-			 (its-d (vinfo-type-d vinfo-obj))
-			 (bits (vinfo-type-bits vinfo-obj))
-			 (grid-array (vinfo-type-grids vinfo-obj))
+			 (its-d (vinfo-type.d vinfo-obj))
+			 (bits (vinfo-type.bits vinfo-obj))
+			 (grid-array (vinfo-type.grids vinfo-obj))
 			 (g (+ pg (svref grid-array o2)))
 			 (x (grid-x g))
 			 (y (grid-y g))
@@ -442,8 +443,8 @@ the Free Software Foundation; either version 2 of the License, or
 			      
 			      (t
 			       ;; no wall
-			       (let ((n-0 (vinfo-type-next-0 vinfo-obj))
-				     (n-1 (vinfo-type-next-1 vinfo-obj)))
+			       (let ((n-0 (vinfo-type.next-0 vinfo-obj))
+				     (n-1 (vinfo-type.next-1 vinfo-obj)))
 				   
 				 (when (not (eql last-v n-0))
 				   (setf (svref queue queue-tail) n-0
@@ -553,14 +554,14 @@ the Free Software Foundation; either version 2 of the License, or
 ;;	    until (> i 30)
 #||	    (format str "~d: x=~d y=~d d=~d r=~d~%"
 		    i
-		    (vinfo-type-x x)
-		    (vinfo-type-y x)
-		    (vinfo-type-d x)
-		    (vinfo-type-r x))||#
+		    (vinfo-type.x x)
+		    (vinfo-type.y x)
+		    (vinfo-type.d x)
+		    (vinfo-type.r x))||#
 	    do
-;;	    (format str "~d: ~s~%" i (vinfo-type-bits x))
-;;	    (format str "~d: ~s~%" i (vinfo-type-grids x))
-	    (format str "~d: ~s~%" i (vinfo-type-d x))
+;;	    (format str "~d: ~s~%" i (vinfo-type.bits x))
+;;	    (format str "~d: ~s~%" i (vinfo-type.grids x))
+	    (format str "~d: ~s~%" i (vinfo-type.d x))
 	    ))
     )
 

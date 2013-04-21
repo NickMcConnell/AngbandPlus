@@ -27,7 +27,7 @@ ADD_DESC: in C from ACL.
 
 (ff:def-foreign-variable (c-inkey-flag "inkey_flag"))
 
-(ff:def-foreign-call (c-quit! "quit") ((a (* :char)))
+(ff:def-foreign-call (c-quit! "z_quit") ((a (* :char)))
   :returning :void)
 
 (ff:def-foreign-call (c-bell "bell") ((a (* :char)))

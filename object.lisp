@@ -99,15 +99,35 @@ ADD_DESC: available in the game.
    
      )))
 
+(defun get-okind-table ()
+  (let* ((o-table (get-otype-table *level* *variant* ))
+	 (table (gobj-table.obj-table o-table)))
+    table))
+
+(defun %get-okind-alloc-tbl ()
+  (let* ((o-table (get-otype-table *level* *variant*))
+	 (table (gobj-table.alloc-table o-table)))
+    table))
+  
 
 (defun get-obj-kind (id)
   "Returns the obj-kind for the given id."
-  (gethash id *object-kind-table*))
+
+    (gethash id (get-okind-table)))
+
+
 
 (defun (setf get-obj-kind) (obj id)
   ;;  (warn "Adding ~a" obj)
   "Adds the obj to the obj-kind table identified by given id."
-  (setf (gethash id *object-kind-table*) obj)) 
+  (warn "do not use me")
+  (let ((table (get-okind-table)))
+    (setf (gethash id table) obj)) )
+
+(defun add-new-okind! (obj id)
+  ""
+  (declare (ignore id))
+  (apply-filters-on-obj :objects *variant* obj))
 
 
 (defun define-object-kind (id name &key numeric-id x-attr x-char level rarity
@@ -135,7 +155,9 @@ ADD_DESC: available in the game.
 				:events events
 				)))
 
-    (setf (get-obj-kind id) new-obj)
+    (add-new-okind! new-obj id)
+;;    (apply-filters-on-obj :objects *variant* new-obj)
+;;    (setf (get-obj-kind id) new-obj)
     
     new-obj))
 
@@ -198,8 +220,10 @@ and NIL if unsuccesful."
   "Returns a list of objects that satisfies the list of demands.
 Returns NIL on failure."
   (let ((retval nil)
-	(demand-list (if (listp demand) demand (list demand))))
-    (loop for x being the hash-values of *object-kind-table*
+	(demand-list (if (listp demand) demand (list demand)))
+	(table (get-okind-table)))
+
+    (loop for x being the hash-values of table
 	  do
 	  (let ((type-list (object.obj-type x))
 		(satisfy-p t))
@@ -248,9 +272,9 @@ with k-info.txt numbers. NUM is the numeric id."
   
   (let ((total 0)
 	(counter 0)
-	(table *alloc-table-objects*))
+	(table (%get-okind-alloc-tbl)))
 
-;;    (warn "Table is ~a" (length table))
+;;    (warn "O-Table[~a,~a] is ~a" *level* level (length table))
 
     (loop named counting-area
 	  for a-obj across table
@@ -265,7 +289,7 @@ with k-info.txt numbers. NUM is the numeric id."
 
 
     (when (= 0 total)
-      (warn "No suitable objects at level ~a" level)
+      (warn "No suitable objects at level ~a [~a]" level  *level*)
       (return-from get-obj-kind-by-level nil))
 
     (let ((val (random total)))
@@ -281,6 +305,8 @@ with k-info.txt numbers. NUM is the numeric id."
       ))
   
   nil)
+
+;;(trace get-obj-kind-by-level)
 
 (defun get-obj-by-level (level)
   "Returns an (active) object by level."
@@ -356,8 +382,10 @@ with k-info.txt numbers. NUM is the numeric id."
 		     :direction :output 
 		     :if-exists :supersede)
     (let ((*print-case* :downcase)
-	  (*print-escape* t))
-      (loop for v being the hash-values of *object-kind-table*
+	  (*print-escape* t)
+	  (table (get-okind-table)))
+
+      (loop for v being the hash-values of table
 	    do
 	    (dump-object v s :lispy)
 	    (write-char #\newline s)

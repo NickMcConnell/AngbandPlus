@@ -1,3 +1,39 @@
+2001-01-21  Stig E Sandø <stig@users.sourceforge.net>
+	* Pretty drastic upgrade of a lot of the code, wrt to levels and
+	possibly theming.  the town-level in vanilla is now a themed level
+	with it's own set of monsters.  This change has updated functions
+	to find monster- and object-types from accessing a variant table
+	to depend on level.
+	* Grouped obj-table, alloc-table and obj-table-by-level into one
+	struct and should be used by all appropriate "types" in the game.
+	* Added filters when reading monsters and objects to allow levels
+	to pick out what they want.
+	* disabled stores and flavouring, will enable flavours shortly,
+	but stores should be done on a level-by-level basis.
+	* disabled placement of gold, no (gold) rush to fix it
+	* minor adjustments
+	
+2001-01-21  Stig E Sandø <stig@users.sourceforge.net>
+	* moved *turn* into variant as variant.turn and added a
+	turn-events (non-functional yet)
+	* moved sort-values (equipment) into variant object and updated
+	all corresponding functions
+	* added some time-variables to variant object and vanilla-variant,
+	and fixed time-of-day for town.. 
+
+2001-01-20  Stig E Sandø <stig@users.sourceforge.net>
+	* added a fun room, the shop-room :-)
+	* moved monster-tables into the variant object
+	* moved object-tables into the variant object
+	* added generics for lazy init of objects, monsters and features.
+	these are specialised on the variant object.  added corresponding
+	methods for vanilla.  The ACTIVATE-OBJECT is important here
+	* renamed a few compat-functions to have COMPAT- prefix
+	* also separated the vanilla variant mostly from the rest of the
+	code, very few dependencies left, and loading is simpler.
+		
+	
+
 2001-01-19  Stig E Sandø <stig@users.sourceforge.net>
 	* renamed dungeon.level to dungeon.depth
 	* moved the constant +xp-table+ to be a property of the variant

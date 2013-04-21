@@ -56,7 +56,7 @@ Modififes the given player object."
 		  20 2)
   
        (let ((val (read-one-character)))
-	 (warn "Got back ~a" val)
+;;	 (warn "Got back ~a" val)
 	 (cond ((eql val #\Q) (c-quit! +c-null-value+))
 	       ((eql val #\S) (return-from create-character-basics! nil))
 	       ((eql val +escape+)
@@ -323,6 +323,8 @@ Returns the new L-PLAYER object or NIL on failure."
   
   (let ((the-player (create-player-obj))
 	(birth-settings (get-setting :birth)))
+	
+	
     
     ;; get basics of the character
     (let ((basics (create-character-basics! the-player)))

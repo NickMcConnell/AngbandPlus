@@ -2,7 +2,7 @@
 
 #|
 
-DESC: lib/compat/floor.lisp - reads standard vanilla floors
+DESC: lib/compat/floor.lisp - reads standard vanilla floors/features
 Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
-(defun read-floor-file& (fname)
+(defun compat-read-feature-file& (fname)
   "Reads floor from 2.9.0"
   
   (with-open-file (in-str (pathname fname)

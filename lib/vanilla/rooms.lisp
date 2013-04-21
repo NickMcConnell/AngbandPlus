@@ -15,13 +15,21 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband)
 
 
-(define-room :simple-room #'common-make-simple-room)
-
 (defmethod find-appropriate-room ((variant vanilla-variant)
 				  (level random-level)
 				  player)
   (declare (ignore player))
   ;; hack
-  (let ((the-room (funcall (get-room :simple-room))))
+  (let* ((some-val (random 100))
+	 (the-room nil))
+
+    ;; might surprise someone 
+    (cond ((< some-val 1)
+	   (setf the-room (funcall (get-room :shop-room))))
+	  
+	  (t
+	   (setf the-room (funcall (get-room :simple-room)))
+	   ))
+    
     the-room))
 

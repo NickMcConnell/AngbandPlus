@@ -19,6 +19,7 @@ the Free Software Foundation; either version 2 of the License, or
  
   (defclass level ()
     (
+     (id      :accessor level.id      :initarg :id      :initform 'level)
      (dungeon :accessor level.dungeon :initarg :dungeon :initform nil)
      (rating  :accessor level.rating  :initarg :rating  :initform nil)
      (depth   :accessor level.depth   :initarg :depth   :initform nil)
@@ -26,13 +27,15 @@ the Free Software Foundation; either version 2 of the License, or
 
 
   (defclass random-level (level)
-    ())
+    ((id :initform 'random-level)))
 
 
   (defclass themed-level (level)
-    (
-     (depth :accessor level.depth :initarg :depth :initform nil)
-     )))
+    ((id :initform 'themed-level)))
+     
+
+
+  )
 
 (defgeneric generate-level! (level player dungeon)
   (:documentation "Returns the level-object.  If the
@@ -75,10 +78,54 @@ variant and player."))
     t))
 
 
-
-(defmethod post-initialise ((obj level) &key leave-method)
-
-  (warn "post-init of level, ~a" leave-method)
+(defun register-level! (id var-obj)
+  (let ((mon-table (make-game-obj-table))
+	(obj-table (make-game-obj-table)))
+    
+    (setf (gobj-table.obj-table mon-table) (make-hash-table :test #'equal))
+    (setf (gobj-table.obj-table obj-table) (make-hash-table :test #'equal))
   
-  obj)
+    (setf (gethash id (variant.monsters var-obj)) mon-table)
+    (setf (gethash id (variant.objects var-obj))  obj-table)
+    ))
+
+(defun %get-var-table (var-obj key slot)
+  ""
+  (let ((id (etypecase key
+	      (level (level.id key))
+	      (symbol key))))
+    (let ((mon-table (slot-value var-obj slot)))
+      (when mon-table
+	(gethash id mon-table)))))
+
+
+;;(defun get-mtype-table (var-obj key)
+;;  ""
+;;  (%get-var-table var-obj key 'monsters))
+
+;;(defun get-otype-table (var-obj key)
+;;  ""
+;;  (%get-var-table var-obj key 'objects))
+
+(defgeneric get-otype-table (level var-obj)
+  (:documentation "hack, may be updated later."))
+
+(defmethod get-otype-table ((level level) var-obj)
+  (%get-var-table var-obj level 'objects))
+
+(defmethod get-otype-table ((level (eql 'level)) var-obj)
+  (%get-var-table var-obj level 'objects))
+
+
+(defgeneric get-mtype-table (level var-obj)
+  (:documentation "hack, may be updated later."))
+
+(defmethod get-mtype-table ((level level) var-obj)
+  (declare (ignore var-obj))
+  (error "WRONG MTYPE"))
+
+(defmethod get-mtype-table ((level (eql 'level)) var-obj)
+  (declare (ignore var-obj))
+  (error "WRONG MTYPE"))
+
 

@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <title>(LAngband for techies)</title>
+  </head>
+  
+  <body bgcolor="white">
+    
+    <h1>Langband technical intro</h1>
+
+    <p>Langband, though based on Angband and feels pretty alike when
+    playing it, is very different when you look at the code.  It is
+    written in a different language, structured differently and
+    assuming any code-resemblance with standard Angband may prove
+    problematic.  Writing another "variant" with a drastic difference
+    with the Angband code-base, which many good variants have been
+    based on, might seem like a crazy project.  It might very well be
+    a crazy project, but sometimes one has to be crazy to further the
+    development. </p>
+    
+    <p>On the positive side, Langband possess some qualities over the
+    standard Angband code-base:</p>
+    
+    
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0F0D0">
+
+    <tr valign=top><td>
+	  <h2>Langband advantages</h2>
+    <ul>
+      <li> It is written in a different, and more powerful language;
+	Common Lisp.  Common Lisp is a high-level programmable programming
+	language with an advanced object system and strong functional
+	roots.  This language removes 
+	the need for a separate scripting-language which the
+	Angband-developers have wanted to add to Angband for a long time.
+	Unlike classical scripting, Common Lisp code is compiled to native
+	code and the "scripting" can exploit the full code of
+	Langband.</li>
+      
+      <li>Angband is a large program of more than 100 000 lines of code,
+	and with more than a hundred global variables.  The code, though
+	well-commented and exceptionally structured for C-code, has most
+	game-play and possibly customisable code hard-coded and any change
+	is tough work and, more often than not: complex work.  Langband
+	has a different strategy; a small customisable engine for the
+	basic parts, which a "variant" uses and adds details to.  This
+	means that Langband is an engine which variants can use/be plugged
+	into.  The size of the Langband code, engine and variant, is much
+	smaller than the corresponding Angband code.</li>
+      
+      <li>Langband uses the object system of Common Lisp liberally, and
+	Angband has in many ways been turned into an object-oriented
+	program.  This object-orientation is central in making the engine
+	extensible and customisable.  Only a selected few areas of the
+	code have been made into non-extensible constructs to optimise
+	speed in places where this is needed. </li>
+      
+      <li>[Add more later.]</li>
+      
+    </ul>
+	</td></tr>
+    </table>
+
+    <p>But we might want to jump to the technical side of Langband,
+    how things are structured.</p>
+
+
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor=#F0F0F0>
+
+    <tr valign=top><td>
+
+    <h2>Engine &lt;-&gt; Variant &lt;-&gt; Level</h2>
+
+    <p>[Please note that all parts of the code is written in CAPS-LOCK
+    here to be visible in the text.  You're very strongly encouraged
+    to write in only small letters any code to avoid breaking
+    lisp-compatibility.]</p>
+    
+    <p> A variant is an encapsulation of all the features which make
+    the game fun to play:  fun levels, objects, monsters, classes,
+    races, flavouring of objects and fun rooms.  All these things can
+    be customised for a variant, and the engine has nothing of this
+    hardcoded.  Other parts of the engine may also be customised;
+    equipment handling, shops, etc. </p>
+
+    <p>The variant object is available to the engine and it's own code
+    in the global dynamical variable <code>*VARIABLE*</code>, just as
+    the player object is available in the <code>*PLAYER*</code>
+    variable. </p>
+
+    <p>Also available globally is the <code>*LEVEL*</code> object,
+    which points to the current level explored.  The engine provides a
+    random level (<code>RANDOM-LEVEL</code>) type which is the basic
+    random level which is probable to be common among variants, but a
+    variant may tailour this and add new level-types.  A level-type
+    defines it's own dungeon-generation, which monsters and objects
+    may be found and other characteristica.  The town-level in Vanilla
+    angband is such a special, or themed, level.  Langband is
+    structured to make it easy to add your own levels and choose for
+    your variant what kind of levels are to be created when. </p>
+
+    <p>A variant may also define it's own room-types, which may be
+    vaults, shop-rooms, churches, elven courts, dragon's den, etc.
+    This code has not been fully expanded yet, but it should have the
+    same customisability as a level.  A level-type may also define
+    which rooms may be generated for that level. </p>
+
+    <p>Another useful global dynamical variable is the
+    <code>*DUNGEON*</code> object, which is the technical
+    representation of the current level.  It may also be found by
+    using the accessor <code>(LEVEL.DUNGEON *LEVEL*)</code>.</p>
+
+	</td></tr>
+    </table>
+
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0D0F0">
+
+    <tr valign=top><td>
+
+    <h2>Langband symbols</h1>
+
+    <p>This is an attempt to list certain symbols that one should be
+    careful about manipulating, as they're used by the engine
+    internally.</p>
+
+    <dl>
+      <dt>VARIANTS</dt>
+      <dd>Has info on the possible variants available.  Any slot may
+      be used..</dd>
+      <dt>COMMON</dt>
+      <dd>Has information about things common to all variants, mainly
+      the initialisation.  Used: PRE-INIT and POST-INIT.</dd>
+    </dl>
+
+	</td></tr>
+    </table>
+	  
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0F0D0">
+
+    <tr valign=top><td>
+    
+    <h2>Langband events</h1>
+
+    <p>This is an attempt to list known events that are triggered and
+    the order they're triggered in.  Listed as:<br>
+      <tt>:EVENT-NAME [CLASSNAME,:SETTING-KEY] - (arg1, arg2, ...)</tt></p>
+
+    <h3>Birth</h3>
+
+    <p>Dungeon object is NIL.  <code>:on-pre-equip</code> is called
+    before adding of racial/class equipment, while
+    <code>:on-post-equip</code> is called after racial/class
+    equipment.  All items existing in inventory/equip-slots after
+    post-equip will be identified.</p> 
+    <ul>
+      <li> :on-pre-equip [birth-settings, :birth] - (dungeon player)</li>
+      <li> :on-post-equip [birth-settings, :birth] - (dungeon player)</li>
+    </ul>
+
+    <h3>Objects</h3>
+    <p>Player and dungeon arguments are NIL.  There might exist valid
+    values at <code>*player*</code> or <code>*dungeon*</code> though.
+    <ul>
+      <li> :on-create [object-kind, NIL] - (player dungeon active-object)</li>
+    </ul>
+
+	</td></tr>
+    </table>
+
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor=#F0F0F0>
+
+    <tr valign=top><td>
+
+    <h2>Compatibility with ordinary Angband code-base</h2>
+      
+    <p>
+      Most of the code is derived from Vanilla Angband 2.9.0 and many
+      of the function names are taken directly from the Vanilla-code
+      but some are changed and more will be changed as things
+      progresses and Langband finds its own system to do things in.
+      <b>You should not expect Angband-ways of doing things to work.</b> 
+    </p>
+
+    <p>
+      Important simple changes is that all Angband underscores are now
+      hyphens, and that the code relies very little on global
+      variables (ie dungeon tables, player object, etc).  Other
+      changes may be found in the style guidelines.
+    </p>
+
+    <p>Some functions which may be important to remember when going
+      gron C/Angband to Lisp/Langband: </p>
+
+    <pre>
+      Angband:         Langband:
+      rand_int         random
+      randint          randint
+      /                int-/
+    </pre>
+
+      </td></tr>
+  </table>
+    
+  </body>
+</html>
+
+
+
+

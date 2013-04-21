@@ -244,7 +244,8 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
       (case type
 	('alloc-type-rubble (place-rubble! dungeon x y))
 	('alloc-type-trap   (place-trap! dungeon x y))
-	('alloc-type-gold   (place-gold! dungeon x y))
+	;; add again later
+;;	('alloc-type-gold   (place-gold! dungeon x y))
 	('alloc-type-object (place-object! dungeon x y nil nil))))
   
     (values)))
@@ -480,7 +481,8 @@ light argument is a boolean."
   "Generates a dungeon level and returns it.  If the optional dungeon
 argument is passed it will be used as new dungeon and returned."
  
-  (let* ((settings (get-setting :random-level))
+  (let* ((*level* level)
+	 (settings (get-setting :random-level))
 	 (dungeon-height (slot-value settings 'max-height))
 	 (dungeon-width (slot-value settings 'max-width))
 	 (dungeon (if dun dun (create-dungeon dungeon-width
@@ -630,7 +632,7 @@ argument is passed it will be used as new dungeon and returned."
     level))
 
 
-(defmethod post-initialise ((obj random-level) &key leave-method player)
+(defmethod activate-object :after ((obj random-level) &key leave-method player)
 
 ;;  (warn "post-init of random level, ~a" leave-method)
 

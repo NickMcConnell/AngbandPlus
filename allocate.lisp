@@ -93,9 +93,10 @@ the Free Software Foundation; either version 2 of the License, or
   
   (let ((total 0)
 	(counter 0)
-	(table *alloc-table-monsters*))
+	;; fix later
+	(table (%get-mkind-alloc-tbl)))
 
-;;    (warn "Table is ~a" (length table))
+;;    (warn "M-Table[~a,~a] is ~a" *level* level (length table))
 
     (loop named counting-area
 	  for a-obj across table
@@ -110,7 +111,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 
     (when (= 0 total)
-      (warn "No suitable objects at level ~a" level)
+      (warn "No suitable monsters at level ~a [~a]" level *level*)
       (return-from get-monster-kind-by-level nil))
 
     (let ((val (random total)))
@@ -126,6 +127,8 @@ the Free Software Foundation; either version 2 of the License, or
       ))
   
   nil)
+
+;;(trace get-monster-kind-by-level)
 
 
 (defun get-monster-by-level (level)

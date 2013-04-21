@@ -57,7 +57,10 @@
 	      :source-pathname ""
 	      :components ((:file "view")
 			   (:file "loop")
-			   (:file "init"))
+			   (:file "init")
+			   ;; hack
+			   (:file "lib/vanilla/base")
+			   )
               :depends-on (common))
      ))
 

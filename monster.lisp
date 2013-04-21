@@ -117,13 +117,39 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 (defmethod monster.name ((mon active-monster))
   (monster.name (amon.kind mon)))
 
+(defun get-mkind-table ()
+  (let* ((o-table (get-mtype-table *level* *variant*))
+	 (table (gobj-table.obj-table o-table)))
+    table))
+
+(defun %get-mkind-alloc-tbl ()
+  (let* ((o-table (get-mtype-table *level* *variant*))
+	 (table (gobj-table.alloc-table o-table)))
+    table))
+ 
+
 (defun get-monster-kind (id)
   "Returns monster-kind or nil."
-  (gethash id *monster-kind-table*))
+  (let ((table (get-mkind-table)))
+    (gethash id table)))
+
+(defun add-new-mkind! (obj id)
+  ""
+  (declare (ignore id))
+  (apply-filters-on-obj :monsters *variant* obj))
+
+(defun add-monster-kind-to-table! (monster-kind id table)
+  ""
+  (setf (gethash id table) monster-kind))
 
 (defun (setf get-monster-kind) (monster-kind id)
   "establishes a monster-kind"
-  (setf (gethash id *monster-kind-table*) monster-kind))
+
+  (let ((table (get-mkind-table)))
+    (add-monster-kind-to-table! monster-kind id table)))
+
+
+
 
 (defmethod dump-object ((obj monster-kind) stream (style (eql :lispy)))
   
@@ -164,12 +190,13 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 		(list (attack.kind x) :type (attack.dmg-type x) :damage (attack.damage x)))
 	    attacks)))
 
-(defun get-monster-list ()
+(defun get-monster-list (&optional (var-obj *variant*))
   "returns a fresh list.  Remove me!"
-  (stable-sort (loop for v being each hash-value of *monster-kind-table*
-		     collecting v)
-	       #'string-equal
-	       :key #'monster.id))
+  (let ((table (get-mkind-table)))
+    (stable-sort (loop for v being each hash-value of table
+		       collecting v)
+		 #'string-equal
+		 :key #'monster.id)))
 
 
 
@@ -183,9 +210,11 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
     (dolist (i monster-list)
       (dump-object i o-str style))))
 
-(defun print-all-monsters ()
-  (let ((*print-readably* nil))
+(defun print-all-monsters (&optional (var-obj *variant*))
+  (let ((*print-readably* nil)
+	(table (get-mkind-table)))
+    
     (maphash #'(lambda (k v)
 		 (format t "~a -> ~a~%" k v))
-	     *monster-kind-table*)))
+	     table)))
 ||#

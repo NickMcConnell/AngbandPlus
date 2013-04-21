@@ -140,7 +140,7 @@ ADD_DESC: Most of the code which deals with the game loops.
        ;; do this till things are fixed..
 ;;       (print-map dun pl)
      
-       (incf *turn*)
+       (incf (variant.turn *variant*))
 
        ))
     ))
@@ -152,7 +152,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 ;;  (c-init-angband!)
 ;;  (c-pause-line 23)
 
-  (warn "playing the damned game")
+;;  (warn "playing the damned game")
   
   ;; hack to remove cursor
   (let ((*player* nil)
@@ -164,7 +164,9 @@ ADD_DESC: Most of the code which deals with the game loops.
     
     (block creation
       (loop
-       (let ((the-player (create-character)))
+       (let* (;; this is an evil hack, use dummy level
+	      (*level* (make-instance 'level))
+	      (the-player (create-character)))
 	 (when the-player
 	   (setf *player* the-player)
 	   (return-from creation))
@@ -172,7 +174,8 @@ ADD_DESC: Most of the code which deals with the game loops.
 	 (warn "Trying to create player again.."))))
 
     ;; time to init the stores
-    (initialise-stores&) 
+    ;; postponed
+;;    (initialise-stores&) 
     (c-prt "Please wait..." 0 0)  
     (c-pause-line *last-console-line*)
     (clear-the-screen)
@@ -180,7 +183,9 @@ ADD_DESC: Most of the code which deals with the game loops.
     (block dungeon-running
       (unless *level* 
 	(setf *level* (create-appropriate-level *variant* *level*
-						*player* (player.depth *player*))))
+						*player* (player.depth *player*)))
+	(activate-object *level* :player *player*
+			  :leave-method nil))
       
       (loop
        ;; clean up to prevent too many delays while running the dungeon
@@ -196,7 +201,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 	 ;; generate new cave, try to use the existing
 	 (setq *level* (create-appropriate-level *variant* *level*
 						 *player* (player.depth *player*)))
-	 (post-initialise *level* :player *player*
+	 (activate-object *level* :player *player*
 			  :leave-method how-level-was-left)
 	 
        )))

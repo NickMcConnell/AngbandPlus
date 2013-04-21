@@ -86,7 +86,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'print-map-as-ppm
     #'(lambda (dun pl)
-	(declare (ignore pl)) (print-map-as-ppm dun "dumps/map.ppm")))
+	(declare (ignore pl)) (print-map-as-ppm dun "./map.ppm")))
 
 (define-keypress *ang-keys* :global #\k 'move-up)
 (define-keypress *ang-keys* :global #\l 'move-right)

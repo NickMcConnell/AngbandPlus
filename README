@@ -16,11 +16,13 @@ How to start it:
 - tweak lib/zterm/Makefile  (Probably only ENVIRONMENT and CMUCL needs to be changed.)
 - run 'make'  (where make is GNU Make)
 - start lisp
-- (load "game")
-- (lb::a)
+- (load "game")  ;; loads/compiles the core engine mostly
+- (lb::a)        ;; loads/compiles vanilla variant and helper-libraries
+                 ;; on first run, it will take a _lot_ of time on obj-kind.lisp
 
-(Select a high-elf warriour for the most developed char)
+(Select a character and try it out)
 
 Docs:
 
 See the web/-directory.
+

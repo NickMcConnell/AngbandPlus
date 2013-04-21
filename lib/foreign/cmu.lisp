@@ -41,7 +41,7 @@ ADD_DESC: in C from CMUCL.
 (alien:def-alien-type cptr c-call:c-string)
 (alien:def-alien-type errr c-call:int)
 
-(alien:def-alien-routine ("quit" c-quit!)
+(alien:def-alien-routine ("z_quit" c-quit!)
     void
   (msg cptr))
 

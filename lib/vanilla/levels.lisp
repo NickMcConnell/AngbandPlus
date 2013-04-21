@@ -2,7 +2,7 @@
 
 #|
 
-DESC: lib/vanilla/quirks.lisp - special settings for Vanilla
+DESC: lib/vanilla/levels.lisp - level customisation for Vanilla
 Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
@@ -16,8 +16,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
-  (defclass van-town-level (level)
-    ()))
+  (defclass van-town-level (themed-level)
+    ((id :initform 'town-level))
+    ))
 
 (defmethod level-ready? ((level van-town-level))
   (when (level.dungeon level)
@@ -29,7 +30,8 @@ the Free Software Foundation; either version 2 of the License, or
 argument is non-NIL it will be re-used and returned as
 part of the new level."
 
-  (let* ((settings (get-setting :random-level)) ;; hack
+  (let* ((*level* level)
+	 (settings (get-setting :random-level)) ;; hack
 	 (max-dungeon-width  (slot-value settings 'max-width))
 	 (max-dungeon-height (slot-value settings 'max-height))
 	 (dungeon (if dun dun (create-dungeon max-dungeon-width
@@ -73,10 +75,6 @@ part of the new level."
 	    (return-from place-the-player nil)))
 
     
-    ;; add some inhabitants
-    (dotimes (i 3)
-      (allocate-monster! dungeon player 3 t))
-
     (setf (level.dungeon level) dungeon)
 
     level))
@@ -86,26 +84,25 @@ part of the new level."
 
 (defun van-make-town-level-obj (old-level player)
   "A sucky function which should be simplified greatly."
-  
-  ;; we already have a saved value
-  (cond (*van-saved-town-seed*
-	 (let* ((town (make-instance 'van-town-level :depth 0))
-		(cl:*random-state* (cl:make-random-state *van-saved-town-seed*)))
-	
-;;	   (warn "reusing state ~a" *van-saved-town-seed*)
-	   (generate-level! town player
-			    (if old-level (level.dungeon old-level) nil))))
-	;; this is the first time
-	(t
-	 (let* ((town (make-instance 'van-town-level :depth 0))
-		(new-state (cl:make-random-state t)) 
-		(cl:*random-state* (cl:make-random-state new-state)))
 
-;;	   (warn "Assigning state ~a" new-state)
-	   (setf *van-saved-town-seed* new-state)
-	   (generate-level! town player
-			    (if old-level (level.dungeon old-level) nil))
-	   ))))
+  (flet ((do-generation (seed)
+	   (let* ((town (make-instance 'van-town-level :depth 0))
+		  (cl:*random-state* (cl:make-random-state seed)))
+
+	     (generate-level! town player
+			      (if old-level (level.dungeon old-level) nil)))))
+  
+    ;; we already have a saved value
+    (cond (*van-saved-town-seed*
+	   (do-generation *van-saved-town-seed*))
+	 
+	  ;; this is the first time
+	  (t
+	   (let* ((new-state (cl:make-random-state t)))
+	     (setf *van-saved-town-seed* new-state)
+	     (do-generation new-state)))
+	  )))
+
 
 (defmethod create-appropriate-level ((variant vanilla-variant) old-level player depth)
 
@@ -129,14 +126,72 @@ part of the new level."
   (c-prt "Town" *last-console-line* 70)) ;;fix 
 
 
+(defmethod activate-object :after ((level van-town-level) &key)
+  
+  (let* ((dungeon (level.dungeon level))
+	 (player *player*)
+	 (var-obj *variant*)
+	 (turn (variant.turn var-obj))
+	 (mod-time (mod turn (variant.day-length var-obj)))
+	 ;; quick hack
+	 (time-of-day (if (< mod-time (variant.twilight var-obj))
+			  'day
+			  'night)))
+	 
+
+    ;; hackish
+    (let ((resident-num (if (eq time-of-day 'day) 4 8)))
+	
+      ;; add some inhabitants
+      (dotimes (i resident-num)
+	(allocate-monster! dungeon player 3 t)))
+
+    (van-town-illuminate! dungeon player time-of-day)
+    ;;(warn "post activate")
+    ))
+
 
 (defun van-town-illuminate! (dungeon player time-of-day)
   "Illuminates the town according to the time-of-day."
-
-  (declare (ignore dungeon player time-of-day))
+  (declare (ignore player))
   
-  (warn "illuminate town.")
+    (with-dungeon (dungeon (coord x y))
+      (declare (ignore x y))
+      (let ((feat (coord.feature coord)))
+	;; slightly interesting grids
+	(cond ((> feat +feature-invisible+)
+	       (bit-flag-add! (coord.flags coord) #.(logior +cave-glow+ +cave-mark+)))
+	      ;; day-time
+	      ((eq time-of-day 'day)
+	       (bit-flag-add! (coord.flags coord) +cave-glow+))
+	      ;; at night
+	      (t
+	       (bit-flag-remove! (coord.flags coord) +cave-glow+))
+	      ))
+      ;; skip doorways yet
+      )
+
+    (bit-flag-add! *update* +forget-view+ +update-view+)
+    (bit-flag-add! *redraw* +print-map+)
+
 
   )
 	 
 
+(defmethod get-otype-table ((level random-level) var-obj)
+  (%get-var-table var-obj 'level 'objects))
+
+(defmethod get-otype-table ((level van-town-level) var-obj)
+  (%get-var-table var-obj 'level 'objects))
+
+(defmethod get-mtype-table ((level random-level) var-obj)
+  (%get-var-table var-obj level 'monsters))
+
+(defmethod get-mtype-table ((level van-town-level) var-obj)
+  (%get-var-table var-obj level 'monsters))
+
+(defmethod get-mtype-table ((level (eql 'random-level)) var-obj)
+  (%get-var-table var-obj level 'monsters))
+
+(defmethod get-mtype-table ((level (eql 'town-level)) var-obj)
+  (%get-var-table var-obj level 'monsters))

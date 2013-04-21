@@ -15,7 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband)
 
 
-(defun read-old-monsters& (old-file)
+(defun compat-read-monsters& (old-file)
   "Reads a monster file from 2.9.0"
   
   (with-open-file (in-str (pathname old-file)
@@ -47,7 +47,8 @@ the Free Software Foundation; either version 2 of the License, or
 		   (when coll-desc
 		     (setf (monster.desc cur-monster) coll-desc)
 		     (setf coll-desc nil))
-		   (setf (get-monster-kind (monster.id cur-monster)) cur-monster)
+		   (add-new-mkind! cur-monster (monster.id cur-monster))
+;;		   (setf (get-monster-kind (monster.id cur-monster)) cur-monster)
 		   (setf cur-monster nil))
 
 		 (let ((res (split-seq-on l #\:)))
@@ -512,9 +513,11 @@ the Free Software Foundation; either version 2 of the License, or
 	(when coll-desc
 	  (setf (monster.desc cur-monster) coll-desc)
 	  (setf coll-desc nil))
-      
-	(setf (get-monster-kind (monster.id cur-monster)) cur-monster)
+
+	(add-new-mkind! cur-monster (monster.id cur-monster))
+;;	(setf (get-monster-kind (monster.id cur-monster)) cur-monster)
 	(setf cur-monster nil))
     
 
       )))
+
