@@ -377,7 +377,7 @@ void do_cmd_eat_food(int item)
 		}
 
 	}
-	else if ((p_ptr->prace == GUARDIAN) || (p_ptr->prace == MUMMY) || (p_ptr->prace == SPECTRE))
+	else if (!rp_ptr->rations)
 	{
 		msg_print("The food of mortals is poor sustenance for you.");
 		set_food(p_ptr->food + ((o_ptr->pval) / 20));
@@ -386,9 +386,6 @@ void do_cmd_eat_food(int item)
 	else {
 		(void)set_food(p_ptr->food + o_ptr->pval);
 	}
-
-
-
 
 	/* Destroy a food in the pack */
 	if (item >= 0)
@@ -1365,7 +1362,7 @@ void do_cmd_read_scroll(int item)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, dun_level, SUMMON_UNDEAD))
+				if (summon_specific(py, px, dun_level, FILTER_UNDEAD))
 				{
 					ident = TRUE;
 				}
@@ -1402,23 +1399,7 @@ void do_cmd_read_scroll(int item)
 
 	case SV_SCROLL_WORD_OF_RECALL:
 		{
-			if (dun_level && (p_ptr->max_dun_level > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-					p_ptr->max_dun_level = dun_level;
-
-			}
-
-			if (p_ptr->word_recall == 0)
-			{
-				p_ptr->word_recall = randint(20) + 15;
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
+			do_recall(NULL);
 			ident = TRUE;
 			break;
 		}
@@ -2701,23 +2682,7 @@ void do_cmd_zap_rod(int item)
 
 	case SV_ROD_RECALL:
 		{
-			if (dun_level && (p_ptr->max_dun_level > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-					p_ptr->max_dun_level = dun_level;
-
-			}
-
-			if (p_ptr->word_recall == 0)
-			{
-				msg_print("The air about you becomes charged...");
-				p_ptr->word_recall = 15 + randint(20);
-			}
-			else
-			{
-				msg_print("A tension leaves the air around you...");
-				p_ptr->word_recall = 0;
-			}
+			do_recall( NULL );
 			ident = TRUE;
 			o_ptr->pval = 60;
 			break;
@@ -3734,7 +3699,7 @@ void do_cmd_activate(int item)
 		case ART_DAWN:
 			{
 				msg_print("Your sword flickers black for a moment...");
-				(void)summon_specific_friendly(py, px, dun_level, SUMMON_REAVER, TRUE);
+				(void)summon_specific_friendly(py, px, dun_level, FILTER_REAVER, TRUE);
 				o_ptr->timeout = 500 + randint(500);
 				break;
 			}
@@ -3804,28 +3769,10 @@ void do_cmd_activate(int item)
 
 		case ART_AZRAEL:
 			{
-				if (dun_level && (p_ptr->max_dun_level > dun_level))
-				{
-					if (get_check("Reset recall depth? "))
-						p_ptr->max_dun_level = dun_level;
-
-				}
-
-				msg_print("Your scythe glows soft white...");
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				do_recall( "Your scythe glows soft white..." );
 				o_ptr->timeout = 200;
 				break;
 			}
-
 
 		case ART_PHENEX:
 			{
@@ -4490,7 +4437,7 @@ static bool activate_random_artefact(object_type * o_ptr)
 
 	case ACT_SUMMON_ANIMAL:
 		{
-			(void)summon_specific_friendly(py, px, plev, SUMMON_ANIMAL_RANGER, TRUE);
+			(void)summon_specific_friendly(py, px, plev, FILTER_ANIMAL_RANGER, TRUE);
 			o_ptr->timeout = 200 + randint(300);
 			break;
 		}
@@ -4498,7 +4445,7 @@ static bool activate_random_artefact(object_type * o_ptr)
 	case ACT_SUMMON_PHANTOM:
 		{
 			msg_print("You summon a phantasmal servant.");
-			(void)summon_specific_friendly(py, px, dun_level, SUMMON_PHANTOM, TRUE);
+			(void)summon_specific_friendly(py, px, dun_level, FILTER_PHANTOM, TRUE);
 			o_ptr->timeout = 200 + randint(200);
 			break;
 		}
@@ -4507,13 +4454,13 @@ static bool activate_random_artefact(object_type * o_ptr)
 		{
 			if (randint(3) == 1) {
 				if (summon_specific((int)py,(int)px, (int)(plev * 1.5),
-					SUMMON_ELEMENTAL)) {
+					FILTER_ELEMENTAL)) {
 						msg_print("An elemental materializes...");
 						msg_print("You fail to control it!");
 					}
 			} else {
 				if (summon_specific_friendly((int)py, (int)px, (int)(plev * 1.5),
-					SUMMON_ELEMENTAL,(bool)(plev == 50 ? TRUE : FALSE))) {
+					FILTER_ELEMENTAL,(bool)(plev == 50 ? TRUE : FALSE))) {
 						msg_print("An elemental materializes...");
 						msg_print("It seems obedient to you.");
 					}
@@ -4526,13 +4473,13 @@ static bool activate_random_artefact(object_type * o_ptr)
 		{
 			if (randint(3) == 1) {
 				if (summon_specific((int)py, (int)px, (int)(plev * 1.5),
-					SUMMON_DEMON)) {
+					FILTER_DEMON)) {
 						msg_print("The area fills with a stench of sulphur and brimstone.");
 						msg_print("'NON SERVIAM! Wretch! I shall feast on thy mortal soul!'");
 					}
 			} else {
 				if (summon_specific_friendly((int)py, (int)px, (int)(plev * 1.5),
-					SUMMON_DEMON, (bool)(plev == 50 ? TRUE : FALSE))) {
+					FILTER_DEMON, (bool)(plev == 50 ? TRUE : FALSE))) {
 						msg_print("The area fills with a stench of sulphur and brimstone.");
 						msg_print("'What is thy bidding... Master?'");
 					}
@@ -4545,13 +4492,13 @@ static bool activate_random_artefact(object_type * o_ptr)
 		{
 			if (randint(3) == 1) {
 				if (summon_specific((int)py, (int)px, (int)(plev * 1.5),
-					(plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD))) {
+					(plev > 47 ? FILTER_HI_UNDEAD : FILTER_UNDEAD))) {
 						msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 						msg_print("'The dead arise... to punish you for disturbing them!'");
 					}
 			} else {
 				if (summon_specific_friendly((int)py,(int)px, (int)(plev * 1.5),
-					(plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD),
+					(plev > 47 ? FILTER_HI_UNDEAD_NO_UNIQUES : FILTER_UNDEAD),
 					(bool)(((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE))) {
 						msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 						msg_print("Ancient, long-dead forms arise from the ground to serve you!");
@@ -4865,24 +4812,7 @@ static bool activate_random_artefact(object_type * o_ptr)
 
 	case ACT_RECALL:
 		{
-			if (dun_level && (p_ptr->max_dun_level > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-					p_ptr->max_dun_level = dun_level;
-
-			}
-
-			msg_print("It glows soft white...");
-			if (p_ptr->word_recall == 0)
-			{
-				p_ptr->word_recall = randint(20) + 15;
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
+			do_recall( "It glows soft white..." );			
 			o_ptr->timeout = 200;
 			break;
 		}

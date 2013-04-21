@@ -617,6 +617,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
 	wr_u32b(m_ptr->smart);
+	wr_byte(m_ptr->ally);
 	wr_byte(0);
 }
 
@@ -685,9 +686,12 @@ static void wr_xtra(int k_idx)
 
 	object_kind *k_ptr = &k_info[k_idx];
 
-	if (k_ptr->aware) tmp8u |= 0x01;
-	if (k_ptr->tried) tmp8u |= 0x02;
+	if (k_ptr->aware)   tmp8u |= 0x01;
+	if (k_ptr->tried)   tmp8u |= 0x02;
+	wr_byte(tmp8u);
 
+	/*Paranoid, first move into byte*/
+	tmp8u = k_ptr->squelch;
 	wr_byte(tmp8u);
 }
 
@@ -834,6 +838,14 @@ static void wr_options(void)
 	/* Dump the masks */
 	for (i = 0; i < 8; i++) wr_u32b(option_mask[i]);
 
+	/*Dump the sane price*/
+	wr_u32b( sane_price );
+	
+	/* Dump the squelching rules */
+	for( i=0; i < SQ_HL_COUNT ; i++ )
+	{
+		wr_byte(squelch_options[i]);
+	}
 
 	/*** Window options ***/
 
@@ -927,8 +939,8 @@ static void wr_extra(void)
 	wr_byte(p_ptr->psign);	
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
-	wr_byte(p_ptr->realm1);
-	wr_byte(p_ptr->realm2);
+	wr_u16b(p_ptr->realm1);
+	wr_u16b(p_ptr->realm2);
 	wr_byte(0);     /* oops */
 
 	wr_byte(p_ptr->hitdie);
@@ -1000,6 +1012,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
+	wr_s16b(p_ptr->magic_shell);
 	wr_s16b(p_ptr->oppose_fire);
 	wr_s16b(p_ptr->oppose_cold);
 	wr_s16b(p_ptr->oppose_acid);

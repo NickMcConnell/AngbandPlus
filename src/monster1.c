@@ -391,7 +391,7 @@ static void roff_aux(int r_idx)
 	/* Describe location */
 	if (r_ptr->level == 0)
 	{
-		c_roff(TERM_YELLOW, format("%^s lives in the town", wd_he[msex]));
+		c_roff(TERM_YELLOW, format("%^s lives in the town", wd_he[msex]),-1,-1,0);
 		old = TRUE;
 	}
 	else if (r_ptr->r_tkills)
@@ -508,7 +508,6 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Describe the "quality" */
-		if (flags2 & (RF2_ELDRITCH_HORROR)) roff(" sanity-blasting");
 		if (flags3 & (RF3_ANIMAL)) roff(" natural");
 		if (flags3 & (RF3_EVIL)) roff(" evil");
 		if (flags3 & (RF3_GOOD)) roff (" good");
@@ -844,6 +843,8 @@ static void roff_aux(int r_idx)
 	if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
 	if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
 	if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
+	if (flags7 & (RF7_AQUATIC)) vp[vn++] = "swim";
+	if (flags7 & (RF7_FLIGHT)) vp[vn++] = "fly";	
 
 	/* Describe special abilities. */
 	if (vn)
@@ -1420,7 +1421,7 @@ static void roff_aux(int r_idx)
 	/* Notice monsters that _have_ to be avoided */
 	if (flags7 & (RF7_ANNOYED))
 	{
-		c_roff(TERM_RED, format("%^s considers you an annoyance.", wd_he[msex]));
+		c_roff(TERM_RED, format("%^s considers you an annoyance.", wd_he[msex]),-1,-1,0);
 	}
 	/* Notice monsters that are in the grip of the Lover's Storm */
 	if (flags7 & (RF7_STORM))

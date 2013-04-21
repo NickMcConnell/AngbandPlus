@@ -1,5 +1,27 @@
 === Hellband History and Information ===
 
+=== Hellband as you play it now ===
+
+Hellband like many variants had lost its maintainer on the way ( Real Life tends
+to get in the way of Variant Maintainers ) but I still played it on a regular
+basis. In December 2005 in a cosy cabin with a wood stove, a frozen lake outside
+and screaming children inside I dusted off my copy of Hellband and started 
+playing. And suddenly the light came; I had a whole week of unfettered access to
+a computer without being sucked into the Internet. Thus came the idea of taking
+over Hellband. I actually have a nineteenth century copy of Dante's work ( in 
+French ) and I have always been fascinated by his story. I originally just 
+modified r_info, I didnt want to go full out. Then of course I had monsters
+from all circles walking together in the dungeon, so the moment I came home I
+made shielded levels. And then of course, I needed to remove all Tolkien and Z
+things, which required more coding. And from then on it dawned that I would be
+stuck on this variant for a while... I do have three children and a wife so I
+cant really say how long I can keep maintaining this variant, but so far it has
+been nothing but joy.
+
+Konijn
+
+=== Hellband as maintained up to version 1.0.3 ===
+
 Hellband is a variant of a variant of a variant of Angband. It is maintained by 
 the original Cthangband author (me, Dean Anderson).
 The reasons for the existence of Hellband lie in the history of Cthangband.

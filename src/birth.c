@@ -849,8 +849,6 @@ static char *illithid_syllable3[] =
 
 /* Hellband new/mad creation screen tables */
 
-
-
 static cptr sexes_strings[] =
 {
 	"Lady",
@@ -1544,9 +1542,9 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"good as warriors in a straight fight, they can backstab",
 		"sleeping or fleeing opponents doing large amounts of   ",
 		"damage. Rogues also learn a very small amount of arcane",
-		"magic from either the death, planar or folk realm.     ",
+		"magic from either the death, tarot or folk realm.     ",
 		"Rogues who learn death magic are called Assassins.     ",
-		"Rogues who learn planar magic are called Card Sharps. ",
+		"Rogues who learn tarot magic are called Card Sharps. ",
 		"Rogues who learn folk magic are called Thieves.        ",
 		"                                                       ",
 		"                                                       ",
@@ -1969,7 +1967,7 @@ void create_random_name(int race, char *name)
 	}
 }
 
-byte choose_realm(byte choices)
+u16b choose_realm(byte choices)
 {
 	int picks[MAX_REALM] = {0};
 	int byteflag = 1;
@@ -2049,50 +2047,55 @@ byte choose_realm(byte choices)
 	
 }
 
-byte choose_realm_randomly(byte choices)
+u16b choose_realm_randomly(byte choices)
 {
 	int picks[MAX_REALM] = {0};
 	int k, n;
 	n = 0;
 	/* Hack: Allow priests to specialize in Miracles or Death magic */
-	if ((choices & CH_DAMNATION) && p_ptr->realm1 != 4)
+	if ((choices & CH_CHAOS) && p_ptr->realm1 != REALM_CHAOS)
 	{
-		picks[n]=4;
+		picks[n]=REALM_CHAOS;
 		n++;
 	}
-	if ((choices & CH_SOMATIC) && p_ptr->realm1 != 8)
+	if ((choices & CH_DEMONIC) && p_ptr->realm1 != REALM_DEMONIC)
 	{
-		picks[n]=8;
+		picks[n]=REALM_DEMONIC;
+		n++;
+	}    
+	if ((choices & CH_SOMATIC) && p_ptr->realm1 != REALM_SOMATIC)
+	{
+		picks[n]=REALM_SOMATIC;
 		n++;
 	}
-	if ((choices & CH_DEATH) && p_ptr->realm1 != 5)
+	if ((choices & CH_DEATH) && p_ptr->realm1 != REALM_DEATH)
 	{
-		picks[n]=5;
+		picks[n]=REALM_DEATH;
 		n++;
 	}
-	if ((choices & CH_FOLK) && p_ptr->realm1 != 7)
+	if ((choices & CH_CHARMS) && p_ptr->realm1 != REALM_CHARMS)
 	{
-		picks[n]=7;
+		picks[n]=REALM_CHARMS;
 		n++;
 	}
-	if ((choices & CH_MIRACLES) && p_ptr->realm1 != 1)
+	if ((choices & CH_MIRACLES) && p_ptr->realm1 != REALM_MIRACLES)
 	{
-		picks[n]=1;
+		picks[n]=REALM_MIRACLES;
 		n++;
 	}
-	if ((choices & CH_NATURE) && p_ptr->realm1 != 3)
+	if ((choices & CH_NATURE) && p_ptr->realm1 != REALM_NATURE)
 	{
-		picks[n]=3;
+		picks[n]=REALM_NATURE;
 		n++;
 	}
-	if ((choices & CH_PLANAR) && p_ptr->realm1 != 6)
+	if ((choices & CH_TAROT) && p_ptr->realm1 != REALM_TAROT)
 	{
-		picks[n]=6;
+		picks[n]=REALM_TAROT;
 		n++;
 	}
-	if ((choices & CH_SORCERY) && p_ptr->realm1 != 2)
+	if ((choices & CH_SORCERY) && p_ptr->realm1 != REALM_SORCERY)
 	{
-		picks[n]=2;
+		picks[n]=REALM_SORCERY;
 		n++;
 	}
 	/* Get a realm */
@@ -2117,10 +2120,10 @@ int get_realms()
 	switch (pclas)
 	{
 	case CLASS_WARRIOR_MAGE:
-		p_ptr->realm1 = 7;
+		p_ptr->realm1 = REALM_CHARMS;
 		break;
 	case CLASS_HELL_KNIGHT:
-		p_ptr->realm1 = 4;
+		p_ptr->realm1 = REALM_DEMONIC;
 		break;
 	case CLASS_PRIEST:
 		/* Hack... priests can be 'dark' priests and choose death instead of Miracles, but not both */		
@@ -2128,16 +2131,16 @@ int get_realms()
 		if(!p_ptr->realm1)return FALSE;
 		break;
 	case CLASS_RANGER:
-		p_ptr->realm1 = 3;
+		p_ptr->realm1 = REALM_NATURE;
 		break;
 	case CLASS_MYSTIC:
-		p_ptr->realm1 = 8;
+		p_ptr->realm1 = REALM_SOMATIC;
 		break;
 	case CLASS_DRUID:
-		p_ptr->realm1 = 3;
+		p_ptr->realm1 = REALM_NATURE;
 		break;
 	case CLASS_WARLOCK:
-		p_ptr->realm1 = 4;
+		p_ptr->realm1 = REALM_DEMONIC;
 		break;
 	default:
 		p_ptr->realm1 = choose_realm(realm_choices[pclas]);
@@ -2924,6 +2927,9 @@ static void player_wipe(void)
 	/* Hack -- zero the struct */
 	WIPE(p_ptr, player_type);
 
+    /* Evil patron is not set yet */
+    p_ptr->evil_patron = -1;
+    
 	/* Wipe the history */
 	for (i = 0; i < 4; i++)
 	{
@@ -3025,108 +3031,124 @@ static void player_wipe(void)
 }
 
 
-
-
 /*
-* Each player starts out with a few items, given as tval/sval pairs.
-* In addition, he always has some food and a few torches.
-*/
+ * Each player starts out with a few items, given as tval/sval pairs.
+ * In addition, he always has some food and a few torches.
+ */
 
 static byte player_init[MAX_CLASS][3][3] =
 {
 	{
 		/* Warrior */
-		{ TV_RING, SV_RING_RES_FEAR , WORN }, /* Warriors need it! */
-		{ TV_SWORD, SV_BROAD_SWORD , WORN},
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL , WORN }
+	{ TV_RING, SV_RING_RES_FEAR , WORN }, /* Warriors need it! */
+	{ TV_SWORD, SV_BROAD_SWORD , WORN},
+	{ TV_HARD_ARMOR, SV_CHAIN_MAIL , WORN }
 	},
-
+	
 	{
 		/* Mage */
-		{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: for realm1 book */
-		{ TV_SWORD, SV_DAGGER , WORN },
-		{ TV_DEATH_BOOK, 0 , CARRIED} /* Hack: for realm2 book */
+	{ TV_BOOK_REALM1, 0 , CARRIED}, 
+	{ TV_SWORD, SV_DAGGER , WORN },
+	{ TV_BOOK_REALM2, 0 , CARRIED} 
 	},
-
+	
 	{
 		/* Priest */
-		{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: for Miracles / Death book */
-		{ TV_HAFTED, SV_MACE , WORN},
-		{ TV_DEATH_BOOK, 0 , CARRIED} /* Hack: for realm2 book */
+	{ TV_BOOK_REALM1, 0 , CARRIED}, 
+	{ TV_HAFTED, SV_MACE , WORN},
+	{ TV_BOOK_REALM2, 0 , CARRIED} 
 	},
-
+	
 	{
 		/* Rogue */
-		{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: for realm1 book */
-		{ TV_SWORD, SV_DAGGER , WORN },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN }
+	{ TV_BOOK_REALM1, 0 , CARRIED}, 
+	{ TV_SWORD, SV_DAGGER , WORN },
+	{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN }
 	},
-
+	
 	{
 		/* Ranger */
-		{ TV_NATURE_BOOK, 0 , CARRIED},
-		{ TV_SWORD, SV_BROAD_SWORD , WORN},
-		{ TV_DEATH_BOOK, 0 , CARRIED}  /* Hack: for realm2 book */
+	{ TV_NATURE_BOOK, 0 , CARRIED},
+	{ TV_SWORD, SV_BROAD_SWORD , WORN},
+	{ TV_BOOK_REALM2, 0 , CARRIED}  
 	},
-
+	
 	{
 		/* Paladin */
-		{ TV_SORCERY_BOOK, 0 , CARRIED },
-		{ TV_SWORD, SV_BROAD_SWORD , WORN },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL , CARRIED }
+	{ TV_BOOK_REALM1, 0 , CARRIED },
+	{ TV_SWORD, SV_BROAD_SWORD , WORN },
+	{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL , CARRIED }
 	},
-
+	
 	{
 		/* Warrior-Mage */
-		{ TV_SORCERY_BOOK, 0 , CARRIED }, /* Hack: for realm1 book */
-		{ TV_SWORD, SV_SHORT_SWORD , WORN},
-		{ TV_DEATH_BOOK, 0 , WORN} /* Hack: for realm2 book */
+	{ TV_BOOK_REALM1, 0 , CARRIED }, 
+	{ TV_SWORD, SV_SHORT_SWORD , WORN},
+	{ TV_BOOK_REALM2, 0 , WORN} 
 	},
-
+	
 	{
 		/* Hell Knight */
-		{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: For realm1 book */
-		{ TV_SWORD, SV_BROAD_SWORD , WORN},
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL , WORN }
+	{ TV_BOOK_REALM1, 0 , CARRIED}, 
+	{ TV_SWORD, SV_BROAD_SWORD , WORN},
+	{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL , WORN }
 	},
-
+	
 	{
 		/* Mystic */
-		{ TV_SORCERY_BOOK, 0 , CARRIED },
-		{ TV_POTION, SV_POTION_HEALING , CARRIED},
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN},
+	{ TV_BOOK_REALM1, 0 , CARRIED },
+	{ TV_POTION, SV_POTION_HEALING , CARRIED},
+	{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN},
 	},
-
-
+	
+	
 	{
 		/* Mindcrafter */
-		{ TV_SWORD, SV_SMALL_SWORD, WORN },
-		{ TV_POTION, SV_POTION_RESTORE_MANA , CARRIED},
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN},
+	{ TV_SWORD, SV_SMALL_SWORD, WORN },
+	{ TV_POTION, SV_POTION_RESTORE_MANA , CARRIED},
+	{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN},
 	},
-
-		{
-			/* High Mage */
-			{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: for realm1 book */
-			{ TV_SORCERY_BOOK, 1 , CARRIED}	, /* Hack^2 : for realm1 book, 2nd edition */
-			{ TV_SWORD, SV_DAGGER , WORN}, 		
-		},
-
-		{
-			/* Druid */
-			{TV_SORCERY_BOOK,0 , CARRIED}, /* Hack: for realm1 book */
-			{ TV_HAFTED, SV_QUARTERSTAFF , WORN},
-			{TV_AMULET,SV_AMULET_BRILLIANCE , WORN},
-		},
-
-		{
-			/* Warlock */
-			{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: for realm1 book */
-			{ TV_RING, SV_RING_SUSTAIN_MIND , WORN },
-			{ TV_DEATH_BOOK, 0 , CARRIED} /* Hack: for realm2 book */
-		},
-
+	
+	{
+		/* High Mage */
+	{ TV_BOOK_REALM1, 0 , CARRIED}, 
+	{ TV_BOOK_REALM1, 1 , CARRIED}, 
+	{ TV_SWORD, SV_DAGGER , WORN}, 		
+	},
+	
+	{
+		/* Druid */
+	{TV_BOOK_REALM1,0 , CARRIED}, 
+	{ TV_HAFTED, SV_QUARTERSTAFF , WORN},
+	{TV_AMULET,SV_AMULET_BRILLIANCE , WORN},
+	},
+	
+	{
+		/* Warlock */
+	{ TV_BOOK_REALM1, 0 , CARRIED}, 
+	{ TV_RING, SV_RING_SUSTAIN_MIND , WORN },
+	{ TV_BOOK_REALM2, 0 , CARRIED} 
+	},
+	
 };
+
+
+static void player_give( byte tval , byte sval , byte number )
+{
+	object_type	forge;
+	object_type	*q_ptr;
+	
+	/* Get local object */
+	q_ptr = &forge;
+	/*Prep the object with type and subtype*/
+	object_prep(q_ptr, lookup_kind(tval, sval));
+	/*Set the amount*/
+	q_ptr->number = number;
+	/* Treat them as if storebought to prevent trigger-happy squelching*/
+	object_storebought(q_ptr);
+	/*Put them in inventory of player*/
+	(void)inven_carry(q_ptr, FALSE);
+}
 
 
 
@@ -3141,98 +3163,37 @@ static void player_outfit(void)
 
 	object_type	forge;
 	object_type	*q_ptr;
+	/*1 scroll of recall*/	
+	player_give(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL, (byte)rand_range(1,1) ); 
+	/*2 or 3 scrolls of teleport */
+	player_give(TV_SCROLL, SV_SCROLL_TELEPORT, (byte)rand_range(2,3) ); 
 
-	/* A scroll of Recall for all */
-	/* Get local object */
-	q_ptr = &forge;
-	object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL));
-	q_ptr->number = (char)rand_range(1,1);
-	object_aware(q_ptr);
-	object_known(q_ptr);
-	/* These objects are "storebought" */
-	q_ptr->ident |= IDENT_STOREB;
-	(void)inven_carry(q_ptr, FALSE);
-	
-	/* Hack -- Give the player 2 or 3 scrolls of teleport */
-	q_ptr = &forge;
-	object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT));
-	q_ptr->number = (char)rand_range(2,3);
-	object_aware(q_ptr);
-	object_known(q_ptr);
-	q_ptr->ident |= IDENT_STOREB;
-	(void)inven_carry(q_ptr, FALSE);
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	if (p_ptr->prace == GUARDIAN || p_ptr->prace == SKELETON ||
-		p_ptr->prace == MUMMY || p_ptr->prace == VAMPIRE ||
-		p_ptr->prace == SPECTRE)
+	if (!rp_ptr->rations)
 	{
-		/* Hack -- Give the player scrolls of satisfy hunger */
-		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
-		q_ptr->number = (char)rand_range(2,5);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
-		(void)inven_carry(q_ptr, FALSE);
+		/* Give the player scrolls of satisfy hunger */
+		player_give(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER, (byte)rand_range(2,5) ); 
 	}
 	else
 	{
-		/* Hack -- Give the player some food */
-		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-		q_ptr->number = (char)rand_range(3, 7);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr, FALSE);
+		/* Give the player some food */
+		player_give(TV_FOOD, SV_FOOD_RATION, (byte)rand_range(3, 7) ); 		
 	}
 
-
-	/* Get local object */
-	q_ptr = &forge;
-
-
-	if (p_ptr->prace == VAMPIRE)
+	if (rp_ptr->hates_light)
 	{
-
-		/* Hack -- Give the player scrolls of light */
-		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_LIGHT));
-		q_ptr->number = (char)rand_range(3,7);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
-
-		(void)inven_carry(q_ptr, FALSE);
-
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Hack -- Give the player scrolls of DARKNESS! */
-		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_DARKNESS));
-		q_ptr->number = (char)rand_range(2,5);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
-
-		(void)inven_carry(q_ptr, FALSE);
-
+		/* Give the player scrolls of light, wtf?? */
+		player_give(TV_SCROLL, SV_SCROLL_LIGHT, (byte)rand_range(3,7) ); 
+		/* Give the player scrolls of DARKNESS! */
+		player_give(TV_SCROLL, SV_SCROLL_DARKNESS, (byte)rand_range(2,5) ); 		
 	}
 	else
 	{
-		/* Hack -- Give the player a lantern  */
+		/* Hack -- Give the player a lantern, hack because we force pval and outfit it  */
 		q_ptr = &forge;
 		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_LANTERN));
 		q_ptr->number = (char)rand_range(1,1);
 		q_ptr->pval = 15000;
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		q_ptr->ident |= IDENT_STOREB;
-		/*(void)inven_carry(q_ptr, FALSE);	*/
+		object_storebought(q_ptr);
 		outfit( q_ptr );
 	}
 
@@ -3243,38 +3204,27 @@ static void player_outfit(void)
 		tv = player_init[p_ptr->pclass][i][0];
 		sv = player_init[p_ptr->pclass][i][1];
 
-		/* Hack to initialize spellbooks 
-           Note that the two TV's point to first and second realm
-		   Except for high mages for which first and second book are given
-		   This hack is actually not even needed, but is small and might
-		   be useful later	
-		*/
-		if (tv  == TV_SORCERY_BOOK) tv = TV_MIRACLES_BOOK + p_ptr->realm1 - 1;
-		else if (tv == TV_DEATH_BOOK) tv = TV_MIRACLES_BOOK + ( p_ptr->pclass==CLASS_HIGH_MAGE?p_ptr->realm1:p_ptr->realm2 ) - 1;
-
-		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
-			p_ptr->prace == NORDIC)
-			/* Nordics do not need a ring of resist fear */
+		/* Hack to initialize spellbook of realm 1*/
+		if (tv  == TV_BOOK_REALM1) 
+			tv = TV_MIRACLES_BOOK + p_ptr->realm1 - 1;
+		/* Hack to initialize spellbook of realm 2*/		
+		else if (tv == TV_BOOK_REALM2) 
+			tv = TV_MIRACLES_BOOK + p_ptr->realm2 - 1;
+		/* Fearless races do not need rings of res fear */
+		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&  rp_ptr->fearless  )
 			sv = SV_RING_SUSTAIN_BODY;
 
 		/* Get local object */
 		q_ptr = &forge;
-
 		/* Hack -- Give the player an object */
 		object_prep(q_ptr, lookup_kind(tv, sv));
-
 		/* Assassins begin the game with a poisoned dagger */
-		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
-			p_ptr->realm1 == 5) /* Only assassins get a poisoned weapon */
+		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE && p_ptr->realm1 == REALM_DEATH) 
 		{
 			q_ptr->name2 = EGO_BRAND_POIS;
 		}
 
-		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
-
-		object_aware(q_ptr);
-		object_known(q_ptr);
+		object_storebought(q_ptr);
 		/*Carry or wear the item*/
 		if(player_init[p_ptr->pclass][i][2]==CARRIED)
 			(void)inven_carry(q_ptr, FALSE);
@@ -3497,7 +3447,7 @@ static bool player_birth_aux()
 
 		/*** Player race ***/
 		/* Set race */
-		k=rand_range(0,MAX_RACES-1);
+		k=rand_range(0,COUNT_RACES-1);
 		hack_corruption = FALSE;
 		if (k==DEVILSPAWN) hack_corruption = TRUE;
 		p_ptr->prace = k;
@@ -3511,7 +3461,7 @@ static bool player_birth_aux()
 			p_ptr->pclass = (char)rand_range(0,MAX_CLASS-1);
 			/* Analyze */
 			cp_ptr = &class_info[p_ptr->pclass];
-			mp_ptr = &magic_info[p_ptr->pclass];
+			mp_ptr = &realms_info[p_ptr->pclass];
 			str = class_sub_name[p_ptr->pclass][p_ptr->realm1];
 
 			if (rp_ptr->choice & (1L << p_ptr->pclass )) break;
@@ -4290,7 +4240,7 @@ static bool player_birth_aux()
 		
 		p_ptr->pclass = choice;
 		cp_ptr = &class_info[p_ptr->pclass];
-		mp_ptr = &magic_info[p_ptr->pclass];
+		mp_ptr = &realms_info[p_ptr->pclass];
 		str = class_sub_name[p_ptr->pclass][p_ptr->realm1];
 
 		/* Display */
@@ -4302,7 +4252,7 @@ static bool player_birth_aux()
 
 		if(!get_realms())
 			return FALSE;
-
+        
 		if(p_ptr->realm1)
 		{
 			if(p_ptr->realm2)

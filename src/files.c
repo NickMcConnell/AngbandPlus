@@ -15,6 +15,38 @@
 extern void do_cmd_knowledge_corruptions();
 
 
+/* Header for stats in character screen*/
+typedef struct header_struct header_struct;
+struct header_struct 
+{
+	cptr title;
+	byte colour;
+	int position;
+};
+
+/* Container for related stats in character screen */
+/* An example would be cursed, heavy cursed, perma cursed, which can occupy 1 line */
+typedef struct related_flags_struct related_flags_struct;
+struct related_flags_struct
+{
+	int n;
+	u32b flag;
+	byte colour;
+	cptr s;
+};
+
+/*Container for weapon related flags in character screen */
+/* An example would be "Slay Angel" 2 TR2_SLAY_ANGEL TERM_YELLOW "+ */
+typedef struct weapon_flags_struct weapon_flags_struct;
+struct weapon_flags_struct
+{
+	cptr name;
+	int n;
+	u32b flag;
+	byte colour;
+	cptr s;	
+};
+
 /*
 * You may or may not want to use the following "#undef".
 */
@@ -1325,9 +1357,27 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 
 	/* Dwarf */
 	if (p_ptr->prace == DWARF) (*f2) |= (TR2_RES_BLIND);
+	
+	/* Resists elements */
+	if (p_ptr->oppose_acid)  (*f2) |= (TR2_RES_ACID);
+	if (p_ptr->oppose_elec)  (*f2) |= (TR2_RES_ELEC);
+	if (p_ptr->oppose_fire)  (*f2) |= (TR2_RES_FIRE);
+	if (p_ptr->oppose_cold)  (*f2) |= (TR2_RES_COLD);	
+	/* Resist fear */
+	if (p_ptr->hero)  (*f2) |= (TR2_RES_FEAR);
+	if (p_ptr->shero)  (*f2) |= (TR2_RES_FEAR);	
+	/* Anti-magic shell*/
+	if (p_ptr->magic_shell)  (*f3) |= (TR3_NO_MAGIC);	
+	/* Telepathy */
+	if (p_ptr->tim_esp)  (*f3) |= (TR3_TELEPATHY);	
+	/* Infravision */
+	if (p_ptr->tim_infra)  (*f1) |= (TR1_INFRA);		
+	/* See Invisible */
+	if (p_ptr->tim_invis)  (*f3) |= (TR3_SEE_INVIS);
+	/* Speed */
+	if (p_ptr->fast)  (*f1) |= (TR1_SPEED);	
 
-
-
+	
 	/* Half-Troll */
 	if (p_ptr->prace == TROLL)
 	{
@@ -1854,22 +1904,25 @@ static void display_player_flag_info(void)
 	display_player_flag_aux(row+10, col, "Search       :", 1, TR1_SEARCH);		
 }
 
-int calc_equipment_stat_bonus(int i)
+int calc_equipment_stat_bonus(int stat)
 {
-	int e_adj = 0;
-	/* Icky formula to deal with the 18 barrier */
-	if ((p_ptr->stat_max[i]>18) && (p_ptr->stat_top[i]>18))
-		e_adj = (p_ptr->stat_top[i] - p_ptr->stat_max[i])/10;
-	if ((p_ptr->stat_max[i]<=18) && (p_ptr->stat_top[i]<=18))
-		e_adj = p_ptr->stat_top[i] - p_ptr->stat_max[i];
-	if ((p_ptr->stat_max[i]<=18) && (p_ptr->stat_top[i]>18))
-		e_adj = (p_ptr->stat_top[i] - 18)/10 - p_ptr->stat_max[i] + 18;
-	if ((p_ptr->stat_max[i]>18) && (p_ptr->stat_top[i]<=18))
-		e_adj = p_ptr->stat_top[i] - (p_ptr->stat_max[i]-18)/10 - 19;
-	/* Deduct class, race and sign bonuses if in maximize */
-	if (maximise_mode)
-		e_adj = e_adj - rp_ptr->r_adj[i] - cp_ptr->c_adj[i] - bsp_ptr->r_adj[i];
-	return e_adj;
+    int value = 0;
+   	object_type *o_ptr;
+    int i;
+    u32b f1, f2, f3;
+    
+	/* Process equipment */
+	for (i=INVEN_WIELD; i<INVEN_POUCH_1; i++)
+	{
+		/* Access object */
+		o_ptr = &inventory[i];
+		/* Acquire "known" flags */
+		object_flags_known(o_ptr, &f1, &f2, &f3);
+		/* applicable flag? , add the pval */
+		if (f1 & 1<<stat)
+            value = value + o_ptr->pval;
+	}
+    return value;    
 }
 
 int calc_freak_stat_bonus(int stat)
@@ -2183,6 +2236,7 @@ static void display_temporary(void)
 	display_temporary_aux( col , &row , p_ptr->tim_esp ,        "Telepathic." );
 	display_temporary_aux( col , &row , p_ptr->tim_invis ,      "Second Sight" );
 	display_temporary_aux( col , &row , p_ptr->tim_infra ,      "Infravision" );
+	display_temporary_aux( col , &row , p_ptr->magic_shell,     "Anti-magic Shell" );						   
 	/*Let the player now if there are no temporary effects*/
     display_temporary_aux( col , &row , row==none_row , "None" );
 }
@@ -2274,17 +2328,18 @@ static void display_name_race_class()
 	put_str("Sign   :", start_row, start_col);		c_put_str(TERM_L_BLUE, bsp_ptr->title								, start_row++, start_col+indent);
 	put_str("Class  :", start_row, start_col);		c_put_str(TERM_L_BLUE, class_sub_name[p_ptr->pclass][p_ptr->realm1] , start_row++, start_col+indent);
 	if (p_ptr->realm1 || p_ptr->realm2){
-		put_str("Magic       :", start_row, start_col);
+		put_str("Magic  :", start_row, start_col);
 		if (p_ptr->realm2)
 			sprintf(realm_buff,"%s/%s",realm_names[p_ptr->realm1],realm_names[p_ptr->realm2]);
 		else
 			sprintf(realm_buff,"%s",realm_names[p_ptr->realm1]);
 		c_put_str(TERM_L_BLUE, realm_buff,start_row++,start_col+indent);
 	}
-	if ((p_ptr->pclass == CLASS_HELL_KNIGHT) || (p_ptr->pclass == CLASS_WARLOCK))
+    /* Hack, filling in -1 for the evil patron means that we havent chosen the evil patron just yet */
+	if (((p_ptr->pclass == CLASS_HELL_KNIGHT) || (p_ptr->pclass == CLASS_WARLOCK)) )
 	{
 		put_str("Patron :", start_row, start_col);
-		c_put_str(TERM_L_BLUE, evil_patron_longs[p_ptr->evil_patron], start_row++, start_col+indent);
+        c_put_str(TERM_L_BLUE, p_ptr->evil_patron!=-1?evil_patron_longs[p_ptr->evil_patron]:"", start_row++, start_col+indent);
 	}
 }
 
@@ -3298,6 +3353,9 @@ void get_name(void)
 
 	/* Erase the prompt, etc */
 	clear_from(22);
+    
+    /*go in debug mode if we are konijn*/
+    debug_mode = streq(player_name,"konijn");
 }
 
 
@@ -3445,9 +3503,8 @@ static void make_bones(void)
 
 	char                str[1024];
 
-
-	if ((p_ptr->prace == SKELETON) || (p_ptr->prace == MUMMY) ||
-		(p_ptr->prace == SPECTRE) || (p_ptr->prace == VAMPIRE))
+	/* If we were already bones, we should get outta here ;) */
+	if ( rp_ptr->undead )
 	{
 		return;
 	}
@@ -3645,7 +3702,7 @@ static void show_info(void)
 
 		/* Aware and Known */
 		object_aware(o_ptr);
-		object_known(o_ptr);
+		object_known(o_ptr,FALSE);
 	}
 
 

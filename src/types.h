@@ -189,6 +189,8 @@ struct object_kind
 	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
+	
+	byte squelch;        /* Squelch information */
 };
 
 
@@ -467,8 +469,6 @@ struct cave_type
 
 };
 
-
-
 /*
 * Object information, for a specific object.
 *
@@ -550,6 +550,8 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+	
+	bool squelch;		/*Does it need to be squelched?*/
 };
 
 
@@ -613,6 +615,7 @@ struct monster_type
 
 #endif
 
+	byte ally;			/* Field for alliance of the monster */
 };
 
 
@@ -754,23 +757,38 @@ struct store_type
 	object_type *stock;		/* Stock -- Actual stock items */
 };
 
-
-
-
-
 /*
-* The "name" of spell 'N' is stored as spell_names[X][N],
-* where X is 0 for mage-spells and 1 for priest-spells.
-*/
+ * All spell info are in here
+ */
+typedef struct spell_type spell_type;
+struct spell_type
+{
+	byte slevel;		/* Required level (to learn) */
+	byte smana;			/* Required mana (to cast) */
+	byte sfail;			/* Minimum chance of failure */
+	byte sexp;			/* Encoded experience bonus */
+	cptr name;			/* Name of the spell*/
+	cptr macro;			/* Macro of the spell description */
+	cptr spoiler;		/* Description of the spell*/
+};
 
+/* All spell info and all player spell info*/ 
 typedef struct magic_type magic_type;
-
 struct magic_type
 {
 	byte slevel;		/* Required level (to learn) */
 	byte smana;			/* Required mana (to cast) */
 	byte sfail;			/* Minimum chance of failure */
 	byte sexp;			/* Encoded experience bonus */
+	cptr name;          /* Name of the spell */
+	cptr macro;			/* Macro of the spell description */	
+	cptr spoiler;       /* Spoiler of the spell */
+	cptr info;			/* Information about the spell */
+	byte attr_info;		/* Color of the info */
+	byte attr_realm;    /* Color of the realm */
+	bool forgotten;     /* Have we forgotten it ?*/
+	bool learned;		/* Have we learned it once ? */
+	bool worked;         /* Have we tried it once ? */
 };
 
 /*
@@ -794,23 +812,21 @@ struct alchemy_info
 * Note that a player with a "spell_book" of "zero" is illiterate.
 */
 
-typedef struct player_magic player_magic;
+typedef struct class_magic class_magic;
 
-struct player_magic
+struct class_magic
 {
-	s16b spell_book;		/* Tval of spell books (if any) */
-	s16b spell_xtra;		/* Something for later */
+	s16b spell_book;		 /* Tval of spell books (if any) */
+	s16b spell_xtra;		 /* Something for later */
 
-	s16b spell_stat;		/* Stat for spells (if any)  */
-	s16b spell_type;		/* Spell type (mage/priest) */
+	s16b spell_stat;		 /* Stat for spells (if any)  */
+	s16b spell_type;		 /* Spell type (mage/priest) */
 
-	s16b spell_first;		/* Level of first spell */
-	s16b spell_weight;		/* Weight that hurts spells */
+	s16b spell_first;		 /* Level of first spell */
+	s16b spell_weight;		 /* Weight that hurts spells */
 
-	magic_type info[MAX_REALM][32];    /* The available spells */
+	byte skill[MAX_REALM];   /* Skill per realm ( compared to average skill which is mage ) */
 };
-
-
 
 /*
 * Player sex info
@@ -868,6 +884,14 @@ struct player_race
 	byte infra;			/* Infra-vision	range */
 
 	u16b choice;        /* Legal class choices */
+	
+	bool rations;		/* Can use regular food */
+	
+	bool undead;		/* Undead ?*/
+	
+	bool fearless;		/* Fearless ? */
+	
+	bool hates_light;	/* Hates light ? */
 	/*    byte choice_xtra;   */
 };
 
@@ -932,8 +956,8 @@ struct player_type
 	byte prace;			/* Race index */
 	byte psign;         /* Birth Sign Index */
 	byte pclass;		/* Class index */
-	byte realm1;        /* First magic realm */
-	byte realm2;        /* Second magic realm */
+	u16b realm1;        /* First magic realm */
+	u16b realm2;        /* Second magic realm */
 	byte oops;			/* Unused */
 
 	byte hitdie;		/* Hit dice (sides) */
@@ -993,6 +1017,7 @@ struct player_type
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
+	s16b magic_shell;  /*  Timed -- Magic Shell */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -1181,36 +1206,36 @@ struct mindcraft_power {
 	int fail;
 	cptr name;
 };
-
-/* Header for stats in character screen*/
-typedef struct header_struct header_struct;
-struct header_struct 
-{
-	cptr title;
-	byte colour;
-	int position;
+/* Defintion of a 'U'sable power*/
+typedef struct U_power U_power;
+struct U_power {
+	int  idx;
+	cptr description;
+	int level;	
+	int cost;
+	int cost_level;
+	int stat;
+	cptr info;
+	int power;
 };
 
-/* Container for related stats in character screen */
-/* An example would be cursed, heavy cursed, perma cursed, which can occupy 1 line */
-typedef struct related_flags_struct related_flags_struct;
-struct related_flags_struct
-{
-	int n;
-	u32b flag;
-	byte colour;
-	cptr s;
+/* Definition of a freak/corruption power */
+typedef struct corruption_type corruption_type;
+struct corruption_type {
+	byte  idx;
+	u32b  bitflag;
+	cptr  gain;
+	byte  odds;
+	cptr  lose;
+	cptr  description;
 };
 
-/*Container for weapon related flags in character screen */
-/* An example would be "Slay Angel" 2 TR2_SLAY_ANGEL TERM_YELLOW "+ */
-typedef struct weapon_flags_struct weapon_flags_struct;
-struct weapon_flags_struct
-{
-	cptr name;
-	int n;
-	u32b flag;
-	byte colour;
-	cptr s;	
+typedef struct opposed_corruptions_type opposed_corruptions_type;
+struct opposed_corruptions_type {
+	byte idx_gain;
+	u32b bitflag_gain;
+	byte idx;
+	u32b bitflag;	
+	cptr message;
 };
 

@@ -1055,6 +1055,18 @@ static void health_redraw(void)
 		/* Healthy */
 		if (pct >= 100) attr = TERM_L_GREEN;
 
+		/* stunned */
+		if (m_ptr->stunned) {
+			attr = TERM_VIOLET;
+			smb = "STUN******";
+		}       
+        
+		/* confused */
+		if (m_ptr->confused) {
+			attr = TERM_VIOLET;
+			smb = "CONF******";
+		}       
+        
 		/* Afraid */
 		if (m_ptr->monfear) {
 			attr = TERM_VIOLET;
@@ -1065,7 +1077,7 @@ static void health_redraw(void)
 			attr = TERM_BLUE;
 			smb = "SLEEPING**";
 		}
-		if (m_ptr->smart & SM_ALLY) {
+		if (is_ally(m_ptr)) {
 			attr = TERM_L_UMBER;
 			smb = "ALLY******";
 		}
@@ -1457,11 +1469,10 @@ static void calc_spells(void)
 	int			i, j, k, levels;
 	int			num_allowed, num_known;
 
-	magic_type		*s_ptr;
 	int use_realm1 = p_ptr->realm1 - 1;
 	int use_realm2 = p_ptr->realm2 - 1;
 	int which;
-
+	int max_spells;
 
 	cptr p = ((mp_ptr->spell_book == TV_SORCERY_BOOK) ? "spell" : "prayer");
 
@@ -1483,15 +1494,17 @@ static void calc_spells(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total allowed spells */
-	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] *
-		levels / 2);
-
+	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2);
 
 	/* Assume none known */
 	num_known = 0;
 
+	/*If we deal with 1 realm, check 32 spells, otherwise check 64*/
+	max_spells = p_ptr->realm2?64:32;
+
+
 	/* Count the number of spells we know */
-	for (j = 0; j < 64; j++)
+	for (j = 0; j < max_spells; j++)
 	{
 		/* Count known spells */
 		if ((j < 32) ?
@@ -1506,7 +1519,7 @@ static void calc_spells(void)
 	p_ptr->new_spells = num_allowed - num_known;
 
 	/* Forget spells which are too hard */
-	for (i = 63; i >= 0; i--)
+	for (i = max_spells-1; i >= 0; i--)
 	{
 		/* Efficiency -- all done */
 		if (!spell_learned1 && !spell_learned2) break;
@@ -1517,12 +1530,15 @@ static void calc_spells(void)
 		/* Skip non-spells */
 		if (j >= 99) continue;
 
-
 		/* Get the spell */
-		if (j < 32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
-		else
-			s_ptr = &mp_ptr->info[use_realm2][j%32];
+		if (j < 32){
+		/* Access the spell */
+			get_spell_info( use_realm1, j , s_ptr );
+		}
+		else{
+		/* Access the spell */
+			get_spell_info( use_realm2, j%32 , s_ptr );
+		}
 
 		/* Skip spells we are allowed to know */
 		if (s_ptr->slevel <= p_ptr->lev) continue;
@@ -1557,8 +1573,7 @@ static void calc_spells(void)
 			}
 
 			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-				spell_names[which][j%32]);
+			msg_format("You have forgotten the %s of %s.", p, spells[which][j%32].name);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1567,7 +1582,7 @@ static void calc_spells(void)
 
 
 	/* Forget spells if we know too many spells */
-	for (i = 63; i >= 0; i--)
+	for (i = max_spells-1; i >= 0; i--)
 	{
 		/* Stop when possible */
 		if (p_ptr->new_spells >= 0) break;
@@ -1611,8 +1626,7 @@ static void calc_spells(void)
 			}
 
 			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-				spell_names[which][j%32]);
+			msg_format("You have forgotten the %s of %s.", p, spells[which][j%32].name);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1621,7 +1635,7 @@ static void calc_spells(void)
 
 
 	/* Check for spells to remember */
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < max_spells; i++)
 	{
 		/* None left to remember */
 		if (p_ptr->new_spells <= 0) break;
@@ -1635,11 +1649,13 @@ static void calc_spells(void)
 		/* Skip unknown spells */
 		if (j >= 99) break;
 
-		/* Access the spell */
-		if (j<32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
-		else
-			s_ptr = &mp_ptr->info[use_realm2][j%32];
+		/* Get the spell */
+		if (j < 32){
+			get_spell_info( use_realm1, j , s_ptr );
+		}
+		else{
+			get_spell_info( use_realm2, j%32 , s_ptr );
+		}
 
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
@@ -1672,10 +1688,9 @@ static void calc_spells(void)
 				spell_learned2 |= (1L << (j - 32));
 				which = use_realm2;
 			}
-
+			
 			/* Message */
-			msg_format("You have remembered the %s of %s.",
-				p, spell_names[which][j%32]);
+			msg_format("You have remembered the %s of %s.",	p, spells[which][j%32].name);
 
 			/* One less can be learned */
 			p_ptr->new_spells--;
@@ -1687,14 +1702,16 @@ static void calc_spells(void)
 	k = 0;
 
 	/* Count spells that can be learned */
-	for (j = 0; j < 64; j++)
+	for (j = 0; j < max_spells; j++)
 	{
-		/* Access the spell */
-		if (j<32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
-		else
-			s_ptr = &mp_ptr->info[use_realm2][j%32];
-
+		/* Get the spell */
+		if (j < 32){
+			get_spell_info( use_realm1, j , s_ptr );
+		}
+		else{
+			get_spell_info( use_realm2, j%32 , s_ptr );
+		}
+		
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
 
@@ -1710,20 +1727,12 @@ static void calc_spells(void)
 		k++;
 	}
 
+	/*Make sure we dont have more spell slots than slots*/
+	if(k>max_spells)k = max_spells;
 
-	if (p_ptr->realm2 == 0)
-	{
-		if (k>32) k = 32;
-	}
-	else
-	{
-		if (k>64) k = 64;
-	}
 
 	/* Cannot learn more spells than exist */
 	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
-
-
 
 	/* Spell count changed */
 	if (p_ptr->old_spells != p_ptr->new_spells)
@@ -2224,8 +2233,10 @@ static void calc_bonuses(void)
 
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
-
-
+	
+	if(p_ptr->magic_shell)
+		p_ptr->anti_magic = TRUE;
+	
 	/* Elf */
 	if (p_ptr->prace == ELF) p_ptr->resist_lite = TRUE;
 
@@ -3552,7 +3563,7 @@ void update_stuff(void)
 	/* Update stuff */
 	if (!p_ptr->update) return;
 
-
+	if(arg_fiddle)msg_note( "About to calc_bonuses" );
 	if (p_ptr->update & (PU_BONUS))
 	{
 		p_ptr->update &= ~(PU_BONUS);
@@ -3576,17 +3587,17 @@ void update_stuff(void)
 		p_ptr->update &= ~(PU_MANA);
 		calc_mana();
 	}
-
+	
+	if(arg_fiddle)msg_note( "About to calc_spells" );
 	if (p_ptr->update & (PU_SPELLS))
 	{
 		p_ptr->update &= ~(PU_SPELLS);
 		calc_spells();
 	}
-
+	if(arg_fiddle)msg_note( "Post calc_spells" );	
 
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;
-
 
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;

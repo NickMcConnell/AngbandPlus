@@ -103,11 +103,12 @@ static grouper group_item[] =
 	{ TV_MIRACLES_BOOK,       "Books (Miracles)" },
 	{ TV_SORCERY_BOOK,    "Books (Sorcery)" },
 	{ TV_NATURE_BOOK,     "Books (Nature)" },
-	{ TV_DEMONIC_BOOK,      "Books (Demonic)" },
+	{ TV_CHAOS_BOOK,      "Books (Demonic)" },
 	{ TV_DEATH_BOOK,      "Books (Death)" },
-	{ TV_PLANAR_BOOK,      "Books (Planar)" },
+	{ TV_TAROT_BOOK,      "Books (Tarot)" },
 	{ TV_CHARMS_BOOK,     "Books (Charms)" },
 	{ TV_SOMATIC_BOOK,     "Books (Somatic)"},
+   	{ TV_DEMONIC_BOOK,     "Books (Demon)"}, 
 
 	{ TV_CHEST,             "Chests" },
 
@@ -1856,7 +1857,6 @@ static void spoil_mon_info(cptr fname)
 
 		spoil_out("This");
 
-		if (flags2 & (RF2_ELDRITCH_HORROR)) spoil_out (" sanity-blasting");
 		if (flags3 & (RF3_ANIMAL)) spoil_out(" natural");
 		if (flags3 & (RF3_EVIL)) spoil_out(" evil");
 		if (flags3 & (RF3_GOOD)) spoil_out(" good");
@@ -2111,6 +2111,8 @@ static void spoil_mon_info(cptr fname)
 		if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
 		if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
 		if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
+		if (flags7 & (RF7_AQUATIC)) vp[vn++] = "swim";
+		if (flags7 & (RF7_FLIGHT)) vp[vn++] = "fly";					
 
 		if (vn)
 		{

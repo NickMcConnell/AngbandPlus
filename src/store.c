@@ -212,6 +212,7 @@ void room_rest(bool night)
 	p_ptr->invuln = 0;		/* Timed -- Invulnerable */
 	p_ptr->hero = 0;			/* Timed -- Heroism */
 	p_ptr->shero = 0;			/* Timed -- Super Heroism */
+	p_ptr->magic_shell = 0;    /* Timed -- Anti-magic Shell */
 	p_ptr->shield = 0;		/* Timed -- Shield Spell */
 	p_ptr->blessed = 0;		/* Timed -- Blessed */
 	p_ptr->see_inv = 0;		/* Timed -- See Invisible */
@@ -223,6 +224,7 @@ void room_rest(bool night)
 	p_ptr->oppose_fire = 0;	/* Timed -- oppose heat */
 	p_ptr->oppose_cold = 0;	/* Timed -- oppose cold */
 	p_ptr->oppose_pois = 0;	/* Timed -- oppose poison */
+	p_ptr->magic_shell = 0; /* Timed -- Magic Shell */
 
 	new_level_flag = TRUE;
 	came_from = START_WALK; /* We don't want the player to be moved */
@@ -595,11 +597,12 @@ static void mass_produce(object_type *o_ptr)
 	case TV_MIRACLES_BOOK:
 	case TV_SORCERY_BOOK:
 	case TV_NATURE_BOOK:
-	case TV_DEMONIC_BOOK:
+	case TV_CHAOS_BOOK:
 	case TV_DEATH_BOOK:
-	case TV_PLANAR_BOOK:
+	case TV_TAROT_BOOK:
 	case TV_CHARMS_BOOK:
 	case TV_SOMATIC_BOOK:
+	case TV_DEMONIC_BOOK:        
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -898,6 +901,8 @@ static bool store_will_buy(object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 			case TV_MIRACLES_BOOK:
+            case TV_DEMONIC_BOOK:   
+            case TV_DEATH_BOOK:                   
 			case TV_SCROLL:
 			case TV_POTION:
 			case TV_HAFTED:
@@ -933,13 +938,20 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
+            case TV_LITE:
+            {
+                if(o_ptr->sval!=SV_LITE_ORB)
+                    return (FALSE);
+                 break;        
+            }                
 			case TV_SORCERY_BOOK:
 			case TV_NATURE_BOOK:
-			case TV_DEMONIC_BOOK:
+			case TV_CHAOS_BOOK:
 			case TV_DEATH_BOOK:
-			case TV_PLANAR_BOOK:
+			case TV_TAROT_BOOK:
 			case TV_CHARMS_BOOK:
 			case TV_SOMATIC_BOOK:
+            case TV_DEMONIC_BOOK:    
 			case TV_AMULET:
 			case TV_RING:
 			case TV_STAFF:
@@ -961,12 +973,13 @@ static bool store_will_buy(object_type *o_ptr)
 			{
 			case TV_SORCERY_BOOK:
 			case TV_NATURE_BOOK:
-			case TV_DEMONIC_BOOK:
+			case TV_CHAOS_BOOK:
 			case TV_DEATH_BOOK:
 			case TV_MIRACLES_BOOK:
-			case TV_PLANAR_BOOK:
+			case TV_TAROT_BOOK:
 			case TV_CHARMS_BOOK:
 			case TV_SOMATIC_BOOK:
+            case TV_DEMONIC_BOOK:                
 				break;
 			default:
 				return (FALSE);
@@ -1388,7 +1401,7 @@ static void store_create(void)
 
 
 		/* The item is "known" */
-		object_known(q_ptr);
+		object_known(q_ptr,FALSE);
 
 		/* Mark it storebought */
 		q_ptr->ident |= IDENT_STOREB;
@@ -3064,7 +3077,7 @@ static void store_sell(void)
 			{
 				/* Identify original item */
 				object_aware(o_ptr);
-				object_known(o_ptr);
+				object_known(o_ptr,FALSE);
 			}
 
 			/* Combine / Reorder the pack (later) */
@@ -3121,6 +3134,16 @@ static void store_sell(void)
 
 			/* Handle stuff */
 			handle_stuff();
+			
+			if( 
+				(cur_store_num == STORE_TEMPLE && q_ptr->tval == TV_DEMONIC_BOOK ) ||
+				(cur_store_num == STORE_TEMPLE && q_ptr->tval == TV_DEATH_BOOK )
+			  )
+			{
+				msg_format( "%s destroys %s with glee!" , ot_ptr->owner_name , o_name );
+			}
+			else
+			{
 			if(cur_store_num != STORE_PAWN)
 			{
 				/* The store gets that (known) item */
@@ -3137,6 +3160,7 @@ static void store_sell(void)
 			{
 				store_top = (item_pos / 12) * 12;
 				display_inventory();
+			}
 			}
 		}
 	}
@@ -3213,9 +3237,9 @@ static void store_examine(void)
 
 	/* If it is a spell book then browse it */
 	if ((o_ptr->tval == TV_MIRACLES_BOOK) || (o_ptr->tval == TV_SORCERY_BOOK) ||
-		(o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_DEMONIC_BOOK) ||
+		(o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_CHAOS_BOOK) ||
 		(o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_SOMATIC_BOOK) ||
-		(o_ptr->tval == TV_PLANAR_BOOK) || (o_ptr->tval == TV_CHARMS_BOOK))
+		(o_ptr->tval == TV_TAROT_BOOK) || (o_ptr->tval == TV_CHARMS_BOOK) || (o_ptr->tval == TV_DEMONIC_BOOK))
 	{
 		do_store_browse(o_ptr);
 		return;
@@ -3521,11 +3545,7 @@ static void store_process_command(void)
 					}
 					else
 					{
-						if ((p_ptr->prace == SPECTRE) ||
-							(p_ptr->prace == MUMMY) ||
-							(p_ptr->prace == SKELETON) ||
-							(p_ptr->prace == WEREWOLF) ||
-							(p_ptr->prace == VAMPIRE))
+						if (rp_ptr->undead)
 						{
 							room_rest(TRUE);
 						}
@@ -3566,10 +3586,7 @@ static void store_process_command(void)
 								/* Be happy */
 								decrease_insults();
 								store_prt_gold();
-								if ((p_ptr->prace == SPECTRE) ||
-									(p_ptr->prace == MUMMY) ||
-									(p_ptr->prace == SKELETON) ||
-									(p_ptr->prace == VAMPIRE))
+								if (rp_ptr->undead)
 								{
 									room_rest(TRUE);
 								}
@@ -4469,7 +4486,7 @@ void do_store_browse( object_type *o_ptr)
 	Term_save();
 
 	/* Display the spells */
-	print_spells(spells, num, 1, 20, (o_ptr->tval-90));
+	print_spells(spells, num, 1, 15, (o_ptr->tval-90));
 
 	/* Clear the top line */
 	prt("", 0, 0);

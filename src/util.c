@@ -2362,6 +2362,15 @@ void msg_print(cptr msg)
 	if (fresh_message) Term_fresh();
 }
 
+/*  Do 1 message print and immediately ask for a keypress
+ *  Very handy to fiddle when dealing with crash code
+ */
+void msg_note(cptr msg)
+{
+	msg_print(msg);
+	msg_print(NULL);
+}
+
 
 /*
 * Display a formatted message, using "vstrnfmt()" and "msg_print()".
@@ -2438,9 +2447,6 @@ void prt(cptr str, int row, int col)
 	c_prt(TERM_WHITE, str, row, col);
 }
 
-
-
-
 /*
 * Print some (coloured) text to the screen at the current cursor position,
 * automatically "wrapping" existing text (at spaces) when necessary to
@@ -2455,7 +2461,7 @@ void prt(cptr str, int row, int col)
 * This function will correctly handle any width up to the maximum legal
 * value of 256, though it works best for a standard 80 character width.
 */
-void c_roff(byte a, cptr str)
+void c_roff(byte a, cptr str, int px , int py, int startx)
 {
 	int x, y;
 
@@ -2463,16 +2469,20 @@ void c_roff(byte a, cptr str)
 
 	cptr s;
 
-
 	/* Hack -- fake monochrome */
 	if (!use_colour) a = TERM_WHITE;
-
 
 	/* Obtain the size */
 	(void)Term_get_size(&w, &h);
 
 	/* Obtain the cursor */
 	(void)Term_locate(&x, &y);
+	/* If a proper cursor location is given, we start at that location */
+	if(px!=-1)x = px;
+	if(py!=-1)y = py;
+	/* If we have px or py not -1, then we place the cursor */
+	if( px!=-1 || py!=-1 )
+		Term_gotoxy( x ,y);
 
 	/* Process the string */
 	for (s = str; *s; s++)
@@ -2483,7 +2493,7 @@ void c_roff(byte a, cptr str)
 		if (*s == '\n')
 		{
 			/* Wrap */
-			x = 0;
+			x = startx;
 			y++;
 
 			/* Clear line, move cursor */
@@ -2525,7 +2535,7 @@ void c_roff(byte a, cptr str)
 			Term_erase(n, y, 255);
 
 			/* Wrap */
-			x = 0;
+			x = startx;
 			y++;
 
 			/* Clear line, move cursor */
@@ -2556,11 +2566,8 @@ void c_roff(byte a, cptr str)
 void roff(cptr str)
 {
 	/* Spawn */
-	c_roff(TERM_WHITE, str);
+	c_roff(TERM_WHITE, str,-1,-1,0);
 }
-
-
-
 
 /*
 * Clear part of the screen
@@ -3399,4 +3406,262 @@ void repeat_check(void)
 
 #endif /* ALLOW_REPEAT -- TNB */
 
+/**BEGIN**/
+
+/* script to be analyzed */
+char *script; 
+/*Current token*/
+char token[SCRIPT_MAX_LENGTH];
+char peek_token[SCRIPT_MAX_LENGTH];
+/*Future token ( retrieved by peek )*/
+char token_type;
+char peek_token_type;
+/*Variable being set*/
+char variable_token[SCRIPT_MAX_LENGTH];
+/*How are the dice rolling ?*/
+char dice_mode;
+
+/* Pre declaration because of recursive parsing*/
+void eval_plusminus(double *out);
+
+/* Display a syntax error. */
+void script_error(int error)
+{
+	cptr e[]= {
+		"Syntax Error",
+		"Parenthese mismatch",
+		"No Expression Present",
+		"Division by Zero",
+		"Unknown Variable",
+		"No assignment found",
+	};
+	msg_format("%s !! ", e[error] );
+}
+
+/* Return the value of a variable. */
+double find_var(char *s)
+{
+	/*Make sure we really do deal here with a var*/
+	if(!isalpha(*s)){
+		script_error(1);
+		return 0.0;
+	}
+	/*Run over all the possible vars*/
+	if( prefix(s , "PLEV" ) ) return (double)p_ptr->lev;
+	if( prefix(s , "CLEV" ) ) return (double)p_ptr->lev;
+	if( prefix(s , "ORB" ) )  return (double)(p_ptr->lev / ((p_ptr->pclass == CLASS_PRIEST || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4));
+	if( prefix(s , "DLEV" ) ) return (double)dun_level; 
+	if( prefix(s , "CHP" ) )  return (double)p_ptr->chp;
+	if( prefix(s , "MHP" ) )  return (double)p_ptr->mhp;
+	if( prefix(s , "CSP" ) )  return (double)p_ptr->csp;
+	if( prefix(s , "MSP" ) )  return (double)p_ptr->msp;
+	/*Still here ? Let the user know, return 0*/
+	script_error(4);
+	return 0;
+}
+
+/* Return true if c is a delimiter, this depends if we are reading a variable or not. */
+/* 9 = tab aka whitespace, 0 is the end delimiter */
+int isdelim(char c)
+{
+	if(strchr(" +-/*%^:();", c) || c==9 || c=='\r' || c==0 || ( c=='d' && token_type!=VARIABLE && !isalpha(*(script+1)) ))return TRUE;
+	 return FALSE;
+}
+
+bool isdone(void)
+{
+	return ( (!*script) || (*script==';') );
+}
+
+/* Return the next token. */
+void get_token(void)
+{
+	register char *cur_token;
+	
+	token_type = UNKNOWN;
+	cur_token = token;
+	*cur_token = '\0';
+	
+	if(isdone()) return; /* at end of expression */
+	
+	while(isspace(*script)) ++script; /* skip over white space */
+	
+	if( isdelim(*script))
+	{
+		token_type = DELIMITER;
+		*cur_token++ = *script++;
+	}
+	else if(isalpha(*script)) 
+	{
+		token_type = VARIABLE;		
+		while(!isdelim(*script)) *cur_token++ = *script++;
+	}
+	else if(isdigit(*script)) 
+	{
+		token_type = NUMBER;		
+		while(!isdelim(*script)) *cur_token++ = *script++;
+	}
+	/*Properly delimit token*/
+	*cur_token = '\0';
+}
+
+/* Parse the token we are pointing at. */
+void atom(double *out)
+{
+	*out = token_type==NUMBER?atof(token):find_var(token);
+	get_token();
+}
+
+/* Return a token to the input stream. */
+void get_peek(void)
+{
+	char *t;
+	char tmp_token_type = token_type;
+    char temp_token[SCRIPT_MAX_LENGTH];
+	/*Take a backup of the current token*/
+	tmp_token_type = token_type;
+	my_strcpy(temp_token, token,SCRIPT_MAX_LENGTH);
+	/*What is next ?*/
+	get_token();
+	/*Copy it into to peek vars*/
+	my_strcpy( peek_token , token , SCRIPT_MAX_LENGTH);
+	peek_token_type = token_type;
+	/*Restore the script*/
+	t = token;
+	for(; *t; t++) script--;
+	/*Restore the current token*/
+	token_type = tmp_token_type;
+	my_strcpy(token, temp_token,SCRIPT_MAX_LENGTH);
+}
+
+/* Process a parenthesized expression. */
+void eval_subexpression(double *out)
+{
+	if((*token == '(')) {
+		get_token();
+		eval_plusminus(out);
+		if(*token != ')')
+			script_error(1);
+		get_token();
+	}
+	else atom(out);
+}
+
+/* Evaluate a unary + or -. */
+void eval_unary(double *out)
+{
+	register char  op;
+	
+	op = 0;
+	if((token_type == DELIMITER) && (*token=='+' || *token == '-') ) {
+		op = *token;
+		get_token();
+	}
+	eval_subexpression(out);
+	if(op == '-') *out = -(*out);
+}
+
+/* Process a dice throw */
+void eval_dice(double *out)
+{
+	double sides, dice_count;
+	
+	eval_unary(out);
+	if(*token == 'd') {
+		get_token();
+		eval_dice(&sides);
+		dice_count = *out;
+		if(sides==0.0) {
+			*out = 0.0;
+			return;
+		}
+		if( dice_mode == WORST_CASE ) *out = dice_count;
+		if( dice_mode == BEST_CASE  ) *out = dice_count*sides;
+		if( dice_mode == ROLL       ) *out = damroll( dice_count, sides );
+	}
+}
+
+/* Multiply or divide two factors. */
+void eval_timesdivide(double *out)
+{
+	register char op;
+	double temp;
+	
+	eval_dice(out);
+	while((op = *token) == '*' || op == '/' || op == '%') {
+		get_token();
+		eval_dice(&temp);
+		switch(op) {
+			case '*':
+				*out = *out * temp;
+				break;
+			case '/':
+				if(temp == 0.0) {
+					script_error(3); /* division by zero */
+					*out = 0.0;
+				} else *out = *out / temp;
+				break;
+			case '%':
+				*out = (int) *out % (int) temp;
+				break;
+		}
+	}
+}
+
+/* Add or subtract two terms. */
+void eval_plusminus(double *out)
+{
+	register char op;
+	double temp;
+	
+	eval_timesdivide(out);
+	while((op = *token) == '+' || op == '-') {
+		get_token();
+		eval_timesdivide(&temp);
+		switch(op) {
+			case '-':
+				*out = *out - temp;
+				break;
+			case '+':
+				*out = *out + temp;
+				break;
+		}
+	}
+}
+
+/* Process the assignment. */
+void eval_assignment(double *out)
+{
+	/*Make sure we start with a variable*/
+	if(token_type == VARIABLE)
+	{
+		my_strcpy( variable_token, token, SCRIPT_MAX_LENGTH);
+		get_token();
+		/*Make sure we are dealing with an assignment*/
+		if(*token != ':')
+		{
+			script_error(5);
+		}
+		else 
+		{	/*Find out what the new value will be*/
+			get_token(); 
+			eval_plusminus(out);
+			/*vars[slot] = *out;*/
+		}
+	}else{
+		script_error(5);
+	}
+}
+
+/* Parser entry point. */
+void eval_script(double *out)
+{
+	get_token();
+	if(!*token) {
+		script_error(2);
+		return;
+	}
+	eval_assignment(out);
+	if(*token && *token!= ';') script_error(0); /* last token must be null */
+}
 

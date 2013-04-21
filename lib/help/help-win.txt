@@ -6,11 +6,10 @@ Please choose one of the following online help files:
     (d) Keyboard commands
     (e) Items
     (f) Magic basics
-    (g) Spells and Powers
-    (h) Corruption
-    (i) Options
-    (j) History of Moria, Angband, Zangband, Cthangband and Hellband
-    (k) Summary of recent changes
+    (g) Corruption
+    (h) Options
+    (i) History of Moria, Angband, Zangband, Cthangband and Hellband
+    (j) Summary of recent changes
 
 ***** [a] hlponhlp.txt
 ***** [b] ovew-win.txt
@@ -18,9 +17,8 @@ Please choose one of the following online help files:
 ***** [d] cmd-win.txt
 ***** [e] items.txt
 ***** [f] magic.txt
-***** [g] spells.txt
-***** [h] corrupt.txt
-***** [i] opt-win.txt
-***** [j] history.txt
-***** [k] whatsnew.txt
+***** [g] corrupt.txt
+***** [h] opt-win.txt
+***** [i] history.txt
+***** [j] whatsnew.txt
 

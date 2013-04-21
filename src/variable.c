@@ -235,7 +235,23 @@ bool maximise_mode; /* Unify stat bonuses */
 bool use_autoroller; /* Autoroll characters */
 bool spend_points; /* Spend points on stats */
 bool ironman_shop; /* Not allowed in shops */
+bool apply_k_storebought;	/* Apply {!k} to storebought items */
+bool apply_k_discover; /* When discovering a new consumable with 'id', offer to apply {!k} */
+bool sanity_store; /* Dont kill storebought items */
+bool sanity_speed; /* Dont kill items giving speed bonuses*/
+bool sanity_immune; /*  Dont kill items with immunities */
+bool sanity_telepathy; /* Dont Kill items with telepathy*/
+bool sanity_high_resist; /* Dont kill items with high resists ( off )*/
+bool sanity_stat; /*Dont kill items with stat bonuses*/
+bool sanity_verbose; /* Inform player when a sanity check is used */
+bool sanity_realm; /* Dont kill books of the realm I use */
+bool sanity_price;	/* Dont kill items more expensive then this */
+u32b sane_price; /* Limit price over which items will not be squelched */
+bool sanity_id; /* Dont kill unknown consumables */
 
+bool use_bigtile = FALSE; /* We aint not using bigtile yet */
+
+byte squelch_options[SQ_HL_COUNT];
 
 /* Option Set 3 -- Game-Play */
 
@@ -311,7 +327,7 @@ bool debug_wild;        /* Peek into skill rolls */
 
 /* Special options */
 
-s16b hitpoint_warn = 2;		/* Hitpoint warning (0 to 9) */
+s16b hitpoint_warn = 6;		/* Hitpoint warning (0 to 9) */
 
 s16b delay_factor = 4;		/* Delay factor (0 to 9) */
 
@@ -460,7 +476,6 @@ bool *macro__cmd;
 */
 char *macro__buf;
 
-
 /*
 * The number of quarks
 */
@@ -528,7 +543,7 @@ term *angband_term[8];
 */
 char angband_term_name[8][16] =
 {
-	"Hellband",
+	    "Hellband",
 		"Mirror",
 		"Recall",
 		"Choice",
@@ -699,8 +714,12 @@ player_type *p_ptr = &p_body;
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
-player_magic *mp_ptr;
+class_magic *mp_ptr;
 player_race *bsp_ptr;
+/* Pointer to current spell we deal with Hack^3 */
+magic_type   s_body;
+magic_type  *s_ptr = &s_body;
+char short_info[25];
 
 /*
 * More spell info
@@ -846,6 +865,11 @@ cptr ANGBAND_DIR_PREF;
 */
 cptr ANGBAND_DIR_XTRA;
 
+/*
+ * User defined "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_USER;
 
 /*
 * Total Hack -- allow all items to be listed (even empty ones)
@@ -885,7 +909,7 @@ void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 /*
 * Hack -- function hook to restrict "get_mon_num_prep()" function
 */
-bool (*get_mon_num_hook)(int r_idx);
+bool (*monster_filter_hook)(int r_idx);
 
 
 

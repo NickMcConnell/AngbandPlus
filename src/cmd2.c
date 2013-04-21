@@ -491,7 +491,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	o_ptr->pval = 0;
 
 	/* Known */
-	object_known(o_ptr);
+	object_known(o_ptr,TRUE);
 }
 
 
@@ -2662,11 +2662,11 @@ void do_cmd_fire(void)
 					if (m_ptr->ml) health_track(c_ptr->m_idx);
 
 					/* Anger friends */
-					if (m_ptr->smart & SM_ALLY) {
+					if ( is_potential_hater( m_ptr ) ) {
 						char m_name[80];
 						monster_desc(m_name, m_ptr, 0);
 						msg_format("%s gets angry!", m_name);
-						m_ptr->smart &= ~SM_ALLY;
+						set_hate_player( m_ptr );
 					}
 				}
 
@@ -3003,13 +3003,13 @@ void do_cmd_throw(void)
 					message_pain(c_ptr->m_idx, tdam);
 
 					/* Anger friends */
-					if ((m_ptr->smart & SM_ALLY)
+					if (( is_potential_hater( m_ptr ) )
 						&& (!(k_info[q_ptr->k_idx].tval == TV_POTION)))
 					{
 						char m_name[80];
 						monster_desc(m_name, m_ptr, 0);
 						msg_format("%s gets angry!", m_name);
-						m_ptr->smart &= ~SM_ALLY;
+						set_hate_player( m_ptr );
 					}
 
 					/* Take note */
@@ -3044,12 +3044,15 @@ void do_cmd_throw(void)
 			msg_format("The %s shatters!", o_name);
 			if (potion_smash_effect(1, y, x, q_ptr->sval))
 			{
-				if (cave[y][x].m_idx && (m_list[cave[y][x].m_idx].smart & SM_ALLY))
+				if ( cave[y][x].m_idx && 
+					 is_potential_hater( &(m_list[cave[y][x].m_idx]) ) 
+				   )
 				{
 					char m_name[80];
 					monster_desc(m_name, &m_list[cave[y][x].m_idx], 0);
 					msg_format("%s gets angry!", m_name);
-					m_list[cave[y][x].m_idx].smart &= ~SM_ALLY;
+					/*.ally &= ~ALLY_PLAYER;*/
+					set_hate_player( &(m_list[cave[y][x].m_idx]) );
 				}
 			}
 
@@ -3072,19 +3075,8 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 
 	bool use_hp = FALSE;
 
-# if 0
-	if (p_ptr->csp < cost) {
-		if ((p_ptr->pclass != CLASS_WARRIOR) && (p_ptr->prace == VAMPIRE)) {
-			msg_print("Your powers are too depleted!");
-			return FALSE;
-		} else {
-			use_hp = TRUE;
-		}
-	}
-#else
 	if (p_ptr->csp < cost)
 		use_hp = TRUE;
-#endif
 
 	if (p_ptr->lev < min_level)
 	{
@@ -3447,7 +3439,9 @@ void do_cmd_racial_power(void)
 
 	bool has_racial = FALSE;
 
-	cptr racial_power = "(none)";
+	/*cptr racial_power = "(none)";*/
+	char       racial_power[80];
+	
 	
 	/* 3 vars nicked from cmd_racial_power_aux to make the birth ability of the Morui work */
 	s16b plev = p_ptr->lev;
@@ -3470,147 +3464,32 @@ void do_cmd_racial_power(void)
 		return;
 	}
 
-	switch (p_ptr->prace)
+	/* New and improved racial power descriptions*/
+	for( i = 0 ; racial_powers[i].description != NULL ; i++)
 	{
-
-	case DWARF:
-		if (lvl < 5)
-			racial_power = "detect doors+traps (racial, unusable until level 5)";
-		else
-			racial_power = "detect doors+traps (racial, cost 5, WIS based)";
-		has_racial = TRUE;
-		break;
-	case GNOME: case LEPRECHAUN:
-		if (lvl < 5)
-			racial_power = "teleport           (racial, unusable until level 5)";
-		else
-			racial_power = "teleport           (racial, cost 5 + lvl/5, INT based)";
-		has_racial = TRUE;
-		break;
-	case TROLL:
-		if (lvl < 10)
-			racial_power = "berserk            (racial, unusable until level 10)";
-		else
-			racial_power = "berserk            (racial, cost 12, WIS based)";
-		has_racial = TRUE;
-		break;
-	case NORDIC:
-		if (lvl < 8)
-			racial_power = "berserk            (racial, unusable until level 8)";
-		else
-			racial_power = "berserk            (racial, cost 10, WIS based)";
-		has_racial = TRUE;
-		break;
-	case NEPHILIM:
-		if (lvl < 30)
-			racial_power = "divine powers    (unusable until level 30/40)";
-		else
-			racial_power = "divine powers    (racial, cost 50/75, INT/WIS based)";
-		has_racial = TRUE;
-		break;
-	case OGRE:
-		if (lvl < 25)
-			racial_power = "explosive rune     (racial, unusable until level 25)";
-		else
-			racial_power = "explosive rune     (racial, cost 35, INT based)";
-		has_racial = TRUE;
-		break;
-	case GIANT:
-		if (lvl < 20)
-			racial_power = "stone to mud       (racial, unusable until level 20)";
-		else
-			racial_power = "stone to mud       (racial, cost 10, STR based)";
-		has_racial = TRUE;
-		break;
-	case TITAN:
-		if (lvl < 35)
-			racial_power = "probing            (racial, unusable until level 35)";
-		else
-			racial_power = "probing            (racial, cost 20, INT based)";
-		has_racial = TRUE;
-		break;
-/*		
-	case :
-		if (lvl < 20)
-			racial_power = "throw boulder      (racial, unusable until level 20)";
-		else
-			racial_power = "throw boulder      (racial, cost 15, dam 3*lvl, STR based)";
-		has_racial = TRUE;
-		break;
-	case :
-		if (lvl < 15)
-			racial_power = "scare monster      (racial, unusable until level 15)";
-		else
-			racial_power = "scare monster      (racial, cost 15, WIS based)";
-		has_racial = TRUE;
-		break;
-*/
-	case SPECTRE:
-		if (lvl < 4)
-			racial_power = "scare monster      (racial, unusable until level 4)";
-		else
-			racial_power = "scare monster      (racial, cost 3, INT based)";
-		has_racial = TRUE;
-		break;
-	case KOBOLD:
-		if (lvl < 12)
-			racial_power = "poison dart        (racial, unusable until level 12)";
-		else
-			racial_power = "poison dart        (racial, cost 8, dam lvl, DEX based)";
-		has_racial = TRUE;
-		break;
-	case ATLANTIAN:
-		if (lvl < 2)
-			racial_power = "magic missile      (racial, unusable until level 2)";
-		else
-			racial_power = "magic missile      (racial, cost 2, INT based)";
-		has_racial = TRUE;
-		break;
-
-	case HORROR:
-		if (lvl < 15)
-			racial_power = "mind blast         (racial, unusable until level 15)";
-		else
-			racial_power = "mind blast         (racial, cost 12, dam lvl, INT based)";
-		has_racial = TRUE;
-		break;
-	case IMP:
-		if (lvl < 9)
-			racial_power = "fire bolt/ball     (racial, unusable until level 9/30)";
-		else
-			racial_power = "fire bolt/ball(30) (racial, cost 15, dam lvl, WIS based)";
-		has_racial = TRUE;
-		break;
-	case GUARDIAN:
-		if (lvl < 20)
-			racial_power = "stone skin         (racial, unusable until level 20)";
-		else
-			racial_power = "stone skin         (racial, cost 15, dur 30+d20, CON based)";
-		has_racial = TRUE;
-		break;
-	case SKELETON: case MUMMY:
-		if (lvl < 30)
-			racial_power = "restore life       (racial, unusable until level 30)";
-		else
-			racial_power = "restore life       (racial, cost 30, WIS based)";
-		has_racial = TRUE;
-		break;
-	case VAMPIRE:
-		if (lvl < 2)
-			racial_power = "drain life         (racial, unusable until level 2)";
-		else
-			racial_power = "drain life         (racial, cost 1 + lvl/3, based)";
-		has_racial = TRUE;
-		break;
-	case FAE:
-		if (lvl < 12)
-			racial_power = "sleeping dust      (racial, unusable until level 12)";
-		else
-			racial_power = "sleeping dust      (racial, cost 12, INT based)";
-		has_racial = TRUE;
-		break;
+		if( racial_powers[i].idx == p_ptr->prace )
+		{
+			if( lvl < racial_powers[i].level )
+			{
+				sprintf(racial_power,"%-20s (racial, unusable until level %d)", racial_powers[i].description , racial_powers[i].level  );
+			}
+			else
+			{
+				/*Show power and start description with cost*/
+				sprintf(racial_power,"%-20s (racial, cost %d", racial_powers[i].description , racial_powers[i].cost );
+				/*Show cost that rises with level if there is one*/
+				if( racial_powers[i].cost_level > 0 )
+						sprintf(racial_power,"%s + lvl/%d", racial_power, racial_powers[i].cost_level );
+				/*Show extra info if there is*/
+				if( racial_powers[i].info != NULL )
+					sprintf(racial_power,"%s, %s", racial_power, racial_powers[i].info );
+				/*End with stat used*/
+				sprintf(racial_power,"%s, %s based)", racial_power, stats_short[racial_powers[i].stat] );
+			}
+			has_racial = TRUE;
+		}
 	}
-
+	
 	if (!(has_racial) && !(p_ptr->muta1) && !(p_ptr->psign))
 	{
 		msg_print("You have no powers to activate.");
@@ -3626,291 +3505,59 @@ void do_cmd_racial_power(void)
 	}
 	
 	if(p_ptr->psign)
-	{
-		switch (p_ptr->psign)
+		/* New and improved sign power descriptions*/
+		for( i = 0 ; sign_powers[i].description != NULL ; i++)
 		{
-		case SIGN_PLUTUS:
-			if (lvl < 5)
-				strcpy(power_desc[num], "detect doors+traps (unusable until level 5)" );
-			else
-				strcpy(power_desc[num], "detect doors+traps (cost 5, WIS based)" );
-				powers[num++] = ABILITY_DETECT_DOOR_TRAPS;
-			break;
-		case SIGN_MORUI:
-			if (lvl < 9)
-				strcpy(power_desc[num], "spit acid          (unusable until level 9)" );
-			else
-				strcpy(power_desc[num], "spit acid          (cost 9, dam lvl, DEX based)" );
-				powers[num++] = ABILITY_SPIT_ACID;
-			break;	
-		case SIGN_DRACO:
-			strcpy(power_desc[num],"breath weapon      (cost lvl, dam 2*lvl, CON based)");
-				powers[num++] = ABILITY_BREATHE_ELEMENTS;
-			msg_format("You can do %d.", ABILITY_BREATHE_ELEMENTS);
-			break;
+			if( sign_powers[i].idx == p_ptr->psign )
+			{
+				if( lvl < sign_powers[i].level )
+				{
+					sprintf(power_desc[num],"%-20s (unusable until level %d)", sign_powers[i].description , sign_powers[i].level  );
+				}
+				else
+				{
+					/*Show power and start description with cost*/
+					sprintf(power_desc[num],"%-20s (cost %d", sign_powers[i].description , sign_powers[i].cost );
+					/*Show cost that rises with level if there is one*/
+					if( racial_powers[i].cost_level > 0 )
+						sprintf(power_desc[num],"%s + lvl/%d", power_desc[num], sign_powers[i].cost_level );
+					/*Show extra info if there is*/
+					if( racial_powers[i].info != NULL )
+						sprintf(power_desc[num],"%s, %s", power_desc[num], sign_powers[i].info );
+					/*End with stat used*/
+					sprintf(power_desc[num],"%s, %s based)", power_desc[num], stats_short[sign_powers[i].stat] );
+				}
+				powers[num++] = sign_powers[i].power;
+			}
 		}
-	}
-	
-
+			
 	if (p_ptr->muta1)
-	{
-		int lvl = p_ptr->lev;
+		/* New and improved sign power descriptions*/
+		for( i = 0 ; freak_powers[i].description != NULL ; i++)
+		{
+			if( freak_powers[i].idx & p_ptr->muta1 )
+			{
+				if( lvl < freak_powers[i].level )
+				{
+					sprintf(power_desc[num],"%-20s (unusable until level %d)", freak_powers[i].description , freak_powers[i].level  );
+				}
+				else
+				{
+					/*Show power and start description with cost*/
+					sprintf(power_desc[num],"%-20s (cost %d", freak_powers[i].description , freak_powers[i].cost );
+					/*Show cost that rises with level if there is one*/
+					if( racial_powers[i].cost_level > 0 )
+						sprintf(power_desc[num],"%s + lvl/%d", power_desc[num], freak_powers[i].cost_level );
+					/*Show extra info if there is*/
+					if( racial_powers[i].info != NULL )
+						sprintf(power_desc[num],"%s, %s", power_desc[num], freak_powers[i].info );
+					/*End with stat used*/
+					sprintf(power_desc[num],"%s, %s based)", power_desc[num], stats_short[freak_powers[i].stat] );
+				}
+				powers[num++] = freak_powers[i].power;
+			}
+		}
 
-		if (p_ptr->muta1 & COR1_SPIT_ACID)
-		{
-			if (lvl < 9)
-				strcpy(power_desc[num],"spit acid        (unusable until level 9)");
-			else
-				strcpy(power_desc[num],"spit acid        (cost 9, dam lvl, DEX based)");
-			powers[num++] = COR1_SPIT_ACID;
-		}
-		if (p_ptr->muta1 & COR1_BR_FIRE)
-		{
-			if (lvl < 20)
-				strcpy(power_desc[num],"fire breath      (unusable until level 20)");
-			else
-				strcpy(power_desc[num],"fire breath      (cost lvl, dam lvl * 2, CON based)");
-			powers[num++] = COR1_BR_FIRE;
-		}
-		if (p_ptr->muta1 & COR1_HYPN_GAZE)
-		{
-			if (lvl < 20)
-				strcpy(power_desc[num],"hypnotic gaze    (unusable until level 12)");
-			else
-				strcpy(power_desc[num],"hypnotic gaze    (cost 12, CHA based)");
-			powers[num++] = COR1_HYPN_GAZE;
-		}
-		if (p_ptr->muta1 & COR1_TELEKINES)
-		{
-			if (lvl < 9)
-				strcpy(power_desc[num],"telekinesis      (unusable until level 9)");
-			else
-				strcpy(power_desc[num],"telekinesis      (cost 9, WIS based)");
-			powers[num++] = COR1_TELEKINES;
-		}
-		if (p_ptr->muta1 & COR1_VTELEPORT)
-		{
-			if (lvl < 7)
-				strcpy(power_desc[num],"teleport         (unusable until level 7)");
-			else
-				strcpy(power_desc[num],"teleport         (cost 7, WIS based)");
-			powers[num++] = COR1_VTELEPORT;
-		}
-		if (p_ptr->muta1 & COR1_MIND_BLST)
-		{
-			if (lvl < 5)
-				strcpy(power_desc[num],"mind blast       (unusable until level 5)");
-			else
-				strcpy(power_desc[num],"mind blast       (cost 3, WIS based)");
-			powers[num++] = COR1_MIND_BLST;
-		}
-		if (p_ptr->muta1 & COR1_SLIME)
-		{
-			if (lvl < 15)
-				strcpy(power_desc[num],"invoke hellslime   (unusable until level 15)");
-			else
-				strcpy(power_desc[num],"invoke hellslime   (cost 15, CON based)");
-			powers[num++] = COR1_SLIME;
-		}
-		if (p_ptr->muta1 & COR1_VAMPIRISM)
-		{
-			if (lvl < 13)
-				strcpy(power_desc[num],"vampiric drain   (unusable until level 13)");
-			else
-				strcpy(power_desc[num],"vampiric drain   (cost lvl, CON based)");
-			powers[num++] = COR1_VAMPIRISM;
-		}
-		if (p_ptr->muta1 & COR1_SMELL_MET)
-		{
-			if (lvl < 3)
-				strcpy(power_desc[num],"smell metal      (unusable until level 3)");
-			else
-				strcpy(power_desc[num],"smell metal      (cost 2, INT based)");
-			powers[num++] = COR1_SMELL_MET;
-		}
-		if (p_ptr->muta1 & COR1_SMELL_MON)
-		{
-			if (lvl < 5)
-				strcpy(power_desc[num],"smell monsters   (unusable until level 5)");
-			else
-				strcpy(power_desc[num],"smell monsters   (cost 4, INT based)");
-			powers[num++] = COR1_SMELL_MON;
-		}
-		if (p_ptr->muta1 & COR1_BLINK)
-		{
-			if (lvl < 3)
-				strcpy(power_desc[num],"blink            (unusable until level 3)");
-			else
-				strcpy(power_desc[num],"blink            (cost 3, WIS based)");
-			powers[num++] = COR1_BLINK;
-		}
-		if (p_ptr->muta1 & COR1_EAT_ROCK)
-		{
-			if (lvl < 8)
-				strcpy(power_desc[num],"eat rock         (unusable until level 8)");
-			else
-				strcpy(power_desc[num],"eat rock         (cost 12, CON based)");
-			powers[num++] = COR1_EAT_ROCK;
-		}
-		if (p_ptr->muta1 & COR1_SWAP_POS)
-		{
-			if (lvl < 15)
-				strcpy(power_desc[num],"swap position    (unusable until level 15)");
-			else
-				strcpy(power_desc[num],"swap position    (cost 12, DEX based)");
-			powers[num++] = COR1_SWAP_POS;
-		}
-		if (p_ptr->muta1 & COR1_SHRIEK)
-		{
-			if (lvl < 4)
-				strcpy(power_desc[num],"shriek           (unusable until level 4)");
-			else
-				strcpy(power_desc[num],"shriek           (cost 4, CON based)");
-			powers[num++] = COR1_SHRIEK;
-		}
-		if (p_ptr->muta1 & COR1_ILLUMINE)
-		{
-			if (lvl < 3)
-				strcpy(power_desc[num],"illuminate       (unusable until level 3)");
-			else
-				strcpy(power_desc[num],"illuminate       (cost 2, INT based)");
-			powers[num++] = COR1_ILLUMINE;
-		}
-		if (p_ptr->muta1 & COR1_DET_CURSE)
-		{
-			if (lvl < 7)
-				strcpy(power_desc[num],"detect curses    (unusable until level 7)");
-			else
-				strcpy(power_desc[num],"detect curses    (cost 14, WIS based)");
-			powers[num++] = COR1_DET_CURSE;
-		}
-		if (p_ptr->muta1 & COR1_BERSERK)
-		{
-			if (lvl < 8)
-				strcpy(power_desc[num],"berserk          (unusable until level 8)");
-			else
-				strcpy(power_desc[num],"berserk          (cost 8, STR based)");
-			powers[num++] = COR1_BERSERK;
-		}
-		if (p_ptr->muta1 & COR1_POLYMORPH)
-		{
-			if (lvl < 18)
-				strcpy(power_desc[num],"polymorph        (unusable until level 18)");
-			else
-				strcpy(power_desc[num],"polymorph        (cost 20, CON based)");
-			powers[num++] = COR1_POLYMORPH;
-		}
-		if (p_ptr->muta1 & COR1_MIDAS_TCH)
-		{
-			if (lvl < 10)
-				strcpy(power_desc[num],"midas touch      (unusable until level 10)");
-			else
-				strcpy(power_desc[num],"midas touch      (cost 5, INT based)");
-			powers[num++] = COR1_MIDAS_TCH;
-		}
-		if (p_ptr->muta1 & COR1_GROW_MOLD)
-		{
-			if (lvl < 1)
-				strcpy(power_desc[num],"grow mold        (unusable until level 1)");
-			else
-				strcpy(power_desc[num],"grow mold        (cost 6, CON based)");
-			powers[num++] = COR1_GROW_MOLD;
-		}
-		if (p_ptr->muta1 & COR1_RESIST)
-		{
-			if (lvl < 10)
-				strcpy(power_desc[num],"resist elements  (unusable until level 10)");
-			else
-				strcpy(power_desc[num],"resist elements  (cost 12, CON based)");
-			powers[num++] = COR1_RESIST;
-		}
-		if (p_ptr->muta1 & COR1_EARTHQUAKE)
-		{
-			if (lvl < 12)
-				strcpy(power_desc[num],"earthquake       (unusable until level 12)");
-			else
-				strcpy(power_desc[num],"earthquake       (cost 12, STR based)");
-			powers[num++] = COR1_EARTHQUAKE;
-		}
-		if (p_ptr->muta1 & COR1_EAT_MAGIC)
-		{
-			if (lvl < 17)
-				strcpy(power_desc[num],"eat magic        (unusable until level 17)");
-			else
-				strcpy(power_desc[num],"eat magic        (cost 1, WIS based)");
-			powers[num++] = COR1_EAT_MAGIC;
-		}
-		if (p_ptr->muta1 & COR1_WEIGH_MAG)
-		{
-			if (lvl < 6)
-				strcpy(power_desc[num],"weigh magic      (unusable until level 6)");
-			else
-				strcpy(power_desc[num],"weigh magic      (cost 6, INT based)");
-			powers[num++] = COR1_WEIGH_MAG;
-		}
-		if (p_ptr->muta1 & COR1_STERILITY)
-		{
-			if (lvl < 20)
-				strcpy(power_desc[num],"sterilize        (unusable until level 20)");
-			else
-				strcpy(power_desc[num],"sterilize        (cost 40, CHA based)");
-			powers[num++] = COR1_STERILITY;
-		}
-		if (p_ptr->muta1 & COR1_PANIC_HIT)
-		{
-			if (lvl < 10)
-				strcpy(power_desc[num],"panic hit        (unusable until level 10)");
-			else
-				strcpy(power_desc[num],"panic hit        (cost 12, DEX based)");
-			powers[num++] = COR1_PANIC_HIT;
-		}
-		if (p_ptr->muta1 & COR1_DAZZLE)
-		{
-			if (lvl < 7)
-				strcpy(power_desc[num],"dazzle           (unusable until level 7)");
-			else
-				strcpy(power_desc[num],"dazzle           (cost 15, CHA based)");
-			powers[num++] = COR1_DAZZLE;
-		}
-		if (p_ptr->muta1 & COR1_EYE_BEAM)
-		{
-			if (lvl < 7)
-				strcpy(power_desc[num],"eye beams        (unusable until level 7)");
-			else
-				strcpy(power_desc[num],"eye beams        (cost 10, WIS based)");
-			powers[num++] = COR1_EYE_BEAM;
-		}
-		if (p_ptr->muta1 & COR1_RECALL)
-		{
-			if (lvl < 17)
-				strcpy(power_desc[num],"recall           (unusable until level 17)");
-			else
-				strcpy(power_desc[num],"recall           (cost 50, INT based)");
-			powers[num++] = COR1_RECALL;
-		}
-		if (p_ptr->muta1 & COR1_BANISH)
-		{
-			if (lvl < 25)
-				strcpy(power_desc[num],"banish evil      (unusable until level 25)");
-			else
-				strcpy(power_desc[num],"banish evil      (cost 25, WIS based)");
-			powers[num++] = COR1_BANISH;
-		}
-		if (p_ptr->muta1 & COR1_COLD_TOUCH)
-		{
-			if (lvl < 2)
-				strcpy(power_desc[num],"cold touch       (unusable until level 2)");
-			else
-				strcpy(power_desc[num],"cold touch       (cost 2, CON based)");
-			powers[num++] = COR1_COLD_TOUCH;
-		}
-		if (p_ptr->muta1 & COR1_LAUNCHER)
-		{
-			strcpy(power_desc[num],    "throw object     (cost lev, STR based)");
-			/* XXX_XXX_XXX Hack! COR1_LAUNCHER counts as negative... */
-			powers[num++] = 3;
-		}
-	}
 
 	/* Calculate pets */
 	/* Process the monsters (backwards) */
@@ -3918,7 +3565,7 @@ void do_cmd_racial_power(void)
 	{
 		/* Access the monster */
 		m_ptr = &m_list[pet_ctr];
-		if (m_ptr->smart & (SM_ALLY))
+		if (is_ally(m_ptr))
 			pets++;
 	}
 
@@ -4058,7 +3705,7 @@ void do_cmd_racial_power(void)
 			{
 				/* Access the monster */
 				m_ptr = &m_list[pet_ctr];
-				if (m_ptr->smart & (SM_ALLY)) /* Get rid of it! */
+				if(is_ally( m_ptr )) /* Get rid of it! */
 				{
 					bool delete_this = FALSE;
 					if (all_pets)
@@ -4441,7 +4088,7 @@ void do_cmd_racial_power(void)
 				int i;
 				for (i=0; i < 8; i++)
 				{
-					summon_specific_friendly(py, px, p_ptr->lev, SUMMON_BIZARRE1, FALSE);
+					summon_specific_friendly(py, px, p_ptr->lev, FILTER_BIZARRE1, FALSE);
 				}
 			}
 			break;
@@ -4606,23 +4253,7 @@ void do_cmd_racial_power(void)
 		case COR1_RECALL:
 			if (racial_aux(17, 50, A_INT, 16))
 			{
-				if (dun_level && (p_ptr->max_dun_level > dun_level))
-				{
-					if (get_check("Reset recall depth? "))
-						p_ptr->max_dun_level = dun_level;
-
-				}
-
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				do_recall( NULL );
 			}
 			break;
 

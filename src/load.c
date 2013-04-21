@@ -494,6 +494,7 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
 	rd_u32b(&m_ptr->smart);
+	rd_byte(&m_ptr->ally);
 	rd_byte(&tmp8u);
 }
 
@@ -752,7 +753,15 @@ static void rd_options(void)
 			}
 		}
 	}
-
+	
+	/*Sane price*/
+	rd_u32b(&sane_price);
+	
+	/* Read the squelching rules */
+	for( i=0; i < SQ_HL_COUNT ; i++ )
+	{
+		rd_byte(&squelch_options[i]);
+	}
 
 	/*** Window Options ***/
 
@@ -886,8 +895,8 @@ static void rd_extra(void)
 	rd_byte(&p_ptr->psign);	
 	rd_byte(&p_ptr->pclass);
 	rd_byte(&p_ptr->psex);
-	rd_byte(&p_ptr->realm1);
-	rd_byte(&p_ptr->realm2);
+	rd_u16b(&p_ptr->realm1);
+	rd_u16b(&p_ptr->realm2);
 	rd_byte(&tmp8u);        /* oops */
 
 	/* Special Race/Class info */
@@ -960,6 +969,7 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->word_recall);
 	rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
+	rd_s16b(&p_ptr->magic_shell);
 	rd_s16b(&p_ptr->oppose_fire);
 	rd_s16b(&p_ptr->oppose_cold);
 	rd_s16b(&p_ptr->oppose_acid);
@@ -1534,6 +1544,10 @@ static errr rd_savefile_new_aux(void)
 
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+		
+		/*Paranoid, first move into byte*/
+		rd_byte(&tmp8u);
+		k_ptr->squelch = tmp8u;
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 
@@ -1639,7 +1653,7 @@ static errr rd_savefile_new_aux(void)
 	bsp_ptr = &sign_info[p_ptr->psign];
 
 	/* Important -- Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
+	mp_ptr = &realms_info[p_ptr->pclass];
 
 
 	/* Read spell info */

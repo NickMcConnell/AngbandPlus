@@ -717,7 +717,17 @@ void do_cmd_options_aux(int page, cptr info)
 				option_info[opt[i]].o_text);
 			c_prt(a, buf, i + 2, 0);
 		}
-
+		/* XXX XXX XXX Page nine, aka the squelch sanity rules need one extra line*/
+		if(page==9)
+		{
+			i++;
+			if(sanity_price)
+				sprintf(buf, "%-48s: %d gold (press $ to cycle)","Squelch treshold" , (int)sane_price );
+			else
+				sprintf(buf, "%-80s","");
+			c_prt(TERM_WHITE, buf, i + 2, 0);	
+		}
+		
 		/* Hilite current option */
 		move_cursor(k + 2, 50);
 
@@ -731,7 +741,13 @@ void do_cmd_options_aux(int page, cptr info)
 			{
 				return;
 			}
-
+		case '$':
+			{
+				sane_price = sane_price + SQUELCH_PRICE_INC;
+				if( sane_price >= SQUELCH_PRICE_MAX )
+					sane_price = SQUELCH_PRICE_START;
+				break;
+			}
 		case '-':
 		case '8':
 			{
@@ -775,6 +791,280 @@ void do_cmd_options_aux(int page, cptr info)
 	}
 }
 
+/*
+ * Modify the squelcher options
+ */
+static void do_cmd_options_squelcher_rules(void)
+{
+	byte squelch_flags[] = {
+		CH_SQUELCH_NO,
+		CH_SQUELCH_GOOD,
+		CH_SQUELCH_EXCELLENT,
+		CH_SQUELCH_GREAT,
+		CH_SQUELCH_ALL_ID,
+		CH_SQUELCH_TOWN_BOOKS,		
+		CH_SQUELCH_OPENED,		
+		CH_SQUELCH_ALL,				
+		CH_SQUELCH_ARTIFACT,
+		0};
+	
+	byte squelch_possibilities[] = {
+		CH_SQUELCH_NO | CH_SQUELCH_GOOD | CH_SQUELCH_EXCELLENT | CH_SQUELCH_ARTIFACT,  /* Weapons */
+		CH_SQUELCH_NO | CH_SQUELCH_GOOD | CH_SQUELCH_EXCELLENT | CH_SQUELCH_ARTIFACT,  /* Armour  */
+		CH_SQUELCH_NO | CH_SQUELCH_GOOD | CH_SQUELCH_EXCELLENT | CH_SQUELCH_ALL,	   /* Ammo    */		
+		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ARTIFACT,  /* Jewelry */
+		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ARTIFACT,  /* Lights */
+		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ALL,  /* Wands */
+		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ALL,  /* Staves */		
+		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ALL,  /* Rods */		
+		CH_SQUELCH_NO | CH_SQUELCH_GREAT | CH_SQUELCH_ALL,  /* Scrolls */
+		CH_SQUELCH_NO | CH_SQUELCH_TOWN_BOOKS | CH_SQUELCH_ALL,  /* Books */
+		CH_SQUELCH_NO | CH_SQUELCH_ALL,  /* Misc */		
+		CH_SQUELCH_NO | CH_SQUELCH_OPENED | CH_SQUELCH_ALL,  /* Chests */
+		0,
+	};
+	cptr squelch_option_strings[] = {
+		"Weapons",
+		"Armours",
+		"Ammo",
+		"Jewelry",
+		"Lights",
+		"Wands",
+		"Staves",
+		"Rods",		
+		"Scrolls",
+		"Books",
+		"Misc",		
+		"Chests",		
+		NULL,
+	};	
+	
+	char	ch;
+	
+	int	i, k = 0, n = SQ_HL_COUNT;
+	
+	char	buf[80];
+	
+	/* Clear screen */
+	Term_clear();
+	
+	/* Interact with the player */
+	while (TRUE)
+	{
+		/* Prompt XXX XXX XXX */
+		sprintf(buf, "%s (RET to advance, SPACE to cycle, ESC to accept) ", "High Level Squelch Rules");
+		prt(buf, 0, 0);
+		
+		/* Display the options */
+		for (i = 0; i < SQ_HL_COUNT; i++)
+		{
+			byte a = TERM_WHITE;
+			
+			/* Color current option */
+			if (i == k) a = TERM_L_BLUE;
+			
+			/* Display the option text */
+			sprintf(buf, "%-20s: %-28s  (%s)",
+					squelch_option_strings[i],
+					squelch_strings[squelch_options[i]],
+					"SPACE to cycle");
+			c_prt(a, buf, i + 2, 0);
+		}
+		
+		/* Hilite current option */
+		move_cursor(k + 2, 50);
+		
+		/* Get a key */
+		ch = inkey();
+		
+		/* Analyze */
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				return;
+			}
+			case '-':
+			case '8':
+			{
+				k = (n + k - 1) % n;
+				break;
+			}
+			case '+':				
+			case '\n':
+			case '\r':
+			case '2':
+			{
+				k = (k + 1) % n;
+				break;
+			}
+				
+			case 'y':
+			case 'Y':
+			case '6':
+			case 'n':
+			case 'N':
+			case '4':
+			case ' ':	
+			{
+				/*
+				 * Yeah, see this piece of code right here, checks what is the next option, since we
+				 * are trying to cycle when pressing space or a host of other spacelike keys. First of
+				 * We check if there any 1 bits left after removing the current option bits and lessers bits
+				 * If there is nothing left, we start from scratch.
+				 * If there is a bit lift, we keep upping squelch_option until it matches a bit from squelch_possibilities
+				 * It might be complicated , but once you wrap your brain around, it aint that bad
+				*/
+				if( squelch_possibilities[k] >> squelch_options[k] > 0  )
+				{
+					while(! (squelch_flags[++squelch_options[k]] & squelch_possibilities[k])){;}
+				}
+				else
+				 squelch_options[k] = SQUELCH_NO;	
+				break;
+			}
+				
+			default:
+			{
+				bell();
+				break;
+			}
+		}
+	}
+	
+	
+}
+
+static void do_cmd_options_squelcher_sanity(void)
+{
+	do_cmd_options_aux(9, "Squelch Inscription Options");	
+}
+
+
+static void do_cmd_options_squelcher_inscribe(void)
+{
+	do_cmd_options_aux(8, "Squelch Inscription Options");
+}
+
+
+
+/*
+ * Modify the squelcher options
+ */
+static void do_cmd_options_squelcher(void)
+{
+	
+	/*
+	  Squelch Rules are cumulative
+1		- Very High Level 16 bits -> u32b
+2			4 choices = 2bits  Weapons ( all , good, excellent, special/terrible )					1
+3			4 choices = 2bits Armour   ( all , good, excellent, special, terrible )					1
+4			3 choices = 2bits Jewelry  ( all, great  , special )									2
+5	 `		3 choices = 2bits Lite     ( all , great  , special )									2
+6			4 choices = 2bits Wands    ( all , great , no wands , no wands dont even id)			3
+7			4 choices = 2bits Rods     ( all , great , no rods , no rods dont even id)				3
+8 			4 choices = 2bits Scrolls  ( all , great , no scrolls , no scrolls dont even id)		3
+9			3 choices = 2bits Books ( all books, dungeon books, no books )							4
+10			2 choices = 1bits Spikes , Food, Flasks ( all , none )									5
+11			2 choices = 1bits Chests ( all , squelchh when opened , none )							6
+12	 
+13	  Sanity Checks ( 2 bytes )
+14		- 1 Dont kill storebought items
+15		- 2 Dont kill items inscribed with !k
+16		- 3 Dont kill items giving speed bonuses
+17		- 4 Dont kill items with immunities
+		- 5 Dont Kill items with telepathy
+18		- 5 Dont kill items with high resists ( off )
+19		- 6 Dont kill items with stat bonuses
+20		- 7 Inform player when a sanity check is used
+21		- 8 Dont kill books of the realm I use
+22		- u32b Dont kill items more expensive then	 
+23	 
+24	 Inscription Rules ( 1 byte )
+25		- Apply {!k} to storebought items ( off )
+26		- When discovering a new consumable with 'id', offer to apply {!k}
+	 
+	*/
+	
+	int k;
+	
+	
+	/* Enter "icky" mode */
+	character_icky = TRUE;
+	
+	/* Save the screen */
+	Term_save();
+	
+	
+	/* Interact */
+	while (1)
+	{
+		/* Clear screen */
+		Term_clear();
+		
+		/* Why are we here */
+		prt("Hellband Squelcher Options", 2, 0);
+		
+		/* Give some choices */
+		prt("(1) Squelch Rules", 4, 5);
+		prt("(2) Sanity Checks", 5, 5);
+		prt("(3) Incription Options", 6, 5);
+		
+		/* Prompt */
+		prt("Command: ", 17, 0);
+		
+		/* Get command */
+		k = inkey();
+		
+		/* Exit */
+		if (k == ESCAPE) break;
+		
+		/* Analyze */
+		switch (k)
+		{
+			/* General Options */
+			case '1':
+			{
+				/* Squelch Rules */
+				do_cmd_options_squelcher_rules();
+				break;
+			}
+			case '2':
+			{
+				/* Sanity checks */
+				do_cmd_options_squelcher_sanity();
+				break;
+			}
+				
+				/* Inscription options */
+			case '3':
+			{
+				/* Spawn */
+				do_cmd_options_squelcher_inscribe();
+				break;
+			}
+				
+				/* Unknown option */
+			default:
+			{
+				/* Oops */
+				bell();
+				break;
+			}
+		}
+		
+		/* Flush messages */
+		msg_print(NULL);
+	}
+	
+	
+	/* Restore the screen */
+	Term_load();
+	
+	/* Leave "icky" mode */
+	character_icky = FALSE;
+
+}
 
 /*
 * Modify the "window" options
@@ -993,6 +1283,9 @@ void do_cmd_options(void)
 
 		/* Window flags */
 		prt("(W) Window Flags", 14, 5);
+		
+		/* Da squelcher */
+		prt("(S) Squelcher",15, 5);
 
 		/* Prompt */
 		prt("Command: ", 17, 0);
@@ -1075,7 +1368,13 @@ void do_cmd_options(void)
 				do_cmd_options_win();
 				break;
 			}
-
+		case 'S':
+		case 's':
+			{
+				/*The squelcher*/
+				do_cmd_options_squelcher();
+				break;
+			}
 			/* Hack -- Delay Speed */
 		case 'D':
 		case 'd':
@@ -3201,7 +3500,8 @@ static void do_cmd_knowledge_pets(void)
 		if (!m_ptr->r_idx) continue;
 
 		/* Calculate "upkeep" for friendly monsters */
-		if (m_ptr->smart & (SM_ALLY))
+		/* Hack? ALLY_COMPANION does not count for upkeep, so no need to check is_ally()*/
+		if (is_ally(m_ptr))
 		{
 			char pet_name[80];
 			t_friends++;

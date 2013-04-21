@@ -18,7 +18,6 @@ extern void do_cmd_rerate(void);
 extern void corruption_shuffle(void);
 extern bool item_tester_hook_armour(object_type *o_ptr);
 
-
 /*
 * Allow user to choose a spell/prayer from the given book.
 *
@@ -29,7 +28,7 @@ extern bool item_tester_hook_armour(object_type *o_ptr);
 * The "prompt" should be "cast", "recite", or "study"
 * The "known" should be TRUE for cast/pray, FALSE for study
 */
-static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
+static int get_spell(int *sn, cptr prompt, int use_realm , int sval, bool known )
 {
 	int		i;
 	int		spell = -1;
@@ -41,11 +40,8 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	bool		flag, redraw, okay;
 	char		choice;
 
-	magic_type	*s_ptr;
-
 	char		out_val[160];
 
-	int use_realm = (realm_2?p_ptr->realm2:p_ptr->realm1);
 	cptr p = ((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "prayer" : "spell");
 
 #ifdef ALLOW_REPEAT /* TNB */
@@ -131,7 +127,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 				Term_save();
 
 				/* Display a list of spells */
-				print_spells(spells, num, 1, 20, use_realm-1);
+				print_spells(spells, num, 1, 15, use_realm-1);
 			}
 
 			/* Hide the list */
@@ -182,11 +178,11 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 			char tmp_val[160];
 
 			/* Access the spell */
-			s_ptr = &mp_ptr->info[use_realm-1][spell%32];
-
+			get_spell_info( use_realm-1  , spell%32 , s_ptr );
+			
 			/* Prompt */
 			strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
-				prompt, spell_names[use_realm-1][spell%32],
+				prompt, s_ptr->name,
 				s_ptr->smana, spell_chance(spell,use_realm-1));
 
 			/* Belay that order */
@@ -367,16 +363,41 @@ void do_cmd_browse(int item)
 	Term_save();
 
 	/* Display the spells */
-	print_spells(spells, num, 1, 20, (o_ptr->tval-90));
+	print_spells(spells, num, 1, 13, (o_ptr->tval-TV_MIRACLES_BOOK));
 
 	/* Clear the top line */
 	prt("", 0, 0);
 
 	/* Prompt user */
-	put_str("[Press any key to continue]", 0, 23);
+	put_str("[(Browsing) Choose a spell or press Escape ]", 0, 13);
 
 	/* Wait for key */
-	(void)inkey();
+	while (1)
+	{
+		char c;
+		/* Get Key Press*/
+		c = inkey();
+		/* Lowercase it with paranoia*/
+		if (isupper(c)) c = tolower(c);
+		/* Extract request */
+		spell = (islower(c) ? A2I(c) : -1);
+		if ((spell < 0) || (spell >= 8 ))
+		{
+			break;
+		}
+		
+		/* Clear lines, position cursor (really should use strlen here) */
+		Term_erase(13, 11 , 255);
+		Term_erase(13, 12 , 255);
+		Term_erase(13, 13 , 255);
+		
+		/*msg_format( "Spell : %d" , spell );msg_print(NULL);*/
+		/* Access the spell */
+		get_spell_info(  (o_ptr->tval-TV_MIRACLES_BOOK) ,  o_ptr->sval*8+spell , s_ptr );
+		/*msg_format( "Spell : %s" , s_ptr->spoiler );msg_print(NULL);		*/
+		/* Display that spell's information. */
+		c_roff(TERM_L_BLUE, s_ptr->spoiler,13,11,13);
+	}		
 
 	/* Restore the screen */
 	Term_load();
@@ -399,14 +420,11 @@ void do_cmd_study(void)
 
 	object_type             *o_ptr;
 
-
 	if (!p_ptr->realm1)
 	{
 		msg_print("You cannot read books!");
 		return;
 	}
-
-
 
 	if (p_ptr->blind)
 	{
@@ -468,7 +486,7 @@ void do_cmd_study(void)
 	if (mp_ptr->spell_book != TV_MIRACLES_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "study", sval, (bool)FALSE,(bool)(increment?TRUE:FALSE))
+		if (!get_spell(&spell, "study", o_ptr->tval-TV_MIRACLES_BOOK+1 , sval, (bool)FALSE)
 			&& (spell == -1)) return;
 	}
 
@@ -517,6 +535,8 @@ void do_cmd_study(void)
 
 	if (increment) spell += increment;
 
+	msg_format( "Spell : %d. increment : %d. learned spells : %d,%d" , spell, increment , spell_learned1 , spell_learned2);
+	
 	/* Learn the spell */
 	if (spell < 32)
 	{
@@ -526,7 +546,9 @@ void do_cmd_study(void)
 	{
 		spell_learned2 |= (1L << (spell - 32));
 	}
-
+	
+	msg_format( "Spell : %d. increment : %d. learned spells : %d,%d" , spell, increment , spell_learned1 , spell_learned2);
+	
 	/* Find the next open entry in "spell_order[]" */
 	for (i = 0; i < 64; i++)
 	{
@@ -539,8 +561,8 @@ void do_cmd_study(void)
 
 	/* Mention the result */
 	msg_format("You have learned the %s of %s.",
-		p, spell_names
-		[(increment?(p_ptr->realm2)-1:(p_ptr->realm1)-1)][spell%32]);
+		p, spells
+		[(increment?(p_ptr->realm2)-1:(p_ptr->realm1)-1)][spell%32].name);
 
 	/* Sound */
 	sound(SOUND_STUDY);
@@ -609,7 +631,7 @@ void do_poly_self(void)
 			break;
 		case 5: case 6: case 7: /* Racial polymorph! Uh oh... */
 			{
-				do { new_race = randint(MAX_RACES) -1; } while (new_race == p_ptr->prace);
+				do { new_race = randint(COUNT_RACES) -1; } while (new_race == p_ptr->prace);
 
 				msg_format("You turn into a%s %s!",
 					((new_race == ELF
@@ -751,6 +773,10 @@ static void brand_weapon(int brand_type)
 
 		switch (brand_type)
 		{
+		case 5:
+			act = "can barely contain the elemental violence within.";
+			o_ptr->name2 = EGO_ELEMENTS_MINCHIATE;
+			break;			
 		case 4:
 			act = "seems very unstable now.";
 			o_ptr->name2 = EGO_PLANAR;
@@ -781,8 +807,6 @@ static void brand_weapon(int brand_type)
 				o_ptr->name2 = EGO_BRAND_COLD;
 			}
 		}
-
-
 
 		msg_format("Your %s %s", o_name, act);
 
@@ -908,9 +932,9 @@ void fetch(int dir, int wgt, bool require_los)
 void wild_magic(int spell)
 {
 	int counter = 0;
-	int type = SUMMON_BIZARRE1 - 1 + (randint(6));
-	if (type < SUMMON_BIZARRE1) type = SUMMON_BIZARRE1;
-	else if (type > SUMMON_BIZARRE6) type = SUMMON_BIZARRE6;
+	int type = FILTER_BIZARRE1 - 1 + (randint(6));
+	if (type < FILTER_BIZARRE1) type = FILTER_BIZARRE1;
+	else if (type > FILTER_BIZARRE6) type = FILTER_BIZARRE6;
 
 	switch(randint(spell) + randint(8) + 1)
 
@@ -982,6 +1006,27 @@ void wild_magic(int spell)
 	return;
 }
 
+/*
+ *  Checks odds of a friendly monster, if the odds are good, try to summon the monster ( return success of it, sometimes noone appears )
+ *  Otherwise try to summon an enemy of the same type and show a message that the monster is not coming in peace
+ *  Return success of summoning an angry monster as well.
+ */
+bool summon_specific_potential_ally( int type , int treshold_friendly , int dice , cptr angry )
+{
+	if (randint(dice)>treshold_friendly)
+	{
+		return (summon_specific_friendly(py, px, p_ptr->lev, type, FALSE));
+	}
+	else
+	{
+		if (summon_specific(py, px, p_ptr->lev, FILTER_DEMON))
+		{
+			msg_print( angry );
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
 
 /*
 * Cast a spell
@@ -994,13 +1039,13 @@ void do_cmd_cast(void)
 	int	increment = 0, dummy = 0;
 	int	use_realm, i;
 	int	ii = 0, ij = 0;
-
-	bool	none_came = FALSE;
+	
+	bool  first_time =  FALSE;
+	int   xp_gain = 0;
+	bool  none_came = FALSE;
 	const cptr prayer = ((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "prayer" : "spell");
 
 	object_type	*o_ptr;
-
-	magic_type	*s_ptr;
 
 	char	ppp[80];
 
@@ -1066,8 +1111,7 @@ void do_cmd_cast(void)
 	else realm = p_ptr->realm1-1;
 
 	/* Ask for a spell */
-	if (!get_spell(&spell, ((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "recite" : "cast"),
-		sval, (bool)TRUE, (bool)(increment?TRUE:FALSE)))
+	if (!get_spell(&spell, ((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "recite" : "cast"), (increment?p_ptr->realm2:p_ptr->realm1), sval, TRUE ) )
 	{
 		if (spell == -2)
 			msg_format("You don't know any %ss in that book.", prayer);
@@ -1078,7 +1122,7 @@ void do_cmd_cast(void)
 	/* Access the spell */
 	use_realm = (increment?p_ptr->realm2:p_ptr->realm1);
 
-	s_ptr = &mp_ptr->info[use_realm-1][spell];
+	get_extended_spell_info( use_realm-1  , spell , s_ptr );
 
 
 	/* Verify "dangerous" spells */
@@ -1104,24 +1148,22 @@ void do_cmd_cast(void)
 
 		msg_format("You failed to get the %s off!", prayer);
 
-		if (o_ptr->tval == TV_DEMONIC_BOOK && (randint(100)<spell))
+		if (o_ptr->tval == TV_CHAOS_BOOK && (randint(100)<spell))
 		{
 			msg_print("You produce a chaotic effect!");
 			wild_magic(spell);
 		}
+		if (o_ptr->tval == TV_DEMONIC_BOOK && (randint(100)<spell))
+		{
+			msg_print("You anger your patron!");
+			summon_specific(py,px,dun_level,FILTER_DEMON);
+		}        
 		else if (o_ptr->tval == TV_DEATH_BOOK && (randint(100)<spell))
 		{
-			if ((sval == 3) && (randint(2)==1))
-			{
-				sanity_blast(0, TRUE);
-			}
-			else
-			{
 				msg_print("It hurts!");
 				take_hit(damroll((o_ptr->sval)+1,6), "a miscast Death spell");
 				if (spell>15 && randint(6)==1 && !(p_ptr->hold_life))
 					lose_exp(spell * 250);
-			}
 		}
 	}
 
@@ -1361,7 +1403,7 @@ void do_cmd_cast(void)
 				(void)detect_objects_gold();
 				break;
 			case 17: /* Detect Enchantment */
-				(void)detect_objects_magic();
+				(void)detect_objects_magic(FALSE,FALSE);
 				break;
 			case 18: /* Charm Monster */
 				if (!get_aim_dir(&dir)) return;
@@ -1395,22 +1437,7 @@ void do_cmd_cast(void)
 				break;
 			case 23: /* Word of Recall */
 				{
-					if (dun_level && (p_ptr->max_dun_level > dun_level))
-					{
-						if (get_check("Reset recall depth? "))
-							p_ptr->max_dun_level = dun_level;
-
-					}
-					if (!p_ptr->word_recall)
-					{
-						p_ptr->word_recall = rand_int(21) + 15;
-						msg_print("The air about you becomes charged...");
-					}
-					else
-					{
-						p_ptr->word_recall = 0;
-						msg_print("A tension leaves the air around you...");
-					}
+					do_recall( NULL );
 					break;
 				}
 			case 24: /* Stasis */
@@ -1468,7 +1495,8 @@ void do_cmd_cast(void)
 				break;
 			case 4: /* Daylight */
 				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-				if ((p_ptr->prace == VAMPIRE) && !(p_ptr->resist_lite))
+				/*some races do not like light very much*/
+				if ((rp_ptr->hates_light) && !(p_ptr->resist_lite))
 				{
 					msg_print("The daylight scorches your flesh!");
 					take_hit(damroll(2,2), "daylight");
@@ -1510,14 +1538,14 @@ void do_cmd_cast(void)
 				break;
 			case 12: /* Ray of Sunlight */
 				if (!get_aim_dir(&dir)) return;
-				msg_print("A line of sunlight appears.");
+				msg_print("A line of bleak sunlight appears.");
 				lite_line(dir);
 				break;
 			case 13: /* Entangle */
 				slow_monsters();
 				break;
 			case 14: /* Summon Animals */
-				if (!(summon_specific_friendly(py, px, plev, SUMMON_ANIMAL_RANGER, TRUE)))
+				if (!(summon_specific_friendly(py, px, plev, FILTER_ANIMAL_RANGER, TRUE)))
 					none_came = TRUE;
 				break;
 			case 15: /* Herbal Healing */
@@ -1579,24 +1607,21 @@ void do_cmd_cast(void)
 				break;
 			case 26: /* Blizzard */
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir,
-					70 + (plev), (plev/12)+1);
+				fire_ball(GF_COLD, dir,	70 + (plev), (plev/12)+1);
 				break;
 			case 27: /* Lightning Storm */
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_ELEC, dir,
-					90 + (plev), (plev/12)+1);
+				fire_ball(GF_ELEC, dir,	90 + (plev), (plev/12)+1);
 				break;
 			case 28: /* Whirlpool */
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_WATER, dir,
-					100 + (plev), (plev/12)+1);
+				fire_ball(GF_WATER, dir,100 + (plev), (plev/12)+1);
 				break;
 			case 29: /* Call Sunlight */
 
 				fire_ball(GF_LITE, 0, 150, 8);
 				wiz_lite();
-				if ((p_ptr->prace == VAMPIRE) && !(p_ptr->resist_lite))
+				if ((rp_ptr->hates_light) && !(p_ptr->resist_lite))
 				{
 					msg_print("The sunlight scorches your flesh!");
 					take_hit(50, "sunlight");
@@ -1788,7 +1813,7 @@ void do_cmd_cast(void)
 			case 23: /* Summon monster, demon */
 				if (randint(3) == 1)
 				{
-					if (summon_specific(py, px, (plev*3)/2, SUMMON_DEMON))
+					if (summon_specific(py, px, (plev*3)/2, FILTER_DEMON))
 					{
 						msg_print("The area fills with a stench of sulphur and brimstone.");
 						msg_print("'NON SERVIAM! Wretch! I shall feast on thy mortal soul!'");
@@ -1797,7 +1822,7 @@ void do_cmd_cast(void)
 				else
 				{
 					if (summon_specific_friendly((int)py,(int) px, (plev*3)/2,
-						SUMMON_DEMON, (bool)(plev == 50 ? TRUE : FALSE)))
+						FILTER_DEMON, (bool)(plev == 50 ? TRUE : FALSE)))
 					{
 						msg_print("The area fills with a stench of sulphur and brimstone.");
 						msg_print("'What is thy bidding... Master?'");
@@ -1831,26 +1856,22 @@ void do_cmd_cast(void)
 				}
 				break;
 			case 26: /* Flame Strike */
-				fire_ball(GF_FIRE, 0,
-					150 + (2*plev), 8);
+				fire_ball(GF_FIRE, 0, 150 + (2*plev), 8);
 				break;
 			case 27: /* Call Primal Chaos */
 				call_chaos();
 				break;
 			case 28: /* Shard Ball */
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_SHARD, dir,
-					120 + (plev), 2);
+				fire_ball(GF_SHARD, dir, 120 + (plev), 2);
 				break;
 			case 29: /* Mana Storm */
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_MANA, dir,
-					300 + (plev * 2), 4);
+				fire_ball(GF_MANA, dir,	300 + (plev * 2), 4);
 				break;
 			case 30: /* Breathe chaos */
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_CHAOS,dir,p_ptr->chp,
-					2);
+				fire_ball(GF_CHAOS,dir,p_ptr->chp,2);
 				break;
 			case 31: /* Call the Void */
 				call_the_();
@@ -1893,8 +1914,7 @@ void do_cmd_cast(void)
 				break; 
 			case 3: /* Stinking Cloud */
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_POIS, dir,
-					10 + (plev / 2), 2);
+				fire_ball(GF_POIS, dir,	10 + (plev / 2), 2);
 				break;
 			case 4: /* Black Sleep */
 				if (!get_aim_dir(&dir)) return;
@@ -1970,7 +1990,7 @@ void do_cmd_cast(void)
 
 					if (die < 8) {
 						msg_print("Oh no! Mouldering forms rise from the earth around you!");
-						(void) summon_specific(py, px, dun_level, SUMMON_UNDEAD);
+						(void) summon_specific(py, px, dun_level, FILTER_UNDEAD);
 					} else if (die < 14) {
 						msg_print("An unnamable evil brushes against your mind...");
 						set_afraid(p_ptr->afraid + randint(4) + 4);
@@ -2034,8 +2054,7 @@ void do_cmd_cast(void)
 				}
 			case 18: /* Dark Bolt */
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt_or_beam(beam, GF_DARK, dir,
-					damroll(4+((plev-5)/4), 8));
+				fire_bolt_or_beam(beam, GF_DARK, dir, damroll(4+((plev-5)/4), 8));
 				break;
 			case 19: /* Battle Frenzy */
 				(void)set_shero(p_ptr->shero + randint(25) + 25);
@@ -2063,8 +2082,7 @@ void do_cmd_cast(void)
 				break;
 			case 22: /* Darkness Storm */
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_DARK, dir,
-					120, 4);
+				fire_ball(GF_DARK, dir,	120, 4);
 				break;
 			case 23: /* Mass Genocide */
 				(void)mass_genocide(TRUE);
@@ -2076,13 +2094,13 @@ void do_cmd_cast(void)
 			case 25: /* Raise the Dead */
 				if (randint(3) == 1) {
 					if (summon_specific(py, px, (plev*3)/2,
-						(plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD))) {
+						(plev > 47 ? FILTER_HI_UNDEAD : FILTER_UNDEAD))) {
 							msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 							msg_print("'The dead arise... to punish you for disturbing them!'");
 						}
 				} else {
 					if (summon_specific_friendly((int)py,(int)px, (plev*3)/2,
-						(plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD),
+						(plev > 47 ? FILTER_HI_UNDEAD_NO_UNIQUES : FILTER_UNDEAD),
 						(bool)(((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE))) {
 							msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 							msg_print("Ancient, long-dead forms arise from the ground to serve you!");
@@ -2171,18 +2189,18 @@ void do_cmd_cast(void)
 			}
 			break;
 
-		case 5: /* PLANAR */
+		case 5: /* TAROT */
 			switch (spell)
 			{
-			case 0: /* Phase Door */
+			case 0: /* Shift */
 				teleport_player(10);
 				break;
-			case 1: /* Mind Blast */
+			case 1: /* The Challenge */
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_PSI, dir,
 					damroll(3 + ((plev - 1) / 5), 3));
 				break;
-			case 2: /* Tarot Draw */
+			case 2: /* Fears & Hopes */
 
 				{
 					/* A limited power 'wonder' spell */
@@ -2205,7 +2223,7 @@ void do_cmd_cast(void)
 					else if (die < 14)
 					{
 						msg_print("Oh no! It's the Devil!");
-						(void) summon_specific(py, px, dun_level, SUMMON_DEMON);
+						(void) summon_specific(py, px, dun_level, FILTER_DEMON);
 					}
 					else if (die < 18 )
 					{
@@ -2277,25 +2295,25 @@ void do_cmd_cast(void)
 					else if (die<82)
 					{
 						msg_print("It's a picture of a friendly monster.");
-						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE1, FALSE)))
+						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, FILTER_BIZARRE1, FALSE)))
 							none_came = TRUE;
 					}
 					else if (die<84)
 					{
 						msg_print("It's a picture of a friendly monster.");
-						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE2, FALSE)))
+						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, FILTER_BIZARRE2, FALSE)))
 							none_came = TRUE;
 					}
 					else if (die<86)
 					{
 						msg_print("It's a picture of a friendly monster.");
-						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE4, FALSE)))
+						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, FILTER_BIZARRE4, FALSE)))
 							none_came = TRUE;
 					}
 					else if (die<88)
 					{
 						msg_print("It's a picture of a friendly monster.");
-						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE5, FALSE)))
+						if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, FILTER_BIZARRE5, FALSE)))
 							none_came = TRUE;
 					}
 					else if (die<96)
@@ -2341,7 +2359,7 @@ void do_cmd_cast(void)
 
 				}
 				break;
-			case 3: /* Reset Recall */
+			case 3: /* Restack */
 				{
 					/* Prompt */
 					sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_dun_level);
@@ -2365,10 +2383,10 @@ void do_cmd_cast(void)
 					msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50 );
 				}
 				break;
-			case 4: /* Teleport Self */
+			case 4: /* Fool's Journey */
 				teleport_player(plev * 4);
 				break;
-			case 5: /* Dimension Door */
+			case 5: /* Sleight of Hand */
 				{
 					msg_print("You open a dimensional gate. Choose a destination.");
 					if (!tgt_pt(&ii,&ij)) return;
@@ -2384,226 +2402,118 @@ void do_cmd_cast(void)
 					else teleport_player_to(ij,ii);
 					break;
 				}
-			case 6: /* Planar Spying */
+			case 6: /* The High Priestess"*/
 				(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
 				break;
-			case 7: /* Teleport Away */
+			case 7: /* The Chariot */
 				if (!get_aim_dir(&dir)) return;
 				(void)fire_beam(GF_AWAY_ALL, dir, plev);
 				break;
-			case 8: /* Summon Object */
+			case 8: /* Wheel of Fortune */
 				if (!get_aim_dir(&dir)) return;
 				fetch(dir, plev*15, TRUE);
 				break;
-			case 9: /* Summon Animal */
+			case 9: /* Temperance */
 				{
-					msg_print ("You concentrate on the image of an animal...");
-					if (randint(5)>2)
-					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_ANIMAL_RANGER, FALSE)))
-							none_came = TRUE;
-					}
-					else
-					{
-						if (summon_specific(py, px, plev, SUMMON_ANIMAL))
-						{
-							msg_print("The summoned animal gets angry!");
-						}
-						else
-						{
-							none_came = TRUE;
-						}
-					}
+					(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+					(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+					(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+				}
+					break;					
+			case 10: /* King of Swords */
+				if (summon_specific_friendly(py, px, (plev*3)/2, FILTER_DEMON, FALSE))
+					msg_print ("'Your wish, master?'");
+				else
+					none_came = TRUE;
+				break;
+			case 11: /* The lovers */
+				{
+					if (!get_aim_dir(&dir)) return;
+					(void)charm_monster_type( dir, MIN(p_ptr->lev, 20), FILTER_HUMAN);
 				}
 				break;
-			case 10: /* Phantasmal Servant */
-				if (summon_specific_friendly(py, px, (plev*3)/2, SUMMON_PHANTOM, FALSE))
+			case 12: /* Elements of The Minchiate */
 				{
-					msg_print ("'Your wish, master?'");
-				}
-				else
-				{
+					if (!(summon_specific_friendly(py, px, plev, FILTER_ELEMENTAL, FALSE)))
 					none_came = TRUE;
 				}
 				break;
-			case 11: /* Summon Monster */
-				{
-					msg_print ("You concentrate on the image of a monster...");
-					if (randint(5)>2)
-					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_NO_UNIQUES, FALSE)))
-							none_came = TRUE;
-					}
-					else
-					{
-						if (summon_specific(py, px, plev, 0))
-						{
-							msg_print("The summoned creature gets angry!");
-						}
-						else
-						{
-							none_came = TRUE;
-						}
-					}
-				}
-				break;
-			case 12: /* Conjure Elemental */
-				{
-					if (randint(6)>3)
-					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_ELEMENTAL, FALSE)))
-							none_came = TRUE;
-					}
-					else
-					{
-						if (summon_specific(py, px, plev, SUMMON_ELEMENTAL))
-						{
-							msg_print("You fail to control the elemental creature!");
-						}
-						else
-						{
-							none_came = TRUE;
-						}
-					}
-				}
-
-				break;
-			case 13: /* Teleport Level */
+			case 13: /* The Hermit */
+				msg_print("You withdraw yourself.");
 				(void)teleport_player_level();
 				break;
-			case 14: /* Word of Recall */
+			case 14: /* Search for the Self */
 				{
-					if (dun_level && (p_ptr->max_dun_level > dun_level))
-					{
-						if (get_check("Reset recall depth? "))
-							p_ptr->max_dun_level = dun_level;
-
-					}
-					if (!p_ptr->word_recall)
-					{
-						p_ptr->word_recall = rand_int(21) + 15;
-						msg_print("The air about you becomes charged...");
-					}
-					else
-					{
-						p_ptr->word_recall = 0;
-						msg_print("A tension leaves the air around you...");
-					}
+					do_recall( NULL );
 					break;
 				}
-			case 15: /* Banish */
+			case 15: /* Shuffle */
 				banish_monsters(plev*4);
 				break;
-			case 16: /* Joker Card */
+			case 16: /* Ink Blot */
 				msg_print("You concentrate on a joker card...");
 				switch(randint(4))
 				{
-				case 1: dummy = SUMMON_BIZARRE1; break;
-				case 2: dummy = SUMMON_BIZARRE2; break;
-				case 3: dummy = SUMMON_BIZARRE4; break;
-				case 4: dummy = SUMMON_BIZARRE5; break;
-
+					case 1: dummy = FILTER_BIZARRE1; break;
+					case 2: dummy = FILTER_BIZARRE2; break;
+					case 3: dummy = FILTER_BIZARRE4; break;
+					case 4: dummy = FILTER_BIZARRE5; break;
+						
 				}
-				if (randint(2)==1)
-				{
-					if (summon_specific(py, px, plev, dummy))
-						msg_print("The summoned creature gets angry!");
-					else
-						none_came = TRUE;
-				}
-				else
-				{
-					if (!(summon_specific_friendly(py, px, plev, dummy, FALSE)))
-						none_came = TRUE;
-				}
-				break;
-			case 17: /* Summon Spiders */
-				{
-					msg_print ("You concentrate on the image of a spider...");
-					if (randint(5)>2)
+					if (randint(2)==1)
 					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_SPIDER, TRUE)))
-							none_came = TRUE;
-					}
-					else
-					{
-						if (summon_specific(py, px, plev, SUMMON_SPIDER))
-						{
-							msg_print("The summoned spiders get angry!");
-						}
+						if (summon_specific(py, px, plev, dummy))
+							msg_print("The summoned creature gets angry!");
 						else
-						{
-							none_came = TRUE;
-						}
-					}
-				}
-				break;
-			case 18: /* Summon Reptiles */
-				{
-					msg_print ("You concentrate on the image of a reptile...");
-					if (randint(5)>2)
-					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_HYDRA, TRUE)))
 							none_came = TRUE;
 					}
 					else
 					{
-						if (summon_specific(py, px, plev, SUMMON_HYDRA))
-						{
-							msg_print("The summoned reptile gets angry!");
-						}
-						else
-						{
+						if (!(summon_specific_friendly(py, px, plev, dummy, FALSE)))
 							none_came = TRUE;
-						}
 					}
-				}
-				break;
-			case 19: /* Summon Hounds */
+					break;
+			case 17: /* The Star */
 				{
-					msg_print ("You concentrate on the image of a hound...");
-					if (randint(5)>2)
-					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_HOUND, TRUE)))
-							none_came = TRUE;
-					}
-					else
-					{
-						if (summon_specific(py, px, plev, SUMMON_HOUND))
-						{
-							msg_print("The summoned hounds get angry!");
-						}
-						else
-						{
-							none_came = TRUE;
-						}
-					}
+					(void)hp_player(150);
+					(void)set_stun(0);
+					(void)set_cut(0);
+					break;					
 				}
-
 				break;
-			case 20: /* Planar Branding */
-				brand_weapon(4);
+			case 18: /* Fortitude */
+				{
+                    (void)set_blessed(p_ptr->blessed + plev);                    
+                    (void)set_hero(p_ptr->hero + plev);
+				}
 				break;
-			case 21: /* Planar Being */
-				if (randint(8)==1) dummy = 16;
-				else dummy = 8;
-				if (gain_corruption(dummy))
+			case 19: /* The Emperor */
+				{
+					charm_monsters(p_ptr->lev * 2);
+					break;					
+				}
+				break;
+			case 20: /* Branding of the Minchiate */
+				brand_weapon(5);
+				break;
+			case 21: /* Tarot Ascension */
+				if ( gain_corruption(8) || gain_corruption(16) )
 					msg_print("You have turned into a Planar Being.");
 				break;
-			case 22: /* Death Dealing */
+			case 22: /* Death */
 				(void)dispel_living(plev * 3);
 				break;
-			case 23: /* Summon Reaver */
+			case 23: /* The Devil */
 				{
-					msg_print ("You concentrate on the image of a Black Reaver...");
+					msg_print ("You concentrate on an image of The Devil...");
 					if (randint(10)>3)
 					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_REAVER, FALSE)))
+						if (!(summon_specific_friendly(py, px, plev, FILTER_DEVIL, FALSE)))
 							none_came = TRUE;
 					}
 					else
 					{
-						if (summon_specific(py, px, plev, SUMMON_REAVER))
+						if (summon_specific(py, px, plev, FILTER_DEVIL))
 						{
 							msg_print("The summoned Black Reaver gets angry!");
 						}
@@ -2614,56 +2524,24 @@ void do_cmd_cast(void)
 					}
 				}
 				break;
-			case 24: /* Planar Divination */
+			case 24: /* Read The Lay */
 				(void)detect_all();
 				break;
-			case 25: /* Planar Lore */
+			case 25: /* Tarot Lore */
 				identify_fully();
 				break;
-			case 26: /* Summon Undead */
+			case 26: /* Patter */
 				{
-					msg_print ("You concentrate on the image of an undead creature...");
-					if (randint(10)>3)
-					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_UNDEAD, FALSE)))
-							none_came = TRUE;
-					}
-					else
-					{
-						if (summon_specific(py, px, plev, SUMMON_UNDEAD))
-						{
-							msg_print("The summoned undead creature gets angry!");
-						}
-						else
-						{
-							none_came = TRUE;
-						}
-					}
+					fire_ball(GF_CONFUSION  , 5, 200, 5);					
+					teleport_player(10);
 				}
 				break;
-			case 27: /* Summon Dragon */
+			case 27: /* The Tower */
 				{
-					msg_print ("You concentrate on the image of a dragon...");
-					if (randint(10)>3)
-					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_DRAGON, FALSE)))
-							none_came = TRUE;
-					}
-					else
-					{
-						if (summon_specific(py, px, plev, SUMMON_DRAGON))
-						{
-							msg_print("The summoned dragon gets angry!");
-						}
-						else
-						{
-							none_came = TRUE;
-						}
-					}
+					fire_ball(GF_BLASTED_TOWER , 5, 200, 7);
 				}
-
 				break;
-			case 28: /* Mass Summon */
+			case 28: /* Lay of The Celtic Cross */
 				{
 					none_came = TRUE;
 					msg_print ("You concentrate on several images at once...");
@@ -2671,7 +2549,7 @@ void do_cmd_cast(void)
 					{
 						if (randint(10)>3)
 						{
-							if (summon_specific_friendly(py, px, plev, SUMMON_NO_UNIQUES, FALSE))
+							if (summon_specific_friendly(py, px, plev, FILTER_NO_UNIQUES, FALSE))
 								none_came = FALSE;
 						}
 						else
@@ -2685,17 +2563,17 @@ void do_cmd_cast(void)
 					}
 				}
 				break;
-			case 29: /* Summon Demon */
+			case 29: /* Ten of Pentacles */
 				{
 					msg_print ("You concentrate on the image of a demon...");
 					if (randint(10)>3)
 					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_DEMON, FALSE)))
+						if (!(summon_specific_friendly(py, px, plev, FILTER_DEMON, FALSE)))
 							none_came = TRUE;
 					}
 					else
 					{
-						if (summon_specific(py, px, plev, SUMMON_DEMON))
+						if (summon_specific(py, px, plev, FILTER_DEMON))
 						{
 							msg_print("The summoned demon gets angry!");
 						}
@@ -2706,51 +2584,21 @@ void do_cmd_cast(void)
 					}
 				}
 				break;
-			case 30: /* Summon Ancient Dragon */
-				{
-					msg_print ("You concentrate on the image of an ancient dragon...");
-					if (randint(10)>3)
-					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_HI_DRAGON_NO_UNIQUES, FALSE)))
-							none_came = TRUE;
-					}
-					else
-					{
-						if (summon_specific(py, px, plev, SUMMON_HI_DRAGON))
-						{
-							msg_print("The summoned ancient dragon gets angry!");
-						}
-						else
-						{
-							none_came = TRUE;
-						}
-					}
-				}
-
+			case 30: /* The Traitor */
+			{
+				
+				none_came = !summon_specific_potential_ally( FILTER_FALLEN_ANGELS, 3, 10, "The Fallen Angel gets angry!");
 				break;
-			case 31: /* Summon Greater Undead */
+			}
+			case 31: /* Justice */
 				{
-					msg_print ("You concentrate on the image of a greater undead being...");
-					if (randint(10)>3)
-					{
-						if (!(summon_specific_friendly(py, px, plev, SUMMON_HI_UNDEAD_NO_UNIQUES, FALSE)))
-							none_came = TRUE;
-					}
-					else
-					{
-						if (summon_specific(py, px, plev, SUMMON_HI_UNDEAD))
-						{
-							msg_print("The summoned greater undead creature gets angry!");
-						}
-						else
-						{
-							none_came = TRUE;
-						}
-					}
+					(void)dispel_demons(plev * 3);
+					(void)dispel_devils(plev * 3);
+					(void)dispel_fallen_angels(plev * 3);	
 				}
 				break;
 			default:
-				msg_format("You cast an unknown Planar spell: %d.", spell);
+				msg_format("You cast an unknown Tarot spell: %d.", spell);
 				msg_print(NULL);
 			}
 			if (none_came)
@@ -2804,7 +2652,7 @@ void do_cmd_cast(void)
 
 				break;
 			case 11: /* Detect Enchantment */
-				(void)detect_objects_magic();
+				(void)detect_objects_magic(FALSE,FALSE);
 				break;
 			case 12: /* Detect Object */
 				(void)detect_objects_normal();
@@ -2876,22 +2724,7 @@ void do_cmd_cast(void)
 				break;
 			case 30: /* Word of Recall */
 				{
-					if (dun_level && (p_ptr->max_dun_level > dun_level))
-					{
-						if (get_check("Reset recall depth? "))
-							p_ptr->max_dun_level = dun_level;
-
-					}
-					if (!p_ptr->word_recall)
-					{
-						p_ptr->word_recall = rand_int(21) + 15;
-						msg_print("The air about you becomes charged...");
-					}
-					else
-					{
-						p_ptr->word_recall = 0;
-						msg_print("A tension leaves the air around you...");
-					}
+					do_recall( NULL );
 					break;
 				}
 			case 31: /* Clairvoyance */
@@ -2913,7 +2746,7 @@ void do_cmd_cast(void)
 				(void)hp_player(damroll(2, 10));
 				(void)set_cut(p_ptr->cut - 10);
 				break;
-			case 1: /* Blink */
+			case 1: /* Shift */
 				teleport_player(10);
 				break;
 			case 2: /* Bravery */
@@ -2972,11 +2805,11 @@ void do_cmd_cast(void)
 				(void)set_cut(0);
 				break;
 			case 15: /* Resist True */
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+				(void)set_oppose_acid(p_ptr->oppose_acid + randint(25) + 25);
+				(void)set_oppose_elec(p_ptr->oppose_elec + randint(25) + 25);
+				(void)set_oppose_fire(p_ptr->oppose_fire + randint(25) + 25);
+				(void)set_oppose_cold(p_ptr->oppose_cold + randint(25) + 25);
+				(void)set_oppose_pois(p_ptr->oppose_pois + randint(25) + 25);
 				break;
 			case 16: /* Horrific Visage */
 				if (!get_aim_dir(&dir)) return;
@@ -2984,7 +2817,7 @@ void do_cmd_cast(void)
 				(void) stun_monster(dir, plev);
 				break;
 			case 17: /* See Magic */
-				(void)detect_objects_magic();
+				(void)detect_objects_magic(FALSE,FALSE);
 				break;
 			case 18: /* Stone Skin */
 				(void)set_shield(p_ptr->shield + randint(20) + 30);
@@ -3015,22 +2848,7 @@ void do_cmd_cast(void)
 				break;
 			case 23: /* Word of Recall */
 				{
-					if (dun_level && (p_ptr->max_dun_level > dun_level))
-					{
-						if (get_check("Reset recall depth? "))
-							p_ptr->max_dun_level = dun_level;
-
-					}
-					if (!p_ptr->word_recall)
-					{
-						p_ptr->word_recall = rand_int(21) + 15;
-						msg_print("The air about you becomes charged...");
-					}
-					else
-					{
-						p_ptr->word_recall = 0;
-						msg_print("A tension leaves the air around you...");
-					}
+					do_recall( NULL );
 					break;
 				}
 			case 24: /* Heroism */
@@ -3072,35 +2890,164 @@ void do_cmd_cast(void)
 				msg_print(NULL);
 			}
 			break;
+		case REALM_DEMONIC-1: /* * DEMONIC * */
+			switch (spell)
+			{
+                case 0: /* Unholy strength */
+                    (void)set_hero(p_ptr->hero + randint(25) + 25);
+                    (void)take_hit( (p_ptr->lev/10)*5+5 , "Strain of Unholy Strength");
+                    break;
+                case 1: /* Sense Evil */
+                    (void)detect_monsters_evil();
+                    break;
+                case 2: /* Scorch */
+                    if (!get_aim_dir(&dir)) return;
+                    fire_bolt_or_beam(beam-10, GF_FIRE, dir, damroll(3 + ((plev - 1) / 5), 4));
+                    break; 
+                case 3: /* Perilous Shadows */
+                    if (!get_aim_dir(&dir)) return;
+                    fire_bolt_or_beam(beam-10, GF_DARK, dir, damroll(3 + ((plev - 1) / 5), 4));
+                    break;
+                case 4: /* Teleport */
+                    teleport_player(75);
+                    break;
+                case 5: /* Disintegrate  */
+                    if (!get_aim_dir(&dir)) return;
+                    fire_ball(GF_DISINTEGRATE, dir, damroll(8+((plev-5)/4), 8), 0);
+                    break;
+                case 6: /* Demonic Sigil */
+                    msg_print("You carefully draw a sigil on the floor...");
+                    explosive_rune();
+                    break;
+                case 7: /* Hecate's Radiance ( weak light damage + medium charm/confuse/fear spell ) */
+                    (void)lite_area_hecate(damroll(plev, 2), (plev / 10) + 1);
+                    break;
+                case 8: /* Abaddon's Rage */
+                    (void)set_shero(p_ptr->shero + randint(25) + 25);
+                    (void)set_blessed(p_ptr->blessed + randint(25) + 25);                    
+                    break;
+                case 9: /* Mind Leech */
+                    (void)mind_leech();
+                     break;
+                case 10: /* Body Leech*/
+                    (void)body_leech();
+                     break;
+                case 11: /* Glyph of Warding */
+                    warding_glyph();
+                    break;
+                case 12: /* Protection from Evil */
+                    (void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
+                    break;
+                case 13: /* Summon Demons */
+                    if (!(summon_specific_friendly(py, px, plev, FILTER_DEMON, TRUE)))
+                        if (!(summon_specific_friendly(py, px, plev, FILTER_DEVIL, TRUE)))                        
+                            none_came = TRUE;
+                     break;
+                case 14: /* Summon the Fallen */
+                    if (!(summon_specific_friendly(py, px, plev, FILTER_FALLEN_ANGELS, TRUE)))
+                        none_came = TRUE;
+                    break;                    
+                case 15: /* Balm of the Cocytus */
+                   hp_player(300);
+                   /* Actually set the stat to its new value. */
+                   p_ptr->stat_cur[A_CON] = p_ptr->stat_cur[A_CON]-1;
+                   /* Recalculate bonuses */
+                   p_ptr->update |= (PU_BONUS);                        
+                   break;
+                case 16: /* Araqiel's Wrath ( Earthquake )  */
+                    (void) earthquake(py,px,8);
+                    break;
+                case 17: /*Kokabiel's Call  ( Summon Spirits, lots of them ) */
+                    none_came = summon_specific_friendly(py, px, plev, FILTER_SPIRITS, TRUE) +
+                    summon_specific_friendly(py, px, plev, FILTER_SPIRITS, TRUE) +
+                    summon_specific_friendly(py, px, plev, FILTER_SPIRITS, TRUE) +
+                    summon_specific_friendly(py, px, plev, FILTER_SPIRITS, TRUE);
+                    none_came = !none_came;
+                    break;
+                case 18: /* Baraquiel's Guile (detect enchantment on entire level of excellents and specials) */
+                    (void)detect_objects_magic(TRUE,TRUE);
+                    break;
+                case 19: /* Sariel's Ire  */
+					dummy = randint(50) + 25;
+                    (void)set_blessed(p_ptr->blessed + dummy);                    
+                    (void)set_hero(p_ptr->hero + dummy);
+                    (void)set_magic_shell(p_ptr->magic_shell + dummy);					
+					break;
+                case 20: /* Azazel's Rule */
+                    (void)charm_all_goats();
+                    break;
+				case 21: /* Danel's Deluge */
+					if (!get_aim_dir(&dir)) return;
+					fire_ball(GF_LITE, dir,
+							  (damroll(3, 6) + plev +
+							   (plev / ((p_ptr->pclass == CLASS_HELL_KNIGHT
+										 || p_ptr->pclass == CLASS_WARLOCK
+										 || p_ptr->pclass == CLASS_HIGH_MAGE) ? 1 : 3))),
+							  ((plev < 30) ? 2 : 3));
+					break;
+				case 22: /* Amaros' Grief  */
+					(void) dispel_demons(plev*4);
+					(void) dispel_fallen_angels(plev*4);					
+					break;
+				case 23: /* Teachings of Kasyade */
+					wiz_lite();
+					break;
+				case 24: /* Orb of Impending Doom */
+					if (!get_aim_dir(&dir)) return;
+					fire_ball(GF_HELL_FIRE, dir, (damroll(3, 6) + plev +
+												  (plev / (( p_ptr->pclass == CLASS_HELL_KNIGHT || p_ptr->pclass == CLASS_WARLOCK || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4))),
+							  ((plev < 30) ? 2 : 3));
+					break;
+				case 25: /* Temperance */
+					dummy = randint(50) + 50;
+					(void)set_oppose_cold( dummy );
+					(void)set_oppose_fire( dummy );					
+					break;
+				case 26: /* True Warding */
+					warding_glyph();
+					glyph_creation();
+					break;
+				case 27: /* Word of Destruction */
+					destroy_area(py, px, 15, TRUE);
+					break;
+				case 28: /* Gift of Malphas ( Adding weapon flags, Malphas being a friend of artificers ] */
+					(void)malphas_gift();
+					break;
+				case 29: /* Lilith's Kiss  */
+					charm_monsters(p_ptr->lev * 4);
+					break;
+				case 30: /* Behemoth's Call */
+					msg_print("You open your mouth while it deforms into a gaping hole, spewing wind and water!");
+					(void)behemoth_call();
+					break;
+				case 31: /* Chaos Rift */
+					if (!get_aim_dir(&dir)) return;
+					fire_ball(GF_CHAOS,dir,p_ptr->mhp,2);
+					break;
+				default:
+					msg_format("You cast an unknown Demonic spell: %d.", spell);
+                        msg_print(NULL);
+			}
+            break;            
 		default:
 			msg_format("You cast a spell from an unknown realm: realm %d, spell %d.", realm, spell);
 			msg_print(NULL);
 		}
 		/* A spell was cast */
-		if (!((increment) ?
-			(spell_worked2 & (1L << spell)) :
-		(spell_worked1 & (1L << (spell)))))
-		{
-			int e = s_ptr->sexp;
-
-			/* The spell worked */
+		if( !s_ptr->worked  ){
+			first_time = TRUE;
+			xp_gain = s_ptr->sexp *  s_ptr->sexp;
 			if (realm == p_ptr->realm1-1)
-			{
 				spell_worked1 |= (1L << spell);
-			}
 			else
-			{
 				spell_worked2 |= (1L << spell);
-			}
-
-			/* Gain experience */
-			gain_exp(e * s_ptr->slevel);
 		}
 	}
 
 	/* Take some time - a spell of your level takes 100, lower level spells take less */
 	energy_use = 100-(5*(p_ptr->lev-s_ptr->slevel));
 	if(energy_use < 10) energy_use = 10;
+
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)
 	{
@@ -3142,6 +3089,12 @@ void do_cmd_cast(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
 	p_ptr->window |=(PW_SPELL);
+
+	/*  Gain experience, we put this here since leveling screws up the spell info pointer,
+		that is very bad karma and it is all my fault, big todo!
+	*/
+	if(first_time)
+		gain_exp(xp_gain);
 }
 
 

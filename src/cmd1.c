@@ -369,7 +369,7 @@ void search(void)
 						msg_print(out_val);
 
 						/* Know the trap */
-						object_known(o_ptr);
+						object_known(o_ptr,TRUE);
 
 						/* Notice it */
 						disturb(0, 0);
@@ -444,18 +444,14 @@ void carry(int pickup)
                 if(p_ptr->lev >= 30)
                 {
                     /* Identify it fully */
-                    object_aware(o_ptr);
-                    object_known(o_ptr);                    
-                    /* We have "felt" it in every way */
-                    o_ptr->ident |= (IDENT_MENTAL);                    
-                    /* Describe the object again with our new full knowledge */
+                    object_full_id( o_ptr );
                     object_desc(o_name, o_ptr, TRUE, 3);                                        
                 }
                 else if( p_ptr->lev >= 15 )
                 {
                     /* Identify it fully */
                     object_aware(o_ptr);
-                    object_known(o_ptr);
+                    object_known(o_ptr,TRUE);
                     /* Describe the object again with our new knowledge */
                     object_desc(o_name, o_ptr, TRUE, 3);                                                            
                 }
@@ -469,6 +465,8 @@ void carry(int pickup)
                         o_ptr->ident |= (IDENT_SENSE);
                         /* Inscribe it textually */
                         if (!o_ptr->note) o_ptr->note = quark_add(feel);
+						/*Should we be squelchin' ?*/
+						consider_squelch( o_ptr );
                         /* Describe the object again with the added quark */
                         object_desc(o_name, o_ptr, TRUE, 3);                    
                     }
@@ -994,11 +992,10 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 		}
 
-
-		if (m_ptr->smart & SM_ALLY)
+		if ( is_potential_hater( m_ptr )  )
 		{
 			msg_format("%^s gets angry!", m_name);
-			m_ptr->smart &= ~SM_ALLY;
+			set_hate_player( m_ptr );
 		}
 
 		/* Damage, check for fear and mdeath */
@@ -1105,7 +1102,7 @@ void py_attack(int y, int x)
 
 
 	/* Stop if friendly */
-	if (m_ptr->smart & SM_ALLY &&
+	if ( is_ally(m_ptr) &&
 		! (p_ptr->stun || p_ptr->confused || p_ptr->image ||
 		((p_ptr->muta2 & COR2_BERS_RAGE) && p_ptr->shero) ||
 		!(m_ptr->ml)))
@@ -1376,10 +1373,10 @@ void py_attack(int y, int x)
 			{
 				mdeath = TRUE;
 			}
-			if (m_ptr->smart & SM_ALLY)
+			if( is_potential_hater( m_ptr ) )
 			{
 				msg_format("%^s gets angry!", m_name);
-				m_ptr->smart &= ~SM_ALLY;
+				set_hate_player( m_ptr );
 			}
 		}
 		else
@@ -1437,7 +1434,7 @@ void py_attack(int y, int x)
 			}
 		}
 		/* Confusion attack */
-		if ((p_ptr->confusing) || (chaos_effect && (randint(10)!=1)))
+		if ( ((p_ptr->confusing) || (chaos_effect && (randint(10)!=1))) && !mdeath)
 		{
 			/* Cancel glowing hands */
 			p_ptr->confusing = FALSE;
@@ -1468,7 +1465,7 @@ void py_attack(int y, int x)
 			}
 		}
 
-		else if (chaos_effect && (randint(2)==1))
+		else if (chaos_effect && (randint(2)==1) && !mdeath)
 		{
 			chaos_effect = FALSE;
 			msg_format("%^s disappears!", m_name);
@@ -1480,7 +1477,7 @@ void py_attack(int y, int x)
 
 
 		else if (chaos_effect && cave_floor_bold(y,x)
-			&& (randint(90) > r_ptr->level))
+			&& (randint(90) > r_ptr->level) && !mdeath)
 		{
 			if (!((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags4 & RF4_BR_CHAO) || (r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD)))
 			{
@@ -1686,6 +1683,34 @@ static bool pattern_seq(byte c_y, byte c_x, byte n_y,byte  n_x)
 
 }
 
+/*This code is not all over the place ( fortunately )
+however I still feel it deserves its own function for future clarity
+*/
+int can_move_player( int y , int x )
+{
+	cave_type *c_ptr;
+	bool p_can_pass_walls = FALSE;
+	bool wall_is_perma = FALSE;
+	
+	/* Examine the destination */
+	c_ptr = &cave[y][x];	
+	
+	/* Player can not walk through "permanent walls"... */
+	/* unless in Shadow Form */
+	if ((p_ptr->wraith_form) || (p_ptr->prace == SPECTRE))
+	{
+		p_can_pass_walls = TRUE;
+		if ((cave[y][x].feat >= FEAT_PERM_BUILDING) && (cave[y][x].feat <= FEAT_PERM_SOLID))
+		{
+			wall_is_perma = TRUE;
+			p_can_pass_walls = FALSE;
+		}
+	}
+	
+	if((!cave_floor_bold(y, x)) && (c_ptr->feat != FEAT_BUSH) && (!p_can_pass_walls))return (FALSE);
+	if( c_ptr->feat == FEAT_WATER && !p_ptr->ffall)return (FALSE);
+	return (TRUE);	
+}
 
 
 /*
@@ -1741,7 +1766,7 @@ void move_player(int dir, int do_pickup)
 	if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y,x) || p_can_pass_walls))
 	{
 		/* Attack -- only if we can see it OR it is not in a wall */
-		if ((m_ptr->smart & SM_ALLY) &&
+		if (( is_ally(m_ptr) ) &&
 			!(p_ptr->confused || p_ptr->image || !(m_ptr->ml) || p_ptr->stun
 			|| ((p_ptr->muta2 & COR2_BERS_RAGE) && p_ptr->shero))
 			&& (pattern_seq((byte)py,(byte)px,(byte)y,(byte)x)) &&
@@ -1798,7 +1823,7 @@ void move_player(int dir, int do_pickup)
 
 
 	/* Player can not walk through "walls" unless in wraith form...*/
-	if (((!cave_floor_bold(y, x)) && (c_ptr->feat != FEAT_BUSH) && (!p_can_pass_walls)) || (c_ptr->feat == FEAT_WATER))
+	if (!can_move_player(y,x))
 	{
 		/* Disturb the player */
 		disturb(0, 0);
@@ -1970,6 +1995,27 @@ void move_player(int dir, int do_pickup)
 
 		/* Handle "objects" */
 #ifdef ALLOW_EASY_DISARM /* TNB */
+		
+		/* For now we we check squelching here Konijn*/
+		if( c_ptr->o_idx )
+		{
+			s16b this_o_idx, next_o_idx = 0;
+			/* Scan all objects in the grid */
+			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			{
+				object_type *o_ptr;
+				
+				/* Acquire object */
+				o_ptr = &o_list[this_o_idx];
+				
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
+					
+				/*Consider squelching*/
+				consider_squelch( o_ptr );
+			}
+		}
+		
 
 		carry(do_pickup != always_pickup);
 

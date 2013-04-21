@@ -25,32 +25,32 @@ void show_dun_bias(void)
 {
 	switch(dun_bias)
 	{
-	case SUMMON_ORC:
+	case FILTER_ORC:
 		{
 			msg_print("You can hear the beating of drums.");
 			break;
 		}
-	case SUMMON_UNDEAD:
+	case FILTER_UNDEAD:
 		{
 			msg_print("It smells like a morgue in here.");
 			break;
 		}
-	case SUMMON_DRAGON:
+	case FILTER_DRAGON:
 		{
 			msg_print("You can hear the hissing and slithering of reptilian beasts.");
 			break;
 		}
-	case SUMMON_SPIDER:
+	case FILTER_SPIDER:
 		{
 			msg_print("The place is covered in webs.");
 			break;
 		}
-	case SUMMON_DEMON:
+	case FILTER_DEMON:
 		{
 			msg_print("The walls and ceiling drip with ichor.");
 			break;
 		}
-	case SUMMON_DEVIL:
+	case FILTER_DEVIL:
 		{
 			msg_print("The air is full of the sound of infernal cackling.");
 			break;

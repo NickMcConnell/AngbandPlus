@@ -447,14 +447,15 @@ static tval_desc tvals[] =
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
 	{ TV_ROD,               "Rod"                  },
-	{ TV_MIRACLES_BOOK,         "Miracles Spellbook"       },
+	{ TV_MIRACLES_BOOK,     "Miracles Spellbook"       },
 	{ TV_SORCERY_BOOK,      "Sorcery Spellbook"    },
 	{ TV_NATURE_BOOK,       "Nature Spellbook"     },
-	{ TV_DEMONIC_BOOK,        "Demonic Spellbook"      },
+	{ TV_CHAOS_BOOK,        "Chaos Spellbook"      },
 	{ TV_DEATH_BOOK,        "Death Spellbook"      },
-	{ TV_PLANAR_BOOK,        "Planar Spellbook"       },
+	{ TV_TAROT_BOOK,        "Tarot Spellbook"       },
 	{ TV_CHARMS_BOOK,       "Charms Spellbook"     },
-	{ TV_SOMATIC_BOOK, "Somatic Spellbook"},
+	{ TV_SOMATIC_BOOK,      "Somatic Spellbook"},
+	{ TV_DEMONIC_BOOK,      "Demonic Spellbook"},    
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -639,6 +640,12 @@ static void wiz_tweak_item(object_type *o_ptr)
 	sprintf(tmp_val, "%d", o_ptr->to_d);
 	if (!get_string(p, tmp_val, 5)) return;
 	o_ptr->to_d = atoi(tmp_val);
+	wiz_display_item(o_ptr);
+	
+	p = "Enter new 'ego' setting: ";
+	sprintf(tmp_val, "%d", o_ptr->name2);
+	if (!get_string(p, tmp_val, 5)) return;
+	o_ptr->name2 = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 }
 
@@ -1145,18 +1152,118 @@ static void do_cmd_wiz_supplies(void)
 }
 
 
+static void do_cmd_perma_prison_aux(int lx , int ly)
+{
+	cave_type		*c_ptr;
+	
+	/* Access the grid */
+	c_ptr = &cave[ly][lx];
+
+	/*Delete monsters*/				
+	delete_monster(ly, lx); 
+		
+	/* Delete objects */
+	delete_object(ly, lx);
+				
+	/* Access the grid */
+	c_ptr = &cave[ly][lx];
+				
+	/* Create floor */
+	c_ptr->feat = FEAT_PERM_BUILDING;
+				
+	/* No longer part of a room or vault */
+	c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
+				
+	/* No longer illuminated or known */
+	c_ptr->info |= (CAVE_MARK | CAVE_GLOW);
+}
+
+
 /*
-* Set up an ultra debug character
-*/ 
+ * Sets up a prison for the player to test dropping
+ */
+static void do_cmd_perma_prison(void)
+{
+
+
+	do_cmd_perma_prison_aux( px+1,py );
+	do_cmd_perma_prison_aux( px-1,py );
+	
+	do_cmd_perma_prison_aux( px+1,py+1 );
+	do_cmd_perma_prison_aux( px-1,py-1 );
+	do_cmd_perma_prison_aux( px+1,py-1 );
+	do_cmd_perma_prison_aux( px-1,py+1 );	
+	
+	do_cmd_perma_prison_aux( px,py+1 );
+	do_cmd_perma_prison_aux( px,py-1 );	
+	
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+	
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+	
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);	
+	
+}
+
+/*
+ * Learn all spells ;)
+ */
+static void do_cmd_study_all(void)
+{
+	int i;
+	/* And much was accomplished */
+	spell_learned1 = 0xFFFFFFFF;
+	spell_learned2 = 0xFFFFFFFF;		
+
+	/* Make sure that forgetting/remembering works*/
+	for (i = 0; i < 64; i++)
+		spell_order[i] = i;
+}
+
+static void do_cmd_parse(void)
+{
+	char		in[SCRIPT_MAX_LENGTH];
+	double		answer;	
+	
+	dice_mode = BEST_CASE;
+	
+	/* Get a new inscription (possibly empty) */
+	if (get_string("Expression (max length 80) : ", in, SCRIPT_MAX_LENGTH))
+	{
+		/*Point at the start*/
+		script = &in[0];
+		/*Evaluate*/
+		while(*script)
+		{
+			eval_script(&answer);
+			/*Show & Tell*/
+			msg_format("Answer for %s is: %.0f", variable_token, answer);	
+			/*There might be more*/
+			if(*script==';')script++;
+		}
+	}
+}			
+
+/**END**/
+
+/*
+ * Set up an ultra debug character
+ */ 
 static void do_cmd_wiz_michael(void)
 {
-   int			tmp_int;	
+	int			tmp_int;	
 	int			i;
-   /* Set all stats to maximum */
-   tmp_int = 18+100;
-   for (i = 0; i < 6; i++)
-   {	   
-	   p_ptr->stat_cur[i] = p_ptr->stat_max[i] = tmp_int;
+	/* Set all stats to maximum */
+	tmp_int = 18+100;
+	for (i = 0; i < 6; i++)
+	{	   
+		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = tmp_int;
    }
    wiz_create_named_art( 87 ); /*Longsword of Michael*/
    wiz_create_named_art( 34 ); /*/Bloodstained Armour of Saint Michael*/
@@ -1342,7 +1449,8 @@ static void do_cmd_wiz_named(int r_idx, int slp)
 		scatter(&y, &x, py, px, d, 0);
 
 		/* Require empty grids */
-		if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER)) continue;
+		/*if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER && !water_ok(r_idx) )) continue;*/
+		if(!can_place_monster(y,x,r_idx))continue;
 
 		/* Place it (allow groups) */
 		if (place_monster_aux(y, x, r_idx, (bool)slp, (bool)TRUE, (bool)FALSE)) break; 
@@ -1374,7 +1482,8 @@ static void do_cmd_wiz_named_friendly(int r_idx, int slp)
 		scatter(&y, &x, py, px, d, 0);
 
 		/* Require empty grids */
-		if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER)) continue;
+		/*if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER && !water_ok(r_idx))) continue;*/
+		if(!can_place_monster(y,x,r_idx))continue;
 
 		/* Place it (allow groups) */
 		if (place_monster_aux(y, x, r_idx, (bool)slp, (bool)TRUE, (bool)TRUE)) break;
@@ -1441,6 +1550,8 @@ extern void do_cmd_spoilers(void);
 
 
 
+
+
 /*
 * Hack -- declare external function
 */
@@ -1485,11 +1596,19 @@ void do_cmd_debug(void)
 	case '?':
 		do_cmd_wiz_help();
 		break;
+	case '0':
+		do_cmd_perma_prison();
+		break;
+	case '1':
+		do_cmd_study_all();
+		break;
+	case '2':
+		do_cmd_parse();
+		break;
 		/* Allow player to dress to kill, naming the character Michael */
 	case 'A':	
 		do_cmd_wiz_michael();
 		break;
-
 		/* Cure all maladies */
 	case 'a':
 		do_cmd_wiz_cure_all();
@@ -1570,7 +1689,10 @@ void do_cmd_debug(void)
 	case 'M':
 		(void) gain_corruption(command_arg);
 		break;
-
+		/* Corruption */
+	case '-':
+		(void) lose_corruption(command_arg);
+		break;
 		/* Specific reward */
 	case 'r':
 		(void) gain_level_reward(command_arg);
@@ -1693,6 +1815,7 @@ void do_cmd_wiz_help(void)
 	put_str("M = Gain Corruption",11,1);
 	put_str("r = Gain Level Reward",12,1);
 	put_str("x = Gain Experience",13,1);
+	put_str("- = Loose Corruption",14,1);	
 
 	c_put_str(TERM_RED,"Movement",15,1);
 	c_put_str(TERM_RED,"========",16,1);
@@ -1716,6 +1839,8 @@ void do_cmd_wiz_help(void)
 	put_str("d = Detect All",18,26);
 	put_str("m = Map Area",19,26);
 	put_str("w = Wizard Light",20,26);
+	put_str("0 = Create Perm Prison",21,26);
+	put_str("1 = Learn All Spells",22,26);	
 
 	c_put_str(TERM_RED,"Object Commands",4,51);
 	c_put_str(TERM_RED,"===============",5,51);
@@ -1727,6 +1852,8 @@ void do_cmd_wiz_help(void)
 	put_str("l = Learn About Objects",12,51);
 	put_str("o = Object Editor",13,51);
 	put_str("v = Generate Very Good Object",14,51);
+	put_str("S = Drop Endgame supplies",15,51);	
+	put_str("A = Drop Ultimate Kit",16,51);		
 
 	/* Wait for it */
 	put_str("Hit any key to continue", 23, 23);

@@ -1,590 +1,138 @@
-Generating a Character
-======================
+Greating a Character
+====================
 
-Before you can play Hellband, you must generate a character. You have the choice 
-of using 'quick start' (which will generate you a random character 
-automatically) or manually creating one.
+Before you can play Hellband, you must create a character. This help file 
+explains the creation of your character.
 
-This help file explains the manual creation of a character. A quick-started 
-random character is identical in all respects, except that the decisions are all 
-made for you.
+Making a choice
+===============
 
-Sex
-===
+You can look at the different choices by pressing either up/down or '8'/'2', you
+can confirm your choice by pressing space or enter. The current selection is
+always preceded with the '>' character.
 
-The first choice you must make is the choice of sex for your character. Sex has 
-no impact on game play whatsoever. It is merely a matter of personal choice.
+Gender
+======
 
-Race
-====
+The first choice you must make is the gender of your character. Unlike other 
+roguelikes Hellband does take the gender of you character into account. Men make
+easy targets for succubi and lilu. Some demons will hit harder on women. There 
+is no 'better' gender.
 
-There are 30 possible races to choose from. The race you choose will give you 
-certain bonuses and penalties to your abilities. It may also provide you with 
-certain special powers - or even limitations. You are advised to make your fist 
-few characters human - since this is the simplest race to play (the human race 
-is the 'default' race with no special rules or modifiers).
-
-Each race has a 'Hit dice'. This values is added to a similar value provided by 
-class to provide a number. Each time you go up a level, you will receive a 
-randomised number of extra hit points between one and this total.
-
-Each race also has an 'Experience Factor'. This will range from 100 to 255. This 
-is added to a similar factor provided by class to provide a total experience 
-factor. This factor is used as a percentage modifier on all amounts of 
-experience needed to increase your level - for example, if you have an 
-experience factor of 150, then you will need 150% of the 'normal' experience in 
-order to go up levels.
-
-Each race is listed below, along with its ability modifiers, hit dice and 
-experience factor.
-
-*Barbarian*
-Barbarians are rugged humans from the north. Although technically the same race 
-as other humans, their tough upbringing - with emphasis on physical prowess 
-rather than on more academic learning - leaves them different enough to 'normal' 
-humans to warrant them being described as a different race. Barbarians are 
-immune to fear, and can fly into a berserk rage (min lev = 8).
-Str: +3, Int: -2, Wis: -1, Dex: +1, Con: +2, Cha: -2
-Hit dice: 11
-Experience Factor: 120
-
-*Cyclops*
-Cyclopes are one eyed giants. Although large and strong, they tend to be 
-somewhat clumsy and have limited intellect. Their one eye makes them look 
-somewhat strange to other races, who often see them as 'freaks', and this 
-somewhat hampers their social skills. Cyclopes can learn to use their great 
-strength to throw massive boulders (min lev = 20). In addition, since their 
-eyesight is not great, they have very well developed hearing - and are resistant 
-to sonic attacks.
-Str: +4, Int: -3, Wis: -3, Dex: -3, Con: +4, Cha: -6
-Hit dice: 13
-Experience Factor: 130
-
-*Dark Elf*
-Dark elves are underground dwelling elves who have a relationship to fungi in 
-the same way that surface elves have a relationship to trees. They tend to be 
-physically weak, but make powerful mages. Dark elves are naturally accustomed to 
-darkness, to the point of being resistant to magical darkness attacks. Their 
-innate magical nature enables them to learn to fire magical missiles at will 
-(min lev = 2).
-Str: -1, Int: +3, Wis: +2, Dex: +2, Con: -1, Cha: +1
-Hit dice: 9
-Experience Factor: 150
-
-*Devilspawn*
-Devilspawn are the progeny of mortals and demons. As such, they inherit some of 
-the raw strength of their demonic parentage, but their mixed race tends to leave 
-their thoughts confused and their forms misshapen. Devilspawn are remembered by 
-their demonic anscestors, and as such they always get a demonic patron, 
-regardless of what class they take. If they choose to follow the path of 
-Diabolist or Demonologist, then their patron will take particular note of them 
-and pay them far more attention. Whether this is a good thing or not is, of 
-course, rather subjective. Their association with the pandemonium of hell allows 
-them to resist both confusion and sound attacks.
-Str: +2, Int: -1, Wis: -1, Dex, -1, Con: +2, Cha: -4
-Hit dice: 11
-Experience Factor: 140
-
-*Draconian*
-Draconians are - as the name would suggest - related to dragons. They are scaled 
-and winged. Apart from their somewhat off-putting arrogance, they are superior 
-to humans in almost every way, including many special abilities. Draconians' 
-wings enable them to avoid all poison damage, and as they grow more experienced 
-they can resist elemental damage. Firstly fire (min lev = 5), then cold (min lev 
-= 10), acid (min lev = 15), electricity (min lev = 20) and finally poison (min 
-lev = 35). Draconians can also breathe elemental effects in the same way that 
-dragons can.
-Str: +2, Int: +1, Wis: +1, Dex: +1, Con: +2, Cha: -3
-Hit dice: 11
-Experience Factor: 250
-
-*Dwarf*
-Dwarves are a short, stocky race. Although they are not noted for their 
-intelligence, they are very pious and make good priests. If only they could 
-reign in their loud boisterous in-your-face nature; they wouldn't get into so 
-many fights. Used to feeling their way around in the dark, dwarves resist 
-blinding attacks and magics. They are also master miners, and can easily detect 
-secret doors and traps (min lev = 5).
-Str: +2, Int: -2, Wis: +2, Dex: -2, Con +2, Cha -3
-Hit dice: 11
-Experience Factor: 125,
-
-*Elf*
-Elves are people of the forest. Tall and lithe, they make up in poise what they 
-lack in physical strength. Elves excel at any mental discipline. Being partially 
-photosynthetic, elves resist light based attacks.
-Str: -1, Int: +2, Wis: +2, Dex: +1, Con: -2, Cha: +2
-Hit dice: 8
-Experience Factor: 120
-
-*Gnome*
-Gnomes are a small, playful folk. Whilst being very intelligent, they suffer 
-from an almost chronic inability to take anything seriously. Gnomes are 
-constantly on the move, and are impossible to paralyse or slow. In fact, with 
-practice, gnomes can even teleport from place to place (min lev = 5).
-Str: -1, Int: +2, Wis: +0, Dex: +2, Con: +1, Cha: -2
-Hit dice: 8
-Experience Factor: 135
-
-*Golem*
-Golems are not actually alive, as such. They are animated statues, carved to 
-represent male or female figures. Their animating magics give them some 
-semblance of intelligence, but they remain very slow and stupid. Luckily, their 
-incredibly tough bodies make up for this. Being non-living, golems cannot digest 
-food properly - and consequently need to rely on magical forms of sustenance to 
-keep their energy levels topped up. Similarly, their non-living status gives 
-them awesome defences. They naturally have a higher armour class than most 
-people, and the do not get stunned or bleed. They are very resistant to poison, 
-and they can naturally see invisible creatures. At higher levels, they can boost 
-their armour class even further (min lev = 20) and hold on to their animating 
-life force to resist life draining attacks (min lev = 35).
-Str: +4, Int: -5, Wis: -5, Dex: +0, Con: +4, Cha: -4
-Hit dice: 12
-Experience Factor: 200
-
-*Half-Elf*
-Half-elves are fairly close to humanity, just inheriting a portion of their 
-elven parent's gracefulness.
-Str: -1, Int: +1, Wis: +1, Dex +1, Con: -1, Cha: +1
-Hit dice: 9
-Experience Factor: 110
-
-*Half-Giant*
-Half-giants are not known for their subtlety. They are big and dumb brutes. 
-Half-giants are so solidly built that they resist all attempts to drain their 
-strength and they are resistant to shard based attacks. They can also use their 
-affinity with the earth to learn how to transmute rock into soft mud (min lev = 
-20).
-Str: +4, Int: -2, Wis: -2, Dex: -2, Con: +3, Cha: -3
-Hit dice: 13
-Experience Factor: 150
-
-*Half-Ogre*
-Half-ogres are very similar to their larger cousins - half-giants. They have a 
-slightly better chance of passing for human, though, since they don't quite have 
-the size of a half-giant. Their strength resists damage, and their cave-living 
-ways have given them a resistance to darkness based attacks. They are expert at 
-setting traps, and can place magical runes that explode when touched (min lev = 
-25).
-Str: +3, Int: -1, Wis: -1, Dex: -1, Con: +3, Cha: -3
-Hit dice: 12
-Experience Factor: 130
-
-*Half-Orc*
-Half-orcs appear very similar to humans, until they open their mouths. They seem 
-to have absolutely no control of their emotions and will rant and rave - with 
-the strength of their orcish ancestry behind them. This ferocity doesn't seem to 
-hamper their development as priests, though, as what they lack in brains they 
-make up for in emotional fanaticism. Like their larger cousins, they resist 
-darkness based attacks, and - whilst they do not resist fear - they can rally 
-themselves into bravery (min lev 3).
-Str: +2, Int: -1, Wis: +0, Dex: +0, Con: +1, Cha: -4
-Hit dice: 10
-Experience Factor: 110
-
-*Half-Titan*
-Half-titans are the largest of any of the races. Superior in almost every 
-respect, only their bulk lets them down if they try to perform delicate actions. 
-Their intelligence often comes as a shock to those who expect them to be dumb 
-brutes  Half-titans are resistant to the effects of chaos based attacks, and are 
-experts at spotting the weakness of other creatures (min lev = 35).
-Str:  +5, Int: +1, Wis: +1, Dex: -2, Con: +3, Cha: +1
-Hit dice: 14
-Experience Factor: 255
-
-*Half-Troll*
-Half-trolls are the least intelligent of the giant races. In fact, many people 
-consider them little more than beasts. Like the other giant races, they are 
-strong but slow. Their bulk is such that their strength cannot be drained. 
-Bigger half-trolls share the regenerating powers of their troll cousins (min lev 
-= 15), and can learn to enter a frenzied state (min lev = 10).
-Str: +4, Int: -4, Wis: -2, Dex: -4, Con: +3, Cha: -6
-Hit dice: 12
-Experience Factor: 137
-
-*High-Elf*
-High elves are the elves of the deepest forests. Being tied to the tallest and 
-most noble trees, they are beautiful creatures who share none of the fragility 
-of their lesser cousins. Like their brethren, they can resist light based 
-attacks. Their senses are also magically attuned and they can see invisible 
-creatures.
-Str: +1, Int: +3, Wis: +2, Dex: +3, Con: +1, Cha: +5
-Hit dice: 10
-Experience Factor: 200
-
-*Hobbit*
-Hobbits are short, stocky humanoids who live in rolling hills and who love the 
-fine things in life. Although small and lacking in strength, they are 
-surprisingly tough and nimble - their dexterity being resistant to magical 
-attempts to damage it. Being such connoisseurs of food, they have a widely 
-varied diet. Even when adventuring, they seem to be able to find food to eat 
-where no-one else would (min lev = 15).
-Str: -2, Int: +2, Wis: +1, Dex: +3, Con: +2, Cha: +1
-Hit dice: 7
-Experience Factor: 110
-
-*Human*
-Humans are the basic race. They have no special abilities, and have no bonuses 
-or penalties. Everyone else is considered to be good or bad at something 
-compared to the human average. Their two big advantages are that they are their 
-flexibility (although they have no bonuses, they have no penalties either - so 
-they do not perform badly at any task) and the fact that they learn more quickly 
-than any other race (they have the smallest Experience Factor).
-Str: +0, Int: +0, Wis: +0, Dex: +0, Con: +0, Cha: +0
-Hit dice: 10
-Experience Factor: 100
-
-*Imp*
-Imps are small red-skinned fire demons. Although not terribly strong or smart, 
-they are quite tough and quick. Imps are creatures of fire. They have a 
-resistance to fire - and with repeated exposure this toughens up to a complete 
-immunity to fire (min lev 20). As they grow, their senses also improve, allowing 
-them to see invisible creatures (min lev = 10).They also learn how to toss bolts 
-of flame around (min lev = 9), and even balls of flame (min lev = 30).
-Str: -1, Int: -1, Wis: -1, Dex: +1, Con: +2, Cha: -3
-Hit dice: 10
-Experience Factor: 110
-
-*Klackon*
-Klackons are insectoid creatures. Physically they are better than humans in 
-every way, although their insectoid brains are somewhat slower. Their tough 
-chitin resists acid, and their ordered thoughts are impossible to confuse. 
-Additionally, their wings help them to avoid any pit or fall. Klackons get 
-faster as they get more experienced, and as they develop, they acquire the 
-ability to spit acid (min lev = 9).
-Str: +2, Int: -1, Wis: -1, Dex: +1, Con: +2, Cha: -2
-Hit dice: 12
-Experience Factor: 135
-
-*Kobold*
-Kobolds are small scaly humanoids somewhat related to both snakes and 
-crocodilians. They are masters of poison, building up a resistance to it from an 
-early age. They are also able to learn how to spit poison darts safely (min lev 
-= 12).
-Str: +1, Int: -1, Wis: +0, Dex: +1, Con: +0, Cha: -4
-Hit dice: 9
-Experience Factor: 125
-
-*Mind-Flayer*
-Mind-Flayers, also known as Illithids, are slimy monstrosities with tentacled 
-faces. Physically, they are one of the weakest races, but they make up for this 
-with their vast intelligence and mental powers. Both their intelligence and 
-wisdom are resistant to damage. They can learn how to see invisible creatures 
-(min lev = 15) and eventually they gain full ESP (min lev 30). They can also 
-learn to project their mental energies in a direct attack on their opponent's 
-mind (min lev = 15). Unfortunately, none of these mental powers can overcome the 
-basic fact that most other races find them slimy and repugnant.
-Str: -3, Int: +4, Wis: +4, Dex: +0, Con: -2, Cha: -5
-Hit dice: 9
-Experience Factor: 140
-
-*Nephilim*
-Nephilim are the offspring of angels. Their angelic ancestry makes them superior 
-to humans in every way, and makes their constitution resist damage. They also 
-heal more quickly. When Nephilim grow in stature, they can petition God directly 
-for miracles (min lev = 30)
-Str: +1, Int: +2, Wis: +2, Dex: +2, Con: +3, Cha: +2
-Hit dice: 10
-Experience Factor: 225
-
-*Nibelung*
-Nibelungen are an offshoot of the dwarven race. They tend to live deeper within 
-mountains and study magic. As such, they are a bit more intelligent than most 
-dwarves. Their magical nature lets them resist darkness attacks, and protect 
-items that they carry from disenchantment. They share the dwarven ability to 
-find secret doors and traps (min lev = 5).
-Str: +1, Int: -1, Wis: +2, Dex: +0, Con: +2, Cha: -4
-Hit dice: 11
-Experience Factor: 135
-
-*Skeleton*
-Skeletons are undead creatures - former humanoids that now only exist as an 
-animated set of bones. This status gives them both tremendous benefits and 
-serious penalties. Because they don't have any flesh, they do not bleed. They 
-are also resistant to attacks involving shards or poison. Their magically 
-protected life force is harder to drain - and they can learn how to restore it 
-(min lev = 30) - but this comes at a price. Most normal food simply slips 
-through their bones and they need to find magical sources of sustenance. As 
-skeletons get older, their bones get tougher and more resistant to cold (min lev 
-= 10). Finally, skeletons lack eyes, but possess instead a magical sight that 
-lets them see invisible creatures.
-Str: +0, Int: -2, Wis: -2, Dex: +0, Con: +1, Cha: -4
-Hit dice: 10
-Experience Factor: 145
-
-*Spectre*
-Spectres are incorporeal undead spirits. As such, they can walk through walls. 
-This disrupts them slightly, and whilst it cannot kill them it can leave them 
-vulnerable. Their ectoplasmic form lacks strength and stamina, although it does 
-not bleed. Having an unnatural lifeforce, spectres resist nether based, poison 
-based, cold based and life draining attacks. In fact, nether based attacks heal 
-them. They can see invisible creatures, and can learn to twist their form into a 
-horrific visage (min lev = 5) and detect nearby creatures with ESP (min lev = 
-35). Like most undead, they struggle to obtain nourishment from normal food. 
-They must rely on magical means of sustenance instead. Spectres need never fear 
-being without a light source, since their glowing ectoplasmic form emits as much 
-light as a torch.
-Str: -5, Int: +4, Wis: +4, Dex: +2, Con: -3, Cha: -6
-Hit dice: 7
-Experience Factor: 180
-
-*Sprite*
-Sprites are the smaller cousins of elves. Whereas elves are the spirits of 
-trees, sprites are the spirits of smaller plants and flowers. Being basically 
-elven, sprites resist light based attacks in the same way that their larger 
-cousins do - although they are much smaller and more delicate. One advantage of 
-this small delicate frame is that they can fly on insect wings over pits and 
-trapdoors. Sprites get faster as they get more experienced, and can learn how to 
-make a magical sleeping dust (min lev = 12). Sprites are extremely intelligent 
-and make good magicians.
-Str: -4, Int: +3, Wis: +3, Dex: +3, Con: -2, Cha: +2
-Hit dice: 7
-Experience Factor: 175,
-
-*Vampire*
-Vampires are undead bloodsuckers. They quite quickly learn how to drain the life 
-force of their victims (min lev = 2) and this is the main way that they feed, 
-since mortal food does them little good. Vampires must avoid light based attacks 
-and sunlight, since unless they can find some kind of magical protection, both 
-these will do them great harm. Vampires can see in the dark, to a limited 
-extent, so they can still get around without a life source. Their undead form is 
-resistant to nether, cold, poison, bleeding and life draining attacks.
-Str: +3, Int: +3, Wis: -1, Dex: -1, Con: +1, Cha: +2
-Hit dice: 11
-Experience Factor: 200
-
-*Yeek*
-Yeeks are small furry humanoids with large bat-like ears. Although smarter than 
-the average human, yeeks have a lot of trouble communicating because they can't 
-speak any language than their own. To other races, their language is an 
-unintelligible series of "Yeek! Yeek! Yeek!" sounds - hence the name that others 
-have given their race. Their furry bodies are very resistant to acid, and with 
-experience can become completely immune (min lev = 20). Yeeks can develop the 
-ability to screech loudly at opponents whilst fluffing up their fur to make 
-themselves look bigger and more frightening (min lev = 15).
-Str: -2, Int: +1, Wis: +1, Dex: +1, Con: -2, Cha: -7
-Hit dice: 7
-Experience Factor: 100
-
-*Zombie*
-Zombies are one of the tougher types of undead. Unfortunately, the zombification 
-process leaves them in a permanent state of semi-consciousness and anything 
-mental is a severe struggle for them. Like most undead, zombies resist attacks 
-based on nether, poison or life draining. They can also see invisible creatures. 
-With experience, zombie flesh toughens up, and they get both resistant to 
-bleeding (min lev = 12) and resistant to cold (min lev = 5). Like all undead, 
-food does little good to zombies, and they need to find magical sources of 
-sustenance. Contrary to popular rumour, zombies are actually quite dexterous. 
-Their slow shuffling gait is from a lack of urgency and motivation rather than 
-from a lack of capability.
-Str: +2, Int: -6, Wis: -6, Dex: +1, Con: +4, Cha: -5
-Hit dice: 13
-Experience Factor: 135
-
-Class
+Genus
 =====
 
-Once you have chosen your race, you must choose your class. There are 13 classes 
-to choose from.
+The second choice is your genus, your race. There are 4 main races you can play
+with : human, fae, spawn and Elder. Each race has subraces with different 
+powers. Only humans can choose a birth sign. You are advised to make
+your fist few characters human without a special bloodstrain. This will allow
+for a less complex game.
 
-Like races, classes provide a bonus or penalty to each ability and provide an 
-experience factor and a hit dice. These are all added to those provided by race.
+Subspecies
+==========
 
-You are advised to make your first couple of characters warriors, as the warrior 
-class is the simplest to play - not receiving spells or special abilities like 
-the other classes.
+The third choice is your subspecies, this will influence your initial strength, 
+dexterity, constitution, wisdom, intelligence and charisma. ( Your stats )
 
-*Demonologist*
-Demonologists are people who have studied the magical arts of Chaos magic with 
-the aid of an infernal patron. They are an arcane spell user, getting the Chaos 
-realm and the choice of any other realm. They are better at Chaos magic than any 
-other class. Demonologists have an infernal patron who may bestow gifts upon 
-them, and they can learn how to resist the effects of chaos (min lev = 20). 
-Demonologists have great difficulty wielding any weapon that is not a weapon of 
-chaos, since their pact with their patron involves only using the power of 
-chaos.
-Str: -5, Int: +4, Wis: +0, Dex: +0, Con: -2, Cha: +1
-Hit dice: 0
-Experience Factor: 30
+It will also influence your 'Hit Dice'. The higher the Hit Dice, the more 
+hitpoints you get when gaining a level. More hitpoints mean you can take more
+damage without dying.
 
-*Diabolist*
-Diabolists have made pacts with an infernal patron in exchange for physical 
-prowess. As such, they are primarily warriors. Their patrons give them a small 
-amount of divine magic from the chaos realm, and occasionally give them other 
-rewards too. Diabolists can learn to resist the effects of chaos (min lev = 30) 
-and fear (min lev = 40).
-Str: +2, Int: +1, Wis: +0, Dex: +1, Con: +2, Cha: -2
-Hit dice: 6
-Experience Factor: 35
+It will also influence your 'Experience Factor'. Subspecies with a higher 
+Experience Factor need to put more effort in gaining levels.
 
-*Druid*
-Druids are nature worshippers. As such, they use divine magic from the realm of 
-Nature. They are better at nature magic than any other class. Like priests, 
-druids are not allowed to use edged weapons unless those weapons are blessed. 
-Str: -1, Int: -3, Wis: +4, Dex: -2, Con: +0, Cha: +3
-Hit dice: 2
-Experience Factor: 20
+Finally some subspecies have special powers that are described on the right hand
+side of the screen.
 
-*High-Mage*
-High mages study arcane magic from a single realm to the exclusion of any other 
-magic. As such, their magical abilities are purer than most other classes, and 
-they get more spell points than other classes do. However, their intense study 
-leaves them weak in combat when not using spells. High mages of different realms 
-have different names: Vivimancer, Sorceror, Naturist, Warlock, Necromancer, 
-Summoner, Hedge Wizard or Zen Master.
-Str: -5, Int: +4, Wis: +0, Dex: +0, Con: -2, Cha: +1
-Hit dice: 0
-Experience Factor: 30
+Birthsign
+==========
 
-*Mage*
-Mages study arcane magic, but do not specialize as strongly as high-mages do. 
-Mages receive two realms of magic of their choice. Mages struggle with combat 
-when not using spells.
-Str: -5, Int: +3, Wis: +0, Dex: +1, Con: -2, Cha: +1
-Hit dice: 0
-Experience Factor: 30
+Humans alone can be affected by the star sign they were born under. Humans that
+are afflicted ( Vampires, werewolves etc. ) no longer are under the influence
+of their birthsign.
 
-*Mindcrafter*
-Mindcrafters rely on the supernatural powers that their mind is capable of 
-producing. Many of their powers are similar to spells and are used in the same 
-way. Some powers, however, are simply passive, not requiring active use. 
-Mindcrafters can resist fear (min lev = 10), protect their wisdom from damage 
-(min lev = 20), resist confusion (min lev = 30) and even develop ESP (min lev = 
-40). When not using their powers, mindcrafters can manage in combat, but are not 
-as good as classes dedicated to fighting.
-Str: -1, Int: +0, Wis: +3, Dex: -1, Con: -1, Cha: +2
-Hit dice: 2
-Experience Factor: 25
+Birthsigns, like subspecies, can influence the initial stats, Hit Dice and 
+Experience Factor. Some birthsigns have special powers and drawbacks that are 
+described on the right hand side of the screen.
 
-*Mystic*
-Mystics are martial artists. As such they are masters of unarmed combat and 
-increase their speed as they gain experience. However, they are severely 
-hampered by wearing heavy armour. With experience, they can shrug off slowing 
-and paralyzing attacks (min lev = 25). As part of their meditations, mystics 
-learn divine magic from the Corporeal realm.
-Str: +2, Int: -1, Wis: +1, Dex: +3, Con: +2, Cha: +1
-Hit dice: 6
-Experience Factor: 40
+Choosing to be 'Free' means that your faith is not determined by the stars, it
+is said that the Elder Gods are very concerned with those that are born Free.
 
-*Paladin*
-Paladins are holy warriors. There are two types - true Paladins and Death 
-Knights. True paladins get divine magic from the Life realm, whereas death 
-knights get divine magic from the Death realm. In either case, their magic is 
-not as strong as that of a priest, but they make up for this by fighting almost 
-as well as a warrior does. Paladins can learn to resist the effects of fear (min 
-lev = 40).
-Str: +3, Int: -3, Wis: +1, Dex: +0, Con: +2, Cha: +2
-Hit dice: 6
-Experience Factor: 35
+Vocation
+========
 
-*Priest*
-Priests are divine magic specialists. Whilst not as good at combat as paladins, 
-they are better at magic. Priests get divine magic from either the Life realm or 
-the Death realm plus one other realm (although they can't take life and death 
-magic). Priests who learn death magic are called Cultists. Priests take 
-religious vows which prevent them from using edged weapons unless those weapons 
-are blessed.
-Str: -1, Int: -3, Wis: +3, Dex: -1, Con: +0, Cha: +2
-Hit dice: 2
-Experience Factor: 20
+The next choice is your vocation or class, as with subspecies, the vocation
+can influence the initial stats, Hit Dice and Experience Factor. Some vocations
+have special powers and drawbacks that are described on the right hand side of
+the screen.
 
-*Ranger*
-Rangers are reasonable fighters, although they specialize in missile weapons. 
-Like druids, they use divine magic from the Nature realm. They are not as good 
-as druids at nature magic, but make up for it by also learning a second realm.
-Str: +2, Int: +2, Wis: +0, Dex: +1, Con: +1, Cha: +1
-Hit dice: 4
-Experience Factor: 30
+Stats
+=====
 
-*Rogue*
-Rogues are masters of stealth. Although they are not as good as warriors in a 
-straight fight, they can backstab sleeping or fleeing opponents doing large 
-amounts of damage. Rogues also learn a very small amount of arcane magic from 
-either the Death, Planar or Folk realm. Rogues who learn death magic are called 
-Assassins. Rogues who learn Planar magic are called Card Sharps and rogues who 
-learn Folk magic are called Thieves.
-Str: +2, Int: +1, Wis: -2, Dex: +3, Con: +1, Cha: -1
-Hit dice: 6
-Experience Factor: 25
-
-*Warrior*
-Warriors are the simplest class. They get no magic or special abilities, other 
-than learning to resist fear (min lev = 30). They simply fight. However, they 
-are tougher and better at fighting than any other class.
-Str: +5, Int: -2, Wis: -2, Dex: +2, Con: +2, Cha: -1
-Hit dice: 9
-Experience Factor: 0
-
-*Warrior-Mage*
-Warrior mages combine reasonable combat skills with two realms of arcane magic. 
-One of their realms of magic must be Folk, but the other can be any. They are 
-not quite as good at fighting as warriors, and not quite as good at magic as 
-true mages, but they make up for their lack of strength by combining it with a 
-lack of weakness.
-Str: +2, Int: +2, Wis: +0, Dex: +1, Con: +0, Cha: +1
-Hit dice: 4
-Experience Factor: 50
-
-Abilities
-=========
-
-Your character has six primary abilities: Strength (abbreviated to 'str'), 
-Intelligence ('int'); Wisdom ('wis'), Dexterity ('dex'), Constitution ('con') 
-and Charisma ('cha').
-
+Your character has six primary stats: 
+          Strength     (STR)
+          Intelligence (INT)
+          Wisdom       (WIS)
+          Dexterity    (DEX)
+          Constitution (CON)
+          Charisma     (CHA)
+	  
 Each of these is normally measured on a 3-18 scale for a normal human. 
-Exceptional humans (or people of other races) may have ability scores higher 
-than 18. Scores that are 29+ are not possible for a normal person to attain 
-except via magical enhancements.
+Exceptional humans (such as those with special bloodstrains) may have stat 
+scores higher than 18. Stats higher than 29 are not possible without magical
+enhancements.
 
-Abilities that are above average give you bonuses on certain actions. Abilities 
+Stats that are above average give you bonuses on certain actions. Stats 
 below average give you penalties on the same actions.
 
 *Strength*
-Your strength score indicates how much raw strength your character has. Strength 
-bonuses apply to bashing down doors, the distance that items can be thrown, the 
-size of weapon that can be wielded, the amount of equipment that can be carried 
-without encumbering you, how easily your melee attacks hit, how much damage your 
+Your strength score indicates how much raw strength your character has. Strength
+bonuses apply to bashing down doors, the distance that items can be thrown, the
+size of weapon that can be wielded, the amount of equipment that can be carried
+without encumbering you, how easily your melee attacks hit, how much damage your
 melee attacks do and how quickly you can dig.
 
 *Intelligence*
-Your intelligence score shows how smart your character is. It is a reflection of 
-their thinking power, not knowledge and common sense. Intelligence bonuses apply 
-to number of spell points (for some classes), number of spells known (for some 
-classes), failure chance of spells (for some classes), disarming traps and using 
+Your intelligence score shows how smart your character is. It is a reflection of
+their thinking power, not knowledge and common sense. Intelligence bonuses apply
+to number of spell points (for some classes), number of spells known (for some
+classes), failure chance of spells (for some classes), disarming traps and using
 magical devices.
 
 *Wisdom*
 Your wisdom shows your knowledge and common sense. Wisdom bonuses apply to 
-number of spell points (for some classes), number of spells known (for some 
-classes), failure chance of spells (for some classes) and resisting enemy magic, 
+number of spell points (for some classes), number of spells known (for some
+classes), failure chance of spells (for some classes) and resisting enemy magic,
 
 *Dexterity*
-Your dexterity is a measure of your speed and agility. Dexterity bonuses apply 
-to avoiding theft, avoiding damage when falling, avoiding being hit, how easily 
-your attacks hit and disarming traps.
+Your dexterity is a measure of your speed and agility. Dexterity bonuses apply
+to avoiding theft, avoiding damage when falling, avoiding being hit, how easily
+your attacks hit and disarming traps
 
 *Constitution*
-Your constitution is a measure of how generally healthy you are. Constitution 
-bonuses apply to recovering from poison, recovering from bleeding, recovering 
+Your constitution is a measure of how generally hardy you are. Constitution
+bonuses apply to recovering from poison, recovering from bleeding, recovering
 from stunning and number of hit points.
 
 *Charisma*
-Charisma is a measure of the impression your character makes on people. As such, 
-it reflects poise, looks and force of personality. Your charisma bonus affects 
+Charisma is a measure of the impression your character makes on people. As such,
+it reflects poise, looks and force of personality. Your charisma bonus affects
 the prices that you are charged for various services in stores.
 
-In addition, various mutations or racial powers may be affected by the bonus of 
-any of the six abilities.
+In addition, various corruptions or racial powers may be affected by the bonus 
+of any of the six stats.
 
-During character generation, starting ability scores are either bought with 
+During character generation, starting stats are either bought with
 points or rolled randomly (depending on which option you have selected).
 
 Realm(s)
 ========
 
-Once you have generated the ability scores for your character, you will be asked 
-to choose which realm or realms of magic they will use. Some classes give you a 
-free choice of realms, but others restrict your choice. In some cases, this 
-choice will be automatic and this stage of character creation will be skipped 
+Once you have generated the stat scores for your character, you will be asked
+to choose which realm or realms of magic they will use. Some classes give you a
+free choice of realms, but others restrict your choice. In some cases, this
+choice will be automatic and this stage of character creation will be skipped
 completely.
+                /-------------------------------------\
+                |Press '?' to return to main help file|
+                \-------------------------------------/

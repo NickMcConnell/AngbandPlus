@@ -1,178 +1,299 @@
-Renamed most of all townspeople
-	- Beware of the ex leper, he now has 4 constitution draining attacks
-	- Beware of the bulldog, he's a lot meaner now
-	- No more friends
-	- No more worshipping friends that run in your way
-	- No more friends tout court
+*Renamed most of all townspeople
+  - Beware of the ex leper, he now has 4 constitution draining attacks
+  - Beware of the bulldog, he's a lot meaner now
+  - No more friends
+  - No more worshipping friends that run in your way
+  - No more friends tout court
 
-Changed some features
-	- Red stairways are so much cooler
-	- Yellow walls give more an impression of heat
+*Changed some features
+  - Red stairways are so much cooler
+  - Yellow walls give more an impression of heat
 
-Dungeon generator
-    - Have added protected zones for the city of Dis ( level 6 to 27 )
-    - Protected zones have no vaults or destroyed levels
-    - Each level has creatures unique to it ( This can cause minor slowdown I find )
-    - Level 26 has Satan, do not bother him, or in other words do no let him kill you
-    - Levels after 26 have no creatures of before level 26
-    - Removed out of theme monster pits ( orcs & trolls & coins ), added snakes pit I think
+*Dungeon generator
+  - Have added protected zones for the city of Dis ( level 6 to 27 )
+  - Protected zones have no vaults or destroyed levels
+  - Each level has creatures unique to it ( This can cause minor slowdown I find )
+  - Level 26 has Satan, do not bother him, or in other words do no let him kill you
+  - Levels after 26 have no creatures of before level 26
+  - Removed out of theme monster pits ( orcs & trolls & coins ), added snakes pit I think
 
-Creatures
-	- 0.8.3 Some monsters had spaces after their name
-	- 0.8.3 Some harpies were centipedes
-	- 0.8.2 Fallen Angels do not get revenged inside or before the city of Dis
-	- 0.8.2 made flags actually do something ;)
-	- 0.8.2 reviewed monsters with new flags in mind
-	- 0.8.2 added #define RF7_STORM                   0x00000004      /* Afflicted by the Lovers' Storm */
-	- 0.8.2 added #define RF7_RES_DARK                0x00000008      /* Resist darkness */
-	- 0.8.2 added #define RF7_IM_DARK                 0x00000010      /* Immunity darkness */
-	- 0.8.2 added #define RF7_HEAL_DARK               0x00000020      /* Darkness healing */
-	- 0.8.2 added #define RF7_HURT_DARK               0x00000040      /* Extra Hurt by darkness */
-	- 0.8.2 added #define RF7_RES_LITE                0x00000080      /* Resist light */
-	- 0.8.2 added #define RF7_IM_LITE                 0x00000100      /* Immunity to light */
-	- 0.8.2 added #define RF7_HEAL_LITE               0x00000200      /* Heal by light */
-	- 0.8.2 added #define RF7_RES_COLD                0x00000400      /* Resist cold*/
-	- 0.8.2 added #define RF7_HEAL_COLD               0x00000800      /* Heal by cold */
-	- 0.8.2 added #define RF7_RES_FIRE                0x00001000      /* Resist Fire */
-	- 0.8.2 added #define RF7_HEAL_FIRE               0x00002000      /* Heal by Fire */
-	- 0.8.2 added #define RF7_RES_ACID                0x00004000      /* Resists Acid */
-	- 0.8.2 added #define RF7_RES_ELEC                0x00008000      /* Resist Electricity */
-	- 0.8.2 added #define RF7_HEAL_ELEC               0x00010000      /* Heal by Electricity */
-	- 0.8.2 added #define RF7_HEAL_NETH				  0x00020000      /* Heal by Nether */
-	- 0.8.2 added #define RF7_RES_POIS				  0x00040000      /* Resist poison */	
-    - Most creatures have been deleted, only modded creatures are mentioned
-	- Rat King has moved to third floor, can summon now more mice/rats
-	- Grip & co have become red hellhounds
-	- Had all nagas renamed to succubi
-	- Disembodied hand is no longer a unique ;)
-	- Some more shriekers to stir things up, everybody likes Discord
-	- Coins have friends, good for money gathering, bad for equipment ;)
-	- Added most Julian Lightion higher demons
-	- Added ANNOYED monster flag, do not even think of attacking monsters with this flag, these monsters cannot be used for quests
-	- Added NO_SPAWN monster flag, these monsters cannot be generated ( they can be summoned though, grin grin grin grin grin )
-	- UNIQUE flag now implies MAX_HP at the code level
-	- ESCORTS flag now implies ESCORT at the code level
-	- DROP_GREAT flag now implies DROP_GOOD at the code level
-	- Monsters can now have specific escorts : ESCORT_XXX
-    
-Flavours
-	- Changed most ring flavours and quite a bit of staf flavors.
-	- Changed most wand flavours
-	- Changed all store owners, who will notice ;)
-	- Inns do not show owner name
-	
-Story
-	- Intro story added
-	- Level 1 story added
-	- Level 2 story added	
-	
-Equipment
-	- 0.8.3 All tolkien skeletons have changed to body parts that are now randomly tossed in Hell
-	- 0.8.3 Mithril -> Platinum( thanks Twisted ) in k_info, historically almost correct
-	- 0.8.3 Mithril -> topaz for the coins
-	- 0.8.3 Added Small bag as an item, changed all messages that hardcoded "chest" instead of taking the object name
-	- 0.8.2 Elvish waybread is now Ambrosia, slightly upgraded.
-	- Removed slay Troll and Slay orc, added slay angel and **Slay angel**
-	- Sword of St Michael executes Angels ( almost only way to kill Lucifer right now ;(
-	- Re-organized almost all artefacts , removed _all_ tolkien ones
-	- All initial gauntlets are now interesting ;)
-	- All initial daggers are now interesting ;)
-	- Some stupid sustain rings/amulets are now less stupid
-	- Some berserking jewelry
-	- Add golden corselets for the Golden Corselet of the Mistress of the Waters
-	- Highly improved the artefact bows/crossbows
-	- Added more flavours for the missiles ( holy fire, hunt demon )
-	- Added more basic types of missiles ( seeker versions )
-	- Changed many artefact activations, some are now quite interesting
-	- Added artefact angelic robes
-	- Added !xxxx for artefact names, this will takes as the name whatever comes after !, ignoring base name
-	
-Character Building
-	- 0.8.3 Different sex descriptions : Lady/Sir Dame/Lord
-	- 0.8.3 Revamped races : 4 major races : Human, Fae, Spawn & Elder
-	- 0.8.3 Human subraces : Florentian, Gipsy, Nordic ( thanks Steam), Atlantian, Dwarf/elf/ogre/troll/giant/titan descendant/nephilim/afflicted
-	- 0.8.3 Fae subraces : Seelie Fae ( thanks Steam ), Gnome, Leprechaun, Kobold
-	- 0.8.3 Spawn subraces : Devilspawn , Imp , Succubus, Lili
-	- 0.8.3 Elder Subraces : Elder , Elder Guardian, Horror
-	- 0.8.3 Birth signs added, any non-afflicted human can choose to be born under a magical constellation, at the cost of xp
-	- 0.8.3 Birth Sign Draco : All powers of a draconion ( breathes and resists elements, stronger, faster ), dragons will not harm the player
-	- 0.8.3 Birth Sign Serpens : Resistance to poison, stealth bonus, snakes will not harm the player
-	- 0.8.3 Birth Sign Plutus : Restistance to disenchantment, instant pseudo-id, at level 15 id, at level 30 *id*, detect door traps, can only spend 25% of budget at once ( ironman... )
-	- 0.8.3 Birth Sign Morui : All Klackon powers
-	- 0.8.3 Diabolists are now called Hell Knights
-	- 0.8.3 Demonologist are now called call Warlocks
-	- 0.8.3 Chaos Magic is now Demonic Magic, its books are called Books of the Damned ( Content of these books needs to be addressed )
-	- 0.8.3 Life Magic is now called Miracles, its books are called Books of Miracles
-	- 0.8.3 Corporeal Magic is now called Somatic Magic ( go Prodigy! )
-	- 0.8.3 Folk Magic is now called Charms, books are called Books of Charms
-	- 0.8.3 Succubus & Lili cannot be male any more (bugfix)
-	- 0.8.2 Added EyAngband alchemy, press 'p' to activate, thanks Eytan !!
-	- Player leveling causes a complete heal and restoration.
+*Creatures
+  - 0.8.4 Marilith xp has been 'fixed' as well
+  - 0.8.4 #define RF7_AQUATIC         0x00080000    /* Thrives in water */
+  - 0.8.4 #define RF7_FLIGHT          0x00100000    /* Can fly or levitate */
+  - 0.8.4 #define RF7_NEUTRAL         0x00200000    /* Doesnt want to kill player when generated */
+  - 0.8.4 Made those flags do something and update source code to make them work
+  - 0.8.4 The giants in the ninth circle now start out neutral, you better be ready for major rumbling if you decide to bother them
+  - 0.8.4 Headless Ghosts, Vrock, Hezrou & Glabrezou no longer have insane xp rewards ( sorry ;)
+  - 0.8.4 Eldritch Horrors are out of Hellband, so are sanity_blasts ( was not used in r_info anyway )
+  - 0.8.4 Townies are humans now as well for charming and summoning purposes
+  - 0.8.3 Some monsters had spaces after their name
+  - 0.8.3 Some harpies were centipedes
+  - 0.8.2 Fallen Angels do not get avenged inside or before the city of Dis
+  - 0.8.2 made flags actually do something ;)
+  - 0.8.2 reviewed monsters with new flags in mind
+  - 0.8.2 added #define RF7_STORM           0x00000004    /* Afflicted by the Lovers' Storm */
+  - 0.8.2 added #define RF7_RES_DARK        0x00000008    /* Resist darkness */
+  - 0.8.2 added #define RF7_IM_DARK         0x00000010    /* Immunity darkness */
+  - 0.8.2 added #define RF7_HEAL_DARK         0x00000020    /* Darkness healing */
+  - 0.8.2 added #define RF7_HURT_DARK         0x00000040    /* Extra Hurt by darkness */
+  - 0.8.2 added #define RF7_RES_LITE        0x00000080    /* Resist light */
+  - 0.8.2 added #define RF7_IM_LITE         0x00000100    /* Immunity to light */
+  - 0.8.2 added #define RF7_HEAL_LITE         0x00000200    /* Heal by light */
+  - 0.8.2 added #define RF7_RES_COLD        0x00000400    /* Resist cold*/
+  - 0.8.2 added #define RF7_HEAL_COLD         0x00000800    /* Heal by cold */
+  - 0.8.2 added #define RF7_RES_FIRE        0x00001000    /* Resist Fire */
+  - 0.8.2 added #define RF7_HEAL_FIRE         0x00002000    /* Heal by Fire */
+  - 0.8.2 added #define RF7_RES_ACID        0x00004000    /* Resists Acid */
+  - 0.8.2 added #define RF7_RES_ELEC        0x00008000    /* Resist Electricity */
+  - 0.8.2 added #define RF7_HEAL_ELEC         0x00010000    /* Heal by Electricity */
+  - 0.8.2 added #define RF7_HEAL_NETH      0x00020000    /* Heal by Nether */
+  - 0.8.2 added #define RF7_RES_POIS      0x00040000    /* Resist poison */
+  - Most creatures have been deleted, only modded creatures are mentioned
+  - Rat King has moved to third floor, can summon now more mice/rats
+  - Grip & co have become red hellhounds
+  - Had all nagas renamed to succubi
+  - Disembodied hand is no longer a unique ;)
+  - Some more shriekers to stir things up, everybody likes Discord
+  - Coins have friends, good for money gathering, bad for equipment ;)
+  - Added most Julian Lightion higher demons
+  - Added ANNOYED monster flag, do not even think of attacking monsters with this flag, these monsters cannot be used for quests
+  - Added NO_SPAWN monster flag, these monsters cannot be generated ( they can be summoned though, grin grin grin grin grin )
+  - UNIQUE flag now implies MAX_HP at the code level
+  - ESCORTS flag now implies ESCORT at the code level
+  - DROP_GREAT flag now implies DROP_GOOD at the code level
+  - Monsters can now have specific escorts : ESCORT_XXX
 
-Start Up
-	
-	- 0.8.3 Added dedication to Miss Konijn in start-up screen
-	- 0.8.3 Completely rewrote birth sequence
-	- 0.8.2 Birth screen does not allow to increase a stat when 0 points available (bugfix)
-	- 0.8.2 Bugfix for windows start up screen
-    - 0.8.2 Players start with weapons/armor equipped
-    - 0.8.2 Players start with Lantern fully charged
-	- 0.8.2 Players start with 2 or 3 scrolls of teleport
-	- Created color intro screen
-	- Players start with a scroll of recall
-	- High mages start with 2 spell books
+*Flavours
+  - Changed most ring flavours and quite a bit of staf flavors.
+  - Changed most wand flavours
+  - Changed all store owners, who will notice ;)
+  - Inns do not show owner name
 
-Wizard Commands
-	- 'A' , get ArchAngel Michaels' equipment
-	- 'S' , get usefull supplies
+*Story
+  - Intro story added
+  - Level 1 story added
+  - Level 2 story added
 
-UI
-	- 0.8.3 Stores have priced colored in grey if the item is too expensive
-	- 0.8.3 In order to allow the final blow of a vampiric to drain 'your weapons drains' becomes 'your weapon drained'
-	- 0.8.3 Character screen 'C' had a face lift.
-	- 0.8.3 Download to file had a face lift
-	- 0.8.3 History is now 70 characters, allowing most backgrounds to fit in 3 lines which looks better.
-	- 0.8.3 Bookstore now mentions 'r' to gain spells instead of 'G' (bugfix)
-	- 0.8.2 Alchemist no longer declares that 'all is identified' (bugfix)
-	- 0.8.2 Shop services are now displayed in a more terse fashion to allow for more future services
-	- 0.8.2 Racial powers are now 'n' repeatable, making Dark Elf a 'blast'
-	- 0.8.2 New level names for first 26 levels
-	- Study indicator now only appears in town, it really only is usefull there
-	- Longer dungeon names are now possible ( up to 18 characters , starting where study used to start )
-	- Old study position has been shifted to the left 2 positions
+*Equipment
+  - 0.8.4 Temple will buy now Demonic and Death books but will destroy them instead of putting them for sale
+  - 0.8.4 Magic store now not only sells but also buys orbs
+  - 0.8.4 ego item 'of the Minchiate Elements' added , fire+cold+fire branding , only possible with 'Book of Toth'
+  - 0.8.3 All tolkien skeletons have changed to body parts
+  - 0.8.3 Mithril -> Platinum( thanks Twisted ) in k_info, historically almost correct
+  - 0.8.3 Mithril -> topaz for the coins
+  - 0.8.3 Added Small bag as an item, changed all messages that hardcoded "chest" instead of taking the object name
+  - 0.8.2 Elvish waybread is now Ambrosia, slightly upgraded.
+  - Removed slay Troll and Slay orc, added slay angel and **Slay angel**
+  - Sword of St Michael executes Angels ( almost only way to kill Lucifer right now ;(
+  - Re-organized almost all artefacts , removed _all_ tolkien ones
+  - All initial gauntlets are now interesting ;)
+  - All initial daggers are now interesting ;)
+  - Some stupid sustain rings/amulets are now less stupid
+  - Some berserking jewelry
+  - Add golden corselets for the Golden Corselet of the Mistress of the Waters
+  - Highly improved the artefact bows/crossbows
+  - Added more flavours for the missiles ( holy fire, hunt demon )
+  - Added more basic types of missiles ( seeker versions )
+  - Changed many artefact activations, some are now quite interesting
+  - Added artefact angelic robes
+  - Added !xxxx for artefact names, this will takes as the name whatever comes after !, ignoring base name
 
-	
-Combat & Magic
-	- 0.8.3 Staff of cure light wounds now heals 25+d10 instead of d8
-	- 0.8.2 Hellfire now hurts evil and good except demons, devils and dragons 
-	- 0.8.2 Disenchantment now gets resisted by disenchantment breathers (bugfix)
-	- 0.8.2 Nexus now gets resisted by nexus breathers (bugfix)	
-	- 0.8.2 Disintegrate checked wrong flag set for uniqueness of monster ( bugfix )
-	
-Internals
-	- Refactored character display
-	- 0.8.3 Centralized colouring of hitpoints and mana
-	- 0.8.2 Revamped brand/slay handling completely
-	- 0.8.2 Revamped most of damage type handling with spells completely 
-	- 0.8.2 Rewrote how sheaths work
-	- Refactored game reading routines for intro screen
+*Character Building
+  - 0.8.3 Different sex descriptions : Lady/Sir Dame/Lord
+  - 0.8.3 Revamped races : 4 major races : Human, Fae, Spawn & Elder
+  - 0.8.3 Human subraces : Florentian, Gipsy, Nordic ( thanks Steam), Atlantian, Dwarf/elf/ogre/troll/giant/titan descendant/nephilim/afflicted
+  - 0.8.3 Fae subraces : Seelie Fae ( thanks Steam ), Gnome, Leprechaun, Kobold
+  - 0.8.3 Spawn subraces : Devilspawn , Imp , Succubus, Lili
+  - 0.8.3 Elder Subraces : Elder , Elder Guardian, Horror
+  - 0.8.3 Birth signs added, any non-afflicted human can choose to be born under a magical constellation, at the cost of xp
+  - 0.8.3 Birth Sign Draco : All powers of a draconion ( breathes and resists elements, stronger, faster ), dragons will not harm the player
+  - 0.8.3 Birth Sign Serpens : Resistance to poison, stealth bonus, snakes will not harm the player
+  - 0.8.3 Birth Sign Plutus : Restistance to disenchantment, instant pseudo-id, at level 15 id, at level 30 *id*, detect door traps, can only spend 25% of budget at once ( ironman... )
+  - 0.8.3 Birth Sign Morui : All Klackon powers
+  - 0.8.3 Diabolists are now called Hell Knights
+  - 0.8.3 Demonologist are now called call Warlocks
+  - 0.8.3 Chaos Magic is now Demonic Magic, its books are called Books of the Damned ( Content of these books needs to be addressed )
+  - 0.8.3 Life Magic is now called Miracles, its books are called Books of Miracles
+  - 0.8.3 Corporeal Magic is now called Somatic Magic ( go Prodigy! )
+  - 0.8.3 Folk Magic is now called Charms, books are called Books of Charms
+  - 0.8.3 Succubus & Lili cannot be male any more (bugfix)
+  - 0.8.2 Added EyAngband alchemy, press 'p' to activate, thanks Eytan !!
+  - Player leveling causes a complete heal and restoration.
 
-Artefacts :
-	- 0.8.2 Draebors cloak now activates for mass confusion and blink
-	- 0.8.2 Furcifers' and Michaels' swords are now more restricted with their slays
-	- Changed most of them, made sure that worhtless artefacts are not stomped
-	
+*Start Up
 
--TODO : 
--Level 5 should have Minos' palace placed, with the only exit that points downstairs covering all other downstairs conveniently with rubble 
+  - 0.8.3 Added dedication to Miss Konijn in start-up screen
+  - 0.8.3 Completely rewrote birth sequence
+  - 0.8.2 Birth screen does not allow to increase a stat when 0 points available (bugfix)
+  - 0.8.2 Bugfix for windows start up screen
+  - 0.8.2 Players start with weapons/armor equipped
+  - 0.8.2 Players start with Lantern fully charged
+  - 0.8.2 Players start with 2 or 3 scrolls of teleport
+  - Created color intro screen
+  - Players start with a scroll of recall
+  - High mages start with 2 spell books
+
+*Wizard Commands
+  - 0.8.4 '1' now makes all spells learned, beats pressing 'G' 64 times all the time
+  - 0.8.4 '-' now makes you loose a corruption
+  - 0.8.4 '0' now creates permanent walls around the player ( to test stacking or to be experiment without being bothered by monsters )
+  - 0.8.4 Playing with objects now allows to set ego type
+  - 'A' , get ArchAngel Michaels' equipment
+  - 'S' , get usefull supplies
+
+*UI
+  - 0.8.4 Added squelcher functionality ( first phase ) from scratch
+  - 0.8.4 Spells Screen is now actually useful and no longer hacked ( more color, all spells shown )
+  - 0.8.4 Browsing books allows now for spell descriptions to pop up
+  - 0.8.4 Equipment bonus now properly calculated ( the hard way )(bugfix)
+  - 0.8.3 Stores have priced colored in grey if the item is too expensive
+  - 0.8.3 In order to allow the final blow of a vampiric to drain 'your weapons drains' becomes 'your weapon drained'
+  - 0.8.3 Character screen 'C' had a face lift.
+  - 0.8.3 Download to file had a face lift
+  - 0.8.3 History is now 70 characters, allowing most backgrounds to fit in 3 lines which looks better.
+  - 0.8.3 Bookstore now mentions 'r' to gain spells instead of 'G' (bugfix)
+  - 0.8.2 Alchemist no longer declares that 'all is identified' (bugfix)
+  - 0.8.2 Shop services are now displayed in a more terse fashion to allow for more future services
+  - 0.8.2 Racial powers are now 'n' repeatable, making Dark Elf a 'blast'
+  - 0.8.2 New level names for first 26 levels
+  - Study indicator now only appears in town, it really only is usefull there
+  - Longer dungeon names are now possible ( up to 18 characters , starting where study used to start )
+  - Old study position has been shifted to the left 2 positions
+
+*Help Files
+  - 0.8.4 Help on Help is rewritten
+  - 0.8.4 Birthsigns are added to help
+  - 0.8.4 History is updated
+  - 0.8.4 Commands are updated
+
+*Combat & Magic
+  - 0.8.4 Various changes to the parser macro's because of case sensitivity
+  - 0.8.4 Various attempts to fix first time spell casting xp gain
+  - 0.8.4 No more fainting when gaining a new level because of casting a spell for the first time ( Chris Hughes reported )
+  - 0.8.4 Removed a braces bug in the Malediction spell ( Chris Hughes reported )
+  - 0.8.4 Somatic spell 'Resist True' now last slightly longer (  1d20+20 <> 1d25+25 )
+  - 0.8.4 New ally scheme : creatures can be allied to a faction ( God, Lucifer, Order of the Watchers ), neutral , like you or really like you
+  - 0.8.4 Monsters really liking you are not be aggravatable, dont mind getting in the way of your fireballs and wont even budge if you 'k'ick them )
+  - 0.8.4 New Damage type 'Blasted Tower' fire damage + elec damage + turns walls into rubble
+  - 0.8.4 New Damage type Dispel Fallen Angel
+  - 0.8.4 New Damage type Dispel Devil
+  - 0.8.4 Planar magic is now Tarot Magic, half of the spells remain, and the other half is new
+  - 0.8.4 "Shift",
+  - 0.8.4 "The Challenge",
+  - 0.8.4 "Hopes & Fears",
+  - 0.8.4 "Restack",
+  - 0.8.4 "Fool's Journey",
+  - 0.8.4 "Sleight of Hand",
+  - 0.8.4 "The High Priestess",
+  - 0.8.4 "The Chariot",
+
+  - 0.8.4 "The Wheel of Fortune",
+  - 0.8.4 "Temperance",
+  - 0.8.4 "King of Swords",
+  - 0.8.4 "The Lover",
+  - 0.8.4 "Elements of The Minchiate",
+  - 0.8.4 "The Hermit",
+  - 0.8.4 "Search for the Self",
+  - 0.8.4 "Shuffle",
+
+  - 0.8.4 "Ink Blot",
+  - 0.8.4 "The Star",
+  - 0.8.4 "Fortitude",
+  - 0.8.4 "The Emperor",
+  - 0.8.4 "Branding of the Minchiate",
+  - 0.8.4 "Tarot Ascension",
+  - 0.8.4 "Death",
+  - 0.8.4 "The Devil",
+
+  - 0.8.4 "Read The Lay",
+  - 0.8.4 "The Magician",
+  - 0.8.4 "Patter",
+  - 0.8.4 "The Tower",
+  - 0.8.4 "Lay of The Celtic Cross",
+  - 0.8.4 "Ten of Pentacles",
+  - 0.8.4 "The Traitor",
+  - 0.8.4 "Justice",
+  - 0.8.4 New scheme of mana/level/failurechance, nothing changes for mage, all the other classes should see differences
+  - 0.8.4 Hitpoint warning is now standard 60%
+  - 0.8.4 When a monster is afraid, confused or stunned, it will be shown now in the monster hp bar.
+  - 0.8.4 New elemental attack type : hecate, ( light, odds to charm , confuse , stun or scare )
+  - 0.8.4 Chaos weapons no longer work post-mortem ( except life draining )
+  - 0.8.4 A ninth realm of magic : demonic
+  - 0.8.4 "Unholy Strength",
+  - 0.8.4 "Sense Evil",
+  - 0.8.4 "Scorch",
+  - 0.8.4 "Perilous Shadows",
+  - 0.8.4 "Teleport",
+  - 0.8.4 "Disintegrate",
+  - 0.8.4 "Demonic Sigil",
+  - 0.8.4 "Hecate's Radiance",
+
+  - 0.8.4 "Abaddon's Rage",
+  - 0.8.4 "Mind Leech",
+  - 0.8.4 "Blood Leech",
+  - 0.8.4 "Glyph of Warding",
+  - 0.8.4 "Protection from Evil",
+  - 0.8.4 "Summon Demons",
+  - 0.8.4 "Summon the Fallen",
+  - 0.8.4 "Balm of the Cocytus",
+
+  - 0.8.4 "Araqiel's Wrath",
+  - 0.8.4 "Kokabiel's Call",
+  - 0.8.4 "Baraquiel's Guile",
+  - 0.8.4 "Sariel's Ire",
+  - 0.8.4 "Azazel's Rule",
+  - 0.8.4 "Danel's Deluge",
+  - 0.8.4 "Amaros' Grief",
+  - 0.8.4 "Teachings of Kasyade",
+
+  - 0.8.4 "Orb of Impending Doom",
+  - 0.8.4 "Temperance",
+  - 0.8.4 "True Warding",
+  - 0.8.4 "Word of Destruction",
+  - 0.8.4 "Gift of Malphas ",
+  - 0.8.4 "Kiss of Lillith",
+  - 0.8.4 "Behemoth's Call",
+  - 0.8.4 "Chaos Rift",
+  - 0.8.3 Staff of cure light wounds now heals 25+d10 instead of d8
+  - 0.8.2 Hellfire now hurts evil and good except demons, devils and dragons
+  - 0.8.2 Disenchantment now gets resisted by disenchantment breathers (bugfix)
+  - 0.8.2 Nexus now gets resisted by nexus breathers (bugfix)
+  - 0.8.2 Disintegrate checked wrong flag set for uniqueness of monster ( bugfix )
+
+*Internals
+  - 0.8.4 Added cygwin makefile ( thanks Chris Hughes )
+  - 0.8.4 Found several instances where the smart bit flag was checked for SM_SMART with '&&', fixed now, have not tested the consequences
+  - 0.8.4 Removed ally status from the smart bit field, which means you can now actually turn off the smart directive without loosing ally/neutral/etc functionality
+  - 0.8.4 There was a poly morph where the old race count was used, one chance in 30 for it to happen, and of course it happened to a player
+  - 0.8.4 Enhanced c_roff to dump starting from a given cursor location ( or not ) and wrap at a given column, not necessarily beginning of screen
+  - 0.8.4 Refactored spell mana/level/failurechance/descriptions/spoiler  completely
+  - 0.8.4 Refactored corruptions/mutations completely to something sane
+  - 0.8.3 Refactored character display
+  - 0.8.3 Centralized colouring of hitpoints and mana
+  - 0.8.2 Revamped brand/slay handling completely
+  - 0.8.2 Revamped most of damage type handling with spells completely
+  - 0.8.2 Rewrote how sheaths work
+  - Refactored game reading routines for intro screen
+
+*Artefacts :
+  - 0.8.4 Cloak of Jean de Nynauld -> Cloak of Nynauld
+  - 0.8.2 Draebors cloak now activates for mass confusion and blink
+  - 0.8.2 Furcifers' and Michaels' swords are now more restricted with their slays
+  - Changed most of them, made sure that worhtless artefacts are not stomped
+
+
+-TODO :
+-Level 5 should have Minos' palace placed, with the only exit that points downstairs covering all other downstairs conveniently with rubble ( go calamarain ;)
 -xtra2 should be largely rewritten so it does not drive me mad ( or at least preserve the last strands of my sanity ;)
-	set_blind & company
-
+  set_blind & company
+- Allow Hell Knights to control the powers of Demonic Weapons ( basically : todo demonic weapons )
+- allow clean_shot to use is_monster_killer(enemy, m_ptr)
+- wtf is MFLAG_NICE
 
 -ON WIZARD MODE :
-	
-code changes : for testing purposes, since there is no more flagging code for wizards,
-there can be either only all wizards or no wizards, right now every player is a wizard 
-unless this game is released. So to all that want to wizard around, check file birth.c
-and set 	debug_mode = TRUE; and compile. All wizards know how to compile ;)
 
+code changes : for testing purposes, since there is no more flagging code for wizards,
+there can be either only all wizards or no wizards, right now every player is a wizard
+unless this game is released. So to all that want to wizard around, check file birth.c
+and set   debug_mode = TRUE; and compile. All wizards know how to compile ;)

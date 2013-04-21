@@ -286,13 +286,6 @@
 */
 #define MONSTER_FLOW_DEPTH 32
 
-
-
-/*
-* OPTION: Allow use of extended spell info	-DRS-
-*/
-#define DRS_SHOW_SPELL_INFO
-
 /*
 * OPTION: Allow use of the monster health bar	-DRS-
 */
@@ -311,9 +304,6 @@
 *
 * This adds about 3K to the memory and about 5K to the executable.
 *
-* SPECIAL NOTE: The "smart" field is also used to store such
-* monster information as "friendly" and "cloned". Therefore this
-* option should always be defined.
 */
 #define DRS_SMART_OPTIONS
 
@@ -448,7 +438,7 @@
 /*
 * OPTION: Person to bother if something goes wrong.
 */
-#define MAINTAINER	"rr9@angband.org"
+#define MAINTAINER	"konijn@gmail.com"
 
 
 /*
@@ -457,14 +447,29 @@
 #define DEFAULT_X11_FONT		"9x15"
 
 /*
+ * OPTION: Default font (when using X11).
+ */
+#define DEFAULT_X11_FONT		"9x15"
+
+/*
+ * OPTION: Default fonts (when using X11)
+ */
+#define DEFAULT_X11_FONT_0		"10x20"
+#define DEFAULT_X11_FONT_1		"9x15"
+#define DEFAULT_X11_FONT_2		"9x15"
+#define DEFAULT_X11_FONT_3		"5x8"
+#define DEFAULT_X11_FONT_4		"5x8"
+#define DEFAULT_X11_FONT_5		"5x8"
+#define DEFAULT_X11_FONT_6		"5x8"
+#define DEFAULT_X11_FONT_7		"5x8"
+
+/*
 * OPTION: Default fonts (when using X11)
 */
 #define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
 #define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
 #define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
 #define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
-
-
 
 /*
 * Hack -- Special "ancient machine" versions

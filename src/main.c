@@ -431,7 +431,6 @@ usage:
 				puts("Usage: Hellband [options] [-- subopts]");
 				puts("  -n       Start a new character");
 				puts("  -f       Request fiddle mode");
-				puts("  -w       Request wizard mode");
 				puts("  -v       Request sound mode");
 				puts("  -g       Request graphics mode");
 				puts("  -o       Request original keyset");

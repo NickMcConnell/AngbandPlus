@@ -436,8 +436,9 @@ void do_cmd_drop(void)
 static bool high_level_book(object_type * o_ptr)
 {
 	if ((o_ptr->tval == TV_MIRACLES_BOOK) || (o_ptr->tval == TV_SORCERY_BOOK) ||
-		(o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_DEMONIC_BOOK) ||
-		(o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_PLANAR_BOOK))
+		(o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_CHAOS_BOOK) ||
+		(o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_TAROT_BOOK) ||
+        (o_ptr->tval == TV_DEMONIC_BOOK))
 	{
 		if (o_ptr->sval>1) return TRUE;
 		else return FALSE;
@@ -615,7 +616,7 @@ void do_cmd_destroy(void)
 	{
 		bool gain_expr = FALSE;
 		if (p_ptr->pclass == CLASS_WARRIOR) gain_expr = TRUE;
-		else if (p_ptr->pclass == CLASS_PALADIN)
+		else if (p_ptr->pclass == CLASS_PALADIN || p_ptr->pclass == CLASS_HELL_KNIGHT)
 		{
 			if (p_ptr->realm1 == 1)
 			{
@@ -703,6 +704,8 @@ void do_cmd_observe(void)
 	object_type		*o_ptr;
 
 	char		o_name[80];
+    
+    object_kind *k_ptr;
 
 
 	/* Get an item (from equip or inven or floor) */
@@ -724,9 +727,10 @@ void do_cmd_observe(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
-	/* Require full knowledge */
-	if (!(o_ptr->ident & (IDENT_MENTAL)))
+    k_ptr = &k_info[ o_ptr->k_idx ];
+    
+	/* Require full knowledge, konijn */
+	if (  !(o_ptr->ident & (IDENT_MENTAL) || k_ptr->flags3 & (TR3_EASY_KNOW) )  )
 	{
 		msg_print("You have no special knowledge about that item.");
 		return;
@@ -1795,9 +1799,9 @@ void do_cmd_handle(void)
 			break;
 		}
 	case TV_MIRACLES_BOOK:case TV_SORCERY_BOOK:
-	case TV_NATURE_BOOK:case TV_DEMONIC_BOOK:
-	case TV_DEATH_BOOK:case TV_PLANAR_BOOK:
-	case TV_CHARMS_BOOK:case TV_SOMATIC_BOOK:
+	case TV_NATURE_BOOK:case TV_CHAOS_BOOK:
+	case TV_DEATH_BOOK:case TV_TAROT_BOOK:
+	case TV_CHARMS_BOOK:case TV_SOMATIC_BOOK:case TV_DEMONIC_BOOK:
 		{
 			do_cmd_browse(item);
 			break;

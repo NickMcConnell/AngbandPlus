@@ -57,7 +57,7 @@ cptr value_check_aux1(object_type *o_ptr)
 	/*If the shopkeeper doesnt like it, it's worthless ;)*/
 	if( object_value(o_ptr) <= 0 )
 		return "worthless";
-	else if ( object_value(o_ptr) > 1000 )
+	else if ( object_value(o_ptr) > GREAT_PRICE )
 		return "great";
 	else
 		return "average";
@@ -67,7 +67,7 @@ cptr value_check_aux1(object_type *o_ptr)
 /*
 * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
 */
-static cptr value_check_aux2(object_type *o_ptr)
+cptr value_check_aux2(object_type *o_ptr)
 {
 	/* Cursed items (all of them) */
 	if (cursed_p(o_ptr)) return "cursed";
@@ -91,9 +91,22 @@ static cptr value_check_aux2(object_type *o_ptr)
 	return (NULL);
 }
 
-
-
-
+bool has_heavy_pseudo_id()
+{
+	if(p_ptr->psign == SIGN_PLUTUS)
+		return TRUE;
+	switch (p_ptr->pclass)
+	{
+		case CLASS_WARRIOR:
+		case CLASS_ROGUE:
+		case CLASS_RANGER:
+		case CLASS_PALADIN:
+		case CLASS_HELL_KNIGHT:
+			return( TRUE );
+		default:
+			return (FALSE);
+	}
+}
 
 /*
 * Sense the inventory
@@ -124,6 +137,8 @@ static void sense_inventory(void)
 
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
+	
+	heavy = has_heavy_pseudo_id();
 
 	/* Analyze the class */
 	switch (p_ptr->pclass)
@@ -132,9 +147,6 @@ static void sense_inventory(void)
 		{
 			/* Good sensing */
 			if (0 != rand_int(9000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
 
 			/* Done */
 			break;
@@ -163,21 +175,14 @@ static void sense_inventory(void)
 			/* Okay sensing */
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
 
-			/* Heavy sensing */
-			heavy = TRUE;
-
 			/* Done */
 			break;
 		}
 
 	case CLASS_RANGER:
 		{
-
 			/* Bad sensing */
 			if (0 != rand_int(95000L / (plev * plev + 40))) return;
-
-			/* Changed! */
-			heavy = TRUE;
 
 			/* Done */
 			break;
@@ -188,15 +193,11 @@ static void sense_inventory(void)
 			/* Bad sensing */
 			if (0 != rand_int(77777L / (plev * plev + 40))) return;
 
-			/* Heavy sensing */
-			heavy = TRUE;
-
 			/* Done */
 			break;
 		}
 	case CLASS_WARRIOR_MAGE:
 		{
-
 			/* Bad sensing */
 			if (0 != rand_int(75000L / (plev * plev + 40))) return;
 
@@ -206,7 +207,6 @@ static void sense_inventory(void)
 
 	case CLASS_MINDCRAFTER:
 		{
-
 			/* Bad sensing */
 			if (0 != rand_int(55000L / (plev * plev + 40))) return;
 
@@ -216,12 +216,8 @@ static void sense_inventory(void)
 
 	case CLASS_HELL_KNIGHT:
 		{
-
 			/* Bad sensing */
 			if (0 != rand_int(80000L / (plev * plev + 40))) return;
-
-			/* Changed! */
-			heavy = TRUE;
 
 			/* Done */
 			break;
@@ -251,39 +247,45 @@ static void sense_inventory(void)
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
-
-		/* Valid "tval" codes */
-		switch (o_ptr->tval)
+		if(!heavy)
 		{
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
-		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_HELM:
-		case TV_CROWN:
-		case TV_SHIELD:
-		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
+			/* Valid "tval" codes */
+			switch (o_ptr->tval)
 			{
-				okay = TRUE;
-				break;
-			}
-		case TV_LITE: /* Only orbs */
-			{
-				if(o_ptr->sval == SV_LITE_ORB)
+				case TV_SHOT:
+				case TV_ARROW:
+				case TV_BOLT:
+				case TV_BOW:
+				case TV_DIGGING:
+				case TV_HAFTED:
+				case TV_POLEARM:
+				case TV_SWORD:
+				case TV_BOOTS:
+				case TV_GLOVES:
+				case TV_HELM:
+				case TV_CROWN:
+				case TV_SHIELD:
+				case TV_CLOAK:
+				case TV_SOFT_ARMOR:
+				case TV_HARD_ARMOR:
+				case TV_DRAG_ARMOR:
 				{
 					okay = TRUE;
+					break;
 				}
-				break;
+				case TV_LITE: /* Only orbs */
+				{
+					if(o_ptr->sval == SV_LITE_ORB)
+					{
+						okay = TRUE;
+					}
+					break;
+				}
 			}
+		}
+		else
+		{
+			okay = TRUE;
 		}
 
 		/* Skip non-sense machines */
@@ -301,6 +303,9 @@ static void sense_inventory(void)
 		/* Check for a feeling */
 		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
 
+		/*Should we be squelchin' ?*/
+		consider_squelch( o_ptr );
+		
 		/* Skip non-feelings */
 		if (!feel) continue;
 
@@ -658,6 +663,33 @@ static void regen_monsters(void)
 	}
 }
 
+/*
+ * Centralized Recall effect 
+ */
+void do_recall( cptr activation )
+{
+
+	if (dun_level && (p_ptr->max_dun_level > dun_level))
+	{
+		if (get_check("Reset recall depth? "))
+		p_ptr->max_dun_level = dun_level;
+	}
+	
+	if (p_ptr->word_recall == 0)
+	{
+		if( activation != NULL )
+			msg_print(activation);
+		p_ptr->word_recall = randint(21) + 15;
+		msg_print("The air about you becomes charged...");
+	}
+	else
+	{
+		p_ptr->word_recall = 0;
+		msg_print("A tension leaves the air around you...");
+	}
+}
+
+
 
 /*
 * Forcibly pseudo-identify an object in the inventory
@@ -865,13 +897,13 @@ static void process_world(void)
 		case 152: /* Dante's birthday 1 july*/
 		{
 			msg_print("When Dis celebrates, the devils come out to play...");
-			summon_specific(py,px,dun_level,SUMMON_DEVIL);
+			summon_specific(py,px,dun_level,FILTER_DEVIL);
 			break;
 		}						
 		case 303: /* November 1st (Night of October 31st) */
 			{
 				msg_print("All Hallows Eve and the ghouls come out to play...");
-				summon_specific(py,px,dun_level,SUMMON_UNDEAD);
+				summon_specific(py,px,dun_level,FILTER_UNDEAD);
 				break;
 			}
 		default: /* Any other night */
@@ -1024,12 +1056,8 @@ static void process_world(void)
 		take_hit(1, "poison");
 	}
 
-
-
-
-
 	/* (Vampires) Take damage from sunlight */
-	if (p_ptr->prace == VAMPIRE)
+	if (rp_ptr->hates_light)
 
 	{
 		if ((dun_level <= 0)
@@ -1393,7 +1421,13 @@ static void process_world(void)
 	{
 		(void)set_shero(p_ptr->shero - 1);
 	}
-
+	
+	/* Anti-magic Shell */
+	if (p_ptr->magic_shell)
+	{
+		(void)set_magic_shell(p_ptr->magic_shell - 1);
+	}
+	
 	/* Blessed */
 	if (p_ptr->blessed)
 	{
@@ -1676,12 +1710,12 @@ static void process_world(void)
 				if (randint(6)==1)
 				{
 					d_summon = summon_specific_friendly(py, px,
-						dun_level, SUMMON_DEMON, TRUE);
+						dun_level, FILTER_DEMON, TRUE);
 				}
 				else
 				{
 					d_summon = summon_specific(py, px,
-						dun_level, SUMMON_DEMON);
+						dun_level, FILTER_DEMON);
 				}
 
 				if (d_summon)
@@ -1807,10 +1841,10 @@ static void process_world(void)
 				bool a_summon = FALSE;
 				if (randint(3)==1)
 					a_summon = summon_specific_friendly(py,
-					px, dun_level, SUMMON_ANIMAL, TRUE);
+					px, dun_level, FILTER_ANIMAL, TRUE);
 				else
 					a_summon = summon_specific(py,
-					px, dun_level, SUMMON_ANIMAL);
+					px, dun_level, FILTER_ANIMAL);
 				if (a_summon)
 				{
 					msg_print("You have attracted an animal!");
@@ -1891,10 +1925,10 @@ static void process_world(void)
 				bool d_summon = FALSE;
 				if (randint(5)==1)
 					d_summon = summon_specific_friendly(py,
-					px, dun_level, SUMMON_DRAGON, TRUE);
+					px, dun_level, FILTER_DRAGON, TRUE);
 				else
 					d_summon = summon_specific(py,
-					px, dun_level, SUMMON_DRAGON);
+					px, dun_level, FILTER_DRAGON);
 				if (d_summon)
 				{
 					msg_print("You have attracted a dragon!");
@@ -3128,7 +3162,9 @@ static void process_player(void)
 			/* Redraw stuff (if needed) */
 			if (p_ptr->window) window_stuff();
 		}
-
+		
+		/* Squelch stuff */
+		do_squelch();
 
 		/* Hack -- cancel "lurking browse mode" */
 		if (!command_new) command_see = FALSE;
@@ -3510,6 +3546,8 @@ static void dungeon(void)
 	object_level = dun_level;
 
 	hack_mind = TRUE;
+	
+	if(arg_fiddle)msg_note( "About to go into the main loop" );
 
 	/* Main loop */
 	while (TRUE)
@@ -3801,10 +3839,7 @@ void play_game(bool new_game)
 		player_birth();
 
 		/* Hack -- enter the world at day unless undead*/
-		if ((p_ptr->prace == SPECTRE) ||
-			(p_ptr->prace == MUMMY) ||
-			(p_ptr->prace == SKELETON) ||
-			(p_ptr->prace == VAMPIRE))
+		if ( rp_ptr->undead  )
 		{
 			turn=50001;
 		}
@@ -3850,11 +3885,12 @@ void play_game(bool new_game)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER);
-
+	
 	/* Window stuff */
+	if(arg_fiddle)msg_note( "Doing windows stuff" );
 	window_stuff();
 
-
+	if(arg_fiddle)msg_note( "Load pref files" );
 	/* Load the "pref" files */
 	load_all_pref_files();
 
@@ -3888,19 +3924,23 @@ void play_game(bool new_game)
 	while (TRUE)
 	{
 		/* Process the level */
+		if(arg_fiddle)msg_note( "Process the level" );
 		dungeon();
-
-
+		
 		/* Notice stuff */
+		if(arg_fiddle)msg_note( "Notice stuff" );		
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff */
+		if(arg_fiddle)msg_note( " Update stuff" );				
 		if (p_ptr->update) update_stuff();
 
 		/* Redraw stuff */
+		if(arg_fiddle)msg_note( "Redraw stuff" );				
 		if (p_ptr->redraw) redraw_stuff();
 
 		/* Window stuff */
+		if(arg_fiddle)msg_note( "Window stuff" );				
 		if (p_ptr->window) window_stuff();
 
 

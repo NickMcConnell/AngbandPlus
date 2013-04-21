@@ -574,9 +574,9 @@ static void term_data_color(term_data *td, int a)
 		RGBColor color;
 
 		/* Extract the R,G,B data */
-		rv = angband_color_table[a][1];
-		gv = angband_color_table[a][2];
-		bv = angband_color_table[a][3];
+		rv = angband_colour_table[a][1];
+		gv = angband_colour_table[a][2];
+		bv = angband_colour_table[a][3];
 
 		/* Set the color */
 		color.red = (rv | (rv << 8));

@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.8.3
+V:0.8.4
 
 
 ### Body Armor ###
@@ -241,7 +241,7 @@ F:STEALTH
 
 # OnePower
 
-N:42:of Aman
+N:42:of Runes
 X:31:20
 W:0:0:0:4000
 C:0:0:20:3
@@ -870,3 +870,8 @@ N:159:of Instability
 F:TELEPORT
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 W:0:0:0:0
+
+N:160:of the Minchiate Elements
+X:24:20
+W:0:0:0:7000
+F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC | 

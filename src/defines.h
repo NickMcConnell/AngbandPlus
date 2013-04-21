@@ -28,19 +28,19 @@
 * Just because your screen can hold 46 lines does not mean that the
 * game will work if you try to use 44 lines to show the dungeon.
 *
-* You have been warned.
+* You have been warned or a victim of tldr;
 */
 
 
 /*
-* Current version number of Hellband: 0.8.3
+* Current version number of Hellband: 0.8.4
 */
-#define VERSION_NAME	"Hellband 0.8.3"
+#define VERSION_NAME	"Hellband 0.8.4"
 
 /* <<VERSION STAMP>> */
 #define VERSION_MAJOR   0
 #define VERSION_MINOR   8
-#define VERSION_PATCH   3
+#define VERSION_PATCH   4
 
 /*
 * This value is not currently used
@@ -112,18 +112,12 @@
 * Maximum number of player "sex" types (see "table.c", etc)
 */
 #define MAX_SEXES            2
-
-/*
-* Maximum number of player "race" types (see "table.c", etc)
-*/
-#define MAX_RACES           30 /* Fingers crossed, hope this works... */
-
 /*
 * Maximum number of player "class" types (see "table.c", etc)
 */
 #define MAX_CLASS            13
 
-/* The number of "patrons" available (for Hell Knights) */
+/* The number of "patrons" available (for Hell Knights and Devilspawn and Warlocks ) */
 #define MAX_PATRON          16
 
 /* Hell Knight: Reward types: */
@@ -540,16 +534,36 @@
 
 /* Possible realms that can be chosen; currently used only by birth.c
 and tables.c --TY */
-#define CH_NONE              0x00
-#define CH_MIRACLES                0x01
+#define CH_NONE         0x00
+#define CH_MIRACLES     0x01
 #define CH_SORCERY      0x02
-#define CH_NATURE         0x04
-#define CH_DAMNATION           0x08
-#define CH_DEATH            0x10
-#define CH_PLANAR          0x20
-#define CH_FOLK               0x40
-#define CH_SOMATIC    0x80
-#define MAX_REALM          8
+#define CH_NATURE       0x04
+#define CH_CHAOS        0x08
+#define CH_DEATH        0x10
+#define CH_TAROT       0x20
+#define CH_CHARMS         0x40
+#define CH_SOMATIC      0x80
+#define CH_DEMONIC      0x100
+
+#define REALM_NONE         0
+#define REALM_MIRACLES     1
+#define REALM_SORCERY      2
+#define REALM_NATURE       3
+#define REALM_CHAOS        4
+#define REALM_DEATH        5
+#define REALM_TAROT       6
+#define REALM_CHARMS       7
+#define REALM_SOMATIC      8
+#define REALM_DEMONIC      9
+
+#define MAX_REALM          9
+
+#define NO				   0
+#define POOR			   1
+#define WORSE			   2
+#define SAME			   3
+#define BETTER			   4
+#define SUPER			   5
 
 /*
 * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -635,6 +649,7 @@ and tables.c --TY */
 #define COUNT_SUBRACES 28
 #define COUNT_SIGNS 5
 #define COUNT_AFFLICTIONS 5
+#define COUNT_CORRUPTIONS 96
 
 #define LADY 0
 #define GENTLEMAN 1
@@ -1204,8 +1219,7 @@ ART_THOTH -> ART_KINSLAYER
 #define EGO_ORB_POWER			157
 #define EGO_ORB_IRRITATION		158
 #define EGO_ORB_INSTABILITY		159
-
-
+#define EGO_ELEMENTS_MINCHIATE  160
 
 /* Activation effects for random artefacts */
 #define ACT_SUNLIGHT            1
@@ -1340,12 +1354,15 @@ ART_THOTH -> ART_KINSLAYER
 #define TV_FOOD         80
 #define TV_MIRACLES_BOOK    90
 #define TV_SORCERY_BOOK 91
+#define TV_BOOK_REALM1	91  
 #define TV_NATURE_BOOK  92
-#define TV_DEMONIC_BOOK   93
+#define TV_CHAOS_BOOK   93
 #define TV_DEATH_BOOK   94
-#define TV_PLANAR_BOOK   95
+#define TV_BOOK_REALM2	94
+#define TV_TAROT_BOOK   95
 #define TV_CHARMS_BOOK  96
 #define TV_SOMATIC_BOOK 97
+#define TV_DEMONIC_BOOK 98
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 
 
@@ -1918,7 +1935,6 @@ ART_THOTH -> ART_KINSLAYER
 #define TARGET_XTRA             0x04
 #define TARGET_GRID             0x08
 
-
 /*
 * Some bit-flags for the "smart" field
 */
@@ -1932,12 +1948,12 @@ ART_THOTH -> ART_KINSLAYER
 #define SM_RES_DARK             0x00000080
 #define SM_RES_FEAR             0x00000100
 #define SM_RES_CONF             0x00000200
-#define SM_RES_CHAOS    0x00000400
-#define SM_RES_DISEN    0x00000800
-#define SM_RES_BLIND    0x00001000
-#define SM_RES_NEXUS    0x00002000
-#define SM_RES_SOUND    0x00004000
-#define SM_RES_SHARD    0x00008000
+#define SM_RES_CHAOS			0x00000400
+#define SM_RES_DISEN			0x00000800
+#define SM_RES_BLIND			0x00001000
+#define SM_RES_NEXUS			0x00002000
+#define SM_RES_SOUND			0x00004000
+#define SM_RES_SHARD			0x00008000
 #define SM_OPP_ACID             0x00010000
 #define SM_OPP_ELEC             0x00020000
 #define SM_OPP_FIRE             0x00040000
@@ -1945,7 +1961,7 @@ ART_THOTH -> ART_KINSLAYER
 #define SM_OPP_POIS             0x00100000
 #define SM_OPP_XXX1             0x00200000
 #define SM_CLONED               0x00400000
-#define SM_ALLY                     0x00800000
+
 #define SM_IMM_ACID             0x01000000
 #define SM_IMM_ELEC             0x02000000
 #define SM_IMM_FIRE             0x04000000
@@ -1955,7 +1971,19 @@ ART_THOTH -> ART_KINSLAYER
 #define SM_IMM_FREE             0x40000000
 #define SM_IMM_MANA             0x80000000
 
+/*
+ * Some bit-flags for the "ally" field
+ * Ally_self means true neutral, like the giant in the ninth circel
+ * 
+ */
 
+#define ALLY_NO					0
+#define ALLY_LUCIFER		    1
+#define ALLY_GOD				2
+#define ALLY_RACE				4
+#define ALLY_PLAYER				8
+#define ALLY_SELF				16
+#define ALLY_COMPANION			32
 
 /*
 * Bit flags for the "p_ptr->notice" variable
@@ -2053,39 +2081,40 @@ ART_THOTH -> ART_KINSLAYER
 /*
 * Legal restrictions for "summon_specific()"
 */
-#define SUMMON_ANT                  11
-#define SUMMON_SPIDER               12
-#define SUMMON_HOUND                13
-#define SUMMON_HYDRA                14
-#define SUMMON_DEVIL                15
-#define SUMMON_DEMON                16
-#define SUMMON_UNDEAD               17
-#define SUMMON_DRAGON               18
-#define SUMMON_HI_UNDEAD            21
-#define SUMMON_HI_DRAGON            22
-#define SUMMON_GOO                  31
-#define SUMMON_UNIQUE               32
-#define SUMMON_BIZARRE1             33
-#define SUMMON_BIZARRE2             34
-#define SUMMON_BIZARRE3             35
-#define SUMMON_BIZARRE4             36
-#define SUMMON_BIZARRE5             37
-#define SUMMON_BIZARRE6             38
-#define SUMMON_REAVER               39
-#define SUMMON_KIN                  40
-#define SUMMON_AVATAR               41
-#define SUMMON_ANIMAL               42
-#define SUMMON_ANIMAL_RANGER        43
-#define SUMMON_HI_UNDEAD_NO_UNIQUES 44
-#define SUMMON_HI_DRAGON_NO_UNIQUES 45
-#define SUMMON_NO_UNIQUES           46
-#define SUMMON_PHANTOM              47
-#define SUMMON_ELEMENTAL            48
-#define SUMMON_ORC				    49
-#define SUMMON_YEEK				    50
-#define SUMMON_HUMAN			    51
-#define SUMMON_KOBOLD			    52
-#define SUMMON_SKULLS               53
+#define FILTER_ANT                  11
+#define FILTER_SPIDER               12
+#define FILTER_HOUND                13
+#define FILTER_HYDRA                14
+#define FILTER_DEVIL                15
+#define FILTER_DEMON                16
+#define FILTER_UNDEAD               17
+#define FILTER_DRAGON               18
+#define FILTER_HI_UNDEAD            21
+#define FILTER_HI_DRAGON            22
+#define FILTER_GOO                  31
+#define FILTER_UNIQUE               32
+#define FILTER_BIZARRE1             33
+#define FILTER_BIZARRE2             34
+#define FILTER_BIZARRE3             35
+#define FILTER_BIZARRE4             36
+#define FILTER_BIZARRE5             37
+#define FILTER_BIZARRE6             38
+#define FILTER_REAVER               39
+#define FILTER_KIN                  40
+#define FILTER_ANIMAL               42
+#define FILTER_ANIMAL_RANGER        43
+#define FILTER_HI_UNDEAD_NO_UNIQUES 44
+#define FILTER_HI_DRAGON_NO_UNIQUES 45
+#define FILTER_NO_UNIQUES           46
+#define FILTER_PHANTOM              47
+#define FILTER_ELEMENTAL            48
+#define FILTER_ORC				    49
+#define FILTER_YEEK				    50
+#define FILTER_HUMAN			    51
+#define FILTER_KOBOLD			    52
+#define FILTER_SKULLS               53
+#define FILTER_FALLEN_ANGELS        54
+#define FILTER_SPIRITS              55
 
 /*
 * Spell types used by project(), and related functions.
@@ -2164,6 +2193,10 @@ ART_THOTH -> ART_KINSLAYER
 #define GF_DOMINATION               89
 #define GF_DISP_GOOD                90
 #define GF_MAGEBOLT                 91
+#define GF_HECATE                   92
+#define GF_DISP_FALLEN_ANGEL        93
+#define GF_BLASTED_TOWER            94
+#define GF_DISP_DEVIL               95
 
 /*
 * Distance at which pets follow the player
@@ -2456,10 +2489,7 @@ ART_THOTH -> ART_KINSLAYER
 #define RBE_EXP_40                  27
 #define RBE_EXP_80                  28
 
-
-
 /*** Monster flag values (hard-coded) ***/
-
 
 /*
 * New monster race bit flags
@@ -2696,19 +2726,19 @@ ART_THOTH -> ART_KINSLAYER
 #define RF7_HEAL_ELEC               0x00010000      /* Heal by Electricity */
 #define RF7_HEAL_NETH				0x00020000      /* Heal by Nether */
 #define RF7_RES_POIS				0x00040000      /* Resist poison */
-#define RF7_XXX20                   0x00080000      /* Summon Monsters */
-#define RF7_XXX21                   0x00100000      /* Summon Ants */
-#define RF7_XXX22                   0x00200000      /* Summon Spiders */
-#define RF7_XXX23                   0x00400000      /* Summon Hounds */
-#define RF7_XXX24                   0x00800000      /* Summon Hydras */
-#define RF7_XXX25                   0x01000000      /* Summon devil */
-#define RF7_XXX26                   0x02000000      /* Summon Demon */
-#define RF7_XXX27                   0x04000000      /* Summon Undead */
-#define RF7_XXX28                   0x08000000      /* Summon Dragon */
-#define RF7_XXX29                   0x10000000      /* Summon Greater Undead */
-#define RF7_XXX30                   0x20000000      /* Summon Ancient Dragon */
-#define RF7_XXX31                   0x40000000      /* Summon fallen angel */
-#define RF7_XXX32                   0x80000000      /* Summon Unique Monster */
+#define RF7_AQUATIC                 0x00080000      /* Thrives in water */
+#define RF7_FLIGHT                  0x00100000      /* Can fly or levitate */
+#define RF7_NEUTRAL                 0x00200000      /* Doesnt want to kill player when generated */
+#define RF7_XXX23                   0x00400000      /*  */
+#define RF7_XXX24                   0x00800000      /*  */
+#define RF7_XXX25                   0x01000000      /*  */
+#define RF7_XXX26                   0x02000000      /*  */
+#define RF7_XXX27                   0x04000000      /*  */
+#define RF7_XXX28                   0x08000000      /*  */
+#define RF7_XXX29                   0x10000000      /*  */
+#define RF7_XXX30                   0x20000000      /*  */
+#define RF7_XXX31                   0x40000000      /*  */
+#define RF7_XXX32                   0x80000000      /*  */
 
 
 /*
@@ -3067,6 +3097,75 @@ ART_THOTH -> ART_KINSLAYER
 #define GRAPHICS_ADAM_BOLT      2
 #define GRAPHICS_DAVID_GERVAIS  3
 #define GRAPHICS_PSEUDO         4
+
+/*
+ * Squelch modes
+ */
+#define SQUELCH_NO				0
+#define SQUELCH_GOOD			1
+#define SQUELCH_EXCELLENT		2
+#define SQUELCH_GREAT			3
+#define SQUELCH_ALL_ID			4
+#define SQUELCH_TOWN_BOOKS		5
+#define SQUELCH_OPENED			6
+#define SQUELCH_ALL				7
+#define SQUELCH_ARTIFACT		8
+
+/*
+ * Squelch modes in bit flag mode for selection 
+ */
+#define CH_SQUELCH_NO				0
+#define CH_SQUELCH_GOOD				1
+#define CH_SQUELCH_EXCELLENT		2
+#define CH_SQUELCH_GREAT			4
+#define CH_SQUELCH_ALL_ID			8
+#define CH_SQUELCH_TOWN_BOOKS		16
+#define CH_SQUELCH_OPENED			32
+#define CH_SQUELCH_ALL				64
+#define CH_SQUELCH_ARTIFACT			128
+
+/*
+ * High Level(HL) Categories for which squelch modes can be chosen
+ * Major head aches will be achieved if you dont update SQ_HL_COUNT after
+ * adding more categories
+ */
+#define SQ_HL_WEAPONS	0
+#define SQ_HL_ARMOURS	1
+#define SQ_HL_AMMO		2
+#define SQ_HL_JEWELRY	3
+#define SQ_HL_LIGHTS	4
+#define SQ_HL_WANDS		5
+#define SQ_HL_STAVES	6
+#define SQ_HL_RODS		7
+#define SQ_HL_SCROLLS	8
+#define SQ_HL_BOOKS		9
+#define SQ_HL_MISC		10
+#define SQ_HL_CHESTS	11
+#define SQ_HL_COUNT		12		
+#define SQ_HL_OTHERS	12	
+
+/*
+ * What price makes it great ?
+ */
+#define GREAT_PRICE				1000
+#define SQUELCH_PRICE_START		5000
+#define SQUELCH_PRICE_INC		5000
+#define SQUELCH_PRICE_MAX		50000
+
+/*
+ * Scripting vars
+ */
+
+#define UNKNOWN   0
+#define DELIMITER 1
+#define VARIABLE  2
+#define NUMBER    3
+
+#define WORST_CASE 0
+#define BEST_CASE  1
+#define ROLL       2
+
+#define SCRIPT_MAX_LENGTH 80
 
 /*
 * Return the "attr" for a given item.

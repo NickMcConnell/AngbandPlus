@@ -167,28 +167,26 @@ bool make_attack_normal(int m_idx)
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
-
-	/* ...nor if friendly */
-	if (m_ptr->smart & SM_ALLY)  return FALSE;
 	
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 	
-	/*And if we are dealing with a snake, then that snake has a change of mind*/
+	/*And if we are dealing with a snake as a Serpens born player, then that snake has a change of mind*/
 	if( r_ptr->d_char == 'J' && p_ptr->psign == SIGN_SERPENS  )
 	{
 		msg_format("%^s recognizes your birthright." , m_name);
-		m_ptr->smart |= SM_ALLY;
-		return (FALSE);
+		set_ally( m_ptr, ALLY_COMPANION);
 	}
 
 	/*And if we are dealing with a dragon, then that dragon has a change of mind*/
 	if( (r_ptr->d_char == 'D' || r_ptr->d_char == 'd' ) && p_ptr->psign == SIGN_DRACO  )
 	{
 		msg_format("%^s recognizes your birthright." , m_name);
-		m_ptr->smart |= SM_ALLY;
-		return (FALSE);
+		set_ally( m_ptr, ALLY_PLAYER);
 	}
+	
+	/* ...nor if friendly */
+	if (!is_player_killer(m_ptr))  return FALSE;
 
 	/* Total armour */
 	ac = p_ptr->ac + p_ptr->to_a;

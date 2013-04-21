@@ -320,7 +320,8 @@ void replace_friend(int m_idx)
 			if (!in_bounds(ny, nx)) continue;
 
 			/* Require "empty" floor space */
-			if (!cave_empty_bold(ny, nx) || (cave[ny][nx].feat == FEAT_WATER)) continue;
+			/*if (!cave_empty_bold(ny, nx) || (cave[ny][nx].feat == FEAT_WATER)) continue;*/
+			if(!can_place_monster(ny,nx,m_ptr->r_idx))continue;
 
 			/* Hack -- no teleport onto glyph of warding */
 			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
@@ -373,7 +374,7 @@ void replace_all_friends(void)
 		monster_type *m_ptr = &m_list[i];
 
 		/* Skip non-pets */
-		if (!(m_ptr->smart & SM_ALLY)) continue;
+		if (!(is_ally(m_ptr))) continue;
 
 		/* Place next to player */
 		replace_friend(i);
@@ -1122,7 +1123,7 @@ static void vault_monsters(int y1, int x1, int num)
 			scatter(&y, &x, y1, x1, d, 0);
 
 			/* Require "empty" floor grids */
-			if (!cave_empty_bold(y, x) || (cave[y][x].feat == FEAT_WATER)) continue;
+			if (!cave_empty_bold(y, x)) continue;
 
 			/* Place the monster (allow groups) */
 			monster_level = dun_level + 2;
@@ -2196,7 +2197,7 @@ static bool vault_aux_minordemon(int r_idx)
 * races, to allow the nest creation to fail instead of having "holes".
 *
 * Note the use of the "get_mon_num_prep()" function, and the special
-* "get_mon_num_hook()" restriction function, to prepare the "monster
+* "monster_filter_hook()" restriction function, to prepare the "monster
 * allocation table" in such a way as to optimize the selection of
 * "appropriate" non-unique monsters for the nest.
 *
@@ -2305,12 +2306,12 @@ static void build_type5(int yval, int xval)
 		if ((randint(2)!=1) && (dun_level >= (25 + randint(15))))
 		{
 			name = "symbol clone";
-			get_mon_num_hook = vault_aux_symbol;
+			monster_filter_hook = vault_aux_symbol;
 		}
 		else
 		{
 			name = "clone";
-			get_mon_num_hook = vault_aux_clone;
+			monster_filter_hook = vault_aux_clone;
 		}
 	}
 	else if (tmp < 25)
@@ -2320,13 +2321,13 @@ static void build_type5(int yval, int xval)
 		name = "snake";
 
 		/* Restrict to jelly */
-		get_mon_num_hook = vault_aux_snake;
+		monster_filter_hook = vault_aux_snake;
 	}
 
 	else if (tmp < 50)
 	{
 		name = "treasure";
-		get_mon_num_hook = vault_aux_treasure;
+		monster_filter_hook = vault_aux_treasure;
 	}
 
 	/* Monster nest (animal) */
@@ -2335,7 +2336,7 @@ static void build_type5(int yval, int xval)
 		if (randint(3)==1)
 		{
 			name = "kennel";
-			get_mon_num_hook = vault_aux_kennel;
+			monster_filter_hook = vault_aux_kennel;
 		}
 		else
 		{
@@ -2343,7 +2344,7 @@ static void build_type5(int yval, int xval)
 			name = "animal";
 
 			/* Restrict to animal */
-			get_mon_num_hook = vault_aux_animal;
+			monster_filter_hook = vault_aux_animal;
 		}
 	}
 
@@ -2354,7 +2355,7 @@ static void build_type5(int yval, int xval)
 
 		{
 			name = "chapel";
-			get_mon_num_hook = vault_aux_chapel;
+			monster_filter_hook = vault_aux_chapel;
 
 		}
 
@@ -2364,7 +2365,7 @@ static void build_type5(int yval, int xval)
 			name = "undead";
 
 			/* Restrict to undead */
-			get_mon_num_hook = vault_aux_undead;
+			monster_filter_hook = vault_aux_undead;
 		}
 
 
@@ -2391,7 +2392,7 @@ static void build_type5(int yval, int xval)
 
 
 	/* Remove restriction */
-	get_mon_num_hook = NULL;
+	monster_filter_hook = NULL;
 
 	/* Prepare allocation table */
 	get_mon_num_prep();
@@ -2468,7 +2469,7 @@ static void build_type5(int yval, int xval)
 * be present in many of the dragon pits, if they have the proper breath.
 *
 * Note the use of the "get_mon_num_prep()" function, and the special
-* "get_mon_num_hook()" restriction function, to prepare the "monster
+* "monster_filter_hook()" restriction function, to prepare the "monster
 * allocation table" in such a way as to optimize the selection of
 * "appropriate" non-unique monsters for the pit.
 *
@@ -2568,7 +2569,7 @@ static void build_type6(int yval, int xval)
 		name = "minor demon";
 
 		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_minordemon;
+		monster_filter_hook = vault_aux_minordemon;
 	}
 
 	/* Troll pit */
@@ -2578,7 +2579,7 @@ static void build_type6(int yval, int xval)
 		name = "troll";
 
 		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_troll;
+		monster_filter_hook = vault_aux_troll;
 	}
 
 	/* Giant pit */
@@ -2588,7 +2589,7 @@ static void build_type6(int yval, int xval)
 		name = "giant";
 
 		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_giant;
+		monster_filter_hook = vault_aux_giant;
 	}
 
 	else if (tmp < 70)
@@ -2604,19 +2605,19 @@ static void build_type6(int yval, int xval)
 				(dun_level + randint(5))));
 
 			/* Restrict selection */
-			get_mon_num_hook = vault_aux_symbol;
+			monster_filter_hook = vault_aux_symbol;
 		}
 		else
 		{
 			if (randint(2)==1)
 			{
 				name = "cultist lair";
-				get_mon_num_hook = vault_aux_cult;
+				monster_filter_hook = vault_aux_cult;
 			}
 			else
 			{
 				name = "ordered chapel";
-				get_mon_num_hook = vault_aux_chapel;
+				monster_filter_hook = vault_aux_chapel;
 			}
 		}
 
@@ -2712,7 +2713,7 @@ static void build_type6(int yval, int xval)
 		}
 
 		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_dragon;
+		monster_filter_hook = vault_aux_dragon;
 	}
 
 	/* Demon pit */
@@ -2722,7 +2723,7 @@ static void build_type6(int yval, int xval)
 		name = "demon";
 
 		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_demon;
+		monster_filter_hook = vault_aux_demon;
 	}
 
 	/* Prepare allocation table */
@@ -2741,7 +2742,7 @@ static void build_type6(int yval, int xval)
 
 
 	/* Remove restriction */
-	get_mon_num_hook = NULL;
+	monster_filter_hook = NULL;
 
 	/* Prepare allocation table */
 	get_mon_num_prep();
@@ -4411,34 +4412,34 @@ void generate_cave(void)
 				case 2:
 				case 3:
 					{
-						dun_bias=SUMMON_ORC;
+						dun_bias=FILTER_ORC;
 						break;
 					}
 				case 4:
 				case 5:
 					{
-						dun_bias=SUMMON_DEMON;
+						dun_bias=FILTER_DEMON;
 						break;
 					}
 				case 6:
 					{
-						dun_bias=SUMMON_DEVIL;
+						dun_bias=FILTER_DEVIL;
 						break;
 					}
 				case 7:
 				case 8:
 					{
-						dun_bias=SUMMON_UNDEAD;
+						dun_bias=FILTER_UNDEAD;
 						break;
 					}
 				case 9:
 					{
-						dun_bias=SUMMON_DRAGON;
+						dun_bias=FILTER_DRAGON;
 						break;
 					}
 				case 10:
 					{
-						dun_bias=SUMMON_SPIDER;
+						dun_bias=FILTER_SPIDER;
 						break;
 					}
 				}

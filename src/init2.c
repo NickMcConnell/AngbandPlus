@@ -35,48 +35,51 @@
 
 
 /*
-* Find the default paths to all of our important sub-directories.
-*
-* The purpose of each sub-directory is described in "variable.c".
-*
-* All of the sub-directories should, by default, be located inside
-* the main "lib" directory, whose location is very system dependant.
-*
-* This function takes a writable buffer, initially containing the
-* "path" to the "lib" directory, for example, "/pkg/lib/angband/",
-* or a system dependant string, for example, ":lib:".  The buffer
-* must be large enough to contain at least 32 more characters.
-*
-* Various command line options may allow some of the important
-* directories to be changed to user-specified directories, most
-* importantly, the "info" and "user" and "save" directories,
-* but this is done after this function, see "main.c".
-*
-* In general, the initial path should end in the appropriate "PATH_SEP"
-* string.  All of the "sub-directory" paths (created below or supplied
-* by the user) will NOT end in the "PATH_SEP" string, see the special
-* "path_build()" function in "util.c" for more information.
-*
-* Mega-Hack -- support fat raw files under NEXTSTEP, using special
-* "suffixed" directories for the "ANGBAND_DIR_DATA" directory, but
-* requiring the directories to be created by hand by the user.
-*
-* Hack -- first we free all the strings, since this is known
-* to succeed even if the strings have not been allocated yet,
-* as long as the variables start out as "NULL".  This allows
-* this function to be called multiple times, for example, to
-* try several base "path" values until a good one is found.
-*/
+ * Find the default paths to all of our important sub-directories.
+ *
+ * The purpose of each sub-directory is described in "variable.c".
+ *
+ * All of the sub-directories should, by default, be located inside
+ * the main "lib" directory, whose location is very system dependant.
+ *
+ * This function takes a writable buffer, initially containing the
+ * "path" to the "lib" directory, for example, "/pkg/lib/angband/",
+ * or a system dependant string, for example, ":lib:".  The buffer
+ * must be large enough to contain at least 32 more characters.
+ *
+ * Various command line options may allow some of the important
+ * directories to be changed to user-specified directories, most
+ * importantly, the "info" and "user" and "save" directories,
+ * but this is done after this function, see "main.c".
+ *
+ * In general, the initial path should end in the appropriate "PATH_SEP"
+ * string.  All of the "sub-directory" paths (created below or supplied
+											  * by the user) will NOT end in the "PATH_SEP" string, see the special
+ * "path_build()" function in "util.c" for more information.
+ *
+ * Mega-Hack -- support fat raw files under NEXTSTEP, using special
+ * "suffixed" directories for the "ANGBAND_DIR_DATA" directory, but
+ * requiring the directories to be created by hand by the user.
+ *
+ * Hack -- first we free all the strings, since this is known
+ * to succeed even if the strings have not been allocated yet,
+ * as long as the variables start out as "NULL".  This allows
+ * this function to be called multiple times, for example, to
+ * try several base "path" values until a good one is found.
+ */
 void init_file_paths(char *path)
 {
 	char *tail;
-
-
+	
+#ifdef PRIVATE_USER_PATH
+	char buf[1024];
+#endif /* PRIVATE_USER_PATH */
+	
 	/*** Free everything ***/
-
+	
 	/* Free the main path */
 	string_free(ANGBAND_DIR);
-
+	
 	/* Free the sub-paths */
 	string_free(ANGBAND_DIR_APEX);
 	string_free(ANGBAND_DIR_BONE);
@@ -87,101 +90,224 @@ void init_file_paths(char *path)
 	string_free(ANGBAND_DIR_INFO);
 	string_free(ANGBAND_DIR_SAVE);
 	string_free(ANGBAND_DIR_PREF);
+	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
-
-
+	
 	/*** Prepare the "path" ***/
-
+	
 	/* Hack -- save the main directory */
 	ANGBAND_DIR = string_make(path);
-
+	
 	/* Prepare to append to the Base Path */
 	tail = path + strlen(path);
-
-
-
+	
+	
+#ifdef VM
+	
+	
+	/*** Use "flat" paths with VM/ESA ***/
+	
+	/* Use "blank" path names */
+	ANGBAND_DIR_APEX = string_make("");
+	ANGBAND_DIR_BONE = string_make("");
+	ANGBAND_DIR_DATA = string_make("");
+	ANGBAND_DIR_EDIT = string_make("");
+	ANGBAND_DIR_FILE = string_make("");
+	ANGBAND_DIR_HELP = string_make("");
+	ANGBAND_DIR_INFO = string_make("");
+	ANGBAND_DIR_SAVE = string_make("");
+	ANGBAND_DIR_PREF = string_make("");
+	ANGBAND_DIR_USER = string_make("");
+	ANGBAND_DIR_XTRA = string_make("");
+	
+#else /* VM */
+	
+	
 	/*** Build the sub-directory names ***/
-
-	/* Build a path name */
-	strcpy(tail, "apex");
-	ANGBAND_DIR_APEX = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "bone");
-	ANGBAND_DIR_BONE = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "data");
-	ANGBAND_DIR_DATA = string_make(path);
-
+	
 	/* Build a path name */
 	strcpy(tail, "edit");
 	ANGBAND_DIR_EDIT = string_make(path);
-
+	
 	/* Build a path name */
 	strcpy(tail, "file");
 	ANGBAND_DIR_FILE = string_make(path);
-
+	
 	/* Build a path name */
 	strcpy(tail, "help");
 	ANGBAND_DIR_HELP = string_make(path);
-
+	
 	/* Build a path name */
 	strcpy(tail, "info");
 	ANGBAND_DIR_INFO = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "save");
-	ANGBAND_DIR_SAVE = string_make(path);
-
+	
 	/* Build a path name */
 	strcpy(tail, "pref");
 	ANGBAND_DIR_PREF = string_make(path);
-
+	
+#ifdef PRIVATE_USER_PATH
+	
+	/* Build the path to the user specific directory */
+	path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_NAME);
+	
+	/* Build a relative path name */
+	ANGBAND_DIR_USER = string_make(buf);
+	
+#else /* PRIVATE_USER_PATH */
+	
+	/* Build a path name */
+	strcpy(tail, "user");
+	ANGBAND_DIR_USER = string_make(path);
+	
+#endif /* PRIVATE_USER_PATH */
+	
+#ifdef USE_PRIVATE_PATHS
+	
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
+	
+	/* Build a relative path name */
+	ANGBAND_DIR_APEX = string_make(buf);
+	
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "bone");
+	
+	/* Build a relative path name */
+	ANGBAND_DIR_BONE = string_make(buf);
+	
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "data");
+	
+	/* Build a relative path name */
+	ANGBAND_DIR_DATA = string_make(buf);
+	
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "save");
+	
+	/* Build a relative path name */
+	ANGBAND_DIR_SAVE = string_make(buf);
+	
+#else /* USE_PRIVATE_PATHS */
+	
+	/* Build a path name */
+	strcpy(tail, "apex");
+	ANGBAND_DIR_APEX = string_make(path);
+	
+	/* Build a path name */
+	strcpy(tail, "bone");
+	ANGBAND_DIR_BONE = string_make(path);
+	
+	/* Build a path name */
+	strcpy(tail, "data");
+	ANGBAND_DIR_DATA = string_make(path);
+	
+	/* Build a path name */
+	strcpy(tail, "save");
+	ANGBAND_DIR_SAVE = string_make(path);
+	
+#endif /* USE_PRIVATE_PATHS */
+	
 	/* Build a path name */
 	strcpy(tail, "xtra");
 	ANGBAND_DIR_XTRA = string_make(path);
-
-
+	
+#endif /* VM */
+	
+	
 #ifdef NeXT
-
+	
 	/* Allow "fat binary" usage with NeXT */
 	if (TRUE)
 	{
 		cptr next = NULL;
-
+		
 # if defined(m68k)
 		next = "m68k";
 # endif
-
+		
 # if defined(i386)
 		next = "i386";
 # endif
-
+		
 # if defined(sparc)
 		next = "sparc";
 # endif
-
+		
 # if defined(hppa)
 		next = "hppa";
 # endif
-
+		
 		/* Use special directory */
 		if (next)
 		{
 			/* Forget the old path name */
 			string_free(ANGBAND_DIR_DATA);
-
+			
 			/* Build a new path name */
 			sprintf(tail, "data-%s", next);
 			ANGBAND_DIR_DATA = string_make(path);
 		}
 	}
-
+	
 #endif /* NeXT */
-
+	
 }
 
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+void create_user_dirs(void)
+{
+	char dirpath[1024];
+	char subdirpath[1024];
+	
+	
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
+	
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
+	
+	/* Build the path to the variant-specific sub-directory */
+	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
+	
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
+	
+#ifdef USE_PRIVATE_PATHS
+	/* Build the path to the scores sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "scores");
+	
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+	
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "bone");
+	
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+	
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "data");
+	
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+	
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "save");
+	
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+#endif /* USE_PRIVATE_PATHS */
+}
+
+#endif /* PRIVATE_USER_PATH */
 
 
 #ifdef ALLOW_TEMPLATES
@@ -2283,20 +2409,20 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_NATURE_BOOK, 1 },
 		{ TV_NATURE_BOOK, 1 },
 
-		{ TV_DEMONIC_BOOK, 0 },
-		{ TV_DEMONIC_BOOK, 0 },
-		{ TV_DEMONIC_BOOK, 1 },
-		{ TV_DEMONIC_BOOK, 1 },
+		{ TV_CHAOS_BOOK, 0 },
+		{ TV_CHAOS_BOOK, 0 },
+		{ TV_CHAOS_BOOK, 1 },
+		{ TV_CHAOS_BOOK, 1 },
 
 		{ TV_DEATH_BOOK, 0 },
 		{ TV_DEATH_BOOK, 0 },
 		{ TV_DEATH_BOOK, 1 },
 		{ TV_DEATH_BOOK, 1 },
 
-		{ TV_PLANAR_BOOK, 0 },       /* +16 */
-		{ TV_PLANAR_BOOK, 0 },
-		{ TV_PLANAR_BOOK, 1 },
-		{ TV_PLANAR_BOOK, 1 },
+		{ TV_TAROT_BOOK, 0 },       /* +16 */
+		{ TV_TAROT_BOOK, 0 },
+		{ TV_TAROT_BOOK, 1 },
+		{ TV_TAROT_BOOK, 1 },
 
 		{ TV_CHARMS_BOOK, 0 },
 		{ TV_CHARMS_BOOK, 0 },
@@ -2310,13 +2436,13 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 		{ TV_MIRACLES_BOOK, 0 },
 		{ TV_MIRACLES_BOOK, 0 },
-		{ TV_MIRACLES_BOOK, 0 },
-		{ TV_MIRACLES_BOOK, 0 },
+		{ TV_MIRACLES_BOOK, 1 },
+		{ TV_MIRACLES_BOOK, 1 },
 
-		{ TV_MIRACLES_BOOK, 1 },
-		{ TV_MIRACLES_BOOK, 1 },
-		{ TV_MIRACLES_BOOK, 1 },
-		{ TV_MIRACLES_BOOK, 1 },
+		{ TV_DEMONIC_BOOK, 0 },
+		{ TV_DEMONIC_BOOK, 0 },
+		{ TV_DEMONIC_BOOK, 1 },
+		{ TV_DEMONIC_BOOK, 1 },
 
 		{ TV_DEATH_BOOK, 0 },
 		{ TV_DEATH_BOOK, 0 },
@@ -2585,6 +2711,7 @@ static errr init_other(void)
 	(void)quark_add("broken");
 	(void)quark_add("average");
 	(void)quark_add("good");
+	(void)quark_add("great");
 
 	/* The "extra" feelings */
 	(void)quark_add("excellent");
@@ -2626,6 +2753,15 @@ static errr init_other(void)
 			}
 		}
 	}
+	
+	/*Set the sane price to the initial value*/
+	sane_price = SQUELCH_PRICE_START;
+	
+	/* Set the squelching rules to 0 */
+	for( i=0; i < SQ_HL_COUNT ; i++ )
+	{
+		squelch_options[i] = 0;
+	}
 
 	/* Analyze the windows */
 	for (n = 0; n < 8; n++)
@@ -2646,7 +2782,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Dean Anderson", MAINTAINER);
+	(void)format("%s (%s).", "Konijn", MAINTAINER);
 
 
 	/* Success */

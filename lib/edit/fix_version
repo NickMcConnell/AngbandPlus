@@ -20,7 +20,7 @@ f = openTextFile( filename , "w");
 
 fca = fc.split("\\n");
 for  x in fca {
-  if( x.startsWith('V:') ){ x = "V:0.8.3"; }
+  if( x.startsWith('V:') ){ x = "V:0.8.4"; }
   . <f> x;
   
 }

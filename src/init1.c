@@ -382,9 +382,9 @@ cptr r_info_flags7[] =
 	"HEAL_ELEC",	
 	"HEAL_NETH",
 	"RES_POIS",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
+	"AQUATIC",
+	"FLIGHT",
+	"NEUTRAL",
 	"INFERNO_OPEN",
 	"INFERNO_OPEN",
 	"INFERNO_OPEN",
@@ -2051,6 +2051,12 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			{
 				r_ptr->flags2 |= RF2_OPEN_DOOR;
 				r_ptr->flags2 |= RF2_BASH_DOOR;				
+			}
+			
+			/*Fallen Angels and Dragons have flight, hardcoded for efficiency */
+			if( r_ptr->d_char == 'A' || r_ptr->d_char == 'd' || r_ptr->d_char == 'D' )
+			{
+				r_ptr->flags7 |= RF7_FLIGHT;
 			}
 			
 			/* Next... */

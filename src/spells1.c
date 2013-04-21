@@ -119,7 +119,8 @@ void teleport_away(int m_idx, int dis)
 			if (!in_bounds(ny, nx)) continue;
 
 			/* Require "empty" floor space */
-			if (!cave_empty_bold(ny, nx) || (cave[ny][nx].feat == FEAT_WATER)) continue;
+			/*if (!cave_empty_bold(ny, nx) || (cave[ny][nx].feat == FEAT_WATER && !water_ok(m_ptr->r_idx))) continue;*/
+			if(!can_place_monster(ny,nx,m_ptr->r_idx))continue;	
 
 			/* Hack -- no teleport onto glyph of warding */
 			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
@@ -222,7 +223,8 @@ void teleport_to_player(int m_idx)
 			if (!in_bounds(ny, nx)) continue;
 
 			/* Require "empty" floor space */
-			if (!cave_empty_bold(ny, nx) || (cave[ny][nx].feat == FEAT_WATER)) continue;
+			/*if (!cave_empty_bold(ny, nx) || (cave[ny][nx].feat == FEAT_WATER && !water_ok(m_ptr->r_idx))) continue;*/
+			if(!can_place_monster(ny,nx,m_ptr->r_idx))continue;	
 
 			/* Hack -- no teleport onto glyph of warding */
 			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
@@ -630,7 +632,7 @@ static byte spell_colour(int type)
 	case GF_PSI_DRAIN:
 	case GF_TELEKINESIS:
 	case GF_DOMINATION:		return (randint(3)!=1?TERM_L_BLUE:TERM_WHITE);
-	case GF_MAGEBOLT:		return (TERM_WHITE);
+    case GF_HECATE:           return (randint(4)==1?TERM_ORANGE:TERM_YELLOW);;        
 	}
 
 	/* Standard "colour" */
@@ -668,6 +670,7 @@ static byte bolt_graf_attr(int type)
 	case GF_TIME:           return (144);
 	case GF_LITE_WEAK:      return (143);
 	case GF_LITE:           return (143);
+    case GF_HECATE:         return (143);
 	case GF_DARK_WEAK:      return (143);
 	case GF_DARK:           return (143);
 	case GF_PLASMA:         return (144);
@@ -728,6 +731,7 @@ static byte ball_graf_char(int type)
 	case GF_TIME:           return (145);
 	case GF_LITE_WEAK:      return (142);
 	case GF_LITE:           return (142);
+   	case GF_HECATE:         return (142); 
 	case GF_DARK_WEAK:      return (143);
 	case GF_DARK:           return (143);
 	case GF_PLASMA:         return (147);
@@ -779,6 +783,7 @@ static byte base_bolt_char(int type)
 	case GF_TIME:           return (132);
 	case GF_LITE_WEAK:      return (152);
 	case GF_LITE:           return (152);
+	case GF_HECATE:         return (152);        
 	case GF_DARK_WEAK:      return (156);
 	case GF_DARK:           return (156);
 	case GF_PLASMA:         return (140);
@@ -1017,11 +1022,12 @@ static bool hates_fire(object_type *o_ptr)
 	case TV_MIRACLES_BOOK:
 	case TV_SORCERY_BOOK:
 	case TV_NATURE_BOOK:
-	case TV_DEMONIC_BOOK:
+	case TV_CHAOS_BOOK:
 	case TV_DEATH_BOOK:
-	case TV_PLANAR_BOOK:
+	case TV_TAROT_BOOK:
 	case TV_CHARMS_BOOK:
 	case TV_SOMATIC_BOOK:
+    /* Demonic books due their Infernal nature do not burn, muhahah */
 		{
 			return (TRUE);
 		}
@@ -2065,7 +2071,41 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 			break;
 		}
-
+	case GF_BLASTED_TOWER:
+	{
+		/* Non-walls (etc) */
+		if (cave_floor_bold(y, x)) break;
+		
+		/* Permanent walls */
+		if (c_ptr->feat >= FEAT_PERM_BUILDING) break;
+		
+		/* Only give a message when we see the thing happening*/
+		if (c_ptr->info & (CAVE_MARK))
+		{		
+			obvious = TRUE;			
+			/* Granite */
+			if (c_ptr->feat >= FEAT_WALL_EXTRA)
+				msg_print("The wall turns into rubble!");
+			/* Quartz / Magma ( with treasure ) */
+			else if (c_ptr->feat >= FEAT_MAGMA_H || c_ptr->feat >= FEAT_MAGMA)
+				msg_print("The vein turns into rubble!");
+			/* Destroy doors (and secret doors) */
+			else /* if (c_ptr->feat >= FEAT_DOOR_HEAD) */
+				msg_print("The door turns into rubble!");
+		}
+		/* Gold drops whether we see it or not*/
+		if (c_ptr->feat >= FEAT_MAGMA_H)
+			place_gold(y, x);
+		/* Forget the wall */
+		c_ptr->info &= ~(CAVE_MARK);
+		/* Destroy and set rubble */
+		cave_set_feat(y, x, FEAT_RUBBLE);
+		/* Update some things */
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
+		
+		break;
+	}
+		
 		/* Make doors */
 	case GF_MAKE_DOOR:
 		{
@@ -2123,6 +2163,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		/* Lite up the grid */
 	case GF_LITE_WEAK:
 	case GF_LITE:
+    case GF_HECATE:    
 		{
 			/* Turn on the light */
 			c_ptr->info |= (CAVE_GLOW);
@@ -2400,7 +2441,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 						o_ptr->pval = (0 - o_ptr->pval);
 
 						/* Identify */
-						object_known(o_ptr);
+						object_known(o_ptr,TRUE);
 
 						/* Notice */
 						if (o_ptr->marked)
@@ -2613,7 +2654,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		note_dies = " is destroyed.";
 	}
 
-	if ((!who) && (m_ptr->smart & SM_ALLY)) {
+	if ((!who) && (is_potential_hater(m_ptr)) ) {
 		bool get_angry = FALSE;
 		/* Grrr? */
 		switch (typ) {
@@ -2654,6 +2695,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & RF3_DEMON)
 				get_angry = TRUE;
 			break;
+		case GF_DISP_FALLEN_ANGEL:
+			if (r_ptr->flags3 & RF3_FALLEN_ANGEL)
+				get_angry = TRUE;
+			break;			
+		case GF_DISP_DEVIL:
+			if (r_ptr->flags3 & RF3_DEVIL)
+				get_angry = TRUE;
+			break;						
 		case GF_DISP_LIVING:
 			if (!(r_ptr->flags3 & (RF3_UNDEAD)) &&
 				!(r_ptr->flags3 & (RF3_NONLIVING)))
@@ -2686,7 +2735,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Now anger it if appropriate */
 		if (get_angry == TRUE && !(who)) {
 			msg_format("%^s gets angry!", m_name);
-			m_ptr->smart &= ~SM_ALLY;
+			set_hate_player( m_ptr );
 		}
 	}
 
@@ -3121,7 +3170,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 	case GF_DOMINATION:
 		{
-			if (m_ptr->smart & SM_ALLY)
+			if (is_ally( m_ptr ))
 			{
 				obvious = FALSE;
 				break;
@@ -3179,7 +3228,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				{
 					if ((dam > 29) && (randint(100) < dam)) {
 						note = " is in your thrall!";
-						m_ptr->smart |= SM_ALLY;
+						/*Set monster charmed, but not super charmed*/
+						set_ally( m_ptr, ALLY_PLAYER);
 					} 
 					else 
 					{
@@ -3261,7 +3311,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			bool is_friend = FALSE;
 			/*Cloned friends are friendly 2 in 3 or 1 in 4*/
-			if ((m_ptr->smart & SM_ALLY) && (randint(3)!=1))
+			if (is_ally(m_ptr) && (randint(3)!=1))
 				is_friend = TRUE;
 			/* Heal fully */
 			m_ptr->hp = m_ptr->maxhp;
@@ -3379,6 +3429,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Charm monster */
 	case GF_CHARM:
 		{
+			/*Not all charm attacks work on every one*/
+			if (monster_filter_hook && !((*monster_filter_hook)(m_ptr->r_idx))){
+				note = " is unaffected!";
+				obvious = FALSE;
+				dam = 0;
+				break;
+			}
 
 			dam += (adj_con_fix[p_ptr->stat_ind[A_CHA]] - 1);
 			/* Attempt a saving throw */
@@ -3400,7 +3457,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " hates you too much!";
 			} else {
 				note = " suddenly seems friendly!";
-				m_ptr->smart |= SM_ALLY;
+				set_ally( m_ptr, ALLY_PLAYER);
 			}
 
 			/* No "real" damage */
@@ -3425,7 +3482,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " hates you too much!";
 			} else {
 				note = " is in your thrall!";
-				m_ptr->smart |= SM_ALLY;
+				set_ally( m_ptr, ALLY_PLAYER);
 			}
 
 			/* No "real" damage */
@@ -3456,7 +3513,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " hates you too much!";
 			} else {
 				note = " is tamed!";
-				m_ptr->smart |= SM_ALLY;
+				set_ally( m_ptr, ALLY_COMPANION);
 			}
 
 			/* No "real" damage */
@@ -3521,6 +3578,38 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam = 0; /* No damage */
 			break;
 		}
+	case GF_HECATE:
+    {
+        if( project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_HURT_LITE	, &dam , dam , &note , " cringes from the light!.")	)
+            note_dies = " shrivels away in the light!";
+        /* Attempt a saving throw and excluding some silly cases*/
+        if ( (r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flags3 & (RF3_NO_CONF)) || (r_ptr->level > randint(dam)) || is_ally(m_ptr) || (r_ptr->flags1 & RF1_GUARDIAN) || (r_ptr->flags1 & RF1_ALWAYS_GUARD) )
+        {
+            /* Memorize a flag */
+            if (r_ptr->flags3 & (RF3_NO_CONF) && seen ) r_ptr->r_flags3 |= (RF3_NO_CONF);
+        }
+        else if (randint(100) < dam) 
+        {
+            note = " is in your thrall!";
+			set_ally( m_ptr, ALLY_PLAYER);
+        } 
+        if (!(is_ally(m_ptr)))
+        {
+            if (randint(100) < dam){ 
+                do_stun = dam; 
+            }
+            else if (randint(100) < dam){
+                do_conf = dam;
+            }
+            else if (randint(100) < dam){
+                do_fear = dam;
+            }
+        }
+        /* Reset damage to 0 unless we really dont like light*/
+        if( !(r_ptr->flags3 & RF3_HURT_LITE) )
+            dam = 0;
+        break;
+    }        
 		/* Lite -- opposite of Dark */
 	case GF_LITE:
 		{
@@ -3547,6 +3636,21 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 		/* Stone to Mud */
+	case GF_BLASTED_TOWER:
+	{
+		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_ELEC  , &dam , dam /2 , &note , " resists.");			
+		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_FIRE  , &dam , dam /2 , &note , " resists.");			
+
+		project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_ELEC	 , &dam , dam /9 , &note , " resists a lot.");
+		project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_FIRE   , &dam , dam /9 , &note , " resists a lot.");
+
+		project_m_helper( seen, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_HURT_FIRE , &dam , dam *3 , &note , " bursts in flames.");					
+		
+		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_ELEC , &dam , -dam   , &note , " heals up.");			
+		project_m_helper( seen, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_FIRE , &dam , -dam   , &note , " heals up.");			
+		
+		break;
+	}
 	case GF_KILL_WALL:
 		{
 			if(project_m_helper( seen ,  r_ptr->flags3 , &r_ptr->r_flags3  , RF3_HURT_ROCK		, &dam , dam  , &note , " crumbles.") )
@@ -3941,7 +4045,64 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			break;
 		}
-
+		/*Dispel fallen angels*/
+	case GF_DISP_FALLEN_ANGEL:	
+	{
+		/* Only affect fallen angels */
+		if (r_ptr->flags3 & (RF3_FALLEN_ANGEL))
+		{
+			/* Learn about type */
+			if (seen) r_ptr->r_flags3 |= (RF3_FALLEN_ANGEL);
+			
+			/* Obvious */
+			if (seen) obvious = TRUE;
+			
+			/* Message */
+			note = " shudders.";
+			note_dies = " dissolves!";
+		}
+		
+		/* Others ignore */
+		else
+		{
+			/* Irrelevant */
+			skipped = TRUE;
+			
+			/* No damage */
+			dam = 0;
+		}
+		
+		break;
+	}
+		/*Dispel devils*/
+	case GF_DISP_DEVIL:	
+	{
+		/* Only affect devils */
+		if (r_ptr->flags3 & (RF3_DEVIL))
+		{
+			/* Learn about type */
+			if (seen) r_ptr->r_flags3 |= (RF3_DEVIL);
+			
+			/* Obvious */
+			if (seen) obvious = TRUE;
+			
+			/* Message */
+			note = " shudders.";
+			note_dies = " dissolves!";
+		}
+		
+		/* Others ignore */
+		else
+		{
+			/* Irrelevant */
+			skipped = TRUE;
+			
+			/* No damage */
+			dam = 0;
+		}
+		
+		break;
+	}		
 		/* Dispel monster */
 	case GF_DISP_ALL:
 		{
@@ -4014,7 +4175,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Default -- assume no polymorph */
 		note = " is unaffected!";
 
-		charm = (bool)(m_ptr->smart & SM_ALLY); 
+		charm = is_ally(m_ptr); 
 
 		/* Pick a "new" monster race */
 		tmp = poly_r_idx(m_ptr->r_idx);
@@ -4147,8 +4308,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			bool sad = FALSE;
 
-			if ((m_ptr->smart & (SM_ALLY)) &&
-				!(m_ptr->ml))
+			if ( (is_ally(m_ptr)) && !(m_ptr->ml))
 				sad = TRUE;
 
 			/* Generate treasure, etc */
@@ -4763,7 +4923,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
-			if (p_ptr->prace == VAMPIRE) {
+			if (rp_ptr->hates_light) {
 				msg_print("The light scorches your flesh!");
 				dam *= 2;
 			}
@@ -4790,7 +4950,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (p_ptr->resist_dark)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
-				if (p_ptr->prace == VAMPIRE)
+				if (rp_ptr->hates_light)
 					dam = 0;
 			}
 			else if (!blind && !p_ptr->resist_blind)
@@ -5923,6 +6083,159 @@ bool potion_smash_effect(int who, int y, int x, int o_sval)
 		(PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
 	/* XXX  those potions that explode need to become "known" */
 	return angry;
+}
+
+/*Helper function for whether we forgot a spell*/
+bool spell_forgotten( u16b realm  , int spell )
+{
+	/*Silly 0 is no realm except if it is Miracles ...*/
+	realm++;
+	/*Check if we are checking for realm1 and return value accordingly*/
+	if(realm==p_ptr->realm1)
+	{
+		return (spell_forgotten1 & (1L << spell))?TRUE:FALSE;
+	}
+	/*Check if we are checking for realm2 and return value accordingly*/
+	if(realm==p_ptr->realm2)
+	{
+		return (spell_forgotten2 & (1L << spell))?TRUE:FALSE;
+	}
+	return FALSE;
+}
+
+
+/*Helper function for whether we learned a spell*/
+bool spell_learned( u16b realm  , int spell )
+{
+	/*Silly 0 is no realm except if it is Miracles ...*/
+	realm++;
+	/*Check if we are checking for realm1 and return value accordingly*/
+	if(realm==p_ptr->realm1)
+	{
+		return (spell_learned1 & (1L << spell))?TRUE:FALSE;
+	}
+	/*Check if we are checking for realm2 and return value accordingly*/
+	if(realm==p_ptr->realm2)
+	{
+		return (spell_learned2 & (1L << spell))?TRUE:FALSE;
+	}
+	return FALSE;
+}
+
+/*Helper function for whether we tried a spell*/
+bool spell_worked( u16b realm  , int spell )
+{
+	/*Silly 0 is no realm except if it is Miracles ...*/
+	realm++;	
+	/*Check if we are checking for realm1 and return value accordingly*/
+	if(realm==p_ptr->realm1)
+	{
+		return (spell_worked1 & (1L << spell))?TRUE:FALSE;
+	}
+	/*Check if we are checking for realm2 and return value accordingly*/
+	if(realm==p_ptr->realm2)
+	{
+		return (spell_worked2 & (1L << spell))?TRUE:FALSE;
+	}
+	return FALSE;
+}
+
+
+void get_extended_spell_info( u16b realm  , int spell , magic_type *s_ptr )
+{
+	get_spell_info( realm , spell ,s_ptr );
+	/*Set up some boolean flags*/
+	s_ptr->forgotten = spell_forgotten(realm,spell);
+	s_ptr->learned   = spell_learned(realm,spell);
+	s_ptr->worked    = spell_worked(realm,spell);
+	/* Get color of realm */
+	s_ptr->attr_realm = tval_to_attr[ TV_MIRACLES_BOOK + realm ];
+	/* Default info color to white */
+	s_ptr->attr_info = TERM_WHITE;
+   /* Get info */
+	spell_info_short( short_info , spell, realm);
+	s_ptr->info = NULL;
+
+	/* Check for illegible */
+	if (s_ptr->slevel >= 99)
+	{
+		/* Illegible */
+		s_ptr->name = "(illegible)";
+		/* Unusable */
+		s_ptr->attr_info = TERM_L_DARK;
+	}
+	else if ( s_ptr->forgotten )
+	{
+		s_ptr->attr_info = TERM_ORANGE;
+		s_ptr->info      = "forgotten";
+	}
+	else if ( !s_ptr->learned  )
+	{
+		s_ptr->attr_info = TERM_L_DARK;
+		s_ptr->info      = "unknown";	
+	}
+	else if ( !s_ptr->worked )
+	{
+		s_ptr->attr_info = TERM_YELLOW;
+		s_ptr->info      = "untried";
+	}
+}
+	
+void get_spell_info( u16b realm  , int spell , magic_type *s_ptr )
+{
+	int spell_skill;
+	spell_type *spell_info;
+
+	/* How well can the player cast spells from this realm ?*/
+	spell_skill = mp_ptr->skill[realm]-1;
+	/* Browsing realms with skill NO, have now -1 in spell_skill, not good for array access*/
+	if(spell_skill<0)spell_skill = 0;
+	/* Get the information of the actual spell */
+	spell_info = &spells[realm][spell];
+	/*Copy over the name*/
+	s_ptr->name = spell_info->name;
+	/*Copy over the macro*/
+	s_ptr->macro = spell_info->macro;
+	/*Copy over the spoiler*/
+	s_ptr->spoiler = spell_info->spoiler;
+	/*Copy over the experience gained, super casters gain double xp*/
+	s_ptr->sexp  = spell_skill==SUPER?spell_info->sexp*2:spell_info->sexp;
+	/* Translate the spell chance, better skill, lower percentage of failure etc.*/
+	switch( spell_skill )
+	{
+		case POOR:
+			s_ptr->sfail = spell_info->sfail - 10;
+			break;
+		case WORSE:
+			s_ptr->sfail = spell_info->sfail - 5;		
+			break;		
+		case SAME:
+			s_ptr->sfail = spell_info->sfail;
+			break;		
+		case BETTER:
+			s_ptr->sfail = spell_info->sfail + 10;
+			break;		
+		case SUPER:
+			s_ptr->sfail = spell_info->sfail - 15;
+			break;		
+	}
+	/* Translate the level*/
+	/*msg_format( "TODO%d with %d -> %d" , spell_info->slevel  
+								   , spell_skill
+									, spell_skill_level[ spell_info->slevel - 1 ][spell_skill]);	*/
+	s_ptr->slevel = spell_skill_level[ spell_info->slevel - 1 ][spell_skill];
+	/* Translate the mana requirement*/
+	if( spell_info->smana > 25 )
+		s_ptr->smana = spell_info->smana + spell_skill_mana[25][spell_skill];
+	else
+		s_ptr->smana = spell_skill_mana[spell_info->smana - 1][spell_skill];
+	/*Some safe values for the non extended stuff in case of*/
+	s_ptr->info = "";
+	s_ptr->attr_info = TERM_WHITE;
+	s_ptr->attr_realm = TERM_WHITE;
+	s_ptr->forgotten = FALSE;
+	s_ptr->learned = FALSE;
+	s_ptr->worked	= FALSE;
 }
 
 

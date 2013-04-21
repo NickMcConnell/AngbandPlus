@@ -387,11 +387,12 @@ static bool object_easy_know(int i)
 	case TV_MIRACLES_BOOK:
 	case TV_SORCERY_BOOK:
 	case TV_NATURE_BOOK:
-	case TV_DEMONIC_BOOK:
+	case TV_CHAOS_BOOK:
 	case TV_DEATH_BOOK:
-	case TV_PLANAR_BOOK:
+	case TV_TAROT_BOOK:
 	case TV_CHARMS_BOOK:
 	case TV_SOMATIC_BOOK:
+    case TV_DEMONIC_BOOK:
 		{
 			return (TRUE);
 		}
@@ -562,15 +563,19 @@ static byte default_tval_to_attr(int tval)
 			return (TERM_L_GREEN);
 		}
 
-	case TV_DEMONIC_BOOK:
+	case TV_CHAOS_BOOK:
 		{
 			return (TERM_L_RED);
 		}
+    case TV_DEMONIC_BOOK:
+        {
+            return (TERM_RED);
+        }
 	case TV_DEATH_BOOK:
 		{
 			return (TERM_L_DARK);
 		}
-	case TV_PLANAR_BOOK:
+	case TV_TAROT_BOOK:
 		{
 			return (TERM_ORANGE);
 		}
@@ -1658,15 +1663,24 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-	case TV_DEMONIC_BOOK:
+	case TV_CHAOS_BOOK:
 		{
 			modstr = basenm;
 			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
-				basenm = "& Book~ of the Damned #";
+				basenm = "& Book~ of the Abyss #";
 			else
-				basenm = "& Demonic Spellbook~ #";
+				basenm = "& Chaos Spellbook~ #";
 			break;
 		}
+	case TV_DEMONIC_BOOK:
+    {
+        modstr = basenm;
+        if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
+            basenm = "& Book~ of the Damned #";
+        else
+            basenm = "& Demonic Spellbook~ #";
+        break;
+    }        
 	case TV_DEATH_BOOK:
 		{
 			modstr = basenm;
@@ -1678,13 +1692,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 
-	case TV_PLANAR_BOOK:
+	case TV_TAROT_BOOK:
 		{
 			modstr = basenm;
 			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
-				basenm = "& Book~ of Planar Magic #";
+				basenm = "& Book~ of Tarot Magic #";
 			else
-				basenm = "& Planar Spellbook~ #";
+				basenm = "& Tarot Spellbook~ #";
 			break;
 		}
 
@@ -5171,5 +5185,457 @@ void alchemy_init(void)
 	
 	/* Hack -- Use the "complex" RNG */
 	Rand_quick = FALSE;
+}
+
+/*
+ * Convert all the different object types into a more general category
+ * This will ease some things for squelching but also for determining if
+ * an item is for example a book
+ */
+
+byte tval_to_sql_hl( byte tval )
+{
+	switch (tval)
+	{
+		
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+			return SQ_HL_ARMOURS;
+		case TV_BOW:
+		case TV_DIGGING:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:			
+			return SQ_HL_WEAPONS;
+		case TV_SHOT :
+		case TV_ARROW :
+		case TV_BOLT :
+			return SQ_HL_AMMO;
+		case TV_BOTTLE:
+		case TV_SPIKE:
+		case TV_FLASK:
+		case TV_FOOD:
+		case TV_JUNK:
+			return SQ_HL_MISC;
+		case TV_CHEST:
+			return SQ_HL_CHESTS;
+		case TV_LITE:
+			return SQ_HL_LIGHTS;
+		case TV_AMULET:
+		case TV_RING:
+			return SQ_HL_JEWELRY;
+		case TV_STAFF:
+			return SQ_HL_STAVES;
+		case TV_WAND:
+			return SQ_HL_WANDS;			
+		case TV_ROD:
+			return SQ_HL_RODS;
+		case TV_SCROLL:
+			return SQ_HL_SCROLLS;			
+		case TV_MIRACLES_BOOK:
+		case TV_SORCERY_BOOK:
+		case TV_NATURE_BOOK:
+		case TV_CHAOS_BOOK:
+		case TV_DEATH_BOOK:
+		case TV_TAROT_BOOK:
+		case TV_CHARMS_BOOK:
+		case TV_SOMATIC_BOOK:
+		case TV_DEMONIC_BOOK:
+			return SQ_HL_BOOKS;
+		default:
+			return SQ_HL_OTHERS;
+	}
+}
+
+/*
+ cptr value_check_aux1(object_type *o_ptr)
+ return "terrible";
+ return "special";
+ return "worthless";
+ return "excellent";
+ return "cursed";
+ return "broken";
+ return "good";
+ return "good";
+ return "worthless";
+ return "great";
+ return "average";
+ cptr value_check_aux2(object_type *o_ptr)
+ return "cursed";
+ return "broken";
+ return "good";
+ return "good";
+ return "good";
+ return "good";
+ */
+
+/* Mark it as a goner*/
+void mark_squelch( object_type *o_ptr  )
+{
+	/* Take note */
+	o_ptr->squelch = TRUE;
+}
+
+void do_squelch( void )
+{
+	object_type		*o_ptr;
+	object_type		*prev_o_ptr=NULL;	
+	char o_name[80];
+	cave_type *c_ptr;
+	s16b this_o_idx, next_o_idx = 0;
+	int i;
+	
+	/* Check everything */
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		o_ptr = &inventory[i];
+		/* Skip empty slots */
+		if (!o_ptr->k_idx) continue;
+		
+		/*If we need to squelch , we squelcht*/
+		if( o_ptr->squelch )
+		{
+			/* Describe the object */
+			object_desc(o_name, o_ptr, TRUE, 3);			
+			msg_format("You stomp %s." , o_name);msg_print(NULL);			
+			inven_item_increase(i, -o_ptr->number);
+			inven_item_describe(i);
+			inven_item_optimize(i);
+			/*All items just dropped a spot, we do this not to skip the next potentially squelchable item*/
+			i=-1;
+		}
+	}
+	
+	/* Check the grid */
+	c_ptr = &cave[py][px];
+	
+	/* Scan all objects in the grid */
+	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
+		
+		/* Skip empty stuff */
+		if (!o_ptr->k_idx) continue;
+		
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+		
+		/* Wipe the object if needed,*/
+		if( o_ptr->squelch )
+		{
+			/* Describe the object */
+			object_desc(o_name, o_ptr, TRUE, 3);
+			/*Inform the player*/
+			msg_format("You stomp %s on the floor." , o_name);
+			object_wipe(o_ptr);
+			/* Count objects */
+			o_cnt--;			
+			if(prev_o_ptr==NULL)
+				c_ptr->o_idx = next_o_idx;
+			else
+				prev_o_ptr->next_o_idx = next_o_idx;
+		}
+		else
+		{
+			prev_o_ptr = o_ptr;
+		}
+	}
+	
+}
+
+/*
+ * Yah, so the masses wanted squelch and konijn provided squelch
+ * I am not sure yet that this is a good idea, but such is life ;)
+ * I keep being reminded by Leon Marrick on this one ;)
+ * So, anyway an item index is given, positive is inventory,negative is floor
+ * First we check what is the policy and do some minimum invegation of the object
+ * Then depending on the squelch rule and what we know about the object do we decide to squelch
+ * Then after that we check for all kinds of sanity checks that might prevent the squelching
+ * Then we do the actual killing
+ */
+
+void consider_squelch( object_type *o_ptr )
+{
+	byte sq_hl;
+	byte sq_option;
+	bool storebought;
+	bool id;
+	bool fullid;
+	bool sense;
+	bool go_squelch;
+	bool heavy;
+	cptr	feel , feel_heavy;
+	u32b f1,f2,f3;
+	char o_name[80];
+	cptr s;
+	
+	/*If we know already we need to squelch, get out*/
+	if( o_ptr->squelch )
+		return;
+	
+	/*Paranoia in case strchr might bomb out on empty inscriptions*/
+	if(quark_str(o_ptr->note))
+	{
+		/*If the item is protected with !k we wont squelch*/
+		/* First find a '!' */
+		s = strchr(quark_str(o_ptr->note), '!');
+		
+		/* Process preventions */
+		while (s)
+		{
+			/* Check the "restriction" */
+			if ((s[1] == 'k') || (s[1] == '*'))
+				return;
+			/* Find another '!' */
+			s = strchr(s + 1, '!');
+		}
+	}
+	
+	/* Get the item-category */
+	sq_hl = tval_to_sql_hl( o_ptr->tval );
+	
+	/* If we dont know about the TVAL ( eg ) potions, we get out*/
+	if(sq_hl == SQ_HL_OTHERS)
+		return;	
+	
+	/* Get the squelching option */
+	sq_option = squelch_options[sq_hl];
+	
+	/* If we aint squelchin, we aint squelchin*/
+	if(!sq_option)
+		return;
+	
+	/* Get all options for future reference */
+	object_flags( o_ptr , &f1 , &f2 , &f3 );
+	
+	/* Get some id flags for future reference */
+	storebought = (o_ptr->ident & IDENT_STOREB);
+	id          = (o_ptr->ident & (IDENT_MENTAL | IDENT_KNOWN ));
+	fullid      = (o_ptr->ident & IDENT_MENTAL) | ( f3 | TR3_EASY_KNOW  );
+	sense       = (o_ptr->ident & IDENT_SENSE);
+	heavy       = has_heavy_pseudo_id();
+	/* Check for feelings */
+	feel       = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+	if(!feel)  
+		feel="";	
+	feel_heavy = value_check_aux1(o_ptr);
+	/* Assume we wont squelch */
+	go_squelch = FALSE;
+	
+	/* Describe the object */
+	object_desc(o_name, o_ptr, TRUE, 3);
+	
+	if (arg_fiddle)
+	{
+		msg_format("Squelch %s ?" , o_name);
+		msg_format("SVAL %d ?" , o_ptr->sval);	
+		msg_format("Option for that :(%s)" , squelch_strings[sq_option] ); 
+		if(sense || id){
+			msg_format("Feel:%s" , feel );
+			if(heavy || id)
+				msg_format("Feel_heavy : %s." , feel_heavy );		
+		}else{
+			msg_format("No feeling or id." , feel_heavy );		
+		}
+	}	
+	
+	if( sq_hl == SQ_HL_ARMOURS || sq_hl == SQ_HL_WEAPONS || sq_hl == SQ_HL_AMMO )
+	{
+		/*If we only want artefacts we squelch it all, artefacts are the only ones to survive that*/
+		if( sq_option == SQUELCH_ARTIFACT )
+			go_squelch = TRUE;
+		/*If we want excellent and artefacts, we need to have id or powerfull sense that it is excellent or have it id'd*/
+		if( sq_option == SQUELCH_EXCELLENT )
+		{ 
+			/*If we have heavy pseudo-id or we id'd it, we can deleted up to good*/
+			if( ( (sense && heavy) || id ) && 
+				( 
+				  streq(feel_heavy, "cursed") ||  
+				  streq(feel_heavy, "broken")  || 
+				  streq(feel_heavy, "average") || 
+				  streq(feel_heavy, "good") 
+				  ) 
+				)
+				go_squelch = TRUE;
+			/*If we have weak pseudo-id and not id'd it,we can delete up to average*/
+			if( sense && !heavy && ( streq(feel, "cursed") ||  streq(feel, "broken")  || streq(feel, "") ) )
+				go_squelch = TRUE;				
+		}
+		
+		if( sq_option == SQUELCH_GOOD )
+		{
+			/*If we have pseudo id (weak or not) or id, we can delete cursed and average*/
+			if( ( sense || id ) && ( streq(feel_heavy, "cursed") ||  streq(feel_heavy, "average") ||  streq(feel_heavy, "broken") || streq(feel_heavy, "") ) )
+				go_squelch = TRUE;							
+		}
+	}
+	
+	if( sq_hl == SQ_HL_JEWELRY || sq_hl == SQ_HL_LIGHTS )
+	{
+		/*If we only want artefacts we squelch it all, artefacts are the only ones to survive that*/
+		if( sq_option == SQUELCH_ARTIFACT )
+			go_squelch = TRUE;
+		/*If we want excellent and artefacts, we need to have id or powerfull sense that it is excellent or have it id'd*/
+		if( sq_option == SQUELCH_GREAT )
+		{
+			/*If we have heavy pseudo-id or we id'd it, we can deleted up to good*/
+			if( ( (sense && heavy) || id ) && ( streq(feel_heavy, "cursed") ||  streq(feel_heavy, "broken")  || streq(feel_heavy, "average") || streq(feel_heavy, "good") ) )
+				go_squelch = TRUE;
+			/*If we have heavy pseudo-id or we id'd it, we can deleted up to average*/
+			if( ( (sense && !heavy)  ) && ( streq(feel, "cursed") || streq(feel, "broken")  || streq(feel, "") ) )
+				go_squelch = TRUE;			
+			/* These can never be excellent or great, the day they can, this will be a bug ;) */
+			if( o_ptr->sval == SV_LITE_LANTERN || o_ptr->sval == SV_LITE_TORCH )
+				go_squelch = TRUE;				
+		}
+	}
+	
+	if( sq_hl == SQ_HL_SCROLLS || sq_hl == SQ_HL_WANDS || sq_hl == SQ_HL_RODS || SQ_HL_STAVES )
+	{
+		/* We want it all gone, assumed is that sanity checks are configured on tval-sval level */
+		if( sq_option == SQUELCH_ALL )
+			go_squelch = TRUE;
+		
+		/*If we want great stuff, we need to have id or powerfull sense that it is great or have it id'd*/
+		if( sq_option == SQUELCH_GREAT )
+		{
+			/*If we have heavy pseudo-id or we id'd it, we can deleted up to good*/
+			if( ( (sense && heavy) || id ) && ( streq(feel_heavy, "cursed") || streq(feel_heavy, "broken") || streq(feel_heavy, "average") || streq(feel_heavy, "good") ) )
+				go_squelch = TRUE;
+		}
+	}	
+	
+	if( sq_hl == SQ_HL_BOOKS )
+	{
+		/* We want it all gone, assumed is that we are playing a warrior or that all books have been found and marked {!k}  */
+		if( sq_option == SQUELCH_ALL )
+			go_squelch = TRUE;
+		/* We want it all gone,but for unknown stuff we wait for it to be id'd, assumed is that sanity checks are configured on tval-sval level */
+		if( sq_option == SQUELCH_TOWN_BOOKS && o_ptr->sval < 2 )
+			go_squelch = TRUE;
+	}	
+	
+	if( sq_hl == SQ_HL_MISC )
+	{
+		/* We want it all gone, assumed is that we are playing a warrior or that all books have been found and marked {!k}  */
+		if( sq_option == SQUELCH_ALL )
+			go_squelch = TRUE;
+	}	
+	
+	if( sq_hl == SQ_HL_CHESTS )
+	{
+		/* We want it all gone, assumed is that we is so tuff that we no need no crummy chests ;)  */
+		if( sq_option == SQUELCH_ALL )
+			go_squelch = TRUE;	
+		if( sq_option == SQUELCH_OPENED && o_ptr->pval == 0 )
+			go_squelch = TRUE;	
+	}
+	
+	/*If we dont squelch then getoutahere */
+	if(!go_squelch)
+		return;
+	
+	if (arg_fiddle)
+		msg_print("go_squelch=TRUE"); 
+	
+	if (arg_fiddle)
+		msg_print("Artefact ?"); 
+	/* Now we check for aretefacts */
+	/* Artifacts cannot be destroyed */
+	if (artefact_p(o_ptr) || o_ptr->art_name)
+	{
+		feel = "special";
+		/* Message */
+		/*msg_format("You cannot stomp %s.", o_name);*/
+		/* Hack -- Handle icky artefacts */
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
+		/* Hack -- inscribe the artefact */
+		o_ptr->note = quark_add(feel);
+		/* We have "felt" it (again) */
+		o_ptr->ident |= (IDENT_SENSE);
+		/* Combine the pack */
+		p_ptr->notice |= (PN_COMBINE);
+		p_ptr->redraw |= (PR_EQUIPPY);
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		/* Done */
+		return;
+	}
+	if (arg_fiddle)
+		msg_print("No."); 
+	
+	if (arg_fiddle)
+		msg_print("Sane & Storebought ?"); 
+	/* Check for storebought only now ;) */
+	if( sanity_store && storebought )
+		return;
+	
+	if (arg_fiddle)
+		msg_print("No."); 
+	
+	if (arg_fiddle)	
+		msg_print("Sane & Unknown?"); 
+	/*Check for the known status of consumables*/
+	if( sanity_id && !( id || k_info[o_ptr->k_idx].aware ) )
+		return;
+	if (arg_fiddle)	
+		msg_print("No."); 
+	
+	if (arg_fiddle)	
+		msg_print("Sane & High Price?"); 
+	/*Check for sanity check on price*/
+	if( sanity_price && id && object_value(o_ptr) > 0 && abs(object_value(o_ptr)) > sane_price )
+		return;
+	if (arg_fiddle)	
+		msg_print("No."); 
+	
+	/* There are other sanity checks for misc stuff and chests */
+	if( sq_hl == SQ_HL_CHESTS || sq_hl == SQ_HL_MISC )
+	{
+		mark_squelch(o_ptr);
+		return;
+	}
+	
+	/* Check for own realm if needed, otherwise kill it*/
+	if( sq_hl == SQ_HL_BOOKS && sanity_realm)
+	{
+		if( o_ptr->tval-TV_MIRACLES_BOOK == p_ptr->realm1 - 1 || o_ptr->tval-TV_MIRACLES_BOOK== p_ptr->realm2-1  )
+			return;
+	}
+	
+	/*Only sanity checks that are left need id to trigger so give it up if have no ID*/
+	if(!id || cursed_p(o_ptr))
+	{
+		mark_squelch(o_ptr);
+		return;
+	}
+	
+	/* By know we know it is not cursed , so we assumed the player put it on to try it */
+	if( sanity_speed && ( TR1_SPEED & f1 ) )
+		return;
+	
+	/* Immunities are not as obvious , so we need *id* or obvious stuff */
+	if( fullid  && sanity_immune && ( f2 & ( TR2_IM_ACID | TR2_IM_ELEC | TR2_IM_FIRE | TR2_IM_COLD ) ) )
+		return;
+	
+	/* By know we know it is not cursed , so we assumed the player put it on to try it */
+	if( sanity_telepathy && ( TR3_TELEPATHY & f3 ) )
+		return;	
+	
+	/* High resists are not as obvious , so we need *id* or obvious stuff */
+	if( fullid  && sanity_immune && ( f2 & ( TR2_RES_CHAOS | TR2_RES_DISEN | TR2_RES_NETHER | TR2_RES_NEXUS ) ) )
+		return;	
+	
+	/*Sanity didnt save us, and now the thingy must die*/
+	mark_squelch(o_ptr);
+	
 }
 
