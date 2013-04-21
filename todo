@@ -1,6 +1,16 @@
+ammo in quiver not being counted towards total weight
+
+autosave
+
+amulet/ring of magic stasis, persistence + res disen
+
 two-weapon combat, two-handed weapons (>20lbs + mage staff, qstaff, beaked axe, glaive, halberd, awl-pike, pike)
 stop attacking when monster dies, take less time if not all blows were used
 tv_axe
+
+give runecasters more ring/amulet slots?
+
+add info for spells when browsing
 
 --
 
@@ -11,6 +21,7 @@ combining warrior/berserker with mage/illusionist/priest
 - increase max weight of armour allowed
 
 make groups monsters stay away from doorways when they are in a room and you are in a corridor
+make summoners summon around themselves
 Add auto-more option
 Show permanent walls in different colour - cyan or umber?
 
@@ -49,7 +60,7 @@ thief abilities? steal from shops, guess objects value, good at throwing
 
 ---
 
-add random quests, give choice of one of three rewards from useful items list
+add random quests, ToME style or Ey style?
 
 add stalls in town, selling a set of related items, eg by TVAL, or ego-items only, or rare items only, etc
 make stalls move around, arrive and depart, but not change owner

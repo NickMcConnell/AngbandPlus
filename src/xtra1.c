@@ -470,7 +470,10 @@ static void mana_player_redraw(void)
   /* Default to none */
   byte attr = TERM_RED;
 
-  if ((p_ptr->realm_magery == 0) && (!player_has_class(CLASS_SHIFTER, 0)) && (!player_has_class(CLASS_RUNECASTER, 0)))
+  if ((p_ptr->realm_magery == 0) && 
+      (!player_has_class(CLASS_SHIFTER, 0)) && 
+      (!player_has_class(CLASS_RUNECASTER, 0)) && 
+      (!player_has_class(CLASS_SORCEROR, 0)))
        return; /* Show nothing if no mana */
   
   /* Change info */
@@ -583,7 +586,10 @@ static void prt_sp(void)
 	byte color;
 
 	/* Do not show mana unless it matters */
-	if ((p_ptr->realm_magery == 0) && (!player_has_class(CLASS_SHIFTER, 0)) && (!player_has_class(CLASS_RUNECASTER, 0)))
+	if ((p_ptr->realm_magery == 0) && 
+	    (!player_has_class(CLASS_SHIFTER, 0)) && 
+	    (!player_has_class(CLASS_RUNECASTER, 0)) && 
+	    (!player_has_class(CLASS_SORCEROR, 0)))
 	     return;
 	
 	if (adult_hidden)
@@ -628,7 +634,10 @@ static void prt_pp(void)
 	    (!player_has_class(CLASS_SLAYER, 0))) return;
 
 	/* Move up if mana is not shown */
-	if ((p_ptr->realm_magery != 0) || (player_has_class(CLASS_SHIFTER, 0)) || (player_has_class(CLASS_RUNECASTER, 0)))
+	if ((p_ptr->realm_magery != 0) || 
+	    (player_has_class(CLASS_SHIFTER, 0)) || 
+	    (player_has_class(CLASS_RUNECASTER, 0)) || 
+	    (player_has_class(CLASS_SORCEROR, 0)))
 	    row = ROW_PIETY; 
 	else row = ROW_MANA;
 
@@ -1788,6 +1797,7 @@ static void calc_cumber(void)
 
 	/* Only check if relevant */
 	if (player_has_class(CLASS_MAGE, 0) || 
+	    player_has_class(CLASS_SORCEROR, 0) ||
 	    player_has_class(CLASS_ILLUSIONIST, 0))
 	{
 	     
@@ -1823,6 +1833,7 @@ static void calc_cumber(void)
 	/* Heavy armor penalizes sfail (magic users and illusionists) */
 	if ((cur_wgt > max_wgt) && (max_wgt > 0) &&
 	    (player_has_class(CLASS_MAGE, 0) ||
+	     player_has_class(CLASS_SORCEROR, 0) ||
 	     player_has_class(CLASS_ILLUSIONIST, 0)))
 	{
 	     /* Encumbered */
@@ -1843,6 +1854,7 @@ static void calc_cumber(void)
 	/* Take note when "glove state" changes (only if relevant) */
 	if ((p_ptr->old_cumber_glove != p_ptr->cumber_glove) &&
 	    (p_ptr->pclass[p_ptr->current_class] == CLASS_MAGE || 
+	     p_ptr->pclass[p_ptr->current_class] == CLASS_SORCEROR ||
 	     p_ptr->pclass[p_ptr->current_class] == CLASS_ILLUSIONIST))
 	{
 		/* Message */
@@ -1862,6 +1874,7 @@ static void calc_cumber(void)
 	/* Take note when "armor state" changes */
 	if ((p_ptr->old_cumber_armor_wizard != p_ptr->cumber_armor_wizard) &&
 	    (p_ptr->pclass[p_ptr->current_class] == CLASS_MAGE || 
+	     p_ptr->pclass[p_ptr->current_class] == CLASS_SORCEROR ||
 	     p_ptr->pclass[p_ptr->current_class] == CLASS_ILLUSIONIST))
 	{
 		/* Message */
@@ -1912,7 +1925,8 @@ static void calc_mana(void)
 	if ((p_ptr->realm_magery == 0) && 
 	    (!player_has_class(CLASS_BERSERKER, 0)) && 
 	    (!player_has_class(CLASS_SHIFTER, 0)) &&
-	    (!player_has_class(CLASS_RUNECASTER, 0)))
+	    (!player_has_class(CLASS_RUNECASTER, 0)) &&
+	    (!player_has_class(CLASS_SORCEROR, 0)))
 	  return;
 
 	/* Extract "effective" player level */
@@ -1922,6 +1936,8 @@ static void calc_mana(void)
 	     levels = level_of_class(CLASS_SHIFTER) + 1;
 	else if (player_has_class(CLASS_RUNECASTER, 0))
 	     levels = level_of_class(CLASS_RUNECASTER) + 1;
+	else if (player_has_class(CLASS_SORCEROR, 0))
+	     levels = level_of_class(CLASS_SORCEROR) + 1;
 	else
 	  levels = level_of_class(magery_class(TRUE)) - mp_ptr[magery_class(TRUE)]->spell_first + 1;
 
@@ -2939,6 +2955,7 @@ static void calc_bonuses(void)
 	/* Affect Skill -- stealth (bonus one) */
 	p_ptr->skill_stl += 1;
 	if (p_ptr->tim_stealth) p_ptr->skill_stl += 3;
+	if (p_ptr->power_passive == POWER_STEALTH) p_ptr->skill_stl += 3;
 
 	/* Affect Skill -- disarming (DEX and INT) */
 	p_ptr->skill_dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
@@ -3154,7 +3171,8 @@ static void calc_bonuses(void)
 		  { num = 5; wgt = 35; mul = 3; } 
 		else if (player_has_class(CLASS_MAGE, 0) ||
 			 player_has_class(CLASS_ILLUSIONIST, 0) ||
-			 player_has_class(CLASS_RUNECASTER, 0))
+			 player_has_class(CLASS_RUNECASTER, 0) ||
+			 player_has_class(CLASS_SORCEROR, 0))
 		  { num = 4; wgt = 40; mul = 2; }
 		else /* Monks */
 		  { num = 1; wgt = 60; mul = 1; }

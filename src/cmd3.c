@@ -517,8 +517,9 @@ void do_cmd_destroy(void)
 		  }
 	     }			  
 
-	     if (player_has_class(CLASS_RUNECASTER, 0))
+	     if (player_has_class(CLASS_RUNECASTER, 0) || player_has_class(CLASS_SORCEROR, 0))
 	     {
+		  int class = (player_has_class(CLASS_RUNECASTER, 0) ? CLASS_RUNECASTER : CLASS_SORCEROR);
 		  int min_pages = 0, pages;
 		  int sval = (o_ptr->sval < SV_BOOK_MIN_GOOD ? o_ptr->sval : SV_BOOK_MIN_GOOD);
 
@@ -527,7 +528,7 @@ void do_cmd_destroy(void)
 		  {
 		       /* Chance increases with level and number of pages and
 			* decreases with sval */
-		       int chance = ( (level_of_class(CLASS_RUNECASTER) / 10) + (7 - pages) ) - sval;
+		       int chance = ( (level_of_class(class) / 10) + (7 - pages) ) - sval;
 
 		       /* No chance, try less pages */
 		       if (chance < 1) continue;
@@ -542,11 +543,12 @@ void do_cmd_destroy(void)
 		  }
 
 		  /* Runecasters are guaranteed some pages */
-		  if (level_of_class(CLASS_RUNECASTER) >= 15) min_pages = 1;
-		  if (level_of_class(CLASS_RUNECASTER) >= 45) min_pages = 2;
+		  if (level_of_class(class) >= 40) min_pages = 1;
+		  if (level_of_class(class) >= 50) min_pages = 2;
 		  if (o_ptr->sval < SV_BOOK_MIN_GOOD)
-		       min_pages = ((level_of_class(CLASS_RUNECASTER) / 15) + 1) - o_ptr->sval;
-		  
+		       min_pages = ((level_of_class(class) / 10) + 1) - o_ptr->sval;
+		  if (min_pages > 4) min_pages = 4;
+
 		  if (num_pages < min_pages)
 		       num_pages = min_pages;
 	     }
@@ -562,20 +564,21 @@ void do_cmd_destroy(void)
 	     }
 
 	     /* Get piety, but no pages, from opposing books */
-	     if ((player_has_class(CLASS_CRUSADER, 0) && (o_ptr->tval == TV_DEATH_BOOK) && 
-		  (o_ptr->sval >= SV_BOOK_MIN_GOOD)) ||
-		 (player_has_class(CLASS_SLAYER, 0) && (o_ptr->tval == TV_PRAYER_BOOK) && 
-		  (o_ptr->sval >= SV_BOOK_MIN_GOOD)))
+	     if ((player_has_class(CLASS_CRUSADER, 0) && (o_ptr->tval == TV_DEATH_BOOK)) ||
+		 (player_has_class(CLASS_SLAYER, 0) && (o_ptr->tval == TV_PRAYER_BOOK))) 
 	     {
 	          num_pages = 0;
 
-		  /* From 20 to 40 piety */
-		  p_ptr->mpp += o_ptr->sval * 5;
-		  p_ptr->cpp = p_ptr->mpp;
-		  p_ptr->redraw |= (PR_MANA);
-		  redraw_stuff();
+		  if (o_ptr->sval >= SV_BOOK_MIN_GOOD)
+		  {
+		       /* From 20 to 40 piety */
+		       p_ptr->mpp += o_ptr->sval * 5;
+		       p_ptr->cpp = p_ptr->mpp;
+		       p_ptr->redraw |= (PR_MANA);
+		       redraw_stuff();
 
-		  msg_print("You feel pious!");
+		       msg_print("You feel pious!");
+		  }
 	     }
 
 	     /* Pages were created */

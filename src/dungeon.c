@@ -137,6 +137,7 @@ static void sense_inventory(void)
 		test += 80000L / (plev * plev + 40);
 		break;
 	      case CLASS_RUNECASTER: 
+	      case CLASS_SORCEROR: 
 	      default: /* Mage and Illusionist 40000 - 4800 */
 		test += 240000L / (plev + 5);
 		break;
@@ -1829,6 +1830,8 @@ static void process_command(void)
 			  
 			  switch (magery_class(FALSE))
 			  {
+			  case CLASS_SORCEROR:
+			       do_cmd_sorceror(); break;
 			  case CLASS_CRUSADER:
 			  case CLASS_SLAYER:
 			       do_cmd_power(); break;

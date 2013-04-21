@@ -3,7 +3,7 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
+ * This software may be copied and distributed for educational, restoreearch,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  */
@@ -677,8 +677,10 @@ bool cast_spell(int realm, int spell)
   int beam, dir;
   int py = p_ptr->py;
   int px = p_ptr->px;
-  /* Runecasters can cast spells from amulets or scrolls at their class level */
-  int plev = (player_has_class(CLASS_RUNECASTER, 0) ? level_of_class(CLASS_RUNECASTER) : 1);
+  /* Runecasters and sorcerors cast spells at their class level */
+  int plev = 1;
+  if (player_has_class(CLASS_RUNECASTER, 0)) plev = level_of_class(CLASS_RUNECASTER);
+  if (player_has_class(CLASS_SORCEROR, 0)) plev = level_of_class(CLASS_SORCEROR);
 
   switch (realm)
   {
@@ -3647,7 +3649,7 @@ static int get_power(int *sn)
 				redraw = TRUE;
 
 				/* Save the screen */
-				Term_save();
+				screen_save();
 
 				/* Display a list of spells */
 				prt("", y, x);
@@ -3694,7 +3696,7 @@ static int get_power(int *sn)
 				redraw = FALSE;
 
 				/* Restore the screen */
-				Term_load();
+				screen_load();
 			}
 
 			/* Redo asking */
@@ -3734,7 +3736,7 @@ static int get_power(int *sn)
 	}
 
 	/* Restore the screen */
-	if (redraw) Term_load();
+	if (redraw) screen_load();
 
 	/* Abort if needed */
 	if (!flag) return (FALSE);
@@ -4259,7 +4261,7 @@ static int get_shifter_power(int *sn)
 				redraw = TRUE;
 
 				/* Save the screen */
-				Term_save();
+				screen_save();
 
 				/* Display a list of spells */
 				prt("", y, x);
@@ -4321,7 +4323,7 @@ static int get_shifter_power(int *sn)
 				redraw = FALSE;
 
 				/* Restore the screen */
-				Term_load();
+				screen_load();
 			}
 
 		        /* Redo asking */
@@ -4361,7 +4363,7 @@ static int get_shifter_power(int *sn)
         } 
 
 	/* Restore the screen */
-	if (redraw) Term_load();
+	if (redraw) screen_load();
 
 	/* Abort if needed */
 	if (!flag) return (FALSE);
@@ -4736,4 +4738,292 @@ void do_cmd_shifter()
 
      /* Window stuff */
      p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
+
+int get_sorceror_spell(int *sn, cptr prompt, bool any)
+{
+        int             ask, y = 1, x = 20, i;
+	char		choice;
+	char            out_val[160];
+	byte            line_attr;
+
+	/* Nothing chosen yet */
+	bool flag = FALSE;
+
+	/* No redraw yet */
+	bool redraw = FALSE;
+
+#ifdef ALLOW_REPEAT
+
+	/* Get the spell, if available */
+	if (repeat_pull(sn))
+	     return (TRUE);
+
+#endif /* ALLOW_REPEAT */
+
+	/* Assume cancelled */
+	(*sn) = -1;
+
+	/* Build a prompt (accept all spells) */
+	strnfmt(out_val, 78, "(Spells %c-%c, *=List, ESC=exit) %^s which spell? ",
+						I2A(0), I2A(MAX_SORCEROR_SPELL - 1), prompt);
+	
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+	     /* Request redraw */
+	     if ((choice == ' ') || (choice == '*') || (choice == '?'))
+	     {
+		  /* Show the list */
+		  if (!redraw)
+		  {
+		       int j;
+		       const magic_type *s_ptr;
+		       
+		       /* Show list */
+		       redraw = TRUE;
+
+		       /* Save the screen */
+		       screen_save();
+
+		       /* Display a list of spells */
+		       prt("", y, x);
+		       put_str("Name", y, x + 5);
+		       if (adult_hidden) /* Hide spell information */
+			    put_str("                 ", y, x + 35);
+		       else /* Show spell information */
+			    put_str("Lv Mana  Info", y, x + 35);
+		       
+		       /* Dump the spells */
+		       for (j = 0; j < MAX_SORCEROR_SPELL; j++)
+		       {
+			    cptr comment;
+			    char info[80] = "";
+
+			    int class;
+			    switch (sorceror_spell[j] / 64)
+			    {
+			    case REALM_MAGIC: class = CLASS_MAGE;
+				 break;
+			    case REALM_PRAYER: class = CLASS_PRIEST;
+				 break;
+			    case REALM_ILLUSION: class = CLASS_ILLUSIONIST;
+				 break;
+			    case REALM_DEATH: class = CLASS_DEATH_PRIEST;
+				 break;
+			    }
+
+			    /* Get the spell */
+			    s_ptr = &magic_info[class].info[sorceror_spell[j] % 64];
+			    
+			    /* Skip unknown spells */
+			    if (sorceror_spell[j] == -1)
+			    {
+				 char temp_val[160];
+				 sprintf(temp_val, "  %c) %-30s", I2A(j), "(unknown)");
+				 c_prt(TERM_L_DARK, "", y + j + 1, x);
+				 break;
+			    }
+
+			    spell_info_aux(info, sorceror_spell[j] / 64, 
+					   sorceror_spell[j] % 64);
+			    comment = info;
+
+			    /* Assume spell is known and tried */
+			    line_attr = TERM_WHITE;
+
+			    /* Darken if not enough mana or level */
+			    if (s_ptr->smana > p_ptr->csp)
+			      line_attr = TERM_L_DARK;
+			    if (s_ptr->slevel > level_of_class(CLASS_SORCEROR))
+			      line_attr = TERM_RED;
+
+			    if (adult_hidden)
+			    {
+				 /* Dump the spell --(-- */
+				 char temp_val[160];
+				 sprintf(temp_val, "  %c) %-30s",
+					 I2A(j), spell_names[sorceror_spell[j] / 64][sorceror_spell[j] % 64]);
+				 c_prt(line_attr, temp_val, y + j + 1, x);
+			    }
+			    else
+			    {
+				 /* Dump the spell --(-- */
+				 char temp_val[160];
+				 sprintf(temp_val, "  %c) %-30s%2d %4d %s",
+					 I2A(j), spell_names[sorceror_spell[j] / 64][sorceror_spell[j] % 64],
+					 s_ptr->slevel, s_ptr->smana, 
+					 comment);
+				 c_prt(line_attr, temp_val, y + j + 1, x);
+			    }
+		       }
+		  }
+
+		  /* Hide the list */
+		  else
+		  {
+		       /* Hide list */
+		       redraw = FALSE;
+
+		       /* Restore the screen */
+		       screen_load();
+		  }
+
+		  /* Redo asking */
+		  continue;
+	     }
+	     
+	     /* Note verify */
+	     ask = (isupper(choice));
+
+	     /* Lowercase */
+	     if (ask) choice = tolower(choice);
+
+	     /* Extract request */
+	     i = (islower(choice) ? A2I(choice) : -1);
+
+	     /* Totally Illegal */
+	     if (!any && ((i < 0) || 
+			  (i >= MAX_SORCEROR_SPELL) || 
+			  (sorceror_spell[i] == -1)))
+	     {
+		  bell("Illegal spell choice!");
+		  msg_format("You may not %s that spell.", prompt);
+		  continue;
+	     }
+
+	     /* Check the level/mana */
+	     if (!any)
+	     {
+		  const magic_type *s_ptr;
+		  int class;
+		  switch (sorceror_spell[i] / 64)
+		  {
+		  case REALM_MAGIC: class = CLASS_MAGE;
+		       break;
+		  case REALM_PRAYER: class = CLASS_PRIEST;
+		       break;
+		  case REALM_ILLUSION: class = CLASS_ILLUSIONIST;
+		       break;
+		  case REALM_DEATH: class = CLASS_DEATH_PRIEST;
+		       break;
+		  }
+		  
+		  /* Get the spell */
+		  s_ptr = &magic_info[class].info[sorceror_spell[i] % 64];
+		  
+		  /* Level or mana too high */
+		  if (s_ptr->slevel >  level_of_class(CLASS_SORCEROR) ||
+		      s_ptr->smana > p_ptr->csp)
+		  {
+		       bell("This spell is too hard for you!");
+		       continue;
+		  }
+	     }
+
+	     /* Verify it */
+	     if (ask)
+	     {
+		  char tmp_val[160];
+		  
+		  /* Prompt */
+		  strnfmt(tmp_val, 78, "%s %s? ", prompt, spell_names[sorceror_spell[i] / 64][sorceror_spell[i] % 64]);
+		  
+		  /* Belay that order */
+		  if (!get_check(tmp_val)) continue;
+	     }
+
+	     /* Stop the loop */
+	     flag = TRUE;
+	}
+
+	/* Restore the screen */
+	if (redraw) screen_load();
+
+	/* Abort if needed */
+	if (!flag) return (FALSE);
+
+	/* Save the choice */
+	(*sn) = i;
+	
+#ifdef ALLOW_REPEAT
+
+	repeat_push(*sn);
+
+#endif /* ALLOW_REPEAT */
+
+	/* Success */
+	return (TRUE);	
+}
+
+void do_cmd_sorceror()
+{
+	int spell, class;
+
+	const magic_type *s_ptr;
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	if (sorceror_spell[0] == -1)
+	{
+	     msg_print("You don't know any spells.");
+	     return;
+	}
+
+	/* Ask for a spell */
+	if (!get_sorceror_spell(&spell, "cast", FALSE))
+	{
+		return;
+	}
+
+	switch (sorceror_spell[spell] / 64)
+	{
+	case REALM_MAGIC: class = CLASS_MAGE;
+	     break;
+	case REALM_PRAYER: class = CLASS_PRIEST;
+	     break;
+	case REALM_ILLUSION: class = CLASS_ILLUSIONIST;
+	     break;
+	case REALM_DEATH: class = CLASS_DEATH_PRIEST;
+	     break;
+	}
+
+	/* Get the spell */
+	s_ptr = &magic_info[class].info[sorceror_spell[spell] % 64];
+			    
+	/* Verify "dangerous" spells */
+	if (s_ptr->smana > p_ptr->csp)
+	{
+		/* Warning */
+		msg_print("You do not have enough mana to cast this spell.");
+
+		/* Flush input */
+		flush();
+
+		return;
+	}
+
+	/* Cast the spell */
+	cast_spell(sorceror_spell[spell] / 64, 
+		   sorceror_spell[spell] % 64);
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Use some mana */
+	p_ptr->csp -= s_ptr->smana;
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);     
 }

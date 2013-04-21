@@ -477,6 +477,7 @@ const player_sex *sp_ptr;
 const player_race *rp_ptr;
 const player_class *cp_ptr[MAX_CLASS];
 const player_magic *mp_ptr[MAX_CLASS];
+s16b sorceror_spell[MAX_SORCEROR_SPELL];
 
 /*
  * The player other record (static)

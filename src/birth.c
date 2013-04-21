@@ -662,7 +662,10 @@ static const byte player_init[MAX_CLASS][2] =
   },
   { /* Slayer */
     TV_POTION, SV_POTION_CURE_CRITICAL
-  }
+  },
+  { /* Sorceror */
+    TV_HELM, SV_WIZARD_HAT
+  },
 };
 
 /*
@@ -947,6 +950,44 @@ static void player_outfit(void)
 	     i_ptr = &object_type_body;
 	     object_prep(i_ptr, lookup_kind(TV_RING, SV_RING_SPELL));
 	     i_ptr->pval = spell2; 
+	     object_aware(i_ptr);
+	     object_known(i_ptr);
+	     (void)inven_carry(i_ptr);	     
+	}
+
+	/* Hack -- Give sorcerors some spell scrolls */
+	if (player_has_class(CLASS_SORCEROR, 0))
+	{
+	     int spell1, spell2;
+
+	     switch (rand_int(6))
+	     {
+	     case 0: spell1 = SPELL_DETECT_MONSTERS; spell2 = SPELL_PHASE_DOOR; break;
+	     case 1: spell1 = SPELL_FIND_TRAPS_DOORS; spell2 = SPELL_LIGHT_AREA; break;
+	     case 2: spell1 = SPELL_LIGHT_AREA; spell2 = SPELL_DETECT_MONSTERS; break;
+	     case 3: spell1 = SPELL_PHASE_DOOR; spell2 = SPELL_LIGHT_AREA; break;
+	     case 4: spell1 = SPELL_PHASE_DOOR; spell2 = SPELL_FIND_TRAPS_DOORS; break;
+	     case 5: spell1 = SPELL_FIND_TRAPS_DOORS; spell2 = SPELL_DETECT_MONSTERS; break;
+	     }
+
+	     i_ptr = &object_type_body;
+	     object_prep(i_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SPELL));
+	     i_ptr->pval = spell1; 
+	     object_aware(i_ptr);
+	     object_known(i_ptr);
+	     (void)inven_carry(i_ptr);	     
+		  
+	     i_ptr = &object_type_body;
+	     object_prep(i_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SPELL));
+	     i_ptr->pval = spell2; 
+	     object_aware(i_ptr);
+	     object_known(i_ptr);
+	     (void)inven_carry(i_ptr);	     
+
+	     /* And one of magic missile */
+	     i_ptr = &object_type_body;
+	     object_prep(i_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SPELL));
+	     i_ptr->pval = SPELL_MAGIC_MISSILE; 
 	     object_aware(i_ptr);
 	     object_known(i_ptr);
 	     (void)inven_carry(i_ptr);	     
@@ -1279,6 +1320,12 @@ static bool player_birth_aux_1(void)
 		      p_ptr->realm_priest = REALM_DEATH + 1;
 		      break;
 		    }
+		}
+
+		/* Clear sorceror spells */
+		for (i = 0; i < MAX_SORCEROR_SPELL; i++)
+		{
+		     sorceror_spell[i] = -1;
 		}
 
 		/* Level one */
@@ -2148,6 +2195,7 @@ static bool player_birth_quick()
 	player_wipe();
 
 	p_ptr->astral_birth = p_ptr->astral_start = p_ptr->astral = old_astral;
+
 	p_ptr->current_class = old_current_class;
 	p_ptr->available_classes = old_available_classes;
 
@@ -2156,8 +2204,37 @@ static bool player_birth_quick()
 	  p_ptr->max_lev[i] = p_ptr->lev[i] = 1;
 
 	p_ptr->psex = old_sex;
+
 	for (i = 0; i < p_ptr->available_classes; i++)
-	  p_ptr->pclass[i] = old_class[i];
+	{
+	     p_ptr->pclass[i] = old_class[i];
+
+	     /* Magic info */
+	     cp_ptr[p_ptr->pclass[i]] = &class_info[p_ptr->pclass[i]];
+	     mp_ptr[p_ptr->pclass[i]] = &magic_info[p_ptr->pclass[i]];
+
+	     if (mp_ptr[p_ptr->pclass[i]]->spell_book != 0)
+	     {
+		  int temp = mp_ptr[p_ptr->pclass[i]]->spell_book - TV_FIRST_BOOK;
+		  
+		  switch (temp)
+		  {
+		  case REALM_MAGIC:
+		       p_ptr->realm_magery = REALM_MAGIC + 1;
+		       break;
+		  case REALM_PRAYER:
+		       p_ptr->realm_priest = REALM_PRAYER + 1;
+		       break;
+		  case REALM_ILLUSION:
+		       p_ptr->realm_magery = REALM_ILLUSION + 1;
+		       break;
+		  case REALM_DEATH:
+		       p_ptr->realm_priest = REALM_DEATH + 1;
+		       break;
+		  }
+	     }
+	}
+
 	p_ptr->prace = old_race;
 
 	p_ptr->hitdie = old_hitdie;
@@ -2188,6 +2265,12 @@ static bool player_birth_quick()
 		p_ptr->player_hp[i] = old_hp[i];
 	}
 
+	/* Clear sorceror spells */
+	for (i = 0; i < MAX_SORCEROR_SPELL; i++)
+	{
+	     sorceror_spell[i] = -1;
+	}
+
 	/* Set birth options from adult options */
 	for (i = 0; i < 32; i++)
 	{
@@ -2202,16 +2285,26 @@ static bool player_birth_quick()
 	}
 
 	/* Calculate the bonuses and hitpoints */
-	p_ptr->update |= (PU_BONUS | PU_HP);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
 	/* Update stuff */
 	update_stuff();
 
+	/* HACK - Give crusader/slayer some piety, based on wisdom */
+	if (player_has_class(CLASS_CRUSADER, 0) || player_has_class(CLASS_SLAYER, 0) )
+	{
+	    /* +1 = 2-3, +2 = 3-6, +3 = 4-9, d4 = 5-12 */
+	    p_ptr->mpp = randint(adj_mag_mana[p_ptr->stat_ind[A_WIS]] * 2) + 
+	      adj_mag_mana[p_ptr->stat_ind[A_WIS]] + 1;
+	    p_ptr->cpp = p_ptr->mpp;
+	}
+	
 	/* Fully healed */
 	p_ptr->chp = p_ptr->mhp;
 
 	/* Fully rested */
 	p_ptr->csp = p_ptr->msp;
+	p_ptr->cpp = p_ptr->mpp;
 
 	/* Get a name, prepare savefile */
 	get_name();

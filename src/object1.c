@@ -2351,10 +2351,16 @@ static cptr device_chance(const object_type *o_ptr, bool artifact)
      {         
 	  if (artifact)
 	  {
+	    if (chance < 1)
+	       return (format("You have a less then 1%% chance of activating it.", chance));
+	    else
 	       return (format("You have a %d%% chance of activating it.", chance));
 	  }
 	  else
 	  {
+	    if (chance < 1)
+	       return (format("You have a less than 1%% chance of using it.", chance));
+	    else
 	       return (format("You have a %d%% chance of using it.", chance));
 	  }
      }

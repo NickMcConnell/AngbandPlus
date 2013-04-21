@@ -1077,6 +1077,11 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->cpp);
 	wr_u16b(p_ptr->cpp_frac);
 
+	for (i = 0; i < MAX_SORCEROR_SPELL; i++)
+	{
+	     wr_s16b(sorceror_spell[i]);
+	}
+
 	/* Max Player and Dungeon Levels */
 	for (i = 0; i < MAX_CLASS; i++) wr_s16b(p_ptr->max_lev[i]);
 	wr_s16b(p_ptr->max_depth);

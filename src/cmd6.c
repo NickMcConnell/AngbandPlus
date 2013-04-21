@@ -277,8 +277,14 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_RESTORING:
 		{
-			if (do_res_stat(A_STR) || do_res_stat(A_INT) || do_res_stat(A_WIS) ||
-			    do_res_stat(A_DEX) || do_res_stat(A_CON) || do_res_stat(A_CHR))
+		        bool restored = FALSE;
+			if (do_res_stat(A_STR)) restored = TRUE;
+			if (do_res_stat(A_INT)) restored = TRUE;
+			if (do_res_stat(A_WIS)) restored = TRUE;
+			if (do_res_stat(A_DEX)) restored = TRUE;
+			if (do_res_stat(A_CON)) restored = TRUE;
+			if (do_res_stat(A_CHR)) restored = TRUE;
+			if (restored)
 			{ 
 			     ident = TRUE;
 			     effects[EFFECT_RESTORE_ATT]++; 
@@ -727,9 +733,15 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_LIFE:
 		{
+		        bool restored = FALSE;
 			msg_print("You feel life flow through your body!");
-			if (do_res_stat(A_STR) || do_res_stat(A_INT) || do_res_stat(A_WIS) ||
-			    do_res_stat(A_DEX) || do_res_stat(A_CON) || do_res_stat(A_CHR))
+			if (do_res_stat(A_STR)) restored = TRUE;
+			if (do_res_stat(A_INT)) restored = TRUE;
+			if (do_res_stat(A_WIS)) restored = TRUE;
+			if (do_res_stat(A_DEX)) restored = TRUE;
+			if (do_res_stat(A_CON)) restored = TRUE;
+			if (do_res_stat(A_CHR)) restored = TRUE;
+			if (restored)
 			{ 
 			     effects[EFFECT_RESTORE_ATT]++; 
 			}
@@ -1702,7 +1714,58 @@ void do_cmd_read_scroll(void)
 			       } 
 			       else cast_spell(o_ptr->sval - SV_SCROLL_SPELL, o_ptr->pval); /* Cast */
 			  } 
-			  else cast_spell(o_ptr->sval - SV_SCROLL_SPELL, o_ptr->pval); /* No talisman */
+			  else cast_spell(o_ptr->sval - SV_SCROLL_SPELL, o_ptr->pval); /* Not known */
+		     } 
+		     /* Sorcerors can learn spells from scrolls */
+		     else if (player_has_class(CLASS_SORCEROR, 0))
+		     {
+			  /* Must be a known scroll */
+			  if (object_known_p(o_ptr))
+			  {
+			       char out_val[160];
+			       /* Ask */
+			       sprintf(out_val, "Cast %s? ", 
+				       spell_names[o_ptr->sval - SV_SCROLL_SPELL][o_ptr->pval]);
+
+			       if (!get_check(out_val)) /* Learn the spell */
+			       {
+				    int found_slot = -1, i;
+
+				    /* Get first empty spell slot */
+				    for (i = 0; i < MAX_SORCEROR_SPELL; i++)
+				    {
+					 if (sorceror_spell[i] == -1)
+					 {
+					      found_slot = i;
+					      break;
+					 }
+				    }
+
+				    if (found_slot != -1)
+				    {
+					 sorceror_spell[found_slot] = ((o_ptr->sval - SV_SCROLL_SPELL) * 64) + o_ptr->pval;
+					 msg_format("You learn %s.", spell_names[o_ptr->sval - SV_SCROLL_SPELL][o_ptr->pval]);
+				    }
+				    else 
+				    {
+					 int replace;
+
+					 /* Ask for a spell */
+					 if (get_sorceror_spell(&replace, "replace", TRUE))
+					 {
+					   sorceror_spell[replace] = ((o_ptr->sval - SV_SCROLL_SPELL) * 64) + o_ptr->pval;
+					      msg_format("You learn %s.", spell_names[o_ptr->sval - SV_SCROLL_SPELL][o_ptr->pval]);
+					 }
+					 else
+					 {
+					      msg_print("Cancelled.");
+					      used_up = FALSE; /* Don't learn or cast */
+					 }
+				    }
+			       } 
+			       else cast_spell(o_ptr->sval - SV_SCROLL_SPELL, o_ptr->pval); /* Cast */
+			  } 
+			  else cast_spell(o_ptr->sval - SV_SCROLL_SPELL, o_ptr->pval); /* Not known */
 		     } 
 		     else cast_spell(o_ptr->sval - SV_SCROLL_SPELL, o_ptr->pval); /* Not runecaster */
 		     ident = TRUE;
@@ -1776,9 +1839,60 @@ void do_cmd_read_scroll(void)
 			       } 
 			       else cast_spell(o_ptr->pval / 64, o_ptr->pval % 64); /* Cast */
 			  } 
-			  else cast_spell(o_ptr->pval / 64, o_ptr->pval % 64); /* No talisman */
+			  else cast_spell(o_ptr->pval / 64, o_ptr->pval % 64); /* Not known */
 		     } 
-		     else cast_spell(o_ptr->pval / 64, o_ptr->pval % 64); /* Not runecaster */
+		     /* Sorcerors can learn spells */
+		     else if (player_has_class(CLASS_SORCEROR, 0))
+		     {
+			  /* Must be a known scroll */
+			  if (object_known_p(o_ptr))
+			  {
+			       char out_val[160];
+			       /* Ask */
+			       sprintf(out_val, "Cast %s? ", 
+				       spell_names[o_ptr->pval / 64][o_ptr->pval % 64]);
+
+			       if (!get_check(out_val)) /* Learn the spell */
+			       {
+				    int found_slot = -1, i;
+
+				    /* Get first empty spell slot */
+				    for (i = 0; i < MAX_SORCEROR_SPELL; i++)
+				    {
+					 if (sorceror_spell[i] == -1)
+					 {
+					      found_slot = i;
+					      break;
+					 }
+				    }
+
+				    if (found_slot != -1)
+				    {
+					 sorceror_spell[found_slot] = o_ptr->pval;
+					 msg_format("You learn %s.", spell_names[o_ptr->pval / 64][o_ptr->pval % 64]);
+				    }
+				    else 
+				    {
+					 int replace;
+
+					 /* Ask for a spell */
+					 if (get_sorceror_spell(&replace, "replace", TRUE))
+					 {
+					      sorceror_spell[replace] = o_ptr->pval;
+					      msg_format("You learn %s.", spell_names[o_ptr->pval / 64][o_ptr->pval % 64]);
+					 }
+					 else
+					 {
+					      msg_print("Cancelled.");
+					      used_up = FALSE; /* Don't learn or cast */
+					 }
+				    }
+			       } 
+			       else cast_spell(o_ptr->pval / 64, o_ptr->pval % 64); /* Cast */
+			  } 
+			  else cast_spell(o_ptr->pval / 64, o_ptr->pval % 64); /* Not known */
+		     } 
+		     else cast_spell(o_ptr->pval / 64, o_ptr->pval % 64); /* Not runecaster or sorceror */
 
 		     /* 1 in 100 chance of being used up */
 		     if (rand_int(100)) used_up = FALSE;
@@ -1916,6 +2030,7 @@ void do_cmd_use_staff(void)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the staff properly.");
+		p_ptr->energy_use = 100;
 		return;
 	}
 
@@ -1925,6 +2040,7 @@ void do_cmd_use_staff(void)
 		if (flush_failure) flush();
 		msg_print("The staff has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->energy_use = 100;
 		return;
 	}
 
@@ -2338,6 +2454,7 @@ void do_cmd_aim_wand(void)
 
 	cptr q, s;
 
+	bool use_charge = TRUE;
 
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
@@ -2372,9 +2489,6 @@ void do_cmd_aim_wand(void)
 	if (!get_aim_dir(&dir)) return;
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
 	/* Not identified yet */
 	ident = FALSE;
 
@@ -2401,6 +2515,7 @@ void do_cmd_aim_wand(void)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the wand properly.");
+		p_ptr->energy_use = 100;
 		return;
 	}
 
@@ -2410,6 +2525,7 @@ void do_cmd_aim_wand(void)
 		if (flush_failure) flush();
 		msg_print("The wand has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->energy_use = 100;
 		return;
 	}
 
@@ -2688,6 +2804,8 @@ void do_cmd_aim_wand(void)
 		}
 	}
 
+	/* Take a turn */
+	if (use_charge) p_ptr->energy_use = 100;
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2838,6 +2956,7 @@ void do_cmd_zap_rod(void)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the rod properly.");
+		p_ptr->energy_use = 100;
 		return;
 	}
 
@@ -2846,6 +2965,7 @@ void do_cmd_zap_rod(void)
 	{
 		if (flush_failure) flush();
 		msg_print("The rod is still charging.");
+		p_ptr->energy_use = 100;
 		return;
 	}
 
@@ -2877,9 +2997,13 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_IDENTIFY:
 		{
 			ident = TRUE;
-			if (!ident_spell()) use_charge = FALSE;
-			if (ident) effects[EFFECT_IDENTIFY]++; 
-			o_ptr->pval = 10;
+			if (ident_spell())
+			{
+			     effects[EFFECT_IDENTIFY]++; 
+			     o_ptr->pval = 10;
+			}
+			else
+			     use_charge = FALSE;
 			break;
 		}
 
@@ -2956,8 +3080,14 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_RESTORATION:
 		{
-			if (do_res_stat(A_STR) || do_res_stat(A_INT) || do_res_stat(A_WIS) ||
-			    do_res_stat(A_DEX) || do_res_stat(A_CON) || do_res_stat(A_CHR))
+		        bool restored = FALSE;
+			if (do_res_stat(A_STR)) restored = TRUE;
+			if (do_res_stat(A_INT)) restored = TRUE;
+			if (do_res_stat(A_WIS)) restored = TRUE;
+			if (do_res_stat(A_DEX)) restored = TRUE;
+			if (do_res_stat(A_CON)) restored = TRUE;
+			if (do_res_stat(A_CHR)) restored = TRUE;
+			if (restored)
 			{ 
 			     ident = TRUE;
 			     effects[EFFECT_RESTORE_ATT]++; 

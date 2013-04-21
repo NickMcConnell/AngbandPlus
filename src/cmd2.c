@@ -2466,7 +2466,7 @@ void do_cmd_fire(void)
         /* If nothing correct try to choose from the backpack */
         if ((p_ptr->ammo_tval != o_ptr->tval) || (!o_ptr->k_idx))
 	{
-		msg_print("You have nothing to fire with.");
+		msg_print("You have nothing in your quiver.");
 
                 /* Require proper missile */
                 item_tester_tval = p_ptr->ammo_tval;

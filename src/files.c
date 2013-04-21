@@ -1945,7 +1945,7 @@ static void display_player_flag_info(void)
 		head = display_player_flag_head[x];
 
 		/* Header */
-		c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col+6);
+		c_put_str(TERM_WHITE, "abcdefghijklm@", row++, col+6);
 
 		/* Eight rows */
 		for (y = 0; y < 8; y++)
@@ -2084,7 +2084,8 @@ static void display_player_misc_info(void)
 	     if (p_ptr->realm_magery == REALM_MAGIC+1 || 
 		 p_ptr->realm_magery == REALM_ILLUSION+1 ||
 		 player_has_class(CLASS_SHIFTER, 0) ||
-		 player_has_class(CLASS_RUNECASTER, 0))
+		 player_has_class(CLASS_RUNECASTER, 0) ||
+		 player_has_class(CLASS_SORCEROR, 0))
 	     {
 		  put_str("SP", 6, 1);
 		  sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
@@ -2254,6 +2255,12 @@ static void display_player_stat_info(void)
 		    {
 			cnv_stat(p_ptr->stat_use[i], buf);
 			c_put_str(TERM_YELLOW, buf, row+i, col+31);
+		    }
+		    /* Only hapens with shifters */
+		    if (p_ptr->stat_use[i] > p_ptr->stat_top[i])
+		    {
+			cnv_stat(p_ptr->stat_use[i], buf);
+			c_put_str(TERM_UMBER, buf, row+i, col+31);
 		    }
 		}	    
 		else

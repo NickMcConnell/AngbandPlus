@@ -492,6 +492,16 @@ have intrinsic abilities.
                 like Crusaders, only one active power and one passive power can
                 be active at a time.
 
+          Sorcerors
+                Sorcerors can learn spells from spell and prayer scrolls, up to
+                a maximum of 20, after which they can replace already known
+                spells with new spells. They cannot cast spells without the
+                required mana, but casting spells always succeeds. They are as
+                good as Runecasters in taking apart books for the scrolls
+                contained in them. Sorcerors are somewhat similar to mages, but
+                less physically robust, and can wear only half as much
+                armor. They also require slightly more experience to advance.
+
 
 === Stats ===
 

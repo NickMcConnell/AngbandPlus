@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.1.0"
+#define VERSION_STRING	"1.1.1"
 
 
 /*
@@ -152,7 +152,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            13
+#define MAX_CLASS            14
 
 
 /*
@@ -702,12 +702,15 @@
 #define CLASS_CRUSADER          10
 #define CLASS_SHIFTER           11
 #define CLASS_SLAYER            12
+#define CLASS_SORCEROR          13
 
 #define MAX_REALM      4
 #define REALM_MAGIC    0
 #define REALM_PRAYER   1
 #define REALM_ILLUSION 2
 #define REALM_DEATH    3
+
+#define MAX_SORCEROR_SPELL 20
 
 /*** Screen Locations ***/
 

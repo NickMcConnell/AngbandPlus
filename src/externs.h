@@ -184,6 +184,7 @@ extern const player_sex *sp_ptr;
 extern const player_race *rp_ptr;
 extern const player_class *cp_ptr[MAX_CLASS];
 extern const player_magic *mp_ptr[MAX_CLASS];
+extern s16b sorceror_spell[MAX_SORCEROR_SPELL];
 extern player_other *op_ptr;
 extern player_type *p_ptr;
 extern vault_type *v_info;
@@ -370,6 +371,8 @@ extern void do_cmd_cast_death(void);
 extern void do_cmd_power(void);
 extern cptr shifter_forms[MAX_SHIFTER_FORMS-1];
 extern void do_cmd_shifter(void);
+extern int get_sorceror_spell(int *sn, cptr prompt, bool any);
+extern void do_cmd_sorceror(void);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -546,7 +549,9 @@ extern void combine_pack(void);
 extern void reorder_pack(bool silent);
 extern void display_spell_list(void);
 extern s16b spell_chance(int spell);
+extern cptr likert_spell_chance(int x);
 extern bool spell_okay(int spell, bool known);
+extern void spell_info_aux(char *p, int realm, int spell);
 extern void spell_info(char *p, int spell);
 extern void print_spells(const byte *spells, int num, int y, int x);
 extern void display_koff(int k_idx);
@@ -850,3 +855,4 @@ extern void show_floor(const int *floor_list, int floor_num);
 /* randart.c */
 extern errr do_randart(u32b randart_seed);
 #endif /* GJW_RANDART */
+

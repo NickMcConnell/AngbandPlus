@@ -1388,6 +1388,11 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->cpp);
 	rd_u16b(&p_ptr->cpp_frac);
 
+	for (i = 0; i < MAX_SORCEROR_SPELL; i++)
+	{
+	     rd_s16b(&sorceror_spell[i]);
+	}
+
 	for (i = 0; i < MAX_CLASS; i++) rd_s16b(&p_ptr->max_lev[i]);
 	rd_s16b(&p_ptr->max_depth);
 

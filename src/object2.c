@@ -4686,284 +4686,311 @@ bool spell_okay(int spell, bool known)
  * The strings in this function were extracted from the code in the
  * functions "do_cmd_cast()" and "do_cmd_pray()" and may be dated.
  */
+void spell_info_aux(char *p, int realm, int spell)
+{
+     /* Default */
+     strcpy(p, "");
+
+     switch (realm)
+     {
+     case REALM_MAGIC:
+     {
+	  int plev = p_ptr->lev[p_ptr->current_class];
+
+	  /* Analyze the spell */
+	  switch (spell)
+	  {
+	  case SPELL_MAGIC_MISSILE:
+	       sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5));
+	       break;
+	  case SPELL_PHASE_DOOR:
+	       strcpy(p, " range 10");
+	       break;
+	  case SPELL_CURE_LIGHT_WOUNDS:
+	       strcpy(p, " heal 2d8");
+	       break;
+	  case SPELL_STINKING_CLOUD:
+	       sprintf(p, " dam %d", 10 + (plev / 2));
+	       break;
+	  case SPELL_LIGHTNING_BOLT:
+	       sprintf(p, " dam %dd8", (3 + ((plev - 5) / 4)));
+	       break;
+	  case SPELL_TELEPORT_SELF:
+	       sprintf(p, " range %d", plev * 10);
+	       break;
+	  case SPELL_SPEAR_OF_LIGHT:
+	       strcpy(p, " dam 6d8");
+	       break;
+	  case SPELL_FROST_BOLT:
+	       sprintf(p, " dam %dd8", (5 + ((plev - 5) / 4)));
+	       break;
+	  case SPELL_FIRE_BOLT:
+	       sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4)));
+	       break;
+	  case SPELL_FROST_BALL:
+	       sprintf(p, " dam %d", 30 + plev);
+	       break;
+	  case SPELL_HASTE_SELF:
+	       sprintf(p, " dur %d+d20", plev);
+	       break;
+	  case SPELL_FIRE_BALL:
+	       sprintf(p, " dam %d", 55 + plev);
+	       break;
+	  case SPELL_ACID_BOLT:
+	       sprintf(p, " dam %dd8", (6 + ((plev - 5) / 4)));
+	       break;
+	  case SPELL_CLOUD_KILL:
+	       sprintf(p, " dam %d", 40 + plev / 2);
+	       break;
+	  case SPELL_ACID_BALL:
+	       sprintf(p, " dam %d", 40 + plev);
+	       break;
+	  case SPELL_ICE_STORM:
+	       sprintf(p, " dam %d", 70 + plev);
+	       break;
+	  case SPELL_METEOR_SWARM:
+	       sprintf(p, " dam %d", 65 + plev);
+	       break;
+	  case SPELL_MANA_STORM:
+	       sprintf(p, " dam %d", 300 + plev * 2);
+	       break;
+	  case SPELL_RESIST_FIRE:
+	       strcpy(p, " dur 20+d20");
+	       break;
+	  case SPELL_RESIST_COLD:
+	       strcpy(p, " dur 20+d20");
+	       break;
+	  case SPELL_RESIST_ACID:
+	       strcpy(p, " dur 20+d20");
+	       break;
+	  case SPELL_RESIST_POISON:
+	       strcpy(p, " dur 20+d20");
+	       break;
+	  case SPELL_RESISTANCE:
+	       strcpy(p, " dur 20+d20");
+	       break;
+	  case SPELL_HEROISM:
+	       strcpy(p, " dur 25+d25");
+	       break;
+	  case SPELL_SHIELD:
+	       strcpy(p, " dur 30+d20");
+	       break;
+	  case SPELL_BERSERKER:
+	       strcpy(p, " dur 25+d25");
+	       break;
+	  case SPELL_ESSENCE_OF_SPEED:
+	       sprintf(p, " dur %d+d30", 30 + plev);
+	       break;
+	  case SPELL_GLOBE_OF_INVULNERABILITY:
+	       strcpy(p, " dur 8+d8");
+	       break;
+	  }
+	  break;
+     }
+     case REALM_PRAYER:
+     {
+	  int plev = ((p_ptr->power_passive == POWER_MEDITATION) ? p_ptr->lev[p_ptr->current_class] * 2 : p_ptr->lev[p_ptr->current_class]);
+
+	  /* See below */
+	  int orb = (plev / ((p_ptr->pclass[p_ptr->current_class] == CLASS_PRIEST) ? 2 : 4));
+
+	  /* Analyze the spell */
+	  switch (spell)
+	  {
+	  case PRAYER_CURE_LIGHT_WOUNDS:
+	       strcpy(p, " heal 2d10");
+	       break;
+	  case PRAYER_BLESS:
+	       strcpy(p, " dur 12+d12");
+	       break;
+	  case PRAYER_PORTAL:
+	       sprintf(p, " range %d", 3 * plev);
+	       break;
+	  case PRAYER_CURE_SERIOUS_WOUNDS:
+	       strcpy(p, " heal 4d10");
+	       break;
+	  case PRAYER_CHANT:
+	       strcpy(p, " dur 24+d24");
+	       break;
+	  case PRAYER_RESIST_HEAT_COLD:
+	       strcpy(p, " dur 10+d10");
+	       break;
+	  case PRAYER_ORB_OF_DRAINING:
+	       sprintf(p, " %d+3d6", plev + orb);
+	       break;
+	  case PRAYER_CURE_CRITICAL_WOUNDS:
+	       strcpy(p, " heal 6d10");
+	       break;
+	  case PRAYER_SENSE_INVISIBLE:
+	       strcpy(p, " dur 24+d24");
+	       break;
+	  case PRAYER_PROTECTION_FROM_EVIL:
+	       sprintf(p, " dur %d+d25", 3 * plev);
+	       break;
+	  case PRAYER_CURE_MORTAL_WOUNDS:
+	       strcpy(p, " heal 8d10");
+	       break;
+	  case PRAYER_PRAYER:
+	       strcpy(p, " dur 48+d48");
+	       break;
+	  case PRAYER_DISPEL_UNDEAD:
+	       sprintf(p, " dam d%d", 3 * plev);
+	       break;
+	  case PRAYER_HEAL:
+	       strcpy(p, " heal 300");
+	       break;
+	  case PRAYER_DISPEL_EVIL:
+	       sprintf(p, " dam d%d", 3 * plev);
+	       break;
+	  case PRAYER_HOLY_WORD:
+	       strcpy(p, " heal 1000");
+	       break;
+	  case PRAYER_CURE_SERIOUS_WOUNDS2:
+	       strcpy(p, " heal 4d10");
+	       break;
+	  case PRAYER_CURE_MORTAL_WOUNDS2:
+	       strcpy(p, " heal 8d10");
+	       break;
+	  case PRAYER_HEALING:
+	       strcpy(p, " heal 2000");
+	       break;
+	  case PRAYER_DISPEL_UNDEAD2:
+	       sprintf(p, " dam d%d", 4 * plev);
+	       break;
+	  case PRAYER_DISPEL_EVIL2:
+	       sprintf(p, " dam d%d", 4 * plev);
+	       break;
+	  case PRAYER_ANNIHILATION:
+	       strcpy(p, " dam 200");
+	       break;
+	  case PRAYER_BLINK:
+	       strcpy(p, " range 10");
+	       break;
+	  case PRAYER_TELEPORT_SELF:
+	       sprintf(p, " range %d", 8 * plev);
+	       break;
+	  }
+	  break;
+     }
+     case REALM_ILLUSION:
+     {
+	  int plev = p_ptr->lev[p_ptr->current_class];
+
+	  /* Analyze the spell */
+	  switch (spell)
+	  {
+	  case 0: sprintf(p, " dam %dd%d", 2+((plev-1)/5), 4); break;
+	  case 2: sprintf(p, " range %d", 10); break;
+	  case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+	  case 9: sprintf(p, " dur %d+d100", 200); break;
+	  case 12: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+	  case 16: sprintf(p, " dam %dd%d", (5+((plev-6)/4)), 8); break;
+	  case 18: sprintf(p, " dur %d+d24", 24); break;
+	  case 21: sprintf(p, " dam %dd%d", (2+((plev-5)/4)), 6); break;
+	  case 22: sprintf(p, " dam %d", 25 + plev); break;
+	  case 26: sprintf(p, " dam %d", 35 + plev); break;
+	  case 27: sprintf(p, " dam %dd%d", (8+((plev-5)/4)), 8); break;
+	  case 28: sprintf(p ," dur %d+d24", plev); break;
+	  case 29: sprintf(p, " dur %d+d20", plev); break;
+	  case 31: sprintf(p, " dam %dd%d", (8+((plev-5)/4)), 8); break;
+	  case 32: sprintf(p, " dur %d+d30", 30); break;
+	  case 34: sprintf(p, " dam %d", 50 + plev); break;
+	  case 38: sprintf(p, " dam %d", 50 + plev); break;
+	  case 40: sprintf(p, " dam %dd%d", (2+((plev-5)/4)), 8); break;
+	  case 41: sprintf(p, " dam %dd%d", (6+((plev-5)/4)), 8); break;
+	  case 43: sprintf(p, " dam %dd%d", (10+((plev-5)/4)), 8); break;
+	  case 44: sprintf(p, " dam %dd%d", (12+((plev-5)/4)), 8); break;
+	  case 45: sprintf(p, " dam %d", 300 + (plev*2)); break;
+	  case 46: sprintf(p, " dam %d", 30 + plev); break;
+	  case 47: sprintf(p, " dam %d", 35 + plev); break;
+	  case 48: sprintf(p, " dam %d", 40 + plev); break;
+	  case 49: sprintf(p, " dam %d", 45 + plev); break;
+	  case 50: sprintf(p, " dam %d", 50 + plev); break;
+	  case 51: sprintf(p, " dam %d", 80 + plev); break;
+	  case 53: sprintf(p, " dur %d+d20", 20); break;
+	  case 54: sprintf(p, " dur %d+d20", 20); break;
+	  case 55: sprintf(p, " dur %d+d20", 20); break;
+	  case 56: sprintf(p, " dur %d+d20", 20); break;
+	  case 57: sprintf(p, " dur %d+d20", 20); break;
+	  case 58: sprintf(p, " dur %d+d24", 24); break;
+	  case 59: sprintf(p, " dam %dd%d", (6+((plev-5)/4)), 8); break;
+	  case 60: sprintf(p, " dam %d", 40 + plev); break;     
+	  case 62: sprintf(p, " range %d", (plev * 7)); break;
+	  }
+	  break;
+     }
+     case REALM_DEATH:
+     {
+	  int plev = p_ptr->lev[p_ptr->current_class];
+	  if (p_ptr->power_passive == POWER_MEDITATION) plev *= 2;
+
+	  /* Analyze the spell */
+	  switch (spell)
+	  {
+	  case 0: sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5));
+	       break;
+	  case 2: strcpy(p, " heal 2d10"); break;
+	  case 3: strcpy(p, " dur 12+d12"); break;
+	  case 5: case 8: 
+	       sprintf(p, " dur %d+d100", 200); break;
+	  case 11: strcpy(p, " heal 4d10"); break;
+	  case 12: case 48:
+	       strcpy(p, " dur 25+d25"); 
+	       break;
+	  case 14: case 43: case 45: case 46: 
+	       strcpy(p, " dur 20+d20"); break;
+	  case 15: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+	  case 19: strcpy(p, " dur 30+d20"); break;
+	  case 20: sprintf(p, " dam %d+3d6", plev + (plev / 2)); break;
+	  case 21: strcpy(p, " heal 6d10"); break;
+	  case 23: case 44: 
+	       strcpy(p, " dur 24+d24"); break;
+	  case 25: strcpy(p, " dam 50"); break;
+	  case 27: strcpy(p, " heal 8d10"); break;
+	  case 29: sprintf(p, " dam d%d", 3 * plev); break;
+	  case 30: strcpy(p, " heal 300"); break;
+	  case 31: sprintf(p, " dam %d", plev + 35); break;
+	  case 33: strcpy(p, " heal 4d10"); break;
+	  case 34: strcpy(p, " heal 8d10"); break;
+	  case 35: strcpy(p, " heal 2000"); break;
+	  case 38: sprintf(p, " dam d%d", 4 * plev); break;
+	  case 42: strcpy(p, " dam 200"); break;
+	  case 47: sprintf(p ," dur %d+d24", plev); break;
+	  case 49: strcpy(p, " dur 8+d8"); break;
+	  case 55: strcpy(p, " range 10"); break;
+	  }
+	  break;
+     }
+     }
+}
+
 void spell_info(char *p, int spell)
 {
-	/* Default */
-	strcpy(p, "");
-
 	/* Hide spell information */
 	if (adult_hidden) return;
 
 	/* Mage spells */
 	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_MAGIC_BOOK)
 	{
-		int plev = p_ptr->lev[p_ptr->current_class];
-
-		/* Analyze the spell */
-		switch (spell)
-		{
-			case SPELL_MAGIC_MISSILE:
-				sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5));
-				break;
-			case SPELL_PHASE_DOOR:
-				strcpy(p, " range 10");
-				break;
-			case SPELL_CURE_LIGHT_WOUNDS:
-				strcpy(p, " heal 2d8");
-				break;
-			case SPELL_STINKING_CLOUD:
-				sprintf(p, " dam %d", 10 + (plev / 2));
-				break;
-			case SPELL_LIGHTNING_BOLT:
-				sprintf(p, " dam %dd8", (3 + ((plev - 5) / 4)));
-				break;
-			case SPELL_TELEPORT_SELF:
-				sprintf(p, " range %d", plev * 10);
-				break;
-			case SPELL_SPEAR_OF_LIGHT:
-				strcpy(p, " dam 6d8");
-				break;
-			case SPELL_FROST_BOLT:
-				sprintf(p, " dam %dd8", (5 + ((plev - 5) / 4)));
-				break;
-			case SPELL_FIRE_BOLT:
-				sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4)));
-				break;
-			case SPELL_FROST_BALL:
-				sprintf(p, " dam %d", 30 + plev);
-				break;
-			case SPELL_HASTE_SELF:
-				sprintf(p, " dur %d+d20", plev);
-				break;
-			case SPELL_FIRE_BALL:
-				sprintf(p, " dam %d", 55 + plev);
-				break;
-			case SPELL_ACID_BOLT:
-				sprintf(p, " dam %dd8", (6 + ((plev - 5) / 4)));
-				break;
-			case SPELL_CLOUD_KILL:
-				sprintf(p, " dam %d", 40 + plev / 2);
-				break;
-			case SPELL_ACID_BALL:
-				sprintf(p, " dam %d", 40 + plev);
-				break;
-			case SPELL_ICE_STORM:
-				sprintf(p, " dam %d", 70 + plev);
-				break;
-			case SPELL_METEOR_SWARM:
-				sprintf(p, " dam %d", 65 + plev);
-				break;
-			case SPELL_MANA_STORM:
-				sprintf(p, " dam %d", 300 + plev * 2);
-				break;
-			case SPELL_RESIST_FIRE:
-				strcpy(p, " dur 20+d20");
-				break;
-			case SPELL_RESIST_COLD:
-				strcpy(p, " dur 20+d20");
-				break;
-			case SPELL_RESIST_ACID:
-				strcpy(p, " dur 20+d20");
-				break;
-			case SPELL_RESIST_POISON:
-				strcpy(p, " dur 20+d20");
-				break;
-			case SPELL_RESISTANCE:
-				strcpy(p, " dur 20+d20");
-				break;
-			case SPELL_HEROISM:
-			        strcpy(p, " dur 25+d25");
-				break;
-			case SPELL_SHIELD:
-				strcpy(p, " dur 30+d20");
-				break;
-			case SPELL_BERSERKER:
-			        strcpy(p, " dur 25+d25");
-				break;
-			case SPELL_ESSENCE_OF_SPEED:
-				sprintf(p, " dur %d+d30", 30 + plev);
-				break;
-			case SPELL_GLOBE_OF_INVULNERABILITY:
-				strcpy(p, " dur 8+d8");
-				break;
-		}
+	     spell_info_aux(p, REALM_MAGIC, spell);
 	}
 
 	/* Priest spells */
 	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_PRAYER_BOOK)
 	{
-		int plev = ((p_ptr->power_passive == POWER_MEDITATION) ? p_ptr->lev[p_ptr->current_class] * 2 : p_ptr->lev[p_ptr->current_class]);
-
-		/* See below */
-		int orb = (plev / ((p_ptr->pclass[p_ptr->current_class] == CLASS_PRIEST) ? 2 : 4));
-
-		/* Analyze the spell */
-		switch (spell)
-		{
-			case PRAYER_CURE_LIGHT_WOUNDS:
-				strcpy(p, " heal 2d10");
-				break;
-			case PRAYER_BLESS:
-				strcpy(p, " dur 12+d12");
-				break;
-			case PRAYER_PORTAL:
-				sprintf(p, " range %d", 3 * plev);
-				break;
-			case PRAYER_CURE_SERIOUS_WOUNDS:
-				strcpy(p, " heal 4d10");
-				break;
-			case PRAYER_CHANT:
-				strcpy(p, " dur 24+d24");
-				break;
-			case PRAYER_RESIST_HEAT_COLD:
-				strcpy(p, " dur 10+d10");
-				break;
-			case PRAYER_ORB_OF_DRAINING:
-				sprintf(p, " %d+3d6", plev + orb);
-				break;
-			case PRAYER_CURE_CRITICAL_WOUNDS:
-				strcpy(p, " heal 6d10");
-				break;
-			case PRAYER_SENSE_INVISIBLE:
-				strcpy(p, " dur 24+d24");
-				break;
-			case PRAYER_PROTECTION_FROM_EVIL:
-				sprintf(p, " dur %d+d25", 3 * plev);
-				break;
-			case PRAYER_CURE_MORTAL_WOUNDS:
-				strcpy(p, " heal 8d10");
-				break;
-			case PRAYER_PRAYER:
-				strcpy(p, " dur 48+d48");
-				break;
-			case PRAYER_DISPEL_UNDEAD:
-				sprintf(p, " dam d%d", 3 * plev);
-				break;
-			case PRAYER_HEAL:
-				strcpy(p, " heal 300");
-				break;
-			case PRAYER_DISPEL_EVIL:
-				sprintf(p, " dam d%d", 3 * plev);
-				break;
-			case PRAYER_HOLY_WORD:
-				strcpy(p, " heal 1000");
-				break;
-			case PRAYER_CURE_SERIOUS_WOUNDS2:
-				strcpy(p, " heal 4d10");
-				break;
-			case PRAYER_CURE_MORTAL_WOUNDS2:
-				strcpy(p, " heal 8d10");
-				break;
-			case PRAYER_HEALING:
-				strcpy(p, " heal 2000");
-				break;
-			case PRAYER_DISPEL_UNDEAD2:
-				sprintf(p, " dam d%d", 4 * plev);
-				break;
-			case PRAYER_DISPEL_EVIL2:
-				sprintf(p, " dam d%d", 4 * plev);
-				break;
-			case PRAYER_ANNIHILATION:
-				strcpy(p, " dam 200");
-				break;
-			case PRAYER_BLINK:
-				strcpy(p, " range 10");
-				break;
-			case PRAYER_TELEPORT_SELF:
-				sprintf(p, " range %d", 8 * plev);
-				break;
-		}
+	     spell_info_aux(p, REALM_PRAYER, spell);
 	}
 
 	/* Illusion spells */
 	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_ILLUSION_BOOK)
 	{
-		int plev = p_ptr->lev[p_ptr->current_class];
-
-		/* Analyze the spell */
-		switch (spell)
-		{
-		case 0: sprintf(p, " dam %dd%d", 2+((plev-1)/5), 4); break;
-		case 2: sprintf(p, " range %d", 10); break;
-		case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-		case 9: sprintf(p, " dur %d+d100", 200); break;
-		case 12: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-		case 16: sprintf(p, " dam %dd%d", (5+((plev-6)/4)), 8); break;
-		case 18: sprintf(p, " dur %d+d24", 24); break;
-		case 21: sprintf(p, " dam %dd%d", (2+((plev-5)/4)), 6); break;
-		case 22: sprintf(p, " dam %d", 25 + plev); break;
-		case 26: sprintf(p, " dam %d", 35 + plev); break;
-		case 27: sprintf(p, " dam %dd%d", (8+((plev-5)/4)), 8); break;
-		case 28: sprintf(p ," dur %d+d24", plev); break;
-		case 29: sprintf(p, " dur %d+d20", plev); break;
-		case 31: sprintf(p, " dam %dd%d", (8+((plev-5)/4)), 8); break;
-		case 32: sprintf(p, " dur %d+d30", 30); break;
-		case 34: sprintf(p, " dam %d", 50 + plev); break;
-		case 38: sprintf(p, " dam %d", 50 + plev); break;
-		case 40: sprintf(p, " dam %dd%d", (2+((plev-5)/4)), 8); break;
-		case 41: sprintf(p, " dam %dd%d", (6+((plev-5)/4)), 8); break;
-		case 43: sprintf(p, " dam %dd%d", (10+((plev-5)/4)), 8); break;
-		case 44: sprintf(p, " dam %dd%d", (12+((plev-5)/4)), 8); break;
-		case 45: sprintf(p, " dam %d", 300 + (plev*2)); break;
-		case 46: sprintf(p, " dam %d", 30 + plev); break;
-		case 47: sprintf(p, " dam %d", 35 + plev); break;
-		case 48: sprintf(p, " dam %d", 40 + plev); break;
-		case 49: sprintf(p, " dam %d", 45 + plev); break;
-		case 50: sprintf(p, " dam %d", 50 + plev); break;
-		case 51: sprintf(p, " dam %d", 80 + plev); break;
-		case 53: sprintf(p, " dur %d+d20", 20); break;
-		case 54: sprintf(p, " dur %d+d20", 20); break;
-		case 55: sprintf(p, " dur %d+d20", 20); break;
-		case 56: sprintf(p, " dur %d+d20", 20); break;
-		case 57: sprintf(p, " dur %d+d20", 20); break;
-		case 58: sprintf(p, " dur %d+d24", 24); break;
-		case 59: sprintf(p, " dam %dd%d", (6+((plev-5)/4)), 8); break;
-		case 60: sprintf(p, " dam %d", 40 + plev); break;     
-		case 62: sprintf(p, " range %d", (plev * 7)); break;
-		}
+	     spell_info_aux(p, REALM_ILLUSION, spell);
 	}
 
 	/* Death spells */
 	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_DEATH_BOOK)
 	{
-		int plev = p_ptr->lev[p_ptr->current_class];
-		if (p_ptr->power_passive == POWER_MEDITATION) plev *= 2;
-
-		/* Analyze the spell */
-		switch (spell)
-		{
-		case 0: sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5));
-		     break;
-		case 2: strcpy(p, " heal 2d10"); break;
-		case 3: strcpy(p, " dur 12+d12"); break;
-		case 5: case 8: 
-		     sprintf(p, " dur %d+d100", 200); break;
-		case 11: strcpy(p, " heal 4d10"); break;
-		case 12: case 48:
-		     strcpy(p, " dur 25+d25"); 
-		     break;
-		case 14: case 43: case 45: case 46: 
-		     strcpy(p, " dur 20+d20"); break;
-		case 15: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-		case 19: strcpy(p, " dur 30+d20"); break;
-		case 20: sprintf(p, " dam %d+3d6", plev + (plev / 2)); break;
-		case 21: strcpy(p, " heal 6d10"); break;
-		case 23: case 44: 
-		     strcpy(p, " dur 24+d24"); break;
-		case 25: strcpy(p, " dam 50"); break;
-		case 27: strcpy(p, " heal 8d10"); break;
-		case 29: sprintf(p, " dam d%d", 3 * plev); break;
-		case 30: strcpy(p, " heal 300"); break;
-		case 31: sprintf(p, " dam %d", plev + 35); break;
-		case 33: strcpy(p, " heal 4d10"); break;
-		case 34: strcpy(p, " heal 8d10"); break;
-		case 35: strcpy(p, " heal 2000"); break;
-		case 38: sprintf(p, " dam d%d", 4 * plev); break;
-		case 42: strcpy(p, " dam 200"); break;
-		case 47: sprintf(p ," dur %d+d24", plev); break;
-		case 49: strcpy(p, " dur 8+d8"); break;
-		case 55: strcpy(p, " range 10"); break;
-		}
+	     spell_info_aux(p, REALM_DEATH, spell);
 	}
 }
 
@@ -4971,7 +4998,7 @@ void spell_info(char *p, int spell)
 /*
  * Returns a "rating" of x
  */
-static cptr likert_spell_chance(int x)
+cptr likert_spell_chance(int x)
 {
      if (x <=  5) return ("Excellent"); 
      if (x <= 20) return ("Good");      

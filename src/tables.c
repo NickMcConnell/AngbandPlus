@@ -1378,6 +1378,13 @@ const player_class class_info[MAX_CLASS] =
 		6, 50
 	},
 
+	{
+		"Sorceror",
+		{-6, 3, 0, 1, -3, 0},
+		30, 36, 30, 2,  16, 20, 15, 10,
+		7,  13, 9,  0,  0,  0,   7,  5,
+		0, 35
+	},
 };
 
 
@@ -2554,6 +2561,96 @@ const player_magic magic_info[MAX_CLASS] =
 		     { 99,  0,  0,   0}
 		}
 	},
+
+	{
+		/*** Sorceror ***/
+
+	        0,
+		0,
+
+		A_INT,
+		0,
+
+		99,
+		150,
+
+		{
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0}
+		}
+	},
+
 };
 
 
@@ -2577,9 +2674,9 @@ const u32b spell_flags[MAX_REALM][9][2] =
 		     SPELL_DETECT_MONSTERS,
 		     SPELL_PHASE_DOOR,
 		     SPELL_LIGHT_AREA,
-		     SPELL_TREASURE_DETECTION,
+		     -1,
 		     SPELL_CURE_LIGHT_WOUNDS,
-		     SPELL_OBJECT_DETECTION,
+		     -1,
 		     SPELL_FIND_TRAPS_DOORS,
 		     SPELL_STINKING_CLOUD),
 		BOOK(SPELL_CONFUSE_MONSTER,
@@ -3391,6 +3488,21 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Slayer Lord",
 		"Anti-Paladin",
 	},
+
+	/* Sorceror */
+	{
+		"Novice",
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Mage Lord",
+	},
+
 };
 
 
@@ -3887,9 +3999,9 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
 	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
 	"Birth: Hide some character knowledge", /* OPT_birth_hidden */
-	"Birth: Hide more character knowledge", /* OPT_birth_hidden */
 	"Birth: Nightmare mode (doubles score)",
 	"Birth: Easy mode (halves score)",
+	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3951,10 +4063,10 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
 	"Adult: Randomize some of the artifacts (beta)",	/* OPT_adult_rand_artifacts */
 	"Adult: Hide some character knowledge", /* OPT_adult_hidden */
-	"Adult: Hide more character knowledge", /* OPT_adult_hidden */
 	"Adult: Nightmare mode!",
 	"Adult: Start with some basic equipment",
 	"Adult: Easy mode!",
+	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */

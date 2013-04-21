@@ -13,21 +13,22 @@
 /* 0 = allowed, 1 = disallowed (except to cheaters), 2 = disallowed to all */
 bool not_allowed[MAX_CLASS][MAX_CLASS] =
 {
-     /* War Mag Pri Thi Ill Arc Dea Ber Mon Run Cru Shi Slay */
-     /*  f   m   p   m   m   f   p   m   f   m  m+p  m   p   */
-     {   2,  0,  0,  0,  0,  1,  0,  1,  1,  0,  1,  0,  1 }, /* Warrior         */
-     {   0,  2,  0,  0,  2,  0,  0,  2,  0,  2,  2,  2,  2 }, /* Mage            */
-     {   0,  0,  2,  1,  0,  0,  2,  0,  0,  1,  2,  0,  2 }, /* Priest          */
-     {   0,  0,  1,  2,  0,  0,  0,  2,  0,  0,  2,  0,  0 }, /* Thief           */
-     {   0,  2,  0,  0,  2,  0,  0,  2,  0,  2,  2,  2,  2 }, /* Illusionist     */
-     {   1,  0,  0,  0,  0,  2,  0,  1,  0,  0,  0,  0,  0 }, /* Archer          */
-     {   0,  0,  2,  0,  0,  0,  2,  0,  0,  1,  2,  0,  2 }, /* Death Priest    */
-     {   1,  2,  0,  2,  2,  1,  0,  2,  0,  2,  0,  2,  0 }, /* Berserker       */
-     {   1,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0 }, /* Monk            */
-     {   0,  2,  1,  0,  2,  0,  1,  2,  0,  2,  2,  2,  2 }, /* Runecaster      */
-     {   1,  2,  2,  2,  2,  0,  2,  0,  0,  2,  2,  2,  2 }, /* Crusader        */
-     {   0,  2,  0,  0,  2,  0,  0,  2,  0,  2,  2,  2,  2 }, /* Shifter         */
-     {   1,  2,  2,  0,  2,  0,  2,  0,  0,  2,  2,  2,  2 }, /* Slayer */
+     /* Wa Ma Pr Th Il Ar De Be Mo Ru Cr Sh Sl So */
+     /*  f  m  p  m  m  f  p  m  f  m  *  m  *  m    */
+     {   2, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0 }, /* Warrior */
+     {   0, 2, 0, 0, 2, 0, 0, 2, 0, 2, 2, 2, 2, 2 }, /* Mage */
+     {   0, 0, 2, 1, 0, 0, 2, 0, 0, 1, 2, 0, 2, 1 }, /* Priest */
+     {   0, 0, 1, 2, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0 }, /* Thief */
+     {   0, 2, 0, 0, 2, 0, 0, 2, 0, 2, 2, 2, 2, 2 }, /* Illusionist */
+     {   1, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0 }, /* Archer */
+     {   0, 0, 2, 0, 0, 0, 2, 0, 0, 1, 2, 0, 2, 1 }, /* Death Priest */
+     {   1, 2, 0, 2, 2, 1, 0, 2, 0, 2, 0, 2, 0, 2 }, /* Berserker */
+     {   1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0 }, /* Monk */
+     {   0, 2, 1, 0, 2, 0, 1, 2, 0, 2, 2, 2, 2, 2 }, /* Runecaster */
+     {   1, 2, 2, 2, 2, 0, 2, 0, 0, 2, 2, 2, 2, 2 }, /* Crusader */
+     {   0, 2, 0, 0, 2, 0, 0, 2, 0, 2, 2, 2, 2, 2 }, /* Shifter */
+     {   1, 2, 2, 0, 2, 0, 2, 0, 0, 2, 2, 2, 2, 2 }, /* Slayer */
+     {   0, 2, 1, 0, 2, 0, 1, 2, 0, 2, 2, 2, 2, 2 }, /* Sorceror */
 };
 
 /* Switch class (wrap around if neccesary) */
@@ -194,6 +195,7 @@ int magery_class(bool bookcaster)
   if (player_has_class(CLASS_SLAYER, 0)) return CLASS_SLAYER;
   if (player_has_class(CLASS_SHIFTER, 0)) return CLASS_SHIFTER;
   if (player_has_class(CLASS_RUNECASTER, 0)) return CLASS_RUNECASTER;
+  if (player_has_class(CLASS_SORCEROR, 0)) return CLASS_SORCEROR;
 
   return -1;
 }
