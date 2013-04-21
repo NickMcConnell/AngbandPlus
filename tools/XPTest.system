@@ -14,7 +14,9 @@
 ;;; System definition
 
 (mk:defsystem XPTest
-    :source-pathname "tools"
+    :source-pathname 
+    #-langband-development "langband-tools:"
+    #+langband-development (translate-logical-pathname "langband-tools:")
     :source-extension "lisp"
 ;;    :binary-pathname nil
 ;;    :binary-extension nil

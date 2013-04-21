@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,14 +12,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
 
-  (bt:define-binary-struct (player (:conc-name player.)) ()
-
+(bt:define-binary-struct (player (:conc-name player.)) ()
+  
     ;; === Need Special saving ===
-    
+  
     (name "Foo")
     (class nil)
     (race nil)
@@ -52,6 +51,7 @@ the Free Software Foundation; either version 2 of the License, or
     (fraction-mana 0 :bt u32)
 
     (gold        0 :bt u32)
+    (food        (1- +food-full+) :bt u32)
     (energy      0 :bt u16)
 
     ;; === The remaining values can be calculated from the above ===
@@ -80,7 +80,7 @@ the Free Software Foundation; either version 2 of the License, or
     (modbase-stats nil);; "this is the modified base stats (base + race + class + eq)"
     (active-stats nil);; "this is the current active stat-value (curbase + race + class + eq)"
   
-    ))
+    )
 
 ;; hack, remove later
 (defun player.eq (pl-obj)
@@ -131,18 +131,18 @@ the Free Software Foundation; either version 2 of the License, or
   (cadr (assoc (player.sex player) +sexes+)))
 
 (defmethod get-creature-ac ((crt player))
-  (+ (player.base-ac crt)
-     (player.ac-bonus crt)))
+  (the fixnum (+ (the fixnum (player.base-ac crt))
+		 (the fixnum (player.ac-bonus crt)))))
 
 (defmethod get-creature-energy ((crt player))
-  (player.energy crt))
+  (the fixnum (player.energy crt)))
 
 (defmethod (setf get-creature-energy) (val (crt player))
 ;;  (when (< val (player.energy crt)) (warn "Reducing energy from ~a to ~a" (player.energy crt) val))
   (setf (player.energy crt) val))
 
 (defmethod get-creature-speed ((crt player))
-  (player.speed crt))
+  (the fixnum (player.speed crt)))
 
 (defmethod (setf get-creature-speed) (val (crt player))
   (setf (player.speed crt) val))
@@ -165,8 +165,9 @@ the Free Software Foundation; either version 2 of the License, or
     (setf (player.eq t-p) (make-equipment-slots))
     
     (setf (player.hp-table t-p) (make-level-array)
-	  (player.xp-table t-p) (make-level-array))
-    
+	  (player.xp-table t-p) (make-level-array)
+	  )
+
     (flet ((make-and-assign-backpack! (id)
 	     (let ((back-obj (create-aobj-from-id id))
 		   (eq-slots (player.eq t-p)))
@@ -198,12 +199,14 @@ the Free Software Foundation; either version 2 of the License, or
 	(class-mod (class.stat-changes (player.class player))))
     
     ;; iterate through equipment
-    (+ (svref race-mod stat-num)
-       (svref class-mod stat-num))))
+    (the fixnum (+ (the fixnum (svref race-mod stat-num))
+		   (the fixnum (svref class-mod stat-num))))))
     
 (defun add-stat-bonus (base amount)
   "Returns a numeric value with base incremented with amount"
+  (declare (type fixnum base amount))
   (let ((retval base))
+    (declare (type fixnum retval))
     (if (< amount 0)
 	(dotimes (i (abs amount))
 	  (cond ((>= retval (+ 18 10))
@@ -284,9 +287,12 @@ the Free Software Foundation; either version 2 of the License, or
 	    (<infravision> (setf (player.infravision player) (cadr i)))
 	    (<resist> ;; handle later
 	     )
+	    (<sustain> ;; handle later
+	     )
 	    (otherwise
 	     #+cmu ;; FIX
-	     (warn "Unhandled racial ability ~a" (car i)))))))
+	     (warn "Unhandled racial ability ~a" (car i))
+	     )))))
 
 
      
@@ -308,7 +314,9 @@ the Free Software Foundation; either version 2 of the License, or
 		 (incf (player.ac-bonus player) (gval.ac-bonus gval))))))
        ))
 
-    (update-xp-table! player)
+    ;; do this more intelligently later.. 
+    (unless (player.xp-table player)
+      (update-xp-table! player))
 
     (let ((xp-table (player.xp-table player)))
       (setf (player.level player) (find-level-for-xp (player.cur-xp player)
@@ -334,12 +342,12 @@ the Free Software Foundation; either version 2 of the License, or
 	 (next-hp (aref hp-table the-level)))
 
     ;; we have been to this level earlier..
-    (unless next-hp
+    (when (or (eq next-hp nil) (< next-hp 1))
       (let* ((the-class (player.class player))
 	     (the-race (player.race player))
-	     (hit-dice (+ (class.hit-dice the-class)
-			  (race.hit-dice the-race))))
-	(setq next-hp (random hit-dice))
+	     (hit-dice (the fixnum (+ (the fixnum (class.hit-dice the-class))
+				      (the fixnum (race.hit-dice the-race))))))
+	(setq next-hp (randint hit-dice))
 	(setf (aref hp-table the-level) next-hp)))
 
     (incf (player.max-hp player) next-hp)
@@ -347,34 +355,49 @@ the Free Software Foundation; either version 2 of the License, or
 
     (when (< (player.max-level player) (player.level player))
       (setf (player.max-level player)  (player.level player)))
-	     
+
+    (with-foreign-str (s)
+      (lb-format s "You attain level ~d and ~d new hitpoints. " (player.level player) next-hp)
+      (c-print-message! s))
     
     ))
 
 (defun find-level-for-xp (xp xp-table)
   "Returns level for given xp according to given xp-table."
   (loop for x across xp-table
-	for i from 1
+	for i of-type fixnum from 1
 	do
 	(when (> x xp)
+;;	  (warn "Returning lvl ~s for xp ~s" (1- i) xp)
 	  (return-from find-level-for-xp (1- i))))
   50) ;; fix me later
 
 ;;(trace find-level-for-xp)
 
-(defmethod increase-xp! ((player player) amount)
-  "increases xp for the player. update later."
+(defmethod alter-xp! ((player player) amount)
+  "Alters the xp for the player with the given amount."
 
+  (assert (numberp amount))
+  
+  (when (minusp amount)
+    (warn "Not implemented reduction in XP yet.")
+    (return-from alter-xp! nil))
+
+  (when (= amount 0)
+    (return-from alter-xp! nil))
+  
   (incf (player.cur-xp player) amount)
   (incf (player.max-xp player) amount)
 
   (loop
    (let* ((cur-level (player.level player))
-	  (next-limit (aref (player.xp-table player) cur-level)))
-  
-     (if (> (player.cur-xp player) next-limit)
+	  (next-limit (aref (player.xp-table player) cur-level))
+	  (cur-xp (player.cur-xp player)))
+
+;;     (warn "comparing ~s and ~s at lvl ~s -> ~a" cur-xp next-limit cur-level (> cur-xp next-limit))
+     (if (>= cur-xp next-limit)
 	 (gain-level! player)
-	 (return-from increase-xp! nil)))
+	 (return-from alter-xp! nil)))
   
    ))
 
@@ -395,6 +418,7 @@ the Free Software Foundation; either version 2 of the License, or
   "Recalculates and cleans up as needed."
 
   (flet ((add-to-skill! (which the-skills-obj player-lvl source)
+	   (declare (type fixnum player-lvl))
 	   (when source
 	     (let ((obj (slot-value source which)))
 	       (if (not obj)
@@ -402,38 +426,38 @@ the Free Software Foundation; either version 2 of the License, or
 		   (incf (slot-value the-skills-obj which)
 			 (cond ((eq obj nil) 0)
 			       ((numberp obj) obj)
-				 ((skill-p obj)
-				  (+ (skill.base obj)
-				     (int-/ (* player-lvl (skill.lvl-gain obj))
-					    10)))
-				 (t
-				  (error "Unknown skill-obj ~a" obj)))))))))
+			       ((skill-p obj)
+				(the fixnum (+ (the fixnum (skill.base obj))
+					       (int-/ (* player-lvl (the fixnum (skill.lvl-gain obj)))
+						      10))))
+			       (t
+				(error "Unknown skill-obj ~a" obj)))))))))
     
-  (let* ((var-obj *variant*)
-	 (race (player.race player))
-	 (the-class (player.class player))
-	 (racial-skills (race.skills race))
-	 (class-skills (class.skills the-class))
-	 (player-lvl (player.level player))
-	 (skill-list (variant.skill-translations var-obj)))
-    
-    ;; reset to value 0 first
-    (reset-skills! var-obj skills-obj 0)
-
-    (dolist (i skill-list)
+    (let* ((var-obj *variant*)
+	   (race (player.race player))
+	   (the-class (player.class player))
+	   (racial-skills (race.skills race))
+	   (class-skills (class.skills the-class))
+	   (player-lvl (player.level player))
+	   (skill-list (variant.skill-translations var-obj)))
       
-      (add-to-skill! (cdr i)
-		     skills-obj
-		     player-lvl
-		     racial-skills)
-      (add-to-skill! (cdr i)
-		     skills-obj
-		     player-lvl
-		     class-skills))
-
-;;    (describe skills-obj)
-    
-    t)))
+      ;; reset to value 0 first
+      (reset-skills! var-obj skills-obj 0)
+      
+      (dolist (i skill-list)
+	
+	(add-to-skill! (cdr i)
+		       skills-obj
+		       player-lvl
+		       racial-skills)
+	(add-to-skill! (cdr i)
+		       skills-obj
+		       player-lvl
+		       class-skills))
+      
+      ;;    (describe skills-obj)
+      
+      t)))
 
 (defun update-xp-table! (player)
   "Updates the xp-table on the player, and returns updated player."
@@ -450,7 +474,7 @@ the Free Software Foundation; either version 2 of the License, or
       (setf (player.xp-table player) (make-level-array)))
 
     (let ((xp-table (player.xp-table player)))
-    
+      
       (setf (aref xp-table 0) 0)
       (loop for i of-type u-fixnum from 1 to (1- max-char-level)
 	    do
@@ -469,3 +493,78 @@ the Free Software Foundation; either version 2 of the License, or
 		summing (aref hp-table i))))
   player)
 	   
+(defmethod heal-creature! ((pl player) amount)
+  "Heals the player and adds notify where needed."
+
+  (let ((max-hp (player.max-hp pl)))
+  
+    (when (< (player.cur-hp pl) max-hp)
+      
+      (incf (player.cur-hp pl) amount)
+      
+      (when (< max-hp (player.cur-hp pl)) ;; no more than max..
+	(setf (player.cur-hp pl) max-hp
+	      (player.fraction-hp pl) 0))
+      
+      (bit-flag-add! *redraw* +print-hp+)
+      
+      ;; message
+      (cond ((< amount 5)
+	     (c-print-message! "You feel a little better."))
+	    ((< amount 15)
+	     (c-print-message! "You feel better."))
+	    ((< amount 35)
+	     (c-print-message! "You feel much better."))
+	    (t
+	     (c-print-message! "You feel very good.")))
+      
+      t))) ;; it returns nil if when doesn't make sense
+
+(defmethod set-creature-state! ((crt player) state value)
+
+  (case state
+    (:fear (warn "Setting fear of player to ~s" value))
+    (otherwise (warn "Unknown state for player: ~s" state)))
+  
+  nil)
+
+(defun possible-identify! (pl okind)
+  "fix later to depend on character."
+  (declare (ignore pl))
+  (setf (object.identified okind) t))
+
+(defun update-player-stat! (pl stat action)
+  "Action can be <restore> or a positive or negative integer."
+
+;;  (declare (ignore pl stat action))
+
+  ;; currently does restore
+  (let ((bs (player.base-stats pl))
+	(cbs (player.base-stats pl))
+	(num (etypecase stat
+	       (number stat)
+	       (symbol (get-stat-num-from-sym stat)))))
+
+    (ecase action
+      (<restore>
+       (let ((bval (aref bs num))
+	     (cbval (aref cbs num)))
+	 (when (< cbval bval)
+	   (with-foreign-str (s)
+	     (lb-format s "You feel less ~s" (get-stat-name-from-sym stat))
+	     (c-print-message! s))
+	   (setf (aref cbs num) (aref bs num))
+	   t)))
+      
+      (<increase>
+       (warn "increase stat not implemented.")
+       t)
+      (<reduce>
+       (warn "reduce stat not implemented.")
+       t))
+
+    ))
+
+(defun alter-food! (pl new-food-amount)
+  ;; lots of minor pooh
+  (setf (player.food pl) new-food-amount))

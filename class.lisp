@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -16,11 +16,10 @@ ADD_DESC: This file contains basics for dealing with character classes
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defclass character-class ()
+(defclass character-class ()
     (
      (id           :accessor class.id           :initform nil)
      (name         :accessor class.name         :initform nil)
@@ -33,7 +32,7 @@ ADD_DESC: This file contains basics for dealing with character classes
      (starting-eq  :accessor class.start-eq     :initform nil)
      (skills       :accessor class.skills       :initform nil)
      )
-    (:documentation "Information about a character class.")))
+    (:documentation "Information about a character class."))
 
 
 (defmethod print-object ((inst character-class) stream)

@@ -25,8 +25,8 @@ Might be used:
 How to start it:
 
   - tweak lib/zterm/Makefile
-    Probably only ENVIRONMENT and LISP_SYSTEM needs to be changed.
-    ***Only the X11 option is really recommended right now***
+    Probably only ENVIRONMENTS needs to be changed.
+    *** It is safe to have X11 and GCU at the moment***
 
   - run 'make'
     Where make is GNU Make
@@ -39,7 +39,10 @@ How to start it:
   - (lb::a)
     loads/compiles vanilla variant and helper-libraries
     on first run, it will take a _lot_ of time on obj-kind.lisp
+    If you wish to specify UI, you can do (lb::a 'x11) for X11-window
+    or (lb::a 'gcu) for curses/xterm-mode. 
 
+  [If you use Debian, see README.Debian for starting-details.]
 
 How to play:
 
@@ -51,18 +54,23 @@ How to play:
   
     > - go down a stair
     < - go up a stair
-    e - show worn equipment
-    i - show backpack equipment
     C - show the character facts
-    g - get an item from the ground
     d - drop an item to the ground
-    w - wear an item from backpack
+    e - show worn equipment
+    E - eat something
+    g - get an item from the ground
+    i - show backpack equipment
     o - open all surrounding doors
     p - prints a map of dungeon to map.ascii (debugging)
     P - prints a ppm map to map.ppm (debugging)
-    z - "zap" the game (expert debugging)
-    S - save the game (save-file will be used on restart)
+    q - quaff a potion
     Q - quit the game
+    r - read a scroll
+    S - save the game (save-file will be used on restart)
+    u - use an item
+    w - wear an item from backpack
+    z - "zap" the game (expert debugging)
+
 
   The keys and their code may be found in lib/common/keys.lisp
 

@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -16,7 +16,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 
 (defconstant +token-name+ 1)
@@ -124,9 +124,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 
     (c-prt-token! +term-white+ +token-au+ (car gold-set) (cdr gold-set))
 
-    (c-prt-number! +term-l-green+
-		   gold
-		   9
+    (c-prt-number! +term-l-green+ gold 9
 		   (car gold-set)
 		   (+ (cdr gold-set) 3))
     ))
@@ -138,7 +136,6 @@ ADD_DESC: Various code which just prints stuff somewhere
   (let ((ac (+ (player.base-ac pl)
 	       (player.ac-bonus pl)))
 	(ac-set (slot-value setting 'ac)))
-
 
     (c-prt-token! +term-white+ +token-cur-ac+ (car ac-set) (cdr ac-set))
 
@@ -229,8 +226,23 @@ ADD_DESC: Various code which just prints stuff somewhere
     (print-armour-class pl pr-set)
     (print-hit-points pl pr-set)
     (print-mana-points pl pr-set) 
-  
+
     (print-gold pl pr-set)
+    
+    #+maintainer-mode
+    (let ((food-set (slot-value pr-set 'food))
+	  (energy-set (slot-value pr-set 'energy)))
+      
+      (print-field "Food" food-set)
+      (print-field "Energy" energy-set)
+      
+      (c-prt-number! +term-l-green+ (player.food pl) 5
+		     (car food-set) (+ (cdr food-set) 7))
+      (c-prt-number! +term-l-green+ (player.energy pl) 5
+		     (car energy-set) (+ (cdr energy-set) 7))
+      )
+      
+    
     (print-depth *level* pr-set)
   
     ))
@@ -239,8 +251,10 @@ ADD_DESC: Various code which just prints stuff somewhere
 (defmethod print-depth (level setting)
   "prints current depth somewhere"
   (declare (ignore setting))
-  (c-prt! (format nil "~a ft" (* 50 (level.depth level)))
-	  *last-console-line* 70)) ;;fix 
+  (with-foreign-str (s)
+    (lb-format s "~d ft" (* 50 (level.depth level)))
+    (c-col-put-str! +term-l-blue+ s *last-console-line* 70) ;;fix 
+    )) 
 
 
 (defun display-player (player &optional mode)
@@ -353,8 +367,9 @@ ADD_DESC: Various code which just prints stuff somewhere
 		   (format nil "~12@a" (format nil "[~d,~@d]" (player.base-ac pl) (player.ac-bonus pl)))
 		   10 (1+ f-col))
 
-    (let ((weapon (get-weapon pl)))
-      nil)
+;;    (let ((weapon (get-weapon pl)))
+;;     
+;;      nil)
 	  
       
     (c-put-str! "Fight" 11 col)

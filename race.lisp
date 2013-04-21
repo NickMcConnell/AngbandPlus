@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,12 +12,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  
-  (defclass race ()
+(defclass race ()
     (
      (id           :accessor race.id           :initform nil)
      (name         :accessor race.name         :initform nil)
@@ -30,7 +28,7 @@ the Free Software Foundation; either version 2 of the License, or
      (start-eq     :accessor race.start-eq     :initform nil)
      (skills       :accessor race.skills       :initform nil)
      )
-    (:documentation "Representation for a character race.")))
+    (:documentation "Representation for a character race."))
 
 (defmethod print-object ((inst race) stream)
   (print-unreadable-object

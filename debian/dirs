@@ -1,0 +1,10 @@
+usr/share/common-lisp/
+usr/share/common-lisp/repositories/
+usr/share/common-lisp/repositories/langband/engine
+usr/share/common-lisp/repositories/langband/engine/ffi
+usr/share/common-lisp/repositories/langband/engine/lib
+usr/share/common-lisp/repositories/langband/engine/lib/compat
+usr/share/common-lisp/repositories/langband/engine/lib/common
+usr/share/doc/langband-engine
+usr/share/doc/langband-engine/web
+var/lib/games/langband

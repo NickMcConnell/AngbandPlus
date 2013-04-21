@@ -1,4 +1,4 @@
-;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,11 +12,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
- 
   (defclass level (activatable)
     (
      (id      :accessor level.id      :initarg :id      :initform 'level)
@@ -50,8 +48,20 @@ variant and player."))
   (defgeneric get-mtype-table (level var-obj)
     (:documentation "hack, may be updated later."))
 
-  )
+  (defgeneric find-appropriate-monster (level room player)
+    (:documentation "Returns an appropriate monster for a given
+level/room/player combo.  Allowed to return NIL."))
 
+  ;; move to better place later
+  (defgeneric print-depth (level setting)
+    (:documentation "fix me later.. currently just prints depth."))
+
+
+
+(defmethod find-appropriate-monster (level room player)
+  (declare (ignore room player))
+  (error "No proper FIND-APPROPRIATE-MONSTER for ~s" (type-of level)))
+ 
 (defmethod generate-level! (level player)
   (declare (ignore level player))
   (warn "The basic GENERATE-LEVEL is not implemented, please pass

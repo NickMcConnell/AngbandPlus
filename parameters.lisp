@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,9 +12,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defclass game-parameter ()
     ((key :accessor param.key
@@ -32,7 +31,7 @@ the Free Software Foundation; either version 2 of the License, or
   (defclass param-alt ()
     ((key  :accessor param-alt.key :initarg :key :initform nil)
      (name :accessor param-alt.name :initarg :name :initform nil)
-     (desc :accessor param-alt.desc :initarg :desc :initform nil))))
+     (desc :accessor param-alt.desc :initarg :desc :initform nil)))
 
 
 (defun make-game-parameter (key name desc value alts)

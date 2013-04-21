@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,9 +12,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
   
   (defclass store (house)
     ((id     :accessor store.id     :initform nil :initarg :id)
@@ -43,7 +42,6 @@ the Free Software Foundation; either version 2 of the License, or
      (race       :accessor owner.race       :initform nil :initarg :race)
      ))
 
-  )
 
 
 (defmethod find-owner-for-house (level (house store)
@@ -184,7 +182,7 @@ should be an exisiting id."
 	     (declare (ignore a-table key))
 	     (c-prt! "" (+ i y) (- x 2))
 	     (c-put-str! (format nil "~a) ~a" (i2a i)
-				(object-description val :store t))
+				(description val :store t))
 			(+ i y) x)
 	     (let* ((weight (object.weight (aobj.kind val)))
 		    (full-pounds (int-/ weight 10))

@@ -17,12 +17,12 @@ ADD_DESC: The rooms should be registered in the individual variant
 
 (in-package :langband)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defclass simple-room (room-type)
-    ())
-  (defclass shop-room (room-type)
-    ((shop :accessor room.shop :initform nil :initarg :shop))
-    ))
+(defclass simple-room (room-type)
+  ())
+
+(defclass shop-room (room-type)
+  ((shop :accessor room.shop :initform nil :initarg :shop)))
+
 
 (defun common-make-simple-room ()
   "constructor for the simple room."

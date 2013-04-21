@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   ;; 28 bits
@@ -22,6 +22,16 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  (deftype vinfo-bit-type () `(unsigned-byte 32))
   (deftype vinfo-bit-type () `(unsigned-byte 16))
 
+
+  (deftype =char-code= ()
+    #+handle-char-as-num
+    'u-16b
+    #-handle-char-as-num
+    'character
+    )
+  
+
+  
   (defclass activatable ()
     ((activated :reader activated? :initform nil))
     (:documentation "Mixin-class for activatation of objects,
@@ -29,12 +39,6 @@ may be removed later for efficiency-reasons.  It enforces a
 protocol that allows activated? to be set automagically after
 a succesful ACTIVATE-OBJECT."))
   
-  
-  ;; move to better place later
-  (defgeneric print-depth (level setting)
-    (:documentation "fix me later.. currently just prints depth."))
-  
-  ;; see print.lisp
   
   ;; move me later
   (defgeneric activate-object (obj &key &allow-other-keys)
@@ -49,34 +53,13 @@ situation where the system assumes the object is invalid."))
   (defgeneric ok-object? (obj)
     (:documentation "Checks to make sure the object is ok."))
   
-  (defgeneric find-appropriate-monster (level room player)
-    (:documentation "Returns an appropriate monster for a given
-level/room/player combo.  Allowed to return NIL."))
-
-  (defgeneric initialise-monsters& (variant &key &allow-other-keys)
-    (:documentation "Initialises monsters for the given variant."))
-  
-  (defgeneric initialise-features& (variant &key &allow-other-keys)
-    (:documentation "Initialises features for the given variant."))
-  
-  (defgeneric initialise-objects& (variant &key &allow-other-keys)
-    (:documentation "Initialises objects for the given variant."))
 
   )
 
+;; some binary types
+(bt:define-unsigned u64 8)
+(bt:define-signed s64 8)
 
-(defmethod find-appropriate-monster (level room player)
-  (declare (ignore room player))
-  (error "No proper FIND-APPROPRIATE-MONSTER for ~s" (type-of level)))
-  
-(defmethod initialise-monsters& (variant &key)
-  (error "No INIT-MONSTERS for ~s" (type-of variant)))
-  
-(defmethod initialise-features& (variant &key)
-  (error "No INIT-FEATURES for ~s" (type-of variant)))
-
-(defmethod initialise-objects& (variant &key)
-  (error "No INIT-OBJECTS for ~s" (type-of variant)))
 
 
 (defmethod activate-object (obj &key)
@@ -140,12 +123,23 @@ Adopted from P.Graham `ANSI CL', p 410; with some modifications."
                                    (cdr nexp))))
          expr)))
 
-
 (defmacro while (test &body body)
   "repeat BODY while TEST is true"
   `(do ()
        ((not ,test))
      ,@body))
+
+(defmacro when-bind ((var expr) &body body)
+  "generalisation of (let ((var expr)) (when var ...))."
+  `(let ((,var ,expr))
+    (when ,var
+      ,@body)))
+
+(defmacro unless-bind ((var expr) &body body)
+  "generalisation of (let ((var expr)) (unless var ...))."
+  `(let ((,var ,expr))
+    (unless ,var
+      ,@body)))
 
 (defun split-seq-on (str &optional (ch #\Space))
   "returns a list of strings formed by breaking STR at every occurance
@@ -161,15 +155,6 @@ but optimized for vectors."
         ((null next-pos) (nreverse stuff)))))
 
 
-#||
-(defun register-variant& (id name &key before-game-init after-game-init)
-  "Registers variant in appropriate places."
-  
-  (setf (get 'variant 'id) id
-	(get 'variant 'name) name
-	(get 'variant 'pre-init) before-game-init
-	(get 'variant 'post-init) after-game-init))
-||#
 
 (defun register-variant-common& (&key before-game-init after-game-init)
   "Registers callbacks for common functions for all variants. Called
@@ -177,6 +162,13 @@ before variant init-functions."
   (setf (get 'common 'pre-init) before-game-init
 	(get 'common 'post-init) after-game-init))
 
+
+(defmacro charify-number (num)
+  #+handle-char-as-num
+  num
+  #-handle-char-as-num
+  `(code-char ,num)
+  )
 
 (defun symbolify (data)
   "Returns a symbol in a form which can be understood when reading code."
@@ -226,6 +218,7 @@ before variant init-functions."
 (defmacro int-/ (a b)
   "Integer division, as in C."
   `(the fixnum (floor ,a ,b)))
+
 
 
 (defun shrink-array! (arr)
@@ -400,6 +393,7 @@ and NIL if unsuccesful."
 		     (#\n (write-char #\Linefeed s))
 		     (#\r (write-char #\Return s))
 		     (#\t (write-char #\Tab s))
+		     (#\e (write-char #\Escape s))
 		     ;; skip hex
 		     (otherwise
 		      (write-char x s)))
@@ -446,16 +440,15 @@ or load time, ie totally dynamic."
 
 #+xp-testing
 (defun do-a-test (stage)
-  (let ((func (get-late-bind-function 'lb-test 'run-lb-test)))
-    (when func
-      (funcall func stage :verbose t))))
+  (when-bind (func (get-late-bind-function 'lb-test 'run-lb-test))
+    (funcall func stage :verbose t)))
 
 (defun garbage-collect (&key (global nil))
   "Tries to enforce a garbage collect."
   (declare (ignore global))
   #+cmu (ext:gc)
   #+allegro (excl:gc t)
-  #+clisp (lisp:gc)
+  #+clisp (ext:gc)
   #-(or allegro cmu clisp)
   (lang-warn "explicit GC not implemented."))
 
@@ -463,9 +456,13 @@ or load time, ie totally dynamic."
   "Prints a warning for Langband-system.  It works almost like
 regular WARN except that no condition is sent, use regular WARN for such
 cases.  Leaks memory, only use when testing."
-  
+
+  #-clisp
   (format *error-output* "~&~@<LB-Warning:  ~3i~:_~A~:>~%"
-          (apply #'format nil format-string format-args)))
+          (apply #'format nil format-string format-args))
+  ;; ugly
+  #+clisp
+  (format *error-output* "~&~a~%" (apply #'format nil format-string format-args)))
 
 
 ;; remove these ones later:
@@ -487,3 +484,116 @@ cases.  Leaks memory, only use when testing."
 
 (defun-memo %get-13astr (val)
   (format nil "~13@a" val))
+
+
+(defmacro with-foreign-str ((str-var) &body body)
+  `(let ((,str-var (org.langband.ffi::%get-fresh-str)))
+    (declare (type (array base-char (1024)) ,str-var))
+    ,@body))
+
+
+(defun %wr-str-to-dest (str dest)
+  "Writes to given string.  Returns number of chars written."
+
+  (let* ((cur (fill-pointer dest))
+	 (len (length str))
+	 (dest-len (array-dimension dest 0))
+	 (end-pos (+ cur len))
+	 (diff (- dest-len end-pos)))
+
+    (when (minusp diff)
+      (error "Too long string for destination..")) ;; fix later, an error will do now
+
+    (setf (fill-pointer dest) end-pos)
+    
+    (loop for c across str
+	  for i from cur
+	  do
+	  (setf (char dest i) c))
+    len))
+
+(defun %wr-char-to-dest (chr dest)
+
+;;  (describe dest)
+  (let ((cur (fill-pointer dest)))
+    (setf (fill-pointer dest) (1+ cur))
+    (setf (char dest cur) chr)
+    1))
+
+(defun %wr-int-to-dest (int dest)
+  "Borrowed and modified from CMUCL."
+  (let ((quotient ())
+        (remainder ()))
+    ;; Recurse until you have all the digits pushed on the stack.
+    (if (not (zerop (multiple-value-setq (quotient remainder)
+                      (truncate int *print-base*))))
+        (%wr-int-to-dest quotient dest))
+    ;; Then as each recursive call unwinds, turn the digit (in remainder) 
+    ;; into a character and output the character.
+    (%wr-char-to-dest (code-char (+ (char-code #\0) remainder)) dest)))
+
+
+(defun lb-format (dest format-str &rest args)
+  "Tries to format things right."
+
+  (flet ((output-int (arg)
+	   (let ((*print-base* 10))
+	     (cond ((< arg 0)
+		    (%wr-char-to-dest #\- dest)
+		    (%wr-int-to-dest (- arg) dest))
+		   (t					  
+		    (%wr-int-to-dest arg dest))))))
+	 
+    (cond ((not (stringp dest))
+	   (apply #'cl:format dest format-str args))
+	  (t
+	   (let ((last-char #\a)
+		 (arg-iter args))
+	     (loop for x across format-str
+		   do
+		   (cond ((eql last-char #\~)
+			  (ecase x
+			    (#\a (let ((arg (car arg-iter)))
+				   (etypecase arg
+				     (symbol
+				      (when (keywordp arg)
+					(%wr-char-to-dest #\: dest))
+				      (%wr-str-to-dest (symbol-name arg) dest))
+				     (integer
+				      (output-int arg))
+				    
+				     (string
+				      (%wr-str-to-dest arg dest))
+				     ;;(nil
+				     ;; (%wr-str-to-dest "nil" dest))
+				     )
+				   (setf arg-iter (cdr arg-iter))))
+			  
+			    (#\d (let ((arg (car arg-iter)))
+				   (etypecase arg
+				     (integer
+				      (output-int arg)))
+				   (setf arg-iter (cdr arg-iter))))
+			  
+			    (#\% (%wr-char-to-dest #\Newline dest))
+			    (#\~ (%wr-char-to-dest #\~ dest)))
+			  (setf last-char #\a);; dummy
+			  )
+			 (t
+			  (if (eql x #\~)
+			      nil
+			      (%wr-char-to-dest x dest))
+			  (setf last-char x)))
+		   )))
+	  )))
+
+
+#||
+(defun register-variant& (id name &key before-game-init after-game-init)
+  "Registers variant in appropriate places."
+  
+  (setf (get 'variant 'id) id
+	(get 'variant 'name) name
+	(get 'variant 'pre-init) before-game-init
+	(get 'variant 'post-init) after-game-init))
+||#

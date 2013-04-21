@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #||
 
@@ -12,42 +12,44 @@ the Free Software Foundation; either version 2 of the License, or
 
 ||#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-
-  (defclass l-event ()
-    ((id            :reader event.id
-		    :initform nil
-		    :initarg :id)
-     (type          :reader event.type
-		    :initform nil
-		    :initarg :type)
-     ;; the function when called should return T when ok and NIL when not ok
-     (function      :reader event.function
-		    :initform nil
-		    :initarg :function)
-     (state         :reader event.state
-		    :initform nil
-		    :initarg :state)
-     (return-action :reader event.return
-		    :initform :remove-event
-		    :initarg :return)
-     ))
-
-  (defgeneric trigger-event (obj event arg-list)
-    (:documentation "Triggers a given event-type on the object. Recursive."))
-  (defgeneric register-object-event! (obj event)
-    (:documentation "Registers an event on the object."))
-
   ;; the types that return-action of an event may have.
   (deftype return-actions ()
     `(member :remove-event :keep-event))
 
   (deftype event-types ()
-    '(member :on-create :on-pre-equip :on-post-equip))
+    '(member :on-create :on-pre-equip :on-post-equip :step-on-coord))
   
   )
+
+(defclass l-event ()
+  ((id            :reader event.id
+		  :initform nil
+		  :initarg :id)
+   (type          :reader event.type
+		  :initform nil
+		  :initarg :type)
+   ;; the function when called should return T when ok and NIL when not ok
+   (function      :reader event.function
+		  :initform nil
+		  :initarg :function)
+   (state         :reader event.state
+		  :initform nil
+		  :initarg :state)
+   (return-action :reader event.return
+		  :initform :remove-event
+		  :initarg :return)
+   ))
+
+(defgeneric trigger-event (obj event arg-list)
+  (:documentation "Triggers a given event-type on the object. Recursive."))
+(defgeneric register-object-event! (obj event)
+  (:documentation "Registers an event on the object."))
+
+(defun is-event? (obj)
+  (typep obj 'l-event))
 
 (defun register-event& (id event)
   "Registers an event-id and connects it to a function."

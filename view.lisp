@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,32 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-
-(defconstant +view-max+ 1536)
-(defconstant +vinfo-max-grids+ 161)
-(defconstant +vinfo-max-slopes+ 126)
-
-#||
-(defconst +vinfo-bits-3+ vinfo-bit-type #x3FFFFFFF "")
-(defconst +vinfo-bits-2+ vinfo-bit-type #xFFFFFFFF "")
-(defconst +vinfo-bits-1+ vinfo-bit-type #xFFFFFFFF "")
-(defconst +vinfo-bits-0+ vinfo-bit-type #xFFFFFFFF "")
-||#
-
-(defconstant +vinfo-bit-fields+ #8(#xFFFF #xFFFF  ;; 0
-				   #xFFFF #xFFFF  ;; 1
-				   #xFFFF #xFFFF  ;; 2
-				   #x3FFF #xFFFF  ;; 3
-				   ))
-
-(defconstant +vinfo-bit-field-len+ 8)
-
-(defconstant +vinfo-grid-field-len+ 8)
-
-(defconstant +scale+ 100000)
+(in-package :org.langband.engine)
 
 (defstruct (vinfo-type (:conc-name vinfo-type.))
   grids ;; 8
@@ -57,7 +32,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defvar *vinfo* (make-array +vinfo-max-grids+))
 
-)
 
 ;;(defvar *view-size* 0)
 ;;(defvar *view-array* (make-array +view-max+))

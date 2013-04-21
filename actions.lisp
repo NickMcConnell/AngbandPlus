@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 
 (defun move-player! (dun pl direction)
@@ -158,7 +158,7 @@ is above a stair.  DIR can be :UP or :DOWN"
 	 (y (location-y pl))
 	 (feat (cave-feature dun x y))
 	 (leaving-sym nil))
-    
+    (declare (type u-16b depth x y feat))
     (case dir
       (:up
        (unless (= +feature-less+ feat)
@@ -246,54 +246,144 @@ a list if more items occupy the same place."
 (defun drop-something! (dun pl)
   "Drop some inventory"
 
-    (let ((selection (select-item dun pl '(:backpack :equip)
-				  :prompt "Drop item: "
-				  :where :backpack)))
-      (when selection
-	(let* ((the-table (get-item-table dun pl (car selection)))
-	       (removed-obj (item-table-remove! the-table (cdr selection))))
-	  (when removed-obj
-	    (item-table-add! (get-item-table dun pl :floor) removed-obj))))
-      ))
+  (when-bind (selection (select-item dun pl '(:backpack :equip)
+				     :prompt "Drop item: "
+				     :where :backpack))
+    (let* ((the-table (get-item-table dun pl (car selection)))
+	   (removed-obj (item-table-remove! the-table (cdr selection))))
+      (when removed-obj
+	(item-table-add! (get-item-table dun pl :floor) removed-obj))))
+  )
 
+(defun %put-obj-in-cnt (dun pl cnt obj)
+  (let* ((the-table (if (typep cnt 'item-table) cnt (get-item-table dun pl cnt)))
+	 (back-to-inventory (item-table-add! the-table obj)))
+    (unless back-to-inventory
+      ;; drop to floor
+      (item-table-add! (get-item-table dun pl :floor)
+		       obj))
+    ))
+
+;;(trace %put-obj-in-cnt)
 
 (defun wear-something! (dun pl)
   "Puts something in an equipment-slot."
 
-  (let ((selection (select-item dun pl '(:backpack :floor)
+  ;;    (warn "Selected ~a" selection)
+  (when-bind (selection (select-item dun pl '(:backpack :floor)
 				:prompt "Wear item"
-				:where :backpack)))
-
-;;    (warn "Selected ~a" selection)
-    (when selection
-      (let* ((the-table (get-item-table dun pl (car selection)))
-	     (removed-obj (item-table-remove! the-table (cdr selection))))
-;;	(warn "Removed ~a" removed-obj)
-	(when removed-obj
-	  (let ((retval (item-table-add! (get-item-table dun pl :equip) removed-obj)))
-;;	    (warn "Adding to equip gave: ~a" retval)
-	    
-		  
-	      (cond ((eq retval nil)
-		     ;; something screwed up, put object back
-		     (item-table-add! the-table removed-obj))
-		    
-		    ((typep retval 'active-object)
-		     ;; an object was returned
-
-		     (let ((back-to-inventory (item-table-add! (get-item-table dun pl :backpack)
-							       retval)))
-		       (unless back-to-inventory
-			 ;; drop to floor
-			 (item-table-add! (get-item-table dun pl :floor)
-					  retval))))
-		    (t
-		     ;; succesful and nothing returned.. do nothing, except waste energy
-		     (setf (player.energy-use pl) +energy-normal-action+)
-		     ))
-		    
-	      ))
+				:where :backpack))
+    
+    
+    (let* ((the-table (get-item-table dun pl (car selection)))
+	   (removed-obj (item-table-remove! the-table (cdr selection) :only-single-items t)))
+;;      (warn "Removed ~a" removed-obj)
+      
+      (when removed-obj
+	(let ((retval (item-table-add! (get-item-table dun pl :equip) removed-obj)))
+;;	  (warn "Adding to equip gave: ~a" retval)
 	  
-	  ))))
+		  
+	  (cond ((eq retval nil)
+		 ;; something screwed up, put object back
+		 (item-table-add! the-table removed-obj))
+		
+		((typep retval 'active-object)
+		 ;; an object was returned
+		 (%put-obj-in-cnt dun pl :backpack retval))
+		
+		(t
+		 ;; succesful and nothing returned.. do nothing, except waste energy
+		 (setf (player.energy-use pl) +energy-normal-action+)
+		 ))
+	  
+	  ))
+      
+      )))
 
+(defun apply-usual-effects-on-used-object (dun pl obj)
+  (declare (ignore dun))
+
+  (let* ((okind (etypecase obj
+		 (active-object (aobj.kind obj))
+		 (object-kind obj)))
+	 (gvals (object.game-values okind)))
+  
+  ;; we have tried object
+  ;;(tried-object)
+  
+    (when (is-eatable? obj)
+      (alter-food! pl (+ (player.food pl)
+			 (gval.food-val gvals))))
+    
+    
+    t))
+
+
+(defun use-something! (dun pl
+		       &key
+		       restrict-type (prompt "Use item?")
+		       (limit-from '(:backpack :floor)))
+  
+  "Tries to use an item."
+
+  (declare (ignore restrict-type))
+  (assert (consp limit-from))
+  (assert (stringp prompt))
+  
+  (let ((selection (select-item dun pl limit-from
+				:prompt prompt
+				:where (first limit-from))))
+
+    (unless (and selection (consp selection))
+      (return-from use-something! nil))
+
+    
+;;    (warn "Selected ~s for use" selection)
+    (let* ((the-table (get-item-table dun pl (car selection)))
+	   (removed-obj (item-table-remove! the-table (cdr selection))))
+      
+;;      (warn "Removed ~a" removed-obj)
+      
+      (unless (and removed-obj (typep removed-obj 'active-object))
+	(return-from use-something! nil))
+      
+;;      (warn "Will ~a ~s" prompt removed-obj)
+	  
+      (let ((retval (use-object! *variant* dun pl removed-obj)))
+;;	(warn "use returned ~s" retval)
+	(cond ((eq retval nil) ;; didn't use the object for some reason..
+	       (%put-obj-in-cnt dun pl the-table removed-obj))
+	      
+	      ((eq retval :still-useful) ;; we should keep it
+	       (let ((back-obj (%put-obj-in-cnt dun pl the-table removed-obj)))
+		 ;; add energy use
+		 (apply-usual-effects-on-used-object dun pl removed-obj)
+		 back-obj))
+	      
+	      ((eq retval :used) ;; we have used the item
+	       ;; decrement number
+	       (when (> (aobj.number removed-obj) 1)
+		 (decf (aobj.number removed-obj))
+		 (%put-obj-in-cnt dun pl the-table removed-obj))
+;;	       (warn "used object ~a" removed-obj)
+	       (apply-usual-effects-on-used-object dun pl removed-obj)
+	       nil)
+	      
+	      (t
+	       (warn "Fell through on use return-value: ~s" retval)))
+	
+	))
+      ))
+
+  
+
+(defun invoke-spell! (dun pl &key spell-type)
+  "Invokes a spell.. gee."
+
+  (declare (ignore dun pl spell-type))
+  ;; fill in all the nasty details
+  (warn "player invokes a spell.")
+  
+  (values))
 

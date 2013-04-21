@@ -16,7 +16,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 
 (defun redraw-stuff (dun pl)
@@ -47,10 +47,16 @@ ADD_DESC: Most of the code which deals with the game loops.
   (when (bit-flag-set? *update* +update-view+)
     (bit-flag-remove! *update* +update-view+)
     (update-view! dun pl))
+  
+  (when (bit-flag-set? *update* +update-xp+)
+    (bit-flag-remove! *update* +update-xp+)
+    (update-xp-table! pl))
+
   )
 
 
 
+(defvar *proj-arr-hack* (make-array 40 :fill-pointer 0))
 
 (defun %possibly-move-monster! (dun pl mon)
   "Tries to process a single monster."
@@ -58,7 +64,9 @@ ADD_DESC: Most of the code which deals with the game loops.
   (let ((mx (location-x mon))
 	(my (location-y mon))
 	(random-mover (has-ability? mon '<random-mover>)))
-
+    
+    (declare (type u-16b mx my))
+    
     (when random-mover
 ;;      (warn "~s is random.." mon)
       (let ((how-often (second random-mover)))
@@ -71,7 +79,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     
       (let ((px (location-x pl))
 	    (py (location-y pl))
-	    (proj-arr (make-array 40 :fill-pointer 0))
+	    (proj-arr *proj-arr-hack*)
 	    )
 
 ;;    (lang-warn "Action for '~a' at (~s,~s)" (monster.name mon)
@@ -414,9 +422,9 @@ ADD_DESC: Most of the code which deals with the game loops.
        
        (setq how-level-was-left (run-level! *level* *player*))
        
-;;        (tricky-profile
-;;         (setq how-level-was-left (run-level! *level* *player*))
-;;         :space)
+;;       (tricky-profile
+;;	(setq how-level-was-left (run-level! *level* *player*))
+;;	:time)
        
        ;; return if we're toast
        (when (player.dead-p *player*)
@@ -465,7 +473,9 @@ ADD_DESC: Most of the code which deals with the game loops.
 
 
     (values the-level the-player the-var)))
-  
+
+ 
+
 (defun play-game& ()
   "Should not be called directly."
   
@@ -477,7 +487,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 	)
 
     (let ((*load-verbose* nil))
-      (load "lib/file/prefs.lisp"))
+      (load-game-data "prefs.lisp"))
 
     ;; hack to remove cursor
     (c-set-cursor& 0)
@@ -541,11 +551,19 @@ ADD_DESC: Most of the code which deals with the game loops.
       (save-current-environment&)
       (game-loop&))
 
-    (if (and *player* (player.dead-p *player*))
-	(c-prt! "Oops.. you died.. " 0 0)
-	(c-prt! "Quitting..." 0 0))
+    (cond ((and *player* (player.dead-p *player*))
+	   (c-prt! "Oops.. you died.. " 0 0)
+	   (c-clear-from! 0)
+	   (print-tomb *player*)
+	   )
+	  (t
+	   (c-prt! "Quitting..." 0 0)
+
+	   ))
+    
     (c-pause-line! *last-console-line*)
-    (c-quit! +c-null-value+)))
+    (quit-game&)
+    t))
 
 ;; low-level definitions, move it somewhere else later..
 #+allegro

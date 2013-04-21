@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 (defun check-for-hits ()
 
@@ -22,6 +22,12 @@ the Free Software Foundation; either version 2 of the License, or
   "Tries to remove the monster at the location."
   (setf (creature-alive? target) nil)
 
+  ;; let us generate drop.. 
+  (when (typep target 'active-monster)
+    (let ((dropping (has-ability? target '<drop>)))
+      (when dropping
+	(warn "Monster is dropping sth.. fix me."))))
+  
   (when (typep target 'active-monster)
     (setf (dungeon.monsters dun) (delete target (dungeon.monsters dun))
 	  (cave-monsters dun x y) nil))
@@ -29,9 +35,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod cmb-describe-miss (attacker target)
 
-  (c-print-message! (format nil "~a misses the ~a."
-			    (get-creature-name attacker)
-			    (get-creature-name target)))
+  (with-foreign-str (s)
+    (lb-format s "~a misses the ~a."
+	       (get-creature-name attacker)
+	       (get-creature-name target))
+    (c-print-message! s))
   nil)
 
 (defgeneric cmb-hit-creature? (attacker target the-attack)
@@ -157,23 +165,25 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod cmb-describe-hit ((attacker active-monster) (target player) the-attack)
   (let ((desc (get-attk-desc the-attack)))
-    (c-print-message! (concatenate 'string
-				   "The "
-				   (get-creature-name attacker)
-				   " "
-				   desc))))
+    (with-foreign-str (s)
+      (lb-format s "The ~a ~a " (get-creature-name attacker) desc)
+      (c-print-message! s))))
 
 (defmethod cmb-describe-hit (attacker target the-attack)
   (declare (ignore the-attack))
-  (c-print-message! (format nil "~a hits the ~a."
-			    (get-creature-name attacker)
-			    (get-creature-name target)))
+  (with-foreign-str (s)
+    (lb-format s "~a hits the ~a. "
+	    (get-creature-name attacker)
+	    (get-creature-name target))
+;;    (warn "Going format on ~s" (type-of s))
+    (c-print-message! s))
   nil)
 
 (defmethod cmb-describe-death (attacker target)
   (declare (ignore attacker))
-  (c-print-message! (format nil "The ~a dies.."
-			    (get-creature-name target)))
+  (with-foreign-str (s)
+    (lb-format s "The ~a dies.. " (get-creature-name target))
+    (c-print-message! s))
   nil)
 
 (defun attack-target! (dun attacker target x y the-attack)
@@ -188,7 +198,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(when (< (current-hp target) 0)
 	  (cmb-describe-death attacker target)
 	  (let ((target-xp (get-xp-value target)))
-	    (increase-xp! attacker (if target-xp target-xp 0)))
+	    (alter-xp! attacker (if target-xp target-xp 0)))
 		
 	  (kill-target! dun x y target)
 	  ;; repaint
@@ -200,13 +210,12 @@ the Free Software Foundation; either version 2 of the License, or
 (defun attack-location! (dun pl x y)
   "attacks a given location.."
 
-  (let ((monsters (cave-monsters dun x y)))
-    (when monsters
-      (let ((the-monster (car monsters)))
-	;; hack
-	(play-sound 1)
-	(attack-target! dun pl the-monster x y nil)
-	))))
+  (when-bind (monsters (cave-monsters dun x y))
+    (let ((the-monster (car monsters)))
+      ;; hack
+      (play-sound 1)
+      (attack-target! dun pl the-monster x y nil)
+      )))
 
 
 (defun cmb-monster-attack! (dun pl mon the-x the-y)

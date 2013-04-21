@@ -19,10 +19,10 @@ ADD_DESC: This file just contains simple init and loading of the game
 (in-package :cl-user)
 
 ;; we want to know where we are
-(defun default-directory ()
+(defun %get-default-directory ()
   "The default directory."
   #+allegro (excl:current-directory)
-  #+clisp (lisp:default-directory)
+  #+clisp (ext:default-directory)
   #+cmucl (ext:default-directory)
   #+cormanlisp (ccl:get-current-directory)
   #+lispworks (hcl:get-working-directory)
@@ -30,90 +30,69 @@ ADD_DESC: This file just contains simple init and loading of the game
   #-(or allegro clisp cmucl cormanlisp lispworks lucid) (truename "."))
 
 
-(defvar *current-dir* (namestring (default-directory)))
+(defvar *current-dir* (namestring (%get-default-directory)))
 
 ;; add features we need
 (eval-when (:execute :load-toplevel :compile-toplevel)
-  
-;;  (push :xp-testing *features*)
+
+;;  (pushnew :xp-testing *features*)
+  (pushnew :langband-development *features*)
 ;;  #-clisp
 ;;  (push :using-sound *features*)
-;;  (push :use-common-ffi *features*)
-  #+(or allegro cmu)
-  (push :use-callback-from-c *features*)
+  ;; this one should be turned on in releases and in curses
+  (pushnew :hide-warnings *features*)
 
-  #+(or cmu clisp)
-  (push :handle-char-as-num *features*)
-
-  #+cmu
-  (push :compiler-that-inlines *features*)
+;;  (pushnew :maintainer-mode *features*)
   
   )
-
-
 
 (defconstant +defsystem-file+ #+ecl "tools/defsystem.lisp"
 	     #-ecl "tools/defsystem")
 
-#+clisp
-(progn
-  (format t "Removing some clisp-warnings.. we hope~%")
-  ;;(push (pathname "@lisppath@/") *load-paths*)        
-  (setq 
-   clos::*gf-warn-on-removing-all-methods* nil
-   clos::*warn-if-gf-already-called* nil
-   clos::*gf-warn-on-replacing-method* nil
-   system::*SOURCE-FILE-TYPES* '(".lisp" ".lsp")))
-  
+(defun strcat (&rest args)
+  (apply #'concatenate 'string args))
 
-#+ecl
-(setq sys:*gc-verbose* nil)
+(defun assign-log-path& (log-path name)
+  (setf (logical-pathname-translations name)
+	(list (list ";**;*.*.*"  (strcat log-path "**/*.*"))
+	      (list "**;*.*.*"  (strcat log-path "**/*.*"))
+;;	      (list "**;*"     (strcat log-path "**/*")) 
+	      (list ";*.*.*"  (strcat log-path "*.*"))
+	      (list "*.*.*"  (strcat log-path "*.*")))))
 
-(let ((log-path (concatenate 'string *current-dir* "/**/*")))
-  (setf (logical-pathname-translations "langband")
-	(list (list "**;*" log-path))))
+(assign-log-path& *current-dir* "langband")
+(assign-log-path& (strcat *current-dir* "tools/") "langband-tools")
+(assign-log-path& (strcat *current-dir* "tests/") "langband-tests")
+(assign-log-path& (strcat *current-dir* "variants/vanilla/") "langband-vanilla")
+;;(assign-log-path& (strcat *current-dir* "lib/foreign/") "langband-foreign")
 
 
 ;;#+(or cmu clisp allegro lispworks)
 (progn
   (unless (find-package :make)
-    (load +defsystem-file+ :verbose nil)))
-
-(eval-when (:execute :load-toplevel :compile-toplevel) 
-(proclaim '(optimize
-	    #+cmu (ext:inhibit-warnings 2)
-            ;;    (speed 3)
-            ;;(speed 1)
-	    (speed 0)
-;;            (compilation-speed 0)
-	    (compilation-speed 2)
-;;            (safety 1)
-	    (safety 2)
-            ;;    (debug 1)
-            (debug 3)
-            )))
-
-#||
-;;#+(or cmu allegro)
-(progn
-  (with-open-file (o-str (pathname "/tmp/langband-compile-error.log")
-			 :direction :output
-			 :if-exists :new-version
-			 :if-does-not-exist :create)
+    (load +defsystem-file+ :verbose nil)
     ))
-||#
 
-#+cmu
-(setq ext:*gc-verbose* nil
-      ext:*byte-compile-default* nil
-      *compile-print* nil)
+(defvar *normal-opt* '(optimize
+		       #+cmu (ext:inhibit-warnings 3)
+		       (speed 3)
+		       (compilation-speed 0)
+		       (safety 1)
+		       (debug 1)
+		       ))
 
-#+allegro
-(progn
-  (setf *load-local-names-info* t
-	;;(sys:gsgc-switch :print) t
-	))
-  
+(defvar *dev-opt* '(optimize
+		    #+cmu (ext:inhibit-warnings 2)
+		    (speed 1)
+		    (compilation-speed 2)
+		    (safety 2)
+		    (debug 3)
+		    ))
+
+
+(proclaim *dev-opt*)
+;;(proclaim *normal-opt*)
+ 
 (defun compile-in-environment (func)
   (let (
 	#+cmu (*compile-print* nil)
@@ -124,89 +103,41 @@ ADD_DESC: This file just contains simple init and loading of the game
 	      )
     (funcall func)))
 
-(defun quit-game& ()
-  "Tries to quit game.."
-  #+cmu
-  (cl-user::quit)
-  #-cmu
-  (warn "Can't quit yet.. fix me..")
-  (values))
-
-
-(defun load-shared-lib (&optional (lib "./lib/zterm/liblang_ui.so"))
-  "Loads the necessary shared-lib."
-
-  (let ((is-there (probe-file lib)))
-    (unless is-there
-      (warn "Unable to locate dynamic library ~a, please run 'make'."
-	    lib)
-      (quit-game&)))
-      
-  
-  #+allegro
-  (load lib)
-  #+cmu
-  (alien:load-foreign lib)
-  #+clisp
-  nil
-  #-(or cmu allegro clisp)
-  (warn "Did not load shared-library.."))
+(defun progress-msg (msg)
+  (format t "~&~a~%" msg))
 
 (defun load-game ()
   "Tries to load the game."
-  (load-shared-lib)
   ;;  (push :langband-debug *features*)
-  (load "langband.system")
-  (mk:operate-on-system 'langband 'compile :verbose t)
-  (format t "~&Base engine loaded...~%"))
 
+  (load "langband-engine.system")
+;;  (print (mk:get-file-order-system 'langband-engine))
+;;  (load "lib/foreign/langband-foreign.system")
+;;  (mk:operate-on-system 'langband-foreign 'compile :verbose nil)
+  (mk:operate-on-system 'langband-engine 'compile :verbose nil)
+  (progress-msg "Base engine loaded...")
+  
+  (load "variants/vanilla/langband-vanilla.system")
+  (mk:operate-on-system 'langband-vanilla 'compile :verbose nil)
+  (progress-msg "Variant loaded...")
+  t)
+  
 (compile-in-environment #'load-game)
-
-#||
-(defun load-variant (key)
-  (let ((var-obj 
-  (load "lib/var-vanilla.system")
-  (mk:operate-on-system 'vanilla-variant 'compile :verbose nil)
-  (format t "~&Variant loaded...~%"))
-||#
 
 #+xp-testing	
 (defun load-tests ()
   (load "tools/XPTest.system")
   (mk:operate-on-system 'XPTest 'compile :verbose nil)
   
-  (load "tests/tests.system")
-  (mk:operate-on-system 'lb-test 'compile :verbose nil)
-  (format t "~&Tests loaded.~%"))
+  (load "tests/langband-tests.system")
+  (mk:operate-on-system 'langband-tests 'compile :verbose nil)
+  (progress-msg "Tests loaded."))
 	
 #+xp-testing
 (compile-in-environment #'load-tests)
 
-
-;;(compile-in-environment #'load-vanilla-variant)
-
-(in-package :langband)
-
-#+xp-testing
-(defun do-a-test (stage)
-  (lb-test::run-lb-test stage :verbose t))
-
-(defun a ()
-  ;; to make sure dumps look pretty
-  (let ((*package* (find-package :langband))
-	#+cmu (extensions:*gc-verbose* nil)
-	#+cmu (*compile-print* nil)
-	)
-    (game-init&)))
-
-#||
-(trace lb::pqsetdblogin)
-
-(lb::pqsetdblogin "" nil nil nil "s14" "stig"
-		  "heihei")
-||#
+(in-package :org.langband.engine)
 
 #+xp-testing
 (do-a-test :pre)
 
-;;(trace c-term-queue-char!)

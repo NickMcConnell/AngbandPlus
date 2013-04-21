@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -17,7 +17,7 @@ ADD_DESC: for different parts of the code
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -47,6 +47,8 @@ ADD_DESC: for different parts of the code
      (level  :initarg :level)
      (xp     :initarg :xp)
      (gold   :initarg :gold)
+     (food   :initarg :food)
+     (energy :initarg :energy)
      (stat   :initarg :stat)
      (ac     :initarg :ac)
      (max-hp   :initarg :max-hp)
@@ -97,6 +99,10 @@ Each location should be a cons with (row . col)."))
 		 :cur-hp   '(17 . 0)
 		 :max-mana '(18 . 0)
 		 :cur-mana '(19 . 0)
+
+		 :food     '(21 . 0)
+		 :energy   '(22 . 0)
+
 		 ))
 
 

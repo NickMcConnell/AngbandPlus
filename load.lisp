@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 (defun %distribute-monsters! (dungeon objs)
   (dolist (i objs)
@@ -200,7 +200,7 @@ the Free Software Foundation; either version 2 of the License, or
 		      loc-x loc-y view-x view-y
 		      depth max-depth max-xp cur-xp fraction-xp
 		      cur-hp fraction-hp cur-mana fraction-mana
-		      gold energy)
+		      gold food energy)
   
   "Returns a player object or nil."
   
@@ -220,6 +220,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  (player.cur-mana pl-obj) cur-mana
 	  (player.fraction-mana pl-obj) fraction-mana
 	  (player.gold pl-obj) gold
+	  (player.food pl-obj) food
 	  (player.energy pl-obj) energy)
 
     (%filed-player-info pl-obj :name name :race race :class class :sex sex

@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -16,39 +16,33 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
 |#
 
-(in-package :langband)
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
+(in-package :org.langband.engine)
   
-  (defclass monster-kind ()
-    (
-     (id :accessor monster.id :initform nil)
-     (name :accessor monster.name :initform nil)
-     (desc :accessor monster.desc :initform nil)
-     (symbol :accessor monster.symbol :initform nil)
-     (colour :accessor monster.colour :initform nil)
-     (alignment :accessor monster.alignment :initform nil)
-     (type :accessor monster.type :initform nil)
-     (level :accessor monster.level :initform nil)
-     (rarity :accessor monster.rarity :initform nil)
-     (hitpoints :accessor monster.hitpoints :initform nil)
-     (armour :accessor monster.armour :initform nil)
-     (speed :accessor monster.speed :initform 0)
-     (xp :accessor monster.xp :initform 0)
-     (abilities :accessor monster.abilities :initform nil)
-     ;;   (resists :accessor monster.resists :initform nil)
-     (immunities :accessor monster.immunities :initform nil)
-     (vulnerabilities :accessor monster.vulnerabilities :initform nil)
-     (alertness :accessor monster.alertness :initform nil)
-     (vision :accessor monster.vision :initform nil)
-     (attacks :accessor monster.attacks :initform nil)
-     (treasures :accessor monster.treasures :initform nil)
-     (sex :accessor monster.sex :initform nil)
-     (special-abilities :accessor monster.sp-abilities :initform nil)
-     )) 
-
-
-  )
+(defclass monster-kind ()
+  ((id :accessor monster.id :initform nil)
+   (name :accessor monster.name :initform nil)
+   (desc :accessor monster.desc :initform nil)
+   (symbol :accessor monster.symbol :initform nil)
+   (colour :accessor monster.colour :initform nil)
+   (alignment :accessor monster.alignment :initform nil)
+   (type :accessor monster.type :initform nil)
+   (level :accessor monster.level :initform nil)
+   (rarity :accessor monster.rarity :initform nil)
+   (hitpoints :accessor monster.hitpoints :initform nil)
+   (armour :accessor monster.armour :initform nil)
+   (speed :accessor monster.speed :initform 0)
+   (xp :accessor monster.xp :initform 0)
+   (abilities :accessor monster.abilities :initform nil)
+   ;;   (resists :accessor monster.resists :initform nil)
+   (immunities :accessor monster.immunities :initform nil)
+   (vulnerabilities :accessor monster.vulnerabilities :initform nil)
+   (alertness :accessor monster.alertness :initform nil)
+   (vision :accessor monster.vision :initform nil)
+   (attacks :accessor monster.attacks :initform nil)
+   (treasures :accessor monster.treasures :initform nil)
+   (sex :accessor monster.sex :initform nil)
+   (special-abilities :accessor monster.sp-abilities :initform nil)
+   )) 
 
 (defmethod has-ability? ((mon monster-kind) ability)
   (dolist (i (monster.abilities mon))
@@ -66,12 +60,10 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
   (assert (or (stringp id) (symbolp id)))
   
-  (let ((kind (get-monster-kind (if (symbolp id)
-				    (symbol-name id)
-				    id))))
-    
-    (when kind
-      (create-active-monster kind))))
+  (when-bind (kind (get-monster-kind (if (symbolp id)
+					 (symbol-name id)
+					 id)))
+    (create-active-monster kind)))
 
 
 (defun create-active-monster (kind)
@@ -159,7 +151,7 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 (defmethod get-creature-name ((creature player))
   (player.name creature))
 
-(defmethod increase-xp! ((mon active-monster) amount)
+(defmethod alter-xp! ((mon active-monster) amount)
   (declare (ignore amount))
   nil)
 

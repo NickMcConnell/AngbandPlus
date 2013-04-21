@@ -1,3 +1,56 @@
+2001-07-18  Stig E Sandø <stig@users.sourceforge.net>
+	* Improved UI-handling considerably for zterm, including
+	now-usable curses-support
+	* Added better stack-handling
+	* Added nutritious effect of food
+	* Improved 'u'se code
+	* Improved birth UI
+	* Fixed a lot of minor technical issues
+	* Improved object descriptions
+	* Updated the included binary-types
+	* Improved debian-packaging
+	* Added quaff, eat and read-commands
+	* Other minor issues
+	
+2001-05-24  Stig E Sandø <stig@users.sourceforge.net>
+	* added some code to 'u'se objects, and started with potions.  
+	
+2001-05-22  Stig E Sandø <stig@users.sourceforge.net>
+	* lots of changes, some of them summarised here, others are
+	forgotten
+	* reorganised directory-structure and depend more on
+	logical-pathnames than earlier.
+	* Rewrote part of the C-side code to not depend on DEFINEs for
+	lisp-system.  To avoid linking-errors a dummycall shared-object is
+	also linked for ACL and CLISP.
+	* Tuned much of the FFI-code for ACl and slightly for CMUCL.  With
+	an intricate system of WITH-FOREIGN-STR and string-conversions and
+	even a non-consing LB-FORMAT (FORMAT-replacement) consing is down
+	and strings are basically passed as addresses in ACL and most of
+	CMUCL FFI.  I don't know for CLISP.
+	* added tests for ffi and format
+	* updated the clisp build to work with newer file-structure and
+	ffi-system.
+	* added Debian-packaging in three separate packages: the
+	c-library, the engine and currently the vanilla variant.  The
+	langband-engine depends on binary-types debian package.
+	* updated READMe and some docs.
+	* renamed packages to org.langband.engine, org.langband.ffi,
+	org.langband.testing
+	* fixed bug in xp-awarding/gain-level
+	* moved around code in general..
+	* added type-declarations in some places to please CMUCL, but
+	there's still plenty to do.
+	* ensured that build-system works when "developing", ie (load
+	"game") and when loading it on a debian-system.
+	* probably other minor things, but most importantly: reduced
+	consing and new improved build-ystsem with debian-package support
+	directly. 
+	
+2001-04-25  Stig E Sandø <stig@users.sourceforge.net>
+	* added preliminary tombstone
+	* fixed bug which disallowed wearing of gloves
+	
 2001-04-21  Stig E Sandø <stig@users.sourceforge.net>
 	* improving gradually save/load, now introducing the level-object
 	* made level-constructions use a factory in the variant object,

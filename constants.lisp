@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -16,32 +16,11 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 |#
 
-(in-package :langband)
-
-(defconstant +shared-zterm-lib+ "./lib/zterm/liblang_ui.so")
-#+allegro
-(defconstant +c-null-value+ 0)
-#-allegro
-(defconstant +c-null-value+ nil)
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (deftype =char-code= ()
-    #+handle-char-as-num
-    'u-fixnum
-    #-handle-char-as-num
-    'character
-    ))
+(in-package :org.langband.engine)
 
 ;; for use with c-kode
 (defconstant +false+ 0)
 (defconstant +true+ 1)
-
-(defmacro charify-number (num)
-  #+handle-char-as-num
-  num
-  #-handle-char-as-num
-  `(code-char ,num)
-  )
 
 (defconst +term-dark+    =char-code= (charify-number 0) "a colour")
 (defconst +term-white+   =char-code= (charify-number 1) "a colour")
@@ -150,6 +129,7 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 (defconstant +forget-view+    #x00010000)
 (defconstant +update-view+    #x00020000)
+(defconstant +update-xp+      #x00040000)
 
   
 (defconstant +block-height+ 11)
@@ -183,7 +163,7 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +start-column-of-map+ 13)
 
 (defconstant +sexes+ '((<male> . ("Male" "King"))
-		       (<female . ("Female" "Queen"))))
+		       (<female> . ("Female" "Queen"))))
 
 
 (defconst +max-sight+ u-fixnum 20 "maximum distance seen")
@@ -252,6 +232,13 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 (defconstant +speed-base+ 110)
 
+(defconstant +food-max+      15000 "Bloated")
+(defconstant +food-full+     10000 "Normal")
+(defconstant +food-hungry+    2000 "Hungry")
+(defconstant +food-weak+      1000 "Weak")
+(defconstant +food-fainting+   500 "Fainting")
+(defconstant +food-starving+   100 "Starving")
+
 (defconstant +illegal-loc-x+ 7777)
 (defconstant +illegal-loc-y+ 7777)
 (defconstant +room-size-arg-len+ 5)
@@ -260,3 +247,22 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +binary-save-file+ "_save-game.bin")
 
 (defconstant +saved-cave-flags+ (logior +cave-mark+ +cave-glow+ +cave-icky+ +cave-room+))
+
+;; stuff for view.lisp
+
+(defconstant +view-max+ 1536)
+(defconstant +vinfo-max-grids+ 161)
+(defconstant +vinfo-max-slopes+ 126)
+
+
+(defconstant +vinfo-bit-fields+ #8(#xFFFF #xFFFF  ;; 0
+				   #xFFFF #xFFFF  ;; 1
+				   #xFFFF #xFFFF  ;; 2
+				   #x3FFF #xFFFF  ;; 3
+				   ))
+
+(defconstant +vinfo-bit-field-len+ 8)
+
+(defconstant +vinfo-grid-field-len+ 8)
+
+(defconstant +scale+ 100000)

@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,17 +12,15 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
- 
-  (defclass feature-type ()
+(defclass feature-type ()
     ((id     :accessor feature.id     :initform nil)
      (name   :accessor feature.name   :initform nil)
      (x-attr :accessor feature.x-attr :initform nil)
      (x-char :accessor feature.x-char :initform nil)
-     (mimic  :accessor feature.mimic  :initform nil))))
+     (mimic  :accessor feature.mimic  :initform nil)))
 
 (defmethod print-object ((inst feature-type) stream)
   (print-unreadable-object

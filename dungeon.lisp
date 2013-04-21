@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -15,7 +15,7 @@ ADD_DESC: Simple code to access the dungeon object(s)
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 (defstruct (dungeon-coord (:conc-name coord.))
   (feature 0 :type u-16b)
@@ -157,23 +157,29 @@ the monster
 	      :element-type 'fixnum :initial-element 0))
 
 (defun cave-coord (dungeon x y)
+  (declare (type fixnum x y))
   (assert (and (< x (dungeon.width dungeon))
 	       (< y (dungeon.height dungeon))))
   (aref (dungeon.table dungeon) x y))
 
 (defun cave-feature (dungeon x y)
+  (declare (type fixnum x y))
   (coord.feature (cave-coord dungeon x y)))
 
 (defun cave-flags (dungeon x y)
+  (declare (type fixnum x y))
   (coord.flags (cave-coord dungeon x y)))
 
 (defun cave-objects (dungeon x y)
+  (declare (type fixnum x y))
   (coord.objects (cave-coord dungeon x y)))
 
 (defun cave-monsters (dungeon x y)
+  (declare (type fixnum x y))
   (coord.monsters (cave-coord dungeon x y)))
 
 (defun (setf cave-monsters) (val dungeon x y)
+  (declare (type fixnum x y))
   ;; add smart stuff later..
   (setf (coord.monsters (aref (dungeon.table dungeon) x y)) (if (listp val)
 								val
@@ -249,7 +255,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun map-info (dungeon x y)
   "Returns two values, attr and char, use M-V-B to get the values."
-  
+  (declare (type fixnum x y))
   ;; maybe get the coord in one go..
   (let* (;;(coord (cave-coord
 	 (mon (cave-monsters dungeon x y))
@@ -313,8 +319,10 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
     ;; let's see if any objects are on top
 
-    (when (and obj (typep obj 'item-table) (or (bit-flag-set? flags +cave-seen+)
-					       (bit-flag-set? flags +cave-view+)))
+    (when (and obj
+	       (typep obj 'item-table)
+	       (or (bit-flag-set? flags +cave-seen+)
+		   (bit-flag-set? flags +cave-view+)))
       ;; do we have objects..
       (if (> (items.cur-size obj) 1)
 	  ;; pile symbol
@@ -362,33 +370,40 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     (values ret-attr ret-char)))
 
 (defun cave-is-room? (dungeon x y)
+  (declare (type fixnum x y))
   (bit-flag-set? (cave-flags dungeon x y)
-	     +cave-room+))
+		 +cave-room+))
 
 (defun cave-boldly-naked? (dungeon x y)
+  (declare (type fixnum x y))
   (and (= (cave-feature dungeon x y) +feature-floor+)
        (eq nil (cave-objects dungeon x y))
        (eq nil (cave-monsters dungeon x y))))
 
 (defun cave-floor-bold? (dungeon x y)
+  (declare (type fixnum x y))
   (not (bit-flag-set? (cave-flags dungeon x y)
-		  +cave-wall+)))
+		      +cave-wall+)))
 
 (defun cave-icky? (dungeon x y)
+  (declare (type fixnum x y))
   (bit-flag-set? (cave-flags dungeon x y)
 		 +cave-icky+))
 
 
 (defun player-has-los-bold? (dungeon x y)
+  (declare (type fixnum x y))
   (bit-flag-set? (cave-flags dungeon x y)
 		 +cave-view+))
 
 (defun player-can-see-bold? (dungeon x y)
+  (declare (type fixnum x y))
   (bit-flag-set? (cave-flags dungeon x y)
 		 +cave-seen+))
 
 (defun place-player! (dungeon player x y)
   (declare (ignore dungeon))
+  (declare (type fixnum x y))
   ;; fix me later
   (setf (location-y player) y
 	(location-x player) x)
@@ -431,6 +446,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun %loc-queue-cons (vx vy the-attr the-char)
   "Misleading name.. no cons involved anymore."
+  (declare (type fixnum vx vy))
   (c-term-queue-char! vx vy
 		      the-attr
 		      #-handle-char-as-num
@@ -534,6 +550,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun note-spot! (dungeon x y)
   "noting the spot, does not remember objects yet."
+  (declare (type fixnum x y))
 
   (let* ((coord (cave-coord dungeon x y))
 	 (flag (coord.flags coord)))
@@ -555,11 +572,14 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 (defun light-spot! (dungeon x y)
   "lighting up the spot.."
 
+  (declare (type fixnum x y))
+  
   (let* ((pvx (player.view-x *player*))
 	 (pvy (player.view-y *player*))
 	 (kx (- x pvx))
 	 (ky (- y pvy)))
 
+    (declare (type fixnum pvx pvy kx ky))
 
     ;; debugging
 ;;    (when (or (minusp kx) (minusp ky))
@@ -671,11 +691,11 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     (let ((dungeon-height (dungeon.height dungeon))
 	  (dungeon-width (dungeon.width dungeon)))
       
-	  (loop for y from 0 to (1- dungeon-height)
+	  (loop for y of-type fixnum from 0 to (1- dungeon-height)
 		do
 		(when (> y 0) (format s "~%"))
 	    
-		(loop for x from 0 to (1- dungeon-width)
+		(loop for x of-type fixnum from 0 to (1- dungeon-width)
 		      do
 		      (let ((point-info (cave-feature dungeon x y)))
 			(format s "~a" (feature.x-char (get-feature point-info))))))
@@ -683,6 +703,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun get-coord-trigger (dun x y)
   "Tries to find a trigger at a given point."
+;;  (warn "looking for trigger at ~d,~d -> ~s" x y (dungeon.triggers dun))
   (dolist (i (dungeon.triggers dun))
     (let ((place (car i)))
       (when (and (= (car place) x)
@@ -690,12 +711,13 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	(return-from get-coord-trigger i))))
   nil)
 
+;;(trace get-coord-trigger)
+
 (defun (setf get-coord-trigger) (val dun x y)
   "Adds a trigger to the given dungeon."
-  val)
 
-;; this is the real code below:
-#||
+;;  (warn "Adding ~s at ~d,~d" val x y)
+
   (dolist (i (dungeon.triggers dun))
     (let ((place (car i)))
       (when (and (= (car place) x)
@@ -704,24 +726,30 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	(return-from get-coord-trigger i))))
   
   (push (cons (cons x y) val) (dungeon.triggers dun)))
-||#
+
 
 
 (defun apply-possible-coord-trigger (dun x y)
   "This is a hack.. fix me later.."
+  (declare (type fixnum x y))
+
   (let ((trigger (get-coord-trigger dun x y)))
-    (when (and trigger (consp trigger) (functionp (cdr trigger)))
-      (funcall (cdr trigger) dun x y))))
+    (when (and trigger (consp trigger) (is-event? (cdr trigger)))
+      (apply (event.function (cdr trigger)) dun x y (event.state (cdr trigger)))
+      )))
 
 (defun put-cursor-relative! (dun x y)
   "Tries to put the cursor relative to the window."
   (declare (ignore dun))
-  
+  (declare (type fixnum x y))
+
   (let* ((pl *player*)
 	 (pwy (player.view-y pl)) 
 	 (ky (- y pwy))
 	 (pwx (player.view-x pl))
 	 (kx (- x pwx)))
+    
+    (declare (type fixnum pwx pwy kx ky))
     
     (when (and (<= 0 kx)
                (<= 0 ky)

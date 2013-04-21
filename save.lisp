@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,23 +12,21 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
   
-  (defclass l-readable-stream ()
-    ((the-stream :accessor lang.stream :initform nil :initarg :stream)))
-  (defclass l-binary-stream ()
-    ((the-stream :accessor lang.stream :initform nil :initarg :stream)))
+(defclass l-readable-stream ()
+  ((the-stream :accessor lang.stream :initform nil :initarg :stream)))
+(defclass l-binary-stream ()
+  ((the-stream :accessor lang.stream :initform nil :initarg :stream)))
 
 
-  (defgeneric save-object (object stream indent)
-    (:documentation "Tries to save object to the stream."))
+(defgeneric save-object (object stream indent)
+  (:documentation "Tries to save object to the stream."))
 
-  (defgeneric load-object (type stream)
-    (:documentation "Tries to load a certain type of object from the stream."))
+(defgeneric load-object (type stream)
+  (:documentation "Tries to load a certain type of object from the stream."))
   
-  )
 
 (defun %bin-save-string (obj stream)
   "Tries to write a var-length string."
@@ -41,7 +39,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defun %bin-read-string (stream)
   "Tries to read a string from the given stream."
   (let* ((len (bt:read-binary 'bt:u32 stream))
-	 (str (bt:read-fixed-size-string len stream)))
+	 (str (if (= len 0) "" (bt:read-binary-string stream :size len))))
     (values str len)))
 
 
@@ -329,8 +327,8 @@ the Free Software Foundation; either version 2 of the License, or
 	    ind (player.cur-hp obj) (player.fraction-hp obj)
 	    (player.cur-mana obj) (player.fraction-mana obj))
 
-    (format str "~a  :gold ~s :energy ~s ~%"
-	    ind (player.gold obj) (player.energy obj))
+    (format str "~a  :gold ~s :food ~s :energy ~s ~%"
+	    ind (player.gold obj) (player.food obj) (player.energy obj))
     
     
     (format str "~a  :equipment ~%" ind)

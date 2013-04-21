@@ -1,0 +1,31 @@
+The Debian Package langband
+---------------------------
+
+This is a lispier Angband, and is a complete rewrite of Angband
+in Common Lisp.  This packaging is still very preliminary though.
+
+Known bugs:
+- splash screen not working.
+- not particularly configurable
+- unsafe
+- and all the other problems of the upstream version.
+
+Please report bugs on the Langband project page on Sourceforge:
+  http://sourceforge.net/projects/langband/
+
+To use it, I recommend that you get all langband-packages;
+  langband-zterm   <- the term-library from Angband (modified)
+  langband-engine  <- the engine that does most of the job
+  langband-vanilla <- a pluggable "variant" that mostly works as vanilla Angband
+
+To use it with CMUCL (only place it's been tested):
+
+$ lisp
+> (require :langband-vanilla)
+> (lb::a)
+
+See also the other documentation.
+
+Note: for curses/xterm you might use (lb::a 'gcu)
+
+Stig E Sandoe <stig@users.sourceforge.net>

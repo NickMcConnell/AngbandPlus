@@ -1,4 +1,4 @@
-;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -16,7 +16,7 @@ ADD_DESC: Most of the code which deals with keyboard input.
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 (defvar *key-operations* (make-hash-table :test #'eq))
 

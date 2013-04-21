@@ -1,9 +1,9 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
 DESC: object.lisp - code for object-kinds
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,12 +17,10 @@ ADD_DESC: available in the game.
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
- 
-  (defclass object-kind ()
+(defclass object-kind ()
     ((id         :accessor object.id
 		 :initarg :id
 		 :initform nil)
@@ -96,8 +94,13 @@ ADD_DESC: available in the game.
      (events     :accessor object.events
 		 :initarg :events
 		 :initform nil)
-   
-     )))
+
+     ;; list of conses
+     (effects   :accessor object.effects
+		:initarg :events
+		:initform nil)
+     
+     ))
 
 (defun get-okind-table ()
   (let* ((o-table (get-otype-table *level* *variant* ))
@@ -294,11 +297,13 @@ with k-info.txt numbers. NUM is the numeric id."
 	(create-aobj-from-kind the-kind))))
 
 
-(defun plural-name (number name)
+(defun plural-name (number name flavour ident actual-name)
   "Returns a name with plurality fixed as in normal Angband.  FIX ME"
+  (declare (type u-16b number)
+	   (type simple-base-string name))
   (let ((plural (> number 1)))
     (with-output-to-string (s)
-      (loop for i from 0 to (1- (length name))
+      (loop for i of-type u-16b from 0 to (1- (length name))
 	    for x = (schar name i)
 	    do
 	    (case x
@@ -313,45 +318,62 @@ with k-info.txt numbers. NUM is the numeric id."
 		       (if (find (schar name (+ i 2)) '(#\a #\e #\i #\o #\u #\y))
 			   (write-string "an" s)
 			   (write-char #\a s))))
-	      
+	      (#\# (when flavour
+		     (write-string flavour s)
+		     (write-char #\Space s)
+		     ))
+
+	      (#\@ (when ident
+		     (write-string " of " s)
+		     (write-string actual-name s)))
 	      
 	      (otherwise
 	       (write-char x s))))
       )))
 
+(defmethod description ((item active-object) &key store (number nil))
+  (description (aobj.kind item) :store store :number (if number number (aobj.number item))))
 
-(defun object-description (item &key store)
-  "this one should be moved out into the variant directories"
+(defmethod description ((o-type object-kind) &key store (number 1))
+  "this one should be moved out into the variant directories.  it conses"
   
-  (declare (ignore store))
-  
-  (let* ((o-type (aobj.kind item))
-	 (name (object.name o-type))
-;;	 (num (aobj.number item))
-;;	 (plural (> num 1))
-	 (tot-str (plural-name (aobj.number item) name))
-	 (o-tlist (object.obj-type o-type))
-	 (flavour (object.flavour o-type)))
-	 
+  (let ((name (object.name o-type))
+	(flavour (if store nil (object.flavour o-type)))
+	(known-type (or store (object.identified o-type)))
+	;;(o-tlist (object.obj-type o-type))
+	;;(plural-string nil)
+	)
+
     ;; temporary hack
     (when flavour (setf flavour (car flavour)))
     
-    (dolist (x o-tlist)
-      (case x
-	(<mushroom> (setf tot-str (concatenate 'string flavour " mushroom of " tot-str)))
-	(<ring> (setf tot-str (concatenate 'string flavour " ring of " tot-str)))
-	(<potion> (setf tot-str (concatenate 'string flavour " potion of " tot-str)))
-	(<staff> (setf tot-str (concatenate 'string flavour " staff of " tot-str)))
-	(<wand> (setf tot-str (concatenate 'string flavour " wand of " tot-str)))
-	(<rod> (setf tot-str (concatenate 'string flavour " rod of " tot-str)))
-	(<amulet> (setf tot-str (concatenate 'string flavour " amulet of " tot-str)))
-	(<scroll> (setf tot-str (concatenate 'string "scroll ['" flavour "'] of " tot-str)))
-	(otherwise
-	 ;;(warn "Object fell through type-list")
-	 )))
+;;    (warn "tot-str ~s" tot-str)
 
-    tot-str))
+    (cond ((obj-is? o-type '<mushroom>)
+	   (plural-name number "& #mushroom~@" flavour known-type name))
+	  ((obj-is? o-type '<potion>)
+	   (plural-name number "& #potion~@" flavour known-type name))
+	  ((obj-is? o-type '<ring>)
+	   (plural-name number "& #ring~@" flavour known-type name))
+	  ((obj-is? o-type '<potion>)
+	   (plural-name number "& #amulet~@" flavour known-type name))
+	  ((obj-is? o-type '<staff>)
+	   (plural-name number "& #staff~@" flavour known-type name))
+	  ((obj-is? o-type '<wand>)
+	   (plural-name number "& #wand~@" flavour known-type name))
+	  ((obj-is? o-type '<rod>)
+	   (plural-name number "& #rod~@" flavour known-type name))
+	  ((obj-is? o-type '<scroll>)
+	   (plural-name number "& scroll~ #@" flavour known-type name))
+	  ((obj-is? o-type '<spellbook>)
+	   (plural-name number "& ritual-book~ #@" flavour known-type name))
+	  (t
+;;	   (warn "Fell through with object ~a ~s" name (object.obj-type o-type)) 
+	   (plural-name number name nil known-type nil)))
 
+    ))
+
+;;(trace description)
 
 (defmethod print-object ((inst object-kind) stream)
   (print-unreadable-object
@@ -367,4 +389,8 @@ with k-info.txt numbers. NUM is the numeric id."
 	   (aobj.kind inst) (location-x inst) (location-y inst))
   inst))
 
-
+(defun is-eatable? (o-type)
+  (or (obj-is? o-type '<food>)
+      (obj-is? o-type '<potion>)
+      (obj-is? o-type '<mushroom>)))
+      

@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,21 +12,16 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
+(in-package :org.langband.engine)
   
   (defstruct (game-obj-table (:conc-name gobj-table.))
     (obj-table nil)
     (alloc-table nil)
-    (obj-table-by-lvl nil)
-    )
-
+    (obj-table-by-lvl nil))
 
 
   (defclass variant (activatable)
-    (
-     (id        :accessor variant.id
+    ((id        :accessor variant.id
 		:initform :lithping
 		:initarg :id)
    
@@ -38,9 +33,9 @@ the Free Software Foundation; either version 2 of the License, or
 		:initform nil
 		:initarg :sys-file)
 
-     (file-path :accessor variant.file-path ;; used for?
-		:initform nil
-		:initarg :file-path)
+     (config-path :accessor variant.config-path ;; where is the configuration-files?
+		  :initform nil
+		  :initarg :config-path)
 
      ;; the rest can be done lazily
      
@@ -130,7 +125,30 @@ the Free Software Foundation; either version 2 of the License, or
 		      :initarg :day-length
 		      :initform 10000)
      
-     )))
+     ))
+
+  (defgeneric initialise-monsters& (variant &key &allow-other-keys)
+    (:documentation "Initialises monsters for the given variant."))
+  
+  (defgeneric initialise-features& (variant &key &allow-other-keys)
+    (:documentation "Initialises features for the given variant."))
+  
+  (defgeneric initialise-objects& (variant &key &allow-other-keys)
+    (:documentation "Initialises objects for the given variant."))
+
+  (defgeneric calculate-score (variant player)
+    (:documentation "Calculates the score for the player based on the variant's
+scoring-system."))
+
+ 
+(defmethod initialise-monsters& (variant &key)
+  (error "No INIT-MONSTERS for ~s" (type-of variant)))
+  
+(defmethod initialise-features& (variant &key)
+  (error "No INIT-FEATURES for ~s" (type-of variant)))
+
+(defmethod initialise-objects& (variant &key)
+  (error "No INIT-OBJECTS for ~s" (type-of variant)))
 
 
 (defun register-variant& (var-obj)
@@ -139,23 +157,28 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  (warn "Trying to run variant ~a" (variant.name var-obj))
   (setf (get 'variants (variant.id var-obj)) var-obj))
 
+(defun variant-data-fname (var-obj data-fname)
+  "Returns a full pathname for data."
+  (let ((file-path (variant.config-path var-obj)))
+    (if file-path
+	(concatenate 'string file-path "/" data-fname)
+	data-fname)))
+
 
 (defun load-variant-data& (var-obj data-file)
   "Loads variant-data from appropriate directory."
 
-  (let* ((file-path (variant.file-path var-obj))
-	 (full-fname (if file-path
-			 (concatenate 'string file-path "/" data-file)
-			 data-file)))
-    (load full-fname)
-;;	(error "Unable to find variant data-file ~a" full-fname))
-    ))
+  (let ((fname (variant-data-fname var-obj data-file)))
+    (load fname)))
+
 
 (defun load-variant& (id &key (verbose t))
   "Tries to load a variant."
-
+  (declare (ignore verbose))
   (let ((var-obj (get 'variants id)))
     (when (and var-obj (typep var-obj 'variant))
+      var-obj)))
+#||
       (let ((sys-file (variant.sys-file var-obj)))
 	(when verbose
 	  (format t "~&Will try to load variant '~a' in file ~a~%" id sys-file))
@@ -166,7 +189,7 @@ the Free Software Foundation; either version 2 of the License, or
 	     (when verbose
 	       (format t "~&Variant '~a' compiled and loaded.~%" id))))
 	var-obj))))
-
+||#
 	     
 
 (defun get-sort-value (key)
@@ -236,6 +259,4 @@ are sorted first.  Returns nothing."
   (let ((table (variant.level-builders var-obj))
 	(key (if (symbolp id) (symbol-name id) id)))
     (setf (gethash key table) builder)))
-
-
 

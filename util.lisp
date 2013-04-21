@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -17,7 +17,7 @@ ADD_DESC: classes and must be loaded late.
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 (defun get-item-table (dungeon player which-table)
   "Returns item-table or NIL."
@@ -49,20 +49,27 @@ ADD_DESC: classes and must be loaded late.
   (incf (items.cur-size table))
   t)
 
-(defmethod item-table-remove! ((table items-on-floor) key)
+(defmethod item-table-remove! ((table items-on-floor) key &key only-single-items)
   (cond ((item-table-verify-key table key)
-	 (let ((old-obj nil)
+	 (let ((ret-obj nil)
 	       (num-key (typecase key
 			  (character (a2i key))
 			  (number key)
 			  (t nil))))
 	   (when (numberp num-key)
-	     (setq old-obj (elt (items.objs table) num-key))
-	     (setf (items.objs table) (delete old-obj (items.objs table)))
-	     (remove-item-from-dungeon! (items.dun table) old-obj)
-	     (decf (items.cur-size table)))
+	     (let ((old-obj (elt (items.objs table) num-key)))
+
+	       ;; if only one, else remove
+	       (cond ((and only-single-items (> (aobj.number old-obj) 1))
+		      (setf ret-obj (create-aobj-from-kind (aobj.kind old-obj)))
+		      (decf (aobj.number old-obj)))
+		     (t
+		      (setf (items.objs table) (delete old-obj (items.objs table)))
+		      (remove-item-from-dungeon! (items.dun table) old-obj)
+		      (decf (items.cur-size table))
+		      (setf ret-obj old-obj)))))
 	   
-	   old-obj))
+	   ret-obj))
 	(t
 	 (warn "illegal key ~a" key)
 	 nil)))
@@ -96,3 +103,7 @@ ADD_DESC: classes and must be loaded late.
 	for obj in (items.objs table)
 	do
 	(funcall function table i obj)))
+
+(defmethod calculate-score (variant player)
+  (declare (ignore variant))
+  (+ (player.max-xp player) (* 100 (player.depth player))))

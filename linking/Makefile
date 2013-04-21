@@ -16,12 +16,16 @@ SHELL = /bin/sh
 all: clisp-module
 
 libs:
-	-ln -s ../lib/zterm/liblang_ui.so liblang_ui.so
+	-ln -s ../zterm/liblangband_ui.so liblangband_ui.so
+	-ln -s ../zterm/liblangband_dc.so liblangband_dc.so
 
-gen-clisp.c:
-	-ln -s ../lib/foreign/gen-clisp.c gen-clisp.c
+ffi-clisp.c:
+	-ln -s ../ffi/ffi-clisp.c ffi-clisp.c
 
-gen-clisp.o : gen-clisp.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c gen-clisp.c
+ffi-clisp.o : ffi-clisp.c
+	$(CC) $(CFLAGS) -I$(INCLUDES) -c ffi-clisp.c
 
-clisp-module : libs gen-clisp.o
+clisp-module : libs ffi-clisp.o
+
+
+

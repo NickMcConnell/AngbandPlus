@@ -1,3 +1,98 @@
+2001-07-12  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.83
+
+	* binary-types.lisp: Fixed READ-BINARY-STRING to work correctly
+	for :SIZE 0. It will now return "" and 0, rather than entering
+	an infinite loop.
+
+2001-06-29  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.82
+
+	* binary-types.lisp: Added macro WITH-BINARY-OUTPUT-TO-VECTOR.
+	Supposed to resemble CL:WITH-OUTPUT-TO-STRING.
+
+2001-06-26  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Fixed buggy function READ-BINARY-STRING.
+
+2001-06-22  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Renamed many identifiers from xx-COMPUND-xx
+	to xx-RECORD-xx. Of the exported symbols, only two are changed:
+	WRITE-BINARY-RECORD, and BINARY-RECORD-SLOT-NAMES. A (binary)
+	record is either a lisp struct or class.
+
+	* RELEASE: 0.81
+
+	* binary-types.lisp: Minor fixups to make BT work with CLISP.
+
+2001-06-20  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.80
+
+	* binary-types.lisp: Rewrote and renamed some the binary string
+	types. Macros DEFINE-BINARY-STRING and
+	DEFINE-NULL-TERMINATED-STRING should now be used to define string
+	types.
+
+	* binary-types.lisp: Added function READ-BINARY-STRING that should
+	be general enough to read most kinds of strings. It still doesn't
+	do character sets, though.
+
+	* binary-types.lisp: Removed traces of variable-sized binary
+	types. Everything is now constant-sized. Removed functions
+	SIZEOF-MIN and SIZEOF-MAX.
+
+2001-06-09  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Removed one more instance of upcased symbols
+	in the code, in order to facilitate those using case-sensitive
+	readers.
+
+2001-06-06  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.76
+
+	* binary-types.lisp: Added macro WITH-BINARY-INPUT-FROM-VECTOR.
+
+	* binary-types.lisp: Added check for end-of-list in
+	WITH-BINARY-INPUT-FROM-LIST macro.
+
+	* Makefile: Forgot to include recently added file
+	type-hierarchy.ps in the distribution tarball.
+
+2001-05-03  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Renamed the slot-options (the old ones still
+	work though).
+	:bt => :binary-type
+	:btt => :binary-lisp-type
+	:bt-on-write => :map-binary-write.
+
+	* binary-types.lisp: Added a pseudo-type :LABEL available only
+	inside DEFINE-BINARY-CLASS and which is a void type intended for
+	"slots" that don't hold any data but are used as labels in the
+	struct in order to determine offsets etc. If this type is declared
+	with the :btt (or :binary-lisp-type) slot-option, the lisp :type
+	NIL is declared (the empty type).
+
+2001-04-24  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.75
+
+2001-04-23  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* type-hierarchy.ps: Added. This is a postscript file displaying
+	the type (meta-) hierarchy, for reference.
+
+2001-04-22  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Added macro WITH-BINARY-INPUT-FROM-LIST that
+	sets up a "stream" variable suitable for READ-BINARY that provides
+	8-bit bytes from a list of integers.
+
 2001-04-12  Frode Vatvedt Fjeld  <frodef@acm.org>
 
 	* RELEASE: 0.74

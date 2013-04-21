@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,10 +12,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defclass house (activatable)
     ((id     :accessor house.id     :initform nil :initarg :id)
@@ -43,7 +41,7 @@ the Free Software Foundation; either version 2 of the License, or
   (defgeneric find-owner-for-house (level house &key)
     (:documentation "Tries to find an appropriate owner for the house."))
 
-  )
+
 
 (defmethod visit-house (level (house house))
   (declare (ignore level))

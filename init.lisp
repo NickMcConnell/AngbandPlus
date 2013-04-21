@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #||
 
@@ -17,7 +17,7 @@ ADD_DESC: at the start.
 
 ||#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 (defun init-flavours& (flavour-type-list)
   "initiates flavours and updates symbols relating to flavours"
@@ -193,22 +193,44 @@ ADD_DESC: at the start.
 	  do
 	  (format s "~&~a: ~a~%" (alloc.level i) (alloc.obj i)))))
 
-(defun game-init& ()
+(defun %to-a-string (obj)
+  (etypecase obj
+    (string obj)
+    (symbol (symbol-name obj))))
+
+(defun game-init& (&optional (ui "x11"))
   "This function should be called from the outside to
 start the whole show.  It will deal with low-level and
 call appropriately high-level init in correct order."
   
   (setq cl:*random-state* (cl:make-random-state t))
 
-  (vinfo-init)
+  (with-open-file (alternative-errors #p"/tmp/langband-warn.txt"
+				      :direction :output
+				      :if-exists :append
+				      :if-does-not-exist :create)
+    
+    (let (#+hide-warnings
+	  (cl:*error-output* alternative-errors)
+	  #+hide-warnings
+	  (cl:*trace-output* alternative-errors)
+	  #+hide-warnings
+	  (cl:*standard-output* alternative-errors))
 
+      ;;      (warn "Writing to warn-file")
+      ;;      (format t "~&Writing to file~%")
+  
   ;; so far we just load vanilla
-  (let ((var-obj (load-variant& 'vanilla-variant :verbose t)))
+  (let ((var-obj (load-variant& 'langband-vanilla :verbose t)))
+    (cond ((not var-obj)
+	   (warn "Unable to find variant")
+	   (return-from game-init& nil))
+	  (t
+	   (setf *variant* var-obj)
+	   (activate-object var-obj))))
 
-    (when var-obj
-      (setf *variant* var-obj)
-      (activate-object var-obj)))
-
+  (vinfo-init)
+    
   ;; run tests after variant has been loaded
   #+xp-testing
   (do-a-test :post)
@@ -216,29 +238,50 @@ call appropriately high-level init in correct order."
   (unless *current-key-table*
     (setf *current-key-table* *ang-keys*))
 
+  ;; time to register our lisp
+  #+(or cmu allegro clisp)
+  (c-set-lisp-system! #+cmu 0 #+allegro 1 #+clisp 2)
+  
+  #-(or cmu allegro clisp)
+  (error "lisp-system ~s unknown for C-side." (lisp-implementation-type))
+  
   #+use-callback-from-c
   (arrange-callback)
-  ;;  (c-init-x11! 0 0)
-  (c-init-gui! 0 +c-null-value+)
 
-
+  (init-c-side& (%to-a-string ui)
+		(namestring *engine-config-dir*)
+		0) ;; no debug
+  
   ;;(warn "return..")
   #-use-callback-from-c
   (play-game&)
   
-  )
+  )))
+
 
 (defun arrange-callback ()
-  "system specific code.."
+  "Assures that the C-side has a callback to the Lisp-side."
   
   #+allegro
-  (set_lisp_callback! (ff:register-foreign-callable `c-callable-play nil t))
+  (org.langband.ffi:c-set-lisp-callback! (ff:register-foreign-callable `c-callable-play nil t))
 
   #+cmu
   (let ((ptr (kernel:get-lisp-obj-address #'play-game&)))
-    (set_lisp_callback! ptr))
+    (org.langband.ffi:c-set-lisp-callback! ptr))
 
   #-(or cmu allegro)
-  (warn "No callback arranged for implementation..")
+  (error "No callback arranged for implementation..")
   
   )
+
+;;; hackish thing to start the game ever so long.
+(defun a (&optional (ui "x11"))
+  ;; to make sure dumps look pretty
+  (let ((*package* (find-package :langband))
+	#+cmu (extensions:*gc-verbose* nil)
+	#+cmu (*compile-print* nil)
+	)
+    (game-init& ui)
+    (format t "~&Thanks for helping to test Langband.~2%")
+    ))
+

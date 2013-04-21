@@ -5,40 +5,43 @@ This list is _very_ long at the moment even though it
 has been stripped down to what is needed to have a
 vanilla-complete engine/system.
 
-
-TRAPS
- - not implemented
-
-SEARCHING
- - not implemented
+DUNGEON and TOWN
+ - traps not implemented
+ - searching not implemented
+ - vaults not implemented
+ - pits not implemented
+ - only simple rooms implemented
+ - shops do not work yet
 
 SPELLS and MAGICAL ITEMS
- - not implemented
+ - priest-spells not implemented
+ - mage-spells not implemented
+ - scrolls not implemented
+ - mushrooms not implemented [started]
+ - potions not implemented [half done]
+ - wands not implemented
+ - staves not implemented
+ - rods not implemented
+ - artifacts not implemented
 
-SAVE and LOAD
- - mostly implemented
- - misses events, shops, etc.
-
-HIGH-SCORE FILE
- - not implemented
-
-VAULTS and FANCY ROOMS
- - not implemented
- - only simple rooms implemented
-
-ARTIFACTS and EGO-WEAPONS
- - not implemented, not even primitive magical items
+SAVE/LOAD and SCORE
+ - 2/3 of save/load implemented
+ - save/load misses events, shops, etc.
+ - high-score saving not implemented
 
 MONSTERS
  - extremely primitive AI, all monsters aggressive
- - none of the behave as they really should
+ - none of the monsters behave as they really should
  - does not carry items or use items
  - no monster-memory
+ - no monster-drops
 
 COMBAT
+ - no magical weapons done
+ - no ego-weapons done
  - no missile/thrown weapons
  - no special powers or bonuses used in combat
- - missing proper descriptions for attacks (somewhat improved now)
+ - missing proper descriptions for attacks [somewhat improved now]
  - speed-system doesn't work, everyone has the same speed now.
    [this is almost fixed now and should work for regular cases though]
 
@@ -47,21 +50,18 @@ MOVING ABOUT
  - no torch-charges used or oil wasted though :-)
  - no running
  - no stay still command [Maybe the key 5, stand-still is ok]
- - no resting and no regeneration (simple regen for hits added)
+ - no resting and no regeneration [simple regen for hits added]
  - no map function
 
-SHOPS
- - do not work yet
-
 CONTAINERS
- - stacking doesn't work
+ - stacking doesn't work 
  - it doesn't understand that only one torch is used at a time. 
 
 COMMANDS
  - no directed 'o'pen command
  - no wizard-mode
  - no 'D'estroy item command
- - eating, drinking, etc not implemented
+ - eating, drinking, etc not implemented [q and u should work on potions]
  - no redraw of a screwed up screen
  - no 'L'ook command
 
@@ -70,7 +70,7 @@ BIRTH
  - point-based system missing [don't need it]
 
 OTHER
- - messages are not saved
+ - messages are not saved or kept
  - no option-system
  - no visual changing
  - no macro-system from within the game

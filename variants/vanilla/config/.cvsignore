@@ -1,0 +1,8 @@
+*.fasl
+*.x86f
+*.err
+*.fas
+*.sparcf
+*.lib
+*.ufsl
+

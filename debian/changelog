@@ -1,0 +1,75 @@
+langband (0.0.12-1) unstable; urgency=low
+
+  * New upstream version, see upstream Changelog.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Wed, 18 Jul 2001 01:14:59 +0200
+
+langband (0.0.11-10) unstable; urgency=low
+
+  * Fixed packaging glitches (thanks to trs80)
+  * Minor details.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Mon, 16 Jul 2001 22:48:23 +0200
+
+langband (0.0.11-9) unstable; urgency=low
+
+  * Syncing of lisp-side and c-side on what UI is used.  Fixes key-bug
+  * Removed printouts, et.al
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Mon, 16 Jul 2001 21:27:33 +0200
+
+langband (0.0.11-8) unstable; urgency=low
+
+  * made zterm fall back on curses if possible
+  * allowed better init arguments to the game-init which is passed to C
+  * also made curses module dump info to a file
+  * piped calls into the lisp quit-function to ensure flushing
+  * added gcu keys and handling of escape in such strings.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Mon, 16 Jul 2001 20:44:09 +0200
+
+langband (0.0.11-7) unstable; urgency=low
+
+  * Not quite sure on all changes and stuff.
+  * At least I've installed a new birth user-interface which is ok. 
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Thu, 12 Jul 2001 00:05:35 +0200
+
+langband (0.0.11-6) unstable; urgency=low
+
+  * Moved around some files and made a virtual package langband-variant. 
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Thu,  7 Jun 2001 22:11:30 +0200
+
+langband (0.0.11-5) unstable; urgency=low
+
+  * More updates, the foreign-code may break.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Sun, 27 May 2001 00:05:30 +0200
+
+langband (0.0.11-4) unstable; urgency=low
+
+  * Added dependency on binary-types
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Sat, 19 May 2001 15:34:42 +0200
+
+langband (0.0.11-3) unstable; urgency=low
+
+  * tried to abstract out libraries in one package and be independent of
+    the lisp-system. 
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Sat, 19 May 2001 14:51:21 +0200
+
+langband (0.0.11-2) unstable; urgency=low
+
+  * Updated some building-setup
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Sat, 28 Apr 2001 17:11:01 +0200
+
+langband (0.0.11-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Mon, 23 Apr 2001 11:08:25 +0200
+
+

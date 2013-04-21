@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -17,7 +17,7 @@ ADD_DESC: flavouring of variants
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 ;; no known flavour-types initially
 ;;(defvar *flavour-types* nil "should be a list")

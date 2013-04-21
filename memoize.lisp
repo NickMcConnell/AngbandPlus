@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -11,7 +11,7 @@ DESC: memoize.lisp - memoization from PAIP
 |#
 
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
 ;;;; The Memoization facility:
 

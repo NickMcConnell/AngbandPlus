@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -16,23 +16,9 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
-
-#||
-;; dy1 dy2 dx1 dx2 level
-(defconstant +room-data+ #1A(
-			     ( 0  0  0 0  0)
-			     ( 0  0 -1 1  1)   ;; 1 = Simple (33x11)
-			     ( 0  0 -1 1  1)   ;; 2 = Overlapping (33x11)
-			     ( 0  0 -1 1  3)   ;; 3 = Crossed (33x11)
-			     ( 0  0 -1 1  3)   ;; 4 = Large (33x11) 
-			     ( 0  0 -1 1  5)   ;; 5 = Monster nest (33x11)
-			     ( 0  0 -1 1  5)   ;; 6 = Monster pit (33x11) 
-			     ( 0  1 -1 1  5)   ;; 7 = Lesser vault (33x22) 
-			     (-1  2 -2 3 10)   ;; 8 = Greater vault (66x44)
-			     ))
-||#
+;; old table of room-data, see at the end
 
 (defun correct-direction (x1 y1 x2 y2)
   "Returns two values, first the x-dir, then the y-dir"
@@ -51,11 +37,13 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 (defun in-bounds? (dungeon x y)
   "Checks that the coordinate is well within the dungeon"
+  (declare (type fixnum x y))
   (legal-coord? dungeon x y))
 
 
 (defun in-bounds-fully? (dungeon x y)
   "Checks that the coordinate is well within the dungeon"
+  (declare (type fixnum x y))
   (and (> x 0)
        (> y 0)
        (< x (1- (dungeon.width dungeon)))
@@ -95,7 +83,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 (defun next-to-corridor (dungeon x y)
   "returns a fixnum"
-  
+  (declare (type fixnum x y))
   (let ((retval 0))
     
     (dotimes (i 4)
@@ -110,6 +98,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
     retval))
 
 (defun possible-doorway? (dungeon x y)
+  (declare (type fixnum x y))
   (when (>= (next-to-corridor dungeon x y) 2)
     ;; check vertical
     (when (and (<= +feature-magma+ (cave-feature dungeon x (1- y)))
@@ -124,6 +113,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 (defun try-door! (dungeon x y)
   "attempts to place a door"
+  (declare (type fixnum x y))
   (unless (in-bounds? dungeon x y)
     ;; ignore walls or rooms
     (unless (or (>= (cave-feature dungeon x y) +feature-magma+)
@@ -152,6 +142,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
        (return-from new-player-spot! nil)))))
 
 (defun place-rubble! (dungeon x y)
+  (declare (type fixnum x y))
   (setf (cave-feature dungeon x y) +feature-rubble+))
 
 (defun place-trap! (dungeon x y)
@@ -189,6 +180,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 
 (defun place-gold! (dungeon x y)
+  (declare (type fixnum x y))
   ;; skip paranoia
   (let ((gold (create-gold dungeon)))
     (when gold
@@ -197,6 +189,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
   (values))
 
 (defun place-object! (dungeon x y good-p great-p)
+  (declare (type fixnum x y))
  ;; skip paranoia
   (let ((obj (create-object dungeon good-p great-p)))
     (when obj
@@ -206,7 +199,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 (defun next-to-walls (dungeon x y)
   "Returns number of close walls in the four dirs."
-  
+  (declare (type fixnum x y))  
   (let ((k 0))
     (when (>= (cave-feature dungeon (1+ x) y) +feature-wall-extra+) (incf k))
     (when (>= (cave-feature dungeon (1- x) y) +feature-wall-extra+) (incf k))
@@ -221,7 +214,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	(dungeon-width  (dungeon.width dungeon))
 	(x 0)
 	(y 0))
-    
+    (declare (type fixnum x y))
     (dotimes (i number)
 
     ;; find legal spot
@@ -254,7 +247,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
   
   (let ((dungeon-height (dungeon.height dungeon))
 	(dungeon-width  (dungeon.width dungeon)))
-
+    (declare (type fixnum dungeon-height dungeon-width))
     (dotimes (i how-many)
 
       (block placed-stair
@@ -262,7 +255,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	(dotimes (j 3000)
 	  (let ((y (random dungeon-height))
 		(x (random dungeon-width)))
-
+	    (declare (type fixnum x y))
 	    (when (and (cave-boldly-naked? dungeon x y)
 		       (>= (next-to-walls dungeon x y) walls))
 	    
@@ -279,7 +272,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 (defun build-tunnel! (dungeon x1 y1 x2 y2)
   "builds a tunnel"
-  
+  (declare (type fixnum x1 y1 x2 y2))
   (let ((row1 y1)
 	(col1 x1)
 	(row2 y2)
@@ -451,9 +444,9 @@ light argument is a boolean."
   
   (assert (and (< y1 y2) (< x1 x2)))
   
-  (loop for y from y1 to y2
+  (loop for y of-type fixnum from y1 to y2
 	do
-	(loop for x from x1 to x2
+	(loop for x of-type fixnum from x1 to x2
 	      do
 	      ;;(warn "fish [~a,~a] -> ~a" x y feat)
 	      (setf (cave-feature dungeon x y) feat))))
@@ -461,13 +454,15 @@ light argument is a boolean."
 
 (defun generate-draw (dungeon x1 y1 x2 y2 feat)
   "draws a box matching the coordinates"
+
+  (declare (type fixnum x1 y1 x2 y2 ))
   
-  (loop for y from y1 to y2
+  (loop for y of-type fixnum from y1 to y2
 	do
 	(setf (cave-feature dungeon x1 y) feat)
 	(setf (cave-feature dungeon x2 y) feat))
 
-  (loop for x from x1 to x2
+  (loop for x of-type fixnum from x1 to x2
 	do
 	(setf (cave-feature dungeon x y1) feat)
 	(setf (cave-feature dungeon x y2) feat))
@@ -655,3 +650,17 @@ argument is passed it will be used as new dungeon and returned."
   
   obj)
 
+#||
+;; dy1 dy2 dx1 dx2 level
+(defconstant +room-data+ #1A(
+			     ( 0  0  0 0  0)
+			     ( 0  0 -1 1  1)   ;; 1 = Simple (33x11)
+			     ( 0  0 -1 1  1)   ;; 2 = Overlapping (33x11)
+			     ( 0  0 -1 1  3)   ;; 3 = Crossed (33x11)
+			     ( 0  0 -1 1  3)   ;; 4 = Large (33x11) 
+			     ( 0  0 -1 1  5)   ;; 5 = Monster nest (33x11)
+			     ( 0  0 -1 1  5)   ;; 6 = Monster pit (33x11) 
+			     ( 0  1 -1 1  5)   ;; 7 = Lesser vault (33x22) 
+			     (-1  2 -2 3 10)   ;; 8 = Greater vault (66x44)
+			     ))
+||#

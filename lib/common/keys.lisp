@@ -66,10 +66,9 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'show-character
     #'(lambda (dun pl)
 	(declare (ignore dun))
-	(display-player pl)
-	(c-pause-line! *last-console-line*)
-	(bit-flag-add! *redraw* +print-map+ +print-basic+)
-	(clear-the-screen!)))
+	(with-new-screen ()
+	  (display-player pl)
+	  (c-pause-line! *last-console-line*))))
 
 (define-key-operation 'go-downstairs
     #'(lambda (dun pl) (use-stair! dun pl :down)))
@@ -79,9 +78,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'quit-game
     #'(lambda (dun pl)
-	(declare (ignore pl dun))
+	(declare (ignore dun))
 ;;	(warn "Quitting")
-	(c-quit! +c-null-value+)))
+	(setf (player.dead-p pl) t
+	      (player.leaving-p pl) t)
+;;	(c-quit! +c-null-value+) ;; how to quit cleanly to the REPL?
+	
+	))
 
 (define-key-operation 'get-item
     #'(lambda (dun pl)
@@ -97,6 +100,41 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dun pl)
 	(with-new-screen ()
 	  (wear-something! dun pl))))
+
+(define-key-operation 'use-item
+    #'(lambda (dun pl)
+	(with-new-screen ()
+	  (use-something! dun pl))))
+
+(define-key-operation 'quaff-potion
+    #'(lambda (dun pl)
+	(with-new-screen ()
+	  (use-something! dun pl :restrict-type '(<potion>)
+			  :limit-from '(:backpack :floor) ;; only place with potions
+			  :prompt "Quaff which potion?")
+	  )))
+
+(define-key-operation 'read-text
+    #'(lambda (dun pl)
+	(with-new-screen ()
+	  (use-something! dun pl :restrict-type '(<scroll>)
+			  :limit-from '(:backpack :floor) ;; only place with scrolls
+			  :prompt "Read which scroll?")
+	  )))
+
+(define-key-operation 'eat-something
+    #'(lambda (dun pl)
+	(with-new-screen ()
+	  (let ((retval (use-something! dun pl :restrict-type '(<food>)
+					:limit-from '(:backpack :floor) ;; only place with food
+					:prompt "Eat what?")))
+	    ;;(warn "Used ~s" retval)
+	    retval)
+	  )))
+
+(define-key-operation 'invoke-spell
+    #'(lambda (dun pl)
+	(invoke-spell! dun pl)))
 
 ;; hackish
 (define-key-operation 'open-all
@@ -125,8 +163,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(do-a-test :in)
 	#||
 	  ;; for those times when things crash
-	  (let ((func (get-late-bind-function 'lb-test '%loc-save-test)))
-	    (when func
+	  (when-bind (func (get-late-bind-function 'lb-test '%loc-save-test))
 	      (funcall func lb::*variant* :variant)
 	      (funcall func lb::*level* :level)
 	      (funcall func lb::*player* :player)))
@@ -137,12 +174,11 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'save-game
     #'(lambda (dun pl)
 	(declare (ignore dun pl))
-	(let ((func (get-late-bind-function 'langband 'save-the-game)))
-	  (when func
-	    (funcall func *variant* *player* *level* :fname +readable-save-file+ :format :readable)
-	    (funcall func *variant* *player* *level* :fname +binary-save-file+ :format :binary)
-	    )
+	(when-bind (func (get-late-bind-function 'langband 'save-the-game))
+	  (funcall func *variant* *player* *level* :fname +readable-save-file+ :format :readable)
+	  (funcall func *variant* *player* *level* :fname +binary-save-file+ :format :binary)
 	  )))
+
 
 
 (define-key-operation 'inspect-coord
@@ -163,12 +199,44 @@ the Free Software Foundation; either version 2 of the License, or
 			 "table.keys")))
 
 
-
+(define-keypress *ang-keys* :global #\d 'drop-item)
+(define-keypress *ang-keys* :global #\e 'show-equipment)
+(define-keypress *ang-keys* :global #\g 'get-item)
+(define-keypress *ang-keys* :global #\i 'show-inventory)
+(define-keypress *ang-keys* :global #\m 'invoke-spell)
+(define-keypress *ang-keys* :global #\o 'open-all)
+(define-keypress *ang-keys* :global #\p 'invoke-spell)
+(define-keypress *ang-keys* :global #\q 'quaff-potion)
+(define-keypress *ang-keys* :global #\r 'read-text)
+(define-keypress *ang-keys* :global #\u 'use-item)
+(define-keypress *ang-keys* :global #\w 'wear-item)
 (define-keypress *ang-keys* :global #\z 'halt-program)
-(define-keypress *ang-keys* :global #\S 'save-game)
-(define-keypress *ang-keys* :global #\Z 'in-game-test)
+
+(define-keypress *ang-keys* :global #\C 'show-character)
+(define-keypress *ang-keys* :global #\E 'eat-something)
 (define-keypress *ang-keys* :global #\I 'inspect-coord)
 (define-keypress *ang-keys* :global #\K 'print-keys) 
+(define-keypress *ang-keys* :global #\Q 'quit-game)
+(define-keypress *ang-keys* :global #\S 'save-game)
+(define-keypress *ang-keys* :global #\Z 'in-game-test)
+
+(define-keypress *ang-keys* :global #\> 'go-downstairs)
+(define-keypress *ang-keys* :global #\< 'go-upstairs)
+
+;; these can die later..
+(define-keypress *ang-keys* :global #\T 'print-map)
+(define-keypress *ang-keys* :global #\P 'print-map-as-ppm)
+
+(define-keypress *ang-keys* :global #\. 'stand-still)
+(define-keypress *ang-keys* :global #\1 'move-down-left)
+(define-keypress *ang-keys* :global #\2 'move-down)
+(define-keypress *ang-keys* :global #\3 'move-down-right)
+(define-keypress *ang-keys* :global #\4 'move-left)
+(define-keypress *ang-keys* :global #\5 'stand-still)
+(define-keypress *ang-keys* :global #\6 'move-right)
+(define-keypress *ang-keys* :global #\7 'move-up-left)
+(define-keypress *ang-keys* :global #\8 'move-up)
+(define-keypress *ang-keys* :global #\9 'move-up-right)
 
 #||
 (define-keypress *ang-keys* :global #\k 'move-up)
@@ -176,33 +244,3 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :global #\j 'move-down)
 (define-keypress *ang-keys* :global #\h 'move-left)
 ||#
-
-(define-keypress *ang-keys* :global #\9 'move-up-right)
-(define-keypress *ang-keys* :global #\8 'move-up)
-(define-keypress *ang-keys* :global #\7 'move-up-left)
-(define-keypress *ang-keys* :global #\6 'move-right)
-(define-keypress *ang-keys* :global #\5 'stand-still)
-(define-keypress *ang-keys* :global #\4 'move-left)
-(define-keypress *ang-keys* :global #\3 'move-down-right)
-(define-keypress *ang-keys* :global #\2 'move-down)
-(define-keypress *ang-keys* :global #\1 'move-down-left)
-(define-keypress *ang-keys* :global #\. 'stand-still)
-
-(define-keypress *ang-keys* :global #\e 'show-equipment)
-(define-keypress *ang-keys* :global #\i 'show-inventory)
-(define-keypress *ang-keys* :global #\C 'show-character)
-
-(define-keypress *ang-keys* :global #\> 'go-downstairs)
-(define-keypress *ang-keys* :global #\< 'go-upstairs)
-
-(define-keypress *ang-keys* :global #\g 'get-item)
-(define-keypress *ang-keys* :global #\d 'drop-item)
-(define-keypress *ang-keys* :global #\w 'wear-item)
-(define-keypress *ang-keys* :global #\o 'open-all)
-
-(define-keypress *ang-keys* :global #\Q 'quit-game)
-
-
-(define-keypress *ang-keys* :global #\p 'print-map)
-(define-keypress *ang-keys* :global #\P 'print-map-as-ppm)
-

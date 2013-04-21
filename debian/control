@@ -1,0 +1,32 @@
+Source: langband
+Section: games
+Priority: optional
+Maintainer: Stig E Sandoe <stig@users.sourceforge.net>
+Standards-Version: 3.1.1
+Build-Depends: debhelper
+
+Package: langband-engine
+Architecture: all
+Depends: cmucl (>= 2.5.2), common-lisp-controller (>= 2.4), langband-zterm (>= 0.0.12), cl-binary-types (>= 0.83)
+Recommends: langband-variant
+Description: The Langband engine
+ It is a complete rewrite of the roguelike Angband but written in Common Lisp.
+ You will also need to download a plugin to allow you to actually play a game.
+ langband-vanilla is one such plugin.  You will also need a UI, currently only
+ provided by langband-zterm. 
+
+Package: langband-zterm
+Architecture: i386
+Depends: xlibs, libncurses5
+Recommends: langband-engine
+Description: The Langband term-libs
+ These are modified zterm-libraries from ordinary Angband and provides X11
+ interface for the game.  This package contains compiled libraries.
+
+Package: langband-vanilla
+Provides: langband-variant
+Architecture: all
+Depends: langband-engine (>= 0.0.12) 
+Description: A Vanilla-Angband plugin to the langband-engine
+ This package provides a plugin to the langband-engine that lets you play
+ vanilla/standard Angband. 

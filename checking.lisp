@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,13 +12,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-
-  (defgeneric lang-equal (first-obj second-obj)
-    (:documentation "A recursive check for equality (along the lines of EQUAL)
-but one that works with langband-objects.")))
+(defgeneric lang-equal (first-obj second-obj)
+  (:documentation "A recursive check for equality (along the lines of EQUAL)
+but one that works with langband-objects."))
 
 
 (defmethod lang-equal (first-obj second-obj)

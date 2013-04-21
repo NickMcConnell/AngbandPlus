@@ -1,0 +1,151 @@
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: cl-user -*-
+
+#|
+
+DESC: langband-engine.system - system-def for vanilla
+Copyright (c) 2001 - Stig Erik Sandø
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+|#
+
+(in-package :cl-user)
+
+#-langband-development
+(setf (logical-pathname-translations "langband")
+      '(("**;*.*.*" "cl-library:;langband-engine;**;*.*.*")))
+
+;; we need certain flags
+(eval-when (:execute :load-toplevel :compile-toplevel)
+  #+(or allegro cmu)
+  (pushnew :use-callback-from-c *features*)
+
+  #+(or cmu clisp)
+  (pushnew :handle-char-as-num *features*)
+
+  #+(or cmu allegro)
+  (pushnew :enough-support-for-langband *features*)
+  #+(and clisp langband-development) ;; clisp not ready in debian yet
+  (pushnew :enough-support-for-langband *features*)
+  
+  #+cmu
+  (pushnew :compiler-that-inlines *features*)
+  #+(or allegro cmu)
+  (push :use-callback-from-c *features*))
+
+
+#+enough-support-for-langband
+(mk:defsystem :langband-engine
+    :source-pathname
+  #-langband-development #p"langband:"
+  #+langband-development (translate-logical-pathname #p"langband:")
+  ;;    :source-pathname ""
+    :source-extension "lisp"
+    :components
+    (
+     (:module decl
+              :source-pathname ""
+              :components ((:file "pre-build")
+			   #+langband-development
+			   (:file "binary-types/binary-types")
+			   (:file "package")
+			   ))
+
+     (:module foreign
+	      :source-pathname "ffi/"
+	      :components ((:file "ffi-load")
+			   (:file "ffi-sys")
+			   #+cmu
+			   (:file "ffi-cmu")
+			   #+allegro
+			   (:file "ffi-acl")
+			   #+clisp
+			   (:file "ffi-clisp"))
+	      :depends-on (decl))
+     
+     (:module basic
+              :source-pathname ""
+              :components ((:file "memoize")
+			   (:file "base")
+			   (:file "constants")
+			   (:file "dyn-vars")
+			   (:file "event")
+			   (:file "core")
+			   (:file "parameters")
+			   (:file "global")
+			   (:file "settings")
+			   (:file "level")
+			   (:file "floor")
+			   (:file "sound")
+			   (:file "stat")
+			   (:file "race")
+			   (:file "class")
+			   (:file "object")
+			   (:file "equipment")
+			   (:file "player")
+			   (:file "flavours")
+			   (:file "monster")
+			   (:file "dungeon")
+			   (:file "building")
+			   (:file "stores")
+			   (:file "allocate")
+			   (:file "rooms")
+			   (:file "generate")
+			   (:file "print")
+			   (:file "util")
+			   (:file "combat")
+			   (:file "keys")
+			   (:file "actions"))
+	      :depends-on (foreign)
+	      )
+     
+     (:module common
+	      :source-pathname "lib/common/"
+              :components ((:file "parameters")
+			   (:file "objects")
+			   (:file "quirks")
+			   (:file "rooms")
+			   (:file "keys"))
+
+	      :depends-on (basic))
+
+     (:module execution
+	      :source-pathname ""
+	      :components ((:file "view")
+			   (:file "checking")
+			   (:file "save")
+			   (:file "load")
+			   (:file "death")
+			   (:file "birth")
+			   (:file "loop")
+			   (:file "init")
+			   (:file "verify")
+			   
+			   
+			   ;; hack
+;;			   (:file "variants/vanilla/base")
+			   )
+              :depends-on (common))
+     
+     ;; compatibility with classic angband, remove later
+     
+     (:module compatibility
+	      :source-pathname "lib/compat/"
+              :components ((:file "monster")
+			   (:file "obj-kind")
+			   (:file "floor")
+			   ))
+
+     )
+    
+    :depends-on (#-langband-development
+		 binary-types))
+
+#-enough-support-for-langband
+(warn "Langband-Engine has not been tested with '~a ~a', skips compilation."
+      (lisp-implementation-type)
+      (lisp-implementation-version))
+

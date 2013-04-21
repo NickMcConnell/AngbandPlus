@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -16,9 +16,9 @@ ADD_DESC: Most of the code which deals with generation of rooms
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
+
   (defclass room-type ()
     ((id        :accessor room-type.id
 		:initarg :id
@@ -56,7 +56,7 @@ ADD_DESC: Most of the code which deals with generation of rooms
   (defgeneric find-appropriate-room (variant level player)
     (:documentation "Tries to find an appropriate room-type for given
 dungeon."))
-  )
+  
 
 (defun define-room (id constructor)
   "First argument should be an integer.. fix this later.."

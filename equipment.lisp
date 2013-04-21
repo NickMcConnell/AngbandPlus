@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -12,10 +12,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defclass item-table ()
     ((cur-size :accessor items.cur-size :initarg :cur-size :initform 0))
@@ -53,11 +51,11 @@ the Free Software Foundation; either version 2 of the License, or
     ()
     (:documentation "What is in a store."))
 
-  )
+
 
 
 (defgeneric item-table-add!       (table obj &optional key))  
-(defgeneric item-table-remove!    (table key))
+(defgeneric item-table-remove!    (table key &key only-single-items))
 (defgeneric item-table-clean!     (table))
 (defgeneric item-table-find       (table key))
 (defgeneric item-table-sort!      (table sorter))
@@ -77,8 +75,8 @@ the table, the key and the object itself."))
   (declare (ignore obj key))
   (error "add not implemented for ~a" (type-of table)))
 
-(defmethod item-table-remove! (table key)
-  (declare (ignore key))
+(defmethod item-table-remove! (table key &key only-single-items)
+  (declare (ignore key only-single-items))
   (warn "remove not implemented for ~a" (type-of table)))
 
 (defmethod item-table-clean! (table)
@@ -109,8 +107,8 @@ the table, the key and the object itself."))
 
 
 (defmethod item-table-print (table &key show-pause start-x start-y)
-  (declare (ignore table show-pause start-x start-y))
-  (warn "[Printing not implemented]"))
+  (declare (ignore show-pause start-x start-y))
+  (warn "[Printing not implemented for table ~s]" table))
 
 
 
@@ -131,18 +129,24 @@ the table, the key and the object itself."))
     retval))
 
 
-(defmethod item-table-remove! ((table items-in-container) key)
+(defmethod item-table-remove! ((table items-in-container) key &key only-single-items)
   (cond ((item-table-verify-key table key)
 	 (let ((key-as-num (typecase key
 			     (character (a2i key))
 			     (number key)
 			     (otherwise nil))))
 	   (when key-as-num
-	     (let ((obj (aref (items.objs table) key-as-num)))
-	       (setf (aref (items.objs table) key-as-num) nil)
-	       (shrink-array! (items.objs table))
-	       (decf (items.cur-size table))
-	       obj))))
+	     (let ((old-obj (aref (items.objs table) key-as-num)))
+	       (cond ((and only-single-items (> (aobj.number old-obj) 1))
+		      (let ((ret-obj (create-aobj-from-kind (aobj.kind old-obj))))
+			(decf (aobj.number old-obj))
+			ret-obj))
+		     (t
+		      (setf (aref (items.objs table) key-as-num) nil)
+		      (shrink-array! (items.objs table))
+		      (decf (items.cur-size table))
+		      old-obj))))
+	   ))
 	(t
 	 (warn "illegal key ~a" key)
 	 nil)))
@@ -211,7 +215,7 @@ the table, the key and the object itself."))
 	     (declare (ignore a-table key))
 	     (c-prt! "" (+ i y) (- x 2))
 	     (c-put-str! (format nil "~a) ~a" (i2a i)
-				(object-description val))
+				(description val))
 			(+ i y) x)
 	   
 	     (incf i)))
@@ -274,6 +278,7 @@ to variant obj."
   (let ((real-key key))
     (unless real-key
       (let ((its-types (object.obj-type obj)))
+;;	(warn "Checking types ~a" its-types)
 	(dolist (i its-types)
 	  (let ((poss-key (get i 'equip-slot)))
 	    (when (and poss-key (numberp poss-key))
@@ -294,7 +299,7 @@ to variant obj."
 (defmethod item-table-add! ((table items-worn) obj &optional key)
 
   (let ((real-key (%get-equip-key-as-num key obj)))
-
+;;    (warn "RK: ~a" real-key)
     (if (not real-key)
 	nil
 	;; now let's check if we're allowed to put the item there
@@ -312,7 +317,8 @@ to variant obj."
 
     
 
-(defmethod item-table-remove! ((table items-worn) key)
+(defmethod item-table-remove! ((table items-worn) key &key only-single-items)
+  (declare (ignore only-single-items)) ;; already just single items
   (let ((real-key (%get-equip-key-as-num key nil)))
     (when real-key
       (let ((old-obj (aref (items.objs table) real-key)))
@@ -354,7 +360,7 @@ to variant obj."
 	     (c-put-str! (format nil "~a) ~13a : ~a" (i2a i)
 				 (get (aref *equip-slot-order* i) 'description)
 				 (if val
-				     (object-description val)
+				     (description val)
 				     "(nothing)"))
 			 (+ i y) x)
 	     (incf i)))

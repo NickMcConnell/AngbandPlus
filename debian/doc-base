@@ -1,0 +1,9 @@
+Document: langband-engine
+Title: Langband Documentation
+Author: Stig E Sandoe
+Abstract: Langband is a rewrite of Angband in Common Lisp.
+Section: Apps/Games
+
+Format: HTML
+Index: /usr/share/doc/langband-engine/web/index.html
+Files: /usr/share/doc/langband-engine/web/*.html

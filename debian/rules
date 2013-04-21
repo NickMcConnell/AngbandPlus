@@ -1,0 +1,178 @@
+#!/usr/bin/make -f
+# MAde with the aid of dh_make, by Craig Small
+# Sample debian/rules that uses debhelper. GNU copyright 1997 by Joey Hess.
+# Some lines taken from debmake, by Cristoph Lameter.
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+DESTDIR         := `pwd`/debian/tmp
+VANILLADESTDIR	:= `pwd`/debian/langband-vanilla
+ZTERMDESTDIR	:= `pwd`/debian/langband-zterm
+#APACHEDESTDIR   := `pwd`/debian/onshore-imho-apache
+INSTALL         := install
+INSTALLFLAGS    := -g root -o root -m 0644
+INSTALLDIRFLAGS := -g root -o root -m 0755
+
+ENGINEDEST	:= $(DESTDIR)/usr/share/common-lisp/repositories/langband/engine
+ENGINECONFDEST	:= $(DESTDIR)/var/lib/games/langband
+
+VANILLADEST	:= $(VANILLADESTDIR)/usr/share/common-lisp/repositories/langband/variants/vanilla
+VANCONFDEST	:= $(VANILLADESTDIR)/var/lib/games/langband/vanilla
+
+#FOREIGNDEST     := $(SOURCESDEST)/lib/foreign
+ENGINEDOC	:= $(DESTDIR)/usr/share/doc/langband-engine
+WEBDEST		:= $(ENGINEDOC)/web
+VANILLADOC	:= $(VANILLADESTDIR)/usr/share/doc/langband-vanilla
+ZTERMDOC	:= $(ZTERMDESTDIR)/usr/share/doc/langband-zterm
+
+CLIB_PATH	:= $(ZTERMDESTDIR)/usr/lib
+LIBS		:= zterm/liblangband_ui.so zterm/liblangband_dc.so
+
+INSTALLSOURCES	:= \
+	langband-engine.system pre-build.lisp \
+	package.lisp memoize.lisp \
+	base.lisp constants.lisp \
+	dyn-vars.lisp event.lisp  core.lisp \
+	parameters.lisp  global.lisp  \
+	settings.lisp  level.lisp \
+	floor.lisp  sound.lisp \
+	stat.lisp  race.lisp \
+	class.lisp  object.lisp \
+	equipment.lisp  player.lisp \
+	birth.lisp  flavours.lisp \
+	monster.lisp  dungeon.lisp \
+	building.lisp  stores.lisp \
+	allocate.lisp  rooms.lisp \
+	generate.lisp  print.lisp \
+	util.lisp  combat.lisp \
+	keys.lisp  actions.lisp \
+	view.lisp checking.lisp \
+	save.lisp  load.lisp \
+	death.lisp loop.lisp \
+	init.lisp verify.lisp
+
+COMMONSRC = \
+	lib/common/parameters.lisp \
+	lib/common/objects.lisp \
+	lib/common/quirks.lisp \
+	lib/common/rooms.lisp \
+	lib/common/keys.lisp \
+
+COMPATSRC = \
+	lib/compat/monster.lisp \
+	lib/compat/obj-kind.lisp \
+	lib/compat/floor.lisp
+
+BINTYPESSRC = \
+	binary-types/binary-types.lisp
+
+FOREIGNSRC = \
+	ffi/ffi-cmu.lisp \
+	ffi/ffi-clisp.lisp \
+	ffi/ffi-acl.lisp \
+	ffi/ffi-sys.lisp \
+	ffi/ffi-load.lisp
+
+CONFSRC = \
+	config/dead.txt \
+	config/news.txt \
+	config/prefs.lisp \
+	config/sound.lisp \
+	config/x11-keys.lisp \
+	config/gcu-keys.lisp
+
+
+VANSRC = \
+	variants/vanilla/langband-vanilla.system \
+	variants/vanilla/base.lisp \
+	variants/vanilla/quirks.lisp \
+	variants/vanilla/various.lisp \
+	variants/vanilla/rooms.lisp \
+	variants/vanilla/levels.lisp \
+	variants/vanilla/scrolls.lisp \
+	variants/vanilla/potions.lisp \
+	variants/vanilla/food.lisp
+
+VANCONFSRC = \
+	variants/vanilla/config/defines.lisp \
+	variants/vanilla/config/races.lisp \
+	variants/vanilla/config/classes.lisp \
+	variants/vanilla/config/flavours.lisp \
+	variants/vanilla/config/stores.lisp \
+	variants/vanilla/config/k_info.txt \
+	variants/vanilla/config/k_info.txt \
+	variants/vanilla/config/r_info.txt \
+	variants/vanilla/config/f_info.txt
+
+
+build: 
+	dh_testdir
+	make 
+	touch build
+
+clean:
+	dh_testdir
+	rm -f build
+
+	# Add here commands to clean up after the build process.
+	-$(MAKE) clean
+
+	dh_clean
+
+# Build architecture-independent files here.
+binary-indep: build
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build
+#	dh_testversion
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the files into debian/tmp
+	$(INSTALL) $(INSTALLFLAGS) $(INSTALLSOURCES) $(ENGINEDEST)
+	$(INSTALL) $(INSTALLFLAGS) $(FOREIGNSRC) $(ENGINEDEST)/ffi
+	$(INSTALL) $(INSTALLFLAGS) $(COMMONSRC) $(ENGINEDEST)/lib/common
+#	$(INSTALL) $(INSTALLFLAGS) $(BINTYPESSRC) $(ENGINEDEST)/binary-types
+	$(INSTALL) $(INSTALLFLAGS) $(COMPATSRC) $(ENGINEDEST)/lib/compat
+	$(INSTALL) $(INSTALLFLAGS) $(CONFSRC) $(ENGINECONFDEST)
+
+	$(INSTALL) $(INSTALLFLAGS) ChangeLog $(ENGINEDOC)/changelog
+	$(INSTALL) $(INSTALLFLAGS) web/*.html $(WEBDEST)
+
+	# Vanilla stuff
+	$(INSTALL) $(INSTALLFLAGS) $(VANSRC) $(VANILLADEST)
+	$(INSTALL) $(INSTALLFLAGS) $(VANCONFSRC) $(VANCONFDEST)
+	$(INSTALL) $(INSTALLFLAGS) debian/README.Debian $(VANILLADOC)
+
+	# Zterm stuff
+	$(INSTALL) $(INSTALLFLAGS) $(LIBS) $(CLIB_PATH)
+	$(INSTALL) $(INSTALLFLAGS) debian/README.Debian $(ZTERMDOC)
+
+	dh_installdocs
+#	dh_installexamples
+	dh_installmenu
+	dh_installcron
+	dh_installmanpages
+#	dh_undocumented
+	dh_installchangelogs
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_makeshlibs
+	dh_md5sums
+	dh_builddeb
+
+source diff:                                                                  
+	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary
+

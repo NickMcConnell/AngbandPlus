@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
 #|
 
@@ -17,28 +17,23 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 
 |#
 
-(in-package :langband)
+(in-package :org.langband.engine)
 
-;; these might be commented out
-#||
-(eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defgeneric location-x (obj)
-    (:documention "Generic function for all things that have a location
+    (:documentation "Generic function for all things that have a location
 in the game at some point."))
   
   (defgeneric (setf location-x) (value obj)
     (:documentation "Sets the x-location for the object whenever possible."))
   
   (defgeneric location-y (obj)
-    (:documention "Generic function for all things that have a location
+    (:documentation "Generic function for all things that have a location
 in the game at some point."))
   
   (defgeneric (setf location-y) (value obj)
-    (:documentation "Sets the y-location for the object whenever possible.")))
-||#  
+    (:documentation "Sets the y-location for the object whenever possible."))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defclass game-values ()
     ((base-ac       :accessor gval.base-ac       :initform 0)
@@ -82,8 +77,8 @@ in the game at some point."))
        (inscription :accessor aobj.inscr
 		    :initform "")
        (number      :accessor aobj.number
-		  :initarg :number
-		  :initform 1)
+		    :initarg :number
+		    :initform 1)
        (contains    :accessor aobj.contains
 		    :initarg :contains
 		    :initform nil)
@@ -165,13 +160,21 @@ in the game at some point."))
       (:documentation "Various skills..")
       ;;    #+cmu
       ;;    (:metaclass pcl::standard-class)
-      ))
+      )
+
+    
+    (defgeneric use-object! (variant dun pl the-object)
+      (:documentation "Applies the object on the player in the dungeon."))
+    (defgeneric heal-creature! (crt amount)
+      (:documentation "Tries to heal the creature with a certain amount of hits."))
+    (defgeneric set-creature-state! (crt state value)
+      (:documentation "Tries to heal the creature with a certain amount of hits."))
+    
 
 
 (defun make-game-values ()
   "Returns an object of type game-values."
   (make-instance 'game-values))
-
 
 
 (defun make-skills (&key (default-value 0))
@@ -236,18 +239,8 @@ information from the list skills whose content depends on variant."
 						  (if lvl-arg lvl-arg 0))))
 		    )))))
       skill-obj))
-	
-#||
-;; comment this out when code is working.. it conses and isn't needed
-(defmethod print-object ((inst skills) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) ~{ ~S~}" (class-name (class-of inst)) 
-	   (mapcar #'(lambda (x) (slot-value inst (cdr x))) (variant.skill-translations *variant*))))
-  inst)
-||#
 
-
+;; make this one into an array-access later
 (defun get-colour-code-from-letter (letter)
   "Returns a code which can be sent to C-functions as colour."
   
@@ -275,6 +268,7 @@ information from the list skills whose content depends on variant."
      #-cmu
      +term-white+)))
 
+;; make this one into array access later.
 (defun get-letter-from-colour-code (code)
   "Returns a char for the appropriate colour-code."
   #||
@@ -337,21 +331,24 @@ information from the list skills whose content depends on variant."
     (screen-load)))
 
 ;; move later
-
 (defun get-system-type ()
-  'x11)
-
-(defun read-pref-file (fname)
-  "Tries to read a named preference file."
-  (load fname))
+  (let ((num (c_current_ui)))
+    (ecase num
+      (0 'x11)
+      (1 'gcu)
+      (2 'gtk))))
 
 (defun define-key-macros (key &rest macros)
   (dolist (i macros)
     (let ((macro (text-to-ascii i)))
-;;      (loop for x across macro do (format t "~a " (char-code x)))
-;;      (format t "~%")
+
+;;      (format t "~&~C: " key)
+;;      (loop for x across macro do (format t "~a " (char-code x))
+;;	    finally (format t "~%"))
 ;;      (warn "macro ~s" macro)
-      (c-macro-add& macro (string key))))
+      (org.langband.ffi:c_macro_add& macro (string key))
+      ))
+;;      (c-macro-add& macro (string key))))
   key)
 
 
@@ -378,3 +375,117 @@ information from the list skills whose content depends on variant."
 #+compiler-that-inlines
 (defun grid-x (g)
   (the fixnum (prog1 (mod g 256))))
+
+(defun game-data-path (fname)
+  "Returns a pathname for fname."
+  (merge-pathnames (pathname fname) *engine-config-dir*))
+
+(defun load-game-data (fname)
+  "Tries to load the data-file fname."
+  (load (game-data-path fname)))
+
+;;(trace game-data-path)
+;;(trace load-game-data)
+
+(defun read-pref-file (fname)
+  "Tries to read a named preference file."
+  (load-game-data fname))
+
+
+;; some wrappers for C-functions.
+
+(defun c-print-message! (str)
+;;  (warn "going fu on ~s" (type-of str))
+  (org.langband.ffi:c_msg_print! (org.langband.ffi:to-arr str))
+  (values))
+
+(defun c-quit! (str)
+  (org.langband.ffi:c_quit! (org.langband.ffi:to-arr str))
+  (values))
+
+(defun c-prt! (str row col)
+  (org.langband.ffi:c_prt! (org.langband.ffi:to-arr str) row col)
+  (values))
+
+(defun c-term-putstr! (col row some colour text)
+  (org.langband.ffi:c_term_putstr! col row some colour (org.langband.ffi:to-arr text))
+  (values))
+
+(defun c-col-put-str! (colour text row col)
+  (c-term-putstr! col row -1 colour text)
+  (values))
+
+(defun c-put-str! (text row col)
+  (c-term-putstr! col row -1 +term-white+ text))
+
+(defun c-bell! (text)
+  (org.langband.ffi:c_bell! (org.langband.ffi:to-arr text))
+  (values))
+
+(defun c-print-text! (col row colour text &key (end-col 80))
+  "Don't call this if you need non-consing or fast operation."
+  
+  (let ((startcol col)
+;;	(startrow row)
+	(cur-col col)
+	(cur-row row)
+;;	(end-col 80)
+	(splitted (mapcar #'(lambda (x) (string-trim '(#\Space #\Tab #\Newline) x))
+			  (split-seq-on text #\Space))))
+
+;;    (warn "text ~s -> ~s" text splitted)
+    
+    (flet ((print-word (word)
+	     (let ((word-len (length word)))
+;;	     (warn "Printing word ~s at ~s,~s" word cur-col cur-row)
+	       (c-col-put-str! colour word cur-row cur-col)
+	       (incf cur-col word-len)
+	       (c-col-put-str! colour " " cur-row cur-col)
+	       (incf cur-col)
+	       (1+ word-len))))
+
+      (loop for cur-word in splitted
+	    for i from 0
+	    do
+	    (when (plusp (length cur-word))
+	      (cond ((< (+ cur-col (length cur-word) 1) end-col)
+		     (print-word cur-word))
+		    (t
+		     (incf cur-row)
+		     (setf cur-col startcol)
+		     (print-word cur-word))))))
+    ))
+
+(defun quit-game& ()
+  "Tries to clean up a few variables."
+  (setf *variant* nil
+	*level* nil
+	*player* nil
+	*dungeon* nil)
+  (garbage-collect :global t)
+  (format t "~&Thanks for helping to test Langband.~2%")
+  ;;#+boys-eating-their-vegetables
+  (finish-output cl:*error-output*)
+  (finish-output cl:*standard-output*)
+  (finish-output cl:*trace-output*)
+  (c-quit! +c-null-value+)
+  nil)
+ 
+
+#||
+;:; see above for macro-add&
+(defun c-macro-add& (key value)
+  (org.langband.ffi:c_macro_add& key value);;(%to-ffi-arr key) (%to-ffi-arr value))
+  (values))
+||#
+	
+#||
+;; comment this out when code is working.. it conses and isn't needed
+(defmethod print-object ((inst skills) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) ~{ ~S~}" (class-name (class-of inst)) 
+	   (mapcar #'(lambda (x) (slot-value inst (cdr x))) (variant.skill-translations *variant*))))
+  inst)
+||#
+

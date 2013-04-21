@@ -1,0 +1,35 @@
+;;; -*- Mode: Lisp -*-
+
+#+CLISP
+(in-package :user)
+#-CLISP
+(in-package :cl-user)
+
+;;; System definition
+
+(mk:defsystem :langband-tests
+    :source-pathname
+  #-langband-development "langband-tests:"
+  #+langband-development (translate-logical-pathname "langband-tests:")
+
+    :source-extension "lisp"
+;;    :binary-pathname nil
+;;    :binary-extension nil
+    :components ((:module basic
+			  :source-pathname ""
+			  :components ((:file "package")
+				       (:file "base"
+					      :depends-on ("package"))))
+		 (:module usual
+			  :source-pathname ""
+			  :components ((:file "core")
+				       (:file "stat")
+				       (:file "checking")
+				       (:file "player")
+				       (:file "building")
+				       (:file "save")
+				       (:file "ffi")
+				       (:file "format")
+				       )
+			  :depends-on (basic))
+		 ))
