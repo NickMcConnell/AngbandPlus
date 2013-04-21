@@ -1,4 +1,4 @@
-77
+87
 a Pink Elephant
 a Purple Leprechaun
 a Giant Death Mold
@@ -76,3 +76,14 @@ a Wood Nymph
 a Wood Elf
 an Incubus
 a Weretiger
+a Miniature Monkey
+a Killer Bee
+a Grid Bug
+an Ent
+Shelob, the Spider Queen
+The Jolly Skeleton
+a Gigantic Head
+a Rubber Ball
+a Vampire Kobold
+a Merry Dancing Gnome
+

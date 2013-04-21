@@ -2,7 +2,7 @@
 %^s disintegrates into a fine mist!
 %^s splatters all over the floor.
 %^s explodes into tiny chunks.
-%^s bones are crushed at the force of your blow!
+%^s's bones are crushed at the force of your blow!
 You almost squash %s into a pancake!
 Your weapons neatly slice %s into many little pieces.
 You cleave %s in half.

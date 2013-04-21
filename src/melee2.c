@@ -555,18 +555,12 @@ bool make_attack_spell(int m_idx)
 	monster_desc(m_name, m_ptr, 0x00);
 
 	/* ``Smart'' monsters speak insults. */
-	if ((r_ptr->flags2 & RF2_SMART ||
-	     r_ptr->sayings_inx ||
-	     r_ptr->num_sayings) && 
-	    !(r_ptr->flags3 & RF3_SILENT) &&
-	    randint(100) < 20 && 
-	    direct &&
-	    m_ptr->ml) {
+	if (direct && m_ptr->ml && magik(20) && monsters_speak) {
+	  cptr insult = get_monster_saying(r_ptr);
 
-	  char insult[80];
-
-	  get_monster_saying(r_ptr, insult);
-	  msg_format("%^s %s", m_name, insult);
+	  if (insult) {
+	    msg_format("%^s %s", m_name, insult);
+	  }
 	}
 
 	/* Cannot cast spells when confused */
@@ -1398,7 +1392,7 @@ bool make_attack_spell(int m_idx)
 		{
 		  disturb(1, 0);
 		  msg_format("%^s drains power from muscles!", m_name);
-		  bolt(m_idx, py, px, GF_SLOW, 0);
+		  bolt(m_idx, py, px, GF_SLOW, 5);
 		  update_smart_learn(m_idx, DRS_FREE);
 		  break;
 		}
@@ -1637,7 +1631,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else if (lose_all_info())
 			{
-				msg_print("Your memories fade away.");
+				mprint(MSG_WARNING, "Your memories fade away.");
 			}
 			break;
 		}
@@ -2008,6 +2002,8 @@ static int mon_will_run(int m_idx)
 	u32b p_val, m_val;
 
 #endif
+	/* Monsters in the magical arena. */
+	if (p_ptr->inside_special == SPECIAL_MAGIC_ARENA) return (TRUE);
 
 	/* Keep monsters from running too far away */
 	if (m_ptr->cdis > MAX_SIGHT + 5) return (FALSE);
@@ -2462,6 +2458,10 @@ static void punish_monster(monster_type* m_ptr) {
 
   p_ptr->redraw |= (PR_HEALTH);
 
+  /* Avatars don't get punished. */
+  if (m_ptr->mflag & MFLAG_AVATAR) return;
+
+
   if (roll < 35) {
     m_ptr->monfear += 200;
     mformat(MSG_BONUS, "%^s strikes fear into %s!", god_name, m_name);
@@ -2858,18 +2858,23 @@ static void process_monster(int m_idx)
 		ny = oy + ddy[d];
 		nx = ox + ddx[d];
 
+		/* Empty space. */
+		if (cave_feat[ny][nx] == FEAT_UNSEEN) {
+		  /* Skip */
+		}
 
 		/* Floor is open? */
-		if (cave_floor_bold(ny, nx))
+		else if (cave_floor_bold(ny, nx))
 		{
 			/* Go ahead and move */
 			do_move = TRUE;
 
 			/* handle deep water -KMW- */
-			if ((cave_feat[ny][nx] == FEAT_DEEP_WATER) &&
-			    ((!(r_ptr->flags2 & (RF2_SWIM))) &&
-			    (!(r_ptr->flags2 & (RF2_PASS_WALL))) && 
-			    (!(r_ptr->flags2 & (RF2_FLY)))))
+			if (cave_feat[ny][nx] == FEAT_DEEP_WATER &&
+			    !(r_ptr->flags2 & RF2_SWIM) &&
+			    !(r_ptr->flags2 & RF2_PASS_WALL) && 
+			    !(r_ptr->flags2 & RF2_FLY) &&
+			    !(r_ptr->flags2 & RF2_AQUATIC))
 				do_move = FALSE;
 
 			/* handle deep lava -KMW- */
@@ -2887,10 +2892,15 @@ static void process_monster(int m_idx)
 				do_move = FALSE;
 
 			/* handle aquatic monsters -KMW- */
-			else if ((cave_feat[ny][nx] != FEAT_DEEP_WATER) &&
-			    (r_ptr->flags2 & (RF2_AQUATIC)))
-				do_move = FALSE;
+			else if (r_ptr->flags2 & RF2_AQUATIC &&
+				 (cave_feat[ny][nx] != FEAT_DEEP_WATER) &&
+				 (cave_feat[ny][nx] != FEAT_SHAL_WATER))
+			  do_move = FALSE;
+		}
 
+		/* Aquatic monsters never move through solid terrain. */
+		else if (r_ptr->flags2 & RF2_AQUATIC) {
+		  /* Nothing. */
 		}
 
 		/* Permanent wall. Adjusted -KMW- */
@@ -3049,6 +3059,38 @@ static void process_monster(int m_idx)
 		}
 
 
+
+		/* Set off traps. */
+		if (do_move && 
+		    (cave_feat[ny][nx] == FEAT_INVIS ||
+		     (cave_feat[ny][nx] >= FEAT_TRAP_HEAD && 
+		      cave_feat[ny][nx] <= FEAT_TRAP_TAIL)) &&
+		    !(r_ptr->flags2 & RF2_FLY)) {
+
+		  if (m_ptr->ml) {
+		    char m_name[80];
+		  
+		    monster_desc(m_name, m_ptr, 0);
+		    msg_format("%^s has set off a trap!", m_name);
+		  }
+
+		  if (cave_feat[ny][nx] == FEAT_INVIS)
+		    pick_trap(ny, nx);
+
+		  /* Chance of ``disarming'' the trap if the monster is smart.
+		   */
+		  if (!(r_ptr->flags2 & RF2_SMART) ||
+		      !(magik(r_ptr->level))) {
+
+		      mon_hit_trap(m_idx, ny, nx);
+		  }
+
+		  /* Erase the trap -- no cheating! */
+		  cave_info[ny][nx] &= ~(CAVE_MARK);
+		  cave_set_feat(ny, nx, FEAT_FLOOR);
+		}
+
+
 		/* Hack -- check for Glyph of Warding */
 		if (do_move && (cave_feat[ny][nx] == FEAT_GLYPH))
 		{
@@ -3098,8 +3140,11 @@ static void process_monster(int m_idx)
 		  /* Do the attack */
 		  /* "Friendly" monsters don't attack. */
 		  /* Punish monsters for attacking sacred player. */
+		  /* No melee in the magical arena! */
 
-		  if (!m_ptr->is_pet) {
+		  if (!m_ptr->is_pet && 
+		      p_ptr->inside_special != SPECIAL_MAGIC_ARENA) {
+
 		    if (monster_is_smart && player_is_sacred) {
 		      m_ptr->monfear += damroll(25, 25);
 		    } else if (player_is_sacred) {
@@ -3218,137 +3263,133 @@ static void process_monster(int m_idx)
 		/* Creature has been allowed move */
 		if (do_move)
 		{
-			s16b this_o_idx, next_o_idx = 0;
+		  object_type* o_ptr;
+		  object_type* o_nxt;
 
-			/* Take a turn */
-			do_turn = TRUE;
+		  /* Take a turn */
+		  do_turn = TRUE;
 
-			/* Move the monster */
-			monster_swap(oy, ox, ny, nx);
+		  /* Move the monster */
+		  monster_swap(oy, ox, ny, nx);
 
-			/* Possible disturb */
-			if (m_ptr->ml &&
-			    (disturb_move ||
-			     ((m_ptr->mflag & (MFLAG_VIEW)) &&
-			      disturb_near)) &&
-			    !m_ptr->is_pet)
-			{
-				/* Disturb */
-				disturb(0, 0);
-			}
+		  /* Possible disturb */
+		  if (m_ptr->ml &&
+		      (disturb_move ||
+		       ((m_ptr->mflag & (MFLAG_VIEW)) &&
+			disturb_near)) &&
+		      !m_ptr->is_pet)
+		    {
+		      /* Disturb */
+		      disturb(0, 0);
+		    }
 
 
-			/* Scan all objects in the grid */
-			for (this_o_idx = cave_o_idx[ny][nx]; this_o_idx; this_o_idx = next_o_idx)
-			{
-				object_type *o_ptr;
 
-				/* Acquire object */
-				o_ptr = &o_list[this_o_idx];
+		  /* Scan all objects in the grid */
+		  o_ptr = cave_o_idx[ny][nx];
 
-				/* Acquire next object */
-				next_o_idx = o_ptr->next_o_idx;
+		  while (TRUE) {
 
-				/* Skip gold */
-				if (o_ptr->tval == TV_GOLD) continue;
+		    if (o_ptr == NULL) break;
 
-				/* Take or Kill objects on the floor */
-				if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
-				    (r_ptr->flags2 & (RF2_KILL_ITEM)))
-				{
-					u32b f1, f2, f3;
+		    /* Acquire next object, if this one gets moved. */
+		    o_nxt = o_ptr->next;
 
-					u32b flg3 = 0L;
+		    /* Skip gold */
+		    if (o_ptr->tval == TV_GOLD) {
+		      o_ptr = o_nxt;
+		      continue;
+		    }
 
-					char m_name[80];
-					char o_name[80];
+		    /* Take or Kill objects on the floor */
+		    if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
+			(r_ptr->flags2 & (RF2_KILL_ITEM)))
+		      {
+			u32b f1, f2, f3;
+			
+			u32b flg3 = 0L;
 
-					/* Extract some flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
+			char m_name[80];
+			char o_name[80];
 
-					/* Acquire the object name */
-					object_desc(o_name, o_ptr, TRUE, 3);
+			/* Extract some flags */
+			object_flags(o_ptr, &f1, &f2, &f3);
 
-					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0x04);
+			/* Acquire the object name */
+			object_desc(o_name, o_ptr, TRUE, 3);
 
-					/* React to objects that hurt the monster */
-					if (f1 & (TR1_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
-					if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
-					if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
-					if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
-					if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
-					if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
-					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
-					if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
-					if (f1 & (TR1_SLAY_EVIL)) flg3 |= (RF3_EVIL);
+			/* Acquire the monster name */
+			monster_desc(m_name, m_ptr, 0x04);
 
-					/* The object cannot be picked up by the monster */
-					if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3))
-					{
-						/* Only give a message for "take_item" */
-						if (r_ptr->flags2 & (RF2_TAKE_ITEM))
-						{
-							/* Take note */
-							did_take_item = TRUE;
+			/* React to objects that hurt the monster */
+			if (f1 & (TR1_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
+			if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
+			if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
+			if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
+			if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
+			if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
+			if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
+			if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
+			if (f1 & (TR1_SLAY_EVIL)) flg3 |= (RF3_EVIL);
 
-							/* Describe observable situations */
-							if (m_ptr->ml && player_has_los_bold(ny, nx))
-							{
-								/* Dump a message */
-								msg_format("%^s tries to pick up %s, but fails.",
-								           m_name, o_name);
-							}
-						}
-					}
+			/* The object cannot be picked up by the monster */
+			if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3))
+			  {
+			    /* Only give a message for "take_item" */
+			    if (r_ptr->flags2 & (RF2_TAKE_ITEM))
+			      {
+				/* Take note */
+				did_take_item = TRUE;
+				
+				/* Describe observable situations */
+				if (m_ptr->ml && player_has_los_bold(ny, nx))
+				  {
+				    /* Dump a message */
+				    msg_format("%^s tries to pick up %s, but fails.",
+					       m_name, o_name);
+				  }
+			      }
+			  }
 
-					/* Pick up the item */
-					else if (r_ptr->flags2 & (RF2_TAKE_ITEM))
-					{
-						object_type *i_ptr;
-						object_type object_type_body;
+			/* Pick up the item */
+			else if (r_ptr->flags2 & (RF2_TAKE_ITEM))
+			  {
+			    /* Take note */
+			    did_take_item = TRUE;
+			    
+			    /* Describe observable situations */
+			    if (player_has_los_bold(ny, nx))
+			      {
+				/* Dump a message */
+				msg_format("%^s picks up %s.", m_name, o_name);
+			      }
 
-						/* Take note */
-						did_take_item = TRUE;
+			    /* Carry the object */
+			    monster_inven_carry(m_ptr, o_ptr);
+			  }
 
-						/* Describe observable situations */
-						if (player_has_los_bold(ny, nx))
-						{
-							/* Dump a message */
-							msg_format("%^s picks up %s.", m_name, o_name);
-						}
+			/* Destroy the item */
+			else
+			  {
+			    /* Take note */
+			    did_kill_item = TRUE;
 
-						/* Get local object */
-						i_ptr = &object_type_body;
+			    /* Describe observable situations */
+			    if (player_has_los_bold(ny, nx))
+			      {
+				/* Dump a message */
+				msg_format("%^s crushes %s.", m_name, o_name);
+			      }
 
-						/* Obtain local object */
-						object_copy(i_ptr, o_ptr);
+			    /* Delete the object */
+			    remove_object(o_ptr);
+			  }
+		      }
 
-						/* Delete the object */
-						delete_object_idx(this_o_idx);
+		    /* Advance to the next object. */
+		    o_ptr = o_nxt;
 
-						/* Carry the object */
-						(void)monster_carry(m_idx, i_ptr);
-					}
-
-					/* Destroy the item */
-					else
-					{
-						/* Take note */
-						did_kill_item = TRUE;
-
-						/* Describe observable situations */
-						if (player_has_los_bold(ny, nx))
-						{
-							/* Dump a message */
-							msg_format("%^s crushes %s.", m_name, o_name);
-						}
-
-						/* Delete the object */
-						delete_object_idx(this_o_idx);
-					}
-				}
-			}
+		  }
 		}
 
 		/* Stop when done */

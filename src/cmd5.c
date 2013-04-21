@@ -12,16 +12,82 @@
 
 
 /* 
+ * Copy a spell from some external buffer to the player's spell list,
+ * and return it.
+ */
+spell* add_new_spell(spell* which) {
+  spell* new_spell;
+
+  if (spell_num == MAX_SPELLS) {
+    mprint(MSG_URGENT, "Can't add spell -- spell buffer is filled up!");
+    return NULL;
+  }
+
+  new_spell = &spells[spell_num];
+  spell_num++;
+
+  COPY(new_spell, which, spell);
+  return new_spell;
+}
+
+
+
+/* 
+ * Remove the spells at the specified indexes from the player's spell list. 
+ * This is a slow and stupid algortihm reminiscent of selection sort.
+ */
+void remove_spells(int* index, int i_num) {
+  int i, j, new_num = spell_num;
+
+  /* Delete the offending spells. */
+  for (i = 0; i < i_num; i++) {
+
+    /* Paranoia. */
+    if (index[i] >= MAX_SPELLS || index[i] < 0) continue;
+
+    WIPE(&spells[index[i]], spell);
+    new_num--;
+  }
+
+  /* Fill in all the empty spots. */
+  for (i = 0; i < spell_num; i++) {
+
+    /* Hack -- check if spell is deleted. */
+    if (spells[i].proj_list == NULL) {
+      
+      /* Find the nearest undeleted spell. */
+      j = i;
+
+      while (TRUE) {
+
+	/* All done. */
+	if (j == spell_num) {
+	  spell_num = new_num;
+	  return;
+	}
+
+	if (spells[j].proj_list != NULL) {
+	  /* Fill in the empty spot just to the left of us. */
+	  COPY(&spells[i], &spells[j], spell);
+	  WIPE(&spells[j], spell);
+	  break;
+	}
+
+	j++;
+      }
+    }
+  }
+}
+
+
+/* 
  * Check to see if the player has the right spellbook. 
  */
 
 static bool check_spellbook(void) {
-  int i;
   object_type* o_ptr;
   
-  for (i = 0; i < INVEN_PACK; i++) {
-    o_ptr = &inventory[i];
-
+  for (o_ptr = inventory; o_ptr != NULL; o_ptr = o_ptr->next) {
     if (o_ptr->k_idx && 
 	o_ptr->tval == TV_SPELLBOOK &&
 	o_ptr->sval == cp_ptr->spell_book) return TRUE;
@@ -41,10 +107,25 @@ static bool check_spellbook(void) {
 void do_cmd_browse(void)
 {
 
-  /* Hack -- Ugh -- Select a spell and do nothing with it. */
-  (void)select_spell(TRUE);
+  /* Select a spell, and show the description of it. */
+  spell* s_ptr = select_spell(TRUE);
 
+  if (!s_ptr) return;
+
+  if (s_ptr->unknown) {
+    mprint(MSG_TEMP, "Spell unknown.");
+
+  } else if (s_ptr->desc[0]) {
+    mformat(MSG_TEMP, "Spell info: %s.", s_ptr->desc);
+
+  } else {
+    mprint(MSG_TEMP, "No spell info.");
+  }
 }
+
+
+
+
 
 
 
@@ -60,6 +141,12 @@ void do_cmd_study(void)
   
   if (!(p_ptr->new_spells)) {
     msg_print("You cannot learn any new powers!");
+    msg_print(NULL);
+    return;
+  }
+
+  if (!cp_ptr->magic_innate && !check_spellbook()) {
+    msg_print("You need a spellbook to learn spells!");
     msg_print(NULL);
     return;
   }
@@ -114,12 +201,47 @@ void do_cmd_study(void)
 
 
 
-/************************** The new revamped code for spells. ****/
 
 
 
+/*
+ * Give a randomly-generated spell a name.
+ * Note that it only describes the first effect!
+ */
 
-static const int destructive_attack_types[11] = {
+static void name_spell(spell* s_ptr) {
+  proj_node* pnode = s_ptr->proj_list;
+  char buff[30];
+  cptr buff2 = "???";
+
+  if (pnode->proj_flags & PROJECT_STOP && pnode->radius == 0) {
+    buff2 = "Bolt";
+
+  } else if (pnode->proj_flags & PROJECT_BEAM) {
+    buff2 = "Beam";
+
+  } else if (pnode->proj_flags & PROJECT_STOP && pnode->radius > 0) {
+    buff2 = "Ball";
+
+  } else if (pnode->proj_flags & PROJECT_BLAST) {
+    buff2 = "Blast";
+
+  } else if (pnode->proj_flags & PROJECT_METEOR_SHOWER) {
+    buff2 = "Area";
+
+  } else if (pnode->proj_flags & PROJECT_VIEWABLE) {
+    buff2 = "View";
+  }
+
+  describe_attack_fully(pnode->attack_kind, buff);
+  strnfmt(s_ptr->name, 30, "%s%s - %s", 
+	  ((pnode->proj_flags & PROJECT_ETHER) ? "*" : ""),
+	  buff2, buff);
+}
+
+
+
+static const int destructive_attack_types[13] = {
   GF_KILL_WALL,
   GF_KILL_DOOR,
   GF_KILL_TRAP,
@@ -130,10 +252,12 @@ static const int destructive_attack_types[11] = {
   GF_QUAKE,
   GF_EARTHQUAKE,
   GF_WALL_TO_CHAOS,
-  GF_CHAOS_DESTRUCTION
+  GF_CHAOS_DESTRUCTION,
+  GF_WORD_OF_DESTRUCTION,
+  GF_EARTHQUAKE
 };
 
-static const int attack_types[31] = {
+static const int attack_types[29] = {
   GF_ARROW, 
   GF_MISSILE, 
   GF_MANA,
@@ -162,9 +286,7 @@ static const int attack_types[31] = {
   GF_DISENCHANT,
   GF_QUAKE,
   GF_BRAIN_SMASH,
-  GF_MIND_BLAST,
-  GF_WORD_OF_DESTRUCTION,
-  GF_EARTHQUAKE
+  GF_MIND_BLAST
 };
 
 
@@ -177,9 +299,7 @@ void spell_generate_new(int plev) {
   spell* rspell;
   proj_node* pnode;
 
-  int dice, sides;
-  int chance;
-  int foo;
+  int dice, sides, chance, mana, power;
 
   bool destruc_gen = FALSE;
   bool simple_gen = TRUE;
@@ -188,25 +308,33 @@ void spell_generate_new(int plev) {
 
   rspell = &spells[spell_num];
 
-  dice = randnor(plev/5, 1);
+  power = randnor(0, 10);
+
+  dice = plev/5;
+  sides = plev*2;
+  mana = plev;
+
+  /* Make the spell more or less powerful. */
+  dice += power/5;
+  sides += power/2;
+  mana += (plev*power)/8;
+
+  /* Stay within reasonable bounds. */
   if (dice < 1) dice = 1;
   if (dice > 10) dice = 10;
 
-  sides = randnor(plev*2, 10);
   if (sides < 1) sides = 1;
   if (sides > 100) sides = 100;
 
+  if (mana < 1) mana = 1;
 
-  foo = plev + randnor(0, plev/2);
-  if (foo < 0) foo = 1;
-
-  strcpy(rspell->name, "Unnamed");
-
+  rspell->class = 0;
   rspell->level = plev;
-  rspell->mana = foo;
+  rspell->mana = mana;
   rspell->untried = TRUE;
   rspell->unknown = FALSE;
 
+  /* Fill in the projection info. */
   MAKE(pnode, proj_node);
   rspell->proj_list = pnode;
 
@@ -238,7 +366,7 @@ void spell_generate_new(int plev) {
   } else if (chance < 83) {
     pnode->proj_flags |= PROJECT_BLAST;
     pnode->radius = sides/2;
-    pnode->safe = FALSE;
+    pnode->safe = TRUE;
     pnode->dam_dice = dice;
     pnode->dam_sides = sides;
 
@@ -277,12 +405,16 @@ void spell_generate_new(int plev) {
 
   /* Pick a simple spell */
   if (simple_gen) {
-    pnode->attack_kind = attack_types[rand_int(31)];
+    pnode->attack_kind = attack_types[rand_int(29)];
 
   /* Pick a destructive spell */
   } else {
-    pnode->attack_kind = destructive_attack_types[rand_int(11)];
+    pnode->attack_kind = destructive_attack_types[rand_int(13)];
   }
+
+  /* Give the spell a name. */
+  name_spell(rspell);
+  sprintf(rspell->desc, "Damage: %dd%d, Power: %d", dice, sides, power);
 
   spell_num++;
 }
@@ -305,7 +437,7 @@ int spell_chance(spell* rspell) {
   chance -= 3 * (p_ptr->lev - rspell->level);
 
   /* Reduce failure rate by INT/WIS adjustment */
-  chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[A_INT]] - 1);
+  chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]] - 1);
 
   /* Not enough mana to cast */
   if (rspell->mana > p_ptr->csp) {
@@ -316,7 +448,7 @@ int spell_chance(spell* rspell) {
   if (p_ptr->mega_spells) {
     minfail = 0;
   } else {
-    minfail = adj_mag_fail[p_ptr->stat_ind[A_INT]];
+    minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
   }
 
   /* Minimum failure rate */
@@ -350,7 +482,7 @@ static void print_spell_batch(int batch, int max) {
 
     if (rspell->unknown) {
       sprintf(buff, "  %c) %-30s  (Spell unknown)  ", I2A(i),
-	      rspell->name);
+	      (rspell->level > p_ptr->lev ? "Illegible" : rspell->name));
 
     } else if (rspell->untried) {
       sprintf(buff, "  %c) %-30s  (Spell untried)  ", I2A(i),
@@ -384,7 +516,7 @@ static spell* select_spell_from_batch(int batch, bool quick) {
     mut_max = spell_num - batch*10;
   }
 
-  sprintf(tmp, "(a-%c, * to list, / to rename) Select a power: ", 
+  sprintf(tmp, "(a-%c, * to list, / to rename, - to comment) Select a power: ", 
 	  I2A(mut_max-1));
   
   prt(tmp, 0, 0);
@@ -420,6 +552,19 @@ static spell* select_spell_from_batch(int batch, bool quick) {
 	prt(tmp, 0, 0);
       }
 
+    } else if (which == '-') {
+      prt("Comment which power: ", 0, 0);
+      which = tolower(inkey());
+
+      if (islower(which) && A2I(which) <= mut_max) {
+	get_string("Comment this power: ",
+		   spells[batch*10+A2I(which)].desc, 29);
+	prt(tmp, 0, 0);
+      } else {
+	bell();
+	prt(tmp, 0, 0);
+      }
+
     } else {
       which = tolower(which);
       if (islower(which) && A2I(which) < mut_max) {
@@ -446,27 +591,15 @@ spell* select_spell(bool quick) {
   char which;
   int batch_max = (spell_num-1)/10;
 
-  if (!cp_ptr->uses_magic) {
-    mprint(MSG_TEMP, "You don't have any magical skills!");
-    return NULL;
-  }
-
   if (spell_num == 0) {
     mprint(MSG_TEMP, "There are no spells you can cast.");
     return NULL;
   }
 
-  if (p_ptr->inside_special == 1) {
+  if (p_ptr->inside_special == SPECIAL_ARENA) {
     mprint(MSG_TEMP, "The arena absorbs all attempted magic!");
     msg_print(NULL);
     return NULL;
-  }
-
-  if (!cp_ptr->magic_innate && !check_spellbook()) {
-    if (!check_spellbook()) {
-      mprint(MSG_WARNING, "You don't have the right spellbook!");
-      return NULL;
-    }
   }
 
   if (p_ptr->confused) {
@@ -506,57 +639,21 @@ spell* select_spell(bool quick) {
 
 
 
-
-
-/*
- * Give a randomly-generated spell a name.
- * Note that it only describes the first effect!
- */
-
-static void name_spell(spell* s_ptr) {
-  proj_node* pnode = s_ptr->proj_list;
-  char buff[30];
-  cptr buff2 = "Bug";
-
-  if (pnode->proj_flags & PROJECT_STOP && pnode->radius == 0) {
-    buff2 = "Bolt";
-
-  } else if (pnode->proj_flags & PROJECT_BEAM) {
-    buff2 = "Beam";
-
-  } else if (pnode->proj_flags & PROJECT_STOP && pnode->radius > 0) {
-    buff2 = "Ball";
-
-  } else if (pnode->proj_flags & PROJECT_BLAST) {
-    buff2 = "Blast";
-
-  } else if (pnode->proj_flags & PROJECT_METEOR_SHOWER) {
-    buff2 = "Area";
-
-  } else if (pnode->proj_flags & PROJECT_VIEWABLE) {
-    buff2 = "View";
-  }
-
-  describe_attack_fully(pnode->attack_kind, buff);
-  snprintf(s_ptr->name, 30, "%s - %s", buff2, buff);
-}
-
-
 /*
  * Actually cause the spell effect.
  */
 
-static void cause_spell_effect(spell* s_ptr) {
+bool cause_spell_effect(spell* s_ptr) {
   proj_node* pnode = s_ptr->proj_list;
   int dir, who;
   int ty = 0, tx = 0;
-
+  bool succ = FALSE;
 
   while (pnode) {
 
     /* Hack -- Spell needs a target */
     if (pnode->proj_flags & PROJECT_BEAM || pnode->proj_flags & PROJECT_STOP) {
-      if (!get_aim_dir(&dir)) return;
+      if (!get_aim_dir(&dir)) return FALSE;
 
       /* Hack -- Use an actual "target" */
       if ((dir == 5) && target_okay()) {
@@ -580,13 +677,16 @@ static void cause_spell_effect(spell* s_ptr) {
       who = -100;
     }
 
-    project(who, pnode->radius, ty, tx,
+    if (project(who, pnode->radius, ty, tx,
 	    damroll(pnode->dam_dice, pnode->dam_sides),
 	    pnode->attack_kind,
-	    pnode->proj_flags);
+	    pnode->proj_flags)) 
+      succ = TRUE;
     
     pnode = pnode->next;
   }
+
+  return succ;
 }
 
 
@@ -646,10 +746,8 @@ void do_cmd_cast_power(void) {
       failed = TRUE;
 
     } else {
-      char silly[80];
-
-      get_random_line("sfail.txt", silly);
-      msg_format("A cloud of %s appears above you.", silly);
+      msg_format("A cloud of %s appears above you.", 
+		 get_random_line("sfail.txt"));
       failed = TRUE;
     }
   }
@@ -700,12 +798,6 @@ void do_cmd_cast_power(void) {
 
     s_ptr->untried = FALSE;
     gain_exp(s_ptr->level * s_ptr->level);
-
-    /* Hack -- Give the obvious elemental attacks automatic names. */
-    if (cp_ptr->magic_innate) {
-      name_spell(s_ptr);
-      mformat(MSG_BONUS, "This power has been named: %s", s_ptr->name);
-    }
   }
 }
 
@@ -824,3 +916,58 @@ void remove_mutation(void) {
   mprint(MSG_WARNING, mutation_names[which_mut][2]);
   msg_print(NULL);
 }
+
+
+
+/*
+ * Add the powers with the specified classification to the player's spell list.
+ */
+
+void add_powers(byte class) {
+  int i, j = 0;
+  spell* s_ptr;
+  spell* s2_ptr;
+
+  for (i = 0; i < power_num; i++) {
+    s_ptr = &powers[i];
+
+    if (s_ptr->class == class) {
+      s2_ptr = add_new_spell(s_ptr);
+      
+      if (s2_ptr) {
+	s2_ptr->unknown = FALSE;
+	j++;
+      }
+    }
+  }
+
+  if (j > 0) {
+    mformat(MSG_BONUS, "You have gained %d new abilit%s.",
+	  j, (j > 1 ? "ies" : "y"));
+  }
+}
+
+/*
+ * Remove all spells that are classified a certain way.
+ */
+
+void remove_powers(byte class) {
+  int indexes[MAX_SPELLS];
+  int i, num = 0;
+
+  for (i = 0; i < spell_num; i++) {
+    if (spells[i].class == class) {
+      indexes[num] = i;
+      num++;
+    }
+  }
+
+  if (num) {
+    remove_spells(indexes, num);
+
+    mformat(MSG_WARNING, "You have lost %d of your abilities.", num);
+  }
+}
+
+
+

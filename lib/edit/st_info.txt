@@ -1,0 +1,165 @@
+#
+# File: stores.txt
+#
+# Format:
+#
+# store id
+#       N:(store number)    1=General store, etc.
+# items for sale
+#       S:(item data) | (item data) | (item data) ...
+#       S: ...
+# items that can be bought
+#       B:(item k_idx) | (item k_idx) | (item k_idx) ...
+#       B: ...
+#
+# To list which items are on sale, you need the following in the item
+# data:      (item k_idx):(avg amount in)
+#
+#   "avg amount in" lists the number that will come in (on average)
+# whenever the store is maintained. Note that it is like a percentage:
+# saying "1" will mean that once every 100 rotations the item will come
+# in, saying "100" means that 1 item comes in every rotation, saying
+# "1000" means 10 items come in every rotation.
+#
+# This number basically dictates how many items of that type will be in
+# stock after store maintenance. Currently, the number should be no less
+# than about 51, and no more than 4999.
+#
+
+
+#
+# General Store
+#
+N:1
+
+S:5-8:75 | 11-12:60 | 18:60 | 20:60                        # mushrooms
+S:21:4999 | 22:1000 | 23:500 | 25:100 | 26:500 | 27:500    # food
+S:84:300 | 87:100 | 123:500 | 345:2500                     # tools
+S:346:2500 | 347:200 | 348:3000                            # lites
+S:600:120                                                  # flares
+
+B:1-27                                               # mushrooms and food
+B:84-89:123-124:345                                  # tools
+B:346-348                                            # light
+B:600                                                # flares
+
+V:132
+
+#
+# Armoury
+#
+N:2
+
+S:91:1000 | 92:500 | 93:55                                          # boots
+S:94:1500 | 95:500 | 96:150 | 97:55                                 # headgear
+S:101:750 | 103:600 | 104:500 | 105:400 | 106:300 | 107:75 | 108:60  # body armour
+S:109:60 | 111:60 | 112:60 | 113:75 | 114:55 | 116:55 | 121:55
+S:125:750 | 126:100                                                 # gloves
+S:128:750 | 129:300 | 130:150 | 131:55                              # shields
+
+B:91-126:128-131:400-412
+
+V:133
+
+#
+# Weapons Store
+#
+N:3
+
+S:29:60 | 31:150 | 32:60 | 33:300 | 34:500 | 35:500 | 37:60 | 38:60     # edged weapons
+S:39:60 | 41:60 | 42:300 | 43:1500 | 44:300 | 45:60 | 46:300
+S:49:300 | 50:60 | 54:75 | 58:60 | 61:60 | 62:60 | 63:60 | 64:100       # hafted weapons
+S:66:60 | 67:51 | 70:300
+S:73:300 | 74:150 | 75:100 | 76:60 | 77:500                             # bows
+S:78:4999 | 79:55 | 80:4999 | 81:55 | 82:4999 | 83:4999 | 600:100 | 601-604:150
+S:605-606:90              # missiles
+
+B:29-89
+
+V:133
+
+#
+# Temple
+#
+N:4
+
+S:43:300 | 48:52 | 49:150 | 50:52 | 51:52 | 52:52 | 53:150 | 55:150     # weapons
+S:56:52 | 58:52
+S:158:52 | 163:60 | 180:75 | 190:51 | 191:51 | 209:55 | 211:52          # magic items
+S:217:500 | 218:150 | 219:75 | 237:2000 | 240:1000 | 241:500 | 233:55
+S:299:51 | 312:52 | 317:52 | 318:52 | 319:51 | 320:51 | 327:55 | 329:51
+S:331:750 | 334:750 | 336:750 | 373:51 | 374:51 | 376:51 | 421:51
+S:570:55 | 571:55 | 572:55 | 573:55 | 574:55 | 575:55 | 576:55 | 577:55 # parchments
+S:578:55 | 579:51 | 581:500 | 582:150 | 583:75 | 584:55                 # insanity cures
+
+B:43:48-53:55-58                                # weapons
+B:158:163:180:190:191:209:211:217:218:219:237:240:241:242:233:299:312   # magic items
+B:317:318:319:320:327:329:331:334:336:373:374:376:419:421:422
+B:570:571:572:573:574:575:576:577:578:579:581:582:583:584               # parchments
+
+V:132
+
+#
+# Alchemist
+#
+N:5
+
+S:173:150 | 174:150 | 175:150 | 176:2500 | 177:150 | 180:75 | 182:75  # scrolls
+S:185:750 | 186:300 | 205:55 | 206:75 | 210:300 | 220:350 | 183:150
+S:227:75 | 230:75 | 233:75 | 236:80 | 237:500 | 240:150 | 249:75      # potions
+S:252:75 | 253:75 | 258:60 | 259:150 | 261:1000 | 262:1000 | 264:300
+S:299:75 | 178:300 | 179:150 | 443-458:500                            # alch.
+
+B:173-177:180-182:184-299:415-422:550-563:581-584:443-458  # scrolls, potions.
+
+V:132
+
+#
+# Magic Shop
+#
+N:6
+
+S:132-135:55 | 137:55 | 139-142:55 | 144:53 | 153:60 | 155-161:55  # rings
+S:163-165:55 | 167-168:55                                      # amulets
+S:269:200 | 273:200 | 282:150 | 290:150 | 291:300                       # wands
+S:303:60 | 306:100 | 310-313:55 | 326:200                               # staffs
+S:330:350 | 332:350 | 333:350 | 335:350 | 337:350                       # books
+S:351:55 | 352:75 | 355:55 | 356:75                                     # rods
+
+B:132-144:146-148                                     # rings 
+B:151-169:171-172                                     # amulets
+B:269-298                                             # wands
+B:300-329                                             # staves
+B:330:332:333:335:337                                 # books
+B:351-377                                             # rods
+B:585                                                 # random artifacts.
+
+V:132
+
+#
+# Black Market
+# Note that the BM buys/sells pretty much everything, so no entry is needed in here
+#
+N:7
+S:1-458:55 | 520-584:55
+B:1-584
+
+V:133
+
+N:8
+V:134
+
+#
+# PROPOSALS
+#
+# - Owners -
+#
+# Owner information for each shop can be stored in here. For each shop,
+# you would have a list of owners. Each owner has an 'O' line, in the
+# format:
+#
+# O:(Name):(Race):(purse):(...)
+#
+# This would easily let you customise owners for each store rather than
+# having them contained in pre-built arrays.
+#

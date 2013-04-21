@@ -1030,7 +1030,7 @@ static void display_player_middle(void)
 
 	int sane_p;
 
-	object_type *o_ptr = &inventory[INVEN_WIELD];
+	object_type* o_ptr = equipment[EQUIP_WIELD];
 
 	if (p_ptr->msane == 0) {
 	  sane_p = 100;
@@ -1039,8 +1039,8 @@ static void display_player_middle(void)
 	}
 
 	/* Hack -- add in weapon info if known */
-	if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
+	if (o_ptr && object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
+	if (o_ptr && object_known_p(o_ptr)) show_todam += o_ptr->to_d;
 
 	/* Dump the bonuses to hit/dam */
 	prt_num("+ To Hit    ", show_tohit, 9, 1, TERM_L_BLUE);
@@ -1216,17 +1216,27 @@ static void display_player_various(void)
 	int xdis, xdev, xsav, xstl;
 	cptr desc;
 
-	object_type *o_ptr;
+	object_type* o_ptr;
 
 
 	/* Fighting Skill (with current weapon) */
-	o_ptr = &inventory[INVEN_WIELD];
-	tmp = p_ptr->to_h + o_ptr->to_h;
+	o_ptr = equipment[EQUIP_WIELD];
+	tmp = p_ptr->to_h;
+
+	if (o_ptr) {
+	  tmp += o_ptr->to_h;
+	}
+
 	xthn = p_ptr->skill_thn + (tmp * BTH_PLUS_ADJ);
 
 	/* Shooting Skill (with current bow and normal missile) */
-	o_ptr = &inventory[INVEN_BOW];
-	tmp = p_ptr->to_h + o_ptr->to_h;
+	o_ptr = equipment[EQUIP_BOW];
+	tmp = p_ptr->to_h;
+
+	if (o_ptr) {
+	  tmp += o_ptr->to_h;
+	}
+
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
 	/* Basic abilities */
@@ -1361,8 +1371,14 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	  (*f3) |= TR3_HOLD_LIFE;
 	  (*f2) |= TR2_RES_NETHR;
 	}
-}
 
+	if (p_ptr->prace == RACE_VORTEX) {
+	  (*f2) |= TR2_IM_ACID;
+	  (*f2) |= TR2_IM_ELEC;
+	  (*f2) |= TR2_IM_FIRE;
+	  (*f2) |= TR2_IM_COLD;
+	}
+}
 
 /*
  * Equippy chars
@@ -1378,20 +1394,20 @@ static void display_player_equippy(int y, int x)
 
 
 	/* Dump equippy chars */
-	for (i=INVEN_WIELD; i<INVEN_TOTAL; i++)
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
 		/* Object */
-		o_ptr = &inventory[i];
+		o_ptr = equipment[i];
 
 		/* Skip empty objects */
-		if (!o_ptr->k_idx) continue;
+		if (!o_ptr || !o_ptr->k_idx) continue;
 
 		/* Get attr/char for display */
 		a = object_attr(o_ptr);
 		c = object_char(o_ptr);
 
 		/* Dump */
-		Term_putch(x+i-INVEN_WIELD, y, a, c);
+		Term_putch(x+i-EQUIP_WIELD, y, a, c);
 	}
 }
 
@@ -1516,29 +1532,28 @@ static void display_player_flag_info(void)
 			c_put_str(TERM_WHITE, name, row, col);
 
 			/* Check equipment */
-			for (n=6, i=INVEN_WIELD; i<INVEN_TOTAL; i++,n++)
+			for (n = 6, i = 0; i < EQUIP_MAX; i++,n++)
 			{
 				byte attr = TERM_SLATE;
 
-				object_type *o_ptr;
-
-				/* Object */
-				o_ptr = &inventory[i];
+				object_type* o_ptr = equipment[i];
 
 				/* Known flags */
-				object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
+				if (o_ptr) 
+				  object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
 
 				/* Color columns by parity */
 				if (i % 2) attr = TERM_L_WHITE;
 
 				/* Non-existant objects */
-				if (!o_ptr->k_idx) attr = TERM_L_DARK;
+				if (!o_ptr || !o_ptr->k_idx) attr = TERM_L_DARK;
 
 				/* Default */
 				c_put_str(attr, ".", row, col+n);
 
 				/* Check flags */
-				if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+				if (f[set] & flag && o_ptr) 
+				  c_put_str(TERM_WHITE, "+", row, col+n);
 			}
 
 			/* Player flags */
@@ -1670,10 +1685,24 @@ static void display_player_stat_info(void)
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col);
 
 	/* Process equipment */
-	for (i=INVEN_WIELD; i<INVEN_TOTAL; i++)
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
 		/* Access object */
-		o_ptr = &inventory[i];
+		o_ptr = equipment[i];
+
+		/* Hack -- nothing in the slot. */
+		if (!o_ptr) {
+		  
+		  /* Dump proper characters. */
+		  for (stat = 0; stat < 6; stat++) {
+			/* Dump proper character */
+			Term_putch(col, row+stat, TERM_SLATE, '.');
+	 	  }
+
+		  /* Advance. */
+		  col++;
+		  continue;
+		}
 
 		/* Object kind */
 		k_idx = o_ptr->k_idx;
@@ -1691,6 +1720,14 @@ static void display_player_stat_info(void)
 			a = TERM_SLATE;
 			c = '.';
 
+			/* Sustain */
+			if (f2 & 1<<stat)
+			{
+				/* Dark green "s" */
+				a = TERM_GREEN;
+				c = 's';
+			}
+
 			/* Boost */
 			if (f1 & 1<<stat)
 			{
@@ -1700,31 +1737,26 @@ static void display_player_stat_info(void)
 				/* Good */
 				if (o_ptr->pval > 0)
 				{
-					/* Good */
-					a = TERM_L_GREEN;
+				  /* Good */
+				  if (a != TERM_GREEN)
+				    a = TERM_L_GREEN;
 
-					/* Label boost */
-					if (o_ptr->pval < 10) c = '0' + o_ptr->pval;
+				  /* Label boost */
+				  if (o_ptr->pval < 10) c = '0' + o_ptr->pval;
 				}
-
+				
 				/* Bad */
 				if (o_ptr->pval < 0)
-				{
-					/* Bad */
-					a = TERM_RED;
+				  {
+				    /* Bad */
+				    if (a != TERM_GREEN)
+				      a = TERM_RED;
 
-					/* Label boost */
-					if (o_ptr->pval < 10) c = '0' - o_ptr->pval;
-				}
+				    /* Label boost */
+				    if (o_ptr->pval < 10) c = '0' - o_ptr->pval;
+				  }
 			}
 
-			/* Sustain */
-			if (f2 & 1<<stat)
-			{
-				/* Dark green "s" */
-				a = TERM_GREEN;
-				c = 's';
-			}
 
 			/* Dump proper character */
 			Term_putch(col, row+stat, a, c);
@@ -1732,7 +1764,7 @@ static void display_player_stat_info(void)
 
 		/* Advance */
 		col++;
-    }
+	}
 
 	/* Player flags */
 	player_flags(&f1, &f2, &f3);
@@ -1888,7 +1920,7 @@ void display_player(int mode)
  * XXX XXX XXX Allow the "full" flag to dump additional info,
  * and trigger its usage from various places in the code.
  */
-errr file_character(cptr name, bool full)
+errr file_character(cptr name)
 {
 	int i, x, y;
 
@@ -1910,6 +1942,10 @@ errr file_character(cptr name, bool full)
 	char o_name[80];
 
 	char buf[1024];
+
+	object_type* o_ptr;
+
+	bool equip_p = FALSE;
 
 
 	/* Drop priv's */
@@ -2009,29 +2045,103 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "%s\n", buf);
 	}
 
+	fprintf(fff, "\n\n");
+	
+	/* Display resistances */
+	display_player(2);
+
+	/* Dump part of the screen */
+	for (y = 2; y < 22; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = c;
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
 
-	/* Dump the mutations */
 
-	fprintf(fff, "  [Character Mutations]\n\n");
+	/* Dump misc. player info. */
+	fprintf(fff, "  Preserve mode: %s\n", (p_ptr->preserve ? "on" : "off"));
+	fprintf(fff, "  Maximise mode: %s\n", (p_ptr->maximize ? "on" : "off"));
+	fprintf(fff, "  Current depth: %d\n", p_ptr->depth);
+	fprintf(fff, "  Maximal depth: %d\n", p_ptr->max_depth);
+	fprintf(fff, "  Player died from: %s\n\n", p_ptr->died_from);
 
-	for (i = 0; i < 32; i++) {
-	  if (p_ptr->mutations1 & (1L << i)) {
-	    fprintf(fff, "%s\n", mutation_names[i][0]);
-	  }
-
-	  if (p_ptr->mutations2 & (1L << i)) {
-	    fprintf(fff, "%s\n", mutation_names[i+32][0]);
-	  }
-
-	  if (p_ptr->mutations3 & (1L << i)) {
-	    fprintf(fff, "%s\n", mutation_names[i+64][0]);
-	  }
+	if (p_ptr->total_winner) {
+	  fprintf(fff, "Player has won the game.\n\n");
 	}
 
-	fprintf(fff, "\n\n");
+	if (p_ptr->wizard) {
+	  fprintf(fff, "Player has used wizard mode.\n\n");
+	}
 
+	if (p_ptr->noscore & 0x0008) {
+	  fprintf(fff, "Player has used debug commands.\n\n");
+	}
+
+	for (i = 0; i < CHEAT_MAX; i++) {
+	  if (p_ptr->cheat[i]) {
+	    fprintf(fff, "Player has cheated.\n\n");
+	  }
+	}
+	
+
+	/* Dump religious info */
+	if (p_ptr->pgod) {
+	  int pgod = p_ptr->pgod-1;
+	  int badness = interpret_grace();
+
+	  deity* d_ptr = &deity_info[pgod];
+
+	  fprintf(fff, "Player worships %s, the %s God of %s, "
+		  "and is %s by him.\n\n", d_ptr->name,
+		  deity_rarity[d_ptr->rarity],
+		  d_ptr->god_of, deity_standing[badness]);
+	}
+
+	/* Dump shape info */
+	if (p_ptr->shape) {
+	  fprintf(fff, "Player is in the form of a%s %s.\n\n",
+		  (is_a_vowel(shape_info[p_ptr->shape-1].name[0]) ? "n" : ""),
+		  shape_info[p_ptr->shape-1].name);
+	}
+
+
+	/* Dump the mutations */
+
+	if (p_ptr->mutations1 || p_ptr->mutations2 || p_ptr->mutations3) {
+	  fprintf(fff, "  [Character Mutations]\n\n");
+
+	  for (i = 0; i < 32; i++) {
+	    if (p_ptr->mutations1 & (1L << i)) {
+	      fprintf(fff, "%s\n", mutation_names[i][0]);
+	    }
+
+	    if (p_ptr->mutations2 & (1L << i)) {
+	      fprintf(fff, "%s\n", mutation_names[i+32][0]);
+	    }
+
+	    if (p_ptr->mutations3 & (1L << i)) {
+	      fprintf(fff, "%s\n", mutation_names[i+64][0]);
+	    }
+	  }
+
+	  fprintf(fff, "\n\n");
+	}
 
 	/* Dump the random spells */
 	if (spell_num) {
@@ -2044,76 +2154,71 @@ errr file_character(cptr name, bool full)
 
 	    if (rspell->unknown) continue;
 
-	    fprintf(fff, "%3d%s %-30s %4d%% %3d\n", i+1, paren,
-		    rspell->name, spell_chance(rspell), rspell->mana);
+	    if (rspell->untried) {
+	      fprintf(fff, "%3d%s %-30s (Spell Untried)\n", i+1, paren, 
+		      rspell->name);
+
+	    } else {
+	      fprintf(fff, "%3d%s %-30s %4d%% %3d (%s)\n", i+1, paren,
+		      rspell->name, spell_chance(rspell), rspell->mana,
+		      rspell->desc);
+	    }
 	  }
 
 	  fprintf(fff, "\n\n");
 	}
 
-	/* Dump religious info */
-	if (p_ptr->pgod) {
-	  int pgod = p_ptr->pgod-1;
-	  int badness = interpret_grace();
-
-	  fprintf(fff, "You worship %s, the God of %s, "
-		  "and you are %s by him.\n\n", deity_info[pgod].name,
-		  deity_info[pgod].god_of, deity_standing[badness]);
+	for (i = 0; i < EQUIP_MAX; i++) {
+	  if (equipment[i]) {
+	    equip_p = TRUE;
+	    break;
+	  }
 	}
 
-	  
-
-
 	/* Dump the equipment */
-	if (p_ptr->equip_cnt)
+	if (equip_p)
 	{
 		fprintf(fff, "  [Character Equipment]\n\n");
-		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+		for (i = 0; i < EQUIP_MAX; i++)
 		{
-			object_desc(o_name, &inventory[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n",
-			        index_to_label(i), paren, o_name);
+			object_desc(o_name, equipment[i], TRUE, 3);
+			fprintf(fff, "  %-14s: %s\n",
+			        mention_use(i), o_name);
 		}
 		fprintf(fff, "\n\n");
 	}
 
 	/* Dump the inventory */
-	fprintf(fff, "  [Character Inventory]\n\n");
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		object_desc(o_name, &inventory[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n",
-		        index_to_label(i), paren, o_name);
-	}
-	fprintf(fff, "\n\n");
+	if (inventory) {
+	  fprintf(fff, "  [Character Inventory]\n\n");
+	  for (o_ptr = inventory; o_ptr != NULL; o_ptr = o_ptr->next)
+	  {
+		object_desc(o_name, o_ptr, TRUE, 3);
+		fprintf(fff, "  %s\n", o_name);
+	  }
 
+	  fprintf(fff, "\n\n");
+
+	  fprintf(fff, "  Total weight: %d.%1d\n\n", 
+		  p_ptr->total_weight/10, p_ptr->total_weight%10);
+
+	}
 
 	/* Dump the Home (page 1) */
-	fprintf(fff, "  [Home Inventory (page 1)]\n\n");
-	for (i = 0; i < 12; i++)
-	{
-		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
-	}
-	fprintf(fff, "\n\n");
+	if (st_ptr->stock) {
+	  fprintf(fff, "  [Home Inventory]\n\n");
 
-	/* Dump the Home (page 2) */
-	fprintf(fff, "  [Home Inventory (page 2)]\n\n");
-	for (i = 12; i < 24; i++)
-	{
-		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
-	}
-	fprintf(fff, "\n\n");
+	  for (o_ptr = st_ptr->stock; o_ptr != NULL; 
+	       o_ptr = o_ptr->next_global) {
 
+	    object_desc(o_name, o_ptr, TRUE, 3);
+	    fprintf(fff, "  %s\n", o_name);
+	  }
+	  fprintf(fff, "\n\n");
+	}
 
 	/* Close it */
 	my_fclose(fff);
-
-
-	/* Message */
-	msg_print("Character dump successful.");
-	msg_print(NULL);
 
 	/* Success */
 	return (0);
@@ -2971,17 +3076,16 @@ static void print_tomb(void)
  */
 static void show_info(void)
 {
-	int i, j, k;
-
 	object_type *o_ptr;
 
 	store_type *st_ptr = &store[7];
 
+	int i;
+	bool equip_p = FALSE;
 
 	/* Hack -- Know everything in the inven/equip */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (o_ptr = inventory; o_ptr != NULL; o_ptr = o_ptr->next)
 	{
-		o_ptr = &inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -2991,10 +3095,11 @@ static void show_info(void)
 		object_known(o_ptr);
 	}
 
+
 	/* Hack -- Know everything in the home */
-	for (i = 0; i < st_ptr->stock_num; i++)
-	{
-		o_ptr = &st_ptr->stock[i];
+	for (o_ptr = st_ptr->stock; o_ptr != NULL; 
+	     o_ptr = o_ptr->next_global) {
+
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -3042,7 +3147,7 @@ static void show_info(void)
 		Term_save();
 
 		/* Dump a character file */
-		(void)file_character(out_val, FALSE);
+		(void)file_character(out_val);
 
 		/* Load screen */
 		Term_load();
@@ -3061,8 +3166,15 @@ static void show_info(void)
 
 	/* Show equipment and inventory */
 
+	for (i = 0; i < EQUIP_MAX; i++) {
+	  if (equipment[i]) {
+	    equip_p = TRUE;
+	    break;
+	  }
+	}
+
 	/* Equipment -- if any */
-	if (p_ptr->equip_cnt)
+	if (equip_p)
 	{
 		Term_clear();
 		item_tester_full = TRUE;
@@ -3072,11 +3184,11 @@ static void show_info(void)
 	}
 
 	/* Inventory -- if any */
-	if (p_ptr->inven_cnt)
+	if (inventory)
 	{
 		Term_clear();
 		item_tester_full = TRUE;
-		show_inven();
+		show_stack(inventory, FALSE);
 		prt("You are carrying: -more-", 0, 0);
 		if (inkey() == ESCAPE) return;
 	}
@@ -3084,48 +3196,18 @@ static void show_info(void)
 
 
 	/* Home -- if anything there */
-	if (st_ptr->stock_num)
-	{
-		/* Display contents of the home */
-		for (k = 0, i = 0; i < st_ptr->stock_num; k++)
-		{
-			/* Clear screen */
-			Term_clear();
+	if (st_ptr->stock) {
 
-			/* Show 12 items */
-			for (j = 0; (j < 12) && (i < st_ptr->stock_num); j++, i++)
-			{
-				byte attr;
+	  /* Clear screen */
+	  Term_clear();
 
-				char o_name[80];
-				char tmp_val[80];
+	  show_stack(st_ptr->stock, TRUE);
 
-				/* Acquire item */
-				o_ptr = &st_ptr->stock[i];
+	  /* Caption */
+	  prt("Your home contains: -more-", 0, 0);
 
-				/* Print header, clear line */
-				sprintf(tmp_val, "%c) ", I2A(j));
-				prt(tmp_val, j+2, 4);
-
-				/* Acquire object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
-
-				/* Acquire inventory color */
-				attr = tval_to_attr[o_ptr->tval & 0x7F];
-
-				/* Disable inventory colors */
-				if (!inventory_colors) attr = TERM_WHITE;
-
-				/* Display the object */
-				c_put_str(attr, o_name, j+2, 7);
-			}
-
-			/* Caption */
-			prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
-
-			/* Wait for it */
-			if (inkey() == ESCAPE) return;
-		}
+	  /* Wait for it */
+	  if (inkey() == ESCAPE) return;
 	}
 }
 
@@ -3412,19 +3494,30 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* Another line of info */
 			if (ia == 0)
-				sprintf(out_val, "               Killed by %s on %s %d",
-				    the_score.how, "Dungeon Level", cdun);
-			else if (ia == 1) /* -KMW- */
-				sprintf(out_val, "               Killed by %s in the Arena",
-				    the_score.how);
-			else if (ia == 2) /* -KMW- */
-				sprintf(out_val, "               Killed by %s while questing",
-				    the_score.how);
+			  sprintf(out_val, "               Killed by %s on %s %d",
+				  the_score.how, "Dungeon Level", cdun);
+			else if (ia == SPECIAL_ARENA || 
+				 ia == SPECIAL_MAGIC_ARENA) /* -KMW- */
+			  sprintf(out_val, "               Killed by %s in the Arena",
+				  the_score.how);
+			else if (ia == SPECIAL_QUEST) /* -KMW- */
+			  sprintf(out_val, "               Killed by %s while questing",
+				  the_score.how);
+			else if (ia == SPECIAL_STORE)
+			  sprintf(out_val, "               Killed by %s while in a store", 
+				  the_score.how);
+			else if (ia == SPECIAL_WILD)
+			  sprintf(out_val, "               Killed by %s while exploring", 
+				  the_score.how);
+
+			else
+			  sprintf(out_val, "               Killed by %s while battling software bugs",
+				  the_score.how);
 
 			/* Hack -- some people die in the town - changed -KMW- */
 			if ((!cdun) & (ia == FALSE))
-				sprintf(out_val, "               Killed by %s in the Town",
-				    the_score.how);
+			  sprintf(out_val, "               Killed by %s in the Town",
+				  the_score.how);
 
 			/* Append a "maximum level" */
 			if (mdun > cdun) strcat(out_val, format(" (Max %d)", mdun));
@@ -4330,12 +4423,195 @@ void signals_init(void)
 
 
 
+/********************************************************/
+
+/* Data type for a cache buffer. */
+
+typedef struct cache_type cache_type;
+
+struct cache_type {
+  char* name;
+  int num_lines;
+  char** lines;
+};
+
+
+/* Hack -- fake buffer for use when there's no cache. */
+char* hack_fake_cache = NULL;
+
+/* Maximum number of cache buffers. */
+#define MAX_CACHE 20
+
+/* Array of cache buffers. */
+cache_type cache[MAX_CACHE];
+
+
+/* Initialize the cache buffers. */
+void init_cache(void) {
+  int i;
+
+  for (i = 0; i < MAX_CACHE; i++) {
+    cache[i].name = NULL;
+  }
+}
+
+/*
+ * Load the lines in the given file to the given cache entry.
+ */
+static errr fill_cache(int idx, char* fname) {
+  cache_type* c_ptr;
+  int i;
+  int num_lines;
+  FILE* fp;
+  char buf[1024];
+
+  /* Paranoia. */
+  if (idx < 0 || idx >= MAX_CACHE) return 1;
+
+  c_ptr = &cache[idx];
+
+  /* Save the filename. */
+  C_MAKE(c_ptr->name, strlen(fname)+1, char);
+  strcpy(c_ptr->name, fname);
+
+  /* Build the filename */
+  path_build(buf, 1024, ANGBAND_DIR_FILE, fname);
+
+  /* Open the file */
+  fp = my_fopen(buf, "r");
+
+  /* Failed */
+  if (!fp) return -1;
+
+
+  /* Figure out the number of lines. */
+  if (my_fgets(fp, buf, 80) == 0) {
+    num_lines = atoi(buf);
+
+  } else {
+    my_fclose(fp);
+    return 1;
+  }  
+
+  c_ptr->num_lines = num_lines;
+
+  C_MAKE(c_ptr->lines, num_lines, char*);
+
+  /* Load all the lines in the file into the cache. */
+  for (i = 0; i < num_lines; i++) {
+  
+    if (my_fgets(fp, buf, 80) != 0) {
+      my_fclose(fp);
+      return 1;
+    }
+
+    C_MAKE(c_ptr->lines[i], strlen(buf)+1, char);
+    strcpy(c_ptr->lines[i], buf);
+    //C_MAKE(c_ptr->lines[i], 5, char);
+    //strcpy(c_ptr->lines[i], ".");
+  }
+
+  my_fclose(fp);
+
+  /* We're done. */
+  return 0;
+}
+
+
+/*
+ * Find the appropriate cache entry for the given filename.
+ */
+
+static cache_type* fetch_cache_entry(char* fname) {
+  int i;
+
+  for (i = 0; i < MAX_CACHE; i++) {
+
+    /* Hit the end of the cache buffer. */
+    if (cache[i].name == NULL) {
+      /* Pre-load the file. */
+      if (fill_cache(i, fname) != 0) return NULL;
+
+      return &cache[i];
+
+      /*  Found an existing cache we can use. */
+    } else if (strcmp(cache[i].name, fname) == 0) {
+      return &cache[i];
+    }
+  }
+
+  return NULL;
+}
+
+
+/*
+ * Get the i-th line from the file. If the file is already cached, just return
+ * the entry in the cache. Otherwise, load the file into an available cache
+ * buffer. If all the allowed cache buffers are filled, then just get the line
+ * the old-fashioned dumb way.
+ */
+cptr get_line(char* fname, int line) {
+  cache_type* c_ptr;
+  
+  /* Get the appropriate cache entry. */
+  c_ptr = fetch_cache_entry(fname);
+
+  /* Cache buffer is full. */
+  if (c_ptr == NULL) {
+    /* Do it the old-fashioned way. */
+    return get_line_old(fname, line);
+  }
+
+  /* Simply return the existing line. */
+  return c_ptr->lines[line % c_ptr->num_lines];
+}
+    
+/*
+ * Like get_line, but with a random line number.
+ */
+cptr get_random_line(char* fname) {
+  cache_type* c_ptr;
+  
+  /* Get the appropriate cache entry. */
+  c_ptr = fetch_cache_entry(fname);
+
+  /* Cache buffer is full. */
+  if (c_ptr == NULL) {
+    /* Do it the old-fashioned way. */
+    return get_random_line_old(fname);
+  }
+
+  /* Simply return the existing line. */
+  return c_ptr->lines[rand_int(c_ptr->num_lines)];
+}
+
+
+/*
+ * Return the number of lines in the file.
+ */
+s16b get_num_lines(char* fname) {
+  cache_type* c_ptr;
+  
+  /* Get the appropriate cache entry. */
+  c_ptr = fetch_cache_entry(fname);
+
+  /* Cache buffer is full. */
+  if (c_ptr == NULL) {
+    /* Do it the old-fashioned way. */
+    return get_num_lines_old(fname);
+  }
+
+  /* Simply return the existing line. */
+  return c_ptr->num_lines;
+}
+
+
 /* 
  * Fetch a random line from a file.
  * Note that code is stolen from Zangband, but cleaned up somewhat.
  */
 
-errr get_random_line(char* fname, char* output) {
+cptr get_random_line_old(char* fname) {
   FILE* fp;
   char buf[1024];
   int line, num_lines, i;
@@ -4347,14 +4623,14 @@ errr get_random_line(char* fname, char* output) {
   fp = my_fopen(buf, "r");
 
   /* Failed */
-  if (!fp) return -1;
+  if (!fp) return NULL;
 
   /* Parse the file */
   if (my_fgets(fp, buf, 80) == 0) {
     num_lines = atoi(buf);
   } else {
     my_fclose(fp);
-    return 1;
+    return NULL;
   }
 
   line = randint(num_lines);
@@ -4362,13 +4638,19 @@ errr get_random_line(char* fname, char* output) {
   for (i = 1; i <= line; i++) {
     if (my_fgets(fp, buf, 80) != 0) {
       my_fclose(fp);
-      return 1;
+      return NULL;
     }
   }
 
-  strcpy(output, buf);
+  if (hack_fake_cache != NULL) {
+    C_KILL(hack_fake_cache, strlen(hack_fake_cache)+1, char);
+  }
+
+  C_MAKE(hack_fake_cache, strlen(buf)+1, char);
+  strcpy(hack_fake_cache, buf);
+
   my_fclose(fp);
-  return 0;
+  return hack_fake_cache;
 }
 
 
@@ -4376,7 +4658,7 @@ errr get_random_line(char* fname, char* output) {
  * Return the number of lines in a file.
  */
 
-int get_num_lines(char* fname) {
+s16b get_num_lines_old(char* fname) {
   FILE* fp;
   char buf[1024];
 
@@ -4406,7 +4688,7 @@ int get_num_lines(char* fname) {
  * (see get_random_line)
  */
 
-errr get_line(char* fname, char* output, int line) {
+cptr get_line_old(char* fname, int line) {
   FILE* fp;
   char buf[1024];
   int i;
@@ -4420,16 +4702,22 @@ errr get_line(char* fname, char* output, int line) {
   fp = my_fopen(buf, "r");
 
   /* Failed */
-  if (!fp) return -1;
+  if (!fp) return NULL;
 
   for (i = 0; i <= line; i++) {
     if (my_fgets(fp, buf, 80) != 0) {
       my_fclose(fp);
-      return 1;
+      return NULL;
     }
   }
 
-  strcpy(output, buf);
+  if (hack_fake_cache != NULL) {
+    C_KILL(hack_fake_cache, strlen(hack_fake_cache)+1, char);
+  }
+
+  C_MAKE(hack_fake_cache, strlen(buf)+1, char);
+  strcpy(hack_fake_cache, buf);
+
   my_fclose(fp);
-  return 0;
+  return hack_fake_cache;
 }

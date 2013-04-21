@@ -1,0 +1,17 @@
+Some basic help for Kamband newbies:
+
+You can use `#' (control-z in rouguelike keyset) to call your pets.
+
+Use `O' to interact with deities -- when on an altar, this will 
+let you sacrifice something, otherwise it will show your current
+deity. You can align yourself with a deity by scarificing somthing for
+the first time. Beware -- deities are fickle and want frequent sacrifices.
+
+Use `$' to mix alchemical recipes. You have a few recipes to start with,
+and you can get more by experimentation or reading a scroll of recipe.
+The recipes do not change between games.
+
+Use the `I' command to read parchments, and to see an item's material and
+damage status.
+
+

@@ -187,17 +187,18 @@ bool set_poisoned(int v)
 }
 
 /*
- * Try to drop something.
+ * Drop the item in the given equipment slot.
  */
 
 static void try_drop_armor(int slot) {
-  if (!inventory[slot].k_idx) return;
+  if (!equipment[slot]) return;
 
-  if (inventory[slot].ident & (IDENT_CURSED)) {
+  if (equipment[slot]->ident & (IDENT_CURSED)) {
     mprint(MSG_STUPID, "Ouch, your armor is stuck!");
     take_hit(damroll(5, 10), "constricting armor");
+
   } else {
-    inven_drop(slot, 1);
+    drop_near(equipment[slot], FALSE, p_ptr->py, p_ptr->px);
   }
 }
 
@@ -207,16 +208,21 @@ static void try_drop_armor(int slot) {
  */
 
 static void drop_armor(void) {
-  mprint(MSG_WARNING, "Your armor pops off!");
-  p_ptr->energy_use = 100;
+  int i, j;
 
-  try_drop_armor(INVEN_BODY);
-  try_drop_armor(INVEN_OUTER);
-  try_drop_armor(INVEN_ARM);
-  try_drop_armor(INVEN_HEAD);
-  try_drop_armor(INVEN_HANDS);
-  try_drop_armor(INVEN_FEET);
-};
+  for (i = EQUIP_BODY; i <= EQUIP_FEET; i++) {
+
+    if (equipment[i]) {
+      mprint(MSG_WARNING, "Your armor pops off!");
+      p_ptr->energy_use = 100;
+
+      for (j = i; j <= EQUIP_FEET; j++) {
+	try_drop_armor(j);
+      }
+      return;
+    }
+  }
+}
 
 /*
  * Set call ``set_shape'' with default values. 
@@ -241,6 +247,11 @@ bool set_shape(byte shape, int v)
 	    msg_print("You return to your natural shape.");
 	    msg_print(NULL);
 	    notice = TRUE;
+
+	    if (p_ptr->shape) {
+	      remove_powers(p_ptr->shape);
+	    }
+
 	} else {
 	    /* Open */
 	    if (v)
@@ -250,7 +261,14 @@ bool set_shape(byte shape, int v)
 			msg_print(shape_info[shape-1].mesg_on);
 			msg_print(NULL);
 			notice = TRUE;
-			drop_armor();
+
+			if (p_ptr->shape) {
+			  remove_powers(p_ptr->shape);
+			} else {
+			  drop_armor();
+			}
+
+			add_powers(shape);
 		  }
 	    }
 
@@ -263,6 +281,8 @@ bool set_shape(byte shape, int v)
 			msg_print(NULL);
 			shape = 0;
 			notice = TRUE;
+
+			remove_powers(p_ptr->shape);
 		  }
 	    }
 	}
@@ -280,7 +300,8 @@ bool set_shape(byte shape, int v)
 	/* Handle stuff */
 	p_ptr->update |= (PU_BONUS | PU_MANA | PU_SPELLS | 
  			  PU_HP | PU_SANITY);
-	p_ptr->redraw |= (PR_STATE | PR_MISC | PR_MAP | PR_STUDY);
+	p_ptr->redraw |= (PR_STATE | PR_MISC | PR_MAP | PR_STUDY |
+                          PR_MANA);
 	handle_stuff();
 
 	/* Result */
@@ -1933,6 +1954,60 @@ static int get_coin_type(monster_race *r_ptr)
 	return (0);
 }
 
+static bool object_is_gold(int k_idx) {
+  object_kind* k_ptr = &k_info[k_idx];
+
+  if (k_ptr->tval != TV_GOLD) return FALSE;
+
+  if (coin_type && k_ptr->sval != coin_type) return FALSE;
+
+  return TRUE;
+}
+
+
+/*
+ * Determine which corpse svals are good for which monster.
+ */
+static byte monster_corpse_sval(monster_type* m_ptr) {
+  monster_race* r_ptr = &r_info[m_ptr->r_idx];
+  byte ret = SV_CORPSE_BODY;
+
+  switch (randint(8)) {
+  case 1:
+    if (!(r_ptr->flags7 & RF7_HEADLESS)) ret = SV_CORPSE_HEAD;
+    break;
+
+  case 2:
+    if (!(r_ptr->flags7 & RF7_HEADLESS)) ret = SV_CORPSE_SKIN;
+    break;
+
+  case 3:
+    if (!(r_ptr->flags7 & RF7_HEADLESS)) ret = SV_CORPSE_TONGUE;
+    break;
+
+  case 4:
+    if (r_ptr->flags7 & RF7_HAS_SCALES) ret = SV_CORPSE_SCALE;
+    break;
+
+  case 5:
+    if (r_ptr->flags7 & RF7_HAS_WINGS) ret = SV_CORPSE_WING;
+    break;
+
+  case 6:
+    if (r_ptr->flags7 & RF7_HUMANOID) ret = SV_CORPSE_HAIR;
+    break;
+
+  case 7:
+    ret = SV_CORPSE_LIVER;
+    break;
+
+  case 8:
+    ret = SV_CORPSE_HEART;
+    break;
+  }
+
+  return ret;
+}
 
 /*
  * Handle the "death" of a monster.
@@ -1956,8 +2031,6 @@ void monster_death(int m_idx)
 
 	int number = 0;
 
-	s16b this_o_idx, next_o_idx = 0;
-
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -1967,83 +2040,55 @@ void monster_death(int m_idx)
 	bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
 	bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
 
-	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
-	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
+	bool do_gold = ((r_ptr->flags1 & (RF1_ONLY_GOLD)) ? TRUE : FALSE);
+	/*bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD))); */
 
 	int force_coin = get_coin_type(r_ptr);
 
-	object_type *i_ptr;
-	object_type object_type_body;
-
+	object_type* o_ptr;
+	object_type* q_ptr;
 
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
 	/* Drop objects being carried */
-	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
-	{
-		object_type *o_ptr;
+	o_ptr = m_ptr->inventory;
 
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
+	while (TRUE) {
+	  if (!o_ptr) break;
 
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
+	  /* Pre-load the next object. */
+	  q_ptr = o_ptr->next;
 
-		/* Paranoia */
-		o_ptr->held_m_idx = 0;
+	  /* Drop the object. */
+	  drop_near(o_ptr, FALSE, y, x);
 
-		/* Get local object */
-		i_ptr = &object_type_body;
+	  o_ptr = q_ptr;
 
-		/* Copy the object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Delete the object */
-		delete_object_idx(this_o_idx);
-
-		/* Drop it */
-		drop_near(i_ptr, -1, y, x);
 	}
-
-	/* Forget objects */
-	m_ptr->hold_o_idx = 0;
-
 
 	/* Mega-Hack -- drop "winner" treasures */
 	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
 	{
 		/* Get local object */
-		i_ptr = &object_type_body;
+		o_ptr = new_object();
 
-		/* Mega-Hack -- Prepare to make "Grond" */
-		object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));
-
-		/* Mega-Hack -- Mark this item as "Grond" */
-		i_ptr->name1 = ART_GROND;
-
-		/* Mega-Hack -- Actually create "Grond" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+		/* Actually make it. */
+		make_artifact_named(o_ptr, ART_GROND, p_ptr->depth, TRUE);
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(o_ptr, FALSE, y, x);
 
 
 		/* Get local object */
-		i_ptr = &object_type_body;
+		o_ptr = new_object();
 
-		/* Mega-Hack -- Prepare to make "Morgoth" */
-		object_prep(i_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
-
-		/* Mega-Hack -- Mark this item as "Morgoth" */
-		i_ptr->name1 = ART_MORGOTH;
-
-		/* Mega-Hack -- Actually create "Morgoth" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+		/* Actually make it. */
+		make_artifact_named(o_ptr, ART_MORGOTH, p_ptr->depth, TRUE);
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(o_ptr, FALSE, y, x);
 	}
 
 
@@ -2057,6 +2102,13 @@ void monster_death(int m_idx)
 
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;
+	
+	/* Handle DROP_GOLD */
+	if (do_gold) {
+	  get_obj_num_hook = object_is_gold;
+
+	  get_obj_num_prep();
+        }
 
 	/* Average dungeon and monster levels */
 	object_level = (p_ptr->depth + r_ptr->level) / 2;
@@ -2065,33 +2117,16 @@ void monster_death(int m_idx)
 	for (j = 0; j < number; j++)
 	{
 		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Wipe the object */
-		object_wipe(i_ptr);
-
-		/* Make Gold */
-		if (do_gold && (!do_item || (rand_int(100) < 50)))
-		{
-			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
-
-			/* XXX XXX XXX */
-			dump_gold++;
-		}
+		o_ptr = new_object();
 
 		/* Make Object */
-		else
-		{
-			/* Make an object */
-			if (!make_object(i_ptr, good, great)) continue;
+		if (!make_object(o_ptr, good, great)) continue;
 
-			/* XXX XXX XXX */
-			dump_item++;
-		}
+		/* XXX XXX XXX */
+		dump_item++;
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(o_ptr, FALSE, y, x);
 	}
 
 	/* Reset the object level */
@@ -2099,6 +2134,13 @@ void monster_death(int m_idx)
 
 	/* Reset "coin" type */
 	coin_type = 0;
+
+	/* Handle DROP_GOLD */
+	if (do_gold) {
+	  get_obj_num_hook = NULL;
+
+	  get_obj_num_prep();
+        }
 
 
 	/* Take note of any dropped treasure */
@@ -2108,6 +2150,19 @@ void monster_death(int m_idx)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
+	/* Try to drop a corpse. (40% chance.) */
+	if ((magik(40) || m_ptr->mflag & MFLAG_DROP_CORPSE) &&
+	    !(r_ptr->flags7 & RF7_NO_CORPSE) &&
+	    !(r_ptr->flags1 & RF1_UNIQUE)) {
+	  
+	  byte sval = monster_corpse_sval(m_ptr);
+
+	  o_ptr = new_object();
+	  object_prep(o_ptr, lookup_kind(TV_CORPSE, sval));
+	  o_ptr->pval = m_ptr->r_idx;
+
+	  drop_near(o_ptr, FALSE, y, x);
+	}
 
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
@@ -2123,9 +2178,6 @@ void monster_death(int m_idx)
 	  y = ny; x = nx;
 	}
 
-	/* XXX XXX XXX */
-	delete_object(y, x);
-		
 	/* Explain the staircase */
 	mprint(MSG_BONUS, "A magical staircase appears...");
 
@@ -2280,12 +2332,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool give_exp,
 		  }
 		
 		/* Gain experience */
-		if (give_exp) {
+		if (!m_ptr->is_pet && give_exp) {
 		  gain_exp(new_exp);
 		}
 
 		/* Player vanquishing arena combatant -KMW- */
-		if (p_ptr->inside_special == 1) {
+		if ((p_ptr->inside_special == SPECIAL_ARENA || 
+		     p_ptr->inside_special == SPECIAL_MAGIC_ARENA) &&
+		    m_ptr->mflag & MFLAG_ARENA) {
 		  p_ptr->exit_bldg = TRUE;
 		  mprint(MSG_BONUS, "Victorious! You're on your way to becoming Champion.");
 		  p_ptr->arena_number[p_ptr->which_arena]++;
@@ -2341,20 +2395,29 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool give_exp,
 		  
 		    mformat(MSG_STUPID, "%s howls in rage! You have killed a sacred creature!", tmp_name);
 		    set_grace(p_ptr->grace - new_exp*15);
-		    godly_wrath_blast();
+		    godly_wrath_blast(p_ptr->pgod-1);
 		  }
 		}
 
 
 		/* Has a crime been commited? */
 		if ((r_ptr->flags2 & RF2_INNOCENT) && give_exp) {
+
+		  /* Decrease social class. */
+		  if (p_ptr->sc > -1000) {
+		    p_ptr->sc -= 50;
+		  }
+
 		  /* Activate generators */
 		  activate_generators();
 
 		}
 
 		/* Has the quest been completed? */
-		if (p_ptr->inside_special == 2 && p_ptr->which_quest) {
+		if (p_ptr->inside_special == SPECIAL_QUEST && 
+		    p_ptr->which_quest &&
+		    quest_status[p_ptr->which_quest-1] != QUEST_COMPLETED) {
+
 		  vault_type* v_ptr = q_v_ptrs[p_ptr->which_quest-1];
 
 		  if (v_ptr->q_type == QT_KILL) {
@@ -2367,7 +2430,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool give_exp,
 
 		      if (!m_ptr->r_idx) continue;
 
-		      if (!m_ptr->is_pet) {
+		      if (!m_ptr->is_pet && 
+			  m_ptr->mflag & MFLAG_QUEST) {
 			comp = FALSE;
 			break;
 		      }
@@ -2452,78 +2516,91 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool give_exp,
  */
 void verify_panel(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+  int py = p_ptr->py;
+  int px = p_ptr->px;
 
-	int i;
+  int i;
+  
+  bool scroll = FALSE;
 
-	bool scroll = FALSE;
+  /* Center the view on the player. */
+  if (center_player) {
+    i = p_ptr->py - SCREEN_HGT / 2;
 
+    if (i < 0) i = 0;
+    if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
 
-	/* Initial row */
-	i = p_ptr->wy;
+    p_ptr->wy = i;
 
-	/* Scroll screen when 2 grids from top/bottom edge */
-	if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy+SCREEN_HGT - 2))
-	{
-		i = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
-	}
+    i = p_ptr->px - SCREEN_WID / 2;
 
-	/* Hack -- handle town - DON'T need to do this - dungeon size now -KMW- */
-	/* if (!p_ptr->depth) i = TOWN_HEIGHT; */
+    if (i < 0) i = 0;
+    if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
 
-	/* New panel row */
-	if (p_ptr->wy != i)
-	{
-		/* Update panel */
-		p_ptr->wy = i;
+    p_ptr->wx = i;
 
-		/* Scroll */
-		scroll = TRUE;
-	}
+    scroll = TRUE;
 
+  } else {
 
-	/* Initial col */
-	i = p_ptr->wx;
+    /* Initial row */
+    i = p_ptr->wy;
+    
+    /* Scroll screen when 2 grids from top/bottom edge */
+    if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy+SCREEN_HGT - 2)) {
 
-	/* Scroll screen when 4 grids from left/right edge */
-	if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx+SCREEN_WID - 4))
-	{
-		i = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
-	}
+      i = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
 
-	/* Hack -- handle town - DON'T need to do this - dungeon size now -KMW-*/
-	/* if (!p_ptr->depth) i = SCREEN_WID; */
+      if (i < 0) i = 0;
+      if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
+    }
 
-	/* New panel col */
-	if (p_ptr->wx != i)
-	{
-		/* Update panel */
-		p_ptr->wx = i;
+    /* New panel row */
+    if (p_ptr->wy != i) {
+      /* Update panel */
+      p_ptr->wy = i;
 
-		/* Scroll */
-		scroll = TRUE;
-	}
+      /* Scroll */
+      scroll = TRUE;
+    }
 
-	/* Scroll */
-	if (scroll)
-	{
-		/* Optional disturb on "panel change" */
-		if (disturb_panel) disturb(0, 0);
+    
+    /* Initial col */
+    i = p_ptr->wx;
 
-		/* Update stuff */
-		p_ptr->update |= (PU_MONSTERS);
+    /* Scroll screen when 4 grids from left/right edge */
+    if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx+SCREEN_WID - 4)) {
+      
+      i = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
 
-		/* Redraw map */
-		p_ptr->redraw |= (PR_MAP);
+      if (i < 0) i = 0;
+      if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
+    }
 
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
-	}
+    /* New panel col */
+    if (p_ptr->wx != i) {
+      /* Update panel */
+      p_ptr->wx = i;
+    
+      /* Scroll */
+      scroll = TRUE;
+    }
+  }
+
+  /* Scroll */
+  if (scroll) {
+    /* Optional disturb on "panel change" */
+    if (!center_player && disturb_panel) disturb(0, 0);
+
+    /* Update stuff */
+    p_ptr->update |= (PU_MONSTERS);
+    
+    /* Redraw map */
+    p_ptr->redraw |= (PR_MAP);
+
+    /* Window stuff */
+    p_ptr->window |= (PW_OVERHEAD);
+  }
 }
 
 
@@ -2849,7 +2926,7 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
  */
 static bool target_set_accept(int y, int x)
 {
-	s16b this_o_idx, next_o_idx = 0;
+  object_type* o_ptr;
 
 
 	/* Player grids are always interesting */
@@ -2871,18 +2948,9 @@ static bool target_set_accept(int y, int x)
 	}
 
 	/* Scan all objects in the grid */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
-	{
-		object_type *o_ptr;
-
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Memorized object */
-		if (o_ptr->marked) return (TRUE);
+	for (o_ptr = cave_o_idx[y][x]; o_ptr != NULL; o_ptr = o_ptr->next) {
+	  /* Memorized object */
+	  if (o_ptr->marked) return (TRUE);
 	}
 
 	/* Interesting memorized features */
@@ -2900,8 +2968,12 @@ static bool target_set_accept(int y, int x)
 		if (cave_feat[y][x] == FEAT_MORE) return (TRUE);
 
 		/* Notice shops */
-		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-		    (cave_feat[y][x] <= FEAT_SHOP_TAIL)) return (TRUE);
+		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD &&
+		     cave_feat[y][x] <= FEAT_SHOP_TAIL) ||
+		    cave_feat[y][x] == FEAT_STORE_EXIT) return (TRUE);
+
+		/* Notice wilderness. */
+		if (cave_feat[y][x] == FEAT_WILD_ENTER) return (TRUE);
 
 		/* Notice buildings -KMW- */
 		if ((cave_feat[y][x] >= FEAT_BLDG_HEAD) &&
@@ -2921,17 +2993,6 @@ static bool target_set_accept(int y, int x)
 		/* Notice veins with treasure */
 		if (cave_feat[y][x] == FEAT_MAGMA_K) return (TRUE);
 		if (cave_feat[y][x] == FEAT_QUARTZ_K) return (TRUE);
-
-		/* Notice water & lava -KMW- */
-		if (cave_feat[y][x] == FEAT_DEEP_WATER) return (TRUE);
-		if (cave_feat[y][x] == FEAT_SHAL_WATER) return (TRUE);
-		if (cave_feat[y][x] == FEAT_DEEP_LAVA) return (TRUE);
-		if (cave_feat[y][x] == FEAT_SHAL_LAVA) return (TRUE);
-		if (cave_feat[y][x] == FEAT_TREES) return (TRUE);
-		if (cave_feat[y][x] == FEAT_MOUNTAIN) return (TRUE);
-
-		/* Notice Chaos Fog */
-		if (cave_feat[y][x] == FEAT_CHAOS_FOG) return TRUE;
 
 		/* Notice altars. */
 		if (cave_feat[y][x] >= FEAT_ALTAR_HEAD &&
@@ -3016,7 +3077,7 @@ static void target_set_prepare(int mode)
  */
 static int target_set_aux(int y, int x, int mode, cptr info)
 {
-	s16b this_o_idx, next_o_idx = 0;
+  object_type* o_ptr;
 
 	cptr s1, s2, s3;
 
@@ -3051,6 +3112,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			s1 = "You are ";
 
 			/* Preposition */
+			
+
 			s2 = "on ";
 		}
 
@@ -3144,17 +3207,10 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				s2 = "carrying ";
 
 				/* Scan all objects being carried */
-				for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
-				{
+				for (o_ptr = m_ptr->inventory; o_ptr != NULL;
+				     o_ptr = o_ptr->next) {
+
 					char o_name[80];
-
-					object_type *o_ptr;
-
-					/* Acquire object */
-					o_ptr = &o_list[this_o_idx];
-
-					/* Acquire next object */
-					next_o_idx = o_ptr->next_o_idx;
 
 					/* Obtain an object description */
 					object_desc(o_name, o_ptr, TRUE, 3);
@@ -3176,7 +3232,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				}
 
 				/* Double break */
-				if (this_o_idx) break;
+				if (o_ptr) break;
 
 				/* Use a preposition */
 				s2 = "on ";
@@ -3185,52 +3241,43 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 
 		/* Scan all objects in the grid */
-		for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
-		{
-			object_type *o_ptr;
+		for (o_ptr = cave_o_idx[y][x]; o_ptr; o_ptr = o_ptr->next) {
 
-			/* Acquire object */
-			o_ptr = &o_list[this_o_idx];
+		  /* Describe it */
+		  if (o_ptr->marked) {
+		    char o_name[80];
 
-			/* Acquire next object */
-			next_o_idx = o_ptr->next_o_idx;
+		    /* Not boring */
+		    boring = FALSE;
 
-			/* Describe it */
-			if (o_ptr->marked)
-			{
-				char o_name[80];
+		    /* Obtain an object description */
+		    object_desc(o_name, o_ptr, TRUE, 3);
 
-				/* Not boring */
-				boring = FALSE;
+		    /* Describe the object */
+		    sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+		    prt(out_val, 0, 0);
+		    move_cursor_relative(y, x);
+		    query = inkey();
 
-				/* Obtain an object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
+		    /* Always stop at "normal" keys */
+		    if ((query != '\r') && (query != '\n') && (query != ' ')) break;
 
-				/* Describe the object */
-				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
-				prt(out_val, 0, 0);
-				move_cursor_relative(y, x);
-				query = inkey();
+		    /* Sometimes stop at "space" key */
+		    if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
 
-				/* Always stop at "normal" keys */
-				if ((query != '\r') && (query != '\n') && (query != ' ')) break;
+		    /* Change the intro */
+		    s1 = "It is ";
 
-				/* Sometimes stop at "space" key */
-				if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
+		    /* Plurals */
+		    if (o_ptr->number != 1) s1 = "They are ";
 
-				/* Change the intro */
-				s1 = "It is ";
-
-				/* Plurals */
-				if (o_ptr->number != 1) s1 = "They are ";
-
-				/* Preposition */
-				s2 = "on ";
-			}
+		    /* Preposition */
+		    s2 = "on ";
+		  }
 		}
 
 		/* Double break */
-		if (this_o_idx) break;
+		if (o_ptr) break;
 
 
 		/* Feature (apply "mimic") */
@@ -3252,7 +3299,13 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			if (feat == FEAT_NONE) name = "unknown grid";
 
 			/* Pick a prefix */
-			if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";
+			if (*s2 && (!cave_floor_bold(y, x) ||
+				    (cave_feat[y][x] >= FEAT_DEEP_WATER &&
+				     cave_feat[y][x] <= FEAT_SHAL_LAVA) ||
+				    cave_feat[y][x] == FEAT_FOG)) {
+
+			  s2 = "in ";
+			}
 
 			/* Pick proper indefinite article */
 			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
@@ -4012,17 +4065,33 @@ void nasty_side_effect(void) {
 }
 
 
-/* Deadly side effect. */
+/*
+ * I wish C had a lambda function...
+ */
+static bool fire_explosion_ugly(int y, int x, int type, int rad, int dam, 
+				byte god) {
+  return fire_explosion(y, x, type, rad, dam);
+}
+
+
+
+/* 
+ * Deadly side effect. 
+ */
 
 void deadly_side_effect(bool god) {
   int tmp;
-  bool (*boom)(int, int, int, int, int);
+  bool (*boom)(int, int, int, int, int, byte);
+
+  byte pgd;
 
   /* Lisp-like hack to save typing. */
   if (god) {
     boom = fire_godly_wrath;
+    pgd = p_ptr->pgod - 1;
   } else {
-    boom = fire_explosion;
+    boom = fire_explosion_ugly;
+    pgd = 0;
   }
 
   tmp = randint(100);
@@ -4035,10 +4104,10 @@ void deadly_side_effect(bool god) {
       msg_print("You feel a strange tingling, but the feeling passes.");
     }
   } else if (tmp <= 20) {
-    boom(p_ptr->py, p_ptr->px, GF_MAKE_WALL, 9, 0);
+    boom(p_ptr->py, p_ptr->px, GF_MAKE_WALL, 9, 0, pgd);
   } else if (tmp <= 30) {
     mprint(MSG_WARNING, "The world twists!");
-    boom(p_ptr->py, p_ptr->px, GF_QUAKE, 9, 60);
+    boom(p_ptr->py, p_ptr->px, GF_QUAKE, 9, 60, pgd);
   } else if (tmp <= 40) {
     mprint(MSG_URGENT, "Your nerves and muscles feel weak and lifeless.");
     (void)dec_stat(A_STR, 50, TRUE);
@@ -4054,31 +4123,49 @@ void deadly_side_effect(bool god) {
     check_experience();
   } else if (tmp <= 60) {
     mprint(MSG_URGENT, "Your whole life flashes before your eyes.");
-    boom(p_ptr->py, p_ptr->px, GF_TIME, 5, 100);
+    boom(p_ptr->py, p_ptr->px, GF_TIME, 5, 100, pgd);
   } else if (tmp <= 70) {
     mprint(MSG_URGENT, "Everything seems grayer somehow...");
-    boom(p_ptr->py, p_ptr->px, GF_DISENCHANT, 5, 100);
+    boom(p_ptr->py, p_ptr->px, GF_DISENCHANT, 5, 100, pgd);
   } else if (tmp <= 80) {
-    boom(p_ptr->py, p_ptr->px, GF_MAKE_TRAP, 9, 0);
+    boom(p_ptr->py, p_ptr->px, GF_MAKE_TRAP, 9, 0, pgd);
   } else if (tmp <= 90) {
     mprint(MSG_URGENT, "Something is trying to destroy your brain!");
-    boom(p_ptr->py, p_ptr->px, GF_BRAIN_SMASH, 5, 100);
+    boom(p_ptr->py, p_ptr->px, GF_BRAIN_SMASH, 5, 100, pgd);
   } else if (tmp <= 100) {
-    godly_wrath_blast();
+    if (p_ptr->pgod) {
+      godly_wrath_blast(pgd);
+
+    } else {
+      mprint(MSG_URGENT, "The air around you turns to stone!");
+      boom(p_ptr->py, p_ptr->px, GF_MAKE_WALL, 9, 1, pgd);
+    }
   }
 }
-
 
 /* 
  * Fire a godly blast from the sky. 
  * Note that only attacks which are not resisted are used.
  * (Gods are omnipotent, aren't they?)
+ *
+ * Also, a random chance of summoning some avatars.
  */
 
-void godly_wrath_blast(void) {
+void godly_wrath_blast(byte god) {
   int tmp;
   int type = 0;
   bool ok = FALSE;
+
+  /* About a third chance of summoning some avatars. */
+  if (magik(33)) {
+
+    if (summon_avatar(p_ptr->py, p_ptr->px, p_ptr->depth + 10, god)) {
+
+      mformat(MSG_STUPID, "The awesome power of %s summons an "
+	     "avatar to destroy you!", deity_info[god].name);
+      return;
+    }
+  }
 
   while (1) {
     tmp = randint(10);
@@ -4164,7 +4251,8 @@ void godly_wrath_blast(void) {
     if (ok) break;
   }
 
-  fire_godly_wrath(p_ptr->py, p_ptr->px, type, 1, damroll(4, 5));
+  fire_godly_wrath(p_ptr->py, p_ptr->px, type, 1, damroll(4, 5)*p_ptr->lev,
+		   god);
 }
 
 /*
@@ -4294,6 +4382,7 @@ void describe_attack(int type, char* r) {
   case GF_ENCHANT_AC:
   case GF_BRAND_AMMO:
   case GF_BRAND_WEAPON:
+  case GF_REPAIR:
     strcpy(r, "blue glow"); break;
 
   case GF_MAKE_MONSTER:
@@ -4301,10 +4390,12 @@ void describe_attack(int type, char* r) {
     strcpy(r, "beckoning whispering"); break;
 
   case GF_ALTER: strcpy(r, "deranged sounds"); break;
+
+  case GF_CAUSE_INSANITY: strcpy(r, "gibbering voices"); break;
     
   default:
     /* Get something silly randomly */
-    get_random_line("sfail.txt", r);
+    strcpy(r, get_random_line("sfail.txt"));
     break;
   }
 }
@@ -4431,102 +4522,58 @@ void describe_attack_fully(int type, char* r) {
   case GF_BRAND_WEAPON:    strcpy(r, "brand weapon"); break;
   case GF_MAKE_MONSTER:    strcpy(r, "summon monster"); break;
   case GF_MAKE_PET:        strcpy(r, "summon pet"); break;
-
+  case GF_HEAL_CONF:       strcpy(r, "heal confusion"); break;
+  case GF_DETECT_GRIDS:    strcpy(r, "detect terrain"); break;
+  case GF_PROT_EVIL:       strcpy(r, "protection from evil"); break;
+  case GF_RING_OF_POWER:   strcpy(r, "Ancient Evil"); break;
+  case GF_HEAL_BLIND:      strcpy(r, "heal blindness"); break;
+  case GF_WAKE:            strcpy(r, "wake monsters"); break;
+  case GF_CURSE_ARMOR:     strcpy(r, "curse armor"); break;
+  case GF_CURSE_WEAPON:    strcpy(r, "curse weapon"); break;
+  case GF_LEARN_RECIPE:    strcpy(r, "learn recipe"); break;
+  case GF_ENCHANT_EGO_ITEM: strcpy(r, "make ego-item"); break;
+  case GF_ENCHANT_ARTIFACT: strcpy(r, "make artifact"); break;
+  case GF_MAKE_ITEM:       strcpy(r, "make item"); break;
+  case GF_RUINATION:       strcpy(r, "ruination"); break;
+  case GF_DEC_STR:         strcpy(r, "decrease strength"); break;
+  case GF_DEC_INT:         strcpy(r, "decrease int."); break;
+  case GF_DEC_WIS:         strcpy(r, "decrease wisdom"); break;
+  case GF_DEC_DEX:         strcpy(r, "decrease dexterity"); break;
+  case GF_DEC_CON:         strcpy(r, "decrease con."); break;
+  case GF_DEC_CHR:         strcpy(r, "decrease charisma"); break;
+  case GF_INFRA:           strcpy(r, "infravision"); break;
+  case GF_SEE_INVIS:       strcpy(r, "see invisible"); break;
+  case GF_BERSERK:         strcpy(r, "berserk"); break;
+  case GF_HEAL_MANA:       strcpy(r, "heal mana"); break;
+  case GF_INC_STR:         strcpy(r, "increase strength"); break;
+  case GF_INC_INT:         strcpy(r, "increase int."); break;
+  case GF_INC_WIS:         strcpy(r, "increase wisdom"); break;
+  case GF_INC_DEX:         strcpy(r, "increase dexterity"); break;
+  case GF_INC_CON:         strcpy(r, "increase con."); break;
+  case GF_INC_CHR:         strcpy(r, "increase charisma"); break;
+  case GF_HEAL_MUTATION:   strcpy(r, "heal mutation"); break;
+  case GF_CAUSE_MUTATION:  strcpy(r, "cause mutation"); break;
+  case GF_CAUSE_INSANITY:  strcpy(r, "cause insanity"); break;
+  case GF_CAUSE_FEAR:      strcpy(r, "cause fear"); break;
+  case GF_CAUSE_CUT:       strcpy(r, "cause cut"); break;
+  case GF_CAUSE_STUN:      strcpy(r, "cause stun"); break;
+  case GF_CAUSE_POISON:    strcpy(r, "cause poison"); break;
+  case GF_HEAL_HALLUC:     strcpy(r, "heal halluc."); break;
+  case GF_CAUSE_HALLUC:    strcpy(r, "cause halluc."); break;
+  case GF_GAIN_EXP:        strcpy(r, "gain experience"); break;
+  case GF_GLOWING_HANDS:   strcpy(r, "monster confusion"); break;
+  case GF_CAUSE_CONF:      strcpy(r, "cause confusion"); break;
+  case GF_CAUSE_BLIND:     strcpy(r, "cause blindness"); break;
+  case GF_RANDOM:          strcpy(r, "randomness"); break;
+  case GF_MINUS_FOOD:      strcpy(r, "hunger"); break;
+  case GF_RAISE_DEAD:      strcpy(r, "raise dead"); break;
+  case GF_SOUL_PRISON:     strcpy(r, "imprison soul"); break;
+  case GF_REPAIR:          strcpy(r, "repair item"); break;
+    
   default:
     strcpy(r, "something unknown");
     break;
   }
-}
-
-
-/*
- * Explode an object, currently only potions and flasks.
- */
-
-bool explode_object(object_type* o_ptr, cptr o_name, int y, int x) {
-  int type;
-  int rad = 5;
-  int dam = 0;
-
-  if (!o_ptr->k_idx) {
-    return FALSE;
-  }
-
-  if (o_ptr->tval != TV_POTION && o_ptr->tval != TV_FLASK) {
-    return FALSE;
-  }
-
-  if (o_ptr->tval == TV_FLASK) {
-    type = GF_FIRE;
-    dam = damroll(2, 6);
-    rad = 2;
-  } else {
-
-    switch (o_ptr->sval) {
-    case SV_POTION_SLOWNESS:
-      type = GF_SLOW;
-      break;
-
-    case SV_POTION_POISON:
-      type = GF_POIS;
-      break;
-
-    case SV_POTION_BLINDNESS:
-      type = GF_DARK_WEAK;
-      break;
-
-    case SV_POTION_CONFUSION:
-      type = GF_CONF;
-      break;
-
-    case SV_POTION_SLEEP:
-      type = GF_SLEEP;
-      break;
-
-    case SV_POTION_RUINATION:
-      type = GF_TIME;
-      dam = damroll(10, 40);
-      break;
-
-    case SV_POTION_DEATH:
-      type = GF_NETHER;
-      dam = 5000;
-      break;
-
-    case SV_POTION_DETONATIONS:
-      type = GF_PLASMA;
-      dam = damroll(50, 20);
-      break;
-
-    case SV_POTION_SPEED:
-      type = GF_SPEED;
-      break;
-
-    case SV_POTION_STAR_HEALING:
-      dam += damroll(2, 6);
-    case SV_POTION_HEALING:
-      dam += damroll(2, 6);
-    case SV_POTION_CURE_CRITICAL:
-      dam += damroll(2, 6);
-    case SV_POTION_CURE_SERIOUS:
-      dam += damroll(2, 6);
-    case SV_POTION_CURE_LIGHT:
-      dam += damroll(2, 6);
-      type = GF_HEAL;
-      break;
-
-    case SV_POTION_MUTATION:
-      type = GF_CHAOS;
-      break;
-
-    default:
-      return FALSE;
-    }
-  }
-
-  mformat(MSG_WARNING, "The %s explodes!", o_name);
-  fire_explosion(y, x, type, rad, dam);  
-  return TRUE;
 }
 
 

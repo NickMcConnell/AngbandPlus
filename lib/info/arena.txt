@@ -2,12 +2,18 @@
                            ------------------
 
 The Arena is a contest pitting the best against each other.
-To ensure a good contest, note the following:
 
- 1) NO MAGIC    - No potions, wands, staffs, etc.
- 2) NO THROWING - This is hand-to-hand.
+There are several types of arenas, each specialising in different
+areas. There is an arena especially suited for humanoid monsters, an
+arena for animals and monstrosites, and best of all, an arena 
+specifically for magic-users. 
+
+In all arenas, throwing and archery is fobidden, to ensure a fair
+contest. In the first three arenas, magic is NOT ALLOWED. That means
+no potions, wands, spells, scrolls, etc. In the magical arena, on the
+other hand, hand-to-hand combat is expressly fobidden. 
 
 If fortunate, you will face the arena Champion, survivor of countless
 previous fights, considered one of the best fighters in the world.
-Defeat him and claim the prize of 10,000 gold pieces.
+Defeat him or it and claim the prize of 10,000 gold pieces.
 

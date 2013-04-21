@@ -2002,7 +2002,7 @@ static void init_windows(void)
 			ptocstr((StringPtr)foo);
 
 			/* Append the preference file name */
-			strcat(foo, "Angband Preferences");
+			strcat(foo, "Kamband Preferences");
 
 			/* Open the preference file */
 			fff = fopen(foo, "r");
@@ -2025,8 +2025,8 @@ static void init_windows(void)
 		SetVol(0, env.sysVRefNum);
 
 		/* Open the file */
-		fff = fopen(":Preferences:Angband Preferences", "r");
-		if (!fff) fff = fopen(":Angband Preferences", "r");
+		fff = fopen(":Preferences:Kamband Preferences", "r");
+		if (!fff) fff = fopen(":Kamband Preferences", "r");
 
 		/* Restore */
 		HSetVol(0, savev, saved);
@@ -2116,7 +2116,7 @@ static void save_pref_file(void)
 			ptocstr((StringPtr)foo);
 
 			/* Append the preference file name */
-			strcat(foo, "Angband Preferences");
+			strcat(foo, "Kamband Preferences");
 
 			/* Open the preference file */
 			fff = fopen(foo, "w");
@@ -2139,8 +2139,8 @@ static void save_pref_file(void)
 		SetVol(0, env.sysVRefNum);
 
 		/* Open the preference file */
-		fff = fopen(":Preferences:Angband Preferences", "w");
-		if (!fff) fff = fopen(":Angband Preferences", "w");
+		fff = fopen(":Preferences:Kamband Preferences", "w");
+		if (!fff) fff = fopen(":Kamband Preferences", "w");
 
 		/* Restore */
 		HSetVol(0, savev, saved);
@@ -4303,7 +4303,7 @@ void main(void)
 #if defined(MACINTOSH) && !defined(applec)
 
 	/* Mark ourself as the file creator */
-	_fcreator = 'A271';
+	_fcreator = 'Kamb';
 
 	/* Default to saving a "text" file */
 	_ftype = 'TEXT';

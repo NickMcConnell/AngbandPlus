@@ -24,6 +24,28 @@ static void do_cmd_wiz_hack_ben(void)
   msg_print("Oops.");
 }
 
+static void show_all_objects(void) {
+  char buff[80];
+  object_type* o_ptr;
+	    
+  for (o_ptr = o_list; o_ptr != NULL; o_ptr = o_ptr->next_global) {
+    object_desc(buff, o_ptr, TRUE, 3);
+    printf("/ %s\n", buff);
+  }
+
+  /*
+  for (o_ptr = store[7].stock; o_ptr != NULL; o_ptr = o_ptr->next_global) {
+    object_desc(buff, o_ptr, TRUE, 3);
+
+    printf("(%p) %s:  next = %p   prev = %p   stack = %d    y = %d   x = %d\n",
+	   o_ptr, buff, o_ptr->next, o_ptr->prev, 
+	   o_ptr->stack, o_ptr->iy, o_ptr->ix);
+  }
+
+  printf("\n");
+  */
+}
+
 
 /*
  * Make a bunch of shape-shifting potions.
@@ -31,11 +53,12 @@ static void do_cmd_wiz_hack_ben(void)
 
 static void do_cmd_wiz_ss_potions(void) {
   int i;
-  object_type tmp_obj;
+  object_type* o_ptr;
 
-  for (i = 536; i < 550; i++) {
-    object_prep(&tmp_obj, i);
-    drop_near(&tmp_obj, -1, p_ptr->py, p_ptr->px);
+  for (i = 550; i < 564; i++) {
+    o_ptr = new_object();
+    object_prep(o_ptr, i);
+    drop_near(o_ptr, FALSE, p_ptr->py, p_ptr->px);
   }
 }
 
@@ -75,7 +98,7 @@ static void do_cmd_any_shape(void) {
     /* Done */
     if (j == ESCAPE) break;
 
-    if (!isgraph(j) || (j-'a'+1) > SHAPE_DEITY || (j-'a'+1) < 1) {
+    if (!isgraph(j) || (j-'a'+1) > SHAPE_WRAITH || (j-'a'+1) < 1) {
       bell();
     } else {
       /* Hack -- SHAPE_FOO constants begin with 1. */
@@ -303,8 +326,8 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(format("name1 = %-4d  name2 = %-4d  cost = %ld",
 	           o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr)), 7, j);
 
-	prt(format("ident = %04x  timeout = %-d",
-	           o_ptr->ident, o_ptr->timeout), 8, j);
+	prt(format("ident = %04x  timeout = %-d   HP = %-5d     max HP = %-5d",
+	           o_ptr->ident, o_ptr->timeout, o_ptr->chp, o_ptr->mhp), 8, j);
 
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT..........SLAY......BRAND.", 11, j);
@@ -383,6 +406,7 @@ static tval_desc tvals[] =
 	{ TV_INGRED,            "Ingredients" },
 	{ TV_TEXT,              "Parchments" },
 	{ TV_RANDART,           "Random Artifacts" },
+	{ TV_CORPSE,            "Corpses" },
 	{ 0,                    NULL                   }
 };
 
@@ -569,83 +593,55 @@ static void wiz_tweak_item(object_type *o_ptr)
  */
 static void wiz_reroll_item(object_type *o_ptr)
 {
-	object_type *i_ptr;
-	object_type object_type_body;
-
 	char ch;
-
-	bool changed = FALSE;
-
 
 	/* Hack -- leave artifacts alone */
 	if (artifact_p(o_ptr)) return;
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Copy the object */
-	object_copy(i_ptr, o_ptr);
 
 
 	/* Main loop. Ask for magification and artifactification */
 	while (TRUE)
 	{
 		/* Display full item debug information */
-		wiz_display_item(i_ptr);
+		wiz_display_item(o_ptr);
 
 		/* Ask wizard what to do. */
-		if (!get_com("[a]ccept, [n]ormal, [g]ood, [e]xcellent? ", &ch))
+		if (!get_com("[n]ormal, [g]ood, [e]xcellent? ", &ch))
 		{
-			changed = FALSE;
-			break;
-		}
-
-		/* Create/change it! */
-		if (ch == 'A' || ch == 'a')
-		{
-			changed = TRUE;
 			break;
 		}
 
 		/* Apply normal magic, but first clear object */
 		else if (ch == 'n' || ch == 'N')
 		{
-			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+		  object_prep(o_ptr, o_ptr->k_idx);
+		  apply_magic(o_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
 		}
 
 		/* Apply good magic, but first clear object */
 		else if (ch == 'g' || ch == 'g')
 		{
-			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, FALSE);
+		  object_prep(o_ptr, o_ptr->k_idx);
+		  apply_magic(o_ptr, p_ptr->depth, FALSE, TRUE, FALSE);
 		}
 
 		/* Apply great magic, but first clear object */
 		else if (ch == 'e' || ch == 'e')
 		{
-			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE);
+		  object_prep(o_ptr, o_ptr->k_idx);
+		  apply_magic(o_ptr, p_ptr->depth, FALSE, TRUE, TRUE);
 		}
 	}
 
 
-	/* Notice change */
-	if (changed)
-	{
-		/* Apply changes */
-		object_copy(o_ptr, i_ptr);
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
 
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
-	}
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 }
 
 
@@ -762,7 +758,7 @@ static void wiz_statistics(object_type *o_ptr)
 			i_ptr = &object_type_body;
 
 			/* Wipe the object */
-			object_wipe(i_ptr);
+			WIPE(i_ptr, object_type);
 
 			/* Create an object */
 			make_object(i_ptr, good, great);
@@ -875,40 +871,16 @@ static void wiz_quantity_item(object_type *o_ptr)
  */
 static void do_cmd_wiz_play(void)
 {
-	int item;
-
-	object_type *i_ptr;
-	object_type object_type_body;
-
 	object_type *o_ptr;
 
 	char ch;
 
-	cptr q, s;
-
-	bool changed;
-
-
 	/* Get an item */
-	q = "Play with which object? ";
-	s = "You have nothing to play with.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+	o_ptr = get_item("Play with which object", 
+			 "You have nothing to play with.", 
+			 p_ptr->py, p_ptr->px, (USE_INVEN | USE_FLOOR));
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* The item was not changed */
-	changed = FALSE;
+	if (!o_ptr) return;
 
 
 	/* Icky */
@@ -918,50 +890,36 @@ static void do_cmd_wiz_play(void)
 	Term_save();
 
 
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Copy object */
-	object_copy(i_ptr, o_ptr);
-
-
 	/* The main loop */
 	while (TRUE)
 	{
 		/* Display the item */
-		wiz_display_item(i_ptr);
+		wiz_display_item(o_ptr);
 
 		/* Get choice */
-		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity? ", &ch))
+		if (!get_com("[s]tatistics [r]eroll [t]weak [q]uantity? ", &ch))
 		{
-			changed = FALSE;
-			break;
-		}
-
-		if (ch == 'A' || ch == 'a')
-		{
-			changed = TRUE;
 			break;
 		}
 
 		if (ch == 's' || ch == 'S')
 		{
-			wiz_statistics(i_ptr);
+			wiz_statistics(o_ptr);
 		}
 
 		if (ch == 'r' || ch == 'r')
 		{
-			wiz_reroll_item(i_ptr);
+			wiz_reroll_item(o_ptr);
 		}
 
 		if (ch == 't' || ch == 'T')
 		{
-			wiz_tweak_item(i_ptr);
+			wiz_tweak_item(o_ptr);
 		}
 
 		if (ch == 'q' || ch == 'Q')
 		{
-			wiz_quantity_item(i_ptr);
+			wiz_quantity_item(o_ptr);
 		}
 	}
 
@@ -973,30 +931,14 @@ static void do_cmd_wiz_play(void)
 	character_icky = FALSE;
 
 
-	/* Accept change */
-	if (changed)
-	{
-		/* Message */
-		msg_print("Changes accepted.");
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
 
-		/* Change */
-		object_copy(o_ptr, i_ptr);
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE);
 
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
-	}
-
-	/* Ignore change */
-	else
-	{
-		msg_print("Changes ignored.");
-	}
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 }
 
 
@@ -1013,11 +955,9 @@ static void wiz_create_item(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	object_type *i_ptr;
-	object_type object_type_body;
-
 	int k_idx;
 
+	object_type* i_ptr;
 
 	/* Icky */
 	character_icky = TRUE;
@@ -1039,7 +979,7 @@ static void wiz_create_item(void)
 	if (!k_idx) return;
 
 	/* Get local object */
-	i_ptr = &object_type_body;
+	i_ptr = new_object();
 
 	/* Create the item */
 	object_prep(i_ptr, k_idx);
@@ -1048,10 +988,7 @@ static void wiz_create_item(void)
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
 
 	/* Drop the object from heaven */
-	drop_near(i_ptr, -1, py, px);
-
-	/* All done */
-	msg_print("Allocated.");
+	drop_near(i_ptr, FALSE, py, px);
 }
 
 
@@ -1250,7 +1187,7 @@ static void do_cmd_wiz_summon(int num)
  *
  * XXX XXX XXX This function is rather dangerous
  */
-static void do_cmd_wiz_named(int r_idx, int slp)
+static void do_cmd_wiz_named(int r_idx)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1273,7 +1210,7 @@ static void do_cmd_wiz_named(int r_idx, int slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE)) break;
+		if (place_monster_aux(y, x, r_idx, MON_ALLOC_SLEEP)) break;
 	}
 }
 
@@ -1421,13 +1358,6 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Detect everything */
-		case 'd':
-		{
-			detect_all();
-			break;
-		}
-
 		/* Edit character */
 		case 'e':
 		{
@@ -1494,7 +1424,7 @@ void do_cmd_debug(void)
 		/* Summon Named Monster */
 		case 'n':
 		{
-			do_cmd_wiz_named(p_ptr->command_arg, TRUE);
+			do_cmd_wiz_named(p_ptr->command_arg);
 			break;
 		}
 
@@ -1518,8 +1448,17 @@ void do_cmd_debug(void)
 		  complete_quest();
 		  break;
 		}
-
-		/* Re-generate a new town/arena layout. */
+		
+		/* Remaintain the stores. */
+	case 'J':
+	  {
+	    int maintain;
+	    for(maintain = 0; maintain < 8; maintain++)
+	      store_maint(maintain);
+	    break;
+	  }
+ 
+	  /* Re-generate a new town/arena layout. */
 	case 'T':
 	  {
 	    int vindex;
@@ -1545,10 +1484,19 @@ void do_cmd_debug(void)
 	    break;
 	  }
 
-	  /* Fire a giant blast of space-time distortion. */
+	  /* Fire a giant blast of mana. */
 	case 'F':
 	  {
-	    fire_explosion(p_ptr->py, p_ptr->px, GF_QUAKE, 19, 1);
+	    project(-100, 5, p_ptr->py, p_ptr->px, damroll(2, p_ptr->lev+1),
+		    GF_MANA, PROJECT_ITEM | PROJECT_BLAST);
+	    break;
+	  }
+
+	  /* Detect everything. */
+	case 'd':
+	  {
+	    project(-1, 0, p_ptr->py, p_ptr->px, 0, GF_DETECT_ANY, 
+		    PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID | PROJECT_PANEL);
 	    break;
 	  }
 
@@ -1624,7 +1572,8 @@ void do_cmd_debug(void)
                             p_ptr->inside_special);
 			msg_print(tmp_str);
 
-			msg_format("%d %d %d", FEAT_TREES, FEAT_CHAOS_FOG, FEAT_SHAL_WATER);
+			msg_format("Global: (%d %d), Depth %d", 
+				   p_ptr->wild_y, p_ptr->wild_x, p_ptr->depth);
 			msg_print(NULL);
 			break;
 		}
@@ -1673,8 +1622,7 @@ void do_cmd_debug(void)
           {
 	    int i;
 
-	    spell_num = 0;
-            init_s_info_txt(cp_ptr->spell_book);
+            spell_num = init_s_info_txt(cp_ptr->spell_book, spells, MAX_SPELLS);
 
             msg_print("Your spell-list has been updated.");
 	    
@@ -1683,6 +1631,24 @@ void do_cmd_debug(void)
             }
             break;
           }
+
+	case 'O':
+	  {
+	    show_all_objects();
+	    break;
+	  }
+
+	case 'U':
+	  {
+	    transmute_spell(FALSE);
+	    break;
+	  }
+
+	case 'V':
+	  {
+	    transmute_spell(TRUE);
+	    break;
+	  }
 		/* Hack */
 		case '_':
 		{

@@ -12,42 +12,6 @@
 
 
 /*
- * This file loads savefiles from Angband 2.7.X and 2.8.X
- *
- * Ancient savefiles (pre-2.7.0) are loaded by another file.
- *
- * Note that Angband 2.7.0 through 2.7.3 are now officially obsolete,
- * and savefiles from those versions may not be successfully converted.
- *
- * We attempt to prevent corrupt savefiles from inducing memory errors.
- *
- * Note that this file should not use the random number generator, the
- * object flavors, the visual attr/char mappings, or anything else which
- * is initialized *after* or *during* the "load character" function.
- *
- * This file assumes that the monster/object records are initialized
- * to zero, and the race/kind tables have been loaded correctly.  The
- * order of object stacks is currently not saved in the savefiles, but
- * the "next" pointers are saved, so all necessary knowledge is present.
- *
- * We should implement simple "savefile extenders" using some form of
- * "sized" chunks of bytes, with a {size,type,data} format, so everyone
- * can know the size, interested people can know the type, and the actual
- * data is available to the parsing routines that acknowledge the type.
- *
- * Consider changing the "globe of invulnerability" code so that it
- * takes some form of "maximum damage to protect from" in addition to
- * the existing "number of turns to protect for", and where each hit
- * by a monster will reduce the shield by that amount.
- *
- * XXX XXX XXX
- */
-
-
-
-
-
-/*
  * Local "savefile" pointer
  */
 static FILE	*fff;
@@ -89,43 +53,6 @@ static void note(cptr msg)
 	Term_fresh();
 }
 
-
-/*
- * Hack -- determine if an item is "wearable" (or a missile)
- */
-static bool wearable_p(object_type *o_ptr)
-{
-	/* Valid "tval" codes */
-	switch (o_ptr->tval)
-	{
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
-		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_HELM:
-		case TV_CROWN:
-		case TV_SHIELD:
-		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		case TV_LITE:
-		case TV_AMULET:
-		case TV_RING:
-		{
-			return (TRUE);
-		}
-	}
-
-	/* Nope */
-	return (FALSE);
-}
 
 
 /*
@@ -221,39 +148,37 @@ static void strip_bytes(int n)
 
 /*
  * Read an object
- *
- * This function attempts to "repair" old savefiles, and to extract
- * the most up to date values for various object fields.
- *
- * Note that Angband 2.7.9 introduced a new method for object "flags"
- * in which the "flags" on an object are actually extracted when they
- * are needed from the object kind, artifact index, ego-item index,
- * and two special "xtra" fields which are used to encode any "extra"
- * power of certain ego-items.  This had the side effect that items
- * imported from pre-2.7.9 savefiles will lose any "extra" powers they
- * may have had, and also, all "uncursed" items will become "cursed"
- * again, including Calris, even if it is being worn at the time.  As
- * a complete hack, items which are inscribed with "uncursed" will be
- * "uncursed" when imported from pre-2.7.9 savefiles.
  */
-static void rd_item(object_type *o_ptr)
+static object_type* rd_item_aux(bool store)
 {
-	byte old_dd;
-	byte old_ds;
-
 	u32b f1, f2, f3;
+	s16b kind;
 
 	object_kind *k_ptr;
 
 	char buf[128];
 
+	object_type* o_ptr;
+
 
 	/* Kind */
-	rd_s16b(&o_ptr->k_idx);
+	rd_s16b(&kind);
 
-	/* Location */
-	rd_byte(&o_ptr->iy);
-	rd_byte(&o_ptr->ix);
+	/* No object here. */
+	if (kind == 0) return NULL;
+
+	if (store) {
+	  MAKE(o_ptr, object_type);
+	} else {
+	  o_ptr = new_object();
+	}
+
+	o_ptr->k_idx = kind;
+
+	/* Special flags. */
+	rd_u32b(&o_ptr->flags1);
+	rd_u32b(&o_ptr->flags2);
+	rd_u32b(&o_ptr->flags3);
 
 	/* Type/Subtype */
 	rd_byte(&o_ptr->tval);
@@ -265,6 +190,10 @@ static void rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->discount);
 	rd_byte(&o_ptr->number);
 	rd_s16b(&o_ptr->weight);
+	rd_s16b(&o_ptr->chp);
+	rd_s16b(&o_ptr->mhp);
+
+	rd_byte(&o_ptr->stuff);
 
 	rd_byte(&o_ptr->name1);
 	rd_byte(&o_ptr->name2);
@@ -273,22 +202,14 @@ static void rd_item(object_type *o_ptr)
 	rd_s16b(&o_ptr->to_h);
 	rd_s16b(&o_ptr->to_d);
 	rd_s16b(&o_ptr->to_a);
-
 	rd_s16b(&o_ptr->ac);
-	
-	rd_byte(&old_dd);
-	rd_byte(&old_ds);
+	rd_byte(&o_ptr->dd);
+	rd_byte(&o_ptr->ds);
 
 	rd_byte(&o_ptr->ident);
 	
 	rd_byte(&o_ptr->marked);
 
-	/* Monster holding object */
-	rd_s16b(&o_ptr->held_m_idx);
-
-	/* Special powers */
-	rd_byte(&o_ptr->xtra1);
-	rd_byte(&o_ptr->xtra2);
 
 	/* Inscription */
 	rd_string(buf, 128);
@@ -296,47 +217,11 @@ static void rd_item(object_type *o_ptr)
 	/* Save the inscription */
 	if (buf[0]) o_ptr->note = quark_add(buf);
 
-
-	/* Mega-Hack -- handle "dungeon objects" later */
-	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
-
-
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
 
-	/* Obtain tval/sval from k_info */
-	o_ptr->tval = k_ptr->tval;
-
-	if (o_ptr->tval != TV_RANDART) {
-	  o_ptr->sval = k_ptr->sval;
-	}
-
 	/* Hack -- notice "broken" items */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
-
-
-	/* Repair non "wearable" items */
-	if (!wearable_p(o_ptr))
-	{
-		/* Acquire correct fields */
-		o_ptr->to_h = k_ptr->to_h;
-		o_ptr->to_d = k_ptr->to_d;
-		o_ptr->to_a = k_ptr->to_a;
-
-		/* Acquire correct fields */
-		o_ptr->ac = k_ptr->ac;
-		o_ptr->dd = k_ptr->dd;
-		o_ptr->ds = k_ptr->ds;
-
-		/* Acquire correct weight */
-		o_ptr->weight = k_ptr->weight;
-
-		/* Paranoia */
-		o_ptr->name1 = o_ptr->name2 = 0;
-
-		/* All done */
-		return;
-	}
 
 
 	/* Extract the flags */
@@ -367,71 +252,18 @@ static void rd_item(object_type *o_ptr)
 		if (!e_ptr->name) o_ptr->name2 = 0;
 	}
 
-
-	/* Acquire standard fields */
-	o_ptr->ac = k_ptr->ac;
-	o_ptr->dd = k_ptr->dd;
-	o_ptr->ds = k_ptr->ds;
-
-	/* Acquire standard weight */
-	o_ptr->weight = k_ptr->weight;
-
-	/* Hack -- extract the "broken" flag */
-	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
-
-
-	/* Artifacts */
-	if (o_ptr->name1)
-	{
-		artifact_type *a_ptr;
-
-		/* Obtain the artifact info */
-		a_ptr = &a_info[o_ptr->name1];
-
-		/* Acquire new artifact "pval" */
-		o_ptr->pval = a_ptr->pval;
-
-		/* Acquire new artifact fields */
-		o_ptr->ac = a_ptr->ac;
-		o_ptr->dd = a_ptr->dd;
-		o_ptr->ds = a_ptr->ds;
-
-		/* Acquire new artifact weight */
-		o_ptr->weight = a_ptr->weight;
-
-		/* Hack -- extract the "broken" flag */
-		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-
-	}
-
-	/* Ego items */
-	if (o_ptr->name2)
-	{
-		ego_item_type *e_ptr;
-
-		/* Obtain the ego-item info */
-		e_ptr = &e_info[o_ptr->name2];
-
-		/* Hack -- keep some old fields */
-		if ((o_ptr->dd < old_dd) && (o_ptr->ds == old_ds))
-		{
-			/* Keep old boosted damage dice */
-			o_ptr->dd = old_dd;
-		}
-
-		/* Hack -- extract the "broken" flag */
-		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-
-		/* Hack -- enforce legal pval */
-		if (e_ptr->flags1 & (TR1_PVAL_MASK))
-		{
-			/* Force a meaningful pval */
-			if (!o_ptr->pval) o_ptr->pval = 1;
-		}
-	}
+	return o_ptr;
 }
 
 
+
+static object_type* rd_item(void) {
+  return rd_item_aux(FALSE);
+}
+
+static object_type* rd_item_store(void) {
+  return rd_item_aux(TRUE);
+}
 
 
 /*
@@ -439,23 +271,34 @@ static void rd_item(object_type *o_ptr)
  */
 static void rd_monster(monster_type *m_ptr)
 {
-	/* Read the monster race */
-	rd_s16b(&m_ptr->r_idx);
+  object_type* o_ptr;
 
-	/* Read the other information */
-	rd_byte(&m_ptr->fy);
-	rd_byte(&m_ptr->fx);
-	rd_s16b(&m_ptr->hp);
-	rd_s16b(&m_ptr->maxhp);
-	rd_s16b(&m_ptr->csleep);
-	rd_byte(&m_ptr->mspeed);
-	rd_byte(&m_ptr->energy);
-	rd_byte(&m_ptr->stunned);
-	rd_byte(&m_ptr->confused);
-	rd_byte(&m_ptr->monfear);
-	rd_byte(&m_ptr->is_pet);
-	rd_byte(&m_ptr->random_name_idx);
-	rd_s16b(&m_ptr->hold_o_idx);
+  /* Read the monster race */
+  rd_s16b(&m_ptr->r_idx);
+
+  /* Read the other information */
+  rd_byte(&m_ptr->fy);
+  rd_byte(&m_ptr->fx);
+  rd_s16b(&m_ptr->hp);
+  rd_s16b(&m_ptr->maxhp);
+  rd_s16b(&m_ptr->csleep);
+  rd_byte(&m_ptr->mspeed);
+  rd_byte(&m_ptr->energy);
+  rd_byte(&m_ptr->stunned);
+  rd_byte(&m_ptr->confused);
+  rd_byte(&m_ptr->monfear);
+  rd_byte(&m_ptr->is_pet);
+  rd_s16b(&m_ptr->random_name_idx);
+  rd_s16b(&m_ptr->mflag);
+
+  /* Read the monster's inventory. */
+  while (1) {
+    o_ptr = rd_item();
+    
+    if (!o_ptr) break;
+	  
+    monster_inven_carry(m_ptr, o_ptr);
+  }
 }
 
 
@@ -528,50 +371,33 @@ static void rd_lore(int r_idx)
 }
 
 
-
-
 /*
  * Read a store
  */
 static errr rd_store(int n)
 {
 	store_type *st_ptr = &store[n];
-
-	int j;
-
-	byte own, num;
+	object_type* o_ptr;
 
 	/* Read the basic info */
-	rd_s32b(&st_ptr->store_open);
+	rd_u32b(&st_ptr->store_open);
 	rd_s16b(&st_ptr->insult_cur);
-	rd_byte(&own);
-	rd_byte(&num);
+	rd_byte(&st_ptr->owner);
 	rd_s16b(&st_ptr->good_buy);
 	rd_s16b(&st_ptr->bad_buy);
 
 	/* Read the items */
-	for (j = 0; j < num; j++)
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
+	while (1) {
+	  o_ptr = rd_item_store();
 
-		/* Get local object */
-		i_ptr = &object_type_body;
+	  if (!o_ptr) break;
 
-		/* Wipe the object */
-		object_wipe(i_ptr);
+	  /* Location */
+	  rd_byte(&o_ptr->iy);
+	  rd_byte(&o_ptr->ix);
 
-		/* Read the item */
-		rd_item(i_ptr);
-
-		/* Acquire valid items */
-		if (st_ptr->stock_num < STORE_INVEN_MAX)
-		{
-			int k = st_ptr->stock_num++;
-
-			/* Acquire the item */
-			object_copy(&st_ptr->stock[k], i_ptr);
-		}
+	  insert_to_global_list(o_ptr, &(st_ptr->stock),
+				(n == 7 ? WORLD_HOME : WORLD_STORE));
 	}
 
 	/* Success */
@@ -579,9 +405,8 @@ static errr rd_store(int n)
 }
 
 
-
 /*
- * Read RNG state (added in 2.8.0)
+ * Read RNG state.
  */
 static void rd_randomizer(void)
 {
@@ -774,14 +599,20 @@ static errr rd_extra(void)
 	/* read arena information and rewards -KMW- */
 	rd_byte(&p_ptr->which_arena);
 	rd_byte(&p_ptr->which_quest);
-	rd_byte(&p_ptr->which_town);
-	rd_byte(&p_ptr->which_arena_layout);
+	rd_s16b(&p_ptr->which_town);
+	rd_s16b(&p_ptr->which_arena_layout);
 
 	for (i = 0; i < MAX_ARENAS; i++) rd_s16b(&p_ptr->arena_number[i]);
 	for (i = 0; i < MAX_REWARDS; i++) rd_byte(&rewards[i]);
+	
+	for (i = 0; i < MAX_BOUNTIES; i++) {
+	  rd_s16b(&bounties[i][0]);
+	  rd_s16b(&bounties[i][1]);
+	}
 
 	rd_s16b(&p_ptr->inside_special);
 	rd_byte(&p_ptr->exit_bldg);
+	rd_s16b(&p_ptr->s_idx);
 
 	rd_s16b(&p_ptr->mhp);
 	rd_s16b(&p_ptr->chp);
@@ -864,7 +695,7 @@ static errr rd_extra(void)
 	rd_u32b(&seed_flavor);
 	rd_u32b(&seed_town);
 	rd_u32b(&seed_dungeon);
-
+	rd_u32b(&seed_wild);
 
 	/* Special stuff */
 	rd_u16b(&p_ptr->panic_save);
@@ -883,7 +714,6 @@ static errr rd_extra(void)
 
 	/* Current turn */
 	rd_s32b(&turn);
-
 
 	/* Read the player_hp array */
 	rd_u16b(&tmp16u);
@@ -906,91 +736,33 @@ static errr rd_extra(void)
 }
 
 
-
-
 /*
- * Read the player inventory
- *
- * Note that the inventory changed in Angband 2.7.4.  Two extra
- * pack slots were added and the equipment was rearranged.  Note
- * that these two features combine when parsing old save-files, in
- * which items from the old "aux" slot are "carried", perhaps into
- * one of the two new "inventory" slots.
- *
- * Note that the inventory is "re-sorted" later by "dungeon()".
+ * Read the player's inventory.
  */
-static errr rd_inventory(void)
-{
-	int slot = 0;
 
-	object_type *i_ptr;
-	object_type object_type_body;
+static errr rd_inventory(void) {
+  object_type* o_ptr;
+  s16b slot;
+  bool foo;
 
-	/* Read until done */
-	while (1)
-	{
-		u16b n;
+  while (1) {
+    o_ptr = rd_item();
 
-		/* Get the next item index */
-		rd_u16b(&n);
+    /* All done. */
+    if (!o_ptr) break;
 
-		/* Nope, we reached the end */
-		if (n == 0xFFFF) break;
+    /* Insert into the stack. */
+    foo = inven_carry(o_ptr);
 
-		/* Get local object */
-		i_ptr = &object_type_body;
+    /* Read equipment slot. */
+    rd_s16b(&slot);
 
-		/* Wipe the object */
-		object_wipe(i_ptr);
+    if (foo && slot >= 0) {
+      equipment[slot] = o_ptr;
+    }
+  }
 
-		/* Read the item */
-		rd_item(i_ptr);
-
-		/* Hack -- verify item */
-		if (!i_ptr->k_idx) return (53);
-
-		/* Wield equipment */
-		if (n >= INVEN_WIELD)
-		{
-			/* Copy object */
-			object_copy(&inventory[n], i_ptr);
-
-			/* Add the weight */
-			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
-
-			/* One more item */
-			p_ptr->equip_cnt++;
-		}
-
-		/* Warning -- backpack is full */
-		else if (p_ptr->inven_cnt == INVEN_PACK)
-		{
-			/* Oops */
-			note("Too many items in the inventory!");
-
-			/* Fail */
-			return (54);
-		}
-
-		/* Carry inventory */
-		else
-		{
-			/* Get a slot */
-			n = slot++;
-
-			/* Copy object */
-			object_copy(&inventory[n], i_ptr);
-
-			/* Add the weight */
-			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
-
-			/* One more item */
-			p_ptr->inven_cnt++;
-		}
-	}
-
-	/* Success */
-	return (0);
+  return 0;
 }
 
 
@@ -1040,9 +812,10 @@ static errr rd_dungeon(void)
 	s16b oldpy, oldpx; /* Read old locations -KMW- */
 	s16b ymax, xmax;
 
+	object_type* o_ptr;
+
 	byte count;
 	byte tmp8u;
-	u16b tmp16u;
 
 	u16b limit;
 
@@ -1051,7 +824,8 @@ static errr rd_dungeon(void)
 
 	/* Header info */
 	rd_s16b(&depth);
-	rd_u16b(&tmp16u);
+	rd_s16b(&p_ptr->wild_y);
+	rd_s16b(&p_ptr->wild_x);
 	rd_s16b(&py);
 	rd_s16b(&px);
 
@@ -1060,14 +834,13 @@ static errr rd_dungeon(void)
 
 	rd_s16b(&ymax);
 	rd_s16b(&xmax);
-	rd_u16b(&tmp16u);
-	rd_u16b(&tmp16u);
 
 	/* Ignore illegal dungeons */
 	if ((depth < 0) || (depth >= MAX_DEPTH))
 	{
 		note(format("Ignoring illegal dungeon depth (%d)", depth));
 		return (0);
+		msg_print(NULL);
 	}
 
 	/* Ignore illegal dungeons */
@@ -1075,6 +848,7 @@ static errr rd_dungeon(void)
 	{
 		/* XXX XXX XXX */
 		note(format("Ignoring illegal dungeon size (%d,%d).", xmax, ymax));
+		msg_print(NULL);
 		return (0);
 	}
 
@@ -1083,6 +857,7 @@ static errr rd_dungeon(void)
 	    (py < 0) || (py >= DUNGEON_HGT))
 	{
 		note(format("Ignoring illegal player location (%d,%d).", px, py));
+		msg_print(NULL);
 		return (1);
 	}
 
@@ -1161,56 +936,29 @@ static errr rd_dungeon(void)
 
 	/*** Objects ***/
 
-	/* Read the item count */
-	rd_u16b(&limit);
-
-	/* Verify maximum */
-	if (limit >= MAX_O_IDX)
-	{
-		note(format("Too many (%d) object entries!", limit));
-		return (151);
-	}
-
 	/* Read the dungeon items */
-	for (i = 1; i < limit; i++)
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
+	while (1) {
+	  byte ix, iy;
+	  object_type* o_ptr = rd_item();
+	  
+	  if (!o_ptr) break;
 
+	  /* Location */
+	  rd_byte(&iy);
+	  rd_byte(&ix);
 
-		/* Acquire place */
-		i_ptr = &object_type_body;
-
-		/* Wipe the object */
-		object_wipe(i_ptr);
-
-		/* Read the item */
-		rd_item(i_ptr);
-
-
-		/* Monster */
-		if (i_ptr->held_m_idx)
-		{
-			/* Give the object to the monster */
-			if (!monster_carry(i_ptr->held_m_idx, i_ptr))
-			{
-				note(format("Cannot place object %d!", o_max));
-				return (152);
-			}
-		}
-
-		/* Dungeon */
-		else
-		{
-			/* Give the object to the floor */
-			if (!floor_carry(i_ptr->iy, i_ptr->ix, i_ptr))
-			{
-				note(format("Cannot place object %d!", o_max));
-				return (152);
-			}
-		}
+	  floor_carry(iy, ix, o_ptr);
 	}
 
+	/* Hack: Scatter the items in a store. */ 
+	if (p_ptr->inside_special == SPECIAL_STORE) {
+
+	  for (o_ptr = store[p_ptr->s_idx].stock; 
+	       o_ptr != NULL; o_ptr = o_ptr->next_global) {
+
+	    floor_carry(o_ptr->iy, o_ptr->ix, o_ptr);
+	  }
+	}
 
 	/*** Monsters ***/
 
@@ -1227,55 +975,25 @@ static errr rd_dungeon(void)
 	/* Read the monsters */
 	for (i = 1; i < limit; i++)
 	{
-		monster_type *n_ptr;
-		monster_type monster_type_body;
+	  monster_type *n_ptr;
+	  monster_type monster_type_body;
 
 
-		/* Get local monster */
-		n_ptr = &monster_type_body;
+	  /* Get local monster */
+	  n_ptr = &monster_type_body;
 
-		/* Clear the monster */
-		WIPE(n_ptr, monster_type);
+	  /* Clear the monster */
+	  WIPE(n_ptr, monster_type);
 
-		/* Read the monster */
-		rd_monster(n_ptr);
+	  /* Read the monster */
+	  rd_monster(n_ptr);
 
-
-		/* Place monster in dungeon */
-		if (!monster_place(n_ptr->fy, n_ptr->fx, n_ptr))
-		{
-			note(format("Cannot place monster %d", i));
-			return (162);
-		}
-	}
-
-	
-	/*** Monster Generators ***/
-
-	rd_u16b(&limit);
-
-	/* Verify */
-	if (limit >= MAX_GENERATORS) {
-	  note(format("Too many (%d) monster generators!", limit));
-	  return (161);
-	}
-
-	/* Read the generators */
-	for (i = 0; i < limit; i++) {
-	  /* Prepare a generator */
-
-	  generator* g_ptr;
-	  generator gen;
-
-	  g_ptr = &gen;
-
-	  WIPE(g_ptr, generator);
-
-	  /* Read the data */
-	  rd_s16b(&g_ptr->r_idx);
-	  rd_s16b(&g_ptr->timeout);
-	  rd_s16b(&g_ptr->x);
-	  rd_s16b(&g_ptr->y);
+	  /* Place monster in dungeon */
+	  if (!monster_place(n_ptr->fy, n_ptr->fx, n_ptr))
+	    {
+	      note(format("Cannot place monster %d", i));
+	      return (162);
+	    }
 	}
 
 	/*** Success ***/
@@ -1298,6 +1016,8 @@ static void rd_spell(spell* s_ptr) {
   byte len;
 
   rd_string(s_ptr->name, 30);
+  rd_string(s_ptr->desc, 30);
+  rd_byte(&s_ptr->class);
   rd_byte(&s_ptr->level);
   rd_byte(&s_ptr->mana);
   rd_byte(&s_ptr->untried);
@@ -1316,8 +1036,8 @@ static void rd_spell(spell* s_ptr) {
     rd_byte(&pnode->safe);
     rd_byte(&pnode->attack_kind);
     rd_byte(&pnode->radius);
-    rd_byte(&pnode->dam_dice);
-    rd_byte(&pnode->dam_sides);
+    rd_s16b(&pnode->dam_dice);
+    rd_s16b(&pnode->dam_sides);
 
     /* Save the previous node */
     pnode_prev = pnode;
@@ -1492,8 +1212,7 @@ static errr rd_savefile_new_aux(void)
 	  rd_byte(&ra_ptr->level);
 	  rd_byte(&ra_ptr->attr);
 	  rd_u32b(&ra_ptr->cost);
-	  rd_byte(&ra_ptr->tact);
-	  rd_byte(&ra_ptr->sact);
+	  rd_s16b(&ra_ptr->activation);
 	  rd_byte(&ra_ptr->generated);
 	}
 
@@ -1565,12 +1284,12 @@ static errr rd_savefile_new_aux(void)
 		if (rd_store(i)) return (22);
 	}
 
-
-	/* I'm not dead yet... */
+	/* I'm not dead. (yet)... */
 	if (!p_ptr->is_dead)
 	{
 		/* Dead players have no dungeon */
 		note("Restoring Dungeon...");
+
 		if (rd_dungeon())
 		{
 			note("Error reading dungeon data");
@@ -1578,7 +1297,6 @@ static errr rd_savefile_new_aux(void)
 		}
 
 	}
-
 
 	/* Hack -- no ghosts */
 	r_info[MAX_R_IDX-1].max_num = 0;

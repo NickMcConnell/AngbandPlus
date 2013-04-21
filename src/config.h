@@ -225,16 +225,9 @@
 #define ALLOW_TEMPLATES
 
 /*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- *
- * Note that with this variant of Angband, there have been additions
- * to the player file that are necessary for Kangband and therefore
- * would not make sense to parse old savefiles.  -KMW-
- *
+ * OPTION: Load previous versions of the Kamband save file.
  */
-/* #define ALLOW_OLD_SAVEFILES */
+#define ALLOW_OLD_SAVEFILES 
 
 
 /*
@@ -244,16 +237,16 @@
 #define DELAY_LOAD_F_TEXT
 
 /*
- * OPTION: Delay the loading of the "k_text" array until it is actually
- * needed, saving ~1K, since "object" descriptions are unused.
+ * This also needs to be undefined -- objects use description text
+ * for activations.
  */
-#define DELAY_LOAD_K_TEXT
+/* #define DELAY_LOAD_K_TEXT */
 
 /*
- * OPTION: Delay the loading of the "a_text" array until it is actually
- * needed, saving ~1K, since "artifact" descriptions are unused.
+ * This needs to be undefined -- artifacts use description text
+ * for activations.
  */
-#define DELAY_LOAD_A_TEXT
+/* #define DELAY_LOAD_A_TEXT */
 
 /*
  * OPTION: Delay the loading of the "e_text" array until it is actually
@@ -445,7 +438,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"benh@voicenet.com"
+#define MAINTAINER	"tkatchev@cs.purdue.edu"
 
 
 /*

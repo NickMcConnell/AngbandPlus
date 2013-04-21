@@ -32,9 +32,9 @@ void do_cmd_go_up(void)
 	/* Success */
 	msg_print("You enter a maze of up staircases.");
 
-	if (p_ptr->inside_special == 2) {
-	  p_ptr->depth = 1;
-	  p_ptr->inside_special = 0;
+	if (p_ptr->inside_special == SPECIAL_QUEST) {
+	    p_ptr->depth = 1;
+	    p_ptr->inside_special = 0;
 	}
 	
 	/* Create a way back */
@@ -61,6 +61,11 @@ void do_cmd_go_down(void)
 	{
 		mprint(MSG_TEMP, "I see no down staircase here.");
 		return;
+	}
+
+	if (p_ptr->inside_special == SPECIAL_WILD) {
+	  p_ptr->depth = 0;
+	  p_ptr->inside_special = 0;
 	}
 
 	/* Memorize where in the town we were. */
@@ -150,31 +155,23 @@ void do_cmd_toggle_search(void)
 /*
  * Determine if a grid contains a chest
  */
-static s16b chest_check(int y, int x)
+static object_type* chest_check(int y, int x)
 {
-	s16b this_o_idx, next_o_idx = 0;
 
+  object_type* o_ptr;
 
-	/* Scan all objects in the grid */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
-	{
-		object_type *o_ptr;
+  /* Scan all objects in the grid */
+  for (o_ptr = cave_o_idx[y][x]; o_ptr != NULL; o_ptr = o_ptr->next) {
 
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
+    /* Skip unknown chests XXX XXX */
+    /* if (!o_ptr->marked) continue; */
 
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
+    /* Check for chest */
+    if (o_ptr->tval == TV_CHEST) return (o_ptr);
+  }
 
-		/* Skip unknown chests XXX XXX */
-		/* if (!o_ptr->marked) continue; */
-
-		/* Check for chest */
-		if (o_ptr->tval == TV_CHEST) return (this_o_idx);
-	}
-
-	/* No chest */
-	return (0);
+  /* No chest */
+  return (NULL);
 }
 
 
@@ -189,20 +186,13 @@ static s16b chest_check(int y, int x)
  * chest is based on the "power" of the chest, which is in turn based
  * on the level on which the chest is generated.
  */
-static void chest_death(int y, int x, s16b o_idx)
+static void chest_death(int y, int x, object_type* o_ptr)
 {
 	int number;
 
 	bool tiny;
 
-	object_type *o_ptr;
-
-	object_type *i_ptr;
-	object_type object_type_body;
-
-
-	/* Access chest */
-	o_ptr = &o_list[o_idx];
+	object_type* i_ptr;
 
 	/* Small chests often hold "gold" */
 	tiny = (o_ptr->sval < SV_CHEST_MIN_LARGE);
@@ -222,28 +212,13 @@ static void chest_death(int y, int x, s16b o_idx)
 	/* Drop some objects (non-chests) */
 	for (; number > 0; --number)
 	{
-		/* Get local object */
-		i_ptr = &object_type_body;
+		i_ptr = new_object();
 
-		/* Wipe the object */
-		object_wipe(i_ptr);
-
-		/* Small chests often drop gold */
-		if (tiny && (rand_int(100) < 75))
-		{
-			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
-		}
-
-		/* Otherwise drop an item */
-		else
-		{
-			/* Make an object */
-			if (!make_object(i_ptr, FALSE, FALSE)) continue;
-		}
+		/* Make an object */
+		if (!make_object(i_ptr, FALSE, FALSE)) continue;
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, FALSE, y, x);
 	}
 
 	/* Reset the object level */
@@ -266,11 +241,9 @@ static void chest_death(int y, int x, s16b o_idx)
  * Exploding chest destroys contents (and traps).
  * Note that the chest itself is never destroyed.
  */
-static void chest_trap(int y, int x, s16b o_idx)
+static void chest_trap(int y, int x, object_type* o_ptr)
 {
 	int i, trap;
-
-	object_type *o_ptr = &o_list[o_idx];
 
 
 	/* Ignore disarmed chests */
@@ -344,16 +317,13 @@ static void chest_trap(int y, int x, s16b o_idx)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_open_chest(int y, int x, s16b o_idx)
+static bool do_cmd_open_chest(int y, int x, object_type* o_ptr)
 {
 	int i, j;
 
 	bool flag = TRUE;
 
 	bool more = FALSE;
-
-	object_type *o_ptr = &o_list[o_idx];
-
 
 	/* Attempt to unlock it */
 	if (o_ptr->pval > 0)
@@ -396,10 +366,10 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 	if (flag)
 	{
 		/* Apply chest traps, if any */
-		chest_trap(y, x, o_idx);
+		chest_trap(y, x, o_ptr);
 
 		/* Let the Chest drop items */
-		chest_death(y, x, o_idx);
+		chest_death(y, x, o_ptr);
 	}
 
 	/* Result */
@@ -414,13 +384,11 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
+static bool do_cmd_disarm_chest(int y, int x, object_type* o_ptr)
 {
 	int i, j;
 
 	bool more = FALSE;
-
-	object_type *o_ptr = &o_list[o_idx];
 
 
 	/* Get the "disarm" factor */
@@ -475,7 +443,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	else
 	{
 		mprint(MSG_STUPID, "You set off a trap!");
-		chest_trap(y, x, o_idx);
+		chest_trap(y, x, o_ptr);
 	}
 
 	/* Result */
@@ -622,7 +590,7 @@ void do_cmd_open(void)
 
 	int y, x, dir;
 
-	s16b o_idx;
+	object_type* o_ptr;
 
 	bool more = FALSE;
 
@@ -635,11 +603,11 @@ void do_cmd_open(void)
 	x = px + ddx[dir];
 
 	/* Check for chests */
-	o_idx = chest_check(y, x);
+	o_ptr = chest_check(y, x);
 
 
 	/* Verify legality */
-	if (!o_idx && !do_cmd_open_test(y, x)) return;
+	if (!o_ptr && !do_cmd_open_test(y, x)) return;
 
 
 	/* Take a turn */
@@ -653,7 +621,7 @@ void do_cmd_open(void)
 		x = px + ddx[dir];
 
 		/* Check for chest */
-		o_idx = chest_check(y, x);
+		o_ptr = chest_check(y, x);
 	}
 
 
@@ -681,10 +649,10 @@ void do_cmd_open(void)
 	}
 
 	/* Chest */
-	else if (o_idx)
+	else if (o_ptr)
 	{
 		/* Open the chest */
-		more = do_cmd_open_chest(y, x, o_idx);
+		more = do_cmd_open_chest(y, x, o_ptr);
 	}
 
 	/* Door */
@@ -1019,7 +987,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			if (gold)
 			{
 				/* Place some gold */
-				place_gold(y, x);
+				place_object(y, x, FALSE, FALSE);
 
 				/* Message */
 				mprint(MSG_BONUS, "You have found something!");
@@ -1333,7 +1301,7 @@ void do_cmd_disarm(void)
 
 	int y, x, dir;
 
-	s16b o_idx;
+	object_type* o_ptr;
 
 	bool more = FALSE;
 
@@ -1346,11 +1314,11 @@ void do_cmd_disarm(void)
 	x = px + ddx[dir];
 
 	/* Check for chests */
-	o_idx = chest_check(y, x);
+	o_ptr = chest_check(y, x);
 
 
 	/* Verify legality */
-	if (!o_idx && !do_cmd_disarm_test(y, x)) return;
+	if (!o_ptr && !do_cmd_disarm_test(y, x)) return;
 
 
 	/* Take a turn */
@@ -1364,7 +1332,7 @@ void do_cmd_disarm(void)
 		x = px + ddx[dir];
 
 		/* Check for chests */
-		o_idx = chest_check(y, x);
+		o_ptr = chest_check(y, x);
 	}
 
 
@@ -1392,10 +1360,10 @@ void do_cmd_disarm(void)
 	}
 
 	/* Chest */
-	else if (o_idx)
+	else if (o_ptr)
 	{
 		/* Disarm the chest */
-		more = do_cmd_disarm_chest(y, x, o_idx);
+		more = do_cmd_disarm_chest(y, x, o_ptr);
 	}
 
 	/* Disarm trap */
@@ -1447,40 +1415,37 @@ static bool do_cmd_bash_altar(int y, int x) {
   bool more = FALSE;
   int pgod = p_ptr->pgod;
   int agod = cave_feat[y][x]-FEAT_ALTAR_HEAD+1;
-  int tmp = randint(100);
 
   msg_print("You smash into the altar!");
 
   /* Player doesn't worship anyone -- create an explosion. */
   if (pgod == 0) {
-    /* 50% to explode. */
-    if (rand_int(2)) {
-      godly_wrath_blast();
-    } else {
-      more = TRUE;
-    }
+    godly_wrath_blast(agod-1);
+
   } else if (pgod == agod) {
     /* Supreme blasphemy! */
     mformat(MSG_DEADLY, "%s thunders: ``Enjoy your eternity in Hell, mortal!",
 	       deity_info[pgod-1].name);
     set_grace(-200000);
   } else {
-    /* 50% chance of nothing happening,
-     * 25% of explosion, 
-     * 25% of consecration. */
 
-    if (tmp < 50) {
-      more = TRUE;
-    } else if (tmp < 75) {
+    /* Has the player asked for a favor recently? */
+    if (p_ptr->god_favor > 0) {
       mformat(MSG_URGENT, "%s thunders: ``Know thy place, mortal!''", 
-		 deity_info[pgod-1].name);
-      godly_wrath_blast();
+	      deity_info[pgod-1].name);
+
+      godly_wrath_blast(pgod-1);
+
+      set_grace(p_ptr->grace - 1000);
+
     } else {
       mprint(MSG_BIG_BONUS, "The old altar crumbles into dust, and a new "
 		"one materializes in its place.");
       mformat(MSG_BIG_BONUS, "%s is very pleased!", 
 		 deity_info[pgod-1].name);
+
       set_grace(p_ptr->grace + 1000);
+      p_ptr->god_favor += 3000;
 
       /* Forget the altar */
       cave_info[y][x] &= ~(CAVE_MARK);
@@ -1779,38 +1744,6 @@ void do_cmd_alter(void)
 }
 
 
-/*
- * Find the index of some "spikes", if possible.
- *
- * XXX XXX XXX Let user choose a pile of spikes, perhaps?
- */
-static bool get_spike(int *ip)
-{
-	int i;
-
-	/* Check every item in the pack */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Check the "tval" code */
-		if (o_ptr->tval == TV_SPIKE)
-		{
-			/* Save the spike index */
-			(*ip) = i;
-
-			/* Success */
-			return (TRUE);
-		}
-	}
-
-	/* Oops */
-	return (FALSE);
-}
-
 
 /*
  * Determine if a given grid may be "spiked"
@@ -1842,85 +1775,73 @@ static bool do_cmd_spike_test(int y, int x)
 	return (TRUE);
 }
 
-
 /*
  * Jam a closed door with a spike
  *
  * This command may NOT be repeated
  */
-void do_cmd_spike(void)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+void do_cmd_spike(void) {
+  int py = p_ptr->py;
+  int px = p_ptr->px;
 
-	int y, x, dir, item;
+  int y, x, dir;
 
+  object_type* o_ptr;
 
-	/* Get a spike */
-	if (!get_spike(&item))
-	{
-		/* Message */
-		mprint(MSG_TEMP, "You have no spikes!");
+  item_tester_tval = TV_SPIKE;
+  o_ptr = get_item("Select some spikes", "You have no spikes!", py, px,
+		   (USE_INVEN | USE_FLOOR | USE_JUST_ONE | USE_REMOVE));
 
-		/* Done */
-		return;
-	}
+  if (!o_ptr) return;
 
+  /* Get a direction (or abort) */
+  if (!get_rep_dir(&dir)) return;
 
-	/* Get a direction (or abort) */
-	if (!get_rep_dir(&dir)) return;
-
-	/* Get location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+  /* Get location */
+  y = py + ddy[dir];
+  x = px + ddx[dir];
 
 
-	/* Verify legality */
-	if (!do_cmd_spike_test(y, x)) return;
+  /* Verify legality */
+  if (!do_cmd_spike_test(y, x)) return;
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+  /* Take a turn */
+  p_ptr->energy_use = 100;
 
-	/* Confuse direction */
-	if (confuse_dir(&dir))
-	{
-		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-	}
+  /* Confuse direction */
+  if (confuse_dir(&dir)) {
+    /* Get location */
+    y = py + ddy[dir];
+    x = px + ddx[dir];
+  }
 
 
-	/* Monster */
-	if (cave_m_idx[y][x] > 0)
-	{
-		/* Message */
-		msg_print("There is a monster in the way!");
+  /* Monster */
+  if (cave_m_idx[y][x] > 0) {
+    /* Message */
+    msg_print("There is a monster in the way!");
 
-		/* Attack */
-		py_attack(y, x);
-	}
+    /* Attack */
+    py_attack(y, x);
+  }
 
-	/* Go for it */
-	else
-	{
-		/* Verify legality */
-		if (!do_cmd_spike_test(y, x)) return;
+  /* Go for it */
+  else {
+    /* Verify legality */
+    if (!do_cmd_spike_test(y, x)) return;
 
-		/* Successful jamming */
-		msg_print("You jam the door with a spike.");
+    /* Successful jamming */
+    msg_print("You jam the door with a spike.");
 
-		/* Convert "locked" to "stuck" XXX XXX XXX */
-		if (cave_feat[y][x] < FEAT_DOOR_HEAD + 0x08) cave_feat[y][x] += 0x08;
+    /* Convert "locked" to "stuck" XXX XXX XXX */
+    if (cave_feat[y][x] < FEAT_DOOR_HEAD + 0x08) cave_feat[y][x] += 0x08;
 
-		/* Add one spike to the door */
-		if (cave_feat[y][x] < FEAT_DOOR_TAIL) cave_feat[y][x]++;
+    /* Add one spike to the door */
+    if (cave_feat[y][x] < FEAT_DOOR_TAIL) cave_feat[y][x]++;
 
-		/* Use up, and describe, a single spike, from the bottom */
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
+    remove_object(o_ptr);
+  }
 }
 
 
@@ -1934,36 +1855,41 @@ bool do_cmd_walk_test(int y, int x)
 
   /* Never ever allow someone to walk off the edge of the dungeon! */
   if (!in_bounds_fully(y, x)) {
-    msg_print("There's a solid titanium wall in your way.");
-    return FALSE;
+    
+    /* Hack -- scroll the wilderness. */
+    if (p_ptr->inside_special == SPECIAL_WILD) {
+      disturb(0, 0);
+      p_ptr->leaving = TRUE;
+      return FALSE;
+
+    } else {
+      msg_print("There's a solid titanium wall in your way.");
+      return FALSE;
+    }
   }
 
   
   /* Hack -- walking obtains knowledge XXX XXX */
   if (!(cave_info[y][x] & CAVE_MARK)) {
-    cave_info[y][x] |= (CAVE_MARK);
+    note_spot(y, x);
     lite_spot(y, x);
   }
+
 
   /* if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE); */
 
   /* Allow pass-thru-wall */
 
   if (p_ptr->immaterial && 
-      (cave_info[y][x] < FEAT_PERM_EXTRA ||
-       cave_info[y][x] > FEAT_PERM_SOLID)) {
+      cave_feat[y][x] >= FEAT_DOOR_HEAD &&
+      cave_feat[y][x] <= FEAT_WALL_SOLID) {
+        mprint(MSG_TEMP, "You move through the solid wall.");
 
-    /* Display a message */
-    if (cave_feat[y][x] >= FEAT_DOOR_HEAD &&
-	cave_feat[y][x] <= FEAT_WALL_SOLID) {
-      mprint(MSG_TEMP, "You move through the solid wall.");
-    }
-
-    return TRUE;
+        return TRUE;
   }
 
-  else if (cave_feat[y][x] == FEAT_DEEP_WATER) {
-    int weight = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
+  if (cave_feat[y][x] == FEAT_DEEP_WATER) {
+    int weight = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100);
 
     if (p_ptr->flying) return TRUE;
 
@@ -1979,7 +1905,8 @@ bool do_cmd_walk_test(int y, int x)
 
       return TRUE;
 
-    } else if (p_ptr->resist_fire || p_ptr->immune_fire) {
+    } else if (p_ptr->resist_fire || p_ptr->immune_fire || 
+	       p_ptr->oppose_fire) {
 
       mprint(MSG_TEMP, "You walk through the lava.");
       return TRUE;
@@ -2018,8 +1945,9 @@ bool do_cmd_walk_test(int y, int x)
 
     return TRUE;
 
-  } else if (cave_feat[y][x] >= FEAT_QUEST_ENTER &&
-	     cave_feat[y][x] <= FEAT_QUEST_EXIT) {
+  } else if ((cave_feat[y][x] >= FEAT_QUEST_ENTER &&
+	      cave_feat[y][x] <= FEAT_QUEST_EXIT) ||
+	     cave_feat[y][x] == FEAT_STORE_EXIT) {
     return TRUE;
 
   } else if (cave_feat[y][x] == FEAT_RUBBLE) {
@@ -2170,6 +2098,42 @@ void do_cmd_run(void)
 }
 
 
+void check_store_entering(s16b py, s16b px) {
+  /* Hack -- enter a store if we are on one */
+  if ((cave_feat[py][px] >= FEAT_SHOP_HEAD &&
+       cave_feat[py][px] <= FEAT_SHOP_TAIL) ||
+      cave_feat[py][px] == FEAT_STORE_EXIT)
+    {
+      /* Disturb */
+      disturb(0, 0);
+
+      /* Hack -- enter store */
+      p_ptr->command_new = '_';
+    }
+
+  /* Hack -- enter a building if we are on one -KMW- */
+  if ((cave_feat[py][px] >= FEAT_BLDG_HEAD) &&
+      (cave_feat[py][px] <= FEAT_BLDG_TAIL))
+    {
+      /* Disturb */
+      disturb(0, 0);
+
+      /* Hack -- enter building */
+      p_ptr->command_new = ']';
+    }
+  
+  /* Exit a quest if reach the quest exit -KMW */
+  if (cave_feat[py][px] == FEAT_QUEST_EXIT) {
+    exit_quest();
+  }
+
+  /* Enter the wilderness. */
+  if (cave_feat[py][px] == FEAT_WILD_ENTER) {
+    disturb(0, 0);
+
+    enter_wild();
+  }
+}
 
 /*
  * Stay still.  Search.  Enter stores.
@@ -2212,32 +2176,7 @@ static void do_cmd_hold_or_stay(int pickup)
 	/* Handle "objects" */
 	py_pickup(pickup);
 
-	/* Hack -- enter a store if we are on one */
-	if ((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
-	    (cave_feat[py][px] <= FEAT_SHOP_TAIL))
-	{
-		/* Disturb */
-		disturb(0, 0);
-
-		/* Hack -- enter store */
-		p_ptr->command_new = '_';
-	}
-
-	/* Hack -- enter a building if we are on one -KMW- */
-	if ((cave_feat[py][px] >= FEAT_BLDG_HEAD) &&
-	    (cave_feat[py][px] <= FEAT_BLDG_TAIL))
-	{
-		/* Disturb */
-		disturb(0, 0);
-
-		/* Hack -- enter building */
-		p_ptr->command_new = ']';
-	}
-
-	/* Exit a quest if reach the quest exit -KMW */
-	if (cave_feat[py][px] == FEAT_QUEST_EXIT) {
-	  exit_quest();
-	}
+	check_store_entering(py, px);
 
 }
 
@@ -2315,8 +2254,11 @@ void do_cmd_rest(void)
 	/* Take a turn XXX XXX XXX (?) */
 	p_ptr->energy_use = 100;
 
-	/* Save the rest code */
+	/* Save the rest code. */
 	p_ptr->resting = p_ptr->command_arg;
+
+	/* Save the turn counter. */
+	old_resting_turn = turn;
 
 	/* Cancel searching */
 	p_ptr->searching = FALSE;
@@ -2339,50 +2281,6 @@ void do_cmd_rest(void)
 
 
 
-/*
- * Determines the odds of an object breaking when thrown at a monster
- *
- * Note that artifacts never break, see the "drop_near()" function.
- */
-static int breakage_chance(object_type *o_ptr)
-{
-	/* Examine the item type */
-	switch (o_ptr->tval)
-	{
-		/* Always break */
-		case TV_FLASK:
-		case TV_POTION:
-		case TV_BOTTLE:
-		case TV_FOOD:
-		case TV_JUNK:
-	case TV_INGRED:
-		{
-			return (100);
-		}
-
-		/* Often break */
-		case TV_LITE:
-		case TV_SCROLL:
-		case TV_ARROW:
-		case TV_SKELETON:
-	case TV_TEXT:
-		{
-			return (50);
-		}
-
-		/* Sometimes break */
-		case TV_WAND:
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_SPIKE:
-		{
-			return (25);
-		}
-	}
-
-	/* Rarely break */
-	return (10);
-}
 
 
 /*
@@ -2418,17 +2316,14 @@ void do_cmd_fire(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int dir, item;
-	int j, y, x, ny, nx, ty, tx;
+	int dir;
+	int y, x, ny, nx, ty, tx;
 	int tdam, tdis, thits, tmul;
 	int bonus, chance;
 	int cur_dis, visible;
 
 	object_type *o_ptr;
 	object_type *j_ptr;
-
-	object_type *i_ptr;
-	object_type object_type_body;
 
 	bool hit_body = FALSE;
 
@@ -2437,22 +2332,27 @@ void do_cmd_fire(void)
 
 	char o_name[80];
 
-	cptr q, s;
-
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 
 	/* Inside arena */
-	if (p_ptr->inside_special == 1) {
+	if (p_ptr->inside_special == SPECIAL_ARENA) {
 	  msg_print("You're in the arena now. This is hand-to-hand!");
 	  msg_print(NULL);
 	  return;
 	}
 
+	/* Magical Arena. */
+	if (p_ptr->inside_special == SPECIAL_MAGIC_ARENA) {
+	  mprint(MSG_TEMP, "You're in the magical arena, archery is forbidden!");
+	  msg_print(NULL);
+	  return;
+	}
+
 	/* Get the "bow" (if any) */
-	j_ptr = &inventory[INVEN_BOW];
+	j_ptr = equipment[EQUIP_BOW];
 
 	/* Require a usable launcher */
-	if (!j_ptr->tval || !p_ptr->ammo_tval)
+	if (!j_ptr || !p_ptr->ammo_tval)
 	{
 		mprint(MSG_TEMP, "You have nothing to fire with.");
 		return;
@@ -2462,61 +2362,29 @@ void do_cmd_fire(void)
 	/* Require proper missile */
 	item_tester_tval = p_ptr->ammo_tval;
 
-	/* Get an item */
-	q = "Fire which item? ";
-	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	o_ptr = get_item("Fire which item", "You have nothing to fire.",
+			 p_ptr->py, p_ptr->px, 
+			 (USE_INVEN | USE_FLOOR | USE_JUST_ONE | USE_REMOVE));
+	
 
-	/* Access the item (if in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	if (!o_ptr) return;
 
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return;
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Obtain a local object */
-	object_copy(i_ptr, o_ptr);
-
-	/* Single object */
-	i_ptr->number = 1;
-
-	/* Reduce and describe inventory */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
+	if (!get_aim_dir(&dir)) {
+	  inven_carry(o_ptr);
+	  return;
 	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
-
 
 	/* Sound */
 	sound(SOUND_SHOOT);
 
 
 	/* Describe the object */
-	object_desc(o_name, i_ptr, FALSE, 3);
+	object_desc(o_name, o_ptr, FALSE, 3);
 
 	/* Find the color and symbol for the object for throwing */
-	missile_attr = object_attr(i_ptr);
-	missile_char = object_char(i_ptr);
+	missile_attr = object_attr(o_ptr);
+	missile_char = object_char(o_ptr);
 
 
 	/* Use the proper number of shots */
@@ -2526,10 +2394,10 @@ void do_cmd_fire(void)
 	tdis = 10;
 
 	/* Base damage from thrown object plus launcher bonus */
-	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d + j_ptr->to_d;
+	tdam = damroll(o_ptr->dd, o_ptr->ds) + o_ptr->to_d + j_ptr->to_d;
 
 	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
+	bonus = (p_ptr->to_h + o_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 
 	/* Assume a base multiplier */
@@ -2539,8 +2407,7 @@ void do_cmd_fire(void)
 	tdam *= tmul;
 
 	/* Base range */
-	tdis = 10 + 5 * tmul;
-
+	tdis = 10 + 5 * tmul;	
 
 	/* Take a (partial) turn */
 	p_ptr->energy_use = (100 / thits);
@@ -2665,8 +2532,8 @@ void do_cmd_fire(void)
 				}
 
 				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+				tdam = tot_dam_aux(o_ptr, tdam, m_ptr);
+				tdam = critical_shot(o_ptr->weight, o_ptr->to_h, tdam);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -2706,12 +2573,7 @@ void do_cmd_fire(void)
 					}
 					
 					if (m_ptr->is_pet) {
-					  char m_name[80];
-
-					  monster_desc(m_name, m_ptr, 0x80);
-
-					  mformat(MSG_WARNING, "%^s howls in rebellion!", m_name);
-					  m_ptr->is_pet = FALSE;
+					  hostile_monsters(cave_m_idx[y][x]);
 					}
 				}
 			}
@@ -2721,14 +2583,20 @@ void do_cmd_fire(void)
 		}
 	}
 
-	/* Chance of breakage (during attacks) */
-	j = (hit_body ? breakage_chance(i_ptr) : 0);
-
 	/* Drop (or break) near that location */
-	drop_near(i_ptr, j, y, x);
+	drop_near(o_ptr, TRUE, y, x);
 }
 
 
+static bool item_tester_hook_throw(object_type* o_ptr) {
+  int i;
+
+  for (i = 0; i < EQUIP_MAX; i++) {
+    if (equipment[i] == o_ptr && (cursed_p(o_ptr) || show_inven_equip == FALSE)) return FALSE;
+  }
+
+  return TRUE;
+}
 
 /*
  * Throw an object from the pack or floor.
@@ -2744,16 +2612,13 @@ void do_cmd_throw(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int dir, item;
-	int j, y, x, ny, nx, ty, tx;
+	int dir;
+	int y, x, ny, nx, ty, tx;
 	int chance, tdam, tdis;
 	int mul, div;
 	int cur_dis, visible;
 
 	object_type *o_ptr;
-
-	object_type *i_ptr;
-	object_type object_type_body;
 
 	bool hit_body = FALSE;
 
@@ -2762,82 +2627,59 @@ void do_cmd_throw(void)
 
 	char o_name[80];
 
-	cptr q, s;
-
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 
 	/* Some objects are very easy to throw -- namely potions/flasks */
 	bool easy = FALSE;
 
 	/* Inside arena */
-	if (p_ptr->inside_special == 1) {
+	if (p_ptr->inside_special == SPECIAL_ARENA) {
 	  mprint(MSG_TEMP, "You're in the arena now. This is hand-to-hand!");
 	  msg_print(NULL);
 	  return;
 	}
 
+	/* Magical Arena. */
+	if (p_ptr->inside_special == SPECIAL_MAGIC_ARENA) {
+	  mprint(MSG_TEMP, "You're in the magical arena, throwing is forbidden!");
+	  msg_print(NULL);
+	  return;
+	}
+
+	item_tester_hook = item_tester_hook_throw;
+
 	/* Get an item */
-	q = "Throw which item? ";
-	s = "You have nothing to throw.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	o_ptr = get_item("Throw which item", "You have nothing to throw",
+			 p_ptr->py, p_ptr->px, 
+			 (USE_INVEN | USE_FLOOR | USE_JUST_ONE | USE_REMOVE));
 
-	/* Access the item (if in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
 
+	if (!o_ptr) return;
 
 	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return;
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Obtain a local object */
-	object_copy(i_ptr, o_ptr);
-
-	/* Single object */
-	i_ptr->number = 1;
-
-	/* Reduce and describe inventory */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
+	if (!get_aim_dir(&dir)) {
+	  inven_carry(o_ptr);
+	  return;
 	}
 
 	/* Set the ``easy'' flag. */
-	if (i_ptr->tval == TV_POTION || i_ptr->tval == TV_FLASK) {
+	if (o_ptr->tval == TV_POTION || o_ptr->tval == TV_FLASK) {
 	  easy = TRUE;
 	}
 
 	/* Description */
-	object_desc(o_name, i_ptr, FALSE, 3);
+	object_desc(o_name, o_ptr, FALSE, 3);
 
 	/* Find the color and symbol for the object for throwing */
-	missile_attr = object_attr(i_ptr);
-	missile_char = object_char(i_ptr);
+	missile_attr = object_attr(o_ptr);
+	missile_char = object_char(o_ptr);
 
 
 	/* Extract a "distance multiplier" */
 	mul = 10;
 
 	/* Enforce a minimum "weight" of one pound */
-	div = ((i_ptr->weight > 10) ? i_ptr->weight : 10);
+	div = ((o_ptr->weight > 10) ? o_ptr->weight : 10);
 
 	/* Hack -- Distance -- Reward strength, penalize weight */
 	tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
@@ -2849,7 +2691,7 @@ void do_cmd_throw(void)
 	if (easy && tdis < 3) tdis = 3;
 
 	/* Hack -- Base damage from thrown object */
-	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d;
+	tdam = damroll(o_ptr->dd, o_ptr->ds) + o_ptr->to_d;
 
 	/* Chance of hitting */
 	if (easy) {
@@ -2857,6 +2699,7 @@ void do_cmd_throw(void)
 	} else {
 	  chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
 	}
+
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -2985,8 +2828,8 @@ void do_cmd_throw(void)
 				}
 
 				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+				tdam = tot_dam_aux(o_ptr, tdam, m_ptr);
+				tdam = critical_shot(o_ptr->weight, o_ptr->to_h, tdam);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -3025,13 +2868,9 @@ void do_cmd_throw(void)
 						msg_format("%^s flees in terror!", m_name);
 					}
 
+
 					if (m_ptr->is_pet) {
-					  char m_name[80];
-
-					  monster_desc(m_name, m_ptr, 0x80);
-
-					  mformat(MSG_WARNING, "%^s howls in rebellion!", m_name);
-					  m_ptr->is_pet = FALSE;
+					  hostile_monsters(cave_m_idx[y][x]);
 					}
 				}
 			}
@@ -3041,15 +2880,8 @@ void do_cmd_throw(void)
 		}
 	}
 
-	/* Chance of breakage (during attacks) */
-	if (easy) {
-	  j = 100;
-	} else {
-	  j = (hit_body ? breakage_chance(i_ptr) : 0);
-	}
-
 	/* Drop (or break) near that location */
-	drop_near(i_ptr, j, y, x);
+	drop_near(o_ptr, TRUE, y, x);
 }
 
 

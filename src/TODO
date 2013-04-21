@@ -1,18 +1,45 @@
 
-? - Fix up arena monsters. (Allow magic in arena?)
+? - Sorceror class, with spells formed from syllables.
+? - Add pr_info.txt and pc_info.txt, for player races/classes.
+? - A few non-combat spells for corrupteds.
 ? - Show mutation effects in 'C' screen.
 ? - Upgrade to 2.8.3 (Wait for 2.8.4?)
-? - ``Kamband options'' screen.
 ? - Improve weaponsmaster
+? - Some sort of extension language?
+? - Remove the town-level restiriction for ghosts, and make religion
+    prohibited for Ghosts.
+? - ts_info.txt for tvals/svals.
 
-- Corpses
+DONE = " A new race (probably belongs in Kamband, but oh well): The Aether
+ Vortex. Has every resistance, gained with levels, and the two auras, but
+ CANNOT USE EQUIPMENT. Attacks with an engulf attack which grow
+ progressively more powerful, has a breath attack which picks randomly
+ from the various elements, and gains a point of speed every 2 levels
+ (for a max of 25 speed)."
+
+- Vaults for the wilderness.
+
+- Shopkeepers.
+TEST - Scrolling wilderness, remove wilderness levels from standard  
+       dungeons.
+- Corrupted weapons.
+
+- Do something about stacking.
+
+- Make social class more important.
+
+- More quests
+- More neat tricks with corpses.
+- More exploding monsters.
+
+- Truly persistent dungeons.
+
 - Add more useful parchements (Alchemy, sacred/cursed monsters,
   weapon/monster immunities)
 - Friendly monsters shouldn't attack.
 - Add ``Corrogue'', like corrupted but with utility spells.
 - ``Base items'' for alchemy -- i.e. bottle, ring, twig.
 - More layouts
-- More quests
 - Cool quest types
 - Generators in quests
 - Add more spell area effects:
@@ -22,15 +49,11 @@
   d) Bouncing beam
   e) Mini-blasts
 
-- Write cool new s_info.txt
-- Add pr_info.txt and pc_info.txt, for player races/classes.
-- ``Foo turns to fight'' slowdown?
-- Fix ego item generation.
-- Weapons/armor break after use.
-- Improve enchant_item so that it can create ego items and such.
-- Make level feelings only indicate OOD monsters.
+- More info in the buildings, i.e. library
 
-- Vampire class, with new ``Evil'' realm.
 - Monk class, with new ``Mysticism'' realm.
 - Madman class, with new ``Wild Magic'' realm.
-? - Sorceror class, with spells formed from syllables.
+- Shaman class, weird/nature magic.
+- Some sort of skill system.
+
+

@@ -10,8 +10,6 @@
 
 # The artifact indexes are defined in "defines.h", and must not be changed.
 
-# Artifacts 1-15 are "special", 16-63 are "armor", and 64-127 are "weapons".
-
 # Hack -- "Grond" and "Morgoth" MUST have a rarity of one, or they might
 # not be dropped when Morgoth is killed.  Note that they, like the "special"
 # artifacts, are never created "accidentally".
@@ -29,9 +27,10 @@ N:1:of Galadriel
 I:39:4:0
 W:1:1:10:10000
 P:0:1d1:0:0:0
-F:ACTIVATE | 
+F:ACTIVATE | SPECIAL |
 F:INSTA_ART
-
+Z:0:10:10
+D:The phial wells with clear light...
 
 # The Star of Elendil
 
@@ -39,9 +38,10 @@ N:2:of Elendil
 I:39:5:0
 W:30:25:5:30000
 P:0:1d1:0:0:0
-F:ACTIVATE | SEE_INVIS | 
+F:ACTIVATE | SEE_INVIS | SPECIAL |
 F:INSTA_ART
-
+Z:34:50:50
+D:The star shines brightly...
 
 # The Arkenstone of Thrain
 # Was +2 WIS/DEX
@@ -50,9 +50,10 @@ N:3:of Thrain
 I:39:6:0
 W:50:50:5:50000
 P:0:1d1:0:0:0
-F:ACTIVATE | SEE_INVIS | HOLD_LIFE | 
+F:ACTIVATE | SEE_INVIS | HOLD_LIFE | SPECIAL |
 F:INSTA_ART
-
+Z:35:100:100
+D:The stone glows a deep green...
 
 # The Amulet of Carlammas
 
@@ -60,19 +61,22 @@ N:4:of Carlammas
 I:40:10:2
 W:50:10:3:60000
 F:CON | HIDE_TYPE | 
-F:ACTIVATE | RES_FIRE | 
+F:ACTIVATE | RES_FIRE | SPECIAL |
 F:INSTA_ART
-
+Z:37:225:225
+D:The amulet lets out a shrill wail...
 
 # The Amulet of Ingwe
 
 N:5:of Ingwe
 I:40:11:3
 W:65:30:3:90000
-F:WIS | CHR | INFRA | HIDE_TYPE | 
+F:WIS | CHR | INFRA | HIDE_TYPE | SPECIAL | 
 F:SEE_INVIS | FREE_ACT | ACTIVATE | 
 F:RES_ACID | RES_COLD | RES_ELEC | 
 F:INSTA_ART
+Z:36:300:300
+D:The amulet floods the area with goodness...
 
 
 # The Necklace of the Dwarves
@@ -80,12 +84,20 @@ F:INSTA_ART
 N:6:of the Dwarves
 I:40:12:3
 W:70:50:3:75000
-F:STR | CON | INFRA | HIDE_TYPE | 
+F:STR | CON | INFRA | HIDE_TYPE | SPECIAL |
 F:SEE_INVIS | FREE_ACT | REGEN | LITE | 
 F:INSTA_ART
 
 
-# Artifact 7 is unused
+
+# The Phial of Undeath
+
+N:7:of Undeath
+I:39:7:-5
+W:1:1:10:1
+P:0:1d1:0:0:0
+F:SPECIAL | LIGHT_CURSE | INT | WIS | CON | DEX | CHR | STR |
+F:INSTA_ART 
 
 
 # The Ring of Barahir
@@ -94,7 +106,7 @@ N:8:of Barahir
 I:45:32:1
 W:50:25:2:65000
 F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE | 
-F:RES_POIS | 
+F:RES_POIS | SPECIAL | 
 F:INSTA_ART
 
 
@@ -104,9 +116,10 @@ N:9:of Tulkas
 I:45:33:4
 W:70:50:2:150000
 F:STR | DEX | CON | HIDE_TYPE | 
-F:ACTIVATE | 
+F:ACTIVATE
 F:INSTA_ART
-
+Z:9:150:150
+D:The ring glows brightly..
 
 # The Ring of Power (Narya)
 
@@ -118,7 +131,8 @@ F:ACTIVATE | FREE_ACT | SEE_INVIS |
 F:SLOW_DIGEST | REGEN | 
 F:SUST_STR | SUST_DEX | IM_FIRE | RES_FIRE | 
 F:INSTA_ART
-
+Z:38:225:225
+D:The ring glows deep red...
 
 # The Ring of Power (Nenya)
 
@@ -130,7 +144,8 @@ F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
 F:FEATHER | REGEN | 
 F:SUST_INT | SUST_WIS | IM_COLD | RES_COLD | 
 F:INSTA_ART
-
+Z:39:325:325
+D:The ring glows bright white...
 
 # The Ring of Power (Vilya)
 
@@ -143,7 +158,8 @@ F:FEATHER | SLOW_DIGEST | REGEN |
 F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | 
 F:IM_ELEC | RES_ELEC | 
 F:INSTA_ART
-
+Z:40:425:425
+D:The ring glows deep blue...
 
 # The Ring of Power (The One Ring)
 
@@ -157,8 +173,9 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID |
 F:SUST_STR | SUST_DEX | SUST_CON | 
 F:SUST_INT | SUST_WIS | SUST_CHR | 
-F:INSTA_ART | MUNCHKINISH
-
+F:INSTA_ART
+Z:41:450:450
+D:The world turns a sickly gray color...
 
 # Artifact 14 is unused
 
@@ -178,7 +195,8 @@ F:RES_ACID | RES_FIRE | RES_COLD |
 F:RES_POIS | RES_LITE | RES_DARK | 
 F:LITE | SEE_INVIS | AGGRAVATE | 
 F:ACTIVATE
-
+Z:32:0:1000
+D:Your armor is surrounded by lightning...
 
 # The Power Dragon Scale Mail 'Bladeturner'
 # Was (-3) DEX | HIDE_TYPE, (-4) to hit, 50 pounds (?)
@@ -192,7 +210,8 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS |
 F:RES_LITE | RES_DARK | RES_BLIND | RES_CONFU | RES_SOUND | 
 F:RES_SHARD | RES_NETHR | RES_NEXUS | RES_CHAOS | RES_DISEN | 
 F:ACTIVATE
-
+Z:33:0:400
+D:Your armor glows a soothing white color.
 
 # Artifact 18 is unused
 
@@ -207,7 +226,8 @@ F:CON |
 F:HOLD_LIFE | SUST_CON | 
 F:RES_ACID | RES_COLD | RES_DARK | RES_NETHR | RES_NEXUS | RES_CHAOS | 
 F:ACTIVATE
-
+Z:21:0:888
+D:Your armor glows in a soothing white light.
 
 # The Full Plate Armour of Isildur
 
@@ -218,7 +238,6 @@ P:25:2d4:0:0:25
 F:CON | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:RES_SOUND | RES_CONFU | RES_NEXUS
-
 
 # The Metal Brigandine Armour of the Rohirrim
 
@@ -238,7 +257,8 @@ W:40:3:150:105000
 P:28:1d4:-1:0:20
 F:STEALTH | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
-
+Z:22:0:2
+D:Your armor twists space around you.
 
 # The Mithril Plate Mail of Celeborn
 
@@ -249,6 +269,8 @@ P:35:2d4:-3:0:25
 F:STR | CHR | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK | 
 F:RES_DISEN | ACTIVATE
+Z:23:0:500
+D:Your armor emits a sickening high-pitched noise.
 
 
 # The Chain Mail of Arvedui
@@ -269,7 +291,8 @@ W:25:9:270:40000
 P:16:1d4:-2:0:20
 F:INT | WIS | CON | HIDE_TYPE | 
 F:RES_ACID | RES_POIS | RES_CONFU | ACTIVATE
-
+Z:12:0:10
+D:Your armor emits a bright shower of sparks.
 
 # Artifact 26 is unused
 
@@ -401,7 +424,8 @@ W:20:5:75:100000
 P:5:1d3:0:0:10
 F:INT | WIS | SEARCH | HIDE_TYPE | 
 F:RES_BLIND | SEE_INVIS | ACTIVATE
-
+Z:30:55:55
+D:Your helm creates a mesmerising image.
 
 # The Iron Helm of Gorlim
 
@@ -422,7 +446,8 @@ P:0:1d1:0:0:15
 F:STR | WIS | CON | HIDE_TYPE | 
 F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | 
 F:LITE | SEE_INVIS | REGEN | ACTIVATE
-
+Z:31:0:500
+D:Your crown emits a soothing mumbling noise.
 
 # Artifact 43 is unused
 
@@ -434,6 +459,8 @@ I:35:1:0
 W:5:45:10:10000
 P:1:0d0:0:0:15
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
+Z:26:0:111
+D:Your cloak glows in many colors.
 
 
 # The Cloak 'Holcolleth'
@@ -444,7 +471,8 @@ W:5:45:10:13000
 P:1:0d0:0:0:4
 F:INT | WIS | STEALTH | HIDE_TYPE | 
 F:RES_ACID | ACTIVATE
-
+Z:25:0:55
+D:Your cloak emits a soporific noise.
 
 # The Cloak of Thingol
 
@@ -454,7 +482,8 @@ W:10:90:10:35000
 P:1:0d0:0:0:18
 F:DEX | CHR | HIDE_TYPE | 
 F:FREE_ACT | RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
-
+Z:26:0:70
+D:Your cloak shoots long blue sparks.
 
 # The Cloak of Thorongil
 
@@ -473,7 +502,8 @@ W:3:10:10:11000
 P:1:0d0:0:0:15
 F:STEALTH | 
 F:RES_ACID | ACTIVATE
-
+Z:27:0:45
+D:Your cloak twists space around you.
 
 # The Shadow Cloak of Luthien
 
@@ -483,6 +513,8 @@ W:40:40:5:45000
 P:6:0d0:0:0:20
 F:INT | WIS | CHR | HIDE_TYPE | 
 F:RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
+Z:24:0:450
+D:Your cloak releases a massive charge of life essence.
 
 
 # The Shadow Cloak of Tuor
@@ -515,7 +547,8 @@ I:31:1:0
 W:10:3:5:30000
 P:1:0d0:0:0:10
 F:FREE_ACT | RES_LITE | SUST_CON | LITE | ACTIVATE
-
+Z:29:0:2
+D:Your gloves release an ethereal missile.
 
 # The Set of Gauntlets 'Paurhach'
 
@@ -524,7 +557,8 @@ I:31:2:0
 W:10:20:25:15000
 P:2:1d1:0:0:15
 F:RES_FIRE | ACTIVATE
-
+Z:1:8:8
+D:Your gloves release a column of fire.
 
 # The Set of Gauntlets 'Paurnimmen'
 
@@ -533,7 +567,8 @@ I:31:2:0
 W:10:20:25:13000
 P:2:1d1:0:0:15
 F:RES_COLD | ACTIVATE
-
+Z:2:7:7
+D:Your gloves release a column of frost.
 
 # The Set of Gauntlets 'Pauraegen'
 
@@ -542,7 +577,8 @@ I:31:2:0
 W:10:20:25:11000
 P:2:1d1:0:0:15
 F:RES_ELEC | ACTIVATE
-
+Z:3:6:6
+D:A ligtning bolt shoots out from your gloves.
 
 # The Set of Gauntlets 'Paurnen'
 
@@ -551,7 +587,8 @@ I:31:2:0
 W:10:20:25:12000
 P:2:1d1:0:0:15
 F:RES_ACID | ACTIVATE
-
+Z:42:5:5
+D:A stream of acid shoots out from your gloves.
 
 # The Set of Gauntlets 'Camlost'
 
@@ -571,7 +608,8 @@ W:40:15:40:110000
 P:5:1d1:10:10:20
 F:DEX | HIDE_TYPE | 
 F:FREE_ACT | RES_ACID | ACTIVATE | SHOW_MODS
-
+Z:29:90:90
+D:Your cesti grows magical spikes.
 
 # The Pair of Hard Leather Boots of Feanor
 
@@ -581,7 +619,8 @@ W:40:120:40:300000
 P:3:1d1:0:0:20
 F:SPEED | 
 F:RES_NEXUS | ACTIVATE
-
+Z:9:0:200
+D:Ligtning starts to form around your boots.
 
 # The Pair of Soft Leather Boots 'Dal-i-thalion'
 
@@ -592,7 +631,8 @@ P:2:1d1:0:0:15
 F:DEX | HIDE_TYPE | 
 F:ACTIVATE | FREE_ACT | 
 F:RES_NETHR | RES_CHAOS | SUST_CON
-
+Z:6:0:5
+D:Your boots produce a soothing sound.
 
 # The Pair of Metal Shod Boots of Thror
 
@@ -639,7 +679,8 @@ I:23:4:0
 W:4:10:12:12000
 P:0:1d4:4:6:0
 F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
-
+Z:1:8:8
+D:Your dagger is covered with fire.
 
 # The Dagger 'Nimthanc'
 
@@ -648,7 +689,8 @@ I:23:4:0
 W:3:10:12:11000
 P:0:1d4:4:6:0
 F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS
-
+Z:2:7:7
+D:Your dagger is covered with frost.
 
 # The Dagger 'Dethanc'
 
@@ -657,7 +699,8 @@ I:23:4:0
 W:5:10:12:13000
 P:0:1d4:4:6:0
 F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS
-
+Z:3:6:6
+D:Your dagger is covered with sparks.
 
 # The Dagger of Rilia
 
@@ -666,6 +709,8 @@ I:23:4:0
 W:5:40:12:15000
 P:0:2d4:4:3:0
 F:SLAY_ORC | BRAND_POIS | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
+Z:4:4:4
+D:Your dagger releases a disgusting smell.
 
 
 # The Dagger 'Belangil'
@@ -677,7 +722,8 @@ P:0:2d4:6:9:0
 F:DEX | HIDE_TYPE | 
 F:BRAND_COLD | RES_COLD | SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE | 
 F:SHOW_MODS
-
+Z:5:5:5
+D:Your dagger is covered with frost.
 
 # The Bastard Sword 'Calris'
 
@@ -699,6 +745,8 @@ P:0:3d5:20:12:0
 F:DEX | HIDE_TYPE | 
 F:SLAY_DEMON | SLAY_ORC | FREE_ACT | BRAND_COLD | RES_COLD | FEATHER | 
 F:SLOW_DIGEST | ACTIVATE | SHOW_MODS
+Z:19:0:500
+D:Your sword glows bright blue.
 
 
 # The Broad Sword 'Glamdring'
@@ -806,7 +854,8 @@ F:SPEED |
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | 
 F:FREE_ACT | RES_COLD | RES_LITE | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | 
 F:ACTIVATE | SHOW_MODS
-
+Z:7:0:300
+D:Your sword releases a frigid cloud.
 
 # The Long Sword 'Anduril'
 
@@ -817,7 +866,8 @@ P:0:2d5:10:15:5
 F:STR | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
 F:RES_FIRE | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS
-
+Z:8:0:400
+D:Your sword glows red-hot.
 
 # The Long Sword 'Anguirel'
 
@@ -920,7 +970,8 @@ W:20:15:180:40000
 P:0:2d6:8:10:0
 F:WIS | CON | HIDE_TYPE | 
 F:SLAY_DRAGON | TELEPATHY | SLOW_DIGEST | ACTIVATE | SHOW_MODS
-
+Z:10:0:400
+D:Your axe emits a bone-chilling sound...
 
 # The Glaive of Pain
 
@@ -962,7 +1013,8 @@ P:0:3d6:15:25:5
 F:WIS | HIDE_TYPE | 
 F:BRAND_COLD | SLAY_TROLL | SLAY_ORC | FREE_ACT | RES_COLD | 
 F:SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS
-
+Z:20:0:500
+D:Your spear glows a bright blue color.
 
 # The Spear of Orome
 
@@ -973,7 +1025,8 @@ P:0:1d6:15:15:0
 F:INT | INFRA | HIDE_TYPE | 
 F:BRAND_FIRE | SLAY_GIANT | RES_FIRE | RES_LITE | 
 F:FEATHER | LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS
-
+Z:41:0:5
+D:The tip of your spear pulsates.
 
 # The Spear 'Nimloth'
 
@@ -1017,6 +1070,8 @@ F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD |
 F:SLAY_ORC | FREE_ACT | IM_COLD | RES_COLD | 
 F:SEE_INVIS | ACTIVATE | 
 F:BLESSED | SHOW_MODS
+Z:16:0:1000
+D:Your axe releases a horde of terrifying spirits.
 
 
 # The Battle Axe of Balli Stonehand
@@ -1039,6 +1094,8 @@ W:30:15:170:21000
 P:0:2d8:4:3:0
 F:STR | DEX | HIDE_TYPE | 
 F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS
+Z:17:3:3
+D:Your axe glows a soothing white color.
 
 
 # The Lochaber Axe 'Mundwine'
@@ -1083,6 +1140,8 @@ F:SLAY_DRAGON | SLAY_ANIMAL | FREE_ACT | HOLD_LIFE |
 F:IM_ACID | RES_ACID | RES_NETHR | 
 F:SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE | 
 F:BLESSED | SHOW_MODS
+Z:25:0:150
+D:Your trident glows a deep red.
 
 
 # The Scythe 'Avavir'
@@ -1094,6 +1153,8 @@ P:0:5d3:8:8:10
 F:DEX | CHR | HIDE_TYPE | 
 F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD | 
 F:RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
+Z:13:0:200
+D:Your scythe glows a soft white color.
 
 
 # The dagger 'Pestilence'
@@ -1127,7 +1188,8 @@ P:0:3d6:6:8:0
 F:STEALTH | 
 F:SLAY_EVIL | BRAND_FIRE | RES_FIRE | RES_CONFU | ACTIVATE | 
 F:SHOW_MODS
-
+Z:28:0:15
+D:Your flail starts babbling with a multitude of voices.
 
 # The Two-Handed Flail 'Thunderfist'
 
@@ -1158,6 +1220,8 @@ I:21:12:0
 W:20:15:150:35000
 P:0:2d6:5:7:2
 F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
+Z:38:0:100
+D:Your morning star rages with fire.
 
 
 # The Mace 'Taratol'
@@ -1168,7 +1232,8 @@ W:20:15:200:50000
 P:0:3d4:12:12:0
 F:KILL_DRAGON | BRAND_ELEC | IM_ELEC | RES_ELEC | 
 F:ACTIVATE | SHOW_MODS
-
+Z:9:100:100
+D:Your mace glows a soft green color.
 
 # The War Hammer of Aule
 
@@ -1200,7 +1265,8 @@ W:20:18:150:20000
 P:0:1d9:3:5:0
 F:INT | WIS | HIDE_TYPE | 
 F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
-
+Z:14:0:10
+D:Your staff seems to mumble something profound.
 
 # The Quarterstaff of Olorin
 
@@ -1211,7 +1277,8 @@ P:0:2d9:10:13:0
 F:INT | WIS | CHR | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | 
 F:HOLD_LIFE | RES_FIRE | RES_NETHR | SEE_INVIS | ACTIVATE | SHOW_MODS
-
+Z:15:0:20
+D:Your staff seems to mumble something profound.
 
 # The Mace of Disruption 'Deathwreaker'
 
@@ -1234,7 +1301,8 @@ P:0:2d5:10:6:8
 F:WIS | INFRA | HIDE_TYPE | 
 F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN | 
 F:ACTIVATE | SHOW_MODS
-
+Z:11:0:70
+D:A bone-chilling shriek escapes your hammer.
 
 # The Scimitar of Undeath
 
@@ -1272,7 +1340,8 @@ W:50:25:110:50000
 P:0:0d0:10:14:0
 F:SPEED | 
 F:RES_FIRE | ACTIVATE | SHOW_MODS
-
+Z:18:0:999
+D:Your crossbow shoots a long, blue spark.
 
 # Artifact 127 is unused
 

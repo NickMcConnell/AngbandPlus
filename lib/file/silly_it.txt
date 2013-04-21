@@ -1,4 +1,4 @@
-86
+95
 a Slab of Cheese
 a Delicious Sausage
 a 50-Pound Diamond
@@ -7,7 +7,7 @@ some Animal Droppings
 a Copper Piece
 3 Phials of Galadriel
 a pile of (nothing)
-the Power Dragon Scale Mail 'Leatherback'
+The Power Dragon Scale Mail 'Leatherback'
 a Wand of Wishing {empty}
 The One Ring (+10)
 a Daedric Plate Mail
@@ -84,3 +84,13 @@ a Wizard's Hat
 a Book of Astrology [Divinations and Alignments]
 a Wand of Summon Demigod
 a Magic Lamp
+a Time Machine
+a Portable Hole
+some Crumbs
+a Jester's Cap
+a Potion of Petrification
+a Rubber Chicken
+The Hand of Vecna
+The Vortex of Fun
+a Meat Cleaver (Blessed)
+a Rabbit's Foot

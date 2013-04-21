@@ -139,7 +139,7 @@ void do_cmd_change_name(void)
 			{
 				if (tmp[0] && (tmp[0] != ' '))
 				{
-					file_character(tmp, FALSE);
+					file_character(tmp);
 				}
 			}
 		}
@@ -423,6 +423,59 @@ cptr cheating_desc[CHEAT_MAX] =
 
 
 /*
+ * Hack -- write all current options to the given file
+ */
+static errr option_dump(cptr fname) {
+  int i;
+
+  FILE *fff;
+
+  char buf[1024];
+
+
+  /* Build the filename */
+  path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+  /* File type is "TEXT" */
+  FILE_TYPE(FILE_TYPE_TEXT);
+
+  /* Append to the file */
+  fff = my_fopen(buf, "w");
+
+  /* Failure */
+  if (!fff) return (-1);
+
+  /* Skip space */
+  fprintf(fff, "\n\n");
+
+  /* Start dumping */
+  fprintf(fff, "# Automatic option dump\n\n");
+
+  /* Dump them */
+  for (i = 0; i < OPT_MAX; i++) {
+    /* Finished. */
+    if (!option_text[i]) break;
+
+    fprintf(fff, "# Option '%s'\n", option_desc[i]);
+
+    if (op_ptr->opt[i]) {
+      fprintf(fff, "Y:%s\n\n", option_text[i]);
+    } else {
+      fprintf(fff, "X:%s\n\n", option_text[i]);
+    }
+  }
+
+  fprintf(fff, "\n\n");
+
+  /* Close */
+  my_fclose(fff);
+
+  /* Success */
+  return (0);
+}
+
+
+/*
  * Interact with some options
  */
 static void do_cmd_options_cheat(cptr info)
@@ -549,13 +602,13 @@ static void do_cmd_options_aux(int page, cptr info)
 
 	int i, k = 0, n = 0;
 
-	int opt[20];
+	int opt[22];
 
 	char buf[80];
 
 
 	/* Scan the options */
-	for (i = 0; i < 20; i++)
+	for (i = 0; i < 22; i++)
 	{
 		/* Collect options on this "page" */
 		if (option_page[page][i] != 255)
@@ -851,9 +904,10 @@ void do_cmd_options(void)
 		prt("(2) Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
+		prt("(5) Kamband Options", 8, 5);
 
 		/* Cheating */
-		prt("(C) Cheating Options", 9, 5);
+		prt("(C) Cheating Options", 10, 5);
 
 		/* Window flags */
 		prt("(W) Window flags", 11, 5);
@@ -861,6 +915,7 @@ void do_cmd_options(void)
 		/* Special choices */
 		prt("(D) Base Delay Factor", 13, 5);
 		prt("(H) Hitpoint Warning", 14, 5);
+		prt("(S) Save the options to a pref file", 15, 5);
 
 		/* Prompt */
 		prt("Command: ", 18, 0);
@@ -904,6 +959,14 @@ void do_cmd_options(void)
 				/* Spawn */
 				do_cmd_options_aux(3, "Efficiency Options");
 				break;
+			}
+
+			/* Kamband Options */
+			case '5':
+			{
+			    /* Spawn */
+			    do_cmd_options_aux(4, "Kamband Options");
+			    break;
 			}
 
 			/* Cheating Options */
@@ -967,6 +1030,30 @@ void do_cmd_options(void)
 
 				break;
 			}
+
+		case 'S':
+		case 's':
+		  {
+		    char tmp[80];
+
+		    /* Prepare the prompt */
+		    prt("Command: Save options to pref file", 18, 0);
+		    prt("File: ", 22, 0);
+		    sprintf(tmp, "%s.prf", op_ptr->base_name);
+
+		    if (!askfor_aux(tmp, 70, FALSE)) break;
+
+		    /* Drop priviledges (?) */
+		    safe_setuid_drop();
+
+		    /* Dump the options. */
+		    option_dump(tmp);
+		    
+		    /* Grab priviledges */
+		    safe_setuid_grab();
+
+		    break;
+		  }
 
 			/* Unknown option */
 			default:
@@ -2428,7 +2515,7 @@ void do_cmd_save_screen(void)
  */
 static void do_cmd_knowledge_artifacts(void)
 {
-	int i, k, z, x, y;
+	int k, z;
 
 	FILE *fff;
 
@@ -2437,6 +2524,8 @@ static void do_cmd_knowledge_artifacts(void)
 	char base_name[80];
 
 	bool okay[MAX_A_IDX];
+
+	object_type* o_ptr;
 
 
 	/* Temporary file */
@@ -2464,57 +2553,19 @@ static void do_cmd_knowledge_artifacts(void)
 	}
 
 	/* Check the dungeon */
-	for (y = 0; y < DUNGEON_HGT; y++)
-	{
-		for (x = 0; x < DUNGEON_WID; x++)
-		{
-			s16b this_o_idx, next_o_idx = 0;
+	for (o_ptr = o_list; o_ptr != NULL; o_ptr = o_ptr->next_global) {
 
-			/* Scan all objects in the grid */
-			for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
-			{
-				object_type *o_ptr;
+	  /* Ignore random artifacts */
+	  if (o_ptr->tval == TV_RANDART) continue;
+	  
+	  /* Ignore non-artifacts */
+	  if (!artifact_p(o_ptr)) continue;
 
-				/* Acquire object */
-				o_ptr = &o_list[this_o_idx];
+	  /* Ignore known items */
+	  if (object_known_p(o_ptr)) continue;
 
-				/* Acquire next object */
-				next_o_idx = o_ptr->next_o_idx;
-
-				/* Ignore random artifacts */
-				if (o_ptr->tval == TV_RANDART) continue;
-
-				/* Ignore non-artifacts */
-				if (!artifact_p(o_ptr)) continue;
-
-				/* Ignore known items */
-				if (object_known_p(o_ptr)) continue;
-
-				/* Note the artifact */
-				okay[o_ptr->name1] = FALSE;
-			}
-		}
-	}
-
-	/* Check the inventory and equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore random artifacts */
-		if (o_ptr->tval == TV_RANDART) continue;
-
-		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
-
-		/* Note the artifact */
-		okay[o_ptr->name1] = FALSE;
+	  /* Note the artifact */
+	  okay[o_ptr->name1] = FALSE;
 	}
 
 	/* Scan the artifacts */
@@ -2794,13 +2845,13 @@ static void do_cmd_knowledge_quests(void) {
     q_stat = quest_status[i];
 
     if (q_stat == QUEST_COMPLETED) {
-      fprintf(fff, "%15s: Completed\n", v_name + q_v_ptrs[i]->name);
+      fprintf(fff, "%30s: Completed\n", v_name + q_v_ptrs[i]->name);
 
     } else if (q_stat == QUEST_IN_PROGRESS) {
-      fprintf(fff, "%15s: In progress\n", v_name + q_v_ptrs[i]->name);
+      fprintf(fff, "%30s: In progress\n", v_name + q_v_ptrs[i]->name);
 
     } else if (q_stat == QUEST_ASSIGNED) {
-      fprintf(fff, "%15s: Assigned\n", v_name + q_v_ptrs[i]->name);
+      fprintf(fff, "%30s: Assigned\n", v_name + q_v_ptrs[i]->name);
     }
   }
 
@@ -2811,6 +2862,61 @@ static void do_cmd_knowledge_quests(void) {
   fd_kill(file_name);
 }
 
+
+
+/*
+ * Display your spell-list, in a nice tabular form.
+ */
+
+static void do_cmd_knowledge_spells(void) {
+  int i;
+  FILE* fff;
+  char file_name[1024];
+  spell* rspell;
+
+  if (path_temp(file_name, 1024)) return;
+
+  fff = my_fopen(file_name, "w");
+
+  for (i = 0; i < spell_num; i++) {
+    rspell = &spells[i];
+
+    if (rspell->unknown) continue;
+
+    if (rspell->untried) {
+      fprintf(fff, "%3d) %-30s (Spell Untried)\n", i+1, rspell->name);
+
+    } else {
+      fprintf(fff, "%3d) %-30s %4d%% %3d (%s)\n", i+1,
+	      rspell->name, spell_chance(rspell), rspell->mana,
+	      rspell->desc);
+    }
+  }
+
+  my_fclose(fff);
+  
+  show_file(file_name, "Your spells", 0, 0);
+
+  fd_kill(file_name);
+}
+
+  
+
+/*
+ * Display your character dump.
+ */
+
+static void do_cmd_knowledge_dump(void) {
+  char file_name[1024];
+
+  if (path_temp(file_name, 1024)) return;
+
+  file_character(file_name);
+  
+  show_file(file_name, "Character dump", 0, 0);
+
+  fd_kill(file_name);
+}
 
 /*
  * Interact with "knowledge"
@@ -2847,9 +2953,11 @@ void do_cmd_knowledge(void)
 		prt("(4) Display known formulae", 7, 5);
 		prt("(5) Display your mutations", 8, 5);
 		prt("(6) Display your quests", 9, 5);
+		prt("(7) Display learned spells", 10, 5);
+		prt("(8) Display character dump", 11, 5);
 
 		/* Prompt */
-		prt("Command: ", 11, 0);
+		prt("Command: ", 13, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -2890,6 +2998,14 @@ void do_cmd_knowledge(void)
 		  do_cmd_knowledge_quests();
 		}
 
+		else if (i == '7') {
+		  do_cmd_knowledge_spells();
+		}
+
+		else if (i == '8') {
+		  do_cmd_knowledge_dump();
+		}
+		
 		/* Unknown option */
 		else
 		{

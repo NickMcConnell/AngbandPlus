@@ -114,6 +114,7 @@ static grouper group_item[] =
 	{ TV_SPIKE,		"Various" },
 	{ TV_INGRED,            "Alchemical Ingredients" },
 	{ TV_TEXT,              "Parchments" },
+	{ TV_CORPSE,            "Corpses" },
 	{ TV_LITE,		  NULL },
 	{ TV_FLASK,		  NULL },
 	{ TV_JUNK,		  NULL },
@@ -565,7 +566,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_BLESSED,            "Blessed Blade" },
 	{ TR3_IMPACT,             "Earthquake impact on hit" },
 	{ TR3_AGGRAVATE,          "Aggravates" },
-	{ TR3_MUNCHKINISH,        "Grants Godly Powers" },
+	{ TR3_MUNCHKINISH,        "Grants ghostly powers" },
 	{ TR3_WEIRD_ATTACK,       "Grants strange attacks" },
 	{ TR3_FLYING,             "Grants levitation" },
 	{ TR3_VAMPIRIC,           "Grants vampirism" },
@@ -934,6 +935,7 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 
 static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 {
+
 	analyze_general(o_ptr, desc_x_ptr->description);
 
 	analyze_pval(o_ptr, &desc_x_ptr->pval_info);
@@ -951,8 +953,6 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 	analyze_misc_magic(o_ptr, desc_x_ptr->misc_magic);
 
 	analyze_misc(o_ptr, desc_x_ptr->misc_desc);
-
-	desc_x_ptr->activation = item_activation(o_ptr);
 }
 
 
@@ -960,8 +960,8 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for Kangband Version %d.%d.%d",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Artifact Spoilers for Kamband Version %d.%d",
+	        KAM_VERSION_MAJOR, KAM_VERSION_MINOR);
 	spoiler_underline(buf);
 }
 
@@ -1098,7 +1098,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 
 /* Create a spoiler file entry for an artifact */
 
-static void spoiler_print_art(obj_desc_list *art_ptr)
+static void spoiler_print_art(object_type* o_ptr, obj_desc_list *art_ptr)
 {
 	pval_info_type *pval_ptr = &art_ptr->pval_info;
 
@@ -1129,11 +1129,9 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 
 	spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
 
-
-	/* Write out the possible activation at the primary indention level */
-	if (art_ptr->activation)
-	{
-		fprintf(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
+	/* Mega-hack -- dump the activation. */
+	if (item_activation(o_ptr, buf)) {
+	  fprintf(fff, "%sActivates for %s\n", INDENT1, buf);
 	}
 
 	/* End with the miscellaneous facts */
@@ -1238,7 +1236,7 @@ static void spoil_artifact(cptr fname)
 			i_ptr = &object_type_body;
 
 			/* Wipe the object */
-			object_wipe(i_ptr);
+			WIPE(i_ptr, object_type);
 
 			/* Attempt to "forge" the artifact */
 			if (!make_fake_artifact(i_ptr, j)) continue;
@@ -1247,7 +1245,7 @@ static void spoil_artifact(cptr fname)
 			object_analyze(i_ptr, &artifact);
 
 			/* Write out the artifact description to the spoiler file */
-			spoiler_print_art(&artifact);
+			spoiler_print_art(i_ptr, &artifact);
 		}
 	}
 
@@ -1303,8 +1301,8 @@ static void spoil_mon_desc(cptr fname)
 	}
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for Kangband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "Monster Spoilers for Kamband Version %d.%d\n",
+	        KAM_VERSION_MAJOR, KAM_VERSION_MINOR);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -1495,7 +1493,7 @@ static void spoil_out(cptr str)
 static void spoil_mon_info(cptr fname)
 {
 	char buf[1024];
-	int msex, vn, i, j, k, n;
+	int msex, vn, i, j, k, n, mon;
 	bool breath, magic, sin;
 	cptr p, q;
 	cptr vp[64];
@@ -1520,17 +1518,17 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Kangband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Monster Spoilers for Kamband Version %d.%d\n",
+	        KAM_VERSION_MAJOR, KAM_VERSION_MINOR);
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
 
 	/*
 	 * List all monsters in order (except the ghost).
 	 */
-	for (n = 1; n < MAX_R_IDX - 1; n++)
+	for (mon = 1; mon < MAX_R_IDX - 1; mon++)
 	{
-		monster_race *r_ptr = &r_info[n];
+		monster_race *r_ptr = &r_info[mon];
 
 		/* Extract the flags */
 		flags1 = r_ptr->flags1;
@@ -1580,7 +1578,7 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		/* Number */
-		sprintf(buf, "Num:%d  ", n);
+		sprintf(buf, "Num:%d  ", mon);
 		spoil_out(buf);
 
 		/* Level */

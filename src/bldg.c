@@ -57,6 +57,12 @@
 #define BACT_ENCHANT_BOW     32
 #define BACT_NORMAL_SHAPE   33
 #define BACT_GREET          34
+#define BACT_VIEW_BOUNTIES  35
+#define BACT_SELL_CORPSES   36
+#define BACT_VIEW_QUEST_MON 37
+#define BACT_SELL_QUEST_MON 38
+#define BACT_QUEST_MAGE     39
+
 
 
 /* //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\ */
@@ -145,12 +151,14 @@ static building city[7] = {
   },
 
   {
-    "Lorien", "Elf", 1,
+    "Lorien", "Elf", 5,
 
-    { "Research monster" },
-    { 10000 },
-    { 'r' },
-    { BACT_RESEARCH_MONSTER },
+    { "Research monster", "View bounties", "Receive bounty money",
+      "View quest monster", "Turn in quest corpse" },
+    { 10000, 0, 0, 0, 0 },
+    { 'r', 'v', 'b', 'q', 't' },
+    { BACT_RESEARCH_MONSTER , BACT_VIEW_BOUNTIES, BACT_SELL_CORPSES,
+      BACT_VIEW_QUEST_MON, BACT_SELL_QUEST_MON },
     -1
   },
 
@@ -158,7 +166,7 @@ static building city[7] = {
     "Seldegard", "Golem", 1,
 
     { "Research weapon" },
-    { 3000 },
+    { 500 },
     { 'r' },
     { BACT_RESEARCH_WEAPON },
     -1
@@ -166,7 +174,7 @@ static building city[7] = {
 };
  
 
-static building class_bldgs[9] = {
+static building class_bldgs[11] = {
   {
     "Barak", "Human", 4, 
  
@@ -178,13 +186,14 @@ static building class_bldgs[9] = {
   },
 
   {
-    "Gamenlon", "Half-elf", 5,
+    "Gamenlon", "Half-elf", 6,
 
     { "Greet Wizard", "Look at spires", "Recharge item", 
-      "Identify posessions", "Learn spells" },
-    { 0, 0, 1000, 1000, 0 },
-    { 'g', 'l', 'r', 'i', 'z' },
-    { BACT_GREET, BACT_LEGENDS, BACT_RECHARGE, BACT_IDENTS, BACT_LEARN },
+      "Identify posessions", "Learn spells", "Ask quest" },
+    { 0, 0, 1000, 1000, 0, -1 },
+    { 'g', 'l', 'r', 'i', 'z', 'q' },
+    { BACT_GREET, BACT_LEGENDS, BACT_RECHARGE, BACT_IDENTS, BACT_LEARN,
+      BACT_QUEST_MAGE },
     CLASS_MAGE
   },
 
@@ -267,6 +276,27 @@ static building class_bldgs[9] = {
     { 'g', 'l', 'i', 'r' },
     { BACT_GREET, BACT_LEGENDS, BACT_IDENTS, BACT_NORMAL_SHAPE },
     CLASS_MIMIC
+  },
+
+  {
+    "Zoltenar", "Elf", 5,
+    { "Greet the Master Bard", "Look at shrines", "Recharge item",
+      "Identify possessions", "Learn spells" },
+    { 0, 0, 1000, 1000, 0 },
+    { 'g', 'l', 'r', 'i', 'z' },
+    { BACT_GREET, BACT_LEGENDS, BACT_RECHARGE, BACT_IDENTS, BACT_LEARN },
+    CLASS_BARD
+  },
+
+  {
+    "Syklephles", "Human", 4,
+
+    { "Greet the Necromancer", "Look at tombs", "Identify possessions",
+      "Learn spells" },
+    { 0, 0, 1000, 0 },
+    { 'g', 'l', 'i', 'z' },
+    { BACT_GREET, BACT_LEGENDS, BACT_IDENTS, BACT_LEARN },
+    CLASS_NECRO
   }
 };
 
@@ -291,7 +321,7 @@ static void clear_bldg(void) {
  */
 
 static void put_reward(byte thetval, byte thesval, int dunlevel) {
-  object_type *q_ptr, forge;
+  object_type *q_ptr;
   int i, choice;
 
   choice = 0;
@@ -305,10 +335,19 @@ static void put_reward(byte thetval, byte thesval, int dunlevel) {
     }
   }
 
-  q_ptr = &forge;
+  q_ptr = new_object();
   object_prep(q_ptr, choice);
-  apply_magic(q_ptr, dunlevel, TRUE, TRUE, TRUE);
-  drop_near(q_ptr, -1, p_ptr->py, p_ptr->px);
+
+  /* Hack -- make something worthwhile. */
+  while (1) {
+    apply_magic(q_ptr, dunlevel, TRUE, TRUE, FALSE);
+
+    if (cursed_p(q_ptr) || broken_p(q_ptr)) continue;
+
+    break;
+  }
+
+  inven_carry(q_ptr);
 }
 
 
@@ -522,7 +561,7 @@ static void gamble_game(int type) {
 	  13, 2);
       
       prt("", 9, 0);
-      prt("*", 9, (3*roll1)+5);
+      prt("*", 9, (3*roll1)+2);
       
       if (roll1 == choice) {
 	winner = TRUE;
@@ -590,6 +629,8 @@ static void greet_char(int class, bool free) {
   int sval = 0;
   int rand = randint(5);
 
+  object_type* i_ptr = NULL;
+
   if (max_idx > MAX_REWARDS) max_idx = MAX_REWARDS;
 
   /* Check the rewards array. */
@@ -635,16 +676,36 @@ static void greet_char(int class, bool free) {
 
   mprint(MSG_BONUS, "Well done. You have earned a gift.");
   msg_print(NULL);
-      
+
+  /* Increase the character's social class. */
+  if (p_ptr->sc <= 75) {
+    p_ptr->sc += 25;
+  }
+  
   switch (class) {
   case -1:
     object_level = p_ptr->lev;
-    acquirement(p_ptr->py, p_ptr->px, 1, TRUE);
+
+    /* Allocate space for the new object. */
+    i_ptr = new_object();
+
+    /* Make a good (or great) object (if possible) */
+    while (1) {
+      make_object(i_ptr, TRUE, TRUE);
+
+      if (i_ptr == NULL || cursed_p(i_ptr) || broken_p(i_ptr)) continue;
+      
+      break;
+    }
+
+    inven_carry(i_ptr);
+
     object_level = p_ptr->depth;
     break;
 
   case CLASS_WARRIOR:
   case CLASS_LYCANTH:
+  case CLASS_VAMPIRE:
     
     switch (rand) {
     case 1:
@@ -689,6 +750,7 @@ static void greet_char(int class, bool free) {
   case CLASS_MAGE:
   case CLASS_MIMIC:
   case CLASS_ILLUSIONIST:
+  case CLASS_BARD:
   case CLASS_CORRUPTED:
 
     switch (rand) {
@@ -778,6 +840,12 @@ static void greet_char(int class, bool free) {
     put_reward(tval, sval, p_ptr->lev);
     break;
 
+  case CLASS_NECRO:
+    
+    put_reward(TV_CORPSE, rand_range(SV_CORPSE_BODY, SV_CORPSE_HAIR),
+	       70);
+    break;
+
   case CLASS_BEASTMASTER:
 
     switch (rand) {
@@ -806,6 +874,104 @@ static void greet_char(int class, bool free) {
 }
 
 
+/*
+ * Helper function to dump damage info.
+ */
+void research_weapon_aux2(object_type *o_ptr, cptr label, int mult, int row) {
+  put_str(format("%-15s %d-%d damage.", label, 
+		 mult * p_ptr->num_blow * (o_ptr->dd + o_ptr->to_d),
+
+		 mult * p_ptr->num_blow * 
+		 ((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)), row, 40);
+}
+
+/*
+ * Print extended slay/brand info. Code by Kew Wigle, modified slightly
+ * by Ivan Tkatchev.
+ */
+void research_weapon_aux(object_type *o_ptr) {
+ u32b f1, f2, f3;
+
+ int r = 10;
+
+ object_flags(o_ptr, &f1, &f2, &f3);
+
+ c_put_str(TERM_YELLOW, "Weapon Slays:", 8, 40);
+
+ if (f1 & (TR1_SLAY_ANIMAL)) 
+   research_weapon_aux2(o_ptr, "Slay Animal:", 2, r++);
+
+ if (f1 & (TR1_SLAY_EVIL)) 
+   research_weapon_aux2(o_ptr, "Slay Evil:", 2, r++);
+
+ if (f1 & (TR1_SLAY_UNDEAD)) 
+   research_weapon_aux2(o_ptr, "Slay Undead:", 3, r++);
+
+ if (f1 & (TR1_SLAY_DEMON)) 
+   research_weapon_aux2(o_ptr, "Slay Demon:", 3, r++);
+
+ if (f1 & (TR1_SLAY_ORC)) 
+   research_weapon_aux2(o_ptr, "Slay Orc:", 3, r++);
+
+ if (f1 & (TR1_SLAY_TROLL)) 
+   research_weapon_aux2(o_ptr, "Slay Troll:", 3, r++);
+
+ if (f1 & (TR1_SLAY_GIANT)) 
+   research_weapon_aux2(o_ptr, "Slay Giant:", 3, r++);
+
+ if (f1 & (TR1_SLAY_DRAGON)) 
+   research_weapon_aux2(o_ptr, "Slay Dragon:", 3, r++);
+
+ if (f1 & (TR1_KILL_DRAGON))
+   research_weapon_aux2(o_ptr, "Kill Dragon:", 5, r++);
+
+ if (f1 & (TR1_BRAND_ACID)) 
+   research_weapon_aux2(o_ptr, "Acid Brand:", 3, r++);
+
+ if (f1 & (TR1_BRAND_ELEC)) 
+   research_weapon_aux2(o_ptr, "Electric Brand:", 3, r++);
+
+ if (f1 & (TR1_BRAND_FIRE)) 
+   research_weapon_aux2(o_ptr, "Fiery Brand:", 3, r++);
+
+ if (f1 & (TR1_BRAND_COLD)) 
+   research_weapon_aux2(o_ptr, "Frigid Brand:", 3, r++);
+
+ if (f1 & (TR1_BRAND_POIS)) 
+   research_weapon_aux2(o_ptr, "Poisonous Brand:", 3, r++);
+}
+
+
+/*
+ * Show basic info on a weapon.
+ */
+void desc_weapon(object_type *o_ptr) {
+ char o_name[80];
+
+ object_desc(o_name, o_ptr, FALSE, 0);
+ c_put_str(TERM_YELLOW, o_name, 8, 5);
+  
+ put_str(format("To Hit: %-2d    To Damage: %-2d", 
+		o_ptr->to_h, o_ptr->to_d), 9, 5);
+  
+ put_str(format("Dice:   %-2d    Sides:     %-2d", 
+		o_ptr->dd, o_ptr->ds), 10, 5);
+  
+ put_str(format("Number of Blows: %d", p_ptr->num_blow), 11, 5);
+ 
+ c_put_str(TERM_YELLOW, "Possible Damage:", 13, 5);
+
+ 
+ put_str(format("One Strike:  %d-%d damage", 
+		o_ptr->dd * 1 + o_ptr->to_d,
+		o_ptr->ds * o_ptr->dd + o_ptr->to_d), 14, 5);
+
+ put_str(format("One Attack:  %d-%d damage",
+		p_ptr->num_blow * (o_ptr->dd + o_ptr->to_d),
+		p_ptr->num_blow * (o_ptr->dd * o_ptr->ds + o_ptr->to_d)),
+	 15, 5);
+}
+
 
 /*
  * Print simple analysis of weapon.
@@ -813,13 +979,12 @@ static void greet_char(int class, bool free) {
 
 static void research_weapon(void) {
   object_type* o_ptr = NULL;
-  char o_name[80];
 
   clear_bldg();
 
-  o_ptr = &inventory[INVEN_WIELD];
+  o_ptr = equipment[EQUIP_WIELD];
 
-  if (!o_ptr->k_idx) {
+  if (!o_ptr) {
     mprint(MSG_TEMP, "You are not wielding a weapon.");
     msg_print(NULL);
     return;
@@ -827,34 +992,12 @@ static void research_weapon(void) {
 
   p_ptr->update |= (PU_BONUS);
   update_stuff();
-
-  put_str("Based on your current abilities, here is what your weapon will do:", 6, 2);
   
-  /* TODO - take into account the other pieces such as speed from
-     calc_weapon */
+  put_str("Based on your current abilities, here is what your weapon will do:", 
+	  6, 2);
   
-  object_desc(o_name, o_ptr, FALSE, 0);
-  c_put_str(TERM_YELLOW, o_name, 8, 5);
-  
-  put_str(format("To Hit: %-2d    To Damage: %-2d", 
-		 o_ptr->to_h, o_ptr->to_d), 9, 5);
-  
-  put_str(format("Dice:   %-2d    Sides:     %-2d", 
-		 o_ptr->dd, o_ptr->ds), 10, 5);
-  
-  put_str(format("Number of Blows: %d", p_ptr->num_blow), 11, 5);
-  
-  c_put_str(TERM_YELLOW, "Possible Damage:", 13, 5);
-
-
-  put_str(format("One Strike:  %d-%d damage", 
-		 o_ptr->dd * 1 + o_ptr->to_d,
-		 o_ptr->ds * o_ptr->dd + o_ptr->to_d), 14, 5);
-
-  put_str(format("One Attack:  %d-%d damage",
-		 p_ptr->num_blow * (o_ptr->dd + o_ptr->to_d),
-		 p_ptr->num_blow * (o_ptr->dd * o_ptr->ds + o_ptr->to_d)),
-	  15, 5);
+  desc_weapon(o_ptr);
+  research_weapon_aux(o_ptr);
 }
 
 
@@ -866,28 +1009,32 @@ static void research_weapon(void) {
 static bool enchant_something(cptr name, int where, int tval, 
 			     bool plural, bool armor) {
 
-  int maxenchant, i = 0;
+  int maxenchant;
   object_type *o_ptr;
   char o_name[80];
   bool ret = FALSE;
 
-  if (where >= INVEN_TOTAL) return FALSE;
+  if (where >= EQUIP_MAX) return FALSE;
 
-  if (where == INVEN_PACK) {
-    for (i = 0; i < INVEN_PACK; i++) {
-      o_ptr = &inventory[i];
+  if (where < 0) {
+    item_tester_tval = tval;
 
-      if (o_ptr->tval == tval) break;
-    }
+    o_ptr = get_item("Enchant what", 
+		     "You do not have anything we could enchant.", 
+		     p_ptr->py, p_ptr->px, USE_INVEN);
+
+    if (!o_ptr) return FALSE;
 
   } else {
-    o_ptr = &inventory[where];
-  }
 
-  if (i == INVEN_PACK || !o_ptr->k_idx) {
-    mprint(MSG_TEMP, "You do not have anything we could enchant.");
-    msg_print(NULL);
-    return FALSE;
+    o_ptr = equipment[where];
+
+    if (!o_ptr) {
+      mprint(MSG_TEMP, "You do not have anything we could enchant.");
+      msg_print(NULL);
+      
+      return FALSE;
+    }
   }
 
   maxenchant = (p_ptr->lev / 5);
@@ -963,16 +1110,24 @@ static void enter_arena(void) {
     msg_print(NULL);
 
   } else {
-    /* Player enters the arena from the town */
-    if (!p_ptr->inside_special) {
-      p_ptr->inside_special = 1;
+    int is_old = p_ptr->inside_special;
+
+    /* Dumb Hack -- allow the ``magical arena''. */
+    if (p_ptr->which_arena == 3) {
+      p_ptr->inside_special = SPECIAL_MAGIC_ARENA;
+    } else {
+      p_ptr->inside_special = SPECIAL_ARENA;
+    }
+
+    /* Save the player's position when entering from the town. */
+    if (is_old == 0) {
       p_ptr->oldpy = p_ptr->py;
       p_ptr->oldpx = p_ptr->px;
     }
 
     p_ptr->leaving = TRUE;
     p_ptr->exit_bldg = FALSE;
-
+  
     mega_hack_exit_bldg = TRUE;
   }
 }
@@ -986,23 +1141,29 @@ bool show_god_info(bool ext) {
   int pgod = p_ptr->pgod - 1;
   int tmp;
 
+  deity* d_ptr;
+
   if (pgod < 0) {
     mprint(MSG_TEMP, "You don't worship anyone.");
     msg_print(NULL);
     return FALSE;
+
   } else {
+    d_ptr = &deity_info[pgod];
+
     msg_print(NULL);
 
     Term_save();
+    Term_gotoxy(0, 0);
 
-    roff(format("You worship %s, the God of %s. ", deity_info[pgod].name,
-	       deity_info[pgod].god_of));
-    roff(format("%s is %s, and you are %s by him. ", deity_info[pgod].name,
-	       deity_niceness[deity_info[pgod].grace_deduction],
+    roff(format("You worship %s, the %s God of %s. ", d_ptr->name,
+		deity_rarity[d_ptr->rarity], d_ptr->god_of));
+    roff(format("%s is %s, and you are %s by him. ", d_ptr->name,
+	       deity_niceness[d_ptr->grace_deduction],
 	       deity_standing[badness]));
-    roff(format("%s hates %s. He holds sacred %s.", deity_info[pgod].name,
-	       deity_affiliation[deity_info[pgod].opposed-1],
-	       deity_affiliation[deity_info[pgod].aligned-1]));
+    roff(format("%s hates %s. He holds sacred %s.", d_ptr->name,
+	       deity_affiliation[d_ptr->opposed-1],
+	       deity_affiliation[d_ptr->aligned-1]));
     roff("\n");
 
     if (ext) {
@@ -1028,7 +1189,7 @@ static void show_quest_text(vault_type* v_ptr) {
   clear_bldg();
   move_cursor(6, 0);
 
-  c_roff(TERM_RED, format("Quest name: %-20s Type: %s\n\n",
+  c_roff(TERM_RED, format("Quest name: %-35s Type: %s\n\n",
 			  v_name + v_ptr->name, quest_types[v_ptr->q_type]));
   c_roff(TERM_YELLOW, q_text + v_ptr->q_text);
 }
@@ -1038,9 +1199,12 @@ static void show_quest_text(vault_type* v_ptr) {
  * Request a quest from the Lord. 
  */
 
-static void ask_quest() {
+static void ask_quest(int kind) {
   int i, ch;
   byte foo;
+  bool all_done = TRUE;
+
+  vault_type* v_ptr;
 
   if (p_ptr->which_quest != 0) {
     foo = quest_status[p_ptr->which_quest-1];
@@ -1060,7 +1224,14 @@ static void ask_quest() {
 
   for (i = 0; i < max_quests; i++) {
     if (quest_status[i] == 0) {
-      show_quest_text(q_v_ptrs[i]);
+      all_done = FALSE;
+
+      v_ptr = q_v_ptrs[i];
+
+      /* Filter the quests for the appropriate kinds. */
+      if (v_ptr->q_kind != kind) continue;
+
+      show_quest_text(v_ptr);
 
       ch = get_three_way_check("Accept this quest? ");
 
@@ -1075,11 +1246,11 @@ static void ask_quest() {
     }
   }
 
-  mformat(MSG_TEMP,
-	  "All hail %s, the greatest of heroes who has completed all quests!",
-	  op_ptr->full_name);
-  mformat(MSG_TEMP, "I humbly offer you this meager gift.");
-  greet_char(-1, TRUE);
+  if (all_done) {
+    mformat(MSG_TEMP,
+	   "All hail %s, the greatest of heroes who has completed all quests!",
+	    op_ptr->full_name);
+  }
 }
 
 
@@ -1121,9 +1292,15 @@ static void show_legends(cptr msg, int type, int class, int race) {
     }
     
     if (i == 17) {
+      int j;
       i = 5;
+
       mprint(MSG_TEMP, "Press space for more.");
       msg_print(NULL);
+
+      for(j = 5; j < 17; j++) {
+	prt("", j, 0);
+      }
     }
   }
 
@@ -1176,8 +1353,11 @@ static void mass_rest(void) {
       /* Maintain each shop (except home) */
       for (n = 0; n < MAX_STORES - 1; n++) {
 	/* Maintain */
-	store_maint(n);
+	store_maint(n);	
       }
+
+      /* Select new bounties. */
+      select_bounties();
     }
 
   } else {
@@ -1199,6 +1379,7 @@ static void select_arena(void) {
   prt("a) Humanoid monsters.", 7, 0);
   prt("b) Animal monsters.", 8, 0);
   prt("c) Monstrosities.", 9, 0);
+  prt("d) Magical arena.", 10, 0);
 
   while(1) {
     inp = tolower(inkey());
@@ -1238,7 +1419,7 @@ static void show_building(building* bldg) {
       if (bldg->costs[i] == 0 && bldg->class != p_ptr->pclass) {
 	strcpy(buff, "(closed)");
 
-      } else if (bldg->class != p_ptr->pclass) {
+      } else if (bldg->class != p_ptr->pclass && bldg->costs[i] > 0) {
 	sprintf(buff, "(%dgp)", bldg->costs[i]);
 
       } else {
@@ -1261,6 +1442,291 @@ static void show_building(building* bldg) {
   prt(" ESC) Exit building", 23, 0);
 }
 
+
+
+/*
+ * Show the current quest monster. 
+ */
+static void show_quest_monster(void) {
+  monster_race* r_ptr = &r_info[bounties[0][0]];
+
+  msg_format("Quest monster: %s. "
+	     "Need to turn in %d corpse%s to receive reward.",
+	     r_name + r_ptr->name, bounties[0][1],
+	     (bounties[0][1] > 1 ? "s" : ""));
+  msg_print(NULL);
+}
+
+
+/*
+ * Show the current bounties.
+ */
+static void show_bounties(void) {
+  int i, j = 6;
+  monster_race* r_ptr;
+  char buff[80];
+
+  clear_bldg();
+
+  c_prt(TERM_YELLOW, "Currently active bounties:", 4, 2);
+
+  for (i = 1; i < MAX_BOUNTIES; i++, j++) {
+    r_ptr = &r_info[bounties[i][0]];
+
+    sprintf(buff, "%-30s (%d gp)", r_name + r_ptr->name, bounties[i][1]);
+
+    prt(buff, j, 2);
+    
+    if (j >= 17) {
+      mprint(MSG_TEMP, "Press space for more.");
+      msg_print(NULL);
+      
+      clear_bldg();
+      j = 5;
+    }
+  }
+}
+
+
+/*
+ * Filter for corpses that currently have a bounty on them.
+ */
+static bool item_tester_hook_bounty(object_type* o_ptr) {
+  if (o_ptr->tval == TV_CORPSE) {
+    int i;
+
+    for (i = 1; i < MAX_BOUNTIES; i++) {
+      if (bounties[i][0] == o_ptr->pval) return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/* Filter to match the quest monster's corpse. */
+static bool item_tester_hook_quest_monster(object_type* o_ptr) {
+  if (o_ptr->tval == TV_CORPSE && o_ptr->pval == bounties[0][0]) return TRUE;
+  return FALSE;
+}
+
+
+/* 
+ * Return the boost in the corpse's value depending on how rare the body
+ * part is.
+ */
+static int corpse_value_boost(int sval) {
+
+  switch (sval) {
+  case SV_CORPSE_HEAD:
+    return 1;
+    
+  case SV_CORPSE_HEART:
+  case SV_CORPSE_LIVER:
+    return 2;
+
+  case SV_CORPSE_SKIN:
+  case SV_CORPSE_TONGUE:
+    return 3;
+
+  case SV_CORPSE_SCALE:
+  case SV_CORPSE_HAIR:
+    return 4;
+
+  case SV_CORPSE_WING:
+    return 5;
+  }
+  
+  /* Default to no boost. */
+  return 0;
+}
+  
+/*
+ * Sell a corpse, if there's currently a bounty on it.
+ */
+static void sell_corpses(void) {
+  object_type* o_ptr;
+  int i, boost = 0;
+  s16b value;
+
+  /* Set the hook. */
+  item_tester_hook = item_tester_hook_bounty;
+
+  /* Select a corpse to sell. */
+  o_ptr = get_item("Sell which corpse", "You have no corpses you can sell.",
+		   p_ptr->py, p_ptr->px, (USE_INVEN | USE_REMOVE));
+
+  if (!o_ptr) {
+    msg_print(NULL);
+    return;
+  }
+
+  /* Exotic body parts are worth more. */
+  boost = corpse_value_boost(o_ptr->sval);
+
+  /* Try to find a match. */
+  for (i = 1; i < MAX_BOUNTIES; i++) {
+
+    if (o_ptr->pval == bounties[i][0]) {
+      value = bounties[i][1] + boost*(r_info[o_ptr->pval].level);
+
+      value *= o_ptr->number;
+
+      mformat(MSG_TEMP, "Sold for %ld gold pieces.", value);
+      msg_print(NULL);
+      p_ptr->au += value;
+
+      remove_object(o_ptr);
+
+      return;
+    }
+  }
+
+  mprint(MSG_TEMP, "Sorry, but that monster does not have a bounty on it.");
+  msg_print(NULL);
+}
+
+
+
+/*
+ * Hook for bounty monster selection.
+ */
+static bool mon_hook_bounty(int r_idx) {
+  monster_race* r_ptr = &r_info[r_idx];
+
+  if (r_ptr->flags1 & RF1_UNIQUE || r_ptr->flags7 & RF7_NO_CORPSE ||
+      r_ptr->flags2 & RF2_INSTAPET || r_ptr->flags3 & RF3_FRIENDLY) 
+    return FALSE;
+
+  return TRUE;
+}
+
+
+static void select_quest_monster(void) {
+  monster_race* r_ptr;
+  int amt;
+
+  /* Set up the hooks -- no bounties on uniques or monsters with no
+   * corpses. */
+  get_mon_num_hook = mon_hook_bounty;
+  get_mon_num_prep();
+
+  /* Set up the quest monster. */
+  bounties[0][0] = get_mon_num(p_ptr->lev);
+
+  r_ptr = &r_info[bounties[0][0]];
+
+  /* Select the number of monsters needed to kill. Groups and breeders require
+   * more. */
+  amt = randnor(5, 3);
+
+  if (amt < 2) amt = 2;
+
+  if (r_ptr->flags1 & RF1_FRIEND)  amt *= 3; amt /= 2;
+  if (r_ptr->flags1 & RF1_FRIENDS) amt *= 2;
+  if (r_ptr->flags2 & RF2_MULTIPLY) amt *= 3;
+  
+  if (r_ptr->flags2 & RF2_AQUATIC) amt /= 2;
+
+  bounties[0][1] = amt;
+
+  /* Undo the filters. */
+  get_mon_num_hook = NULL;
+  get_mon_num_prep();
+}
+
+
+
+/*
+ * Sell a corpse for a reward.
+ */
+static void sell_quest_monster(void) {
+  object_type* o_ptr;
+
+  /* Set the hook. */
+  item_tester_hook = item_tester_hook_quest_monster;
+
+  /* Select a corpse to sell. */
+  o_ptr = get_item("Sell which corpse", "You have no corpses you can sell.",
+		   p_ptr->py, p_ptr->px, (USE_INVEN | USE_REMOVE));
+
+  if (!o_ptr) {
+    msg_print(NULL);
+    return;
+  }
+
+  bounties[0][1] -= o_ptr->number;
+
+  /* Completed the quest. */
+  if (bounties[0][1] <= 0) {
+    msg_print("You have completed your quest!");
+    msg_print(NULL);
+
+    greet_char(-1, TRUE);
+    msg_print(NULL);
+
+    select_quest_monster();
+
+  } else {
+    mformat(MSG_TEMP, "Well done, only %d more to go.", bounties[0][1]);
+    msg_print(NULL);
+  }
+
+  remove_object(o_ptr);
+}
+
+
+
+/*
+ * Fill the bounty list with monsters.
+ */
+void select_bounties(void) {
+  int i, j;
+
+  select_quest_monster();
+
+  /* Set up the hooks -- no bounties on uniques or monsters with no
+   * corpses. */
+  get_mon_num_hook = mon_hook_bounty;
+  get_mon_num_prep();
+
+  for (i = 1; i < MAX_BOUNTIES; i++) {
+    int lev = i*5 + randnor(0, 2);
+    monster_race* r_ptr;
+    s16b r_idx;
+    s16b val;
+    
+    if (lev < 1) 
+      lev = 1;
+
+    if (lev >= MAX_DEPTH)
+      lev = MAX_DEPTH-1;
+
+    /* We don't want duplicate entries in the list. */
+    while (TRUE) {
+      r_idx = get_mon_num(lev);
+
+      for (j = 0; j < i; j++) {
+	if (bounties[j][0] == r_idx) continue;
+      }
+
+      break;
+    }
+
+    bounties[i][0] = r_idx;
+
+    r_ptr = &r_info[r_idx];
+
+    val = r_ptr->mexp + r_ptr->level*20 + randnor(0, r_ptr->level*2);
+
+    if (val < 1) val = 1;
+
+    bounties[i][1] = val;
+  }
+
+  /* Undo the filters. */
+  get_mon_num_hook = NULL;
+  get_mon_num_prep();
+}
 
 /*
  * Execute a building activation. 
@@ -1294,7 +1760,11 @@ static bool bldg_activation(building* bldg, int i) {
     break;
 
   case BACT_QUEST:
-    ask_quest();
+    ask_quest(0);
+    break;
+
+  case BACT_QUEST_MAGE:
+    ask_quest(1);
     break;
 
   case BACT_SWITCH_ARENA:
@@ -1372,14 +1842,9 @@ static bool bldg_activation(building* bldg, int i) {
     break;
 
   case BACT_RUMORS:
-    {
-      char buff[80];
-
-      get_random_line("rumors.txt", buff);
-      mprint(MSG_TEMP, buff);
-      msg_print(NULL);
-      break;
-    }
+    mprint(MSG_TEMP, get_random_line("rumors.txt"));
+    msg_print(NULL);
+    break;
 
   case BACT_RESEARCH_MONSTER:
     research_mon();
@@ -1395,11 +1860,11 @@ static bool bldg_activation(building* bldg, int i) {
     break;
 
   case BACT_ENCHANT_WEAPON:
-    ret = enchant_something("weapon", INVEN_WIELD, 0, FALSE, FALSE);
+    ret = enchant_something("weapon", EQUIP_WIELD, 0, FALSE, FALSE);
     break;
 
   case BACT_ENCHANT_ARMOR:
-    ret = enchant_something("armor", INVEN_BODY, 0, FALSE, TRUE);
+    ret = enchant_something("armor", EQUIP_BODY, 0, FALSE, TRUE);
     break;
 
   case BACT_RECHARGE:
@@ -1467,11 +1932,11 @@ static bool bldg_activation(building* bldg, int i) {
     break;
 
   case BACT_ENCHANT_ARROWS:
-    ret = enchant_something("arrow", INVEN_PACK, TV_ARROW, TRUE, FALSE);
+    ret = enchant_something("arrow", -1, TV_ARROW, TRUE, FALSE);
     break;
     
   case BACT_ENCHANT_BOW:
-    ret = enchant_something("launcher", INVEN_BOW, 0, FALSE, FALSE);
+    ret = enchant_something("launcher", EQUIP_BOW, 0, FALSE, FALSE);
     break;
 
   case BACT_NORMAL_SHAPE:
@@ -1481,6 +1946,22 @@ static bool bldg_activation(building* bldg, int i) {
 
   case BACT_GREET:
     greet_char(bldg->class, FALSE);
+    break;
+
+  case BACT_VIEW_BOUNTIES:
+    show_bounties();
+    break;
+
+  case BACT_VIEW_QUEST_MON:
+    show_quest_monster();
+    break;
+
+  case BACT_SELL_QUEST_MON:
+    sell_quest_monster();
+    break;
+
+  case BACT_SELL_CORPSES:
+    sell_corpses();
     break;
   }
 
@@ -1550,7 +2031,7 @@ static void bldg_command(int which, bool class_b) {
 	    }
 
 	  } else {
-	    if (class_b && bldg->class != p_ptr->pclass) {
+	    if (class_b && bldg->class != p_ptr->pclass && cost == 0) {
 	      mformat(MSG_TEMP, "Only %ss can do that here!", 
 			 class_info[bldg->class].title);
 	      msg_print(NULL);
@@ -1571,9 +2052,9 @@ static void bldg_command(int which, bool class_b) {
       if (p_ptr->inside_special) {
 	p_ptr->leaving = TRUE;
 
-	/* Arena task completed */
+	/* Arena task completed, and there are no more monsters. */
 	if (p_ptr->exit_bldg) {
-	  p_ptr->inside_special = FALSE;
+	  p_ptr->inside_special = 0;
 	}
       }
       break;
@@ -1628,7 +2109,7 @@ void do_cmd_bldg(void) {
 
   if (which < 7) {
     bldg_command(which, FALSE);
-  } else if (which >= 10 && which <= 19) {
+  } else if (which >= 10 && which <= 20) {
     bldg_command(which - 10, TRUE);
   } else {
     mformat(MSG_TEMP, "The %s is off-limits!", 
@@ -1638,7 +2119,18 @@ void do_cmd_bldg(void) {
 };
 
 
-
+/*
+ * Enter wilderness.
+ */
+void enter_wild(void) {
+  p_ptr->oldpy = p_ptr->py;
+  p_ptr->oldpx = p_ptr->px;
+  p_ptr->depth = 1;
+  p_ptr->wild_x = 0;
+  p_ptr->wild_y = 0;
+  p_ptr->inside_special = SPECIAL_WILD;
+  p_ptr->leaving = TRUE;
+}
 
 /*
  * Enter quest level
@@ -1659,7 +2151,7 @@ void do_cmd_quest(void) {
   } else {
     p_ptr->oldpy = p_ptr->py;
     p_ptr->oldpx = p_ptr->px;
-    p_ptr->inside_special = 2;
+    p_ptr->inside_special = SPECIAL_QUEST;
     p_ptr->depth = 1;
 
     p_ptr->leaving = TRUE;

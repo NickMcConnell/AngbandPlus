@@ -96,7 +96,6 @@ OBJS = \
 #
 CC = gcc
 
-
 #
 # Standard version (see main-x11.c and main-gcu.c)
 #
@@ -115,9 +114,8 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
-CFLAGS = -Wall -g -O1 -pipe -D"USE_X11"
-LIBS = -L/usr/X11R6/lib -lX11 #-lefence
-
+CFLAGS = -Wall -g -I/usr/openwin/include -O1 -D"USE_X11"
+LIBS = -L/usr/openwin/lib -lX11 -lefence
 
 ##
 ## Variation -- Only support "main-x11.c" (not "main-gcu.c")
@@ -232,7 +230,7 @@ angband: $(OBJS)
 #
 
 clean:
-	\rm *.bak *.o
+	\rm *~ *.o
 
 
 #

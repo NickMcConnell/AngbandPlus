@@ -29,11 +29,13 @@
 #define MAX_AMULETS    16       /* Used with amulets (min 13) */
 #define MAX_WOODS      32       /* Used with staffs (min 30) */
 #define MAX_METALS     32       /* Used with wands/rods (min 29/28) */
-#define MAX_COLORS     65       /* Used with potions (min 60) */
+#define MAX_COLORS     90       /* Used with potions (min 60) */
 #define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
 #define MAX_TITLES     50       /* Used with scrolls (min 48) */
 #define MAX_SYLLABLES  158      /* Used with scrolls (see below) */
-#define MAX_SS_COLORS  MAX_SHAPES   /* Used with shape-shifting potion (25) */
+
+static cptr mat_name;
+
 
 /*
  * Rings (adjectives and colors)
@@ -41,28 +43,28 @@
 
 static cptr ring_adj[MAX_ROCKS] =
 {
-	"Alexandrite", "Amethyst", "Aquamarine", "Azurite", "Beryl",
-	"Bloodstone", "Calcite", "Carnelian", "Corundum", "Diamond",
-	"Emerald", "Fluorite", "Garnet", "Granite", "Jade",
-	"Jasper", "Lapis Lazuli", "Malachite", "Marble", "Moonstone",
-	"Onyx", "Opal", "Pearl", "Quartz", "Quartzite",
-	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
-	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
-	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-	"Engagement", "Adamantite"
+  "Alexandrite", "Amethyst", "Aquamarine", "Azurite", "Beryl",
+  "Bloodstone", "Calcite", "Carnelian", "Corundum", "Shiny",
+  "Greenish", "Fluorite", "Reddish", "Granite", "Jade",
+  "Jasper", "Lapis Lazuli", "Malachite", "Marble", "Moonstone",
+  "Onyx", "Dull Gray", "Pearl", "Quartz", "Quartzite",
+  "Rhodonite", "Shiny Red", "Shiny Blue", "Tiger Eye", "Topaz",
+  "Turquoise", "Zircon", "Platinum", "Bronze", "Radiant",
+  "Glowing", "Jagged", "Tortoise Shell", "Twisted", "Jet",
+  "Engagement", "Grayish"
 };
 
 static byte ring_col[MAX_ROCKS] =
 {
-	TERM_GREEN, TERM_VIOLET, TERM_L_BLUE, TERM_L_BLUE, TERM_L_GREEN,
-	TERM_RED, TERM_WHITE, TERM_RED, TERM_SLATE, TERM_WHITE,
-	TERM_GREEN, TERM_L_GREEN, TERM_RED, TERM_L_WHITE, TERM_L_GREEN,
-	TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_RED, TERM_L_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_L_WHITE,
-	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
-	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_L_DARK, TERM_L_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK,
-	TERM_YELLOW, TERM_L_GREEN
+  TERM_GREEN, TERM_VIOLET, TERM_L_BLUE, TERM_L_BLUE, TERM_L_GREEN,
+  TERM_RED, TERM_WHITE, TERM_RED, TERM_SLATE, TERM_WHITE,
+  TERM_GREEN, TERM_L_GREEN, TERM_RED, TERM_L_WHITE, TERM_L_GREEN,
+  TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_WHITE, TERM_L_WHITE,
+  TERM_L_RED, TERM_L_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_L_WHITE,
+  TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
+  TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
+  TERM_L_DARK, TERM_L_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK,
+  TERM_YELLOW, TERM_L_GREEN
 };
 
 
@@ -72,18 +74,18 @@ static byte ring_col[MAX_ROCKS] =
 
 static cptr amulet_adj[MAX_AMULETS] =
 {
-	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
-	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
-	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper"
+  "Translucent", "Driftwood", "Coral", "Agate", "Ivory",
+  "Smoky", "Bone", "Brass", "Shadowy", "Pewter",
+  "Tortoise Shell", "Spotted", "Azure", "Inlaid", "Marble",
+  "Transparent"
 };
 
 static byte amulet_col[MAX_AMULETS] =
 {
-	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
-	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
-	TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_UMBER
+  TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
+  TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
+  TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
+  TERM_L_UMBER
 };
 
 
@@ -93,24 +95,24 @@ static byte amulet_col[MAX_AMULETS] =
 
 static cptr staff_adj[MAX_WOODS] =
 {
-	"Aspen", "Balsa", "Banyan", "Birch", "Cedar",
-	"Cottonwood", "Cypress", "Dogwood", "Elm", "Eucalyptus",
-	"Hemlock", "Hickory", "Ironwood", "Locust", "Mahogany",
-	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
-	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
-	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
-	"Golden", "Ashen"/*,"Gnarled","Ivory","Willow"*/
+  "Aspen", "Balsa", "Banyan", "Birch", "Cedar",
+  "Cottonwood", "Cypress", "Dogwood", "Elm", "Eucalyptus",
+  "Hemlock", "Hickory", "Ironwood", "Locust", "Mahogany",
+  "Maple", "Mulberry", "Oak", "Pine", "Redwood",
+  "Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
+  "Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
+  "Golden", "Ashen"/*,"Gnarled","Ivory","Willow"*/
 };
 
 static byte staff_col[MAX_WOODS] =
 {
-	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_UMBER,
-	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
-	TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
-	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
-	TERM_YELLOW, TERM_SLATE, /*???,???,???*/
+  TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
+  TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
+  TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_UMBER,
+  TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
+  TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
+  TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
+  TERM_YELLOW, TERM_SLATE, /*???,???,???*/
 };
 
 
@@ -120,24 +122,24 @@ static byte staff_col[MAX_WOODS] =
 
 static cptr wand_adj[MAX_METALS] =
 {
-	"Aluminum", "Cast Iron", "Chromium", "Copper", "Gold",
-	"Iron", "Magnesium", "Molybdenum", "Nickel", "Rusty",
-	"Silver", "Steel", "Tin", "Titanium", "Tungsten",
-	"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
-	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
-	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
-	"Platinum", "Lead"/*,"Lead-Plated","Ivory","Pewter"*/
+  "Aluminum", "Cast Iron", "Chromium", "Copper-Plated", "Gold-Plated",
+  "Iron-Plated", "Magnesium", "Molybdenum", "Nickel", "Rusty",
+  "Silver-Plated", "Steel-Plated", "Tin", "Titanium", "Tungsten",
+  "Zirconium", "Zinc", "Aluminum-Plated", "Inlaid", "Glass-Plated",
+  "Nickel-Plated", "Wood-Plated", "Bent", "Tin-Plated", "Zinc-Plated",
+  "Mithril-Plated", "Twisted", "Runed", "Bronze", "Carved",
+  "Platinum", "Lead"/*,"Lead-Plated","Ivory","Pewter"*/
 };
 
 static byte wand_col[MAX_METALS] =
 {
-	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_UMBER, TERM_RED,
-	TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_WHITE, TERM_WHITE,
-	TERM_L_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
-	TERM_L_BLUE, TERM_L_BLUE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_WHITE, TERM_SLATE, /*TERM_SLATE,TERM_WHITE,TERM_SLATE*/
+  TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
+  TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_UMBER, TERM_RED,
+  TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_WHITE, TERM_WHITE,
+  TERM_L_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
+  TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
+  TERM_L_BLUE, TERM_L_BLUE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
+  TERM_WHITE, TERM_SLATE, /*TERM_SLATE,TERM_WHITE,TERM_SLATE*/
 };
 
 
@@ -157,41 +159,20 @@ static byte rod_col[MAX_METALS];
 
 static cptr food_adj[MAX_SHROOM] =
 {
-	"Blue", "Black", "Black Spotted", "Brown", "Dark Blue",
-	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
-	"Grey", "Light Blue", "Light Green", "Violet", "Red",
-	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
+  "Blue", "Black", "Black Spotted", "Brown", "Dark Blue",
+  "Dark Green", "Dark Red", "Yellow", "Furry", "Green",
+  "Grey", "Light Blue", "Light Green", "Violet", "Red",
+  "Slimy", "Tan", "White", "White Spotted", "Wrinkled",
 };
 
 static byte food_col[MAX_SHROOM] =
 {
-	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
-	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
-	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
-	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER
+  TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
+  TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
+  TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
+  TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER
 };
 
-
-/*
- * Color adjectives and colors for potions that change shape.
- */
-
-static cptr potion_ss_adj[MAX_SHAPES] = {
-  "Dirty Brown", "Bright Red", "Bubbly", "Sparkling Clear", "Opaque Silver",
-  "Chunky", "Disgusting Yellow", "Viscous White", "Smelly", "Grainy",
-  "Fibrous", "Totally Black", "Totally Clear", "Fuming Green", "Acidic Orange",
-  "Opaque Red", "Blood-Red", "Sea-Green", "Metallic", "Pungent Purple",
-  "Swirling Grey", "Metallic Grey", "Gelatinous Brown", "Boiling Clear",
-  "Gold Speckled"
-};
-
-static byte potion_ss_col[MAX_SHAPES] = {
-  TERM_UMBER, TERM_L_RED, TERM_WHITE, TERM_WHITE, TERM_SLATE,
-  TERM_L_DARK, TERM_YELLOW, TERM_WHITE, TERM_GREEN, TERM_SLATE,
-  TERM_L_UMBER, TERM_L_DARK, TERM_WHITE, TERM_L_GREEN, TERM_ORANGE,
-  TERM_RED, TERM_RED, TERM_L_GREEN, TERM_SLATE, TERM_VIOLET,
-  TERM_SLATE, TERM_SLATE, TERM_UMBER, TERM_WHITE, TERM_YELLOW
-};
 
 /*
  * Color adjectives and colors, for potions.
@@ -201,37 +182,48 @@ static byte potion_ss_col[MAX_SHAPES] = {
 
 static cptr potion_adj[MAX_COLORS] =
 {
-	"Clear", "Light Brown", "Icky Green", "xxx",
-	"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
-	"Bubbling", "Chartreuse", "Cloudy", "Copper Speckled", "Crimson", "Cyan",
-	"Dark Blue", "Dark Green", "Dark Red", "Gold Speckled", "Green",
-	"Green Speckled", "Grey", "Grey Speckled", "Hazy", "Indigo",
-	"Light Blue", "Light Green", "Magenta", "Metallic Blue", "Metallic Red",
-	"Metallic Green", "Metallic Purple", "Misty", "Orange", "Orange Speckled",
-	"Pink", "Pink Speckled", "Puce", "Purple", "Purple Speckled",
-	"Red", "Red Speckled", "Silver Speckled", "Smoky", "Tangerine",
-	"Violet", "Vermilion", "White", "Yellow", "Violet Speckled",
-	"Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow", "Gloopy Green",
-	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold",
-	"Swirling", "Clotted Orange", "Clotted Blue", "Clotted Silver",
-	"Gloppy Purple"
+  "Clear", "Light Brown", "Icky Green", "xxx",
+  "Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
+  "Bubbling", "Chartreuse", "Cloudy", "Copper Speckled", "Crimson", "Cyan",
+  "Dark Blue", "Dark Green", "Dark Red", "Gold Speckled", "Green",
+  "Green Speckled", "Grey", "Grey Speckled", "Hazy", "Indigo",
+  "Light Blue", "Light Green", "Magenta", "Metallic Blue", "Metallic Red",
+  "Metallic Green", "Metallic Purple", "Misty", "Orange", "Orange Speckled",
+  "Pink", "Pink Speckled", "Puce", "Purple", "Purple Speckled",
+  "Red", "Red Speckled", "Silver Speckled", "Smoky", "Tangerine",
+  "Violet", "Vermilion", "White", "Yellow", "Violet Speckled",
+  "Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow", "Gloopy Green",
+  "Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold",
+  "Swirling", "Clotted Orange", "Clotted Blue", "Clotted Silver",
+  "Gloppy Purple",
+  "Dirty Brown", "Bright Red", "Bubbly", "Sparkling Clear", "Opaque Silver",
+  "Chunky", "Disgusting Yellow", "Viscous White", "Smelly", "Grainy",
+  "Fibrous", "Totally Black", "Totally Clear", "Fuming Green", "Acidic Orange",
+  "Opaque Red", "Blood-Red", "Sea-Green", "Metallic", "Pungent Purple",
+  "Swirling Grey", "Metallic Grey", "Gelatinous Brown", "Boiling Clear",
+  "Gold Speckled"
 };
 
 static byte potion_col[MAX_COLORS] =
 {
-	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, 0,
-	TERM_L_BLUE, TERM_BLUE, TERM_BLUE, TERM_L_DARK, TERM_UMBER, TERM_UMBER,
-	TERM_L_WHITE, TERM_L_GREEN, TERM_WHITE, TERM_L_UMBER, TERM_RED, TERM_L_BLUE,
-	TERM_BLUE, TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_GREEN, TERM_SLATE, TERM_SLATE, TERM_L_WHITE, TERM_VIOLET,
-	TERM_L_BLUE, TERM_L_GREEN, TERM_RED, TERM_BLUE, TERM_RED,
-	TERM_GREEN, TERM_VIOLET, TERM_L_WHITE, TERM_ORANGE, TERM_ORANGE,
-	TERM_L_RED, TERM_L_RED, TERM_VIOLET, TERM_VIOLET, TERM_VIOLET,
-	TERM_RED, TERM_RED, TERM_L_WHITE, TERM_L_DARK, TERM_ORANGE,
-	TERM_VIOLET, TERM_RED, TERM_WHITE, TERM_YELLOW, TERM_VIOLET,
-	TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_MULTI, TERM_RED, TERM_YELLOW, TERM_YELLOW, TERM_VIOLET,
-	TERM_ORANGE, TERM_BLUE, TERM_SLATE, TERM_VIOLET
+  TERM_WHITE, TERM_L_UMBER, TERM_GREEN, 0,
+  TERM_L_BLUE, TERM_BLUE, TERM_BLUE, TERM_L_DARK, TERM_UMBER, TERM_UMBER,
+  TERM_L_WHITE, TERM_L_GREEN, TERM_WHITE, TERM_L_UMBER, TERM_RED, TERM_L_BLUE,
+  TERM_BLUE, TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_GREEN,
+  TERM_GREEN, TERM_SLATE, TERM_SLATE, TERM_L_WHITE, TERM_VIOLET,
+  TERM_L_BLUE, TERM_L_GREEN, TERM_RED, TERM_BLUE, TERM_RED,
+  TERM_GREEN, TERM_VIOLET, TERM_L_WHITE, TERM_ORANGE, TERM_ORANGE,
+  TERM_L_RED, TERM_L_RED, TERM_VIOLET, TERM_VIOLET, TERM_VIOLET,
+  TERM_RED, TERM_RED, TERM_L_WHITE, TERM_L_DARK, TERM_ORANGE,
+  TERM_VIOLET, TERM_RED, TERM_WHITE, TERM_YELLOW, TERM_VIOLET,
+  TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
+  TERM_MULTI, TERM_RED, TERM_YELLOW, TERM_YELLOW, TERM_VIOLET,
+  TERM_ORANGE, TERM_BLUE, TERM_SLATE, TERM_VIOLET,
+  TERM_UMBER, TERM_L_RED, TERM_WHITE, TERM_WHITE, TERM_SLATE,
+  TERM_L_DARK, TERM_YELLOW, TERM_WHITE, TERM_GREEN, TERM_SLATE,
+  TERM_L_UMBER, TERM_L_DARK, TERM_WHITE, TERM_L_GREEN, TERM_ORANGE,
+  TERM_RED, TERM_RED, TERM_L_GREEN, TERM_SLATE, TERM_VIOLET,
+  TERM_SLATE, TERM_SLATE, TERM_UMBER, TERM_WHITE, TERM_YELLOW
 };
 
 
@@ -241,27 +233,27 @@ static byte potion_col[MAX_COLORS] =
 
 static cptr syllables[MAX_SYLLABLES] = 
 {
-	"ana", "aba", "aga", "aksa", "ala", "anu", "any", "appe",
-	"argo", "arze", "asha", "ausa", "ban", "bar", "bat", "bek",
-	"bier", "bin", "bit", "bjor", "blud", "bot", "buz",
-	"byt", "com", "con", "cos", "cred", "dal", "dan",
-	"den", "der", "doer", "dok", "eepe", "ela", "enge", "era", "ere", 
-	"erka",
-	"eshe", "evsa", "fad", "fid", "flig", "for", "frid", "ful", "gan",
-	"gar", "gleb", "gop", "gred", "hap", "her", "hyd", "i",
-	"inge", "iona", "ipe", "isha", "itu", "ite", "ivu", "jor",
-	"khod", "klig", "kis", "lapp", "lech", "man", "mar",
-	"med", "mil", "mic", "mik", "mon", "mun", "mur", "nag", "nej",
-	"nelg", "nep", "ner", "nes", "nis", "nih", "nin", "o",
-	"odo", "oode", "orgu", "orne", "oxa", "oxy", "payd", "pet",
-	"plex", "plur", "pod", "pot", "prok", "red", "real", "rhov",
-	"rid", "ros", "rog", "rok", "rol", "sand", "san", "sat",
-	"see", "sef", "seh", "shu", "ski", "sna", "sne", "snik",
-	"snol", "sod", "sol", "srix", "staz", "sun", "taz", "tab",
-	"tem", "ther", "til", "tox", "trol", "tuel", "turs", "u",
-	"ulku", "ume", "una", "uni", "uru", "val", "viv", "vlyg",
-	"vom", "wah", "wed", "werg", "wex", "whon", "wun", "x",
-	"yerge", "ype", "zun", "trid", "blag"
+  "ana", "aba", "aga", "aksa", "ala", "anu", "any", "appe",
+  "argo", "arze", "asha", "ausa", "ban", "bar", "bat", "bek",
+  "bier", "bin", "bit", "bjor", "blud", "bot", "buz",
+  "byt", "com", "con", "cos", "cred", "dal", "dan",
+  "den", "der", "doer", "dok", "eepe", "ela", "enge", "era", "ere", 
+  "erka",
+  "eshe", "evsa", "fad", "fid", "flig", "for", "frid", "ful", "gan",
+  "gar", "gleb", "gop", "gred", "hap", "her", "hyd", "i",
+  "inge", "iona", "ipe", "isha", "itu", "ite", "ivu", "jor",
+  "khod", "klig", "kis", "lapp", "lech", "man", "mar",
+  "med", "mil", "mic", "mik", "mon", "mun", "mur", "nag", "nej",
+  "nelg", "nep", "ner", "nes", "nis", "nih", "nin", "o",
+  "odo", "oode", "orgu", "orne", "oxa", "oxy", "payd", "pet",
+  "plex", "plur", "pod", "pot", "prok", "red", "real", "rhov",
+  "rid", "ros", "rog", "rok", "rol", "sand", "san", "sat",
+  "see", "sef", "seh", "shu", "ski", "sna", "sne", "snik",
+  "snol", "sod", "sol", "srix", "staz", "sun", "taz", "tab",
+  "tem", "ther", "til", "tox", "trol", "tuel", "turs", "u",
+  "ulku", "ume", "una", "uni", "uru", "val", "viv", "vlyg",
+  "vom", "wah", "wed", "werg", "wex", "whon", "wun", "x",
+  "yerge", "ype", "zun", "trid", "blag"
 };
 
 
@@ -343,6 +335,7 @@ static bool object_easy_know(int i)
 		case TV_SPIKE:
 	case TV_INGRED:
 	case TV_TEXT:
+	case TV_CORPSE:
 		{
 			return (TRUE);
 		}
@@ -382,6 +375,7 @@ static byte default_tval_to_attr(int tval)
 	{
 		case TV_SKELETON:
 		case TV_BOTTLE:
+	case TV_CORPSE:
 		case TV_JUNK:
 		{
 			return (TERM_WHITE);
@@ -806,23 +800,14 @@ static byte object_d_attr(int i)
 		/* Analyze the item */
 		switch (k_ptr->tval)
 		{
-		case TV_FOOD:   return (food_col[indexx]);
-		case TV_POTION: 
-
-		  if (indexx > SV_POTION_MORPH_HEAD &&
-		      indexx < SV_POTION_MORPH_TAIL) {
-		    return potion_ss_col[indexx-SV_POTION_MORPH_HEAD-1];
-		  } else {
-		    return (potion_col[indexx]);
-		  }
-		  break;
-
-		case TV_SCROLL: return (scroll_col[indexx]);
-		case TV_AMULET: return (amulet_col[indexx]);
-		case TV_RING:   return (ring_col[indexx]);
-		case TV_STAFF:  return (staff_col[indexx]);
-		case TV_WAND:   return (wand_col[indexx]);
-		case TV_ROD:    return (rod_col[indexx]);
+		case TV_FOOD:   return (food_col[indexx % MAX_SHROOM]);
+		case TV_POTION: return (potion_col[indexx % MAX_COLORS]);
+		case TV_SCROLL: return (scroll_col[indexx % MAX_TITLES]);
+		case TV_AMULET: return (amulet_col[indexx % MAX_AMULETS]);
+		case TV_RING:   return (ring_col[indexx % MAX_ROCKS]);
+		case TV_STAFF:  return (staff_col[indexx % MAX_WOODS]);
+		case TV_WAND:   return (wand_col[indexx % MAX_METALS]);
+		case TV_ROD:    return (rod_col[indexx % MAX_METALS]);
 		}
 	}
 
@@ -936,7 +921,7 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-	/* Base object */
+	/* Base object. */
 	(*f1) = k_ptr->flags1;
 	(*f2) = k_ptr->flags2;
 	(*f3) = k_ptr->flags3;
@@ -961,30 +946,10 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f3) |= e_ptr->flags3;
 	}
 
-	/* Extra powers */
-	switch (o_ptr->xtra1)
-	{
-		case OBJECT_XTRA_TYPE_SUSTAIN:
-		{
-			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
-			break;
-		}
-
-		case OBJECT_XTRA_TYPE_RESIST:
-		{
-			/* OBJECT_XTRA_WHAT_RESIST == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
-			break;
-		}
-
-		case OBJECT_XTRA_TYPE_POWER:
-		{
-			/* OBJECT_XTRA_WHAT_POWER == 3 */
-			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
-			break;
-		}
-	}
+	/* Weird flags specific to item. */
+	(*f1) |= o_ptr->flags1;
+	(*f2) |= o_ptr->flags2;
+	(*f3) |= o_ptr->flags3;
 }
 
 
@@ -1045,30 +1010,10 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	/* Full knowledge for *identified* objects */
 	if (!(o_ptr->ident & IDENT_MENTAL)) return;
 
-	/* Extra powers */
-	switch (o_ptr->xtra1)
-	{
-		case OBJECT_XTRA_TYPE_SUSTAIN:
-		{
-			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
-			break;
-		}
-
-		case OBJECT_XTRA_TYPE_RESIST:
-		{
-			/* OBJECT_XTRA_WHAT_RESIST == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
-			break;
-		}
-
-		case OBJECT_XTRA_TYPE_POWER:
-		{
-			/* OBJECT_XTRA_WHAT_POWER == 3 */
-			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
-			break;
-		}
-	}
+	/* Weird flags. */
+	(*f1) |= o_ptr->flags1;
+	(*f2) |= o_ptr->flags2;
+	(*f3) |= o_ptr->flags3;
 }
 
 
@@ -1081,16 +1026,22 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  * Print a char "c" into a string "t", as if by sprintf(t, "%c", c),
  * and return a pointer to the terminator (t + 1).
  */
-static char *object_desc_chr(char *t, char c)
+static char *object_desc_chr(char *t, int* len, char c)
 {
-	/* Copy the char */
-	*t++ = c;
+  /* Hack -- 80 char limit. */
+  if (*len >= 80) return (t);
 
-	/* Terminate */
-	*t = '\0';
+  /* Copy the char */
+  *t++ = c;
 
-	/* Result */
-	return (t);
+  /* Terminate */
+  *t = '\0';
+
+  /* Increase length. */
+  (*len)++;
+
+  /* Result */
+  return (t);
 }
 
 
@@ -1098,16 +1049,22 @@ static char *object_desc_chr(char *t, char c)
  * Print a string "s" into a string "t", as if by strcpy(t, s),
  * and return a pointer to the terminator.
  */
-static char *object_desc_str(char *t, cptr s)
+static char *object_desc_str(char *t, int* len, cptr s)
 {
-	/* Copy the string */
-	while (*s) *t++ = *s++;
+  /* Hack -- 80 char limit. */
+  if (*len >= 80) return (t);
 
-	/* Terminate */
-	*t = '\0';
+  /* Copy the string */
+  while (*s) {
+    *t++ = *s++;
+    (*len)++;
+  }
 
-	/* Result */
-	return (t);
+  /* Terminate */
+  *t = '\0';
+
+  /* Result */
+  return (t);
 }
 
 
@@ -1116,31 +1073,35 @@ static char *object_desc_str(char *t, cptr s)
  * Print an unsigned number "n" into a string "t", as if by
  * sprintf(t, "%u", n), and return a pointer to the terminator.
  */
-static char *object_desc_num(char *t, uint n)
+static char *object_desc_num(char *t, int* len, uint n)
 {
-	uint p;
+  uint p;
 
-	/* Find "size" of "n" */
-	for (p = 1; n >= p * 10; p = p * 10) /* loop */;
+  /* Hack -- 80 char limit. */
+  if (*len >= 80) return (t);
 
-	/* Dump each digit */
-	while (p >= 1)
-	{
-		/* Dump the digit */
-		*t++ = '0' + n / p;
+  /* Find "size" of "n" */
+  for (p = 1; n >= p * 10; p = p * 10) /* loop */;
 
-		/* Remove the digit */
-		n = n % p;
+  /* Dump each digit */
+  while (p >= 1) {
+    /* Dump the digit */
+    *t++ = '0' + n / p;
 
-		/* Process next digit */
-		p = p / 10;
-	}
+    (*len)++;
 
-	/* Terminate */
-	*t = '\0';
+    /* Remove the digit */
+    n = n % p;
 
-	/* Result */
-	return (t);
+    /* Process next digit */
+    p = p / 10;
+  }
+
+  /* Terminate */
+  *t = '\0';
+
+  /* Result */
+  return (t);
 }
 
 
@@ -1151,54 +1112,84 @@ static char *object_desc_num(char *t, uint n)
  * sprintf(t, "%+d", n), and return a pointer to the terminator.
  * Note that we always print a sign, either "+" or "-".
  */
-static char *object_desc_int(char *t, sint v)
+static char *object_desc_int(char *t, int* len, sint v)
 {
-	uint p, n;
+  uint p, n;
 
-	/* Negative */
-	if (v < 0)
-	{
-		/* Take the absolute value */
-		n = 0 - v;
+  /* Hack -- 80 char limit. */
+  if (*len >= 80) return (t);
 
-		/* Use a "minus" sign */
-		*t++ = '-';
-	}
+  /* Negative */
+  if (v < 0) {
+    /* Take the absolute value */
+    n = 0 - v;
 
-	/* Positive (or zero) */
-	else
-	{
-		/* Use the actual number */
-		n = v;
+    /* Use a "minus" sign */
+    *t++ = '-';
 
-		/* Use a "plus" sign */
-		*t++ = '+';
-	}
+    (*len)++;
+  }
 
-	/* Find "size" of "n" */
-	for (p = 1; n >= p * 10; p = p * 10) /* loop */;
+  /* Positive (or zero) */
+  else {
+    /* Use the actual number */
+    n = v;
 
-	/* Dump each digit */
-	while (p >= 1)
-	{
-		/* Dump the digit */
-		*t++ = '0' + n / p;
+    /* Use a "plus" sign */
+    *t++ = '+';
 
-		/* Remove the digit */
-		n = n % p;
+    (*len)++;
+  }
 
-		/* Process next digit */
-		p = p / 10;
-	}
+  /* Find "size" of "n" */
+  for (p = 1; n >= p * 10; p = p * 10) /* loop */;
 
-	/* Terminate */
-	*t = '\0';
+  /* Dump each digit */
+  while (p >= 1) {
+    /* Dump the digit */
+    *t++ = '0' + n / p;
 
-	/* Result */
-	return (t);
+    (*len)++;
+
+    /* Remove the digit */
+    n = n % p;
+
+    /* Process next digit */
+    p = p / 10;
+  }
+
+  /* Terminate */
+  *t = '\0';
+
+  /* Result */
+  return (t);
 }
 
 
+/*
+ * Return a short name for an equipment slot.
+ */
+cptr object_desc_slot_name(int i) {
+  cptr p;
+
+  switch (i) {
+  case EQUIP_WIELD: p = "Wield"; break;
+  case EQUIP_BOW:   p = "Shoot"; break;
+  case EQUIP_LEFT:  p = "Left"; break;
+  case EQUIP_RIGHT: p = "Right"; break;
+  case EQUIP_NECK:  p = "Neck"; break;
+  case EQUIP_LITE:  p = "Light"; break;
+  case EQUIP_BODY:  p = "Body"; break;
+  case EQUIP_OUTER: p = "Cloak"; break;
+  case EQUIP_ARM:   p = "Arm"; break;
+  case EQUIP_HEAD:  p = "Head"; break;
+  case EQUIP_HANDS: p = "Hands"; break;
+  case EQUIP_FEET:  p = "Feet"; break;
+  default:          p = "Bug"; break;
+  }
+
+  return p;
+}
 
 /*
  * Creates a description of the item "o_ptr", and stores it in "out_val".
@@ -1212,6 +1203,9 @@ static char *object_desc_int(char *t, sint v)
  * "no more Maces of Disruption (Defender) (+10,+10) [+5] (+3 to stealth)".
  * Note that the inscription will be clipped to keep the total description
  * under 79 chars (plus a terminator).
+ *
+ * Also note that the 80 char limit is strictly enforced by the code, by
+ * truncation if necessary.
  *
  * Note the use of "object_desc_num()" and "object_desc_int()" as hyper-efficient,
  * portable, versions of some common "sprintf()" commands.
@@ -1244,10 +1238,11 @@ static char *object_desc_int(char *t, sint v)
  *   1 -- The Cloak of Death [1,+3]
  *   2 -- The Cloak of Death [1,+3] (+2 to Stealth)
  *   3 -- The Cloak of Death [1,+3] (+2 to Stealth) {nifty}
+ *
  */
-void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
-{
-	cptr basenm, modstr;
+void object_desc(char *buf, object_type *o_ptr, int pref, int mode) {
+	cptr basenm, modstr, art_name; 
+	//static cptr mat_name;
 	int power, indexx;
 
 	bool aware = FALSE;
@@ -1257,6 +1252,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	bool show_weapon = FALSE;
 	bool show_armour = FALSE;
+	bool show_gold = FALSE;
 
 	cptr s, u;
 	char *t;
@@ -1269,13 +1265,43 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	u32b f1, f2, f3;
 
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	object_kind* k_ptr;
 
+	/* Save the "aware" flag */
+	bool hack_aware;
 
+	/* Save the "known" flag */
+	bool hack_known;
+
+	/* Current length of the description. */
+	int len = 1;
+
+	bool old_stuff = FALSE;
+
+	/* Ugly hack -- catch NULL items. */
+	if (!o_ptr) {
+	  strcpy(buf, "(nothing)");
+	  return;
+	}
+
+	hack_aware = k_info[o_ptr->k_idx].aware;
+	hack_known = (o_ptr->ident & (IDENT_KNOWN)) ? TRUE : FALSE;
+
+	/* Describe items in stores. */
+	if (o_ptr->world == WORLD_STORE) {
+	  /* Set the "known" flag */
+	  o_ptr->ident |= (IDENT_KNOWN);
+
+	  /* Force "aware" for description */
+	  k_info[o_ptr->k_idx].aware = TRUE;
+	}
+
+	k_ptr = &k_info[o_ptr->k_idx];
+			
 	/* Give silly desciptions for hallucinations */
 	if (p_ptr->image) {
-	  get_random_line("silly_it.txt", buf);
-	  return;
+	  strcpy(buf, get_random_line("silly_it.txt"));
+	  goto end;
 	}
 
 	/* Extract some flags */
@@ -1296,168 +1322,173 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	/* Assume no "modifier" string */
 	modstr = "";
+	
+	/* No artifact/ego item name. */
+	art_name = NULL;
 
+	/* No material name. */
+	mat_name = NULL;
 
 	/* Analyze the object */
 	switch (o_ptr->tval)
 	{
 			/* Some objects are easy to describe */
-		case TV_SKELETON:
-		case TV_BOTTLE:
-		case TV_JUNK:
-		case TV_SPIKE:
-		case TV_FLASK:
-		case TV_CHEST:
+	case TV_SKELETON:
+	case TV_BOTTLE:
+	case TV_JUNK:
+	case TV_SPIKE:
+	case TV_FLASK:
+	case TV_CHEST:
 	case TV_INGRED:
-		{
-			break;
-		}
+	  {
+	    break;
+	  }
 
 
-			/* Missiles/ Bows/ Weapons */
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_BOW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		{
-			show_weapon = TRUE;
-			break;
-		}
+	  /* Missiles/ Bows/ Weapons */
+	case TV_SHOT:
+	case TV_BOLT:
+	case TV_ARROW:
+	case TV_BOW:
+	case TV_HAFTED:
+	case TV_POLEARM:
+	case TV_SWORD:
+	case TV_DIGGING:
+	  {
+	    show_weapon = TRUE;
+	    break;
+	  }
+
+	  
+	  /* Armour */
+	case TV_BOOTS:
+	case TV_GLOVES:
+	case TV_CLOAK:
+	case TV_CROWN:
+	case TV_HELM:
+	case TV_SHIELD:
+	case TV_SOFT_ARMOR:
+	case TV_HARD_ARMOR:
+	case TV_DRAG_ARMOR:
+	  {
+	    show_armour = TRUE;
+	    break;
+	  }
 
 
-			/* Armour */
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_SHIELD:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		{
-			show_armour = TRUE;
-			break;
-		}
+	  /* Lites (including a few "Specials") */
+	case TV_LITE:
+	  {
+	    break;
+	  }
+
+	  
+	  /* Amulets (including a few "Specials") */
+	case TV_AMULET:
+	  {
+	    /* Known artifacts */
+	    if (artifact_p(o_ptr) && aware) break;
+	    
+	    /* Color the object */
+	    modstr = amulet_adj[indexx % MAX_AMULETS];
+	    if (aware) append_name = TRUE;
+	    basenm = aware ? "& Amulet~" : "& # Amulet~";
+	    break;
+	  }
 
 
-			/* Lites (including a few "Specials") */
-		case TV_LITE:
-		{
-			break;
-		}
+	  /* Rings (including a few "Specials") */
+	case TV_RING:
+	  {
+	    /* Known artifacts */
+	    if (artifact_p(o_ptr) && aware) break;
+
+	    /* Color the object */
+	    modstr = ring_adj[indexx % MAX_ROCKS];
+
+	    if (aware) append_name = TRUE;
+	    basenm = aware ? "& Ring~" : "& # Ring~";
+
+	    /* Hack -- The One Ring */
+	    if (!aware && (o_ptr->sval == SV_RING_POWER))
+	      modstr = "Plain Gold";
+
+	    break;
+	  }
 
 
-			/* Amulets (including a few "Specials") */
-		case TV_AMULET:
-		{
-			/* Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
+	case TV_STAFF:
+	  {
+	    /* Color the object */
+	    modstr = staff_adj[indexx % MAX_WOODS];
 
-			/* Color the object */
-			modstr = amulet_adj[indexx];
-			if (aware) append_name = TRUE;
-			basenm = aware ? "& Amulet~" : "& # Amulet~";
-			break;
-		}
+	    if (aware) append_name = TRUE;
+	    basenm = aware ? "& Staff~" : "& # Staff~";
+	    break;
+	  }
 
+	case TV_WAND:
+	  {
+	    /* Color the object */
+	    modstr = wand_adj[indexx % MAX_METALS];
 
-			/* Rings (including a few "Specials") */
-		case TV_RING:
-		{
-			/* Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
+	    if (aware) append_name = TRUE;
+	    basenm = aware ? "& Wand~" : "& # Wand~";
+	    break;
+	  }
 
-			/* Color the object */
-			modstr = ring_adj[indexx];
-			if (aware) append_name = TRUE;
-			basenm = aware ? "& Ring~" : "& # Ring~";
+	case TV_ROD:
+	  {
+	    /* Color the object */
+	    modstr = rod_adj[indexx % MAX_METALS];
 
-			/* Hack -- The One Ring */
-			if (!aware && (o_ptr->sval == SV_RING_POWER)) modstr = "Plain Gold";
+	    if (aware) append_name = TRUE;
+	    basenm = aware ? "& Rod~" : "& # Rod~";
 
-			break;
-		}
+	    break;
+	  }
 
+	case TV_SCROLL:
+	  {
+	    /* Color the object */
+	    modstr = scroll_adj[indexx % MAX_TITLES];
 
-		case TV_STAFF:
-		{
-			/* Color the object */
-			modstr = staff_adj[indexx];
-			if (aware) append_name = TRUE;
-			basenm = aware ? "& Staff~" : "& # Staff~";
-			break;
-		}
+	    if (aware) append_name = TRUE;
+	    basenm = aware ? "& Scroll~" : "& Scroll~ titled \"#\"";
+	    break;
+	  }
 
-		case TV_WAND:
-		{
-			/* Color the object */
-			modstr = wand_adj[indexx];
-			if (aware) append_name = TRUE;
-			basenm = aware ? "& Wand~" : "& # Wand~";
-			break;
-		}
+	case TV_POTION:
+	  {
+	    /* Color the object */
+	    modstr = potion_adj[indexx % MAX_COLORS];
 
-		case TV_ROD:
-		{
-			/* Color the object */
-			modstr = rod_adj[indexx];
-			if (aware) append_name = TRUE;
-			basenm = aware ? "& Rod~" : "& # Rod~";
-			break;
-		}
+	    if (aware) append_name = TRUE;
+	    basenm = aware ? "& Potion~" : "& # Potion~";
+	    break;
+	  }
+	  
+	case TV_FOOD:
+	  {
+	    /* Ordinary food is "boring" */
+	    if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
+	    
+	    /* Color the object */
+	    modstr = food_adj[indexx % MAX_SHROOM];
 
-		case TV_SCROLL:
-		{
-			/* Color the object */
-			modstr = scroll_adj[indexx];
-			if (aware) append_name = TRUE;
-			basenm = aware ? "& Scroll~" : "& Scroll~ titled \"#\"";
-			break;
-		}
-
-		case TV_POTION:
-		{
-			/* Color the object */
-		  if (indexx > SV_POTION_MORPH_HEAD &&
-		      indexx < SV_POTION_MORPH_TAIL) {
-
-		    modstr = potion_ss_adj[indexx-SV_POTION_MORPH_HEAD-1];
-		    if (aware) append_name = TRUE;
-		    basenm = aware ? "& Potion~" : "& # Potion~";
-		    break;
-		  } else {
-		    modstr = potion_adj[indexx];
-		    if (aware) append_name = TRUE;
-		    basenm = aware ? "& Potion~" : "& # Potion~";
-		    break;
-		  }
-		}
-
-		case TV_FOOD:
-		{
-			/* Ordinary food is "boring" */
-			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
-
-			/* Color the object */
-			modstr = food_adj[indexx];
-			if (aware) append_name = TRUE;
-			basenm = aware ? "& Mushroom~" : "& # Mushroom~";
-			break;
-		}
+	    if (aware) append_name = TRUE;
+	    basenm = aware ? "& Mushroom~" : "& # Mushroom~";
+	    break;
+	  }
 
 
-			/* Magic Books */
-		case TV_SPELLBOOK:
-		{
-			modstr = basenm;
-			basenm = "& Book~ of #";
-			break;
-		}
+	  /* Magic Books */
+	case TV_SPELLBOOK:
+	  {
+	    modstr = basenm;
+	    basenm = "& Book~ of #";
+	    break;
+	  }
 
 	case TV_MIMIC_BOOK:
 	  {
@@ -1473,31 +1504,72 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	    break;
 	  }
 
-	case TV_RANDART:
+	case TV_CORPSE:
 	  {
-	    if (known) {
-	      strcpy(buf, random_artifacts[indexx].name_full);
-	    } else {
-	      strcpy(buf, random_artifacts[indexx].name_short);
-	    }
-	    return;
+	    monster_race* r_ptr = &r_info[o_ptr->pval];
+
+	    modstr = r_name + r_ptr->name;
+	    break;
 	  }
 
-			/* Hack -- Gold/Gems */
-		case TV_GOLD:
-		{
-			strcpy(buf, basenm);
-			return;
-		}
+	case TV_RANDART:
+	  {
+	    modstr = basenm;
 
-			/* Used in the "inventory" routine */
-		default:
-		{
-			strcpy(buf, "(nothing)");
-			return;
-		}
+	    if (known) {
+	      basenm = random_artifacts[indexx].name_full;
+	    } else {
+	      basenm = random_artifacts[indexx].name_short;
+	    }
+	    break;
+	  }
+
+	  /* Hack -- Gold/Gems */
+	case TV_GOLD:
+	  {
+		  
+	    show_gold = TRUE;
+	    break;
+	  }
+
+	  /* Used in the "inventory" routine */
+	default:
+	  {
+	    strcpy(buf, "(nothing)");
+	    goto end;
+	  }
 	}
 
+
+	/* Put the artifact/ego name in the prefix. */
+	if (f1 & TR1_PREFIX_NAME) {
+
+	  /* Grab any artifact name */
+	  if (o_ptr->name1) {
+	    art_name = a_name + a_info[o_ptr->name1].name;
+	  }
+
+	  /* Grab any ego-item name */
+	  else if (o_ptr->name2) {
+	    art_name = e_name + e_info[o_ptr->name2].name;
+	  }
+	}
+
+
+	if (f1 & TR1_TRANSMUTE) {
+	  if (o_ptr->name2 && o_ptr->stuff != e_info[o_ptr->name2].stuff) {
+	    old_stuff = TRUE;
+	  }
+
+	} else {
+	  if (o_ptr->stuff != k_ptr->stuff) {
+	    old_stuff = TRUE;
+	  }
+	}
+
+	if (old_stuff) {
+	  mat_name = materials[o_ptr->stuff].name;
+	}
 
 	/* Start dumping the result */
 	t = buf;
@@ -1505,51 +1577,61 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* The object "expects" a "number" */
 	if (basenm[0] == '&')
 	{
-		/* Skip the ampersand (and space) */
-		s = basenm + 2;
+	  cptr first_word;
 
-		/* No prefix */
-		if (!pref)
-		{
-			/* Nothing */
-		}
+	  /* Skip the ampersand (and space) */
+	  s = basenm + 2;
 
-		/* Hack -- None left */
-		else if (o_ptr->number <= 0)
-		{
-			t = object_desc_str(t, "no more ");
-		}
+	  /* No prefix */
+	  if (!pref || k_ptr->flags3 & TR3_DESC_SIMPLE)
+	    {
+	      /* Nothing */
+	    }
 
-		/* Extract the number */
-		else if (o_ptr->number > 1)
-		{
-			t = object_desc_num(t, o_ptr->number);
-			t = object_desc_chr(t, ' ');
-		}
+	  /* Hack -- None left */
+	  else if (o_ptr->number <= 0)
+	    {
+	      t = object_desc_str(t, &len, "no more ");
+	    }
 
-		/* Hack -- The only one of its kind */
-		else if (known && artifact_p(o_ptr))
-		{
-			t = object_desc_str(t, "The ");
-		}
+	  /* Extract the number */
+	  else if (o_ptr->number > 1)
+	    {
+	      t = object_desc_num(t, &len, o_ptr->number);
+	      t = object_desc_chr(t, &len, ' ');
+	    }
 
-		/* A single one, with a vowel in the modifier */
-		else if ((*s == '#') && (is_a_vowel(modstr[0])))
-		{
-			t = object_desc_str(t, "an ");
-		}
+	  /* Hack -- The only one of its kind */
+	  else if (known && artifact_p(o_ptr))
+	    {
+	      t = object_desc_str(t, &len, "The ");
+	    }
 
-		/* A single one, with a vowel */
-		else if (is_a_vowel(*s))
-		{
-			t = object_desc_str(t, "an ");
-		}
+	  else {
 
-		/* A single one, without a vowel */
-		else
-		{
-			t = object_desc_str(t, "a ");
-		}
+	    /* Figure out what the first word in the desc. is going to be. */
+	    if (art_name) {
+	      first_word = art_name;
+	      
+	    } else if (mat_name) {
+	      first_word = mat_name;
+	      
+	    } else if (*s == '#') {
+	      first_word = modstr;
+	      
+	    } else {
+	      first_word = s;
+	    }
+
+	    /* The first letter is a vowel. */
+	    if (is_a_vowel(first_word[0])) {
+	      t = object_desc_str(t, &len, "an ");
+	      
+	    } else {
+	      t = object_desc_str(t, &len, "a ");
+	      
+	    }
+	  }
 	}
 
 	/* Hack -- objects that "never" take an article */
@@ -1559,7 +1641,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		s = basenm;
 
 		/* No pref */
-		if (!pref)
+		if (!pref  || k_ptr->flags3 & TR3_DESC_SIMPLE)
 		{
 			/* Nothing */
 		}
@@ -1567,20 +1649,20 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Hack -- all gone */
 		else if (o_ptr->number <= 0)
 		{
-			t = object_desc_str(t, "no more ");
+			t = object_desc_str(t, &len, "no more ");
 		}
 
 		/* Prefix a number if required */
 		else if (o_ptr->number > 1)
 		{
-			t = object_desc_num(t, o_ptr->number);
-			t = object_desc_chr(t, ' ');
+			t = object_desc_num(t, &len, o_ptr->number);
+			t = object_desc_chr(t, &len, ' ');
 		}
 
 		/* Hack -- The only one of its kind */
 		else if (known && artifact_p(o_ptr))
 		{
-			t = object_desc_str(t, "The ");
+			t = object_desc_str(t, &len, "The ");
 		}
 
 		/* Hack -- single items get no prefix */
@@ -1592,6 +1674,20 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	/* Paranoia -- skip illegal tildes */
 	/* while (*s == '~') s++; */
+
+
+	/* Copy the artifact/ego name. */
+	if (known && art_name) {
+	  t = object_desc_str(t, &len, art_name);
+	  t = object_desc_chr(t, &len, ' ');
+	}
+
+	/* Copy the material name. */
+	if (mat_name) {
+	  t = object_desc_str(t, &len, mat_name);
+	  t = object_desc_chr(t, &len, ' ');
+	}
+
 
 	/* Copy the string */
 	for (; *s; s++)
@@ -1636,21 +1732,21 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Append the "kind name" to the "base name" */
 	if (append_name)
 	{
-		t = object_desc_str(t, " of ");
-		t = object_desc_str(t, (k_name + k_ptr->name));
+		t = object_desc_str(t, &len, " of ");
+		t = object_desc_str(t, &len, (k_name + k_ptr->name));
 	}
 
 
 	/* Hack -- Append "Artifact" or "Special" names */
-	if (known)
+	if (known && !art_name)
 	{
 		/* Grab any artifact name */
 		if (o_ptr->name1)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-			t = object_desc_chr(t, ' ');
-			t = object_desc_str(t, (a_name + a_ptr->name));
+			t = object_desc_chr(t, &len, ' ');
+			t = object_desc_str(t, &len, (a_name + a_ptr->name));
 		}
 
 		/* Grab any ego-item name */
@@ -1658,14 +1754,39 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
-			t = object_desc_chr(t, ' ');
-			t = object_desc_str(t, (e_name + e_ptr->name));
+			t = object_desc_chr(t, &len, ' ');
+			t = object_desc_str(t, &len, (e_name + e_ptr->name));
 		}
 	}
 
 
+	/* Hack -- player is in a store. */
+	if (o_ptr->world == WORLD_STORE) show_gold = TRUE;
+
+	/* Hack -- show value. */
+	if (show_gold) {
+	  t = object_desc_str(t, &len, " (");
+	  t = object_desc_num(t, &len, object_store_value(o_ptr));
+	  t = object_desc_str(t, &len, " gp)");
+	}
+
+	/* Hack -- append equipment slot. */
+	if (o_ptr->stack == STACK_INVEN) {
+	  int foo;
+
+	  for (foo = 0; foo < EQUIP_MAX; foo++) {
+	    if (o_ptr == equipment[foo]) {
+	      
+	      t = object_desc_str(t, &len, " <");
+	      t = object_desc_str(t, &len, object_desc_slot_name(foo));
+	      t = object_desc_str(t, &len, ">");
+	      break;
+	    }
+	  }
+	}
+
 	/* No more details wanted */
-	if (mode < 1) return;
+	if (mode < 1) goto end;
 
 
 	/* Hack -- Chests must be described in detail */
@@ -1680,7 +1801,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* May be "empty" */
 		else if (!o_ptr->pval)
 		{
-			t = object_desc_str(t, " (empty)");
+			t = object_desc_str(t, &len, " (empty)");
 		}
 
 		/* May be "disarmed" */
@@ -1688,11 +1809,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			if (chest_traps[o_ptr->pval])
 			{
-				t = object_desc_str(t, " (disarmed)");
+				t = object_desc_str(t, &len, " (disarmed)");
 			}
 			else
 			{
-				t = object_desc_str(t, " (unlocked)");
+				t = object_desc_str(t, &len, " (unlocked)");
 			}
 		}
 
@@ -1704,42 +1825,42 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			{
 				case 0:
 				{
-					t = object_desc_str(t, " (Locked)");
+					t = object_desc_str(t, &len, " (Locked)");
 					break;
 				}
 				case CHEST_LOSE_STR:
 				{
-					t = object_desc_str(t, " (Poison Needle)");
+					t = object_desc_str(t, &len, " (Poison Needle)");
 					break;
 				}
 				case CHEST_LOSE_CON:
 				{
-					t = object_desc_str(t, " (Poison Needle)");
+					t = object_desc_str(t, &len, " (Poison Needle)");
 					break;
 				}
 				case CHEST_POISON:
 				{
-					t = object_desc_str(t, " (Gas Trap)");
+					t = object_desc_str(t, &len, " (Gas Trap)");
 					break;
 				}
 				case CHEST_PARALYZE:
 				{
-					t = object_desc_str(t, " (Gas Trap)");
+					t = object_desc_str(t, &len, " (Gas Trap)");
 					break;
 				}
 				case CHEST_EXPLODE:
 				{
-					t = object_desc_str(t, " (Explosion Device)");
+					t = object_desc_str(t, &len, " (Explosion Device)");
 					break;
 				}
 				case CHEST_SUMMON:
 				{
-					t = object_desc_str(t, " (Summoning Runes)");
+					t = object_desc_str(t, &len, " (Summoning Runes)");
 					break;
 				}
 				default:
 				{
-					t = object_desc_str(t, " (Multiple Traps)");
+					t = object_desc_str(t, &len, " (Multiple Traps)");
 					break;
 				}
 			}
@@ -1751,7 +1872,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	if (f3 & (TR3_SHOW_MODS)) show_weapon = TRUE;
 
 	/* Display the item like a weapon */
-	if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
+	if (o_ptr->to_h && o_ptr->to_d)
+	  show_weapon = TRUE;
 
 	/* Display the item like armour */
 	if (o_ptr->ac) show_armour = TRUE;
@@ -1775,12 +1897,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_DIGGING:
 		{
 			/* Append a "damage" string */
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_num(t, o_ptr->dd);
-			t = object_desc_chr(t, 'd');
-			t = object_desc_num(t, o_ptr->ds);
-			t = object_desc_chr(t, p2);
+			t = object_desc_chr(t, &len, ' ');
+			t = object_desc_chr(t, &len, p1);
+			t = object_desc_num(t, &len, o_ptr->dd);
+			t = object_desc_chr(t, &len, 'd');
+			t = object_desc_num(t, &len, o_ptr->ds);
+			t = object_desc_chr(t, &len, p2);
 
 			/* All done */
 			break;
@@ -1793,11 +1915,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			power = (o_ptr->sval % 10);
 
 			/* Append a "power" string */
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_chr(t, 'x');
-			t = object_desc_num(t, power);
-			t = object_desc_chr(t, p2);
+			t = object_desc_chr(t, &len, ' ');
+			t = object_desc_chr(t, &len, p1);
+			t = object_desc_chr(t, &len, 'x');
+			t = object_desc_num(t, &len, power);
+			t = object_desc_chr(t, &len, p2);
 
 			/* All done */
 			break;
@@ -1811,30 +1933,30 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Show the tohit/todam on request */
 		if (show_weapon)
 		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_int(t, o_ptr->to_h);
-			t = object_desc_chr(t, ',');
-			t = object_desc_int(t, o_ptr->to_d);
-			t = object_desc_chr(t, p2);
+		  t = object_desc_chr(t, &len, ' ');
+		  t = object_desc_chr(t, &len, p1);
+		  t = object_desc_int(t, &len, o_ptr->to_h);
+		  t = object_desc_chr(t, &len, ',');
+		  t = object_desc_int(t, &len, o_ptr->to_d);
+		  t = object_desc_chr(t, &len, p2);
 		}
 
 		/* Show the tohit if needed */
 		else if (o_ptr->to_h)
 		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_int(t, o_ptr->to_h);
-			t = object_desc_chr(t, p2);
+		  t = object_desc_chr(t, &len, ' ');
+		  t = object_desc_chr(t, &len, p1);
+		  t = object_desc_int(t, &len, o_ptr->to_h);
+		  t = object_desc_chr(t, &len, p2);
 		}
 
 		/* Show the todam if needed */
 		else if (o_ptr->to_d)
 		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_int(t, o_ptr->to_d);
-			t = object_desc_chr(t, p2);
+		  t = object_desc_chr(t, &len, ' ');
+		  t = object_desc_chr(t, &len, p1);
+		  t = object_desc_int(t, &len, o_ptr->to_d);
+		  t = object_desc_chr(t, &len, p2);
 		}
 	}
 
@@ -1845,36 +1967,37 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Show the armor class info */
 		if (show_armour)
 		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, b1);
-			t = object_desc_num(t, o_ptr->ac);
-			t = object_desc_chr(t, ',');
-			t = object_desc_int(t, o_ptr->to_a);
-			t = object_desc_chr(t, b2);
+		  t = object_desc_chr(t, &len, ' ');
+		  t = object_desc_chr(t, &len, b1);
+		  t = object_desc_num(t, &len, o_ptr->ac);
+		  t = object_desc_chr(t, &len, ',');
+		  t = object_desc_int(t, &len, o_ptr->to_a);
+		  t = object_desc_chr(t, &len, b2);
 		}
 
 		/* No base armor, but does increase armor */
 		else if (o_ptr->to_a)
 		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, b1);
-			t = object_desc_int(t, o_ptr->to_a);
-			t = object_desc_chr(t, b2);
+		  t = object_desc_chr(t, &len, ' ');
+		  t = object_desc_chr(t, &len, b1);
+		  t = object_desc_int(t, &len, o_ptr->to_a);
+		  t = object_desc_chr(t, &len, b2);
 		}
+
 	}
 
 	/* Hack -- always show base armor */
 	else if (show_armour)
 	{
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, b1);
-		t = object_desc_num(t, o_ptr->ac);
-		t = object_desc_chr(t, b2);
+		t = object_desc_chr(t, &len, ' ');
+		t = object_desc_chr(t, &len, b1);
+		t = object_desc_num(t, &len, o_ptr->ac);
+		t = object_desc_chr(t, &len, b2);
 	}
 
 
 	/* No more details wanted */
-	if (mode < 2) return;
+	if (mode < 2) goto end;
 
 
 	/* Hack -- Wands and Staffs have charges */
@@ -1883,114 +2006,155 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	     (o_ptr->tval == TV_WAND)))
 	{
 		/* Dump " (N charges)" */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
-		t = object_desc_num(t, o_ptr->pval);
-		t = object_desc_str(t, " charge");
-		if (o_ptr->pval != 1) t = object_desc_chr(t, 's');
-		t = object_desc_chr(t, p2);
+		t = object_desc_chr(t, &len, ' ');
+		t = object_desc_chr(t, &len, p1);
+		t = object_desc_num(t, &len, o_ptr->pval);
+		t = object_desc_str(t, &len, " charge");
+		if (o_ptr->pval != 1) t = object_desc_chr(t, &len, 's');
+		t = object_desc_chr(t, &len, p2);
 	}
 
-	/* Hack -- Rods have a "charging" indicator */
-	else if (known && (o_ptr->tval == TV_ROD))
-	{
-		/* Hack -- Dump " (charging)" if relevant */
-		if (o_ptr->pval) t = object_desc_str(t, " (charging)");
-	}
 
 	/* Hack -- Process Lanterns/Torches */
 	else if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
 	{
 		/* Hack -- Turns of light for normal lites */
-		t = object_desc_str(t, " (with ");
-		t = object_desc_num(t, o_ptr->pval);
-		t = object_desc_str(t, " turns of light)");
+		t = object_desc_str(t, &len, " (");
+		t = object_desc_num(t, &len, o_ptr->pval);
+		t = object_desc_str(t, &len, " turns)");
 	}
 
-
 	/* Dump "pval" flags for wearable items */
-	if (known && (f1 & (TR1_PVAL_MASK)))
+	if (known && (f1 & (TR1_PVAL_MASK) || f2 & (TR2_PVAL_MASK)))
 	{
 		/* Start the display */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
+		t = object_desc_chr(t, &len, ' ');
+		t = object_desc_chr(t, &len, p1);
 
 		/* Dump the "pval" itself */
-		t = object_desc_int(t, o_ptr->pval);
+		t = object_desc_int(t, &len, o_ptr->pval);
 
 		/* Do not display the "pval" flags */
 		if (f3 & (TR3_HIDE_TYPE))
 		{
 			/* Nothing */
-		}
+		} else {
 
-		/* Stealth */
-		else if (f1 & (TR1_STEALTH))
-		{
-			/* Dump " to stealth" */
-			t = object_desc_str(t, " to stealth");
-		}
+		  /* Ugly hack -- don't put leading comma. */
+		  bool leading_comma = TRUE;
 
-		/* Searching */
-		else if (f1 & (TR1_SEARCH))
-		{
-			/* Dump " to searching" */
-			t = object_desc_str(t, " to searching");
-		}
+		  if (f2 & (TR2_PLUS_TO_AC)) {
+		    if (leading_comma) {
+		      t = object_desc_str(t, &len, " to AC");
+		      leading_comma = FALSE;
 
-		/* Infravision */
-		else if (f1 & (TR1_INFRA))
-		{
-			/* Dump " to infravision" */
-			t = object_desc_str(t, " to infravision");
-		}
+		    } else {
+		      t = object_desc_str(t, &len, ", AC");
+		    }
+		  }
+
+		  if (f2 & (TR2_PLUS_TO_DAM)) {
+		    if (leading_comma) {
+		      t = object_desc_str(t, &len, " to damage");
+		      leading_comma = FALSE;
+
+		    } else {
+		      t = object_desc_str(t, &len, ", damage");
+		    }
+		  }
+		  
+		  if (f2 & (TR2_PLUS_TO_HIT)) {
+		    if (leading_comma) {
+		      t = object_desc_str(t, &len, " to accuracy");
+		      leading_comma = FALSE;
+
+		    } else {
+		      t = object_desc_str(t, &len, ", accuracy");
+		    }
+		  }
+
+		  /* Stealth */
+		  if (f1 & (TR1_STEALTH)) {
+		    if (leading_comma) {
+		      t = object_desc_str(t, &len, " to stealth");
+		      leading_comma = FALSE;
+
+		    } else {
+		      t = object_desc_str(t, &len, ", stealth");
+		    }
+		  }
+
+		  /* Searching */
+		  if (f1 & (TR1_SEARCH)) {
+		    if (leading_comma) {
+		      t = object_desc_str(t, &len, " to searching");
+		      leading_comma = FALSE;
+
+		    } else {
+		      t = object_desc_str(t, &len, ", searching");
+		    }
+		  }
+
+		  /* Infravision */
+		  if (f1 & (TR1_INFRA)){
+		    if (leading_comma) {
+		      t = object_desc_str(t, &len, " to infra");
+		      leading_comma = FALSE;
+
+		    } else {
+		      t = object_desc_str(t, &len, ", infra");
+		    }
+		  }
 
 #if 0
 
 		/* Tunneling */
-		else if (f1 & (TR1_TUNNEL))
-		{
-			/* Dump " to digging" */
-			t = object_desc_str(t, " to digging");
-		}
+		  if (f1 & (TR1_TUNNEL))
+		    /* Dump " to digging" */
+		    t = object_desc_str(t, &len, " to digging");
 
 #endif
 
 		/* Speed */
-		else if (f1 & (TR1_SPEED))
-		{
-			/* Dump " to speed" */
-			t = object_desc_str(t, " to speed");
-		}
+		  if (f1 & (TR1_SPEED)) {
+		    if (leading_comma) {
+		      t = object_desc_str(t, &len, " to speed");
+		      leading_comma = FALSE;
 
-		/* Blows */
-		else if (f1 & (TR1_BLOWS))
-		{
-			/* Add " attack" */
-			t = object_desc_str(t, " attack");
+		    } else {
+		      t = object_desc_str(t, &len, ", speed");
+		    }
+		  }
 
-			/* Add "attacks" */
-			if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
-		}
+		  /* Blows */
+		  if (f1 & (TR1_BLOWS)) {
+		    t = object_desc_str(t, &len, " attack");
+		    leading_comma = FALSE;
+
+		    /* Add "attacks" */
+		    if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, &len, 's');
+		  }
 
 #if 0
 
 		/* Shots */
-		else if (f1 & (TR1_SHOTS))
-		{
-			/* Nothing */
-		}
+		  if (f1 & (TR1_SHOTS))
+		    {
+		      /* Nothing */
+		    }
 
-		/* Might */
-		else if (f1 & (TR1_MIGHT))
-		{
-			/* Nothing */
-		}
+		  /* Might */
+		  if (f1 & (TR1_MIGHT))
+		    {
+		      /* Nothing */
+		    }
 
 #endif
 
+		}
+
 		/* Finish the display */
-		t = object_desc_chr(t, p2);
+		t = object_desc_chr(t, &len, p2);
 	}
 
 
@@ -1998,12 +2162,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	if (known && o_ptr->timeout)
 	{
 		/* Hack -- Dump " (charging)" if relevant */
-		t = object_desc_str(t, " (charging)");
+		t = object_desc_str(t, &len, " (charging)");
 	}
 
 
 	/* No more details wanted */
-	if (mode < 3) return;
+	if (mode < 3) goto end;
 
 
 	/* No inscription yet */
@@ -2036,30 +2200,30 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Note the discount, if any */
 	else if (o_ptr->discount)
 	{
-		object_desc_num(tmp_val, o_ptr->discount);
+		object_desc_num(tmp_val, &len, o_ptr->discount);
 		strcat(tmp_val, "% off");
 	}
 
 	/* Append the inscription, if any */
 	if (tmp_val[0])
 	{
-		int n;
-
-		/* Hack -- How much so far */
-		n = (t - buf);
-
-		/* Paranoia -- do not be stupid */
-		if (n > 75) n = 75;
-
-		/* Hack -- shrink the inscription */
-		tmp_val[75 - n] = '\0';
-
 		/* Append the inscription */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, c1);
-		t = object_desc_str(t, tmp_val);
-		t = object_desc_chr(t, c2);
+		t = object_desc_chr(t, &len, ' ');
+		t = object_desc_chr(t, &len, c1);
+		t = object_desc_str(t, &len, tmp_val);
+		t = object_desc_chr(t, &len, c2);
 	}
+
+
+ end:
+	if (o_ptr->world == WORLD_STORE) {
+	  /* Restore "aware" flag */
+	  k_info[o_ptr->k_idx].aware = hack_aware;
+	  
+	  /* Clear the known flag */
+	  if (!hack_known) o_ptr->ident &= ~(IDENT_KNOWN);
+	}
+
 }
 
 
@@ -2101,326 +2265,272 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
  * Determine the "Activation" (if any) for an artifact
  * Return a string, or NULL for "no activation"
  */
-cptr item_activation(object_type *o_ptr)
+bool item_activation(object_type *o_ptr, char* buff)
 {
 	u32b f1, f2, f3;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-	/* Require activation ability */
-	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
+	if (!(f3 & TR3_ACTIVATE)) return FALSE;
 
 	/* Random artifacts */
 	if (o_ptr->tval == TV_RANDART) {
-	  return t_act_names[random_artifacts[o_ptr->sval].tact];
-	}
+	  random_artifact* ra_ptr = &random_artifacts[o_ptr->sval];
+	  spell* s_ptr = &activations[ra_ptr->activation];
 
-	/* Some artifacts can be activated */
-	switch (o_ptr->name1)
-	{
-		case ART_NARTHANC:
-		{
-			return "fire bolt (9d8) every 8+d8 turns";
-		}
-		case ART_NIMTHANC:
-		{
-			return "frost bolt (6d8) every 7+d7 turns";
-		}
-		case ART_DETHANC:
-		{
-			return "lightning bolt (4d8) every 6+d6 turns";
-		}
-		case ART_RILIA:
-		{
-			return "stinking cloud (12) every 4+d4 turns";
-		}
-		case ART_BELANGIL:
-		{
-			return "frost ball (48) every 5+d5 turns";
-		}
-		case ART_DAL:
-		{
-			return "remove fear and cure poison every 5 turns";
-		}
-		case ART_RINGIL:
-		{
-			return "frost ball (100) every 300 turns";
-		}
-		case ART_ANDURIL:
-		{
-			return "fire ball (72) every 400 turns";
-		}
-		case ART_FIRESTAR:
-		{
-			return "large fire ball (72) every 100 turns";
-		}
-		case ART_FEANOR:
-		{
-			return "haste self (20+d20 turns) every 200 turns";
-		}
-		case ART_THEODEN:
-		{
-			return "drain life (120) every 400 turns";
-		}
-		case ART_TURMIL:
-		{
-			return "drain life (90) every 70 turns";
-		}
-		case ART_CASPANION:
-		{
-			return "door and trap destruction every 10 turns";
-		}
-		case ART_AVAVIR:
-		{
-			return "word of recall every 200 turns";
-		}
-		case ART_TARATOL:
-		{
-			return "haste self (20+d20 turns) every 100+d100 turns";
-		}
-		case ART_ERIRIL:
-		{
-			return "identify every 10 turns";
-		}
-		case ART_OLORIN:
-		{
-			return "probing every 20 turns";
-		}
-		case ART_EONWE:
-		{
-			return "mass genocide every 1000 turns";
-		}
-		case ART_LOTHARANG:
-		{
-			return "cure wounds (4d7) every 3+d3 turns";
-		}
-		case ART_CUBRAGOL:
-		{
-			return "fire branding of bolts every 999 turns";
-		}
-		case ART_ARUNRUTH:
-		{
-			return "frost bolt (12d8) every 500 turns";
-		}
-		case ART_AEGLOS:
-		{
-			return "frost ball (100) every 500 turns";
-		}
-		case ART_OROME:
-		{
-			return "stone to mud every 5 turns";
-		}
-		case ART_SOULKEEPER:
-		{
-			return "heal (1000) every 888 turns";
-		}
-		case ART_BELEGENNON:
-		{
-			return "phase door every 2 turns";
-		}
-		case ART_CELEBORN:
-		{
-			return "genocide every 500 turns";
-		}
-		case ART_LUTHIEN:
-		{
-			return "restore life levels every 450 turns";
-		}
-		case ART_ULMO:
-		{
-			return "teleport away every 150 turns";
-		}
-		case ART_COLLUIN:
-		{
-			return "resistance (20+d20 turns) every 111 turns";
-		}
-		case ART_HOLCOLLETH:
-		{
-			return "Sleep II every 55 turns";
-		}
-		case ART_THINGOL:
-		{
-			return "recharge item I every 70 turns";
-		}
-		case ART_COLANNON:
-		{
-			return "teleport every 45 turns";
-		}
-		case ART_TOTILA:
-		{
-			return "confuse monster every 15 turns";
-		}
-		case ART_CAMMITHRIM:
-		{
-			return "magic missile (2d6) every 2 turns";
-		}
-		case ART_PAURHACH:
-		{
-			return "fire bolt (9d8) every 8+d8 turns";
-		}
-		case ART_PAURNIMMEN:
-		{
-			return "frost bolt (6d8) every 7+d7 turns";
-		}
-		case ART_PAURAEGEN:
-		{
-			return "lightning bolt (4d8) every 6+d6 turns";
-		}
-		case ART_PAURNEN:
-		{
-			return "acid bolt (5d8) every 5+d5 turns";
-		}
-		case ART_FINGOLFIN:
-		{
-			return "a magical arrow (150) every 90+d90 turns";
-		}
-		case ART_HOLHENNETH:
-		{
-			return "detection every 55+d55 turns";
-		}
-		case ART_GONDOR:
-		{
-			return "heal (500) every 500 turns";
-		}
-		case ART_RAZORBACK:
-		{
-			return "star ball (150) every 1000 turns";
-		}
-		case ART_BLADETURNER:
-		{
-			return "berserk rage, bless, and resistance every 400 turns";
-		}
-		case ART_GALADRIEL:
-		{
-			return "illumination every 10+d10 turns";
-		}
-		case ART_ELENDIL:
-		{
-			return "magic mapping every 50+d50 turns";
-		}
-		case ART_THRAIN:
-		{
-			return "clairvoyance every 100+d100 turns";
-		}
-		case ART_INGWE:
-		{
-			return "dispel evil (x5) every 300+d300 turns";
-		}
-		case ART_CARLAMMAS:
-		{
-			return "protection from evil every 225+d225 turns";
-		}
-		case ART_TULKAS:
-		{
-			return "haste self (75+d75 turns) every 150+d150 turns";
-		}
-		case ART_NARYA:
-		{
-			return "large fire ball (120) every 225+d225 turns";
-		}
-		case ART_NENYA:
-		{
-			return "large frost ball (200) every 325+d325 turns";
-		}
-		case ART_VILYA:
-		{
-			return "large lightning ball (250) every 425+d425 turns";
-		}
-		case ART_POWER:
-		{
-			return "bizarre things every 450+d450 turns";
-		}
+	  sprintf(buff, "%s (%s) every %d or so turns.",
+		  s_ptr->name, s_ptr->desc, ra_ptr->level*5);
+
+	  return TRUE;
+
+	} else if (artifact_p(o_ptr)) {
+	  artifact_type* a_ptr = &a_info[o_ptr->name1];
+	  spell* s_ptr = &activations[a_ptr->activation];
+
+	  sprintf(buff, "%s (%s) every d%d+%d turns.",
+		  s_ptr->name, s_ptr->desc, a_ptr->timeout_rand,
+		  a_ptr->timeout_static);
+
+	  return TRUE;
+
+	} else {
+	  object_kind* k_ptr = &k_info[o_ptr->k_idx];
+	  spell* s_ptr = &activations[k_ptr->activation];
+
+	  sprintf(buff, "%s (%s) every d%d+%d turns.",
+	 	  s_ptr->name, s_ptr->desc, k_ptr->timeout_rand,
+		  k_ptr->timeout_static);
+
+	  return TRUE;
 	}
 
 
-	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
-
-	/* Branch on the sub-type */
-	switch (o_ptr->sval)
-	{
-		case SV_DRAGON_BLUE:
-		{
-			return "breathe lightning (100) every 450+d450 turns";
-		}
-		case SV_DRAGON_WHITE:
-		{
-			return "breathe frost (110) every 450+d450 turns";
-		}
-		case SV_DRAGON_BLACK:
-		{
-			return "breathe acid (130) every 450+d450 turns";
-		}
-		case SV_DRAGON_GREEN:
-		{
-			return "breathe poison gas (150) every 450+d450 turns";
-		}
-		case SV_DRAGON_RED:
-		{
-			return "breathe fire (200) every 450+d450 turns";
-		}
-		case SV_DRAGON_MULTIHUED:
-		{
-			return "breathe multi-hued (250) every 225+d225 turns";
-		}
-		case SV_DRAGON_BRONZE:
-		{
-			return "breathe confusion (120) every 450+d450 turns";
-		}
-		case SV_DRAGON_GOLD:
-		{
-			return "breathe sound (130) every 450+d450 turns";
-		}
-		case SV_DRAGON_CHAOS:
-		{
-			return "breathe chaos/disenchant (220) every 300+d300 turns";
-		}
-		case SV_DRAGON_LAW:
-		{
-			return "breathe sound/shards (230) every 300+d300 turns";
-		}
-		case SV_DRAGON_BALANCE:
-		{
-			return "You breathe balance (250) every 300+d300 turns";
-		}
-		case SV_DRAGON_SHINING:
-		{
-			return "breathe light/darkness (200) every 300+d300 turns";
-		}
-		case SV_DRAGON_POWER:
-		{
-			return "breathe the elements (300) every 300+d300 turns";
-		}
-	}
-
-
-	/* Oops */
-	return NULL;
+	return FALSE;
 }
+
+
+/*
+ * Describe damage status of an object for humans to see.
+ */
+cptr damage_status(object_type* o_ptr) {
+  int foo = (100*o_ptr->chp) / o_ptr->mhp;
+  int tv = o_ptr->tval;
+
+
+  if (foo >= 100) {
+    switch (tv) {
+    case TV_FOOD:
+    case TV_CORPSE:
+      return "fresh";
+
+    default:
+      return "undamaged";
+    }
+
+  } else if (foo >= 80) {
+    switch (tv) {
+    case TV_FOOD:
+    case TV_CORPSE:
+      return "a little stale";
+      
+    case TV_SKELETON:
+    case TV_BOTTLE:
+    case TV_JUNK:
+    case TV_CHEST:
+    case TV_LITE:
+    case TV_AMULET:
+    case TV_RING:
+    case TV_STAFF:
+    case TV_WAND:
+    case TV_ROD:
+    case TV_FLASK:
+      return "a little scratched";
+
+    case TV_SPELLBOOK:
+    case TV_SCROLL:
+    case TV_MIMIC_BOOK:
+    case TV_TEXT:
+      return "a little crumpled";
+
+    default:
+      return "slightly used";
+    }
+    
+  } else if (foo >= 60) {
+    switch (tv) {
+    case TV_FOOD:
+    case TV_CORPSE:
+      return "stale";
+
+    case TV_SKELETON:
+    case TV_BOTTLE:
+    case TV_JUNK:
+    case TV_CHEST:
+    case TV_LITE:
+    case TV_AMULET:
+    case TV_RING:
+    case TV_STAFF:
+    case TV_WAND:
+    case TV_ROD:
+    case TV_FLASK:
+      return "scratched";
+
+    case TV_SPELLBOOK:
+    case TV_SCROLL:
+    case TV_MIMIC_BOOK:
+    case TV_TEXT:
+      return "crumpled";
+
+    default:
+      return "a little scratched";
+    }
+    
+  } else if (foo >= 40) {
+    switch (tv) {
+    case TV_FOOD:
+    case TV_CORPSE:
+      return "a little rotten";
+      break;
+
+    case TV_SKELETON:
+    case TV_BOTTLE:
+    case TV_JUNK:
+    case TV_CHEST:
+    case TV_LITE:
+    case TV_AMULET:
+    case TV_RING:
+    case TV_STAFF:
+    case TV_WAND:
+    case TV_ROD:
+    case TV_FLASK:
+      return "greatly scratched";
+      
+    case TV_SPELLBOOK:
+    case TV_SCROLL:
+    case TV_MIMIC_BOOK:
+    case TV_TEXT:
+      return "a little ripped";
+
+    default:
+      return "dented";
+    }
+
+  } else if (foo >= 20) {
+    switch (tv) {
+    case TV_FOOD:
+    case TV_CORPSE:
+      return "rotten";
+
+    case TV_SPELLBOOK:
+    case TV_SCROLL:
+    case TV_MIMIC_BOOK:
+    case TV_TEXT:
+      return "ripped";
+
+    case TV_SKELETON:
+    case TV_BOTTLE:
+    case TV_JUNK:
+    case TV_CHEST:
+    case TV_LITE:
+    case TV_AMULET:
+    case TV_RING:
+    case TV_STAFF:
+    case TV_WAND:
+    case TV_ROD:
+    case TV_FLASK:
+      return "bent out of shape";
+
+    default:
+      return "damaged";
+    }
+
+  } else if (foo >= 0) {
+    switch (tv) {
+    case TV_FOOD:
+    case TV_CORPSE:
+      return "to be filled with maggots";
+
+    case TV_SPELLBOOK:
+    case TV_SCROLL:
+    case TV_MIMIC_BOOK:
+    case TV_TEXT:
+      return "ripped to shreds";
+
+    case TV_SKELETON:
+    case TV_BOTTLE:
+    case TV_JUNK:
+    case TV_CHEST:
+    case TV_LITE:
+    case TV_AMULET:
+    case TV_RING:
+    case TV_STAFF:
+    case TV_WAND:
+    case TV_ROD:
+    case TV_FLASK:
+      return "cracked in places";
+
+    default:
+      return "greatly damaged";
+    }
+  }
+
+  return NULL;
+}
+
+
+
+
 
 
 /*
  * Describe a "fully identified" item
  */
-bool identify_fully_aux(object_type *o_ptr)
+void identify_fully_aux(object_type *o_ptr)
 {
 	int i = 0, j, k;
 
 	u32b f1, f2, f3;
 
 	cptr info[128];
-
+	char buff[80];
+	char buff2[80];
+	char buff3[80];
+	cptr tmp;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 
+	/* Show material. */
+	sprintf(buff3, "%s %s made of %s.",
+		(o_ptr->number > 1 ? "They" : "It"),
+		(o_ptr->number > 1 ? "are" : "is"),
+		materials[o_ptr->stuff].made_of_name);
+
+	info[i++] = buff3;
+
+
+	/* Show damage status. */
+	tmp = damage_status(o_ptr);
+
+	if (tmp) {
+	  sprintf(buff2, "%s look%s %s.", 
+		  (o_ptr->number > 1 ? "They" : "It"),
+		  (o_ptr->number > 1 ? "" : "s"), 
+		  tmp);
+
+	  info[i++] = buff2;
+	}
+
+	if (!(o_ptr->ident & IDENT_MENTAL)) goto done;
+
+
 	/* Mega-Hack -- describe activation */
-	if (f3 & (TR3_ACTIVATE))
+	if (item_activation(o_ptr, buff))
 	{
 		info[i++] = "It can be activated for...";
-		info[i++] = item_activation(o_ptr);
+		info[i++] = buff;
 
 		/* Mega-hack -- get rid of useless line for randarts */
 		if (o_ptr->tval != TV_RANDART) {
@@ -2432,7 +2542,11 @@ bool identify_fully_aux(object_type *o_ptr)
 	/* Hack -- describe lite's */
 	if (o_ptr->tval == TV_LITE)
 	{
-		if (artifact_p(o_ptr))
+	  if (o_ptr->sval == SV_LITE_UNDEATH) {
+	    info[i++] = "It provides no light whatsoever.";
+	  }
+
+	  else if (artifact_p(o_ptr))
 		{
 			info[i++] = "It provides light (radius 3) forever.";
 		}
@@ -2445,7 +2559,6 @@ bool identify_fully_aux(object_type *o_ptr)
 			info[i++] = "It provides light (radius 1) when fueled.";
 		}
 	}
-
 
 	/* And then describe it fully */
 
@@ -2505,6 +2618,18 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f1 & (TR1_MIGHT))
 	{
 		info[i++] = "It affects your shooting power.";
+	}
+
+	if (f2 & (TR2_PLUS_TO_AC)) {
+	  info[i++] = "It affects your armor class.";
+	}
+
+	if (f2 & (TR2_PLUS_TO_DAM)) {
+	  info[i++] = "It affects your weapon deadliness.";
+	}
+
+	if (f2 & (TR2_PLUS_TO_HIT)) {
+	  info[i++] = "It affects your weapon accuracy.";
 	}
 
 	if (f1 & (TR1_SLAY_ANIMAL))
@@ -2744,7 +2869,7 @@ bool identify_fully_aux(object_type *o_ptr)
 	}
 
 	if (f3 & (TR3_MUNCHKINISH)) {
-	  info[i++] = "It grants Godly powers.";
+	  info[i++] = "It grants ghostly powers.";
 	}
 
 	if (f3 & (TR3_WEIRD_ATTACK)) {
@@ -2785,27 +2910,7 @@ bool identify_fully_aux(object_type *o_ptr)
 		}
 	}
 
-	if (f3 & (TR3_IGNORE_ACID))
-	{
-		info[i++] = "It cannot be harmed by acid.";
-	}
-	if (f3 & (TR3_IGNORE_ELEC))
-	{
-		info[i++] = "It cannot be harmed by electricity.";
-	}
-	if (f3 & (TR3_IGNORE_FIRE))
-	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & (TR3_IGNORE_COLD))
-	{
-		info[i++] = "It cannot be harmed by cold.";
-	}
-
-
-	/* No special effects */
-	if (!i) return (FALSE);
-
+ done:
 
 	/* Save the screen */
 	Term_save();
@@ -2847,198 +2952,134 @@ bool identify_fully_aux(object_type *o_ptr)
 	Term_load();
 
 	/* Gave knowledge */
-	return (TRUE);
+	return;
 }
 
 
 
-/*
- * Convert an inventory index into a one character label
- * Note that the label does NOT distinguish inven/equip.
- */
-s16b index_to_label(int i)
-{
-	/* Indexes for "inven" are easy */
-	if (i < INVEN_WIELD) return (I2A(i));
-
-	/* Indexes for "equip" are offset */
-	return (I2A(i - INVEN_WIELD));
-}
-
-
-/*
- * Convert a label into the index of an item in the "inven"
- * Return "-1" if the label does not indicate a real item
- */
-s16b label_to_inven(int c)
-{
-	int i;
-
-	/* Convert */
-	i = (islower(c) ? A2I(c) : -1);
-
-	/* Verify the index */
-	if ((i < 0) || (i > INVEN_PACK)) return (-1);
-
-	/* Empty slots can never be chosen */
-	if (!inventory[i].k_idx) return (-1);
-
-	/* Return the index */
-	return (i);
-}
-
-
-/*
- * Convert a label into the index of a item in the "equip"
- * Return "-1" if the label does not indicate a real item
- */
-s16b label_to_equip(int c)
-{
-	int i;
-
-	/* Convert */
-	i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
-
-	/* Verify the index */
-	if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return (-1);
-
-	/* Empty slots can never be chosen */
-	if (!inventory[i].k_idx) return (-1);
-
-	/* Return the index */
-	return (i);
-}
 
 
 
 /*
  * Determine which equipment slot (if any) an item likes
  */
-s16b wield_slot(object_type *o_ptr)
-{
-	/* Slot for equipment */
-	switch (o_ptr->tval)
-	{
-		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		{
-			return (INVEN_WIELD);
-		}
+s16b wield_slot(object_type *o_ptr) {
+  /* Slot for equipment */
+  switch (o_ptr->tval) {
+  case TV_DIGGING:
+  case TV_HAFTED:
+  case TV_POLEARM:
+  case TV_SWORD:
+    {
+      return (EQUIP_WIELD);
+    }
 
-		case TV_BOW:
-		{
-			return (INVEN_BOW);
-		}
+  case TV_BOW:
+    {
+      return (EQUIP_BOW);
+    }
 
-		case TV_RING:
-		{
-			/* Use the right hand first */
-			if (!inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT);
+  case TV_RING:
+    {
+      /* Use the right hand first */
+      if (!equipment[EQUIP_RIGHT]) return (EQUIP_RIGHT);
 
-			/* Use the left hand for swapping (by default) */
-			return (INVEN_LEFT);
-		}
+      /* Use the left hand for swapping (by default) */
+      return (EQUIP_LEFT);
+    }
 
-		case TV_AMULET:
-		{
-			return (INVEN_NECK);
-		}
+  case TV_AMULET:
+    {
+      return (EQUIP_NECK);
+    }
 
-		case TV_LITE:
-		{
-			return (INVEN_LITE);
-		}
+  case TV_LITE:
+    {
+      return (EQUIP_LITE);
+    }
 
-		case TV_DRAG_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR:
-		{
-			return (INVEN_BODY);
-		}
+  case TV_DRAG_ARMOR:
+  case TV_HARD_ARMOR:
+  case TV_SOFT_ARMOR:
+    {
+      return (EQUIP_BODY);
+    }
 
-		case TV_CLOAK:
-		{
-			return (INVEN_OUTER);
-		}
+  case TV_CLOAK:
+    {
+      return (EQUIP_OUTER);
+    }
 
-		case TV_SHIELD:
-		{
-			return (INVEN_ARM);
-		}
+  case TV_SHIELD:
+    {
+      return (EQUIP_ARM);
+    }
 
-		case TV_CROWN:
-		case TV_HELM:
-		{
-			return (INVEN_HEAD);
-		}
+  case TV_CROWN:
+  case TV_HELM:
+    {
+      return (EQUIP_HEAD);
+    }
 
-		case TV_GLOVES:
-		{
-			return (INVEN_HANDS);
-		}
+  case TV_GLOVES:
+    {
+      return (EQUIP_HANDS);
+    }
 
-		case TV_BOOTS:
-		{
-			return (INVEN_FEET);
-		}
-	}
+  case TV_BOOTS:
+    {
+      return (EQUIP_FEET);
+    }
+  }
 
-	/* No slot available */
-	return (-1);
+  /* No slot available */
+  return (-1);
 }
 
 
 /*
  * Return a string mentioning how a given item is carried
  */
-cptr mention_use(int i)
-{
-	cptr p;
+cptr mention_use(int i) {
+  cptr p;
 
-	/* Examine the location */
-	switch (i)
-	{
-		case INVEN_WIELD: p = "Wielding"; break;
-		case INVEN_BOW:   p = "Shooting"; break;
-		case INVEN_LEFT:  p = "On left hand"; break;
-		case INVEN_RIGHT: p = "On right hand"; break;
-		case INVEN_NECK:  p = "Around neck"; break;
-		case INVEN_LITE:  p = "Light source"; break;
-		case INVEN_BODY:  p = "On body"; break;
-		case INVEN_OUTER: p = "About body"; break;
-		case INVEN_ARM:   p = "On arm"; break;
-		case INVEN_HEAD:  p = "On head"; break;
-		case INVEN_HANDS: p = "On hands"; break;
-		case INVEN_FEET:  p = "On feet"; break;
-		default:          p = "In pack"; break;
-	}
+  /* Examine the location */
+  switch (i) {
+  case EQUIP_WIELD: p = "Wielding"; break;
+  case EQUIP_BOW:   p = "Shooting"; break;
+  case EQUIP_LEFT:  p = "On left hand"; break;
+  case EQUIP_RIGHT: p = "On right hand"; break;
+  case EQUIP_NECK:  p = "Around neck"; break;
+  case EQUIP_LITE:  p = "Light source"; break;
+  case EQUIP_BODY:  p = "On body"; break;
+  case EQUIP_OUTER: p = "About body"; break;
+  case EQUIP_ARM:   p = "On arm"; break;
+  case EQUIP_HEAD:  p = "On head"; break;
+  case EQUIP_HANDS: p = "On hands"; break;
+  case EQUIP_FEET:  p = "On feet"; break;
+  default:          p = "Software Bug"; break;
+  }
 
-	/* Hack -- Heavy weapon */
-	if (i == INVEN_WIELD)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "Just lifting";
-		}
-	}
+  /* Hack -- Heavy weapon */
+  if (i == EQUIP_WIELD) {
+    object_type* o_ptr = equipment[i];
 
-	/* Hack -- Heavy bow */
-	if (i == INVEN_BOW)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "Just holding";
-		}
-	}
+    if (o_ptr && adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight/10) {
+      p = "Just lifting";
+    }
+  }
 
-	/* Return the result */
-	return (p);
+  /* Hack -- Heavy bow */
+  if (i == EQUIP_BOW) {
+    object_type* o_ptr = equipment[i];
+
+    if (o_ptr && adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight/10) {
+      p = "Just holding";
+    }
+  }
+
+  /* Return the result */
+  return (p);
 }
 
 
@@ -3046,547 +3087,299 @@ cptr mention_use(int i)
  * Return a string describing how a given item is being worn.
  * Currently, only used for items in the equipment, not inventory.
  */
-cptr describe_use(int i)
-{
-	cptr p;
+cptr describe_use(int i) {
+  cptr p;
 
-	switch (i)
-	{
-		case INVEN_WIELD: p = "attacking monsters with"; break;
-		case INVEN_BOW:   p = "shooting missiles with"; break;
-		case INVEN_LEFT:  p = "wearing on your left hand"; break;
-		case INVEN_RIGHT: p = "wearing on your right hand"; break;
-		case INVEN_NECK:  p = "wearing around your neck"; break;
-		case INVEN_LITE:  p = "using to light the way"; break;
-		case INVEN_BODY:  p = "wearing on your body"; break;
-		case INVEN_OUTER: p = "wearing on your back"; break;
-		case INVEN_ARM:   p = "wearing on your arm"; break;
-		case INVEN_HEAD:  p = "wearing on your head"; break;
-		case INVEN_HANDS: p = "wearing on your hands"; break;
-		case INVEN_FEET:  p = "wearing on your feet"; break;
-		default:          p = "carrying in your pack"; break;
-	}
+  switch (i) {
+  case EQUIP_WIELD: p = "attacking monsters with"; break;
+  case EQUIP_BOW:   p = "shooting missiles with"; break;
+  case EQUIP_LEFT:  p = "wearing on your left hand"; break;
+  case EQUIP_RIGHT: p = "wearing on your right hand"; break;
+  case EQUIP_NECK:  p = "wearing around your neck"; break;
+  case EQUIP_LITE:  p = "using to light the way"; break;
+  case EQUIP_BODY:  p = "wearing on your body"; break;
+  case EQUIP_OUTER: p = "wearing on your back"; break;
+  case EQUIP_ARM:   p = "wearing on your arm"; break;
+  case EQUIP_HEAD:  p = "wearing on your head"; break;
+  case EQUIP_HANDS: p = "wearing on your hands"; break;
+  case EQUIP_FEET:  p = "wearing on your feet"; break;
+  default:          p = "debugging with"; break;
+  }
 
-	/* Hack -- Heavy weapon */
-	if (i == INVEN_WIELD)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "just lifting";
-		}
-	}
+  /* Hack -- Heavy weapon */
+  if (i == EQUIP_WIELD) {
+    object_type* o_ptr = equipment[i];
 
-	/* Hack -- Heavy bow */
-	if (i == INVEN_BOW)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "just holding";
-		}
-	}
+    if (o_ptr && adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight/10) {
+      p = "just lifting";
+    }
+  }
 
-	/* Return the result */
-	return p;
+  /* Hack -- Heavy bow */
+  if (i == EQUIP_BOW) {
+    object_type* o_ptr = equipment[i];
+
+    if (o_ptr && adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight/10) {
+      p = "just holding";
+    }
+  }
+
+  /* Return the result */
+  return p;
 }
-
-
 
 
 
 /*
  * Check an item against the item tester info
  */
-bool item_tester_okay(object_type *o_ptr)
-{
-	/* Hack -- allow listing empty slots */
-	if (item_tester_full) return (TRUE);
+bool item_tester_okay(object_type *o_ptr) {
+  /* Hack -- allow listing empty slots */
+  if (item_tester_full) return (TRUE);
 
-	/* Require an item */
-	if (!o_ptr->k_idx) return (FALSE);
+  /* Require an item */
+  if (!o_ptr->k_idx) return (FALSE);
 
-	/* Hack -- ignore "gold" */
-	if (o_ptr->tval == TV_GOLD) return (FALSE);
+  /* Check the tval */
+  if (item_tester_tval) {
+    if (!(item_tester_tval == o_ptr->tval)) return (FALSE);
+  }
 
-	/* Check the tval */
-	if (item_tester_tval)
-	{
-		if (!(item_tester_tval == o_ptr->tval)) return (FALSE);
-	}
+  /* Check the hook */
+  if (item_tester_hook) {
+    if (!(*item_tester_hook)(o_ptr)) return (FALSE);
+  }
 
-	/* Check the hook */
-	if (item_tester_hook)
-	{
-		if (!(*item_tester_hook)(o_ptr)) return (FALSE);
-	}
-
-	/* Assume okay */
-	return (TRUE);
-}
-
-
-
-
-/*
- * Choice window "shadow" of the "show_inven()" function
- */
-void display_inven(void)
-{
-	register int i, n, z = 0;
-
-	object_type *o_ptr;
-
-	byte attr = TERM_WHITE;
-
-	char tmp_val[80];
-
-	char o_name[80];
-
-
-	/* Find the "final" slot */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Track */
-		z = i + 1;
-	}
-
-	/* Display the pack */
-	for (i = 0; i < z; i++)
-	{
-		/* Examine the item */
-		o_ptr = &inventory[i];
-
-		/* Start with an empty "index" */
-		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
-
-		/* Is this item "acceptable"? */
-		if (item_tester_okay(o_ptr))
-		{
-			/* Prepare an "index" */
-			tmp_val[0] = index_to_label(i);
-
-			/* Bracket the "index" --(-- */
-			tmp_val[1] = ')';
-		}
-
-		/* Display the index (or blank space) */
-		Term_putstr(0, i, 3, TERM_WHITE, tmp_val);
-
-		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3);
-
-		/* Obtain the length of the description */
-		n = strlen(o_name);
-
-		/* Acquire inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
-
-		/* Disable inventory colors */
-		if (!inventory_colors) attr = TERM_WHITE;
-
-		/* Display the entry itself */
-		Term_putstr(3, i, n, attr, o_name);
-
-		/* Erase the rest of the line */
-		Term_erase(3+n, i, 255);
-
-		/* Display the weight if needed */
-		if (show_weights && o_ptr->weight)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			Term_putstr(71, i, -1, TERM_WHITE, tmp_val);
-		}
-	}
-
-	/* Erase the rest of the window */
-	for (i = z; i < Term->hgt; i++)
-	{
-		/* Erase the line */
-		Term_erase(0, i, 255);
-	}
+  /* Assume okay */
+  return (TRUE);
 }
 
 
 
 /*
- * Choice window "shadow" of the "show_equip()" function
- */
-void display_equip(void)
-{
-	register int i, n;
-	object_type *o_ptr;
-	byte attr = TERM_WHITE;
-
-	char tmp_val[80];
-
-	char o_name[80];
-
-
-	/* Display the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-	{
-		/* Examine the item */
-		o_ptr = &inventory[i];
-
-		/* Start with an empty "index" */
-		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
-
-		/* Is this item "acceptable"? */
-		if (item_tester_okay(o_ptr))
-		{
-			/* Prepare an "index" */
-			tmp_val[0] = index_to_label(i);
-
-			/* Bracket the "index" --(-- */
-			tmp_val[1] = ')';
-		}
-
-		/* Display the index (or blank space) */
-		Term_putstr(0, i - INVEN_WIELD, 3, TERM_WHITE, tmp_val);
-
-		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3);
-
-		/* Obtain the length of the description */
-		n = strlen(o_name);
-
-		/* Acquire inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
-
-		/* Disable inventory colors */
-		if (!inventory_colors) attr = TERM_WHITE;
-
-		/* Display the entry itself */
-		Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
-
-		/* Erase the rest of the line */
-		Term_erase(3+n, i - INVEN_WIELD, 255);
-
-		/* Display the slot description (if needed) */
-		if (show_labels)
-		{
-			Term_putstr(61, i - INVEN_WIELD, -1, TERM_WHITE, "<--");
-			Term_putstr(65, i - INVEN_WIELD, -1, TERM_WHITE, mention_use(i));
-		}
-
-		/* Display the weight (if needed) */
-		if (show_weights && o_ptr->weight)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			int col = (show_labels ? 52 : 71);
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			Term_putstr(col, i - INVEN_WIELD, -1, TERM_WHITE, tmp_val);
-		}
-	}
-
-	/* Erase the rest of the window */
-	for (i = INVEN_TOTAL - INVEN_WIELD; i < Term->hgt; i++)
-	{
-		/* Clear that line */
-		Term_erase(0, i, 255);
-	}
-}
-
-
-
-
-
-
-/*
- * Display the inventory.
+ * Return the size of the stack, using ``item_tester_tval'' and 
+ * ``item_tester_hook''.
  *
- * Hack -- do not display "trailing" empty slots
+ * If ``glob'' is true, use the global list instead of the local one.
  */
-void show_inven(void)
-{
-	int i, j, k, l, z = 0;
-	int col, len, lim;
+s16b size_stack(object_type* stack, bool glob) {
+  object_type* o_ptr;
+  int ret = 0;
 
-	object_type *o_ptr;
+  /* Find the maximum line length. */
+  for (o_ptr = stack; o_ptr != NULL; 
+       o_ptr = (glob ? o_ptr->next_global : o_ptr->next)) {
 
-	char o_name[80];
+    /* Is this item acceptable? */
+    if (item_tester_okay(o_ptr)) ret++;
+  }
 
-	char tmp_val[80];
-
-	int out_index[23];
-	byte out_color[23];
-	char out_desc[23][80];
-
-
-	/* Default length */
-	len = 79 - 50;
-
-	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
-
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
-
-
-	/* Find the "final" slot */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Track */
-		z = i + 1;
-	}
-
-	/* Display the inventory */
-	for (k = 0, i = 0; i < z; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Is this item acceptable? */
-		if (!item_tester_okay(o_ptr)) continue;
-
-		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
-
-		/* Hack -- enforce max length */
-		o_name[lim] = '\0';
-
-		/* Save the index */
-		out_index[k] = i;
-
-		/* Acquire inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
-
-		/* Disable inventory colors */
-		if (!inventory_colors) out_color[k] = TERM_WHITE;
-
-		/* Save the object description */
-		strcpy(out_desc[k], o_name);
-
-		/* Find the predicted "line length" */
-		l = strlen(out_desc[k]) + 5;
-
-		/* Be sure to account for the weight */
-		if (show_weights) l += 9;
-
-		/* Maintain the maximum length */
-		if (l > len) len = l;
-
-		/* Advance to next "line" */
-		k++;
-	}
-
-	/* Find the column to start in */
-	col = (len > 76) ? 0 : (79 - len);
-
-	/* Output each entry */
-	for (j = 0; j < k; j++)
-	{
-		/* Get the index */
-		i = out_index[j];
-
-		/* Get the item */
-		o_ptr = &inventory[i];
-
-		/* Clear the line */
-		prt("", j + 1, col ? col - 2 : col);
-
-		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(i));
-
-		/* Clear the line with the (possibly indented) index */
-		put_str(tmp_val, j + 1, col);
-
-		/* Display the entry itself */
-		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
-
-		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + 1, 71);
-		}
-	}
-
-	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+  return ret;
 }
 
-
-
 /*
- * Display the equipment.
+ * Print a stack of items to the screen.
+ *
+ * ``item_tester_tval'' and ``item_tester_hook'' will be used to filter
+ * the stack.
+ *
+ * If ``glob'' is true, then show the global list instead of the local one.
  */
-void show_equip(void)
-{
-	int i, j, k, l;
-	int col, len, lim;
 
-	object_type *o_ptr;
+void show_stack(object_type* stack, bool glob) {
 
-	char tmp_val[80];
+  object_type *o_ptr;
 
-	char o_name[80];
+  int i, len, lim, l;
 
-	int out_index[23];
-	byte out_color[23];
-	char out_desc[23][80];
+  char tmp_val[80];
+  char o_name[80];
+  char o_n_buff[23][80];
 
+  /* Maximum space allowed for descriptions */
+  lim = 79 - 3;
 
-	/* Default length */
-	len = 79 - 50;
+  /* Require space for weight (if needed) */
+  if (show_weights) lim -= 9;
 
-	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+  i = 0;
+  len = 0;
 
-	/* Require space for labels (if needed) */
-	if (show_labels) lim -= (14 + 2);
+  /* Find the maximum line length. */
+  for (o_ptr = stack; o_ptr != NULL; 
+       o_ptr = (glob ? o_ptr->next_global : o_ptr->next)) {
 
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+    /* Is this item acceptable? */
+    if (!item_tester_okay(o_ptr)) continue;
 
-	/* Scan the equipment list */
-	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-	{
-		o_ptr = &inventory[i];
+    /* Ran out of screen space. */
+    if (i == 22) break;
 
-		/* Is this item acceptable? */
-		if (!item_tester_okay(o_ptr)) continue;
+    /* Describe the object */
+    object_desc(o_name, o_ptr, TRUE, 3);
 
-		/* Description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+    /* Hack -- enforce max length */
+    o_name[lim] = '\0';
 
-		/* Truncate the description */
-		o_name[lim] = 0;
+    strcpy(o_n_buff[i], o_name);
 
-		/* Save the index */
-		out_index[k] = i;
+    /* Find the predicted "line length" */
+    if (!glob) {
+      l = strlen(o_name) + 5;
 
-		/* Acquire inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+      /* Be sure to account for the weight */
+      if (show_weights) l += 9;
 
-		/* Disable inventory colors */
-		if (!inventory_colors) out_color[k] = TERM_WHITE;
+      /* Maintain the maximum length */
+      if (l > len) len = l;
+    }
 
-		/* Save the description */
-		strcpy(out_desc[k], o_name);
+    i++;
+  }
 
-		/* Extract the maximal length (see below) */
-		l = strlen(out_desc[k]) + (2 + 3);
+  /* Find the column to start in */
+  len = (len > 76) ? 0 : (79 - len);
 
-		/* Increase length for labels (if needed) */
-		if (show_labels) l += (14 + 2);
+  i = 0;
 
-		/* Increase length for weight (if needed) */
-		if (show_weights) l += 9;
+  /* Actually output the stack. */
+  for (o_ptr = stack; o_ptr != NULL; 
+       o_ptr = (glob ? o_ptr->next_global : o_ptr->next)) {
+    
+    /* Is this item acceptable? */
+    if (!item_tester_okay(o_ptr)) continue;
 
-		/* Maintain the max-length */
-		if (l > len) len = l;
+    /* Ran out of screen space. */
+    if (i == 22) break;
 
-		/* Advance the entry */
-		k++;
-	}
+    /* Paranoia. */
+    if (o_ptr->stack == STACK_INVEN && !o_ptr->tag) {
+      o_ptr->tag = next_tag();
+    }
 
-	/* Hack -- Find a column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+    /* Prepare an index --(-- */
+    sprintf(tmp_val, " %c) ", 
+	    ((o_ptr->stack == STACK_INVEN && conserve_slots) ? 
+	      o_ptr->tag : I2A(i)));
 
-	/* Output each entry */
-	for (j = 0; j < k; j++)
-	{
-		/* Get the index */
-		i = out_index[j];
+    /* Clear the line with the (possibly indented) index */
+    prt(tmp_val, i+1, (glob ? 0 : len));
 
-		/* Get the item */
-		o_ptr = &inventory[i];
+    /* Display the entry itself */
+    c_put_str(tval_to_attr[o_ptr->tval & 0x7F], 
+	      o_n_buff[i], i + 1, 
+	      (glob ? 4 : len + 4));
 
-		/* Clear the line */
-		prt("", j + 1, col ? col - 2 : col);
+    /* Display the weight if needed */
+    if (show_weights) {
+      int wgt = o_ptr->weight / o_ptr->number;
+      sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+      put_str(tmp_val, i + 1, 71);
+    }
 
-		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(i));
+    i++;
+  }
 
-		/* Clear the line with the (possibly indented) index */
-		put_str(tmp_val, j+1, col);
-
-		/* Use labels */
-		if (show_labels)
-		{
-			/* Mention the use */
-			sprintf(tmp_val, "%-14s: ", mention_use(i));
-			put_str(tmp_val, j+1, col + 3);
-
-			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, col + 3 + 14 + 2);
-		}
-
-		/* No labels */
-		else
-		{
-			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, col + 3);
-		}
-
-		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j+1, 71);
-		}
-	}
-
-	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+  /* Make a "shadow" below the list. */
+  prt("", i + 1, (glob ? 1 : len));
 }
 
 
 
 
 /*
- * Flip "inven" and "equip" in any sub-windows
+ * Print the player's equipment to the screen.
  */
-void toggle_inven_equip(void)
-{
-	int j;
 
-	/* Scan windows */
-	for (j = 0; j < 8; j++)
-	{
-		/* Unused */
-		if (!angband_term[j]) continue;
+void show_equip(void) {
+  
+  object_type *o_ptr;
 
-		/* Flip inven to equip */
-		if (op_ptr->window_flag[j] & (PW_INVEN))
-		{
-			/* Flip flags */
-			op_ptr->window_flag[j] &= ~(PW_INVEN);
-			op_ptr->window_flag[j] |= (PW_EQUIP);
+  int i, len, lim, l;
 
-			/* Window stuff */
-			p_ptr->window |= (PW_EQUIP);
-		}
+  char tmp_val[80];
+  char o_name[80];
+  char o_n_buff[23][80];
 
-		/* Flip inven to equip */
-		else if (op_ptr->window_flag[j] & (PW_EQUIP))
-		{
-			/* Flip flags */
-			op_ptr->window_flag[j] &= ~(PW_EQUIP);
-			op_ptr->window_flag[j] |= (PW_INVEN);
+  byte attr;
 
-			/* Window stuff */
-			p_ptr->window |= (PW_INVEN);
-		}
-	}
+  /* Maximum space allowed for descriptions */
+  lim = 79 - 3;
+
+  /* Require space for labels (if needed) */
+  if (show_labels) lim -= (14 + 2);
+
+  /* Require space for weight (if needed) */
+  if (show_weights) lim -= 9;
+
+  i = 0;
+  len = 0;
+
+  /* Find the maximum line length. */
+  for (i = 0; i < EQUIP_MAX; i++) {
+
+    o_ptr = equipment[i];
+
+    /* Describe the object */
+    object_desc(o_name, o_ptr, TRUE, 3);
+    
+    /* Hack -- enforce max length */
+    o_name[lim] = '\0';
+
+    strcpy(o_n_buff[i], o_name);
+
+    /* Find the predicted "line length" */
+    l = strlen(o_name) + 5;
+
+    /* Increase length for labels (if needed) */
+    if (show_labels) l += (14 + 2);
+
+    /* Be sure to account for the weight */
+    if (show_weights) l += 9;
+
+    /* Maintain the maximum length */
+    if (l > len) len = l;
+  }
+
+  /* Find the column to start in */
+  len = (len > 76) ? 0 : (79 - len);
+
+  /* Output the equipment. */
+  for (i = 0; i < EQUIP_MAX; i++) {
+
+    o_ptr = equipment[i];
+    
+    if (o_ptr) {
+      attr = tval_to_attr[o_ptr->tval & 0x7F];
+    } else {
+      attr = TERM_WHITE;
+    }
+
+    /* Display the entry itself */
+    if (show_labels) {
+      /* Mention the use */
+      sprintf(tmp_val, " %-14s: ", mention_use(i));
+      prt(tmp_val, i+1, len);
+
+      /* Display the entry itself */
+      c_put_str(attr, o_n_buff[i], i+1, len + 17);
+
+    } else {
+      prt("", i+1, len);
+      c_prt(attr, o_n_buff[i], i+1, len+1);
+    }
+
+    /* Display the weight if needed */
+    if (show_weights && o_ptr) {
+      int wgt = o_ptr->weight / o_ptr->number;
+      sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+      put_str(tmp_val, i + 1, 71);
+    }
+  }
+
+  /* Make a "shadow" below the list. */
+  prt("", i + 1, len);
 }
-
 
 
 /*
@@ -3594,99 +3387,48 @@ void toggle_inven_equip(void)
  *
  * The item can be negative to mean "item on floor".
  */
-static bool verify(cptr prompt, int item)
-{
-	char o_name[80];
+static bool verify(cptr prompt, object_type* o_ptr) {
+  char o_name[80];
 
-	char out_val[160];
+  char out_val[160];
 
-	object_type *o_ptr;
+  /* Describe */
+  object_desc(o_name, o_ptr, TRUE, 3);
 
-	/* Inventory */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+  /* Prompt */
+  sprintf(out_val, "%s %s? ", prompt, o_name);
 
-	/* Floor */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Describe */
-	object_desc(o_name, o_ptr, TRUE, 3);
-
-	/* Prompt */
-	sprintf(out_val, "%s %s? ", prompt, o_name);
-
-	/* Query */
-	return (get_check(out_val));
+  /* Query */
+  return (get_check(out_val));
 }
 
 
 /*
  * Hack -- allow user to "prevent" certain choices
- *
- * The item can be negative to mean "item on floor".
  */
-static bool get_item_allow(int item)
-{
-	cptr s;
+static bool get_item_allow(object_type* o_ptr) {
+  cptr s;
 
-	object_type *o_ptr;
+  /* No inscription */
+  if (!o_ptr->note) return (TRUE);
 
-	/* Inventory */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+  /* Find a '!' */
+  s = strchr(quark_str(o_ptr->note), '!');
 
-	/* Floor */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+  /* Process preventions */
+  while (s) {
+    /* Check the "restriction" */
+    if ((s[1] == p_ptr->command_cmd) || (s[1] == '*')) {
+      /* Verify the choice */
+      if (!verify("Really try", o_ptr)) return (FALSE);
+    }
 
-	/* No inscription */
-	if (!o_ptr->note) return (TRUE);
+    /* Find another '!' */
+    s = strchr(s + 1, '!');
+  }
 
-	/* Find a '!' */
-	s = strchr(quark_str(o_ptr->note), '!');
-
-	/* Process preventions */
-	while (s)
-	{
-		/* Check the "restriction" */
-		if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
-		{
-			/* Verify the choice */
-			if (!verify("Really try", item)) return (FALSE);
-		}
-
-		/* Find another '!' */
-		s = strchr(s + 1, '!');
-	}
-
-	/* Allow it */
-	return (TRUE);
-}
-
-
-
-/*
- * Auxiliary function for "get_item()" -- test an index
- */
-static bool get_item_okay(int i)
-{
-	/* Illegal items */
-	if ((i < 0) || (i >= INVEN_TOTAL)) return (FALSE);
-
-	/* Verify the item */
-	if (!item_tester_okay(&inventory[i])) return (FALSE);
-
-	/* Assume okay */
-	return (TRUE);
+  /* Allow it */
+  return (TRUE);
 }
 
 
@@ -3700,59 +3442,107 @@ static bool get_item_okay(int i)
  * Also, the tag "@xn" will work as well, where "n" is a tag-char,
  * and "x" is the "current" p_ptr->command_cmd code.
  */
-static int get_tag(int *cp, char tag)
-{
-	int i;
-	cptr s;
+static object_type* get_tag(char tag) {
+  cptr s;
 
+  object_type* o_ptr;
 
-	/* Check every object */
-	for (i = 0; i < INVEN_TOTAL; ++i)
-	{
-		object_type *o_ptr = &inventory[i];
+  for (o_ptr = inventory; o_ptr != NULL; o_ptr = o_ptr->next) {
 
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+    /* Skip non-objects */
+    if (!o_ptr->k_idx) continue;
 
-		/* Skip empty inscriptions */
-		if (!o_ptr->note) continue;
+    /* Skip empty inscriptions */
+    if (!o_ptr->note) continue;
 
-		/* Find a '@' */
-		s = strchr(quark_str(o_ptr->note), '@');
+    /* Find a '@' */
+    s = strchr(quark_str(o_ptr->note), '@');
 
-		/* Process all tags */
-		while (s)
-		{
-			/* Check the normal tags */
-			if (s[1] == tag)
-			{
-				/* Save the actual inventory ID */
-				*cp = i;
+    /* Process all tags */
+    while (s) {
+      /* Check the normal tags */
+      if (s[1] == tag) {
+	/* Success */
+	return o_ptr;
+      }
 
-				/* Success */
-				return (TRUE);
-			}
+      /* Check the special tags */
+      if ((s[1] == p_ptr->command_cmd) && (s[2] == tag)) {
+	/* Success */
+	return o_ptr;
+      }
 
-			/* Check the special tags */
-			if ((s[1] == p_ptr->command_cmd) && (s[2] == tag))
-			{
-				/* Save the actual inventory ID */
-				*cp = i;
+      /* Find another '@' */
+      s = strchr(s + 1, '@');
+    }
+  }
 
-				/* Success */
-				return (TRUE);
-			}
-
-			/* Find another '@' */
-			s = strchr(s + 1, '@');
-		}
-	}
-
-	/* No such tag */
-	return (FALSE);
+  /* No such tag */
+  return NULL;
 }
 
 
+/*
+ * Helper function that actually gets an item from the inventory
+ * stack, with a few parameters.
+ */
+object_type* get_item_aux(object_type* o_ptr, object_type** stack,
+			  int mode) {
+  object_type* ret = NULL;
+
+  /* Paranoia. */
+  if (o_ptr == NULL) return NULL;
+
+  /* Allow player to "refuse" certain actions */
+  if (!get_item_allow(o_ptr)) {
+    return NULL;
+  }
+
+  if (o_ptr->number > 1 && (mode & USE_REMOVE)) {
+
+    /* Paranoia. */
+    if (!tval_can_stack(o_ptr->tval)) {
+      mode &= ~(USE_BY_PARTS);
+      mode |= USE_JUST_ONE;
+    }
+
+    /* Try to unabsorb the items. */
+    if (mode & USE_BY_PARTS) {
+      int num;
+
+      prt("", 0, 0);
+      num = get_quantity("How many? ", o_ptr->number);
+
+      if (num) {
+	ret = object_unabsorb(o_ptr, num);
+
+      } else {
+	return NULL;
+      }
+
+    } else if (mode & USE_JUST_ONE) {
+      ret = object_unabsorb(o_ptr, 1);
+    }
+  }
+
+  /* Restore the screen. 
+   * This should be done here in case remove_from_stack() wants to
+   * modify the screen.
+   */
+  Term_load();
+
+  /* Either no attempt at unabsorbtion was made, or the unabsorbtion
+   * failed. (i.e. All or none of the items were selected.) */
+  if (ret == NULL) {
+    ret = o_ptr;
+
+    if (mode & USE_REMOVE) 
+      remove_from_stack(ret);
+  }
+
+  return ret;
+}
+  
 
 /*
  * Let the user select an item, save its "index"
@@ -3806,491 +3596,94 @@ static int get_tag(int *cp, char tag)
  *
  * Note that "Term_save()" / "Term_load()" blocks must not overlap.
  */
-bool get_item(int *cp, cptr pmt, cptr str, int mode)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
 
-	s16b this_o_idx, next_o_idx = 0;
+object_type* get_item(cptr prompt, cptr str, int y, int x, int mode) {
+  
+  object_type* stack = NULL;
+  object_type* s_aux = NULL;
+  object_type* ret = NULL;
+  int size_aux, size_main;
+  int which;
+  char tmp_val[80];
 
-	char n1, n2, which = ' ';
 
-	int j, k, i1, i2, e1, e2;
+  if (mode & USE_INVEN) {
+    s16b m_idx = cave_m_idx[y][x];
 
-	bool ver, done, item;
+    if (m_idx < 0) {
+      stack = inventory;
 
-	bool oops = FALSE;
+    } else if (m_idx > 0) {
+      stack = m_list[m_idx].inventory;
+    }
+  }
 
-	bool equip = FALSE;
-	bool inven = FALSE;
-	bool floor = FALSE;
+  if (mode & USE_FLOOR) {
+    if (stack) {
+      s_aux = cave_o_idx[y][x];
+    } else {
+      stack = cave_o_idx[y][x];
+    }
+  }
 
-	bool allow_floor = FALSE;
+  size_aux = size_stack(s_aux, FALSE);
+  size_main = size_stack(stack, FALSE);
 
-	bool toggle = FALSE;
+  if (size_main == 0) {
 
-	char tmp_val[160];
-	char out_val[160];
+    if (size_aux == 0) {
+      mprint(MSG_TEMP, str);
 
+      /* Forget the item_tester_tval restriction */
+      item_tester_tval = 0;
 
-	/* Extract args */
-	if (mode & (USE_EQUIP)) equip = TRUE;
-	if (mode & (USE_INVEN)) inven = TRUE;
-	if (mode & (USE_FLOOR)) floor = TRUE;
+      /* Forget the item_tester_hook restriction */
+      item_tester_hook = NULL;
+      return NULL;
+    }
 
+    size_main = size_aux;
+    stack = s_aux;
 
-	/* Paranoia XXX XXX XXX */
-	msg_print(NULL);
+    size_aux = 0;
+    s_aux = NULL;
+  }
 
 
-	/* Not done */
-	done = FALSE;
+  Term_save();
 
-	/* No item selected */
-	item = FALSE;
+  show_stack(stack, FALSE);
 
+  if (size_aux == 0) {
+    s_aux = NULL;
+  }
 
-	/* Full inventory */
-	i1 = 0;
-	i2 = INVEN_PACK - 1;
+  sprintf(tmp_val, "%s: (%s%stotal weight %d.%1d)", 
+	  prompt, 
+	  (size_main > 23 ? "plus/minus to scroll, " : ""),
+	  (s_aux ? "slash for floor, " : ""), 
+	  p_ptr->total_weight/10, p_ptr->total_weight%10);
 
-	/* Forbid inventory */
-	if (!inven) i2 = -1;
+  /* Show the prompt */
+  prt(tmp_val, 0, 0);
 
-	/* Restrict inventory indexes */
-	while ((i1 <= i2) && (!get_item_okay(i1))) i1++;
-	while ((i1 <= i2) && (!get_item_okay(i2))) i2--;
 
+  while (ret == NULL) {
 
-	/* Full equipment */
-	e1 = INVEN_WIELD;
-	e2 = INVEN_TOTAL - 1;
+    /* Get a key 
+     * Hack -- Auto-select if there's only one possible choice. */
+    if (other_query_flag && size_main == 1) {
+      which = '\n';
+    } else {
+      which = inkey();
+    }  
 
-	/* Forbid equipment */
-	if (!equip) e2 = -1;
-
-	/* Restrict equipment indexes */
-	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
-	while ((e1 <= e2) && (!get_item_okay(e2))) e2--;
-
-
-	/* Restrict floor usage */
-	if (floor)
-	{
-		/* Scan all objects in the grid */
-		for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
-		{
-			object_type *o_ptr;
-
-			/* Acquire object */
-			o_ptr = &o_list[this_o_idx];
-
-			/* Acquire next object */
-			next_o_idx = o_ptr->next_o_idx;
-
-			/* Accept the item on the floor if legal */
-			if (item_tester_okay(o_ptr)) allow_floor = TRUE;
-		}
-	}
-
-
-	/* Require at least one legal choice */
-	if (!allow_floor && (i1 > i2) && (e1 > e2))
-	{
-		/* Cancel p_ptr->command_see */
-		p_ptr->command_see = FALSE;
-
-		/* Oops */
-		oops = TRUE;
-
-		/* Done */
-		done = TRUE;
-	}
-
-	/* Analyze choices */
-	else
-	{
-		/* Hack -- Start on equipment if requested */
-		if (p_ptr->command_see && p_ptr->command_wrk && equip)
-		{
-			p_ptr->command_wrk = TRUE;
-		}
-
-		/* Use inventory if allowed */
-		else if (inven)
-		{
-			p_ptr->command_wrk = FALSE;
-		}
-
-		/* Use equipment if allowed */
-		else if (equip)
-		{
-			p_ptr->command_wrk = TRUE;
-		}
-
-		/* Use inventory for floor */
-		else
-		{
-			p_ptr->command_wrk = FALSE;
-		}
-	}
-
-
-	/* Hack -- start out in "display" mode */
-	if (p_ptr->command_see) Term_save();
-
-
-	/* Repeat until done */
-	while (!done)
-	{
-		/* Show choices */
-		if (show_choices)
-		{
-			int ni = 0;
-			int ne = 0;
-
-			/* Scan windows */
-			for (j = 0; j < 8; j++)
-			{
-				/* Unused */
-				if (!angband_term[j]) continue;
-
-				/* Count windows displaying inven */
-				if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
-
-				/* Count windows displaying equip */
-				if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
-			}
-
-			/* Toggle if needed */
-			if ((p_ptr->command_wrk && ni && !ne) ||
-			    (!p_ptr->command_wrk && !ni && ne))
-			{
-				/* Toggle */
-				toggle_inven_equip();
-
-				/* Track toggles */
-				toggle = !toggle;
-			}
-
-			/* Update */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-			/* Redraw windows */
-			window_stuff();
-		}
-
-		/* Inventory screen */
-		if (!p_ptr->command_wrk)
-		{
-			/* Extract the legal requests */
-			n1 = I2A(i1);
-			n2 = I2A(i2);
-
-			/* Redraw if needed */
-			if (p_ptr->command_see) show_inven();
-		}
-
-		/* Equipment screen */
-		else
-		{
-			/* Extract the legal requests */
-			n1 = I2A(e1 - INVEN_WIELD);
-			n2 = I2A(e2 - INVEN_WIELD);
-
-			/* Redraw if needed */
-			if (p_ptr->command_see) show_equip();
-		}
-
-		/* Viewing inventory */
-		if (!p_ptr->command_wrk)
-		{
-			/* Begin the prompt */
-			sprintf(out_val, "Inven:");
-
-			/* Some legal items */
-			if (i1 <= i2)
-			{
-				/* Build the prompt */
-				sprintf(tmp_val, " %c-%c,",
-				        index_to_label(i1), index_to_label(i2));
-
-				/* Append */
-				strcat(out_val, tmp_val);
-			}
-
-			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) strcat(out_val, " * to see,");
-
-			/* Append */
-			if (equip) strcat(out_val, " / for Equip,");
-		}
-
-		/* Viewing equipment */
-		else
-		{
-			/* Begin the prompt */
-			sprintf(out_val, "Equip:");
-
-			/* Some legal items */
-			if (e1 <= e2)
-			{
-				/* Build the prompt */
-				sprintf(tmp_val, " %c-%c,",
-				        index_to_label(e1), index_to_label(e2));
-
-				/* Append */
-				strcat(out_val, tmp_val);
-			}
-
-			/* Indicate ability to "view" */
-			if (!p_ptr->command_see) strcat(out_val, " * to see,");
-
-			/* Append */
-			if (inven) strcat(out_val, " / for Inven,");
-		}
-
-		/* Indicate legality of the "floor" item */
-		if (allow_floor) strcat(out_val, " - for floor,");
-
-		/* Finish the prompt */
-		strcat(out_val, " ESC");
-
-		/* Build the prompt */
-		sprintf(tmp_val, "(%s) %s", out_val, pmt);
-
-		/* Show the prompt */
-		prt(tmp_val, 0, 0);
-
-
-		/* Get a key */
-		which = inkey();
-
-		/* Parse it */
-		switch (which)
-		{
-			case ESCAPE:
-			{
-				done = TRUE;
-				break;
-			}
-
-			case '*':
-			case '?':
-			case ' ':
-			{
-				/* Show/hide the list */
-				if (!p_ptr->command_see)
-				{
-					Term_save();
-					p_ptr->command_see = TRUE;
-				}
-				else
-				{
-					Term_load();
-					p_ptr->command_see = FALSE;
-				}
-				break;
-			}
-
-			case '/':
-			{
-				/* Verify legality */
-				if (!inven || !equip)
-				{
-					bell();
-					break;
-				}
-
-				/* Fix screen */
-				if (p_ptr->command_see)
-				{
-					Term_load();
-					Term_save();
-				}
-
-				/* Switch inven/equip */
-				p_ptr->command_wrk = !p_ptr->command_wrk;
-
-				/* Need to redraw */
-				break;
-			}
-
-			case '-':
-			{
-				/* Use floor item */
-				if (allow_floor)
-				{
-					/* Scan all objects in the grid */
-					for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
-					{
-						object_type *o_ptr;
-
-						/* Acquire object */
-						o_ptr = &o_list[this_o_idx];
-
-						/* Acquire next object */
-						next_o_idx = o_ptr->next_o_idx;
-
-						/* Validate the item */
-						if (!item_tester_okay(o_ptr)) continue;
-
-						/* Special index */
-						k = 0 - this_o_idx;
-
-						/* Verify the item (if required) */
-						if (other_query_flag && !verify("Try", k)) continue;
-
-						/* Allow player to "refuse" certain actions */
-						if (!get_item_allow(k)) continue;
-
-						/* Accept that choice */
-						(*cp) = k;
-						item = TRUE;
-						done = TRUE;
-						break;
-					}
-
-					/* Outer break */
-					if (done) break;
-				}
-
-				/* Oops */
-				bell();
-				break;
-			}
-
-			case '0':
-			case '1': case '2': case '3':
-			case '4': case '5': case '6':
-			case '7': case '8': case '9':
-			{
-				/* Look up the tag */
-				if (!get_tag(&k, which))
-				{
-					bell();
-					break;
-				}
-
-				/* Hack -- Validate the item */
-				if ((k < INVEN_WIELD) ? !inven : !equip)
-				{
-					bell();
-					break;
-				}
-
-				/* Validate the item */
-				if (!get_item_okay(k))
-				{
-					bell();
-					break;
-				}
-
-				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(k))
-				{
-					done = TRUE;
-					break;
-				}
-
-				/* Accept that choice */
-				(*cp) = k;
-				item = TRUE;
-				done = TRUE;
-				break;
-			}
-
-			case '\n':
-			case '\r':
-			{
-				/* Choose "default" inventory item */
-				if (!p_ptr->command_wrk)
-				{
-					k = ((i1 == i2) ? i1 : -1);
-				}
-
-				/* Choose "default" equipment item */
-				else
-				{
-					k = ((e1 == e2) ? e1 : -1);
-				}
-
-				/* Validate the item */
-				if (!get_item_okay(k))
-				{
-					bell();
-					break;
-				}
-
-				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(k))
-				{
-					done = TRUE;
-					break;
-				}
-
-				/* Accept that choice */
-				(*cp) = k;
-				item = TRUE;
-				done = TRUE;
-				break;
-			}
-
-			default:
-			{
-				/* Extract "query" setting */
-				ver = isupper(which);
-				if (ver) which = tolower(which);
-
-				/* Convert letter to inventory index */
-				if (!p_ptr->command_wrk)
-				{
-					k = label_to_inven(which);
-				}
-
-				/* Convert letter to equipment index */
-				else
-				{
-					k = label_to_equip(which);
-				}
-
-				/* Validate the item */
-				if (!get_item_okay(k))
-				{
-					bell();
-					break;
-				}
-
-				/* Verify the item */
-				if (ver && !verify("Try", k))
-				{
-					done = TRUE;
-					break;
-				}
-
-				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(k))
-				{
-					done = TRUE;
-					break;
-				}
-
-				/* Accept that choice */
-				(*cp) = k;
-				item = TRUE;
-				done = TRUE;
-				break;
-			}
-		}
-	}
-
-
+    switch (which) {
+      
+    case ESCAPE:
+      {
 	/* Fix the screen if necessary */
-	if (p_ptr->command_see) Term_load();
-
-	/* Hack -- Cancel "display" */
-	p_ptr->command_see = FALSE;
-
+	Term_load();
 
 	/* Forget the item_tester_tval restriction */
 	item_tester_tval = 0;
@@ -4298,30 +3691,172 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
 
+	return NULL;
+	break;
+      }
 
-	/* Clean up */
-	if (show_choices)
-	{
-		/* Toggle again if needed */
-		if (toggle) toggle_inven_equip();
+    case '/':
+      {
+	if (s_aux) {
+	  object_type* tmp = stack;
+	  int stmp = size_main;
 
-		/* Update */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	  stack = s_aux;
+	  s_aux = tmp;
+	  
+	  size_main = size_aux;
+	  size_aux = stmp;
 
-		/* Window stuff */
-		window_stuff();
+	  Term_load();
+
+	  show_stack(stack, FALSE);
+
+	  sprintf(tmp_val, "%s: (%s%stotal weight %d.%1d)", 
+		  prompt, 
+		  (size_main > 23 ? "plus/minus to scroll, " : ""),
+		  (s_aux ? "slash for floor, " : ""), 
+		  p_ptr->total_weight/10, p_ptr->total_weight%10);
+
+	  /* Show the prompt */
+	  prt(tmp_val, 0, 0);
+
+	} else {
+	  bell();
 	}
 
+	break;
+      }
 
-	/* Clear the prompt line */
-	prt("", 0, 0);
+    case '-':
+    case '+':
+    case '=':
+      {
+	if (size_main > 23) {
+	  object_type* foo = stack;
+	  int bar = 0;
 
-	/* Warning if needed */
-	if (oops && str) msg_print(str);
+	  while (foo != NULL && 
+		 (bar < 1 || !item_tester_okay(foo))) {
 
-	/* Result */
-	return (item);
+	    if (which == '-') {
+	      foo = foo->prev;
+	    } else {
+	      foo = foo->next;
+	    }
+
+	    bar++;
+	  }
+
+	  if (foo == NULL) {
+	    bell();
+
+	  } else {
+	    Term_load();
+
+	    stack = foo;
+
+	    show_stack(stack, FALSE);
+
+	    /* Show the prompt */
+	    prt(tmp_val, 0, 0);
+	  }
+
+	} else {
+	  bell();
+	}
+
+	break;
+      }
+
+    case '0': case '1': case '2': case '3': case '4': 
+    case '5': case '6': case '7': case '8': case '9':
+      {
+	/* Look up the tag */
+	object_type* foo = get_tag(which);
+
+	if (!foo) {
+	  bell();
+	  break;
+	}
+      
+	/* Validate the item */
+	if (!item_tester_okay(foo)) {
+	  bell();
+	  break;
+	}
+
+	ret = get_item_aux(foo, &stack, mode);
+	break;
+      }
+
+    case '\n':
+    case '\r':
+      {
+	object_type* foo = NULL;
+
+	for (foo = stack; foo != NULL; foo = foo->next) {
+	  if (item_tester_okay(foo)) break;
+	}
+
+	if (foo) {
+	  ret = get_item_aux(foo, &stack, mode);
+
+	  if (ret && other_query_flag) {
+	    char o_name[80];
+	    
+	    object_desc(o_name, ret, TRUE, 1);
+	    msg_format("You automatically select %s.", o_name);
+	  }
+	} else {
+	  bell();
+	}
+
+	break;
+      }
+      
+    default:
+      {
+	object_type* foo = NULL;
+	int i = 0;
+	int num;
+
+	/* Extract "query" setting */
+	num = A2I(tolower(which));
+
+	/* Fetch that item. */
+	for (foo = stack; foo != NULL; foo = foo->next) {
+	  if (item_tester_okay(foo)) {
+
+	    if (conserve_slots && foo->stack == STACK_INVEN) {
+	      if (foo->tag == which) break;
+
+	    } else {
+	      if (i == num) break;
+	    }
+
+	    i++;
+	  }
+	}
+
+	if (foo == NULL) {
+	  bell();
+	  break;
+	}
+
+	ret = get_item_aux(foo, &stack, mode);
+	break;
+      }
+    }
+  }
+
+  /* Note that Term_load() was called in get_item_aux(). */
+
+  /* Forget the item_tester_tval restriction */
+  item_tester_tval = 0;
+
+  /* Forget the item_tester_hook restriction */
+  item_tester_hook = NULL;
+
+  return ret;
 }
-
-
 

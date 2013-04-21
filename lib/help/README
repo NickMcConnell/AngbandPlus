@@ -608,3 +608,251 @@ monster to speak by using the X: field in the r_info.txt. Note
 that currently there are only a few monster sayings.
 You can use Y: to reuse sayings in a different monster race.
 
+---- Release 1.4 ----
+
+Added a new class -- Vampire. Vampires can't eat and get hurt by
+light. The only way to get food is to attack a monster hand-to-hand.
+Vampires also have a new spell realm -- ``Dark Magic''.
+Note that vampire spells use CON as the spellcasting stat!
+
+Added two new town layouts.
+
+Increased the height of the dungeon by 22 grids. (i.e. now the dungeon
+is 88x198)
+
+It is now possible to choose the town/arena layout when starting
+a new game.
+
+Added some new options:
+wiz_lite_town -- Magically light the town.
+monsters_speak -- Allow monsters speech ability.
+confirm_crime -- Ask for confirmation when player tries to commit a crime.
+unfair_monsters -- Allow unfair monsters to be generated -- i.e. Mutants
+                   and Brain Maggots, for now. You can select which monsters
+		   should be ``unfair'' by using the ``UNFAIR'' flag in the
+		   r_info.txt file. Note that quest and vault generation
+		   will NOT be affected by this option.
+
+You can now save your options in a pref file.
+
+The overhead map view is now zoomable.
+
+Added spell descriptions. When you select a spell with the (b)rowse
+command, you'll get a short description.
+
+Added activations for shape-changes. Note that the way this is handled
+is different from other variants -- your powers are added to your 
+spell-list, and you need mana to use your powers. Fighters and other
+non-magical classes now have mana points that are not shown unless
+you have some spells to cast. 
+
+Monsters are now affected by traps. 
+
+You can now add new ego items by simply editing the e_info.txt, without
+editing the source. 
+
+Artifact and ego-item generation has been tweaked -- there is now a scroll
+of ego-item and artifact creation. A scroll of named artifact creation 
+(like Nethack) is a possibility.
+
+---- Release 1.5 ----
+
+All artifact and item activations are now in the s_info.txt file!
+That means you can add complately new artifacts or items without changing 
+the code. 
+
+Added a nasty surprise at low depths. :)
+
+Changed the object and inventory system to use linked-lists instead of
+arrays. This means that stacks of objects on the ground are now handled exactly
+the same way the inventory is, and there is no more limit on the number of
+items you can carry. To compensate for this, the weight limit that you can 
+safely carry has gone down much lower -- it now pays off to carry collections
+of potions and wands, instead of a full set of armor.
+ 
+Added 10 more gods. These are more rare than the standard set of gods, and
+will only appear infrequently on higher levels.
+
+Added a bard class. This class is mostly identical to the illusionist,
+except that it uses charisma as the spellcasting stat.
+(Big thanks to Derrick Creamer, DSCreamer@aol.com for writing the spells.)
+
+Changed the code for random artifacts. Now the activation is chosen 
+randomly from all the activations in the s_info.txt file.
+
+Added a few more terains for outdoor settings. For now they don't have
+any game-play significance, although the terrain level generation
+has been changed to use them.
+
+You can now have the new terrains and altars in vaults. 
+
+Added a new town layout and a couple more theme vaults.
+
+The ``other_query_flag'' option will automatically select the item
+if there is only one possible item you can select. This is primarily
+for people who use autopickup.
+
+Added a new option ``protect_equipment'', which will ensure that weilded
+items won't get destroyed or stolen.
+
+Changed the monster generation routines:
+
+- Aquatic monsters have been implemented. Any monster with the AQUATIC
+  flag can be generated on terrain or flooded levels.
+
+- The rules for monster nests/pits have been relaxed. It is now possible
+  to have a pit or nest of any type of monster.
+
+- Occasionaly groups or related or unrelated monsters will be generated,
+  even if the monster doesn't normally appear in groups.
+
+Added a bunch of of aquatic monsters.
+
+Aquatic monsters will be invisible when they are in deep water and
+are relatively far away from the player.
+
+---- Release 1.6 ----
+
+Added item hitpoints. Every item has some number of hitpoints, and all
+attacks that damage inventory will decrease the item's hitpoints instead
+of outright destroying it. Aritfacts will never get damaged.
+
+Weapon and armor will get damaged out with use! The damage your weapon
+takes is roughly equal to the amout of damage you do to the monster.
+Likewise, the damage to your armor is roughly equal to the damage you
+take. 
+
+Added corpses. Monster will now sometimes leave body parts when they die.
+There are many different body types -- heads, hearts, wings, scales, etc.
+Also, you can find body parts just laying in the dungeon like regular
+items. Bady parts will only be generated on appropriate monsters, (that 
+is, no orc wings of death mold heads) but other than that, any
+non-unique monster except ghosts and elementals can leave a corpse.
+
+The beastmaster building now keeps a list of bounties. You can trade
+corpses of monsters on the beastmaster's list for gold. The list will be
+refreshed with the same frequency as shops do.
+
+Added a new class -- the Necromancer. The Necromancer is a spell casting
+class with just one spell -- raise dead. If you have a corpse, you can put
+it on the floor and cast ``raise dead'' on it. If you are successful, the
+corpse will be turned into a pet.
+
+The get_random_line function has been rewritten to store the file in
+memory instead of opening the file and reading from it each time a random
+line from the file is requested. This means that character generation,
+monster names, hallucination, etc. should be significantly faster. (At the
+expense of memory usage.)
+
+Large number of bugs has been fixed. 
+
+There is now an st_info.txt file, which controls what items get generated
+in which stores and at what frequencies. Code written by Laurence Withers.
+
+Added a simple ``quest monster'' type quest. The beastmaster will select
+one monster as a ``quest monster'' whenever the bounty list gets updated.
+If you then return a set number of corpses of that monster to the
+beastmaster, you'll get a reward. Be careful -- if you are collecting
+corpses and the quest monster changes, you won't get any reward for your
+hard work.
+
+---- Release 1.7 ----
+
+Added a new option, ``artifact_damage'' which will cause artifacts to take
+damage like regular items, albeit 10 times less than normal.
+
+Weapons and armor will now be converted to special ``damaged'' items,
+instead of being destroyed.
+
+Added a scroll of item repair.
+
+Added several repairing spells for the rogue.
+
+Added exploding and kamikaze monsters. If you want an exploding monster,
+just use ``EXPLODE'' as the monster's attack method.
+
+i.e.
+
+N:1:Will o' the Wisp
+I:some stuff
+W:some stuff
+B:EXPLODE:BLIND:3d6
+
+A very important note: If you want the explosion to have any effect, it
+must have a damage field!
+
+Kamikaze monsters have the KAMIKAZE flag; These will disappear once they
+make a successful attack on the player.
+ 
+Using the `k' command on the appropriate items will cause them to explode.
+
+Added several exploding types of arrows. These will explode on impact.
+
+The `I' command will now give a simple damage assessment for armor and
+weapons.
+
+Shop vaults are back! The implementation is much more clean and refined
+than the old hack used to be. (1.5 betas.) Now you can have a real home --
+complete with bathroom and fireplace. (Not really, but it comes close.)
+You can also take advantage of a limited form of stealing -- if you use an
+item without paying for it, guards will be summoned who will try to kill
+you. You won't have to pay for it, though. You can also read parchements
+without paying for them.
+
+Note that you can turn off use of shop vaults with an option. Shop vaults
+default to being turned off.
+
+Added a meaning to social class -- a negative social class means that the
+player is a criminal. Guards will be summoned whenever the player enters
+the town. If your social class is negative, it will slowly increase
+towards 1. Killing townspeople or stealing will dramatically lower your
+social class.
+
+Godly anger will now sometimes summon aligned monsters instead of just
+blasting you.
+
+Altar bashing has been tweaked. The altar will always be consecrated if
+you have not prayed recently. Otherwise you'll get blasted.
+
+Vault descriptions are now run-length compressed. That means about 40K
+of memory is saved. (The space taken up by the vault descriptions is about
+halved when the compression is used.)
+
+Added 10 more quests. These can be found in the Sorcery Tower.
+
+Improved quest generation -- you can now have a quest overlayed over a
+terrain. (Try the first mage quest to see what I mean.)
+
+Objects now have a ``material''. That is, you can now have ``a silver
+Short Sword'' or ``10 ebon Arrows of Slaying'' or even ``4 graphite Food
+Rations.'' (And no, you can't eat non-organic food.)
+
+Materials affect item hitpoints, weight, and cost. Also, the
+``IGNORE_FOO'' flags were removed -- instead, the object's material
+determines how/when it will be damaged. 
+
+Objects have about a 10% chance of being generated with a non-standard
+material.
+
+Ego-items can be made to be generated with any material.
+
+Added two new spells -- Transmutation and *Transmutation*. Regular
+transmutation converts an item's material to some other material,
+randomly. The enhanced version copies the material of one object to
+another.
+
+The `I' command will show the material the object is made of.
+
+Objects made of organic material will now slowly rot away. 
+*Note*: Dragon Scale mail is organic!!
+
+Changed weapon damaging code. First of all, to-hit bonuses don't
+contribute to weapon damage, as before. Second of all, warriors damage
+their weapon significantly less than other classes as their ``Fighting''
+skill goes up. Finally, players with a high strength or monsters with a
+high AC will give extra damage to the weapon.
+
+Added a patch from Laurence Withers that adds the ``center_player''
+option. (written by Keldon Jones) Shop and building entrances will also
+generate light.
+

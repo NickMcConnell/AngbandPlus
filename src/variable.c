@@ -27,9 +27,9 @@ cptr copyright[5] =
 /*
  * Executable version
  */
-byte version_major = VERSION_MAJOR;
-byte version_minor = VERSION_MINOR;
-byte version_patch = VERSION_PATCH;
+byte version_major = KAM_VERSION_MAJOR;
+byte version_minor = KAM_VERSION_MINOR;
+byte version_patch = KAM_VERSION_PATCH;
 byte version_extra = VERSION_EXTRA;
 
 /*
@@ -72,7 +72,8 @@ bool character_xtra;		/* The game is in an icky startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
-u32b seed_dungeon;              /* Simulate persisten dungeons */
+u32b seed_dungeon;              /* Simulate persistent dungeons */
+u32b seed_wild;                 /* Persistent wilderness */
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
@@ -83,6 +84,8 @@ s16b arena_monsters[MAX_ARENAS][MAX_ARENA_MONS]; /* -KMW- */
 s32b turn;				/* Current game turn */
 
 s32b old_turn;			/* Hack -- Level feeling counter */
+
+s32b old_resting_turn;          /* Hack -- Resting turn counter */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
@@ -347,15 +350,9 @@ byte cave_feat[DUNGEON_HGT][DUNGEON_WID];
 /*
  * The array of cave grid object indexes
  *
- * Note that this array yields the index of the top object in the stack of
- * objects in a given grid, using the "next_o_idx" field in that object to
- * indicate the next object in the stack, and so on, using zero to indicate
- * "nothing".  This array replicates the information contained in the object
- * list, for efficiency, providing extremely fast determination of whether
- * any object is in a grid, and relatively fast determination of which objects
- * are in a grid.
+ * This array gives a pointer to the object in the o_list.
  */
-s16b cave_o_idx[DUNGEON_HGT][DUNGEON_WID];
+object_type* cave_o_idx[DUNGEON_HGT][DUNGEON_WID];
 
 /*
  * The array of cave grid monster indexes
@@ -371,9 +368,9 @@ s16b cave_m_idx[DUNGEON_HGT][DUNGEON_WID];
 
 
 /*
- * The array of dungeon objects
+ * The linked list of dungeon objects
  */
-object_type o_list[MAX_O_IDX];
+object_type* o_list = NULL;
 
 /*
  * The array of dungeon monsters
@@ -404,11 +401,31 @@ byte max_quests;
 byte rewards[MAX_REWARDS];
 
 /*
- * Random spells.
+ * Current bounties. An array of tuples of two, with the first being the
+ * r_idx of the monster, and the second the monster's worth.
+ */
+s16b bounties[MAX_BOUNTIES][2];
+
+/*
+ * Player's spell list.
  */
 
 spell spells[MAX_SPELLS];
 u16b spell_num = 0;
+
+/*
+ * List of possible intrinsic powers.
+ */
+
+spell powers[MAX_POWERS];
+u16b power_num = 0;
+
+/* 
+ * List of item activations.
+ */
+
+spell activations[MAX_ACTIVATIONS];
+u16b activation_num;
 
 /*
  * Random artifacts.
@@ -424,7 +441,12 @@ store_type *store;
 /*
  * The player's inventory [INVEN_TOTAL]
  */
-object_type *inventory;
+object_type *inventory = NULL;
+
+/*
+ * Helpfull pointers to currently used items.
+ */
+object_type* equipment[EQUIP_MAX];
 
 
 /*
@@ -511,6 +533,7 @@ vault_type *v_info;
 char *v_name;
 char *v_text;
 char* q_text;
+char* vm_text;
 
 /*
  * The terrain feature arrays
@@ -675,3 +698,8 @@ bool (*get_mon_num_hook)(int r_idx);
  */
 bool (*get_obj_num_hook)(int k_idx);
 
+
+/*
+ * Hack -- don't punish thefts. 
+ */
+bool hack_punish_theft = TRUE;

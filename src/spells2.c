@@ -80,10 +80,10 @@ bool fire_explosion(int y, int x, int typ, int rad, int dam) {
 }
 
 
-bool fire_godly_wrath(int y, int x, int typ, int rad, int dam) {
+bool fire_godly_wrath(int y, int x, int typ, int rad, int dam, byte god) {
   u32b flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
-  return (project(-99, rad, y, x, dam, typ, flg));
+  return (project(-99+god, rad, y, x, dam, typ, flg));
 }
 
 bool fire_at_player(int typ, int dam) {
@@ -353,13 +353,11 @@ bool do_inc_stat(int stat)
  */
 void identify_pack(void)
 {
-	int i;
+	object_type* o_ptr;
 
 	/* Simply identify and know every item */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (o_ptr = inventory; o_ptr != NULL; o_ptr = o_ptr->next) 
 	{
-		object_type *o_ptr = &inventory[i];
-
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
@@ -445,9 +443,11 @@ static int remove_curse_aux(int all)
 	int i, cnt = 0;
 
 	/* Attempt to uncurse items being worn */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
-		object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = equipment[i];
+
+		if (!o_ptr) continue;
 
 		if (uncurse_item(o_ptr, all)) {
 		  /* Count the uncursings */
@@ -533,14 +533,14 @@ void self_knowledge(void)
 
 
 	/* Acquire item flags from equipment */
-	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
+	for (k = 0; k < EQUIP_MAX; k++)
 	{
 		u32b t1, t2, t3;
 
-		o_ptr = &inventory[k];
+		o_ptr = equipment[k];
 
 		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+		if (!o_ptr || !o_ptr->k_idx) continue;
 
 		/* Extract the flags */
 		object_flags(o_ptr, &t1, &t2, &t3);
@@ -582,8 +582,9 @@ void self_knowledge(void)
 	}
 
 	if (p_ptr->shape) {
-	  info[i++] = format("You are in the form of a %s.", 
-			     shape_info[p_ptr->shape-1].name);
+	  info[i++] = format("You are in the form of a%s %s.",
+		(is_a_vowel(shape_info[p_ptr->shape-1].name[0]) ? "n":""),
+		shape_info[p_ptr->shape-1].name);
 	}
 
 	if (p_ptr->mega_spells) {
@@ -894,10 +895,10 @@ void self_knowledge(void)
 
 
 	/* Access the current weapon */
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = equipment[EQUIP_WIELD];
 
 	/* Analyze the weapon */
-	if (o_ptr->k_idx)
+	if (o_ptr && o_ptr->k_idx)
 	{
 		/* Special "Attack Bonuses" */
 		if (f1 & (TR1_BRAND_ACID))
@@ -978,7 +979,7 @@ void self_knowledge(void)
 	}
 
 	if (p_ptr->munchkin) {
-	  info[i++] = "You have Godlike powers.";
+	  info[i++] = "You have ghostly powers.";
 	}
 
 
@@ -1032,642 +1033,62 @@ void self_knowledge(void)
  */
 bool lose_all_info(void)
 {
-	int i;
-
-	/* Forget info about objects */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Allow "protection" by the MENTAL flag */
-		if (o_ptr->ident & (IDENT_MENTAL)) continue;
-
-		/* Remove "default inscriptions" */
-		if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE)))
-		{
-			/* Access the inscription */
-			cptr q = quark_str(o_ptr->note);
-
-			/* Hack -- Remove auto-inscriptions */
-			if ((streq(q, "cursed")) ||
-			    (streq(q, "broken")) ||
-			    (streq(q, "good")) ||
-			    (streq(q, "average")) ||
-			    (streq(q, "excellent")) ||
-			    (streq(q, "worthless")) ||
-			    (streq(q, "special")) ||
-			    (streq(q, "terrible")))
-			{
-				/* Forget the inscription */
-				o_ptr->note = 0;
-			}
-		}
-
-		/* Hack -- Clear the "empty" flag */
-		o_ptr->ident &= ~(IDENT_EMPTY);
-
-		/* Hack -- Clear the "known" flag */
-		o_ptr->ident &= ~(IDENT_KNOWN);
-
-		/* Hack -- Clear the "felt" flag */
-		o_ptr->ident &= ~(IDENT_SENSE);
-	}
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
-
-	/* Mega-Hack -- Forget the map */
-	wiz_dark();
-
-	/* It worked */
-	return (TRUE);
-}
-
-
-
-
-/*
- * Detect all traps on current panel
- */
-bool detect_traps(void)
-{
-	int y, x;
-
-	bool detect = FALSE;
-
-
-	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
-	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
-		{
-			/* Detect invisible traps */
-			if (cave_feat[y][x] == FEAT_INVIS)
-			{
-				/* Pick a trap */
-				pick_trap(y, x);
-			}
-
-			/* Detect traps */
-			if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-			    (cave_feat[y][x] <= FEAT_TRAP_TAIL))
-			{
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		mprint(MSG_WARNING, "You sense the presence of traps!");
-	}
-
-	/* Result */
-	return (detect);
-}
-
-
-
-/*
- * Detect all doors on current panel
- */
-bool detect_doors(void)
-{
-	int y, x;
-
-	bool detect = FALSE;
-
-
-	/* Scan the panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
-	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
-		{
-			/* Detect secret doors */
-			if (cave_feat[y][x] == FEAT_SECRET)
-			{
-				/* Pick a door XXX XXX XXX */
-				cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
-			}
-
-			/* Detect doors */
-			if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-			     (cave_feat[y][x] <= FEAT_DOOR_HEAD)) ||
-			    ((cave_feat[y][x] == FEAT_OPEN) ||
-			     (cave_feat[y][x] == FEAT_BROKEN)))
-			{
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		msg_print("You sense the presence of doors!");
-	}
-
-	/* Result */
-	return (detect);
-}
-
-
-/*
- * Detect all stairs on current panel
- */
-bool detect_stairs(void)
-{
-	int y, x;
-
-	bool detect = FALSE;
-
-
-	/* Scan the panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
-	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
-		{
-			/* Detect stairs */
-			if ((cave_feat[y][x] == FEAT_LESS) ||
-			    (cave_feat[y][x] == FEAT_MORE))
-			{
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		msg_print("You sense the presence of stairs!");
-	}
-
-	/* Result */
-	return (detect);
-}
-
-
-/*
- * Detect any treasure on the current panel
- */
-bool detect_treasure(void)
-{
-	int y, x;
-
-	bool detect = FALSE;
-
-
-	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
-	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
-		{
-			/* Notice embedded gold */
-			if ((cave_feat[y][x] == FEAT_MAGMA_H) ||
-			    (cave_feat[y][x] == FEAT_QUARTZ_H))
-			{
-				/* Expose the gold */
-				cave_feat[y][x] += 0x02;
-			}
-
-			/* Magma/Quartz + Known Gold */
-			if ((cave_feat[y][x] == FEAT_MAGMA_K) ||
-			    (cave_feat[y][x] == FEAT_QUARTZ_K))
-			{
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Detect */
-				detect = TRUE;
-			}
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		mprint(MSG_BONUS, "You sense the presence of buried treasure!");
-	}
-
-	/* Result */
-	return (detect);
-}
-
-
-
-/*
- * Detect all "gold" objects on the current panel
- */
-bool detect_objects_gold(void)
-{
-	int i, y, x;
-
-	bool detect = FALSE;
-
-
-	/* Scan objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
-
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
-
-		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
-
-		/* Detect "gold" objects */
-		if (o_ptr->tval == TV_GOLD)
-		{
-			/* Hack -- memorize it */
-			o_ptr->marked = TRUE;
-
-			/* Redraw */
-			lite_spot(y, x);
-
-			/* Detect */
-			detect = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		mprint(MSG_BONUS, "You sense the presence of treasure!");
-	}
-
-	/* Result */
-	return (detect);
-}
-
-
-/*
- * Detect all "normal" objects on the current panel
- */
-bool detect_objects_normal(void)
-{
-	int i, y, x;
-
-	bool detect = FALSE;
-
-
-	/* Scan objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
-
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
-
-		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
-
-		/* Detect "real" objects */
-		if (o_ptr->tval != TV_GOLD)
-		{
-			/* Hack -- memorize it */
-			o_ptr->marked = TRUE;
-
-			/* Redraw */
-			lite_spot(y, x);
-
-			/* Detect */
-			detect = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		mprint(MSG_BONUS, "You sense the presence of objects!");
-	}
-
-	/* Result */
-	return (detect);
-}
-
-
-/*
- * Detect all "magic" objects on the current panel.
- *
- * This will light up all spaces with "magic" items, including artifacts,
- * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
- * and "enchanted" items of the "good" variety.
- *
- * It can probably be argued that this function is now too powerful.
- */
-bool detect_objects_magic(void)
-{
-	int i, y, x, tv;
-
-	bool detect = FALSE;
-
-
-	/* Scan all objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
-
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
-
-		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
-
-		/* Examine the tval */
-		tv = o_ptr->tval;
-
-		/* Artifacts, misc magic items, or enchanted wearables */
-		if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
-		    (tv == TV_AMULET) || (tv == TV_RING) ||
-		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
-		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_SPELLBOOK) || (tv == TV_MIMIC_BOOK) ||
-		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
-		{
-			/* Memorize the item */
-			o_ptr->marked = TRUE;
-
-			/* Redraw */
-			lite_spot(y, x);
-
-			/* Detect */
-			detect = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		mprint(MSG_BONUS, "You sense the presence of magic objects!");
-	}
-
-	/* Return result */
-	return (detect);
-}
-
-
-/*
- * Detect all "normal" monsters on the current panel
- */
-bool detect_monsters_normal(void)
-{
-	int i, y, x;
-
-	bool flag = FALSE;
-
-
-	/* Scan monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
-
-		/* Detect all non-invisible monsters */
-		if (!(r_ptr->flags2 & (RF2_INVISIBLE)))
-		{
-			/* Optimize -- Repair flags */
-			repair_mflag_mark = repair_mflag_show = TRUE;
-
-			/* Hack -- Detect the monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-
-			/* Update the monster */
-			update_mon(i, FALSE);
-
-			/* Detect */
-			flag = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (flag)
-	{
-		/* Describe result */
-		msg_print("You sense the presence of monsters!");
-	}
-
-	/* Result */
-	return (flag);
-}
-
-
-/*
- * Detect all "invisible" monsters on current panel
- */
-bool detect_monsters_invis(void)
-{
-	int i, y, x;
-
-	bool flag = FALSE;
-
-
-	/* Scan monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
-
-		/* Detect invisible monsters */
-		if (r_ptr->flags2 & (RF2_INVISIBLE))
-		{
-			/* Take note that they are invisible */
-			r_ptr->r_flags2 |= (RF2_INVISIBLE);
-
-			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
-			{
-				/* Window stuff */
-				p_ptr->window |= (PW_MONSTER);
-			}
-
-			/* Optimize -- Repair flags */
-			repair_mflag_mark = repair_mflag_show = TRUE;
-
-			/* Hack -- Detect the monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-
-			/* Update the monster */
-			update_mon(i, FALSE);
-
-			/* Detect */
-			flag = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (flag)
-	{
-		/* Describe result */
-		msg_print("You sense the presence of invisible creatures!");
-	}
-
-	/* Result */
-	return (flag);
-}
-
-
-
-/*
- * Detect all "evil" monsters on current panel
- */
-bool detect_monsters_evil(void)
-{
-	int i, y, x;
-
-	bool flag = FALSE;
-
-
-	/* Scan monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
-
-		/* Detect evil monsters */
-		if (r_ptr->flags3 & (RF3_EVIL))
-		{
-			/* Take note that they are evil */
-			r_ptr->r_flags3 |= (RF3_EVIL);
-
-			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
-			{
-				/* Window stuff */
-				p_ptr->window |= (PW_MONSTER);
-			}
-
-			/* Optimize -- Repair flags */
-			repair_mflag_mark = repair_mflag_show = TRUE;
-
-			/* Detect the monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-
-			/* Update the monster */
-			update_mon(i, FALSE);
-
-			/* Detect */
-			flag = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (flag)
-	{
-		/* Describe result */
-		msg_print("You sense the presence of evil creatures!");
-	}
-
-	/* Result */
-	return (flag);
-}
-
-
-
-/*
- * Detect everything
- */
-bool detect_all(void)
-{
-	bool detect = FALSE;
-
-	/* Detect everything */
-	if (detect_traps()) detect = TRUE;
-	if (detect_doors()) detect = TRUE;
-	if (detect_stairs()) detect = TRUE;
-	if (detect_treasure()) detect = TRUE;
-	if (detect_objects_gold()) detect = TRUE;
-	if (detect_objects_normal()) detect = TRUE;
-	if (detect_monsters_invis()) detect = TRUE;
-	if (detect_monsters_normal()) detect = TRUE;
-
-	/* Result */
-	return (detect);
+  object_type* o_ptr;
+
+  /* Forget info about objects */
+  for (o_ptr = inventory; o_ptr != NULL; o_ptr = o_ptr->next)
+    {
+      
+      /* Skip non-objects */
+      if (!o_ptr->k_idx) continue;
+
+      /* Allow "protection" by the MENTAL flag */
+      if (o_ptr->ident & (IDENT_MENTAL)) continue;
+
+      /* Remove "default inscriptions" */
+      if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE))) {
+	/* Access the inscription */
+	cptr q = quark_str(o_ptr->note);
+
+	/* Hack -- Remove auto-inscriptions */
+	if ((streq(q, "cursed")) ||
+	    (streq(q, "broken")) ||
+	    (streq(q, "good")) ||
+	    (streq(q, "average")) ||
+	    (streq(q, "excellent")) ||
+	    (streq(q, "worthless")) ||
+	    (streq(q, "special")) ||
+	    (streq(q, "terrible")))
+	  {
+	    /* Forget the inscription */
+	    o_ptr->note = 0;
+	  }
+      }
+
+      /* Hack -- Clear the "empty" flag */
+      o_ptr->ident &= ~(IDENT_EMPTY);
+
+      /* Hack -- Clear the "known" flag */
+      o_ptr->ident &= ~(IDENT_KNOWN);
+
+      /* Hack -- Clear the "felt" flag */
+      o_ptr->ident &= ~(IDENT_SENSE);
+    }
+
+  /* Recalculate bonuses */
+  p_ptr->update |= (PU_BONUS);
+
+  /* Combine / Reorder the pack (later) */
+  p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+  /* Window stuff */
+  p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+
+  /* Mega-Hack -- Forget the map */
+  wiz_dark();
+
+  /* It worked */
+  return (TRUE);
 }
 
 
@@ -1686,9 +1107,6 @@ void stair_creation(void)
 	  if (character_generated) mprint(MSG_TEMP, "The object resists the spell.");
 	  return;
 	}
-
-	/* XXX XXX XXX */
-	delete_object(py, px);
 
 	/* Create a staircase */
 	if (p_ptr->inside_special > 0) { /* in arena or quest -KMW- */
@@ -1899,6 +1317,18 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 				}
 			}
 		}
+
+		if (eflag & (ENCH_MAKE_EGO)) {
+		  if (!o_ptr->name2) {
+		    res = make_ego_item(o_ptr, 100);
+		  }
+		}
+
+		if (eflag & (ENCH_MAKE_ART)) {
+		  if (!o_ptr->name1) {
+		    res = make_artifact(o_ptr, 100);
+		  }
+		}
 	}
 
 	/* Failure */
@@ -1918,6 +1348,46 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 }
 
 
+/*
+ * A more liberal enchantment spell.
+ */
+
+bool enchant_spell2(int num, int flags) {
+  char o_name[80];
+
+  object_type* o_ptr;
+
+  cptr q, s;
+
+  q = "Enchant which item? ";
+  s = "You have nothing to enchant.";
+
+  o_ptr = get_item("Enchant which item", "You have nothing to enchant.",
+		   p_ptr->py, p_ptr->px, (USE_INVEN | USE_FLOOR));
+
+  if (!o_ptr) return FALSE;
+  
+  /* Description */
+  object_desc(o_name, o_ptr, FALSE, 0);
+
+  /* Describe */
+  mformat(MSG_BONUS, "Your %s glow%s brightly!",
+	  o_name,
+	  ((o_ptr->number > 1) ? "" : "s"));
+
+  /* Enchant */
+  if (!enchant(o_ptr, num, flags)) {
+    /* Flush */
+    if (flush_failure) flush();
+
+    /* Message */
+    msg_print("The enchantment failed.");
+  }
+
+  /* Something happened */
+  return (TRUE);
+
+}
 
 /*
  * Enchant an item (in the inventory or on the floor)
@@ -1926,14 +1396,11 @@ bool enchant(object_type *o_ptr, int n, int eflag)
  */
 bool enchant_spell(int num_hit, int num_dam, int num_ac)
 {
-	int item;
 	bool okay = FALSE;
 
 	object_type *o_ptr;
 
 	char o_name[80];
-
-	cptr q, s;
 
 
 	/* Assume enchant weapon */
@@ -1943,30 +1410,18 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	if (num_ac) item_tester_hook = item_tester_hook_armour;
 
 	/* Get an item */
-	q = "Enchant which item? ";
-	s = "You have nothing to enchant.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+	o_ptr = get_item("Enchant which item", "You have nothing to enchant.",
+			 p_ptr->py, p_ptr->px, (USE_INVEN | USE_FLOOR));
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	if (!o_ptr) return (FALSE);
 
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Describe */
-	mformat(MSG_BONUS, "%s %s glow%s brightly!",
-	           ((item >= 0) ? "Your" : "The"), o_name,
-	           ((o_ptr->number > 1) ? "" : "s"));
+	mformat(MSG_BONUS, "Your %s glow%s brightly!",
+		o_name,
+		((o_ptr->number > 1) ? "" : "s"));
 
 	/* Enchant */
 	if (enchant(o_ptr, num_hit, ENCH_TOHIT)) okay = TRUE;
@@ -1987,6 +1442,67 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	return (TRUE);
 }
 
+
+
+/*
+ * An interface to ``transmute''.
+ */
+bool transmute_spell(bool full) {
+  object_type* o_ptr;
+  char o_name[80];
+
+  bool ret = FALSE;
+
+  /* Get an item */
+  o_ptr = get_item("Transmute which item", "You have nothing you can transmute.",
+		   p_ptr->py, p_ptr->px, (USE_INVEN | USE_FLOOR));
+  
+  if (!o_ptr) return FALSE;
+
+  object_desc(o_name, o_ptr, FALSE, 0);
+
+  /* Randomly transmute the item. */
+  if (!full) {
+    if (transmute_random(o_ptr, p_ptr->depth)) {
+      ret = TRUE;
+    }
+
+  } else {
+    object_type* j_ptr;
+
+    j_ptr = get_item("Transmute with what",
+		     "You have nothing to transmute with.", p_ptr->py,
+		     p_ptr->px, (USE_INVEN | USE_FLOOR));
+
+    if (!j_ptr) return FALSE;
+
+    if (transmute(o_ptr, j_ptr->stuff)) {
+      ret = TRUE;
+    }
+  }
+
+  if (ret) {
+    if (o_ptr->number > 1) {
+      msg_format("%s %d %s turned to %s!",
+		 (o_ptr->stack == STACK_INVEN ? "Your" : "The"),
+		 o_ptr->number,
+		 o_name,
+		 materials[o_ptr->stuff].made_of_name);
+    } else {
+      msg_format("%s %s turned to %s!",
+		 (o_ptr->stack == STACK_INVEN ? "Your" : "The"),
+		 o_name,
+		 materials[o_ptr->stuff].made_of_name);
+    }
+  }
+
+  return ret;
+}
+
+
+
+
+
 /*
  * Brand some ammunition.  Used by Cubragol and a mage spell.  The spell was
  * moved here from cmd6.c where it used to be for Cubragol only.  I've also
@@ -1994,72 +1510,65 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
  */
 void brand_ammo (int brand_type, int bolts_only)
 {
-	int a;
-	int allowable;
+  object_type* o_ptr;
 
-	if (bolts_only)
-		allowable = TV_BOLT;
-	else
-		allowable = TV_BOLT | TV_ARROW | TV_SHOT;
+  int allowable;
 
-	for (a = 0; a < INVEN_PACK; a++)
-	{
-		object_type *o_ptr = &inventory[a];
+  if (bolts_only)
+    allowable = TV_BOLT;
+  else
+    allowable = TV_BOLT | TV_ARROW | TV_SHOT;
 
-		if ((bolts_only) && (o_ptr->tval != TV_BOLT)) continue;
-		if ((!bolts_only) && (o_ptr->tval != TV_BOLT) &&
-		    (o_ptr->tval != TV_ARROW) && (o_ptr->tval != TV_SHOT))
-		    	continue;
-		if ((!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
-		   (!cursed_p(o_ptr) && !broken_p(o_ptr)))
-		   	break;
-	}
+  for (o_ptr = inventory; o_ptr != NULL; o_ptr = o_ptr->next) {
 
-	/* Enchant the ammo (or fail) */
-	if ((a < INVEN_PACK) && (rand_int(100) < 50))
-	{
-		object_type *o_ptr = &inventory[a];
-		char *ammo_name, *aura_name, msg[48];
-		int aura_type, r;
+    if ((bolts_only) && (o_ptr->tval != TV_BOLT)) continue;
 
-		if (brand_type == 1) r = 0;		/* fire only */
-		else if (brand_type == 2) r = 99;	/* poison only */
-		else r = rand_int (100);
+    if ((!bolts_only) && (o_ptr->tval != TV_BOLT) &&
+	(o_ptr->tval != TV_ARROW) && (o_ptr->tval != TV_SHOT))
+      continue;
 
-		if (r < 33)
-		{
-			aura_name = "fiery";
-			aura_type = EGO_FLAME;
-		}
-		else if (r < 67)
-		{
-			aura_name = "frosty";
-			aura_type = EGO_FROST;
-		}
-		else
-		{
-			aura_name = "sickly";
-			aura_type = EGO_VENOM;
-		}
+    if ((!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
+	(!cursed_p(o_ptr) && !broken_p(o_ptr)))
+      break;
+  }
 
-		if (o_ptr->tval == TV_BOLT)
-			ammo_name = "bolts";
-		else if (o_ptr->tval == TV_ARROW)
-			ammo_name = "arrows";
-		else
-			ammo_name = "shots";
+  /* Enchant the ammo (or fail) */
+  if (rand_int(100) < 50) {
+    char *ammo_name, *aura_name, msg[48];
+    int aura_type, r;
 
-		sprintf (msg, "Your %s are covered in a %s aura!",
-			ammo_name, aura_name);
-		mprint(MSG_BONUS, msg);
-		o_ptr->name2 = aura_type;
-		enchant (o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-	}
-	else
-	{
-		if (flush_failure) flush();
-		msg_print ("The enchantment failed.");
-	}
+    if (brand_type == 1) r = 0;		/* fire only */
+    else if (brand_type == 2) r = 99;	/* poison only */
+    else r = rand_int (100);
+
+    if (r < 33) {
+      aura_name = "fiery";
+      aura_type = EGO_FLAME;
+    } else if (r < 67) {
+      aura_name = "frosty";
+      aura_type = EGO_FROST;
+    } else {
+      aura_name = "sickly";
+      aura_type = EGO_VENOM;
+    }
+
+    if (o_ptr->tval == TV_BOLT)
+      ammo_name = "bolts";
+    else if (o_ptr->tval == TV_ARROW)
+      ammo_name = "arrows";
+    else
+      ammo_name = "shots";
+    
+    sprintf (msg, "Your %s are covered in a %s aura!",
+	     ammo_name, aura_name);
+    mprint(MSG_BONUS, msg);
+    o_ptr->name2 = aura_type;
+    enchant (o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+
+  } else {
+    if (flush_failure) flush();
+    msg_print ("The enchantment failed.");
+  }
 }
 
 
@@ -2071,11 +1580,11 @@ void brand_weapon(void)
 {
 	object_type *o_ptr;
 
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = equipment[EQUIP_WIELD];
 
 	/* you can never modify artifacts / ego-items */
 	/* you can never modify broken / cursed items */
-	if ((o_ptr->k_idx) &&
+	if (o_ptr && o_ptr->k_idx &&
 	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
 	    (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
 	{
@@ -2112,32 +1621,16 @@ void brand_weapon(void)
  */
 bool ident_spell(void)
 {
-	int item;
-
 	object_type *o_ptr;
 
 	char o_name[80];
 
-	cptr q, s;
-
-
 	/* Get an item */
-	q = "Identify which item? ";
-	s = "You have nothing to identify.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+	o_ptr = get_item("Identify which item", 
+			 "You have nothing to identify.", p_ptr->py, p_ptr->px,
+			 (USE_INVEN | USE_FLOOR));
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	if (!o_ptr) return (FALSE);
 
 	/* Identify it fully */
 	object_aware(o_ptr);
@@ -2156,26 +1649,39 @@ bool ident_spell(void)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Describe */
-	if (item >= INVEN_WIELD)
-	{
-		msg_format("%^s: %s (%c).",
-		           describe_use(item), o_name, index_to_label(item));
-	}
-	else if (item >= 0)
-	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
-	}
-	else
-	{
-		msg_format("On the ground: %s.",
-		           o_name);
-	}
+	msg_format("You have: %s.", o_name);
 
 	/* Something happened */
 	return (TRUE);
 }
 
+
+/*
+ * Repair an item in your inventory.
+ */
+bool repair_spell(int dam) {
+  object_type *o_ptr;
+
+  char o_name[80];
+
+  /* Get an item */
+  o_ptr = get_item("Repair which item", 
+		   "You have nothing to repair.", p_ptr->py, p_ptr->px,
+		   (USE_INVEN | USE_FLOOR));
+
+  if (!o_ptr) return (FALSE);
+
+  /* Description */
+  object_desc(o_name, o_ptr, FALSE, 3);
+
+  /* Repair it. */
+  if (repair_object(o_ptr, dam)) {
+    mformat(MSG_BONUS, "The %s looks less worn.", o_name);
+  }
+
+  /* Something happened */
+  return (TRUE);
+}
 
 
 /*
@@ -2185,32 +1691,16 @@ bool ident_spell(void)
  */
 bool identify_fully(void)
 {
-	int item;
-
 	object_type *o_ptr;
 
 	char o_name[80];
 
-	cptr q, s;
-
-
 	/* Get an item */
-	q = "Identify which item? ";
-	s = "You have nothing to identify.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+	o_ptr = get_item("Identify which item", 
+			 "You have nothing to identify.", p_ptr->py, p_ptr->px,
+			 (USE_INVEN | USE_FLOOR));
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	if (!o_ptr) return FALSE;
 
 	/* Identify it fully */
 	object_aware(o_ptr);
@@ -2235,21 +1725,7 @@ bool identify_fully(void)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Describe */
-	if (item >= INVEN_WIELD)
-	{
-		msg_format("%^s: %s (%c).",
-		           describe_use(item), o_name, index_to_label(item));
-	}
-	else if (item >= 0)
-	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
-	}
-	else
-	{
-		msg_format("On the ground: %s.",
-		           o_name);
-	}
+	msg_format("You have: %s.", o_name);
 
 	/* Describe it fully */
 	identify_fully_aux(o_ptr);
@@ -2309,32 +1785,17 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
  */
 bool recharge(int num)
 {
-  int item;
 	object_type *o_ptr;
-
-	cptr q, s;
-
 
 	/* Only accept legal items */
 	item_tester_hook = item_tester_hook_recharge;
 
 	/* Get an item */
-	q = "Recharge which item? ";
-	s = "You have nothing to recharge.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+	o_ptr = get_item("Recharge which item", 
+			 "You have nothing to recharge.", p_ptr->py, p_ptr->px,
+			 (USE_INVEN | USE_FLOOR));
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	if (!o_ptr) return FALSE;
 
 	recharge_item(num, o_ptr);
 
@@ -2405,25 +1866,38 @@ bool recharge_item(int num, object_type* o_ptr) {
     if (rand_int(i) == 0) {
       byte ix = o_ptr->ix;
       byte iy = o_ptr->iy;
-      byte marked = o_ptr->marked;
-      s16b next_idx = o_ptr->next_o_idx;
+      byte stack = o_ptr->stack;
+      monster_type* owner = o_ptr->owner;
 
       /* Show a message if the object is visible. */
-      if (marked ||
-	  (ix == 0 && iy == 0 && o_ptr->held_m_idx == 0))
+      if (o_ptr->marked || stack == STACK_INVEN)
 	mprint(MSG_WARNING, "There is a bright flash of light.");
 
-      /* Convert the object to a broken stick. */
+      /* Delete the object. */
+      remove_object(o_ptr);
+
+      /* Make a new one. */
+      o_ptr = new_object();
+
       object_prep(o_ptr, lookup_kind(TV_JUNK, SV_BROKEN_STICK));
 
-      /* Reapply the old info. */
-      o_ptr->ix = ix;
-      o_ptr->iy = iy;
-      o_ptr->marked = marked;
-      o_ptr->next_o_idx = next_idx;
+      /* Insert it into the world. */
+      switch (stack) {
+      case STACK_INVEN:
+	inven_carry(o_ptr);
+	break;
+
+      case STACK_MON_INVEN:
+	monster_inven_carry(owner, o_ptr);
+	break;
+
+      case STACK_FLOOR:
+	floor_carry(iy, ix, o_ptr);
+	break;
+      }
 
       /* Redraw the object. */
-      if (ix && iy)
+      if (stack == STACK_FLOOR)
 	lite_spot(iy, ix);
 
       /* Recharge */
@@ -2610,6 +2084,62 @@ void awake_monsters(int who) {
 	/* Messages */
 	if (sleep) mprint(MSG_WARNING, "You hear a stirring nearby!");
 }
+
+
+/*
+ * Make monsters in LOS hostile.
+ */
+void hostile_monsters(int who) {
+  monster_type* m_ptr = NULL;
+  char m_name[80];
+  int i;
+
+  if (who > 0) {
+    m_ptr = &m_list[who];
+
+    if (m_ptr->is_pet) {
+      monster_desc(m_name, m_ptr, 0x80);
+      mformat(MSG_WARNING, "%^s howls in rebellion!", m_name);
+
+      m_ptr->is_pet = FALSE;
+    }
+  }
+
+  for (i = 1; i < m_max; i++) {
+    monster_type *m_ptr = &m_list[i];
+      
+    /* Paranoia -- Skip dead monsters */
+    if (!m_ptr->r_idx) continue;
+
+    /* Skip aggravating monster (or player) */
+    if (i == who) continue;
+
+    if (player_has_los_bold(m_ptr->fy, m_ptr->fx) && m_ptr->is_pet) {
+
+      monster_race* r_ptr = &r_info[m_ptr->r_idx];
+      int tmp = r_ptr->level/2 - randnor(p_ptr->lev, 1);
+      int tmp2;
+      int tmp3 = rand_int(11);
+
+      if (tmp < 0) {
+	tmp = 0;
+      }
+      
+      tmp2 = adj_chr_pet_summon[p_ptr->stat_ind[A_CHR]] + tmp;
+      
+      /* Make the monster hostile. */
+      if (tmp3 <= tmp2) {
+	monster_desc(m_name, m_ptr, 0x80);
+	mformat(MSG_WARNING, "%^s howls in rebellion!", m_name);
+
+	m_ptr->is_pet = FALSE;
+      }
+    }
+
+  }
+}
+    
+
 
 /*
  * Hack -- call pets to player.
@@ -3251,7 +2781,7 @@ bool sleep_monsters_touch(void)
 void summon_pet_monster(void) {
   p_ptr->energy_use = 100;
 
-  if (p_ptr->inside_special == 1) {
+  if (p_ptr->inside_special == SPECIAL_ARENA) {
     msg_print("This place seems devoid of life.");
     msg_print(NULL);
     return;
@@ -3267,30 +2797,29 @@ void summon_pet_monster(void) {
 }
 
 
+static s16b __fetch_wgt = 0;
+
+static bool item_tester_hook_fetch(object_type* o_ptr) {
+  /* Too heavy to 'fetch' */
+  if (o_ptr->weight > __fetch_wgt) return FALSE;
+
+  return TRUE;
+}
 
 /*
  * Teleport an item to a player.
- * This is a modified version of the same fn. in Sangband.
+ *
+ * Simply ask for an item using the standard ``get_item'' function, and
+ * add it to the inventory.
  */
 bool fetch_item(int wgt, int y, int x) {
+
   int ty = 0, tx = 0;
-  int i;
+
   int py = p_ptr->py;
   int px = p_ptr->px;
-  char o_name[80];
+
   object_type* o_ptr;
-
-  s16b stack_o_idx = 0;
-  object_type* bottom_o_ptr = NULL;
-
-  int o_weight = 0;
-  s16b o_idx;
-
-  /* Check to see if an object is already there */
-  if (cave_o_idx[py][px]) {
-    stack_o_idx = cave_o_idx[py][px];
-  }
-
 
   /* Use a target */
   if (y < 0 && x < 0) {
@@ -3305,7 +2834,7 @@ bool fetch_item(int wgt, int y, int x) {
 	return FALSE;
       }
     } else {
-      msg_print("No target selected.");
+      mprint(MSG_TEMP, "No target selected.");
       return FALSE;
     }
 
@@ -3320,38 +2849,27 @@ bool fetch_item(int wgt, int y, int x) {
     }
   }
 
-  o_idx = cave_o_idx[ty][tx];
-  o_ptr = &o_list[o_idx];
-
-  object_desc(o_name, o_ptr, TRUE, 0);
-
-  /* Calculate weight */
-  for (; o_idx; o_idx = o_ptr->next_o_idx) {
-    o_ptr = &o_list[o_idx];
-
-    o_weight += o_ptr->weight;
-    o_ptr->iy = py;
-    o_ptr->ix = px;
-
-    bottom_o_ptr = o_ptr;
-  }
-
-  /* Too heavy to 'fetch' */
-  if (o_weight > wgt) {
-    msg_format("You can't fetch something as heavy as %s.", o_name);
+  /* Paranoia. */
+  if (ty == py && tx == px) {
+    mprint(MSG_TEMP, "You can't fetch something you're standing on!");
     return FALSE;
   }
-  
-  if (stack_o_idx) {
-    bottom_o_ptr->next_o_idx = stack_o_idx;
-  }
 
-  i = cave_o_idx[ty][tx];
-  cave_o_idx[ty][tx] = 0;
-  cave_o_idx[py][px] = i; /* 'move' it */
 
-  msg_format("%^s flies through the air to your feet.", o_name);
-  
+  /* Mega-hack, pass an argument to hook fn. */
+  __fetch_wgt = wgt;
+
+  /* Stay within weight allowance. */
+  item_tester_hook = item_tester_hook_fetch;
+
+  o_ptr = get_item("Fetch what", "You can't fetch anything there.", ty, tx,
+		   (USE_INVEN | USE_FLOOR | USE_REMOVE | USE_BY_PARTS));
+
+  if (!o_ptr) return FALSE;
+
+  /* Give it to the player. */
+  inven_carry(o_ptr);
+
   p_ptr->redraw |= PR_MAP;
   return TRUE;
 }

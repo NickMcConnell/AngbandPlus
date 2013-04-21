@@ -1,4 +1,4 @@
-64
+65
 a Bag
 a Shiny, Black Box
 a Deck of Cards
@@ -63,3 +63,4 @@ a Decayed Eye
 a Large Crystal Ball
 an Arcane Parchment
 a Medallion
+a Jewel-Encrusted Skull

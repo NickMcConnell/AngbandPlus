@@ -695,49 +695,52 @@ byte adj_str_th[] =
 };
 
 
-/*
- * Stat Table (STR) -- weight limit in deca-pounds
+
+/* 
+ * Stat Table (STR) -- weight limit in deca-pounds 
+ *
+ * Note the new ultra-low limit.
  */
-byte adj_str_wgt[] =
-{
-	5	/* 3 */,
-	6	/* 4 */,
-	7	/* 5 */,
-	8	/* 6 */,
-	9	/* 7 */,
-	10	/* 8 */,
-	11	/* 9 */,
-	12	/* 10 */,
-	13	/* 11 */,
-	14	/* 12 */,
-	15	/* 13 */,
-	16	/* 14 */,
-	17	/* 15 */,
-	18	/* 16 */,
-	19	/* 17 */,
-	20	/* 18/00-18/09 */,
-	22	/* 18/10-18/19 */,
-	24	/* 18/20-18/29 */,
-	26	/* 18/30-18/39 */,
-	28	/* 18/40-18/49 */,
-	30	/* 18/50-18/59 */,
-	30	/* 18/60-18/69 */,
-	30	/* 18/70-18/79 */,
-	30	/* 18/80-18/89 */,
-	30	/* 18/90-18/99 */,
-	30	/* 18/100-18/109 */,
-	30	/* 18/110-18/119 */,
-	30	/* 18/120-18/129 */,
-	30	/* 18/130-18/139 */,
-	30	/* 18/140-18/149 */,
-	30	/* 18/150-18/159 */,
-	30	/* 18/160-18/169 */,
-	30	/* 18/170-18/179 */,
-	30	/* 18/180-18/189 */,
-	30	/* 18/190-18/199 */,
-	30	/* 18/200-18/209 */,
-	30	/* 18/210-18/219 */,
-	30	/* 18/220+ */
+
+byte adj_str_wgt[] = {
+  3	/* 3 */,
+  4	/* 4 */,
+  5	/* 5 */,
+  6	/* 6 */,
+  7	/* 7 */,
+  7	/* 8 */,
+  8	/* 9 */,
+  8	/* 10 */,
+  8	/* 11 */,
+  9	/* 12 */,
+  9	/* 13 */,
+  9	/* 14 */,	
+  9	/* 15 */,
+  10	/* 16 */,
+  10	/* 17 */,
+  10	/* 18/00-18/09 */,
+  10	/* 18/10-18/19 */,
+  10	/* 18/20-18/29 */,
+  11	/* 18/30-18/39 */,
+  11	/* 18/40-18/49 */,
+  12	/* 18/50-18/59 */,
+  12	/* 18/60-18/69 */,
+  12	/* 18/70-18/79 */,
+  12	/* 18/80-18/89 */,
+  12	/* 18/90-18/99 */,
+  12	/* 18/100-18/109 */,
+  12	/* 18/110-18/119 */,
+  12	/* 18/120-18/129 */,
+  12	/* 18/130-18/139 */,
+  12	/* 18/140-18/149 */,
+  12	/* 18/150-18/159 */,
+  12	/* 18/160-18/169 */,
+  12	/* 18/170-18/179 */,
+  12	/* 18/180-18/189 */,
+  12	/* 18/190-18/199 */,
+  12	/* 18/200-18/209 */,
+  12	/* 18/210-18/219 */,
+  12	/* 18/220+ */
 };
 
 
@@ -1079,6 +1082,7 @@ byte adj_con_mhp[] =
  *    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
  *    Mage    --> num = 4; mul = 3; div = 2* MAX(35, weapon_weight);
  *    Priest  --> num = 5; mul = 3; div = MAX(40, weapon_weight);
+ *    Vampire/
  *    Rogue   --> num = 5; mul = 3; div = MAX(30, weapon_weight);
  *    Ranger  --> num = 5; mul = 4; div = MAX(35, weapon_weight);
  *    Paladin --> num = 5; mul = 4; div = MAX(35, weapon_weight);
@@ -1340,8 +1344,58 @@ s16b arena_monsters[MAX_ARENAS][MAX_ARENA_MONS] = {
     427,  /* Night mare */
     362,  /* Eog golem */
     381   /* Colossus */
-  }
+  },
 
+  /* Here is the special ``magical arena''. */
+  {
+    38,   /* Novice Mage */
+    77,   /* Novice Mage */
+    107,  /* Lost Soul */
+    108,  /* Dark Elf */
+    550,  /* Mutant Clansman */
+    556,  /* Brain Maggot */
+    127,  /* Baby Blue Dragon */
+    128,  /* Baby White Dragon */
+    129,  /* Baby Green Dragon */
+    130,  /* Baby Black Dragon */
+    131,  /* Baby Red Dragon */
+    551,  /* Mutant Clanleader */
+    136,  /* Dark Elven Mage */
+    151,  /* Baby Multi-hued Dragon */
+    154,  /* Gnome Mage */
+    160,  /* Master Yeek */
+    552,  /* Mutant Elder */
+    162,  /* Dark Elven Priest */
+    167,  /* Moaning Spirit */
+    171,  /* Drider */
+    193,  /* Light Hound */
+    194,  /* Dark Hound */
+    202,  /* Gnome Mage */
+    588,  /* Mutation Hound */
+    203,  /* Clear Hound */
+    221,  /* Fire Hound */
+    222,  /* Cold Hound */
+    223,  /* Energy Hound */
+    238,  /* Earth Hound */
+    239,  /* Air Hound */
+    241,  /* Water Hound */
+    243,  /* Quylthulg */
+    246,  /* Dark Elven Lord */
+    267,  /* Forest Wight */
+    275,  /* Banshee */
+    277,  /* Dark Elven Druid */
+    294,  /* Vibration Hound */
+    295,  /* Nexus Hound */
+    298,  /* Vampire */
+    306,  /* Mind Flayer */
+    319,  /* Shadow Drake */
+    326,  /* Ghost */
+    391,  /* Necromancer */
+    393,  /* Demonologist */
+    414,  /* Emperor Wight */
+    417,  /* Black Wraith */
+    428   /* Vampire Lord */
+  }
 };
 
 /*
@@ -1753,7 +1807,7 @@ player_race race_info[MAX_RACES] =
 	{ 
 	  "Ghost",
 	  { 2, 2, 3, 3, 2, -15 },
-	  4,  20, 20,  3,  3, 14, 10, 25,
+	  4,  10, 15,  3,  3, 14, 0, 0,
 	  10, 200,
 	  200,  250,
 	  72,  6, 180, 25,
@@ -1783,7 +1837,7 @@ player_race race_info[MAX_RACES] =
 	{
 	  "Golem",
 	  { 20, 0, -10, -10, 10, 0 },
-	  5, 25, 0, -5, 5, 5, 25, 25,
+	  5, 15, 0, -15, 5, 5, 25, 25,
 	  13, 120,
 	  50, 250,
 	  72, 6, 180, 25, 
@@ -1813,7 +1867,7 @@ player_race race_info[MAX_RACES] =
 	{
 	  "Death Mold",
 	  { 20, 20, 20, 20, 20, 20 },
-	  15, -5, 15, 25, 0, 10, 25, 25,
+	  5, -5, 10, 25, 0, 10, 25, 25,
 	  15, 100,
 	  5, 15,
 	  10, 1, 50, 1,
@@ -1823,6 +1877,21 @@ player_race race_info[MAX_RACES] =
 
 	  TERM_SLATE,
 	  'm'
+	},
+
+	{
+	  "Vortex",
+	  { -5, 0, 8, 25, -6, -20 },
+	  -25, -3, 30, 50, 0, 0, 20, -50,
+	  10, 100,
+	  100, 10,
+	  72, 6, 180, 25, 
+	  72, 6, 180, 25,
+	  0,
+	  0x77F,
+
+	  TERM_VIOLET,
+	  'v'
 	}
 };
 
@@ -1850,7 +1919,7 @@ player_class class_info[MAX_CLASS] =
 		10, 7,  10, 0,  0,  0,  45, 45,
 		9,  0,
 
-		0,
+		SV_SPELLBOOK_NONE,
 		FALSE, FALSE,
 		A_INT,
 		0
@@ -1941,7 +2010,7 @@ player_class class_info[MAX_CLASS] =
 	  7,  13, 9,  0,  0,  0,  0, 0,
 	  0, 35,
 
-	  0,
+	  SV_SPELLBOOK_NONE,
 	  TRUE, TRUE,
 	  A_INT,
 	  25
@@ -1954,7 +2023,7 @@ player_class class_info[MAX_CLASS] =
 	  0, 0, 10, 5,  5,  5, 10, 45,
 	  9, 25,
 
-	  0,
+	  SV_SPELLBOOK_NONE,
 	  FALSE, FALSE,
 	  A_INT,
 	  0
@@ -1967,7 +2036,7 @@ player_class class_info[MAX_CLASS] =
 	  0, 0, 10, 10, 5, 5, 45, 45,
 	  9, 25,
 
-	  0,
+	  SV_SPELLBOOK_NONE,
 	  FALSE, FALSE,
 	  A_INT,
 	  0
@@ -1984,281 +2053,65 @@ player_class class_info[MAX_CLASS] =
 	  0, 30,
 
 	  TV_MIMIC_BOOK,
-	  FALSE, FALSE,
-	  A_INT,
+	  FALSE, TRUE,
+	  A_WIS,
 	  0
+	},
+
+	{
+	  "Vampire",
+	  { 1, 4, 4, 5, -4, 3 },
+	  25, 36, 25, 45, 25, 45, 60, 66,
+	  5, 12, 5, 10, 5, 10, 40, 30, 
+	  6, 15,
+
+	  SV_SPELLBOOK_EVIL,
+	  TRUE, FALSE,
+	  A_CON,
+	  300
+	},
+	
+	{
+	  "Bard",
+	  {-2, 1, 2, -3, -3, 5},
+	  30, 36, 30, 2,  16, 20, 34, 20,
+	  7,  13, 9,  0,  0,  0,  15, 15,
+	  0, 30,
+
+	  SV_SPELLBOOK_BARD,
+	  TRUE, FALSE,
+	  A_CHR,
+	  300
+	},
+
+	{
+	  "Necromancer",
+	  {-2, 4, 2, -2, 0, -5},
+
+	  20, 36, 30, 2,  16, 20, 60, 14,
+	  5,  10, 13, 0,  0,  0,  40, 5,
+	  0, 30,
+
+	  SV_SPELLBOOK_NECRO,
+	  TRUE, FALSE,
+	  A_INT,
+	  300
+	},
+
+	{
+	  "Elemental",
+	  { -4, 2, 4, 4, 0, -7 },
+	  0, 3, 40, 50, 0, 0, 28, -10,
+	  0, 3, 10, 15, 0, 0, 25, 0, 
+	  9, 0, 
+
+	  SV_SPELLBOOK_ELEMENTAL,
+	  TRUE, TRUE,
+	  A_WIS,
+	  500
 	}
 };
 
-
-/*
-* Names of the spells (mage spells then priest spells
- * followed by illusionist spells -KMW-)
- */
-cptr spell_names[3][64] =
-{
-	/*** Mage Spells ***/
-
-	{
-		/* Magic for Beginners (sval 0) */
-		"Magic Missile",
-		"Detect Monsters",
-		"Phase Door",
-		"Light Area",
-		"Treasure Detection",
-		"Cure Light Wounds",
-		"Object Detection",
-		"Find Hidden Traps/Doors",
-		"Stinking Cloud",
-
-		/* Conjurings and Tricks (sval 1) */
-		"Confuse Monster",
-		"Lightning Bolt",
-		"Trap/Door Destruction",
-		"Sleep I",
-		"Cure Poison",
-		"Teleport Self",
-		"Spear of Light",
-		"Frost Bolt",
-		"Turn Stone to Mud",
-
-		/* Incantations and Illusions (sval 2) */
-		"Satisfy Hunger",
-		"Recharge Item I",
-		"Sleep II",
-		"Polymorph Other",
-		"Identify",
-		"Sleep III",
-		"Fire Bolt",
-		"Slow Monster",
-
-		/* Sorcery and Evocations (sval 3) */
-		"Frost Ball",
-		"Recharge Item II",
-		"Teleport Other",
-		"Haste Self",
-		"Fire Ball",
-		"Word of Destruction",
-		"Genocide",
-
-		/* Mordenkainen's Escapes (sval 5) */
-		"Door Creation",
-		"Stair Creation",
-		"Teleport Level",
-		"Earthquake",
-		"Word of Recall",
-
-		/* Raal's Tome of Destruction (sval 8) */
-		"Acid Bolt",
-		"Cloud Kill",
-		"Acid Ball",
-		"Ice Storm",
-		"Meteor Swarm",
-		"Mana Storm",
-
-		/* Kelek's Grimoire of Power (sval 6) */
-		"Detect Evil",
-		"Detect Enchantment",
-		"Recharge Item III",
-		"Genocide",
-		"Mass Genocide",
-
-		/* Resistance of Scarabtarices (sval 4) */
-		"Resist Fire",
-		"Resist Cold",
-		"Resist Acid",
-		"Resist Poison",
-		"Resistance",
-
-		/* Tenser's transformations... (sval 7) */
-		"Heroism",
-		"Shield",
-		"Berserker",
-		"Essence of Speed",
-		"Globe of Invulnerability",
-
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
-	},
-
-
-	/*** Priest Spells ***/
-
-	{
-		/* Beginners Handbook (sval 0) */
-		"Detect Evil",
-		"Cure Light Wounds",
-		"Bless",
-		"Remove Fear",
-		"Call Light",
-		"Find Traps",
-		"Detect Doors/Stairs",
-		"Slow Poison",
-
-		/* Words of Wisdom (sval 1) */
-		"Scare Monster",
-		"Portal",
-		"Cure Serious Wounds",
-		"Chant",
-		"Sanctuary",
-		"Satisfy Hunger",
-		"Remove Curse",
-		"Resist Heat and Cold",
-
-		/* Chants and Blessings (sval 2) */
-		"Neutralize Poison",
-		"Orb of Draining",
-		"Cure Critical Wounds",
-		"Sense Invisible",
-		"Protection from Evil",
-		"Earthquake",
-		"Sense Surroundings",
-		"Cure Mortal Wounds",
-		"Turn Undead",
-
-		/* Exorcism and Dispelling (sval 3) */
-		"Prayer",
-		"Dispel Undead",
-		"Heal",
-		"Dispel Evil",
-		"Glyph of Warding",
-		"Holy Word",
-
-		/* Godly Insights... (sval 5) */
-		"Detect Monsters",
-		"Detection",
-		"Perception",
-		"Probing",
-		"Clairvoyance",
-
-		/* Purifications and Healing (sval 6) */
-		"Cure Serious Wounds",
-		"Cure Mortal Wounds",
-		"Healing",
-		"Restoration",
-		"Remembrance",
-
-		/* Wrath of God (sval 8) */
-		"Dispel Undead",
-		"Dispel Evil",
-		"Banishment",
-		"Word of Destruction",
-		"Annihilation",
-
-		/* Holy Infusions (sval 7) */
-		"Unbarring Ways",
-		"Recharging",
-		"Dispel Curse",
-		"Enchant Weapon",
-		"Enchant Armour",
-		"Elemental Brand",
-
-		/* Ethereal openings (sval 4) */
-		"Blink",
-		"Teleport Self",
-		"Teleport Other",
-		"Teleport Level",
-		"Word of Recall",
-		"Alter Reality",
-
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
-	},
-
-	/*** Illusionist Spells ***/
-	/* Added by -KMW- */
-
-	{
-		/* Illusions for Beginners (sval 0) */
-		"Confusion",
-		"Detect Monsters",
-		"Phase Door",
-		"Light Area",
-		"Treasure Detection",
-		"Paranoia",
-		"Object Detection",
-		"Find Hidden Traps/Doors",
-		"Poisonous Orb",
-
-		/* Tricks and Visions (sval 1) */
-		"Infravision",
-		"Sleep",
-		"Trap/Door Destruction",
-		"Fog Cloud",
-		"Fear",
-		"Remove Curse",
-		"Shadow Door",
-		"Shadow Monster",
-		"Turn Stone to Mud",
-
-		/* Phantasms and Illusions (sval 2) */
-		"Detect Invisible",
-		"Recharge Item I",
-		"Hypnosis",
-		"Cure Body & Mind",
-		"Chaos",
-		"Resist Heat & Cold",
-		"True Sight",
-		"Slow Monster",
-
-		/* Shadows and Prisms (sval 3) */
-		"Shadow Ball",
-		"Terror",
-		"Resist Poison & Acid",
-		"Shadow Dust",
-		"Prismatic Wall",
-		"Prismatic Spray",
-		"Chromatic Shield",
-
-		/* Knowledge of Kenault (sval 5) */
-		"Detect Doors & Stairs",
-		"Detect Treasure",
-		"Detect Monsters",
-		"Detect Enchantment",
-		"Probing",
-
-		/* Bigby's Handbook (sval 8) */
-		"Bigby's Interposing Hand",
-		"Bigby's Phantom Hand",
-		"Bigby's Forceful Hand",
-		"Bigby's Grasping Hand",
-		"Bigby's Clenched Fist",
-		"Bigby's Crushing Hand",
-
-		/* Otiluke's Spheres (sval 6) */
-		"Sphere of Light",
-		"Sphere of Dark",
-		"Sphere of Confusion",
-		"Sphere of Chaos",
-		"Sphere of Sound",
-
-		/* Serten's Immunities (sval 4) */
-		"Protection from Fire",
-		"Protection from Cold",
-		"Protection from Acid",
-		"Protection from Poison",
-		"Protection from Evil",
-
-		/* Boccob's Book of Shadows (sval 7) */
-		"Shadow Doors",
-		"Shadow Monsters",
-		"Shadow Ball",
-		"Shadow Dust",
-		"Shadow Gate",
-
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
-	}
-};
 
 
 /* Short names for the ingredients. */
@@ -2553,7 +2406,19 @@ recipe recipe_info[MAX_RECIPES] = {
   // Rod restore 376
   { FL_SULFUR | FL_EBONY | FL_SILK | FL_AMBER, 376},
   // Rod speed 377
-  { FL_SULFUR | FL_SULFUR | FL_QUARTZ | FL_SAPPHIRE, 377}
+  { FL_SULFUR | FL_SULFUR | FL_QUARTZ | FL_SAPPHIRE, 377},
+  // Pot. Cure Mut.
+  { FL_WATER | FL_SULFUR | FL_SLIME, 299},
+  // Pot. Cure Light Insanity.
+  { FL_WATER | FL_SAPPHIRE | FL_CRYSTAL, 581},
+  // Pot. Cure Serious Insanity.
+  { FL_WATER | FL_CRYSTAL | FL_AMBER, 582},
+  // Pot. Cure Critical Insanity.
+  { FL_WATER | FL_CRYSTAL | FL_EMERALD, 583},
+  // Pot. Cure Insanity.
+  { FL_WATER | FL_CRYSTAL | FL_QUARTZ, 584},
+  // Pot. Mutation
+  { FL_WATER | FL_SLIME | FL_BLOOD, 268}
 };
 
 
@@ -2593,11 +2458,21 @@ cptr deity_standing[11] = {
   "championed"
 };
 
+/*
+ * Textual translations of your deity's rarity. 
+ */
+cptr deity_rarity[4] = {
+  "Minor",
+  "Major",
+  "Elder",
+  "Greater Elder"
+};
+
 /* 
  * Explain moonster affiliations for gods.
  */
 
-cptr deity_affiliation[13] = {
+cptr deity_affiliation[23] = {
   "those monsters who are immune or breathe cold, those who breathe "
   "darkness, those who don't sleep, and those who are hurt by light",
 
@@ -2634,7 +2509,31 @@ cptr deity_affiliation[13] = {
 
   "those who are smart, those who can cast ``cause wounds'', those "
   "who can heal, those who can create traps, and those who can cast "
-  "magic missile"
+  "magic missile",
+
+  "those who can cast ``haste'', teleport, and breathe time."
+
+  "those who are smart, those who multiply or regenerate, and those who can "
+  "breathe or resist nexus.",
+
+  "those who are shimmering, and those who can breathe destruction or "
+  "disenchantment or chaos."
+
+  "those who do not move, those that have empty minds or those that are "
+  "undead.",
+
+  "those who multiply, and those who appear in groups.",
+
+  "those who are giants, dragons, or have powerful breath.",
+
+  "those who breathe plasma, mana, fire, light, or sound.",
+
+  "those who breathe acid, cold, poison, shards, or darkness.",
+
+  "all living creatures, whatever form they come in.",
+
+  "absolutely nothing."
+
 };
 
 /*
@@ -2643,22 +2542,36 @@ cptr deity_affiliation[13] = {
  */
 
 deity deity_info[MAX_GODS] = {
-  { "Chernobog", "Night",   5, GA_NIGHT,  GA_DAY },
-  { "Belobog",   "Day",     3, GA_DAY,    GA_NIGHT },
-  { "Melkor",    "Shadow",  6, GA_SHADOW,  GA_GOOD },
-  { "Svarog",    "Fire",    4, GA_FIRE,   GA_WATER },
-  { "Chthon",    "Blood",   7, GA_FLESH,  GA_STONE },
-  { "Mokosh",    "Nature",  2, GA_NATURE, GA_SMARTS },
-  { "Naunet",    "Water",   3, GA_WATER,  GA_FIRE },
-  { "Voltumna",  "Stone",   1, GA_STONE,  GA_FLESH },
-  { "Shaitan",   "Evil",    9, GA_EVIL,   GA_GOOD },
-  { "Amon-Ras",  "Good",    2, GA_GOOD,   GA_EVIL },
-  { "Apep",      "Chaos",   4, GA_CHAOS,  GA_NATURE },
-  { "Radogast",  "Sun",     3, GA_DAY,    GA_EVIL },
-  { "Herovit",   "Rage",    8, GA_FLESH,  GA_SMARTS },
-  { "Veles",     "Beasts",  4, GA_NATURE, GA_STONE },
-  { "Stribog",   "Winds",   5, GA_AIR,  GA_FIRE },
-  { "Chenti",    "Spheres", 4, GA_SMARTS, GA_NATURE }
+  { "Chernobog", "Night",   5, GA_NIGHT,  GA_DAY,   0 },
+  { "Belobog",   "Day",     3, GA_DAY,    GA_NIGHT, 0 },
+  { "Melkor",    "Shadow",  6, GA_SHADOW,  GA_GOOD, 0 },
+  { "Svarog",    "Fire",    4, GA_FIRE,   GA_WATER, 0 },
+  { "Chthon",    "Blood",   7, GA_FLESH,  GA_STONE, 0 },
+  { "Mokosh",    "Nature",  2, GA_NATURE, GA_SMARTS, 0 },
+  { "Naunet",    "Water",   3, GA_WATER,  GA_FIRE,  0 },
+  { "Voltumna",  "Stone",   1, GA_STONE,  GA_FLESH, 0 },
+  { "Shaitan",   "Evil",    9, GA_EVIL,   GA_GOOD,  0 },
+  { "Amon-Ras",  "Good",    2, GA_GOOD,   GA_EVIL,  0 },
+  { "Apep",      "Chaos",   4, GA_CHAOS,  GA_NATURE, 0 },
+  { "Radogast",  "Sun",     3, GA_DAY,    GA_EVIL,  0 },
+  { "Herovit",   "Rage",    8, GA_FLESH,  GA_SMARTS, 0 },
+  { "Veles",     "Beasts",  4, GA_NATURE, GA_STONE, 0 },
+  { "Stribog",   "Winds",   5, GA_AIR,  GA_FIRE,    0 },
+  { "Chenti",    "Spheres", 4, GA_SMARTS, GA_NATURE, 0 },
+
+  { "Clabkothep", "Time",     5, GA_TIME, GA_INFINITY, 1 },
+  { "Jaarlephon", "Infinity", 7, GA_INFINITY, GA_TIME, 1 },
+  { "Blopeufuurd", "Change",  7, GA_CHANGE, GA_STASIS, 1 },
+  { "Gaawuurvud", "Stasis",   3, GA_STASIS, GA_CHANGE, 1 },
+
+  { "Quardunoorp", "Particles",   7, GA_SMALL, GA_LARGE, 2 },
+  { "Zarccinaenum", "Continuity", 4, GA_LARGE, GA_SMALL, 2 },
+  { "Klauuplugrop", "Energy",     6, GA_ENERGY, GA_MATTER, 2 },
+  { "Pwarrdeshneg", "Matter",     4, GA_MATTER, GA_ENERGY, 2 },
+
+  { "Aankros", "Being", 0, GA_BEING, GA_UNBEING, 3 },
+  { "Umgruul", "Unbeing", 9, GA_UNBEING, GA_BEING, 3 }
+
 };
 
 /* 
@@ -2682,7 +2595,7 @@ shape shape_info[MAX_SHAPES] = {
   {"goat", "You grow horns.", "Your horns fall off.", 250, TERM_WHITE, 'q'},
 
   {"ape", "Your arms become very long.", "Your arms return to their "
-   "former size.", 300, TERM_SLATE, 'P'},
+   "former size.", 300, TERM_SLATE, 'Y'},
 
   {"statue", "You solidify into stone.", "You return to flesh.", 150, 
    TERM_L_RED, '#'},
@@ -2738,8 +2651,8 @@ shape shape_info[MAX_SHAPES] = {
   {"zombie", "You turn into a disgusting animated corpse.", "You return "
    "to your former shape.", 200, TERM_L_WHITE, 'z'},
 
-  {"deity", "You gain phenomenal Godly powers!", 
-   "You feel insignificant again.", 10, TERM_RED, '&'}
+  {"wraith", "You turn a sickly grayish color.", 
+   "You feel solid again.", 60, TERM_SLATE, 'W'}
 };
 
 
@@ -2950,121 +2863,230 @@ cptr mutation_names[MAX_MUTS][3] = {
 
 };
 
-/*
- * Names for random artifact activations.
+
+/* 
+ * Possible materials.
+ *
+ * Name.
+ * Item HP factor.
+ * Weight factor.
+ * Cost factor.
+ * AC factor.
+ * Rarity.
+ *
+ * The factors are ignored unless the object has a different material
+ * than it's object kind. 
+ *
+ * When the values aren't ignored, the actual multiplier is calculated
+ * as (old_value * new_factor) / old_factor;
+ *
  */
 
-cptr t_act_names[MAX_T_ACT] = {
-  "death",
-  "ruination",
-  "destruction",
-  "stupidity",
-  "weakness",
-  "unhealth",
-  "ugliness",
-  "clumsiness",
-  "naivete",
-  "stat loss",
-  "huge stat loss",
-  "experience loss",
-  "huge experience loss",
-  "teleportation",
-  "monster summoning",
-  "paralyzation",
-  "hallucination",
-  "poisoning",
-  "hunger",
-  "stun",
-  "cuts",
-  "paranoia",
-  "confusion",
-  "blindness",
-  "pet summoning",
-  "cure paralyzation",
-  "cure hallucination",
-  "cure poison",
-  "cure hunger",
-  "cure stun",
-  "cure cut",
-  "cure fear",
-  "cure confusion",
-  "cure blindness",
-  "cure light wounds",
-  "cure serious wounds",
-  "cure critical wounds",
-  "curing",
-  "genocide",
-  "mass genocide",
-  "restoration",
-  "light",
-  "darkness",
-  "teleportation",
-  "level teleportation",
-  "acquirement",
-  "something weird",
-  "aggravation",
-  "mutation",
-  "cure insanity",
-  "cure mutation"
+material materials[STUFF_MAX] = {
+  { "ethereal", "ether",
+    1,
+    1,
+    1,
+    1,
+    7 },
+
+  { "paper", "paper",
+    2,
+    2,
+    2,
+    1,
+    4 },
+
+  { "earthen", "earth",
+    3,
+    6,
+    1,
+    1,
+    2 },
+
+  { "cloth", "cloth",
+    2,
+    2,
+    10,
+    1,
+    5 },
+
+  { "leather", "leather",
+    5,
+    3,
+    14,
+    5,
+    5 },
+
+  { "organic", "organic material",
+    12,
+    12,
+    5,
+    8,
+    5 },
+
+  { "wooden", "wood",
+    13,
+    10,
+    8,
+    10,
+    4 },
+
+  { "glass", "glass",
+    2,
+    13,
+    25,
+    12,
+    3 },
+
+  { "iron", "iron",
+    20,
+    20,
+    5,
+    15,
+    2 },
+
+  { "steel", "steel",
+    25,
+    15,
+    10,
+    15,
+    3 },
+  
+  { "crystal", "crystal",
+    35,
+    13,
+    50,
+    12,
+    10 },
+  
+  { "obsidian", "obsidian",
+    44,
+    30,
+    44,
+    20,
+    12 },
+
+  { "flint", "flint",
+    28, 
+    23,
+    3,
+    18,
+    2 },
+
+  { "graphite", "graphite",
+    15,
+    10,
+    1,
+    13,
+    3 },
+
+  { "ebon", "ebony",
+    20,
+    15,
+    40,
+    18,
+    6 },
+
+  { "amber", "amber",
+    14,
+    14,
+    50,
+    9,
+    11 },
+
+  { "sulfurous", "sulfur",
+    3,
+    5,
+    1,
+    5,
+    4 },
+
+  { "copper", "copper",
+    16,
+    12,
+    27,
+    12,
+    4 },
+
+  { "silver", "silver",
+    17,
+    14,
+    52,
+    12,
+    7 },
+  
+  { "golden", "gold",
+    15,
+    23,
+    65,
+    12,
+    11 },
+
+  { "mithril", "mithril",
+    63,
+    15,
+    131,
+    40,
+    31 },
+
+  { "ruby", "rubies",
+    31,
+    31,
+    81,
+    28,
+    26 },
+  
+  { "sapphire", "sapphires",
+    33,
+    31,
+    74,
+    27,
+    21 },
+
+  { "emerald", "emeralds",
+    34,
+    31,
+    68,
+    27,
+    20 },
+
+  { "adamantium", "adamantite",
+    48,
+    35,
+    48,
+    35,
+    24 },
+
+  { "opal", "opals",
+    25,
+    18,
+    57,
+    25,
+    20 },
+
+  { "garnet", "garnets",
+    22,
+    14,
+    58,
+    19,
+    20 },
+
+  { "quartz", "quartz",
+    32,
+    21,
+    22,
+    18,
+    16 },
+
+  { "diamond", "diamonds",
+    85,
+    30,
+    231,
+    55,
+    42 }
 };
 
-/*
- * Costs for the random artifact activations.
- */
-
-u32b t_act_costs[MAX_T_ACT] = {
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  1000,
-  5,
-  0,
-  100,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  5000,
-  1000,
-  1000,
-  1000,
-  1000,
-  1000,
-  1000,
-  1000,
-  1000,
-  1000,
-  500,
-  750,
-  1000,
-  1100,
-  10000,
-  20000,
-  2000,
-  1000,
-  0,
-  1000,
-  500,
-  30000,
-  50,
-  0,
-  100,
-  2000,
-  2000
-};
 
 /*
  * Each chest has a certain set of traps, determined by pval
@@ -3294,6 +3316,7 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 	  "Weredragon",
 	},
 
+	/* Mimic */
 	{
 	  "[???]",
 	  "[???]",
@@ -3305,6 +3328,63 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 	  "[???]",
 	  "[???]",
 	  "[???]"
+	},
+
+	/* Vampire */
+	{
+	  "Life Leech",
+	  "Bloodsucker",
+	  "Nightcrawler",
+	  "Undead Scourge",
+	  "Vampire",
+	  "Vampire",
+	  "Master Vampire",
+	  "Vampire Lord",
+	  "Elder Vampire",
+	  "Ancient Vampire"
+	},
+	
+	/* Bard */
+	{
+	  "Novice Singer",
+	  "Singer",
+	  "Songwriter",
+	  "Novice Charmer",
+	  "Charmer",
+	  "Novice Bard",
+	  "Apprentice Bard",
+	  "Bard",
+	  "Elder Bard",
+	  "Master Bard"
+	},
+
+	/* Necromancer */
+	/* Stolen from Oangband, by Leon Marrick. */
+	{
+          "Acolyte",
+          "Curser",
+          "Dark Student",
+          "Initiate",
+          "Slavemaster",
+          "Summoner",
+          "Controller",
+          "Commander",
+          "Dark Master",
+          "Night Lord"
+	},
+
+	/* Elemental */
+	{
+          "Elemental",
+          "Elemental",
+          "Elemental",
+          "Elemental",
+          "Elemental",
+          "Elemental",
+          "Elemental",
+          "Elemental",
+          "Elemental",
+          "Elemental"
 	}
 };
 
@@ -3435,8 +3515,8 @@ cptr option_text[OPT_MAX] =
 	"allow_open_levels",	        /* OPT_allow_open_levels */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
-	"testing_stack",			/* OPT_testing_stack */
-	"testing_carry",			/* OPT_testing_carry */
+	"protect_equipment",			/* OPT_protect_equipment */
+	"confirm_cursed",			/* OPT_confirm_cursed */
 	"expand_look",				/* OPT_expand_look */
 	"expand_list",				/* OPT_expand_list */
 	"view_perma_grids",			/* OPT_view_perma_grids */
@@ -3470,7 +3550,17 @@ cptr option_text[OPT_MAX] =
 	"weirdness_is_rare",     /* OPT_weirdness_is_rare */
 	"named_monsters",        /* OPT_named_monsters */
 	"flavored_attacks",      /* OPT_flavored_attacks */
-	"confirm_prayers"        /* OPT_confirm_prayers */
+	"confirm_prayers",       /* OPT_confirm_prayers */
+	"wiz_lite_town",
+	"monsters_speak",
+	"confirm_crime",
+	"unfair_monsters",
+	"show_inven_equip",     /* OPT_show_inven_equip */
+	"artifact_damage",
+	"vault_shops",
+	"center_player",
+	"sort_items",
+	"conserve_slots"
 };
 
 
@@ -3480,8 +3570,8 @@ cptr option_text[OPT_MAX] =
 cptr option_desc[OPT_MAX] =
 {
 	"Rogue-like commands",						/* OPT_rogue_like_commands */
-	"Activate quick messages",					/* OPT_quick_messages */
-	"Prompt for floor item selection",			/* OPT_other_query_flag */
+	"Activate quick messages",				/* OPT_quick_messages */
+	"Don't prompt if only one item in selection.",		/* OPT_other_query_flag */
 	"Prompt before picking things up",			/* OPT_carry_query_flag */
 	"Use old target by default",				/* OPT_use_old_target */
 	"Pick things up by default",				/* OPT_always_pickup */
@@ -3511,10 +3601,10 @@ cptr option_desc[OPT_MAX] =
 	"Show player races as different symbols",	  /* OPT_race_chars */
 	"Confirm when attacking sacred monsters", /* OPT_confirm_blasphemy */
 	"Allow open (arena) levels",     /* OPT_allow_open_levels */
-	"Auto-haggle in stores",					/* OPT_auto_haggle */
-	"Auto-scum for good levels",				/* OPT_auto_scum */
-	"Allow objects to stack on floor (beta)",	/* OPT_testing_stack */
-	"Allow monsters to carry objects (beta)",	/* OPT_testing_carry */
+	"Auto-haggle in stores",			/* OPT_auto_haggle */
+	"Auto-scum for good levels",			/* OPT_auto_scum */
+	"Don't destroy or steal wielded items.",   	/* OPT_protect_equipment */
+	"Confirm when wielding cursed items.",	/* OPT_confirm_cursed */
 	"Expand the power of the look command",		/* OPT_expand_look */
 	"Expand the power of the list commands",	/* OPT_expand_list */
 	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
@@ -3549,7 +3639,18 @@ cptr option_desc[OPT_MAX] =
 	"Give humanoids names",     /* OPT_named_monsters */
 	"Show silly messages when fighting",  /* OPT_flavored_attacks */
 	"Ask for confirmation when praying",  /* OPT_confirm_prayers */
+	"Magically light the town",           /* OPT_wiz_lite_town */
+	"Let monsters speak insults",         /* OPT_monsters_speak */
+	"Confirm when commiting crimes",      /* OPT_confirm_crime */
+	"Allow unfair monsters to be generated", /* OPT_unfair_monsters */
+	"Show equipment in inventory listing", /* OPT_show_inven_equip */
+	"Allow artifacts to be damaged",       /* OPT_artifact_damage */
+	"Use special levels for shops",        /* OPT_vault_shops */
+	"Keep view centered on player (slow)", /* OPT_center_player */
+	"Try to keep stacks of items sorted",  /* OPT_sort_items */
+	"Assign letters to inventory items",   /* OPT_conserve_slots */
 };
+
 
 
 /*
@@ -3561,7 +3662,7 @@ bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */
 	TRUE,		/* OPT_quick_messages */
-	TRUE,		/* OPT_other_query_flag */
+	FALSE,		/* OPT_other_query_flag */
 	FALSE,		/* OPT_carry_query_flag */
 	TRUE,		/* OPT_use_old_target */
 	FALSE,		/* OPT_always_pickup */
@@ -3593,8 +3694,8 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_allow_open_levels */
 	TRUE,		/* OPT_auto_haggle */
 	TRUE,		/* OPT_auto_scum */
-	TRUE,		/* OPT_testing_stack */
-	TRUE,		/* OPT_testing_carry */
+	FALSE,		/* OPT_protect_equipment */
+	TRUE,		/* OPT_confirm_cursed */
 	TRUE,		/* OPT_expand_look */
 	TRUE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
@@ -3629,13 +3730,23 @@ bool option_norm[OPT_MAX] =
 	TRUE,           /* OPT_named_monsters */
 	TRUE,           /* OPT_flavored_attacks */
 	TRUE,           /* OPT_confirm_prayers */
+	FALSE,          /* OPT_wiz_lite_town */
+	TRUE,           /* OPT_monsters_speak */
+	TRUE,           /* OPT_confirm_crime */
+	TRUE,           /* OPT_unfair_monsters */
+	TRUE,           /* OPT_show_inven_equip */
+	FALSE,          /* OPT_artifact_damage */
+	FALSE,          /* OPT_vault_shops */
+	FALSE,          /* OPT_center_player */
+	FALSE,          /* OPT_sort_items */
+	FALSE           /* OPT_conserve_slots */
 };
 
 
 /*
  * Option screen interface
  */
-byte option_page[4][20] =
+byte option_page[5][22] =
 {
 	/*** User-Interface ***/
 
@@ -3643,7 +3754,6 @@ byte option_page[4][20] =
 		OPT_rogue_like_commands,
 		OPT_quick_messages,
 		OPT_other_query_flag,
-		OPT_carry_query_flag,
 		OPT_use_old_target,
 		OPT_always_pickup,
 		OPT_always_repeat,
@@ -3656,8 +3766,11 @@ byte option_page[4][20] =
 		OPT_show_details,
 		OPT_ring_bell,
 		OPT_inventory_colors,
-		OPT_race_chars,
-		OPT_named_monsters,
+		255,
+		255,
+		255,
+		255,
+		255,
 		255,
 		255
  	},
@@ -3677,10 +3790,12 @@ byte option_page[4][20] =
 		OPT_disturb_other,
 		OPT_alert_hitpoint,
 		OPT_alert_failure,
-		OPT_show_pet_messages,
-		OPT_confirm_blasphemy,
-		OPT_flavored_attacks,
-		OPT_confirm_prayers,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
 		255,
 		255,
 		255,
@@ -3692,8 +3807,6 @@ byte option_page[4][20] =
 	{
  		OPT_auto_haggle,
 		OPT_auto_scum,
-		OPT_testing_stack,
-		OPT_testing_carry,
 		OPT_expand_look,
 		OPT_expand_list,
 		OPT_view_perma_grids,
@@ -3706,10 +3819,14 @@ byte option_page[4][20] =
 		OPT_track_target,
 		OPT_smart_learn,
 		OPT_smart_cheat,
-		OPT_allow_open_levels,
-		OPT_allow_theme_vaults,
-		OPT_weirdness_is_rare,
-		OPT_cripple_pets
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255
 	},
 
 	/*** Efficiency ***/
@@ -3731,8 +3848,37 @@ byte option_page[4][20] =
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
+		OPT_center_player,
+		OPT_sort_items,
 		255,
 		255,
+		255,
+		255
+	},
+
+	/*** Kamband ***/
+
+	{
+		OPT_race_chars,
+		OPT_named_monsters,
+		OPT_wiz_lite_town,
+		OPT_show_pet_messages,
+		OPT_confirm_blasphemy,
+		OPT_confirm_crime,
+		OPT_flavored_attacks,
+		OPT_confirm_prayers,
+		OPT_monsters_speak,
+		OPT_allow_open_levels,
+		OPT_allow_theme_vaults,
+		OPT_weirdness_is_rare,
+		OPT_cripple_pets,
+		OPT_unfair_monsters,
+		OPT_protect_equipment,
+		OPT_show_inven_equip,
+		OPT_confirm_cursed,
+		OPT_artifact_damage,
+		OPT_vault_shops,
+		OPT_conserve_slots,
 		255,
 		255
 	}

@@ -1,4 +1,4 @@
-64
+65
 The Bag of Tricks
 Kenault's Cantrip Generator
 The Deck of Wild Magic
@@ -63,3 +63,4 @@ the Eye of Vecna
 the Palantir of Minas Tirith
 a Parchment titled ``Secrets of the Gnomish Wizards''
 the Medallion of Good Will
+the Immortal Skull of Benetar

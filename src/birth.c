@@ -80,6 +80,8 @@ struct hist_type
  *   Golem         --> 44 --> 45 --> 46 --> 47 --> 48
  *   Leprechaun    --> 67 --> 68 --> 69
  *   Death Mold    --> 70 --> 71 --> 72 --> 73 --> 74
+ *   Vortex        --> 75 --> 76 
+
  * Note that the kobold race was added by GJW 	-KMW-
  *
  * XXX XXX XXX This table *must* be correct or drastic errors may occur!
@@ -562,7 +564,27 @@ static hist_type bg[] =
 	{"hundreds of ",  90, 73, 74, 65},
 	{"uncounted multitudes of ", 100, 73, 74, 70},
 
-	{"foul offspring. ", 100, 74, 0, 50}
+	{"foul offspring. ", 100, 74, 0, 50},
+
+	{"You are a towering burst of flame, ", 30, 75, 76, 20},
+	{"You are a frigid cloud of ice, ", 40, 75, 76, 30},
+	{"You are a bundle of raw electricity, ", 50, 75, 76, 30},
+	{"You are a spinning vortex of nether, ", 60, 75, 76, 40},
+	{"You are a puddle of sticky slime, ", 70, 75, 76, 20},
+	{"You are a dazzling ball of light, ", 80, 75, 76, 30},
+	{"You are a cloud of damp vapor, ", 100, 75, 76, 20},
+
+	{"created by a powerful wizard. ", 30, 76, 0, 10},
+	{"made from vaporous wisps by an Elven king .", 40, 76, 0, 20},
+	{"shaped by the mental energy of an evil demon. ", 50, 76, 0, 30},
+	{"the essence of the mental energy of an infamous lich. ", 60, 76, 0, 40},
+	{"teleported to the material plane by a hapless adventurer. ",
+	 80, 76, 0, 10},
+	{"created by an Elemental to serve as a slave. ", 80, 76, 0,
+	 20},
+	{"created by a magic spell gone wrong. ", 100, 76, 0, 10},
+
+	 
 };
 
 
@@ -845,29 +867,7 @@ static void get_stats(void)
  */
 static void get_extra(void)
 {
-	int i, j, min_value, max_value, vindex;
-	vault_type* v_ptr;
-	bool foo = FALSE;
-	bool bar = FALSE;
-
-	/* Select a town and an arena layout */
-
-	while (TRUE) {
-    	  vindex = rand_int(MAX_V_IDX);
-	  v_ptr = &v_info[vindex];
-
-	  if (v_ptr->typ == 10) {
-	    p_ptr->which_town = vindex;
-	    foo = TRUE;
-	  } else if (v_ptr->typ == 11) {
-	    p_ptr->which_arena_layout = vindex;
-	    bar = TRUE;
-	  }
-
-	  if (foo && bar) break;
-	}
-
-
+	int i, j, min_value, max_value;
 
 	/* Level one */
 	p_ptr->max_lev = p_ptr->lev = 1;
@@ -875,8 +875,8 @@ static void get_extra(void)
 	spell_num = 0;
 
 	/* Initialize spells. */
-	if (cp_ptr->uses_magic && !cp_ptr->magic_innate) {
-	  init_s_info_txt(cp_ptr->spell_book);
+	if (cp_ptr->uses_magic && cp_ptr->spell_book != SV_SPELLBOOK_NONE) {
+	  spell_num = init_s_info_txt(cp_ptr->spell_book, spells, MAX_SPELLS);
 	}
 
 	/* Hack -- Start with a Corrupted spell. */
@@ -1082,6 +1082,12 @@ static void get_history(void)
 	    break;
 	  }
 
+	case RACE_VORTEX:
+	  {
+	    chart = 75;
+	    break;
+	  }
+
 		default:
 		{
 			chart = 0;
@@ -1271,25 +1277,40 @@ static void birth_put_stats(void)
  */
 
 static errr init_randart(void) {
-  int i;
+  int i, j;
   long foo;
   random_artifact* ra_ptr;
+  spell* activ;
 
   for (i = 0; i < MAX_RANDARTS; i++) {
     ra_ptr = &random_artifacts[i];
 
-    get_line("rart_s.txt", ra_ptr->name_short, i+1);
-    get_line("rart_f.txt", ra_ptr->name_full, i+1);
+    strcpy(ra_ptr->name_short, get_line("rart_s.txt", i));
+    strcpy(ra_ptr->name_full, get_line("rart_f.txt", i));
 
     ra_ptr->attr = randint(15);
-    ra_ptr->tact = rand_int(MAX_T_ACT);
-    ra_ptr->generated = FALSE;
 
-    foo = t_act_costs[ra_ptr->tact] + randnor(0, 5);
+    ra_ptr->level = rand_int(101);
+
+    while (TRUE) {
+      j = rand_int(activation_num);
+      activ = &activations[j];
+
+      if (randnor(activ->level, 2) > ra_ptr->level) {
+	continue;
+      }
+
+      ra_ptr->activation = j;
+      ra_ptr->generated = FALSE;
+
+      foo = (randnor(ra_ptr->level, 2))*250;
     
-    if (foo < 0) foo = 0;
+      if (foo < 0) foo = 0;
 
-    ra_ptr->cost = foo;
+      ra_ptr->cost = foo;
+      
+      break;
+    }
   }
 
   return 0;
@@ -1302,16 +1323,26 @@ static void player_wipe(void)
 {
 	int i;
 
+	object_type* o_ptr;
+	object_type* o_nxt;
 
-	/* Wipe the player */
-	WIPE(p_ptr, player_type);
+	/* Wipe the inventory. */
+	o_ptr = inventory;
 
+	while (TRUE) {
+	  if (!o_ptr) break;
 
-	/* Clear the inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_wipe(&inventory[i]);
+	  o_nxt = o_ptr->next;
+
+	  remove_object(o_ptr);
+	  o_ptr = o_nxt;
 	}
+
+	/* Wipe the equipment. */
+	for (i = 0; i < EQUIP_MAX; i++) {
+	  equipment[i] = NULL;
+	}
+	
 
 	/* Generate random artifacts */
 	init_randart();
@@ -1371,10 +1402,6 @@ static void player_wipe(void)
 
 	/* Hack -- no ghosts */
 	r_info[MAX_R_IDX-1].max_num = 0;
-
-
-	/* Hack -- Well fed player */
-	p_ptr->food = PY_FOOD_FULL - 1;
 
 }
 
@@ -1461,6 +1488,30 @@ static byte player_init[MAX_CLASS][3][2] =
 	  { TV_MIMIC_BOOK, 9 },
 	  { TV_SWORD, SV_DAGGER },
 	  { TV_POTION, SV_POTION_HEALING }
+	},
+
+	{ /* Vampire */
+	  { TV_SPELLBOOK, SV_SPELLBOOK_EVIL },
+	  { TV_SWORD, SV_SMALL_SWORD },
+	  { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
+	},
+
+	{ /* Bard */
+	  { TV_SPELLBOOK, SV_SPELLBOOK_BARD },
+	  { TV_SWORD, SV_DAGGER },
+	  { TV_POTION, SV_POTION_HEALING }
+	},
+
+	{ /* Necromancer */
+	  { TV_SPELLBOOK, SV_SPELLBOOK_NECRO },
+	  { TV_SWORD, SV_SCALPEL },
+	  { TV_POTION, SV_POTION_HEALING }
+	},
+
+	{ /* Elemental */
+	  { TV_WAND, SV_WAND_FIRE_BOLT },
+	  { TV_WAND, SV_WAND_COLD_BOLT },
+	  { TV_WAND, SV_WAND_ELEC_BOLT },
 	}
 };
 
@@ -1473,40 +1524,51 @@ static void player_outfit(void)
 {
 	int i, tv, sv;
 
-	object_type *i_ptr;
-	object_type object_type_body;
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
+	object_type* i_ptr;
 
 	/* Hack -- Give the player some food */
-	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	i_ptr->number = rand_range(3, 7);
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
+	/* Useless for vampires. */
+	if (p_ptr->pclass != CLASS_VAMPIRE) {
+	  i_ptr = new_object();
 
+	  object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
 
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Hack -- Give the player some torches */
-	/* Useless for ghosts & munchkins */
-
-	if (p_ptr->prace != RACE_GHOST && p_ptr->prace != RACE_MUNCHKIN) {
-	  object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 	  i_ptr->number = rand_range(3, 7);
-	  i_ptr->pval = rand_range(3, 7) * 500;
+	  i_ptr->weight *= i_ptr->number;
+
 	  object_aware(i_ptr);
 	  object_known(i_ptr);
 	  (void)inven_carry(i_ptr);
 	}
+
+	/* Hack -- Give the player some torches */
+	/* Useless for ghosts & munchkins */
+
+	if (p_ptr->prace != RACE_GHOST && 
+	    p_ptr->prace != RACE_MUNCHKIN) {
+	  int foo = rand_range(3, 7);
+	  int i;
+	  
+	  for (i = 0; i < foo; i++) {
+	    i_ptr = new_object();
+	    object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+
+	    apply_magic(i_ptr, 1, FALSE, FALSE, FALSE);
+	    object_aware(i_ptr);
+	    object_known(i_ptr);
+	    (void)inven_carry(i_ptr);
+	  }
+	}
  
         /* Give ghosts id scrolls */
 	if (p_ptr->prace == RACE_GHOST) {
+	  i_ptr = new_object();
+
 	  object_prep(i_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_IDENTIFY));
+
 	  i_ptr->number = rand_range(60, 100);
+	  i_ptr->weight *= i_ptr->number;
+	  
 	  object_aware(i_ptr);
           object_known(i_ptr);
 	  inven_carry(i_ptr);
@@ -1519,8 +1581,7 @@ static void player_outfit(void)
 		tv = player_init[p_ptr->pclass][i][0];
 		sv = player_init[p_ptr->pclass][i][1];
 
-		/* Get local object */
-		i_ptr = &object_type_body;
+		i_ptr = new_object();
 
 		/* Hack -- Give the player an object */
 		object_prep(i_ptr, lookup_kind(tv, sv));
@@ -1529,6 +1590,46 @@ static void player_outfit(void)
 		(void)inven_carry(i_ptr);
 	}
 }
+
+
+/*
+ * Prompt the player for a town layout and arena.
+ */
+
+s16b select_town_layout(bool arenap) {
+  int i = 0;
+  int c;
+  vault_type* v_ptr;
+
+  clear_from(20);
+
+  while (TRUE) {
+    v_ptr = &v_info[i];
+
+    if ((arenap && v_ptr->typ == 11) || 
+	(!arenap && v_ptr->typ == 10)) {
+
+      prt(format("%s: Use this %s layout? (y/n) ", 
+		     v_name + v_ptr->name,
+		     arenap ? "arena" : "town"), 
+	      20, 2);
+
+      c = inkey();
+
+      if (c == 'Q') quit(NULL);
+      if (c == 'S') return -1;
+
+      if (c == 'y') {
+	return i;
+      } 
+    }
+
+    i++;
+
+    if (i == MAX_V_IDX) i = 0;
+  }
+}
+
 
 
 /*
@@ -1679,21 +1780,6 @@ static bool player_birth_aux()
 	/* Display */
 	c_put_str(TERM_L_BLUE, str, 4, 15);
 
-	/* Mutants get random bonuses. */
-	if (p_ptr->prace == RACE_MUTANT) {
-	  p_ptr->prace_info = randint(5);
-	} else {
-	  p_ptr->prace_info = 0;
-	}
-
-	/* Random stat gain/loss for mutants. */
-	/* Mutants get +/- 1 to each stat. */
-
-	if (p_ptr->prace == RACE_MUTANT) {
-	  for (i = 0; i < 6; i++) {
-	    rp_ptr->r_adj[i] += randint(3)-2;
-	  }
-	}
 
 	/* Clean up */
 	clear_from(15);
@@ -1704,8 +1790,6 @@ static bool player_birth_aux()
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Your 'class' determines various intrinsic abilities and bonuses.");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"Any entries with a (*) should only be used by advanced players.");
 
 	/* Dump classes */
 	for (n = 0; n < MAX_CLASS; n++)
@@ -1717,19 +1801,16 @@ static bool player_birth_aux()
 		cp_ptr = &class_info[p_ptr->pclass];
 		str = cp_ptr->title;
 
-		/* Verify legality */
-		if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
-
 		/* Display */
 		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
-		put_str(buf, 20 + (n/3), 2 + 20 * (n%3));
+		put_str(buf, 19 + (n/3), 2 + 20 * (n%3));
 	}
 
 	/* Get a class */
 	while (1)
 	{
 		sprintf(buf, "Choose a class (%c-%c): ", I2A(0), I2A(n-1));
-		put_str(buf, 19, 2);
+		put_str(buf, 18, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
@@ -1804,10 +1885,19 @@ static bool player_birth_aux()
 	p_ptr->preserve = (c == 'y');
 
 	/* Clear */
-	clear_from(20);
+	clear_from(15);
 
 
 	/**** Dungeon seed ****/
+
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		    "If you select 'yes', all dungeon generation will use "
+		    "the same seed. ");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		    "This means that the structure of each level will be "
+		    "the same, though");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		    "monsters and items will change.");
 
 	/* Ask about dungeon seed */
 	while (1)
@@ -1831,7 +1921,57 @@ static bool player_birth_aux()
 	}
 
 	/* Clear */
-	clear_from(20);
+	clear_from(15);
+
+	/**** Select a town and an arena layout ****/
+
+	while (TRUE) {
+	  put_str("Select a random town layout? (y/n) ", 20, 2);
+	  c = inkey();
+
+	  if (c == 'Q') quit(NULL);
+	  if (c == 'S') return (FALSE);
+	  if (c == ESCAPE) break;
+	  if ((c == 'y') || (c == 'n')) break;
+	  if (c == '?') do_cmd_help();
+	  else bell();
+	}
+
+
+	if (c == 'n') {
+	  int i;
+
+	  i = select_town_layout(FALSE);
+	  
+	  if (i < 0) return FALSE;
+	  p_ptr->which_town = i;
+
+	  i = select_town_layout(TRUE);
+
+	  if (i < 0) return FALSE;
+	  p_ptr->which_arena_layout = i;
+
+	} else {
+	  int vindex;
+	  vault_type* v_ptr;
+	  bool foo = FALSE;
+	  bool bar = FALSE;
+
+	  while (TRUE) {
+	    vindex = rand_int(MAX_V_IDX);
+	    v_ptr = &v_info[vindex];
+
+	    if (v_ptr->typ == 10) {
+	      p_ptr->which_town = vindex;
+	      foo = TRUE;
+	    } else if (v_ptr->typ == 11) {
+	      p_ptr->which_arena_layout = vindex;
+	      bar = TRUE;
+	    }
+
+	    if (foo && bar) break;
+	  }
+	}
 
 
 	/**** Alignement ****/
@@ -1869,6 +2009,22 @@ static bool player_birth_aux()
 	/* Clear */
 	clear_from(20);
 
+
+	/* Mutants get random bonuses. */
+	if (p_ptr->prace == RACE_MUTANT) {
+	  p_ptr->prace_info = randint(5);
+	} else {
+	  p_ptr->prace_info = 0;
+	}
+
+	/* Random stat gain/loss for mutants. */
+	/* Mutants get +/- 1 to each stat. */
+
+	if (p_ptr->prace == RACE_MUTANT) {
+	  for (i = 0; i < 6; i++) {
+	    rp_ptr->r_adj[i] += randint(3)-2;
+	  }
+	}
 
 #ifdef ALLOW_AUTOROLLER
 
@@ -2127,11 +2283,11 @@ static bool player_birth_aux()
 		/* Input loop */
 		while (TRUE)
 		{
-			/* Calculate the bonuses and hitpoints */
-			p_ptr->update |= (PU_BONUS | PU_HP | PU_SANITY);
+		  /* Calculate the bonuses and hitpoints */
+		  p_ptr->update |= (PU_BONUS | PU_MANA | PU_HP | PU_SANITY);
 
 			/* Update stuff */
-			update_stuff();
+		        update_stuff();
 
 			/* Fully healed */
 			p_ptr->chp = p_ptr->mhp;
@@ -2242,14 +2398,21 @@ void player_birth(void)
 	int i, n;
 
 
+	/* Reset all global tables. */
+	player_wipe();
+
+
 	/* Create a new character */
 	while (1)
 	{
-		/* Wipe the player */
-		player_wipe();
+	  /* Wipe the player */
+	  WIPE(p_ptr, player_type);
 
-		/* Roll up a new character */
-		if (player_birth_aux()) break;
+	  /* Hack -- Well fed player */
+	  p_ptr->food = PY_FOOD_FULL - 1;
+
+	  /* Roll up a new character */
+	  if (player_birth_aux()) break;
 	}
 
 	/* Note player birth in the message recall */
@@ -2267,6 +2430,10 @@ void player_birth(void)
 	p_ptr->oldpx = 0;
 	p_ptr->oldpy = 0;
 
+	if (p_ptr->pclass == CLASS_VAMPIRE) {
+	  p_ptr->depth = 1;
+	}
+
 	/* Setup starting depth */
 	if (p_ptr->prace == RACE_GHOST) {
 	  p_ptr->depth = 90+randnor(0,2);
@@ -2276,7 +2443,6 @@ void player_birth(void)
 	  p_ptr->depth = 30+randnor(0,4);
 	  p_ptr->noscore |= 0x0001;
 	}
-
 
 	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)
@@ -2290,6 +2456,9 @@ void player_birth(void)
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
+
+	/* Select bounty monsters. */
+	select_bounties();
 }
 
 

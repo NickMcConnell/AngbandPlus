@@ -305,7 +305,7 @@ static void get_s32b(s32b *ip)
 
 
 /*
- * Read a savefile for Angband 2.8.0
+ * Read a savefile.
  */
 static errr rd_savefile(void)
 {
@@ -455,51 +455,46 @@ static void wr_string(cptr str)
  */
 static void wr_item(object_type *o_ptr)
 {
-	wr_s16b(o_ptr->k_idx);
+  wr_s16b(o_ptr->k_idx);
 
-	/* Location */
-	wr_byte(o_ptr->iy);
-	wr_byte(o_ptr->ix);
+  wr_u32b(o_ptr->flags1);
+  wr_u32b(o_ptr->flags2);
+  wr_u32b(o_ptr->flags3);
 
-	wr_byte(o_ptr->tval);
-	wr_byte(o_ptr->sval);
-	wr_s16b(o_ptr->pval);
+  wr_byte(o_ptr->tval);
+  wr_byte(o_ptr->sval);
+  wr_s16b(o_ptr->pval);
 
-	wr_byte(o_ptr->discount);
-	wr_byte(o_ptr->number);
-	wr_s16b(o_ptr->weight);
+  wr_byte(o_ptr->discount);
+  wr_byte(o_ptr->number);
+  wr_s16b(o_ptr->weight);
+  wr_s16b(o_ptr->chp);
+  wr_s16b(o_ptr->mhp);
 
-	wr_byte(o_ptr->name1);
-	wr_byte(o_ptr->name2);
-	wr_s16b(o_ptr->timeout);
+  wr_byte(o_ptr->stuff);
 
-	wr_s16b(o_ptr->to_h);
-	wr_s16b(o_ptr->to_d);
-	wr_s16b(o_ptr->to_a);
-	wr_s16b(o_ptr->ac);
-	wr_byte(o_ptr->dd);
-	wr_byte(o_ptr->ds);
+  wr_byte(o_ptr->name1);
+  wr_byte(o_ptr->name2);
+  wr_s16b(o_ptr->timeout);
 
-	wr_byte(o_ptr->ident);
+  wr_s16b(o_ptr->to_h);
+  wr_s16b(o_ptr->to_d);
+  wr_s16b(o_ptr->to_a);
+  wr_s16b(o_ptr->ac);
+  wr_byte(o_ptr->dd);
+  wr_byte(o_ptr->ds);
 
-	wr_byte(o_ptr->marked);
+  wr_byte(o_ptr->ident);
 
-	/* Held by monster index */
-	wr_s16b(o_ptr->held_m_idx);
+  wr_byte(o_ptr->marked);
 
-	/* Extra information */
-	wr_byte(o_ptr->xtra1);
-	wr_byte(o_ptr->xtra2);
+  /* Save the inscription (if any) */
+  if (o_ptr->note) {
+    wr_string(quark_str(o_ptr->note));
 
-	/* Save the inscription (if any) */
-	if (o_ptr->note)
-	{
-		wr_string(quark_str(o_ptr->note));
-	}
-	else
-	{
-		wr_string("");
-	}
+  } else {
+    wr_string("");
+  }
 }
 
 
@@ -508,20 +503,30 @@ static void wr_item(object_type *o_ptr)
  */
 static void wr_monster(monster_type *m_ptr)
 {
-	wr_s16b(m_ptr->r_idx);
-	wr_byte(m_ptr->fy);
-	wr_byte(m_ptr->fx);
-	wr_s16b(m_ptr->hp);
-	wr_s16b(m_ptr->maxhp);
-	wr_s16b(m_ptr->csleep);
-	wr_byte(m_ptr->mspeed);
-	wr_byte(m_ptr->energy);
-	wr_byte(m_ptr->stunned);
-	wr_byte(m_ptr->confused);
-	wr_byte(m_ptr->monfear);
-	wr_byte(m_ptr->is_pet);
-	wr_byte(m_ptr->random_name_idx);
-	wr_s16b(m_ptr->hold_o_idx);
+  object_type* o_ptr;
+
+  wr_s16b(m_ptr->r_idx);
+  wr_byte(m_ptr->fy);
+  wr_byte(m_ptr->fx);
+  wr_s16b(m_ptr->hp);
+  wr_s16b(m_ptr->maxhp);
+  wr_s16b(m_ptr->csleep);
+  wr_byte(m_ptr->mspeed);
+  wr_byte(m_ptr->energy);
+  wr_byte(m_ptr->stunned);
+  wr_byte(m_ptr->confused);
+  wr_byte(m_ptr->monfear);
+  wr_byte(m_ptr->is_pet);
+  wr_s16b(m_ptr->random_name_idx);
+  wr_s16b(m_ptr->mflag);
+
+  for (o_ptr = m_ptr->inventory; o_ptr != NULL; o_ptr = o_ptr->next) {
+    wr_item(o_ptr);
+  }
+
+  /* End-of-list marker. */
+  wr_s16b(0);
+
 }
 
 
@@ -601,7 +606,7 @@ static void wr_xtra(int k_idx)
  */
 static void wr_store(store_type *st_ptr)
 {
-	int j;
+	object_type* o_ptr;
 
 	/* Save the "open" counter */
 	wr_u32b(st_ptr->store_open);
@@ -612,19 +617,21 @@ static void wr_store(store_type *st_ptr)
 	/* Save the current owner */
 	wr_byte(st_ptr->owner);
 
-	/* Save the stock size */
-	wr_byte(st_ptr->stock_num);
-
 	/* Save the "haggle" info */
 	wr_s16b(st_ptr->good_buy);
 	wr_s16b(st_ptr->bad_buy);
 
 	/* Save the stock */
-	for (j = 0; j < st_ptr->stock_num; j++)
-	{
-		/* Save each item in stock */
-		wr_item(&st_ptr->stock[j]);
+	for (o_ptr = st_ptr->stock; o_ptr != NULL; 
+	     o_ptr = o_ptr->next_global) {
+
+	  wr_item(o_ptr);
+	  wr_byte(o_ptr->iy);
+	  wr_byte(o_ptr->ix);
 	}
+
+	/* End-of-list. */
+	wr_s16b(0);
 }
 
 
@@ -799,14 +806,20 @@ static void wr_extra(void)
 	/* Write arena and rewards information -KMW- */
 	wr_byte(p_ptr->which_arena);
 	wr_byte(p_ptr->which_quest);
-	wr_byte(p_ptr->which_town);
-	wr_byte(p_ptr->which_arena_layout);
+	wr_s16b(p_ptr->which_town);
+	wr_s16b(p_ptr->which_arena_layout);
 
 	for (i = 0; i < MAX_ARENAS; i++) wr_s16b(p_ptr->arena_number[i]);
 	for (i = 0; i < MAX_REWARDS; i++) wr_byte(rewards[i]);
+	
+	for (i = 0; i < MAX_BOUNTIES; i++) {
+	  wr_s16b(bounties[i][0]);
+	  wr_s16b(bounties[i][1]);
+	}
 
 	wr_s16b(p_ptr->inside_special);
 	wr_byte(p_ptr->exit_bldg);
+	wr_s16b(p_ptr->s_idx);
 
 	wr_s16b(p_ptr->mhp);
 	wr_s16b(p_ptr->chp);
@@ -882,6 +895,7 @@ static void wr_extra(void)
 	wr_u32b(seed_flavor);
 	wr_u32b(seed_town);
 	wr_u32b(seed_dungeon);
+	wr_u32b(seed_wild);
 
 
 	/* Special stuff */
@@ -917,20 +931,23 @@ static void wr_dungeon(void)
 	byte count;
 	byte prev_char;
 
+	object_type* o_ptr;
+
 
 	/*** Basic info ***/
 
 	/* Dungeon specific info follows */
-	wr_u16b(p_ptr->depth);
-	wr_u16b(0);
-	wr_u16b(p_ptr->py);
-	wr_u16b(p_ptr->px);
-	wr_u16b(p_ptr->oldpy); /* save old arena locations -KMW- */
-	wr_u16b(p_ptr->oldpx);
-	wr_u16b(DUNGEON_HGT);
-	wr_u16b(DUNGEON_WID);
-	wr_u16b(0);
-	wr_u16b(0);
+	wr_s16b(p_ptr->depth);
+	wr_s16b(p_ptr->wild_y);
+	wr_s16b(p_ptr->wild_x);
+	wr_s16b(p_ptr->py);
+	wr_s16b(p_ptr->px);
+
+	wr_s16b(p_ptr->oldpy); /* save old arena locations -KMW- */
+	wr_s16b(p_ptr->oldpx);
+
+	wr_s16b(DUNGEON_HGT);
+	wr_s16b(DUNGEON_WID);
 
 
 	/*** Simple "Run-Length-Encoding" of cave ***/
@@ -1013,27 +1030,27 @@ static void wr_dungeon(void)
 
 	/*** Compact ***/
 
-	/* Compact the objects */
-	compact_objects(0);
-
 	/* Compact the monsters */
 	compact_monsters(0);
 
 
 	/*** Dump objects ***/
 
-	/* Total objects */
-	wr_u16b(o_max);
-
 	/* Dump the objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
+	for (o_ptr = o_list; o_ptr != NULL; o_ptr = o_ptr->next_global) {
 
-		/* Dump it */
-		wr_item(o_ptr);
+	  if (o_ptr->stack == STACK_FLOOR) {
+	    /* Dump it */
+	    wr_item(o_ptr);
+
+	    /* Write location. */
+	    wr_byte(o_ptr->iy);
+	    wr_byte(o_ptr->ix);
+	  }
 	}
 
+	/* Place end-of-list marker. */
+	wr_s16b(0);
 
 	/*** Dump the monsters ***/
 
@@ -1048,20 +1065,6 @@ static void wr_dungeon(void)
 		/* Dump it */
 		wr_monster(m_ptr);
 	}
-
-
-	/*** Dump the monster generators ***/
-	wr_u16b(m_generators);
-
-	for (i = 0; i < m_generators; i++) {
-	  generator* gen_ptr = &gen_list[i];
-
-	  /* Dump it */
-	  wr_s16b(gen_ptr->r_idx);
-	  wr_s16b(gen_ptr->timeout);
-	  wr_s16b(gen_ptr->x);
-	  wr_s16b(gen_ptr->y);
-	}
 }
 
 
@@ -1074,6 +1077,8 @@ static void wr_spell(spell* s_ptr) {
   int len = 0;
 
   wr_string(s_ptr->name);
+  wr_string(s_ptr->desc);
+  wr_byte(s_ptr->class);
   wr_byte(s_ptr->level);
   wr_byte(s_ptr->mana);
   wr_byte(s_ptr->untried);
@@ -1095,8 +1100,8 @@ static void wr_spell(spell* s_ptr) {
     wr_byte(pnode->safe);
     wr_byte(pnode->attack_kind);
     wr_byte(pnode->radius);
-    wr_byte(pnode->dam_dice);
-    wr_byte(pnode->dam_sides);
+    wr_s16b(pnode->dam_dice);
+    wr_s16b(pnode->dam_sides);
 
     pnode = pnode->next;
   }
@@ -1117,6 +1122,8 @@ static bool wr_savefile_new(void)
 	byte tmp8u;
 	u16b tmp16u;
 
+	object_type* o_ptr;
+	
 
 	/* Guess at the current time */
 	now = time((time_t *)0);
@@ -1136,11 +1143,11 @@ static bool wr_savefile_new(void)
 
 	/* Dump the file header */
 	xor_byte = 0;
-	wr_byte(VERSION_MAJOR);
+	wr_byte(KAM_VERSION_MAJOR);
 	xor_byte = 0;
-	wr_byte(VERSION_MINOR);
+	wr_byte(KAM_VERSION_MINOR);
 	xor_byte = 0;
-	wr_byte(VERSION_PATCH);
+	wr_byte(KAM_VERSION_PATCH);
 	xor_byte = 0;
 	tmp8u = rand_int(256);
 	wr_byte(tmp8u);
@@ -1232,8 +1239,7 @@ static bool wr_savefile_new(void)
 	  wr_byte(ra_ptr->level);
 	  wr_byte(ra_ptr->attr);
 	  wr_u32b(ra_ptr->cost);
-	  wr_byte(ra_ptr->tact);
-	  wr_byte(ra_ptr->sact);
+	  wr_s16b(ra_ptr->activation);
 	  wr_byte(ra_ptr->generated);
 	}
 
@@ -1277,31 +1283,38 @@ static bool wr_savefile_new(void)
 
 
 	/* Write the inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (o_ptr = inventory; o_ptr != NULL; o_ptr = o_ptr->next)
 	{
-		object_type *o_ptr = &inventory[i];
+	  bool foo = FALSE;
 
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+	  /* Dump object */
+	  wr_item(o_ptr);
 
-		/* Dump index */
-		wr_u16b(i);
+	  /* Hack -- Write equipment slot. */
+	  for (i = 0; i < EQUIP_MAX; i++) {
 
-		/* Dump object */
-		wr_item(o_ptr);
+	    if (equipment[i] == o_ptr) {
+	      wr_s16b(i);
+	      foo = TRUE;
+	    }
+	  }
+		    
+	  if (!foo) {
+	    wr_s16b(-1);
+	  }
 	}
 
-	/* Add a sentinel */
-	wr_u16b(0xFFFF);
-
+	/* Write end-of-list marker. */
+	wr_s16b(0);
 
 	/* Note the stores */
 	tmp16u = MAX_STORES;
 	wr_u16b(tmp16u);
 
 	/* Dump the stores */
-	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
-
+	for (i = 0; i < tmp16u; i++) {
+	  wr_store(&store[i]);
+	}
 
 	/* Player is not dead, write the dungeon */
 	if (!p_ptr->is_dead)
@@ -1330,7 +1343,6 @@ static bool wr_savefile_new(void)
 /*
  * Medium level player saver
  *
- * XXX XXX XXX Angband 2.8.0 will use "fd" instead of "fff" if possible
  */
 static bool save_player_aux(char *name)
 {
@@ -1489,26 +1501,6 @@ bool save_player(void)
 
 /*
  * Attempt to Load a "savefile"
- *
- * Version 2.7.0 introduced a slightly different "savefile" format from
- * older versions, requiring a completely different parsing method.
- *
- * Note that savefiles from 2.7.0 - 2.7.2 are completely obsolete.
- *
- * Pre-2.8.0 savefiles lose some data, see "load2.c" for info.
- *
- * Pre-2.7.0 savefiles lose a lot of things, see "load1.c" for info.
- *
- * On multi-user systems, you may only "read" a savefile if you will be
- * allowed to "write" it later, this prevents painful situations in which
- * the player loads a savefile belonging to someone else, and then is not
- * allowed to save his game when he quits.
- *
- * We return "TRUE" if the savefile was usable, and we set the global
- * flag "character_loaded" if a real, living, character was loaded.
- *
- * Note that we always try to load the "current" savefile, even if
- * there is no such file, so we must check for "empty" savefile names.
  */
 bool load_player(void)
 {
@@ -1642,7 +1634,8 @@ bool load_player(void)
 		Term_clear();
 
 		/* Parse "new" savefiles */
-		if (sf_major == 2) {
+		if (sf_major == version_major && 
+		    sf_minor == version_minor) {
 			/* Attempt to load */
 			err = rd_savefile_new();
 		}

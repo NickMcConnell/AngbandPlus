@@ -553,6 +553,7 @@ static void roff_aux(int r_idx, int remem)
 		if (flags3 & (RF3_ANIMAL)) roff(" natural");
 		if (flags3 & (RF3_EVIL)) roff(" evil");
 		if (flags3 & (RF3_UNDEAD)) roff(" undead");
+	        if (flags2 & (RF2_AQUATIC)) roff(" aquatic");
 
 		/* Describe the "race" */
 		if (flags3 & (RF3_DRAGON)) roff(" dragon");
@@ -1287,6 +1288,7 @@ static void roff_aux(int r_idx, int remem)
 		case RBM_DISGUST: p = "be disgusting"; break;
 		case RBM_PROJECT: p = "project mental images"; break;
 		case RBM_HALT:	p = "shout ``Halt'' alot"; break;
+		case RBM_EXPLODE: p = "explode"; break;
 		}
 
 

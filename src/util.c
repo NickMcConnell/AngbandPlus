@@ -2550,8 +2550,8 @@ void mformat(byte prior, cptr fmt, ...)
  */
 void c_put_str(byte attr, cptr str, int row, int col)
 {
-	/* Position cursor, Dump the attr/text */
-	Term_putstr(col, row, -1, attr, str);
+  /* Position cursor, Dump the attr/text */
+  Term_putstr(col, row, -1, attr, str);
 }
 
 
@@ -3301,35 +3301,15 @@ void request_command(int shopping)
 		}
 	}
 
-	/* Building commands, hack  -KMW- */
-	if ((shopping == 2) && (rogue_like_commands))
-	{
-		/* Convert */
-		switch (p_ptr->command_cmd)
-		{
-			case 'B': p_ptr->command_cmd = 'f'; break;
-			case 'z': p_ptr->command_cmd = 'a'; break;
-			case 'a': p_ptr->command_cmd = 'z'; break;
-			case ';':
-				if (p_ptr->command_dir == 1)
-					p_ptr->command_cmd = 'b';
-				else if (p_ptr->command_dir == 4)
-					p_ptr->command_cmd = 'h';
-				else if (p_ptr->command_dir == 6)
-					p_ptr->command_cmd = 'l';
-				break;
-		}
-	}
-
 	/* Scan equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
 		cptr s;
 
-		object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = equipment[i];
 
 		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+		if (!o_ptr || !o_ptr->k_idx) continue;
 
 		/* No inscription */
 		if (!o_ptr->note) continue;
