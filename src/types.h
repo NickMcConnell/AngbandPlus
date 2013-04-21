@@ -81,7 +81,6 @@ typedef struct feature_type feature_type;
 typedef struct feature_lore feature_lore;
 typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
-typedef struct artifact_lore artifact_lore;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
 typedef struct monster_race monster_race;
@@ -111,8 +110,9 @@ typedef struct move_moment_type move_moment_type;
 typedef struct dynamic_grid_type dynamic_grid_type;
 typedef struct quiver_group_type quiver_group_type;
 typedef struct option_type option_type;
+typedef struct element_counter_type element_counter_type;
 typedef struct dungeon_capabilities_type dungeon_capabilities_type;
-
+typedef struct new_spell_info_type new_spell_info_type;
 
 
 /**** Available structs ****/
@@ -214,15 +214,6 @@ struct feature_type
 	byte non_native_to_hit_adj;	/*combat bonus for being native (percentage)*/
 	int f_stealth_adj;			/*Adjustment to stealth depending on terrain*/
 
-};
-
-/*
- * Artifact "lore" information
- *
- */
-struct artifact_lore
-{
-        bool was_fully_identified;      /* Preserved between diferent games */
 };
 
 
@@ -848,13 +839,13 @@ struct player_race
 	s16b r_dis;			/* disarming */
 	s16b r_dev;			/* magic devices */
 	s16b r_sav;			/* saving throw */
-	s16b r_stl;			/* stealth */
 	s16b r_srh;			/* search ability */
 	s16b r_fos;			/* search frequency */
 	s16b r_thn;			/* combat (normal) */
 	s16b r_thb;			/* combat (shooting) */
 
 	byte r_mhp;			/* Race hit-dice modifier */
+	byte r_mmp;			/* Race mana modifier */
 	byte r_exp;			/* Race experience factor */
 
 	byte b_age;			/* base age */
@@ -909,7 +900,6 @@ struct player_class
 	s16b c_dis;			/* class disarming */
 	s16b c_dev;			/* class magic devices */
 	s16b c_sav;			/* class saving throws */
-	s16b c_stl;			/* class stealth */
 	s16b c_srh;			/* class searching ability */
 	s16b c_fos;			/* class searching frequency */
 	s16b c_thn;			/* class to hit (normal) */
@@ -1010,8 +1000,11 @@ struct player_type
 	byte pclass;		/* Class index */
 	byte oops;			/* Unused */
 
+	byte mpdie;			/* mana dice (sides) */
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
+
+	s16b statgain1,statgain2,statgain3,statgain4,statgain5,statgain6,statgain7,statgain8,statgain9; /* from 0 to A_MAX-1, or set to A_MAX once change effected */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -1060,6 +1053,7 @@ struct player_type
 	s16b hero;			/* Timed -- Heroism */
 	s16b shero;			/* Timed -- Super Heroism */
 	s16b shield;		/* Timed -- Shield Spell */
+	s16b megashield;		/* Timed -- Shield Spell */
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
@@ -1070,6 +1064,7 @@ struct player_type
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
+	s16b oppose_conf;	/* Timed -- oppose confusion */
 
 	s16b temp_native_lava;	/* Timed -- native to lava */
 	s16b temp_native_oil;	/* Timed -- native to oil */
@@ -1079,6 +1074,8 @@ struct player_type
 	s16b temp_native_mud;	/* Timed -- native to mud */
 
 	s16b word_recall;	/* Word of recall counter */
+	s16b teleport_delay; /* teleport counter */
+	s16b teleport_range; /* teleport range when it happens */
 
 	s16b p_energy;		/* Current energy */
 
@@ -1095,6 +1092,7 @@ struct player_type
 	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
+	s16b player_sp[PY_MAX_LEVEL];	/* SP Array */
 
 	char died_from[80];		/* Cause of death */
 	char history[250];	/* Initial history */
@@ -1217,16 +1215,22 @@ struct player_type
 	bool sustain_wis;	/* Keep wisdom */
 	bool sustain_dex;	/* Keep dexterity */
 	bool sustain_con;	/* Keep constitution */
-	bool sustain_chr;	/* Keep charisma */
+	bool sustain_agi;	/* Keep agility */
+	bool sustain_ste;	/* Keep stealth */
+	bool sustain_per;	/* Keep perception */
+	bool sustain_luc;	/* Keep luck */
 
 	bool slow_digest;	/* Slower digestion */
 	bool ffall;			/* Feather falling */
 	bool lite;			/* Permanent light */
 	bool regenerate;	/* Regeneration */
 	bool telepathy;		/* Telepathy */
+	bool sr_telepathy_1;		/* Short-range telepathy from high Perception */
+	bool sr_telepathy_2;		/* Medium-range telepathy from high Perception */
 	bool see_inv;		/* See invisible */
 	bool free_act;		/* Free action */
 	bool hold_life;		/* Hold life */
+	bool vampire;       /* Draining */
 
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */
@@ -1235,14 +1239,14 @@ struct player_type
 
 	bool bless_blade;	/* Blessed blade */
 
-	s16b dis_to_h;		/* Known bonus to hit */
-	s16b dis_to_d;		/* Known bonus to dam */
+	s16b dis_to_h_melee, dis_to_h_missile;		/* Known bonus to hit */
+	s16b dis_to_d_melee, dis_to_d_missile;		/* Known bonus to dam */
 	s16b dis_to_a;		/* Known bonus to ac */
 
 	s16b dis_ac;		/* Known base ac */
 
-	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to dam */
+	s16b to_h_melee, to_h_missile;			/* Bonus to hit */
+	s16b to_d_melee, to_d_missile;			/* Bonus to dam */
 	s16b to_a;			/* Bonus to ac */
 
 	s16b ac;			/* Base ac */
@@ -1260,8 +1264,8 @@ struct player_type
 	s16b skill_tht;		/* Skill: To hit (throwing) */
 	s16b skill_dig;		/* Skill: Digging */
 
-	s16b num_blow;		/* Number of blows */
-	s16b num_fire;		/* Number of shots */
+	s16b num_blows_times_ten;		/* Number of blows */
+	s16b num_fire_times_ten;		/* Number of shots */
 
 	byte ammo_mult;		/* Ammo multiplier */
 
@@ -1282,9 +1286,23 @@ struct player_type
 
 	u16b dungeon_type;	/* One of the DUNGEON_TYPE_* constants */
 
-	u16b temp_call_huorns; /* Timed: duration of the call_huorns spell */
+	int n_woken;
+
 };
 
+struct new_spell_info_type
+{
+	s16b code; /* a NEWSPELL_ code */
+
+	s16b school1; /* a SCHOOL_ code */
+	s16b school2; /* a SCHOOL_ code or -1 */
+
+	s16b level; 
+	s16b cost;
+
+	char name[80];
+	s16b book; /* currently from 0 to 7 */
+};
 
 /*
  * Semi-Portable High Score List Entry (128 bytes)
@@ -1446,6 +1464,25 @@ struct option_type
 	cptr text;
 	cptr desc;
 	bool norm;
+};
+
+/*
+ * Counts the number of elemental terrain types in the dungeon
+ * Note individual values for lava, bmud and bwater
+ */
+struct element_counter_type
+{
+	u16b fire;
+	u16b acid;
+	u16b ice;
+	u16b oil;
+	u16b water;
+	u16b forest;
+	u16b lava;
+	u16b sand;
+	u16b mud;
+	u16b bmud;
+	u16b bwater;
 };
 
 /*

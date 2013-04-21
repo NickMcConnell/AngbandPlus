@@ -120,7 +120,10 @@ static bool known_sustain(int stat)
 		case A_WIS:	{if (!p_ptr->sustain_wis) return (FALSE); break;}
 		case A_DEX:	{if (!p_ptr->sustain_dex) return (FALSE); break;}
 		case A_CON:	{if (!p_ptr->sustain_con) return (FALSE); break;}
-		case A_CHR:	{if (!p_ptr->sustain_chr) return (FALSE); break;}
+		case A_AGI:	{if (!p_ptr->sustain_agi) return (FALSE); break;}
+		case A_STE:	{if (!p_ptr->sustain_ste) return (FALSE); break;}
+		case A_PER:	{if (!p_ptr->sustain_per) return (FALSE); break;}
+		case A_LUC:	{if (!p_ptr->sustain_luc) return (FALSE); break;}
 		default: break;
 	}
 
@@ -394,18 +397,19 @@ static void prt_resistances(int row, int col)
 
   	/* Temporary resistances */
    	{
-		byte colors[] = { TERM_SLATE, TERM_L_BLUE, TERM_RED, TERM_WHITE,		TERM_GREEN };
-		bool values[5];
+		byte colors[] = { TERM_SLATE, TERM_L_BLUE, TERM_RED, TERM_WHITE,		TERM_GREEN, TERM_YELLOW };
+		bool values[6];
 
-  		const char *chars = "AEFCP";
+  		const char *chars = "AEFCP?";
 		values[0] = ((p_ptr->oppose_acid > 0) && (p_ptr->immune_acid < 1));
   		values[1] = ((p_ptr->oppose_elec > 0) && (p_ptr->immune_elec < 1)),
   		values[2] = ((p_ptr->oppose_fire > 0) && (p_ptr->immune_fire < 1)),
   		values[3] = ((p_ptr->oppose_cold > 0) && (p_ptr->immune_cold < 1)),
   		values[4] = ((p_ptr->oppose_pois > 0) && (p_ptr->immune_pois < 1));
+  		values[5] = ((p_ptr->oppose_conf > 0));
 
 
-		for(i = 0; i < N_ELEMENTS(values); i++)
+		for(i = 0; i < 6; i++)
 		{
 			if(values[i])
 			{
@@ -542,9 +546,6 @@ static void prt_cur_sp(int row, int col)
 	char tmp[32];
 	byte color;
 	int len;
-
-	/* Do not show mana unless it matters */
-	if (!cp_ptr->spell_book) return;
 
 
 	put_str("SP          ", row, col);
@@ -1701,10 +1702,7 @@ static void calc_spells(void)
 
 	s16b old_spells;
 
-	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell" );
-
-	/* Hack -- must be literate */
-	if (!cp_ptr->spell_book) return;
+	cptr p = "spell";
 
 	/* Hack -- wait for creation */
 	if (!character_generated) return;
@@ -1908,19 +1906,13 @@ static void calc_mana(void)
 	bool old_cumber_glove = p_ptr->cumber_glove;
 	bool old_cumber_armor = p_ptr->cumber_armor;
 
-	/* Hack -- Must be literate */
-	if (!cp_ptr->spell_book) return;
+	long bonus;
 
-	/* Extract "effective" player level */
-	levels = (p_ptr->lev - cp_ptr->spell_first) + 1;
+	/* Get "1/100th spellpoint bonus per level" value */
+	bonus = adj_wis_msp[p_ptr->stat_ind[A_WIS]];
 
-	/* Hack -- no negative mana */
-	if (levels < 0) levels = 0;
-
-	msp = (long)adj_mag_mana[SPELL_STAT_SLOT] * levels / 100;
-
-	/* Hack -- usually add one mana */
-	if (msp) msp++;
+	/* Calculate spell points */
+	msp = p_ptr->player_sp[p_ptr->lev-1] + (bonus * p_ptr->lev / 100);
 
 	/* Process gloves for those disturbed by them */
 	if (cp_ptr->flags & CF_CUMBER_GLOVE)
@@ -2114,6 +2106,24 @@ static void calc_torch(void)
 				continue;
 			}
 
+			if (o_ptr->sval == SV_LITE_GLOW1)
+			{
+				p_ptr->cur_lite += 1;
+				continue;
+			}
+
+			if (o_ptr->sval == SV_LITE_GLOW2)
+			{
+				p_ptr->cur_lite += 2;
+				continue;
+			}
+
+			if (o_ptr->sval == SV_LITE_GLOW3)
+			{
+				p_ptr->cur_lite += 3;
+				continue;
+			}
+
 			/* Lanterns (with fuel) provide more lite */
 			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->timeout > 0))
 			{
@@ -2139,7 +2149,7 @@ static void calc_torch(void)
 			}
 
 			/* Torches (with fuel) provide some lite */
-			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->timeout > 0))
+			if ((o_ptr->sval == SV_LITE_TORCH || o_ptr->sval == SV_LITE_MAGELIGHT) && (o_ptr->timeout > 0))
 			{
 				p_ptr->cur_lite += 1;
 				continue;
@@ -2159,6 +2169,9 @@ static void calc_torch(void)
 	/* Player is glowing */
 	if (p_ptr->lite) p_ptr->cur_lite++;
 
+	if (p_ptr->cur_lite){
+		p_ptr->cur_lite += adj_per_lite[p_ptr->stat_ind[A_PER]];
+	}
 
 	/* Reduce lite when running if requested */
 	if (p_ptr->running && view_reduce_lite)
@@ -2286,7 +2299,7 @@ static void calc_stealth(void)
 	old_skill_stl = p_ptr->skill_stl;
 
 	/* Base skill -- stealth */
-	p_ptr->skill_stl = rp_ptr->r_stl + cp_ptr->c_stl;
+	p_ptr->skill_stl = adj_ste_stealth[p_ptr->stat_ind[A_STE]];
 
 	/* Very simple if flying */
 	if (p_ptr->flying)
@@ -2294,29 +2307,6 @@ static void calc_stealth(void)
 		/*Very quiet*/
 		p_ptr->skill_stl += 3;
 	}
-
-	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
-	{
-		u32b f1, f2, f3, native;
-
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Extract the item flags */
-		object_flags(o_ptr, &f1, &f2, &f3, &native);
-
-		/* Affect stealth */
-		if (f1 & (TR1_STEALTH)) p_ptr->skill_stl += o_ptr->pval;
-	}
-
-	/* Affect Skill -- stealth (bonus one) */
-	p_ptr->skill_stl += 1;
-
-	/* Affect Skill -- stealth (Level, by Class) */
-	p_ptr->skill_stl += (cp_ptr->x_stl * p_ptr->lev / 10);
 
 	/*Feature affects skill*/
 	p_ptr->skill_stl += f_info[cave_feat[p_ptr->py][p_ptr->px]].f_stealth_adj;
@@ -2331,15 +2321,15 @@ static void calc_stealth(void)
 		/* Assume character is extremely noisy. */
 		p_ptr->base_wakeup_chance = 100 * WAKEUP_ADJ;
 
-		/* For every increase in stealth past 0, multiply wakeup chance by 0.8. */
+		/* For every increase in stealth past 0, multiply wakeup chance by 0.86. */
 		for (i = 0; i < p_ptr->skill_stl; i++)
 		{
-			p_ptr->base_wakeup_chance = 4 * p_ptr->base_wakeup_chance / 5;
+			p_ptr->base_wakeup_chance = (86 * p_ptr->base_wakeup_chance) / 100;
 
 			/* Always make at least some innate noise */
-			if (p_ptr->base_wakeup_chance < 50)
+			if (p_ptr->base_wakeup_chance < 30)
 			{
-				p_ptr->base_wakeup_chance = 50;
+				p_ptr->base_wakeup_chance = 30;
 				break;
 			}
 		}
@@ -2374,7 +2364,7 @@ static void calc_bonuses(void)
 
 	int old_speed;
 
-	int old_telepathy;
+	int old_telepathy, old_sr_telepathy_1, old_sr_telepathy_2;
 	int old_see_inv;
 
 
@@ -2407,6 +2397,8 @@ static void calc_bonuses(void)
 
 	/* Save the old vision stuff */
 	old_telepathy = p_ptr->telepathy;
+	old_sr_telepathy_1 = p_ptr->sr_telepathy_1;
+	old_sr_telepathy_2 = p_ptr->sr_telepathy_2;
 	old_see_inv = p_ptr->see_inv;
 
 	/* Save the old armor class */
@@ -2432,11 +2424,11 @@ static void calc_bonuses(void)
 	p_ptr->pspeed = 110;
 
 	/* Reset "blow" info */
-	p_ptr->num_blow = 1;
+	p_ptr->num_blows_times_ten = 10;
 	extra_blows = 0;
 
 	/* Reset "fire" info */
-	p_ptr->num_fire = 0;
+	p_ptr->num_fire_times_ten = 0;
 	p_ptr->ammo_mult = 0;
 	p_ptr->ammo_tval = 0;
 	extra_shots = 0;
@@ -2449,8 +2441,10 @@ static void calc_bonuses(void)
 	p_ptr->dis_ac = p_ptr->ac = 0;
 
 	/* Clear the Displayed/Real Bonuses */
-	p_ptr->dis_to_h = p_ptr->to_h = 0;
-	p_ptr->dis_to_d = p_ptr->to_d = 0;
+	p_ptr->dis_to_h_melee = p_ptr->to_h_melee = 0;
+	p_ptr->dis_to_d_melee = p_ptr->to_d_melee = 0;
+	p_ptr->dis_to_h_missile = p_ptr->to_h_missile = 0;
+	p_ptr->dis_to_d_missile = p_ptr->to_d_missile = 0;
 	p_ptr->dis_to_a = p_ptr->to_a = 0;
 
 	/* Clear all the flags */
@@ -2466,13 +2460,18 @@ static void calc_bonuses(void)
 	p_ptr->ffall = FALSE;
 	p_ptr->hold_life = FALSE;
 	p_ptr->telepathy = FALSE;
+	p_ptr->sr_telepathy_1 = FALSE;
+	p_ptr->sr_telepathy_2 = FALSE;
 	p_ptr->lite = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
 	p_ptr->sustain_wis = FALSE;
 	p_ptr->sustain_con = FALSE;
 	p_ptr->sustain_dex = FALSE;
-	p_ptr->sustain_chr = FALSE;
+	p_ptr->sustain_agi = FALSE;
+	p_ptr->sustain_ste = FALSE;
+	p_ptr->sustain_per = FALSE;
+	p_ptr->sustain_luc = FALSE;
 	p_ptr->resist_acid = FALSE;
 	p_ptr->resist_elec = FALSE;
 	p_ptr->resist_fire = FALSE;
@@ -2495,9 +2494,11 @@ static void calc_bonuses(void)
 	p_ptr->immune_cold = FALSE;
 	p_ptr->immune_pois = FALSE;
 
+	p_ptr->n_woken = 0;
+
 	/*** Extract race/class info ***/
 
-	/* Base infravision plus current lite radius */
+	/* Base infravision */
 	p_ptr->see_infra = rp_ptr->infra;
 
 	/* Base skill -- disarming */
@@ -2510,10 +2511,16 @@ static void calc_bonuses(void)
 	p_ptr->skill_sav = rp_ptr->r_sav + cp_ptr->c_sav;
 
 	/* Base skill -- searching ability */
-	p_ptr->skill_srh = rp_ptr->r_srh + cp_ptr->c_srh;
+	p_ptr->skill_srh = rp_ptr->r_srh + cp_ptr->c_srh + 2 * adj_per_search[p_ptr->stat_ind[A_PER]];
+	if (p_ptr->skill_srh <= 2){
+		p_ptr->skill_srh = 2;
+	}
 
 	/* Base skill -- searching frequency */
-	p_ptr->skill_fos = rp_ptr->r_fos + cp_ptr->c_fos;
+	p_ptr->skill_fos = rp_ptr->r_fos + cp_ptr->c_fos + 2 * adj_per_search[p_ptr->stat_ind[A_PER]];
+	if (p_ptr->skill_fos <= 2){
+		p_ptr->skill_fos = 2;
+	}
 
 	/* Base skill -- combat (normal) */
 	p_ptr->skill_thn = rp_ptr->r_thn + cp_ptr->c_thn;
@@ -2582,8 +2589,14 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
 	if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
 	if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
-	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+	if (f2 & (TR2_SUST_AGI)) p_ptr->sustain_agi = TRUE;
+	if (f2 & (TR2_SUST_STE)) p_ptr->sustain_ste = TRUE;
+	if (f2 & (TR2_SUST_PER)) p_ptr->sustain_per = TRUE;
+	if (f2 & (TR2_SUST_LUC)) p_ptr->sustain_luc = TRUE;
 
+
+	if (adj_con_slowdig[p_ptr->stat_ind[A_CON]]) p_ptr->slow_digest = TRUE;
+	if (adj_ste_rdark[p_ptr->stat_ind[A_STE]])   p_ptr->resist_dark = TRUE;
 
 	/*** Analyze equipment ***/
 
@@ -2604,7 +2617,14 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_WIS)) p_ptr->stat_add[A_WIS] += o_ptr->pval;
 		if (f1 & (TR1_DEX)) p_ptr->stat_add[A_DEX] += o_ptr->pval;
 		if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
-		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
+		if (f1 & (TR1_AGI)) p_ptr->stat_add[A_AGI] += o_ptr->pval;
+		if (f1 & (TR1_STE)) p_ptr->stat_add[A_STE] += o_ptr->pval;
+		if (f1 & (TR1_PER)) p_ptr->stat_add[A_PER] += o_ptr->pval;
+		if (f1 & (TR1_LUC)) p_ptr->stat_add[A_LUC] += o_ptr->pval;
+
+		if (wield_slot(o_ptr)==(INVEN_BODY)) p_ptr->stat_add[A_STE] += o_ptr->to_h;
+		if (f3 & (TR3_LO_STEALTH)) p_ptr->stat_add[A_STE] -= 2;
+		if (f3 & (TR3_LO_PERCEPTION)) p_ptr->stat_add[A_PER] -= 2;
 
 		/* Affect searching ability (factor of five) */
 		if (f1 & (TR1_SEARCH)) p_ptr->skill_srh += (o_ptr->pval * 5);
@@ -2632,6 +2652,7 @@ static void calc_bonuses(void)
 
 		/* Good flags */
 		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+		if (f3 & (TR3_VAMPIRE)) p_ptr->vampire = TRUE;
 		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
 		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
 		if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
@@ -2679,7 +2700,10 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
 		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
 		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
-		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+		if (f2 & (TR2_SUST_AGI)) p_ptr->sustain_agi = TRUE;
+		if (f2 & (TR2_SUST_STE)) p_ptr->sustain_ste = TRUE;
+		if (f2 & (TR2_SUST_PER)) p_ptr->sustain_per = TRUE;
+		if (f2 & (TR2_SUST_LUC)) p_ptr->sustain_luc = TRUE;
 
 		/* Modify the base armor class */
 		p_ptr->ac += o_ptr->ac;
@@ -2691,7 +2715,7 @@ static void calc_bonuses(void)
 		p_ptr->to_a += o_ptr->to_a;
 
 		/* Apply the mental bonuses to armor class, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
+		if (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))) p_ptr->dis_to_a += o_ptr->to_a;
 
 		/* Hack -- do not apply "weapon" bonuses */
 		if (i == INVEN_WIELD) continue;
@@ -2700,12 +2724,16 @@ static void calc_bonuses(void)
 		if (i == INVEN_BOW) continue;
 
 		/* Apply the bonuses to hit/damage */
-		p_ptr->to_h += o_ptr->to_h;
-		p_ptr->to_d += o_ptr->to_d;
+		p_ptr->to_h_melee += o_ptr->to_h;
+		p_ptr->to_h_missile += o_ptr->to_h;
+		p_ptr->to_d_melee += o_ptr->to_d;
+		p_ptr->to_d_missile += 0; /* slaying items don't help missile damage */
 
 		/* Apply the mental bonuses tp hit/damage, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
-		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
+		if (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))) p_ptr->dis_to_h_melee += o_ptr->to_h;
+		if (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))) p_ptr->dis_to_h_missile += o_ptr->to_h;
+		if (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))) p_ptr->dis_to_d_melee += o_ptr->to_d;
+		if (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))) p_ptr->dis_to_d_missile += 0; /* slaying items don't help missile damage */
 	}
 
 	/* Find cursed ammo in the quiver */
@@ -2730,9 +2758,6 @@ static void calc_bonuses(void)
 			break;
 		}
 	}
-
-	/*finally, add infravision to lite radius*/
-	if (p_ptr->see_infra) p_ptr->see_infra += p_ptr->cur_lite;
 
 	/*** Handle stats ***/
 
@@ -2783,17 +2808,21 @@ static void calc_bonuses(void)
 	/* Apply temporary "stun" */
 	if (p_ptr->stun > 50)
 	{
-		p_ptr->to_h -= 20;
-		p_ptr->dis_to_h -= 20;
-		p_ptr->to_d -= 20;
-		p_ptr->dis_to_d -= 20;
+		p_ptr->to_h_melee -= 20;
+		p_ptr->to_h_missile -= 20;
+		p_ptr->dis_to_h_melee -= 20;
+		p_ptr->dis_to_h_missile -= 20;
+		p_ptr->to_d_melee -= 20;
+		p_ptr->dis_to_d_melee -= 20; /* but not to_d_missile or dis_to_d_missile */
 	}
 	else if (p_ptr->stun)
 	{
-		p_ptr->to_h -= 5;
-		p_ptr->dis_to_h -= 5;
-		p_ptr->to_d -= 5;
-		p_ptr->dis_to_d -= 5;
+		p_ptr->to_h_melee -= 5;
+		p_ptr->to_h_missile -= 5;
+		p_ptr->dis_to_h_melee -= 5;
+		p_ptr->dis_to_h_missile -= 5;
+		p_ptr->to_d_melee -= 5;
+		p_ptr->dis_to_d_melee -= 5; /* but not to_d_missile or dis_to_d_missile */
 	}
 
 	/* Invulnerability */
@@ -2808,29 +2837,40 @@ static void calc_bonuses(void)
 	{
 		p_ptr->to_a += 5;
 		p_ptr->dis_to_a += 5;
-		p_ptr->to_h += 10;
-		p_ptr->dis_to_h += 10;
+		p_ptr->to_h_melee += 10;
+		p_ptr->to_h_missile += 10;
+		p_ptr->dis_to_h_melee += 10;
+		p_ptr->dis_to_h_missile += 10;
 	}
 
 	/* Temporary shield */
 	if (p_ptr->shield)
 	{
-		p_ptr->to_a += 50;
-		p_ptr->dis_to_a += 50;
+		p_ptr->to_a += 30;
+		p_ptr->dis_to_a += 30;
+	}
+
+	/* Temporary shield */
+	if (p_ptr->megashield)
+	{
+		p_ptr->to_a += 100;
+		p_ptr->dis_to_a += 100;
 	}
 
 	/* Temporary "Hero" */
 	if (p_ptr->hero)
 	{
-		p_ptr->to_h += 12;
-		p_ptr->dis_to_h += 12;
+		p_ptr->to_h_melee += 12;
+		p_ptr->dis_to_h_melee += 12;
+		p_ptr->to_h_missile += 12;
+		p_ptr->dis_to_h_missile += 12;
 	}
 
 	/* Temporary "Berserk" */
 	if (p_ptr->shero)
 	{
-		p_ptr->to_h += 24;
-		p_ptr->dis_to_h += 24;
+		p_ptr->to_h_melee += 24;
+		p_ptr->dis_to_h_melee += 24;
 		p_ptr->to_a -= 10;
 		p_ptr->dis_to_a -= 10;
 	}
@@ -2893,16 +2933,18 @@ static void calc_bonuses(void)
 	/*** Apply modifier bonuses ***/
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-	p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+	p_ptr->to_a += ((int)(adj_agi_ta[p_ptr->stat_ind[A_AGI]]) - 128);
+	p_ptr->to_h_melee += ((int)(adj_dex_th_mel[p_ptr->stat_ind[A_DEX]]) - 128);
+	p_ptr->to_h_missile += ((int)(adj_per_th_mis[p_ptr->stat_ind[A_PER]]) - 128);
+	p_ptr->to_d_melee += ((int)(adj_str_td_mel[p_ptr->stat_ind[A_STR]]) - 128);
+	p_ptr->to_d_missile += ((int)(adj_per_td_mis[p_ptr->stat_ind[A_PER]]) - 128);
 
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+	p_ptr->dis_to_a += ((int)(adj_agi_ta[p_ptr->stat_ind[A_AGI]]) - 128);
+	p_ptr->dis_to_h_melee += ((int)(adj_dex_th_mel[p_ptr->stat_ind[A_DEX]]) - 128);
+	p_ptr->dis_to_h_missile += ((int)(adj_per_th_mis[p_ptr->stat_ind[A_PER]]) - 128);
+	p_ptr->dis_to_d_melee += ((int)(adj_str_td_mel[p_ptr->stat_ind[A_STR]]) - 128);
+	p_ptr->dis_to_d_missile += ((int)(adj_per_td_mis[p_ptr->stat_ind[A_PER]]) - 128);
 
 
 	/*** Modify skills ***/
@@ -2916,6 +2958,7 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- saving throw (WIS) */
 	p_ptr->skill_sav += adj_wis_sav[p_ptr->stat_ind[A_WIS]];
+	if (p_ptr->skill_sav<0) p_ptr->skill_sav=0;
 
 	/* Affect Skill -- digging (STR) */
 	p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
@@ -2928,6 +2971,20 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- saving throw (Level, by Class) */
 	p_ptr->skill_sav += (cp_ptr->x_sav * p_ptr->lev / 10);
+
+	if (p_ptr->skill_sav >= 90){
+		p_ptr->skill_sav = 90;
+	}
+
+	if (p_ptr->megashield)
+	{
+		p_ptr->skill_sav += 30;
+	}
+
+	if (p_ptr->bless_blade)
+	{
+		p_ptr->skill_sav += 10;
+	}
 
 	/* Affect Skill -- search ability (Level, by Class) */
 	p_ptr->skill_srh += (cp_ptr->x_srh * p_ptr->lev / 10);
@@ -2947,6 +3004,14 @@ static void calc_bonuses(void)
 	/* Limit Skill -- digging from 1 up */
 	if (p_ptr->skill_dig < 1) p_ptr->skill_dig = 1;
 
+	p_ptr->pspeed = p_ptr->pspeed + adj_agi_speed[p_ptr->stat_ind[A_AGI]];
+	p_ptr->see_infra = p_ptr->see_infra + adj_per_infra[p_ptr->stat_ind[A_PER]];
+	if (adj_per_telepathy[p_ptr->stat_ind[A_PER]]== 1){
+		p_ptr->sr_telepathy_1 = 1;
+	} else if (adj_per_telepathy[p_ptr->stat_ind[A_PER]]== 2){
+		p_ptr->sr_telepathy_2 = 1;
+	}
+
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
 
@@ -2959,22 +3024,11 @@ static void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
 
-	/* It is hard to carholdry a heavy bow */
-	if (hold < o_ptr->weight / 10)
-	{
-		/* Hard to wield a heavy bow */
-		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
-		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
-
-		/* Heavy Bow */
-		p_ptr->heavy_shoot = TRUE;
-	}
-
 	/* Analyze launcher */
 	if (o_ptr->k_idx)
 	{
 		/* Get to shoot */
-		p_ptr->num_fire = 1;
+		p_ptr->num_fire_times_ten = adj_dex_shots[p_ptr->stat_ind[A_DEX]];
 
 		/* Analyze the launcher */
 		switch (o_ptr->sval)
@@ -3030,28 +3084,16 @@ static void calc_bonuses(void)
 		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
 		{
 			/* Extra shots */
-			p_ptr->num_fire += extra_shots;
+			p_ptr->num_fire_times_ten += extra_shots * 10;
 
 			/* Extra might */
 			p_ptr->ammo_mult += extra_might;
-
-			/* Hack -- Rangers love Bows, rogues love slings */
-			if (((cp_ptr->flags & CF_EXTRA_SHOT) && (p_ptr->ammo_tval == TV_SHOT)) ||
-				((cp_ptr->flags & CF_EXTRA_ARROW) && (p_ptr->ammo_tval == TV_ARROW)))
-			{
-				if (p_ptr->lev >= LEV_EXTRA_COMBAT) p_ptr->num_fire++;
-			}
 		}
 
 		/* Require at least one shot */
-		if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
+		if (p_ptr->num_fire_times_ten < 10) p_ptr->num_fire_times_ten = 10;
 	}
 
-	/* Brigands get poison resistance */
-	if ((p_ptr->lev >= LEV_RES_POIS) && (cp_ptr->flags & (CF_BRIGAND_COMBAT)))
-	{
-		p_ptr->resist_pois = TRUE;
-	}
 
 	/*** Analyze weapon ***/
 
@@ -3062,56 +3104,36 @@ static void calc_bonuses(void)
 	p_ptr->heavy_wield = FALSE;
 
 	/* It is hard to hold a heavy weapon */
-	if (hold < o_ptr->weight / 10)
+	if (hold < o_ptr->weight)
 	{
-		/* Hard to wield a heavy weapon */
-		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
-		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
-
 		/* Heavy weapon */
 		p_ptr->heavy_wield = TRUE;
 	}
 
 	/* Normal weapons */
-	if (o_ptr->k_idx && !p_ptr->heavy_wield)
+	if (o_ptr->k_idx)
 	{
-		int str_index, dex_index;
+		p_ptr->num_blows_times_ten = adj_dex_blows[p_ptr->stat_ind[A_DEX]];
 
-		int divide_by;
-
-		/* Enforce a minimum "weight" (tenth pounds) */
-		divide_by = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
-
-		/* Get the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / divide_by);
+		if (p_ptr->heavy_wield){
+			p_ptr->num_blows_times_ten = p_ptr->num_blows_times_ten / 2;
+		}
 
 		/* Maximal value */
-		if (str_index > 11) str_index = 11;
-
-		/* Index by dexterity */
-		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
-
-		/* Maximal value */
-		if (dex_index > 11) dex_index = 11;
-
-		/* Use the blows table */
-		p_ptr->num_blow = blows_table[str_index][dex_index];
-
-		/* Maximal value */
-		if (p_ptr->num_blow > cp_ptr->max_attacks) p_ptr->num_blow = cp_ptr->max_attacks;
+		if (p_ptr->num_blows_times_ten > 10*cp_ptr->max_attacks) p_ptr->num_blows_times_ten = 10*cp_ptr->max_attacks;
 
 		/* Add in the "bonus blows" */
-		p_ptr->num_blow += extra_blows;
+		p_ptr->num_blows_times_ten += 10 * extra_blows;
 
-		/* Require at least one blow */
-		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
-
-		/* Boost digging skill by weapon weight */
-		p_ptr->skill_dig += (o_ptr->weight / 10);
+		/* Require at least 1 blow */
+		if (p_ptr->num_blows_times_ten < 10) p_ptr->num_blows_times_ten = 10;
 
 		/*add extra attack for those who have the flag*/
 		if ((p_ptr->lev >= LEV_EXTRA_COMBAT) && (cp_ptr->flags & CF_EXTRA_ATTACK))
-			p_ptr->num_blow += 1;
+			p_ptr->num_blows_times_ten += 10;
+
+		/* Boost digging skill by weapon weight */
+		p_ptr->skill_dig += (o_ptr->weight / 10);
 	}
 
 	/* Assume okay */
@@ -3122,12 +3144,12 @@ static void calc_bonuses(void)
 	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
 	{
 		/* Reduce the real bonuses */
-		p_ptr->to_h -= 2;
-		p_ptr->to_d -= 2;
+		p_ptr->to_h_melee -= 2;
+		p_ptr->to_d_melee -= 2;
 
 		/* Reduce the mental bonuses */
-		p_ptr->dis_to_h -= 2;
-		p_ptr->dis_to_d -= 2;
+		p_ptr->dis_to_h_melee -= 2;
+		p_ptr->dis_to_d_melee -= 2;
 
 		/* Icky weapon */
 		p_ptr->icky_wield = TRUE;
@@ -3169,7 +3191,7 @@ static void calc_bonuses(void)
 			}
 
 			/* Change in INT may affect Mana/Spells */
-			else if (i == A_INT)
+			else if (i == A_INT || i==A_WIS)
 			{
 
 				if ((cp_ptr->spell_book == TV_MAGIC_BOOK) ||
@@ -3179,20 +3201,11 @@ static void calc_bonuses(void)
 				}
 			}
 
-			/* Change in WIS may affect Mana/Spells */
-			else if (i == A_WIS)
-			{
-				if ((cp_ptr->spell_book == TV_PRAYER_BOOK) ||
-					(cp_ptr->spell_book == TV_DRUID_BOOK))
-				{
-					p_ptr->update |= (PU_MANA | PU_SPELLS);
-				}
-			}
 		}
 	}
 
 	/* Hack -- Telepathy Change */
-	if (p_ptr->telepathy != old_telepathy)
+	if (p_ptr->telepathy != old_telepathy || p_ptr->sr_telepathy_1 != old_sr_telepathy_1 || p_ptr->sr_telepathy_2 != old_sr_telepathy_2)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
@@ -3368,11 +3381,11 @@ void update_stuff(void)
 		calc_mana();
 	}
 
-	if (p_ptr->update & (PU_SPELLS))
+	/*if (p_ptr->update & (PU_SPELLS))
 	{
 		p_ptr->update &= ~(PU_SPELLS);
 		calc_spells();
-	}
+	}*/
 
 
 	/* Character is not ready yet, no screen updates */

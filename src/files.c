@@ -1377,48 +1377,12 @@ static void display_player_xtra_info(void)
 	char buf[160];
 
 
-	/* Upper middle */
-	col = 23;
-	col2 = col + 7;
-
-	/* Age */
-	row = 2;
-	Term_putstr(col, row, -1, TERM_WHITE, "Age");
-	Term_putstr(col2, row, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->age));
-
-	/* Height */
-	++row;
-	Term_putstr(col, row, -1, TERM_WHITE, "Height");
-	Term_putstr(col2, row, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->ht));
-
-	/* Weight */
-	++row;
-	Term_putstr(col, row, -1, TERM_WHITE, "Weight");
-	Term_putstr(col2, row, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->wt));
-
-	/* Status */
-	++row;
-	Term_putstr(col, row, -1, TERM_WHITE, "Status");
-	Term_putstr(col2, row, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
-
-	/* Empty Space */
-	++row;
-
-	/* char level */
-	++row;
-	Term_putstr(col, row, -1, TERM_WHITE, "Level");
-	Term_putstr(col2, row, -1, ((p_ptr->lev >= p_ptr->max_lev) ? TERM_L_BLUE : TERM_YELLOW),
-			format("%4d", p_ptr->lev));
-
-
-
-
 	/* Left */
 	col = 1;
 	col2 = col + 10;
 
 	/* Game Turn */
-	row = 9;
+	row = 11;
 	Term_putstr(col, row, -1, TERM_WHITE, "GameTurn");
 	Term_putstr(col2, row, -1, TERM_L_GREEN, format("%10ld", turn));
 
@@ -1467,22 +1431,6 @@ static void display_player_xtra_info(void)
 		            format("%10s", "********"));
 	}
 
-	/* Max dungeon level */
-	++row;
-	Term_putstr(col, row, -1, TERM_WHITE, "MaxDepth");
-
-	/* Has he actually left the town? */
-	if (p_ptr->max_depth)
-	{
-		/*express in feet or level*/
-		if (depth_in_feet) strnfmt(buf, sizeof(buf), "%5d ft", p_ptr->max_depth * 50);
-		else strnfmt(buf, sizeof(buf), " Lev %3d",p_ptr->max_depth);
-	}
- 	/*hasn't left town*/
-	else strnfmt(buf, sizeof(buf), "    Town");
-
-	Term_putstr(col2+2, row, -1, TERM_L_GREEN, buf);
-
 	/* Gold */
 	++row;
 	Term_putstr(col, row, -1, TERM_WHITE, "Gold");
@@ -1522,19 +1470,19 @@ static void display_player_xtra_info(void)
 	plus = p_ptr->dis_to_a;
 
 	/* Total Armor */
-	row = 9;
+	row = 11;
 	strnfmt(buf, sizeof(buf), "[%d,%+d]", base, plus);
 	Term_putstr(col, row, -1, TERM_WHITE, "Armor");
 	Term_putstr(col+5, row, -1, TERM_L_BLUE, format("%11s", buf));
 
 
 	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = p_ptr->dis_to_d;
+	hit = p_ptr->dis_to_h_melee;
+	dam = p_ptr->dis_to_d_melee;
 
 	/* Basic fighting */
 	++row;
-	strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
+	strnfmt(buf, sizeof(buf), "(%+d,%+d%%)", hit, dam_plus_to_percent_added(dam));
 	Term_putstr(col, row, -1, TERM_WHITE, "Fight");
 	Term_putstr(col+5, row, -1, TERM_L_BLUE, format("%11s", buf));
 
@@ -1543,16 +1491,21 @@ static void display_player_xtra_info(void)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = p_ptr->dis_to_d;
+	hit = p_ptr->dis_to_h_melee;
+	dam = p_ptr->dis_to_d_melee;
 
-	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	if (o_ptr){
+	
+		/* Apply weapon bonuses */
+		if (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))) hit += o_ptr->to_h;
+		if (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))) dam += o_ptr->to_d;
+
+		hit = hit - to_hit_weight_penalty(o_ptr);
+	}
 
 	/* Melee attacks */
 	++row;
-	strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
+	strnfmt(buf, sizeof(buf), "(%+d,%+d%%)", hit, dam_plus_to_percent_added(dam));
 	Term_putstr(col, row, -1, TERM_WHITE, "Melee");
 	Term_putstr(col+5, row, -1, TERM_L_BLUE, format("%11s", buf));
 
@@ -1561,12 +1514,12 @@ static void display_player_xtra_info(void)
 	o_ptr = &inventory[INVEN_BOW];
 
 	/* Base skill */
-	hit = p_ptr->dis_to_h;
-	dam = 0;
+	hit = p_ptr->dis_to_h_missile;
+	dam = p_ptr->dis_to_d_missile;
 
 	/* Apply weapon bonuses */
-	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
-	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	if (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))) hit += o_ptr->to_h;
+	if (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))) dam += o_ptr->to_d;
 
 	/* hack, rogues are deadly with slings*/
 	if ((cp_ptr->flags & CF_ROGUE_COMBAT) && (p_ptr->ammo_tval == TV_SHOT))
@@ -1586,14 +1539,14 @@ static void display_player_xtra_info(void)
 
 	/* Blows */
 	++row;
-	strnfmt(buf, sizeof(buf), "%d/turn", p_ptr->num_blow);
+	strnfmt(buf, sizeof(buf), "%d/10", p_ptr->num_blows_times_ten);
 	Term_putstr(col, row, -1, TERM_WHITE, "Blows");
 	Term_putstr(col+5, row, -1, TERM_L_BLUE, format("%11s", buf));
 
 
 	/* Shots */
 	++row;
-	strnfmt(buf, sizeof(buf), "%d/turn", p_ptr->num_fire);
+	strnfmt(buf, sizeof(buf), "%d/10", p_ptr->num_fire_times_ten);
 	Term_putstr(col, row, -1, TERM_WHITE, "Shots");
 	Term_putstr(col+5, row, -1, TERM_L_BLUE, format("%11s", buf));
 
@@ -1642,68 +1595,21 @@ static void display_player_xtra_info(void)
 
 	/* Fighting Skill (with current weapon) */
 	o_ptr = &inventory[INVEN_WIELD];
-	tmp = p_ptr->to_h + o_ptr->to_h;
+	tmp = p_ptr->to_h_melee + o_ptr->to_h;
 	xthn = p_ptr->skill_thn + (tmp * BTH_PLUS_ADJ);
 
 	/* Shooting Skill (with current bow) */
 	o_ptr = &inventory[INVEN_BOW];
-	tmp = p_ptr->to_h + o_ptr->to_h;
+	tmp = p_ptr->to_h_missile + o_ptr->to_h;
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
-	/* Basic abilities */
-	xdis = p_ptr->skill_dis;
-	xdev = p_ptr->skill_dev;
-	xsav = p_ptr->skill_sav;
-	xstl = p_ptr->skill_stl;
-	xsrh = p_ptr->skill_srh;
-	xfos = p_ptr->skill_fos;
-
-	row = 9;
-	put_str("Saving Throw", row, col);
-	desc = likert(xsav, 6, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), row, col+14);
-
-	++row;
-	put_str("Stealth", row, col);
-	desc = likert(xstl, 1, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), row, col+14);
-
-	++row;
-	put_str("Fighting", row, col);
-	desc = likert(xthn, 12, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), row, col+14);
-
-	++row;
-	put_str("Shooting", row, col);
-	desc = likert(xthb, 12, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), row, col+14);
-
-	++row;
-	put_str("Disarming", row, col);
-	desc = likert(xdis, 8, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), row, col+14);
-
-	++row;
-	put_str("Magic Device", row, col);
-	desc = likert(xdev, 6, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), row, col+14);
-
-	++row;
-	put_str("Perception", row, col);
-	desc = likert(xfos, 6, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), row, col+14);
-
-	++row;
-	put_str("Searching", row, col);
-	desc = likert(xsrh, 6, &likert_attr);
-	c_put_str(likert_attr, format("%9s", desc), row, col+14);
 
 	/* Indent output by 1 character, and wrap at column 72 */
 	text_out_wrap = 65;
 	text_out_indent = 1;
 
 	/* History */
-	Term_gotoxy(text_out_indent, 19);
+	Term_gotoxy(text_out_indent, 20);
 	text_out_to_screen(TERM_WHITE, p_ptr->history);
 
 	/* Reset text_out() vars */
@@ -1733,11 +1639,9 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *fn)
 		if (p_ptr->lev >= LEV_BRAVERY) (*f2) |= (TR2_RES_FEAR);
 	}
 
-	/* Brigand's poison resistance */
-	if (cp_ptr->flags & CF_BRIGAND_COMBAT)
-	{
-		if (p_ptr->lev >= LEV_RES_POIS) (*f2) |= (TR2_RES_POIS);
-	}
+	if (adj_ste_rdark[p_ptr->stat_ind[A_STE]])   (*f2) |= TR2_RES_DARK;
+	if (adj_con_slowdig[p_ptr->stat_ind[A_CON]]) (*f3) |= TR3_SLOW_DIGEST;
+
 }
 
 
@@ -1824,7 +1728,7 @@ static const u32b display_player_flag_head[4] =
 	TR2_RES_ACID,
 	TR2_RES_BLIND,
 	TR3_SLOW_DIGEST,
-	TR1_STEALTH
+	TR1_SEARCH
 };
 
 /*
@@ -1866,14 +1770,14 @@ static cptr display_player_flag_names[4][8] =
 	},
 
 	{
-		"Stea.:",	/* TR1_STEALTH */
 		"Sear.:",	/* TR1_SEARCH */
 		"Infra:",	/* TR1_INFRA */
 		"Tunn.:",	/* TR1_TUNNEL */
 		"Speed:",	/* TR1_SPEED */
 		"Blows:",	/* TR1_BLOWS */
 		"Shots:",	/* TR1_SHOTS */
-		"Might:"	/* TR1_MIGHT */
+		"Might:",	/* TR1_MIGHT */
+		"      "
 	}
 };
 
@@ -1900,7 +1804,7 @@ static void display_player_flag_info(void)
 	{
 
 		/* Reset */
-		row = 11;
+		row = 14;
 		col = 20 * x - 2;
 
 		/* Header */
@@ -2084,6 +1988,28 @@ static void display_player_misc_info(int row, int col)
 	put_str("SP", row, col);
 	strnfmt(buf, sizeof(buf), "%d/%d", p_ptr->csp, p_ptr->msp);
 	c_put_str(TERM_L_BLUE, buf, row, col2);
+
+	/* Level */
+	++row;
+	put_str("Level", row, col);
+	strnfmt(buf, sizeof(buf), "%d", p_ptr->lev);
+	c_put_str(TERM_L_BLUE, buf, row, col2);
+
+	/* Max dungeon level */
+	++row;
+	put_str("Depth", row, col);
+
+	/* Has he actually left the town? */
+	if (p_ptr->max_depth)
+	{
+		/*express in feet or level*/
+		if (depth_in_feet) strnfmt(buf, sizeof(buf), "%d", p_ptr->max_depth * 50);
+		else strnfmt(buf, sizeof(buf), "%d",p_ptr->max_depth);
+	}
+ 	/*hasn't left town*/
+	else strnfmt(buf, sizeof(buf), "%d", 0);
+
+	c_put_str(TERM_L_BLUE, buf, row, col2);
 }
 
 
@@ -2164,8 +2090,7 @@ void display_player_stat_info(int row, int col)
  * Positive mods with a sustain will be dark green.
  * Sustains (with no modification) will be a dark green 's'.
  * Negative mods (from a curse) will be red.
- * Huge mods (>9), like from MICoMorgoth, will be a '*'
- * No mod, no sustain, will be a slate '.'
+ = * No mod, no sustain, will be a slate '.'
  */
 static void display_player_sust_info(void)
 {
@@ -2234,8 +2159,7 @@ static void display_player_sust_info(void)
 						/* Label boost */
 						if (o_ptr->pval > -10) c = I2D(-(o_ptr->pval));
 					}
-				}
-
+				} 
 
 				/* Sustain */
 				if (f2 & (1<<stats))
@@ -2246,7 +2170,26 @@ static void display_player_sust_info(void)
 					/* Convert '.' to 's' */
 					if (c == '.') c = 's';
 				}
-			}
+			} else if (wield_slot(o_ptr)==(INVEN_BODY) && o_ptr->to_h < 0 && stats==A_STE){
+						/* Bad */
+						a = TERM_RED;
+
+						/* Label boost */
+						if (o_ptr->pval > -10) c = I2D(-(o_ptr->to_h));	
+				} else if ((ignore_f3 & (TR3_LO_STEALTH)) && stats==A_STE){
+						/* Bad */
+						a = TERM_RED;
+
+						/* Label boost */
+						c = I2D(2);	
+				} else if ((ignore_f3 & (TR3_LO_PERCEPTION)) && stats==A_PER){
+						/* Bad */
+						a = TERM_RED;
+
+						/* Label boost */
+						c = I2D(2);	
+				}
+
 
 			/* Dump proper character */
 			Term_putch(col, row+stats, a, c);
@@ -2282,10 +2225,10 @@ static void display_player_sust_info(void)
 	col = 19;
 
 	/* Footer */
-	c_put_str(TERM_WHITE, "abcdefghijkl@", row+6, col);
+	c_put_str(TERM_WHITE, "abcdefghijkl@", row+9, col);
 
 	/* Equippy */
-	display_player_equippy(row+7, col);
+	display_player_equippy(row+10, col);
 }
 
 /*
@@ -2296,7 +2239,6 @@ static void display_player_sust_info(void)
  * Positive mods with a sustain will be dark green.
  * Sustains (with no modification) will be a dark green 's'.
  * Negative mods (from a curse) will be red.
- * Huge mods (>9), like from MICoMorgoth, will be a '*'
  * No mod, no sustain, will be a slate '.'
  * This is followed by the home equipment
  *
@@ -2324,7 +2266,7 @@ static void display_home_equipment_info(int mode)
 	store_type *st_ptr = &store[STORE_HOME];
 
 	/* Row */
-	row = 3;
+	row = 6;
 
 	/* Column */
 	col = 7;
@@ -2388,6 +2330,24 @@ static void display_home_equipment_info(int mode)
 						/* Label boost */
 						if (o_ptr->pval > -10) c = I2D(-(o_ptr->pval));
 					}
+				} else if (wield_slot(o_ptr)==(INVEN_BODY) && o_ptr->to_h < 0  && stats==A_STE){
+						/* Bad */
+						a = TERM_RED;
+
+						/* Label boost */
+						if (o_ptr->pval > -10) c = I2D(-(o_ptr->to_h));	
+				} else if ((ignore_f3 & (TR3_LO_STEALTH)) && stats==A_STE){
+						/* Bad */
+						a = TERM_RED;
+
+						/* Label boost */
+						c = I2D(2);	
+				} else if ((ignore_f3 & (TR3_LO_PERCEPTION)) && stats==A_PER){
+						/* Bad */
+						a = TERM_RED;
+
+						/* Label boost */
+						c = I2D(2);	
 				}
 
 				/* Sustain */
@@ -2426,7 +2386,7 @@ static void display_home_equipment_info(int mode)
 	else xmax = xmin = 0;
 
 	/* Row */
-	row = 10;
+	row = 13;
 
 	/* Re-Set Column */
 	col = 7;
@@ -2451,7 +2411,7 @@ static void display_home_equipment_info(int mode)
 	{
 		/* Reset */
 		col = 32 * x;
-		row = 10;
+		row = 13;
 
 		/* Eight rows */
 		for (y = 0; y < 8; y++)
@@ -2635,7 +2595,7 @@ static void display_special_abilities(int row, int col)
        /* Print temporary bonus to infravision */
        if (p_ptr->tim_infra > 0)
        {
-               msg = "Your magic enhaces your ";
+               msg = "Your magic enhances your ";
 
                put_str(msg, row, col);
 
@@ -2743,6 +2703,16 @@ static void display_special_abilities(int row, int col)
                c_put_str(TERM_YELLOW, "shield", row++, col + strlen(msg));
        }
 
+       /* Print temporary shield protection */
+       if (p_ptr->megashield > 0)
+       {
+               msg = "Your body is protected by a magical ";
+
+               put_str(msg, row, col);
+
+               c_put_str(TERM_YELLOW, "globe", row++, col + strlen(msg));
+       }
+
        /* Print temporary elemental brand */
        if (p_ptr->slay_elements > 0)
        {
@@ -2772,6 +2742,7 @@ static void display_special_abilities(int row, int col)
        if (p_ptr->oppose_elec > 0) items[n++] = "electricity";
        if (p_ptr->oppose_fire > 0) items[n++] = "fire";
        if (p_ptr->oppose_pois > 0) items[n++] = "poison";
+       if (p_ptr->oppose_conf > 0) items[n++] = "confusion";
 
        /* Print resistances */
        if (n > 0)
@@ -2842,11 +2813,11 @@ void display_player(int mode)
 	{
 		if (mode == 0)
 		{
-			display_player_stat_info(2, 35);
+			display_player_stat_info(1, 23);
 		}
 		else
 		{
-			display_player_stat_info(3, 33);
+			display_player_stat_info(3, 34);
 		}
 	}
 
@@ -3038,7 +3009,22 @@ static void dump_player_stat_info(FILE *fff)
 				}
 				if (o_ptr->pval == 0) c = '.';
 
-			}
+			} else if (wield_slot(o_ptr)==(INVEN_BODY) && o_ptr->to_h < 0  && stats==A_STE){
+						/* Bad */
+
+						/* Label boost */
+						if (o_ptr->pval > -10) c = I2D(-(o_ptr->to_h));	
+			}  else if ((ignore_f3 & (TR3_LO_STEALTH)) && stats==A_STE){
+						/* Bad */
+
+						/* Label boost */
+						c = I2D(2);	
+				} else if ((ignore_f3 & (TR3_LO_PERCEPTION)) && stats==A_PER){
+						/* Bad */
+
+						/* Label boost */
+						c = I2D(2);	
+				}
 			/*dump the result*/
 			fprintf(fff,"%c",c);
 
@@ -3234,7 +3220,21 @@ static void dump_home_stat_info(FILE *fff)
 				}
 				if (o_ptr->pval == 0) c = '.';
 
-			}
+			} else if (wield_slot(o_ptr)==(INVEN_BODY) && o_ptr->to_h < 0){
+
+						/* Label boost */
+						if (o_ptr->pval > -10) c = I2D(-(o_ptr->to_h));	
+			}  else if ((ignore_f3 & (TR3_LO_STEALTH)) && stats==A_STE){
+						/* Bad */
+
+						/* Label boost */
+						c = I2D(2);	
+				} else if ((ignore_f3 & (TR3_LO_PERCEPTION)) && stats==A_PER){
+						/* Bad */
+
+						/* Label boost */
+						c = I2D(2);	
+				}
 			/*dump the result*/
 			fprintf(fff,"%c",c);
 
@@ -3397,7 +3397,7 @@ errr file_character(cptr name, bool full)
 	/* Dump flags, but in two separate rows */
 	for (w = 0; w < 2; w ++)
 	{
-		for (y = (11 + w); y < (21 + w); y++)
+		for (y = (14 + w); y < (24 + w); y++)
 		{
 			/* Dump each row */
 			for (z = 0, x = 0; x < 79; x++, z++)
@@ -3490,7 +3490,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Dump the Home Flags , then the inventory -- if anything there */
-	if (st_ptr->stock_num)
+	if (0)
 	{
 
 		/* Header */
@@ -3506,7 +3506,7 @@ errr file_character(cptr name, bool full)
 			display_player(i);
 
 			/* Dump part of the screen */
-			for (y = (i + 7); y < (i + 17); y++)
+			for (y = (i + 10); y < (i + 20); y++)
 			{
 				/* Dump each row */
 				for (x = 0; x < 79; x++)
@@ -3554,8 +3554,6 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "\n");
 	}
 
-	else fprintf(fff, "[Your Home Is Empty]\n\n");
-
 	/* Check if in quest */
 	if (p_ptr->cur_quest > 0)
 	{
@@ -3594,9 +3592,6 @@ errr file_character(cptr name, bool full)
 		/* Write the contents of the notes file to the dump file line-by-line */
 		while (!my_fgets(notes_file, line, sizeof(line)))
 		{
-			/* Replace escape secuences in template */
-			fill_template(line, sizeof(line));
-
 			/* Translate the note to the desired encoding */
 			xstr_trans(line, encoding);
 
@@ -3942,9 +3937,6 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			/* Count the "real" lines */
 			next++;
 
-			/* Replace escape secuences in template */
-			fill_template(buf, sizeof(buf));
-
 			/* Make a copy of the current line for searching */
 			my_strcpy(lc_buf, buf, sizeof(lc_buf));
 
@@ -4269,7 +4261,7 @@ void get_name(void)
 	clear_from(23);
 
 	/* Prompt */
-	put_str("Select Name Using Random Name Generator? (y/n)", 23, 10);
+	put_str("Select Name Using Random Name Generator? (y/n)", 24, 10);
 
 	do
 	{
@@ -5498,9 +5490,6 @@ static void kingly(void)
 	/* Restore the level */
 	p_ptr->lev = p_ptr->max_lev;
 
-	/* Hack -- Instant Gold */
-	p_ptr->au += 10000000L;
-
 	/* Clear screen */
 	Term_clear();
 
@@ -6343,7 +6332,7 @@ void html_screenshot(cptr name)
 
 	fprintf(htm, "<HTML>\n");
 	fprintf(htm, "<HEAD>\n");
-    fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"NPPAngband %s\">\n", VERSION_STRING);
+    fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"Ironband %s\">\n", VERSION_STRING);
 	fprintf(htm, "<TITLE>%s</TITLE>\n", name);
 	fprintf(htm, "</HEAD>\n");
 	fprintf(htm, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");
@@ -6408,99 +6397,4 @@ void html_screenshot(cptr name)
 
 	/* Close it */
 	my_fclose(htm);
-}
-
-
-/*
- * Finds text patterns in the given text and replaces them with some content determined
- * by the kind of pattern.
- * A pattern has this form: {{pattern_name}}
- * The text is replaced in place.
- * See the escapes array for the supported patterns.
- */
-void fill_template(char buf[], int max_buf)
-{
-	char local[1024] = "";
-	char *end_local = local;
-	char *buf_ptr = buf;
-	char *start;
-	bool changed = FALSE;
-	/* List of recognized patterns */
-	static char *escapes[] =
-	{
-		"{{full_character_name}}",
-		NULL
-	};
-
-	/* Find ocurrences of the patterns */
-	/* First we look for the pattern's start */
-	while ((start = strstr(buf_ptr, "{{")) != NULL)
-	{
-		int i = 0;
-		int id = -1;
-
-		/* Search the pattern */
-		while (escapes[i] != NULL)
-		{
-			/* Found? */
-			if (prefix(start, escapes[i]))
-			{
-				id = i;
-				break;
-			}
-		}
-
-		/* Found a pattern */
-		if (id != -1)
-		{
-			/* Remember this */
-			changed = TRUE;
-
-			/* Copy the previous text */
-			if (start > buf_ptr)
-			{
-				/* End the previous text */
-				*start = '\0';
-
-				/* Concat the previous text to the result text */
-				end_local = my_fast_strcat(local, end_local, buf_ptr, sizeof(local));
-
-			}
-
-			/* Process pattern actions */
-			switch (id)
-			{
-				/* Display current character name */
-				case 0:
-				{
-					end_local = my_fast_strcat(local, end_local, op_ptr->full_name,
-						sizeof(local));
-					 
-					break;
-				}
-			}
-
-			/* Start again at the end of the pattern */
-			buf_ptr = start + strlen(escapes[id]);
-		}
-		/* Not found */
-		else
-		{
-			/* Just ignore the pattern prefix */
-			buf_ptr = start + 2;
-		}
-	}
-
-	/* Something happened */
-	if (changed)
-	{
-		/* Copy the remaining text if necessary */
-		if (*buf_ptr)
-		{
-			end_local = my_fast_strcat(local, end_local, buf_ptr, sizeof(local));
-		}
-
-		/* Overwrite the original text */
-		my_strcpy(buf, local, max_buf);
-	}
 }

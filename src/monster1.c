@@ -67,9 +67,6 @@ static bool know_mana_or_spells(int r_idx)
 	/*Hack - always know about ghosts*/
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (TRUE);
 
-	/* Mages learn quickly. */
-	if (cp_ptr->spell_book == TV_MAGIC_BOOK) kills *= 2;
-
 	/* Normal monsters */
 	if (kills > 304 / (4 + level)) return (TRUE);
 
@@ -436,6 +433,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->r_l_flags6 & RF6_TELE_LEVEL)  vp[vn++] = "teleport level";
 	if (l_ptr->r_l_flags6 & RF6_DARKNESS)    vp[vn++] = "create darkness";
 	if (l_ptr->r_l_flags6 & RF6_TRAPS)       vp[vn++] = "create traps";
+	if (l_ptr->r_l_flags6 & RF7_S_THROWTROLL)       vp[vn++] = "throw smaller trolls";
 
 	if (l_ptr->r_l_flags6 & (RF6_DRAIN_MANA))	vp[vn++] = "drain mana";
 	if (l_ptr->r_l_flags6 & (RF6_MIND_BLAST))	vp[vn++] = "cause mind blasting";
@@ -783,7 +781,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_XXX4:          break;
 			case RBM_BEG:           p = "beg"; break;
 			case RBM_INSULT:        p = "insult"; break;
-			case RBM_XXX5:          break;
+			case RBM_BEGUILE:       p = "beguile"; break;
 			case RBM_XXX6:			break;
 		}
 
@@ -818,6 +816,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBE_CONFUSE:       q = "confuse"; break;
 			case RBE_TERRIFY:       q = "terrify"; break;
 			case RBE_PARALYZE:      q = "paralyze"; break;
+			case RBE_BEGUILE:       q = "make you sleep"; break;
 			case RBE_HALLU:         q = "induce hallucinations"; break;
 			case RBE_DISEASE:       q = "cause disease"; break;
 
@@ -826,7 +825,10 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBE_LOSE_WIS:      q = "reduce wisdom"; break;
 			case RBE_LOSE_DEX:      q = "reduce dexterity"; break;
 			case RBE_LOSE_CON:      q = "reduce constitution"; break;
-			case RBE_LOSE_CHR:      q = "reduce charisma"; break;
+			case RBE_LOSE_AGI:      q = "reduce agility"; break;
+			case RBE_LOSE_STE:      q = "reduce stealth"; break;
+			case RBE_LOSE_PER:      q = "reduce perception"; break;
+			case RBE_LOSE_LUC:      q = "reduce luck"; break;
 			case RBE_LOSE_ALL:      q = "reduce all stats"; break;
 
 			case RBE_EXP_10:        q = "lower experience (by 10d6+)"; break;

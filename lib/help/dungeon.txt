@@ -1,15 +1,6 @@
 
 ====== The Dungeon ======
 
-     All levels other than 0 (the town) lie within the dungeon.  Each level
-of the dungeon is fifty feet high, and is divided into rectangular regions
-(that range from small to several times larger than the screen) 
-by impenetrable walls.  Once you leave a
-level, you will never again find your way back to that region of that level, but
-there are an infinite number of other regions at that same depth that you can
-explore later.  Monsters move about just as you do, and you may see them again.
-
-
 --- Terrain ---
 
 Rubble:
@@ -21,36 +12,29 @@ Permanent walls:
 surrounded by these kinds of walls and some special rooms are made of them.
 
 Staircases and shafts:
-     Staircases allow your character to ascend or descend from one level to
-another, and are represented by white "<" (up) and ">" (down).  Each level has at
-least one up staircase, and two down staircases, unless it is the home of Sauron
-(level 99/4950') or Morgoth (level 100/5000'), whom you must kill before
+     Staircases allow your character to descend from one level to
+another, and are represented by white ">". There are up stairs too but in 
+Ironband you can never use them - you must always go deeper.
+     Each level has at least two down staircases, unless it is the home of a 
+special quest boss (levels 49 and 50), whom you must kill before
 staircases will appear.  Otherwise, the staircases are guaranteed, but they may
-be difficult to find.  Once you leave a level, you can never return to it.
-Watch out for spells and traps that can suddenly force you off the level.  "Shafts"
-are represented by light brown "<" (up) and ">" (down) and will take you up or down
-two levels instead of one.
+be difficult to find.  Once you leave a level, you can never return to it. 
 
 Secret doors:
      Many secret doors exist in the dungeon, and may lead to anything from a new
 section of the dungeon level to an empty closet.  As your familiarity with the
 dungeon grows, you will know where many secret doors are likely to be.  Secret
 doors always look like granite until found.
-     You find secret doors by using the 's'earch command.  Many classes can
-also use magic and everyone can use the appropriate magical device.
+     You find secret doors by using the 's'earch command, or by using some spells.
 
 Traps:
-     Traps also await you in the dungeon.  They look like normal floor squares until found, too often by your being caught by one.
-     You find traps by using the 's'earch command.  Many classes can also use magic and everyone can use the appropriate magical device.
-
-Monster Traps:
-     Certain classes can set traps for the monsters by using the 'O" command. \
-     Monster traps can also be modified with the 'O' command as well. These traps
-increase in power as the player gains levels.
+     Traps also await you in the dungeon.  They look like normal floor squares
+until found, too often by your being caught by one.
+     You find traps by using the 's'earch command, or by using some spells.
 
 Runes:
      Runes also await you in the dungeon.  They look like normal floor squares
-until they cast a spell at you.  Some runes are quite dangerous
+until they cast a spell at you.  Some runes are quite dangerous.
 
 Rooms:
      The Pits of Angband contain many kinds of rooms, including some that house
@@ -60,8 +44,7 @@ lucrative.
 
 Mining:
      There is much treasure in the walls of the dungeon, just waiting for an
-industrious adventurer to come and dig it out.  Once you can afford it, and if
-you can handle the weight, bring a shovel or pick along.  Your ability to tunnel
+industrious adventurer to come and dig it out. Your ability to tunnel
 depends on strength, weapon weight, and any special digging bonus it provides.
 Your success depends on these factors and the strength of the wall:  granite is
 very hard, quartz is hard, magma is soft, and rubble is very soft.
@@ -73,8 +56,7 @@ dangerous breathers and summoners manageable.
 
 --- Advanced Terrain Types ---
 
-     In NPPAngband, Morgoth has made many levels of his dungeon to look like the
-outside world.  For instance, there are levels that have lakes, forests, desert,
+     In Ironband, there are levels that have lakes, forests, desert,
 and many other types of terrain.  Entire dungeon levels can be themed after one
 of these terrain types.
 
@@ -84,7 +66,7 @@ be harder to hit, and get hits more frequently when battling non-native creature
 When players or creatures are in terrain they are not native to, they take longer
 to move through the terrain, and most likely will not be as effective in combat.
 These advantages and disadvantages tend to be more extreme in deep terrain, or
-thicker brush in forests. The player's stealth can be affected by the terrain
+thicker brush in forests. The player's Stealth can be affected by the terrain
 they are in.
 
 These terrains can be altered or negated by certain combat effects.  For example,
@@ -96,12 +78,12 @@ common sense approach should be taken when entering these terrains.  For example
 all but the most powerful characters will die if they step in lava or any boiling
 water, unless they have equipment or magic that makes them native to lava terrains.
 
-In all instances below, creatures whoare actively flying do not get the combat and
+In all instances below, creatures who are actively flying do not get the combat and
 movement bonuses.
 
 Forest:
      This terrain gives a combat and movement advantage to creatures native to forests.
-It can sometimes be burned by fire.  The player can duffer minor damage and cuts
+It can sometimes be burned by fire.  The player can suffer minor damage and cuts
 walking through thick underbrush.
 
 Sand:
@@ -112,17 +94,17 @@ based spells and magic are more powerful on sand based terrains.
 Water:
      This terrain gives a significant combat and movement advantage to creatures
 native to water.  The player rarely will suffer damage by simply standing in
-water based terrains.  Cold based attacks can occasionally freeze water.  Fire based
-attacks can sometimes evaporate water. Water, cold, ice, boiling water and electric based
-spells and magic are more powerful on water based terrains.  Fire, sand, and boiling mud
-based attacks are less effective on water based terrains.
+water based terrains.  Cold based attacks can occasionally freeze water.  Water,
+cold, ice, and electric based spells and magic are more powerful on water based
+terrains.  Fire, sand, boiling mud, and boiling water based attacks are less
+effective on water based terrains.
 
 Boiling Water:
-     All but the most powerful or magically protected adventurer's will die instantly
-when standing on boiling water.  This terrain gives a combat and movement advantage to
-creatures native to a combination of lava and water.  Lava, fire, water, boiling mud,
-and boiling water based attacks are more effective on boiling water based terrains.
-Cold based spells and magic are less effective on boiling water based terrains.
+     All but the most powerful or magically protected adventurers will die instantly
+when standing in boiling water.  This terrain gives a combat and movement advantage to
+creatures native to a combination of lava and water.  Lava, fire, boiling mud, and
+boiling water based attacks are more effective on boiling water based terrains.  Water
+and cold based spells and magic are less effective on boiling mud based terrains.
 
 Mud:
      This terrain gives a combat and movement advantage to creatures native to mud.
@@ -130,8 +112,8 @@ Unless it is boiling mud, the player rarely will suffer damage by simply standin
 in mud based terrains.
 
 Boiling Mud:
-     All but the most powerful or magically protected adventurer's will die instantly
-when standing on boiling mud.  This terrain gives a combat and movement advantage to
+     All but the most powerful or magically protected adventurers will die instantly
+when standing in boiling mud.  This terrain gives a combat and movement advantage to
 creatures native to a combination of lava and mud.  Lava, fire, boiling mud, and
 boiling water based attacks are more effective on boiling mud based terrains.  Water
 and cold based spells and magic are less effective on boiling mud based terrains.
@@ -149,68 +131,31 @@ easily be set on fire.  Burning oil or coal will instantly kill most lower and
 medium level characters and creatures who are standing on that square.
 
 Acid:
-     The player can take a significant amount of damage standing in acid based squares.
+     The player can take a significant amount of damage standing acid based squares.
 This terrain gives a combat and movement advantage to creatures native to acid.  Acid
 based spells and magic are more powerful on acid based squares.
 
 Lava:
-     All but the most powerful or magically protected adventurer's will die instantly
+     All but the most powerful or magically protected adventurers will die instantly
 when standing in lava.  This terrain gives a combat and movement advantage to
-creatures native to lava.  Lava can sometimes be cooled by powerful cold based spells.
-Lava, fire, boiling mud, and boiling water based attacks are more effective on lava based
+creatures native to lava.  Lava can sometimes be cooled by cold based spells.  Lava,
+fire, boiling mud, and boiling water based attacks are more effective on lava based
 terrains.  Water, cold, and ice based spells and magic are less effective on lava
 based terrains.
 
 Fire:
-     The player can take a significant amount of damage standing in fire based squares.
-This terrain gives a combat and movement advantage to creatures native to fire.  Fire
-based spells and magic are more powerful on fire based square.  Lava, boiling mud
-and boiling water based attacks are more effective on fire based terrains.  Cold,
-based spells and magic are less effective on fire based terrains.  Fires
-can sometimes be extinguished by water or poweful cold based spells.
+     The player can take a significant amount of damage standing fire based squares.
+This terrain gives a combat and movement advantage to creatures native to lava.  Fire
+based spells and magic are more powerful on fire based square.  Lava, fire, boiling
+mud, and boiling water based attacks are more effective on fire based terrains.  Cold,
+based spells and magic are less effective on lava based terrains.  Fires
+can sometimes be extinguished by water or cold based spells.
 
 
 The player retains all information they have observed about terrain.  To access this
 information, go to the knowledge screens (press'~') and go to the terrain knowledge
 section.
 
---- Effects ---
-Unique to NPPAngband is an "effects" layer in the dungeon.  In Angband and most
-variants, the dungeon has three layers:  One layer for the dungeon floor, one layer
-for objects and one for creatures. NPPAngband has a 4th layer called the "effects"
-layer.  This is an area of the dungeon in between the floor and the ceiling.  This
-dungeon layer can hold many different kinds of things, ranging from harmless fog to
-dangerous magic that can damage or kill the player.
-
-Many effects can be dangerous in that they block line of sight, but allow movement
-and spell projection.  Magically detecting monsters is now more important than ever.
-
-The basic terrain effect types are as follows:
-
-Lingering cloud:
-     The after effects of very powerful magic.  This can be anything from the smoke from
-a fireball spell, to posionous clouds that continue to harm the player each turn the
-player is standing in the cloud.  This cloud will slowly dissipate after some time.
-
-Permanent cloud:
-     This is similar to a lingering cloud, but the cloud will not dissipate over time.
-
-Shimmering cloud:
-     Can also be the after effects of very powerful magic.  This cloud can stay dormant,
-harmless, and invisible, and then explode every couple turns.  These clouds can also
-slowly dissipate over time.
-
-Traps, Runes and Glyphs:
-     Starting with NPP 050, all traps, glyphs and runes are now effects.  They can exist
-on many different floor types.  In Vanilla Angband and older versions of NPPAngband,
-traps could only exist on empty floors.
-
-Glacier:
-     A particular effect that allows line of sight, but not movement or spell effects.
-
-The player retains all information they have observed about effects.  To access this
-information, go to the knowledge screens (press'~') and go to the terrain knowledge
-section.
 
 Inscriptions:
      On dungeon walls you will find inscriptions that will give you hints as to
@@ -222,9 +167,10 @@ and may harm the player under certain circumstances.
 
 Light:
      Your character must have some source of light in order to see, unless the
-area around him is magically lit.  Depending on the items he has equipped, he
-may have a light radius of one (a torch), two (a lantern), or more, up to a
-rarely-attained maximum of five.  Never risk being without light.
+area around him is magically lit.  Depending on his Perception and the items he 
+has equipped, he may have a light radius of one (a torch), two (a lantern), or 
+more, up to a rarely-attained maximum of five.  Try to avoid being without 
+light.
      A torch or lantern burns fuel, and may be refilled (use the 'F'uel command)
 with other torches or flasks of oil respectively.  It is rumoured that other
 light sources exist which never need replenishing.
@@ -235,13 +181,13 @@ is much less dangerous.
 Food and Regeneration:
      Never risk being without food.  You must eat every so often in order to
 avoid starvation.  The speed at which you consume food depends on your race
-(trolls need to eat a lot) and the items you wear.
+(half-trolls need to eat a lot) and the items you wear.
      The speed at which you regenerate is doubled when you are resting (so rest
 in place instead of staying in place whenever possible), and is also affected by
 various object attributes and temporary conditions.
 
 Stealth:
-     The higher your stealth, and the further away you are, the less you disturb
+     The higher your Stealth, and the further away you are, the less you disturb
 the rest of sleeping monsters.
 
 Searching and Detection:
@@ -295,11 +241,12 @@ An abbreviated speed-to-energy table:
      +30      : 38 (energy only goes up very slowly above +30 speed)
 
 Regeneration and recovery:
-     Every 10 game turns, you regenerate some hitpoints and mana (unless you are
+     Every 10 game turns, you regenerate some hitpoints (unless you are
 ill or wounded), and get hurt by cuts and poison.  Temporary conditions count
-down, rods recharge, and light sources use fuel.  Every 100 game turns, you
-digest some food.  Every hundred thousand game turns equals one day; the town
-spends half that time in darkness and the other half in light.
+down and light sources use fuel.  Every 100 game turns, you
+digest some food.  
      Every time it takes a turn, every monster aware of you recovers from
 temporary conditions.  Every 100 game turns, they regenerate hitpoints.
+     In Ironband, unlike other *bands, you do not regenerate mana over time.
+Instead, take the stairs down to recover all your mana.
 

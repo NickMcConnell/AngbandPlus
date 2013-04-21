@@ -116,13 +116,14 @@
  * Dungeon generation values
  */
 
-#define DUN_UNUSUAL	180	/* Level/chance of unusual room */
+#define DUN_UNUSUAL	120	/* Level/chance of unusual room */
 #define DUN_DEST	35	/* 1/chance of having a destroyed level */
 #define DUN_FRACTAL	25	/* 1/chance of having a fractal level */
 #define SMALL_LEVEL 10	/* 1/chance of smaller size */
 #define THEMED_LEVEL_CHANCE	50	/* 1/chance of being a themed level */
-#define WILDERNESS_LEVEL_CHANCE	60 /* 1/chance of being a pseudo-wilderness level */
+#define WILDERNESS_LEVEL_CHANCE	40 /* 1/chance of being a pseudo-wilderness level */
 
+#define DUN_FEAT	60	/* Chance in 100 of having features */
 #define DUN_MAX_LAKES   3       /* Maximum number of lakes/rivers */
 #define DUN_FEAT_RNG    2       /* Width of lake */
 
@@ -199,6 +200,7 @@
 #define STAR_BURST_CLOVER	0x00000004	/* Allow cloverleaf rooms */
 #define STAR_BURST_RAW_FLOOR	0x00000008	/* Floor overwrites dungeon */
 #define STAR_BURST_RAW_EDGE	0x00000010	/* Edge overwrites dungeon */
+
 
 bool allow_uniques;
 
@@ -364,12 +366,16 @@ static struct
 };
 
 /*
+ * This will hold the minimum set of element flags to be used on the level
+ */
+static u32b wanted_flags = 0;
+
+/*
  * A feature pair (wall + floor) that contains also a chance value
  * and a radius
  */
 typedef struct
 {
-	u32b level_flag;
 	u16b wall;
 	u16b floor;
 	u16b chance;
@@ -508,6 +514,9 @@ static bool cave_feat_lake(int f_idx)
 	/* Get the feature */
 	feature_type *f_ptr = &f_info[f_idx];
 
+	/* Merge restriction flags and current flags */
+ 	u32b current_flags = (level_flag | wanted_flags);
+
 	/* If this is TRUE we ignore the feature if certain elemental flags already exist in the level */
 	bool reject_elements = FALSE;
 
@@ -515,7 +524,7 @@ static bool cave_feat_lake(int f_idx)
 	if (!_feat_ff2_match(f_ptr, FF2_LAKE | FF2_RIVER)) return (FALSE);
 
 	/* Special case. True lava changes all deep features */
-	/*if ((current_flags & (LF1_LAVA)) && _feat_ff2_match(f_ptr, FF2_DEEP)) return (TRUE);*/
+	if ((element_counter.lava > 0) && _feat_ff2_match(f_ptr, FF2_DEEP)) return (TRUE);
 
 	/* Analyze the elemental flags */
 	switch (_feat_ff3_match(f_ptr, TERRAIN_MASK))
@@ -527,7 +536,7 @@ static bool cave_feat_lake(int f_idx)
 		case ELEMENT_FOREST:
 		{
 			/* Don't mess with lava levels */
-			if (level_flag & (LF1_LAVA)) return (FALSE);
+			if (element_counter.lava > 0) return (FALSE);
 
 			break;
 		}
@@ -535,7 +544,7 @@ static bool cave_feat_lake(int f_idx)
 		case ELEMENT_LAVA:
 		{
 			/* True lava needs true lava or an empty dungeon */
-			if (!(level_flag & (LF1_LAVA))) reject_elements = TRUE;
+			if (element_counter.lava == 0) reject_elements = TRUE;
 
 			break;
 		}
@@ -543,8 +552,8 @@ static bool cave_feat_lake(int f_idx)
 		case ELEMENT_BMUD:
 		case ELEMENT_BWATER:
 		{
-			/* These ones need lava, bmud, bwater or an empty dungeon */
-			if (!(level_flag & (LF1_LAVA | LF1_BMUD | LF1_BWATER))) reject_elements = TRUE;
+			/* These ones need LF1_LAVA (lava, bmud, bwater) or an empty dungeon */
+			if (!(current_flags & (LF1_LAVA))) reject_elements = TRUE;
 
 			break;
 		}
@@ -553,7 +562,7 @@ static bool cave_feat_lake(int f_idx)
 		case ELEMENT_OIL:
 		{
 			/* These two and true lava are compatible */
-			if (!(level_flag & (LF1_OIL | LF1_FIRE | LF1_LAVA))) reject_elements = TRUE;
+			if ((element_counter.lava == 0) && !(current_flags & (LF1_OIL | LF1_FIRE))) reject_elements = TRUE;
 
 			break;
 		}
@@ -561,7 +570,7 @@ static bool cave_feat_lake(int f_idx)
 		case ELEMENT_ACID:
 		{
 			/* Acid needs acid or an empty dungeon */
-			if (!(level_flag & (LF1_ACID))) reject_elements = TRUE;
+			if (!(current_flags & (LF1_ACID))) reject_elements = TRUE;
 
 			break;
 		}
@@ -569,7 +578,7 @@ static bool cave_feat_lake(int f_idx)
 		case ELEMENT_ICE:
 		{
 			/* Ice needs ice or an empty dungeon */
-			if (!(level_flag & (LF1_ICE))) reject_elements = TRUE;
+			if (!(current_flags & (LF1_ICE))) reject_elements = TRUE;
 
 			break;
 		}
@@ -577,22 +586,17 @@ static bool cave_feat_lake(int f_idx)
 		case ELEMENT_WATER:
 		{
 			/* Don't mess with lava levels */
-			if (level_flag & (LF1_LAVA)) return (FALSE);
+			if (element_counter.lava > 0) return (FALSE);
 
-			/* Water needs water, boiling water or ice */
-			/* Water is also compatible with acid (flavor) */
-			if (!(level_flag & (LF1_ACID | LF1_BWATER | LF1_WATER | LF1_ICE)))
-			{
-				reject_elements = TRUE;
-			}
+			/* Water needs water or ice */
+			if (!(current_flags & (LF1_WATER | LF1_ICE))) reject_elements = TRUE;
 
 			break;
 		}
 	}
 
 	/* Test the presence of certaine flags in the level if necessary */
-	if (reject_elements && (level_flag &
-		(LF1_LAVA | LF1_FIRE | LF1_OIL | LF1_ACID | LF1_WATER | LF1_ICE | LF1_BMUD | LF1_BWATER)))
+	if (reject_elements && (current_flags & (LF1_LAVA | LF1_FIRE | LF1_OIL | LF1_ACID | LF1_WATER | LF1_ICE)))
 	{
 		/* Failure */
 		return (FALSE);
@@ -750,30 +754,19 @@ static void place_rubble(int y, int x)
 
 
 /*
- * Pick either an ordinary up staircase or an up shaft.
+ * Pick an ordinary up staircase.
  */
 static int pick_up_stairs(void)
 {
-	if (p_ptr->depth >= 2)
-	{
-		if (one_in_(2)) return (FEAT_LESS_SHAFT);
-	}
-
 	return (FEAT_LESS);
 }
 
 
 /*
- * Pick either an ordinary down staircase or an down shaft.
+ * Pick an ordinary down staircase.
  */
 static int pick_down_stairs(void)
 {
-	if ((p_ptr->depth < MAX_DEPTH - 2) &&
-	    (!quest_check(p_ptr->depth + 1)))
-	{
-		if (one_in_(2)) return (FEAT_MORE_SHAFT);
-	}
-
 	return (FEAT_MORE);
 }
 
@@ -786,27 +779,13 @@ void place_random_stairs(int y, int x)
 	/* Paranoia */
 	if (!cave_clean_bold(y, x)) return;
 
-	/* Create a staircase */
-	if (!p_ptr->depth)
+	if ((quest_check(p_ptr->depth)) || (p_ptr->depth >= MAX_DEPTH-1))
+	{
+		return;
+	}
+	else 
 	{
 		cave_set_feat(y, x, FEAT_MORE);
-	}
-	else if ((quest_check(p_ptr->depth)) || (p_ptr->depth >= MAX_DEPTH-1))
-	{
-		if ((p_ptr->depth < 2) || one_in_(2))	cave_set_feat(y, x, FEAT_LESS);
-		else cave_set_feat(y, x, FEAT_LESS_SHAFT);
-	}
-	else if (one_in_(2))
-	{
-		if ((quest_check(p_ptr->depth + 1)) || (p_ptr->depth <= 1))
-			cave_set_feat(y, x, FEAT_MORE);
-		else if (one_in_(2)) cave_set_feat(y, x, FEAT_MORE);
-		else cave_set_feat(y, x, FEAT_MORE_SHAFT);
-	}
-	else
-	{
-		if ((one_in_(2)) || (p_ptr->depth == 1)) cave_set_feat(y, x, FEAT_LESS);
-		else cave_set_feat(y, x, FEAT_LESS_SHAFT);
 	}
 }
 
@@ -1397,7 +1376,7 @@ static void build_type1(int y0, int x0)
 	int light = FALSE;
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) light = TRUE;
+	if (p_ptr->depth <= randint(35)) light = TRUE;
 
 	/* Pick a room size */
 	y1 = y0 - randint(4);
@@ -1458,7 +1437,7 @@ static void build_type2(int y0, int x0)
 
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) light = TRUE;
+	if (p_ptr->depth <= randint(35)) light = TRUE;
 
 
 	/* Determine extents of room (a) */
@@ -1519,7 +1498,7 @@ static void build_type3(int y0, int x0)
 
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) light = TRUE;
+	if (p_ptr->depth <= randint(35)) light = TRUE;
 
 
 	/* Pick inner dimension */
@@ -1667,7 +1646,7 @@ static void build_type4(int y0, int x0)
 
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) light = TRUE;
+	if (p_ptr->depth <= randint(35)) light = TRUE;
 
 
 	/* Large room */
@@ -1731,7 +1710,7 @@ static void build_type4(int y0, int x0)
 			get_feat_num_prep();
 
 			/* Click! */
-			feat = get_feat_num(p_ptr->depth);
+			feat = get_feat_num(danger(p_ptr->depth));
 
 			/* Clear the hook */
 			get_feat_num_hook = NULL;
@@ -2420,7 +2399,7 @@ byte get_nest_theme(int nestlevel)
 	if ((whatnest <= 25)  && (nestlevel <= 35))
 	{
 		/*coins, jelly, or kobolds/yeeks/orcs*/
-		if (one_in_(3))			return LEV_THEME_CREEPING_COIN;
+		if (one_in_(4))			return LEV_THEME_CREEPING_COIN;
 		else if (one_in_(2))	return LEV_THEME_JELLY;
 		else					return LEV_THEME_ORC_NAGA_YEEK_KOBOLD;
 	}
@@ -2463,7 +2442,7 @@ byte get_pit_theme(int pitlevel)
 	/* Orc pit */
 	if ((whatpit <= 20) && (pitlevel <= 35))
 	{
-		if (one_in_(2))	return LEV_THEME_CREEPING_COIN;
+		if (one_in_(3))	return LEV_THEME_CREEPING_COIN;
 		else 			return LEV_THEME_ORC;
 	}
 
@@ -2586,7 +2565,7 @@ static void build_type_nest(int y0, int x0)
 
 	/*select the theme, or get the quest level theme*/
 	if (is_quest_level) room_theme = q_ptr->theme;
-	else room_theme = get_nest_theme(p_ptr->depth);
+	else room_theme = get_nest_theme(danger(p_ptr->depth));
 
 	/*get the mon_hook*/
 	get_mon_hook(room_theme);
@@ -2598,7 +2577,7 @@ static void build_type_nest(int y0, int x0)
 	for (i = 0; i < 64; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth +
+		what[i] = get_mon_num(danger(p_ptr->depth) +
 							  (is_quest_level ? PIT_NEST_QUEST_BOOST : NEST_LEVEL_BOOST), y1, x1);
 
 		/* Notice failure */
@@ -2661,7 +2640,7 @@ static void build_type_nest(int y0, int x0)
 	 * less than the level of the hardest
 	 * monster minus the current level
 	 */
-	harder_nest_check = r_info[what[63]].level - p_ptr->depth;
+	harder_nest_check = r_info[what[63]].level - danger(p_ptr->depth);
 
 	/*Hack - make some pits harder if deeper*/
 	if (randint(100) < harder_nest_check)
@@ -2817,7 +2796,7 @@ static void build_type_pit(int y0, int x0)
 
 	/* Choose a pit type */
 	if(is_quest_level) pit_theme = q_ptr->theme;
-	else pit_theme = get_pit_theme(p_ptr->depth);
+	else pit_theme = get_pit_theme(danger(p_ptr->depth));
 
 	/*get the monster hook*/
 	get_mon_hook(pit_theme);
@@ -2829,7 +2808,7 @@ static void build_type_pit(int y0, int x0)
 	for (i = 0; i < 16; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth +
+		what[i] = get_mon_num(danger(p_ptr->depth) +
 							  (is_quest_level ? PIT_NEST_QUEST_BOOST : PIT_LEVEL_BOOST), y1, x1);
 
 		/* Notice failure */
@@ -2875,7 +2854,7 @@ static void build_type_pit(int y0, int x0)
 	 * less than the level of the hardest
 	 * monster minus the current level
 	 */
-	harder_pit_check = r_info[what[15]].level - p_ptr->depth;
+	harder_pit_check = r_info[what[15]].level - danger(p_ptr->depth);
 
 	/*Hack - make some pits harder if deeper*/
 	if (randint(100) < harder_pit_check)
@@ -3141,63 +3120,63 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Monster */
 				case '&':
 				{
-					monster_level = p_ptr->depth + 4;
+					monster_level = danger(p_ptr->depth) + 4;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
+					monster_level = danger(p_ptr->depth);
 					break;
 				}
 
 				/* Meaner monster */
 				case '@':
 				{
-					monster_level = p_ptr->depth + 8;
+					monster_level = danger(p_ptr->depth) + 8;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
+					monster_level = danger(p_ptr->depth);
 					break;
 				}
 
 				/* Meaner monster, plus treasure */
 				case '9':
 				{
-					monster_level = p_ptr->depth + 7;
+					monster_level = danger(p_ptr->depth) + 7;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 7;
+					monster_level = danger(p_ptr->depth);
+					object_level = danger(p_ptr->depth) + 7;
 					place_object(y, x, TRUE, FALSE, DROP_TYPE_UNTHEMED);
-					object_level = p_ptr->depth;
+					object_level = danger(p_ptr->depth);
 					break;
 				}
 
 				/* Nasty monster and treasure */
 				case '8':
 				{
-					monster_level = p_ptr->depth + 20;
+					monster_level = danger(p_ptr->depth) + 20;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 15;
+					monster_level = danger(p_ptr->depth);
+					object_level = danger(p_ptr->depth) + 15;
 					place_object(y, x, TRUE, TRUE, DROP_TYPE_UNTHEMED);
-					object_level = p_ptr->depth;
+					object_level = danger(p_ptr->depth);
 					break;
 				}
 
 				/* Nasty monster and a chest */
 				case '~':
 				{
-					monster_level = p_ptr->depth + 20;
+					monster_level = danger(p_ptr->depth) + 20;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 15;
+					monster_level = danger(p_ptr->depth);
+					object_level = danger(p_ptr->depth) + 15;
 					place_object(y, x, FALSE, FALSE, DROP_TYPE_CHEST);
-					object_level = p_ptr->depth;
+					object_level = danger(p_ptr->depth);
 					break;
 				}
 
 				/* Quest chest */
 				case 'Q':
 				{
-					monster_level = p_ptr->depth + 10;
+					monster_level = danger(p_ptr->depth) + 10;
 					place_monster(y, x, TRUE, TRUE);
-					monster_level = p_ptr->depth;
+					monster_level = danger(p_ptr->depth);
 
 					/*randomly pick from several quest artifacts spots to place the artifact*/
 					if ((quest_artifact_spots > 0) && (one_in_(quest_artifact_spots)))
@@ -3210,9 +3189,9 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					else
 					{
 						/*place a decent sized object*/
-						object_level = p_ptr->depth + 7;
+						object_level = danger(p_ptr->depth) + 7;
 						place_object(y, x, TRUE, FALSE, DROP_TYPE_UNTHEMED);
-						object_level = p_ptr->depth;
+						object_level = danger(p_ptr->depth);
 
 						/*This quest artifact spot is no longer an option*/
 						quest_artifact_spots --;
@@ -3226,15 +3205,15 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				{
 					if (one_in_(2))
 					{
-						monster_level = p_ptr->depth + 3;
+						monster_level = danger(p_ptr->depth) + 3;
 						place_monster(y, x, TRUE, TRUE);
-						monster_level = p_ptr->depth;
+						monster_level = danger(p_ptr->depth);
 					}
 					if (one_in_(2))
 					{
-						object_level = p_ptr->depth + 5;
+						object_level = danger(p_ptr->depth) + 5;
 						place_object(y, x, FALSE, FALSE, DROP_TYPE_UNTHEMED);
-						object_level = p_ptr->depth;
+						object_level = danger(p_ptr->depth);
 					}
 					break;
 				}
@@ -3796,7 +3775,7 @@ void build_terrain(int y, int x, int feat)
 		{
 			if (k <= 10) newfeat = FEAT_WALL_FIRE;
 
-			else if (k <= 15) newfeat = FEAT_SCORCHED_WALL;
+			else if (k <= 15) newfeat = FEAT_LAVA_W;
 
 			break;
 		}
@@ -3863,7 +3842,7 @@ static bool cave_feat_pool(int f_idx)
 static u16b pick_proper_feature(bool (*feat_hook)(int f_idx))
 {
 	/* Default depth for the feature */
-	int max_depth = p_ptr->depth;
+	int max_depth = danger(p_ptr->depth);
 	u16b feat;
 
 	/* Special case - Themed levels with default features */
@@ -3885,7 +3864,7 @@ static u16b pick_proper_feature(bool (*feat_hook)(int f_idx))
 			feat = themed_level_features[i].feature;
 
 			/* Ignore features who are too deep for the player */
-			if (f_info[feat].f_level > p_ptr->depth + 25) continue;
+			if (f_info[feat].f_level > danger(p_ptr->depth) + 25) continue;
 
 			/* IMPORTANT - Check consistency with the level */
 			if (feat_hook && !feat_hook(feat)) continue;
@@ -4620,7 +4599,7 @@ static void fractal_map_to_room(fractal_map map, byte fractal_type, int y0, int 
 	x1 = x0 - wid / 2;
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) light = TRUE;
+	if (p_ptr->depth <= randint(35)) light = TRUE;
 
 	/* Use earth floor sometimes. EXPERIMENTAL */
 	floor_type = rand_int(100);
@@ -5326,7 +5305,7 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 
 static void build_type_starburst(int y0, int x0, bool giant_room)
 {
-	bool want_pools = (rand_int(150) < p_ptr->depth);
+	bool want_pools = (rand_int(150) < danger(p_ptr->depth));
 	/* Default floor and edge */
 	u16b feat = FEAT_FLOOR;
 	u16b edge = FEAT_WALL_EXTRA;
@@ -5356,11 +5335,11 @@ static void build_type_starburst(int y0, int x0, bool giant_room)
 	/* We have a second chance to build pools in themed levels */
 	if (!want_pools && (feeling >= LEV_THEME_HEAD))
 	{
-		want_pools = (rand_int(90) < p_ptr->depth);
+		want_pools = (rand_int(90) < danger(p_ptr->depth));
 	}
 
 	/* Occasional light */
-	if (p_ptr->depth <= randint(25)) flag |= (STAR_BURST_LIGHT);
+	if (p_ptr->depth <= randint(35)) flag |= (STAR_BURST_LIGHT);
 
 	/* Frozen edge on ice levels */
 	if (level_flag & (LF1_ICE))
@@ -6216,7 +6195,7 @@ static bool place_traps_rubble_player(void)
 	int k;
 
 	/* Basic "amount" */
-	k = (p_ptr->depth / 3);
+	k = (danger(p_ptr->depth) / 3);
 	if (k > 10) k = 10;
 	if (k < 2) k = 2;
 
@@ -6310,7 +6289,7 @@ static bool scramble_and_connect_rooms_stairs(void)
 	}
 
 	/* Hack -- Sandstone streamers are shallow */
-	if (rand_int(DUN_STR_SLV) > p_ptr->depth)
+	if (rand_int(DUN_STR_SLV) > danger(p_ptr->depth))
 	{
 
 		/* Hack -- Add some magma streamers */
@@ -6396,7 +6375,7 @@ static bool room_build(int by0, int bx0, int typ)
 	int by1, bx1, by2, bx2;
 
 	/* Restrict level */
-	if (p_ptr->depth < room[typ].level) return (FALSE);
+	if (danger(p_ptr->depth) < room[typ].level) return (FALSE);
 
 	/* Restrict "crowded" rooms */
 	if (dun->crowded && ((typ == 5) || (typ == 6))) return (FALSE);
@@ -6510,7 +6489,7 @@ byte get_level_theme(s16b orig_theme_num, bool quest_level)
 		/*Coins, minor demons, Orcs, or a mixture of a couple monsters*/
 		if (one_in_(4))			return (LEV_THEME_ORC_NAGA_YEEK_KOBOLD);
 		else if (one_in_(3))	return (LEV_THEME_DEMON_MINOR);
-		else if (one_in_(2))	return (LEV_THEME_CREEPING_COIN);
+		else if (one_in_(4))	return (LEV_THEME_CREEPING_COIN);
 		else					return (LEV_THEME_ORC);
 	}
 
@@ -6586,9 +6565,9 @@ byte max_themed_monsters(const monster_race *r_ptr, u32b max_power)
 	if (r_ptr->flags1 & RF1_UNIQUE) return (r_ptr->max_num);
 
 	/*don't allow 99 of the out of depth monsters*/
-	if (r_ptr->level > p_ptr->depth + 3)
+	if (r_ptr->level > danger(p_ptr->depth) + 3)
 	{
-		int lev_ood = p_ptr->depth - r_ptr->level;
+		int lev_ood = danger(p_ptr->depth) - r_ptr->level;
 
 		/*Too strong*/
 		if (r_ptr->mon_power > max_power) return (0);
@@ -6596,9 +6575,9 @@ byte max_themed_monsters(const monster_race *r_ptr, u32b max_power)
 		else if (lev_ood > 5) return (MON_RARE_FREQ);
 		else return (MON_LESS_FREQ);
 	}
-	else if ((r_ptr->level < p_ptr->depth - 5) && (r_ptr->level < 75))
+	else if ((r_ptr->level < danger(p_ptr->depth) - 5) && (r_ptr->level < 75))
 	{
-		int lev_ood = p_ptr->depth - r_ptr->level;
+		int lev_ood = danger(p_ptr->depth) - r_ptr->level;
 
 		/*Too weak*/
 		if (r_ptr->mon_power < max_power / 20) return (0);
@@ -6818,7 +6797,8 @@ static const room_data lake_data[MAX_LAKE_DATA] =
  * Returns TRUE on success.
  * The coordinates of its center are stored in y0 and x0.
  */
-static bool build_lake(int feat, bool do_big_lake, int *y0, int *x0)
+static bool build_lake(int feat, bool do_big_lake, bool merge_lakes,
+	int *y0, int *x0)
 {
 	int bx0, by0;
 	int bx1, by1, bx2, by2;
@@ -6836,10 +6816,7 @@ static bool build_lake(int feat, bool do_big_lake, int *y0, int *x0)
 		(feat != FEAT_LIMESTONE) && (feat != FEAT_COAL));
 
 	/* Solid lakes are made very large sometimes */
-	if (solid_lake && one_in_(2)) do_big_lake = TRUE;
-
-	/* Prevent secluded regions in the dungeon at shallow depths */
-	if (!solid_lake && (p_ptr->depth <= 10)) do_big_lake = FALSE;
+	if (solid_lake && one_in_(3)) do_big_lake = TRUE;
 
 	/* Choose an initial size for the lake */
 	if (do_big_lake)
@@ -6854,7 +6831,7 @@ static bool build_lake(int feat, bool do_big_lake, int *y0, int *x0)
 		 * Lakes at shallow levels are smaller, and some at deeper
 		 * levels too
 		 */
-		if ((p_ptr->depth >= 25) && one_in_(7))
+		if ((danger(p_ptr->depth) >= 25) && one_in_(7))
 		{
 			lake_idx = LAKE_DATA_3x4;
 		}
@@ -6881,34 +6858,39 @@ static bool build_lake(int feat, bool do_big_lake, int *y0, int *x0)
 		--lake_idx;
 
 		/* Level too small, give up */
-		if (lake_idx < 0)
-		{
-			if (cheat_room)
-			{
-				msg_c_format(MSG_NOTICE, "Can't place lakes in this dungeon!");
-			}
-
-		       	return (FALSE);
-		}
+		if (lake_idx < 0) return (FALSE);
 	}
 
 	/* Try to get a location for the lake */
 	while (TRUE)
 	{
 		/* Too many tries. Reject lake */
-		if (++tries >= 200)
+		if (++tries >= 75) return (FALSE);
+
+		/* Pick a random block */
+		if (!merge_lakes || solid_lake)
 		{
-			if (cheat_room)
-			{
-				msg_c_format(MSG_NOTICE, "Can't find a blocks for lakes in this dungeon!");
-			}
-
-		       	return (FALSE);
+			by0 = rand_int(dun->row_rooms);
+			bx0 = rand_int(dun->col_rooms);
 		}
+		/* Force lake overlapping */
+		else
+		{
+			/* Put the lakes in the middle of the level */
+			by0 = (dun->row_rooms / 2);
 
-		/* Get central block */
-		by0 = rand_int(dun->row_rooms);
-		bx0 = rand_int(dun->col_rooms);
+			/* Slightly move the lake horizontally */
+			/* Big lakes (-1, +0 or +1 blocks) */
+			if (lake_idx > LAKE_DATA_2x3)
+			{
+				bx0 = (dun->col_rooms / 2) + (rand_int(3) - 1);
+			}
+			/* Small lakes (+0 or +1 blocks) */
+			else
+			{
+				bx0 = (dun->col_rooms / 2) + rand_int(2);
+			}
+		}
 
 		/* Get the blocks */
 		by1 = by0 + ld->dy1;
@@ -6937,7 +6919,7 @@ static bool build_lake(int feat, bool do_big_lake, int *y0, int *x0)
 	{
 		/* Forests are always lit. Others not so much */
 		if (feat_ff3_match(feat, FF3_FOREST) ||
-			(p_ptr->depth <= randint(25)))
+			(p_ptr->depth <= randint(35)))
 		{
 			flag |= (STAR_BURST_LIGHT);
 		}
@@ -6997,6 +6979,7 @@ static bool build_lake(int feat, bool do_big_lake, int *y0, int *x0)
 	/* Success */
 	return (TRUE);
 }
+
 
 /*
  * Build a river given a feature and its starting location
@@ -7099,7 +7082,7 @@ static void build_river(int feat, int y, int x)
 /*
  * Place lakes and rivers given a feature
  */
-static bool build_feature(int feat, bool do_big_lake)
+static bool build_feature(int feat, bool do_big_lake, bool merge_lakes)
 {
 	/* No coordinates yet */
 	int x0 = 0, y0 = 0;
@@ -7109,11 +7092,11 @@ static bool build_feature(int feat, bool do_big_lake)
 		!feat_ff2_match(feat, FF2_RIVER))
 	{
 		/* Try to place the lake. Get its center */
-		if (!build_lake(feat, do_big_lake, &y0, &x0)) return (FALSE);
+		if (!build_lake(feat, do_big_lake, merge_lakes, &y0, &x0)) return (FALSE);
 	}
 
 	/* Build a river */
-	if (feat_ff2_match(feat, FF2_RIVER) && (ponder_dungeon_size() > 2))
+	if (feat_ff2_match(feat, FF2_RIVER))
 	{
 		/* Pick starting coordinates, if needed */
 		if ((y0 + x0) == 0)
@@ -7179,20 +7162,17 @@ static int get_feature_from_developer(void)
 static void build_nature(void)
 {
 	int i;
-	bool big;
+	bool big = FALSE;
+	bool done_big = FALSE;
 	char name[80];
 
 	int feat, dev_feat = FEAT_NONE;
 	int count = 0, max_features;
+	/* Flavor */
+	bool merge_lakes = ((danger(p_ptr->depth) >= 30) && one_in_(5));
 
 	/* Get the maximum number of features based on level size */
 	byte dun_size = ponder_dungeon_size();
-
-	/* Debug message */
-	if (cheat_room)
-	{
-		msg_c_format(MSG_NOTICE, "Dungeon size: %d.", (int)dun_size);
-	}
 
 	if (dun_size == 1) max_features = (one_in_(4) ? 1: 0);
 
@@ -7203,7 +7183,7 @@ static void build_nature(void)
 	else max_features = DUN_MAX_LAKES;
 
 	 /* Clear the level's restriction */
- 	level_flag = 0;
+ 	wanted_flags = 0;
 
 	/* Check quests for specific element flags */
 	for (i = 0; i < z_info->q_max; i++)
@@ -7221,7 +7201,7 @@ static void build_nature(void)
 			(q_ptr->type == QUEST_UNIQUE))
 		{
 			/* Restrict feature generation */
-			level_flag |= get_level_flag_from_race(&r_info[q_ptr->mon_idx]);
+			wanted_flags |= r_info[q_ptr->mon_idx].r_native;
 		}
 		/* Pit/Nest quests */
 		else if ((q_ptr->type == QUEST_PIT) ||
@@ -7236,7 +7216,7 @@ static void build_nature(void)
 				if (themed_level_flags[j].theme != q_ptr->theme) continue;
 
 				/* Restrict feature generation */
-				level_flag |= themed_level_flags[j].flags;
+				wanted_flags |= themed_level_flags[j].flags;
 
 				/* Done */
 				break;
@@ -7244,22 +7224,12 @@ static void build_nature(void)
 		}
 	}
 
-	/* The chance to get special terrain varies with dungeon depth */
-	if ((level_flag == 0) && (rand_int(300) >= p_ptr->depth)) return;
-
-	/* Debug message */
-	if (level_flag && cheat_room)
-	{
-		msg_c_format(MSG_NOTICE, "Level flags added by quests.");
-		debug_all_level_flags(level_flag);
-	}
-
 
 #ifdef ENABLE_DEVELOPER_FEATURE
 
 	/* Mega-hack -- Force the generation of certain features -DG- */
 	/* Only in debug-mode */
-	if (DEBUG_MODE_ACTIVATED) dev_feat = get_feature_from_developer();
+	if (p_ptr->noscore & 0x0008) dev_feat = get_feature_from_developer();
 
 
 #endif /* ENABLE_DEVELOPER_FEATURE */
@@ -7268,7 +7238,7 @@ static void build_nature(void)
 	for (count = 0; count < max_features; count++)
 	{
 		/* Very small levels always get a feature -DG- */
-		if ((max_features > 1) && (rand_int(100) < 20))
+		if ((max_features > 1) && (rand_int(100) >= DUN_FEAT))
 		{
 			continue;
 		}
@@ -7291,12 +7261,16 @@ static void build_nature(void)
 		if (feat)
 		{
 			/* Try a big lake */
-			if ((dun_size <= 3) || (randint(150) < p_ptr->depth))
+			if (!done_big)
 			{
-				big = TRUE;
+				big = (randint(150) < danger(p_ptr->depth));
+
+				/* Got one */
+				done_big = big;
 			}
 			else
 			{
+				/* We have a big one already */
 				big = FALSE;
 			}
 
@@ -7323,15 +7297,8 @@ static void build_nature(void)
 			}
 
 			/* Build one lake/river. */
-			build_feature(feat, big);
+			build_feature(feat, big, merge_lakes);
 		}
-	}
-
-	/* Debug message */
-	if (level_flag && cheat_room)
-	{
-		msg_c_format(MSG_NOTICE, "Level flags added by lake generation.");
-		debug_all_level_flags(level_flag);
 	}
 }
 
@@ -7344,7 +7311,7 @@ static void build_themed_level_nature(byte theme)
 	u16b i;
 
 	/* Clear the level flag */
-	level_flag = 0;
+	wanted_flags = level_flag = 0;
 
 	/* Find if the theme has some restrictions to generate terrain */
 	for (i = 0; i < N_ELEMENTS(themed_level_flags); i++)
@@ -7353,7 +7320,7 @@ static void build_themed_level_nature(byte theme)
 		if (theme == themed_level_flags[i].theme)
 		{
 			/* Apply the restriction */
-			level_flag |= themed_level_flags[i].flags;
+			wanted_flags |= themed_level_flags[i].flags;
 
 			/* Done */
 			break;
@@ -7425,7 +7392,7 @@ static bool build_themed_level(void)
 
 	/* Select the monster theme, get the feeling */
 	if (is_quest_level) level_theme = q_ptr->theme;
-	else level_theme = get_level_theme(p_ptr->depth, FALSE);
+	else level_theme = get_level_theme(danger(p_ptr->depth), FALSE);
 
 	/* Insert the feeling now */
 	feeling = level_theme + LEV_THEME_HEAD;
@@ -7483,12 +7450,12 @@ static bool build_themed_level(void)
 	get_mon_num_prep();
 
 	/* Monsters can be up to 7 levels out of depth, 10 for a quest */
-	max_depth = p_ptr->depth + (is_quest_level ? THEMED_LEVEL_QUEST_BOOST : THEMED_LEVEL_NO_QUEST_BOOST);
+	max_depth = danger(p_ptr->depth) + (is_quest_level ? THEMED_LEVEL_QUEST_BOOST : THEMED_LEVEL_NO_QUEST_BOOST);
 
 	/*don't make it too easy if the player isn't diving very fast*/
-	if (p_ptr->depth < p_ptr->max_lev)
+	if (danger(p_ptr->depth) < danger(p_ptr->max_lev))
 	{
-		max_depth += ((p_ptr->max_lev - p_ptr->depth) / 2);
+		max_depth += ((danger(p_ptr->max_lev) - danger(p_ptr->depth)) / 2);
 	}
 
 	/*boundry control*/
@@ -7514,7 +7481,7 @@ static bool build_themed_level(void)
 	else monster_number = 250;
 
 	/* Reduce the number as monsters get more powerful*/
-	monster_number -= ((p_ptr->depth / 3) + randint(p_ptr->depth / 3));
+	monster_number -= ((danger(p_ptr->depth) / 3) + randint(danger(p_ptr->depth) / 3));
 
 	/*boundry control*/
 	if (monster_number > (z_info->m_max	- 25)) monster_number = z_info->m_max - 25;
@@ -7898,129 +7865,6 @@ static void build_fog(void)
 
 
 
-/*
- * Pick a location for the center of a dungeon transformation (region, wall, etc.)
- * The location is stored in py and px.
- * flag must the LF1_* flag of the transformation. It can be 0.
- * marked_grids and num_marked_grids contain the array of grids marked with CAVE_TEMP.
- * These marked grids are the possible candidates for transformation centers.
- * Return TRUE on success, FALSE on failure.
- */
-static bool pick_transform_center(coord *marked_grids, int num_marked_grids,
-		u32b flag, int *py, int *px)
-{
-	int max = 300;
-	int cur = 0;
-	coord *grids;
-	int y, x, i, j, k;
-	bool found = FALSE;
-	int rad = MAX_SIGHT * 2;
-
-	/* First, find a random grid of the given element in the dungeon */
-	if (flag && level_flag)
-	{
-		/* Allocate storage for a list of features that match that element */
-		C_MAKE(grids, max, coord);
-
-		/* Scan the dungeon */
-		for (y = 0; y < p_ptr->cur_map_hgt; y++)
-		{
-			for (x = 0; x < p_ptr->cur_map_wid; x++)
-			{
-				/* Get the feature */
-				u16b feat = cave_feat[y][x];
-
-				/* It must be an elemental feature */
-				if (!feat_ff3_match(feat, TERRAIN_MASK)) continue;
-
-				/* It must match the given flag */
-				if (get_level_flag(feat) != flag) continue;
-
-				/* Put in on the list */
-				if (cur < max)
-				{
-					k = cur++;
-				}
-				/* Overwrite the list if there isn't more space */
-				else
-				{
-					k = rand_int(max);
-				}
-
-				/* Save the data */
-				grids[k].y = y;
-				grids[k].x = x;
-			}
-		}
-
-		/* Second. Pick a marked grid that is near to a valid elemental grid */
-		if (cur > 0)
-		{
-			/* Try several times */
-			for (i = 0; (i < 50) && !found; i++)
-			{
-				/* Pick a random elemental grid */
-				k = rand_int(cur);
-
-				/* Try several times */
-				for (j = 0; (j < 100) && !found; j++)
-				{
-					/* Pick a random grid near the elemental grid */
-					y = rand_spread(grids[k].y, rad);
-					x = rand_spread(grids[k].x, rad);
-
-					/* Check bounds */
-					if (!in_bounds(y, x)) continue;
-
-					/* It must be marked */
-					if (cave_info[y][x] & (CAVE_TEMP)) found = TRUE;
-				}
-			}
-		}
-
-		/* Free storage */
-		FREE(grids);
-
-		/* Found? */
-		if (found)
-		{
-			/* Return that location */
-			*py = y;
-			*px = x;
-			return (TRUE);
-		}
-	}
-
-	/* Paranoia */
-	if (num_marked_grids < 1)
-	{
-		return (FALSE);
-	}
-
-	/* Default case. Just put it on some random location */
-	for (i = 0; i < 100; i++)
-	{
-		/* Pick a random index */
-		k = rand_int(num_marked_grids);
-
-		/* Get coordinates */
-		y = marked_grids[k].y;
-		x = marked_grids[k].x;
-
-		/* Found a marked grid? */
-		if (cave_info[y][x] & (CAVE_TEMP))
-		{
-			/* Return the location */
-			*py = y;
-			*px = x;
-			return (TRUE);
-		}
-	}
-
-	/* Failure */
-	return (FALSE);
-}
-
 
 /*
  * Transform walls and floors in the dungeon based on the given feature selector.
@@ -8044,43 +7888,57 @@ static void transform_regions(coord *grids, int num_grids, feature_selector_type
 	/* Get a number of regions suitable for each size */
 	if (dun_size == 1)
 	{
-		max = 3;
+		max = 0;
 	}
 	else if (dun_size == 2)
 	{
-		max = 5;
+		max = 1;
 	}
 	else if (dun_size == 3)
 	{
-		max = 6;
+		max = 2;
 	}
 	/* Medium and large dungeons */
 	else
 	{
 		int k = rand_int(100);
 
-		if (k < 10) max = 10;
-		else if (k < 30) max = 9;
-		else max = 8;
+		if (k < 10) max = 4;
+		else if (k < 30) max = 2;
+		else max = 3;
 	}
 
-	/* Message */
-	if (cheat_room)
-	{
-	       	msg_format("transform_regions: changing %d region%s.", max, (max == 1) ? "": "s");
-	}
+	if (cheat_room) msg_format("transform_regions: changing %d region%s.", max, (max == 1) ? "": "s");
 
 	/* Transform "max" regions */
 	for (i = 0; i < max; i++)
 	{
 		u16b wall, floor;
 		int wid, hgt;
-		int y, x, y1, x1;
+		int y, x, y1, x1, idx;
 		fractal_template *t_ptr;
 		fractal_map map;
 		byte type;
 		int tries = 0;
-		u32b flags;
+
+		/* Pick a valid starting point */
+		while (TRUE)
+		{
+			/* Use the RNG */
+			idx = rand_int(num_grids);
+
+			/* Get coordinates */
+			y = grids[idx].y;
+			x = grids[idx].x;
+
+			/* It must be a marked location */
+			if (cave_info[y][x] & (CAVE_TEMP)) break;
+
+			/* Can't get a grid */
+			if (++tries > 100) return;
+		}
+
+		tries = 0;
 
 		/* Pick a wall feature and an optional floor feature */
 		while (TRUE)
@@ -8091,25 +7949,22 @@ static void transform_regions(coord *grids, int num_grids, feature_selector_type
 			/* Got one */
 			if (item)
 			{
+				u32b flags = (FF1_WALL | FF1_CAN_TUNNEL);
+
 				/* Get wall */
 				wall = item->wall;
 
 				/* Get floor */
 				floor = item->floor;
 
-				/* Get element flags */
-				flags = item->level_flag;
-
-				/* Accept feature */
-				break;
+				/* Check consistency. Floor is optional */
+				if ((feat_ff1_match(wall, flags) == flags) &&
+					((floor == FEAT_NONE) || feat_ff1_match(floor, FF1_MOVE))) break;
 			}
 
 			/* Can't get a valid pair. Done */
 			if (++tries > 50) return;
 		}
-
-		/* Pick location */
-		if (!pick_transform_center(grids, num_grids, flags, &y, &x)) return;
 
 		/* Default region size */
 		type = FRACTAL_TYPE_33x33;
@@ -8188,103 +8043,29 @@ static void transform_regions(coord *grids, int num_grids, feature_selector_type
 				/* Replace walls */
 				if (feat_ff1_match(feat, FF1_WALL))
 				{
-					u16b new_wall = wall;
+					int d;
 
-					/* Flavor */
-					if ((wall == FEAT_LAVA_W) ||
-						(wall == FEAT_BMUD_WALL) ||
-						(wall == FEAT_BWATER_WALL) ||
-						(wall == FEAT_ACID_WALL))
+					/* Check if there is a passable grid around us, or a door */
+					for (d = 0; d < 8; d++)
 					{
-						int k = rand_int(100);
+						/* Get coordinates */
+						int yyy = yy + ddy_ddd[d];
+						int xxx = xx + ddy_ddd[d];
 
-						if (k < 7) new_wall = FEAT_SCORCHED_WALL;
+						/* Ignore annoying locations */
+						if (!in_bounds(yyy, xxx)) continue;
 
-						else if (k < 10) new_wall = FEAT_GRANITE_C;
-					}
-					else if (wall == FEAT_SANDSTONE)
-					{
-						int k = rand_int(100);
-
-						if (k < 5) new_wall = FEAT_GRANITE_C;
-					}
-					else if (wall == FEAT_ICE_WALL)
-					{
-						int k = rand_int(100);
-
-						if (k < 10) new_wall = FEAT_ICE_WALL_C;
-					}
-					else if (wall == FEAT_ICE_WALL_C)
-					{
-						int k = rand_int(100);
-
-						if (k < 10) new_wall = FEAT_ICE_WALL;
-					}
-					else if (wall == FEAT_COAL)
-					{
-						int k = rand_int(100);
-
-						if (k < 10) new_wall = FEAT_SCORCHED_WALL;
-
-						else if (k < 17) new_wall = FEAT_BCOAL;
-					}
-					else if (wall == FEAT_SHALE)
-					{
-						int k = rand_int(100);
-
-						if (k < 10) new_wall = FEAT_COAL;
-
-						else if (k < 17) new_wall = FEAT_QUARTZ;
-					}
-					else if (wall == FEAT_VINES)
-					{
-						int k = rand_int(100);
-
-						if (k < 10) new_wall = FEAT_EARTH_WALL;
+						/* Found a valid grid. Stop */
+						if (cave_ff1_match(yyy, xxx, FF1_MOVE | FF1_DOOR)) break;
 					}
 
-
-					cave_set_feat(yy, xx, new_wall);
+					/* Place the new wall */
+					if (d < 8) cave_set_feat(yy, xx, wall);
 				}
 				/* Replace floor if necessary */
 				else if ((floor != FEAT_NONE) && feat_ff1_match(feat, FF1_MOVE))
 				{
-					u16b new_floor = floor;
-
-					/* Flavor */
-					if ((floor == FEAT_FLOOR_WET))
-					{
-						int k = rand_int(100);
-
-						if (k < 30) new_floor = FEAT_WATER;
-					}
-					else if ((floor == FEAT_FSOIL))
-					{
-						int k = rand_int(100);
-
-						if (k < 20) new_floor = FEAT_EARTH;
-
-						else if (k < 21) new_floor = FEAT_TREE;
-
-						else if (k < 26) new_floor = FEAT_BUSH;
-					}
-					else if ((floor == FEAT_SAND))
-					{
-						int k = rand_int(100);
-
-						if (k < 7) new_floor = FEAT_ROCK;
-					}
-					else if ((floor == FEAT_FLOOR_MUD))
-					{
-						int k = rand_int(100);
-
-						if (k < 10) new_floor = FEAT_MUD;
-
-						else if (k < 15) new_floor = FEAT_MUD_H;
-					}
-
-					cave_set_feat(yy, xx, new_floor);
-
+					cave_set_feat(yy, xx, floor);
 				}
 			}
 		}
@@ -8293,6 +8074,7 @@ static void transform_regions(coord *grids, int num_grids, feature_selector_type
 		FREE(map);
 	}
 }
+
 
 /*
  * Tranform walls in the dungeon based on the wall features contained in the
@@ -8303,7 +8085,7 @@ static void transform_regions(coord *grids, int num_grids, feature_selector_type
  */
 static void transform_walls(coord *grids, int num_grids, feature_selector_type *fs_ptr)
 {
-	int max, y, x, i;
+	int max, y, x, i, idx;
 
 	/* Get the number of grids to tranform */
 
@@ -8334,6 +8116,7 @@ static void transform_walls(coord *grids, int num_grids, feature_selector_type *
 	{
 		int yy, xx;
 		int rad;
+		int tries = 0;
 		bool is_effect = FALSE;
 
 		/* Get a wall */
@@ -8346,7 +8129,21 @@ static void transform_walls(coord *grids, int num_grids, feature_selector_type *
 		if (feat_ff2_match(item->wall, FF2_EFFECT)) is_effect = TRUE;
 
 		/* Pick a location */
-		if (!pick_transform_center(grids, num_grids, item->level_flag, &y, &x)) return;
+		while (TRUE)
+		{
+			/* Pick a random index */
+			idx = rand_int(num_grids);
+
+			/* Get coordinates */
+			y = grids[idx].y;
+			x = grids[idx].x;
+
+			/* It must be marked */
+			if (cave_info[y][x] & (CAVE_TEMP)) break;
+
+			/* Can't get a valid location */
+			if (++tries > 100) return;
+		}
 
 		/* Get the radius */
 		rad = item->rad;
@@ -8402,7 +8199,7 @@ static void transform_walls(coord *grids, int num_grids, feature_selector_type *
  * transformations that must be triggered if they are present in the dungeon
  */
 static struct elemental_transformation_info {
-	u32b level_flag;/* The LF1_* flag that must be present in the current level */
+	int source; 	/* The feature that is used to check the presence of the element */
 	byte type;	/* The transformation type (one of the TRANSFORM_* constants) */
 	u16b wall;
 	u16b floor;
@@ -8410,72 +8207,50 @@ static struct elemental_transformation_info {
 	byte rad;
 } elemental_transformations[] =
 {
-	{LF1_ICE, TRANSFORM_REGION, FEAT_ICE_WALL, FEAT_ICE, 200, 0},
-	{LF1_ICE, TRANSFORM_REGION, FEAT_ICE_WALL_C, FEAT_ICE, 200, 0},
+	{FEAT_ICE, TRANSFORM_WALL, FEAT_ICE_WALL, FEAT_NONE, 100, 2},
+	{FEAT_ICE, TRANSFORM_WALL, FEAT_ICE_WALL_C, FEAT_NONE, 200, 2},
+	{FEAT_ICE, TRANSFORM_REGION, FEAT_ICE_WALL, FEAT_ICE, 200, 0},
+	{FEAT_ICE, TRANSFORM_REGION, FEAT_ICE_WALL_C, FEAT_ICE, 200, 0},
 
-	{LF1_WATER, TRANSFORM_REGION, FEAT_LIMESTONE, FEAT_FLOOR_WET, 150, 0},
+	{FEAT_WATER, TRANSFORM_WALL, FEAT_LIMESTONE, FEAT_NONE, 100, 2},
+	{FEAT_WATER, TRANSFORM_WALL, FEAT_WATER, FEAT_NONE, 70, 2},
+	{FEAT_WATER, TRANSFORM_WALL, FEAT_WATER_H, FEAT_NONE, 20, 2},
+	{FEAT_WATER, TRANSFORM_REGION, FEAT_LIMESTONE, FEAT_FLOOR_WET, 100, 0},
 
-	{LF1_LAVA, TRANSFORM_REGION, FEAT_LAVA_W, FEAT_BURNT_S, 200, 0},
+	{FEAT_LAVA, TRANSFORM_WALL, FEAT_LAVA_W, FEAT_NONE, 150, 2},
+	{FEAT_LAVA, TRANSFORM_REGION, FEAT_LAVA_W, FEAT_BURNT_S, 200, 0},
 
-	{LF1_SAND, TRANSFORM_REGION, FEAT_SANDSTONE, FEAT_SAND, 100, 0},
-	{LF1_SAND, TRANSFORM_REGION, FEAT_SANDSTONE, FEAT_SAND_H, 10, 0},
+	{FEAT_SAND, TRANSFORM_WALL, FEAT_SANDSTONE, FEAT_NONE, 100, 2},
+	{FEAT_SAND, TRANSFORM_WALL, FEAT_DUNE, FEAT_NONE, 10, 2},
+	{FEAT_SAND, TRANSFORM_REGION, FEAT_SANDSTONE, FEAT_SAND, 100, 0},
+	{FEAT_SAND, TRANSFORM_REGION, FEAT_SANDSTONE, FEAT_SAND_H, 10, 0},
 
-	{LF1_OIL, TRANSFORM_REGION, FEAT_COAL, FEAT_NONE, 200, 0},
-	{LF1_OIL, TRANSFORM_REGION, FEAT_SHALE, FEAT_NONE, 100, 0},
+	{FEAT_OIL, TRANSFORM_WALL, FEAT_COAL, FEAT_NONE, 100, 2},
+	{FEAT_OIL, TRANSFORM_WALL, FEAT_BCOAL, FEAT_NONE, 50, 2},
+	{FEAT_OIL, TRANSFORM_WALL, FEAT_SHALE, FEAT_NONE, 50, 2},
+	{FEAT_OIL, TRANSFORM_REGION, FEAT_COAL, FEAT_NONE, 200, 0},
+	{FEAT_OIL, TRANSFORM_REGION, FEAT_SHALE, FEAT_NONE, 100, 0},
 
-	{LF1_FOREST, TRANSFORM_WALL, FEAT_PUTRID_FLOWER, FEAT_NONE, 10, 1},
-	{LF1_FOREST, TRANSFORM_REGION, FEAT_VINES, FEAT_FSOIL, 150, 0},
+	{FEAT_TREE, TRANSFORM_WALL, FEAT_TREE, FEAT_NONE, 100, 0},
+	{FEAT_TREE, TRANSFORM_WALL, FEAT_BUSH, FEAT_NONE, 150, 2},
+	{FEAT_TREE, TRANSFORM_WALL, FEAT_THORNS, FEAT_NONE, 25, 2},
+	{FEAT_TREE, TRANSFORM_WALL, FEAT_PUTRID_FLOWER, FEAT_NONE, 10, 1},
+	{FEAT_TREE, TRANSFORM_REGION, FEAT_VINES, FEAT_FSOIL, 100, 0},
 
-	{LF1_MUD, TRANSFORM_REGION, FEAT_EARTH_WALL, FEAT_FLOOR_MUD, 100, 0},
+	{FEAT_MUD, TRANSFORM_REGION, FEAT_EARTH_WALL, FEAT_FLOOR_MUD, 100, 0},
 
-	{LF1_BWATER, TRANSFORM_REGION, FEAT_BWATER_WALL, FEAT_NONE, 200, 0},
+	{FEAT_BWATER, TRANSFORM_WALL, FEAT_BWATER_WALL, FEAT_NONE, 25, 2},
+	{FEAT_BWATER, TRANSFORM_REGION, FEAT_BWATER_WALL, FEAT_NONE, 200, 0},
 
-	{LF1_BMUD, TRANSFORM_REGION, FEAT_BMUD_WALL, FEAT_NONE, 200, 0},
+	{FEAT_BMUD, TRANSFORM_WALL, FEAT_BMUD_WALL, FEAT_NONE, 25, 2},
+	{FEAT_BMUD, TRANSFORM_REGION, FEAT_BMUD_WALL, FEAT_NONE, 200, 0},
 
-	{LF1_FIRE, TRANSFORM_REGION, FEAT_SCORCHED_WALL, FEAT_BURNT_S, 100, 0},
+	{FEAT_FIRE, TRANSFORM_WALL, FEAT_SCORCHED_WALL, FEAT_NONE, 100, 2},
+	{FEAT_FIRE, TRANSFORM_WALL, FEAT_FIRE, FEAT_NONE, 5, 2},
+	{FEAT_FIRE, TRANSFORM_REGION, FEAT_SCORCHED_WALL, FEAT_BURNT_S, 100, 0},
 
-	{LF1_ACID, TRANSFORM_REGION, FEAT_ACID_WALL, FEAT_BURNT_S, 100, 0},
-
-	/* Marks the end of the list */
-	{0}
+	{FEAT_NONE}
 };
-
-
-/*
- * Try to add the LF1_* flags of num_rolls terrain features to level_flag.
- */
-static void roll_level_flag(int num_rolls)
-{
-	u16b feat;
-	int i;
-
-	/* Try with num_rolls features */
-	for (i = 0; i < num_rolls; i++)
-	{
-		/* Pick a lake feature */
-		feat = pick_proper_feature(cave_feat_lake);
-
-		/* Is it an elemental feature? */
-		if (feat_ff3_match(feat, TERRAIN_MASK))
-		{
-			/* Get the element flag */
-			u32b flag = get_level_flag(feat);
-
-			/* Debug message */
-			if (cheat_room && !(level_flag & flag))
-			{
-				char name[80];
-
-				describe_one_level_flag(name, sizeof(name), flag);
-
-				msg_c_format(MSG_NOTICE, "Adding %s to level_flag.", name);
-			}
-
-			/* Extend level_flag */
-			level_flag |= flag;
-		}
-	}
-}
 
 
 /*
@@ -8488,7 +8263,6 @@ static void transform_walls_regions(void)
 	int num_grids = 0, idx;
 	int y, x, i;
 	u16b feat;
-	bool enable_nature = FALSE;
 
 	/* Feature selectors */
 	feature_selector_type wall_sel_body, *wall_sel_ptr = &wall_sel_body;
@@ -8499,16 +8273,15 @@ static void transform_walls_regions(void)
 	if (!(*dun_cap->can_be_transformed)()) return;
 
 	/* Flavor */
-	if (one_in_(20)) return;
+	if (one_in_(10)) return;
 
 	/* Initialize the feature selectors */
 	feature_selector_init(wall_sel_ptr);
 	feature_selector_init(region_sel_ptr);
 
 	/* Add glowing walls */
-	if ((p_ptr->depth < 50) || !one_in_(4))
+	if ((danger(p_ptr->depth) < 50) || !one_in_(4))
 	{
-		item->level_flag = 0;
 		item->wall = FEAT_ELVISH_WALL;
 		item->floor = FEAT_NONE;
 		item->chance = 100;
@@ -8518,9 +8291,8 @@ static void transform_walls_regions(void)
 	}
 
 	/* Add silent watchers */
-	if ((p_ptr->depth < 10) ? FALSE: (p_ptr->depth >= 35) ? one_in_(10): one_in_(20))
+	if ((danger(p_ptr->depth) < 10) ? FALSE: (danger(p_ptr->depth) >= 35) ? one_in_(4): one_in_(20))
 	{
-		item->level_flag = 0;
 		item->wall = FEAT_SILENT_WATCHER;
 		item->floor = FEAT_NONE;
 		item->chance = 30;
@@ -8538,9 +8310,8 @@ static void transform_walls_regions(void)
 	feature_selector_add(wall_sel_ptr, item);
 
 	/* Add teleport walls */
-	if ((p_ptr->depth < 5) ? FALSE: (p_ptr->depth >= 40) ? one_in_(2): one_in_(10))
+	if ((danger(p_ptr->depth) < 5) ? FALSE: (danger(p_ptr->depth) >= 40) ? one_in_(4): one_in_(10))
 	{
-		item->level_flag = 0;
 		item->wall = FEAT_ETHEREAL_WALL;
 		item->floor = FEAT_NONE;
 		item->chance = 30;
@@ -8549,53 +8320,33 @@ static void transform_walls_regions(void)
 		feature_selector_add(wall_sel_ptr, item);
 	}
 
-	feat = 0;
-
-	/* Count elemental features in the current level */
-	for (y = 1; y < (p_ptr->cur_map_hgt - 1); y++)
-	{
-		for (x = 1; x < (p_ptr->cur_map_wid - 1); x++)
-		{
-			if (cave_ff3_match(y, x, TERRAIN_MASK)) ++feat;
-		}
-	}
-
-	/* We are allowed to use elemental features depending on element presence or dungeon depth */
-	if ((feat > 15) || (rand_int(200) < p_ptr->depth))
-	{
-		/* Add more flavor */
-		roll_level_flag(level_flag ? 3: 10);
-
-		/* Allow elemental features */
-		enable_nature = TRUE;
-	}
-
 	/* Traverse the array of elemental transformations */
-	for (i = 0; enable_nature; i++)
+	for (i = 0; TRUE; i++)
 	{
 		/* Get the current elemental transformation */
 		struct elemental_transformation_info *et_ptr = &elemental_transformations[i];
+		u16b *counter;
 
 		/* The end of the array was reached */
-		if (!et_ptr->level_flag) break;
+		if (!et_ptr->source) break;
 
-		/* Allow only features compatible with the current level type */
-		if (!(level_flag & et_ptr->level_flag)) continue;
+		/* Get the elemental counter */
+		counter = get_element_counter(&f_info[et_ptr->source]);
+
+		/* The feature doesn't exists in the dungeon. Ignore */
+		if (counter && (*counter == 0)) continue;
 
 		/* Check depth of features */
-		if (TRUE)
+		if (!DEBUG_MODE_ACTIVATED)
 		{
 			int depth = -1;
-			int damage = -1;
 
 			/* Check walls */
 			if (et_ptr->wall)
 			{
 				feature_type *f_ptr = &f_info[et_ptr->wall];
 
-				depth = MAX(f_ptr->f_level, depth);
-
-				damage = MAX(f_ptr->dam_non_native, damage);
+				if (f_ptr->f_level > depth) depth = f_ptr->f_level;
 			}
 
 			/* Check floors */
@@ -8603,31 +8354,14 @@ static void transform_walls_regions(void)
 			{
 				feature_type *f_ptr = &f_info[et_ptr->floor];
 
-				depth = MAX(f_ptr->f_level, depth);
-
-				damage = MAX(f_ptr->dam_non_native, damage);
+				if (f_ptr->f_level > depth) depth = f_ptr->f_level;
 			}
 
-			/* Feature is OOD */
-			if (depth > (p_ptr->depth + 20))
-			{
-				/* Feature is too dangerous */
-			       	if (damage > (p_ptr->mhp / 2)) continue;
-
-				/* Sometimes we allow this feature */
-				if (depth > (p_ptr->depth + 40))
-				{
-					if (!one_in_(7)) continue;
-				}
-				else
-				{
-					if (!one_in_(4)) continue;
-				}
-			}
+			/* Only 20 levels OOD allowed half of the time  */
+			if ((ABS(depth - danger(p_ptr->depth)) >= 20) && one_in_(2)) continue;
 		}
 
 		/* Create a feature selector item */
-		item->level_flag = et_ptr->level_flag;
 		item->wall = et_ptr->wall;
 		item->floor = et_ptr->floor;
 		item->chance = et_ptr->chance;
@@ -8735,12 +8469,6 @@ static void transform_walls_regions(void)
 		}
 	}
 
-	/* Debug message */
-	if (cheat_room)
-	{
-		debug_all_level_flags(level_flag);
-	}
-
 	/* Free resources */
 	FREE(grids);
 }
@@ -8753,7 +8481,7 @@ static void build_misc_features(void)
 {
 	/* Sometimes we place fog on water and ice levels */
 	if ((level_flag & (LF1_WATER | LF1_ICE)) && !(level_flag & (LF1_LAVA | LF1_FIRE)) &&
-		(p_ptr->depth >= 35) && one_in_(3))
+		(danger(p_ptr->depth) >= 35) && one_in_(3))
 	{
 		int i, k = 2;
 
@@ -9147,118 +8875,6 @@ static bool build_forest_level(void)
 }
 
 
-
-/*
- * Find a random location in the dungeon for a monster of the given race and store it
- * in py and px.
- * Return TRUE if succeeds, FALSE if fails.
- * Sometimes we try to place the monster in native terrain first.
- */
-static bool pick_monster_location(monster_race *r_ptr, int *py, int *px)
-{
-	int max = 300;
-	int cur = 0;
-	coord *grids;
-	bool found = FALSE;
-	int x, y, tries, k;
-
-	/* Get the LF1_* flags of the monster */
-	u32b flag = get_level_flag_from_race(r_ptr);
-
-	/* Search a native grid if necessary. Note that we always try if the monster is unique. */
-	if (flag && (level_flag & flag) && ((r_ptr->flags1 & RF1_UNIQUE) || one_in_(2)))
-	{
-		/* Allocate storage for candidate grids */
-		C_MAKE(grids, max, coord);
-
-		/* Scan the map */
-		for (y = 1; y < (p_ptr->cur_map_hgt - 1); y++)
-		{
-			for (x = 1; x < (p_ptr->cur_map_wid - 1); x++)
-			{
-				/* Found a suitable grid? */
-				if (!cave_empty_bold(y, x) ||
-						!cave_ff3_match(y, x, TERRAIN_MASK) ||
-						!is_monster_native(y, x, r_ptr)) continue;
-
-				/* Put it on the grid list */
-				if (cur < max)
-				{
-					k = cur++;
-				}
-				/* Overwrite the list if there isn't more space */
-				else
-				{
-					k = rand_int(max);
-				}
-
-				/* Save the location */
-				grids[k].y = y;
-				grids[k].x = x;
-			}
-		}
-
-		/* Pick one of the candidates */
-		if (cur > 0)
-		{
-			/* Pick a random index */
-			k = rand_int(cur);
-			/* Get the location */
-			y = grids[k].y;
-			x = grids[k].x;
-			/* Remember the event */
-			found = TRUE;
-		}
-
-		/* Free dynamic storage */
-		FREE(grids);
-
-		/* Found the grid? */
-		if (found)
-		{
-			/* Debug message */
-			if (cheat_room)
-			{
-				msg_c_format(MSG_NOTICE, "Found a NATIVE location for \"%s\".",
-					r_name + r_ptr->name);
-			}
-
-			/* Return the location */
-			*py = y;
-			*px = x;
-			return (TRUE);
-		}
-	}
-
-	/* Find a random location */
-	for (tries = 0; tries < 1000; tries++)
-	{
-		/* Get random coordinates */
-		y = randint(p_ptr->cur_map_hgt - 2);
-		x = randint(p_ptr->cur_map_wid - 2);
-
-		/* Suitable grid? */
-		if (cave_empty_bold(y, x) && cave_no_dam_for_mon(y, x, r_ptr))
-		{
-			/* Debug message */
-			if (cheat_room)
-			{
-				msg_c_format(MSG_NOTICE, "Found a random location for \"%s\".",
-					r_name + r_ptr->name);
-			}
-
-			/* Return the location */
-			*py = y;
-			*px = x;
-			return (TRUE);
-		}
-	}
-
-	/* Failure */
-	return (FALSE);
-}
-
-
 /*
  * Place monsters and objects on a level
  * Returns TRUE on success
@@ -9321,8 +8937,19 @@ static bool place_monsters_objects(void)
 				/* Ensure quest monsters */
 				while (r_ptr->cur_num < num_questors)
 				{
+					int tries = 0;
+
 					/* Pick a location */
-					if (!pick_monster_location(r_ptr, &y, &x)) return FALSE;
+					while (TRUE)
+					{
+						y = rand_int(p_ptr->cur_map_hgt);
+						x = rand_int(p_ptr->cur_map_wid);
+
+						if (cave_empty_bold(y, x) && cave_no_dam_for_mon(y, x, r_ptr)) break;
+
+						if (++tries >= 1000) return FALSE;
+					}
+
 
 					/* Place the questor */
 					place_monster_aux(y, x, q_ptr->mon_idx, TRUE, TRUE);
@@ -9342,9 +8969,18 @@ static bool place_monsters_objects(void)
 			else if ((q_ptr->type == QUEST_UNIQUE) || (q_ptr->type == QUEST_FIXED_U))
 			{
 				monster_race *r_ptr = &r_info[q_ptr->mon_idx];
+				int tries = 0;
 
 				/* Pick a location */
-				if (!pick_monster_location(r_ptr, &y, &x)) return FALSE;
+				while (TRUE)
+				{
+					y = rand_int(p_ptr->cur_map_hgt);
+					x = rand_int(p_ptr->cur_map_wid);
+
+					if (cave_empty_bold(y, x) && cave_no_dam_for_mon(y, x, r_ptr)) break;
+
+					if (++tries >= 1000) return FALSE;
+				}
 
 				/* Place the questor */
 				place_monster_aux(y, x, q_ptr->mon_idx, TRUE, TRUE);
@@ -9374,6 +9010,7 @@ static bool place_monsters_objects(void)
 
 	return (TRUE);
 }
+
 
 /*
  * Helper. Place an horizontal chain of ice mountains
@@ -9675,13 +9312,13 @@ static bool build_wilderness_level(void)
 	set_dungeon_type(DUNGEON_TYPE_WILDERNESS);
 
 	/* Reset terrain flags */
-	level_flag = 0;
+	level_flag = wanted_flags = 0;
 
 	/* Leave the player in the air for now */
 	p_ptr->py = p_ptr->px = 0;
 
 	/* Try with a forest */
-	if ((p_ptr->depth < 35) || one_in_(2))
+	if ((danger(p_ptr->depth) < 35) || one_in_(2))
 	{
 		if (!build_forest_level())
 		{
@@ -9761,9 +9398,6 @@ static bool build_wilderness_level(void)
 		build_tunnel(p_ptr->py, p_ptr->px, y, x);
 	}
 
-	/* Additional features */
-	build_misc_features();
-
 	/* Place some things */
 	if (!place_monsters_objects())
 	{
@@ -9772,8 +9406,11 @@ static bool build_wilderness_level(void)
 		return FALSE;
 	}
 
+	/* Additional features */
+	build_misc_features();
+
 	/* Special illumination for ice levels */
-	if (done_ice && ((p_ptr->depth < 50) || one_in_(4))) lite_elements(TRUE);
+	if (done_ice && ((danger(p_ptr->depth) < 50) || one_in_(4))) lite_elements(TRUE);
 
 	/* Success */
 	return (TRUE);
@@ -9809,13 +9446,13 @@ static bool cave_gen(void)
 	set_dungeon_type(DUNGEON_TYPE_DEFAULT);
 
 	/* Possible "destroyed" level */
-	if ((p_ptr->depth > 10) && (one_in_(DUN_DEST))) destroyed = TRUE;
+	if ((danger(p_ptr->depth) > 10) && (one_in_(DUN_DEST))) destroyed = TRUE;
 
 	/* Possible "fractal" level */
-	if (!destroyed && (p_ptr->depth >= 15) && one_in_(DUN_FRACTAL)) fractal_level = TRUE;
+	if (!destroyed && (danger(p_ptr->depth) >= 15) && one_in_(DUN_FRACTAL)) fractal_level = TRUE;
 
 	/*Clear the level flag*/
-	level_flag = 0;
+	level_flag = 0x00;
 
 	/*
 	 * If we have visited the quest level, and found the
@@ -9980,13 +9617,13 @@ static bool cave_gen(void)
 		}
 
 		/* Attempt an "unusual" room */
-		if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
+		if (rand_int(DUN_UNUSUAL) < danger(p_ptr->depth))
 		{
 			/* Roll for room type */
 			k = rand_int(100);
 
 			/* Attempt a very unusual room */
-			if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
+			if (rand_int(DUN_UNUSUAL) < danger(p_ptr->depth))
 			{
 				/* Type 8 -- Greater vault (10%) */
 				if ((k < 10) && !greater_vault && room_build(by, bx, 8))
@@ -10017,7 +9654,7 @@ static bool cave_gen(void)
 
 		/* Occasionally attempt a starburst room */
 		/* Maximum chance: one in 20 */
-		if (randint(800) <= MIN(p_ptr->depth, 40))
+		if (randint(800) <= MIN(danger(p_ptr->depth), 40))
 		{
 			int room_idx = (one_in_(10) ? 11 : 10);
 
@@ -10026,7 +9663,7 @@ static bool cave_gen(void)
 
 		/* Occasionally attempt a fractal room */
 		/* Maximum chance: one in 7 */
-		if (randint(490) <= MIN(p_ptr->depth, 70))
+		if (randint(490) <= MIN(danger(p_ptr->depth), 70))
 		{
 			if (one_in_(8) && room_build(by, bx, 14)) continue;
 
@@ -10069,11 +9706,10 @@ static bool cave_gen(void)
 		return (FALSE);
 	}
 
-	/* Place flavor features (fog, regions, walls, etc.) */
-	build_misc_features();
-
-	/* Place monsters and objects */
 	if (!place_monsters_objects()) return (FALSE);
+
+	/* Place flavor features (fog) */
+	build_misc_features();
 
 	return(TRUE);
 
@@ -10374,42 +10010,6 @@ static void town_gen(void)
 
 
 /*
- * Select and return one of the DUNGEON_TYPE_* constants
- * The selection is restricted by a number of things like depth and quests.
- */
-int pick_dungeon_type(void)
-{
-	/* Town */
-	if (p_ptr->depth == 0)
-	{
-		return DUNGEON_TYPE_TOWN;
-	}
-
-	/* Themed level quest */
-	if (quest_check(p_ptr->depth) == QUEST_THEMED_LEVEL)
-	{
-		return DUNGEON_TYPE_THEMED_LEVEL;
-	}
-
-	/* Random themed level */
-	if (allow_themed_levels && (p_ptr->depth >= 10) && allow_altered_inventory &&
-		!quest_check(p_ptr->depth) && one_in_(THEMED_LEVEL_CHANCE))
-	{
-		return DUNGEON_TYPE_THEMED_LEVEL;
-	}
-
-	/* Random wilderness level */
-	if ((p_ptr->depth > 10) && !quest_check(p_ptr->depth) && one_in_(WILDERNESS_LEVEL_CHANCE))
-	{
-		return DUNGEON_TYPE_WILDERNESS;
-	}
-
-	/* Classic level */
-	return DUNGEON_TYPE_DEFAULT;
-}
-
-
-/*
  * Generate a random dungeon level
  *
  * Hack -- regenerate any "overflow" levels
@@ -10421,10 +10021,6 @@ int pick_dungeon_type(void)
 void generate_cave(void)
 {
 	int y, x, num, i;
-	int dungeon_type = DUNGEON_TYPE_DEFAULT;
-	/* The time to live of a dungeon type */
-	/* This is used to prevent problems with different failure chances in level generation */
-	int dungeon_type_ttl = 0;
 
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
@@ -10439,6 +10035,7 @@ void generate_cave(void)
 	for (num = 0; TRUE;)
 	{
 		bool okay = TRUE;
+
 		cptr why = NULL;
 
 		/* Reset */
@@ -10451,7 +10048,10 @@ void generate_cave(void)
 		wipe_dynamic_terrain();
 
 		/* Paranoia. Clear the current elemental flags */
-		level_flag = 0;
+		level_flag = wanted_flags = 0;
+
+		/* Clear the elemental counters */
+		WIPE(&element_counter, element_counter_type);
 
 		/* Start with a blank cave */
 		for (y = 0; y < MAX_DUNGEON_HGT; y++)
@@ -10494,10 +10094,10 @@ void generate_cave(void)
 		Term->offset_x = MAX_DUNGEON_WID;
 
 		/* Reset the monster generation level */
-		monster_level = p_ptr->depth;
+		monster_level = danger(p_ptr->depth);
 
 		/* Reset the object generation level */
-		object_level = p_ptr->depth;
+		object_level = danger(p_ptr->depth);
 
 		/* Nothing special here yet */
 		good_item_flag = FALSE;
@@ -10505,56 +10105,61 @@ void generate_cave(void)
 		/* Nothing good here yet */
 		rating = 0;
 
-		/* The current dungeon type is still valid */
-		if (dungeon_type_ttl > 0)
+		/* Build the town */
+		if (!p_ptr->depth)
 		{
-			--dungeon_type_ttl;
+			/* Make a town */
+			town_gen();
+
+			/* Hack -- Clear stairs request */
+			p_ptr->create_stair = 0;
 		}
-		/* We must reset the dungeon type */
+
+		/*
+	 	 * It is possible for levels to be themed,
+	 	 * but make sure the player isn't scumming
+		 * or we are on a fixed quest level.
+	 	 */
+		else if(((danger(p_ptr->depth) >= 10) && (allow_altered_inventory) &&
+	    		 (one_in_(THEMED_LEVEL_CHANCE)) && (allow_themed_levels) &&
+			 	 (!quest_check(p_ptr->depth))) ||
+				(quest_check(p_ptr->depth) == QUEST_THEMED_LEVEL))
+		{
+			if (build_themed_level())
+			{
+
+				/* Message. */
+				if (cheat_room) msg_print("Themed level");
+
+				okay = TRUE;
+			}
+			else okay = FALSE;
+		}
+
+		/* Build a real level */
 		else
 		{
-			/* Select a new level type */
-			dungeon_type = pick_dungeon_type();
-
-			/* Set the time to live */
-			dungeon_type_ttl = 200;
-		}
-
-		switch (dungeon_type)
-		{
-			case DUNGEON_TYPE_TOWN:
+			/* Make a dungeon, or report the failure to make one */
+			/* Try with a wilderness level first */
+			/*
+			if (DEBUG_MODE_ACTIVATED && build_wilderness_level())
 			{
-				/* Make a town */
-				town_gen();
-
-				/* Hack -- Clear stairs request */
-				p_ptr->create_stair = 0;
-
-				/* Always okay */
 				okay = TRUE;
-
-				break;
 			}
-			case DUNGEON_TYPE_THEMED_LEVEL:
+			*/
+			if ((danger(p_ptr->depth) > 10) && !quest_check(p_ptr->depth) &&
+				one_in_(WILDERNESS_LEVEL_CHANCE) && build_wilderness_level())
 			{
-				/* Make a themed level */
-				okay = build_themed_level();
-
-				break;
+				okay = TRUE;
 			}
-			case DUNGEON_TYPE_WILDERNESS:
+			/* Classic dungeon */
+			else if (cave_gen())
 			{
-				/* Make a wilderness level */
-				okay = build_wilderness_level();
-
-				break;
+				okay = TRUE;
 			}
-			default:
+			else
 			{
-				/* Make a classic level */
-				okay = cave_gen();
-
-				break;
+				okay = FALSE;
 			}
 		}
 
@@ -10562,10 +10167,9 @@ void generate_cave(void)
 		if(!okay)
 		{
 	   		if (cheat_room || cheat_hear || cheat_peek || cheat_xtra)
-			{
-				why = "defective level";
-			}
+					why = "defective level";
 		}
+
 		else
 		{
 
@@ -10619,10 +10223,10 @@ void generate_cave(void)
 				/* Require "goodness", but always accept themed levels */
 				if ((feeling < LEV_THEME_HEAD) &&
 					((feeling > 9) ||
-				     ((p_ptr->depth >= 5) && (feeling > 8)) ||
-				     ((p_ptr->depth >= 10) && (feeling > 7)) ||
-				     ((p_ptr->depth >= 20) && (feeling > 6)) ||
-				     ((p_ptr->depth >= 40) && (feeling > 5))))
+				     ((danger(p_ptr->depth) >= 5) && (feeling > 8)) ||
+				     ((danger(p_ptr->depth) >= 10) && (feeling > 7)) ||
+				     ((danger(p_ptr->depth) >= 20) && (feeling > 6)) ||
+				     ((danger(p_ptr->depth) >= 40) && (feeling > 5))))
 				{
 					/* Give message to cheaters */
 					if (cheat_room || cheat_hear ||
@@ -10664,8 +10268,21 @@ void generate_cave(void)
 	/*All of Angband knows about a thief*/
 	if ((recent_failed_thefts > 30) && (p_ptr->depth))
 	{
-		msg_print("You hear hunting parties scouring the area for a notorious burglar.");
+			msg_print("You hear hunting parties scouring the area for a notorious burglar.");
 	}
+
+	for (y = 0; y < MAX_DUNGEON_HGT; y++)
+		{
+			for (x = 0; x < MAX_DUNGEON_WID; x++)
+			{
+
+				/* Remove stairs up */
+				if (cave_up_stairs(y,x)){
+					cave_set_feat(y, x, FEAT_FLOOR);
+				}
+			}
+	}
+
 
 }
 

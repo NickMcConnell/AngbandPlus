@@ -60,18 +60,10 @@ you in the given direction, following any bends in the corridor, until you
 either have to make a choice between two directions or are disturbed.  Most
 players run by holding down Shift and pressing a direction key.
 
-Go up staircase (<) :
-     Ascend an up staircase.  Going up a staircase will take you to a new
-dungeon level unless you are at 50 feet (level 1), in which case you will return
-to the town.  This command takes a full turn.  Some staircases give you the option
-of going up either 50 feet (one level) or 100 feet (two levels).
-
-
 Go down staircase (>) :
      Descend a down staircase.  Going down a staircase will take you to a new
-dungeon level.  This command takes a full turn.  Some staircases give you the option
-of going down either 50 feet (one level) or 100 feet (two levels).
-
+dungeon level. This will replenish your mana and you may also get stat awards.
+This command takes a full turn.
 
 --- Object Commands ---
 
@@ -126,18 +118,17 @@ inscriptions added by the game itself (such as "{cursed}").
 --- Object Usage Commands ---
 
 Eat some food (E) :
-     Eat some food or a mushroom.  This command takes a full turn.
+     Eat some food.  This command takes a full turn.
 
 Fuel your lantern/torch (F) :
      You can refuel lanterns with flasks of oil and torches with other torches.
-In general, two flasks will fully fuel a lantern and two torches will fully fuel
-a torch.  This command takes half a turn.
+This command takes half a turn.
 
 Quaff a potion (q) :
      Drink a potion.  This command takes a full turn.
 
 Read a scroll (r) :
-     Read a scroll.  Most scrolls which prompt for more information can be
+     Read a scroll.  Some scrolls which prompt for more information can be
 aborted (by pressing escape), which will stop reading the scroll before it
 disintegrates.  This command takes a full turn.
 
@@ -148,9 +139,10 @@ Should you ever be lucky enough to find such an item, this command will let you
 activate its special power.  This command takes a full turn.
 
 Aim a wand (a) / (z) :
-Use a staff (u) / (Z) :
-Zap a rod (z) / (a) :
-     Uses the indicated kind of magical device.  This command takes a full turn.
+     Use a wand to cast a spell. There is a chance that the spell will fail, and 
+it also costs some mana (though less than if you had cast it using a spellbook).
+Note that wands in Ironband do not have charges - you can keep using them as
+long as you have mana. This command takes a full turn.
 
 
 --- Dungeon and Object Alteration Commands ---
@@ -195,15 +187,6 @@ the dungeon alteration commands above (attack, tunnel, bash, open, disarm,
 close), and, by using macros or keymaps, to combine this keypress with
 directions.  This command takes a full turn.  
 
-Steal (Pilfer) from a Monster (P) / (^O):
-	For rogues only, this command can be used to attempt to steal from 
-a creature.
-
-Organize (set) a trap (O):
-For rogues only, turn an empty dungeon floor space into
-a trap.  Can also be used by rogues to make a normal monster trap into an 
-advanced trap if their level is high enough.
-
 Get objects off of the dungeon floor (']') :
      Sort through and pick up selected objects off the floor grid the player
 is standing on, regardless of squelch settings or the order of items on the
@@ -217,9 +200,12 @@ Rest (R) :
 staying still.  This command can be told to stop automatically after a certain
 amount of time, or when various conditions are met.  In either case, you always
 wake up when anything disturbs you, or when you press any key.
-     After typing 'R', use "*" to rest until your hitpoints and mana are
+     After typing 'R', use "*" to rest until your hitpoints are
 restored, and "&" to rest until you are fully "healed".  This command may accept
 a command count (used for the number of turns to rest), and takes a full turn.
+     Note that you cannot regain mana by resting in Ironband. In fact the only
+way to regain your mana points is to go down stairs (unless you can find a
+Potion of Restore Mana).
 
 Search (s) :
      Search for hidden traps and secret doors adjacent to you.  More than a
@@ -233,21 +219,15 @@ Turn searching mode on and off (S) :
 slowly.  Search mode will automatically turn off if you are disturbed.
 
 
---- Spell and Prayer Commands ---
+--- Spell Commands ---
 
 Browse a book (b) / (P) :
-     Open a readable book and read the spells or prayer in it, learning
+     Open a readable book and read the spells in it, learning
 information such as their level, cost to cast, etc.  This command takes no time.
 
-Gain new spells or prayers (G) :
-     When you are able to learn new spells or prayers, the word "Study" will
-appear on the status line at the bottom of the screen.  You then issue this
-command and choose a book with unlearnt magics.  Priests and Paladins get a
-prayer at random; other magic-using classes may choose.  This command takes a
-full turn.
-
-Cast a spell or Pray a prayer (m and p) :
-     Cast a known spell or prayer.  This command takes a full turn.
+Cast a spell (m) :
+     Cast a spell. Note that there is no need to 'G'ain spells in Ironband - you
+can potentially cast any spell in your books. This command takes a full turn.
 
 
 --- Throwing and Missile Weapons ---
@@ -327,10 +307,6 @@ Game Version (V) :
 Repeat level feeling (Ctrl-F) :
      Displays your feeling about the dungeon level.  This command takes no time.
 
-Display Quest (CTRL-Q)
-	Displays the character's current quest, if they are on one.  
-This command takes no time.
-
 View previous messages (Ctrl-P) :
      Shows you all the recent messages.  You can scroll through them or exit
 with ESCAPE.  This command takes no time.
@@ -356,7 +332,7 @@ Quit (commit suicide) (Q or Ctrl-K) :
      Kill or retire your character and exit the game.  You will be prompted to
 make sure you really want to do this, and then asked to verify that choice.
 Note that dead characters are dead forever.
-     This is also how you retire after slaying Morgoth.
+     This is also how you retire after slaying The Witch-King.
 
 
 --- Preferences Commands ---
@@ -436,4 +412,12 @@ game, and return you to the original command shell, until you resume the game
 with the "fg" command.  There is now a compilation option to force the game to
 prevent the "double ctrl-z escape death trick".  The Ctrl-\ and Ctrl-D and Ctrl-
 S keys should not be intercepted.
+
+Window-specific notes:
+     If you playing on Windows, you may need to turn off num lock in order to
+run.  If you are playing a IBM port under Windows, and see what appear to be
+very strange colors, right-click on the executable, go to "Program Properties ->
+Screen -> Usage, and make sure that the program runs in full-screen mode.
+
+
 

@@ -2755,7 +2755,7 @@ static void init_windows(void)
 	WIPE(td, term_data);
 	td->s = angband_term_name[0];
 	td->keys = 1024;
-	td->rows = 24;
+	td->rows = 40;
 	td->cols = 80;
 	td->visible = TRUE;
 	td->size_ow1 = 1;
@@ -2772,7 +2772,7 @@ static void init_windows(void)
 		WIPE(td, term_data);
 		td->s = angband_term_name[i];
 		td->keys = 16;
-		td->rows = 24;
+		td->rows = 40;
 		td->cols = 80;
 		td->visible = FALSE;
 		td->size_ow1 = 1;
@@ -3383,7 +3383,7 @@ static void display_help(cptr filename)
 	else
 	{
 		plog_fmt("Cannot find help file: %s", tmp);
-		plog("Use the online help files instead.");
+		plog("Instead, start the game and press ? for help.");
 	}
 }
 
@@ -5136,7 +5136,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	check_for_save_file(lpCmdLine);
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
+	prt("[Choose 'New' or 'Open' from the 'File' menu]", 42, 17);
 	(void)Term_fresh();
 
 	/* Process messages forever */

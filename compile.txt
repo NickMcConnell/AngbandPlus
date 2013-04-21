@@ -1,12 +1,14 @@
+The compiling instructions for NPP are shown below. None of these instructions should 
+ be affected by the changes made in Ironband, as far as I'm aware.
+
+==================================================
+
 Compiling Instructions 
  
 (note: in all cases below, the NPPAngband* directory indicates the directory to 
 which you 
 have chosen to download the source code.)
 
-USERS OF X11/XAW/GTK PORTS:
-
-GO TO THE "LIB/XTRA/FONT" FOLDER AN RUN THE "COMPILE_BDF_FONTS.SH" SCRIPT.
 
 ========================
 Windows & Cygwin by Robert Ruehlmann (edited for NPPAngband)

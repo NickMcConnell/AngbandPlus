@@ -14,14 +14,14 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.1.0
 
 
 ##### Rings #####
 
 # Fixed: The One Ring
 N:1:45:37
-G:=:y2
+G:=:y
 D:Plain Gold
 
 N:2:45
@@ -169,7 +169,7 @@ G:=:D1
 D:Obsidian
 
 N:38:45
-G:=:s2
+G:=:W
 D:Silver
 
 N:39:45
@@ -252,11 +252,11 @@ G:":w
 D:Crystal
 
 N:58:40
-G:":s2
+G:":W
 D:Silver
 
 N:59:40
-G:":u2
+G:":U
 D:Copper
 
 N:60:40
@@ -291,147 +291,67 @@ N:67:40
 G:":W
 D:Mother-of-Pearl
 
-##### Staves #####
+##### Talismans #####
 
 N:68:55
-G:_:U
-D:Aspen
+G:_:o
+D:Mystic
 
 N:69:55
-G:_:U
-D:Balsa
+G:_:D
+D:Ancient
 
 N:70:55
-G:_:U
-D:Banyan
+G:_:G
+D:Ethereal
 
 N:71:55
-G:_:U
-D:Birch
+G:_:w
+D:Runic
 
 N:72:55
 G:_:U
-D:Cedar
+D:Spellwrought
 
 N:73:55
-G:_:U
-D:Cottonwood
+G:_:b
+D:Magical
 
 N:74:55
-G:_:U
-D:Cypress
+G:_:W
+D:Wizardly
 
 N:75:55
-G:_:U
-D:Dogwood
+G:_:w
+D:Ensorcelled
 
 N:76:55
-G:_:U1
-D:Elm
+G:_:s
+D:Magnetic
 
 N:77:55
-G:_:U
-D:Eucalyptus
+G:_:G
+D:Astral
 
 N:78:55
-G:_:U
-D:Hemlock
+G:_:v
+D:Polarised
 
 N:79:55
-G:_:U
-D:Hickory
+G:_:B
+D:Crystalline
 
 N:80:55
-G:_:u
-D:Ironwood
+G:_:W
+D:Spinning
 
 N:81:55
-G:_:U
-D:Locust
+G:_:s
+D:Mysterious
 
 N:82:55
-G:_:u
-D:Mahogany
-
-N:83:55
-G:_:u
-D:Maple
-
-N:84:55
-G:_:u
-D:Mulberry
-
-N:85:55
-G:_:u
-D:Oak
-
-N:86:55
-G:_:u
-D:Pine
-
-N:87:55
-G:_:r1
-D:Redwood
-
-N:88:55
-G:_:r
-D:Rosewood
-
-N:89:55
-G:_:U1
-D:Spruce
-
-N:90:55
-G:_:U
-D:Sycamore
-
-N:91:55
-G:_:U
-D:Teak
-
-N:92:55
-G:_:U1
-D:Walnut
-
-N:93:55
-G:_:g
-D:Mistletoe
-
-N:94:55
-G:_:U
-D:Hawthorn
-
-N:95:55
-G:_:U
-D:Bamboo
-
-N:96:55
-G:_:s2
-D:Silver
-
-N:97:55
-G:_:u
-D:Runed
-
-N:98:55
-G:_:y
-D:Golden
-
-N:99:55
 G:_:s
-D:Ashen
-
-N:100:55
-G:_:U1
-D:Gnarled
-
-N:101:55
-G:_:w
-D:Ivory
-
-N:102:55
-G:_:U
-D:Willow
+D:Arcane
 
 
 ##### Wands #####
@@ -449,7 +369,7 @@ G:-:w
 D:Chromium
 
 N:106:65
-G:-:u2
+G:-:U
 D:Copper
 
 N:107:65
@@ -477,7 +397,7 @@ G:-:r
 D:Rusty
 
 N:113:65
-G:-:s2
+G:-:W
 D:Silver
 
 N:114:65
@@ -506,39 +426,39 @@ D:Zinc
 
 N:120:65
 G:-:B1
-D:Aluminum-Plated
+D:Black
 
 N:121:65
-G:-:u2
-D:Copper-Plated
+G:-:U
+D:Ashen
 
 N:122:65
 G:-:y1
-D:Gold-Plated
+D:Golden
 
 N:123:65
 G:-:U
-D:Nickel-Plated
+D:Mistletoe
 
 N:124:65
-G:-:s2
-D:Silver-Plated
+G:-:W
+D:Yew
 
 N:125:65
 G:-:W
-D:Steel-Plated
+D:Rowan
 
 N:126:65
 G:-:W
-D:Tin-Plated
+D:Holly
 
 N:127:65
 G:-:W
-D:Zinc-Plated
+D:Fairy
 
 N:128:65
-G:-:B1
-D:Mithril-Plated
+G:-:B
+D:Glittering
 
 N:129:65
 G:-:B
@@ -565,8 +485,8 @@ G:-:s
 D:Lead
 
 N:135:65
-G:-:s
-D:Lead-Plated
+G:-:U
+D:Willow
 
 N:136:65
 G:-:w
@@ -576,148 +496,36 @@ N:137:65
 G:-:s
 D:Pewter
 
-
-##### Rods #####
-
-N:138:66
-G:-:B
-D:Aluminum
-
-N:139:66
-G:-:D
-D:Cast Iron
-
-N:140:66
-G:-:w
-D:Chromium
-
-N:141:66
-G:-:u2
-D:Copper
-
-N:142:66
-G:-:y
-D:Gold
-
-N:143:66
-G:-:s
-D:Iron
-
-N:144:66
-G:-:W
-D:Magnesium
-
-N:145:66
-G:-:W
-D:Molybdenum
-
-N:146:66
+N:138:65
 G:-:U
-D:Nickel
+D:Gnarled
 
-N:147:66
-G:-:r
-D:Rusty
-
-N:148:66
-G:-:s2
-D:Silver
-
-N:149:66
-G:-:W
-D:Steel
-
-N:150:66
-G:-:W
-D:Tin
-
-N:151:66
-G:-:w
-D:Titanium
-
-N:152:66
-G:-:w
-D:Tungsten
-
-N:153:66
-G:-:W
-D:Zirconium
-
-N:154:66
-G:-:W
-D:Zinc
-
-N:155:66
-G:-:B1
-D:Aluminum-Plated
-
-N:156:66
-G:-:u2
-D:Copper-Plated
-
-N:157:66
-G:-:y1
-D:Gold-Plated
-
-N:158:66
-G:-:U1
-D:Nickel-Plated
-
-N:159:66
-G:-:s2
-D:Silver-Plated
-
-N:160:66
-G:-:W
-D:Steel-Plated
-
-N:161:66
-G:-:W
-D:Tin-Plated
-
-N:162:66
-G:-:W
-D:Zinc-Plated
-
-N:163:66
-G:-:B1
-D:Mithril-Plated
-
-N:164:66
-G:-:B
-D:Mithril
-
-N:165:66
+N:139:65
 G:-:u
-D:Runed
+D:Mahogany
 
-N:166:66
-G:-:U
-D:Bronze
+N:140:65
+G:-:W
+D:Hemlock
 
-N:167:66
-G:-:U
-D:Brass
+N:141:65
+G:-:y
+D:Engraved
 
-N:168:66
-G:-:w
-D:Platinum
+N:142:65
+G:-:R
+D:Vibrating
 
-N:169:66
+N:143:65
 G:-:s
-D:Lead
+D:Magnetic
 
-N:170:66
-G:-:s1
-D:Lead-Plated
+N:144:65
+G:-:v
+D:Quartz-tipped
 
-N:171:66
-G:-:w
-D:Ivory
 
-N:172:66
-G:-:s
-D:Pewter
+
 
 
 ##### Mushrooms #####
@@ -857,7 +665,7 @@ G:!:w
 D:Cloudy
 
 N:205:75
-G:!:u2
+G:!:U
 D:Copper Speckled
 
 N:206:75
@@ -949,11 +757,11 @@ G:!:o
 D:Orange Speckled
 
 N:228:75
-G:!:R2
+G:!:R
 D:Pink
 
 N:229:75
-G:!:R2
+G:!:R
 D:Pink Speckled
 
 N:230:75
@@ -977,7 +785,7 @@ G:!:r
 D:Red Speckled
 
 N:235:75
-G:!:s2
+G:!:W
 D:Silver Speckled
 
 N:236:75
@@ -1017,7 +825,7 @@ G:!:r
 D:Clotted Red
 
 N:245:75
-G:!:R2
+G:!:R
 D:Viscous Pink
 
 N:246:75
@@ -1279,5 +1087,5 @@ G:!:v1
 D:Dark Purple
 
 N:309:75
-G:!:s2
+G:!:W
 D:Metallic Silver

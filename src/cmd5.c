@@ -19,10 +19,6 @@ s16b spell_chance(int spell)
 
 	const magic_type *s_ptr;
 
-
-	/* Paranoia -- must be literate */
-	if (!cp_ptr->spell_book) return (100);
-
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
@@ -79,37 +75,7 @@ s16b spell_chance(int spell)
  */
 bool spell_okay(int spell, bool known)
 {
-	const magic_type *s_ptr;
-
-	/* Get the spell */
-	s_ptr = &mp_ptr->info[spell];
-
-	/* Spell is illegal */
-	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
-
-	/* Spell is forgotten */
-	if (p_ptr->spell_flags[spell] & PY_SPELL_FORGOTTEN)
-	{
-		/* Never okay */
-		return (FALSE);
-	}
-
-	/* Spell is ironman */
-	if (p_ptr->spell_flags[spell] & PY_SPELL_IRONMAN)
-	{
-		/* Never okay */
-		return (FALSE);
-	}
-
-	/* Spell is learned */
-	if (p_ptr->spell_flags[spell] & PY_SPELL_LEARNED)
-	{
-		/* Okay to cast, not to study */
-		return (known);
-	}
-
-	/* Okay to study, not to cast */
-	return (!known);
+	return 1; /* always OK now */
 }
 
 /*
@@ -119,10 +85,7 @@ bool spell_okay(int spell, bool known)
  */
 int get_player_spell_realm(void)
 {
-	/* Mage or priest spells? */
-	if (cp_ptr->spell_book == TV_MAGIC_BOOK) 	return (MAGE_REALM);
-	if (cp_ptr->spell_book == TV_PRAYER_BOOK)	return (PRIEST_REALM);
-	/*Druid Book*/								return (DRUID_REALM);
+	return (MAGE_REALM);
 }
 
 
@@ -132,27 +95,17 @@ static int get_spell_index(const object_type *o_ptr, int index)
 	/* Get the item's sval */
 	int sval = o_ptr->sval;
 
-	int realm;
-
-	/* Check bounds */
-	if ((index < 0) || (index >= SPELLS_PER_BOOK)) return (-1);
-	if ((sval < 0) || (sval >= BOOKS_PER_REALM)) return (-1);
-
-	/*Get the right spell realm*/
-	realm = get_player_spell_realm();
-
-	return spell_list[realm][sval][index];
+	return sval*6+index;
 }
 
 
 /*
  * Print a list of spells (for browsing or casting or viewing).
  */
+
 void print_spells(const byte *spells, int num, int row, int col)
 {
 	int i, spell;
-
-	const magic_type *s_ptr;
 
 	cptr comment;
 
@@ -162,6 +115,7 @@ void print_spells(const byte *spells, int num, int row, int col)
 
 	int length;
 
+
 	int wrap = Term->wid - col;
 
 	/* The length of the spell name, level, and mana info*/
@@ -170,7 +124,7 @@ void print_spells(const byte *spells, int num, int row, int col)
 	/* Title the list */
 	prt("", row, col);
 	put_str("Name", row, col + 5);
-	put_str("Lv Mana Fail Info", row, col + 35);
+	put_str("Mana Fail Info", row, col + 32);
 
 	/* Dump the spells */
 	for (i = 0; i < num; i++)
@@ -180,77 +134,21 @@ void print_spells(const byte *spells, int num, int row, int col)
 		/* Get the spell index */
 		spell = spells[i];
 
-		/* Get the spell info */
-		s_ptr = &mp_ptr->info[spell];
-
-		/* Skip illegible spells */
-		if (s_ptr->slevel >= 99)
-		{
-			strnfmt(out_val, sizeof(out_val), "  %c) %-30s", I2A(i), "(illegible)");
-			c_prt(TERM_L_DARK, out_val, row + i + 1, col);
-			continue;
-		}
-
 		/* Get extra info */
-		switch (cp_ptr->spell_book)
-		{
-			case TV_MAGIC_BOOK:
-			{
-				comment = do_mage_spell(MODE_SPELL_DESC, spell);
-				break;
-			}
-			case TV_PRAYER_BOOK:
-			{
-				comment = do_priest_prayer(MODE_SPELL_DESC, spell);
-				break;
-			}
-			case TV_DRUID_BOOK:
-			{
-				comment = do_druid_spell(MODE_SPELL_DESC, spell);
-				break;
-			}
-			/*Oops*/
-			default: comment = "Error!";
-		}
+		comment = do_mage_spell(MODE_SPELL_DESC, spell);
 
-		/* Assume spell is known and tried */
 		line_attr = TERM_WHITE;
 
-		/* Analyze the spell */
-		if (p_ptr->spell_flags[spell] & PY_SPELL_IRONMAN)
-		{
-			comment = "Ironman Spell";
-			line_attr = TERM_L_RED;
-		}
-		/* Analyze the spell */
-		else if (p_ptr->spell_flags[spell] & PY_SPELL_FORGOTTEN)
-		{
-			comment = "forgotten";
-			line_attr = TERM_YELLOW;
-		}
-		else if (!(p_ptr->spell_flags[spell] & PY_SPELL_LEARNED))
-		{
-			if (s_ptr->slevel <= p_ptr->lev)
-			{
-				comment = "unknown";
-				line_attr = TERM_L_BLUE;
-			}
-			else
-			{
-				comment = "difficult";
-				line_attr = TERM_RED;
-			}
-		}
-		else if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
-		{
-			comment = "untried";
-			line_attr = TERM_L_GREEN;
-		}
-
 		/* Dump the spell --(-- */
-		strnfmt(out_val, sizeof(out_val), "  %c) %-30s%2d %4d %3d%% %s",
+		if (get_mana_cost(spell) >= 1){
+			strnfmt(out_val, sizeof(out_val), "  %c) %-27s%2d  %3d%% %s",
 		        I2A(i), get_spell_name(cp_ptr->spell_book, spell),
-		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
+		        get_mana_cost(spell), 100-get_success_prob(spell), comment);
+		} else {	
+			strnfmt(out_val, sizeof(out_val), "  %c) %-27s%3s  %3d%% %s",
+		        I2A(i), get_spell_name(cp_ptr->spell_book, spell),
+		        nice_mana_cost(get_mana_cost(spell)), 100-get_success_prob(spell), comment);
+		}
 
 		length = strlen(out_val);
 
@@ -356,7 +254,6 @@ void display_koff(int k_idx)
 
 	char o_name[80];
 
-
 	/* Erase the window */
 	for (y = 0; y < Term->hgt; y++)
 	{
@@ -385,9 +282,6 @@ void display_koff(int k_idx)
 	Term_putstr(0, 0, -1, TERM_WHITE, o_name);
 
 
-	/* Warriors are illiterate */
-	if (!cp_ptr->spell_book) return;
-
 	/* Display spells in readible books */
 	if (i_ptr->tval == cp_ptr->spell_book)
 	{
@@ -414,12 +308,7 @@ void display_koff(int k_idx)
 
 cptr get_spell_name(int tval, int spell)
 {
-	if (tval == TV_MAGIC_BOOK)
-		return do_mage_spell(MODE_SPELL_NAME, spell);
-	else if (tval == TV_PRAYER_BOOK)
-		return do_priest_prayer(MODE_SPELL_NAME, spell);
-	/*TV_DRUID_BOOK*/
-	else return do_druid_spell(MODE_SPELL_NAME, spell);
+	return newspells[spell].name;
 }
 
 
@@ -452,7 +341,7 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 
 	char out_val[160];
 
-	cptr p = ((cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
+	cptr p = "spell";
 
 	int result;
 
@@ -587,9 +476,15 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 			s_ptr = &mp_ptr->info[spell];
 
 			/* Prompt */
-			strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
+			if (get_mana_cost(spell) >= 1){
+				strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
 			        prompt, get_spell_name(cp_ptr->spell_book, spell),
-			        s_ptr->smana, spell_chance(spell));
+			        get_mana_cost(spell), 100-get_success_prob(spell));
+			} else {
+				strnfmt(tmp_val, 78, "%^s %s (%s mana, %d%% fail)? ",
+			        prompt, get_spell_name(cp_ptr->spell_book, spell),
+			        nice_mana_cost(get_mana_cost(spell)), 100-get_success_prob(spell));
+			}
 
 			/* Belay that order */
 			if (!get_check(tmp_val)) continue;
@@ -625,9 +520,66 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 static int beam_chance(void)
 {
 	int plev = p_ptr->lev;
-	return ((cp_ptr->flags & CF_BEAM) ? plev : (plev / 2));
+	return plev;
 }
 
+
+static void spell_wonder(int dir)
+{
+/* This spell should become more useful (more
+   controlled) as the player gains experience levels.
+   Thus, add 1/5 of the player's level to the die roll.
+   This eliminates the worst effects later on, while
+   keeping the results quite random.  It also allows
+   some potent effects only at high level. */
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int plev = p_ptr->lev;
+	int die = randint(100) + plev / 5;
+	int beam = beam_chance();
+
+	if (die > 100)
+		msg_print("You feel a surge of power!");
+	if (die < 8) clone_monster(dir);
+	else if (die < 14) speed_monster(dir);
+	else if (die < 26) heal_monster(dir, damroll(4, 6));
+	else if (die < 31) poly_monster(dir);
+	else if (die < 36)
+		fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
+		                  damroll(3 + ((plev - 1) / 5), 4));
+	else if (die < 41) confuse_monster(dir, plev);
+	else if (die < 46) fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
+	else if (die < 51) lite_line(dir, damroll(6, 8));
+	else if (die < 56)
+		fire_beam(GF_ELEC, dir, damroll(3+((plev-5)/6), 6), PROJECT_GRID);
+	else if (die < 61)
+		fire_bolt_or_beam(beam-10, GF_COLD, dir,
+		                  damroll(5+((plev-5)/4), 8));
+	else if (die < 66)
+		fire_bolt_or_beam(beam, GF_ACID, dir,
+		                  damroll(6+((plev-5)/4), 8));
+	else if (die < 71)
+		fire_bolt_or_beam(beam, GF_FIRE, dir,
+		                  damroll(8+((plev-5)/4), 8));
+	else if (die < 76) drain_life(dir, 75);
+	else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
+	else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev, 2);
+	else if (die < 91) fire_ball(GF_ICE, dir, 70 + plev, 3);
+	else if (die < 96) fire_ball(GF_FIRE, dir, 80 + plev, 3);
+	else if (die < 101) drain_life(dir, 100 + plev);
+	else if (die < 104) earthquake(py, px, 12);
+	else if (die < 106) destroy_area(py, px, 15, TRUE);
+	else if (die < 108) banishment();
+	else if (die < 110) dispel_monsters(120);
+	else /* RARE */
+	{
+		dispel_monsters(150);
+		slow_monsters(damroll (2, p_ptr->lev));
+		sleep_monsters(damroll (2, p_ptr->lev));
+		hp_player(300);
+	}
+}
 
 /*
  * Cast a spell, or output spell info, description.
@@ -646,7 +598,7 @@ cptr do_druid_spell(int mode, int spell)
 	int dam, dam1;
 	int dur, dur1;
 	int dice, sides;
-	int rad;
+	int rad, mult;
 
 	/* Function modes */
 	bool cast = (mode == MODE_SPELL_CAST);
@@ -763,23 +715,20 @@ cptr do_druid_spell(int mode, int spell)
 			break;
 		}
 
-		case DRUID_NATURAL_ESCAPE:
+		case DRUID_LIGHTNING_BEAM:
 		{
-			if (name) return ("Natural Escape");
-			if (desc) return ("Random displacement from/to native terrain.");
+			dice = 3 + ((plev - 1) / 6);
+			sides = 6;
+
+			if (name) return ("Lightning Beam");
+			if (desc) return (format("Fires a beam of lightning for %dd%d hp damage", dice, sides));
 			if (cast)
 			{
-				/* Get the distance */
-				/*int dam = MAX(plev, 20);*/
-
-				int dam = plev * 8;
-
-				/* Teleport */
-				if (!native_teleport_player(dam)) return (NULL);
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				fire_beam(GF_ELEC, dir, damroll(dice, sides), 0L);
 			}
 
 			break;
-
 		}
 
 		case DRUID_BARKSKIN:
@@ -1013,37 +962,50 @@ cptr do_druid_spell(int mode, int spell)
 
 		case DRUID_DETECT_TERRAIN:
 		{
-			if (name)
-			{
-			       	return ("Detect Terrain");
-			}
-			if (desc)
-			{
-				return ("Maps all natural features on the entire dungeon level."
-					"  At level 30 also reveals what natural beings can see.");
-			}
+			if (name) return ("Detect Terrain");
+			if (desc) return ("Maps all natural features on the entire dungeon level.");
 			if (cast)
 			{
 				detect_terrain();
-				if (plev >= 30) read_minds();
 			}
 			break;
 
 		}
 
-		case DRUID_EARTHQUAKE:
+		case DRUID_CURE_MORTAL_WOUNDS:
 		{
-			rad = 10;
+			dice = 12;
+			sides = 10;
 
-			if (name) return ("Earthquake");
-			if (desc) return (format("Creates a radius %d earthquake centered on the player.", rad));
+			if (name) return ("Cure Mortal Wounds");
+			if (desc) return (format("Eliminates stunning and cuts and heals %dd%d hp.", dice, sides));
 			if (cast)
 			{
-				earthquake(py, px, rad);
+				(void)hp_player(damroll(dice, sides));
+				(void)set_cut(0);
+				(void)set_stun(0);
 			}
 
 			break;
 		}
+
+		case DRUID_BEAM_LIGHT:
+		{
+			dice = 6 + (plev-5) / 4;
+			sides = 8;
+
+			if (name) return ("Beam of Light");
+			if (desc) return (format("Fires a beam of strong light for %dd%d hp damage", dice, sides));
+			if (cast)
+			{
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				msg_print("A line of orange shimmering light appears.");
+				(void)fire_beam(GF_LITE, dir, damroll(dice, sides), PROJECT_GRID);
+			}
+
+			break;
+		}
+
 
 		case DRUID_LIFE_DRAIN_BURST:
 		{
@@ -1094,7 +1056,7 @@ cptr do_druid_spell(int mode, int spell)
 
 		case DRUID_FROST_BALL:
 		{
-			dam = 25 + 7 * plev / 2;
+			dam = 30 + (plev * 5 / 2);
 			rad = 2;
 
 			if (name) return ("Frost Ball");
@@ -1150,16 +1112,14 @@ cptr do_druid_spell(int mode, int spell)
 
 		case DRUID_FIRE_BALL:
 		{
-			dam = 50 + plev * 3;
-			dam1 = plev * 2;
+			dam = 55 +  (plev * 5 / 2);
 			rad = 2;
 
 			if (name) return ("Fire Ball");
-			if (desc) return (format("Fires a radius %d ball of fire for %d+1d%d hp damage.", rad, dam, dam1));
+			if (desc) return (format("Fires a radius %d ball of fire for %d hp damage.", rad, dam));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				dam += randint(dam1);
 				fire_ball(GF_FIRE, dir, dam, rad);
 			}
 
@@ -1169,7 +1129,7 @@ cptr do_druid_spell(int mode, int spell)
 		case DRUID_DRAIN_LIFE_ARC:
 		{
 			dam = 125;
-			dice = 5;
+			dice = 2;
 			sides = plev;
 
 			if (name) return ("Life Draining Arc");
@@ -1355,7 +1315,10 @@ cptr do_druid_spell(int mode, int spell)
 				(void)do_res_stat(A_WIS);
 				(void)do_res_stat(A_DEX);
 				(void)do_res_stat(A_CON);
-				(void)do_res_stat(A_CHR);
+				(void)do_res_stat(A_AGI);
+				(void)do_res_stat(A_STE);
+				(void)do_res_stat(A_PER);
+				(void)do_res_stat(A_LUC);
 			}
 
 			break;
@@ -1374,24 +1337,6 @@ cptr do_druid_spell(int mode, int spell)
 			break;
 		}
 
-		case DRUID_SANDSTORM:
-		{
-			dam = plev * 3;
-			dice = 6;
-			sides = plev;
-
-			if (name) return ("Sand storm");
-			if (desc) return (format("Fires an arc of sand for %d+%dd%d hp damage",
-				dam, dice, sides));
-			if (cast)
-			{
-				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				dam += damroll(dice, sides); 
-				fire_arc(GF_SAND, dir, dam, 0, 16);
-			}
-
-			break;
-		}
 
 		case DRUID_NATIVE_SAND:
 		{
@@ -1484,26 +1429,6 @@ cptr do_druid_spell(int mode, int spell)
 			break;
 		}
 
-		case DRUID_CHANNEL_LIGHTNING:
-		{
-			dice = 4 + plev / 3;
-			sides = 10 + plev / 2;
-
-			if (name) return ("Channel Lightning");
-			if (desc) return (format("Fires a powerful bolt of lightning for %dd%d hp damage.",
-				dice, sides));
-
-			if (cast)
-			{
-				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-
-				(void)fire_bolt_beam_special(GF_ELEC, dir, damroll(dice, sides),
-					MAX_RANGE, PROJECT_NO_EFCT);
-			}
-
-			break;
-		}
-
 		case DRUID_DISPEL_CURSE:
 		{
 			if (name) return ("Dispel Curse");
@@ -1522,7 +1447,6 @@ cptr do_druid_spell(int mode, int spell)
 			if (desc) return ("Attempts to recharge a wand, staff, or rod.");
 			if (cast)
 			{
-				(void)recharge(50 + plev, FALSE);
 			}
 
 			break;
@@ -1565,84 +1489,137 @@ cptr do_druid_spell(int mode, int spell)
 			break;
 		}
 
-		case DRUID_WATER_CHAIN:
+		case DRUID_WATER_BALL:
 		{
-			dam = 100;
-			dice = 3 + plev / 10;
-			sides = plev; 
- 
-			if (name) return ("Ulmo's Wrath");
-			if (desc) return (format("Fires chained beams of water for %d+%dd%d hp damage.",
-				dam, dice, sides));
+			dam = 15;
+			mult = 12;
+			rad = 2;
+
+			if (name) return ("Water Ball");
+			if (desc) return (format("Fires a radius %d ball of water for %d hp damage.  Damage is multiplied by %d if caster is standing in water.", rad, dam, mult));
 			if (cast)
 			{
-				int max_hits = 5;
-				int decrement = 10;
-
-				if (one_in_(5))
+				/*re-calc the damage if the player is in water (boiling water included)*/
+				if (cave_ff3_match(p_ptr->py, p_ptr->px, ELEMENT_WATER))
 				{
-					max_hits = 7;
-					decrement = 0;
+					dam *= mult;
+					rad = 3;
 				}
 
-				dam += damroll(dice, sides);
-
-				if (!beam_chain(GF_WATER, dam, max_hits, decrement)) return (NULL);
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				fire_ball(GF_WATER, dir, dam, rad);
 			}
 
 			break;
 		}
 
-		case DRUID_CALL_HUORNS:
-		{
-			dam = plev;
-			dam1 = plev / 10;
 
-			if (name) return ("Call Huorns");
-			if (desc) return (format("Make nearby trees attack foes for %d player turns, or %d turns more if already casted.",
-				dam, dam1));
+		case DRUID_SANDSTORM:
+		{
+			dam = 20;
+			mult = 10;
+
+			if (name) return ("Sandstorm");
+			if (desc) return (format("Fires a sandstorm arc for %d hp damage.  Damage is multiplied by %d if caster is standing in sand.", dam, mult));
 			if (cast)
 			{
-				/* Spell already active */
-				if (p_ptr->temp_call_huorns > 0)
+				/*re-calc the damage if the player is in sand*/
+				if (cave_ff3_match(p_ptr->py, p_ptr->px, FF3_SAND)) dam *= mult;
+
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				fire_arc(GF_SAND, dir, dam, 0, 30);
+			}
+
+			break;
+		}
+
+		case DRUID_ICICLE:
+		{
+			dam = 30;
+			mult = 9;
+
+			if (name) return ("Icicles");
+			if (desc) return (format("Fires a beam of icicles for %d hp damage.  Damage is multiplied by %d if caster is standing in ice.", dam, mult));
+			if (cast)
+			{
+				/*re-calc the damage if the player is in ice*/
+				if (cave_ff3_match(p_ptr->py, p_ptr->px, FF3_ICE)) dam *= mult;
+
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				fire_beam(GF_ICE, dir, dam, 0L);
+			}
+
+			break;
+		}
+
+		case DRUID_GEYSER:
+		{
+			dam = 35;
+			mult = 12;
+
+			if (name) return ("Geyser");
+			if (desc) return (format("Fires an arc of boiling water for %d hp damage.  Damage is multiplied by %d if caster is standing in boiling water.", dam, mult));
+			if (cast)
+			{
+				/*re-calc the damage if the player is in boiling water*/
+				if (cave_ff3_match(p_ptr->py, p_ptr->px, TERRAIN_MASK) == ELEMENT_BWATER) dam *= mult;
+
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				fire_arc(GF_BWATER, dir, dam, 0, 30);
+			}
+
+			break;
+		}
+
+		case DRUID_BMUDBALL:
+		{
+			dam = 40;
+			mult = 15;
+			rad = 2;
+
+			if (name) return ("Boiling Mud");
+			if (desc) return (format("Fires a radius %d ball of boiling mud for %d hp damage.  Damage is multiplied by %d if caster is standing in boiling mud.", rad, dam, mult));
+			if (cast)
+			{
+				/*re-calc the damage if the player is in boiling mud*/
+				if (cave_ff3_match(p_ptr->py, p_ptr->px, TERRAIN_MASK) == ELEMENT_BMUD)
 				{
-					set_temp_call_huorns(p_ptr->temp_call_huorns + dam1);
+					dam *= mult;
+					rad = 3;
 				}
-				/* Full time */
-				else
+
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				fire_ball(GF_BMUD, dir, dam, rad);
+			}
+
+			break;
+		}
+
+		case DRUID_LAVA_BALL:
+		{
+			dam = 30;
+			mult = 25;
+			rad = 2;
+
+			if (name) return ("Ball of Lava");
+			if (desc) return (format("Fires a radius %d ball of lava for %d hp damage.  Damage is multiplied by %d if caster is standing in lava.", rad, dam, mult));
+			if (cast)
+			{
+				/*boiling water and boiling mud are excluded*/
+				if (cave_ff3_match(p_ptr->py, p_ptr->px, TERRAIN_MASK) == ELEMENT_LAVA)
 				{
-					set_temp_call_huorns(dam);
+					dam *= mult;
+					rad = 3;
 				}
+
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				fire_ball(GF_LAVA, dir, dam, rad);
 			}
 
 			break;
 		}
 
-		case DRUID_MASTER_ELEMENTS:
-		{
-			dam = p_ptr->lev * ((28 * p_ptr->lev) / 100);
 
-			if (name) return ("Master Elements");
-			if (desc) return (format("Cast a powerful ball of elements for %d hp damage.", dam));
-			if (cast)
-			{
-				if (!master_elements(dam)) return (NULL);
-			}
-
-			break;
-		}
-
-		case DRUID_STEAL_POWERS:
-		{
-			if (name) return ("Steal Powers");
-			if (desc) return (format("Cast attack spells like nearby animals and vortices."));
-			if (cast)
-			{
-				if (!steal_powers()) return (NULL);
-			}
-
-			break;
-		}
 
 		default: break;
 	}
@@ -1651,135 +1628,28 @@ cptr do_druid_spell(int mode, int spell)
 	return ("success");
 }
 
-/*
- * Helper function for casting the "Prismatic Spray" spell.
- */
-static void cast_prismatic_spray(int dir, int dam)
+void create_object(int tval, int sval)
 {
-	int gftype;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
-	switch (randint(p_ptr->lev + 25) / 5)
-	{
-		/*
-		 * Should only be possible for level 50 and even then odds
-		 * should be 1/75 of this hapening. An easter egg type of
-		 * effect. :) -AR
-		 */
-		case (15):
-		{
-			gftype = GF_CHAOS;
-			dam *= 12;
-			msg_print("You conjure forth a massive torrent of raw chaos!");
-			break;
-		}
-		case (14):
-		{
-			gftype = GF_INERTIA;
-			dam *= 2;
-			msg_print("You conjure forth a torrent of inertia.");
-			break;
-		}
-		case (13):
-		{
-			gftype = GF_GRAVITY;
-			dam *= 2;
-			msg_print("You conjure forth a torrent of gravity.");
-			break;
-		}
-		case (12):
-		{
-			gftype = GF_CONFUSION;
-			dam *= 3;
-			msg_print("You conjure forth a torrent of confusion.");
-			break;
-		}
-		case (11):
-		{
-			gftype = GF_FORCE;
-			dam *= 3;
-			msg_print("You conjure forth a torrent of pure force.");
-			break;
-		}
-		case (10):
-		{
-			gftype = GF_TIME;
-			dam *= 3;
-			msg_print("You conjure forth a torrent of time.");
-			break;
-		}
-		case (9):
-		{
-			gftype = GF_STATIC;
-			dam *= 4;
-			msg_print("You conjure forth a torrent of anti-magic static.");
-			break;
-		}
-		case (8):
-		{
-			gftype = GF_NEXUS;
-			dam *= 4;
-			msg_print("You conjure forth a torrent of dimensional energy.");
-			break;
-		}
-		case (7):
-		{
-			gftype = GF_DISENCHANT;
-			dam *= 4;
-			msg_print("You conjure forth a torrent of disenchantment.");
-			break;
-		}
-		case (6):
-		{
-			gftype = GF_SHARD;
-			dam *= 4;
-			msg_print("You conjure forth a torrent of shrapnel.");
-			break;
-		}
-		case (5):
-		{
-			gftype = GF_NETHER;
-			dam *= 5;
-			msg_print("You conjure forth a torrent of nether.");
-			break;
-		}
-		case (4):
-		{
-			gftype = GF_COLD;
-			dam *= 5;
-			msg_print("You conjure forth a torrent of frost.");
-			break;
-		}
-		case (3):
-		{
-			gftype = GF_FIRE;
-			dam *= 5;
-			msg_print("You conjure forth a torrent of flames.");
-			break;
-		}
-		case (2):
-		{
-			gftype = GF_ELEC;
-			dam *= 5;
-			msg_print("You conjure forth a torrent of electricity.");
-			break;
-		}
-		case (1):
-		{
-			gftype = GF_ACID;
-			dam *= 5;
-			msg_print("You conjure forth a torrent of acid.");
-			break;
-		}
-		default:
-		{
-			gftype = GF_POIS;
-			dam *= 5;
-			msg_print("You conjure forth a torrent of poison.");
-			break;
-		}
-	}
+	object_type object_type_body;
+	object_type *i_ptr;
 
-	fire_arc(gftype, dir, dam, 0, 60);
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* make object */
+	object_prep(i_ptr, lookup_kind(tval, sval));
+
+	/* Apply magic (no messages, no artifacts) */
+	apply_magic(i_ptr, danger(p_ptr->depth), FALSE, FALSE, FALSE, FALSE);
+
+	object_aware(i_ptr);
+	object_known(i_ptr);
+
+	/* Drop the object from heaven */
+	drop_near(i_ptr, -1, py, px);
 }
 
 /*
@@ -1799,25 +1669,30 @@ cptr do_mage_spell(int mode, int spell)
 	int dam, dam1;
 	int dur, dur1, dur2;
 	int dice, sides;
-	int rad;
+	int rad, mult;
+	int drop_type;
+	cptr extra = "";
+	int i,j,k;
 
 	/* Function modes */
 	bool cast = FALSE;
 	bool name = FALSE;
 	bool desc = FALSE;
 
+	/* Hack -- chance of "beam" instead of "bolt" */
+	int beam;
+	beam = beam_chance();
+
 	/* Function modes */
 	if (mode == MODE_SPELL_CAST) cast = TRUE;
 	if (mode == MODE_SPELL_NAME) name = TRUE;
 	if (mode == MODE_SPELL_DESC) desc = TRUE;
 
-	/* Hack -- chance of "beam" instead of "bolt" */
-	int beam = beam_chance();
-
 	/* Spells. */
 	switch (spell)
 	{
-		case SPELL_MAGIC_MISSILE:
+
+		case NEWSPELL_MAGIC_MISSILE:
 		{
 
 			dice = 3 + ((plev - 1) / 5);
@@ -1834,7 +1709,19 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_DETECT_MONSTERS:
+		case NEWSPELL_DETECT_ANIMALS:
+		{
+			if (name) return ("Detect Animals");
+			if (desc) return ("Detects nearby animals.");
+			if (cast)
+			{
+				(void)detect_monsters_animal();
+			}
+
+			break;
+		}
+
+		case NEWSPELL_DETECT_MONSTERS:
 		{
 			if (name) return ("Detect Monsters");
 			if (desc) return ("Detects nearby monsters that are not invisible.");
@@ -1846,7 +1733,61 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_PHASE_DOOR:
+		case NEWSPELL_CREATE_FOOD:
+		{
+			if (name) return ("Create Food");
+			if (desc) return ("Produces some nutritious food for you to eat.");
+			if (cast)
+			{
+				(void)create_object(TV_FOOD,SV_FOOD_RATION);
+			}
+
+			break;
+		}
+
+		case NEWSPELL_MAGELIGHT:
+		{
+			if (name) return ("Magelight");
+			if (desc) return ("Produces a magical torch to light the dungeon.");
+			if (cast)
+			{
+				(void)create_object(TV_LITE,SV_LITE_MAGELIGHT);
+			}
+
+			break;
+		}
+
+		case NEWSPELL_BARKSKIN:
+		{
+
+			dur = 25 + p_ptr->lev;
+
+			if (name) return ("Bark Skin");
+			if (desc) return (format("Temporarily increases armour class by 30 for %d turns.", dur));
+			if (cast)
+			{
+				(void)set_shield(p_ptr->shield + dur);
+			}
+
+			break;
+		}
+		
+		case NEWSPELL_GLOBE_OF_INVULNERABILITY:
+		{
+
+			dur = 10 + p_ptr->lev/2;
+
+			if (name) return ("Globe of Invulnerability");
+			if (desc) return (format("Increases armour class and saving throw for %d turns.", dur));
+			if (cast)
+			{
+				(void)set_megashield(p_ptr->megashield + dur);
+			}
+
+			break;
+		}
+		
+		case NEWSPELL_PHASE_DOOR:
 		{
 			dam = 10;
 
@@ -1860,7 +1801,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_LIGHT_AREA:
+		case NEWSPELL_LIGHT:
 		{
 			dice = 2;
 			sides = (plev / 2);
@@ -1876,7 +1817,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_TREASURE_DETECTION:
+		case NEWSPELL_DETECT_TREASURE:
 		{
 			if (name) return ("Detect Treasure");
 			if (desc) return ("Detects nearby treasure.");
@@ -1889,9 +1830,9 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_CURE_LIGHT_WOUNDS:
+		case NEWSPELL_CLW:
 		{
-			dice = 2;
+			dice = 3;
 			sides = 10;
 
 			if (name) return ("Cure Light Wounds");
@@ -1904,7 +1845,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_OBJECT_DETECTION:
+		case NEWSPELL_DETECT_OBJECTS:
 		{
 			if (name) return ("Detect Objects");
 			if (desc) return ("Detects nearby objects.");
@@ -1916,7 +1857,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_FIND_TRAPS_DOORS:
+		case NEWSPELL_DETECT_TRAPS_AND_DOORS:
 		{
 			if (name) return ("Find Hidden Traps/Doors");
 			if (desc) return ("Detects nearby traps, doors and stairs.");
@@ -1930,7 +1871,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_STINKING_CLOUD:
+		case -3 /* was SPELL_STINKING_CLOUD */:
 		{
 			rad = 2;
 			dam = 10 + (plev / 2);
@@ -1946,7 +1887,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_CONFUSE_MONSTER:
+		case NEWSPELL_CONFUSION:
 		{
 			if (name) return ("Confuse Monster");
 			if (desc) return ("Attempts to confuse one monster.");
@@ -1959,31 +1900,39 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		/*
-		This spell is meant to be very strong at point blank range but then weaken fast as the range extends.
-		As such, it might make sense to boost the damage and broaden the arc to even wider than 60 degrees to
-		achieve the desired result. Considering how sound behaves in real life it might be fun to make the arc
-	   270 degrees and call it something like "Wail of the Banshee" or "War Cry" or something. -AR
-		*/
-
-		case SPELL_SHOCK_WAVE:
+		case NEWSPELL_MANA_BOLT:
 		{
-			dam = 20;
-			dice = 1 + ((plev - 1 ) / 5); /*Reaches max damage (20+10d11, average 80) at plev 46. */
-			sides = 11;
+			dice = 5 + ((plev - 5) / 4);
+			sides = 10;
 
-			if (name) return ("Shock Wave");
-			if (desc) return (format("Fires an arc of sonic energy for %d+%dd%d hp damage.", dam, dice, sides));
+			if (name) return ("Mana Bolt");
+			if (desc) return (format("Fires a bolt or beam of raw mana for %dd%d hp damage", dice, sides));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_arc(GF_SOUND, dir, dam + damroll(dice, sides), 0, 60);
+				fire_bolt_or_beam(beam-10, GF_MANA, dir, damroll(dice, sides));
 			}
 
 			break;
 		}
 
-		case SPELL_TRAP_DOOR_DESTRUCTION:
+		case -4 /* was SPELL_LIGHTNING_BOLT */ :
+		{
+			dice = 3 + ((plev - 5) / 6);
+			sides = 6;
+
+			if (name) return ("Lightning Bolt");
+			if (desc) return (format("Fires a beam of lightning for %dd%d hp damage", dice, sides));
+			if (cast)
+			{
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				fire_beam(GF_ELEC, dir, damroll(dice, sides), 0L);
+			}
+
+			break;
+		}
+
+		case -5 /* was SPELL_TRAP_DOOR_DESTRUCTION */:
 		{
 			if (name) return ("Trap/Door Destruction");
 			if (desc) return ("Fires a beam that disarms traps and chests and destroys doors.");
@@ -1996,7 +1945,20 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_SLEEP_MONSTER:
+		case NEWSPELL_ENCHANT_ARMOR:
+		{
+			if (name) return ("Enchant Armour");
+			if (desc) return ("Attempts to enchant one piece of armor.");
+			if (cast)
+			{
+				(void)enchant_spell(0, 0, rand_int(3) + 2);
+			}
+
+			break;
+
+		}
+		
+		case NEWSPELL_SLEEP:
 		{
 			if (name) return ("Sleep Monster");
 			if (desc) return ("Attempts to put a monster to sleep.");
@@ -2009,7 +1971,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_CURE_POISON:
+		case -6 /* was SPELL_CURE_POISON */:
 		{
 			if (name) return ("Cure Poison");
 			if (desc) return ("Cures the player of poison.");
@@ -2021,21 +1983,22 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_TELEPORT_SELF:
+		case NEWSPELL_TELEPORTATION:
 		{
 			dam = (plev * 5);
 
 			if (name) return ("Teleport Self");
-			if (desc) return (format("Random major displacement up to %d squares.", dam));
+			if (desc) return (format("Delayed random displacement up to %d squares.", dam));
 			if (cast)
 			{
-				teleport_player(dam);
+				msg_print("Magical forces begin to gather around you...");
+				delayed_teleport_player(dam);
 			}
 
 			break;
 		}
 
-		case SPELL_SPEAR_OF_LIGHT:
+		case -7 /* was SPELL_SPEAR_OF_LIGHT */:
 		{
 			dice = 6;
 			sides = 8;
@@ -2052,45 +2015,91 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		/*
-		Magic Missile is average of 30 damage for 1 at level 50.
-
-		I'm powering up the Mage's bolt spells significantly, since I see them as a key element
-		for Mages due to the BEAM flag and the Druid's almost total reliance on non-bolt projections.
-		Non- Magic Missile bolts will follow a guide line of 20 damage per mana average on plev 50,
-		which is slightly less than Orb of Drainings average of 23 damage per mana at plev 50. This is
-		done to lessen the reliance on Magic Missile. The uniformity of damage to mana ratios needs to
-		be counteracted somehow in order to minimize the amount of spells that become obsolete as the
-		game progresses. The HURT_FIRE, HURT_COLD, RES_WATER, RES_PLAS, EVIL, RES_NETHR, RES_COLD
-		(partial resistance to ice) and RES_FIRE (partial resistance to plasma) could be used for that.
-		In many cases, by accident they already are. For example HURT_COLD keeps ICE bolt useful even
-		after Water Bolt has achieved 0% fail rate by offering a better damage per mana output against
-		Fire based mosters that are cold sensitive, most notably red dragons.
-
-		Overall I hope to make Mages better than Druids at confonting single monsters while Druid
-		out perform Mages at crowd control.
-
-		The fact that Orb does only 11.5 damage on average to non-evil is trivial due to the high % of
-	    evil in the dungeon. (As it should be, since it is Morgoth's dungeon, after all) -AR
-		*/
-
-		case SPELL_ICE_BOLT:
+		case NEWSPELL_FROST_BOLT /* was SPELL_FROST_BOLT */:
 		{
-			dice = 5 + ((plev - 3) / 3);
-			sides = 9;
+			dice = 5 + ((plev - 5) / 4);
+			sides = 12;
 
-			if (name) return ("Ice Bolt");
-			if (desc) return (format("Fires a bolt or beam of ice for %dd%d hp damage.", dice, sides));
+			if (name) return ("Frost Bolt");
+			if (desc) return (format("Fires a bolt or beam of frost for %dd%d hp damage.", dice, sides));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-					fire_bolt_or_beam(beam, GF_ICE, dir, damroll(dice, sides));
+
+				fire_bolt_or_beam(beam-10, GF_COLD, dir, damroll(dice, sides));
 			}
 
 			break;
 		}
 
-		case SPELL_TURN_STONE_TO_MUD:
+		case NEWSPELL_NATIVITY:
+		{
+
+			dur = 50 + p_ptr->lev;
+
+			if (name) return ("Nativity");
+			if (desc) return (format("Temporary nativity to sand, mud, oil, water and lava."));
+			if (cast)
+			{
+				(void)set_temp_native_lava(p_ptr->temp_native_lava + dur);
+				(void)set_temp_native_oil(p_ptr->temp_native_oil + dur);
+				(void)set_temp_native_water(p_ptr->temp_native_water + dur);
+				(void)set_temp_native_mud(p_ptr->temp_native_mud + dur);
+				(void)set_temp_native_sand(p_ptr->temp_native_sand + dur);
+			}
+
+			break;
+		}
+		
+		case NEWSPELL_CREATE_MISSILES:
+		{
+
+			if (name) return ("Create Missiles");
+			if (desc) return ("Creates arrows, shot or bolts depending on your equipped missile weapon.");
+			if (cast)
+			{
+				if (p_ptr->ammo_tval == TV_SHOT){	
+					drop_type = DROP_TYPE_SHOT;
+				} else if (p_ptr->ammo_tval == TV_BOLT){
+					drop_type = DROP_TYPE_BOLTS;
+				} else if (p_ptr->ammo_tval == TV_ARROW){
+					drop_type = DROP_TYPE_ARROWS;
+				} else {
+					if (one_in_(3)){
+						drop_type = DROP_TYPE_SHOT;
+					} else if (one_in_(2)){
+						drop_type = DROP_TYPE_BOLTS;
+					} else {
+						drop_type = DROP_TYPE_ARROWS;
+					}
+				}
+				/* Try up to 11 spots looking for empty space */
+				for (i = 0; i < 11; ++i)
+				{
+					/* Pick a random location */
+					while (1)
+					{
+						j = rand_spread(py, 1);
+						k = rand_spread(px, 1);
+						if (!in_bounds(j, k)) continue;
+						break;
+					}
+
+					/* Require "clean" floor space */
+					if (!cave_clean_bold(j, k)) continue;
+
+					place_object(j, k, one_in_((40 - p_ptr->lev)/10+1), 0, drop_type);
+
+					/* Placement accomplished */
+					break;
+				}
+			
+			}
+
+			break;
+		}
+
+		case NEWSPELL_STONE_TO_MUD:
 		{
 			dam = 20 + randint(30);
 
@@ -2105,7 +2114,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_SATISFY_HUNGER:
+		case -10 /* was SPELL_SATISFY_HUNGER */:
 		{
 			if (name) return ("Satisfy Hunger");
 			if (desc) return ("Magically renders the player well-fed.");
@@ -2117,35 +2126,20 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_RECHARGE_ITEM_I:
+		case -18 /* was SPELL_WONDER */: /* wonder */
 		{
-			if (name) return ("Lesser Recharging");
-			if (desc) return ("Attempts to recharge a wand, staff, or rod.");
-			if (cast)
-			{
-				(void)recharge(2 + plev / 5, FALSE);
-			}
-
-			break;
-		}
-
-		case SPELL_PRISMATIC_SPRAY: /* Replaces Wonder with something more consistently usefull. -AR*/
-		{
-			dam = 25 + 2 * plev;
-
-			if (name) return ("Prismatic Spray");
-			if (desc) return (format("Invokes a cone of a random element with a "
-				"damage between %d and %d, depending on the element.", 2 * dam, 5 * dam));
+			if (name) return ("Wonder");
+			if (desc) return ("Invokes strange and random magic.");
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				cast_prismatic_spray(dir, dam);
+				(void)spell_wonder(dir);
 			}
 
 			break;
 		}
 
-		case SPELL_POLYMORPH_OTHER:
+		case -11 /* was SPELL_POLYMORPH_OTHER */:
 		{
 			if (name) return ("Polymorph Other");
 			if (desc) return ("Attempts to change a monster into a different monster race.");
@@ -2158,7 +2152,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_IDENTIFY:
+		case NEWSPELL_IDENTIFY:
 		{
 			if (name) return ("Identify");
 			if (desc) return ("Identifies an object.");
@@ -2171,7 +2165,20 @@ cptr do_mage_spell(int mode, int spell)
 
 		}
 
-		case SPELL_MASS_SLEEP:
+		case NEWSPELL_STARIDENTIFYSTAR:
+		{
+			if (name) return ("*Identify*");
+			if (desc) return ("Reveals all normal and hidden powers of an object.");
+			if (cast)
+			{
+				if (!identify_fully()) return (NULL);
+			}
+
+			break;
+
+		}
+
+		case -12 /* was SPELL_MASS_SLEEP */:
 		{
 			if (name) return ("Mass Sleep");
 			if (desc) return ("Attempts to sleep all monsters in LOS.");
@@ -2183,40 +2190,23 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_SHARD_STORM:
+		case NEWSPELL_FIRE_BOLT:
 		{
-			rad = 4;
+			dice = 5 + ((plev - 5) / 4);
+			sides = 12;
 
-			/*
-			* Note the damage of the final shard cloud is 15% of the
-			* damage listed below, according to terrain.txt
-			*
-			* I gave this a weird damage progression to in an attempt to
-			* make it more usefull for levels 30+ while keeping it at
-			* roughly the same powerlevel in the early game.
-			*/
-
-			dam = 20 + (plev * 6);
-
-			if (plev>30)
-			   dam+=(plev-30)*9;
-
-
-			dam1 = (dam * f_info[FEAT_SHARD].x_damage) / 100;
-
-			if (name) return ("Shard Storm");
-			if (desc) return (format("Creates a radius %d cloud of shards that causes %d hp damage.", rad, dam1));
+			if (name) return ("Fire Bolt");
+			if (desc) return (format("Fires a bolt or beam of fire for %dd%d hp damage", dice, sides));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_effect_orb(GF_SHARD, dir, dam, rad);
+				(void)fire_bolt_or_beam(beam + 5, GF_FIRE, dir, damroll(dice, sides));
 			}
-
 
 			break;
 		}
 
-		case SPELL_SLOW_MONSTER:
+		case NEWSPELL_SLOW:
 		{
 			if (name) return ("Slow Monster");
 			if (desc) return ("Attempts to slow a monster.");
@@ -2229,45 +2219,24 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_CALL_LIGHTNING:
+		case -14 /* was SPELL_FROST_BALL */:
 		{
-			rad = 5;
+			dam = 30 + (plev);
+			rad = 2;
 
-			/*
-			 * Note the damage of the final static is 10% of the
-			 * damage listed below, according to terrain.txt
-			 * Final damage is double the damage od Drain Life Bursts
-			 * at double the mana cost, a big bang for bick bucks theme
-			 * I have for Mages. Maybe cut it down to 150% damage for 150%
-			 * mana later if it is too fast a damage dealing rate. -AR
-			 */
-			dam = 2400 + (plev * 40);  /*240 + plev times 4 damage*/
-			dam1 = (dam * f_info[FEAT_SPARKS].x_damage) / 100;
+			if (name) return ("Frost Ball");
+			if (desc) return (format("Fires a radius %d ball of frost for %d hp damage.", rad, dam));
 
-			if (name) return ("Call Lightning");
-			if (desc) return (format("Creates a radius %d orb of time released lightning strikes that cause %d hp damage each.", rad, dam1));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_effect_orb(GF_ELEC_BURST, dir, dam, rad);
+				fire_ball(GF_COLD, dir, dam, rad);
 			}
 
 			break;
 		}
 
-		case SPELL_RECHARGE_ITEM_II:
-		{
-			if (name) return ("Greater Recharging");
-			if (desc) return ("Attempts to recharge a wand, staff, or rod.");
-			if (cast)
-			{
-				(void)recharge(50 + plev, FALSE);
-			}
-
-			break;
-		}
-
-		case SPELL_TELEPORT_OTHER:
+		case NEWSPELL_TELEPORT_AWAY:
 		{
 			if (name) return ("Teleport Other");
 			if (desc) return ("Attempts to teleport a monster away.");
@@ -2280,48 +2249,40 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_BEDLAM:
+		case -15 /* was SPELL_BEDLAM */:
 		{
+			dice = 2;
+			sides = plev;
 			rad = 4;
 
-			/*
-			* Note the damage of the final confusion cloud is 15% of the
-			* damage listed below, according to terrain.txt
-			*
-			* Bedlam is now a cloud of confusion -AR
-			*/
-			dam = 120 + (plev * 8);
-			dam1 = (dam * f_info[FEAT_CONFUSION].x_damage) / 100;
-
 			if (name) return ("Bedlam");
-			if (desc) return (format("Creates a radius %d cloud of confusion that causes %d hp damage.", rad, dam1));
+			if (desc) return (format("Fires a radius %d ball of confusion for %dd%d hp damage", rad, dice, sides));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_effect_orb(GF_CONFUSION, dir, dam, rad);
+				fire_ball(GF_OLD_CONF, dir, damroll(dice, sides), rad);
 			}
-
 
 			break;
 		}
 
-		case SPELL_WATER_BOLT: /*The culmination of a mages pre-Raal's arsenal -AR*/
+		case NEWSPELL_FIREBALL:
 		{
-			dice =  3 + (plev + 3) / 3;
-			sides = 19;
+			dam = 50 + 2*plev;
+			rad = 3;
 
-			if (name) return ("Water Bolt");
-			if (desc) return (format("Fires a bolt or beam of water for %dd%d hp damage.", dice, sides));
+			if (name) return ("Fire Ball");
+			if (desc) return (format("Fires a radius %d ball of fire for %d hp damage.", rad, dam));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-					fire_bolt_or_beam(beam, GF_WATER, dir, damroll(dice, sides));
+				fire_ball(GF_FIRE, dir, dam, rad);
 			}
 
 			break;
 		}
 
-		case SPELL_WORD_OF_DESTRUCTION:
+		case -16 /* SPELL_WORD_OF_DESTRUCTION */:
 		{
 			rad = 15;
 
@@ -2335,7 +2296,26 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_BANISHMENT:
+		case NEWSPELL_SANDSTORM:
+		{
+			dam = 20;
+			mult = 10;
+
+			if (name) return ("Sandstorm");
+			if (desc) return (format("Fires a sandstorm arc for %d hp damage.  Damage is multiplied by %d if caster is standing in sand.", dam, mult));
+			if (cast)
+			{
+				/*re-calc the damage if the player is in sand*/
+				if (cave_ff3_match(p_ptr->py, p_ptr->px, FF3_SAND)) dam *= mult;
+
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				fire_arc(GF_SAND, dir, dam, 0, 30);
+			}
+
+			break;
+		}
+		
+		case -17 /* SPELL_BANISHMENT */:
 		{
 			if (name) return ("Banishment");
 			if (desc) return ("Banishes one type of monster.  Uniques and quest monsters are unaffected");
@@ -2347,7 +2327,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_DOOR_CREATION:
+		case -33 /* SPELL_DOOR_CREATION */:
 		{
 			if (name) return ("Door Creation");
 			if (desc) return ("Creates a barrier of doors around you.");
@@ -2359,10 +2339,10 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_STAIR_CREATION:
+		case NEWSPELL_CREATE_STAIRS:
 		{
 			if (name) return ("Stair Creation");
-			if (desc) return ("Creates a staircase nearby.  Random choice between up or down, except on quest levels.");
+			if (desc) return ("Creates a staircase nearby.");
 			if (cast)
 			{
 				(void)stair_creation();
@@ -2371,7 +2351,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_TELEPORT_LEVEL:
+		case -34 /* was SPELL_TELEPORT_LEVEL */:
 		{
 			if (name) return ("Teleport Level");
 			if (desc) return ("Immediately takes you to the next level up or down.");
@@ -2383,7 +2363,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_EARTHQUAKE:
+		case -20 /* was SPELL_EARTHQUAKE */:
 		{
 			rad = 10;
 
@@ -2397,7 +2377,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_WORD_OF_RECALL:
+		case -21 /* was SPELL_WORD_OF_RECALL */:
 		{
 			if (name) return ("Word of Recall");
 			if (desc) return ("Recalls you to the town, or to the recall level in the dungeon.");
@@ -2409,59 +2389,57 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_HURRICANE:
+		case -22 /* was SPELL_ACID_BOLT */:
 		{
-			dam = 50 + (plev * 4);
-			rad = 2;
-			/*Big damage for big mana. Final damage will be 12.5 points per mana,
-		    * a bit better than Druid Fire Ball, Druid Frost Ball is almost
-			* exactly 12.9. -AR
-		    */
+			dice = 8 + ((plev - 5) / 4);
+			sides = 8;
 
-
-			if (name) return ("Hurricane");
-			if (desc) return (format("Conjures forth a radius %d storm of wind and water for %d hp damage.", rad, dam));
+			if (name) return ("Acid bolt");
+			if (desc) return (format("Fires a beam of acid for %dd%d hp damage.", dice, sides));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_ball(GF_WATER, dir, dam, rad);
+				fire_bolt_or_beam(beam, GF_ACID, dir, damroll(dice, sides));
 			}
 
 			break;
 		}
 
-		case SPELL_CLOUD_KILL:
+		case -23 /* SPELL_CLOUD_KILL */:
 		{
-			rad = 4;
-
-			/*
-			* Note the damage of the final Nether cloud is 30% of the
-			* damage listed below, according to terrain.txt
-			*
-			* Cloudkill is now a cloud of nether, double damage and cost
-			* of Shard Storm. It now reminds it's D&D 3.5 counterpart. -AR
-			*/
-			dam = 60 + (plev * 4);
-
-			if (plev > 40) dam += (plev - 40) * 24;
-
-			dam1 = (dam * f_info[FEAT_NETHER].x_damage) / 100;
+			dam = 40 + (plev / 2);
+			rad = 3;
 
 			if (name) return ("Cloudkill");
-			if (desc) return (format("Creates a radius %d cloud of nether that causes %d hp damage.", rad, dam1));
+			if (desc) return (format("Fires a radius %d ball of poison for %d hp damage.", rad, dam));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_effect_orb(GF_NETHER, dir, dam, rad);
+				fire_ball(GF_POIS, dir, dam, rad);
 			}
-
 
 			break;
 		}
 
-		case SPELL_ICE_STORM: /* Moved down to make room for more powerful spells. Final damage ratio is 12 damage for 1 mana. -AR*/
+		case NEWSPELL_ACID_BALL:
 		{
-			dam = 160 + (plev * 4);
+			dam = 40 + 2*plev;
+			rad = 4;
+
+			if (name) return ("Acid ball");
+			if (desc) return (format("Fires a radius %d ball of acid for %d hp damage.", rad, dam));
+			if (cast)
+			{
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				fire_ball(GF_ACID, dir, dam, rad);
+			}
+
+			break;
+		}
+
+		case -24 /* SPELL_ICE_STORM */:
+		{
+			dam = 50 + (plev * 2);
 			rad = 3;
 
 			if (name) return ("Ice Storm");
@@ -2475,49 +2453,26 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_PLASMA_BOLT: /*Most powerful bolt for pre-Kelek's Mages. -AR */
+		case -25 /* SPELL_METEOR_SWARM */:
 		{
-			dice =  15 + (plev / 2);
-			sides = 19;
+			dice = 2 + plev / 20;
 
-			if (name) return ("Plasma Bolt");
-			if (desc) return (format("Fires a bolt or beam of plasma for %dd%d hp damage.", dice, sides));
+			dam = 30 + plev / 2;
+
+			if (name) return ("Meteor Swarm");
+			if (desc) return (format("Fires %d meteors, each causing %d hp damage.", dice, dam));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-					fire_bolt_or_beam(beam, GF_PLASMA, dir, damroll(dice, sides));
+				fire_swarm(dice, GF_METEOR, dir, dam, 1);
 			}
 
 			break;
 		}
 
-		case SPELL_METEOR_STORM:
+		case NEWSPELL_MANA_STORM:
 		{
-			rad = 5;
-
-			/*
-			 * Note the damage of the final static is 30% of the
-			 * damage listed below, according to terrain.txt
-			 * Final damage is 990 hp per hit! A monumental mana cost is
-			 * required of course, at least 60 or 75 mana. -AR
-			 */
-			dam = 1800 + (plev * 30);  /*540 + plev times 9 damage for each meteor*/
-			dam1 = (dam * f_info[FEAT_METEOR_BURST].x_damage) / 100;
-
-			if (name) return ("Meteor Storm");
-			if (desc) return (format("Creates a radius %d meteor strike that causes %d hp damage.", rad, dam1));
-			if (cast)
-			{
-				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_effect_orb(GF_METEOR, dir, dam, rad);
-			}
-
-			break;
-		}
-
-		case SPELL_MANA_STORM:
-		{
-			dam = 160 + (plev * 10);
+			dam = 300 + (plev * 2);
 			rad = 3;
 
 			if (name) return ("Mana Storm");
@@ -2530,7 +2485,7 @@ cptr do_mage_spell(int mode, int spell)
 
 			break;
 		}
-		case SPELL_DETECT_INVISIBLE:
+		case NEWSPELL_SEE_INVISIBLE:
 		{
 			if (name) return ("Detect Invisible");
 			if (desc) return ("Detects invisible monsters.");
@@ -2543,7 +2498,7 @@ cptr do_mage_spell(int mode, int spell)
 
 		}
 
-		case SPELL_DETECT_ENCHANTMENT:
+		case -27 /* was SPELL_DETECT_ENCHANTMENT */:
 		{
 			if (name) return ("Detect Enchantment");
 			if (desc) return ("Detects nearby enchanted objects.");
@@ -2555,50 +2510,39 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_NOVA:
-			{
-			/* A ball of GF_LITE allows a Mage to light up a distant area and hit
-		    * vulnerable creatures for good damage. 8/1 final damage/mana for
-			* normals, 20/1 for vulnerable creatures. Might be out of flavour for
-			* mages though, so considering GF_PLASMA or possibly something else
-			* with a different spell name. -AR
-			*/
-			dam = 60 + ((plev * 6) / 5);
+		case -28 /* was SPELL_SHOCK_WAVE */:
+		{
+			dam = 10 + plev;
 			rad = 2;
 
-			if (name) return ("Nova");
-			if (desc) return (format("Fires a radius %d explosion of powerful light for %d hp damage.", rad, dam));
+			if (name) return ("Shock Wave");
+			if (desc) return (format("Fires a radius %d ball of sound for %d hp damage.", rad, dam));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_ball(GF_LITE, dir, dam, rad);
+				fire_ball(GF_SOUND, dir, dam, rad);
 			}
 
 			break;
 		}
 
-		case SPELL_REND_SOUL:
+		case -29 /* was SPELL_EXPLOSION */:
 		{
-			dice =  10 + ((plev * 2) / 5);
-			sides = 19;
+			dam = 20 + (plev * 2);
+			rad = 2;
 
-			/*Has greater than 20/1 final damage ratio, 25/1 but
-			* balanced by the fact that EVIL monsters resist. Take
-		    * that Hydras! ;) Might tone down damage and mana costs
-			* both. -AR*/
-
-			if (name) return ("Rend Soul");
-			if (desc) return (format("Fires a bolt or beam of nether for %dd%d hp damage.", dice, sides));
+			if (name) return ("Explosion");
+			if (desc) return (format("Fires a radius %d ball of shards for %d hp damage.", rad, dam));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-					fire_bolt_or_beam(beam, GF_NETHER, dir, damroll(dice, sides));
+				fire_ball(GF_SHARD, dir, dam, rad);
 			}
 
 			break;
 		}
 
-		case SPELL_MASS_BANISHMENT:
+		case -30 /* was SPELL_MASS_BANISHMENT */:
 		{
 			if (name) return ("Mass Banishment");
 			if (desc) return ("Banishes nearby monsters.  Uniques and quest monsters are unaffected.");
@@ -2610,7 +2554,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_RESIST_FIRE:
+		case -31 /* was SPELL_RESIST_FIRE */:
 		{
 			dur = 20;
 
@@ -2624,7 +2568,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_RESIST_COLD:
+		case -32 /* was SPELL_RESIST_COLD */:
 		{
 			dur = 20;
 
@@ -2638,7 +2582,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_ELEMENTAL_BRAND: /* elemental brand */
+		case -36 /* SPELL_ELEMENTAL_BRAND */:
 		{
 			if (name) return ("Elemental Brand");
 			if (desc) return ("Attempts to brand one set of ammunition.");
@@ -2650,7 +2594,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_RESIST_POISON:
+		case NEWSPELL_RESIST_POISON:
 		{
 			dur = 20;
 
@@ -2664,7 +2608,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_RESISTANCE:
+		case NEWSPELL_RESISTANCE:
 		{
 			dur = 20;
 
@@ -2683,7 +2627,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_FLIGHT:
+		case -35 /* SPELL_FLIGHT */:
 		{
 			dur = 25 + plev / 2;
 			dur1 = 10;
@@ -2706,7 +2650,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_SHIELD:
+		case -43 /* SPELL_SHIELD */:
 		{
 			dur1 = 20;
 			dur2 = 30;
@@ -2721,7 +2665,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_BERSERKER:
+		case -37 /* SPELL_BERSERKER */:
 		{
 			dur = 25;
 			dam = 30;
@@ -2738,7 +2682,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_HASTE_SELF:
+		case NEWSPELL_HASTE_SELF:
 		{
 			dur1 = 5;
 			dur = 20;
@@ -2761,7 +2705,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_RIFT:
+		case NEWSPELL_RIFT:
 		{
 			dam1 = 40;
 			dice = plev;
@@ -2778,45 +2722,39 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_DARKNESS_STORM:
+		case -38 /* SPELL_REND_SOUL */:
 		{
-			/*
-			* A Storm type spell while waiting for Mana Storm, picked GF_DARK
-			* because I wanted to mimic monster spells. 12 for 1 final ratio.
-			* -AR
-			*/
+			dice = 11;
+			sides = plev;
 
-			dam = 280 + (plev * 4);
-			rad = 3;
-
-			if (name) return ("Darness Storm");
-			if (desc) return (format("Fires a radius %d explosion of powerful darkness for %d hp damage.", rad, dam));
+			if (name) return ("Rend Soul");
+			if (desc) return (format("Fires a bolt or beam of nether for %dd%d hp damage.", dice, sides));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_ball(GF_DARK, dir, dam, rad);
+				fire_bolt_or_beam(beam / 4, GF_NETHER, dir, damroll(dice, sides));
 			}
 
 			break;
 		}
 
-		case SPELL_MANA_BOLT:
+		case -39 /* SPELL_CHAOS_STRIKE */:
 		{
-			dice = 20 + (plev * 2);
-			sides = 9;
+			dice = 13;
+			sides = plev;
 
-			if (name) return ("Mana Bolt");
-			if (desc) return (format("Fires a bolt or beam of pure mana for %dd%d hp damage.", dice, sides));
+			if (name) return ("Chaos Strike");
+			if (desc) return (format("Fires a bolt or beam of chaos for %dd%d hp damage.", dice, sides));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_bolt_or_beam(beam, GF_MANA, dir, damroll(dice, sides));
+				fire_bolt_or_beam(beam, GF_CHAOS, dir, damroll(dice, sides));
 			}
 
 			break;
 		}
 
-		case SPELL_RUNE_OF_PROTECTION:
+		case -40 /* SPELL_RUNE_OF_PROTECTION */:
 		{
 			if (name) return ("Rune of Protection");
 			if (desc) return ("Creates a rune of protection beneath you.");
@@ -2828,7 +2766,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_ENCHANT_ARMOR: /* enchant armor */
+		case -41 /* SPELL_ENCHANT_ARMOR */:
 		{
 			if (name) return ("Enchant Armor");
 			if (desc) return ("Attempts to enchant one piece of armor.");
@@ -2840,7 +2778,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_ENCHANT_WEAPON: /* enchant weapon */
+		case -42 /* SPELL_ENCHANT_WEAPON */:
 		{
 			if (name) return ("Enchant Weapon");
 			if (desc) return ("Attempts to enchant one weapon.");
@@ -2853,7 +2791,7 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
-		case SPELL_MASS_IDENTIFY:
+		case NEWSPELL_MASS_IDENTIFY:
 		{
 			if (name) return ("Mass Identify");
 			if (desc) return ("Identifies all nearby objects, including player equipment and inventory.");
@@ -2865,27 +2803,251 @@ cptr do_mage_spell(int mode, int spell)
 			break;
 		}
 
- 		case SPELL_WAIL_OF_THE_BANSHEE:
+		case NEWSPELL_BLESS:
 		{
-			if (name) return ("Wail of the Banshee");
-			if (desc) return ("Creates a wide cone of fear.");
+			dur = 12;
+			if (p_ptr->blessed)
+			{
+				extra = " extra";
+				dur = 5;
+			}
+
+
+			if (name) return ("Bless");
+			if (desc) return (format("Bonus to fighting ability and armour class for %d+d%d%s turns.", dur, dur, extra));
 			if (cast)
 			{
-				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_arc(GF_TURN_ALL, dir, plev, 0, 60);
+				(void)set_blessed(p_ptr->blessed + randint(dur) + dur);
 			}
 
 			break;
 		}
 
+		case NEWSPELL_REMOVE_FEAR:
+		{
 
+			if (name) return ("Remove Fear");
+			if (desc) return ("Removes fear.");
+			if (cast)
+			{
+				(void)set_afraid(0);
+			}
+
+			break;
+		}
+
+		case NEWSPELL_PORTAL:
+		{
+			dam = plev * 3;
+
+			if (name) return ("Portal");
+			if (desc) return (format("Delayed random displacement up to %d squares.", dam));
+			if (cast)
+			{
+				msg_print("Mystic forces begin to gather around you...");
+				delayed_teleport_player(dam);
+			}
+
+			break;
+		}
+
+		case NEWSPELL_REMOVE_CURSE:
+		{
+			if (name) return ("Remove Curse");
+			if (desc) return ("Removes standard curses.");
+			if (cast)
+			{
+				remove_curse(FALSE);
+			}
+
+			break;
+		}
+
+		case NEWSPELL_CCW:
+		{
+			dice = 12;
+			sides = 12;
+
+			if (name) return ("Cure Critical Wounds");
+			if (desc) return (format("Eliminates cuts and heals %dd%d hp.", dice, sides));
+			if (cast)
+			{
+				(void)hp_player(damroll(dice, sides));
+				(void)set_cut(0);
+			}
+
+			break;
+		}
+		
+		case NEWSPELL_RESIST_HEAT_AND_COLD:
+		{
+			dur = 10;
+
+			if (name) return ("Resist Heat and Cold");
+			if (desc) return (format("Temporary opposition to fire and frost for %d+d%d turns.  Cumulative with equipment resistances.", dur, dur));
+			if (cast)
+			{
+
+				dur1 = randint(dur);
+
+				(void)set_oppose_fire(p_ptr->oppose_fire + dur1 + dur);
+				(void)set_oppose_cold(p_ptr->oppose_cold + dur1 + dur);
+
+			}
+
+			break;
+		}
+
+		case NEWSPELL_PROTECTION_FROM_EVIL:
+		{
+			dur = 25;
+			dur1 = 3 * p_ptr->lev;
+			if (p_ptr->protevil)
+			{
+				extra = " additional";
+				dur = dur / 10;
+				dur1 = dur1 / 10;
+			}
+
+			if (name) return ("Protection from Evil");
+			if (desc) return (format("Temporary protection from evil creatures for %dd%d%s turns.", dur1, dur, extra));
+			if (cast)
+			{
+				(void)set_protevil(p_ptr->protevil + randint(dur) + dur1);
+			}
+
+			break;
+		}
+
+		case NEWSPELL_MAGIC_MAPPING:
+		{
+			if (name) return ("Magic Mapping");
+			if (desc) return ("Maps the local area, reveals doors and stairs.");
+			if (cast)
+			{
+				map_area();
+			}
+			break;
+
+		}
+
+		case NEWSPELL_DETECTION:
+		{
+			if (name) return ("Detection");
+			if (desc) return ("Detects all nearby traps, doors, stairs, treasure, objects, and creatures.");
+			if (cast)
+			{
+				(void)detect_all();
+			}
+
+			break;
+		}
+		
+		case NEWSPELL_RESTORATION:
+		{
+			if (name) return ("Restoration");
+			if (desc) return ("Restores all stats to their maximum.");
+			if (cast)
+			{
+				(void)do_res_stat(A_STR);
+				(void)do_res_stat(A_INT);
+				(void)do_res_stat(A_WIS);
+				(void)do_res_stat(A_DEX);
+				(void)do_res_stat(A_CON);
+				(void)do_res_stat(A_AGI);
+				(void)do_res_stat(A_STE);
+				(void)do_res_stat(A_PER);
+				(void)do_res_stat(A_LUC);
+			}
+
+			break;
+		}
+
+		case NEWSPELL_RESTORE_LIFE_LEVELS:
+		{
+			if (name) return ("Remembrance");
+			if (desc) return ("Restores experience to maximum.");
+			if (cast)
+			{
+				(void)restore_level();
+			}
+
+			break;
+		}
+		
+		case NEWSPELL_STARREMOVE_CURSESTAR:
+		{
+			if (name) return ("Dispel Curse");
+			if (desc) return ("Removes standard and heavy curses.");
+			if (cast)
+			{
+				remove_curse(TRUE);
+			}
+
+			break;
+		}
+		
+		case NEWSPELL_CSW:
+		{
+			dice = 8;
+			sides = 10;
+
+			if (name) return ("Cure Serious Wounds");
+			if (desc) return (format("Reduces cuts and heals %dd%d hp.", dice, sides));
+			if (cast)
+			{
+				(void)hp_player(damroll(dice, sides));
+				(void)set_cut((p_ptr->cut / 2) - 20);
+			}
+
+
+			break;
+		}
+
+		case NEWSPELL_NEUTRALIZE_POISON:
+		{
+			if (name) return ("Neutralize Poison");
+			if (desc) return ("Cures the player of poison.");
+			if (cast)
+			{
+				(void)set_poisoned(0);
+			}
+
+			break;
+		}
+		
+		case NEWSPELL_HEALING:
+		{
+			dam = 325;
+
+			if (name) return ("Heal");
+			if (desc) return (format("Eliminates stunning and cuts and heals %d hp.", dam));
+			if (cast)
+			{
+				(void)hp_player(dam);
+				(void)set_cut(0);
+				(void)set_stun(0);
+			}
+
+			break;
+		}
+
+		case NEWSPELL_DETECT_EVIL:
+		{
+			if (name) return ("Detect Evil");
+			if (desc) return ("Detects all nearby evil monsters, even invisible ones.");
+			if (cast)
+			{
+				(void)detect_monsters_evil();
+			}
+
+			break;
+		}
 	}
 
 	/* Success */
 	return ("Success!");
 }
-
-
 
 
 cptr do_priest_prayer(int mode, int spell)
@@ -3003,18 +3165,18 @@ cptr do_priest_prayer(int mode, int spell)
 			break;
 		}
 
-		case PRAYER_SHOCK_BOLT:
+		case PRAYER_BOLT_OF_DRAINING:
 		{
-			dice = 6;
+			dice = 2;
 			sides = 4;
 			dam = (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 3));
 
-			if (name) return ("Shock Bolt");
-			if (desc) return (format("Fires a bolt of solid light for %d+%dd%d damage.", dam, dice, sides));
+			if (name) return ("Bolt of Draining");
+			if (desc) return (format("Fires a holy beam for %d+%dd%d damage.", dam, dice, sides));
 			if (cast)
 			{
 				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_bolt(GF_LITE, dir, (damroll(dice, sides) + dam));
+				fire_bolt(GF_HOLY_ORB, dir, (damroll(dice, sides) + dam));
 			}
 
 			break;
@@ -3052,10 +3214,11 @@ cptr do_priest_prayer(int mode, int spell)
 			dam = plev * 3;
 
 			if (name) return ("Portal");
-			if (desc) return (format("Random minor displacement up to %d squares.", dam));
+			if (desc) return (format("Delayed random displacement up to %d squares.", dam));
 			if (cast)
 			{
-				teleport_player(dam);
+				msg_print("Mystic forces begin to gather around you...");
+				delayed_teleport_player(dam);
 			}
 
 			break;
@@ -3167,10 +3330,10 @@ cptr do_priest_prayer(int mode, int spell)
 		}
 		case PRAYER_ORB_OF_DRAINING:
 		{
-			dice = 10;
-			sides = 5;
-			dam = plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 1 : 2);
-			rad = 2;
+			dice = 3;
+			sides = 6;
+			dam = plev + (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4));
+			rad = (plev < 30) ? 2 : 3;
 
 			if (name) return ("Orb of Draining");
 			if (desc) return (format("Fires a radius %d orb of holy force that does %d+%dd%d damage.", rad, dam, dice, sides));
@@ -3285,7 +3448,7 @@ cptr do_priest_prayer(int mode, int spell)
 		case PRAYER_TURN_UNDEAD:
 		{
 			if (name) return ("Turn Undead");
-			if (desc) return ("Repels all undead monsters in line of sight.");
+			if (desc) return ("Attempts to scare all undead monsters in line of sight.");
 			if (cast)
 			{
 				(void)turn_undead(p_ptr->lev);
@@ -3314,20 +3477,15 @@ cptr do_priest_prayer(int mode, int spell)
 			break;
 		}
 
-		case PRAYER_SUN_BEAM:
+		case PRAYER_DISPEL_UNDEAD:
 		{
-			/* Reaches max damage (85+10d10, average 140) at plev 46. */
-			dam = 85;
-			dice = 1 + (plev - 1) / 5;
-			sides = 10;
+			dam = plev * 3;
 
-			if (name) return ("Sun Beam");
-			if (desc) return (format("Fires an narrow arc of intense light energy"
-				" for %d+%dd%d hp damage.", dam, dice, sides));
+			if (name) return ("Dispel Undead");
+			if (desc) return (format("Does 1d%d damage to all undead creatures in line of sight.", dam));
 			if (cast)
 			{
-				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_arc(GF_LITE, dir, dam + damroll(dice, sides), 0, 30);
+				(void)dispel_undead(randint(dam));
 			}
 
 			break;
@@ -3377,13 +3535,14 @@ cptr do_priest_prayer(int mode, int spell)
 
 		case PRAYER_HOLY_WORD:
 		{
-			dam = 150;
+			dam = 1500;
+			dam1 = (plev * 4);
 
 			if (name) return ("Holy Word");
-			if (desc) return (format("Dispels evil with %d hp damage."
-				"  Eliminates stunning, fear, poison and cuts and heals %d hp.", dam, dam));
+			if (desc) return (format("Dispels evil with 1d%d hp damage.  Eliminates stunning, fear, poison and cuts and heals %d hp.", dam1, dam));
+			if (cast)
 			{
-				(void)dispel_evil(dam);
+				(void)dispel_evil(randint(dam1));
 				(void)hp_player(dam);
 				(void)set_afraid(0);
 				(void)set_poisoned(0);
@@ -3445,7 +3604,7 @@ cptr do_priest_prayer(int mode, int spell)
 		case PRAYER_CLAIRVOYANCE:
 		{
 			if (name) return ("Clairvoyance");
-			if (desc) return ("Lights up the entire dungeon level and shows all objects on the dungeon floor.");
+			if (desc) return ("Permanently lights up the entire dungeon level.");
 			if (cast)
 			{
 				wiz_lite();
@@ -3514,7 +3673,10 @@ cptr do_priest_prayer(int mode, int spell)
 				(void)do_res_stat(A_WIS);
 				(void)do_res_stat(A_DEX);
 				(void)do_res_stat(A_CON);
-				(void)do_res_stat(A_CHR);
+				(void)do_res_stat(A_AGI);
+				(void)do_res_stat(A_STE);
+				(void)do_res_stat(A_PER);
+				(void)do_res_stat(A_LUC);
 			}
 
 			break;
@@ -3532,19 +3694,16 @@ cptr do_priest_prayer(int mode, int spell)
 			break;
 		}
 
-		case PRAYER_SUN_BURST:
+		case PRAYER_DISPEL_UNDEAD2:
 		{
-			dice = 25 + plev / 2;
-			sides = 7;
-			rad = 5;
+			dice = 2;
+			sides = plev * 3;
 
-			if (name) return ("Sun Burst");
-			if (desc) return (format("You cast a radius %d orb of hard"
-				" light that deals %dd%d damage.", rad, dice, sides));
+			if (name) return ("Dispel Undead");
+			if (desc) return (format("Does %dd%d damage to all undead creatures in line of sight.", dice, sides));
 			if (cast)
 			{
-				if (!get_aim_dir(&dir, FALSE)) return (NULL);
-				fire_orb(GF_LITE, dir, damroll(dice, sides), rad);
+				(void)dispel_undead(damroll(dice, sides));
 			}
 
 			break;
@@ -3567,8 +3726,8 @@ cptr do_priest_prayer(int mode, int spell)
 
 		case PRAYER_BANISH_EVIL:
 		{
-			if (name) return ("Repel Evil");
-			if (desc) return ("Attempts to teleport away all evil monsters in line of sight.");
+			if (name) return ("Banish Evil");
+			if (desc) return ("Attempts to scare all evil monsters in line of sight.");
 			if (cast)
 			{
 				if (banish_evil(150))
@@ -3594,21 +3753,16 @@ cptr do_priest_prayer(int mode, int spell)
 			break;
 		}
 
-		case PRAYER_JUDGEMENT_OF_MANDOS:
+		case PRAYER_ANNIHILATION:
 		{
-			rad = 9;
-			dice = 20;
-			sides = 10;
-			dam1 = 5 * (plev - 30);
+			dam = 200;
 
-			if (name) return ("Judgement of Mandos");
-			if (desc) return (format("You release a massive starburst of holy energy."
-				" Affected creatures suffer %d+%dd%d hp damage or twice as much if evil.",
-				dam1, dice, sides));
+			if (name) return ("Annihilation");
+			if (desc) return (format("Strikes at the soul of a living monster for %d hp damage.", dam));
 			if (cast)
 			{
-				dam = dam1 + damroll(dice, sides);
-				fire_star(GF_HOLY_ORB, dam, 9, 0L);
+				if (!get_aim_dir(&dir, FALSE)) return (NULL);
+				drain_life(dir, dam);
 			}
 			break;
 
@@ -3622,18 +3776,6 @@ cptr do_priest_prayer(int mode, int spell)
 			{
 				if (!get_aim_dir(&dir, TRUE)) return (NULL);
 				destroy_door(dir);
-			}
-
-			break;
-		}
-
-		case PRAYER_RECHARGING:
-		{
-			if (name) return ("Recharging");
-			if (desc) return ("Attempts to recharge a wand, staff, or rod.");
-			if (cast)
-			{
-				(void)recharge(15, FALSE);
 			}
 
 			break;
@@ -3708,10 +3850,11 @@ cptr do_priest_prayer(int mode, int spell)
 			dam = (plev * 8);
 
 			if (name) return ("Teleport Self");
-			if (desc) return (format("Random major displacement up to %d squares.", dam));
+			if (desc) return (format("Delayed displacement up to %d squares.", dam));
 			if (cast)
 			{
-				teleport_player(dam);
+				msg_print("Mystic forces begin to gather around you...");
+				delayed_teleport_player(dam);
 			}
 
 			break;
@@ -3733,7 +3876,7 @@ cptr do_priest_prayer(int mode, int spell)
 		case PRAYER_TELEPORT_LEVEL:
 		{
 			if (name) return ("Teleport Level");
-			if (desc) return ("Immediately takes you to the next level up or down.");
+			if (desc) return ("Transport to the next level up or down.");
 			if (cast)
 			{
 				teleport_player_level(SOURCE_PLAYER);
@@ -3801,19 +3944,7 @@ cptr do_priest_prayer(int mode, int spell)
 
 static cptr cast_spell(int mode, int tval, int index)
 {
-	if (tval == TV_MAGIC_BOOK)
-	{
-		return do_mage_spell(mode, index);
-	}
-
-	else if (tval == TV_DRUID_BOOK)
-	{
-		return do_druid_spell(mode, index);
-	}
-	else /*Priest*/
-	{
-		return do_priest_prayer(mode, index);
-	}
+	do_mage_spell(mode, index);
 }
 
 void do_cmd_browse_aux(const object_type *o_ptr)
@@ -3831,8 +3962,7 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-	if (cp_ptr->spell_book == TV_PRAYER_BOOK) spell_type = "prayer";
-	else spell_type = "spell";
+	spell_type = "spell";
 
 	/* Extract spells */
 	for (i = 0; i < SPELLS_PER_BOOK; i++)
@@ -3884,33 +4014,7 @@ void do_cmd_browse(void)
 	cptr q, s;
 
 
-	/* Warriors are illiterate */
-	if (!cp_ptr->spell_book)
-	{
-		msg_print("You cannot read books!");
-		return;
-	}
-
-#if 0
-
-	/* No lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	/* Confused */
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-#endif
-
-	/* Restrict choices to "useful" books */
-	item_tester_tval = cp_ptr->spell_book;
+	item_tester_tval = TV_MAGIC_BOOK;
 
 	/* Get an item */
 	q = "Browse which book? ";
@@ -4090,7 +4194,230 @@ void do_cmd_study(void)
 	p_ptr->window |= (PW_OBJECT);
 }
 
+int get_mana_cost(int spell_code) /* does not include wand bonus */
+{
+	int result, school1_talisman=0, school1_other=0, school2_talisman=0, school2_other=0;
+	object_type *o_ptr;
+	int i;
 
+	/* Scan through the slots backwards */
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		if (o_ptr->tval==TV_TALISMAN){
+			if (newspells[spell_code].school1==o_ptr->sval){
+				school1_talisman = 1;
+			}
+			if (newspells[spell_code].school2==o_ptr->sval){
+				school2_talisman = 1;
+			}
+		}
+	}
+	for (i = INVEN_WIELD; i < END_EQUIPMENT; ++i)
+	{
+		/* Object */
+		o_ptr = &inventory[i];
+
+		/* Skip empty objects */
+		if (!o_ptr->k_idx) continue;
+
+		if (o_ptr->ego_num==53 || o_ptr->ego_num==71){ /* digger of Dwarvenkind, helm of seeing */
+			if (newspells[spell_code].school1==SCHOOL_DETECTION){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_DETECTION){
+				school2_other = 1;
+			}
+		}
+
+		if (o_ptr->ego_num==68 || o_ptr->ego_num==76 || (o_ptr->tval==TV_AMULET && o_ptr->sval==SV_AMULET_THE_MAGI) || (o_ptr->tval==TV_CROWN && o_ptr->sval==SV_WIZARD_HAT)){ /* * of the Magi, wizard hat */
+			if (newspells[spell_code].school1==SCHOOL_IDENTIFICATION){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_IDENTIFICATION){
+				school2_other = 1;
+			}
+		}
+
+		if (o_ptr->ego_num==57 || (o_ptr->tval==TV_AMULET && o_ptr->sval==SV_AMULET_REGEN)){ /* * of Regeneration */
+			if (newspells[spell_code].school1==SCHOOL_HEALING){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_HEALING){
+				school2_other = 1;
+			}
+		}
+
+		if (o_ptr->ego_num==21 || (o_ptr->tval==TV_HAFTED && o_ptr->sval==SV_MACE_OF_DISRUPTION) || (o_ptr->tval==TV_AMULET && o_ptr->sval==SV_AMULET_DEVOTION)){ /* Amulet of Devotion, Mace of Disruption, Law DSM */
+			if (newspells[spell_code].school1==SCHOOL_BLESSINGS){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_BLESSINGS){
+				school2_other = 1;
+			}
+		}
+
+		if (o_ptr->ego_num==2 || o_ptr->ego_num==11 || o_ptr->ego_num==75 || (o_ptr->tval==TV_AMULET && o_ptr->sval==SV_AMULET_ADORNMENT)){ /* Amulet of Adornment, Shield or Armor of Elvenkind, * of Aman */
+			if (newspells[spell_code].school1==SCHOOL_ENCHANTMENT){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_ENCHANTMENT){
+				school2_other = 1;
+			}
+		}
+
+		if (o_ptr->ego_num==22 || (o_ptr->tval==TV_SWORD && o_ptr->sval==SV_WARLOCK_SWORD)){ /* Chaos DSM, Warlock Sword */
+			if (newspells[spell_code].school1==SCHOOL_BATTLE){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_BATTLE){
+				school2_other = 1;
+			}
+		}
+
+		if ((o_ptr->tval==TV_CLOAK && o_ptr->sval==SV_DISPLACER_CLOAK) || (o_ptr->tval==TV_RING && o_ptr->sval==SV_RING_TELEPORTATION) || (o_ptr->tval==TV_AMULET && o_ptr->sval==SV_AMULET_TELEPORT)){ /* Ring or Amulet of Teleportation, Displacer Cloak */
+			if (newspells[spell_code].school1==SCHOOL_TELEPORTATION){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_TELEPORTATION){
+				school2_other = 1;
+			}
+		}
+
+		if (o_ptr->ego_num==8 || (o_ptr->tval==TV_SHIELD && o_ptr->sval==SV_SHIELD_OF_DEFLECTION)){ /* Shield of Deflection, Dwarven Armor */
+			if (newspells[spell_code].school1==SCHOOL_RESISTANCE){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_RESISTANCE){
+				school2_other = 1;
+			}
+		}
+
+		if (o_ptr->ego_num==28 || (o_ptr->tval==TV_RING && o_ptr->sval==SV_RING_FLAMES)){ /* Ring of Flames, Red dragon armor/shield */
+			if (newspells[spell_code].school1==SCHOOL_FIRE_AND_LIGHT){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_FIRE_AND_LIGHT){
+				school2_other = 1;
+			}
+		}
+
+		if (o_ptr->ego_num==18){ /* PDSM, good luck */
+			if (newspells[spell_code].school1==SCHOOL_FORCE){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_FORCE){
+				school2_other = 1;
+			}
+		}
+		
+		if (o_ptr->ego_num==2 || o_ptr->ego_num==11){ /* Shield or Armor of Elvenkind */
+			if (newspells[spell_code].school1==SCHOOL_NATURE){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_NATURE){
+				school2_other = 1;
+			}
+		}
+
+		if (o_ptr->ego_num==75 || o_ptr->ego_num==20){ /* Balance DSM, Cloak of Aman */
+			if (newspells[spell_code].school1==SCHOOL_TIME){
+				school1_other = 1;
+			}
+			if (newspells[spell_code].school2==SCHOOL_TIME){
+				school2_other = 1;
+			}
+		}
+
+	
+}
+
+	result = newspells[spell_code].cost;
+	if (school1_talisman){
+		if (result >= 5){
+			result = ((result-1)*2)/3 + 1;
+		} else {
+			result = result - 1;
+		}
+	}
+	if (school1_other){
+		if (result >= 4){
+			result = ((result-1)*2)/3 + 1;
+		} else {
+			result = result - 1;
+		}
+	}
+	if (school2_talisman){
+		if (result >= 4){
+			result = ((result-1)*2)/3 + 1;
+		} else {
+			result = result - 1;
+		}
+	}
+	if (school2_other){
+		if (result >= 4){
+			result = ((result-1)*2)/3 + 1;
+		} else {
+			result = result - 1;
+		}
+	}
+	return result;
+}
+
+cptr nice_mana_cost(int raw_cost)
+{
+	if (raw_cost==0){
+		return "1/2";
+	} else if (raw_cost==-1){
+		return "1/4";
+	} else if (raw_cost==-2){
+		return "1/8";
+	} else {
+		return "***";
+	}
+}
+
+
+int get_success_prob(int spell_code)
+{
+	int spell_level, caster_level, chance;
+
+	spell_level = newspells[spell_code].level;
+	caster_level = p_ptr->lev + adj_int_success[p_ptr->stat_ind[A_INT]];
+	if (spell_level >= 10){
+		spell_level = spell_level - 1;
+	} else if (spell_level >= 20){
+		spell_level = spell_level - 2;
+	} else if (spell_level >= 40){
+		spell_level = spell_level - 3;
+	}
+	if (caster_level >= spell_level+5) chance = 100;
+	else if (caster_level >= spell_level + 2) chance = 99;
+	else if (caster_level >= spell_level)     chance = 98;
+	else if (caster_level == spell_level - 1) chance = 95;
+	else if (caster_level == spell_level - 2) chance = 90;
+	else if (caster_level == spell_level - 3) chance = 80;
+	else if (caster_level == spell_level - 4) chance = 50;
+	else if (caster_level == spell_level - 5) chance = 20;
+	else if (caster_level == spell_level - 6) chance = 10;
+	else if (caster_level == spell_level - 7) chance = 5;
+	else if (caster_level == spell_level - 8) chance = 1;
+	else chance = 0;
+
+	if (chance > 100-adj_int_fail_rate[p_ptr->stat_ind[A_INT]]){
+		chance = 100-adj_int_fail_rate[p_ptr->stat_ind[A_INT]];
+	}
+
+	if (p_ptr->stun > 50) chance -= 25;
+	else if (p_ptr->stun) chance -= 15;
+
+	if (chance<0) chance = 0;
+	return chance;
+}
 
 /*
  * Cast a spell
@@ -4099,22 +4426,11 @@ void do_cmd_cast(bool pray)
 {
 	int item, spell;
 	int chance;
+	int mana_cost;
 
 	object_type *o_ptr;
 
-	const magic_type *s_ptr;
-
 	cptr q, s;
-
-	bool prayer = cp_ptr->spell_book == TV_PRAYER_BOOK ? TRUE : FALSE;
-
-	/* Require spell ability */
-	if (cp_ptr->spell_book == 0)
-	{
-		if (pray) msg_print("Pray hard enough and your prayers may be answered.");
-		else msg_print("You cannot cast spells!");
-		return;
-	}
 
 	/* Require lite */
 	if (p_ptr->blind || no_lite())
@@ -4130,15 +4446,13 @@ void do_cmd_cast(bool pray)
 		return;
 	}
 
-
 	/* Restrict choices to spell books */
-	item_tester_tval = cp_ptr->spell_book;
+	item_tester_tval = TV_MAGIC_BOOK;
 
 	/* Get an item */
 	q = "Use which book? ";
-	if (prayer) s = "You have no prayer books!";
-	else s = "You have no spell books!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	s = "You have no spell books!";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return; 
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -4160,41 +4474,27 @@ void do_cmd_cast(bool pray)
 	handle_stuff();
 
 	/* Ask for a spell */
-	spell = get_spell(o_ptr, "cast", TRUE);
+	spell = get_spell(o_ptr, "cast", TRUE); 
 
-	if (spell < 0)
-	{
-		if (spell == -2)
-		{
-			if (prayer) msg_print("You don't know any prayers in that book.");
-			else msg_print("You don't know any spells in that book.");
-		}
-		return;
-	}
+	if (spell < 0) return;
 
-	/* Get the spell */
-	s_ptr = &mp_ptr->info[spell];
+	mana_cost = get_mana_cost(spell); 
+	chance = get_success_prob(spell);
 
-	/* Verify "dangerous" spells */
-	if (s_ptr->smana > p_ptr->csp)
+	/* Disallow "dangerous" spells */
+	if (mana_cost > p_ptr->csp || p_ptr->csp<=0)
 	{
 		/* Warning */
-		if (prayer) msg_print("You do not have enough mana to cast this prayer.");
-		else msg_print("You do not have enough mana to cast this spell.");
+		msg_print("You do not have enough mana to cast this spell.");
 
 		/* Flush input */
 		flush();
 
-		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
+		return;
 	}
 
-
-	/* Spell failure chance */
-	chance = spell_chance(spell);
-
 	/* Failed spell */
-	if (rand_int(100) < chance)
+	if (randint(100) > chance)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to get the spell off!");
@@ -4205,66 +4505,32 @@ void do_cmd_cast(bool pray)
 	{
 		/* Cast the spell */
 		sound(MSG_SPELL);
-		if (cast_spell(MODE_SPELL_CAST, cp_ptr->spell_book, spell) == NULL) return;
+		if (do_mage_spell(MODE_SPELL_CAST, spell) == NULL) return;
 
-		/* A spell was cast */
-		if (!(p_ptr->spell_flags[spell] & PY_SPELL_WORKED))
-		{
-			int e = s_ptr->sexp;
-
-			/* The spell worked */
-			p_ptr->spell_flags[spell] |= PY_SPELL_WORKED;
-
-			/* Gain experience */
-			gain_exp(e * s_ptr->slevel);
-
-			/* Redraw object recall */
-			p_ptr->window |= (PW_OBJECT);
-		}
 	}
 
-	/* Take a turn */
-	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
-
-	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
-	{
-		/* Use some mana */
-		p_ptr->csp -= s_ptr->smana;
-	}
-
-	/* Over-exert the player */
-	else
-	{
-		int oops = s_ptr->smana - p_ptr->csp;
-
-		/* No mana left */
-		p_ptr->csp = 0;
-		p_ptr->csp_frac = 0;
-
-		/* Message */
-		msg_print("You faint from the effort!");
-
-		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
-
-		/* Damage CON (possibly permanently) */
-		if (rand_int(100) < 50)
-		{
-			bool perm = (rand_int(100) < 25);
-
-			/* Message */
-			msg_print("You have damaged your health!");
-
-			/* Reduce constitution */
-			(void)dec_stat(A_CON, 15 + randint(10), perm);
-		}
+	/* Use some mana */
+	if (mana_cost >= 1){
+		p_ptr->csp -= mana_cost;
+	} else if (mana_cost == 0){
+		p_ptr->csp -= one_in_(2);
+	} else if (mana_cost == -1){
+		p_ptr->csp -= one_in_(4);
+	} else if (mana_cost == -2){
+		p_ptr->csp -= one_in_(8);
+	} else {
+		p_ptr->csp -= one_in_(16);
 	}
 
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
+	
+	/* Take a turn */
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 }
+
+
 

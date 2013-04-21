@@ -1287,7 +1287,7 @@ static void term_data_check_size(term_data *td)
 
 		/* Enforce minimal size */
 		if (td->cols < 80) td->cols = 80;
-		if (td->rows < 24) td->rows = 24;
+		if (td->rows < 40) td->rows = 40;
 
 #endif /* !ALLOW_BIG_SCREEN */
 	}
@@ -3741,7 +3741,7 @@ static void term_data_hack(term_data *td)
 	td->font_face = 0;
 
 	/* Default size */
-	td->rows = 24;
+	td->rows = 40;
 	td->cols = 80;
 
 	/* Default position */
@@ -6607,7 +6607,7 @@ int main(void)
 	if (!game_in_progress)
 	{
 		/* Prompt the user - You may have to change this for some variants */
-		prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
+		prt("[Choose 'New' or 'Open' from the 'File' menu]", 42, 15);
 
 		/* Flush the prompt */
 		Term_fresh();

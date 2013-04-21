@@ -13,15 +13,15 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.1.0
 
 
 
 # Maximum number of feature types
-M:F:206
+M:F:203
 
 # Maximum number of object kinds
-M:K:453
+M:K:500
 
 # 
 # Maximum number of total artifacts (special + normal + pre-made random + in-game random)
@@ -38,7 +38,7 @@ M:A:18:123:35
 M:E:145
 
 # Maximum number of monster races
-M:R:750
+M:R:700
 
 # Maximum number of effects
 M:X:750
@@ -50,10 +50,10 @@ M:G:21
 M:V:61
 
 # Maximum number of player races
-M:P:11
+M:P:8
 
 # Maximum number of player classes
-M:C:8
+M:C:1
 
 # Maximum number of player history lines
 M:H:165
@@ -83,5 +83,5 @@ M:N:20480
 
 # Size of the "fake" array for reading in the descriptions of monsters,
 # vaults, and the player-histories
-M:T:70440
+M:T:65440
 

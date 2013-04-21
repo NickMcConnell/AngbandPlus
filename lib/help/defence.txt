@@ -22,21 +22,24 @@ player is native will also reduce the chances of getting hit.
       Each piece of armour has a base AC value and possibly also a magical
 bonus.  Add the two together, and you have the total protective value of the
 item.  For example, a Chain Mail (-3) [14, +6] increases your AC by 20.  Note
-the "(-3)".  It is a (small) penalty to fighting; heavy armour restricts your
-movement slightly.
+the "(-2)".  It is a (small) penalty to fighting; heavy armour restricts your
+movement slightly. It also reduces your Stealth.
 
 Cuts, poison, and stunning:
      Many monsters can inflict special kinds of physical damage on you, such as
-opening wounds, poisoning, or stunning.  After you start earning a little money,
-plow some of it back into potions of cure wounds, and keep them handy at all
-times.  If a monster manages to heavily stun you, get away fast!
+opening wounds, poisoning, or stunning.  
+     If a monster manages to heavily stun you, get away fast!
+     Unlike other *bands, in Ironband poison lasts less long but can do a lot more
+damage per round. Watch out for poisonous creatures.
 
 Character-hindrance:
      There are many monsters capable of casting spells to blind, confuse, slow,
 and paralyze you, plus quite a few other nasty tricks not mentioned here.  Free
 Action (paralyzation immunity) eventually becomes critical to your survival, and
-you should keep stuff that fixes blindness and confusion on hand.  Your Saving
-Throw protects against these and other attacks.
+you should keep stuff that fixes blindness and confusion on hand.  
+     Your Saving Throw protects against these and other attacks. You can improve
+your Saving Throw by increasing your Wisdom, wielding a blessed weapon or casting
+some high-level spells.
 
 Elemental and magical attacks:
      Acid, Electricity, Fire, and Cold are the basic elements, and many monsters
@@ -47,16 +50,12 @@ a permanent resistance (from equipment) and a temporary one (from a spell).
 Temporary resistances are also known as oppositions.  Immunity to any of the
 elements is hard to get.
      Standing on certain terrains can either increase or decrease the damage
-of certain magical attacks. For melee and archery the damage is increased only if
-the target of the attack is not flying.
-For example, when standing on water the damage from a fire-based attack is reduced.
+of certain magical attacks.  For example, when standing on ice the damage from
+a fire-based attack is reduced.
      Poison is deadly, and not so easy to gain resistance to.  You can double-
 resist (resist and oppose) poison.
      There are many kinds of magical attacks; most can be resisted, some can
-not.  The resistable ones capable of doing the most damage are darkness, chaos,
-and nether.
-
-     For more detail, see the section on object attributes.
+not. For more detail, see the section on object attributes.
 
 Reductions of Experience and Stats:
      Even when your character is starting out, there are rare traps and monsters
@@ -68,6 +67,4 @@ Theft:
      Nobody is more annoying than a thief.  You've just found that cool
 spellbook or nifty weapon, and now it's gone.  You can gain a significant degree
 of protection from theft by increasing your armour class and your dexterity, and
-can always collect your stuff from the thief's corpse.  Unfortunately, thieves
-are smart enough to stash away the money they take from you.
-
+can always collect your stuff from the thief's corpse.  

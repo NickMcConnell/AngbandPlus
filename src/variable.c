@@ -133,7 +133,7 @@ bool command_repeating = FALSE;
 byte feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
 
-u32b  level_flag;		/* Level type */
+u16b  level_flag;		/* Level type */
 
 bool good_item_flag;	/* True if "Artifact" on this level */
 
@@ -207,22 +207,22 @@ cptr macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
  */
 byte angband_color_table[256][4] =
 {
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK - (black) - d */
-	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE - w */
-	{0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE (Dark Gray)- s */
-	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE - o */
-	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED - r*/
-	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN - g */
-	{0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE - b */
-	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER - u */
-	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK - D */
-	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE - W */
-	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET - v */
-	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW - Y*/
-	{0x00, 0xFF, 0x40, 0x40},	/* TERM_L_RED - R */
-	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN  - G*/
-	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE - B */
-	{0x00, 0xC0, 0x80, 0x40},	/* TERM_L_UMBER - U*/
+	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
+	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
+	{0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE */
+	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
+	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
+	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
+	{0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE */
+	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER */
+	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK */
+	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
+	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
+	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
+	{0x00, 0xFF, 0x40, 0x40},	/* TERM_L_RED */
+	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
+	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
+	{0x00, 0xC0, 0x80, 0x40},	/* TERM_L_UMBER */
 
 	/*
 	 * Values for shades at compile time, taken from shades.prf
@@ -230,38 +230,21 @@ byte angband_color_table[256][4] =
 	 * we must ensure that all colors are different.
 	 */
 	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK	(Shade 1) */
-	{0x00, 0xFF, 0xFA, 0xFA},	/* TERM_WHITE 	(Shade 1 - Snow White - w1) */
-	{0x00, 0x70, 0x80, 0x90},	/* TERM_SLATE 	(Shade 1 - Slate Gray - s1) */
-	{0x00, 0xFF, 0x9F, 0x00},	/* TERM_ORANGE 	(Shade 1 - Orange Peel - o1) */
-	{0x00, 0xCF, 0x10, 0x20},	/* TERM_RED 	(Shade 1 - LAVA - r1) */
-	{0x00, 0x29, 0xAB, 0x87},	/* TERM_GREEN 	(Shade 1 - Jungle Green - g1) */
-	{0x00, 0x4C, 0x4C, 0xA6},	/* TERM_BLUE 	(Shade 1 - Navy Blue) b1 */
-	{0x00, 0x6D, 0x35, 0x1A},	/* TERM_UMBER 	(Shade 1 - Auburn - u1) */
-	{0x00, 0x8B, 0x85, 0x89},	/* TERM_L_DARK 	(Shade 1)- Taupe - D1 */
-	{0x00, 0xE8, 0xD0, 0xC0},	/* TERM_L_WHITE	(Shade 1) - light white 2 - W1 */
-	{0x00, 0xA5, 0x00, 0xFF},	/* TERM_VIOLET 	(Shade 1) - light violet v1*/
-	{0x00, 0xFB, 0xEC, 0x5D},	/* TERM_YELLOW 	(Shade 1 - Maize - Y1) */
-	{0x00, 0xE3, 0x0B, 0x5C},	/* TERM_L_RED 	(Shade 1- Raspberry - R1) */
-	{0x00, 0xBF, 0xFF, 0x00},	/* TERM_L_GREEN (Shade 1 - Lime Green - G1) */
-	{0x00, 0x00, 0xBF, 0xFF},	/* TERM_L_BLUE  (Shade 1 - Deep Sky Blue) B1 */
-	{0x00, 0xC1, 0x9A, 0x6B}, 	/* TERM_L_UMBER (Shade 1 - Fallow  (light brown) - U1) */
-
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK	(Shade 2) */
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_WHITE 	(Shade 2) */
-	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_SLATE 	(shade 2 - Silver - s2) */
-	{0x00, 0xC0, 0x40, 0x00},	/* TERM_ORANGE 	(Shade 2 - Mahogany - o2) */
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_RED 	(Shade 2 ) */
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_GREEN 	(Shade 2) */
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_BLUE 	(Shade 2) */
-	{0x00, 0xB8, 0x73, 0x33},	/* TERM_UMBER 	(Shade 2 - Copper - u2) */
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_L_DARK 	(Shade 2) */
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_L_WHITE	(Shade 2) */
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_VIOLET 	(Shade 2) */
-	{0x00, 0xFF, 0xD7, 0x00},	/* TERM_YELLOW 	(Shade 2 - Gold - Y2) */
-	{0x00, 0xFF, 0x14, 0x93},	/* TERM_L_RED 	(Shade 2 - Pink - R2) */
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_L_GREEN (Shade 2) */
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_L_BLUE  (Shade 2) */
-	{0x00, 0xE1, 0xA9, 0x5F} 	/* TERM_L_UMBER (Shade 2 - Earth Yellow - U2) */
+	{0x00, 0xAF, 0xFF, 0xFF},	/* TERM_WHITE 	(Shade 1) */
+	{0x00, 0xA0, 0xA0, 0xA0},	/* TERM_SLATE 	(Shade 1) */
+	{0x00, 0xDC, 0x64, 0x00},	/* TERM_ORANGE 	(Shade 1) */
+	{0x00, 0xF0, 0x00, 0x00},	/* TERM_RED 	(Shade 1) */
+	{0x00, 0x00, 0x70, 0x00},	/* TERM_GREEN 	(Shade 1) */
+	{0x00, 0x00, 0x80, 0xFF},	/* TERM_BLUE 	(Shade 1) */
+	{0x00, 0xC8, 0x64, 0x00},	/* TERM_UMBER 	(Shade 1) */
+	{0x00, 0x78, 0x64, 0x64},	/* TERM_L_DARK 	(Shade 1) */
+	{0x00, 0xE8, 0xD0, 0xC0},	/* TERM_L_WHITE	(Shade 1) */
+	{0x00, 0xA5, 0x00, 0xFF},	/* TERM_VIOLET 	(Shade 1) */
+	{0x00, 0xC8, 0xC8, 0x00},	/* TERM_YELLOW 	(Shade 1) */
+	{0x00, 0xB4, 0x46, 0x32},	/* TERM_L_RED 	(Shade 1) */
+	{0x00, 0x00, 0xDC, 0x64},	/* TERM_L_GREEN (Shade 1) */
+	{0x00, 0x64, 0xAA, 0xC8},	/* TERM_L_BLUE  (Shade 1) */
+	{0x00, 0xC8, 0xAA, 0x46} 	/* TERM_L_UMBER (Shade 1) */
 };
 
 
@@ -301,7 +284,7 @@ const cptr angband_sound_name[MSG_MAX] =
 	"stairs_down",
 	"hitpoint_warn",
 	"act_artifact",
-	"use_staff",
+	"use_talisman",
 	"destroy",
 	"mon_hit",
 	"mon_touch",
@@ -420,9 +403,6 @@ const cptr angband_sound_name[MSG_MAX] =
 	"kill_king",
 	"drain_stat",
 	"multiply",
-	"losing_nativity",
-	"losing_flying",
-	"hide_unhide",
 };
 
 
@@ -733,7 +713,6 @@ char *k_text;
  * The artifact arrays
  */
 artifact_type *a_info;
-artifact_lore *a_l_list;
 char *a_text;
 
 /*
@@ -809,6 +788,8 @@ char *flavor_text;
 /*Monster_movement energy info*/
 move_moment_type *mon_moment_info;
 u16b move_moment_num;
+
+new_spell_info_type *newspells;
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -1091,15 +1072,16 @@ quiver_group_type quiver_group[MAX_QUIVER_GROUPS] =
 
 
 /*
- * Number of player turns the quest indicator is displayed
- * when the player fails or wins a quest.
+ * Number of elemental features in the level
  */
-u16b quest_indicator_timer = 0;
+element_counter_type element_counter;
+
 
 /*
- * It's TRUE if the player won a quest.
+ * Number of player turns the quest indicator is displayed
+ * when the player fails a quest
  */
-byte quest_indicator_complete = FALSE;
+u16b quest_indicator_timer = 0;
 
 /*
  * Panel change offsets. See verify_panel
@@ -1113,5 +1095,4 @@ u16b panel_change_offset_x = MIN_PANEL_CHANGE_OFFSET_X;
  * The current capabilities of the dungeon
  */
 dungeon_capabilities_type *dun_cap = NULL;
-
 

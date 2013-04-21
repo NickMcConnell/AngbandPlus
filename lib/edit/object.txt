@@ -73,7 +73,7 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.1.0
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -251,7 +251,7 @@ F:INSTA_ART
 
 
 N:16:& Ring~
-G:=:y2
+G:=:y
 I:45:37:0
 W:100:0:2:5000000
 P:0:0d0:0:0:0
@@ -292,7 +292,7 @@ G:(:D
 I:36:1:0
 W:0:0:20:1
 P:1:0d0:0:0:-1
-A:0/1
+A:0/2
 
 
 N:22:& Robe~
@@ -311,7 +311,7 @@ P:4:0d0:0:0:0
 A:3/1
 
 
-N:24:Soft Studded Leather~
+N:24:Leather Cuirass~
 G:(:U1
 I:36:5:0
 W:3:0:90:35
@@ -319,15 +319,14 @@ P:5:1d1:0:0:0
 A:3/1
 
 
-N:25:Hard Leather Armour~
+N:25:Wolfskin~
 G:(:U
 I:36:6:0
 W:5:0:100:150
-P:6:1d1:-1:0:0
+P:6:1d1:0:0:0
 A:5/1
 
-
-N:26:Hard Studded Leather~
+N:26:Lacquered Leather~
 G:(:U1
 I:36:7:0
 W:10:0:110:200
@@ -343,23 +342,33 @@ P:11:1d1:-1:0:0
 A:15/1
 
 
-N:28:Rusty Chain Mail~
+N:28:Troll Hide~
+G:(:G
+I:36:12:0
+W:30:0:140:900
+P:11:1d4:-1:0:0
+A:30/6
+F:REGEN
+D:Troll's hide is tough stuff, and it will lend you the
+D: regenerative powers of its original owner.
+
+N:29:Orcish Chain Mail~
 G:[:r
 I:37:1:0
 W:25:0:200:550
-P:14:1d4:-5:0:-8
+P:14:1d4:-3:0:-8
 A:25/1
 
 
-N:29:Metal Scale Mail~
+N:30:Habergeon~
 G:[:s
 I:37:3:0
 W:25:0:250:550
-P:13:1d4:-2:0:0
+P:13:1d4:-1:0:0
 A:25/1
 
 
-N:30:Chain Mail~
+N:31:Hauberk~
 G:[:s
 I:37:4:0
 W:25:0:220:750
@@ -367,15 +376,7 @@ P:14:1d4:-2:0:0
 A:25/1
 
 
-N:31:Augmented Chain Mail~
-G:[:s1
-I:37:6:0
-W:30:0:270:900
-P:16:1d4:-2:0:0
-A:30/1
-
-
-N:32:Double Chain Mail~
+N:32:Mail-coat~
 G:[:s
 I:37:7:0
 W:30:0:250:850
@@ -383,77 +384,77 @@ P:16:1d4:-2:0:0
 A:30/1
 
 
-N:33:Metal Brigandine Armour~
+N:33:Breastplate~
 G:[:s1
 I:37:9:0
 W:35:0:290:1100
-P:19:1d4:-3:0:0
+P:19:1d4:-1:0:0
 A:35/1
 
 
-N:34:Partial Plate Armour~
+N:34:Cuirass~
 G:[:W
 I:37:12:0
 W:45:0:260:1200
-P:22:1d6:-3:0:0
+P:22:1d6:-1:0:0
 A:45/1
 
 
-N:35:Metal Lamellar Armour~
+N:35:Banded Armour~
 G:[:W
 I:37:13:0
 W:45:0:340:1250
-P:23:1d6:-3:0:0
+P:23:1d6:-1:0:0
 A:45/1
 
 
-N:36:Full Plate Armour~
+N:36:Plate Armour~
 G:[:W
 I:37:15:0
 W:45:0:380:1350
-P:25:2d4:-3:0:0
+P:25:2d4:-2:0:0
 A:45/1
 
 
-N:37:Ribbed Plate Armour~
+N:37:Knightly Plate Armour~
 G:[:W
 I:37:18:0
 W:50:0:380:1500
-P:28:2d4:-3:0:0
+P:28:2d4:-2:0:0
 A:50/1
 
 
-N:38:Mithril Chain Mail~
+N:38:Mithril Mail-coat~
 G:[:B
 I:37:20:0
 W:55:0:150:7000
-P:28:1d4:-1:0:0
+P:28:1d4:0:0:0
 A:55/3
 F:IGNORE_ACID
 
 
-N:39:Mithril Plate Mail~
+N:39:Mithril Plate Armour~
 G:[:B1
 I:37:25:0
 W:60:0:300:15000
-P:35:2d4:-3:0:0
+P:35:2d4:-1:0:0
 A:60/3
 F:IGNORE_ACID
 
 
-N:40:Adamantite Plate Mail~
+N:40:Kingly Plate Armour~
 G:[:G
 I:37:30:0
 W:75:0:420:20000
-P:40:2d4:-4:0:0
-A:75/4
+P:40:2d4:-3:0:0
+A:70/4
 F:IGNORE_ACID
 
 
 
 ##### Shields #####
 
-N:41:& Small Leather Shield~
+N:41:& Buckler~
 G:):U
 I:34:2:0
 W:3:0:50:30
@@ -461,7 +462,7 @@ P:2:1d1:0:0:0
 A:3/1:25/2
 
 
-N:42:& Small Metal Shield~
+N:42:& Kite Shield~
 G:):s
 I:34:3:0
 W:10:0:65:50
@@ -469,7 +470,7 @@ P:3:1d2:0:0:0
 A:10/1:30/2
 
 
-N:43:& Large Leather Shield~
+N:43:& Wooden Shield~
 G:):U
 I:34:4:0
 W:15:0:100:120
@@ -477,7 +478,7 @@ P:4:1d2:0:0:0
 A:15/1:35/2
 
 
-N:44:& Large Metal Shield~
+N:44:& Tower Shield~
 G:):s1
 I:34:5:0
 W:30:0:120:200
@@ -488,11 +489,12 @@ A:30/1:50/2
 N:45:& Shield~ of Deflection
 G:):B
 I:34:10:0
-W:70:0:100:10000
+W:60:0:100:10000
 P:10:1d1:0:0:10
-A:70/4
-F:IGNORE_ACID
-
+A:60/4
+F:IGNORE_ACID | RES_SHARD
+D:Wearing this shield makes all your resistance spells (such as Resist Poison) cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 ##### Dragon Armor #####
@@ -521,7 +523,7 @@ N:48:Ancient Dragon Scale Mail~
 G:[:R
 I:38:3:0
 W:60:0:200:60000
-P:30:1d1:-3:0:15
+P:30:1d1:-2:0:15
 A:60/32
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A set of armor made from the scales of an ancient dragon.
@@ -531,8 +533,8 @@ N:49:Great Wyrm Scale Mail~
 G:[:v
 I:38:4:0
 W:90:0:240:100000
-P:45:1d1:-4:0:25
-A:90/64
+P:45:1d1:-3:0:25
+A:70/64
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A set of armor made from the scales of a great wyrm.
 
@@ -572,7 +574,7 @@ G:):v
 I:41:4:0
 W:90:0:80:80000
 P:12:1d1:0:0:15
-A:90/64
+A:70/64
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A shield made from the scales of a great wyrm.
 
@@ -580,12 +582,12 @@ D:A shield made from the scales of a great wyrm.
 
 ##### Edged Weapons #####
 
-N:54:& Broken Dagger~
+N:54:& Table Knife~
 G:|:D
 I:23:1:0
 W:0:0:5:1
 P:0:1d1:-2:-4:0
-A:0/2:5/2
+A:0/2
 F:SHOW_MODS
 
 
@@ -594,7 +596,7 @@ G:|:D
 I:23:2:0
 W:0:0:30:2
 P:0:1d2:-2:-4:0
-A:0/2:5/2
+A:5/2
 F:SHOW_MODS
 
 
@@ -607,7 +609,7 @@ A:0/1:5/1:10/1
 F:THROWING | SHOW_MODS
 
 
-N:57:& Main Gauche~
+N:57:& Dirk~
 G:|:W
 I:23:5:0
 W:3:0:30:25
@@ -616,37 +618,10 @@ A:3/1
 F:SHOW_MODS
 
 
-N:58:& Rapier~
-G:|:W
-I:23:7:0
-W:5:0:40:42
-P:0:1d6:0:0:0
-A:5/1
-F:SHOW_MODS
-
-
-N:59:& Small Sword~
-G:|:W
-I:23:8:0
-W:5:0:75:48
-P:0:1d6:0:0:0
-A:5/1
-F:SHOW_MODS
-
-
-N:60:& Short Sword~
+N:60:& Shortsword~
 G:|:W
 I:23:10:0
 W:5:0:80:90
-P:0:1d7:0:0:0
-A:5/1
-F:SHOW_MODS
-
-
-N:61:& Sabre~
-G:|:W
-I:23:11:0
-W:5:0:50:50
 P:0:1d7:0:0:0
 A:5/1
 F:SHOW_MODS
@@ -656,44 +631,35 @@ N:62:& Cutlass~
 G:|:W
 I:23:12:0
 W:5:0:110:85
-P:0:1d7:0:0:0
-A:5/1
+P:0:1d8:0:0:0
+A:6/1
 F:SHOW_MODS
 
 
-N:63:& Broad Sword~
+N:63:& Broadsword~
 G:|:W
 I:23:16:0
-W:10:0:150:255
+W:10:0:130:255
 P:0:2d5:0:0:0
-A:10/1:15/1
+A:12/1:18/1
 F:SHOW_MODS
 
 
-N:64:& Long Sword~
+N:64:& Longsword~
 G:|:W
 I:23:17:0
 W:10:0:130:300
 P:0:2d5:0:0:0
-A:10/1:20/1
+A:12/1:20/1
 F:SHOW_MODS
 
 
 N:65:& Scimitar~
 G:|:W
 I:23:18:0
-W:10:0:130:250
+W:10:0:150:250
 P:0:2d5:0:0:0
-A:10/1
-F:SHOW_MODS
-
-
-N:66:& Katana~
-G:|:W
-I:23:20:0
-W:20:0:120:400
-P:0:3d4:0:0:0
-A:20/1
+A:12/1
 F:SHOW_MODS
 
 
@@ -702,34 +668,34 @@ G:|:W
 I:23:21:0
 W:15:0:140:350
 P:0:3d4:0:0:0
-A:15/1
+A:25/1
 F:SHOW_MODS
 
 
-N:68:& Two-Handed Sword~
+N:68:& Greatsword~
 G:|:W
 I:23:25:0
-W:30:0:200:775
+W:30:0:180:775
 P:0:3d6:0:0:0
-A:30/1:40/1
+A:40/1:50/1
 F:SHOW_MODS
 
 
-N:69:& Executioner's Sword~
+N:69:& Fell Blade~
 G:|:r
 I:23:28:0
 W:40:0:260:850
-P:0:4d5:0:0:0
-A:40/1
+P:0:5d4:0:0:0
+A:45/1
 F:SHOW_MODS
 
 
 N:70:& Blade~ of Chaos
 G:|:v
 I:23:30:0
-W:70:0:180:14000
-P:0:6d5:0:0:0
-A:70/5
+W:70:0:320:14000
+P:0:5d5:0:0:0
+A:60/5
 F:RES_CHAOS | SHOW_MODS
 
 
@@ -745,48 +711,30 @@ A:5/1
 F:THROWING | SHOW_MODS
 
 
-N:72:& Awl-Pike~
-G:/:s
-I:22:4:0
-W:10:0:160:340
-P:0:1d8:0:0:0
-A:10/1
-F:SHOW_MODS
-
-
 N:73:& Trident~
 G:/:y
 I:22:5:0
 W:5:0:70:120
 P:0:1d8:0:0:0
-A:5/1
+A:7/1
 F:SHOW_MODS
 
 
 N:74:& Pike~
 G:/:s
 I:22:8:0
-W:15:0:160:358
-P:0:2d5:0:0:0
+W:15:0:170:358
+P:0:1d12:0:0:0
 A:15/1
 F:SHOW_MODS
 
 
-N:75:& Beaked Axe~
+N:75:& War Axe~
 G:/:s
 I:22:10:0
 W:15:0:180:408
 P:0:2d6:0:0:0
-A:15/1
-F:SHOW_MODS
-
-
-N:76:& Broad Axe~
-G:/:s
-I:22:11:0
-W:15:0:160:304
-P:0:2d6:0:0:0
-A:15/1
+A:20/1
 F:SHOW_MODS
 
 
@@ -802,8 +750,8 @@ F:THROWING | SHOW_MODS
 N:78:& Glaive~
 G:/:s
 I:22:13:0
-W:20:0:190:363
-P:0:2d6:0:0:0
+W:20:0:200:363
+P:0:3d4:0:0:0
 A:20/1
 F:SHOW_MODS
 
@@ -811,18 +759,18 @@ F:SHOW_MODS
 N:79:& Halberd~
 G:/:s
 I:22:15:0
-W:25:0:190:430
-P:0:3d5:0:0:0
-A:25/1
+W:25:0:200:430
+P:0:2d9:0:0:0
+A:32/1
 F:SHOW_MODS
 
 
 N:80:& Scythe~
 G:/:s
 I:22:17:0
-W:45:0:250:2800
-P:0:5d3:0:0:0
-A:45/1
+W:45:0:180:2800
+P:0:4d4:0:0:0
+A:40/2
 F:SHOW_MODS
 
 
@@ -830,8 +778,8 @@ N:81:& Battle Axe~
 G:/:s
 I:22:22:0
 W:15:0:170:334
-P:0:2d8:0:0:0
-A:15/1
+P:0:3d5:0:0:0
+A:30/1
 F:SHOW_MODS
 
 
@@ -839,12 +787,12 @@ N:82:& Great Axe~
 G:/:s
 I:22:25:0
 W:40:0:230:500
-P:0:4d4:0:0:0
+P:0:2d10:0:0:0
 A:40/1
 F:SHOW_MODS
 
 
-N:83:& Lochaber Axe~
+N:83:& Berserker Axe~
 G:/:D
 I:22:28:0
 W:45:0:250:750
@@ -856,8 +804,8 @@ F:SHOW_MODS
 N:84:& Scythe~ of Slicing
 G:/:r
 I:22:30:0
-W:60:0:250:3500
-P:0:8d4:0:0:0
+W:60:0:300:3500
+P:0:4d8:0:0:0
 A:60/3
 F:SHOW_MODS
 
@@ -870,16 +818,16 @@ G:\:D
 I:21:2:0
 W:3:0:30:30
 P:0:1d3:0:0:0
-A:3/1
+A:1/2
 F:SHOW_MODS
 
 
 N:86:& Quarterstaff~
 G:\:U
 I:21:3:0
-W:10:0:150:200
+W:10:0:80:200
 P:0:1d9:0:0:0
-A:10/1
+A:12/1
 F:SHOW_MODS
 
 
@@ -888,34 +836,25 @@ G:\:D
 I:21:5:0
 W:5:0:120:130
 P:0:2d4:0:0:0
-A:5/1
+A:9/1
 F:SHOW_MODS
 
 
 N:88:& Ball-and-Chain~
 G:\:D
 I:21:6:0
-W:20:0:150:200
-P:0:2d4:0:0:0
-A:20/1
+W:20:0:140:200
+P:0:2d5:0:0:0
+A:18/2
 F:SHOW_MODS
 
 
-N:89:& War Hammer~
+N:89:& Warhammer~
 G:\:D
 I:21:8:0
-W:5:0:120:225
-P:0:3d3:0:0:0
-A:5/1
-F:SHOW_MODS
-
-
-N:90:& Lucerne Hammer~
-G:\:B
-I:21:10:0
-W:10:0:120:376
+W:5:0:160:225
 P:0:2d5:0:0:0
-A:10/1
+A:12/1
 F:SHOW_MODS
 
 
@@ -933,7 +872,7 @@ G:\:D
 I:21:12:0
 W:10:0:150:396
 P:0:2d6:0:0:0
-A:10/1
+A:20/1
 F:SHOW_MODS
 
 
@@ -942,26 +881,28 @@ G:\:D
 I:21:13:0
 W:10:0:150:353
 P:0:2d6:0:0:0
-A:10/1
+A:20/1
 F:SHOW_MODS
 
 
-N:94:& Lead-Filled Mace~
+N:94:& Great Spiked Flail~
 G:\:D
 I:21:15:0
-W:15:0:180:502
-P:0:3d4:0:0:0
-A:15/1
+W:15:0:220:502
+P:0:2d7:0:0:0
+A:25/1
 F:SHOW_MODS
 
 
 N:95:& Mace~ of Disruption
 G:\:v
 I:21:20:0
-W:80:0:400:14300
-P:0:5d8:0:0:0
-A:80/5
+W:80:0:340:14300
+P:0:3d9:0:0:0
+A:60/5
 F:SLAY_UNDEAD | SHOW_MODS
+D:Wielding this mace makes all your blessing spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 
@@ -972,7 +913,7 @@ G:\:s
 I:20:1:1
 W:1:0:60:10
 P:0:1d2:0:0:0
-A:5/2
+A:3/2
 F:TUNNEL | SHOW_MODS
 
 
@@ -997,7 +938,7 @@ F:TUNNEL | SHOW_MODS
 
 ##### Helms/Crowns #####
 
-N:99:& Hard Leather Cap~
+N:99:& Leather Cap~
 G:]:u
 I:32:2:0
 W:3:0:15:12
@@ -1005,7 +946,7 @@ P:2:0d0:0:0:0
 A:3/1:20/2
 
 
-N:100:& Metal Cap~
+N:100:& Helmet~
 G:]:s
 I:32:3:0
 W:10:0:20:30
@@ -1013,20 +954,24 @@ P:3:1d1:0:0:0
 A:10/1:30/2
 
 
-N:101:& Iron Helm~
+N:101:& War Helm~
 G:]:s1
 I:32:5:0
 W:20:0:75:75
 P:5:1d3:0:0:0
 A:20/1:40/2
+F:LO_PERCEPTION
+D:A fine helm, though it restricts your vision a little.
 
 
-N:102:& Steel Helm~
+N:102:& Great Helm~
 G:]:W
 I:32:6:0
 W:40:0:60:200
 P:6:1d3:0:0:0
 A:40/1
+F:LO_PERCEPTION
+D:A fine helm, though it restricts your vision a little.
 
 
 N:103:& Iron Crown~
@@ -1038,7 +983,7 @@ A:45/1
 
 
 N:104:& Golden Crown~
-G:]:y2
+G:]:y
 I:33:11:0
 W:45:0:30:1000
 P:0:1d1:0:0:0
@@ -1046,13 +991,14 @@ A:45/1
 F:IGNORE_ACID
 
 
-N:105:& Jewel Encrusted Crown~
+N:105:& Jewel-encrusted Crown~
 G:]:v
 I:33:12:0
 W:50:0:40:2000
 P:0:1d1:0:0:0
 A:50/1
 F:IGNORE_ACID
+
 
 
 
@@ -1066,7 +1012,7 @@ P:1:0d0:0:0:0
 A:1/1:15/2:30/2
 
 
-N:107:& Shadow Cloak~
+N:107:& Mantle~
 G:(:D
 I:35:6:0
 W:60:0:5:4000
@@ -1086,21 +1032,21 @@ A:1/1:20/2:40/4
 F:SHOW_MODS
 
 
-N:109:& Short Bow~
+N:109:& Shortbow~
 G:}:U
 I:19:12:0
 W:3:0:30:50
 P:0:0d0:0:0:0
-A:3/1:50/2
+A:3/1:30/2
 F:SHOW_MODS
 
 
-N:110:& Long Bow~
+N:110:& Longbow~
 G:}:U1
 I:19:13:0
 W:10:0:40:120
 P:0:0d0:0:0:0
-A:10/1:70/2
+A:10/1:40/2
 F:SHOW_MODS
 
 
@@ -1109,7 +1055,7 @@ G:}:s
 I:19:23:0
 W:15:0:110:140
 P:0:0d0:0:0:0
-A:15/1:60/2
+A:15/1:50/2
 F:SHOW_MODS
 
 
@@ -1118,7 +1064,7 @@ G:}:s1
 I:19:24:0
 W:30:0:200:300
 P:0:0d0:0:0:0
-A:30/1:80/2
+A:30/1:60/2
 F:SHOW_MODS
 
 
@@ -1127,7 +1073,7 @@ G:{:s1
 I:16:0:0
 W:0:0:4:1
 P:0:1d2:0:0:0
-A:0/1:10/2
+A:0/1:10/2:20:2
 F:SHOW_MODS
 D:It can be shot with a sling. 
 
@@ -1147,7 +1093,7 @@ G:{:B
 I:16:2:0
 W:40:0:4:20
 P:0:2d4:5:5:0
-A:40/4:65/1
+A:30/8:40/4:50/1
 F:IGNORE_ACID | SHOW_MODS
 D:It can be shot with a sling. 
 
@@ -1160,17 +1106,17 @@ G:{:U
 I:17:1:0
 W:3:0:2:1
 P:0:1d4:0:0:0
-A:3/1:15/1:50/1
+A:3/1:15/1:30/1
 F:SHOW_MODS
 D:It can be shot with a bow. 
 
 
-N:117:& Seeker Arrow~
+N:117:& Elven Arrow~
 G:{:G
 I:17:2:0
 W:55:0:2:20
 P:0:4d4:0:0:0
-A:55/2:80/2
+A:40/4:50/2:80/2
 F:SHOW_MODS
 D:It can be shot with a bow. 
 
@@ -1180,7 +1126,7 @@ G:{:B
 I:17:3:0
 W:55:0:2:25
 P:0:3d4:0:0:0
-A:50/4:90/3
+A:45/4:50/4:90/3
 F:IGNORE_ACID | IGNORE_FIRE | SHOW_MODS
 D:It can be shot with a bow. 
 
@@ -1190,17 +1136,17 @@ G:{:s
 I:18:1:0
 W:3:0:3:2
 P:0:1d5:0:0:0
-A:3/1:25/1:60/1
+A:13/1:25/1:50/1
 F:SHOW_MODS
 D:It can be shot with a crossbow. 
 
 
-N:120:& Seeker Bolt~
+N:120:& Gnomish Bolt~
 G:{:g
 I:18:2:0
 W:65:0:3:25
 P:0:4d5:0:0:0
-A:65/2:90/2
+A:40/4:50/2:80/2
 F:SHOW_MODS
 D:It can be shot with a crossbow. 
 
@@ -1210,7 +1156,7 @@ G:{:B
 I:18:3:0
 W:50:0:2:30
 P:0:3d5:0:0:0
-A:60/4:95/3
+A:45/8:50/4:90/3
 F:IGNORE_ACID | IGNORE_FIRE | SHOW_MODS
 D:It can be shot with a crossbow.
 
@@ -1218,7 +1164,7 @@ D:It can be shot with a crossbow.
 
 ##### Boots #####
 
-N:122:& Pair~ of Soft Leather Boots
+N:122:& Pair~ of Shoes
 G:]:U
 I:30:2:0
 W:3:0:20:7
@@ -1226,7 +1172,7 @@ P:2:1d1:0:0:0
 A:3/1:20/2
 
 
-N:123:& Pair~ of Hard Leather Boots
+N:123:& Pair~ of Leather Boots
 G:]:U1
 I:30:3:0
 W:5:0:40:12
@@ -1234,18 +1180,19 @@ P:3:1d1:0:0:0
 A:5/1:25/2
 
 
-N:124:& Pair~ of Metal Shod Boots
+N:124:& Pair~ of Metal-shod Boots
 G:]:s
 I:30:6:0
 W:20:0:80:50
 P:6:1d1:0:0:0
 A:20/1:40/2
-
+F:LO_STEALTH
+D:Excellent boots, though they are quite noisy.
 
 
 ##### Gloves #####
 
-N:125:& Set~ of Leather Gloves
+N:125:& Set~ of Gloves
 G:]:U
 I:31:1:0
 W:1:0:5:3
@@ -1261,12 +1208,15 @@ P:2:1d1:0:0:0
 A:10/1:35/2
 
 
-N:127:& Set~ of Cesti
+N:127:& Set~ of Vambraces
 G:]:W
 I:31:5:0
 W:50:0:40:100
 P:5:1d1:0:0:0
 A:50/1:75/2
+
+
+##### Light sources #####
 
 
 N:128:& Wooden Torch~
@@ -1277,7 +1227,7 @@ P:0:1d1:0:0:0
 A:1/1
 F:EASY_KNOW
 D:It is equippable as a light source with a radius of 1 square.  It may
-D: also be used to fuel another torch, up to a maximum of 5000 turns of
+D: also be used to fuel another torch, up to a maximum of 1000 turns of
 D: light. 
 
 
@@ -1286,7 +1236,7 @@ G:~:U
 I:39:1:0
 W:3:0:50:35
 P:0:1d1:0:0:0
-A:3/1
+A:3/1:20/2
 F:IGNORE_FIRE
 D:It is equippable as a light source with a radius of 2 squares.  It may
 D: also be used to fuel another lantern. 
@@ -1300,9 +1250,9 @@ G:":d
 I:40:0:-5
 W:50:0:3:0
 P:0:0d0:0:0:0
-A:50/1
-F:STR | INT | WIS | DEX | CON
-F:CHR | HIDE_TYPE | LIGHT_CURSE
+A:50/8
+F:STR | INT | WIS | DEX | CON | AGI | STE | PER | LUC
+F:HIDE_TYPE | LIGHT_CURSE
 
 
 N:131:Teleportation
@@ -1310,17 +1260,20 @@ G:":d
 I:40:1:0
 W:10:0:3:0
 P:0:0d0:0:0:0
-A:10/1
+A:10/2
 F:TELEPORT | EASY_KNOW | LIGHT_CURSE
-
+D:Wearing this amulet causes random teleportation, but it also makes all your teleportation spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 N:132:Adornment
 G:":d
 I:40:2:0
 W:10:0:3:20
 P:0:0d0:0:0:0
-A:10/1
+A:10/2
 F:EASY_KNOW
+D:Wearing this amulet makes all your enchantment spells (such as Sleep or Slow) cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:133:Slow Digestion
@@ -1346,7 +1299,7 @@ G:":d
 I:40:5:0
 W:15:0:3:600
 P:0:0d0:0:0:0
-A:15/1
+A:15/2
 F:SEARCH | HIDE_TYPE
 
 
@@ -1359,13 +1312,13 @@ A:30/1
 F:WIS | SUST_WIS | HIDE_TYPE
 
 
-N:137:Charisma
+N:137:Fortune
 G:":d
 I:40:7:0
 W:30:0:3:500
 P:0:0d0:0:0:0
-A:30/1
-F:CHR | SUST_CHR | HIDE_TYPE
+A:25/1
+F:LUC | HIDE_TYPE
 
 
 N:138:the Magi
@@ -1373,10 +1326,12 @@ G:":d
 I:40:8:0
 W:70:0:3:30000
 P:0:0d0:0:0:3
-A:70/8
-F:INT | SEARCH | SUST_INT | RES_CONFU | SEE_INVIS
+A:60/8
+F:INT | PER | SUST_INT | RES_CONFU | SEE_INVIS
 F:FREE_ACT | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:HIDE_TYPE
+D:Wearing this amulet makes all your identification spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:139:Sustenance
@@ -1384,9 +1339,10 @@ G:":d
 I:40:9:0
 W:60:0:3:20000
 P:0:0d0:0:0:0
-A:60/6
+A:50/6
 F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON
-F:SUST_CHR | SLOW_DIGEST | HOLD_LIFE | IGNORE_ACID | IGNORE_ELEC
+F:SUST_AGI | SUST_STE | SUST_PER | SUST_LUC
+F:SLOW_DIGEST | HOLD_LIFE | IGNORE_ACID | IGNORE_ELEC
 F:IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
 
@@ -1395,7 +1351,7 @@ G:":d
 I:40:13:0
 W:50:0:3:25000
 P:0:0d0:0:0:0
-A:60/8
+A:50/8
 F:SEARCH | TELEPATHY | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | HIDE_TYPE
 
@@ -1405,7 +1361,7 @@ G:":d
 I:40:14:0
 W:60:0:3:20000
 P:0:0d0:0:0:0
-A:60/8
+A:50/8
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
@@ -1417,6 +1373,8 @@ W:30:0:3:600
 P:0:0d0:0:0:0
 A:30/3
 F:REGEN | EASY_KNOW
+D:Wearing this amulet makes all your healing spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:143:Devotion
@@ -1424,9 +1382,11 @@ G:":d
 I:40:18:0
 W:70:0:3:30000
 P:0:0d0:0:0:0
-A:65/8
-F:WIS | CHR | SUST_WIS | SUST_CHR | RES_FIRE
+A:60/8
+F:WIS | SUST_WIS | RES_FIRE
 F:RES_LITE | RES_DARK | LITE | HOLD_LIFE | HIDE_TYPE
+D:Wearing this amulet makes all your blessing spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:144:Weaponmastery
@@ -1434,7 +1394,7 @@ G:":d
 I:40:19:0
 W:70:0:3:30000
 P:0:0d0:0:0:0
-A:65/8
+A:60/8
 F:STR | SUST_STR | SUST_CON | RES_FEAR | RES_DISEN
 F:FREE_ACT | HIDE_TYPE
 
@@ -1444,8 +1404,8 @@ G:":d
 I:40:20:1
 W:70:0:3:30000
 P:0:0d0:0:0:0
-A:65/8
-F:DEX | STEALTH | SEARCH | INFRA | SPEED
+A:60/8
+F:DEX | STE | SEARCH | INFRA | SPEED
 F:SUST_DEX | RES_POIS | RES_NEXUS | HIDE_TYPE
 
 
@@ -1475,8 +1435,8 @@ G:=:d
 I:45:0:-5
 W:50:0:2:0
 P:0:0d0:0:0:0
-A:50/1
-F:WIS | CHR | TELEPORT | HIDE_TYPE | LIGHT_CURSE
+A:50/8
+F:WIS | LUC | TELEPORT | HIDE_TYPE | LIGHT_CURSE
 
 
 N:149:Aggravate Monster
@@ -1484,26 +1444,8 @@ G:=:d
 I:45:1:0
 W:5:0:2:0
 P:0:0d0:0:0:0
-A:5/1
+A:5/4
 F:AGGRAVATE | EASY_KNOW | LIGHT_CURSE
-
-
-N:150:Weakness
-G:=:d
-I:45:2:-5
-W:5:0:2:0
-P:0:0d0:0:0:0
-A:5/1
-F:STR | HIDE_TYPE | LIGHT_CURSE
-
-
-N:151:Stupidity
-G:=:d
-I:45:3:-5
-W:5:0:2:0
-P:0:0d0:0:0:0
-A:5/1
-F:INT | HIDE_TYPE | LIGHT_CURSE
 
 
 N:152:Teleportation
@@ -1511,8 +1453,10 @@ G:=:d
 I:45:4:0
 W:5:0:2:0
 P:0:0d0:0:0:0
-A:5/1
+A:5/2
 F:TELEPORT | EASY_KNOW | LIGHT_CURSE
+D:Wearing this ring causes random teleportation, but it also makes all your teleportation spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:153:Slow Digestion
@@ -1529,7 +1473,7 @@ G:=:d
 I:45:7:0
 W:5:0:2:200
 P:0:0d0:0:0:0
-A:5/1
+A:5/2
 F:FEATHER | EASY_KNOW
 
 
@@ -1551,59 +1495,40 @@ A:10/1
 F:RES_COLD | IGNORE_COLD | EASY_KNOW
 
 
-N:157:Sustain Strength
+N:157:Sustain Vitality
 G:=:d
 I:45:10:0
-W:20:0:2:400
+W:20:0:2:600
 P:0:0d0:0:0:0
 A:20/1
-F:SUST_STR | EASY_KNOW
+F:SUST_STR | SUST_CON | EASY_KNOW
 
 
-N:158:Sustain Intelligence
+N:158:Sustain Wits
 G:=:d
 I:45:11:0
-W:20:0:2:400
+W:20:0:2:800
 P:0:0d0:0:0:0
 A:20/1
-F:SUST_INT | EASY_KNOW
+F:SUST_INT | SUST_WIS | SUST_PER | EASY_KNOW
 
 
-N:159:Sustain Wisdom
+N:159:Sustain Spryness
 G:=:d
 I:45:12:0
-W:20:0:2:400
+W:20:0:2:600
 P:0:0d0:0:0:0
 A:20/1
-F:SUST_WIS | EASY_KNOW
+F:SUST_DEX | SUST_AGI | EASY_KNOW
 
 
-N:160:Sustain Constitution
+N:160:Searching
 G:=:d
 I:45:13:0
-W:20:0:2:400
+W:5:0:2:250
 P:0:0d0:0:0:0
-A:20/1
-F:SUST_CON | EASY_KNOW
-
-
-N:161:Sustain Dexterity
-G:=:d
-I:45:14:0
-W:20:0:2:400
-P:0:0d0:0:0:0
-A:20/1
-F:SUST_DEX | EASY_KNOW
-
-
-N:162:Sustain Charisma
-G:=:d
-I:45:15:0
-W:20:0:2:400
-P:0:0d0:0:0:0
-A:20/1
-F:SUST_CHR | EASY_KNOW
-
+A:5/1
+F:SEARCH | HIDE_TYPE
 
 N:163:Protection
 G:=:d
@@ -1619,8 +1544,8 @@ G:=:d
 I:45:17:0
 W:50:0:2:3000
 P:0:0d0:0:0:15
-A:50/2
-F:RES_ACID | IGNORE_ACID | ACTIVATE
+A:40/6
+F:IM_ACID | IGNORE_ACID | ACTIVATE
 
 
 N:165:Flames
@@ -1628,8 +1553,10 @@ G:=:d
 I:45:18:0
 W:50:0:2:3000
 P:0:0d0:0:0:15
-A:50/2
-F:RES_FIRE | IGNORE_FIRE | ACTIVATE
+A:40/6
+F:IM_FIRE | IGNORE_FIRE | ACTIVATE
+D:Wearing this ring makes all your fire and light spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:166:Ice
@@ -1637,8 +1564,8 @@ G:=:d
 I:45:19:0
 W:50:0:2:3000
 P:0:0d0:0:0:15
-A:50/2
-F:RES_COLD | IGNORE_COLD | ACTIVATE
+A:40/6
+F:IM_COLD | IGNORE_COLD | ACTIVATE
 
 
 N:167:Resist Poison
@@ -1675,16 +1602,6 @@ W:30:0:2:340
 P:0:0d0:0:0:0
 A:30/1
 F:SEE_INVIS | EASY_KNOW
-
-
-N:171:Searching
-G:=:d
-I:45:23:0
-W:5:0:2:250
-P:0:0d0:0:0:0
-A:5/1
-F:SEARCH | HIDE_TYPE
-
 
 N:172:Strength
 G:=:d
@@ -1755,7 +1672,7 @@ G:=:d
 I:45:31:0
 W:75:0:2:100000
 P:0:0d0:0:0:0
-A:75/1
+A:60/4
 F:SPEED | HIDE_TYPE
 
 
@@ -1764,916 +1681,464 @@ G:=:d
 I:45:38:0
 W:50:0:2:5000
 P:0:0d0:0:0:0
-A:50/2
-F:RES_ELEC | IGNORE_ELEC | ACTIVATE
+A:40/6
+F:IM_ELEC | IGNORE_ELEC | ACTIVATE
 
 
 
-##### Staves #####
+##### Talismans #####
 
-N:181:Darkness
+N:181:Detection
 G:_:d
 I:55:0:0
-W:5:0:50:0
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:5/1:50/1
-D:It darkens all squares within 3 squares of you, plus the entire room
-D: if you are currently in one; and blinds you for 3+1d5 turns, unless
-D: you have resistance to blindness. 
+A:15/12:35/12:50/12
+D:This talisman makes all your detection spells cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-
-N:182:Slowness
+N:182:Lore
 G:_:d
 I:55:1:0
-W:40:0:50:0
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:40/1
-D:It slows you down (-10 to speed) for 15+1d30 turns; this duration is
-D: cumulative with other temporary slowing enchantments. 
+A:15/12:35/12:50/12
+D:This talisman makes all your identification spells cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-
-N:183:Haste Monsters
+N:183:Healing
 G:_:d
 I:55:2:0
-W:10:0:50:0
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:10/1
-D:It hastes all monsters within line of sight. 
+A:15/12:35/12:50/12
+D:This talisman makes all your healing spells cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-
-N:184:Summoning
+N:184:Holiness
 G:_:d
 I:55:3:0
-W:10:0:50:0
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:10/1:50/1
-D:It summons 1d4 monsters that are generated at the current dungeon
-D: level.  If a monster normally appears in groups, a whole group will
-D: appear.  If a monster normally has escorts, it will appear with
-D: escorts. 
+A:15/12:35/12:50/12
+D:This talisman makes all your priestly spells (such as Bless) cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-
-N:185:Teleportation
+N:185:Bewitchment
 G:_:d
 I:55:4:0
-W:20:0:50:2000
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:20/1
-D:It teleports you randomly with a maximum range of 100 squares. 
+A:15/12:35/12:50/12
+D:This talisman makes all your enchantment spells (such as Sleep) cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-
-N:186:Perception
+N:186:Battle
 G:_:d
 I:55:5:0
-W:10:0:50:400
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:10/1
-D:It reveals all normal (magical but non-hidden) powers of one object. 
-D: (The spell may be aborted without using up a charge.) 
+A:15/12:35/12:50/12
+D:This talisman makes all your battle spells (such as Fire Bolt) cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
+N:187:Warping
+G:_:d
+I:55:6:0
+W:25:0:20:0
+P:0:1d2:0:0:0
+A:15/12:35/12:50/12
+D:This talisman makes all your teleportation spells cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-N:187:Starlight
+N:188:Protection
 G:_:d
 I:55:7:0
-W:20:0:50:800
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:20/1
-D:It fires a line of light in all eight cardinal directions;
-D: light-sensitive monsters caught in one of the lines take 6d8 points
-D: of damage. 
+A:15/12:35/12:50/12
+D:This talisman makes all your resistance spells (such as Resist Poison) cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-
-N:188:Light
+N:189:Incandescence
 G:_:d
 I:55:8:0
-W:5:0:50:250
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:5/1
-D:It lights up an area with a radius of 2 squares, plus the entire room
-D: if you are currently in one.  This inflicts  4d8 points of damage on
-D: any light-sensitive creatures within the radius of the spell.
+A:15/12:35/12:50/12
+D:This talisman makes all your fire and light spells cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-
-N:189:Magic Mapping
+N:190:Enhancement
 G:_:d
 I:55:9:0
-W:20:0:50:750
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:20/1
-D:It maps out a portion of the level centered on you. 
+A:15/12:35/12:50/12
+D:This talisman makes all your buffing spells (such as Barkskin) cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-
-N:190:Treasure Location
+N:191:Conjuration
 G:_:d
 I:55:10:0
-W:5:0:50:200
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:5/1
-D:It detects all treasure in the immediate area. 
+A:15/12:35/12:50/12
+D:This talisman makes all your creation spells (such as Create Food) cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-
-N:191:Object Location
+N:192:Force
 G:_:d
 I:55:11:0
-W:5:0:50:200
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:5/1
-D:It detects all objects in the immediate area. 
+A:15/12:35/12:50/12
+D:This talisman makes all your force spells (such as Mana Bolt) cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-
-N:192:Trap Location
+N:193:Nature
 G:_:d
 I:55:12:0
-W:10:0:50:350
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:10/1
-D:It detects all traps in the immediate area. 
+A:15/12:35/12:50/12
+D:This talisman makes all your nature spells (such as Barkskin) cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
-
-N:193:Door/Stair Location
+N:194:Time
 G:_:d
 I:55:13:0
-W:10:0:50:350
+W:25:0:20:0
 P:0:1d2:0:0:0
-A:10/1
-D:It detects all doors and stairs in the immediate area. 
-
-
-N:194:Detect Invisible
-G:_:d
-I:55:14:0
-W:5:0:50:200
-P:0:1d2:0:0:0
-A:5/1
-D:It detects all invisible monsters in the immediate area. 
-
-
-N:195:Detect Evil
-G:_:d
-I:55:15:0
-W:20:0:50:350
-P:0:1d2:0:0:0
-A:20/1
-D:It detects all evil monsters in the immediate area. 
-
-
-N:196:Cure Light Wounds
-G:_:d
-I:55:16:0
-W:5:0:50:350
-P:0:1d2:0:0:0
-A:5/1
-D:It cures 2d10 points of damage. 
-
-
-N:197:Curing
-G:_:d
-I:55:17:0
-W:25:0:50:1000
-P:0:1d2:0:0:0
-A:25/1
-D:It cures all stunning, heals all cut damage, neutralizes poison, and
-D: cures blindness and confusion. 
-
-
-N:198:Healing
-G:_:d
-I:55:18:0
-W:70:0:50:5000
-P:0:1d2:0:0:0
-A:70/2
-D:It cures 325 points of damage, cures all stunning, and heals all cut
-D: damage. 
-
-
-N:199:the Magi
-G:_:d
-I:55:19:0
-W:70:0:50:4500
-P:0:1d2:0:0:0
-A:70/2
-D:It restores both intelligence and mana points to maximum if either or
-D: both are currently below maximum. 
-
-
-N:200:Sleep Monsters
-G:_:d
-I:55:20:0
-W:10:0:50:700
-P:0:1d2:0:0:0
-A:10/1
-D:It attempts to put all monsters within line of sight to sleep.
-
-
-N:201:Slow Monsters
-G:_:d
-I:55:21:0
-W:10:0:50:800
-P:0:1d2:0:0:0
-A:10/1
-D:It attempts to slow down all monsters within line of sight.
-
-
-N:202:Speed
-G:_:d
-I:55:22:0
-W:40:0:50:1000
-P:0:1d2:0:0:0
-A:40/1
-D:It hastes you (+10 to speed) for 15+1d30 turns (or 5 additional turns
-D: if you already are under the effect of a temporary haste
-D: enchantment). 
-
-
-N:203:Probing
-G:_:d
-I:55:23:0
-W:30:0:50:2000
-P:0:1d2:0:0:0
-A:30/1
-D:It probes a selected monster within line of sight, giving information
-D: both on the current hit points of the monsters and many of their
-D: characteristics and abilities.
-
-
-N:204:Dispel Evil
-G:_:d
-I:55:24:0
-W:50:0:50:1200
-P:0:1d2:0:0:0
-A:50/1
-D:It inflicts 60 points of damage on all evil monsters within line of
-D: sight. 
-
-
-N:205:Power
-G:_:d
-I:55:25:0
-W:70:0:50:4000
-P:0:1d2:0:0:0
-A:70/2
-D:It inflicts 120 points of damage on all monsters within line of sight. 
-
-
-N:206:Holiness
-G:_:d
-I:55:26:0
-W:70:0:50:4500
-P:0:1d2:0:0:0
-A:70/2
-D:It inflicts 120 points of damage on all evil monsters within line of
-D: sight, cures 50 points of damage, cures all stunning, heals all cut
-D: damage, neutralizes poison, removes fear, and also grants you the
-D: enchantment of protection from evil for a duration equal to 1d25 plus
-D: three times your character level.
-
-
-N:207:Banishment
-G:_:d
-I:55:27:0
-W:70:0:50:3500
-P:0:1d2:0:0:0
-A:70/4
-D:It removes all monsters represented by a chosen symbol from the level.
-D:  Quest monsters and uniques are unaffected.  You take 1d4 points of
-D: damage for every monster removed.
-
-
-N:208:Earthquakes
-G:_:d
-I:55:28:0
-W:40:0:50:350
-P:0:1d2:0:0:0
-A:40/1
-D:It causes an earthquake centered on you that has a 10-square radius;
-D: this randomly places new walls and floor space.  Monsters can be
-D: caught by a newly created wall; this does not affect monsters that
-D: can bore through rock or pass through walls, but otherwise monsters
-D: take 4d8 points of damage if they can evade the falling rock, or are
-D: lost inside the rock forever if they cannot. 
-
-
-N:209:*Destruction*
-G:_:d
-I:55:29:0
-W:50:0:50:2500
-P:0:1d2:0:0:0
-A:50/1:70/1
-D:It destroys a circular area centered at you with a radius of 15
-D: squares, randomly placing new walls and floor space (stairs are
-D: immune).  All monsters and objects (excluding artifacts) are removed
-D: from the affected area.  This effect will also cause blindness
-D: lasting for 10+1d10 turns unless you have resistance to either
-D: blindness or light. Quest monsters are unaffected.
+A:15/12:35/12:50/12
+D:This talisman makes all your time spells (such as Haste Self) cost less mana.
+D: You need not 'w'ear it or 'use' it, just carry it in your inventory.
+D: Its effects are cumulative with wands, other types of talismans, and some special
+D: magic items which also make spells cheaper - but not with more talismans of the same kind.
 
 
 
 ##### Wands #####
 
-N:210:Heal Monster
+N:210:Bless
 G:-:d
 I:65:0:0
-W:3:0:10:0
+W:3:0:30:0
 P:0:1d1:0:0:0
-A:3/1
-D:It cures a single monster for 4d6 points of damage. 
+A:5/12:15/12
 
-
-N:211:Haste Monster
+N:211:Cure Light Wounds
 G:-:d
 I:65:1:0
-W:3:0:10:0
+W:3:0:30:0
 P:0:1d1:0:0:0
-A:3/1
-D:It hastes a single monster. 
+A:5/12:15/12
 
-
-N:212:Clone Monster
+N:212:Magic Missile
 G:-:d
 I:65:2:0
-W:15:0:10:0
+W:3:0:30:0
 P:0:1d1:0:0:0
-A:15/1:50/1
-D:It hastes and fully heals a single monster.  If the monster is next to
-D: an empty space and not a unique, a new monster of the same type will
-D: be created. 
+A:5/12:15/12
 
-
-N:213:Teleport Other
+N:213:Light
 G:-:d
 I:65:3:0
-W:20:0:10:350
+W:3:0:30:0
 P:0:1d1:0:0:0
-A:20/1
-D:It produces a beam that teleports all monsters caught in it up to 100
-D: squares away. 
+A:5/12:15/12
 
-
-N:214:Disarming
-G:-:d
-I:65:4:0
-W:20:0:10:700
-P:0:1d1:0:0:0
-A:20/1
-D:It produces a beam that disarms all traps, unlocks all locked doors
-D: and reveals all secret doors. 
-
-
-N:215:Trap/Door Destruction
-G:-:d
-I:65:5:0
-W:10:0:10:100
-P:0:1d1:0:0:0
-A:10/1
-D:It destroys all doors and disarms all traps in a line. 
-
-
-N:216:Stone to Mud
-G:-:d
-I:65:6:0
-W:10:0:10:300
-P:0:1d1:0:0:0
-A:10/1
-D:It turns the first section of wall encountered by the beam shot by
-D: this spell into mud.  Permanent walls are not affected.  If a monster
-D: that is susceptible to rock remover is caught in the beam, it will
-D: take 20+1d30 points of damage. 
-
-
-N:217:Light
-G:-:d
-I:65:7:0
-W:3:0:10:200
-P:0:1d1:0:0:0
-A:3/1
-D:It lights up a line of squares, inflicting 6d8 points of damage on
-D: light-sensitive creatures on the line. 
-
-
-N:218:Sleep Monster
-G:-:d
-I:65:8:0
-W:5:0:10:500
-P:0:1d1:0:0:0
-A:5/1
-D:It attempts to put a single monster to sleep.
-
-
-N:219:Slow Monster
-G:-:d
-I:65:9:0
-W:5:0:10:500
-P:0:1d1:0:0:0
-A:5/1
-D:It attempts to slow down a single monster.
-
-
-N:220:Confuse Monster
-G:-:d
-I:65:10:0
-W:5:0:10:500
-P:0:1d1:0:0:0
-A:5/1
-D:It attempts to confuse a single monster.
-
-
-N:221:Scare Monster
-G:-:d
-I:65:11:0
-W:10:0:10:500
-P:0:1d1:0:0:0
-A:10/4
-D:It attempts to scare a single monster.
-
-
-N:222:Drain Life
-G:-:d
-I:65:12:0
-W:50:0:10:1200
-P:0:1d1:0:0:0
-A:50/1
-D:It inflicts 150 points of damage on a single monster that is not
-D: undead, a demon, an elemental, a golem, or a vortex. 
-
-
-N:223:Polymorph
+N:214:Remove Curse
 G:-:d
 I:65:13:0
-W:20:0:10:400
+W:3:0:30:0
 P:0:1d1:0:0:0
-A:20/1
-D:It attempts to polymorph a single monster.  Uniques are unaffected. 
+A:5/12:15/12
 
+N:215:Sleep
+G:-:d
+I:65:5:0
+W:3:0:30:0
+P:0:1d1:0:0:0
+A:5/12:15/12
 
-N:224:Stinking Cloud
+N:216:Create Food
+G:-:d
+I:65:6:0
+W:10:0:30:0
+P:0:1d1:0:0:0
+A:10/12:25/12
+
+N:217:Detect Evil
+G:-:d
+I:65:7:0
+W:10:0:30:0
+P:0:1d1:0:0:0
+A:10/12:25/12
+
+N:218:Barkskin
+G:-:d
+I:65:8:0
+W:10:0:30:0
+P:0:1d1:0:0:0
+A:10/12:25/12
+
+N:219:Slow
+G:-:d
+I:65:9:0
+W:10:0:30:0
+P:0:1d1:0:0:0
+A:10/12:25/12
+
+N:220:Remove Fear
+G:-:d
+I:65:10:0
+W:10:0:30:0
+P:0:1d1:0:0:0
+A:10/12:25/12
+
+N:221:Fire Bolt
+G:-:d
+I:65:11:0
+W:10:0:30:0
+P:0:1d1:0:0:0
+A:10/12:25/12
+
+N:222:Magelight
+G:-:d
+I:65:12:0
+W:10:0:30:0
+P:0:1d1:0:0:0
+A:10/12:25/12
+
+N:223:Detect Animals
+G:-:d
+I:65:4:0
+W:10:0:30:0
+P:0:1d1:0:0:0
+A:10/12:25/12
+
+N:224:Detect Treasure
 G:-:d
 I:65:14:0
-W:5:0:10:400
+W:10:0:30:0
 P:0:1d1:0:0:0
-A:5/1
-D:It shoots a radius-2 poison cloud that inflicts 12 points of damage at
-D: its center. 
+A:10/12:25/12
 
-
-N:225:Magic Missile
+N:225:Cure Serious Wounds
 G:-:d
 I:65:15:0
-W:3:0:10:200
+W:10:0:30:0
 P:0:1d1:0:0:0
-A:3/1
-D:It fires a magic missile that inflicts 3d4 points of damage, with a
-D: 20% chance of getting a magic beam. 
+A:10/12:25/12
 
-
-N:226:Acid Bolts
+N:226:Confusion
 G:-:d
 I:65:16:0
-W:30:0:10:950
+W:10:0:30:0
 P:0:1d1:0:0:0
-A:30/1
-D:It shoots an acid bolt that inflicts 10d8 points of damage, with a 20%
-D: chance of getting an acid beam. 
+A:10/12:25/12
 
-
-N:227:Lightning Bolts
+N:227:Mana Bolt
 G:-:d
 I:65:17:0
-W:15:0:10:600
+W:10:0:30:0
 P:0:1d1:0:0:0
-A:15/1
-D:It shoots a lightning bolt that inflicts 6d6 points of damage, with a
-D: 20% chance of getting a lightning beam. 
+A:10/12:25/12
 
-
-N:228:Fire Bolts
+N:228:Identify
 G:-:d
 I:65:18:0
-W:30:0:10:1000
+W:10:0:30:0
 P:0:1d1:0:0:0
-A:30/1
-D:It shoots a fire bolt that inflicts 12d8 points of damage, with a 20%
-D: chance of getting a fire beam. 
+A:10/12:25/12
 
-
-N:229:Frost Bolts
+N:229:Detect Traps and Doors
 G:-:d
 I:65:19:0
-W:20:0:10:800
+W:10:0:30:0
 P:0:1d1:0:0:0
-A:20/1
-D:It shoots a frost bolt that inflicts 6d8 points of damage, with a 20%
-D: chance of getting a cold beam. 
+A:10/12:25/12
 
-
-N:230:Acid Balls
+N:230:Phase Door
 G:-:d
 I:65:20:0
-W:50:0:10:1650
+W:10:0:30:0
 P:0:1d1:0:0:0
-A:50/1
-F:IGNORE_ACID
-D:It shoots a radius-2 acid ball that inflicts 120 points of damage at
-D: its center. 
+A:10/12:25/12
 
-
-N:231:Lightning Balls
+N:231:Resist Heat and Cold
 G:-:d
 I:65:21:0
-W:35:0:10:1200
+W:10:0:30:0
 P:0:1d1:0:0:0
-A:35/1
-F:IGNORE_ELEC
-D:It shoots a radius-2 lightning ball that inflicts 64 points of damage
-D: at its center. 
+A:10/12:25/12
 
-
-N:232:Fire Balls
+N:232:Frost Bolt
 G:-:d
 I:65:22:0
-W:50:0:10:1800
+W:10:0:30:0
 P:0:1d1:0:0:0
-A:50/1
-F:IGNORE_FIRE
-D:It shoots a radius-2 fire ball that inflicts 144 points of damage at
-D: its center. 
+A:10/12:25/12
 
-
-N:233:Cold Balls
+N:233:Detect Monsters
 G:-:d
 I:65:23:0
-W:40:0:10:1500
+W:10:0:30:0
 P:0:1d1:0:0:0
-A:40/1
-F:IGNORE_COLD
-D:It shoots a radius-2 frost ball that inflicts 96 points of damage at
-D: its center. 
+A:10/12:25/12
 
-
-N:234:Wonder
+N:234:Restore Life Levels
 G:-:d
 I:65:24:0
-W:3:0:10:250
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:3/1
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:It has a random effect chosen from the various wand effects, except
-D: Dragon's Flame, Dragon's Frost, Dragon's Breath, Annihilation.
+A:20/12:35/12
 
-
-N:235:Annihilation
+N:235:Teleport Away
 G:-:d
 I:65:25:0
-W:60:0:10:3000
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:60/4
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:It inflicts 250 points of damage on a single monster that is not
-D: undead, a demon, an elemental, a golem, or a vortex.
+A:20/12:35/12
 
-
-N:236:Dragon's Flame
+N:236:Mass Identify
 G:-:d
 I:65:26:0
-W:50:0:10:2400
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:50/4
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:It shoots a radius-3 fire ball that inflicts 200 points of damage at
-D: its center.
+A:20/12:35/12
 
-
-N:237:Dragon's Frost
+N:237:Resist Poison
 G:-:d
 I:65:27:0
-W:50:0:10:2400
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:50/4
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:It shoots a radius-3 frost ball that inflicts 160 points of damage at
-D: its center.
+A:20/12:35/12
 
-
-N:238:Dragon's Breath
+N:238:Cure Critical Wounds
 G:-:d
 I:65:28:0
-W:60:0:10:2400
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:60/4
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:It shoots a radius-3 fire/frost/acid/lightning/poison ball that
-D: inflicts 200/160/200/180/120 points of damage at its center (damage
-D: type chosen at random).
+A:20/12:35/12
 
-
-
-##### Rods #####
-##### A rod with a PVAL of 0 will crash the game #####
-##### Due to Divide by 0 errors #####
-
-N:239:Trap Location
+N:239:Fireball
 G:-:d
-I:66:0:50
-W:5:0:15:100
+I:65:29:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:5/1
-F:EASY_KNOW
-D:It detects all traps in the immediate area. 
+A:20/12:35/12
 
-
-N:240:Door/Stair Location
+N:240:*Identify*
 G:-:d
-I:66:1:70
-W:15:0:15:1000
+I:65:30:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:15/1
-F:EASY_KNOW
-D:It detects all secret doors and stairs in the immediate area. 
+A:20/12:35/12
 
-
-N:241:Perception
+N:241:*Remove Curse*
 G:-:d
-I:66:2:10
-W:50:0:15:13000
+I:65:31:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:40/4
-F:IGNORE_ELEC | EASY_KNOW
-D:It reveals all normal (magical but non-hidden) powers of one object. 
-D: (The spell may be aborted without using up a charge.)
+A:20/12:35/12
 
-
-N:242:Recall
+N:242:See Invisible
 G:-:d
-I:66:3:60
-W:30:0:15:4000
+I:65:32:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:30/4
-F:IGNORE_ELEC | EASY_KNOW
-D:It invokes the spell of recall. 
+A:20/12:35/12
 
-
-N:243:Illumination
+N:243:Detect Objects
 G:-:d
-I:66:4:30
-W:20:0:15:1000
+I:65:33:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:20/1
-F:EASY_KNOW
-D:It lights up an area with a radius of 2 squares, plus the entire room
-D: if you are currently in one.  This inflicts 2d8 points of damage on
-D: any light-sensitive creatures within the radius of the spell. 
+A:20/12:35/12
 
-
-N:244:Magic Mapping
+N:244:Portal
 G:-:d
-I:66:5:99
-W:65:0:15:10000
+I:65:34:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:65/4
-F:EASY_KNOW
-D:It maps out a portion of the level centered on you. 
+A:20/12:35/12
 
-
-N:245:Detection
+N:245:Acid Ball
 G:-:d
-I:66:6:99
-W:30:0:15:5000
+I:65:35:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:30/8
-F:IGNORE_ELEC | EASY_KNOW
-D:It detects all treasure, objects, secret doors, stairs, traps, and
-D: monsters in the immediate area. 
+A:20/12:35/12
 
-
-N:246:Probing
+N:246:Sandstorm
 G:-:d
-I:66:7:50
-W:40:0:15:4000
+I:65:36:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:40/4
-F:EASY_KNOW
-D:It probes a selected monster within line of sight,  giving information
-D: both on the current hit points of the monsters and many of their
-D: characteristics and abilities.
+A:20/12:35/12
 
-
-N:247:Curing
+N:247:Magic Mapping
 G:-:d
-I:66:8:999
-W:65:0:15:15000
+I:65:37:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:65/8
-F:IGNORE_ELEC | EASY_KNOW
-D:It cures all stunning, heals all cut damage, neutralizes poison, and
-D: cures blindness and confusion.
+A:20/12:35/12
 
-
-N:248:Healing
+N:248:Neutralize Poison
 G:-:d
-I:66:9:999
-W:80:0:15:20000
+I:65:38:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:80/8
-F:IGNORE_ELEC | EASY_KNOW
-D:It cures 550 points of damage, cures all stunning, and heals all cut
-D: damage. 
+A:20/12:35/12
 
-
-N:249:Restoration
+N:249:Enchant Armor
 G:-:d
-I:66:10:999
-W:80:0:15:25000
+I:65:39:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:80/16
-F:IGNORE_ELEC | EASY_KNOW
-D:It restores experience points and all stats to maximum if any of them
-D: are below maximum. 
+A:20/12:35/12
 
-
-N:250:Speed
+N:250:Stone to Mud
 G:-:d
-I:66:11:99
-W:95:0:15:50000
+I:65:40:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:95/16
-F:IGNORE_ELEC | EASY_KNOW
-D:It hastes you (+10 to speed) for 15+1d30 turns (or 5 additional turns
-D: if you already are under the effect of a temporary haste
-D: enchantment). 
+A:20/12:35/12
 
-
-N:251:Stone to Mud
+N:251:Create Missiles
 G:-:d
-I:66:12:30
-W:35:0:15:1500
+I:65:41:0
+W:20:0:30:0
 P:0:1d1:0:0:0
-A:35/2
-F:EASY_KNOW
-D:It turns the first section of wall encountered by the beam shot by
-D: this spell into mud.  Permanent walls are not affected.  If a monster
-D: that is susceptible to rock remover is caught in the beam, it will
-D: take 20+1d30 points of damage. 
-
-
-N:252:Teleport Other
-G:-:d
-I:66:13:25
-W:45:0:15:1400
-P:0:1d1:0:0:0
-A:45/2
-F:EASY_KNOW
-D:It produces a beam that teleports all monsters caught in it up to 100
-D: squares away. 
-
-
-N:253:Disarming
-G:-:d
-I:66:14:30
-W:35:0:15:2100
-P:0:1d1:0:0:0
-A:35/1
-F:EASY_KNOW
-D:It produces a beam that disarms all traps, unlocks all locked doors
-D: and reveals all secret doors. 
-
-
-N:254:Light
-G:-:d
-I:66:15:9
-W:10:0:15:500
-P:0:1d1:0:0:0
-A:10/1
-F:EASY_KNOW
-D:It lights up a line of squares, inflicting 6d8 points of damage on any
-D: light-sensitive creatures on the line. 
-
-
-N:255:Sleep Monster
-G:-:d
-I:66:16:18
-W:30:0:15:1500
-P:0:1d1:0:0:0
-A:30/1
-F:EASY_KNOW
-D:It attempts to put a single monster to sleep.  Uniques are unaffected. 
-
-
-N:256:Slow Monster
-G:-:d
-I:66:17:20
-W:30:0:15:1500
-P:0:1d1:0:0:0
-A:30/1
-F:EASY_KNOW
-D:It attempts to slow down a single monster.  Uniques are unaffected. 
-
-
-N:257:Drain Life
-G:-:d
-I:66:18:23
-W:75:0:15:3600
-P:0:1d1:0:0:0
-A:75/4
-F:EASY_KNOW
-D:It inflicts 150 points of damage on a single monster that is not
-D: undead, a demon, an elemental, a golem, or a vortex. 
-
-
-N:258:Polymorph
-G:-:d
-I:66:19:25
-W:35:0:15:1200
-P:0:1d1:0:0:0
-A:35/1
-F:EASY_KNOW
-D:It attempts to polymorph a single monster.  Uniques are unaffected. 
-
-
-N:259:Acid Bolts
-G:-:d
-I:66:20:12
-W:40:0:15:3500
-P:0:1d1:0:0:0
-A:40/1
-F:EASY_KNOW
-D:It shoots an acid bolt that inflicts 12d8 points of damage, with a 10%
-D: chance of getting an acid beam.
-
-
-N:260:Lightning Bolts
-G:-:d
-I:66:21:11
-W:20:0:15:2000
-P:0:1d1:0:0:0
-A:20/1
-F:IGNORE_ELEC | EASY_KNOW
-D:It shoots a lightning bolt that inflicts 6d6 points of damage, with a
-D: 10% chance of getting a lightning beam.
-
-
-N:261:Fire Bolts
-G:-:d
-I:66:22:15
-W:30:0:15:3000
-P:0:1d1:0:0:0
-A:30/1
-F:EASY_KNOW
-D:It shoots a fire bolt that inflicts 16d8 points of damage, with a 10%
-D: chance of getting a fire beam. 
-
-
-N:262:Frost Bolts
-G:-:d
-I:66:23:13
-W:25:0:15:2500
-P:0:1d1:0:0:0
-A:25/1
-F:EASY_KNOW
-D:It shoots a frost bolt that inflicts 10d8 points of damage, with a 10%
-D: chance of getting a frost beam. 
-
-
-N:263:Acid Balls
-G:-:d
-I:66:24:27
-W:70:0:15:5500
-P:0:1d1:0:0:0
-A:70/1
-F:EASY_KNOW
-D:It shoots a radius-2 acid ball that inflicts 120 points of damage at
-D: its center. 
-
-
-N:264:Lightning Balls
-G:-:d
-I:66:25:23
-W:55:0:15:4000
-P:0:1d1:0:0:0
-A:55/1
-F:IGNORE_ELEC | EASY_KNOW
-D:It shoots a radius-2 lightning ball that inflicts 64 points of damage
-D: at its center.
-
-
-N:265:Fire Balls
-G:-:d
-I:66:26:30
-W:75:0:15:5000
-P:0:1d1:0:0:0
-A:75/1
-F:EASY_KNOW
-D:It shoots a radius-2 fire ball that inflicts 144 points of damage at
-D: its center. 
-
-
-N:266:Cold Balls
-G:-:d
-I:66:27:25
-W:60:0:15:4500
-P:0:1d1:0:0:0
-A:60/1
-F:EASY_KNOW
-D:It shoots a radius-2 frost ball that inflicts 96 points of damage at
-D: its center. 
+A:20/12:35/12
 
 
 
@@ -2684,7 +2149,7 @@ G:?:w
 I:70:0:0
 W:1:0:5:0
 P:0:0d0:0:0:0
-A:1/1
+A:1/4
 F:EASY_KNOW
 D:It darkens all squares within 3 squares of you, plus the entire room
 D: if you are currently in one; and blinds you for 3+1d5 turns unless
@@ -2696,7 +2161,7 @@ G:?:w
 I:70:1:0
 W:5:0:5:0
 P:0:0d0:0:0:0
-A:5/1
+A:5/4
 F:EASY_KNOW
 D:It awakens all sleeping monsters within 40 squares of you, and hastes
 D: all monsters within line of sight unless they are already hasted. 
@@ -2707,7 +2172,7 @@ G:?:w
 I:70:2:0
 W:50:0:5:0
 P:0:0d0:0:0:0
-A:50/1
+A:50/4
 F:EASY_KNOW
 D:It curses the currently equipped body armor, removing all of its
 D: special powers, reducing the base AC of the armor to 0, and changing
@@ -2720,7 +2185,7 @@ G:?:w
 I:70:3:0
 W:50:0:5:0
 P:0:0d0:0:0:0
-A:50/1
+A:50/4
 F:EASY_KNOW
 D:It curses the currently wielded melee weapon, removing all of its
 D: special powers and changing the weapon's to-hit and to-dam bonuses
@@ -2732,7 +2197,7 @@ G:?:w
 I:70:4:0
 W:1:0:5:0
 P:0:0d0:0:0:0
-A:1/1
+A:1/2
 F:EASY_KNOW
 D:It summons 1d3 monsters that are generated at the current dungeon
 D: level.  If a monster normally appears in groups, a whole group will
@@ -2745,7 +2210,7 @@ G:?:w
 I:70:5:0
 W:15:0:5:0
 P:0:0d0:0:0:0
-A:15/1
+A:15/2
 F:EASY_KNOW
 D:It summons 1d3 non-unique undead monsters that are generated at the
 D: current dungeon level.  If a monster normally appears in groups, a
@@ -2769,7 +2234,7 @@ G:?:w
 I:70:7:0
 W:10:0:5:0
 P:0:0d0:0:0:0
-A:10/1
+A:10/4
 F:EASY_KNOW
 D:It creates traps on all empty squares within a 1-square radius of you. 
 
@@ -2794,39 +2259,12 @@ F:EASY_KNOW
 D:It teleports you randomly up to 100 squares away. 
 
 
-N:277:Teleport Level
-G:?:w
-I:70:10:0
-W:20:0:5:50
-P:0:0d0:0:0:0
-A:20/1
-F:EASY_KNOW
-D:It teleports you 1 level up or down (chosen at random).  The direction
-D: will always be down from the town level, and up from level 99 if
-D: Sauron has not been killed or level 100 if Morgoth has not been
-D: killed, and will always be up on level 127.  This scroll has no
-D: effect when the "Ironman" option is set. 
-
-
-N:278:Word of Recall
-G:?:w
-I:70:11:0
-W:5:0:5:150
-P:0:0d0:0:0:0
-A:5/1
-F:EASY_KNOW
-D:It invokes the spell of recall, which takes you from the dungeon to
-D: the town or from the town to the deepest level you have visited in
-D: the dungeon.  It takes a while for the spell to act.  Until then, the
-D: spell can be canceled by reading a second scroll. 
-
-
 N:279:Identify
 G:?:w
 I:70:12:0
 W:1:0:5:50
 P:0:0d0:0:0:0
-A:1/1:5/1:10/1
+A:5/1:10/1:20/1
 F:EASY_KNOW
 D:It reveals all normal (magical but non-hidden) powers of one object. 
 D: (The spell may be aborted without using up the scroll.) 
@@ -2837,7 +2275,7 @@ G:?:w
 I:70:13:0
 W:30:0:5:1000
 P:0:0d0:0:0:0
-A:25/1:40/1:70/1
+A:25/1:40/2
 F:EASY_KNOW
 D:It reveals all normal and hidden powers of one object, and also
 D: permanently implants this knowledge into your mind, so that you will
@@ -2850,7 +2288,7 @@ G:?:w
 I:70:14:0
 W:10:0:5:100
 P:0:0d0:0:0:0
-A:10/1
+A:1/1
 F:EASY_KNOW
 D:It removes all ordinary curses from all equipped items.  Heavy or
 D: permanent curses are unaffected. 
@@ -2861,7 +2299,7 @@ G:?:w
 I:70:15:0
 W:50:0:5:8000
 P:0:0d0:0:0:0
-A:50/2:95/1
+A:50/3
 F:EASY_KNOW
 D:It removes all ordinary and heavy curses from all equipped objects. 
 D: Permanent curses are unaffected. 
@@ -2902,7 +2340,7 @@ G:?:w
 I:70:20:0
 W:50:0:5:500
 P:0:0d0:0:0:0
-A:50/1:50/1
+A:50/1
 F:EASY_KNOW
 D:It attempts to enchant a piece of armor 2+1d3 times. 
 
@@ -2912,42 +2350,28 @@ G:?:w
 I:70:21:0
 W:50:0:5:500
 P:0:0d0:0:0:0
-A:50/1
+A:45/3
 F:EASY_KNOW
 D:It attempts to magically enhance a weapon's to-dam and to-hit bonuses
 D: 1d3 times each. 
 
-
-N:288:Recharging
+N:288:Mass Sleep
 G:?:w
 I:70:22:0
-W:40:0:5:200
+W:40:0:5:500
 P:0:0d0:0:0:0
-A:40/1
+A:30/5
 F:EASY_KNOW
-D:It recharges a wand, staff, or rod.  If successful, a wand or staff
-D: gains 2+1d(60/((level of wand/staff)+2)+1) charges; failure occurs 1
-D: time in (160-(level of wand/staff)-(10*(# of charges)))/15, and can
-D: destroy one or the entire stack of wands or staves.  Each wand or
-D: staff gets a saving throw. A rod will be charged enough to take 180
-D: fewer turns (at regular speed) to recharge fully; failure occurs (20
-D: + number of rods in stack) in 100 , and will drain the stack of rods.
-D:  It can destroy a single rod   50% of the time if the stack of rods
-D: is less than 5% charged.  A single rod will never be destroyed by a
-D: re-charge attempt.
+D:It can put many monsters to sleep at once.
 
-
-N:289:*Recharging*
+N:289:Mass Confusion
 G:?:w
 I:70:23:0
-W:50:0:5:2000
+W:40:0:5:500
 P:0:0d0:0:0:0
-A:50/8
+A:40/5
 F:EASY_KNOW
-D:It recharges a wand, staff, or rod with no chance of failure.  A wand
-D: or staff gains 2+1d(120/((level of wand/staff)+2)+1) charges.    A
-D: rod will be charged enough to take up to 450 fewer turns (at regular
-D: speed) to recharge fully.
+D:It can confuse many monsters at once.
 
 
 N:290:Light
@@ -2977,7 +2401,7 @@ G:?:w
 I:70:26:0
 W:0:0:5:15
 P:0:0d0:0:0:0
-A:0/1
+A:0/2
 F:EASY_KNOW
 D:It detects all treasure in the immediate area. 
 
@@ -3027,7 +2451,7 @@ G:?:w
 I:70:32:0
 W:5:0:5:10
 P:0:0d0:0:0:0
-A:5/1
+A:5/1:20/2:35/2
 F:EASY_KNOW
 D:It magically renders you well-fed (but not satiated).  This will also
 D: cure a bloated stomach. 
@@ -3094,7 +2518,7 @@ G:?:w
 I:70:38:0
 W:60:0:5:500
 P:0:0d0:0:0:0
-A:60/4:90/1
+A:60/4
 F:EASY_KNOW
 D:It inscribes a glyph of warding beneath you.  Monsters can't move onto
 D: the glyph, though they do have a (monster level) in 550 chance of
@@ -3127,7 +2551,7 @@ G:?:w
 I:70:41:0
 W:40:0:5:250
 P:0:0d0:0:0:0
-A:40/1
+A:40/2
 F:EASY_KNOW
 D:It destroys a circular area centered at you with a radius of 15
 D: squares, randomly placing new walls and floor space (stairs are
@@ -3148,22 +2572,12 @@ D:It inflicts 60 points of damage on all undead creatures within line of
 D: sight. 
 
 
-N:308:Create Artifact
-G:?:w
-I:70:43:0
-W:20:0:32:150000
-P:0:0d0:0:0:0
-A:20/32:40/32
-F:IRONMAN_ONLY
-D:It creates a random artifact on the ground near you.
-
-
 N:309:Banishment
 G:?:w
 I:70:44:0
 W:40:0:5:750
 P:0:0d0:0:0:0
-A:40/4:80/2
+A:40/4
 F:EASY_KNOW
 D:It removes all monsters represented by a chosen symbol from the level.
 D:  Quest monsters and uniques are unaffected.  You take 1d4 points of
@@ -3175,7 +2589,7 @@ G:?:w
 I:70:45:0
 W:50:0:5:1000
 P:0:0d0:0:0:0
-A:50/4:95/2
+A:50/4
 F:EASY_KNOW
 D:It removes all monsters within 20 squares of you.  Quest monsters and
 D: uniques are unaffected.  You take 1d3 points of damage for every
@@ -3192,16 +2606,6 @@ F:EASY_KNOW
 D:It creates one good object on the floor near you. 
 
 
-N:312:*Acquirement*
-G:?:w
-I:70:47:0
-W:60:0:5:200000
-P:0:0d0:0:0:0
-A:60/16
-F:EASY_KNOW
-D:It creates 1+1d2 good objects on the ground near you. 
-
-
 
 ##### Potions #####
 
@@ -3210,7 +2614,7 @@ G:!:d
 I:75:0:200
 W:0:0:4:1
 P:0:1d1:0:0:0
-A:0/1
+A:0/2
 F:EASY_KNOW
 D:It has no effect apart from providing nourishment (for about 100 turns
 D: under normal conditions).  Note: These are always Clear Potions.
@@ -3243,7 +2647,7 @@ G:!:d
 I:75:4:50
 W:1:0:4:0
 P:0:1d1:0:0:0
-A:1/1
+A:1/4
 F:EASY_KNOW
 D:It slows you down (-10 to speed) for 15+1d25 turns; this duration is
 D: cumulative with other temporary slowing enchantments.  It also
@@ -3255,7 +2659,7 @@ G:!:d
 I:75:5:0
 W:0:0:4:0
 P:0:1d1:0:0:0
-A:0/1
+A:0/4
 F:EASY_KNOW
 D:It induces vomiting, which will result in severe hunger but will also
 D: clear away all poison.  This will also cause 4 turns of paralysis,
@@ -3267,7 +2671,7 @@ G:!:d
 I:75:6:0
 W:3:0:4:0
 P:0:1d1:0:0:0
-A:3/1
+A:3/4
 F:EASY_KNOW
 D:It poisons you (adding 9+1d15 points to the poison counter), unless
 D: you have resistance to poison. 
@@ -3278,7 +2682,7 @@ G:!:d
 I:75:7:0
 W:0:0:4:0
 P:0:1d1:0:0:0
-A:0/1
+A:0/4
 F:EASY_KNOW
 D:It induces blindness for 99+1d100 turns, unless you have resistance to
 D: blindness. 
@@ -3289,7 +2693,7 @@ G:!:d
 I:75:9:50
 W:0:0:4:0
 P:0:1d1:0:0:0
-A:0/1
+A:0/4
 F:EASY_KNOW
 D:It induces confusion for 14+1d20 turns, unless you have resistance to
 D: confusion.  It also provides nourishment for about 25 turns under
@@ -3301,7 +2705,7 @@ G:!:d
 I:75:11:100
 W:0:0:4:0
 P:0:1d1:0:0:0
-A:0/1
+A:0/4
 F:EASY_KNOW
 D:It induces paralyzation for 3+1d4 turns, unless you have free action. 
 D: It also provides nourishment for about 50 turns under normal
@@ -3313,7 +2717,7 @@ G:!:d
 I:75:13:0
 W:10:0:4:0
 P:0:1d1:0:0:0
-A:10/1
+A:10/4
 F:EASY_KNOW
 D:It drains 25% of your experience total, unless you have hold life. 
 
@@ -3323,7 +2727,7 @@ G:!:d
 I:75:14:0
 W:20:0:4:0
 P:0:1d1:0:0:0
-A:20/1
+A:20/4
 F:EASY_KNOW
 D:It drains your current mana by half.
 
@@ -3333,105 +2737,91 @@ G:!:d
 I:75:15:0
 W:40:0:4:0
 P:0:1d1:0:0:0
-A:40/8
+A:40/64
 F:EASY_KNOW
 D:It inflicts 10d10 points of damage and permanently decreases all stats
 D: (even if you have stat sustains). 
 
-
-N:325:Weakness
+N:325:Recklessness
 G:!:d
 I:75:16:0
-W:3:0:4:0
+W:15:0:4:200
 P:0:1d1:0:0:0
-A:3/1
+A:15/6
 F:EASY_KNOW
-D:It reduces strength (unless you have sustain strength). 
+D:It makes you luckier but more unwise.
 
-
-N:326:Stupidity
+N:326:Curiosity
 G:!:d
 I:75:17:0
-W:20:0:4:0
+W:15:0:4:200
 P:0:1d1:0:0:0
-A:20/1
+A:15/6
 F:EASY_KNOW
-D:It reduces intelligence (unless you have sustain intelligence). 
+D:It makes you more perceptive but less lucky.
 
-
-N:327:Naivety
+N:327:Creepiness
 G:!:d
 I:75:18:0
-W:20:0:4:0
+W:15:0:4:200
 P:0:1d1:0:0:0
-A:20/1
+A:15/6
 F:EASY_KNOW
-D:It reduces wisdom (unless you have sustain wisdom). 
+D:It makes you stealthier but less agile.
 
-
-N:328:Clumsiness
+N:328:Heaviness
 G:!:d
 I:75:19:0
-W:5:0:4:0
+W:15:0:4:200
 P:0:1d1:0:0:0
-A:5/1
+A:15/6
 F:EASY_KNOW
-D:It reduces dexterity (unless you have sustain dexterity). 
+D:It makes you more robust but less stealthy.
 
-
-N:329:Sickliness
+N:329:Lightness
 G:!:d
 I:75:20:0
-W:10:0:4:0
+W:15:0:4:200
 P:0:1d1:0:0:0
-A:10/1
+A:15/6
 F:EASY_KNOW
-D:It reduces constitution (unless you have sustain constitution). 
+D:It makes you more dextrous but weaker.
 
-
-N:330:Ugliness
+N:330:Brutishness
 G:!:d
-I:75:21:0
-W:20:0:4:0
+I:75:64:0
+W:15:0:4:200
 P:0:1d1:0:0:0
-A:20/1
+A:15/6
 F:EASY_KNOW
-D:It reduces charisma (unless you have sustain charisma). 
+D:It makes you stronger but stupider.
 
-
-N:331:Detonations
+N:331:Hastiness
 G:!:d
-I:75:22:0
-W:60:0:4:10000
-P:0:25d25:0:0:0
-A:60/8
-F:EASY_KNOW
-D:It inflicts 50d20 points of damage from massive explosions, severe
-D: cuts (+5000 to the cut counter), and stunning (+75 to the stun
-D: counter).
-
-
-N:332:Death
-G:!:d
-I:75:23:0
-W:55:0:4:0
+I:75:65:0
+W:15:0:4:200
 P:0:1d1:0:0:0
-A:55/4
+A:15/6
 F:EASY_KNOW
-D:It inflicts 5000 points of damage.  Death can only be avoided if you
-D: have magical invulnerability, which just happens to be unavailable in
-D: the current version of Angband. 
+D:It makes you faster but less perceptive.
 
-
-N:333:Infravision
+N:332:Fragility
 G:!:d
-I:75:24:0
-W:3:0:4:20
+I:75:66:0
+W:15:0:4:200
 P:0:1d1:0:0:0
-A:3/1
+A:15/6
 F:EASY_KNOW
-D:It extends the radius of your infravision by 50 feet for 100+1d100
-D: turns.
+D:It makes you more intelligent but less healthy.
+
+N:333:Ageing
+G:!:d
+I:75:67:0
+W:15:0:4:200
+P:0:1d1:0:0:0
+A:15/6
+F:EASY_KNOW
+D:It makes you wiser but less dextrous.
 
 
 N:334:Detect Invisible
@@ -3442,16 +2832,6 @@ P:0:1d1:0:0:0
 A:3/1
 F:EASY_KNOW
 D:It enables you to see invisible creatures for 12+1d12 turns. 
-
-
-N:335:Slow Poison
-G:!:d
-I:75:26:0
-W:1:0:4:25
-P:0:1d1:0:0:0
-A:1/1
-F:EASY_KNOW
-D:It halves the severity of any current poisoning. 
 
 
 N:336:Neutralize Poison
@@ -3479,7 +2859,7 @@ G:!:d
 I:75:29:0
 W:1:0:4:75
 P:0:1d1:0:0:0
-A:1/1:40/1
+A:1/1:40/4
 F:EASY_KNOW
 D:It hastes you (+10 to speed) for 15+1d25 turns (or 5 additional turns
 D: if you already are under the effect of a temporary haste
@@ -3491,7 +2871,7 @@ G:!:d
 I:75:30:0
 W:1:0:4:30
 P:0:1d1:0:0:0
-A:1/1
+A:10/2
 F:EASY_KNOW
 D:It grants you temporary resistance to fire for 10+1d10 turns. 
 D: Temporary resistance is cumulative with permanent resistance, if one
@@ -3504,7 +2884,7 @@ G:!:d
 I:75:31:0
 W:1:0:4:30
 P:0:1d1:0:0:0
-A:1/1
+A:10/2
 F:IGNORE_COLD | EASY_KNOW
 D:It grants you temporary resistance to cold for 10+1d10 turns. 
 D: Temporary resistance is cumulative with permanent resistance, if one
@@ -3531,8 +2911,8 @@ P:0:1d1:0:0:0
 A:3/1
 F:EASY_KNOW
 D:It cures 30 points of damage, removes fear and grants you berserk
-D: strength (resistance to fear, a bonus of +12 to-hit, and a penalty of
-D: -10 to AC) for 25+1d25 turns. 
+D: strength (resistance to fear, a bonus of +12 to-hit in melee, 
+D: and a penalty of -10 to AC) for 25+1d25 turns. 
 
 
 N:343:Cure Light Wounds
@@ -3542,7 +2922,7 @@ W:0:0:4:20
 P:0:1d1:0:0:0
 A:0/1:1/1:3/1
 F:EASY_KNOW
-D:It cures 3d8 points of damage, heals 10 points worth of cuts, and
+D:It cures 3d10 points of damage, heals 10 points worth of cuts, and
 D: cures blindness.  It also provides nourishment for about 25 turns
 D: under normal conditions. 
 
@@ -3552,9 +2932,9 @@ G:!:d
 I:75:35:100
 W:3:0:4:45
 P:0:1d1:0:0:0
-A:4/1
+A:4/1:10/1:20/1
 F:EASY_KNOW
-D:It cures 5d10 points of damage, heals half of all cut damage plus
+D:It cures 8d10 points of damage, heals half of all cut damage plus
 D: another 50 points, and cures blindness and confusion.  It also
 D: provides nourishment for about 50 turns under normal conditions. 
 
@@ -3564,10 +2944,10 @@ G:!:d
 I:75:36:100
 W:5:0:4:115
 P:0:1d1:0:0:0
-A:8/1
+A:12/1:22/2:32/2
 F:EASY_KNOW
-D:It cures 8d10 points of damage, cures all stunning, heals all cut
-D: damage, neutralizes poison, and cures blindness and confusion.  It
+D:It cures 12d12 points of damage, cures all stunning, heals all cut
+D: damage, and cures blindness and confusion.  It
 D: also provides nourishment for about 50 turns under normal conditions. 
 
 
@@ -3576,7 +2956,7 @@ G:!:d
 I:75:37:200
 W:15:0:4:350
 P:0:1d1:0:0:0
-A:18/1:50/1
+A:15/8:25/2:50/2
 F:EASY_KNOW
 D:It cures 325 points of damage, cures all stunning, heals all cut
 D: damage, neutralizes poison, and cures blindness and confusion.  It
@@ -3589,7 +2969,7 @@ G:!:d
 I:75:38:0
 W:40:0:4:1500
 P:0:1d1:0:0:0
-A:40/4:80/4
+A:20/8:40/4:60/4
 F:EASY_KNOW
 D:It cures 1500 points of damage, cures all stunning, heals all cut
 D: damage, neutralizes poison, and cures blindness and confusion. 
@@ -3600,7 +2980,7 @@ G:!:d
 I:75:39:0
 W:60:0:4:5000
 P:0:1d1:0:0:0
-A:55/4:80/4
+A:55/60
 F:EASY_KNOW
 D:It restores experience and all stats to maximum, cures 5000 points of
 D: damage, cures all stunning, heals all cut damage, neutralizes poison,
@@ -3612,7 +2992,7 @@ G:!:d
 I:75:40:0
 W:25:0:4:350
 P:0:1d1:0:0:0
-A:25/1:70/1
+A:25/1:40/1
 F:EASY_KNOW
 D:It restores mana points to maximum if they are currently below
 D: maximum. 
@@ -3623,19 +3003,20 @@ G:!:d
 I:75:41:0
 W:40:0:4:400
 P:0:1d1:0:0:0
-A:40/1
+A:20/8:40/1
 F:EASY_KNOW
 D:It restores experience to maximum if it is currently below maximum. 
 
 
 N:351:Restore Strength
 G:!:d
-I:75:42:0
+I:75:42:2000
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:25/1
+A:20/1:40/2
 F:EASY_KNOW
 D:It restores strength to maximum if it is currently below maximum. 
+D: It also cures hunger.
 
 
 N:352:Restore Intelligence
@@ -3643,9 +3024,10 @@ G:!:d
 I:75:43:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:25/1
+A:20/1:40/2
 F:EASY_KNOW
 D:It restores intelligence to maximum if it is currently below maximum. 
+D: It also cures confusion.
 
 
 N:353:Restore Wisdom
@@ -3653,139 +3035,109 @@ G:!:d
 I:75:44:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:25/1
+A:20/1:40/2
 F:EASY_KNOW
 D:It restores wisdom to maximum if it is currently below maximum. 
-
+D: It also removes fear and cures hallucination.
 
 N:354:Restore Dexterity
 G:!:d
 I:75:45:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:25/1
+A:20/1:40/2
 F:EASY_KNOW
 D:It restores dexterity to maximum if it is currently below maximum. 
-
+D: It also cures stunning.
 
 N:355:Restore Constitution
 G:!:d
 I:75:46:0
 W:25:0:4:300
 P:0:1d1:0:0:0
-A:25/1
+A:20/1:40/2
 F:EASY_KNOW
-D:It restores constution to maximum if it is currently below maximum. 
+D:It restores constitution to maximum if it is currently below maximum. 
+D: It also cures poison and cuts.
 
 
-N:356:Restore Charisma
+N:356:Restore Agility
 G:!:d
 I:75:47:0
-W:20:0:4:300
+W:25:0:4:300
 P:0:1d1:0:0:0
-A:20/1
+A:20/1:40/2
 F:EASY_KNOW
-D:It restores charisma to maximum if it is currently below maximum. 
+D:It restores agility to maximum if it is currently below maximum. 
 
 
-N:357:Strength
+N:357:Restore Stealth
 G:!:d
 I:75:48:0
-W:30:0:4:8000
+W:25:0:4:300
 P:0:1d1:0:0:0
-A:30/1
+A:20/1:40/2
 F:EASY_KNOW
-D:It first acts as a Potion of Restore Strength, then permanently
-D: increases strength. 
+D:It restores stealth to maximum if it is currently below maximum. 
 
 
-N:358:Intelligence
+N:358:Restore Perception
 G:!:d
 I:75:49:0
-W:30:0:4:8000
+W:25:0:4:300
 P:0:1d1:0:0:0
-A:30/1
+A:20/1:40/2
 F:EASY_KNOW
-D:It first acts as a Potion of Restore Intelligence, then permanently
-D: increases intelligence. 
+D:It restores perception to maximum if it is currently below maximum. 
+D: It also cures blindness.
 
 
-N:359:Wisdom
+N:359:Restore Luck
 G:!:d
 I:75:50:0
-W:30:0:4:8000
+W:25:0:4:300
 P:0:1d1:0:0:0
-A:30/1
+A:20/1:40/2
 F:EASY_KNOW
-D:It first acts as a Potion of Restore Wisdom, then permanently
-D: increases wisdom. 
+D:It restores luck to maximum if it is currently below maximum. 
 
-
-N:360:Dexterity
+N:360:Infravision
 G:!:d
-I:75:51:0
-W:30:0:4:8000
+I:75:24:0
+W:3:0:4:20
 P:0:1d1:0:0:0
-A:30/1
+A:3/1
 F:EASY_KNOW
-D:It first acts as a Potion of Restore Dexterity, then permanently
-D: increases dexterity. 
+D:It extends the radius of your infravision by 50 feet for 100+1d100
+D: turns.
 
 
-N:361:Constitution
+N:361:Clarity
 G:!:d
-I:75:52:0
-W:30:0:4:8000
+I:75:22:0
+W:3:0:4:200
 P:0:1d1:0:0:0
-A:30/1
+A:20/2
 F:EASY_KNOW
-D:It first acts as a Potion of Restore Constitution, then permanently
-D: increases constitution. 
+D:It cures confusion and gives you confusion resistance for a few turns.
 
-
-N:362:Charisma
+N:362:Dust of Disappearance
 G:!:d
-I:75:53:0
-W:20:0:4:1000
+I:75:23:0
+W:3:0:4:500
 P:0:1d1:0:0:0
-A:20/1
+A:10/8:25/8:40/8
 F:EASY_KNOW
-D:It first acts as a Potion of Restore Charisma, then permanently
-D: increases charisma. 
-
-
-N:363:Augmentation
-G:!:d
-I:75:55:0
-W:40:0:4:60000
-P:0:1d1:0:0:0
-A:32/16
-F:EASY_KNOW
-D:It first restores to maximum any stats below maximum, then permanently
-D: increases all stats. 
-
+D:This magic dust allows you to teleport.
 
 N:364:Enlightenment
 G:!:d
 I:75:56:0
 W:25:0:4:800
 P:0:1d1:0:0:0
-A:25/1
+A:25/2
 F:EASY_KNOW
 D:It completely lights up and magically maps the current dungeon level. 
-
-
-N:365:*Enlightenment*
-G:!:d
-I:75:57:0
-W:70:0:4:80000
-P:0:1d1:0:0:0
-A:70/4
-F:EASY_KNOW
-D:It has the powers of the Potions of Enlightenment, Intelligence,
-D: Wisdom, and Self Knowledge; also identifies all items you are
-D: carrying, and detects all treasure, objects, secret doors, stairs,
-D: and traps in the immediate area. 
 
 
 N:366:Self Knowledge
@@ -3793,21 +3145,19 @@ G:!:d
 I:75:58:0
 W:40:0:4:2000
 P:0:1d1:0:0:0
-A:40/1
+A:40/2
 F:EASY_KNOW
 D:It grants knowledge of all special powers (whether intrinsic,
 D: temporary, or provided by a magical item) that you currently possess. 
 
-
-N:367:Experience
+N:367:Restoration
 G:!:d
 I:75:59:0
-W:65:0:4:25000
-P:0:1d1:0:0:0
-A:65/1
+W:45:0:4:3000
+P:0:0d0:0:0:0
+A:20/8:30/4:40/2
 F:EASY_KNOW
-D:It grants either 100000 experience points or half the current
-D: experience point total plus 10, whichever is less. 
+D:It restores to maximum all stats that are currently below maximum. 
 
 
 N:368:Resist Acid
@@ -3815,7 +3165,7 @@ G:!:d
 I:75:60:0
 W:15:0:4:80
 P:0:1d1:0:0:0
-A:15/1
+A:15/2
 F:EASY_KNOW
 D:It grants you temporary resistance to acid for 10+1d10 turns. 
 D: Temporary resistance is cumulative with permanent resistance, if one
@@ -3828,7 +3178,7 @@ G:!:d
 I:75:61:0
 W:15:0:4:80
 P:0:1d1:0:0:0
-A:15/1
+A:15/2
 F:EASY_KNOW
 D:It grants you temporary resistance to electricity for 10+1d10 turns. 
 D: Temporary resistance is cumulative with permanent resistance, if one
@@ -3854,14 +3204,13 @@ G:!:d
 I:75:63:0
 W:65:0:4:900
 P:0:1d1:0:0:0
-A:25/4
+A:55/8
 F:IGNORE_COLD | EASY_KNOW
 D:It grants you temporary resistance to fire, cold, acid, electricity,
 D: and  poison for 10+1d10 turns.  Temporary resistance is cumulative
 D: with  permanent resistance, if one of your equipped items provides
 D: that.   The duration is cumulative with other magic providing
 D: temporary sources  of resistance.
-
 
 
 ##### Chests #####
@@ -3926,287 +3275,57 @@ P:0:0d0:0:0:0
 A:55/32
 F:IGNORE_ACID | IGNORE_FIRE
 
+#### Food #############
 
 
-##### Mushrooms #####
-
-N:379:Poison
-G:,:d
-I:80:0:500
-W:5:0:1:0
+N:398:& Apple~
+G:,:g
+I:80:34:500
+W:1:0:5:2
 P:0:0d0:0:0:0
-A:5/1:5/1
+A:3/2
 F:EASY_KNOW
-D:It poisons you (adding 9+1d10 points to the poison counter), unless
-D: you have resistance to poison.  Mushrooms provide nourishment for
-D: about 250 turns under normal conditions. 
-
-
-N:380:Blindness
-G:,:d
-I:80:1:500
-W:5:0:1:0
-P:0:0d0:0:0:0
-A:5/1
-F:EASY_KNOW
-D:It causes blindness that lasts for 199+1d200 turns, unless you have
-D: resistance to blindness.  Mushrooms provide nourishment for about 250
-D: turns under normal conditions.
-
-
-N:381:Paranoia
-G:,:d
-I:80:2:500
-W:5:0:1:0
-P:0:0d0:0:0:0
-A:5/1
-F:EASY_KNOW
-D:It induces fear that lasts for 9+1d10 turns, unless you have
-D: resistance to fear.  Mushrooms provide nourishment for about 250
-D: turns under normal conditions.
-
-
-N:382:Confusion
-G:,:d
-I:80:3:500
-W:5:0:1:0
-P:0:0d0:0:0:0
-A:5/1
-F:EASY_KNOW
-D:It induces confusion that lasts for 9+1d10 turns, unless you have
-D: resistance to confusion.  Mushrooms provide nourishment for about 250
-D: turns under normal conditions.
-
-
-N:383:Hallucination
-G:,:d
-I:80:4:500
-W:10:0:1:0
-P:0:0d0:0:0:0
-A:10/1
-F:EASY_KNOW
-D:It causes you to hallucinate for 249+1d250 turns, unless you have
-D: resistance to chaos.  Mushrooms provide nourishment for about 250
-D: turns under normal conditions.
-
-
-N:384:Paralysis
-G:,:d
-I:80:5:500
-W:20:0:1:0
-P:0:0d0:0:0:0
-A:20/1
-F:EASY_KNOW
-D:It induces paralysis that lasts for 9+1d10 turns, unless you have free
-D: action.  Mushrooms provide nourishment for about 250 turns under
-D: normal conditions. 
-
-
-N:385:Weakness
-G:,:d
-I:80:6:500
-W:10:0:1:0
-P:0:0d0:0:0:0
-A:10/1
-F:EASY_KNOW
-D:It inflicts 6d6 points of damage, and also reduces strength unless you
-D: have sustain strength.  Mushrooms provide nourishment for about 250
-D: turns under normal conditions. 
-
-
-N:386:Sickness
-G:,:d
-I:80:7:500
-W:10:0:1:0
-P:0:0d0:0:0:0
-A:10/1
-F:EASY_KNOW
-D:It inflicts 6d6 points of damage, and also reduces constitution unless
-D: you have sustain constitution.  Mushrooms provide nourishment for
-D: about 250 turns under normal conditions. 
-
-
-N:387:Stupidity
-G:,:d
-I:80:8:500
-W:15:0:1:0
-P:0:0d0:0:0:0
-A:15/1
-F:EASY_KNOW
-D:It inflicts 8d8 points of damage, and also reduces intelligence unless
-D: you have sustain intelligence.  Mushrooms provide nourishment for
-D: about 250 turns under normal conditions. 
-
-
-N:388:Naivety
-G:,:d
-I:80:9:500
-W:15:0:1:0
-P:0:0d0:0:0:0
-A:15/1
-F:EASY_KNOW
-D:It inflicts 8d8 points of damage, and also reduces wisdom unless you
-D: have sustain wisdom.  Mushrooms provide nourishment for about 250
-D: turns under normal conditions. 
-
-
-N:389:Unhealth
-G:,:d
-I:80:10:500
-W:15:0:1:50
-P:0:10d10:0:0:0
-A:15/1
-F:EASY_KNOW
-D:It inflicts 10d10 points of damage, and also reduces constitution
-D: unless you have sustain constitution.  It may also be thrown to
-D: inflict 10d10 points of damage.  Mushrooms provide nourishment for
-D: about 250 turns under normal conditions. 
-
-
-N:390:Disease
-G:,:d
-I:80:11:500
-W:20:0:1:50
-P:0:10d10:0:0:0
-A:20/1
-F:EASY_KNOW
-D:It inflicts 10d10 points of damage, and also reduces strength unless
-D: you have sustain strength.  It may also be thrown to inflict 10d10
-D: points of damage.  Mushrooms provide nourishment for about 250 turns
-D: under normal conditions. 
-
-
-N:391:Cure Poison
-G:,:d
-I:80:12:500
-W:10:0:1:60
-P:0:0d0:0:0:0
-A:10/1
-F:EASY_KNOW
-D:It neutralizes poison.  Mushrooms provide nourishment for about 250
-D: turns under normal conditions.
-
-
-N:392:Cure Blindness
-G:,:d
-I:80:13:500
-W:10:0:1:50
-P:0:0d0:0:0:0
-A:10/1
-F:EASY_KNOW
-D:It cures blindness.  Mushrooms provide nourishment for about 250 turns
-D: under normal conditions.
-
-
-N:393:Cure Paranoia
-G:,:d
-I:80:14:500
-W:10:0:1:25
-P:0:0d0:0:0:0
-A:10/1
-F:EASY_KNOW
-D:It removes your fear.  Mushrooms provide nourishment for about 250
-D: turns under normal conditions. 
-
-
-N:394:Cure Confusion
-G:,:d
-I:80:15:500
-W:10:0:1:50
-P:0:0d0:0:0:0
-A:10/1
-F:EASY_KNOW
-D:It cures confusion.  Mushrooms provide nourishment for about 250 turns
-D: under normal conditions. 
-
-
-N:395:Cure Serious Wounds
-G:,:d
-I:80:16:500
-W:15:0:1:75
-P:0:0d0:0:0:0
-A:15/1
-F:EASY_KNOW
-D:It cures 4d8 points of damage.  Mushrooms provide nourishment for
-D: about 250 turns under normal conditions. 
-
-
-N:396:Restore Strength
-G:,:d
-I:80:17:500
-W:20:0:1:350
-P:0:0d0:0:0:0
-A:20/1
-F:EASY_KNOW
-D:It restores strength to maximum if it is currently below maximum. 
-D: Mushrooms provide nourishment for about 250 turns under normal
-D: conditions. 
-
-
-N:397:Restore Constitution
-G:,:d
-I:80:18:500
-W:20:0:1:350
-P:0:0d0:0:0:0
-A:20/1
-F:EASY_KNOW
-D:It restores constitution to maximum if it is currently below maximum. 
-D: Mushrooms provide nourishment for about 250 turns under normal
-D: conditions. 
-
-
-N:398:Restoring
-G:,:d
-I:80:19:500
-W:20:0:1:1000
-P:0:0d0:0:0:0
-A:20/8:30/4:40/1
-F:EASY_KNOW
-D:It restores to maximum all stats that are currently below maximum. 
-D: Mushrooms provide nourishment for about 250 turns under normal
-D: conditions. 
-
+D:It provides nourishment for about 250 turns under normal conditions. 
 
 N:399:& Ration~ of Food
 G:,:U
-I:80:35:5000
+I:80:35:3000
 W:0:0:10:3
 P:0:0d0:0:0:0
-A:0/1:5/1:10/1
-F:EASY_KNOW
-D:It provides nourishment for about 2500 turns under normal conditions. 
-
-
-N:400:& Slime Mold~
-G:,:g
-I:80:36:3000
-W:1:0:5:2
-P:0:0d0:0:0:0
-A:1/1
+A:5/1:15/1
 F:EASY_KNOW
 D:It provides nourishment for about 1500 turns under normal conditions. 
 
 
+N:400:& Piece~ of Beef Jerky
+G:,:R
+I:80:36:1000
+W:1:0:5:2
+P:0:0d0:0:0:0
+A:3/2
+F:EASY_KNOW
+D:It provides nourishment for about 500 turns under normal conditions. 
+
 N:401:& Piece~ of Elvish Waybread
 G:,:B
-I:80:37:7500
+I:80:37:4000
 W:5:0:3:10
 P:0:0d0:0:0:0
-A:5/1:10/1:20/1
+A:10/1:20/2
 F:EASY_KNOW
 D:It cures 4d8 points of damage and neutralizes poison.  It provides
-D: nourishment for about 3750 turns under normal conditions. 
+D: nourishment for about 2000 turns under normal conditions. 
 
 
 N:402:& Flask~ of oil
 G:!:y
-I:77:0:7500
+I:77:0:3000
 W:1:0:10:3
 P:0:2d6:0:0:0
-A:1/1
+A:3/1:10/1
 F:EASY_KNOW
-D:It can be used to fuel a brass lantern with 7500 turns of light, up to
-D: a maximum of 15000 turns of light.  When thrown, it is considered
+D:It can be used to fuel a brass lantern with 3000 turns of light, up to
+D: a maximum of 5000 turns of light.  When thrown, it is considered
 D: lit, so it does more than nominal damage (which occurs even against
 D: creatures resistant to fire).
 
@@ -4219,7 +3338,7 @@ G:~:W
 I:5:0:0
 W:1:0:10:1
 P:0:1d1:0:0:0
-A:1/1
+A:1/4
 F:EASY_KNOW
 D:These can be placed in doors to make them harder to open.  Multiple
 D: spikes may be used on a single door.  Each of the first 7 spikes will
@@ -4231,42 +3350,42 @@ D: spikes in one door will not have any further effect.
 ##### Gold/Gems #####
 
 N:404:copper
-G:$:u2
+G:$:u
 I:100:1:0
 W:1:0:0:3
 P:0:0d0:0:0:0
 
 
 N:405:copper
-G:$:u2
+G:$:u
 I:100:2:0
 W:1:0:0:4
 P:0:0d0:0:0:0
 
 
 N:406:copper
-G:$:u2
+G:$:u
 I:100:3:0
 W:1:0:0:5
 P:0:0d0:0:0:0
 
 
 N:407:silver
-G:$:s2
+G:$:s
 I:100:4:0
 W:1:0:0:5
 P:0:0d0:0:0:0
 
 
 N:408:silver
-G:$:s2
+G:$:s
 I:100:5:0
 W:1:0:0:6
 P:0:0d0:0:0:0
 
 
 N:409:silver
-G:$:s2
+G:$:s
 I:100:6:0
 W:1:0:0:7
 P:0:0d0:0:0:0
@@ -4287,21 +3406,21 @@ P:0:0d0:0:0:0
 
 
 N:412:gold
-G:$:y2
+G:$:y
 I:100:9:0
 W:1:0:0:10
 P:0:0d0:0:0:0
 
 
 N:413:gold
-G:$:y2
+G:$:y
 I:100:10:0
 W:1:0:0:11
 P:0:0d0:0:0:0
 
 
 N:414:gold
-G:$:y2
+G:$:y
 I:100:11:0
 W:1:0:0:12
 P:0:0d0:0:0:0
@@ -4357,174 +3476,82 @@ P:0:0d0:0:0:0
 
 
 
-##### Basic Books #####
+##### Books #####
 
 N:422:[Magic for Beginners]
-G:?:R
+G:?:y
 I:90:0:0
 W:5:0:30:25
 P:0:1d1:0:0:0
-A:5/1
+A:1/8
 F:EASY_KNOW
 
-
-N:423:[Conjurings and Tricks]
-G:?:R
+N:423:[Defensive Magical Theory]
+G:?:v
 I:90:1:0
-W:10:0:30:100
+W:10:0:30:3000
 P:0:1d1:0:0:0
-A:10/1
+A:5/8:15/4:25/4
 F:EASY_KNOW
 
-
-N:424:[Incantations and Illusions]
-G:?:R
+N:424:[Ancient Runes Made Easy]
+G:?:g
 I:90:2:0
-W:20:0:30:400
+W:10:0:30:3000
 P:0:1d1:0:0:0
-A:20/1
+A:5/8:15/4:25/4
 F:EASY_KNOW
 
-
-N:425:[Sorcery and Evocations]
-G:?:R
+N:425:[Intermediate Transfiguration]
+G:?:b
 I:90:3:0
-W:30:0:30:800
+W:10:0:30:3000
 P:0:1d1:0:0:0
-A:30/1
+A:5/8:15/4:25/4
 F:EASY_KNOW
 
-
-
-##### Special Books (note resistances) #####
-
-N:426:[Resistances of Scarabtarices]
-G:?:r
+N:426:[Mordenkainen's Faithful Compendium]
+G:?:o
 I:90:4:0
-W:20:0:30:10000
-P:0:1d1:0:0:0
-A:20/8
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:427:[Raal's Tome of Destruction]
-G:?:r
-I:90:5:0
-W:30:0:30:20000
-P:0:1d1:0:0:0
-A:30/8
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:428:[Mordenkainen's Escapes]
-G:?:r
-I:90:6:0
-W:40:0:30:30000
-P:0:1d1:0:0:0
-A:40/8
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:429:[Tenser's Transformations]
-G:?:r
-I:90:7:0
-W:60:0:30:50000
-P:0:1d1:0:0:0
-A:60/16
-F:IRONMAN_ONLY | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:EASY_KNOW
-
-
-N:430:[Kelek's Grimoire of Power]
-G:?:r
-I:90:8:0
-W:70:0:30:90000
-P:0:1d1:0:0:0
-A:70/16
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:431:[Beginners Handbook]
-G:?:B
-I:91:0:0
-W:5:0:30:25
-P:0:1d1:0:0:0
-A:5/1
-F:EASY_KNOW
-
-
-N:432:[Words of Wisdom]
-G:?:B
-I:91:1:0
-W:10:0:30:100
-P:0:1d1:0:0:0
-A:10/1
-F:EASY_KNOW
-
-
-N:433:[Chants and Blessings]
-G:?:B
-I:91:2:0
-W:20:0:30:300
-P:0:1d1:0:0:0
-A:20/1
-F:EASY_KNOW
-
-
-N:434:[Exorcism and Dispelling]
-G:?:B
-I:91:3:0
-W:30:0:30:900
-P:0:1d1:0:0:0
-A:30/1
-F:EASY_KNOW
-
-
-N:435:[Ethereal Openings]
-G:?:b
-I:91:4:0
-W:20:0:30:5000
-P:0:1d1:0:0:0
-A:20/8
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:436:[Godly Insights]
-G:?:b
-I:91:5:0
 W:30:0:30:10000
 P:0:1d1:0:0:0
-A:30/8
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:437:[Purifications and Healing]
-G:?:b
-I:91:6:0
-W:40:0:30:30000
-P:0:1d1:0:0:0
-A:40/8
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:438:[Holy Infusions]
-G:?:b
-I:91:7:0
-W:60:0:30:50000
-P:0:1d1:0:0:0
-A:60/16
-F:IRONMAN_ONLY | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+A:20/10:30/6:40/4
 F:EASY_KNOW
 
-
-N:439:[Wrath of God]
-G:?:b
-I:91:8:0
-W:70:0:30:100000
+N:427:[Bigby's Handy Handbook]
+G:?:R
+I:90:5:0
+W:30:0:30:10000
 P:0:1d1:0:0:0
-A:70/16
+A:20/10:30/6:40/4
+F:EASY_KNOW
+
+N:428:[Otiluke's Damp Libram]
+G:?:G
+I:90:6:0
+W:30:0:30:10000
+P:0:1d1:0:0:0
+A:20/10:30/6:40/4
+F:EASY_KNOW
+
+N:429:[Raal's Tome of Destruction]
+G:?:r
+I:90:7:0
+W:45:0:30:90000
+P:0:1d1:0:0:0
+A:35/16:45/10
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
 
+N:430:[Kelek's Grimoire of Power]
+G:?:D
+I:90:8:0
+W:45:0:30:90000
+P:0:1d1:0:0:0
+A:35/16:45/10
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+
+
+##### Other stuff #####
 
 N:440:& Broken Bone~
 G:~:w
@@ -4534,120 +3561,73 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 
 
-N:441:Mass Identify
-G:_:d
-I:55:30:0
-W:40:0:50:1000
+
+N:453:& Glowing Pebble~
+G:~:r
+I:39:8:0
+W:10:0:1:100
 P:0:1d1:0:0:0
-A:40/1
-D:It reveals all normal (magical but non-hidden) powers of all the
-D: player's equipment, player inventory, and all objects on the floor
-D: within a 3 square radius.
+A:10/4
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Like a lantern, it can light up the dungeon around you. The light it
+D: provides is weak, only just enough to see the floor in front of you.
 
-
-N:442:*Identify*
-G:-:d
-I:66:28:50
-W:50:0:15:35000
+N:454:& Glowing Stone~
+G:~:o
+I:39:9:0
+W:20:0:1:1000
 P:0:1d1:0:0:0
-A:50/8
-F:IGNORE_ELEC | EASY_KNOW
-D:It reveals all normal and hidden powers of one object, and also
-D: permanently implants this knowledge into your mind, so that you will
-D: never forget it even if hit by magical amnesia.  (The spell may be
-D: aborted without zapping the rod.)
+A:20/4
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Like a lantern, it can light up the dungeon around you. The light it
+D: provides is quite strong.
 
-
-N:443:Mass Identify
-G:-:d
-I:66:29:50
-W:60:0:15:35000
+N:455:& Glowing Jewel~
+G:~:B
+I:39:10:0
+W:30:0:1:10000
 P:0:1d1:0:0:0
-A:60/8
-F:IGNORE_ELEC
-D:It reveals all normal (magical but non-hidden) powers of all the
-D: player's equipment, player inventory, and all objects on the floor
-D: within a 3 square radius.
+A:30/4
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Like a lantern, it can light up the dungeon around you. The light it 
+D: provides is very clear and bright.
 
-
-N:444:[Call of the Wild]
-G:?:G
-I:92:0:0
-W:5:0:30:25
+N:456:& Magic Torch~
+G:~:W
+I:39:11:0
+W:1:0:30:2
 P:0:1d1:0:0:0
-A:5/1
+A:99/99
 F:EASY_KNOW
+D:It is a torch summoned by magic. 
 
 
-N:445:[Environmental Adjurations]
-G:?:G
-I:92:1:0
-W:10:0:30:100
-P:0:1d1:0:0:0
-A:10/1
-F:EASY_KNOW
+N:470:& Wizard Hat~
+G:]:w
+I:33:13:0
+W:40:0:30:1000
+P:2:1d1:0:0:0
+A:40/4
+F:IGNORE_ACID
+D:Wearing this hat makes all your identification spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
+N:471:& Warlock Sword~
+G:|:D
+I:23:31:0
+W:40:0:100:3000
+P:0:2d7:0:0:0
+A:40/4
+F:SHOW_MODS | IGNORE_ACID | SEE_INVIS | SUST_INT | SLAY_DEMON
+D:Wielding this sword makes all your battle spells (such as Fireball) cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
-N:446:[Commanding Nature]
-G:?:G
-I:92:2:0
-W:20:0:30:300
-P:0:1d1:0:0:0
-A:20/1
-F:EASY_KNOW
-
-
-N:447:[Lore of Engagement]
-G:?:G
-I:92:3:0
-W:30:0:30:900
-P:0:1d1:0:0:0
-A:30/1
-F:EASY_KNOW
-
-
-N:448:[Radagast's Protections]
-G:?:g
-I:92:4:0
-W:20:0:30:5000
-P:0:1d1:0:0:0
-A:20/8
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:449:[Melian's Reformations]
-G:?:g
-I:92:5:0
-W:30:0:30:10000
-P:0:1d1:0:0:0
-A:30/8
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:450:[Arda's Habitats]
-G:?:g
-I:92:6:0
-W:40:0:30:30000
-P:0:1d1:0:0:0
-A:40/8
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
-N:451:[Natural Infusions]
-G:?:g
-I:92:7:0
-W:60:0:30:50000
-P:0:1d1:0:0:0
-A:60/16
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW | IRONMAN_ONLY
-
-
-N:452:[Nature's Fury]
-G:?:g
-I:92:8:0
-W:70:0:30:100000
-P:0:1d1:0:0:0
-A:70/16
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
-
-
+N:472:& Displacer Cloak~
+G:(:D
+I:35:7:0
+W:40:0:5:4000
+P:6:0d0:0:0:10
+A:40/4
+D:Wearing this cloak makes all your teleportation spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
+F:SHOW_MODS | IGNORE_ACID | RES_NEXUS

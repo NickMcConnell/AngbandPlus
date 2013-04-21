@@ -1,8 +1,7 @@
 
-     Saving and loading your character should be easy.  So, sadly, 
-is getting him killed.  Winning is a little harder, but the 
-novice player can take advantage of various cheats to improve 
-his chances down in the dungeon.
+     Saving and loading your character should be easy.  So, sadly, is getting
+him killed.  Winning is a little harder, but the novice player can take
+advantage of various cheats to improve his chances down in the dungeon.
 
 
 --- Saving your Game ---
@@ -35,35 +34,18 @@ Loading dead characters:
 birth interface.  The new character inherits the monster knowledge of his
 ancestor.
 
-Savefile compatibility report:
-	NPPAngband 0.4.0 breaks savefile compatability.  NPP 0.4.1 loads 0.4.0 savefiles.
-     NPPAngband 0.3.4 and before loads files from Angband 2.9.0 and later.  To use earlier
-savefiles, import it into Angband 2.9.3, resave, and then open it up with the
-current version.
-
 
 --- Winning The Game ---
 
-     Once you have killed Sauron, who lives on level 99 (4950') in the dungeon,
-a magical staircase will appear that will allow you to finally reach level 100.
-Morgoth lurks on this level of the dungeon, and you will not be able to go below
-his level until you have killed him.  Try to avoid wandering around on level 100
-unless you are ready for him, since he has a habit of coming at you across the
-dungeon, the Mighty Hammer 'Grond' in hand, to slay you for your impudence.
+     Once you have killed the first level boss, who lives on level 49 (2450') in the dungeon,
+a magical staircase will appear that will allow you to finally reach level 50.
+The Witch King of Angmar lurks on this level of the dungeon, and you will not 
+be able to go below his level until you have killed him.  
 
-     Morgoth cannot be killed by some of the easier methods used on normal
-creatures.  Morgoth, like all other unique monsters, will simply teleport away
-to another region of the level if you attempt to use a spell such as destruction
-upon him.  He also cannot be polymorphed, slept, charmed, or genocided.  Magical
-spells like Mana Storm and Annihilation are effective against him, as are some
-of the more powerful weapons, but he is difficult to kill and if allowed to
-escape for a time will heal himself rapidly.
-
-     If you should actually survive the attempt of killing Morgoth, you will
+     If you should actually survive the attempt of killing The Witch King, you will
 receive the status of WINNER.  You may continue to explore, and may even save
-the game and play more later, but since you have defeated the toughest creature
-alive, there is really not much point.  Unless you wish to listen to the rumours
-of a powerful ring buried somewhere in the dungeon...
+the game and play more later, but since you have defeated the final opponent
+alive, there is really not much point.  
 
      When you are ready to retire, simply "commit suicide" (using the "Q" key)
 to have your character entered into the high score list as a winner.  Note that
@@ -88,8 +70,7 @@ ancestor!
      One of the most important things about this game is that your character's
 life is so important.  Let him die, and you start over from scratch.  This is
 one of the secrets to this game's fascination; anyone who cheats death is really
-not getting the full experience, and any Morgoth-slayers yanked from the jaws of
-death are not full winners.  But what if your characters seem to die all the
+not getting the full experience.  But what if your characters seem to die all the
 time (like mine!), and you really want to keep playing with the same guy?  Well,
 the game has a few answers for that too.  You may cheat death by:
 

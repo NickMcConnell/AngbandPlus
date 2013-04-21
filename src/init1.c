@@ -76,7 +76,7 @@ static cptr r_info_blow_method[] =
 	"XXX4",
 	"BEG",
 	"INSULT",
-	"XXX5",
+	"BEGUILE",
 	"XXX6",
 	NULL
 };
@@ -116,12 +116,16 @@ static cptr r_info_blow_effect[] =
 	"LOSE_WIS",
 	"LOSE_DEX",
 	"LOSE_CON",
-	"LOSE_CHR",
+	"LOSE_AGI",
+	"LOSE_STE",
+	"LOSE_PER",
+	"LOSE_LUC",
 	"LOSE_ALL",
 	"EXP_10",
 	"EXP_20",
 	"EXP_40",
 	"EXP_80",
+	"BEGUILE",
 	NULL
 };
 
@@ -419,7 +423,7 @@ static flag_name info_flags[] =
  */
 
 	{"S_KIN", RF7, RF7_S_KIN},
-	{"RF7XXX1", RF7, RF7_RF7XXX1},
+	{"S_THROW_TROLL", RF7, RF7_S_THROWTROLL},
 	{"RF7XXX2", RF7, RF7_RF7XXX2},
 	{"S_MONSTER", RF7, RF7_S_MONSTER},
 	{"S_MONSTERS", RF7, RF7_S_MONSTERS},
@@ -479,10 +483,10 @@ static flag_name info_flags[] =
 	{"WIS", TR1, TR1_WIS},
 	{"DEX", TR1, TR1_DEX},
 	{"CON", TR1, TR1_CON},
-	{"CHR", TR1, TR1_CHR},
-	{"TR1XXX1",	TR1, TR1_TR1XXX1},
-	{"TR1XXX2",	TR1, TR1_TR1XXX2},
-	{"STEALTH", TR1, TR1_STEALTH},
+	{"AGI", TR1, TR1_AGI},
+	{"STE",	TR1, TR1_STE},
+	{"PER",	TR1, TR1_PER},
+	{"LUC", TR1, TR1_LUC},
 	{"SEARCH", TR1, TR1_SEARCH},
 	{"INFRA", TR1, TR1_INFRA},
 	{"TUNNEL", TR1, TR1_TUNNEL},
@@ -519,10 +523,10 @@ static flag_name info_flags[] =
 	{"SUST_WIS", TR2, TR2_SUST_WIS},
 	{"SUST_DEX", TR2, TR2_SUST_DEX},
 	{"SUST_CON", TR2, TR2_SUST_CON},
-	{"SUST_CHR", TR2, TR2_SUST_CHR},
-	{"TR2XXX1", TR2, TR2_TR2XXX1},
-	{"TR2XXX2", TR2, TR2_TR2XXX2},
-	{"TR2XXX3", TR2, TR2_TR2XXX3},
+	{"SUST_AGI", TR2, TR2_SUST_AGI},
+	{"SUST_STE", TR2, TR2_SUST_STE},
+	{"SUST_PER", TR2, TR2_SUST_PER},
+	{"SUST_LUC", TR2, TR2_SUST_LUC},
 	{"TR2XXX4", TR2, TR2_TR2XXX4},
 	{"TR2XXX5", TR2, TR2_TR2XXX5},
 	{"IM_ACID", TR2, TR2_IM_ACID},
@@ -565,8 +569,8 @@ static flag_name info_flags[] =
 	{"HOLD_LIFE", TR3, TR3_HOLD_LIFE},
 	{"NEVER_PICKUP", TR3, TR3_NEVER_PICKUP},
 	{"IRONMAN_ONLY", TR3, TR3_IRONMAN_ONLY},
-	{"TR3XXX3", TR3, TR3_TR3XXX3},
-	{"TR3XXX4", TR3, TR3_TR3XXX4},
+	{"LO_STEALTH", TR3, TR3_LO_STEALTH},
+	{"LO_PERCEPTION", TR3, TR3_LO_PERCEPTION},
 	{"IMPACT", TR3, TR3_IMPACT},
 	{"TELEPORT", TR3, TR3_TELEPORT},
 	{"AGGRAVATE", TR3, TR3_AGGRAVATE},
@@ -583,7 +587,7 @@ static flag_name info_flags[] =
 	{"EASY_KNOW", TR3, TR3_EASY_KNOW},
 	{"HIDE_TYPE", TR3, TR3_HIDE_TYPE},
 	{"SHOW_MODS", TR3, TR3_SHOW_MODS},
-	{"TR3XXX7", TR3, TR3_TR3XXX7},
+	{"VAMPIRE", TR3, TR3_VAMPIRE},
 	{"LIGHT_CURSE", TR3, TR3_LIGHT_CURSE},
 	{"HEAVY_CURSE", TR3, TR3_HEAVY_CURSE},
 	{"PERMA_CURSE",  TR3, TR3_PERMA_CURSE},
@@ -767,7 +771,7 @@ static flag_name info_flags[] =
 	{"EXTRA_ARROW",  CF1, CF_EXTRA_ARROW},
 	{"SET_TRAPS",  CF1, CF_SET_TRAPS},
 	{"EXTRA_ATTACK",  CF1, CF_EXTRA_ATTACK},
-	{"BRIGAND_COMBAT",  CF1, CF_BRIGAND_COMBAT},
+	{"CFXXX14",  CF1, CF_CFXXX14},
 	{"CFXXX15",  CF1, CF_CFXXX15},
 	{"CFXXX16",  CF1, CF_CFXXX16},
 	{"CFXXX17",  CF1, CF_CFXXX17},
@@ -1347,7 +1351,8 @@ errr parse_v_info(char *buf, header *head)
 
 void get_feature_name(char *desc, size_t max, byte feature_num)
 {
-	uint i = ((FF1-1) * 32) + feature_num + 1;
+
+	uint i = ((FF1-1) * 32) + feature_num;
 
 	my_strcpy(desc, info_flags[i].name, max);
 
@@ -2952,21 +2957,20 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'R' for "Racial Skills" (one line only) */
 	else if (buf[0] == 'R')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, srh, fos, thn, thb;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
+		if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
+			            &dis, &dev, &sav, 
 			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pr_ptr->r_dis = dis;
 		pr_ptr->r_dev = dev;
 		pr_ptr->r_sav = sav;
-		pr_ptr->r_stl = stl;
 		pr_ptr->r_srh = srh;
 		pr_ptr->r_fos = fos;
 		pr_ptr->r_thn = thn;
@@ -2976,16 +2980,17 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'X' for "Extra Info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int mhp, exp, infra;
+		int mhp, mmp, exp, infra;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &mhp, &exp, &infra)) return (PARSE_ERROR_GENERIC);
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			            &mhp, &mmp, &exp, &infra)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
+		pr_ptr->r_mmp = mmp;
 		pr_ptr->r_mhp = mhp;
 		pr_ptr->r_exp = exp;
 		pr_ptr->infra = infra;
@@ -3214,21 +3219,20 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'C' for "Class Skills" (one line only) */
 	else if (buf[0] == 'C')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, srh, fos, thn, thb;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
+		if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
+			            &dis, &dev, &sav,
 			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->c_dis = dis;
 		pc_ptr->c_dev = dev;
 		pc_ptr->c_sav = sav;
-		pc_ptr->c_stl = stl;
 		pc_ptr->c_srh = srh;
 		pc_ptr->c_fos = fos;
 		pc_ptr->c_thn = thn;
@@ -3238,21 +3242,20 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'X' for "Extra Skills" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, srh, fos, thn, thb;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			            &dis, &dev, &sav, &stl,
+		if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
+			            &dis, &dev, &sav, 
 			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->x_dis = dis;
 		pc_ptr->x_dev = dev;
 		pc_ptr->x_sav = sav;
-		pc_ptr->x_stl = stl;
 		pc_ptr->x_srh = srh;
 		pc_ptr->x_fos = fos;
 		pc_ptr->x_thn = thn;
@@ -3313,7 +3316,7 @@ errr parse_c_info(char *buf, header *head)
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		pc_ptr->spell_book = spell_book;
+		pc_ptr->spell_book = TV_MAGIC_BOOK;
 		pc_ptr->spell_first = spell_first;
 		pc_ptr->spell_weight = spell_weight;
 	}

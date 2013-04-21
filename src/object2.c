@@ -857,7 +857,7 @@ static s32b object_value_base(const object_type *o_ptr)
 		case TV_SCROLL: return (20L);
 
 		/* Un-aware Staffs */
-		case TV_STAFF: return (70L);
+		case TV_TALISMAN: return (70L);
 
 		/* Un-aware Wands */
 		case TV_WAND: return (50L);
@@ -976,10 +976,12 @@ static s32b object_value_real(const object_type *o_ptr)
 			if (f1 & (TR1_WIS)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_DEX)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_CON)) value += (o_ptr->pval * 200L);
-			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 200L);
+			if (f1 & (TR1_AGI)) value += (o_ptr->pval * 200L);
+			if (f1 & (TR1_STE)) value += (o_ptr->pval * 200L);
+			if (f1 & (TR1_PER)) value += (o_ptr->pval * 200L);
+			if (f1 & (TR1_LUC)) value += (o_ptr->pval * 200L);
 
-			/* Give credit for stealth and searching */
-			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 100L);
+			/* Give credit for searching */
 			if (f1 & (TR1_SEARCH)) value += (o_ptr->pval * 100L);
 
 			/* Give credit for infra-vision and tunneling */
@@ -1003,18 +1005,6 @@ static s32b object_value_real(const object_type *o_ptr)
 	/* Analyze the item */
 	switch (o_ptr->tval)
 	{
-		/* Wands/Staffs */
-		case TV_WAND:
-		case TV_STAFF:
-		{
-			/* Pay extra for charges, depending on standard number of
-			 * charges.  Handle new-style wands correctly.
-			 */
-			value += ((value / 20) * (o_ptr->pval / o_ptr->number));
-
-			/* Done */
-			break;
-		}
 
 		/* Rings/Amulets */
 		case TV_RING:
@@ -1238,29 +1228,13 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			break;
 		}
 
-		/* Staves and wands*/
-		case TV_STAFF:
+		/* Talismans and wands*/
+		case TV_TALISMAN:
 		case TV_WAND:
 		{
-			/* Require either knowledge or known empty for both wands and staffs. */
-			if ((!(o_ptr->ident & (IDENT_EMPTY)) &&
-				!object_known_p(o_ptr)) ||
-				(!(j_ptr->ident & (IDENT_EMPTY)) &&
-				!object_known_p(j_ptr))) return(0);
-
-			/* Wand/Staffs charges combine in NPPangband.  */
-
 			/* Assume okay */
 			break;
 
-		}
-
-		/* Staffs and Wands and Rods */
-		case TV_ROD:
-		{
-
-			/* Assume okay */
-			break;
 		}
 
 		/* Weapons and Armor */
@@ -1472,21 +1446,6 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 
 	/* Mega-Hack -- Blend "discounts" */
 	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
-
-	/* Hack -- if rods are stacking, re-calculate the
-	 * pvals (maximum timeouts) and current timeouts together.
-	 */
-	if (o_ptr->tval == TV_ROD)
-	{
-		o_ptr->pval = total * k_ptr->pval;
-		o_ptr->timeout += j_ptr->timeout;
-	}
-
-	/* Hack -- if wands or staffsare stacking, combine the charges. */
-	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
-	{
-		o_ptr->pval += j_ptr->pval;
-	}
 
 	/* Combine the histories */
 	stack_histories(o_ptr, j_ptr);
@@ -1828,7 +1787,7 @@ static bool make_artifact_special(object_type *o_ptr)
 
 	int k_idx;
 
-	int depth_check = ((object_generation_mode) ?  object_level : p_ptr->depth);
+	int depth_check = ((object_generation_mode) ?  object_level : danger(p_ptr->depth));
 
 	/*no artifacts while making items for stores*/
 	if ((object_generation_mode >= OB_GEN_STORE_HEAD) &&
@@ -1911,7 +1870,7 @@ static bool make_artifact(object_type *o_ptr)
 {
 	int i;
 
-	int depth_check = ((object_generation_mode) ?  object_level : p_ptr->depth);
+	int depth_check = ((object_generation_mode) ?  object_level : danger(p_ptr->depth));
 
 	/*no artifacts while making items for stores, this is a double-precaution*/
 	if ((object_generation_mode >= OB_GEN_MODE_GEN_ST) &&
@@ -1995,87 +1954,6 @@ static bool make_artifact(object_type *o_ptr)
 
 
 /*
- * Charge a new wand.
- */
-static void charge_wand(object_type *o_ptr)
-{
-	switch (o_ptr->sval)
-	{
-		case SV_WAND_HEAL_MONSTER:		o_ptr->pval = randint(20) + 8; break;
-		case SV_WAND_HASTE_MONSTER:		o_ptr->pval = randint(20) + 8; break;
-		case SV_WAND_CLONE_MONSTER:		o_ptr->pval = randint(5)  + 3; break;
-		case SV_WAND_TELEPORT_AWAY:		o_ptr->pval = randint(5)  + 6; break;
-		case SV_WAND_DISARMING:			o_ptr->pval = randint(5)  + 4; break;
-		case SV_WAND_TRAP_DOOR_DEST:	o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_STONE_TO_MUD:		o_ptr->pval = randint(4)  + 3; break;
-		case SV_WAND_LITE:				o_ptr->pval = randint(10) + 6; break;
-		case SV_WAND_SLEEP_MONSTER:		o_ptr->pval = randint(15) + 8; break;
-		case SV_WAND_SLOW_MONSTER:		o_ptr->pval = randint(10) + 6; break;
-		case SV_WAND_CONFUSE_MONSTER:	o_ptr->pval = randint(12) + 6; break;
-		case SV_WAND_FEAR_MONSTER:		o_ptr->pval = randint(5)  + 3; break;
-		case SV_WAND_DRAIN_LIFE:		o_ptr->pval = randint(3)  + 3; break;
-		case SV_WAND_POLYMORPH:			o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_STINKING_CLOUD:	o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_MAGIC_MISSILE:		o_ptr->pval = randint(10) + 6; break;
-		case SV_WAND_ACID_BOLT:			o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_ELEC_BOLT:			o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_FIRE_BOLT:			o_ptr->pval = randint(8)  + 6; break;
-		case SV_WAND_COLD_BOLT:			o_ptr->pval = randint(5)  + 6; break;
-		case SV_WAND_ACID_BALL:			o_ptr->pval = randint(5)  + 2; break;
-		case SV_WAND_ELEC_BALL:			o_ptr->pval = randint(8)  + 4; break;
-		case SV_WAND_FIRE_BALL:			o_ptr->pval = randint(4)  + 2; break;
-		case SV_WAND_COLD_BALL:			o_ptr->pval = randint(6)  + 2; break;
-		case SV_WAND_WONDER:			o_ptr->pval = randint(15) + 8; break;
-		case SV_WAND_ANNIHILATION:		o_ptr->pval = randint(2)  + 1; break;
-		case SV_WAND_DRAGON_FIRE:		o_ptr->pval = randint(3)  + 1; break;
-		case SV_WAND_DRAGON_COLD:		o_ptr->pval = randint(3)  + 1; break;
-		case SV_WAND_DRAGON_BREATH:		o_ptr->pval = randint(3)  + 1; break;
-	}
-}
-
-
-
-/*
- * Charge a new staff.
- */
-static void charge_staff(object_type *o_ptr)
-{
-	switch (o_ptr->sval)
-	{
-		case SV_STAFF_DARKNESS:			o_ptr->pval = randint(8)  + 8; break;
-		case SV_STAFF_SLOWNESS:			o_ptr->pval = randint(8)  + 8; break;
-		case SV_STAFF_HASTE_MONSTERS:	o_ptr->pval = randint(8)  + 8; break;
-		case SV_STAFF_SUMMONING:		o_ptr->pval = randint(3)  + 1; break;
-		case SV_STAFF_TELEPORTATION:	o_ptr->pval = randint(4)  + 5; break;
-		case SV_STAFF_IDENTIFY:			o_ptr->pval = randint(15) + 5; break;
-		case SV_STAFF_STARLITE:			o_ptr->pval = randint(5)  + 6; break;
-		case SV_STAFF_LITE:				o_ptr->pval = randint(20) + 8; break;
-		case SV_STAFF_MAPPING:			o_ptr->pval = randint(5)  + 5; break;
-		case SV_STAFF_DETECT_GOLD:		o_ptr->pval = randint(20) + 8; break;
-		case SV_STAFF_DETECT_ITEM:		o_ptr->pval = randint(15) + 6; break;
-		case SV_STAFF_DETECT_TRAP:		o_ptr->pval = randint(5)  + 6; break;
-		case SV_STAFF_DETECT_DOOR:		o_ptr->pval = randint(8)  + 6; break;
-		case SV_STAFF_DETECT_INVIS:		o_ptr->pval = randint(15) + 8; break;
-		case SV_STAFF_DETECT_EVIL:		o_ptr->pval = randint(15) + 8; break;
-		case SV_STAFF_CURE_LIGHT:		o_ptr->pval = randint(5)  + 6; break;
-		case SV_STAFF_CURING:			o_ptr->pval = randint(3)  + 4; break;
-		case SV_STAFF_HEALING:			o_ptr->pval = randint(2)  + 1; break;
-		case SV_STAFF_THE_MAGI:			o_ptr->pval = randint(2)  + 2; break;
-		case SV_STAFF_SLEEP_MONSTERS:	o_ptr->pval = randint(5)  + 6; break;
-		case SV_STAFF_SLOW_MONSTERS:	o_ptr->pval = randint(5)  + 6; break;
-		case SV_STAFF_SPEED:			o_ptr->pval = randint(3)  + 4; break;
-		case SV_STAFF_PROBING:			o_ptr->pval = randint(6)  + 2; break;
-		case SV_STAFF_DISPEL_EVIL:		o_ptr->pval = randint(3)  + 4; break;
-		case SV_STAFF_POWER:			o_ptr->pval = randint(3)  + 1; break;
-		case SV_STAFF_HOLINESS:			o_ptr->pval = randint(2)  + 2; break;
-		case SV_STAFF_BANISHMENT:		o_ptr->pval = randint(2)  + 1; break;
-		case SV_STAFF_EARTHQUAKES:		o_ptr->pval = randint(5)  + 3; break;
-		case SV_STAFF_DESTRUCTION:		o_ptr->pval = randint(3)  + 1; break;
-		case SV_STAFF_MASS_IDENTIFY:	o_ptr->pval = randint(5) + 5; break;
-	}
-}
-
-/*
  *
  * Determines the theme of a chest.  This function is called
  * from chest_death when the chest is being opened. JG
@@ -2112,7 +1990,7 @@ static int choose_chest_contents (void)
 	 * chest theme #16 is reserved generating an actual chest, it shouldn't be returned here
 	 *     which returns the object *nothing* while opening a chest.
 	 * chest theme #2 is potions  (+ mushroom of restoring)
-	 * chest theme #3 is rods/wands/staffs
+	 * chest theme #3 is wands/talismans
 	 * chest theme #4 is scrolls
 	 * with gold, these are the themes up to 1100', where the weapons and
 	 * armor gradually begin to take over.
@@ -2153,6 +2031,7 @@ static int choose_chest_contents (void)
 	 * dragon armor scale mail.
 	 */
 	else chest_theme = DROP_TYPE_DRAGON_ARMOR;
+
 
 return(chest_theme);
 }
@@ -2251,7 +2130,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			while ((o_ptr->dd * o_ptr->ds > 0) &&
 			       (one_in_(chance)))
 			{
-				o_ptr->dd++;
+				o_ptr->ds++;
 			}
 
 			/* Hack -- Limit the damage dice to max of 9*/
@@ -2457,23 +2336,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				/* Weakness, Stupidity */
-				case SV_RING_WEAKNESS:
-				case SV_RING_STUPIDITY:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
 
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = 0 - (1 + m_bonus(5, level));
-
-					break;
-				}
-
-				/* WOE, Stupidity */
+				/* WOE */
 				case SV_RING_WOE:
 				{
 					/* Broken */
@@ -2588,10 +2452,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Amulet of wisdom/charisma/infravision */
+				/* Amulet of wisdom/infravision/luck */
 				case SV_AMULET_WISDOM:
-				case SV_AMULET_CHARISMA:
 				case SV_AMULET_INFRAVISION:
+				case SV_AMULET_LUCK:
 				{
 					/* Stat bonus */
 					o_ptr->pval = 1 + m_bonus(5 + (level / 35), level);
@@ -2747,13 +2611,18 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, bool good, bool 
 			/* Hack -- Torches -- random fuel */
 			if (o_ptr->sval == SV_LITE_TORCH)
 			{
-				o_ptr->timeout = 500 + randint(FUEL_TORCH / 2);
+				o_ptr->timeout = 1000;
 			}
 
 			/* Hack -- Lanterns -- random fuel */
 			else if (o_ptr->sval == SV_LITE_LANTERN)
 			{
-				o_ptr->timeout = 500 + randint(FUEL_LAMP / 2);
+				o_ptr->timeout = 2000;
+			}
+
+			else if (o_ptr->sval == SV_LITE_MAGELIGHT)
+			{
+				o_ptr->timeout = FUEL_TORCH;
 			}
 
 			break;
@@ -2761,24 +2630,25 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power, bool good, bool 
 
 		case TV_WAND:
 		{
-			/* Hack -- charge wands */
-			charge_wand(o_ptr);
 
+			object_aware(o_ptr);
+			object_known(o_ptr);
+			o_ptr->ident |= (IDENT_MENTAL);
 			break;
 		}
 
-		case TV_STAFF:
+		case TV_TALISMAN:
 		{
-			/* Hack -- charge staffs */
-			charge_staff(o_ptr);
 
+			object_aware(o_ptr);
+			object_known(o_ptr);
+			o_ptr->ident |= (IDENT_MENTAL);
 			break;
 		}
 
 		case TV_ROD:
 		{
-			/* Transfer the pval. */
-			o_ptr->pval = k_ptr->pval;
+
 			break;
 		}
 
@@ -2852,6 +2722,34 @@ void object_into_artifact(object_type *o_ptr, artifact_type *a_ptr)
 	if (a_ptr->a_flags3 & (TR3_PERFECT_BALANCE)) o_ptr->ident |= (IDENT_PERFECT_BALANCE);
 }
 
+int ac_ceiling(object_type *o_ptr){
+	int limit;
+	if (o_ptr->ac <= 1){
+		limit = 3;
+	} else if (o_ptr->ac <= 2){
+		limit = 4;
+	} else if (o_ptr->ac <= 3){
+		limit = 6;
+	} else if (o_ptr->ac <= 4){
+		limit = 8;
+	} else if (o_ptr->ac <= 6){
+		limit = 10;
+	} else if (o_ptr->ac <= 8){
+		limit = 12;
+	} else if (o_ptr->ac <= 10){
+		limit = 14;
+	} else if (o_ptr->ac <= 15){
+		limit = 16;
+	} else if (o_ptr->ac <= 20){
+		limit = 18;
+	} else if (o_ptr->ac <= 30){
+		limit = 21;
+	} else {
+		limit = 24;
+	}
+	return limit;
+}
+
 /*
  * Complete the "creation" of an object by applying "magic" to the item
  *
@@ -2875,8 +2773,8 @@ void object_into_artifact(object_type *o_ptr, artifact_type *a_ptr)
  * if it is "cursed", there is a chance it will be "broken".  These chances
  * are related to the "good" / "great" chances above.
  *
- * Otherwise "normal" rings and amulets will be "good" half the time and
- * "cursed" half the time, unless the ring/amulet is always good or cursed.
+ * Otherwise "normal" rings and amulets will be "good" 80% the time and
+ * "cursed" 20% the time, unless the ring/amulet is always good or cursed.
  *
  * If "okay" is true, and the object is going to be "great", then there is
  * a chance that an artifact will be created.  This is true even if both the
@@ -2885,22 +2783,24 @@ void object_into_artifact(object_type *o_ptr, artifact_type *a_ptr)
  */
 void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, bool interesting)
 {
-	int i, rolls, test_good, test_great, power;
+	int i, rolls, test_good, test_great, power, ceiling;
 
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
 	/* Base chance of being "good" */
-	test_good = lev + 10;
+	test_good = lev + 10 + adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]/2;
 
 	/* Maximal chance of being "good" */
 	if (test_good > 75) test_good = 75;
 
 	/* Base chance of being "great" */
-	test_great = test_good / 2;
+	test_great = (lev + 10) / 2;
 
 	/* Maximal chance of being "great" */
 	if (test_great > 20) test_great = 20;
+
+	test_great = test_great + adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]/2;
 
 	/* Assume normal */
 	power = 0;
@@ -2916,8 +2816,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	}
 
 	/* Roll for "cursed if not opening a chest" */
-	else if ((rand_int(100) < test_good) && (!interesting) &&
-		     (object_generation_mode != OB_GEN_MODE_CHEST))
+	else if ((!interesting) &&
+		     (object_generation_mode != OB_GEN_MODE_CHEST) &&
+			 randint(100) <= adj_luc_curse_chance[p_ptr->stat_ind[A_LUC]])
 	{
 		/* Assume "cursed" */
 		power = -1;
@@ -2933,13 +2834,17 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	if (power >= 2) rolls = 1;
 
 	/*
-	 * Get four rolls if good and great flags are true,
-	 * only 2 for quests ince they are so repetitive
+	 * Get three rolls if good and great flags are true,
 	 */
 	if ((good) && (great))
 	{
-		if (object_generation_mode == OB_GEN_MODE_QUEST) rolls = 2;
-		else rolls = 4;
+		rolls = 3;
+	}
+
+	if (rolls > 0){
+		if (adj_luc_good_chance[p_ptr->stat_ind[A_LUC]] > 0 && one_in_(2)){
+			rolls = rolls + adj_luc_good_chance[p_ptr->stat_ind[A_LUC]] / 10;
+		}
 	}
 
 	/* Get no rolls if not allowed */
@@ -2974,6 +2879,15 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		/* Cheat -- peek at the item */
 		if (cheat_peek) object_mention(o_ptr);
 
+		if (o_ptr->tval==TV_HARD_ARMOR || o_ptr->tval==TV_SOFT_ARMOR || o_ptr->tval==TV_SHIELD || o_ptr->tval==TV_HELM || o_ptr->tval==TV_CLOAK || o_ptr->tval==TV_CROWN || o_ptr->tval==TV_GLOVES || o_ptr->tval==TV_BOOTS || o_ptr->tval==TV_DRAG_ARMOR || o_ptr->tval==TV_DRAG_SHIELD){
+			ceiling = ac_ceiling(o_ptr);
+			if (o_ptr->to_a > ceiling){
+				o_ptr->to_a = ceiling + (o_ptr->to_a - ceiling)/3;
+			} else if (o_ptr->ac > 0){
+				o_ptr->to_a = o_ptr->to_a + (ceiling - o_ptr->to_a)/3;
+			}
+		} 
+		
 		/* Done */
 		return;
 	}
@@ -3046,7 +2960,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		case TV_RING:
 		case TV_AMULET:
 		{
-			if (!power && !interesting && (one_in_(2) < 50)) power = -1;
+			if (!power && !interesting && (one_in_(5))) power = -1;
 			a_m_aux_3(o_ptr, lev, power);
 			break;
 		}
@@ -3061,19 +2975,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 			/* Fuel it */
 			a_m_aux_4(o_ptr, lev, power, good, great);
 			break;
-		}
-
-		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
-		case TV_DRUID_BOOK:
-		{
-		  	if ((power > 1) || (power < -1))
-			{
-			  	make_ego_item(o_ptr, (bool)(good || great), great);
-			}
-
-			a_m_aux_4(o_ptr, lev, power, good, great);
- 			break;
 		}
 
 		default:
@@ -3301,9 +3202,27 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		/* Cheat -- describe the item */
 		if (cheat_peek) object_mention(o_ptr);
 
+		if (o_ptr->tval==TV_HARD_ARMOR || o_ptr->tval==TV_SOFT_ARMOR || o_ptr->tval==TV_SHIELD || o_ptr->tval==TV_HELM || o_ptr->tval==TV_CLOAK || o_ptr->tval==TV_CROWN || o_ptr->tval==TV_GLOVES || o_ptr->tval==TV_BOOTS || o_ptr->tval==TV_DRAG_ARMOR || o_ptr->tval==TV_DRAG_SHIELD){
+			ceiling = ac_ceiling(o_ptr);
+			if (o_ptr->to_a > ceiling){
+				o_ptr->to_a = ceiling + (o_ptr->to_a - ceiling)/3;
+			} else if (o_ptr->ac > 0){
+				o_ptr->to_a = o_ptr->to_a + (ceiling - o_ptr->to_a)/3;
+			}
+		} 
+		
 		/* Done */
 		return;
 	}
+
+	if (o_ptr->tval==TV_HARD_ARMOR || o_ptr->tval==TV_SOFT_ARMOR || o_ptr->tval==TV_SHIELD || o_ptr->tval==TV_HELM || o_ptr->tval==TV_CLOAK || o_ptr->tval==TV_CROWN || o_ptr->tval==TV_GLOVES || o_ptr->tval==TV_BOOTS || o_ptr->tval==TV_DRAG_ARMOR || o_ptr->tval==TV_DRAG_SHIELD){
+		ceiling = ac_ceiling(o_ptr);
+		if (o_ptr->to_a > ceiling){
+			o_ptr->to_a = ceiling + (o_ptr->to_a - ceiling)/3;
+		} else if (o_ptr->ac > 0){
+			o_ptr->to_a = o_ptr->to_a + (ceiling - o_ptr->to_a)/3;
+		}
+	} 
 
 
 	/* Examine real objects */
@@ -3417,7 +3336,6 @@ static bool kind_is_armoury(int k_idx)
 			if (allow_altered_inventory) return (TRUE);
 			if (k_ptr->sval == SV_METAL_SCALE_MAIL) return (TRUE);
 			if (k_ptr->sval == SV_CHAIN_MAIL) return (TRUE);
-			if (k_ptr->sval == SV_AUGMENTED_CHAIN_MAIL) return (TRUE);
 			if (k_ptr->sval == SV_DOUBLE_CHAIN_MAIL) return (TRUE);
 			if (k_ptr->sval == SV_METAL_BRIGANDINE_ARMOUR) return (TRUE);
 			return(FALSE);
@@ -3638,9 +3556,7 @@ static bool kind_is_alchemy(int k_idx)
 			if (k_ptr->sval == SV_SCROLL_DETECT_ITEM) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_DETECT_DOOR) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_DETECT_INVIS) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_RECHARGING) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_SATISFY_HUNGER) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_WORD_OF_RECALL) return (TRUE);
 			return (FALSE);
 		}
 		case TV_POTION:
@@ -3655,7 +3571,10 @@ static bool kind_is_alchemy(int k_idx)
 			if (k_ptr->sval == SV_POTION_RES_WIS) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RES_DEX) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RES_CON) return (TRUE);
-			if (k_ptr->sval == SV_POTION_RES_CHR) return (TRUE);
+			if (k_ptr->sval == SV_POTION_RES_AGI) return (TRUE);
+			if (k_ptr->sval == SV_POTION_RES_STE) return (TRUE);
+			if (k_ptr->sval == SV_POTION_RES_PER) return (TRUE);
+			if (k_ptr->sval == SV_POTION_RES_LUC) return (TRUE);
 		}
 
 	}
@@ -3693,7 +3612,6 @@ static bool kind_is_magic_shop(int k_idx)
 		case TV_AMULET:
 		{
 			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_AMULET_CHARISMA) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_SLOW_DIGEST) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_RESIST_ACID) return (TRUE);
 			return (FALSE);
@@ -3701,30 +3619,12 @@ static bool kind_is_magic_shop(int k_idx)
 		/*Amulets suitable for the magic_shop*/
 		case TV_WAND:
 		{
-			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_WAND_SLOW_MONSTER) return (TRUE);
-			if (k_ptr->sval == SV_WAND_CONFUSE_MONSTER) return (TRUE);
-			if (k_ptr->sval == SV_WAND_SLEEP_MONSTER) return (TRUE);
-			if (k_ptr->sval == SV_WAND_MAGIC_MISSILE) return (TRUE);
-			if (k_ptr->sval == SV_WAND_STINKING_CLOUD) return (TRUE);
-			if (k_ptr->sval == SV_WAND_WONDER) return (TRUE);
-			return (FALSE);
+			return (TRUE);
 		}
 		/*Staves suitable for the magic_shop*/
-		case TV_STAFF:
+		case TV_TALISMAN:
 		{
-			if (allow_altered_inventory) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_LITE) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_MAPPING) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_DETECT_TRAP) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_DETECT_DOOR) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_DETECT_GOLD) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_DETECT_ITEM) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_DETECT_INVIS) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_DETECT_EVIL) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_TELEPORTATION) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_IDENTIFY) return (TRUE);
-			return (FALSE);
+			return (TRUE);
 		}
 
 	}
@@ -3860,8 +3760,6 @@ static bool kind_is_bookshop(int k_idx)
 	{
 
 		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
-		case TV_DRUID_BOOK:
 		{
 			if (allow_altered_inventory) return (TRUE);
 			if (k_ptr->sval < SV_BOOK_MIN_GOOD) return (TRUE);
@@ -4007,12 +3905,10 @@ static bool kind_is_great(int k_idx)
 			return (FALSE);
 		}
 
-		/*scrolls of "*Acquirement*" are great*/
+		/*scrolls of Acquirement are great*/
 		case TV_SCROLL:
 		{
-			if (k_ptr->sval == SV_SCROLL_STAR_ACQUIREMENT) return (TRUE);
-			if ((k_ptr->sval == SV_SCROLL_CREATE_RANDART) &&
-			    (!adult_no_xtra_artifacts))   return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_ACQUIREMENT) return (TRUE);
 			return (FALSE);
 		}
 
@@ -4380,6 +4276,75 @@ static bool kind_is_weapon(int k_idx)
 }
 
 /*
+ * Hack -- determine if a template is a arrows.
+ */
+static bool kind_is_arrows(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	/* Analyze the item type */
+	switch (k_ptr->tval)
+	{
+		/* Weapons -- suitable  unless damaged */
+		case TV_ARROW:
+		{
+			if (k_ptr->to_h < 0) return (FALSE);
+			if (k_ptr->to_d < 0) return (FALSE);
+			return (TRUE);
+		}
+	}
+
+	/* Assume not suitable */
+	return (FALSE);
+}
+
+/*
+ * Hack -- determine if a template is a bolts.
+ */
+static bool kind_is_bolts(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	/* Analyze the item type */
+	switch (k_ptr->tval)
+	{
+		/* Weapons -- suitable  unless damaged */
+		case TV_BOLT:
+		{
+			if (k_ptr->to_h < 0) return (FALSE);
+			if (k_ptr->to_d < 0) return (FALSE);
+			return (TRUE);
+		}
+	}
+
+	/* Assume not suitable */
+	return (FALSE);
+}
+
+/*
+ * Hack -- determine if a template is a shots.
+ */
+static bool kind_is_shot(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	/* Analyze the item type */
+	switch (k_ptr->tval)
+	{
+		/* Weapons -- suitable  unless damaged */
+		case TV_SHOT:
+		{
+			if (k_ptr->to_h < 0) return (FALSE);
+			if (k_ptr->to_d < 0) return (FALSE);
+			return (TRUE);
+		}
+	}
+
+	/* Assume not suitable */
+	return (FALSE);
+}
+
+/*
  * Hack -- determine if a scroll is suitable for a chest.
  *
  */
@@ -4395,31 +4360,19 @@ static bool kind_is_scroll(int k_idx)
 		case TV_SCROLL:
 		{
 			if (k_ptr->sval == SV_SCROLL_ACQUIREMENT) return (TRUE);
-			if ((k_ptr->sval == SV_SCROLL_CREATE_RANDART) &&
-			    (!adult_no_xtra_artifacts))   return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_STAR_ACQUIREMENT) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_BANISHMENT) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_MASS_BANISHMENT) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_RUNE_OF_PROTECTION) return (TRUE);
-			if ((k_ptr->sval == SV_SCROLL_TELEPORT) &&
-				((k_ptr->k_level + 15) >= object_level )) return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_TELEPORT) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) return (TRUE);
-			if ((k_ptr->sval == SV_SCROLL_RECHARGING) &&
-				((k_ptr->k_level + 15) >= object_level )) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_STAR_RECHARGING) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_CREATE_MONSTER_TRAP) return (TRUE);
 
 			return (FALSE);
 		}
 
-		/* Books -- HACK - High level books are good only
-		 * if within 5 levels of being out of depth */
+		/* Books  */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
 		case TV_DRUID_BOOK:
 		{
-			if (((k_ptr->k_level - 5) < object_level ) &&
-			(k_ptr->sval >= SV_BOOK_MIN_GOOD)) return (TRUE);
+			if ((k_ptr->sval >= SV_BOOK_MIN_GOOD)) return (TRUE);
 			return (FALSE);
 		}
 
@@ -4446,25 +4399,11 @@ static bool kind_is_potion(int k_idx)
 		case TV_POTION:
 		{
 			if (k_ptr->sval == SV_POTION_SPEED) return (TRUE);
-			if ((k_ptr->sval == SV_POTION_HEALING) &&
-				((k_ptr->k_level + 20) >= object_level )) return (TRUE);
+			if (k_ptr->sval == SV_POTION_HEALING) return (TRUE);
 			if (k_ptr->sval == SV_POTION_STAR_HEALING) return (TRUE);
 			if (k_ptr->sval == SV_POTION_LIFE) return (TRUE);
-			if ((k_ptr->sval == SV_POTION_INC_STR) &&
-				((k_ptr->k_level + 10) >= object_level )) return (TRUE);
-			if ((k_ptr->sval == SV_POTION_INC_INT) &&
-				((k_ptr->k_level + 10) >= object_level )) return (TRUE);
-			if ((k_ptr->sval == SV_POTION_INC_WIS) &&
-				((k_ptr->k_level + 10) >= object_level )) return (TRUE);
-			if ((k_ptr->sval == SV_POTION_INC_DEX) &&
-				((k_ptr->k_level + 10) >= object_level )) return (TRUE);
-			if ((k_ptr->sval == SV_POTION_INC_CON) &&
-				((k_ptr->k_level + 10) >= object_level )) return (TRUE);
-			if ((k_ptr->sval == SV_POTION_INC_CHR) &&
-				((k_ptr->k_level + 10) >= object_level )) return (TRUE);
-			if ((k_ptr->sval == SV_POTION_AUGMENTATION) &&
-				((k_ptr->k_level + 10) >= object_level )) return (TRUE);
-			if (k_ptr->sval == SV_POTION_EXPERIENCE) return (TRUE);
+			if (k_ptr->sval == SV_POTION_RESTORING) return (TRUE);
+			if (k_ptr->sval == SV_POTION_CURE_CRITICAL) return (TRUE);
 			if (k_ptr->sval == SV_POTION_ENLIGHTENMENT) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RESISTANCE) return (TRUE);
 
@@ -4474,8 +4413,8 @@ static bool kind_is_potion(int k_idx)
 		case TV_FOOD:
 		/* HACK -  Mushrooms of restoring can be with potions */
 		{
-			if ((k_ptr->sval == SV_FOOD_RESTORING) &&
-				((k_ptr->k_level + 25) >= object_level )) return (TRUE);
+		//if ((k_ptr->sval == SV_FOOD_RESTORING) &&
+		//		((k_ptr->k_level + 25) >= object_level )) return (TRUE);
 			return (FALSE);
 		}
 
@@ -4486,10 +4425,10 @@ static bool kind_is_potion(int k_idx)
 }
 
 /*
- * Hack -- determine if a rod/wand/staff is good for a chest.
+ * Hack -- determine if a wand/talisman is good for a chest.
  *
  */
-static bool kind_is_rod_wand_staff(int k_idx)
+static bool kind_is_rod_wand_talisman(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
@@ -4501,55 +4440,14 @@ static bool kind_is_rod_wand_staff(int k_idx)
 		case TV_WAND:
 
 		{
-			if ((k_ptr->sval == SV_WAND_TELEPORT_AWAY) &&
-				((k_ptr->k_level + 20) >= object_level )) return (TRUE);
-			if ((k_ptr->sval == SV_WAND_STONE_TO_MUD) &&
-				((k_ptr->k_level + 20) >= object_level )) return (TRUE);
-			if (k_ptr->sval == SV_WAND_ANNIHILATION) return (TRUE);
-			if (k_ptr->sval == SV_WAND_DRAGON_FIRE) return (TRUE);
-			if (k_ptr->sval == SV_WAND_DRAGON_COLD) return (TRUE);
-			if (k_ptr->sval == SV_WAND_DRAGON_BREATH) return (TRUE);
-
-			return (FALSE);
-
+			return (TRUE);
 		}
 
-		/*staffs suitable for a chest*/
-		case TV_STAFF:
+		/*talismans suitable for a chest*/
+		case TV_TALISMAN:
 
 		{
-			if ((k_ptr->sval == SV_STAFF_TELEPORTATION) &&
-				((k_ptr->k_level + 20) >= object_level )) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_THE_MAGI) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_SPEED) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_DISPEL_EVIL) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_POWER) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_HOLINESS) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_BANISHMENT) return (TRUE);
-			if (k_ptr->sval == SV_STAFF_MASS_IDENTIFY) return (TRUE);
-			if ((k_ptr->sval == SV_STAFF_DESTRUCTION) &&
-				((k_ptr->k_level + 20) >= object_level )) return (TRUE);
-			return (FALSE);
-		}
-
-		/*rods suitable for a chest*/
-		case TV_ROD:
-
-		{
-			if ((k_ptr->sval == SV_ROD_IDENTIFY) &&
-				((k_ptr->k_level + 20) >= object_level )) return (TRUE);
-			if ((k_ptr->sval == SV_ROD_DETECTION) &&
-				((k_ptr->k_level + 20) >= object_level )) return (TRUE);
-			if ((k_ptr->sval == SV_ROD_STONE_TO_MUD) &&
-				((k_ptr->k_level + 10) >= object_level )) return (TRUE);
-			if (k_ptr->sval == SV_ROD_HEALING) return (TRUE);
-			if (k_ptr->sval == SV_ROD_RESTORATION) return (TRUE);
-			if (k_ptr->sval == SV_ROD_SPEED) return (TRUE);
-			if (k_ptr->sval == SV_ROD_STAR_IDENTIFY) return (TRUE);
-			if (k_ptr->sval == SV_ROD_MASS_IDENTIFY) return (TRUE);
-			if ((k_ptr->sval == SV_ROD_TELEPORT_AWAY) &&
-				((k_ptr->k_level + 20) >= object_level )) return (TRUE);
-			return (FALSE);
+			return (TRUE);
 		}
 
 	}
@@ -4657,16 +4555,11 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
-		/* Books -- HACK - High level books are good only
-		 * if within 15 levels of being out of depth
-		 **/
-
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
 		case TV_DRUID_BOOK:
 		{
-			if (((k_ptr->k_level - 15) < object_level ) &&
-			(k_ptr->sval >= SV_BOOK_MIN_GOOD)) return (TRUE);
+			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
 		}
 
@@ -4693,21 +4586,20 @@ static bool kind_is_good(int k_idx)
 
 		{
 			if (k_ptr->sval == SV_SCROLL_ACQUIREMENT) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_STAR_ACQUIREMENT) return (TRUE);
-			if ((k_ptr->sval == SV_SCROLL_CREATE_RANDART) &&
-			    (!adult_no_xtra_artifacts))   return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_STAR_IDENTIFY) return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_TELEPORT)   return (TRUE);
 			return (FALSE);
 		}
 
 		/*the very powerful healing potions can be good*/
 		case TV_POTION:
 		{
-			if ((k_ptr->sval == SV_POTION_STAR_HEALING) ||
+			if ((k_ptr->sval == SV_POTION_RESTORING) ||
+				(k_ptr->sval == SV_POTION_CURE_CRITICAL) ||
+				(k_ptr->sval == SV_POTION_HEALING) ||
 				(k_ptr->sval == SV_POTION_LIFE))
 		   	{
-			    if (object_level > 85)
-
-				return (TRUE);
+			    return (TRUE);
 			}
 			return (FALSE);
 		}
@@ -4717,6 +4609,16 @@ static bool kind_is_good(int k_idx)
 		{
 			return (TRUE);
 		}
+
+		case TV_TALISMAN:
+			{
+				return (TRUE);
+			}
+
+		case TV_WAND:
+			{
+				return (TRUE);
+			}
 
 	}
 
@@ -4737,7 +4639,8 @@ static bool kind_is_good(int k_idx)
  */
 bool make_object(object_type *j_ptr, bool good, bool great, int objecttype, bool interesting)
 {
-	int prob, base;
+	int prob, base, tval;
+	object_kind *k_ptr;
 
 	/* Chance of "special object" */
 	prob = ((good || great) ? 10 : 1000);
@@ -4751,7 +4654,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype, bool
 	/*Give some items an extra boost in base level*/
 	if (interesting)
 	{
-		base += 15;
+		base += 20;
 
 		/* Boundry Control */
 		if (base > MAX_DEPTH) base = MAX_DEPTH;
@@ -4776,7 +4679,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype, bool
 		{
 			/*note - theme 1 is gold, sent to the make_gold function*/
 			if (objecttype == DROP_TYPE_POTION)						get_obj_num_hook = kind_is_potion;
-			else if (objecttype == DROP_TYPE_ROD_WAND_STAFF) 		get_obj_num_hook = kind_is_rod_wand_staff;
+			else if (objecttype == DROP_TYPE_ROD_WAND_TALISMAN)		get_obj_num_hook = kind_is_rod_wand_talisman;
 			else if (objecttype == DROP_TYPE_SCROLL) 				get_obj_num_hook = kind_is_scroll;
 			else if (objecttype == DROP_TYPE_SHIELD) 				get_obj_num_hook = kind_is_shield;
 			else if (objecttype == DROP_TYPE_WEAPON) 				get_obj_num_hook = kind_is_weapon;
@@ -4796,6 +4699,9 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype, bool
 			else if (objecttype == DROP_TYPE_EDGED)					get_obj_num_hook = kind_is_edged;
 			else if (objecttype == DROP_TYPE_POLEARM)				get_obj_num_hook = kind_is_polearm;
 			else if (objecttype == DROP_TYPE_DIGGING)				get_obj_num_hook = kind_is_digging_tool;
+			else if (objecttype == DROP_TYPE_ARROWS)				get_obj_num_hook = kind_is_arrows;
+			else if (objecttype == DROP_TYPE_BOLTS)					get_obj_num_hook = kind_is_bolts;
+			else if (objecttype == DROP_TYPE_SHOT)					get_obj_num_hook = kind_is_shot;
 
 			/*
 			 *	If it isn't a chest, check good and great flags.
@@ -4812,7 +4718,20 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype, bool
 		}
 
 		/* Pick a random object */
-		k_idx = get_obj_num(base);
+		while (1){
+  			k_idx = get_obj_num(base);
+			if ((objecttype) || (good) || (great) || (interesting)) break;
+
+			k_ptr = &k_info[k_idx];
+			tval = k_ptr->tval;
+			if (tval==TV_BOOTS || tval==TV_GLOVES || tval==TV_HELM || tval==TV_CROWN || tval==TV_SHIELD || tval==TV_CLOAK || tval==TV_SOFT_ARMOR || tval==TV_HARD_ARMOR || tval==TV_DRAG_ARMOR || tval==TV_DRAG_SHIELD){
+				if (one_in_(2)) break;
+			} else if (tval==TV_BOW || tval==TV_DIGGING || tval==TV_HAFTED || tval==TV_POLEARM || tval==TV_SWORD){
+				if (one_in_(2)) break;
+			} else {
+				break;
+			}
+		}
 
 		/* Clear the objects template*/
 		if ((objecttype) ||	(good) || (great) || (interesting))
@@ -4850,10 +4769,10 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype, bool
 
 	/* Notice "okay" out-of-depth objects */
 	if (!cursed_p(j_ptr) && !broken_p(j_ptr) &&
-	    (k_info[j_ptr->k_idx].k_level > p_ptr->depth))
+	    (k_info[j_ptr->k_idx].k_level > danger(p_ptr->depth)))
 	{
 		/* Rating increase */
-		rating += (k_info[j_ptr->k_idx].k_level - p_ptr->depth);
+		rating += (k_info[j_ptr->k_idx].k_level - danger(p_ptr->depth));
 
 		/* Cheat -- peek at items */
 		if (cheat_peek) object_mention(j_ptr);
@@ -5682,17 +5601,7 @@ void place_gold(int y, int x)
  */
 void inven_item_charges(int item)
 {
-	object_type *o_ptr = &inventory[item];
-
-	/* Require staff/wand */
-	if ((o_ptr->tval != TV_STAFF) && (o_ptr->tval != TV_WAND)) return;
-
-	/* Require known item */
-	if (!object_known_p(o_ptr)) return;
-
-	/* Print a message */
-	msg_format("You have %d charge%s remaining.", o_ptr->pval,
-	           (o_ptr->pval != 1) ? "s" : "");
+	return;
 }
 
 
@@ -5837,17 +5746,7 @@ void inven_item_optimize(int item)
  */
 void floor_item_charges(int item)
 {
-	object_type *o_ptr = &o_list[item];
-
-	/* Require staff/wand */
-	if ((o_ptr->tval != TV_STAFF) && (o_ptr->tval != TV_WAND)) return;
-
-	/* Require known item */
-	if (!object_known_p(o_ptr)) return;
-
-	/* Print a message */
-	msg_format("There are %d charge%s remaining.", o_ptr->pval,
-	           (o_ptr->pval != 1) ? "s" : "");
+	return;
 }
 
 
@@ -6267,9 +6166,6 @@ void inven_drop(int item, int amt)
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
-	/* Distribute charges of wands or rods */
-	distribute_charges(o_ptr, i_ptr, amt);
-
 	/* Modify quantity */
 	i_ptr->number = amt;
 
@@ -6472,65 +6368,6 @@ void reorder_pack(void)
 }
 
 
-
-
-/*
- * Distribute charges of rods or wands.
- *
- * o_ptr = source item
- * q_ptr = target item, must be of the same type as o_ptr
- * amt	 = number of items that are transfered
- */
-void distribute_charges(object_type *o_ptr, object_type *i_ptr, int amt)
-{
-	/*
-	 * Hack -- If rods, wands or staffs are dropped, the total maximum timeout or
-	 * charges need to be allocated between the two stacks.   If all the items
-
-	 * are being dropped, it makes for a neater message to leave the original
-	 * stack's pval alone. -LM-
-	 */
-	if ((o_ptr->tval == TV_WAND) ||
-		(o_ptr->tval == TV_ROD) ||
-		(o_ptr->tval == TV_STAFF))
-	{
-		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-
-		if (amt < o_ptr->number) o_ptr->pval -= i_ptr->pval;
-
-		/* Hack -- Rods also need to have their timeouts distributed.  The
-		 * dropped stack will accept all time remaining to charge up to its
-		 * maximum.
-		 */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
-		{
-			if (i_ptr->pval > o_ptr->timeout)
-				i_ptr->timeout = o_ptr->timeout;
-			else
-				i_ptr->timeout = i_ptr->pval;
-
-			if (amt < o_ptr->number)
-				o_ptr->timeout -= i_ptr->timeout;
-		}
-	}
-}
-
-void reduce_charges(object_type *o_ptr, int amt)
-{
-	/*
-	 * Hack -- If rods or wand are destroyed, the total maximum timeout or
-	 * charges of the stack needs to be reduced, unless all the items are
-	 * being destroyed. -LM-
-	 */
-	if (((o_ptr->tval == TV_WAND) ||
-		 (o_ptr->tval == TV_ROD) ||
-		 (o_ptr->tval == TV_STAFF)) &&
-		(amt < o_ptr->number))
-	{
-		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
-	}
-}
-
 /* Steal from monster and make an object in the player inventory.
  * This whole function is basically an abbreviated object creation
  * routine.  Much of the object creation code can't be called because
@@ -6561,7 +6398,7 @@ void steal_object_from_monster(int y, int x)
 	object_type object_type_body;
 
 	/* Average dungeon and monster levels */
-	object_level = (p_ptr->depth + r_ptr->level) / 2;
+	object_level = (danger(p_ptr->depth) + r_ptr->level) / 2;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -6710,7 +6547,7 @@ void steal_object_from_monster(int y, int x)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = danger(p_ptr->depth);
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -7421,13 +7258,19 @@ void format_object_flags(const object_type *o_ptr, char buf[], int max, bool onl
 		{TR1_WIS,		1,	"WIS"},
 		{TR1_DEX,		1,	"DEX"},
 		{TR1_CON,		1,	"CON"},
-		{TR1_CHR,		1,	"CHR"},
+		{TR1_AGI,		1,	"AGI"},
+		{TR1_STE,		1,	"STE"},
+		{TR1_PER,		1,	"PER"},
+		{TR1_LUC,		1,	"LUC"},
 		{TR2_SUST_STR,		2,	"SustSTR"},
 		{TR2_SUST_INT,		2,	"SustINT"},
 		{TR2_SUST_WIS,		2,	"SustWIS"},
 		{TR2_SUST_DEX,		2,	"SustDEX"},
 		{TR2_SUST_CON,		2,	"SustCON"},
-		{TR2_SUST_CHR,		2,	"SustCHR"},
+		{TR2_SUST_AGI,		2,	"SustAGI"},
+		{TR2_SUST_STE,		2,	"SustSTE"},
+		{TR2_SUST_PER,		2,	"SustPER"},
+		{TR2_SUST_LUC,		2,	"SustLUC"},
 		{TR1_BRAND_ACID,	1,	"BrandAcid"},
 		{TR1_BRAND_ELEC,	1,	"BrandElec"},
 		{TR1_BRAND_FIRE,	1,	"BrandFire"},

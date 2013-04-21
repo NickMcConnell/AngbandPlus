@@ -853,8 +853,8 @@ void apply_monster_trap(int f_idx, int y, int x, byte mode)
 		/* Destroy the trap */
 		delete_effect_idx(cave_x_idx[y][x]);
 
-		/* Redraw the spot */
-		lite_spot(y, x);
+		/* Forget the trap */
+		cave_info[y][x] &= ~(CAVE_MARK);
 
 		/*one less trap on level*/
 		num_trap_on_level--;
@@ -2039,13 +2039,10 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 
 	u16b feat;
 
-	bool is_native;
+	bool is_native = is_monster_native(y, x, r_ptr);
 
 	/* Check Bounds */
-	if (!in_bounds(y, x)) return (0);
-
-	/* Check nativity */
-	is_native = is_monster_native(y, x, r_ptr);
+	if (!in_bounds(y, x)) return (FALSE);
 
 	/* Check location */
 	feat = cave_feat[y][x];
@@ -2116,7 +2113,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	}
 
 	/* Monster is flying*/
-	else if (MONSTER_CAN_FLY(m_ptr, feat))
+	else if (m_ptr->mflag & (MFLAG_FLYING))
 	{
 		move_chance = 100;
 	}
@@ -2124,8 +2121,8 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	/* Is the monster native to that square */
 	else if (!is_native)
 	{
-		/* Will monster be significantly damaged by going there? */
-		if ((f_info[feat].dam_non_native) > (m_ptr->hp / 15)) return (0);
+		/* Will monster be damaged by going there? */
+		if (f_info[feat].dam_non_native) return (0);
 
 		/*desirability of the move is based on energy to go in square*/
 		move_chance = 10000 / f_info[feat].non_native_energy_move;
@@ -2172,7 +2169,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	}
 
 	/* Feature is a wall but the monster can fly over it */
-	else if (MONSTER_CAN_FLY(m_ptr, feat))
+	else if ((m_ptr->mflag & (MFLAG_FLYING)) && feat_ff2_match(feat, FF2_CAN_FLY))
 	{
 		return (move_chance);
 	}
@@ -3073,6 +3070,8 @@ static bool get_move_retreat(monster_type *m_ptr, int *ty, int *tx)
 	bool done = FALSE;
 	bool dummy;
 
+	char m_name[80];
+
 	/* If the monster is well away from danger, let it relax. */
 	if (m_ptr->cdis >= FLEE_RANGE)
 	{
@@ -3246,8 +3245,6 @@ static bool get_move_retreat(monster_type *m_ptr, int *ty, int *tx)
 
 				/* Charge!  XXX XXX */
 				m_ptr->min_range = 1;  m_ptr->best_range = 1;
-
-				char m_name[80];
 
 				/* Get the monster name */
 				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
@@ -3432,8 +3429,7 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 		}
 
 		/*Are we taking damage where we are?*/
-		if (!cave_no_dam_for_mon(m_ptr->fy, m_ptr->fx, r_ptr) &&
-                       !MONSTER_CAN_FLY(m_ptr, cave_feat[m_ptr->fy][m_ptr->fx]))
+		if (!cave_no_dam_for_mon(m_ptr->fy, m_ptr->fx, r_ptr))
 		{
 			/*Move towards the player*/
 			*fear = FALSE;
@@ -4546,6 +4542,13 @@ static s16b process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 		}
 	}
 
+	/* The monster is under covered terrain, moving to uncovered terrain. */
+	if ((m_ptr->mflag & (MFLAG_HIDE)) &&
+		!(cave_ff2_match(ny, nx, FF2_COVERED) && is_monster_native(ny, nx, r_ptr)))
+	{
+		monster_unhide(m_ptr);
+	}
+
 	/* Can still move */
 	if (do_move)
 	{
@@ -4580,7 +4583,7 @@ static s16b process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 			}
 
 			/* Monster flies over suitable terrain */
-			else if (MONSTER_CAN_FLY(m_ptr, feat))
+			else if ((m_ptr->mflag & (MFLAG_FLYING)) && feat_ff2_match(feat, FF2_CAN_FLY))
 			{
 				/* Blank test */
 			}
@@ -4850,6 +4853,9 @@ static s16b process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 		/* Move the monster */
 		monster_swap(oy, ox, ny, nx);
 
+		/* Hide monster if allowed */
+		monster_hide(m_ptr);
+
 		/*Mark the movement in the terrain lore, if the player is in a state to do so*/
 		if (player_can_observe() && (m_ptr->ml) && (!(m_ptr->mflag & (MFLAG_FLYING))))
 		{
@@ -4949,6 +4955,7 @@ static s16b process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 
 				/* Activate all other monsters and give directions */
 				n_ptr->csleep = 0;
+				p_ptr->n_woken += 1;
 				n_ptr->mflag |= (MFLAG_ACTV);
 				n_ptr->target_y = ny;   n_ptr->target_x = nx;
 			}
@@ -5217,6 +5224,7 @@ static void tell_allies(int y, int x, u32b flag)
 
 		/* Activate all other monsters and communicate to them */
 		n_ptr->csleep = 0;
+		p_ptr->n_woken += 1;
 		n_ptr->mflag |= (MFLAG_ACTV | flag);
 
 	}
@@ -5236,10 +5244,9 @@ static s16b process_monster(monster_type *m_ptr)
 	int chance = 0;
 	int choice = 0;
 	int dir;
-
 	bool fear = FALSE;
 
-	bool bash = FALSE;
+	bool bash;
 
 	/* Assume the monster doesn't have a target */
 	bool must_use_target = FALSE;
@@ -5247,12 +5254,14 @@ static s16b process_monster(monster_type *m_ptr)
 	/* Will the monster move randomly? */
 	bool random_move = FALSE;
 
+
 	/* Calculate the monster's preferred combat range when needed */
 	if (m_ptr->min_range == 0) find_range(m_ptr);
 
 	/* Monster is in active mode. */
 	if (m_ptr->mflag & (MFLAG_ACTV))
 	{
+
 		/*
 		 * Character is outside of scanning range and well outside
 		 * of sighting range.  Monster does not have a target.
@@ -5464,17 +5473,14 @@ static s16b process_monster(monster_type *m_ptr)
 
 		}
 
-		/*
-		 * EXPERIMENTAL: DISABLED CHANCE BONUS WHEN AGGRAVATING -DG 
-		 */
-
 		/* Now aggravate really aggravates the monsters*/
-		/*else if (p_ptr->aggravate) chance += ((100 - chance) / 10);*/
+		else if (p_ptr->aggravate) chance += ((100 - chance) / 10);
 
 		/*Monsters marked as aggressive do the same*/
 		else if (m_ptr->mflag & (MFLAG_AGGRESSIVE))
 		{
 			chance += ((100 - chance) / 10);
+
 		}
 
 		/* Cannot use ranged attacks when confused. */
@@ -5763,6 +5769,9 @@ static void recover_monster(monster_type *m_ptr)
 
 				/* Dump a message */
 				msg_format("%^s wakes up.", m_name);
+			} else if (!(m_ptr->mimic_k_idx) && (disturb_wakeup))
+			{
+				p_ptr->n_woken += 1;
 			}
 		}
 
@@ -5837,6 +5846,9 @@ static void recover_monster(monster_type *m_ptr)
 					{
 						l_ptr->wake++;
 					}
+				} else 
+				{
+					p_ptr->n_woken += 1;
 				}
 			}
 		}

@@ -1,9 +1,28 @@
+                           
+                            ****************
+                            *   IRONBAND   *
+                            ****************
+                           
+   Ironband is a variant of NPPAngband, which in turn is a variant of Angband. 
+           The mission is to descend to the 50th level of the dungeon
+                    and defeat The Witch-King of Angmar.
+     
+                                        
+                   The author of Ironband is Antoine.
+            He would welcome feedback at mail@guildgame.com.
+                        
+                       
+          The NPPAngband acknowledgement notice is given below.         
+
+
+ ---------------------------------------------------------------------------------
+
 
            **************************************************
-           **  NPPAngband 0.5.0 - A Variant of Angband     **
+           **  NPPAngband 0.5.0-BETA4 A Variant of Angband **
            **************************************************
-NPPAngband 0.5.0 =  Copyright (c) 2003-2012 Diego Gonz['a]lez and Jeff Greene
-NPPAngband 0.1.0 - 0.4.1 Copyright (c) 2003-2012 Jeff Greene and Diego Gonz['a]lez
+      NPPAngband 0.5.0 = ? Copyright (c) 2003-6 Jeff Greene and Diego Gonz['a]lez
+		NPPAngband 0.1.0 - 0.4.0 Copyright (c) 2003-4 Jeff Greene
 
     Based on: 	Moria:   Copyright (c) 1985 Robert Alan Koeneke
         	Umoria:   Copyright (c) 1989 James E. Wilson
@@ -15,8 +34,10 @@ NPPAngband 0.1.0 - 0.4.1 Copyright (c) 2003-2012 Jeff Greene and Diego Gonz['a]l
 		Oangband 0.6.0 Copyright 1998-2003 Leon Marrick, Bahman Rabii
 		EYAngband 0.5.2 By Eytan Zweig
 		Sangband 0.9.9 and Demoband by Leon Marrick
-                UNAngband by Andrew Doull 
       Send comments, bug reports, or patches, to "nppangband@cox.net"
       Visit NPPAngband's Web Site  at "http://members.cox.net/nppangband/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
       Read the online help files, especially "general.txt".
+
+
+

@@ -573,7 +573,7 @@ static const tval_desc tvals[] =
 	{ TV_POTION,            "Potion"               },
 	{ TV_SCROLL,            "Scroll"               },
 	{ TV_WAND,              "Wand"                 },
-	{ TV_STAFF,             "Staff"                },
+	{ TV_TALISMAN,          "Talisman"                },
 	{ TV_ROD,               "Rod"                  },
 	{ TV_PRAYER_BOOK,       "Priest Book"          },
 	{ TV_MAGIC_BOOK,        "Magic Book"           },
@@ -778,21 +778,21 @@ static void wiz_reroll_item(object_type *o_ptr)
 		else if (ch == 'n' || ch == 'N')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE, FALSE);
+			apply_magic(i_ptr, danger(p_ptr->depth), FALSE, FALSE, FALSE, FALSE);
 		}
 
 		/* Apply good magic, but first clear object */
 		else if (ch == 'g' || ch == 'g')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, FALSE, FALSE);
+			apply_magic(i_ptr, danger(p_ptr->depth), FALSE, TRUE, FALSE, FALSE);
 		}
 
 		/* Apply great magic, but first clear object */
 		else if (ch == 'e' || ch == 'e')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE, FALSE);
+			apply_magic(i_ptr, danger(p_ptr->depth), FALSE, TRUE, TRUE, FALSE);
 		}
 	}
 
@@ -899,7 +899,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 		/* Let us know what we are doing */
 		msg_format("Creating a lot of %s items. Base level = %d.",
-		           quality, p_ptr->depth);
+		           quality, danger(p_ptr->depth));
 		message_flush();
 
 		/* Set counters to zero */
@@ -1026,12 +1026,6 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 
 			/* Add the weight of the new number of objects */
 			p_ptr->total_weight += (tmp_int * o_ptr->weight);
-		}
-
-		/* Adjust charge for rods */
-		if (o_ptr->tval == TV_ROD)
-		{
-			o_ptr->pval = (o_ptr->pval / o_ptr->number) * tmp_int;
 		}
 
 		/* Accept modifications */
@@ -1202,7 +1196,7 @@ static void wiz_create_item(void)
 	object_prep(i_ptr, k_idx);
 
 	/* Apply magic (no messages, no artifacts) */
-	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE, FALSE);
+	apply_magic(i_ptr, danger(p_ptr->depth), FALSE, FALSE, FALSE, FALSE);
 
 	/* Remember history */
 	object_history(i_ptr, ORIGIN_CHEAT, 0);
@@ -1295,7 +1289,10 @@ static void do_cmd_wiz_cure_all(void)
 	(void)res_stat(A_WIS);
 	(void)res_stat(A_CON);
 	(void)res_stat(A_DEX);
-	(void)res_stat(A_CHR);
+	(void)res_stat(A_AGI);
+	(void)res_stat(A_STE);
+	(void)res_stat(A_PER);
+	(void)res_stat(A_LUC);
 
 	/* Restore the level */
 	(void)restore_level();
@@ -1460,7 +1457,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(py, px, p_ptr->depth, 0);
+		(void)summon_specific(py, px, danger(p_ptr->depth), 0);
 	}
 }
 
@@ -1652,66 +1649,6 @@ static void do_cmd_wiz_query(void)
 	prt_map();
 }
 
-/* Create a specific terrain grid given its feature number or query a grid */
-static void do_cmd_wiz_monster(void)
-{
-	char ch;
-	int x, y;
-	char buf[10];
-	monster_race *r_ptr;
-	int r_idx;
-
-	int mon_num = 1;
-	int attempts_left = 10000;
-
-	/* Default monster */
-	strnfmt(buf, sizeof(buf), "%d", mon_num);
-
-	/* Ask for a monster number */
-	if (!get_string("Create a specific monster?: ", buf, sizeof(buf)))
-	{
-		return;
-	}
-
-	/* Convert to number */
-	r_idx = atoi(buf);
-
-	/* Get the i'th race */
-	r_ptr = &r_info[r_idx];
-
-	/* Check sanity */
-	if ((r_idx < 1) || (r_idx >= z_info->r_max) || (!r_ptr->name))
-	{
-		msg_print("Invalid monster number");
-
-		return;
-	}
-
-	/* Find a legal, distant, unoccupied, space */
-	while (attempts_left)
-	{
-		--attempts_left;
-
-		/* Pick a location */
-		y = rand_int(p_ptr->cur_map_hgt);
-		x = rand_int(p_ptr->cur_map_wid);
-
-		/* Require a grid that all monsters can exist in. */
-		if (!cave_empty_bold(y, x)) continue;
-
-		/*Success*/
-		break;
-
-	}
-
-	/* Place the monster */
-	if(!place_monster_aux(y, x, r_idx, FALSE, FALSE))
-	{
-		msg_print("Monster placement failed");
-	}
-	else msg_print("Monster placement succeeded");
-}
-
 
 /* Create a specific terrain grid given its feature number or query a grid */
 static void do_cmd_wiz_feature(void)
@@ -1885,7 +1822,6 @@ void do_cmd_debug(void)
 		/* Detect everything */
 		case 'd':
 		{
-			wiz_lite();
 			detect_all();
 			break;
 		}
@@ -2053,21 +1989,6 @@ void do_cmd_debug(void)
 		case 'F':
 		{
 			do_cmd_wiz_feature();
-			break;
-		}
-
-		/* Create a specific monster */
-		case 'R':
-		{
-			do_cmd_wiz_monster();
-			break;
-		}
-
-		/* Re-draw the dungeon*/
-		case 'D':
-		{
-			/* Leaving */
-			p_ptr->leaving = TRUE;
 			break;
 		}
 

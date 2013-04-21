@@ -100,8 +100,8 @@
  */
 /* #define VERIFY_SAVEFILE */
 
-
-/* #define ALLOW_DATA_DUMP*/
+/*Playtestimg
+#define ALLOW_DATA_DUMP*/
 
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
@@ -300,7 +300,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"nppangband@comcast.net"
+#define MAINTAINER	"mail@guildgame.com"
 
 
 /*

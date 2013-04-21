@@ -834,7 +834,7 @@ static void map_hidden_monster(monster_type *m_ptr, byte *ap, char *cp)
 		level = 9;
 	}
 	/* First attempt. Compare monster power with the average power at that depth */
-	else if ((div = mon_power_ave[p_ptr->depth][CREATURE_NON_UNIQUE]) > 0)
+	else if ((div = mon_power_ave[danger(p_ptr->depth)][CREATURE_NON_UNIQUE]) > 0)
 	{
 		level = (r_ptr->mon_power * 9) / div + 1;
 	}
@@ -1354,8 +1354,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Get the feature under the cloud */
 				u16b feat2 = cave_feat[y][x];
 
-				/* Not boring floor? */
-				if (feat2 != FEAT_FLOOR)
+				/* Is it dangerous? */
+				if (f_info[feat2].dam_non_native > 0)
 				{
 					/* Get mimiced feature */
 					feat2 = f_info[feat2].f_mimic;
@@ -2766,9 +2766,9 @@ void display_map(int *cy, int *cx)
 	tc = ' ';
 
 	/* Clear the priorities */
-	for (y = 0; y < MAX_DUNGEON_HGT; ++y)
+	for (y = 0; y < map_hgt; ++y)
 	{
-		for (x = 0; x < MAX_DUNGEON_WID; ++x)
+		for (x = 0; x < map_wid; ++x)
 		{
 			/* No priority */
 			mp[y][x] = 0;
@@ -5598,24 +5598,24 @@ static void cave_set_feat_aux(int y, int x, u16b feat)
 		(void)add_dynamic_terrain(y, x);
 	}
 
-	/* Update the flags of the current level */
+	/* Decrement the number of elemental features if necessary */
+	if (_feat_ff3_match(f_ptr, TERRAIN_MASK))
+	{
+		/* Get the counter */
+		u16b *counter = get_element_counter(f_ptr);
+
+		/* Decrement */
+		if (counter && (*counter > 0)) --*counter;
+	}
+
+	/* Increment the number of elemental features if necessary */
 	if (_feat_ff3_match(f2_ptr, TERRAIN_MASK))
 	{
-		/* Get the LF1_* flag */
-		u32b flag = get_level_flag(feat);
+		/* Get the counter */
+		u16b *counter = get_element_counter(f2_ptr);
 
-		/* Debug message */
-		if (cheat_room && !(level_flag & flag))
-		{
-			char name[80];
-
-			feature_desc(name, sizeof(name), feat, TRUE, TRUE);
-
-			msg_c_format(MSG_NOTICE, "Adding %s to the level.", name);
-		}
-
-		/* Update the level flags */
-		level_flag |= flag;
+		/* Increment */
+		if (counter) ++*counter;
 	}
 
 	/* Check if we have to reactivate some adjacent dynamic grid */
@@ -5664,14 +5664,6 @@ static void cave_set_feat_aux(int y, int x, u16b feat)
 	/* This is a generated dungeon*/
 	if (character_dungeon)
 	{
-                /* Hack -- Forget most of the new features */
-		/*
-                if (!_feat_ff1_match(f2_ptr, FF1_DOOR))
-                {
-                        cave_info[y][x] &= ~(CAVE_MARK);
-                }
-		*/
-
 		/* Notice */
 		note_spot(y, x);
 
@@ -6010,6 +6002,10 @@ void cave_set_feat(int y, int x, u16b feat)
 			}
 		}
 	}
+
+
+	/* Set the level type */
+	level_flag |= _feat_ff3_match(f2_ptr, TERRAIN_MASK);
 
 	/* Handle gold */
 	if (character_dungeon && _feat_ff1_match(f_ptr, FF1_HAS_GOLD) &&

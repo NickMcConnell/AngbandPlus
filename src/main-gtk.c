@@ -793,7 +793,7 @@ errr init_gtk(int argc, char **argv)
 	init_angband();
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
+	prt("[Choose 'New' or 'Open' from the 'File' menu]", 42, 17);
 	Term_fresh();
 
 	/* Processing loop */

@@ -16,10 +16,11 @@
  * Determine if the player "hits" a monster.
  *
  * Note -- Always miss 5%, always hit 5%, otherwise random.
+ * A - Now return -1 if it was a 'near miss' prevented by armor
  */
-bool test_hit(int chance, int ac, int vis)
+int test_hit(int chance, int ac, int vis)
 {
-	int k;
+	int k, roll;
 
 	/* Percentile dice */
 	k = rand_int(100);
@@ -31,10 +32,14 @@ bool test_hit(int chance, int ac, int vis)
 	if (!vis) chance = chance / 2;
 
 	/* Power competes against armor */
-	if ((chance > 0) && (rand_int(chance) >= (ac * 3 / 4))) return (TRUE);
+	if (chance > 0){
+		roll = rand_int(chance);
+		if (roll >= (ac * 3 / 4)) return 1;
+		if (roll >= (ac / 2)) return -1;
+	}
 
 	/* Assume miss */
-	return (FALSE);
+	return 0;
 }
 
 
@@ -48,7 +53,7 @@ int critical_shot(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "shot" power */
-	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
+	i = (weight + ((p_ptr->to_h_missile + plus) * 4) + (p_ptr->lev * 2));
 
 	/* Critical hit */
 	if (randint(5000) <= i)
@@ -87,7 +92,7 @@ int critical_norm(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "blow" power */
-	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+	i = (weight + ((p_ptr->to_h_melee + plus) * 5) + (p_ptr->lev * 3));
 
 	/* Chance */
 	if (randint(5000) <= i)
@@ -98,31 +103,31 @@ int critical_norm(int weight, int plus, int dam)
 		{
 			sound(MSG_HIT_GOOD);
 			msg_print("It was a good hit!");
-			dam = 2 * dam + 5;
+			dam = 3 * dam / 2;
 		}
 		else if (k < 700)
 		{
 			sound(MSG_HIT_GREAT);
 			msg_print("It was a great hit!");
-			dam = 2 * dam + 10;
+			dam = 2 * dam;
 		}
 		else if (k < 900)
 		{
 			sound(MSG_HIT_SUPERB);
 			msg_print("It was a superb hit!");
-			dam = 3 * dam + 15;
+			dam = 5 * dam / 2;
 		}
 		else if (k < 1300)
 		{
 			sound(MSG_HIT_HI_GREAT);
 			msg_print("It was a *GREAT* hit!");
-			dam = 3 * dam + 20;
+			dam = 3 * dam;
 		}
 		else
 		{
 			sound(MSG_HIT_HI_SUPERB);
 			msg_print("It was a *SUPERB* hit!");
-			dam = ((7 * dam) / 2) + 25;
+			dam = 7 * dam / 2;
 		}
 
 
@@ -136,10 +141,363 @@ int critical_norm(int weight, int plus, int dam)
 	return (dam);
 }
 
+/*
+ * new version of tot_dam_aux, for melee
+ */
+
+int melee_p_increment(const object_type *o_ptr, const monster_type *m_ptr){
+	int brand_increment=0, slay_increment=0;
+
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+	u32b f1, f2, f3, fn;
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &fn);
+
+	/* Some "weapons" do extra damage */
+	switch (o_ptr->tval)
+	{
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:
+		{
+			/* Slay Animal */
+			if ((f1 & (TR1_SLAY_ANIMAL)) &&
+			    (r_ptr->flags3 & (RF3_ANIMAL)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_l_flags3 |= (RF3_ANIMAL);
+				}
+
+				if (slay_increment < 200) slay_increment = 200;
+			}
+
+			/* Slay Evil */
+			if ((f1 & (TR1_SLAY_EVIL)) &&
+			    (r_ptr->flags3 & (RF3_EVIL)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_l_flags3 |= (RF3_EVIL);
+				}
+
+				if (slay_increment < 100) slay_increment = 100;
+			}
+
+			/* Slay Undead */
+			if ((f1 & (TR1_SLAY_UNDEAD)) &&
+			    (r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_l_flags3 |= (RF3_UNDEAD);
+				}
+
+				if (slay_increment < 170) slay_increment = 170;
+			}
+
+			/* Slay Demon */
+			if ((f1 & (TR1_SLAY_DEMON)) &&
+			    (r_ptr->flags3 & (RF3_DEMON)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_l_flags3 |= (RF3_DEMON);
+				}
+
+				if (slay_increment < 170) slay_increment = 170;
+			}
+
+			/* Slay Orc */
+			if ((f1 & (TR1_SLAY_ORC)) &&
+			    (r_ptr->flags3 & (RF3_ORC)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_l_flags3 |= (RF3_ORC);
+				}
+
+				if (slay_increment < 200) slay_increment = 200;
+			}
+
+			/* Slay Troll */
+			if ((f1 & (TR1_SLAY_TROLL)) &&
+			    (r_ptr->flags3 & (RF3_TROLL)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_l_flags3 |= (RF3_TROLL);
+				}
+
+				if (slay_increment < 200) slay_increment = 200;
+			}
+
+			/* Slay Giant */
+			if ((f1 & (TR1_SLAY_GIANT)) &&
+			    (r_ptr->flags3 & (RF3_GIANT)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_l_flags3 |= (RF3_GIANT);
+				}
+
+				if (slay_increment < 170) slay_increment = 170;
+			}
+
+			/* Slay Dragon */
+			if ((f1 & (TR1_SLAY_DRAGON)) &&
+			    (r_ptr->flags3 & (RF3_DRAGON)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_l_flags3 |= (RF3_DRAGON);
+				}
+
+				if (slay_increment < 150) slay_increment = 150;
+			}
+
+			/* Execute Dragon */
+			if ((f1 & (TR1_KILL_DRAGON)) &&
+			    (r_ptr->flags3 & (RF3_DRAGON)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_l_flags3 |= (RF3_DRAGON);
+				}
+
+				if (slay_increment < 300) slay_increment = 300;
+			}
+
+			/* Execute demon */
+			if ((f1 & (TR1_KILL_DEMON)) &&
+			    (r_ptr->flags3 & (RF3_DEMON)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_l_flags3 |= (RF3_DEMON);
+				}
+
+				if (slay_increment < 300) slay_increment = 300;
+			}
+
+			/* Execute undead */
+			if ((f1 & (TR1_KILL_UNDEAD)) &&
+			    (r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_l_flags3 |= (RF3_UNDEAD);
+				}
+
+				if (slay_increment < 300) slay_increment = 300;
+			}
+
+			if ((p_ptr->slay_elements))
+			{
+				/*First, Mark all resists in the lore if applicable*/
+				if (r_ptr->flags3 & (RF3_IM_ELEM))
+				{
+					if (m_ptr->ml)
+					{
+						u32b flags = r_ptr->flags3;
+
+						/*Just the elemental flags*/
+						flags &= RF3_IM_ELEM;
+
+						l_ptr->r_l_flags3 |= flags;
+					}
+				}
+
+				/*Now increase the damage,if they don't resist any of the elements.*/
+				if ((r_ptr->flags3 & (RF3_IM_ELEM)) != (RF3_IM_ELEM))
+				{
+					if (slay_increment < 150) slay_increment = 150;
+				}
+			}
+
+			/* Brand (Acid) */
+			if (f1 & (TR1_BRAND_ACID))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ACID))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_IM_ACID);
+					}
+				} else {
+
+					/* Otherwise, take the damage */
+					/*Water reduces acid damage*/
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (brand_increment < 100) brand_increment = 100;
+					}
+					else
+					{
+						if (brand_increment < 130) brand_increment = 130;
+					}
+				}
+			}
+
+			/* Brand (Elec) */
+			if (f1 & (TR1_BRAND_ELEC))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ELEC))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_IM_ELEC);
+					}
+				} else {
+
+					/* Otherwise, take the damage */
+					/* Water increases damage */
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (brand_increment < 170) brand_increment = 170;
+					}
+					else
+					{
+						if (brand_increment < 130) brand_increment = 130;
+					}
+				}
+			}
+
+			/* Brand (Fire) */
+			if (f1 & (TR1_BRAND_FIRE))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_FIRE))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_IM_FIRE);
+					}
+				}
+				/* Succeptable */
+				else if (r_ptr->flags3 & (RF3_HURT_FIRE))
+				{
+					/* Water decreases damage */
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (brand_increment < 170) brand_increment = 170;
+					}
+
+					/*Extra Damage*/
+					else if (brand_increment < 250) brand_increment = 250;
+
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_HURT_FIRE);
+					}
+				} else {
+
+					/* Otherwise, take the damage */
+					/* Water decreases damage */
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (brand_increment < 80) brand_increment = 80;
+					}
+					else
+					{
+						if (brand_increment < 130) brand_increment = 130;
+					}
+				}
+			}
+
+			/* Brand (Cold) */
+			if (f1 & (TR1_BRAND_COLD))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_COLD))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_IM_COLD);
+					}
+				}
+
+				/* Succeptable */
+				else if (r_ptr->flags3 & (RF3_HURT_COLD))
+				{
+					/* Water increases damage */
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (brand_increment < 300) brand_increment = 300;
+					}
+
+					/*Extra Damage*/
+					else if (brand_increment < 250) brand_increment = 250;
+
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_HURT_COLD);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					/* Water increases damage */
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (brand_increment < 170) brand_increment = 170;
+					}
+
+					else if (brand_increment < 130) brand_increment = 130;
+				}
+			}
+
+			/* Brand (Poison) */
+			if (f1 & (TR1_BRAND_POIS))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_POIS))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_IM_POIS);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (brand_increment < 130) brand_increment = 130;
+				}
+			}
+
+			if (f1 & (TR3_VAMPIRE))
+			{
+				/* Notice immunity */
+				if ((r_ptr->flags3 & (RF3_RES_NETHR)) || (r_ptr->flags3 & (RF3_UNDEAD)))
+				{
+					// nothing
+				}
+				else 
+				{
+					if (brand_increment < 50) brand_increment = 50;
+				}
+			}
+			
+			break;
+		}
+	}
+
+
+	/* Return the P-increment */
+	return brand_increment + slay_increment;
+}
 
 
 /*
- * Extract the "total damage" from a given object hitting a given monster.
+ * Extract the "total damage" from a missile hitting a given monster.
  *
  * Note that "flasks of oil" do NOT do fire damage, although they
  * certainly could be made to do so.  XXX XXX
@@ -151,11 +509,6 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 {
 	int mult = 1;
 
-	int y = m_ptr->fy;
-	int x = m_ptr->fx;
-
-	int terrain_flag = 0;
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
@@ -163,15 +516,6 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &fn);
-
-	/* Get the feature */
-	u32b element = cave_ff3_match(y, x, TERRAIN_MASK);
-
-	/* Find out if monster is native to terrain */
-	bool is_native = is_monster_native(y, x, r_ptr);
-
-	/* Find out if monster is flying over terrain */
-	bool is_flying = (m_ptr->mflag & (MFLAG_FLYING)) != 0;
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -339,6 +683,141 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 				}
 			}
 
+			/* Brand (Acid) */
+			if (f1 & (TR1_BRAND_ACID))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ACID))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_IM_ACID);
+					}
+				} else {
+
+					/* Otherwise, take the damage */
+					/*Water reduces acid damage*/
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (mult < 2 ) mult = 2;
+					}
+					else
+					{
+						if (mult < 3) mult = 3;
+					}
+				}
+			}
+
+			/* Brand (Elec) */
+			if (f1 & (TR1_BRAND_ELEC))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ELEC))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_IM_ELEC);
+					}
+				} else {
+
+					/* Otherwise, take the damage */
+					/* Water increases damage */
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (mult < 4 ) mult = 4;
+					}
+					else
+					{
+						if (mult < 3) mult = 3;
+					}
+				}
+			}
+
+			/* Brand (Fire) */
+			if (f1 & (TR1_BRAND_FIRE))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_FIRE))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_IM_FIRE);
+					}
+				}
+				/* Succeptable */
+				else if (r_ptr->flags3 & (RF3_HURT_FIRE))
+				{
+					/* Water decreases damage */
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (mult < 3 ) mult = 3;
+					}
+
+					/*Extra Damage*/
+					else if (mult < 4) mult = 4;
+
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_HURT_FIRE);
+					}
+				} else {
+
+					/* Otherwise, take the damage */
+					/* Water decreases damage */
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (mult < 2 ) mult = 2;
+					}
+					else
+					{
+						if (mult < 3) mult = 3;
+					}
+				}
+			}
+
+			/* Brand (Cold) */
+			if (f1 & (TR1_BRAND_COLD))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_COLD))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_IM_COLD);
+					}
+				}
+
+				/* Succeptable */
+				else if (r_ptr->flags3 & (RF3_HURT_COLD))
+				{
+					/* Water increases damage */
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (mult < 5 ) mult = 5;
+					}
+
+					/*Extra Damage*/
+					else if (mult < 4) mult = 4;
+
+					if (m_ptr->ml)
+					{
+						l_ptr->r_l_flags3 |= (RF3_HURT_COLD);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					/* Water increases damage */
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].f_flags3 & (FF3_WATER))
+					{
+						if (mult < 4 ) mult = 4;
+					}
+
+					else if (mult < 3) mult = 3;
+				}
+			} 
+
 			/* Brand (Poison) */
 			if (f1 & (TR1_BRAND_POIS))
 			{
@@ -358,42 +837,128 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 				}
 			}
 
+			break;
+		}
+	}
+
+
+	/* Return the total damage */
+	return (tdam * mult);
+}
+
+cptr tot_dam_aux_verb(const object_type *o_ptr, const monster_type *m_ptr)
+{
+
+	u32b f1, f2, f3, fn;
+
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &fn);
+
+	/* Some "weapons" and "ammo" do extra damage */
+	switch (o_ptr->tval)
+	{
+		case TV_SHOT:
+		case TV_ARROW:
+		case TV_BOLT:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_DIGGING:
+		{
+			/* Slay Animal */
+			if ((f1 & (TR1_SLAY_ANIMAL)) &&
+			    (r_ptr->flags3 & (RF3_ANIMAL)))
+			{
+				return "smite";
+			}
+
+			/* Slay Evil */
+			if ((f1 & (TR1_SLAY_EVIL)) &&
+			    (r_ptr->flags3 & (RF3_EVIL)))
+			{
+				return "smite";
+			}
+
+			/* Slay Undead */
+			if ((f1 & (TR1_SLAY_UNDEAD)) &&
+			    (r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				return "smite";
+			}
+
+			/* Slay Demon */
+			if ((f1 & (TR1_SLAY_DEMON)) &&
+			    (r_ptr->flags3 & (RF3_DEMON)))
+			{
+				return "smite";
+			}
+
+			/* Slay Orc */
+			if ((f1 & (TR1_SLAY_ORC)) &&
+			    (r_ptr->flags3 & (RF3_ORC)))
+			{
+				return "smite";
+			}
+
+			/* Slay Troll */
+			if ((f1 & (TR1_SLAY_TROLL)) &&
+			    (r_ptr->flags3 & (RF3_TROLL)))
+			{
+				return "smite";
+			}
+
+			/* Slay Giant */
+			if ((f1 & (TR1_SLAY_GIANT)) &&
+			    (r_ptr->flags3 & (RF3_GIANT)))
+			{
+				return "smite";
+			}
+
+			/* Slay Dragon */
+			if ((f1 & (TR1_SLAY_DRAGON)) &&
+			    (r_ptr->flags3 & (RF3_DRAGON)))
+			{
+				return "smite";
+			}
+
+			/* Execute Dragon */
+			if ((f1 & (TR1_KILL_DRAGON)) &&
+			    (r_ptr->flags3 & (RF3_DRAGON)))
+			{
+				return "SMITE";
+			}
+
+			/* Execute demon */
+			if ((f1 & (TR1_KILL_DEMON)) &&
+			    (r_ptr->flags3 & (RF3_DEMON)))
+			{
+				return "SMITE";
+			}
+
+			/* Execute undead */
+			if ((f1 & (TR1_KILL_UNDEAD)) &&
+			    (r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				return "SMITE";
+			}
+
+			if ((p_ptr->slay_elements))
+			{
+				return "smite";
+			}
+
 			/* Brand (Acid) */
 			if (f1 & (TR1_BRAND_ACID))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_ACID))
 				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_l_flags3 |= (RF3_IM_ACID);
-					}
-				}
-				/* Otherwise, take the damage */
-				/* Increase damage when standing in acid */
-				else if (!is_native && !is_flying && (element == ELEMENT_ACID))
-				{
-					/* A deep feature increases damage even more */
-					if (cave_ff2_match(y, x, FF2_DEEP))
-					{
-						if (mult < 5)
-						{
-							mult = 5;
-							terrain_flag = 1;
-						}
-					}
-					else
-					{
-						if (mult < 4)
-						{
-						      	mult = 4;
-							terrain_flag = 1;
-						}
-					}
-				}
-				else
-				{
-					if (mult < 3) mult = 3;
+					// nothing
+				} else {
+					return "corrode";
 				}
 			}
 
@@ -403,250 +968,73 @@ int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr, b
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_ELEC))
 				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_l_flags3 |= (RF3_IM_ELEC);
-					}
-				}
-				/* Otherwise, take the damage */
-				/* Water increases damage */
-				else if (!is_native && !is_flying &&
-					((element == ELEMENT_WATER) || (element == ELEMENT_BWATER)))
+					// nothing 
+				} else
 				{
-					/* A deep feature increases damage even more */
-					if (cave_ff2_match(y, x, FF2_DEEP))
-					{
-						if (mult < 5)
-						{
-						      	mult = 5;
-							terrain_flag = 1;
-						}
-					}
-					else
-					{
-						if (mult < 4)
-						{
-						       	mult = 4;
-							terrain_flag = 1;
-						}
-					}
-				}
-				else
-				{
-					if (mult < 3) mult = 3;
+					return "zap";
 				}
 			}
 
 			/* Brand (Fire) */
 			if (f1 & (TR1_BRAND_FIRE))
 			{
-				int my_mult = 0;
-				int my_terrain_flag = 0;
-
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_FIRE))
 				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_l_flags3 |= (RF3_IM_FIRE);
-					}
+					// nothing
 				}
-				/* Flying monsters don't take damage from terrain */
-				else if (is_flying)
+				else 
 				{
-					my_mult = 3;
-				}
-				/* Otherwise, take the damage */
-				/* Lava increases damage a lot */
-				else if (!is_native && (element == ELEMENT_LAVA))
-				{
-					my_mult = 5;
-					my_terrain_flag = 1;
-				}
-				/* Heat increases damage */
-				else if (!is_native &&
-					((element == ELEMENT_FIRE) || (element == ELEMENT_BMUD) ||
-						(element == ELEMENT_BWATER)))
-				{
-					my_mult = 4;
-					my_terrain_flag = 1;
-				}
-				/* Water decreases damage */
-				else if (element == ELEMENT_WATER)
-				{
-					my_mult = 2;
-					my_terrain_flag = -1;
-				}
-				/* Default damage increase */
-				else
-				{
-					my_mult = 3;
-				}
-
-				/* Succeptable */
-				if (r_ptr->flags3 & (RF3_HURT_FIRE))
-				{
-					/* Extra Damage */
-					if (my_mult > 0) ++my_mult;
-
-					if (m_ptr->ml)
-					{
-						l_ptr->r_l_flags3 |= (RF3_HURT_FIRE);
-					}
-				}
-
-				/* Override multiplier if brand damage is bigger */
-				if (my_mult > mult)
-				{
-					mult = my_mult;
-					terrain_flag = my_terrain_flag;
+					return "sear";
 				}
 			}
 
 			/* Brand (Cold) */
 			if (f1 & (TR1_BRAND_COLD))
 			{
-				int my_mult = 0;
-				int my_terrain_flag = 0;
-
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_COLD))
 				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_l_flags3 |= (RF3_IM_COLD);
-					}
-				}
-				/* Flying monsters don't take damage from terrain */
-				else if (is_flying)
+					// nothing
+				} 	
+				else 
 				{
-					my_mult = 3;
+					return "freeze";
 				}
-				/* Otherwise, take the damage */
-				/* Ice increases damage a lot */
-				else if (!is_native && (element == ELEMENT_ICE))
+			}
+
+			/* Brand (Poison) */
+			if (f1 & (TR1_BRAND_POIS))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_POIS))
 				{
-					my_mult = 5;
-					my_terrain_flag = 1;
+					// nothing
 				}
-				/* Water increases damage */
-				else if (!is_native && (element == ELEMENT_WATER))
-				{
-					my_mult = 4;
-					my_terrain_flag = 1;
-				}
-				/* Lava nullifies cold brand  */
-				else if (element == ELEMENT_LAVA)
-				{
-					my_terrain_flag = -1;
-				}
-				/* Heat decreases damage */
-				else if ((element == ELEMENT_FIRE) ||
-					(element == ELEMENT_BMUD) ||
-					(element == ELEMENT_BWATER))
-				{
-					my_mult = 2;
-					my_terrain_flag = -1;
-				}
-				/* Default damage increase */
 				else
 				{
-					my_mult = 3;
+					return "poison";
 				}
+			}
 
-				/* Succeptable */
-				if (r_ptr->flags3 & (RF3_HURT_COLD))
+			/* Vampiric draining */
+			if (f1 & (TR3_VAMPIRE))
+			{
+				/* Notice immunity */
+				if ((r_ptr->flags3 & (RF3_RES_NETHR)) || (r_ptr->flags3 & (RF3_UNDEAD)))
 				{
-					/* Extra damage */
-					if (my_mult > 0) ++my_mult;
-
-					if (m_ptr->ml)
-					{
-						l_ptr->r_l_flags3 |= (RF3_HURT_COLD);
-					}
+					// nothing
 				}
-
-				/* Override multiplier if brand damage is bigger */
-				if (my_mult > mult)
+				else 
 				{
-				       	mult = my_mult;
-					terrain_flag = my_terrain_flag;
+					return "drain";
 				}
 			}
 
 			break;
 		}
 	}
-
-	/* To emulate fractional multiplier due to brigand combat */
-	mult *= 100;
-
-	/* A brigand can poison shots sometimes, if monster is not immune */
-	if ((o_ptr->tval == TV_SHOT) &&
-		(cp_ptr->flags & (CF_BRIGAND_COMBAT)) &&
-		!(r_ptr->flags3 & (RF3_IM_POIS)))
-	{
-		int m = 0;
-		char *message = "Your killer arts allowed you to create a poisoned shot!";
-		
-		/* Bigger chance to get a poisoned shot if the monster is sleeping */
-		if (m_ptr->csleep > 0)
-		{
-			/* Chance and multiplier vary with player level */
-			if (rand_int(100) < (50 + 25 * p_ptr->lev / 25))
-			{
-				if (p_ptr->lev >= 50) m = 350;
-				else if (p_ptr->lev >= 47) m = 300;
-				else if (p_ptr->lev >= 40) m = 250;
-				else if (p_ptr->lev >= 25) m = 200;
-				else m = 150;
-
-				/* message = "Poison damage (SLEEP)!"; */
-			}
-		}
-		/* Monster is awake */
-		else if (rand_int(100) < p_ptr->lev)
-		{
-			/* Chance and multiplier vary with player level */
-			if (p_ptr->lev >= 35) m = 160;
-			else m = 140;
-		}
-
-		/* Multiplier is bigger than the current */
-		if ((m > 0) && (mult < m))
-		{
-			/* Save multiplier */
-			mult = m;
-			/* Cancel terrain bonuses */
-			terrain_flag = 0;
-			/* Message */
-			msg_print(message);
-			/* msg_format("%d %d.", tdam, (tdam * mult) / 100); */
-		}
-	}
-
-	/* Show a message if necessary */
-	if ((terrain_flag != 0) && player_can_see_bold(y, x) && !p_ptr->blind)
-	{
-		char name[80];
-
-		/* Get the feature's name */
-		feature_desc(name, sizeof(name), cave_feat[y][x], FALSE, TRUE);
-
-		/* Damage was increased */
-		if (terrain_flag > 0)
-		{
-			msg_format("The %s increased the damage of the weapon!", name);
-		}
-		/* Damage was decreased */
-		else
-		{
-			msg_format("The %s reduced the damage of the weapon!", name);
-		}
-	}
-
-	/* Return the total damage */
-	return ((tdam * mult) / 100);
+	return "hit";
 }
 
 /*
@@ -1037,7 +1425,7 @@ void do_cmd_pickup_from_pile(void)
 			if (p_ptr->flying) player_status = "hovering";
 
 			if (picked_up_item) msg_format("There are no more objects where you are %s.", player_status);
-			else msg_format("There are no objects where you are %s.", player_status);
+			else msg_format("There are no objects where you are standing %s.", player_status);
 			break;
 		}
 
@@ -1094,11 +1482,6 @@ void do_cmd_pickup_from_pile(void)
 	/* Just be sure all inventory management is done. */
 	notice_stuff();
 
-	/* Use energy if we picked up something */
-	if (picked_up_item)
-	{
-		p_ptr->p_energy_use = BASE_ENERGY_MOVE;
-	}
 }
 
 /*
@@ -1111,6 +1494,9 @@ void py_pickup(int pickup)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+
+	int max_lev_for_xp;
+			
 	s16b this_o_idx, next_o_idx = 0;
 
 	object_type *o_ptr;
@@ -1173,6 +1559,24 @@ void py_pickup(int pickup)
 
 			/* Collect the gold */
 			p_ptr->au += gold;
+
+			max_lev_for_xp = 50;
+
+			if (o_ptr->sval <= 3) max_lev_for_xp = 6;
+			else if (o_ptr->sval <= 6) max_lev_for_xp = 10;
+			else if (o_ptr->sval <= 8) max_lev_for_xp = 14;
+			else if (o_ptr->sval <= 11) max_lev_for_xp = 18;
+			else if (o_ptr->sval == 12) max_lev_for_xp = 22;
+			else if (o_ptr->sval == 13) max_lev_for_xp = 26;
+			else if (o_ptr->sval == 14) max_lev_for_xp = 30;
+			else if (o_ptr->sval == 15) max_lev_for_xp = 31;
+			else if (o_ptr->sval == 16) max_lev_for_xp = 32;
+			else if (o_ptr->sval == 17) max_lev_for_xp = 33;
+			else if (o_ptr->sval == 18) max_lev_for_xp = 34;
+
+			if (p_ptr->lev < max_lev_for_xp){
+			  gain_exp(gold / 10);
+			}
 
 			/* Redraw gold */
 			p_ptr->redraw |= (PR_GOLD);
@@ -1271,31 +1675,20 @@ void py_pickup(int pickup)
 			char out_val[160];
 			int result;
 
-			/* Format the prompt */
 			strnfmt(out_val, sizeof(out_val), "Pick up %s? ", o_name);
 
-			/* Be careful with the destroy key */
-			result = get_check_other(out_val, rogue_like_commands ? 'd': 'k');
-
-			/* Player doesn't want to pick up or destroy the object */
+			result = get_check_other(out_val, 'k');
 			if (!result) continue;
-
-			/* Player wants to destroy the object */
 			else if (result == 2)
 			{
-				/* Save the value of the verify_destroy option */
-				bool saved_verify = verify_destroy;
+				bool saved_verify;
 
-				/* Turn it off */
+				saved_verify = verify_destroy;
 				verify_destroy = 0;
 
-				/* Destroy the object */
 				destroy_item(-this_o_idx);
 
-				/* Restore the option */
 				verify_destroy = saved_verify;
-
-				/* Done */
 				continue;
 			}
 
@@ -1391,15 +1784,18 @@ void py_pickup(int pickup)
 	}
 }
 
+int to_hit_weight_penalty(const object_type *o_ptr){
+	return 2*MAX(0,o_ptr->weight - adj_str_hold[p_ptr->stat_ind[A_STR]])/10;
+}
 
 /*
  * Determine if a trap affects the player.
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match trap power against player armor.
  */
-bool check_hit(int power)
+int check_hit(int power)
 {
-	return test_hit(power, p_ptr->ac + p_ptr->to_a, TRUE);
+	return test_hit(power, p_ptr->ac + p_ptr->to_a, TRUE)>0;
 }
 
 /*
@@ -1407,9 +1803,29 @@ bool check_hit(int power)
  *
  * If no "weapon" is available, then "punch" the monster one time.
  */
+
+int dam_plus_to_percent_added(int to_d){
+  int p = 0;
+  if (to_d < 0){
+    p = 20 * to_d;
+	if (p < -50){
+		p = -50;
+	}
+  } else if (to_d <= 10){
+    p = 20 * to_d;
+  } else if (to_d <= 20){
+    p = 200 + 15 * (to_d - 10);
+  } else if (to_d <= 30){
+    p = 200 + 150 + 10 * (to_d - 20);
+  } else {
+    p = 200 + 150 + 100 + 5 * (to_d - 30);
+  }
+  return p;
+}
+
 void py_attack(int y, int x)
 {
-	int num = 0, k, bonus, chance;
+	int num = 0, k, p, bonus, chance;
 	int hits = 0;
 
 	int sleeping_bonus = 0;
@@ -1421,12 +1837,15 @@ void py_attack(int y, int x)
 	object_type *o_ptr;
 
 	char m_name[80];
+	char verb[20];
 
 	bool fear = FALSE;
 
 	bool do_quake = FALSE;
 
 	bool was_asleep = FALSE;
+
+	int blows_this_time, remainder, rand;
 
 	/* Get the monster */
 	m_ptr = &mon_list[cave_m_idx[y][x]];
@@ -1501,8 +1920,13 @@ void py_attack(int y, int x)
 	/* Get the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
-	/* Calculate the "attack quality" */
-	bonus = p_ptr->to_h + o_ptr->to_h;
+	if (o_ptr){
+		/* Calculate the "attack quality" */
+		bonus = p_ptr->to_h_melee + o_ptr->to_h;
+
+		bonus = bonus - to_hit_weight_penalty(o_ptr);
+	}
+
 
 	/*
 	 * If the monster is sleeping and visible, it can be hit more easily.
@@ -1513,11 +1937,25 @@ void py_attack(int y, int x)
 	{
 		sleeping_bonus =  5 + p_ptr->lev / 5;
 
-		if (cp_ptr->flags & CF_ROGUE_COMBAT)
+		if (p_ptr->stat_use[A_STE] >= 18+100)
+		{
+			/*100 % increase*/
+			sleeping_bonus *= 2;
+		} else if (p_ptr->stat_use[A_STE] >= 18+50)
+		{
+			/*75 % increase*/
+			sleeping_bonus *= 7;
+			sleeping_bonus /= 4;
+		} else if (p_ptr->stat_use[A_STE] >= 18)
 		{
 			/*50 % increase*/
 			sleeping_bonus *= 3;
 			sleeping_bonus /= 2;
+		} else if (p_ptr->stat_use[A_STE] >= 15)
+		{
+			/*25 % increase*/
+			sleeping_bonus *= 5;
+			sleeping_bonus /= 4;
 		}
 	}
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ) + sleeping_bonus);
@@ -1525,8 +1963,15 @@ void py_attack(int y, int x)
 	/*Mark the monster as attacked*/
 	m_ptr->mflag |= (MFLAG_HIT_BY_MELEE);
 
+	blows_this_time = p_ptr->num_blows_times_ten / 10;
+	remainder = p_ptr->num_blows_times_ten - 10*blows_this_time;
+	rand = randint(10);
+	if (rand<=remainder){
+		blows_this_time = blows_this_time + 1;
+	}
+
 	/* Attack once for each legal blow */
-	while (num++ < p_ptr->num_blow)
+	while (num++ < blows_this_time)
 	{
 		/*Adjust for player terrain*/
 		chance = feat_adjust_combat_for_player(chance, FALSE);
@@ -1549,8 +1994,35 @@ void py_attack(int y, int x)
 		}
 
 		/* Test for hit */
-		else if (test_hit(chance, r_ptr->ac, m_ptr->ml))
+		else if (test_hit(chance, r_ptr->ac, m_ptr->ml)>0)
 		{
+
+			/* If this was the first hit, make some noise */
+			hits++;
+			if (hits == 1) add_wakeup_chance += p_ptr->base_wakeup_chance;
+
+			/* Handle normal weapon */
+			if (o_ptr->k_idx)
+			{
+				k = damroll(o_ptr->dd, o_ptr->ds);
+				p = dam_plus_to_percent_added(p_ptr->to_d_melee + o_ptr->to_d);
+				p += melee_p_increment(o_ptr, m_ptr);
+				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
+				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
+				my_strcpy(verb,tot_dam_aux_verb(o_ptr,m_ptr),20);
+			} else {
+				/* bare hands */
+				k = 1;
+				p = dam_plus_to_percent_added(p_ptr->to_d_melee);
+				my_strcpy(verb,"hit",20);
+			}
+
+			p = p + sleeping_bonus*5;
+
+			k = (k * (p + 100)) / 100;
+
+			/* No negative damage */
+			if (k < 0) k = 0;
 
 			if (was_asleep)
 			{
@@ -1569,32 +2041,21 @@ void py_attack(int y, int x)
 			else
 			{
 				/* Message */
-				message_format(MSG_GENERIC, m_ptr->r_idx, "You hit %s.", m_name);
+				message_format(MSG_GENERIC, m_ptr->r_idx, "You %s %s.", verb, m_name);
 			}
 
-			/* If this was the first hit, make some noise */
-			hits++;
-			if (hits == 1) add_wakeup_chance += p_ptr->base_wakeup_chance;
-
-			/* Hack -- bare hands do one damage */
-			k = 1;
-
-			/* Handle normal weapon */
-			if (o_ptr->k_idx)
+			if (p_ptr->vampire)
 			{
-
-				k = damroll(o_ptr->dd, o_ptr->ds);
-				k = tot_dam_aux(o_ptr, k, m_ptr, TRUE);
-				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
-				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
-				k += o_ptr->to_d;
+				if ((r_ptr->flags3 & (RF3_RES_NETHR)) || (r_ptr->flags3 & (RF3_UNDEAD)))
+				{
+					// nothing
+				}
+				else 
+				{
+					/* gain some HP */
+					hp_player(MIN(m_ptr->hp,MAX(1,k/5)));
+				}
 			}
-
-			/* Apply the player damage bonuses */
-			k += p_ptr->to_d;
-
-			/* No negative damage */
-			if (k < 0) k = 0;
 
 			/* Complex message */
 			if (p_ptr->wizard)
@@ -1606,10 +2067,10 @@ void py_attack(int y, int x)
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL, SOURCE_PLAYER))
 			{
 				/*return energy from unused attacks*/
-				if (num < p_ptr->num_blow)
+				if (num < blows_this_time)
 				{
-					p_ptr->p_energy_use -= (((p_ptr->num_blow - (num)) * BASE_ENERGY_MOVE ) /
-							p_ptr->num_blow);
+					p_ptr->p_energy_use -= (((blows_this_time - (num)) * BASE_ENERGY_MOVE ) /
+		  									blows_this_time);
 				}
 				break;
 			}
@@ -1734,7 +2195,7 @@ s16b move_player(int dir, int jumping)
 			if (cave_passive_trap_bold(y, x))
 			{
 				/* Hit the trap */
-				hit_trap(x_list[cave_x_idx[y][x]].x_f_idx, y, x, MODE_ACTION);
+				hit_trap(x_list[cave_x_idx[y][x]].x_f_idx, y, x, MODE_ACTION, 1);
 			}
 
 			/* Get the feature name */
@@ -1924,12 +2385,12 @@ s16b move_player(int dir, int jumping)
 		else if (cave_passive_trap_bold(y, x))
 		{
 			/* Hit the trap */
- 			hit_trap(x_list[cave_x_idx[p_ptr->py][p_ptr->px]].x_f_idx, y, x, MODE_ACTION);
+ 			hit_trap(x_list[cave_x_idx[p_ptr->py][p_ptr->px]].x_f_idx, y, x, MODE_ACTION, 1);
 
 		}
 
 		/* Discover secrets */
-		else if (_feat_ff1_match(f_ptr, FF1_SECRET) && !p_ptr->flying)
+		else if (_feat_ff1_match(f_ptr, FF1_SECRET))
 		{
 			/* Find the secret */
 			find_secret(y, x);

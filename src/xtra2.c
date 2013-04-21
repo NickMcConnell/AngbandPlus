@@ -78,7 +78,7 @@ bool set_blind(int v)
 /* Players with chaos or confusion resistance don't get confused*/
 bool allow_player_confusion(void)
 {
-	if (p_ptr->resist_confu) return (FALSE);
+	if (p_ptr->resist_confu  || p_ptr->oppose_conf) return (FALSE);
 	if (p_ptr->resist_chaos) return (FALSE);
 
 	/*Don't have the right resists*/
@@ -571,6 +571,52 @@ bool set_shield(int v)
 	return (TRUE);
 }
 
+bool set_megashield(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->megashield)
+		{
+			message(MSG_SHIELD, 0, "A globe of force forms around your body!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->megashield)
+		{
+			message(MSG_RECOVER, 0, "Your magical globe crumbles away.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->megashield = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
 /*
  * Set "p_ptr->slay_elements", notice observable changes
  */
@@ -596,7 +642,7 @@ bool set_slay_elements(int v)
 	{
 		if (p_ptr->slay_elements)
 		{
-			message(MSG_RECOVER, 0, "Your weapon returns to normal.");
+			message(MSG_RECOVER, 0, "Your weapon return to normal.");
 			notice = TRUE;
 		}
 	}
@@ -1045,6 +1091,55 @@ bool set_oppose_acid(int v)
 	return (TRUE);
 }
 
+/*
+ * Set "p_ptr->oppose_conf", notice observable changes
+ */
+bool set_oppose_conf(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		/*first check for resistance to confusion */
+		if ((p_ptr->resist_chaos || p_ptr->resist_confu) && (v > p_ptr->oppose_conf))
+		{
+			msg_print("You feel no change in your resistance to confusion.");
+			notice = TRUE;
+		}
+
+		else if (!p_ptr->oppose_conf)
+		{
+			msg_print("You feel resistant to confusion!");
+			notice = TRUE;
+		}
+	} else if (p_ptr->oppose_conf && !(p_ptr->resist_chaos || p_ptr->resist_confu))
+	{
+			msg_print("You feel less resistant to confusion.");
+			notice = TRUE;
+	}
+
+	/* Use the value */
+	p_ptr->oppose_conf = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Redraw resistances */
+	p_ptr->redraw |= (PR_RESIST);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 /*
  * Set "p_ptr->oppose_elec", notice observable changes
@@ -1671,33 +1766,6 @@ bool set_temp_native_mud(int v)
 
 
 /*
- * Set "temp_call_huorns".
- */
-bool set_temp_call_huorns(int v)
-{
-	/* Turn on */
-	if (v > 0)
-	{
-		/* Not currently active */
-		if (p_ptr->temp_call_huorns == 0) msg_print("You try to awake the trees around you!");
-
-		/* Set */
-		p_ptr->temp_call_huorns = v;
-	}
-	/* Turn off */
-	else
-	{
-		/* Currently active */
-		if (p_ptr->temp_call_huorns > 0) msg_c_format(MSG_NOTICE, "The trees are asleep now.");
-
-		/* Clear */
-		p_ptr->temp_call_huorns = 0;
-	}
-
-	return (TRUE);
-}
-
-/*
  * Set "p_ptr->stun", notice observable changes
  *
  * Note the special code to only notice "range" changes.
@@ -2284,6 +2352,9 @@ bool set_food(int v)
  */
 void check_experience(void)
 {
+	s16b gain_stat = 0, choice, success;
+	char prompt[80];
+
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
 
@@ -2343,6 +2414,8 @@ void check_experience(void)
 	     	/* update the highest level*/
 			p_ptr->max_lev = p_ptr->lev;
 
+			gain_stat = 1;
+
 			/* If auto-note taking enabled, write a note to the file every 5th level. */
             if ((adult_take_notes) && ((p_ptr->lev % 5) == 0))
 
@@ -2363,6 +2436,41 @@ void check_experience(void)
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+		
+		if (gain_stat){
+			screen_save();
+			msg_print("You can develop one of your stats further. (Press a key) ");
+			inkey();
+			msg_flag = FALSE;
+			while (1){
+				Term_clear();
+				display_player_stat_info(2, 5);
+				put_str("(a)",2,1);
+				put_str("(b)",3,1);
+				put_str("(c)",4,1);
+				put_str("(d)",5,1);
+				put_str("(e)",6,1);
+				put_str("(f)",7,1);
+				put_str("(g)",8,1);
+				put_str("(h)",9,1);
+				put_str("(i)",10,1);
+				my_strcpy(prompt, "Which stat do you want to increase? (a-i) ",
+					sizeof(prompt));
+				choice = get_menu_choice(A_MAX, prompt);
+				if (choice>=0 && choice<A_MAX){
+					success = inc_stat(choice);
+					if (success){
+						break;
+					} else {
+						msg_print("That stat is already maxed out! (Press a key) ");
+						inkey();
+						msg_flag = FALSE;
+					}
+				}
+			}
+			screen_load();
+			msg_flag = FALSE;
+		}
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
@@ -2372,6 +2480,7 @@ void check_experience(void)
 
 		/* Handle stuff */
 		handle_stuff();
+	
 	}
 
 	/* Gain max levels while possible */
@@ -2599,46 +2708,6 @@ void monster_death(int m_idx, int who)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 
-	/* Mega-Hack -- drop "winner" treasures */
-	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
-	{
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Mega-Hack -- Prepare to make "Grond" */
-		object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));
-
-		/* Mega-Hack -- Mark this item as "Grond" */
-		i_ptr->art_num = ART_GROND;
-
-		/* Mega-Hack -- Actually create "Grond" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE);
-
-		/* Remember history */
-		object_history(i_ptr, ORIGIN_MORGOTH, 0);
-
-		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Mega-Hack -- Prepare to make "Morgoth's crown" */
-		object_prep(i_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
-
-		/* Mega-Hack -- Mark this item as "Morgoth" */
-		i_ptr->art_num = ART_MORGOTH;
-
-		/* Mega-Hack -- Actually create "Morgoth" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE);
-
-		/* Remember history */
-		object_history(i_ptr, ORIGIN_MORGOTH, 0);
-
-		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
-	}
-
 
 	/* Determine how much we can drop */
 	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number_drops++;
@@ -2652,7 +2721,7 @@ void monster_death(int m_idx, int who)
 	coin_type = force_coin;
 
 	/* Average dungeon and monster levels */
-	set_object_level = object_level = (p_ptr->depth + r_ptr->level) / 2;
+	set_object_level = object_level = (danger(p_ptr->depth) + r_ptr->level) / 2;
 
 	/* Drop some objects */
 	for (j = 0; j < number_drops; j++)
@@ -2669,7 +2738,7 @@ void monster_death(int m_idx, int who)
 		object_wipe(i_ptr);
 
 		/* work on the "too much junk" problem, large drops sometimes are less items with a "boost". */
-		if ((randint(750) < (number_drops * number_drops)) && (!(r_ptr->flags1 & (RF1_UNIQUE))))
+		if ((randint(400) < (number_drops * number_drops)) && (!(r_ptr->flags1 & (RF1_UNIQUE))))
 		{
 			interesting = TRUE;
 			number_drops -= 5;
@@ -2717,7 +2786,7 @@ void monster_death(int m_idx, int who)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = danger(p_ptr->depth);
 
 	/* Reset "coin" type */
 	coin_type = 0;
@@ -2946,10 +3015,6 @@ void monster_death(int m_idx, int who)
 	{
 		/* Give a message */
 		msg_print("You have completed your quest - collect your reward at the guild!");
-
-		/* Turn on quest indicator */
-		quest_indicator_timer = 50;
-		quest_indicator_complete = TRUE;
 		return;
 	}
 
@@ -2990,9 +3055,9 @@ void monster_death(int m_idx, int who)
  			char long_day[25];
 			fprintf(notes_file, "============================================================\n");
   		    (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
-			fprintf(notes_file, "{{full_character_name}} slew Morgoth on %s.\n", long_day);
- 			fprintf(notes_file, "Long live {{full_character_name}}!\n");
- 		    fprintf(notes_file, "Long live {{full_character_name}}!\n");
+			fprintf(notes_file, "%s slew the Witch-King of Angmar on %s.\n", op_ptr->full_name, long_day);
+ 			fprintf(notes_file, "Long live %s!\n", op_ptr->full_name);
+ 		    fprintf(notes_file, "Long live %s!\n", op_ptr->full_name);
 			fprintf(notes_file, "============================================================\n");
       	}
 	}
@@ -3110,11 +3175,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 		/* Play a special sound if the monster was unique */
 		if (r_ptr->flags1 & RF1_UNIQUE)
 		{
-			/* Mega-Hack -- Morgoth -- see monster_death() */
-			if (r_ptr->flags1 & RF1_DROP_CHOSEN)
-				soundfx = MSG_KILL_KING;
-			else
-				soundfx = MSG_KILL_UNIQUE;
+			soundfx = MSG_KILL_UNIQUE;
 		}
 
 		/* Extract monster name */
@@ -5016,6 +5077,7 @@ bool target_set_interactive(int mode)
 	/* Cancel target */
 	target_set_monster(0);
 
+	/* Cancel tracking playtesting*/
 	/* health_track(0); */
 
 	  /* All grids are selectable */

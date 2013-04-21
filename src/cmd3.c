@@ -266,29 +266,9 @@ void do_cmd_wield(void)
 		if (!get_item(&slot, q, s, USE_EQUIP)) return;
 	}
 
-	/* Hack - Throwing weapons can be wielded in the quiver too. */
-	/* Analyze object's inscription and verify the presence of "@v" */
-	if (is_throwing_weapon(o_ptr) && !IS_QUIVER_SLOT(slot) && o_ptr->obj_note)
-	{
-		/* Get the note */
-		cptr note = quark_str(o_ptr->obj_note);
-
-		/* Find the next '@' */
-		while ((note = strchr(note, '@')) != NULL)
-		{
-			/* Found "@v" ? */
-			if (note[1] == 'v')
-			{
-				/* Force quiver */
-				slot = INVEN_QUIVER;
-
-				break;
-			}
-
-			/* Keep searching */
-			++note;
-		}
-	}
+	/* Hack - Throwing weapons can be wielded in the quiver too. Ask the player */
+	if (is_throwing_weapon(o_ptr) && !IS_QUIVER_SLOT(slot) &&
+		get_check("Do you want to put it in the quiver? ")) slot = INVEN_QUIVER;
 
 	/* Prevent wielding into a cursed slot */
 	if (!IS_QUIVER_SLOT(slot) && cursed_p(&inventory[slot]))
@@ -319,6 +299,11 @@ void do_cmd_wield(void)
 
 		/* Get the object again */
 		o_ptr = &inventory[slot];
+
+		o_ptr->ident |= (IDENT_WIELDED);
+		if (o_ptr->ident & (IDENT_SENSE) && (o_ptr->discount==INSCRIP_AVERAGE || o_ptr->discount==INSCRIP_GOOD_STRONG)){
+			object_known(o_ptr);
+		}
 	}
 	else
 	{
@@ -358,6 +343,11 @@ void do_cmd_wield(void)
 		/* Wear the new stuff */
 		object_copy(o_ptr, i_ptr);
 
+		o_ptr->ident |= (IDENT_WIELDED);
+		if (o_ptr->ident & (IDENT_SENSE) && (o_ptr->discount==INSCRIP_AVERAGE || o_ptr->discount==INSCRIP_GOOD_STRONG)){
+			object_known(o_ptr);
+		}
+
 		/* Increase the weight */
 		p_ptr->total_weight += i_ptr->weight;
 
@@ -366,6 +356,10 @@ void do_cmd_wield(void)
 
 		/* Autoinscribe if the object was on the floor */
 		if (item < 0) apply_autoinscription(o_ptr);
+	}
+
+	if (slot==INVEN_LITE || slot==INVEN_LEFT || slot==INVEN_RIGHT || slot==INVEN_NECK){
+		do_ident_item(item, o_ptr, 1);
 	}
 
 	/* Where is the item now */
@@ -619,19 +613,6 @@ void destroy_item(int item)
 	/* Describe the object */
 	old_number = o_ptr->number;
 
-	/*Hack, state the correct number of charges to be destroyed if wand, rod or staff*/
-	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF) || o_ptr->tval == TV_ROD)
-	    && (amt < o_ptr->number))
-	{
-		/*save the number of charges*/
-		old_charges = o_ptr->pval;
-
-		/*distribute the charges*/
-		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
-
-		o_ptr->pval = old_charges - o_ptr->pval;
-	}
-
 	/*hack -  make sure we get the right amount displayed*/
 	o_ptr->number = amt;
 
@@ -737,10 +718,7 @@ void destroy_item(int item)
 		if (o_ptr->ident & (IDENT_SENSE))
 		{
 			/* Already sensed objects always get improved feelings */
-			if (cursed_p(o_ptr) || broken_p(o_ptr))
-				o_ptr->discount = INSCRIP_TERRIBLE;
-			else
-				o_ptr->discount = INSCRIP_SPECIAL;
+			o_ptr->discount = INSCRIP_SPECIAL;
 		}
 		else
 		{
@@ -764,24 +742,17 @@ void destroy_item(int item)
 
 	/* Sometimes identify the object that is being destroyed */
 	/* We try hard to prevent scumming (example: stacks of unknown ammo) */
-	if ((amt == o_ptr->number) && object_aware_p(o_ptr) && !object_known_p(o_ptr) && !ammo_p(o_ptr))
-	{
-		/* Identify the object */
-	       	object_known(o_ptr);
-
-		/* Describe the object again */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-	}
+//	if ((amt == o_ptr->number) && object_aware_p(o_ptr) && !object_known_p(o_ptr) && !ammo_p(o_ptr))
+//	{
+//		/* Identify the object */
+//	       	object_known(o_ptr);
+//
+//		/* Describe the object again */
+//		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+//	}
 
 	/* Message */
 	message_format(MSG_DESTROY, 0, "You destroy %s.", o_name);
-
-	/*hack, restore the proper number of charges after the messages have printed
-	 * so the proper number of charges are destroyed*/
-	if (old_charges) o_ptr->pval = old_charges;
-
-	/* Reduce the charges of rods/wands */
-	reduce_charges(o_ptr, amt);
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
@@ -1277,7 +1248,7 @@ static bool item_tester_refill_torch(const object_type *o_ptr)
 {
 	/* Torches are okay */
 	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
+	    (o_ptr->sval == SV_LITE_TORCH || o_ptr->sval == SV_LITE_MAGELIGHT)) return (TRUE);
 
 	/* Assume not okay */
 	return (FALSE);
@@ -1396,7 +1367,7 @@ void do_cmd_refill(void)
 	}
 
 	/* It's a torch */
-	else if (o_ptr->sval == SV_LITE_TORCH)
+	else if (o_ptr->sval == SV_LITE_TORCH || o_ptr->sval == SV_LITE_MAGELIGHT)
 	{
 		do_cmd_refill_torch();
 	}
@@ -1596,7 +1567,7 @@ static cptr ident_info[] =
 	"\\:A hafted weapon (mace/whip/etc)",
 	"]:Misc. armor",
 	"^:A trap",
-	"_:A staff",
+	"_:A talisman",
 	/* "`:unused", */
 	"a:Ant",
 	"b:Bat",

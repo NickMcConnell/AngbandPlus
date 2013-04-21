@@ -54,7 +54,7 @@ static int monster_critical(int dice, int sides, int dam, int effect)
 /*
  * Determine if a monster attack against the player succeeds.
  */
-static bool check_hit_player(int power, int level, int m_idx)
+static int check_hit_player(int power, int level, int m_idx)
 {
 	int ac, chance;
 
@@ -73,7 +73,7 @@ static bool check_hit_player(int power, int level, int m_idx)
 	ac = p_ptr->ac + p_ptr->to_a;
 
 	/* Check if the player was hit */
-	return test_hit(chance, ac, TRUE);
+	return test_hit(chance, ac, TRUE); // returns a -1 on near-miss
 }
 
 
@@ -114,65 +114,6 @@ static cptr desc_insult[MAX_DESC_INSULT] =
 	"moons you!!!"
 };
 
-/*
- * Drain rods wands and staves charges.
- * Return amount to heal monster if applicable.
- */
-int drain_charges(object_type *o_ptr, u32b heal)
-{
-
-	int counter, old_charges;
-
-	/*get the number of rods/wands/staffs to be drained*/
-	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
-	{
-		counter = o_ptr->pval;
-
-		/*get the number of charges to be drained*/
-		while ((counter > 1) && (!one_in_(counter)))
-		{
-			/*reduce by one*/
-			counter --;
-		}
-
-		/*drain the wands/staffs*/
-		o_ptr->pval -= counter;
-
-		/*factor healing times the difference*/
-		heal*= (counter);
-	}
-
-	/*rods*/
-	else
-	{
-
-		/* Determine how much if left to drain. */
-		old_charges = (o_ptr->pval - o_ptr->timeout);
-
-		/*prepare to get the number of charges to drain*/
-		counter = old_charges;
-
-		/*get the number of wands/staffs to be drained*/
-		while ((counter > 1) && (!one_in_(counter)))
-		{
-			/*reduce by one*/
-			counter --;
-
-		}
-
-		/*see how much timeout to add*/
-		old_charges -= counter;
-
-		/*drain the rod(s)*/
-		o_ptr->timeout += old_charges;
-
-		/*factor healing times the drained amount*/
-		heal *= MAX((old_charges / 30), 1);
-	}
-
-	return (heal);
-
-}
 
 /*
  * Attack the player via physical attacks.
@@ -256,6 +197,7 @@ bool make_attack_normal(monster_type *m_ptr)
 
 		int power = 0;
 		int dam = 0;
+		int check;
 
 		cptr act = NULL;
 		char msg[80];
@@ -308,6 +250,7 @@ bool make_attack_normal(monster_type *m_ptr)
 			case RBE_CONFUSE:    power = 10;  break;
 			case RBE_TERRIFY:    power = 10;  break;
 			case RBE_PARALYZE:   power =  5;  break;
+			case RBE_BEGUILE:    power =  5;  break;
 			case RBE_HALLU:      power = 10;  break;
 			case RBE_DISEASE:    power = 10;  break;
 			case RBE_LOSE_STR:   power =  0;  break;
@@ -315,7 +258,10 @@ bool make_attack_normal(monster_type *m_ptr)
 			case RBE_LOSE_CON:   power =  0;  break;
 			case RBE_LOSE_INT:   power =  0;  break;
 			case RBE_LOSE_WIS:   power =  0;  break;
-			case RBE_LOSE_CHR:   power =  0;  break;
+			case RBE_LOSE_AGI:   power =  0;  break;
+			case RBE_LOSE_PER:   power =  0;  break;
+			case RBE_LOSE_STE:   power =  0;  break;
+			case RBE_LOSE_LUC:   power =  0;  break;
 			case RBE_LOSE_ALL:   power =  2;  break;
 			case RBE_EXP_10:     power =  5;  break;
 			case RBE_EXP_20:     power =  5;  break;
@@ -479,6 +425,11 @@ bool make_attack_normal(monster_type *m_ptr)
 				sound_msg = MSG_MON_WAIL;
 				break;
 			}
+			case RBM_BEGUILE:
+			{
+				act = "beguiles you";
+				break;
+			}
 			case RBM_SPORE:
 			{
 				act = "releases a cloud of spores";
@@ -487,7 +438,6 @@ bool make_attack_normal(monster_type *m_ptr)
 			}
 			case RBM_XXX1:
 			case RBM_XXX4:
-			case RBM_XXX5:
 			case RBM_XXX6:
 			{
 				act = "projects XXX's at you";
@@ -511,7 +461,11 @@ bool make_attack_normal(monster_type *m_ptr)
 		if (no_effect) continue;
 
 		/* Monster hits player */
-		if (!effect || check_hit_player(power, rlev, m_idx))
+		if (r_ptr->flags1 & (RF1_QUESTOR)){
+			power = power + 20;
+		}
+		check = check_hit_player(power, rlev, m_idx);
+		if (!effect || (check>0))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
@@ -687,105 +641,6 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Take damage */
 					take_hit(dam, ddesc);
 
-					/* Find an item */
-					for (k = 0; k < 20; k++)
-					{
-
-						/* Blindly hunt ten times for an item. */
-						i = rand_int(INVEN_PACK);
-
-						/* Obtain the item */
-						o_ptr = &inventory[i];
-
-						/* use "tmp" to decide if a item can
-						 * be uncharged.  By default, assume it
-						 * can't.
-						 */
-						tmp = 0;
-
-						/* Skip non-objects */
-						if (!o_ptr->k_idx) continue;
-
-						/* Drain charged wands/staffs */
-						if (item_tester_hook_recharge(o_ptr))
-
-						{
-							/* case of charged wands/staffs. */
-							if (((o_ptr->tval == TV_STAFF) ||
-								(o_ptr->tval == TV_WAND)) &&
-								(o_ptr->pval)) tmp = 1;
-
-							/* case of (at least partially) charged rods. */
-							else if ((o_ptr->tval == TV_ROD) &&
-								(o_ptr->timeout < o_ptr->pval)) tmp = 1;
-
-							if (tmp)
-							{
-
-								heal = drain_charges(o_ptr, rlev);
-
-								/* Message */
-								msg_print("Energy drains from your pack!");
-
-								/* Obvious */
-								obvious = TRUE;
-
-								/* Message */
-								if ((m_ptr->hp < m_ptr->maxhp) && (heal))
-								{
-									if (m_ptr->ml) msg_format("%^s looks healthier.",  m_name);
-									else msg_format("%^s sounds healthier.", m_name);
-								}
-
-								/*heal is greater than monster wounds, restore mana too*/
-								if (heal > (m_ptr->maxhp - m_ptr->hp))
-								{
-
-									/*leave some left over for mana*/
-									heal -= (m_ptr->maxhp - m_ptr->hp);
-
-									/*fully heal the monster*/
-									m_ptr->hp = m_ptr->maxhp;
-
-									/*mana is more powerful than HP*/
-									heal /= 10;
-
-									/* if heal was less than 10, make it 1*/
-									if (heal < 1) heal = 1;
-
-									/*give message if anything left over*/
-									if (m_ptr->mana < r_ptr->mana)
-									{
-										if (m_ptr->ml) msg_format("%^s looks refreshed.", m_name);
-										else msg_format("%^s sounds refreshed.", m_name);
-									}
-
-									/*add mana*/
-									m_ptr->mana += heal;
-
-									if (m_ptr->mana > r_ptr->mana) m_ptr->mana = r_ptr->mana;
-								}
-
-								/* Simple Heal */
-								else m_ptr->hp += heal;
-
-								/* Redraw (later) if needed */
-								if (p_ptr->health_who == m_idx)
-									p_ptr->redraw |= (PR_HEALTH|PR_MON_MANA);
-
-								/* Combine / Reorder the pack */
-								p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-								/* Window stuff */
-								p_ptr->window |= (PW_INVEN);
-
-								/* not more than one inventory
-								 * slot effected. */
-								break;
-							}
-						}
-					}
-
 					break;
 				}
 
@@ -855,9 +710,9 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Saving throw (unless paralyzed) based on dex and level */
+					/* Saving throw (unless paralyzed) based on agi and level */
 					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+					    (rand_int(100) < (adj_agi_safe[p_ptr->stat_ind[A_AGI]] +
 					                      (p_ptr->lev / 10))))
 					{
 						/* Saving throw message */
@@ -928,10 +783,10 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Take damage */
 					take_hit(dam, ddesc);
 
-					/* Saving throw (unless paralyzed) based on dex and level */
+					/* Saving throw (unless paralyzed) based on agi */
 					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      (p_ptr->lev / 10))))
+					    !((rand_int(100) < MIN(MIN(100,5*r_ptr->mexp),50+r_ptr->mexp/2)) &&
+						  (rand_int(100) > adj_agi_safe[p_ptr->stat_ind[A_AGI]])))
 					{
 						/* Saving throw message */
 						msg_print("You grab hold of your backpack!");
@@ -982,12 +837,6 @@ bool make_attack_normal(monster_type *m_ptr)
 						/* One item is stolen at a time. */
 						i_ptr->number = 1;
 
-						/* Hack -- If a rod or wand, allocate total
-						 * maximum timeouts or charges between those
-						 * stolen and those missed. -LM-
-						 */
-						distribute_charges(o_ptr, i_ptr, 1);
-
 						/* Carry the object */
 						(void)monster_carry(m_idx, i_ptr);
 
@@ -1018,7 +867,7 @@ bool make_attack_normal(monster_type *m_ptr)
 					take_hit(dam, ddesc);
 
 					/* Steal some food */
-					for (k = 0; k < 6; k++)
+					for (k = 0; k < 3; k++)
 					{
 						/* Pick an item from the pack */
 						i = rand_int(INVEN_PACK);
@@ -1370,6 +1219,43 @@ bool make_attack_normal(monster_type *m_ptr)
 					break;
 				}
 
+				/* Hit to paralyze (never cumulative) */
+				case RBE_BEGUILE:
+				{
+					/* Hack -- Prevent perma-paralysis via damage */
+					if (p_ptr->paralyzed && (dam < 1)) dam = 1;
+
+					/* Player armour reduces total damage */
+					ac_dam(&dam, ac);
+
+					/* Take damage */
+					take_hit(dam, ddesc);
+
+					/* Increase "paralyzed" */
+					if (p_ptr->free_act)
+					{
+						msg_print("You are unaffected!");
+						obvious = TRUE;
+					}
+					else if (rand_int(100) < p_ptr->skill_sav)
+					{
+						msg_print("You resist the effects!");
+						obvious = TRUE;
+					}
+					else
+					{
+						if (set_paralyzed(p_ptr->paralyzed + 10 + randint(rlev)))
+						{
+							obvious = TRUE;
+						}
+					}
+
+					/* Learn about the player */
+					update_smart_learn(m_idx, LRN_FREE_SAVE);
+
+					break;
+				}
+				
 				/* Hit to cause disease */
 				case RBE_DISEASE:
  				{
@@ -1392,7 +1278,10 @@ bool make_attack_normal(monster_type *m_ptr)
 				case RBE_LOSE_WIS:
 				case RBE_LOSE_DEX:
 				case RBE_LOSE_CON:
-				case RBE_LOSE_CHR:
+				case RBE_LOSE_AGI:
+				case RBE_LOSE_STE:
+				case RBE_LOSE_PER:
+				case RBE_LOSE_LUC:
 				case RBE_LOSE_ALL:
 				{
 					/* Player armour reduces total damage */
@@ -1431,13 +1320,29 @@ bool make_attack_normal(monster_type *m_ptr)
 						if (do_dec_stat(A_CON)) obvious = TRUE;
 					}
 
-					/* Reduce constitution */
-					if ((effect == RBE_LOSE_CHR) || (effect == RBE_LOSE_ALL))
+					/* Reduce agility */
+					if ((effect == RBE_LOSE_AGI) || (effect == RBE_LOSE_ALL))
  					{
-						if (do_dec_stat(A_CHR)) obvious = TRUE;
+						if (do_dec_stat(A_AGI)) obvious = TRUE;
 					}
 
+					/* Reduce stealth */
+					if ((effect == RBE_LOSE_STE) || (effect == RBE_LOSE_ALL))
+ 					{
+						if (do_dec_stat(A_STE)) obvious = TRUE;
+					}
 
+					/* Reduce perception */
+					if ((effect == RBE_LOSE_PER) || (effect == RBE_LOSE_ALL))
+ 					{
+						if (do_dec_stat(A_PER)) obvious = TRUE;
+					}
+
+					/* Reduce agility */
+					if ((effect == RBE_LOSE_LUC) || (effect == RBE_LOSE_ALL))
+ 					{
+						if (do_dec_stat(A_LUC)) obvious = TRUE;
+					}
 
 					break;
 				}
@@ -1634,7 +1539,11 @@ bool make_attack_normal(monster_type *m_ptr)
 					disturb(1, 0);
 
 					/* Message */
-					msg_format("%^s misses you.", m_name);
+					if (check==0){
+						msg_format("%^s misses you.", m_name);
+					} else {
+						msg_format("Your armor protects you from %s.", m_name);
+					}
 				}
 
 				break;
@@ -1765,7 +1674,11 @@ static int get_dam(monster_type *m_ptr, int attack)
 	}
 
 	/* Return randomized damage */
-	return (dam);
+	if (dam > 200){
+		return 200 + (dam-200)/2;
+	} else {
+		return (dam);
+	}
 }
 
 /*
@@ -1791,8 +1704,8 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 		}
 		case GF_POIS:
 		{
-			dam = hit_points / 3;
-			max_dam = 800;
+			dam = hit_points / 4;
+			max_dam = 500;
 			break;
 		}
 		case GF_PLASMA:
@@ -1921,7 +1834,11 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 	if (dam > max_dam) dam = max_dam;
 
 	/* Return breath damage */
-	return (dam);
+	if (dam > 300){
+		return 300 + (dam-300)/2;
+	} else {
+		return (dam);
+	}
 }
 
 
@@ -2056,7 +1973,7 @@ static void mon_arc(int m_idx, int typ, bool noharm, int dam, int rad, int degre
 	int diameter_of_source = 20;
 
 	/* XXX XXX -- POWERFUL monster breaths lose less damage with range. */
-	int degree_factor = (r_ptr->flags2 & (RF2_POWERFUL)) ? 120 : 60;
+	int degree_factor = (r_ptr->flags2 & (RF2_POWERFUL)) ? 200 : 100;
 
 	/*unused variable*/
 	(void)noharm;
@@ -2119,8 +2036,6 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 	/* Can the player see the monster casting the spell? */
 	bool seen = (!blind && m_ptr->ml);
 
-	/* Player is vulnerable */
-	bool in_range = player_can_fire_bold(m_ptr->fy, m_ptr->fx);
 
 	bool powerful;
 
@@ -2188,6 +2103,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 
 	/* Get the summon level */
 	if (r_ptr->d_char == 'Q') summon_lev = r_ptr->level + 3;
+	else if (r_ptr->flags1 & (RF1_QUESTOR)) summon_lev = 55;
 	else                      summon_lev = r_ptr->level - 1;
 
 	/* Calculate spell failure rate */
@@ -2363,7 +2279,10 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				case RBE_LOSE_CON:
 				case RBE_LOSE_INT:
 				case RBE_LOSE_WIS:
-				case RBE_LOSE_CHR:
+				case RBE_LOSE_AGI:
+				case RBE_LOSE_STE:
+				case RBE_LOSE_PER:
+				case RBE_LOSE_LUC:
 				case RBE_LOSE_ALL:
 				{
 					typ = GF_TIME;
@@ -3496,11 +3415,10 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 		/* RF6_HASTE */
 		case 160+0:
 		{
-			if (in_range)
+			disturb(1, 0);
+			if (seen)
 			{
-				disturb(1, 0);
-
-				if (!seen)
+				if (blind)
 				{
 					msg_format("%^s mumbles.", m_name);
 				}
@@ -3520,11 +3438,12 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 		/* RF6_ADD_MANA */
 		case 160+1:
 		{
-			if (in_range)
-			{
-				disturb(1, 0);
 
-				if (!seen)
+			disturb(1, 0);
+
+			if (seen)
+			{
+				if (blind)
 				{
 					msg_format("%^s mumbles.", m_name);
 				}
@@ -3546,12 +3465,12 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 		{
 			int gain, cost;
 
-			if (in_range)
-			{
-				disturb(1, 0);
+			disturb(1, 0);
 
-				/* Message */
-				if (!seen)
+			/* Message */
+			if (m_ptr->ml)
+			{
+				if (blind)
 				{
 					msg_format("%^s mumbles.", m_name);
 				}
@@ -3583,7 +3502,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				m_ptr->hp = m_ptr->maxhp;
 
 				/* Message */
-				if (in_range)
+				if (m_ptr->ml)
 				{
 					if (seen) msg_format("%^s looks very healthy!",  m_name);
 					else      msg_format("%^s sounds very healthy!", m_name);
@@ -3594,7 +3513,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else
 			{
 				/* Message */
-				if (in_range)
+				if (m_ptr->ml)
 				{
 					if (seen) msg_format("%^s looks healthier.",  m_name);
 					else      msg_format("%^s sounds healthier.", m_name);
@@ -3666,7 +3585,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 		/* RF6_BLINK */
 		case 160+4:
 		{
-			if (seen) disturb(1, 0);
+			disturb(1, 0);
 			teleport_away(m_idx, 10);
 
 			/*
@@ -3676,7 +3595,6 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			if (!seen && m_ptr->ml)
 			{
 				msg_format("%^s blinks into view.", ddesc);
-				disturb(1, 0);
 				seen = TRUE;
 			}
 
@@ -3691,11 +3609,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 		/* RF6_TPORT */
 		case 160+5:
 		{
-			if (seen)
-			{
-				disturb(1, 0);
-				msg_format("%^s teleports away.", m_name);
-			}
+			disturb(1, 0);
+			if (seen) msg_format("%^s teleports away.", m_name);
 			teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 
 			/*
@@ -3705,7 +3620,6 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			if (!seen && m_ptr->ml)
 			{
 				msg_format("%^s teleports.", ddesc);
-				disturb(1, 0);
 				seen = TRUE;
 			}
 			break;
@@ -3722,15 +3636,12 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 		{
 			int old_cdis = m_ptr->cdis;
 
-			if (seen) disturb(1, 0);
-
 			/* Move monster near player (also updates "m_ptr->ml"). */
 			teleport_towards(m_ptr->fy, m_ptr->fx, py, px);
 
 			/* Monster is now visible, but wasn't before. */
 			if ((!seen) && (m_ptr->ml))
 			{
-				disturb(1, 0);
 				/* Message */
 				msg_format("%^s suddenly appears.", ddesc);
 			}
@@ -3848,7 +3759,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				msg_format("%^s draws psychic energy from you!", m_name);
 
 				/* Attack power */
-				r1 = (randint(spower) / 20) + 1;
+				r1 = 1;
 
 				/* Full drain */
 				if (r1 >= p_ptr->csp)
@@ -4237,8 +4148,18 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* RF7_XXX */
-		case 192 + 1:  break;
+		/* RF7_S_THROWTROLL */
+		case 192 + 1:
+		{
+			disturb(1, 0);
+			if (blind) msg_print("You hear something shrieking flying at you..");
+			else msg_format("%^s flings a smaller troll at you!", m_name);
+			mon_bolt(m_idx, GF_MISSILE, get_dam(m_ptr, attack));
+			summon_kin_type = r_ptr->d_char;
+			count += summon_specific_single(p_ptr->py, p_ptr->px, summon_lev, SUMMON_KIN);
+			break;
+		}
+
 		case 192 + 2:  break;
 
 

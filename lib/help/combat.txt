@@ -11,58 +11,63 @@ strength.  If you are using a weapon, things are a bit different.
 
 Basic Calculation:
      1) roll the weapon's damage dice
-     2) apply any slay or brand multiplier
+     2) multiply them by (100% + damage modifier)
      3) apply any critical hit bonuses
-     4) apply bonuses to damage from all equipped items
-     5) repeat for all the blows you get
+     4) repeat for all the blows you get
+     
+The damage modifier is based on your strength and is increased by magic
+weapons and some special magic armours. Unlike other *bands, it is expressed
+as a percentile - i.e. a 200% damage modifier means you do triple the
+base dice role. You can see this percentile by pressing 'C'. You'll notice
+that at first it increases fast, but when it gets higher, it increases much 
+slower. Raising it above about 400% is more and more difficult.
 
 Chance of hitting:
      Your chance of hitting a monster depends on your innate melee skill,
-plusses to hit from all equipped items other than your missile weapon, temporary
-effects (like blessing or heroism), and on monster armour class.  Unseen
-monsters are harder to hit.  The terrain you are standing in, and whether you
-are native to that terrain can also make it easier or harder to get a hit.
+your Dexterity, plusses to hit from all equipped items other than your 
+missile weapon, temporary effects (like blessing or heroism), and on monster 
+armour class.  Unseen monsters are harder to hit.  The terrain you are 
+standing in, and whether you are native to that terrain can also make it 
+easier or harder to get a hit.
+     If your weapon is too heavy for your Strength, you will get a to-hit penalty.
 
 Damage Dice:
      All weapons have damage dice displayed after their name (1d4, 2d5, etc.).
 The higher the damage dice, the more damage the weapon does, especially if it
-has brands or slays, or gets lots of critical hits.  In addition, 
-some creatures are succeptable to extra damage from cold or fire. 
+has brands or slays, or gets lots of critical hits.
+     Using a weapon with large base damage is more important in Ironband
+than in Angband or NPP, because the damage bonus is a multiplier rather than
+an adder. 
 
 Brands and Slays:
      Some remarkable weapons do extra damage to various kinds of monsters; a
 Dagger branded with Fire, for instance, would do extra damage to creatures not 
 immune to fire.  Slays, in contrast, do extra damage to particular monster 
-races, so wield that Mace of Slays (orc) if you come upon any orcs.  Only the 
-best applicable quality is used; they do not combine.
-     Branded weapons can cause additional damage depending on the terrain where
-the target is standing on.
-     See the object attributes section for how powerful individual slays and
-brands are.
+races, so wield that Mace of Slays (orc) if you come upon any orcs.  
+     The damage bonus adds on to the damage modifier - i.e. if you have +200%
+damage, and attack an evil enemy with a Slay Evil sword for an additional +100%,
+then you have a total of +300% or quadruple base damage.
+     Unlike in other *bands, in Ironband you get the bonus for your best slay
+that applies PLUS the bonus for your best brand that applies. So combining a 
+slay and a brand, if possible, gives a lot of damage!
+     You can always tell if your brands or slays are working by checking out
+your hit message (e.g. 'You zap the orc!' means your Lightning brand is 
+helping).
 
 Critical Hits:
      The number of critical hits you get depends on your total bonuses to melee
 skill, your level, and your weapon weight.  Their power depends on weapon
-weight.  A weak critical hit might double base damage and add 5; a powerful one
-might triple it and add 20.
-     For most weapons, critical hits are rare, and make little difference to
-average damage.  For heavy wargear with good base damage dice, however, critical
-hits can be significant.  
-
-Bonus to damage:
-     Your melee weapon often has a bonus to damage, expressed as the second
-value in parenthesis after the damage dice.  This bonus is applied after all
-other adjustments, and is guaranteed.  Raising this value rapidly increases the
-amount -- and the reliability -- of the damage you do.
+weight. A heavy weapon does truly gnarly criticals.
 
 Number of Blows:
      Your character screen also displays the number of blows you can get per
-turn.  This value depends on your class, strength and dexterity, and on weapon
-weight.  You normally start out with one blow, but will get more as time passes.
-     The more blows you get, the more damage you do, and the more reliable melee
-becomes (because you get more chances to hit).  If you want to be effective in
-hand-to-hand combat, get extra blows if at all possible.  You can also (I)nspect
-a weapon to find out how many blows you would get if you wielded that weapon.
+turn. Getting many blows is important. The number depends on your dexterity.
+If your weapon is too heavy for your Strength, then your number of blows
+will be greatly reduced. You will get a warning message if this happens.
+In this case you will also get a to-hit penalty, especially if the weapon is
+much too heavy.
+     You can (I)nspect a weapon to find out how many blows you would get if 
+you wielded that weapon.
 
 
 --- Shooting ---
@@ -89,16 +94,15 @@ targeting interface described in the section on commands.
 
 Chance of hitting:
      Your chance of hitting a monster depends on your innate missile skill,
-plusses to hit from all equipped items other than your melee weapon, plusses to
-hit on your ammunition, temporary effects (like blessing or heroism), and on
+your Perception, plusses to hit from all equipped items other than your melee weapon, 
+plusses to hit on your ammunition, temporary effects (like blessing or heroism), and on
 monster armour class.  Unseen monsters are harder to hit.  The terrain you are 
 standing in, and whether you are native to that terrain can also make it easier 
 or harder to get a hit.
 
 Base damage:
-     Unlike in melee, launcher, slay/brand, and critical hit multiplers are all
-applied after the bonus to damage, which is applied directly to the result of
-the base damage dice.
+     Launcher, slay/brand, and critical hit multiplers are all applied after the 
+bonus to damage, which is applied directly to the result of the base damage dice.
 
 Launcher Multiplier:
      All missile launchers have a multiplier to damage:  for example, a Longbow
@@ -107,19 +111,17 @@ special weapons have a higher than normal multiplier.
 
 Brands and Slays:
      Ammunition occasionally possesses the same kinds of slays and brands found
-on melee weapons.
+on melee weapons. They work rather differently, acting as a multiplier on the total 
+damage, but they are still very good! 
 
 Critical hits:
      The number of critical hits you get depends on your total bonuses to
 missile skill, your level, and your missile weight, but they are always rare.
-Their power depends on missile weight.  Almost all critical hits multiply damage
-by 2 and add 5.
 
 Number of Shots:
      On your character screen is displayed the number of shots you can get per
-turn.  You always get one shot unless you are using a weapon of extra shots.
-Rangers are the exception to this rule; they eventually get two extra shots per
-turn with bows.  Extra shots are not fired all at once; instead, each shot takes
+turn. If you have higher dexterity you will get more shots.
+     Extra shots are not fired all at once; instead, each shot takes
 less time, making monsters appear to move in slow motion.
 
 

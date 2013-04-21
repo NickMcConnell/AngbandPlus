@@ -85,7 +85,10 @@ static bool describe_stats(const object_type *o_ptr, u32b f1)
 	if (f1 & (TR1_WIS)) descs[cnt++] = stat_names_full[A_WIS];
 	if (f1 & (TR1_DEX)) descs[cnt++] = stat_names_full[A_DEX];
 	if (f1 & (TR1_CON)) descs[cnt++] = stat_names_full[A_CON];
-	if (f1 & (TR1_CHR)) descs[cnt++] = stat_names_full[A_CHR];
+	if (f1 & (TR1_AGI)) descs[cnt++] = stat_names_full[A_AGI];
+	if (f1 & (TR1_STE)) descs[cnt++] = stat_names_full[A_STE];
+	if (f1 & (TR1_PER)) descs[cnt++] = stat_names_full[A_PER];
+	if (f1 & (TR1_LUC)) descs[cnt++] = stat_names_full[A_LUC];
 
 	/* Skip */
 	if (cnt == 0) return (FALSE);
@@ -121,7 +124,6 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1)
 	int pval = (o_ptr->pval > 0 ? o_ptr->pval : -o_ptr->pval);
 
 	/* Collect */
-	if (f1 & (TR1_STEALTH)) descs[cnt++] = "stealth";
 	if (f1 & (TR1_SEARCH))  descs[cnt++] = "searching";
 	if (f1 & (TR1_INFRA))   descs[cnt++] = "infravision";
 	if (f1 & (TR1_TUNNEL))  descs[cnt++] = "tunneling";
@@ -315,10 +317,10 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 
 
 /*return the number of blows a player gets with a weapon*/
-int get_num_blows(const object_type *o_ptr, u32b f1)
+int get_num_blows_times_ten(const object_type *o_ptr, u32b f1)
 {
 
-	int i, str_index, dex_index, blows, div_weight;
+	int i, blows_times_ten;
 
 	int str = 0;
 	int dex = 0;
@@ -386,42 +388,28 @@ int get_num_blows(const object_type *o_ptr, u32b f1)
 		else dex = ind;
 	}
 
-	/* Enforce a minimum "weight" (tenth pounds) */
-	div_weight = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+	blows_times_ten = adj_dex_blows[dex];
 
-	/* Get the strength vs weight */
-	str_index = (adj_str_blow[str] * cp_ptr->att_multiply / div_weight);
-
-	/* Maximal value */
-	if (str_index > 11) str_index = 11;
-	if (str_index < 0) str_index = 0;
-
-	/* Index by dexterity */
-	dex_index = (adj_dex_blow[dex]);
+	if (adj_str_hold[str] < o_ptr->weight){
+		blows_times_ten = blows_times_ten / 2;
+	}
 
 	/* Maximal value */
-	if (dex_index > 11) dex_index = 11;
-	if (dex_index < 0) dex_index = 0;
-
-	/* Use the blows table */
-	blows = blows_table[str_index][dex_index];
-
-	/* Maximal value */
-	if (blows > cp_ptr->max_attacks) blows = cp_ptr->max_attacks;
+	if (blows_times_ten > 10*cp_ptr->max_attacks) blows_times_ten = 10*cp_ptr->max_attacks;
 
 	/* Add in the "bonus blows"*/
-	if (f1 & (TR1_BLOWS)) blows += o_ptr->pval;
+	if (f1 & (TR1_BLOWS)) blows_times_ten += 10 * o_ptr->pval;
 
-	/* Require at least one blow */
-	if (blows < 1) blows = 1;
+	/* Require at least 1 blow */
+	if (blows_times_ten < 10) blows_times_ten = 10;
 
 	/*add extra attack for those who have the flag*/
 	if ((p_ptr->lev >= LEV_EXTRA_COMBAT) && (cp_ptr->flags & CF_EXTRA_ATTACK))
 	{
-		blows += 1;
+		blows_times_ten += 10;
 	}
 
-	return(blows);
+	return(blows_times_ten);
 }
 
 /*
@@ -435,11 +423,10 @@ static bool describe_attacks (const object_type *o_ptr, u32b f1)
 		(n == TV_POLEARM) || (n == TV_SWORD))
 	{
 		/*get the number of blows*/
-		n = get_num_blows(o_ptr, f1);
+		n = get_num_blows_times_ten(o_ptr, f1);
 
 		/*print out the number of attacks*/
-		if (n == 1) p_text_out("It gives you one attack per turn.  ");
-		else p_text_out(format("It gives you %d attacks per turn.  ", n));
+		p_text_out(format("It gives you %d/10 attacks per turn.  ", n));
 
 		return (TRUE);
 	}
@@ -493,7 +480,10 @@ static bool describe_sustains(const object_type *o_ptr, u32b f2)
 	if (f2 & (TR2_SUST_WIS)) list[n++] = stat_names_full[A_WIS];
 	if (f2 & (TR2_SUST_DEX)) list[n++] = stat_names_full[A_DEX];
 	if (f2 & (TR2_SUST_CON)) list[n++] = stat_names_full[A_CON];
-	if (f2 & (TR2_SUST_CHR)) list[n++] = stat_names_full[A_CHR];
+	if (f2 & (TR2_SUST_AGI)) list[n++] = stat_names_full[A_AGI];
+	if (f2 & (TR2_SUST_STE)) list[n++] = stat_names_full[A_STE];
+	if (f2 & (TR2_SUST_PER)) list[n++] = stat_names_full[A_PER];
+	if (f2 & (TR2_SUST_LUC)) list[n++] = stat_names_full[A_LUC];
 
 	/* Describe immunities */
 	if (n == A_MAX)
@@ -527,13 +517,14 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	}
 
 	/* Collect stuff which can't be categorized */
-	if (f3 & (TR3_BLESSED))     good[gc++] = "is blessed by the gods";
+	if (f3 & (TR3_BLESSED))     good[gc++] = "is blessed by the gods (giving you better saving throws)";
 	if (f3 & (TR3_IMPACT))      good[gc++] = "creates earthquakes on impact";
 	if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = "slows your metabolism";
 	if (f3 & (TR3_FEATHER))     good[gc++] = "makes you fall like a feather";
 	if (((o_ptr->tval == TV_LITE) && artifact_p(o_ptr)) || (f3 & (TR3_LITE)))
 		good[gc++] = "lights the dungeon around you";
 	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
+	if (f3 & (TR3_VAMPIRE))       good[gc++] = "allows you to feed on the life energy of your foes";
 
 	/* Describe */
 	output_desc_list("It ", good, gc);
@@ -996,6 +987,28 @@ static bool screen_out_head(const object_type *o_ptr)
 		p_text_out(a_text + a_info[o_ptr->art_num].text);
 		has_description = TRUE;
 	}
+	else if (o_ptr->tval==TV_WAND){
+		p_text_out("\n\n   ");
+		p_text_out("It enables you to cast the spell ");
+		p_text_out(newspells[o_ptr->sval].name);
+		p_text_out(", if you have enough mana and you are high enough level.\n\n  The mana cost of the spell is reduced to ");
+		if (get_mana_cost(o_ptr->sval) - 2 <= -3){
+			p_text_out("1/16");
+		} else if (get_mana_cost(o_ptr->sval) - 2 > 0){
+			p_text_out(format("%d",get_mana_cost(o_ptr->sval) - 2));
+		} else {
+			p_text_out(nice_mana_cost(get_mana_cost(o_ptr->sval) - 2)); 
+		}
+		if (get_success_prob(o_ptr->sval) == 0){
+			p_text_out(" but the success rate is currently 0. Try boosting your Int.");
+		} else {
+			p_text_out(" and the success rate is ");
+			p_text_out(format("%d",get_success_prob(o_ptr->sval)));
+			p_text_out("%.");
+		}
+		p_text_out("\n\n  Press 'z' to zap the wand.");
+		has_description = TRUE;		
+	}
 	/* Display the known object description */
 	else if (object_aware_p(o_ptr) || object_known_p(o_ptr))
 	{
@@ -1068,19 +1081,12 @@ void object_info_screen(const object_type *o_ptr)
 		price = object_value(o_ptr);
 		if (price > 0)
 		{
-			if (o_ptr->number > 1)
-			{
-				text_out_c(TERM_YELLOW, format("They would fetch %i gold apiece in an average shop.", price));
-			}
-			else
-			{
-				text_out_c(TERM_YELLOW, format("It would fetch %i gold in an average shop.", price));
-			}
+			text_out_c(TERM_YELLOW, format("It would fetch %i gold %sin an average shop.",
+				price, (o_ptr->number > 1 ? "a piece " : "")));
 		}
 		else
 		{
-			if (o_ptr->number > 1)	text_out_c(TERM_YELLOW, "They have no value.");
-			else 					text_out_c(TERM_YELLOW, "It has no value.");
+			text_out_c(TERM_YELLOW, "It has no value.");
 		}
 
 		text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
@@ -1147,11 +1153,6 @@ bool format_object_history(char *buf, size_t max, const object_type *o_ptr)
 			if (o_ptr->ident & (IDENT_STORE)) return (FALSE);
 
 			my_strcat(buf, " bought in a store.", max);
-			break;
-		}
-		case ORIGIN_MORGOTH:
-		{
-			my_strcpy(buf, "It is one of your prizes for victory!", max);
 			break;
 		}
 		case ORIGIN_CHEAT:

@@ -1,0 +1,82 @@
+Ironband pre-release
+
+Re-branded
+Changed the victory condition
+Removed some monsters, objects and artifacts, added some more, changed others
+Always ironman
+No player ghosts
+Only one class
+Character starts at DL 1
+Money gives XP
+Shafts are not usually found, nor stairs up
+Charisma replaced by four new stats - Agility, Stealth, Perception, Luck
+Added new objects relating to the new stats
+Changed some existing objects, egos and artifacts to affect the new stats
+Added attack types to damage the new stats and gave these to some monsters
+Stat generation must now be random roll (stats vary from 11 to 15)
+Stats increase as you descend into the dungeon, and when you gain a level
+Rebalanced races
+Reading a scroll can now fail if Int is low
+Lower maximum monster spell and breath damage
+Changed some item frequencies, including removing some items
+Saving throws can now never be perfect (though Wis helps more than it used to)
+Confusion and paralysis locks are occasionally broken (more likely if Int and Agi, respectively, are high)
+Stat drain can fail if stats are already low
+Attacks that should have been fatal can now sometimes be survived (with luck)
+Rings, amulets and light sources are auto-ID'd when wielded
+Terrible items now appear special, cursed and broken egos now appear excellent, cursed items appear good (!)
+Cursed items are now less common (especially if Luc is high)
+Teleport spells, scrolls and staffs now have a short delay before they kick in (!)
+More non-fueled light sources
+More lit rooms
+More food drops
+Made the difficulty of the dungeon increase more rapidly over the first few levels
+'O-lite' combat - melee weapon damage is multiplied by a factor based on criticals, to-dam, brands and slays
+Fractional blows and shots
+New melee blows formula - calculated from Dex only, except that blows are greatly reduced if weapon is too heavy
+High Dex gives extra shots.
+Stealthy characters get backstab bonuses (including damage plusses)
+Various stat effect tables have changed (generally increasing the importance of the stat)
+Innate melee to-dam is based on Str, melee to-hit on Dex, missile to-hit and to-dam on Per.
+AC bonuses are based on Agi, as are avoiding theft and falling.
+Agi also increases your speed.
+Luc increases your chance of finding magic items.
+Mana is more like HP, with a race-specific 'mana die' and bonuses based on Wis.
+Jammed doors are not found on shallow levels.
+Per improves your searching, infravision, pseudo-ID and light radius, and even provides limited ESP if high enough.
+Added potions of Clarity and Dust of Disappearance
+Mana is only regained on going down. (Potion of Restore Mana recovers 20% only.)
+Mana drain is less effective and few monsters do it.
+Getting poisoned makes your HP drop faster. On the other hand, poison breaths are less immediately damaging than previously.
+'G' no longer does anything. 'z' and 'u' are same as 'a' and 'p' is same as 'm'.
+New spell lists, new spellbooks, new calculation of spell success probability and mana cost.
+Spellbooks are quite fire-resistant, but can be burnt by really big fire attacks.
+Various items make some spells cheaper to cast. These include wands (which now cast a spell, with normal success rate and reduced cost, rather than creating an effect and using charges as previously), talismans (which only have to be in inventory), and various miscellaneous objects (never artifacts) when wielded.
+Sleep, confuse and slow spells are much more likely to work (though possibly not for very long)
+Spells do not need to be learnt and cannot be forgotten; you just need the correct spellbook.
+Weapons and armor are less likely to be dropped.
+To-hit,to-dam and to-AC are shown for pseudo-ID'd items once you wield them.
+Slays and brands are indicated by the message when you hit a vulnerable monster.
+Some terrain probabilities and pit theme probabilities have changed; some monsters and some attack forms have been tweaked.
+Destroying objects does not ID them.
+Preserve mode is off by default.
+Some options are not allowed (e.g. autoscum on).
+The deeper traps are harder to disarm.
+Help files updated to some extent.
+Reduced breath attenuation (a step back towards V)
+Weapons too heavy for you now give to-hit penalties as well as less attacks.
+Nexus can no longer swap stats
+Monsters up to 10 levels OOD are more common
+Gold-thieving monsters now steal items instead, but this is unlikely to work often for the weaker thieves
+Changed the names of some weapon and armor types
+New message when a monster's attack is blocked by your armor
+You now get a warning if many monsters wake up at once (if you have 'disturb_wakeup' set)
+Melee weapons and many armors can no longer be destroyed by acid
+Failing to disarm a trap is now more likely to set it off
+High Stealth gives RDark, high Con gives Slow Digestion
+Perception helps recovery from blindness
+Body armors now reduce stealth as well as to-Hit.
+Heavy boots can reduce your Stealth, heavy helms your Perception.
+Ordinary Remove Curse can reduce the penalties on heavily cursed items.
+Light armors are not likely to be generated with high plusses, and cannot be enchanted to high plusses. Conversely heavy armors appear well enchanted and can be boosted up a lot.
+

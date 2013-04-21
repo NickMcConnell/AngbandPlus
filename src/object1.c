@@ -151,7 +151,7 @@ static void flavor_assign_random(byte tval)
  * For the most part, flavors are assigned randomly each game.
  *
  * Initialize descriptions for the "colored" objects, including:
- * Rings, Amulets, Staffs, Wands, Rods, Food, Potions, Scrolls.
+ * Rings, Amulets, Talismans, Wands, Rods, Food, Potions, Scrolls.
  *
  * The first 4 entries for potions are fixed (Water, Apple Juice,
  * Slime Mold Juice, Unused Potion).
@@ -189,9 +189,8 @@ void flavor_init(void)
 
 	flavor_assign_random(TV_RING);
 	flavor_assign_random(TV_AMULET);
-	flavor_assign_random(TV_STAFF);
+	flavor_assign_random(TV_TALISMAN);
 	flavor_assign_random(TV_WAND);
-	flavor_assign_random(TV_ROD);
 	flavor_assign_random(TV_FOOD);
 	flavor_assign_random(TV_POTION);
 	flavor_assign_random(TV_SCROLL);
@@ -1003,13 +1002,13 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			break;
 		}
 
-		/* Staffs */
-		case TV_STAFF:
+		/* Talismans */
+		case TV_TALISMAN:
 		{
 			/* Color the object */
 			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Staff~" : "& Staff~");
+			basenm = (flavor ? "& # Talisman~" : "& Talisman~");
 
 			break;
 		}
@@ -1386,6 +1385,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_BOLT:
 		case TV_ARROW:
 		{
+
+			power = power;
 			/* Fall through */
 		}
 
@@ -1427,7 +1428,8 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 
 	/* Add the weapon bonuses */
-	if (known)
+
+	if (known || ((o_ptr->ident & (IDENT_SENSE)) && (o_ptr->ident & (IDENT_WIELDED))))
 	{
 		/* Show the tohit/todam on request */
 		if (show_weapon)
@@ -1461,7 +1463,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 
 	/* Add the armor bonuses */
-	if (known)
+	if (known || ((o_ptr->ident & (IDENT_SENSE)) && (o_ptr->ident & (IDENT_WIELDED))))
 	{
 		/* Show the armor class info */
 		if (show_armour)
@@ -1497,61 +1499,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* No more details wanted */
 	if (mode < 2) goto object_desc_done;
 
-	/* Hack -- Wands and Staffs have charges */
-	if (known &&
-	    ((o_ptr->tval == TV_STAFF) ||
-	     (o_ptr->tval == TV_WAND)))
-	{
-		/* Dump " (N charges)" */
-		object_desc_chr_macro(t, ' ');
-		object_desc_chr_macro(t, p1);
-
-		/*write out the word charge(s) as appropriate*/
-		object_desc_num_macro(t, o_ptr->pval);
-		object_desc_str_macro(t, " charge");
-		if (o_ptr->pval != 1)
-		{
-			object_desc_chr_macro(t, 's');
-		}
-		object_desc_chr_macro(t, p2);
-	}
-
-	/* Hack -- Rods have a "charging" indicator */
-	if (known && (o_ptr->tval == TV_ROD))
-	{
-		/* Hack -- Dump " (# charging)" if relevant */
-		if (o_ptr->timeout >= 1)
-		{
-
-			/* Stacks of rods display an exact count of charging rods. */
-			if (o_ptr->number > 1)
-			{
-
-				/* Paranoia. */
-				if (k_ptr->pval == 0) k_ptr->pval = 1;
-
-				/* Find out how many rods are charging, by dividing
-			 	 * current timeout by each rod's maximum timeout.
-			 	 * Ensure that any remainder is rounded up.  Display
-			 	 * very discharged stacks as merely fully discharged.
-			 	 */
-				power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
-
-				if (power > o_ptr->number) power = o_ptr->number;
-
-				/* Display prettily. */
-				object_desc_str_macro(t, " (");
-				object_desc_num_macro(t, power);
-				object_desc_str_macro(t, " charging)");
-			}
-
-
-			/* "one Rod of Perception (1 charging)" would look tacky. */
-			if (o_ptr->number == 1)	object_desc_str_macro(t, " (charging)");
-		}
-
-	}
-
 	/* Hack -- Process Lanterns/Torches */
 	if (fuelable_lite_p(o_ptr))
 	{
@@ -1579,13 +1526,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		if (f3 & (TR3_HIDE_TYPE))
 		{
 			/* Nothing */
-		}
-
-		/* Stealth */
-		else if (f1 & (TR1_STEALTH))
-		{
-			/* Dump " to stealth" */
-			tail = " to stealth";
 		}
 
 		/* Searching */
@@ -1875,13 +1815,13 @@ void mimic_desc_object(char *buf, size_t max, s16b mimic_k_idx)
 			break;
 		}
 
-		/* Staffs */
-		case TV_STAFF:
+		/* Talismans */
+		case TV_TALISMAN:
 		{
 			/* Color the object */
 			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Staff~" : "& Staff~");
+			basenm = (flavor ? "& # Talisman~" : "& Talisman~");
 
 			break;
 		}
@@ -2624,14 +2564,12 @@ void display_inven(void)
 		}
 
 		/* Leave out space till the bottom-most w) line */
-		for (i = z; i < (INVEN_PACK - p_ptr->pack_size_reduce); i++)
-		{
+		for (i = z; i < (INVEN_PACK - p_ptr->pack_size_reduce); i++) {
 			Term_erase(0, i, 255);
 		}
 
 		for (j = 0; j < p_ptr->pack_size_reduce; j++)
 		{
-
 			/* Get the number of missiles gathered in this slot */
 			if (j == 0)
 			{
@@ -2827,6 +2765,7 @@ void show_inven(void)
 {
 	int i, j, k, l, z = 0;
 	int col, len, lim;
+	int wgt;
 
 	object_type *o_ptr;
 
@@ -2896,8 +2835,6 @@ void show_inven(void)
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
-		int wgt;
-
 		/* Get the index */
 		i = out_index[j];
 

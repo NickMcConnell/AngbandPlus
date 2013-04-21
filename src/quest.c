@@ -182,55 +182,6 @@ void plural_aux(char *name, size_t max)
 		my_strcpy (name, dummy, max);
 		return;
 	}
-
-	else if (strstr(name, "Greater Servant of"))
-	{
-		char dummy[80];
-		strcpy (dummy, "Greater Servants of ");
-		my_strcat (dummy, &(name[1]), sizeof(dummy));
-		my_strcpy (name, dummy, max);
-		return;
-	}
-	else if (strstr(name, "Lesser Servant of"))
-	{
-		char dummy[80];
-		strcpy (dummy, "Greater Servants of ");
-		my_strcat (dummy, &(name[1]), sizeof(dummy));
-		my_strcpy (name, dummy, max);
-		return;
-	}
-	else if (strstr(name, "Servant of"))
-	{
-		char dummy[80];
-		strcpy (dummy, "Servants of ");
-		my_strcat (dummy, &(name[1]), sizeof(dummy));
-		my_strcpy (name, dummy, max);
-		return;
-	}
-	else if (strstr(name, "Great Wyrm"))
-	{
-		char dummy[80];
-		strcpy (dummy, "Great Wyrms ");
-		my_strcat (dummy, &(name[1]), sizeof(dummy));
-		my_strcpy (name, dummy, max);
-		return;
-	}
-	else if (strstr(name, "Spawn of"))
-	{
-		char dummy[80];
-		strcpy (dummy, "Spawn of ");
-		my_strcat (dummy, &(name[1]), sizeof(dummy));
-		my_strcpy (name, dummy, max);
-		return;
-	}
-	else if (strstr(name, "Descendant of"))
-	{
-		char dummy[80];
-		strcpy (dummy, "Descendant of ");
-		my_strcat (dummy, &(name[1]), sizeof(dummy));
-		my_strcpy (name, dummy, max);
-		return;
-	}
 	else if ((strstr(name, "Manes")) || (name[name_len-1] == 'u') || (strstr(name, "Yeti")) ||
 		(streq(&(name[name_len-2]), "ua")) || (streq(&(name[name_len-3]), "nee")) ||
 		(streq(&(name[name_len-4]), "idhe")))
@@ -285,8 +236,7 @@ void plural_aux(char *name, size_t max)
 	{
 		strcpy (&(name[name_len - 1]), "ves");
 	}
-	else if (((streq(&(name[name_len - 2]), "ch")) || (name[name_len - 1] == 's')) &&
-			(!streq(&(name[name_len - 5]), "iarch")))
+	else if ((streq(&(name[name_len - 2]), "ch")) || (name[name_len - 1] == 's'))
 	{
 		strcpy (&(name[name_len]), "es");
 	}
@@ -956,21 +906,6 @@ static void grant_reward_object(byte depth, byte type)
 
 					realm = get_player_spell_realm();
 
-					/* Extract spells */
-					for (j = 0; j < SPELLS_PER_BOOK; j++)
-					{
-
-						byte sval = k_ptr->sval;
-
-						s16b spell = spell_list[realm][sval][j];
-
-						/*skip blank spell slots*/
-						if (spell == -1) continue;
-
-						/* Remove the Ironman Restriction. */
-						p_ptr->spell_flags[spell] &= ~(PY_SPELL_IRONMAN);
-					}
-
 					/* Update the spells. */
 					p_ptr->update |= PU_SPELLS;
 
@@ -980,212 +915,6 @@ static void grant_reward_object(byte depth, byte type)
 			}
 		}
 
-		/* Maybe we want to give a potion of augmentation */
-		if (!got_item)
-		{
-			/*clear the counter*/
-			x = 0;
-
-			/* Add up the stats indexes over 13*/
-			for (i = 0; i < A_MAX; i++)
-			{
-				x += (MAX(0, p_ptr->stat_ind[i] - 10));
-			}
-
-			/*We only want to give potion if stats are low.*/
-			if ((rand_int(36) + 36) > x)
-			{
-				/* Get local object */
-				i_ptr = &object_type_body;
-
-				/* Wipe the object */
-				object_wipe(i_ptr);
-
-				/* Make the spellbook */
-				object_prep(i_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
-
-				got_item = TRUE;
-			}
-		}
-	}
-
-	/* Try a couple things with a tailored reward, but only below 1000' */
-	if ((type == REWARD_GOOD_ITEM) && (randint(20) >= q_ptr->base_level))
-	{
-
-		int stats[A_MAX];
-
-		int choice = 0;
-
-		/*clear the counter*/
-		x = 0;
-
-		/* Add up the stats that aren't maxed*/
-		for (i = 0; i < A_MAX; i++)
-		{
-			/*Count stats that aren't maxed*/
-			if (p_ptr->stat_max[i] == 18+100) continue;
-
-			/*Record this stat*/
-			stats[x] = i;
-
-			/*Increase the counter*/
-			x++;
-		}
-
-		/*Don't do if charisma if it is the only choice*/
-		if (stats[0] == A_CHR) x = 0;
-
-		/*Display the stats*/
-		if (x > 1)
-		{
-			int row = 10;
-			int col = 15;
-			int y;
-			bool done = FALSE;
-
-			msg_format("Your reward is a stat potion of your choice, %s", title);
-			message_flush();
-
-			/* Save screen */
-			screen_save();
-
-			prt("   Please choose which stat you would like to augment:", (row-8), col);
-
-			/* Print out the labels for the columns */
-			c_put_str(TERM_WHITE, "  Self", row-1, col+5);
-			c_put_str(TERM_WHITE, " RB", row-1, col+11);
-			c_put_str(TERM_WHITE, " CB", row-1, col+14);
-			c_put_str(TERM_WHITE, " EB", row-1, col+18);
-			c_put_str(TERM_WHITE, "  Best", row-1, col+22);
-
-			for (y = 0; y < x; y++)
-			{
-				char buf[80];
-				char tmp_val[5];
-
-				/* Start with an empty "index" */
-				tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
-
-				/* Prepare an "index" */
-				tmp_val[0] = index_to_label(y);
-
-				/* Bracket the "index" --(-- */
-				tmp_val[1] = ')';
-
-				/*Terminate*/
-				tmp_val[3] = '\0';
-
-				i = stats[y];
-
-				/* Display the index (or blank space) */
-				put_str(tmp_val, row+y, col - 8);
-
-				/* Reduced */
-				if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
-				{
-					/* Use lowercase stat name */
-					put_str(stat_names_reduced[i], row+y, col);
-				}
-
-				/* Normal */
-				else
-				{
-					/* Assume uppercase stat name */
-					put_str(stat_names[i], row+y, col - 4);
-				}
-
-				/* Internal "natural" maximum value */
-				cnv_stat(p_ptr->stat_max[i], buf);
-				c_put_str(TERM_L_GREEN, buf, row+y, col+5);
-
-				/* Race Bonus */
-				strnfmt(buf, sizeof(buf), "%+3d", rp_ptr->r_adj[i]);
-				c_put_str(TERM_L_BLUE, buf, row+y, col+11);
-
-				/* Class Bonus */
-				strnfmt(buf, sizeof(buf), "%+3d", cp_ptr->c_adj[i]);
-				c_put_str(TERM_L_BLUE, buf, row+y, col+14);
-
-				/* Equipment Bonus */
-				strnfmt(buf, sizeof(buf), "%+3d", p_ptr->stat_add[i]);
-				c_put_str(TERM_L_BLUE, buf, row+y, col+18);
-
-				/* Resulting "modified" maximum value */
-				cnv_stat(p_ptr->stat_top[i], buf);
-				c_put_str(TERM_L_GREEN, buf, row+y, col+22);
-
-				/* Only display stat_use if not maximal */
-				if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
-				{
-					cnv_stat(p_ptr->stat_use[i], buf);
-					c_put_str(TERM_YELLOW, buf, row+y, col+28);
-				}
-
-			}
-
-			while (!done)
-			{
-				char c = inkey();
-
-				/* Letters are used for selection */
-				if (isalpha(c))
-				{
-					if (islower(c))
-					{
-						choice = A2I(c);
-					}
-					else
-					{
-						choice = c - 'A' + 26;
-					}
-
-					/* Validate input */
-					if ((choice > -1) && (choice < x))
-					{
-						done = TRUE;
-					}
-
-					else
-					{
-						bell("Illegal response to question!");
-					}
-				}
-			}
-		}
-
-		if (x > 0)
-		{
-			int sval;
-
-			/*Get the proper sval*/
-  			switch (stats[choice])
-			{
-				case A_STR: {sval = SV_POTION_INC_STR; break;}
-				case A_INT: {sval = SV_POTION_INC_INT; break;}
-				case A_WIS: {sval = SV_POTION_INC_WIS; break;}
-				case A_DEX: {sval = SV_POTION_INC_DEX; break;}
-				case A_CON: {sval = SV_POTION_INC_CON; break;}
-				default: sval = SV_POTION_INC_CHR;
-			}
-
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Wipe the object */
-			object_wipe(i_ptr);
-
-			/* Make the potion */
-			object_prep(i_ptr, lookup_kind(TV_POTION, sval));
-
-			/* Since charisma is a cheap potion. */
-			if (sval == SV_POTION_INC_CHR) i_ptr->number = 3;
-
-			got_item = TRUE;
-
-			screen_load();
-
-		}
 	}
 
 	/* We didn't find anything else, so lets find something to wear */
@@ -1573,16 +1302,6 @@ static void grant_reward_object(byte depth, byte type)
 			 */
 			i_ptr->xtra1 = 0;
 		}
-
-		/* Process artifact lore */
-		if (ARTIFACT_EASY_MENTAL(i_ptr))
-		{
-			/* Get the lore entry */
-			artifact_lore *a_l_ptr = &a_l_list[i_ptr->art_num];
-
-			/* Remember this artifact from now on */
-			a_l_ptr->was_fully_identified = TRUE;
-		}
 	}
 
 	/* Describe the object */
@@ -1598,11 +1317,12 @@ static void grant_reward_object(byte depth, byte type)
 	{
 		msg_format("You have no room in your backpack for %s.", o_name);
 
+		/* Drop the object */
+		drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+
 		/* Inform the player */
 		msg_print("Your reward is waiting outside!");
 
-		/* Drop the object */
-		drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
 	}
 
 	/* Give it to the player */
@@ -2003,10 +1723,10 @@ static bool check_theme_depth(int lev, byte theme)
 	min_depth = lev;
 
 	/*don't make it too easy if the player isn't diving very fast*/
-	if (p_ptr->depth < p_ptr->max_lev)
+	if (danger(p_ptr->depth) < p_ptr->max_lev)
 	{
-		min_depth += ((p_ptr->max_lev - p_ptr->depth) / 2);
-		max_depth += ((p_ptr->max_lev - p_ptr->depth) / 2);
+		min_depth += ((p_ptr->max_lev - danger(p_ptr->depth)) / 2);
+		max_depth += ((p_ptr->max_lev - danger(p_ptr->depth)) / 2);
 	}
 
 	/*boundry control*/
@@ -2349,7 +2069,6 @@ void display_guild(void)
 
 	/* Clear temporary indicator */
 	quest_indicator_timer = 0;
-	quest_indicator_complete = FALSE;
 
 	do_reward = FALSE;
 
@@ -2813,7 +2532,6 @@ void quest_fail(void)
 
 	/* Show a special mark for some player turns. Redraw if necessary */
 	quest_indicator_timer = 50;
-	quest_indicator_complete = FALSE;
 	if (!character_icky) p_ptr->redraw |= (PR_DEPTH);
 
 	/*find out the type of quest*/
@@ -2946,8 +2664,7 @@ bool format_quest_indicator(char dest[], int max)
 	if (quest_indicator_timer > 0)
 	{
 		/* Format */
-		if (quest_indicator_complete) my_strcpy(dest, "Qst:!!!", max);
-		else my_strcpy(dest, "Qst:x", max);
+		my_strcpy(dest, "Qst:x", max);
 
 		/* Done */
 		return (TRUE);
@@ -2959,7 +2676,8 @@ bool format_quest_indicator(char dest[], int max)
 	/* Victory! */
 	if (!q_ptr->active_level)
 	{
-		return (FALSE);
+		/* Format */
+		my_strcpy(dest, "Qst:!!!", max);
 	}
 	/* Special case. Vault quests */
 	else if (q_ptr->type == QUEST_VAULT)

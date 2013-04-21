@@ -5,17 +5,17 @@ Special
      @   The character
 
 Features that usually do not block line of sight
-     .   A floor space or soil            1   Entrance to General Store
-     .   A trap or rune (hidden)          2   Entrance to Armoury
-     ^   A trap or rune (known)           3   Entrance to Weapon Smith
-     ;   A glyph of warding               4   Entrance to Temple
-     '   An open door                     5   Entrance to Alchemy Shop
-     '   A broken door                    6   Entrance to Magic Shop
-     <   A staircase or shaft up          7   Entrance to the Black Market
-     >   A staircase or shaft down        8   Entrance to your Home
-     %   Coal or Oil			  9   Entrance to the Adventurer's Guild
-     ;   lava, Water, mud or acid         0   Entrance to the Book shop
-     '   Waves of water                   
+     .   A floor space or soil     
+     .   A trap or rune (hidden)   
+     ^   A trap or rune (known)    
+     ;   A glyph of warding        
+     '   An open door              
+     '   A broken door             
+     <   A staircase or shaft up   
+     >   A staircase or shaft down 
+     %   Coal or Oil		
+     ;   lava, Water, mud or acid  
+     '   Waves of water            
      *   Crests of Waves over water
 
 Features that usually block line of sight
@@ -31,9 +31,9 @@ Features that usually block line of sight
 Objects
      !   A potion (or flask)              /   A pole-arm
      ?   A scroll (or book)               |   An edged weapon
-     ,   A mushroom (or food)             \   A hafted weapon
-     -   A wand or rod                    }   A sling, bow, or x-bow
-     _   A staff                          {   A shot, arrow, or bolt
+     ,   Food                             \   A hafted weapon
+     -   A wand                           }   A sling, bow, or x-bow
+     _   A talisman-makes spells cheaper  {  A shot, arrow, or bolt
      =   A ring                           (   Soft armour
      "   An amulet                        [   Hard armour
      $   Gold or gems                     ]   Misc. armour
@@ -75,4 +75,5 @@ the command '%'.  You may review what a symbol means by typing '/' or '~'.
 
      Angband can also use graphics instead of text to display your surroundings;
 unfortunately, no convenient listing of them yet exists.
+
 

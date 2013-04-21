@@ -5594,7 +5594,7 @@ int main(void)
 	{
 		/* Prompt the user */
 		/* In [Z], it's currently prtf(17, 23, <msg>); */
-		prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
+		prt("[Choose 'New' or 'Open' from the 'File' menu]", 42, 15);
 
 		/* Flush the prompt */
 		Term_fresh();

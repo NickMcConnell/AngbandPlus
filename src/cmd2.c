@@ -109,7 +109,7 @@ void do_cmd_go_up(void)
 	/* Ironman */
 	if (adult_ironman)
 	{
-		msg_print("Nothing happens!");
+		msg_print("There is no retreat!");
 		return;
 	}
 
@@ -159,6 +159,105 @@ void do_cmd_go_up(void)
 	p_ptr->leaving = TRUE;
 }
 
+static cptr desc_stat_pos[] =
+{
+	"strong",
+	"smart",
+	"wise",
+	"dextrous",
+	"healthy",
+	"agile",
+	"sneaky",
+	"perceptive",
+	"lucky"
+};
+
+
+/*
+ * Array of stat "descriptions"
+ */
+static cptr desc_stat_neg[] =
+{
+	"weak",
+	"stupid",
+	"naive",
+	"clumsy",
+	"sickly",
+	"slow",
+	"noisy",
+	"short-sighted",
+	"unlucky"
+};
+
+
+void potential_effect_on_stats(){
+	int change1, change2, change3;
+
+	if (p_ptr->max_depth < p_ptr->depth){
+		if (p_ptr->depth == 2 || p_ptr->depth == 4 || p_ptr->depth == 6){
+			if (p_ptr->depth == 2){
+				change1 = p_ptr->statgain1;
+				change2 = p_ptr->statgain2;
+				change3 = p_ptr->statgain3;
+			} else if (p_ptr->depth == 4){
+				change1 = p_ptr->statgain4;
+				change2 = p_ptr->statgain5;
+				change3 = p_ptr->statgain6;
+			} else {
+				change1 = p_ptr->statgain7;
+				change2 = p_ptr->statgain8;
+				change3 = p_ptr->statgain9;
+			}	 
+			msg_print("You feel like you are discovering your true potential!");
+			inc_stat(change1);
+			inc_stat(change1);
+			inc_stat(change1);
+			inc_stat(change1);
+			msg_format("You feel much more %s!", desc_stat_pos[change1]);
+			inc_stat(change2);
+			msg_format("You feel more %s!", desc_stat_pos[change2]);
+			dec_stat(change3, 10, TRUE);
+			dec_stat(change3, 10, TRUE);
+			msg_format("You feel quite %s!", desc_stat_neg[change3]);
+			if (!depth_in_feet){
+				if (p_ptr->depth == 2){
+					msg_print("Expect more of your abilities to be revealed at DL4 and DL6.");
+				} else if (p_ptr->depth == 4){
+					msg_print("Expect more of your abilities to be revealed at DL6.");
+				} else {
+					msg_print("From now on you will gain only one stat point every two DLs.");
+				}
+			} else {
+				if (p_ptr->depth == 2){
+					msg_print("Expect more of your abilities to be revealed at 200' and 300'.");
+				} else if (p_ptr->depth == 4){
+					msg_print("Expect more of your abilities to be revealed at 300'.");
+				} else {
+					msg_print("From now on you will gain only one stat point every 100'.");
+				}
+			}
+		} else if (2*(p_ptr->depth/2) == p_ptr->depth){
+			while (1){
+				change1 = randint(A_MAX)-1;
+				if (rp_ptr->r_adj[change1] >= 2){
+					break;
+				} else if (rp_ptr->r_adj[change1] >= 1 && !one_in_(3)) {
+					break;
+				} else if (rp_ptr->r_adj[change1] >= 0 && one_in_(2)) {
+					break;
+				} else if (rp_ptr->r_adj[change1] >= -1 && one_in_(3)) {
+					break;
+				} else if (rp_ptr->r_adj[change1] >= -2 && one_in_(5)) {
+					break;
+				} else if (one_in_(7)) {
+					break;
+				}
+			}
+			inc_stat(change1);
+			msg_format("You feel more %s!", desc_stat_pos[change1]);
+		}
+	}
+}
 
 /*
  * Go down one level
@@ -203,11 +302,15 @@ void do_cmd_go_down(void)
 	/* Success */
 	message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
+	regenmana(100);
+
 	/* Create a way back (usually) */
 	p_ptr->create_stair = FEAT_LESS;
 
 	/* New level */
 	p_ptr->depth++;
+
+	potential_effect_on_stats();
 
 	/*find out if entering a quest level*/
 	quest = quest_check(p_ptr->depth);
@@ -455,7 +558,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = danger(p_ptr->depth);
 
 	/* No longer opening a chest */
 	object_generation_mode = OB_GEN_MODE_NORMAL;
@@ -534,7 +637,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		sound(MSG_SUM_MONSTER);
 		for (i = 0; i < num; i++)
 		{
-			(void)summon_specific(y, x, p_ptr->depth, 0);
+			(void)summon_specific(y, x, danger(p_ptr->depth), 0);
 		}
 	}
 
@@ -592,7 +695,6 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		{
 			message(MSG_LOCKPICK, 0, "You have picked the lock.");
 			msg_print("You have picked the lock.");
-			gain_exp(1);
 			flag = TRUE;
 		}
 
@@ -680,12 +782,11 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	else if (rand_int(100) < j)
 	{
 		message(MSG_DISARM, 0, "You have disarmed the chest.");
-		gain_exp(o_ptr->pval);
 		o_ptr->pval = (0 - o_ptr->pval);
 	}
 
 	/* Failure -- Keep trying */
-	else if ((i > 5) && (randint(i) > 5))
+	else if ((i > 5) && (randint(i) > 10))
 	{
 		/* We may keep trying */
 		more = TRUE;
@@ -941,8 +1042,6 @@ static bool do_cmd_open_aux(int y, int x)
 			/* Update the visuals */
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_FLOW_DOORS | PU_FLOW_NO_DOORS);
 
-			/* Experience */
-			gain_exp(1);
 		}
 
 		/* Failure */
@@ -1449,7 +1548,7 @@ static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 	/* XXX XXX XXX Variable power? */
 
 	/* Extract trap "power" */
-	power = 5 + p_ptr->depth / 4;
+	power = 5 + danger(p_ptr->depth) / 2;
 
 	/* Prevent the player's own traps granting exp. */
 	if (feat_ff2_match(feat, FF2_TRAP_MON)) power = 0;
@@ -1481,8 +1580,6 @@ static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 		/* If a Rogue's monster trap, decrement the trap count. */
 		if (feat_ff2_match(feat, FF2_TRAP_MON)) num_trap_on_level--;
 
-		/* Reward */
-		gain_exp(power);
 
 		/* Disarm */
 		delete_effect_idx(cave_x_idx[y][x]);
@@ -1518,7 +1615,7 @@ static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 		msg_format("You set off the %s!", name);
 
 		/* Hit the trap */
-		hit_trap(feat, y, x, MODE_ACTION);
+		hit_trap(feat, y, x, MODE_ACTION, 0);
 	}
 
 	/* Result */
@@ -1742,7 +1839,7 @@ static bool do_cmd_bash_aux(int y, int x)
 	}
 
 	/* Saving throw against stun */
-	else if (rand_int(100) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+	else if (rand_int(100) < adj_agi_safe[p_ptr->stat_ind[A_AGI]] +
 	         p_ptr->lev)
 	{
 		/* Message */
@@ -1752,7 +1849,7 @@ static bool do_cmd_bash_aux(int y, int x)
 		more = TRUE;
 	}
 
-	/* High dexterity yields coolness */
+	/* High agility yields coolness */
 	else
 	{
 		/* Message */
@@ -2254,41 +2351,6 @@ static bool do_cmd_walk_test(int y, int x)
 	return (TRUE);
 }
 
-/*
- * Return TRUE if the feature located in the given location is dangerous for the
- * player and he/she doesn't want to walk over/touch it.
- * Return FALSE if a monster occupies that grid.
- */
-static bool found_dangerous_grid(int y, int x)
-{
-	u16b feat = cave_feat[y][x];
-	int gf_type;
-
-	/* Grid is occupied by a monster. Perform a melee attack */
-	if (cave_m_idx[y][x] > 0) return (FALSE);
-
-	/* Flying entities aren't affected by terrain */
-	if (p_ptr->flying && feat_ff2_match(feat, FF2_CAN_FLY)) return (FALSE);
-
-	/* Player is native to that feature or feature is harmless */
-	if ((f_info[feat].dam_non_native < 1) || is_player_native(y, x)) return (FALSE);
-
-	/* Get the spell type */
-	get_spell_type_from_feature(feat, &gf_type, NULL);
-
-	/* Player is harmless to that spell type */
-	if (is_player_immune(gf_type)) return (FALSE);
-
-	/* Stop running */
-	disturb(0, 0);
-
-	/* Ask the player for confirmation */
-	if (get_check(format("It seems dangerous. Do you want to %s that grid? ",
-		feat_ff1_match(feat, FF1_MOVE) ? "walk over": "touch"))) return (FALSE);
-
-	/* Dangerous */
-	return (TRUE);
-}
 
 /*
  * Helper function for the "walk" and "jump" commands.
@@ -2305,14 +2367,7 @@ static void do_cmd_walk_or_jump(int jumping)
 	x = p_ptr->px + ddx[dir];
 
 	/* Verify legality */
-	if (!p_ptr->confused)
-	{
-		/* Can the player walk over there? */
-		if (!do_cmd_walk_test(y, x)) return;
-
-		/* Dangerous grid? */
-		if (found_dangerous_grid(y, x)) return;
-	}
+	if (!p_ptr->confused && !do_cmd_walk_test(y, x)) return;
 
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
@@ -2482,7 +2537,7 @@ void do_cmd_rest(void)
 	/* Prompt for time if needed */
 	if (p_ptr->command_arg <= 0)
 	{
-		cptr p = "Rest (0-9999, 'h' for HP, 's' for SP, '*' for HP/SP, '&' as needed): ";
+		cptr p = "Rest (0-9999, 'h' or '*' for HP, '&' as needed): ";
 
 		char out_val[5];
 
@@ -2499,22 +2554,16 @@ void do_cmd_rest(void)
 		}
 
 		/* Rest a lot */
-		else if (out_val[0] == '*')
+		else if (out_val[0] == '*' || out_val[0] == 'h')
 		{
 			p_ptr->command_arg = (-1);
 
 		}
 
-		/* Rest hit points */
-		else if (out_val[0] == 'h')
-		{
-			p_ptr->command_arg = (-3);
-		}
-
 		/* Rest spell points */
 		else if (out_val[0] == 's')
 		{
-			p_ptr->command_arg = (-4);
+			return;
 		}
 
 		/* Rest some */
@@ -2641,7 +2690,7 @@ void do_cmd_fire(void)
 {
 	int dir, item;
 	int i, j, y, x, ty, tx;
-	int tdam, tdis, thits, tmul;
+	int tdam, tdis, thits_times_ten, tmul;
 	int bonus, chance;
 
 	object_type *o_ptr;
@@ -2738,13 +2787,13 @@ void do_cmd_fire(void)
 	missile_char = object_char(i_ptr);
 
 	/* Use the proper number of shots */
-	thits = p_ptr->num_fire;
+	thits_times_ten = p_ptr->num_fire_times_ten;
 
-	/* Base damage from thrown object plus launcher bonus */
-	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d + j_ptr->to_d;
+	/* Base damage from thrown object plus launcher bonus - now plus player bonus*/
+	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d + j_ptr->to_d + p_ptr->to_d_missile;
 
 	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
+	bonus = (p_ptr->to_h_missile + i_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 
 	/* Assume a base multiplier */
@@ -2757,7 +2806,7 @@ void do_cmd_fire(void)
 	tdis = 10 + 5 * tmul;
 
 	/* Take a (partial) turn */
-	p_ptr->p_energy_use = (BASE_ENERGY_MOVE / thits);
+	p_ptr->p_energy_use = (BASE_ENERGY_MOVE * 10) / thits_times_ten;
 
 	/* Start at the player */
 	y = p_ptr->py;
@@ -2865,7 +2914,7 @@ void do_cmd_fire(void)
 			}
 
 			/* Did we hit it (penalize distance travelled) */
-			else if (test_hit(chance2, r_ptr->ac, m_ptr->ml))
+			else if (test_hit(chance2, r_ptr->ac, m_ptr->ml)>0)
 			{
 				bool fear = FALSE;
 
@@ -3079,27 +3128,6 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 			/*slight damage to monster*/
 			mon_take_hit(cave_m_idx[y][x], damroll(10, 10), fear, NULL, SOURCE_PLAYER);
 
-			break;
-		}
-
-		case SV_POTION_DETONATIONS:
-		{
-
-			ident = TRUE;
-
-			/*slight damage to monster*/
-			mon_take_hit(cave_m_idx[y][x], damroll(25, 25), fear, NULL, SOURCE_PLAYER);
-
-			/*set the stun counter*/
-			do_stun = TRUE;
-
-			break;
-		}
-
-		case SV_POTION_DEATH:
-		{
-			/*drain life explosion at the site, radius 1*/
-			ident = explosion(SOURCE_PLAYER, 1, y, x, damroll(30, 30), GF_LIFE_DRAIN, flag);
 			break;
 		}
 
@@ -3425,8 +3453,8 @@ static bool do_flavor_breakage(const object_type *o_ptr, int y, int x)
 			if (!_feat_ff3_match(f_ptr, TERRAIN_MASK) && cave_passable_bold(y, x) &&
 					!_feat_ff1_match(f_ptr, FF1_PERMANENT | FF1_STAIRS | FF1_DOOR) &&
 					(_feat_ff1_match(f_ptr, FF1_LOS | FF1_PROJECT) ==
-					feat_ff1_match(FEAT_OIL, FF1_LOS | FF1_PROJECT)) &&
-					one_in_(4))
+					 feat_ff1_match(FEAT_OIL, FF1_LOS | FF1_PROJECT)) &&
+					one_in_(7))
 			{
 				/* Create oil */
 				cave_set_feat(y, x, FEAT_OIL);
@@ -3442,7 +3470,7 @@ static bool do_flavor_breakage(const object_type *o_ptr, int y, int x)
 		case TV_LITE:
 		{
 			/* Check if the lite is a torch and if the grid can be burned */
-			if ((o_ptr->sval == SV_LITE_TORCH) && _feat_ff3_match(f_ptr, FF3_OIL | FF3_FOREST) &&
+			if ((o_ptr->sval == SV_LITE_TORCH || o_ptr->sval == SV_LITE_MAGELIGHT) && _feat_ff3_match(f_ptr, FF3_OIL | FF3_FOREST) &&
 				_feat_ff2_match(f_ptr, FF2_HURT_FIRE))
 			{
 				/* Create fire */
@@ -3545,9 +3573,6 @@ void do_cmd_throw(void)
 	/* Obtain a local object */
 	object_copy(i_ptr, o_ptr);
 
-	/* Distribute the charges of rods/wands between the stacks */
-	distribute_charges(o_ptr, i_ptr, 1);
-
 	/* Single object */
 	i_ptr->number = 1;
 
@@ -3606,7 +3631,7 @@ void do_cmd_throw(void)
 	/* Chance of hitting */
 	if (f3 & (TR3_THROWING))
 	{
-		chance = p_ptr->skill_tht + BTH_PLUS_ADJ * (p_ptr->to_h + i_ptr->to_h);
+		chance = p_ptr->skill_tht + BTH_PLUS_ADJ * (p_ptr->to_h_missile + i_ptr->to_h);
 	}
 	else
 	{
@@ -3737,7 +3762,7 @@ void do_cmd_throw(void)
 			}
 
 			/* Did we hit it (penalize range) */
-			else if (test_hit((chance2 + sleeping_bonus), r_ptr->ac, m_ptr->ml))
+			else if (test_hit((chance2 + sleeping_bonus), r_ptr->ac, m_ptr->ml)>0)
 			{
 				bool fear = FALSE;
 

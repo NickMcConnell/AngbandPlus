@@ -119,6 +119,9 @@ F:86:B:127
 #Tree branch
 F:133:G:5
 
+#Lava Wall
+F:138:r1:127
+
 #Fog
 F:176:v:172
 

@@ -37,7 +37,7 @@ byte squelch_level[SQUELCH_BYTES];
 #define TYPE_GLOVES  9
 #define TYPE_BOOTS   10
 #define TYPE_RING    11
-#define TYPE_STAFF   12
+#define TYPE_TALISMAN   12
 #define TYPE_WAND    13
 #define TYPE_ROD     14
 #define TYPE_SCROLL  15
@@ -87,7 +87,7 @@ static tval_desc typevals[] =
 	{TYPE_BOOTS, "Boots"},
 	{TYPE_AMULET, "Amulets"},
 	{TYPE_RING, "Rings"},
-	{TYPE_STAFF, "Staves"},
+	{TYPE_TALISMAN, "Talismans"},
 	{TYPE_WAND, "Wands"},
 	{TYPE_ROD, "Rods"},
 	{TYPE_SCROLL, "Scrolls"},
@@ -1054,7 +1054,7 @@ static tval_desc raw_tvals[] =
 	{TV_AMULET, "Amulets"},
 	{TV_DRAG_SHIELD, "DSShields"},
 	{TV_RING, "Rings"},
-	{TV_STAFF, "Staves"},
+	{TV_TALISMAN, "Talismans"},
 	{TV_WAND, "Wands"},
 	{TV_ROD, "Rods"},
 	{TV_SCROLL, "Scrolls"},
@@ -1472,7 +1472,7 @@ void init_tv_to_type(void)
 	tv_to_type[TV_LITE]=TYPE_MISC;
 	tv_to_type[TV_AMULET]=TYPE_AMULET;
 	tv_to_type[TV_RING]=TYPE_RING;
-	tv_to_type[TV_STAFF]=TYPE_STAFF;
+	tv_to_type[TV_TALISMAN]=TYPE_TALISMAN;
 	tv_to_type[TV_WAND]=TYPE_WAND;
 	tv_to_type[TV_ROD]=TYPE_ROD;
 	tv_to_type[TV_SCROLL]=TYPE_SCROLL;

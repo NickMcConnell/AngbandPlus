@@ -89,12 +89,12 @@ Audible bell (on errors, etc)                 [ring_bell]            (on) :
      Make a bell sound when errors occur (such as typing an invalid key).
 
 ***** <easy_open>
-Open/Disarm/Close without direction           [easy_open]            (off):
+Open/Disarm/Close without direction           [easy_open]            (on):
      When you issue the open, close, or disarm commands, and there is only one
 useable door or visible trap adjacent to you, it is selected automatically.
 
 ***** <easy_alter>
-Open/Disarm doors/traps on movement           [easy_alter]           (off):
+Open/Disarm doors/traps on movement           [easy_alter]           (on):
      When you move into a door, you attempt to open it.  When you move into a
 trap, you attempt to disarm it.
 
@@ -188,26 +188,6 @@ devoted to message recall.
 
 --- Option Set #3:  Game-Play ---
 
-***** <auto_haggle>
-Auto-haggle in stores                         [auto_haggle]          (on) :
-     Causes you to accept the prices the shopkeeper asks or offers.  use of
-this option causes you to pay 10% more than normal when buying, and get 10% less
-when selling.
-
-***** <auto_scum>
-Auto-scum for good levels                     [auto_scum]            (off):
-     Regenerates dungeon levels until one is found with enough dangerous
-monsters and nifty objects.  use of this option makes for more intense but
-dangerous games.
-
-***** <auto_scum>
-Allow the generation of themed levels         [allow_themed_levels]  (on):
-     Allows the generation of themed levels.  Themed levels are levels packed
-with many monsters of a particular type, such as orcs, trolls, hydras, 
-or dragons.  Once the level is created, no additional monsters will be created
-on a themed level.  With this option set to "on", it is highly recommended that 
-the dungeon_stair option be set to "on" as well.
-
 ***** <expand_look>
 Expand the power of the look command          [expand_look]          (on) :
     Expand the look command to allow the user to inspect grids which are not
@@ -235,14 +215,6 @@ Generate dungeons with aligned rooms          [dungeon_align]        (on) :
      Aligns rooms to 11x33 blocks (as opposed to 11x11 ones).  This makes it
 less likely that a room will continue past the current panel view, but reduces
 the number of large rooms (greater vaults in particular).
-
-***** <dungeon_stair>
-Generate dungeons with connected stairs       [dungeon_stair]        (on) :
-     When entering a level using a staircase, it remains in place.  This allows
-you to beat a hasty retreat if necessary.  If this option is turned off, it is
-recommended that the allow_themed_levels option be turned off also, since
-themed levels are packed with so many monsters, it is unlikely the player
-will appear in a safe spot without this option on.
 
 ***** <smart_cheat>
 Monsters exploit players weaknesses           [smart_cheat]          (off):
@@ -396,11 +368,6 @@ Player color indicates low hit points         [hp_changes_color]     (off) :
 as a warning.  90-100% of max hp - White.  70-89% - Yellow.  50-69% -
 Orange.  30-49% - Light Red.  Less than 30% of max hp - Red.
 
-***** <verify_leave_quests>
-Verify before descending from quest level     [verify_leave_quests]     (on) :
-    Asks for confirmation when you try to leave a quest level using down 
-stairs (thereby risking quest failure).
-
 ***** <mark_squelch_items>
 Items marked for squelch appear as dot        [mark_squelch_items]    (off) :
     Any item that is marked for squelching on the dungeon floor or ground 
@@ -426,53 +393,20 @@ Allow accents in output files		    [xchars_to_file]   	 (off)  :
 
      You may only change birth options when starting up a new character.
 
-***** <birth_point_based>
-Adult: Allow purchase of stats using points   [adult_point_based]    (off) :
-     Allows you to buy stats using a pool of points.  Gives you extra gold for
-each point not spent.  This method allows you to raise individual stats higher
-than rolling, but does not give you total stats so great.
-
-***** <birth_auto_roller>
-Adult: Allow specification of minimal stats   [adult_auto_roller]    (off) :
-     Allows you to specify minimum stats when creating a character.  Characters
-are randomly generated until one is found to meet your requirements.
-
-     If neither of the two above options is set, you roll for stats manually.
-
 ***** <birth_maximize>
 Adult: Maximize effect of race/class bonuses  [adult_maximize]       (on) :
      If maximize mode is ON, racial and class adjustments to vital statistics
 (stat) act as permanent modifiers.  A Dwarven priest will be able to raise his
 inherent wisdom to 18/150, but his intelligence only to 18/40.
-     Maximize mode makes races and classes play more differently, usually to the
+     Maximize mode makes races play more differently, usually to the
 player's benefit; it is therefore recommended in most cases.
 
 ***** <birth_preserve>
-Adult: Preserve artifacts when leaving level  [adult_preserve]       (on) :
+Adult: Preserve artifacts when leaving level  [adult_preserve]       (off) :
      If preserve mode is ON, artifacts will not be lost unless you actually
 identify then abandon them.  However, you get no special feelings (which help
 you to find artifacts).  If this option is OFF, artifacts appear once and once
 only, but you get special feelings.
-
-***** <birth_ironman>
-Ironman Play:
-     "Go down into the dungeon.  Return with Morgoth's Crown or not at all."
-In Ironman mode, you can never go up any staircase, and can never return to the
-surface by any means, until victorious.  If by accident you do, you must
-immediately return to the dungeon.
-     Some forms of Ironman play require that you visit no stores before going
-into the dungeon, or that you must use a down staircase as soon as you see it
-("crash-dive ironman"), but they are variants on the basic theme.  There are
-certain objects available in ironman mode that are not available in a regular
-game.
-
-Adult: Restrict the use of stairs/recall      [adult_ironman]        (off) :
-     Can never go up.  Can never use recall until you win the game.  No stairs
-are ever placed under you when you change levels.
-
-***** <birth_no_stores>
-Adult: Restrict the use of stores/home        [adult_no_stores]      (off) :
-     Cannot use any stores or your home.
 
 ***** <birth_no_artifacts>
 Adult: Restrict creation of artifacts         [adult_no_artifacts]   (off) :
@@ -501,10 +435,10 @@ depth of the player are automatically recorded.  This information is
 in character dumps near the bottom.  For artifacts, the level the 
 artifact was found is recorded, rather than the level the player
 is on when they identify the item.  Also given separate notes are 
-player birth, death, and the killing of Morgoth.  
+player birth, death, and the killing of The Witch King.  
 
 ***** <birth_force_small_lev>
-Adult:  All Levels Will Be Generates As Small [birth_force_small_lev] (off) :
+Adult:  All Levels Will Be Generated As Small [birth_force_small_lev] (off) :
     All levels will be generated as small levels, giving you less space to 
     which you can run...
 
@@ -513,21 +447,6 @@ Adult: 	Retain squelch settings		      [birth_retain_squelch]  (off) :
     If this option is set, the new character will keep the squelch settings of
     his immediate ancestor. If it is not set, the character's squelch settings
     will revert to the defaults.
-
-***** <birth_no_quests>
-Adult: 	Disable quests			      [birth_no_quests]       (off) :
-    If this option is set, the adventurer's guild will not assign quests to the
-    player.  The two fixed quests, kill Sauron and Morgoth, are unaffected.
-
-***** <birth_no_player ghosts>
-Adult: 	Disable player ghosts		      [birth_no_player ghosts] (off) :
-    If this option is set, no player ghosts will be generated.
-
-***** <birth_no_store_services>
-Adult: 	Disable store services		      [birth_no_store_services](off) :
-    If this option is set, the stores will not offer any services.  Note that,
-    if the birth_no_stores option is set to true, the stores are always closed
-    and this option has no effect.
 
 ***** <birth_no_xtra_artifacts>
 Adult: 	Disable extra artifacts		      [birth_no_xtra_artifacts](off) :
@@ -623,7 +542,7 @@ Enter Autoinscription - An inscription can be entered for a specific object type
 
 Quality squelching sub menu:  Categories of items (shields, swords) can be 
 set to automatically be destroyed when either identified or pseudo-identified 
-as cursed, average or below, good or below (both strong and weak speugo id), 
+as cursed, average or below, good or below (both strong and weak pseudo id), 
 or all but artifacts.  The option to squelch open chests can also be set at 
 this screen.  Note that items with an auto inscription are not quality squelched.
 
@@ -659,4 +578,5 @@ them to a file that will.
 Append options to a file:
      Saves options to file.  See the preferences section for help on what
 filename to use (the file "user.prf" usually works).
+
 

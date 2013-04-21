@@ -5,19 +5,7 @@
 --- The title screen ---
 
      When you start up the game, a title screen appears, bearing the game name,
-version, and some credits.  Also on this screen are the three most important
-Angband resources:
-     The Angband home page at "http://www.thangorodrim.net/" contains the
-current source and executables, special files, helpful comments, hints, and
-links, and the latest Angband news.  The NPPAngband home page is 
-"http://members.cox.net/nppangband/"
-     The current maintainer of NPPAngband is Jeff Greene.  If you want to 
-send him comments, or make sure your bug report gets heard, email 
-"nppangband@cox.net".
-     The Angband newsgroup is at "news:rec.games.roguelike.angband"; it's filled
-with helpful folks.  If you want to talk about Angband or ask for help, this
-discussion forum is the place to go.  The NPP Fan Site with an NPP-specific 
-newsgroup is: http://nppangband.tannert.name/
+version, and some credits.  
 
 
 --- The main screen ---
@@ -58,8 +46,8 @@ the options screen.
 --- The knowledge screen  ('~') ---
 
      Detailed listings of known artifacts, features, uniques, objects, monster
-kill counts, contents of the player home, and the player hall of fame are 
-available through the knowledge menu, which you access by typing '~'.
+kill counts, and the player hall of fame are available through the knowledge menu, 
+which you access by typing '~'.
 
 
 --- The death interface ---
@@ -72,6 +60,8 @@ slain character one last time.  Here you can:
      - see the high score table, 
      - fully identify individual items, and
      - make final notes to the character dump.
+
+
 
 
 

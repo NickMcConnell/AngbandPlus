@@ -55,47 +55,50 @@ F:48:w:11
 
 
 # Magma (slate / solid block)
-F:49:2/4
+F:49:2/127
 F:51:o/12
 
 
 # Quartz (light slate / solid block)
 
-F:50:9/4
+F:50:9/127
 F:52:o/12
 
 
 # Secret doors (white / solid block)
 
-F:45:1/4
-F:46:1/4
-F:47:1/4
+F:45:1/127
+F:46:1/127
+F:47:1/127
 
 # Granite walls & permanent rock (white / solid block)
 
-F:53:1/4
-F:54:1/4
-F:55:1/4
-F:56:1/4
-F:57:1/4
-F:58:1/4
-F:59:1/4
-F:60:1/4
+F:53:1/127
+F:54:1/127
+F:55:1/127
+F:56:1/127
+F:57:1/127
+F:58:1/127
+F:59:1/127
+F:60:1/127
 
 #Limestone Wall
-F:75:G1:4
+F:75:G1:127
 
 #Sandstone Wall
-F:76:y:4
+F:76:y:127
 
 #Earth Wall
-F:78:u:4
+F:78:u:127
 
 #Ice Wall
-F:86:B:4
+F:86:B:127
 
 #Tree branch
 F:133:G:5
+
+#Lava Wall
+F:138:r1:127
 
 #Fog
 F:176:v:172
@@ -112,7 +115,7 @@ F:195:w:5
 #Scorched wall
 F:198:D:4
 
-#Wall carved by elvish hands
+#Wall carved by elvish hands 
 F:199:G1:9
 
 #Silent watcher
@@ -218,4 +221,5 @@ S:0x7C:12/171
 S:0x7D:13/171
 S:0x7E:14/171
 S:0x7F:15/171
+
 

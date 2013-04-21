@@ -101,11 +101,9 @@ static const grouper group_item[] =
 
 	{ TV_ROD,		"Rods" },
 	{ TV_WAND,		"Wands" },
-	{ TV_STAFF,		"Staffs" },
+	{ TV_TALISMAN,		"Talismans" },
 
-	{ TV_MAGIC_BOOK,	"Books (Mage)" },
-	{ TV_PRAYER_BOOK,	"Books (Priest)" },
-	{ TV_DRUID_BOOK,	"Books (Druid)" },
+	{ TV_MAGIC_BOOK,	"Books" },
 
 	{ TV_CHEST,		"Chests" },
 

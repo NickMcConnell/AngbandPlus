@@ -115,7 +115,6 @@ void do_cmd_eat_food(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
 		if (o_ptr->number > 1) apply_autoinscription(o_ptr);
 	}
 
@@ -198,7 +197,6 @@ void do_cmd_quaff_potion(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
 		if (o_ptr->number > 1) apply_autoinscription(o_ptr);
 	}
 
@@ -257,7 +255,6 @@ void do_cmd_read_scroll(void)
 		return;
 	}
 
-
 	/* Restrict choices to scrolls */
 	item_tester_tval = TV_SCROLL;
 
@@ -282,6 +279,12 @@ void do_cmd_read_scroll(void)
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
 
+	if (randint(100) > adj_int_read[p_ptr->stat_ind[A_INT]])
+	{
+		msg_print("You are having trouble with some of the big words...");
+		return;
+	}
+	
 	/* Not identified yet */
 	ident = FALSE;
 
@@ -301,7 +304,6 @@ void do_cmd_read_scroll(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
 		if (o_ptr->number > 1) apply_autoinscription(o_ptr);
 	}
 
@@ -345,123 +347,7 @@ void do_cmd_read_scroll(void)
  */
 void do_cmd_use_staff(void)
 {
-	int item, chance, lev;
-
-	bool ident;
-
-	object_type *o_ptr;
-
-	bool use_charge;
-
-	cptr q, s;
-
-
-	/* Restrict choices to staves */
-	item_tester_tval = TV_STAFF;
-
-	/* Get an item */
-	q = "Use which staff? ";
-	s = "You have no staff to use.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Take a turn */
-	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
-
-	/* Not identified yet */
-	ident = FALSE;
-
-	/* Extract the item level */
-	lev = k_info[o_ptr->k_idx].k_level;
-
-	/* Base chance of success */
-	chance = p_ptr->skill_dev;
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
-
-	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
-	{
-		if (flush_failure) flush();
-		msg_print("You failed to use the staff properly.");
-		return;
-	}
-
-	/* Notice empty staffs */
-	if (o_ptr->pval <= 0)
-	{
-		if (flush_failure) flush();
-		msg_print("The staff has no charges left.");
-		o_ptr->ident |= (IDENT_EMPTY);
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-		p_ptr->window |= (PW_INVEN);
-		return;
-	}
-
-
-	/* Sound */
-	sound(MSG_USE_STAFF);
-
-	/* Use the staff */
-	use_charge = use_object(o_ptr, &ident);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Tried the item */
-	object_tried(o_ptr);
-
-	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
-	{
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
-		apply_autoinscription(o_ptr);
-	}
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-
-	/* Hack -- some uses are "free" */
-	if (!use_charge) return;
-
-
-	/* Use a single charge */
-	o_ptr->pval--;
-
-	/* Describe charges in the pack */
-	if (item >= 0)
-	{
-		inven_item_charges(item);
-	}
-
-	/* Describe charges on the floor */
-	else
-	{
-		floor_item_charges(0 - item);
-	}
+	return;
 }
 
 
@@ -498,6 +384,20 @@ void do_cmd_aim_wand(void)
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
 
+	/* Require lite */
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+	
 	/* Get an item */
 	q = "Aim which wand? ";
 	s = "You have no wand to aim.";
@@ -531,28 +431,12 @@ void do_cmd_aim_wand(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
 		apply_autoinscription(o_ptr);
 	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-
-	/* Use a single charge */
-	o_ptr->pval--;
-
-	/* Describe the charges in the pack */
-	if (item >= 0)
-	{
-		inven_item_charges(item);
-	}
-
-	/* Describe the charges on the floor */
-	else
-	{
-		floor_item_charges(0 - item);
-	}
 }
 
 
@@ -611,7 +495,6 @@ void do_cmd_zap_rod(void)
 		int lev = k_info[o_ptr->k_idx].k_level;
 
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
 		apply_autoinscription(o_ptr);
 	}
 

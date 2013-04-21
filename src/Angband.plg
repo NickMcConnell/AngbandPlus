@@ -1,0 +1,128 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: Angband - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Build : warning : failed to (or don't know how to) build 'C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\angband.rc'
+
+Creating command line "rc.exe /l 0x407 /fo"Debug/angband.res" /i "src" /d "_DEBUG" "C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\angband.rc"" 
+Creating temporary file "C:\DOCUME~1\BRIANB~1\LOCALS~1\Temp\RSP55.tmp" with contents
+[
+/nologo /MLd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"Debug/" /Fp"Debug/Angband.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\birth.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\cave.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\cmd1.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\cmd2.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\cmd3.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\cmd4.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\cmd5.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\cmd6.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\dump_items.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\dungeon.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\files.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\generate.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\init1.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\init2.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\load.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\main-win.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\main.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\melee1.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\melee2.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\monster1.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\monster2.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\obj-info.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\object1.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\object2.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\quest.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\randart.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\readdib.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\save.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\spells1.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\spells2.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\squelch.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\store.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\tables.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\use-obj.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\util.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\variable.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\wizard1.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\wizard2.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\xtra1.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\xtra2.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\z-form.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\z-rand.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\z-term.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\z-util.c"
+"C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\z-virt.c"
+]
+Creating command line "cl.exe @C:\DOCUME~1\BRIANB~1\LOCALS~1\Temp\RSP55.tmp" 
+Creating temporary file "C:\DOCUME~1\BRIANB~1\LOCALS~1\Temp\RSP56.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib winmm.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/Angband.pdb" /debug /machine:I386 /out:"Angband.exe" /pdbtype:sept 
+".\Debug\birth.obj"
+".\Debug\cave.obj"
+".\Debug\cmd1.obj"
+".\Debug\cmd2.obj"
+".\Debug\cmd3.obj"
+".\Debug\cmd4.obj"
+".\Debug\cmd5.obj"
+".\Debug\cmd6.obj"
+".\Debug\dump_items.obj"
+".\Debug\dungeon.obj"
+".\Debug\files.obj"
+".\Debug\generate.obj"
+".\Debug\init1.obj"
+".\Debug\init2.obj"
+".\Debug\load.obj"
+".\Debug\main-win.obj"
+".\Debug\main.obj"
+".\Debug\melee1.obj"
+".\Debug\melee2.obj"
+".\Debug\monster1.obj"
+".\Debug\monster2.obj"
+".\Debug\obj-info.obj"
+".\Debug\object1.obj"
+".\Debug\object2.obj"
+".\Debug\quest.obj"
+".\Debug\randart.obj"
+".\Debug\readdib.obj"
+".\Debug\save.obj"
+".\Debug\spells1.obj"
+".\Debug\spells2.obj"
+".\Debug\squelch.obj"
+".\Debug\store.obj"
+".\Debug\tables.obj"
+".\Debug\use-obj.obj"
+".\Debug\util.obj"
+".\Debug\variable.obj"
+".\Debug\wizard1.obj"
+".\Debug\wizard2.obj"
+".\Debug\xtra1.obj"
+".\Debug\xtra2.obj"
+".\Debug\z-form.obj"
+".\Debug\z-rand.obj"
+".\Debug\z-term.obj"
+".\Debug\z-util.obj"
+".\Debug\z-virt.obj"
+".\Debug\angband.res"
+]
+Creating command line "link.exe @C:\DOCUME~1\BRIANB~1\LOCALS~1\Temp\RSP56.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+
+
+RC : fatal error RC1110 : could not open C:\roguelike\NPP virgin 19Aug07\NPP050BETA4-Source\src\src\angband.rc
+
+
+Error executing rc.exe.
+
+
+
+<h3>Results</h3>
+Angband.exe - 1 error(s), 1 warning(s)
+</pre>
+</body>
+</html>

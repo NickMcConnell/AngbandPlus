@@ -1,47 +1,39 @@
 
 ====== Game Tutorial:  The Novice's Guide ======
 
-     When you begin the game, you start out in a town with stores happy to sell
-you whatever they stock and you can afford.  Visit the stores and stop by your
-very own home (the symbol '8'), where you can safely stash all sorts of useful
-gear for later use.
+     When you begin the game, you are in the dungeon. You need to descend to 
+level 49, where you will meet a tough boss. Killing this opponent will allow
+you to descend to level 50 where you can meet and (probably be killed by) 
+the Witch King of Angmar.
 
      Look at the left side of the screen, where all the most important info
-about you is displayed.  Reading from the top, you'll see your race, class,
-current title, experience, and money on hand.  Your race and class never change,
-but you can gain more experience points by killing monsters and more gold by
-selling the loot they drop.
-     Below these are the six vital statistics:  Strength, Intelligence, Wisdom,
-Dexterity, Constitution, and Charisma.  Near the bottom, you will see your
-armour class, hit points, and (if you can learn magic) your spell points.
+about you is displayed.  Reading from the top, you'll see your race, 
+current title, experience, and money on hand.  
+
+     Below these are the nine vital statistics:  Strength, Intelligence, Wisdom,
+Dexterity, Constitution, Agility, Stealth, Perception and Luck. Near the bottom, 
+you will see your armour class, hit points, and your spell points.
 Armour class shields you from direct damage.  Hitpoints are your life wrapped up
-in a number, so run from anything that drops them too low, too fast.
+in a number, so run from anything that drops them too low, too fast. 
+Spell points allow you to cast magic - but they only regenerate when you go 
+down stairs to a new level, so use them sparingly.
 
      Get familiar with some of the commands you have available to you, either by
 reading the help, or by experimenting, whichever you prefer.
      To exit this tutorial, hit escape.  When ready to continue, type '?' to
 open up help, then press '1', then '2'.
 
-     Okay, time to get playing!  Pick up an inexpensive weapon (store 3), some
-flasks of oil (store 1) or a sling and some shots (store 3), some light armour
-(stores 1 and 2), and some phase door scrolls and potions of cure light wounds
-(Stores 4 or 5).  If one is available, get your hands on a lantern, because the
-extra light it provides is very handy.  Once you've earned a little money,
-invest in a shovel or a pickaxe.  Now, 'w'ear a torch or your lantern, your
-armour, and your weapon.
-     See that down staircase '>'?  It's the entrance to the deadly, lucrative
-dungeon.  Head down (once on top of the staircase, type '>').
-     Once you do that, you will find yourself in a dungeon of rooms and
-corridors.  Since you have already wielded a light source, you can see, even if
-you are not in a magically lit room.  Go off and explore the dungeon.  When your
-light runs out, re'F'uel it.  When you get hungry, 'E'at some of the food your
-character started out with.
+     Okay, time to get playing!  
+     
+     Go off and explore the dungeon.  When your light runs out, re'F'uel it.  
+When you get hungry, 'E'at some of the food your character started out with.
+
      When you meet your first monster, pepper it with sling shots (press 'f' to
 fire) until it reaches you, and hit it with your weapon (move into it) until
-it's dead.  If your HPs drop too low, quaff a potion of cure light wounds, read
-a scroll of phase door, or run away.
-     When you get enough money and objects to sell, go back up to the town.  If
-you can learn spells, practice them in safe places.  If you have questions, the
-'?' key is there to help.
+it's dead.  If your HPs drop too low, cast Cure Light Wounds (press 'm' to cast
+a spell) or run away.
 
-Have fun!
+     When you find a '>', that's a down staircase. Head down (once on top of 
+the staircase, type '>'). There are up staircases in Ironband too but they are
+just for decoration - you can never go up by any means until you defeat your
+ultimate opponent.

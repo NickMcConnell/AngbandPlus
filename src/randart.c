@@ -55,15 +55,14 @@
 #define CAT_IMPACT		7
 #define CAT_WEAP_XTRA	8
 #define CAT_BOW_XTRA	9
-#define CAT_STEALTH		10
-#define CAT_VISION		11	/*infravision, searching*/
-#define CAT_COMBAT		12
-#define CAT_TO_AC		13
-#define CAT_TO_BASE		14 /*add to base damage dice, sides, or armor base*/
-#define CAT_WEIGH_LESS	15
-#define CAT_LITE		16
-#define CAT_NATIVE		17
-#define CAT_MAX			18
+#define CAT_VISION		10	/*infravision, searching*/
+#define CAT_COMBAT		11
+#define CAT_TO_AC		12
+#define CAT_TO_BASE		13 /*add to base damage dice, sides, or armor base*/
+#define CAT_WEIGH_LESS	14
+#define CAT_LITE		15
+#define CAT_NATIVE		16
+#define CAT_MAX			17
 
 /*The different types of artifacts*/
 #define ART_TYPE_WEAPON			0
@@ -102,13 +101,12 @@
 	#7  CAT_IMPACT
 	#8  CAT_WEAP_XTRA
 	#9  CAT_BOW_XTRA
-	#10  CAT_STEALTH
-	#11 CAT_VISION
-	#12 CAT_COMBAT
-	#13 CAT_TO_AC
-	#14 CAT_TO_BASE
-	#15 CAT_WEIGH_LESS
-	#16 CAT_LITE
+	#10 CAT_VISION
+	#11 CAT_COMBAT
+	#12 CAT_TO_AC
+	#13 CAT_TO_BASE
+	#14 CAT_WEIGH_LESS
+	#15 CAT_LITE
 */
 
 /*
@@ -118,19 +116,19 @@
  */
 static const byte table_type_freq[ART_TYPE_MAX][CAT_MAX] =
 {
-   /*#0, #1,#2, #3, #4, #5, #6, #7, #8, #9,#10,#11,#12 #13#14 #15,#16 #17		*/
-	{20, 2, 60,  7, 30, 12,  5,  2, 2,  0,  8,  1,120, 10, 18, 10, 20,	0}, /*  ART_TYPE_WEAPON   */
-	{16, 1,	20,  3, 20, 10, 80, 10, 1,  0,  8,  1, 40, 10, 10, 10, 10,	0}, /*  ART_TYPE_SHOVEL   */
-	{20, 1,	 0,  0, 10, 10,  0,  0, 0, 40,  8,  1, 80,  0,  0,  6,  0,	0}, /*  ART_TYPE_BOW   	*/
-	{30, 3,	 0,  0, 30, 30,  0,  0, 0,  0, 10,  2, 10, 10,  0,  0, 14,	5}, /*  ART_TYPE_SPECIAL  */
-	{20, 1,	 0,  0, 40, 14,  0,  0, 0,  0, 10,  1,  0, 60, 10, 20,  4,	0}, /*  ART_TYPE_ARMOR   	*/
-	{20, 2,	 0,  0, 30, 20,  0,  0, 0,  0, 10,  1,  0, 60, 20, 20, 20,	0}, /*  ART_TYPE_DRAG_ARMOR   */
-	{14, 2,	 0,  0, 30, 14,  0,  0, 0,  0, 20,  1,  0, 40, 10, 10,  4,	0}, /*  ART_TYPE_CLOAK 	*/
-	{10, 1,  0,  0, 30, 10,  0,  0, 0,  0,  6,  1,  0, 60, 10, 10,  8,	0}, /*  ART_TYPE_SHIELD   */
-	{30, 1,  0,  0, 20, 14,  0,  0, 0,  0, 10, 10,  0, 40, 10, 10, 14,	0}, /*  ART_TYPE_HELM   	*/
-	{20, 1,  0,  0, 10, 24,  0,  0, 0,  0, 10, 10,  0, 30, 10, 10, 20,	0}, /*  ART_TYPE_CROWN  	*/
-	{10, 1,  0,  0, 16, 10,  0,  0, 0,  0,  6,  1, 20, 50, 10, 10,  4,	0}, /*  ART_TYPE_GLOVES   */
-	{16, 5,  0,  0, 16, 10,  0,  0, 0,  0, 30,  1,  0, 40, 10, 10,  4,	10}  /*  ART_TYPE_BOOTS   	*/
+   /*#0, #1,#2, #3, #4, #5, #6, #7, #8, #9,#10,#11 #12#13 #14,#15 #16		*/
+	{20, 2, 60, 12, 30, 12,  5,  2, 2,  0,  1,120, 10, 18, 10, 20,	0}, /*  ART_TYPE_WEAPON   */
+	{16, 1,	20,  5, 20, 10, 80, 10, 1,  0,  1, 40, 10, 10, 10, 10,	0}, /*  ART_TYPE_SHOVEL   */
+	{20, 1,	 0,  0, 10, 10,  0,  0, 0, 40,  1, 80,  0,  0,  6,  0,	0}, /*  ART_TYPE_BOW   	*/
+	{30, 3,	 0,  0, 30, 30,  0,  0, 0,  0,  2, 10, 10,  0,  0, 14,	5}, /*  ART_TYPE_SPECIAL  */
+	{20, 1,	 0,  0, 40, 14,  0,  0, 0,  0,  1,  0, 60, 10, 20,  4,	0}, /*  ART_TYPE_ARMOR   	*/
+	{20, 2,	 0,  0, 30, 20,  0,  0, 0,  0,  1,  0, 60, 20, 20, 20,	0}, /*  ART_TYPE_DRAG_ARMOR   */
+	{14, 2,	 0,  0, 30, 14,  0,  0, 0,  0,  1,  0, 40, 10, 10,  4,	0}, /*  ART_TYPE_CLOAK 	*/
+	{10, 1,  0,  0, 30, 10,  0,  0, 0,  0,  1,  0, 60, 10, 10,  8,	0}, /*  ART_TYPE_SHIELD   */
+	{30, 1,  0,  0, 20, 14,  0,  0, 0,  0, 10,  0, 40, 10, 10, 14,	0}, /*  ART_TYPE_HELM   	*/
+	{20, 1,  0,  0, 10, 24,  0,  0, 0,  0, 10,  0, 30, 10, 10, 20,	0}, /*  ART_TYPE_CROWN  	*/
+	{10, 1,  0,  0, 16, 10,  0,  0, 0,  0,  1, 20, 50, 10, 10,  4,	0}, /*  ART_TYPE_GLOVES   */
+	{16, 5,  0,  0, 16, 10,  0,  0, 0,  0,  1,  0, 40, 10, 10,  4,	10}  /*  ART_TYPE_BOOTS   	*/
 };
 
 
@@ -197,19 +195,19 @@ static int art_theme_freq[ART_THEME_MAX];
  */
 static const byte table_stat_freq[ART_TYPE_MAX][A_MAX] =
 {
-   /*STR INT WIS DEX CON CHR*/
-	{  5,  0,  0,  0,  0,  0}, /*  ART_TYPE_WEAPON  */
-	{  5,  0,  0,  0,  0,  0}, /*  ART_TYPE_SHOVEL  */
-	{  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_BOW   	*/
-	{  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_SPECIAL */
-	{  0,  0,  0,  0,  5,  0}, /*  ART_TYPE_ARMOR   	*/
-	{  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_DRAG_ARMOR   */
-	{  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_CLOAK 	*/
-	{  5,  0,  0,  0,  5,  0}, /*  ART_TYPE_SHIELD  */
-	{  0,  5,  5,  0,  0,  5}, /*  ART_TYPE_HELM   	*/
-	{  0, 10, 10,  0,  0, 10}, /*  ART_TYPE_CROWN  	*/
-	{  0,  0,  0, 10,  5,  0}, /*  ART_TYPE_GLOVES  */
-	{  0,  0,  0,  5,  0,  0}  /*  ART_TYPE_BOOTS   */
+   /*STR INT WIS DEX CON AGI STE PER LUC*/
+	{  5,  0,  0,  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_WEAPON  */
+	{  5,  0,  0,  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_SHOVEL  */
+	{  0,  0,  0,  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_BOW   	*/
+	{  0,  0,  0,  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_SPECIAL */
+	{  0,  0,  0,  0,  5,  0,  0,  0,  0}, /*  ART_TYPE_ARMOR   	*/
+	{  0,  0,  0,  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_DRAG_ARMOR   */
+	{  0,  0,  0,  0,  0,  0,  0,  0,  0}, /*  ART_TYPE_CLOAK 	*/
+	{  5,  0,  0,  0,  5,  0,  0,  0,  0}, /*  ART_TYPE_SHIELD  */
+	{  0,  5,  5,  0,  0,  5,  0,  0,  0}, /*  ART_TYPE_HELM   	*/
+	{  0, 10, 10,  0,  0,  0,  0, 10,  0}, /*  ART_TYPE_CROWN  	*/
+	{  0,  0,  0, 10,  5,  0,  0,  0,  0}, /*  ART_TYPE_GLOVES  */
+	{  0,  0,  0,  0,  0, 10, 10,  0,  0}  /*  ART_TYPE_BOOTS   */
 };
 
 /*Current randart only - Used to keep weightings for each stat*/
@@ -700,6 +698,7 @@ static long eval_max_dam(int r_idx)
 						/*Right now all flag7 are summon spells*/
 						/* All summons are assigned arbitrary values according to their levels*/
 						if 		(flag_counter == RF7_S_KIN) 	this_dam = rlev * 2;
+						else if (flag_counter == RF7_S_THROWTROLL)	this_dam = rlev;
 						else if (flag_counter == RF7_S_MONSTER)	this_dam = rlev * 2 / 5;
 						else if (flag_counter == RF7_S_MONSTERS)this_dam = rlev * 4 / 5;
 						else if (flag_counter == RF7_S_ANT)		this_dam = rlev / 5;
@@ -808,6 +807,7 @@ static long eval_max_dam(int r_idx)
 				case RBE_COLD:
 				case RBE_BLIND:
 				case RBE_CONFUSE:
+				case RBE_BEGUILE:
 				case RBE_PARALYZE:
 				case RBE_DISEASE:
 				case RBE_LOSE_STR:
@@ -815,7 +815,10 @@ static long eval_max_dam(int r_idx)
 				case RBE_LOSE_WIS:
 				case RBE_LOSE_DEX:
 				case RBE_LOSE_CON:
-				case RBE_LOSE_CHR:
+				case RBE_LOSE_AGI:
+				case RBE_LOSE_STE:
+				case RBE_LOSE_PER:
+				case RBE_LOSE_LUC:
 				case RBE_LOSE_ALL:
 				case RBE_EXP_10:
 				case RBE_EXP_20:
@@ -1175,6 +1178,7 @@ static int weapon_damage_calc(const artifact_type *a_ptr)
 	if (a_ptr->a_flags1 & TR1_KILL_DRAGON) slay_adjust += 4;
 	if (a_ptr->a_flags1 & TR1_KILL_DEMON) slay_adjust += 4;
 	if (a_ptr->a_flags1 & TR1_KILL_UNDEAD) slay_adjust += 4;
+	if (a_ptr->a_flags1 & TR3_VAMPIRE) slay_adjust += 10;
 
 	if (a_ptr->a_flags1 & TR1_BRAND_POIS) slay_adjust += 3;
 	if (a_ptr->a_flags1 & TR1_BRAND_ACID) slay_adjust += 4;
@@ -1446,11 +1450,11 @@ s32b artifact_power(int a_idx)
 		}
 		if (a_ptr->a_flags1 & TR1_INT)
 		{
-			p += 2 * a_ptr->pval;
+			p += 3 * a_ptr->pval;
 		}
 		if (a_ptr->a_flags1 & TR1_WIS)
 		{
-			p += 2 * a_ptr->pval;
+			p += 3 * a_ptr->pval;
 		}
 		if (a_ptr->a_flags1 & TR1_DEX)
 		{
@@ -1458,11 +1462,7 @@ s32b artifact_power(int a_idx)
 		}
 		if (a_ptr->a_flags1 & TR1_CON)
 		{
-			p += 4 * a_ptr->pval;
-		}
-		if (a_ptr->a_flags1 & TR1_STEALTH)
-		{
-			p += a_ptr->pval;
+			p += 3 * a_ptr->pval;
 		}
 		/* For now add very small amount for searching */
 		if (a_ptr->a_flags1 & TR1_SEARCH)
@@ -1473,11 +1473,14 @@ s32b artifact_power(int a_idx)
 		if (a_ptr->pval > 0)
 		{
 			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_STR) ? a_ptr->pval: 0);
-			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_INT) ? 3 * a_ptr->pval / 4: 0);
-			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_WIS) ? 3 * a_ptr->pval / 4: 0);
+			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_INT) ? a_ptr->pval: 0);
+			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_WIS) ? a_ptr->pval: 0);
 			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_DEX) ? a_ptr->pval: 0);
 			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_CON) ? a_ptr->pval: 0);
-			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_STEALTH) ? 3 * a_ptr->pval / 4: 0);
+			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_AGI) ? a_ptr->pval: 0);
+			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_STE) ? a_ptr->pval: 0);
+			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_PER) ? a_ptr->pval: 0);
+			extra_stat_bonus += ( (a_ptr->a_flags1 & TR1_LUC) ? a_ptr->pval: 0);
 
 			if (a_ptr->tval == TV_BOW)
 			{
@@ -1500,16 +1503,15 @@ s32b artifact_power(int a_idx)
 	}
 	else if (a_ptr->pval < 0)	/* hack: don't give large negatives */
 	{
-		if (a_ptr->a_flags1 & TR1_STR) p += 4 * a_ptr->pval;
-		if (a_ptr->a_flags1 & TR1_INT) p += 2 * a_ptr->pval;
-		if (a_ptr->a_flags1 & TR1_WIS) p += 2 * a_ptr->pval;
+		if (a_ptr->a_flags1 & TR1_STR) p += 3 * a_ptr->pval;
+		if (a_ptr->a_flags1 & TR1_INT) p += 3 * a_ptr->pval;
+		if (a_ptr->a_flags1 & TR1_WIS) p += 3 * a_ptr->pval;
 		if (a_ptr->a_flags1 & TR1_DEX) p += 3 * a_ptr->pval;
-		if (a_ptr->a_flags1 & TR1_CON) p += 4 * a_ptr->pval;
-		if (a_ptr->a_flags1 & TR1_STEALTH) p += a_ptr->pval;
-	}
-	if (a_ptr->a_flags1 & TR1_CHR)
-	{
-		p += a_ptr->pval;
+		if (a_ptr->a_flags1 & TR1_CON) p += 3 * a_ptr->pval;
+		if (a_ptr->a_flags1 & TR1_AGI) p += 3 * a_ptr->pval;
+		if (a_ptr->a_flags1 & TR1_STE) p += 3 * a_ptr->pval;
+		if (a_ptr->a_flags1 & TR1_PER) p += 3 * a_ptr->pval;
+		if (a_ptr->a_flags1 & TR1_LUC) p += 3 * a_ptr->pval;
 	}
 	if (a_ptr->a_flags1 & TR1_INFRA)
 	{
@@ -1533,12 +1535,15 @@ s32b artifact_power(int a_idx)
 
 		byte sustains = 0;
 
-		if (a_ptr->a_flags2 & TR2_SUST_STR) {p += 5;  sustains++;}
-		if (a_ptr->a_flags2 & TR2_SUST_INT) {p += 2;  sustains++;}
-		if (a_ptr->a_flags2 & TR2_SUST_WIS) {p += 2;  sustains++;}
-		if (a_ptr->a_flags2 & TR2_SUST_DEX) {p += 4;  sustains++;}
+		if (a_ptr->a_flags2 & TR2_SUST_STR) {p += 3;  sustains++;}
+		if (a_ptr->a_flags2 & TR2_SUST_INT) {p += 3;  sustains++;}
+		if (a_ptr->a_flags2 & TR2_SUST_WIS) {p += 3;  sustains++;}
+		if (a_ptr->a_flags2 & TR2_SUST_DEX) {p += 3;  sustains++;}
 		if (a_ptr->a_flags2 & TR2_SUST_CON) {p += 3;  sustains++;}
-		if (a_ptr->a_flags2 & TR2_SUST_CHR) {p += 1;  sustains++;}
+		if (a_ptr->a_flags2 & TR2_SUST_AGI) {p += 3;  sustains++;}
+		if (a_ptr->a_flags2 & TR2_SUST_STE) {p += 3;  sustains++;}
+		if (a_ptr->a_flags2 & TR2_SUST_PER) {p += 3;  sustains++;}
+		if (a_ptr->a_flags2 & TR2_SUST_LUC) {p += 3;  sustains++;}
 
 		if (sustains > 4) p += 2;
 		if (sustains > 5) p += 2;
@@ -1755,7 +1760,6 @@ static void do_pval(artifact_type *a_ptr)
 
 static void remove_contradictory(artifact_type *a_ptr)
 {
-	if (a_ptr->a_flags3 & TR3_AGGRAVATE) a_ptr->a_flags1 &= ~(TR1_STEALTH);
 	if (a_ptr->a_flags2 & TR2_IM_ACID) a_ptr->a_flags2 &= ~(TR2_RES_ACID);
 	if (a_ptr->a_flags2 & TR2_IM_ELEC) a_ptr->a_flags2 &= ~(TR2_RES_ELEC);
 	if (a_ptr->a_flags2 & TR2_IM_FIRE) a_ptr->a_flags2 &= ~(TR2_RES_FIRE);
@@ -1768,7 +1772,10 @@ static void remove_contradictory(artifact_type *a_ptr)
 		if (a_ptr->a_flags1 & TR1_WIS) a_ptr->a_flags2 &= ~(TR2_SUST_WIS);
 		if (a_ptr->a_flags1 & TR1_DEX) a_ptr->a_flags2 &= ~(TR2_SUST_DEX);
 		if (a_ptr->a_flags1 & TR1_CON) a_ptr->a_flags2 &= ~(TR2_SUST_CON);
-		if (a_ptr->a_flags1 & TR1_CHR) a_ptr->a_flags2 &= ~(TR2_SUST_CHR);
+		if (a_ptr->a_flags1 & TR1_AGI) a_ptr->a_flags2 &= ~(TR2_SUST_AGI);
+		if (a_ptr->a_flags1 & TR1_STE) a_ptr->a_flags2 &= ~(TR2_SUST_STE);
+		if (a_ptr->a_flags1 & TR1_PER) a_ptr->a_flags2 &= ~(TR2_SUST_PER);
+		if (a_ptr->a_flags1 & TR1_LUC) a_ptr->a_flags2 &= ~(TR2_SUST_LUC);
 		a_ptr->a_flags1 &= ~(TR1_BLOWS);
 	}
 
@@ -2056,10 +2063,14 @@ static bool add_brand(artifact_type *a_ptr)
 	/* Hack - if all brands are added already, exit to avoid infinite loop */
 	if ((a_ptr->a_flags1 & TR1_BRAND_ACID) && (a_ptr->a_flags1 & TR1_BRAND_ELEC) &&
 		(a_ptr->a_flags1 & TR1_BRAND_COLD) && (a_ptr->a_flags1 & TR1_BRAND_FIRE) &&
-		(a_ptr->a_flags1 & TR1_BRAND_POIS))  return (FALSE);
+		(a_ptr->a_flags1 & TR1_BRAND_POIS) && (a_ptr->a_flags1 & TR3_VAMPIRE))  return (FALSE);
 
 	/* Make sure we add one that hasn't been added yet */
-	while (TRUE)
+	if (!(a_ptr->a_flags1 & TR3_VAMPIRE) && one_in_(12)){
+
+		a_ptr->a_flags3 |= TR3_VAMPIRE;
+
+	} else while (TRUE)
 	{
 		u32b brand_flag = OBJECT_XTRA_BASE_BRAND;
 
@@ -3050,18 +3061,6 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 			do_pval(a_ptr);
 			break;
 		}
-		case CAT_STEALTH:
-		{
-			/*Not necessary to call this again*/
-			if ((a_ptr->a_flags1 & TR1_STEALTH) || (a_ptr->a_flags3 & TR3_AGGRAVATE))
-			{
-				art_freq[CAT_STEALTH] = 0;
-				break;
-			}
-			a_ptr->a_flags1 |= TR1_STEALTH;
-			do_pval(a_ptr);
-			break;
-		}
 		case CAT_VISION:
 		{
 			/*All full - Prevent this from being called again*/
@@ -3115,12 +3114,6 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 				case TV_SWORD:
 				case TV_DIGGING:
 				{
-					/* Hack -- Super-charge the damage dice */
-					while (one_in_(15))  a_ptr->dd++;
-
-					/* Hack -- Limit the damage dice to max of 9*/
-					if (a_ptr->dd > 9) a_ptr->dd = 9;
-
 					/* Hack -- Super-charge the damage sides */
 					while (one_in_(15))  a_ptr->ds++;
 
@@ -3347,9 +3340,6 @@ static void do_curse(artifact_type *a_ptr)
 
 
 
-/*
- * Note the three special cases (One Ring, Grond, Morgoth).
- */
 static void scramble_artifact(int a_idx)
 {
 	artifact_type *a_ptr = &a_info[a_idx];
@@ -3369,8 +3359,6 @@ static void scramble_artifact(int a_idx)
 
 	/* Special cases -- don't randomize these! */
 	if (strstr(a_ptr->name, "One Ring")) return;
-	if (strstr(a_ptr->name, "Grond")) return;
-	if (strstr(a_ptr->name, "of Morgoth")) return;
 
 	/* Skip unused artifacts, too! */
 	if (a_ptr->tval == 0) return;

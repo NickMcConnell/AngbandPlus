@@ -932,25 +932,6 @@ static void wr_store(const store_type *st_ptr)
 	}
 }
 
-/*
- * Write an "artifact lore" record
- */
-static void wr_artifact_lore(int a_idx)
-{
-	byte tmp8u = 0;
-
-	/* We know about this artifact */
-	if (a_l_list[a_idx].was_fully_identified) tmp8u |= 0x01;
-
-	/* Write the flags */
-	wr_byte(tmp8u);
-
-	/* For future use */
-	wr_byte(0);
-	wr_byte(0);
-	wr_byte(0);
-}
-
 
 /*
  * Write a "terrain lore" record
@@ -1140,6 +1121,7 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 
 	wr_byte(p_ptr->hitdie);
+	wr_byte(p_ptr->mpdie);
 	wr_byte(p_ptr->expfact);
 
 	wr_s16b(p_ptr->age);
@@ -1149,6 +1131,16 @@ static void wr_extra(void)
 	/* Dump the stats (maximum and current) */
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
+
+	wr_s16b(p_ptr->statgain1);
+	wr_s16b(p_ptr->statgain2);
+	wr_s16b(p_ptr->statgain3);
+	wr_s16b(p_ptr->statgain4);
+	wr_s16b(p_ptr->statgain5);
+	wr_s16b(p_ptr->statgain6);
+	wr_s16b(p_ptr->statgain7);
+	wr_s16b(p_ptr->statgain8);
+	wr_s16b(p_ptr->statgain9);
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
@@ -1203,9 +1195,12 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->hero);
 	wr_s16b(p_ptr->shero);
 	wr_s16b(p_ptr->shield);
+	wr_s16b(p_ptr->megashield);
 	wr_s16b(p_ptr->blessed);
 	wr_s16b(p_ptr->tim_invis);
 	wr_s16b(p_ptr->word_recall);
+	wr_s16b(p_ptr->teleport_delay);
+	wr_s16b(p_ptr->teleport_range);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
 	wr_s16b(p_ptr->oppose_fire);
@@ -1213,6 +1208,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+	wr_s16b(p_ptr->oppose_conf);
 
 	wr_s16b(p_ptr->temp_native_lava);
 	wr_s16b(p_ptr->temp_native_oil);
@@ -1356,16 +1352,7 @@ static void wr_extra(void)
 	wr_s32b(p_ptr->p_turn);
 
 	/* Turn counter for the quest indicator */
-	{
-		/* Get the timer value. Clear the last bit */
-		u16b tmp16u = quest_indicator_timer & ~(QUEST_INDICATOR_COMPLETE_BIT);
-
-		/* Turn on the last bit if the quest was completed */
-		if (quest_indicator_complete) tmp16u |= (QUEST_INDICATOR_COMPLETE_BIT);
-
-		/* Write timer + complete bit */
-		wr_u16b(tmp16u);
-	}
+	wr_u16b(quest_indicator_timer);
 
 	/* Panel change offsets */
 	wr_u16b(panel_change_offset_y);
@@ -1469,30 +1456,6 @@ static void wr_notes(void)
   	/* Always write NOTES_MARK */
   	wr_string(end_note);
 }
-
-
-/*
- * Write variable extensions to the savefile
- */
-static void wr_extensions(void)
-{
-	/* Write call huorns time if present */
-	if (p_ptr->temp_call_huorns > 0)
-	{
-		/* Write extension id */
-		wr_s16b(EXTENSION_CALL_HUORNS);
-		/* Write field type */
-		wr_byte(EXTENSION_TYPE_U16B);
-		/* Write field value */
-		wr_u16b(p_ptr->temp_call_huorns);
-		/* Write end mark for fields */
-		wr_byte(EXTENSION_TYPE_END);
-	}
-
-	/* Write end mark for extensions */
-	wr_s16b(END_EXTENSIONS);
-}
-
 
 /*
  * The cave grid flags that get saved in the savefile
@@ -1824,6 +1787,11 @@ static bool wr_savefile_new(void)
 	{
 		wr_s16b(p_ptr->player_hp[i]);
 	}
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+		wr_s16b(p_ptr->player_sp[i]);
+	}
 
 	/* Write spell data */
 	wr_u16b(PY_MAX_SPELLS);
@@ -1845,9 +1813,6 @@ static bool wr_savefile_new(void)
 
 	/*Copy the notes file into the savefile*/
 	wr_notes();
-
-	/* Extensions */
-	wr_extensions();
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1882,19 +1847,14 @@ static bool wr_savefile_new(void)
 	/* Dump terrain lore */
 	for (i = 0; i < tmp16u; i++) wr_feature_lore(i);
 
-	/* Dump the current number of artifacts (normal + special) */
-	tmp16u = z_info->art_norm_max;
-	wr_u16b(tmp16u);
-
-	/* Dump artifact lore */
-	for (i = 0; i < tmp16u; i++) wr_artifact_lore(i);
-
 	/* Player is not dead, write the dungeon */
 	if (!p_ptr->is_dead)
 	{
 		/* Dump the dungeon */
 		wr_dungeon();
+
 	}
+
 
 	/* Write the "value check-sum" */
 	wr_u32b(v_stamp);

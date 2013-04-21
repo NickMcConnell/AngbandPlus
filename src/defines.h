@@ -41,20 +41,20 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "NPPAngband"
+#define VERSION_NAME "Ironband"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.0"
+#define VERSION_STRING	"Pre-release"
 
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
-#define VERSION_MINOR	5
+#define VERSION_MINOR	1
 #define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
@@ -63,8 +63,8 @@
  * Oldest version number that can still be imported
  */
 #define OLD_VERSION_MAJOR	0
-#define OLD_VERSION_MINOR	4
-#define OLD_VERSION_PATCH	2
+#define OLD_VERSION_MINOR	1
+#define OLD_VERSION_PATCH	0
 
 
 /*
@@ -188,7 +188,7 @@
 /*
  * Maximum amount of starting equipment
  */
-#define MAX_START_ITEMS	4
+#define MAX_START_ITEMS	20
 
 
 /*
@@ -402,7 +402,7 @@ enum {
  * Percentage of maximum noise you can make just walking around, given a
  * stealth of zero.
  */
-#define WAKEUP_ADJ      20
+#define WAKEUP_ADJ      30
 
 
 
@@ -424,8 +424,8 @@ enum {
 /*
  * Refueling constants
  */
-#define FUEL_TORCH	5000	/* Maximum amount of fuel in a torch */
-#define FUEL_LAMP	15000   /* Maximum amount of fuel in a lantern */
+#define FUEL_TORCH	1000	/* Maximum amount of fuel in a torch */
+#define FUEL_LAMP	5000   /* Maximum amount of fuel in a lantern */
 
 
 /*
@@ -471,7 +471,7 @@ enum {
  */
 #define PY_MAX_EXP	99999999L	/* Maximum exp */
 #define PY_MAX_GOLD	999999999L	/* Maximum gold */
-#define PY_MAX_LEVEL	50		/* Maximum level */
+#define PY_MAX_LEVEL	36		/* Maximum level */
 
 /*
  * Player "food" crucial values
@@ -509,12 +509,12 @@ enum {
 /*
  * Maximum number of players spells
  */
-#define PY_MAX_SPELLS 66
+#define PY_MAX_SPELLS 65
 
 /*
  * Number of spells per book
  */
-#define SPELLS_PER_BOOK 9
+#define SPELLS_PER_BOOK 6
 
 #define BOOKS_PER_REALM 9
 #define MAGE_REALM		0
@@ -527,6 +527,99 @@ enum {
 		 ((p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS]) / 2) : \
 		 ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? p_ptr->stat_ind[A_INT] : p_ptr->stat_ind[A_WIS]))
 
+/* New spells */
+
+/* book 0 */
+#define NEWSPELL_BLESS                  0
+#define NEWSPELL_CLW                    1
+#define NEWSPELL_MAGIC_MISSILE          2
+#define NEWSPELL_LIGHT                  3
+#define NEWSPELL_DETECT_ANIMALS         4
+#define NEWSPELL_SLEEP                  5
+
+/* book 1 */
+#define NEWSPELL_CREATE_FOOD		    6
+#define NEWSPELL_DETECT_EVIL            7
+#define NEWSPELL_BARKSKIN               8
+#define NEWSPELL_SLOW                   9
+#define NEWSPELL_REMOVE_FEAR	 		10	
+#define NEWSPELL_FIRE_BOLT              11
+
+/* book 2 */
+#define NEWSPELL_MAGELIGHT              12
+#define NEWSPELL_REMOVE_CURSE			13	
+#define NEWSPELL_DETECT_TREASURE        14
+#define NEWSPELL_CSW                    15
+#define NEWSPELL_CONFUSION   			16	
+#define NEWSPELL_MANA_BOLT              17
+
+/* book 3 */
+#define NEWSPELL_IDENTIFY               18
+#define NEWSPELL_DETECT_TRAPS_AND_DOORS 19
+#define NEWSPELL_PHASE_DOOR             20
+#define NEWSPELL_RESIST_HEAT_AND_COLD   21
+#define NEWSPELL_FROST_BOLT  			22	
+#define NEWSPELL_DETECT_MONSTERS        23
+
+/* book 4 */
+#define NEWSPELL_RESTORE_LIFE_LEVELS    24
+#define NEWSPELL_TELEPORT_AWAY          25
+#define NEWSPELL_MASS_IDENTIFY          26
+#define NEWSPELL_RESIST_POISON          27
+#define NEWSPELL_CCW					28	
+#define NEWSPELL_FIREBALL               29
+
+/* book 5 */
+#define NEWSPELL_STARIDENTIFYSTAR       30
+#define NEWSPELL_STARREMOVE_CURSESTAR   31
+#define NEWSPELL_SEE_INVISIBLE          32
+#define NEWSPELL_DETECT_OBJECTS         33
+#define NEWSPELL_PORTAL      			34	
+#define NEWSPELL_ACID_BALL              35
+
+/* book 6 */
+#define NEWSPELL_SANDSTORM		        36
+#define NEWSPELL_MAGIC_MAPPING			37
+#define NEWSPELL_NEUTRALIZE_POISON      38
+#define NEWSPELL_ENCHANT_ARMOR          39
+#define NEWSPELL_STONE_TO_MUD			40	
+#define NEWSPELL_CREATE_MISSILES        41
+
+/* book 7 */
+#define NEWSPELL_DETECTION              42
+#define NEWSPELL_TELEPORTATION          43
+#define NEWSPELL_HEALING                44
+#define NEWSPELL_MANA_STORM             45
+#define NEWSPELL_PROTECTION_FROM_EVIL   46
+#define NEWSPELL_GLOBE_OF_INVULNERABILITY 47
+
+/* book 8 */
+#define NEWSPELL_CREATE_STAIRS          48
+#define NEWSPELL_RESTORATION            49
+#define NEWSPELL_HASTE_SELF             50
+#define NEWSPELL_RIFT                   51
+#define NEWSPELL_RESISTANCE  			52	
+#define NEWSPELL_NATIVITY               53
+
+#define N_NEWSPELLS                     54
+
+/* and the schools */
+#define SCHOOL_DETECTION                0
+#define SCHOOL_IDENTIFICATION           1
+#define SCHOOL_HEALING                  2
+#define SCHOOL_BLESSINGS                3
+#define SCHOOL_ENCHANTMENT              4
+#define SCHOOL_BATTLE                   5
+#define SCHOOL_TELEPORTATION            6
+#define SCHOOL_RESISTANCE               7
+#define SCHOOL_FIRE_AND_LIGHT           8
+#define SCHOOL_BUFFS                    9
+#define SCHOOL_CONJURATIONS             10
+#define SCHOOL_FORCE                    11
+#define SCHOOL_NATURE                   12
+#define SCHOOL_TIME                     13
+
+#define N_SCHOOLS                       14
 
 /*Magic for Beginners*/
 #define SPELL_MAGIC_MISSILE             0
@@ -541,32 +634,32 @@ enum {
 
 /* Conjurings and Tricks */
 #define SPELL_CONFUSE_MONSTER           9
-#define SPELL_SHOCK_WAVE                10
+#define SPELL_LIGHTNING_BOLT            10
 #define SPELL_TRAP_DOOR_DESTRUCTION     11
 #define SPELL_CURE_POISON               12
 #define SPELL_SLEEP_MONSTER             13
 #define SPELL_TELEPORT_SELF             14
 #define SPELL_SPEAR_OF_LIGHT            15
-#define SPELL_ICE_BOLT                  16
-#define SPELL_WAIL_OF_THE_BANSHEE	65
+#define SPELL_FROST_BOLT                16
+#define SPELL_WONDER                    17
 
 /* Incantations and Illusions */
 #define SPELL_SATISFY_HUNGER            18
 #define SPELL_RECHARGE_ITEM_I           19
 #define SPELL_TURN_STONE_TO_MUD         20
-#define SPELL_SHARD_STORM               21
+#define SPELL_FIRE_BOLT                 21
 #define SPELL_POLYMORPH_OTHER           22
 #define SPELL_IDENTIFY                  23
 #define SPELL_DETECT_INVISIBLE          24
-#define SPELL_HURRICANE                 25
+#define SPELL_ACID_BOLT                 25
 #define SPELL_SLOW_MONSTER              26
 
 /* Sorcery and Evocations */
-#define SPELL_CALL_LIGHTNING            27
+#define SPELL_FROST_BALL                27
 #define SPELL_TELEPORT_OTHER            28
 #define SPELL_HASTE_SELF                29
 #define SPELL_MASS_SLEEP                30
-#define SPELL_WATER_BOLT                31
+#define SPELL_FIRE_BALL                 31
 #define SPELL_DETECT_ENCHANTMENT        32
 #define SPELL_MASS_IDENTIFY				64
 
@@ -578,13 +671,12 @@ enum {
 #define SPELL_SHIELD                    37
 
 /* Raal's Tome of Destruction */
-#define SPELL_NOVA                      38
-#define SPELL_REND_SOUL                 39
-#define SPELL_PRISMATIC_SPRAY           17
+#define SPELL_SHOCK_WAVE                38
+#define SPELL_EXPLOSION                 39
 #define SPELL_CLOUD_KILL                40
-#define SPELL_ICE_STORM                 41
-#define SPELL_PLASMA_BOLT               42
-#define SPELL_METEOR_STORM              43
+#define SPELL_ACID_BALL                 41
+#define SPELL_ICE_STORM                 42
+#define SPELL_METEOR_SWARM              43
 #define SPELL_RIFT                      44
 
 /* Mordenkainen's Escapes */
@@ -606,13 +698,12 @@ enum {
 /* Kelek's Grimoire of Power */
 #define SPELL_EARTHQUAKE                56
 #define SPELL_BEDLAM                    57
-#define SPELL_BANISHMENT                58
-#define SPELL_WORD_OF_DESTRUCTION       59
-#define SPELL_MASS_BANISHMENT           60
-#define SPELL_DARKNESS_STORM            61
-#define SPELL_MANA_BOLT                 62
+#define SPELL_REND_SOUL                 58
+#define SPELL_BANISHMENT                59
+#define SPELL_WORD_OF_DESTRUCTION       60
+#define SPELL_MASS_BANISHMENT           61
+#define SPELL_CHAOS_STRIKE              62
 #define SPELL_MANA_STORM                63
-
 
 /* Beginners Handbook */
 #define PRAYER_DETECT_EVIL              0
@@ -621,7 +712,7 @@ enum {
 #define PRAYER_REMOVE_FEAR              3
 #define PRAYER_CALL_LIGHT               4
 #define PRAYER_FIND_TRAPS_DOORS_STAIRS  5
-#define PRAYER_SHOCK_BOLT	        6
+#define PRAYER_BOLT_OF_DRAINING	        6
 #define PRAYER_SLOW_POISON              7
 
 /* Words of Wisdom */
@@ -647,7 +738,7 @@ enum {
 
 /* Exorcism and Dispelling */
 #define PRAYER_PRAYER                  25
-#define PRAYER_SUN_BEAM                26
+#define PRAYER_DISPEL_UNDEAD           26
 #define PRAYER_HEAL                    27
 #define PRAYER_DISPEL_EVIL             28
 #define PRAYER_GLYPH_OF_WARDING        29
@@ -669,11 +760,11 @@ enum {
 #define PRAYER_REMEMBRANCE             40
 
 /* Wrath of God */
-#define PRAYER_SUN_BURST               41
+#define PRAYER_DISPEL_UNDEAD2          41
 #define PRAYER_DISPEL_EVIL2            42
 #define PRAYER_BANISH_EVIL             43
 #define PRAYER_WORD_OF_DESTRUCTION     44
-#define PRAYER_JUDGEMENT_OF_MANDOS      45
+#define PRAYER_ANNIHILATION            45
 
 /* Holy Infusions */
 #define PRAYER_UNBARRING_WAYS          46
@@ -700,7 +791,7 @@ enum {
 #define DRUID_FIND_TRAPS_DOORS         	 4
 #define DRUID_SLOW_POISON                5
 #define DRUID_POISON_CLOUD             	 6
-#define DRUID_NATURAL_ESCAPE           	 7
+#define DRUID_LIGHTNING_BEAM           	 7
 #define DRUID_BARKSKIN		             8
 
 /* Environmental Adjurations */
@@ -721,7 +812,8 @@ enum {
 #define DRUID_IDENTIFY             		21
 #define DRUID_CLEAR_AIR              	22
 #define DRUID_DETECT_TERRAIN	      	23
-#define DRUID_EARTHQUAKE 	     		24
+#define DRUID_CURE_MORTAL_WOUNDS      	24
+#define DRUID_BEAM_LIGHT	         	25
 #define DRUID_LIFE_DRAIN_BURST		 	26
 
 /* Lore of Engagement */
@@ -747,7 +839,6 @@ enum {
 #define DRUID_HEALING                 	43
 #define DRUID_RESTORATION             	44
 #define DRUID_REMEMBRANCE             	45
-#define DRUID_SANDSTORM	         	25
 
 /* Arda's Habitats */
 #define DRUID_NATIVE_SAND				46
@@ -755,7 +846,6 @@ enum {
 #define DRUID_NATIVE_WATER				48
 #define DRUID_NATIVE_OIL				49
 #define DRUID_NATIVE_LAVA				50
-#define DRUID_CHANNEL_LIGHTNING			64
 
 /* Natural Infusions */
 #define DRUID_DISPEL_CURSE              52
@@ -765,10 +855,12 @@ enum {
 #define DRUID_BRAND_WEAPON              56
 
 /* Nature's Fury */
-#define DRUID_WATER_CHAIN				58
-#define DRUID_CALL_HUORNS				60
-#define DRUID_MASTER_ELEMENTS				62
-#define DRUID_STEAL_POWERS				63
+#define DRUID_WATER_BALL				58
+#define DRUID_SANDSTORM					59
+#define DRUID_ICICLE					60
+#define DRUID_GEYSER					61
+#define DRUID_BMUDBALL					62
+#define DRUID_LAVA_BALL					63
 
 
 /*
@@ -874,12 +966,15 @@ enum {
 #define A_WIS	2
 #define A_DEX	3
 #define A_CON	4
-#define A_CHR	5
+#define A_AGI	5
+#define A_STE	6
+#define A_PER	7
+#define A_LUC	8
 
 /*
  * Total number of stats.
  */
-#define A_MAX	6
+#define A_MAX	9
 
 
 /*** Screen Locations ***/
@@ -914,28 +1009,28 @@ enum {
 #define ROW_STAT		8
 #define COL_STAT		0	/* "xxx   xxxxxx" */
 
-#define ROW_RESIST		14
+#define ROW_RESIST		17
 #define COL_RESIST		0	/* "Resistances " */
 
-#define ROW_AC			15
+#define ROW_AC			18
 #define COL_AC			0	/* "Cur AC xxxxx" */
 
-#define ROW_HP			16
+#define ROW_HP			19
 #define COL_HP			0	/* "HP xxxxxxxxx" */
 
-#define ROW_SP			17
+#define ROW_SP			20
 #define COL_SP			0	/* "SP xxxxxxxxx" */
 
-#define ROW_INFO		18
+#define ROW_INFO		21
 #define COL_INFO		0	/* "xxxxxxxxxxxx" monster health bar*/
 
-#define ROW_MON_MANA	19
+#define ROW_MON_MANA	22
 #define COL_MON_MANA	0	/* "xxxxxxxxxxxx" monster mana bar*/
 
-#define ROW_CUT			20
+#define ROW_CUT			23
 #define COL_CUT			0	/* <cut> */
 
-#define ROW_STUN		21
+#define ROW_STUN		24
 #define COL_STUN		0	/* <stun> */
 
 #define ROW_HUNGRY		(Term->hgt - 1)
@@ -966,7 +1061,7 @@ enum {
 #define COL_DEPTH		71	/* "Lev NNN" / "NNNN ft" */
 
 #define ROW_OPPOSE_ELEMENTS	(Term->hgt - 1)
-#define COL_OPPOSE_ELEMENTS	80	/* "Acid Elec Fire Cold Pois" */
+#define COL_OPPOSE_ELEMENTS	80	/* "Acid Elec Fire Cold Pois Conf" */
 
 
 
@@ -1142,9 +1237,6 @@ enum {
 #define GF_SMOKE		98
 #define GF_FOG			99
 
-#define GF_ELEC_BURST  100
-
-#define GF_DRUID_BOULDER 101
 
 /*
  * Some constants for the "learn" code.  These generalized from the
@@ -1203,12 +1295,6 @@ enum {
 
 
 
-
-/*** Important artifact indexes (see "lib/edit/artifact.txt") ***/
-
-#define ART_MORGOTH			138
-#define ART_GROND			139
-
 /*
  * Maximum length of artifact names
  */
@@ -1221,7 +1307,7 @@ enum {
 #define DROP_TYPE_UNTHEMED				0
 #define DROP_TYPE_GOLD					1
 #define DROP_TYPE_POTION				2
-#define DROP_TYPE_ROD_WAND_STAFF		3
+#define DROP_TYPE_ROD_WAND_TALISMAN		3
 #define DROP_TYPE_SCROLL				4
 #define DROP_TYPE_SHIELD				5
 #define DROP_TYPE_WEAPON				6
@@ -1241,6 +1327,9 @@ enum {
 #define DROP_TYPE_EDGED					20
 #define DROP_TYPE_POLEARM				21
 #define DROP_TYPE_DIGGING				22
+#define DROP_TYPE_ARROWS				23
+#define DROP_TYPE_BOLTS					24
+#define DROP_TYPE_SHOT					25
 
 
 /*** Object "tval" and "sval" codes ***/
@@ -1286,7 +1375,7 @@ enum {
 #define TV_AMULET       40	/* Amulets (including Specials) */
 #define TV_DRAG_SHIELD	41	/* Dragon Scale Shield*/
 #define TV_RING         45	/* Rings (including Specials) */
-#define TV_STAFF        55
+#define TV_TALISMAN     55
 #define TV_WAND         65
 #define TV_ROD          66
 #define TV_SCROLL       70
@@ -1330,7 +1419,6 @@ enum {
 #define SV_FLAIL				13	/* 2d6 */
 #define SV_LEAD_FILLED_MACE		15	/* 3d4 */
 #define SV_MACE_OF_DISRUPTION	20	/* 5d8 */
-#define SV_GROND				50	/* 3d4 */
 
 /* The "sval" values for TV_POLEARM */
 #define SV_SPEAR				2	/* 1d6 */
@@ -1366,6 +1454,7 @@ enum {
 #define SV_TWO_HANDED_SWORD		25	/* 3d6 */
 #define SV_EXECUTIONERS_SWORD	28	/* 4d5 */
 #define SV_BLADE_OF_CHAOS		30	/* 6d5 */
+#define SV_WARLOCK_SWORD		31	/* 2d7 */
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD		2
@@ -1382,7 +1471,7 @@ enum {
 #define SV_IRON_CROWN			10
 #define SV_GOLDEN_CROWN			11
 #define SV_JEWELED_CROWN		12
-#define SV_MORGOTH				50
+#define SV_WIZARD_HAT			13
 
 /* The "sval" codes for TV_BOOTS */
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS	2
@@ -1392,6 +1481,7 @@ enum {
 /* The "sval" codes for TV_CLOAK */
 #define SV_CLOAK					1
 #define SV_SHADOW_CLOAK				6
+#define SV_DISPLACER_CLOAK			7
 
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES	1
@@ -1406,12 +1496,12 @@ enum {
 #define SV_HARD_LEATHER_ARMOR		6
 #define SV_HARD_STUDDED_LEATHER		7
 #define SV_LEATHER_SCALE_MAIL		11
+#define SV_TROLL_HIDE				12
 
 /* The "sval" codes for TV_HARD_ARMOR */
 #define SV_RUSTY_CHAIN_MAIL			1	/* 14- */
 #define SV_METAL_SCALE_MAIL			3	/* 13 */
 #define SV_CHAIN_MAIL				4	/* 14 */
-#define SV_AUGMENTED_CHAIN_MAIL		6	/* 16 */
 #define SV_DOUBLE_CHAIN_MAIL		7	/* 16 */
 #define SV_METAL_BRIGANDINE_ARMOUR	9	/* 19 */
 #define SV_PARTIAL_PLATE_ARMOUR		12	/* 22 */
@@ -1455,6 +1545,10 @@ enum {
 #define SV_LITE_ELENDIL		5
 #define SV_LITE_THRAIN		6
 #define SV_LITE_PALANTIR	7
+#define SV_LITE_GLOW1		8
+#define SV_LITE_GLOW2		9
+#define SV_LITE_GLOW3		10
+#define SV_LITE_MAGELIGHT	11
 
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_DOOM			0
@@ -1464,7 +1558,7 @@ enum {
 #define SV_AMULET_RESIST_ACID	4
 #define SV_AMULET_SEARCHING		5
 #define SV_AMULET_WISDOM		6
-#define SV_AMULET_CHARISMA		7
+#define SV_AMULET_LUCK   		7
 #define SV_AMULET_THE_MAGI		8
 #define SV_AMULET_SUSTENANCE	9
 #define SV_AMULET_CARLAMMAS		10
@@ -1485,20 +1579,16 @@ enum {
 /* The sval codes for TV_RING */
 #define SV_RING_WOE				0
 #define SV_RING_AGGRAVATION		1
-#define SV_RING_WEAKNESS		2
-#define SV_RING_STUPIDITY		3
 #define SV_RING_TELEPORTATION	4
 /* xxx */
 #define SV_RING_SLOW_DIGESTION	6
 #define SV_RING_FEATHER_FALL	7
 #define SV_RING_RESIST_FIRE		8
 #define SV_RING_RESIST_COLD		9
-#define SV_RING_SUSTAIN_STR		10
-#define SV_RING_SUSTAIN_INT		11
-#define SV_RING_SUSTAIN_WIS		12
-#define SV_RING_SUSTAIN_DEX		13
-#define SV_RING_SUSTAIN_CON		14
-#define SV_RING_SUSTAIN_CHR		15
+#define SV_RING_SUSTAIN_STRCON	10
+#define SV_RING_SUSTAIN_INTWISPER	11
+#define SV_RING_SUSTAIN_DEXAGI	12
+#define SV_RING_SEARCHING		13
 #define SV_RING_PROTECTION		16
 #define SV_RING_ACID			17
 #define SV_RING_FLAMES			18
@@ -1506,7 +1596,6 @@ enum {
 #define SV_RING_RESIST_POIS		20
 #define SV_RING_FREE_ACTION		21
 #define SV_RING_SEE_INVIS		22
-#define SV_RING_SEARCHING		23
 #define SV_RING_STR				24
 #define SV_RING_INT				25
 #define SV_RING_DEX				26
@@ -1525,103 +1614,6 @@ enum {
 #define SV_RING_RESIST_NETHER	39
 
 
-/* The "sval" codes for TV_STAFF */
-#define SV_STAFF_DARKNESS		0
-#define SV_STAFF_SLOWNESS		1
-#define SV_STAFF_HASTE_MONSTERS	2
-#define SV_STAFF_SUMMONING		3
-#define SV_STAFF_TELEPORTATION	4
-#define SV_STAFF_IDENTIFY		5
-
-#define SV_STAFF_STARLITE		7
-#define SV_STAFF_LITE			8
-#define SV_STAFF_MAPPING		9
-#define SV_STAFF_DETECT_GOLD	10
-#define SV_STAFF_DETECT_ITEM	11
-#define SV_STAFF_DETECT_TRAP	12
-#define SV_STAFF_DETECT_DOOR	13
-#define SV_STAFF_DETECT_INVIS	14
-#define SV_STAFF_DETECT_EVIL	15
-#define SV_STAFF_CURE_LIGHT		16
-#define SV_STAFF_CURING			17
-#define SV_STAFF_HEALING		18
-#define SV_STAFF_THE_MAGI		19
-#define SV_STAFF_SLEEP_MONSTERS	20
-#define SV_STAFF_SLOW_MONSTERS	21
-#define SV_STAFF_SPEED			22
-#define SV_STAFF_PROBING		23
-#define SV_STAFF_DISPEL_EVIL	24
-#define SV_STAFF_POWER			25
-#define SV_STAFF_HOLINESS		26
-#define SV_STAFF_BANISHMENT		27
-#define SV_STAFF_EARTHQUAKES	28
-#define SV_STAFF_DESTRUCTION	29
-#define SV_STAFF_MASS_IDENTIFY	30
-
-
-/* The "sval" codes for TV_WAND */
-#define SV_WAND_HEAL_MONSTER	0
-#define SV_WAND_HASTE_MONSTER	1
-#define SV_WAND_CLONE_MONSTER	2
-#define SV_WAND_TELEPORT_AWAY	3
-#define SV_WAND_DISARMING		4
-#define SV_WAND_TRAP_DOOR_DEST	5
-#define SV_WAND_STONE_TO_MUD	6
-#define SV_WAND_LITE			7
-#define SV_WAND_SLEEP_MONSTER	8
-#define SV_WAND_SLOW_MONSTER	9
-#define SV_WAND_CONFUSE_MONSTER	10
-#define SV_WAND_FEAR_MONSTER	11
-#define SV_WAND_DRAIN_LIFE		12
-#define SV_WAND_POLYMORPH		13
-#define SV_WAND_STINKING_CLOUD	14
-#define SV_WAND_MAGIC_MISSILE	15
-#define SV_WAND_ACID_BOLT		16
-#define SV_WAND_ELEC_BOLT		17
-#define SV_WAND_FIRE_BOLT		18
-#define SV_WAND_COLD_BOLT		19
-#define SV_WAND_ACID_BALL		20
-#define SV_WAND_ELEC_BALL		21
-#define SV_WAND_FIRE_BALL		22
-#define SV_WAND_COLD_BALL		23
-#define SV_WAND_WONDER			24
-#define SV_WAND_ANNIHILATION	25
-#define SV_WAND_DRAGON_FIRE		26
-#define SV_WAND_DRAGON_COLD		27
-#define SV_WAND_DRAGON_BREATH	28
-
-/* The "sval" codes for TV_ROD */
-#define SV_ROD_DETECT_TRAP		0
-#define SV_ROD_DETECT_DOOR		1
-#define SV_ROD_IDENTIFY			2
-#define SV_ROD_RECALL			3
-#define SV_ROD_ILLUMINATION		4
-#define SV_ROD_MAPPING			5
-#define SV_ROD_DETECTION		6
-#define SV_ROD_PROBING			7
-#define SV_ROD_CURING			8
-#define SV_ROD_HEALING			9
-#define SV_ROD_RESTORATION		10
-#define SV_ROD_SPEED			11
-#define SV_ROD_STONE_TO_MUD		12
-#define SV_ROD_TELEPORT_AWAY	13
-#define SV_ROD_DISARMING		14
-#define SV_ROD_LITE				15
-#define SV_ROD_SLEEP_MONSTER	16
-#define SV_ROD_SLOW_MONSTER		17
-#define SV_ROD_DRAIN_LIFE		18
-#define SV_ROD_POLYMORPH		19
-#define SV_ROD_ACID_BOLT		20
-#define SV_ROD_ELEC_BOLT		21
-#define SV_ROD_FIRE_BOLT		22
-#define SV_ROD_COLD_BOLT		23
-#define SV_ROD_ACID_BALL		24
-#define SV_ROD_ELEC_BALL		25
-#define SV_ROD_FIRE_BALL		26
-#define SV_ROD_COLD_BALL		27
-#define SV_ROD_STAR_IDENTIFY	28
-#define SV_ROD_MASS_IDENTIFY	29
-
 
 /* The "sval" codes for TV_SCROLL */
 
@@ -1635,8 +1627,6 @@ enum {
 #define SV_SCROLL_TRAP_CREATION			7
 #define SV_SCROLL_PHASE_DOOR			8
 #define SV_SCROLL_TELEPORT				9
-#define SV_SCROLL_TELEPORT_LEVEL		10
-#define SV_SCROLL_WORD_OF_RECALL		11
 #define SV_SCROLL_IDENTIFY				12
 #define SV_SCROLL_STAR_IDENTIFY			13
 #define SV_SCROLL_REMOVE_CURSE			14
@@ -1647,8 +1637,8 @@ enum {
 /* xxx enchant missile? */
 #define SV_SCROLL_STAR_ENCHANT_ARMOR	20
 #define SV_SCROLL_STAR_ENCHANT_WEAPON	21
-#define SV_SCROLL_RECHARGING			22
-#define SV_SCROLL_STAR_RECHARGING		23
+#define SV_SCROLL_MASS_SLEEP			22
+#define SV_SCROLL_MASS_CONF				23
 #define SV_SCROLL_LIGHT					24
 #define SV_SCROLL_MAPPING				25
 #define SV_SCROLL_DETECT_GOLD			26
@@ -1672,7 +1662,6 @@ enum {
 #define SV_SCROLL_BANISHMENT			44
 #define SV_SCROLL_MASS_BANISHMENT		45
 #define SV_SCROLL_ACQUIREMENT			46
-#define SV_SCROLL_STAR_ACQUIREMENT		47
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER				0
@@ -1691,14 +1680,17 @@ enum {
 #define SV_POTION_LOSE_MEMORIES		13
 #define SV_POTION_DRAIN_MANA		14
 #define SV_POTION_RUINATION			15
-#define SV_POTION_DEC_STR			16
-#define SV_POTION_DEC_INT			17
-#define SV_POTION_DEC_WIS			18
-#define SV_POTION_DEC_DEX			19
-#define SV_POTION_DEC_CON			20
-#define SV_POTION_DEC_CHR			21
-#define SV_POTION_DETONATIONS		22
-#define SV_POTION_DEATH				23
+#define SV_POTION_EXCH_1			16
+#define SV_POTION_EXCH_2			17
+#define SV_POTION_EXCH_3 			18
+#define SV_POTION_EXCH_4			19
+#define SV_POTION_EXCH_5			20
+#define SV_POTION_EXCH_6			64
+#define SV_POTION_EXCH_7			65
+#define SV_POTION_EXCH_8			66
+#define SV_POTION_EXCH_9			67
+#define SV_POTION_CLARITY			22
+#define SV_POTION_DISAPPEARANCE		23
 #define SV_POTION_INFRAVISION		24
 #define SV_POTION_DETECT_INVIS		25
 #define SV_POTION_SLOW_POISON		26
@@ -1722,48 +1714,24 @@ enum {
 #define SV_POTION_RES_WIS			44
 #define SV_POTION_RES_DEX			45
 #define SV_POTION_RES_CON			46
-#define SV_POTION_RES_CHR			47
-#define SV_POTION_INC_STR			48
-#define SV_POTION_INC_INT			49
-#define SV_POTION_INC_WIS			50
-#define SV_POTION_INC_DEX			51
-#define SV_POTION_INC_CON			52
-#define SV_POTION_INC_CHR			53
+#define SV_POTION_RES_AGI			47
+#define SV_POTION_RES_STE			48
+#define SV_POTION_RES_PER			49
+#define SV_POTION_RES_LUC			50
 /* xxx */
-#define SV_POTION_AUGMENTATION			55
 #define SV_POTION_ENLIGHTENMENT			56
-#define SV_POTION_STAR_ENLIGHTENMENT	57
 #define SV_POTION_SELF_KNOWLEDGE		58
-#define SV_POTION_EXPERIENCE			59
+#define SV_POTION_RESTORING				59
 #define SV_POTION_RESIST_ACID			60
 #define SV_POTION_RESIST_ELECTRICITY	61
 #define SV_POTION_RESIST_POISON			62
 #define SV_POTION_RESISTANCE			63
 
 /* The "sval" codes for TV_FOOD */
-#define SV_FOOD_POISON			0
-#define SV_FOOD_BLINDNESS		1
-#define SV_FOOD_PARANOIA		2
-#define SV_FOOD_CONFUSION		3
-#define SV_FOOD_HALLUCINATION	4
-#define SV_FOOD_PARALYSIS		5
-#define SV_FOOD_WEAKNESS		6
-#define SV_FOOD_SICKNESS		7
-#define SV_FOOD_STUPIDITY		8
-#define SV_FOOD_NAIVETY			9
-#define SV_FOOD_UNHEALTH		10
-#define SV_FOOD_DISEASE			11
-#define SV_FOOD_CURE_POISON		12
-#define SV_FOOD_CURE_BLINDNESS	13
-#define SV_FOOD_CURE_PARANOIA	14
-#define SV_FOOD_CURE_CONFUSION	15
-#define SV_FOOD_CURE_SERIOUS	16
-#define SV_FOOD_RESTORE_STR		17
-#define SV_FOOD_RESTORE_CON		18
-#define SV_FOOD_RESTORING		19
-/* many missing mushrooms */
+
+#define SV_FOOD_APPLE			34
 #define SV_FOOD_RATION			35
-#define SV_FOOD_SLIME_MOLD		36
+#define SV_FOOD_JERKY			36
 #define SV_FOOD_WAYBREAD		37
 
 
@@ -1786,11 +1754,6 @@ enum {
 #define SV_FOOD_MIN_FOOD	32
 
 /*
- * Special "sval" limit -- first "aimed" rod
- */
-#define SV_ROD_MIN_DIRECTION	12
-
-/*
  * Special "sval" limit -- first "large" chest
  */
 #define SV_CHEST_MIN_SMALL	1
@@ -1808,7 +1771,7 @@ enum {
 /*
  * Special "sval" limit -- first "good" magic/prayer book
  */
-#define SV_BOOK_MIN_GOOD	4
+#define SV_BOOK_MIN_GOOD	1
 
 
 
@@ -1918,7 +1881,7 @@ enum {
 #define PROJECT_PLAY         0x00004000 /* Hurt the player*/
 #define PROJECT_EFCT		 0x00008000 /* Use Effects*/
 #define PROJECT_CLOUD		 0x00010000 /* Always set the effect regardless of damage*/
-#define PROJECT_NO_EFCT      0x00020000 /* Cancel effects */
+#define PROJECT_XXX7         0x00020000
 
 /* Graphics */
 #define PROJECT_HIDE         0x00040000
@@ -2273,8 +2236,6 @@ enum {
 
 #define FEAT_FIRE	113
 #define FEAT_THICKET	114
-#define FEAT_TREE	115
-#define FEAT_BURNING_TREE	116
 #define FEAT_BUSH	118
 #define FEAT_THORNS	119
 #define FEAT_BRAMBLES	121
@@ -2284,6 +2245,7 @@ enum {
 #define FEAT_WAVE	126
 #define FEAT_WAVE_H	127
 
+#define FEAT_TREE	115
 #define FEAT_DUNE	130
 #define FEAT_FSOIL	134
 #define FEAT_FSOIL_D	135
@@ -2321,9 +2283,6 @@ enum {
 #define FEAT_VINES                     200
 #define FEAT_SILENT_WATCHER            201
 #define FEAT_ETHEREAL_WALL             202
-#define FEAT_SHARD                     203
-#define FEAT_METEOR_BURST              204
-#define FEAT_ACID_WALL                 205
 
 
 /* Level flags - extracted from feature flags */
@@ -2336,13 +2295,14 @@ enum {
 #define LF1_WATER 	ELEMENT_WATER
 #define LF1_ACID   	ELEMENT_ACID
 #define LF1_MUD 	ELEMENT_MUD
+#define LF1_UNUSED0 0x0200
+#define LF1_UNUSED1	0x0400
+#define LF1_UNUSED2	0x0800
+#define LF1_UNUSED3	0x1000
+#define LF1_UNUSED4	0x2000
+#define LF1_UNUSED5	0x4000
+#define LF1_UNUSED6	0x8000
 
-
-/* These ones don't match ELEMENT_* flags */
-/* IMPORTANT: THERE AREN'T FLOWS FOR THESE FLAGS */
-/* They exists only to finetune dungeon generation */
-#define LF1_BWATER     0x40000000UL
-#define LF1_BMUD       0x80000000UL
 
 
 /*** Cave flags ***/
@@ -2569,7 +2529,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define IDENT_QUEST     		0x00000100	/* Item is a quest artifact */
 #define IDENT_PERFECT_BALANCE   0x00000200	/* Item has perfect balance */
 #define IDENT_HIDE_CARRY		0x00000400	/* Don't reveal the object is being carried by a creature*/
-#define IDENT_UNUSED_XXXXX8XX   0x00000800	/* Unused */
+#define IDENT_WIELDED		    0x00000800	/* Has ever been wielded */
 #define IDENT_UNUSED_XXXX1XXX   0x00001000	/* Unused */
 #define IDENT_UNUSED_XXXX2XXX   0x00002000	/* Unused */
 #define IDENT_UNUSED_XXXX4XXX   0x00004000	/* Unused */
@@ -2678,10 +2638,10 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define TR1_WIS             0x00000004L /* WIS += "pval" */
 #define TR1_DEX             0x00000008L /* DEX += "pval" */
 #define TR1_CON             0x00000010L /* CON += "pval" */
-#define TR1_CHR             0x00000020L /* CHR += "pval" */
-#define TR1_TR1XXX1		    0x00000040L /* (reserved) */
-#define TR1_TR1XXX2         0x00000080L /* (reserved) */
-#define TR1_STEALTH         0x00000100L /* Stealth += "pval" */
+#define TR1_AGI             0x00000020L /* AGI += "pval" */
+#define TR1_STE				0x00000040L /* STE += "pval" */
+#define TR1_PER			    0x00000080L /* PER += "pval" */
+#define TR1_LUC		        0x00000100L /* LUC += "pval" */
 #define TR1_SEARCH          0x00000200L /* Search += "pval" */
 #define TR1_INFRA           0x00000400L /* Infra += "pval" */
 #define TR1_TUNNEL          0x00000800L /* Tunnel += "pval" */
@@ -2708,7 +2668,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 
 
 /*TR1 Uber-Flags*/
-#define TR1_ALL_STATS	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR)
+#define TR1_ALL_STATS	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_AGI | TR1_STE | TR1_PER | TR1_LUC)
 
 
 
@@ -2717,10 +2677,10 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define TR2_SUST_WIS        0x00000004L /* Sustain WIS */
 #define TR2_SUST_DEX        0x00000008L /* Sustain DEX */
 #define TR2_SUST_CON        0x00000010L /* Sustain CON */
-#define TR2_SUST_CHR        0x00000020L /* Sustain CHR */
-#define TR2_TR2XXX1         0x00000040L /* (reserved) */
-#define TR2_TR2XXX2         0x00000080L /* (reserved) */
-#define TR2_TR2XXX3         0x00000100L /* (reserved) */
+#define TR2_SUST_AGI        0x00000020L /* Sustain AGI */
+#define TR2_SUST_STE        0x00000040L /* Sustain STE */
+#define TR2_SUST_PER        0x00000080L /* Sustain PER */
+#define TR2_SUST_LUC        0x00000100L /* Sustain LUC */
 #define TR2_TR2XXX4         0x00000200L /* (reserved) */
 #define TR2_TR2XXX5         0x00000400L /* (reserved) */
 #define TR2_IM_ACID         0x00000800L /* Immunity to acid */
@@ -2747,7 +2707,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 
 /*TR2 Uber-Flags*/
 #define TR2_SUST_STATS	(TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS | TR2_SUST_DEX | \
-						 TR2_SUST_CON | TR2_SUST_CHR)
+						 TR2_SUST_CON | TR2_SUST_AGI | TR2_SUST_STE | TR2_SUST_PER | TR2_SUST_LUC)
 #define TR2_RESISTANCE (TR2_RES_ACID | TR2_RES_ELEC | TR2_RES_FIRE | TR2_RES_COLD)
 #define TR2_IMMUNE_ALL (TR2_IM_ACID | TR2_IM_ELEC | TR2_IM_FIRE | TR2_IM_COLD | TR2_IM_POIS)
 
@@ -2763,8 +2723,8 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define TR3_HOLD_LIFE       0x00000080L /* Hold life */
 #define TR3_NEVER_PICKUP    0x00000100L /* monsters can't pickup*/
 #define TR3_IRONMAN_ONLY    0x00000200L	/* Ironman object */
-#define TR3_TR3XXX3         0x00000400L
-#define TR3_TR3XXX4         0x00000800L
+#define TR3_LO_STEALTH	    0x00000400L
+#define TR3_LO_PERCEPTION   0x00000800L
 #define TR3_IMPACT          0x00001000L /* Earthquake blows */
 #define TR3_TELEPORT        0x00002000L /* Random teleportation */
 #define TR3_AGGRAVATE       0x00004000L /* Aggravate monsters */
@@ -2781,13 +2741,15 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define TR3_EASY_KNOW       0x02000000L /* Item is known if aware */
 #define TR3_HIDE_TYPE       0x04000000L /* Item hides description */
 #define TR3_SHOW_MODS       0x08000000L /* Item shows Tohit/Todam */
-#define TR3_TR3XXX7         0x10000000L /* (reserved) */
+#define TR3_VAMPIRE         0x10000000L /* (weapon gives vampirism) */
 #define TR3_LIGHT_CURSE     0x20000000L /* Item has Light Curse */
 #define TR3_HEAVY_CURSE     0x40000000L /* Item has Heavy Curse */
 #define TR3_PERMA_CURSE     0x80000000L /* Item has Perma Curse */
 
 /*TR3 Uber-Flags*/
 #define TR3_IGNORE_ALL (TR3_IGNORE_ACID | TR3_IGNORE_ELEC | TR3_IGNORE_FIRE | TR3_IGNORE_COLD)
+
+
 
 /* Native flags - extracted from feature flags */
 #define TN1_NATIVE_LAVA 	ELEMENT_LAVA
@@ -2810,8 +2772,8 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
  */
 #define TR1_PVAL_MASK \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
-	 TR1_CON | TR1_CHR | TR1_TR1XXX1 | TR1_TR1XXX2 | \
-	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
+	 TR1_CON | TR1_AGI | TR1_STE | TR1_PER | \
+	 TR1_LUC | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
 	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
 
 /*
@@ -2829,7 +2791,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 
 #define TR2_STAT_MOD_MASK \
 	(TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS | TR2_SUST_DEX | \
-		  TR2_SUST__CON | TR2_SUST_CHR)
+		  TR2_SUST__CON | TR2_SUST_AGI | TR2_SUST_STE | TR2_SUST_PER | TR2_SUST_LUC)
 
 #define TR3_STAT_MOD_MASK \
 	(0L)
@@ -2841,7 +2803,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
  * Stat add flags
  */
 #define TR1_STAT_SUST_MASK \
-	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR )
+	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_AGI | TR1_STE | TR1_PER | TR1_LUC )
 
 #define TR2_STAT_SUST_MASK \
 	(0L)
@@ -3109,7 +3071,6 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 
 #define LEV_EXTRA_COMBAT 	26
 #define LEV_BRAVERY 	30
-#define LEV_RES_POIS	35
 
 /*** Class flags ***/
 
@@ -3126,7 +3087,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define CF_EXTRA_ARROW		0x00000400L /* Extra arrow when using bow*/
 #define CF_SET_TRAPS		0x00000800L /* Can set traps for monsters to fall into*/
 #define CF_EXTRA_ATTACK		0x00001000L /* extra attack at level 26*/
-#define CF_BRIGAND_COMBAT		0x00002000L /* Brigand combat */
+#define CF_CFXXX14			0x00002000L
 #define CF_CFXXX15			0x00004000L
 #define CF_CFXXX16			0x00008000L
 #define CF_CFXXX17			0x00010000L
@@ -3189,7 +3150,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define RBM_XXX4         20
 #define RBM_BEG          21
 #define RBM_INSULT       22
-#define RBM_XXX5         23
+#define RBM_BEGUILE      23
 #define RBM_XXX6         24
 
 #define RBE_HURT       1
@@ -3224,13 +3185,18 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define RBE_LOSE_WIS  26
 #define RBE_LOSE_DEX  27
 #define RBE_LOSE_CON  28
-#define RBE_LOSE_CHR  29
-#define RBE_LOSE_ALL  30
+#define RBE_LOSE_AGI  29
+#define RBE_LOSE_STE  30
+#define RBE_LOSE_PER  31
+#define RBE_LOSE_LUC  32
+#define RBE_LOSE_ALL  33
 
-#define RBE_EXP_10    31
-#define RBE_EXP_20    32
-#define RBE_EXP_40    33
-#define RBE_EXP_80    34
+#define RBE_EXP_10    34
+#define RBE_EXP_20    35
+#define RBE_EXP_40    36
+#define RBE_EXP_80    37
+
+#define RBE_BEGUILE   38
 
 
 
@@ -3537,7 +3503,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
  */
 
 #define RF7_S_KIN          0x00000001  /* Summon Similar */
-#define RF7_RF7XXX1        0x00000002  /*  */
+#define RF7_S_THROWTROLL        0x00000002  /*  */
 #define RF7_RF7XXX2        0x00000004  /*  */
 #define RF7_S_MONSTER      0x00000008  /* Summon Monster */
 #define RF7_S_MONSTERS     0x00000010  /* Summon Monsters */
@@ -3725,7 +3691,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 	(0L)
 
 #define RF7_SUMMON_MASK \
-	(RF7_S_KIN |  RF7_S_MONSTER | RF7_S_MONSTERS | RF7_S_ANT | RF7_S_SPIDER | \
+	(RF7_S_KIN |  RF7_S_THROWTROLL | RF7_S_MONSTER | RF7_S_MONSTERS | RF7_S_ANT | RF7_S_SPIDER | \
 	 RF7_S_HOUND | RF7_S_ANIMAL | RF7_S_HYDRA | RF7_S_THIEF | RF7_S_BERTBILLTOM | \
 	 RF7_S_AINU | RF7_S_DRAGON | RF7_S_HI_DRAGON | RF7_S_DEMON | RF7_S_HI_DEMON | \
 	 RF7_S_UNIQUE | RF7_S_HI_UNIQUE |  RF7_S_UNDEAD | RF7_S_HI_UNDEAD | RF7_S_WRAITH)
@@ -3987,22 +3953,16 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 /* xxx */
 /* xxx */
 /* xxx xxx */
-#define OPT_birth_point_based       (OPT_BIRTH+0)
-#define OPT_birth_auto_roller       (OPT_BIRTH+1)
-#define OPT_birth_maximize          (OPT_BIRTH+2)
-#define OPT_birth_preserve          (OPT_BIRTH+3)
-#define OPT_birth_ironman           (OPT_BIRTH+4)
-#define OPT_birth_no_stores         (OPT_BIRTH+5)
-#define OPT_birth_no_artifacts      (OPT_BIRTH+6)
-#define OPT_birth_rand_artifacts    (OPT_BIRTH+7)
-#define OPT_birth_no_stacking       (OPT_BIRTH+8)
-#define OPT_birth_take_notes        (OPT_BIRTH+9)
-#define OPT_birth_force_small_lev	(OPT_BIRTH+10)
-#define OPT_birth_retain_squelch	(OPT_BIRTH+11)
-#define OPT_birth_no_quests			(OPT_BIRTH+12)
-#define OPT_birth_no_player_ghosts	(OPT_BIRTH+13)
-#define OPT_birth_no_store_services	(OPT_BIRTH+14)
-#define OPT_birth_no_xtra_artifacts (OPT_BIRTH+15)
+#define OPT_birth_maximize          (OPT_BIRTH+0)
+#define OPT_birth_preserve          (OPT_BIRTH+1)
+#define OPT_birth_no_stores         (OPT_BIRTH+2)
+#define OPT_birth_no_artifacts      (OPT_BIRTH+3)
+#define OPT_birth_rand_artifacts    (OPT_BIRTH+4)
+#define OPT_birth_no_stacking       (OPT_BIRTH+5)
+#define OPT_birth_take_notes        (OPT_BIRTH+6)
+#define OPT_birth_force_small_lev	(OPT_BIRTH+7)
+#define OPT_birth_retain_squelch	(OPT_BIRTH+8)
+#define OPT_birth_no_xtra_artifacts (OPT_BIRTH+9)
 
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
@@ -4012,22 +3972,16 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define OPT_cheat_know				(OPT_CHEAT+4)
 #define OPT_cheat_live				(OPT_CHEAT+5)
 /* xxx xxx */
-#define OPT_adult_point_based		(OPT_ADULT+0)
-#define OPT_adult_auto_roller		(OPT_ADULT+1)
-#define OPT_adult_maximize			(OPT_ADULT+2)
-#define OPT_adult_preserve			(OPT_ADULT+3)
-#define OPT_adult_ironman			(OPT_ADULT+4)
-#define OPT_adult_no_stores			(OPT_ADULT+5)
-#define OPT_adult_no_artifacts		(OPT_ADULT+6)
-#define OPT_adult_rand_artifacts	(OPT_ADULT+7)
-#define OPT_adult_no_stacking		(OPT_ADULT+8)
-#define OPT_adult_take_notes        (OPT_ADULT+9)
-#define OPT_adult_force_small_lev   (OPT_ADULT+10)
-#define OPT_adult_retain_squelch	(OPT_ADULT+11)
-#define OPT_adult_no_quests			(OPT_ADULT+12)
-#define OPT_adult_no_player_ghosts	(OPT_ADULT+13)
-#define OPT_adult_no_store_services	(OPT_ADULT+14)
-#define OPT_adult_no_xtra_artifacts (OPT_ADULT+15)
+#define OPT_adult_maximize			(OPT_ADULT+0)
+#define OPT_adult_preserve			(OPT_ADULT+1)
+#define OPT_adult_no_stores			(OPT_ADULT+2)
+#define OPT_adult_no_artifacts		(OPT_ADULT+3)
+#define OPT_adult_rand_artifacts	(OPT_ADULT+4)
+#define OPT_adult_no_stacking		(OPT_ADULT+5)
+#define OPT_adult_take_notes        (OPT_ADULT+6)
+#define OPT_adult_force_small_lev   (OPT_ADULT+7)
+#define OPT_adult_retain_squelch	(OPT_ADULT+8)
+#define OPT_adult_no_xtra_artifacts (OPT_ADULT+9)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -4073,9 +4027,9 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define verify_special			op_ptr->opt[OPT_verify_special]
 #define allow_quantity			op_ptr->opt[OPT_allow_quantity]
 /* xxx */
-#define auto_haggle				op_ptr->opt[OPT_auto_haggle]
-#define auto_scum				op_ptr->opt[OPT_auto_scum]
-#define allow_themed_levels		op_ptr->opt[OPT_allow_themed_levels]
+#define auto_haggle				0
+#define auto_scum				0
+#define allow_themed_levels		0
 /* xxx testing_stack */
 /* xxx testing_carry */
 #define expand_look				op_ptr->opt[OPT_expand_look]
@@ -4083,7 +4037,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define view_perma_grids		op_ptr->opt[OPT_view_perma_grids]
 #define view_torch_grids		op_ptr->opt[OPT_view_torch_grids]
 #define dungeon_align			op_ptr->opt[OPT_dungeon_align]
-#define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
+#define dungeon_stair			1
 /* xxx track_follow */
 /* xxx track_target */
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
@@ -4118,21 +4072,21 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 /* xxx */
 /* xxx */
 /* xxx xxx */
-#define birth_point_based		op_ptr->opt[OPT_birth_point_based]
-#define birth_auto_roller		op_ptr->opt[OPT_birth_auto_roller]
+#define birth_point_based		0
+#define birth_auto_roller		0
 #define birth_maximize			op_ptr->opt[OPT_birth_maximize]
 #define birth_preserve			op_ptr->opt[OPT_birth_preserve]
-#define birth_ironman			op_ptr->opt[OPT_birth_ironman]
-#define birth_no_stores			op_ptr->opt[OPT_birth_no_stores]
+#define birth_ironman			1
+#define birth_no_stores			1
 #define birth_no_artifacts		op_ptr->opt[OPT_birth_no_artifacts]
 #define birth_rand_artifacts	op_ptr->opt[OPT_birth_rand_artifacts]
 #define birth_no_stacking       op_ptr->opt[OPT_birth_no_stacking]
 #define birth_take_notes        op_ptr->opt[OPT_birth_take_notes]
 #define	birth_force_small_lev	op_ptr->opt[OPT_birth_force_small_lev]
 #define birth_retain_squelch	op_ptr->opt[OPT_birth_retain_squelch]
-#define birth_no_quests			op_ptr->opt[OPT_birth_no_quests]
-#define birth_no_player ghosts	op_ptr->opt[OPT_birth_no_player_ghosts]
-#define birth_no_store_services	op_ptr->opt[OPT_birth_no_store_services]
+#define birth_no_quests			1
+#define birth_no_player ghosts	1
+#define birth_no_store_services	1
 #define birth_no_xtra_artifacts	op_ptr->opt[OPT_birth_no_xtra_artifacts]
 
 
@@ -4144,11 +4098,11 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define cheat_know				op_ptr->opt[OPT_cheat_know]
 #define cheat_live				op_ptr->opt[OPT_cheat_live]
 /* xxx xxx */
-#define adult_point_based		op_ptr->opt[OPT_adult_point_based]
-#define adult_auto_roller		op_ptr->opt[OPT_adult_auto_roller]
+#define adult_point_based		0
+#define adult_auto_roller		0
 #define adult_maximize			op_ptr->opt[OPT_adult_maximize]
 #define adult_preserve			op_ptr->opt[OPT_adult_preserve]
-#define adult_ironman			op_ptr->opt[OPT_adult_ironman]
+#define adult_ironman			1
 #define adult_no_stores			op_ptr->opt[OPT_adult_no_stores]
 #define adult_no_artifacts		op_ptr->opt[OPT_adult_no_artifacts]
 #define adult_rand_artifacts	op_ptr->opt[OPT_adult_rand_artifacts]
@@ -4156,12 +4110,12 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define adult_take_notes		op_ptr->opt[OPT_adult_take_notes]
 #define	adult_force_small_lev	op_ptr->opt[OPT_adult_force_small_lev]
 #define adult_retain_squelch	op_ptr->opt[OPT_adult_retain_squelch]
-#define adult_no_quests			op_ptr->opt[OPT_adult_no_quests]
-#define adult_no_player_ghosts	op_ptr->opt[OPT_adult_no_player_ghosts]
-#define adult_no_store_services	op_ptr->opt[OPT_adult_no_store_services]
+#define adult_no_quests			1
+#define adult_no_player_ghosts	1
+#define adult_no_store_services	1
 #define adult_no_xtra_artifacts	op_ptr->opt[OPT_adult_no_xtra_artifacts]
 #define hp_changes_color  		op_ptr->opt[OPT_hp_changes_color]
-#define verify_leave_quest 		op_ptr->opt[OPT_verify_leave_quest]
+#define verify_leave_quest 		0
 #define mark_squelch_items		op_ptr->opt[OPT_mark_squelch_items]
 #define score_peek				op_ptr->opt[OPT_score_peek]
 #define score_hear				op_ptr->opt[OPT_score_hear]
@@ -4574,6 +4528,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 	!cave_player_trap_bold(Y, X) && \
 	(is_player_native(Y, X) || \
 	 	(f_info[cave_feat[Y][X]].dam_non_native == 0)) && \
+	!cave_ff2_match(Y, X, FF2_BRIDGED | FF2_COVERED) && \
  	(cave_m_idx[Y][X] == 0))
 
 
@@ -4931,10 +4886,10 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define MSG_LOSING_NATIVITY 150
 #define MSG_LOSING_FLYING	151
 #define MSG_HIDE_UNHIDE		152
+#define MSG_STAT_CHANGES    153
 
 
-
-#define MSG_MAX             153
+#define MSG_MAX             154
 
 
 
@@ -5078,7 +5033,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define NOTES_MARK "@@@@@@@ No more notes @@@@@@@"
 
 /* Returns TRUE if T is a torch or a lantern */
-#define fuelable_lite_p(T) (((T)->tval == TV_LITE) && (!artifact_p(T)))
+#define fuelable_lite_p(T) (((T)->tval == TV_LITE) && (!artifact_p(T)) && ((T)->sval < SV_LITE_GLOW1 || (T)->sval == SV_LITE_MAGELIGHT))
 
 
 /*
@@ -5261,7 +5216,6 @@ enum
 #define ORIGIN_DROP_KNOWN       5
 #define ORIGIN_REWARD           6
 #define ORIGIN_ACQUIRE          7
-#define ORIGIN_MORGOTH          8
 #define ORIGIN_CHEAT            9
 #define ORIGIN_MIXED            10
 #define ORIGIN_CHEST            11
@@ -5302,51 +5256,4 @@ enum
  */
 #define MIN_PANEL_CHANGE_OFFSET_Y 2
 #define MIN_PANEL_CHANGE_OFFSET_X 4
-
-
-/*
- * Return TRUE if the given artifact is enabled to use the "easy mental" feature
- */
-#define ARTIFACT_EASY_MENTAL(O_PTR) \
-        (artifact_p(O_PTR) && \
-        !adult_rand_artifacts && \
-        ((O_PTR)->art_num < z_info->art_norm_max))
-
-/*
- * Return TRUE if the given monster can fly over the given feature
- * NOTE THAT THE MONSTER MUST BE CURRENTLY FLYING
- */
-#define MONSTER_CAN_FLY(M_PTR, F_IDX) \
-       (((M_PTR)->mflag & (MFLAG_FLYING)) && feat_ff2_match(F_IDX, FF2_CAN_FLY))
-
-
-/*
- * Hack -- The quest indicator timer is compacted along with a bit that indicates
- * whether the current quest was succesfully completed or not.
- * The value of the bit is 0 if the quest was failed.
- */
-#define QUEST_INDICATOR_COMPLETE_BIT 0x8000
-
-
-/*
- * Extension management. Extension are small blocks of data stored in savefiles.
- * Adding new extension doesn't require the change of the version of the savefile
- * since there is code in load.c that ignores unknown extensions.
- */
-
-/* Recognized extensions */
-#define EXTENSION_CALL_HUORNS 501
-/* A savefile must have at least this value inserted at the end of the extension
- * management section */
-#define END_EXTENSIONS 438
-
-/* You have to store one of these before every variable in a extension */
-#define EXTENSION_TYPE_S32B 1
-#define EXTENSION_TYPE_U32B 2
-#define EXTENSION_TYPE_S16B 3
-#define EXTENSION_TYPE_U16B 4
-#define EXTENSION_TYPE_STRING 5
-#define EXTENSION_TYPE_BYTE 6
-/* Every extension must end with this */
-#define EXTENSION_TYPE_END 7
 

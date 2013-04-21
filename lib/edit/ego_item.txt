@@ -38,7 +38,7 @@
 # 7 - Random Weapon Kill
 # 8 - Random Weapon Elemental Brand
 # 9 - Random Low Resist
-# 10- Random Nativity
+# 10 - Random Nativity
 
 # 'C' is for creation bonusses - maximum to-hit, to-dam, to-ac, and
 # pval. Cursed ego-items will negate the given value.
@@ -59,12 +59,7 @@
 
 # Version stamp (required)
 
-# Accented characters may be used in an ego item/s name.  Use the proper code,
-# enclosed between square brackets, to enter an accented character. For example:
-# Lothl['o]rien or Lothl[oacute]rien are both valid ways to get an acute accent
-# on the o in Lothlorien . All valid codes can be found in util.c.
-
-V:0.5.0
+V:0.1.0
 
 
 
@@ -76,23 +71,25 @@ W:0:8:0:30000
 C:0:0:20:0
 T:36:2:2
 F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON
-F:SUST_CHR | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+F:SUST_AGI | SUST_STE | SUST_PER | SUST_LUC | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:HOLD_LIFE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 
 N:2:of Elvenkind
 X:25:2
-W:20:18:0:15000
+W:15:8:0:15000
 C:0:0:10:3
 T:36:0:99
 T:37:0:99
-F:STEALTH | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+F:AGI | STE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Wearing this armor makes all your enchantment spells (such as Sleep or Slow) and nature spells (such as Detect Animals) cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:3:of Resistance
 X:20:0
-W:15:8:0:12500
+W:10:8:0:12500
 C:0:0:10:0
 T:36:0:99
 T:37:0:99
@@ -123,11 +120,13 @@ F:AGGRAVATE | LIGHT_CURSE
 
 N:8:(Dwarven)
 X:18:0
-W:0:4:0:5000
+W:0:6:0:5000
 C:0:0:15:2
 T:37:3:99
 F:STR | CON | INFRA | FREE_ACT | IGNORE_ACID
 F:IGNORE_FIRE | HIDE_TYPE
+D:Wearing this armor makes all your resistance spells (such as Resist Poison) cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 # XXX Record9 is unused XXX #
@@ -139,16 +138,18 @@ F:IGNORE_FIRE | HIDE_TYPE
 
 N:11:of Elvenkind
 X:25:2
-W:20:16:0:18000
+W:15:8:0:18000
 C:0:0:10:3
 T:34:0:99
-F:STEALTH | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+F:STE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Wearing this shield makes all your enchantment spells (such as Sleep or Slow) and nature spells (such as Detect Animals) cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:12:of Preservation
 X:25:2
-W:40:16:0:16000
+W:15:12:0:16000
 C:0:0:20:0
 T:34:0:99
 F:SUST_STR | SUST_DEX | SUST_CON | RES_DISEN | HOLD_LIFE
@@ -157,7 +158,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:13:of Resistance
 X:20:0
-W:15:8:0:12500
+W:10:8:0:12500
 C:0:0:10:0
 T:34:0:99
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | IGNORE_ACID
@@ -188,55 +189,61 @@ F:AGGRAVATE | LIGHT_CURSE
 
 N:18:(Power)
 X:30:4
-W:100:64:200:300000
+W:35:32:200:300000
 C:0:0:25:0
 T:38:2:99
 T:41:2:99
 F:RES_LITE | RES_DARK | RES_BLIND | RES_CONFU | RES_SOUND
 F:RES_SHARD | RES_NEXUS | RES_NETHR | RES_CHAOS | RES_DISEN
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE
-F:NATIVE_LAVA
+D:Wearing this armor makes all your force spells (such as Mana Bolt) cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:19:(Chromatic)
 X:10:0
-W:50:8:200:150000
+W:25:8:200:150000
 C:0:0:15:0
 T:38:0:99
 T:41:0:99
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE
-F:NATIVE_FIRE | NATIVE_ICE | NATIVE_ACID
 
 
 N:20:(Balance)
 X:20:3
-W:95:16:200:100000
+W:30:16:200:100000
 C:0:0:20:0
 T:38:1:99
 T:41:1:99
 F:RES_SOUND | RES_SHARD | RES_CHAOS | RES_DISEN | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE
+D:Wearing this armor makes all your time spells (such as Haste Self) cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:21:(Law)
 X:15:1
-W:80:8:200:80000
+W:30:8:200:80000
 C:0:0:20:0
 T:38:1:99
 T:41:1:99
 F:RES_SOUND | RES_SHARD | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | ACTIVATE
+D:Wearing this armor makes all your blessing spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:22:(Chaos)
 X:15:3
-W:80:8:200:80000
+W:30:8:200:80000
 C:0:0:20:0
 T:38:1:99
 T:41:1:99
 F:RES_CHAOS | RES_DISEN | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | ACTIVATE
+D:Wearing this armor makes all your battle spells (like Fireball) cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:23:(Green)
@@ -251,7 +258,7 @@ F:ACTIVATE
 
 N:24:(Pseudo)
 X:15:3
-W:65:8:200:60000
+W:28:8:200:60000
 C:0:0:20:0
 T:38:1:99
 T:41:1:99
@@ -266,7 +273,7 @@ C:0:0:10:0
 T:38:0:99
 T:41:0:99
 F:RES_ACID | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:ACTIVATE | NATIVE_ACID
+F:ACTIVATE
 
 
 N:26:(Blue)
@@ -286,7 +293,7 @@ C:0:0:10:0
 T:38:0:99
 T:41:0:99
 F:RES_COLD | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:ACTIVATE | NATIVE_ICE
+F:ACTIVATE
 
 
 N:28:(Red)
@@ -296,12 +303,14 @@ C:0:0:10:0
 T:38:0:99
 T:41:0:99
 F:RES_FIRE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-F:ACTIVATE | NATIVE_FIRE
+F:ACTIVATE
+D:Wearing this armor makes all your fire and light spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:29:(Bronze)
 X:10:0
-W:50:4:200:40000
+W:25:4:200:40000
 C:0:0:15:0
 T:38:1:99
 T:41:1:99
@@ -311,7 +320,7 @@ F:ACTIVATE
 
 N:30:(Gold)
 X:10:0
-W:50:4:200:40000
+W:25:4:200:40000
 C:0:0:15:0
 T:38:1:99
 T:41:1:99
@@ -328,7 +337,7 @@ F:ACTIVATE
 
 N:33:of Gondolin
 X:30:3
-W:30:24:0:25000
+W:15:16:0:25000
 C:7:7:0:0
 T:21:0:99
 T:22:0:99
@@ -339,7 +348,7 @@ F:LITE | SEE_INVIS | FREE_ACT | IGNORE_ACID | IGNORE_FIRE
 
 N:34:of Westernesse
 X:20:0
-W:10:12:0:20000
+W:10:8:0:20000
 C:5:5:0:2
 T:21:0:99
 T:22:0:99
@@ -350,7 +359,7 @@ F:SLAY_GIANT | SEE_INVIS | FREE_ACT
 
 N:35:(Holy Avenger)
 X:30:1
-W:10:16:0:20000
+W:10:12:0:20000
 C:6:6:4:4
 T:21:0:99
 T:22:0:99
@@ -361,7 +370,7 @@ F:SEE_INVIS | BLESSED
 
 N:36:of Fury
 X:30:0
-W:40:24:0:20000
+W:20:16:0:20000
 C:10:10:0:2
 T:21:12:99
 T:22:10:99
@@ -371,12 +380,12 @@ F:BLOWS | AGGRAVATE | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
 N:37:(Defender)
 X:25:1
-W:10:16:0:15000
+W:10:10:0:15000
 C:4:4:8:4
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:STEALTH | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+F:STE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:FEATHER | REGEN | SEE_INVIS | FREE_ACT | IGNORE_ACID
 F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -402,7 +411,7 @@ T:23:0:99
 
 N:40:of *Slay Animal*
 X:20:0
-W:0:24:0:6000
+W:0:8:0:6000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -412,7 +421,7 @@ F:INT | SLAY_ANIMAL | SLOW_DIGEST
 
 N:41:of the Elements
 X:20:8
-W:0:2:0:5000
+W:5:3:0:5000
 C:0:0:0:0
 T:21:0:99
 T:22:0:99
@@ -431,7 +440,7 @@ F:WIS | BLESSED
 
 N:43:of *Slay Evil*
 X:20:3
-W:0:24:0:5000
+W:0:12:0:5000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -441,7 +450,7 @@ F:WIS | SLAY_EVIL | BLESSED
 
 N:44:of *Slay Orc*
 X:14:0
-W:0:24:0:4000
+W:0:12:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -451,17 +460,17 @@ F:DEX | SLAY_ORC | SUST_DEX
 
 N:45:of *Slay Troll*
 X:14:0
-W:0:24:0:4000
+W:0:12:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:STR | SLAY_TROLL | REGEN
+F:AGI | SLAY_TROLL | REGEN
 
 
 N:46:of *Slay Giant*
 X:16:0
-W:0:24:0:4000
+W:0:12:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -480,7 +489,7 @@ T:23:0:99
 
 N:48:of Morgul
 X:0:0
-W:0:4:0:0
+W:10:4:0:0
 C:0:0:0:0
 T:21:0:99
 T:22:0:99
@@ -489,7 +498,15 @@ F:SLAY_UNDEAD | BRAND_POIS | SEE_INVIS | HOLD_LIFE | AGGRAVATE
 F:DRAIN_EXP | LIGHT_CURSE | HEAVY_CURSE
 
 
-# XXX Record49 is unused XXX #
+N:49:of Vampirism
+X:20:6
+W:10:10:0:10000
+C:4:4:0:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:RES_NETHR | FEATHER | HOLD_LIFE | VAMPIRE
+
 
 # XXX Record50 is unused XXX #
 
@@ -512,7 +529,14 @@ T:20:0:99
 F:TUNNEL | BRAND_ACID
 
 
-# XXX Record53 is unused XXX #
+N:53:of Dwarvenkind
+X:10:0
+W:15:4:0:2000
+C:0:0:0:4
+T:20:0:99
+F:TUNNEL | STR | CON
+D:Wielding this tool makes all your detection spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 # XXX Record54 is unused XXX #
 
@@ -521,7 +545,7 @@ F:TUNNEL | BRAND_ACID
 
 N:55:of Telepathy
 X:20:0
-W:20:6:0:30000
+W:15:12:0:30000
 C:0:0:0:0
 T:32:0:99
 T:33:0:99
@@ -543,6 +567,8 @@ C:0:0:0:0
 T:32:0:99
 T:33:0:99
 F:REGEN
+D:Wearing this headgear makes all your identification spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:58:of Intelligence
@@ -559,14 +585,6 @@ W:0:2:0:1000
 C:0:0:0:2
 T:32:0:99
 F:WIS | SUST_WIS
-
-
-N:60:of Beauty
-X:8:0
-W:0:2:0:500
-C:0:0:0:4
-T:32:0:99
-F:CHR | SUST_CHR
 
 
 N:61:of Infravision
@@ -591,7 +609,7 @@ W:0:2:0:0
 C:0:0:0:5
 T:32:0:99
 T:33:0:99
-F:INT | WIS | CHR | LIGHT_CURSE
+F:INT | WIS | LIGHT_CURSE
 
 
 # XXX Record64 is unused XXX #
@@ -613,7 +631,7 @@ X:17:3
 W:15:2:0:7500
 C:0:0:0:3
 T:33:0:99
-F:WIS | CHR | SUST_WIS | SUST_CHR | RES_FEAR
+F:WIS | SUST_WIS | RES_FEAR
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 
@@ -622,34 +640,38 @@ X:15:3
 W:15:4:0:7500
 C:0:0:0:3
 T:33:0:99
-F:INT | SUST_INT | RES_ACID | RES_ELEC | RES_FIRE
+F:INT | PER | SUST_PER | SUST_INT | RES_ACID | RES_ELEC | RES_FIRE
 F:RES_COLD | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Wearing this headgear makes all your identification spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:69:of Serenity
 X:20:0
 W:0:6:0:4000
-C:0:0:0:0
+C:0:0:0:2
 T:33:0:99
-F:RES_FEAR | RES_CONFU | RES_SOUND
+F:LUC | RES_FEAR | RES_CONFU | RES_SOUND
 
 
 N:70:of Night and Day
 X:18:0
-W:35:6:0:4000
-C:0:0:0:0
+W:20:6:0:4000
+C:0:0:0:2
 T:33:0:99
-F:RES_LITE | RES_DARK | RES_BLIND | LITE | SEE_INVIS
+F:PER | RES_LITE | RES_DARK | RES_BLIND | LITE | SEE_INVIS
 F:IGNORE_ACID
 
 
 N:71:of Seeing
 X:8:0
 W:5:2:0:2000
-C:0:0:0:5
+C:0:0:0:3
 T:33:0:99
 T:32:0:99
-F:SEARCH | RES_BLIND | SEE_INVIS
+F:PER | SEARCH | RES_BLIND | SEE_INVIS
+D:Wearing this headgear makes all your detection spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:72:of Sickliness
@@ -669,18 +691,22 @@ F:STR | DEX | CON | LIGHT_CURSE
 
 N:75:of Aman
 X:20:4
-W:30:16:0:30000
+W:20:12:0:30000
 C:0:0:20:3
 T:35:0:99
-F:STEALTH | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:STE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:Wearing this cloak makes all your enchantment spells (such as Sleep or Slow) and time spells (such as Haste Self) cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:76:of the Magi
 X:15:3
-W:30:3:0:2000
+W:20:3:0:2000
 C:0:0:4:2
 T:35:0:99
-F:INT | STEALTH | SUST_INT | IGNORE_ACID | HIDE_TYPE
+F:INT | STE | SUST_INT | IGNORE_ACID | HIDE_TYPE
+D:Wearing this cloak makes all your detection spells cost less mana.
+D: Its effects are cumulative with wands and talismans.
 
 
 N:77:of Protection
@@ -696,7 +722,7 @@ X:10:0
 W:0:1:0:500
 C:0:0:0:3
 T:35:0:99
-F:STEALTH
+F:STE
 
 
 N:79:of Enveloping
@@ -740,16 +766,16 @@ F:MIGHT | HIDE_TYPE
 
 N:85:of Buckland
 X:25:0
-W:40:4:0:20000
+W:20:12:0:20000
 C:8:8:0:1
 T:19:2:2
 F:DEX | SHOTS | MIGHT | IGNORE_ACID | IGNORE_FIRE
 F:HIDE_TYPE
 
 
-N:86:Lothl['o]rien
+N:86:of Lothlorien
 X:30:3
-W:50:4:0:20000
+W:20:8:0:20000
 C:10:10:0:2
 T:19:12:13
 F:DEX | MIGHT | FREE_ACT | IGNORE_ACID | IGNORE_FIRE
@@ -758,7 +784,7 @@ F:HIDE_TYPE
 
 N:87:of the Haradrim
 X:30:0
-W:50:4:0:20000
+W:20:8:0:20000
 C:5:5:0:1
 T:19:23:23
 F:SHOTS | MIGHT | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
@@ -790,7 +816,7 @@ D:It has no special abilities, but its to-dam value may be unusually
 D: high.
 
 
-N:91:of the Nazg[^u]l
+N:91:of the Nazgul
 X:0:0
 W:0:2:0:0
 C:10:10:0:0
@@ -804,7 +830,7 @@ F:SEE_INVIS | DRAIN_EXP | LIGHT_CURSE
 
 N:94:of Holy Might
 X:20:0
-W:40:15:0:60
+W:20:8:0:60
 C:10:10:0:0
 T:16:2:99
 T:17:2:99
@@ -814,7 +840,7 @@ F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | IGNORE_ACID | IGNORE_FIRE
 
 N:95:of Acid
 X:10:0
-W:0:9:0:50
+W:0:6:0:50
 C:0:0:0:0
 T:16:0:99
 T:17:0:99
@@ -824,7 +850,7 @@ F:BRAND_ACID | IGNORE_ACID
 
 N:96:of Lightning
 X:10:0
-W:0:9:0:45
+W:0:6:0:45
 C:0:0:0:0
 T:16:0:99
 T:17:0:99
@@ -844,7 +870,7 @@ F:BRAND_POIS
 
 N:98:of Slay Dragon
 X:10:0
-W:0:8:0:40
+W:0:4:0:40
 C:0:0:0:0
 T:16:0:99
 T:17:0:99
@@ -874,7 +900,7 @@ F:BRAND_COLD | IGNORE_COLD
 
 N:101:of Slay Undead
 X:10:0
-W:0:8:0:25
+W:0:4:0:25
 C:0:0:0:0
 T:16:0:99
 T:17:0:99
@@ -904,7 +930,7 @@ F:SLAY_GIANT
 
 N:104:of Wounding
 X:5:0
-W:0:4:0:20
+W:0:2:0:20
 C:5:5:0:0
 T:16:0:99
 T:17:0:99
@@ -915,7 +941,7 @@ D: values.
 
 N:105:of Slay Animal
 X:10:0
-W:0:6:0:20
+W:0:4:0:20
 C:0:0:0:0
 T:16:0:99
 T:17:0:99
@@ -925,7 +951,7 @@ F:SLAY_ANIMAL
 
 N:106:of Slay Evil
 X:10:0
-W:0:6:0:20
+W:0:4:0:20
 C:0:0:0:0
 T:16:0:2
 T:17:0:2
@@ -952,19 +978,19 @@ F:LIGHT_CURSE
 
 N:110:of Elvenkind
 X:30:0
-W:15:25:0:100000
+W:15:12:0:100000
 C:0:0:0:5
 T:30:2:3
-F:STEALTH | SPEED | FEATHER | IGNORE_ACID | IGNORE_FIRE
+F:STE | AGI | FEATHER | IGNORE_ACID | IGNORE_FIRE
 F:HIDE_TYPE
 
 
 N:111:of Speed
 X:25:0
-W:40:40:0:100000
+W:30:30:0:100000
 C:0:0:0:10
 T:30:0:99
-F:SPEED | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
+F:SPEED | HIDE_TYPE
 
 
 N:112:of Stability
@@ -988,7 +1014,7 @@ X:16:0
 W:0:6:0:500
 C:0:0:0:3
 T:30:0:99
-F:STEALTH | HIDE_TYPE
+F:STE | HIDE_TYPE
 
 
 N:115:of Slow Descent
@@ -1012,15 +1038,13 @@ X:0:0
 W:0:10:0:0
 C:0:0:0:10
 T:30:0:99
-F:STEALTH | SPEED | AGGRAVATE | HIDE_TYPE | LIGHT_CURSE
-
+F:STE | SPEED | AGGRAVATE | HIDE_TYPE | LIGHT_CURSE
 
 N:118:of Nativity
-X:10:10
+X:5:10
 W:0:10:0:10000
 C:0:0:0:0
 T:30:0:99
-F:HIDE_TYPE
 
 
 # XXX Record119 is unused XXX #
@@ -1030,7 +1054,7 @@ F:HIDE_TYPE
 
 N:120:of Combat
 X:22:0
-W:50:6:0:7000
+W:20:6:0:7000
 C:3:8:0:2
 T:31:2:99
 F:STR | CON | AGGRAVATE | HIDE_TYPE | SHOW_MODS
@@ -1038,10 +1062,10 @@ F:STR | CON | AGGRAVATE | HIDE_TYPE | SHOW_MODS
 
 N:121:of Thievery
 X:22:0
-W:40:6:0:5000
-C:8:3:0:5
+W:20:6:0:5000
+C:8:3:0:3
 T:31:1:1
-F:DEX | SEARCH | FEATHER | FREE_ACT | HIDE_TYPE
+F:DEX | LUC | SEARCH | FEATHER | FREE_ACT | HIDE_TYPE
 F:SHOW_MODS
 
 
@@ -1062,7 +1086,7 @@ F:SHOW_MODS
 D:They boost your to-hit and to-dam values.
 
 
-N:124:of Agility
+N:124:of Skill
 X:14:0
 W:0:3:0:1000
 C:0:0:0:5
@@ -1103,7 +1127,7 @@ F:DEX | HIDE_TYPE | LIGHT_CURSE
 
 N:130:of Telepathy
 X:20:0
-W:0:6:0:50000
+W:0:10:0:50000
 C:0:0:0:0
 T:39:1:1
 F:TELEPATHY
@@ -1112,17 +1136,17 @@ F:TELEPATHY
 N:131:of Sight
 X:8:0
 W:0:2:0:2000
-C:0:0:0:0
+C:0:0:0:3
 T:39:1:1
-F:RES_BLIND | SEE_INVIS
+F:PER | RES_BLIND | SEE_INVIS
 
 
 N:132:of Brightness
 X:10:0
 W:0:1:0:1000
-C:0:0:0:0
+C:0:0:0:2
 T:39:1:1
-F:RES_DARK
+F:PER | RES_DARK
 
 
 N:133:of Stealth
@@ -1130,7 +1154,7 @@ X:10:0
 W:0:1:0:500
 C:0:0:0:3
 T:39:1:1
-F:STEALTH | HIDE_TYPE
+F:STE | HIDE_TYPE
 
 
 N:134:of Bravery
@@ -1176,19 +1200,6 @@ F:RES_LITE | DRAIN_EXP | LIGHT_CURSE
 # XXX Record139 is unused XXX #
 
 # XXX Record140 is unused XXX #
-
-
-##### Basic Books #####
-
-N:141:(Fireproof)
-X:15:0
-W:0:64:0:1000
-C:0:0:0:0
-T:90:0:3
-T:91:0:3
-T:92:0:3
-F:IRONMAN_ONLY | IGNORE_FIRE
-
 
 # XXX Record142 is unused XXX #
 

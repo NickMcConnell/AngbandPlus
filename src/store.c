@@ -47,7 +47,7 @@ static cptr comment_2b[MAX_COMMENT_2B] =
 	"My arse!  How about %s gold pieces?",
 	"May the fleas of 1000 orcs molest you!  Try %s gold pieces.",
 	"May your most favourite parts go moldy!  Try %s gold pieces.",
-	"May Morgoth find you tasty!  Perhaps %s gold pieces?",
+	"May the Witch-King find you tasty!  Perhaps %s gold pieces?",
 	"Your mother was an Ogre!  Perhaps %s gold pieces?"
 };
 
@@ -438,7 +438,6 @@ static cptr service_names[STORE_SERVICE_MAX] =
  *
  * Hack -- the black market always charges twice as much as it should.
  *
- * Charisma adjustment runs from 80 to 130
  * Racial adjustment runs from 95 to 130
  *
  * Since greed/charisma/racial adjustments are centered at 100, we need
@@ -459,9 +458,6 @@ static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 
 	/* Compute the racial factor */
 	factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
-
-	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
 	/* Shop is buying */
 	if (flip)
@@ -670,11 +666,8 @@ static bool store_object_similar(const object_type *o_ptr, const object_type *j_
 	/* Different objects cannot be stacked */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
 
-	/* Different charges (etc) cannot be stacked, except for staves, wands and rods. */
-	if ((o_ptr->pval != j_ptr->pval) &&
-		(o_ptr->tval != TV_WAND) &&
-		(o_ptr->tval != TV_ROD) &&
-		(o_ptr->tval != TV_STAFF)) return (0);
+	/* Different charges (etc) cannot be stacked. */
+	if ((o_ptr->pval != j_ptr->pval)) return (0);
 
 	/* Require many identical values */
 	if (o_ptr->to_h != j_ptr->to_h) return (0);
@@ -729,22 +722,6 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 	/* Combine quantity, lose excess items */
 	o_ptr->number = (total > 99) ? 99 : total;
-
-	/*
-	 *Hack -- if rods are stacking, add the pvals (maximum timeouts)
-	 * and any charging timeouts together.
-	 */
-	if (o_ptr->tval == TV_ROD)
-	{
-		o_ptr->pval += j_ptr->pval;
-		o_ptr->timeout += j_ptr->timeout;
-	}
-
-	/* Hack -- if wands/staves are stacking, combine the charges. */
-	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
-	{
-		o_ptr->pval += j_ptr->pval;
-	}
 
 	/* Combine the histories */
 	stack_histories(o_ptr, j_ptr);
@@ -924,7 +901,7 @@ static bool store_will_buy(int store_num, const object_type *o_ptr)
 			{
 				case TV_AMULET:
 				case TV_RING:
-				case TV_STAFF:
+				case TV_TALISMAN:
 				case TV_WAND:
 				case TV_ROD:
 				case TV_SCROLL:
@@ -1309,7 +1286,6 @@ static bool keep_in_stock(const object_type *o_ptr, int which)
 			if (k_ptr->sval == SV_SCROLL_PHASE_DOOR) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_SATISFY_HUNGER) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_IDENTIFY) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_WORD_OF_RECALL) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_HOLY_CHANT) return (TRUE);
 			return (FALSE);
 
@@ -1366,17 +1342,6 @@ static void store_delete(int which)
 
 	/* Hack -- sometimes, only destroy a single object */
 	else if (one_in_(2)) num = 1;
-
-	/*
-	 *Hack -- decrement the maximum timeouts and
-	 *total charges of rods, staffs or wands.
-	 */
-	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND) ||
-		(o_ptr->tval == TV_STAFF))
-	{
-		o_ptr->pval -= num * o_ptr->pval / o_ptr->number;
-
-	}
 
 	/*Wipe the randart if necessary*/
 	if (o_ptr->art_num) artifact_wipe(o_ptr->art_num, FALSE);
@@ -1484,7 +1449,7 @@ static void store_create(void)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = danger(p_ptr->depth);
 
 }
 
@@ -1642,7 +1607,7 @@ static void display_entry(int item)
 			if (!noneedtobargain(x)) x += x / 10;
 
 			/* Actually draw the price (with tax) */
-			if (((o_ptr->tval == TV_WAND)|| (o_ptr->tval == TV_STAFF))
+			if (((o_ptr->tval == TV_WAND)|| (o_ptr->tval == TV_TALISMAN))
 			    && (o_ptr->number > 1)) sprintf(out_val, "%9ld avg", (long)x);
 			else sprintf(out_val, "%9ld  ", (long)x);
 		}
@@ -1659,7 +1624,7 @@ static void display_entry(int item)
 		}
 
 		/* Print the price, gray if player can't afford it */
-		if ((long)x > (long)(p_ptr->au))
+		if ((long)x > (long)p_ptr->au)
 		{
 			c_put_str(TERM_SLATE, out_val, y, 68);
 		}
@@ -1738,9 +1703,6 @@ static s32b get_service_price(int choice)
 	{
 		/* Compute the racial factor */
 		int factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
-
-		/* Add in the charisma factor */
-		factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]] - 100;
 
 		/* Extract the "minimum" price */
 		price = ((price * factor) / 100L);
@@ -3030,16 +2992,6 @@ static void store_service_aux(s16b choice)
 							price, o_name);
 			if (!get_check(prompt)) break;
 
-			/*re-charge the rods*/
-			if (o_ptr->tval == TV_ROD)
-			{
-				o_ptr->timeout = 0;
-			}
-			/*Wands and staffs*/
-			else
-			{
-				recharge_staff_wand(o_ptr, lev, 100);
-			}
 
 			/*We re-charged an item*/
 			p_ptr->au -= price;
@@ -3078,7 +3030,7 @@ static void store_service_aux(s16b choice)
 			if (!get_check(prompt)) break;
 
 			/*Heal the player, note if they actually need healing*/
-			if (hp_player(damroll(8, 10))) healed = TRUE;
+			if (hp_player(damroll(12, 12))) healed = TRUE;
 			if (set_blind(0)) healed = TRUE;
 			if (set_confused(0)) healed = TRUE;
 			if (set_poisoned(0)) healed = TRUE;
@@ -3692,11 +3644,6 @@ static void store_purchase(void)
 	/* Get desired object */
 	object_copy(i_ptr, o_ptr);
 
-	/* Hack -- If a rod or wand, allocate total maximum timeouts or charges
-	 * between those purchased and left on the shelf.
-	 */
-	reduce_charges(i_ptr, i_ptr->number - amt);
-
 	/* Modify quantity */
 	i_ptr->number = amt;
 
@@ -3793,13 +3740,6 @@ static void store_purchase(void)
 				msg_format("You have %s (%c).",
 				           o_name, index_to_label(item_new));
 
-				/* Now, reduce the original stack's pval. */
-				if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND)
-					|| (o_ptr->tval == TV_STAFF))
-				{
-					o_ptr->pval -= i_ptr->pval;
-				}
-
 				/* Handle stuff */
 				handle_stuff();
 
@@ -3869,8 +3809,6 @@ static void store_purchase(void)
 	/* Home is much easier */
 	else
 	{
-		/* Distribute charges of wands or rods */
-		distribute_charges(o_ptr, i_ptr, amt);
 
 		/* Give it to the player */
 		item_new = inven_carry(i_ptr);
@@ -3993,15 +3931,6 @@ static void store_sell(void)
 	/* Modify quantity */
 	i_ptr->number = amt;
 
-	/* Hack -- If a rod, staff or wand, allocate total maximum
-	 * timeouts or charges to those being sold.
-	 */
-	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND)
-		|| (o_ptr->tval == TV_STAFF))
-	{
-		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-	}
-
 	/* Get a full description */
 	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
@@ -4095,25 +4024,11 @@ static void store_sell(void)
 			/* Modify quantity */
 			i_ptr->number = amt;
 
-			/* Hack -- If a rod, staff or wand, let the shopkeeper know just
-			 * how many charges he really paid for.
-			 */
-			if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND)
-				|| (o_ptr->tval == TV_STAFF))
-			{
-				i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-			}
-
 			/* The object belongs to the store now */
 			i_ptr->ident |= IDENT_STORE;
 
 			/* Get the "actual" value */
 			value = object_value(i_ptr) * i_ptr->number;
-
-			/* Hack -- Allocate charges between those wands or rods sold
-			 * and retained, unless all are being sold.
-			 */
-			distribute_charges(o_ptr, i_ptr, amt);
 
 			/* Get the "actual" value */
 			value = object_value(i_ptr) * i_ptr->number;
@@ -4135,11 +4050,11 @@ static void store_sell(void)
 			if (squelch == SQUELCH_YES)
 			{
 				msg_format("In your pack: %s (%c).  %s",
-					o_name, index_to_label(item),
-					squelch_to_label(squelch));
+          					 o_name, index_to_label(item),
+		   					squelch_to_label(squelch));
 
-				do_squelch_item(squelch, item, o_ptr);
-			}
+    			do_squelch_item(squelch, item, o_ptr);
+    		}
 			else
 			{
 				/* Take the object from the player */
@@ -4152,18 +4067,20 @@ static void store_sell(void)
 			handle_stuff();
 
 			/* The store gets that (known) object */
-			store_carry(i_ptr);
+			item_pos = store_carry(i_ptr);
 
-			/* Redisplay wares */
-			display_inventory();
+			/* Update the display */
+			if (item_pos >= 0)
+			{
+				/* Redisplay wares */
+				display_inventory();
+			}
 		}
 	}
 
 	/* Player is at home */
 	else
 	{
-		/* Distribute charges of wands/rods */
-		distribute_charges(o_ptr, i_ptr, amt);
 
 		/* Describe */
 		msg_format("You drop %s (%c).", o_name, index_to_label(item));
@@ -4269,19 +4186,7 @@ static void store_process_command(bool guild_cmd)
 		/* Leave */
 		case ESCAPE:
 		{
-			/* Leave the store if we aren't asking for services */
-			if (!show_services)
-			{
-			       	leave_store = TRUE;
-			}
-			/* Hide services screen if necessary */
-			else
-			{	show_services = FALSE;
-				do_cmd_redraw();
-				if ((!guild_cmd) || (show_services)) display_store();
-				else display_guild();
-			}
-
+			leave_store = TRUE;
 			break;
 		}
 
@@ -4619,8 +4524,6 @@ void do_cmd_store(void)
 
 	int which, i;
 
-	int tmp_chr;
-
 	show_services = FALSE;
 	store_has_services = FALSE;
 
@@ -4695,9 +4598,6 @@ void do_cmd_store(void)
 	{
 		/* Hack -- Clear line 1 */
 		prt("", 1, 0);
-
-		/* Hack -- Check the charisma */
-		tmp_chr = p_ptr->stat_use[A_CHR];
 
 		/* Clear */
 		 clear_from(TERM_LAST_ROW - 2);
@@ -4850,13 +4750,6 @@ void do_cmd_store(void)
 					display_inventory();
 				}
 			}
-		}
-
-		/* Hack -- Handle charisma changes */
-		if (tmp_chr != p_ptr->stat_use[A_CHR])
-		{
-			/* Redisplay wares */
-			display_store();
 		}
 
 		/* Hack -- get kicked out of the store */

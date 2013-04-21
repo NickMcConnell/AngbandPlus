@@ -547,6 +547,10 @@ u16b fire_trap_smart(int f_idx, int y, int x, byte mode)
 				{
 					lite_room(p_ptr->py, p_ptr->px);
 
+					if (!p_ptr->resist_blind)
+					{
+						(void)set_blind(p_ptr->blind + 8 + rand_int(8) + (x_ptr->x_power / 5));
+					}
 				}
 
 
@@ -555,6 +559,10 @@ u16b fire_trap_smart(int f_idx, int y, int x, byte mode)
 				{
 					unlite_room(p_ptr->py, p_ptr->px);
 
+					if (!p_ptr->resist_blind)
+					{
+						(void)set_blind(p_ptr->blind + 8 + rand_int(8) + (x_ptr->x_power / 5));
+					}
 				}
 
 				/*Special handling of confusion, it isn't supposed to damage the player*/
@@ -598,7 +606,7 @@ u16b fire_trap_smart(int f_idx, int y, int x, byte mode)
  * Handle player hitting a real trap.
  * Note that the variables y and x can only be used for a real trap.
  */
-void hit_trap(int f_idx, int y, int x, byte mode)
+void hit_trap(int f_idx, int y, int x, byte mode, int might_escape)
 {
 	int dice,sides, reps, dam, i, num;
 
@@ -630,7 +638,6 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 			return;
 		}
 
-
  		/* Make it visible if necessary. Note paranoia check */
  		if ((x_ptr->x_f_idx == f_idx) &&
  			(x_ptr->x_flags & (EF1_HIDDEN)))
@@ -643,6 +650,18 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 
  			/* Redraw */
 			lite_spot(y, x);
+		}
+
+		if (might_escape && randint(100)<=adj_per_evade[p_ptr->stat_ind[A_PER]] && !(p_ptr->blind) && !(p_ptr->confused)){
+			char feat_name[80];
+
+			/* Get the feature name */
+			feature_desc(feat_name, sizeof(feat_name), f_idx, FALSE, TRUE);
+
+			msg_format("You notice a %s and carefully step around it.", feat_name);
+
+			/*We are done here*/
+			return;	
 		}
 
 		/*Count in the feature lore the number of times set off*/
@@ -741,6 +760,10 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 
 				/* New depth */
 				p_ptr->depth++;
+
+				regenmana(100);
+
+				potential_effect_on_stats();
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -910,7 +933,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 				num = sum_base + randint(sum_plus);
 				for (i = 0; i < num; i++)
 				{
-					(void)summon_specific(y, x, p_ptr->depth, 0);
+					(void)summon_specific(y, x, danger(p_ptr->depth), 0);
 				}
 			}
 			break;
@@ -1140,7 +1163,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 
 			if (mode == MODE_DESCRIBE)
 			{
-				text_out(format("  This trap releases green gas that can poison you for %d + %dd turns.", base, rand_base));
+				text_out(format("  This trap releases green gas that can poison you."));
 				return;
 			}
 			if (mode == MODE_ACTION)
@@ -1554,14 +1577,14 @@ s16b get_feat_num(int level)
 	if (level > 0)
 	{
 		/* Occasional "boost" */
-		if (one_in_(40))
+		if (one_in_(GREAT_OBJ))
 		{
 
 			/* 10-20 levels boost */
 			//level += (10 + rand_int(11));
 
-			/* 25-40 levels boost */
-			level += (25 + rand_int(16));
+			/* 25-70 levels boost */
+			level += (25 + rand_int(51));
 		}
 	}
 
@@ -1583,10 +1606,8 @@ s16b get_feat_num(int level)
 		f_idx = table[i].index;
 
 		/* Limit the power of OOD features */
-		 if ((f_info[f_idx].f_level > (old_level + 10)) &&
-			 (!feat_ff2_match(f_idx, FF2_LAKE | FF2_RIVER) ||
-			(f_info[f_idx].dam_non_native > (p_ptr->mhp / 2)))) continue;
-
+		if ((f_info[f_idx].f_level > (old_level + 15)) &&
+			(f_info[f_idx].dam_non_native > p_ptr->mhp)) continue;
 
 		/* Mega-Hack -- No summoning traps in themed levels */
 		if (feat_ff2_match(f_idx, FF2_TRAP_PASSIVE) &&
@@ -1731,7 +1752,7 @@ u16b pick_trap(int y, int x, byte mode)
 	while (1)
 	{
 		/* Pick the trap */
-		feat = get_feat_num(p_ptr->depth);
+		feat = get_feat_num(danger(p_ptr->depth));
 
 		/*Special handling of trap doors*/
 		if (feat == FEAT_TRAP_DOOR)
@@ -1771,7 +1792,7 @@ u16b get_secret_door_num(void)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(danger(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -1809,7 +1830,7 @@ void place_closed_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(danger(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -1837,7 +1858,7 @@ void place_boring_closed_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(danger(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -1865,7 +1886,7 @@ void place_open_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(danger(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -1892,7 +1913,7 @@ void place_broken_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(danger(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -1919,7 +1940,7 @@ void place_locked_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(danger(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -1948,7 +1969,7 @@ void place_jammed_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(danger(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -2380,7 +2401,7 @@ static void describe_feature_trap(int f_idx, const feature_lore *f_l_ptr)
 
 
     /*Describe passive traps the player can set off*/
-	if (f_l_ptr->f_l_flags2 & FF2_TRAP_PASSIVE) hit_trap(f_idx, 0, 0, MODE_DESCRIBE);
+	if (f_l_ptr->f_l_flags2 & FF2_TRAP_PASSIVE) hit_trap(f_idx, 0, 0, MODE_DESCRIBE, 0);
 
 	/*Describe passive traps the player can set off*/
 	if (f_l_ptr->f_l_flags2 & FF2_TRAP_MON) apply_monster_trap(f_idx, 0, 0, MODE_DESCRIBE);
@@ -2472,6 +2493,7 @@ static void describe_feature_vulnerabilities(const feature_lore *f_l_ptr)
 
 	if (f_l_ptr->f_l_flags2 & FF2_HURT_ROCK) vp[vn++] = "stone-to-mud";
 	if (f_l_ptr->f_l_flags2 & FF2_HURT_FIRE) vp[vn++] = "fire";
+	if (f_l_ptr->f_l_flags2 & FF2_HURT_FIRE) vp[vn++] = "smoke";
 	if (f_l_ptr->f_l_flags2 & FF2_HURT_FIRE) vp[vn++] = "lava";
 	if (f_l_ptr->f_l_flags2 & FF2_HURT_FIRE) vp[vn++] = "plasma";
 	if (f_l_ptr->f_l_flags2 & FF2_HURT_COLD) vp[vn++] = "cold";
@@ -2896,13 +2918,6 @@ static void describe_feature_dynamic(int f_idx, const feature_lore *f_l_ptr)
 		return;
 	}
 
-	/* Dynamic lava can spread fire */
-	if (_feat_ff3_match(f_ptr, TERRAIN_MASK) == (ELEMENT_LAVA))
-	{
-		text_out("  This terrain can spread fire to adjacent terrains.");
-
-		return;
-	}
 }
 
 /*
@@ -3535,14 +3550,11 @@ void process_dynamic_terrain_aux(dynamic_grid_type *g_ptr)
 				/* A grid can be affected. Keep the fire alive */
 				can_burn = TRUE;
 
-				/* Prevent scumming */
-				if (!player_can_fire_bold(yy, xx)) continue;
-
 				/* Oil burns faster */
 				if (feat_ff3_match(feat2, FF3_OIL))
 				{
 					/* But not always */
-					if (!one_in_(5)) continue;
+					if (!one_in_(15)) continue;
 				}
 				else
 				{
@@ -3664,74 +3676,32 @@ void process_dynamic_terrain_aux(dynamic_grid_type *g_ptr)
 		return;
 	}
 
-	/* Animate waves */
+	/* Alternate between waves and crest of a wave */
 	if (feat_ff3_match(feat, FF3_WATER))
 	{
-		int d = -1, k;
-		int yy, xx;
-		bool kill = FALSE;
-		int freq = 10000;
+		int k = rand_int(200);
 
-		/* Crests don't live too much time */
-		if (strstr(f_name + f_info[feat].name, "crest of a wave") != NULL)
+		/* But not always */
+		if (k >= 10) return;
+
+		/* Many times a wave turns into a crest of a wave */
+		if (feat_ff2_match(feat, FF2_HURT_WATER) && (k < 9))
 		{
-			kill = TRUE;
-		}
-		/* Other waves are often inactive */
-		else
-		{
-			k = rand_int(200);
+			/* Place the crest */
+			cave_alter_feat(y, x, FS_HURT_WATER);
 
-			if (k >= 10) return;
-		}
-
-		/* Pick a direction for the waves */
-		k = turn % freq;
-
-		/* To the right */
-		if (k < (freq / 2))
-		{
-		       	int directions[] = {3, 6, 9};
-			d = directions[rand_int(3)];
-		}
-
-		/* To the left */
-		else
-		{
-			int directions[] = {1, 4, 7};
-			d = directions[rand_int(3)];
-		}
-
-		/* Transform an adjacent grid if possible */
-		if (d != -1)
-		{
-			/* Get coordinates */
-			yy = y + ddy[d];
-			xx = x + ddx[d];
-
-			/* The grid must be affected by water  */
-			if (in_bounds(yy, xx) && cave_ff2_match(yy, xx, FF2_HURT_WATER))
-			{
-				/* Transform */
-				/*project_f(SOURCE_OTHER, yy, xx, 0, 200, GF_WATER);*/
-				cave_alter_feat(yy, xx, FS_HURT_WATER);
-
-				/* Remove the wave must of the time */
-				if (!kill && !one_in_(10)) kill = TRUE;
-			}
+			/* Done */
+			return;
 		}
 
 		/* A wave dissapears eventually */
-		if (kill && feat_ff2_match(feat, FF2_HURT_FIRE))
+		if (feat_ff2_match(feat, FF2_HURT_FIRE))
 		{
-			/* Get the next feature to avoid messages */
-			feat = feat_state(feat, FS_HURT_FIRE);
-
 			/*
 			 * Turn the wave into plain water, or a crest into a
 			 * wave
 			 */
-			cave_set_feat(y, x, feat);
+			cave_alter_feat(y, x, FS_HURT_FIRE);
 		}
 
 		/* Done */
@@ -3775,7 +3745,7 @@ void process_dynamic_terrain_aux(dynamic_grid_type *g_ptr)
 		disturb(0, 0);
 
 		/* Calculate damage */
-		dam = 2 * p_ptr->depth / 3;
+		dam = 2 * danger(p_ptr->depth) / 3;
 
 		if (dam < 1) dam = 1;
 
@@ -3809,58 +3779,6 @@ void process_dynamic_terrain_aux(dynamic_grid_type *g_ptr)
 
 		/* Call monsters */
 		aggravate_monsters(SOURCE_OTHER);
-
-		/* Done */
-		return;
-	}
-
-	/* Dynamic lava eventually burns its adjacent grids */
-	if (feat_ff3_match(feat, TERRAIN_MASK) == (ELEMENT_LAVA))
-	{
-		int d;
-		int dam = f_info[feat].dam_non_native;
-		bool can_burn = FALSE;
-
-		/* Flavor */
-		if (!one_in_(2)) return;
-
-		/* Scan adjacent grids */
-		for (d = 0; d < 8; d++)
-		{
-			/* Get the coordinates */
-			int yy = y + ddy_ddd[d];
-			int xx = x + ddx_ddd[d];
-
-			/* Ignore annoying locations*/
-			if (!in_bounds(yy, xx)) continue;
-
-			/* Get the feature */
-			feat2 = cave_feat[yy][xx];
-
-			/* Feature can burn */
-			if (feat_ff2_match(feat2, FF2_HURT_FIRE))
-			{
-				u32b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-
-				/* A grid can be affected. Keep the lava alive */
-				can_burn = TRUE;
-
-				/* Prevent scumming */
-				if (!player_can_fire_bold(yy, xx)) continue;
-
-				/* Flavor */
-				if (!one_in_(4)) continue;
-
-				/* Burn/melt the feature */
-				project(SOURCE_OTHER, 0, y, x, yy, xx, dam, GF_FIRE, flg, 0, 0);
-
-				/* Mark the lore if the player observed this */
-				if (player_can_see_bold(yy, xx)) f_l_ptr->f_l_flags3 |= (FF3_DYNAMIC);
-			}
-		}
-
-		/* Remove the dynamic mark if the dungeon cannot be affected, to speed things up */
-		if (!can_burn) remove_dynamic_terrain(y, x);
 
 		/* Done */
 		return;
@@ -3992,6 +3910,33 @@ void process_dynamic_terrain(void)
 }
 
 
+/*
+ * Returns a pointer to an element counter depending on the flags of the given feature
+ * Returns NULL if the feature doesn't have interesting flags
+ */
+u16b *get_element_counter(feature_type *f_ptr)
+{
+	/* Find the counter and return a pointer to it */
+	/* We look for an exact match */
+	switch (_feat_ff3_match(f_ptr, TERRAIN_MASK))
+	{
+		case 0: return (NULL);
+		case ELEMENT_LAVA: return (&element_counter.lava);
+		case ELEMENT_WATER: return (&element_counter.water);
+		case ELEMENT_SAND: return (&element_counter.sand);
+		case ELEMENT_FIRE: return (&element_counter.fire);
+		case ELEMENT_ACID: return (&element_counter.acid);
+		case ELEMENT_OIL: return (&element_counter.oil);
+		case ELEMENT_FOREST: return (&element_counter.forest);
+		case ELEMENT_MUD: return (&element_counter.mud);
+		case ELEMENT_ICE: return (&element_counter.ice);
+		case ELEMENT_BMUD: return (&element_counter.bmud);
+		case ELEMENT_BWATER: return (&element_counter.bwater);
+	}
+
+	/* Failure */
+	return (NULL);
+}
 
 
 #define MAX_RACES 10
@@ -4106,7 +4051,7 @@ s16b select_powerful_race(void)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) rarities[i] = 5;
 
 		/* Powerful monsters */
-		else if (r_ptr->mon_power > mon_power_ave[p_ptr->depth][CREATURE_NON_UNIQUE]) rarities[i] = 2;
+		else if (r_ptr->mon_power > mon_power_ave[danger(p_ptr->depth)][CREATURE_NON_UNIQUE]) rarities[i] = 2;
 
 		/* Normal monsters */
 		else rarities[i] = 1;
@@ -4254,7 +4199,7 @@ void decipher_strange_inscription(int x_idx)
 	}
 
 	/* Hurt the player in rare occassions */
-	if ((p_ptr->depth > 10) && one_in_(75))
+	if ((danger(p_ptr->depth) > 10) && one_in_(75))
 	{
 		/* Get the feature under the effect */
 		u16b feat = cave_feat[x_ptr->x_cur_y][x_ptr->x_cur_x];
@@ -4369,24 +4314,31 @@ bool hit_wall(int y, int x, bool do_action)
 	/* Feature is dangerous for the player */
 	if ((dam > 0) && !is_player_native(y, x))
 	{
-		cptr kb_str;
-		int gf_type;
-
-		/* Check player immunity to the feature */
-		get_spell_type_from_feature(feat, &gf_type, NULL);
-		if (is_player_immune(gf_type)) return (FALSE);
-
 		/* Done */
 		if (!do_action) return (TRUE);
 
-		/* Get the name */
-		feature_desc(name, sizeof(name), feat, TRUE, TRUE);
+		/* Hurt the player sometimes */
+		if (one_in_(10))
+		{
+			cptr kb_str;
 
-		/* Format the killer string */
-		kb_str = format("touching %s", name);
+			/* Get the name */
+			feature_desc(name, sizeof(name), feat, TRUE, TRUE);
 
-		/* Take the hit */
-		take_terrain_hit(dam, feat, kb_str);
+			/* Format the killer string */
+			kb_str = format("touching %s", name);
+
+			/* Take the hit */
+			take_terrain_hit(dam, feat, kb_str);
+		}
+		/* Tell the player that the feature is dangerous */
+		else
+		{
+			/* Get the name */
+			feature_desc(name, sizeof(name), feat, FALSE, TRUE);
+
+			msg_format("Don't touch the %s!", name);
+		}
 
 		return (TRUE);
 	}
@@ -4448,7 +4400,7 @@ bool hit_wall(int y, int x, bool do_action)
 			}
 
 			/* Teleport */
-			teleport_player(100 + rand_int(p_ptr->depth));
+			teleport_player(100 + rand_int(danger(p_ptr->depth)));
 		}
 
 		return (TRUE);
@@ -4495,160 +4447,3 @@ bool hit_wall(int y, int x, bool do_action)
 
 	return (FALSE);
 }
-
-/*
- * Clear level_flag and then rescan the current level searching for elemental features.
- * Update level_flag for each element found.
- */
-void update_level_flag(void)
-{
-	int y, x;
-
-	/* Reset the global flags */
-	level_flag = 0;
-
-	/* Debug */
-	if (cheat_room)
-	{
-		msg_c_format(MSG_NOTICE, "Updating level flags.");
-		disturb(0, 0);
-	}
-
-	/* Scan de dungeon */
-	for (y = 1; y < (p_ptr->cur_map_hgt - 1); y++)
-	{
-		for (x = 1; x < (p_ptr->cur_map_wid - 1); x++)
-		{
-			/* Cache the feature */
-			u16b feat = cave_feat[y][x];
-
-			/* Is it an elemental feature? */
-			if (feat_ff3_match(feat, TERRAIN_MASK))
-			{
-				/* Update the global flags */
-				level_flag |= get_level_flag(feat);
-			}
-		}
-	}
-}
-
-/*
- * Return ONLY ONE of the LF1_* flags that represents the given fetaure.
- * Return 0 if there isn't none.
- */
-u32b get_level_flag(u16b feat)
-{
-	/* Get the elemental flags */
-	u32b element_flags = feat_ff3_match(feat, TERRAIN_MASK);
-
-	/* Analyize the type of the flags */
-	switch (element_flags)
-	{
-		/* Special case. Boiling mud (hybrid element) */
-		case ELEMENT_BMUD:
-		{
-			/* This flag actually doesn't match any of the ELEMENT_* flags */
-			return (LF1_BMUD);
-		}
-		/* Special case. Boiling water (hybrid element) */
-		case ELEMENT_BWATER:
-		{
-			/* This flag actually doesn't match any of the ELEMENT_* flags */
-			return (LF1_BWATER);
-		}
-		/* Just don't do anything for other flags */
-		default:
-		{
-			return (element_flags);
-		}
-
-	}
-}
-
-/*
- * Return ALL the LF1_* flags that represents the nativity settings of the
- * given monster race.
- * Return 0 if there isn't none.
- */
-u32b get_level_flag_from_race(monster_race *r_ptr)
-{
-	/* Get the native flags */
-	u32b element_flags = (r_ptr->r_native & (TERRAIN_MASK));
-
-	/* Special case. Boiling mud (hybrid element) */
-	if ((element_flags & ELEMENT_BMUD) == (ELEMENT_BMUD))
-	{
-		/* Just add the pseudo flag */
-		/* Note that LF1_LAVA and LF1_MUD still are in the flags */
-		element_flags |= LF1_BMUD;
-	}
-
-	/* Special case. Boiling mud (hybrid element) */
-	if ((element_flags & ELEMENT_BWATER) == (ELEMENT_BWATER))
-	{
-		/* Just add the pseudo flag */
-		/* Note that LF1_LAVA and LF1_WATER still are in the flags */
-		element_flags |= LF1_BWATER;
-	}
-
-	/* Done */
-	return (element_flags);
-}
-
-/*
- * Paste the name of the element given in flag into buf.
- * max is the maximum size of buf.
- * flag must contain ONLY ONE of the LF1_* flags.
- */
-void describe_one_level_flag(char *buf, size_t max, u32b flag)
-{
-	/* Default name */
-	char *name = "unknown";
-
-	/* Analyze the flag */
-	switch (flag)
-	{
-		case LF1_FIRE: name = "fire"; break;
-		case LF1_ACID: name = "acid"; break;
-		case LF1_WATER: name = "water"; break;
-		case LF1_MUD: name = "mud"; break;
-		case LF1_LAVA: name = "lava"; break;
-		case LF1_ICE: name = "ice"; break;
-		case LF1_FOREST: name = "forest"; break;
-		case LF1_OIL: name = "oil"; break;
-		case LF1_SAND: name = "sand"; break;
-		case LF1_BWATER: name = "boiling water"; break;
-		case LF1_BMUD: name = "boiling mud"; break;
-	}
-
-	/* Copy the name */
-	my_strcpy(buf, name, max);
-}
-
-/*
- * Show several messages describing all the LF1_* flags contained in the
- * given set of flags
- */
-void debug_all_level_flags(u32b all_flags)
-{
-	int i;
-	u32b flag = 1;
-
-	/* Parse the bits of the given flags */
-	for (i = 0; i < 32; i++, flag <<= 1)
-	{
-		/* The current flags is present in the set? */
-		if (all_flags & flag)
-		{
-			char buf[80];
-
-			/* Get the name */
-			describe_one_level_flag(buf, sizeof(buf), flag);
-
-			/* Message */
-			msg_c_format(MSG_NOTICE, "The %s flag is present.", buf);
-		}
-	}
-}
-
-

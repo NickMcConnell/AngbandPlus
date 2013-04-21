@@ -311,16 +311,12 @@ static errr rd_item(object_type *o_ptr)
 	/* Save the inscription */
 	if (buf[0]) o_ptr->obj_note = quark_add(buf);
 
-	if (!older_than(0,4,5))
-	{
-
-		/* Object history */
-		rd_byte(&o_ptr->origin_nature);
-		rd_s16b(&o_ptr->origin_dlvl);
-		rd_s16b(&o_ptr->origin_r_idx);
-		rd_string(buf, sizeof(buf));
-		if (buf[0]) o_ptr->origin_m_name = quark_add(buf);
-	}
+	/* Object history */
+	rd_byte(&o_ptr->origin_nature);
+	rd_s16b(&o_ptr->origin_dlvl);
+	rd_s16b(&o_ptr->origin_r_idx);
+	rd_string(buf, sizeof(buf));
+	if (buf[0]) o_ptr->origin_m_name = quark_add(buf);
 
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
@@ -331,24 +327,6 @@ static errr rd_item(object_type *o_ptr)
 
 	/* Hack -- notice "broken" items */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
-
- 	/* Ensure that rods and wands get the appropriate pvals,
-	 * and transfer rod charges to timeout.
-	 * this test should only be passed once, the first
-	 * time the file is open with ROD/WAND stacking code
-	 * It could change the timeout improperly if the PVAL (time a rod
-	 * takes to charge after use) is changed in object.txt.
-	 * But this is nothing a little resting won't solve.
-	 *
-	 * -JG-
-	 */
-	if ((o_ptr->tval == TV_ROD) && (o_ptr->pval - (k_ptr->pval * o_ptr->number) != 0))
-	{
-
-		o_ptr->timeout = o_ptr->pval;
-		o_ptr->pval = k_ptr->pval * o_ptr->number;
-
-	}
 
 	/* Repair non "wearable" items */
 	if (!wearable_p(o_ptr))
@@ -498,13 +476,6 @@ static errr rd_item(object_type *o_ptr)
 	if (o_ptr->dd < old_dd) o_ptr->dd = old_dd;
 	if (o_ptr->ds < old_ds) o_ptr->ds = old_ds;
 
-	/* Hack -- *Identified* artifacts are known in future games */
-	if ((o_ptr->ident & (IDENT_MENTAL)) && ARTIFACT_EASY_MENTAL(o_ptr))
-	{
-		/* Mark as *identified* */
-		a_l_list[o_ptr->art_num].was_fully_identified = TRUE;
-	}
-
 	/* Success */
 	return (0);
 }
@@ -547,109 +518,6 @@ static void rd_monster(monster_type *m_ptr)
 
 
 /*
- * Read and discard all fields of an unknown extension.
- */
-static errr rd_unknown_extension(void)
-{
-	byte tmp8u;
-	u16b tmp16u;
-	s16b tmp16s;
-	u32b tmp32u;
-	s32b tmp32s;
-	char string[1024];
-
-	while (TRUE)
-	{
-		/* Read field type */
-		rd_byte(&tmp8u);
-
-		/* End mark? */
-		if (tmp8u == EXTENSION_TYPE_END) break;
-
-		/* Discard field depending on type */
-		switch(tmp8u)
-		{
-			case EXTENSION_TYPE_U32B: rd_u32b(&tmp32u); break;
-			case EXTENSION_TYPE_S32B: rd_s32b(&tmp32s); break;
-			case EXTENSION_TYPE_U16B: rd_u16b(&tmp16u); break;
-			case EXTENSION_TYPE_S16B: rd_s16b(&tmp16s); break;
-			case EXTENSION_TYPE_STRING: rd_string(string, sizeof(string)); break;
-			case EXTENSION_TYPE_BYTE: rd_byte(&tmp8u); break;
-			/* Garbage? */
-			default: return (-1);
-		}
-	}
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Read the call huorns extension.
- */
-static errr rd_call_huorns_extension(void)
-{
-	byte tmp8u;
-
-	/* Read and validate field type of the spell timer */
-	rd_byte(&tmp8u);
-	if (tmp8u != EXTENSION_TYPE_U16B) return (-1);
-
-	/* Read timer value */
-	rd_u16b(&p_ptr->temp_call_huorns);
-
-	/* Read and validate end mark of fields */
-	rd_byte(&tmp8u);
-	if (tmp8u != EXTENSION_TYPE_END) return (-1);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Process variable extensions.
- */
-static errr rd_extensions(void)
-{
-	s16b extension;
-
-	while (TRUE)
-	{
-		/* Read extension type */
-		rd_s16b(&extension);
-
-		/* End mark? */
-		if (extension == END_EXTENSIONS) break;
-
-		/*printf("Extension: %d\n", (int)extension);*/
-
-		/* Process extensions */
-		switch (extension)
-		{
-			/* Call huorns */
-			case EXTENSION_CALL_HUORNS:
-			{
-				if (rd_call_huorns_extension()) return (-1);
-				break;
-			}
-
-			/* Unknown. Discard */
-			default:
-			{
-				if (rd_unknown_extension()) return (-1);
-				break;
-			}
-		}
-	}
-
-	/* Success */
-	return (0);
-}
-
-
-/*
  * Read an object
  *
  * This function attempts to "repair" old savefiles, and to extract
@@ -668,6 +536,7 @@ static errr rd_effect(void)
 	u16b power;
 	s16b source;
 	u16b flags;
+	s16b r_idx;
 
 	x_idx = x_pop();
 
@@ -696,14 +565,9 @@ static errr rd_effect(void)
 	if (type) effect_prep(x_idx, type, f_idx, y, x, countdown, repeats, power, source, flags);
 
 	/* Read a new field, a monster race for inscriptions */
-	if (!older_than(0,4,8))
-	{
-		s16b r_idx;
 
-		rd_s16b(&r_idx);
-
-		x_list[x_idx].x_r_idx = (type ? r_idx: 0);
-	}
+	rd_s16b(&r_idx);
+	x_list[x_idx].x_r_idx = (type ? r_idx: 0);
 
 	/* Success */
 	return (0);
@@ -761,16 +625,6 @@ static void rd_monster_lore(int r_idx)
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
 
-	/* Hack - allow for new monsters from a modified monster list to appear in a current game. */
-
-	/* In case of a monster entry that wasn't a unique is now made a unique.*/
-	if (r_ptr->flags1 & (RF1_UNIQUE))
-	{
-		if (r_ptr->max_num > 1) r_ptr->max_num = 1;
-	}
-	/* Not a unique, but a new monster entry in the current game. */
-	else if (r_ptr->max_num == 0) r_ptr->max_num = 100;
-
 	/* Later (?) */
 	rd_byte(&tmp8u);
 	rd_byte(&tmp8u);
@@ -785,7 +639,6 @@ static void rd_monster_lore(int r_idx)
 	l_ptr->r_l_flags6 &= r_ptr->flags6;
 	l_ptr->r_l_flags7 &= r_ptr->flags7;
 	l_ptr->r_l_native &= r_ptr->r_native;
-
 }
 
 
@@ -853,29 +706,6 @@ static errr rd_store(int n)
 	return (0);
 }
 
-
-/*
- * Read artifact lore
- */
-static errr rd_artifact_lore(int a_idx)
-{
-	byte tmp8u;
-
-	/* Read flags */
-	rd_byte(&tmp8u);
-
-	/* The artifact was fully identified */
-	a_l_list[a_idx].was_fully_identified = ((tmp8u & 0x01) != 0);
-
-	/* For future use */
-	rd_byte(&tmp8u);
-	rd_byte(&tmp8u);
-	rd_byte(&tmp8u);
-
-	return (0);
-}
-
-
 /*
  * Read terrain lore
  */
@@ -891,9 +721,6 @@ static errr rd_feature_lore(int f_idx)
 
 	/* Activate the "everseen" flag, if needed */
 	f_ptr->f_everseen = (tmp8u & 0x01);
-
-	/*Success, for older savefiles*/
-	if (older_than(0, 4, 3)) return (0);
 
 	/* Write the terrain_lore memory*/
 	rd_byte(&f_l_ptr->f_l_sights);
@@ -1168,6 +995,7 @@ static errr rd_extra(void)
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
+	rd_byte(&p_ptr->mpdie);
 	rd_byte(&p_ptr->expfact);
 
 	/* Age/Height/Weight */
@@ -1178,6 +1006,16 @@ static errr rd_extra(void)
 	/* Read the stat info */
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_cur[i]);
+
+	rd_s16b(&p_ptr->statgain1);
+	rd_s16b(&p_ptr->statgain2);
+	rd_s16b(&p_ptr->statgain3);
+	rd_s16b(&p_ptr->statgain4);
+	rd_s16b(&p_ptr->statgain5);
+	rd_s16b(&p_ptr->statgain6);
+	rd_s16b(&p_ptr->statgain7);
+	rd_s16b(&p_ptr->statgain8);
+	rd_s16b(&p_ptr->statgain9);
 
 	strip_bytes(24);	/* oops */
 
@@ -1245,9 +1083,12 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->hero);
 	rd_s16b(&p_ptr->shero);
 	rd_s16b(&p_ptr->shield);
+	rd_s16b(&p_ptr->megashield);
 	rd_s16b(&p_ptr->blessed);
 	rd_s16b(&p_ptr->tim_invis);
 	rd_s16b(&p_ptr->word_recall);
+	rd_s16b(&p_ptr->teleport_delay);
+	rd_s16b(&p_ptr->teleport_range);
 	rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
 	rd_s16b(&p_ptr->oppose_fire);
@@ -1255,17 +1096,14 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+	rd_s16b(&p_ptr->oppose_conf);
 
-	if (!(older_than(0,4,6)))
-	{
-		rd_s16b(&p_ptr->temp_native_lava);
-		rd_s16b(&p_ptr->temp_native_oil);
-		rd_s16b(&p_ptr->temp_native_sand);
-		rd_s16b(&p_ptr->temp_native_forest);
-		rd_s16b(&p_ptr->temp_native_water);
-		rd_s16b(&p_ptr->temp_native_mud);
-	}
-
+	rd_s16b(&p_ptr->temp_native_lava);
+	rd_s16b(&p_ptr->temp_native_oil);
+	rd_s16b(&p_ptr->temp_native_sand);
+	rd_s16b(&p_ptr->temp_native_forest);
+	rd_s16b(&p_ptr->temp_native_water);
+	rd_s16b(&p_ptr->temp_native_mud);
 
 	rd_byte(&p_ptr->confusing);
 	rd_s16b(&p_ptr->slay_elements);	/* oops */
@@ -1419,22 +1257,13 @@ static errr rd_extra(void)
 	rd_s32b(&turn);
 
 	/*Current Player Turn*/
-	if (!older_than(0,4,4)) rd_s32b(&p_ptr->p_turn);
+	rd_s32b(&p_ptr->p_turn);
 
 	/* Turn count for quest indicator */
-	if (!older_than(0,4,8)) rd_u16b(&quest_indicator_timer);
-
-	/* Check if the quest indicator must flash the victory sign */
-	if (quest_indicator_timer & (QUEST_INDICATOR_COMPLETE_BIT))
-	{
-		/* We won the quest */
-		quest_indicator_complete = TRUE;
-		/* Clear the mark from the timer */
-		quest_indicator_timer &= ~(QUEST_INDICATOR_COMPLETE_BIT);
-	}
+	rd_u16b(&quest_indicator_timer);
 
 	/* Panel change offsets */
-	if (!older_than(0,4,8))
+	if (1)
 	{
 		rd_u16b(&panel_change_offset_y);
 		rd_u16b(&panel_change_offset_x);
@@ -1465,6 +1294,22 @@ static errr rd_extra(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		rd_s16b(&p_ptr->player_hp[i]);
+	}
+
+	/* Read the player_sp array */
+	rd_u16b(&tmp16u);
+
+	/* Incompatible save files */
+	if (tmp16u > PY_MAX_LEVEL)
+	{
+		note(format("Too many (%u) spell point entries!", tmp16u));
+		return (-1);
+	}
+
+	/* Read the player_hp array */
+	for (i = 0; i < tmp16u; i++)
+	{
+		rd_s16b(&p_ptr->player_sp[i]);
 	}
 
 	/* Read the player spells */
@@ -1548,7 +1393,7 @@ static errr rd_randarts(void)
 			rd_u32b(&a_ptr->a_flags1);
 			rd_u32b(&a_ptr->a_flags2);
 			rd_u32b(&a_ptr->a_flags3);
-			if (!older_than(0,4,7)) rd_u32b(&a_ptr->a_native);
+			rd_u32b(&a_ptr->a_native);
 			rd_byte(&a_ptr->a_level);
 			rd_byte(&a_ptr->a_rarity);
 			rd_byte(&a_ptr->activation);
@@ -1921,16 +1766,23 @@ static errr rd_dungeon(void)
 				}
 			}
 
+			/* Set the level type */
+			level_flag |= _feat_ff3_match(f_ptr, TERRAIN_MASK);
+
 			/* Register dynamic features */
 			if (_feat_ff3_match(f_ptr, FF3_DYNAMIC))
 			{
 				(void)add_dynamic_terrain(y, x);
 			}
 
-			/* Update the flags of the current level */
+			 /* Count elemental features */
 			if (_feat_ff3_match(f_ptr, TERRAIN_MASK))
 			{
-				level_flag |= get_level_flag((u16b)(f_ptr - f_info));
+				/* Get the counter */
+				u16b *counter = get_element_counter(f_ptr);
+
+				/* Increment */
+				if (counter) ++*counter;
 			}
 
 			/* Advance/Wrap */
@@ -2115,7 +1967,7 @@ static errr rd_dungeon(void)
 	}
 
 	/*** Effects ***/
-	if (!older_than(0,4,4))
+	if (1)
 	{
 
 		/* Read the effect count */
@@ -2309,7 +2161,7 @@ static errr rd_savefile_new_aux(void)
 			rd_byte(&q_info[i].base_level);
 
 			/* Read the started field */
-			if (!older_than(0,4,8))
+			if (1)
 			{
 				rd_byte(&tmp8u);
 				q_info[i].started = (tmp8u) ? TRUE : FALSE;
@@ -2374,12 +2226,6 @@ static errr rd_savefile_new_aux(void)
 	if (rd_notes()) return (-1);
 	if (arg_fiddle) note("Loaded Notes");
 
-	if (!older_than(0, 4, 10))
-	{
-	       	if (rd_extensions()) return (-1);
-		if (arg_fiddle) note("Loaded Extensions");
-	}
-
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];
 
@@ -2389,9 +2235,6 @@ static errr rd_savefile_new_aux(void)
 
 	/* Important -- Initialize the magic */
 	mp_ptr = &cp_ptr->spells;
-
-	/* Hack - In NPP 050, we moved a spell out of ironman book.*/
-	if (cp_ptr->spell_book == TV_MAGIC_BOOK)  p_ptr->spell_flags[SPELL_FLIGHT] &= ~(PY_SPELL_IRONMAN);
 
 	/* Read the inventory */
 	if (rd_inventory())
@@ -2422,26 +2265,6 @@ static errr rd_savefile_new_aux(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		if (rd_feature_lore(i)) return (-1);
-	}
-
-	/* Artifact lore */
-	if (!older_than(0, 4, 9))
-	{
-		/* Read the stored number of artifacts (normal + special) */
-		rd_u16b(&tmp16u);
-
-		/* Check bounds */
-		if (tmp16u > z_info->art_norm_max)
-		{
-			note(format("Too many (%u) artifacts!", tmp16u));
-			return (-1);
-		}
-
-		/* Read artifact lore */
-		for (i = 0; i < tmp16u; i++)
-		{
-			if (rd_artifact_lore(i)) return (-1);
-		}
 	}
 
 	/* I'm not dead yet... */

@@ -10,12 +10,24 @@
 
 #include "angband.h"
 
+static cptr desc_stat_neg[] =
+{
+	"weak",
+	"stupid",
+	"naive",
+	"clumsy",
+	"sickly",
+	"slow",
+	"noisy",
+	"short-sighted",
+	"unlucky"
+};
 
 static bool eat_food(object_type *o_ptr, bool *ident)
 {
 	/* Analyze the food */
 	switch (o_ptr->sval)
-	{
+	{/*
 		case SV_FOOD_POISON:
 		{
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois))
@@ -185,13 +197,28 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			if (do_res_stat(A_WIS)) *ident = TRUE;
 			if (do_res_stat(A_DEX)) *ident = TRUE;
 			if (do_res_stat(A_CON)) *ident = TRUE;
-			if (do_res_stat(A_CHR)) *ident = TRUE;
+			if (do_res_stat(A_AGI)) *ident = TRUE;
+			if (do_res_stat(A_STE)) *ident = TRUE;
+			if (do_res_stat(A_PER)) *ident = TRUE;
+			if (do_res_stat(A_LUC)) *ident = TRUE;
+			break;
+		}*/
+
+		case SV_FOOD_APPLE:
+		{
+			msg_print("(crunch, crunch)");
+			*ident = TRUE;
+			break;
+		}
+		
+		case SV_FOOD_JERKY:
+		{
+			msg_print("Chewy!");
+			*ident = TRUE;
 			break;
 		}
 
-
 		case SV_FOOD_RATION:
-		case SV_FOOD_SLIME_MOLD:
 		{
 			msg_print("That tastes good.");
 			*ident = TRUE;
@@ -310,7 +337,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			if (p_ptr->csp)
 			{
 				p_ptr->csp /= 2;
-				msg_print("Your feel your head cloud up.");
+				msg_print("You feel your head cloud up.");
 				p_ptr->redraw |= (PR_MANA);
 				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 				*ident = TRUE;
@@ -326,62 +353,11 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			(void)dec_stat(A_WIS, 25, TRUE);
 			(void)dec_stat(A_CON, 25, TRUE);
 			(void)dec_stat(A_STR, 25, TRUE);
-			(void)dec_stat(A_CHR, 25, TRUE);
 			(void)dec_stat(A_INT, 25, TRUE);
-			*ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_STR:
-		{
-			if (do_dec_stat(A_STR)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_INT:
-		{
-			if (do_dec_stat(A_INT)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_WIS:
-		{
-			if (do_dec_stat(A_WIS)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_DEX:
-		{
-			if (do_dec_stat(A_DEX)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_CON:
-		{
-			if (do_dec_stat(A_CON)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_CHR:
-		{
-			if (do_dec_stat(A_CHR)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DETONATIONS:
-		{
-			msg_print("Massive explosions rupture your body!");
-			take_hit(damroll(50, 20), "a potion of Detonation");
-			(void)set_stun(p_ptr->stun + 75);
-			(void)set_cut(p_ptr->cut + 5000);
-			*ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEATH:
-		{
-			msg_print("A feeling of Death flows through your body.");
-			take_hit(5000, "a potion of Death");
+			(void)dec_stat(A_AGI, 25, TRUE);
+			(void)dec_stat(A_STE, 25, TRUE);
+			(void)dec_stat(A_PER, 25, TRUE);
+			(void)dec_stat(A_LUC, 25, TRUE);
 			*ident = TRUE;
 			break;
 		}
@@ -401,6 +377,21 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			{
 				*ident = TRUE;
 			}
+			break;
+		}
+
+		case SV_POTION_CLARITY:
+		{
+			set_confused(0);
+			set_oppose_conf(50+randint(50));
+			*ident = TRUE;
+			break;
+		}
+
+		case SV_POTION_DISAPPEARANCE:
+		{
+			teleport_player(30);
+			*ident = TRUE;
 			break;
 		}
 
@@ -471,7 +462,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_LIGHT:
 		{
-			if (hp_player(damroll(3, 8))) *ident = TRUE;
+			if (hp_player(damroll(3, 10))) *ident = TRUE;
 			if (set_blind(0)) *ident = TRUE;
 			if (set_cut(p_ptr->cut - 10)) *ident = TRUE;
 			break;
@@ -479,7 +470,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(5, 10))) *ident = TRUE;
+			if (hp_player(damroll(8, 10))) *ident = TRUE;
 			if (set_blind(0)) *ident = TRUE;
 			if (set_confused(0)) *ident = TRUE;
 			if (set_cut((p_ptr->cut / 2) - 50)) *ident = TRUE;
@@ -488,10 +479,9 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CURE_CRITICAL:
 		{
-			if (hp_player(damroll(8, 10))) *ident = TRUE;
+			if (hp_player(damroll(12, 12))) *ident = TRUE;
 			if (set_blind(0)) *ident = TRUE;
 			if (set_confused(0)) *ident = TRUE;
-			if (set_poisoned(0)) *ident = TRUE;
 			if (set_stun(0)) *ident = TRUE;
 			if (set_cut(0)) *ident = TRUE;
 			break;
@@ -534,7 +524,10 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			(void)do_res_stat(A_DEX);
 			(void)do_res_stat(A_WIS);
 			(void)do_res_stat(A_INT);
-			(void)do_res_stat(A_CHR);
+			(void)do_res_stat(A_AGI);
+			(void)do_res_stat(A_STE);
+			(void)do_res_stat(A_PER);
+			(void)do_res_stat(A_LUC);
 
 			/* Recalculate max. hitpoints */
 			update_stuff();
@@ -549,9 +542,8 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		{
 			if (p_ptr->csp < p_ptr->msp)
 			{
-				p_ptr->csp = p_ptr->msp;
-				p_ptr->csp_frac = 0;
-				msg_print("Your feel your head clear.");
+				regenmana(20);
+				msg_print("You feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
 				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 				*ident = TRUE;
@@ -574,103 +566,63 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_RES_INT:
 		{
 			if (do_res_stat(A_INT)) *ident = TRUE;
+			if (set_confused(0)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_RES_WIS:
 		{
 			if (do_res_stat(A_WIS)) *ident = TRUE;
+			if (set_afraid(0)) *ident = TRUE;
+			(void)set_image(0);
 			break;
 		}
 
 		case SV_POTION_RES_DEX:
 		{
 			if (do_res_stat(A_DEX)) *ident = TRUE;
+			if (set_stun(0)) *ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_RES_CON:
 		{
 			if (do_res_stat(A_CON)) *ident = TRUE;
+			if (set_poisoned(0)) *ident = TRUE;
+			if (set_cut(0)) *ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_RES_CHR:
+		case SV_POTION_RES_AGI:
 		{
-			if (do_res_stat(A_CHR)) *ident = TRUE;
+			if (do_res_stat(A_AGI)) *ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_INC_STR:
+		case SV_POTION_RES_STE:
 		{
-			if (do_inc_stat(A_STR)) *ident = TRUE;
+			if (do_res_stat(A_STE)) *ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_INC_INT:
+		case SV_POTION_RES_PER:
 		{
-			if (do_inc_stat(A_INT)) *ident = TRUE;
+			if (do_res_stat(A_PER)) *ident = TRUE;
+			if (set_blind(0)) *ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_INC_WIS:
+		case SV_POTION_RES_LUC:
 		{
-			if (do_inc_stat(A_WIS)) *ident = TRUE;
+			if (do_res_stat(A_LUC)) *ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_INC_DEX:
-		{
-			if (do_inc_stat(A_DEX)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_INC_CON:
-		{
-			if (do_inc_stat(A_CON)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_INC_CHR:
-		{
-			if (do_inc_stat(A_CHR)) *ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_AUGMENTATION:
-		{
-			if (do_inc_stat(A_STR)) *ident = TRUE;
-			if (do_inc_stat(A_INT)) *ident = TRUE;
-			if (do_inc_stat(A_WIS)) *ident = TRUE;
-			if (do_inc_stat(A_DEX)) *ident = TRUE;
-			if (do_inc_stat(A_CON)) *ident = TRUE;
-			if (do_inc_stat(A_CHR)) *ident = TRUE;
-			break;
-		}
 
 		case SV_POTION_ENLIGHTENMENT:
 		{
 			msg_print("An image of your surroundings forms in your mind...");
 			wiz_lite();
-			*ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_STAR_ENLIGHTENMENT:
-		{
-			msg_print("You begin to feel more enlightened...");
-			message_flush();
-			wiz_lite();
-			(void)do_inc_stat(A_INT);
-			(void)do_inc_stat(A_WIS);
-			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
-			(void)detect_treasure();
-			(void)detect_objects_gold();
-			(void)detect_objects_normal();
-			identify_and_squelch_pack();
-			self_knowledge();
 			*ident = TRUE;
 			break;
 		}
@@ -684,16 +636,126 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_POTION_EXPERIENCE:
+		case SV_POTION_EXCH_1:
 		{
-			if (p_ptr->exp < PY_MAX_EXP)
-			{
-				s32b ee = (p_ptr->exp / 2) + 10;
-				if (ee > 100000L) ee = 100000L;
-				msg_print("You feel more experienced.");
-				gain_exp(ee);
-				*ident = TRUE;
-			}
+
+			*ident = TRUE;
+			do_inc_stat(A_LUC);
+			new_dec_stat(A_WIS,1,1);
+			new_dec_stat(A_WIS,1,0);
+			message_format(MSG_DRAIN_STAT, A_WIS, "You feel very %s.", desc_stat_neg[A_WIS]);
+			message_flush();
+			break;
+		}
+		
+		case SV_POTION_EXCH_2:
+		{
+
+			*ident = TRUE;
+			do_inc_stat(A_PER);
+			new_dec_stat(A_LUC,1,1);
+			new_dec_stat(A_LUC,1,0);
+			message_format(MSG_DRAIN_STAT, A_LUC, "You feel very %s.", desc_stat_neg[A_LUC]);
+			message_flush();
+			break;
+		}
+		
+		case SV_POTION_EXCH_3:
+		{
+
+			*ident = TRUE;
+			do_inc_stat(A_STE);
+			new_dec_stat(A_AGI,1,1);
+			new_dec_stat(A_AGI,1,0);
+			message_format(MSG_DRAIN_STAT, A_AGI, "You feel very %s.", desc_stat_neg[A_AGI]);
+			message_flush();
+			break;
+		}
+		
+		case SV_POTION_EXCH_4:
+		{
+
+			*ident = TRUE;
+			do_inc_stat(A_CON);
+			new_dec_stat(A_STE,1,1);
+			new_dec_stat(A_STE,1,0);
+			message_format(MSG_DRAIN_STAT, A_STE, "You feel very %s.", desc_stat_neg[A_STE]);
+			message_flush();
+			break;
+		}
+		
+		case SV_POTION_EXCH_5:
+		{
+
+			*ident = TRUE;
+			do_inc_stat(A_DEX);
+			new_dec_stat(A_STR,1,1);
+			new_dec_stat(A_STR,1,0);
+			message_format(MSG_DRAIN_STAT, A_STR, "You feel very %s.", desc_stat_neg[A_STR]);
+			message_flush();
+			break;
+		}
+		
+		case SV_POTION_EXCH_6:
+		{
+
+			*ident = TRUE;
+			do_inc_stat(A_STR);
+			new_dec_stat(A_INT,1,1);
+			new_dec_stat(A_INT,1,0);
+			message_format(MSG_DRAIN_STAT, A_INT, "You feel very %s.", desc_stat_neg[A_INT]);
+			message_flush();
+			break;
+		}
+		
+		case SV_POTION_EXCH_7:
+		{
+
+			*ident = TRUE;
+			do_inc_stat(A_AGI);
+			new_dec_stat(A_PER,1,1);
+			new_dec_stat(A_PER,1,0);
+			message_format(MSG_DRAIN_STAT, A_PER, "You feel very %s.", desc_stat_neg[A_PER]);
+			message_flush();
+			break;
+		}
+		
+		case SV_POTION_EXCH_8:
+		{
+
+			*ident = TRUE;
+			do_inc_stat(A_INT);
+			new_dec_stat(A_CON,1,1);
+			new_dec_stat(A_CON,1,0);
+			message_format(MSG_DRAIN_STAT, A_CON, "You feel very %s.", desc_stat_neg[A_CON]);
+			message_flush();
+			break;
+		}
+		
+		case SV_POTION_EXCH_9:
+		{
+
+			*ident = TRUE;
+			do_inc_stat(A_WIS);
+			new_dec_stat(A_DEX,1,1);
+			new_dec_stat(A_DEX,1,0);
+			message_format(MSG_DRAIN_STAT, A_DEX, "You feel very %s.", desc_stat_neg[A_DEX]);
+			message_flush();
+			break;
+		}
+		
+		case SV_POTION_RESTORING:
+		{
+			(void)do_res_stat(A_STR);
+			(void)do_res_stat(A_INT);
+			(void)do_res_stat(A_WIS);
+			(void)do_res_stat(A_DEX);
+			(void)do_res_stat(A_CON);
+			(void)do_res_stat(A_AGI);
+			(void)do_res_stat(A_STE);
+			(void)do_res_stat(A_PER);
+			(void)do_res_stat(A_LUC);
+			*ident = TRUE;
 			break;
 		}
 
@@ -789,7 +851,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			sound(MSG_SUM_MONSTER);
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(py, px, danger(p_ptr->depth), 0))
 				{
 					*ident = TRUE;
 				}
@@ -802,7 +864,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			sound(MSG_SUM_UNDEAD);
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
+				if (summon_specific(py, px, danger(p_ptr->depth), SUMMON_UNDEAD))
 				{
 					*ident = TRUE;
 				}
@@ -813,7 +875,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_SUMMON_UNIQUE:
 		{
 
-			if (summon_specific(py, px, p_ptr->depth, SUMMON_UNIQUE))
+			if (summon_specific(py, px, danger(p_ptr->depth), SUMMON_UNIQUE))
 			{
 				*ident = TRUE;
 			}
@@ -836,21 +898,8 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_TELEPORT:
 		{
-			teleport_player(100);
-			*ident = TRUE;
-			break;
-		}
-
-		case SV_SCROLL_TELEPORT_LEVEL:
-		{
-			(void)teleport_player_level(SOURCE_PLAYER);
-			*ident = TRUE;
-			break;
-		}
-
-		case SV_SCROLL_WORD_OF_RECALL:
-		{
-			set_recall();
+			msg_print("You feel magical forces starting to build up.");
+			delayed_teleport_player(100);
 			*ident = TRUE;
 			break;
 		}
@@ -921,17 +970,15 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_SCROLL_RECHARGING:
+		case SV_SCROLL_MASS_SLEEP:
 		{
-			if (!recharge(60, FALSE)) used_up = FALSE;
-			*ident = TRUE;
+			if (sleep_monsters(30)) *ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_STAR_RECHARGING:
+		case SV_SCROLL_MASS_CONF:
 		{
-			if (!recharge(150, TRUE)) used_up = FALSE;
-			*ident = TRUE;
+			if (project_los(p_ptr->py, p_ptr->px, 30, GF_OLD_CONF)) *ident = TRUE;
 			break;
 		}
 
@@ -1062,7 +1109,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			int item;
 
 			/*artifact power is based on depth*/
-			int randart_power = 10 + p_ptr->depth;
+			int randart_power = 10 + danger(p_ptr->depth);
 
 			/* Get an item */
 			cptr q = "Choose an item to be made into an artifact. ";
@@ -1127,12 +1174,6 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_SCROLL_STAR_ACQUIREMENT:
-		{
-			acquirement(py, px, randint(2) + 1, TRUE);
-			*ident = TRUE;
-			break;
-		}
 	}
 
 	return (used_up);
@@ -1148,7 +1189,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 	bool use_charge = TRUE;
 
-	/* Analyze the staff */
+	/* Analyze the staff 
 	switch (o_ptr->sval)
 	{
 		case SV_STAFF_DARKNESS:
@@ -1178,7 +1219,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			sound(MSG_SUM_MONSTER);
 			for (k = 0; k < randint(4); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(py, px, danger(p_ptr->depth), 0))
 				{
 					*ident = TRUE;
 				}
@@ -1188,7 +1229,8 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_TELEPORTATION:
 		{
-			teleport_player(100);
+			msg_print("You feel magical forces starting to build up.");
+			delayed_teleport_player(100);
 			*ident = TRUE;
 			break;
 		}
@@ -1386,7 +1428,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		  	break;
 		}
 
-	}
+	} */
 
 	return (use_charge);
 }
@@ -1394,17 +1436,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 static bool aim_wand(object_type *o_ptr, bool *ident)
 {
-	int lev, chance, dir, sval;
-
-
-	/*Special allowance for disarming and traps*/
-	bool is_disarm = FALSE;
-
-	if ((object_aware_p(o_ptr)) && ((o_ptr->sval == SV_WAND_DISARMING) ||
-			(o_ptr->sval == SV_WAND_TRAP_DOOR_DEST))) is_disarm = TRUE;
-
-	/* Allow direction to be cancelled for free */
-	if (!get_aim_dir(&dir, is_disarm)) return (FALSE);
+	int lev, dir, sval, mana_cost, chance;
 
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
@@ -1412,57 +1444,64 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 	/* Not identified yet */
 	*ident = FALSE;
 
-	/* Get the level */
-	lev = k_info[o_ptr->k_idx].k_level;
-
-	/* Base chance of success */
-	chance = p_ptr->skill_dev;
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
-
-	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
-	{
-		if (flush_failure) flush();
-		msg_print("You failed to use the wand properly.");
-		return (FALSE);
-	}
-
-	/* The wand is already empty! */
-	if (o_ptr->pval <= 0)
-	{
-		if (flush_failure) flush();
-		msg_print("The wand has no charges left.");
-		o_ptr->ident |= (IDENT_EMPTY);
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-		p_ptr->window |= (PW_INVEN);
-		return (FALSE);
-	}
-
-
-	/* Sound */
-	/* TODO: Create wand sound?  Do the individual effects have sounds? */
-	/* sound(MSG_ZAP_ROD); */
-
-	/* XXX Hack -- Extract the "sval" effect */
 	sval = o_ptr->sval;
 
-	/* XXX Hack -- Wand of wonder can do anything before it */
-	if (sval == SV_WAND_WONDER) sval = rand_int(SV_WAND_WONDER);
+	mana_cost = get_mana_cost(sval) - 1; 
+	chance = get_success_prob(sval);
 
-	/* Analyze the wand */
-	switch (sval)
+	/* Disallow "dangerous" spells */
+	if (mana_cost > p_ptr->csp || p_ptr->csp<=0)
 	{
+		/* Warning */
+		msg_print("You do not have enough mana to zap this wand.");
+
+		/* Flush input */
+		flush();
+
+		return FALSE;
+	}
+
+	/* Failed spell */
+	if (randint(100) > chance)
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to get the spell off!");
+	}
+
+	/* Process spell */
+	else
+	{
+		/* Cast the spell */
+		sound(MSG_SPELL);
+		if (do_mage_spell(MODE_SPELL_CAST, sval) == NULL) return FALSE;
+
+	}
+
+	/* Use some mana */
+	if (mana_cost >= 1){
+		p_ptr->csp -= mana_cost;
+	} else if (mana_cost == 0){
+		p_ptr->csp -= one_in_(2);
+	} else if (mana_cost == -1){
+		p_ptr->csp -= one_in_(4);
+	} else if (mana_cost == -2){
+		p_ptr->csp -= one_in_(8);
+	} else {
+		p_ptr->csp -= one_in_(16);
+	}
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+	
+	/* Take a turn */
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	
+	/* Analyze the wand 
+	switch (sval)
+	{ 
 		case SV_WAND_HEAL_MONSTER:
 		{
 			if (heal_monster(dir, damroll(4, 6))) *ident = TRUE;
@@ -1683,7 +1722,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 			if (drain_life(dir, 250)) *ident = TRUE;
 			break;
 		}
-	}
+	} */
 
 	return (TRUE);
 }
@@ -1694,21 +1733,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 	int chance, dir, lev;
 	bool used_charge = TRUE;
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-	/* Get a direction (unless KNOWN not to need it) */
-	if (((o_ptr->sval >= SV_ROD_MIN_DIRECTION) &&
-		 (o_ptr->sval != SV_ROD_STAR_IDENTIFY) &&
-	 	 (o_ptr->sval != SV_ROD_MASS_IDENTIFY)) || !object_aware_p(o_ptr))
-	{
-		/*Special allowance for disarming and traps*/
-		bool is_disarm = FALSE;
-
-		if ((object_known_p(o_ptr)) && (o_ptr->sval == SV_ROD_DISARMING)) is_disarm = TRUE;
-
-		/* Get a direction, allow cancel */
-		if (!get_aim_dir(&dir, is_disarm)) return FALSE;
-	}
-
 
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
@@ -1757,7 +1781,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 	/* Sound */
 	sound(MSG_ZAP_ROD);
 
-	/* Analyze the rod */
+	/* Analyze the rod 
 	switch (o_ptr->sval)
 	{
 		case SV_ROD_DETECT_TRAP:
@@ -1777,13 +1801,6 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		{
 			*ident = TRUE;
 			if (!ident_spell()) used_charge = FALSE;
-			break;
-		}
-
-		case SV_ROD_RECALL:
-		{
-			set_recall();
-			*ident = TRUE;
 			break;
 		}
 
@@ -1840,7 +1857,10 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 			if (do_res_stat(A_WIS)) *ident = TRUE;
 			if (do_res_stat(A_DEX)) *ident = TRUE;
 			if (do_res_stat(A_CON)) *ident = TRUE;
-			if (do_res_stat(A_CHR)) *ident = TRUE;
+			if (do_res_stat(A_AGI)) *ident = TRUE;
+			if (do_res_stat(A_STE)) *ident = TRUE;
+			if (do_res_stat(A_PER)) *ident = TRUE;
+			if (do_res_stat(A_LUC)) *ident = TRUE;
 			break;
 		}
 
@@ -1974,7 +1994,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 			*ident = TRUE;
 			break;
 		}
-	}
+	} */
 
 	/* Drain the charge */
 	if (used_charge) o_ptr->timeout += k_ptr->pval;
@@ -2198,15 +2218,13 @@ static bool activate_object(object_type *o_ptr)
 
 			case ACT_RECHARGE1:
 			{
-				msg_format("Your %s glows bright yellow...", o_name);
-				if (!recharge(60, FALSE)) return FALSE;
 				break;
 			}
 
 			case ACT_TELEPORT:
 			{
-				msg_format("Your %s twists space around you...", o_name);
-				teleport_player(100);
+				msg_format("Your %s starts flashing...", o_name);
+				delayed_teleport_player(100);
 				break;
 			}
 
@@ -2353,7 +2371,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_CURE_WOUNDS:
 			{
 				msg_format("Your %s radiates deep purple...", o_name);
-				hp_player(damroll(6, 10));
+				hp_player(damroll(8, 10));
 				(void)set_cut((p_ptr->cut / 2) - 50);
 				break;
 			}
@@ -2799,9 +2817,8 @@ bool use_object(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case TV_STAFF:
+		case TV_TALISMAN:
 		{
-			used = use_staff(o_ptr, ident);
 			break;
 		}
 
@@ -2813,7 +2830,6 @@ bool use_object(object_type *o_ptr, bool *ident)
 
 		case TV_ROD:
 		{
-			used = zap_rod(o_ptr, ident);
 			break;
 		}
 

@@ -4,180 +4,179 @@
 --- Basic attributes ---
 
 Experience:
-     As you kill monsters, learn about objects by using them, cast spells and
-pray prayers for the first time, disarm traps, and unlock doors (listed in
-descending order of importance), you gain experience.
+     As you kill monsters and pick up treasure you gain experience.
+     In most *bands, you can use gold to buy stuff at the store. There are no
+shops in Ironband, but instead gold (money and gems) gain you experience.
+Once you reach a higher level, some low-grade money (like copper) will no
+longer yield experience. 
 
 Character Level:
      Your level depends on your experience.  This improves hitpoints and
-(usually) spellpoints and most of the basic character abilities, and lets you
+spellpoints and most of the basic character abilities, and lets you
 learn new spells and gain attributes.
      As you gain levels, your title changes to reflect your growing power.
-
-Gold:
-     Gold is amazingly handy, because the goods and services stores sell can 
-be yours with enough of the stuff.  Characters start out with an amount of 
-gold determined by stats (lower is better).  Social class greatly influences 
-starting gold (higher is better).
-     Within the Pits of Angband lies more gold than you will ever find, more
-seams of treasure than you will ever dig, and more monsters carrying loot than
-you will ever kill.
+     In Ironband, you can only get up to L36 (as opposed to L50 in other *bands).
 
 Hitpoints:
      Your hitpoints are your life wrapped up in a number; if they ever drop
 below zero, you die.  Resting will restore hitpoints, but you should always have
 some quicker way to heal yourself on hand.  Your maximum hitpoints depends on
-your level, race, and class, plus a constitution bonus (which can be
-considerable).
+your level and race, plus a constitution bonus.
 
 Spellpoints:
      If you use magic, you will also have spellpoints, or mana.  Your maximum
-mana depends on your level and your intelligence (if you are a mage, rogue, or
-ranger) or wisdom (if you are a priest or paladin).  Ways to recover mana faster
-than by resting are rare and greatly desired.
-     Mana goes down if you wear heavy armour.  Mages, rogues, and rangers also
-lose a chunk of mana if they wear most (but not all) kinds of gloves.
+mana depends on your level and your wisdom.
+     In Ironband, your SP only regenerate when you go down stairs. So use
+them wisely, and retreat to the stairs down if you run out.
 
 Armour Class:
      Armour class (AC) makes you harder to hit in melee, and reduces the damage
 you take from many (but not all) monster blows.  You can raise it by equipping
-more and better armour, by increasing your Dexterity, and by activating various
+more and better armour, by increasing your Agility, and by activating various
 temporary effects.  As time passes, you will find this value rising past 100,
 even to 150 and above at very high levels.
 
 Score:
-     Your score in Angband depends on how much experience you have earned and
+     Your score in Ironband depends on how much experience you have earned and
 how deep in the dungeon you have ventured.
 
 Resistances:   
      Some spells, potions and other dungeon objects can temporarily give 
 the player stronger resistance to the elemental attacks; fire, cold, acid, 
-electricity, and poison.  A line will show which temporary resistances the
-player currently has.
+electricity, poison, and confusion.  A line will show which temporary 
+resistances the player currently has.
 
-Nativity:
-     The dungeon in NPPAngband is full of many new terrains.  What
-terrain you are in will affect your ability to move, and your
- effectiveness in combat.  There is magical equipment in the dungeon 
-that will allow you to become native to various terrains, and give 
-you an advantage in moving and fighting in those terrains.
 
 --- Vital Statistics ---
 
-     You have six primary statistics, or stats.  Each of them has important
+     You have nine primary statistics, or stats.  Each of them has important
 effects, and how you juggle equipment to boost some stats at the expense of
-others can greatly help or hinder your adventuring.  Deep in the dungeon,
-potions exist that can permanently raise your stats.
+others can greatly help or hinder your adventuring.  
 
 Values for stats:
      Stats range from 3 to 18/220.  The progression of stats goes from 3 -> 17,
-18, 18/10, 18/20 -> 18/220.  A value of 18/19 is the same as 18/10.
+18, 18/10, 18/20 -> 18/220.  
      The lowest any stat can go is 3, a level that greatly reduces any abilities
 that stat influences.  The lowest "safe" figure for most stats is 7, but you
 can't expect any significant bonuses until the stat reaches 18 or higher.  Once
-you get a stat that high, further increases will greatly enhance your abilities,
-eventually making it possible to slay some truly formidable monsters.  Stats max
-out at 18/220.
+you get a stat that high, further increases will greatly enhance your abilities. 
      Stats depend on your internal stats, the equipment you are wearing, and
 various temporary conditions.  The color of the stat becomes a darker green when 
 sustained.
 
-Maximize mode:
-     In maximize mode, racial and class adjustments to stats are adjustments to
-final stats; a Hobbit Mage can raise his internal Intelligence to 18/150, but
-his strength only to 18/30.  In non-maximize mode, internal stats always rise to
-18/100; racial and class adjustments only affect starting stats.
-     Maximize mode (the default) is recommended in most cases.
+As you go deeper in the dungeon, your stats will get better in several ways.
+- When you reach DL 2, 4, and 6, one of your stats will go up a lot, one a little
+and one actually go down. This reflects your character discovering their true
+potential (and is designed to make you play a character different from what you
+might have expected).
+- When you reach DL 8, 10, 12... one of your stats will go up 1 point. The stat is
+chosen at random, but is influenced by your race to some extent.
+- Whenever you gain a CL you can increase one of your stats - you choose which.
 
-Strength:
-     Increases in Strength increase melee damage and allow you to get more blows
-with heavier weapons.  It improves both your melee and missile accuracy.
-Strength also improves your tunneling ability, allows you to bear more weight
-without being slowed down, and to wield heavier weapons effectively.
-
-Intelligence:
-     Intelligent characters use magic devices, pick locks, and disarm traps more
-effectively.
-     If you are using spells, intelligence is your primary stat.  It controls
-how many spells you may learn, the amount of mana you have, and your spell
-failure rate.  If you are using prayers, wisdom controls all of these things.
-
-Wisdom:
-     Wise characters have a better chance of resisting magical spells cast upon
-them by monsters.  Wisdom is a priest or paladin's primary stat.
-
-Dexterity:
-     Dexterity is a combination of agility and quickness.  A high dexterity may
-allow you to get multiple blows with lighter weapons, and will increase your
-chances of hitting with melee or missile weapons.  Dexterity is also useful in
-picking locks, disarming traps, and protecting yourself from some of the thieves
-that inhabit the dungeon.
-
-Constitution:
-     Constitution determines your ability to resist physical damage, and your
-rate of recovery from poison, stuns, and cuts.  It makes a great difference to
-the amount of hitpoints you have and the speed at which you recover them, and so
-is a vital stat for any character.
-
-Charisma:
-     Charisma represents a character's ability to influence others.  A character
-with a high charisma will receive better prices from store owners, whereas a
-character with a very low charisma will be robbed blind.  Charisma also affects
-the character's ability to use magic to sleep, scare, or confuse a monster.
+          Strength
+               Strength is important in fighting in melee. A high strength
+               increases your damage and allows you to use heavy weapons without
+               penalty. If your weapon is too heavy for your strength, you
+               will get less attacks and have to-hit penalties.
+               Strength is also useful in tunneling and in carrying heavy items.
+ 
+          Intelligence
+               Intelligence affects your ability to cast spells. The higher
+               your Intelligence, the less the chance that your spells will fail.
+               Intelligence also affects your ability to disarm traps and to
+               use some magic devices, and is protective against confusion.
+               If your Intelligence is really low you may have trouble reading scrolls.
+ 
+          Wisdom
+               Wisdom increases the amount of SP (mana) you have.
+               As if that wasn't enough, it also improves your saving throw
+               which protects you from various magical attacks.
+ 
+          Dexterity
+               Dexterity is skill with your hands. High dexterity increases
+               your melee attacks per round, and your missile shot speed as 
+               well if it is high enough. It also improves your chance of 
+               hitting in melee.  Dexterity is useful in picking locks and 
+               disarming traps.
+ 
+          Constitution
+               Constitution is a character's ability to resist damage to his
+               body, and to recover from damage received.  Therefore a
+               character with a high constitution will receive more hit
+               points and also recover them faster while resting. Very high
+               Constitution also allows the character to eat less.
+ 
+          Agility
+               Agility is your speed of movement. It can give you a +Speed
+               bonus (allowing you to attack, shoot and move more often). It
+               also affects your AC. A very agile character recovers faster
+               from paralysis and is better protected from some of the 
+               thieves that inhabit the dungeons.
+               
+          Stealth
+               Stealth allows you to sneak around the dungeon without being
+               noticed and attacked by monsters. Picking your fights is a big
+               advantage. Also, if you sneak up to a monster and attack it in
+               melee, you will get a combat bonus - the more stealthy you are,
+               the bigger the bonus. And at high Stealth levels you gain resistance 
+               to darkness attacks.
+               Stealth is reduced by heavy body armour or big clunky boots.
+               
+          Perception
+               Perception has many advantages. Characters with high perception
+               have 'eagle eyes' and get bonuses to hit and damage with missile
+               weapons. They have a chance of spotting and avoiding traps. They
+               are better at searching, and get information on the magic bonuses
+               of items they pick up more quickly. At high levels of perception
+               you can get infravision, increased light radius, and even a limited
+               form of ESP which indicates your ability to hear and smell nearby 
+               monsters. Perception can also help you recover from blindness quicker.
+               Perception is reduced by the heavier helmets.
+               
+          Luck
+               Luck governs your chances of finding good items. With high luck,
+               you will find more useful equipment - and more artifacts, especially
+               if your luck is extremely high. With low luck you will stumble on
+               more junk and cursed items. Being lucky can also sometimes save you
+               from an early death (when a monster hits you with an attack that should
+               normally insta-kill you).
 
 
 --- Abilities ---
 
      In addition to your stats, certain basic abilities define your character.
-They depend on race, class, stats, and level, and may be powerfully influenced
-by temporary conditions.  You can most effectively keep track of your abilities
-by using the Character screen.
+They depend on race, stats, and level, and may be powerfully influenced
+by temporary conditions.  You cannot view your ability levels in Ironband,
+unlike other *bands.
 
 Saving Throw:
      The higher your saving throw, the more likely you are to resist the side
 effects of monster blows and spells, traps, your own magic (when it fails), and
-mental attacks.  Saving throw depends on race, class, wisdom, and level.
-
-Stealth:
-     The ability to move silently about is very useful.  If your stealth is good
-enough, you can avoid fights, get in the first blow, and fight monsters one at a
-time.  Stealth depends on race, class, and equipped items.
-
-Fighting (Melee):
-     The higher your melee ability, the more frequently you will hit in hand-to-
-hand combat and the more critical hits you will get.  Your race, class, stats,
-plusses to hit on equipped items (except for other weapons), and temporary
-effects are all factored into the skill value displayed on your character
-screen.  This also holds true for shooting ability.
-
-Shooting:
-     The higher your shooting ability, the more frequently you will hit with
-missile weapons and the more critical hits you will get.
+mental attacks.  Saving throw depends on race, Wisdom, and level.
 
 Disarming:
      The higher your disarming ability, the more quickly and safely you can pick
-locks and disarm chests and traps.  Race, class, level, dexterity, and
-intelligence all affect this ability.  It also affects the quality of any 
-monster traps set by the player, and the rogues ability to steal from creatures.
+locks and disarm chests and traps.  Race, level, dexterity, and intelligence all 
+affect this ability.  
 
 Magical Devices:
-     Determines how likely you are to successfully use magical devices or
-activatable items.  Race, class, level, and intelligence affect this ability.
-You need considerable skill to use high-level objects.
+     Determines how likely you are to successfully use some magical devices or
+activatable items (not including wands).  Race, level, and intelligence affect 
+this ability. You need considerable skill to use high-level objects.
 
-Perception:
-     The better your perception, the more likely it is that you will see traps
-and secret doors automatically.  Perception depends on race, class, level, and
+Detecting:
+     The better your detecting, the more likely it is that you will see traps
+and secret doors automatically.  Detecting depends on race, level, perception, and
 equipped objects.
      Note that this ability has no relationship to your ability to sense
 (pseudo-ID) objects.
 
 Searching:
      The better you are at searching, the more likely it is that you will see
-traps and secret doors by searching for them.  Searching depends on race, class,
-level, and equipped objects (same as perception).
+traps and secret doors by searching for them.  Searching depends on race, 
+level, perception, and equipped objects.
 
-Infra-vision:
+Infravision:
      The higher your infravision, the further away you can see warm-blooded
 creatures, even when invisible or not lit.
 
@@ -203,7 +202,7 @@ then from left to right.
                  when many things happen.  You often miss monsters, and cannot
                  cast spells or read scrolls.
      Confusion : You move and attack randomly and cannot cast spells, read
-                 scrolls, or use magical devices, except for staves.
+                 scrolls, or use magical devices.
      Fear      : You cannot use melee combat.
      Poison    : Instead of recovering battle damage, you take additional damage
                  every turn.
@@ -226,14 +225,8 @@ third speed ("very slow").
      Permanent speed bonuses add to your base speed.  Temporary effects may
 increase or reduce speed by 10.  
 
-Study:
-     If you know magic, and can learn spells, you will see a "study" indicator
-near the right-bottom of the main screen.  If you have a book available, you can
-learn the spells now.
-
 Depth:
      How deep in the dungeon you are.
-
 
 
 

@@ -159,7 +159,7 @@ void write_r_info_txt(void)
 
 		/* Write W: line */
 		fprintf(fff, "W:%d:%d::%d:%d:%ld\n", i, r_ptr->level, r_ptr->rarity,
-		    r_ptr->mana, r_ptr->mexp);
+		    0, r_ptr->mexp);
 
 		/* Write blows */
 		for(j = 0; j < 4; j++)
@@ -181,20 +181,13 @@ void write_r_info_txt(void)
 		dump_flags(fff, r_ptr->flags3, 3, i);
 		dump_flags(fff, r_ptr->flags4, 4, i);
 		dump_flags(fff, r_ptr->flags5, 5, i);
-		dump_flags(fff, r_ptr->flags6, 6, i);
 
-		/* Write the terrain native flag. */
-		what_char = 'T';
-
-		dump_flags(fff, r_ptr->r_native, 8, i);
-
-		fprintf(fff, "S:%d:%d:%d\n", i, r_ptr->freq_ranged, r_ptr->spell_power);
+		fprintf(fff, "S:%d:%d\n", i, r_ptr->freq_ranged);
 
 		/*now the summon flag*/
 		what_char = 'S';
 
-		dump_flags(fff, r_ptr->flags7, 7, i);
-
+		dump_flags(fff, r_ptr->flags6, 6, i);
 
 		/* Acquire the description */
 		desc = r_text + r_ptr->text;
@@ -380,7 +373,6 @@ void write_o_info_txt(void)
 		dump_flags(fff, k_ptr->k_flags1, 1, i);
 		dump_flags(fff, k_ptr->k_flags2, 2, i);
 		dump_flags(fff, k_ptr->k_flags3, 3, i);
-		dump_flags(fff, k_ptr->k_native, 4, i);
 
 		/* Acquire the description */
 		desc = k_text + k_ptr->text;
@@ -556,7 +548,6 @@ void write_e_info_txt(void)
 		dump_flags(fff, e_ptr->flags1, 1, i);
 		dump_flags(fff, e_ptr->flags2, 2, i);
 		dump_flags(fff, e_ptr->flags3, 3, i);
-		dump_flags(fff, e_ptr->e_native, 4, i);
 
 		/* Acquire the description */
 		desc = e_text + e_ptr->text;
@@ -725,16 +716,6 @@ void write_f_info_txt(void)
 			f_ptr = &f_info[i];
 		}
 
-		/* Write Edge  */
-		if (f_ptr->f_edge > 0)
-		{
-			/*hack, switch to a new f_ptr- t outpit out the name*/
-			f_ptr = &f_info[f_info[i].f_edge];
-			fprintf(fff, "E:%d:%s\n", i, f_name + f_ptr->name);
-			/* Switch Back*/
-			f_ptr = &f_info[i];
-		}
-
 		/*get the color name*/
 		color_name = get_ext_color_name(f_ptr->d_attr);
 
@@ -753,20 +734,8 @@ void write_f_info_txt(void)
 		else desc = NULL;
 
 		/* Write W: line */
-		fprintf(fff, "W:%d:%d:%d:%d:%d:\n", i, f_ptr->f_level, f_ptr->f_rarity,
-	    	f_ptr->priority, f_ptr->f_power);
-
-		/* Write C: line */
-		fprintf(fff, "C:%d:%d:%d:%d:%d:%d:%d:\n", i, f_ptr->dam_non_native, f_ptr->native_energy_move,
-	   	 	f_ptr->non_native_energy_move, f_ptr->native_to_hit_adj,
-			f_ptr->non_native_to_hit_adj, f_ptr->f_stealth_adj);
-
-
-		/* Write X: line */
-		fprintf(fff, "X:%d:%d:%d:%d:%d:%d:%d:%d:\n", i, f_ptr->f_level, f_ptr->f_rarity,
-	   	 	f_ptr->f_power, f_ptr->x_damage, f_ptr->x_gf_type,
-			f_ptr->x_timeout_set, f_ptr->x_timeout_rand);
-
+		fprintf(fff, "W:%d:%d:%d:%d:%s:%d\n", i, f_ptr->f_level, f_ptr->f_rarity,
+		    f_ptr->priority, desc, f_ptr->f_power);
 
 		/* Get the flags, store flag text in a format easily parsed by a
 		 * database, but pretty much illegible to a person.
@@ -776,7 +745,7 @@ void write_f_info_txt(void)
 		dump_flags(fff, f_ptr->f_flags3, 3, i);
 
 		/*Drop the default*/
-		fprintf(fff, "DEFAULT:%d:%d\n", i, f_ptr->defaults);
+		fprintf(fff, "DEFAULT:%d:%d\n", i, f_ptr->state);
 
 		/* Find the next empty state slot (if any) */
 		for (x = 0; x < MAX_FEAT_STATES; x++)
@@ -801,12 +770,12 @@ void write_f_info_txt(void)
 				else desc = NULL;
 
 				/*drop the "K" line*/
-				fprintf(fff, "K%d:%d:%s:%s:%d\n", i, x, action_desc, desc, f_ptr->state[x].fs_power);
+				fprintf(fff, "K%d:%d:%s:%s\n", i, x, action_desc, desc);
 			}
 		}
 
 		/* Acquire the description */
-		desc = f_text + f_ptr->f_text;
+		desc = f_text + f_ptr->text;
 		dlen = strlen(desc);
 
 		/* Write Description */
@@ -991,7 +960,6 @@ void write_a_info_txt(void)
 		dump_flags(fff, a_ptr->a_flags1, 1, i);
 		dump_flags(fff, a_ptr->a_flags2, 2, i);
 		dump_flags(fff, a_ptr->a_flags3, 3, i);
-		dump_flags(fff, a_ptr->a_native, 4, i);
 
 		/* Write the A line */
 		fprintf(fff, "A:%d:%d:%d:%d\n", i,

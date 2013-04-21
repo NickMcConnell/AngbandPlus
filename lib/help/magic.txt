@@ -4,57 +4,43 @@
 
 --- Spellcasting ---
 
-     Spells and prayers are collected in books, nine for each realm.  Four are
-readily available in stores, the other five are harder to find.  
+     Spells are collected in nine books of magic. One you begin with, the
+rest you can find in the dungeon.
 
 Getting spell information:
-      You may browse books of your realm.  Spells that you have cast
-successfully will display any power or damage information.  Be aware that the
-true usefulness of some spells only becomes apparent with much experimentation.
+      Press 'I' to look at the spells in a book.
 
 Gaining new spells:
-     You learn new spells by pressing 'G', choosing a spellbook with unlearnt
-spells that are not too high level for you, and either choosing a spell (mages,
-rogues, druids, rangers) or having one granted to you (priests, paladins).
+     You do not need to 'G'ain new spells in Ironband. You can potentially
+cast any spell in a book you hold - though if you are not high enough level
+and/or not intelligent enough, your fail rate may be high (even 100%).
 
 Casting spells:
      You may cast any previously learnt spell of your level or less.  You cast
 spells by typing 'm' or 'p', choosing a spellbook, and then a spell.  Casting a
-spell takes a full turn.  The first time you suceesfully cast a spell, you gain
-experience.
-     If you don't have enough mana to cast that spell, you are more likely to
-fail; if you do succeed, you will faint from the exertion and sometimes lose a
-point of constitution.
+spell takes a full turn.  
+     If you don't have enough mana to cast that spell, you cannot cast it at all.
 
 Mana:
-     Your mana depends on your level and your spell stat.  All spellcasters lose
-a point of mana for each pound of worn armour above a certain weight; mages are
-most affected.  In addition, mages and rogues lose a chunk of mana if they wear 
-gloves that do not provide free action or improve dexterity.  Messages
-will warn you whenever this happens.
-
+     Your mana depends on your level and your Wisdom.
+     You will notice that, unlike in other *bands, your mana (SP) do not naturally
+regenerate as you move around or rest. You only recover Mana when you go deeper in
+the dungeon. So use your mana wisely and retreat to the stairs if you run out.
+     
 Spell failure chance:
      Your spell failure chance depends on the spell itself (some spells are
-inherently hard to cast), the minimum level required to cast the spell compared
-to your current level, and your spell stat.  When stunned, all spells are harder
-to cast.  Only mages, druids, and priests can ever have spell failure rates 
-below 5%.
-     Priests suffer a substantial increase to prayer failure chance if they
-wield an unblessed edged weapon (a sword or polearm).
+inherently hard to cast), your level, and your Intelligence.  When stunned, all spells are harder
+to cast.  
 
-
---- Magical Devices ---
-
-     Wands, staffs, and rods are an important part of many adventurers'
-arsenals.  In addition to these items, certain rare rings can be 'A'ctivated and
-there are rumours of armours and artifacts that can unleash enormous
-destruction.
-
-Recharging:
-     Wands and staffs have to be recharged every so often, and you can also
-recharge rods.  The failure rate of recharging depends on item level, number of
-existing charges, and the power of the recharging spell you are using.
-Recharging wands and staffs is very risky.
+Wands and talismans:
+     Wands let you cast a particular spell, just as if you were casting it from a spellbook.
+The spell can still fail, and still costs mana (but 1 less than usual).
+     Talismans don't give you any new spells, but they let you cast some spells cheaper.
+The cost of all spells in a group is reduced by one third (e.g. healing spells, or 
+fire spells).
+     Some weapons, armor and other equipment can convey the powers of a Talisman if wielded.
+For example, an Amulet of Regeneration, once worn, makes your healing spells cheaper.
+     If you have enough magic objects, the cost of a spell can drop below 1.
 
 
 --- Hindering your foes ---
@@ -86,7 +72,7 @@ occasion.
 "Beam", "Spear", "Lance", "Line", "Spark", "Cone"
      Fires a beam of magic in the direction you choose, or towards your target.
 They are quite useful because they do full damage to every monster in a straight
-line.  Wands and Rods of Light work this way.
+line.  
 
 "Ball", "Orb", "Storm"  (storms have a larger radius)
      If you target a specific monster, such spells explode centered at that
@@ -98,7 +84,6 @@ affect monsters that can't see you.
 "Dispel", "Confuse/Slow/Frighten/etc. Monsters"
      A fair number of spells affect all monsters in line of sight (no walls or
 rubble between you and them, up to a range of 20).
-
 
 
 

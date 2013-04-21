@@ -1,7 +1,6 @@
 NPP050
 
 New features:
-New Mage spellset by Anssi Ramela
 Implemented UnAngband terrain system, including many different terrain types, 
 dynamic terrain that changes over time, effects (temporary dungeon events that
 can last more than one turn).
@@ -49,10 +48,7 @@ Increased the frequency of iron shots.
 Gave the ring of tulkas combat bonuses for to-hit and to-damage.
 Improved how monsters act right after they are scared.
 Gold can merge with other gold while being dropped.
-Updated Monster list (by Anssi Ramela)
-New Druid class
-Imported the UNangband terrain system.
-Effects (spells that can last for a set duration)
+
 
 
 Added most changes from Angband 3.0.6, namely:

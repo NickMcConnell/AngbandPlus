@@ -286,7 +286,7 @@ void do_cmd_change_name(void)
 		display_player(mode);
 
 		/* Prompt */
-		Term_putstr(1, 23, -1, TERM_WHITE, p);
+		Term_putstr(1, 26, -1, TERM_WHITE, p);
 
 		/* Query */
 		ch = inkey();
@@ -331,7 +331,7 @@ void do_cmd_change_name(void)
 			/*loop through the four screens*/
 			if (mode == 5) mode = 0;
 			/*don't display home if empty*/
-			else if ((!st_ptr->stock_num) && (mode == 2)) mode = 4;
+			else if ((1) && (mode == 2)) mode = 4;
 		}
 
 		/* Toggle mode */
@@ -345,7 +345,7 @@ void do_cmd_change_name(void)
 			{
 
 				/*don't display home if empty*/
-				if (st_ptr->stock_num) mode = 3;
+				if (0) mode = 3;
 				else mode = 1;
 			}
 
@@ -3788,7 +3788,7 @@ static byte object_group_tval[] =
 	TV_AMULET,
 	TV_LITE,
 	TV_WAND,
-	TV_STAFF,
+	TV_TALISMAN,
 	TV_ROD,
 	TV_SWORD,
 	TV_HAFTED,
@@ -5014,20 +5014,6 @@ void apply_magic_fake(object_type *o_ptr)
 					o_ptr->ident |= (IDENT_CURSED);
 					break;
 				}
-				case SV_RING_WEAKNESS:
-				case SV_RING_STUPIDITY:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = -1;
-
-					break;
-				}
 				/* WOE */
 				case SV_RING_WOE:
 				{
@@ -5092,9 +5078,9 @@ void apply_magic_fake(object_type *o_ptr)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Amulet of wisdom/charisma/infravision */
+				/* Amulet of wisdom/infravision */
 				case SV_AMULET_WISDOM:
-				case SV_AMULET_CHARISMA:
+				case SV_AMULET_LUCK:
 				case SV_AMULET_INFRAVISION:
 				case SV_AMULET_SEARCHING:
 				case SV_AMULET_ESP:
@@ -5156,6 +5142,7 @@ void apply_magic_fake(object_type *o_ptr)
 			{
 				case SV_LITE_TORCH:
 				case SV_LITE_LANTERN:
+				case SV_LITE_MAGELIGHT:
 				{
 					o_ptr->timeout = 1;
 
@@ -5164,15 +5151,6 @@ void apply_magic_fake(object_type *o_ptr)
 
 			}
 			/*break for TVAL-Lites*/
-			break;
-		}
-
-		/*give then one charge*/
-		case TV_STAFF:
-		case TV_WAND:
-		{
-			o_ptr->pval = 1;
-
 			break;
 		}
 
@@ -5741,7 +5719,7 @@ static void do_cmd_knowledge_home(void)
 
 
 	/* Home -- if anything there */
-	if (st_ptr->stock_num)
+	if (0)
 	{
 		/* Display contents of the home */
 		for (k = 0; k < st_ptr->stock_num; k++)
@@ -5755,8 +5733,6 @@ static void do_cmd_knowledge_home(void)
 
 		}
 	}
-
-	else fprintf(fp, "[Your Home Is Empty]\n\n");
 
 	/* Close the file */
 	my_fclose(fp);

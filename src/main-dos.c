@@ -1471,7 +1471,7 @@ static bool init_windows(void)
 		td->y = get_config_int(section, "y", 0);
 
 		/* Rows and cols of term */
-		td->rows = get_config_int(section, "rows", 24);
+		td->rows = get_config_int(section, "rows", 40);
 		td->cols = get_config_int(section, "cols", 80);
 
 		/* Tile size */

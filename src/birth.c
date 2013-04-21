@@ -246,7 +246,7 @@ static void calc_stat_rank(stat_priority *priority)
 	{
 		/* Count and map of matches at current (unresolved) priority */
 		int current_count = 0;
-		bool current_matches[A_MAX] = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
+		bool current_matches[A_MAX] = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
 
 		/* Fill count and map */
 		for (i = 0; i < A_MAX; i++)
@@ -308,44 +308,34 @@ static void calc_stat_rank(stat_priority *priority)
  *
  * For efficiency, we include a chunk of "calc_bonuses()".
  */
-static void get_stats(stat_priority *priority)
+static void get_stats(stat_priority *priority, stat_priority *priority2)
 {
 	int i, j, tmp;
 
 	int bonus;
 
-	int dice[3 * A_MAX];
+	int dice[A_MAX];
 	int stats[A_MAX];
 	int sorted_stats[A_MAX];
 
 	int min = 7 * A_MAX;
 	int max = 9 * A_MAX;
 
-	/* Generate clean priorities (0-5, no ties) */
+	int total;
+
+	/* Generate clean priorities (0-8, no ties) */
 	calc_stat_rank(priority);
 
-	/* Roll and verify some stats */
-	while (TRUE)
-	{
-		/* Roll some dice */
-		for (j = i = 0; i < 3 * A_MAX; i++)
-		{
-			/* Roll the dice */
-			dice[i] = randint(3 + i % 3);
-
-			/* Collect the maximum */
-			j += dice[i];
+	while (1){
+		total = 0;
+		/* Collect the stats for future manipulation */
+		for (i = 0; i < A_MAX; i++)
+		{	
+			/* Extract 10 + 1d5 */
+			sorted_stats[i] = 10 + randint(5);
+			total = total + sorted_stats[i];
 		}
-
-		/* Verify totals */
-		if ((j > min) && (j < max)) break;
-	}
-
-	/* Collect the stats for future manipulation */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Extract 5 + 1d3 + 1d4 + 1d5 */
-		sorted_stats[i] = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
+		if (total >= 12.7 * A_MAX && total <= 13.3 * A_MAX) break;
 	}
 
 	/* Assign stats in order */
@@ -398,6 +388,17 @@ static void get_stats(stat_priority *priority)
 			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
 		}
 	}
+
+	calc_stat_rank(priority2);
+	p_ptr->statgain1 = priority2->stat[0];
+	p_ptr->statgain2 = priority2->stat[1];
+	p_ptr->statgain3 = priority2->stat[2];
+	p_ptr->statgain4 = priority2->stat[3];
+	p_ptr->statgain5 = priority2->stat[4];
+	p_ptr->statgain6 = priority2->stat[5];
+	p_ptr->statgain7 = priority2->stat[6];
+	p_ptr->statgain8 = priority2->stat[7];
+	p_ptr->statgain9 = priority2->stat[8];
 }
 
 
@@ -417,9 +418,11 @@ static void get_extra(void)
 
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
+	p_ptr->mpdie = rp_ptr->r_mmp;
 
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->hitdie;
+	p_ptr->msp = p_ptr->mpdie;
 
 	/* Minimum hitpoints at highest level */
 	min_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 3) / 8;
@@ -431,6 +434,7 @@ static void get_extra(void)
 
 	/* Pre-calculate level 1 hitdice */
 	p_ptr->player_hp[0] = p_ptr->hitdie;
+	p_ptr->player_sp[0] = p_ptr->mpdie;
 
 	/* Roll out the hitpoints */
 	while (TRUE)
@@ -438,8 +442,10 @@ static void get_extra(void)
 		/* Roll the hitpoint values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
-			j = randint(p_ptr->hitdie);
+			j = randint(p_ptr->hitdie-1)+1;
 			p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
+			j = randint(p_ptr->mpdie);
+			p_ptr->player_sp[i] = p_ptr->player_sp[i-1] + j;
 		}
 
 		/* XXX Could also require acceptable "mid-level" hitpoints */
@@ -535,28 +541,7 @@ static void get_ahw(void)
  */
 static void get_money(void)
 {
-	int i;
-
-	int gold;
-
-	/* Social Class determines starting gold */
-	gold = (p_ptr->sc * 6) + randint(100) + 300;
-
-	/* Process the stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Mega-Hack -- reduce gold for high stats */
-		if (stat_use[i] >= 18+50) gold -= 300;
-		else if (stat_use[i] >= 18+20) gold -= 200;
-		else if (stat_use[i] > 18) gold -= 150;
-		else gold -= (stat_use[i] - 8) * 10;
-	}
-
-	/* Minimum 100 gold */
-	if (gold < 100) gold = 100;
-
-	/* Save the gold */
-	p_ptr->au = gold;
+	p_ptr->au = 0;
 }
 
 
@@ -1098,10 +1083,12 @@ static void race_aux_hook(birth_menu r_str)
 	/*dump the current classes stats*/
 	sprintf(s, "Hit die: %d ", p_info[race].r_mhp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-	sprintf(s, "Experience: %d%% ", p_info[race].r_exp);
+	sprintf(s, "Mana die: %d ", p_info[race].r_mmp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
-	sprintf(s, "Infravision: %d ft ", p_info[race].infra * 10);
+	sprintf(s, "Experience: %d%% ", p_info[race].r_exp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
+	sprintf(s, "Infravision: %d ft ", p_info[race].infra * 10);
+	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
 }
 
 
@@ -1125,7 +1112,6 @@ static bool get_player_race(void)
 		races[i].name = p_name + p_info[i].name;
 		races[i].ghost = FALSE;
 	}
-
 	p_ptr->prace = get_player_choice(races, z_info->p_max, RACE_COL, 15,
 		"raceclas.txt", race_aux_hook);
 
@@ -1367,17 +1353,17 @@ static bool player_birth_aux_1(void)
 
 
 /*
- * Initial stat costs (initial stats always range from 10 to 18 inclusive).
+ * Initial stat costs (initial stats always range from 11 to 15 inclusive).
  */
-#define MIN_POINT_STAT_VALUE 10 /* Minimum stat value - no points used */
-#define MAX_POINT_STAT_VALUE 18 /* Maximum stat value - full points used */
-#define BUY_POINTS 48 /* Number of points available to buy stats */
+#define MIN_POINT_STAT_VALUE 11 /* Minimum stat value - no points used */
+#define MAX_POINT_STAT_VALUE 15 /* Maximum stat value - full points used */
+#define BUY_POINTS 18 /* Number of points available to buy stats */
 #define GOLD_POINT 100 /* Each stat point is worth this much gold */
 
 /*
- * Initial stat costs (initial stats always range from 10 to 18 inclusive).
+ * Initial stat costs (initial stats always range from 11 to 15 inclusive).
  */
-static const int birth_stat_costs[(MAX_POINT_STAT_VALUE-MIN_POINT_STAT_VALUE)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+static const int birth_stat_costs[(MAX_POINT_STAT_VALUE-MIN_POINT_STAT_VALUE)+1] = { 0,1,2,3,4 };
 
 
 
@@ -1386,7 +1372,7 @@ static const int birth_stat_costs[(MAX_POINT_STAT_VALUE-MIN_POINT_STAT_VALUE)+1]
  *
  * This function handles "point-based" character creation.
  *
- * The player selects, for each stat, a value from 10 to 18 (inclusive),
+ * The player selects, for each stat, a value from 11 to 15 (inclusive),
  * each costing a certain amount of points (as above), from a pool of
  * BUY_POINTS available points, to which race/class modifiers are then applied.
  *
@@ -1476,7 +1462,7 @@ static bool player_birth_aux_2(void)
 		p_ptr->au = (GOLD_POINT * (BUY_POINTS - cost)) + 100;
 
 		/* Calculate the bonuses and hitpoints */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_NATIVE);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_NATIVE);
 
 		/* Update stuff */
 		update_stuff();
@@ -1575,6 +1561,7 @@ static bool player_birth_aux_3(void)
 	char buf[80];
 
 	stat_priority priority;
+	stat_priority priority2;
 
 	s16b max_requested_stat;
 
@@ -1594,7 +1581,7 @@ static bool player_birth_aux_3(void)
 	/*** Autoroll ***/
 
 	/* Initialize */
-	if (adult_auto_roller)
+	if (0)
 	{
 
 		/* Extra info */
@@ -1772,16 +1759,15 @@ static bool player_birth_aux_3(void)
 
 		/* Ties are not resolved */
 		priority.resolved = FALSE;
+		priority2.resolved = FALSE;
 
 		/* Set all priorities to 0 (max) */
 		for (i = 0; i < A_MAX; i++) priority.stat[i] = 0;
-
-		/* Set priority to 1 (not max) for Charisma */
-		priority.stat[A_CHR] = 1;
+		for (i = 0; i < A_MAX; i++) priority2.stat[i] = 0;
 
 
 		/* Feedback */
-		if (adult_auto_roller)
+		if (0)
 		{
 			Term_clear();
 
@@ -1839,6 +1825,7 @@ static bool player_birth_aux_3(void)
 			 * non-consecutive priorities. Flag to fix
 			 */
 			priority.resolved = FALSE;
+			priority2.resolved = FALSE;
 
 			/* Auto-roll */
 			while (1)
@@ -1846,7 +1833,7 @@ static bool player_birth_aux_3(void)
 				bool accept = TRUE;
 
 				/* Get a new character */
-				get_stats(&priority);
+				get_stats(&priority, &priority2);
 
 				/* Advance the round */
 				auto_round++;
@@ -1923,7 +1910,7 @@ static bool player_birth_aux_3(void)
 		{
 
 			/* Get a new character */
-			get_stats(&priority);
+			get_stats(&priority, &priority2);
 		}
 
 		/* Flush input */
@@ -1951,10 +1938,13 @@ static bool player_birth_aux_3(void)
 		while (TRUE)
 		{
 			/* Calculate the bonuses and hitpoints */
-			p_ptr->update |= (PU_BONUS | PU_HP | PU_NATIVE);
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_NATIVE);
 
 			/* Update stuff */
 			update_stuff();
+
+			p_ptr->num_blows_times_ten = adj_dex_blows[p_ptr->stat_ind[A_DEX]];
+			p_ptr->num_fire_times_ten = adj_dex_shots[p_ptr->stat_ind[A_DEX]];
 
 			/* Fully healed */
 			p_ptr->chp = p_ptr->mhp;
@@ -1966,7 +1956,7 @@ static bool player_birth_aux_3(void)
 			display_player(0);
 
 			/* Prepare a prompt (must squeeze everything in) */
-			Term_gotoxy(2, 23);
+			Term_gotoxy(2, 24);
 			Term_addch(TERM_WHITE, b1);
 			Term_addstr(-1, TERM_WHITE, "'r' to reroll");
 			if (prev) Term_addstr(-1, TERM_WHITE, ", 'p' for prev");
@@ -2038,7 +2028,7 @@ static bool player_birth_aux(void)
 	if (!player_birth_aux_1()) return (FALSE);
 
 	/* Point-based */
-	if (adult_point_based)
+	if (0)
 	{
 		/* Point based */
 		if (!player_birth_aux_2()) return (FALSE);
@@ -2079,31 +2069,35 @@ static void player_birth_done_hook(void)
 {
 
 	object_type object_type_body;
-	object_type *i_ptr;
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Hack -- Give the player some food */
-	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	i_ptr->number = (byte)rand_range(3, 7);
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	object_history(i_ptr, ORIGIN_BIRTH, 0);
-	(void)inven_carry(i_ptr);
-
+	object_type *i_ptr, *o_ptr;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
 
 	/* Hack -- Give the player some torches */
 	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-	i_ptr->number = (byte)rand_range(3, 7);
-	i_ptr->timeout = rand_range(3, 7) * 500;
+	i_ptr->number = (byte)rand_range(4, 6);
+	i_ptr->timeout = 1000;
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	object_history(i_ptr, ORIGIN_BIRTH, 0);
 	(void)inven_carry(i_ptr);
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Hack -- And one in the hand */
+	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+	i_ptr->number = 1;
+	i_ptr->timeout = 1000;
+	object_aware(i_ptr);
+	object_known(i_ptr);
+	object_history(i_ptr, ORIGIN_BIRTH, 0);
+	
+	o_ptr = &inventory[INVEN_LITE];
+	object_copy(o_ptr, i_ptr);
+	p_ptr->total_weight += i_ptr->weight;
+	p_ptr->equip_cnt++;
 }
 
 
@@ -2144,10 +2138,10 @@ void player_birth(void)
  	  	(void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
 
  	  	/* Add in "character start" information */
- 	  	fprintf(notes_file, "{{full_character_name}} the %s %s\n",
+ 	  	fprintf(notes_file, "%s the %s %s\n", op_ptr->full_name,
 								p_name + rp_ptr->name,
 								c_name + cp_ptr->name);
- 	  	fprintf(notes_file, "Began the quest to kill Morgoth on %s\n",long_day);
+ 	  	fprintf(notes_file, "Began the quest to kill The Witch-King of Angmar on %s\n",long_day);
  	  	fprintf(notes_file, "============================================================\n");
 		fprintf(notes_file, "                   CHAR.  \n");
 		fprintf(notes_file, "|   TURN  | DEPTH |LEVEL| EVENT\n");
@@ -2181,6 +2175,6 @@ void player_birth(void)
 		if ((n == STORE_HOME) || (n ==STORE_GUILD)) continue;
 
 		/* Maintain the shop (ten times) */
-		for (i = 0; i < 10; i++) store_maint(n);
-	}
+		// for (i = 0; i < 10; i++) store_maint(n);
+	} 
 }

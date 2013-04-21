@@ -24,9 +24,10 @@ to hit monsters.  Apart from rare gloves, armours seldom have bonuses to combat.
 Some have small penalties (see below).
 
 Bonus to damage:
-     The weapon above gets a bonus to damage of 4, and so does 2d8 + 4 points of
-damage on most hits.  Apart from rare gloves, armours seldom have bonuses to
-Deadliness.
+     The weapon above gets a bonus to your damage rating. If your damage rating
+would otherwise be +0, increasing it to +4 gives you +80% melee damage. (This is 
+different from other *bands). Press 'C' to see the character info screen, which 
+tells you your damage bonus as a percentage.
 
 
 Example 2:  A Hard Leather Armour (-1) [6,+5]
@@ -38,15 +39,18 @@ few weapons do.
 Bonus to Armour Class:
      This armour has a bonus to AC of 5, which gives it a total protective value
 of 11.  Armour of unusually good quality or that is magical also increases your
-bonus to armour class.  Only rare weapons do the same.
+bonus to armour class.  
+
+Penalty to hit and to Stealth:
+     This armor reduces your hit bonus and Stealth by 1.
 
 
 Example 3:  A Mace (Holy Avenger) (2d4) (+7,+5) [+3] (+1)
 
      This weapon is a Holy Avenger (one of the more powerful ego-items).  It
-rolls 2 four-sided dice when attacking and has +7 to hit and +5 to damage.  It
-increases your AC by 3, and increases a numerical attribute (Wisdom, in this
-case) by 1.
+rolls 2 four-sided dice when attacking and has +7 to hit and +5 to damage (which 
+is converted to a percentile).  It increases your AC by 3, and increases a 
+numerical attribute (Wisdom, in this case) by 1.
 
 
 --- Adjustments to Vital statistics and Abilities ---
@@ -58,12 +62,6 @@ your character to find out more about what altering a stat does.
 Sustain Stats:
      Any kind of wearable item may sustain one or more stats.  This ensures that
 the attacks of your foes never lower that stat.
-
-Stealth:
-     Certain cloaks, boots, and (more rarely) other items lessen the amount of
-noise you make when moving around the dungeon.  This is very handy for avoiding
-fights and getting in the first hit, which causes extra damage on a sleeping
-monster in NPPAngband.  If the player is flying, their stealth is also increased.
 
 Searching:
      Some rings, headgear, and various other items improve your chances to
@@ -88,8 +86,40 @@ speed is (roughly) +30.
 
 --- Weapon Attributes ---
 
-Damage multipliers  (only the best applies):
-     Slay Evil      :  x2 against evil
+In most *bands, only the best slay or brand you have applies.
+In Ironband, if your weapon has a slay and a brand, you get a double damage bonus!
+Slay and brand bonuses increase the '+-to-damage' percentage.
+
+If you hit a monster with a slay/brand melee weapon, your hit message will change 
+(i.e. You freeze the orc, or You smite [slay] the baby green dragon).
+
+Damage multipliers from slays on melee weapons (only the best applies):
+     Slay Evil      :  +100 to the damage percentile against evil enemies 
+                         (i.e. adds 100% of your weapon damage roll)
+     Slay Animal    :  +200 
+     Slay Orc       :  +200
+     Slay Troll     :  +200
+     Slay Giant     :  +170
+     Slay Undead    :  +170
+     Slay Demon     :  +170
+     Slay Dragon    :  +170
+
+     Execute Undead :  +300
+     Execute Demon  :  +300
+     Execute Dragon :  +300
+
+Damage multipliers from brands on melee weapons (only the best applies):
+     Brand Acid     :  +130 against everything not resistant to acid
+     Brand Elec     :  +130 against everything not resistant to electricity
+     Brand Fire     :  +130 against everything not resistant to fire
+     Brand Cold     :  +130 against everything not resistant to cold
+     Brand Pois     :  +130 against everything not resistant to poison
+
+Ammo slays and brands work just the same as in regular NPPAngband.
+
+Damage multipliers from slays and brands on ammo (only the best applies)
+
+     Slay Evil      :  x2 against evil enemies
      Slay Animal    :  x2 against animals
      Slay Orc       :  x3 against orcs and orc-like creatures
      Slay Troll     :  x3 against trolls
@@ -126,7 +156,7 @@ not by two like lesser slings, but by three.  The true missile weapon multiplier
 is never known for sure until the object is identified.
 
 Blessed:
-     Blessed weapons may be used by pious characters without penalty.
+     Blessed weapons improve your saving throws.
 
 Earthquake:
      Some weapons cause earthquakes when they hit.
@@ -215,15 +245,6 @@ attacks and renders your equipment immune to disenchantment.
 Ignore acid, electricity, fire, and cold:
      Some objects cannot be damaged or destroyed by elemental attacks.
 
---- Nativities ---
-
-Certain equipment will make you native to the various types of terrain
-found in the Dugeon.  The types of terrain are Lava, Ice, Oil, Fire
-Sand, Forest, Water, Acid, and Mud.  If you are in a particular
-terrain type where you are native, you will be able to move more
-efficiently through that terrain, and you will be able to fight
-and defend better in combat.
-
 
 --- Survival Attributes ---
 
@@ -290,13 +311,12 @@ replace the experience which you lose.
 
 Light (Normal) Curse:
      Many objects have light curses.  If you should wear or wield one, read a
-scroll of remove curse.
+scroll of Remove Curse.
 
 Heavy Curse:
-     The curses on some objects are less easy to remove.  If a ordinary scroll
-of Remove Cure fails, find and read one of *Remove Curse*.
+     The curses on some objects are less easy to remove. An ordinary Remove Curse
+spell or scroll may reduce the penalties on such an object but will not let you 
+take it off. In this case, find and read a scroll of *Remove Curse* (or cast the spell,
+if you know it). 
 
-Permanent Curse:
-     There is a great and terrible Ring, seen by perhaps one character in one
-thousand, that can never be removed once put on.
 

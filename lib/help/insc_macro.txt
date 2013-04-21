@@ -8,7 +8,7 @@ You can also have items automatically inscribed for you by going to the
 squelch and autoinscriptions menu ("=" followed by "s") and set an autoinscriiption
 for an object type.  Every object of that certain type the player picks 
 up will be automatically inscribed for the player.  Note that an auto-inscription of
-an object type also prevents an item from being squelched by the quality sqelching 
+an object type also prevents an item from being squelched by the quality squelching 
 feature.  This is useful if the player wants to, for example, squelch all good and
 below hafted weapons but doesn't want to quality squelch average maces of disruption.
 
@@ -45,10 +45,8 @@ will disappear when the item is identified, and you may overwrite others.
 
      "broken"         :  Object is broken in some way.
      "cursed"         :  Object is cursed.
-     "empty"          :  Object has no more charges (and you know this).
      "indestructible" :  Object cannot be destroyed.
      "tried"          :  Used an object, didn't learn anything about it.
-     "50% off"        :  Object is worth 50% less than normal.
 
 
 
@@ -56,8 +54,8 @@ will disappear when the item is identified, and you may overwrite others.
 
 --- Quick Tutorial ---
 
-     Mages are forever casting spell "a", Magic Missile, in spellbook "a", Magic
-for Beginners.  In both keysets, that's "maa", plus "*" to enter targeting mode,
+     Characters are forever casting spell "b", Magic Missile, in spellbook "a", Magic
+for Beginners.  In both keysets, that's "mab", plus "*" to enter targeting mode,
 and finally "t" to target.  Wouldn't it be nice if you could do all this with a
 single keypress?  You can.
      Choose an unused command (we shall pick "'" by way of example).  Bring up
@@ -70,7 +68,7 @@ your character's name for the preference file, or (if you want all of your
 characters to use the same keymap) save to "user.prf".
 
      This is only the beginning.  What you can do with a spell, you can do with
-arrows, Rods of Trap Location, resting, activating stuff, talents, searching;
+arrows, Rresting, activating stuff, searching;
 all sorts of command combinations can profitably be macroed.  Macros and keymaps
 are even more flexible when used in combination with object inscriptions.
      In all cases, you remember the exact series of keypresses you need to
@@ -180,6 +178,8 @@ but there are important exceptions:
      Q                      ^C                  ^C
      w0                     X                   X
      ^V                     n                   '
+
+
 
 
 
