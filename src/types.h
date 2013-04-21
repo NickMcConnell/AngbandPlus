@@ -1049,6 +1049,10 @@ struct player_type
 	s16b wild_x; /* Cur global map location. */
 	s16b wild_y; /* Cur global map location. */
 
+  s16b wilderness_px; /* Saved local map location for the wilderness. */
+  s16b wilderness_py; /* Saved local map location for the wilderness. */
+  s16b wilderness_depth; /* Saved depth of the wilderness map. */
+
 	s16b max_lev; /* Max level */
 	s16b lev; /* Cur level */
 

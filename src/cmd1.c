@@ -1077,19 +1077,24 @@ void hit_trap(int y, int x)
 			mprint(MSG_STUPID, "You fall through a trap door!");
 			if (p_ptr->ffall)
 			{
-				msg_print("You float gently down to the next level.");
+			  if (!p_ptr->inside_special) {
+			    msg_print("You float gently down to the "
+				      "next level.");
+			  }
 			}
 			else
 			{
 				dam = damroll(2, 8);
 				take_hit(dam, name);
 			}
+			
+			if (!p_ptr->inside_special) {
+			  /* New depth */
+			  p_ptr->depth++;
 
-			/* New depth */
-			p_ptr->depth++;
-
-			/* Leaving */
-			p_ptr->leaving = TRUE;
+			  /* Leaving */
+			  p_ptr->leaving = TRUE;
+			}
 
 			break;
 		}
@@ -1915,14 +1920,6 @@ void move_player(int dir, int jumping)
 		else if (cave_feat[y][x] == FEAT_QUEST_EXIT)
 		{
 			exit_quest();
-		}
-
-		/* Landed on a wilderness exntrance. */
-		else if (cave_feat[y][x] == FEAT_WILD_ENTER)
-		{
-			disturb(0, 0);
-
-			enter_wild();
 		}
 
 		else if (cave_feat[y][x] >= FEAT_ALTAR_HEAD &&

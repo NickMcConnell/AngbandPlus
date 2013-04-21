@@ -1,6 +1,6 @@
 
 The amalgamated Kamband help file. (Alpha version.)
-Conforms to version 1.9 "Anachron".
+Conforms to version 2.0 "Baalzebub".
 Work in progress by Ivan Tkatchev.
 
 ----------------------------------
@@ -181,9 +181,8 @@ c. Level Generation.
 is quite large, so that pretty much every level is bound to be "weird". 
 Note that the "weirdness" frequency can be toggled by an option. 
 Furthermore, outside the town is a randomly-generated infinite wilderness.
-This wilderness can be reached by simply stepping on a "wilderness entrance"
-tile in the town. Be careful, though, the wilderness is a difficult and
-very unpredictable place! 
+Be careful, though, the wilderness is a difficult and very unpredictable
+place! 
 
 d. Sanity.
 

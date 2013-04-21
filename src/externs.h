@@ -763,7 +763,6 @@ extern void init_st_info(void);
 extern void do_cmd_bldg(void);
 extern bool show_god_info(bool ext);
 extern void select_bounties(void);
-extern void enter_wild(void);
 extern void do_cmd_quest(void);
 extern void complete_quest(void);
 extern void exit_quest(void);

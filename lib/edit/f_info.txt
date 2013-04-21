@@ -17,7 +17,7 @@
 
 # Version stamp (required)
 
-V:2.8.2
+V:2.0.0
 
 
 # 0x00 --> nothing
@@ -439,7 +439,7 @@ G:#:G
 N:97:chaos fog
 G:*:v
 
-N:98:mountain chain
+N:98:rocky outcropping
 G:^:U
 
 N:99:quest entrance
@@ -578,5 +578,6 @@ G:.:s
 N:197:cloud of fog
 G:*:w
 
-N:198:wilderness entrance
-G:+:y
+N:198:down shaft
+G:%:g
+

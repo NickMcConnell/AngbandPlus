@@ -2173,7 +2173,31 @@ errr file_character(cptr name)
 		(p_ptr->preserve ? "on" : "off"));
 	fprintf(fff, "  Maximise mode: %s\n",
 		(p_ptr->maximize ? "on" : "off"));
-	fprintf(fff, "  Current depth: %d\n", p_ptr->depth);
+
+	switch (p_ptr->inside_special) {
+	case SPECIAL_WILD:
+	  fprintf(fff, "  Currently on the wilderness level (%d, %d).\n",
+		  p_ptr->wild_x, p_ptr->wild_y);
+	  break;
+
+	case SPECIAL_QUEST:
+	  fprintf(fff, "  Currently questing.\n");
+	  break;
+
+	case SPECIAL_STORE:
+	  fprintf(fff, "  Currently shopping.\n");
+	  break;
+
+	case SPECIAL_ARENA:
+	case SPECIAL_MAGIC_ARENA:
+	  fprintf(fff, "  Currently in the arena.\n");
+	  break;
+
+	default:
+	  fprintf(fff, "  Current depth: %d\n", p_ptr->depth);
+	  break;
+	}
+
 	fprintf(fff, "  Maximal depth: %d\n", p_ptr->max_depth);
 	fprintf(fff, "  Player died from: %s\n\n", p_ptr->died_from);
 
@@ -3142,6 +3166,70 @@ static void make_bones(void)
 
 
 /*
+ * Draw an ascii file as if it's a raster image.
+ *
+ * Yes, we've finally got an alpha channel and anti-aliasing! :)
+ */
+
+static void print_picture(cptr file) {
+
+  char buf[1024];
+
+  FILE *fp;
+
+  int y, x, xorig, i;
+
+  /* Build the filename */
+  path_build(buf, 1024, ANGBAND_DIR_FILE, file);
+
+  /* Open the News file */
+  fp = my_fopen(buf, "r");
+
+  /* Dump */
+  if (fp) {
+    y = (screen_y - 24) / 2;
+    xorig = (screen_x - 80) / 2;
+
+    /* Dump the file to the screen */
+    while (0 == my_fgets(fp, buf, 1024)) {
+
+      /* Display and advance */
+      x = xorig;
+
+      for (i = 0; buf[i] != '\0'; i++) {
+
+	if (buf[i] != ' ') {
+	  byte color = TERM_SLATE;
+
+	  if (strchr(",'`.\"", buf[i])) {
+	    color = TERM_L_DARK;
+
+	  } else if (strchr("+*", buf[i])) {
+	    color = TERM_YELLOW;
+
+	  } else if (strchr("/\\~v^", buf[i])) {
+	    color = TERM_L_WHITE;
+
+	  } else if (strchr("|-", buf[i])) {
+	    color = TERM_WHITE;
+	  }
+
+	  Term_putch(x, y, color, buf[i]);
+	}
+
+	x++;
+      }
+
+      y++;
+    }
+
+    /* Close */
+    my_fclose(fp);
+  }
+}
+
+
+/*
  * Display a "tomb-stone"
  */
 static void print_tomb(void)
@@ -3152,8 +3240,6 @@ static void print_tomb(void)
 
 	char buf[1024];
 
-	FILE *fp;
-
 	time_t ct = time((time_t) 0);
 
 	int y, x;
@@ -3161,30 +3247,6 @@ static void print_tomb(void)
 
 	/* Clear screen */
 	Term_clear();
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "dead.txt");
-
-	/* Open the News file */
-	fp = my_fopen(buf, "r");
-
-	/* Dump */
-	if (fp)
-	{
-		y = (screen_y - 24) / 2;
-		x = (screen_x - 80) / 2;
-
-		/* Dump the file to the screen */
-		while (0 == my_fgets(fp, buf, 1024))
-		{
-			/* Display and advance */
-			put_str(buf, y++, x);
-		}
-
-		/* Close */
-		my_fclose(fp);
-	}
-
 
 	/* King or Queen */
 	if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
@@ -3233,13 +3295,15 @@ static void print_tomb(void)
 	center_string(buf, tmp);
 	put_str(buf, y + 13, x + 11);
 
-	if (p_ptr->inside_special == SPECIAL_WILD)
-	{
-		sprintf(tmp, "Killed in the wilderness");
-	}
-	else
-	{
-		sprintf(tmp, "Killed on Level %d", p_ptr->depth);
+
+	if (p_ptr->depth == 0) {
+	  sprintf(tmp, "Killed in the town");
+
+	} else if (p_ptr->inside_special == SPECIAL_WILD) {
+	  sprintf(tmp, "Killed in the wilderness");
+	
+	} else {
+	  sprintf(tmp, "Killed on level %d", p_ptr->depth);
 	}
 
 	center_string(buf, tmp);
@@ -3253,6 +3317,8 @@ static void print_tomb(void)
 	sprintf(tmp, "%-.24s", ctime(&ct));
 	center_string(buf, tmp);
 	put_str(buf, y + 17, x + 11);
+
+	print_picture("dead.txt");
 }
 
 
@@ -3745,7 +3811,7 @@ static void display_scores_aux(int from, int to, int note,
 					the_score.how);
 
 			/* Hack -- some people die in the town - changed -KMW- */
-			if ((!cdun) & (ia == FALSE))
+			if (!cdun)
 				sprintf(out_val, "               Killed by %s in the Town",
 					the_score.how);
 

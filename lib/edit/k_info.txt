@@ -23,7 +23,7 @@
 
 # Version stamp (required)
 
-V:2.8.2
+V:2.0.0
 
 
 ##### Something special #####
@@ -3890,7 +3890,7 @@ F:UNCURSED | EASY_PVAL
 N:494:diamonds
 G:$:w
 I:100:15:165
-W:1:90000:0:28
+W:1:30000:0:28
 A:15/1
 M:28
 F:UNCURSED | EASY_PVAL
@@ -3906,7 +3906,7 @@ F:UNCURSED | EASY_PVAL
 N:496:mithril
 G:$:B
 I:100:17:185
-W:1:50000:0:40
+W:1:10000:0:40
 A:25/1
 M:20
 F:UNCURSED | EASY_PVAL
@@ -3914,7 +3914,7 @@ F:UNCURSED | EASY_PVAL
 N:497:adamantite
 G:$:G
 I:100:18:195
-W:1:65000:0:80
+W:1:25000:0:80
 A:30/1
 M:24
 F:UNCURSED | EASY_PVAL
@@ -4047,7 +4047,7 @@ F:INSTA_ART
 N:507:& Ring~
 G:=:d
 I:45:32:0
-W:50:90000:2:65000
+W:50:30000:2:65000
 M:10
 F:INSTA_ART
 
@@ -4093,6 +4093,15 @@ N:512:& Ring~
 G:=:y
 I:45:37:0
 W:110:99000:2:5000000
+M:19
+F:INSTA_ART
+
+# Amulet of Yendor.
+
+N:513:& Amulet~
+G:":y
+I:40:9:0
+W:1:1000:3:0
 M:19
 F:INSTA_ART
 

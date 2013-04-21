@@ -32,14 +32,17 @@ void do_cmd_go_up(void)
 	/* Success */
 	msg_print("You enter a maze of up staircases.");
 
-	if (p_ptr->inside_special == SPECIAL_QUEST ||
-		p_ptr->inside_special == SPECIAL_WILD)
+	if (p_ptr->inside_special == SPECIAL_QUEST)
 	{
 		p_ptr->depth = 0;
 		p_ptr->inside_special = 0;
 
-	}
-	else
+
+	} else if (p_ptr->inside_special == SPECIAL_WILD) {
+	  mprint(MSG_STUPID, "That is not the way to reach Heaven.");
+	  return;
+
+	} else
 	{
 		/* Create a way back */
 		p_ptr->create_down_stair = TRUE;
@@ -62,7 +65,7 @@ void do_cmd_go_down(void)
 	int px = p_ptr->px;
 
 	/* Verify stairs */
-	if (cave_feat[py][px] != FEAT_MORE)
+	if (cave_feat[py][px] != FEAT_MORE && cave_feat[py][px] != FEAT_SHAFT)
 	{
 		mprint(MSG_TEMP, "I see no down staircase here.");
 		return;
@@ -70,7 +73,12 @@ void do_cmd_go_down(void)
 
 	if (p_ptr->inside_special == SPECIAL_WILD)
 	{
-		p_ptr->inside_special = 0;
+	  /* HACK: Save the current location. */
+	  p_ptr->wilderness_px = p_ptr->px;
+	  p_ptr->wilderness_py = p_ptr->py;
+	  p_ptr->wilderness_depth = p_ptr->depth;
+
+	  p_ptr->inside_special = 0;
 	}
 
 	/* Hack -- take a turn */
@@ -83,7 +91,12 @@ void do_cmd_go_down(void)
 	p_ptr->create_up_stair = TRUE;
 
 	/* New level */
-	p_ptr->depth++;
+	if (cave_feat[py][px] == FEAT_SHAFT) {
+	  p_ptr->depth += randint(3);
+
+	} else {
+	  p_ptr->depth++;
+	}
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -2382,14 +2395,6 @@ void check_store_entering(s16b py, s16b px)
 	if (cave_feat[py][px] == FEAT_QUEST_EXIT)
 	{
 		exit_quest();
-	}
-
-	/* Enter the wilderness. */
-	if (cave_feat[py][px] == FEAT_WILD_ENTER)
-	{
-		disturb(0, 0);
-
-		enter_wild();
 	}
 }
 

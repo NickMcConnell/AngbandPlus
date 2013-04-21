@@ -865,6 +865,9 @@ static errr rd_dungeon(void)
 	rd_s16b(&p_ptr->inside_special);
 	rd_s16b(&p_ptr->wild_y);
 	rd_s16b(&p_ptr->wild_x);
+	rd_s16b(&p_ptr->wilderness_py);
+	rd_s16b(&p_ptr->wilderness_px);
+	rd_s16b(&p_ptr->wilderness_depth);
 	rd_s16b(&py);
 	rd_s16b(&px);
 

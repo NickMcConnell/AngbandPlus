@@ -2374,18 +2374,6 @@ void do_cmd_bldg(void)
 };
 
 
-/*
- * Enter wilderness.
- */
-void enter_wild(void)
-{
-	p_ptr->depth = 1;
-	p_ptr->wild_x = 0;
-	p_ptr->wild_y = 0;
-	p_ptr->inside_special = SPECIAL_WILD;
-	p_ptr->create_up_stair = TRUE;
-	p_ptr->leaving = TRUE;
-}
 
 /*
  * Enter quest level
@@ -2412,6 +2400,10 @@ void do_cmd_quest(void)
 	}
 	else
 	{
+		p_ptr->wilderness_px = p_ptr->px;
+		p_ptr->wilderness_py = p_ptr->py;
+		p_ptr->wilderness_depth = p_ptr->depth;
+
 		p_ptr->inside_special = SPECIAL_QUEST;
 		p_ptr->depth = 1;
 

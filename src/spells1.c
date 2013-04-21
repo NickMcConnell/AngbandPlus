@@ -506,50 +506,57 @@ void teleport_player_directed(int rad, int dir)
  */
 void teleport_player_level(void)
 {
-	if (p_ptr->inside_special > 0)
+	if (p_ptr->inside_special == SPECIAL_ARENA || 
+	    p_ptr->inside_special == SPECIAL_MAGIC_ARENA ||
+	    p_ptr->inside_special == SPECIAL_STORE)
 	{ /* arena or quest -KMW- */
 		msg_print("There is no effect.");
-	}
-	else if (!p_ptr->depth)
-	{
-		msg_print("You sink through the floor.");
 
-		/* New depth */
-		p_ptr->depth++;
+	} else if (p_ptr->inside_special == SPECIAL_WILD) {
+	  
+	  msg_print("You sink through the ground.");
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-	else if (p_ptr->inside_special == SPECIAL_QUEST ||
-		(p_ptr->depth >= MAX_DEPTH - 1))
-	{
-		msg_print("You rise up through the ceiling.");
+	  p_ptr->wilderness_depth = p_ptr->depth;
 
-		/* New depth */
-		p_ptr->depth--;
+	  p_ptr->inside_special = FALSE;
+	  p_ptr->depth++;
+	  p_ptr->leaving = TRUE;
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-	else if (rand_int(100) < 50)
-	{
-		msg_print("You rise up through the ceiling.");
+	} else if (!p_ptr->depth) {
 
-		/* New depth */
-		p_ptr->depth--;
+	  msg_print("You sink through the floor.");
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-	else
-	{
-		msg_print("You sink through the floor.");
+	  /* New depth */
+	  p_ptr->depth++;
 
-		/* New depth */
-		p_ptr->depth++;
+	  /* Leaving */
+	  p_ptr->leaving = TRUE;
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
+	} else if (p_ptr->inside_special == SPECIAL_QUEST ||
+		   (p_ptr->depth >= MAX_DEPTH - 1)) {
+
+	  msg_print("You rise up through the ceiling.");
+
+	  p_ptr->inside_special = FALSE;
+	  p_ptr->depth--;
+	  p_ptr->leaving = TRUE;
+
+	} else if (rand_int(100) < 50) {
+	  msg_print("You rise up through the ceiling.");
+
+	  /* New depth */
+	  p_ptr->depth--;
+
+	  /* Leaving */
+	  p_ptr->leaving = TRUE;
+	} else {
+	  msg_print("You sink through the floor.");
+
+	  /* New depth */
+	  p_ptr->depth++;
+
+	  /* Leaving */
+	  p_ptr->leaving = TRUE;
 	}
 
 	/* Sound */
@@ -601,6 +608,7 @@ static byte spell_color(int type)
 			return (TERM_L_UMBER);
 
 		case GF_SOUND:
+	        case GF_NOTHING:
 			return (TERM_YELLOW);
 
 		case GF_SHARD:
@@ -2633,7 +2641,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		{
 			/* Detect stairs */
 			if ((cave_feat[y][x] == FEAT_LESS) ||
-				(cave_feat[y][x] == FEAT_MORE))
+			    (cave_feat[y][x] == FEAT_MORE) ||
+			    (cave_feat[y][x] == FEAT_SHAFT))
 			{
 				/* Hack -- Memorize */
 				cave_info[y][x] |= (CAVE_MARK);
@@ -3372,6 +3381,16 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Analyze the damage type */
 	switch (typ)
 	{
+
+	case GF_NOTHING:
+	  {
+	    dam = 0;
+
+	    if (seen)
+	      obvious = TRUE;
+	    break;
+	  }
+	    
 			/* Magic Missile -- pure damage */
 		case GF_MISSILE:
 		{
@@ -5192,6 +5211,16 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	/* Analyze the damage */
 	switch (typ)
 	{
+
+	case GF_NOTHING:
+	  {
+	    if (fuzzy) {
+	      msg_print("You feel something.");
+	    }
+	    break;
+	  }
+
+
 			/* Standard damage -- hurts inventory too */
 		case GF_ACID:
 		{

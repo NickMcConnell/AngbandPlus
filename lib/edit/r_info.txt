@@ -112,7 +112,7 @@
 
 # Version stamp (required)
 
-V:2.8.2
+V:2.0.0
 
 
 ##### The Player #####
@@ -1457,6 +1457,13 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | SWIM | SMART
 S:1_IN_5 | 
 S:HEAL | SLOW | TRAPS | BO_COLD | BA_POIS
+X:whimpers: ``Poor old Grima! Poor old Grima!''
+X:whines: ``Always beaten and cursed, beaten and cursed.''
+X:whines: ``How I hate him!''
+X:whimpers: ``How I wish I could leave him!''
+X:asks for a crust for his supper.
+X:grovels.
+X:snivels.
 D:He's been spying for Saruman.  He is a snivelling wretch with no morals 
 D:and disgusting habits.
 
@@ -8719,7 +8726,7 @@ G:t:B
 I:110:7d8:10:30:250
 W:0:99:0:0
 B:HIT:HURT:2d6
-F:MALE | RANDOM_NAME | 
+F:MALE | RANDOM_NAME | POLICE |
 F:DROP_90 | INNOCENT | HUMANOID |
 F:OPEN_DOOR | BASH_DOOR | SMART
 X:shouts: ``Halt, Halt!''
@@ -9566,7 +9573,7 @@ G:k:s
 I:120:1d10:90:10:0
 W:1:4:0:5
 B:GAZE:INSANITY:1d6
-F:MALE | SMART | HUMANOID | NEVER_BLOW
+F:MALE | SMART | HUMANOID
 S:1_IN_5 | 
 S:SCARE | BLIND
 X:cackles insanely.

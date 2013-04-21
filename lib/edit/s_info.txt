@@ -295,7 +295,7 @@
 
 
 
-V:2.8.2
+V:2.0.0
 
 
 # Mage:
@@ -1977,6 +1977,14 @@ N:ACTIVATION:258:*Transmute* Item
 F:KILL | PLAYER
 T:UNSAFE:HEAVY_TRANSMUTE:1d1:0
 P:21:1
+
+
+## Amulet of Yendor.
+
+N:ACTIVATION:259:You Win
+F:KILL | PLAYER
+T:UNSAFE:NOTHING:1d1:0
+P:1:1
 
 
 ########## Activations for shape-changes, 

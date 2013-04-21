@@ -2520,7 +2520,7 @@ bool mon_take_hit(int m_idx, int dam, bool * fear, cptr note,
 		/* Not afraid */
 		(*fear) = FALSE;
 
-		/* Wake up nerby monsters */
+		/* Wake up nearby monsters */
 
 		if (!hit_by_pet)
 		{
@@ -2562,7 +2562,7 @@ bool mon_take_hit(int m_idx, int dam, bool * fear, cptr note,
 		{
 
 			/* Decrease social class. */
-			if (p_ptr->sc > -1000)
+			if (!hit_by_pet && p_ptr->sc > -1000)
 			{
 				p_ptr->sc -= 50;
 			}
@@ -2684,6 +2684,15 @@ void verify_panel(void)
 
 	bool scroll = FALSE;
 
+	int edgey = 2;
+	int edgex = 4;
+
+	if (almost_center_player) {
+	  edgey = 6;
+	  edgex = 12;
+	}
+
+
 	/* Center the view on the player. */
 	if (center_player && (center_running || !p_ptr->running))
 	{
@@ -2715,7 +2724,8 @@ void verify_panel(void)
 		i = p_ptr->wy;
 
 		/* Scroll screen when 2 grids from top/bottom edge */
-		if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy + SCREEN_HGT - 2))
+		if ((py < p_ptr->wy + edgey) || 
+		    (py >= p_ptr->wy + SCREEN_HGT - edgey))
 		{
 
 			i = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
@@ -2741,7 +2751,8 @@ void verify_panel(void)
 		i = p_ptr->wx;
 
 		/* Scroll screen when 4 grids from left/right edge */
-		if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx + SCREEN_WID - 4))
+		if ((px < p_ptr->wx + edgex) || 
+		    (px >= p_ptr->wx + SCREEN_WID - edgex))
 		{
 
 			i = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
@@ -3273,8 +3284,8 @@ static bool target_set_accept(int y, int x)
 				cave_feat[y][x] <= FEAT_SHOP_TAIL) ||
 			cave_feat[y][x] == FEAT_STORE_EXIT) return (TRUE);
 
-		/* Notice wilderness. */
-		if (cave_feat[y][x] == FEAT_WILD_ENTER)
+		/* Notice shafts. */
+		if (cave_feat[y][x] == FEAT_SHAFT)
 			return (TRUE);
 
 		/* Notice buildings -KMW- */
@@ -4796,8 +4807,11 @@ void godly_wrath_blast(byte god)
 
 void describe_attack(int type, char *r)
 {
-	switch (type)
-	{
+  switch (type) {
+  case GF_NOTHING:
+    strcpy(r, "nothing");
+    break;
+
 		case GF_ARROW:
 			strcpy(r, "small arrows");
 			break;
@@ -5057,6 +5071,11 @@ void describe_attack_fully(int type, char *r)
 {
 	switch (type)
 	{
+
+	case GF_NOTHING:
+	  strcpy(r, "nothing");
+	  break;
+
 		case GF_ARROW:
 			strcpy(r, "arrows");
 			break;

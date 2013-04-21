@@ -974,6 +974,9 @@ static void wr_dungeon(void)
 	wr_s16b(p_ptr->inside_special);
 	wr_s16b(p_ptr->wild_y);
 	wr_s16b(p_ptr->wild_x);
+	wr_s16b(p_ptr->wilderness_py);
+	wr_s16b(p_ptr->wilderness_px);
+	wr_s16b(p_ptr->wilderness_depth);
 	wr_s16b(p_ptr->py);
 	wr_s16b(p_ptr->px);
 
@@ -1746,9 +1749,9 @@ bool load_player(void)
 	if (!err)
 	{
 		/* Give a conversion warning */
-		if ((version_major != sf_major) || (version_minor != sf_minor) ||
-			(version_patch != sf_patch))
-		{
+	  if ((version_major != sf_major) || (version_minor != sf_minor) ||
+	      (version_patch != sf_patch))
+	    {
 			/* Message */
 			msg_format("Converted a %d.%d.%d savefile.", sf_major,
 				sf_minor, sf_patch);

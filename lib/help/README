@@ -938,4 +938,31 @@ Kamband is now registered at sourceforge. (http://kamband.sourceforge.net)
 Versions will now have a descriptive label along with a version number,
 a la Red Hat. This is great just for the mystification value. :)
 
+--- Release 2.0 "Baalzebub" ---
+
+This is a "playability" release, maning that many annoying and
+incorrect things have been fixed; do not expect spectacular new features.
+
+Annoying things have been fixed, too many to list here.
+
+Made the wilderness more interesting and useful to play. Among the many
+changes: 
+
+The wilderness now changes from night to day, with lots more
+monsters in the nighttime; on the other hand, during the daytime it is now
+alot less dangerous. 
+
+Breeders are now hopefully less annoying. 
+
+Added some more wilderness vaults.
+
+The town is now intergrated into the wilderness; in fact, now there is no
+more distinction between a town and a wilderness level, and towns are 
+generated just like wilderness vaults. This means that the "wilderness
+entrance" is gone.
+
+Scrollable terrain is now more logical. (That is, each terrain level is
+now always the same no matter how you reach it.) However, terrain levels
+still try to neatly tile. (Fit together at the seams.)
+
 

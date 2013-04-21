@@ -442,6 +442,9 @@ static void find_target_nearest(monster_type * m_ptr, monster_race * r_ptr,
 	monster_type *min_m_ptr = NULL;
 	int min_dist = r_ptr->aaf;
 
+	int gooddude = (p_ptr->sc >= 0) && (r_ptr->flags3 & RF3_POLICE);
+
+
 	/* Default target */
 
 	*ry = p_ptr->py;
@@ -449,8 +452,8 @@ static void find_target_nearest(monster_type * m_ptr, monster_race * r_ptr,
 
 	/* Either the player can be seen, or there are no pets to track */
 
-	if (m_ptr->is_pet == FALSE &&
-		(player_has_los_bold(m_ptr->fy, m_ptr->fx) || m_pet_num == 0))
+	if (m_ptr->is_pet == FALSE && !gooddude &&
+	    (player_has_los_bold(m_ptr->fy, m_ptr->fx) || m_pet_num == 0))
 	{
 		return;
 	}
@@ -504,6 +507,21 @@ static void find_target_nearest(monster_type * m_ptr, monster_race * r_ptr,
 	{
 		*ry = min_m_ptr->fy;
 		*rx = min_m_ptr->fx;
+	}
+
+	/* HACK! Handle police. */
+	if (gooddude && *rx == p_ptr->px && *ry == p_ptr->py) {
+
+	  /* Track the player without damaging him. */
+	  
+	  while (1) {
+	    *rx += rand_range(-9, 9);
+	    *ry += rand_range(-9, 9);
+
+	    if (*rx != p_ptr->px && *ry != p_ptr->py) {
+	      break;
+	    }
+	  }
 	}
 }
 
@@ -2864,6 +2882,7 @@ static void process_monster(int m_idx)
 	bool did_pass_wall;
 	bool did_kill_wall;
 
+	bool gooddude = (p_ptr->sc >= 0 && r_ptr->flags3 & RF3_POLICE);
 
 	/* Handle "sleep" */
 	if (m_ptr->csleep)
@@ -3077,15 +3096,19 @@ static void process_monster(int m_idx)
 	{
 		int k, y, x;
 
-		/* Count the adjacent monsters */
-		for (k = 0, y = oy - 1; y <= oy + 1; y++)
-		{
-			for (x = ox - 1; x <= ox + 1; x++)
-			{
-				/* Count monsters */
-				if (cave_m_idx[y][x] > 0)
-					k++;
-			}
+		/* Count the adjacent monsters 
+		 * HACK Don't crowd the wilderness. */
+		if (p_ptr->inside_special == SPECIAL_WILD) {
+		  k = 3;
+
+		} else {
+		  for (k = 0, y = oy - 1; y <= oy + 1; y++) {
+		    for (x = ox - 1; x <= ox + 1; x++) {
+		      /* Count monsters */
+		      if (cave_m_idx[y][x] > 0)
+			k++;
+		    }
+		  }
 		}
 
 		/* Hack -- multiply slower in crowded areas */
@@ -3130,7 +3153,7 @@ static void process_monster(int m_idx)
 				return;
 			}
 		}
-		else
+		else if (!gooddude)
 		{
 			if (make_attack_spell(m_idx))
 				return;
@@ -3145,16 +3168,16 @@ static void process_monster(int m_idx)
 	/* Reset */
 	stagger = FALSE;
 
+
 	/* Confused */
 	if (m_ptr->confused || r_ptr->flags3 & RF3_FRIENDLY ||
 	    m_ptr->mflag & MFLAG_PACIFIST) {
 
 		/* Stagger */
 		stagger = TRUE;
-	}
 
 	/* Random movement */
-	else if (r_ptr->flags1 & (RF1_RAND_50 | RF1_RAND_25))
+	} else if (r_ptr->flags1 & (RF1_RAND_50 | RF1_RAND_25))
 	{
 		/* Random movement (25%) */
 		if (!(r_ptr->flags1 & (RF1_RAND_50)))
@@ -3511,50 +3534,40 @@ static void process_monster(int m_idx)
 		}
 
 		/* Some monsters never attack */
-		if (do_move && (cave_m_idx[ny][nx] < 0) &&
-		    (r_ptr->flags1 & RF1_NEVER_BLOW ||
-		     m_ptr->mflag & MFLAG_PACIFIST))
-		{
-			/* Hack -- memorize lack of attacks */
-			/* if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_NEVER_BLOW); */
-
-			/* Do not move */
-			do_move = FALSE;
-		}
-
-
 		/* The player is in the way.  Attack him. */
 		/* if (do_move && (cave_m_idx[ny][nx] < 0)) */
-		if (cave_m_idx[ny][nx] < 0)	/* -KMW- */
-		{
-			/* Do the attack */
-			/* "Friendly" monsters don't attack. */
-			/* Punish monsters for attacking sacred player. */
-			/* No melee in the magical arena! */
+		if (cave_m_idx[ny][nx] < 0) {
+		  /* Do the attack */
+		  /* "Friendly" monsters don't attack. */
+		  /* Punish monsters for attacking sacred player. */
+		  /* No melee in the magical arena! */
 
-			if (!m_ptr->is_pet &&
-				p_ptr->inside_special != SPECIAL_MAGIC_ARENA)
-			{
+		  if (r_ptr->flags1 & RF1_NEVER_BLOW ||
+		      m_ptr->mflag & MFLAG_PACIFIST || 
+		      gooddude) {
 
-				if (monster_is_smart && player_is_sacred)
-				{
-					m_ptr->monfear += damroll(25, 25);
-				}
-				else if (player_is_sacred)
-				{
-					(void) make_attack_normal(m_idx);
-					punish_monster(m_ptr);
-				}
-				else
-				{
-					(void) make_attack_normal(m_idx);
-				}
-			}
-			/* Do not move */
-			do_move = FALSE;
+		    /* Nothing. */
 
-			/* Took a turn */
-			do_turn = TRUE;
+		  } else if (!m_ptr->is_pet &&
+			     p_ptr->inside_special != SPECIAL_MAGIC_ARENA) {
+
+		    if (monster_is_smart && player_is_sacred) {
+		      m_ptr->monfear += damroll(25, 25);
+
+		    } else if (player_is_sacred) {
+		      (void) make_attack_normal(m_idx);
+		      punish_monster(m_ptr);
+
+		    } else {
+		      (void) make_attack_normal(m_idx);
+		    }
+		  }
+
+		  /* Do not move */
+		  do_move = FALSE;
+
+		  /* Took a turn */
+		  do_turn = TRUE;
 		}
 
 

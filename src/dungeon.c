@@ -536,8 +536,8 @@ static void process_world(void)
 
 	/*** Handle the "town" (stores and sunshine) ***/
 
-	/* While in town */
-	if (!p_ptr->depth)
+	/* While in town or outside */
+	if (!p_ptr->depth || p_ptr->inside_special == SPECIAL_WILD)
 	{
 		/* Hack -- Daybreak/Nighfall in town */
 		if (!(turn % ((10L * TOWN_DAWN) / 2)))
@@ -1217,21 +1217,30 @@ static void process_world(void)
 			}
 
 			/* Determine the level */
-			if (p_ptr->depth)
+			if (p_ptr->depth && 
+			    p_ptr->inside_special != SPECIAL_WILD)
 			{
 				mprint(MSG_BONUS, "You feel yourself yanked upwards!");
-				p_ptr->depth = 0;
-				p_ptr->inside_special = 0; /* -KMW- */
+				p_ptr->inside_special = SPECIAL_WILD;
 				p_ptr->leaving = TRUE;
 			}
 			else
 			{
 				mprint(MSG_BONUS, "You feel yourself yanked downwards!");
 
+				if (p_ptr->inside_special == SPECIAL_WILD) {
+				  p_ptr->wilderness_px = p_ptr->px;
+				  p_ptr->wilderness_py = p_ptr->py;
+				  p_ptr->wilderness_depth = p_ptr->depth;
+				}
+
 				/* New depth */
 				p_ptr->depth = p_ptr->max_depth;
+
 				if (p_ptr->depth < 1)
 					p_ptr->depth = 1;
+
+				p_ptr->inside_special = 0;
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -2473,7 +2482,8 @@ static void dungeon(void)
 
 	/* Track maximum dungeon level (if not in quest -KMW-) */
 	if ((p_ptr->max_depth < p_ptr->depth) &&
-		(p_ptr->inside_special != SPECIAL_QUEST))
+	    (p_ptr->inside_special != SPECIAL_QUEST &&
+	     p_ptr->inside_special != SPECIAL_WILD))
 	{
 		p_ptr->max_depth = p_ptr->depth;
 	}
@@ -2501,7 +2511,11 @@ static void dungeon(void)
 			/* Make stairs */
 			if (p_ptr->create_down_stair)
 			{
-				cave_set_feat(py, px, FEAT_MORE);
+			  if (p_ptr->inside_special == SPECIAL_WILD) {
+			    cave_set_feat(py, px, FEAT_SHAFT);
+			  } else {
+			    cave_set_feat(py, px, FEAT_MORE);
+			  }
 			}
 			else
 			{

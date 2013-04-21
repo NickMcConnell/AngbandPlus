@@ -581,7 +581,7 @@ static hist_type bg[] = {
 	{"You are a cloud of damp vapor, ", 100, 75, 76, 20},
 
 	{"created by a powerful wizard. ", 30, 76, 0, 10},
-	{"made from vaporous wisps by an Elven king .", 40, 76, 0, 20},
+	{"made from vaporous wisps by an Elven king.", 40, 76, 0, 20},
 	{"shaped by the mental energy of an evil demon. ", 50, 76, 0, 30},
 	{"the essence of the mental energy of an infamous lich. ", 60, 76, 0,
 		40},
@@ -928,6 +928,9 @@ static void get_extra(void)
 	}
 
 	p_ptr->inside_special = 0;
+	p_ptr->wilderness_py = 0;
+	p_ptr->wilderness_px = 0;
+	p_ptr->wilderness_depth = 0;
 	p_ptr->exit_bldg = TRUE;
 
 	/* Initialize gods info. */
@@ -1619,7 +1622,8 @@ static void player_outfit(void)
 	/* Hack -- Give the player some torches */
 	/* Useless for ghosts & munchkins */
 
-	if (p_ptr->prace != RACE_GHOST && p_ptr->prace != RACE_MUNCHKIN)
+	if (p_ptr->prace != RACE_GHOST && p_ptr->prace != RACE_MUNCHKIN &&
+	    p_ptr->prace != RACE_VORTEX)
 	{
 		int foo = rand_range(3, 7);
 		int i;

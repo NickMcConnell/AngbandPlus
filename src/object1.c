@@ -1486,6 +1486,12 @@ void object_desc(char *buf, object_type * o_ptr, int pref, int mode)
 			if (aware)
 				append_name = TRUE;
 			basenm = aware ? "& Amulet~" : "& # Amulet~";
+
+			/* Hack -- The Amulet of Yendor */
+			if (!aware && (o_ptr->sval == SV_AMULET_YENDOR)) {
+			  modstr = "Plain Gold";
+			}
+
 			break;
 		}
 

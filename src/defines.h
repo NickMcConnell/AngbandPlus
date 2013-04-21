@@ -45,8 +45,8 @@
 #define VERSION_MINOR	8
 #define VERSION_PATCH	2
 
-#define KAM_VERSION_MAJOR 1
-#define KAM_VERSION_MINOR 9
+#define KAM_VERSION_MAJOR 2
+#define KAM_VERSION_MINOR 0
 #define KAM_VERSION_PATCH 0
 
 
@@ -332,9 +332,11 @@
 #define MIN_M_ALLOC_LEVEL	14
 
 /*
- * Wilderness has at least 4 monsters
+ * Yes, that's right -- during the night the scary monsters start
+ * coming out.
  */
-#define MIN_M_ALLOC_WILD        4
+#define MIN_M_ALLOC_WILD_DAY     3
+#define MIN_M_ALLOC_WILD_NIGHT   9
 
 /*
  * The town starts out with 4 residents during the day
@@ -592,7 +594,7 @@
 /*
  * Spell types used by project(), and related functions.
  */
-#define GF_XXX1		1
+#define GF_NOTHING		1
 #define GF_ARROW		2
 #define GF_MISSILE	3
 #define GF_MANA		4
@@ -862,7 +864,7 @@
 #define FEAT_SHRUB             195
 #define FEAT_ROCKY_HILL        196
 #define FEAT_FOG               197
-#define FEAT_WILD_ENTER        198
+#define FEAT_SHAFT             198
 
 /* Quest features -KMW- */
 #define FEAT_QUEST_ENTER	99
@@ -1485,7 +1487,7 @@
 #define SV_AMULET_WISDOM		6
 #define SV_AMULET_CHARISMA		7
 #define SV_AMULET_THE_MAGI		8
-/* xxx */
+#define SV_AMULET_YENDOR                9
 #define SV_AMULET_CARLAMMAS		10
 #define SV_AMULET_INGWE			11
 #define SV_AMULET_DWARVES		12
@@ -2740,7 +2742,7 @@
 #define RF3_RANDOM_NAME		0x00000100 /* Generate a random name */
 #define RF3_FRIENDLY		0x00000200 /* Friendly, non-pet */
 #define RF3_SILENT	        0x00000400 /* Doesn't speak even if smart */
-#define RF3_XXX4			0x00000800 /* Non-Living (?) */
+#define RF3_POLICE		0x00000800 /* The monster guards the peace. */
 #define RF3_HURT_LITE		0x00001000 /* Hurt by lite */
 #define RF3_HURT_ROCK		0x00002000 /* Hurt by rock remover */
 #define RF3_HURT_FIRE		0x00004000 /* Hurt badly by fire */
@@ -3048,7 +3050,7 @@
 #define OPT_verify_destroy_junk         83
 #define OPT_center_running              84
 #define OPT_hidden_pet_messages         85
-#define OPT_86                          86
+#define OPT_almost_center_player        86
 #define OPT_87                          87
 #define OPT_88                          88
 #define OPT_89                          89
@@ -3144,6 +3146,7 @@
 #define verify_destroy_junk             op_ptr->opt[OPT_verify_destroy_junk]
 #define center_running                  op_ptr->opt[OPT_center_running]
 #define hidden_pet_messages             op_ptr->opt[OPT_hidden_pet_messages]
+#define almost_center_player            op_ptr->opt[OPT_almost_center_player]
 
 /*** Macro Definitions ***/
 

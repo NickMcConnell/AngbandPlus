@@ -593,6 +593,8 @@ object_type *item_effect(cptr name, cptr act, bool obvious,
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
+		mformat(MSG_BONUS, a_text + a_ptr->text);
+
 		success = cause_spell_effect(&activations[a_ptr->activation]);
 		o_ptr->timeout =
 			rand_int(a_ptr->timeout_rand) + a_ptr->timeout_static;
@@ -871,7 +873,7 @@ static void do_cmd_brew_stuff_aux(u32b mask, int boost)
 			object_type *to_drop = new_object();
 
 			object_prep(to_drop, recipe_info[i].result_kind);
-			apply_magic(to_drop, level, TRUE, TRUE, TRUE);
+			apply_magic(to_drop, level, FALSE, TRUE, TRUE);
 
 			object_aware(to_drop);
 			object_known(to_drop);
@@ -1361,13 +1363,22 @@ static bool tport_vertically(bool how)
 	if (how)
 	{
 		if (p_ptr->inside_special == SPECIAL_QUEST ||
-			p_ptr->depth >= MAX_DEPTH - 1)
+		    p_ptr->depth >= MAX_DEPTH - 1)
 		{
 			mformat(MSG_TEMP, "The floor is impermeable.");
 			return FALSE;
 		}
 
-		msg_print("You sink through the floor.");
+		if (p_ptr->inside_special == SPECIAL_WILD) {
+		  msg_print("You sink through the ground.");
+
+		  p_ptr->wilderness_depth = p_ptr->depth;
+		  p_ptr->inside_special = FALSE;
+
+		} else {
+		  msg_print("You sink through the floor.");
+		}
+
 		p_ptr->depth++;
 		p_ptr->leaving = TRUE;
 	}

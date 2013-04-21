@@ -226,7 +226,7 @@ static cptr r_info_flags3[] = {
 	"RANDOM_NAME",
 	"FRIENDLY",
 	"SILENT",
-	"XXX4X3",
+	"POLICE",
 	"HURT_LITE",
 	"HURT_ROCK",
 	"HURT_FIRE",
@@ -621,7 +621,7 @@ static cptr s_info_flags[32] = {
 
 static cptr s_info_attack_types[] = {
 	"",
-	"XXX1",
+	"NOTHING",
 	"ARROW",
 	"MISSILE",
 	"MANA",

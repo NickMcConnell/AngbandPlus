@@ -2082,286 +2082,286 @@ cptr ingr_short_names[16] = {
 /* Format: { FL_<TYPE> | ... , k_index for item } */
 
 recipe recipe_info[MAX_RECIPES] = {
-	// Mush res. con. 11
-	{FL_FLINT | FL_SULFUR | FL_EBONY, 11},
-	// Mush restore 12
-	{FL_SULFUR | FL_EBONY | FL_SILK | FL_SALT, 12},
-	// Mush res. str. 18
-	{FL_BLOOD | FL_SULFUR | FL_EBONY, 18},
-	// Ration of food 21
-	{FL_BLOOD | FL_WATER, 21},
-	// Hard Buiscuit 22
-	{FL_SALT | FL_WATER, 22},
-	// Beef Jerky 23
-	{FL_BLOOD | FL_SALT, 23},
-	// Waybread 25
-	{FL_WATER | FL_CRYSTAL, 25},
-	// Blade of Chaos 36
-	{FL_OBSIDIAN | FL_SILK | FL_SLIME, 36},
-	// Executioner's Sword 40
-	{FL_OBSIDIAN | FL_SLIME | FL_BLOOD, 40},
-	// Mace of Disruption 57
-	{FL_SLIME | FL_MUD | FL_BLOOD, 57},
-	// Scythe Slicing 72
-	{FL_SLIME | FL_CRYSTAL | FL_QUARTZ, 72},
-	// Seeker Arrow 79
-	{FL_GRAPHITE | FL_SLIME | FL_QUARTZ, 79},
-	// Seeker Bolt 81
-	{FL_GRAPHITE | FL_SLIME | FL_SLIME, 81},
-	// Gnomish shovel 85
-	{FL_MUD | FL_CRYSTAL | FL_SAPPHIRE, 85},
-	// Dwarven shovel 86
-	{FL_MUD | FL_BLOOD | FL_EMERALD, 86},
-	// Orcish pick 88
-	{FL_MUD | FL_SLIME | FL_OBSIDIAN, 88},
-	// Dwarven pick 89
-	{FL_MUD | FL_BLOOD | FL_SAPPHIRE, 89},
-	// Mithril Plate 119
-	{FL_AMBER | FL_SALT | FL_CRYSTAL | FL_EMERALD, 119},
-	// Mithril Chain 120
-	{FL_AMBER | FL_SALT | FL_CRYSTAL | FL_SAPPHIRE, 120},
-	// Shield of Deflection 122
-	{FL_EBONY | FL_AMBER | FL_SALT | FL_OBSIDIAN, 122},
-	// Shadow Cloak 124
-	{FL_SILK | FL_SULFUR | FL_AMBER | FL_MUD, 124},
-	// Ring Str 132
-	{FL_OBSIDIAN | FL_BLOOD | FL_MUD, 132},
-	// Ring Dex 133
-	{FL_OBSIDIAN | FL_SALT | FL_MUD, 133},
-	// Ring Con 134
-	{FL_OBSIDIAN | FL_AMBER | FL_MUD, 134},
-	// Ring Int 135
-	{FL_OBSIDIAN | FL_CRYSTAL | FL_MUD, 135},
-	// Ring Speed 136
-	{FL_OBSIDIAN | FL_SULFUR | FL_QUARTZ | FL_SAPPHIRE, 136},
-	// Ring Srch 137
-	{FL_OBSIDIAN | FL_QUARTZ | FL_AMBER, 137},
-	// Ring Slow-Dig 139
-	{FL_OBSIDIAN | FL_CRYSTAL | FL_SALT, 139},
-	// Ring Res-fire 140
-	{FL_OBSIDIAN | FL_BLOOD | FL_AMBER, 140},
-	// Ring Res-cold 141
-	{FL_OBSIDIAN | FL_SALT | FL_AMBER, 141},
-	// Ring feather-fall 142
-	{FL_OBSIDIAN | FL_SILK | FL_FLINT, 142},
-	// Ring Res-pois 143
-	{FL_OBSIDIAN | FL_FLINT | FL_MUD, 143},
-	// Ring Free action 144
-	{FL_OBSIDIAN | FL_SULFUR | FL_QUARTZ, 144},
-	// Ring Flames 146
-	{FL_OBSIDIAN | FL_BLOOD | FL_SILK, 146},
-	// Ring Acid 147
-	{FL_OBSIDIAN | FL_SALT | FL_SLIME, 147},
-	// Ring Ice 148
-	{FL_OBSIDIAN | FL_EBONY | FL_SALT, 148},
-	// Ring Accuracy 152
-	{FL_OBSIDIAN | FL_WATER | FL_SALT, 152},
-	// Ring Prot 153
-	{FL_OBSIDIAN | FL_EMERALD | FL_FLINT, 153},
-	// Ring see-inv 155
-	{FL_OBSIDIAN | FL_SULFUR | FL_CRYSTAL, 155},
-	// Ring sust-str 156
-	{FL_OBSIDIAN | FL_GRAPHITE | FL_BLOOD, 156},
-	// Ring sust-int 157
-	{FL_OBSIDIAN | FL_GRAPHITE | FL_CRYSTAL, 157},
-	// Ring sust-wis 158
-	{FL_OBSIDIAN | FL_GRAPHITE | FL_QUARTZ, 158},
-	// Ring sust-con 159
-	{FL_OBSIDIAN | FL_GRAPHITE | FL_FLINT, 159},
-	// Ring sust-dex 160
-	{FL_OBSIDIAN | FL_GRAPHITE | FL_SALT, 160},
-	// Ring sust-cha 161
-	{FL_OBSIDIAN | FL_GRAPHITE | FL_SILK, 161},
-	// Ring slaying 162
-	{FL_OBSIDIAN | FL_GRAPHITE | FL_BLOOD | FL_MUD, 162},
-	// Scroll ench-weap-hit 173
-	{FL_SILK | FL_OBSIDIAN | FL_CRYSTAL, 173},
-	// Scroll ench-weap-dam 174
-	{FL_SILK | FL_OBSIDIAN | FL_SALT, 174},
-	// Scroll ench-armr 175
-	{FL_SILK | FL_MUD | FL_CRYSTAL, 175},
-	// Scroll Summon Pet
-	{FL_SILK | FL_FLINT | FL_WATER, 182},
-	// Scroll Ident 176
-	{FL_SILK | FL_CRYSTAL | FL_SAPPHIRE, 176},
-	// Scroll *Ident* 177
-	{FL_SILK | FL_CRYSTAL | FL_SAPPHIRE | FL_EMERALD, 177},
-	// Scroll Rem.Curse 180
-	{FL_SILK | FL_FLINT | FL_MUD, 180},
-	// Scroll tele-lev 187
-	{FL_SILK | FL_EBONY | FL_QUARTZ, 187},
-	// Scroll mapping 189
-	{FL_SILK | FL_QUARTZ | FL_SULFUR, 189},
-	// Scroll rune-prot 190
-	{FL_SILK | FL_OBSIDIAN | FL_MUD, 190},
-	// Scroll *Rem.Curse* 191
-	{FL_SILK | FL_FLINT | FL_MUD | FL_EMERALD, 191},
-	// Scroll Aquire 199
-	{FL_SILK | FL_CRYSTAL | FL_BLOOD | FL_FLINT, 199},
-	// Scroll Mass Gen 200
-	{FL_SILK | FL_BLOOD | FL_EBONY | FL_SALT, 200},
-	// Scroll Recharge 206
-	{FL_SILK | FL_SALT | FL_AMBER, 206},
-	// Scroll Gen 207
-	{FL_SILK | FL_AMBER | FL_SLIME | FL_BLOOD, 207},
-	// Scroll *Ench. Weap.* 212
-	{FL_SILK | FL_OBSIDIAN | FL_CRYSTAL | FL_AMBER, 212},
-	// Scroll *Ench. Armr.* 214
-	{FL_SILK | FL_MUD | FL_CRYSTAL | FL_AMBER, 214},
-	// Scroll *Destruct* 221
-	{FL_SILK | FL_CRYSTAL | FL_BLOOD | FL_SLIME, 221},
-	// Pot. Str. 225
-	{FL_WATER | FL_BLOOD | FL_MUD, 225},
-	// Pot. Res. Str. 227
-	{FL_WATER | FL_SALT | FL_BLOOD, 227},
-	// Pot. Int. 228
-	{FL_WATER | FL_CRYSTAL | FL_MUD, 228},
-	// Pot. Res. Int. 230
-	{FL_WATER | FL_GRAPHITE | FL_BLOOD, 230},
-	// Pot. Wis. 231
-	{FL_WATER | FL_QUARTZ | FL_MUD, 231},
-	// Pot. Res. Wis. 233
-	{FL_WATER | FL_GRAPHITE | FL_QUARTZ, 233},
-	// Pot. Cha. 234
-	{FL_WATER | FL_SILK | FL_MUD, 234},
-	// Pot. Res. Cha. 236
-	{FL_WATER | FL_GRAPHITE | FL_SILK, 236},
-	// Pot. CCW 241
-	{FL_WATER | FL_BLOOD | FL_EBONY, 241},
-	// Pot. Heal 242
-	{FL_WATER | FL_MUD | FL_AMBER, 242},
-	// Pot. Con. 243
-	{FL_WATER | FL_FLINT | FL_MUD, 243},
-	// Pot. Exp. 244
-	{FL_WATER | FL_GRAPHITE | FL_MUD | FL_QUARTZ, 244},
-	// Pot. Speed 249
-	{FL_WATER | FL_SULFUR | FL_QUARTZ | FL_SAPPHIRE, 249},
-	// Pot. Dex. 251
-	{FL_WATER | FL_MUD | FL_SALT, 251},
-	// Pot. Res. Dex. 252
-	{FL_WATER | FL_GRAPHITE | FL_SALT, 252},
-	// Pot. Res. Con. 253
-	{FL_WATER | FL_GRAPHITE | FL_FLINT, 253},
-	// Pot. Enlight 256
-	{FL_WATER | FL_GRAPHITE | FL_EMERALD | FL_SAPPHIRE, 256},
-	// Pot. Berserk 258
-	{FL_WATER | FL_BLOOD | FL_AMBER, 258},
-	// Pot. Res. Life Lev. 260
-	{FL_WATER | FL_GRAPHITE | FL_BLOOD | FL_QUARTZ, 260},
-	// Pot. Res. Mana 266
-	{FL_WATER | FL_GRAPHITE | FL_CRYSTAL | FL_QUARTZ, 266},
-	// Wand lightning bolt 270
-	{FL_AMBER | FL_SAPPHIRE | FL_CRYSTAL, 270},
-	// Wand frost bolt 271
-	{FL_AMBER | FL_SALT | FL_CRYSTAL, 271},
-	// Wand fire bolt 272
-	{FL_AMBER | FL_EBONY | FL_BLOOD, 272},
-	// Wand morph 274
-	{FL_AMBER | FL_SAPPHIRE | FL_EMERALD, 274},
-	// Wand drain life 280
-	{FL_AMBER | FL_SULFUR | FL_QUARTZ, 280},
-	// Wand lightning balls 287
-	{FL_AMBER | FL_QUARTZ | FL_SLIME, 287},
-	// Wand cold balls 288
-	{FL_AMBER | FL_SLIME | FL_CRYSTAL, 288},
-	// Wand fire balls 289
-	{FL_AMBER | FL_SLIME | FL_BLOOD, 289},
-	// Wand acid balls 291
-	{FL_AMBER | FL_SLIME | FL_SALT, 291},
-	// Wand wonder 292
-	{FL_AMBER | FL_WATER | FL_QUARTZ, 292},
-	// Wand dragon flame 295
-	{FL_AMBER | FL_SLIME | FL_BLOOD | FL_WATER, 295},
-	// Wand dragon frost 296
-	{FL_AMBER | FL_SLIME | FL_CRYSTAL | FL_WATER, 296},
-	// Wand dragon breath 297
-	{FL_AMBER | FL_SLIME | FL_SALT | FL_WATER, 297},
-	// Wand anihilate 298
-	{FL_AMBER | FL_SLIME | FL_QUARTZ | FL_EMERALD, 298},
-	// Staff tele 303
-	{FL_FLINT | FL_WATER | FL_BLOOD, 303},
-	// Staff quake 304
-	{FL_FLINT | FL_OBSIDIAN | FL_CRYSTAL, 304},
-	// Staff summon 305
-	{FL_FLINT | FL_BLOOD | FL_SLIME, 305},
-	// Staff *Destr* 307
-	{FL_FLINT | FL_BLOOD | FL_SLIME | FL_SALT, 307},
-	// Staff speed 314
-	{FL_FLINT | FL_SULFUR | FL_QUARTZ | FL_SAPPHIRE, 314},
-	// Staff rem. curse 317
-	{FL_FLINT | FL_MUD | FL_EBONY, 317},
-	// Staff curing 319
-	{FL_FLINT | FL_MUD | FL_AMBER, 319},
-	// Staff geno 323
-	{FL_FLINT | FL_AMBER | FL_SLIME | FL_MUD, 323},
-	// Staff power 324
-	{FL_FLINT | FL_BLOOD | FL_SALT | FL_WATER, 324},
-	// Staff the Magi 325
-	{FL_FLINT | FL_SULFUR | FL_CRYSTAL | FL_EBONY, 325},
-	// Staff Perception 326
-	{FL_FLINT | FL_AMBER | FL_GRAPHITE, 326},
-	// Staff enlight 328
-	{FL_FLINT | FL_AMBER | FL_GRAPHITE | FL_SAPPHIRE, 328},
-	// Staff Heal 329
-	{FL_FLINT | FL_EMERALD | FL_SAPPHIRE, 329},
-	// Torch 346
-	{FL_FLINT | FL_MUD, 346},
-	// Lantern 347
-	{FL_FLINT | FL_CRYSTAL, 347},
-	// Flask 348
-	{FL_WATER | FL_SULFUR, 348},
-	// Rod probe 353
-	{FL_SULFUR | FL_WATER | FL_GRAPHITE, 353},
-	// Rod recall 354
-	{FL_SULFUR | FL_WATER | FL_EMERALD, 354},
-	// Rod lightning bolts 357
-	{FL_SULFUR | FL_SAPPHIRE | FL_CRYSTAL, 357},
-	// Rod frost bolts 358
-	{FL_SULFUR | FL_SALT | FL_CRYSTAL, 358},
-	// Rod fire bolts 359
-	{FL_SULFUR | FL_AMBER | FL_BLOOD, 359},
-	// Rod morph 360
-	{FL_SULFUR | FL_EBONY | FL_EMERALD, 360},
-	// Rod drain life 363
-	{FL_SULFUR | FL_QUARTZ | FL_SALT, 363},
-	// Rod port other 364
-	{FL_SULFUR | FL_WATER | FL_SAPPHIRE, 364},
-	// Rod lightning balls 366
-	{FL_SULFUR | FL_QUARTZ | FL_SLIME, 366},
-	// Rod cold balls 367
-	{FL_SULFUR | FL_CRYSTAL | FL_SLIME, 367},
-	// Rod fire balls 368
-	{FL_SULFUR | FL_BLOOD | FL_SLIME, 368},
-	// Rod acid balls 369
-	{FL_SULFUR | FL_SALT | FL_SLIME, 369},
-	// Rod acid bolts 370
-	{FL_SULFUR | FL_SALT | FL_WATER, 370},
-	// Rod enlight 371
-	{FL_SULFUR | FL_AMBER | FL_GRAPHITE | FL_SAPPHIRE, 371},
-	// Rod percept 372
-	{FL_SULFUR | FL_AMBER | FL_GRAPHITE, 372},
-	// Rod curing 373
-	{FL_SULFUR | FL_MUD | FL_AMBER, 373},
-	// Rod Healing 374
-	{FL_SULFUR | FL_EMERALD | FL_SAPPHIRE, 374},
-	// Rod detect 375
-	{FL_SULFUR | FL_CRYSTAL | FL_BLOOD, 375},
-	// Rod restore 376
-	{FL_SULFUR | FL_EBONY | FL_SILK | FL_AMBER, 376},
-	// Rod speed 377
-	{FL_SULFUR | FL_SULFUR | FL_QUARTZ | FL_SAPPHIRE, 377},
-	// Pot. Cure Mut.
-	{FL_WATER | FL_SULFUR | FL_SLIME, 299},
-	// Pot. Cure Light Insanity.
-	{FL_WATER | FL_SAPPHIRE | FL_CRYSTAL, 581},
-	// Pot. Cure Serious Insanity.
-	{FL_WATER | FL_CRYSTAL | FL_AMBER, 582},
-	// Pot. Cure Critical Insanity.
-	{FL_WATER | FL_CRYSTAL | FL_EMERALD, 583},
-	// Pot. Cure Insanity.
-	{FL_WATER | FL_CRYSTAL | FL_QUARTZ, 584},
-	// Pot. Mutation
-	{FL_WATER | FL_SLIME | FL_BLOOD, 268}
+  /* Mush res. con. 11 */
+  {FL_FLINT | FL_SULFUR | FL_EBONY, 11},
+  /* Mush restore 12 */
+  {FL_SULFUR | FL_EBONY | FL_SILK | FL_SALT, 12},
+  /* Mush res. str. 18 */
+  {FL_BLOOD | FL_SULFUR | FL_EBONY, 18},
+  /* Ration of food 21 */
+  {FL_BLOOD | FL_WATER, 21},
+  /* Hard Buiscuit 22 */
+  {FL_SALT | FL_WATER, 22},
+  /* Beef Jerky 23 */
+  {FL_BLOOD | FL_SALT, 23},
+  /* Waybread 25 */
+  {FL_WATER | FL_CRYSTAL, 25},
+  /* Blade of Chaos 36 */
+  {FL_OBSIDIAN | FL_SILK | FL_SLIME, 36},
+  /* Executioner's Sword 40 */
+  {FL_OBSIDIAN | FL_SLIME | FL_BLOOD, 40},
+  /* Mace of Disruption 57 */
+  {FL_SLIME | FL_MUD | FL_BLOOD, 57},
+  /* Scythe Slicing 72 */
+  {FL_SLIME | FL_CRYSTAL | FL_QUARTZ, 72},
+  /* Seeker Arrow 79 */
+  {FL_GRAPHITE | FL_SLIME | FL_QUARTZ, 79},
+  /* Seeker Bolt 81 */
+  {FL_GRAPHITE | FL_SLIME | FL_BLOOD, 81},
+  /* Gnomish shovel 85 */
+  {FL_MUD | FL_CRYSTAL | FL_SAPPHIRE, 85},
+  /* Dwarven shovel 86 */
+  {FL_MUD | FL_BLOOD | FL_EMERALD, 86},
+  /* Orcish pick 88 */
+  {FL_MUD | FL_SLIME | FL_OBSIDIAN, 88},
+  /* Dwarven pick 89 */
+  {FL_MUD | FL_BLOOD | FL_SAPPHIRE, 89},
+  /* Mithril Plate 119 */
+  {FL_AMBER | FL_SALT | FL_CRYSTAL | FL_EMERALD, 119},
+  /* Mithril Chain 120 */
+  {FL_AMBER | FL_SALT | FL_CRYSTAL | FL_SAPPHIRE, 120},
+  /* Shield of Deflection 122 */
+  {FL_EBONY | FL_AMBER | FL_SALT | FL_OBSIDIAN, 122},
+  /* Shadow Cloak 124 */
+  {FL_SILK | FL_SULFUR | FL_AMBER | FL_MUD, 124},
+  /* Ring Str 132 */
+  {FL_OBSIDIAN | FL_BLOOD | FL_MUD, 132},
+  /* Ring Dex 133 */
+  {FL_OBSIDIAN | FL_SALT | FL_MUD, 133},
+  /* Ring Con 134 */
+  {FL_OBSIDIAN | FL_AMBER | FL_MUD, 134},
+  /* Ring Int 135 */
+  {FL_OBSIDIAN | FL_CRYSTAL | FL_MUD, 135},
+  /* Ring Speed 136 */
+  {FL_OBSIDIAN | FL_SULFUR | FL_QUARTZ | FL_SAPPHIRE, 136},
+  /* Ring Srch 137 */
+  {FL_OBSIDIAN | FL_QUARTZ | FL_AMBER, 137},
+  /* Ring Slow-Dig 139 */
+  {FL_OBSIDIAN | FL_CRYSTAL | FL_SALT, 139},
+  /* Ring Res-fire 140 */
+  {FL_OBSIDIAN | FL_BLOOD | FL_AMBER, 140},
+  /* Ring Res-cold 141 */
+  {FL_OBSIDIAN | FL_SALT | FL_AMBER, 141},
+  /* Ring feather-fall 142 */
+  {FL_OBSIDIAN | FL_SILK | FL_FLINT, 142},
+  /* Ring Res-pois 143 */
+  {FL_OBSIDIAN | FL_FLINT | FL_MUD, 143},
+  /* Ring Free action 144 */
+  {FL_OBSIDIAN | FL_SULFUR | FL_QUARTZ, 144},
+  /* Ring Flames 146 */
+  {FL_OBSIDIAN | FL_BLOOD | FL_SILK, 146},
+  /* Ring Acid 147 */
+  {FL_OBSIDIAN | FL_SALT | FL_SLIME, 147},
+  /* Ring Ice 148 */
+  {FL_OBSIDIAN | FL_EBONY | FL_SALT, 148},
+  /* Ring Accuracy 152 */
+  {FL_OBSIDIAN | FL_WATER | FL_SALT, 152},
+  /* Ring Prot 153 */
+  {FL_OBSIDIAN | FL_EMERALD | FL_FLINT, 153},
+  /* Ring see-inv 155 */
+  {FL_OBSIDIAN | FL_SULFUR | FL_CRYSTAL, 155},
+  /* Ring sust-str 156 */
+  {FL_OBSIDIAN | FL_GRAPHITE | FL_BLOOD, 156},
+  /* Ring sust-int 157 */
+  {FL_OBSIDIAN | FL_GRAPHITE | FL_CRYSTAL, 157},
+  /* Ring sust-wis 158 */
+  {FL_OBSIDIAN | FL_GRAPHITE | FL_QUARTZ, 158},
+  /* Ring sust-con 159 */
+  {FL_OBSIDIAN | FL_GRAPHITE | FL_FLINT, 159},
+  /* Ring sust-dex 160 */
+  {FL_OBSIDIAN | FL_GRAPHITE | FL_SALT, 160},
+  /* Ring sust-cha 161 */
+  {FL_OBSIDIAN | FL_GRAPHITE | FL_SILK, 161},
+  /* Ring slaying 162 */
+  {FL_OBSIDIAN | FL_GRAPHITE | FL_BLOOD | FL_MUD, 162},
+  /* Scroll ench-weap-hit 173 */
+  {FL_SILK | FL_OBSIDIAN | FL_CRYSTAL, 173},
+  /* Scroll ench-weap-dam 174 */
+  {FL_SILK | FL_OBSIDIAN | FL_SALT, 174},
+  /* Scroll ench-armr 175 */
+  {FL_SILK | FL_MUD | FL_CRYSTAL, 175},
+  /* Scroll Summon Pet */
+  {FL_SILK | FL_FLINT | FL_WATER, 182},
+  /* Scroll Ident 176 */
+  {FL_SILK | FL_CRYSTAL | FL_SAPPHIRE, 176},
+  /* Scroll *Ident* 177 */
+  {FL_SILK | FL_CRYSTAL | FL_SAPPHIRE | FL_EMERALD, 177},
+  /* Scroll Rem.Curse 180 */
+  {FL_SILK | FL_FLINT | FL_MUD, 180},
+  /* Scroll tele-lev 187 */
+  {FL_SILK | FL_EBONY | FL_QUARTZ, 187},
+  /* Scroll mapping 189 */
+  {FL_SILK | FL_QUARTZ | FL_SULFUR, 189},
+  /* Scroll rune-prot 190 */
+  {FL_SILK | FL_OBSIDIAN | FL_MUD, 190},
+  /* Scroll *Rem.Curse* 191 */
+  {FL_SILK | FL_FLINT | FL_MUD | FL_EMERALD, 191},
+  /* Scroll Aquire 199 */
+  {FL_SILK | FL_CRYSTAL | FL_BLOOD | FL_FLINT, 199},
+  /* Scroll Mass Gen 200 */
+  {FL_SILK | FL_BLOOD | FL_EBONY | FL_SALT, 200},
+  /* Scroll Recharge 206 */
+  {FL_SILK | FL_SALT | FL_AMBER, 206},
+  /* Scroll Gen 207 */
+  {FL_SILK | FL_AMBER | FL_SLIME | FL_BLOOD, 207},
+  /* Scroll *Ench. Weap.* 212 */
+  {FL_SILK | FL_OBSIDIAN | FL_CRYSTAL | FL_AMBER, 212},
+  /* Scroll *Ench. Armr.* 214 */
+  {FL_SILK | FL_MUD | FL_CRYSTAL | FL_AMBER, 214},
+  /* Scroll *Destruct* 221 */
+  {FL_SILK | FL_CRYSTAL | FL_BLOOD | FL_SLIME, 221},
+  /* Pot. Str. 225 */
+  {FL_WATER | FL_BLOOD | FL_MUD, 225},
+  /* Pot. Res. Str. 227 */
+  {FL_WATER | FL_SALT | FL_BLOOD, 227},
+  /* Pot. Int. 228 */
+  {FL_WATER | FL_CRYSTAL | FL_MUD, 228},
+  /* Pot. Res. Int. 230 */
+  {FL_WATER | FL_GRAPHITE | FL_BLOOD, 230},
+  /* Pot. Wis. 231 */
+  {FL_WATER | FL_QUARTZ | FL_MUD, 231},
+  /* Pot. Res. Wis. 233 */
+  {FL_WATER | FL_GRAPHITE | FL_QUARTZ, 233},
+  /* Pot. Cha. 234 */
+  {FL_WATER | FL_SILK | FL_MUD, 234},
+  /* Pot. Res. Cha. 236 */
+  {FL_WATER | FL_GRAPHITE | FL_SILK, 236},
+  /* Pot. CCW 241 */
+  {FL_WATER | FL_BLOOD | FL_EBONY, 241},
+  /* Pot. Heal 242 */
+  {FL_WATER | FL_MUD | FL_AMBER, 242},
+  /* Pot. Con. 243 */
+  {FL_WATER | FL_FLINT | FL_MUD, 243},
+  /* Pot. Exp. 244 */
+  {FL_WATER | FL_GRAPHITE | FL_MUD | FL_QUARTZ, 244},
+  /* Pot. Speed 249 */
+  {FL_WATER | FL_SULFUR | FL_QUARTZ | FL_SAPPHIRE, 249},
+  /* Pot. Dex. 251 */
+  {FL_WATER | FL_MUD | FL_SALT, 251},
+  /* Pot. Res. Dex. 252 */
+  {FL_WATER | FL_GRAPHITE | FL_SALT, 252},
+  /* Pot. Res. Con. 253 */
+  {FL_WATER | FL_GRAPHITE | FL_FLINT, 253},
+  /* Pot. Enlight 256 */
+  {FL_WATER | FL_GRAPHITE | FL_EMERALD | FL_SAPPHIRE, 256},
+  /* Pot. Berserk 258 */
+  {FL_WATER | FL_BLOOD | FL_AMBER, 258},
+  /* Pot. Res. Life Lev. 260 */
+  {FL_WATER | FL_GRAPHITE | FL_BLOOD | FL_QUARTZ, 260},
+  /* Pot. Res. Mana 266 */
+  {FL_WATER | FL_GRAPHITE | FL_CRYSTAL | FL_QUARTZ, 266},
+  /* Wand lightning bolt 270 */
+  {FL_AMBER | FL_SAPPHIRE | FL_CRYSTAL, 270},
+  /* Wand frost bolt 271 */
+  {FL_AMBER | FL_SALT | FL_CRYSTAL, 271},
+  /* Wand fire bolt 272 */
+  {FL_AMBER | FL_EBONY | FL_BLOOD, 272},
+  /* Wand morph 274 */
+  {FL_AMBER | FL_SAPPHIRE | FL_EMERALD, 274},
+  /* Wand drain life 280 */
+  {FL_AMBER | FL_SULFUR | FL_QUARTZ, 280},
+  /* Wand lightning balls 287 */
+  {FL_AMBER | FL_QUARTZ | FL_SLIME, 287},
+  /* Wand cold balls 288 */
+  {FL_AMBER | FL_SLIME | FL_CRYSTAL, 288},
+  /* Wand fire balls 289 */
+  {FL_AMBER | FL_SLIME | FL_BLOOD, 289},
+  /* Wand acid balls 291 */
+  {FL_AMBER | FL_SLIME | FL_SALT, 291},
+  /* Wand wonder 292 */
+  {FL_AMBER | FL_WATER | FL_QUARTZ, 292},
+  /* Wand dragon flame 295 */
+  {FL_AMBER | FL_SLIME | FL_BLOOD | FL_WATER, 295},
+  /* Wand dragon frost 296 */
+  {FL_AMBER | FL_SLIME | FL_CRYSTAL | FL_WATER, 296},
+  /* Wand dragon breath 297 */
+  {FL_AMBER | FL_SLIME | FL_SALT | FL_WATER, 297},
+  /* Wand anihilate 298 */
+  {FL_AMBER | FL_SLIME | FL_QUARTZ | FL_EMERALD, 298},
+  /* Staff tele 303 */
+  {FL_FLINT | FL_WATER | FL_BLOOD, 303},
+  /* Staff quake 304 */
+  {FL_FLINT | FL_OBSIDIAN | FL_CRYSTAL, 304},
+  /* Staff summon 305 */
+  {FL_FLINT | FL_BLOOD | FL_SLIME, 305},
+  /* Staff *Destr* 307 */
+  {FL_FLINT | FL_BLOOD | FL_SLIME | FL_SALT, 307},
+  /* Staff speed 314 */
+  {FL_FLINT | FL_SULFUR | FL_QUARTZ | FL_SAPPHIRE, 314},
+  /* Staff rem. curse 317 */
+  {FL_FLINT | FL_MUD | FL_EBONY, 317},
+  /* Staff curing 319 */
+  {FL_FLINT | FL_MUD | FL_AMBER, 319},
+  /* Staff geno 323 */
+  {FL_FLINT | FL_AMBER | FL_SLIME | FL_MUD, 323},
+  /* Staff power 324 */
+  {FL_FLINT | FL_BLOOD | FL_SALT | FL_WATER, 324},
+  /* Staff the Magi 325 */
+  {FL_FLINT | FL_SULFUR | FL_CRYSTAL | FL_EBONY, 325},
+  /* Staff Perception 326 */
+  {FL_FLINT | FL_AMBER | FL_GRAPHITE, 326},
+  /* Staff enlight 328 */
+  {FL_FLINT | FL_AMBER | FL_GRAPHITE | FL_SAPPHIRE, 328},
+  /* Staff Heal 329 */
+  {FL_FLINT | FL_EMERALD | FL_SAPPHIRE, 329},
+  /* Torch 346 */
+  {FL_FLINT | FL_MUD, 346},
+  /* Lantern 347 */
+  {FL_FLINT | FL_CRYSTAL, 347},
+  /* Flask 348 */
+  {FL_WATER | FL_SULFUR, 348},
+  /* Rod probe 353 */
+  {FL_SULFUR | FL_WATER | FL_GRAPHITE, 353},
+  /* Rod recall 354 */
+  {FL_SULFUR | FL_WATER | FL_EMERALD, 354},
+  /* Rod lightning bolts 357 */
+  {FL_SULFUR | FL_SAPPHIRE | FL_CRYSTAL, 357},
+  /* Rod frost bolts 358 */
+  {FL_SULFUR | FL_SALT | FL_CRYSTAL, 358},
+  /* Rod fire bolts 359 */
+  {FL_SULFUR | FL_AMBER | FL_BLOOD, 359},
+  /* Rod morph 360 */
+  {FL_SULFUR | FL_EBONY | FL_EMERALD, 360},
+  /* Rod drain life 363 */
+  {FL_SULFUR | FL_QUARTZ | FL_SALT, 363},
+  /* Rod port other 364 */
+  {FL_SULFUR | FL_WATER | FL_SAPPHIRE, 364},
+  /* Rod lightning balls 366 */
+  {FL_SULFUR | FL_QUARTZ | FL_SLIME, 366},
+  /* Rod cold balls 367 */
+  {FL_SULFUR | FL_CRYSTAL | FL_SLIME, 367},
+  /* Rod fire balls 368 */
+  {FL_SULFUR | FL_BLOOD | FL_SLIME, 368},
+  /* Rod acid balls 369 */
+  {FL_SULFUR | FL_SALT | FL_SLIME, 369},
+  /* Rod acid bolts 370 */
+  {FL_SULFUR | FL_SALT | FL_WATER, 370},
+  /* Rod enlight 371 */
+  {FL_SULFUR | FL_AMBER | FL_GRAPHITE | FL_SAPPHIRE, 371},
+  /* Rod percept 372 */
+  {FL_SULFUR | FL_AMBER | FL_GRAPHITE, 372},
+  /* Rod curing 373 */
+  {FL_SULFUR | FL_MUD | FL_AMBER, 373},
+  /* Rod Healing 374 */
+  {FL_SULFUR | FL_EMERALD | FL_SAPPHIRE, 374},
+  /* Rod detect 375 */
+  {FL_SULFUR | FL_CRYSTAL | FL_BLOOD, 375},
+  /* Rod restore 376 */
+  {FL_SULFUR | FL_EBONY | FL_SILK | FL_AMBER, 376},
+  /* Rod speed 377 */
+  {FL_SULFUR | FL_SULFUR | FL_QUARTZ | FL_SAPPHIRE, 377},
+  /* Pot. Cure Mut. */
+  {FL_WATER | FL_SULFUR | FL_SLIME, 299},
+  /* Pot. Cure Light Insanity. */
+  {FL_WATER | FL_SAPPHIRE | FL_CRYSTAL, 581},
+  /* Pot. Cure Serious Insanity. */
+  {FL_WATER | FL_CRYSTAL | FL_AMBER, 582},
+  /* Pot. Cure Critical Insanity. */
+  {FL_WATER | FL_CRYSTAL | FL_EMERALD, 583},
+  /* Pot. Cure Insanity. */
+  {FL_WATER | FL_CRYSTAL | FL_QUARTZ, 584},
+  /* Pot. Mutation */
+  {FL_WATER | FL_SLIME | FL_BLOOD, 268}
 };
 
 
@@ -3553,7 +3553,7 @@ cptr option_text[OPT_MAX] = {
 	"verify_destroy_junk", /* OPT_verify_destroy_junk */
 	"center_running", /* OPT_center_running */
 	"hidden_pet_messages", /* OPT_hidden_pet_messages */
-	NULL,
+	"almost_center_player", /* OPT_almost_center_player */
 	NULL,
 	NULL,
 	NULL
@@ -3650,7 +3650,7 @@ cptr option_desc[OPT_MAX] = {
 	"Verify destruction of worthless objects", /* OPT_verify_destroy_junk */
 	"Keep player centered while running (slow)", /* OPT_center_running */
 	"Show messages when hidden pets fight", /* OPT_hidden_pet_messages */
-	NULL,
+	"Keep the view closer to centered", /* OPT_almost_center_player */
 	NULL,
 	NULL,
 	NULL
@@ -3750,7 +3750,7 @@ bool option_norm[OPT_MAX] = {
 	TRUE, /* OPT_verify_destroy_junk */
 	FALSE, /* OPT_center_running */
 	TRUE, /* OPT_hidden_pet_messages */
-	FALSE,
+	FALSE, /* OPT_almost_center_player */
 	FALSE,
 	FALSE,
 	FALSE
@@ -3862,7 +3862,7 @@ byte option_page[5][22] = {
 			OPT_center_player,
 			OPT_center_running,
 			OPT_sort_items,
-			255,
+			OPT_almost_center_player,
 			255,
 		255},
 

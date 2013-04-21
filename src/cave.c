@@ -1364,6 +1364,7 @@ static byte priority_table[][2] = {
 	/* Stairs */
 	{FEAT_LESS, 25},
 	{FEAT_MORE, 25},
+	{FEAT_SHAFT, 25},
 
 	/* End */
 	{0, 0}
@@ -1562,9 +1563,18 @@ void do_cmd_view_map(void)
 		display_map(ratio);
 
 		/* Wait for it */
-		put_str_center(format
-			("Scale: %d. Press +/- to zoom in/out, ESC to stop.", ratio),
-			screen_y - 1);
+		if (p_ptr->inside_special == SPECIAL_WILD) {
+		  put_str_center(format("Scale: %d. "
+					"Current location (%d, %d).",
+					ratio, p_ptr->wild_x, p_ptr->wild_y),
+				 screen_y - 1);
+
+		} else {
+		  put_str_center(format("Scale: %d. "
+					"Press +/- to zoom in/out, "
+					"ESC to stop.", ratio),
+				 screen_y - 1);
+		}
 
 		/* Get any key */
 		c = inkey();
@@ -3434,8 +3444,10 @@ bool target_clear(monster_type * m_ptr, int y2, int x2)
 			break;
 
 		/* Monster in the way */
-		if ((x != x1 || y != y1) && cave_m_idx[y][x] > 0 &&
-			m_list[cave_m_idx[y][x]].is_pet == m_ptr->is_pet)
+		if ((x != x1 || y != y1) && 
+		    ((cave_m_idx[y][x] > 0 &&
+		      m_list[cave_m_idx[y][x]].is_pet == m_ptr->is_pet) ||
+		     (cave_m_idx[y][x] < 0 && m_ptr->is_pet)))
 		{
 			break;
 		}
