@@ -1695,19 +1695,20 @@ void do_cmd_debug(void)
 		/* Increase Experience */
 		case 'x':
 		{
-			if (p_ptr->command_arg)
-			{
+		     int class;
+		     if (p_ptr->command_arg)
+		     {
 			  /* Give specified amount to all classes */
-			  gain_exp_all(p_ptr->command_arg);
-			}
-			else
-			{
-			  int class;
+			  for (class = 0; class < p_ptr->available_classes; class++)
+			       gain_exp(p_ptr->command_arg, class);
+		     }
+		     else
+		     {
 			  /* Gain current amount + 1, for each class */
 			  for (class = 0; class < p_ptr->available_classes; class++)
 			    gain_exp(p_ptr->exp[class] + 1, class);
-			}
-			break;
+		     }
+		     break;
 		}
 
 		/* Zap Monsters (Genocide) */

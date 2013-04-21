@@ -2873,12 +2873,16 @@ static void do_cmd_knowledge_objects(void)
  */
 void do_cmd_check_effects(void)
 {
-        int s;
-	bool used_any = FALSE;
-
 	FILE *fff;
 
 	char file_name[1024];
+
+	int i, j;
+
+	int maxnum = 0;
+	/* Get largest number of effects */
+	for (i = 0; i < MAX_EFFECTS; i++)
+	     if (effects[i] > maxnum) maxnum = effects[i];
 
 	/* Temporary file */
 	fff = my_fopen_temp(file_name, 1024);
@@ -2886,18 +2890,13 @@ void do_cmd_check_effects(void)
 	/* Failure */
 	if (!fff) return;
 
-	/* Scan the effects */
-	for (s = 1; s < MAX_EFFECTS; s++)
-	{
-	    if (effects[s] == 0) continue;
+	/* Scan and show the effects in order */
+	for (j = maxnum; j > 0; j--)
+	     for (i = 0; i < MAX_EFFECTS; i++)
+		  if (effects[i] == j)
+		       fprintf(fff, "%3d %s\n", effects[i], effects_info[i]);
 
-	    /* Print a message */
-	    fprintf(fff, "%3d %s\n", effects[s], effects_info[s]);
-
-	    used_any = TRUE;
-	}
-
-	if (used_any == FALSE)
+	if (maxnum == 0)
 	{
 	    fprintf(fff,"You have not used any effects!\n");
 	}

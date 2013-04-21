@@ -90,6 +90,8 @@ typedef struct player_class player_class;
 typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
+typedef struct high_score high_score;
+typedef struct cruasder_power crusader_power;
 
 
 
@@ -354,7 +356,7 @@ struct monster_race
 	monster_blow blow[4];	/* Up to four blows per round */
 
 
-	byte level;				/* Level of creature */
+        byte level;				/* Level of creature */
 	byte rarity;			/* Rarity of creature */
 
 
@@ -936,6 +938,13 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
+        /* Crusader powers */
+        byte crusader_active;
+        byte crusader_passive;
+
+        /* Shifter's current form */
+        byte shapeshift;
+
 	u32b spell_learned1[2];	/* Spell flags */
 	u32b spell_learned2[2];	/* Spell flags */
 	u32b spell_worked1[2];		/* Spell flags */
@@ -1156,8 +1165,6 @@ struct player_type
  * Note that "string comparisons" are thus valid on "pts".
  */
 
-typedef struct high_score high_score;
-
 struct high_score
 {
 	char what[8];		/* Version info (string) */
@@ -1186,3 +1193,5 @@ struct high_score
 
 	char how[32];		/* Method of death (string) */
 };
+
+

@@ -1556,6 +1556,8 @@ K:583:0/-110
 K:584:0/-107
 # Potion of Amnesia
 K:585:0/-110
+# Amulet of Aid
+K:586:0/-126
 
 # The following things should use the "S:<code>:<attr>/<char>" mechanism
 

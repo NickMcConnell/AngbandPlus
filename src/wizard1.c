@@ -492,6 +492,7 @@ static const flag_desc brand_flags_desc[] =
 	{ TR1_BRAND_FIRE,         "Flame Tongue" },
 	{ TR1_BRAND_COLD,         "Frost Brand" },
 	{ TR1_BRAND_POIS,         "Venom" },
+	{ TR1_BRAND_POIS,         "Shining" },
 };
 
 /*

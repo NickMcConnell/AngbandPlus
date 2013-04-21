@@ -363,6 +363,9 @@ extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
 extern void do_cmd_cast_illusion(void);
 extern void do_cmd_cast_death(void);
+extern void do_cmd_crusader(void);
+extern void do_cmd_slayer(void);
+extern void do_cmd_shifter(void);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -377,12 +380,14 @@ extern void do_cmd_socket_rune(void);
 /* multi.c */
 extern bool not_allowed[MAX_CLASS][MAX_CLASS];
 extern void do_cmd_switch_multi_class(int direction);
+extern void switch_until(int target_class);
 extern bool player_has_class(int class, int level);
 extern int level_of_class(int class);
 extern int best_class();
 extern int index_of_class(int class_sought);
 extern int magery_class();
 extern int priest_class();
+extern int max_player_level();
 
 /* dungeon.c */
 extern void play_game(bool new_game);
@@ -533,7 +538,7 @@ extern s16b inven_carry(object_type *o_ptr);
 extern s16b inven_takeoff(int item, int amt);
 extern void inven_drop(int item, int amt);
 extern void combine_pack(void);
-extern void reorder_pack(void);
+extern void reorder_pack(bool silent);
 extern void display_spell_list(void);
 extern s16b spell_chance(int spell);
 extern bool spell_okay(int spell, bool known);
@@ -770,7 +775,7 @@ extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);
 extern void check_experience();
-extern void gain_exp_all(s32b amount);
+extern void gain_exp_all(int type, s32b amount);
 extern void gain_exp(s32b amount, int class);
 extern void lose_exp(s32b amount, int class);
 extern void monster_death(int m_idx);

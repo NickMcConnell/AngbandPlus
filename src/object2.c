@@ -4195,7 +4195,7 @@ void combine_pack(void)
  *
  * Note special handling of the "overflow" slot
  */
-void reorder_pack(void)
+void reorder_pack(bool silent)
 {
 	int i, j, k;
 
@@ -4313,7 +4313,7 @@ void reorder_pack(void)
 	}
 
 	/* Message */
-	if (flag) msg_print("You reorder some items in your pack.");
+	if (flag && !silent) msg_print("You reorder some items in your pack.");
 }
 
 
@@ -4422,10 +4422,6 @@ s16b spell_chance(int spell)
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder (after minfail) */
-	if (p_ptr->stun > 50) chance += 25;
-	else if (p_ptr->stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
@@ -4571,19 +4567,13 @@ void spell_info(char *p, int spell)
 				strcpy(p, " dur 20+d20");
 				break;
 			case SPELL_HEROISM:
-			        if (player_has_class(CLASS_BERSERKER, 0))
-				     strcpy(p, " dur 50+d50");
-				else
-				     strcpy(p, " dur 25+d25");
+			        strcpy(p, " dur 25+d25");
 				break;
 			case SPELL_SHIELD:
 				strcpy(p, " dur 30+d20");
 				break;
 			case SPELL_BERSERKER:
-			        if (player_has_class(CLASS_BERSERKER, 0))
-				     strcpy(p, " dur 50+d50");
-				else
-				     strcpy(p, " dur 25+d25");
+			        strcpy(p, " dur 25+d25");
 				break;
 			case SPELL_ESSENCE_OF_SPEED:
 				sprintf(p, " dur %d+d30", 30 + plev);
@@ -4744,10 +4734,7 @@ void spell_info(char *p, int spell)
 		     sprintf(p, " dur %d+d100", 200); break;
 		case 11: strcpy(p, " heal 4d10"); break;
 		case 12: case 48:
-		     if (player_has_class(CLASS_BERSERKER, 0))
-			  strcpy(p, " dur 50+d50");
-		     else
-			  strcpy(p, " dur 25+d25"); 
+		     strcpy(p, " dur 25+d25"); 
 		     break;
 		case 14: case 43: case 45: case 46: 
 		     strcpy(p, " dur 20+d20"); break;

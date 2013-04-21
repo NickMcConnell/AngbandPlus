@@ -186,7 +186,8 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
-			if ((f1 & (TR1_SLAY_ANIMAL)) &&
+			if (((f1 & (TR1_SLAY_ANIMAL)) &&
+			     (p_ptr->crusader_active == CRUSADER_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
 				if (m_ptr->ml)
@@ -198,7 +199,8 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Evil */
-			if ((f1 & (TR1_SLAY_EVIL)) &&
+			if (((f1 & (TR1_SLAY_EVIL)) || 
+			     (p_ptr->crusader_active == CRUSADER_SLAY_EVIL)) &&
 			    (r_ptr->flags3 & (RF3_EVIL)))
 			{
 				if (m_ptr->ml)
@@ -210,7 +212,8 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Slay Undead */
-			if ((f1 & (TR1_SLAY_UNDEAD)) &&
+			if (((f1 & (TR1_SLAY_UNDEAD)) &&
+			     (p_ptr->crusader_active == CRUSADER_SLAY_UNDEAD)) &&
 			    (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
 				if (m_ptr->ml)
@@ -314,7 +317,8 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Elec) */
-			if (f1 & (TR1_BRAND_ELEC))
+			if ((f1 & (TR1_BRAND_ELEC))
+			    || (p_ptr->crusader_active == CRUSADER_WPN_SHOCK))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_ELEC))
@@ -333,7 +337,8 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Fire) */
-			if (f1 & (TR1_BRAND_FIRE))
+			if ((f1 & (TR1_BRAND_FIRE))
+			    || (p_ptr->crusader_active == CRUSADER_WPN_FLAME))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_FIRE))
@@ -352,7 +357,8 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Cold) */
-			if (f1 & (TR1_BRAND_COLD))
+			if ((f1 & (TR1_BRAND_COLD))
+			    || (p_ptr->crusader_active == CRUSADER_WPN_FROST))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_COLD))
@@ -371,7 +377,8 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Poison) */
-			if (f1 & (TR1_BRAND_POIS))
+			if ((f1 & (TR1_BRAND_POIS))
+			    || (p_ptr->crusader_active == CRUSADER_WPN_POISON))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_POIS))
@@ -389,10 +396,99 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				}
 			}
 
+			/* Brand (Light) */
+			if ((f1 & (TR1_BRAND_LITE))
+			    || (p_ptr->crusader_active == CRUSADER_WPN_LIGHT))
+			{
+				if (r_ptr->flags3 & (RF3_HURT_LITE))
+				{
+					if (mult < 3) mult = 3;
+
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_HURT_LITE);
+					}
+				}
+			}
+
 			break;
 		}
 	}
 
+	if (player_has_class(CLASS_MONK, 0))
+	{
+	     o_ptr = &inventory[INVEN_WIELD];
+	     if (!(o_ptr->k_idx))
+	     {
+		  switch (p_ptr->crusader_active)
+		  {
+		       case CRUSADER_WPN_LIGHT:
+			    if (r_ptr->flags3 & (RF3_HURT_LITE))
+			    {
+				 if (mult < 3) mult = 3;
+				 if (m_ptr->ml)
+				      l_ptr->r_flags3 |= (RF3_HURT_LITE);
+			    }
+			    break;
+		       case CRUSADER_WPN_SHOCK:
+			    if (r_ptr->flags3 & (RF3_IM_ELEC))
+			    {
+				 if (m_ptr->ml)
+				      l_ptr->r_flags3 |= (RF3_IM_ELEC);
+			    }
+			    else if (mult < 3) mult = 3;
+			    break;
+		       case CRUSADER_WPN_FLAME:
+			    if (r_ptr->flags3 & (RF3_IM_FIRE))
+			    {
+				 if (m_ptr->ml)
+				      l_ptr->r_flags3 |= (RF3_IM_FIRE);
+			    }
+			    else if (mult < 3) mult = 3;
+			    break;
+		       case CRUSADER_WPN_FROST:
+			    if (r_ptr->flags3 & (RF3_IM_COLD))
+			    {
+				 if (m_ptr->ml)
+				      l_ptr->r_flags3 |= (RF3_IM_COLD);
+			    }
+			    else if (mult < 3) mult = 3;
+			    break;
+		       case CRUSADER_SLAY_ANIMAL:
+			    if (r_ptr->flags3 & (RF3_ANIMAL))
+			    {
+				 if (mult < 2) mult = 2;
+				 if (m_ptr->ml)
+					l_ptr->r_flags3 |= (RF3_ANIMAL);
+			    }
+			    break;
+		       case CRUSADER_SLAY_EVIL:
+			    if (r_ptr->flags3 & (RF3_EVIL))
+			    {
+				 if (mult < 2) mult = 2;
+				 if (m_ptr->ml)
+					l_ptr->r_flags3 |= (RF3_EVIL);
+			    }
+			    break;
+		       case CRUSADER_SLAY_UNDEAD:
+			    if (r_ptr->flags3 & (RF3_UNDEAD))
+			    {
+				 if (mult < 3) mult = 3;
+				 if (m_ptr->ml)
+					l_ptr->r_flags3 |= (RF3_UNDEAD);
+			    }
+			    break;
+		       case CRUSADER_WPN_POISON:
+			    if (r_ptr->flags3 & (RF3_IM_POIS))
+			    {
+				 if (m_ptr->ml)
+				      l_ptr->r_flags3 |= (RF3_IM_POIS);
+			    }
+			    else if (mult < 3) mult = 3;
+			    break;
+		  }
+	     }
+	}
 
 	/* Return the total damage */
 	return (tdam * mult);

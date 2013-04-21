@@ -86,8 +86,7 @@ Added Death Priest (Priest with Death spells)
       Terror, Invisibility and Wraithform prayers not implements
 Added Berserker
       Chance to stun monsters, resist fear, sustain strength at level 30, no
-      Dex bonus to AC, heroism and berserk strength last twice as long (spells
-      and items), recovers from stunning twice as fast
+      Dex bonus to AC, recovers from stunning twice as fast
       If character is hit by a killing blow, excess damage is taken from
       mana (hidden), hp is set to 0, and character enters a berserk rage for
       1d3 rounds. Berserker has half normal mana, uses Str as spell stat

@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.0.3"
+#define VERSION_STRING	"1.0.6"
 
 
 /*
@@ -152,7 +152,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            12
+#define MAX_CLASS            15
 
 
 /*
@@ -518,6 +518,30 @@
 	 BOOK2(f) | BOOK2(g) | BOOK2(h) | BOOK2(i)) \
 }
 
+/* Crusaders */
+#define MAX_CRUSADER_POWERS   16
+#define CRUSADER_BLESSING      0
+#define CRUSADER_HEROISM       1
+#define CRUSADER_WPN_LIGHT     2
+#define CRUSADER_BERSERK       3
+#define CRUSADER_SHIELD        4
+#define CRUSADER_REGEN         5
+#define CRUSADER_RESISTANCE    6
+#define CRUSADER_WPN_SHOCK     7
+#define CRUSADER_WPN_FLAME     8
+#define CRUSADER_WPN_FROST     9
+#define CRUSADER_HASTE        10
+#define CRUSADER_SLAY_ANIMAL  11
+#define CRUSADER_SLAY_EVIL    12
+#define CRUSADER_SLAY_UNDEAD  13
+#define CRUSADER_WPN_POISON   14
+#define CRUSADER_PROT_EVIL    15
+
+/* Undead Slayer powers */
+#define MAX_SLAYER_POWERS     19
+
+/* Shifter powers */
+#define MAX_SHIFTER_POWERS    43
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -597,6 +621,9 @@
 #define CLASS_BERSERKER         9
 #define CLASS_MONK              10
 #define CLASS_TRICKSTER         11
+#define CLASS_CRUSADER          12
+#define CLASS_SLAYER            13
+#define CLASS_SHIFTER           14
 
 #define MAX_REALM      4
 #define REALM_MAGIC    0
@@ -1117,7 +1144,7 @@
 #define EGO_BRAND_FIRE		74
 #define EGO_BRAND_COLD		75
 #define EGO_BRAND_POIS		76
-/* xxx */
+#define EGO_BRAND_LITE          77
 /* xxx */
 /* xxx */
 #define EGO_SLAY_ANIMAL		80
@@ -1411,6 +1438,7 @@
 #define SV_AMULET_REGEN                 13
 #define SV_AMULET_TELEPATHY             14
 #define SV_AMULET_PERSISTENCE           15
+#define SV_AMULET_AID                   16
 #define SV_AMULET_CARLAMMAS		20
 #define SV_AMULET_INGWE			21
 #define SV_AMULET_DWARVES		22
@@ -2103,8 +2131,8 @@
 #define TR1_SLAY_DRAGON		0x00800000L	/* Weapon slays dragon */
 #define TR1_KILL_DRAGON		0x01000000L	/* Weapon kills dragon */
 #define TR1_PERSISTENCE		0x02000000L     /* Item causes persistence */
-#define TR1_XXX3                0x04000000L     /* blank */
-#define TR1_BRAND_POIS		0x08000000L /* Weapon has poison brand */
+#define TR1_BRAND_LITE          0x04000000L     /* Shining weapon */
+#define TR1_BRAND_POIS		0x08000000L     /* Weapon has poison brand */
 #define TR1_BRAND_ACID		0x10000000L	/* Weapon has acid brand */
 #define TR1_BRAND_ELEC		0x20000000L	/* Weapon has elec brand */
 #define TR1_BRAND_FIRE		0x40000000L	/* Weapon has fire brand */
@@ -3334,6 +3362,7 @@ enum EFFECTS
   EFFECT_DARK_BOLT, /* Bolt of Darkness */
   EFFECT_CANCELLATION,
   EFFECT_CHANT,
+  EFFECT_CHAOS_BOLT,
   EFFECT_CHAOS_BALL,
   EFFECT_CLONE_MONSTER,
   EFFECT_CLOUD_KILL,
@@ -3392,6 +3421,7 @@ enum EFFECTS
   EFFECT_HASTE,
   EFFECT_HEAL,
   EFFECT_HEROISM,
+  EFFECT_ICE_BOLT,
   EFFECT_ICE_STORM,
   EFFECT_IDENTIFY,
   EFFECT_INFRA,
@@ -3410,6 +3440,8 @@ enum EFFECTS
   EFFECT_MENTAL_BARRIER,
   EFFECT_METEOR_SWARM,
   EFFECT_MONSTER_CONFUSION,
+  EFFECT_NETHER_BOLT,
+  EFFECT_NEXUS_BOLT,
   EFFECT_ORB_DRAINING,
   EFFECT_ORB_ENTHROPY,
   EFFECT_BLINK, /* Phase Door */
@@ -3472,6 +3504,7 @@ enum EFFECTS
   EFFECT_STAIR_CREATION,
   EFFECT_STARLITE, /* Starlight */
   EFFECT_STEALTH,
+  EFFECT_STING,
   EFFECT_STINKING_CLOUD,
   EFFECT_STONE_TO_MUD,
   EFFECT_SUNFIRE,
@@ -3489,3 +3522,7 @@ enum EFFECTS
   MAX_EFFECTS
 };
 
+/* Different types of XP gain */
+#define XP_GAIN_KILL   0
+#define XP_GAIN_ITEM   1
+#define XP_GAIN_POTION 2

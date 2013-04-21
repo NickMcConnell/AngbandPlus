@@ -394,7 +394,7 @@ static cptr k_info_flags1[] =
 	"SLAY_DRAGON",
 	"KILL_DRAGON",
 	"PERSISTENCE",
-	"XXX3",
+	"BRAND_LITE",
 	"BRAND_POIS",
 	"BRAND_ACID",
 	"BRAND_ELEC",

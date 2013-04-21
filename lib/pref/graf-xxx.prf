@@ -1954,6 +1954,10 @@ K:584:0x86/0x81
 # Potion of Amnesia
 K:585:0x86/0x88
 
+# Amulet of Aid
+K:586:0x87/0x82
+
+
 ##### Monster attr/char definitions #####
 
 

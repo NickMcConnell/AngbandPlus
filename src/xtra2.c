@@ -2717,25 +2717,99 @@ void check_experience()
 
 
 /*
- * Gain same amount of experience in all multiclasses
+ * Gain experience in all classes
+ * number place 0 place 1 place 2 place 3 divide by equals
+ * 1      *1                                1        1/1
+ * 2      *2      *1                        3        2/3 and 1/3
+ * 3      *3      *2      *1                6        3/6 and 2/6 and 1/6
+ * 4      *4      *3      *2      *1       10        4/10 and 3/10 and 2/10 and 1/10 
+ * div = 1 or 3 or 6 or 10, depending on number of classes available 
+ *
+ * type = XP_GAIN_KILL, XP_GAIN_ITEM or XP_GAIN_POTION
  */
-void gain_exp_all(s32b amount)
+void gain_exp_all(int type, s32b amount)
 {
-        /* Index of class */
         int class;
+	int div = (p_ptr->available_classes == 4 ? 10 : (p_ptr->available_classes == 3 ? 6 : (p_ptr->available_classes == 2 ? 3 : 1)));
+	s32b new_exp = 0, new_exp_frac;
+	/* Calculate max_level before it changes so that first class (which
+	   should be highest level) does not gain erronuous bonus XP */
+	int max_level = max_player_level();
 
 	/* For each class */
 	for (class = 0; class < p_ptr->available_classes; class++)
 	{
-	    /* Gain some experience */
-	    p_ptr->exp[class] += amount;
+	     int diff = p_ptr->available_classes - class;
 
-	    /* Slowly recover from experience drainage */
-	    if (p_ptr->exp[class] < p_ptr->max_exp[class])
-	    {
-	        /* Gain max experience (10%) */
-	        p_ptr->max_exp[class] += amount / 10;
-	    }
+	     /* Different types of XP gain */
+	     switch (type)
+	     {
+	     case XP_GAIN_KILL:
+		  /* Depends on level of target and (best) player level */
+		  new_exp = amount / max_level;
+		  break;
+	     case XP_GAIN_ITEM:
+		  /* Depends on level of item and player level */
+		  new_exp = (amount + (p_ptr->lev[class] >> 1)) / p_ptr->lev[class];
+		  break;
+	     case XP_GAIN_POTION:
+		  /* Potions of XP add a set amount and, later, half of current XP */
+		  new_exp = 12;
+		  break;
+	     }
+	     
+	     /* Divide between classes */
+	     new_exp *= diff;
+	     new_exp /= div;
+
+	     /* Handle fractional experience */
+	     new_exp_frac = p_ptr->exp_frac[class];
+	     /* Different types of XP gain */
+	     switch (type)
+	     {
+	     case XP_GAIN_KILL:
+		  /* Depends on level of target and (best) player level */
+		  new_exp_frac += (((amount * diff) % (max_level * div)) * 0x10000L) / (max_level * div);
+		  break;
+	     case XP_GAIN_ITEM:
+	     {
+		  /* Depends on level of item and player level */
+		  int top = amount + (p_ptr->lev[class] >> 1);
+		  int bottom = div * p_ptr->lev[class];
+		  new_exp_frac += (((top * diff) % bottom) * 0x10000L) / bottom;
+		  break;
+	     }
+	     case XP_GAIN_POTION:
+		  /* Potions of XP add a set amount and, later, half of current XP */
+		  new_exp_frac += (((12 * diff) % div) * 0x10000L) / div;
+		  break;
+	     }
+	     
+	     /* Keep track of experience */
+	     while (new_exp_frac >= 0x10000L)
+	     {
+		  new_exp++;
+		  new_exp_frac -= 0x10000L;
+	     }
+	     p_ptr->exp_frac[class] = (u16b)new_exp_frac;
+
+	     /* Gain some experience */
+	     p_ptr->exp[class] += new_exp;
+
+	     /* Potions of XP also add half of current XP, up to a max of 100,000 */
+	     if (type == XP_GAIN_POTION)
+	     {
+		  int ee = p_ptr->exp[class] / 2;
+		  if (ee > 100000L) ee = 100000L;
+		  p_ptr->exp[class] += ee;
+	     }
+
+	     /* If not a potion, then slowly recover from experience drainage */
+	     else if (p_ptr->exp[class] < p_ptr->max_exp[class])
+	     {
+		  /* Gain max experience (10%) */
+		  p_ptr->max_exp[class] += new_exp / 10;
+	     }
 	}
 	  
 	/* Check Experience */
@@ -2928,7 +3002,6 @@ void monster_death(int m_idx)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 
-
 	/* Mega-Hack -- drop "winner" treasures */
 	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
 	{
@@ -3027,6 +3100,21 @@ void monster_death(int m_idx)
 	}
 
 
+	/* Undead Slayer : gain piety from killing undead */
+	if ((r_ptr->flags3 & (RF3_UNDEAD)) && (player_has_class(CLASS_SLAYER, 0)))
+	{
+	     /* Add monster level (twice if unique) */
+	     p_ptr->mpp += r_ptr->level;
+	     if (rp_ptr->flags1 & (RF1_UNIQUE))
+	     {
+		  p_ptr->mpp += r_ptr->level;
+	     }
+
+	     /* Redraw piety */
+	     p_ptr->redraw |= (PR_MANA);
+	     redraw_stuff();
+	}
+
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
 
@@ -3094,12 +3182,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	s32b div, new_exp, new_exp_frac;
-
-
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-
 
 	/* Wake it up */
 	m_ptr->csleep = 0;
@@ -3111,8 +3195,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	if (m_ptr->hp < 0)
 	{
 	        char m_name[80];
-		int class;
-
+		
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
 
@@ -3143,33 +3226,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
                         cmsg_format(TERM_L_RED, "You have slain %s.", m_name);
 		}
 
-		/* Gain experience in each class */
-		for (class = 0; class < p_ptr->available_classes; class++)
-		{
-		  /* Player level in current class * number of classes */
-		  div = p_ptr->max_lev[class] * p_ptr->available_classes;
-
-		  /* Give some experience for the kill */
-		  new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
-
-		  /* Handle fractional experience */
-		  new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-				  * 0x10000L / div) + p_ptr->exp_frac[class];
-
-		  /* Keep track of experience */
-		  if (new_exp_frac >= 0x10000L)
-		    {
-		      new_exp++;
-		      p_ptr->exp_frac[class] = (u16b)(new_exp_frac - 0x10000L);
-		    }
-		  else
-		    {
-		      p_ptr->exp_frac[class] = (u16b)new_exp_frac;
-		    }
-		  
-		  /* Gain experience */
-		  gain_exp(new_exp, class);
-		}
+		/* Gain experience */
+		gain_exp_all(XP_GAIN_KILL, (long)r_ptr->mexp * r_ptr->level);
 
 		/* Generate treasure */
 		monster_death(m_idx);

@@ -513,7 +513,6 @@ static void player_wipe(void)
 	/* Wipe the player */
 	(void)WIPE(p_ptr, player_type);
 
-
 	/* Clear the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
@@ -589,6 +588,13 @@ static void player_wipe(void)
 	    p_ptr->spell_order[1][i] = 99;
 	  }
 
+	/* No crusader powers active */
+	p_ptr->crusader_active = -1;
+	p_ptr->crusader_passive = -1;
+
+	/* Shapeshifter form */
+	p_ptr->shapeshift = 0;
+
 	p_ptr->current_class = 0; /* First class is active */
 	p_ptr->available_classes = 1; /* One class only at start */
 
@@ -652,6 +658,15 @@ static const byte player_init[MAX_CLASS][2] =
   { /* Trickster */
     TV_SCROLL, SV_SCROLL_TELEPORT
   },
+  { /* Crusader */
+    TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL
+  },
+  { /* Undead Slayer */
+    TV_POTION, SV_POTION_DETECT_INVIS
+  },
+  { /* Shifter */
+    TV_FOOD, SV_FOOD_RESTORING
+  },
 };
 
 /*
@@ -713,98 +728,169 @@ static void player_outfit(void)
 
 	/* Give spellbooks */
 	for (i = 0; i < p_ptr->available_classes; i++)
-	  {
-	    tv = mp_ptr[p_ptr->pclass[i]]->spell_book;
-	    if (tv != 0)
-	      {
+	{
+	     tv = mp_ptr[p_ptr->pclass[i]]->spell_book;
+	     if (tv != 0)
+	     {
 		  i_ptr = &object_type_body;
 		  object_prep(i_ptr, lookup_kind(tv, 0));
 		  object_aware(i_ptr);
 		  object_known(i_ptr);
 		  (void)inven_carry(i_ptr);		
-	      }
-	  }
-
-	/* Grant a weapon */
-	{
-	  bool got_weapon = FALSE;
-
-	  if (player_has_class(CLASS_WARRIOR, 0))
-	  {
-	    if (player_has_class(CLASS_PRIEST, 0) ||
-		player_has_class(CLASS_DEATH_PRIEST, 0))
-	      {
-		tv = TV_HAFTED; sv = SV_MACE;
-	      }
-	    else
-	      {
-		tv = TV_SWORD; sv = SV_LONG_SWORD;
-	      }
-	    i_ptr = &object_type_body;
-	    object_prep(i_ptr, lookup_kind(tv, sv));
-	    if (adult_easy)
-	    {
-	        apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
-	        i_ptr->discount = 90;
-	    }
-	    object_aware(i_ptr);
-	    object_known(i_ptr);
-	    (void)inven_carry(i_ptr);
-	    got_weapon = TRUE;
-	  }
-	  if (player_has_class(CLASS_PALADIN, 0))
-	  {
-	    i_ptr = &object_type_body;
-	    object_prep(i_ptr, lookup_kind(TV_SWORD, SV_BROAD_SWORD));
-	    if (adult_easy)
-	    {
-	        apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
-	        i_ptr->discount = 90;
-	    }
-	    object_aware(i_ptr);
-	    object_known(i_ptr);
-	    (void)inven_carry(i_ptr);		
-	    got_weapon = TRUE;
-	  }
-	  if (player_has_class(CLASS_BERSERKER, 0))
-	  {
-	    i_ptr = &object_type_body;
-	    object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_WOODEN_CLUB));
-	    if (adult_easy)
-	    {
-	        apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
-	        i_ptr->discount = 90;
-	    }
-	    object_aware(i_ptr);
-	    object_known(i_ptr);
-	    (void)inven_carry(i_ptr);		
-	    got_weapon = TRUE;
-	  }
-	  if ((!got_weapon) && (!player_has_class(CLASS_MONK, 0)))
-	  {
-	    if (player_has_class(CLASS_PRIEST, 0) ||
-		player_has_class(CLASS_DEATH_PRIEST, 0))
-	      {
-		tv = TV_HAFTED; sv = SV_QUARTERSTAFF;
-	      }
-	    else
-	      {
-		tv = TV_SWORD; sv = SV_KNIFE;
-	      }
-	    i_ptr = &object_type_body;
-	    object_prep(i_ptr, lookup_kind(tv, sv));
-	    if (adult_easy)
-	    {
-	        apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
-	        i_ptr->discount = 90;
-	    }
-	    object_aware(i_ptr);
-	    object_known(i_ptr);
-	    (void)inven_carry(i_ptr);		
-	    got_weapon = TRUE;	    
-	  }
+	     }
 	}
-   
+	
+	/* Grant a weapon to non-monks */
+	if (!player_has_class(CLASS_MONK, 0))
+	{
+	     /* Do not overwrite a 'better' weapon */
+	     bool got_weapon = FALSE;
+	     
+	     /* Paladin/ranger, cannot conflict with other classes */
+	     if (player_has_class(CLASS_PALADIN, 0))
+	     {
+		  tv = TV_SWORD; sv = SV_BROAD_SWORD;
+		  got_weapon = TRUE;
+	     }
+	     if (player_has_class(CLASS_RANGER, 0))
+	     {
+		  tv = TV_SWORD; sv = SV_LONG_SWORD;
+		  got_weapon = TRUE;
+	     }
+	     
+	     /* Warrior/Crusader gets better weapon than Berserker */
+	     if (player_has_class(CLASS_WARRIOR, 0))
+	     {
+		  /* Blunt weapon if character has a priest class */
+		  if (player_has_class(CLASS_PRIEST, 0) ||
+		      player_has_class(CLASS_DEATH_PRIEST, 0))
+		  {
+		       tv = TV_HAFTED; sv = SV_MACE;
+		  }
+		  else
+		  {
+		       tv = TV_SWORD; sv = SV_LONG_SWORD;
+		  }
+		  got_weapon = TRUE;
+	     }	       
+
+	     if (player_has_class(CLASS_CRUSADER, 0))
+	     {
+		  /* Blunt weapon if character has a priest class */
+		  if (player_has_class(CLASS_PRIEST, 0) ||
+		      player_has_class(CLASS_DEATH_PRIEST, 0))
+		  {
+		       tv = TV_HAFTED; sv = SV_LUCERN_HAMMER;
+		  }
+		  else
+		  {
+		       tv = TV_SWORD; sv = SV_BROAD_SWORD;
+		  }
+		  got_weapon = TRUE;
+	     }	       
+	     
+	     if (player_has_class(CLASS_SLAYER, 0))
+	     {
+		  tv = TV_HAFTED, sv = SV_MACE; got_weapon = TRUE;
+	     }
+
+	     /* Only grant berserker weapon if no other has been granted */
+	     if (player_has_class(CLASS_BERSERKER, 0) && (!got_weapon))
+	     {
+		  tv = TV_HAFTED; sv = SV_WOODEN_CLUB;
+		  got_weapon = TRUE;
+	     }
+
+	     /* Default weapon, blunt if character has a priest class */
+	     if (!got_weapon) 
+	     {
+		  if (player_has_class(CLASS_PRIEST, 0) ||
+		      player_has_class(CLASS_DEATH_PRIEST, 0))
+		  {
+		       tv = TV_HAFTED; sv = SV_QUARTERSTAFF;
+		  }
+		  else
+		  {
+		       tv = TV_SWORD; sv = SV_KNIFE;
+		  }	       
+		  got_weapon = TRUE;
+	     }
+
+	     /* Grant the weapon */
+	     i_ptr = &object_type_body;
+	     object_prep(i_ptr, lookup_kind(tv, sv));
+	     if (adult_easy)
+	     {
+		  /* Get a list of ego-items to choose from */
+		  int num = 0;
+		  int random_ego[8];
+		  byte ego_type;
+
+		  /* Only small blades and quarterstaffs can gain these flags */
+		  if (((i_ptr->tval == 23) && (i_ptr->sval <= 19)) ||
+		      ((i_ptr->tval == 21) && (i_ptr->sval == 3)))
+		  {
+		       if (p_ptr->realm_magery == REALM_MAGIC+1) {
+			    random_ego[num] = EGO_R_MAGERY; num++; }
+		       if (p_ptr->realm_magery == REALM_ILLUSION+1) {
+			    random_ego[num] = EGO_R_ILLUSION; num++; }
+		  }
+
+		  /* Only hafted weapons can gain these flags */
+		  if (i_ptr->tval == 21)
+		  {
+		       if (p_ptr->realm_priest == REALM_PRAYER+1) {
+			    random_ego[num] = EGO_R_HOLY; num++; }
+		       if (p_ptr->realm_priest == REALM_DEATH+1) {
+			    random_ego[num] = EGO_R_DEATH; num++; }
+		  }
+		  
+		  /* Slaying weapons */
+		  if (player_has_class(CLASS_WARRIOR, 0)) {
+		       random_ego[num] = EGO_SLAY_ORC; num++; }
+		  if (player_has_class(CLASS_PRIEST, 0) || player_has_class(CLASS_PALADIN, 0)) {
+		       random_ego[num] = EGO_SLAY_EVIL; num++; }
+		  if (player_has_class(CLASS_RANGER, 0)) {
+		       random_ego[num] = EGO_SLAY_ANIMAL; num++; }
+		  if (player_has_class(CLASS_SLAYER, 0)) {
+		       random_ego[num] = EGO_SLAY_UNDEAD; num++; }
+
+		  /* Anyone can gain these ego-items */
+		  random_ego[num] = EGO_BRAND_ELEC; num++;
+		  random_ego[num] = EGO_BRAND_FIRE; num++;
+		  random_ego[num] = EGO_BRAND_COLD; num++;
+
+		  /* Get a random ego-item */
+		  ego_type = random_ego[rand_int(num)];
+		  i_ptr->name2 = ego_type;
+
+		  /* If successfull, add bonuses etc */
+		  if (i_ptr->name2)
+		  {
+		       ego_item_type *e_ptr = &e_info[i_ptr->name2];
+		       if (e_ptr->max_to_h > 0) i_ptr->to_h = randint(e_ptr->max_to_h);
+		       if (e_ptr->max_to_d > 0) i_ptr->to_d = randint(e_ptr->max_to_d);
+		       if (e_ptr->max_to_a > 0) i_ptr->to_a = randint(e_ptr->max_to_a);
+
+		       /* Get pval and bonuses */
+		       if (e_ptr->max_pval > 0)
+		       { 
+			    i_ptr->pval = randint(e_ptr->max_pval);
+			    i_ptr->to_h += rand_int(5); i_ptr->to_d += rand_int(5);
+		       }
+		       else /* Larger bonuses */
+		       {
+			    i_ptr->to_h += 5 + rand_int(5); i_ptr->to_d += 5 + rand_int(5);
+		       }
+		       i_ptr->discount = 90;
+		  }
+
+	     }
+	     object_aware(i_ptr);
+	     object_known(i_ptr);
+	     (void)inven_carry(i_ptr);
+	}
+
 	/* Give rangers a bow and some ammo */
 	if (player_has_class(CLASS_RANGER, 0))
 	{ 
@@ -986,7 +1072,7 @@ static bool player_birth_aux_1(void)
 	/*** Player sex ***/
 
 	/* Extra info */
-	Term_putstr(5, 13, -1, TERM_WHITE,
+	Term_putstr(5, 12, -1, TERM_WHITE,
 		"Your 'sex' does not have any significant gameplay effects.");
 
 	/* Prompt for "Sex" */
@@ -999,7 +1085,7 @@ static bool player_birth_aux_1(void)
 
 		/* Display */
 		sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		put_str(buf, 19 + (n/5), 2 + 15 * (n%5));
+		put_str(buf, 18 + (n/5), 2 + 15 * (n%5));
 	}
 
 	/* Choose */
@@ -1007,7 +1093,7 @@ static bool player_birth_aux_1(void)
 	{
 		sprintf(buf, "Choose a sex (%c-%c, or * for random): ",
 		        I2A(0), I2A(n-1));
-		put_str(buf, 18, 2);
+		put_str(buf, 17, 2);
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
@@ -1028,13 +1114,13 @@ static bool player_birth_aux_1(void)
 	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 8);
 
 	/* Clean up */
-	clear_from(13);
+	clear_from(12);
 
 
 	/*** Player race ***/
 
 	/* Extra info */
-	Term_putstr(5, 13, -1, TERM_WHITE,
+	Term_putstr(5, 12, -1, TERM_WHITE,
 	            "Your 'race' determines various intrinsic factors and bonuses.");
 
 	/* Dump races */
@@ -1047,7 +1133,7 @@ static bool player_birth_aux_1(void)
 
 		/* Display */
 		sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		put_str(buf, 19 + (n/5), 2 + 15 * (n%5));
+		put_str(buf, 18 + (n/5), 2 + 15 * (n%5));
 	}
 
 	/* Choose */
@@ -1055,7 +1141,7 @@ static bool player_birth_aux_1(void)
 	{
 		sprintf(buf, "Choose a race (%c-%c, or * for random): ",
 		        I2A(0), I2A(n-1));
-		put_str(buf, 18, 2);
+		put_str(buf, 17, 2);
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
@@ -1076,19 +1162,19 @@ static bool player_birth_aux_1(void)
 	c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 8);
 
 	/* Clean up */
-	clear_from(13);
+	clear_from(12);
 
 
 	/*** Player class ***/
 
 	/* Extra info */
-	Term_putstr(5, 13, -1, TERM_WHITE,
+	Term_putstr(5, 12, -1, TERM_WHITE,
 	            "Your 'classes' determine various intrinsic abilities and bonuses.");
-	Term_putstr(5, 14, -1, TERM_WHITE,
+	Term_putstr(5, 13, -1, TERM_WHITE,
 	            "Any entries with a (*) should only be used by advanced players.");
-	Term_putstr(5, 15, -1, TERM_WHITE,
+	Term_putstr(5, 14, -1, TERM_WHITE,
         	    "You may choose more than one class. To stop choosing classes, hit");
-	Term_putstr(5, 16, -1, TERM_WHITE,
+	Term_putstr(5, 15, -1, TERM_WHITE,
 		    "ESCAPE instead of selecting a class.");
 
 	p_ptr->available_classes = 0;
@@ -1147,7 +1233,7 @@ static bool player_birth_aux_1(void)
 
 		    /* Display */
 		    sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
-		    put_str(buf, 19 + (n/3), 2 + 20 * (n%3));    
+		    put_str(buf, 18 + (n/3), 2 + 20 * (n%3));    
 		}
 	  
 		/* Get a class */
@@ -1155,7 +1241,7 @@ static bool player_birth_aux_1(void)
 		{
 		    sprintf(buf, "Choose a class (%c-%c, or * for random): ",
 			    I2A(0), I2A(listnum-1));
-		    put_str(buf, 18, 2);
+		    put_str(buf, 17, 2);
 		    ch = inkey();
 		    if (ch == 'Q') quit(NULL);
 		    if (ch == 'S') return (FALSE);
@@ -1163,17 +1249,23 @@ static bool player_birth_aux_1(void)
 		    if (ch == ESCAPE) break;
 		    if (ch == '*')
 		    {
-		        k = rand_int(listnum);
+			 if (p_ptr->available_classes > 0)
+			 {
+			      k = rand_int(listnum + 1);
+			      /* Also has a chance of cancelling next choice */
+			      if (k == listnum) { ch = ESCAPE; break; }
+			 }
+			 else k = rand_int(listnum);
 		    }
 		    if ((k >= 0) && (k < n)) break;
 		    if (ch == '?') do_cmd_help();
 		    else bell("Illegal class!");
 		}
 
-		/* Stop choosing classes */
-		if (ch == ESCAPE) {
+		/* Stop choosing classes (if at least one has been chosen) */
+		if (ch == ESCAPE && (p_ptr->available_classes > 0)) {
 		  /* Clean up */
-		  clear_from(13);
+		  clear_from(12);
 		  break;
 		}
 
@@ -1212,38 +1304,37 @@ static bool player_birth_aux_1(void)
 
 		/* Experience factor */
 		{
-		  /* Based on race and class XP factors */
-		  int temp = rp_ptr->r_exp + cp_ptr[p_ptr->pclass[choice]]->c_exp;
-		  /* Penalty of *1, *2, *3 or *4 */
-		  p_ptr->expfact[choice] = temp * (choice + 1);
+		     /* (race penalty + class penalty) * choice */
+		     int temp = (rp_ptr->r_exp + cp_ptr[p_ptr->pclass[choice]]->c_exp) * (choice+1);
+		     p_ptr->expfact[choice] = temp;
 		}
 
 		/* Increment number of classes */
 		p_ptr->available_classes++;
 		
 		/* Clean up */
-		clear_from(17);
+		clear_from(16);
 	    }
 	    else		
 		/* Clean up */
-		clear_from(13);
+		clear_from(12);
 	}
 
 	/* Extra info */
-	Term_putstr(5, 13, -1, TERM_WHITE,
+	Term_putstr(5, 12, -1, TERM_WHITE,
 		"Starting as an astral being makes you begin the game on");
-	Term_putstr(5, 14, -1, TERM_WHITE,
+	Term_putstr(5, 13, -1, TERM_WHITE,
 		"dungeon level 95.  You must make your way from there to the");
-	Term_putstr(5, 15, -1, TERM_WHITE,
+	Term_putstr(5, 14, -1, TERM_WHITE,
 		"town on foot, where you will finally regain your corporeal");
-	Term_putstr(5, 16, -1, TERM_WHITE,
+	Term_putstr(5, 15, -1, TERM_WHITE,
 	        "form.  You will then have to make your way back down to win");
-	Term_putstr(5, 17, -1, TERM_WHITE,
+	Term_putstr(5, 16, -1, TERM_WHITE,
 		"the game.");
 
 	while (1)
 	{
-		put_str("Start as an astral being? (y/n) ", 20, 2);
+		put_str("Start as an astral being? (y/n) ", 18, 2);
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
@@ -1266,14 +1357,14 @@ static bool player_birth_aux_1(void)
 	}
 
 	/* Clear */
-	clear_from(13);
+	clear_from(12);
 
 	/*** Birth options ***/
 
 	/* Extra info */
-	Term_putstr(5, 13, -1, TERM_WHITE,
+	Term_putstr(5, 12, -1, TERM_WHITE,
 	            "You can change your options at any time, but the 'Birth' options");
-	Term_putstr(5, 14, -1, TERM_WHITE,
+	Term_putstr(5, 13, -1, TERM_WHITE,
 	            "must be changed now to affect the birth of this character.");
 
 	/* Verify birth options */
@@ -1379,15 +1470,17 @@ static bool player_birth_aux_2(void)
 		/* Process stats */
 		for (i = 0; i < A_MAX; i++)
 		{
-		    /* Obtain a "bonus" for "race" and "class" */
+
 		    int bonus = rp_ptr->r_adj[i];
 		    int n;
+
+		    /* Obtain a "bonus" for "race" and "class" */
 		    for (n = 0; n < p_ptr->available_classes; n++)
 		      bonus += cp_ptr[p_ptr->pclass[n]]->c_adj[i];
 		  
 		    /* Apply the racial/class bonuses */
-		    p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
-		      modify_stat_value(stats[i], bonus);
+		    p_ptr->stat_cur[i] = modify_stat_value(stats[i], bonus);
+		    p_ptr->stat_max[i] = p_ptr->stat_cur[i];
 
 		    /* Total cost */
 		    cost += birth_stat_costs[stats[i] - 10];
@@ -1414,6 +1507,10 @@ static bool player_birth_aux_2(void)
 
 		/* Update stuff */
 		update_stuff();
+
+		/* HACK - Give undead slayer some piety, based on wisdom */
+		if (player_has_class(CLASS_SLAYER, 0)) 
+		     p_ptr->mpp = adj_mag_mana[p_ptr->stat_ind[A_WIS]] + 1;
 
 		/* Fully healed */
 		p_ptr->chp = p_ptr->mhp;
@@ -1574,7 +1671,7 @@ static bool player_birth_aux_3(void)
 		}
 
 		/* Prompt for the minimum stats */
-		put_str("Enter minimum value for: ", 15, 2);
+		put_str("Enter minimum value for: ", 15, 5);
 
 		/* Output the maximum stats */
 		for (i = 0; i < A_MAX; i++)
@@ -1870,6 +1967,10 @@ static bool player_birth_aux_3(void)
 
 			/* Update stuff */
 			update_stuff();
+
+			/* HACK - Give undead slayer some piety, based on wisdom */
+			if (player_has_class(CLASS_SLAYER, 0))
+			     p_ptr->mpp = adj_mag_mana[p_ptr->stat_ind[A_WIS]] + 1;
 
 			/* Fully healed */
 			p_ptr->chp = p_ptr->mhp;

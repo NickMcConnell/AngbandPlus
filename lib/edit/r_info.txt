@@ -2445,7 +2445,7 @@ F:FORCE_SLEEP | NEVER_MOVE | NEVER_BLOW | FRIENDS |
 F:STUPID | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
-S:BLINK | SLOW | SCARE | DARKNESS
+S:BLINK | SLOW | SCARE| DARKNESS
 D:Yum!  It looks quite tasty.  It seems to glow with an unusual light.
 
 N:192:Guardian naga

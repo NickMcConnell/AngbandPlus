@@ -332,13 +332,10 @@ void do_cmd_eat_food(void)
 	/* The player is now aware of the object */
 	if (ident && !object_aware_p(o_ptr))
 	{
-	        int class;
 		object_aware(o_ptr);
-		/* Divide XP between classes */
-		for (class = 0; class < p_ptr->available_classes; class++)
-		{
-		  gain_exp(((lev + (p_ptr->lev[class] >> 1)) / p_ptr->lev[class]) / p_ptr->available_classes, class);
-		}
+		
+		/* Gain experience in all classes, dependant on object level */
+		gain_exp_all(XP_GAIN_ITEM, lev);
 	}
 
 	/* Window stuff */
@@ -346,8 +343,7 @@ void do_cmd_eat_food(void)
 
 
 	/* Food can feed the player */
-	(void)set_food(p_ptr->food + o_ptr->pval);
-
+	(void)set_food(p_ptr->food + (o_ptr->pval / 10));
 
 	/* Destroy a food in the pack */
 	if (item >= 0)
@@ -656,26 +652,22 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_HEROISM:
 		{
-		        int temp = 
-			     25 * (player_has_class(CLASS_BERSERKER, 0) + 1);
 			if (hp_player(10)) 
 			  { ident = TRUE; effects[EFFECT_CURE_LIGHT]++; }
 			if (set_afraid(0)) 
 			  { ident = TRUE; effects[EFFECT_REMOVE_FEAR]++; }
-			if (set_hero(p_ptr->hero + randint(temp) + temp)) 
+			if (set_hero(p_ptr->hero + randint(25) + 25)) 
 			  { ident = TRUE; effects[EFFECT_HEROISM]++; }
 			break;
 		}
 
 		case SV_POTION_BESERK_STRENGTH:
 		{
-		        int temp = 
-			     25 * (player_has_class(CLASS_BERSERKER, 0) + 1);
 			if (hp_player(30))
 			  { ident = TRUE; effects[EFFECT_CURE_SERIOUS]++; }
 			if (set_afraid(0))
 			  { ident = TRUE; effects[EFFECT_REMOVE_FEAR]++; }
-			if (set_shero(p_ptr->shero + randint(temp) + temp))
+			if (set_shero(p_ptr->shero + randint(25) + 25))
 			  { ident = TRUE; effects[EFFECT_BERSERK]++; }
 			break;
 		}
@@ -929,21 +921,10 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_EXPERIENCE:
 		{
-		    int class;
-
 		    msg_print("You feel more experienced.");
 
-		    /* Gain XP in all classes */
-		    for (class = 0; class < p_ptr->available_classes; class++)
-		    {
-		        if (p_ptr->exp[class] < PY_MAX_EXP)
-			{
-			  s32b ee = ((p_ptr->exp[class] / 2) + 10) 
-			    / p_ptr->available_classes;
-			  if (ee > 100000L) ee = 100000L;
-			  gain_exp(ee, class);
-			}
-		    }
+		    /* Gains a set amount (12) plus half of current XP, up to a max of 100,000 */
+		    gain_exp_all(XP_GAIN_POTION, 0);
 
 		    ident = TRUE;
 
@@ -963,23 +944,23 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_CANCELLATION:
 		{
 		     msg_print("You feel purged of all magical effects...");
-		     set_blind(0); set_confused(0); set_afraid(0); 
-		     set_image(0); set_fast(0); set_slow(0);
-		     set_shield(0); set_blessed(0); set_hero(0); set_shero(0);
-		     set_protevil(0); set_invuln(0); 
-		     set_tim_invis(0); set_tim_infra(0);
-		     set_oppose_acid(0); set_oppose_elec(0);
-		     set_oppose_fire(0); set_oppose_cold(0);
-		     set_oppose_pois(0); set_oppose_ld(0);
-		     set_oppose_cc(0); set_oppose_ss(0); set_oppose_nex(0);
-		     set_mental_barrier(0); set_tim_stealth(0);
-		     set_oppose_nether(0); set_oppose_disen(0);
-		     set_sustain_body(0); set_tim_telepathy(0);
-		     set_prot_undead(0); set_prot_animal(0);
-		     set_no_breeders(0); set_tim_aggravate(0);
-		     set_tim_teleportitus(0); set_no_teleport(0);
-		     set_tim_fast_digestion(0); set_tim_amnesia(0);
-		     set_tim_lite(0); set_tim_regen(0);
+		     (void)set_blind(0); (void)set_confused(0); (void)set_afraid(0); 
+		     (void)set_image(0); (void)set_fast(0); (void)set_slow(0);
+		     (void)set_shield(0); (void)set_blessed(0); (void)set_hero(0); 
+		     (void)set_shero(0); (void)set_protevil(0); (void)set_invuln(0); 
+		     (void)set_tim_invis(0); (void)set_tim_infra(0);
+		     (void)set_oppose_acid(0); (void)set_oppose_elec(0);
+		     (void)set_oppose_fire(0); (void)set_oppose_cold(0);
+		     (void)set_oppose_pois(0); (void)set_oppose_ld(0);
+		     (void)set_oppose_cc(0); (void)set_oppose_ss(0); (void)set_oppose_nex(0);
+		     (void)set_mental_barrier(0); (void)set_tim_stealth(0);
+		     (void)set_oppose_nether(0); (void)set_oppose_disen(0);
+		     (void)set_sustain_body(0); (void)set_tim_telepathy(0);
+		     (void)set_prot_undead(0); (void)set_prot_animal(0);
+		     (void)set_no_breeders(0); (void)set_tim_aggravate(0);
+		     (void)set_tim_teleportitus(0); (void)set_no_teleport(0);
+		     (void)set_tim_fast_digestion(0); (void)set_tim_amnesia(0);
+		     (void)set_tim_lite(0); (void)set_tim_regen(0);
 		     ident = TRUE;
 		     effects[EFFECT_CANCELLATION]++;
 		     break;
@@ -1030,13 +1011,10 @@ void do_cmd_quaff_potion(void)
 	/* An identification was made */
 	if (ident && !object_aware_p(o_ptr))
 	{
-	        int class;
 		object_aware(o_ptr);
-		/* Divide XP between classes */
-		for (class = 0; class < p_ptr->available_classes; class++)
-		{
-		  gain_exp(((lev + (p_ptr->lev[class] >> 1)) / p_ptr->lev[class]) / p_ptr->available_classes, class);
-		}
+
+		/* Gain experience in all classes, dependant on object level */
+		gain_exp_all(XP_GAIN_ITEM, lev);
 	}
 
 	/* Window stuff */
@@ -1044,7 +1022,7 @@ void do_cmd_quaff_potion(void)
 
 
 	/* Potions can feed the player */
-	(void)set_food(p_ptr->food + o_ptr->pval);
+	(void)set_food(p_ptr->food + (o_ptr->pval / 10));
 
 
 	/* Destroy a potion in the pack */
@@ -1668,13 +1646,10 @@ void do_cmd_read_scroll(void)
 	/* An identification was made */
 	if (ident && !object_aware_p(o_ptr))
 	{
-	        int class;
 		object_aware(o_ptr);
-		/* Divide XP between classes */
-		for (class = 0; class < p_ptr->available_classes; class++)
-		{
-		  gain_exp(((lev + (p_ptr->lev[class] >> 1)) / p_ptr->lev[class]) / p_ptr->available_classes, class);
-		}
+
+		/* Gain experience in all classes, dependant on object level */
+		gain_exp_all(XP_GAIN_ITEM, lev);
 	}
 
 	/* Window stuff */
@@ -1701,9 +1676,6 @@ void do_cmd_read_scroll(void)
 		floor_item_optimize(0 - item);
 	}
 }
-
-
-
 
 
 
@@ -2119,13 +2091,10 @@ void do_cmd_use_staff(void)
 	/* An identification was made */
 	if (ident && !object_aware_p(o_ptr))
 	{
-	        int class;
 		object_aware(o_ptr);
-		/* Divide XP between classes */
-		for (class = 0; class < p_ptr->available_classes; class++)
-		{
-		  gain_exp(((lev + (p_ptr->lev[class] >> 1)) / p_ptr->lev[class]) / p_ptr->available_classes, class);
-		}
+
+		/* Gain experience in all classes, dependant on object level */
+		gain_exp_all(XP_GAIN_ITEM, lev);
 	}
 
 	/* Window stuff */
@@ -2555,13 +2524,10 @@ void do_cmd_aim_wand(void)
 	/* Apply identification */
 	if (ident && !object_aware_p(o_ptr))
 	{
-	        int class;
 		object_aware(o_ptr);
-		/* Divide XP between classes */
-		for (class = 0; class < p_ptr->available_classes; class++)
-		{
-		  gain_exp(((lev + (p_ptr->lev[class] >> 1)) / p_ptr->lev[class]) / p_ptr->available_classes, class);
-		}
+
+		/* Gain experience in all classes, dependant on object level */
+		gain_exp_all(XP_GAIN_ITEM, lev);
 	}
 
 	/* Window stuff */
@@ -3021,13 +2987,10 @@ void do_cmd_zap_rod(void)
 	/* Successfully determined the object function */
 	if (ident && !object_aware_p(o_ptr))
 	{
-	        int class;
 		object_aware(o_ptr);
-		/* Divide XP between classes */
-		for (class = 0; class < p_ptr->available_classes; class++)
-		{
-		  gain_exp(((lev + (p_ptr->lev[class] >> 1)) / p_ptr->lev[class]) / p_ptr->available_classes, class);
-		}
+
+		/* Gain experience in all classes, dependant on object level */
+		gain_exp_all(XP_GAIN_ITEM, lev);
 	}
 
 	/* Window stuff */
@@ -3423,13 +3386,11 @@ void do_cmd_activate(void)
 
 			case ACT_RAGE_BLESS_RESIST:
 			{
-			        int temp = 25 *
-				    (player_has_class(CLASS_BERSERKER, 0) + 1);
 				msg_format("Your %s glows many colours...", o_name);
 				(void)hp_player(30);
 				(void)set_afraid(0);
 				(void)set_shero(p_ptr->shero + 
-						randint(temp) + temp);
+						randint(25) + 25);
 				(void)set_blessed(p_ptr->blessed + randint(50) + 50);
 				(void)set_oppose_acid(p_ptr->oppose_acid + randint(50) + 50);
 				(void)set_oppose_elec(p_ptr->oppose_elec + randint(50) + 50);
@@ -3956,6 +3917,42 @@ void do_cmd_activate(void)
 		       o_ptr->timeout = 10 + rand_int(10);
 		       break;
 		  }
+	          case SV_AMULET_AID:
+		  {
+		       int condition[10];
+		       int num = 0, temp;
+		       bool done = FALSE;
+		       if (p_ptr->slow) { condition[num] = 1; num++; }
+		       if (p_ptr->blind) { condition[num] = 2; num++; }
+		       if (p_ptr->confused) { condition[num] = 3; num++; }
+		       if (p_ptr->afraid) { condition[num] = 4; num++; }
+		       if (p_ptr->image) { condition[num] = 5; num++; }
+		       if (p_ptr->poisoned) { condition[num] = 6; num++; }
+		       if (p_ptr->cut) { condition[num] = 7; num++; }
+		       if (p_ptr->stun) { condition[num] = 8; num++; }
+		       if (p_ptr->chp < (p_ptr->mhp * 9 / 10)) { condition[num] = 9; num++; }
+		       if (p_ptr->food < PY_FOOD_ALERT) { condition[num] = 10; num++; }
+		       temp = rand_int(num);
+		       switch (condition[temp])
+		       {
+		       case 1: (void)set_slow(0); done = TRUE; break;
+		       case 2: (void)set_blind(0); done = TRUE; break;
+		       case 3: (void)set_confused(0); done = TRUE; break;
+		       case 4: (void)set_afraid(0); done = TRUE; break;
+		       case 5: (void)set_image(0); done = TRUE; break;
+		       case 6: (void)set_poisoned(0); done = TRUE; break;
+		       case 7: (void)set_cut(0); done = TRUE; break;
+		       case 8: (void)set_stun(0); done = TRUE; break;
+		       case 9: (void)hp_player(p_ptr->mhp); done = TRUE; break;
+		       case 10: (void)set_food(PY_FOOD_MAX - 1); done = TRUE; break; 
+		       }
+		       
+		       if (done)
+			    o_ptr->timeout = 10 + rand_int(10);
+		       else
+			    msg_print("Nothing happens.");
+		       break;
+		  }
 	     }
 
 	     /* Window stuff */
@@ -4027,3 +4024,4 @@ void do_cmd_activate(void)
 	/* Mistake */
 	msg_print("Oops.  That object cannot be activated.");
 }
+

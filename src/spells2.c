@@ -508,25 +508,29 @@ void self_knowledge(void)
 	     info[i++] = "You cannot remember where you are!";
 	}
 
-	if (p_ptr->blessed)
+	if ((p_ptr->blessed) || (p_ptr->crusader_passive == CRUSADER_BLESSING))
 	{
-		info[i++] = "You feel rightous.";
+		info[i++] = "You feel righteous.";
 	}
-	if (p_ptr->hero)
+	if ((p_ptr->hero) || (p_ptr->crusader_passive == CRUSADER_HEROISM))
 	{
 		info[i++] = "You feel heroic.";
 	}
-	if (p_ptr->shero)
+	if ((p_ptr->shero) || (p_ptr->crusader_passive == CRUSADER_BERSERK))
 	{
 		info[i++] = "You are in a battle rage.";
 	}
-	if (p_ptr->protevil)
+	if ((p_ptr->protevil) || (p_ptr->crusader_passive == CRUSADER_PROT_EVIL))
 	{
 		info[i++] = "You are protected from evil.";
 	}
-	if (p_ptr->shield)
+	if ((p_ptr->shield) || (p_ptr->crusader_passive == CRUSADER_SHIELD))
 	{
 		info[i++] = "You are protected by a mystic shield.";
+	}
+	if ((p_ptr->fast) || (p_ptr->crusader_passive == CRUSADER_HASTE))
+	{
+	        info[i++] = "You are fast.";
 	}
 	if (p_ptr->invuln)
 	{
@@ -817,37 +821,41 @@ void self_knowledge(void)
 	if (o_ptr->k_idx)
 	{
 		/* Special "Attack Bonuses" */
-		if (f1 & (TR1_BRAND_ACID))
+	        if (f1 & (TR1_BRAND_ACID))
 		{
 			info[i++] = "Your weapon melts your foes.";
 		}
-		if (f1 & (TR1_BRAND_ELEC))
+		if ((f1 & (TR1_BRAND_ELEC)) || (p_ptr->crusader_active == CRUSADER_WPN_SHOCK))
 		{
 			info[i++] = "Your weapon shocks your foes.";
 		}
-		if (f1 & (TR1_BRAND_FIRE))
+		if ((f1 & (TR1_BRAND_FIRE)) || (p_ptr->crusader_active == CRUSADER_WPN_FLAME))
 		{
 			info[i++] = "Your weapon burns your foes.";
 		}
-		if (f1 & (TR1_BRAND_COLD))
+		if ((f1 & (TR1_BRAND_COLD)) || (p_ptr->crusader_active == CRUSADER_WPN_FROST))
 		{
 			info[i++] = "Your weapon freezes your foes.";
 		}
-		if (f1 & (TR1_BRAND_POIS))
+		if ((f1 & (TR1_BRAND_POIS)) || (p_ptr->crusader_active == CRUSADER_WPN_POISON))
 		{
 			info[i++] = "Your weapon poisons your foes.";
 		}
+		if ((f1 & (TR1_BRAND_LITE)) || (p_ptr->crusader_active == CRUSADER_WPN_LIGHT))
+		{
+			info[i++] = "Your weapon is shining with a bright light.";
+		}
 
 		/* Special "slay" flags */
-		if (f1 & (TR1_SLAY_ANIMAL))
+		if ((f1 & (TR1_SLAY_ANIMAL)) || (p_ptr->crusader_active == CRUSADER_SLAY_ANIMAL))
 		{
 			info[i++] = "Your weapon strikes at animals with extra force.";
 		}
-		if (f1 & (TR1_SLAY_EVIL))
+		if ((f1 & (TR1_SLAY_EVIL)) || (p_ptr->crusader_active == CRUSADER_SLAY_EVIL))
 		{
 			info[i++] = "Your weapon strikes at evil with extra force.";
 		}
-		if (f1 & (TR1_SLAY_UNDEAD))
+		if ((f1 & (TR1_SLAY_UNDEAD)) || (p_ptr->crusader_active == CRUSADER_SLAY_UNDEAD))
 		{
 			info[i++] = "Your weapon strikes at undead with holy wrath.";
 		}
@@ -890,6 +898,36 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon can induce earthquakes.";
 		}
+	}
+	else if (player_has_class(CLASS_MONK, 0))
+	{
+	     switch (p_ptr->crusader_active)
+	     {
+	     case CRUSADER_WPN_LIGHT:
+		  info[i++] = "Your hands are shining with a bright light.";
+		  break;
+	     case CRUSADER_WPN_SHOCK:
+		  info[i++] = "Your hands shock your foes.";
+		  break;
+	     case CRUSADER_WPN_FLAME:
+		  info[i++] = "Your hands burn your foes.";
+		  break;
+	     case CRUSADER_WPN_FROST:
+		  info[i++] = "Your hands freeze your foes.";
+		  break;
+	     case CRUSADER_WPN_POISON:
+		  info[i++] = "Your hands inflict poison damage.";
+		  break;
+	     case CRUSADER_SLAY_ANIMAL:
+		  info[i++] = "You strike at animals with extra force.";
+		  break;
+	     case CRUSADER_SLAY_EVIL:
+		  info[i++] = "You strike at evil with extra force.";
+		  break;
+	     case CRUSADER_SLAY_UNDEAD:
+		  info[i++] = "You strike at undead with holy wrath.";
+		  break;
+	     }
 	}
 
 
@@ -2412,7 +2450,7 @@ bool recharge(int num)
 		if ((i <= 1) || (rand_int(i) == 0))
 		{
 			/* Dangerous Hack -- Destroy the item */
-			msg_print("There is a bright flash of light.");
+		        msg_print("There is a bright flash of light.");
 
 			/* Reduce and describe inventory */
 			if (item >= 0)

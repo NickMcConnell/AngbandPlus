@@ -500,3 +500,34 @@ D:a wise and ancient counselor.
 N:88:0:100:80
 D:a Wizard of legend. 
 
+N:89:90:25:50
+D:You have glowing red eyes, 
+N:89:90:50:50
+D:You have shining black eyes, 
+N:89:90:75:50
+D:You have puke yellow eyes, 
+N:89:90:100:50
+D:You have pale eyes, 
+
+N:90:91:50:50
+D:and your form is the deepest black. 
+N:90:91:100:50
+D:and your form is like gloomy fog. 
+
+N:91:0:25:50
+D:You remember nothing of how you came into being. 
+N:91:0:50:80
+D:You came into being at midnight, when the moon was new. 
+N:91:0:75:20
+D:You came into being at a time of destruction and despair. 
+N:91:92:100:100
+D:You were previously a powerful 
+
+N:92:0:25:80
+D:mage of dark sorcery. 
+N:92:0:50:20
+D:necromancer, whose spells went awry. 
+N:92:0:75:20
+D:warrior, but were defeated by the undead. 
+N:92:0:100:100
+D:thief, who learnt the ways of shadow too well. 

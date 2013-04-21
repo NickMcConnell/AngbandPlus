@@ -5,8 +5,9 @@ classes. You may finish the choosing process by hitting the ESCAPE key
 instead of choosing a class. The order of your choices does matter, as
 classes which are chosen earlier will advance in levels much quicker.
 
-Note : If you wish to play a Ranger, Paladin, or non-recommended class
-(for your race), choose that class first.
+Note : If you wish to play a Ranger, Paladin, or non-recommended class 
+(for your race), choose that class first, as you will not be allowed to 
+take a second class.
 
 The player info screen (accessed with 'C') shows class and level info 
 for each class.
@@ -38,8 +39,8 @@ experience from unlocking and disarming chests, traps and
 doors. Likewise, when a spell or prayer is used for the first time,
 only the magic-using class will gain the experience.
 
-Most races can only have 2 classes. High-elves and dunadan can have 3,
-humans, yeeks and maia can have 4.
+Most races can only have 2 classes. Half-elves, high-elves, dunadan and caveman
+can have 3, humans, yeeks and maia can have 4.
 
 If you play a non-recommended combination of race and class, you will
 not be able to choose any further classes. Likewise, you will not be
@@ -48,33 +49,43 @@ able to choose a non-recommended class after choosing an okay one.
 Note : Experience draining affects the class which you have the highest
 level in.
 
---- Combinations allowed ---
-
-Rangers and Paladins cannot multiclass.
-
-Of the four fighter classes (Warrior, Archer, Berserker and Monk) only
-Archer and Monk can be combined. Otherwise only one may be chosen.
-
-Of the four magic-using classes (Mage, Rogue, Illusionist and
-Trickster) only one may be chosen. None of these classes may combine
-with Berserker.
-
-Cannot choose both Holy Priest and Death Priest. Also, Holy Priest may
-not combine with Rogue.
-
 --- Combinations allowed (table) ---
 
-             War Mag Pri Rog Ill Arc Dea Ber Mon Tri
-Warrior           Y   Y   Y   Y       Y           Y
-Mage          Y       Y           Y   Y       Y    
-Priest        Y   Y           Y   Y       Y   Y   Y
-Rogue         Y                   Y   Y       Y    
-Illusionist   Y       Y           Y   Y       Y    
-Archer            Y   Y   Y   Y       Y       Y   Y
-Death Priest  Y   Y       Y   Y   Y       Y   Y   Y
-Berserker             Y               Y            
-Monk              Y   Y   Y   Y   Y   Y           Y
-Trickster     Y       Y           Y   Y       Y    
+Rangers and Paladins are not shown in this table, as they cannot multiclass.
+
+             War Mag Pri Rog Ill Arc Dea Ber Mon Tri Cru Sla Shi
+Warrior           Y   Y   Y   Y       Y           Y            
+Mage          Y       Y           Y   Y       Y           Y    
+Priest        Y   Y           Y   Y       Y   Y       Y       Y
+Rogue         Y                   Y   Y       Y           Y    
+Illusionist   Y       Y           Y   Y       Y           Y    
+Archer            Y   Y   Y   Y       Y       Y   Y   Y   Y   Y
+Death Priest  Y   Y       Y   Y   Y       Y   Y   Y   Y       Y
+Berserker             Y               Y       Y       Y   Y    
+Monk              Y   Y   Y   Y   Y   Y   Y       Y   Y   Y   Y
+Trickster     Y                   Y   Y       Y           Y    
+Crusader              Y           Y   Y   Y   Y           Y    
+Undead Slayer     Y       Y   Y   Y       Y   Y   Y   Y       Y
+Shifter               Y           Y   Y       Y           Y    
+
+There are 7 fighter-type classes - Warrior, Archer, Berserker, Monk, Crusader,
+Undead Slayer, and Shifter. Warrior is the base fighter-class, not specialized
+in any area, and cannot combine with other fighter classes. Berserkers cannot
+be Archers, as they hate to use missile weapons. Any other combination of
+fighter-classes is allowed.
+
+Only one of the six magic-using classes may be chosen (Mage, Rogue,
+Illusionist, Trickster, Crusader, Shifter) as Rogues/Tricksters are
+lower-powered versions of Mages/Illusionists, and a character can only learn
+one of Magery, Illusion, Crusader or Shifter magic.
+
+Those who choose a magic class (except for Crusader) cannot be Berserkers, as
+Berserkers have no time for using magic and prefer to bash things over the
+head. Nor can Undead Slayers be priests, as they gain piety from killing undead
+rather than from experience.
+
+Cannot choose both Holy Priest and Death Priest. Holy Priests cannot also be
+Rogues or Tricksters, as they are opposed to these lifestyles.
 
 --- Switch class forwards ---
 

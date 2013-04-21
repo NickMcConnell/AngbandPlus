@@ -104,7 +104,10 @@ static void sense_inventory(void)
 
 	char o_name[80];
 
-	int new_test, test = 0, pseudo_class = 0; /* Get fastest pseudo-id */
+        /* Get fastest pseudo-id */
+	int new_test, test = 0;
+	/* Default is first class chosen */
+	int pseudo_class = p_ptr->pclass[0]; 
 
 	/*** Check for "sensing" ***/
 
@@ -119,46 +122,52 @@ static void sense_inventory(void)
 	    /* Look at current class */
 	    switch (p_ptr->pclass[i])
 	      {
-	      case CLASS_WARRIOR:
+	      case CLASS_WARRIOR: 
+	      case CLASS_BERSERKER: /* 225 - 2 */
 		new_test = 9000L / (plev * plev + 40);
 		break;
 	      case CLASS_PRIEST:
-	      case CLASS_DEATH_PRIEST:
-		new_test = 10000L / (plev * plev + 40);
+	      case CLASS_DEATH_PRIEST: /* 300 - 2 */
+		new_test = 12000L / (plev * plev + 40);
 		break;
 	      case CLASS_ROGUE:
 	      case CLASS_ARCHER:
-	      case CLASS_TRICKSTER:
+	      case CLASS_TRICKSTER: /* 500 - 4 */
 		new_test = 20000L / (plev * plev + 40);
 		break;
-	      case CLASS_RANGER:
-	      case CLASS_MONK:
-		new_test = 120000L / (plev + 5);
+	      case CLASS_RANGER: /* 750 - 6 */
+		new_test = 30000L / (plev * plev + 40);
 		break;
-	      case CLASS_BERSERKER:
 	      case CLASS_PALADIN:
+	      case CLASS_CRUSADER: 
+	      case CLASS_MONK: /* 2000 - 17 */
+	      case CLASS_SLAYER:
+	      case CLASS_SHIFTER:
 		new_test = 80000L / (plev * plev + 40);
 		break;
-	      default: /* Mage and Illusionist */
+	      default: /* Mage and Illusionist 40000 - 4800 */
 		new_test = 240000L / (plev + 5);
 		break;
 	      }
 
 	    /* Most likely to pseudo-id */
-	    if (new_test > test) test = new_test;
+	    if (new_test < test) 
+	    {
+		 test = new_test;
+		 pseudo_class = i; /* Store class */
+	    }
+	}
 
-	    pseudo_class = i; /* Store class */
-
-	    /* These classes get better pseudo-id */
-	    if (pseudo_class == CLASS_WARRIOR || 
-		pseudo_class == CLASS_ROGUE ||
-		pseudo_class == CLASS_TRICKSTER ||
-		pseudo_class == CLASS_PALADIN ||
-		pseudo_class == CLASS_ARCHER ||
-		pseudo_class == CLASS_BERSERKER)
-	      {
-		heavy = TRUE;
-	      }
+	/* These classes get better pseudo-id */
+	if (p_ptr->pclass[pseudo_class] == CLASS_WARRIOR || 
+	    p_ptr->pclass[pseudo_class] == CLASS_ROGUE ||
+	    p_ptr->pclass[pseudo_class] == CLASS_TRICKSTER ||
+	    p_ptr->pclass[pseudo_class] == CLASS_PALADIN ||
+	    p_ptr->pclass[pseudo_class] == CLASS_BERSERKER ||
+	    p_ptr->pclass[pseudo_class] == CLASS_CRUSADER ||
+	    p_ptr->pclass[pseudo_class] == CLASS_SLAYER)
+	{
+	     heavy = TRUE;
 	}
 
 	/* Continue with pseudo id ? */
@@ -375,6 +384,9 @@ static void regenpiety(int percent)
 
 	int old_cpp;
 
+	/* Don't regenerate piety if udnead slayer */
+	if (player_has_class(CLASS_SLAYER, 0)) return;
+
 	old_cpp = p_ptr->cpp;
 
 	new_piety = ((long)p_ptr->mpp) * percent + PY_REGEN_MNBASE;
@@ -491,10 +503,20 @@ static void process_world(void)
 	/* Stop being astral once in the town */
 	if (p_ptr->astral && !(p_ptr->depth))
 	{
+	     /* No longer astral */
 	     msg_print("You regain your body!");
 	     p_ptr->astral = FALSE;
-	     p_ptr->max_depth = p_ptr->depth;
-	     msg_print("Unfortunately, that means you'll have to walk back down again...");
+	     /* Recalculate bonuses, redraw title */
+	     p_ptr->update |= (PU_BONUS);
+	     p_ptr->redraw |= (PR_TITLE);
+	     /* Handle stuff */
+	     handle_stuff();
+	     /* Loses recall depth (unless a Shadow) */
+	     if (p_ptr->prace != 17) /* Hack */
+	     {
+		  p_ptr->max_depth = p_ptr->depth;
+		  msg_print("Unfortunately, that means you'll have to walk back down again...");
+	     }
 	}
 
 
@@ -673,7 +695,7 @@ static void process_world(void)
 			i = extract_energy[p_ptr->pspeed] * 2;
 
 			/* Regeneration takes more food */
-			if (p_ptr->regenerate) i += 30;
+			if (p_ptr->regenerate) i += 60;
 
 			/* Fast digestion takes more food */
 			if (p_ptr->fast_digestion) i += 30;
@@ -745,7 +767,7 @@ static void process_world(void)
 	/* Regeneration ability */
 	if (p_ptr->regenerate)
 	{
-		regen_amount = regen_amount * 2;
+		regen_amount = regen_amount * 5;
 	}
 
 	/* Searching or Resting */
@@ -858,7 +880,11 @@ static void process_world(void)
 	     /* Super Heroism */
 	     if (p_ptr->shero)
 	     {
-		  (void)set_shero(p_ptr->shero - 1);
+		  /* Berserkers may keep berserk strength much longer */
+		  if (player_has_class(CLASS_BERSERKER, 0) && randint(2) == 0)
+		       (void)set_shero(p_ptr->shero - 1);
+		  else
+		       (void)set_shero(p_ptr->shero - 1);
 	     }
 
 	     /* Blessed */
@@ -1684,38 +1710,68 @@ static void process_command(void)
 		}
 
 		/* Cast a spell */
-		case 'm':
+	        case 'm':
 		{
-		     if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_ILLUSION_BOOK)
-			  do_cmd_cast_illusion();
+		     if (magery_class() != -1)
+		     {
+			  switch_until(magery_class());
+			  
+			  switch (magery_class())
+			  {
+			  case CLASS_CRUSADER:
+			       do_cmd_crusader(); break;
+			  case CLASS_SHIFTER:
+			       do_cmd_shifter(); break;
+			  case CLASS_ILLUSIONIST:
+			  case CLASS_TRICKSTER:
+			       do_cmd_cast_illusion(); break;
+			  case CLASS_MAGE:
+			  case CLASS_ROGUE:
+			  case CLASS_RANGER:
+			       do_cmd_cast(); break;
+			  }
+		     }
 		     else
-			  do_cmd_cast();
+			  msg_print("You cannot cast spells!");
 		     break;
 		}
 
 		/* Pray a prayer */
 		case 'p':
 		{
-		     if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_DEATH_BOOK)
-			  do_cmd_cast_death();
+		     if (priest_class() != -1)
+		     {
+			  switch_until(priest_class());
+
+			  switch (priest_class())
+			  {
+			  case CLASS_SLAYER:
+			       do_cmd_slayer(); break;
+			  case CLASS_DEATH_PRIEST:
+			       do_cmd_cast_death(); break;
+			  case CLASS_PRIEST:
+			  case CLASS_PALADIN:
+			       do_cmd_pray(); break;
+			  }
+		     }
 		     else
-			  do_cmd_pray();
+			  msg_print("Pray hard enough and your prayers may be answered.");
 		     break;
 		}
 
 		/*** Multiclass commands ***/
 
 	        case ']': /* Switch class forwards */
-		  {
-		    do_cmd_switch_multi_class(0);
-		    break;
-		  }
+		{
+		     do_cmd_switch_multi_class(0);
+		     break;
+		}
 
 	        case '[': /* Switch class backwards */
-		  {
-		    do_cmd_switch_multi_class(1);
-		    break;
-		  }
+		{
+		     do_cmd_switch_multi_class(1);
+		     break;
+		}
 
 		/*** Use various objects ***/
 
@@ -2122,29 +2178,33 @@ static void process_player(void)
 		{
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp == p_ptr->msp) &&
-			    (p_ptr->cpp == p_ptr->mpp))
+			    (p_ptr->csp == p_ptr->msp))
 			{
-				disturb(0, 0);
+			     /* Undead slayers do not regenerate mana */
+			     if (player_has_class(CLASS_SLAYER, 0))
+				  disturb(0, 0);
+			     else if (p_ptr->cpp == p_ptr->mpp)
+				  disturb(0, 0);
 			}
 		}
 
 		/* Complete resting */
 		else if (p_ptr->resting == -2)
 		{
-			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp == p_ptr->msp) &&
-			    (p_ptr->cpp == p_ptr->mpp) &&
-			    !p_ptr->blind && !p_ptr->confused &&
-			    !p_ptr->poisoned && !p_ptr->afraid &&
-			    !p_ptr->stun && !p_ptr->cut &&
-			    !p_ptr->slow && !p_ptr->paralyzed &&
-			    !p_ptr->image && !p_ptr->word_recall)
-			{
-				disturb(0, 0);
-			}
-		}
+		     /* Stop resting */
+		     if ((p_ptr->chp == p_ptr->mhp) &&
+			 (p_ptr->csp == p_ptr->msp) &&
+			 !p_ptr->cut &&
+			 !p_ptr->stun && !p_ptr->paralyzed &&
+			 !p_ptr->poisoned && !p_ptr->word_recall)
+		     {
+			  /* Undead slayers do not regenerate mana */
+			  if (player_has_class(CLASS_SLAYER, 0))
+			       disturb(0, 0);
+			  else if (p_ptr->cpp == p_ptr->mpp)
+			       disturb(0, 0);
+		     }
+		} 
 	}
 
 	/* Handle "abort" */
@@ -2548,7 +2608,7 @@ static void dungeon(void)
 	{
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
-	if (adult_nightmare)
+	if (adult_nightmare && (!p_ptr->astral))
 	    p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 
 	/* Make a staircase */
@@ -3149,7 +3209,7 @@ void play_game(bool new_game)
 		/* Make a new level */
 		generate_cave();
 	}
-
+	
 	/* Close stuff */
 	close_game();
 }

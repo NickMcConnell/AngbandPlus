@@ -1,7 +1,7 @@
 
 
               **************************************************
-              ** Multiband 1.0.3   **   The Pits of Angband   **
+              ** Multiband 1.0.6   **   The Pits of Angband   **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke

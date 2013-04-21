@@ -497,7 +497,14 @@ T:23:0:99
 F:WIS | 
 F:BLESSED
 
-# 67 (unused)
+N:67:of Light
+X:24:20:0
+W:0:0:0:2000
+C:0:0:0:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:BRAND_LITE | LITE
 
 N:68:of Westernesse
 X:24:20:0
@@ -711,8 +718,8 @@ F:CON | SLAY_DRAGON | KILL_DRAGON
 
 # Small blades (up to 2d5) and staffs
 N:96:of Magery
-X:24:15:0
-W:0:3:0:4000
+X:24:15:3
+W:0:6:0:4000
 C:0:0:0:5
 T:23:0:19
 T:21:3:3
@@ -720,16 +727,16 @@ F:SUST_INT | INT | R_MAGERY
 
 # Any hafted weapon
 N:97:of Holiness
-X:24:15:0
-W:0:3:0:4000
+X:24:15:3
+W:0:6:0:4000
 C:0:0:0:5
 T:21:0:99
 F:SUST_WIS | WIS | R_HOLY
 
 # Small blades (up to 2d5) and staffs
 N:98:of Illusion
-X:24:15:0
-W:0:3:0:4000
+X:24:15:3
+W:0:6:0:4000
 C:0:0:0:5
 T:23:0:19
 T:21:3:3
@@ -737,8 +744,8 @@ F:SUST_INT | INT | R_ILLUSION
 
 # Any hafted weapon
 N:99:of Death
-X:24:15:0
-W:0:3:0:4000
+X:24:15:3
+W:0:6:0:4000
 C:0:0:0:5
 T:21:0:99
 F:SUST_WIS | WIS | R_DEATH

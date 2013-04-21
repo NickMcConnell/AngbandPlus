@@ -1565,6 +1565,10 @@ static errr rd_extra(void)
 	        rd_u16b(&effects[i]);
 	}
 
+	rd_byte(&p_ptr->crusader_active);
+	rd_byte(&p_ptr->crusader_passive);
+	rd_byte(&p_ptr->shapeshift);
+
 	/* Read spell info */
 	for (i = 0; i < 2; i++)
 	  {
@@ -2893,7 +2897,6 @@ static errr rd_savefile_new_aux(void)
 		/* Read the ghost info */
 		rd_ghost();
 	}
-
 
 #ifdef VERIFY_CHECKSUMS
 

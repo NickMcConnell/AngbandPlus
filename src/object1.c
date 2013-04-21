@@ -15,7 +15,7 @@
  * Max sizes of the following arrays.
  */
 #define MAX_ROCKS      42       /* Used with rings (min 38) */
-#define MAX_AMULETS    24       /* Used with amulets (min 23) */
+#define MAX_AMULETS    27       /* Used with amulets (min 23) */
 #define MAX_WOODS      35       /* Used with staffs (min 32) */
 #define MAX_METALS     32       /* Used with wands/rods (min 29/30) */
 #define MAX_COLORS     69       /* Used with potions (min 61) */
@@ -65,7 +65,8 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
 	"Copper", "Platinum", "Carved Oak", "Aluminum", "Sapphire",
-	"Ruby", "Emerald", "Flint", "White Gold"
+	"Ruby", "Emerald", "Flint", "White Gold", "Turqoise",
+	"Opal", "Pearl", 
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -74,7 +75,8 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
 	TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_L_BLUE, TERM_BLUE,
-	TERM_RED, TERM_L_GREEN, TERM_SLATE, TERM_WHITE
+	TERM_RED, TERM_L_GREEN, TERM_SLATE, TERM_WHITE, TERM_L_BLUE,
+	TERM_L_DARK, TERM_WHITE,
 };
 
 
@@ -186,7 +188,7 @@ static cptr potion_adj[MAX_COLORS] =
 	"Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow", "Gloopy Green",
 	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold",
 	"Foaming", "Stinking", "Oily Black", "Ichor", "Ivory White",
-	"Lavender", "Luminescent", "Sky Blue"
+	"Lavender", "Luminescent", "Sky Blue", "Flourescent",
 };
 
 static byte potion_col[MAX_COLORS] =
@@ -204,7 +206,7 @@ static byte potion_col[MAX_COLORS] =
 	TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
 	TERM_VIOLET, TERM_RED, TERM_YELLOW, TERM_YELLOW,
 	TERM_WHITE, TERM_UMBER, TERM_L_DARK, TERM_RED, TERM_WHITE,
-	TERM_L_WHITE, TERM_YELLOW, TERM_L_BLUE
+	TERM_L_WHITE, TERM_YELLOW, TERM_L_BLUE, TERM_YELLOW,
 };
 
 
@@ -2162,6 +2164,70 @@ cptr item_activation(const object_type *o_ptr)
 }
 
 
+
+
+/* Get chance of activating a device */
+static cptr device_chance(const object_type *o_ptr, bool artifact)
+{
+     int lev, num = USE_DEVICE, denom = p_ptr->skill_dev, chance;
+
+     /* Get the item level */
+     lev = k_info[o_ptr->k_idx].level;
+     if (lev > 50) lev = 50;
+     
+     /* Confusion hurts skill */
+     if (p_ptr->confused) denom /= 2;
+
+     /* High level objects are harder */
+     denom -= lev;
+     
+     /* Give everyone a (slight) chance */
+     if (denom < USE_DEVICE)
+     {
+	  int factor = USE_DEVICE - denom + 1;
+	  num *= factor;
+	  denom = USE_DEVICE * factor;
+     }
+
+     /* Convert num to the desired form. */
+     num = 1 + denom - num;
+
+     /* Perncentage */
+     chance = 100 * num / denom;
+     
+     if (artifact)
+     {
+	  if (chance < 3) return ("You have almost no chance of activating it for..."); 	  
+	  else if (chance < 6) return ("You have around a 1/20 chance of activating it for..."); 
+	  else if (chance < 16) return ("You have around a 1/10 chance of activating it for...");
+	  else if (chance < 26) return ("You have around a 2/10 chance of activating it for...");
+	  else if (chance < 36) return ("You have around a 3/10 chance of activating it for...");
+	  else if (chance < 46) return ("You have around a 4/10 chance of activating it for...");
+	  else if (chance < 56) return ("You have around a 5/10 chance of activating it for...");
+	  else if (chance < 66) return ("You have around a 6/10 chance of activating it for...");
+	  else if (chance < 76) return ("You have around a 7/10 chance of activating it for...");
+	  else if (chance < 86) return ("You have around a 8/10 chance of activating it for...");
+	  else if (chance < 96) return ("You have around a 9/10 chance of activating it for...");
+	  else return ("You have an almost certain chance of activating it for...");
+     }
+     else
+     {
+	  if (chance < 3) return ("You have almost no chance of using it."); 
+	  else if (chance < 6) return ("You have around a 1/20 chance of using it."); 
+	  else if (chance < 16) return ("You have around a 1/10 chance of using it.");
+	  else if (chance < 26) return ("You have around a 2/10 chance of using it.");
+	  else if (chance < 36) return ("You have around a 3/10 chance of using it.");
+	  else if (chance < 46) return ("You have around a 4/10 chance of using it.");
+	  else if (chance < 56) return ("You have around a 5/10 chance of using it.");
+	  else if (chance < 66) return ("You have around a 6/10 chance of using it.");
+	  else if (chance < 76) return ("You have around a 7/10 chance of using it.");
+	  else if (chance < 86) return ("You have around a 8/10 chance of using it.");
+	  else if (chance < 96) return ("You have around a 9/10 chance of using it.");
+	  else return ("You have an almost certain chance of using it.");
+     }
+}
+
+
 /*
  * Fill an array with a description of the item flags.
  *
@@ -2187,9 +2253,9 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	/* Mega-Hack -- describe activation */
 	if (f3 & (TR3_ACTIVATE))
 	{
-		info[i++] = "It can be activated for...";
-		info[i++] = item_activation(o_ptr);
-		info[i++] = "...if it is being worn.";
+	     info[i++] = device_chance(o_ptr, TRUE);
+	     info[i++] = item_activation(o_ptr);
+	     info[i++] = "...if it is being worn.";
 	}
 
 
@@ -2208,6 +2274,13 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 		{
 			info[i++] = "It provides light (radius 1) when fueled.";
 		}
+	}
+
+	/* Show chance of activating devices */
+	if (o_ptr->tval == TV_ROD || o_ptr->tval == TV_WAND || o_ptr->tval == TV_STAFF)
+	{
+	     if (object_aware_p(o_ptr) || object_known_p(o_ptr))
+		  info[i++] = device_chance(o_ptr, FALSE);
 	}
 
 
@@ -2333,6 +2406,10 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	if (f1 & (TR1_BRAND_POIS))
 	{
 		info[i++] = "It does extra damage from poison.";
+	}
+	if (f1 & (TR1_BRAND_LITE))
+	{
+		info[i++] = "It is shining with a bright light.";
 	}
 
 	if (f2 & (TR2_SUST_STR))

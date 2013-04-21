@@ -222,6 +222,13 @@ static void prt_title(void)
 	{
 		p = "***WINNER***";
 	}
+
+	/* Astral */
+	else if (p_ptr->astral)
+	{
+	        p = "---Astral---";
+	}
+
 	else p = "            ";
 
 	prt_field(p, ROW_TITLE, COL_TITLE);
@@ -463,7 +470,8 @@ static void mana_player_redraw(void)
   /* Default to none */
   byte attr = TERM_RED;
 
-  if (p_ptr->realm_magery == 0) return; /* Show nothing if no mana */
+  if ((p_ptr->realm_magery == 0) && (!player_has_class(CLASS_SHIFTER, 0)))
+       return; /* Show nothing if no mana */
   
   /* Change info */
   put_str("HP/Mana", ROW_MAXHP, COL_MAXHP);
@@ -505,7 +513,8 @@ static void piety_player_redraw(void)
   /* Default to none */
   byte attr = TERM_RED;
 
-  if (p_ptr->realm_priest == 0) return; /* Show nothing if no piety */
+  if (p_ptr->realm_priest == 0)
+       return; /* Show nothing if no piety (undead slayers don't use this function) */
 
   /* Change info and move up if mana is not shown */
   if (p_ptr->realm_magery == 0)
@@ -555,7 +564,8 @@ static void prt_sp(void)
 	byte color;
 
 	/* Do not show mana unless it matters */
-	if (p_ptr->realm_magery == 0) return;
+	if ((p_ptr->realm_magery == 0) && (!player_has_class(CLASS_SHIFTER, 0)))
+	     return;
 	
 	if (adult_hidden)
 	{
@@ -595,15 +605,29 @@ static void prt_pp(void)
 	int row;
 
 	/* Do not show piety unless it matters */
-	if (p_ptr->realm_priest == 0) return;
+	if ((p_ptr->realm_priest == 0) && (!player_has_class(CLASS_SLAYER, 0)))
+	     return;
+
+	/* If hidden knowledge, then don't show piety of undead slayers */
+	if (adult_hidden && (player_has_class(CLASS_SLAYER,  0))) return;
 
 	/* Move up if mana is not shown */
-	if (p_ptr->realm_magery == 0) row = ROW_MANA; else row = ROW_PIETY;
+	if ((p_ptr->realm_magery == 0) || (player_has_class(CLASS_SHIFTER, 0)))
+	    row = ROW_PIETY; else row = ROW_MANA;
 
-	if (adult_hidden)
+	/* Show only maximum value for undead slayers, as this is what they use only */
+	if (player_has_class(CLASS_SLAYER, 0))
+	{
+	    put_str("PP ", row, COL_PIETY);
+	    sprintf(tmp, "%9d", p_ptr->mpp);
+	    c_put_str(TERM_L_GREEN, tmp, row, COL_PIETY + 3);	    
+	}
+	/* Hide values if desired */
+	else if (adult_hidden)
 	{
 	    piety_player_redraw();
 	}
+	/* Otherwise, normal display */
 	else
 	{
 	    put_str("PP ", row, COL_PIETY);
@@ -623,7 +647,7 @@ static void prt_pp(void)
 
 	    color = TERM_L_GREEN;
 
-	    c_put_str(color, tmp, row, COL_PIETY + 7);	    
+	    c_put_str(color, tmp, row, COL_PIETY + 7);
 	}
 }
 
@@ -1881,12 +1905,16 @@ static void calc_mana(void)
 	int msp, levels;
 
 	/* Hack -- Must be literate */
-	if ((p_ptr->realm_magery == 0) && (!player_has_class(CLASS_BERSERKER, 0)))
+	if ((p_ptr->realm_magery == 0) && 
+	    (!player_has_class(CLASS_BERSERKER, 0)) && 
+	    (!player_has_class(CLASS_SHIFTER, 0)))
 	  return;
 
 	/* Extract "effective" player level */
 	if (player_has_class(CLASS_BERSERKER, 0))
 	     levels = (level_of_class(CLASS_BERSERKER) + 1) / 2;
+	else if (player_has_class(CLASS_SHIFTER, 0))
+	     levels = (level_of_class(CLASS_SHIFTER) + 1);
 	else
 	  levels = level_of_class(magery_class()) - mp_ptr[magery_class()]->spell_first + 1;
 
@@ -1938,8 +1966,9 @@ static void calc_piety(void)
 {
 	int mpp, levels;
 
-	/* Hack -- Must be literate */
-	if (p_ptr->realm_priest == 0) return;
+	/* Hack -- Must be literate (slayers don't use this function to get piety) */
+	if (p_ptr->realm_priest == 0)
+	    return;
 
 	/* Extract "effective" player level */
 	levels = level_of_class(priest_class()) - mp_ptr[priest_class()]->spell_first + 1;
@@ -2037,6 +2066,18 @@ static void calc_torch(void)
 
 	/* Assume no light */
 	p_ptr->cur_lite = 0;
+
+	/* Crusaders */
+	if (p_ptr->crusader_active == CRUSADER_WPN_LIGHT)
+	{
+	     /* Only if melee weapon is wielded */
+	     o_ptr = &inventory[INVEN_WIELD];
+	     if (o_ptr->k_idx)
+		  p_ptr->cur_lite++;
+	}
+
+	if (p_ptr->shapeshift == 12)
+	     p_ptr->cur_lite++;
 
 	/* Loop through all wielded items */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2529,8 +2570,10 @@ static void calc_bonuses(void)
 		/* Extract modifier */
 		add = p_ptr->stat_add[i];
 
-		/* Maximize mode */
-		if (adult_maximize)
+		/* Maximize mode -> Point based mode (dunno, but this fixes
+                   point-based character creation giving class/race bonuses
+                   twice) */
+		if (!adult_point_based)
 		{
 		        int n;
 			/* Modify the stats for race/class */
@@ -2564,7 +2607,7 @@ static void calc_bonuses(void)
 		p_ptr->stat_ind[i] = ind;
 	}
 
-
+	
 	/*** Temporary flags ***/
 
 	/* Apply temporary "stun" */
@@ -2591,7 +2634,7 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary blessing */
-	if (p_ptr->blessed)
+	if ((p_ptr->blessed) || (p_ptr->crusader_passive == CRUSADER_BLESSING))
 	{
 		p_ptr->to_a += 5;
 		p_ptr->dis_to_a += 5;
@@ -2600,21 +2643,22 @@ static void calc_bonuses(void)
 	}
 
 	/* Temprory shield */
-	if (p_ptr->shield)
+	if ((p_ptr->shield) || (p_ptr->crusader_passive == CRUSADER_SHIELD))
 	{
 		p_ptr->to_a += 50;
 		p_ptr->dis_to_a += 50;
 	}
 
 	/* Temporary "Hero" */
-	if (p_ptr->hero)
+	if ((p_ptr->hero) || (p_ptr->crusader_passive == CRUSADER_HEROISM))
 	{
 		p_ptr->to_h += 12;
 		p_ptr->dis_to_h += 12;
 	}
 
 	/* Temporary "Beserk" */
-	if ((p_ptr->shero) || ((player_has_class(CLASS_BERSERKER, 0)) && (p_ptr->confused || p_ptr->cut)))
+	if ((p_ptr->shero) || (p_ptr->crusader_passive == CRUSADER_BERSERK) || 
+	    ((player_has_class(CLASS_BERSERKER, 0)) && (p_ptr->confused || p_ptr->cut)))
 	{
 	        /* Berserkers get better bonuses and worse penalties */
 	        if (player_has_class(CLASS_BERSERKER, 0))
@@ -2645,7 +2689,7 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary "fast" */
-	if (p_ptr->fast)
+	if ((p_ptr->fast) || (p_ptr->crusader_passive == CRUSADER_HASTE))
 	{
 		p_ptr->pspeed += 10;
 	}
@@ -2671,7 +2715,9 @@ static void calc_bonuses(void)
 	/*** Special flags ***/
 
 	/* Hack -- Hero/Shero -> Res fear */
-	if (p_ptr->hero || p_ptr->shero)
+	if ((p_ptr->hero) || (p_ptr->shero) || 
+	    (p_ptr->crusader_passive == CRUSADER_HEROISM) ||
+	    (p_ptr->crusader_passive == CRUSADER_BERSERK))
 	{
 		p_ptr->resist_fear = TRUE;
 	}
@@ -2716,12 +2762,63 @@ static void calc_bonuses(void)
 	}
 
 	if (p_ptr->tim_aggravate) p_ptr->aggravate = TRUE;
+
 	if (p_ptr->tim_teleportitus) p_ptr->teleport = TRUE;
+
 	if (p_ptr->tim_no_teleport) p_ptr->no_teleport = TRUE;
+
 	if (p_ptr->tim_fast_digestion) p_ptr->fast_digestion = TRUE;
+
 	if (p_ptr->tim_amnesia) p_ptr->amnesia = TRUE;
-	if (p_ptr->tim_lite) p_ptr->lite = TRUE;
-	if (p_ptr->tim_regen) p_ptr->regenerate = TRUE;
+
+	if (p_ptr->tim_lite)
+	     p_ptr->lite = TRUE;
+
+	if (p_ptr->tim_regen)
+	    p_ptr->regenerate = TRUE;
+
+	/* Astral */
+	if (p_ptr->astral)
+	{
+	     p_ptr->pspeed += 10;
+	     p_ptr->lite = TRUE;
+	     p_ptr->see_inv = TRUE;
+	     p_ptr->telepathy = TRUE;
+	     p_ptr->slow_digest = TRUE;
+	}
+
+	/* Nightmade mode */
+	if (adult_nightmare) p_ptr->aggravate = TRUE;
+
+	/* Class specific */
+	if (player_has_class(CLASS_WARRIOR, 30)) p_ptr->resist_fear = TRUE;
+	if (player_has_class(CLASS_BERSERKER, 0)) p_ptr->resist_fear = TRUE;
+	if (player_has_class(CLASS_BERSERKER, 30)) p_ptr->sustain_str = TRUE;
+	if (player_has_class(CLASS_MONK, 15)) p_ptr->slow_digest = TRUE;
+	if (player_has_class(CLASS_MONK, 30)) p_ptr->resist_confu = TRUE;
+
+	/* Shapeshifter */
+	switch (p_ptr->shapeshift)
+	{
+	case 1: p_ptr->resist_pois = TRUE; p_ptr->stat_use[A_DEX] += 1; p_ptr->skill_stl += 3; break;
+	case 2: p_ptr->pspeed += 5; p_ptr->resist_confu = TRUE; p_ptr->stat_use[A_DEX] += 2; 
+	     p_ptr->teleport = TRUE; break;
+	case 3: p_ptr->stat_use[A_STR] += 1; p_ptr->resist_cold = TRUE; p_ptr->resist_fear = TRUE; break;
+	case 4: p_ptr->stat_use[A_INT] += 2; p_ptr->ffall = TRUE; p_ptr->resist_fire = TRUE; break;
+	case 5: p_ptr->free_act = TRUE; p_ptr->stat_use[A_CON] += 3; break;
+	case 6: p_ptr->stat_use[A_DEX] += 3; p_ptr->sustain_dex = TRUE; p_ptr->free_act = TRUE; 
+	     p_ptr->pspeed += 5;  p_ptr->resist_pois = TRUE; p_ptr->skill_stl += 2; break;
+	case 7: p_ptr->resist_acid = TRUE; p_ptr->stat_use[A_INT] += 3; p_ptr->sustain_int = TRUE; break;
+	case 8: p_ptr->resist_elec = TRUE; p_ptr->stat_use[A_STR] += 2; break;
+	case 9: p_ptr->stat_use[A_STR] += 3; p_ptr->sustain_str = TRUE; p_ptr->regenerate = TRUE; 
+	     p_ptr->resist_fear = TRUE; p_ptr->resist_cold = TRUE; break;
+	case 10: p_ptr->sustain_int = TRUE; p_ptr->sustain_wis = TRUE; p_ptr->resist_blind = TRUE;
+	     p_ptr->telepathy = TRUE; p_ptr->see_inv = TRUE; break;
+	case 11: p_ptr->resist_cold = TRUE; p_ptr->resist_dark = TRUE; p_ptr->resist_pois = TRUE;
+	     p_ptr->resist_nethr = TRUE; p_ptr->hold_life = TRUE; p_ptr->regenerate = TRUE; break;
+	case 12: p_ptr->resist_confu = TRUE; p_ptr->resist_chaos = TRUE; p_ptr->resist_nexus = TRUE;
+	     p_ptr->immune_fire = TRUE; p_ptr->ffall = TRUE; break;
+	}
 
 	/*** Analyze weight ***/
 
@@ -2759,27 +2856,6 @@ static void calc_bonuses(void)
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
-
-	if (p_ptr->astral)
-	{
-	     p_ptr->pspeed += 10;
-	     p_ptr->lite = TRUE;
-	     p_ptr->see_inv = TRUE;
-	     p_ptr->telepathy = TRUE;
-	     p_ptr->slow_digest = TRUE;
-	}
-
-	if (adult_nightmare)
-	{
-	     p_ptr->aggravate = TRUE;
-	     p_ptr->amnesia = TRUE;
-	}
-
-	if (player_has_class(CLASS_WARRIOR, 30)) p_ptr->resist_fear = TRUE;
-	if (player_has_class(CLASS_BERSERKER, 0)) p_ptr->resist_fear = TRUE;
-	if (player_has_class(CLASS_BERSERKER, 30)) p_ptr->sustain_str = TRUE;
-	if (player_has_class(CLASS_MONK, 15)) p_ptr->slow_digest = TRUE;
-	if (player_has_class(CLASS_MONK, 30)) p_ptr->resist_confu = TRUE;
 
 	/*** Modify skills ***/
 
@@ -2996,7 +3072,10 @@ static void calc_bonuses(void)
 		  { num = 6; wgt = 20; mul = 5; } 
 		else if (player_has_class(CLASS_WARRIOR, 0))
 		  { num = 6; wgt = 30; mul = 5; } 
-		else if (player_has_class(CLASS_PALADIN, 0))
+		else if (player_has_class(CLASS_PALADIN, 0) ||
+			 player_has_class(CLASS_CRUSADER, 0) ||
+			 player_has_class(CLASS_SLAYER, 0) ||
+			 player_has_class(CLASS_SHIFTER, 0))
 		  { num = 5; wgt = 30; mul = 4; } 
 		else if (player_has_class(CLASS_RANGER, 0))
 		  { num = 5; wgt = 35; mul = 4; } 
@@ -3329,7 +3408,7 @@ void notice_stuff(void)
 	if (p_ptr->notice & (PN_REORDER))
 	{
 		p_ptr->notice &= ~(PN_REORDER);
-		reorder_pack();
+		reorder_pack(FALSE);
 	}
 }
 

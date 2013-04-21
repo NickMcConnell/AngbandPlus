@@ -13,19 +13,23 @@
 /* 0 = allowed, 1 = disallowed (except to cheaters), 2 = disallowed to all */
 bool not_allowed[MAX_CLASS][MAX_CLASS] =
 {
-     /* War Mag Pri Rog Ran Pal Ill Arc Dea Ber Mon Tri */
-     {   2,  0,  0,  0,  1,  1,  0,  1,  0,  1,  1,  0 }, /* Warrior      6 */
-     {   0,  2,  0,  2,  2,  1,  2,  0,  0,  2,  0,  2 }, /* Mage         5 */
-     {   0,  0,  2,  1,  1,  2,  0,  0,  2,  0,  0,  0 }, /* Priest       5 */
-     {   0,  2,  1,  2,  2,  1,  2,  0,  0,  2,  0,  2 }, /* Rogue        4 */
-     {   1,  2,  1,  2,  2,  1,  2,  1,  1,  2,  1,  2 }, /* Ranger       0 */
-     {   1,  1,  2,  1,  1,  2,  1,  1,  1,  1,  1,  1 }, /* Paladin      0 */
-     {   0,  2,  0,  2,  2,  1,  2,  0,  0,  2,  0,  2 }, /* Illusionist  4 */
-     {   1,  0,  0,  0,  1,  1,  0,  2,  0,  1,  0,  0 }, /* Archer       7 */
-     {   0,  0,  2,  0,  1,  2,  0,  0,  2,  0,  0,  0 }, /* Death Priest 8 */
-     {   1,  2,  0,  2,  2,  1,  2,  1,  0,  2,  1,  2 }, /* Berserker    2 */
-     {   1,  0,  0,  0,  1,  1,  0,  0,  0,  1,  2,  0 }, /* Monk         7 */
-     {   0,  2,  0,  2,  2,  1,  2,  0,  0,  2,  0,  2 }, /* Trickster    4 */
+     /* War Mag Pri Rog Ran Pal Ill Arc Dea Ber Mon Tri Cru Sla Shi */
+     /*  f   m   p   m   m   p   m   f   p   m   f   m   m   p   m  */
+     {   2,  0,  0,  0,  1,  1,  0,  1,  0,  1,  1,  0,  1,  1,  1 }, /* Warrior         */
+     {   0,  2,  0,  2,  2,  1,  2,  0,  0,  2,  0,  2,  2,  0,  2 }, /* Mage            */
+     {   0,  0,  2,  1,  1,  2,  0,  0,  2,  0,  0,  1,  0,  2,  0 }, /* Priest          */
+     {   0,  2,  1,  2,  2,  1,  2,  0,  0,  2,  0,  2,  2,  0,  2 }, /* Rogue           */
+     {   1,  2,  1,  2,  2,  1,  2,  1,  1,  2,  1,  2,  2,  1,  2 }, /* Ranger          */
+     {   1,  1,  2,  1,  1,  2,  1,  1,  2,  1,  1,  1,  1,  2,  1 }, /* Paladin         */
+     {   0,  2,  0,  2,  2,  1,  2,  0,  0,  2,  0,  2,  2,  0,  2 }, /* Illusionist     */
+     {   1,  0,  0,  0,  1,  1,  0,  2,  0,  1,  0,  0,  0,  0,  0 }, /* Archer          */
+     {   0,  0,  2,  0,  1,  2,  0,  0,  2,  0,  0,  0,  0,  2,  0 }, /* Death Priest    */
+     {   1,  2,  0,  2,  2,  1,  2,  1,  0,  2,  0,  2,  0,  0,  2 }, /* Berserker       */
+     {   1,  0,  0,  0,  1,  1,  0,  0,  0,  0,  2,  0,  0,  0,  0 }, /* Monk            */
+     {   0,  2,  1,  2,  2,  1,  2,  0,  0,  2,  0,  2,  2,  0,  2 }, /* Trickster       */
+     {   1,  2,  0,  2,  2,  1,  2,  0,  0,  0,  0,  2,  2,  0,  2 }, /* Crusader        */
+     {   1,  0,  2,  0,  1,  2,  0,  0,  2,  0,  0,  0,  0,  2,  0 }, /* Slayer          */
+     {   1,  2,  0,  2,  2,  1,  2,  0,  0,  2,  0,  2,  2,  0,  2 }, /* Shifter         */
 };
 
 /* Switch class (wrap around if neccesary) */
@@ -63,6 +67,34 @@ void do_cmd_switch_multi_class(int direction)
 
      /* Refresh */
      do_cmd_redraw();
+}
+
+void switch_until(int target_class)
+{
+     /* Save original class */
+     int old_class = p_ptr->pclass[p_ptr->current_class];
+
+     /* While not at target class */
+     while (p_ptr->pclass[p_ptr->current_class] != target_class)
+     {
+	  /* At end of list, so wrap around */
+	  if (p_ptr->current_class + 1 == p_ptr->available_classes) 
+               /* Switch to first class */
+	       p_ptr->current_class = 0; 
+	  /* Else move forwards one place */
+	  else p_ptr->current_class ++; 
+     }
+
+     /* Notice changes */
+     if (old_class != target_class)
+     {
+	  /* If switched-to class uses books, reorder books */
+	  if ((target_class == priest_class()) || (target_class == magery_class()))
+	       reorder_pack(TRUE);
+
+	  /* Refresh */
+	  do_cmd_redraw();
+     }     
 }
 
 bool player_has_class(int class, int level)
@@ -160,6 +192,8 @@ int magery_class()
   if (player_has_class(CLASS_RANGER, 0)) return CLASS_RANGER;
   if (player_has_class(CLASS_ILLUSIONIST, 0)) return CLASS_ILLUSIONIST;
   if (player_has_class(CLASS_TRICKSTER, 0)) return CLASS_TRICKSTER;
+  if (player_has_class(CLASS_CRUSADER, 0)) return CLASS_CRUSADER;
+  if (player_has_class(CLASS_SHIFTER, 0)) return CLASS_SHIFTER;
 
   return -1;
 }
@@ -170,6 +204,18 @@ int priest_class()
   if (player_has_class(CLASS_PRIEST, 0)) return CLASS_PRIEST;
   if (player_has_class(CLASS_PALADIN, 0)) return CLASS_PALADIN;
   if (player_has_class(CLASS_DEATH_PRIEST, 0)) return CLASS_DEATH_PRIEST;
+  if (player_has_class(CLASS_SLAYER, 0)) return CLASS_SLAYER;
 
   return -1;
+}
+
+/* Get highest player level */
+int max_player_level()
+{
+     int i;
+     int max_lev = 1;
+     for (i = 0; i < p_ptr->available_classes; i++)
+	  if (p_ptr->lev[i] > max_lev)
+	       max_lev = p_ptr->lev[i];
+     return max_lev;
 }

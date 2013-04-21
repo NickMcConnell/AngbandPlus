@@ -464,7 +464,7 @@ s16b get_mon_num(int level)
 		}
 
 		/* Depth Monsters never appear out of depth */
-		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth) && !(adult_nightmare))
+		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
 		{
 			continue;
 		}
@@ -1411,7 +1411,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Depth monsters may NOT be created out of depth */
-	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level) && !(adult_nightmare))
+	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
 	{
 		/* Cannot create */
 		return (FALSE);

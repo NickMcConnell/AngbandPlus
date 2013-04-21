@@ -73,3 +73,118 @@ Added potion of rejuvenation - restores 1/3rd of total HP and mana
 
 Unworking spells (from illusion/death realms) are not shown in books anymore
 Boccob's and Bigby's books have the right spells in them now
+
+-1.0.4-
+
+Added Crusader - similar to Warrior/Paladin, learns innate powers, can have one
+active power and one passive power in action at the same time. Active powers
+are shown in blue, current active power in light blue. Passive powers are shown
+in green, current passive power in light green.
+Active powers are used in attacking monsters, while passive powers are
+defensive. Some active powers add a bonus or temporary branding to
+melee/missile weapons, and to unarmed attacks if the character is also a
+monk. If the character is not a monk, they must use a weapon to take advantage
+of these powers.
+
+Half-elves and cavemen can have 3 classes now, in addition to high-elves and
+dunadan.
+Holy Priests cannot be Rogues OR Tricksters now. Berserkers can be Monks.
+Berserkers have 1/2 chance of decreasing length of berserk strength each turn.
+
+List of effects ('~' then '4') is ordered, with most used effects first.
+
+Made regeneration *5 to regen amount instead of *2, and made it require more
+food.
+
+At birth, in easy mode, cannot get an ego-weapon of a magic/prayer realm if
+character cannot use that realm.
+
+Fixed calculation of best psuedo-id
+
+Changed how experience is divided between classes, this works for XP gained
+from killing monsters, identifying items, and potions of experience.
+Number of Place of class                 Example of 60 XP
+classes   First   Second  Third   Fourth First   Second  Third   Fourth
+1         *1                             +60
+2         *2/3    *1/3                   +40     +20
+3         *1/2    *1/3    *1/6           +30     +20     +10
+4         *2/5    *3/10   *1/5    *1/10  +24     +18     +12     +6
+Calculation of experience factor stays the same, ie second class needs *2 XP,
+third needs *3, etc
+Changed how XP gain code works, now mostly uses gain_exp_all() which can use
+one of three methods of allocating experience
+
+If player has 'persistence', ie conditions do not timeout, then do not rest
+until starving because game is waiting for some conditions to timeout, such as
+slowing or confusion.
+
+Fixed : astral characters in walls can be attacked now
+
+-1.0.5-
+
+Crusader powers of Heroism and Berserk Strength become passive powers, thus the
+only active powers are those that affect weapons/(unarmed combat if monk).
+
+Added Shadow race : Can avoid death by entering astral mode (unless already
+astral or on the surface), but loses all gold, most inventory/equipment
+(artifacts and items at home are safe, others have a chance of being lost), and
+all but 1/10th of experience. Regains body upon returning to the surface, and
+loses benefits of astral form. Unlike characters who choose 'astral mode' at
+birth, Shadows can use word of recall freely. Can have up to 4 classes. Resists
+cold, poison, darkness and nether, has feather fall, regeneration, and see
+invisible. When in astral form, gains the benefits of speed, continual light,
+telepathy, slow digestion and can pass through walls. Gains experience
+slowly. Shadows gain little sustenance from food.
+
+Amulet of Aid : activates to deal with one of these : slowness, blindness,
+confusion, fear, hallucination, poison, cuts, stunning, low hp (< 9/10ths), or
+hunger. Chooses randomly from whichever of these the character is suffering
+from.
+
+When 'I'nspecting artifacts and magical devices (wands, staffs, rods), chance
+to activate or use the item is described (only if activation is known, or type
+of device is known). (calculation is from sCthangband)
+
+Added class : Undead Slayer. Gets slow but heavy pseudo-id, is strong, wise and
+healthy, but not very intelligent, has a good saving throw, and is nearly as
+good in combat as a warrior.
+Undead slayers get piety from killing undead monsters. Their reward depends on
+the level of the monster, and is doubled if the monster is a unique. Their
+piety does not regenerate over time.
+They use this piety to pray (with 'p' key).
+
+Easy mode gives more useful ego enchantments for weapons.
+
+-1.0.6-
+
+Nightmare mode no longer has permanent amnesia, it was too annoying
+Got rid of Shadow race, too hacky
+
+Added Shifter class: has a number of different forms, each form has access to a
+number of different powers and intrinstics. Forms require experience before
+they can be accessed, and although they do not cost mana to assume, the shifter
+may not get it right the first time - their chance of success is affected by
+dexterity. Powers require mana to use, but are always successfull. Shifter's
+mana is affected by their intelligence.
+
+Hide how much piety an undead slayer has if the adult_hidden option is set
+
+Added Slayer powers of Blessing, Shield and Healing
+
+Point-based character creation no longer gives race/class bonuses twice
+Don't use non-maximize mode when using point-based creation
+
+Nightmare mode does not prevent connecting stairs when in astral mode, but this
+does not guarantee a stair when starting the game
+Nightmare mode no longer ignores FORCE_DEPTH monster flag (Sauron and Morgoth
+were killing too many of my astral characters)
+
+When choosing a random class, there is also a chance of NOT choosing another
+class, but only if the player has at least one class already
+
+When casting spells 'm' or praying 'p', switch to relevant class silently.
+Also reorder books (if used) so that first usable book is 'a', etc. (Also silently).
+Now, Crusaders, Shifters and other spellcasters (which use the 'm' key) cannot combine.
+
+Updated table of allowed multiclass cominations in lib/help/multi.txt and explanations
+

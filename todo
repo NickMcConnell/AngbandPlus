@@ -1,14 +1,14 @@
 
+Pseudo-id is too faaaaast...
+
 Make hiscore list show class information
-Add realms
+(maybe) Add realms
 
 Reject non-Multiband savefiles, do conversions for older Multiband savefiles
 Then I can change VERSION_MAJOR/MINOR/PATCH and headers in *_info.txt's
 
 ---
 
-Allow half-elves and cavemen to have 3 classes ? They're human-like,
-and don't really have much else going for them...
 Add auto-more option
 Show permanent walls in different colour - cyan or umber?
 

@@ -3670,6 +3670,12 @@ static void process_monster(int m_idx)
 			do_move = TRUE;
 		}
 
+		/* Hack -- player 'in' wall */
+		else if ((ny == p_ptr->py) && (nx == p_ptr->px))
+		{
+			do_move = TRUE;
+		}
+
 		/* Permanent wall */
 		else if (cave_feat[ny][nx] >= FEAT_PERM_EXTRA)
 		{
@@ -3986,6 +3992,7 @@ static void process_monster(int m_idx)
 					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
 					if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
 					if (f1 & (TR1_SLAY_EVIL)) flg3 |= (RF3_EVIL);
+					if (f1 & (TR1_BRAND_LITE)) flg3 |= (RF3_HURT_LITE);
 
 					/* The object cannot be picked up by the monster */
 					if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3))

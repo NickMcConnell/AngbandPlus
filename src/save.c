@@ -425,6 +425,8 @@ static errr wr_savefile(void)
 
 #endif
 
+
+
 	/* Dump the "final" marker XXX XXX XXX */
 	/* Type zero, Size zero, Contents zero, etc */
 
@@ -1473,11 +1475,14 @@ static bool wr_savefile_new(void)
 		wr_s16b(p_ptr->player_hp[i]);
 	}
 
-
 	for (i = 0; i < MAX_EFFECTS; i++)
 	{
 	        wr_u16b(effects[i]);
 	}
+
+	wr_byte(p_ptr->crusader_active);
+	wr_byte(p_ptr->crusader_passive);
+	wr_byte(p_ptr->shapeshift);
 
 	/* Write spell data */
 	for (i = 0; i < 2; i++)

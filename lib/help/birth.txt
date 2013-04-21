@@ -135,7 +135,7 @@ have intrinsic abilities.
                magic, but they are not as good at hand
                weapons. Half-elves may choose any class and do not
                receive any intrinsic abilities. Half-elf archers
-               prefer to use bows. Half-Elves cannot take more than 2
+               prefer to use bows. Half-Elves cannot take more than 3
                classes.
  
           Grey-Elf
@@ -286,7 +286,7 @@ have intrinsic abilities.
                missile combat, and can be a Warrior, Ranger, Archer or
                Berserker. Cavemen do not get any special abilities,
                but can advance as fast as a normal human, but cannot
-               take more than 2 classes.
+               take more than 3 classes.
 
           Yeek
                Yeeks are the least powerful of all the races. They
@@ -310,8 +310,8 @@ have intrinsic abilities.
                character able to survive the perils of an un- familiar
                game. Maia can also take up to 4 classes.
                Maia have their scored reduced by 50%, as they
-               are primarily a race for those new to the game.
-               
+               are primarily a race for those new to the game.               
+
 
 === Classes (outdated) ===
  
@@ -370,8 +370,7 @@ have intrinsic abilities.
                still  can  not  rely on their performance. Rogues can also
                learn a few spells, but not the  powerful  offensive  spells
                magi  can use. A rogue's primary stats are Intelligence and
-               Dexterity. Rogues can multiclass, but may only choose one 
-               other class.
+               Dexterity. 
  
           Ranger
                A Ranger is a warrior/mage. He is a good fighter,  and  the
@@ -419,19 +418,19 @@ have intrinsic abilities.
                 respects.
 
           Berserker
-                Berserkers are warriors who specialize in a wild fighting 
-                style which gives them a chance to stun monsters when 
-                scoring a critical hit. When close to death, confused, or 
-                wounded, berserkers enter a berserk rage, which is much 
-                more powerful than the meager rages known to non-
-                berserkers. They also recover from stunning twice as fast 
+                Berserkers are warriors who specialize in a wild fighting style
+                which gives them a chance to stun monsters when scoring a
+                critical hit. When close to death, confused, or wounded,
+                berserkers enter a berserk rage, which is much more powerful
+                than the meager rages known to non- berserkers, and may last up
+                to twice as long. They also recover from stunning twice as fast
                 as others. Berserkers are even better at fighting than
-                Warriors, but have little or no experience with missile 
-                weapons, and are abysmal at using magical devices. Due to 
-                their disregard for safety, they gain no bonus to AC from 
-                high dexterity, and never become afraid. They get their 
-                strength sustained at level 30.
-                Berserkers gain experience much slower than Warriors.
+                Warriors, but have little or no experience with missile
+                weapons, and are abysmal at using magical devices. Due to their
+                disregard for safety, they gain no bonus to AC from high
+                dexterity, and never become afraid. They get their strength
+                sustained at level 30. Berserkers gain experience much slower
+                than Warriors.
 
           Monk
                 Monks are masters of unarmed combat, and start with 2 blows
@@ -443,8 +442,47 @@ have intrinsic abilities.
 
           Trickster
                 A trickster is mostly the same as the Rogue class, but uses
-                illusion magic rather than mage spells. Tricksters can
-                multiclass, but may only choose one other class.
+                illusion magic rather than mage spells.
+
+          Crusader
+                Crusaders are similar to Warriors, but have the additional
+                ability of having 2 powers in action at all times. These
+                powers do not cost mana to use and are effective as long as
+                they are selected. One of these is an 'active' power which
+                helps the crusader in their fight against monsters by
+                affecting their weapon (and unarmed combat, if the character
+                is also a monk). Active powers are shown in blue. The other
+                is a 'passive' power which affects the crusader themselves.
+                Passive powers are shown in green. Crusaders gain access to
+                more powers as they gain in experience, and can use them
+                with the 'm' key. Currently selected powers are shown in a
+                lighter colour.
+
+          Undead Slayer
+                Undead slayers are warriors with access to some priest-like
+                prayers, which they use in their fight against all
+                undead. Using these powers costs them piety, which is increased
+                by killing undead. Unlike priests/paladins, this piety does not
+                regenerate over time, so undead slayers must be diligent in
+                their quest if they are to remain powerful.
+                Undead slayers are strong, wise and healthy, with good saving
+                throws, but not very intelligent, and gain levels quite slowly.
+
+          Shifter
+                Shifters are a mage-like class, which can change into a number
+                of different forms (move become available as the shifter gets
+                more powerful), and while in those forms, can use a small
+                number of powers.
+                Shifters are slightly below average in most abilities, but have
+                good phyiscal attributes. They use dexterity when determining
+                whether they can shift forms successfully, and intelligence to
+                determine how much mana is available.
+                Shifters gain experience nearly as fast as Warriors.
+                Brief description of the first few forms:
+                Giant Spider: dextrous, stealthy, resists poison
+                Tengu: fast, dextrous, resists confusion, teleports randomly
+                Arctic Bear: strong, resists cold and fear
+                Wyvern: intelligent, has small wings, resists fire
 
 
 === Stats ===
@@ -574,23 +612,24 @@ have intrinsic abilities.
 
 === Combinations of Race and Class (not enforced) ===
 
-             Warri Mage Prie Rogu Rang Pala Illu Arce Deat Bers Monk Tric
-Human         Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes
-Half-Elf      Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  No   No   Yes  Yes
-Elf           Yes  Yes  No   Yes  Yes  No   Yes  Yes  No   No   Yes  Yes
-Hobbit        Yes  Yes  No   Yes  No   No   No   Yes  No   No   Yes  Yes
-Gnome         Yes  Yes  Yes  Yes  No   No   Yes  Yes  No   No   Yes  Yes
-Dwarf         Yes  No   Yes  No   No   No   No   Yes  No   No   No   No
-Half-Orc      Yes  No   Yes  Yes  No   No   No   Yes  No   Yes  No   Yes
-Half-Troll    Yes  No   Yes  No   No   No   No   Yes  No   Yes  No   No
-Dunadan       Yes  Yes  Yes  Yes  Yes  Yes  No   Yes  No   No   Yes  No
-High-Elf      Yes  Yes  Yes  Yes  Yes  No   Yes  Yes  No   No   Yes  Yes
-Nibelung      Yes  Yes  No   Yes  No   No   Yes  Yes  Yes  Yes  No   Yes
-Dark-Elf      Yes  Yes  No   Yes  No   No   Yes  Yes  Yes  No   Yes  Yes
-Wood-Elf      Yes  Yes  No   No   Yes  No   Yes  Yes  No   No   Yes  No
-Kobold        Yes  Yes  No   No   No   No   Yes  Yes  No   Yes  No   Yes
-Caveman       Yes  No   No   No   Yes  No   No   Yes  No   Yes  No   No
-Yeek          Yes  Yes  Yes  Yes  No   No   Yes  Yes  No   No   No   Yes
+             Warri Mage Prie Rogu Rang Pala Illu Arce Deat Bers Monk Tric Crus Slay Shift
+Human         Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes
+Half-Elf      Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes
+Grey Elf      Yes  Yes  Yes  No   No   No   Yes  Yes  Yes  No   Yes  No   No   No   No
+Hobbit        Yes  Yes  No   Yes  No   No   No   Yes  No   No   No   Yes  No   Yes  No
+Gnome         Yes  Yes  Yes  Yes  No   No   Yes  Yes  No   No   Yes  Yes  No   No   No
+Dwarf         Yes  No   Yes  No   No   Yes  No   No   No   Yes  No   No   Yes  Yes  No
+Half-Orc      Yes  No   Yes  Yes  No   No   No   Yes  No   Yes  No   Yes  Yes  No   No
+Half-Troll    Yes  No   Yes  No   No   No   No   Yes  No   Yes  No   No   Yes  No   No
+Dunadan       Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  No   Yes  Yes  Yes  Yes  Yes  No
+High-Elf      Yes  Yes  Yes  Yes  Yes  No   Yes  Yes  No   No   Yes  Yes  No   No   No
+Nibelung      Yes  Yes  No   Yes  No   No   Yes  Yes  Yes  Yes  No   Yes  Yes  Yes  No
+Dark-Elf      Yes  Yes  No   Yes  No   No   Yes  Yes  Yes  No   Yes  Yes  No   Yes  No
+Wood-Elf      Yes  Yes  No   No   Yes  No   Yes  Yes  No   No   Yes  No   No   No   No
+Kobold        Yes  Yes  No   Yes  Yes  No   Yes  Yes  No   Yes  No   Yes  No   No   No
+Caveman       Yes  No   Yes  Yes  Yes  No   No   Yes  No   Yes  No   Yes  Yes  No   Yes
+Yeek          Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes
+Maia          Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes  Yes
 
 Note : non-recommended combinations cannot multiclass
 
@@ -631,7 +670,7 @@ are listed in the following table.
            Kobold      +1   -1    0   +1    0   -4       9       +10%
            Caveman     +1   -1   -1   +1   +1   -1      10        +0%
            Yeek        -5   -5   -5   -5   -5   -5       6       -75%
-	   Maia	       +2   +3	 +3   +2   +4	+4	12	 +25%
+           Maia        +2   +3   +3   +2   +4   +4      12       +25%
 
                          STR     INT     WIS     DEX     CON     CHR
            Warrior       +5      -2      -2      +2      +2      -1
@@ -645,6 +684,10 @@ are listed in the following table.
            Death Priest  -1      -3      +3      -1       0      +2
            Berserker     +6      -4      -2      +2      +4      -2
            Monk          +2      -1      -1      +4      +3      -1
+           Trickster     +2      +1      -2      +3      +1      -1
+           Crusader      +4      -3       0      +1      +1       0
+           Undead Slayer +4      -2      +2      +1      +2       0
+           Shifter       +2      +1       0      +3      +1       0
  
 
 === Ability Tables ===
@@ -666,7 +709,7 @@ are listed in the following table.
            Kobold      -2     -3     -2     -1      1     10      5  30 feet
            Caveman     -5     -5      0     -1      6     15      0  None
            Yeek        -5     -5    -10      0     -5    -10    -10  None
-	   Maia	       10     15     16	     1	    5	   4	  4  None
+           Maia        10     15     16      1      5      4      4  None
  
                        Disarm Device Save Stealth Search Fight Bows Exp/Lev
 
@@ -681,4 +724,7 @@ are listed in the following table.
            Death Pries 25     30     32      2     16     48     35    +20%
            Berserker   25     18     18      1     14     75     10    +30%
            Monk        45     24     32      5     32     75     25    +35%
-
+           Trickster   45     32     28      5     32     60     66    +25%
+           Crusader    20     18     25      1     14     68     44    +35%
+           Undead Slay 20     18     32      1     14     65     50    +35%
+           Shifter     20     18     18      1     14     56     40    +10%

@@ -1677,6 +1677,29 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	if (player_has_class(CLASS_MONK, 15)) (*f3) |= (TR3_SLOW_DIGEST); 
 	if (player_has_class(CLASS_MONK, 30)) (*f2) |= (TR2_RES_CONFU); 
 
+	/* Shapeshifter */
+	switch (p_ptr->shapeshift)
+	{
+	case 1: (*f2) |= (TR2_RES_POIS); (*f1) |= (TR1_STEALTH); (*f1) |= (TR1_DEX); break;
+	case 2: (*f1) |= (TR1_SPEED); (*f2) |= (TR2_RES_CONFU); (*f3) |= (TR3_TELEPORT); 
+	     (*f1) |= (TR1_DEX); break;
+	case 3: (*f2) |= (TR2_RES_COLD); (*f2) |= (TR2_RES_FEAR); (*f1) |= (TR1_STR); break;
+	case 4: (*f2) |= (TR2_RES_FIRE); (*f3) |= (TR3_FEATHER); (*f1) |= (TR1_INT); break;
+	case 5:  (*f3) |= (TR3_FREE_ACT); (*f1) |= (TR1_CON); break;
+	case 6: (*f2) |= (TR2_RES_POIS); (*f1) |= (TR1_SPEED); (*f2) |= (TR2_SUST_DEX); 
+	     (*f1) |= (TR1_STEALTH); (*f3) |= (TR3_FREE_ACT); (*f1) |= (TR1_DEX); break;
+	case 7: (*f2) |= (TR2_RES_ACID); (*f2) |= (TR2_SUST_INT); (*f1) |= (TR1_INT); break;
+	case 8: (*f2) |= (TR2_RES_ELEC); (*f1) |= (TR1_STR); break;
+	case 9: (*f2) |= (TR2_RES_COLD); (*f2) |= (TR2_SUST_STR); (*f3) |= (TR3_REGEN); 
+	     (*f2) |= (TR2_RES_FEAR); (*f1) |= (TR1_STR); break;
+	case 10: (*f3) |= (TR3_SEE_INVIS); (*f2) |= (TR2_SUST_INT); (*f2) |= (TR2_SUST_WIS); 
+	     (*f3) |= (TR3_TELEPATHY); (*f2) |= (TR2_RES_BLIND); break;
+	case 11: (*f2) |= (TR2_RES_POIS); (*f2) |= (TR2_RES_COLD); (*f2) |= (TR2_RES_DARK); 
+	     (*f2) |= (TR2_RES_NETHR); (*f3) |= (TR3_REGEN); (*f3) |= (TR3_HOLD_LIFE); break;
+	case 12: (*f2) |= (TR2_RES_CONFU); (*f2) |= (TR2_RES_CHAOS); (*f2) |= (TR2_RES_NEXUS);
+	     (*f3) |= (TR3_LITE); (*f2) |= (TR2_IM_FIRE); (*f3) |= (TR3_FEATHER); break;
+	}	
+
 	/* Known timed effects */
 	if (p_ptr->fast) (*f1) |= (TR1_SPEED);
 	if (p_ptr->tim_invis) (*f3) |= (TR3_SEE_INVIS);
@@ -1722,6 +1745,41 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	if (p_ptr->tim_teleportitus) (*f3) |= (TR3_TELEPORT);
 	if (p_ptr->tim_lite) (*f3) |= (TR3_LITE);
 	if (p_ptr->tim_regen) (*f3) |= (TR3_REGEN);
+
+	/* Crusader powers */
+	switch (p_ptr->crusader_passive)
+	{
+	case CRUSADER_HEROISM:
+	case CRUSADER_BERSERK:
+	     (*f2) |= (TR2_RES_FEAR);
+	     break;
+	case CRUSADER_REGEN: (*f3) |= (TR3_REGEN); break;
+	case CRUSADER_RESISTANCE: 
+	     (*f2) |= (TR2_RES_ACID); (*f2) |= (TR2_RES_COLD);
+	     (*f2) |= (TR2_RES_ELEC); (*f2) |= (TR2_RES_FIRE);
+	     if (level_of_class(CLASS_CRUSADER) >= 24)
+		  (*f2) |= (TR2_RES_POIS);
+	     break;
+	case CRUSADER_HASTE: (*f1) |= (TR1_SPEED); break;
+	default:
+	     break;
+	}
+	switch (p_ptr->crusader_active)
+	{
+	case CRUSADER_WPN_LIGHT:
+	{
+	     /* Only if melee weapon is wielded */
+	     object_type *o_ptr;
+	     o_ptr = &inventory[INVEN_WIELD];
+	     if (o_ptr->k_idx)
+		  (*f3) |= (TR3_LITE);
+	     else if (player_has_class(CLASS_MONK, 0))
+		  (*f3) |= (TR3_LITE);
+	     break;
+	}
+	default:
+	     break;
+	}
 
 	if (p_ptr->astral)
 	{
@@ -2004,7 +2062,8 @@ static void display_player_misc_info(void)
 
 	     /* Spell Points */
 	     if (p_ptr->realm_magery == REALM_MAGIC+1 || 
-		 p_ptr->realm_magery == REALM_ILLUSION+1)
+		 p_ptr->realm_magery == REALM_ILLUSION+1 ||
+		 player_has_class(CLASS_SHIFTER, 0))
 	     {
 		  put_str("SP", 6, 1);
 		  sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
@@ -2012,7 +2071,19 @@ static void display_player_misc_info(void)
 	     }
 	     
 	     /* Piety */
-	     if (p_ptr->realm_priest == REALM_PRAYER+1 ||
+	     /* Undead slayer uses only one measure for piety */
+	     if (player_has_class(CLASS_SLAYER, 0))
+	     {
+		  /* Don't show if knowledge is hidden */
+		  if (!adult_hidden)
+		  {
+		       put_str("PP", 7, 1);
+		       sprintf(buf, "%d", p_ptr->mpp);
+		       c_put_str(TERM_L_BLUE, buf, 7, 8);
+		  }
+	     }
+	     /* Normal display/use of piety */
+	     else if (p_ptr->realm_priest == REALM_PRAYER+1 ||
 		 p_ptr->realm_priest == REALM_DEATH+1)
 	     {
 		  put_str("PP", 7, 1);
