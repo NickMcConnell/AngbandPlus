@@ -718,6 +718,7 @@ errr load_HEX_font_sdl(font_data *fd, cptr filename, bool justmetrics)
 	Uint32 pos; /* position in the nasty string */
 
 	Uint32 bytesdone; /* bytes processed */
+	Uint32 bytesneeded;
 
 	Uint32 mw, mh; /* for strtoii() */
 
@@ -726,8 +727,9 @@ errr load_HEX_font_sdl(font_data *fd, cptr filename, bool justmetrics)
 	/* check font_data */
 	if (fd->w || fd->h || fd->face) return 1; /* dealloc it first, dummy. */
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_XTRA, filename);
+	/* Build the filename */                          
+	path_build(buf, 1024, ANGBAND_DIR_XTRA, "font");
+	path_build(buf, 1024, buf, filename);
 
 	f = fopen(buf, "r");
 
@@ -779,6 +781,7 @@ errr load_HEX_font_sdl(font_data *fd, cptr filename, bool justmetrics)
 				} else
 				if(i != (fd->h)*2) /* check sanity and file integrity */
 				{
+				        /* printf("glyph=%c%c%c%c, bytes=%d, height=%d\n", gs[0], gs[1], gs[2], gs[3], i, fd->h); */
 					plog("Error 2 in HEX measurement.");
 					/*fail = -1;*/
 				}
@@ -803,10 +806,15 @@ errr load_HEX_font_sdl(font_data *fd, cptr filename, bool justmetrics)
 		/* success! */
 		fd->dw = mw;
 		fd->dh = mh;
+                                         
+		// HAJO: hack!!
+		// fd->w = ((fd->dw + 7) / 8) * 8;
 	} else
 	{
 		plog("You may wish to incude the dimensions of a font in its file name. ie \"vga8x16.hex\"");
 	}
+
+	/* printf("Font metrics dw=%d, dh=%d, w=%d, h=%d\n", fd->dw, fd->dh, fd->w, fd->h); */
 
 	if (justmetrics) 
 	{
@@ -866,6 +874,7 @@ errr load_HEX_font_sdl(font_data *fd, cptr filename, bool justmetrics)
 
 		pos = 5;
 		bytesdone = 0; 
+		bytesneeded = strlen(gs+5)/(fd->h * 2);
 
 		while (gs[pos] != '\0' && pos < strlen(gs)) 
 		{
@@ -875,6 +884,8 @@ errr load_HEX_font_sdl(font_data *fd, cptr filename, bool justmetrics)
 
 			for(j = 0; j < 8; ++j, ++x, n <<= 1)
 			{
+
+			        /* printf("x=%d, y=%d pos=%d\n", x, y, pos); */
 				if (n & 0x80) 
 				{
 #ifdef FONT_LOAD_DEBUGGING
@@ -892,23 +903,14 @@ errr load_HEX_font_sdl(font_data *fd, cptr filename, bool justmetrics)
 			++bytesdone;
 
 			/* processing half-width glyph or just finished even byte */
-			if (i == fd->h || ((i == 2*fd->h) && !(bytesdone & 1))) 
+			if (bytesdone == bytesneeded) 
 			{
+			        bytesdone = 0; 
 				x = 0;
 				++y;
 #ifdef FONT_LOAD_DEBUGGING
 				printf("\n");
 #endif
-			} else if (i == 2*fd->h)
-			{
-				/* XXX do nothing? */
-			} else 
-			{
-				/* XXX XXX XXX softer errors since HEX seems to actually permit
-				 * this situation
-				 */
-				/*plog("HEX measurement error, fd->h is not a multiple of i.");*/
-				/*fail = -1;*/
 			}
 		} /* while (gs[pos... */
 	} /* while (fgets... */
@@ -1063,14 +1065,14 @@ static errr Term_xtra_sdl(int n, int v)
 				if (event.key.state == SDL_PRESSED) 
 				{
 
-					/* Various frivolous hacks. */
+				        /* Various frivolous hacks. */
 					switch(event.key.keysym.sym)
 					{
 						char buf[1024];
 						FILE *tmp;
 						int i;
 
-					/* Try to toggle graphics. */
+					/* Hajo: Try to toggle graphics. */
 					case SDLK_SCROLLOCK:
 
 					        switch(display_get_tile_size()) {
@@ -1090,6 +1092,11 @@ static errr Term_xtra_sdl(int n, int v)
 
 						break;
 
+					/* Hajo: cycle grid type */
+					case '#':
+					        set_grid(get_grid()+1);
+						refresh_display();
+					        break;
 
 					/* Try to save a screenshot. */
 					case SDLK_PRINT:
@@ -1599,6 +1606,8 @@ unsigned char **iso_ctp;
 static errr Term_pict_sdl_trans(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
 {
 #ifdef USE_ISOV
+  /* printf("x+n=%d\n", x+n); */
+
   /* Hajo: memorize output */
   memcpy(&iso_ap[y][x], ap, n);
   memcpy(&iso_cp[y][x], cp, n);
@@ -1755,14 +1764,14 @@ static void term_data_link(int i)
 }
 
 
-static unsigned char ** halloc(int w, int h)
+static unsigned char ** halloc(int w, int h, int c)
 {
     unsigned char **field = (unsigned char **)malloc(sizeof(unsigned char *) * h);
     int i;
 
     for(i=0; i<h; i++) {
 	field[i] = (unsigned char *)malloc(sizeof(unsigned char) * w);
-	memset(field[i], 32 , w);
+	memset(field[i], c , w);
     }
 
     return field;
@@ -1818,8 +1827,7 @@ errr init_sdl(int oargc, char **oargv)
 	use_graphics = (arg_graphics == TRUE);
 	ANGBAND_GRAF = "new"; /* not necessarily right.. set again below. XXX */
                                                                                    
-//	strcpy(fontname, "font/vga8x16.hex"); /* slashes are system specific!! FIXME */
-	strcpy(fontname, "font/12x24.hex"); /* slashes are system specific!! FIXME */
+	strcpy(fontname, "12x24.hex");
 	strcpy(tilebmpname, "graf/16x16.bmp");
 #endif
 
@@ -1879,6 +1887,18 @@ errr init_sdl(int oargc, char **oargv)
 		{
 			scale_fit = TRUE;
 			scale_tiles = FALSE; /* we're resizing to fit screen tile size */
+		} else
+		if (!strcmp(a, "--grid"))
+		{
+		        int grid;
+			sscanf(getarg, "%d", &grid);
+                        set_grid(grid);
+		} else
+		if (!strcmp(a, "--shadow"))
+		{
+		        int shadow;
+			sscanf(getarg, "%d", &shadow);
+                        set_shadow(shadow);
 		}
 
 #ifdef USE_XXX
@@ -1891,7 +1911,7 @@ errr init_sdl(int oargc, char **oargv)
 	}
 
 #ifdef USE_ISOV
-	// plog("Isometric view uses always graphics mode.\n");
+	// plog("Isometric view uses always text mode.\n");
 	use_graphics = FALSE;
 #endif
 
@@ -1942,7 +1962,7 @@ errr init_sdl(int oargc, char **oargv)
 
 	td = &(data[0]);
 	(void)WIPE(td, term_data);
-	td->name = "Iso-Angband 0.2.3";
+	td->name = "Iso-Angband 0.2.4";
 	td->face = NULL;
 
 	td->fd = &screen_font;
@@ -2114,18 +2134,18 @@ errr init_sdl(int oargc, char **oargv)
 	/* Hajo: init view */
 	init_adaptor();
 
-	/*
 	printf("Term size is %dx%d\n", data[0].t.wid, data[0].t.hgt);
+	/*
 	printf("use_graphics=%d higher_pict=%d\n", use_graphics, data[0].t.higher_pict);
 	*/
 
 #ifdef USE_ISOV
 	/* Hajo: allocate memory for output data */
 	/* These arrays are read by the iso-view and written from this file */
-	iso_cp = halloc(data[0].t.wid, data[0].t.hgt);
-	iso_ap = halloc(data[0].t.wid, data[0].t.hgt);
-	iso_ctp = halloc(data[0].t.wid, data[0].t.hgt);
-	iso_atp = halloc(data[0].t.wid, data[0].t.hgt);
+	iso_cp = halloc(data[0].t.wid, data[0].t.hgt, 32);
+	iso_ap = halloc(data[0].t.wid, data[0].t.hgt,  0);
+	iso_ctp = halloc(data[0].t.wid, data[0].t.hgt, 32);
+	iso_atp = halloc(data[0].t.wid, data[0].t.hgt,  0);
 #endif
 
 

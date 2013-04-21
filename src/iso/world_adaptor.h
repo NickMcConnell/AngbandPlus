@@ -39,10 +39,16 @@
 
 
 /* 
- * Highlit location 
+ * Highlit location - use read only! 
  */
 extern int high_x;
 extern int high_y;
+
+
+/*
+ * Shadow status - use read only!
+ */
+extern int shadow;
 
 
 int init_adaptor();
@@ -56,6 +62,27 @@ int refresh_display();
  * @author Hj. Malthaner
  */
 void highlite_spot(int x, int y);
+
+
+/**
+ * Set a grid type (takes argument modulo 3)
+ * @author Hj. Malthaner
+ */
+void set_grid(int no);
+
+
+/**
+ * Show which grid type ?
+ * @author Hj. Malthaner
+ */
+int get_grid();
+
+                  
+/**
+ * Turn shadows on/off (0=off, 1=on)
+ * @author Hj. Malthaner
+ */
+void set_shadow(int yesno);
 
 
 /**

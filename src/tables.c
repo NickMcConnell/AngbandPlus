@@ -2929,7 +2929,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_auto_scum */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
-	TRUE,		/* OPT_expand_look */
+	FALSE,		/* OPT_expand_look */
 	TRUE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
 	TRUE,		/* OPT_view_torch_grids */

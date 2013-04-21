@@ -1,0 +1,35 @@
+21-Dec-03 FIX: fixed a few flaws in HEX font loading code
+          NEW: command line parameters --grid and --shadow
+
+20-Dec-03 NEW: now thre are 3 grid modes (use '#' to cycle)
+               1) No Grid
+               2) Grid below items and monsters (default)
+               3) Full grid
+          NEW: shadows below monsters and items
+          NEW: added config entries for molds
+          NEW: added config entries for ants
+
+19-Dec-03 CHANGE: higher contrast for letter images
+
+17-Dec-03 NEW: toggleable grid (press '#' to toggle the grid) 
+          FIX: shop doors now have floors, too
+          FIX: broken door looks open now
+
+16-Dec-03 CHANGE: changed key mapping for numeric keypad with
+                  shift and control keys
+          FIX: fixed tile mapping for mushrooms 
+
+15-Dec-03 CHANGE: changed key mapping for numeric keypad
+          FIX: fixed cursor/highliting code to highlite only items
+               in playfield 
+          NEW: skeleton image
+          NEW: bat image
+
+14-Dec-03 FIX: proper bounds for term output access. Term output isn't
+               dungeon data in colums 0-13 and column 79!
+
+13-Dec-03 NEW: finished work on the 0.2.3 release
+
+12-Dec-03 NEW: further work on the 0.2.3 release
+
+11-Dec-03 NEW: started to work on the 0.2.3 release

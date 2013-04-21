@@ -2837,14 +2837,14 @@ static errr term_data_init(term_data *td, int i)
 }
 
 
-static unsigned char ** halloc(int w, int h)
+static unsigned char ** halloc(int w, int h, int c)
 {
     unsigned char **field = (unsigned char **)malloc(sizeof(unsigned char *) * h);
     int i;
 
     for(i=0; i<h; i++) {
 	field[i] = (unsigned char *)malloc(sizeof(unsigned char) * w);
-	memset(field[i], 32 , w);
+	memset(field[i], c , w);
     }
 
     return field;
@@ -2950,10 +2950,6 @@ errr init_x11(int argc, char *argv[])
 	/* Activate the "Angband" window screen */
 	Term_activate(&data[0].t);
 
-	// Hajo
-	// always use graphics
-
-	// use_graphics = TRUE;
 	use_graphics = FALSE;
 	use_transparency = TRUE;
 
@@ -2966,10 +2962,12 @@ errr init_x11(int argc, char *argv[])
 
 	printf("Term size is %dx%d\n", data[0].t.wid, data[0].t.hgt);
 
-	iso_cp = halloc(data[0].t.wid, data[0].t.hgt);
-	iso_ap = halloc(data[0].t.wid, data[0].t.hgt);
-	iso_ctp = halloc(data[0].t.wid, data[0].t.hgt);
-	iso_atp = halloc(data[0].t.wid, data[0].t.hgt);
+	/* Hajo: allocate memory for output data */
+	/* These arrays are read by the iso-view and written from this file */
+	iso_cp = halloc(data[0].t.wid, data[0].t.hgt, 32);
+	iso_ap = halloc(data[0].t.wid, data[0].t.hgt,  0);
+	iso_ctp = halloc(data[0].t.wid, data[0].t.hgt, 32);
+	iso_atp = halloc(data[0].t.wid, data[0].t.hgt,  0);
 
 
 	/* Success */

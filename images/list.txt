@@ -7,8 +7,8 @@ Image list. Mostly complete
 003 brick wall          (Hajo)
 004-031 unused
 032-127 ASCII chars     (Hajo)
-128 unused
-129 unused
+128 scroll              (Hajo)
+129 potion              (Hajo)
 130 unused
 131 unused
 132 stairs down         (Hajo)
@@ -25,12 +25,12 @@ Image list. Mostly complete
 146 ration food         (Hajo)
 147 shots               (Hajo)
 148-151 spell effects   (Hajo)
-152
-153
+152 full grid border    (Hajo)
+153 shadowed spot       (Hajo)
 154
 155
-156
-157
+156 half grid border    (Hajo)
+157 mountain            (Maarten)
 158 spell effect        (Hajo)
 159 unused
 160 large white snake   (Mitsuhiro/Hajo)

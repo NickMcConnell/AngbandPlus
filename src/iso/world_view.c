@@ -290,29 +290,30 @@ static int calc_nc_text(int c, int a)
  */
 void display_dinge(int x, int y, int xpos, int ypos)
 {
+  const int grid = get_grid();
   int feat_nc = -1;
   int obj_nc;
 
-  // relative to view position
+  /* relative to view position */
   int xoff = x - p_ptr->px + (SCREEN_WID/2+13);
   int yoff = y - p_ptr->py + (SCREEN_HGT/2+1);
 
   byte a=0x80, ta=0x80;
   char c=0xA0, tc=0xA0;
 
-  // try to use output of the term package
-  if(xoff >= 0 && yoff >= 1 && xoff < 80 && yoff < 23) {
-    // floor, walls
+  /* try to use output of the term package */
+  if(xoff >= 13 && yoff >= 1 && xoff < 79 && yoff < 23) {
+    /* floor, walls */
     
     c = iso_cp[yoff][xoff];
     a = iso_ap[yoff][xoff];
     
-    // object/monster
+    /* object/monster */
     tc = iso_ctp[yoff][xoff];
     ta = iso_atp[yoff][xoff];
 
   } else {
-    // outside 80x24 view, try to read map
+    /* outside 80x24 view, try to read map */
 
     if(is_valid_to_show(x,y)) {
       
@@ -325,18 +326,17 @@ void display_dinge(int x, int y, int xpos, int ypos)
 
   /* Text mode code */
 
-  
   feat_nc = calc_nc_text(tc, ta);
   obj_nc = calc_nc_text(c, a);
 
 
   if(feat_nc == 0x27) {
-    // open doors   
+    /* open doors */   
     display_img(138+door_direction(x,y), xpos, ypos, TRUE);
     
       
   } else if(feat_nc == 0x2B) {
-    // closed doors
+    /* closed doors */
     display_img(136+door_direction(x,y), xpos, ypos, TRUE);
   } else {
 
@@ -344,7 +344,24 @@ void display_dinge(int x, int y, int xpos, int ypos)
   }  
 
 
+  /* Hajo: display a complete grid if the user wants to */
+  if(grid == 2) {
+    display_color_img(155, xpos, ypos, ta & 0xF, TRUE);
+  }
+
+
   if(feat_nc != obj_nc) {
+
+    /* Hajo: display a grid below items/monsters if the user wants to */
+    if(grid == 1) {
+      display_color_img(152, xpos, ypos, ta & 0xF, TRUE);
+    }
+
+    /* Hajo: display a shadow below items/monsters if the user wants to */
+    if(shadow) {
+      display_color_img(153, xpos, ypos, ta & 0xF, TRUE);
+    }
+
     if((a & 0xF) == 0) {
       /* Hajo: uncolord case */
       display_color_img(obj_nc, xpos, ypos, a & 0xF, TRUE);
@@ -355,12 +372,21 @@ void display_dinge(int x, int y, int xpos, int ypos)
   }
 
   /* draw a cursor ? */
-  if(xoff == high_x && yoff == high_y) {
+  if(xoff == high_x && 
+     yoff == high_y &&
+     high_x >= 13 &&
+     high_y >= 1 &&
+     high_x < 79 &&
+     high_y < 23) 
+  {
     display_img(159, xpos, ypos, TRUE);
     
     /* undraw cursor */
     highlite_spot(-1,-1);
   }
+
+
+
 
 
   /* Graphics mode code

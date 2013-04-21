@@ -67,6 +67,55 @@ void highlite_spot(int x, int y)
 
 
 /**
+ * Grid type, default is grid for items and monsters
+ * 0: No grid
+ * 1: Item/monster grid
+ * 2: Full grid
+ * @author Hj. Malthaner
+ */
+static int grid = 1;
+                     
+
+/**
+ * Show shadow below items and monsters?
+ * 0 = no
+ * 1 = yes
+ * @author Hj. Malthaner
+ */
+int shadow = 1;
+
+
+/**
+ * Set a grid type (takes argument modulo 3)
+ * @author Hj. Malthaner
+ */
+void set_grid(int no)
+{
+  grid = no % 3;
+}
+
+
+/**
+ * Show which grid type ?
+ * @author Hj. Malthaner
+ */
+int get_grid()
+{
+  return grid;
+}
+
+
+/**
+ * Turn shadows on/off (0=off, 1=on)
+ * @author Hj. Malthaner
+ */
+void set_shadow(int yesno)
+{
+  shadow = yesno;
+}
+
+
+/**
  * Determines i-offset of the watch point
  * @author Hj. Malthaner
  */
