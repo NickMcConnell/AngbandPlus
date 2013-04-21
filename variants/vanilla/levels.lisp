@@ -142,13 +142,12 @@ the Free Software Foundation; either version 2 of the License, or
     (activate-object house))
   
   (let ((player *player*))
-    (with-new-screen ()
+    (with-dialogue ()
       (clear-the-screen!)
       (display-house player house :offset 0)
       (%home-input-loop player level house))
-    
-    ;;(pause-last-line!)
-    ))
+      ))
+
 
 
 (defmethod generate-level! ((variant vanilla-variant) (level van-town-level) player)
@@ -164,8 +163,8 @@ part of the new level."
 	 (dungeon (create-dungeon max-dungeon-width
 				  max-dungeon-height
 				  :its-depth 0))
-	 (screen-height *screen-height*)
-	 (screen-width *screen-width*)
+	 (term-height (get-term-height *map-frame*))
+	 (term-width (get-term-width *map-frame*))
 	 (town-height 22)
 	 (town-width 66)
 	 (qy 0)
@@ -219,10 +218,10 @@ part of the new level."
 	    ))))
 
     
-
+    ;; this is just wrong!
     (loop named place-the-player
-	  for x of-type u-fixnum = (with-type u-fixnum (+ qx (rand-range 3 (- screen-width 4))))
-	  for y of-type u-fixnum = (with-type u-fixnum (+ qy (rand-range 3 (- screen-height 4))))
+	  for x of-type u-fixnum = (with-type u-fixnum (+ qx (rand-range 3 (- term-width 4))))
+	  for y of-type u-fixnum = (with-type u-fixnum (+ qy (rand-range 3 (- term-height 4))))
 	  do
 	  (when (cave-boldly-naked? dungeon x y)
 	    (setf (cave-floor dungeon x y) +floor-more+)

@@ -2,12 +2,12 @@ Source: langband
 Section: games
 Priority: optional
 Maintainer: Stig E Sandoe <stig@users.sourceforge.net>
-Standards-Version: 3.1.1
-Build-Depends: debhelper, xlibs-dev, libncurses5-dev
+Standards-Version: 3.5.7.1
+Build-Depends: debhelper, libsdl1.2-dev, libsdl-ttf1.2-dev, libsdl-mixer1.2-dev, libsdl-image1.2-dev, libncurses5-dev
 
 Package: langband-engine
 Architecture: all
-Depends: cmucl (>= 2.5.2) | sbcl (>= 0.7.3-3), common-lisp-controller (>= 2.4), langband-zterm (>= 0.1), cl-binary-types (>= 0.84)
+Depends: cmucl (>= 3.0.9) | sbcl (>= 0.7.7), common-lisp-controller (>= 2.14), langband-zterm (>= 0.1.1)
 Recommends: langband-variant
 Description: The Langband engine
  It is a complete rewrite of the roguelike Angband but written in Common Lisp.
@@ -17,16 +17,16 @@ Description: The Langband engine
 
 Package: langband-zterm
 Architecture: any
-Depends: xlibs, libncurses5
+Depends: libsdl-ttf1.2, libsdl-image1.2, libsdl-mixer1.2, libsdl1.2debian, libncurses5
 Recommends: langband-engine
 Description: The Langband term-libs
- These are modified zterm-libraries from ordinary Angband and provides X11
- interface for the game.  This package contains compiled libraries.
+ These are modified zterm-libraries from ordinary Angband and provides SDL and
+ ncurses interface for the game.  This package contains compiled libraries.
 
 Package: langband-vanilla
 Provides: langband-variant
 Architecture: all
-Depends: langband-engine (>= 0.1)
+Depends: langband-engine (>= 0.1.1)
 Description: A Vanilla-Angband plugin to the langband-engine
  This package provides a plugin to the langband-engine that lets you play
  vanilla/standard Angband. 

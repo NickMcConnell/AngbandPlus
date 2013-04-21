@@ -39,13 +39,13 @@ ADD_DESC: This file just contains simple init and loading of the game
 
 ;;  (pushnew :xp-testing *features*)
   (pushnew :langband-development *features*)
-;;  #-clisp
-;;  (push :using-sound *features*)
+  
   ;; this one should be turned on in releases and in curses
+;;  #+win32
   (pushnew :hide-warnings *features*)
 
 ;;  (pushnew :maintainer-mode *features*)
-  #+(or cmu allegro sbcl (and lispworks unix))
+  #+(or cmu allegro sbcl lispworks)
   (pushnew :use-asdf *features*)
   
   #+(or clisp)

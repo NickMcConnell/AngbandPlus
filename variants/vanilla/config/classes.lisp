@@ -49,6 +49,7 @@ the Free Software Foundation; either version 2 of the License, or
 			(obj :id "potion-berserk")
 			#||
 			(obj :id "ring-teleport")
+			(obj :id "potion-confusion" :amount 2)
 
 			;; various objects I use when testing stuff
 ;;			(obj :id "ring-feather-fall")

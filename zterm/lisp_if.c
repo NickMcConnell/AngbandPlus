@@ -38,6 +38,8 @@ static int (*lispworks_callback_mouseclick)(int,int,int) = 0;
 void
 set_lisp_system(LISP_SYSTEMS val) {
 
+    //DBGPUT("Lisp system %d vs %d.\n", val, LISPSYS_ACL);
+    
     if (val == LISPSYS_CMUCL || val == LISPSYS_ACL || val == LISPSYS_SBCL || val == LISPSYS_LISPWORKS) {
 	current_lisp_system = val;
     }
@@ -46,7 +48,7 @@ set_lisp_system(LISP_SYSTEMS val) {
 	lisp_will_use_callback = 0;
     }
     else {
-	fprintf(stderr,"Unknown lisp-system given: %d.\n", val);
+	ERRORMSG("Unknown lisp-system given: %d.\n", val);
     }
     
 }
@@ -54,7 +56,7 @@ set_lisp_system(LISP_SYSTEMS val) {
 void
 set_lisp_callback (char *name, void *ptr) {
 
-//    fprintf(stderr,"callback %s %p\n", name, ptr);
+    //DBGPUT("callback %s %p\n", name, ptr);
     if (current_lisp_system == LISPSYS_CMUCL) {
 	set_cmucl_callback(name, (cmucl_lispobj)ptr);
     }
@@ -68,7 +70,7 @@ set_lisp_callback (char *name, void *ptr) {
 	set_lispworks_callback(name, ptr);
     }
     else {
-	fprintf(stderr,"Don't know how to set callback '%s' for lisp-system %d.\n", name, current_lisp_system);
+	ERRORMSG("Don't know how to set callback '%s' for lisp-system %d.\n", name, current_lisp_system);
     }
 }
 
@@ -88,7 +90,7 @@ set_acl_callback(char *name, int (*fun)()) {
 	    acl_callback_mouseclick = fun;
 	}
 	else {
-	    fprintf(stderr, "Unknown callback '%s'\n", name);
+	    ERRORMSG("Unknown callback '%s'\n", name);
 	}
     }
 }
@@ -108,7 +110,7 @@ set_lispworks_callback(char *name, int (*fun)()) {
 	    lispworks_callback_mouseclick = fun;
 	}
 	else {
-	    fprintf(stderr, "Unknown callback '%s'\n", name);
+	    ERRORMSG("Unknown callback '%s'\n", name);
 	}
     }
 }
@@ -129,14 +131,14 @@ set_cmucl_callback(char *name, cmucl_lispobj fun) {
 	    cmucl_callback_mouseclick = fun;
 	}
 	else {
-	    fprintf(stderr, "Unknown callback '%s'\n", name);
+	    ERRORMSG("Unknown callback '%s'\n", name);
 	}
     }
 }
 
 void
 set_sbcl_callback(char *name, cmucl_lispobj fun) {
-//    printf("Setting cb to %uld\n", fun);
+    //printf("Setting cb to %lu\n", fun);
     if (name != NULL && strlen(name)> 0) {
 	if (!strcmp(name, "play-game")) {
 	    lisp_will_use_callback = 1;
@@ -149,7 +151,7 @@ set_sbcl_callback(char *name, cmucl_lispobj fun) {
 	    sbcl_callback_mouseclick = fun;
 	}
 	else {
-	    fprintf(stderr, "Unknown callback '%s'\n", name);
+	    ERRORMSG("Unknown callback '%s'\n", name);
 	}
     }
 }
@@ -159,7 +161,7 @@ void
 play_game_lisp() {
 
     if (lisp_will_use_callback) {
-/*	fprintf(stderr,"Note: playing lisp-game through callback from C\n"); */
+	// DBGPUT("Note: playing lisp-game through callback from C\n");
 	
 	if (current_lisp_system == LISPSYS_CMUCL && cmucl_callback_play) {
 #ifndef WIN32
@@ -168,11 +170,11 @@ play_game_lisp() {
 	}
 	
 	else if (current_lisp_system == LISPSYS_SBCL && sbcl_callback_play) {
-//	    fprintf(stderr,"Trying to phone home with %lu\n", sbcl_callback_play);
+	    // DBGPUT("Trying to phone home with %lu\n", sbcl_callback_play);
 #ifndef WIN32
 	    funcall0(sbcl_callback_play);
 #endif
-//	    fprintf(stderr,"Returned\n");
+	    // DBGPUT("Returned\n");
 	}
 
 	else if (current_lisp_system == LISPSYS_ACL && acl_callback_play) {
@@ -184,12 +186,12 @@ play_game_lisp() {
 	}
 
 	else {
-	    fprintf(stderr,"Unable to handle callback for system %d..\n", current_lisp_system);
+	    ERRORMSG("Unable to handle callback for system %d..\n", current_lisp_system);
 	}
     }
     else {
-	fprintf(stderr,"Tried to play by callback, but lisp-system %d doesn't want callbacking.\n",
-		current_lisp_system);
+	ERRORMSG("Tried to play by callback, but lisp-system %d doesn't want callbacking.\n",
+		 current_lisp_system);
     }
     
 }
@@ -200,7 +202,7 @@ void
 readjust_screen_lisp(int width, int height) {
 
     if (lisp_will_use_callback) {
-//	fprintf(stderr,"Note: calling resize on lisp-side\n"); 
+	// DBGPUT("Note: calling resize on lisp-side\n"); 
 	
 	if (current_lisp_system == LISPSYS_CMUCL && cmucl_callback_resize) {
 #ifndef WIN32
@@ -223,11 +225,11 @@ readjust_screen_lisp(int width, int height) {
 	}
 
 	else {
-	    fprintf(stderr,"Unable to handle resize-callback for system %d..\n", current_lisp_system);
+	    ERRORMSG("Unable to handle resize-callback for system %d..\n", current_lisp_system);
 	}
     }
     else {
-//	fprintf(stderr,"Tried to resize by callback, but lisp-system %d doesn't want callbacking.\n",
+//	ERRORMSG("Tried to resize by callback, but lisp-system %d doesn't want callbacking.\n",
 //		current_lisp_system);
     }
  
@@ -260,12 +262,12 @@ mouse_clicked(int button, int x, int y) {
 	}
 
 	else {
-	    fprintf(stderr,"Unable to handle mouseclick-callback for system %d..\n", current_lisp_system);
+	    ERRORMSG("Unable to handle mouseclick-callback for system %d..\n", current_lisp_system);
 	}
     }
     else {
-//	fprintf(stderr,"Tried to resize by callback, but lisp-system %d doesn't want callbacking.\n",
-//		current_lisp_system);
+	// INFOMSG("Tried to resize by callback, but lisp-system %d doesn't want callbacking.\n",
+	//         current_lisp_system);
     }
  
     

@@ -160,6 +160,16 @@ typedef enum {
     LISPSYS_BAD       = 20
 } LISP_SYSTEMS;
 
+typedef enum {
+    UITYPE_X11        = 0,
+    UITYPE_GCU        = 1,
+    UITYPE_GTK        = 2,
+    UITYPE_WIN        = 3,
+    UITYPE_SDL        = 4,
+    UITYPE_BAD        = 20
+} UITYPES;
+
+
 
 #endif
 

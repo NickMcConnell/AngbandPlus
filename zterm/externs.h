@@ -59,8 +59,8 @@ extern bool inkey_flag;
 extern int player_uid;
 extern int player_euid;
 extern int player_egid;
-extern term *angband_term[8];
-extern char angband_term_name[8][16];
+//extern term *angband_term[8];
+//extern char angband_term_name[8][16];
 extern byte angband_color_table[256][4];
 extern sint view_n;
 extern u16b *view_g;
@@ -72,9 +72,15 @@ extern bool use_transparency;
 extern bool can_save;
 extern bool use_bigtile; /* always */
 
+// remove later
+extern int py;
+extern int px;
+extern int cur_wid;
+extern int cur_hgt;
+
 
 /* collected.c */
-extern const char *base_config_dir;
+//extern const char *base_config_dir;
 extern int been_run_earlier;
 extern void play_game(bool new_game, int graphical);
 INTERFACE void init_angband(int graphical);
@@ -85,10 +91,12 @@ extern void window_stuff(void);
 extern void exit_game_panic(void);
 extern void handle_stuff(void);
 INTERFACE int current_ui();
-INTERFACE void print_coloured_token(int colour, int token, int row, int col);
-INTERFACE void print_coloured_stat(int colour, int stat, int row, int col);
-INTERFACE void print_coloured_number(int colour, long number, int padding, int row, int col);
-INTERFACE errr init_c_side(const char *ui, const char *base_path, int extra_flags);
+INTERFACE void print_coloured_token(int wantedTerm, int colour, int token, int row, int col);
+INTERFACE void print_coloured_stat(int wantedTerm, int colour, int stat, int row, int col);
+INTERFACE void print_coloured_number(int wantedTerm, int colour, long number, int padding, int row, int col);
+INTERFACE errr init_c_side(const char *ui, const char *sourcePath,
+			   const char *confPath, const char *gfxPath,
+			   int extra_flags);
 INTERFACE char *load_sound(int msg, char *fname);
 void play_game_lisp();
 void readjust_screen_lisp(int width, int height);
@@ -105,11 +113,11 @@ extern int lisp_will_use_callback;
 extern LISP_SYSTEMS current_lisp_system;
 INTERFACE void set_lisp_system(LISP_SYSTEMS type);
 
-#ifdef WIN32
-INTERFACE int setHINST(long val);
-#else
+//#ifdef WIN32
+//INTERFACE int setHINST(long val);
+//#else
 INTERFACE void set_lisp_callback(char *name, void *ptr);
-#endif
+//#endif
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);
@@ -136,7 +144,7 @@ extern errr fd_close(int fd);
 */
 extern sint macro_find_exact(cptr pat);
 INTERFACE errr macro_add(cptr pat, cptr act);
-extern errr macro_init(void);
+INTERFACE errr macro_init(void);
 extern void flush(void);
 INTERFACE char inkey(void);
 //INTERFACE void bell(cptr reason);
@@ -161,6 +169,7 @@ INTERFACE void clear_from(int row);
 //extern bool get_check(cptr prompt);
 //extern bool get_com(cptr prompt, char *command);
 INTERFACE void pause_line(int row, cptr msg);
+
 
 #ifdef WIN32
 INTERFACE int setHINST(long val);
@@ -205,8 +214,3 @@ errr cleanup_X11(void);
 #ifdef USE_GCU
 errr cleanup_GCU(void);
 #endif
-
-#ifdef USE_WIN
-errr init_win(void);
-#endif
-

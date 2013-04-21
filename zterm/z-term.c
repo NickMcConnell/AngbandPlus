@@ -486,9 +486,12 @@ void Term_queue_char(int x, int y, s16b a, s16b c, s16b ta, s16b tc)
 {
     /*
         if (a==128 && c==-128) {
-	    fprintf(stderr, "Printing %d,%d,%d,%d at (%d,%d)\n",
-		    a, c, ta, tc, x, y);
-		    }*/
+
+		    }
+    if (a != -1) {
+	DBGPUT("Printing %d,%d,%d,%d at (%d,%d) to %p\n", a, c, ta, tc, x, y, Term);
+    }
+    */
 	{
 
 	s16b *scr_aa = Term->scr->a[y];
@@ -505,8 +508,7 @@ void Term_queue_char(int x, int y, s16b a, s16b c, s16b ta, s16b tc)
 
 /*	
 	if (a == 128 && c == -128) {
-	    fprintf(stderr, "Printing %d,%d,%d,%d at (%d,%d)\n",
-		    a, c, ta, tc, x, y);
+	    DBGPUT("Printing %d,%d,%d,%d at (%d,%d)\n", a, c, ta, tc, x, y);
 	}
 */
 	
@@ -553,6 +555,8 @@ void Term_queue_chars(int x, int y, int n, s16b a, s16b *s)
 	s16b *scr_taa = Term->scr->ta[y];
 	s16b *scr_tcc = Term->scr->tc[y];
 
+	//DBGPUT("Queue of %c to (%d,%d,%p)\n", *s, x, y, Term); 
+	
 	/* Queue the attr/chars */
 	for ( ; n; x++, s++, n--)
 	{
@@ -634,6 +638,8 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 	s16b na;
 	s16b nc;
 
+	//plog("picti");
+		
 	/* Scan "modified" columns */
 	for (x = x1; x <= x2; x++)
 	{
@@ -734,9 +740,12 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 	s16b na;
 	s16b nc;
 
+	//plog("bothi");
+	
 	/* Scan "modified" columns */
-	for (x = x1; x <= x2; x++)
-	{
+	for (x = x1; x <= x2; x++) {
+	
+	    //DBGPUT("col %d\n", x);
 		/* See what is currently here */
 		oa = old_aa[x];
 		oc = old_cc[x];
@@ -784,8 +793,9 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		old_tcc[x] = ntc;
 
 		/* Handle high-bit attr/chars */
-		if ((na >= LANGBAND_GFX_START) && (nc >= LANGBAND_GFX_START))
-		{
+		if (((na >= LANGBAND_GFX_START) && (nc >= LANGBAND_GFX_START)) ||
+		    ((nta >= LANGBAND_GFX_START) && (ntc >= LANGBAND_GFX_START))) {
+
 			/* 2nd s16b of bigtile */
 			if ((na == -1) && (nc == -1)) continue;
 
@@ -896,6 +906,7 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 	s16b na;
 	s16b nc;
 
+	//plog("texti");
 
 	/* Scan "modified" columns */
 	for (x = x1; x <= x2; x++)
@@ -1115,6 +1126,8 @@ errr Term_fresh(void)
 	term_win *scr = Term->scr;
 
 
+	//DBGPUT("Fresh on %p [%d,%d] which is %d mapped\n", Term, w, h, Term->mapped_flag);
+	
 	/* Do nothing unless "mapped" */
 	if (!Term->mapped_flag) return (1);
 
@@ -1140,6 +1153,7 @@ errr Term_fresh(void)
 	if (!Term->pict_hook) Term->pict_hook = Term_pict_hack;
 
 
+	//plog("bum");
 	/* Handle "total erase" */
 	if (Term->total_erase)
 	{
@@ -1188,6 +1202,7 @@ errr Term_fresh(void)
 		Term->total_erase = FALSE;
 	}
 
+	//plog("bumbi");
 
 	/* Cursor update -- Erase old Cursor */
 	if (Term->soft_cursor)
@@ -1247,6 +1262,7 @@ errr Term_fresh(void)
 		}
 	}
 
+	//plog("gampi");
 
 	/* Something to update */
 	if (y1 <= y2)
@@ -1273,6 +1289,7 @@ errr Term_fresh(void)
 			int x1 = Term->x1[y];
 			int x2 = Term->x2[y];
 
+			//DBGPUT("at row %d\n", y);
 			/* Flush each "modified" row */
 			if (x1 <= x2)
 			{
@@ -1311,6 +1328,7 @@ errr Term_fresh(void)
 		Term->y2 = 0;
 	}
 
+	//plog("gimpi");
 
 	/* Cursor update -- Show new Cursor */
 	if (Term->soft_cursor)
@@ -1365,6 +1383,7 @@ errr Term_fresh(void)
 		}
 	}
 
+	//plog("lumi");
 
 	/* Save the "cursor state" */
 	old->cu = scr->cu;
@@ -1373,10 +1392,11 @@ errr Term_fresh(void)
 	old->cy = scr->cy;
 
 
+	//DBGPUT("Calling %p with FRESH %p\n", Term, Term->xtra_hook);
 	/* Actually flush the output */
 	Term_xtra(TERM_XTRA_FRESH, 0);
 
-
+	
 	/* Success */
 	return (0);
 }
@@ -1523,6 +1543,8 @@ errr Term_addstr(int n, s16b a, s16b *s)
 
 	errr res = 0;
 
+	//DBGPUT("Adding %d stuff to %p\n", n, Term);
+	
 	/* Handle "unusable" cursor */
 	if (Term->scr->cu) return (-1);
 
@@ -1608,6 +1630,8 @@ errr Term_erase(int x, int y, int n)
 	s16b *scr_taa;
 	s16b *scr_tcc;
 
+	//DBGPUT("erase %d,%d %d\n", x, y, n);
+	
 	/* Place cursor */
 	if (Term_gotoxy(x, y)) return (-1);
 
@@ -2288,14 +2312,7 @@ errr Term_resize(int w, int h)
 	Term->y2 = h - 1;
 	
 	/* langband addition */
-	/*
-	{
-	    FILE *bum = fopen("mini.txt", "r+");
-	    fprintf(bum,"Calling lispy readjust %d, %d\n", w, h);
-	    fclose(bum);
-	}
-	*/
-	
+	//DBGPUT("Calling lispy readjust %d, %d\n", w, h);
 	readjust_screen_lisp(w,h);
 
 	/* Success */
@@ -2315,33 +2332,35 @@ errr Term_resize(int w, int h)
  */
 errr Term_activate(term *t)
 {
-	/* Hack -- already done */
-	if (Term == t) return (1);
+    /* Hack -- already done */
+    if (Term == t) return 1;
+    //DEBUGPUT("Activate with %p [%d] vs %p.\n", t, t->active_flag, Term);
+    
+    /* Deactivate the old Term */
+    if (Term) Term_xtra(TERM_XTRA_LEVEL, 0);
+    
+    /* Hack -- Call the special "init" hook */
+    if (t && !t->active_flag)
+    {
+	/* Call the "init" hook */
+	if (t->init_hook) (*t->init_hook)(t);
+	
+	/* Remember */
+	t->active_flag = TRUE;
+	
+	/* Assume mapped */
+	t->mapped_flag = TRUE;
+    }
 
-	/* Deactivate the old Term */
-	if (Term) Term_xtra(TERM_XTRA_LEVEL, 0);
+    //DBGPUT("Changin Term from %p to %p\n", Term, t);
+    /* Remember the Term */
+    Term = t;
 
-	/* Hack -- Call the special "init" hook */
-	if (t && !t->active_flag)
-	{
-		/* Call the "init" hook */
-		if (t->init_hook) (*t->init_hook)(t);
-
-		/* Remember */
-		t->active_flag = TRUE;
-
-		/* Assume mapped */
-		t->mapped_flag = TRUE;
-	}
-
-	/* Remember the Term */
-	Term = t;
-
-	/* Activate the new Term */
-	if (Term) Term_xtra(TERM_XTRA_LEVEL, 1);
-
-	/* Success */
-	return (0);
+    /* Activate the new Term */
+    if (Term) Term_xtra(TERM_XTRA_LEVEL, 1);
+    
+    /* Success */
+    return (0);
 }
 
 
@@ -2478,7 +2497,7 @@ errr term_init(term *t, int w, int h, int k)
 	t->char_blank = ' ';
 
 	/* langband hack, remove later */
-	readjust_screen_lisp(w,h);
+	//readjust_screen_lisp(w,h);
 
 
 	/* Success */

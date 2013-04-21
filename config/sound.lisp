@@ -8,11 +8,22 @@ DESC: config/sound.lisp - sound-settings
 
 (in-package :org.langband.engine)
 
-(define-sound +sound-hit+
-    "1unch" "hit" "hit1" "drop")
 
-(define-sound +sound-miss+
-    "miss" "miss1")
+(define-sound-effect +sound-hit+
+    "hit1.wav" "hit3.wav")
 
-(define-sound +sound-kill+
-    "kill" "kill1" "d34" "destroy" "destroy2")
+(define-sound-effect +sound-miss+
+    "miss1.wav" "miss2.wav")
+
+(define-sound-effect +sound-kill+
+    "TMaDth00.wav" "TMaDth01.wav")
+
+(define-sound-effect +sound-shutdoor+
+    "Doorshut.wav")
+
+(define-sound-effect +sound-eat+
+    "eat1.wav")
+
+(define-sound-effect +sound-zap+
+    "magksnd2.wav" "magksnd8.wav")
+

@@ -129,22 +129,31 @@ made."
     
     book))
 
+(defun %simple-projection (source dir flag effect damage)
+  (let ((dest-x (+ (aref *ddx* dir) (location-x source)))
+	(dest-y (+ (aref *ddy* dir) (location-y source)))
+	(target (player.target source)))
+
+    ;; better check for legality
+    (when (and (= dir 5)
+	       (is-legal-target? *dungeon* target))
+      ;;(warn "Using targ ~s, is at ~s,~s" dir (location-x player) (location-y player))
+
+      (setf dest-x (target.x target)
+	    dest-y (target.y target)))
+
+    (do-projection source dest-x dest-y flag :effect effect :damage damage)))
+
 
 (defun van-fire-beam! (player dir effect damage)
   "Fires a beam in a direction."
   (let ((flag (logior +project-kill+ +project-beam+ +project-through+)))
-    (do-projection player (+ (aref *ddx* dir) (location-x player))
-		   (+ (aref *ddy* dir) (location-y player))
-		   flag
-		   :effect effect :damage damage)))
+    (%simple-projection player dir flag effect damage)))
 
 (defun van-fire-bolt! (player dir effect damage)
   "Fires a bolt in a direction."
   (let ((flag (logior +project-kill+ +project-stop+ +project-through+)))
-    (do-projection player (+ (aref *ddx* dir) (location-x player))
-		   (+ (aref *ddy* dir) (location-y player))
-		   flag
-		   :effect effect :damage damage)))
+    (%simple-projection player dir flag effect damage)))
 
 
 (defun van-fire-bolt-or-beam! (player beam-chance dir effect damage)
@@ -154,12 +163,21 @@ made."
 	(t
 	 (van-fire-bolt! player dir effect damage))))
 
-(defun van-fire-ball! (player dir effect damage radius)
+(defun van-fire-ball! (source dir effect damage radius)
   "Fires a bolt in a direction."
-  (let ((flag (logior +project-kill+ +project-grid+ +project-stop+ +project-item+)))
-    (do-projection player (+ (* 99 (aref *ddx* dir)) (location-x player))
-		   (+ (* 99 (aref *ddy* dir)) (location-y player))
-		   flag
+  (let ((flag (logior +project-kill+ +project-grid+ +project-stop+ +project-item+))
+	(dest-x (+ (* 99 (aref *ddx* dir)) (location-x source)))
+	(dest-y (+ (* 99 (aref *ddy* dir)) (location-y source)))
+	(target (player.target source)))
+
+    ;; better check for legality
+    (when (and (= dir 5)
+	       target
+	       (typep target 'target))
+      (setf dest-x (target.x target)
+	    dest-y (target.y target)))
+
+    (do-projection source dest-x dest-y flag
 		   :effect effect :damage damage
 		   :radius radius)))
 
@@ -408,12 +426,12 @@ returns T if the player knows the spell."
   "Interactive selection of spell to learn."
 
   (block learn-spell
-    (when-bind (book (with-new-screen ()
+    (when-bind (book (with-dialogue ()
 		       (interactive-book-selection dungeon player)))
       (let* ((okind (aobj.kind book))
 	     (book-id (object.id okind)))
 	(when-bind (spell-info (gethash book-id (variant.spellbooks variant)))      
-	  (when-bind (which-one (with-new-screen ()
+	  (when-bind (which-one (with-dialogue ()
 				  (interactive-spell-selection player spell-info
 							       :prompt "Learn which spell? ")))
 	    (unless (and (integerp which-one) (>= which-one 0)
@@ -431,14 +449,14 @@ returns T if the player knows the spell."
   "Invokes a spell.. gee."
 
   (block cast-spell
-    (when-bind (book (with-new-screen ()
+    (when-bind (book (with-dialogue ()
 		       (interactive-book-selection dungeon player)))
       (let* ((okind (aobj.kind book))
 	     (book-id (object.id okind))
 	     (which-one 0))
 	(when-bind (spell-info (gethash book-id (variant.spellbooks variant)))
-	  (setf which-one (with-new-screen ()
-			    (interactive-spell-selection player spell-info)))
+	  (with-dialogue ()
+	    (setf which-one (interactive-spell-selection player spell-info)))
 
 	  (cond ((eq which-one nil)
 		 (return-from cast-spell nil))
@@ -488,13 +506,13 @@ returns T if the player knows the spell."
 (defun browse-spells (dungeon player &key (variant *variant*))
   "Interactive selection of spell to learn."
 
-    (when-bind (book (with-new-screen ()
+    (when-bind (book (with-dialogue ()
 		       (interactive-book-selection dungeon player)))
       (let* ((okind (aobj.kind book))
 	     (book-id (object.id okind)))
 	(when-bind (spell-info (gethash book-id (variant.spellbooks variant)))
 ;;	  (warn "SI: ~s" spell-info)
-	  (with-new-screen ()
+	  (with-dialogue ()
 	    (display-spells player spell-info)
 	    (pause-last-line!)
 	    )))))

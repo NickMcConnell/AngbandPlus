@@ -39,64 +39,85 @@ the Free Software Foundation; either version 2 of the License, or
 	     (print-message! "No missile selected!")))
 	)))
 
+(defvar *run-mode* nil "Are we running?")
 
+(define-key-operation 'toggle-run-mode
+    #'(lambda (dungeon player)
+	(setf *run-mode* (not *run-mode*))))
+
+(defun let-player-run! (dungeon player direction)
+  (warn "run to ~s gave ~s" direction (run-along-corridor dungeon player direction)))
+
+(defun van-move-player! (dungeon player direction)
+  (if *run-mode*
+      (let-player-run! dungeon player direction)
+      (move-player! dungeon player direction))
+  (setf *run-mode* nil))
 
 (define-key-operation 'move-up
-    #'(lambda (dungeon player) (move-player! dungeon player 8)))
+    #'(lambda (dungeon player) (van-move-player! dungeon player 8)))
 
 (define-key-operation 'move-up-left
-    #'(lambda (dungeon player) (move-player! dungeon player 7)))
+    #'(lambda (dungeon player) (van-move-player! dungeon player 7)))
 
 (define-key-operation 'move-up-right
-    #'(lambda (dungeon player) (move-player! dungeon player 9)))
+    #'(lambda (dungeon player) (van-move-player! dungeon player 9)))
 
 (define-key-operation 'move-right
-    #'(lambda (dungeon player) (move-player! dungeon player 6)))
+    #'(lambda (dungeon player) (van-move-player! dungeon player 6)))
 
 (define-key-operation 'move-left
-    #'(lambda (dungeon player) (move-player! dungeon player 4)))
+    #'(lambda (dungeon player) (van-move-player! dungeon player 4)))
 
 (define-key-operation 'move-down
-    #'(lambda (dungeon player) (move-player! dungeon player 2)))
+    #'(lambda (dungeon player) (van-move-player! dungeon player 2)))
 
 (define-key-operation 'move-down-left
-    #'(lambda (dungeon player) (move-player! dungeon player 1)))
+    #'(lambda (dungeon player) (van-move-player! dungeon player 1)))
 
 (define-key-operation 'move-down-right
-    #'(lambda (dungeon player) (move-player! dungeon player 3)))
+    #'(lambda (dungeon player) (van-move-player! dungeon player 3)))
 
 (define-key-operation 'stand-still
-    #'(lambda (dungeon player) (move-player! dungeon player 5)))
+    #'(lambda (dungeon player) (van-move-player! dungeon player 5)))
 
 
 (define-key-operation 'show-equipment
      #'(lambda (dungeon player)
 	 (declare (ignore dungeon))
-	 (with-new-screen ()
+	 (with-dialogue ()
+	   (c-clear-from! 0) ;; hack
 	   (let ((table (player.equipment player)))
-	     (item-table-print table :show-pause t)))
+	     (item-table-print table :show-pause t :start-x 3))
+	   (c-term-fresh! +dialogue-frame+))
 	 ))
 
 (define-key-operation 'show-inventory
     #'(lambda (dungeon player)
 	(declare (ignore dungeon))
-	(with-new-screen ()
+	(with-dialogue ()
+	  (c-clear-from! 0) ;; hack
 	  (let* ((backpack (player.inventory player))
 		 (inventory (aobj.contains backpack)))
-	    (item-table-print inventory :show-pause t)))
+	    (item-table-print inventory :show-pause t :start-x 3))
+	  (c-term-fresh! +dialogue-frame+))
 	))
   
 (define-key-operation 'show-character
     #'(lambda (dungeon player)
-	(with-new-screen ()
+	(flush-messages! t)
+	(with-full-frame ()
+	  (c-texture-background! +full-frame+ "plainbook.png" -1)
+	  (c-term-clear!)
 	  (block display-input 
 	    (let ((loc-table (gethash :display *current-key-table*)))
 	      (loop
 	       (c-clear-from! 0)
 	       (display-creature *variant* player)
-	       (c-prt! "['C' to show combat-info, 'R' to show resists,  ESC to continue]"
-		       5 (get-last-console-line))
-
+	       ;;(c-prt! "['C' to show combat-info, 'R' to show resists,  ESC to continue]"
+	       ;;5 (get-last-console-line))
+	       (print-note! "['C' to show combat-info, 'R' to show resists,  ESC to continue]")
+	       
 	       (let* ((ch (read-one-character))
 		      (fun (check-keypress loc-table ch)))
 		 (cond ((and fun (functionp fun))
@@ -107,6 +128,9 @@ the Free Software Foundation; either version 2 of the License, or
 			;; nil
 			)))
 	       )))
+	  (c-texture-background! +full-frame+ "" -1)
+	  (c-wipe-frame! +full-frame+)
+
 	  )))
 
 
@@ -120,16 +144,17 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(declare (ignore dungeon))
 ;;	(warn "Quitting")
-	(c-prt! "Are you sure you wish to quit? " 0 0)
-	(let ((chr (read-one-character)))
-	  (when (or (equal chr #\y)
-		    (equal chr #\Y))
-	    (setf (player.dead-p player) t
-		  (player.dead-from player) "quitting"
-		  (player.leaving-p player) :quit)
+	(with-frame (+query-frame+)
+	  (c-prt! "Are you sure you wish to quit? " 0 0)
+	  (let ((chr (read-one-character)))
+	    (when (or (equal chr #\y)
+		      (equal chr #\Y))
+	      (setf (player.dead-p player) t
+		    (player.dead-from player) "quitting"
+		    (player.leaving-p player) :quit)
 ;;	(c-quit! +c-null-value+) ;; how to quit cleanly to the REPL?
-	
-	    ))
+	      
+	    )))
 	))
 
 (define-key-operation 'get-item
@@ -185,6 +210,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(interactive-use-item! dungeon player :need-effect '(:eat)
 			       :limit-from '(:backpack :floor) ;; only place with food
 			       :which-use :eat
+			       :sound +sound-eat+
 			       :prompt "Eat what?")))
 
 (define-key-operation 'invoke-spell
@@ -215,6 +241,10 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(interactive-trap-operation! dungeon player :disarm)))
 
+(define-key-operation 'select-target
+    #'(lambda (dungeon player)
+	(interactive-targeting! dungeon player)))
+
 
 ;; unused
 (define-key-operation 'print-mapper
@@ -243,11 +273,9 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'show-help
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
-	(with-new-screen ()
+	(with-dialogue ()
 	  (c-clear-from! 0)
 	  (display-help-topics *variant* "LAangband help (Vanilla)" 3)
-
-	  ;;(pause-last-line!)
 
 	  )))
 
@@ -283,7 +311,8 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'print-resists
     #'(lambda (dungeon player)
 	(declare (ignore dungeon))
-	(print-resists *variant* player)
+	(let ((var *variant*))
+	  (print-resists var player (get-setting var :resists-display)))
 	))
 
 (define-key-operation 'print-misc
@@ -321,6 +350,11 @@ the Free Software Foundation; either version 2 of the License, or
 	
 	))
 
+(define-key-operation 'swap-map
+    #'(lambda (dungeon player)
+	(when (eq (get-system-type) 'sdl)
+	  (switch-map-mode))))
+
 (define-keypress *ang-keys* :global #\a 'zap-item)
 (define-keypress *ang-keys* :global #\b 'browse-spells)
 (define-keypress *ang-keys* :global #\c 'close-door)
@@ -352,6 +386,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-keypress *ang-keys* :global #\> 'go-downstairs)
 (define-keypress *ang-keys* :global #\< 'go-upstairs)
+(define-keypress *ang-keys* :global #\* 'select-target)
 
 ;; these can die later..
 ;;(define-keypress *ang-keys* :global #\A 'print-mapper)
@@ -360,10 +395,11 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :global (code-char 16) 'previous-messages)
 ;; Ctrl-R
 (define-keypress *ang-keys* :global (code-char 18) 'redraw-all)
+(define-keypress *ang-keys* :global (code-char 20) 'swap-map)
 
 
 
-(define-keypress *ang-keys* :global #\. 'stand-still)
+(define-keypress *ang-keys* :global #\, 'stand-still)
 (define-keypress *ang-keys* :global #\1 'move-down-left)
 (define-keypress *ang-keys* :global #\2 'move-down)
 (define-keypress *ang-keys* :global #\3 'move-down-right)
@@ -374,11 +410,12 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :global #\8 'move-up)
 (define-keypress *ang-keys* :global #\9 'move-up-right)
 
+(define-keypress *ang-keys* :global #\. 'toggle-run-mode)
+
 ;; then those keys used for display
 (define-keypress *ang-keys* :display #\C 'print-attack-table)
 (define-keypress *ang-keys* :display #\M 'print-misc)
 (define-keypress *ang-keys* :display #\R 'print-resists)
-
 
 
 #||

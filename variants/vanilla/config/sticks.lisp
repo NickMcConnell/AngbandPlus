@@ -48,7 +48,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 8) 6)))
 
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player 20 dir (get-spell-effect '<electricity>)
 					(roll-dice 6 6))
 		(possible-identify! player item)
@@ -72,7 +72,7 @@ the Free Software Foundation; either version 2 of the License, or
 		   (add-charges! item (+ (randint 5) 6)))
 
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player 20 dir (get-spell-effect '<cold>)
 					(roll-dice 6 8))
 		(possible-identify! player item)
@@ -95,7 +95,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 8) 6)))
 
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player 20 dir (get-spell-effect '<fire>)
 					(roll-dice 12 8))
 		(possible-identify! player item)
@@ -263,7 +263,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 10) 6)))
 
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player 20 dir (get-spell-effect '<magic-missile>)
 					(roll-dice 3 4))
 		(possible-identify! player item)
@@ -351,7 +351,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 8) 4)))
 
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<electricity>) 64 2)
 		(possible-identify! player item)
 		))
@@ -373,7 +373,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 6) 2)))
 
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<cold>) 96 2)
 		(possible-identify! player item)
 		))
@@ -395,7 +395,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 4) 2)))
 
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<fire>) 144 2)
 		(possible-identify! player item)
 		))
@@ -417,7 +417,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 8) 6)))
 
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<poison>) 12 2)
 		(possible-identify! player item)
 		))
@@ -439,7 +439,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 5) 2)))
   
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<acid>) 120 2)
 		(possible-identify! player item)
 		))
@@ -477,7 +477,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 8) 6)))
 
   :on-zap (object-effect (dungeon player item)
-	     (when-bind (dir (%read-direction))
+	     (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player 20 dir (get-spell-effect '<acid>)
 					(roll-dice 10 8))
 		(possible-identify! player item)
@@ -501,7 +501,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 3) 1)))
   
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<fire>) 200 3)
 		(possible-identify! player item)
 		))
@@ -524,7 +524,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 3) 1)))
   
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<cold>) 160 3)
 		(possible-identify! player item)
 		))
@@ -547,7 +547,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (add-charges! item (+ (randint 3) 1)))
   
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(let ((which (randint 5)))
 		  (ecase which
 		    (1 (van-fire-ball! player dir (get-spell-effect '<acid>) 200 3))
@@ -1218,7 +1218,7 @@ the Free Software Foundation; either version 2 of the License, or
   :sort-value 4521
   :the-kind '<rod>
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player 10 dir (get-spell-effect '<electricity>)
 					(roll-dice 6 6))
 		(possible-identify! player item)
@@ -1240,7 +1240,7 @@ the Free Software Foundation; either version 2 of the License, or
   :sort-value 4523
   :the-kind '<rod>
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player 10 dir (get-spell-effect '<cold>)
 					(roll-dice 10 8))
 		(possible-identify! player item)
@@ -1261,7 +1261,7 @@ the Free Software Foundation; either version 2 of the License, or
   :sort-value 4522
   :the-kind '<rod>
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player 10 dir (get-spell-effect '<fire>)
 					(roll-dice 16 8))
 		(possible-identify! player item)
@@ -1366,7 +1366,7 @@ the Free Software Foundation; either version 2 of the License, or
   :sort-value 4525
   :the-kind '<rod>
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<electricity>) 64 2)
 		(possible-identify! player item)
 		(setf (aobj.recharge-time item) 23))
@@ -1387,7 +1387,7 @@ the Free Software Foundation; either version 2 of the License, or
   :sort-value 4527
   :the-kind '<rod>
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<cold>) 96 2)
 		(possible-identify! player item)
 		(setf (aobj.recharge-time item) 25))
@@ -1407,7 +1407,7 @@ the Free Software Foundation; either version 2 of the License, or
   :sort-value 4526
   :the-kind '<rod>
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<fire>) 144 2)
 		(possible-identify! player item)
 		(setf (aobj.recharge-time item) 30))
@@ -1427,7 +1427,7 @@ the Free Software Foundation; either version 2 of the License, or
   :sort-value 4524
   :the-kind '<rod>
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<acid>) 120 2)
 		(possible-identify! player item)
 		(setf (aobj.recharge-time item) 27))
@@ -1447,7 +1447,7 @@ the Free Software Foundation; either version 2 of the License, or
   :sort-value 4520
   :the-kind '<rod>
   :on-zap (object-effect (dungeon player item)
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player 10 dir (get-spell-effect '<acid>)
 					(roll-dice 12 8))
 		(possible-identify! player item)

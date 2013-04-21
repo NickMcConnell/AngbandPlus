@@ -22,5 +22,8 @@ this file defines preferences done the lispy way
 (when (eq (get-system-type) 'win)
   (read-pref-file "win-keys.lisp"))
 
+(when (eq (get-system-type) 'sdl)
+  (read-pref-file "sdl-keys.lisp"))
+
 (when (using-sound?)
   (read-pref-file "sound.lisp"))

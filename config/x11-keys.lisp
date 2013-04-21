@@ -91,3 +91,57 @@ DESC: config/x11-keys.lisp - key-definitions for x11-keys
 "^__KP_Prior\\r"
 "^_M_KP_9\\r"
 "^__FF9A\\r")
+
+(define-key-macros ".1"
+"^_S_FFB1\\r"
+"^_S_FF57\\r"
+"^_S_FFDE\\r"
+"^_S_FF9C\\r")
+
+(define-key-macros ".2"
+"^_S_FFB2\\r"
+"^_S_FF54\\r"
+"^_S_FFDF\\r"
+"^_S_FF99\\r")
+
+(define-key-macros ".3"
+"^_S_FFB3\\r"
+"^_S_FF56\\r"
+"^_S_FFE0\\r"
+"^_S_FF9B\\r")
+
+(define-key-macros ".4"
+"^_S_FFB4\\r"
+"^_S_FF51\\r"
+"^_S_FFDB\\r"
+"^_S_FF96\\r")
+
+(define-key-macros ".5"
+"^_S_FFB5\\r"
+"^_S_FF80\\r"
+"^_S_FFDC\\r"
+"^_S_FF9D\\r")
+
+(define-key-macros ".6"
+"^_S_FFB6\\r"
+"^_S_FF53\\r"
+"^_S_FFDD\\r"
+"^_S_FF98\\r")
+   
+(define-key-macros ".7"
+"^_S_FFB7\\r"
+"^_S_FF50\\r"
+"^_S_FFD8\\r"
+"^_S_FF95\\r")
+
+(define-key-macros ".8"
+"^_S_FFB8\\r"
+"^_S_FF52\\r"
+"^_S_FFD9\\r"
+"^_S_FF97\\r")
+
+(define-key-macros ".9"
+"^_S_FFB9\\r"
+"^_S_FF55\\r"
+"^_S_FFDA\\r"
+"^_S_FF9A\\r")

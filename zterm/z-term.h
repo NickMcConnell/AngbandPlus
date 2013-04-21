@@ -272,20 +272,20 @@ extern term *Term;
 extern errr Term_user(int n);
 INTERFACE errr Term_xtra(int n, int v);
 
-extern void Term_queue_char(int x, int y, s16b a, s16b c, s16b ta, s16b tc);
+INTERFACE void Term_queue_char(int x, int y, s16b a, s16b c, s16b ta, s16b tc);
 extern void Term_queue_chars(int x, int y, int n, s16b a, s16b *s);
 
-extern errr Term_fresh(void);
+INTERFACE errr Term_fresh(void);
 extern errr Term_set_cursor(bool v);
 INTERFACE errr Term_gotoxy(int x, int y);
 extern errr Term_draw(int x, int y, s16b a, s16b c);
 extern errr Term_addch(s16b a, s16b c);
-extern errr Term_addstr(int n, s16b a, s16b *s);
+INTERFACE errr Term_addstr(int n, s16b a, s16b *s);
 extern errr Term_putch(int x, int y, s16b a, s16b c);
-extern errr Term_putstr(int x, int y, int n, s16b a, s16b *s);
+INTERFACE errr Term_putstr(int x, int y, int n, s16b a, s16b *s);
 INTERFACE errr Term_erase(int x, int y, int n);
 INTERFACE errr Term_clear(void);
-extern errr Term_redraw(void);
+INTERFACE errr Term_redraw(void);
 extern errr Term_redraw_section(int x1, int y1, int x2, int y2);
 
 extern errr Term_get_cursor(bool *v);
@@ -293,9 +293,9 @@ extern errr Term_get_size(int *w, int *h);
 extern errr Term_locate(int *x, int *y);
 extern errr Term_what(int x, int y, s16b *a, s16b *c);
 
-extern errr Term_flush(void);
-extern errr Term_keypress(int k);
-extern errr Term_key_push(int k);
+INTERFACE errr Term_flush(void);
+INTERFACE errr Term_keypress(int k);
+INTERFACE errr Term_key_push(int k);
 INTERFACE errr Term_inkey(char *ch, bool wait, bool take);
 
 INTERFACE errr Term_save(void);
@@ -303,7 +303,7 @@ INTERFACE errr Term_load(void);
 
 extern errr Term_exchange(void);
 
-extern errr Term_resize(int w, int h);
+INTERFACE errr Term_resize(int w, int h);
 
 extern errr Term_activate(term *t);
 

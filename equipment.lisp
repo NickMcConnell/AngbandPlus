@@ -182,7 +182,7 @@ the Free Software Foundation; either version 2 of the License, or
 			     &key show-pause start-x start-y
 			     print-selection)
   
-  (let ((x (if start-x start-x 25))
+  (let ((x (if start-x start-x 5));; 25))
 	(y (if start-y start-y 1))
 	(i 0))
 
@@ -236,6 +236,9 @@ to variant obj."
 		 (item-slot (make-worn-item-slot :key (first elm)
 						 :desc (second elm)
 						 :types types)))
+	    (when (and (cdddr elm) (fourth elm))
+	      (setf (worn-item-slot-hidden item-slot) t))
+	      
 	    (setf (aref slot-arr i) item-slot)))
     (setf (variant.worn-item-slots variant) slot-arr)
     ))
@@ -302,17 +305,51 @@ to variant obj."
       old-obj)))
     
 
-;; not tested
 (defmethod item-table-remove! ((table items-worn) key &key only-single-items)
-  
-  (declare (ignore only-single-items)) ;; already just single items
-  (let ((keys (%get-equip-keys nil key)))
-    (when (consp keys)
-      (let* ((num (first keys))
-	     (old-obj (aref (items.objs table) num)))
-	(setf (aref (items.objs table) num) nil)
-	old-obj))))
-  
+  ;; old one used (%get-equip-keys nil key)
+  (cond ((item-table-verify-key table key)
+	 ;; should handle symbols too
+	 (let ((key-as-num (typecase key
+			     (character (a2i key))
+			     (number key)
+			     (active-object (position key (items.objs table)))
+			     (otherwise nil))))
+	   ;;(warn "key is ~s" key-as-num)
+	   (when key-as-num
+	     ;; VANILLA HACK, remove later!
+	     (when (= key-as-num (1- (items.cur-size table)))
+	       (warn "[Object ~a not found when removing from container]"
+		     key)
+	       (return-from item-table-remove! nil))
+	     (let ((old-obj (aref (items.objs table) key-as-num)))
+	       (cond ((and only-single-items (> (aobj.number old-obj) 1))
+		      (let ((ret-obj (create-aobj-from-kind (aobj.kind old-obj))))
+			(decf (aobj.number old-obj))
+			ret-obj))
+		     (t
+		      (setf (aref (items.objs table) key-as-num) nil)
+		      ;;(shrink-array! (items.objs table))
+		      ;;(decf (items.cur-size table))
+		      old-obj))))
+	   ))
+	((typep key 'active-object)
+	 (loop for i from 0
+	       for x across (items.objs table)
+	       do
+	       (when (eq key x)
+		 (return-from item-table-remove!
+		   (item-table-remove! table i
+				       :only-single-items only-single-items))))
+	 (warn "[Object ~a not found when removing from container]"
+	       key)
+	 nil)
+	 
+	(t
+	 (warn "[illegal key ~a when removing from container]" key)
+	 nil)))
+
+
+;;(trace item-table-remove!)
 
 (defmethod item-table-clean! ((table items-worn))
   ;; do nothing

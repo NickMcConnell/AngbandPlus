@@ -57,7 +57,8 @@ the Free Software Foundation; either version 2 of the License, or
      
      (:module decl
               :pathname ""
-              :components ((:file "package"))
+              :components ((:file "package")
+			   (:file "sys" :depends-on ("package")))
 	      :depends-on (binary-types))
 
      (:module foreign
@@ -83,9 +84,8 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "base" :depends-on ("memoize"))
 			   (:file "constants" :depends-on ("base"))
 			   (:file "generics")
-			   (:file "sys")
 			   (:file "classes" :depends-on ("generics" "constants"))
-			   (:file "global" :depends-on ("classes" "generics" "base" "constants" "sys"))
+			   (:file "global" :depends-on ("classes" "generics" "base" "constants"))
 			   (:file "sound")
 			   (:file "character" :depends-on ("classes" "global"))
 			   (:file "object" :depends-on ("classes" "generics" "global"))
@@ -101,14 +101,14 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "util" :depends-on ("dungeon" "classes" "global" "generics" "generate"))
 			   (:file "combat" :depends-on ("generics" "base" "sound" "global" "classes"))
 			   (:file "keys" :depends-on ("base" "dungeon" "constants"))
-			   (:file "actions" :depends-on ("generics" "util" "keys" "generate" "combat"))
 			   (:file "view" :depends-on ("dungeon" "generics" "constants"))
 			   (:file "project" :depends-on ("base" "generics" "player" "object" "dungeon" "combat"))
+			   (:file "actions" :depends-on ("generics" "util" "keys" "generate" "combat" "project"))
 			   (:file "save" :depends-on ("player" "dungeon" "classes" "global" "generics"))
 			   (:file "load" :depends-on ("save"))
-			   (:file "death" :depends-on ("global" "player" "sys" "character"))
+			   (:file "death" :depends-on ("global" "player" "character"))
 			   (:file "ai" :depends-on ("generics" "monster" "project"))
-			   (:file "loop" :depends-on ("classes" "player" "sys" "death" "ai" "print" "view"))
+			   (:file "loop" :depends-on ("classes" "player" "death" "ai" "print" "view"))
 			   (:file "birth" :depends-on ("generics" "constants" "classes" "player" "loop"))
 			   (:file "dump" :depends-on ("monster" "classes" "object" "character" "global" "building" "equipment"))
 			   (:file "init" :depends-on ("classes" "monster" "object" "loop"))

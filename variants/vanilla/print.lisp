@@ -16,20 +16,23 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (defmethod print-depth ((level level) (setting bottom-row-locations))
   "prints current depth somewhere"
-  (let ((column (slot-value setting 'depth)))
-    (with-foreign-str (s)
-      (lb-format s "~d ft" (* 50 (level.depth level)))
-      (put-coloured-str! +term-l-blue+ s column
-			 (get-last-console-line)) 
-      )))
+  (with-frame (+misc-frame+)
+    (let ((column (- (get-frame-width +misc-frame+) 8))) ;;(slot-value setting 'depth)))
+      
+      (with-foreign-str (s)
+	(lb-format s "~d ft" (* 50 (level.depth level)))
+	(put-coloured-line! +term-l-blue+ s column 0)
+	;;(get-last-console-line)
+      ))))
 
 
 (defmethod print-depth ((level van-town-level) (setting bottom-row-locations))
   "prints current depth somewhere"
-  (let ((column (slot-value setting 'depth)))
-    (put-coloured-str! +term-l-blue+ "Town"
-		       column
-		       (get-last-console-line))))
+  (let ((column (- (get-frame-width +misc-frame+) 8)));; (slot-value setting 'depth)))
+    (with-frame (+misc-frame+)
+      (put-coloured-line! +term-l-blue+ "Town"
+			 column
+			 0))))
 
 (defmethod print-cut ((variant vanilla-variant) (player player) 
                       (setting vanilla-basic-frame-locations))
@@ -58,57 +61,58 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (defmethod print-poisoned ((variant vanilla-variant) (player player) 
                            (setting vanilla-bottom-row-locations))
-
-  (let ((column (slot-value setting 'poisoned))
-        (row (get-last-console-line)))
-
-    (if (get-attribute-value '<poisoned> (player.temp-attrs player))
-        (put-coloured-str! +term-orange+ "Poisoned" column row)
-        (put-coloured-str! +term-white+  "        " column row))
-    ))
+  (with-frame (+misc-frame+)
+    (let ((column (slot-value setting 'poisoned))
+	  (row (get-last-console-line)))
+      
+      (if (get-attribute-value '<poisoned> (player.temp-attrs player))
+	  (put-coloured-str! +term-orange+ "Poisoned" column row)
+	  (put-coloured-str! +term-white+  "        " column row))
+      )))
 
 (defmethod print-state ((variant vanilla-variant) (player player) 
 			(setting vanilla-bottom-row-locations))
 
-  (let ((word nil)
-	(colour +term-white+)
-	(temp-attrs (player.temp-attrs player))
-	(column (slot-value setting 'state))
-        (row (get-last-console-line)))
-
-    (cond ((get-attribute-value '<paralysed> temp-attrs)
-	   (setf word "Paralysed!"
-		 colour +term-red+))
-	  ;; turn it off
-	  (t
-	   (setf word "          ")
-	   ))
-
-    (put-coloured-str! colour word column row)
+  (with-frame (+misc-frame+)
+    (let ((word nil)
+	  (colour +term-white+)
+	  (temp-attrs (player.temp-attrs player))
+	  (column (slot-value setting 'state))
+	  (row (get-last-console-line)))
+      
+      (cond ((get-attribute-value '<paralysed> temp-attrs)
+	     (setf word "Paralysed!"
+		   colour +term-red+))
+	    ;; turn it off
+	    (t
+	     (setf word "          ")
+	     ))
+    
+      (put-coloured-str! colour word column row))
     
     t))
 
 (defmethod print-afraid ((variant vanilla-variant) (player player) 
 			 (setting vanilla-bottom-row-locations))
 
-  (let ((column (slot-value setting 'afraid))
-        (row (get-last-console-line)))
-
-    (if (get-attribute-value '<fear> (player.temp-attrs player))
-        (put-coloured-str! +term-orange+ "Afraid" column row)
-        (put-coloured-str! +term-white+  "      " column row))
-    ))
+  (with-frame (+misc-frame+)
+    (let ((column (slot-value setting 'afraid))
+	  (row (get-last-console-line)))
+      (if (get-attribute-value '<fear> (player.temp-attrs player))
+	  (put-coloured-str! +term-orange+ "Afraid" column row)
+	  (put-coloured-str! +term-white+  "      " column row))
+      )))
 
 (defmethod print-confused ((variant vanilla-variant) (player player) 
 			   (setting vanilla-bottom-row-locations))
-
-  (let ((column (slot-value setting 'confused))
-        (row (get-last-console-line)))
-
-    (if (get-attribute-value '<confusion> (player.temp-attrs player))
-        (put-coloured-str! +term-orange+ "Confused" column row)
-        (put-coloured-str! +term-white+  "        " column row))
-    ))
+  (with-frame (+misc-frame+)
+    
+    (let ((column (slot-value setting 'confused))
+	  (row (get-last-console-line)))
+      (if (get-attribute-value '<confusion> (player.temp-attrs player))
+	  (put-coloured-str! +term-orange+ "Confused" column row)
+	  (put-coloured-str! +term-white+  "        " column row))
+      )))
 
 
 

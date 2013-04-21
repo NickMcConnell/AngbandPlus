@@ -21,7 +21,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-spell "Magic Missile"  "magic-missile"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player (- plvl 10) dir (get-spell-effect '<magic-missile>)
 					(roll-dice (+ 3 (int-/ (1- plvl) 5)) 4))
 		))))
@@ -53,7 +53,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-spell "Stinking Cloud" "stinking-cloud"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<poison>) (+ 10 (int-/ plvl 2)) 2)
 		))))
 
@@ -62,7 +62,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-spell "Lightning Bolt" "lightning-bolt"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player (- plvl 10) dir (get-spell-effect '<electricity>)
 					(roll-dice (+ 3 (int-/ (- plvl 5) 4)) 8))
 		))))
@@ -81,7 +81,9 @@ the Free Software Foundation; either version 2 of the License, or
 (define-spell "Spear of Light" "spear-of-light"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-		(when-bind (dir (%read-direction))
+	      ;; fix later
+	      (declare (ignore plvl))
+		(when-bind (dir (get-aim-direction))
 		  (print-message! "A line of blue shimmering light appears.")
 		  ;; add light-line call
 
@@ -90,7 +92,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-spell "Frost Bolt" "frost-bolt"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-		(when-bind (dir (%read-direction))
+		(when-bind (dir (get-aim-direction))
 		  (van-fire-bolt-or-beam! player (- plvl 10) dir (get-spell-effect '<cold>)
 					  (roll-dice (+ 5 (int-/ (- plvl 5) 4)) 8))
 		  ))))
@@ -112,7 +114,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-spell "Fire Bolt" "fire-bolt"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player (- plvl 10) dir (get-spell-effect '<fire>)
 					(roll-dice (+ 8 (int-/ (- plvl 5) 4)) 8))
 		))))
@@ -123,7 +125,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-spell "Frost Ball" "frost-ball"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<frost>) (+ 30 plvl) 2)
 		))))
 
@@ -136,7 +138,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-spell "Fire Ball" "fire-ball"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<fire>) (+ 55 plvl) 2)
 		))))
 
@@ -154,7 +156,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-spell "Acid Bolt" "acid-bolt"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-bolt-or-beam! player plvl dir (get-spell-effect '<acid>)
 					(roll-dice (+ 6 (int-/ (- plvl 5) 4)) 8))
 		))))
@@ -162,35 +164,35 @@ the Free Software Foundation; either version 2 of the License, or
 (define-spell "Cloud Kill" "cloud-kill"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<poison>) (+ 20 (int-/ plvl 2)) 3)
 		))))
 
 (define-spell "Acid Ball" "acid-ball"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<acid>) (+ 40 plvl) 2)
 		))))
 
 (define-spell "Ice Storm" "ice-storm"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<cold>) (+ 70 plvl) 3)
 		))))
   
 (define-spell "Meteor Swarm" "meteor-swarm"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<meteor>) (+ 65 plvl) 3)
 		))))
 
 (define-spell "Mana Storm" "mana-storm"
   :effect (spell-effect (dungeon player)
 	    (let ((plvl (player.level player)))
-	      (when-bind (dir (%read-direction))
+	      (when-bind (dir (get-aim-direction))
 		(van-fire-ball! player dir (get-spell-effect '<mana>) (+ 300 (* plvl 2)) 3)
 		))))
 

@@ -72,28 +72,6 @@ int player_egid;
 
 
 /*
- * The array[8] of window pointers
- */
-term *angband_term[8];
-
-
-/*
- * The array[8] of window names (modifiable?)
- */
-char angband_term_name[8][16] =
-{
-	"LAngband",
-	"Term-1",
-	"Term-2",
-	"Term-3",
-	"Term-4",
-	"Term-5",
-	"Term-6",
-	"Term-7"
-};
-
-
-/*
  * Global table of color definitions (mostly zeros)
  */
 byte angband_color_table[256][4] =

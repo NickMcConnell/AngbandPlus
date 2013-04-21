@@ -45,10 +45,16 @@ but stops errors from floating out.. returns NIL instead."
 
 (defun lbsys/ensure-dir-name (str)
   "Makes sure the str has a / suffix"
-  (if (and str (not (eq (char str (1- (length str))) #\/)))
-      (concatenate 'string str "/")
-      str))
+  (unless str
+    (error "Illegal directory ~s given to ensure-dir-name" str))
 
+  (let ((last-char (char str (1- (length str)))))
+    
+    (if (or (eql last-char #\/)
+	    (eql last-char #\\))
+	str
+	(concatenate 'string str "/"))))
+    
 (defun home-langband-path ()
   "Returns the path (as a string, not pathname) to the langband-dir in the home-dir."
   #-win32
@@ -60,3 +66,15 @@ but stops errors from floating out.. returns NIL instead."
         (concatenate 'string home-dir ".angband/langband/"))))
   #+win32
   "c:/")
+
+(defun lbsys/get-current-directory ()
+  "The default directory."
+  #+allegro (excl:current-directory)
+  #+clisp (ext:default-directory)
+  #+cmu (ext:default-directory)
+;;  #+sbcl (sb-ext:default-directory)
+  #+cormanlisp (ccl:get-current-directory)
+  #+lispworks (hcl:get-working-directory)
+  #+lucid (lcl:working-directory)
+  #+sbcl (truename ".")
+  #-(or allegro sbcl clisp cmu cormanlisp lispworks lucid) (truename "."))

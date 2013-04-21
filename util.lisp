@@ -48,60 +48,62 @@ a number or a symbol identifying the place."
 	(printed-prompt nil)
 	)
 
-    (block read-loop
-      (loop
 
-              
-       (setq printed-prompt (format nil "~a " the-prompt))
-       (c-prt! printed-prompt 0 0)
+    (with-dialogue ()
+      (block read-loop
+	(loop
+
+	 (setq printed-prompt (format nil "~a " the-prompt))
+	 (c-prt! printed-prompt 0 0)
        
-       (when show-mode
-	 (item-table-print (get-item-table dungeon player the-place)
-			   :show-pause nil
-			   :print-selection selection-function))
+	 (when show-mode
+	   (item-table-print (get-item-table dungeon player the-place)
+			     :show-pause nil
+			     :print-selection selection-function))
 
 
-       ;; add setting of cursor.
+	 ;; add setting of cursor.
 
-       ;; how to do graceful exit of loop?
-       (let ((read-char (read-one-character)))
-	 ;;(warn "read-char ~s" read-char)
-	 (cond ((eql read-char +escape+)
-		(return-from select-item nil))
-	       
-	       ((eql read-char #\*)
-		(setq show-mode t))
-	       
-	       ((eql read-char #\/)
-		(when (or (and allow-equip    (eq the-place :backpack))
-			  (and allow-backpack (eq the-place :equip)))
-		  (setq the-place (if (eq the-place :backpack) :equip :backpack))))
-	       
-	       ((and allow-floor (eq read-char #\-))
-		(select-item dungeon player allow-from
-			     :prompt prompt :where :floor))
+	 ;; how to do graceful exit of loop?
+	 (let ((read-char (read-one-character)))
 
-	       ;; improve this code, it just bails out now.
-	       ((alpha-char-p read-char)
-		(c-prt! "" 0 0)
-		(let ((num (a2i read-char)))
-		  (if (>= num 0)
-		      (return-from select-item (cons the-place num))
-		      (return-from select-item nil))))
+	   ;;(warn "read-char ~s" read-char)
+	   (cond ((eql read-char +escape+)
+		  (return-from select-item nil))
 	       
-	       (t
-		;; maybe go through loop again instead?
-		;;(error "Fell through on read-char in select-item ~s" read-char)
-		))
+		 ((eql read-char #\*)
+		  (setq show-mode t))
 	       
-	 (c-prt! "" 0 0))))
+		 ((eql read-char #\/)
+		  (when (or (and allow-equip    (eq the-place :backpack))
+			    (and allow-backpack (eq the-place :equip)))
+		    (setq the-place (if (eq the-place :backpack) :equip :backpack))))
+	       
+		 ((and allow-floor (eq read-char #\-))
+		  (select-item dungeon player allow-from
+			       :prompt prompt :where :floor))
+
+		 ;; improve this code, it just bails out now.
+		 ((alpha-char-p read-char)
+		  (c-prt! "" 0 0)
+		  (let ((num (a2i read-char)))
+		    (if (>= num 0)
+			(return-from select-item (cons the-place num))
+			(return-from select-item nil))))
+	       
+		 (t
+		  ;; maybe go through loop again instead?
+		  ;;(error "Fell through on read-char in select-item ~s" read-char)
+		  ))
+	       
+	   (c-prt! "" 0 0))))
 	    
    
-    ;; clear prompt
-    #-cmu
-    (c-prt! "" 0 0)
+      ;; clear prompt
+      #-cmu
+      (c-prt! "" 0 0)
     
-    nil))
+      nil)))
 
 (defun grab-a-selection-item (dungeon player  allow-from
 			     &key prompt (where :backpack)
@@ -660,7 +662,111 @@ a number or a symbol identifying the place."
 	      ((> value max) max)
 	      (t value)))
       )))
-      			
 
-;;(trace update-monsters!)		     
-;;(trace select-item :encapsulate t)
+
+(defvar *currently-showing-inv* :inventory)
+;;(defvar *currently-showing-inv* :equipment)
+(defvar *current-map-mode* :gfx-tiles)
+  
+(defun update-inventory-row (player)
+  (unless (eq (get-system-type) 'sdl)
+    (return-from update-inventory-row t))
+  (let ((off-button (+ +graphics-start+ 38))
+	(on-button (+ +graphics-start+ 39)))
+    
+    (with-frame (+inv-frame+)
+      (c-clear-from! 0)	;; hack
+      (let ((table nil))
+	(cond ((eq *currently-showing-inv* :inventory)
+	       (setf table (aobj.contains (player.inventory player))))
+	      ((eq *currently-showing-inv* :equipment)
+	       (setf table (player.equipment player)))
+	      (t
+	       (warn "Unable to find good equipment for ~s" *currently-showing-inv*)
+	       (return-from update-inventory-row nil)))
+      
+	(loop for i from 0 below (items.cur-size table)
+	      for obj = (aref (items.objs table) i)
+	      unless (and (typep table 'items-worn)
+			  (worn-item-slot-hidden (aref (variant.worn-item-slots *variant*) i)))
+	      do
+	      (progn
+		(c-term-queue-char! i 0 +term-white+ (+ #.(char-code #\a) i) -1 -1)
+		(when obj
+		  (c-term-queue-char! i 1 (x-attr obj) (x-char obj)  -1 -1)))))
+
+      (let ((col (- (get-term-width +inv-frame+) 1))
+	    (equip-button (if (eq *currently-showing-inv* :inventory)
+			      off-button
+			      on-button))
+	    (back-button (if (eq *currently-showing-inv* :inventory)
+			     on-button
+			     off-button)))
+
+	(c-term-queue-char! col 0 (+ +graphics-start+ 10) +graphics-start+
+			    back-button +graphics-start+)
+	(c-term-queue-char! col 1 (+ +graphics-start+ 3) (+ +graphics-start+ 34)
+			    equip-button +graphics-start+)
+	)
+
+      (let ((col (- (get-term-width +inv-frame+) 2))
+	    (map-button (if (eq *current-map-mode* :ascii)
+			    off-button
+			    on-button))
+	    (ascii-button (if (eq *current-map-mode* :ascii)
+			      on-button
+			      off-button)))
+
+	(c-term-queue-char! col 0 (+ +graphics-start+ 10) (+ +graphics-start+ 19)
+			    map-button +graphics-start+)
+	(c-term-queue-char! col 1 +term-l-blue+ (char-code #\A)
+			    ascii-button +graphics-start+)
+	)
+
+    
+      (c-term-fresh! +inv-frame+))))
+
+(defun switch-inventory-view ()
+  (if (eq *currently-showing-inv* :inventory)
+      (setf *currently-showing-inv* :equipment)
+      (setf *currently-showing-inv* :inventory))
+  (update-inventory-row *player*)
+  *currently-showing-inv*)
+
+#||
+(defun c-swap-map& ()
+  (org.langband.ffi:c-swap-map-term&)
+  (update-term-sizes!)
+  (verify-panel *dungeon* *player*)
+  (print-map *dungeon* *player*)
+;;  (bit-flag-add! *redraw* +print-map+)
+  (c-term-fresh!)
+  (c-term-flush!))
+||#
+
+(defun switch-map-mode ()
+  (if (eq *current-map-mode* :ascii)
+      (setf *current-map-mode* :gfx-tiles)
+      (setf *current-map-mode* :ascii))
+  (update-inventory-row *player*)
+
+  (cond ((eq *current-map-mode* :ascii)
+	 (c-deactivate-frame! +gfxmap-frame+)
+	 (c-activate-frame! +asciimap-frame+)
+	 (setf *map-frame* +asciimap-frame+))
+	
+	((eq *current-map-mode* :gfx-tiles)
+	 (c-deactivate-frame! +asciimap-frame+)
+	 (c-activate-frame! +gfxmap-frame+)
+	 (setf *map-frame* +gfxmap-frame+))
+	
+	(t ))
+
+  (c-wipe-frame! *map-frame*)
+  (verify-panel *dungeon* *player*)
+  (print-map *dungeon* *player*)
+  (c-term-fresh! *map-frame*)
+  (c-term-flush!)
+
+  *current-map-mode*)
+

@@ -124,6 +124,9 @@ should be an exisiting id."
 			      :tolerance tolerance :race race-obj))
 	 (var-obj *variant*))
 
+    (when (and picture (not (image-exists? 'people picture)))
+      (warn "Unable to find picture ~s for store-owner ~s." picture id)
+      (setf (owner.picture owner) nil))
 
     ;; we add it to the owner-table
     (establish-owner& var-obj owner)
@@ -146,7 +149,14 @@ should be an exisiting id."
 
 (defmethod get-offer ((object active-object) (store store))
   (int-/ (get-price object store) 2)) ;; decent value, eh?
-   
+
+(defun %print-shop-message! (str)
+  (print-message! str +term-yellow+))
+;;  (let ((line (- (get-last-console-line +dialogue-frame+) 5)))
+;;    (put-coloured-line! +term-yellow+ str 2 line)))
+
+
+
 (defun %store-select-item (low top)
   (let ((the-char (read-one-character)))
     (cond ((eql the-char #\Escape)
@@ -172,7 +182,7 @@ should be an exisiting id."
 	   (items (store.items store))
 	   (item-len (items.cur-size items)))
   
-      (put-coloured-str! +term-white+
+      (put-coloured-str! +term-yellow+
 			 (format nil "(Items ~a-~a, ESC to exit) Which item are you interested in?"
 				 (i2a 0) (i2a (1- item-len)))
 			 0 0)
@@ -184,11 +194,11 @@ should be an exisiting id."
 		 (backpack (aobj.contains (player.inventory player))))
 	    ;;(warn "Buying ~s for ~s" act-obj the-price)
 	    (unless (<= the-price (player.gold player))
-	      (print-message! "You cannot afford that item!")
+	      (%print-shop-message! "You cannot afford that item!")
 	      (return-from buying nil))
 
 	    (unless (item-table-more-room? backpack)
-	      (print-message! "No room in backpack!")
+	      (%print-shop-message! "No room in backpack!")
 	      (return-from buying nil))
 
 	    (cond ((= 1 (aobj.number act-obj))
@@ -234,7 +244,7 @@ should be an exisiting id."
 	    ;; does the shop want to buy that kind of object?
 	    (let ((might-buy (store-buys-item? removed-obj store)))
 	      (unless might-buy
-		(print-message! "- I don't buy such items.")
+		(%print-shop-message! "- I don't buy such items.")
 		;; put it back.
 		(item-table-add! the-table removed-obj)
 		(return-from selling nil)))
@@ -242,7 +252,7 @@ should be an exisiting id."
 	    ;; does the shop have any room?
 	    (let ((shop-items (store.items store)))
 	      (unless (item-table-more-room? shop-items)
-		(print-message! "- I have no more room in the store.")
+		(%print-shop-message! "- I have no more room in the store.")
 		;; put it back.
 		(item-table-add! the-table removed-obj)
 		(return-from selling nil)))
@@ -250,27 +260,20 @@ should be an exisiting id."
 	    ;; can we get a decent price?
 	    (let ((price (get-offer removed-obj store)))
 	      (cond ((plusp price)
-		     (print-message! "- It's a deal.")
+		     (%print-shop-message! "- It's a deal.")
 		     ;; add to shop
 		     (item-table-add! (store.items store) removed-obj)
 		     (incf (player.gold player) price)
 		     (return-from selling t))
 		    ;; no decent price
 		    (t
-		     (print-message! "- That item is worthless, I don't want it.")
+		     (%print-shop-message! "- That item is worthless, I don't want it.")
 		     (item-table-add! the-table removed-obj)
 		     (return-from selling nil))))
 
 	    nil))
 	
 	))))
-
-(defun %load-people-image (name wid height)
-  (let ((pname (concatenate 'string "./graphics/people/" name)))
-    (load-scaled-image& pname -1 wid height)))
-
-(defun %paint-people-image (name x y)
-  (paint-gfx-image& name "people" x y))
 
 
 (defmethod display-house ((player player) (store store) &key (offset 0))
@@ -300,7 +303,7 @@ should be an exisiting id."
     (c-clear-from! 0) ;; hack
 
     ;; big empty space when no graphics
-    (when *use-graphics*
+    (when (use-images?)
       ;; hackish, improve later
 
       (let ((owner-picture (owner.picture the-owner)))
@@ -357,30 +360,38 @@ should be an exisiting id."
     t))
 
 (defun %shop-input-loop (player level store)
+  
   (block input-loop
-  (loop
-   (c-term-gotoxy! 10 21)       
-   (let ((val (read-one-character)))
-     (cond ((or (eql val #\g)
-		(eql val #\p))
-	    (let ((retval (%store-buy-item player level store)))
-	      (when retval
-		(display-house player store ))))
+    (loop
+     (c-term-gotoxy! 10 21)
+   
+     (let ((val (read-one-character)))
+       (flush-messages! t) ;; forced
+       ;;(warn "shop-loop got ~s" val) 
+       (cond ((or (eql val #\g)
+		  (eql val #\p))
+	      (when-bind (retval (%store-buy-item player level store))
+		(display-house player store)
+		(update-inventory-row player)
+		(c-prt! "" 0 0)))
      
-	    ((or (eql val #\d)
-		 (eql val #\s))
-	     (when-bind (retval (%store-sell-item player level store))
-	       (display-house player store)))
+	     ((or (eql val #\d)
+		  (eql val #\s))
+	      (%store-sell-item player level store)
+	      (display-house player store)
+	      (update-inventory-row player)
+	      (c-prt! "" 0 0))
+
 	    
-	    ((or (eql val #\Escape)
-		 (eql val #\Q))
-	     (return-from input-loop t))
+	     ((or (eql val #\Escape)
+		  (eql val #\Q))
+	      (return-from input-loop t))
 	    
-	    (t
-	     (warn "Unknown key read: ~s" val)))
+	     (t
+	      (warn "Unknown key read: ~s" val)))
      
-;;     (c-prt! "" 0 0)
-     ))))
+       ;;     (c-prt! "" 0 0)
+       ))))
 
 
 (defmethod visit-house (level (house store))
@@ -388,13 +399,13 @@ should be an exisiting id."
 
   (unless (activated? house)
     (activate-object house))
-  
-  (with-new-screen ()
+
+  (flush-messages! t)
+  (with-dialogue ()
     (clear-the-screen!)
     (display-house *player* house :offset 0)
-    (%shop-input-loop *player* level house)
     
-    ;;(pause-last-line!)
+    (%shop-input-loop *player* level house)
     ))
 
 

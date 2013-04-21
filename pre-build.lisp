@@ -35,7 +35,12 @@ the Free Software Foundation; either version 2 of the License, or
 (progn
   (setq ext:*gc-verbose* nil
 	ext:*byte-compile-default* nil
-	*compile-print* nil)
+	cl:*compile-verbose* nil
+	ext:*compile-progress* nil
+	cl:*compile-print* nil)
+  ;; to avoid exit-problems with cmucl on debian
+  #+direct-syscall
+  (pushnew :disable-sound cl:*features*)
   #+pcl
   (pushnew 'compile pcl::*defclass-times*))
 
@@ -44,7 +49,9 @@ the Free Software Foundation; either version 2 of the License, or
   (setq ;;sb-ext:*gc-verbose* nil
 	;;sb-ext:*byte-compile-default* nil
 	*compile-print* nil
-	))
+	)
+  ;;(pushnew :disable-sound cl:*features*)
+  )
   
 
 #+allegro
@@ -69,7 +76,7 @@ the Free Software Foundation; either version 2 of the License, or
 		      (pushnew :using-sound *features*)))
 		   (environments
 		    (dolist (i (cdr x))
-		      (when (eq i 'x11)
+		      (when (or (eq i 'x11) (eq i 'sdl))
 			(pushnew :image-support *features*))))
 		   (otherwise
 		    (warn "Unknown setting directive ~s in ~s" x fname))))

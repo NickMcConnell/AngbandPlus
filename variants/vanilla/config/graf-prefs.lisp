@@ -1,9 +1,11 @@
 
 (in-package :org.langband.vanilla)
 
+;; gradually move most of this file over to use ids
 
-(update-floor-display 0 :x-attr (+ +graphics-start+ 0) :x-char (+ +graphics-start+ 0))
-(update-floor-display 1 :x-attr (+ +graphics-start+ 26) :x-char (+ +graphics-start+ 1))
+(update-floor-display 0 :x-attr (tile-file 0) :x-char (tile-number 0))
+(update-floor-display 1 :x-attr (tile-file 26) :x-char (tile-number 14))
+;;(update-floor-display 1 :x-attr (+ +graphics-start+ 26) :x-char (+ +graphics-start+ 1))
 (update-floor-display 2 :x-attr (+ +graphics-start+ 26) :x-char (+ +graphics-start+ 1))
 (update-floor-display 3 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 41))
 (update-floor-display 4 :x-attr (+ +graphics-start+ 25) :x-char (+ +graphics-start+ 4))
@@ -18,22 +20,7 @@
 (update-floor-display 13 :x-attr (+ +graphics-start+ 29) :x-char (+ +graphics-start+ 8))
 (update-floor-display 14 :x-attr (+ +graphics-start+ 29) :x-char (+ +graphics-start+ 27))
 (update-floor-display 15 :x-attr (+ +graphics-start+ 29) :x-char (+ +graphics-start+ 23))
-(update-floor-display 16 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 38))
-(update-floor-display 17 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 36))
-(update-floor-display 18 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 37))
-(update-floor-display 19 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 67))
-(update-floor-display 20 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 39))
-(update-floor-display 21 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 40))
-(update-floor-display 22 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 35))
-(update-floor-display 23 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 35))
-(update-floor-display 24 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 33))
-(update-floor-display 25 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 57))
-(update-floor-display 26 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 58))
-(update-floor-display 27 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 60))
-(update-floor-display 28 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 61))
-(update-floor-display 29 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 59))
-(update-floor-display 30 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 56))
-(update-floor-display 31 :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 61))
+;; see traps later
 (update-floor-display 32 :x-attr (+ +graphics-start+ 25) :x-char (+ +graphics-start+ 3))
 (update-floor-display 33 :x-attr (+ +graphics-start+ 25) :x-char (+ +graphics-start+ 3))
 (update-floor-display 34 :x-attr (+ +graphics-start+ 25) :x-char (+ +graphics-start+ 3))
@@ -67,6 +54,39 @@
 (update-floor-display 62 :x-attr (+ +graphics-start+ 29) :x-char (+ +graphics-start+ 1))
 (update-floor-display 63 :x-attr (+ +graphics-start+ 29) :x-char (+ +graphics-start+ 1))
 
+(update-trap-display "trapdoor"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 38))
+(update-trap-display "pit"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 36))
+(update-trap-display "spiked-pit"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 37))
+(update-trap-display "spiked-pit-poison"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 67))
+(update-trap-display "summon-trap"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 39))
+(update-trap-display "teleport-trap"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 40))
+(update-trap-display "fire-trap"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 35))
+(update-trap-display "acid-trap"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 35))
+(update-trap-display "dart-trap-slow"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 33))
+(update-trap-display "dart-trap-red-str"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 57))
+(update-trap-display "dart-trap-red-dex"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 58))
+(update-trap-display "dart-trap-red-con"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 60))
+(update-trap-display "blind-trap"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 61))
+(update-trap-display "confusion-trap"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 59))
+(update-trap-display "poison-trap"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 56))
+(update-trap-display "paralysis-trap"
+		     :x-attr (+ +graphics-start+ 10) :x-char (+ +graphics-start+ 61))
+;; v3.0 has sleep trap
 
 (update-kind-display 0 :x-attr 1 :x-char 38)
 (update-kind-display 1 :x-attr 0 :x-char 44)
@@ -521,8 +541,6 @@
 (update-kind-display 512 :x-attr 11 :x-char 126)
 (update-kind-display 513 :x-attr 5 :x-char 34)
 (update-kind-display 514 :x-attr 1 :x-char 34)
-
-
 
 (update-monster-display 0 :x-attr (+ +graphics-start+ 6) :x-char (+ +graphics-start+ 7))
 (update-monster-display 1 :x-attr (+ +graphics-start+ 14) :x-char (+ +graphics-start+ 0))

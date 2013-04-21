@@ -47,6 +47,7 @@
 
 #include "angband.h"
 #include "langband.h"
+#include "lbwindows.h"
 #include <errno.h>
 
 #ifdef USE_GCU
@@ -195,24 +196,19 @@ static int            game_local_chars;
 
 #endif
 
-/*
- * Information about a term
- */
-typedef struct term_data term_data;
-
-struct term_data
-{
-	term t;                 /* All term info */
-
-	WINDOW *win;            /* Pointer to the curses window */
+struct gcu_winconnection {
+    WINDOW *win;            /* Pointer to the curses window */
 };
 
+typedef struct gcu_winconnection gcu_winconnection;
+
 /* Max number of windows on screen */
-#define MAX_TERM_DATA 4
+//#define MAX_TERM_DATA 5
 
 /* Information about our windows */
-static term_data data[MAX_TERM_DATA];
+//static term_data data[MAX_TERM_DATA];
 
+//term_data **gcu_subwindows = NULL;
 
 /*
  * Hack -- Number of initialized "term" structures
@@ -461,6 +457,7 @@ static void keymap_game_prepare(void)
 static errr Term_xtra_gcu_alive(int v)
 {
         int x, y;
+	DEBUGPUT("EXTRA\n");
 	
         /* Suspend */
 	if (!v)
@@ -521,66 +518,68 @@ const char help_gcu[] = "Curses, for terminal console, subopts -b(ig screen)";
 /*
  * Init the "curses" system
  */
-static void Term_init_gcu(term *t)
-{
-	term_data *td = (term_data *)(t->data);
+static void Term_init_gcu(angband_zterm *t) {
 
-	/* Count init's, handle first */
-	if (active++ != 0) return;
+    LangbandFrame *lf = (LangbandFrame *)(t->data);
+    gcu_winconnection *wc = (gcu_winconnection*)lf->ui_connection;
 
-	/* Erase the window */
-	(void)wclear(td->win);
+    /* Count init's, handle first */
+    if (active++ != 0) return;
 
-	/* Reset the cursor */
-	(void)wmove(td->win, 0, 0);
+    /* Erase the window */
+    (void)wclear(wc->win);
 
-	/* Flush changes */
-	(void)wrefresh(td->win);
+    /* Reset the cursor */
+    (void)wmove(wc->win, 0, 0);
 
-	/* Game keymap */
-	keymap_game();
+    /* Flush changes */
+    (void)wrefresh(wc->win);
+
+    /* Game keymap */
+    keymap_game();
 }
 
 
 /*
  * Nuke the "curses" system
  */
-static void Term_nuke_gcu(term *t)
+static void Term_nuke_gcu(angband_zterm *t)
 {
-        int x, y;
-	term_data *td = (term_data *)(t->data);
+    int x, y;
+    LangbandFrame *lf = (LangbandFrame *)(t->data);
+    gcu_winconnection *wc = (gcu_winconnection*)lf->ui_connection;
 
-	/* Delete this window */
-	delwin(td->win);
+    /* Delete this window */
+    delwin(wc->win);
 
-	/* Count nuke's, handle last */
-	if (--active != 0) return;
+    /* Count nuke's, handle last */
+    if (--active != 0) return;
 
-	/* Hack -- make sure the cursor is visible */
-	Term_xtra(TERM_XTRA_SHAPE, 1);
+    /* Hack -- make sure the cursor is visible */
+    Term_xtra(TERM_XTRA_SHAPE, 1);
 
 #ifdef A_COLOR
-	/* Reset colors to defaults */
-	start_color();
+    /* Reset colors to defaults */
+    start_color();
 #endif
 
-	/* Get current cursor position */
-        getyx(curscr, y, x);
+    /* Get current cursor position */
+    getyx(curscr, y, x);
 
-        /* Move the cursor to bottom right corner */
-        mvcur(y, x, LINES - 1, 0);
+    /* Move the cursor to bottom right corner */
+    mvcur(y, x, LINES - 1, 0);
 
-	/* Flush the curses buffer */
-	(void)refresh();
+    /* Flush the curses buffer */
+    (void)refresh();
 
-	/* Exit curses */
-	endwin();
+    /* Exit curses */
+    endwin();
 
-	/* Flush the output */
-	(void)fflush(stdout);
+    /* Flush the output */
+    (void)fflush(stdout);
 
-	/* Normal keymap */
-	keymap_norm();
+    /* Normal keymap */
+    keymap_norm();
 }
 
 
@@ -593,47 +592,47 @@ static void Term_nuke_gcu(term *t)
  */
 static errr Term_xtra_gcu_event(int v)
 {
-	int i, k;
+    int i, k;
 
-	/* Wait */
-	if (v)
-	{
-		/* Paranoia -- Wait for it */
-		nodelay(stdscr, FALSE);
+    /* Wait */
+    if (v)
+    {
+	/* Paranoia -- Wait for it */
+	nodelay(stdscr, FALSE);
 
-		/* Get a keypress */
-		i = getch();
+	/* Get a keypress */
+	i = getch();
 
-		/* Mega-Hack -- allow graceful "suspend" */
-		for (k = 0; (k < 10) && (i == ERR); k++) i = getch();
+	/* Mega-Hack -- allow graceful "suspend" */
+	for (k = 0; (k < 10) && (i == ERR); k++) i = getch();
 
-		/* Broken input is special */
-		if (i == ERR) exit_game_panic();
-		if (i == EOF) exit_game_panic();
-	}
+	/* Broken input is special */
+	if (i == ERR) exit_game_panic();
+	if (i == EOF) exit_game_panic();
+    }
 
-	/* Do not wait */
-	else
-	{
-		/* Do not wait for it */
-		nodelay(stdscr, TRUE);
+    /* Do not wait */
+    else
+    {
+	/* Do not wait for it */
+	nodelay(stdscr, TRUE);
 
-		/* Check for keypresses */
-		i = getch();
+	/* Check for keypresses */
+	i = getch();
 
-		/* Wait for it next time */
-		nodelay(stdscr, FALSE);
+	/* Wait for it next time */
+	nodelay(stdscr, FALSE);
 
-		/* None ready */
-		if (i == ERR) return (1);
-		if (i == EOF) return (1);
-	}
+	/* None ready */
+	if (i == ERR) return (1);
+	if (i == EOF) return (1);
+    }
 
-	/* Enqueue the keypress */
-	Term_keypress(i);
+    /* Enqueue the keypress */
+    Term_keypress(i);
 
-	/* Success */
-	return (0);
+    /* Success */
+    return (0);
 }
 
 #else	/* USE_GETCH */
@@ -643,47 +642,47 @@ static errr Term_xtra_gcu_event(int v)
  */
 static errr Term_xtra_gcu_event(int v)
 {
-	int i, k;
+    int i, k;
 
-	char buf[2];
+    char buf[2];
 
-	/* Wait */
-	if (v)
-	{
-		/* Wait for one byte */
-		i = read(0, buf, 1);
+    /* Wait */
+    if (v)
+    {
+	/* Wait for one byte */
+	i = read(0, buf, 1);
 
-		/* Hack -- Handle bizarre "errors" */
-		if ((i <= 0) && (errno != EINTR)) exit_game_panic();
-	}
+	/* Hack -- Handle bizarre "errors" */
+	if ((i <= 0) && (errno != EINTR)) exit_game_panic();
+    }
 
-	/* Do not wait */
-	else
-	{
-		/* Get the current flags for stdin */
-		k = fcntl(0, F_GETFL, 0);
+    /* Do not wait */
+    else
+    {
+	/* Get the current flags for stdin */
+	k = fcntl(0, F_GETFL, 0);
 
-		/* Oops */
-		if (k < 0) return (1);
+	/* Oops */
+	if (k < 0) return (1);
 
-		/* Tell stdin not to block */
-		if (fcntl(0, F_SETFL, k | O_NDELAY) < 0) return (1);
+	/* Tell stdin not to block */
+	if (fcntl(0, F_SETFL, k | O_NDELAY) < 0) return (1);
 
-		/* Read one byte, if possible */
-		i = read(0, buf, 1);
+	/* Read one byte, if possible */
+	i = read(0, buf, 1);
 
-		/* Replace the flags for stdin */
-		if (fcntl(0, F_SETFL, k)) return (1);
-	}
+	/* Replace the flags for stdin */
+	if (fcntl(0, F_SETFL, k)) return (1);
+    }
 
-	/* Ignore "invalid" keys */
-	if ((i != 1) || (!buf[0])) return (1);
+    /* Ignore "invalid" keys */
+    if ((i != 1) || (!buf[0])) return (1);
 
-	/* Enqueue the keypress */
-	Term_keypress(buf[0]);
+    /* Enqueue the keypress */
+    Term_keypress(buf[0]);
 
-	/* Success */
-	return (0);
+    /* Success */
+    return (0);
 }
 
 #endif	/* USE_GETCH */
@@ -696,104 +695,107 @@ static errr Term_xtra_gcu_react(void)
 
 #ifdef A_COLOR
 
-	int i;
+    int i;
 
-	/* Cannot handle color redefinition */
-	if (!can_fix_color) return (0);
+    /* Cannot handle color redefinition */
+    if (!can_fix_color) return (0);
 
-	/* Set the colors */
-	for (i = 0; i < 16; i++)
-	{
-		/* Set one color (note scaling) */
-		init_color(i,
-                           angband_color_table[i][1] * 1000 / 255,
-		           angband_color_table[i][2] * 1000 / 255,
-		           angband_color_table[i][3] * 1000 / 255);
-	}
+    /* Set the colors */
+    for (i = 0; i < 16; i++)
+    {
+	/* Set one color (note scaling) */
+	init_color(i,
+		   angband_color_table[i][1] * 1000 / 255,
+		   angband_color_table[i][2] * 1000 / 255,
+		   angband_color_table[i][3] * 1000 / 255);
+    }
 
 #endif
 
-	/* Success */
-	return (0);
+    /* Success */
+    return (0);
 }
 
 
 /*
  * Handle a "special request"
  */
-static errr Term_xtra_gcu(int n, int v)
-{
-	term_data *td = (term_data *)(Term->data);
+errr
+Term_xtra_gcu(int n, int v) {
 
-	/* Analyze the request */
-	switch (n)
-	{
-		/* Clear screen */
-		case TERM_XTRA_CLEAR:
-		touchwin(td->win);
-		(void)wclear(td->win);
-		return (0);
+    LangbandFrame *lf = (LangbandFrame *)(Term->data);
+    gcu_winconnection *wc = (gcu_winconnection*)lf->ui_connection;
 
-		/* Make a noise */
-		case TERM_XTRA_NOISE:
-		(void)write(1, "\007", 1);
-		return (0);
+    /* Analyze the request */
+    switch (n)
+    {
+	/* Clear screen */
+    case TERM_XTRA_CLEAR:
+	touchwin(wc->win);
+	(void)wclear(wc->win);
+	return (0);
 
-		/* Flush the Curses buffer */
-		case TERM_XTRA_FRESH:
-		(void)wrefresh(td->win);
-		return (0);
+	/* Make a noise */
+    case TERM_XTRA_NOISE:
+	(void)write(1, "\007", 1);
+	return (0);
+
+	/* Flush the Curses buffer */
+    case TERM_XTRA_FRESH:
+	(void)wrefresh(wc->win);
+	return (0);
 
 #ifdef USE_CURS_SET
 
-		/* Change the cursor visibility */
-		case TERM_XTRA_SHAPE:
-		curs_set(v);
-		return (0);
+	/* Change the cursor visibility */
+    case TERM_XTRA_SHAPE:
+	curs_set(v);
+	return (0);
 
 #endif
 
-		/* Suspend/Resume curses */
-		case TERM_XTRA_ALIVE:
-		return (Term_xtra_gcu_alive(v));
+	/* Suspend/Resume curses */
+    case TERM_XTRA_ALIVE:
+	return (Term_xtra_gcu_alive(v));
 
-		/* Process events */
-		case TERM_XTRA_EVENT:
-		return (Term_xtra_gcu_event(v));
+	/* Process events */
+    case TERM_XTRA_EVENT:
+	return (Term_xtra_gcu_event(v));
 
-		/* Flush events */
-		case TERM_XTRA_FLUSH:
-		while (!Term_xtra_gcu_event(FALSE));
-		return (0);
+	/* Flush events */
+    case TERM_XTRA_FLUSH:
+	while (!Term_xtra_gcu_event(FALSE));
+	return (0);
 
-		/* Delay */
-		case TERM_XTRA_DELAY:
-		usleep(1000 * v);
-		return (0);
+	/* Delay */
+    case TERM_XTRA_DELAY:
+	usleep(1000 * v);
+	return (0);
 
-		/* React to events */
-		case TERM_XTRA_REACT:
-		Term_xtra_gcu_react();
-		return (0);
-	}
+	/* React to events */
+    case TERM_XTRA_REACT:
+	Term_xtra_gcu_react();
+	return (0);
+    }
 
-	/* Unknown */
-	return (1);
+    /* Unknown */
+    return (1);
 }
 
 
 /*
  * Actually MOVE the hardware cursor
  */
-static errr Term_curs_gcu(int x, int y)
-{
-	term_data *td = (term_data *)(Term->data);
+static errr Term_curs_gcu(int x, int y) {
+    
+    LangbandFrame *lf = (LangbandFrame *)(Term->data);
+    gcu_winconnection *wc = (gcu_winconnection*)lf->ui_connection;
 
-	/* Literally move the cursor */
-	wmove(td->win, y, x);
+    /* Literally move the cursor */
+    wmove(wc->win, y, x);
 
-	/* Success */
-	return (0);
+    /* Success */
+    return (0);
 }
 
 
@@ -801,91 +803,93 @@ static errr Term_curs_gcu(int x, int y)
  * Erase a grid of space
  * Hack -- try to be "semi-efficient".
  */
-static errr Term_wipe_gcu(int x, int y, int n)
-{
-	term_data *td = (term_data *)(Term->data);
+static errr Term_wipe_gcu(int x, int y, int n) {
 
-	/* Place cursor */
-	wmove(td->win, y, x);
+    LangbandFrame *lf = (LangbandFrame *)(Term->data);
+    gcu_winconnection *wc = (gcu_winconnection*)lf->ui_connection;
 
-	/* Clear to end of line */
-	if (x + n >= td->t.wid)
-	{
-		wclrtoeol(td->win);
-	}
+    /* Place cursor */
+    wmove(wc->win, y, x);
 
-	/* Clear some characters */
-	else
-	{
-		while (n-- > 0) waddch(td->win, ' ');
-	}
+    /* Clear to end of line */
+    if (x + n >= lf->azt->wid)
+    {
+	wclrtoeol(wc->win);
+    }
 
-	/* Success */
-	return (0);
+    /* Clear some characters */
+    else
+    {
+	while (n-- > 0) waddch(wc->win, ' ');
+    }
+
+    /* Success */
+    return (0);
 }
 
 
 /*
  * Place some text on the screen using an attribute
  */
-static errr Term_text_gcu(int x, int y, int n, s16b a, const s16b *s)
-{
-	term_data *td = (term_data *)(Term->data);
+static errr Term_text_gcu(int x, int y, int n, s16b a, const s16b *s) {
 
-	int i, pic;
+    LangbandFrame *lf = (LangbandFrame *)(Term->data);
+    gcu_winconnection *wc = (gcu_winconnection*)lf->ui_connection;
+
+    int i, pic;
 	
 #ifdef A_COLOR
-	/* Set the color */
-	if (can_use_color) wattrset(td->win, colortable[a & 0x0F]);
+    /* Set the color */
+    if (can_use_color) wattrset(wc->win, colortable[a & 0x0F]);
 #endif
 
-	/* Move the cursor */
-	wmove(td->win, y, x);
+    /* Move the cursor */
+    wmove(wc->win, y, x);
 
-	/* Draw each character */
-	for (i = 0; i < n; i++)
-	{
+    /* Draw each character */
+    for (i = 0; i < n; i++)
+    {
 #ifdef USE_GRAPHICS
-		/* Special character */
-		if (use_graphics && (s[i] >= LANGBAND_GFX_START))
-		{
-			/* Determine picture to use */
-			switch (s[i] - LANGBAND_GFX_START)
-			{
+	/* Special character */
+	if (use_graphics && (s[i] >= LANGBAND_GFX_START))
+	{
+	    /* Determine picture to use */
+	    switch (s[i] - LANGBAND_GFX_START)
+	    {
 #ifdef ACS_CKBOARD
-                                /* Wall */
-                                case '#':
-                                        pic = ACS_CKBOARD;
-                                        break;
+		/* Wall */
+	    case '#':
+		pic = ACS_CKBOARD;
+		break;
 #endif /* ACS_CKBOARD */
 
 #ifdef ACS_BOARD
-                                /* Mineral vein */
-                                case '%':
-                                        pic = ACS_BOARD;
-                                        break;
+		/* Mineral vein */
+	    case '%':
+		pic = ACS_BOARD;
+		break;
 #endif /* ACS_BOARD */
 
-				/* XXX */
-				default:
-					pic = '?';
-					break;
-			}
+		/* XXX */
+	    default:
+		pic = '?';
+		break;
+	    }
 
-			/* Draw the picture */
-			waddch(td->win, pic);
+	    /* Draw the picture */
+	    waddch(wc->win, pic);
 
-			/* Next character */
-			continue;
-		}
+	    /* Next character */
+	    continue;
+	}
 #endif
 
-		/* Draw a normal character */
-		waddch(td->win, (byte)s[i]);
-	}
+	/* Draw a normal character */
+	waddch(wc->win, (byte)s[i]);
+    }
 
-	/* Success */
-	return (0);
+    /* Success */
+    return (0);
 }
 
 
@@ -894,48 +898,82 @@ static errr Term_text_gcu(int x, int y, int n, s16b a, const s16b *s)
  *
  * Assumes legal arguments.
  */
-static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
-{
-	term *t = &td->t;
+static LangbandFrame *
+cursify_frame(LangbandFrame *lf, int max_cols, int max_rows) {
+    
+    angband_zterm *t = NULL;
+    gcu_winconnection *wc = NULL;
+	
+    wc = malloc(sizeof(gcu_winconnection));
+    WIPE(wc, gcu_winconnection);
 
-	/* Create new window */
-	td->win = newwin(rows, cols, y, x);
+    lf->azt = malloc(sizeof(angband_zterm));
+    WIPE(lf->azt, angband_zterm);
 
-	/* Check for failure */
-	if (!td->win)
-	{
-		/* Error */
-		quit("Failed to setup curses window.");
+    lf->ui_connection = wc;
+
+    // DEBUGPUT("Cursify %s.\n", lf->name);
+    
+    {
+	int cols = lf->allowed_width;
+	int rows = lf->allowed_height;
+
+	if (cols <= 0 || rows <= 0) {
+	    ERRORMSG("Illegal values for window '%s': cols %d, rows %d. (%d,%d)\n",
+		     lf->name, cols, rows, max_cols, max_rows);
 	}
-
+	
+	//DBGPUT("New window  %d, %d, %d, %d\n", cols, rows, lf->xoffset, lf->yoffset);
+	
+	/* Create new window */
+	wc->win = newwin(rows, cols, lf->yoffset, lf->xoffset);
+	
+	/* Check for failure */
+	if (!wc->win) {
+	    /* Error */
+	    z_quit("Failed to setup curses window.");
+	}
+	//DBGPUT("going init on %p with %d %d\n", lf->azt, cols, rows);
+	
 	/* Initialize the term */
-	term_init(t, cols, rows, 256);
+	term_init(lf->azt, cols, rows, 256);
+    }
 
-	/* Avoid bottom right corner */
-	t->icky_corner = TRUE;
+    // time to assign some important values
+    lf->columns = lf->frame_width = lf->allowed_width;
+    lf->rows = lf->frame_width = lf->allowed_height;
 
-	/* Erase with "white space" */
-	t->attr_blank = TERM_WHITE;
-	t->char_blank = ' ';
+    lf->tile_width = lf->tile_height = 1;
+    
+    t = lf->azt;
+    
+    /* Avoid bottom right corner */
+    t->icky_corner = TRUE;
 
-	/* Set some hooks */
-	t->init_hook = Term_init_gcu;
-	t->nuke_hook = Term_nuke_gcu;
+    /* Erase with "white space" */
+    t->attr_blank = TERM_WHITE;
+    t->char_blank = ' ';
 
-	/* Set some more hooks */
-	t->text_hook = Term_text_gcu;
-	t->wipe_hook = Term_wipe_gcu;
-	t->curs_hook = Term_curs_gcu;
-	t->xtra_hook = Term_xtra_gcu;
+    /* Set some hooks */
+    t->init_hook = Term_init_gcu;
+    t->nuke_hook = Term_nuke_gcu;
 
-	/* Save the data */
-	t->data = td;
+    /* Set some more hooks */
+    t->text_hook = Term_text_gcu;
+    t->wipe_hook = Term_wipe_gcu;
+    t->curs_hook = Term_curs_gcu;
+    t->xtra_hook = Term_xtra_gcu;
 
-	/* Activate it */
-	Term_activate(t);
+    /* Save the data */
+    t->data = lf;
+    //DEBUGPUT("ACT\n");
+    /* Activate it */
+    Term_activate(t);
 
-	/* Success */
-	return (0);
+    //DEBUGPUT("Finished cursify of %s.\n", lf->name);
+    
+    /* Success */
+    return lf;
 }
 
 
@@ -951,9 +989,9 @@ errr init_gcu(int argc, char **argv)
 {
     int i;
 
-    int num_term = MAX_TERM_DATA, next_win = 0;
 
-    bool use_big_screen = TRUE;
+//    bool use_big_screen = TRUE;
+    bool use_big_screen = FALSE;
 
     /* Extract the normal keymap */
     keymap_norm_prepare();
@@ -963,18 +1001,13 @@ errr init_gcu(int argc, char **argv)
 
     
     /* Require standard size screen */
-    if ((LINES < 24) || (COLS < 80))
-    {
-	quit("Angband needs at least an 80x24 'curses' screen");
+    if ((LINES < 24) || (COLS < 80)) {
+	z_quit("Angband needs at least an 80x24 'curses' screen");
     }
 
-    /*
-    {
-    	FILE *bum = fopen("gah.txt", "w");
-	fprintf(bum,"Big screen %d,%d\n", LINES, COLS);
-	fclose(bum);
+    if (use_big_screen) {
+	DBGPUT("Big screen %d,%d\n", LINES, COLS);
     }
-    */
 
 #ifdef USE_GRAPHICS
 
@@ -1008,7 +1041,7 @@ errr init_gcu(int argc, char **argv)
 	    /* Reset the color */
 	    if (init_pair(i, i - 1, 0) == ERR)
 	    {
-		quit("Color pair init failed");
+		z_quit("Color pair init failed");
 	    }
 
 	    /* Set up the colormap */
@@ -1075,90 +1108,92 @@ errr init_gcu(int argc, char **argv)
     /* Extract the game keymap */
     keymap_game_prepare();
 
-
     /*** Now prepare the term(s) ***/
 
+    for (i = 0; i < num_predefinedFrames; i++) {
+	LangbandFrame *lf = get_frame(i, PREDEFINED);
+	const char *frameName = NULL;
+	//DBGPUT("Checking sub %d\n", i);
+	if (!lf) {
+	    DBGPUT("Did not find frame %d.\n", i);
+	    continue;
+	}
+	frameName = lf->name;
+	lf = cursify_frame(lf, COLS, LINES);
+	
+	//DBGPUT("did cursify %p\n", lf);
+	
+	if (!lf) {
+	    ERRORMSG("Problems creating frame '%s'\n", frameName);
+	    return -1;
+	}
+
+	lf->visible = FALSE;
+	//DBGPUT("end-loop\n");
+    }
+
+    activate_frame(FULL_TERM_IDX);
+    Term = activeFrames[FULL_TERM_IDX]->azt;
+
+    DEBUGPUT("Return to london\n");
+    
+    return 0;
+    
+#if 0
+    gcu_subwindows = malloc(NUMBER_OF_TERMS * sizeof(term_data*));
+    for (i=0; i< NUMBER_OF_TERMS; i++) {
+	gcu_subwindows[i] = NULL;
+    }
+	
+    
     /* Big screen -- one big term */
     if (use_big_screen)
     {
 	/* Create a term */
-	term_data_init_gcu(&data[0], LINES, COLS, 0, 0);
+	term_data *big = malloc(sizeof(term_data));
+	WIPE(big,term_data);
+	
+	term_data_init_gcu(big, 0, 0, COLS, LINES);
 
 	/* Remember the term */
-	angband_term[0] = &data[0].t;
+	angband_term[BIG_TERM_IDX] = &(big->t);
+	gcu_subwindows[BIG_TERM_IDX] = big;
     }
 
     /* No big screen -- create as many term windows as possible */
     else
     {
 
-	/* Create several terms */
-	for (i = 0; i < num_term; i++)
-	{
-	    int rows, cols, y, x;
-
-	    /* Decide on size and position */
-	    switch (i)
-	    {
-		/* Upper left */
-	    case 0:
-		rows = 24;
-		cols = 80;
-		y = x = 0;
-		break;
-
-		/* Lower left */
-	    case 1:
-		rows = LINES - 25;
-		cols = 80;
-		y = 25;
-		x = 0;
-		break;
-
-		/* Upper right */
-	    case 2:
-		rows = 24;
-		cols = COLS - 81;
-		y = 0;
-		x = 81;
-		break;
-
-		/* Lower right */
-	    case 3:
-		rows = LINES - 25;
-		cols = COLS - 81;
-		y = 25;
-		x = 81;
-		break;
-
-		/* XXX */
-	    default:
-		rows = cols = y = x = 0;
-		break;
-	    }
-
-	    /* Skip non-existant windows */
-	    if (rows <= 0 || cols <= 0) continue;
-
+	for (i = 0; i < NUMBER_OF_TERMS; i++) {
 	    /* Create a term */
-	    term_data_init_gcu(&data[next_win], rows, cols, y, x);
+	    term_data *big = malloc(sizeof(term_data));
+	    SubWindow *s = get_subwindow(i);
+	    if (!s) {
+		DBGPUT("Did not find subwindow %d.\n", i);
+		return -1;
+	    }
+		
+	    WIPE(big,term_data);
+	    
+	    term_data_init_gcu(big,   s->x, s->y, s->width, s->height);
+	    gcu_subwindows[i] = big;
+	    angband_term[i] = &(big->t);
 
-	    /* Remember the term */
-	    angband_term[next_win] = &data[next_win].t;
-
-	    /* One more window */
-	    next_win++;
 	}
+
     }
 
+
+    
     /* Activate the "Angband" window screen */
-    Term_activate(&data[0].t);
+    Term_activate(&(gcu_subwindows[BIG_TERM_IDX]->t));
 
     /* Remember the active screen */
-    term_screen = &data[0].t;
+    term_screen = &(gcu_subwindows[BIG_TERM_IDX]->t);
 
     /* Success */
     return (0);
+#endif
 }
 
 errr
@@ -1168,6 +1203,5 @@ cleanup_GCU(void) {
     return 0;
 }
 
+
 #endif /* USE_GCU */
-
-

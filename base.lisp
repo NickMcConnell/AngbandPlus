@@ -94,33 +94,19 @@ throughout dungeon-generation")
 (defvar *obj-type-mappings* (make-hash-table :test #'eq)
   "keeps track of mapping from key to object-types, used by factories.")
 
-(defvar *engine-version* "0.1.0")
-(defvar *engine-source-dir* #+langband-development "./"
-	#-langband-development (translate-logical-pathname "langband:"))
-(defvar *engine-config-dir*
-  #+unix
-  (progn
-    #+langband-development (pathname "./config/")
-    #-langband-development "/var/lib/games/langband/")
-  #+win32
-  (pathname "c:/cygwin/home/default/langband/config/")
-  #-(or unix win32)
-  (pathname "./config/"))
+(defvar *engine-version* "0.1.1")
+(defvar *engine-source-dir* "./")
+(defvar *engine-graphics-dir* "./graphics/")
+(defvar *engine-config-dir* "./config/")
+
 
 ;; must be set to T by init for use of graphics.
-(defvar *use-graphics* nil)
+(defvar *graphics-supported* nil)
 
 (defvar *readable-save-file* "_save-game.lisp")
 (defvar *binary-save-file* "_save-game.bin")
 
 (defvar *dumps-directory* "doc/dumps/" "Where should various debug-dumps go?")
-
-(defvar *screen-height* 22 "height of screen")
-(defvar *screen-width* 66 "width of screen")
-
-(defvar *panel-height* 11 "The height of the panel.")
-(defvar *panel-width* (if *use-graphics* 16 33) "The width of the panel.")
-
 
 ;;; === End dynamic variables
 
@@ -220,7 +206,7 @@ but optimized for vectors."
 (defsubst i2a (num)
   "Returns the letter corresponding to #\a + num."
   (declare (type u-fixnum num))
-  (code-char (with-type u-fixnum (+ (char-code #\a) num))))
+  (code-char (with-type u-fixnum (+ #.(char-code #\a) num))))
 
 (defsubst a2i (char)
   "Returns the number corresponding to the char given, where #\a is 0."

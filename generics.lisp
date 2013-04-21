@@ -472,7 +472,7 @@ player object or NIL."))
 (defgeneric roll-up-character! (variant player)
   (:documentation "Rolls up a player-object and modifies it appropriately."))
 
-(defgeneric query-for-character-basics! (variant the-player)
+(defgeneric query-for-character-basics! (variant the-player settings)
   (:documentation "Does queries for basic-info (race, class, ..) and alters the player-object."))
 
 (defgeneric print-tomb (variant player)
@@ -679,3 +679,9 @@ but does not need to be 100% updated always."))
 
 (defgeneric add-creature-attribute (creature attr)
   (:documentation "Adds an attribute to the creature."))
+
+(defgeneric get-class-tile-number (variant player)
+  (:documentation "Returns a numbered offset into the class-tile file."))
+
+(defgeneric get-character-picture (variant player)
+  (:documentation "Returns a filename to a picture of the player character."))

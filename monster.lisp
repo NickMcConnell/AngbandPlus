@@ -245,6 +245,7 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
 
 (defun define-monster-kind (id name &key desc x-char x-attr
+			    (text-char :unspec) (text-attr :unspec)
 			    alignment (type :unspec)
 			    numeric-id depth ;;level
 			    rarity hitpoints armour
@@ -292,6 +293,21 @@ the *VARIANT* object so it has to be properly initialised."
 			     (number x-attr)
 			     (character (convert-obj x-attr :colour-code))
 			     )))
+    
+    (cond ((eq text-attr :unspec)
+	   (setf (text-attr m-obj) (x-attr m-obj)))
+	  (t
+	   (setf (text-attr m-obj) (etypecase text-attr
+				     (character (convert-obj text-attr :colour-code))
+				     (number (charify-number text-attr))))))
+    
+    (cond ((eq text-char :unspec)
+	   (setf (text-char m-obj) (x-char m-obj)))
+	  (t
+	   (setf (text-char m-obj) (etypecase text-char
+				     (character (char-code text-char))
+				     (number text-char)))))
+
     (when xp
       (setf (monster.xp m-obj) xp))
     (when speed

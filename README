@@ -38,7 +38,7 @@ How to start it:
 
   - tweak zterm/Makefile
     Probably only ENVIRONMENTS needs to be changed.
-    *** It is safe to have X11 and GCU at the moment***
+    *** It is safe to have SDL and GCU at the moment***
 
   - run 'make'
     Where make is GNU Make
@@ -47,13 +47,13 @@ How to start it:
   
   - (load "game")
     loads/compiles the core engine mostly
-  
-  - (langband)
-    loads vanilla variant and runs it with no graphics.
-    If you wish to specify UI, you can do (langband 'x11) for X11-window,
-    (langband 'gcu) for curses/xterm-mode or (langband 'win) for Windows.
 
-    You can play on X11 with graphics by starting it with (gfx-langband)
+Either
+  - (langband)
+    loads vanilla variant and runs it in curses-mode.
+Or
+  - (gfx-langband)
+    loads vanilla variant and runs it with SDL-support.
 
 
   - Use (quit) in CMUCL/SBCL/LW/CLISP or (exit) in ACL to quit afterwards.
@@ -88,8 +88,7 @@ How to play:
     u - use an item
     w - wear an item from backpack
 
-
-  The keys and their code may be found in variants/vanilla/keys.lisp
+  See also lib/help/keys.txt and the actual code in variants/vanilla/keys.lisp
   
 What to do on crash or bugs:
 
@@ -98,6 +97,21 @@ What to do on crash or bugs:
   already working game has given you the lisp-prompt and you have
   fixed any problems.  This is mainly of use to me at this stage
   though. 
+
+Known bugs:
+  - Things may lock up somewhere in the magic-commands
+  - Eat-command doesn't work
+  - Suddenly -more- refuses to be government by anything else than
+    the spacebar.  Very annoying.
+  - Repaint issues on the fringes
+  - Some repaint-issues when opening/closing doors and when killing
+    monsters with spells.  ^R redraw command usually works though.
+  - Windows port does not support TTF-fonts
+  - Themes are not awfully changable at the moment, and some parts of
+    the code (mouseclick) depend on hardcoded coordinates.  Braindead, I
+    know, but I wanted to toss out a release.
+  - See also list on Sourfeforge
+ 
 
 Docs:
 

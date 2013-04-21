@@ -50,7 +50,8 @@ The direction is a number from the keypad."
        ))
 
     #||
-    (warn "Position ~a ~a has currently ~a,~a -> ~a" wanted-x wanted-y (cave-floor dungeon wanted-x wanted-y)
+    (warn "Position ~a ~a has currently ~a,~a -> ~a" wanted-x wanted-y
+          (cave-floor dungeon wanted-x wanted-y)
 	  (cave-info dungeon wanted-x wanted-y)
 	  (cave-floor-bold? dungeon wanted-x wanted-y))
 
@@ -118,7 +119,6 @@ The direction is a number from the keypad."
     
     (incf (player.energy-use player) +energy-normal-action+)
     
-    ;; hack, improve with diagonal later
     (loop for i from 0 below +normal-direction-number+
 	  for cur-x = (+ x (svref ddx-ddd i))
 	  for cur-y = (+ y (svref ddy-ddd i))
@@ -247,6 +247,7 @@ a list if more items occupy the same place."
 			   (format-message! "You pick up ~a."
 					    (with-output-to-string (s)
 					      (write-obj-description var-obj removed-obj s)))
+			   (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+)
 			   ;; succesful
 			   (when (= 0 (items.cur-size objs))
 			     (setf (cave-objects dungeon x y) nil)))
@@ -267,7 +268,7 @@ a list if more items occupy the same place."
 (defun interactive-drop-item! (dungeon player)
   "Drop some inventory"
 
-  (when-bind (selection (with-new-screen ()
+  (when-bind (selection (with-frame (+query-frame+)
 			  (select-item dungeon player '(:backpack :equip)
 				       :prompt "Drop item: "
 				       :where :backpack)))
@@ -309,10 +310,11 @@ a list if more items occupy the same place."
 (defun interactive-wear-item! (dungeon player)
   "Puts something in an equipment-slot."
 
-  (when-bind (selection (with-new-screen ()
+  (when-bind (selection (with-frame (+query-frame+)
 			  (select-item dungeon player '(:backpack :floor)
 				       :prompt "Wear item"
-				       :where :backpack)))
+				       :where :backpack))
+	      		)
     
     
     (let* ((the-table (get-item-table dungeon player (car selection)))
@@ -375,6 +377,7 @@ a list if more items occupy the same place."
 			      (selection-function nil)
 			      (prompt "Use item?")
 			      (which-use :use)
+			      (sound nil)
 			      (limit-from '(:backpack :floor)))
   
   "Tries to use an item."
@@ -398,7 +401,7 @@ a list if more items occupy the same place."
 		    nil))))
   
   (let ((variant *variant*)
-	(selection (with-new-screen ()
+	(selection (with-frame (+query-frame+)
 		     (select-item dungeon player limit-from
 				  :prompt prompt
 				  :where (first limit-from)
@@ -432,6 +435,8 @@ a list if more items occupy the same place."
 	       (let ((back-obj (%put-obj-in-cnt dungeon player the-table removed-obj)))
 		 ;; add energy use
 		 (apply-usual-effects-on-used-object! dungeon player removed-obj)
+		 (when sound
+		   (play-sound sound))
 		 back-obj))
 	      
 	      ((eq retval :used) ;; we have used the item
@@ -441,6 +446,8 @@ a list if more items occupy the same place."
 		 (%put-obj-in-cnt dungeon player the-table removed-obj))
 ;;	       (warn "used object ~a" removed-obj)
 	       (apply-usual-effects-on-used-object! dungeon player removed-obj)
+	       (when sound
+		 (play-sound sound))
 	       nil)
 	      
 	      (t
@@ -459,6 +466,7 @@ a list if more items occupy the same place."
 (defun close-door! (dungeon x y)
   "hackish, fix me later.."
   (when (is-open-door? dungeon x y)
+    (play-sound +sound-shutdoor+)
     (setf (cave-floor dungeon x y) +floor-door-head+)
     (light-spot! dungeon x y)))
 
@@ -522,7 +530,7 @@ a list if more items occupy the same place."
 	      ))
       
       ;; then we need to find which door
-      (let ((dir (%read-direction)))
+      (let ((dir (get-aim-direction)))
 	(cond ((integerp dir)
 	       (let ((new-x (+ x (aref *ddx* dir)))
 		     (new-y (+ y (aref *ddy* dir))))
@@ -596,7 +604,7 @@ a list if more items occupy the same place."
 	      ))
       
       ;; then we need to find which trap
-      (let ((dir (%read-direction)))
+      (let ((dir (get-aim-direction)))
 	(cond ((integerp dir)
 	       (let ((new-x (+ x (aref *ddx* dir)))
 		     (new-y (+ y (aref *ddy* dir))))
@@ -610,3 +618,333 @@ a list if more items occupy the same place."
 	       nil)))
       ))
     ))
+
+(defun %highlight-target (dungeon target)
+  (check-type target target)
+;;  (warn "is at ~s,~s" (target.x target)	(target.y target))
+  (put-cursor-relative! dungeon (target.x target)
+			(target.y target)))
+
+	 
+
+(defun %get-target (dungeon x y)
+  (cond ((and (eql x (location-x *player*))
+	      (eql y (location-y *player*)))
+	 (make-target :obj *player* :x x :y y))
+	
+	((cave-monsters dungeon x y)
+	 (make-target :obj (car (cave-monsters dungeon x y))
+		      :x x :y y))
+	
+	(t
+	 (make-target :obj (cave-coord dungeon x y)
+		      :x x :y y))
+	))
+
+(defun is-legal-target? (dungeon target)
+  (and target
+       (typep target 'target)
+       (projectable? dungeon
+		     (location-x *player*) (location-y *player*)
+		     (target.x target) (target.y target))))
+
+(defun %print-target (dungeon target)
+  
+  (let ((key-desc "[q,t,<dir>]") ;; add recall later
+	(desc-str "Legal target!")
+	(obj (target.obj target)))
+    
+    (cond ((and (typep obj 'active-monster)
+		(amon.seen-by-player? obj))
+	   (setf desc-str (get-creature-name obj)))
+	  
+	  ((typep obj 'dungeon-coord)
+	   ;; add 'can see' check here
+	   (let ((obj-table (cave-objects dungeon (target.x target) (target.y target))))
+	     (when (and obj-table (typep obj-table 'item-table))
+
+	       (let ((obj-len (items.cur-size obj-table))
+		     (first-obj (item-table-find obj-table 0)))
+		 (cond ((and (> obj-len 1) (aobj.marked first-obj))
+			(setf desc-str "Pile of objects"))
+		       (t
+			(setf desc-str (with-output-to-string (s)
+					 (write-obj-description *variant* first-obj s)))))))))
+	  (t
+	   nil))
+    
+    (c-prt! (format nil "~a ~a" desc-str key-desc) 0 0)))
+
+
+(defun interactive-targeting! (dungeon player)
+
+  (let ((cur-target (player.target player)))
+
+    (when (and cur-target
+	       (typep (target.obj cur-target) 'active-monster)
+	       (not (creature-alive? (target.obj cur-target))))
+      (setf cur-target nil))
+
+    ;; always start at player if we have no old target
+    (when (eq cur-target nil)
+      (setf cur-target (make-target :obj player
+				    :x (location-x player)
+				    :y (location-y player))))
+
+;;    (c-prt! "Please use cursor keys to find target, use 't' to target and ESC to exit." 0 0)
+    (c-set-cursor& 1)
+    (block target-input
+      (loop
+       (%highlight-target dungeon cur-target)
+
+       (let ((key (read-one-character)))
+	 (cond ((eql key #\t)
+		(return-from target-input cur-target))
+	       
+	       ((digit-char-p key)
+		(let ((num (digit-char-p key)))
+		  (assert (and (integerp num) (< num 10)))
+		  ;; move cursor
+		  (let ((wanted-x (+ (aref *ddx* num)
+				     (target.x cur-target)))
+			(wanted-y (+ (aref *ddy* num)
+				     (target.y cur-target))))
+		    (when (and (in-bounds-fully? dungeon wanted-x wanted-y)
+			       (panel-contains? player wanted-x wanted-y))
+		      (setf cur-target (%get-target dungeon wanted-x wanted-y)))
+		    )))
+
+	       ((or (eql key #\q)
+		    (eql key +escape+))
+		(setf cur-target nil)
+		(return-from target-input nil))
+	       
+	       (t
+		(warn "weird key ~s" key))
+	       ))
+
+       (cond ((is-legal-target? dungeon cur-target)
+	      (%print-target dungeon cur-target))
+	     ((eq cur-target nil)
+	      (c-prt! "[No target]" 0 0))
+	     (t
+	      (c-prt! "[Target isn't legal]" 0 0)))
+       ))
+
+    (c-set-cursor& 0)
+    ;; flush!
+    (c-prt! "" 0 0)
+;;    (warn "New target is ~s" cur-target)
+    (setf (player.target player) cur-target)
+
+    
+    
+    nil))
+
+(defun run-ok? (dungeon player x y)
+  "Helper function to determine if a square might be legal to move to."
+
+  (unless (legal-coord? dungeon x y)
+    (return-from run-ok? nil))
+
+  ;; TILE_OUTSIDE is considered to be "wall" 
+;;    if (MAP(x, y).is_kidx(LAYER_BASE, TILE_OUTSIDE))
+;;        return (FALSE);
+
+;;	/* We assume squares that can't be seen are ok */
+;;	if (m_ptr == player && (!MAP(x, y).seen_tile))
+;;		return (TRUE);
+
+  ;; doors should be ok, add later
+  #||
+		
+	/* Doors are ok - they can be opened */
+    if (MAP(x, y).is_kidx(LAYER_FEAT, TILE_DOOR))
+		return (TRUE);
+    if (MAP(x, y).is_kidx(LAYER_FEAT, TILE_SECRET_DOOR) && IS_DETECTED(x, y))
+		return (TRUE);
+||#
+  (if (cave-floor-bold? dungeon x y)
+      t
+      nil))
+
+
+(defun careful-run-ok? (dungeon player x y)
+  "Helper function to determine if a square might be legal to move to.
+This function differs from run_ok() in that unseen squares are
+considered illegal, instead of legal. This function is called from
+run_in_room(), which should be conservative in deciding the player
+is in a room."
+  
+  (unless (legal-coord? dungeon x y)
+    (return-from careful-run-ok? nil))
+
+#||  
+	/* We assume squares that can't be seen are _bad_ here */
+	if (m_ptr == player && !IS_SEEN(x, y))
+		return (FALSE);
+
+	/* Doors are ok - they can be opened */
+    if (MAP(x, y).is_kidx(LAYER_FEAT, TILE_DOOR))
+		return (TRUE);
+    if (MAP(x, y).is_kidx(LAYER_FEAT, TILE_SECRET_DOOR) && IS_DETECTED(x, y))
+		return (TRUE);
+||#
+
+    (if (cave-floor-bold? dungeon x y)
+      t
+      nil))
+
+
+(defun move-ok? (dungeon player x y)
+  "Helper function to determine if a square is legal to move to."
+  (unless (legal-coord? dungeon x y)
+    (return-from move-ok? nil))
+
+#||
+	/* We assume squares that can't be seen are ok */
+	if (m_ptr == player && !IS_VISIBLE(x, y))
+		return (TRUE);
+||#
+
+  (if (cave-floor-bold? dungeon x y)
+      t
+      nil))
+
+(defun run-along-corridor (dungeon player last-dir)
+  "Determine the appropriate direction to move to continue along
+a corridor."
+
+  (let ((ok (make-array 10 :initial-element nil))
+	(px (location-x player))
+	(py (location-y player)))
+
+    ;; Determine provisionally legal destinations
+    
+    (when (or (= last-dir 1) (= last-dir 2) (= last-dir 3))
+      (setf (svref ok 1) t
+	    (svref ok 2) t
+	    (svref ok 3) t))
+
+    (when (or (= last-dir 1) (= last-dir 4) (= last-dir 7))
+      (setf (svref ok 1) t
+	    (svref ok 4) t
+	    (svref ok 7) t))
+
+    (when (or (= last-dir 7) (= last-dir 8) (= last-dir 9))
+      (setf (svref ok 7) t
+	    (svref ok 8) t
+	    (svref ok 9) t))
+
+    (when (or (= last-dir 3) (= last-dir 6) (= last-dir 9))
+      (setf (svref ok 3) t
+	    (svref ok 6) t
+	    (svref ok 9) t))
+
+;;    (warn "ok is ~s" ok)
+    
+    (when (typep player 'player)
+      ;; This weirdness continues on after T-junctions correctly. 
+
+      (when (and (= last-dir 1) (run-ok? dungeon player px (1- py)))
+	(setf (svref ok 7) nil))
+
+      (when (and (= last-dir 1) (run-ok? dungeon player (1+ px) py))
+	(setf (svref ok 3) nil))
+
+      (when (and (= last-dir 3) (run-ok? dungeon player px (1- py)))
+	(setf (svref ok 9) nil))
+
+      (when (and (= last-dir 3) (run-ok? dungeon player (1- px) py))
+	(setf (svref ok 1) nil))
+
+      
+      (when (and (= last-dir 7) (run-ok? dungeon player px (1+ py)))
+	(setf (svref ok 1) nil))
+
+      (when (and (= last-dir 7) (run-ok? dungeon player (1+ px) py))
+	(setf (svref ok 9) nil))
+
+
+      (when (and (= last-dir 9) (run-ok? dungeon player px (1+ py)))
+	(setf (svref ok 3) nil))
+
+      (when (and (= last-dir 9) (run-ok? dungeon player (1- px) py))
+	(setf (svref ok 7) nil))
+
+      )
+
+;;    (warn "ok is ~s" ok)
+    
+    ;; eliminate impossible squares
+    (dotimes (i 10)
+      (when (and (svref ok i)
+		 (not (run-ok? dungeon player (+ (aref *ddx* i) px)
+			       (+ (aref *ddy* i) py))))
+	(setf (svref ok i) nil)))
+
+    ;; Eliminate orthagonals next to good diagonals 
+    (when (svref ok 1)
+      (setf (svref ok 2) nil
+	    (svref ok 4) nil))
+    
+    (when (svref ok 3)
+      (setf (svref ok 2) nil
+	    (svref ok 6) nil))
+
+    (when (svref ok 7)
+      (setf (svref ok 4) nil
+	    (svref ok 8) nil))
+
+    (when (svref ok 9)
+      (setf (svref ok 6) nil
+	    (svref ok 8) nil))
+
+;;    (warn "ok is ~s" ok)
+
+    ;; Reinstate some orthagonals, to traverse junctions correctly
+
+    (when (and (or (= last-dir 3) (= last-dir 6) (= last-dir 9))
+	       (run-ok? dungeon player (+ px 1) py)
+      	       (run-ok? dungeon player (+ px 2) py))
+      (setf (svref ok 6) t))
+
+    (when (and (or (= last-dir 1) (= last-dir 4) (= last-dir 7))
+	       (run-ok? dungeon player (- px 1) py)
+      	       (run-ok? dungeon player (- px 2) py))
+      (setf (svref ok 4) t))
+
+    (when (and (or (= last-dir 1) (= last-dir 2) (= last-dir 3))
+	       (run-ok? dungeon player px (+ py 1))
+      	       (run-ok? dungeon player px (+ py 2)))
+      (setf (svref ok 2) t))
+
+    (when (and (or (= last-dir 7) (= last-dir 8) (= last-dir 9))
+	       (run-ok? dungeon player px (- py 1))
+      	       (run-ok? dungeon player px (- py 2)))
+      (setf (svref ok 8) t))
+
+;;    (warn "ok is ~s" ok)
+
+    ;; Count the okay moves & pick one at random
+    (let ((good 0)
+	  (dir 0))
+      (dotimes (i 10)
+	(when (svref ok i)
+	  (incf good)
+	  ;; odd
+	  (when (= (random good) 0)
+	    (setf dir i))))
+
+;;      (warn "good ~s" good)
+      (cond ((= good 0) ;; no good moves
+	     0)
+	    ((and (typep player 'player) (> good 1)) ;; player choose
+	     0)	    
+	    ;; move into a door
+	    ;;if (!move_ok(m_ptr, m_ptr->x + keyx[dir], m_ptr->y + keyy[dir]))
+	    ;; return (0);
+	    (t
+	     dir))
+      )))
+

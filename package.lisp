@@ -21,7 +21,7 @@ DESC: package.lisp - package def for langband
 
 
 (defpackage :org.langband.engine
-  (:nicknames :lb :lb-engine :engine :langband :org.langband.vanilla) ;; fix later
+  (:nicknames :lb :langband-engine :lb-engine :engine :langband :org.langband.vanilla) ;; fix later
   (:use :common-lisp
 	#-building-ffi-defs :binary-types
 	:org.langband.ffi)
@@ -46,6 +46,9 @@ DESC: package.lisp - package def for langband
 	   #:*level*
 	   #:*variant*
 	   #:*engine-version*
+
+	   #:lbsys/get-current-directory
+	   #:lbsys/ensure-dir-name
 	   )
   #+lisp2csf
   (:documentation "This is the Langband game package."))

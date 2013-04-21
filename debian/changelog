@@ -1,3 +1,9 @@
+langband (0.1.1-1) unstable; urgency=low
+
+  * Updating it to handle the v0.1.1 version.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Thu, 31 Oct 2002 01:53:02 +0100
+
 langband (0.1.0-1) unstable; urgency=low
 
   * New real release.  Se upstream Changelogs.

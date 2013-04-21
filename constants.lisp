@@ -177,15 +177,6 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 ;; make these into variables later.. 
 
 
-;;(defconstant +panel-height+ 11)
-;;(defconstant +panel-width+ 33)
-
-
-(defconstant +start-row-of-map+ 1)
-(defconstant +start-column-of-map+ 13)
-
-
-
 (defconst +max-sight+ u-fixnum 20 "maximum distance seen")
 
 (defconstant +dungeon-align+ t)
@@ -292,3 +283,34 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +temporary-effect+  #x02)
 
 (defconstant +max-range+ 18)
+
+
+(defconstant +max-frames+ 8)
+(defconstant +predefined-frames+ 8)
+
+;; the above need not be the same, but typically is the same
+
+(defconstant +full-frame+ 0)
+(defconstant +message-frame+ 1)
+(defconstant +charinfo-frame+ 2)
+(defconstant +misc-frame+ 3)
+(defconstant +gfxmap-frame+ 4)
+(defconstant +asciimap-frame+ 5)
+(defconstant +inv-frame+ 6)
+(defconstant +dialogue-frame+ 7)
+
+(defconstant +frametype-active+ 0)
+(defconstant +frametype-predefined+ 1)
+
+;; these are dynamic variables mostly
+(defvar *predefined-frames* (make-array +predefined-frames+ :initial-element nil))
+(defvar *map-frame* +gfxmap-frame+)
+
+;; alias!
+(defconstant +query-frame+ +message-frame+)
+
+(defconstant +tilefile-armour+ 3)
+(defconstant +tilefile-effects+ 4)
+(defconstant +tilefile-food+ 5)
+(defconstant +tilefile-classes+ 6)
+(defconstant +tilefile-humans+ 7)

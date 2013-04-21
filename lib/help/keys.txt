@@ -1,0 +1,41 @@
+Keys in Langband:
+=================
+
+a - aim/zap a wand/staff/rod
+b - browse spells
+c - close door
+d - drop item
+e - show equipment
+f - fire missile/missile-weapon
+g - get item on the ground
+i - show inventory
+m - invoke magic spell or prayer
+o - open door
+p - invoke magic spell or prayer
+q - quaff potion
+r - read text/scroll/leaflet
+s - search area
+t - take off a worn item
+u - generic 'use item' command
+w - wear item
+z - aim/zap a wand/staff/rod
+
+B - bash/smash down door
+C - show character
+D - disarm a trap/mechanism
+E - eat food/corpse/curry
+L - learn a spell
+Q - quit game
+S - save game
+
+? - show this help
+> - go downstairs
+< - go upstairs
+* - select target [not working]
+, - stand still
+. - toggle run-mode [not working]
+
+^A - debug commands [see wizard.lisp]
+^P - show previous messages
+^R - redraw screen
+^T - toggle ascii/graphics map [SDL only]

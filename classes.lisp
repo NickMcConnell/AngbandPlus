@@ -192,7 +192,8 @@ a succesful ACTIVATE-OBJECT."))
 (defstruct worn-item-slot
   key
   desc
-  types)
+  types
+  hidden)
 
 (defstruct (dungeon-coord (:conc-name coord.))
   (floor 0 :type u-16b)
@@ -236,8 +237,69 @@ a succesful ACTIVATE-OBJECT."))
 
 (defclass birth-settings (settings)
   ((allow-all-classes :accessor birth.allow-classes
-		      :initform nil))
+		      :initarg :allow-all-classes
+		      :initform nil)
+   (instr-x      :initarg :instr-x     :initform 23)
+   (instr-y      :initarg :instr-y     :initform 1)
+   (instr-w      :initarg :instr-w     :initform 75)
+   (instr-attr   :initarg :instr-attr  :initform +term-white+)
+   (info-x       :initarg :info-x      :initform 1)
+   (info-y       :initarg :info-y      :initform 8)
+   (info-attr    :initarg :info-attr   :initform +term-l-green+)
+   (query-x      :initarg :query-x     :initform 2)
+   (query-y      :initarg :query-y     :initform 21)
+   (query-attr   :initarg :query-attr  :initform +term-l-red+)
+   (query-reduced :initarg :query-reduced  :initform nil)
+   (choice-x     :initarg :choice-x     :initform 1)
+   (choice-y     :initarg :choice-y     :initform 2)
+   (choice-tattr :initarg :choice-attr  :initform +term-white+)
+   (choice-attr  :initarg :choice-tattr :initform +term-l-blue+)
+   (text-x       :initarg :text-x       :initform 2)
+   (text-y       :initarg :text-y       :initform 10)
+   (text-w       :initarg :text-w       :initform 75)
+   (text-attr    :initarg :text-attr    :initform +term-l-red+)
+   (altern-cols  :initarg :altern-cols  :initform 5)
+   (altern-attr  :initarg :altern-attr  :initform +term-white+)
+   (altern-sattr :initarg :altern-sattr :initform +term-l-blue+)
+   (note-colour  :initarg :note-colour  :initform +term-white+)
+
+   )
+   
   (:documentation "Settings when creating characters."))
+
+(defclass chardisplay-settings (settings)
+  ((title-x       :initarg :title-x       :initform 1)
+   (title-y       :initarg :title-y       :initform 2)
+   (title-attr    :initarg :title-attr    :initform +term-white+)
+   (value-attr    :initarg :value-attr    :initform +term-l-blue+)
+   (value-badattr :initarg :value-badattr :initform +term-yellow+)
+   (picture-x     :initarg :picture-x     :initform 23)
+   (picture-y     :initarg :picture-y     :initform 2)
+   (extra-x       :initarg :extra-x       :initform 1)
+   (extra-y       :initarg :extra-y       :initform 18)
+   (elem-x        :initarg :elem-x        :initform 1)
+   (elem-y        :initarg :elem-y        :initform 10)
+   (combat-x      :initarg :combat-x      :initform 28)
+   (combat-y      :initarg :combat-y      :initform 10)
+   (stats-x       :initarg :stats-x       :initform 42)
+   (stats-y       :initarg :stats-y       :initform 3)
+   (stats-attr    :initarg :stats-attr    :initform +term-white+)
+   (statok-attr   :initarg :statok-attr   :initform +term-l-green+)
+   (statbad-attr  :initarg :statbad-attr  :initform +term-yellow+)
+   (skills-x      :initarg :skills-x      :initform 50)
+   (skills-y      :initarg :skills-y      :initform 10)
+   
+   ))
+
+(defclass resistdisplay-settings (settings)
+  ((title-x      :initarg :title-x     :initform 2)
+   (title-y      :initarg :title-y     :initform 0)
+   (title-attr   :initarg :title-attr  :initform +term-l-blue+)
+   (list-x       :initarg :list-x      :initform 2)
+   (list-y       :initarg :list-y      :initform 3)
+   (res-attr     :initarg :res-attr    :initform +term-l-green+)
+   (unres-attr   :initarg :unres-attr  :initform +term-l-red+)))
+
 
 (defclass dungeon-settings (settings)
   ((max-width   :initarg :max-width   :initform 198)
@@ -541,6 +603,10 @@ object is an array with index for each element, each element is an integer which
 		    :initform nil
 		    :documentation "Should be a hash-table with temporary attributes.")
 
+   (target :accessor player.target
+	   :initform nil
+	   :documentation "Who/what is the player targeting?")
+   
    ;; === the following does not need saving
 
    (x-attr :accessor x-attr
@@ -550,7 +616,15 @@ object is an array with index for each element, each element is an integer which
    (x-char :accessor x-char
 	   :initform #.(char-code #\@)
 	   :documentation "Char for player on map.")
-   
+
+   (text-attr :accessor text-attr
+	      :initform +term-white+
+	      :documentation "Attr for player on map.")
+
+   (text-char :accessor text-char
+	      :initform #.(char-code #\@)
+	      :documentation "Char for player on map.")
+
    ))
 
 
@@ -828,8 +902,8 @@ by variants."))
    (desc      :accessor monster.desc      :initform "") ;; string 
    (x-char    :accessor x-char            :initform nil) ;; number
    (x-attr    :accessor x-attr            :initform nil) ;; should be number
-   (text-char :accessor monster.text-char :initform nil) ;; number
-   (text-attr :accessor monster.text-attr :initform nil) ;; should be number
+   (text-char :accessor text-char         :initform nil) ;; number
+   (text-attr :accessor text-attr         :initform nil) ;; should be number
    (alignment :accessor monster.alignment :initform nil) ;; symbols/list
    (type      :accessor monster.type      :initform nil) ;; symbols/list
    (depth     :accessor monster.depth     :initform 0) ;; positive int
@@ -981,9 +1055,11 @@ is all about?")
    (xp-extra      :accessor race.xp-extra      :initform 0)
    (hit-dice      :accessor race.hit-dice      :initform 10)
    (stat-changes  :accessor race.stat-changes  :initform '())
-   (stat-sustains :accessor race.stat-sustains :initform nil :documentation "either NIL or an array with T/NIL.") 
+   (stat-sustains :accessor race.stat-sustains :initform nil
+		  :documentation "either NIL or an array with T/NIL.") 
    (abilities     :accessor race.abilities     :initform '()) ;; split in two?
-   (resists       :accessor race.resists       :initform 0 :documentation "Integer with bit-flags, not array.") 
+   (resists       :accessor race.resists       :initform 0
+		  :documentation "Integer with bit-flags, not array.") 
    (classes       :accessor race.classes       :initform '())
    (start-eq      :accessor race.start-eq      :initform '())
    (skills        :accessor race.skills        :initform '()))
@@ -1006,8 +1082,10 @@ is all about?")
    (hit-dice      :accessor class.hit-dice      :initform 0)
    (xp-extra      :accessor class.xp-extra      :initform 0)
    (stat-changes  :accessor class.stat-changes  :initform nil)
-   (stat-sustains :accessor class.stat-sustains :initform nil :documentation "either NIL or array with T/NIL.") 
-   (resists       :accessor class.resists       :initform 0 :documentation "Integer with bit-flags, not array.") 
+   (stat-sustains :accessor class.stat-sustains :initform nil
+		  :documentation "either NIL or array with T/NIL.") 
+   (resists       :accessor class.resists       :initform 0
+		  :documentation "Integer with bit-flags, not array.") 
    (abilities     :accessor class.abilities     :initform '())
    (titles        :accessor class.titles        :initform nil)
    (starting-eq   :accessor class.start-eq      :initform nil)
@@ -1032,19 +1110,23 @@ is all about?")
 
 
 (defclass floor-type ()
-  ((id     :accessor floor.id     :initform nil :initarg :id)
-   (name   :accessor floor.name   :initform nil :initarg :name)
-   (x-attr :accessor x-attr :initform nil :initarg :x-attr)
-   (x-char :accessor x-char :initform nil :initarg :x-char)
-   (mimic  :accessor floor.mimic  :initform nil :initarg :mimic)
+  ((id        :accessor floor.id    :initform nil :initarg :id)
+   (name      :accessor floor.name  :initform nil :initarg :name)
+   (x-attr    :accessor x-attr      :initform nil :initarg :x-attr)
+   (x-char    :accessor x-char      :initform nil :initarg :x-char)
+   (text-attr :accessor text-attr   :initform nil :initarg :text-attr)
+   (text-char :accessor text-char   :initform nil :initarg :text-char)
+   (mimic     :accessor floor.mimic :initform nil :initarg :mimic)
    ))
 
 (defclass decor ()
-  ((id       :accessor decor.id       :initform nil :initarg :id)
-   (name     :accessor decor.name     :initform nil :initarg :name)
-   (x-attr   :accessor x-attr   :initform nil :initarg :x-attr)
-   (x-char   :accessor x-char   :initform nil :initarg :x-char)
-   (visible? :accessor decor.visible? :initform t   :initarg :visible?)
+  ((id        :accessor decor.id       :initform nil :initarg :id)
+   (name      :accessor decor.name     :initform nil :initarg :name)
+   (x-attr    :accessor x-attr         :initform nil :initarg :x-attr)
+   (x-char    :accessor x-char         :initform nil :initarg :x-char)
+   (text-attr :accessor text-attr      :initform nil :initarg :text-attr)
+   (text-char :accessor text-char      :initform nil :initarg :text-char)
+   (visible?  :accessor decor.visible? :initform t   :initarg :visible?)
    (loc-x     :accessor location-x
 	      :initarg :loc-x
 	      :initform nil)
@@ -1151,6 +1233,14 @@ is all about?")
    (x-attr    :accessor x-attr
 	      :initform +term-red+
 	      :initarg :x-attr
+	      :documentation "the colour of the trap")
+   (text-char :accessor text-char
+	      :initform #.(char-code #\^)
+	      :initarg :text-char
+	      :documentation "the displayed char")       
+   (text-attr :accessor text-attr
+	      :initform +term-red+
+	      :initarg :text-attr
 	      :documentation "the colour of the trap")
    (effect    :accessor trap.effect
 	      :initform nil
@@ -1343,6 +1433,105 @@ is all about?")
 	   :documentation "How many have you killed?")
    ))
 
+(defclass theme ()
+  ((key :accessor theme.key
+	:initarg :key
+	:documentation "string key for the theme."
+	:initform "")
+   (font :accessor theme.font
+	 :initarg :font
+	 :documentation "The default font to use in the font, when no other font is specified."
+	 :initform nil)
+   (system :accessor theme.system
+	   :initarg :system
+	   :documentation "Which system should the theme be used on (a string)."
+	   :initform nil)
+
+   (windows :accessor theme.windows
+	    :initarg :windows
+	    :documentation "A list of subwindows handled by the theme."
+	    :initform '())
+   
+   ))
+
+;; also known as a frame or a langbandframe
+(defclass subwindow ()
+  ((name        :accessor subwindow.name
+		:initarg :name
+		:documentation "The name/var for this window. Should be a symbol"
+		:initform nil)
+   (key         :accessor subwindow.key
+		:initarg :key
+		:documentation "The key to the window, should be an integer constant."
+		:initform -1)
+   
+   (x           :accessor subwindow.x
+		:initarg :x
+		:documentation "The x-offset to upper-left corner of subwindow."
+		:initform -1)
+   
+   (y           :accessor subwindow.y
+		:initarg :y
+		:documentation "The y-offset to upper-left corner of subwindow."
+		:initform -1)
+   
+   (width       :accessor subwindow.width
+		:initarg :width
+		:documentation "The width (in pixels) of the subwindow."
+		:initform -1)
+
+   (height      :accessor subwindow.height
+		:initarg :height
+		:documentation "The height (in pixels) of the subwindow."
+		:initform -1)
+
+   (tile-width  :accessor subwindow.tile-width
+		:initarg :tile-width
+		:documentation "The width of an individual tile."
+		:initform -1)
+
+   (tile-height :accessor subwindow.tile-height
+		:initarg :tile-height
+		:documentation "The height of an individual tile."
+		:initform -1)
+
+   (columns     :accessor subwindow.columns
+		:initarg :columns
+		:documentation "How many columns is the window, (int-/ width tile-width)."
+		:initform -1)
+
+   (rows        :accessor subwindow.rows
+		:initarg :rows
+		:documentation "How many rows is the window, (int-/ height tile-height)."
+		:initform -1)
+   
+   (eff-width   :accessor subwindow.eff-width
+		:initarg :eff-width
+		:documentation "The effective width (in pixels) of the subwindow. (* columns tile-width)"
+		:initform -1)
+
+   (eff-height  :accessor subwindow.eff-height
+		:initarg :eff-height
+		:documentation "The effective height (in pixels) of the subwindow. (* rows tile-height)"
+		:initform -1)
+   
+   (font        :accessor subwindow.font
+		:initarg :font
+		:documentation "Filename to font"
+		:initform nil)
+   
+   (background  :accessor subwindow.background
+		:initarg :background
+		:documentation "Filename to background"
+		:initform nil)
+   
+   (gfx-tiles?  :accessor subwindow.gfx-tiles?
+		:initarg :gfx-tiles?
+		:documentation "Is the subwindow using graphical tiles or should output be ascii?"
+		:initform nil)
+
+   ))
+
 ;;; Other structs
 
 (defstruct (game-obj-table (:conc-name gobj-table.))
@@ -1386,5 +1575,10 @@ is all about?")
   (text nil)
   (attr nil)
   )
+
+(defstruct (target (:conc-name target.))
+  (obj nil)
+  (x -1)
+  (y -1))
 
 ;;; end structs

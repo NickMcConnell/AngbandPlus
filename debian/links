@@ -1,2 +1,2 @@
-/usr/share/common-lisp/repositories/langband/engine/langband-engine.system /usr/share/common-lisp/systems/langband-engine.system
-/usr/share/common-lisp/repositories/langband/engine /usr/share/common-lisp/source/langband-engine
+/usr/share/common-lisp/source/langband-engine/langband-engine.asd /usr/share/common-lisp/systems/langband-engine.asd
+/usr/share/common-lisp/source/langband-engine/langband-engine.system /usr/share/common-lisp/systems/langband-engine.system

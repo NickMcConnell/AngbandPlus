@@ -944,7 +944,7 @@ char inkey(void)
 	bool done = FALSE;
 
 	term *old = Term;
-
+	//DBGPUT("Going inkey with %p Term\n", old);
 
 	/* Hack -- Use the "inkey_next" pointer */
 	if (inkey_next && *inkey_next && !inkey_xtra)
@@ -1002,10 +1002,11 @@ char inkey(void)
 		(void)Term_set_cursor(TRUE);
 	}
 
-
+	//WOOOOOOOOO
+	// FIX!!
 	/* Hack -- Activate main screen */
-	Term_activate(term_screen);
-
+	//Term_activate(term_screen);
+	
 
 	/* Get a key */
 	while (!ch)
@@ -1027,8 +1028,9 @@ char inkey(void)
 			/* Flush output */
 			Term_fresh();
 
+			/// FIX!! WOOOO
 			/* Hack -- activate main screen */
-			Term_activate(term_screen);
+			///Term_activate(term_screen);
 
 			/* Mega-Hack -- reset saved flag */
 			character_saved = FALSE;
@@ -1144,19 +1146,17 @@ char inkey(void)
 		}
 	}
 
-
 	/* Hack -- restore the term */
 	Term_activate(old);
-
 
 	/* Restore the cursor */
 	Term_set_cursor(cursor_state);
 
-
 	/* Cancel the various "global parameters" */
 	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
-
+	//DBGPUT("Leaving inkey with %p Term\n", old);
+	
 	/* Return the keypress */
 	return (ch);
 }
@@ -1278,14 +1278,18 @@ void put_str(cptr str, int row, int col)
  */
 void clear_from(int row)
 {
-	int y;
-
-	/* Erase requested rows */
-	for (y = row; y < Term->hgt; y++)
-	{
-		/* Erase part of the screen */
-		Term_erase(0, y, 255);
-	}
+    int y;
+    
+    /* Erase requested rows */
+    for (y = row; y < Term->hgt; y++)
+    {
+	/* Erase part of the screen */
+	Term_erase(0, y, 255);
+    }
+    //DBGPUT("Clear from %d on %p\n", row, Term);
+    // hack, remove later!
+    //Term_clear();
+    //Term_fresh();
 }
 
 

@@ -11,6 +11,7 @@ LINK_TARGET_DIR=linked
 #THIS_DIR=$(PWD)
 
 all: 
+#	cd lib; $(MAKE) all
 	cd zterm; $(MAKE) all
 
 lisp-clean:

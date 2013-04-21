@@ -27,30 +27,45 @@ the rest of the game is init'ed."
 ;;  (assert (eq nil (variant.legal-effects var-obj)))
 ;;  (setf (variant.legal-effects var-obj) '(:quaff :read :eat :create :add-magic :use)) ;; make :use a meta-effect?
 
-  ;; fix these two to something real
-  (register-help-topic& var-obj (make-help-topic :id "keys" :key #\k :name "Show commands/keys"))
-
-  (register-help-topic& var-obj
-			(make-help-topic :id "general" :key #\g :name "General information"
-					 :data "./lib/help/general.txt"))
-
-  (register-help-topic& var-obj
-			(make-help-topic :id "dungeon" :key #\d :name "Simple information about the dungeons"
-					 :data "./lib/help/dungeon.txt"))
-
-  (register-help-topic& var-obj
-			(make-help-topic :id "birth" :key #\b :name "Information about creating a character"
-					 :data "./lib/help/birth.txt"))
-
-    (register-help-topic& var-obj
-			(make-help-topic :id "playing" :key #\p :name "Tips and hints on how to play langband"
-					 :data "./lib/help/playing.txt"))
-
-    (register-help-topic& var-obj
-			(make-help-topic :id "version" :key #\v :name "Show version information"
-					 :data "./lib/help/version.txt"))
+  (flet ((help-path (file)
+	   (concatenate 'string *engine-source-dir* "lib/help/" file)))
   
-;;  (register-help-topic& var-obj (make-help-topic :id "chlog" :key #\c :name "Show changelog"))
+
+    (register-help-topic& var-obj
+			  (make-help-topic :id "keys" :key #\k
+					   :name "Show commands/keys"
+					   :data (help-path "keys.txt")))
+    
+    (register-help-topic& var-obj
+			  (make-help-topic :id "general" :key #\g
+					   :name "General information"
+					   :data (help-path "general.txt")))
+
+    (register-help-topic& var-obj
+			  (make-help-topic :id "dungeon" :key #\d
+					   :name "Simple information about the dungeons"
+					   :data (help-path "dungeon.txt")))
+
+    (register-help-topic& var-obj
+			  (make-help-topic :id "birth" :key #\b
+					   :name "Information about creating a character"
+					   :data (help-path "birth.txt")))
+
+    (register-help-topic& var-obj
+			  (make-help-topic :id "playing" :key #\p
+					   :name "Tips and hints on how to play langband"
+					   :data (help-path "playing.txt")))
+
+    (register-help-topic& var-obj
+			  (make-help-topic :id "thanks" :key #\t
+					   :name "Who has helped make Langband possible"
+					   :data (help-path "THANKS")))
+    (register-help-topic& var-obj
+			  (make-help-topic :id "version" :key #\v
+					   :name "Show version information"
+					   :data (help-path "version.txt"))))
+ 
+
   
   (van-register-levels! var-obj)
 
@@ -166,8 +181,70 @@ the rest of the game is init'ed."
   
   (setf (get-setting var-obj :bottom-row-printing)
 	(make-instance 'vanilla-bottom-row-locations))
-  
-  (setf (get-setting var-obj :birth) (make-birth-settings :allow-all-classes t))
+
+  (let ((birth-settings (make-instance 'vanilla-birth :allow-all-classes t))
+	(chdisp-settings (make-instance 'chardisplay-settings))
+	(res-settings (make-instance 'resistdisplay-settings)))
+	
+    (when (eq (get-system-type) 'sdl)
+      (setf (slot-value birth-settings 'instr-x) 15
+	    (slot-value birth-settings 'instr-y) 3
+	    (slot-value birth-settings 'instr-attr) +term-blue+
+	    (slot-value birth-settings 'instr-w) 45
+	    (slot-value birth-settings 'query-x) 15
+	    (slot-value birth-settings 'query-y) 24
+	    (slot-value birth-settings 'query-reduced) t
+	    (slot-value birth-settings 'query-attr) +term-blue+
+	    (slot-value birth-settings 'info-x) 15
+	    (slot-value birth-settings 'info-y) 16
+	    (slot-value birth-settings 'info-attr) +term-umber+
+	    (slot-value birth-settings 'choice-x) 52
+	    (slot-value birth-settings 'choice-y) 3
+	    (slot-value birth-settings 'choice-tattr) +term-blue+
+	    (slot-value birth-settings 'choice-attr) +term-l-red+
+	    (slot-value birth-settings 'text-x) 52
+	    (slot-value birth-settings 'text-y) 7
+	    (slot-value birth-settings 'text-w) 35
+	    (slot-value birth-settings 'text-attr) +term-umber+
+	    (slot-value birth-settings 'altern-cols) 2
+	    (slot-value birth-settings 'altern-attr) +term-umber+
+	    (slot-value birth-settings 'altern-sattr) +term-l-red+
+	    (slot-value birth-settings 'note-colour) +term-white+
+	    )
+      (setf (slot-value chdisp-settings 'title-x) 15
+	    (slot-value chdisp-settings 'title-y) 10
+	    (slot-value chdisp-settings 'title-attr) +term-blue+
+	    (slot-value chdisp-settings 'picture-x) 25
+	    (slot-value chdisp-settings 'picture-y) 2
+	    (slot-value chdisp-settings 'extra-x) 15
+	    (slot-value chdisp-settings 'extra-y) 18
+	    (slot-value chdisp-settings 'elem-x) 15
+	    (slot-value chdisp-settings 'elem-y) 24
+	    (slot-value chdisp-settings 'value-attr) +term-green+
+	    (slot-value chdisp-settings 'value-badattr) +term-red+
+	    (slot-value chdisp-settings 'stats-attr) +term-blue+
+	    (slot-value chdisp-settings 'statok-attr) +term-umber+
+	    (slot-value chdisp-settings 'statbad-attr) +term-l-red+
+	    (slot-value chdisp-settings 'stats-x) 53
+	    (slot-value chdisp-settings 'skills-x) 53
+	    (slot-value chdisp-settings 'combat-x) 53
+	    (slot-value chdisp-settings 'combat-y) 20
+	    )
+      (setf (slot-value res-settings 'title-x) 15
+	    (slot-value res-settings 'title-y) 3
+	    (slot-value res-settings 'title-attr) +term-blue+
+	    (slot-value res-settings 'list-x) 15
+	    (slot-value res-settings 'list-y) 6
+	    (slot-value res-settings 'unres-attr) +term-red+
+	    (slot-value res-settings 'res-attr) +term-green+
+	    ))
+
+	    
+    (setf (get-setting var-obj :birth) birth-settings
+	  (get-setting var-obj :char-display) chdisp-settings
+	  (get-setting var-obj :resists-display) res-settings
+	  ))
+	  
   
   (setf (get-setting var-obj :random-level)
 	(make-instance 'dungeon-settings
@@ -324,7 +401,9 @@ the rest of the game is init'ed."
   
   (initialise-floors& var-obj :file "floors")
 
-  (when *use-graphics*
+
+  (when (load-gfx-tiles?)
+    ;;(warn "Loading graf prefs!")
     (load-variant-data& var-obj "graf-prefs"))
   ;;  (warn "flav")
   ;; after all objects are in
@@ -339,20 +418,6 @@ the rest of the game is init'ed."
 	    (setf (flavour-type.unused-flavours x) (coerce an-arr 'list))
 	    t)))
 
-  
-#||
-  ;; hackish, move elsewhere later!
-  (when *use-graphics*
-    (let ((objs (variant.objects var-obj)))
-      (loop for obj being the hash-values of objs
-	    do
-	    (when (typep obj 'object-kind/scroll)
-	      (let ((x (object.flavour obj)))
-		(warn "Setting value on ~s" (flavour.name x))
-		(setf (x-attr x) (+ +graphics-start+ 10)
-		      (x-char x) (+ +graphics-start+ 18 (random 4)))
-		)))))
-||#  
   
   #||
   ;; hack, fix later
@@ -401,7 +466,7 @@ the rest of the game is init'ed."
 		       (eq.head     "On head"       active-object/headgear)
 		       (eq.glove    "On hands"      active-object/gloves)
 		       (eq.feet     "On feet"       active-object/boots)
-		       (eq.backpack "On back"       active-object/container)
+		       (eq.backpack "On back"       active-object/container t)
 		       )))
     
     (register-slot-order& var-obj equip-order))

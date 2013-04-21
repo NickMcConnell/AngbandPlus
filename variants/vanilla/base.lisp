@@ -188,6 +188,8 @@ Each location should be a cons with (row . col)."))
   (:documentation "Locations and various settings when printing stuff.
 Each location is a fixnum with column in the last row."))
 
+(defclass vanilla-birth (birth-settings)
+  ())
 
 (defgeneric is-spellcaster? (obj)
   (:documentation "Returns T if the object/player is a spellcaster."))
@@ -274,6 +276,7 @@ should return NIL or the state-object (with possibly updated state."))
 (def-obj-type skeleton :is junk :key <skeleton>)
 
 
+;; path tweaking needed!!!
 (defun van-make-variant-obj ()
   (make-instance 'vanilla-variant
 		 :id "langband-vanilla"
@@ -285,9 +288,9 @@ should return NIL or the state-object (with possibly updated state."))
 		 :sys-file "./variants/vanilla/langband-vanilla.system"
 		 :config-path
 		 #+langband-development
-		 "./variants/vanilla/config"
+		 "./variants/vanilla/config/"
 		 #-langband-development
-		 "/var/lib/games/langband/vanilla"))
+		 "/var/games/langband-vanilla/"))
 
 
 (register-variant& "langband-vanilla" #'van-make-variant-obj)

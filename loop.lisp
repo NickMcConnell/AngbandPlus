@@ -27,7 +27,7 @@ ADD_DESC: Most of the code which deals with the game loops.
   (let ((retval nil)
 	(bot-set nil)
 	(pr-set nil))
-    
+
     (when (bit-flag-set? *redraw* +print-map+)
       (bit-flag-remove! *redraw* +print-map+)
       (print-map dungeon player)
@@ -55,8 +55,8 @@ ADD_DESC: Most of the code which deals with the game loops.
       (bit-flag-remove! *redraw* +print-misc+)
       (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
 
-      (print-field (get-race-name player) (slot-value pr-set 'race))
-      (print-field (get-class-name player) (slot-value pr-set 'class))
+      (print-field (get-race-name player) (slot-value pr-set 'race) +charinfo-frame+)
+      (print-field (get-class-name player) (slot-value pr-set 'class) +charinfo-frame+)
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-title+)
@@ -111,7 +111,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     (when (bit-flag-set? *redraw* +print-depth+)
       (bit-flag-remove! *redraw* +print-depth+)
       (unless bot-set (setf bot-set (get-setting variant :bottom-row-printing)))
-      (warn "Depth ~s ~s ~s" (dungeon.depth dungeon) bot-set (get-setting variant :bottom-row-printing))
+      ;;(warn "Depth ~s ~s ~s" (dungeon.depth dungeon) bot-set (get-setting variant :bottom-row-printing))
       (print-depth (dungeon.depth dungeon) bot-set)
       (setf retval t))
 
@@ -141,6 +141,7 @@ ADD_DESC: Most of the code which deals with the game loops.
       (print-speed variant player bot-set)
       (setf retval t))
 
+;;    )
     ;; moved study to variant
     
     (when (/= 0 *redraw*)
@@ -159,6 +160,8 @@ ADD_DESC: Most of the code which deals with the game loops.
     (when (bit-flag-set? *update* +pl-upd-bonuses+)
       (bit-flag-remove! *update* +pl-upd-bonuses+)
       (calculate-creature-bonuses! variant player)
+      ;; move later
+      (update-inventory-row player);
       (setf retval t))
     
     (when (bit-flag-set? *update* +pl-upd-torch+)
@@ -394,7 +397,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 	 (dungeon-height (dungeon.height dungeon))
 	 (dungeon-width  (dungeon.width dungeon))
 	 )
-  
+
     ;; we're not leaving
     (setf (player.leaving-p player) nil)
       
@@ -455,6 +458,8 @@ ADD_DESC: Most of the code which deals with the game loops.
       (loop
        ;; postpone compact
 ;;       (warn "loop")
+       (c-term-fresh! *map-frame*)
+       (c-term-fresh! +charinfo-frame+)
        
        (energise-creatures! var-obj dungeon player)
 
@@ -494,10 +499,7 @@ ADD_DESC: Most of the code which deals with the game loops.
   "This is the main game-loop.  and this function looks _ugly_."
   (multiple-value-bind (*player* *variant* *level*)
       (load-old-environment&)
-    
-    ;; ultra hackish
-    (let ((*screen-height* (get-screen-height))
-	  (*screen-width* (get-screen-width)))
+    (update-term-sizes!)    
     (loop
      ;; clean up to prevent too many delays while running the dungeon
      ;; it may take quite some time
@@ -528,7 +530,7 @@ ADD_DESC: Most of the code which deals with the game loops.
        (garbage-collect :global t)
        ;; safety? we will reload in less than a second :-)
        (save-current-environment&)))
-    )))
+    ))
 
 (defun save-current-environment& ()
   "Attempts to save the environment."
@@ -564,44 +566,31 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     (values the-level the-player the-var)))
 
-#+never
-(defun %show-splash-screen (fname)
-  (c-term-clear!)
-  (with-open-file (s (pathname fname)
-		     :direction :input)
-      (loop for x = (read-line s nil 'eof)
-            for i from 0
-            until (eq x 'eof)
-            do
-            (put-coloured-str! +term-white+ x 0 i)))
-  (c-term-fresh!)
-  t)
-
 
 ;;; This one is a mess!!! please divide in more fitting functions!
 (defun play-game& ()
   "Should not be called directly."
+
+  ;;(warn "back in lisp!!")
   
+  (update-term-sizes!)
   (let ((*player* nil)
 	(*level* nil)
-	;; insert these two to prevent f*cked values.. gcu seems to need them now though :-/
-	(*screen-height* (get-screen-height))
-	(*screen-width* (get-screen-width))
-	(*panel-height* (get-panel-height))
-	(*panel-width* (get-panel-width))
-
 ;;	#+allegro
 ;;	(old-spread (sys:gsgc-parameter :generation-spread))
 	)
 
+    (when (eq (get-system-type) 'gcu)
+      (setf *map-frame* +asciimap-frame+))
     ;; if non-graphical
-;;    (unless *use-graphics*
+;;    (unless (use-images?)
 ;;      (%show-splash-screen (game-data-path "news.txt")))
 
     ;; doing init_angband() end here
     (print-note! "[Initing macros]")
 
     (init-macro-system&)
+    (init-sound-system& 30) ;; fix this later
     
     (print-note! "[Initialization complete]")
 
@@ -613,7 +602,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     ;; hack to remove cursor
     (c-set-cursor& 0)
-    (flush-messages!)
+    (flush-messages! t)
 
     ;; FIX: this code _must_ be rewritten!!
     (block creation
@@ -702,7 +691,8 @@ ADD_DESC: Most of the code which deals with the game loops.
       (game-loop&))
 
     (cond ((and *player* (player.dead-p *player*))
-	   (flush-messages!)
+	   (c-texture-background! +full-frame+ "" -1)
+	   (flush-messages! t)
 	   (organise-death& *variant* *player*))
 	   
 	  (t
@@ -710,7 +700,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 
 	   ))
     
-    (pause-last-line!)
+    ;;(pause-last-line!)
     (quit-game&)
     t))
 
@@ -764,6 +754,25 @@ ADD_DESC: Most of the code which deals with the game loops.
 			       (number x-char))))
 
       floor)))
+
+;; hackish
+(defun update-trap-display (id &key x-attr x-char)
+  (let ((trap (gethash id (variant.traps *variant*))))
+    (unless trap
+      (warn "did not find trap with id ~s" id)
+      (return-from update-trap-display nil))
+
+
+    (when x-attr
+      (setf (x-attr trap) (etypecase x-attr
+			    (character (convert-obj x-attr :colour-code))
+			    (number x-attr))))
+    (when x-char
+      (setf (x-char trap) (etypecase x-char
+			    (character (char-code x-char))
+			    (number x-char))))
+
+    trap))
 
 ;; slow
 (defun update-kind-display (num &key x-attr x-char text-attr text-char)
@@ -826,6 +835,7 @@ ADD_DESC: Most of the code which deals with the game loops.
   (let* ((var-obj *variant*)
 	 (mons (variant.monsters var-obj)))
 
+    #||
     ;; fallback
     (unless *hacked*
       (maphash #'(lambda (k v)
@@ -834,7 +844,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 			 (x-char v) (+ +graphics-start+ 2)))
 	       mons)
       (setf *hacked* t))
-    
+||#    
 		 
     (let ((mon (gethash num mons)))
       (unless mon
@@ -852,77 +862,3 @@ ADD_DESC: Most of the code which deals with the game loops.
 	  (setf (x-char mon) (charify-number x-char)))
 	mon)
       )))
-
-#||
-(defun %hack-data (fname predicate alter)
-  (with-open-file (s fname
-		     :direction :input)
-    (loop for x = (read s nil 'eof)
-	  for i from 0
-	  until (eq x 'eof)
-	  do
-	  (when (funcall predicate x)
-	    (funcall alter x)))))
-
-(defun guzzle ()
-  (let ((*print-case* :downcase)
-	(*print-right-margin* 120))
-    (with-open-file (ffile (pathname "dump.lsp")
-			   :direction :output
-			   :if-exists :supersede
-			   :if-does-not-exist :create)
-      
-      (%hack-data "graf-prefs.lisp"
-		  #'(lambda (x) (and (consp x)
-				     (eq 'update-kind-display (car x))))
-		  #'(lambda (x)
-		      (let ((attr (if (>= (fourth x) 128)
-				      `(+ +graphics-start+ ,(- (fourth x) 128))
-				      (fourth x)))
-			    (char (if (>= (sixth x) 128)
-				      `(+ +graphics-start+ ,(- (sixth x) 128))
-				      (sixth x))))
-			(pprint `(update-kind-display ,(second x) :x-attr ,attr :x-char ,char)
-				ffile)))))))
-
-(defun guzzle2 ()
-  (let ((*print-case* :downcase)
-	(*print-right-margin* 120))
-    (with-open-file (ffile (pathname "dump.lsp")
-			   :direction :output
-			   :if-exists :supersede
-			   :if-does-not-exist :create)
-      
-      (%hack-data "graf-prefs.lisp"
-		  #'(lambda (x) (and (consp x)
-				     (eq 'update-monster-display (car x))))
-		  #'(lambda (x)
-		      (let ((attr (if (>= (fourth x) 128)
-				      `(+ +graphics-start+ ,(- (fourth x) 128))
-				      (fourth x)))
-			    (char (if (>= (sixth x) 128)
-				      `(+ +graphics-start+ ,(- (sixth x) 128))
-				      (sixth x))))
-		      (pprint `(update-monster-display ,(cadr x) :x-attr ,attr :x-char ,char)
-			      ffile)))))))
-
-(defun guzzle3 ()
-  (let ((*print-case* :downcase)
-	(*print-right-margin* 120))
-    (with-open-file (ffile (pathname "dump.lsp")
-			   :direction :output
-			   :if-exists :supersede
-			   :if-does-not-exist :create)
-      
-      (%hack-data "graf-prefs.lisp"
-		  #'(lambda (x) (and (consp x)
-				     (eq 'update-floor-display (car x))))
-		  #'(lambda (x)
-		      (let ((attr (- (fourth x) 128))
-			    (char (- (sixth x) 128)))
-		      (pprint `(update-floor-display ,(cadr x) :x-attr (+ +graphics-start+ ,attr)
-				:x-char (+ +graphics-start+ ,char))
-			      ffile)))))))
-
-
-||#

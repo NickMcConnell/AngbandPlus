@@ -14,6 +14,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
+;;; these constants were snatched from the old defines.h
+;;; feel free to change them
+
 (defconstant +sound-hit+ 1)
 (defconstant +sound-miss+ 2)
 (defconstant +sound-flee+ 3)
@@ -39,32 +42,44 @@ the Free Software Foundation; either version 2 of the License, or
 (defconstant +sound-shutdoor+ 23)
 (defconstant +sound-tplevel+ 24)
 
+(defvar *sound-table* (make-hash-table :test #'equal))
+
+(defun init-sound-system& (size)
+  ;; put init here later
+  (c-init-sound-system& size)
+  t)
+
 (defun play-sound (type)
   "Plays the given sound(s) for type."
   (when (using-sound?)
-    (let ((sound-num 8))
-      (c-term-xtra& sound-num type))))
+    (let ((xtra-code-sound 8)
+	  (sounds (gethash type *sound-table*)))
+      (when sounds
+	(c-term-xtra& xtra-code-sound (rand-elm sounds))))))
 
 
-(defun define-sound (num &rest sounds)
+(defun define-sound-effect (key &rest sounds)
   "Defines a sound.  Returns nil when sound is not loaded."
-  #-using-sound
-  (declare (ignore num sounds))
-  #-using-sound
-  nil
-  
-  #+using-sound
+
   (when (using-sound?)
-    (let ((base-path "./lib/sound/"))
+    (let ((base-path "./audio/effects/")
+	  (current-sounds (gethash key *sound-table*)))
+      
   
       (dolist (i sounds)
-	(c-load-sound& num (concatenate 'string base-path i))))
-    num))
+	(let ((idx (c-load-sound-effect& (concatenate 'string base-path i) -1)))
+	  (pushnew idx current-sounds :test #'equal)))
+
+      (setf (gethash key *sound-table*) current-sounds)
+      
+      (length current-sounds))
+    ))
   
 
 (defun using-sound? ()
   "Returns either T or NIL."
-  #+using-sound
-  t
-  #-using-sound
-  nil)
+  ;; cache value to avoid ffi-call
+  (if (= 0 (c-get-sound-status))
+      nil
+      t))
+

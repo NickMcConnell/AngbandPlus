@@ -77,43 +77,74 @@ acts on the result:
 
 
 (defun %birth-input (col row alternatives
-		     &key (display-fun nil) (mod-value 5) (bottom-display 10)
-		     (ask-for "value"))
+		     &key (display-fun nil) (mod-value 5) 
+		     (ask-for "value") (settings nil))
   "INTERNAL FUNCTION.
 The COL, ROW argument specifies where the alternatives should start
 ALTERNATIVES is a list of valid alternatives
 DISPLAY-FUN is a function to display help for a given option
-MOD-VALUE is how much space should be between rows (I think)
-BOTTOM-DISPLAY means something."
+MOD-VALUE is how much space should be between rows (I think)"
   ;; [add more info]
 
   
   (let ((alt-len (length alternatives)))
     (labels ((display-alternatives (highlight-num)
 	       (let ((desc (when display-fun
-			     (funcall display-fun highlight-num))))
+			     (funcall display-fun highlight-num)))
+		     (text-col (if settings
+				   (slot-value settings 'text-x)
+				   2))
+		     (text-row (if settings
+				   (slot-value settings 'text-y)
+				   10))
+		     (text-attr (if settings
+				    (slot-value settings 'text-attr)
+				    +term-white+))
+		     (text-wid (if settings
+				   (slot-value settings 'text-w)
+				   75))
+		     (alt-colour (if settings
+				     (slot-value settings 'altern-attr)
+				     +term-white+))
+		     (salt-colour (if settings
+				      (slot-value settings 'altern-sattr)
+				      +term-l-blue+)))
 
-		 (c-clear-from! bottom-display) ;; clears things
+		 ;; find a better solution here
+		 (loop for i from text-row below (get-term-height)
+		       do
+		       (put-coloured-line! +term-white+ "" text-col i))
+		 ;;(c-clear-from! text-row) ;; clears things
 		 
 		 (when desc
-		   (c-print-text! 2 bottom-display +term-white+ desc :end-col 75)
-		   ))
+		   (c-print-text! text-col text-row text-attr desc :end-col (+ text-col text-wid))
+		   )
 		 
 		 (loop for cur-alt in alternatives
 		       for i from 0
 		       for the-col = (truncate (+ col (* 15 (mod i mod-value))))
 		       for the-row = (truncate (+ 1 row (/ i mod-value)))
-		       for cur-bg  = (if (= i highlight-num) +term-l-blue+ +term-white+)
+		       for cur-bg  = (if (= i highlight-num) salt-colour alt-colour)
 		       do
-		       (put-coloured-str! +term-white+ (format nil "~c) " (i2a i)) the-col the-row)
+		       (put-coloured-str! cur-bg (format nil "~c) " (i2a i)) the-col the-row)
 		       (put-coloured-str! cur-bg (format nil "~a" cur-alt) (+ 3 the-col) the-row)
-		       ))
+		       )))
 	     
 	     (get-a-value (cur-sel)
-	       (display-alternatives cur-sel)
-	       (put-coloured-str! +term-l-red+ (format nil "Choose a ~a (~c-~c, or * for random): "
-						       ask-for (i2a 0) (i2a (- alt-len 1)))
-				  col row)
+	       (let* ((query-colour (if settings
+				       (slot-value settings 'query-attr)
+				       +term-l-red+))
+		      (red-query (if settings
+				     (slot-value settings 'query-reduced)
+				     nil))
+		      (query-str (if red-query
+				     "Choose a ~a (~c-~c): "
+				     "Choose a ~a (~c-~c, or * for random): ")))
+		 
+		 (display-alternatives cur-sel)
+		 (put-coloured-str! query-colour (format nil query-str
+							 ask-for (i2a 0) (i2a (- alt-len 1)))
+				    col row))
 	       (let ((rval (%birth-input-char alt-len)))
 		 (if (not (symbolp rval))
 		     rval
@@ -133,32 +164,43 @@ BOTTOM-DISPLAY means something."
 
 
 
-(defmethod query-for-character-basics! ((variant variant) the-player)
+(defmethod query-for-character-basics! ((variant variant) (the-player player)
+					(settings birth-settings))
   "Interactive questioning to select the basics of the character.
 Modififes the passed player object THE-PLAYER.  This is a long function."
 
   (clear-the-screen!)
 
   ;; print info on process in upper right corner
-  (c-print-text! 23 2 +term-white+
-		#.(concatenate 'string
+  (c-print-text! (slot-value settings 'instr-x)
+		 (slot-value settings 'instr-y)
+		 (slot-value settings 'instr-attr)
+		 #.(concatenate 'string
 			       "Please answer the following questions.  "
-			       "Legal answers are shown below the red question.  You may use " 
+			       "Legal answers are shown below the marked question.  You may use " 
 			       "arrow-keys to highlight answers and display description, "
 			       "or you may hit 'Q' to quit, 'S' to start all over or '?' " 
-			       "to enter the generic help-system."))
+			       "to enter the generic help-system.")
+		:end-col (slot-value settings 'instr-w))
 
-  (let ((info-col 2)
-	(info-row 8)
-	(info-colour +term-l-green+)
-	(quest-row 21)
-	(quest-col 2))
+  (let ((info-col (slot-value settings 'info-x))
+	(info-row (slot-value settings 'info-y))
+	(info-colour (slot-value settings 'info-attr))
+	(quest-row (slot-value settings 'query-y))
+	(quest-col (slot-value settings 'query-x))
+	(choice-col (slot-value settings 'choice-x))
+	(choice-row (slot-value settings 'choice-y))
+	(choice-colour (slot-value settings 'choice-attr))
+	(choice-tcolour (slot-value settings 'choice-tattr))
+	(mod-value (slot-value settings 'altern-cols))
+	)
   
     ;; First we do the player gender
     (c-clear-from! info-row) ;; clears things
-    ;; Print extra-info Extra info 
-    (put-coloured-str! info-colour "Your 'gender' does not have any significant gameplay effects."
-		       info-col info-row)
+    ;; Print extra-info Extra info
+    (c-print-text! info-col info-row info-colour
+		   "Your 'gender' does not have any significant gameplay effects."
+		   :end-col (slot-value settings 'instr-w))
 
     (block input-loop
       (loop
@@ -166,6 +208,7 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 	      (alt-len (length genders))
 	      (inp (%birth-input quest-col quest-row
 				 (mapcar #'gender.name genders)
+				 :settings settings
 				 :ask-for "gender")))
 	 (cond ((eq inp nil)
 		(return-from query-for-character-basics! nil))
@@ -178,14 +221,16 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 		(warn "Unknown return-value from input-loop ~s, must be [0..~s)" inp alt-len))
 	       ))))
    
-    (put-coloured-str! +term-white+  "Gender" 1 3) 
-    (put-coloured-str! +term-l-blue+ (get-gender-name the-player) 8 3)
+    (put-coloured-str! choice-tcolour  "Gender" choice-col choice-row) 
+    (put-coloured-str! choice-colour   (get-gender-name the-player) (+ 7 choice-col) choice-row)
 
     
     (c-clear-from! info-row) ;; clears things
-   
-    (put-coloured-str! info-colour "Your 'race' determines various intrinsic factors and bonuses."
-		       info-col info-row)
+
+    (c-print-text! info-col info-row info-colour
+		   "Your 'race' determines various intrinsic factors and bonuses."
+		   :end-col (slot-value settings 'instr-w))
+
 
     (block input-loop
       (loop
@@ -197,6 +242,8 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 						  (when (and (numberp x) (>= x 0) (< x alt-len))
 						    (race.desc (elt cur-races x))))
 				 :ask-for "race"
+				 :settings settings
+				 :mod-value mod-value
 				 )))
 	      
 	 (cond ((eq inp nil)
@@ -211,17 +258,20 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 	       ))))
 
 
-      (put-coloured-str! +term-white+  "Race" 1 4)
-      (put-coloured-str! +term-l-blue+ (get-race-name the-player) 8 4)
+      (put-coloured-str! choice-tcolour  "Race" choice-col (+ 1 choice-row))
+      (put-coloured-str! choice-colour (get-race-name the-player) (+ 7 choice-col) (+ 1 choice-row))
 
       (c-clear-from! info-row) ;; clears things
 
       ;; time to do classes.. slightly more tricky
 
-      (put-coloured-str! info-colour "Your 'class' determines various intrinsic abilities and bonuses."
-			 info-col info-row)
-      (put-coloured-str! info-colour "Any entries with a (*) should only be used by advanced players."
-			 info-col (1+ info-row))
+      (c-print-text! info-col info-row info-colour
+		     #.(concatenate 'string
+				    "Your 'class' determines various intrinsic abilities and bonuses. "
+				    "Any entries inside (parantheses) should only be used by advanced players."
+				    )
+
+		     :end-col (slot-value settings 'instr-w))
       
 
    
@@ -264,8 +314,9 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 				     :display-fun #'(lambda (x)
 						      (when (and (numberp x) (>= x 0) (< x comb-class-len))
 							(class.desc (elt combined-classes x))))
-				     :mod-value 3
 				     :ask-for "class"
+				     :settings settings
+				     :mod-value mod-value
 				     )))
 	     
 	     (cond ((eq inp nil)
@@ -283,8 +334,9 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 
 
 
-  (put-coloured-str! +term-white+  "Class" 1 5)
-  (put-coloured-str! +term-l-blue+ (get-class-name the-player) 8 5)
+  (put-coloured-str! +term-white+  "Class" choice-col (+ 2 choice-row))
+  (put-coloured-str! +term-l-blue+ (get-class-name the-player)
+		     (+ 7 choice-col) (+ 2 choice-row))
 
   (c-clear-from! info-row) ;; clears things
   
@@ -505,38 +557,43 @@ on success.  Returns NIL on failure or user-termination (esc)."
   "Creates a character with interactive selection.
 Returns the new PLAYER object or NIL on failure."
 
-  (let ((the-player (produce-player-object variant))
-	(birth-settings (get-setting variant :birth)))
+  (let* ((player (produce-player-object variant))
+	 (birth-settings (get-setting variant :birth))
+	 (note-colour (if birth-settings
+			  (slot-value birth-settings 'note-colour)
+			  +term-white+)))
+    
+    (c-term-clear!)
+    (c-term-fresh! +full-frame+)
 
-   
+    (c-texture-background! +full-frame+ "plainbook.png" -1)
+
     ;; get basics of the character
-    (let ((basics (query-for-character-basics! variant the-player)))
+    (let ((basics (query-for-character-basics! variant player birth-settings)))
       (unless basics
 	(return-from interactive-creation-of-player nil)))
 
     ;; now we should have a race
-    (let ((rand-name (generate-random-name variant the-player (player.race the-player))))
+    (let ((rand-name (generate-random-name variant player (player.race player))))
       (when (and rand-name (stringp rand-name))
-	(setf (player.name the-player) rand-name)))
+	(setf (player.name player) rand-name)))
 
-    (unless (player.name the-player)
-      (setf (player.name the-player) "Foo"))
+    (unless (player.name player)
+      (setf (player.name player) "Foo"))
 
     
     ;;do rolling
-    (let ((rolling (roll-up-character! variant the-player)))
+    (let ((rolling (roll-up-character! variant player)))
       (unless rolling
 	(return-from interactive-creation-of-player nil)))
-
-
 
     ;; ok.. ask for name and re-roll?
 
     (block input-loop
       (loop
-       (display-creature variant the-player)
-       (c-prt! "['c' to change name, 'r' to re-roll stats, 'Q' to quit, ESC to continue]"
-	       2 (get-last-console-line))
+       (display-creature variant player)
+       (print-note! "['c' to change name, 'r' to re-roll stats, 'Q' to quit, ESC to continue]"
+		    note-colour)
 
        (let ((val (read-one-character)))
 	 (cond ((eql val #\Q)
@@ -547,9 +604,9 @@ Returns the new PLAYER object or NIL on failure."
 	       ((eql val +escape+)
 		(return-from input-loop t))
 	       ((or (eql val #\c) (eql val #\C))
-		(%get-name-input! the-player))
+		(%get-name-input! player))
 	       ((or (eql val #\r) (eql val #\R))
-		(roll-up-character! variant the-player))
+		(roll-up-character! variant player))
 	       (t
 		nil)))))
 
@@ -557,9 +614,21 @@ Returns the new PLAYER object or NIL on failure."
     (distribute-flavours! variant)
   
     ;; time to give him some equipment
-    (equip-character! variant the-player birth-settings)
+    (equip-character! variant player birth-settings)
 
+    ;; ok, time to find a symbol
+    (setf (x-attr player) (tile-file +tilefile-classes+)
+	  (x-char player) (tile-number (get-class-tile-number variant player)))
+    
 ;;    (warn "stats are now ~s ~s" (player.base-stats the-player) (ok-object? the-player))
     ;;    (add-object-to-inventory! the-player (create-aobj-from-kind-num 118))
+
+    (c-texture-background! +full-frame+ "" -1)
+    (c-wipe-frame! +full-frame+)
+    ;;(warn "going switch");
+    (switch-to-regular-frameset&)
     
-    the-player))
+    ;;(warn "switched")
+    
+    player))
+

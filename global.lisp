@@ -58,7 +58,8 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 
 (defun define-effect (symbol name &key number bit-flag)
   (let ((var-obj *variant*))
-    (pushnew (make-instance 'effect :symbol symbol :name name :number number :bit-flag bit-flag)
+    (pushnew (make-instance 'effect :symbol symbol :name name
+			    :number number :bit-flag bit-flag)
 	     (variant.effects var-obj) :test #'eq :key #'effect.symbol)))
 
 (defun is-legal-effect? (variant effect)
@@ -73,7 +74,8 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 
 (defun define-element (symbol name &key (bit-flag 0) (number 0))
   (let ((var-obj *variant*))
-    (pushnew (make-instance 'element :symbol symbol :name name :number number :bit-flag bit-flag)
+    (pushnew (make-instance 'element :symbol symbol :name name
+			    :number number :bit-flag bit-flag)
 	     (variant.elements var-obj) :test #'eq :key #'element.symbol)))
 
 
@@ -89,7 +91,8 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   "Returns the bit-flag for the given element."
   (check-type variant variant)
   (assert (and (symbolp element) (not (eq nil element))))
-  (let ((elm (find element (variant.elements variant) :test #'eq :key #'element.symbol)))
+  (let ((elm (find element (variant.elements variant)
+		   :test #'eq :key #'element.symbol)))
     (if (and elm (typep elm 'element))
 	(element.bit-flag elm)
 	(error "The element ~s is not registered for variant '~a'"
@@ -99,7 +102,8 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   "Returns the numeric index for the given element."
   (check-type variant variant)
   (assert (and (symbolp element) (not (eq nil element))))
-  (let ((elm (find element (variant.elements variant) :test #'eq :key #'element.symbol)))
+  (let ((elm (find element (variant.elements variant)
+		   :test #'eq :key #'element.symbol)))
     (if (and elm (typep elm 'element))
 	(element.number elm)
 	(error "The element ~s is not registered for variant '~a'"
@@ -158,7 +162,7 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   "Returns a full pathname for data."
   (let ((file-path (variant.config-path var-obj)))
     (if file-path
-	(concatenate 'string file-path "/" data-fname)
+	(concatenate 'string (lbsys/ensure-dir-name file-path) data-fname)
 	data-fname)))
 
 
@@ -239,7 +243,8 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
     (setf (gethash key table) builder)))
 
 (defun make-gender (&key id symbol name win-title)
-  (make-instance 'gender :id id :symbol symbol :name name :win-title win-title))
+  (make-instance 'gender :id id :symbol symbol
+		 :name name :win-title win-title))
 
 (defmethod get-gender ((variant variant) (key string))
   (find key (variant.genders variant) :key #'gender.id :test #'equal))
@@ -435,23 +440,25 @@ information from the list skills whose content depends on variant."
   
   (let ((skill-obj (produce-skills-object variant :default-value nil)))
 
-      (when (listp skills)
-	(dolist (i skills)
-	  (if (not (consp i))
-	      (warn "Skill argument ~s must be a list, like: (skill base-val lvl-val)"
-		    i)
-	      (let* ((skill-sym (first i))
-		     (the-name (get-skill-translation variant skill-sym)))
-		(if (eq the-name nil)
-		    (warn "Unable to find skill-translation from ~s" skill-sym)
-		    (setf (slot-value skill-obj the-name)
-			  (make-skill :name (string-downcase (string the-name))
-				      :base (let ((base-arg (second i)))
-					      (if base-arg base-arg 0))
-				      :lvl-gain (let ((lvl-arg (third i)))
-						  (if lvl-arg lvl-arg 0))))
-		    )))))
-      skill-obj))
+    (unless (consp skills)
+      (return-from build-skills-obj-from-list skill-obj))
+    
+    (dolist (i skills)
+      (if (not (consp i))
+	  (warn "Skill argument ~s must be a list: (skill base-val lvl-val)"
+		i)
+	  (let* ((skill-sym (first i))
+		 (the-name (get-skill-translation variant skill-sym)))
+	    (if (eq the-name nil)
+		(warn "Unable to find skill-translation from ~s" skill-sym)
+		(setf (slot-value skill-obj the-name)
+		      (make-skill :name (string-downcase (string the-name))
+				  :base (let ((base-arg (second i)))
+					  (if base-arg base-arg 0))
+				  :lvl-gain (let ((lvl-arg (third i)))
+					      (if lvl-arg lvl-arg 0))))
+		))))
+    skill-obj))
 
 (defun get-armour-desc (variant number)
   "Returns a description of the armour-number."
@@ -492,7 +499,9 @@ information from the list skills whose content depends on variant."
     combat-skill))
 
 
-(defmethod convert-obj ((htbl hash-table) (to (eql :vector)) &key sort-table-p sorted-by-key sorted-by-fun fill-pointer)
+(defmethod convert-obj ((htbl hash-table) (to (eql :vector))
+			&key sort-table-p sorted-by-key
+			sorted-by-fun fill-pointer)
   "Takes a hash-table and returns a vector with the elements."
   
   (let* ((len (hash-table-count htbl))
@@ -585,6 +594,74 @@ information from the list skills whose content depends on variant."
 	,@body)
     (screen-load)))
 
+(defmacro with-frame ((num) &body body)
+  (let ((sym (gensym)))
+    `(let ((,sym (c-get-cur-term)))
+      (unwind-protect
+	   (progn
+	     (term-activate& ,num)
+	     ,@body)
+	(term-activate& ,sym)))))
+
+(defmacro with-full-frame (() &body body)
+  `(unwind-protect
+    (progn 
+      (switch-to-full-frame&)
+      (with-frame (+full-frame+)
+	,@body))
+    (switch-to-regular-frameset&)))
+
+(defun invoke-in-dialogue (fun)
+  (let ((term (c-get-cur-term)))
+    (cond ((= term +dialogue-frame+)
+	   (funcall fun))
+	  (t
+	   (unwind-protect
+		(progn
+		  (c-deactivate-frame! +charinfo-frame+)
+		  (c-deactivate-frame! *map-frame*)
+		  (c-activate-frame! +dialogue-frame+)
+		  (c-clean-frame! +dialogue-frame+)
+		  (with-frame (+dialogue-frame+)
+		    (funcall fun)))
+
+	     (progn
+	       (c-wipe-frame! +dialogue-frame+)
+	       (c-deactivate-frame! +dialogue-frame+)
+	       (c-activate-frame! +charinfo-frame+)
+	       (c-activate-frame! *map-frame*)
+	       (c-clean-frame! +charinfo-frame+)
+	       (c-clean-frame! *map-frame*)
+	       )))
+	  )))
+
+;; very bulky
+(defmacro with-dialogue (() &body body)
+  ;; posibly find better solution later
+  `(invoke-in-dialogue #'(lambda () ,@body)))
+
+
+;; hackish!
+(defun queue-map-char! (x y col sym tcol tsym)
+  "Queues to the map-frame."
+  (with-frame (*map-frame*)
+    (c-term-queue-char! x y col sym tcol tsym)))
+
+;; ugly hack!
+(defun c-term-fresh! (&optional (term -1))
+  "If term is a negative number (default) it will fresh all terms, if not
+it will fresh specified term."
+  (cond ((>= term 0)
+	 (with-frame (term)
+	   (c-term_fresh!)))
+	(t
+	 ;;(warn "Fresh with negative argument!!!")
+	 (dotimes (i +max-frames+)
+	   (with-frame (i)
+	     ;;(warn "Freshing term ~s" i)
+	     (c-term_fresh!))))))
+
+
 ;; move later
 (defun get-system-type ()
   (let ((num (c_current_ui)))
@@ -593,7 +670,7 @@ information from the list skills whose content depends on variant."
       (1 'gcu)
       (2 'gtk)
       (3 'win)
-
+      (4 'sdl)
       )))
 
 (defun define-key-macros (key &rest macros)
@@ -655,7 +732,8 @@ information from the list skills whose content depends on variant."
   (load-game-data fname))
 
 (defun loadable-val (val)
-  (cond ((or (keywordp val) (stringp val) (characterp val) (numberp val) (arrayp val))
+  (cond ((or (keywordp val) (stringp val) (characterp val)
+	     (numberp val) (arrayp val))
 	 val)
 	((eq val nil)
 	 nil)
@@ -666,16 +744,19 @@ information from the list skills whose content depends on variant."
 
 ;; some wrappers for C-functions.
 
-(defun %flush-messages! (x-pos)
+(defun %flush-messages! (x-pos &optional (forced nil))
   "Do not use unless you know what you're doing."
-  (%term-putstr! x-pos 0 -1 +term-l-blue+ "-more-")
-
-  (block input-loop
-    (loop
-     (let ((ch (read-one-character)))
-       ;; see util.c for real code.. just skip now
-       (return-from input-loop t))))
-  (c_term_erase! 0 0 255))
+  (with-frame (+message-frame+)
+    (%term-putstr! x-pos 0 -1 +term-l-blue+ "-more-")
+    
+    (unless forced
+      (block input-loop
+	(loop
+	 (let ((ch (read-one-character)))
+	   (c-term-fresh! +message-frame+)
+	   ;; see util.c for real code.. just skip now
+	   (return-from input-loop t)))))
+    (c_term_erase! 0 0 255)))
 
 ;; this code is simpler than in C, but does the same job basically
 (let ((msg-col 0)
@@ -706,19 +787,21 @@ information from the list skills whose content depends on variant."
       (push (make-message :text msg :attr attr)
 	    messages)
       ;; skip msg-add
-      
-      (%term-putstr! msg-col 0 -1 attr msg)
-
+      (with-frame (+message-frame+)
+	(%term-putstr! msg-col 0 -1 attr msg))
+      (c-term-fresh! +message-frame+)
       (incf msg-col (1+ msg-len))
       
       t))
   
-  (defun flush-messages! ()
+  (defun flush-messages! (&optional (forced nil))
     ;; add reset-later
     (when (plusp msg-col)
-      (%flush-messages! msg-col)
+      (%flush-messages! msg-col forced)
       ;; skip reset of msg-flag
-      (setf msg-col 0)))
+      (setf msg-col 0))
+    ;; we also fake a check of the length here
+    (setf end-col (- (get-term-width +message-frame+) 8)))
 
   (defun show-messages (&key (offset 0))
     (declare (ignore offset))
@@ -768,6 +851,18 @@ information from the list skills whose content depends on variant."
     (org.langband.ffi:c_quit! base-ptr))
   (values))
 
+;; do not use outside global.lisp!
+(defun %term-putstr! (col row some colour text)
+;;  (warn "putting |~s|" text)
+  #-lispworks
+  (org.langband.ffi:c_term_putstr! col row some colour
+				   (org.langband.ffi:to-arr text))
+  #+lispworks
+  (fli:with-foreign-string (base-ptr a b)
+    text
+    (org.langband.ffi:c_term_putstr! col row some colour base-ptr))
+  (values))
+
 (defun put-coloured-line! (colour text col row)
   "Erases rest of line and puts a string."
     (c_term_erase! col row 255)
@@ -783,33 +878,27 @@ information from the list skills whose content depends on variant."
 (defun c-prt! (str col row)
   (put-coloured-line! +term-white+ str col row))
 
-;; do not use outside global.lisp!
-(defun %term-putstr! (col row some colour text)
-;;  (warn "putting |~s|" text)
-  #-lispworks
-  (org.langband.ffi:c_term_putstr! col row some colour (org.langband.ffi:to-arr text))
-  #+lispworks
-  (fli:with-foreign-string (base-ptr a b)
-    text
-    (org.langband.ffi:c_term_putstr! col row some colour base-ptr))
-  (values))
+(defun output-string! (term str col row &optional (attr +term-white+))
+  (with-frame (term) ;; do this on the C-side later
+    (%term-putstr! col row -1 attr str)))
 
 
-(defun print-note! (msg &optional (attr +term-white+))
+
+(defun print-note! (msg &optional (attr +term-white+) &key (row -1))
   "Prints a centred note on the last line."
 
-  (let ((row (get-last-console-line))
+  (let ((row (if (or (< row 0) (< (get-term-height) row))
+		 (get-last-console-line)
+		 row))
 	;;(row 23) ;;(get-last-console-line))
 	;; screws up somewhat when graphics is enabled
-	(col (if *use-graphics*
-		 19
-		 (- (int-/ (get-last-console-column) 2)
-		    (int-/ (length msg) 2))))
-	)
+	(col (- (int-/ (get-last-console-column) 2)
+		(int-/ (length msg) 2))))
+
     (c_term_erase! 0 row 255)
     (put-coloured-str! attr msg col row)
     (c-term-flush!)
-    (c-term-fresh!)
+    ;;(c-term-fresh!)
     ;;(pause-last-line!)
     t))
 
@@ -828,36 +917,92 @@ information from the list skills whose content depends on variant."
     (setf msg "[Press any key to continue]"))
   (unless attr
     (setf attr +term-white+))
-  (c_term_erase! 0 row 255)
-  (put-coloured-str! attr msg 23 row)
-  (read-one-character)
-  (c_term_erase! 0 row 255)
-  t)
+  (print-note! msg attr :row row)
+;;  (c_term_erase! 0 row 255)
+;;  (put-coloured-str! attr msg 23 row)
+  (let ((read-char (read-one-character)))
+    (c_term_erase! 0 row 255)
+    read-char))
 
 
-(defun get-last-console-line ()
-  (+ +start-row-of-map+ *screen-height*))
+(defun get-last-console-line (&optional (term -1))
+  (1- (get-term-height term)))
 
-(defun get-last-console-column ()
-  (+ +start-column-of-map+ *screen-width*))
+(defun get-last-console-column (&optional (term -1))
+  (1- (get-term-width term)))
 
 ;;(trace get-last-console-column)
 
 (defun pause-last-line! (&key msg attr)
   (c-pause-line! (get-last-console-line) :msg msg :attr attr))
 
-(defun init-c-side& (ui base-path debug-level)
+;; fix!
+(defun init-c-side& (ui source-path config-path gfx-path debug-level)
   #-lispworks
-  (init_c-side& ui base-path debug-level)
+  (org.langband.ffi:init_c-side& ui source-path config-path gfx-path debug-level)
   #+lispworks
-  (fli:with-foreign-string (ui-ptr elm-count byte-count :external-format :ascii)
-    ui
-    (declare (ignore elm-count byte-count))
-    (fli:with-foreign-string (base-ptr elem-count bbyte-count :external-format :ascii)
-      base-path
-      (declare (ignore elem-count bbyte-count))
-;;      (warn "Going ahead with ~s ~s" ui-ptr base-ptr)
-      (init_c-side& ui-ptr base-ptr debug-level))))
+  (fli:with-dynamic-foreign-objects ()
+    (flet ((for-str (x)
+	     (fli:convert-to-dynamic-foreign-string x)))
+      (org.langband.ffi:init_c-side& (for-str ui) (for-str source-path)
+				     (for-str config-path)
+				     (for-str gfx-path) debug-level))))
+
+(defun c-add-frame! (key name)
+  #-lispworks
+  (org.langband.ffi:c-add_frame! key name)
+  #+lispworks
+  (fli:with-foreign-string (s a b)
+    name
+    (org.langband.ffi:c-add_frame! key s)))
+
+(defun c-add-frame-tileinfo! (key tw th font bg)
+  #-lispworks
+  (org.langband.ffi:c-add_frame-tileinfo! key tw th font bg)
+  #+lispworks
+  (fli:with-dynamic-foreign-objects ()
+    (flet ((for-str (x)
+	     (fli:convert-to-dynamic-foreign-string x)))
+      (org.langband.ffi:c-add_frame-tileinfo! key tw th
+					      (for-str font) (for-str bg)))))
+
+(defun c-load-sound-effect& (name idx)
+  #-lispworks
+  (org.langband.ffi:c-load_sound-effect& name idx)
+  #+lispworks
+  (fli:with-foreign-string (s a b)
+    name
+    (org.langband.ffi:c-load_sound-effect& s idx)))
+
+(defun c-texture-background! (term fname alpha)
+  #-lispworks
+  (org.langband.ffi:c-texture_background! term fname alpha)
+  #+lispworks
+  (fli:with-foreign-string (s a b)
+    fname
+    (org.langband.ffi:c-texture_background! term s alpha)))
+
+(defun paint-gfx-image& (fname type x y)
+  #-lispworks
+  (org.langband.ffi:c-paint-gfx-image& fname type x y)
+  #+lispworks
+  (fli:with-dynamic-foreign-objects ()
+    (flet ((for-str (x)
+	     (fli:convert-to-dynamic-foreign-string x)))
+      (org.langband.ffi:c-paint-gfx-image& (for-str fname) (for-str type)
+					   x y))))
+
+(defun %load-people-image (name wid height)
+  (let ((pname (concatenate 'string "./graphics/people/" name)))
+    (load-scaled-image& pname -1 wid height)))
+
+(defun %paint-people-image (name x y)
+  (paint-gfx-image& name "people" x y))
+
+(defun %paint-other-image (name x y)
+  (paint-gfx-image& name "other" x y))
+
+
 
 (defun c-print-text! (col row colour text &key (end-col 80))
   "Don't call this if you need non-consing or fast operation."
@@ -940,7 +1085,7 @@ information from the list skills whose content depends on variant."
   (let ((table (variant.floor-types *variant*)))
     (setf (gethash id table) floor)))
 
-(defun define-floor-type (id name x-attr x-char &key mimic)
+(defun define-floor-type (id name x-attr x-char &key mimic text-attr text-char)
   "Defines a floor-type and registers it.  The floor is returned."
   (let ((ftype (make-instance 'floor-type :id id
 			      :name name
@@ -950,6 +1095,16 @@ information from the list skills whose content depends on variant."
 					(character (char-code x-char))
 					(number x-char))
 			      :mimic mimic)))
+    (cond (text-attr
+	   (setf (text-attr ftype) text-attr))
+	  (t
+	   (setf (text-attr ftype) (x-attr ftype))))
+    
+    (cond (text-char
+	   (setf (text-char ftype) text-char))
+	  (t
+	   (setf (text-char ftype) (x-char ftype))))
+    
     (setf (get-floor-type id) ftype)
     ftype))
 
@@ -1030,7 +1185,8 @@ or removed.  Conses up a new list."
 
 ;;; == stat-related code
 
-(defun define-character-stat (symbol name &key abbreviation number data positive-desc negative-desc)
+(defun define-character-stat (symbol name &key abbreviation
+			      number data positive-desc negative-desc)
   "Defines and registers a stat with the current variant."
 
   (let ((the-stat (make-instance 'character-stat :symbol symbol :name name))
@@ -1140,8 +1296,15 @@ or removed.  Conses up a new list."
 (defmethod x-char ((obj active-trap))
   (x-char (trap.type obj)))
 
+(defmethod text-attr ((obj active-trap))
+  (text-attr (trap.type obj)))
 
-(defun define-trap-type (id name &key x-char x-attr effect min-depth max-depth rarity)
+(defmethod text-char ((obj active-trap))
+  (text-char (trap.type obj)))
+
+
+(defun define-trap-type (id name &key x-char x-attr text-char text-attr
+			 effect min-depth max-depth rarity)
   "Defines and registers a trap-type."
   (unless (verify-id id)
     (warn "Trap-id ~s not valid" id)
@@ -1157,6 +1320,17 @@ or removed.  Conses up a new list."
 				 ))
 	(table (variant.traps *variant*)))
 
+    (cond (text-char
+	   (setf (text-char trap-obj) text-char))
+	  (t
+	   (setf (text-char trap-obj) (x-char trap-obj))))
+    
+    (cond (text-attr
+	   (setf (text-attr trap-obj) text-attr))
+	  (t
+	   (setf (text-attr trap-obj) (x-attr trap-obj))))
+    
+    
 ;;    (warn "Effect is ~s ~s ~s" effect (functionp effect) (compiled-function-p effect))
     (when (functionp effect)
       ;; we assume it is not compiled
@@ -1176,56 +1350,143 @@ or removed.  Conses up a new list."
 ;;    (warn "Def is ~s" def)
     `(function ,def)))
 
+(defun c-has-frame? (key type)
+  (if (= (c-has_frame key type) 1)
+      t
+      nil))
 
-(defun get-screen-width ()
-  "This is slow and uses c-side, use *screen-width* for cached result."
-  (let ((base (- (c-get-term-width) +start-column-of-map+ 1)))
-    (if *use-graphics*
-	(int-/ base 2)
-	base)))
+(defun c-get-frame-gfx-tiles? (key type)
+  (if (= (c-get_frame-gfx-tiles key type) 1)
+      t
+      nil))
 
-(defun get-screen-height ()
-  "This is slow and uses c-side, use *screen-width* for cached result."
-  
-  (- (c-get-term-height) +start-row-of-map+ 1))
+
+(defun update-term-sizes! ()
+  (dotimes (i +predefined-frames+)
+    (let ((var (aref *predefined-frames* i)))
+      (unless var
+	;; check if there should be one
+	(when (c-has-frame? i +frametype-predefined+)
+	  (setf var (make-instance 'subwindow))))
+      
+      ;; ok, we have a frame we need more info about
+      (when var
+	;; we need to update our info
+	(setf (subwindow.columns var)     (c-get-frame-columns i +frametype-predefined+)
+	      (subwindow.rows var)        (c-get-frame-rows i +frametype-predefined+)
+	      (subwindow.tile-width var)  (c-get-frame-tile-width i +frametype-predefined+)
+	      (subwindow.tile-height var) (c-get-frame-tile-height i +frametype-predefined+)
+	      (subwindow.gfx-tiles? var)  (c-get-frame-gfx-tiles? i +frametype-predefined+))
+
+	(assert (plusp (subwindow.columns var)))
+	(assert (plusp (subwindow.rows var)))
+	(warn "window ~s has size [~d,~d,~d,~d] and gfx ~s" i
+	      (subwindow.columns var) (subwindow.rows var)
+	      (subwindow.tile-width var) (subwindow.tile-height var)
+	      (subwindow.gfx-tiles? var))
+
+	(setf (aref *predefined-frames* i) var))
+      )))
+
+
+(defun get-frame-width (&optional (term -1))
+  (if (>= term 0)
+      (subwindow.columns (aref *predefined-frames* term))
+      (subwindow.columns (aref *predefined-frames* (c-get-cur-term)))))
+
+;; deprecated
+(defun get-term-width (&optional (term -1))
+  (get-frame-width term))
+
+
+(defun get-frame-height (&optional (term -1))
+  (if (>= term 0)
+      (subwindow.rows (aref *predefined-frames* term))
+      (subwindow.rows (aref *predefined-frames* (c-get-cur-term)))))
+
+;; deprecated
+(defun get-term-height (&optional (term -1))
+  (get-frame-height term))
 
 (defun get-panel-width ()
-  (if *use-graphics*
-      16
-      33))
+  (get-term-width *map-frame*))
 
 (defun get-panel-height ()
-  11)
+  (get-term-height *map-frame*))
 
-(defun %read-direction ()
-  (flush-messages!)
-  (let ((retval (block read-loop
-		  (loop
-		   (c-prt! "Direction: " 0 0)
-		   (let ((val (read-one-character)))
-		     (cond ((or (eql val #\.)
-				(eql val #\0)
-				(eql val #\t))
-			    (c-prt! "" 0 0)
-			    (return-from read-loop 5))
-			   ((digit-char-p val)
-			    (c-prt! "" 0 0)
-			    (return-from read-loop (digit-char-p val)))
-			   ((eql val +escape+)
-			    (c-prt! "" 0 0)
-			    (return-from read-loop nil))
-			   (t
-			    (c-prt! "Unknown direction!" 0 0))))))))
-    (c-prt! "" 0 0)
-    retval))
+;; bah!
+(defun load-gfx-tiles? ()
+  (eq (get-system-type) 'sdl))
 
+;; hackish!
+(defun use-gfx-tiles? (&optional (term -1))
+  (if (>= term 0)
+      (subwindow.gfx-tiles? (aref *predefined-frames* term))
+      (subwindow.gfx-tiles? (aref *predefined-frames* (c-get-cur-term)))))
+
+(defun graphical-map? ()
+  (use-gfx-tiles? *map-frame*))
+
+(defun use-images? ()
+  (if (eq (get-system-type) 'sdl)
+      t
+      nil))
+
+(defmacro tile-number (num)
+  `(+ +graphics-start+ ,num))
+
+;; also support names!
+(defmacro tile-file (num)
+  `(+ +graphics-start+ ,num))
+
+(defun get-aim-direction ()
+  "Interactive!"
+  (flush-messages! t)
+  (flet ((read-loop ()
+	   (loop
+	    (c-prt! "Direction: " 0 0)
+	    (let ((val (read-one-character)))
+	      (cond ((or (eql val #\.)
+			 (eql val #\0)
+			 (eql val #\t))
+		     (c-prt! "" 0 0)
+		     (return-from read-loop 5))
+		    ((digit-char-p val)
+		     (c-prt! "" 0 0)
+		     (return-from read-loop (digit-char-p val)))
+		    ((eql val +escape+)
+		     (c-prt! "" 0 0)
+		     (return-from read-loop nil))
+		    (t
+		     (c-prt! "Unknown direction!" 0 0)))
+	      ))))
+    
+  (with-frame (+query-frame+)
+    (let ((retval (read-loop)))
+      (c-prt! "" 0 0)
+      retval))))
+  
 ;;; to have empty place-holders
 #-image-support
 (defun load-scaled-image& (fname idx wid hgt)
   (declare (ignore fname idx wid hgt))
   nil)
 
-#-image-support
-(defun paint-gfx-image& (fname type x y)
-  (declare (ignore fname type x y))
-  nil)
+(defun image-exists? (type name)
+  (let ((fname (concatenate 'string *engine-graphics-dir* (string-downcase (string type)) "/" name)))
+    (probe-file fname)))
+
+(defun switch-to-full-frame& ()
+  (loop for i from 1 below +max-frames+
+	do
+	(c-deactivate-frame! i))
+  (c-activate-frame! +full-frame+)
+  (c-clean-frame! +full-frame+))
+
+;; fix to no-cons later
+(defun switch-to-regular-frameset& ()
+  (c-deactivate-frame! +full-frame+)
+  (dolist (i (list +message-frame+ +charinfo-frame+
+		   +misc-frame+ *map-frame* +inv-frame+))
+    (c-activate-frame! i)
+    (c-clean-frame! i)))

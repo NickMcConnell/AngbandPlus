@@ -95,7 +95,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 				  (print-message! "The poison does not affect you!"))
 				 (t
 				  (incf dmg dmg) ;; * 2
-				  ;; add poison (randint dmg)
+				  (modify-creature-state! player '<poisoned> :add (randint dmg))
 				  )))
 			 (deliver-damage! variant the-trap player dmg))
 		       ))
@@ -146,8 +146,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	    (let ((target *player*))
 	      (cond ((melee-hit-ac? target 125 (get-creature-ac target) t)
 		     (print-message! "A small dart hits you!")
-		     (deliver-damage! *variant* the-trap target (roll-dice 1 4)) 
-		     ;; add damage + poison
+		     (deliver-damage! *variant* the-trap target (roll-dice 1 4))
+		     (modify-creature-state! target '<slowed> :add (+ 20 (randint 20)))
 		     )
 		    (t
 		     (print-message! "A small dart barely misses you.")))
@@ -162,8 +162,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	    (let ((target *player*))
 	      (cond ((melee-hit-ac? target 125 (get-creature-ac target) t)
 		     (print-message! "A small dart hits you!")
-		     (deliver-damage! *variant* the-trap target (roll-dice 1 4)) 
-		     ;; add damage + poison
+		     (deliver-damage! *variant* the-trap target (roll-dice 1 4))
+		     (update-player-stat! target '<str> '<reduce>)
 		     )
 		    (t
 		     (print-message! "A small dart barely misses you.")))
@@ -178,8 +178,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	    (let ((target *player*))
 	      (cond ((melee-hit-ac? target 125 (get-creature-ac target) t)
 		     (print-message! "A small dart hits you!")
-		     (deliver-damage! *variant* the-trap target (roll-dice 1 4)) 
-		     ;; add damage + poison
+		     (deliver-damage! *variant* the-trap target (roll-dice 1 4))
+		     (update-player-stat! target '<dex> '<reduce>)
 		     )
 		    (t
 		     (print-message! "A small dart barely misses you.")))
@@ -194,8 +194,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	    (let ((target *player*))
 	      (cond ((melee-hit-ac? target 125 (get-creature-ac target) t)
 		     (print-message! "A small dart hits you!")
-		     (deliver-damage! *variant* the-trap target (roll-dice 1 4)) 
-		     ;; add damage + poison
+		     (deliver-damage! *variant* the-trap target (roll-dice 1 4))
+		     (update-player-stat! target '<con> '<reduce>)
 		     )
 		    (t
 		     (print-message! "A small dart barely misses you.")))
@@ -209,7 +209,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :effect (trap-effect (the-trap dungeon x y)
 	    (print-message! "You are surrounded by a black gas!")
 	    (unless (resists-element? *player* '<blindness>)
-	      ;; add blindness (randint 50) + 25
+	      (modify-creature-state! *player* '<blindness> :add (+ 25 (randint 50)))
 	      ))
   :x-attr +term-green+
   :x-char #\^
@@ -221,7 +221,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :effect (trap-effect (the-trap dungeon x y)
 	    (print-message! "You are surrounded by a gas of scintillating colors!")
 	    (unless (resists-element? *player* '<confusion>)
-	      ;; add confusion (randint 20) + 10
+	      (modify-creature-state! *player* '<confusion> :add (+ 10 (random 20)))
 	      ))
   :x-attr +term-green+
   :x-char #\^
@@ -232,7 +232,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :effect (trap-effect (the-trap dungeon x y)
 	    (print-message! "You are surrounded by a pungent green gas!")
 	    (unless (resists-element? *player* '<poison>)
-	      ;; add poison (randint 20) + 10
+	      (modify-creature-state! *player* '<poisoned> :add (+ 20 (randint 20)))
+
 	      ))
   :x-attr +term-green+
   :x-char #\^
@@ -243,7 +244,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :effect (trap-effect (the-trap dungeon x y)
 	    (print-message! "You are surrounded by a strange white mist!")
 	    (unless (eq t (get-creature-state *player* '<free-action>))
-	      ;; add paralysis (randint 10) + 5
+	      (modify-creature-state! *player* '<paralysed> :add (+ 5 (randint 10)))
 	      ))
   :x-attr +term-green+
   :x-char #\^

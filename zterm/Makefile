@@ -1,24 +1,18 @@
 ## ---- Start simple customisation
 
-# what gui environments do you want
-# (currently only GCU, X11, WIN and GTK supported)
+# what gui environments do you want (only SDL, WIN and GCU supported)
+# To use SDL on Win, simply say WIN
 
-ENVIRONMENTS=X11 GCU
-#ENVIRONMENTS=X11
+ENVIRONMENTS=GCU SDL
 #ENVIRONMENTS=GCU
-#ENVIRONMENTS=GTK
+#ENVIRONMENTS=SDL
 #ENVIRONMENTS=WIN
-
-# do you want to use experimental sound
-#SOUND_USE=YES
-SOUND_USE=NO
-
 
 ## ---- End simple customisation
 
 CC = gcc
 BASEOBJS = z-rand.o z-term.o z-util.o z-virt.o collected.o \
-variable.o util.o lisp_if.o #signals.o #tests.o
+frame.o variable.o util.o lisp_if.o 
 UIOBJS=
 UIDEFINES=
 UIFLAGS=
@@ -27,7 +21,8 @@ BASEFLAGS=-Wall -W -ggdb
 DLLEXT=so
 PICFLAG=-fPIC
 CONFIGFILE=../config/settings.cfg
-
+SDLCONFIG=/usr/bin/sdl-config
+DLLCOPY=/bin/true
 
 # GCU settings
 ifeq ($(findstring GCU,$(ENVIRONMENTS)), GCU)
@@ -36,29 +31,25 @@ UIOBJS += main-gcu.o
 UILIBS += -lncurses
 endif
 
-# X11 Settings
-ifeq ($(findstring X11,$(ENVIRONMENTS)), X11)
-UIDEFINES += -D"USE_X11" 
-UIOBJS += maid-x11.o main-x11.o
-UILIBS += -L/usr/X11R6/lib -lX11
+#SDL Settings
+ifeq ($(findstring SDL,$(ENVIRONMENTS)), SDL)
+UIDEFINES += -D"USE_SDL" -D"ALLOW_TTF" -DDEBUG
+BASEFLAGS += `${SDLCONFIG} --cflags`
+UIOBJS += sdl-extra.o main-sdl.o 
+UILIBS += -lSDL_mixer -lSDL_image -lSDL_ttf `${SDLCONFIG} --libs`
 endif
 
-#GTK Settings
-ifeq ($(findstring GTK,$(ENVIRONMENTS)), GTK)
-UIDEFINES = -D"USE_GTK" 
-UIFLAGS += `gtk-config --cflags`
-UIOBJS += main-gtk.o
-UILIBS += `gtk-config --libs`
-endif
 
 # hack
 ifeq ($(findstring WIN,$(ENVIRONMENTS)), WIN)
-UIDEFINES += -D"WIN_MAKEDLL" -D"USE_WIN" -D"WINDOWS" -D"WIN32" #-mno-cygwin
+UIDEFINES += -D"USE_SDL" -D"WIN_MAKEDLL" -D"WINDOWS" -D"WIN32" -D"DEBUG"
+UIFLAGS += -mno-cygwin -ISDL
 DLLEXT=dll
-UIOBJS += dummy_call.o main-win.o #hack
-UILIBS += cygwin1.dll -s -mwindows -lwinmm
-LINKOPT=#-Wl,--out-implib,libfoo.import.a
+UIOBJS += sdl-extra.o main-sdl.o main.o #hack
+UILIBS += SDL/SDL.dll SDL/SDL_image.dll SDL/SDL_mixer.dll
+LINKOPT = -mno-cygwin
 PICFLAG=
+DLLCOPY=/bin/cp -f SDL/*.dll ../
 endif
 
 DEFINES=$(UIDEFINES) $(BASEDEFINES)
@@ -66,21 +57,12 @@ CFLAGS= $(BASEFLAGS) $(DEFINES) $(UIFLAGS)
 OBJS=$(BASEOBJS) $(UIOBJS)
 LIBS = $(UILIBS)
 
-DAEMONOBJ=asdaemon.o
-DAEMONPROG=
-
-ifeq ($(SOUND_USE),YES)
-DEFINES += -D"USE_SOUND"
-DAEMONPROG = sound_daemon
-OBJS += use_sound.o
-endif
-
 
 %.o : %.c
 	$(CC) $(CFLAGS) $(PICFLAG) -c $<
 
 ifneq ("$(strip $(ENVIRONMENTS))","")
-all: shared_objs write_config
+all: shared_objs write_config copy_dlls
 else
 all:;@echo 'Please specify environments'
 endif
@@ -89,13 +71,12 @@ shared_objs: $(OBJS) $(DAEMONPROG) dummy_call.o
 	$(CC) $(LINKOPT) -shared -o liblangband_ui.$(DLLEXT) $(OBJS) $(LIBS)
 	$(CC) $(LINKOPT) -shared -o liblangband_dc.$(DLLEXT) dummy_call.o
 
-sound_daemon:$(DAEMONOBJ)
-	$(CC) -o $@ $(DAEMONOBJ)
-
 write_config:
-	@echo "(SOUND-USE ${SOUND_USE})" > $(CONFIGFILE)
 	@echo "(ENVIRONMENTS ${ENVIRONMENTS})" >> $(CONFIGFILE)
 
+copy_dlls:
+	@$(DLLCOPY)
+
 clean:
-	$(RM) *.o *.so *.fasl *.dll *.a *~
+	$(RM) *.o liblangband*.so *.fasl liblangband*.dll *.a *~
 

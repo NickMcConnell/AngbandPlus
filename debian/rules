@@ -14,15 +14,16 @@ INSTALL         := install
 INSTALLFLAGS    := -g root -o root -m 0644
 INSTALLDIRFLAGS := -g root -o root -m 0755
 
-ENGINEDEST	:= $(DESTDIR)/usr/share/common-lisp/repositories/langband/engine
-ENGINECONFDEST	:= $(DESTDIR)/var/lib/games/langband
+ENGINEDEST	:= $(DESTDIR)/usr/share/common-lisp/source/langband-engine
+ENGINECONFDEST	:= $(DESTDIR)/var/games/langband-engine
+FONTDEST	:= $(DESTDIR)/var/games/langband-engine/fonts
 
-VANILLADEST	:= $(VANILLADESTDIR)/usr/share/common-lisp/repositories/langband/variants/vanilla
-VANCONFDEST	:= $(VANILLADESTDIR)/var/lib/games/langband/vanilla
+VANILLADEST	:= $(VANILLADESTDIR)/usr/share/common-lisp/source/langband-vanilla
+VANCONFDEST	:= $(VANILLADESTDIR)/var/games/langband-vanilla
 
 #FOREIGNDEST     := $(SOURCESDEST)/lib/foreign
 ENGINEDOC	:= $(DESTDIR)/usr/share/doc/langband-engine
-GFXDEST		:= $(DESTDIR)/usr/share/langband/graphics
+GFXDEST		:= $(DESTDIR)/usr/share/games/langband-engine/graphics
 WEBDEST		:= $(ENGINEDOC)/web
 VANILLADOC	:= $(VANILLADESTDIR)/usr/share/doc/langband-vanilla
 ZTERMDOC	:= $(ZTERMDESTDIR)/usr/share/doc/langband-zterm
@@ -35,8 +36,7 @@ VANILLAMAN	:= $(VANILLADESTDIR)/usr/share/man/man3
 
 INSTALLSOURCES	:= \
 	pre-build.lisp \
-	langband-engine.asd  \
-	langband-engine.system \
+	langband-engine.asd  langband-engine.system \
 	package.lisp  memoize.lisp \
 	base.lisp  constants.lisp \
 	generics.lisp  sys.lisp classes.lisp \
@@ -52,6 +52,8 @@ INSTALLSOURCES	:= \
 	load.lisp  death.lisp \
 	birth.lisp ai.lisp loop.lisp \
 	dump.lisp init.lisp verify.lisp
+
+#	langband-engine.system \
 
 COMPATSRC = \
 	lib/compat/monster.lisp \
@@ -79,14 +81,21 @@ CONFSRC = \
 	config/news.txt \
 	config/prefs.lisp \
 	config/sound.lisp \
+	config/theme.lisp \
+	config/settings.cfg \
+	config/sdl-keys.lisp \
 	config/x11-keys.lisp \
 	config/gcu-keys.lisp \
 	config/win-keys.lisp
 
+FONTS = \
+	config/fonts/vga8x16.hex \
+	config/fonts/lettergo.ttf \
+	config/fonts/augie.ttf
 
 VANSRC = \
-	variants/vanilla/langband-vanilla.system \
 	variants/vanilla/langband-vanilla.asd \
+	variants/vanilla/langband-vanilla.system \
 	variants/vanilla/base.lisp \
 	variants/vanilla/combat.lisp \
 	variants/vanilla/constants.lisp \
@@ -103,6 +112,7 @@ VANSRC = \
 	variants/vanilla/verify.lisp \
 	variants/vanilla/wizard.lisp 
 
+#	variants/vanilla/langband-vanilla.system \
 
 
 VANCONFSRC = \
@@ -134,45 +144,57 @@ VANCONFSRC = \
 	variants/vanilla/config/weapons.lisp 
 
 
-build: 
+build-arch: build-arch-stamp
+build-arch-stamp:
 	dh_testdir
-	make 
-	touch build
+	# Add here command to compile/build the package.
+	$(MAKE)
+	touch build-arch-stamp
+
+build-indep: build-indep-stamp
+build-indep-stamp:
+	dh_testdir
+	# Add here command to compile/build the arch indep package.
+	# It's ok not to do anything here, if you don't need to build
+	#  anything for this package.
+	#/usr/bin/docbook-to-man debian/#PACKAGE#.sgml > #PACKAGE#.1
+	touch build-indep-stamp
+
+build: build-arch build-indep
+
 
 clean:
 	dh_testdir
-	rm -f build
-
+	rm -f build-arch-stamp build-indep-stamp
 	# Add here commands to clean up after the build process.
 	-$(MAKE) clean
-
 	dh_clean
 
-# Build architecture-independent files here.
-binary-indep: build
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build
-#	dh_testversion
+install: DH_OPTIONS=
+install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
 
-	# Add here commands to install the files into debian/tmp
+	# Add here commands to install the package into debian/<pkgs>
 	$(INSTALL) $(INSTALLFLAGS) $(INSTALLSOURCES) $(ENGINEDEST)
 	$(INSTALL) $(INSTALLFLAGS) $(FOREIGNSRC) $(ENGINEDEST)/ffi
-#	$(INSTALL) $(INSTALLFLAGS) $(BINTYPESSRC) $(ENGINEDEST)/binary-types
+	$(INSTALL) $(INSTALLFLAGS) $(BINTYPESSRC) $(ENGINEDEST)/binary-types
 	$(INSTALL) $(INSTALLFLAGS) $(COMPATSRC) $(ENGINEDEST)/lib/compat
+	$(INSTALL) $(INSTALLFLAGS) lib/help/*.txt $(ENGINEDEST)/lib/help
 	$(INSTALL) $(INSTALLFLAGS) $(CONFSRC) $(ENGINECONFDEST)
+	$(INSTALL) $(INSTALLFLAGS) $(FONTS) $(FONTDEST)
 
 	$(INSTALL) $(INSTALLFLAGS) man/langband-engine.3l $(ENGINEMAN)
 	$(INSTALL) $(INSTALLFLAGS) ChangeLog $(ENGINEDOC)/changelog
 	$(INSTALL) $(INSTALLFLAGS) web/*.html $(WEBDEST)
+	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.png $(GFXDEST)/other
 	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.bmp $(GFXDEST)/other
-	$(INSTALL) $(INSTALLFLAGS) graphics/people/*.bmp $(GFXDEST)/people
+	$(INSTALL) $(INSTALLFLAGS) graphics/people/*.png $(GFXDEST)/people
 	$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.bmp $(GFXDEST)/tiles
+	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.png $(GFXDEST)/textures
+	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.bmp $(GFXDEST)/textures
 
 	# Vanilla stuff
 	$(INSTALL) $(INSTALLFLAGS) $(VANSRC) $(VANILLADEST)
@@ -184,27 +206,66 @@ binary-arch: build
 	$(INSTALL) $(INSTALLFLAGS) $(LIBS) $(CLIB_PATH)
 	$(INSTALL) $(INSTALLFLAGS) debian/README.Debian $(ZTERMDOC)
 
-	dh_installdocs
-#	dh_installexamples
-	dh_installmenu
-	dh_installcron
-#	dh_installmanpages
-#	dh_undocumented
-	dh_installchangelogs
-	dh_link
-	dh_strip
-	dh_compress
-	dh_fixperms
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_makeshlibs
-	dh_md5sums
-	dh_builddeb
+	dh_movefiles
 
-source diff:                                                                  
-	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
+
+# Build architecture-independent files here.
+# Pass -i to all debhelper commands in this target to reduce clutter.
+binary-indep: build install
+	dh_testdir -i
+	dh_testroot -i
+#	dh_installdebconf -i
+	dh_installdocs -i
+	dh_installexamples -i
+	dh_installmenu -i
+#	dh_installlogrotate -i
+#	dh_installemacsen -i
+#	dh_installpam -i
+#	dh_installmime -i
+#	dh_installinit -i
+	dh_installcron -i
+#	dh_installman -i
+	dh_installinfo -i
+#	dh_undocumented -i
+	dh_installchangelogs #CHANGELOGS# -i
+	dh_link -i
+	dh_compress -i
+	dh_fixperms -i
+	dh_installdeb -i
+#	dh_perl -i
+	dh_gencontrol -i
+	dh_md5sums -i
+	dh_builddeb -i
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir -a
+	dh_testroot -a
+#	dh_installdebconf -a
+	dh_installdocs -a
+	dh_installexamples -a
+	dh_installmenu -a
+#	dh_installlogrotate -a
+#	dh_installemacsen -a
+#	dh_installpam -a
+#	dh_installmime -a
+#	dh_installinit -a
+	dh_installcron -a
+#	dh_installman -a
+	dh_installinfo -a
+#	dh_undocumented -a
+	dh_installchangelogs -a
+	dh_strip -a
+	dh_link -a
+	dh_compress -a
+	dh_fixperms -a
+#	dh_makeshlibs -a
+	dh_installdeb -a
+#	dh_perl -a
+	dh_shlibdeps -a
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary
-
+.PHONY: build clean binary-indep binary-arch binary install

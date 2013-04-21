@@ -142,7 +142,7 @@ the Free Software Foundation; either version 2 of the License, or
 				     )))
 
 	    ;; ultra-hack
-	    (when *use-graphics*
+	    (when (load-gfx-tiles?)
 	      (setf (x-attr flav) (+ +graphics-start+ 10)
 		    (x-char flav) (+ +graphics-start+ 18 (random 4))))
 	    
@@ -550,12 +550,12 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;; move somewhere else later
 (defmethod shoot-a-missile ((dungeon dungeon) (player player)
-			   (missile-weapon active-object/bow)
-			   (arrow active-object/ammo))
+			    (missile-weapon active-object/bow)
+			    (arrow active-object/ammo))
   
 ;;  (declare (ignore missile-weapon))
   (block missile-shooting
-    (when-bind (dir (%read-direction))
+    (when-bind (dir (get-aim-direction))
       (assert (and (numberp dir) (< dir 10)))
 ;;      (check-type arrow active-object)
       
@@ -729,7 +729,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun interactive-take-off-item! (dungeon player)
 
-  (when-bind (selection (with-new-screen ()
+  (when-bind (selection (with-frame (+query-frame+)
 			  (select-item dungeon player '(:equip)
 				       :prompt "Take off item: "
 				       :where :equip)))

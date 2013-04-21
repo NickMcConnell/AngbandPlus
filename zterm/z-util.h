@@ -84,7 +84,7 @@ extern void plog(cptr str);
 /* it is quite messy for CMUCL which has a function of the same name */
 INTERFACE void z_quit(cptr str);
 
-#define quit(a) z_quit(a)
+//#define quit(a) z_quit(a)
 
 /* Dump core, with optional message */
 extern void core(cptr str);

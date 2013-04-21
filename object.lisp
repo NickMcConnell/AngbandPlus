@@ -121,10 +121,33 @@ ADD_DESC: available in the game.
 	(object.game-values (aobj.kind obj)))))
 
 (defmethod x-attr ((obj active-object))
-  (x-attr (aobj.kind obj)))
+  (let* ((kind (aobj.kind obj))
+	 (flavour (object.flavour kind)))
+    (if flavour
+	(x-attr flavour)
+	(x-attr kind))))
 
 (defmethod x-char ((obj active-object))
-  (x-char (aobj.kind obj)))
+  (let* ((kind (aobj.kind obj))
+	 (flavour (object.flavour kind)))
+    (if flavour
+	(x-char flavour)
+	(x-char kind))))
+
+(defmethod text-attr ((obj active-object))
+  (let* ((kind (aobj.kind obj))
+	 (flavour (object.flavour kind)))
+    (if flavour
+	(text-attr flavour)
+	(text-attr kind))))
+
+(defmethod text-char ((obj active-object))
+  (let* ((kind (aobj.kind obj))
+	 (flavour (object.flavour kind)))
+    (if flavour
+	(text-char flavour)
+	(text-char kind))))
+
 
 (defmethod object.weight ((obj active-object))
   (* (aobj.number obj) (object.weight (aobj.kind obj))))

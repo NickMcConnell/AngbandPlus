@@ -1,3 +1,16 @@
+2002-11-11  Stig E Sandø <stig@users.sourceforge.net>
+	* Sent out a release, 0.1.1
+	* Major upgrade of (G)UI and UI-handling.  New SDL-support while GTK,
+	Win and X11 backends have been removed.  Full subwindow-system
+	replaces plain x,y tile-system
+	* Sound added as default for SDL-ports.  Buggy in Debian CMUCL.
+	* Added graphics by Claudio Pozas
+	* Made birth and char-display output depend on settings and is not
+	hardcoded anymore
+	* Added theming-support, see config/theme.lisp
+	* Many many other small changes.  Very little gameplay added.
+	this is mostly an interface-upgrade.
+	
 2002-09-16  Stig E Sandø <stig@users.sourceforge.net>
 	* Sent out a release, 0.1.0
 	

@@ -1,2 +1,2 @@
-/usr/share/common-lisp/repositories/langband/variants/vanilla/langband-vanilla.system /usr/share/common-lisp/systems/langband-vanilla.system
-/usr/share/common-lisp/repositories/langband/variants/vanilla /usr/share/common-lisp/source/langband-vanilla
+/usr/share/common-lisp/source/langband-vanilla/langband-vanilla.asd /usr/share/common-lisp/systems/langband-vanilla.asd
+/usr/share/common-lisp/source/langband-vanilla/langband-vanilla.system /usr/share/common-lisp/systems/langband-vanilla.system

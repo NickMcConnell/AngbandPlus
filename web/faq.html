@@ -55,10 +55,10 @@
 		<li> <b>Where can I download it?</b><br>
 		  It isn't finished yet and won't be finished for some time as
 		  it will need go to through several stages, as all newly
-		  written programs must.  I hope to have a minimal playable
-		  version ready in the 3rd quarter of 2002.  You can check it
-		  out from CVS or download pre-alpha versions on Sourceforge
-		  though.  There are also some experimental debian-packages if
+		  written programs must.  It's not fully angband
+		  compatible yet but the hope is that by the end of
+		  2002 it will be more or less similar.  A pre-release
+		  is available from the download page, and there are also some experimental debian-packages if
 		  you use debian, and if you have Debian these are the simplest to
 		  get started with. </li>
 		<br>
@@ -74,20 +74,19 @@
 		      <tr><td>ACL 6.0 (Prof)</td><td>Debian x86</td><td>Tested bi-weekly</td></tr>
 		      <tr><td>CLISP 2.26</td><td>Debian x86</td><td>Tested monthly.  not optimised</td></tr>
 		      <tr><td>LispWorks 4.1.20</td><td>Debian x86</td><td>Recent/immature port.  not optimised</td></tr>
-		      <tr><td>LispWorks 4.1.20</td><td>Win98</td><td>Recent/immature port.  not optimised</td></tr>
+		      <tr><td>LispWorks 4.1.20</td><td>Win XP</td><td>Recent/immature port.  not optimised</td></tr>
 		      <tr><td>SBCL 0.7.3</td><td>Debian x86</td><td>Recent/immature port.  not optimised</td></tr>	  
 		      <tr><td>Corman Lisp 1.5b</td><td>Win98</td><td>Incomplete port.  not finished</td></tr>
 		  </table>
 
 		  The status for the various UI-interfaces are as follows:
 		  <ul>
-		    <li> X11 is the most mature and the one used for
-		      development.
+		    <li> SDL is the main development platform and is
+		    similar for X11 and Windows.
 		    <li> GCU is tested basically only for releases.
-		    <li> Gtk+ is non-prioritised at the moment, but is usually
-		      tested at releases.
-		    <li> Win is a very immature port with many errors.
 		  </ul>
+
+		  For details on CLISP compile, see bottom of FAQ.
 		</li>
 		<br>
 		<li> <b>I found a bug, what do I do?</b><br>
@@ -111,6 +110,26 @@
 		  BTW: If you have extra
 		  information on a non-fixed bug, please add it.</li>
 		<br>
+	      
+	      <li> <b>During compile I get nasty warnings about
+	      missing SDL-files, what do I do?</b><br>
+		  To compile Langband you need a lot of header-files
+		  and libraries so it's recommended that beginners use
+		  the pre-made packages (e.g for debian and soon for
+		  Windows).  To compile langband for SDL on Unix you
+		  need the following libraries with header-files
+		  installed:
+		  <ul>
+		    <li> SDL library
+		    <li> sdl image library (and libpng, libjpeg, libz)
+		    <li> sdl ttf library (and freetype2)
+		    <li> sdl mixer library (and underlying sound
+		    libraries)
+		  </ul>
+		</li>
+		<br>  
+
+	      
 		<li> <b>My save-game from last version does not work in the
 		    newest version, why?</b><br>
 		  As long as the game is not really playable the save/load code
@@ -124,11 +143,12 @@
 		  adressed gradually and memory-allocation will be reduced when
 		  it is a problem.  But during early development this isn't
 		  crucial. <br>
-		  Note: This is still visible in the slower CLISP and in the
-		  win32-port if the lispworks-code isn't compiled.  Gradual
-		  optimisation of the code will probably "remove" this
-		  "problem".  </li>
+		  Note: This is visible in the slower CLISP.  It might
+		  also be more frequent in the recent code as the
+		  wwhole user-interface has been changed and not been
+		  optimised.  Please report problems. </li>
 		<br>
+		  
 		<li> <b>The game holds for a few seconds when I change levels, why?</b><br>
 		  There are two replies, choose the one that you feel
 		  comfortable with.  <br>
@@ -141,39 +161,25 @@
 		      before and after level­generation.  This slows down change
 		      between levels.  This is very noticable in ACL. </li>
 		  </ul>
-		<br>		  
-		<li> <b>How do I get things working with CLISP?</b><br>
-		  It's a bit tricky still but can be done.  Assuming csh/tcsh
-		  you can do:
-		  <font size="-1">
-		  <pre>
-$ make
-$ clisp -q -ansi
-&gt; (load "game")  ;; this stops at foreign loading, use ^D to quit
-$ setenv LD_LIBRARY_PATH `pwd`/linking
-$ make clisp-link
-$ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
-&gt; (load "game") ;; this should work now
-		  </pre>
-		  </font>
-		  This will be improved later, but it's an important step
-		  ahead.  You might need to edit the paths in Makefile and
-		  linking/Makefile.  For other shells use the equivalent command
-		  of setenv which sets and environment value.</li> 
 		<br>
+		  
 		
 		<li> <b>How do I get things working with LispWorks Windows?</b><br>
-		  Currently it's not 100% streamlined, but if you have it
-		  installed in <tt>c:/cygwin/home/default/langband/</tt> you
-		  might edit zterm/Makefile and set ENVIRONMENTS to WIN and
-		  compile zterm with 'make', and then do:
-		  
+		  Currently it's not 100% streamlined, but it should
+		  be fairly easy if you have the latest cygwin version
+		  and Lispworks for Windows.  In the source-archive
+		  most include-files and DLLs are included.  Install langband e.g in
+		  <tt>c:/cygwin/home/username/langband/</tt>
+		  and edit zterm/Makefile to say ENVIRONMENTS=WIN
+		  Start a cygwin window, go to teh langband dir and
+		  run 'make'.  If all went ok, start lispworks from
+		  that directory with e.g <tt>c:/Program\
+		  files/xanalys/lispworks/lispworks.exe</tt> (or
+		  something similar).  In lispworks do the normal:
 		  <font size="-1">
 		  <pre>
- &gt; (setq *default-pathname-defaults*
-            #p"c:/cygwin/home/default/langband/")
  &gt; (load "game")
- &gt; (lb::a)
+ &gt; (gfx-langband)
 		  </pre>
 		  </font>
 		<br>
@@ -184,6 +190,7 @@ $ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
 		    href="tech.html">Technical description</a> for an hopefully
 		  updated description.</li> 
 		<br>
+		  
 		<li> <b>You seem to favour classes with datamembers over
 		    bitfields, why?</b><br>
 		  I tend to favour using clear and readable classes over
@@ -205,12 +212,13 @@ $ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
 		  also where exciting things happen and where you can track
 		  day-to-day development.</li>
 		<br>
+		  
 		<li> <b>Regular Angband has several windows, where are the other
 		    windows in Langband?</b><br>
-		  Several windows can be quite useful but they introduce some
-		  extra complexity which isn't essential this early in
-		  development.  So until the game reaches a stage where more
-		  windows is needed it will remain a single-window game.
+		  Langband uses a lot of small subwindows inside a
+		  single window, which can be easily customised.
+		  Support for multiple and separate windows
+		  (Unix-style) is not planned.
 		</li>
 		<br>		
 		<li> <b>When I quit the game, my whole lisp is terminated, why?</b><br>
@@ -219,32 +227,23 @@ $ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
 		  one is done playing.  This is extremely annoying if you use a
 		  slow loader like CMUCL or a big graphical IDE like LispWorks.
 		  I hope to eventually make things more intelligent, but this
-		  will take time.  <b>[Note: This should be fixed in current CVS
-		    for X11 and curses, tested with CMUCL, Lispworks and ACL.]</b></li>
+		  will take time.  <b>[Note: This should work with
+		Curses, but the new SDL-port quite abruptly.]</b></li>
 		  <br>
+		    
 		<li> <b>How do I get sounds working?</b><br>
-		  <ol>
-		    <li> uncomment the using-sound line in game.lisp</li>
-		    <li> set SOUND_USE in zterm/Makefile to YES</li>
-		    <li> recompile all C-code and lisp-code</li>
-		    <li> get example sounds from the <a
-			href="http://sourceforge.net/projects/langband/">langband
-			project page</a> dowload area
-		    <li> install wanted sounds in lib/sound and configure in
-		      lib/file/sound.lisp</li>
-		    <li> start zterm/sound_daemon in the background</li>
-		    <li> start the game </li>
-		    <li> play the game and if possible, hit something</li>
-		    <li> quit game and exit the sound_daemon</li>
-		  </ol>
+		    Some Lisps have problems with sound, notably
+		    Debian CMUCL and it is disabled in Debian CMUCL.
+		    All other lisps should by default use sound in SDL
+		    mode automagically.  If you use Linux it is
+		recommended that you turn off ESound deamon and use
+		OSS directly.  Esound causes a half-second delay on
+		all sounds which is ok with music but unbearabale with
+		sound-effects. 
+		  
 		</li>
 		<br>
-		<li><b>How can I get big graphic tiles?</b><br>
-		  <p>Set the angband font environment variable, e.g
-		  with the tcsh-command:<br>
-		    <code>setenv ANGBAND_X11_FONT_0 "-*-fixed-medium-r-normal--32-*-*-*-*-*-iso8859-1"</code><br>
-		    </p></li>
-		<br>		    
+		   
 		<li><b>The C-code seems to be filled with gcc-isms and
 		    C++-style comments, why?</b><br>
 		  <p>I don't think there should be many gcc-isms
@@ -278,7 +277,28 @@ $ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
 		    reside in their own packages.  But we're not there yet, so
 		    vanilla currently lives in the same package.
 		  </p>
-		  
+
+		    <li> <b>How do I get things working with CLISP?</b><br>
+		    [Not tested recently]
+		  It's a bit tricky still but can be done.  Assuming csh/tcsh
+		  you can do:
+		  <font size="-1">
+		  <pre>
+$ make
+$ clisp -q -ansi
+&gt; (load "game")  ;; this stops at foreign loading, use ^D to quit
+$ setenv LD_LIBRARY_PATH `pwd`/linking
+$ make clisp-link
+$ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
+&gt; (load "game") ;; this should work now
+		  </pre>
+		  </font>
+		  This will be improved later, but it's an important step
+		  ahead.  You might need to edit the paths in Makefile and
+		  linking/Makefile.  For other shells use the equivalent command
+		  of setenv which sets and environment value.</li> 
+		<br>
+
 		  
 	      </ol>
 
@@ -287,7 +307,7 @@ $ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
 	  
 	  <tr>
 	    <td width="46" valign="bottom"><img src="leftcorner.png" width="46" height="46" alt=""></td>
-	    <td width="203"><center>Last updated May 2002<br>by <a
+	    <td width="203"><center>Last updated November 2002<br>by <a
 		  href="mailto:stig@langband.org">Stig E Sandø</a>.</center></td>
 	    <td width="203">
 	      <center>

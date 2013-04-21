@@ -217,16 +217,20 @@ the Free Software Foundation; either version 2 of the License, or
     (player
      (format-message! "~a dies.. " (get-creature-name target)))
     (t
+     (play-sound +sound-kill+)
      (format-message! "The ~a dies.. " (get-creature-name target))))
   nil)
 
 (defun attack-target! (dungeon attacker target x y the-attack)
-  (play-sound 1)
+
   ;;	(describe the-monster)
   (unless (melee-hit-creature? attacker target the-attack)
     (cmb-describe-miss attacker target)
+    (play-sound +sound-miss+)
     (return-from attack-target! nil))
 
+  (play-sound +sound-hit+)
+  
   (let ((cur-hp (current-hp target)))
     (cmb-describe-hit attacker target the-attack)
     (melee-inflict-damage! attacker target the-attack)
@@ -259,7 +263,7 @@ the Free Software Foundation; either version 2 of the License, or
   (when-bind (monsters (cave-monsters dungeon x y))
     (let ((the-monster (car monsters)))
       ;; hack
-      (play-sound 1)
+      ;;(play-sound +sound-hit+)
       (attack-target! dungeon player the-monster x y nil)
       )))
 

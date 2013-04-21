@@ -343,19 +343,19 @@ the Free Software Foundation; either version 2 of the License, or
 	  
 	  ;; let us do a fire-bolt
 	  (let ((flag (logior +project-kill+ +project-stop+ +project-through+)))
-	    (when-bind (dir (%read-direction))
+	    (when-bind (dir (get-aim-direction))
 	      (do-projection player (+ (aref *ddx* dir) px) (+ (aref *ddy* dir) py) flag
 			     :effect fire-effect :damage 4)))
 	  
 	  ;; let us do a fire-beam
 	  (let ((flag (logior +project-kill+ +project-beam+ +project-through+)))
-	    (when-bind (dir (%read-direction))
+	    (when-bind (dir (get-aim-direction))
 	      (do-projection player (+ (aref *ddx* dir) px) (+ (aref *ddy* dir) py) flag
 			     :effect fire-effect :damage 4)))
 	  
 	  ;; let us do a fire-ball
 	  (let ((flag (logior +project-kill+ +project-stop+ +project-grid+ +project-item+)))
-	    (when-bind (dir (%read-direction))
+	    (when-bind (dir (get-aim-direction))
 	      (do-projection player (+ px (* 99 (aref *ddx* dir))) (+ py (* 99 (aref *ddy* dir))) flag
 			     :effect fire-effect :radius 4 :damage 4)))
 
@@ -390,14 +390,14 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'wizard-menu
     #'(lambda (dungeon player)
 
-;;	(with-new-screen ()
-	  (block wizard-input 
-	    (let ((loc-table (gethash :wizard *current-key-table*)))
-	      (loop
-;;	       (c-clear-from! 0)
-;;	       (display-creature *variant* player)
-	       (print-message! nil)
-	       
+	;;	(with-new-screen ()
+	(block wizard-input 
+	  (let ((loc-table (gethash :wizard *current-key-table*)))
+	    (loop
+	     ;;	       (c-clear-from! 0)
+	     ;;	       (display-creature *variant* player)
+	     (print-message! nil)
+	     (with-frame (+query-frame+)
 	       (c-prt! "Wizard command: " 0 0)
 
 	       (let* ((ch (read-one-character))
@@ -409,8 +409,8 @@ the Free Software Foundation; either version 2 of the License, or
 		       (t
 			;; nil
 			)))
-	       )))
-	  ))
+	       ))))
+	))
 
 ;;(define-keypress *ang-keys* :wizard #\Y 'projecteur)
 
@@ -441,5 +441,5 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :wizard #\d 'deliver-damage)
 (define-keypress *ang-keys* :wizard #\l 'load-vanilla)
 (define-keypress *ang-keys* :wizard #\m 'dump-monsters)
-(define-keypress *ang-keys* :wizard #\o 'dump-objects)
+;;(define-keypress *ang-keys* :wizard #\o 'dump-objects)
 (define-keypress *ang-keys* :wizard #\s 'show-objects)

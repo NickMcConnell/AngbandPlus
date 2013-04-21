@@ -72,7 +72,9 @@ the Free Software Foundation; either version 2 of the License, or
     #+win32
     (progn
       ;; hack
-      (setq lib-path "c:/cygwin/home/default/langband/zterm/"))
+      (setq lib-path (concatenate 'string (lb-engine:lbsys/ensure-dir-name
+					   (namestring (lb-engine:lbsys/get-current-directory)))
+				  "zterm/")))
 
     #+unix
     (progn
