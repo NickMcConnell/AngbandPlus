@@ -1,112 +1,112 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <meta name="Author" content="Stig E Sandø">
+    <meta name="KeyWords" content="langband, roguelike, angband, dungeon">
+    <link rel="stylesheet" type="text/css" rev="content" href="langband.css">
     <title>(LAngband)</title>
   </head>
-  
-  <body bgcolor="white">
+  <!-- Layout and some images borrowed from Falcon's Eye -->
 
-    <img align=left src="lambda-warriour.gif">
-    <h1 align=center>LAngband</h1>
-    <h2 align=center>a lispier Angband</h2>
+  <body text="#211b6b" bgcolor="#CCCCCC" link="#0000EE" vlink="#551A8B" alink="#FF0000">
     
+    <center>
+      <table border=0 cellspacing=0 cellpadding=0 bgcolor="#FFFFFF">
+	<tr><td valign=top colspan="5" width="700"><img
+	src="langtitle.png" alt="Langband - a lispier Angband" width="700"
+	height="86"></td></tr>
+	<tr><td valign=top colspan="5" width="700">
+	    <hr size="1" NoShade>
+	    <div align=center>
+	      <a class="tabselect" href="index.html">Front page</a>&nbsp;|&nbsp;
+	      <a class="tab" href="screenshots.html">Screenshots</a>&nbsp;|&nbsp;
+	      <a class="tab" href="download.html">Download</a>&nbsp;|&nbsp;
+	      <a class="tab" href="faq.html">FAQ</a>&nbsp;|&nbsp;
+	      <a class="tab" href="docs.html">Docs</a>&nbsp;|&nbsp;
+	      <a class="tab" href="http://sourceforge.net/projects/langband/">SF
+		Project page</a>&nbsp;|&nbsp;
+	      <a class="tab" href="links.html">Links</a>&nbsp;|&nbsp;
+	    </div>
+	    <hr size="1" NoShade>
+	  </td></tr>
 
+	<tr><td VALIGN=TOP colspan="5" WIDTH="700">
+	    <img align=left src="lambda-warriour.gif" alt="lambda
+	    warriour - langband mascot">
+	    <!-- <h1 align=center>a lispier roguelike</h1> -->
+	    
+	    
+	    <br><br> 
+	    <table border="0" cellpadding="5">
+	      <tr valign=top><td>
+		  Langband is a dungeon-exploring game where you, the hero,
+		  must arm yourself and delve into the darkness to
+		  face a frightful enemy.  Langband has high
+		  playability and advanced game-play, but not so much
+		  focus on fancy 3d-effects.  Langband is a game in
+		  the roguelike genre, known through excellent games
+		  like Rogue, Nethack and Angband.
+		</td></tr>
+	    </table>
 
-    <p>
-      This page is very rudimentary, and will be prettified later.  It
-      has a link to the project page (mailing-list, source code, ..)
-      and has some screenshots.  All info reflects the current
-      development, not necessarily last released version. 
-    </p>
-    <br clear="all">
+	    <br clear=all>
+	    
+	    <table border="0" cellpadding="5">
+	      <tr valign=top><td>
+	    <p>Langband is a roguelike written in Common Lisp.  It is
+	    distributed under a GNU General Public License (GPL).
+	    Langband has been designed to be a roguelike engine where
+	    you can write and/or customise your own variant/plugin
+	    which will not interfere or ruin other code.  To do this
+	    it uses the powerful object-oriented features of Common
+	    Lisp (e.g multi-methods and generic functions) as well as
+	    the functional features which allows the engine to treat
+	    user-code (classes, functions, ...) as first-class objects
+	    and not just ad-hoc add-ons.</p>
+<!--
+		  <img src="book2.jpg" alt="decorative book" align=right
+		    width=165 height=92>
+-->
+	    <p>Langband has been influenced by and has been inspired by
+	    regular (or vanilla) Angband, and due to the design of
+	    Langband can (more or less) run regular Angband as a
+	    plugin to the Langband-engine.  Langband is not limited to
+	    this and will be extended with other variants.</p>
 
-    <h3>Project links</h3>
-    <ul>
-      <li> <a href="http://sourceforge.net/projects/langband">Sourceforge project
-	page</a></li>
-      <li> <a href="plans.html">Where Langband is headed</a></li>
-      <li> <a href="faq.html">A tiny FAQ</a></li>
-      <li> <a href="tech.html">Technical docs</a> [just started]</li>
-      <li> <a href="file-list.html">File descriptions</a></li>
-<!--      <li> <a href="style.html">Some coding style
-	guidelines</a></li> -->
-      <li> <a href="tour.html">The beginning of a code-tour</a></li>
-      <li> <a href="TODO">The game-play TODO-list</a>
-      <li> <a href="lists.html">Status for various items in Vanilla variant</a>
-    </ul>
-    
-    <h3>Screenshots</h3>
+	    <p>Currently Langband is in development, and is at <b>v0.0.18</b>
+	    but a <a href="release.html">concept-version (v0.1)</a> is
+	    expected in early March which will show and explain how
+	    the features of Langband work and how they can be used and
+	    extended. </p> 
+		</td></tr>
+	    </table>
 
-    <b>Newer:</b><br>
-    <ul>
-      <li> 11th of July: Decided to polish the birth-UI with
-      cursor-selection of races/classes and auto-display of
-      appropriate help.  Currently highlighting <a
-      href="dumps/hob-birth.jpg">Hobbit race</a>.
-      <li> 15th of April: Not much is done on the screenshot-front
-      anymore, but here he is <a href="dumps/exploring.jpg">exploring</a>
-      carrying a torch and a sword.
-    </ul>
-    
-    <p>Historic and out-dated <a
-    href="historic.html">screenshots</a></p> 
-
-    <h3>Experimental downloads</h3>
-    
-    <p>If you're a Debian-user (with sid/unstable) and wish to live on
-      the edge, snapshots of Langband will frequently be created as
-      packages at the following location:</p>
-    <pre>
-      deb http://cclan.sourceforge.net/debian cclan lisp
-      deb-src http://cclan.sourceforge.net/debian cclan lisp
-    </pre>
-
-    <p>The lines above may be added to <tt>/etc/apt/sources.list</tt>
-      and you'll be notified whenever langband is updated.  A few other
-      lisp-packages also reside on the above location.  Note however
-      that they are basically in the <b>experimental</b>-category.  <b>If
-	you have no lisp-system working on your Debian, you might need the
-	packages cmucl, cmucl-small and common-lisp-controller from Debian
-	<u>sid/unstable</u>.  The cmucl in stable/potato cannot be
-      used for Langband because it does not provide callbacks for
-      C-code.  cmucl in woody/testing can be used with the
-      source-archive, but not with the Debian-packages. </b> </p>
-
-    <h3>Related projects at Sourceforge</h3>
-    <ul>
-      <li> <a
-	  href="http://sourceforge.net/projects/cath-angband/">Cat-and-the-Hack
-	  Angband</a></li>
-      <li> <a
-	  href="http://sourceforge.net/projects/eyangband/">EyAngband</a></li>
-      <li> <a
-	  href="http://sourceforge.net/projects/kamband/">Kamband</a></li>
-      <li> <a
-	  href="http://sourceforge.net/projects/kangband/">Kangband</a></li>
-      <li> <a
-	  href="http://sourceforge.net/projects/pernband/">PernAngband</a></li>
-      <li> <a
-	  href="http://sourceforge.net/projects/zangband/">ZAngband</a></li>
-
-      
-    </ul>
-
-    <h3>Related Angband sites</h3>
-    <ul>
-      <li> <a
-	      href="http://thangorodrim.angband.org/">Thangorodrim</a></li>
-      <li> <a
-	      href="http://www.skoardy.demon.co.uk/rlnews/news.html">Roguelike
-	  News</a></li>
-    </ul>
-    
     <hr>    
-    
-    <p>Langband is graciously hosted at:</p>
-    
-    <A HREF="http://sourceforge.net"><IMG
-					  src="http://sourceforge.net/sflogo.php?group_id=6938&amp;type=1"
-					  width="88" height="31" border="0"></A>
+
+	    </td></tr>
+	
+	<tr>
+	  <td width="46" valign="bottom"><img src="leftcorner.png" width="46" height="46" alt=""></td>
+	  <td width="203"><center>Last updated January 2002<br>by <a
+	  href="mailto:stig@users.sourceforge.net">Stig E Sandø</a>.</center></td>
+	  <td width="203">
+	    <center>
+	      See also: <br>
+	      <a href="http://sourceforge.net/projects/langband/">SourceForge project page</a>
+	    </center>
+	  </td>
+	  <td width="202">
+	    <center>
+	      <a href="http://sourceforge.net"> <img src="http://sourceforge.net/sflogo.php?group_id=6938&amp;type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a>
+	    </center>
+	  </td>
+	  <td width="46" valign="bottom"><img src="rightcorner.png" width="46" height="46" alt=""></td>
+	</tr>
+	
+
+      </table>
+    </center>
     
   </body>
 </html>

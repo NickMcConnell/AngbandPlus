@@ -1,3 +1,38 @@
+2002-02-16  Stig E Sandø <stig@users.sourceforge.net>
+	* Updated all references to sex to gender
+	* Installed a lot of player-calculation in quirks.lisp, as that
+	have been moved into variant to make update of vanilla-specific
+	stuff easier to handle.
+	* Installed lots of player-attributes
+	* Updated the effect-list considerably
+	* Done other minor renaming of classes, functions, keywords, ..
+	* Updated many more potions to work
+	* Other minor stuff
+	
+2002-02-12  Stig E Sandø <stig@users.sourceforge.net>
+	* Updated lots of monster-ids and updated with new
+	monster-ability-names
+	* Removed some duplicate monsters
+	* Tweaked some wizard keys
+	* not much else
+	
+2002-01-22  Stig E Sandø <stig@users.sourceforge.net>
+	* Moved object-effects into the files describing the objects, and
+	removed the code for the old hack to define object-effects.  Also
+	removed the files with object-effects.
+	* Changed some DEFCONSTANTs to DEFVARs to be more in line with
+	strict ANSI
+	* Added wizard-key to create arbitrary objects
+	* Minor tweaking
+
+2002-01-19  Stig E Sandø <stig@users.sourceforge.net>
+	* Added CREATE-GOLD method that works like the vanilla make_gold()
+	function.  It replaces a function that used to be in the engine.
+	* Moved object-effects into config/ dir, they're no longer compiled
+	* Moved defvar's into vanilla-variant-object and adjusted code to
+	reflect that.
+	* Some id-tweaking
+	
 2002-01-14  Stig E Sandø <stig@users.sourceforge.net>
 	* Upgraded variant-code to work with engine-updates, primarily
 	flavour-related and changes in variant-class.

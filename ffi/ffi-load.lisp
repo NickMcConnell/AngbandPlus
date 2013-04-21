@@ -22,7 +22,9 @@ the Free Software Foundation; either version 2 of the License, or
     (cl-user::quit)
     #+allegro
     (excl::exit)
-    #-(or cmu allegro)
+    #+sbcl
+    (sb-ext:quit)
+    #-(or cmu allegro sbcl)
     (warn "Can't quit yet.. fix me..")
   (values))
   
@@ -49,13 +51,18 @@ the Free Software Foundation; either version 2 of the License, or
     nil
     #+lispworks
     (fli:register-module key :real-name lib :connection-style :manual)
-    #-(or cmu allegro clisp lispworks)
+    #+sbcl
+    (sb-alien:load-foreign lib) 
+    #-(or cmu allegro clisp lispworks sbcl)
     (warn "Did not load shared-library.."))
   
   )
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (let ((lib-path "./zterm/"))
+
+;;   #+cmu
+;;   (SYSTEM:FOREIGN-SYMBOL-ADDRESS "funcall0")
 
     #+unix
     (progn

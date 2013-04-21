@@ -15,10 +15,6 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.vanilla)
 
 
-(defvar *van-saved-town-seed* nil "A saved seed to ensure that the town
-looks the same.")
-
-
 (defun van-create-bare-town-level-obj ()
   "Returns a bare town-level."
   (make-instance 'van-town-level :depth 0 :rating 0))
@@ -51,7 +47,7 @@ part of the new level."
 
   (let* ((*level* level)
 ;;	 (var-obj *variant*)
-	 (settings (get-setting :random-level)) ;; hack
+	 (settings (get-setting variant :random-level)) ;; hack
 	 (max-dungeon-width  (slot-value settings 'max-width))
 	 (max-dungeon-height (slot-value settings 'max-height))
 	 (dungeon (create-dungeon max-dungeon-width
@@ -135,13 +131,13 @@ part of the new level."
 	     (generate-level! variant town player))))
   
     ;; we already have a saved value
-    (cond (*van-saved-town-seed*
-	   (do-generation *van-saved-town-seed*))
+    (cond ((variant.town-seed variant)
+	   (do-generation (variant.town-seed variant)))
 	 
 	  ;; this is the first time
 	  (t
 	   (let* ((new-state (cl:make-random-state t)))
-	     (setf *van-saved-town-seed* new-state)
+	     (setf (variant.town-seed variant) new-state)
 	     (do-generation new-state)))
 	  )))
 

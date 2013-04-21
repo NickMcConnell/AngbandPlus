@@ -16,7 +16,7 @@ SOUND_USE=NO
 
 CC = gcc
 BASEOBJS = z-rand.o z-term.o z-util.o z-virt.o collected.o \
-variable.o util.o lisp_if.o signals.o #tests.o
+variable.o util.o lisp_if.o #signals.o #tests.o
 UIOBJS=
 UIDEFINES=
 UIFLAGS=

@@ -1,6 +1,6 @@
 # -*- Mode: Makefile -*-
 
-CLEANFILES=*.o *.so *.fasl *.x86f *.err *.fas *.ufsl *.lib *.sparcf
+CLEANFILES=*.o *.so *.fasl *.x86f *.err *.fas *.ufsl *.lib *.sparcf *.fsl *~
 
 # Top Level Makefile for xptest
 

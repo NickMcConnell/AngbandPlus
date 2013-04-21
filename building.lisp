@@ -15,30 +15,13 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.engine)
 
 
-(defclass house (activatable)
-  ((id     :accessor house.id     :initform nil :initarg :id)
-   (name   :accessor house.name   :initform nil :initarg :name)
-   (x-attr :accessor house.x-attr :initform nil :initarg :x-attr)
-   (x-char :accessor house.x-char :initform nil :initarg :x-char)
-   
-   (owner  :accessor house.owner :initform nil :initarg :owner)
-   ;; the current items
-   (items  :accessor house.items :initform nil :initarg :items)
-   ))
-
-(defclass owner ()
-  ((id         :accessor owner.id         :initform nil :initarg :id)
-   (name       :accessor owner.name       :initform nil :initarg :name))
-  )
-
-
 (defmethod visit-house (level (house house))
   (declare (ignore level))
   ;;(warn "simple house..")
   )
   
-(defmethod find-owner-for-house (level house &key)
-  (declare (ignore level house))
+(defmethod find-owner-for-house (level house &key var-obj selection)
+  (declare (ignore level house var-obj selection))
   nil)
 
 (defmethod activate-object ((obj house) &key (owner nil) (var-obj *variant*) (level *level*))
@@ -121,26 +104,6 @@ failure and owner on success."
       (gethash id table))))
 
 
-
-(defmethod print-object ((inst house) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~A ~A ~A]" (class-name (class-of inst))
-	   (slot-value inst 'name)
-	   (slot-value inst 'id)
-	   (slot-value inst 'owner)
-	   ))
-	   
-  inst)
-
-
-(defmethod print-object ((inst owner) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~A]" (class-name (class-of inst))
-	   (slot-value inst 'name)))
-	   
-  inst)
 
 (defmethod build-house! (level (house house) topleft-x topleft-y
 			       &key

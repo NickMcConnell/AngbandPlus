@@ -56,46 +56,50 @@ the Free Software Foundation; either version 2 of the License, or
 
   (let ((player pl-obj)
 	(pl pl-obj)) ;; easier to cut'n paste from other code
+
+    (%ok-check (not (eq nil (player.inventory pl))))
+    (%ok-check (not (eq nil (player.equipment pl))))
+    (%ok-check (typep (player.equipment pl) 'items-worn))
+    (%ok-check (eq (item-table-find (player.equipment pl) 'eq.backpack)
+		   (player.inventory pl)))
+	 
+    (%ok-check (stringp (player.name player)))
+    (%ok-check (typep (player.race pl) 'character-race))
+    (%ok-check (typep (player.class pl) 'character-class))
+
+    (%ok-check (ok-object? (player.misc pl) :context context :warn-on-failure warn-on-failure))
+    (%ok-check (ok-object? (player.perceived-abilities pl) :context context :warn-on-failure warn-on-failure))
+    (%ok-check (ok-object? (player.actual-abilities pl) :context context :warn-on-failure warn-on-failure))
+
+    (%ok-check (integerp (maximum-hp pl)))
+    (%ok-check (integerp (current-hp pl)))
+    (%ok-check (<= 0 (maximum-hp pl)))
+    (%ok-check (<= 0 (current-hp pl)))
+	 
+    (%ok-check (stringp (player.dead-from player)))
+
+    (%ok-check (<= 0 (player.burden player)))
+    (%ok-check (<= 0 (player.light-radius player)))
+    (%ok-check (<= 0 (player.infravision player)))
+    (%ok-check (<= 0 (player.see-invisible player)))
     
-    (and (not (eq nil (player.inventory pl)))
-	 (not (eq nil (player.equipment pl)))
-	 (typep (player.equipment pl) 'items-worn)
-	 (eq (item-table-find (player.equipment pl) 'eq.backpack)
-	     (player.inventory pl))
-	 
-	 (stringp (player.name player))
-	 (typep (player.race pl) 'race)
-	 (typep (player.class pl) 'character-class)
-
-	 (ok-object? (player.misc pl) :context context :warn-on-failure warn-on-failure)
-	 (ok-object? (player.perceived-abilities pl) :context context :warn-on-failure warn-on-failure)
-	 (ok-object? (player.actual-abilities pl) :context context :warn-on-failure warn-on-failure)
-
-	 (integerp (maximum-hp pl))
-	 (integerp (current-hp pl))
-	 (<= 0 (maximum-hp pl))
-	 (<= 0 (current-hp pl))
-	 
-	 (stringp (player.dead-from player))
-	 
-	 (arrayp (player.base-stats player))
-	 (arrayp (player.cur-statmods player))
-	 (arrayp (player.active-stats player))
-	 (arrayp (player.modbase-stats player))
-
-	 (let ((bstat-table (player.base-stats player))
-	       (cstat-table (player.cur-statmods player))
-	       (mstat-table (player.modbase-stats player))
-	       (astat-table (player.active-stats player)))
+    (%ok-check (arrayp (player.base-stats player)))
+    (%ok-check (arrayp (player.cur-statmods player)))
+    (%ok-check (arrayp (player.active-stats player)))
+    (%ok-check (arrayp (player.modbase-stats player)))
+    
+    (let ((bstat-table (player.base-stats player))
+	  (cstat-table (player.cur-statmods player))
+	  (mstat-table (player.modbase-stats player))
+	  (astat-table (player.active-stats player)))
 	   
-	   (and (not (eq bstat-table cstat-table))
-		(not (eq bstat-table mstat-table))
-		(not (eq bstat-table astat-table))
-		(not (eq cstat-table mstat-table))
-		(not (eq cstat-table astat-table))
-		(not (eq mstat-table astat-table))))
-	 
-	 )))
+      (%ok-check (and (not (eq bstat-table cstat-table))
+		      (not (eq bstat-table mstat-table))
+		      (not (eq bstat-table astat-table))
+		      (not (eq cstat-table mstat-table))
+		      (not (eq cstat-table astat-table))
+		      (not (eq mstat-table astat-table)))))
+    ))
 
 (defmethod ok-object? ((obj level) &key context warn-on-failure)
   (declare (ignore context))
@@ -134,7 +138,7 @@ the Free Software Foundation; either version 2 of the License, or
   (%ok-check (<= 0 (monster.speed obj)))
   (%ok-check (integerp (monster.xp obj)))
   (%ok-check (<= 0 (monster.xp obj)))
-  ;; skip sex
+  ;; skip gender
   ;; skip abilities
   ;; skip immunities
   (%ok-check (integerp (monster.alertness obj)))
@@ -190,8 +194,8 @@ the Free Software Foundation; either version 2 of the License, or
   (%ok-check (stringp (variant.name var-obj)))
   ;; sys-file
   ;; config-path
-  (dolist (sex (variant.sexes var-obj) t)
-    (%ok-check (ok-object? sex :context context :warn-on-failure warn-on-failure)))
+  (dolist (gender (variant.genders var-obj) t)
+    (%ok-check (ok-object? gender :context context :warn-on-failure warn-on-failure)))
   (loop for race being the hash-values of (variant.races var-obj)
 	do (%ok-check (ok-object? race :context context :warn-on-failure warn-on-failure)))
   (loop for cclass being the hash-values of (variant.races var-obj)
@@ -271,15 +275,15 @@ the Free Software Foundation; either version 2 of the License, or
    (%ok-check (symbolp (drop.type obj)))
    t)
 
-(defmethod ok-object? ((obj sex) &key context warn-on-failure)
+(defmethod ok-object? ((obj gender) &key context warn-on-failure)
   (declare (ignore context))
-  (%ok-check (stringp (sex.id obj)))
-  (%ok-check (stringp (sex.name obj)))
-  (%ok-check (symbolp (sex.symbol obj)))
-  (%ok-check (stringp (sex.win-title obj)))
+  (%ok-check (stringp (gender.id obj)))
+  (%ok-check (stringp (gender.name obj)))
+  (%ok-check (symbolp (gender.symbol obj)))
+  (%ok-check (stringp (gender.win-title obj)))
   t)
 
-(defmethod ok-object? ((obj race) &key context warn-on-failure)
+(defmethod ok-object? ((obj character-race) &key context warn-on-failure)
   (declare (ignore context))
   (%ok-check (stringp (race.id obj)))
   (%ok-check (stringp (race.name obj)))
@@ -300,14 +304,20 @@ the Free Software Foundation; either version 2 of the License, or
   (declare (ignore context))
   (%ok-check (stringp (effect.name obj)))
   (%ok-check (nonboolsym? (effect.symbol obj)))
-  (%ok-check (integerp (effect.index obj)))
+  (%ok-check (integerp (effect.number obj)))
+  (%ok-check (integerp (effect.bit-flag obj)))
+  (%ok-check (<= 0 (effect.number obj)))
+  (%ok-check (<= 0 (effect.bit-flag obj)))
   t)
 
 (defmethod ok-object? ((obj element) &key context warn-on-failure)
   (declare (ignore context))
   (%ok-check (stringp (element.name obj)))
   (%ok-check (nonboolsym? (element.symbol obj)))
-  (%ok-check (integerp (element.index obj)))
+  (%ok-check (integerp (element.number obj)))
+  (%ok-check (integerp (element.bit-flag obj)))
+  (%ok-check (<= 0 (element.number obj)))
+  (%ok-check (<= 0 (element.bit-flag obj)))
   t)
 
 (defmethod ok-object? ((obj object-kind) &key context warn-on-failure)

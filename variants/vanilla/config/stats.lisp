@@ -1,9 +1,9 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
 
 #|
 
-DESC: stat.lisp - code which deals with character stats
-Copyright (c) 2000-2002 - Stig Erik Sandø
+DESC: variants/vanilla/config/stats.lisp - stats for player characters
+Copyright (c) 2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -12,80 +12,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :org.langband.engine)
+(in-package :org.langband.vanilla)
 
-
-(defconstant +str+ 0)
-(defconstant +int+ 1)
-(defconstant +wis+ 2)
-(defconstant +dex+ 3)
-(defconstant +con+ 4)
-(defconstant +chr+ 5)
-
-(defconstant +stat-length+ 6)
-
-(defconstant +stat-info+ #1A((<str> . "Str")
-			     (<int> . "Int")
-			     (<wis> . "Wis")
-			     (<dex> . "Dex")
-			     (<con> . "Con")
-			     (<chr> . "Chr")))
-
-(defconstant +stat-list+ '(<str> <int> <wis> <dex> <con> <chr>))
-(defconstant +stat-names+ `((<str> . ,+str+)
-			    (<int> . ,+int+)
-			    (<wis> . ,+wis+)
-			    (<dex> . ,+dex+)
-			    (<con> . ,+con+)
-			    (<chr> . ,+chr+)))
-
-(defun get-stat-name-from-sym (sym)
-  (get-stat-name-from-num (get-stat-num-from-sym sym)))
-
-(defun get-stat-name-from-num (num)
-  (cdr (svref +stat-info+ num)))
-
-(defun get-stat-sym-from-num (num)
-  (car (svref +stat-info+ num)))
-
-(defun get-stat-num-from-sym (sym)
-  (cdr (assoc sym +stat-names+)))
-
-(defun get-stat-data-from-num (table num)
-  (svref table num))
-
-(defun gsdfn (table num)
-  (get-stat-data-from-num table num))
-
-(defun build-stat-table-from-symlist (symlist)
-  (let ((table (make-array +stat-length+)))
-    (dolist (i symlist)
-      (setf (svref table (get-stat-num-from-sym (car i)))
-	    (cadr i)))
-    table))
-
-(defun make-stat-array ()
-  (make-array +stat-length+ :initial-element 0))
-
-(defun cnv-stat (val stream)
-  "Converts given stat integer to a 6 char long string with
-space padding on the left."
-  (cond ;;((<= val 9)
-	 ;;(format nil "~6@a" val))
-	((<= val 18)
-;;	 (%get-6str val)) ;; more hackish
-	 (format stream "~6d" val)) ;; hackish
-	(t
-	 (let ((extra (- val 18)))
-	   (if (>= extra 100)
-	       (format stream "18/~3d" extra)
-	       (format stream " 18/~2,'0d" extra)))))
-  )
-      
-;;(trace cnv-stat) 
-
-;;(trace get-stat-num-from-sym)
-;;(trace gsdfn)
+;;; Needs some reorganising
 
 ;; the format of a table is:
 ;; startnum endnum info-type info info-type info ...
@@ -93,7 +22,9 @@ space padding on the left."
 ;; where endnum is a positive integer to name a range, nil when a single digit or 'rest when upwards
 ;; info-type is a keyword and info is the connected value
 
-(defconstant  +strength+
+(define-character-stat '<str> "strength"
+  :abbreviation "Str" :number 0
+  :data
   '((3 nil     :dam-modifier -2 :hit-modifier -3 :weight-limit 50  :wpn-limit 4   :dig-value   0 :blow-table   3)
     (4 nil     :dam-modifier -2 :hit-modifier -2 :weight-limit 60  :wpn-limit 5   :dig-value   0 :blow-table   4)
     (5 nil     :dam-modifier -1 :hit-modifier -1 :weight-limit 70  :wpn-limit 6   :dig-value   1 :blow-table   5)
@@ -135,8 +66,9 @@ space padding on the left."
     ))
 
 
-
-(defconstant  +dexterity+
+(define-character-stat '<dex> "dexterity"
+  :abbreviation "Dex" :number 1
+  :data
   '((3 nil     :ac-modifier -4 :hit-modifier -3 :disarm 0  :evasion 0    :blow-table  0)
     (4 nil     :ac-modifier -3 :hit-modifier -2 :disarm 0  :evasion 1    :blow-table  0)
     (5 nil     :ac-modifier -2 :hit-modifier -2 :disarm 0  :evasion 2    :blow-table  0)
@@ -177,8 +109,9 @@ space padding on the left."
     (238 'rest :ac-modifier 15 :hit-modifier 15 :disarm 10 :evasion 100  :blow-table 20)
     ))
 
-
-(defconstant  +constitution+
+(define-character-stat '<con> "constitution"
+  :abbreviation "Con" :number 2
+  :data
   '((3 nil     :regeneration 0 :half-hp -5)
     (4 nil     :regeneration 0 :half-hp -3)
     (5 nil     :regeneration 0 :half-hp -2)
@@ -219,7 +152,9 @@ space padding on the left."
     (238 'rest :regeneration 9 :half-hp 25)
     ))
 
-(defconstant +intelligence+
+(define-character-stat '<int> "intelligence"
+  :abbreviation "Int" :number 3
+  :data
   '((3 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :mag-dev 0  :disarm 0)
     (4 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :mag-dev 0  :disarm 0)
     (5 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :mag-dev 0  :disarm 0)
@@ -260,8 +195,9 @@ space padding on the left."
     (238 'rest :half-spells 5 :half-mana 16 :min-fail 0  :various 20 :mag-dev 20 :disarm 19)
     ))
 
-
-(defconstant +wisdom+
+(define-character-stat '<wis> "wisdom"
+  :abbreviation "Wis" :number 4
+  :data
   '((3 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :saving-throw 0)
     (4 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :saving-throw 0)
     (5 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :saving-throw 0)
@@ -304,7 +240,9 @@ space padding on the left."
 
 
 ;; payment in stores
-(defconstant  +charisma+
+(define-character-stat '<chr> "charisma"
+  :abbreviation "Chr" :number 5
+  :data
   '((3 nil     :payment 130)
     (4 nil     :payment 125)
     (5 nil     :payment 122)
@@ -344,50 +282,4 @@ space padding on the left."
     (228 237   :payment  80)
     (238 'rest :payment  80)
     ))
-
-
-#||
-clean table
-
-(defconstant  +strength+
-  '((3 nil     )
-    (4 nil     )
-    (5 nil     )
-    (6 nil     )
-    (7 nil     )
-    (8 nil     )
-    (9 nil     )
-    (10 nil    )
-    (11 nil    )
-    (12 nil    )
-    (13 nil    )
-    (14 nil    )
-    (15 nil    )
-    (16 nil    )
-    (17 nil    )
-    (18 27     )
-    (28 37     )
-    (38 47     )
-    (48 57     )
-    (58 67     )
-    (68 77     )
-    (78 87     )
-    (88 97     )
-    (98 107    )
-    (108 117   )
-    (118 127   )
-    (128 137   )
-    (138 147   )
-    (148 157   )
-    (158 167   )
-    (168 177   )
-    (178 187   )
-    (188 197   )
-    (198 207   )
-    (208 217   )
-    (218 227   ) 
-    (228 237   )
-    (238 'rest )
-    ))
-||#
 

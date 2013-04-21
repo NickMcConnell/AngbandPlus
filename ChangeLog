@@ -1,3 +1,69 @@
+2002-02-16  Stig E Sandø <stig@users.sourceforge.net>
+	* More reorganisation of files, and some files were removed.
+	* All references to sex changed to gender
+	* Some renamed classes, e.g race -> character-race
+	* Stats moved into variant, and has got it's own class
+	character-stat
+	* Reorganised how to do player-calculations, moved much of it into
+	variant
+	* A few generics renamed to make them more comprehensible.  Some
+	new generics to ensure a neat player-update protocol
+	* Added extensible system with player-attributes
+	* Added infravision and see-invisible
+	* Other minor changes
+	
+2002-02-12  Stig E Sandø <stig@users.sourceforge.net>
+	* More updates for SBCL, need SBCL 0.7.1
+	* Improved monster-capabilities/features and made things more like
+	regular angband to speed things up slightly.
+	* Rearranged a lot of code, renamed files, and removed small
+	files.  Most classes should now be in classes.lisp
+	* Improved MAP-INFO for monsters
+	* Made the protocol for update of player-bonuses, still need to
+	fill in values
+	* Started work on saving info on the player in a reasonable way,
+	but not quite happy yet.
+	* Improved names of some monster-abilities and made a web-page to
+	track updates of monster-capabilities
+	* Updated defsystem to the latest in clocc
+	* Many other small tweaks, plus new look on the Web. 
+	
+2002-01-22  Stig E Sandø <stig@users.sourceforge.net>
+	* Started work on porting langband to SBCL, sent many bugreports
+	to SBCL-developers.  SBCL is nice and quite picky but needs more
+	apps to get ported to it so they're able to make it produce useful
+	notes and warnings.  It makes CMUCL seem quiet.
+	* Changed many DEFCONSTANTs to DEFVARs to make the code more
+	palatable to ANSI CL.  SBCL was picky here, and with strict
+	interpretation of the standard it is right so I alter things.
+	* Extended C-side to accept more lisp-types
+	* Added code for object-kinds to describe effects as part of the
+	DEFINE-OBJECT-KIND form, and removed the old hack for
+	object-effects.  
+	* Added generics for methods that lacked them. SBCL helped to
+	identify them
+	* More tweaking
+	
+2002-01-19  Stig E Sandø <stig@users.sourceforge.net>
+	* Moved some function from c-side to lisp-side, mainly
+	message-code.  Also removed unused C-code in zterm.
+	* Moved gold-creation to variant, generates successfully gold
+	according to vanilla formula.
+	* Added monster-groups, plus a formula for vanilla that is fairly
+	reasonable.
+	* Made variants register a constructor, to ensure that a variant
+	can be safely restarted.
+	* Minor tweaking
+	
+2002-01-18  Stig E Sandø <stig@users.sourceforge.net>
+	* Removed settings.lisp and moved settings into variant-object and
+	updated all code that use it.
+	* Added unique-monster class, and added code to use it for unique
+	monsters.  Ensured that a unique can only be killed once, and
+	added this to save/load
+	* Made printing and update-code depend on variant
+	* Other minor tweaks
+	
 2002-01-15  Stig E Sandø <stig@users.sourceforge.net>
 	* Sent out a release, 0.0.18
 	

@@ -10,16 +10,12 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
-----
-
-ADD_DESC: Contains definition of races in sexp.
-
 |#
 
 (in-package :org.langband.vanilla)
 
 
-(define-race "human" "Human"
+(define-character-race "human" "Human"
   :symbol '<human>
   :desc "
                The human is the base character.  All other races are compared
@@ -43,7 +39,7 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race "half-elf" "Half-elf"
+(define-character-race "half-elf" "Half-elf"
   :symbol '<half-elf>
   :desc "
                Half-elves tend to be smarter and faster than a  human,  but
@@ -72,7 +68,7 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race "elf" "Elf"
+(define-character-race "elf" "Elf"
   :symbol '<elf>
   :desc "
                Elves are better magicians then humans, but not as good at
@@ -91,7 +87,7 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<resist> <light>)
 	       (<infravision> 3)
 	       )
-  :classes '(<paladin> <warrior> <mage>)
+  :classes '(<priest> <rogue> <ranger> <warrior> <mage>)
 
   :skills '((<disarming> 5 0)
 	    (<device> 6 0)
@@ -104,7 +100,7 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race "hobbit" "Hobbit"
+(define-character-race "hobbit" "Hobbit"
   :symbol '<hobbit>
   :desc "
                Hobbits, or Halflings, are very good at bows, throwing,  and
@@ -137,7 +133,7 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race "gnome"  "Gnome"
+(define-character-race "gnome"  "Gnome"
   :symbol '<gnome>
   :desc "
                Gnomes are smaller than dwarves but larger than halflings.
@@ -159,7 +155,7 @@ ADD_DESC: Contains definition of races in sexp.
 	       <free-action>
 	       (<infravision> 4)
 	       )
-  :classes '(<warrior> <rogue> <mage>)
+  :classes '(<warrior> <priest> <rogue> <mage>)
   
   :skills '((<disarming> 10 0)
 	    (<device> 12 0)
@@ -172,7 +168,7 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race "dwarf" "Dwarf"
+(define-character-race "dwarf" "Dwarf"
   :symbol '<dwarf>
   :desc "
                Dwarves are the headstrong miners and fighters of legend.
@@ -209,7 +205,7 @@ ADD_DESC: Contains definition of races in sexp.
   
   )
 
-(define-race "half-orc" "Half-orc"
+(define-character-race "half-orc" "Half-orc"
   :symbol '<half-orc>
   :desc "
                Half-Orcs make excellent warriors and decent priests, but
@@ -230,7 +226,7 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<resist> <darkness>)
 	       (<infravision> 3)
 	       )
-  :classes '(<warrior> <rogue>)
+  :classes '(<warrior> <priest> <rogue>)
   
   :skills '((<disarming> -3 0)
 	    (<device> -3 0)
@@ -243,7 +239,7 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race "half-troll" "Half-troll"
+(define-character-race "half-troll" "Half-troll"
   :symbol '<half-troll>
   :desc "
                Half-Trolls are incredibly strong, and have more hit points
@@ -262,7 +258,7 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<sustain> <str>)
 	       (<infravision> 3)
 	       )
-  :classes '(<warrior> <rogue>)
+  :classes '(<warrior> <rogue> <priest>)
   
   :skills '((<disarming> -5 0)
 	    (<device> -8 0)
@@ -275,7 +271,7 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race "dunedan" "Dunedan"
+(define-character-race "dunedan" "Dunedan"
   :symbol '<dunedan>
   :desc "
                Dunedain are a race of hardy men from the West.  This elder
@@ -291,7 +287,7 @@ ADD_DESC: Contains definition of races in sexp.
   :abilities '(
 	       (<sustain> <con>)
 	       )
-  :classes '(<warrior>)
+  :classes t
   
   :skills '((<disarming> 4 0)
 	    (<device> 5 0)
@@ -304,7 +300,7 @@ ADD_DESC: Contains definition of races in sexp.
 
   )
 
-(define-race "high-elf" "High-elf"
+(define-character-race "high-elf" "High-elf"
   :symbol '<high-elf>
   :desc "
                High-elves are a race of immortal beings dating from the
@@ -324,7 +320,7 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<resist> <light>)
 	       (<infravision> 4)
 	       )
-  :classes '(<warrior> <ranger>)
+  :classes '(<warrior> <mage> <priest> <rogue> <ranger>)
   
   :skills '((<disarming> 4 0)
 	    (<device> 20 0)

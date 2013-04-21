@@ -271,6 +271,7 @@ the Free Software Foundation; either version 2 of the License, or
 	 (fast-view *array-view*)
 	 (fast-temp *temp-view*)
 	 (vinfo *vinfo*)
+	 (vinfo-bit-fields *vinfo-bit-fields*)
 	 ;;(fast-view (make-map dun))
 	 )
 
@@ -382,7 +383,7 @@ the Free Software Foundation; either version 2 of the License, or
 		  (setf (svref queue i) nil))
 ;;		(warn "fish")
 		(dotimes (i +vinfo-bit-field-len+)
-		  (setf (aref bit-arr i) (aref +vinfo-bit-fields+ i)))
+		  (setf (aref bit-arr i) (aref vinfo-bit-fields i)))
 		
 		
 ;;		(warn "go..")
@@ -439,7 +440,7 @@ the Free Software Foundation; either version 2 of the License, or
 			;; we have a wall!
 			(cond ((bit-flag-set? info +cave-wall+)
 
-			       (dotimes (i #.(length +vinfo-bit-fields+))
+			       (dotimes (i +vinfo-bit-field-len+)
 				 (bit-flag-remove! (aref bit-arr i)
 						   (aref bits i)))
 			       ;;(warn "{~a,~a} -> a wall" x y)

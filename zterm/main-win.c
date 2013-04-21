@@ -2862,27 +2862,28 @@ static LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 	/* New size */
 	if ((td->cols != cols) || (td->rows != rows))
 	{
-				/* Save old term */
+	    /* Save old term */
 	    term *old_term = Term;
 
-				/* Save the new size */
+	    /* Save the new size */
 	    td->cols = cols;
 	    td->rows = rows;
 
-				/* Activate */
+	    /* Activate */
 	    Term_activate(&td->t);
 
-				/* Resize the term */
+	    /* Resize the term */
 	    Term_resize(td->cols, td->rows);
 
-				/* Activate */
+	    /* Activate */
 	    Term_activate(old_term);
 
-				/* Redraw later */
+	    /* Redraw later */
 	    InvalidateRect(td->w, NULL, TRUE);
 
-				/* HACK - Redraw all windows */
-	    p_ptr->window = 0xFFFFFFFF;
+	    /* HACK - Redraw all windows */
+	    
+	    //p_ptr->window = 0xFFFFFFFF;
 	    window_stuff();
 	}
 
@@ -3199,7 +3200,7 @@ init_win(void)
     pause_line(23);
     play_game(TRUE);
     /* Prompt the user */
-//	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
+//	c_prt(TERM_WHITE,"[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
     Term_fresh();
 
 //	hack_plog("sheesh..");

@@ -14,13 +14,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
-(defconstant +van-dwarf-syllables+
+(defvar *van-dwarf-syllables*
   '(("B" "D" "F" "G" "Gl" "H" "K" "L" "M" "N" "R" "S" "T" "Th" "V")
     ("a" "e" "i" "o" "oi" "u")
     ("bur" "fur" "gan" "gnus" "gnar" "li" "lin" "lir" "mli" "nar"
      "nus" "rin" "ran" "sin" "sil" "sur")))
 
-(defconstant +van-elf-syllables+
+(defvar *van-elf-syllables*
   '(("Al" "An" "Bal" "Bel" "Cal" "Cel" "El" "Elr" "Elv" "Eow" "Ear"
      "F" "Fal" "Fel" "Fin" "G" "Gal" "Gel" "Gl" "Is" "Lan" "Leg" "Lom" 
      "N" "Nal" "Nel"  "S" "Sal" "Sel" "T" "Tal" "Tel" "Thr" "Tin")
@@ -30,7 +30,7 @@ the Free Software Foundation; either version 2 of the License, or
      "ndil" "ndir" "nduil" "ng" "mbor" "r" "rith" "ril" "riand" "rion"
      "s" "thien" "viel" "wen" "wyn")))
 
-(defconstant +van-gnome-syllables+
+(defvar *van-gnome-syllables*
   '(("Aar" "An" "Ar" "As" "C" "H" "Han" "Har" "Hel" "Iir" "J" "Jan"
      "Jar" "K" "L" "M" "Mar" "N" "Nik" "Os" "Ol" "P" "R" "S" "Sam"
      "San" "T" "Ter" "Tom" "Ul" "V" "W" "Y")
@@ -39,7 +39,7 @@ the Free Software Foundation; either version 2 of the License, or
      "neli" "nika" "nikki" "nu" "nukka" "ka" "ko" "li" "kki" "rik" "po"
      "to" "pekka" "rjaana" "rjatta" "rjukka" "la" "lla" "lli" "mo" "nni")))
 
-(defconstant +van-hobbit-syllables+
+(defvar *van-hobbit-syllables*
   '(("B" "Ber" "Br" "D" "Der" "Dr" "F" "Fr" "G" "H" "L" "Ler" "M"
      "Mer" "N" "P" "Pr" "Per" "R" "S" "T" "W")
     ("a" "e" "i" "ia" "o" "oi" "u")
@@ -47,7 +47,7 @@ the Free Software Foundation; either version 2 of the License, or
      "lda" "ldo" "lla" "ll" "lo" "m" "mwise" "nac" "noc" "nwise"
      "p" "ppin" "pper" "tho" "to")))
 
-(defconstant +van-human-syllables+
+(defvar *van-human-syllables*
   '(("Ab" "Ac" "Ad" "Af" "Agr" "Ast" "As" "Al" "Adw" "Adr"
      "Ar" "B" "Br" "C" "Cr" "Ch" "Cad" "D" "Dr" "Dw" "Ed"
      "Eth" "Et" "Er" "El" "Eow" "F" "Fr" "G" "Gr" "Gw" "Gal"
@@ -66,7 +66,7 @@ the Free Software Foundation; either version 2 of the License, or
      "ron" "rd" "s" "sh" "seth" "sean" "t" "th" "tha" "tlan"
      "trem" "tram" "v" "vudd" "w" "wan" "win" "wyn" "wyr" "wyr" "wyth")))
 
-(defconstant +van-orc-syllables+
+(defvar *van-orc-syllables*
   '(("B" "Er" "G" "Gr" "H" "P" "Pr" "R" "V" "Vr" "T" "Tr" "M" "Dr")
     ("a" "i" "o" "oo" "u" "ui")
     ("dash" "dish" "dush" "gar" "gor" "gdush" "lo" "gdish" "k" "lg"
@@ -74,7 +74,7 @@ the Free Software Foundation; either version 2 of the License, or
      "mak" "rak")))
 
 
-(defconstant +van-scroll-syllables+ #1A(
+(defvar *van-scroll-syllables* #1A(
 				    "a" "ab" "ag" "aks" "ala" "an" "ankh" "app"
 				    "arg" "arze" "ash" "aus" "ban" "bar" "bat" "bek"
 				    "bie" "bin" "bit" "bjor" "blu" "bot" "bu"
@@ -96,21 +96,20 @@ the Free Software Foundation; either version 2 of the License, or
 				    "vom" "wah" "wed" "werg" "wex" "whon" "wun" "x"
 				    "yerg" "yp" "zun" "tri" "blaa"))
 
-(defvar *van-used-scroll-names* (make-hash-table :test #'equal)
-  "a table with already created names of scrolls")
 
 (defun van-make-scroll-name (&key (max-length 15))
   "Returns a string with the name of a scroll"
-  (let ((scroll-name "")
-	(syl-len (length +van-scroll-syllables+)))
+  (let* ((scroll-name "")
+	 (scroll-syllables *van-scroll-syllables*)
+	 (syl-len (length scroll-syllables)))
     (loop
      (let ((syl-num (random 2)))
        (setq scroll-name (concatenate 'string
 				      scroll-name
-				      (svref +van-scroll-syllables+ (random syl-len))
+				      (svref scroll-syllables (random syl-len))
 				      ;; possible second syllable
 				      (if (= syl-num 1)
-					  (svref +van-scroll-syllables+ (random syl-len))
+					  (svref scroll-syllables (random syl-len))
 					  "")
 				      " "))
        ;; if long enough, return
@@ -122,7 +121,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 	 
 
-(defun van-generate-scroll-flavour (object)
+(defun van-generate-scroll-flavour (variant object)
   "returns the flavour for the given object"
   
   (declare (ignore object))
@@ -130,26 +129,35 @@ the Free Software Foundation; either version 2 of the License, or
   ;; make a name for the scroll
   (loop named naming-loop
 	for name = (van-make-scroll-name)
-	for hash-val = (gethash name *van-used-scroll-names*)
+	for hash-val = (gethash name (variant.used-scroll-names variant))
 	do
 	(unless hash-val
-	  (setf (gethash name *van-used-scroll-names*) t)
+	  (setf (gethash name (variant.used-scroll-names variant)) t)
 	  (return-from van-generate-scroll-flavour (cons name +term-white+)))))
 
-
-(defconstant +legal-effects+ '(:use :quaff :read :eat))
-
-(defstruct effect-entry
-  type
-  fun
-  energy-use)
-
-(defvar *van-object-effects* (make-hash-table :test #'equal))
+(defmethod create-gold ((variant vanilla-variant) (dungeon dungeon))
+ 
+  (let* ((gold-table (variant.gold-table variant))
+	 (gold-len (length gold-table))
+	 (obj-level (dungeon.depth dungeon))
+	 (which-gold (- (int-/ (+ (randint (+ 2 obj-level)) 2)
+			   2)
+			1)))
+    (when (>= which-gold gold-len)
+      (setf which-gold (1- gold-len)))
+    
+    (let* ((gold-kind (aref gold-table which-gold))
+	   (base-amount (object.cost gold-kind))
+	   (amount (+ base-amount (* 8 (randint base-amount)) (randint 8))))
+      
+;;      (warn "Making ~s gold (~a) of kind ~s" amount (object.name gold-kind) which-gold)
+      
+      (create-aobj-from-kind gold-kind :amount amount :variant variant))))
 
 
 (defmethod use-object! ((var vanilla-variant) dun pl the-object &key (which-use :use))
 ;;  (declare (ignore var))
-  (assert (typep the-object 'active-object))
+  (check-type the-object active-object)
   
   (let* ((okind (aobj.kind the-object))
 	 (effects (object.effects okind))
@@ -180,17 +188,6 @@ the Free Software Foundation; either version 2 of the License, or
 (defun %van-sort-obj-types (obj-types)
   (sort obj-types #'string< :key #'symbol-name))
 
-(defun van-ensure-object-effect (obj-types fun
-				 &key (effect :use)
-				 (cost +energy-normal-action+))
-
-  (let ((effects (if (listp effect) effect (list effect))))
-    (assert (every #'(lambda (x) (member x +legal-effects+)) effects))
-    (let ((sorted-types (%van-sort-obj-types obj-types)))
-      (setf (gethash sorted-types *van-object-effects*)
-	    (loop for x in effects
-		  collecting (make-effect-entry :type x :fun fun :energy-use cost))))
-    (values)))
 
 (defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind))          nil)
 
@@ -220,62 +217,6 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod flavour-object! ((var-obj vanilla-variant) (obj object-kind/amulet))
   (%flavour-obj-kind! obj))
 
-#||
-(defmethod ok-object? ((obj object-kind/staff) &key context warn-on-failure)
-
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  
-  (call-next-method))
-
-(defmethod ok-object? ((obj object-kind/rod) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  
-  (call-next-method))
-
-(defmethod ok-object? ((obj object-kind/wand) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  
-  (call-next-method))
-
-(defmethod ok-object? ((obj object-kind/potion) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  
-  (call-next-method))
-
-(defmethod ok-object? ((obj object-kind/mushroom) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  (call-next-method))
-
-(defmethod ok-object? ((obj object-kind/scroll) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-
-  (call-next-method))
-
-(defmethod ok-object? ((obj object-kind/amulet) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-
-  (call-next-method))
-
-(defmethod ok-object? ((obj object-kind/ring) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  (call-next-method))
-||#
-
 (defmethod distribute-flavours! ((var-obj vanilla-variant))
   "Allocates flavours for objects that need it."
   (let ((objects (variant.objects var-obj)))
@@ -287,47 +228,6 @@ the Free Software Foundation; either version 2 of the License, or
 	      (setf (object.aware obj) t)))
     var-obj))
 
-(defun van-combine-effects-with-objects! (objects)
-  "Tries to hack things together."
-  (assert (hash-table-p objects))
-  (let ((htbl *van-object-effects*))
-    (cond ((not (hash-table-p htbl))
-	   (warn "Odd.. obj-effects is not a hash-table!"))
-	  (t 
-	   (loop for obj being the hash-values of objects
-		 do
-		 (let* ((the-types (%van-sort-obj-types (copy-seq (object.obj-type obj))))
-			(effects (gethash the-types htbl)))
-		   
-		   (assert (listp effects))
-		   
-		   (dolist (i effects)
-		     (assert (effect-entry-p i))
-		     (pushnew i (object.effects obj)))
-		   ;; let the info remain, maybe remove it in production
-	      #+langband-production
-	      (remhash the-types htbl)
-	      
-	      ))
-	   #+langband-production
-	   (loop for x being the hash-keys of htbl
-		 do
-		 (warn "Unable to find matching object for ~s effect." x))))
-
-    
-    ;; remove all in production
-    #+langband-production
-    (setf *van-object-effects* nil)
-    
-    (values)))
-
-
-(defmacro define-object-effect (obj-types (&key (effect :use)
-						(cost +energy-normal-action+))
-				args &body the-body)
-  (assert (= 3 (length args)))
-  `(van-ensure-object-effect ',obj-types #'(lambda ,args ,@the-body)
-    :effect ',effect :cost ,cost))
 
 
 (defmethod get-price ((object active-object) (store black-market))
@@ -405,24 +305,112 @@ the Free Software Foundation; either version 2 of the License, or
   (declare (ignore creature))
   (let* ((the-race (cond ((symbolp race)
 			  race)
-			 ((typep race 'race)
+			 ((typep race 'character-race)
 			  (race.symbol race))
 			 (t
 			  (error "Unknown race-object ~s" race))))
 	 (ptr (ecase the-race
-	       ((<half-elf> <elf> <high-elf>) +van-elf-syllables+)
-	       ((<human> <dunedan>) +van-human-syllables+)
-	       (<hobbit> +van-hobbit-syllables+)
-	       (<dwarf> +van-dwarf-syllables+)
-	       ((<half-orc> <half-troll>) +van-orc-syllables+)
-	       (<gnome> +van-gnome-syllables+))))
+	       ((<half-elf> <elf> <high-elf>) *van-elf-syllables*)
+	       ((<human> <dunedan>) *van-human-syllables*)
+	       (<hobbit> *van-hobbit-syllables*)
+	       (<dwarf> *van-dwarf-syllables*)
+	       ((<half-orc> <half-troll>) *van-orc-syllables*)
+	       (<gnome> *van-gnome-syllables*))))
     
 
     (when (consp ptr)
       (concatenate 'string (rand-elm (first ptr)) (rand-elm (second ptr)) (rand-elm (third ptr))))
     ))
 
+(defun van-group-chance (id mon-depth lvl-depth)
+  (let* ((diff (- lvl-depth mon-depth))
+	 (chance (if (plusp diff)
+		     (* 10 diff)
+		     0)))
+      
+      (when (> chance 60)
+	(setq chance 60))
+
+;;      (warn "Group chance for ~a (~a) at depth ~a is ~a%" id mon-depth lvl-depth chance)
+      
+      (if (plusp chance)
+	  (< (random 100) chance)
+	  nil)))
+
 ;; seems to be original depth + 4 which is the basis for when groups appear
 (defun van-novice-appears-in-group? (level mon)
-  (declare (ignore level mon))
-  (< (random 10) 5))
+
+  (when (typep mon 'active-monster)
+    (setq mon (amon.kind mon)))
+
+  (unless (typep mon 'monster-kind)
+    (error "Unknown object ~s given to grouping-function, should be a monster."
+	   mon))
+  
+  (when (typep mon 'unique-monster)
+    (error "A unique-monster ~s should not have a grouping-function."
+	   (monster.id mon)))
+
+  (let ((mon-depth (monster.depth mon)) ;; a bit more tricky than vanilla, but gets increasingly worse
+	(lvl-depth (level.depth level)))
+    (van-group-chance (monster.id mon)
+		      mon-depth
+		      lvl-depth
+		      )))
+
+
+#||
+(defmethod ok-object? ((obj object-kind/staff) &key context warn-on-failure)
+
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/rod) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/wand) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/potion) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/mushroom) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/scroll) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/amulet) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+
+  (call-next-method))
+
+(defmethod ok-object? ((obj object-kind/ring) &key context warn-on-failure)
+  
+  (when (eq context :in-game)
+    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  (call-next-method))
+||#

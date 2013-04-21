@@ -36,13 +36,13 @@ int which_ui_used = -1;
 int been_run_earlier = 0;
 
 /** quick_messages? */
-bool quick_messages = TRUE;
+//bool quick_messages = TRUE;
 
 /** make -more- simple? */
-bool auto_more = FALSE;
+//bool auto_more = FALSE;
 
 /** freshen output after dumping stuff? */
-bool fresh_after = TRUE;
+//bool fresh_after = TRUE;
 
 /**
  * Hack -- take notes on line 23
@@ -84,14 +84,26 @@ void c_prt(byte attr, cptr str, int row, int col)
     Term_addstr(-1, attr, str);
 }
 
+// we're not handling signals
+/*
+ * Do nothing
+ */
+void signals_ignore_tstp(void)
+{
+}
 
 /*
- * As above, but in "white"
+ * Do nothing
  */
-void prt(cptr str, int row, int col)
+void signals_handle_tstp(void)
 {
-    /* Spawn */
-    c_prt(TERM_WHITE, str, row, col);
+}
+
+/*
+ * Do nothing
+ */
+void signals_init(void)
+{
 }
 
 
@@ -295,7 +307,7 @@ init_angband(void) {
 
 //    puts("mac i");
     macro_init();
-    message_init();
+//    message_init();
 //    puts("/mac i");
 #ifdef USE_X11
 //	process_pref_file("./lib/file/user.prf");

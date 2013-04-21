@@ -23,11 +23,13 @@ ADD_DESC: This file just contains simple init and loading of the game
   "The default directory."
   #+allegro (excl:current-directory)
   #+clisp (ext:default-directory)
-  #+cmucl (ext:default-directory)
+  #+cmu (ext:default-directory)
+;;  #+sbcl (sb-ext:default-directory)
   #+cormanlisp (ccl:get-current-directory)
   #+lispworks (hcl:get-working-directory)
   #+lucid (lcl:working-directory)
-  #-(or allegro clisp cmucl cormanlisp lispworks lucid) (truename "."))
+  #+sbcl (truename ".")
+  #-(or allegro sbcl clisp cmu cormanlisp lispworks lucid) (truename "."))
 
 
 (defvar *current-dir* (namestring (%get-default-directory)))
@@ -40,10 +42,10 @@ ADD_DESC: This file just contains simple init and loading of the game
 ;;  #-clisp
 ;;  (push :using-sound *features*)
   ;; this one should be turned on in releases and in curses
-  (pushnew :hide-warnings *features*)
+;;  (pushnew :hide-warnings *features*)
 
 ;;  (pushnew :maintainer-mode *features*)
-  #+(or cmu clisp allegro (and lispworks unix))
+  #+(or cmu clisp allegro sbcl (and lispworks unix))
   (pushnew :defsystem-madness *features*)
   )
 
@@ -88,6 +90,7 @@ ADD_DESC: This file just contains simple init and loading of the game
 
 (defvar *dev-opt* '(optimize
 		    #+cmu (ext:inhibit-warnings 2)
+		    #+sbcl (sb-ext:inhibit-warnings 2)
 		    (speed 1)
 		    (compilation-speed 2)
 		    (safety 3)
@@ -96,16 +99,17 @@ ADD_DESC: This file just contains simple init and loading of the game
 		    ))
 
 
-(proclaim *dev-opt*)
-;;(proclaim *normal-opt*)
+;;(proclaim *dev-opt*)
+(proclaim *normal-opt*)
  
 (defun compile-in-environment (func)
   (let (
-	#+(or cmu lispworks) (*compile-print* nil)
+	#+(or cmu lispworks sbcl) (*compile-print* nil)
 	      #+(or cmu lispworks) (*load-verbose* nil)
 	      (*load-print* nil)
 	      ;;#+cmu (*error-output* o-str)
 	      #+cmu (extensions:*gc-verbose* nil)
+;;	      #+sbcl (sb-ext:*gc-verbose* nil)
 	      )
     (funcall func)))
 
@@ -154,27 +158,22 @@ ADD_DESC: This file just contains simple init and loading of the game
     #+lispworks
     (%cl "ffi/ffi-lw")
 
-    (c-files "memoize" "base" "constants" "dyn-vars" "generics"
-	     "sys" "event" "core" "parameters" "global" 
-	     "settings" "level" "floor" "sound"
-	     "stat" "race" "class" "object"
-	     "equipment" "player" "flavours" "monster"
+    (c-files "memoize" "base" "constants" "generics"
+	     "sys" "classes" "parameters" "global" 
+	     "sound" "character" "object"
+	     "equipment" "player" "monster"
 	     "dungeon" "building" "stores" "allocate"
-	     "rooms" "generate" "print" "util"
+	     "generate" "print" "util"
 	     "combat" "keys" "actions" "view"
 	     "project" "save" "load" "death"
-	     "birth" "loop" "init" "verify")
+	     "birth" "ai" "loop" "dump" "init" "verify")
     (progress-msg "Base engine loaded...")
 
     (map nil #'(lambda (x)
 		 (%cl (strcat "variants/vanilla/" x)))
 	 (list
-	  "base" "quirks"
-	  "various" "rooms"
-	  "levels" "spells"
-	  "potions" "scrolls"
-	  "food" "wizard"
-	  "keys"))
+	  "base" "quirks" "various" "rooms"
+	  "levels" "spells" "wizard" "keys"))
 
     (progress-msg "Variant loaded...")
     t))

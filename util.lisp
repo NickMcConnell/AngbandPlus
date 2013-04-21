@@ -388,36 +388,138 @@ a number or a symbol identifying the place."
     nil))
 
 
+(defun swap-monsters! (dun pl from-x from-y to-x to-y)
+  "swaps two monsters or move one"
 
-(defmethod get-loadable-form ((object game-values) &key)
-  
-  (let ((the-form '()))
-    (flet ((possibly-add (initarg val &optional (def-val nil))
-	     (unless (equal val def-val)
-	       (setf the-form (nconc the-form (list initarg (loadable-val val)))))))
-      (setf the-form (list 'make-game-values))
-      
-      (possibly-add :base-ac (gval.base-ac object) 0)
-      (possibly-add :ac-modifier (gval.ac-modifier object) 0)
-      (possibly-add :base-dice (gval.base-dice object) 0)
-      (possibly-add :num-dice (gval.num-dice object) 0)
-      (possibly-add :tohit-modifier (gval.tohit-modifier object) 0)
-      (possibly-add :dmg-modifier (gval.dmg-modifier object) 0)
-      (possibly-add :mana (gval.mana object) 0)
-      (possibly-add :charges (gval.charges object) 0)
-      (possibly-add :food-value (gval.food-value object) 0)
-      (possibly-add :light-radius (gval.light-radius object) 0)
-      (possibly-add :tunnel (gval.tunnel object) 0)
-      (possibly-add :speed (gval.speed object) 0)
-      (possibly-add :skill-modifiers (gval.skill-modifiers object))
-      (possibly-add :stat-modifiers (gval.stat-modifiers object))
-      (possibly-add :ignores (gval.ignores object) 0)
-      (possibly-add :resists (gval.resists object) 0)
-      (possibly-add :immunities (gval.immunities object) 0)
-      (possibly-add :abilities (gval.abilities object))
-      (possibly-add :sustains (gval.sustains object))
-      (possibly-add :slays (gval.slays object))
+  (let ((var-obj *variant*)
+	(mon-1 (cave-monsters dun from-x from-y))
+	(mon-2 (cave-monsters dun to-x to-y)))
 
-      the-form)))
+    (setf (cave-monsters dun from-x from-y) mon-2
+	  (cave-monsters dun to-x to-y) mon-1)
 
+    
+    ;; hack, move to swap later
+    (when (and (= from-x (location-x pl))
+	       (= from-y (location-y pl)))
+      (setf (location-x pl) to-x
+	    (location-y pl) to-y)
+      ;; add more stuff here
+;;      (warn "move pl (~s ~s) -> (~s ~s)" from-x from-y to-x to-y)
+      (bit-flag-add! *update* +pl-upd-update-view+ +pl-upd-distance+
+		     +pl-upd-panel+ +pl-upd-update-flow+)
+      ;; skip overhead-window
+;;      (bit-flag-add! *redraw* +print-map+)
+      ) ;; hack, fix later
+
+
+    (when mon-1
+      (dolist (i mon-1)
+	(setf (location-x i) to-x
+	      (location-y i) to-y)
+	(update-monster! var-obj i t)))
+
+
+    (when mon-2
+      (dolist (i mon-2)
+	(setf (location-x i) to-x
+	      (location-y i) to-y)
+	(update-monster! var-obj i t)))
+
+    
+    (light-spot! dun from-x from-y)
+    (light-spot! dun to-x to-y)))
+
+
+
+(defmethod update-monster! ((variant variant) (mon active-monster) full-update?)
+  (let* ((player *player*)
+	 (px (location-x player))
+	 (py (location-y player))
+	 (mx (location-x mon))
+	 (my (location-y mon))
+	 (dungeon *dungeon*)
+	 (kind (amon.kind mon))
+	 (mstatus (amon.status mon))
+	 (seen nil) ;; seen at all
+	 (by-eyes nil) ;; direct vision
+	 (distance 666))
+    
+    (cond (full-update?  ;; get full distance
+	   ;; no inlining
+	   (setf distance (distance px py mx my)
+		 (status.distance mstatus) distance)
+	   )
+	  (t
+	   ;; simple
+	   (setf distance (status.distance mstatus))))
+
+    ;; more stuff
+    (when (bit-flag-set? (status.vis-flag mstatus) +monster-flag-mark+)
+      (setf seen t))
+
+    (when (<= distance +max-sight+)
+      ;; skip telepathy
+
+      ;; normal line of sight:
+      (when (and (player-has-los-bold? dungeon mx my)
+		 t) ;; add blindness check
+
+	;; infravision
+	(when (<= distance (player.infravision player))
+	  (unless (has-ability? kind '<cold-blood>) ;; unless cold-blooded, infravision works
+	    (setf seen t
+		  by-eyes t)))
+
+	(when (player-can-see-bold? dungeon mx my)
+	  (cond ((has-ability? kind '<invisible>)
+		 ;; can the player see it with his see-inv?
+		 (when (<= distance (player.see-invisible player))
+		   (setf seen t
+			 by-eyes t))
+		 )
+		(t
+		 (setf seen t
+		       by-eyes t)))
+	  
+	  ;; skip lore
+	  )))
+
+    ;; is it visible?
+    (cond (seen 
+	   (unless (amon.seen-by-player? mon)
+	     (setf (amon.seen-by-player? mon) t)
+	     (light-spot! dungeon mx my)
+	     ;; skip health bar
+	     ;; skip disturb
+	     ))
+	  ;; no longer visible
+	  (t
+	   (when (amon.seen-by-player? mon)
+	     (setf (amon.seen-by-player? mon) nil)
+	     (light-spot! dungeon mx my)
+	     ;; skip health bar
+	     ;; skip disturb
+	     )))
+
+    (cond (by-eyes
+	   (unless (bit-flag-set? (status.vis-flag mstatus) +monster-flag-view+)
+	     (bit-flag-add! (status.vis-flag mstatus) +monster-flag-view+)
+	     ;; skip disturb
+	     ))
+	  (t
+	   (when (bit-flag-set? (status.vis-flag mstatus) +monster-flag-view+)
+	     (bit-flag-remove! (status.vis-flag mstatus) +monster-flag-view+)
+	     ;; skip disturb
+	     )))
+	  
+    ))
+
+(defmethod update-monsters! ((variant variant) (dungeon dungeon) full-update?)
+  (let ((monsters (dungeon.monsters dungeon)))
+    (dolist (i monsters)
+      (when (creature-alive? i)
+	(update-monster! variant i full-update?)))))
+
+;;(trace update-monsters!)		     
 ;;(trace select-item :encapsulate t)

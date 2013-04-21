@@ -1,3 +1,18 @@
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
+
+#|
+
+DESC: variants/vanilla/config/floors.lisp - floor-types for vanilla variant
+Copyright (c) 2000-2002 - Stig Erik Sandø
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+|#
+
+(in-package :org.langband.vanilla)
 
 (define-feature-type 0 "<darkness>" 1 #\Space :mimic nil)
 (define-feature-type 1 "open floor" 1 #\. :mimic nil)

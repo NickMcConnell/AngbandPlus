@@ -20,7 +20,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;; we need certain flags
 (eval-when (:execute :load-toplevel :compile-toplevel)
-  #+(or cmu allegro)
+  #+(or cmu allegro sbcl lispworks)
   (pushnew :enough-support-for-langband *features*)
   #+(and clisp langband-development) ;; clisp not ready in debian yet
   (pushnew :enough-support-for-langband *features*)
@@ -29,10 +29,10 @@ the Free Software Foundation; either version 2 of the License, or
 #+enough-support-for-langband
 (mk:defsystem :langband-vanilla
     :source-pathname
-  #+cmu
-  "langband-vanilla:"
-  #-cmu
-  (translate-logical-pathname "langband-vanilla:")
+  #-langband-development
+  #p"langband-vanilla:"
+  #+langband-development
+  (translate-logical-pathname #p"langband-vanilla:")
   
   :source-extension "lisp"
   :components ((:file "base")
@@ -43,9 +43,9 @@ the Free Software Foundation; either version 2 of the License, or
 	       (:file "rooms")
 	       (:file "levels")
 	       (:file "spells")
-	       (:file "potions" :depends-on ("various"))
-	       (:file "scrolls" :depends-on ("various"))
-	       (:file "food" :depends-on ("various"))
+;;	       (:file "potions" :depends-on ("various"))
+;;	       (:file "scrolls" :depends-on ("various"))
+;;	       (:file "food" :depends-on ("various"))
 	       (:file "wizard")
 	       (:file "keys" :depends-on ("wizard"))
 	       )

@@ -79,7 +79,7 @@ the Free Software Foundation; either version 2 of the License, or
 	 (the-kind (gethash id (variant.objects var-obj))))
     (unless the-kind
       (warn "Unable to find object-kind with id ~s" id)
-      (return-from %filed-object-kind 0))
+      (return-from %filed-object-kind nil))
 
     (cond ((eq aware :unspec))
 	  ((or (eq aware t) (eq aware nil))
@@ -100,6 +100,25 @@ the Free Software Foundation; either version 2 of the License, or
 	   (error "Unknown flavour-value ~s for kind ~s" flavour id)))
     t))
 
+(defun %filed-monster-kind (&key id (already-dead :unspec))
+
+  ;; kind of hackish
+  (assert (stringp id))
+  (let* ((var-obj *variant*)
+	 (the-kind (gethash id (variant.monsters var-obj))))
+    
+    (unless the-kind
+      (warn "Unable to find monster-kind with id ~s" id)
+      (return-from %filed-monster-kind nil))
+
+    (cond ((eq already-dead :unspec))
+	  ((and (typep the-kind 'unique-monster)
+		(or (eq already-dead t) (eq already-dead nil)))
+	   (setf (monster.already-dead the-kind) already-dead))
+	  (t
+	   (error "Unknown 'already-dead'-value ~s for kind ~s" already-dead id)))
+;;    (warn "Processed ~s with ~a" id already-dead)
+    t))
 
   
 (defun %filed-level (&key id rating depth dungeon)
@@ -224,7 +243,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     ret-obj))
 
-(defun %filed-player-info (pl-obj &key name class race sex base-stats cur-statmods
+(defun %filed-player-info (pl-obj &key name class race gender base-stats cur-statmods
 			   hp-table equipment variant)
   "modifies the PL-OBJ with the extra info and returns the modified PL-OBJ."
 
@@ -234,7 +253,7 @@ the Free Software Foundation; either version 2 of the License, or
 		      *variant*))
 	 (the-class (get-char-class class :variant var-obj))
 	 (the-race (get-char-race race :variant var-obj))
-	 (the-sex (get-sex var-obj sex)))
+	 (the-gender (get-gender var-obj gender)))
 
     (setf (player.name pl-obj) name)
     
@@ -244,11 +263,11 @@ the Free Software Foundation; either version 2 of the License, or
     (if the-race
 	(setf (player.race pl-obj) the-race)
 	(error "Unable to find race ~s" race))
-    (if the-sex
-	(setf (player.sex pl-obj) the-sex)
+    (if the-gender
+	(setf (player.gender pl-obj) the-gender)
 	(progn
-	  (lang-warn "Unable to find sex ~s, assume male" sex)
-	  (setf (player.sex pl-obj) '<male>)))
+	  (lang-warn "Unable to find gender ~s, assume male" gender)
+	  (setf (player.gender pl-obj) '<male>)))
 
     (setf (player.base-stats pl-obj) base-stats)
     (when (and cur-statmods (arrayp cur-statmods))
@@ -268,7 +287,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     pl-obj))
   
-(defun %filed-player (&key name race class sex
+(defun %filed-player (&key name race class gender
 		      base-stats cur-statmods hp-table equipment
 		      loc-x loc-y view-x view-y
 		      depth max-depth max-xp cur-xp fraction-xp
@@ -300,7 +319,7 @@ the Free Software Foundation; either version 2 of the License, or
     
 
 
-    (%filed-player-info pl-obj :name name :race race :class class :sex sex
+    (%filed-player-info pl-obj :name name :race race :class class :gender gender
 			:base-stats base-stats :cur-statmods cur-statmods
 			:hp-table hp-table :equipment equipment :variant var-obj)
 
@@ -416,7 +435,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod load-object ((variant variant) (type (eql :player)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
-	 (pl-obj (produce-player-object variant)))
+	 (pl-obj (produce-player-object variant))
+	 (stat-len (variant.stat-length variant)))
 
     ;; get basic values in
     (setf (location-x pl-obj) (read-binary 'bt:u16 str)
@@ -443,9 +463,9 @@ the Free Software Foundation; either version 2 of the License, or
 			:name (%bin-read-string str)
 			:race  (%bin-read-string str)
 			:class  (%bin-read-string str)
-			:sex  (%bin-read-string str)
-			:base-stats (%bin-read-array +stat-length+ 'bt:u16 str)
-			:cur-statmods (%bin-read-array +stat-length+ 'bt:u16 str)
+			:gender  (%bin-read-string str)
+			:base-stats (%bin-read-array stat-len 'bt:u16 str)
+			:cur-statmods (%bin-read-array stat-len 'bt:u16 str)
 			:hp-table (%bin-read-array (variant.max-charlevel *variant*) 'bt:u16 str)
 			:equipment (load-object variant :items-worn stream) 
 			)
@@ -501,6 +521,11 @@ the Free Software Foundation; either version 2 of the License, or
       (dotimes (i obj-len)
 	(load-object var-obj :object-kind  stream)))
     
+    (let ((mon-len  (bt:read-binary 'bt:u32 str)))
+      (dotimes (i mon-len)
+	(load-object var-obj :monster-kind  stream)))
+    
+    
     var-obj))
 
 (defmethod load-object ((variant variant) (type (eql :object-kind)) (stream l-binary-stream))
@@ -517,4 +542,16 @@ the Free Software Foundation; either version 2 of the License, or
 	(setf flavour (cons desc letter))))
     
     (%filed-object-kind :id id :aware aware :flavour flavour)
+    ))
+
+(defmethod load-object ((variant variant) (type (eql :monster-kind)) (stream l-binary-stream))
+  (let* ((str (lang.stream stream))
+	 (id (%bin-read-string str))
+	 (wiped-flag (bt:read-binary 'bt:s16 str)))
+    
+    (%filed-monster-kind :id id :already-dead (cond ((= wiped-flag 0) nil)
+						    ((= wiped-flag 1) t)
+						    ((= wiped-flag 2) :unspec)
+						    (t
+						     (error "Unknown 'already-dead'-flag ~s" wiped-flag))))
     ))

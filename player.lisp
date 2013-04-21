@@ -14,6 +14,44 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
+(defun make-old-player-info (variant)
+  "creates and returns a freshly init'ed OLD-PLAYER-INFO object."
+  (let ((old (make-instance 'old-player-info)))
+    (setf (old.stats old) (make-stat-array variant)
+	  (old.abilities old) (make-instance 'player-abilities))
+    old))
+
+
+(defun get-attribute-value (key table)
+  "Returns the value of the attribute identified by KEY in the TABLE."
+  (let ((val (gethash key table)))
+    (check-type val player-attribute)
+    (attr.value val)))
+
+(defun add-player-attribute (player attr)
+  (ecase (attr.type attr)
+    (:calculated (setf (gethash (attr.key attr) (player.calc-attrs player))
+		       attr))
+    (:temporary (setf (gethash (attr.key attr) (player.temp-attrs player))
+		       attr))))
+
+(defun make-player-attribute (name key &key type desc value default-value turned-on-msg turned-off-msg update-fun on-update)
+  (case type
+    (:temporary
+     (make-instance 'temp-player-attribute
+		    :name name :key key :type type :desc desc
+		    :value value :default-value default-value
+		    :duration 0 :turned-on-msg turned-on-msg
+		    :turned-off-msg turned-off-msg
+		    :on-update on-update
+		    :update-fun update-fun))
+    (otherwise
+     (make-instance 'player-attribute
+		    :name name :key key :type type :desc desc
+		    :value value :default-value default-value))
+    ))
+
+
 ;; hack, remove later
 (defun player.eq (pl-obj)
   (player.equipment pl-obj))
@@ -42,16 +80,16 @@ the Free Software Foundation; either version 2 of the License, or
   "Returns a string with the name of the class."
   (class.name (player.class player)))
 
-(defun get-sex-name (player)
-  "Returns a string with the name of the sex."
-  (sex.name (player.sex player)))
+(defun get-gender-name (player)
+  "Returns a string with the name of the gender."
+  (gender.name (player.gender player)))
 
 (defmethod get-creature-ac ((crt player))
   (let ((actual (player.actual-abilities crt)))
     (the fixnum (+ (the fixnum (pl-ability.base-ac actual))
 		   (the fixnum (pl-ability.ac-modifier actual))))))
 
-(defmethod get-creature-weight ((crt player))
+(defmethod get-weight ((crt player))
   (the fixnum (+ (the fixnum (player.burden crt))
 		 (the fixnum (playermisc.weight (player.misc crt))))))
 
@@ -91,10 +129,10 @@ the Free Software Foundation; either version 2 of the License, or
   "Creates and returns a PLAYER object."
   (let ((t-p (make-instance 'player)))
   
-    (setf (player.base-stats t-p)    (make-stat-array)
-	  (player.cur-statmods t-p) (make-stat-array)
-	  (player.modbase-stats t-p) (make-stat-array)
-	  (player.active-stats t-p)  (make-stat-array))
+    (setf (player.base-stats t-p)    (make-stat-array variant)
+	  (player.cur-statmods t-p) (make-stat-array variant)
+	  (player.modbase-stats t-p) (make-stat-array variant)
+	  (player.active-stats t-p)  (make-stat-array variant))
 
     (setf (player.misc t-p) (make-instance 'misc-player-info) ;; fix to allow variants to override
 	  (player.perceived-abilities t-p) (make-instance 'player-abilities) ;; fix to allow variants to override
@@ -112,6 +150,9 @@ the Free Software Foundation; either version 2 of the License, or
 		   (not (eq cstat-table mstat-table))
 		   (not (eq cstat-table astat-table))
 		   (not (eq mstat-table astat-table)))))
+
+    ;; hack to get things moving!
+;;    (setf (creature.attributes t-p) (make-instance 'calculated-attributes))
     
     (setf (player.skills t-p) (produce-skills-object variant))
     (setf (player.eq t-p) (make-equipment-slots))
@@ -177,14 +218,17 @@ the Free Software Foundation; either version 2 of the License, or
 (defun calculate-stat! (player num)
   "modifies appropriate arrays.."
 
-  (assert (and (>= num 0)
-	       (< num +stat-length+)))
-  
-  (let ((bstat-table (player.base-stats player))
-	(cstat-table (player.cur-statmods player))
-	(mstat-table (player.modbase-stats player))
-	(astat-table (player.active-stats player)))
+  (let* ((var-obj *variant*)
+	 (stat-len (variant.stat-length var-obj))
+	 (bstat-table (player.base-stats player))
+	 (cstat-table (player.cur-statmods player))
+	 (mstat-table (player.modbase-stats player))
+	 (astat-table (player.active-stats player))
+	 )
 
+    (assert (and (>= num 0)
+		 (< num stat-len)))
+    
     #+langband-extra-checks
     (assert (and (not (eq bstat-table cstat-table))
 		 (not (eq bstat-table mstat-table))
@@ -192,22 +236,20 @@ the Free Software Foundation; either version 2 of the License, or
 		 (not (eq cstat-table mstat-table))
 		 (not (eq cstat-table astat-table))
 		 (not (eq mstat-table astat-table))))
-		 
+    
     ;; two of these are required.. bstat and cstat
-
-  
+    
+    
     (let ((base-stat (svref bstat-table num))
-;;	  (cur-stat (svref cstat-table num))
+	  ;;	  (cur-stat (svref cstat-table num))
 	  (bonus (get-stat-bonus player num)))
-
+      
       (setf (svref mstat-table num) (add-stat-bonus base-stat bonus))
       (setf (svref astat-table num) (+ (svref cstat-table num)
 				       (svref mstat-table num)))
       )
     
     (values)))
-
-;;(trace add-stat-bonus get-stat-bonus)
 
 (defmethod calculate-creature-hit-points! ((variant variant) (player player))
 
@@ -234,42 +276,66 @@ the Free Software Foundation; either version 2 of the License, or
     (when (/= old-val (player.light-radius player))
       (bit-flag-add! *update* +pl-upd-update-view+ +pl-upd-monsters+)
       t)))
-     
 
-(defvar *hack-old/stats* (make-stat-array))
-(defvar *hack-old/abilities* (make-instance 'player-abilities)) ;; hack
 
-(defmethod calculate-creature-bonuses! ((variant variant) (player player))
-  "This method is called often and should be fairly fast.  It must not cons!"
 
-  #+langband-extra-checks
-  (assert (and (arrayp (player.base-stats player))
-	       (arrayp (player.cur-statmods player))
-	       (arrayp (player.active-stats player))
-	       (arrayp (player.modbase-stats player))))
+(defmethod get-old-player-info ((variant variant) (player player) &key (reuse-object nil))
 
-  ;; let us skim through items and update variables
-  (let ((slots (player.eq player))
-	(race (player.race player))
+  (let ((old (cond ((and reuse-object (typep reuse-object 'old-player-info))
+		    reuse-object)
+		   (reuse-object
+		    (warn "Unknown type ~s for reuse-object, using a new object." (type-of reuse-object)))
+		   (t
+		    (make-old-player-info variant))))
+	(perc-abs (player.perceived-abilities player))
+	(active-stats (player.active-stats player)))
+    
+    (fill-player-abilities! variant (old.abilities old) perc-abs)
+    
+    (let ((old/stats (old.stats old))
+	  (stat-len (variant.stat-length variant)))
+      (dotimes (i stat-len)
+	(setf (aref old/stats i) (aref active-stats i))))
+
+    (setf (old.see-inv old) (player.see-invisible player))
+    
+    old))
+
+(defmethod handle-player-updates! ((variant variant) (player player) (old old-player-info))
+  (let ((old/abilities (old.abilities old))
+	(perc-abs (player.perceived-abilities player)))
+    
+    ;; only check perceived changes!
+    (when (or (/= (pl-ability.base-ac old/abilities) (pl-ability.base-ac perc-abs))
+	      (/= (pl-ability.ac-modifier old/abilities) (pl-ability.ac-modifier perc-abs)))
+      (bit-flag-add! *redraw* +print-armour+)
+      ;; skip window
+      )
+
+    (when (/= (player.see-invisible player) (old.see-inv old))
+      (bit-flag-add! *update* +pl-upd-monsters+))
+
+    player))
+
+#||
+(defun %reset-plattr (key table)
+  (let ((attr (gethash key table)))
+    (check-type attr player-attribute)
+    (setf (attr.value attr) (attr.default-value attr))))
+||#
+
+
+(defmethod reset-player-object! ((variant variant) (player player))
+
+  (let ((actual-abs (player.actual-abilities player))
+	(perc-abs (player.perceived-abilities player))
 	(active-stats (player.active-stats player))
 	(modbase-stats (player.modbase-stats player))
-	  
-	
-;;	(old/speed (player.speed player))
-	(old/stats *hack-old/stats*)
-	(old/abilities *hack-old/abilities*)
-	(actual-abs (player.actual-abilities player))
-	(perc-abs (player.perceived-abilities player))
+	(stat-len (variant.stat-length variant)))
+
+    (reset-skills! variant (player.skills player) 0)
+
     
-	)
-    
-    (fill-player-abilities! variant old/abilities perc-abs)
-    
-    (dotimes (i +stat-length+)
-      (setf (aref old/stats i) (aref active-stats i)))
-    
-    
-    ;; reset values, add reset of perceived values
     (setf (pl-ability.base-ac actual-abs) 0
 	  (pl-ability.ac-modifier actual-abs) 0
 	  (pl-ability.base-ac perc-abs) 0
@@ -277,81 +343,107 @@ the Free Software Foundation; either version 2 of the License, or
 	  (player.burden player) 0
 	  (player.speed player) 110)
 
-    (dotimes (i +stat-length+)
+    (dotimes (i stat-len)
       (setf (aref active-stats i) 0)
       (setf (aref modbase-stats i) 0))
     
+    t))
 
+(defun alter-attribute! (key table new-value)
+  (let ((attr (gethash key table)))
+    (check-type attr player-attribute)
+    (setf (attr.value attr) new-value)
+    new-value))
+    
+
+(defmethod calculate-abilities! ((variant variant) (player player) (race character-race))
+  
+  (dolist (i (variant.skill-translations variant))
+      (%add-to-a-skill! (cdr i)
+			(player.skills player)
+			(player.level player)
+			(race.skills race)))
+  t)
+
+
+(defmethod calculate-abilities! ((variant variant) (player player) (cls character-class))
+  
+  (dolist (i (variant.skill-translations variant))
+    (%add-to-a-skill! (cdr i)
+		      (player.skills player)
+		      (player.level player)
+		      (class.skills cls)))
+
+  t)
+
+(defmethod calculate-abilities! ((variant variant) (player player) (items items-worn))
+  "Handles ac and burden."
+  ;; we don't use iterator, but access directly
+  (let ((actual-abs (player.actual-abilities player))
+	(perc-abs (player.perceived-abilities player)))
+
+  (loop for obj across (items.objs items)
+	do
+	(when obj
+	  (when-bind (gvals (aobj.game-values obj))
+	    (incf (pl-ability.base-ac actual-abs) (gval.base-ac gvals))
+	    ;; armour-value always known?  (move to variant?)
+	    (incf (pl-ability.base-ac perc-abs) (gval.base-ac gvals))
+	    (incf (pl-ability.ac-modifier actual-abs) (gval.ac-modifier gvals))
+	    ;; sometimes we know bonus
+	    (when (is-object-known? obj)
+	      (incf (pl-ability.ac-modifier perc-abs) (gval.ac-modifier gvals)))
+	    ;; fix this
+;;	    (bit-flag-add! (creature.resists player) (gval.resists gvals))
+	    (incf (player.burden player) (object.weight obj))
+	    )))
+  
+;;  (warn "item-calc")
+  t))
+
+(defmethod get-weight ((items items-in-container))
+  "Returns the weight as a fixnum of the combined total of the container."
+  (let ((ret-weight 0))
+    (loop for obj across (items.objs items)
+	  do
+	  (when (and obj (typep obj 'active-object))
+	    (incf ret-weight (object.weight obj))))
+    ret-weight))
+
+;; move to variant later
+(defvar *hack-old/player-info* nil)
+
+(defmethod calculate-creature-bonuses! ((variant variant) (player player))
+  "This method is relatively often.  It should not cons!"
+
+  ;;; must be fixed
+  (when (eq *hack-old/player-info* nil)
+    (setf *hack-old/player-info* (make-old-player-info variant)))
+  
+  ;; we need to save old values first
+  (let ((stat-len (variant.stat-length variant))
+	(old (get-old-player-info variant player
+				  :reuse-object *hack-old/player-info*))) 
+    
+    ;;; reset all values that should be filled
+    (reset-player-object! variant player)
+    
+    ;;; then calculate things based on race and class (fairly constant)
+    (calculate-abilities! variant player (player.race player))
+    (calculate-abilities! variant player (player.class player))
+
+    ;;; calculate based on what you're wearing
+    (calculate-abilities! variant player (player.eq player))
+    
     ;; recalculate stats, still needed?
-    (dotimes (i +stat-length+)
-      ;;      (warn ">B fore ~s" (svref (player.base-stats player) i))
+    (dotimes (i stat-len)
       (calculate-stat! player i))
-
-
-    ;; add some racial stuff:
-    (bit-flag-add! (creature.resists player) (race.resists race))
-      
-    ;; hackish, change later
-    (let ((race-ab (race.abilities race)))
-      (dolist (i race-ab)
-;;	(Warn "checking ~a" i)
-	(when (consp i)
-	  (case (car i)
-	    (<infravision>
-	     (when (and (numberp (cadr i)) (> (cadr i) (player.infravision player)))
-	       (setf (player.infravision player) (cadr i))))
-	    (<resist> ;; handle later
-	     (error "Resist found in racial-abilities ~s" i)
-	     )
-	    (<sustain> ;; handle later
-	     )
-	    (otherwise
-	     #+cmu ;; FIX
-	     (warn "Unhandled racial ability ~a" (car i))
-	     )))))
-
-	
-    (unless slots
-      (error "Can't find equipment-slots for player, bad."))
     
-    (flet ((item-iterator (table key obj)
-	     (declare (ignore table key))
-	     (when obj
-	       (when-bind (gvals (aobj.game-values obj))
-		 (incf (pl-ability.base-ac actual-abs) (gval.base-ac gvals))
-		 ;; armour-value always known?  (move to variant?)
-		 (incf (pl-ability.base-ac perc-abs) (gval.base-ac gvals))
-		 (incf (pl-ability.ac-modifier actual-abs) (gval.ac-modifier gvals))
-		 ;; sometimes we know bonus
-		 (when (is-object-known? obj)
-		   (incf (pl-ability.ac-modifier perc-abs) (gval.ac-modifier gvals)))
-		 (bit-flag-add! (creature.resists player) (gval.resists gvals))
-		 (incf (player.burden player) (object.weight obj))
-		 ))))
-      
-      (declare (dynamic-extent #'item-iterator))
-      (item-table-iterate! slots #'item-iterator))
+    (let ((backpack-weight (get-weight (aobj.contains (player.inventory player)))))
+      (incf (player.burden player) backpack-weight))
 
-    ;; backpack
-    (flet ((item-iterator (table key obj)
-	     (declare (ignore table key))
-	     (when obj
-	        (incf (player.burden player) (object.weight obj)))))
-      (declare (dynamic-extent #'item-iterator))
-      (item-table-iterate! (aobj.contains (player.inventory player))
-			   #'item-iterator))
-
-    
-    (update-skills! player (player.skills player))
-
-
-    ;; only check perceived changes!
-    (when (or (/= (pl-ability.base-ac old/abilities) (pl-ability.base-ac perc-abs))
-	      (/= (pl-ability.ac-modifier old/abilities) (pl-ability.ac-modifier perc-abs)))
-      (bit-flag-add! *redraw* +print-armour+)
-      ;; skip window
-      )
-    
+    ;; check what has happened, and do necessary updates
+    (handle-player-updates! variant player old)
 
 	      
     t))
@@ -454,51 +546,23 @@ the Free Software Foundation; either version 2 of the License, or
   (dolist (i (variant.skill-translations variant))
     (setf (slot-value skills-obj (cdr i)) reset-val)))
 
+(defun %add-to-a-skill! (which the-skills-obj player-lvl source)
+  (declare (type fixnum player-lvl))
+  (when source
+    (let ((obj (slot-value source which)))
+      (if (not obj)
+	  (warn "Skill-slot ~s does have NIL value, please fix." which)
+	  (incf (slot-value the-skills-obj which)
+		(cond ((eq obj nil) 0)
+		      ((numberp obj) obj)
+		      ((skill-p obj)
+		       (the fixnum (+ (the fixnum (skill.base obj))
+				      (int-/ (* player-lvl (the fixnum (skill.lvl-gain obj)))
+					     10))))
+		      (t
+		       (error "Unknown skill-obj ~a" obj)))
+		)))))
 
-(defun update-skills! (player skills-obj)
-  "Recalculates and cleans up as needed."
-
-  (flet ((add-to-skill! (which the-skills-obj player-lvl source)
-	   (declare (type fixnum player-lvl))
-	   (when source
-	     (let ((obj (slot-value source which)))
-	       (if (not obj)
-		   (warn "Skill-slot ~s does have NIL value, please fix." which)
-		   (incf (slot-value the-skills-obj which)
-			 (cond ((eq obj nil) 0)
-			       ((numberp obj) obj)
-			       ((skill-p obj)
-				(the fixnum (+ (the fixnum (skill.base obj))
-					       (int-/ (* player-lvl (the fixnum (skill.lvl-gain obj)))
-						      10))))
-			       (t
-				(error "Unknown skill-obj ~a" obj)))))))))
-    (declare (dynamic-extent #'add-to-skill!))
-    (let* ((var-obj *variant*)
-	   (race (player.race player))
-	   (the-class (player.class player))
-	   (racial-skills (race.skills race))
-	   (class-skills (class.skills the-class))
-	   (player-lvl (player.level player))
-	   (skill-list (variant.skill-translations var-obj)))
-      
-      ;; reset to value 0 first
-      (reset-skills! var-obj skills-obj 0)
-      
-      (dolist (i skill-list)
-	
-	(add-to-skill! (cdr i)
-		       skills-obj
-		       player-lvl
-		       racial-skills)
-	(add-to-skill! (cdr i)
-		       skills-obj
-		       player-lvl
-		       class-skills))
-      
-      ;;    (describe skills-obj)
-      
-      t)))
 
 (defmethod update-xp-table! ((variant variant) (player player))
   "Updates the xp-table on the player, and returns updated player."
@@ -561,25 +625,6 @@ the Free Software Foundation; either version 2 of the License, or
       
       t))) ;; it returns nil if when doesn't make sense
 
-(defmethod set-creature-state! ((crt player) state value)
-
-  ;; :fear
-  ;; :hero
-  ;; :blindness
-  ;; :heal-cut, <light> (c-10), <serious> ((c/2)-50)
-  ;; :confusion
-  ;; :poison nil + :slow, num
-  ;; :confusion
-  ;; :stun
-  ;; :cut
-  ;; :hallucination
-  ;; :berserk
-  
-  (case state
-    (:fear (warn "Setting fear of player to ~s" value))
-    (otherwise (warn "Unknown state for player: ~s" state)))
-  
-  nil)
 
 (defmethod possible-identify! ((player player) (obj active-object))
   (learn-about-object! player obj :tried)

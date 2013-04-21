@@ -17,6 +17,34 @@ the Free Software Foundation; either version 2 of the License, or
 
 (setf *current-key-table* *ang-keys*)
 
+(defun van-obj-printer (file obj)
+  (let ((var-obj *variant*))
+    (print (lb-engine:get-loadable-form var-obj obj) file))
+  (terpri file))
+
+(defun van-dump-monsters (out-file &key (monster-list nil) (var-obj *variant*) (action-fun #'van-obj-printer))
+
+  (assert (functionp action-fun))
+  
+  (let ((mon-list (if monster-list
+		       monster-list
+		       (lb-engine:get-monster-list var-obj)))
+	(*print-case* :downcase)
+	(*print-right-margin* 120))
+    
+    (with-open-file (ffile (pathname out-file)
+			   :direction :output
+			   :if-exists :supersede
+			   :if-does-not-exist :create)
+      (pprint '(in-package :langband) ffile)
+      (terpri ffile)
+
+      (dolist (x mon-list)
+	(funcall action-fun ffile x))
+      
+      (terpri ffile))))
+
+
 (define-key-operation 'break-game
     #'(lambda (dun pl)
 	(declare (ignore dun pl))
@@ -39,6 +67,25 @@ the Free Software Foundation; either version 2 of the License, or
 		  (put-mon px (1+ py))
 		  (put-mon (1+ px) (1+ py)))))
 	    mon))))
+
+(define-key-operation 'object-create
+    #'(lambda (dun pl)
+	(let* ((summon (get-string-input "Object to create: "))
+	       (mon (if summon (produce-active-object *variant* summon))))
+	  (when mon
+	    (block mon-placement
+	      (let ((px (location-x pl))
+		    (py (location-y pl)))
+		(flet ((put-mon (x y)
+			 (when (cave-floor-bold? dun x y)
+			   (drop-near-location! *variant* dun mon x y)
+			   (light-spot! dun x y)
+			   (return-from mon-placement nil))))
+		  (put-mon (1+ px) py)
+		  (put-mon px (1+ py))
+		  (put-mon (1+ px) (1+ py)))))
+	    mon))))
+
 
 (define-key-operation 'set-gold
     #'(lambda (dun pl)
@@ -72,7 +119,7 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dun pl)
 	(declare (ignore dun pl))
 	(let ((var-obj *variant*)
-	      (fname "dumps/odd.info")
+	      (fname (concatenate 'string *dumps-directory* "odd.info"))
 	      (*print-case* :downcase))
 	  (with-open-file (s (pathname fname)
 			     :direction :output 
@@ -80,13 +127,13 @@ the Free Software Foundation; either version 2 of the License, or
 			     :if-does-not-exist :create)
 	    (let ((effects (variant.effects var-obj)))
 	      (dolist (i (reverse effects))
-		(format s "~&Effect ~d: ~a - ~a" (effect.index i) (effect.name i) (effect.symbol i))))
+		(format s "~&Effect ~d: ~a - ~a" (effect.number i) (effect.name i) (effect.symbol i))))
 
 	    (format s "~2%")
 	    
 	    (let ((elements (variant.elements var-obj)))
 	      (dolist (i (reverse elements))
-		(format s "~&Element ~d: ~a - ~a" (element.index i) (element.name i) (element.symbol i))))
+		(format s "~&Element ~d: ~a - ~a" (element.number i) (element.name i) (element.symbol i))))
 
 	    (format s "~2%")
 	    
@@ -107,12 +154,41 @@ the Free Software Foundation; either version 2 of the License, or
 	(print-key-table (gethash :global *ang-keys*)
 			 "table.keys")))
 
-(define-key-operation 'wamp-monsters
+(define-key-operation 'dump-monsters
     #'(lambda (dun pl)
 	(declare (ignore dun pl))
-	(dump-features "dumps/feat.list")
-	(dump-monsters "dumps/mon.list" :monster-list (get-all-monsters))
-	(dump-objects "dumps/obj.list")
+	(let ((var-obj *variant*))
+	  (van-dump-monsters (concatenate 'string *dumps-directory* "mon-by-id.list")
+			     :monster-list (get-monster-list var-obj
+							     :predicate #'string<
+							     :sort-key #'monster.id))
+	  (van-dump-monsters (concatenate 'string *dumps-directory* "mon-by-id-short.list")
+			     :monster-list (get-monster-list var-obj
+							     :predicate #'string<
+							     :sort-key #'monster.id)
+			     :action-fun #'(lambda (file obj)
+					     (format file "~&~30a ~30a~%" (monster.id obj)
+						     (monster.depth obj))))
+
+	  (van-dump-monsters (concatenate 'string *dumps-directory* "mon-by-depth.list")
+			     :monster-list (get-monster-list var-obj
+							     :predicate #'<
+							     :sort-key #'monster.depth)
+			     :action-fun #'(lambda (file obj)
+					     (format file "~&~30a ~30a~%" (monster.id obj)
+						     (monster.depth obj))))
+	  )))
+
+(define-key-operation 'dump-objects
+    #'(lambda (dun pl)
+	(declare (ignore dun pl))
+	(dump-objects (concatenate 'string *dumps-directory* "obj.list"))
+	))
+
+(define-key-operation 'dump-features
+    #'(lambda (dun pl)
+	(declare (ignore dun pl))
+	(dump-features (concatenate 'string *dumps-directory* "feat.list"))
 	))
 
 (define-key-operation 'inspect-coord
@@ -183,6 +259,7 @@ the Free Software Foundation; either version 2 of the License, or
 	      (loop
 ;;	       (c-clear-from! 0)
 ;;	       (display-creature *variant* pl)
+	       (print-message! nil)
 	       
 	       (c-prt! "Wizard command: " 0 0)
 
@@ -210,16 +287,19 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-keypress *ang-keys* :wizard #\B 'break-game)
 (define-keypress *ang-keys* :wizard #\D 'go-to-depth)
-(define-keypress *ang-keys* :wizard #\F 'wamp-monsters)
 (define-keypress *ang-keys* :wizard #\G 'set-gold)
 (define-keypress *ang-keys* :wizard #\H 'heal-player)
 (define-keypress *ang-keys* :wizard #\I 'inspect-coord)
 (define-keypress *ang-keys* :wizard #\K 'print-keys)
 (define-keypress *ang-keys* :wizard #\L 'gain-level) 
+(define-keypress *ang-keys* :wizard #\O 'object-create)
 (define-keypress *ang-keys* :wizard #\P 'print-map-as-ppm)
 (define-keypress *ang-keys* :wizard #\T 'print-map)
 (define-keypress *ang-keys* :wizard #\U 'summon)
 (define-keypress *ang-keys* :wizard #\W 'print-odd-info)
 (define-keypress *ang-keys* :wizard #\Z 'in-game-test)
+
+(define-keypress *ang-keys* :wizard #\m 'dump-monsters)
+(define-keypress *ang-keys* :wizard #\o 'dump-objects)
 
 ;; obsolete

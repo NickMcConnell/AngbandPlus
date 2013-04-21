@@ -18,6 +18,15 @@ the Free Software Foundation; either version 2 of the License, or
 (defclass vanilla-variant (variant)
   ((dawn-time     :initarg :dawntime   :initform 0    :accessor variant.dawn)
    (twilight-time :initarg :twilight   :initform 6000 :accessor variant.twilight)
+   (town-seed         :initform nil  :accessor variant.town-seed)
+   (used-scroll-names :initform (make-hash-table :test #'equal) :accessor variant.used-scroll-names)
+   
+   (legal-effects  :initarg :legal-effects  :initform nil
+		   :accessor variant.legal-effects)
+;;   (object-effects :initarg :object-effects :initform (make-hash-table :test #'equal)
+;;		   :accessor variant.object-effects)
+   (gold-table     :initarg :gold-table :initform nil
+		   :accessor variant.gold-table)
    ))
 
 
@@ -42,6 +51,8 @@ stores and special behaviour.  The class is used for dispatching."))
 		 :id "langband-vanilla"
 		 :name "Vanilla"
 
+		 :stat-length 6
+		 
 		 ;; only used by development
 		 :sys-file "./variants/vanilla/langband-vanilla.system"
 		 :config-path
@@ -51,5 +62,5 @@ stores and special behaviour.  The class is used for dispatching."))
 		 "/var/lib/games/langband/vanilla"))
 
 
-(register-variant& (van-make-variant-obj))
+(register-variant& "langband-vanilla" #'van-make-variant-obj)
 	   

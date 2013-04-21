@@ -10,7 +10,7 @@ DESC: package.lisp - package def for langband
 
 
 (defpackage :org.langband.ffi
-  (:use :common-lisp #+clisp :ffi)
+  (:use :common-lisp #+clisp :ffi #+sbcl :sb-alien)
   (:nicknames :lb-ffi :langband-ffi)
   (:export #:+c-null-value+
            #:loc-char-format
@@ -21,11 +21,14 @@ DESC: package.lisp - package def for langband
 
 
 (defpackage :org.langband.engine
-  (:nicknames :lb :lb-engine :langband :org.langband.vanilla) ;; fix later
+  (:nicknames :lb :lb-engine :engine :langband :org.langband.vanilla) ;; fix later
   (:use :common-lisp
 	#-building-ffi-defs :binary-types
 	:org.langband.ffi)
-  (:export #:game-init&)
+  (:export #:game-init&
+	   #:get-loadable-form
+	   #:get-monster-list
+	   )
   #+lisp2csf
   (:documentation "This is the Langband game package."))
 

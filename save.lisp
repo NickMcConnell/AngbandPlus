@@ -59,13 +59,17 @@ the Free Software Foundation; either version 2 of the License, or
 
     (loop for x being the hash-values of (variant.objects obj)
 	  do (save-object variant x stream indent))
+    (loop for x being the hash-values of (variant.monsters obj)
+	  do (save-object variant x stream indent))
     
     nil))
 
 (defmethod save-object ((variant variant) (obj variant) (stream l-binary-stream) indent)
   (let* ((str (lang.stream stream))
 	 (obj-table (variant.objects obj))
-	 (obj-len (hash-table-count obj-table)))
+	 (obj-len (hash-table-count obj-table))
+	 (mon-table (variant.monsters obj))
+	 (mon-len (hash-table-count mon-table)))
 
     (%bin-save-string (string (variant.id obj)) str)
     (write-binary 'u32 str (variant.turn obj))
@@ -73,10 +77,20 @@ the Free Software Foundation; either version 2 of the License, or
     ;; write out all object-kinds
     (write-binary 'u32 str obj-len)
     (loop for x being the hash-values of obj-table
-	  do
-	  (progn
-	    (assert (ok-object? x :context :in-game :warn-on-failure t))
-	    (save-object variant x stream indent)))
+	  do (progn
+	       #+langband-extra-checks
+	       (assert (ok-object? x :context :in-game :warn-on-failure t))
+	       (save-object variant x stream indent)))
+
+    (write-binary 'u32 str mon-len)
+    (loop for x being the hash-values of mon-table
+	  do (progn
+	       #+langband-extra-checks
+	       (assert (ok-object? x :context :in-game :warn-on-failure t))
+	       (save-object variant x stream indent)))
+   
+    
+    
     
     nil))
 
@@ -113,8 +127,35 @@ the Free Software Foundation; either version 2 of the License, or
 
 
     nil))
-   
 
+(defmethod save-object ((variant variant) (obj monster-kind) (stream l-readable-stream) indent)
+  (declare (ignore indent))
+  ;; only save stuff for uniques
+  nil)
+
+(defmethod save-object ((variant variant) (obj unique-monster) (stream l-readable-stream) indent)
+  ;; only save stuff for uniques
+  (let* ((str (lang.stream stream))
+	 (ind (%get-indent-str indent)))
+
+    #+langband-extra-checks
+    (assert (ok-object? obj :context :in-game :warn-on-failure t))
+    (format str "~a(%filed-monster-kind :id ~s :already-dead ~s)~%"
+	    ind (monster.id obj) (monster.already-dead obj))
+    
+    nil))
+
+(defmethod save-object ((variant variant) (obj monster-kind) (stream l-binary-stream) indent)
+  (declare (ignore indent))
+  (let* ((str (lang.stream stream))
+	 (wiped-flag (cond ((typep obj 'unique-monster)
+			    (if (monster.already-dead obj) 1 0))
+			   (t 2)))
+	 )
+    
+    (%bin-save-string (string (monster.id obj)) str)
+    (write-binary 's16 str wiped-flag)
+    nil))
 
  
 
@@ -278,7 +319,7 @@ the Free Software Foundation; either version 2 of the License, or
       (format str "~a:events ~s" ind events))
 
     (when gvals
-      (format str "~a:game-values ~s" ind (get-loadable-form gvals)))
+      (format str "~a:game-values ~s" ind (get-loadable-form variant gvals)))
     
     (format str "~a :identify ~s :loc-x ~s :loc-y ~s) ;; end obj~%"
 	    ind identify loc-x loc-y)
@@ -363,11 +404,11 @@ the Free Software Foundation; either version 2 of the License, or
 	(ind (%get-indent-str indent)))
 	
     (format str "~a(setf *player* (%filed-player ~%" ind)
-    (format str "~a  :name ~s :race ~s :class ~s :sex ~s ~%"
+    (format str "~a  :name ~s :race ~s :class ~s :gender ~s ~%"
 	    ind (player.name obj)
 	    (string (race.id (player.race obj)))
 	    (string (class.id (player.class obj)))
-	    (string (sex.id (player.sex obj)))
+	    (string (gender.id (player.gender obj)))
 	    )
     
     (format str "~a  :base-stats ~s :cur-statmods ~s ~%"
@@ -428,7 +469,7 @@ the Free Software Foundation; either version 2 of the License, or
     (%bin-save-string (player.name obj) str)
     (%bin-save-string (string (race.id (player.race obj))) str)
     (%bin-save-string (string (class.id (player.class obj))) str)
-    (%bin-save-string (string (sex.id (player.sex obj))) str)
+    (%bin-save-string (string (gender.id (player.gender obj))) str)
 
     (%bin-write-array (player.base-stats obj) 'bt:u16 str)
     (%bin-write-array (player.cur-statmods obj) 'bt:u16 str)
@@ -587,7 +628,7 @@ the Free Software Foundation; either version 2 of the License, or
       
       )))
 
-(defmethod %save-obj (obj fname)
+(defun %save-obj (obj fname)
   (with-open-file (s (pathname fname)
 		     :direction :output
 		     :if-exists :supersede
@@ -650,7 +691,7 @@ the Free Software Foundation; either version 2 of the License, or
       )))
 
 
-(defun save-the-game (var-obj player level &key (fname +readable-save-file+) (format :readable))
+(defun save-the-game (var-obj player level &key (fname *readable-save-file*) (format :readable))
   "Tries to save the game."
 
   (do-save var-obj fname (list var-obj player level) format)

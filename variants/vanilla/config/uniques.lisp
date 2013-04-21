@@ -14,8 +14,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
-(define-monster-kind "maggott" "Farmer Maggot"
-  :desc "He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy  hobbit!"
+(define-monster-kind "hobbit-maggott" "Farmer Maggot"
+  :desc "He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy hobbit!"
   :symbol #\h
   :colour #\w
   :type '(<unique>)
@@ -30,10 +30,10 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 40
   :attacks '((<moan> :type nil :damage nil) (<moan> :type nil :damage nil))
   :treasures '(<drop-good> (<drop-chance> 9/10) <only-drop-items>)
-  :sex '<male>)
+  :gender '<male>)
 
-(define-monster-kind "fang" "Fang, Farmer Maggot's dog"
-  :desc "A rather vicious dog belonging to Farmer Maggot.  It thinks you are  stealing mushrooms."
+(define-monster-kind "dog-fang" "Fang, Farmer Maggot's dog"
+  :desc "A rather vicious dog belonging to Farmer Maggot.  It thinks you are stealing mushrooms."
   :symbol #\C
   :colour #\U
   :type '(<animal> <unique>)
@@ -49,8 +49,8 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 30
   :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
 
-(define-monster-kind "grip" "Grip, Farmer Maggot's dog"
-  :desc "A rather vicious dog belonging to Farmer Maggot.  It thinks you are  stealing mushrooms."
+(define-monster-kind "dog-grip" "Grip, Farmer Maggot's dog"
+  :desc "A rather vicious dog belonging to Farmer Maggot.  It thinks you are stealing mushrooms."
   :symbol #\C
   :colour #\U
   :type '(<animal> <unique>)
@@ -84,10 +84,10 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 20
   :attacks '((<touch> :type <eat-gold> :damage nil) (<hit> :type <hurt> :damage (1 . 4)))
   :treasures '((<drop> "1d2") (<drop-chance> 3/5) <only-drop-gold>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "bullroarer" "Bullroarer the hobbit"
-  :desc "He is a sturdy hobbit who is renowned for his unusual strength and  vigour.  He can prove a troublesome opponent."
+(define-monster-kind "hobbit-bullroarer" "Bullroarer the hobbit"
+  :desc "He is a sturdy hobbit who is renowned for his unusual strength and vigour.  He can prove a troublesome opponent."
   :symbol #\h
   :colour #\b
   :type '(<unique>)
@@ -103,9 +103,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <eat-gold> :damage nil) (<touch> :type <eat-item> :damage nil)
              (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "mughash" "Mughash the kobold lord"
+(define-monster-kind "kobold-mughash" "Mughash the kobold lord"
   :desc "Strong and powerful, for a kobold."
   :symbol #\k
   :colour #\b
@@ -124,10 +124,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 10))
              (<hit> :type <hurt> :damage (1 . 10)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "wormtongue" "Wormtongue, Agent of Saruman"
-  :desc "He's been spying for Saruman.  He is a snivelling wretch with no morals  and disgusting habits."
+  :desc "He's been spying for Saruman.  He is a snivelling wretch with no morals and disgusting habits."
   :symbol #\p
   :colour #\b
   :alignment '<evil>
@@ -144,12 +144,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <eat-gold> :damage nil) (<hit> :type <hurt> :damage (1 . 5))
              (<hit> :type <hurt> :damage (1 . 5)))
   :treasures '(<drop-great> <drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> (<ball> <poison>)) (<spell> (<bolt> <cold>)) (<spell> <traps>) (<spell> <slow>)
                        (<spell> <heal>) (<frequency> 1/5))) 
 
-(define-monster-kind "lagduf" "Lagduf, the Snaga"
-  :desc "A captain of a regiment of weaker orcs, Lagduf keeps his troop in order  with displays of excessive violence."
+(define-monster-kind "orc-lagduf" "Lagduf, the Snaga"
+  :desc "A captain of a regiment of weaker orcs, Lagduf keeps his troop in order with displays of excessive violence."
   :symbol #\o
   :colour #\o
   :alignment '<evil>
@@ -166,7 +166,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (1 . 9)) (<hit> :type <hurt> :damage (1 . 9))
              (<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 10)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "brodda" "Brodda, the easterling"
   :desc "A nasty piece of work, Brodda picks on defenseless women and children."
@@ -185,9 +185,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12))
              (<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "orfax" "Orfax, son of Boldor"
+(define-monster-kind "yeek-orfax" "Orfax, son of Boldor"
   :desc "He's just like daddy!  He knows mighty spells, but fortunately he is a  yeek."
   :symbol #\y
   :colour #\b
@@ -205,11 +205,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<insult> :type nil :damage nil) (<insult> :type nil :damage nil) (<hit> :type <hurt> :damage (1 . 8))
              (<hit> :type <hurt> :damage (1 . 9)))
   :treasures '(<drop-good> (<drop-chance> 9/10) <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <monster>) (<spell> <confusion>) (<spell> <slow>) (<spell> <teleport-player>)
                        (<spell> <blink>) (<spell> <heal>) (<frequency> 1/4))) 
 
-(define-monster-kind "grishnakh" "Grishnakh, the hill-orc"
+(define-monster-kind "orc-grishnakh" "Grishnakh, the hill-orc"
   :desc "He is a cunning and devious orc with a chaotic nature."
   :symbol #\o
   :colour #\U
@@ -228,7 +228,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 12))
              (<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 12)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "castamir" "Castamir the Usurper"
   :desc "A Black Numenorean who usurped the throne of Gondor, he is treacherous and  evil."
@@ -248,11 +248,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> (<bolt> <ice>)) (<spell> (<bolt> <lightning>)) (<spell> (<bolt> <cold>))
                        (<spell> (<bolt> <fire>)) (<spell> <traps>) (<spell> <heal>) (<frequency> 1/2))) 
 
-(define-monster-kind "vargo" "Vargo, Tyrant of Fire"
+(define-monster-kind "elemental-vargo" "Vargo, Tyrant of Fire"
   :desc "A towering fire elemental, Vargo burns everything beyond recognition."
   :symbol #\E
   :colour #\r
@@ -273,7 +273,7 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <fire> :damage (4 . 6)) (<hit> :type <fire> :damage (4 . 6)))
   :special-abilities '((<spell> (<ball> <fire>)) (<spell> (<bolt> <plasma>)) (<frequency> 1/4))) 
 
-(define-monster-kind "waldern" "Waldern, King of Water"
+(define-monster-kind "elemental-waldern" "Waldern, King of Water"
   :desc "A towering water elemental, Waldern is master of all things liquid.  Wave after wave drowns your frail body."
   :symbol #\E
   :colour #\s
@@ -295,7 +295,7 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<spell> (<ball> <water>)) (<spell> (<ball> <cold>)) (<spell> (<bolt> <water>))
                        (<spell> (<bolt> <ice>)) (<frequency> 1/4))) 
 
-(define-monster-kind "kavlax" "Kavlax the Many-headed"
+(define-monster-kind "dragon-kavlax" "Kavlax the Many-headed"
   :desc "A large dragon with a selection of heads, all shouting and arguing as they  look for prey, but each with its own deadly breath weapon."
   :symbol #\d
   :colour #\v
@@ -314,7 +314,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (2 . 12)) (<bite> :type <hurt> :damage (2 . 12))
              (<bite> :type <hurt> :damage (2 . 12)) (<bite> :type <hurt> :damage (2 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<breath> <nexus>) (<breath> <gravity>) (<breath> <shards>) (<breath> <confusion>)
                        (<breath> <sound>) (<breath> <lightning>) (<breath> <cold>) (<breath> <fire>) (<breath> <acid>)
                        (<frequency> 1/4))) 
@@ -339,7 +339,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <exp-80> :damage (4 . 6)) (<hit> :type <exp-80> :damage (4 . 6))
              (<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "medusa" "Medusa, the Gorgon"
   :desc "One of the original three ugly sisters.  Her face could sink a thousand  ships.  Her scales rattle as she slithers towards you, venom dripping from  her ghastly mouth."
@@ -360,12 +360,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (8 . 6)) (<hit> :type <hurt> :damage (8 . 6))
              (<gaze> :type <paralyze> :damage nil) (<gaze> :type <exp-80> :damage nil))
   :treasures '(<drop-good> (<drop> "2d2") (<drop> "1d2") <only-drop-items>)
-  :sex '<female>
+  :gender '<female>
   :special-abilities '((<summon> <hydra>) (<spell> (<ball> <acid>)) (<spell> (<bolt> <plasma>))
                        (<spell> (<bolt> <fire>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
                        (<frequency> 1/2))) 
 
-(define-monster-kind "golfimbul" "golfimbul, the hill orc chief"
+(define-monster-kind "orc-golfimbul" "golfimbul, the hill orc chief"
   :desc "A leader of a band of raiding orcs, he picks on hobbits."
   :symbol #\o
   :colour #\U
@@ -384,9 +384,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 10))
              (<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "boldor" "Boldor, King of the yeeks"
+(define-monster-kind "yeek-boldor" "Boldor, King of the yeeks"
   :desc "A great yeek, powerful in magic and sorcery, but a yeek all the same."
   :symbol #\y
   :colour #\U
@@ -404,7 +404,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (1 . 8)) (<hit> :type <hurt> :damage (1 . 9))
              (<hit> :type <hurt> :damage (1 . 9)))
   :treasures '(<drop-good> (<drop> "1d2") (<drop-chance> 9/10) <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <kin>) (<summon> <monster>) (<spell> <slow>) (<spell> <blindness>)
                        (<spell> <teleport>) (<spell> <blink>) (<spell> <heal>) (<frequency> 1/3))) 
 
@@ -427,7 +427,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (3 . 4)) (<hit> :type <hurt> :damage (3 . 4))
              (<hit> :type <hurt> :damage (3 . 4)) (<hit> :type <hurt> :damage (3 . 4)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "ren" "Ren the Unclean"
   :desc "Ren was an insane eastern king who believed himself to be the son of a  volcano god.  At an early age his sanity was destroyed by a plague that  wiped out his family, and he never recovered."
@@ -449,7 +449,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<wail> :type <terrify> :damage nil) (<touch> :type <exp-80> :damage nil)
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <monster>) (<spell> (<ball> <fire>)) (<spell> (<bolt> <nether>))
                        (<spell> (<bolt> <fire>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
                        (<spell> <blindness>) (<frequency> 1/3))) 
@@ -474,11 +474,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <exp-40> :damage nil) (<touch> :type <exp-40> :damage nil)
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<ball> <fire>)) (<spell> (<cause> 3))
                        (<spell> <scare>) (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/3))) 
 
-(define-monster-kind "monster-466" "Quaker, Master of Earth"
+(define-monster-kind "elemental-quaker" "Quaker, Master of Earth"
   :desc "A towering stone elemental stands before you.  The walls and ceiling are  reduced to rubble as Quaker advances."
   :symbol #\E
   :colour #\u
@@ -498,11 +498,11 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 10
   :attacks '((<hit> :type <shatter> :damage (10 . 10)) (<hit> :type <hurt> :damage (6 . 6))
              (<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6)))
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> (<ball> <acid>)) (<spell> (<bolt> <acid>)) (<frequency> 1/6))) 
 
-(define-monster-kind "monster-468" "Ariel, Queen of Air"
-  :desc "A towering air elemental, Ariel, the sorceress, avoids your blows  with her extreme speed."
+(define-monster-kind "elemental-ariel" "Ariel, Queen of Air"
+  :desc "A towering air elemental, Ariel, the sorceress, avoids your blows with her extreme speed."
   :symbol #\E
   :colour #\B
   :alignment '<evil>
@@ -520,12 +520,12 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 12
   :attacks '((<hit> :type <confuse> :damage (1 . 4)) (<hit> :type <hurt> :damage (4 . 6))
              (<hit> :type <confuse> :damage (1 . 4)) (<hit> :type <hurt> :damage (4 . 6)))
-  :sex '<female>
+  :gender '<female>
   :special-abilities '((<spell> (<ball> <lightning>)) (<spell> (<ball> <cold>)) (<spell> (<bolt> <lightning>))
                        (<frequency> 1/5))) 
 
 (define-monster-kind "scatha" "Scatha the Worm"
-  :desc "An ancient and wise Dragon.  Scatha has grown clever over the long years.   His scales are covered with frost, and his breath sends a shower of ice  into the air."
+  :desc "An ancient and wise Dragon.  Scatha has grown clever over the long years.  His scales are covered with frost, and his breath sends a shower of ice into the air."
   :symbol #\D
   :colour #\w
   :alignment '<evil>
@@ -543,7 +543,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (3 . 14)) (<claw> :type <hurt> :damage (1 . 10))
              (<claw> :type <hurt> :damage (1 . 10)) (<claw> :type <hurt> :damage (1 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<breath> <cold>) (<spell> (<cause> 3)) (<spell> <confusion>) (<frequency> 1/3))) 
 
 (define-monster-kind "dwar" "Dwar, Dog-lord of Waw"
@@ -566,7 +566,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<wail> :type <terrify> :damage nil) (<bite> :type <exp-40> :damage (2 . 4))
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <hound>) (<summon> <undead>) (<summon> <monsters>) (<spell> (<ball> <nether>))
                        (<spell> (<ball> <fire>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
                        (<spell> <blindness>) (<frequency> 1/3))) 
@@ -590,7 +590,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (3 . 14)) (<claw> :type <hurt> :damage (1 . 10))
              (<claw> :type <hurt> :damage (1 . 10)) (<claw> :type <hurt> :damage (1 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<breath> <fire>) (<spell> (<cause> 3)) (<spell> <confusion>) (<frequency> 1/3))) 
 
 (define-monster-kind "ulfast" "Ulfast, son of Ulfang"
@@ -611,9 +611,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5))
              (<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5)))
   :treasures '(<drop-good> (<drop-chance> 9/10) <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "nar" "Nar, the dwarf"
+(define-monster-kind "dwarf-nar" "Nar, the dwarf"
   :desc "This dwarf became so obsessed by gold that Morgoth tricked him into  betraying his friends."
   :symbol #\h
   :colour #\y
@@ -631,11 +631,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5))
              (<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> <mind-blast>) (<spell> (<cause> 2)) (<spell> <confusion>) (<spell> <blindness>)
                        (<spell> <heal>) (<frequency> 1/6))) 
 
-(define-monster-kind "shagrat" "shagrat, the orc captain"
+(define-monster-kind "orc-shagrat" "shagrat, the orc captain"
   :desc "He is an Uruk of power and great cunning."
   :symbol #\o
   :colour #\g
@@ -654,9 +654,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5))
              (<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "gorbag" "Gorbag, the orc captain"
+(define-monster-kind "orc-gorbag" "Gorbag, the orc captain"
   :desc "A gruesomely ugly but cunning orc, his eyes regard you with hatred.  His  powerful arms flex menacingly as he advances."
   :symbol #\o
   :colour #\g
@@ -675,9 +675,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5))
              (<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "bolg" "Bolg, son of Azog"
+(define-monster-kind "orc-bolg" "Bolg, son of Azog"
   :desc "A large and powerful orc.  He looks just like his daddy.  He is tall and  fast, but fortunately blessed with orcish brains."
   :symbol #\o
   :colour #\r
@@ -696,9 +696,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (3 . 6)) (<hit> :type <hurt> :damage (3 . 6))
              (<hit> :type <hurt> :damage (3 . 6)) (<hit> :type <hurt> :damage (3 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "ugluk" "Ugluk, the uruk"
+(define-monster-kind "orc-ugluk" "Ugluk, the uruk"
   :desc "Another of Morgoth's servants, this orc is strong and cunning.  He is ugly  and scarred from many power struggles."
   :symbol #\o
   :colour #\b
@@ -717,9 +717,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5))
              (<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "lugdush" "Lugdush, the uruk"
+(define-monster-kind "orc-lugdush" "Lugdush, the uruk"
   :desc "A strong and cunning orc warrior, Lugdush sneers as he insults your mother."
   :symbol #\o
   :colour #\b
@@ -738,9 +738,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5))
              (<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "monster-262" "Azog, King of the uruk-hai"
+(define-monster-kind "orc-azog" "Azog, King of the uruk-hai"
   :desc "He is also known as the King of Khazad-dum.  His ego is renowned to be  bigger than his head."
   :symbol #\o
   :colour #\r
@@ -759,9 +759,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
              (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "ibun" "Ibun, son of Mim"
+(define-monster-kind "dwarf-ibun" "Ibun, son of Mim"
   :desc "One of the last of the petty dwarves.  Ibun is a tricky sorcerous little  being, full of mischief."
   :symbol #\h
   :colour #\o
@@ -779,10 +779,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <un-bonus> :damage nil) (<hit> :type <hurt> :damage (3 . 6))
              (<hit> :type <hurt> :damage (3 . 6)) (<hit> :type <hurt> :damage (3 . 6)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> (<bolt> <fire>)) (<spell> <slow>) (<spell> <heal>) (<frequency> 1/8))) 
 
-(define-monster-kind "khim" "Khim, son of Mim"
+(define-monster-kind "dwarf-khim" "Khim, son of Mim"
   :desc "One of the last of the petty dwarves.  Khim is a tricky sorcerous little  being, full of mischief."
   :symbol #\h
   :colour #\o
@@ -800,7 +800,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <un-bonus> :damage nil) (<hit> :type <hurt> :damage (3 . 6))
              (<hit> :type <hurt> :damage (3 . 6)) (<hit> :type <hurt> :damage (3 . 6)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> (<bolt> <fire>)) (<spell> <slow>) (<spell> <heal>) (<frequency> 1/8))) 
 
 (define-monster-kind "sangahyando" "Sangahyando of Umbar"
@@ -822,7 +822,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (4 . 6)) (<hit> :type <hurt> :damage (4 . 6))
              (<hit> :type <hurt> :damage (4 . 6)) (<hit> :type <hurt> :damage (4 . 6)))
   :treasures '(<drop-good> (<drop> "1d2") (<drop-chance> 9/10) <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> <forget>) (<spell> <slow>) (<frequency> 1/4))) 
 
 (define-monster-kind "angamaite" "Angamaite of Umbar"
@@ -844,7 +844,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (4 . 6)) (<hit> :type <hurt> :damage (4 . 6))
              (<hit> :type <hurt> :damage (4 . 6)) (<hit> :type <hurt> :damage (4 . 6)))
   :treasures '(<drop-good> (<drop> "1d2") (<drop-chance> 9/10) <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> <forget>) (<spell> <slow>) (<frequency> 1/4))) 
 
 (define-monster-kind "ulwarth" "Ulwarth, son of Ulfang"
@@ -865,10 +865,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (4 . 6)) (<hit> :type <hurt> :damage (4 . 6))
              (<hit> :type <hurt> :damage (4 . 6)))
   :treasures '(<drop-good> (<drop-chance> 9/10) <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
 
-(define-monster-kind "mim" "Mim, betrayer of turin"
+(define-monster-kind "dwarf-mim" "Mim, betrayer of turin"
   :desc "The last of his race, Mim is a petty dwarf.  Petty dwarves are strange  creatures, powerful in sorcery and originating in the East.  They were  hunted to extinction by high elves."
   :symbol #\h
   :colour #\o
@@ -887,11 +887,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <un-bonus> :damage nil) (<hit> :type <hurt> :damage (3 . 8))
              (<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> (<ball> <acid>)) (<spell> (<bolt> <acid>)) (<spell> <scare>) (<spell> <heal>)
                        (<frequency> 1/6))) 
 
-(define-monster-kind "lokkak" "Lokkak, the ogre chieftain"
+(define-monster-kind "ogre-lokkak" "Lokkak, the ogre chieftain"
   :desc "An ogre renowned for acts of surpassing cruelty, Lokkak quickly became the  leader of a large band of violent ogres."
   :symbol #\O
   :colour #\g
@@ -910,7 +910,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6))
              (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "uldor" "Uldor the accursed"
   :desc "An evil and cunning man from the East."
@@ -930,9 +930,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (4 . 6))
              (<hit> :type <hurt> :damage (4 . 6)) (<hit> :type <hurt> :damage (4 . 6)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>)
+  :gender '<male>)
 
-(define-monster-kind "draebor" "Draebor, the imp"
+(define-monster-kind "imp-draebor" "Draebor, the imp"
   :desc "An intensely irritating git of a monster."
   :symbol #\u
   :colour #\g
@@ -976,12 +976,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<sting> :type <poison> :damage (2 . 5)) (<sting> :type <lose-str> :damage (1 . 4))
              (<sting> :type <poison> :damage (2 . 5)) (<bite> :type <hurt> :damage (2 . 10)))
   :treasures '(<drop-good> (<drop> "2d2") (<drop> "1d2") <only-drop-items>)
-  :sex '<female>
+  :gender '<female>
   :special-abilities '((<summon> <spider>) (<spell> <traps>) (<spell> (<cause> 4)) (<spell> (<cause> 3))
                        (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>) (<spell> <blindness>) (<spell> <heal>)
                        (<frequency> 1/2))) 
 
-(define-monster-kind "bert" "Bert the stone troll"
+(define-monster-kind "troll-bert" "Bert the stone troll"
   :desc "Big, brawny, powerful and with a taste for hobbit.  He has friends called Bill and Tom."
   :symbol #\T
   :colour #\W
@@ -1001,9 +1001,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (2 . 3)) (<bite> :type <hurt> :damage (2 . 10))
              (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "bill" "Bill the stone troll"
+(define-monster-kind "troll-bill" "Bill the stone troll"
   :desc "Big, brawny, powerful and with a taste for hobbit.  He has friends called Bert and Tom."
   :symbol #\T
   :colour #\W
@@ -1023,9 +1023,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (2 . 3)) (<bite> :type <hurt> :damage (2 . 10))
              (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "tom" "Tom the stone troll"
+(define-monster-kind "troll-tom" "Tom the stone troll"
   :desc "Big, brawny, powerful and with a taste for hobbit.  He has friends called Bert and Bill."
   :symbol #\T
   :colour #\W
@@ -1045,7 +1045,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (2 . 3)) (<bite> :type <hurt> :damage (2 . 10))
              (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "ulfang" "Ulfang the black"
   :desc "A short and swarthy Easterling dressed in Black."
@@ -1065,9 +1065,9 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "rogrog" "Rogrog the black troll"
+(define-monster-kind "troll-rogrog" "Rogrog the black troll"
   :desc "A massive and cruel troll of great power, drool slides caustically down  his muscular frame.  Despite his bulk, he strikes with stunning speed."
   :symbol #\T
   :colour #\D
@@ -1086,7 +1086,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<spit> :type <acid> :damage (3 . 8)) (<bite> :type <hurt> :damage (2 . 3))
              (<bite> :type <hurt> :damage (2 . 10)) (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "lorgan" "Lorgan, Chief of the easterlings"
   :desc "A mighty warrior from the east, Lorgan hates everything that he cannot  control."
@@ -1107,10 +1107,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8))
              (<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <monsters>) (<spell> <teleport-player>) (<frequency> 1/4))) 
 
-(define-monster-kind "queen-ant" "the queen ant"
+(define-monster-kind "ant-queen" "the queen ant"
   :desc "She's upset because you hurt her children."
   :symbol #\a
   :colour #\D
@@ -1128,11 +1128,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (2 . 8)) (<bite> :type <hurt> :damage (2 . 8))
              (<bite> :type <hurt> :damage (2 . 12)) (<bite> :type <hurt> :damage (2 . 12)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<female>
+  :gender '<female>
   :special-abilities '((<summon> <ant>) (<frequency> 1/2))) 
 
 (define-monster-kind "adunaphel" "Adunaphel the quiet"
-  :desc "A sorceress in life, Adunaphel quickly fell under Sauron's sway and the  power of the rings."
+  :desc "A sorceress in life, Adunaphel quickly fell under Sauron's sway and the power of the rings."
   :symbol #\W
   :colour #\D
   :alignment '<evil>
@@ -1151,7 +1151,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <exp_80> :damage nil) (<hit> :type <hurt> :damage (5 . 5))
              (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<female>
+  :gender '<female>
   :special-abilities '((<summon> <monster>) (<spell> (<bolt> <nether>)) (<spell> (<bolt> <cold>))
                        (<spell> (<bolt> <fire>)) (<spell> (<bolt> <acid>)) (<spell> <forget>) (<spell> (<cause> 3))
                        (<spell> <scare>) (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/3))) 
@@ -1176,13 +1176,13 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<wail> :type <terrify> :damage nil) (<gaze> :type <exp_80> :damage nil)
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <monster>) (<spell> (<bolt> <nether>)) (<spell> (<bolt> <cold>))
                        (<spell> (<bolt> <fire>)) (<spell> <darkness>) (<spell> (<cause> 3)) (<spell> <scare>)
                        (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/3))) 
 
 (define-monster-kind "gorlim" "Gorlim, betrayer of Barahir"
-  :desc "This once-mighty warrior was so dominated by Morgoth's power that he  became little more than a mindless creature of evil."
+  :desc "This once-mighty warrior was so dominated by Morgoth's power that he became little more than a mindless creature of evil."
   :symbol #\p
   :colour #\s
   :type '(<unique>)
@@ -1199,10 +1199,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <un-bonus> :damage (6 . 8)) (<hit> :type <un-bonus> :damage (6 . 8))
              (<hit> :type <hurt> :damage (8 . 6)) (<hit> :type <hurt> :damage (8 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> (<bolt> <mana>)) (<spell> (<bolt> <water>)) (<spell> (<cause> 3)) (<frequency> 1/2))) 
 
-(define-monster-kind "itangast" "Itangast the fire drake"
+(define-monster-kind "dragon-itangast" "Itangast the fire drake"
   :desc "A mighty ancient dragon, Itangast's form scorches your flesh.  Wisps of  smoke curl up from his nostrils as he regards you with disdain."
   :symbol #\D
   :colour #\r
@@ -1221,10 +1221,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (4 . 14)) (<bite> :type <hurt> :damage (3 . 14))
              (<claw> :type <hurt> :damage (1 . 10)) (<claw> :type <hurt> :damage (1 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<breath> <fire>) (<spell> (<cause> 3)) (<spell> <confusion>) (<frequency> 1/3))) 
 
-(define-monster-kind "glaurung" "Glaurung, father of the dragons"
+(define-monster-kind "dragon-glaurung" "Glaurung, father of the dragons"
   :desc "Glaurung is the father of all dragons, and was for a long time the most  powerful.  Nevertheless, he still has full command over his brood and can  command them to appear whenever he so wishes.  He is the definition of  dragonfire."
   :symbol #\D
   :colour #\r
@@ -1243,11 +1243,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (6 . 14)) (<bite> :type <hurt> :damage (6 . 14))
              (<claw> :type <hurt> :damage (4 . 12)) (<claw> :type <hurt> :damage (4 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <dragon>) (<breath> <fire>) (<spell> (<cause> 3)) (<spell> <confusion>)
                        (<frequency> 1/5))) 
 
-(define-monster-kind "muar" "muar, the balrog"
+(define-monster-kind "balrog-muar" "muar, the balrog"
   :desc "A huge balrog surrounded by raging pillars of fire, Muar is indeed a  terrible opponent.  Wielding a great whip of fire and a blazing sword, his  fury blisters your skin and melts your flesh!"
   :symbol #\U
   :colour #\o
@@ -1266,11 +1266,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <un-power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
              (<hit> :type <fire> :damage (8 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <demon>) (<summon> <undead>) (<breath> <fire>) (<spell> <scare>) (<spell> <confusion>)
                        (<frequency> 1/4))) 
 
-(define-monster-kind "baphomet" "Baphomet the minotaur lord"
+(define-monster-kind "minotaur-baphomet" "Baphomet the minotaur lord"
   :desc "A fearsome bull-headed demon, Baphomet swings a mighty axe as he curses  all that defy him."
   :symbol #\H
   :colour #\s
@@ -1289,7 +1289,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10))
              (<butt> :type <hurt> :damage (12 . 13)) (<butt> :type <hurt> :damage (12 . 13)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<breath> <force>) (<spell> (<ball> <lightning>)) (<spell> (<bolt> <plasma>))
                        (<spell> (<bolt> <mana>)) (<arrow> 4) (<spell> <slow>) (<frequency> 1/6))) 
 
@@ -1311,7 +1311,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <poison> :damage (8 . 5)) (<hit> :type <blind> :damage (10 . 5))
              (<touch> :type <eat-item> :damage (5 . 5)) (<touch> :type <eat-gold> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> <traps>) (<frequency> 1/6))) 
 
 (define-monster-kind "hoarmurath" "Hoarmurath of Dir"
@@ -1334,13 +1334,13 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<wail> :type <terrify> :damage nil) (<touch> :type <exp_80> :damage nil)
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <kin>) (<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<ball> <cold>))
                        (<spell> (<bolt> <cold>)) (<spell> <mind-blast>) (<spell> (<cause> 4)) (<spell> (<cause> 3))
                        (<spell> <scare>) (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/3))) 
 
 (define-monster-kind "khamul" "Khamul the easterling"
-  :desc "A warrior-king of the East.  Khamul is a powerful opponent, his skill in  combat awesome and his form twisted by evil cunning."
+  :desc "A warrior-king of the East.  Khamul is a powerful opponent, his skill in combat awesome and his form twisted by evil cunning."
   :symbol #\W
   :colour #\D
   :alignment '<evil>
@@ -1359,7 +1359,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <exp_40> :damage nil) (<touch> :type <exp_40> :damage nil)
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <kin>) (<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<ball> <cold>))
                        (<spell> (<ball> <fire>)) (<spell> (<bolt> <mana>)) (<spell> (<cause> 4)) (<spell> (<cause> 3))
                        (<spell> <scare>) (<spell> <paralysis>) (<spell> <blindness>) (<spell> <teleport-level>)
@@ -1386,7 +1386,7 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<breath> <plasma>) (<breath> <light>) (<breath> <fire>) (<spell> (<ball> <fire>))
                        (<spell> (<bolt> <plasma>)) (<spell> (<bolt> <fire>)) (<frequency> 1/3))) 
 
-(define-monster-kind "lernean-hydra" "the Lernean hydra"
+(define-monster-kind "hydra-lernean" "the Lernean hydra"
   :desc "A massive legendary hydra.  It has twelve powerful heads.  Its many eyes  stare at you as clouds of smoke and poisonous vapour rise from its  seething form."
   :symbol #\M
   :colour #\w
@@ -1408,8 +1408,8 @@ the Free Software Foundation; either version 2 of the License, or
                        (<spell> (<ball> <fire>)) (<spell> (<bolt> <plasma>)) (<spell> (<bolt> <fire>))
                        (<spell> <scare>) (<frequency> 1/3))) 
 
-(define-monster-kind "thuringwethil" "thuringwethil"
-  :desc "Chief messenger between Sauron and Morgoth, she is surely the most deadly  of her vampire race.  At first she is charming to meet, but her wings and  eyes give away her true form."
+(define-monster-kind "vampire-thuringwethil" "thuringwethil"
+  :desc "Chief messenger between Sauron and Morgoth, she is surely the most deadly of her vampire race.  At first she is charming to meet, but her wings and  eyes give away her true form."
   :symbol #\V
   :colour #\D
   :alignment '<evil>
@@ -1428,12 +1428,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <confuse> :damage (6 . 6)) (<hit> :type <confuse> :damage (6 . 6))
              (<bite> :type <exp_80> :damage (6 . 6)) (<bite> :type <hurt> :damage (5 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
-  :sex '<female>
+  :gender '<female>
   :special-abilities '((<summon> <kin>) (<spell> (<ball> <nether>)) (<spell> <brain-smash>) (<spell> <drain-mana>)
                        (<spell> (<cause> 4)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
                        (<spell> <blindness>) (<frequency> 1/3))) 
 
-(define-monster-kind "fundin" "Fundin Bluecloak"
+(define-monster-kind "dwarf-fundin" "Fundin Bluecloak"
   :desc "He is one of the greatest dwarven priests to walk the earth.  Fundin has  earned a high position in the church, and his skill with both weapon and  spell only justify his position further.  His combination of both dwarven  strength and priestly wisdom are a true match for any adventurer."
   :symbol #\h
   :colour #\G
@@ -1451,12 +1451,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (8 . 6)) (<hit> :type <hurt> :damage (8 . 6))
              (<hit> :type <hurt> :damage (8 . 6)) (<hit> :type <hurt> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <monsters>) (<spell> <forget>) (<spell> <brain-smash>) (<spell> (<cause> 4))
                        (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>)
                        (<spell> <heal>) (<frequency> 1/4))) 
 
-(define-monster-kind "uriel" "Uriel, angel of fire"
+(define-monster-kind "angel-uriel" "Uriel, angel of fire"
   :desc "A creature of godly appearance, you dare not challenge Uriel's supremacy.   Those who stood against him before are but a memory, cremated by his  mastery of elemental fire."
   :symbol #\A
   :colour #\r
@@ -1475,11 +1475,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10))
              (<hit> :type <fire> :damage (4 . 6)) (<hit> :type <fire> :damage (9 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <angel>) (<breath> <fire>) (<spell> (<ball> <fire>)) (<spell> (<bolt> <mana>))
                        (<spell> (<bolt> <fire>)) (<spell> <blindness>) (<spell> <teleport-player>) (<frequency> 1/2))) 
 
-(define-monster-kind "azriel" "Azriel, angel of death"
+(define-monster-kind "angel-azriel" "Azriel, angel of death"
   :desc "Azriel commands awesome power, his visage holy enough to shrivel your  soul.  You shriek with disbelief as his mastery of death draws you to your  grave.  It is truly beyond all but the mightiest of warriors to stand  against him and live."
   :symbol #\A
   :colour #\D
@@ -1498,12 +1498,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10))
              (<hit> :type <blind> :damage (10 . 5)) (<touch> :type <exp_80> :damage nil))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <angel>) (<breath> <nether>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <nether>))
                        (<spell> (<bolt> <mana>)) (<spell> <blindness>) (<spell> <teleport-player>) (<frequency> 1/2))) 
 
-(define-monster-kind "ancalagon" "Ancalagon the black"
-  :desc "'Rushing Jaws' is his name, and death is his game.  No dragon of the brood  of Glaurung can match him."
+(define-monster-kind "dragon-ancalagon" "Ancalagon the black"
+  :desc "'Rushing Jaws' is his name, and death is his game.  No dragon of the brood of Glaurung can match him."
   :symbol #\D
   :colour #\D
   :alignment '<evil>
@@ -1521,11 +1521,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (10 . 14)) (<claw> :type <hurt> :damage (8 . 12))
              (<claw> :type <hurt> :damage (6 . 12)) (<claw> :type <hurt> :damage (5 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <high-dragon>) (<summon> <dragon>) (<breath> <fire>) (<breath> <acid>)
                        (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/2))) 
 
-(define-monster-kind "gabriel" "Gabriel, the Messenger"
+(define-monster-kind "angel-gabriel" "Gabriel, the Messenger"
   :desc "Commanding a legion of angels, Gabriel will destroy you for your sins.  He  will crush you like the pitiful insignificant being he sees you to be.   Your very soul will be taken into judgement by his supreme authority as he  cleanses the world of evil."
   :symbol #\A
   :colour #\w
@@ -1544,7 +1544,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10))
              (<hit> :type <fire> :damage (4 . 6)) (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <kin>) (<summon> <angel>) (<spell> (<bolt> <mana>)) (<spell> <blindness>)
                        (<spell> <teleport-player>) (<frequency> 1/2))) 
 
@@ -1567,7 +1567,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
              (<hit> :type <un-bonus> :damage (6 . 8)) (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <dragon>) (<summon> <demon>) (<summon> <undead>) (<spell> (<ball> <water>))
                        (<spell> (<ball> <cold>)) (<spell> (<ball> <fire>)) (<spell> (<ball> <acid>))
                        (<spell> (<bolt> <ice>)) (<spell> <traps>) (<spell> <forget>) (<spell> <mind-blast>)
@@ -1593,7 +1593,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <paralyze> :damage (15 . 1)) (<hit> :type <blind> :damage (10 . 5))
              (<touch> :type <lose_dex> :damage (2 . 12)) (<hit> :type <confuse> :damage (12 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> <teleport-player>) (<frequency> 1/3))) 
 
 (define-monster-kind "tselakus" "Tselakus, the Dreadlord"
@@ -1615,7 +1615,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <lose-str> :damage (4 . 6)) (<hit> :type <lose-str> :damage (4 . 6))
              (<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <kin>) (<summon> <high-undead>) (<summon> <wraith>) (<spell> (<ball> <nether>))
                        (<spell> (<ball> <darkness>)) (<spell> <confusion>) (<spell> <paralysis>) (<spell> <blindness>)
                        (<frequency> 1/3))) 
@@ -1640,7 +1640,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (10 . 14)) (<claw> :type <hurt> :damage (8 . 12))
              (<claw> :type <hurt> :damage (8 . 12)) (<claw> :type <hurt> :damage (6 . 12)))
   :treasures '(<drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
-  :sex '<female>
+  :gender '<female>
   :special-abilities '((<summon> <high-dragon>) (<breath> <poison>) (<breath> <lightning>) (<breath> <cold>)
                        (<breath> <fire>) (<breath> <acid>) (<spell> <scare>) (<spell> <confusion>)
                        (<spell> <blindness>) (<frequency> 1/2))) 
@@ -1664,7 +1664,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <lose_dex> :damage (2 . 12)) (<touch> :type <lose_dex> :damage (2 . 12))
              (<touch> :type <un-power> :damage nil) (<touch> :type <exp_80> :damage nil))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <undead>) (<summon> <monsters>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <mana>))
                        (<spell> (<ball> <mana>)) (<spell> <traps>) (<spell> <brain-smash>) (<spell> (<cause> 4))
                        (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <confusion>) (<spell> <paralysis>)
@@ -1688,14 +1688,14 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 30
   :attacks '((<gaze> :type <lose_int> :damage (2 . 6)) (<gaze> :type <un-power> :damage (2 . 6))
              (<gaze> :type <paralyze> :damage (2 . 6)) (<gaze> :type <exp_40> :damage (2 . 6)))
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <kin>) (<spell> (<bolt> <cold>)) (<spell> (<bolt> <fire>)) (<spell> (<bolt> <acid>))
                        (<spell> (<ball> <darkness>)) (<spell> <darkness>) (<spell> <forget>) (<spell> <mind-blast>)
                        (<spell> <drain-mana>) (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>)
                        (<spell> <blindness>) (<frequency> 1/2))) 
 
-(define-monster-kind "ungoliant" "Ungoliant, the Unlight"
-  :desc "This enormous, hideous spirit of void is in the form of a spider of  immense proportions.  She is surrounded by a cloud of Unlight as she sucks  in all living light into her bloated body.  She is always ravenously  hungry and would even eat herself to avoid starvation.  She is rumoured to  have a foul and deadly breath."
+(define-monster-kind "spider-ungoliant" "Ungoliant, the Unlight"
+  :desc "This enormous, hideous spirit of void is in the form of a spider of immense proportions.  She is surrounded by a cloud of Unlight as she sucks  in all living light into her bloated body.  She is always ravenously  hungry and would even eat herself to avoid starvation.  She is rumoured to  have a foul and deadly breath."
   :symbol #\S
   :colour #\D
   :alignment '<evil>
@@ -1714,7 +1714,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<sting> :type <poison> :damage (2 . 5)) (<sting> :type <poison> :damage (2 . 5))
              (<bite> :type <poison> :damage (3 . 9)) (<bite> :type <poison> :damage (3 . 9)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<female>
+  :gender '<female>
   :special-abilities '((<summon> <spider>) (<breath> <darkness>) (<breath> <poison>) (<spell> (<ball> <darkness>))
                        (<spell> <darkness>) (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>)
                        (<spell> <blindness>) (<spell> <heal>) (<frequency> 1/3))) 
@@ -1738,13 +1738,13 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <un-power> :damage nil) (<touch> :type <un-power> :damage nil)
              (<hit> :type <un-bonus> :damage (6 . 8)) (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<spell> (<ball> <nether>)) (<spell> (<ball> <water>)) (<spell> (<ball> <fire>))
                        (<spell> (<ball> <mana>)) (<spell> (<ball> <darkness>)) (<spell> (<bolt> <plasma>))
                        (<spell> <traps>) (<spell> (<cause> 3)) (<spell> <paralysis>) (<spell> <teleport-player>)
                        (<frequency> 1/2))) 
 
-(define-monster-kind "emperor-quylthulg" "the Emperor quylthulg"
+(define-monster-kind "quylthulg-emperor" "the Emperor quylthulg"
   :desc "A huge seething mass of flesh with a rudimentary intelligence, the Emperor  Quylthulg changes colours in front of your eyes.  Pulsating first one  colour then the next, it knows only it must bring help to protect itself."
   :symbol #\Q
   :colour #\w
@@ -1787,7 +1787,7 @@ the Free Software Foundation; either version 2 of the License, or
                        (<summon> <monsters>) (<summon> <monster>) (<frequency> 1))) 
 
 (define-monster-kind "murazor" "Murazor, the Witch-king of Angmar"
-  :desc "The Chief of the Ringwraiths.  A fell being of devastating power.  His  spells are lethal and his combat blows crushingly hard.  He moves at  speed, and commands legions of evil to do his bidding.  It is said that he  is fated never to die by the hand of mortal man."
+  :desc "The Chief of the Ringwraiths.  A fell being of devastating power.  His  spells are lethal and his combat blows crushingly hard.  He moves at  speed, and commands legions of evil to do his bidding.  It is said that he is fated never to die by the hand of mortal man."
   :symbol #\W
   :colour #\D
   :alignment '<evil>
@@ -1806,7 +1806,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <exp_80> :damage (5 . 5)) (<hit> :type <exp_80> :damage (5 . 5))
              (<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <kin>) (<summon> <high-demon>) (<summon> <high-dragon>) (<summon> <high-undead>)
                        (<summon> <wraith>) (<summon> <monsters>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <mana>))
                        (<spell> <brain-smash>) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
@@ -1831,12 +1831,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <elec> :damage (12 . 12)) (<hit> :type <elec> :damage (12 . 12))
              (<hit> :type <elec> :damage (12 . 12)) (<hit> :type <elec> :damage (12 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <high-demon>) (<spell> (<ball> <lightning>)) (<spell> (<bolt> <mana>))
                        (<spell> (<bolt> <lightning>)) (<spell> <mind-blast>) (<frequency> 1/3))) 
 
 (define-monster-kind "cantoras" "Cantoras, the skeletal Lord"
-  :desc "A legion of evil undead druj animating the skeleton of a once mighty  sorcerer.  His power is devastating and his speed unmatched in the  underworld.  Flee his wrath!"
+  :desc "A legion of evil undead druj animating the skeleton of a once mighty sorcerer.  His power is devastating and his speed unmatched in the underworld.  Flee his wrath!"
   :symbol #\s
   :colour #\w
   :alignment '<evil>
@@ -1854,7 +1854,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <poison> :damage (3 . 5)) (<touch> :type <poison> :damage (3 . 5))
              (<gaze> :type <exp_80> :damage nil) (<gaze> :type <exp_80> :damage nil))
   :treasures '(<drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <high-undead>) (<spell> (<ball> <nether>)) (<spell> (<ball> <water>))
                        (<spell> (<bolt> <mana>)) (<spell> (<bolt> <ice>)) (<spell> <brain-smash>) (<spell> (<cause> 4))
                        (<spell> <scare>) (<spell> <slow>) (<spell> <teleport-player>) (<frequency> 1))) 
@@ -1881,7 +1881,7 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "2d2") <only-drop-items>)
   :special-abilities '((<breath> <disenchant>) (<breath> <cold>) (<breath> <fire>) (<frequency> 1/2))) 
 
-(define-monster-kind "lungorthin" "Lungorthin, the balrog of white fire"
+(define-monster-kind "balrog-lungorthin" "Lungorthin, the balrog of white fire"
   :desc "A massive form cloaked in flame.  Lungorthin stares balefully at you with  eyes that smoulder red.  The dungeon floor where he stands is scorched by  the heat of his body."
   :symbol #\U
   :colour #\w
@@ -1900,12 +1900,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <un-power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
              (<hit> :type <fire> :damage (8 . 12)) (<hit> :type <fire> :damage (8 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <high-demon>) (<summon> <high-undead>) (<summon> <demon>) (<breath> <fire>)
                        (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/4))) 
 
-(define-monster-kind "draugluin" "Draugluin, Sire of all werewolves"
-  :desc "Draugluin provides Sauron with a fearsome personal guard.  He is an  enormous wolf inhabited with a human spirit.  He is chief of all his kind."
+(define-monster-kind "wolf-draugluin" "Draugluin, Sire of all werewolves"
+  :desc "Draugluin provides Sauron with a fearsome personal guard.  He is an enormous wolf inhabited with a human spirit.  He is chief of all his kind."
   :symbol #\C
   :colour #\u
   :alignment '<evil>
@@ -1924,7 +1924,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <poison> :damage (2 . 6)) (<bite> :type <poison> :damage (2 . 6))
              (<claw> :type <hurt> :damage (3 . 3)) (<claw> :type <hurt> :damage (3 . 3)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <hound>) (<summon> <monsters>) (<spell> <scare>) (<frequency> 1/3))) 
 
 (define-monster-kind "feagwath" "Feagwath the undead sorceror"
@@ -1946,13 +1946,13 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
              (<hit> :type <un-bonus> :damage (6 . 8)) (<hit> :type <un-bonus> :damage (6 . 8)))
   :treasures '(<drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <kin>) (<summon> <high-undead>) (<summon> <demon>) (<summon> <monsters>)
                        (<spell> (<ball> <fire>)) (<spell> (<bolt> <mana>)) (<spell> (<ball> <mana>))
                        (<spell> <brain-smash>) (<spell> (<cause> 4)) (<spell> <scare>) (<spell> <blindness>)
                        (<spell> <teleport>) (<frequency> 1/3))) 
 
-(define-monster-kind "carcharoth" "Carcharoth, the jaws of thirst"
+(define-monster-kind "wolf-carcharoth" "Carcharoth, the jaws of thirst"
   :desc "The first guard of Angband, Carcharoth, also known as 'The Red Maw', is  the largest wolf to ever walk the earth.  He is highly intelligent and a  deadly opponent in combat."
   :symbol #\C
   :colour #\D
@@ -1972,7 +1972,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <poison> :damage (4 . 4)) (<bite> :type <poison> :damage (4 . 4))
              (<claw> :type <hurt> :damage (3 . 3)) (<claw> :type <hurt> :damage (3 . 3)))
   :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <hound>) (<breath> <fire>) (<spell> <brain-smash>) (<spell> <scare>) (<spell> <heal>)
                        (<frequency> 1/4))) 
 
@@ -1998,7 +1998,7 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<summon> <hound>) (<breath> <nether>) (<breath> <fire>) (<spell> (<ball> <darkness>))
                        (<frequency> 1/3))) 
 
-(define-monster-kind "gothmog" "Gothmog, the High Captain of balrogs"
+(define-monster-kind "balrog-gothmog" "Gothmog, the High Captain of balrogs"
   :desc "Gothmog is the Chief Balrog in Morgoth's personal guard.  He is renowned  for slaying Ecthelion the Warder of the Gates and he has never been  defeated in combat.  With his whip of flame and awesome fiery breath he  saved his master from Ungoliant's rage."
   :symbol #\U
   :colour #\R
@@ -2017,7 +2017,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <un-power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
              (<hit> :type <fire> :damage (9 . 12)) (<hit> :type <fire> :damage (9 . 12)))
   :treasures '(<drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <high-undead>) (<summon> <high-demon>) (<breath> <fire>) (<spell> <scare>)
                        (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/3))) 
 
@@ -2041,7 +2041,7 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <un-power> :damage nil) (<touch> :type <un-power> :damage nil)
              (<hit> :type <un-bonus> :damage (10 . 12)) (<hit> :type <un-bonus> :damage (10 . 12)))
   :treasures '(<drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <high-dragon>) (<summon> <high-undead>) (<summon> <high-demon>) (<summon> <monsters>)
                        (<spell> (<ball> <darkness>)) (<spell> (<ball> <nether>)) (<spell> (<ball> <water>))
                        (<spell> (<ball> <fire>)) (<spell> (<ball> <mana>)) (<spell> (<bolt> <plasma>))
@@ -2069,7 +2069,7 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <shatter> :damage (20 . 10)) (<hit> :type <shatter> :damage (20 . 10)))
   :treasures '(<drop-planned> <drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") (<drop> "1d2")
                <only-drop-items>)
-  :sex '<male>
+  :gender '<male>
   :special-abilities '((<summon> <high-demon>) (<summon> <high-dragon>) (<summon> <high-undead>) (<summon> <wraith>)
                        (<summon> <unique>) (<summon> <monsters>) (<spell> (<ball> <nether>)) (<spell> (<bolt> <mana>))
                        (<spell> (<ball> <mana>)) (<spell> <brain-smash>) (<frequency> 1/3))) 

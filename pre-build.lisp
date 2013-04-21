@@ -38,7 +38,15 @@ the Free Software Foundation; either version 2 of the License, or
 	*compile-print* nil)
   #+pcl
   (pushnew 'compile pcl::*defclass-times*))
+
+#+sbcl
+(progn
+  (setq ;;sb-ext:*gc-verbose* nil
+	;;sb-ext:*byte-compile-default* nil
+	*compile-print* nil
+	))
   
+
 #+allegro
 (progn
   (setf *load-local-names-info* t

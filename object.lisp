@@ -20,100 +20,6 @@ ADD_DESC: available in the game.
 (in-package :org.langband.engine)
 
 
-(defclass object-kind ()
-    ((id         :accessor object.id
-		 :initarg :id
-		 :initform nil)
-   
-     (numeric-id :accessor object.numeric-id
-		 :initarg :numeric-id
-		 :initform nil)
-   
-     (name       :accessor object.name
-		 :initarg :name
-		 :initform nil)
-   
-     (x-attr     :accessor object.x-attr
-		 :initarg :x-attr
-		 :initform nil)
-   
-     (x-char     :accessor object.x-char
-		 :initarg :x-char
-		 :initform nil)
-   
-     (depth      :accessor object.depth
-		 :initarg :depth
-		 :initform 0);; fix later
-   
-     (rarity     :accessor object.rarity
-		 :initarg :rarity
-		 :initform nil)
-   
-     (chance     :accessor object.chance
-		 :initarg :chance
-		 :initform (make-array 4 :initial-element 0))
-   
-     (locale     :accessor object.locale
-		 :initarg :locale
-		 :initform (make-array 4 :initial-element 0))
-   
-     (weight     :accessor object.weight
-		 :initarg :weight
-		 :initform nil)
-   
-     (cost       :accessor object.cost
-		 :initarg :cost
-		 :initform nil)
-   
-     (obj-type   :accessor object.obj-type
-		 :initarg :obj-type
-		 :initform nil);; replaces type-val/subtype-val
-
-     (flags      :accessor object.flags
-		 :initarg :flags
-		 :initform nil)
-   
-     (game-values :accessor object.game-values
-		  :initarg :game-values
-		  :initform nil)
-
-     (easy-know   :accessor object.easy-know
-		  :initarg :easy-know
-		  :initform nil
-		  :documentation "Is it easy to understand what the object
-is all about?")
-     
-     (aware :accessor object.aware
-	    :initform nil
-	    :documentation "The player is 'aware' of the item's effects")
-   
-     (tried      :accessor object.tried
-		 :initform nil
-		 :documentation "The player has 'tried' one of the items")
-   
-     (flavour    :accessor object.flavour
-		 :initform nil) ;; flavour is either nil or a cons (desc . colour)
-
-     (sort-value :accessor object.sort-value
-		 :initarg :sort-value
-		 :initform 0)
-   
-     ;; should be a list of conses (event . function-obj)
-     (events     :accessor object.events
-		 :initarg :events
-		 :initform nil)
-
-     ;; list of conses
-     (effects   :accessor object.effects
-		:initarg :events
-		:initform nil)
-
-     (the-kind  :accessor object.the-kind
-		:initarg :the-kind
-		:initform nil)
-     
-     ))
-
 (defmacro def-obj-type (name &key is key kind-slots aobj-slots)
   "Creates necessary objects and registers them."
   (let* ((ok-name (concat-pnames 'object-kind/ name))
@@ -199,10 +105,10 @@ is all about?")
       (and (object.easy-know (aobj.kind object))
 	   (object.aware (aobj.kind object)))))
 
-(defmethod get-attribute ((obj active-object))
-  (get-attribute (aobj.kind obj)))
+(defmethod get-colour ((obj active-object))
+  (get-colour (aobj.kind obj)))
 
-(defmethod get-attribute ((kind object-kind))
+(defmethod get-colour ((kind object-kind))
   (let ((flavour (object.flavour kind)))
     (if flavour
 	(cdr flavour)
@@ -492,12 +398,22 @@ with k-info.txt numbers. NUM is the numeric id."
     ;; skip events
     new-obj))
 
+(defun is-object-effect? (arg)
+  (functionp arg))
+
+;; hack
+(defmacro object-effect (arguments &body body)
+  (assert (= (length arguments) 3))
+  (let ((def `(lambda ,arguments ,@body)))
+;;    (warn "Def is ~s" def)
+    `(function ,def)))
 
 (defun define-object-kind (id name
 			   &key numeric-id x-attr x-char depth rarity
 			   chance locale weight cost obj-type sort-value
 			   events game-values flags flavour desc the-kind
-			   multiplier)
+			   multiplier (on-quaff :unspec)
+			   (on-read :unspec) (on-eat :unspec))
   "creates and establishes an object corresponding to parameters.  It uses
 the *VARIANT* object so it has to be properly initialised."
 
@@ -548,10 +464,24 @@ the *VARIANT* object so it has to be properly initialised."
 	  (object.events new-obj) (get-legal-events events)
 	  (object.game-values new-obj) game-values)
 
+    (flet ((possible-add-effect (effect var &optional (energy +energy-normal-action+))
+	     (cond ((eq :unspec var))
+		   ((is-object-effect? var)
+		    (let ((entry (make-effect-entry :type effect
+						    :fun var
+						    :energy-use energy)))
+		      (pushnew entry (object.effects new-obj) :key #'effect-entry-type)))
+		   (t
+		    (error "Unknown value ~s for ~s for ~s" var effect key)))))
+      
+      (possible-add-effect :quaff on-quaff)
+      (possible-add-effect :read on-read)
+      (possible-add-effect :eat on-eat)
+      )
+    
     ;; hack, move away later
     (when (and multiplier (numberp multiplier) (typep new-obj 'object-kind/bow))
       (setf (object.multiplier new-obj) multiplier))
-
     
     ;; hackish addition to big object-table
     (let ((main-obj-table (variant.objects var-obj))
@@ -568,59 +498,6 @@ the *VARIANT* object so it has to be properly initialised."
     
     new-obj))
 
-(defmethod get-loadable-form ((object object-kind) &key (full-dump nil))
-  
-  (let ((the-form '()))
-    (flet ((possibly-add (initarg val &optional (def-val nil))
-	     (unless (equal val def-val)
-	       (setf the-form (nconc the-form (list initarg (loadable-val val)))))))
-    (setf the-form (list 'define-object-kind 
-			 (object.id object)
-			 (object.name object)))
-    (possibly-add :numeric-id (object.numeric-id object))
-;;    (possibly-add :desc (object.desc object))
-    (possibly-add :x-attr (convert-obj (object.x-attr object) :letter))
-    (possibly-add :x-char (object.x-char object))
-    (possibly-add :depth (object.depth object))
-    (possibly-add :rarity (object.rarity object))
-    (possibly-add :chance (object.chance object) #(0 0 0 0))
-    (possibly-add :locale (object.locale object) #(0 0 0 0))
-    (possibly-add :weight (object.weight object))
-    (possibly-add :cost (object.cost object))
-    (possibly-add :obj-type (object.obj-type object))
-    (possibly-add :flags (object.flags object))
-    (possibly-add :identified (object.tried object))
-    (possibly-add :sort-value (object.sort-value object) 0)
-    (possibly-add :easy-know (object.easy-know object))
-    (possibly-add :the-kind (object.the-kind object))
-    
-    (when full-dump
-      (possibly-add :flavour (object.flavour object)))
-
-
-    (when-bind (gval (object.game-values object))
-      (setf the-form (append the-form (list :game-values (get-loadable-form gval)))))
-    
-    the-form)))
-
-(defun dump-objects (out-file &optional object-list)
-  (let ((obj-list (if object-list
-		      object-list
-		      (get-object-list)))
-	(*print-case* :downcase)
-	(*print-right-margin* 120))
-    
-    (with-open-file (ffile (pathname out-file)
-			   :direction :output
-			   :if-exists :supersede
-			   :if-does-not-exist :create)
-      (pprint '(in-package :langband)
-	      ffile)
-      (terpri ffile)
-      (dolist (x obj-list)
-	(print (get-loadable-form x) ffile)
-	(terpri ffile))
-      (terpri ffile))))
 
 (defmethod produce-active-object ((variant variant) (okind object-kind))
   "Returns an active-object based on the given okind."
@@ -662,17 +539,84 @@ the *VARIANT* object so it has to be properly initialised."
 	  )))
 
 
+(defun define-flavour-type (symbol &optional generator-fn)
+  "Defines a flavour-type"
+  (let* ((var-obj *variant*)
+	 (ft-obj (make-flavour-type :symbol symbol
+				    :generator-fn generator-fn))
+	 (table (variant.flavour-types var-obj)))
+    (setf (gethash symbol table) ft-obj)
+    ft-obj))
 
-(defmethod print-object ((inst object-kind) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
-	   (object.name inst) (object.depth inst)))
-  inst)
+(defun legal-flavour-obj? (flav)
+  (and (consp flav)
+       (stringp (car flav))
+       (atom (car flav)) ;; integer 0..16 ?
+       ))
+  
+(defun establish-flavour& (table name colour)
+  (setf (gethash name table) (cons name colour)))
 
-(defmethod print-object ((inst active-object) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~a ~S (~a,~a)]" (class-name (class-of inst)) 
-	   (aobj.number inst) (aobj.kind inst) (location-x inst) (location-y inst))
-  inst))
+(defun find-flavour-type (variant-obj type)
+  "Tries to find given flavour-type in given variant-obj."
+  (gethash type (variant.flavour-types variant-obj)))
+
+;;(trace find-flavour-type)
+
+(defun define-basic-flavour (type name colour)
+  "Defines a basic flavour.."
+  
+  (let ((ft-obj (find-flavour-type *variant* type)))
+    (unless ft-obj
+      (warn "Unable to find flavour-type ~s" type)
+      (return-from define-basic-flavour nil))
+    (let ((table (flavour-type.table ft-obj)))
+      (establish-flavour& table name colour))))
+	
+
+
+(defun use-flavour-table (flavour-to-use used-by &key (variant *variant*))
+  "a handy way to re-use a flavour-table for another kind
+of objects.  all entries are copied, not shared."
+  
+  (let* ((var-obj variant)
+	 (used-by-type (find-flavour-type var-obj used-by))
+	 (type-to-use (find-flavour-type var-obj flavour-to-use))
+	 (old-table (flavour-type.table type-to-use))
+	 (new-table (flavour-type.table used-by-type)))
+	 
+    
+    (maphash #'(lambda (key val)
+		 (setf (gethash key new-table) val))
+	     old-table)
+    
+    ;;(warn "~s will use ~s" used-by-type type-to-use)
+    
+    used-by-type))
+
+(defmethod flavour-object! ((variant variant) (obj object-kind))
+  ;; do nothing
+  (warn "Not added flavouring to ~a" obj)
+  nil)
+
+(defun %flavour-obj-kind! (obj)
+  "Flavours the given object OBJ."
+  (let* ((kind obj) ;; hack
+	 (var-obj *variant*)
+	 (f-type (gethash (object.the-kind obj) (variant.flavour-types var-obj))))
+    (when f-type
+      (let ((gen-fn (flavour-type.generator-fn f-type))
+	    (table (flavour-type.table f-type)))
+	(cond (gen-fn
+	       (setf (object.flavour kind) (funcall gen-fn var-obj kind)))
+	      ((and table (typep table 'array))
+	       (let ((next-flavour (aref table (fill-pointer table))))
+		 (setf (object.flavour kind) next-flavour)
+		 (incf (fill-pointer table))))
+	      (t
+	       (describe f-type)
+	       (error "Unable to flavour object kind ~a with ~s" kind (flavour-type.symbol f-type))
+	       ))
+    
+	(assert (legal-flavour-obj? (object.flavour kind)))))
+    obj))

@@ -14,44 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
-
-(defclass item-table ()
-  ((cur-size :accessor items.cur-size :initarg :cur-size :initform 0))
-  (:documentation "abstract interface for all item-tables."))
-
-(defclass items-on-floor (item-table)
-  ((obj-list :accessor items.objs
-	     :initform nil)
-   (dungeon  :accessor items.dun
-	     :initarg :dungeon
-	     :initform nil)
-   (loc-x    :accessor location-x
-	     :initarg :loc-x
-	     :initform +illegal-loc-x+);; invalid value
-   (loc-y    :accessor location-y
-	     :initarg :loc-y
-	     :initform +illegal-loc-y+))
-    
-  (:documentation "Represents the items on the floor."))
-
-(defclass items-in-container (item-table)
-  ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil)
-   (max-size :accessor items.max-size :initarg :max-size :initform 5))
-  (:documentation "A container for other objects, ie a backpack."))
-
-(defclass items-worn (item-table)
-  ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil))
-  (:documentation "What is worn."))  
-
-(defclass items-in-house (items-in-container)
-  ((max-size :initform 24))
-  (:documentation "What is in a house."))
-  
-(defclass items-in-store (items-in-house)
-  ()
-  (:documentation "What is in a store."))
-
-
 ;;; -----------------------------
 
 (defmethod item-table-add! (table obj &optional key)
@@ -221,7 +183,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     (flet ((iterator-fun (a-table key val)
 	     (declare (ignore a-table key))
-	     (let ((attr (get-attribute val))
+	     (let ((attr (get-colour val))
 		   (desc (with-output-to-string (s)
 			   (write-obj-description *variant* val s))))
 	       (c-prt! "" (+ i y) (- x 2))
@@ -239,15 +201,6 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod item-table-more-room? ((table items-in-container) &optional obj)
   (declare (ignore obj))
   (< (items.cur-size table) (items.max-size table)))
-
-
-(defmethod print-object ((inst items-in-container) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~A ~A]" (class-name (class-of inst))
-	   (items.cur-size inst)
-	   (items.max-size inst)))
-  inst)
 
 
 ;;; ----------------------------
@@ -368,7 +321,7 @@ to variant obj."
 
     (flet ((iterator-fun (a-table key val)
 	     (declare (ignore a-table key))
-	     (let ((attr (if val (get-attribute val) +term-white+))
+	     (let ((attr (if val (get-colour val) +term-white+))
 		   (desc (if val (with-output-to-string (s)
 				   (write-obj-description *variant* val s))
 			     "(nothing)")))

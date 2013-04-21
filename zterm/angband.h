@@ -30,7 +30,6 @@
  */
 #include "config.h"
 #include "defines.h"
-#include "types.h"
 #include "externs.h"
 
 

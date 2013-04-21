@@ -18,30 +18,42 @@ the Free Software Foundation; either version 2 of the License, or
 
   )
 
-
-
-(defmethod kill-target! (dun attacker target x y)
+(defmethod kill-target! (dun attacker (target active-monster) x y)
   "Tries to remove the monster at the location."
 
+  (declare (ignore attacker))
+  
   (let ((var-obj *variant*)
-	(lvl-obj *level*))
+	(lvl-obj *level*)
+	(the-kind (amon.kind target)))
+    
     (setf (creature-alive? target) nil)
     
     ;; let us generate drop.. 
-    (when (typep target 'active-monster)
-      (when (can-creature-drop? var-obj target)
-	(creature-drop! var-obj target lvl-obj))
-      )
+    (when (can-creature-drop? var-obj target)
+      (creature-drop! var-obj target lvl-obj))
     
-  
-    (when (typep target 'active-monster)
-      (setf (dungeon.monsters dun) (delete target (dungeon.monsters dun))
-	    (cave-monsters dun x y) nil))
+    (setf (dungeon.monsters dun) (delete target (dungeon.monsters dun))
+	  (cave-monsters dun x y) nil)
+
+    ;; hack
+    (when (typep the-kind 'unique-monster)
+      (setf (monster.already-dead the-kind) t))
     
-    (when (typep target 'player)
-      (setf (player.dead-from target) (get-creature-name attacker)))
+    
+    t))
+      
+
+
   
-    nil))
+(defmethod kill-target! (dun attacker (target player) x y)
+  "Tries to remove the monster at the location."
+  (declare (ignore dun x y))
+  
+  (setf (creature-alive? target) nil)
+  (setf (player.dead-from target) (get-creature-name attacker))
+  
+  nil)
 
 (defmethod cmb-describe-miss (attacker target)
 

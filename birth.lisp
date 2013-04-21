@@ -158,32 +158,32 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 	(quest-row 21)
 	(quest-col 2))
   
-    ;; First we do the player sex
+    ;; First we do the player gender
     (c-clear-from! info-row) ;; clears things
     ;; Print extra-info Extra info 
     (c-term-putstr! info-col info-row -1 info-colour
-		    "Your 'sex' does not have any significant gameplay effects.")
+		    "Your 'gender' does not have any significant gameplay effects.")
 
     (block input-loop
       (loop
-       (let* ((sexes (variant.sexes variant))
-	      (alt-len (length sexes))
+       (let* ((genders (variant.genders variant))
+	      (alt-len (length genders))
 	      (inp (%birth-input quest-col quest-row
-				 (mapcar #'sex.name sexes)
-				 :ask-for "sex")))
+				 (mapcar #'gender.name genders)
+				 :ask-for "gender")))
 	 (cond ((eq inp nil)
 		(return-from query-for-character-basics! nil))
 	       
 	       ((and (numberp inp) (<= 0 inp) (< inp alt-len))
-		(setf (player.sex the-player) (nth inp sexes))
+		(setf (player.gender the-player) (nth inp genders))
 		(return-from input-loop nil))
 	       
 	       (t
 		(warn "Unknown return-value from input-loop ~s, must be [0..~s)" inp alt-len))
 	       ))))
    
-    (c-put-str! "Sex" 3 1)
-    (c-col-put-str! +term-l-blue+ (get-sex-name the-player) 3 8)
+    (c-put-str! "Gender" 3 1)
+    (c-col-put-str! +term-l-blue+ (get-gender-name the-player) 3 8)
 
     
     (c-clear-from! info-row) ;; clears things
@@ -295,16 +295,17 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
    
   t))
 
-(defun roll-stats! (player)
+(defun roll-stats! (variant player)
   "Rolls stats and modifies given player object.
 Returns the base-stats as an array or NIL if something failed."
   
-  (setf (player.base-stats player)    (make-stat-array)
-	(player.cur-statmods player) (make-stat-array)
-	(player.modbase-stats player) (make-stat-array)
-	(player.active-stats player)  (make-stat-array))
+  (setf (player.base-stats player)    (make-stat-array variant)
+	(player.cur-statmods player) (make-stat-array variant)
+	(player.modbase-stats player) (make-stat-array variant)
+	(player.active-stats player)  (make-stat-array variant))
   
-  (let* ((arr-len (* 3 +stat-length+))
+  (let* ((stat-len (variant.stat-length variant))
+	 (arr-len (* 3 stat-len))
 ;;	 (bonus 0)
 	 (rolls (make-array arr-len)))
 
@@ -320,7 +321,7 @@ Returns the base-stats as an array or NIL if something failed."
 	    (return-from roller)))))
 
     ;; now assign values
-    (dotimes (i +stat-length+)
+    (dotimes (i stat-len)
       (let* ((arr-offset (* 3 i))
 	     (stat-val (+ 5
 			 (svref rolls (+ 0 arr-offset))
@@ -343,7 +344,7 @@ Returns the base-stats as an array or NIL if something failed."
   
   (c-clear-from! 10)
   
-  (roll-stats! player)
+  (roll-stats! variant player)
 
   (let ((hit-dice (+ (race.hit-dice (player.race player))
 		     (class.hit-dice (player.class player)))))
@@ -498,7 +499,7 @@ on success.  Returns NIL on failure or user-termination (esc)."
 Returns the new PLAYER object or NIL on failure."
 
   (let ((the-player (produce-player-object variant))
-	(birth-settings (get-setting :birth)))
+	(birth-settings (get-setting variant :birth)))
 
    
     ;; get basics of the character

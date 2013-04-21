@@ -17,35 +17,6 @@ ADD_DESC: Simple code to access the dungeon object(s)
 
 (in-package :org.langband.engine)
 
-(defstruct (dungeon-coord (:conc-name coord.))
-  (feature 0 :type u-16b)
-  (flags 0 :type u-16b)  ;; info-flag in angband
-  (objects nil)
-  (monsters nil)
-  )
-
-;; Remember to update [save|load|checking].lisp when updating this one
-(defstruct (dungeon (:conc-name dungeon.))
-  
-  (depth 0 :type fixnum)  ; just a fixnum
-
-  (height 0 :type u-fixnum) ;; height of table below
-  (width  0 :type u-fixnum) ;; width of table below
-
-  (table nil)
-
-
-  ;; enable these two later if the need should arise
-;;  (up-stairs-p nil)
-;;  (down-stairs-p nil)
-
-  (monsters nil)
-  (objects nil)
-  (rooms nil)
-  (active nil)
-  (triggers nil) ;; can't be used yet
-  )
-  
 
 (defun invoke-on-dungeon (dungeon fun)
   "calls given FUN with three arguments:
@@ -156,6 +127,15 @@ the monster
 		    (dungeon.height dungeon))
 	      :element-type 'fixnum :initial-element 0))
 
+#||
+Warning:
+apparently ACL expands e.g (setf (cave-flags dun x y) foo)
+with CAVE-fLAGS first as a macro, ending up with
+(setf (coord ....) foo)
+and not using the (SETF CAVE-FLAGS) function which does some
+extra tricks.
+||#
+
 #+compiler-that-inlines
 (defsubst cave-coord (dungeon x y)
   (declare (type fixnum x y))
@@ -167,31 +147,41 @@ the monster
 (defmacro cave-coord (dungeon x y)
   `(aref (dungeon.table ,dungeon) ,x ,y))
 
+;;#+compiler-that-inlines
 (defun cave-feature (dungeon x y)
   (declare (type fixnum x y))
   (coord.feature (cave-coord dungeon x y)))
 
-#+compiler-that-inlines
-(defsubst cave-flags (dungeon x y)
+;;#-compiler-that-inlines
+;;(defmacro cave-feature (dungeon x y)
+;;  `(coord.feature (cave-coord ,dungeon ,x ,y)))
+
+;;#+compiler-that-inlines
+(defun cave-flags (dungeon x y)
   (declare (type fixnum x y))
   (coord.flags (cave-coord dungeon x y)))
 
-#-compiler-that-inlines
-(defmacro cave-flags (dungeon x y)
-  `(coord.flags (cave-coord ,dungeon ,x ,y)))
+;;#-compiler-that-inlines
+;;(defmacro cave-flags (dungeon x y)
+;;  `(coord.flags (cave-coord ,dungeon ,x ,y)))
 
-#+compiler-that-inlines
+;;#+compiler-that-inlines
 (defun cave-objects (dungeon x y)
   (declare (type fixnum x y))
   (coord.objects (cave-coord dungeon x y)))
 
-#-compiler-that-inlines
-(defmacro cave-objects (dungeon x y)
-  `(coord.objects (cave-coord ,dungeon ,x ,y)))
+;;#-compiler-that-inlines
+;;(defmacro cave-objects (dungeon x y)
+;;  `(coord.objects (cave-coord ,dungeon ,x ,y)))
 
+;;#+compiler-that-inlines
 (defun cave-monsters (dungeon x y)
   (declare (type fixnum x y))
   (coord.monsters (cave-coord dungeon x y)))
+
+;;#-compiler-that-inlines
+;;(defmacro cave-monsters (dungeon x y)
+;;  `(coord.monsters (cave-coord ,dungeon ,x ,y)))
 
 (defun (setf cave-monsters) (val dungeon x y)
   (declare (type fixnum x y))
@@ -276,11 +266,11 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   "Returns two values, attr and char, use M-V-B to get the values."
   (declare (type fixnum x y))
   ;; maybe get the coord in one go..
-  (let* (;;(coord (cave-coord
-	 (mon (cave-monsters dungeon x y))
-	 (feat (cave-feature dungeon x y))
-	 (flags (cave-flags dungeon x y))
-	 (obj-table (cave-objects dungeon x y))
+  (let* ((coord (cave-coord dungeon x y)) ;; faster
+	 (mon (coord.monsters coord))
+	 (feat (coord.feature coord))
+	 (flags (coord.flags coord))
+	 (obj-table (coord.objects coord))
 	 (f-obj nil)
 	 (ret-attr +term-white+)
 	 (ret-char #\X)
@@ -288,7 +278,10 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	 ;;(name-return nil)
 	 )
 
-
+    ;; hackish, fix later
+    (when (consp mon)
+      (setf mon (car mon)))
+    
     ;; skip hallucination
     
     ;; boring grids
@@ -374,21 +367,53 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 ;;      (warn "Returns (~s,~s)" ret-attr ret-char))
 
     
-    ;; do we have monsters?
-    (when (and mon (and (bit-flag-set? flags +cave-seen+) 
-			(bit-flag-set? flags +cave-view+)))
-      (let ((kind (amon.kind (car mon))))
-	;; rearrange order later
-	(cond ((has-ability? kind '<colour-changing>)
-	       (setf ret-attr (charify-number (randint 15))
-		     ret-char (monster.symbol kind)))
-	      ((has-ability? kind '<see-through>)
-	       ;; no nothing
+    ;; do we have monsters and can see it?
+    (when (and mon (amon.seen-by-player? mon))
+      (let* ((kind (amon.kind mon))
+	     (wanted-attr (monster.colour kind))
+	     (wanted-char (monster.symbol kind))
+	     )
+
+	(cond (nil
+	       ;; skip hallucinate
 	       )
+	      ;; skip avoid-other ???, option that's not supported
+	      #||
+	      ;; bizarre monster-attr and char
+	      ((and (bit-flag-set? wanted-attr #x80)
+		    (bit-flag-set? wanted-char #x80))
+	       (warn "Fell to double.. ~s ~s" wanted-attr wanted-char)
+	       (setf ret-attr wanted-attr
+		     ret-char wanted-char))
+	      ||#
+	      ;; multi-hued monster
+	      ((has-ability? kind '<colour-changing>)
+	       (setf ret-attr (charify-number (randint 15))
+		     ret-char wanted-char))
+
+	      ;; normal monster, not clear in any way
+	      ((not (or (has-ability? kind '<see-through>)
+			(has-ability? kind '<absorbs-symbol>)))
+	       (setf ret-attr wanted-attr
+		     ret-char wanted-char))
+	      #||
+	      ;; bizarre grid under
+	      ((or (bit-flag-set? ret-attr #x80)
+		   (bit-flag-set? ret-char #x80))
+	       (warn "bizarre grid ~s  ~s" ret-attr ret-char)
+	       (setf ret-attr wanted-attr
+		     ret-char wanted-char))
+	      ||#
+	      ;; normal char, clear attr
+	      ((not (has-ability? kind '<absorbs-symbol>))
+	       (setf ret-char wanted-char))
+	      ;; normal attr, clear char
+	      ((not (has-ability? kind '<see-through>))
+	       (setf ret-attr wanted-attr))
 	      (t
-	       (setf ret-attr (monster.colour kind)
-		     ret-char (monster.symbol kind))))
-	))
+	       (warn "Fell through monster-check for monster ~s" (monster.name kind)))
+	      
+	      )))
 
 ;;    (when name-return
 ;;      (warn "Returns (~s,~s)" ret-attr ret-char))
@@ -413,9 +438,10 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun cave-boldly-naked? (dungeon x y)
   (declare (type fixnum x y))
-  (and (= (cave-feature dungeon x y) +feature-floor+)
-       (eq nil (cave-objects dungeon x y))
-       (eq nil (cave-monsters dungeon x y))))
+  (let ((coord (cave-coord dungeon x y)))
+    (and (= (coord.feature coord) +feature-floor+)
+	 (eq nil (coord.objects coord))
+	 (eq nil (coord.monsters coord)))))
 
 (defun cave-floor-bold? (dungeon x y)
   (declare (type fixnum x y))
@@ -452,7 +478,9 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun print-map (dungeon player)
   "Prints a map of the given dungeon to the screen"
-  
+  (declare (optimize (safety 0) (speed 3) (debug 0)
+		     #+cmu (ext:inhibit-warnings 3)))
+
   (let ((ty (+ +start-row-of-map+ +screen-height+))
 	(tx (+ +start-column-of-map+ +screen-width+))
 	(*player* player)
@@ -476,7 +504,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		(multiple-value-bind (the-attr the-char)
 		    (map-info dungeon x y)
 	  ;;		  (warn "Q at ~a ~a with ~a" vx vy (cdr point-info))
-		  (%loc-queue-cons vx vy the-attr the-char))))
+		  (%queue-char-to-spot vx vy the-attr the-char))))
 
 
 
@@ -484,9 +512,12 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     (print-depth *level* nil)
     ))
 
-(defun %loc-queue-cons (vx vy the-attr the-char)
+(defun %queue-char-to-spot (vx vy the-attr the-char)
   "Misleading name.. no cons involved anymore."
-  (declare (type fixnum vx vy))
+  (declare   (optimize (safety 0) (speed 3) (debug 0)
+		     #+cmu (ext:inhibit-warnings 3))
+	     (type fixnum vx vy))
+	   
   (c-term-queue-char! vx vy
 		      the-attr
 		      #-handle-char-as-num
@@ -569,7 +600,9 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun distance (x1 y1 x2 y2)
   "returns a fixnum"
-  (declare (type fixnum x1 x2 y1 y2))
+  (declare   (optimize (safety 0) (speed 3) (debug 0)
+		     #+cmu (ext:inhibit-warnings 3))
+	     (type fixnum x1 x2 y1 y2))
 ;;  (declare (optimize (speed 3) (safety 0) (debug 0)))
   
   (let ((ay (if (> y1 y2)
@@ -590,7 +623,9 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun note-spot! (dungeon x y)
   "noting the spot, does not remember objects yet."
-  (declare (type fixnum x y))
+  (declare (optimize (safety 0) (speed 3) (debug 0)
+		     #+cmu (ext:inhibit-warnings 3))
+	   (type fixnum x y))
 
   (let* ((coord (cave-coord dungeon x y))
 	 (flag (coord.flags coord)))
@@ -614,9 +649,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 (defun print-relative! (dungeon x y the-char the-attr)
   "Prints the-char and the-attr at relative coordinates, on the map."
   (declare (optimize (safety 0) (speed 3) (debug 0)
-		     #+cmu (ext:inhibit-warnings 3)))
-
-  (declare (type fixnum x y))
+		     #+cmu (ext:inhibit-warnings 3))
+	   (type fixnum x y))
   
   (let ((pl *player*))
 
@@ -641,9 +675,9 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		 (< ky +screen-height+)
 		 (< kx +screen-width+))
 
-	(%loc-queue-cons (+ +start-column-of-map+ kx)
-			 (+ +start-row-of-map+ ky)
-			 the-attr the-char))
+	(%queue-char-to-spot (+ +start-column-of-map+ kx)
+			     (+ +start-row-of-map+ ky)
+			     the-attr the-char))
       )))
 
 
@@ -841,3 +875,140 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	    nil))
      ))
 
+
+(defun define-room (id constructor)
+  "First argument should be an integer.. fix this later.."
+  (assert (or (stringp id) (symbolp id)))
+  (assert (functionp constructor))
+
+  (let ((table (variant.room-builders *variant*))
+	(key (if (symbolp id) (symbol-name id) id)))
+    (setf (gethash key table) constructor)))
+
+(defun get-room (id)
+  "Returns the constructor to build the given room, or NIL."
+
+  (assert (or (stringp id) (symbolp id)))
+  
+  (let ((key (if (symbolp id) (symbol-name id) id))
+	(table (variant.room-builders *variant*)))
+    (gethash key table)))
+
+(defmethod find-appropriate-room (variant level player)
+  (declare (ignore variant level player))
+  (error "find-appropriate-room not implemented."))
+
+(defun construct-room! (room-type dungeon player bx0 by0)
+  "Constructs and returns an active-room."
+  
+  ;;  (declare (ignore player))
+  ;;  (warn "Build room ~a ~a" by0 bx0)
+
+  (assert (and (>= bx0 0) (>= by0 0) (< bx0 18) (< by0 6)))
+
+  (let ((returned-room nil))
+  
+    (block room-construction
+      
+      (let* (;;(room-builder (get-room-builder num))
+	     (room-info (room-type.size-mod room-type))
+	     (room-map (dun-data.room-map *cur-dun*))
+	     (by1 (+ by0 (svref room-info 0)))
+	     (by2 (+ by0 (svref room-info 1)))
+	     (bx1 (+ bx0 (svref room-info 2)))
+	     (bx2 (+ bx0 (svref room-info 3))))
+	
+	(when (or (< by1 0)
+		  (< bx1 0)
+		  (>= by2 (dun-data.row-rooms *cur-dun*))
+		  (>= bx2 (dun-data.col-rooms *cur-dun*)))
+	  (warn "off the screen...")
+	  (return-from room-construction nil))
+	
+	;; verify open space
+	(loop for i from by1 to by2
+	      do
+	      (loop for j from bx1 to bx2
+		    do
+		    (when (aref room-map j i)
+		      (return-from room-construction nil))))
+
+    
+	(let (;;(fun (cdr room-builder))
+	      (y (int-/ (* (+ by1 by2 1) +block-height+) 2))
+	      (x (int-/ (* (+ bx1 bx2 1) +block-width+) 2)))
+
+	  (build-room! room-type dungeon player x y)
+
+	  (let ((aroom (make-instance 'active-room :type room-type
+				      :loc-x x
+				      :loc-y y)))
+	    (add-room-to-dungeon! dungeon aroom)
+	    (setq returned-room aroom))
+
+
+	  (push (cons x y) (dun-data.room-centres *cur-dun*))
+
+	  ;; reserve space in the room map
+      
+	  (loop for i from by1 to by2
+		do
+		(loop for j from bx1 to bx2
+		      do
+		      (setf (aref room-map j i) t)))
+
+	  ;; skip crowd
+
+
+	  returned-room)))))
+
+ 
+;; a simple builder, register it in your variant as 'random-level
+(defun make-random-level-obj ()
+  (make-instance 'random-level :depth 0 :rating 0))
+
+(defmethod level-ready? ((level random-level))
+  (when (level.dungeon level)
+    t))
+
+
+(defmethod register-level! ((var-obj variant) (id string) &key object-filter monster-filter &allow-other-keys)
+;;  (assert (not (eq nil var-obj)))
+;;  (assert (symbolp id))
+;;  #+langband-extra-checks
+;;  (assert (ok-object? var-obj))
+
+  (let ((mon-table (make-game-obj-table))
+	(obj-table (make-game-obj-table)))
+    
+    (setf (gobj-table.obj-table mon-table) (make-hash-table :test #'equal)
+	  (gobj-table.obj-table obj-table) (make-hash-table :test #'equal))
+
+    (setf (gethash id (variant.monsters-by-level var-obj)) mon-table
+	  (gethash id (variant.objects-by-level var-obj))  obj-table)
+
+    ;; fix
+    (when object-filter
+      (if (not (functionp object-filter))
+	  (lang-warn "Object-filter ~s for level ~s is not a function." object-filter id)
+	  (pushnew (cons id object-filter)
+		   (gethash :objects (variant.filters var-obj))
+		   :key #'car)))
+    
+    (when monster-filter
+      (if (not (functionp monster-filter))
+	  (lang-warn "Monster-filter ~s for level ~s is not a function." monster-filter id)
+	  (pushnew (cons id monster-filter)
+		   (gethash :monsters (variant.filters var-obj))
+		   :key #'car)))
+    
+    ))
+
+(defun %get-var-table (var-obj key slot)
+  ""
+  (let ((id (etypecase key
+	      (level (level.id key))
+	      (string key))))
+    (let ((mon-table (slot-value var-obj slot)))
+      (when mon-table
+	(gethash id mon-table)))))

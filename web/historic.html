@@ -1,72 +1,135 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
-    <title>(LAngband history)</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <meta name="Author" content="Stig E Sandø">
+    <link rel="stylesheet" type="text/css" rev="content" href="langband.css">
+    <meta name="KeyWords" content="langband, roguelike, angband, dungeon">
+    <title>(history :of 'Langband)</title>
   </head>
   
-  <body bgcolor="white">
+  <!-- Layout and some images borrowed from Falcon's Eye -->
+  
+  <body text="#211b6b" bgcolor="#CCCCCC" link="#0000EE" vlink="#551A8B" alink="#FF0000">
     
-    <h1 align=center>LAngband history</h1>
+    <center>
+      <table BORDER=0 CELLSPACING=0 CELLPADDING=0 BGCOLOR="#FFFFFF" >
+	<tr><td VALIGN=TOP colspan="5" WIDTH="700"><img
+	      src="langtitle.png" alt="Langband - a lispier Angband"
+	      width="700" height="86"></td></tr>
+	<tr><td valign=top colspan="5" width="700">
+	    <hr size="1" NoShade>
+	    <div align=center>
+	      <a class="tab" href="index.html">Front page</a>&nbsp;|&nbsp;
+	      <a class="tab" href="screenshots.html">Screenshots</a>&nbsp;|&nbsp;
+	      <a class="tab" href="download.html">Download</a>&nbsp;|&nbsp;
+	      <a class="tab" href="faq.html">FAQ</a>&nbsp;|&nbsp;
+	      <a class="tab" href="docs.html">Docs</a>&nbsp;|&nbsp;
+	      <a class="tab" href="http://sourceforge.net/projects/langband/">SF
+		Project page</a>&nbsp;|&nbsp;
+	      <a class="tab" href="links.html">Links</a>&nbsp;|&nbsp;
+	    </div>
+	    <hr size="1" NoShade>
+	  </td></tr>
+	<tr><td VALIGN=TOP colspan="5" WIDTH="700">
 
+	    
+	    <h1 align=center>LAngband history</h1>
+
+	    
+	    <h3>Historic screenshots - 2000</h3>
+	    <ul>
+	      <li> 2nd of June: I finally have built enough datastructures to
+		display the <a href="dumps/lang1.jpg">town</a>.</li>
+	      
+	      <li> 3rd of June: The <a href="dumps/lang2.jpg">player</a> has shown
+		up, and he can be moved around :-)</li> 
+	      
+	      <li> 14th of June: This was done earlier, but here is a screen capture of the
+		<a href="dumps/lang-birth.jpg">race-selection</a></li>
+	      <li> 27th of August: The first evidence that the
+		<a href="dumps/cave.jpg">cave generation</a> is on its way</li>
+	      <li> 27th of August: The second indication that the
+		<a href="dumps/cave2.jpg">cave generation</a> is on its way</li>
+	      <li> 27th of August: And some <a href="dumps/cave3.jpg">floors</a>
+		within the rooms are nice..</li>
+	      <li> 27th of August: Removed overlapping, but should make sure
+		that the player stands on <a href="dumps/cave4.jpg">floor</a>. </li>
+	      <li> 28th of August: Tunnels and some doors are placed on the
+		map.  The player is still placed oddly, but things look much
+		<a href="dumps/cave5.jpg">better</a>.</li>
+	      <li> 16th of September: Generates a PPM of the dungeon which is
+		easily converted to a <a href="dumps/map.gif">gif</a>.  This is
+		preliminary support for later graphic-display, and also helps
+		me to keep track of how dungeons look overall.</li>
+	      <li> 16th of September: Also able to generate the map to an
+		<a href="dumps/map.ascii">ascii file</a>.</li>
+	      <li> 17th of September: Tweaking to map file-output; shows
+		player in blue, secret doors in orange, walls in gray, closed
+		doors in burgund, open/broken doors in light blue and floors
+		in white.  A <a href="dumps/map2.gif">gif</a> and the corresponding
+		<a href="dumps/map2.ascii">ascii</a> map.</li>
+	      <li> 19th of September: Much small tweaking done, and the GTK+
+		version should be working.  Thanks to Robert Rühlmann for
+		main-gtk.c I used as a starting-point.  Also added some of the
+		left frame for this <a href="dumps/gtk-town.jpg">shot</a> of the
+		town in a simple GTK+ window.</li>
+	      <li> 21th of September: A simple screen <a
+		  href="dumps/explore.jpg">capture</a> of a @ exploring 
+		the (relatively empty) dungeon. </li>
+	      <li> 22th of September: YA simple screen <a
+		  href="dumps/objdun.jpg">capture</a> of a @ exploring 
+		the (relatively empty) dungeon, but this time the brave
+		adventurer can find objects and gold. </li>
+	      <li> 8th of October: The character is out exploring and shows
+		what he has <a href="dumps/inven.jpg">found</a>.  He's even
+		found some gold on his trek. </li>
+	      <li> 12th of October: The character is out for a stroll in the
+		towne, and what does he see.. <a
+		  href="dumps/inhabit.jpg">inhabitants</a>.</li>
+	    </ul>
+	    <h3>Historic screenshots - 2001</h3>
+	    <ul>
+	      <li> 16th of January: Finally, the line-of-sight code seems to
+		work and the character can move around with his torch.  Here he
+		is visiting the <a href="dumps/los-1.jpg">towne at
+		  night</a>.</li>
+	      <li> 19th of January: Small bugs have been hit on the head with
+		a hammer and the brave player is exploring the <a
+		  href="dumps/nicer-los.jpg">dungeon</a>. </li> 
+	      <li> 11th of July: Decided to polish the birth-UI with
+		cursor-selection of races/classes and auto-display of
+		appropriate help.  Currently highlighting <a
+		  href="dumps/hob-birth.jpg">Hobbit race</a>.
+	      <li> 15th of April: Not much is done on the screenshot-front
+		anymore, but here he is <a href="dumps/exploring.jpg">exploring</a>
+		carrying a torch and a sword.
+	    </ul>
+	    
+	    <hr>
+	  </td></tr>
+	
+	<tr>
+	  <td width="46" valign="bottom"><img src="leftcorner.png" width="46" height="46" alt=""></td>
+	  <td width="203"><center>Last updated January 2002<br>by <a
+		href="mailto:stig@users.sourceforge.net">Stig E Sandø</a>.</center></td>
+	  <td width="203">
+	    <center>
+	      See also: <br>
+	      <a href="http://sourceforge.net/projects/langband/">SourceForge project page</a>
+	    </center>
+	  </td>
+	  <td width="202">
+	    <center>
+	      <a href="http://sourceforge.net"> <img src="http://sourceforge.net/sflogo.php?group_id=6938&amp;type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a>
+	    </center>
+	  </td>
+	  <td width="46" valign="bottom"><img src="rightcorner.png" width="46" height="46" alt=""></td>
+	</tr>
+	
+
+      </table>
+    </center>
     
-    <h3>Historic screenshots</h3>
-    <ul>
-      <li> 2nd of June: I finally have built enough datastructures to
-	display the <a href="dumps/lang1.jpg">town</a>.</li>
-      
-      <li> 3rd of June: The <a href="dumps/lang2.jpg">player</a> has shown
-	up, and he can be moved around :-)</li> 
-      
-      <li> 14th of June: This was done earlier, but here is a screen capture of the
-	<a href="dumps/lang-birth.jpg">race-selection</a></li>
-      <li> 27th of August: The first evidence that the
-	<a href="dumps/cave.jpg">cave generation</a> is on its way</li>
-      <li> 27th of August: The second indication that the
-	<a href="dumps/cave2.jpg">cave generation</a> is on its way</li>
-      <li> 27th of August: And some <a href="dumps/cave3.jpg">floors</a>
-	within the rooms are nice..</li>
-      <li> 27th of August: Removed overlapping, but should make sure
-	that the player stands on <a href="dumps/cave4.jpg">floor</a>. </li>
-      <li> 28th of August: Tunnels and some doors are placed on the
-	map.  The player is still placed oddly, but things look much
-	<a href="dumps/cave5.jpg">better</a>.</li>
-      <li> 16th of September: Generates a PPM of the dungeon which is
-	easily converted to a <a href="dumps/map.gif">gif</a>.  This is
-	preliminary support for later graphic-display, and also helps
-	me to keep track of how dungeons look overall.</li>
-      <li> 16th of September: Also able to generate the map to an
-	<a href="dumps/map.ascii">ascii file</a>.</li>
-      <li> 17th of September: Tweaking to map file-output; shows
-	player in blue, secret doors in orange, walls in gray, closed
-	doors in burgund, open/broken doors in light blue and floors
-	in white.  A <a href="dumps/map2.gif">gif</a> and the corresponding
-	<a href="dumps/map2.ascii">ascii</a> map.</li>
-      <li> 19th of September: Much small tweaking done, and the GTK+
-	version should be working.  Thanks to Robert Rühlmann for
-	main-gtk.c I used as a starting-point.  Also added some of the
-	left frame for this <a href="dumps/gtk-town.jpg">shot</a> of the
-	town in a simple GTK+ window.</li>
-      <li> 21th of September: A simple screen <a
-	href="dumps/explore.jpg">capture</a> of a @ exploring 
-	the (relatively empty) dungeon. </li>
-      <li> 22th of September: YA simple screen <a
-	href="dumps/objdun.jpg">capture</a> of a @ exploring 
-	the (relatively empty) dungeon, but this time the brave
-	adventurer can find objects and gold. </li>
-      <li> 8th of October: The character is out exploring and shows
-	what he has <a href="dumps/inven.jpg">found</a>.  He's even
-	found some gold on his trek. </li>
-      <li> 12th of October: The character is out for a stroll in the
-	towne, and what does he see.. <a
-	href="dumps/inhabit.jpg">inhabitants</a>.</li>
-      <li> 16th of January: Finally, the line-of-sight code seems to
-	work and the character can move around with his torch.  Here he
-	is visiting the <a href="dumps/los-1.jpg">towne at
-	night</a>.</li>
-      <li> 19th of January: Small bugs have been hit on the head with
-	a hammer and the brave player is exploring the <a
-	href="dumps/nicer-los.jpg">dungeon</a>. </li> 
-
-    </ul>
   </body>
 </html>

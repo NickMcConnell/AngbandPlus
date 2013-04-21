@@ -15,7 +15,8 @@ set_lisp_system(LISP_SYSTEMS val) {
     if (val == LISPSYS_CMUCL || val == LISPSYS_ACL) {
 	current_lisp_system = val;
     }
-    else if (val == LISPSYS_CLISP || val == LISPSYS_LISPWORKS) {
+    else if (val == LISPSYS_CLISP || val == LISPSYS_LISPWORKS ||
+	     val == LISPSYS_SBCL || val == LISPSYS_CORMAN) {
 	current_lisp_system = val;
 	lisp_will_use_callback = 0;
     }

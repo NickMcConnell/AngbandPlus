@@ -2,7 +2,7 @@
 
 #||
 
-DESC: global.lisp - globally available functions/classes
+DESC: global.lisp - globally available functions/methods
 Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
@@ -20,222 +20,260 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 (in-package :org.langband.engine)
 
 
-(defclass game-values ()
-  ((base-ac       :accessor gval.base-ac
-		  :initarg :base-ac
-		  :initform 0)
-   (ac-modifier   :accessor gval.ac-modifier
-		  :initarg :ac-modifier
-		  :initform 0)
-   (base-dice     :accessor gval.base-dice
-		  :initarg :base-dice
-		  :initform 0)
-   (num-dice      :accessor gval.num-dice
-		  :initarg :num-dice
-		  :initform 0)
-   (tohit-modifier :accessor gval.tohit-modifier
-		   :initarg :tohit-modifier
-		   :initform 0)
-   (dmg-modifier  :accessor gval.dmg-modifier
-		  :initarg :dmg-modifier
-		  :initform 0)
-   (mana          :accessor gval.mana
-		  :initarg :mana
-		  :initform 0)
-   (charges       :accessor gval.charges
-		  :initarg :charges
-		  :initform 0)
-   (food-value    :accessor gval.food-value
-		  :initarg :food-value
-		  :initform 0)
-   (light-radius  :accessor gval.light-radius
-		  :initarg :light-radius
-		  :initform 0)
-   (tunnel        :accessor gval.tunnel
-		  :initarg :tunnel
-		  :initform 0)
-   (speed         :accessor gval.speed
-		  :initarg :speed
-		  :initform 0)
-   (skill-modifiers :accessor gval.skill-modifiers
-		    :initarg :skill-modifiers
-		    :initform '())
-   (stat-modifiers :accessor gval.stat-modifiers
-		   :initarg :stat-modifiers
-		   :initform '())
-   (ignores       :accessor gval.ignores
-		  :initarg :ignores
-		  :initform 0
-		  :documentation "The value is tied to registered elements.")
-   (resists       :accessor gval.resists
-		  :initarg :resists
-		  :initform 0
-		  :documentation "The value is tied to registered elements.")
-   (immunities    :accessor gval.immunities
-		  :initarg :immunities
-		  :initform 0
-		  :documentation "The value is tied to registered elements.")
-   (abilities     :accessor gval.abilities
-		  :initarg :abilities
-		  :initform '())
-   (sustains      :accessor gval.sustains
-		  :initarg :sustains
-		  :initform '())
-   (slays         :accessor gval.slays
-		  :initarg :slays
-		  :initform '())
-   )
-  
-  (:documentation "necessary game-values for an object."))
 
-
-(defclass attack ()
-  ((kind     :accessor attack.kind
-	     :initarg :kind
-	     :initform nil)
-   (dmg-type :accessor attack.dmg-type
-	     :initarg :dmg-type
-	     :initform nil)
-   (damage   :accessor attack.damage
-	     :initarg :damage
-	     :initform nil))
-  (:documentation "Representation for a monster-attack."))
-   
-
-(defclass active-object (activatable)
-  ((kind        :accessor aobj.kind
-		:initarg :obj
-		:initform nil)
-   (inscription :accessor aobj.inscr
-		:initform "")
-   (number      :accessor aobj.number
-		:initarg :number
-		:initform 1)
-   (contains    :accessor aobj.contains
-		:initarg :contains
-		:initform nil)
-   (game-values :accessor aobj.game-values
-		:initarg :game-values
-		:initform nil)
-   (events      :accessor aobj.events
-		:initarg :events
-		:initform nil)
-   (loc-x       :accessor location-x
-		:initarg :loc-x
-		:initform +illegal-loc-x+)
-   (loc-y       :accessor location-y
-		:initarg :loc-y
-		:initform +illegal-loc-y+)
-   (identify    :accessor aobj.identify
-		:initarg :identify
-		:initform 0
-		:documentation "Bitfield that says how known the object is.")
-
-   (marked :accessor aobj.marked
-	   :initform nil
-	   :documentation "boolean whether the object has been marked.")
-   
-   ))
-
-
-(defclass active-monster (activatable)
-  ((kind    :accessor amon.kind
-	    :initarg :kind
-	    :initform nil)
-   (cur-hp  :accessor current-hp
-	    :initarg :hp
-	    :initform 0)
-   (max-hp  :accessor maximum-hp
-	    :initarg :max-hp
-	    :initform 0)
-   (speed   :accessor get-creature-speed
-	    :initarg :speed
-	    :initform 0)
-   (energy  :accessor get-creature-energy
-	    :initarg :energy
-	    :initform 0)
-   (mana    :accessor get-creature-mana
-	    :initarg :mana
-	    :initform 0)
-       
-   (loc-x   :accessor location-x      :initarg :loc-x :initform nil)
-   (loc-y   :accessor location-y      :initarg :loc-y :initform nil)
-   (alive?  :accessor creature-alive? :initarg :alive? :initform t)
-       
-   ))
-
-
-(defstruct (alloc-entry (:conc-name alloc.))
-  (obj nil)
-  (index nil)
-  (depth nil)
-  (prob1 nil)
-  (prob2 nil)
-  (prob3 nil))
-
-
-(defstruct (dun-data (:conc-name dun-data.))
-  (room-centres nil)
-  (doors nil)
-  (walls nil)
-  (tunnels nil)
-  (row-rooms nil)
-  (col-rooms nil)
-  (room-map nil)
-  (crowded nil))
-
-(defclass treasure-drop ()
-  ((chance  :initarg :chance  :initform 1       :accessor drop.chance)
-   (amount  :initarg :amount  :initform 1       :accessor drop.amount) ;; either positive integer or (cons int int)
-   (quality :initarg :quality :initform :normal :accessor drop.quality)
-   (type    :initarg :type    :initform :any    :accessor drop.type)
-   ))
-
-(bt:define-binary-struct (hs-entry (:conc-name hs-entry.)) ()
-    
-    (version nil) ;; string
-    (variant nil) ;; string
-    
-    (name nil)    ;; string
-    (race nil)    ;; string-id
-    (class nil)   ;; string-id
-    (sex nil)     ;; string
-    (cause-of-death nil) ;; string
-    
-    ;; directly savable
-    (xp          0 :bt bt:u32)
-    (max-xp      0 :bt bt:u32)
-    (level       0 :bt bt:u16)
-    (depth       0 :bt bt:u16)
-    (max-depth   0 :bt bt:u16)
-    (turn        0 :bt bt:u32)
-    (gold        0 :bt bt:u32)
-    (score       0 :bt bt:u32)  
-    
-    (date        0 :bt u64) ;; time of death
-    )
-
-;; this is a dummy for classes, not objects.. the player will have numbers
-(defstruct (skill (:conc-name skill.))
-  (name "")
-  (base 0)
-  (lvl-gain 0));; this is for 10 levels, to allow for fractions
-
-
-;; move this to variants later
-(defclass skills ()
-  ((saving-throw :accessor skills.saving-throw  :initform 0)
-   (stealth      :accessor skills.stealth       :initform 0)
-   (fighting     :accessor skills.fighting      :initform 0)
-   (shooting     :accessor skills.shooting      :initform 0)
-   (disarming    :accessor skills.disarming     :initform 0)
-   (device       :accessor skills.device        :initform 0)
-   (perception   :accessor skills.perception    :initform 0)
-   (searching    :accessor skills.searching     :initform 0))
-  (:documentation "Various skills..")
-  ;;    #+cmu
-  ;;    (:metaclass pcl::standard-class)
+(defmethod convert-obj (obj to &key)
+  (error "Conversion from ~s to ~s not implemented." obj to)
+  ;;(coerce obj to)
   )
+
+(defmethod activate-object (obj &key)
+
+  obj)
+
+(defmethod activate-object :around ((obj activatable) &key)
+   (unless (next-method-p)
+     ;; this will never happen
+     (lang-warn "Unable to find ACTIVATE-OBJECT for type ~a" (type-of obj))
+     (return-from activate-object nil))
+
+   ;; we pass along the same arguments.. 
+   (let ((result (call-next-method)))
+     ;; we only say that an object is activated if it returned the object
+     (cond ((eq obj result)
+	    (setf (slot-value obj 'activated) t)
+	    obj)
+	   
+	   (t
+	    (lang-warn "Activation of object ~a failed, return was ~a" obj result)
+	    nil)
+	   )))
+
+
+(defun define-effect (symbol name &key number bit-flag)
+  (let ((var-obj *variant*))
+    (pushnew (make-instance 'effect :symbol symbol :name name :number number :bit-flag bit-flag)
+	     (variant.effects var-obj) :test #'eq :key #'effect.symbol)))
+
+(defun is-legal-effect? (variant effect)
+  "Returns T if the given effect is legal."
+  (assert (and (symbolp effect) (not (eq nil effect))))
+  (if (find effect (variant.effects variant) :test #'eq :key #'effect.symbol)
+      t
+      nil))
+
+
+;; see variants/vanilla/config/defines.lisp for examples
+
+(defun define-element (symbol name &key (bit-flag 0) (number 0))
+  (let ((var-obj *variant*))
+    (pushnew (make-instance 'element :symbol symbol :name name :number number :bit-flag bit-flag)
+	     (variant.elements var-obj) :test #'eq :key #'element.symbol)))
+
+
+
+(defun is-legal-element? (variant element)
+  "Returns T if the given element is legal."
+  (assert (and (symbolp element) (not (eq nil element))))
+  (if (find element (variant.elements variant) :test #'eq :key #'element.symbol)
+      t
+      nil))
+
+(defun get-element-flag (variant element)
+  "Returns the bit-flag for the given element."
+  (check-type variant variant)
+  (assert (and (symbolp element) (not (eq nil element))))
+  (let ((elm (find element (variant.elements variant) :test #'eq :key #'element.symbol)))
+    (if (and elm (typep elm 'element))
+	(element.bit-flag elm)
+	(error "The element ~s is not registered for variant '~a'"
+	       element (variant.name variant)))))
+
+(defun get-element-number (variant element)
+  "Returns the numeric index for the given element."
+  (check-type variant variant)
+  (assert (and (symbolp element) (not (eq nil element))))
+  (let ((elm (find element (variant.elements variant) :test #'eq :key #'element.symbol)))
+    (if (and elm (typep elm 'element))
+	(element.number elm)
+	(error "The element ~s is not registered for variant '~a'"
+	       element (variant.name variant)))))
+
+(defun get-element-number-from-bit-flag (variant bit-flag)
+  "Returns the numeric index for a given bit-flag."
+  (check-type variant variant)
+  (loop for x in (variant.elements variant)
+	do
+	(when (= (element.bit-flag x) bit-flag)
+	  (return-from get-element-number-from-bit-flag (element.number x))))
+  (error "Unable to find element with bit-flag ~s" bit-flag))
+
+;;; == variant-related code
+
+(defmethod initialise-monsters& (variant &key)
+  (error "No INIT-MONSTERS for ~s" (type-of variant)))
+  
+(defmethod initialise-floors& (variant &key)
+  (error "No INIT-FLOORS for ~s" (type-of variant)))
+
+(defmethod initialise-objects& (variant &key)
+  (error "No INIT-OBJECTS for ~s" (type-of variant)))
+
+
+;; a small closure
+(let ((registered-variants (make-hash-table :test #'equal)))
+  
+  (defun register-variant& (id var-constructor)
+    "Registers a variant-object."
+    
+    (check-type var-constructor function)
+    (setf (gethash id registered-variants) var-constructor))
+
+  (defun load-variant& (id &key (verbose t))
+    "Tries to load a variant."
+    (declare (ignore verbose))
+    (let ((var-constructor (gethash id registered-variants))
+	  (var-obj nil))
+      (cond ((functionp var-constructor)
+	     (setf var-obj (funcall var-constructor)))
+	    (t
+	     (error "Unable to find variant ~s" id)))
+      
+      (when (and var-obj (typep var-obj 'variant))
+	var-obj))))
+
+
+(defmethod variant-data-fname ((var-obj variant) data-fname)
+  "Returns a full pathname for data."
+  (let ((file-path (variant.config-path var-obj)))
+    (if file-path
+	(concatenate 'string file-path "/" data-fname)
+	data-fname)))
+
+
+
+(defun load-variant-data& (var-obj data-file)
+  "Loads variant-data from appropriate directory."
+
+  (let ((fname (variant-data-fname var-obj data-file)))
+    (load fname)))
+
+
+#||
+      (let ((sys-file (variant.sys-file var-obj)))
+	(when verbose
+	  (format t "~&Will try to load variant '~a' in file ~a~%" id sys-file))
+	(compile-in-environment
+	 #'(lambda ()
+	     (load sys-file)
+	     (mk:operate-on-system id 'compile :verbose nil)
+	     (when verbose
+	       (format t "~&Variant '~a' compiled and loaded.~%" id))))
+	var-obj))))
+||#
+	     
+
+
+(defun execute-turn-events! (var-obj)
+  "Executes any turn-events."
+  (let* ((turn (variant.turn var-obj))
+	 (turn-table (variant.turn-events var-obj))
+	 (turn-ev (gethash turn turn-table)))
+
+    (when turn-ev
+      (warn "Executing events ~a" turn-ev)
+      (remhash turn turn-table))))
+
+(defun register-turn-event! (var-obj wanted-turn event)
+  "Adds a turn-event."
+
+  (push event (gethash wanted-turn (variant.turn-events var-obj))))
+
+
+;;(defun get-monster-filters (type var-obj)
+;;  (gethash type (variant.filters var-obj)))
+
+
+(defun apply-filters-on-obj (type var-obj obj)
+  (let ((filters (gethash type (variant.filters var-obj))))
+    (dolist (i filters)
+      (funcall (cdr i) var-obj obj))))
+
+
+(defun get-level-builder (id &optional (var-obj *variant*))
+  "Returns a level-builder or nil."
+  (assert (or (symbolp id) (stringp id)))
+  (let ((table (variant.level-builders var-obj))
+	(key (if (symbolp id) (symbol-name id) id)))
+    (gethash key table)))
+
+(defun register-level-builder! (id builder &optional (var-obj *variant*))
+  "Registers a level-builder which must be a function."
+  (assert (or (symbolp id) (stringp id)))
+  (assert (functionp builder))
+
+  (let ((table (variant.level-builders var-obj))
+	(key (if (symbolp id) (symbol-name id) id)))
+    (setf (gethash key table) builder)))
+
+(defun make-gender (&key id symbol name win-title)
+  (make-instance 'gender :id id :symbol symbol :name name :win-title win-title))
+
+(defmethod get-gender ((variant variant) (key string))
+  (find key (variant.genders variant) :key #'gender.id :test #'equal))
+
+(defmethod get-gender ((variant variant) (key symbol))
+  (find key (variant.genders variant) :key #'gender.symbol :test #'eq))
+
+;; move these two somewhere else?
+
+(defun make-prt-settings ()
+  "Creates and returns appropriate default printing-settings."
+  (make-instance 'printing-settings
+		 :name "Printing Settings"
+		 :race     '(1 . 0)
+		 :class    '(2 . 0)
+		 :title    '(3 . 0)
+		 :level    '(4 . 0)
+		 :xp       '(5 . 0)
+		 :gold     '(6 . 0)
+		 :stat     '(8 . 0)
+		 :ac       '(15 . 0)
+		 :max-hp   '(16 . 0)
+		 :cur-hp   '(17 . 0)
+		 :max-mana '(18 . 0)
+		 :cur-mana '(19 . 0)
+
+		 :food     '(21 . 0)
+		 :energy   '(22 . 0)
+
+		 ))
+
+
+(defun make-birth-settings (&key allow-all-classes)
+  "Returns a birth-settings object."
+  (let ((settings (make-instance 'birth-settings :name "Birth settings")))
+    (when allow-all-classes
+      (setf (birth.allow-classes settings) t))
+    settings))
+
+;; these two needed?
+(defmethod trigger-event ((obj settings) event arg-list)
+  "trigger events registered for the settings."
+  (apply-event event (setting.events obj) arg-list))
+
+(defmethod register-object-event! ((obj settings) event)
+  (push event (setting.events obj)))
+
+(defmethod get-setting ((variant variant) key)
+  (gethash key (variant.settings variant)))
+
+(defmethod (setf get-setting) (setting (variant variant) key)
+  (when setting
+    (unless (keywordp key)
+      (warn "Registered setting without a keyword as key [~s]"
+	    key))
+    (setf (gethash key (variant.settings variant)) setting)))
+
 
 
 (defmethod produce-game-values-object ((variant variant))
@@ -450,6 +488,29 @@ information from the list skills whose content depends on variant."
     combat-skill))
 
 
+(defmethod convert-obj ((htbl hash-table) (to (eql :vector)) &key sort-table-p sorted-by-key sorted-by-fun fill-pointer)
+  "Takes a hash-table and returns a vector with the elements."
+  
+  (let* ((len (hash-table-count htbl))
+	 (arr (if fill-pointer
+		  (make-array len :initial-element nil :fill-pointer t)
+		  (make-array len :initial-element nil))))
+	 
+    (declare (type u-fixnum len))
+    
+    (loop for i of-type u-fixnum from 0
+	  for x being the hash-values of htbl
+	  do
+	  (setf (aref arr i) x))
+    
+    (when sort-table-p
+      (let ((sort-args (list arr (if sorted-by-fun sorted-by-fun #'<))))
+	(when sorted-by-key
+	  (setq sort-args (append sort-args (list :key sorted-by-key))))
+	(setq arr (apply #'sort sort-args))))
+    
+    arr))
+
 (defmethod convert-obj ((letter character) (to (eql :colour-code)) &key)
   ;; make this one into an array-access later
   "Returns a code which can be sent to C-functions as colour."
@@ -510,25 +571,6 @@ information from the list skills whose content depends on variant."
 	  #-cmu
 	  #\w)))
 
-(let ((screen-lock nil))
-  
-  (defun screen-save ()
-    
-    (when screen-lock
-      (error "Screen already locked, please fix execution-path."))
-
-    ;; flush
-    (c-print-message! +c-null-value+)
-    (c-term-save!)
-    (setf screen-lock t))
-  
-  (defun screen-load ()
-    (unless screen-lock
-      (error "Trying to load a screen, but none is locked."))
-    ;; flush
-    (c-print-message! +c-null-value+)
-    (c-term-load!)
-    (setf screen-lock nil)))
 
 
 (defmacro with-new-screen (arg &body body)
@@ -603,8 +645,6 @@ information from the list skills whose content depends on variant."
   "Tries to load the data-file fname."
   (load (game-data-path fname)))
 
-;;(trace game-data-path)
-;;(trace load-game-data)
 
 (defun read-pref-file (fname)
   "Tries to read a named preference file."
@@ -622,16 +662,73 @@ information from the list skills whose content depends on variant."
 
 ;; some wrappers for C-functions.
 
-(defun c-print-message! (str)
-;;  (warn "going fu on ~s" (type-of str))
-  #-lispworks
-  (org.langband.ffi:c_msg_print! (org.langband.ffi:to-arr str))
-  #+lispworks
-  (fli:with-foreign-string (base-ptr a b)
-    str
-    (org.langband.ffi:c_msg_print! base-ptr))
-  (values))
+(defun flush-messages! (x)
+  (c-term-putstr! x 0 -1 +term-l-blue+ "-more-")
 
+  (block input-loop
+    (loop
+     (let ((ch (read-one-character)))
+       ;; see util.c for real code.. just skip now
+       (return-from input-loop t))))
+  (c_term_erase! 0 0 255))
+
+;; this code is simpler than in C, but does the same job basically
+(let ((msg-col 0)
+      (end-col 72))
+  
+  (defun print-message! (msg)
+    "If msg is nil, things are flushed."
+    ;;  (warn "going fu on ~s" (type-of str))
+    (when (equal msg +c-null-value+)
+      (setq msg nil))
+
+    (let ((msg-len (if msg (length msg) 0)))
+    
+      (when (and (> msg-col 0)
+		 (or (eq msg nil)
+		     (> (+ msg-len msg-col) end-col)))
+	(flush-messages! msg-col)
+	;; skip msg-flag
+	(setf msg-col 0))
+
+      (unless msg
+	(return-from print-message! nil))
+
+      (when (> msg-len 500) ;; panic
+	(return-from print-message! nil))
+
+      ;; skip msg-add
+      
+      (c-term-putstr! msg-col 0 -1 +term-white+ msg)
+
+      (incf msg-col (1+ msg-len))
+      
+      t)))
+
+(defun c-print-message! (msg)
+  (print-message! msg))
+
+(let ((screen-lock nil))
+  
+  (defun screen-save ()
+    
+    (when screen-lock
+      (error "Screen already locked, please fix execution-path."))
+
+    ;; flush
+    (print-message! nil)
+    (c-term-save!)
+    (setf screen-lock t))
+  
+  (defun screen-load ()
+    (unless screen-lock
+      (error "Trying to load a screen, but none is locked."))
+    ;; flush
+    (print-message! nil)
+    (c-term-load!)
+    (setf screen-lock nil)))
+
+    
 (defun c-quit! (str)
   #-lispworks
   (org.langband.ffi:c_quit! (org.langband.ffi:to-arr str))
@@ -642,13 +739,8 @@ information from the list skills whose content depends on variant."
   (values))
 
 (defun c-prt! (str row col)
-  #-lispworks
-  (org.langband.ffi:c_prt! (org.langband.ffi:to-arr str) row col)
-  #+lispworks
-  (fli:with-foreign-string (base-ptr a b)
-    str
-    (org.langband.ffi:c_prt! base-ptr row col))
-  (values))
+  (c_term_erase! col row 255)
+  (c-term-putstr! col row -1 +term-white+ str))
 
 (defun c-term-putstr! (col row some colour text)
   #-lispworks
@@ -666,14 +758,14 @@ information from the list skills whose content depends on variant."
 (defun c-put-str! (text row col)
   (c-term-putstr! col row -1 +term-white+ text))
 
+
 (defun c-bell! (text)
-  #-lispworks
-  (org.langband.ffi:c_bell! (org.langband.ffi:to-arr text))
-  #+lispworks
-  (fli:with-foreign-string (base-ptr a b)
-    text
-    (org.langband.ffi:c_bell! base-ptr))
-  (values))
+  ;; fix this later
+  (c-term-fresh!)
+  ;; skip msg-add
+  ;; skip bell
+  ;; skip flush
+  )
 
 (defun c-pause-line! (row)
   (c-prt! "" row 0)
@@ -728,6 +820,22 @@ information from the list skills whose content depends on variant."
 		     (print-word cur-word))))))
     ))
 
+(defsubst read-one-character ()
+  "Reads one character from the C-side."
+
+  #-handle-char-as-num
+  (c-inkey!)
+  #+handle-char-as-num
+  (code-char (c-inkey!))
+  )
+  
+(defsubst clear-the-screen! ()
+  "Clears the screen on the C-side."
+  (c-term-clear!)
+  #+cmu
+  (c-clear-from! 0))
+
+
 (defun quit-game& ()
   "Tries to clean up a few variables."
   (setf *variant* nil
@@ -748,3 +856,166 @@ information from the list skills whose content depends on variant."
      (c-quit! +c-null-value+)))
   nil)
  
+
+
+(defun get-feature (id)
+  "Returns an object of type FEATURE-TYPE or NIL."
+  (let ((table (variant.floor-features *variant*)))
+    (gethash id table)))
+
+(defun (setf get-feature) (feature id)
+  "Adds a feature with given id to the appropriate table."
+  (let ((table (variant.floor-features *variant*)))
+    (setf (gethash id table) feature)))
+
+(defun define-feature-type (id name x-attr x-char &key mimic)
+  "Defines a feature/floor-type and registers it.  The floor/feature
+is returned."
+  (let ((ftype (make-instance 'feature-type :id id
+			      :name name
+			      :x-attr (etypecase x-attr
+					(number (charify-number x-attr)))
+			      :x-char x-char
+			      :mimic mimic)))
+    (setf (get-feature id) ftype)
+    ftype))
+
+;;; == Event related code
+
+(defun is-event? (obj)
+  (typep obj 'l-event))
+
+(defun register-event& (id event)
+  "Registers an event-id and connects it to a function."
+  (unless (equal id (event.id event))
+    (warn "registration id ~s of event ~s aren't equal")) 
+  (let ((key (if (symbolp id) (symbol-name id) id)))
+    (setf (gethash key *global-event-table*) event)))
+
+(defun find-event-for-key (id)
+  "Tries to find an event for the given id."
+  (let ((key (if (symbolp id) (symbol-name id) id)))
+    (gethash key *global-event-table*)))
+
+(defun make-event (id type function &key (state nil) (return-action :remove-event))
+  "Returns an event-object that can be used."
+  (check-type return-action return-actions)
+  (check-type type event-types)
+  (make-instance 'l-event :id id :type type :function function :state state
+		 :return return-action))
+
+(defun define-normal-event (dummy-arg id type function)
+  "establishes an event basically."
+  (declare (ignore dummy-arg))
+  
+  (let ((the-event (make-event id type function)))
+    (register-event& id the-event)
+    the-event))
+
+(defmethod trigger-event (obj event arg-list)
+  (declare (ignore obj event arg-list))
+  (values))
+
+(defun apply-event (event-type event-list arg-list)
+  "Iterates through event-list and funcalls any events
+with given arg-list if any events match."
+  (dolist (i event-list)
+    (when (eq event-type (event.type i))
+      (apply (event.function i) (event.state i) arg-list)
+      )))
+
+(defun get-legal-events (event-list)
+  "Goes through the list and ensures that all events are
+legal, and if they're not they will be replaced with a legal-event
+or removed.  Conses up a new list."
+  (let ((new-list nil))
+    (dolist (i event-list)
+      (cond ((typep i 'l-event)
+	     (push i new-list))
+	    ((or (symbolp i) (stringp i))
+	     (let ((find-attempt (find-event-for-key i)))
+	       (if (and find-attempt (typep find-attempt 'l-event))
+		   (push find-attempt new-list)
+		   (warn "Unable to find an event for key ~s" i))))
+
+	    (t
+	     (warn "Do not know how to handle possible event ~s" i))))
+    (nreverse new-list)))
+
+;;; End event-code
+
+;;; == stat-related code
+
+(defun define-character-stat (symbol name &key abbreviation number data)
+  "Defines and registers a stat with the current variant."
+
+  (let ((the-stat (make-instance 'character-stat :symbol symbol :name name))
+	(variant *variant*))
+    
+    (check-type variant variant)
+
+    (cond ((and number (integerp number) (>= number 0))
+	   (setf (stat.number the-stat) number))
+	  (t
+	   (error "Unknown number ~s for stat ~s" number symbol)))
+    
+    (when abbreviation
+      (setf (stat.abbreviation the-stat) abbreviation))
+
+    (when data
+      (setf (stat.data the-stat) data))
+
+    ;; now let's add it
+
+    (pushnew the-stat (variant.stats variant) :test #'eq :key #'stat.symbol)
+
+    (setf (variant.stats variant) (stable-sort (variant.stats variant) #'< :key #'stat.number)) 
+    
+    the-stat))
+
+(defmethod make-stat-array ((variant variant))
+  (make-array (variant.stat-length variant) :initial-element 0))
+
+;;; The stat-functions below should be checked and possible be improved
+;;; now that there is a class/object and not just random tables
+
+(defun get-stat-name-from-num (num)
+  "Improve later.."
+  (let* ((variant *variant*)
+	 (stat-obj (elt (variant.stats variant) num)))
+    
+    (check-type stat-obj character-stat)
+    
+    (stat.abbreviation stat-obj)))
+
+(defun get-stat-name-from-sym (sym)
+  "Improve later.."
+  (let* ((variant *variant*)
+	 (stat-obj (find sym (variant.stats variant) :key #'stat.symbol)))
+    
+    (check-type stat-obj character-stat)
+    
+    (stat.abbreviation stat-obj)))
+
+(defun get-stat-num-from-sym (sym)
+  "Improve later.."
+  (let* ((variant *variant*)
+	 (stat-obj (find sym (variant.stats variant) :key #'stat.symbol)))
+    
+    (check-type stat-obj character-stat)
+    
+    (stat.number stat-obj)))
+
+
+(defun gsdfn (table num)
+  (svref table num))
+
+(defun build-stat-table-from-symlist (variant symlist)
+;;  (warn "Building stat-table of ~s" symlist)
+  (let ((table (make-stat-array variant)))
+    (dolist (i symlist)
+      (setf (svref table (get-stat-num-from-sym (car i)))
+	    (cadr i)))
+    table))
+
+;;(trace build-stat-table-from-symlist)

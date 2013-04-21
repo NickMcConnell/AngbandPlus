@@ -184,10 +184,10 @@ the Free Software Foundation; either version 2 of the License, or
 	  (let ((home-path  (home-langband-path)))
 	    (lbsys/make-sure-dirs-exist& home-path)
 	    (funcall func *variant* pl *level*
-		     :fname (concatenate 'string home-path +readable-save-file+)
+		     :fname (concatenate 'string home-path *readable-save-file*)
 		     :format :readable)
 	    (funcall func *variant* pl *level*
-		     :fname (concatenate 'string home-path +binary-save-file+)
+		     :fname (concatenate 'string home-path *binary-save-file*)
 		     :format :binary))
 	  (c-print-message! "Your game was saved [binary+source]")
 	  )))

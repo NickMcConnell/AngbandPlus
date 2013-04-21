@@ -80,44 +80,50 @@ CLISP-a
 (defun to-arr (arg)
   "Tries to convert arg to an array for a C-function."
   (cond ((eq arg *foreign-str-target*)
-	 #+cmu
+	 #+(or cmu sbcl)
 	 (to-arr (str-to-arr arg))
 	 #+allegro
 	 (to-arr (str-to-arr arg))
 	 #+clisp
 ;;	 (to-arr (str-to-arr arg))
 	 arg
-	 #-(or cmu allegro clisp)
+	 #-(or cmu allegro clisp sbcl)
 	 (error "foreign to arr"))
 	((eq arg *field-hack*)
 	 #+cmu
 	 (system:vector-sap arg)
+	 #+sbcl
+	 (sb-sys:vector-sap arg)
 	 #+allegro
 	 arg
 	 #+clisp
 	 arg
-	 #-(or cmu allegro clisp)
+	 #-(or sbcl cmu allegro clisp)
 	 (error "field to arr"))
 	((eql arg +c-null-value+)
 	 #+cmu
 	 (system:int-sap 0)
+	 #+sbcl
+	 (sb-sys:int-sap 0)
 	 #+allegro
 	 ;;(%str-to-arr nil)
 	 +c-null-value+
 	 #+clisp
 	 +c-null-value+
-	 #-(or cmu allegro clisp)
+	 #-(or sbcl cmu allegro clisp)
 	 (error "null to arr")
 	 )
 	
 	((typep arg 'simple-base-string)
 	 #+cmu
 	 (system:vector-sap arg)
+	 #+sbcl
+	 (sb-sys:vector-sap arg)
 	 #+allegro
 	 (str-to-arr arg)
 	 #+clisp
 	 arg
-	 #-(or cmu allegro clisp)
+	 #-(or cmu allegro sbcl clisp)
 	 (error "simple to arr"))
 	((stringp arg)
 	 (error "ord. str to arr"))
@@ -131,21 +137,21 @@ CLISP-a
   "Tries to convert arg to something the ffi-str argument can eat."
 
   (cond ((eq arg *foreign-str-target*)
-	 #+cmu
+	 #+(or sbcl cmu)
 	 (to-str (str-to-arr arg))
 	 #+allegro
 	 arg
-	 #-(or cmu allegro)
+	 #-(or cmu allegro sbcl)
 	 (error "foreign to txt"))
 	((eq arg *field-hack*)
-	 #+cmu
+	 #+(or sbcl cmu)
 	 ;; this must be made non-consing
 	 (let* ((len (length arg))
 		(foo (make-string len)))
 	   (dotimes (i len)
 	     (setf (schar foo i) (code-char (aref arg i))))
 	   foo)
-	 #-cmu
+	 #-(or sbcl cmu)
 	 (error "field to txt"))
 	((eql arg +c-null-value+)
 	 +c-null-value+)

@@ -186,9 +186,9 @@ the Free Software Foundation; either version 2 of the License, or
 				(setf (monster.alignment cur-monster) '<evil>))
 			     
 			       ((string-equal j "MALE")
-				(setf (monster.sex cur-monster) '<male>))
+				(setf (monster.gender cur-monster) '<male>))
 			       ((string-equal j "FEMALE")
-				(setf (monster.sex cur-monster) '<female>))
+				(setf (monster.gender cur-monster) '<female>))
 
 			       ;; FRIENDS causes the monster to be generated as a group.
 			       ;; ESCORT causes a bunch of other monsters with the same symbol to be
@@ -278,9 +278,9 @@ the Free Software Foundation; either version 2 of the License, or
 			       ((string-equal j "ATTR_MULTI")
 				(push '<colour-changing> (monster.abilities cur-monster)))
 			       ((string-equal j "CHAR_CLEAR")
-				(push '<special-symbol> (monster.abilities cur-monster)))
+				(push '<absorbs-symbol> (monster.abilities cur-monster)))
 			       ((string-equal j "CHAR_MULTI")
-				(push '<special-symbol-2> (monster.abilities cur-monster)))
+				(push '<changes-symbol> (monster.abilities cur-monster)))
 
 			       ((string-equal j "DROP_GREAT")
 				(push '<drop-great> (monster.treasures cur-monster)))

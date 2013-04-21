@@ -1,0 +1,13 @@
+
+   A:link { text-decoration:none }
+   A:visited { text-decoration:none }
+   A:active { text-decoration:none }
+   A:hover { text-decoration:underline; color:#FF0000 }
+
+   .tab { color: #0000EE; }
+   .tab:visited { color: #0000EE; }
+   .tab:hover { color:#FF0000; }
+   .tabselect { color: #0000EE; font-weight: bold; }
+   .tabselect:visited { font-weight: bold;}
+   .tabselect:hover { color:#FF0000; font-weight: bold; }
+

@@ -33,7 +33,7 @@ the Free Software Foundation; either version 2 of the License, or
   
     (let ((race-key (to-string (race.id (player.race player))))
 	  (class-key (to-string (class.id (player.class player))))
-	  (sex-key (sex.id (player.sex player)))
+	  (gender-key (gender.id (player.gender player)))
 	  (death-reason (if (and (stringp (player.dead-from player)) (> (length (player.dead-from player)) 1))
 			    (player.dead-from player)
 			    "Unknown"))
@@ -45,7 +45,7 @@ the Free Software Foundation; either version 2 of the License, or
        (hs-entry.name hs) (player.name player)
        (hs-entry.race hs) race-key
        (hs-entry.class hs) class-key
-       (hs-entry.sex hs) sex-key
+       (hs-entry.gender hs) gender-key
        (hs-entry.cause-of-death hs) death-reason
 
        (hs-entry.xp hs) (player.cur-xp player)
@@ -73,7 +73,7 @@ the Free Software Foundation; either version 2 of the License, or
     (%bin-save-string (hs-entry.name hs) stream)
     (%bin-save-string (hs-entry.race hs) stream)
     (%bin-save-string (hs-entry.class hs) stream)
-    (%bin-save-string (hs-entry.sex hs) stream)
+    (%bin-save-string (hs-entry.gender hs) stream)
     (%bin-save-string (hs-entry.cause-of-death hs) stream)
     ))
 
@@ -86,7 +86,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  (hs-entry.name obj) (%bin-read-string stream)
 	  (hs-entry.race obj) (%bin-read-string stream)
 	  (hs-entry.class obj) (%bin-read-string stream)
-	  (hs-entry.sex obj) (%bin-read-string stream)
+	  (hs-entry.gender obj) (%bin-read-string stream)
 	  (hs-entry.cause-of-death obj) (%bin-read-string stream)
 	  )
     

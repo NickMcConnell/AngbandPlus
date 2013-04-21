@@ -27,6 +27,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<slime-mold> <potion>)
   :sort-value 5502
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (c-print-message! "You feel less thirsty!")
+			   (possible-identify! pl item)
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 400)) 
 
 (define-object-kind "apple-juice" "apple juice"
@@ -42,6 +47,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<apple-juice> <potion>)
   :sort-value 5501
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (c-print-message! "You feel less thirsty!")
+			   (possible-identify! pl item)
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 250)) 
 
 (define-object-kind "water" "water"
@@ -57,6 +68,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<water> <potion>)
   :sort-value 5500
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (c-print-message! "You feel less thirsty!")
+			   (possible-identify! pl item)
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 200)) 
 
 (define-object-kind "potion-str" "strength"
@@ -72,6 +89,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <increase> <str>)
   :sort-value 5548
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<str> '<increase>)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-reduce-str" "weakness"
@@ -87,6 +109,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <reduce> <str>)
   :sort-value 5516
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<str> '<reduce>)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-str" "restore strength"
@@ -102,6 +129,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <restore> <str>)
   :sort-value 5542
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<str> '<restore>)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-int" "intelligence"
@@ -117,6 +149,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <increase> <int>)
   :sort-value 5549
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<str> '<increase>)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-reduce-int" "stupidity"
@@ -132,6 +169,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <reduce> <int>)
   :sort-value 5517
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<int> '<reduce>)
+			     (possible-identify! pl item))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-int" "restore intelligence"
@@ -147,6 +190,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <restore> <int>)
   :sort-value 5543
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<int> '<restore>)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-wis" "wisdom"
@@ -162,6 +210,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <increase> <wis>)
   :sort-value 5550
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<wis> '<increase>)
+			     (possible-identify! pl item))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-reduce-wis" "naivety"
@@ -177,6 +231,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <reduce> <wis>)
   :sort-value 5518
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<wis> '<reduce>)
+			     (possible-identify! pl item))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-wis" "restore wisdom"
@@ -192,6 +252,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <restore> <wis>)
   :sort-value 5544
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<wis> '<restore>)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-chr" "charisma"
@@ -207,6 +272,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <increase> <chr>)
   :sort-value 5553
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<str> '<increase>)
+			     (possible-identify! pl item))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-reduce-chr" "ugliness"
@@ -222,6 +293,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <reduce> <chr>)
   :sort-value 5521
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<chr> '<reduce>)
+			     (possible-identify! pl item))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-chr" "restore charisma"
@@ -237,6 +314,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <restore> <chr>)
   :sort-value 5547
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<chr> '<restore>)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-cure-light" "cure light wounds"
@@ -252,6 +334,16 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <cure> <light>)
   :sort-value 5534
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (let ((amount (roll-dice 2 8)))
+			     (when (heal-creature! pl amount)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<blindness>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl :heal-cut) '<light>)
+			       (possible-identify! pl item))
+			     :used))
   :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 50)) 
 
 (define-object-kind "potion-reduce-dex" "clumsiness"
@@ -267,6 +359,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <reduce> <dex>)
   :sort-value 5519
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<dex> '<reduce>)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-reduce-con" "sickliness"
@@ -282,6 +379,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <reduce> <con>)
   :sort-value 5520
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<con> '<reduce>)
+			     (possible-identify! pl item))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-cure-serious" "cure serious wounds"
@@ -297,6 +400,18 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <cure> <serious>)
   :sort-value 5535
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (let ((amount (roll-dice 4 8)))
+			     (when (heal-creature! pl amount)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<blindness>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<confusion>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl :heal-cut) '<serious>)
+			       (possible-identify! pl item))
+			     :used))
   :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 100)) 
 
 (define-object-kind "potion-cure-critical" "cure critical wounds"
@@ -312,6 +427,24 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <cure> <critical>)
   :sort-value 5536
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (let ((amount (roll-dice 6 8)))
+			     (when (heal-creature! pl amount)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<blindness>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<confusion>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<poisoned>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl :cut) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl :stun) nil)
+			       (possible-identify! pl item))
+			     
+    :used))
+
   :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 100)) 
 
 (define-object-kind "potion-healing" "healing"
@@ -327,6 +460,22 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <cure> <healing> <normal>)
   :sort-value 5537
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (let ((amount 300))
+			     (when (heal-creature! pl amount)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<blindness>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<confusion>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<poisoned>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl :cut) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl :stun) nil)
+			       (possible-identify! pl item))
+			     :used))
   :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 200)) 
 
 (define-object-kind "potion-con" "constitution"
@@ -342,6 +491,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <increase> <con>)
   :sort-value 5552
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<con> '<increase>)
+			     (possible-identify! pl item))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-xp" "experience"
@@ -387,7 +542,14 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<blindness> <potion>)
   :sort-value 5507
   :the-kind '<potion>
-  :game-values (make-game-values :base-dice 1 :num-dice 1)) 
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (unless (resists-element? pl '<blindness>)
+			     (when (setf (get-creature-state pl '<poisoned>) (+ 100 (random 100)))
+			       (possible-identify! pl item)))
+			   :used)
+
+  :game-values (make-game-values :base-dice 1 :num-dice 1))
 
 (define-object-kind "potion-confusion" "confusion"
   :numeric-id 247
@@ -402,6 +564,13 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<confusion> <potion>)
   :sort-value 5509
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (unless (resists-element? pl '<confusion>)
+			     (when (setf (get-creature-state pl '<confusion>) (+ 15 (random 20)))
+			       (possible-identify! pl item)))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 50)) 
 
 (define-object-kind "potion-poison" "poison"
@@ -417,6 +586,13 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<poison> <potion>)
   :sort-value 5506
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (unless (resists-element? pl '<poison>)
+			     (when (setf (get-creature-state pl '<poisoned>) (+ 10 (random 15)))
+			       (possible-identify! pl item)))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-speed" "speed"
@@ -432,6 +608,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<speed> <potion>)
   :sort-value 5529
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (setf (get-creature-state pl '<hasted>) (+ 15 (random 25)))
+			     (possible-identify! pl item))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-slowness" "slowness"
@@ -447,6 +629,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<slowness> <potion>)
   :sort-value 5504
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (setf (get-creature-state pl '<slowed>) (+ 15 (random 25)))
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 50)) 
 
 (define-object-kind "potion-dex" "dexterity"
@@ -462,6 +649,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <increase> <dex>)
   :sort-value 5551
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<dex> '<increase>)
+			     (possible-identify! pl item))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-dex" "restore dexterity"
@@ -477,6 +670,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <restore> <dex>)
   :sort-value 5545
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<dex> '<restore>)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-con" "restore constitution"
@@ -492,6 +690,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <restore> <con>)
   :sort-value 5546
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<con> '<restore>)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-lose-memory" "lose memories"
@@ -552,6 +755,15 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<heroism> <potion>)
   :sort-value 5532
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (heal-creature! pl 10)
+			     (possible-identify! pl item))
+			   (when (setf (get-creature-state pl '<fear>) nil)
+			     (possible-identify! pl item))
+			   (when (setf (get-creature-state pl '<heroic>) (+ 25 (randint 25))) ;; increase effect
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-berserk" "berserk strength"
@@ -567,6 +779,15 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<berserk-strength> <potion>)
   :sort-value 5533
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (heal-creature! pl 30)
+			     (possible-identify! pl item))
+			   (when (setf (get-creature-state pl '<fear>) nil)
+			     (possible-identify! pl item))
+			   (when (setf (get-creature-state pl '<berserk>) (+ 25 (randint 25))) ;; increase effect
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-boldness" "boldness"
@@ -582,6 +803,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<boldness> <potion>)
   :sort-value 5528
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (setf (get-creature-state pl '<fear>) nil)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-xp" "restore life levels"
@@ -612,6 +838,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <resist> <fire>)
   :sort-value 5530
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (setf (get-creature-state pl '<resist-fire>) (+ 10 (random 10)))
+			     (possible-identify! pl item))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-resist-cold" "resist cold"
@@ -627,6 +859,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <resist> <cold>)
   :sort-value 5531
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (setf (get-creature-state pl '<resist-cold>) (+ 10 (random 10)))
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-det-inv" "detect invisible"
@@ -642,6 +879,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <detect> <invisible>)
   :sort-value 5525
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (setf (get-creature-state pl '<see-invisible>) (+ 12 (random 12)))
+			     (possible-identify! pl item))
+			   :used)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-slow-poison" "slow poison"
@@ -657,6 +900,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<slow-poison> <potion>)
   :sort-value 5526
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when  (setf (get-creature-state pl '<poisoned>) :slow)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-cure-poison" "neutralize poison"
@@ -672,6 +920,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <cure> <poison>)
   :sort-value 5527
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when  (setf (get-creature-state pl '<poisoned>) nil)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-restore-mana" "restore mana"
@@ -702,6 +955,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<infravision> <potion>)
   :sort-value 5524
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (setf (get-creature-state pl '<infravision>) (+ 100 (random 100)))
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-death" "death"
@@ -762,6 +1020,21 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<augmentation> <potion>)
   :sort-value 5555
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (when (update-player-stat! pl '<str> '<increase>)
+			     (possible-identify! pl item))
+			   (when (update-player-stat! pl '<dex> '<increase>)
+			     (possible-identify! pl item))
+			   (when (update-player-stat! pl '<con> '<increase>)
+			     (possible-identify! pl item))
+			   (when (update-player-stat! pl '<int> '<increase>)
+			     (possible-identify! pl item))
+			   (when (update-player-stat! pl '<wis> '<increase>)
+			     (possible-identify! pl item))
+			   (when (update-player-stat! pl '<chr> '<increase>)
+			     (possible-identify! pl item))
+			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-*healing*" "*healing*"
@@ -777,6 +1050,22 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<potion> <cure> <healing> <powerful>)
   :sort-value 5538
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (let ((amount 1200))
+			     (when (heal-creature! pl amount)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<blindness>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<confusion>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl '<poisoned>) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl :cut) nil)
+			       (possible-identify! pl item))
+			     (when (setf (get-creature-state pl :stun) nil)
+			       (possible-identify! pl item))
+			     :used))  
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-life" "life"
@@ -792,6 +1081,27 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<life> <potion>)
   :sort-value 5539
   :the-kind '<potion>
+  :on-quaff (object-effect (dun pl item)
+			   (declare (ignore dun))
+			   (let ((amount 5000))
+			     (c-print-message! "You feel life flow through your body.")
+			     ;; fix, add restore levels
+			     (heal-creature! pl amount)
+			     (setf (get-creature-state pl '<blindness>) nil
+				   (get-creature-state pl '<confusion>) nil
+				   (get-creature-state pl '<poison>) nil
+				   (get-creature-state pl :cut) nil
+				   (get-creature-state pl :stun) nil
+				   (get-creature-state pl '<hallucinate>) nil)
+			     
+			     (update-player-stat! pl '<str> '<restore>)
+			     (update-player-stat! pl '<dex> '<restore>)
+			     (update-player-stat! pl '<con> '<restore>)
+			     (update-player-stat! pl '<int> '<restore>)
+			     (update-player-stat! pl '<wis> '<restore>)
+			     (update-player-stat! pl '<chr> '<restore>)
+			     (possible-identify! pl item)
+			     :used))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "potion-self-knowledge" "self knowledge"

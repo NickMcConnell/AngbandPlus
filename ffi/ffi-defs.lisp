@@ -17,25 +17,12 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
     :returns 'void
     :args '((char-arr msg)))
 
-;; kill
-(def-foreign-function ("bell" c_bell!)
-    :returns 'void
-    :args '((char-arr msg)))
 
-
-;; kill
+;; kill later
 (def-foreign-function ("clear_from" c-clear-from!)
     :returns 'void
     :args '((int row)))
 
-;; kill
-(def-foreign-function ("prt" c_prt!)
-    :returns 'void
-    :args '(;;(cptr text)
-	    (char-arr text)
-	    (int row)
-	    (int col)
-	    ))
 
 
 (def-foreign-function ("print_coloured_token" c-prt-token!)
@@ -63,12 +50,6 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    (int col)
 	    ))
 
-
-(def-foreign-function ("msg_print" c_msg_print!)
-    :returns 'void
-    :args '((char-arr msg)))
-;;    :args '((cptr msg)))
-
 ;; possible kill
 (def-foreign-function ("Term_putstr" c_term_putstr!)
     :returns 'errr
@@ -79,6 +60,15 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    (angbyte colour)
 	    (char-arr text)
 	    ))
+
+;; later kill?
+(def-foreign-function ("Term_erase" c_term_erase!)
+    :returns 'errr
+    :args '(
+	    (int col)
+	    (int row)
+	    (int something)))
+
 
 (def-foreign-function ("Term_queue_char" c-term-queue-char!)
     :returns 'void
@@ -121,13 +111,6 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    (int arg)
 	    ))
 
-(def-foreign-function ("Term_inkey" c-term-inkey&)
-    :returns 'errr
-    :args '((char-arr text)
-	    (int row)
-	    (int col)
-	    ))
-
 (def-foreign-function ("inkey" c-inkey!)
     :returns 'char)
 
@@ -168,45 +151,11 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    (cptr fname))
     :only-when 'using-sound)
 
-
-#||
-(def-foreign-function ("roff" c_roff!)
-    :returns 'void
-    :args '((angbyte colour)
-	    (cptr text)
-	    ))
-
-(def-foreign-function ("test_calling" c_test_calling!)
-    :returns 'int
-    :args '((char-arr msg)
-	    (cptr alt)))
-
-(def-foreign-function ("test_calling_2" c_test_calling!)
-    :returns 'int
-    :args '((char-arr msg)))
-
-(def-foreign-function ("put_str" c-put-str!)
-    :returns 'void
-    :args '((cptr text)
-	    (int row)
-	    (int col)
-	    ))
-
-(def-foreign-function ("c_put_str" c_col_put_str!)
-    :returns 'void
-    :args '((angbyte colour)
-	    (char-arr text)
-	    (int row)
-	    (int col)
-	    ))
-
-(def-foreign-function ("init_angband" c-init.angband!)
-    :returns 'void)
-
-;; kill
 #+never
-(def-foreign-function ("pause_line" c-pause-line!)
-    :returns 'void
-    :args '((int row)))
+(def-foreign-function ("Term_inkey" c-term-inkey&)
+    :returns 'errr
+    :args '((char-arr text)
+	    (int row)
+	    (int col)
+	    ))
 
-||#

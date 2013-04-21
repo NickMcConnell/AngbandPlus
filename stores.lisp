@@ -14,36 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
-(defclass store (house)
-  ((id     :accessor store.id     :initform nil :initarg :id)
-   (name   :accessor store.name   :initform nil :initarg :name)
-   (number :accessor store.number :initform nil :initarg :number)
-     
-   (poss-owners :accessor store.poss-owners
-		:initform nil;;(make-hash-table :test #'eq)
-		:initarg :poss-owners)
-     
-   ;; unsure on this
-
-   (sells      :accessor store.sells      :initform nil :initarg :sells)
-   (items      :accessor store.items      :initform nil :initarg :items)
-   (turnover   :accessor store.turnover   :initform 9   :initarg :turnover)
-   (min-items  :accessor store.min-items  :initform 6   :initarg :min-items)
-   (max-items  :accessor store.max-items  :initform 18  :initarg :max-items)
-   (item-limit :accessor store.item-limit :initform 24 :initarg :item-limit)
-   ))
-
- 
-(defclass store-owner (owner)
-  ((purse      :accessor owner.purse      :initform nil :initarg :purse)
-   (max-greed  :accessor owner.max-greed  :initform nil :initarg :max-greed)
-   (min-greed  :accessor owner.min-greed  :initform nil :initarg :min-greed)
-   (haggle-num :accessor owner.haggle-num :initform nil :initarg :haggle-num)
-   (tolerance  :accessor owner.tolerance  :initform nil :initarg :tolerance)
-   (race       :accessor owner.race       :initform nil :initarg :race)
-   ))
-
-
 ;;; Current implementation ignores haggling, selling-season, buying-season, etc
 
 (defmethod find-owner-for-house (level (house store)
@@ -285,7 +255,7 @@ should be an exisiting id."
     (when (and the-owner (typep the-owner 'store-owner))
       (setf owner-name (owner.name the-owner))
       (let ((the-race (owner.race the-owner)))
-	(when (and the-race (typep the-race 'race))
+	(when (and the-race (typep the-race 'character-race))
 	  (setf owner-race (race.name the-race))))
       (let ((poss-limit (owner.purse the-owner)))
 	(when (and poss-limit (plusp poss-limit))
@@ -469,7 +439,7 @@ should be an exisiting id."
 
     (flet ((iterator-fun (a-table key val)
 	     (declare (ignore a-table key))
-	     (let ((attr (get-attribute val))
+	     (let ((attr (get-colour val))
 		   (price (get-price val store))
 		   (desc (with-output-to-string (s)
 			   (write-obj-description *variant* val s :store t))))

@@ -27,74 +27,25 @@ the Free Software Foundation; either version 2 of the License, or
     'u-16b
     #-handle-char-as-num
     'character
-    ))
+    )
+
+  ;; the types that return-action of an event may have.
+  (deftype return-actions ()
+    `(member :remove-event :keep-event))
+
+  (deftype event-types ()
+    '(member :on-create :on-pre-equip :on-post-equip :step-on-coord))
+  )
+
   
 (define-condition langband-quit (condition) ()) 
-  
-(defclass activatable ()
-  ((activated :reader activated? :initform nil))
-  (:documentation "Mixin-class for activatation of objects,
-may be removed later for efficiency-reasons.  It enforces a
-protocol that allows activated? to be set automagically after
-a succesful ACTIVATE-OBJECT."))
-  
-  
-;; move me later
-(defgeneric activate-object (obj &key &allow-other-keys)
-  (:documentation "Most objects in Langband is created lazily.
-This means that an object may be created but may not be fully initialised
-and filled with appropriate values right away.  The normal CL/CLOS mechanisms
-deal with the actual creation of the bare object, but non-trivial objects
-should also be \"activated\", ie get proper values on all variables.
-The object in question must be returned, failure to do so may lead to a
-situation where the system assumes the object is invalid."))  
+ 
 
-(defgeneric ok-object? (obj &key warn-on-failure context)
-  (:documentation "Checks to make sure the object is ok.  Should not halt
-the program, just return NIL on failure.  Is allowed to print warnings."))
-
-(defgeneric convert-obj (obj to &key &allow-other-keys)
-  (:documentation "Tries to convert the OBJ to the TO form, in pretty
-much the same way as COERCE."))
-
-(defstruct (sex (:conc-name sex.))
-  id  ;; saves of players should use id, not symbol
-  symbol
-  name
-  win-title)
-
-;; some binary types
+;;; === Some binary types
 (bt:define-unsigned u64 8)
 (bt:define-signed s64 8)
 
-
-(defmethod convert-obj (obj to &key)
-  (error "Conversion from ~s to ~s not implemented." obj to)
-  ;;(coerce obj to)
-  )
-
-(defmethod activate-object (obj &key)
-
-  obj)
-
-(defmethod activate-object :around ((obj activatable) &key)
-   (unless (next-method-p)
-     ;; this will never happen
-     (lang-warn "Unable to find ACTIVATE-OBJECT for type ~a" (type-of obj))
-     (return-from activate-object nil))
-
-   ;; we pass along the same arguments.. 
-   (let ((result (call-next-method)))
-     ;; we only say that an object is activated if it returned the object
-     (cond ((eq obj result)
-	    (setf (slot-value obj 'activated) t)
-	    obj)
-	   
-	   (t
-	    (lang-warn "Activation of object ~a failed, return was ~a" obj result)
-	    nil)
-	   )))
-
+;;; === Some macros we need right away
 
 (defmacro defsubst (name arglist &body body)
   "Declare an inline defun."
@@ -113,6 +64,55 @@ much the same way as COERCE."))
   `(progn
     (declaim (type ,type ,name))
     (defconstant ,name (the ,type ,init) ,doc)))
+
+;;; === End important/general macros
+
+;;; === Some dynamic variables of importance for the rest of the system:
+
+(defvar *game-parameters* (make-hash-table :test #'eq)
+  "a table with keyword game-parameters")
+
+;; four very important variables :-)
+(defvar *variant* nil "variant in use.  one should not rebind this
+too frequently.")
+(defvar *level* nil "The current level, for good and bad.")
+(defvar *dungeon* nil "global dungeon object")
+(defvar *player* nil "the player object")
+
+
+(defcustom *redraw* u-fixnum 0 "what to redraw, bitfield")
+(defcustom *update* u-fixnum 0 "what to update, bitfield")
+
+(defvar *cur-dun* nil
+  "a dynamic variable which is set to an object
+of type DUN-DATA (see: dungeon.lisp) and is valid
+throughout dungeon-generation")
+
+(defvar *hitpoint-warning* 3
+  "Value in [0..9] of when to warn about hitpoint-losses")
+
+(defvar *last-console-line* 23 "just a dummy for later use.")
+
+(defvar *global-event-table* (make-hash-table :test #'equal))
+
+(defvar *obj-type-mappings* (make-hash-table :test #'eq)
+  "keeps track of mapping from key to object-types, used by factories.")
+
+(defvar *engine-source-dir* #+langband-development "./"
+	#-langband-development (translate-logical-pathname "langband:"))
+(defvar *engine-config-dir*
+  #+unix
+  (progn
+    #+langband-development (pathname "./config/")
+    #-langband-development "/var/lib/games/langband/")
+  #+win32
+  (pathname "c:/cygwin/home/default/langband/config/")
+  #-(or unix win32)
+  (pathname "./config/"))
+
+;;; === End dynamic variables
+
+
 
 (defmacro with-type (type expr)
   "Evaluate the arithmetic expression in TYPE.
@@ -165,6 +165,7 @@ but optimized for vectors."
                        stuff)))
         ((null next-pos) (nreverse stuff)))))
 
+;;; start queue-code
 (defun make-queue ()
   (cons nil nil))
 
@@ -180,7 +181,7 @@ but optimized for vectors."
 
 (defun dequeue (q)
   (pop (car q)))
-
+;;; end queue-code
 
 (defun register-variant-common& (&key before-game-init after-game-init)
   "Registers callbacks for common functions for all variants. Called
@@ -253,7 +254,7 @@ before variant init-functions."
     (elt seq elm)))
     
 
-#+(or cmu lispworks)
+#+compiler-that-inlines
 (defsubst int-/ (a b)
 ;;  (declare (type u-fixnum a b))
 ;;  (the u-fixnum
@@ -262,7 +263,7 @@ before variant init-functions."
   )
 
 
-#-(or cmu lispworks)
+#-compiler-that-inlines
 (defmacro int-/ (a b)
   "Integer division, as in C."
   `(prog1 (floor ,a ,b)))
@@ -303,29 +304,6 @@ and NIL if unsuccesful."
 	 (lang-warn "equipment full..")
 	 nil)))
 
-
-(defmethod convert-obj ((htbl hash-table) (to (eql :vector)) &key sort-table-p sorted-by-key sorted-by-fun fill-pointer)
-  "Takes a hash-table and returns a vector with the elements."
-  
-  (let* ((len (hash-table-count htbl))
-	 (arr (if fill-pointer
-		  (make-array len :initial-element nil :fill-pointer t)
-		  (make-array len :initial-element nil))))
-	 
-    (declare (type u-fixnum len))
-    
-    (loop for i of-type u-fixnum from 0
-	  for x being the hash-values of htbl
-	  do
-	  (setf (aref arr i) x))
-    
-    (when sort-table-p
-      (let ((sort-args (list arr (if sorted-by-fun sorted-by-fun #'<))))
-	(when sorted-by-key
-	  (setq sort-args (append sort-args (list :key sorted-by-key))))
-	(setq arr (apply #'sort sort-args))))
-    
-    arr))
 
 (defun shuffle-array! (tmp-arr len)
   "Shuffles the given array"
@@ -412,20 +390,6 @@ and NIL if unsuccesful."
 	nil)))
 		      
    
-(defsubst read-one-character ()
-  "Reads one character from the C-side."
-
-  #-handle-char-as-num
-  (c-inkey!)
-  #+handle-char-as-num
-  (code-char (c-inkey!))
-  )
-  
-(defsubst clear-the-screen! ()
-  "Clears the screen on the C-side."
-  (c-term-clear!)
-  #+cmu
-  (c-clear-from! 0))
 
 (defun compile-in-environment (func)
   (let (
@@ -474,18 +438,23 @@ and NIL if unsuccesful."
       s)))
 
 ;;(trace text-to-ascii)
+#+allegro
+(let ((counter 0))
+  (defun %dump-profile-to-file ()
+    (let ((pname (concatenate 'string *dumps-directory* "prof." (format nil "~a" (incf counter)) ".dump")))
+      (with-open-file (s (pathname pname)
+			 :direction :output
+			 :if-exists :supersede)
+	(prof:show-flat-profile :stream s :verbose t)
+	(prof:show-call-graph :stream s :verbose t)
+	))))
 
 #+allegro
 (defmacro tricky-profile (expr type)
   `(prof:with-profiling (:type ,type)
     (prog1
 	,expr
-      (with-open-file (s (pathname "prof.dump")
-			    :direction :output
-			    :if-exists :supersede)
-	   (prof:show-flat-profile :stream s :verbose t)
-	   (prof:show-call-graph :stream s :verbose t)
-	   ))))
+      (%dump-profile-to-file))))
 
 #-allegro
 (defmacro tricky-profile (expr type)
@@ -511,8 +480,9 @@ or load time, ie totally dynamic."
   #+cmu (ext:gc)
   #+allegro (excl:gc t)
   #+clisp (ext:gc)
+  #+sbcl (sb-ext:gc)
   #+lispworks (hcl:normal-gc)
-  #-(or allegro cmu clisp lispworks)
+  #-(or allegro cmu clisp lispworks sbcl)
   (lang-warn "explicit GC not implemented."))
 
 (defun lang-warn (format-string &rest format-args)

@@ -216,7 +216,7 @@ the Free Software Foundation; either version 2 of the License, or
    (report-equal (player.name x) 	       (player.name y))
    (report-equal (class.id (player.class x))   (class.id (player.class y)))
    (report-equal (race.id  (player.race x))    (race.id (player.race y)))
-   (report-equal (player.sex x) 	       (player.sex y))
+   (report-equal (player.gender x) 	       (player.gender y))
 
    (report-equalp (player.base-stats x)    (player.base-stats y))
    (report-equalp (player.cur-statmods x)  (player.cur-statmods y))
@@ -350,7 +350,7 @@ the Free Software Foundation; either version 2 of the License, or
        (report-equal (monster.armour x) (monster.armour y))
        (report-equal (monster.speed x) (monster.speed y))
        (report-equal (monster.xp x) (monster.xp y))
-       (report-equal (monster.sex x) (monster.sex y))
+       (report-equal (monster.gender x) (monster.gender y))
 
        (report-equal (monster.abilities x) (monster.abilities y))
        (report-equal (monster.immunities x) (monster.immunities y))
@@ -435,7 +435,7 @@ the Free Software Foundation; either version 2 of the License, or
    (report-equal  (variant.id x)       (variant.id y))
    (report-equal  (variant.name x)     (variant.name y))
    (report-equal  (variant.sys-file x) (variant.sys-file y))
-   (report-equalp (variant.sexes x)    (variant.sexes y))
+   (report-equalp (variant.genders x)  (variant.genders y))
    (lang-equal    (variant.races x)    (variant.races y))
    ;; add more
    ))

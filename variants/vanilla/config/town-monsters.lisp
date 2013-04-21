@@ -27,9 +27,9 @@ the Free Software Foundation; either version 2 of the License, or
   :alertness 40
   :vision 4
   :attacks '((<touch> :type <eat-gold> :damage nil) (<beg> :type nil :damage nil))
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "squint-rogue" "squint eyed rogue"
+(define-monster-kind "rogue-squint-eyed" "squint eyed rogue"
   :desc "A hardy, street-wise crook that knows an easy catch when it sees one."
   :symbol #\t
   :colour #\b
@@ -44,7 +44,7 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 10
   :attacks '((<touch> :type <eat-item> :damage nil) (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop-chance> 3/5))
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "singing-drunk" "singing, happy drunk"
   :desc "He makes you glad to be sober."
@@ -60,7 +60,7 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 10
   :attacks '((<beg> :type nil :damage nil))
   :treasures '((<drop-chance> 3/5) <only-drop-gold>)
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "aimless-merchant" "aimless looking merchant"
   :desc "The typical ponce around town, with purse jingling, and looking for more  amulets of adornment to buy."
@@ -76,9 +76,9 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 10
   :attacks '((<hit> :type <hurt> :damage (1 . 3)))
   :treasures '((<drop-chance> 3/5) <only-drop-gold>)
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "mean-mercenary" "mean looking mercenary"
+(define-monster-kind "mercenary-mean-looking" "mean looking mercenary"
   :desc "No job is too low for him."
   :symbol #\t
   :colour #\r
@@ -93,7 +93,7 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 10
   :attacks '((<hit> :type <hurt> :damage (1 . 10)))
   :treasures '((<drop-chance> 9/10))
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "scarred-veteran" "battle scarred veteran"
   :desc "He doesn't take to strangers kindly."
@@ -109,9 +109,9 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 10
   :attacks '((<hit> :type <hurt> :damage (2 . 6)))
   :treasures '((<drop-chance> 9/10))
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "scrawny-cat" "scrawny cat"
+(define-monster-kind "cat-scrawny" "scrawny cat"
   :desc "A skinny little furball with sharp claws and a menacing look."
   :symbol #\f
   :colour #\U
@@ -126,7 +126,7 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 30
   :attacks '((<claw> :type <hurt> :damage (1 . 1)))) 
 
-(define-monster-kind "scruffy-dog" "scruffy little dog"
+(define-monster-kind "dog-scruffy" "scruffy little dog"
   :desc "A thin flea-ridden mutt, growling as you get close."
   :symbol #\C
   :colour #\U
@@ -141,7 +141,7 @@ the Free Software Foundation; either version 2 of the License, or
   :vision 20
   :attacks '((<bite> :type <hurt> :damage (1 . 1)))) 
 
-(define-monster-kind "blub-idiot" "blubbering idiot"
+(define-monster-kind "idiot-blubbering" "blubbering idiot"
   :desc "He tends to blubber a lot."
   :symbol #\t
   :colour #\W
@@ -154,7 +154,7 @@ the Free Software Foundation; either version 2 of the License, or
   :alertness 0
   :vision 6
   :attacks '((<drool> :type nil :damage nil))
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "boiled-wretch" "boil-covered wretch"
   :desc "Ugly doesn't begin to describe him."
@@ -169,9 +169,9 @@ the Free Software Foundation; either version 2 of the License, or
   :alertness 0
   :vision 6
   :attacks '((<drool> :type nil :damage nil))
-  :sex '<male>) 
+  :gender '<male>) 
 
-(define-monster-kind "village-idiot" "village idiot"
+(define-monster-kind "idiot-village" "village idiot"
   :desc "Drooling and comical, but then, what do you expect?"
   :symbol #\t
   :colour #\G
@@ -184,7 +184,7 @@ the Free Software Foundation; either version 2 of the License, or
   :alertness 0
   :vision 6
   :attacks '((<drool> :type nil :damage nil))
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "beggar" "pitiful looking beggar"
   :desc "You just can't help feeling sorry for him."
@@ -199,7 +199,7 @@ the Free Software Foundation; either version 2 of the License, or
   :alertness 40
   :vision 10
   :attacks '((<beg> :type nil :damage nil))
-  :sex '<male>) 
+  :gender '<male>) 
 
 (define-monster-kind "mangy-leper" "mangy looking leper"
   :desc "You feel it isn't safe to touch him."
@@ -214,4 +214,4 @@ the Free Software Foundation; either version 2 of the License, or
   :alertness 50
   :vision 10
   :attacks '((<beg> :type nil :damage nil))
-  :sex '<male>) 
+  :gender '<male>) 

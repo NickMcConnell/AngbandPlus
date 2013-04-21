@@ -33,27 +33,22 @@ ENGINEMAN	:= $(DESTDIR)/usr/share/man/man3
 VANILLAMAN	:= $(VANILLADESTDIR)/usr/share/man/man3
 
 INSTALLSOURCES	:= \
-	langband-engine.system pre-build.lisp \
-	package.lisp memoize.lisp \
-	base.lisp constants.lisp \
-	dyn-vars.lisp generics.lisp sys.lisp event.lisp  core.lisp \
-	parameters.lisp   global.lisp  \
-	settings.lisp  level.lisp \
-	floor.lisp  sound.lisp \
-	stat.lisp  race.lisp \
-	class.lisp  object.lisp \
+	langband-engine.system  pre-build.lisp \
+	package.lisp  memoize.lisp \
+	base.lisp  constants.lisp \
+	generics.lisp  sys.lisp classes.lisp \
+	parameters.lisp  global.lisp  \
+	sound.lisp  character.lisp  object.lisp \
 	equipment.lisp  player.lisp \
-	flavours.lisp \
 	monster.lisp  dungeon.lisp \
 	building.lisp  stores.lisp \
-	allocate.lisp  rooms.lisp \
-	generate.lisp  print.lisp \
+	allocate.lisp  generate.lisp  print.lisp \
 	util.lisp  combat.lisp \
 	keys.lisp  actions.lisp \
-	view.lisp project.lisp save.lisp  load.lisp \
-	death.lisp \
-	birth.lisp loop.lisp \
-	init.lisp verify.lisp
+	view.lisp project.lisp save.lisp \
+	load.lisp  death.lisp \
+	birth.lisp ai.lisp loop.lisp \
+	dump.lisp init.lisp verify.lisp
 
 COMPATSRC = \
 	lib/compat/monster.lisp \
@@ -71,6 +66,7 @@ FOREIGNSRC = \
 	ffi/ffi-load.lisp \
 	ffi/ffi-defs.lisp \
 	ffi/ffi-lw.lisp \
+	ffi/ffi-sbcl.lisp \
 	ffi/ffi-sys.lisp 
 
 
@@ -87,13 +83,10 @@ CONFSRC = \
 VANSRC = \
 	variants/vanilla/langband-vanilla.system \
 	variants/vanilla/base.lisp \
-	variants/vanilla/food.lisp \
 	variants/vanilla/keys.lisp \
 	variants/vanilla/levels.lisp \
-	variants/vanilla/potions.lisp \
 	variants/vanilla/quirks.lisp \
 	variants/vanilla/rooms.lisp \
-	variants/vanilla/scrolls.lisp \
 	variants/vanilla/spells.lisp \
 	variants/vanilla/various.lisp \
 	variants/vanilla/wizard.lisp 
@@ -113,6 +106,7 @@ VANCONFSRC = \
 	variants/vanilla/config/potions.lisp \
 	variants/vanilla/config/races.lisp \
 	variants/vanilla/config/scrolls.lisp \
+	variants/vanilla/config/stats.lisp \
 	variants/vanilla/config/sticks.lisp \
 	variants/vanilla/config/stores.lisp \
 	variants/vanilla/config/town-monsters.lisp \

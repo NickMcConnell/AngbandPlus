@@ -26,6 +26,10 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 125
   :obj-type '(<scroll> <enchant> <weapon> <to-hit>)
   :sort-value 5017
+  :on-read (object-effect (dun pl item)
+			  (let ((retval (enchant-item! dun pl :type '<weapon> :bonus 1 :restrict '<to-hit>)))
+			    (possible-identify! pl item)
+			    retval))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-enchant-wpn-dmg" "enchant weapon to-dam"
@@ -40,6 +44,10 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 125
   :obj-type '(<scroll> <enchant> <weapon> <to-dmg>)
   :sort-value 5018
+  :on-read (object-effect (dun pl item)
+			  (let ((retval (enchant-item! dun pl :type '<weapon> :bonus 1 :restrict '<to-dmg>)))
+			    (possible-identify! pl item)
+			    retval))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-enchant-armour" "enchant armour"
@@ -54,6 +62,10 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 125
   :obj-type '(<scroll> <enchant> <armour> <normal>)
   :sort-value 5016
+  :on-read (object-effect (dun pl item)
+			  (let ((retval (enchant-item! dun pl :type '<armour> :bonus 1)))
+			    (possible-identify! pl item)
+			    retval))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-identify" "identify"
@@ -110,6 +122,12 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 15
   :obj-type '(<illuminate> <scroll>)
   :sort-value 5024
+  :on-read (object-effect (dun pl item)
+			  ;;  (declare (ignore dun pl item))
+			  (warn "light.")
+			  (when (light-area! dun pl (roll-dice 2 8) 2 :type '<light>) ;; 2d8 dmg, radius 2
+			    (possible-identify! pl item))
+			  :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-summon-monster" "summon monster"
@@ -138,6 +156,10 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 15
   :obj-type '(<phase-door> <scroll>)
   :sort-value 5008
+  :on-read (object-effect (dun pl item)
+			  (teleport-creature! dun pl pl 10)
+			  (possible-identify! pl item)
+			  :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-teleport" "teleportation"
@@ -152,6 +174,11 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 40
   :obj-type '(<teleportation> <scroll>)
   :sort-value 5009
+  :on-read (object-effect (dun pl item)
+			  ;;  (warn "phase door.")
+			  (teleport-creature! dun pl pl 100)
+			  (possible-identify! pl item)
+			  :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-teleport-lvl" "teleport level"
@@ -418,6 +445,11 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 0
   :obj-type '(<darkness> <scroll>)
   :sort-value 5000
+  :on-read (object-effect (dun pl item)
+			  ;;  (declare (ignore dun pl item))
+			  (when (light-area! dun pl (roll-dice 2 8) 2 :type '<darkness>) ;; 2d8 dmg, radius 2
+			    (possible-identify! pl item))
+			  :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-protect-from-evil" "protection from evil"
@@ -474,6 +506,10 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 500
   :obj-type '(<scroll> <enchant> <weapon> <powerful>)
   :sort-value 5021
+  :on-read (object-effect (dun pl item)
+			  (let ((retval (enchant-item! dun pl :type '<weapon> :bonus (+ (randint 3) (randint 3)))))
+			    (possible-identify! pl item)
+			    retval))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-curse-weapon" "curse weapon"
@@ -502,6 +538,10 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 500
   :obj-type '(<scroll> <enchant> <armour> <powerful>)
   :sort-value 5020
+  :on-read (object-effect (dun pl item)
+			  (let ((retval (enchant-item! dun pl :type '<armour> :bonus (+ 2 (randint 3)))))
+			    (possible-identify! pl item)
+			    retval))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-curse-armour" "curse armour"

@@ -15,7 +15,7 @@ DUNGEON
 
 STORES/TOWN
  - specialised shops has no restrictions on buy
- - buying ignores amount
+ - buying ignores amount [fixed]
  - no home-code
  - no restock of shops
   
@@ -23,6 +23,7 @@ STORES/TOWN
 SPELLS
  - no support for spells and spell-casting
  - also missing project() which is needed for balls and beams
+
 
 MAGICAL ITEMS
  - No inclusion of effects on objects on monsters/players
@@ -32,22 +33,22 @@ MAGICAL ITEMS
 
 SAVE/LOAD, SCORE and DEATH
  - 2/3 of save/load implemented
- - save/load misses events, shops, flavours, ...
+ - save/load misses events and shops, ++
 
 
 MONSTERS
  - extremely primitive AI, all monsters aggressive
  - none of the monsters behave as they really should
- - do not carry items or use items
+ - do not carry items or use items [not in v0.1]
  - no monster-memory
- - no monster-drops
- - does not know that monsters are unique
- - does not generate groups of monsters
+ - no monster-drops [fixed]
+ - does not know that monsters are unique [fixed, miss some features
+ - does not generate groups of monsters [fixed, simple, but working]
 
 COMBAT
  - no magical weapons done [barely started]
  - no ego-weapons done
- - no missile/thrown weapons
+ - no missile/thrown weapons [almost fixed for missiles, some misfeatures]
  - no special powers or bonuses used in combat
  - missing proper descriptions for attacks [somewhat improved now]
 
@@ -56,7 +57,7 @@ MOVING ABOUT
  - no running
  - no resting and no regeneration [simple regen for hits added]
  - no map function
- - no infravision, invisible support
+ - no infravision, see-invisible support [done]
 
 
 CONTAINERS
@@ -66,7 +67,7 @@ CONTAINERS
 
 COMMANDS
  - no directed 'o'pen command
- - no wizard-mode
+ - no wizard-mode [partially added]
  - no 'D'estroy item command
  - no 't'akeoff command
  - eating, drinking, etc not implemented [q and u should work on potions]
@@ -74,15 +75,17 @@ COMMANDS
  - no 'L'ook command
  - no targetting command, e.g for missiles, spells, ..
  - no refill of lamps
+ - add 'u'se again
 
 
 OTHER
+ - find a good way to integrate stats
  - fix updating of fields, bonuses, etc on player and monsters in an
-   extensible way.
- - integrate effect and element-code in a good way.
+   extensible way. [a decent system found for player, started work]
+ - integrate effect and element-code in a good way. [very hard]
  - optimise FFI-code to be fast and not generate garbage, esp strings
  - missing project() which a lot of features need
- - messages are not saved or kept, should be done on the c-side.
+ - messages are not saved or kept, should be done on the lisp-side.
  - no option-system [bad settings and parameter-system now]
  - no visual changing
  - no macro-system from within the game
@@ -92,3 +95,6 @@ OTHER
  - fix a more spiffy home-page [got mascot]
  - find a way to copy active-objects in a rational way (and which
    respects subclasses), e.g for picking up one of a group of objects
+ - find a good way to represent stat-information, preferrably via
+   generics+classes and controlled by variant-code
+ -add print-* methods for poison, confusion, ...

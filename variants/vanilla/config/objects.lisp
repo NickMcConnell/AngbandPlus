@@ -35,6 +35,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<blindness> <mushroom> <food>)
   :sort-value 6001
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (setf (get-creature-state pl :blindness) (+ 200 (random 200)))
+			   (possible-identify! pl item))
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-paranoia" "paranoia"
@@ -50,6 +55,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<paranoia> <mushroom> <food>)
   :sort-value 6002
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (setf (get-creature-state pl :fear) (+ 10 (random 10)))
+			   (possible-identify! pl item))
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-confusion" "confusion"
@@ -65,6 +75,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<confusion> <mushroom> <food>)
   :sort-value 6003
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (setf (get-creature-state pl :confusion) (+ 10 (random 10)))
+			   (possible-identify! pl item))
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-hallucination" "hallucination"
@@ -80,6 +95,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<hallucination> <mushroom> <food>)
   :sort-value 6004
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (setf (get-creature-state pl :hallucination) (+ 250 (random 250)))
+			   (possible-identify! pl item))
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-cure-poison" "cure poison"
@@ -95,9 +115,14 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<mushroom> <food> <cure> <poison>)
   :sort-value 6012
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (setf (get-creature-state pl :poison) nil)
+			   (possible-identify! pl item))
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
-(define-object-kind "muchroom-cure-blindness" "cure blindness"
+(define-object-kind "mushroom-cure-blindness" "cure blindness"
   :numeric-id 6
   :x-attr #\d
   :x-char #\,
@@ -110,6 +135,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<mushroom> <food> <cure> <blindness>)
   :sort-value 6013
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (setf (get-creature-state pl :blindness) nil)
+			   (possible-identify! pl item))
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-cure-paranoia" "cure paranoia"
@@ -125,6 +155,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<mushroom> <food> <cure> <paranoia>)
   :sort-value 6014
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (setf (get-creature-state pl :fear) nil)
+			   (possible-identify! pl item))
+			 :used)
+
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-cure-confusion" "cure confusion"
@@ -140,6 +176,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<mushroom> <food> <cure> <confusion>)
   :sort-value 6015
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (setf (get-creature-state pl :confusion) nil)
+			   (possible-identify! pl item))
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-weakness" "weakness"
@@ -155,6 +196,13 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<mushroom> <food> <reduce> <str>)
   :sort-value 6006
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 ;; add damage and desc
+			 (update-player-stat! pl '<str> '<reduce>)
+			 (possible-identify! pl item)
+			 :used)
+  
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-unhealth" "unhealth"
@@ -185,6 +233,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<mushroom> <food> <restore> <con>)
   :sort-value 6018
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (update-player-stat! pl '<con> '<restore>)
+			   (possible-identify! pl item))
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-restoring" "restoring"
@@ -200,6 +253,16 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<restoring> <mushroom> <food>)
   :sort-value 6019
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (update-player-stat! pl '<str> '<restore>)
+			 (update-player-stat! pl '<dex> '<restore>)
+			 (update-player-stat! pl '<con> '<restore>)
+			 (update-player-stat! pl '<int> '<restore>)
+			 (update-player-stat! pl '<wis> '<restore>)
+			 (update-player-stat! pl '<chr> '<restore>)
+			 (possible-identify! pl item)
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-stupidity" "stupidity"
@@ -215,6 +278,13 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<mushroom> <food> <reduce> <int>)
   :sort-value 6008
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 ;; add damage and desc
+			 (update-player-stat! pl '<int> '<reduce>)
+			 (possible-identify! pl item)
+			 :used)
+  
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-naivety" "naivety"
@@ -230,6 +300,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<mushroom> <food> <reduce> <wis>)
   :sort-value 6009
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 ;; add damage and desc
+			 (update-player-stat! pl '<wis> '<reduce>)
+			 (possible-identify! pl item)
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-poison" "poison"
@@ -245,6 +321,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<poison> <mushroom> <food>)
   :sort-value 6000
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (setf (get-creature-state pl :poison) (+ 10 (random 10)))
+			   (possible-identify! pl item))
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-sickness" "sickness"
@@ -260,6 +341,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<mushroom> <food> <reduce> <con>)
   :sort-value 6007
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 ;; add damage and desc
+			 (update-player-stat! pl '<con> '<reduce>)
+			 (possible-identify! pl item)
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-paralysis" "paralysis"
@@ -275,6 +362,12 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<paralysis> <mushroom> <food>)
   :sort-value 6005
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (setf (get-creature-state pl :paralysis) (+ 10 (random 10)))
+			   (possible-identify! pl item))
+			 :used)
+
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-restore-str" "restore strength"
@@ -290,6 +383,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<mushroom> <food> <restore> <str>)
   :sort-value 6017
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (update-player-stat! pl '<con> '<restore>)
+			   (possible-identify! pl item))
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "mushroom-disease" "disease"
@@ -320,6 +418,11 @@ the Free Software Foundation; either version 2 of the License, or
   :obj-type '(<mushroom> <food> <cure> <serious>)
   :sort-value 6016
   :the-kind '<mushroom>
+  :on-eat (object-effect (dun pl item)
+			 (declare (ignore dun))
+			 (when (heal-creature! pl (roll-dice 4 8))
+			   (possible-identify! pl item))
+			 :used)
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "food-ration" "& ration~ of food"

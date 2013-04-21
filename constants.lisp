@@ -100,7 +100,7 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 
 ;;; === flags that control print/redraw
-
+;; will probably be altered to let variants have their own extra set
 (defconstant +print-misc+   #x00000001)
 (defconstant +print-title+  #x00000002)
 (defconstant +print-level+  #x00000004)
@@ -157,6 +157,14 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +ident-cursed+ #x40 "Item is temporarily cursed")
 (defconstant +ident-broken+ #x80 "Item is permanently worthless")
 
+;;; === Various monster-flags
+
+(defconstant +monster-flag-view+  #x01 "Monster is in line of sight")
+;; ...
+(defconstant +monster-flag-born+  #x10 "Monster is being born")
+(defconstant +monster-flag-nice+  #x20 "Monster is being nice")
+(defconstant +monster-flag-show+  #x40 "Monster is recently memorised")
+(defconstant +monster-flag-mark+  #x80 "Monster is currently memorised")
   
 (defconstant +block-height+ 11)
 (defconstant +block-width+ 11)
@@ -198,19 +206,19 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 ;; maximum constants
 (defconst +tunnel-max+ u-fixnum 900 "maximum tunnel-spaces.")
 
-(defconstant +ddd+ #1A(2 8 6 4 3 1 9 7 5)
-	     "Global array for looping through the 'keypad directions'.")
+(defvar *ddd* #1A(2 8 6 4 3 1 9 7 5)
+	"Global array for looping through the 'keypad directions'.")
 
-(defconstant +ddx+ #1A(0 -1 0 1 -1 0 1 -1 0 1)
+(defvar *ddx* #1A(0 -1 0 1 -1 0 1 -1 0 1)
+	"Global array for converting 'keypad direction' into 'offsets'.")
+
+(defvar *ddy* #1A(0 1 1 1 0 0 0 -1 -1 -1)
 	     "Global array for converting 'keypad direction' into 'offsets'.")
 
-(defconstant +ddy+ #1A(0 1 1 1 0 0 0 -1 -1 -1)
-	     "Global array for converting 'keypad direction' into 'offsets'.")
-
-(defconstant +ddx-ddd+ #1A(0 0 1 -1 1 -1 1 -1 0)
+(defvar *ddx-ddd* #1A(0 0 1 -1 1 -1 1 -1 0)
 	     "Global arrays for optimizing 'ddx[ddd[i]]'")
-(defconstant +ddy-ddd+ #1A(1 -1 0 0 1 1 -1 -1 0)
-	     "Global arrays for optimizing 'ddx[ddd[i]]'")
+(defvar *ddy-ddd* #1A(1 -1 0 0 1 1 -1 -1 0)
+	"Global arrays for optimizing 'ddx[ddd[i]]'")
 
 
 (defconstant +project-jump+ #x01)
@@ -224,7 +232,7 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 (defconstant +energy-normal-action+ 100)
 
-(defconstant +energy-table+  #200(
+(defvar *energy-table*  #200(
     1  1  1  1  1  1  1  1  1  1 ;; Slow
     1  1  1  1  1  1  1  1  1  1 ;; Slow     
     1  1  1  1  1  1  1  1  1  1 ;; Slow     
@@ -261,8 +269,10 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +illegal-loc-y+ 7777)
 (defconstant +room-size-arg-len+ 5)
 
-(defconstant +readable-save-file+ "_save-game.lisp")
-(defconstant +binary-save-file+ "_save-game.bin")
+(defvar *readable-save-file* "_save-game.lisp")
+(defvar *binary-save-file* "_save-game.bin")
+
+(defvar *dumps-directory* "doc/dumps/" "Where should various debug-dumps go?")
 
 (defconstant +saved-cave-flags+ (logior +cave-mark+ +cave-glow+ +cave-icky+ +cave-room+))
 
@@ -273,11 +283,11 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +vinfo-max-slopes+ 126)
 
 
-(defconstant +vinfo-bit-fields+ #8(#xFFFF #xFFFF  ;; 0
-				   #xFFFF #xFFFF  ;; 1
-				   #xFFFF #xFFFF  ;; 2
-				   #x3FFF #xFFFF  ;; 3
-				   ))
+(defvar *vinfo-bit-fields* #8(#xFFFF #xFFFF  ;; 0
+				     #xFFFF #xFFFF  ;; 1
+				     #xFFFF #xFFFF  ;; 2
+				     #x3FFF #xFFFF  ;; 3
+				     ))
 
 (defconstant +vinfo-bit-field-len+ 8)
 
@@ -285,3 +295,6 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 (defconstant +scale+ 100000)
 
+
+(defconstant +calculated-effect+ #x01)
+(defconstant +temporary-effect+  #x02)

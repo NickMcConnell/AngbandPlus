@@ -1,7 +1,7 @@
 ;;; Please do not edit this _GENERATED_ file.
 
 
-(in-package :langband-ffi)
+(in-package :org.langband.ffi)
 (ff:def-foreign-type angbyte :unsigned-char)
 
 (ff:def-foreign-type cptr (* :char))
@@ -13,11 +13,7 @@
 
 (ff:def-foreign-call (c_quit! "z_quit") ((msg (* :void))) :returning :void)
 
-(ff:def-foreign-call (c_bell! "bell") ((msg (* :void))) :returning :void)
-
 (ff:def-foreign-call (c-clear-from! "clear_from") ((row :int)) :returning :void)
-
-(ff:def-foreign-call (c_prt! "prt") ((text (* :void)) (row :int) (col :int)) :returning :void)
 
 (ff:def-foreign-call (c-prt-token! "print_coloured_token") ((colour angbyte)
                                                             (token :int)
@@ -34,12 +30,13 @@
                                                               (row :int)
                                                               (col :int)) :returning :void)
 
-(ff:def-foreign-call (c_msg_print! "msg_print") ((msg (* :void))) :returning :void)
-
 (ff:def-foreign-call (c_term_putstr! "Term_putstr") ((col :int) (row :int)
                                                      (something :int)
                                                      (colour angbyte)
                                                      (text (* :void))) :returning errr)
+
+(ff:def-foreign-call (c_term_erase! "Term_erase") ((col :int) (row :int)
+                                                   (something :int)) :returning errr)
 
 (ff:def-foreign-call (c-term-queue-char! "Term_queue_char") ((row :int)
                                                              (col :int)
@@ -59,9 +56,6 @@
 (ff:def-foreign-call (c-term-load! "Term_load") nil :returning errr)
 
 (ff:def-foreign-call (c-term-xtra& "Term_xtra") ((msg :int) (arg :int)) :returning errr)
-
-(ff:def-foreign-call (c-term-inkey& "Term_inkey") ((text (* :void)) (row :int)
-                                                   (col :int)) :returning errr)
 
 (ff:def-foreign-call (c-inkey! "inkey") nil :returning :char)
 
@@ -89,11 +83,10 @@
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (export
-   '(c_current_ui c_quit! c_bell! c-clear-from! c_prt! c-prt-token! c-prt-stat!
-     c-prt-number! c_msg_print! c_term_putstr! c-term-queue-char!
-     c-term-gotoxy! c-set-cursor& c-term-clear! c-term-fresh! c-term-save!
-     c-term-load! c-term-xtra& c-term-inkey& c-inkey! init_c-side&
-     cleanup-c-side& c_macro_add& c-set-lisp-system! c-set-lisp-callback!
-     c-set-hinst! c-load-sound&)))
+   '(c_current_ui c_quit! c-clear-from! c-prt-token! c-prt-stat! c-prt-number!
+     c_term_putstr! c_term_erase! c-term-queue-char! c-term-gotoxy!
+     c-set-cursor& c-term-clear! c-term-fresh! c-term-save! c-term-load!
+     c-term-xtra& c-inkey! init_c-side& cleanup-c-side& c_macro_add&
+     c-set-lisp-system! c-set-lisp-callback! c-set-hinst! c-load-sound&)))
 
 ;;; End of generated file.

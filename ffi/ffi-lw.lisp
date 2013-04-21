@@ -1,7 +1,7 @@
 ;;; Please do not edit this _GENERATED_ file.
 
 
-(in-package :langband-ffi)
+(in-package :org.langband.ffi)
 (fli:define-foreign-type angbyte () ':char)
 
 (fli:define-foreign-type cptr () ':pointer)
@@ -15,14 +15,7 @@
 (fli:define-foreign-function (c_quit! "z_quit") ((msg :pointer))
    :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
 
-(fli:define-foreign-function (c_bell! "bell") ((msg :pointer))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
 (fli:define-foreign-function (c-clear-from! "clear_from") ((row :int))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c_prt! "prt") ((text :pointer) (row :int)
-                                             (col :int))
    :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (c-prt-token! "print_coloured_token") ((colour
@@ -52,14 +45,16 @@
                                                                        :int))
    :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
 
-(fli:define-foreign-function (c_msg_print! "msg_print") ((msg :pointer))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
 (fli:define-foreign-function (c_term_putstr! "Term_putstr") ((col :int)
                                                              (row :int)
                                                              (something :int)
                                                              (colour angbyte)
                                                              (text :pointer))
+   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
+
+(fli:define-foreign-function (c_term_erase! "Term_erase") ((col :int)
+                                                           (row :int)
+                                                           (something :int))
    :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (c-term-queue-char! "Term_queue_char") ((row :int)
@@ -90,11 +85,6 @@
    :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (c-term-xtra& "Term_xtra") ((msg :int) (arg :int))
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-term-inkey& "Term_inkey") ((text :pointer)
-                                                           (row :int)
-                                                           (col :int))
    :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (c-inkey! "inkey") nil
@@ -136,11 +126,10 @@
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (export
-   '(c_current_ui c_quit! c_bell! c-clear-from! c_prt! c-prt-token! c-prt-stat!
-     c-prt-number! c_msg_print! c_term_putstr! c-term-queue-char!
-     c-term-gotoxy! c-set-cursor& c-term-clear! c-term-fresh! c-term-save!
-     c-term-load! c-term-xtra& c-term-inkey& c-inkey! init_c-side&
-     cleanup-c-side& c_macro_add& c-set-lisp-system! c-set-lisp-callback!
-     c-set-hinst! c-load-sound&)))
+   '(c_current_ui c_quit! c-clear-from! c-prt-token! c-prt-stat! c-prt-number!
+     c_term_putstr! c_term_erase! c-term-queue-char! c-term-gotoxy!
+     c-set-cursor& c-term-clear! c-term-fresh! c-term-save! c-term-load!
+     c-term-xtra& c-inkey! init_c-side& cleanup-c-side& c_macro_add&
+     c-set-lisp-system! c-set-lisp-callback! c-set-hinst! c-load-sound&)))
 
 ;;; End of generated file.

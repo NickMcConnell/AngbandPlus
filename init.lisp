@@ -69,7 +69,7 @@ ADD_DESC: at the start.
 ;;    (warn "Scanning..")
 
     #+langband-debug
-    (with-open-file (s (pathname "dumps/bar.txt")
+    (with-open-file (s (pathname (concatenate 'string *dumps-directory* "bar.txt"))
 		       :direction :output 
 		       :if-exists :supersede)
       (loop for i across obj-table
@@ -123,7 +123,7 @@ ADD_DESC: at the start.
       (setq table (sort table #'< :key #'alloc.depth))
 
       #+langband-debug
-      (dump-alloc-table table "dumps/foo.txt")
+      (dump-alloc-table table (concatenate 'string *dumps-directory* "foo.txt"))
       
       table)))
 
@@ -182,7 +182,7 @@ ADD_DESC: at the start.
     
 
       #+langband-debug
-      (dump-alloc-table table "dumps/formosa.txt")
+      (dump-alloc-table table (concatenate 'string *dumps-directory* "formosa.txt"))
       
       table)))
 
@@ -242,10 +242,10 @@ call appropriately high-level init in correct order."
     (setf *current-key-table* *ang-keys*))
 
   ;; time to register our lisp
-  #+(or cmu allegro clisp lispworks)
-  (c-set-lisp-system! #+cmu 0 #+allegro 1 #+clisp 2 #+lispworks 3)
+  #+(or cmu allegro clisp lispworks sbcl cormanlisp)
+  (c-set-lisp-system! #+cmu 0 #+allegro 1 #+clisp 2 #+lispworks 3 #+sbcl 4 #+cormanlisp 5)
   
-  #-(or cmu allegro clisp lispworks)
+  #-(or cmu allegro clisp lispworks sbcl cormanlisp)
   (error "lisp-system ~s unknown for C-side." (lisp-implementation-type))
 
   #+(and lispworks win32)
@@ -289,8 +289,8 @@ call appropriately high-level init in correct order."
 (defun a (&optional (ui #+win32 "win" #-win32 "x11"))
   ;; to make sure dumps look pretty
   (let ((*package* (find-package :org.langband.engine))
-	#+cmu (extensions:*gc-verbose* nil)
-	#+cmu (*compile-print* nil)
+	#+(or cmu) (extensions:*gc-verbose* nil)
+	#+(or cmu sbcl) (*compile-print* nil)
 	)
     (game-init& ui)
 ;;    (format t "~&Thanks for helping to test Langband.~2%")

@@ -19,7 +19,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 (in-package :org.langband.engine)
 
 
-(defun redraw-stuff (dun pl)
+(defun redraw-stuff (variant dun pl)
   "Redraws stuff according to *REDRAW*."
   
   (when (= 0 *redraw*) (return-from redraw-stuff nil))
@@ -47,12 +47,12 @@ ADD_DESC: Most of the code which deals with the game loops.
       (bit-flag-remove! *redraw* +print-hp+)
       (bit-flag-remove! *redraw* +print-depth+)
       (bit-flag-remove! *redraw* +print-health+)
-      (print-basic-frame dun pl)
+      (print-basic-frame variant dun pl)
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-misc+)
       (bit-flag-remove! *redraw* +print-misc+)
-      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
 
       (print-field (get-race-name pl) (slot-value pr-set 'race))
       (print-field (get-class-name pl) (slot-value pr-set 'class))
@@ -60,19 +60,19 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     (when (bit-flag-set? *redraw* +print-title+)
       (bit-flag-remove! *redraw* +print-title+)
-      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
       (print-title pl pr-set)
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-level+)
       (bit-flag-remove! *redraw* +print-level+)
-      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
       (print-level pl pr-set)
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-xp+)
       (bit-flag-remove! *redraw* +print-xp+)
-      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
       (print-xp pl pr-set)
       (setf retval t))
 
@@ -80,41 +80,113 @@ ADD_DESC: Most of the code which deals with the game loops.
     
     (when (bit-flag-set? *redraw* +print-armour+)
       (bit-flag-remove! *redraw* +print-armour+)
-      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
       (print-armour-class pl pr-set)
       (setf retval t))
     
     (when (bit-flag-set? *redraw* +print-hp+)
       (bit-flag-remove! *redraw* +print-hp+)
-      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
       (print-hit-points pl pr-set)
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-mana+)
       (bit-flag-remove! *redraw* +print-mana+)
-      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
       (print-mana-points pl pr-set)
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-gold+)
       (bit-flag-remove! *redraw* +print-gold+)
-      (unless pr-set (setf pr-set (get-setting :basic-frame-printing)))
+      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
       (print-gold pl pr-set)
       (setf retval t))
 
-    
-    ;; more stuff here
-      
+    (when (bit-flag-set? *redraw* +print-depth+)
+      (bit-flag-remove! *redraw* +print-depth+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-health+)
+      (bit-flag-remove! *redraw* +print-health+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-extra+)
+      (bit-flag-remove! *redraw* +print-extra+)
+      (bit-flag-remove! *redraw* +print-cut+)
+      (bit-flag-remove! *redraw* +print-stun+)
+      (bit-flag-remove! *redraw* +print-hunger+)
+      (bit-flag-remove! *redraw* +print-blind+)
+      (bit-flag-remove! *redraw* +print-confused+)
+      (bit-flag-remove! *redraw* +print-afraid+)
+      (bit-flag-remove! *redraw* +print-poisoned+)
+      (bit-flag-remove! *redraw* +print-state+)
+      (bit-flag-remove! *redraw* +print-speed+)
+      (bit-flag-remove! *redraw* +print-study+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-cut+)
+      (bit-flag-remove! *redraw* +print-cut+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-stun+)
+      (bit-flag-remove! *redraw* +print-stun+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-hunger+)
+      (bit-flag-remove! *redraw* +print-hunger+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-blind+)
+      (bit-flag-remove! *redraw* +print-blind+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-confused+)
+      (bit-flag-remove! *redraw* +print-confused+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-afraid+)
+      (bit-flag-remove! *redraw* +print-afraid+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-poisoned+)
+      (bit-flag-remove! *redraw* +print-poisoned+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-state+)
+      (bit-flag-remove! *redraw* +print-state+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-speed+)
+      (bit-flag-remove! *redraw* +print-speed+)
+      ;; fix
+      (setf retval t))
+
+    (when (bit-flag-set? *redraw* +print-study+)
+      (bit-flag-remove! *redraw* +print-study+)
+      ;; fix
+      (setf retval t))
     
     (when (/= 0 *redraw*)
-      (warn "Unhandled flags ~s" *redraw*))
+      (warn "Unhandled redraw flags ~s" *redraw*))
     
     retval))
 
 
-(defun update-stuff (dun pl)
+(defun update-stuff (variant dun pl)
   "Updates stuff according to *UPDATE*."
-
+  (declare (ignore variant))
+  
   (when (= 0 *update*) (return-from update-stuff nil))
   
   (let ((retval nil)
@@ -170,12 +242,12 @@ ADD_DESC: Most of the code which deals with the game loops.
     (when (bit-flag-set? *update* +pl-upd-distance+)
       (bit-flag-remove! *update* +pl-upd-distance+)
       (bit-flag-remove! *update* +pl-upd-monsters+)
-;;      (update-view! dun pl)
+      (update-monsters! var-obj dun t)
       (setf retval t))
     
     (when (bit-flag-set? *update* +pl-upd-monsters+)
       (bit-flag-remove! *update* +pl-upd-monsters+)
-;;      (update-view! dun pl)
+      (update-monsters! var-obj dun nil)
       (setf retval t))
     
     (when (bit-flag-set? *update* +pl-upd-panel+)
@@ -190,144 +262,23 @@ ADD_DESC: Most of the code which deals with the game loops.
     
     retval))
 
-(defun handle-stuff (dun pl)
+(defun handle-stuff (variant dun pl)
   (let ((retval nil))
     (unless (= 0 *update*)
-      (setf retval (update-stuff dun pl)))
+      (setf retval (update-stuff variant dun pl)))
     (unless (= 0 *redraw*)
-      (setf retval (or (redraw-stuff dun pl) retval)))
+      (setf retval (or (redraw-stuff variant dun pl) retval)))
   ;; add window-stuff
     retval))
 
 
-(defvar *proj-arr-hack* (make-array 40 :fill-pointer 0))
-
-(defun %possibly-move-monster! (dun pl mon)
-  "Tries to process a single monster."
-
-  (let ((mx (location-x mon))
-	(my (location-y mon))
-	(random-mover (has-ability? mon '<random-mover>)))
-    
-    (declare (type u-16b mx my))
-    
-    (when random-mover
-;;      (warn "~s is random.." mon)
-      (let ((how-often (second random-mover)))
-	(when (< (random 100) (* 100 how-often))
-	  ;;(warn "moving at random..")
-	  (return-from %possibly-move-monster! t))
-	))
-
-    (when (player-has-los-bold? dun mx my)
-    
-      (let ((px (location-x pl))
-	    (py (location-y pl))
-	    (proj-arr *proj-arr-hack*)
-	    )
-
-;;    (lang-warn "Action for '~a' at (~s,~s)" (monster.name mon)
-;;	       mx my)
-
-    
-
-      (setf (fill-pointer proj-arr) 0)
-;;      (lang-warn "-> '~a' at (~s,~s) can see player at (~s,~s)" (get-creature-name mon) mx my px py)
-      (let ((res (project-path dun 18 proj-arr mx my px py 0)))
-;;	(warn "Project gave ~s -> ~s" res (loop for x across proj-arr collecting (cons (grid-x x) (grid-y x))))
-	(when (plusp res)
-	  (let* ((the-grid (aref proj-arr 0))
-		 (the-x (grid-x the-grid))
-		 (the-y (grid-y the-grid)))
-	    
-	    (cond ((and (= px the-x)
-			(= py the-y))
-		   ;; are we close enough to kill the character?
-		   (cmb-monster-attack! dun pl mon the-x the-y))
-		  (t
-		   (let ((legal-x nil)
-			 (legal-y nil)
-			 (project-legal-p (legal-move? dun mx my the-x the-y)))
-
-		     (when project-legal-p
-		       (setq legal-x the-x
-			     legal-y the-y))
-
-		     (unless (and legal-x legal-y)
-		       (let ((sx (if (< px mx) -1 1))
-			     (sy (if (< py my) -1 1)))
-
-;;			 (warn "Unable to get legal move, trying fuzzy..")
-			 
-			 (cond ((legal-move? dun mx my (+ sx mx) my)
-				(setq legal-x (+ sx mx)
-				      legal-y my))
-			       ((legal-move? dun mx my mx (+ sy my))
-				(setq legal-x mx
-				      legal-y (+ sy my))))))
-
-		     (when (and legal-x legal-y)
-		       (swap-monsters! dun pl mx my legal-x legal-y))
-		     #||
-			 (progn
-			   (unless project-legal-p
-			     (warn "We're at [~s,~s,~a] wanted to go [~s,~s,~a] but went [~s,~s,~a] (~a <-> ~a)"
-				   mx my (cadr (multiple-value-list (map-info dun mx my)))
-				   the-x the-y (cadr (multiple-value-list (map-info dun the-x the-y)))
-				   legal-x legal-y (cadr (multiple-value-list (map-info dun legal-x legal-y)))
-				   res (distance mx my px py)))
-			   
-			   
-			 (warn "We're at [~s,~s,~a] wanted to go [~s,~s,~a] but went [~s,~s,~a] (~a <-> ~a)"
-			       mx my (cadr (multiple-value-list (map-info dun mx my)))
-			       the-x the-y (cadr (multiple-value-list (map-info dun the-x the-y)))
-			       legal-x legal-y nil ;;(cadr (multiple-value-list (map-info dun legal-x legal-y)))
-			       res (distance mx my px py)))
-			 ||#
-		     )))
-
-
-	   ))
-	))
-    )))
-
-
-(defun process-single-monster! (dun pl mon)
-
-  (let ((val (has-ability? mon '<never-move>)))
-    (if val
-	nil ;; no nothing
-	(%possibly-move-monster! dun pl mon))))
-
-  
-(defun legal-move? (dun x1 y1 x2 y2)
-  (declare (ignore x1 y1))
-  (if (cave-floor-bold? dun x2 y2)
-      t
-      nil))
-
-
-(defun process-monsters& (dun pl needed-energy)
-  "Tries to do something nasty to all the monsters."
-  
-  (with-dungeon-monsters (dun m)
-;;    (warn "Trying to process monster ~a with energy ~a and speed ~a -> will need ~a energy"
-;;	  (get-creature-name m) (get-creature-energy m)
-;;	  (get-creature-speed m) needed-energy)
-    (when (>= (get-creature-energy m) needed-energy)
-      ;; we deduct before we do things to be sure, improve  later
-      (decf (get-creature-energy m) +energy-normal-action+)
-      (process-single-monster! dun pl m)))
-  nil)
-
-
-(defun process-player! (dun pl)
+(defun process-player! (variant dun pl)
   "processes the player in a given turn"
 
   (loop named waste-energy
 	do
-	(when (/= *update* 0) (update-stuff dun pl))
-	(when (/= *redraw* 0) (redraw-stuff dun pl))
+	(when (/= *update* 0) (update-stuff variant dun pl))
+	(when (/= *redraw* 0) (redraw-stuff variant dun pl))
 	
 	(put-cursor-relative! dun (location-x pl) (location-y pl))
 
@@ -437,6 +388,18 @@ ADD_DESC: Most of the code which deals with the game loops.
       
 
     ;; do timeout'ing of effects
+    ;; (add specials for cuts, stun, ...)
+    (let ((temp-attrs (player.temp-attrs pl)))
+      (loop for x being the hash-values of temp-attrs
+	    do
+	    (let ((old-duration (attr.duration x)))
+	      (cond ((= old-duration 1)
+		     (setf (get-creature-state pl (attr.key x)) 0))
+		    ((plusp old-duration)
+		     (decf (attr.duration x)))
+		    )
+	      )))
+		    
     
     ;; burn fuel when needed
     (when-bind (l-s (get-light-source pl))
@@ -460,10 +423,10 @@ ADD_DESC: Most of the code which deals with the game loops.
     ))
 
 (defun energy-for-speed (crt)
-  (aref +energy-table+ (get-creature-speed crt)))
+  (aref *energy-table* (get-creature-speed crt)))
 			 
 
-(defun energise-creatures! (dun pl)
+(defun energise-creatures! (variant dun pl)
 
   (incf (get-creature-energy pl) (energy-for-speed pl))
 
@@ -478,10 +441,11 @@ ADD_DESC: Most of the code which deals with the game loops.
 	while (and (>= (get-creature-energy pl) +energy-normal-action+) ;; better solution?
 		   (not (player.leaving-p pl)))
 	do
-	(process-monsters& dun pl (1+ (get-creature-energy pl)))
-	
-	(unless (player.leaving-p pl)
-	  (process-player! dun pl)))
+	(progn
+	  (process-monsters& dun pl (1+ (get-creature-energy pl)))
+	  
+	  (unless (player.leaving-p pl)
+	    (process-player! variant dun pl))))
   )
 
   
@@ -523,16 +487,16 @@ ADD_DESC: Most of the code which deals with the game loops.
     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+) 
     (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-spells+ +pl-upd-mana+) 
 
-    (update-stuff dun pl)
+    (update-stuff var-obj dun pl)
     
     (bit-flag-add! *redraw* +print-map+ +print-basic+)
-    (bit-flag-add! *update* +pl-upd-forget-view+ +pl-upd-update-view+)
+    (bit-flag-add! *update* +pl-upd-forget-view+ +pl-upd-update-view+ +pl-upd-distance+)
   
     
     ;; postpone stuff..
-    (update-stuff dun pl)
+    (update-stuff var-obj dun pl)
 
-    (redraw-stuff dun pl)
+    (redraw-stuff var-obj dun pl)
 
 
     (block main-dungeon-loop
@@ -552,9 +516,9 @@ ADD_DESC: Most of the code which deals with the game loops.
 	 (assert (ok-object? var-obj :context :in-game :warn-on-failure t))
 	 )
        
-       (energise-creatures! dun pl)
+       (energise-creatures! var-obj dun pl)
 
-       (when (/= 0 *update*) (update-stuff dun pl))
+       (when (/= 0 *update*) (update-stuff var-obj dun pl))
 	      
        (process-monsters& dun pl +energy-normal-action+)
        ;; stuff
@@ -563,17 +527,17 @@ ADD_DESC: Most of the code which deals with the game loops.
 	 (when leave-sym
 	   (return-from run-level! leave-sym)))
 
-       (when (/= 0 *update*) (update-stuff dun pl))
+       (when (/= 0 *update*) (update-stuff var-obj dun pl))
        
        (process-world& dun pl)
        ;; do other stuff
        ;; hack
        (verify-panel dun pl)
 
-       (when (/= 0 *update*) (update-stuff dun pl))
+       (when (/= 0 *update*) (update-stuff var-obj dun pl))
 
        ;; (warn "redraw is ~a" *redraw*)
-       (when (/= 0 *redraw*) (redraw-stuff dun pl))
+       (when (/= 0 *redraw*) (redraw-stuff var-obj dun pl))
 
 
        ;; do this till things are fixed..
@@ -680,8 +644,8 @@ ADD_DESC: Most of the code which deals with the game loops.
 	     (the-level nil)
 	     (the-variant nil)
 	     (save-combos (list
-			   (cons (concatenate 'string (home-langband-path) +binary-save-file+)  :binary)
-			   (cons (concatenate 'string (home-langband-path) +readable-save-file+)  :readable)))
+			   (cons (concatenate 'string (home-langband-path) *binary-save-file*)  :binary)
+			   (cons (concatenate 'string (home-langband-path) *readable-save-file*)  :readable)))
 	     
 	     )
 	 

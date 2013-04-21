@@ -118,19 +118,6 @@ byte angband_color_table[256][4] =
 
 
 
-/*** Player information ***/
-
-/*
- * The player info record (static)
- */
-static player_type player_type_body;
-
-/*
- * Pointer to the player info record
- */
-player_type *p_ptr = &player_type_body;
-
-
 /*
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file

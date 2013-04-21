@@ -12,6 +12,47 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
+;;; === Basic generics
+
+(defgeneric activate-object (obj &key &allow-other-keys)
+  (:documentation "Most objects in Langband is created lazily.
+This means that an object may be created but may not be fully initialised
+and filled with appropriate values right away.  The normal CL/CLOS mechanisms
+deal with the actual creation of the bare object, but non-trivial objects
+should also be \"activated\", ie get proper values on all variables.
+The object in question must be returned, failure to do so may lead to a
+situation where the system assumes the object is invalid."))  
+
+(defgeneric ok-object? (obj &key warn-on-failure context)
+  (:documentation "Checks to make sure the object is ok.  Should not halt
+the program, just return NIL on failure.  Is allowed to print warnings."))
+
+(defgeneric convert-obj (obj to &key &allow-other-keys)
+  (:documentation "Tries to convert the OBJ to the TO form, in pretty
+much the same way as COERCE."))
+
+(defgeneric location-x (obj)
+  (:documentation "Generic function for all things that have a location
+in the game at some point."))
+  
+(defgeneric (setf location-x) (value obj)
+  (:documentation "Sets the x-location for the object whenever possible."))
+  
+(defgeneric location-y (obj)
+  (:documentation "Generic function for all things that have a location
+in the game at some point."))
+  
+(defgeneric (setf location-y) (value obj)
+  (:documentation "Sets the y-location for the object whenever possible."))
+
+(defgeneric lang-equal (first-obj second-obj)
+  (:documentation "A recursive check for equality (along the lines of EQUAL)
+but one that works with langband-objects."))
+
+(defgeneric get-loadable-form (variant object &key &allow-other-keys)
+  (:documentation "Pretty much similar to MAKE-LOAD-FORM."))
+
+;;; === End basic
 
 ;;; == Overridable Factories
 
@@ -51,17 +92,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defgeneric do-save (variant fname obj-list style)
   (:documentation "Tries to save the object-list to the given filename.  STYLE
-specifi es what kind of saving should be done (e.g readable, binary, ..)"))
+specifies what kind of saving should be done (e.g readable, binary, ..)"))
 
 (defgeneric load-a-saved-game (variant fname style)
   (:documentation "Tries to load a saved-game from the filename.
 If variant is NIL the default loader will be used."))
-
-(defclass l-readable-stream ()
-  ((the-stream :accessor lang.stream :initform nil :initarg :stream)))
-(defclass l-binary-stream ()
-  ((the-stream :accessor lang.stream :initform nil :initarg :stream)))
-
 
 ;;; === End s/l/s
 
@@ -83,8 +118,8 @@ scoring-system."))
 (defgeneric variant-data-fname (var-obj data-fname)
   (:documentation "Returns a fname for a data-file for the variant."))
 
-(defgeneric get-sex (var-obj key)
-  (:documentation "Tries to find a sex that matches KEY and returns it.
+(defgeneric get-gender (var-obj key)
+  (:documentation "Tries to find a gender that matches KEY and returns it.
 Returns NIL on failure."))
 
 ;;; ===
@@ -105,8 +140,12 @@ Returns NIL on failure."))
 (defgeneric heal-creature! (creature amount)
   (:documentation "Tries to heal the creature with a certain amount of hits."))
 
-(defgeneric set-creature-state! (creature state value)
-  (:documentation "Tries to heal the creature with a certain amount of hits."))
+(defgeneric get-creature-state (creature state)
+  (:documentation "Returns the value of the named state for the given creature."))
+
+;; must be implemented by a variant
+(defgeneric (setf get-creature-state) (value creature state)
+  (:documentation "Tries to set a value for a state for the creature."))
 
 (defgeneric get-creature-speed (creature)
   (:documentation "Returns a fixnum with speed for the given creature."))
@@ -130,8 +169,6 @@ Returns NIL on failure."))
 (defgeneric get-creature-burden (creature)
   (:documentation "Returns a fixnum with the burden the creature carries."))
 
-(defgeneric get-creature-weight (creature)
-  (:documentation "Returns a fixnum with the total weight of the creature + burden."))
 
 (defgeneric creature-alive? (creature)
   (:documentation "Returns T if the creature is alive, NIL if not."))
@@ -154,6 +191,9 @@ Returns NIL on failure."))
 ;; maybe drop this in a more general system.. or?
 (defgeneric get-light-source (creature)
   (:documentation "Returns the light-source used."))
+
+(defgeneric appears-in-group? (variant level monster)
+  (:documentation "Returns T if the particular monster should appear in a group."))
 
 ;;; === End creature
 
@@ -243,8 +283,7 @@ level/room/player combo.  Allowed to return NIL."))
   (:documentation "Builds given room in the dungeon at [where-x, where-y]."))
   
 (defgeneric find-appropriate-room (variant level player)
-  (:documentation "Tries to find an appropriate room-type for given
-dungeon."))
+  (:documentation "Tries to find an appropriate room-type for given dungeon."))
  
 ;;; ===  End level-related
 
@@ -256,8 +295,10 @@ dungeon."))
 (defgeneric visit-house (level house)
   (:documentation "Visits a given house.."))
 
-(defgeneric find-owner-for-house (level house &key)
-  (:documentation "Tries to find an appropriate owner for the house."))
+(defgeneric find-owner-for-house (level house &key var-obj selection)
+  (:documentation "Tries to find an appropriate owner for the house.
+:var-obj may give a variant-object to the method, and :selection may have a keyword
+value specifying how to select the owner, e.g :random "))
 
 (defgeneric store-generate-object (variant the-store)
   (:documentation "Returns an object appropriate for the store, no side-effects."))
@@ -331,20 +372,6 @@ is supplied, stacking-rules will also be checked."))
 (defgeneric register-object-event! (obj event)
   (:documentation "Registers an event on the object."))
 
-(defgeneric location-x (obj)
-  (:documentation "Generic function for all things that have a location
-in the game at some point."))
-  
-(defgeneric (setf location-x) (value obj)
-  (:documentation "Sets the x-location for the object whenever possible."))
-  
-(defgeneric location-y (obj)
-  (:documentation "Generic function for all things that have a location
-in the game at some point."))
-  
-(defgeneric (setf location-y) (value obj)
-  (:documentation "Sets the y-location for the object whenever possible."))
-    
 (defgeneric use-object! (variant dun pl the-object &key which-use)
   (:documentation "Applies the object on the player in the dungeon."))
 
@@ -356,15 +383,8 @@ given situation."))
   (:documentation "Returns a number with an offered price for an object
 in a certain situation."))
 
-(defgeneric get-attribute (object)
-  (:documentation "Returns attribute for a given object."))
-
-(defgeneric lang-equal (first-obj second-obj)
-  (:documentation "A recursive check for equality (along the lines of EQUAL)
-but one that works with langband-objects."))
-
-(defgeneric get-loadable-form (object &key &allow-other-keys)
-  (:documentation "Pretty much similar to MAKE-LOAD-FORM."))
+(defgeneric get-colour (object)
+  (:documentation "Returns the colour/attr for a given object."))
 
 ;; overridable player interface
 (defgeneric update-xp-table! (variant player)
@@ -383,5 +403,157 @@ player object or NIL."))
 (defgeneric drop-near-location! (variant dungeon object x y)
   (:documentation "Tries to drop an object at given locaton."))
 
+(defgeneric is-creatable? (variant kind)
+  (:documentation "Is the kind creatable?"))
+
+(defgeneric get-mkind-table (variant level)
+  (:documentation "Returns appropriate monster-kind table for variant and level."))
+
+(defgeneric kill-target! (dun attacker target x y)
+  (:documentation "Kills the target in an appropriate and legal way."))
+
+(defgeneric copy-player-abilities (variant player-abilities)
+  (:documentation "Copies and returns a player-ability object."))
+
+(defgeneric allocate-monster! (variant dungeon player distance sleeping)
+  (:documentation "Allocates a monster in the given dungeon."))
+
+(defgeneric cmb-describe-miss (attacker target)
+  (:documentation "Describe a miss as a message."))
+
+(defgeneric roll-up-character! (variant player)
+  (:documentation "Rolls up a player-object and modifies it appropriately."))
+
+(defgeneric query-for-character-basics! (variant the-player)
+  (:documentation "Does queries for basic-info (race, class, ..) and alters the player-object."))
+
+(defgeneric print-tomb (variant player)
+  (:documentation "Prints a tomb for the given (dead) player."))
+
+(defgeneric create-gold (variant dungeon)
+  (:documentation "Creates gold in the dungeon."))
+
+(defgeneric place-gold! (variant dungeon x y)
+  (:documentation "Places some gold in the dungeon at x,y."))
+
+(defgeneric create-object (variant dungeon good-p great-p)
+  (:documentation "Creates an object and puts it in the dungeon."))
+
+(defgeneric place-object! (variant dungeon x y good-p great-p)
+  (:documentation "Place an object at the given coordinate."))
+
+(defgeneric allocate-object! (variant dungeon set type number)
+  (:documentation "Allocates an object in the dungeon?"))
+
+(defgeneric has-ability? (something ability)
+  (:documentation "Shecks if SOMETHING has the given ability."))
+
+(defgeneric get-creature-name (creature)
+  (:documentation "Returns a string with the name of the creature."))
+
+(defgeneric get-monster-kind (variant id)
+  (:documentation "Returns a monster-kind with given id for given variant."))
+
+(defgeneric get-monster-list (variant &key sort-key)
+  (:documentation "Returns a list of monsters for the given variant."))
+
+(defgeneric get-mkind-alloc-table (variant level)
+  (:documentation "Returns an allocation table for monster-kinds for
+the given variant and given level."))
+
+(defgeneric fill-player-abilities! (variant target source)
+  (:documentation "Fills the target with values from source."))
+
+(defgeneric get-okind-table (variant level)
+  (:documentation "Returns the object-kind table for the given variant and level."))
+
+(defgeneric get-okind-alloc-table (variant level)
+  (:documentation "Returns the object-kind allocation table for the given variant and level."))
+
+(defgeneric get-object-kind (variant id)
+  (:documentation "Returns an object-kind with given id for given variant."))
+
+(defgeneric get-setting (variant key)
+  (:documentation "Gets a setting from the variant identified by the KEY."))
+
+(defgeneric (setf get-setting) (value variant key)
+  (:documentation "Sets the setting identified by KEY for the VARIANT to VALUE."))
+
+(defgeneric place-monster! (variant dungeon player x y sleeping group)
+  (:documentation "Places a monster on the given coordinate."))
+
+(defgeneric cmb-describe-hit (attacker target the-attack)
+  (:documentation "Describe a hit from ATTACKER on TARGET."))
+
+(defgeneric cmb-describe-death (attacker target)
+  (:documentation "Describe death-blow."))
+
+(defgeneric equip-character! (variant player settings)
+  (:documentation "Equips character according to settings and variant."))
+
+(defgeneric copy-game-values (variant game-values-obj)
+  (:documentation "Copies the game-values-object and returns a new object."))
+
+(defgeneric produce-game-values-object (variant)
+  (:documentation "Returns a new game-values objedct for the variant."))
+
+(defgeneric produce-skills-object (variant &key default-value)
+  (:documentation "Returns a skills-object for the given variant."))
+
+(defgeneric build-skills-obj-from-list (variant skill-list)
+  (:documentation "Returns a skill-object from a list of skill-info."))
+  
+(defgeneric get-skill-translation (variant key)
+  (:documentation "Returns a skill-translation for the given KEY, I think."))
+
+(defgeneric register-skill-translation& (variant translation)
+  (:documentation "Registers a skill-translation with the variant."))
+
+(defgeneric create-alloc-table-objects (variant obj-table)
+  (:documentation "Returns an allocation table for the given object-table."))
+
+(defgeneric create-alloc-table-monsters (variant mon-table)
+  (:documentation "Returns an allocation table for the given monster-table."))
+
+(defgeneric get-high-scores (variant fname)
+  (:documentation "Returns a sorted list of high-scores."))
+
+(defgeneric display-high-scores (variant highscore-list &key current use-term)
+  (:documentation "Displays high-scores in some way."))
+
+(defgeneric save-high-score& (variant hs fname)
+  (:documentation "Saves a given high-score entry to the given high-score file."))
+
+(defgeneric update-monster! (variant active-monster full-update?)
+  (:documentation "Update monster in various ways, mostly in relation to view."))
+
+(defgeneric update-monsters! (variant dungeon full-update?)
+  (:documentation "Update all monsters in dungeon in various ways, mostly in relation to view."))
+
+(defgeneric make-stat-array (variant)
+  (:documentation "Returns an array suitable for holding all the stats."))
+
 ;;; === End misc
 
+;;; === Player-protocol
+
+(defgeneric reset-player-object! (variant player)
+  (:documentation "Resets all values on the player-object."))
+
+(defgeneric calculate-abilities! (variant player object)
+  (:documentation "Calculates abilities on the player based on given object (race, class, ...)"))
+
+(defgeneric get-weight (object)
+  (:documentation "Returns a fixnum with the total weight of the given object (creature, backpack, ...)."))
+
+(defgeneric get-old-player-info (variant player &key reuse-object)
+  (:documentation "Gets an object with info on the player that can later be used to track
+changes to important parts of a player-object, e.g for updating right places of the screen.
+The :REUSE-OBJECT keyword gives an object that can be reused for values, alleviating the
+need to cons up a new object."))
+
+(defgeneric handle-player-updates! (variant player old-info)
+  (:documentation "Updates screens, windows, ... after a recalculation of the player.
+It is passed the object returned by GET-OLD-PLAYER-INFO at start of recalculation."))
+
+;;; === End player-protocol

@@ -40,68 +40,75 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun place-single-monster! (dun pl mon x y sleeping)
   "places a single monster MON at (X,Y) in dungeon DUN."
-  (declare (ignore pl sleeping))
+  (declare (ignore pl ))
 
   ;; add checks that it is ok to place something at this spot..
+  (let ((kind (amon.kind mon))
+	(mstatus (amon.status mon)))
+    
+    (when (and sleeping (plusp (monster.alertness kind)))
+      (let ((alert (monster.alertness kind)))
+	(setf (status.sleeping mstatus) (+ (* 2 alert) (* 10 (randint alert))))))
   
-  (setf (cave-monsters dun x y) mon
-	(location-x mon) x
-	(location-y mon) y)
-  (push mon (dungeon.monsters dun))
-  t)
+  
+    (setf (cave-monsters dun x y) (cons mon nil)
+	  (location-x mon) x
+	  (location-y mon) y)
+    (push mon (dungeon.monsters dun))
+    
+    t))
+
+(defun place-monster-group! (dun pl mon-kind x y sleeping)
+  "Tries to scatter a bunch of monsters in the dungeon of the given kind."
+
+  (let ((number (randint 13)) ;; hack
+	(var-obj *variant*)
+	(last-x x)
+	(last-y y)
+	(ddx-ddd *ddx-ddd*)
+	(ddy-ddd *ddy-ddd*))
+	
+    
+    (check-type mon-kind monster-kind)
+
+;;    (warn "Trying to place group (~a) of ~a monsters at (~a,~a)."
+;;	  (monster.id mon-kind) number x y)
+    
+    (dotimes (i number)
+      (loop named placement
+	    for x from 0 to 7
+	    do
+	    (let ((poss-x (+ last-x (svref ddx-ddd x)))
+		  (poss-y (+ last-y (svref ddy-ddd x))))
+	      (when (cave-boldly-naked? dun poss-x poss-y)
+		(place-single-monster! dun pl (produce-active-monster var-obj mon-kind)
+				       poss-x poss-y sleeping)
+		(setf last-x poss-x
+		      last-y poss-y)
+		(return-from placement t)))))
+	      
+	      
+		  
+	    
+    t))
 
 (defmethod place-monster! ((variant variant) (dungeon dungeon) player x y sleeping group)
   "Tries to place a monster at given coordinates.."
-
-  (declare (ignore group))
   
   (let* ((var-obj *variant*)
 	 (level *level*)
 	 (possible-monster (get-active-monster-by-level var-obj level
 							:depth (dungeon.depth dungeon))))
     (when possible-monster
-      (place-single-monster! dungeon player possible-monster x y sleeping)))
-  
-  )
-
-(defun swap-monsters! (dun pl from-x from-y to-x to-y)
-  "swaps two monsters or move one"
-
-  (let ((mon-1 (cave-monsters dun from-x from-y))
-	(mon-2 (cave-monsters dun to-x to-y)))
-
-    (setf (cave-monsters dun from-x from-y) mon-2
-	  (cave-monsters dun to-x to-y) mon-1)
-
+      (place-single-monster! dungeon player possible-monster x y sleeping))
     
-    ;; hack, move to swap later
-    (when (and (= from-x (location-x pl))
-	       (= from-y (location-y pl)))
-      (setf (location-x pl) to-x
-	    (location-y pl) to-y)
-      ;; add more stuff here
-;;      (warn "move pl (~s ~s) -> (~s ~s)" from-x from-y to-x to-y)
-      (bit-flag-add! *update* +pl-upd-update-view+ +pl-upd-distance+
-		     +pl-upd-panel+ +pl-upd-update-flow+)
-      ;; skip overhead-window
-;;      (bit-flag-add! *redraw* +print-map+)
-      ) ;; hack, fix later
+    (when (and group possible-monster)
+      (when (appears-in-group? variant *level* possible-monster)
+	(place-monster-group! dungeon player (amon.kind possible-monster) x y sleeping)
+;;	(warn "grouped ~s" possible-monster)
+	))
 
-
-    (when mon-1
-      (dolist (i mon-1)
-	(setf (location-x i) to-x
-	      (location-y i) to-y)))
-
-
-    (when mon-2
-      (dolist (i mon-2)
-	(setf (location-x i) to-x
-	      (location-y i) to-y)))
-
-    
-    (light-spot! dun from-x from-y)
-    (light-spot! dun to-x to-y)))
+    ))
 
 
 

@@ -24,6 +24,9 @@ Might be used:
     Both ports are recent and may have problems.  See FAQ for more
     info on the Win32 port.
 
+  - SBCL (on Linux)
+    A recent port which may be unstable.  You need v0.7.1 or newer.
+
 
     
 How to start it:
@@ -41,12 +44,11 @@ How to start it:
     loads/compiles the core engine mostly
   
   - (lb::a)
-    loads/compiles vanilla variant and helper-libraries
-    on first run, it will take a _lot_ of time on obj-kind.lisp
+    loads vanilla variant and runs it
     If you wish to specify UI, you can do (lb::a 'x11) for X11-window,
     (lb::a 'gcu) for curses/xterm-mode or (lb::a 'win) for Windows. 
 
-  - Use (quit) in CMU/LW/CLISP or (exit) in ACL to quit afterwards.
+  - Use (quit) in CMUCL/SBCL/LW/CLISP or (exit) in ACL to quit afterwards.
 
   [If you use the Langband Debian-packages, see README.Debian
    for starting-details.]

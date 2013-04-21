@@ -84,11 +84,13 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 (defun next-to-corridor (dungeon x y)
   "returns a fixnum"
   (declare (type fixnum x y))
-  (let ((retval 0))
+  (let ((retval 0)
+	(ddx-ddd *ddx-ddd*)
+	(ddy-ddd *ddy-ddd*))
     
     (dotimes (i 4)
-      (let ((tmp-x (+ x (svref +ddx-ddd+ i)))
-	    (tmp-y (+ y (svref +ddy-ddd+ i))))
+      (let ((tmp-x (+ x (svref ddx-ddd i)))
+	    (tmp-y (+ y (svref ddy-ddd i))))
 	(declare (type u-fixnum tmp-x tmp-y))
 	
 	(unless (or (not (cave-floor-bold? dungeon tmp-x tmp-y))
@@ -164,9 +166,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
   (values))
 
 (defmethod create-gold ((variant variant) (dungeon dungeon))
-
-  ;; hackish deluxe
-  (create-aobj-from-id "object-480" :amount (+ 10 (random 100)) :variant variant))
+  (error "Please make CREATE-GOLD for variant.. this depends heavily on variant."))
 
 (defmethod add-magic-to-item! (dungeon item quality)
   (declare (ignore dungeon item quality))
@@ -486,8 +486,8 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 (defun random-direction ()
   "Returns two values with a random nsew direction"
   (let ((val (random 4)))
-    (values (svref +ddx-ddd+ val)
-	    (svref +ddy-ddd+ val))))
+    (values (svref *ddx-ddd* val)
+	    (svref *ddy-ddd* val))))
 	    
 
 (defun generate-room (dungeon x1 y1 x2 y2 light)
@@ -541,7 +541,7 @@ light argument is a boolean."
 argument is passed it will be used as new dungeon and returned."
 
   (let* ((*level* level)
-	 (settings (get-setting :random-level))
+	 (settings (get-setting variant :random-level))
 	 (dungeon-height (slot-value settings 'max-height))
 	 (dungeon-width (slot-value settings 'max-width))
 	 (dungeon (create-dungeon dungeon-width dungeon-height

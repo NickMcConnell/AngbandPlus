@@ -206,13 +206,14 @@ ADD_DESC: Various code which just prints stuff somewhere
     ))
   
 
-(defun print-basic-frame (dun pl)
+(defun print-basic-frame (variant dun pl)
   "Prints the left frame with basic info"
   
   (declare (ignore dun))
   ;;  (warn "Printing basic frame..")
 
-  (let ((pr-set (get-setting :basic-frame-printing)))
+  (let ((pr-set (get-setting variant :basic-frame-printing))
+	(stat-len (variant.stat-length variant)))
   
     (print-field (get-race-name pl) (slot-value pr-set 'race))
     (print-field (get-class-name pl) (slot-value pr-set 'class))
@@ -221,7 +222,7 @@ ADD_DESC: Various code which just prints stuff somewhere
     (print-level pl pr-set)
     (print-xp pl pr-set) 
   
-    (dotimes (i +stat-length+)
+    (dotimes (i stat-len)
       (print-stat pl pr-set i))
 
     (print-armour-class pl pr-set)
@@ -263,13 +264,13 @@ ADD_DESC: Various code which just prints stuff somewhere
   (declare (ignore mode))
   
   (c-clear-from! 0)
-  (display-player-misc player)
-  (display-player-stats player)
-  (display-player-extra player)
+  (display-player-misc  variant player)
+  (display-player-stats variant player)
+  (display-player-extra variant player)
   )
 
-(defun display-player-misc (player)
-  
+(defun display-player-misc (variant player)
+  (declare (ignore variant))
   (let* ((the-class (player.class player))
 	 (the-lvl (player.level player))
 	 (title (get-title-for-level the-class the-lvl)))
@@ -279,7 +280,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 	     (c-col-put-str! +term-l-blue+ text row 8)))
 
       (print-info "Name" (player.name player) 2)
-      (print-info "Sex" (get-sex-name player) 3)
+      (print-info "Gender" (get-gender-name player) 3)
       (print-info "Race" (get-race-name player) 4)
       (print-info "Class"  (get-class-name player) 5)
       (print-info "Title" title 6)
@@ -294,15 +295,16 @@ ADD_DESC: Various code which just prints stuff somewhere
 
       )))
 
-(defun display-player-extra (pl)
-
-  (let ((col 26)
-	(f-col (+ 9 25)) 
-	(cur-xp (player.cur-xp pl))
-	(max-xp (player.max-xp pl))
-	(lvl (player.level pl))
-	(misc (player.misc pl)))
-
+(defun display-player-extra (variant player)
+  (declare (ignore variant))
+  (let* ((pl player)
+	 (col 26)
+	 (f-col (+ 9 25)) 
+	 (cur-xp (player.cur-xp pl))
+	 (max-xp (player.max-xp pl))
+	 (lvl (player.level pl))
+	 (misc (player.misc pl)))
+    
 
     (c-put-str! "Age" 3 col)
     (c-col-put-str! +term-l-blue+ (%get-4str (playermisc.age misc)) 3 f-col)
@@ -446,14 +448,14 @@ ADD_DESC: Various code which just prints stuff somewhere
   ))
 
 
-(defun display-player-stats (player)
-
+(defun display-player-stats (variant player)
   ;;  (warn "Displaying character.. ")
   
   (let ((row 3)
 	(col 42)
 ;;	(num-stats 6)
-	;; more pressing variables	
+	;; more pressing variables
+	(stat-len (variant.stat-length variant))
 	(base (player.base-stats player))
 ;;	(cur (player.curbase-stats player))
 	(mod (player.modbase-stats player))
@@ -470,7 +472,7 @@ ADD_DESC: Various code which just prints stuff somewhere
     (c-col-put-str! +term-white+ "  Best" (1- row) (+ col 24))
 
 
-    (dotimes (i +stat-length+)
+    (dotimes (i stat-len)
       (let ((its-base (gsdfn base i))
 	    ;;(its-cur (gsdfn cur i))
 	    (its-mod (gsdfn mod i))
@@ -661,13 +663,13 @@ The armour-value describes a full set-up of armour, including
     (c-col-put-str! +term-l-blue+ "===========" 1 2)
 
     (let ((elms (variant.elements var-obj))
-	  (resists (creature.resists player))
+	  (resists (player.resists player))
 	  (row 3))
 
       (dolist (i elms)
-	(let* ((idx (element.index i))
+	(let* ((idx (element.number i))
 	       (str (format nil "~20a ~20s ~10s" (element.name i) (element.symbol i) idx)))
-	  (when (bit-flag-set? idx resists)
+	  (when (plusp (aref resists idx))
 	    (c-col-put-str! +term-l-red+ "*" row 1)) 
 	  (c-col-put-str! +term-l-green+ str row 3)
 	  (incf row)))

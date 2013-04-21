@@ -36,8 +36,8 @@ DESC: tests/save.lisp - testing code for save/load of game
 	   (lb::*player* nil)
 	   (lb::*level* nil)
 	    
-	   (r-save (scat "dumps/rsave." type))
-	   (b-save (scat "dumps/bsave." type))
+	   (r-save (scat *dumps-directory* "rsave." type))
+	   (b-save (scat *dumps-directory* "bsave." type))
 	   )
 
       (lb::save-the-game var-obj pl lvl :fname r-save :format :readable)

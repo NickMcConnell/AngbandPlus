@@ -9,7 +9,7 @@ DUNGEON
  - large rooms not implemented
  - monster nest not implemented
  - monster pits not implemented
- - no gold in dungeon [fixed, hackish]
+ - no gold in dungeon [fixed, same as vanilla]
 
 TOWN
  - only black market "works", no specialised shops yet [FIXED]

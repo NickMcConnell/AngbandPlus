@@ -1,7 +1,7 @@
 ;;; Please do not edit this _GENERATED_ file.
 
 
-(in-package :langband-ffi)
+(in-package :org.langband.ffi)
 (ffi:def-c-type angbyte uchar)
 
 (ffi:def-c-type cptr c-string)
@@ -14,16 +14,8 @@
 (ffi:def-call-out c_quit! (:name "z_quit") (:language :stdc) (:arguments (msg
                                                                           c-string)) (:return-type nil))
 
-(ffi:def-call-out c_bell! (:name "bell") (:language :stdc) (:arguments (msg
-                                                                        c-string)) (:return-type nil))
-
 (ffi:def-call-out c-clear-from! (:name "clear_from") (:language :stdc) (:arguments (row
                                                                                     int)) (:return-type nil))
-
-(ffi:def-call-out c_prt! (:name "prt") (:language :stdc) (:arguments (text
-                                                                      c-string)(row
-                                                                                int)(col
-                                                                                     int)) (:return-type nil))
 
 (ffi:def-call-out c-prt-token! (:name "print_coloured_token") (:language :stdc) (:arguments (colour
                                                                                              angbyte)(token
@@ -44,15 +36,17 @@
                                                                                                                    int)(col
                                                                                                                         int)) (:return-type nil))
 
-(ffi:def-call-out c_msg_print! (:name "msg_print") (:language :stdc) (:arguments (msg
-                                                                                  c-string)) (:return-type nil))
-
 (ffi:def-call-out c_term_putstr! (:name "Term_putstr") (:language :stdc) (:arguments (col
                                                                                       int)(row
                                                                                            int)(something
                                                                                                 int)(colour
                                                                                                      angbyte)(text
                                                                                                               c-string)) (:return-type errr))
+
+(ffi:def-call-out c_term_erase! (:name "Term_erase") (:language :stdc) (:arguments (col
+                                                                                    int)(row
+                                                                                         int)(something
+                                                                                              int)) (:return-type errr))
 
 (ffi:def-call-out c-term-queue-char! (:name "Term_queue_char") (:language :stdc) (:arguments (row
                                                                                               int)(col
@@ -78,11 +72,6 @@
 (ffi:def-call-out c-term-xtra& (:name "Term_xtra") (:language :stdc) (:arguments (msg
                                                                                   int)(arg
                                                                                        int)) (:return-type errr))
-
-(ffi:def-call-out c-term-inkey& (:name "Term_inkey") (:language :stdc) (:arguments (text
-                                                                                    c-string)(row
-                                                                                              int)(col
-                                                                                                   int)) (:return-type errr))
 
 (ffi:def-call-out c-inkey! (:name "inkey") (:language :stdc) (:arguments ) (:return-type char))
 
@@ -119,11 +108,10 @@
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (export
-   '(c_current_ui c_quit! c_bell! c-clear-from! c_prt! c-prt-token! c-prt-stat!
-     c-prt-number! c_msg_print! c_term_putstr! c-term-queue-char!
-     c-term-gotoxy! c-set-cursor& c-term-clear! c-term-fresh! c-term-save!
-     c-term-load! c-term-xtra& c-term-inkey& c-inkey! init_c-side&
-     cleanup-c-side& c_macro_add& c-set-lisp-system! c-set-lisp-callback!
-     c-set-hinst! c-load-sound&)))
+   '(c_current_ui c_quit! c-clear-from! c-prt-token! c-prt-stat! c-prt-number!
+     c_term_putstr! c_term_erase! c-term-queue-char! c-term-gotoxy!
+     c-set-cursor& c-term-clear! c-term-fresh! c-term-save! c-term-load!
+     c-term-xtra& c-inkey! init_c-side& cleanup-c-side& c_macro_add&
+     c-set-lisp-system! c-set-lisp-callback! c-set-hinst! c-load-sound&)))
 
 ;;; End of generated file.
