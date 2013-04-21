@@ -279,13 +279,12 @@ should return NIL or the state-object (with possibly updated state."))
 ;; path tweaking needed!!!
 (defun van-make-variant-obj ()
   (make-instance 'vanilla-variant
-		 :id "langband-vanilla"
+		 :id "vanilla"
 		 :name "Vanilla"
-
+		 :version "0.1.2"
+		 :num-version 12
 		 :stat-length 6
 		 
-		 ;; only used by development
-		 :sys-file "./variants/vanilla/langband-vanilla.system"
 		 :config-path
 		 #+langband-development
 		 "./variants/vanilla/config/"
@@ -293,5 +292,8 @@ should return NIL or the state-object (with possibly updated state."))
 		 "/var/games/langband-vanilla/"))
 
 
-(register-variant& "langband-vanilla" #'van-make-variant-obj)
-	   
+(register-variant& "vanilla" #'van-make-variant-obj
+		   :desc "Vanilla is a plain simulation of the regular/vanilla
+Angband written in C.  It's main purpose is to be a reference point for new
+variant plugins to the langband engine.")
+   

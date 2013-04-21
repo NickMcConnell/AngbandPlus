@@ -359,6 +359,7 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 50
   :sort-value 6011
   :the-kind '<mushroom>
+  :on-eat #'%dummy-eat-fun
   :game-values (make-game-values :base-dice 10 :num-dice 10 :food-value 500)) 
 
 (define-object-kind "mushroom-cure-serious" "cure serious wounds"
@@ -391,6 +392,7 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 3
   :sort-value 6035
   :the-kind '<food>
+  :on-eat #'%dummy-eat-fun
   :game-values (make-game-values :food-value 5000)) 
 
 (define-object-kind "biscuit" "& hard biscuit~"
@@ -405,6 +407,7 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 1
   :sort-value 6032
   :the-kind '<food>
+  :on-eat #'%dummy-eat-fun
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "beef-jerky" "& strip~ of beef jerky"
@@ -419,6 +422,7 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 2
   :sort-value 6033
   :the-kind '<food>
+  :on-eat #'%dummy-eat-fun
   :game-values (make-game-values :food-value 1500)) 
 
 (define-object-kind "slime-mold" "& slime mold~"
@@ -433,6 +437,7 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 2
   :sort-value 6036
   :the-kind '<food>
+  :on-eat #'%dummy-eat-fun
   :game-values (make-game-values :food-value 3000)) 
 
 (define-object-kind "elvish-bread" "& piece~ of elvish waybread"
@@ -447,6 +452,7 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 10
   :sort-value 6037
   :the-kind '<food>
+  :on-eat #'%dummy-eat-fun
   :game-values (make-game-values :food-value 7500)) 
 
 (define-object-kind "pint-ale" "& pint~ of fine ale"
@@ -461,6 +467,7 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 1
   :sort-value 6038
   :the-kind '<food>
+  :on-eat #'%dummy-eat-fun
   :game-values (make-game-values :food-value 500)) 
 
 (define-object-kind "pint-wine" "& pint~ of fine wine"
@@ -475,4 +482,5 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 2
   :sort-value 6039
   :the-kind '<food>
+  :on-eat #'%dummy-eat-fun
   :game-values (make-game-values :food-value 1000)) 

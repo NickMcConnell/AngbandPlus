@@ -137,8 +137,8 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod print-object ((inst floor-type) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
-	   (floor.name inst)))
+   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
+	   (floor.name inst) (floor.id inst)))
   inst)
 
 (defmethod print-object ((inst house) stream)
@@ -205,8 +205,23 @@ the Free Software Foundation; either version 2 of the License, or
   (print-unreadable-object
    (inst stream :identity t)
    (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
-	   (if (trap.type inst) (trap.id (trap.type inst)) "NO TYPE")))
+	   (if (decor.type inst) (trap.id (decor.type inst)) "NO TYPE")))
   inst)
+
+(defmethod print-object ((inst door-type) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+	   (door.id inst)))
+  inst)
+
+(defmethod print-object ((inst active-door) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+	   (if (decor.type inst) (door.id (decor.type inst)) "NO TYPE")))
+  inst)
+
 
 (defmethod print-object ((inst treasure-drop) stream)
   (print-unreadable-object

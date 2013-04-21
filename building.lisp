@@ -24,6 +24,73 @@ the Free Software Foundation; either version 2 of the License, or
   (declare (ignore level house var-obj selection))
   nil)
 
+(defun define-door-type (id name &key x-char x-attr text-char text-attr
+			 num-idx effect min-depth max-depth rarity
+			 cave-flags-on cave-flags-off)
+  "Defines and registers a door-type."
+  
+  (declare (ignore num-idx effect min-depth max-depth rarity))
+  
+  (unless (verify-id id)
+    (warn "door-id ~s not valid" id)
+    (return-from define-door-type nil))
+  
+  (let ((trap-obj (make-instance 'door-type :id id :name name
+				  :x-char (convert-obj x-char :x-char)
+				  :x-attr (convert-obj x-attr :x-attr)
+				  ;;:min-depth min-depth :max-depth max-depth
+				  ;;:rarity rarity
+				  ))
+	(table (variant.doors *variant*)))
+
+    (when (integerp cave-flags-on)
+      (setf (slot-value trap-obj 'cave-flags-on) cave-flags-on))
+    (when (integerp cave-flags-off)
+      (setf (slot-value trap-obj 'cave-flags-off) cave-flags-off))
+    
+    (cond (text-char
+	   (setf (text-char trap-obj) (convert-obj text-char :text-char)))
+	  (t
+	   (setf (text-char trap-obj) (x-char trap-obj))))
+    
+    (cond (text-attr
+	   (setf (text-attr trap-obj) (convert-obj text-attr :text-attr)))
+	  (t
+	   (setf (text-attr trap-obj) (x-attr trap-obj))))
+
+    ;; removed effects
+    (setf (gethash id table) trap-obj)
+
+    trap-obj))
+
+(defmethod x-attr ((obj active-door))
+  (x-attr (decor.type obj)))
+
+(defmethod x-char ((obj active-door))
+  (x-char (decor.type obj)))
+
+(defmethod text-attr ((obj active-door))
+  (text-attr (decor.type obj)))
+
+(defmethod text-char ((obj active-door))
+  (text-char (decor.type obj)))
+
+(defmethod get-door (variant key &key (visible t))
+  (let ((door-type (gethash key (variant.doors variant))))
+    (when door-type
+      (make-instance 'active-door :type door-type :visible? visible))))
+
+(defun get-door-type (key &optional (variant *variant*))
+  (gethash key (variant.doors variant)))
+
+(defmethod place-door! ((variant variant) dungeon x y (door active-door))
+  (let ((type (decor.type door)))
+    (setf (cave-decor dungeon x y) door)
+    (bit-flag-add! (cave-flags dungeon x y) (slot-value type 'cave-flags-on))
+    (bit-flag-remove! (cave-flags dungeon x y) (slot-value type 'cave-flags-off))
+    (pushnew door (dungeon.decor dungeon))) ;; this one might trip badly
+  door)
+
 (defmethod activate-object ((obj house) &key (owner nil) (var-obj *variant*) (level *level*))
   "Wakes a house(-type) from slumber and returns a usable house."
 
@@ -54,7 +121,7 @@ the Free Software Foundation; either version 2 of the License, or
 on failure, and the house on success."
 
   (when (and var-obj house
-	     (typep var-obj 'variant)
+	     (is-variant? var-obj)
 	     (typep house 'house))
     
     (let ((table (variant.house-types var-obj))
@@ -72,7 +139,7 @@ on failure, and the house on success."
 failure and owner on success."
   
   (when (and var-obj owner
-	     (typep var-obj 'variant)
+	     (is-variant? var-obj)
 	     (typep owner 'owner))
     
     (let ((table (variant.house-owners var-obj))
@@ -86,8 +153,7 @@ failure and owner on success."
 (defun get-house (id &optional (var-obj *variant*))
   "Returns a house-type (non-activated) or NIL."
 
-  (when (and var-obj id
-	     (typep var-obj 'variant))
+  (when (and var-obj id (is-variant? var-obj))
     
     (let ((table (variant.house-types var-obj)))
       
@@ -96,8 +162,7 @@ failure and owner on success."
 (defun get-owner (id &optional (var-obj *variant*))
   "Returns an owner (non-activated) or NIL."
   
-  (when (and var-obj id
-	     (typep var-obj 'variant))
+  (when (and var-obj id (is-variant? var-obj))
     
     (let ((table (variant.house-owners var-obj)))
       
@@ -115,6 +180,8 @@ failure and owner on success."
 ;;    (warn "building house ~a on level ~a at [~a,~a]" house level topleft-x topleft-y)
 
     (let* ((dungeon (level.dungeon level))
+	   (*dungeon* dungeon)
+	   (variant *variant*)
 	   (y0 topleft-y)
 	   (x0 topleft-x)
 	   (y1 (- y0 (randint 3)))
@@ -122,9 +189,12 @@ failure and owner on success."
 	   (x1 (- x0 (randint 5)))
 	   (x2 (+ x0 (randint 5))))
 
-      (loop for y from y1 to y2 do
-	    (loop for x from x1 to x2 do
-		  (setf (cave-floor dungeon x y) +floor-perm-extra+)))
+      (let ((ft (get-floor *variant* "stone-building")))
+	(assert (not (eq ft nil)))
+      
+	(loop for y from y1 to y2 do
+	      (loop for x from x1 to x2 do
+		    (setf (cave-floor dungeon x y) ft))))
       
 
      ;; add doors
@@ -153,9 +223,25 @@ failure and owner on success."
 	  (setq y y2
 		x x2)))
 
+       
        ;; time to place house number
-       (when door-feature
-	 (setf (cave-floor dungeon x y) door-feature))
+       
+       ;; first check if we got decor
+       (cond ((and door-feature (typep door-feature 'active-door))
+	      (setf (location-x door-feature) x
+		    (location-y door-feature) y)
+	      
+	      (decor-operation variant door-feature :open :value t)
+	      (pushnew door-feature (dungeon.decor dungeon))
+	      (setf (cave-decor dungeon x y) door-feature))
+
+	     ;; we got a floor-type
+	     ((and door-feature (typep door-feature 'floor-type))
+	      (setf (cave-floor dungeon x y) door-feature))
+	     ;; we don't know how to do things
+	     (t
+	      (warn "Built house without a proper door/feature: ~s" door-feature)))
+	      
        
        (when door-trigger
 	 (setf (get-coord-trigger dungeon x y) door-trigger))

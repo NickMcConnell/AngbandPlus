@@ -39,11 +39,13 @@ the Free Software Foundation; either version 2 of the License, or
 
   
 (define-condition langband-quit (condition) ()) 
- 
+(define-condition savefile-problem (serious-condition)
+  ((desc :initarg :desc :reader saveproblem.desc)))
 
 ;;; === Some binary types
 (bt:define-unsigned u64 8)
 (bt:define-signed s64 8)
+(bt:define-unsigned u128 16)
 
 ;;; === Some macros we need right away
 
@@ -94,17 +96,21 @@ throughout dungeon-generation")
 (defvar *obj-type-mappings* (make-hash-table :test #'eq)
   "keeps track of mapping from key to object-types, used by factories.")
 
-(defvar *engine-version* "0.1.1")
+(defvar *engine-version* "0.1.2" "A version specifier that can be used for
+display and listings, not useful for internal code.")
+(defvar *engine-num-version* 121 "A numeric version for the engine that can
+be used by internal code.  It will typically be incremented with every
+non-compatible change, so when connecting a variant to the engine, this is
+the number you should look at. It's quick to compare against and it's unambigious.")
+
 (defvar *engine-source-dir* "./")
 (defvar *engine-graphics-dir* "./graphics/")
+(defvar *engine-audio-dir* "./audio/")
 (defvar *engine-config-dir* "./config/")
 
 
 ;; must be set to T by init for use of graphics.
 (defvar *graphics-supported* nil)
-
-(defvar *readable-save-file* "_save-game.lisp")
-(defvar *binary-save-file* "_save-game.bin")
 
 (defvar *dumps-directory* "doc/dumps/" "Where should various debug-dumps go?")
 
@@ -299,7 +305,7 @@ and NIL if unsuccesful."
   (declare (type u-fixnum len))
   
   (loop for i of-type u-fixnum from 0 below len
-	for rnd-val = (random len)
+	for rnd-val = (+ i (random (- len i)))
 	do
 	(rotatef (aref tmp-arr i) (aref tmp-arr rnd-val)))
   

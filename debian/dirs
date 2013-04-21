@@ -9,12 +9,6 @@ usr/share/common-lisp/source/langband-engine/lib/compat
 usr/share/common-lisp/source/langband-engine/lib/common
 usr/share/common-lisp/source/langband-engine/lib/help
 usr/share/games/langband-engine
-usr/share/games/langband-engine/graphics
-usr/share/games/langband-engine/graphics/other
-usr/share/games/langband-engine/graphics/people
-usr/share/games/langband-engine/graphics/tiles
-usr/share/games/langband-engine/graphics/textures
 usr/share/doc/langband-engine
 usr/share/doc/langband-engine/web
 var/games/langband-engine
-var/games/langband-engine/fonts

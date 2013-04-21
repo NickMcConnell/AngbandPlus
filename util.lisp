@@ -266,29 +266,38 @@ a number or a symbol identifying the place."
 	(y1 (- y0 (randint 4)))
 	(y2 (+ y0 (randint 3)))
 	(x1 (- x0 (randint 11)))
-	(x2 (+ x0 (randint 11))))
-
+	(x2 (+ x0 (randint 11)))
+	(room-wall (get-floor-type "room-wall"))
+	(inside-room-wall (get-floor-type "inside-room-wall"))
+	(regular-floor (get-floor-type "normal-floor")))
+	
+    (unless (and room-wall inside-room-wall regular-floor)
+      (warn "Unable to build room at (~s,~s) because walls cannot be found."
+	    x0 y0)
+      (return-from build-room! nil))
+    
+    
     (generate-room dungeon (1- x1) (1- y1) (1+ x2) (1+ y2) light)
-    (generate-draw dungeon (1- x1) (1- y1) (1+ x2) (1+ y2) +floor-wall-outer+)
-    (generate-fill dungeon x1 y1 x2 y2 +floor-regular+)
+    (generate-draw dungeon (1- x1) (1- y1) (1+ x2) (1+ y2) room-wall)
+    (generate-fill dungeon x1 y1 x2 y2 regular-floor)
 
     (cond ((= 0 (random 20)) ;; pillar room
 	   (loop for y from y1 to y2 by 2
 		 do
 		 (loop for x from x1 to x2 by 2
 		       do
-		       (setf (cave-floor dungeon x y) +floor-wall-inner+))))
+		       (setf (cave-floor dungeon x y) inside-room-wall))))
 	  
 	  ((= 0 (random 50)) ;; ragged
 	   (loop for y from (+ y1 2) to (- y2 2) by 2
 		 do
-		 (setf (cave-floor dungeon x1 y) +floor-wall-inner+
-		       (cave-floor dungeon x2 y) +floor-wall-inner+))
+		 (setf (cave-floor dungeon x1 y) inside-room-wall
+		       (cave-floor dungeon x2 y) inside-room-wall))
 	   
 	   (loop for x from (+ x1 2) to (- x2 2) by 2
 		 do
-		 (setf (cave-floor dungeon x y1) +floor-wall-inner+
-		       (cave-floor dungeon x y2) +floor-wall-inner+))
+		 (setf (cave-floor dungeon x y1) inside-room-wall
+		       (cave-floor dungeon x y2) inside-room-wall))
 	   ))
 
     ))
@@ -305,17 +314,19 @@ a number or a symbol identifying the place."
 	(b-y1 (- y0 (randint 3)))
 	(b-y2 (+ y0 (randint 4)))
 	(b-x1 (- x0 (randint 10)))
-	(b-x2 (+ x0 (randint 11))))
+	(b-x2 (+ x0 (randint 11)))
+	(room-wall (get-floor-type "room-wall"))
+	(floor (get-floor-type "normal-floor")))
 	
 
     (generate-room dungeon (1- a-x1) (1- a-y1) (1+ a-x2) (1+ a-y2) light)
     (generate-room dungeon (1- b-x1) (1- b-y1) (1+ b-x2) (1+ b-y2) light)
 	
-    (generate-draw dungeon (1- a-x1) (1- a-y1) (1+ a-x2) (1+ a-y2) +floor-wall-outer+)
-    (generate-draw dungeon (1- b-x1) (1- b-y1) (1+ b-x2) (1+ b-y2) +floor-wall-outer+)
+    (generate-draw dungeon (1- a-x1) (1- a-y1) (1+ a-x2) (1+ a-y2) room-wall)
+    (generate-draw dungeon (1- b-x1) (1- b-y1) (1+ b-x2) (1+ b-y2) room-wall)
     
-    (generate-fill dungeon a-x1 a-y1 a-x2 a-y2 +floor-regular+)
-    (generate-fill dungeon b-x1 b-y1 b-x2 b-y2 +floor-regular+)
+    (generate-fill dungeon a-x1 a-y1 a-x2 a-y2 floor)
+    (generate-fill dungeon b-x1 b-y1 b-x2 b-y2 floor)
     ))
 
 
@@ -369,7 +380,8 @@ a number or a symbol identifying the place."
 (defmethod drop-near-location! ((variant variant) (dungeon dungeon) (object active-object) x y)
   ;; we do this hackish
   (flet ((poss-drop (tx ty)
-	   (when (= (cave-floor dungeon tx ty) +floor-regular+) ;; must be a floor
+	   (when (bit-flag-set? (floor.flags (cave-floor dungeon tx ty))
+				+floor-flag-allow-items+) ;; must allow items
 	     (let ((tbl (get-ensured-floor-table dungeon tx ty)))
 	       ;;(warn "Dropped ~s at (~s,~s)" object tx ty)
 	       (item-table-add! tbl object)
@@ -558,7 +570,7 @@ a number or a symbol identifying the place."
     (when (minusp (current-hp target))
       (setf did-target-die? t)
 
-      (format-message! "You were killed by a ~a" (trap.name (trap.type source)))
+      (format-message! "You were killed by a ~a" (trap.name (decor.type source)))
       (kill-target! *dungeon* source target (location-x target) (location-y target))
       )
 
@@ -744,7 +756,7 @@ a number or a symbol identifying the place."
   (c-term-flush!))
 ||#
 
-(defun switch-map-mode ()
+(defun switch-map-mode (dungeon player)
   (if (eq *current-map-mode* :ascii)
       (setf *current-map-mode* :gfx-tiles)
       (setf *current-map-mode* :ascii))
@@ -763,10 +775,182 @@ a number or a symbol identifying the place."
 	(t ))
 
   (c-wipe-frame! *map-frame*)
-  (verify-panel *dungeon* *player*)
-  (print-map *dungeon* *player*)
+  (verify-panel dungeon player)
+  (print-map dungeon player)
   (c-term-fresh! *map-frame*)
   (c-term-flush!)
 
   *current-map-mode*)
 
+(defmethod decor-operation ((variant variant) (door active-door) operation &key value)
+  "This one uses *dungeon* so please set it to a meaningful value before calling
+this function."
+  (let ((x (location-x door))
+	(y (location-y door))
+	(dungeon *dungeon*))
+  
+    (ecase operation
+      (:close
+       (unless (eq value t)
+	 (warn "Close with non-T argument ~s" value))
+       (setf (door.closed? door) t)
+       (bit-flag-add! (cave-flags dungeon x y) +cave-wall+)
+
+       (setf (decor.type door) (get-door-type "closed-door")))
+
+      (:open
+       (unless (eq value t)
+	 (warn "Open with non-T argument ~s" value))
+       (setf (door.closed? door) nil)
+       (bit-flag-remove! (cave-flags dungeon x y) +cave-wall+)
+       (setf (decor.type door) (get-door-type "open-door")))
+
+    
+      (:break
+       (unless (eq value t)
+	 (warn "Break with non-T argument ~s" value))
+       (setf (door.broken? door) t)
+       (setf (door.closed? door) nil)
+       (bit-flag-remove! (cave-flags dungeon x y) +cave-wall+)
+
+       (setf (decor.type door) (get-door-type "destroyed-door"))))
+
+    ))
+
+(defmethod decor-operation ((variant variant) (door active-trap) operation &key value)
+
+  (warn "trap operation ~s (~s) not implemented." operation value)
+
+  )
+
+
+(defun %alt-sel-input (alt-len)
+  "INTERNAL FUNCTION.  Might change!
+
+Reads a character via READ-ONE-CHARACTER and
+acts on the result:
+  Q     - calls QUIT-GAME&
+  S     - returns NIL
+  ESC   - Picks random value and returns it (a number)
+  *     - As ESC
+  ENTER - Returns 'CURRENT (ie the currently selected value)
+  SPACE - As ENTER
+  [a-z] - Checks if the value is legal, returns number if ok, returns 'BAD-VALUE if not legal
+"
+  (let ((val (read-one-character)))
+    #-cmu
+    (assert (characterp val))
+;;    (warn "Got back ~a ~s ~s" val val (type-of val))
+    (cond ((eql val #\Q)
+	   (quit-game&))
+	  ;; start over
+	  ((eql val #\S)
+	   nil)
+	  ;; pick a random value
+	  ((or (eql val +escape+)
+	       (eql val #\*))
+	   (random alt-len))
+	  ;; use highlighted value
+	  ((or (eql val #\Return) (eql val #\Newline))
+	   'current)
+	  (t
+	   (let ((its-char-code (char-code val)))
+	     ;; legal char-code
+	     (cond ((and (>= its-char-code (char-code #\a))
+			 (<= its-char-code (char-code #\z)))
+		    (let ((r-val (- its-char-code (char-code #\a))))
+		      (if (and (>= r-val 0) (< r-val alt-len))
+			  r-val
+			  (progn
+			    (c-bell! (format nil "Invalid value: ~a" val))
+			    'bad-value))))
+
+		   ;; an arrow-key I guess
+		   ((and (>= its-char-code (char-code #\0))
+			 (<= its-char-code (char-code #\9)))
+		    (case val
+		      (#\8 'up)
+		      (#\6 'right)
+		      (#\4 'left)
+		      (#\2 'down)
+		      (t 'bad-value)))
+
+		   (t
+		    'bad-value))
+	     )))
+    ))
+
+
+(defun interactive-alt-sel (col row alternatives
+			    &key (display-fun nil) (mod-value 5) 
+			    (ask-for "value") (settings nil))
+"Interative selection of alternatives.
+
+The COL, ROW argument specifies where the alternatives should start
+ALTERNATIVES is a list of valid alternatives
+DISPLAY-FUN is a function to display help for a given option
+MOD-VALUE is how much space should be between rows (I think)"
+  ;; [add more info]
+
+  
+  (let ((alt-len (length alternatives)))
+    (labels ((display-alternatives (highlight-num)
+	       (let* ((desc (when display-fun
+			     (funcall display-fun highlight-num)))
+		      (text-col (setting-value settings 'text-x 2))
+		      (text-row (setting-value settings 'text-y 10))
+		      (text-attr (setting-value settings 'text-attr +term-white+))
+		      (text-wid (setting-value settings 'text-w 75))
+		      (alt-colour (setting-value settings 'altern-attr +term-white+))
+		      (salt-colour (setting-value settings 'altern-sattr +term-l-blue+))
+		      (clear-row (if desc text-row row)))
+
+		 
+		 
+		 ;; find a better solution here
+		 (loop for i from clear-row below (get-frame-height)
+		       do
+		       (put-coloured-line! +term-white+ "" text-col i))
+		 ;;(c-clear-from! text-row) ;; clears things
+
+		 (when desc
+		   (c-print-text! text-col text-row text-attr desc :end-col (+ text-col text-wid))
+		   )
+		 
+		 (loop for cur-alt in alternatives
+		       for i from 0
+		       for the-col = (truncate (+ col (* 15 (mod i mod-value))))
+		       for the-row = (truncate (+ 1 row (/ i mod-value)))
+		       for cur-bg  = (if (= i highlight-num) salt-colour alt-colour)
+		       do
+		       (put-coloured-str! cur-bg (format nil "~c) " (i2a i)) the-col the-row)
+		       (put-coloured-str! cur-bg (format nil "~a" cur-alt) (+ 3 the-col) the-row)
+		       )))
+	     
+	     (get-a-value (cur-sel)
+	       (let* ((query-colour (setting-value settings 'query-attr +term-l-red+))
+		      (red-query (setting-value settings 'query-reduced nil))
+		      (query-str (if red-query
+				     "Choose a ~a (~c-~c): "
+				     "Choose a ~a (~c-~c, or * for random): ")))
+		 
+		 (display-alternatives cur-sel)
+		 (put-coloured-str! query-colour (format nil query-str
+							 ask-for (i2a 0) (i2a (- alt-len 1)))
+				    col row))
+	       (let ((rval (%alt-sel-input alt-len)))
+		 (if (not (symbolp rval))
+		     rval
+		     (case rval
+		       (bad-value (get-a-value cur-sel)) ;; retry
+		       (current cur-sel)	     ;; return current
+		       (up    (get-a-value (mod (- cur-sel mod-value) alt-len))) ;; move selection
+		       (down  (get-a-value (mod (+ cur-sel mod-value) alt-len))) ;; move selection
+		       (left  (get-a-value (mod (- cur-sel 1) alt-len))) ;; move selection
+		       (right (get-a-value (mod (+ cur-sel 1) alt-len))) ;; move selection
+		       (t
+			(warn "Unknown symbol returned ~s" rval)))))
+
+	       ))
+      
+      (get-a-value 0))))

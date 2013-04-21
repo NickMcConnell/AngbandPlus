@@ -157,6 +157,11 @@ Returns NIL on failure."))
 (defgeneric variant-home-path (variant)
   (:documentation "Returns the path to the given variant, possibly also for the
 current version."))
+
+(defgeneric variant-save-dir (variant)
+  (:documentation "Returns the path to the save-dir for a given variant, possibly
+also using version number."))
+
 ;;; ===
 
 
@@ -478,7 +483,7 @@ player object or NIL."))
 (defgeneric print-tomb (variant player)
   (:documentation "Prints a tomb for the given (dead) player."))
 
-(defgeneric organise-death& (variant player)
+(defgeneric arrange-game-exit& (variant player)
   (:documentation "Organises complete funeral for the dead player."))
 
 (defgeneric create-gold (variant dungeon &key originator)
@@ -685,3 +690,20 @@ but does not need to be 100% updated always."))
 
 (defgeneric get-character-picture (variant player)
   (:documentation "Returns a filename to a picture of the player character."))
+
+(defgeneric get-floor (variant key)
+  (:documentation "Queries the variant for a fitting floor-type to the
+given key.  Returns a floor-type or NIL if none was found."))
+
+(defgeneric get-door (variant key &key visible)
+  (:documentation "Queries the variant for a fitting door to the
+given key.  Returns an active-door or NIL if none was found."))
+
+(defgeneric place-door! (variant dungeon x y door)
+  (:documentation "Places a door at the given coord."))
+
+(defgeneric decor-operation (variant decor operation &key value)
+  (:documentation "Performs an operation on decor, possibly with an extra value."))
+
+(defgeneric attempt-multi-creation! (variant obj depth)
+  (:documentation "Attempt to create multiple objects (ie increase number)."))

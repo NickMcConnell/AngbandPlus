@@ -29,7 +29,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  (setq x (random dungeon-width)
 		y (random dungeon-height))
 
-	  (when (and (cave-boldly-naked? dungeon x y)
+	  (when (and (can-place? dungeon x y :creature)
 		     (> (distance x y px py) distance))
 	    (return-from search-for-spot nil)))
     
@@ -80,7 +80,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    do
 	    (let ((poss-x (+ last-x (svref ddx-ddd x)))
 		  (poss-y (+ last-y (svref ddy-ddd x))))
-	      (when (cave-boldly-naked? dungeon poss-x poss-y)
+	      (when (can-place? dungeon poss-x poss-y :creature)
 		(place-single-monster! dungeon player (produce-active-monster var-obj mon-kind)
 				       poss-x poss-y sleeping)
 		(setf last-x poss-x

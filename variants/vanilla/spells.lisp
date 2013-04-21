@@ -694,7 +694,7 @@ returns T if the player knows the spell."
 	     (return-from legal-dist))))
        
        (when (and (in-bounds-fully? dungeon tx ty)
-		  (cave-boldly-naked? dungeon tx ty)
+		  (can-place? dungeon tx ty :creature)
 		  (not (cave-icky? dungeon tx ty)))
 	 (return-from find-grid))
        
@@ -703,7 +703,7 @@ returns T if the player knows the spell."
 
     ;; we found an ok spot!
     (assert (and (in-bounds-fully? dungeon tx ty)
-		 (cave-boldly-naked? dungeon tx ty)
+		 (can-place? dungeon tx ty :creature)
 		 (not (cave-icky? dungeon tx ty))))
 
     ;; sound

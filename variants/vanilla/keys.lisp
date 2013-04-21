@@ -39,20 +39,33 @@ the Free Software Foundation; either version 2 of the License, or
 	     (print-message! "No missile selected!")))
 	)))
 
-(defvar *run-mode* nil "Are we running?")
-
 (define-key-operation 'toggle-run-mode
     #'(lambda (dungeon player)
-	(setf *run-mode* (not *run-mode*))))
+	(declare (ignore dungeon player))
+	(let ((run-status (get-information "running" :default nil)))
+	  ;;(warn "toggle to ~s" run-status)
+	  (setf (get-information "running") (not run-status)
+		(get-information "run-direction") -1
+		))))
+
 
 (defun let-player-run! (dungeon player direction)
-  (warn "run to ~s gave ~s" direction (run-along-corridor dungeon player direction)))
+  (let ((next (run-along-corridor dungeon player direction)))
+;;    (warn "Tried to run ~s, got next ~s" direction next)
+    (when (plusp next)
+      (move-player! dungeon player next)
+      (setf (get-information "run-direction") next)
+      t)))
 
 (defun van-move-player! (dungeon player direction)
-  (if *run-mode*
-      (let-player-run! dungeon player direction)
-      (move-player! dungeon player direction))
-  (setf *run-mode* nil))
+;;  (warn "move -> ~s" direction)
+  (cond ((get-information "running" :default nil)
+	 (unless (let-player-run! dungeon player direction)
+	   (setf (get-information "run-direction") -1
+		 (get-information "running") nil)))
+	(t
+	 (move-player! dungeon player direction))))
+  
 
 (define-key-operation 'move-up
     #'(lambda (dungeon player) (van-move-player! dungeon player 8)))
@@ -145,13 +158,13 @@ the Free Software Foundation; either version 2 of the License, or
 	(declare (ignore dungeon))
 ;;	(warn "Quitting")
 	(with-frame (+query-frame+)
-	  (c-prt! "Are you sure you wish to quit? " 0 0)
+	  (c-prt! "Are you sure you wish to quit [will kill character]? " 0 0)
 	  (let ((chr (read-one-character)))
 	    (when (or (equal chr #\y)
 		      (equal chr #\Y))
-	      (setf (player.dead-p player) t
+	      (setf (player.dead? player) t
 		    (player.dead-from player) "quitting"
-		    (player.leaving-p player) :quit)
+		    (player.leaving? player) :quit)
 ;;	(c-quit! +c-null-value+) ;; how to quit cleanly to the REPL?
 	      
 	    )))
@@ -208,6 +221,8 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'eat-item
     #'(lambda (dungeon player)
 	(interactive-use-item! dungeon player :need-effect '(:eat)
+;;			       :selection-function #'(lambda (x)
+;;						       (typep x 'active-object/food))
 			       :limit-from '(:backpack :floor) ;; only place with food
 			       :which-use :eat
 			       :sound +sound-eat+
@@ -257,15 +272,24 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(declare (ignore dungeon))
 	(when-bind (func (get-late-bind-function 'langband 'save-the-game))
-	  (let ((home-path  (home-langband-path)))
-	    (lbsys/make-sure-dirs-exist& home-path)
-	    (funcall func *variant* player *level*
-		     :fname (concatenate 'string home-path *readable-save-file*)
-		     :format :readable)
-	    (funcall func *variant* player *level*
-		     :fname (concatenate 'string home-path *binary-save-file*)
-		     :format :binary))
+	  (let ((save-path (variant-save-dir *variant*)))
+	    (lbsys/make-sure-dirs-exist& save-path)
+	    #-langband-release
+	    (funcall func *variant* player *level* :format :readable)
+	    (funcall func *variant* player *level* :format :binary))
 	  (print-message! "Your game was saved [binary+source]")
+	  )))
+
+(define-key-operation 'save-and-exit
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon))
+	(when-bind (func (get-late-bind-function 'langband 'save-the-game))
+	  ;; actual save is done in death.lisp
+	  (setf (player.dead? player) nil
+		(player.dead-from player) "quitting"
+		(player.leaving? player) :quit)	  
+	  (print-message! "Your game was saved [binary+source].  Press Enter/Return to continue.")
+	  (read-one-character)
 	  )))
 
 
@@ -353,7 +377,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'swap-map
     #'(lambda (dungeon player)
 	(when (eq (get-system-type) 'sdl)
-	  (switch-map-mode))))
+	  (switch-map-mode dungeon player))))
 
 (define-keypress *ang-keys* :global #\a 'zap-item)
 (define-keypress *ang-keys* :global #\b 'browse-spells)
@@ -396,6 +420,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;; Ctrl-R
 (define-keypress *ang-keys* :global (code-char 18) 'redraw-all)
 (define-keypress *ang-keys* :global (code-char 20) 'swap-map)
+(define-keypress *ang-keys* :global (code-char 24) 'save-and-exit)
 
 
 

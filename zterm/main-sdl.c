@@ -243,7 +243,7 @@ read_tiles(TileInformation *ti, const char *tilefiles[]) {
 	SDL_Surface *face = NULL;
 	
 	if (fname == NULL) return;
-	
+
 	ti->num_tiles++;
 	
 	if (strlen(fname) == 0) continue;
@@ -253,7 +253,8 @@ read_tiles(TileInformation *ti, const char *tilefiles[]) {
 	ti->tile_files[i] = malloc(strlen(filename) + 1);
 	strcpy(ti->tile_files[i], filename);
 
-	face = SDL_LoadBMP(filename);
+	//face = SDL_LoadBMP(filename);
+	face = IMG_Load(filename);
 
 	{
 	    Uint32 trans = 0;
@@ -736,8 +737,10 @@ errr Term_xtra_sdl(int n, int v)
 	    int retval;
 	    dr.x = lf->xoffset;
 	    dr.y = lf->yoffset;
-	    dr.w = lf->frame_width;
-	    dr.h = lf->frame_height;
+//	    dr.w = lf->frame_width;
+//	    dr.h = lf->frame_height;
+	    dr.w = lf->allowed_width;
+	    dr.h = lf->allowed_height;
 	    //DBGPUT("Doing clear of %s with background %p.\n", lf->name, wc->background);
 	    if (wc->background) {
 		retval = SDL_BlitSurface(wc->background, 0, wc->face, &dr);
@@ -1742,8 +1745,8 @@ errr init_sdl(int oargc, char **oargv) {
 	}
 	
 	
-	INFOMSG("If possible, try to use SDL compiled for OSS, and kill esd before starting.");
-	INFOMSG("If you have esd running your computer may lock up or sound may get a long delay.");
+	INFOMSG("If possible, try to use SDL compiled for OSS, and kill esd before starting.\n");
+	INFOMSG("If you have esd running your computer may lock up or sound may get a long delay.\n");
 
 	if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers)) {
 	    ERRORMSG("Langband is unable to open audio!\n");
@@ -1761,7 +1764,7 @@ errr init_sdl(int oargc, char **oargv) {
 	    //exit(1);
 	}
 	else {
-	    DBGPUT("We managed to init the sound-system, good!");
+	    DBGPUT("We managed to init the sound-system, good!\n");
 	}
 	
     }
@@ -1889,6 +1892,31 @@ errr init_sdl(int oargc, char **oargv) {
     return 0;
 }
 
+errr
+cleanup_SDL(void) {
+
+    DBGPUT("closing\n");
+    if (theWindow) {
+	SDL_FreeSurface(theWindow);
+	theWindow = NULL;
+    }
+    if (tileInfo) {
+	free(tileInfo); // may need to do subpointers too. 
+	tileInfo = NULL;
+    }
+
+    if (screen_tiles) {
+	free(screen_tiles);
+	screen_tiles = NULL;
+    }
+    if (use_sound) {
+	Mix_CloseAudio();
+    }
+    SDL_Quit();
+    DBGPUT("closed\n");
+    
+    return 0;
+}
 
 
 #endif /* USE_SDL */

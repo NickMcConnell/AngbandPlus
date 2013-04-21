@@ -18,7 +18,7 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 (in-package :org.langband.engine)
 
-;; for use with c-kode
+;; for use with c-code
 (defconstant +false+ 0)
 (defconstant +true+ 1)
 
@@ -53,52 +53,22 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconst +cave-view+ u-fixnum #x20 "view flag")
 (defconst +cave-temp+ u-fixnum #x40 "temp flag")
 (defconst +cave-wall+ u-fixnum #x80 "wall flag")
+(defconst +cave-no-tunnel+ u-fixnum #x100 "never tunnel here")
 ;;; === end cave-flags
 
 
 ;;; === Flags for floors
-(defconst +floor-none+ u-fixnum #x00  "no feature")
-(defconst +floor-regular+ u-fixnum #x01 "a floor-type")
-(defconst +floor-invisible-trap+ u-fixnum #x02 "a floor-type")
-(defconst +floor-glyph+ u-fixnum #x03 "a floor-type")
-(defconst +floor-open-door+ u-fixnum #x04 "a floor-type")
-(defconst +floor-broken-door+ u-fixnum #x05 "a floor-type")
-(defconst +floor-less+ u-fixnum #x06 "a floor-type")
-(defconst +floor-more+ u-fixnum #x07 "a floor-type")
 
-;; Shops
-(defconst +floor-shop-head+ u-fixnum #x08 "a floor-type")
-(defconst +floor-shop-tail+ u-fixnum #x0F "a floor-type")
-
-;; Traps
-(defconst +floor-trap-head+ u-fixnum #x10 "a floor-type")
-(defconst +floor-trap-tail+ u-fixnum #x1F "a floor-type")
-
-;; doors
-(defconstant +floor-door-head+ #x20)
-(defconstant +floor-door-tail+ #x2F)
-
-(defconstant +floor-secret-door+ #x30)
-(defconstant +floor-rubble+ #x31)
-
-;; seams
-(defconstant +floor-magma+ #x32)
-(defconstant +floor-quartz+ #x33)
-(defconstant +floor-magma-h+ #x34)
-(defconstant +floor-quartz-h+ #x35)
-(defconstant +floor-magma-k+ #x36)
-(defconstant +floor-quartz-k+ #x37)
-
-
-(defconstant +floor-wall-extra+ #x38)
-(defconstant +floor-wall-inner+ #x39)
-(defconstant +floor-wall-outer+ #x3a)
-(defconstant +floor-wall-solid+ #x3b)
-
-(defconstant +floor-perm-extra+ #x3c)
-(defconstant +floor-perm-inner+ #x3d)
-(defconstant +floor-perm-outer+ #x3e)
-(defconstant +floor-perm-solid+ #x3f)
+;; these flags are used
+(defconstant +floor-flag-wall+             #x01 "The floortype is some kind of a wall, can't see/move through.")
+(defconstant +floor-flag-permanent+        #x02 "The floortype is permanent and can never be changed.")
+(defconstant +floor-flag-floor+            #x04 "The floortype is some kind of floor.")
+(defconstant +floor-flag-allow-items+      #x08 "This floor-type allows items to be dropped on it.")
+(defconstant +floor-flag-allow-creatures+  #x10 "This floor-type allows creatures to move atop it
+and be constructed atop it.")
+(defconstant +floor-flag-exit-upwards+     #x20 "Can we go up here?")
+(defconstant +floor-flag-exit-downwards+   #x40 "Can we go down here?")
+(defconstant +floor-flag-use-light-effect+ #x80 "Should we use a light-effect on this floor?")
 ;;; === end floor flags
 
 
@@ -118,13 +88,13 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 (defconstant +print-health+ #x00000800)
 
-(defconstant +print-state+    #x00100000)
-(defconstant +print-speed+    #x00200000)
+(defconstant +print-state+  #x00100000)
+(defconstant +print-speed+  #x00200000)
 
-(defconstant +print-extra+    #x01000000)
-(defconstant +print-basic+    #x02000000 "The panel on the left.")
+(defconstant +print-extra+  #x01000000)
+(defconstant +print-basic+  #x02000000 "The panel on the left.")
 
-(defconstant +print-map+      #x08000000)
+(defconstant +print-map+    #x08000000)
 
 ;;; === end redraw/print flags
 

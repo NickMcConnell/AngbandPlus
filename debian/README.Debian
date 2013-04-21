@@ -13,18 +13,19 @@ Please report bugs on the Langband project page on Sourceforge:
   http://sourceforge.net/projects/langband/
 
 To use it, I recommend that you get all langband-packages;
+  langband-data    <- static data with images, audio, fonts, ..
   langband-zterm   <- the term-library from Angband (modified)
   langband-engine  <- the engine that does most of the job
   langband-vanilla <- a pluggable "variant" that mostly works as vanilla Angband
 
-To use it with CMUCL (only place it's been tested):
+To use it with CMUCL:
 
 $ lisp
 > (require :langband-vanilla)
-> (lb::a)
+> (sdl-langband)
 
 See also the other documentation.
 
-Note: for curses/xterm you might use (lb::a 'gcu)
+Note: for curses/xterm you might use (gcu-langband)
 
 Stig E Sandoe <stig@users.sourceforge.net>

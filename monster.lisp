@@ -124,8 +124,8 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 (defmethod get-creature-name ((creature player))
   (player.name creature))
 
-(defmethod get-creature-name ((creature active-trap)) ;; :-)
-  (trap.name (trap.type creature)))
+(defmethod get-creature-name ((trap active-trap)) ;; :-)
+  (trap.name (decor.type trap)))
 
 
 (defmethod alter-xp! ((mon active-monster) amount)

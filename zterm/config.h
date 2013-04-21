@@ -23,6 +23,7 @@
  * important compile time options, like what visual module to use.
  */
 
+/* Stig: much of this file will be cleaned up */
 
 /*
  * OPTION: See the Makefile(s), where several options may be declared.
@@ -214,28 +215,6 @@
 
 
 /*
- * OPTION: Set the "default" path to the angband "lib" directory.
- *
- * See "main.c" for usage, and note that this value is only used on
- * certain machines, primarily Unix machines.  If this value is used,
- * it will be over-ridden by the "ANGBAND_PATH" environment variable,
- * if that variable is defined and accessable.  The final "slash" is
- * required if the value supplied is in fact a directory.
- *
- * Using the value "./lib/" below tells Angband that, by default,
- * the user will run "angband" from the same directory that contains
- * the "lib" directory.  This is a reasonable (but imperfect) default.
- *
- * If at all possible, you should change this value to refer to the
- * actual location of the "lib" folder, for example, "/tmp/angband/lib/"
- * or "/usr/games/lib/angband/", or "/pkg/angband/lib".
- */
-#ifndef DEFAULT_PATH
-# define DEFAULT_PATH "./lib/"
-#endif
-
-
-/*
  * On multiuser systems, add the "uid" to savefile names
  */
 #ifdef SET_UID
@@ -268,29 +247,4 @@
  * This option is only relevant on SET_UID machines.
  */
 #define CAPITALIZE_USER_NAME
-
-
-
-/*
- * OPTION: Person to bother if something goes wrong.
- */
-#define MAINTAINER	"rr9@angband.org"
-
-
-/*
- * OPTION: Default font (when using X11).
- */
-#define DEFAULT_X11_FONT		"9x15"
-
-/*
- * OPTION: Default fonts (when using X11)
- */
-#define DEFAULT_X11_FONT_0		"10x20"
-#define DEFAULT_X11_FONT_1		"9x15"
-#define DEFAULT_X11_FONT_2		"9x15"
-#define DEFAULT_X11_FONT_3		"5x8"
-#define DEFAULT_X11_FONT_4		"5x8"
-#define DEFAULT_X11_FONT_5		"5x8"
-#define DEFAULT_X11_FONT_6		"5x8"
-#define DEFAULT_X11_FONT_7		"5x8"
 

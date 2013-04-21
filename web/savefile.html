@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Langband Savefile format</title>
+</head>
+
+<body>
+<h1>Langband Savefiles</h1>
+
+<p>Langband has been inspired by the <a href="http://everything.vaevictus.net/index.pl?node=New%20Savefile%20Format%20ARFC%20002">ARFC002</a> penned by Andrew Sidwell,
+but has done some modifications.  This document describes the Langband
+savefile format in v0.1.2:
+
+<h2 align="left">General Information</h2>
+<p>The savefile is constructed of a "savefile header", then followed by
+blocks.  Little endian is used for this savefile format.</p> 
+
+<h2 align="left">File Header</h2>
+
+<p>The file header has a four-byte "magic number".  This magic number
+differs from "83.97.118.101" in ARFC002 and is "83.97.118.102". (This
+spoils some of the magic number pun, but this is an iteration :-)
+This can easily be used to check if indeed this is a langband savefile.
+The magic number is followed by two u16b version numbers; a version
+number for the engine used and a version number for the variant.
+Langband is split in engine and variant and both of these numbers are
+relevant.  Regular angbands may eventually need both numbers if
+lua-scripting expands and lua "mods" written by users change from a
+released version but needs savefile access.</p> 
+<b>104 bytes in total.</b>
+<table border='1' cellpadding='2'>
+<tr><td colspan='2' align="center"><b>Format of file header</b></td></tr>
+<tr><td>byte</td><td>Fake major: 83</td></tr>
+<tr><td>byte</td><td>Fake minor: 97</td></tr>
+<tr><td>byte</td><td>Fake patch: 118</td></tr>
+<tr><td>byte</td><td>Fake extra: 102</td></tr>
+
+<tr><td>u16b</td><td>Major/Engine version</td></tr>
+<tr><td>u16b</td><td>Minor/Variant version</td></tr>
+<tr><td>24 bytes</td><td>Id that identifies variant/mod/patchset to use</td></tr>
+<tr><td>u16b</td><td>Savefile status, a code of 0 means the character is dead</td></tr>
+<tr><td>64 bytes</td><td>Description of the savegame, useful for a
+  savebrowser or when selecting one of many saves.</td></tr>
+<tr><td>u16b</td><td>Number of saveblocks in the file</td></tr>
+</table>
+
+<p>This header may be extended with a savedate, and other info at a
+later date.  Input appreciated.</p>
+
+<h2 align="left">Format of saveblock</h2>
+<b>28 bytes in total + actual data in block</b><br>
+
+<table border='1' cellpadding='2'>
+<tr><td colspan='2' align="center"><b>Format of a saveblock</b></td></tr>
+<tr><td>u32b (4 bytes)</td><td>Vendor of block, eg- personal "key"
+  (Langband uses 1337)</td></tr>
+<tr><td>u16b (2 bytes)</td><td>Type of block</td></tr>
+<tr><td>u16b (2 bytes)</td><td>Block version number</td></tr>
+<tr><td>u32b (4 bytes)</td><td>Length of data-field in the block</td></tr>
+<tr><td>u128b (16 bytes)</td><td>Checksum for the savebuffer</td></tr>
+<tr><td>xxx</td><td>The actual data (Length specified earlier in header)</td></tr>
+</table>
+
+
+<hr>
+<address>stig@langband.org</address>
+<!-- hhmts start --> Last modified: Fri Dec  6 18:34:42 CET 2002 <!-- hhmts end -->
+</body> </html>

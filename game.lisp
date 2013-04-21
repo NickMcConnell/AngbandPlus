@@ -39,9 +39,12 @@ ADD_DESC: This file just contains simple init and loading of the game
 
 ;;  (pushnew :xp-testing *features*)
   (pushnew :langband-development *features*)
+
+  ;; should be on in a released source
+  (pushnew :langband-release *features*)
   
   ;; this one should be turned on in releases and in curses
-;;  #+win32
+  #+(or win32 langband-release)
   (pushnew :hide-warnings *features*)
 
 ;;  (pushnew :maintainer-mode *features*)
@@ -116,9 +119,11 @@ ADD_DESC: This file just contains simple init and loading of the game
 		    #+lispworks (fixnum-safety 3)
 		    ))
 
-
-;;(proclaim *dev-opt*)
+#+langband-release
 (proclaim *normal-opt*)
+#-langband-release
+(proclaim *dev-opt*)
+
  
 (defun compile-in-environment (func)
   (let (
@@ -144,8 +149,10 @@ ADD_DESC: This file just contains simple init and loading of the game
 	(asdf::*compile-file-warnings-behaviour* :ignore))
     (load "langband-engine.asd")
     (load "variants/vanilla/langband-vanilla.asd")
+    ;;(load "variants/contraband/contraband.asd")
     (asdf:oos 'asdf:load-op :langband-vanilla)
-    (progress-msg "Variant loaded...")
+    ;;(asdf:oos 'asdf:load-op :contraband)
+    (progress-msg "Variants loaded...")
     t))
 
 #+use-mkdefsystem

@@ -62,12 +62,12 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defmethod creature-alive? ((crt player))
-  (not (player.dead-p crt)))
+  (not (player.dead? crt)))
 
 (defmethod (setf creature-alive?) (value (crt player))
-  (setf (player.dead-p crt) (not value))
+  (setf (player.dead? crt) (not value))
   (when (eq value nil)
-    (setf (player.leaving-p crt) :dead)))
+    (setf (player.leaving? crt) :dead)))
     
 
 (defmethod get-xp-value ((crt player))

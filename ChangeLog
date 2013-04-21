@@ -1,3 +1,43 @@
+2002-12-07  Stig E Sandø <stig@users.sourceforge.net>
+	* Removed dead zterm/defines.h
+	* Removed unnecessary linuxism from zterm/sdl-extra.c
+	* Added cleanup for SDL to allow the game to be restarted from the
+	same lisp (zterm/main-sdl.c)
+	* Fixed some Makefile issues on freebsd (thnaks to vrak)
+	* Uses new savefile-format derived from ARFC002, penned by Andrew
+	Sidwell.  some modifications done to make it more useful and
+	appropriate for langband. (load.lisp and save.lisp)
+	* Added file that describes the save-format (web/savefile.html)
+	* Added age/status/height/weight of player characters, also saved.
+	* Added angband-style save-and-exit on ^X and 'Q'uit will now kill
+	the savefile as well.
+	* Added variant selection system (loop.lisp)
+	* Added savefile selection system (loop.lisp)
+	* Added numeric versioning of variants and engine.
+	* Made alternative selection more useful for other stuff, not just
+	birth. (util.lisp)
+	* Other minor tweaks.
+	
+2002-11-28  Stig E Sandø <stig@users.sourceforge.net>
+	* Split debian packaging.  Static data files are now put in a
+	separate langband-data package.  This will reduce the size of the
+	packages that are most frequently updates.
+	* New floor-system installed where all floors are dynamically
+	installed (no constants).  Doors are now decor. (many files)
+	* Fixed keyhandling issues with SDL port (sdl-extra.c)
+	* Fixed minor paint-bug in SDL (main-sdl.c)
+	* Added status, height, weight and age info to characters
+	* Added information-system to handle information that handles
+	state in a variant and a game, but that does not need a lot of
+	global variables. (global.lisp)
+	* Added creation of multiple items (arrows, ammo, ..) when
+	initially created.
+	* Fixed several save/load problems (save.lisp and load.lisp)
+	* Added conservative running-code which works ok in
+	corridors, but has some problems with disturbance and rooms
+	still.  But better than nothing. (util.lisp)
+	* Other minor fixes
+	
 2002-11-11  Stig E Sandø <stig@users.sourceforge.net>
 	* Sent out a release, 0.1.1
 	* Major upgrade of (G)UI and UI-handling.  New SDL-support while GTK,

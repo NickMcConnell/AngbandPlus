@@ -22,7 +22,15 @@ DLLEXT=so
 PICFLAG=-fPIC
 CONFIGFILE=../config/settings.cfg
 SDLCONFIG=/usr/bin/sdl-config
-DLLCOPY=/bin/true
+DLLCOPY=true
+
+#= Truetype setting, select ttf if you have SDL_ttf installed
+TTF_FLAG=-D"ALLOW_TTF"
+TTF_LIB=-lSDL_ttf
+
+#TTF_FLAG=
+#TTF_LIB=
+#= end truetype
 
 # GCU settings
 ifeq ($(findstring GCU,$(ENVIRONMENTS)), GCU)
@@ -33,10 +41,10 @@ endif
 
 #SDL Settings
 ifeq ($(findstring SDL,$(ENVIRONMENTS)), SDL)
-UIDEFINES += -D"USE_SDL" -D"ALLOW_TTF" -DDEBUG
+UIDEFINES += -D"USE_SDL" ${TTF_FLAG} -DDEBUG
 BASEFLAGS += `${SDLCONFIG} --cflags`
 UIOBJS += sdl-extra.o main-sdl.o 
-UILIBS += -lSDL_mixer -lSDL_image -lSDL_ttf `${SDLCONFIG} --libs`
+UILIBS += -lSDL_mixer -lSDL_image ${TTF_LIB} `${SDLCONFIG} --libs`
 endif
 
 

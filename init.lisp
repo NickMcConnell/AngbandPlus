@@ -216,7 +216,7 @@ ADD_DESC: at the start.
   (let ((wanted-file (game-data-path "theme.lisp"))
 	(sys-str (string-downcase (%to-a-string system-type))))
 
-    (warn "Looking for system ~s" sys-str)
+    ;;(warn "Looking for system ~s" sys-str)
     
     (when (probe-file wanted-file) ;; is it there?
       (with-open-file (s wanted-file
@@ -245,7 +245,7 @@ ADD_DESC: at the start.
 (defun install-theme& (theme)
 
   (check-type theme theme)
-  (warn "Installing theme ~s" (theme.key theme))
+;;  (warn "Installing theme ~s" (theme.key theme))
   
   (dolist (i (theme.windows theme))
     (c-add-frame! (subwindow.key i) (string-downcase (string (subwindow.name i))))
@@ -264,6 +264,23 @@ ADD_DESC: at the start.
     )
   
   t)
+
+;; hackish
+(defun %assign-debian-dirs ()
+  (setf *engine-source-dir* "/usr/share/common-lisp/source/langband-engine/")
+  #+unix
+  (setf *engine-config-dir* "/var/games/langband-engine/")
+  #+unix
+  (setf *engine-graphics-dir* "/usr/share/games/langband-engine/graphics/")
+  #+unix
+  (setf *engine-audio-dir* "/usr/share/games/langband-engine/audio/")
+  )
+
+(defun %assign-win-dirs ()
+  (let ((dir (concatenate 'string (lbsys/ensure-dir-name (namestring (lbsys/get-current-directory)))
+			  "config/")))
+    (setf *engine-config-dir* dir)))
+   
 
 (defun game-init& (&optional (ui "sdl"))
   "This function should be called from the outside to
@@ -291,17 +308,9 @@ call appropriately high-level init in correct order."
 
       ;; fix paths
       #-langband-development
-      (progn
-	(setf *engine-source-dir* "/usr/share/common-lisp/source/langband-engine/")
-	#+unix
-	(setf *engine-config-dir* "/var/games/langband-engine/")
-	#+unix
-	(setf *engine-graphics-dir* "/usr/share/games/langband-engine/graphics/")
-	)
+      (%assign-debian-dirs)
       #+win32
-      (setf *engine-config-dir* (concatenate 'string (lbsys/ensure-dir-name (namestring (lbsys/get-current-directory)))
-					     "config/"))
-      
+      (%assign-win-dirs)
 
       ;; time to register our lisp
       #+(or cmu allegro clisp lispworks sbcl cormanlisp)
@@ -472,5 +481,12 @@ call appropriately high-level init in correct order."
 (setf (symbol-function 'cl-user::langband)
       #'b)
 
+(setf (symbol-function 'cl-user::gcu-langband)
+      #'b)
+
+
 (setf (symbol-function 'cl-user::gfx-langband)
+      #'c)
+
+(setf (symbol-function 'cl-user::sdl-langband)
       #'c)

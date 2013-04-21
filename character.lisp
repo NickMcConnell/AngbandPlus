@@ -53,7 +53,10 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  (warn "Spells is ~s" spells)
   (make-instance 'character-class :id id :name name))
 
-(defun define-character-class (id name &rest args &key symbol desc xp-extra stat-changes (resists :unspec)
+(defun define-character-class (id name &rest args &key symbol desc xp-extra
+			       (mod-age :unspec)
+			       (mod-status :unspec)
+			       stat-changes (resists :unspec)
 			       (abilities :unspec) titles (stat-sustains :unspec)
 			       starting-equipment hit-dice skills &allow-other-keys)
   "Defines and establishes a class."
@@ -93,6 +96,13 @@ the Free Software Foundation; either version 2 of the License, or
 	      (build-stat-table-from-symlist var-obj stat-changes))
 	(setf (class.stat-changes my-class)
 	      (make-stat-array var-obj)))
+
+    (when (or (integerp mod-age) (consp mod-age) (functionp mod-age))
+      (setf (class.mod-age my-class) mod-age))
+	
+    (when (or (integerp mod-status) (consp mod-status) (functionp mod-status))
+      (setf (class.mod-status my-class) mod-status))
+	 
 
     (when hit-dice
       (setf (class.hit-dice my-class) hit-dice))
@@ -154,11 +164,20 @@ the Free Software Foundation; either version 2 of the License, or
   (make-instance 'character-race :id id :name name))
 
 
-(defun define-character-race (id name &rest args &key symbol desc xp-extra stat-changes (abilities :unspec)
+(defun define-character-race (id name &rest args &key symbol desc xp-extra
+			      (base-age :unspec)
+			      (mod-age :unspec)
+			      (base-status :unspec)
+			      (mod-status :unspec)
+			      stat-changes (abilities :unspec)
 			      (resists :unspec)
 			      (stat-sustains :unspec)
 			      (hit-dice :unspec)
-			      classes starting-equipment skills &allow-other-keys)
+			      (m-height :unspec) (m-height-mod :unspec)
+			      (f-height :unspec) (f-height-mod :unspec)
+			      (m-weight :unspec) (m-weight-mod :unspec)
+			      (f-weight :unspec) (f-weight-mod :unspec)
+ 			      classes starting-equipment skills &allow-other-keys)
   "defines a race and updates global race-list.  Both id and symbol will be
 in the global race-table for easy access."
 
@@ -183,6 +202,28 @@ in the global race-table for easy access."
       (setf (race.xp-extra race) xp-extra))
     (when classes
       (setf (race.classes race) classes))
+
+    (when (integerp base-age)
+      (setf (race.base-age race) base-age))
+
+    (when (or (integerp mod-age) (consp mod-age) (functionp mod-age))
+      (setf (race.mod-age race) mod-age))
+    
+    (when (integerp base-status)
+      (setf (race.base-status race) base-status))
+	
+    (when (or (integerp mod-status) (consp mod-status) (functionp mod-status))
+      (setf (race.mod-status race) mod-status))
+	
+
+    (loop for i in (list m-height m-height-mod f-height f-height-mod
+			 m-weight m-weight-mod f-weight f-weight-mod)
+	  for j in '(m-height m-height-mod f-height f-height-mod
+		     m-weight m-weight-mod f-weight f-weight-mod)
+	  do
+	  (when (integerp i)
+	    (setf (slot-value race j) i)))
+	  
     
     (if stat-changes
 	(setf (race.stat-changes race) (build-stat-table-from-symlist var-obj stat-changes))

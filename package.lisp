@@ -46,6 +46,7 @@ DESC: package.lisp - package def for langband
 	   #:*level*
 	   #:*variant*
 	   #:*engine-version*
+	   #:*engine-num-version*
 
 	   #:lbsys/get-current-directory
 	   #:lbsys/ensure-dir-name

@@ -113,6 +113,7 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "dump" :depends-on ("monster" "classes" "object" "character" "global" "building" "equipment"))
 			   (:file "init" :depends-on ("classes" "monster" "object" "loop"))
 			   (:file "verify" :depends-on ("player" "global" "base" "dungeon" "monster" "character"))
+			   (:file "conversation")
 			   			   
 			   )
 	      :depends-on (foreign))

@@ -244,35 +244,48 @@ ADD_DESC: Most of the code which deals with the game loops.
 
   (let ((temp-attrs (player.temp-attrs player)))
   
-  (loop named waste-energy
-	do
-	(when (/= *update* 0) (update-stuff variant dungeon player))
-	(when (/= *redraw* 0) (redraw-stuff variant dungeon player))
+    (loop named waste-energy
+	  for run-status = (get-information "running" :default nil)
+	  for run-dir = (get-information "run-direction" :default 0)
+
+	  do
 	
-	(put-cursor-relative! dungeon (location-x player) (location-y player))
+	  (when (/= *update* 0) (update-stuff variant dungeon player))
+	  (when (/= *redraw* 0) (redraw-stuff variant dungeon player))
+	
+	  ;;(put-cursor-relative! dungeon (location-x player) (location-y player))
 
-	;; assume no energy is used
-	(setf (player.energy-use player) 0)
+	  ;; assume no energy is used
+	  (setf (player.energy-use player) 0)
 
-	(cond ((or (get-attribute-value '<paralysed> temp-attrs)
-		   (>= (get-attribute-value '<cut> temp-attrs) 100)) ;; move to variant
-	       (setf (player.energy-use player)  +energy-normal-action+))
-
-	      ;; skip resting
-	      ;; skip running
-	      ;; skip repeat
-	      (t
-	       ;; do normal command
-	       (get-and-process-command! dungeon player :global)))
 	
 	
-	(when (plusp (player.energy-use player))
-	  (decf (get-creature-energy player) (player.energy-use player)))
+	  (cond ((or (get-attribute-value '<paralysed> temp-attrs)
+		     (>= (get-attribute-value '<cut> temp-attrs) 100)) ;; move to variant
+		 (setf (player.energy-use player)  +energy-normal-action+))
 
-	while (and (= 0 (player.energy-use player))
-		   (not (player.leaving-p player)))
-	)
-  t))
+		;; skip resting
+		((and run-status (>= run-dir 0))
+		 ;;(warn "from loop")
+		 (unless (let-player-run! dungeon player run-dir)
+		   ;;(warn "turning off running")
+		   (setf (get-information "run-direction") -1
+			 (get-information "running") nil)))
+		       
+
+		;; skip repeat
+		(t
+		 ;; do normal command
+		 (get-and-process-command! dungeon player :global)))
+	
+	
+	  (when (plusp (player.energy-use player))
+	    (decf (get-creature-energy player) (player.energy-use player)))
+
+	  while (and (= 0 (player.energy-use player))
+		     (not (player.leaving? player)))
+	  )
+    t))
 
   
 
@@ -378,12 +391,12 @@ ADD_DESC: Most of the code which deals with the game loops.
 
   (loop named player-fun
 	while (and (>= (get-creature-energy player) +energy-normal-action+) ;; better solution?
-		   (not (player.leaving-p player)))
+		   (not (player.leaving? player)))
 	do
 	(progn
 	  (process-monsters& dungeon player (1+ (get-creature-energy player)))
 	  
-	  (unless (player.leaving-p player)
+	  (unless (player.leaving? player)
 	    (process-player! variant dungeon player))))
   )
 
@@ -399,7 +412,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 	 )
 
     ;; we're not leaving
-    (setf (player.leaving-p player) nil)
+    (setf (player.leaving? player) nil)
       
     ;; setting these to illegal values
     (setf (player.view-x player) dungeon-width)
@@ -468,7 +481,7 @@ ADD_DESC: Most of the code which deals with the game loops.
        (process-monsters& dungeon player +energy-normal-action+)
        ;; stuff
 
-       (let ((leave-sym (player.leaving-p player)))
+       (let ((leave-sym (player.leaving? player)))
 	 (when leave-sym
 	   (return-from run-level! leave-sym)))
 
@@ -497,8 +510,8 @@ ADD_DESC: Most of the code which deals with the game loops.
 
 (defun game-loop& ()
   "This is the main game-loop.  and this function looks _ugly_."
-  (multiple-value-bind (*player* *variant* *level*)
-      (load-old-environment&)
+  (multiple-value-setq (*player* *variant* *level*)
+      (load-old-environment&))
     (update-term-sizes!)    
     (loop
      ;; clean up to prevent too many delays while running the dungeon
@@ -516,7 +529,9 @@ ADD_DESC: Most of the code which deals with the game loops.
 ;;	:time)
        
        ;; return if we're toast
-       (when (player.dead-p *player*)
+       (when (or (player.dead? *player*)
+		 (eq (player.leaving? *player*) :quit))
+	 ;;(warn "->End game and level is ~s" *level*)
 	 (return-from game-loop&))
        
        ;; generate new cave
@@ -529,8 +544,9 @@ ADD_DESC: Most of the code which deals with the game loops.
        ;; do it again?
        (garbage-collect :global t)
        ;; safety? we will reload in less than a second :-)
-       (save-current-environment&)))
-    ))
+       (save-current-environment&))
+     ))
+
 
 (defun save-current-environment& ()
   "Attempts to save the environment."
@@ -545,26 +561,156 @@ ADD_DESC: Most of the code which deals with the game loops.
 	  (get '*variant* 'last-value)
 	  (get '*level* 'last-value)))
 
-(defun %load-saved-game (fname format)
-  "Returns three values."
+(defun %load-saved-game (fname)
+  "Will assign values to *variant*, *player* and *level if it can."
 
   ;; use default loader
-  (let ((loaded (load-a-saved-game nil fname format))
-	(the-player nil)
-	(the-level nil)
-	(the-var nil))
+  (let ((loaded nil)
+	(pname fname)
+	(format :binary))
 
+    (when (stringp pname)
+      (setf pname (pathname fname)))
+
+    (when (equal (pathname-type fname) "lisp")
+      (setf format :readable))
+    
+    (handler-case
+	(setf loaded (load-a-saved-game nil fname format))
+      (savefile-problem (sp)
+	(pause-last-line! :msg (saveproblem.desc sp) :attr +term-l-red+)
+	(pause-last-line! :msg "[Creating new character instead.]" :attr +term-l-red+)
+	)
+      (end-of-file (co)
+	(pause-last-line! :attr +term-l-red+
+			  :msg (format nil "Error when loading a savegame (~s), creating new character." co))))
+    
     ;; we're lenient about the order things are returned in
     (dolist (i loaded)
       (typecase i
-	(player (setf the-player i))
-	(level (setf the-level i))
-	(variant (setf the-var i))
+	(player (setf *player* i))
+	(level (setf *level* i))
+	(variant (setf *variant* i))
+	(null ;; a nil value is always total miss
+	 (return-from %load-saved-game nil))
 	(otherwise
 	 (warn "Loading gave weird value back: ~s" i))))
 
+    nil))
 
-    (values the-level the-player the-var)))
+(defun interactive-variant-select ()
+  "Returns id to a selected variant, or NIL on failure."
+  ;; move this to variant-selection
+  (let ((vars (get-registered-variants)))
+   
+    (cond ((> (length vars) 1)
+	   (let ((hgt (get-frame-height))
+		 (result nil))
+	     (c-clear-from! (- hgt 4))
+	     (setf result  (interactive-alt-sel 5 (- hgt 3) vars :ask-for "variant to play"))
+	     
+	     (when (and (integerp result) (>= result 0))
+	       (return-from interactive-variant-select (elt vars result)))
+	     
+	     (warn "Got odd variant selection result ~s" result)
+	     ;; just using the first one
+	     (first vars)))
+	  
+	  ((= (length vars) 0)
+	   (error "No variant plugin found."))
+	  
+	  (t
+	   (first vars)))))
+ 
+
+(defun interactive-savefile-select (variant-id)
+  "Returns 'new-game for new game or a string with filename to wanted savegame to load."
+
+  ;;; This function is ugly.. be careful
+  
+  (unless (stringp variant-id)
+    (return-from interactive-savefile-select nil))
+  
+  ;; now we should find savegames, or select new game
+  (let* ((files (directory (variant-save-dir variant-id))))
+    
+    (unless files ;; we have no files, assume new game
+      (return-from interactive-savefile-select 'new-game))
+
+    ;; only select binaries
+    (let ((real-files '()))
+      (dolist (i files)
+	(let ((type (pathname-type i)))
+	  (cond ((equal type "bin") ;; we want this one
+		 (when-bind (header (load-saveheader i))
+		   (check-type header saveheader)
+		   ;;(warn "Header is ~s" header)
+		   (when (plusp (saveheader.status header))
+		     (push (cons i (saveheader.desc header)) real-files))))
+		
+		((equal type "lisp") ;; we ignore this one
+		 nil)
+		
+		(t ;; check for badness
+		 (warn "Unknown filetype ~s for file ~s.  Ignoring." type i)))))
+
+      ;;(warn "files ~s" real-files)
+      
+      (flet ((show-desc (num)
+	       (cond ((plusp num)
+		      (let ((elm (elt real-files (1- num))))
+			;;(warn "Want desc of ~s -> ~s" num elm)
+			(cdr elm)))
+		     (t
+		      "                     "))))
+
+	(cond ((= (length real-files) 0)
+	       (return-from interactive-savefile-select nil))
+	      ((> (length real-files) 0) ;; if more files we need choices
+	       
+	       (let ((hgt (get-frame-height))
+		     (to-show (loop for i in real-files
+				    collecting (pathname-name (car i))))
+		     (result nil))
+		 (c-clear-from! (- hgt 6))
+		 (setf result  (interactive-alt-sel 5 (- hgt 3) (cons "<<NEW>>" to-show)
+						    :ask-for "savefile to use"
+						    :display-fun #'show-desc
+						    :mod-value 5
+						    ;; hack
+						    :settings (make-instance 'birth-settings
+									     :text-x 8
+									     :text-y (- hgt 5)
+									     :text-attr +term-yellow+)))
+		 
+		 (when (integerp result)
+		   (cond ((= result 0)
+			  (return-from interactive-savefile-select 'new-game)) ;; new game
+			 ((> result 0)
+			  (return-from interactive-savefile-select (elt real-files (1- result))))))
+		 ))))
+	     
+	     
+      nil)))
+
+(defun %create-new-character (wanted-variant)
+  "Handles creation of a new character in given variant."
+
+  (unless wanted-variant
+    (error "Tried to created new character but no variant is specified."))
+
+  ;; so far we just load vanilla
+  (let ((var-obj (load-variant& wanted-variant :verbose t)))
+    (cond ((not var-obj)
+	   (warn "Unable to find variant ~s" wanted-variant)
+	   (return-from %create-new-character nil))
+	  (t
+	   (setf *variant* var-obj)
+	   (activate-object var-obj))))
+
+  ;; then it's time to actually create our player (with a dummy level)
+  (let ((*level* (make-instance 'level))) ;; evil hack
+    (interactive-creation-of-player *variant*)))
 
 
 ;;; This one is a mess!!! please divide in more fitting functions!
@@ -604,80 +750,52 @@ ADD_DESC: Most of the code which deals with the game loops.
     (c-set-cursor& 0)
     (flush-messages! t)
 
-    ;; FIX: this code _must_ be rewritten!!
-    (block creation
-      (loop
-       (let ((the-player nil)
-	     (the-level nil)
-	     (the-variant nil)
-	     (save-combos (list
-			   (cons (concatenate 'string (home-langband-path)
-					      *binary-save-file*)  :binary)
-			   (cons (concatenate 'string (home-langband-path)
-					      *readable-save-file*)  :readable)))
-	     
-	     )
-	 
-	 (block possible-read-file
-	   (dolist (i save-combos)
-	     (let ((the-save-file (car i))
-		   (format (cdr i)))
-	       (when (probe-file (pathname the-save-file))
-		 ;; we can load a saved game
-		 (multiple-value-bind (lv player var)
-		     (%load-saved-game the-save-file format)
-		   (if (and player (is-player? player))
-		       (setf the-player player)
-		       (warn "Unable to load player from ~s" the-save-file))
-		   (if (and lv (typep lv 'level))
-		       (setf the-level lv)
-		       (warn "Unable to load level from ~s" the-save-file))
-		   (if (and var (typep var 'variant))
-		       (setf the-variant var)
-		       (warn "Unable to load variant from ~s" the-save-file))
-		   (pause-last-line!)
-		   (return-from possible-read-file t)
-		   )))))
+    (pause-last-line!)
 
-	 (unless the-player ;; unable to load one.
-	   
-	   ;; so far we just load vanilla
-	   (let* ((var-key "langband-vanilla")
-		  (var-obj (load-variant& var-key :verbose t)))
-	     (cond ((not var-obj)
-		    (warn "Unable to find variant ~s" var-key)
-		    (return-from play-game& nil))
-		   (t
-		    (setf *variant* var-obj)
-		    (activate-object var-obj))))
+    (let* ((wanted-variant (interactive-variant-select))
+	   (start-action nil))
 
+      (unless (and wanted-variant (stringp wanted-variant))
+	(error "Unable to find any variant ~s" wanted-variant))
+
+      (setf start-action (interactive-savefile-select wanted-variant))
+
+      (when (consp start-action)
+	(setf start-action (car start-action)))
+      
+      ;;(warn "start ~s ~s" wanted-variant start-action)
+
+      (when (or (pathnamep start-action)
+		(stringp start-action))
+	;; we found a savefile we want
+	(print-note! "[Trying to load savefile ..]")
+	(%load-saved-game start-action))
+      
+      (when (or (eq start-action nil)
+		(eq start-action 'new-game)
+		(eq *player* nil)) ;; in case we screwed up loading a game
+	;; start a new game, no savefiles with player found
+	(setf *player* (%create-new-character wanted-variant)))
+      )
     
-	   ;; run tests after variant has been loaded
-	   #+xp-testing
-	   (do-a-test :post)
-  
-	   (pause-last-line!)
-	   
-	   (let ((*level* (make-instance 'level))) ;; evil hack
-	     (setf the-player (interactive-creation-of-player *variant*))))
 
-	 ;; ok have we gotten anything?
-	 (when the-player
-	   (setf *player* the-player)
-	   (when the-level (setf *level* the-level))
-	   (when the-variant (setf *variant* the-variant))
-	   (return-from creation))
-       
-	 (warn "Trying to create player again..")
-	 )))
-
+    ;; at this point *player* and *variant* must be correct.. *level* can be fixed
+    
     (unless *current-key-table*
       (setf *current-key-table* *ang-keys*))
 
+    ;; we must make sure that our player has proper symbol
+    (setf (x-attr *player*) (tile-file +tilefile-classes+)
+	  (x-char *player*) (tile-number (get-class-tile-number *variant* *player*)))
+    
+    
 ;;    (unless *level*
 ;;      (c-prt! "Please wait..." 0 0)  
 ;;      (pause-last-line!))
-    
+
+    ;; now we want normal layout!
+    (switch-to-regular-frameset&)
+
     (clear-the-screen!)
     
     (block dungeon-running
@@ -690,10 +808,12 @@ ADD_DESC: Most of the code which deals with the game loops.
       (save-current-environment&)
       (game-loop&))
 
-    (cond ((and *player* (player.dead-p *player*))
+    ;;(warn "End game and level is ~s" *level*)
+    (cond ((and (is-player? *player*) ;;(player.dead? *player*)
+		)
 	   (c-texture-background! +full-frame+ "" -1)
 	   (flush-messages! t)
-	   (organise-death& *variant* *player*))
+	   (arrange-game-exit& *variant* *player*))
 	   
 	  (t
 	   (c-prt! "Quitting..." 0 0)

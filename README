@@ -81,12 +81,13 @@ How to play:
     o - open all surrounding doors
     p - invoke a spell (not working)
     q - quaff a potion
-    Q - quit the game
+    Q - quit the game (will kill the character and any savefile)
     r - read a scroll
     s - search area
     S - save the game (save-file in ~/.angband/langband/ will be used on restart)
     u - use an item
     w - wear an item from backpack
+   ^X - Save and exit the game. 
 
   See also lib/help/keys.txt and the actual code in variants/vanilla/keys.lisp
   
@@ -101,9 +102,6 @@ What to do on crash or bugs:
 Known bugs:
   - Things may lock up somewhere in the magic-commands
   - Eat-command doesn't work
-  - Suddenly -more- refuses to be government by anything else than
-    the spacebar.  Very annoying.
-  - Repaint issues on the fringes
   - Some repaint-issues when opening/closing doors and when killing
     monsters with spells.  ^R redraw command usually works though.
   - Windows port does not support TTF-fonts

@@ -25,8 +25,16 @@ the Free Software Foundation; either version 2 of the License, or
                adjustments or intrinsics occur to characters choosing human."
   :xp-extra 0
   :hit-dice 10
-;;  :stat-changes nil
-;;  :abilities nil
+  :base-age 18
+  :mod-age '(1 . 10)
+  :base-status 0
+
+  ;; metric
+  :m-height 170 :m-height-mod 15
+  :f-height 160 :f-height-mod 15
+  :m-weight 80  :m-weight-mod 20
+  :f-weight 68  :f-weight-mod 15
+  
   :classes t
   :skills '((<disarming> 0 0)
 	    (<device> 0 0)
@@ -50,6 +58,16 @@ the Free Software Foundation; either version 2 of the License, or
 
   :xp-extra 10
   :hit-dice 9
+  :base-age 24
+  :mod-age '(1 . 10)
+  :base-status 0
+
+  ;; metric
+  :m-height 165 :m-height-mod 15
+  :f-height 155 :f-height-mod 15
+  :m-weight 65  :m-weight-mod 15
+  :f-weight 60  :f-weight-mod 15
+  
   :stat-changes '((<str> -1) (<int> +1) (<wis> 0)
 		  (<dex> +1) (<con> -1) (<chr> +1))
   :abilities '(
@@ -81,6 +99,16 @@ the Free Software Foundation; either version 2 of the License, or
 
   :xp-extra 20
   :hit-dice 8
+  :base-age 75
+  :mod-age '(1 . 60)
+  :base-status 10
+  
+  ;; metric
+  :m-height 160 :m-height-mod 15
+  :f-height 150 :f-height-mod 15
+  :m-weight 50  :m-weight-mod 12
+  :f-weight 45  :f-weight-mod 10
+ 
   :stat-changes '((<str> -1) (<int> +2) (<wis> +1)
 		  (<dex> +1) (<con> -1) (<chr> +1))
   :abilities '(
@@ -114,6 +142,16 @@ the Free Software Foundation; either version 2 of the License, or
 
   :xp-extra 10
   :hit-dice 7
+  :base-age 21
+  :mod-age '(1 . 12)
+  :base-status 0
+
+  ;; metric
+  :m-height 90 :m-height-mod 10
+  :f-height 85 :f-height-mod 10
+  :m-weight 45  :m-weight-mod 7
+  :f-weight 40  :f-weight-mod 7
+
   :stat-changes '((<str> -2) (<int> +2) (<wis> +1)
 		  (<dex> +3) (<con> +2) (<chr> +1))
   :stat-sustains '(<dex>)
@@ -147,6 +185,16 @@ the Free Software Foundation; either version 2 of the License, or
 
   :xp-extra 25
   :hit-dice 8
+  :base-age 50
+  :mod-age '(1 . 40)
+  :base-status 0
+
+  ;; metric
+  :m-height 110 :m-height-mod 10
+  :f-height 105 :f-height-mod 10
+  :m-weight 55  :m-weight-mod 7
+  :f-weight 50  :f-weight-mod 7
+
   :stat-changes '((<str> -1) (<int> +2) (<wis> 0)
 		  (<dex> +2) (<con> +1) (<chr> -2))
   :abilities '(
@@ -184,6 +232,17 @@ the Free Software Foundation; either version 2 of the License, or
 
   :xp-extra 20
   :hit-dice 11
+  :base-age 35
+  :mod-age '(1 . 15)
+  :base-status 0
+
+  ;; metric
+  :m-height 120 :m-height-mod 10
+  :f-height 110 :f-height-mod 10
+  :m-weight 70  :m-weight-mod 20
+  :f-weight 60  :f-weight-mod 15
+
+  
   :stat-changes '((<str> +2) (<int> -3) (<wis> +2)
 		  (<dex> -2) (<con> +2) (<chr> -3))
   :abilities '(
@@ -218,6 +277,17 @@ the Free Software Foundation; either version 2 of the License, or
 
   :xp-extra 10
   :hit-dice 10
+  :base-age 14
+  :mod-age '(1 . 6)
+  :base-status -10
+
+  ;; metric
+  :m-height 165 :m-height-mod 15
+  :f-height 160 :f-height-mod 15
+  :m-weight 70  :m-weight-mod 20
+  :f-weight 65  :f-weight-mod 15
+
+
   :stat-changes '((<str> +2) (<int> -1) (<wis> 0)
 		  (<dex> 0) (<con> +1) (<chr> -4))
   :abilities '(
@@ -250,6 +320,16 @@ the Free Software Foundation; either version 2 of the License, or
   
   :xp-extra 20
   :hit-dice 12
+  :base-age 20
+  :mod-age '(1 . 10)
+  :base-status -15
+
+  ;; metric
+  :m-height 240 :m-height-mod 20
+  :f-height 225 :f-height-mod 20
+  :m-weight 115 :m-weight-mod 20
+  :f-weight 100 :f-weight-mod 15
+  
   :stat-changes '((<str> +4) (<int> -4) (<wis> -2)
 		  (<dex> -4) (<con> +3) (<chr> -6))
   :stat-sustains '(<str>)
@@ -278,6 +358,16 @@ the Free Software Foundation; either version 2 of the License, or
 
   :xp-extra 80
   :hit-dice 10
+  :base-age 50
+  :mod-age '(1 . 20)
+  :base-status 10
+
+  ;; metric
+  :m-height 200 :m-height-mod 10
+  :f-height 190 :f-height-mod 10
+  :m-weight 85 :m-weight-mod 20
+  :f-weight 80 :f-weight-mod 15
+ 
   :stat-changes '((<str> +1) (<int> +2) (<wis> +2)
 		  (<dex> +2) (<con> +3) (<chr> +2))
   :abilities '(
@@ -309,6 +399,17 @@ the Free Software Foundation; either version 2 of the License, or
 
   :xp-extra 100
   :hit-dice 10
+  :base-age 100
+  :mod-age '(2 . 20)
+  :base-status 20
+
+  ;; metric
+  :m-height 215 :m-height-mod 10
+  :f-height 200 :f-height-mod 10
+  :m-weight 85 :m-weight-mod 20
+  :f-weight 80 :f-weight-mod 15
+ 
+ 
   :stat-changes '((<str> +1) (<int> +3) (<wis> -1)
 		  (<dex> +3) (<con> +1) (<chr> +5))
   :abilities '(

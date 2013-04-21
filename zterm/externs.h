@@ -214,3 +214,7 @@ errr cleanup_X11(void);
 #ifdef USE_GCU
 errr cleanup_GCU(void);
 #endif
+
+#ifdef USE_GCU
+errr cleanup_SDL(void);
+#endif

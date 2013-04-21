@@ -18,152 +18,6 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
 
 (in-package :org.langband.engine)
 
-
-(defun %birth-input-char (alt-len)
-  "INTERNAL FUNCTION.  Might change!
-
-Reads a character via READ-ONE-CHARACTER and
-acts on the result:
-  Q     - calls QUIT-GAME&
-  S     - returns NIL
-  ESC   - Picks random value and returns it (a number)
-  *     - As ESC
-  ENTER - Returns 'CURRENT (ie the currently selected value)
-  SPACE - As ENTER
-  [a-z] - Checks if the value is legal, returns number if ok, returns 'BAD-VALUE if not legal
-"
-  (let ((val (read-one-character)))
-    #-cmu
-    (assert (characterp val))
-;;    (warn "Got back ~a ~s ~s" val val (type-of val))
-    (cond ((eql val #\Q)
-	   (quit-game&))
-	  ;; start over
-	  ((eql val #\S)
-	   nil)
-	  ;; pick a random value
-	  ((or (eql val +escape+)
-	       (eql val #\*))
-	   (random alt-len))
-	  ;; use highlighted value
-	  ((or (eql val #\Return) (eql val #\Newline))
-	   'current)
-	  (t
-	   (let ((its-char-code (char-code val)))
-	     ;; legal char-code
-	     (cond ((and (>= its-char-code (char-code #\a))
-			 (<= its-char-code (char-code #\z)))
-		    (let ((r-val (- its-char-code (char-code #\a))))
-		      (if (and (>= r-val 0) (< r-val alt-len))
-			  r-val
-			  (progn
-			    (c-bell! (format nil "Invalid value: ~a" val))
-			    'bad-value))))
-
-		   ;; an arrow-key I guess
-		   ((and (>= its-char-code (char-code #\0))
-			 (<= its-char-code (char-code #\9)))
-		    (case val
-		      (#\8 'up)
-		      (#\6 'right)
-		      (#\4 'left)
-		      (#\2 'down)
-		      (t 'bad-value)))
-
-		   (t
-		    'bad-value))
-	     )))
-    ))
-
-
-(defun %birth-input (col row alternatives
-		     &key (display-fun nil) (mod-value 5) 
-		     (ask-for "value") (settings nil))
-  "INTERNAL FUNCTION.
-The COL, ROW argument specifies where the alternatives should start
-ALTERNATIVES is a list of valid alternatives
-DISPLAY-FUN is a function to display help for a given option
-MOD-VALUE is how much space should be between rows (I think)"
-  ;; [add more info]
-
-  
-  (let ((alt-len (length alternatives)))
-    (labels ((display-alternatives (highlight-num)
-	       (let ((desc (when display-fun
-			     (funcall display-fun highlight-num)))
-		     (text-col (if settings
-				   (slot-value settings 'text-x)
-				   2))
-		     (text-row (if settings
-				   (slot-value settings 'text-y)
-				   10))
-		     (text-attr (if settings
-				    (slot-value settings 'text-attr)
-				    +term-white+))
-		     (text-wid (if settings
-				   (slot-value settings 'text-w)
-				   75))
-		     (alt-colour (if settings
-				     (slot-value settings 'altern-attr)
-				     +term-white+))
-		     (salt-colour (if settings
-				      (slot-value settings 'altern-sattr)
-				      +term-l-blue+)))
-
-		 ;; find a better solution here
-		 (loop for i from text-row below (get-term-height)
-		       do
-		       (put-coloured-line! +term-white+ "" text-col i))
-		 ;;(c-clear-from! text-row) ;; clears things
-		 
-		 (when desc
-		   (c-print-text! text-col text-row text-attr desc :end-col (+ text-col text-wid))
-		   )
-		 
-		 (loop for cur-alt in alternatives
-		       for i from 0
-		       for the-col = (truncate (+ col (* 15 (mod i mod-value))))
-		       for the-row = (truncate (+ 1 row (/ i mod-value)))
-		       for cur-bg  = (if (= i highlight-num) salt-colour alt-colour)
-		       do
-		       (put-coloured-str! cur-bg (format nil "~c) " (i2a i)) the-col the-row)
-		       (put-coloured-str! cur-bg (format nil "~a" cur-alt) (+ 3 the-col) the-row)
-		       )))
-	     
-	     (get-a-value (cur-sel)
-	       (let* ((query-colour (if settings
-				       (slot-value settings 'query-attr)
-				       +term-l-red+))
-		      (red-query (if settings
-				     (slot-value settings 'query-reduced)
-				     nil))
-		      (query-str (if red-query
-				     "Choose a ~a (~c-~c): "
-				     "Choose a ~a (~c-~c, or * for random): ")))
-		 
-		 (display-alternatives cur-sel)
-		 (put-coloured-str! query-colour (format nil query-str
-							 ask-for (i2a 0) (i2a (- alt-len 1)))
-				    col row))
-	       (let ((rval (%birth-input-char alt-len)))
-		 (if (not (symbolp rval))
-		     rval
-		     (case rval
-		       (bad-value (get-a-value cur-sel)) ;; retry
-		       (current cur-sel)	     ;; return current
-		       (up    (get-a-value (mod (- cur-sel mod-value) alt-len))) ;; move selection
-		       (down  (get-a-value (mod (+ cur-sel mod-value) alt-len))) ;; move selection
-		       (left  (get-a-value (mod (- cur-sel 1) alt-len))) ;; move selection
-		       (right (get-a-value (mod (+ cur-sel 1) alt-len))) ;; move selection
-		       (t
-			(warn "Unknown symbol returned ~s" rval)))))
-
-	       ))
-      
-      (get-a-value 0))))
-
-
-
 (defmethod query-for-character-basics! ((variant variant) (the-player player)
 					(settings birth-settings))
   "Interactive questioning to select the basics of the character.
@@ -206,10 +60,10 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
       (loop
        (let* ((genders (variant.genders variant))
 	      (alt-len (length genders))
-	      (inp (%birth-input quest-col quest-row
-				 (mapcar #'gender.name genders)
-				 :settings settings
-				 :ask-for "gender")))
+	      (inp (interactive-alt-sel quest-col quest-row
+					(mapcar #'gender.name genders)
+					:settings settings
+					:ask-for "gender")))
 	 (cond ((eq inp nil)
 		(return-from query-for-character-basics! nil))
 	       
@@ -236,15 +90,15 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
       (loop
        (let* ((cur-races (get-races-as-a-list))
 	      (alt-len (length cur-races))
-	      (inp (%birth-input quest-col quest-row
-				 (mapcar #'race.name cur-races)
-				 :display-fun #'(lambda (x)
-						  (when (and (numberp x) (>= x 0) (< x alt-len))
-						    (race.desc (elt cur-races x))))
-				 :ask-for "race"
-				 :settings settings
-				 :mod-value mod-value
-				 )))
+	      (inp (interactive-alt-sel  quest-col quest-row
+					 (mapcar #'race.name cur-races)
+					 :display-fun #'(lambda (x)
+							  (when (and (numberp x) (>= x 0) (< x alt-len))
+							    (race.desc (elt cur-races x))))
+					 :ask-for "race"
+					 :settings settings
+					 :mod-value mod-value
+					 )))
 	      
 	 (cond ((eq inp nil)
 		(return-from query-for-character-basics! nil))
@@ -309,15 +163,15 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 				     (if (>= i class-len)
 					 (concatenate 'string "(" (class.name x) ")")
 					 (class.name x))))
-		  (inp (%birth-input quest-col quest-row
-				     class-names
-				     :display-fun #'(lambda (x)
-						      (when (and (numberp x) (>= x 0) (< x comb-class-len))
-							(class.desc (elt combined-classes x))))
-				     :ask-for "class"
-				     :settings settings
-				     :mod-value mod-value
-				     )))
+		  (inp (interactive-alt-sel quest-col quest-row
+					    class-names
+					    :display-fun #'(lambda (x)
+							     (when (and (numberp x) (>= x 0) (< x comb-class-len))
+							       (class.desc (elt combined-classes x))))
+					    :ask-for "class"
+					    :settings settings
+					    :mod-value mod-value
+					    )))
 	     
 	     (cond ((eq inp nil)
 		    (return-from query-for-character-basics! nil))
@@ -587,6 +441,64 @@ Returns the new PLAYER object or NIL on failure."
       (unless rolling
 	(return-from interactive-creation-of-player nil)))
 
+    (block handle-misc
+      (let ((misc (player.misc player))
+	    (race (player.race player))
+	    (my-class (player.class player)))
+
+	;; first do age
+	(setf (playermisc.age misc) (race.base-age race))
+
+	(etypecase (race.mod-age race)
+	  (integer (incf (playermisc.age misc) (race.mod-age race)))
+	  (cons (incf (playermisc.age misc) (roll-dice (car (race.mod-age race))
+						       (cdr (race.mod-age race)))))
+	  (function (funcall (race.mod-age race) variant player race)))
+
+	(etypecase (class.mod-age my-class)
+	  (integer (incf (playermisc.age misc) (class.mod-age my-class)))
+	  (cons (incf (playermisc.age misc) (roll-dice (car (class.mod-age my-class))
+						       (cdr (class.mod-age my-class)))))
+	  (function (funcall (class.mod-age my-class) variant player my-class)))
+
+	;; then fix status
+	(setf (playermisc.status misc) (race.base-status race))
+
+	(etypecase (race.mod-status race)
+	  (integer (incf (playermisc.status misc) (race.mod-status race)))
+	  (cons (incf (playermisc.status misc) (roll-dice (car (race.mod-status race))
+							  (cdr (race.mod-status race)))))
+	  (function (funcall (race.mod-status race) variant player race)))
+
+	(etypecase (class.mod-status my-class)
+	  (integer (incf (playermisc.status misc) (class.mod-status my-class)))
+	  (cons (incf (playermisc.status misc) (roll-dice (car (class.mod-status my-class))
+							  (cdr (class.mod-status my-class)))))
+	  (function (funcall (class.mod-status my-class) variant player my-class)))
+
+	(incf (playermisc.status misc) (roll-dice 1 (get-information "status-roll" :default 60)))
+
+	(let ((max-status (get-information "status-cap" :default 100)))
+	  (when (> (playermisc.status misc) max-status)
+	    (setf (playermisc.status misc) max-status)))
+
+	(unless (plusp (playermisc.status misc))
+	  (setf (playermisc.status misc) 1)) ;; scum
+
+	;; fix this one and move it to variant later!
+	(cond ((eq (gender.symbol (player.gender player)) '<female>)
+	       (setf (playermisc.height misc) (normalised-random (slot-value race 'f-height)
+								 (slot-value race 'f-height-mod))
+		     (playermisc.weight misc) (normalised-random (slot-value race 'f-weight)
+								 (slot-value race 'f-weight-mod))))
+	      (t
+	       (setf (playermisc.height misc) (normalised-random (slot-value race 'm-height)
+								 (slot-value race 'm-height-mod))
+		     (playermisc.weight misc) (normalised-random (slot-value race 'm-weight)
+								 (slot-value race 'm-weight-mod)))))
+		     
+      ))
+    
     ;; ok.. ask for name and re-roll?
 
     (block input-loop
@@ -616,17 +528,12 @@ Returns the new PLAYER object or NIL on failure."
     ;; time to give him some equipment
     (equip-character! variant player birth-settings)
 
-    ;; ok, time to find a symbol
-    (setf (x-attr player) (tile-file +tilefile-classes+)
-	  (x-char player) (tile-number (get-class-tile-number variant player)))
-    
 ;;    (warn "stats are now ~s ~s" (player.base-stats the-player) (ok-object? the-player))
     ;;    (add-object-to-inventory! the-player (create-aobj-from-kind-num 118))
 
     (c-texture-background! +full-frame+ "" -1)
     (c-wipe-frame! +full-frame+)
     ;;(warn "going switch");
-    (switch-to-regular-frameset&)
     
     ;;(warn "switched")
     

@@ -50,9 +50,9 @@ the Free Software Foundation; either version 2 of the License, or
       
   nil)
 
-(defun %distribute-traps! (dungeon traps)
+(defun %distribute-decor! (dungeon decor)
 
-  (dolist (i (reverse traps))
+  (dolist (i (reverse decor))
     (let ((its-x (location-x i))
 	  (its-y (location-y i)))
 
@@ -60,17 +60,30 @@ the Free Software Foundation; either version 2 of the License, or
 	(error "Trying to set coord [~a,~a] when size is [~a,~a] on objs ~s"
 	       its-x its-y (dungeon.width dungeon) (dungeon.height dungeon) i))
 
-      (place-trap! *variant* dungeon its-x its-y i)
-      ))
-      
-  nil)
+      (typecase i
+	(active-trap
+	 (place-trap! *variant* dungeon its-x its-y i))
+	(active-door
+	 (place-door! *variant* dungeon its-x its-y i))
+	(t
+	 nil))
+
+      )))
 
 
+(defun %filed-variant (&key engine-num-version id variant-num-version turn information)
 
-(defun %filed-variant (&key id turn)
+  (unless engine-num-version
+    (signal (make-condition 'savefile-problem
+			    :desc "Save-game too old (no engine version specified). Please remove old save-files.")))
 
+  (unless variant-num-version
+    (signal (make-condition 'savefile-problem
+			    :desc "Save-game too old (no variant version specified). Please remove old save-files.")))
+  
   (unless (and id (stringp id))
-    (error "The saved variant-object does not have a legal id, it has ~s" id))
+    (signal (make-condition 'savefile-problem
+			    :desc "The saved variant-object does not have a legal id, it has ~s" id)))
 
   (let ((var-obj (load-variant& id)))
     (if var-obj
@@ -85,6 +98,10 @@ the Free Software Foundation; either version 2 of the License, or
 
     (setf (variant.turn var-obj) turn)
 
+    (when (consp information)
+      (dolist (i information)
+	(setf (get-information (car i) :variant var-obj) (cdr i))))
+    
     ;; hackish
     (activate-object var-obj)
     
@@ -204,7 +221,7 @@ the Free Software Foundation; either version 2 of the License, or
       (setf (dungeon.rooms dungeon) rooms))
 
     (when decor
-      (%distribute-traps! dungeon decor))
+      (%distribute-decor! dungeon decor))
     
     dungeon))
 
@@ -298,14 +315,43 @@ the Free Software Foundation; either version 2 of the License, or
 	   nil))
     ))
 
+(defun %filed-door (&key type loc-x loc-y flags)
+  "returns an active-door or nil."
+  (let ((door (get-door *variant* type)))
+
+    (unless (typep door 'active-door)
+      (warn "Unable to find door-type ~s" type)
+      (return-from %filed-door nil))
+
+    (setf (location-x door) loc-x
+	  (location-y door) loc-y)
+
+    (when (integerp flags)
+      (setf (decor.visible? door) (if (bit-flag-set? flags #x01) t nil))
+      (setf (door.closed? door)   (if (bit-flag-set? flags #x02) t nil))
+      (setf (door.broken? door)   (if (bit-flag-set? flags #x04) t nil))
+      )
+
+    door))
+
+(defun %filed-player-misc (&key age status height weight)
+  (let ((misc (make-instance 'misc-player-info)))
+    (when age
+      (setf (playermisc.age misc) age))
+    (when status
+      (setf (playermisc.status misc) status))
+    (when height
+      (setf (playermisc.height misc) height))
+    (when weight
+      (setf (playermisc.weight misc) weight))
+    misc))
+    
 
 (defun %filed-player-info (pl-obj &key name class race gender base-stats cur-statmods
 			   hp-table equipment variant temp-attrs)
   "modifies the PL-OBJ with the extra info and returns the modified PL-OBJ."
 
-  (let* ((var-obj (if (and variant (typep variant 'variant))
-		      variant
-		      *variant*))
+  (let* ((var-obj (if (is-variant? variant) variant *variant*))
 	 (the-class (get-char-class class :variant var-obj))
 	 (the-race (get-char-race race :variant var-obj))
 	 (the-gender (get-gender var-obj gender)))
@@ -475,9 +521,9 @@ the Free Software Foundation; either version 2 of the License, or
       
       (let* ((dec-len (bt:read-binary 'bt:u32 str))
 	     (objs (loop for i from 1 to dec-len
-			 collecting (load-object variant :active-trap stream))))
+			 collecting (load-object variant :decor stream))))
 	(when objs
-	  (%distribute-traps! dungeon objs)))
+	  (%distribute-decor! dungeon objs)))
       
       dungeon)))
 
@@ -522,6 +568,30 @@ the Free Software Foundation; either version 2 of the License, or
     (%filed-room :type id :loc-x (bt:read-binary 'bt:u16 str)
 		 :loc-y (bt:read-binary 'bt:u16 str))))
 
+
+
+(defmethod load-object ((variant variant) (type (eql :decor)) (stream l-binary-stream))
+  (let* ((str (lang.stream stream))
+	 (decortype (%bin-read-string str)))
+
+    (cond ((string-equal decortype "trap")
+	   (load-object variant :active-trap stream))
+	  ((string-equal decortype "door")
+	   (load-object variant :active-door stream))
+	  (t
+	   (warn "Unknown decortype ~s found." decortype)
+	   nil))
+    ))
+
+(defmethod load-object ((variant variant) (type (eql :active-door)) (stream l-binary-stream))
+  (let* ((str (lang.stream stream))
+	 (id (%bin-read-string str)))
+
+    (%filed-door :type id :loc-x (bt:read-binary 'bt:u16 str)
+		 :loc-y (bt:read-binary 'bt:u16 str)
+		 :flags (bt:read-binary 'bt:u16 str))
+    ))
+  
 (defmethod load-object ((variant variant) (type (eql :active-trap)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
 	 (id (%bin-read-string str)))
@@ -561,6 +631,10 @@ the Free Software Foundation; either version 2 of the License, or
 	  (player.energy pl-obj) (read-binary 'bt:u16 str))
 
 
+    (setf (player.misc pl-obj) (%filed-player-misc :age (read-binary 'bt:u16 str)
+						   :status (read-binary 'bt:u16 str)
+						   :height (read-binary 'bt:u16 str)
+						   :weight (read-binary 'bt:u16 str)))
 	 
     (%filed-player-info pl-obj
 			:name (%bin-read-string str)
@@ -619,9 +693,31 @@ the Free Software Foundation; either version 2 of the License, or
   (assert (eq variant nil))
   (let* ((str (lang.stream stream))
 	 (var-obj (%filed-variant :id (%bin-read-string str)
-				  :turn (bt:read-binary 'bt:u32 str))))
+				  :turn (bt:read-binary 'bt:u32 str)
+				  :variant-num-version (bt:read-binary 'bt:u16 str)
+				  :engine-num-version (bt:read-binary 'bt:u16 str))))
 
+    ;; something went bad
+    (unless var-obj
+      (warn "Unable to load usable variant object.")
+      (return-from load-object nil))
+    
     (check-type *variant* variant)
+
+    (let ((info-len (bt:read-binary 'bt:u32 str)))
+      (dotimes (i info-len)
+	(let* ((key (%bin-read-string str))
+	       (val-type (bt:read-binary 'bt:u16 str))
+	       (val (%bin-read-string str))
+	       (val-obj (ecase val-type
+			  (1 val)
+			  (2 (read-from-string val))
+			  (3 (char val 0))
+			  (4 nil)
+			  (5 t)
+			  )))
+	  (setf (get-information key :variant var-obj) val-obj))))
+    
 
     (let ((obj-len  (bt:read-binary 'bt:u32 str)))
       (dotimes (i obj-len)
@@ -630,7 +726,6 @@ the Free Software Foundation; either version 2 of the License, or
     (let ((mon-len  (bt:read-binary 'bt:u32 str)))
       (dotimes (i mon-len)
 	(load-object var-obj :monster-kind  stream)))
-    
     
     var-obj))
 
@@ -660,3 +755,58 @@ the Free Software Foundation; either version 2 of the License, or
 					     (t
 					      (error "Unknown 'already-dead'-flag ~s" wiped-flag))))
     ))
+
+(defun %read-bin-fixed-str (len str)
+  (coerce (loop for i below len
+		collecting (code-char (bt:read-binary 'bt:u8 str)))
+	  'string))
+
+(defmethod load-object (variant (type (eql :saveheader)) (stream l-binary-stream))
+  (declare (ignore variant))
+  (let* ((str (lang.stream stream))
+	 (obj (make-saveheader)))
+
+    (setf (saveheader.major obj) (bt:read-binary 'bt:u8 str)
+	  (saveheader.minor obj) (bt:read-binary 'bt:u8 str)
+	  (saveheader.patch obj) (bt:read-binary 'bt:u8 str)
+	  (saveheader.extra obj) (bt:read-binary 'bt:u8 str)
+	  (saveheader.engine-num-version obj) (bt:read-binary 'bt:u16 str)
+	  (saveheader.variant-num-version obj) (bt:read-binary 'bt:u16 str)
+	  (saveheader.variant-id obj) (string-right-trim '(#\Space #\Tab #\Newline) (%read-bin-fixed-str 24 str))
+	  (saveheader.status obj)  (bt:read-binary 'bt:u16 str)
+	  (saveheader.desc obj) (string-right-trim '(#\Space #\Tab #\Newline) (%read-bin-fixed-str 64 str))
+	  (saveheader.block-num obj)(bt:read-binary 'bt:u16 str)
+	  )
+    obj))
+
+(defmethod load-object (variant (type (eql :saveblock)) (stream l-binary-stream))
+  (declare (ignore variant))
+  (let* ((str (lang.stream stream))
+	 (obj (make-saveblock)))
+    (setf (saveblock.vendor-tag obj) (bt:read-binary 'bt:u32 str)
+	  (saveblock.type obj) (bt:read-binary 'bt:u16 str)
+	  (saveblock.version obj) (bt:read-binary 'bt:u16 str)
+	  (saveblock.len obj) (bt:read-binary 'bt:u32 str)
+	  (saveblock.checksum obj) (bt:read-binary 'u128 str))
+    (setf (saveblock.data obj) (loop for i from 0 below (saveblock.len obj)
+				     collecting (bt:read-binary 'bt:u8 str)))
+    obj))
+
+(defun load-saveheader (fname)
+  "Tries to load a saveheader for the given file."
+  (let ((pname (pathname fname)))
+    (when (probe-file pname)
+      (handler-case
+	  (bt:with-binary-file (s pname :direction :input)
+	    (let* ((bt:*endian* :little-endian)
+		   (the-lang-stream (make-instance 'l-binary-stream :stream s))
+		   (header (load-object nil :saveheader the-lang-stream)))
+
+	      (when header
+		(return-from load-saveheader header))))
+	(end-of-file (co)
+	  (declare (ignore co))
+	  (return-from load-saveheader nil)))
+      nil)))
+
+	      

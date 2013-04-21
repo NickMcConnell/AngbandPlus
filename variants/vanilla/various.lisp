@@ -180,10 +180,10 @@ the Free Software Foundation; either version 2 of the License, or
 	 (the-effect (find which-use effects :key #'effect-entry-type))
 	 (retval :not-used))
 
-;;    (warn "Found use-effect ~s" use-effect)
+    ;;(warn "Found use-effect ~s for ~s" the-effect the-object)
 
     (unless the-effect 
-      (warn "Didn't find any effect for ~s" (object.id okind))
+      (warn "Didn't find ~s effect for ~s" which-use (object.id okind))
       (return-from use-object! retval))
 	    
     
@@ -194,20 +194,20 @@ the Free Software Foundation; either version 2 of the License, or
 ;;	(warn "not compiled"))
       
       (setf retval (funcall (effect-entry-fun the-effect) dungeon player the-object))
-      
-      (ecase retval
-	(:used
-	 (incf (player.energy-use player) (effect-entry-energy-use the-effect)))
-	(:still-useful
-	 (incf (player.energy-use player) (effect-entry-energy-use the-effect)))
-	;; do nothing
-	(:not-used)
-	(nil
-	 (warn "Object-effect ~s for object ~s returned nil, fix?"
-	       (effect-entry-type the-effect) the-object)
-	 nil)
-	))
 
+      (cond ((eq retval :used)
+	     (incf (player.energy-use player) (effect-entry-energy-use the-effect)))
+	    ((eq retval :still-useful)
+	     (incf (player.energy-use player) (effect-entry-energy-use the-effect)))
+	    ;; do nothing
+	    ((eq retval :not-used) nil)
+	    ((eq retval nil)
+	     (warn "Object-effect ~s for object ~s returned nil, fix?"
+		   (effect-entry-type the-effect) the-object))
+	    (t
+	     (error "Unknown return-value from effect: ~s" retval))))
+      
+    
     retval))
 
 
@@ -796,3 +796,14 @@ the Free Software Foundation; either version 2 of the License, or
 	   )
       
       amon))
+
+(defmethod attempt-multi-creation! ((variant vanilla-variant) (obj active-object) depth)
+  (declare (ignore depth))
+  ;; do nothing, assume 1 as default
+  nil)
+
+(defmethod attempt-multi-creation! ((variant vanilla-variant) (obj active-object/ammo) depth)
+  (declare (ignore depth))
+;;  (warn "Generating ammo")
+  ;; ammo is always in groups
+  (setf (aobj.number obj) (roll-dice 6 7)))

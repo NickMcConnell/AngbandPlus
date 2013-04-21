@@ -37,10 +37,18 @@ a succesful ACTIVATE-OBJECT."))
 	      :initform "lithping"
 	      :initarg :name)
 
-   (sys-file  :accessor variant.sys-file;; used for?
-	      :initform nil
-	      :initarg :sys-file)
+   (version   :accessor variant.version
+	      :initform "1.0"
+	      :documentation "A string describing the version, useful for displaying."
+	      :initarg :version)
 
+   (num-version :accessor variant.num-version
+		:initform 100
+		:initarg :num-version
+		:documentation "A never-displayed version-number that code
+can use for compatibility checks, savegames and internal use.  version is
+for display, num-version for active-use. u16b should be enough.")
+   
    (config-path :accessor variant.config-path;; where are the configuration-files?
 		:initform nil
 		:initarg :config-path)
@@ -85,7 +93,7 @@ a succesful ACTIVATE-OBJECT."))
 		   :initarg :level-builders)
 
    (floor-types :accessor variant.floor-types
-		:initform (make-hash-table :test #'eql)
+		:initform (make-hash-table :test #'equal)
 		:initarg :floor-types)
 
    (room-builders  :accessor variant.room-builders
@@ -135,7 +143,11 @@ a succesful ACTIVATE-OBJECT."))
    (traps :accessor variant.traps
 	  :initform (make-hash-table :test #'equal)
 	  :documentation "A table with trap-types.")
-   
+
+   (doors :accessor variant.doors
+	  :initform (make-hash-table :test #'equal)
+	  :documentation "A table with door-types.")
+
    
    (filters :accessor variant.filters
 	    :initform (make-hash-table :test #'equal)
@@ -187,6 +199,11 @@ a succesful ACTIVATE-OBJECT."))
 		    :initarg :worn-item-slots
 		    :initform nil)
 
+   ;; this one is crucial, with lowercase string-keys it stores information that
+   ;; is easy to check and save/load
+   (information :accessor variant.information
+		:initform (make-hash-table :test #'equal))
+   
    ))
 
 (defstruct worn-item-slot
@@ -196,7 +213,8 @@ a succesful ACTIVATE-OBJECT."))
   hidden)
 
 (defstruct (dungeon-coord (:conc-name coord.))
-  (floor 0 :type u-16b)
+;;  (floor 0 :type u-16b)
+  (floor nil)
   (flags 0 :type u-16b)  ;; info-flag in angband
   (objects nil)
   (monsters nil)
@@ -543,9 +561,9 @@ Each location is a fixnum with column in the last row."))
    (energy-use :accessor player.energy-use
 	       :initform 0
 	       :documentation "is just a temp-variable")
-   (leaving-p  :accessor player.leaving-p
+   (leaving?   :accessor player.leaving?
 	       :initform nil) ;; need to save it?
-   (dead-p     :accessor player.dead-p
+   (dead?      :accessor player.dead?
 	       :initform nil) ;; need to save it?
    (speed      :accessor player.speed
 	       :initform +speed-base+)  ;; does this change?
@@ -1052,6 +1070,36 @@ is all about?")
    (desc          :accessor race.desc
 		  :initarg :desc
 		  :initform "not described")
+   (base-age      :initform 20
+		  :accessor race.base-age
+		  :documentation "An integer specifying base starting age for a player of this race.")
+   (mod-age       :initform 0
+		  :accessor race.mod-age
+		  :documentation "A flexible object modifying starting age for a player.")
+   (base-status   :initform 0
+		  :accessor race.base-status
+		  :documentation "An integer specifying base starting status for a player of this race.")
+   (mod-status    :initform 0
+		  :accessor race.mod-status
+		  :documentation "A flexible object modifying starting status for a player.")
+   
+   (m-height      :initform 170
+		  :documentation "Base height for males of the race.")
+   (m-height-mod  :initform 15
+		  :documentation "Normalised difference in height for males.")
+   (f-height      :initform 160
+		  :documentation "Base height for females of the race.")
+   (f-height-mod  :initform 15
+		  :documentation "Normalised difference in height for females.")
+   (m-weight      :initform 80
+		  :documentation "Base weight for males of the race.")
+   (m-weight-mod  :initform 20
+		  :documentation "Normalised difference in weight for males.")
+   (f-weight      :initform 68
+		  :documentation "Base height for females of the race.")
+   (f-weight-mod  :initform 15
+		  :documentation "Normalised difference in height for females.")
+   
    (xp-extra      :accessor race.xp-extra      :initform 0)
    (hit-dice      :accessor race.hit-dice      :initform 10)
    (stat-changes  :accessor race.stat-changes  :initform '())
@@ -1079,6 +1127,12 @@ is all about?")
    (desc          :accessor class.desc
 		  :initarg desc
 		  :initform nil)
+   (mod-age       :initform 0
+		  :accessor class.mod-age
+		  :documentation "A flexible object modifying starting age for a player.")
+   (mod-status    :initform 0
+		  :accessor class.mod-status
+		  :documentation "A flexible object modifying starting status for a player.")
    (hit-dice      :accessor class.hit-dice      :initform 0)
    (xp-extra      :accessor class.xp-extra      :initform 0)
    (stat-changes  :accessor class.stat-changes  :initform nil)
@@ -1110,22 +1164,23 @@ is all about?")
 
 
 (defclass floor-type ()
-  ((id        :accessor floor.id    :initform nil :initarg :id)
-   (name      :accessor floor.name  :initform nil :initarg :name)
-   (x-attr    :accessor x-attr      :initform nil :initarg :x-attr)
-   (x-char    :accessor x-char      :initform nil :initarg :x-char)
-   (text-attr :accessor text-attr   :initform nil :initarg :text-attr)
-   (text-char :accessor text-char   :initform nil :initarg :text-char)
-   (mimic     :accessor floor.mimic :initform nil :initarg :mimic)
+  ((id        :accessor floor.id      :initform nil :initarg :id)
+   (name      :accessor floor.name    :initform nil :initarg :name)
+   (num-idx   :accessor floor.num-idx :initform -1  :initarg :num-idx)
+   (x-attr    :accessor x-attr        :initform nil :initarg :x-attr)
+   (x-char    :accessor x-char        :initform nil :initarg :x-char)
+   (text-attr :accessor text-attr     :initform nil :initarg :text-attr)
+   (text-char :accessor text-char     :initform nil :initarg :text-char)
+   (mimic     :accessor floor.mimic   :initform nil :initarg :mimic)
+   (flags     :accessor floor.flags   :initform 0   :initarg :flags)
    ))
 
+;; you should be able to use x-attr, x-char, text-char and text-attr on decor
+;; a method should be defined elsewhere
 (defclass decor ()
   ((id        :accessor decor.id       :initform nil :initarg :id)
    (name      :accessor decor.name     :initform nil :initarg :name)
-   (x-attr    :accessor x-attr         :initform nil :initarg :x-attr)
-   (x-char    :accessor x-char         :initform nil :initarg :x-char)
-   (text-attr :accessor text-attr      :initform nil :initarg :text-attr)
-   (text-char :accessor text-char      :initform nil :initarg :text-char)
+   (type      :accessor decor.type     :initform nil :initarg :type)
    (visible?  :accessor decor.visible? :initform t   :initarg :visible?)
    (loc-x     :accessor location-x
 	      :initarg :loc-x
@@ -1259,9 +1314,49 @@ is all about?")
 	      :initarg :rarity
 	      :documentation "the rarity of the trap")))
 
+(defclass door-type ()
+  ((id        :accessor door.id
+	      :initform ""
+	      :initarg :id
+	      :documentation "string-id")
+   (name      :accessor door.name
+	      :initform ""
+	      :initarg :name
+	      :documentation "displayable name")
+   (x-char    :accessor x-char
+	      :initform #.(char-code #\+)
+	      :initarg :x-char
+	      :documentation "the displayed char")       
+   (x-attr    :accessor x-attr
+	      :initform +term-l-umber+
+	      :initarg :x-attr
+	      :documentation "the colour of the door")
+   (text-char :accessor text-char
+	      :initform #.(char-code #\+)
+	      :initarg :text-char
+	      :documentation "the displayed char")       
+   (text-attr :accessor text-attr
+	      :initform +term-l-umber+
+	      :initarg :text-attr
+	      :documentation "the colour of the door")
+   ;; hackish
+   (cave-flags-on :initform 0
+		  :documentation "Flags to turn on in a cave when decor is on.")
+   (cave-flags-off :initform 0
+		   :documentation "Flags to turn on in a cave when decor is on.")
+   
+   ))
+
+
 (defclass active-trap (decor)
-  ((type :accessor trap.type :initarg :type :initform nil :documentation "pointer to trap-type")
-   (visible? :initform nil) ;; by default not visible initially
+  ((visible? :initform nil))) ;; by default not visible initially
+
+(defclass active-door (decor)
+  ((visible?  :initform nil) ;; by default not secret
+   (lock      :accessor door.lock    :initform 0) ;; by default no lock on the door
+   (stuck     :accessor door.stuck   :initform 0) ;; by default not stuck
+   (broken?   :accessor door.broken? :initform nil) ;; by default not broken
+   (closed?   :accessor door.closed? :initform nil) ;; by default it's open
    ))
 
 
@@ -1580,5 +1675,29 @@ is all about?")
   (obj nil)
   (x -1)
   (y -1))
+
+;; total bytesize = 104
+(defstruct (saveheader (:conc-name saveheader.))
+  (major 83) ;; byte
+  (minor 97) ;; byte
+  (patch 118) ;; byte
+  (extra 102) ;; byte, above numbers to implement ARFC 002 + extension
+  (engine-num-version -1) ;; u16b
+  (variant-num-version -1) ;; u16b, tags to check who uses them
+  (variant-id "none") ;; id of variant (will take 24 bytes)
+  (status -1) ;; what is the status of the savefile (u16)
+  (desc "") ;; should be a description and will take 64 bytes in the header
+  (block-num -1)) ;; number of blocks in file (u16)
+
+;; total bytesize (except data) = 28   
+(defstruct (saveblock (:conc-name saveblock.))
+  (vendor-tag 1337) ;; langband code (u32b)
+  (type -1) ;; what kind of data, savefile-constants (u16b)
+  (version -1) ;; the version counter for the engine/variant (u16b)
+  (len -1) ;; length of the block (u32b)
+  (checksum -1) ;; a checksum for the buffer, can be (u128b)
+  (data nil)) ;; pointer to the data (length in bytes is len above)
+
+  
 
 ;;; end structs

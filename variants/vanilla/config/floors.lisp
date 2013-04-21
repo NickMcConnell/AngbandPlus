@@ -14,88 +14,156 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
-(define-floor-type 0 "<darkness>" 1 #\Space :mimic nil)
-(define-floor-type 1 "open floor" 1 #\. :mimic nil)
-(define-floor-type 2 "invisible trap" 1 #\. :mimic 1)
-(define-floor-type 3 "glyph of warding" 11 #\; :mimic nil)
-(define-floor-type 4 "open door" 15 #\' :mimic nil)
-(define-floor-type 5 "broken door" 15 #\' :mimic nil)
-(define-floor-type 6 "up staircase" 1 #\< :mimic nil)
-(define-floor-type 7 "down staircase" 1 #\> :mimic nil)
-(define-floor-type 8 "General Store" 15 #\1 :mimic nil)
-(define-floor-type 9 "Armoury" 2 #\2 :mimic nil)
-(define-floor-type 10 "Weapon Smiths" 1 #\3 :mimic nil)
-(define-floor-type 11 "Temple" 5 #\4 :mimic nil)
-(define-floor-type 12 "Alchemy Shop" 6 #\5 :mimic nil)
-(define-floor-type 13 "Magic Shop" 4 #\6 :mimic nil)
-(define-floor-type 14 "Black Market" 8 #\7 :mimic nil)
-(define-floor-type 15 "Home" 11 #\8 :mimic nil)
-#||
-(define-floor-type 16 "trap door" 1 #\^ :mimic nil)
-(define-floor-type 17 "pit" 2 #\^ :mimic nil)
-(define-floor-type 18 "pit" 2 #\^ :mimic nil)
-(define-floor-type 19 "pit" 2 #\^ :mimic nil)
-(define-floor-type 20 "strange rune" 3 #\^ :mimic nil)
-(define-floor-type 21 "strange rune" 3 #\^ :mimic nil)
-(define-floor-type 22 "discolored spot" 7 #\^ :mimic nil)
-(define-floor-type 23 "discolored spot" 7 #\^ :mimic nil)
-(define-floor-type 24 "dart trap" 4 #\^ :mimic nil)
-(define-floor-type 25 "dart trap" 4 #\^ :mimic nil)
-(define-floor-type 26 "dart trap" 4 #\^ :mimic nil)
-(define-floor-type 27 "dart trap" 4 #\^ :mimic nil)
-(define-floor-type 28 "gas trap" 5 #\^ :mimic nil)
-(define-floor-type 29 "gas trap" 5 #\^ :mimic nil)
-(define-floor-type 30 "gas trap" 5 #\^ :mimic nil)
-(define-floor-type 31 "gas trap" 5 #\^ :mimic nil)
+;;; === door types
 
-;; hackish
-(define-floor-type 16 "trap" +term-dark+ #\^ :mimic nil)
-(define-floor-type 17 "trap" +term-white+ #\^ :mimic nil)
-(define-floor-type 18 "trap" +term-slate+ #\^ :mimic nil)
-(define-floor-type 19 "trap" +term-orange+ #\^ :mimic nil)
-(define-floor-type 20 "trap" +term-red+ #\^ :mimic nil)
-(define-floor-type 21 "trap" +term-green+ #\^ :mimic nil)
-(define-floor-type 22 "trap" +term-blue+ #\^ :mimic nil)
-(define-floor-type 23 "trap" +term-umber+ #\^ :mimic nil)
-(define-floor-type 24 "trap" +term-l-dark+ #\^ :mimic nil)
-(define-floor-type 25 "trap" +term-l-white+ #\^ :mimic nil)
-(define-floor-type 26 "trap" +term-violet+ #\^ :mimic nil)
-(define-floor-type 27 "trap" +term-yellow+ #\^ :mimic nil)
-(define-floor-type 28 "trap" +term-l-red+ #\^ :mimic nil)
-(define-floor-type 29 "trap" +term-l-green+ #\^ :mimic nil)
-(define-floor-type 30 "trap" +term-l-blue+ #\^ :mimic nil)
-(define-floor-type 31 "trap" +term-l-umber+ #\^ :mimic nil)
-;; end hack
-||#
-(define-floor-type 32 "door" 15 #\+ :mimic 32)
-(define-floor-type 33 "locked door" 15 #\+ :mimic 32)
-(define-floor-type 34 "locked door" 15 #\+ :mimic 32)
-(define-floor-type 35 "locked door" 15 #\+ :mimic 32)
-(define-floor-type 36 "locked door" 15 #\+ :mimic 32)
-(define-floor-type 37 "locked door" 15 #\+ :mimic 32)
-(define-floor-type 38 "locked door" 15 #\+ :mimic 32)
-(define-floor-type 39 "locked door" 15 #\+ :mimic 32)
-(define-floor-type 40 "jammed door" 15 #\+ :mimic 32)
-(define-floor-type 41 "jammed door" 15 #\+ :mimic 32)
-(define-floor-type 42 "jammed door" 15 #\+ :mimic 32)
-(define-floor-type 43 "jammed door" 15 #\+ :mimic 32)
-(define-floor-type 44 "jammed door" 15 #\+ :mimic 32)
-(define-floor-type 45 "jammed door" 15 #\+ :mimic 32)
-(define-floor-type 46 "jammed door" 15 #\+ :mimic 32)
-(define-floor-type 47 "jammed door" 15 #\+ :mimic 32)
-(define-floor-type 48 "secret door" 1 #\# :mimic 56)
-(define-floor-type 49 "pile of rubble" 1 #\: :mimic nil)
-(define-floor-type 50 "magma vein" 2 #\% :mimic nil)
-(define-floor-type 51 "quartz vein" 1 #\% :mimic nil)
-(define-floor-type 52 "magma vein" 2 #\% :mimic 50)
-(define-floor-type 53 "quartz vein" 1 #\% :mimic 51)
-(define-floor-type 54 "magma vein with treasure" 3 #\* :mimic nil)
-(define-floor-type 55 "quartz vein with treasure" 3 #\* :mimic nil)
-(define-floor-type 56 "granite wall" 1 #\# :mimic nil)
-(define-floor-type 57 "granite wall" 1 #\# :mimic 56)
-(define-floor-type 58 "granite wall" 1 #\# :mimic 56)
-(define-floor-type 59 "granite wall" 1 #\# :mimic 56)
-(define-floor-type 60 "permanent wall" 1 #\# :mimic nil)
-(define-floor-type 61 "permanent wall" 1 #\# :mimic 60)
-(define-floor-type 62 "permanent wall" 1 #\# :mimic 60)
-(define-floor-type 63 "permanent wall" 1 #\# :mimic 60)
+(define-door-type "closed-door" "closed door"
+  :num-idx 201
+  :text-attr +term-l-umber+
+  :text-char #\+
+  :cave-flags-on +cave-wall+
+  :x-attr (tile-file 25)
+  :x-char (tile-number 3))
+
+(define-door-type "open-door" "open door"
+  :num-idx 202
+  :text-attr +term-l-umber+
+  :text-char #\'
+  :cave-flags-off +cave-wall+
+  :x-attr (tile-file 25)
+  :x-char (tile-number 4))
+
+(define-door-type "destroyed-door" "destroyed door"
+  :num-idx 203
+  :text-attr +term-l-umber+
+  :text-char #\'
+  :cave-flags-off +cave-wall+
+  :x-attr (tile-file 25)
+  :x-char (tile-number 5))
+
+;;; === floors
+
+(define-floor-type* "stone-building" "stone building"
+  :text-attr +term-white+ :text-char #\#
+  :num-idx 65
+  :x-attr (tile-file 34) :x-char (tile-number 1)
+  :flags #.(logior +floor-flag-wall+
+		   +floor-flag-permanent+))
+
+(define-floor-type* "permanent-outer-wall" "permanent outer wall"
+  :text-attr +term-white+ :text-char #\#
+  :num-idx 66
+  :x-attr (tile-file 29) :x-char (tile-number 1)
+  :flags #.(logior +floor-flag-wall+
+		   +floor-flag-permanent+))
+
+
+(define-floor-type* "cave-wall" "cave wall"
+  :text-attr +term-white+ :text-char #\#
+  :num-idx 67
+  :x-attr (tile-file 25) :x-char (tile-number 76)
+  :flags #.(logior +floor-flag-wall+ +floor-flag-use-light-effect+))
+
+(define-floor-type* "rubble" "pile of rubble"
+  :num-idx 70
+  :text-attr +term-white+
+  :text-char #\:
+  :flags +floor-flag-wall+
+  :x-attr (tile-file 10) :x-char (tile-number 55))
+
+(define-floor-type* "normal-floor" "normal floor"
+  :num-idx 71
+  :text-attr +term-white+
+  :text-char #\.
+  :flags #.(logior +floor-flag-floor+ +floor-flag-use-light-effect+
+		   +floor-flag-allow-items+ +floor-flag-allow-creatures+)
+  :x-attr (tile-file 26) :x-char (tile-number 14))
+
+(define-floor-type* "room-floor" "room floor"
+  :num-idx 72
+  :text-attr +term-white+
+  :text-char #\.
+  :flags #.(logior +floor-flag-floor+ +floor-flag-allow-items+
+		   +floor-flag-allow-creatures+)
+  :x-attr (tile-file 26) :x-char (tile-number 8))
+
+(define-floor-type* "nothing" "nothing"
+  :num-idx 73
+  :text-attr +term-white+
+  :text-char #\Space
+  :flags 0
+  :x-attr (tile-file 0) :x-char (tile-number 0))
+
+(define-floor-type* "room-wall" "room wall"
+  :text-attr +term-white+ :text-char #\#
+  :num-idx 74
+  :x-attr (tile-file 25) :x-char (tile-number 63)
+  :flags #.(logior +floor-flag-wall+ +floor-flag-use-light-effect+))
+
+(define-floor-type* "inside-room-wall" "inside room wall"
+  :text-attr +term-white+ :text-char #\#
+  :num-idx 76
+  :x-attr (tile-file 25) :x-char (tile-number 63)
+  :flags #.(logior +floor-flag-wall+ +floor-flag-use-light-effect+))
+
+(define-floor-type* "stair-up" "stair-up"
+  :text-attr +term-white+ :text-char #\<
+  :num-idx 77
+  :x-attr (tile-file 25) :x-char (tile-number 21)
+  :flags #.(logior +floor-flag-floor+ +floor-flag-allow-creatures+
+		   +floor-flag-exit-upwards+))
+
+(define-floor-type* "stair-down" "stair-down"
+  :text-attr +term-white+ :text-char #\>
+  :num-idx 78
+  :x-attr (tile-file 25) :x-char (tile-number 22)
+  :flags #.(logior +floor-flag-floor+ +floor-flag-allow-creatures+
+		   +floor-flag-exit-downwards+))
+
+;;; === shop doors (vanilla specific)
+(define-floor-type* "shop1" "general store"
+  :text-attr +term-l-umber+ :text-char #\1
+  :num-idx 701
+  :x-attr (tile-file 29) :x-char (tile-number 3)
+  :flags #.(logior +floor-flag-floor+ +floor-flag-allow-creatures+))
+
+(define-floor-type* "shop2" "armour"
+  :text-attr +term-l-umber+ :text-char #\2
+  :num-idx 702
+  :x-attr (tile-file 29) :x-char (tile-number 4)
+  :flags #.(logior +floor-flag-floor+ +floor-flag-allow-creatures+))
+
+(define-floor-type* "shop3" "weapons"
+  :text-attr +term-l-umber+ :text-char #\3
+  :num-idx 703
+  :x-attr (tile-file 29) :x-char (tile-number 5)
+  :flags #.(logior +floor-flag-floor+ +floor-flag-allow-creatures+))
+
+(define-floor-type* "shop4" "temple"
+  :text-attr +term-l-umber+ :text-char #\4
+  :num-idx 704
+  :x-attr (tile-file 29) :x-char (tile-number 6)
+  :flags #.(logior +floor-flag-floor+ +floor-flag-allow-creatures+))
+
+(define-floor-type* "shop5" "alchemist"
+  :text-attr +term-l-umber+ :text-char #\5
+  :num-idx 705
+  :x-attr (tile-file 29) :x-char (tile-number 7)
+  :flags #.(logior +floor-flag-floor+ +floor-flag-allow-creatures+))
+
+(define-floor-type* "shop6" "magic shop"
+  :text-attr +term-l-umber+ :text-char #\6
+  :num-idx 706
+  :x-attr (tile-file 29) :x-char (tile-number 8)
+  :flags #.(logior +floor-flag-floor+ +floor-flag-allow-creatures+))
+
+(define-floor-type* "shop7" "black market"
+  :text-attr +term-l-umber+ :text-char #\7
+  :num-idx 707
+  :x-attr (tile-file 29) :x-char (tile-number 27)
+  :flags #.(logior +floor-flag-floor+ +floor-flag-allow-creatures+))
+
+(define-floor-type* "shop8" "home"
+  :text-attr +term-l-umber+ :text-char #\8
+  :num-idx 708
+  :x-attr (tile-file 29) :x-char (tile-number 23)
+  :flags #.(logior +floor-flag-floor+ +floor-flag-allow-creatures+))

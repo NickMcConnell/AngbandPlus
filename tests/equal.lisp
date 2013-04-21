@@ -257,11 +257,11 @@ the Free Software Foundation; either version 2 of the License, or
    (report-equal (maximum-mana x)          (maximum-mana y))
    (report-equalp (player.xp-table x)      (player.xp-table y))
 
-   (report-equal (player.energy-use x)    (player.energy-use y))
-   (report-equal (player.leaving-p x)     (player.leaving-p y))
+   (report-equal (player.energy-use x)   (player.energy-use y))
+   (report-equal (player.leaving? x)     (player.leaving? y))
        
-   (report-equal (player.dead-p x)        (player.dead-p y))
-   (report-equal (player.speed x)         (player.speed y))
+   (report-equal (player.dead? x)        (player.dead? y))
+   (report-equal (player.speed x)        (player.speed y))
 
    (report-equal (player.burden x)         (player.burden y))
    (report-equal (player.light-radius x)   (player.light-radius y))
@@ -434,7 +434,6 @@ the Free Software Foundation; either version 2 of the License, or
   (and
    (report-equal  (variant.id x)       (variant.id y))
    (report-equal  (variant.name x)     (variant.name y))
-   (report-equal  (variant.sys-file x) (variant.sys-file y))
    (report-equalp (variant.genders x)  (variant.genders y))
    (lang-equal    (variant.races x)    (variant.races y))
    ;; add more

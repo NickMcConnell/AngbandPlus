@@ -48,6 +48,46 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 	    nil)
 	   )))
 
+(defun has-information? (key &key (variant *variant*))
+  "Returns T if there is information for the given key."
+  (assert (and (stringp key) (typep variant 'variant)))
+  (when (gethash key (variant.information variant))
+    t)) ;; a bit superfluous
+
+(defun get-information (key &key (default nil) (variant *variant*))
+  "Will just return one value, it's not like GETHASH but takes
+same arguments."
+  (assert (and (stringp key) (typep variant 'variant)))
+  (multiple-value-bind (val f-p)
+      (gethash key (variant.information variant) default)
+    (if (not f-p)
+	default
+	val)))
+
+(defun (setf get-information) (value key &key (variant *variant*))
+  "Assigns value to an information key."
+  (assert (and (stringp key) (typep variant 'variant)))
+  (setf (gethash key (variant.information variant)) value)
+  value)
+
+(defun remove-information! (key &key (variant *variant*))
+  "Returns T if the information existed, NIL if it didn't exist."
+  (assert (and (stringp key) (typep variant 'variant)))
+  (remhash key (variant.information variant)))
+
+(defun register-information& (&rest args)
+  "Registers a group of information on the format:
+(register-information key1 info1 key2 info2 ...)"
+  (unless (= 0 (mod (length args) 2))
+    (warn "Uneven information registration (~s ...)" (car args))
+    (return-from register-information& nil))
+
+  (loop for (k v) on args by #'cddr
+	do
+	(setf (get-information k) v))
+
+  t)
+
 ;; expanding function defined later in file.
 (defmacro format-message! (format-str &rest args)
   `(print-message! (format nil ,format-str ,@args)))
@@ -120,10 +160,6 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 
 ;;; == variant-related code
 
-;; uses id.. 
-(defmethod variant-home-path ((variant variant))
-  (concatenate 'string (home-langband-path) (variant.id variant) "/"))
-
 (defmethod initialise-monsters& (variant &key)
   (error "No INIT-MONSTERS for ~s" (type-of variant)))
   
@@ -133,30 +169,49 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 (defmethod initialise-objects& (variant &key)
   (error "No INIT-OBJECTS for ~s" (type-of variant)))
 
+(defun is-variant? (obj)
+  (and obj (typep obj 'variant)))
 
 ;; a small closure
 (let ((registered-variants (make-hash-table :test #'equal)))
   
-  (defun register-variant& (id var-constructor)
+  (defun register-variant& (id var-constructor &key desc)
     "Registers a variant-object."
     
     (check-type var-constructor function)
-    (setf (gethash id registered-variants) var-constructor))
+    (setf (gethash id registered-variants) (list desc var-constructor)))
 
+  (defun get-variant-info (id)
+    "Returns variant-info that's tregistered for the given id."
+    (gethash id registered-variants))
+
+  (defun get-registered-variants ()
+    "Returns a list of ids to registered variants."
+    (loop for x being the hash-keys of registered-variants
+	  collecting x))
+  
   (defun load-variant& (id &key (verbose t))
     "Tries to load a variant."
     (declare (ignore verbose))
-    (let ((var-constructor (gethash id registered-variants))
+    (let ((var-data (gethash id registered-variants))
 	  (var-obj nil))
-      (cond ((functionp var-constructor)
+      (cond ((and (consp var-data)
+		  (functionp (second var-data)))
 	     (format-note! "[Loading '~a' variant, please wait]" id)
-	     (setf var-obj (funcall var-constructor)))
+	     (setf var-obj (funcall (second var-data))))
 	    (t
 	     (error "Unable to find variant ~s" id)))
       
       (when (and var-obj (typep var-obj 'variant))
 	var-obj))))
 
+
+;; uses id.. 
+(defmethod variant-home-path ((variant variant))
+  (variant-home-path (variant.id variant)))
+
+(defmethod variant-home-path ((variant string))
+  (concatenate 'string (home-langband-path) variant "/"))
 
 (defmethod variant-data-fname ((var-obj variant) data-fname)
   "Returns a full pathname for data."
@@ -165,7 +220,11 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 	(concatenate 'string (lbsys/ensure-dir-name file-path) data-fname)
 	data-fname)))
 
+(defmethod variant-save-dir ((var-obj variant))
+  (variant-save-dir (variant.id var-obj)))
 
+(defmethod variant-save-dir ((variant string))
+  (concatenate 'string (variant-home-path variant) "saves/"))
 
 (defun load-variant-data& (var-obj data-file)
   "Loads variant-data from appropriate directory."
@@ -184,20 +243,6 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 (defun get-attack-type (key &optional (variant *variant*))
   "Returns a possible attack-type object registered with the given variant object."
   (gethash key (variant.attack-types variant)))
-
-#||
-      (let ((sys-file (variant.sys-file var-obj)))
-	(when verbose
-	  (format t "~&Will try to load variant '~a' in file ~a~%" id sys-file))
-	(compile-in-environment
-	 #'(lambda ()
-	     (load sys-file)
-	     (mk:operate-on-system id 'compile :verbose nil)
-	     (when verbose
-	       (format t "~&Variant '~a' compiled and loaded.~%" id))))
-	var-obj))))
-||#
-	     
 
 
 (defun execute-turn-events! (var-obj)
@@ -279,7 +324,16 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 	    key))
     (setf (gethash key (variant.settings variant)) setting)))
 
+(defun setting-value (settings-obj slot default)
+  "Returns a setting-value when setting and slot is found, otherwise
+returns default value."
+  (let ((retval default))
 
+    (when (and settings-obj (typep settings-obj 'settings))
+      (ignore-errors
+	(setf retval (slot-value settings-obj slot))))
+
+    retval))
 
 (defmethod produce-game-values-object ((variant variant))
   "Returns an object of type game-values."
@@ -584,7 +638,29 @@ information from the list skills whose content depends on variant."
 	  #-cmu
 	  #\w)))
 
+(defmethod convert-obj (code (to (eql :text-attr)) &key)
+  "Returns a usable attr-code for the given obj."
+  (etypecase code
+    (number code)
+    (character (char-code code))))
 
+(defmethod convert-obj (code (to (eql :x-attr)) &key)
+  "Returns a usable attr-code for the given obj."
+  (etypecase code
+    (number code)
+    (character (char-code code))))
+
+(defmethod convert-obj (code (to (eql :text-char)) &key)
+  "Returns a usable char-code for the given obj."
+  (etypecase code
+    (number code)
+    (character (char-code code))))
+
+(defmethod convert-obj (code (to (eql :x-char)) &key)
+  "Returns a usable char-code for the given obj."
+  (etypecase code
+    (number code)
+    (character (char-code code))))
 
 (defmacro with-new-screen (arg &body body)
   (declare (ignore arg))
@@ -752,10 +828,10 @@ it will fresh specified term."
     (unless forced
       (block input-loop
 	(loop
-	 (let ((ch (read-one-character)))
-	   (c-term-fresh! +message-frame+)
-	   ;; see util.c for real code.. just skip now
-	   (return-from input-loop t)))))
+	 (read-one-character)
+	 (c-term-fresh! +message-frame+)
+	 ;; see util.c for real code.. just skip now
+	 (return-from input-loop t))))
     (c_term_erase! 0 0 255)))
 
 ;; this code is simpler than in C, but does the same job basically
@@ -898,7 +974,7 @@ it will fresh specified term."
     (c_term_erase! 0 row 255)
     (put-coloured-str! attr msg col row)
     (c-term-flush!)
-    ;;(c-term-fresh!)
+    (c-term-fresh!)
     ;;(pause-last-line!)
     t))
 
@@ -1035,15 +1111,17 @@ it will fresh specified term."
 		    (t
 		     (incf cur-row)
 		     (setf cur-col startcol)
-		     (print-word cur-word))))))
-    ))
+		     (print-word cur-word))))
+	    finally (return cur-row)))))
 
 (defsubst read-one-character ()
   "Reads one character from the C-side."
   (let ((read-obj (c-inkey!)))
     (etypecase read-obj
       (number (code-char read-obj))
-      (character read-obj))))
+      #-cmu
+      (character read-obj)
+      )))
 
   
 (defsubst clear-the-screen! ()
@@ -1065,7 +1143,7 @@ it will fresh specified term."
   (finish-output cl:*standard-output*)
   (finish-output cl:*trace-output*)
   (case (get-system-type)
-    ((x11 gcu)
+    ((x11 gcu sdl)
      (cleanup-c-side&)
      (signal (make-condition 'langband-quit)))
     (otherwise
@@ -1077,6 +1155,10 @@ it will fresh specified term."
 
 (defun get-floor-type (id &key (variant *variant*))
   "Returns an object of type FLOOR-TYPE or NIL."
+  ;; hack
+  (when (typep id 'floor-type)
+    (return-from get-floor-type id))
+  
   (let ((table (variant.floor-types variant)))
     (gethash id table)))
 
@@ -1085,28 +1167,45 @@ it will fresh specified term."
   (let ((table (variant.floor-types *variant*)))
     (setf (gethash id table) floor)))
 
-(defun define-floor-type (id name x-attr x-char &key mimic text-attr text-char)
+(defun define-floor-type (id name x-attr x-char &key mimic num-idx text-attr text-char flags)
   "Defines a floor-type and registers it.  The floor is returned."
+
+  (unless (or (verify-id id)
+	      (integerp id)) ;; remove integer part later
+    (warn "floor-id ~s not valid" id)
+    (return-from define-floor-type nil))
+
   (let ((ftype (make-instance 'floor-type :id id
 			      :name name
-			      :x-attr (etypecase x-attr
-					(number (charify-number x-attr)))  ;; right??
-			      :x-char (etypecase x-char
-					(character (char-code x-char))
-					(number x-char))
+			      :x-attr (convert-obj x-attr :x-attr)
+			      :x-char (convert-obj x-char :x-char)
 			      :mimic mimic)))
     (cond (text-attr
-	   (setf (text-attr ftype) text-attr))
+	   (setf (text-attr ftype) (convert-obj text-attr :text-attr)))
 	  (t
 	   (setf (text-attr ftype) (x-attr ftype))))
     
     (cond (text-char
-	   (setf (text-char ftype) text-char))
+	   (setf (text-char ftype) (convert-obj text-char :text-char)))
 	  (t
 	   (setf (text-char ftype) (x-char ftype))))
+
+    (when (integerp num-idx)
+      (setf (floor.num-idx ftype) num-idx))
+    
+    (when (integerp flags)
+      (setf (floor.flags ftype) flags))
     
     (setf (get-floor-type id) ftype)
+    
+    (when (integerp (floor.num-idx ftype))
+      (setf (get-floor-type (floor.num-idx ftype)) ftype))
+    
     ftype))
+
+(defun define-floor-type* (id name &key x-attr x-char mimic num-idx text-attr text-char flags)
+  (define-floor-type id name x-attr x-char :mimic mimic :num-idx num-idx
+		     :text-attr text-attr :text-char text-char :flags flags))
 
 ;;; === end floor code
 
@@ -1291,16 +1390,16 @@ or removed.  Conses up a new list."
     table))
 
 (defmethod x-attr ((obj active-trap))
-  (x-attr (trap.type obj)))
+  (x-attr (decor.type obj)))
 
 (defmethod x-char ((obj active-trap))
-  (x-char (trap.type obj)))
+  (x-char (decor.type obj)))
 
 (defmethod text-attr ((obj active-trap))
-  (text-attr (trap.type obj)))
+  (text-attr (decor.type obj)))
 
 (defmethod text-char ((obj active-trap))
-  (text-char (trap.type obj)))
+  (text-char (decor.type obj)))
 
 
 (defun define-trap-type (id name &key x-char x-attr text-char text-attr
@@ -1380,6 +1479,7 @@ or removed.  Conses up a new list."
 
 	(assert (plusp (subwindow.columns var)))
 	(assert (plusp (subwindow.rows var)))
+	#+never
 	(warn "window ~s has size [~d,~d,~d,~d] and gfx ~s" i
 	      (subwindow.columns var) (subwindow.rows var)
 	      (subwindow.tile-width var) (subwindow.tile-height var)

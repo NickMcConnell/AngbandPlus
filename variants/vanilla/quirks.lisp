@@ -403,8 +403,9 @@ the rest of the game is init'ed."
 
 
   (when (load-gfx-tiles?)
-    ;;(warn "Loading graf prefs!")
-    (load-variant-data& var-obj "graf-prefs"))
+    (let ((*load-verbose* nil))
+      ;;(warn "Loading graf prefs!")
+      (load-variant-data& var-obj "graf-prefs")))
   ;;  (warn "flav")
   ;; after all objects are in
 ;;  (init-flavours& (variant.flavour-types var-obj))
@@ -436,16 +437,16 @@ the rest of the game is init'ed."
 			    collecting x))
 	   (obj-len (length obj-kinds))
 	   (gold-table (make-array obj-len)))
+
+      ;; sort it
+      (setf obj-kinds (sort obj-kinds #'< :key #'object.numeric-id))
+      
       (loop for i from 0
 	    for obj in obj-kinds
 	    do
 	    (setf (aref gold-table i) obj))
       
       (setf (variant.gold-table var-obj) gold-table)))
-  
-
-
-  
   
   var-obj)
 

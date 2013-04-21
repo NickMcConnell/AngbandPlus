@@ -366,7 +366,7 @@ ADD_DESC: Various code which just prints stuff somewhere
     (put-coloured-str! value-attr (format nil "~4d cms" (playermisc.height misc))  f-col (+ row 1))
 
     (put-coloured-str! title-attr "Weight" col (+ row 2))
-    (put-coloured-str! value-attr (format nil "~4d lbs" (playermisc.weight misc))  f-col (+ row 2))
+    (put-coloured-str! value-attr (format nil "~4d kg" (playermisc.weight misc))  f-col (+ row 2))
     (put-coloured-str! title-attr "Status" col (+ row 3))
     (put-coloured-str! value-attr (format nil "~4d reputation"  (playermisc.status misc))  f-col (+ row 3))
 
@@ -422,8 +422,9 @@ ADD_DESC: Various code which just prints stuff somewhere
     (put-coloured-str! title-attr "Burden" col (+ row 11))
     (let* ((weight (player.burden player))
 	   (pound (int-/ weight 10))
+	   (kg (floor (* 0.45 pound)))
 	   (frac (mod weight 10))
-	   (str (format nil "~10d.~d lbs" pound frac)))
+	   (str (format nil "~10d.~d kg" kg frac)))
       (put-coloured-str! value-attr str (- f-col  2) (+ row 11)))
 
     ;; middle again

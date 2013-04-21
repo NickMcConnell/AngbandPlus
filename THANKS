@@ -15,7 +15,10 @@ all.  But I've tried to maintain a list.
 - Greg Velichansky for doing the first port of angband to SDL which
   was the basis I started with.  It has changed a lot, but his work is
   still essential. 
-    
+
+- Kevin Rosenberg for being invaluable aid in improving
+  debian-packaging and getting langband into debian main.  
+
 - Scott Holder for adding numeric-ids to all my monsters when I needed
   them and out of stupidity had forgotten to include them for backward
   compatibility to vanilla angband.  Lots of ugly grunt-work that

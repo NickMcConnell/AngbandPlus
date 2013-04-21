@@ -14,6 +14,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :cl-user)
 
+;; should be on in a released source
+(pushnew :langband-release *features*)
+
 #+clisp
 (progn
   (format t "~&Removing some clisp-warnings.. we hope~%")

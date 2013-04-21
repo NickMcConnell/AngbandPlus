@@ -47,9 +47,6 @@
 #endif /* allow_ttf */
 #include <string.h>
 #include <math.h> /* for scaling blits */
-#ifndef WIN32
-#include <bits/nan.h>
-#endif
 #include "langband.h"
 
 
@@ -768,6 +765,55 @@ int IsMovement(SDLKey k)
 	return 1234567; /* all good children go to heaven */
 }
 
+int
+get_movekey(SDLKey k) {
+
+    switch (k) {
+
+    case SDLK_UP:
+    case SDLK_KP8:
+	return '8';
+	
+    case SDLK_DOWN:
+    case SDLK_KP2:
+	return '2';
+	
+    case SDLK_RIGHT:
+    case SDLK_KP6:
+	return '6';
+	
+    case SDLK_LEFT:
+    case SDLK_KP4:
+	return '4';
+	
+    case SDLK_INSERT:
+    case SDLK_KP0:
+	return '0';
+	
+    case SDLK_HOME:
+    case SDLK_KP7:
+	return '7';
+	
+    case SDLK_END:
+    case SDLK_KP1:
+	return '1';
+	
+    case SDLK_PAGEUP:
+    case SDLK_KP9:
+	return '9';
+	
+    case SDLK_PAGEDOWN:
+    case SDLK_KP3:
+	return '3';
+
+    case SDLK_KP5:
+	return '5';
+    default:
+	return 0;
+    }
+    
+    return 0;
+}
 
 char *SDL_keysymtostr(SDL_keysym *ks)
 {
@@ -775,98 +821,104 @@ char *SDL_keysymtostr(SDL_keysym *ks)
 #error bufsize steps on previous define!
 #endif
 #define bufsize 64
-	int bufused = 0;
+    int bufused = 0;
 
-	/* I am returning a pointer to the below variable. 
-	 * I /think/ this is legal but I am not sure!  XXX XXX XXX
-	 * It certainly seems to work fine, at least under GCC.
-	 * It can easily be changed to a pointer passed as an argument.
-	 */
-	static char buf[bufsize]; 
-	Uint8 ch;
-	/*Uint32 i;*/
+    /* I am returning a pointer to the below variable. 
+     * I /think/ this is legal but I am not sure!  XXX XXX XXX
+     * It certainly seems to work fine, at least under GCC.
+     * It can easily be changed to a pointer passed as an argument.
+     */
+    static char buf[bufsize]; 
+    Uint8 ch;
+    /*Uint32 i;*/
 
-	/* cat for strings and app[end] for characters */
+    /* cat for strings and app[end] for characters */
 #define sdlkcat(a) strncat(buf,(a),bufsize-bufused-1); bufused+=strlen((a)); 
 #define sdlkapp(a) if(bufused<bufsize-1) { buf[bufused]=a; buf[bufused+1]='\0'; bufused++; }
 
-	buf[0] = '\0';
+    buf[0] = '\0';
 
 #if 0
-	for (i = 0; ; ++i)
+    for (i = 0; ; ++i)
+    {
+	if (sdl_keymap[i].k == ks->sym) 
 	{
-		if (sdl_keymap[i].k == ks->sym) 
+	    if (sdl_keymap[i].s && strlen(sdl_keymap[i].s)) 
+	    {
+		if (ks->mod & KMOD_ALT) 
 		{
-			if (sdl_keymap[i].s && strlen(sdl_keymap[i].s)) 
-			{
-				if (ks->mod & KMOD_ALT) 
-				{
-					sdlkapp('');
-				}
-				if (ks->mod & KMOD_CTRL)
-				{
-					if(sdl_keymap[i].ctrl) 
-					{
-						sdlkcat(sdl_keymap[i].ctrl);
-						break;
-					} 
-				} else
-				if (ks->mod & KMOD_SHIFT)
-				{
-					if(sdl_keymap[i].shift)
-					{
-						sdlkcat(sdl_keymap[i].shift);
-						break; 
-					} 
-				}
-				sdlkcat(sdl_keymap[i].s);
-			}
-			break; /* out of the for() loop */
+		    sdlkapp('');
+		}
+		if (ks->mod & KMOD_CTRL)
+		{
+		    if(sdl_keymap[i].ctrl) 
+		    {
+			sdlkcat(sdl_keymap[i].ctrl);
+			break;
+		    } 
 		} else
-		if (sdl_keymap[i].k == SDLK_UNKNOWN)
-		{
-#endif
-		  if (IsMovement(ks->sym)) {
-		    // Stig: this was snprintf(), put it back in later!!
-				sprintf(buf, "%c%s%s%s%s_%lX%c", 31,
-						ks->mod & KMOD_CTRL  ? "N" : "",
-						ks->mod & KMOD_SHIFT ? "S" : "",
-						"", /* for future expansion. */
-						ks->mod & KMOD_ALT   ? "M" : "",
-						(unsigned long) ks->sym, 13);
-				ch = 0;
-			}else
+		    if (ks->mod & KMOD_SHIFT)
+		    {
+			if(sdl_keymap[i].shift)
 			{
-				if (ks->mod & KMOD_ALT) 
-				{
-					sdlkapp('');
-				}
-				/*ch = ks->sym; */
-				ch = ks->unicode & 0xff;
-				/*if (ch <= 'z' && ch >= 'a') {
-					if (ks->mod & KMOD_CTRL)
-					{
-						ch = 1 + ch - 'a';
-					} else
-					if (ks->mod & KMOD_SHIFT)
-					{
-						ch += ('A' - 'a');
-					}
-				}*/
-			}
+			    sdlkcat(sdl_keymap[i].shift);
+			    break; 
+			} 
+		    }
+		sdlkcat(sdl_keymap[i].s);
+	    }
+	    break; /* out of the for() loop */
+	} else
+	    if (sdl_keymap[i].k == SDLK_UNKNOWN)
+	    {
+#endif
+		// ultra-hackish way to test if the -more- problem can be alleviated for a while
+		if (!(ks->mod & KMOD_SHIFT) && (IsMovement(ks->sym))) {
+		    ch = get_movekey(ks->sym);
+		}
+		else if (IsMovement(ks->sym)) {
+		    // Stig: this was snprintf(), put it back in later!!
+		    sprintf(buf, "%c%s%s%s%s_%lX%c", 31,
+			    ks->mod & KMOD_CTRL  ? "N" : "",
+			    ks->mod & KMOD_SHIFT ? "S" : "",
+			    "", /* for future expansion. */
+			    ks->mod & KMOD_ALT   ? "M" : "",
+			    (unsigned long) ks->sym, 13);
+		    ch = 0;
+		}
 
-			if (ch) sdlkapp(ch);
+		else
+		{
+		    if (ks->mod & KMOD_ALT) 
+		    {
+			sdlkapp('');
+		    }
+		    /*ch = ks->sym; */
+		    ch = ks->unicode & 0xff;
+		    /*if (ch <= 'z' && ch >= 'a') {
+		      if (ks->mod & KMOD_CTRL)
+		      {
+		      ch = 1 + ch - 'a';
+		      } else
+		      if (ks->mod & KMOD_SHIFT)
+		      {
+		      ch += ('A' - 'a');
+		      }
+		      }*/
+		}
+
+		if (ch) sdlkapp(ch);
 
 #if 0
-			break; /* end the for loop; we're at the end of keymap */
+		break; /* end the for loop; we're at the end of keymap */
 
-		}
-	} /* for... */
+	    }
+    } /* for... */
 #endif
 
 
-	/*puts(buf);*/
-	return buf;
+    /*puts(buf);*/
+    return buf;
 #undef bufsize
 #undef sdlkcat
 #undef sdlkapp

@@ -1,3 +1,17 @@
+langband (0.1.2-1) unstable; urgency=low
+
+  * Upstream release
+  * Several bugs fixed compared to v0.1.1
+  * Split out static data into a langband-data package
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Thu, 28 Nov 2002 12:16:48 +0100
+
+langband (0.1.1-2) unstable; urgency=low
+
+  * Tweaking of debian packaging
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Mon, 11 Nov 2002 15:19:07 +0100
+
 langband (0.1.1-1) unstable; urgency=low
 
   * Updating it to handle the v0.1.1 version.

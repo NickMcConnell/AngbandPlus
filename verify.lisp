@@ -71,9 +71,9 @@ the Free Software Foundation; either version 2 of the License, or
     (%ok-check (integerp (maximum-hp player)))
     (%ok-check (integerp (current-hp player)))
     (%ok-check (<= 0 (maximum-hp player)))
-    (%ok-check (<= 0 (current-hp player)))
+    ;;(%ok-check (<= 0 (current-hp player)))
 	 
-    (%ok-check (stringp (player.dead-from player)))
+    ;;(%ok-check (stringp (player.dead-from player)))
 
     (%ok-check (<= 0 (player.burden player)))
     (%ok-check (<= 0 (player.light-radius player)))
@@ -189,7 +189,6 @@ the Free Software Foundation; either version 2 of the License, or
   (%ok-check (activated? var-obj))
   (%ok-check (stringp (variant.id var-obj)))
   (%ok-check (stringp (variant.name var-obj)))
-  ;; sys-file
   ;; config-path
   (dolist (gender (variant.genders var-obj) t)
     (%ok-check (ok-object? gender :context context :warn-on-failure warn-on-failure)))

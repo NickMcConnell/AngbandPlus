@@ -25,7 +25,7 @@ C - show character
 D - disarm a trap/mechanism
 E - eat food/corpse/curry
 L - learn a spell
-Q - quit game
+Q - quit game (kills character and savegeame, use ^X for safe exit)
 S - save game
 
 ? - show this help
@@ -33,9 +33,10 @@ S - save game
 < - go upstairs
 * - select target [not working]
 , - stand still
-. - toggle run-mode [not working]
+. - toggle run-mode (also shift-arrowkey)
 
 ^A - debug commands [see wizard.lisp]
 ^P - show previous messages
 ^R - redraw screen
 ^T - toggle ascii/graphics map [SDL only]
+^X - save and exit game

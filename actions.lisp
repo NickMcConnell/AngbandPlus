@@ -125,16 +125,18 @@ The direction is a number from the keypad."
 	  do
 	  (when (< (random 100) chance)
 	    (let* ((coord (cave-coord dungeon cur-x cur-y))
-		   (floor (coord.floor coord))
+		   ;;(floor (coord.floor coord))
 		   (decor (coord.decor coord)))
 	      
 	      (when (typep decor 'active-trap)
 		(make-trap-visible decor dungeon cur-x cur-y)
 		(print-message! "You have found a trap."))
-	      
-	      (when (= floor +floor-secret-door+)
+
+	      (when (and (typep decor 'active-door)
+			 (not (decor.visible? decor)))
 		(print-message! "You found a secret door.")
-		(place-closed-door! dungeon cur-x cur-y)
+		(setf (decor.visible? decor) t)
+		;;(place-closed-door! dungeon cur-x cur-y)
 		(light-spot! dungeon cur-x cur-y))
 	  
 	      ;; add more here, traps, chests.. 
@@ -162,7 +164,7 @@ The direction is a number from the keypad."
       (setf (player.max-depth player) wanted-depth))
     
     
-    (setf (player.leaving-p player) type)
+    (setf (player.leaving? player) type)
 
     (bit-flag-add! *redraw* +print-map+ +print-basic+)
     (bit-flag-add! *update* +pl-upd-update-view+)  
@@ -177,12 +179,15 @@ is above a stair.  DIR can be :UP or :DOWN"
 	 (x (location-x player))
 	 (y (location-y player))
 	 (feat (cave-floor dungeon x y))
+	 (flags (floor.flags feat)) 
 	 (leaving-sym nil))
+    
     (declare (type u-16b depth x y feat))
     (case dir
       (:up
-       (unless (= +floor-less+ feat)
+       (unless (bit-flag-set? flags +floor-flag-exit-upwards+)
 	 (return-from use-stair! nil))
+       
        
        (if (= depth 0)
 	   (error "Cannot go upstairs from level 0")
@@ -190,7 +195,7 @@ is above a stair.  DIR can be :UP or :DOWN"
        (setf leaving-sym :up-stair))
       
       (:down
-       (unless (= +floor-more+ feat)
+       (unless (bit-flag-set? flags +floor-flag-exit-downwards+)
 	 (return-from use-stair! nil))
        
        (incf depth)
@@ -395,7 +400,8 @@ a list if more items occupy the same place."
 		   ((consp need-effect)
 		    (dolist (x need-effect)
 		      (when (has-obj-effect obj x)
-			(return-from allowed-object t))))
+			(return-from allowed-object t)))
+		    )
 		   (t
 		    (warn "Unknown need-effect value ~s" need-effect)
 		    nil))))
@@ -423,7 +429,7 @@ a list if more items occupy the same place."
       (unless (and removed-obj (typep removed-obj 'active-object))
 	(return-from interactive-use-item! nil))
       
-;;      (warn "Will ~a ~s" prompt removed-obj)
+      ;;(warn "Will ~a ~s" prompt removed-obj)
 	  
       (let ((retval (use-object! variant dungeon player removed-obj :which-use which-use)))
 ;;	(warn "use returned ~s" retval)
@@ -460,24 +466,29 @@ a list if more items occupy the same place."
 (defun open-door! (dungeon x y)
   "hackish, fix me later.."
   (when (is-closed-door? dungeon x y)
-    (setf (cave-floor dungeon x y) +floor-open-door+)
+    (play-sound +sound-opendoor+)
+    (decor-operation *variant* (cave-decor dungeon x y) :open :value t)
+    ;;(setf (door.closed? (cave-decor dungeon x y)) nil)
     (light-spot! dungeon x y)))
 
 (defun close-door! (dungeon x y)
   "hackish, fix me later.."
   (when (is-open-door? dungeon x y)
     (play-sound +sound-shutdoor+)
-    (setf (cave-floor dungeon x y) +floor-door-head+)
+    (decor-operation *variant* (cave-decor dungeon x y) :close :value t)
+;;    (setf (door.closed? (cave-decor dungeon x y)) t)
     (light-spot! dungeon x y)))
 
 (defun bash-door! (dungeon x y)
   "hackish, fix me later.."
   ;; add paralysis, hitpoints, ...
-;;  (warn "trying to bash door")
+  (warn "trying to bash door")
   (when (is-closed-door? dungeon x y)
     (when (= 1 (random 4)) ;; 1/4 chance
-      (setf (cave-floor dungeon x y) +floor-broken-door+)
-      (light-spot! dungeon x y))))
+      (decor-operation *variant* (cave-decor dungeon x y) :break :value t)
+      ;;(setf (door.broken? (cave-decor dungeon x y)) t)
+      (light-spot! dungeon x y)
+      )))
 
 
 (defun interactive-door-operation! (dungeon player operation)
@@ -516,6 +527,8 @@ a list if more items occupy the same place."
 	      (when (funcall check-predicate dungeon test-x test-y)
 		(incf count)))
 
+;;	(warn "Found ~s candidates" count)
+	
 	(cond ((= count 1)
 	       (loop for i from 0 below +normal-direction-number+
 		     for test-x = (+ x (svref ddx-ddd i))
@@ -743,7 +756,7 @@ a list if more items occupy the same place."
 
 (defun run-ok? (dungeon player x y)
   "Helper function to determine if a square might be legal to move to."
-
+  (declare (ignore player))
   (unless (legal-coord? dungeon x y)
     (return-from run-ok? nil))
 
@@ -775,7 +788,7 @@ This function differs from run_ok() in that unseen squares are
 considered illegal, instead of legal. This function is called from
 run_in_room(), which should be conservative in deciding the player
 is in a room."
-  
+  (declare (ignore player))
   (unless (legal-coord? dungeon x y)
     (return-from careful-run-ok? nil))
 
@@ -798,6 +811,7 @@ is in a room."
 
 (defun move-ok? (dungeon player x y)
   "Helper function to determine if a square is legal to move to."
+  (declare (ignore player))
   (unless (legal-coord? dungeon x y)
     (return-from move-ok? nil))
 

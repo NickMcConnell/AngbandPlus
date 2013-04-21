@@ -84,21 +84,38 @@ the monster
 (defun (setf coord-floor) (val coord)
   "this is an evil hack."
 
-  ;; fix me
-  (setf (coord.floor coord) val)
+  (let* ((variant *variant*)
+	 (ft (etypecase val
+	       (integer (gethash val (variant.floor-types variant)))
+	       (floor-type val)
+	       (string (gethash val (variant.floor-types variant)))
+	       ))
+	 #||
+	 (num-idx (etypecase val
+		    (integer val)
+		    (floor-type (floor.num-idx val))
+		    (string (floor.num-idx ft))
+		    ))
+	 ||#
+	 )
+		    
+		     
+    ;; fix me
+    ;;(setf (coord.floor coord) num-idx)
+    (setf (coord.floor coord) ft)
   
-  (if (>= val +floor-door-head+)
-      ;; this is a wall or a door..
-      (bit-flag-add! (coord.flags coord) +cave-wall+)
-      ;; we're not a a wall or a door.. 
-      (bit-flag-remove! (coord.flags coord) +cave-wall+)
-      )
-  )
+    (if (bit-flag-set? (floor.flags ft) +floor-flag-wall+)
+	;; this is a wall or a door..
+	(bit-flag-add! (coord.flags coord) +cave-wall+)
+	;; we're not a a wall or a door.. 
+	(bit-flag-remove! (coord.flags coord) +cave-wall+)
+	)
+    ))
 
 (defun clean-coord! (coord)
   "Cleans the given coordinate."
   
-  (setf (coord-floor    coord) 0
+  (setf (coord-floor    coord) (get-floor-type "nothing")
 	(coord.flags    coord) 0
 	(coord.objects  coord) nil
 	(coord.monsters coord) nil
@@ -209,12 +226,14 @@ extra tricks.
   (setf (coord.flags (aref (dungeon.table dungeon) x y)) val))
 
 (defun (setf cave-decor) (val dungeon x y)
+  (unless (or (eq val nil) (typep val 'decor))
+    (warn "Assigning odd value ~s to ~s,~s as decor" val x y))
   (setf (coord.decor (aref (dungeon.table dungeon) x y)) val))
 
 
 (defun (setf cave-floor) (val dungeon x y)
 ;;  (warn "Setting ~a ~a to ~a" x y val)
-  (declare (type fixnum val))
+;;  (declare (type fixnum val))
   (let ((coord (aref (dungeon.table dungeon) x y)))
 
     ;; hack
@@ -243,7 +262,9 @@ Returns nothing."
     (clean-coord! coord)
     (setf (coord-floor coord) floor))
 
+  
   ;; check
+  #+never
   (with-dungeon (dungeon (coord x y))
     (declare (ignore x y))
     (assert (and (= (coord.floor coord) floor)
@@ -296,68 +317,46 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     ;; hackish, fix later
     (when (consp mon)
       (setf mon (car mon)))
-    
-    ;; skip hallucination
-    ;; do decor after floor!
-    (cond 
-	  ;; boring grids
-	  ((<= feat +floor-invisible-trap+)
-	   ;; something we see
-	   (cond ((or (bit-flag-set? flags +cave-mark+)
-		      (bit-flag-set? flags +cave-seen+))
 
-		  (setf f-obj (get-floor-type +floor-regular+))
-		  (setf ret-attr (funcall attr-fun f-obj)
-			ret-char (funcall char-fun f-obj))
+    ;; first of all we need to decide if we can see the floor at all
+    (cond ((or (bit-flag-set? flags +cave-mark+)
+	       (bit-flag-set? flags +cave-seen+))
 
-		  ;; do tricky handling here
-		  ;; torch-light
-		  (when (and (bit-flag-set? flags +cave-seen+) ;; isn't this always true?
-			     (not (bit-flag-set? flags +cave-glow+))
-			     )
+	   ;;(assert (plusp feat))
+	   ;;; then we need to find out what the floor is
+	   ;;(setf f-obj (get-floor-type feat))
+	   (setf f-obj feat)
 
-		    (cond (using-gfx
-			   (decf ret-char))
-			  ((eql ret-attr +term-white+)
-			   (setf ret-attr +term-yellow+)))
-		    ))
+	   (setf ret-attr (funcall attr-fun f-obj)
+		 ret-char (funcall char-fun f-obj))
 
-
-		 
-		 ;; otherwise darkness
-		 (t
-		  (setf f-obj (get-floor-type +floor-none+))
-		  (setf ret-attr (funcall attr-fun f-obj)
-			ret-char (funcall char-fun f-obj))
-		  ))
-	     
+	   (when (and (bit-flag-set? flags +cave-seen+)
+		      (not (bit-flag-set? flags +cave-glow+))
+		      (bit-flag-set? (floor.flags f-obj) +floor-flag-use-light-effect+))
+	     (cond (using-gfx
+		    (decf ret-char))
+		   ((eql ret-attr +term-white+)
+		    (setf ret-attr +term-yellow+))))
 	   )
-	  
-		
-	  ;; interesting grids
+
+
+	  ;; otherwise not seen
 	  (t
+	   (setf f-obj (get-floor-type "nothing"))
+	   (setf ret-attr (funcall attr-fun f-obj)
+		 ret-char (funcall char-fun f-obj))))
 
-	   (cond ((bit-flag-set? flags +cave-mark+)
-		  (setf f-obj (get-floor-type feat))
-		  (setf ret-attr (funcall attr-fun f-obj)
-			ret-char (funcall char-fun f-obj)))
-
-		 ;; not noted
-		 (t
-		  (setf f-obj (get-floor-type +floor-none+))
-		  (setf ret-attr (funcall attr-fun f-obj)
-			ret-char (funcall char-fun f-obj)))
-		 
-		)
-	   
-	   ))
+    ;; removed code here, see older versions
 
     ;; hackish save of transparency
     (setf trans-attr ret-attr
 	  trans-char ret-char)
 
-    ;; places with decor
-    (when (and (typep decor 'decor) (decor.visible? decor))
+    ;; this code should check if it has been seen
+    ;; places with decor, but must be seen
+    (when (and (or (bit-flag-set? flags +cave-mark+)
+		   (bit-flag-set? flags +cave-seen+))
+	       (typep decor 'decor) (decor.visible? decor))
       ;; hackish
       ;;(setf f-obj (get-floor-type feat)) ;; ok?
       (setf ret-attr (funcall attr-fun decor)
@@ -366,7 +365,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
       ;;(decf trans-char 6)
       )
 	    
-      
+    ;; we need a way to make all these effects transparent atop each other!!!
+    
     
     ;; let's see if any objects are on top
 
@@ -463,18 +463,52 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   (bit-flag-set? (cave-flags dungeon x y)
 		 +cave-room+))
 
+;; this is just crap!
+#||
 (defun cave-boldly-naked? (dungeon x y)
   (declare (type fixnum x y))
-  (let ((coord (cave-coord dungeon x y)))
-    (and (= (coord.floor coord) +floor-regular+)
+  (let* ((coord (cave-coord dungeon x y))
+	 (fl-type (get-floor-type (coord.floor coord)))
+	 (fl-flags (floor.flags fl-type)))
+    (and (bit-flag-set? fl-flags +floor-flag-floor+)
 	 (eq nil (coord.objects coord))
 	 (eq nil (coord.monsters coord)))))
+||#
 
+(defun can-place? (dungeon x y type &optional allow-existing)
+  (let* ((coord (cave-coord dungeon x y))
+	 (fl-type (coord.floor coord)))
+
+    (ecase type
+      (:object (cond (allow-existing
+		      (bit-flag-set? (floor.flags fl-type) +floor-flag-allow-items+))
+		     (t
+		      (and (eq nil (coord.objects coord))
+			   (bit-flag-set? (floor.flags fl-type) +floor-flag-allow-items+)))))
+      (:creature (and (eq nil (coord.monsters coord))
+		     (bit-flag-set? (floor.flags fl-type) +floor-flag-allow-creatures+)))
+      (:trap (and (eq nil (coord.monsters coord))
+		  (eq nil (coord.objects coord))
+		  (eq nil (coord.decor coord))))
+      (:stair (and (eq nil (coord.monsters coord))
+		   (eq nil (coord.objects coord))
+		   (eq nil (coord.decor coord))
+		   (bit-flag-set? (floor.flags fl-type) +floor-flag-floor+)))
+      
+      )))
+	  
+       
+       
+    
+
+
+;; just crap, use a better predicate
 (defun cave-floor-bold? (dungeon x y)
   (declare (type fixnum x y))
   (not (bit-flag-set? (cave-flags dungeon x y)
 		      +cave-wall+)))
 
+;; just crap, use a better predicate
 (defun cave-empty-bold? (dungeon x y)
   (and (cave-floor-bold? dungeon x y)
        (eq (cave-monsters dungeon x y) nil)))
@@ -517,14 +551,18 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 
 (defun is-closed-door? (dungeon x y)
-  (let ((feat (cave-floor dungeon x y)))
-    (and (>= feat +floor-door-head+)
-	 (< feat +floor-door-tail+))))
+  (when-bind (decor (cave-decor dungeon x y))
+    (when (and (typep decor 'active-door)
+	       (decor.visible? decor))
+      (door.closed? decor))))
+
 
 ;; hackish.. not very good
 (defun is-open-door? (dungeon x y)
-  (let ((feat (cave-floor dungeon x y)))
-    (= feat +floor-open-door+)))
+  (when-bind (decor (cave-decor dungeon x y))
+    (when (and (typep decor 'active-door)
+	       (decor.visible? decor)) 
+      (not (door.closed? decor)))))
 
 
 (defun panel-contains? (player x y)
@@ -593,7 +631,10 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	(term-width (get-term-width *map-frame*))
 	(dun-height (dungeon.height dungeon))
 	(dun-width (dungeon.width dungeon)))
-  
+
+    ;; hack
+    (incf pl-depth)
+    
     (cond ((= pl-depth 0)
 	   (cond ((> vy (- town-height term-height)) ;; hack
 		  (setf vy (- town-height term-height)))
@@ -640,15 +681,15 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	(term-width (get-term-width *map-frame*))
 	;;(panel-height (get-panel-height)) ;;*panel-height*)
 	;;(panel-width (get-panel-width)) ;;*panel-width*)
-	(centre-on-player nil)
+	;;(centre-on-player nil)
 	;;(centre-on-player t)
 	)
 
     ;; FIX!!! This code is _very_ broken!
     
     ;; hackish, update when running arrives
-    (cond ((and centre-on-player
-		(/= p-y (+ v-y (int-/ term-height 2))))
+    (cond #+centre-on-player
+	  ((/= p-y (+ v-y (int-/ term-height 2)))
 	   (setf v-y (- p-y (int-/ term-height 2))))
 	  
 	  ((or (< p-y (+ v-y 3))
@@ -658,8 +699,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 ;;			       panel-height)
 ;;			panel-height))))
 
-    (cond ((and centre-on-player
-		(/= p-x (+ v-x (int-/ term-width 2))))
+    (cond #+centre-on-player
+	  ((/= p-x (+ v-x (int-/ term-width 2)))
 	   (setf v-x (- p-x (int-/ term-width 2))))
 	  
 	  ((or (< p-x (+ v-x 3))
@@ -713,8 +754,9 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	  (setf (aobj.marked i) t)))
       
       (unless (bit-flag-set? flag +cave-mark+)
-	(let ((feat (coord.floor coord)))
-	  (if (<= feat +floor-invisible-trap+)
+	(let ((decor (coord.decor coord))
+	      (ft (coord.floor coord)))
+	  (if (and decor (bit-flag-set? (floor.flags ft) +floor-flag-floor+))
 	      ;; skip save of certain floors
 	      nil
 	      (bit-flag-add! (coord.flags coord) +cave-mark+))))
@@ -1022,3 +1064,82 @@ car is start and cdr is the non-included end  (ie [start, end> )"
       (when mon-table
 	(gethash id mon-table)))))
 
+
+(defun read-map (variant fname)
+
+  (let ((map-data '()))
+    (with-open-file (s (pathname fname)
+		       :direction :input)
+      (loop for x = (read s nil 'eof)
+	    until (eq x 'eof)
+	    do
+	    (push x map-data)))
+    
+    (let ((legal-syms (make-hash-table :test #'equal))
+	  (height -1)
+	  (width -1)
+	  (dummy-cnt 400)
+	  (dun-rows '()))
+      
+      (dolist (i map-data)
+	
+	(ecase (car i)
+	  (define-map-symbol
+	      (destructuring-bind (symbol id name &key text-attr text-char x-char x-attr (flags 0))
+		  (cdr i)
+		(let ((ft (make-instance 'floor-type :id id :name name :flags (if (nonboolsym? flags)
+										  (eval flags)
+										  flags)
+					 :num-idx (incf dummy-cnt)
+					 :text-attr (if (nonboolsym? text-attr)
+							(eval text-attr)
+							text-attr)
+					 :text-char text-char
+					 :x-attr (eval x-attr) :x-char (eval x-char))))
+		  ;; hacks
+		  (when (characterp (text-char ft))
+		    (setf (text-char ft) (char-code text-char)))
+		  (when (eq (x-attr ft) nil)
+		    (setf (x-attr ft) (text-attr ft)))
+		  (when (eq (x-char ft) nil)
+		    (setf (x-char ft) (text-char ft)))
+		  
+		  (setf (gethash symbol legal-syms) ft))))
+	  (map
+	   (with-input-from-string (str (second i))
+	     (loop for x = (read-line str nil 'eof)
+		   until (eq x 'eof)
+		   do
+		   (incf height)
+		   (setf width (length x))
+		   (when (plusp (length x))
+		     (push x dun-rows))
+		   ))
+	   )))
+
+      (let ((real-table (variant.floor-types variant)))
+	(loop for v being the hash-values of legal-syms
+	      do
+	      (setf (gethash (floor.num-idx v) real-table) v)
+	      (setf (gethash (floor.id v) real-table) v)))
+	      
+      (warn "H ~s W ~s" height width)
+      
+      (let ((dungeon (create-dungeon width height)))
+	(loop for i from 0
+	      for row in (nreverse dun-rows)
+	      do
+	      (loop for j from 0
+		    for x across row
+		    do
+		    (let ((floor (gethash x legal-syms)))
+		      ;;(when (eql x #\,)
+			;;(warn "floor is ~s" floor))
+		      (cond (floor
+			     (setf (cave-floor dungeon j i) floor))
+			    (t
+			     (warn "Could not find ~s" x)))
+		      )))
+	      
+      
+	dungeon))))

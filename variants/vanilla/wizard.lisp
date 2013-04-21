@@ -143,7 +143,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    (when (> depth (player.max-depth player))
 	      (setf (player.max-depth player) depth))
 
-	    (setf (player.leaving-p player) :teleport)
+	    (setf (player.leaving? player) :teleport)
 	    t))
 	))
 
@@ -223,7 +223,8 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
 	  (let ((obj-list (get-object-list))
-	    	(var-obj *variant*))
+	    	;;(var-obj *variant*)
+		)
 
 	    (with-new-screen ()
 	      (c-term-clear!)
@@ -331,7 +332,9 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'load-vanilla
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
-	(compat-read-savefile& "vanilla.save")))
+	;; enable some time else, not now!
+	;;(compat-read-savefile& "vanilla.save")
+	))
 
 (define-key-operation 'send-spell
     #'(lambda (dungeon player)
@@ -381,7 +384,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  (when (> depth (player.max-depth player))
 	    (setf (player.max-depth player) depth))
 	  
-	  (setf (player.leaving-p player) :teleport)
+	  (setf (player.leaving? player) :teleport)
 	  t)
 
 	)))
@@ -414,6 +417,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;(define-keypress *ang-keys* :wizard #\Y 'projecteur)
 
+;; remove this when real conversations work
+(define-key-operation 'dummy-conversation
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon))
+	  (with-dialogue ()
+	    (activate-conversation "alfred" player nil))))
+
 
 ;; Ctrl-A
 (define-keypress *ang-keys* :global (code-char 1) 'wizard-menu)
@@ -443,3 +453,4 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :wizard #\m 'dump-monsters)
 ;;(define-keypress *ang-keys* :wizard #\o 'dump-objects)
 (define-keypress *ang-keys* :wizard #\s 'show-objects)
+(define-keypress *ang-keys* :wizard #\t 'dummy-conversation)

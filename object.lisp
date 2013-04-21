@@ -358,7 +358,7 @@ with k-info.txt numbers. NUM is the numeric id."
   ;; hackish, gradually move variant-specific stuff to variant. 
 
   (let* ((id (object.id new-obj))
-	 (name (object.name new-obj))
+	 ;;(name (object.name new-obj))
 	 (key (if (symbolp id)
 		  (string-downcase (symbol-name id))
 		  id))
@@ -379,7 +379,7 @@ with k-info.txt numbers. NUM is the numeric id."
 			    (on-calculate :unspec)
 			    &allow-other-keys)
       keyword-args
-;;    (declare (ignore flavour desc))
+    (declare (ignore flavour desc the-kind multiplier))
 
     (when flags
       (when (find '<easy-know> flags)
@@ -403,12 +403,8 @@ with k-info.txt numbers. NUM is the numeric id."
     (setf (object.numeric-id new-obj) (if numeric-id
 					  numeric-id
 					  key)
-	  (x-attr new-obj) (etypecase x-attr
-			     (character (convert-obj x-attr :colour-code))
-			     (number (charify-number x-attr)))
-	  (x-char new-obj) (etypecase x-char
-			     (character (char-code x-char))
-			     (number x-char))
+	  (x-attr new-obj) (convert-obj x-attr :x-attr)
+	  (x-char new-obj) (convert-obj x-char :x-char)
 	  (object.rarity new-obj) rarity
 	  (object.chance new-obj) chance
 	  (object.locale new-obj) locale
@@ -424,16 +420,12 @@ with k-info.txt numbers. NUM is the numeric id."
     (cond ((eq text-attr :unspec)
 	   (setf (text-attr new-obj) (x-attr new-obj)))
 	  (t
-	   (setf (text-attr new-obj) (etypecase text-attr
-				       (character (convert-obj text-attr :colour-code))
-				       (number (charify-number text-attr))))))
+	   (setf (text-attr new-obj) (convert-obj text-attr :text-attr))))
 
     (cond ((eq text-char :unspec)
 	   (setf (text-char new-obj) (x-char new-obj)))
 	  (t
-	   (setf (text-char new-obj) (etypecase text-char
-				       (character (char-code text-char))
-				       (number text-char)))))
+	   (setf (text-char new-obj) (convert-obj text-char :text-char))))
 
     
     (flet ((possible-add-effect (effect var &optional (energy +energy-normal-action+))
@@ -441,7 +433,10 @@ with k-info.txt numbers. NUM is the numeric id."
 		   ((is-object-effect? var)
 		    ;;(warn "Compiling ~s for ~s" effect id)
 		    (let ((entry (make-effect-entry :type effect
-						    :fun (compile nil var)
+						    ;;;; somehow allegro trips up when passed a compiled function
+						    ;;:fun #+allegro var
+						    ;;#-allegro (compile nil var)
+						    :fun var
 						    :energy-use energy)))
 		      (pushnew entry (object.effects new-obj) :key #'effect-entry-type)))
 		   (t

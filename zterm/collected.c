@@ -620,17 +620,23 @@ cleanup_c_side(void) {
     int cur_ui = current_ui();
     if (0) { }
 #ifdef USE_X11
-    else if (cur_ui == 0) {
+    else if (cur_ui == UITYPE_X11) {
 	return cleanup_X11();
     }
 #endif
 
 #ifdef USE_GCU
-    else if (cur_ui == 1) {
+    else if (cur_ui == UITYPE_GCU) {
 	return cleanup_GCU();
     }
 #endif
-    
+
+#ifdef USE_SDL
+    else if (cur_ui == UITYPE_SDL) {
+	return cleanup_SDL();
+    }
+#endif
+   
     return 1;
 }
 
@@ -924,12 +930,6 @@ ERRORMSG(const char *fmt, ...) {
 
 }
 
-
-#ifdef USE_SDL
-extern void SDL_Quit();
-extern void Mix_CloseAudio();
-#endif
-
  /*
   * Redefinable "quit" action
   */
@@ -942,30 +942,24 @@ void (*quit_aux)(cptr) = NULL;
  * But always use 'quit_aux', if set, before anything else.
  */
 void z_quit(cptr str) {
+    
+    /* do a normal cleanup first */
+    cleanup_c_side();
+    
+    /* Attempt to use the aux function */
+    if (quit_aux) (*quit_aux)(str);
   
-  /* Attempt to use the aux function */
-  if (quit_aux) (*quit_aux)(str);
+    /* Success */
+    if (!str) (void)(exit(0));
   
-#ifdef USE_SDL
-  DBGPUT("closing %p\n", str);
-  if (use_sound) {
-    Mix_CloseAudio();
-  }
-  SDL_Quit();
-  DBGPUT("closed\n");
-#endif
+    /* Extract a "special error code" */
+    if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
   
-  /* Success */
-  if (!str) (void)(exit(0));
+    /* Send the string as info */
+    if (str && strlen(str)) {
+	INFOMSG(str);
+    }
   
-  /* Extract a "special error code" */
-  if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
-  
-  /* Send the string as info */
-  if (str && strlen(str)) {
-    INFOMSG(str);
-  }
-  
-  /* Failure */
-  (void)(exit(-1));
+    /* Failure */
+    (void)(exit(-1));
 }

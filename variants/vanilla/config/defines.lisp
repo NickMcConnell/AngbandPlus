@@ -32,11 +32,16 @@ the Free Software Foundation; either version 2 of the License, or
 		   (let ((container (make-container +common-backpack-size+)))
 		     (setf (aobj.contains item) container)
 		     t))
-    ;;:events (list :backpack-creation)
     )
 
 (define-room "simple-room" #'common-make-simple-room)
 (define-room "overlapping-room" #'common-make-overlapping-room)
+
+(register-information& "status-roll" 100 ;; what's the roll of status
+		       "status-cap" 100) ;; what's max status
+
+(register-information& "which-town" "vanilla")
+;;(register-information& "which-town" "bartertown")
 
 ;;; the various elements you can face in Vanilla
 (define-element '<fire>        "fire"        :bit-flag #x00000001 :number 0)

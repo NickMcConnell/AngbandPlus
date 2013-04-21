@@ -1,3 +1,15 @@
+2002-12-07  Stig E Sandø <stig@users.sourceforge.net>
+	* Added age/status/height/weight info to races in variant.
+	* Added angband-style save-and-exit on ^X and 'Q'uit will now kill
+	the savefile as well.
+	* Added better id and versioning of variant
+	* Other minor tweaks
+	
+2002-11-28  Stig E Sandø <stig@users.sourceforge.net>
+	* Updated code to use new floor-system in engine.  All floors are
+	now dynamically created, so no more constants are used.
+	* Several minor tweaks and fixes to handle updates in engine.
+	
 2002-11-11  Stig E Sandø <stig@users.sourceforge.net>
 	* Sent out a release, 0.1.1
 	* Very little new gameplay, and mostly UI-upgrade in engine.  See

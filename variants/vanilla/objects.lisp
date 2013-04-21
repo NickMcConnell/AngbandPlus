@@ -21,6 +21,11 @@ the Free Software Foundation	 ; either version 2 of the License, or
 (defmethod is-eatable? ((player player) (obj object-kind/food))
   t)
 
+(defun %dummy-eat-fun (dun pl item)
+  "A hack to ensure all food-objects can be eaten."
+  (declare (ignore dun pl item))
+  :used)
+
 
 (defmethod get-price ((object active-object) situation)
   (declare (ignore situation))
@@ -285,6 +290,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 		  ((> ratio 10) (elt descs 3))
 		  ((> ratio 0) (elt descs 4))
 		  ((<= ratio 0) (elt descs 5))
+		  #-cmu
 		  (t
 		   (error "Never fall this far!"))))
 	  ))

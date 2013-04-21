@@ -451,7 +451,7 @@ the Free Software Foundation; either version 2 of the License, or
     ;; check floors
       (when (bit-flag-set? flag +project-grid+)
 	(flet ((apply-to-floor! (grid distance)
-		 (apply-to! (get-floor-type (cave-floor dungeon (grid-x grid) (grid-y grid))) distance grid)))
+		 (apply-to! (cave-floor dungeon (grid-x grid) (grid-y grid)) distance grid)))
 	  
 	  ;; first do beam
 	  (loop for g across path-array do

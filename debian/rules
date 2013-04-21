@@ -9,24 +9,29 @@ export DH_VERBOSE=1
 DESTDIR         := `pwd`/debian/tmp
 VANILLADESTDIR	:= `pwd`/debian/langband-vanilla
 ZTERMDESTDIR	:= `pwd`/debian/langband-zterm
-#APACHEDESTDIR   := `pwd`/debian/onshore-imho-apache
+DATADESTDIR	:= `pwd`/debian/langband-data
+
 INSTALL         := install
 INSTALLFLAGS    := -g root -o root -m 0644
 INSTALLDIRFLAGS := -g root -o root -m 0755
 
 ENGINEDEST	:= $(DESTDIR)/usr/share/common-lisp/source/langband-engine
 ENGINECONFDEST	:= $(DESTDIR)/var/games/langband-engine
-FONTDEST	:= $(DESTDIR)/var/games/langband-engine/fonts
+
 
 VANILLADEST	:= $(VANILLADESTDIR)/usr/share/common-lisp/source/langband-vanilla
 VANCONFDEST	:= $(VANILLADESTDIR)/var/games/langband-vanilla
 
 #FOREIGNDEST     := $(SOURCESDEST)/lib/foreign
 ENGINEDOC	:= $(DESTDIR)/usr/share/doc/langband-engine
-GFXDEST		:= $(DESTDIR)/usr/share/games/langband-engine/graphics
 WEBDEST		:= $(ENGINEDOC)/web
 VANILLADOC	:= $(VANILLADESTDIR)/usr/share/doc/langband-vanilla
 ZTERMDOC	:= $(ZTERMDESTDIR)/usr/share/doc/langband-zterm
+
+GFXDEST		:= $(DATADESTDIR)/usr/share/games/langband-engine/graphics
+AUDIODEST	:= $(DATADESTDIR)/usr/share/games/langband-engine/audio
+FONTDEST	:= $(DATADESTDIR)/var/games/langband-engine/fonts
+DATADOC		:= $(DATADESTDIR)/usr/share/doc/langband-data
 
 CLIB_PATH	:= $(ZTERMDESTDIR)/usr/lib
 LIBS		:= zterm/liblangband_ui.so zterm/liblangband_dc.so
@@ -51,7 +56,8 @@ INSTALLSOURCES	:= \
 	view.lisp project.lisp save.lisp \
 	load.lisp  death.lisp \
 	birth.lisp ai.lisp loop.lisp \
-	dump.lisp init.lisp verify.lisp
+	dump.lisp init.lisp verify.lisp \
+	conversation.lisp
 
 #	langband-engine.system \
 
@@ -183,23 +189,29 @@ install: build
 	$(INSTALL) $(INSTALLFLAGS) $(BINTYPESSRC) $(ENGINEDEST)/binary-types
 	$(INSTALL) $(INSTALLFLAGS) $(COMPATSRC) $(ENGINEDEST)/lib/compat
 	$(INSTALL) $(INSTALLFLAGS) lib/help/*.txt $(ENGINEDEST)/lib/help
+	$(INSTALL) $(INSTALLFLAGS) lib/help/THANKS $(ENGINEDEST)/lib/help
 	$(INSTALL) $(INSTALLFLAGS) $(CONFSRC) $(ENGINECONFDEST)
-	$(INSTALL) $(INSTALLFLAGS) $(FONTS) $(FONTDEST)
 
 	$(INSTALL) $(INSTALLFLAGS) man/langband-engine.3l $(ENGINEMAN)
 	$(INSTALL) $(INSTALLFLAGS) ChangeLog $(ENGINEDOC)/changelog
 	$(INSTALL) $(INSTALLFLAGS) web/*.html $(WEBDEST)
+
+	# Data package
+	$(INSTALL) $(INSTALLFLAGS) $(FONTS) $(FONTDEST)
 	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.png $(GFXDEST)/other
 	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.bmp $(GFXDEST)/other
 	$(INSTALL) $(INSTALLFLAGS) graphics/people/*.png $(GFXDEST)/people
 	$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.bmp $(GFXDEST)/tiles
 	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.png $(GFXDEST)/textures
 	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.bmp $(GFXDEST)/textures
+	$(INSTALL) $(INSTALLFLAGS) audio/effects/*.wav $(AUDIODEST)/effects
+	$(INSTALL) $(INSTALLFLAGS) debian/README.Debian $(DATADOC)
 
 	# Vanilla stuff
 	$(INSTALL) $(INSTALLFLAGS) $(VANSRC) $(VANILLADEST)
 	$(INSTALL) $(INSTALLFLAGS) $(VANCONFSRC) $(VANCONFDEST)
 	$(INSTALL) $(INSTALLFLAGS) debian/README.Debian $(VANILLADOC)
+	$(INSTALL) $(INSTALLFLAGS) variants/vanilla/ChangeLog $(VANILLADOC)/changelog
 	$(INSTALL) $(INSTALLFLAGS) man/langband-vanilla.3l $(VANILLAMAN)
 
 	# Zterm stuff

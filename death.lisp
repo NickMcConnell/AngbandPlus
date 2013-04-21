@@ -250,7 +250,7 @@ the Free Software Foundation; either version 2 of the License, or
       
       )))
 
-(defmethod organise-death& ((variant variant) player)
+(defmethod arrange-game-exit& ((variant variant) player)
   "Organises things dealing with death of a player..
 Thanks for all the fish."
 
@@ -258,25 +258,33 @@ Thanks for all the fish."
   (let* ((hs (produce-high-score-object variant player))
 	 (home-path (variant-home-path variant))
 	 (fname (concatenate 'string home-path "high-scores"))
-	 (enter-high-score (if (eq (player.leaving-p player) :quit) nil t))
+	 (enter-high-score (if (eq (player.leaving? player) :quit) nil t))
 	 (hs-pos 12)
+	 (alive? (not (player.dead? player)))
 	 ) ;; must do something smart here
-
+   
     (lbsys/make-sure-dirs-exist& home-path)
+
+    ;; first we save quitting or dead character
+    (when-bind (func (get-late-bind-function 'langband 'save-the-game))
+      #-langband-release
+      (funcall func variant player (if alive? *level* nil) :format :readable)
+      (funcall func variant player (if alive? *level* nil) :format :binary))
     
     (when enter-high-score
 	;;    (warn "writing to ~s" fname)
 	(setf hs-pos (save-high-score& variant hs fname)))
 
     (with-full-frame ()
-      (put-coloured-line! +term-white+ "Oops.. you died.. " 0 0)
+      (when (not alive?)
+	(put-coloured-line! +term-white+ "Oops.. you died.. " 0 0)
     
-      (c-clear-from! 0)
-      (%paint-other-image "thedead.png" 0 0)
-      (print-tomb variant player)
-
-       
-      (pause-last-line!)
+	(c-clear-from! 0)
+	(%paint-other-image "thedead.png" 0 0)
+	
+	(print-tomb variant player)
+      
+	(pause-last-line!))
       
       (let ((hlist (get-high-scores variant fname)))
 	(unless enter-high-score

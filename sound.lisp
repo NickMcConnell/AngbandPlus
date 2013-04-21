@@ -62,7 +62,7 @@ the Free Software Foundation; either version 2 of the License, or
   "Defines a sound.  Returns nil when sound is not loaded."
 
   (when (using-sound?)
-    (let ((base-path "./audio/effects/")
+    (let ((base-path (concatenate 'string *engine-audio-dir* "effects/"))
 	  (current-sounds (gethash key *sound-table*)))
       
   
