@@ -100,7 +100,7 @@ a number or a symbol identifying the place."
 	    
    
       ;; clear prompt
-      #-cmu
+      #-(or cmu sbcl)
       (put-coloured-line! +term-white+ "" 0 0)
     
       nil)))
@@ -336,6 +336,7 @@ a number or a symbol identifying the place."
 	t
 	nil)))
 
+;; this one conses badly
 (defmethod creature-drop! ((variant variant) (mon active-monster) (level level))
   (let ((kind (amon.kind mon))
 	 (to-drop '()))
@@ -998,7 +999,9 @@ MOD-VALUE is how much space should be between rows (I think)"
 
   t)
 
-  
+(defun is-resting? (creature)
+  (declare (ignore creature))
+  (get-information "resting" :default nil))
 
 
 (defun get-string-input (prompt &key (max-length 20) (x-pos 0) (y-pos 0))
@@ -1055,3 +1058,30 @@ on success.  Returns NIL on failure or user-termination (esc)."
     (put-coloured-line! +term-white+ "" x-pos y-pos)
     
     return-value))
+
+(defun get-aim-direction ()
+  "Interactive!"
+  (flush-messages! t)
+  (flet ((read-loop ()
+	   (loop
+	    (put-coloured-line! +term-white+ "Direction: " 0 0)
+	    (let ((val (read-one-character)))
+	      (cond ((or (eql val #\.)
+			 (eql val #\0)
+			 (eql val #\t))
+		     (put-coloured-line! +term-white+ "" 0 0)
+		     (return-from read-loop 5))
+		    ((digit-char-p val)
+		     (put-coloured-line! +term-white+ "" 0 0)
+		     (return-from read-loop (digit-char-p val)))
+		    ((eql val +escape+)
+		     (put-coloured-line! +term-white+ "" 0 0)
+		     (return-from read-loop nil))
+		    (t
+		     (put-coloured-line! +term-white+ "Unknown direction!" 0 0)))
+	      ))))
+    
+  (with-frame (+query-frame+)
+    (let ((retval (read-loop)))
+      (put-coloured-line! +term-white+ "" 0 0)
+      retval))))

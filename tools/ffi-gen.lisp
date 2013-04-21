@@ -119,6 +119,13 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
 	(list the-name the-type)
 	(list the-name))))
 
+(defmethod get-arg-info (arg (backend (eql :openmcl)))
+  (let ((the-type (get-type-translation (car arg) backend))
+	(the-name (cadr arg)))
+    (if the-type
+	(list the-name the-type)
+	(list the-name))))
+
 ;;; ====
 
 (defmethod generate-foreign-functions (foreign-list stream (backend (eql :cmucl)))
@@ -203,6 +210,47 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
       (terpri stream)
       )))
 
+(defmethod generate-foreign-functions (foreign-list stream (backend (eql :openmcl)))
+
+  (dolist (i foreign-list)
+    (let ((c-name (foreign-fun-c-name i))
+	  (lisp-name (foreign-fun-lisp-name i))
+	  (when-restrict (foreign-fun-only-when i)))
+
+      (print-restrict when-restrict stream)
+
+      (let* ((args (mapcar #'(lambda (x) (get-arg-info x backend)) (foreign-fun-arguments i)))
+	     (arg-names (mapcar #'car args))
+	     (the-retval (get-type-translation (foreign-fun-returns i) backend))
+	     (nest-level 0)
+	     (new-args '()))
+	(format stream "~&(defun ~a ~s~%" lisp-name arg-names)
+	(dolist (i args)
+	  (cond ((eq (second i) 'cptr)
+		 (let ((sym (gensym (symbol-name (first i)))))
+		   (format stream "~& (ccl::with-cstr (~a ~s)~%" sym (first i))
+		   (incf nest-level)
+		   (push (list sym :address) new-args)))
+		(t
+		 (push (list (first i) (second i)) new-args))))
+	
+	(setf args (nreverse new-args))
+		 
+	(format stream "~&  (ccl::external-call \"_~a\"" c-name)
+
+	(when args
+	  (dolist (i args)
+	    (format stream " ~s ~a" (second i) (first i))))
+	
+	(format stream " ~s)" the-retval)
+	(dotimes (i nest-level)
+	  (format stream ")"))
+	(format stream ")~%")
+	)
+
+      (terpri stream)
+      )))
+
 (defmethod generate-foreign-functions (foreign-list stream (backend (eql :lispworks)))
   
   (dolist (i foreign-list)
@@ -281,6 +329,24 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
     (char 'char)
     (unsigned 'unsigned)
     (ptr-type 'unsigned)
+    (otherwise type)
+    ))
+
+
+(defmethod get-type-translation (type (backend (eql :openmcl)))
+  (case type
+    (uchar8 :unsigned-byte)
+    (char8 :signed-byte)
+    (c-string8 :address)
+    (char-arr :address)
+    (int32 :signed-fullword)
+    (int :signed-fullword)
+    (long 'long)
+    (short :signed-halfword)
+    (void :void)
+    (char 'char)
+    (unsigned :unsigned-fullword)
+    (ptr-type :address)
     (otherwise type)
     ))
 
@@ -396,6 +462,16 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
 ;;	(export-name n-name stream))
       (terpri stream)
       
+      )))
+
+(defmethod generate-foreign-types (foreign-list stream (backend (eql :openmcl)))
+  (dolist (i foreign-list)
+    (let ((o-name (foreign-type-old-name i))
+	  (n-name (foreign-type-new-name i))
+	  )
+      (format stream "~&(ccl::def-foreign-type ~a ~s)~%" n-name (get-type-translation o-name backend))
+      
+      (terpri stream)
       )))
 
 (defmethod generate-foreign-types (foreign-list stream (backend (eql :lispworks)))

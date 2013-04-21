@@ -149,6 +149,11 @@ specifies what kind of saving should be done (e.g readable, binary, ..)"))
   (:documentation "Tries to load a saved-game from the filename.
 If variant is NIL the default loader will be used."))
 
+(defgeneric load-variant-object (variant stream)
+  (:documentation "A second stage init of the object where the variant
+object is created and a variant can override further loading.  Basically
+a hack since disptach is on variants."))
+
 ;;; === End s/l/s
 
 ;;; === Variant-related generics
@@ -350,7 +355,7 @@ level/room/player combo.  Allowed to return NIL."))
 
 ;;; === Store and building-related
 
-(defgeneric build-house! (level house topleft-x topleft-y &key)
+(defgeneric build-house! (level house topleft-x topleft-y &key &allow-other-keys)
   (:documentation "Builds a house on the given level at given coord."))
 
 (defgeneric visit-house (level house)
@@ -525,7 +530,7 @@ player object or NIL."))
 (defgeneric get-monster-kind (variant id)
   (:documentation "Returns a monster-kind with given id for given variant."))
 
-(defgeneric get-monster-list (variant &key sort-key)
+(defgeneric get-monster-list (variant &key sort-key predicate)
   (:documentation "Returns a list of monsters for the given variant."))
 
 (defgeneric get-mkind-alloc-table (variant level)
@@ -660,9 +665,15 @@ it has been put in the inventory."))
   (:documentation "Called whenever the creature wears something and
 it has been put in the worn-items."))
 
+(defgeneric on-take-off-object (variant creature object)
+  (:documentation "Called whenever the creature takes off a worn object."))
+
 (defgeneric on-drop-object (variant creature object)
   (:documentation "Called whenever the creature drops something and
 it has been put on the ground."))
+
+(defgeneric on-destroy-object (variant creature object)
+  (:documentation "Called whenever the creature destroys something."))
 
 (defgeneric on-move-to-coord (variant creature x y)
   (:documentation "Called whenever the player actively moves to a new coordinate."))
@@ -704,6 +715,11 @@ it has been put on the ground."))
 The method is responsible for checking legality of args.  The method should return
 the object."))
 
+(defgeneric initialise-monster-kind! (variant monster keyword-args)
+  (:documentation "Initialises a monster-kind object with given keyword-arguments.
+The method is responsible for checking legality of args.  The method should return
+the object."))
+  
 ;; possibly change name later
 (defgeneric process-world& (variant dungeon player)
   (:documentation "Every tenth turn important calculations might need to be done.
@@ -780,3 +796,12 @@ local to the window."))
 (defgeneric disturbance (variant player source level)
   (:documentation "Notifies the player of a disturbance, the source of the disturbance and what level
 the disturbance is, e.g :minor, :major, .."))
+
+(defgeneric throw-object (variant player item tx ty)
+  (:documentation "The actual throwing of an object towards the tx ty."))
+
+(defgeneric filed-variant-data (variant &key &allow-other-keys)
+  (:documentation "Overridable method for reading in data during a LOAD."))
+
+(defgeneric filed-player-data (variant player &rest kwd-args &key  &allow-other-keys)
+  (:documentation "Overridable method for reading in data furing a LOAD."))

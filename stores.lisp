@@ -14,6 +14,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
+(defun is-store? (obj)
+  (typep obj 'store))
+
 ;;; Current implementation ignores haggling, selling-season, buying-season, etc
 
 (defmethod find-owner-for-house (level (house store)
@@ -23,7 +26,7 @@ the Free Software Foundation; either version 2 of the License, or
   
   (declare (ignore level))
   
-  (let ((poss-owners (store.poss-owners house))
+  (let ((poss-owners (store.possible-owners house))
 	(the-owner nil))
     
     (unless poss-owners
@@ -32,8 +35,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     (ecase selection
       (:random
-       (setf the-owner (elt poss-owners (random (length poss-owners)))))
-      )
+       (setf the-owner (rand-elm poss-owners))))
     
     (assert (not (eq the-owner nil)))
 
@@ -50,10 +52,10 @@ should be an exisiting id."
 	 (store-type (get-house store-type-id v-obj)))
     
     (if (and store-type (typep store-type 'store))
-	(pushnew (owner.id owner) (store.poss-owners store-type))
+	(pushnew (owner.id owner) (store.possible-owners store-type))
 	(warn "Unable to find store-type ~a" store-type-id))))
 	 
-(defun %make-priorities (variant store-id sale-list)
+(defun make-store-sales-list (variant store-id sale-list)
   "Returns a list of sale-priorities, given a sale-spec."
   (let ((ret-list '()))
     (dolist (i sale-list)
@@ -79,14 +81,11 @@ should be an exisiting id."
 
 
 (defun define-store (id &key (type 'store) name number
-		     (sells nil) (buys nil)
-		     x-attr x-char (owner :random) (no-items nil))
+		     (sells nil) (buys nil) (owner :random) (no-items nil))
   "creates a store object and adds it to the appropriate table"
 ;;  (declare (ignore args))
   (let ((var-obj *variant*)
-	(store (make-instance type :id id :name name :number number
-			      :x-attr x-attr :x-char x-char :owner owner)))
-
+	(store (make-instance type :id id :name name :number number :owner owner)))
     
     (when (and (eq type 'store) sells)
       (setf (store.sells store) sells))
@@ -96,8 +95,7 @@ should be an exisiting id."
     
     ;; hackish
     (unless no-items
-      (setf (house.items store) (make-container (store.max-items store)
-						'items-in-store)))
+      (setf (house.items store) (make-container (store.item-limit store) 'items-in-store)))
 
     (establish-house& var-obj store)
 
@@ -223,8 +221,6 @@ should be an exisiting id."
 	    
 	    retval)
 	  )))))
-
-;;(trace %store-buy-item)
 
 (defun %store-sell-item (player level store)
   
@@ -422,33 +418,88 @@ should be an exisiting id."
 
 (defun store-delete-obj! (the-store &optional obj-key)
   "just wipes an object.."
-  (let ((store-items (store.items the-store)))
-    (item-table-remove! store-items (if obj-key
-					obj-key
-					(random (items.cur-size store-items)))
-			)))
+  (let* ((store-items (store.items the-store))
+	 (cur-size (items.cur-size store-items))) 
+    (when (plusp cur-size)
+      (let ((key (if obj-key obj-key (random cur-size))))
+	;;(warn "Removing ~s" key)
+	(item-table-remove! store-items key)))))
+
+(defun store-add-obj! (variant the-store)
+  (when-bind (new-obj (store-generate-object variant the-store))
+    ;;(warn "Adding ~s" (object.name new-obj))
+    (item-table-add! (store.items the-store) new-obj)))
+
+(defun store-empty? (variant store)
+  "Is the store devoid of objects?"
+  (declare (ignore variant))
   
+  (let* ((items (store.items store))
+	 (objs (items.objs items))
+	 (count 0))
+    (loop for x across objs
+	  when x
+	  do (incf count))
+    
+    (zerop count)))
+    
+(defun equip-store! (variant store)
+  ;;(warn "EQUIP ~a" (store.id store))
+  (dotimes (j 10)
+    (store-maintenance! variant store)))
+
+;;(trace equip-store!)
+
 (defmethod activate-object ((obj store) &key)
-  
+
   (let ((res-obj (call-next-method)))
     (unless (eq res-obj obj)
-      (warn "Something fu with store-obj ~a" res-obj)
-      (return-from activate-object res-obj)))
-
-  ;; hackish
-  (let ((var-obj *variant*)
-	(sells (store.sells obj)))
+      (error "Something fu with store-obj ~a" res-obj)))
+  
+  (when-bind (sells (store.sells obj))
     ;; late-init basically
-    (when sells
-      (setf (store.sells obj) (%make-priorities var-obj (store.id obj) sells)))
- 										 
-    (dotimes (j 10) (store-maintenance! var-obj obj)))
+    (setf (store.sells obj) (make-store-sales-list *variant* (store.id obj) sells)))
+    
+  ;;(equip-store! *variant* obj)
   
   obj)
 
 
 (defmethod store-maintenance! ((variant variant) (the-store store))
   "hackish, fix later."
-  (when-bind (new-obj (store-generate-object variant the-store))
-    (item-table-add! (store.items the-store) new-obj)))
 
+  (let ((min (store.min-items the-store))
+	(max (store.max-items the-store))
+	(limit (items.max-size (store.items the-store)))
+	(turnover (store.turnover the-store))
+	(cur-num (items.cur-size (store.items the-store)))
+	)
+
+    ;; we have some turnover
+    (decf cur-num (randint turnover))
+
+    (when (> cur-num max) (setf cur-num max))
+    (when (< cur-num min) (setf cur-num min))
+    (when (minusp cur-num) (setf cur-num 0))
+
+    (while (> (items.cur-size (store.items the-store)) cur-num)
+      ;;(warn "-Compare ~s ~s" (items.cur-size (store.items the-store)) cur-num)
+      (store-delete-obj! the-store))
+
+    ;; now, let us get some new stuff in
+
+    (setf cur-num (items.cur-size (store.items the-store)))
+
+    (incf cur-num (randint turnover))
+    
+    (when (> cur-num max) (setf cur-num max))
+    (when (< cur-num min) (setf cur-num min))
+    (when (>= cur-num limit) (setf cur-num (1- limit)))
+
+    (while (< (items.cur-size (store.items the-store)) cur-num)
+      ;;(warn "+Compare ~s ~s" (items.cur-size (store.items the-store)) cur-num)
+      (store-add-obj! variant the-store))
+
+    ;;(warn "Return")
+    the-store))
+ 

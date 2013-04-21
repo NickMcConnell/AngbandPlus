@@ -15,7 +15,9 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :cl-user)
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
- 
+
+  (defvar *loaded-libs* '())
+  
   (defun quickly-quit-game& ()
     "Tries to quit game.."
     #+cmu
@@ -24,7 +26,9 @@ the Free Software Foundation; either version 2 of the License, or
     (excl::exit)
     #+sbcl
     (sb-ext:quit)
-    #-(or cmu allegro sbcl)
+    #+openmcl
+    (cl-user::quit)
+    #-(or cmu allegro sbcl openmcl)
     (warn "Can't quit yet.. fix me..")
   (values))
   
@@ -52,8 +56,10 @@ the Free Software Foundation; either version 2 of the License, or
     #+lispworks
     (fli:register-module key :real-name lib :connection-style :manual)
     #+sbcl
-    (sb-alien:load-foreign lib) 
-    #-(or cmu allegro clisp lispworks sbcl)
+    (sb-alien:load-foreign lib)
+    #+openmcl
+    (ccl:open-shared-library lib)
+    #-(or cmu allegro clisp lispworks sbcl openmcl)
     (warn "Did not load shared-library.."))
   
   )
@@ -79,9 +85,16 @@ the Free Software Foundation; either version 2 of the License, or
     #+unix
     (progn
       #-(or cmu sbcl)
-      (load-shared-lib :key :dc :lib (concatenate 'string lib-path "liblangband_dc.so"))
+      (unless (find :dc *loaded-libs*)
+	(load-shared-lib :key :dc :lib (concatenate 'string lib-path "liblangband_dc.so"))
+	(push :dc *loaded-libs*))
+			 
+      
       ;; everyone
-      (load-shared-lib :key :lang-ffi :lib (concatenate 'string lib-path "liblangband_ui.so")))
+      (unless (find :ui *loaded-libs*)
+	(load-shared-lib :key :lang-ffi :lib (concatenate 'string lib-path "liblangband_ui.so"))
+	(push :ui *loaded-libs*)))
+    
     #+win32
     (progn
       (load-shared-lib :key :lang-ffi :lib (concatenate 'string lib-path "liblangband_ui.dll"))

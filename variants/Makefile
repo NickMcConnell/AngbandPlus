@@ -1,4 +1,4 @@
-CLEANFILES=*.o *.so *.fasl *.x86f *.err *.fas *.fsl *.ufsl *.lib *.sparcf *~
+CLEANFILES=*.o *.so *.fasl *.x86f *.err *.fas *.fsl *.ufsl *.lib *.sparcf *~ *.dfsl
 
 all: 
 

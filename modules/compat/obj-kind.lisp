@@ -2,7 +2,7 @@
 
 #|
 
-DESC: lib/compat/obj-kind.lisp - code to be compatible with k_info.txt
+DESC: modules/compat/obj-kind.lisp - code to be compatible with k_info.txt
 Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
@@ -812,9 +812,9 @@ are sorted first.  Returns nothing."
 		      ;; the first should be W
 		      (assert (string-equal (car res) "w"))
 		      ;; the second should be level/depth
-		      (setf (object.depth cur-obj) (parse-integer (second res)))
+		      ;;(setf (object.depth cur-obj) (parse-integer (second res)))
 		      ;; the third should be rarity
-		      (setf (object.rarity cur-obj) (parse-integer (third res)))
+		      ;;(setf (object.rarity cur-obj) (parse-integer (third res)))
 		      ;; the fourth should be weight
 		      (setf (object.weight cur-obj) (parse-integer (fourth res)))
 		      ;; the fifth should be cost
@@ -1008,12 +1008,12 @@ are sorted first.  Returns nothing."
 				   (assert (string-equal j "a")))
 				  (t
 				   (let* ((pos (position #\/ j))
-					  (locale (parse-integer (subseq j 0 pos)))
+					  (locations (parse-integer (subseq j 0 pos)))
 					  (chance (parse-integer (subseq j (1+ pos)))))
 
-				     ;;				      (warn "checking ~a which is ~a ~a" j locale chance) 
+				     ;;	(warn "checking ~a which is ~a ~a" j locations chance) 
 				     (setf (svref (object.chance cur-obj) (1- i)) chance)
-				     (setf (svref (object.locale cur-obj) (1- i)) locale)
+				     (setf (svref (object.locations cur-obj) (1- i)) locations)
 				      
 				     ))
 				  ))

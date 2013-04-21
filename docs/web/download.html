@@ -42,17 +42,20 @@
 
 	      <ul>
 		<li> <a
-	      href="http://prdownloads.sourceforge.net/langband/langband-0.1.4.tar.gz">Langband
-	      v0.1.3</a> (development version) (download from
-	      Sourceforge) (<a href="changelog.0.1.4.html">Changelog</a>)</li>
+	      href="http://prdownloads.sourceforge.net/langband/langband-0.1.5.tar.gz">Langband
+	      v0.1.5</a> (development version) (download from
+	      Sourceforge) (<a href="changelog.0.1.5.html">Changelog</a>)</li>
 	      <li> <a
-	      href="http://www.langband.org/langband-0.1.4.tar.gz">Langband
-	      v0.1.3</a> (development version) (download from
-	      langband.org) (<a href="changelog.0.1.4.html">Changelog</a>)</li>
+	      href="http://www.langband.org/langband-0.1.5.tar.gz">Langband
+	      v0.1.5</a> (development version) (download from
+	      langband.org) (<a
+	      href="changelog.0.1.5.html">Changelog</a>)</li>
+	      <!--
 		<li> <a
 	      href="http://prdownloads.sourceforge.net/langband/langband-0.1.0.tar.gz">Langband
 	      v0.1.0</a> (development version) (download from
 	      Sourceforge)</li>
+	      -->
 		<li> <a
 	      href="http://sourceforge.net/cvs/?group_id=6938">CVS
 	      snapshot</a> (instructions on how to get bleeding edge)
@@ -60,32 +63,35 @@
 
 	      
 	      <br clear=all>
-	      
-	      <h2>Experimental debian-packages</h2>
 
-	      <p>If you're a Debian-user (with either sid/unstable or
-	      woody) and want to test debian-packaging of Langband you
-	      now have the chance.  Snapshots of Langband will frequently be created as
-		packages at the following location:</p>
+	      <h2>Debian-packages sid/sarge/unstable/testing</h2>
+	      
+	      <p> For users of Debian sid/sarge langband is in the
+	      main repositories and can be downloaded like all other
+	      debian applications.  Recommended lisp-systems to use
+	      langband on Debian sid is <tt>cmucl-normal</tt> and <tt>sbcl</tt>.</p>
+	      
+	      <h2>Debian-packages woody/stable</h2>
+
+	      <p>To get langband for debian woody you need to add a
+	      few lines to your <tt>/etc/apt/sources.list</tt> to get
+	      langband and to get the necessary lisp-systems.  These
+	      packages are not official like the ones for Debian
+	      unstable. </p>
 	      <pre>
   deb http://www.langband.org/debian local lisp
+  deb ftp://debian.b9.com stable main
   deb-src http://www.langband.org/debian local lisp
+  deb-src ftp://debian.b9.com stable main
 	      </pre>
 
-	      <p>The lines above may be added to <tt>/etc/apt/sources.list</tt>
-		and you'll be notified whenever langband is updated.  If
-		  you have no lisp-system working on your Debian, you might need the
-		  packages cmucl, cmucl-small and
-	      common-lisp-controller from Debian.  Though CMUCL misses
-	      sound-effects.  The cmucl in potato cannot be
-		  used for Langband because it does not provide callbacks for
-		  C-code.  </p>
+	      
 	      <hr>
 	    </td></tr>
 	  
 	  <tr>
 	    <td width="46" valign="bottom"><img src="leftcorner.png" width="46" height="46" alt=""></td>
-	    <td width="203"><center>Last updated February 2003<br>by <a
+	    <td width="203"><center>Last updated March 2003<br>by <a
 	  href="mailto:stig@langband.org">Stig E Sandø</a>.</center></td>
 	  <td width="203">
 	    <center>

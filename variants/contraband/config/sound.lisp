@@ -9,23 +9,20 @@ DESC: variants/contraband/config/sound.lisp - sound-settings
 (in-package :org.langband.contraband)
 
 
-(define-sound-effect +sound-hit+
+(define-sound-effect "hit-someone"
     "hit1.wav" "hit3.wav")
 
-(define-sound-effect +sound-miss+
+(define-sound-effect "miss-someone"
     "miss1.wav" "miss2.wav")
 
-(define-sound-effect +sound-kill+
+(define-sound-effect "kill-someone"
     "TMaDth00.wav" "TMaDth01.wav")
 
-(define-sound-effect +sound-shutdoor+
+(define-sound-effect "shut-door"
     "Doorshut.wav")
 
-(define-sound-effect +sound-eat+
+(define-sound-effect "eat-something"
     "eat1.wav")
 
-(define-sound-effect +sound-zap+
+(define-sound-effect "zap-something"
     "magksnd2.wav" "magksnd8.wav")
-
-;;(define-sound-effect +sound-intro+
-;;    "langband_opening01.ogg")

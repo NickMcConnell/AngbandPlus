@@ -182,14 +182,15 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'drop-item
     #'(lambda (dungeon player)
-	(interactive-drop-item! dungeon player)
-	))
+	(interactive-drop-item! dungeon player)))
+
+(define-key-operation 'destroy-item
+    #'(lambda (dungeon player)
+	(interactive-destroy-item! dungeon player)))
 
 (define-key-operation 'take-off-item
     #'(lambda (dungeon player)
-	(interactive-take-off-item! dungeon player)
-	))
-
+	(interactive-take-off-item! dungeon player)))
 
 (define-key-operation 'wear-item
     #'(lambda (dungeon player)
@@ -229,7 +230,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;;						       (typep x 'active-object/food))
 			       :limit-from '(:backpack :floor) ;; only place with food
 			       :which-use :eat
-			       :sound +sound-eat+
+			       :sound "eat-something"
 			       :prompt "Eat what?")))
 #||
 (define-key-operation 'invoke-spell

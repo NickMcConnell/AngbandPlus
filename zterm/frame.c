@@ -94,10 +94,10 @@ legal_frame_key_p(int key, FrameType ft) {
     }
     
     if (key >= 0 && key < cur_size) {
-	return TRUE;
+	return 1;
     }
     else {
-	return FALSE;
+	return 0;
     }
 }
 
@@ -251,9 +251,9 @@ int
 has_frame(int key, FrameType ft) {
     LangbandFrame *lf = get_frame(key, ft);
     if (lf)
-	return TRUE;
+	return 1;
     else
-	return FALSE;
+	return 0;
 }
 
 int
@@ -337,7 +337,7 @@ wipe_frame(int key) {
 	Term_clear();
 	Term_fresh();
 	
-	if (FALSE) { return -1; }
+	if (0) { return -1; }
 #ifdef USE_SDL
 	else if (which_ui == UITYPE_SDL) {
 	    Term_xtra_sdl(TERM_XTRA_CLEAR,5);
@@ -376,7 +376,7 @@ activate_frame(int key) {
     lf = predefinedFrames[key];
 
     if (lf) {
-        lf->visible = TRUE;
+        lf->visible = 1;
         activeFrames[key] = lf;
         num_activeFrames++;
         return key;
@@ -401,7 +401,7 @@ deactivate_frame(int key) {
     lf = predefinedFrames[key];
 
     if (lf) {
-        lf->visible = FALSE;
+        lf->visible = 0;
         activeFrames[key] = NULL;
         num_activeFrames--;
         return key;

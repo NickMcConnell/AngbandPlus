@@ -16,14 +16,15 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun establish-data-in-window (win)
   "Makes the datastructures internally."
-  (let ((width (window.width win))
-	(height (window.height win)))
-    
-    (setf (window.data win) (make-array (list +num-gfx-layers+ width height)
-					:element-type 'u32b :initial-element 0))
-    (setf (window.flagmap win) (make-array (list width height)
-					   :element-type 'u32b :initial-element 0)) 
-    win))
+  (when win
+    (let ((width (window.width win))
+	  (height (window.height win)))
+      
+      (setf (window.data win) (make-array (list +num-gfx-layers+ width height)
+					  :element-type 'u32b :initial-element 0))
+      (setf (window.flagmap win) (make-array (list width height)
+					     :element-type 'u32b :initial-element 0)) 
+      win)))
 
 (defun create-window (id num-id width height)
   (assert (plusp width))
@@ -118,7 +119,7 @@ to do both ascii info, ascii maps and graphics."
     ))
 
 (defun flush-coords (win x y w h)
-  (c-flush-coords! (window.num-id win) x y w  h))
+  (c-flush-coords! (window.num-id win) x y w h))
 
 (defun clear-coord (win x y)
   "Clears the coord of any values.  Does not force repaint"
@@ -194,12 +195,158 @@ to length cleared from x,y  LEN will be chopped if it exceeds boundaries."
   (let ((the-win (if (integerp win)
 		     (aref *windows* win)
 		     win)))
-    (setf (window.visible? the-win) t)
+    (when the-win
+      (setf (window.visible? the-win) t))
     t))
 
 (defun deactivate-window (win)
   (let ((the-win (if (integerp win)
 		     (aref *windows* win)
 		     win)))
-    (setf (window.visible? the-win) nil)
+    (when the-win
+      (setf (window.visible? the-win) nil))
     nil))
+
+(defvar *win/colour* +term-white+)
+
+(defun win/write-char (win x y val)
+  (let* ((colour *win/colour*)
+	 (pval (if (< colour 256)
+		   (text-paint-value colour val)
+		   (logior colour (if (characterp val) (char-code val) val)))))
+    (setf (window-coord win +foreground+ x y) pval)
+    (paint-coord win x y +winflag-delay-paint+))
+  1)
+
+(defun win/write-str (win x y str)
+  (loop for chr across str
+	for i from x
+	do
+	(win/write-char win i y chr))
+  (length str))
+
+;; should be enough
+(defvar *write-int-dummy* "                                        ")
+
+(defun win/write-int (win x y int padding)
+  "Borrowed and modified from CMUCL."
+  (let ((count 0)
+	(quotient int)
+	(remainder nil)
+	(minus-sign nil))
+
+    ;;(warn "num is ~s, pad is ~s" quotient padding)
+    (when (minusp quotient)
+      (setf quotient (- quotient)
+	    minus-sign t)
+      (when (integerp padding)
+	(decf padding)))
+
+    ;;(warn ">num is ~s, pad is ~s" quotient padding)
+    
+    ;; print number in reverse
+    (loop named do-numbers
+	  for i from 0
+	  do
+	  (progn
+	    (multiple-value-setq (quotient remainder)
+	      (truncate quotient *print-base*))
+
+	    (let ((val (code-char (+ (char-code #\0) remainder))))
+	      ;;(warn "assigning val ~s to ~s" val i)
+	      (setf (schar *write-int-dummy* i) val)
+	      (incf count))
+
+	    (when (zerop quotient)
+	      (return-from do-numbers t))))
+
+    ;;(warn "padding is ~s and count is ~s" padding count)
+
+    (when (integerp padding)
+      (when (> padding count)
+	(dotimes (i (- padding count))
+	  (win/write-char win (+ i x) y #\Space))
+	(incf x (- padding count))))
+
+    (when minus-sign
+      (win/write-char win x y #\-)
+      (incf x))
+    
+    (loop for j from 0
+	  for i from (1- count) downto 0
+	  for col = (+ x j)
+	  do
+	  (let ((val (schar *write-int-dummy* i))) 
+	    ;;(warn "writing ~s from ~s to ~s" val i col)
+	    (win/write-char win col y val)))
+
+    count))
+
+
+(defun win/format (win x y colour format-str &rest args)
+  "A non-consing format that writes directly to a window.  It understands the format
+directives ~a ~d ~~ ~% and ~v  (~v is similar to ~vd in CL:FORMAT and takes two
+arguments)."
+  
+  (let ((*win/colour* colour)
+	(col x)
+	(row y))
+    
+    (flet ((output-int (arg padding)
+	     (let ((*print-base* 10))
+	       (cond ((< arg 0)
+		      (when (integerp padding)
+			(decf padding))
+		      (incf col (win/write-int win col row arg padding)))
+		     (t					  
+		      (incf col (win/write-int win col row arg padding))))
+	       )))
+
+	 
+      (let ((last-char #\a)
+	    (arg-iter args))
+	(loop for chr across format-str
+	      do
+	    (cond ((eql last-char #\~)
+		   (ecase chr
+		     (#\a (let ((arg (car arg-iter)))
+			    (etypecase arg
+			      (symbol
+			       (when (keywordp arg)
+				 (incf col (win/write-char win col row #\:)))
+			       (incf col (win/write-str win col y (symbol-name arg))))
+			      
+			      (integer
+			       (output-int arg nil))
+				    
+			      (string
+			       (incf col (win/write-str win col y arg)))
+			      
+			      )
+			    (setf arg-iter (cdr arg-iter))))
+			  
+		     (#\d (let ((arg (car arg-iter)))
+			    (etypecase arg
+			      (integer
+			       (output-int arg nil)))
+			    (setf arg-iter (cdr arg-iter))))
+
+		     (#\v (let ((arg (car arg-iter)))
+			    (etypecase arg
+			      (integer
+			       (output-int (cadr arg-iter) arg)))
+			    (setf arg-iter (cddr arg-iter))))
+		     
+		     ;;(#\% (win/write-char win col row #\Newline))
+		     (#\~ (incf col (win/write-char win col row #\~))))
+		   (setf last-char #\a)	;; dummy
+		   )
+		  (t
+		   (if (eql chr #\~)
+		       nil
+		       (incf col (win/write-char win col row chr)))
+		   (setf last-char chr)))
+	    )))
+
+    (flush-coords win x y 100 1)
+    t))

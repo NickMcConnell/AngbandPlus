@@ -280,6 +280,10 @@ the Free Software Foundation; either version 2 of the License, or
   :weight 5
   :cost 15
   :sort-value 5026
+  :on-read (object-effect (dungeon player item)
+	    (when (detect-gold! dungeon player item)
+	      (possible-identify! player item))
+	    :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-det-item" "object detection"
@@ -293,6 +297,10 @@ the Free Software Foundation; either version 2 of the License, or
   :weight 5
   :cost 15
   :sort-value 5027
+  :on-read (object-effect (dungeon player item)
+	    (when (detect-normal-objects! dungeon player item)
+	      (possible-identify! player item))
+	    :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-det-trap" "trap detection"
@@ -306,6 +314,10 @@ the Free Software Foundation; either version 2 of the License, or
   :weight 5
   :cost 35
   :sort-value 5028
+  :on-read (object-effect (dungeon player item)
+	    (when (detect-traps! dungeon player item)
+	      (possible-identify! player item))
+	    :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-det-door" "door/stair location"
@@ -319,6 +331,11 @@ the Free Software Foundation; either version 2 of the License, or
   :weight 5
   :cost 35
   :sort-value 5029
+  :on-read (object-effect (dungeon player item)
+	     (detect-doors! dungeon player item)
+	     (detect-stairs! dungeon player item)
+	     (possible-identify! player item)
+	     :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-acquirement" "acquirement"
@@ -372,8 +389,7 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 15
   :sort-value 5030
   :on-read (object-effect (dungeon player item)
-	    (when (detect-invisible! dungeon player (location-x player) (location-y player)
-				     +default-detect-radius+)
+	    (when (detect-invisible! dungeon player item +default-detect-radius+)
 	      (possible-identify! player item))
 	    :used)
 

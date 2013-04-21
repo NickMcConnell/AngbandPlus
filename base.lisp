@@ -107,9 +107,9 @@ consing up a new one.")
 (defvar *obj-type-mappings* (make-hash-table :test #'eq)
   "keeps track of mapping from key to object-types, used by factories.")
 
-(defvar *engine-version* "0.1.4" "A version specifier that can be used for
+(defvar *engine-version* "0.1.5" "A version specifier that can be used for
 display and listings, not useful for internal code.")
-(defvar *engine-num-version* 123 "A numeric version for the engine that can
+(defvar *engine-num-version* 125 "A numeric version for the engine that can
 be used by internal code.  It will typically be incremented with every
 non-compatible change, so when connecting a variant to the engine, this is
 the number you should look at. It's quick to compare against and it's unambigious.")
@@ -121,7 +121,7 @@ the number you should look at. It's quick to compare against and it's unambigiou
 ;; must be set to T by init for use of graphics.
 (defvar *graphics-supported* nil)
 
-(defvar *dumps-directory* "doc/dumps/" "Where should various debug-dumps go?")
+(defvar *dumps-directory* "dumps/" "Where should various debug-dumps go?")
 
 ;;; === End dynamic variables
 

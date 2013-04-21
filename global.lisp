@@ -39,6 +39,74 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   ;; posibly find better solution later
   `(invoke-in-dialogue #'(lambda () ,@body)))
 
+(defun sdl-handle-key (key k-ev)
+  
+  (when (< 0 key 126)
+    (setf (kbd-event.key k-ev) (code-char key)))
+  ;; hackish,
+  (when (< 272 key 282)
+    (setf (kbd-event.key k-ev) (ecase key
+				 (273 #\8)
+				 (274 #\2)
+				 (275 #\6)
+				 (276 #\4)
+				 (277 #\0)
+				 (278 #\7)
+				 (279 #\1)
+				 (280 #\9)
+				 (281 #\3))))
+  
+  ;; hackish,
+  (when (< 255 key 266)
+    (setf (kbd-event.key k-ev) (ecase key
+				 (256 #\0)
+				 (257 #\1)
+				 (258 #\2)
+				 (259 #\3)
+				 (260 #\4)
+				 (261 #\5)
+				 (262 #\6)
+				 (263 #\7)
+				 (264 #\8)
+				 (265 #\9))))
+  
+  t)
+
+(defun gcu-handle-key (key k-ev)
+
+  (cond ((< 0 key 126)
+	 (setf (kbd-event.key k-ev) (code-char key)))
+	((= key #o407) ;; key_backspace
+	 (setf (kbd-event.key k-ev) #\Backspace))
+	((= key #o402) ;; key_down
+	 (setf (kbd-event.key k-ev) #\2))
+	((= key #o403) ;; key_up
+	 (setf (kbd-event.key k-ev) #\8))
+	((= key #o404) ;; key_left
+	 (setf (kbd-event.key k-ev) #\4))
+	((= key #o405) ;; key_right
+	 (setf (kbd-event.key k-ev) #\6))
+	((= key #o406) ;; key_home
+	 (setf (kbd-event.key k-ev) #\7))
+	((= key #o523) ;; page-up
+	 (setf (kbd-event.key k-ev) #\9))
+	((= key #o522) ;; page-down
+	 (setf (kbd-event.key k-ev) #\3))
+	((= key #o550) ;; key_end
+	 (setf (kbd-event.key k-ev) #\1))
+	((= key #o536) ;; key_mid_keypad
+	 (setf (kbd-event.key k-ev) #\5))
+	((= key #o513) ;; key_insert
+	 (setf (kbd-event.key k-ev) #\0))
+	#||
+	((= key #o611)
+	 (warn "shift left"))
+	||#
+	;;(t (warn "Fell through with key ~s" key))
+	)
+	 
+  nil)
+
 (defun fetch-event (event-obj only-poll)
   (let ((listen-arg (if only-poll 1 0))
 	(read-obj nil))
@@ -82,41 +150,17 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 		     (when (bit-flag-set? read-obj #x08)
 		       (setf (kbd-event.shift k-ev) t))
 
-		     (when (< 0 key 126)
-		       (setf (kbd-event.key k-ev) (code-char key)))
-		     ;; hackish,
-		     (when (< 272 key 282)
-		       (setf (kbd-event.key k-ev) (ecase key
-						    (273 #\8)
-						    (274 #\2)
-						    (275 #\6)
-						    (276 #\4)
-						    (277 #\0)
-						    (278 #\7)
-						    (279 #\1)
-						    (280 #\9)
-						    (281 #\3))))
-	    
-		     ;; hackish,
-		     (when (< 255 key 266)
-		       (setf (kbd-event.key k-ev) (ecase key
-						    (256 #\0)
-						    (257 #\1)
-						    (258 #\2)
-						    (259 #\3)
-						    (260 #\4)
-						    (261 #\5)
-						    (262 #\6)
-						    (263 #\7)
-						    (264 #\8)
-						    (265 #\9))))
-
+		     (ecase (get-system-type)
+		       (sdl (sdl-handle-key key k-ev))
+		       (gcu (gcu-handle-key key k-ev)))
+		     
 		     (when (kbd-event.key k-ev)
 		       (setf (input-event.type event-obj) :key)
 		       (return-from fetch-event event-obj))
-
-		     (when (plusp key)
+		     
+		     (when (and (plusp key) (/= key 303)) ;; avoid shift
 		       (warn "Got back unhandled key ~s" key))
+		     
 		     ))
 		  ))
 		  
@@ -511,7 +555,8 @@ returns default value."
     (cond ((eq stat-modifiers :unspec))
 	  ((listp stat-modifiers)
 	   (setf (gval.stat-modifiers gval) (build-stat-table-from-symlist var-obj stat-modifiers)))
-	  ;;(setf (gval.stat-modifiers gval) stat-modifiers))
+	  ((is-stat-array? *variant* stat-modifiers)
+	   (setf (gval.stat-modifiers gval) stat-modifiers))
 	  (t
 	   (error "Value of stat-modifiers is odd: ~s" stat-modifiers)))
     
@@ -709,11 +754,11 @@ returns default value."
     (character (char-code code))))
 
 
-#||
+
 ;; move later
 (defun get-system-type ()
   ;; very hackish!
-  (let ((c_current_ui)))
+  (let ((num (c_current_ui)))
     (ecase num
       (0 'x11)
       (1 'gcu)
@@ -721,8 +766,8 @@ returns default value."
       (3 'win)
       (4 'sdl)
       )))
-||#
-(defun get-system-type () 'sdl)
+
+;;(defun get-system-type () 'sdl)
 
 
 #-compiler-that-inlines
@@ -998,6 +1043,29 @@ in window WINDOW."
     
     idx))
 
+(defun load-image-spec& (variant idx spec)
+  "Loads a more complex image-spec, see variants/vanilla/base.lisp for example."
+  (cond ((and (stringp spec) (= (length spec) 0))
+	 nil)
+	
+	((and (consp spec) (stringp (second spec)))
+	 (when (plusp (length (second spec)))
+	   (load-image& variant spec idx #xffffff00)))
+
+	((and (consp spec) (eq (first spec) 'or))
+	 ;; we have a list of alternatives.. the first working one wins
+	 (dolist (x (cdr spec))
+	   (let ((res (load-image& variant x idx #xffffff00)))
+	     (cond ((integerp res)
+		    (return-from load-image-spec& res))
+		   ((eq nil res)
+		    nil)
+		   (t
+		    (error "Unknown result from LOAD-IMAGE& ~s" res))))))
+	
+	(t
+	 (error "Unknown image-spec ~s" spec))))
+
 (defun delay (msecs)
   "Delays given amount of msecs."
   (sleep (/ msecs 1000.0)))
@@ -1074,7 +1142,7 @@ in window WINDOW."
   (let ((table (variant.floor-types *variant*)))
     (setf (gethash id table) floor)))
 
-(defun define-floor-type (id name x-attr x-char &key mimic num-idx text-attr text-char flags)
+(defun define-floor-type (id name x-attr x-char &key mimic numeric-id text-attr text-char flags)
   "Defines a floor-type and registers it.  The floor is returned."
 
   (unless (or (verify-id id)
@@ -1084,27 +1152,26 @@ in window WINDOW."
 
   (let ((ftype (make-instance 'floor-type :id id
 			      :name name
-	
 			      :mimic mimic)))
 
     (handle-gfx-visual ftype x-attr x-char)
     (handle-text-visual ftype text-attr text-char)
 
-    (when (integerp num-idx)
-      (setf (floor.num-idx ftype) num-idx))
+    (when (integerp numeric-id)
+      (setf (floor.numeric-id ftype) numeric-id))
     
     (when (integerp flags)
       (setf (floor.flags ftype) flags))
     
     (setf (get-floor-type id) ftype)
     
-    (when (integerp (floor.num-idx ftype))
-      (setf (get-floor-type (floor.num-idx ftype)) ftype))
+    (when (integerp (floor.numeric-id ftype))
+      (setf (get-floor-type (floor.numeric-id ftype)) ftype))
     
     ftype))
 
-(defun define-floor-type* (id name &key x-attr x-char mimic num-idx text-attr text-char flags)
-  (define-floor-type id name x-attr x-char :mimic mimic :num-idx num-idx
+(defun define-floor-type* (id name &key x-attr x-char mimic numeric-id text-attr text-char flags)
+  (define-floor-type id name x-attr x-char :mimic mimic :numeric-id numeric-id
 		     :text-attr text-attr :text-char text-char :flags flags))
 
 ;;; === end floor code
@@ -1307,6 +1374,9 @@ or removed.  Conses up a new list."
 (defmethod text-sym ((obj active-trap))
   (text-sym (decor.type obj)))
 
+(defun is-trap? (obj)
+  (typep obj 'active-trap))
+
 (defun define-trap-type (id name &key x-char x-attr text-char text-attr
 			 effect min-depth max-depth rarity)
   "Defines and registers a trap-type."
@@ -1357,12 +1427,14 @@ or removed.  Conses up a new list."
 (defun update-term-sizes! ()
   (dotimes (i +predefined-frames+)
     (let ((var (aref *windows* i)))
+      
       (unless var
 	;; check if there should be one
 	(when (c-has-frame? i +frametype-predefined+)
 	  (warn "Must create a dummy window, lacking a themed version.")
 	  (setf var (make-instance 'window :num-id i))))
       
+      ;;(warn "Checking ~s" var)
       ;; ok, we have a frame we need more info about
       (when var
 	;; we need to update our info
@@ -1421,33 +1493,6 @@ or removed.  Conses up a new list."
       t
       nil))
 
-(defun get-aim-direction ()
-  "Interactive!"
-  (flush-messages! t)
-  (flet ((read-loop ()
-	   (loop
-	    (put-coloured-line! +term-white+ "Direction: " 0 0)
-	    (let ((val (read-one-character)))
-	      (cond ((or (eql val #\.)
-			 (eql val #\0)
-			 (eql val #\t))
-		     (put-coloured-line! +term-white+ "" 0 0)
-		     (return-from read-loop 5))
-		    ((digit-char-p val)
-		     (put-coloured-line! +term-white+ "" 0 0)
-		     (return-from read-loop (digit-char-p val)))
-		    ((eql val +escape+)
-		     (put-coloured-line! +term-white+ "" 0 0)
-		     (return-from read-loop nil))
-		    (t
-		     (put-coloured-line! +term-white+ "Unknown direction!" 0 0)))
-	      ))))
-    
-  (with-frame (+query-frame+)
-    (let ((retval (read-loop)))
-      (put-coloured-line! +term-white+ "" 0 0)
-      retval))))
-  
 ;;; to have empty place-holders
 #-image-support
 (defun load-scaled-image& (fname idx wid hgt)
@@ -1566,10 +1611,10 @@ on these two."
 	 (setf (x-char obj) x-char
 	       (x-attr obj) x-attr
 	       (gfx-sym obj) (logior x-attr x-char)))
-	  ((or x-attr x-char)
-	   (error "Only one of x-char and x-char provided for visualisable object ~s, need both."
-		  obj))
-	  (t nil)))
+	((or x-attr x-char)
+	 (error "Only one of x-char and x-char provided for visualisable object ~s, need both."
+		obj))
+	(t nil)))
 
 
 (defun handle-text-visual (obj text-attr text-char)
@@ -1633,8 +1678,20 @@ on these two."
   (make-hash-table :test #'equal))
 
 
+				   
 (defvar *current-key-table* nil)
-(defvar *ang-keys* (define-key-table "angband"))
+(defvar *angband-keys* (define-key-table "angband"))
+(defvar *roguelike-keys* (define-key-table "angband-roguelike"))
+
+(defun use-key-table (key)
+  (setf *current-key-table*
+	(cond ((or (eq key :rogue) (eq key :roguelike))
+	       *roguelike-keys*)
+	      ((or (eq key :angband) (eq key :normal))
+	       *angband-keys*)
+	      ((hash-table-p key) key)
+	      (t
+	       (error "Unknown key-table ~s" key)))))
 
 (defun define-keypress (key-table where key operation)
   "Defines a keypress and ties it to the appropriate

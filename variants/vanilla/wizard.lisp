@@ -14,7 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
-;; (setf *current-key-table* *ang-keys*)
 
 (defun van-obj-printer (file obj)
   (let ((var-obj *variant*))
@@ -184,8 +183,8 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'print-keys
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
-	(print-key-table (gethash :global *ang-keys*)
-			 "table.keys")))
+	(print-key-table (gethash :global *angband-keys*)
+			 "angband.keys")))
 
 (define-key-operation 'dump-monsters
     #'(lambda (dungeon player)
@@ -201,15 +200,15 @@ the Free Software Foundation; either version 2 of the License, or
 							     :sort-key #'monster.id)
 			     :action-fun #'(lambda (file obj)
 					     (format file "~&~30a ~30a~%" (monster.id obj)
-						     (monster.depth obj))))
+						     (monster.power-lvl obj))))
 
 	  (van-dump-monsters (concatenate 'string *dumps-directory* "mon-by-depth.list")
 			     :monster-list (get-monster-list var-obj
 							     :predicate #'<
-							     :sort-key #'monster.depth)
+							     :sort-key #'monster.power-lvl)
 			     :action-fun #'(lambda (file obj)
 					     (format file "~&~30a ~30a~%" (monster.id obj)
-						     (monster.depth obj))))
+						     (monster.power-lvl obj))))
 	  )))
 
 (define-key-operation 'dump-objects
@@ -274,6 +273,38 @@ the Free Software Foundation; either version 2 of the License, or
 		  ))
 	  (refresh-window win)
 	  (pause-last-line!)
+	  )))
+
+(define-key-operation 'show-format
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
+	(let ((win (aref *windows* *map-frame*)))
+	  (clear-window win)
+
+	  (win/format win 1 1 +term-red+ "~d" 50)
+	  (win/format win 1 2 +term-red+ "~d" -50)
+	  (win/format win 1 3 +term-red+ "~d" 5000)
+	  (win/format win 1 4 +term-red+ "~d" -5000)
+	  (win/format win 1 5 +term-red+ "~v" 10 5000)
+	  (win/format win 1 6 +term-red+ "~v" 10 -5000)
+	  ;;(win/format win 1 7 +term-red+ "~v" 15 5000)
+	  ;;(win/format win 1 8 +term-red+ "~v" 15 -5000)
+
+	  (win/format win 1 7 +term-red+ "~a" 'hei)
+	  (win/format win 1 8 +term-red+ "~a" :hei)
+	  
+	  
+	  (win/format win 1 9 +term-red+ "~v" 2 5000)
+	  (win/format win 1 10 +term-red+ "~v" 2 -5000)
+
+	  (win/format win 1 11 +term-red+ "~a" "hei")
+	  (win/format win 1 12 +term-red+ "~a~a" "hei" "hei")
+	  (win/format win 1 13 +term-red+ "~~")
+	  (win/format win 1 14 +term-red+ "~a~~~a" "hei" "hei")
+	  
+	  (refresh-window win)
+	  (read-one-character)
+	  (clear-window win)
 	  )))
 
 

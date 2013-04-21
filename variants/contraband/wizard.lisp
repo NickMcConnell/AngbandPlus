@@ -38,9 +38,9 @@
 
 
 ;; Ctrl-A
-(define-keypress *ang-keys* :global (code-char 1) 'wizard-menu)
+(define-keypress *angband-keys* :global (code-char 1) 'wizard-menu)
 
 ;; wizard stuff
 
-(define-keypress *ang-keys* :wizard #\B 'break-game)
-(define-keypress *ang-keys* :wizard #\t 'dummy-conversation)
+(define-keypress *angband-keys* :wizard #\B 'break-game)
+(define-keypress *angband-keys* :wizard #\t 'dummy-conversation)

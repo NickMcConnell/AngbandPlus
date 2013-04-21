@@ -54,14 +54,14 @@ the Free Software Foundation; either version 2 of the License, or
 	(ind (%get-indent-str indent)))
     
     ;; do turn-events later
-    (format str "~a(setf *variant* (%filed-variant :id ~s :turn ~s :variant-num-version ~s :engine-num-version ~s"
-	    ind (string (variant.id obj)) (variant.turn obj) (variant.num-version obj) *engine-num-version*)
+    (format str "~a(setf *variant* (%filed-variant :id ~s :variant-num-version ~s :engine-num-version ~s))~%"
+	    ind (string (variant.id obj)) (variant.num-version obj) *engine-num-version*)
 
-    (format str "~a  :information '~s))~%"
-	    ind (loop for key being the hash-keys of (variant.information obj)
-		      using (hash-value value)
-		      collecting (cons key value)))
-    
+    (format str "~a(filed-variant-data *variant* :turn ~s :information '~s)~%" ind (variant.turn obj)
+	    (loop for key being the hash-keys of (variant.information obj)
+		  using (hash-value value)
+		  collecting (cons key value)))
+	    
     (loop for x being the hash-values of (variant.objects obj)
 	  do (save-object variant x stream indent))
     (loop for x being the hash-values of (variant.monsters obj)
@@ -194,7 +194,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     (with-dungeon (object (coord x y))
       (let ((floor (coord.floor coord)))
-	(setf (aref new-arr x y) (cons (floor.num-idx floor)
+	(setf (aref new-arr x y) (cons (floor.numeric-id floor)
 				       (logand (coord.flags coord) +saved-cave-flags+)
 				       ))))
     
@@ -246,7 +246,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     (with-dungeon (object (coord x y))
       (declare (ignore x y))
-      (write-binary 'u16 str (floor.num-idx (coord.floor coord)))
+      (write-binary 'u16 str (floor.numeric-id (coord.floor coord)))
       (write-binary 'u16 str (logand (coord.flags coord)
 				     +saved-cave-flags+)))
 
@@ -595,7 +595,8 @@ the Free Software Foundation; either version 2 of the License, or
 
     (format str "~a  :gold ~s :food ~s :energy ~s ~%"
 	    ind (player.gold obj) (player.food obj) (player.energy obj))
-    
+
+    ;;(warn "gold saved ~s" (player.gold obj))
     
     (format str "~a  :equipment ~%" ind)
     (save-object variant (player.equipment obj) stream (+ 2 indent))
@@ -839,7 +840,8 @@ the Free Software Foundation; either version 2 of the License, or
 (defconstant +savefile-type-variant+ 11)
 (defconstant +savefile-type-player+  12)
 (defconstant +savefile-type-level+   13)
-
+(defvar *saveblock* nil)
+(defvar *saveheader* nil)
 
 (defmethod do-save ((variant variant) fname obj-list (style (eql :binary)))
 ;;  #-cormanlisp
@@ -949,42 +951,44 @@ the Free Software Foundation; either version 2 of the License, or
 	
 	
 	;;(warn "header is ~s and we have ~s blocks " header (saveheader.block-num header))
+	(let ((*saveheader* header))
+	  (dotimes (i (saveheader.block-num header))
+	    (when-bind (sblock (load-object nil :saveblock the-lang-stream))
+	      (let ((*saveblock* sblock))
+		;;(warn "Sblock len is ~s" (saveblock.len sblock))
+		(cond ((= (saveblock.type sblock) +savefile-type-variant+)
+		       (with-binary-input-from-list (s (saveblock.data sblock))
+			 (let ((ret-obj (load-object nil :variant (make-instance 'l-binary-stream :stream s))))
+			   (unless ret-obj
+			     (return-from load-a-saved-game nil))
+			   
+			   (assert (is-variant? ret-obj))
+			   
+			   (setf *variant* ret-obj))))
 
-	(dotimes (i (saveheader.block-num header))
-	  (when-bind (sblock (load-object nil :saveblock the-lang-stream))
-	    ;;(warn "Sblock len is ~s" (saveblock.len sblock))
-	    (cond ((= (saveblock.type sblock) +savefile-type-variant+)
-		   (with-binary-input-from-list (s (saveblock.data sblock))
-		     (let ((ret-obj (load-object nil :variant (make-instance 'l-binary-stream :stream s))))
-		       (unless ret-obj
-			 (return-from load-a-saved-game nil))
-		       
-		       (assert (is-variant? ret-obj))
-		       
-		       (setf *variant* ret-obj))))
+		      ((= (saveblock.type sblock) +savefile-type-player+)
+		       (with-binary-input-from-list (s (saveblock.data sblock))
+			 (let ((ret-obj (load-object *variant* :player (make-instance 'l-binary-stream :stream s))))
+			   (unless ret-obj
+			     (return-from load-a-saved-game nil))
+			   
+			   (assert (is-player? ret-obj))
+			   (setf *player* ret-obj))))
+		      
+		      ((= (saveblock.type sblock) +savefile-type-level+)
+		       (with-binary-input-from-list (s (saveblock.data sblock))
+			 (let ((ret-obj (load-object *variant* :level (make-instance 'l-binary-stream :stream s))))
+			   (unless ret-obj
+			     (return-from load-a-saved-game nil))
+			   
+			   (assert (typep ret-obj 'level))
+			   (setf *level* ret-obj))))
+		      
 
-		  ((= (saveblock.type sblock) +savefile-type-player+)
-		   (with-binary-input-from-list (s (saveblock.data sblock))
-		     (let ((ret-obj (load-object *variant* :player (make-instance 'l-binary-stream :stream s))))
-		       (unless ret-obj
-			 (return-from load-a-saved-game nil))
-		       
-		       (assert (is-player? ret-obj))
-		       (setf *player* ret-obj))))
-		  
-		  ((= (saveblock.type sblock) +savefile-type-level+)
-		   (with-binary-input-from-list (s (saveblock.data sblock))
-		     (let ((ret-obj (load-object *variant* :level (make-instance 'l-binary-stream :stream s))))
-		       (unless ret-obj
-			 (return-from load-a-saved-game nil))
-		       
-		       (assert (typep ret-obj 'level))
-		       (setf *level* ret-obj))))
-
-
-		  (t
-		   (warn "Fell through with block of type ~s" (saveblock.type sblock))))
-	    )))
+		      (t
+		       (warn "Fell through with block of type ~s" (saveblock.type sblock))))
+		)))
+	  ))
 
       (list *variant* *player* *level*)
       )))

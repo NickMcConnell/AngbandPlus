@@ -63,24 +63,20 @@ for display, num-version for active-use. u16b should be enough.")
 
    (genders   :accessor variant.genders
 	      :initform '()
-	      :initarg :genders
 	      :documentation "List of legal genders for players and monsters.")
+   
    (races     :accessor variant.races
-	      :initform (make-hash-table :test #'equal)
-	      :initarg :races)
+	      :initform (make-hash-table :test #'equal))
    
    (classes   :accessor variant.classes
-	      :initform (make-hash-table :test #'equal)
-	      :initarg :classes)
+	      :initform (make-hash-table :test #'equal))
 
    (effects   :accessor variant.effects
 	      :initform '()
-	      :initarg :effects
 	      :documentation "List of legal effects and effects to handle for variant.")
    
    (elements  :accessor variant.elements
 	      :initform '()
-	      :initarg :elements
 	      :documentation "List of legal elements and elements to handle for variant.")
    
    (turn      :accessor variant.turn
@@ -88,41 +84,33 @@ for display, num-version for active-use. u16b should be enough.")
 	      :initarg :turn)
 
    (turn-events :accessor variant.turn-events
-		:initform (make-hash-table :test #'equal)
-		:initarg :turn-events)
+		:initform (make-hash-table :test #'equal))
 
 
    ;; a level builder is a constructor that must be funcalled
    ;; the key is the level-id
    (level-builders :accessor variant.level-builders
-		   :initform (make-hash-table :test #'equal)
-		   :initarg :level-builders)
+		   :initform (make-hash-table :test #'equal))
 
    (floor-types :accessor variant.floor-types
-		:initform (make-hash-table :test #'equal)
-		:initarg :floor-types)
+		:initform (make-hash-table :test #'equal))
 
    (room-builders  :accessor variant.room-builders
-		   :initform (make-hash-table :test #'equal)
-		   :initarg :room-builders)
+		   :initform (make-hash-table :test #'equal))
 
      
    (max-depth      :accessor variant.max-depth
-		   :initform 128
-		   :initarg :max-depth)
+		   :initform 128)
      
    (max-charlevel  :accessor variant.max-charlevel
-		   :initform 50
-		   :initarg :max-charlevel)
+		   :initform 50)
      
    (xp-table  :accessor variant.xp-table
-	      :initarg :xp-table
 	      ;; maybe have a default? or maybe not
 	      ;; it should be an array of size max-charlevel
 	      :initform nil)
 
    (stats :accessor variant.stats
-	  :initarg :stats
 	  :initform nil)
    
    (stat-length :accessor variant.stat-length
@@ -156,52 +144,41 @@ for display, num-version for active-use. u16b should be enough.")
 
    
    (filters :accessor variant.filters
-	    :initform (make-hash-table :test #'equal)
-	    :initarg :filters)
+	    :initform (make-hash-table :test #'equal))
      
    (flavour-types :accessor variant.flavour-types
-		  :initform (make-hash-table :test #'equal)
-		  :initarg :flavour-types)
+		  :initform (make-hash-table :test #'equal))
 
    (house-types :accessor variant.house-types
-		:initform (make-hash-table)
-		:initarg :store-types)
+		:initform (make-hash-table))
      
    (house-owners :accessor variant.house-owners
-		 :initform (make-hash-table)
-		 :initarg :store-owners)
+		 :initform (make-hash-table))
 
    (attk-descs :accessor variant.attk-descs
-	       :initform (make-hash-table :test #'eq)
-	       :initarg :attk-descs)
+	       :initform (make-hash-table :test #'eq))
    
    (attack-types :accessor variant.attack-types
-		 :initform (make-hash-table :test #'eq)
-		 :initarg :attack-types)
+		 :initform (make-hash-table :test #'eq))
 
    (visual-effects :accessor variant.visual-effects
 		   :initform (make-hash-table :test #'equal))
   
    (day-length      :accessor variant.day-length
-		    :initarg :day-length
 		    :initform 10000)
 
    (help-topics :accessor variant.help-topics
-		:initarg :help-topics
 		:initform (make-hash-table :test #'equal))
 
    (settings :accessor variant.settings
-	     :initarg :settings
 	     :initform (make-hash-table :test #'equal) ;; maybe #'eq is enough?
 	     :documentation "table with settings for various parts of the code, see later")
 
    (event-types :accessor variant.event-types
-		:initarg :event-types
 		:initform (make-hash-table :test #'equal) ;; maybe #'eq is enough?
 		:documentation "table with known events that can occur.")
 
    (worn-item-slots :accessor variant.worn-item-slots
-		    :initarg :worn-item-slots
 		    :initform nil)
 
    (images :accessor variant.images
@@ -768,24 +745,19 @@ object is an array with index for each element, each element is an integer which
 		:initarg :number
 		:initform 1)
    (contains    :accessor aobj.contains
-		:initarg :contains
 		:initform nil)
    (game-values :accessor aobj.game-values
 		:initarg :game-values
 		:initform nil)
    (events      :accessor aobj.events
-		:initarg :events
 		:initform nil)
    (loc-x       :accessor location-x
-		:initarg :loc-x
 		:initform +illegal-loc-x+)
    (loc-y       :accessor location-y
-		:initarg :loc-y
 		:initform +illegal-loc-y+)
    (identify    :accessor aobj.identify
-		:initarg :identify
 		:initform 0
-		:documentation "Bitfield that says how known the object is.")
+		:documentation "Bitfield that says how known the object is, see the +ident-*+ flags.")
 
    (marked :accessor aobj.marked
 	   :initform nil
@@ -799,38 +771,28 @@ object is an array with index for each element, each element is an integer which
 	    :initarg :kind
 	    :initform nil)
    (cur-hp  :accessor current-hp
-	    :initarg :hp
 	    :initform 0)
    (max-hp  :accessor maximum-hp
-	    :initarg :max-hp
 	    :initform 0)
    (speed   :accessor get-creature-speed
-	    :initarg :speed
 	    :initform 0)
    (energy  :accessor get-creature-energy
-	    :initarg :energy
 	    :initform 0)
    (mana    :accessor get-creature-mana
-	    :initarg :mana
 	    :initform 0)
    (seen    :accessor amon.seen-by-player?
-	    :initarg :seen
 	    :initform nil)
    (distance :accessor amon.distance
-	     :initarg :distance
 	     :documentation "Distance from monster to player."
 	     :initform 666)
    (vis-flag :accessor amon.vis-flag
 	     :initform 0) ;; visibility flag
    
    (loc-x   :accessor location-x
-	    :initarg :loc-x
 	    :initform nil)
    (loc-y   :accessor location-y
-	    :initarg :loc-y
 	    :initform nil)
    (alive?  :accessor creature-alive?
-	    :initarg :alive?
 	    :initform t)
 
    (temp-attributes :accessor amon.temp-attrs
@@ -934,10 +896,10 @@ by variants."))
    (text-attr :accessor text-attr         :initform nil) ;; should be number
    (alignment :accessor monster.alignment :initform nil) ;; symbols/list
    (type      :accessor monster.type      :initform nil) ;; symbols/list
-   (depth     :accessor monster.depth     :initform 0) ;; positive int
-   (rarity    :accessor monster.rarity    :initform 0) ;; positive int
+   (locations :accessor monster.locations :initform '()) ;; list of conses (depth . rarity)
    (hitpoints :accessor monster.hitpoints :initform nil) ;; cons or a number I guess
    (armour    :accessor monster.armour    :initform nil) ;; integer
+   (power-lvl :accessor monster.power-lvl :initform 0) ;; positive integer
    (speed     :accessor monster.speed     :initform 0) ;; positive integer
    (xp        :accessor monster.xp        :initform 0) ;; positive integer
    (gender    :accessor monster.gender    :initform nil) ;; symbol? 
@@ -977,62 +939,43 @@ by variants."))
 		 :initform nil)
    
      (x-attr     :accessor x-attr
-		 :initarg :x-attr
 		 :initform nil
 		 :documentation "The attr used when displaying object on the map.")
         
      (x-char     :accessor x-char
-		 :initarg :x-char
 		 :initform nil
 		 :documentation "The char/tile used when displaying object on the map.")
      
      (gfx-sym    :accessor gfx-sym
 		 :initform 0
-		 :initarg :gfx-sym
 		 :documentation "A precoded 24-bit bitfield specifying which graphical symbol to use.")
      
      (text-attr  :accessor text-attr
-		 :initarg :text-attr
 		 :initform nil
 		 :documentation "The attr used when presenting the obj as text.")
    
      (text-char  :accessor text-char
-		 :initarg :text-char
 		 :initform nil
 		 :documentation "The char used when presenting the obj as text.")
      
      (text-sym   :accessor text-sym
 		 :initform 0
-		 :initarg :text-sym
 		 :documentation "A precoded 24-bit bitfield specifying whichtextual symbol to use.")
 
+     (power-lvl  :accessor object.power-lvl
+		 :initform 0)
      
-     (depth      :accessor object.depth
-		 :initarg :depth
-		 :initform 0);; fix later
-   
-     (rarity     :accessor object.rarity
-		 :initarg :rarity
-		 :initform nil)
-   
-     (chance     :accessor object.chance
-		 :initarg :chance
-		 :initform (make-array 4 :initial-element 0))
-   
-     (locale     :accessor object.locale
-		 :initarg :locale
-		 :initform (make-array 4 :initial-element 0))
+     ;; a list of conses (locale . chance)
+     (locations  :accessor object.locations
+		 :initform '())
    
      (weight     :accessor object.weight
-		 :initarg :weight
 		 :initform nil)
    
      (cost       :accessor object.cost
-		 :initarg :cost
 		 :initform nil)
 
      (flags      :accessor object.flags
-		 :initarg :flags
 		 :initform nil)
    
      (game-values :accessor object.game-values
@@ -1040,7 +983,6 @@ by variants."))
 		  :initform nil)
 
      (easy-know   :accessor object.easy-know
-		  :initarg :easy-know
 		  :initform nil
 		  :documentation "Is it easy to understand what the object
 is all about?")
@@ -1057,16 +999,13 @@ is all about?")
 		 :initform nil) ;; flavour is either nil or a cons (desc . colour)
 
      (sort-value :accessor object.sort-value
-		 :initarg :sort-value
 		 :initform 0)
    
      (events     :accessor object.events
-		 :initarg :events
 		 :initform nil
 		 :documentation "should be a list of conses (event . function-obj)")
 
      (effects   :accessor object.effects
-		:initarg :events
 		:initform nil
 		:documentation "Is a list of effect-entry objects.")
 
@@ -1184,17 +1123,19 @@ is all about?")
 
 
 (defclass floor-type ()
-  ((id        :accessor floor.id      :initform nil :initarg :id)
-   (name      :accessor floor.name    :initform nil :initarg :name)
-   (num-idx   :accessor floor.num-idx :initform -1  :initarg :num-idx)
-   (x-attr    :accessor x-attr        :initform nil :initarg :x-attr)
-   (x-char    :accessor x-char        :initform nil :initarg :x-char)
-   (gfx-sym   :accessor gfx-sym       :initform 0   :initarg :gfx-sym)
-   (text-attr :accessor text-attr     :initform nil :initarg :text-attr)
-   (text-char :accessor text-char     :initform nil :initarg :text-char)
-   (text-sym  :accessor text-sym      :initform 0   :initarg :text-sym)
-   (mimic     :accessor floor.mimic   :initform nil :initarg :mimic)
-   (flags     :accessor floor.flags   :initform 0   :initarg :flags)
+  ((id         :accessor floor.id         :initform nil :initarg :id)
+   (name       :accessor floor.name       :initform nil :initarg :name)
+   (numeric-id :accessor floor.numeric-id :initform -1  :initarg :numeric-id)
+   
+   (x-attr     :accessor x-attr        :initform nil)
+   (x-char     :accessor x-char        :initform nil)
+   (text-attr  :accessor text-attr     :initform nil)
+   (text-char  :accessor text-char     :initform nil)
+   
+   (gfx-sym    :accessor gfx-sym       :initform 0   :initarg :gfx-sym)
+   (text-sym   :accessor text-sym      :initform 0   :initarg :text-sym)
+   (mimic      :accessor floor.mimic   :initform nil :initarg :mimic)
+   (flags      :accessor floor.flags   :initform 0   :initarg :flags)
    ))
 
 ;; you should be able to use x-attr, x-char, text-char and text-attr on decor
@@ -1428,7 +1369,7 @@ is all about?")
   (:documentation "What is worn."))  
 
 (defclass items-in-house (items-in-container)
-  ((max-size :initform 24))
+  ((max-size :initform +store-item-limit+))
   (:documentation "What is in a house."))
   
 (defclass items-in-store (items-in-house)
@@ -1441,41 +1382,38 @@ is all about?")
 (defclass house (activatable)
   ((id     :accessor house.id     :initform nil :initarg :id)
    (name   :accessor house.name   :initform nil :initarg :name)
-   (x-attr :accessor x-attr :initform nil :initarg :x-attr)
-   (x-char :accessor x-char :initform nil :initarg :x-char)
    
    (owner  :accessor house.owner :initform nil :initarg :owner)
    ;; the current items
    (items  :accessor house.items :initform nil :initarg :items)
    ))
 
-(defclass owner ()
-  ((id         :accessor owner.id         :initform nil :initarg :id)
-   (name       :accessor owner.name       :initform nil :initarg :name))
-  )
-
 (defclass store (house)
   ((id     :accessor store.id     :initform nil :initarg :id)
    (name   :accessor store.name   :initform nil :initarg :name)
    (number :accessor store.number :initform nil :initarg :number)
      
-   (poss-owners :accessor store.poss-owners
-		:initform nil;;(make-hash-table :test #'eq)
-		:initarg :poss-owners)
-     
-   ;; unsure on this
-
    (sells        :accessor store.sells        :initform nil :initarg :sells)
    (buys         :accessor store.buys         :initform nil :initarg :buys)
-   (items        :accessor store.items        :initform nil :initarg :items)
-   (turnover     :accessor store.turnover     :initform 9   :initarg :turnover)
-   (min-items    :accessor store.min-items    :initform 6   :initarg :min-items)
-   (max-items    :accessor store.max-items    :initform 18  :initarg :max-items)
-   (item-limit   :accessor store.item-limit   :initform 24  :initarg :item-limit)
+   (turnover     :accessor store.turnover     :initform +store-turnover+)
+   (min-items    :accessor store.min-items    :initform +store-minimum-items+)
+   (max-items    :accessor store.max-items    :initform +store-maximum-items+)
+   (item-limit   :accessor store.item-limit   :initform +store-item-limit+)
    (object-depth :accessor store.object-depth :initform 5   :initarg :object-depth)
-   
+
+   (possible-owners :accessor store.possible-owners
+		    :initform nil
+		    :initarg :possible-owners)
+
+
+   ;; the dynamic data-part
+   (items        :accessor store.items        :initform nil :initarg :items)
+
    ))
 
+(defclass owner ()
+  ((id         :accessor owner.id         :initform nil :initarg :id)
+   (name       :accessor owner.name       :initform nil :initarg :name)))
  
 (defclass store-owner (owner)
   ((purse      :accessor owner.purse      :initform nil :initarg :purse)
@@ -1550,6 +1488,7 @@ is all about?")
        :initarg :id
        :documentation "Id for object we know something about."
        :initform nil)
+   
    (flags :accessor object.flags
 	  :initarg :flags
 	  :documentation "Flags for object we know something about."
@@ -1561,10 +1500,12 @@ is all about?")
        :initarg :id
        :documentation "Id for monster we know something about."
        :initform nil)
+   
    (flags :accessor monster.flags
 	  :initarg :flags
 	  :documentation "Flags the monster has."
-	  :initform 0)
+	  :initform '())
+   
    (killed :accessor monster.killed
 	   :initarg :killed
 	   :initform 0

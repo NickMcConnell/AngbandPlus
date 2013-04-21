@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Changelog v0.1.5</title>
+</head>
+
+<body>
+<h1>Changelog v0.1.5 (Engine)</h1>
+<pre>
+2003-03-09  Stig E Sandø &lt;stig@users.sourceforge.net&gt;
+	* Added FFI-definitions for OpenMCL (very unstable and not
+	recommended for people not familiar with lisp)
+	* Added GCU/Curses support back into zterm.  The code seems to
+	work but has not been extensively tested.
+	* added preference files for user in ~user/.angband/langband where
+	user can control various game-settings, including the use of
+	roguelike keys.
+	* roguelike keyset hook added to engine, and actual keys added to
+	vanilla variant by Andreas Fuchs 
+	* added 'D'estroy item command to engine
+	* tweaked sound-code to use string identifiers independent of
+	engine constants.
+	* added code to 't'hrow items to engine
+	* unified the allocation code (objects, monsters, ..) to one
+	common function 
+	* made character-class init two-step instead of the old one-step.
+	this allows overriding in variant
+	* moved much of the death-code to vanilla as it was fairly
+	vanilla-specific
+	* fixed some pesky details in dungeon drawing
+	* made an upper-bound to piles when stacking (99)
+	* improved saving/loading of player and variant object to be
+	controlled by the variant instead of engine.
+	* added no-cons FORMAT that writes directly to a window instead of
+	making a temporary string.  Mostly useful for simple code.
+	* added some hooks for monster- and object-knowledge
+	* added handy functions to apply effects to circles and
+	rectangular areas of the dungeon.. useful for e.g spells
+	* fixed several issues relating to stores, store-maintenance and
+	activation. 
+	* rearranged dialogue/conversation code to be put in an
+	engine-module that a variant may choose to load.
+	* other minor fixes and tweaks.
+</pre>
+
+<h1>Changelog v0.1.5 (Vanilla)</h1>
+<pre>
+2003-03-09  Stig E Sandø &lt;stig@users.sourceforge.net&gt;
+	* Tweaked some object-types to make it easier to dispatch on them.
+	* Added 't'hrow object code
+	* Added ego-item code
+	* Improved handling of town-level and shops
+	* Saves/loads shop-content properly
+	* Saves/loads spell-knowledge
+	* Improved startup-speed slightly
+	* Now checks if armour or gloves affect spell-casting and mana
+	* Added most DETECT-XXX spells
+	* Added restocking of shops
+	* Fixed food-consumption to depend on regeneration and digestion
+	* Added refill-command for torches and lanterns
+	* Added code for object- and monster-recall.  not complete
+	* Simplified chance/locale specification for objects.. not
+	transferred all code to new system
+	* Added full spell-specification to all classes
+	* Other minor fixes and tweaks
+</pre>
+
+<hr>
+<address>stig@langband.org</address>
+<!-- hhmts start --> Last modified: Sat Mar  8 23:34:25 CET 2003 <!-- hhmts end -->
+</body> </html>

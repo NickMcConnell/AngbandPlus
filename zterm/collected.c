@@ -20,7 +20,7 @@ int init_x11(int argc, char **argv);
 #endif
 
 #if defined(USE_GCU)
-int init_gcu(int argc, char **argv);
+int init_gcu(int flags);
 #endif
 
 #if defined(USE_SDL)
@@ -72,7 +72,7 @@ init_c_side(const char *ui, const char *sourcePath, const char *configPath,
 #ifdef USE_SDL
     use_sound = (extra_flags & LANGBAND_SOUND);
 #else
-    use_sound = FALSE;
+    use_sound = 0;
 #endif
 
     if (use_sound) {
@@ -192,9 +192,9 @@ init_c_side(const char *ui, const char *sourcePath, const char *configPath,
 #endif
     
 #if defined (USE_GCU)
-    else if (wanted_ui == UITYPE_GCU || !possible_to_go_X) {
+    else if (wanted_ui == UITYPE_GCU) {
 	which_ui_used = UITYPE_GCU;
-	init_retval = init_gcu(argc, argv);
+	init_retval = init_gcu(extra_flags);
     }
 #endif
 
@@ -355,7 +355,7 @@ load_sound_effect(const char *fname, int idx) {
 
     sb = malloc(sizeof(sound_effect));
 
-    if (FALSE) {}
+    if (0) {}
 #ifdef USE_OPENAL
     else if (which_soundsystem_used == SOUNDSYSTEM_OPENAL) {
 	retval = al_load_sound_effect(fname, sb);
@@ -428,7 +428,7 @@ load_music_file(const char *fname, int idx) {
 
     sb = malloc(sizeof(music_handle));
 
-    if (FALSE) {}
+    if (0) {}
 #ifdef USE_OPENAL
     else if (which_soundsystem_used == SOUNDSYSTEM_OPENAL) {
 	retval = al_load_music_file(fname, sb);
@@ -493,7 +493,7 @@ play_sound_effect(int sound_idx) {
 	return -12;
     }
     
-    if (FALSE) { return -1;}
+    if (0) { return -1;}
 #ifdef USE_OPENAL
     else if (which_soundsystem_used == SOUNDSYSTEM_OPENAL) {
 	return al_play_sound_effect(sound_idx, where);
@@ -526,7 +526,7 @@ play_music_file(int sound_idx) {
 
     DBGPUT("Play music %d.\n", sound_idx);
     
-    if (FALSE) { return -1;}
+    if (0) { return -1;}
 #ifdef USE_OPENAL
     else if (which_soundsystem_used == SOUNDSYSTEM_OPENAL) {
 	return al_play_music_file(sound_idx, where);
@@ -546,7 +546,7 @@ play_music_file(int sound_idx) {
 int
 load_gfx_image(const char *fname, int idx, unsigned int transcolour) {
 
-    if (FALSE) { return -1; }
+    if (0) { return -1; }
 #ifdef USE_SDL
     else if (which_ui_used == UITYPE_SDL) {
 	return sdl_load_gfx_image(fname, idx, transcolour);
@@ -632,8 +632,132 @@ ERRORMSG(const char *fmt, ...) {
     }
 
 }
+int
+load_texture(int idx, const char *filename, int target_width, int target_height, int alpha) {
+    
+    if (0) { return -1; }
+#ifdef USE_SDL
+    else if (which_ui_used == UITYPE_SDL) {
+	return sdl_loadTexture(idx, filename, target_width, target_height, alpha);
+    }
+#endif /*sdl */
+    else {
+	return -1;
+    }
+}
 
 int
 listenForEvent(int option) {
-    return sdl_getEvent(option);
+    if (0) { return -1; }
+#ifdef USE_SDL
+    else if (which_ui_used == UITYPE_SDL) {
+	return sdl_getEvent(option);
+    }
+#endif /* sdl */
+#ifdef USE_GCU
+    else if (which_ui_used == UITYPE_GCU) {
+	return gcu_getEvent(option);
+    }
+#endif /* gcu */
+    else {
+	return -1;
+    }
+}
+
+int
+get_image_width(int idx) {
+    if (0) { return -1; }
+#ifdef USE_SDL
+    else if (which_ui_used == UITYPE_SDL) {
+	return sdl_getImageWidth(idx);
+    }
+#endif /*sdl */
+    else {
+	return -1;
+    }
+}
+
+int
+get_image_height(int idx) {
+    if (0) { return -1; }
+#ifdef USE_SDL
+    else if (which_ui_used == UITYPE_SDL) {
+	return sdl_getImageHeight(idx);
+    }
+#endif /*sdl */
+    else {
+	return -1;
+    }
+}
+
+int
+exp_full_blit(short win_num, short x, short y, unsigned int img, short flags) {
+    if (0) { return -1; }
+#ifdef USE_SDL
+    else if (which_ui_used == UITYPE_SDL) {
+	return sdl_fullBlit(win_num, x, y, img, flags);
+    }
+#endif /*sdl */
+#ifdef USE_GCU
+    else if (which_ui_used == UITYPE_GCU) {
+	return gcu_fullBlit(win_num, x, y, img, flags);
+    }
+#endif /* gcu */
+    else {
+	return -1;
+    }
+}
+
+int
+exp_transparent_blit(short win_num, short x, short y, unsigned int img, short flags) {
+    if (0) { return -1; }
+#ifdef USE_SDL
+    else if (which_ui_used == UITYPE_SDL) {
+	return sdl_transparentBlit(win_num, x, y, img, flags);
+    }
+#endif /*sdl */
+#ifdef USE_GCU
+    else if (which_ui_used == UITYPE_GCU) {
+	return gcu_transparentBlit(win_num, x, y, img, flags);
+    }
+#endif /* gcu */
+    else {
+	return -1;
+    }
+}
+
+int
+exp_clear_coords(short win_num, short x, short y, short w, short h) {
+    if (0) { return -1; }
+#ifdef USE_SDL
+    else if (which_ui_used == UITYPE_SDL) {
+	return sdl_clearCoords(win_num, x, y, w, h);
+    }
+#endif /*sdl */
+#ifdef USE_GCU
+    else if (which_ui_used == UITYPE_GCU) {
+	return gcu_clearCoords(win_num, x, y, w, h);
+    }
+#endif /* gcu */
+    else {
+	return -1;
+    }
+}
+
+int
+exp_flush_coords(short win_num, short x, short y, short w, short h) {
+    if (0) { return -1; }
+#ifdef USE_SDL
+    else if (which_ui_used == UITYPE_SDL) {
+	return sdl_flushCoords(win_num, x, y, w, h);
+    }
+#endif /*sdl */
+#ifdef USE_GCU
+    else if (which_ui_used == UITYPE_GCU) {
+	return gcu_flushCoords(win_num, x, y, w, h);
+    }
+#endif /* gcu */
+    else {
+	return -1;
+    }
 }

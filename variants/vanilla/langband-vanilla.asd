@@ -28,21 +28,23 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband-vanilla-system)
 
 (asdf:defsystem :langband-vanilla
-    :version "0.1.4"
+    :version "0.1.5"
     :components ((:file "constants")
 		 (:file "base" :depends-on ("constants"))
 		 (:file "quirks" :depends-on ("base"))
 		 (:file "skills" :depends-on ("quirks"))
 		 (:file "player" :depends-on ("skills"))
-		 (:file "various" :depends-on ("base" "quirks" "player"))
+		 (:file "save" :depends-on ("player"))
+		 (:file "levels" :depends-on ("base"))
+		 (:file "various" :depends-on ("base" "quirks" "player" "levels"))
 		 (:file "rooms" :depends-on ("base"))
 		 (:file "combat" :depends-on ("player"))
-		 (:file "levels" :depends-on ("base"))
 		 (:file "spells" :depends-on ("base" "various" "quirks"))
 		 (:file "objects" :depends-on ("base" "spells"))
+		 (:file "ego" :depends-on ("objects"))
 		 (:file "print" :depends-on ("base" "player" "spells"))
 		 (:file "wizard" :depends-on ("spells"))
-		 (:file "keys" :depends-on ("wizard" "combat" "spells"))
+		 (:file "keys" :depends-on ("wizard" "combat" "spells" "ego"))
 		 (:file "verify" :depends-on ("various"))
 	       )
   :depends-on (langband-engine))

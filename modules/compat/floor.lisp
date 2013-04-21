@@ -2,7 +2,7 @@
 
 #|
 
-DESC: lib/compat/floor.lisp - reads standard vanilla floors
+DESC: modules/compat/floor.lisp - reads standard vanilla floors
 Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify

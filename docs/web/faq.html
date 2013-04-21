@@ -43,24 +43,15 @@
 		  Angband.  It is based on version 2.9.3, but has
 		  parts found in version 3.0, e.g bigscreen and
 		  bigtile graphics.  Langband is written in Common Lisp, 
-		  which will allow me to combine the dynamic nature of easy
-		  scripting with good compiler technology providing an
+		  which allows combination of dynamic and easy
+		  scripting with good compiler technology.  This provides an
 		  environment that allows a very high level of customisation and
-		  the necessary speed.  It is a toy project which I work on when
-		  I find time, and the development-pace reflects this.  However,
-		  even if it is a toy-project, I try to write quality-code and
-		  have a good design.  This also ensures that it will take more
-		  time than the usual Angband-variant.</li>
+		  the necessary speed. </li>
 		<br>
 		<li> <b>Where can I download it?</b><br>
-		  It isn't finished yet and won't be finished for some time as
-		  it will need go to through several stages, as all newly
-		  written programs must.  It's not fully angband
-		  compatible yet but the hope is that by the end of
-		  2002 it will be more or less similar.  A pre-release
-		  is available from the download page, and there are also some experimental debian-packages if
-		  you use debian, and if you have Debian these are the simplest to
-		  get started with. </li>
+		   A pre-release is available from the <a
+		  href="download.html">download page</a>.  It is also
+		  available in Debian. </li>
 		<br>
 		<li> <b>Does it run on [insert OS]?</b><br>
 		  The main development-platform is my x86 Debian-system,
@@ -76,7 +67,8 @@
 		      <tr><td>ACL 6.0 (Prof)</td><td>Debian x86</td><td>Well-tested</td></tr>
 		      <tr><td>LispWorks 4.1.20</td><td>Debian x86</td><td>Tested bi-weekly.  not optimised</td></tr>
 		      <tr><td>LispWorks 4.1.20</td><td>Win XP</td><td>Tested bi-weekly.  not optimised</td></tr>
-		      <tr><td>CLISP 2.30</td><td>Debian	x86</td><td>Rarely tested.  <u>not</u> optimised</td></tr>
+		      <tr><td>CLISP 2.30</td><td>Debian	x86</td><td>Rarely tested.  <u>not</u>optimised</td></tr>
+		      <tr><td>OpenMCL</td><td>Mac OSX</td><td>Tested once with GCU. Only for avid lispers</td></tr>
 		      <tr><td>Corman Lisp 1.5b</td><td>Win98</td><td>Incomplete port.  not finished</td></tr>
 		  </table>
 
@@ -91,7 +83,8 @@
 
 		  For details on CLISP compile, see bottom of FAQ.
 		  Best results are obtained by using other
-		  implementations than CLISP. 
+		  implementations than CLISP.  For OpenMCL/MacOSX
+		  compilation, contact the me by mail.
 		 
 		</li>
 		<br>
@@ -116,8 +109,36 @@
 		  BTW: If you have extra
 		  information on a non-fixed bug, please add it.</li>
 		<br>
-	      
-	      <li> <b>During compile I get nasty warnings about
+
+		  <li> <b>How can I get roguelike-keys?</b><br>
+		  In the file <tt>~/.angband/langband/prefs.lisp</tt>
+		  add a line:<br> <tt>(use-key-table :rogue)</tt></li>
+		  <br>
+
+		      
+		<li> <b>How do I get sounds working?</b><br>
+		    Some Lisps have problems with sound, notably
+		    Debian CMUCL, and SBCL and it is disabled in
+		Debian CMUCL and SBCL.
+		    All other lisps should by default use sound in SDL
+		    mode automagically.  If you use Linux it is
+		recommended that you turn off ESound deamon and use
+		OSS directly.  Esound causes a half-second delay on
+		all sounds which is ok with music, but unbearabale with
+		sound-effects. 
+		  
+		</li>
+		<br>
+
+		<li> <b>My save-game from last version does not work in the
+		    newest version, why?</b><br>
+		  As long as the game is not really playable the save/load code
+		  is not enhanced for backward-compatibility and is all-in-all
+		  one of the more fragile parts of Langband.  But please report
+		  bugs and they will be fixed.</li>
+		<br>
+
+		<li> <b>During compile I get nasty warnings about
 	      missing SDL-files, what do I do?</b><br>
 		  To compile Langband you need a lot of header-files
 		  and libraries so it's recommended that beginners use
@@ -135,24 +156,13 @@
 		</li>
 		<br>  
 
-	      
-		<li> <b>My save-game from last version does not work in the
-		    newest version, why?</b><br>
-		  As long as the game is not really playable the save/load code
-		  is not enhanced for backward-compatibility and is all-in-all
-		  one of the more fragile parts of Langband.  But please report
-		  bugs and they will be fixed.</li>
-		<br>		
 		<li> <b>The game is sluggish once in awhile, why?</b><br>
-		  I have noticed this earlier though not frequently anymore.  It
-		  might be the garbage-collector interfering.  This will be
-		  adressed gradually and memory-allocation will be reduced when
-		  it is a problem.  But during early development this isn't
-		  crucial. <br>
-		  Note: This is visible in the slower CLISP.  It might
-		  also be more frequent in the recent code as the
-		  wwhole user-interface has been changed and not been
-		  optimised.  Please report problems. </li>
+		  Fixing performance is not a top-priority, but will
+		  be gradually adressed during development.  Please
+		  report if it detracts from the playing experience. <br>
+		  Note: Performance-problems are visible in the slower
+		  CLISP, changing to a better Lisp-system will usually
+		  help. </li>
 		<br>
 		  
 		<li> <b>The game holds for a few seconds when I change levels, why?</b><br>
@@ -222,11 +232,13 @@
 		<li> <b>Regular Angband has several windows, where are the other
 		    windows in Langband?</b><br>
 		  Langband uses a lot of small subwindows inside a
-		  single window, which can be easily customised.
+		  single window, which can be easily customised in the
+		  theme-file <tt>config/theme.lisp</tt>.<br>
 		  Support for multiple and separate windows
 		  (Unix-style) is not planned.
 		</li>
-		<br>		
+		<br>
+		
 		<li> <b>When I quit the game, my whole lisp is terminated, why?</b><br>
 		  Some parts of the UI-code is still structured as if it was
 		  still an app with main() that is started and then quitted when
@@ -236,21 +248,7 @@
 		  will take time.  <b>[Note: This should work with
 		Curses, but the new SDL-port quite abruptly.]</b></li>
 		  <br>
-		    
-		<li> <b>How do I get sounds working?</b><br>
-		    Some Lisps have problems with sound, notably
-		    Debian CMUCL, and SBCL and it is disabled in
-		Debian CMUCL and SBCL.
-		    All other lisps should by default use sound in SDL
-		    mode automagically.  If you use Linux it is
-		recommended that you turn off ESound deamon and use
-		OSS directly.  Esound causes a half-second delay on
-		all sounds which is ok with music, but unbearabale with
-		sound-effects. 
-		  
-		</li>
-		<br>
-		   
+		
 		<li><b>The C-code seems to be filled with gcc-isms and
 		    C++-style comments, why?</b><br>
 		  <p>I don't think there should be many gcc-isms
@@ -319,7 +317,7 @@ $ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
 	  
 	  <tr>
 	    <td width="46" valign="bottom"><img src="leftcorner.png" width="46" height="46" alt=""></td>
-	    <td width="203"><center>Last updated February 2003<br>by <a
+	    <td width="203"><center>Last updated March 2003<br>by <a
 		  href="mailto:stig@langband.org">Stig E Sandø</a>.</center></td>
 	    <td width="203">
 	      <center>

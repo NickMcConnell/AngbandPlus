@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/config/gold.lisp - gold-objects for vanilla variant
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/config/town-monsters.lisp - town-monsters for vanilla variant
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -13,6 +13,11 @@ the Free Software Foundation; either version 2 of the License, or
 |#
 
 (in-package :org.langband.vanilla)
+
+;;; === Note ===
+;;; vanilla-specific treats
+;;; :depth is translated to power-lvl slot
+;;; for locations slot you get (depth . rarity)
 
 (define-monster-kind "urchin" "filthy street urchin"
   :numeric-id  1

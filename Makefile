@@ -1,6 +1,6 @@
 # Really simple Makefile which works ok on Linux
 
-CLEANFILES=*.o *.so *.fasl *.x86f *.err *.fas *.ufsl *.lib *.sparcf *.fsl *~
+CLEANFILES=*.o *.so *.fasl *.x86f *.err *.fas *.ufsl *.lib *.sparcf *.fsl *~ *.dfsl
 
 CLISP_PATH=/usr/lib/clisp
 CLISP_LINKKIT=${CLISP_PATH}/linkkit
@@ -11,16 +11,15 @@ LINK_TARGET_DIR=linked
 #THIS_DIR=$(PWD)
 
 all: 
-#	cd lib; $(MAKE) all
 	cd zterm; $(MAKE) all
 
 deb-all:
 	cd zterm; $(MAKE) deb-all
 
 lisp-clean:
-	cd tools; $(MAKE) clean
 	cd modules/tests && $(RM) $(CLEANFILES)
 	cd ffi && $(RM) $(CLEANFILES)
+	cd tools && $(RM) $(CLEANFILES)
 	cd variants; $(MAKE) lisp-clean
 	$(RM) $(CLEANFILES) *.data prof.dump
 

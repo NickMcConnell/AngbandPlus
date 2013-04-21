@@ -105,7 +105,7 @@
        
        (charinfo :key +charinfo-frame+
 		 :x 0 :y 1
-		 :width 13 :height 22)
+		 :width 13 :height (- window.height 2))
        
        (map      :key +asciimap-frame+
 		 :x 13 :y 1
@@ -127,8 +127,9 @@
 		  :x 0 :y 0
 		  :width window.width
 		  :height 1)
+       
        (dialogue :key +dialogue-frame+
 		 :x 0 :y 1
 		 :width window.width
-		 :height 22)
+		 :height (- window.height 2))
        )

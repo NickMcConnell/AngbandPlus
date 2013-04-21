@@ -25,8 +25,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-object-kind 
     "backpack" "backpack" :numeric-id 750
     :text-attr #\w :text-char #\&
-    :depth 0 :rarity nil :chance #(0 0 0 0)
-    :locale #(0 0 0 0) :weight nil
+    :power-lvl 10 :weight nil
     :cost 1200 :the-kind '<container>
     :on-create #'(lambda (item)
 		   (let ((container (make-container +common-backpack-size+)))

@@ -298,7 +298,24 @@ ADD_DESC: at the start.
   (let ((dir (concatenate 'string (lbsys/ensure-dir-name (namestring (lbsys/get-current-directory)))
 			  "config/")))
     (setf *engine-config-dir* dir)))
-   
+
+(defun load-user-preference-file& ()
+
+  (let ((wanted-file (merge-pathnames (pathname "prefs.lisp") (home-langband-path)))
+	(*package* (find-package :org.langband.engine))
+	(*load-verbose* nil))
+    (when (probe-file wanted-file)
+      (load wanted-file))))
+
+
+(defun load-user-variant-prefs& (variant)
+  (let ((wanted-file (merge-pathnames (pathname "prefs.lisp") (variant-home-path variant)))
+	(*package* (find-package :org.langband.engine))
+	(*load-verbose* nil))
+    (when (probe-file wanted-file)
+      (load wanted-file))))
+
+
 
 (defun game-init& (&optional (ui "sdl") &key (size :800x600) (full-screen nil))
   "This function should be called from the outside to
@@ -321,12 +338,18 @@ call appropriately high-level init in correct order."
 				      :if-exists :append
 				      :if-does-not-exist :create)
     
-    (let (#+hide-warnings
-	  (cl:*error-output* alternative-errors)
-	  #+hide-warnings
-	  (cl:*trace-output* alternative-errors)
-	  #+hide-warnings
-	  (cl:*standard-output* alternative-errors))
+    (let* ((hide-warnings (or #+win32 t
+			      #+langband-release t
+			      (string-equal ui "gcu")))
+	   (cl:*error-output* (if hide-warnings
+				  alternative-errors
+				  cl:*error-output*))
+	   (cl:*trace-output* (if hide-warnings
+				  alternative-errors
+				  cl:*trace-output*))
+	   (cl:*standard-output* (if hide-warnings
+				     alternative-errors
+				     cl:*standard-output*)))
 
       ;;      (warn "Writing to warn-file")
       ;;      (format t "~&Writing to file~%")
@@ -339,9 +362,10 @@ call appropriately high-level init in correct order."
 
       ;; time to register our lisp
       #+(or cmu allegro clisp lispworks sbcl cormanlisp)
-      (c-set-lisp-system! #+cmu 0 #+allegro 1 #+clisp 2 #+lispworks 3 #+sbcl 4 #+cormanlisp 5)
+      (c-set-lisp-system! #+cmu 0 #+allegro 1 #+clisp 2 #+lispworks 3
+			  #+sbcl 4 #+cormanlisp 5 #+openmcl 6)
       
-      #-(or cmu allegro clisp lispworks sbcl cormanlisp)
+      #-(or cmu allegro clisp lispworks sbcl cormanlisp openmcl)
       (error "lisp-system ~s unknown for C-side." (lisp-implementation-type))
       
       (c-init-frame-system& +max-frames+ +predefined-frames+)
@@ -407,9 +431,7 @@ call appropriately high-level init in correct order."
 	    
 	(langband-quit ()
 	  (format t "~&Thanks for helping to test Langband.~2%")
-	  (case (get-system-type)
-	    ((x11 gcu sdl)
-	     (cleanup-c-side&)))
+	  (cleanup-c-side&)
 	  ))
   
       t)))
@@ -501,7 +523,7 @@ call appropriately high-level init in correct order."
     ))
 
 (defun b (&optional (ui "gcu"))
-  (warn "Curses/GCU not supported in this version.")
+  ;;(warn "Curses/GCU not supported in this version.")
   (a ui :gfx nil))
 
 (defun c (&key (ui "sdl") (size :800x600) (full-screen nil))

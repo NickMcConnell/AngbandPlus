@@ -72,8 +72,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	  (maximum-mana player) 0)
     (return-from calculate-creature-mana! nil))
 
-  (let* ((pl-class (player.class player))
+  (let* ((old-mana (maximum-mana player))
+	 (pl-class (player.class player))
 	 (pl-lvl (player.level player))
+	 (pl-eqp (player.equipment player))
 	 (magic-level (+ 1 (- pl-lvl (class.spells-at-level pl-class))))
 	 (stats (variant.stats variant))
 	 (stat-obj (find (class.spell-stat pl-class) stats :key #'stat.symbol))
@@ -94,16 +96,43 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 	))
 
+    ;; check if gloves screw up mana
+    (when (find '<cumbered-by-gloves> (class.abilities pl-class))
+      (when-bind (gloves (item-table-find pl-eqp 'eq.glove))
+	;;(warn "Wearing gloves ~s from mana ~s" gloves new-mana)
+	;; add free action check
+	(setf new-mana (int-/ (* new-mana 3) 4))
+	))
+
+    (let ((allowed-weight (class.max-armour-weight pl-class))
+	  (weight 0))
+      (unless (minusp allowed-weight) ;; anything allowed
+	(dolist (i '(eq.armour eq.cloak eq.shield eq.head eq.glove eq.feet))
+	  (when-bind (obj (item-table-find pl-eqp i))
+	    (incf weight (object.weight obj))))
+
+	(let ((factor (int-/ (- weight allowed-weight) 10)))
+	  ;;(warn "Weight ~s and factor ~s" weight factor)
+	  (when (plusp factor)
+	    (decf new-mana factor)))
+
+	))
+
+    (when (minusp new-mana) ;; never negative
+      (setf new-mana 0))
+    
     (setf (maximum-mana player) new-mana)
+
+    (when (> (current-mana player) new-mana)
+      (setf (current-mana player) new-mana))
     
-    ;; skip gloves
-    ;; skip weight
+    (when (/= old-mana new-mana)
+      (bit-flag-add! *redraw* +print-mana+))
     
-      
     t))
 
 
-(defun define-spell (name id &key effect-type effect)
+(defun define-spell (name id &key effect-type effect numeric-id)
   "Defines and registers a new spell."
 
   (assert (stringp name))
@@ -112,6 +141,9 @@ the Free Software Foundation	 ; either version 2 of the License, or
   (let ((variant *variant*)
 	(spell (make-instance 'magic-spell :name name :id id)))
 
+    (when (integerp numeric-id)
+      (setf (spell.numeric-id spell) numeric-id))
+    
     (when (and effect (functionp effect))
       (setf (spell.effect spell) (compile nil effect)))
 
@@ -351,10 +383,11 @@ as target."
     (let ((spell-id (get-spell-id spell))
 	  (spell-arr (class.spells (player.class player))))
       
-      (loop for x across spell-arr
-	    do
-	    (when (equal spell-id (spell.id x))
-	      (return-from get-spell-data x)))
+      (when (vectorp spell-arr) ;; hack
+	(loop for x across spell-arr
+	      do
+	      (when (equal spell-id (spell.id x))
+		(return-from get-spell-data x))))
       
       nil)))
 
@@ -611,7 +644,8 @@ returns T if the player knows the spell."
   ;; red for difficult
   ;; l-dark for unreadable
   (let ((colour +term-white+)
-	(comment ""))
+	(comment "")
+	(spells (spellbook.spells spellbook)))
 
     (put-coloured-line! +term-white+ "" x y)
     (put-coloured-line! +term-white+ "" x (1+ y))
@@ -622,7 +656,7 @@ returns T if the player knows the spell."
     (put-coloured-str! +term-white+ "Lv Mana Fail Info" (+ x 35) y)
     
     (loop for i from 0
-	  for spell across (spellbook.spells spellbook)
+	  for spell across spells
 	  do
 	  (let ((spell-data (get-spell-data player spell))
 		(row (+ y i 1)))
@@ -802,31 +836,206 @@ returns T if the player knows the spell."
 	    ))
     retval))
 
-;; this one uses radius, not panel
-;; fix it to use center-x and center-y instead of using the distance flag!
-(defun detect-invisible! (dungeon player center-x center-y radius)
-  (declare (ignore center-x center-y)) ;; remove ignore
-  (let ((success nil))
-    (dolist (mon (dungeon.monsters dungeon))
-      (when (creature-alive? mon)
-	(let ((mx (location-x mon))
-	      (my (location-y mon)))
-	  (when (and (< (amon.distance mon) radius)
-		     (panel-contains? player mx my))
-	    (when (has-ability? (amon.kind mon) '<invisible>)
-	      ;; skip lore
-	      ;; skip recall
-	      (bit-flag-add! (amon.vis-flag mon) #.(logior +monster-flag-mark+ +monster-flag-show+))
-	      (update-monster! *variant* mon nil)
-	      (setf success t)
-	      ))
-	  )))
 
-    (when success
-      (print-message! "You detect invisible creatures!"))
+(defun detect-invisible! (dungeon player source &optional (radius +default-detect-radius+))
+  (declare (ignore source))
+  (let ((detected-any nil))
+    (apply-effect-to-area dungeon
+			  (- (location-x player) radius)
+			  (- (location-y player) radius)
+			  (* radius 2) (* radius 2)
+			  #'(lambda (coord x y)
+			      (declare (ignore x y))
+			      (when-bind (monsters (coord.monsters coord))
+				(dolist (i monsters)
+				  (when (has-ability? (amon.kind i) '<invisible>)
+				    (add-monster-knowledge-flag! player i '<invisible>)
+				    (bit-flag-add! (amon.vis-flag i)
+						   #.(logior +monster-flag-mark+ +monster-flag-show+))
+				    (setf detected-any t)
+				    (update-monster! *variant* i nil))))))
+    (when detected-any
+       (print-message! "You detect invisible creatures!"))
+    
+    detected-any))
 
-    success))
+(defun detect-evil-monsters! (dungeon player source &optional (radius +default-detect-radius+))
+  (declare (ignore source))
+  (let ((detected-any nil))
+    (apply-effect-to-area dungeon
+			  (- (location-x player) radius)
+			  (- (location-y player) radius)
+			  (* radius 2) (* radius 2)
+			  #'(lambda (coord x y)
+			      (declare (ignore x y))
+			      (when-bind (monsters (coord.monsters coord))
+				(dolist (i monsters)
+				  (when (eq (monster.alignment (amon.kind i)) '<evil>)
+				    (add-monster-knowledge-flag! player i '<evil>)
+				    (bit-flag-add! (amon.vis-flag i)
+						   #.(logior +monster-flag-mark+ +monster-flag-show+))
+				    (setf detected-any t)
+				    (update-monster! *variant* i nil))))))
+    (when detected-any
+       (print-message! "You sense the presence of evil creatures!"))
+    
+    detected-any))
+
+
+(defun detect-monsters! (dungeon player source &optional (radius +default-detect-radius+))
+  (declare (ignore source))
   
+   (let ((detected-any nil))
+
+     (apply-effect-to-area dungeon
+			   (- (location-x player) radius)
+			   (- (location-y player) radius)
+			   (* radius 2) (* radius 2)
+			   #'(lambda (coord x y)
+			       (declare (ignore x y))
+			       (when-bind (monsters (coord.monsters coord))
+				 (dolist (i monsters)
+				   (unless (has-ability? (amon.kind i) '<invisible>)
+				     (bit-flag-add! (amon.vis-flag i)
+						    #.(logior +monster-flag-mark+ +monster-flag-show+))
+				     (setf detected-any t)
+				     (update-monster! *variant* i nil))))))
+     (when detected-any
+       (print-message! "You sense the presence of monsters!"))
+
+     detected-any))
+
+(defun detect-traps! (dungeon player source &optional (radius +default-detect-radius+))
+  (declare (ignore source))
+  
+   (let ((detected-any nil))
+
+     (apply-effect-to-area dungeon
+			   (- (location-x player) radius)
+			   (- (location-y player) radius)
+			   (* radius 2) (* radius 2)
+			   #'(lambda (coord x y)
+			       (when-bind (decor (coord.decor coord))
+				 (when (is-trap? decor)
+				   (bit-flag-add! (coord.flags coord) +cave-mark+)
+				   (make-trap-visible! decor dungeon x y)
+				   (setf detected-any t)))
+			       ))
+     
+				 
+     (when detected-any
+       (print-message! "You sense the presence of traps!"))
+
+     detected-any))
+
+(defun detect-doors! (dungeon player source &optional (radius +default-detect-radius+))
+  (declare (ignore source))
+  
+   (let ((detected-any nil))
+
+     (apply-effect-to-area dungeon
+			   (- (location-x player) radius)
+			   (- (location-y player) radius)
+			   (* radius 2) (* radius 2)
+			   #'(lambda (coord x y)
+			       (when-bind (decor (coord.decor coord))
+				 (when (is-door? decor)
+				   (bit-flag-add! (coord.flags coord) +cave-mark+)
+				   (make-door-visible! decor dungeon x y)
+				   (setf detected-any t)))
+			       ))
+     
+				 
+     (when detected-any
+       (print-message! "You sense the presence of doors!"))
+
+     detected-any))
+
+(defun detect-stairs! (dungeon player source &optional (radius +default-detect-radius+))
+  (declare (ignore source))
+  
+   (let ((detected-any nil))
+
+     (apply-effect-to-area dungeon
+			   (- (location-x player) radius)
+			   (- (location-y player) radius)
+			   (* radius 2) (* radius 2)
+			   #'(lambda (coord x y)
+			       (when-bind (floor (coord.floor coord))
+				 (when (and (typep floor 'floor-type)
+					    (or (= (floor.numeric-id floor) 77)
+						(= (floor.numeric-id floor) 78)))
+				   (bit-flag-add! (coord.flags coord) +cave-mark+)
+				   (light-spot! dungeon x y)
+				   (setf detected-any t)))
+			       ))
+     
+				 
+     (when detected-any
+       (print-message! "You sense the presence of stairs!"))
+
+     detected-any))
+
+
+(defun detect-gold! (dungeon player source &optional (radius +default-detect-radius+))
+  (declare (ignore source))
+  
+   (let ((detected-any nil))
+
+     (apply-effect-to-area dungeon
+			   (- (location-x player) radius)
+			   (- (location-y player) radius)
+			   (* radius 2) (* radius 2)
+			   #'(lambda (coord x y)
+			       (when-bind (objs (coord.objects coord))
+				 (dolist (obj (items.objs objs))
+				   (when (typep obj 'active-object/money)
+				     (setf (aobj.marked obj) t)
+				     ;;(bit-flag-add! (coord.flags coord) +cave-mark+)
+				     (light-spot! dungeon x y)
+				     (setf detected-any t)))
+				 )))
+     
+				 
+     (when detected-any
+       (print-message! "You sense the presence of treasure!"))
+
+     detected-any))
+
+(defun detect-normal-objects! (dungeon player source &optional (radius +default-detect-radius+))
+  (declare (ignore source))
+  
+   (let ((detected-any nil))
+
+     (apply-effect-to-area dungeon
+			   (- (location-x player) radius)
+			   (- (location-y player) radius)
+			   (* radius 2) (* radius 2)
+			   #'(lambda (coord x y)
+			       (when-bind (objs (coord.objects coord))
+				 (dolist (obj (items.objs objs))
+				   (unless (typep obj 'active-object/money)
+				     (setf (aobj.marked obj) t)
+				     ;;(bit-flag-add! (coord.flags coord) +cave-mark+)
+				     (light-spot! dungeon x y)
+				     (setf detected-any t)))
+				 )))
+     
+				 
+     (when detected-any
+       (print-message! "You sense the presence of objects!"))
+
+     detected-any))
+
+(defun detect-all! (dungeon player source &optional (radius +default-detect-radius+))
+  (detect-traps! dungeon player source radius)
+  (detect-doors! dungeon player source radius)
+  (detect-stairs! dungeon player source radius)
+  (detect-gold! dungeon player source radius)
+  (detect-normal-objects! dungeon player source radius)
+  (detect-invisible! dungeon player source radius)
+  (detect-monsters! dungeon player source radius)
+  t)
 
 ;; FIX for type '<powerful>
 (defun interactive-identify-object! (dungeon player &key (type '<normal>))

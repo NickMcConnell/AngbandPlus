@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/levels.lisp - level customisation for Vanilla
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ the Free Software Foundation; either version 2 of the License, or
     t))
 
 
-(defun %van-visit-shop (dungeon x y house-num)
+(defun van/visit-shop (dungeon x y house-num)
   "Visits shop.."
   (declare (ignore dungeon x y))
 ;;  (warn "triggered..")
@@ -153,102 +153,91 @@ the Free Software Foundation; either version 2 of the License, or
 argument is non-NIL it will be re-used and returned as
 part of the new level."
 
-  (let ((which-town (get-information "which-town" :default "vanilla")))
-
-    (cond ((equal which-town "bartertown")
-	   (let ((dungeon (read-map variant "variants/contraband/maps/towns.lmap"))
-		 (x 7)
-		 (y 7))
-	     
-	     (setf (level.dungeon level) dungeon)
-	     (setf (cave-floor dungeon x y) (get-floor-type "stair-down"))
-	     (place-player! dungeon player x y)))
-
-	  ((equal which-town "vanilla")
-
-	   (let* ((*level* level)
-		  ;;	 (var-obj *variant*)
-		  (settings (get-setting variant :random-level)) ;; hack
-		  (max-dungeon-width  (slot-value settings 'max-width))
-		  (max-dungeon-height (slot-value settings 'max-height))
-		  (dungeon (create-dungeon max-dungeon-width
-					   max-dungeon-height
-					   :its-depth 0))
-		  ;;(term-height (get-frame-height *map-frame*))
-		  ;;(term-width (get-frame-width *map-frame*))
-		  (town-height 22)
-		  (town-width 66)
-		  (qy 0)
-		  (qx 0)
-		  ;;	 (build-stores nil) ;; for testing
-		  (build-stores t)
-		  )
-
-	     (declare (type u-fixnum qy qx))
-
-	     ;;    (warn "Generating town with random state equal to ~s" *random-state*)
+  (let* ((*level* level)
+	 ;;	 (var-obj *variant*)
+	 (settings (get-setting variant :random-level))	;; hack
+	 (max-dungeon-width  (slot-value settings 'max-width))
+	 (max-dungeon-height (slot-value settings 'max-height))
+	 (dungeon (create-dungeon max-dungeon-width
+				  max-dungeon-height
+				  :its-depth 0))
+	 ;;(term-height (get-frame-height *map-frame*))
+	 ;;(term-width (get-frame-width *map-frame*))
+	 (town-height 22)
+	 (town-width 66)
+	 (qy 0)
+	 (qx 0)
+	 ;;	 (build-stores nil) ;; for testing
+	 (build-stores t)
+	 )
     
-	     ;;    (setf (player.map player) (make-map dungeon))
+    (declare (type u-fixnum qy qx))
     
-	     (fill-dungeon-with-floor! dungeon "permanent-outer-wall")
+    ;;    (warn "Generating town with random state equal to ~s" *random-state*)
     
-	     (fill-dungeon-part-with-floor! dungeon "normal-floor"
-					    (cons 1 (1- town-width))
-					    (cons 1 (1- town-height)))
-
-	     (setf (level.dungeon level) dungeon)
+    ;;    (setf (player.map player) (make-map dungeon))
     
-	     (when build-stores
-	       ;; we need stores
-	       (let* ((y-offset 1)
-		      (x-offset 1)
-		      (store-num (level.num-stores level))
-		      (store-numbers (shuffle-array! (get-array-with-numbers store-num :fill-pointer t)
-						     store-num))
-		      ;;	   (stores (loop for x from 0 to (1- store-num) collecting (create-store (1+ x))))
-		      )
-
-		 ;; move actual stores to level object
-		 ;;      (warn "Stores is ~a" store-numbers)
-
-	    
-		 (dotimes (y 2)
-		   (dotimes (x 4)
-		     (let* ((house-num (1+ (vector-pop store-numbers)))
-			    (the-house (get-house house-num)))
-		       (when the-house
-			 (let ((x0 (+ x-offset (* x 14) 12))
-			       (y0 (+ y-offset (* y 9) 6))
-			       (shop-id (format nil "shop~d" house-num)))
-			   ;;(warn "building ~s [~a]" the-house house-num)
-			   (build-house! level the-house x0 y0
-					 :door-feature (get-floor-type shop-id)
-					 ;;(get-door variant "closed-door") ;; fix this to a proper door later
-					 :door-trigger (make-coord-event (format nil "house-event-~d" house-num)
-									 #'%van-visit-shop house-num))
-			   ;;	(warn "Entering shop ~a, ~a" house-num the-house)))
-			   )))
-		     ))))
-
+    (fill-dungeon-with-floor! dungeon "permanent-outer-wall")
     
-	     ;; this is just wrong!
-	     (loop named place-the-player
-		   for x of-type u-fixnum = (with-type u-fixnum (+ qx (rand-range 3 (- max-dungeon-width 4))))
-		   for y of-type u-fixnum = (with-type u-fixnum (+ qy (rand-range 3 (- max-dungeon-height 4))))
-		   do
-		   (when (can-place? dungeon x y :stair)
-		     (setf (cave-floor dungeon x y) (get-floor-type "stair-down"))
-		     (place-player! dungeon player x y)
-		     (return-from place-the-player nil)))
+    (fill-dungeon-part-with-floor! dungeon "normal-floor"
+				   (cons 1 (1- town-width))
+				   (cons 1 (1- town-height)))
+    
+    (setf (level.dungeon level) dungeon)
+    
+    (when build-stores
+      ;; we need stores
+      (let* ((y-offset 1)
+	     (x-offset 1)
+	     (store-num (level.num-stores level))
+	     (store-numbers (shuffle-array! (get-array-with-numbers store-num :fill-pointer t)
+					    store-num))
+	     ;;	   (stores (loop for x from 0 to (1- store-num) collecting (create-store (1+ x))))
+	     )
+	
+	;; move actual stores to level object
+	;;      (warn "Stores is ~a" store-numbers)
 
-	     ))
+	
+	(dotimes (y 2)
+	  (dotimes (x 4)
+	    (let* ((house-num (1+ (vector-pop store-numbers)))
+		   (the-house (get-house house-num)))
+	      (when the-house
+		(let ((x0 (+ x-offset (* x 14) 12))
+		      (y0 (+ y-offset (* y 9) 6))
+		      (shop-id (format nil "shop~d" house-num)))
+		  ;;(warn "building ~s [~a]" the-house house-num)
+		  (build-house! level the-house x0 y0
+				:door-feature (get-floor-type shop-id)
+				;;(get-door variant "closed-door") ;; fix this to a proper door later
+				:door-trigger (make-coord-event (format nil "house-event-~d" house-num)
+								#'van/visit-shop house-num))
+		  ;;	(warn "Entering shop ~a, ~a" house-num the-house)))
+		  )))
+	    ))))
+    
+    ;; time to check that the shops are kosher
+    (dotimes (i 8)
+      (let ((house (get-house (1+ i))))
+	(unless (activated? house)
+	  (activate-object house))
 
-
-	  (t
-	   (warn "Uknown town '~a' requested." which-town)))
-   
-	     
-  level))
+	(when (and (is-store? house) (store-empty? variant house))
+	  (equip-store! variant house))))
+    
+    
+    ;; this is just wrong!
+    (loop named place-the-player
+	  for x of-type u-fixnum = (with-type u-fixnum (+ qx (rand-range 3 (- max-dungeon-width 4))))
+	  for y of-type u-fixnum = (with-type u-fixnum (+ qy (rand-range 3 (- max-dungeon-height 4))))
+	  do
+	  (when (can-place? dungeon x y :stair)
+	    (setf (cave-floor dungeon x y) (get-floor-type "stair-down"))
+	    (place-player! dungeon player x y)
+	    (return-from place-the-player nil)))
+    
+    level))
 
 (defun van-make-town-level-obj (variant player)
   "A sucky function which should be simplified greatly."
@@ -310,7 +299,20 @@ part of the new level."
 	 (time-of-day (if (< mod-time (variant.twilight var-obj))
 			  'day
 			  'night)))
-	 
+
+    ;; we need to ensure that shop-triggers are placed
+    (with-dungeon (dungeon (coord x y))
+      (let* ((floor (coord.floor coord))
+	     (num-id (floor.numeric-id floor)))
+	(when (and (> num-id 700)
+		   (< num-id 709))
+	  (let ((trigger (get-coord-trigger dungeon x y))
+		(house-num (- num-id 700)))
+	    (unless trigger
+	      ;;(warn "Making trigger for ~s" house-num) 
+	      (setf (get-coord-trigger dungeon x y)
+		    (make-coord-event (format nil "house-event-~d" house-num)
+				      #'van/visit-shop house-num)))))))
 
     ;; hackish
     (let ((resident-num (if (eq time-of-day 'day) 4 8)))
@@ -320,14 +322,12 @@ part of the new level."
 	(allocate-monster! var-obj dungeon player 3 t)))
 
     ;; only light up vanilla town
-    (unless (equal (get-information "which-town" :default "vanilla")
-		   "bartertown")
-      (van-town-illuminate! dungeon player time-of-day))
+    (van/town-illuminate! dungeon player time-of-day)
 
-    ))
+    level))
 
 
-(defun van-town-illuminate! (dungeon player time-of-day)
+(defun van/town-illuminate! (dungeon player time-of-day)
   "Illuminates the town according to the time-of-day."
   (declare (ignore player))
   
@@ -354,7 +354,10 @@ part of the new level."
 
 
   )
-	 
+
+(defmethod generate-level! ((variant vanilla-variant) (level random-level) player)
+  (call-next-method))
+
 
 ;; this one does the job for all.. only one table for objects in vanilla
 (defmethod get-otype-table ((var-obj vanilla-variant) level)
@@ -374,3 +377,25 @@ part of the new level."
 (defmethod get-floor ((variant vanilla-variant) key)
   (gethash key (variant.floor-types variant)))
    
+(defmethod register-level! ((var-obj vanilla-variant) (id string) &key ego-filter &allow-other-keys)
+
+  (call-next-method)
+
+  ;; do the ego-table
+
+  (let ((ego-table (make-game-obj-table)))
+    
+    (setf (gobj-table.obj-table ego-table) (make-hash-table :test #'equal))
+
+    (setf (gethash id (variant.ego-items-by-level var-obj)) ego-table)
+
+    (when ego-filter
+      (if (not (functionp ego-filter))
+	  (lang-warn "Ego-filter ~s for level ~s is not a function." ego-filter id)
+	  (pushnew (cons id ego-filter)
+		   (gethash :ego-items (variant.filters var-obj))
+		   :key #'car)))
+
+    
+    t))
+  

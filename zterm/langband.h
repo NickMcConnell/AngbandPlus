@@ -118,6 +118,10 @@
 # define L64
 #endif
 
+#if !defined(NeXT) && !defined(__MWERKS__) && !defined(ACORN)
+# include <fcntl.h>
+#endif
+
 
 #include <stdio.h>
 #include <ctype.h>
@@ -128,6 +132,9 @@
 # include <stdlib.h>
 #endif
 
+#if defined(unix) || defined(DARWIN)
+#include <unistd.h>
+#endif
 
 #include <time.h>
 #include <string.h>
@@ -148,79 +155,14 @@
  *
  * Note that on some machines, apparently "signed char" is illegal.
  *
- * A char/byte takes exactly 1 byte
  * A s16b/u16b takes exactly 2 bytes
  * A s32b/u32b takes exactly 4 bytes
- *
- * A sint/uint takes at least 2 bytes
- * A long/huge takes at least 4 bytes
- *
- * Note that some files have already been included by "h-include.h"
- * These include <stdio.h> and <sys/types>, which define some types
- * In particular, "bool", "byte", "uint", and "huge" may be defined
- * already, possibly using "typedefs" of various kinds, and possibly
- * being defined to something other than required by my code.  So we
- * simply redefine them all using a stupid "_hack" suffix.
  *
  * Also, see <limits.h> for min/max values for sint, uint, long, huge
  * (INT_MIN, INT_MAX, 0, UINT_MAX, LONG_MIN, LONG_MAX, 0, ULONG_MAX).
  * These limits should be verified and coded into "h-constant.h", or
  * perhaps not, since those types have "unknown" length by definition.
  */
-
-
-
-/*
- * Hack -- prevent problems with non-MACINTOSH
- */
-#undef uint
-#define uint uint_hack
-
-/*
- * Hack -- prevent problems with MSDOS and WINDOWS
- */
-#undef huge
-#define huge huge_hack
-
-/*
- * Hack -- prevent problems with AMIGA
- */
-#undef byte
-#define byte byte_hack
-
-/*
- * Hack -- prevent problems with C++
- */
-#undef bool
-#define bool bool_hack
-
-
-/* Note that "signed char" is not always "defined" */
-/* So always use "s16b" to hold small signed values */
-/* A signed byte of memory */
-/* typedef signed char syte; */
-
-/* Note that unsigned values can cause math problems */
-/* An unsigned byte of memory */
-typedef unsigned char byte;
-
-/* Note that a bool is smaller than a full "int" */
-/* Simple True/False type */
-typedef char bool;
-
-
-/* A signed, standard integer (at least 2 bytes) */
-typedef int sint;
-
-/* An unsigned, "standard" integer (often pre-defined) */
-typedef unsigned int uint;
-
-
-/* The largest possible signed integer (pre-defined) */
-/* typedef long long; */
-
-/* The largest possible unsigned integer */
-typedef unsigned long huge;
 
 
 /* Signed/Unsigned 16 bit value */
@@ -237,8 +179,6 @@ typedef unsigned long u32b;
 #endif
 
 
-
-
 /*** Pointers to Functions of special types (for various purposes) ***/
 
 typedef enum {
@@ -248,6 +188,7 @@ typedef enum {
     LISPSYS_LISPWORKS = 3,
     LISPSYS_SBCL      = 4,
     LISPSYS_CORMAN    = 5,
+    LISPSYS_OPENMCL   = 6,
     LISPSYS_BAD       = 20
 } LISP_SYSTEMS;
 
@@ -283,19 +224,6 @@ typedef enum {
 #endif /* NULL */
 
 
-
-/*
- * The constants "TRUE" and "FALSE"
- */
-
-#undef TRUE
-#define TRUE	1
-
-#undef FALSE
-#define FALSE	0
-
-
-
 /*
  * OPTION: Use "blocking getch() calls" in "main-gcu.c".
  * Hack -- Note that this option will NOT work on many BSD machines
@@ -306,6 +234,12 @@ typedef enum {
 # define USE_GETCH
 #endif
 
+/* langband-specific hack */
+
+#ifdef linux
+#define USE_GETCH
+#define USE_CURS_SET
+#endif
 
 /*
  * OPTION: Use the "curs_set()" call in "main-gcu.c".
@@ -522,8 +456,8 @@ typedef struct FontData FontData; /* must be here to avoid fwd. ref. */
 typedef struct graf_tiles graf_tiles; 
 typedef struct tile_information TileInformation;
 
-FontData *load_hex_font(const char *filename, bool justmetrics);
-//int load_HEX_font_sdl(FontData *fd, const char *filename, bool justmetrics);
+FontData *load_hex_font(const char *filename, int justmetrics);
+//int load_HEX_font_sdl(FontData *fd, const char *filename, int justmetrics);
 int strtoii(const char *str, Uint32 *w, Uint32 *h);
 
 #ifdef ALLOW_TTF
@@ -545,7 +479,14 @@ extern int sdl_switch_terms(int bigterm);
 //extern int sdl_term_gfx_use_p(term *t);
 extern int sdl_swap_map();
 
+extern int sdl_loadTexture(int idx, const char *filename, int target_width, int target_height, int alpha);
 extern int sdl_getEvent(int option);
+extern int sdl_getImageWidth(int idx);
+extern int sdl_getImageHeight(int idx);
+extern int sdl_transparentBlit(short win_num, short x, short y, unsigned int img, short flags);
+extern int sdl_fullBlit(short win_num, short x, short y, unsigned int img, short flags);
+extern int sdl_clearCoords(short win_num, short x, short y, short w, short h);
+extern int sdl_flushCoords(short win_num, short x, short y, short w, short h);
 
 extern SDL_Color color_data_sdl[16];
 
@@ -554,6 +495,11 @@ extern SDL_Color color_data_sdl[16];
 #ifdef USE_GCU
 
 extern int gcu_switch_terms(int bigterm);
+extern int gcu_getEvent(int option);
+extern int gcu_fullBlit(short win_num, short x, short y, unsigned int img, short flags);
+extern int gcu_transparentBlit(short win_num, short x, short y, unsigned int img, short flags);
+extern int gcu_clearCoords(short win_num, short x, short y, short w, short h);
+extern int gcu_flushCoords(short win_num, short x, short y, short w, short h);
 
 #endif /* use gcu */
 

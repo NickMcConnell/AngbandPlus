@@ -268,57 +268,56 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
 (defmethod initialise-monster-kind! ((var-obj variant) (m-obj monster-kind) keyword-args)
   (let ((id (monster.id m-obj)))
-	 
+
+    (when-bind (numeric-id (getf keyword-args :numeric-id))
+      (if (integerp numeric-id)
+	  (setf (monster.numeric-id m-obj) numeric-id)
+	  (warn "Monster ~s does not have a numeric-id" id)))
+    
+    (when-bind (desc (getf keyword-args :desc))
+      (if (stringp desc)
+	  (setf (monster.desc m-obj) desc)
+	  (warn "No description for monster ~a found" id)))
+      
+    (when-bind (xp (getf keyword-args :xp))
+      (check-type xp integer)
+      (setf (monster.xp m-obj) xp))
+    
+    (when-bind (speed (getf keyword-args :speed))
+      (check-type speed integer)
+      (setf (monster.speed m-obj) speed))
+    
+    (when-bind (armour (getf keyword-args :armour))
+      (check-type armour integer)
+      (setf (monster.armour m-obj) armour))
+
+    (when-bind (hitpoints (getf keyword-args :hitpoints))
+      (setf (monster.hitpoints m-obj) hitpoints))
+
+    (when-bind (gender (getf keyword-args :gender))
+      (setf (monster.gender m-obj) gender))
+    
+    (when-bind (alignment (getf keyword-args :alignment))
+      (setf (monster.alignment m-obj) alignment))
+
+
     ;; maybe move alignment to variant
-    (destructuring-bind (&key numeric-id desc x-char x-attr
-			      (text-char :unspec) (text-attr :unspec)
-			      xp speed hitpoints armour (type :unspec)
-			      alignment gender depth rarity
+    (destructuring-bind (&key x-char x-attr (text-char :unspec)
+			      (text-attr :unspec) (type :unspec)  
 			      abilities alertness (immunities :unspec)
 			      vulnerabilities vision attacks special-abilities
 			      (treasures :unspec) (appear-in-group? :unspec)
 			      &allow-other-keys)
 	keyword-args
-    
-      (if (integerp numeric-id)
-	  (setf (monster.numeric-id m-obj) numeric-id)
-	  (warn "Monster ~s does not have a numeric-id" id))
 
-      (if (stringp desc)
-	  (setf (monster.desc m-obj) desc)
-	  (warn "No description for monster ~a found" id))
+      (update-monster-display m-obj :x-attr x-attr :x-char x-char
+			      :text-attr text-attr :text-char text-char)
 
-      (update-monster-display m-obj :x-attr x-attr :x-char x-char :text-attr text-attr :text-char text-char)
-
-      (when xp
-	(setf (monster.xp m-obj) xp))
-      (when speed
-	(setf (monster.speed m-obj) speed))
-      (when hitpoints
-	(setf (monster.hitpoints m-obj) hitpoints))
-      (when armour
-	(setf (monster.armour m-obj) armour))
       (cond ((eq :unspec type))
 	    ((listp type)
 	     (setf (monster.type m-obj) type))
 	    (t
 	     (error "Unknown type-info for monster-kind ~a" id)))
-      (when alignment
-	(setf (monster.alignment m-obj) alignment))
-      (when gender
-	(setf (monster.gender m-obj) gender))
-
-      (cond ((and depth (typep depth '(integer 0 *)))
-	     (setf (monster.depth m-obj) depth))
-	    (t
-	     (lang-warn "Given illegal depth-value ~s for monster ~s" depth id)
-	     (setf (monster.depth m-obj) 1))) ;; hack
-
-      (if (and rarity (typep rarity '(integer 0 *))) 
-	  (setf (monster.rarity m-obj) rarity)
-	  (progn
-	    (lang-warn "Given illegal rarity-value ~s for monster ~s" rarity id)
-	    (setf (monster.rarity m-obj) 1))) ;; hack
 
       (when abilities
 	(setf (monster.abilities m-obj) abilities))

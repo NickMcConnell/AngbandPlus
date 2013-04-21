@@ -370,9 +370,9 @@ the Free Software Foundation; either version 2 of the License, or
  
   :stat-changes '((<str> +1) (<int> +2) (<wis> +2)
 		  (<dex> +2) (<con> +3) (<chr> +2))
-  :abilities '(
-	       (<sustain> <con>)
-	       )
+  :stat-sustains '(<con>)
+  :abilities nil
+  
   :classes t
   
   :skills '((<disarming> 4 0)

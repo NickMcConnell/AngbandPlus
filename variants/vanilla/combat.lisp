@@ -61,6 +61,81 @@ the Free Software Foundation; either version 2 of the License, or
 
     did-target-die?))
 
+(defmethod throw-object ((variant vanilla-variant) (player player) (obj active-object) tx ty)
+  
+  (let* ((dungeon *dungeon*)
+	 (pvx (location-x player))
+	 (pvy (location-y player))
+	 (mul 10)
+	 (div (if (> (object.weight obj) 10) (object.weight obj) 10)) ;; minimum 10
+	 (max-range (int-/ (* mul (+ 20 (get-stat-info-value variant player
+							     '<str> :blow-table)))
+			   div))
+	 (path-arr (make-array (1+ max-range) :fill-pointer 0))
+	 (path-len (project-path dungeon max-range path-arr pvx pvy tx ty 0))
+	 (cur-x pvx)
+	 (cur-y pvy)
+	 )
+    
+    (declare (ignore path-len))
+    
+    
+    (loop named follow-path
+	  for g across path-arr
+	  do
+	  (let ((x (grid-x g))
+		(y (grid-y g))
+		;;(old-x cur-x)
+		;;(old-y cur-y)
+		)
+	    
+	    (setq cur-x x
+		  cur-y y)
+	    
+	    (unless (cave-floor-bold? dungeon x y)
+	      (return-from follow-path nil))
+
+	    ;; do better check on getting this.. 
+	    (display-moving-object dungeon x y (text-sym obj) (gfx-sym obj))
+	      
+	    (when-bind (monsters (cave-monsters dungeon x y))
+	      (let* ((fmon (if (consp monsters) (car monsters) monsters))
+		     (mon-name (get-creature-name fmon)))
+		;; lots of work goes here
+		;;(warn "hit a dumb monster ~s" mon-name)
+
+		(when (< (random 100) 50) ;; fix me
+		      
+		  (format-message! "The ~a was hit." mon-name)
+		  
+		  (deduct-hp! fmon (randint 6)) ;; fix me
+		  
+		  (when (< (current-hp fmon) 0)
+		    (format-message! "The ~a died." mon-name)
+		    (let ((target-xp (get-xp-value fmon)))
+		      (alter-xp! player (if target-xp target-xp 0)))
+		    (kill-target! dungeon player fmon x y)
+		    ;; repaint spot
+		    (light-spot! dungeon x y))
+		  
+		  (return-from follow-path nil))
+		
+		))
+
+	    
+	    ;;(warn "We're at ~s,~s" x y)
+	    
+	    
+	    ))
+    
+    (when obj ;; might be crushed
+      (drop-near-location! variant dungeon obj cur-x cur-y)
+      (on-drop-object variant player obj))
+    
+    (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+)
+
+    t))
+  
 ;; move somewhere else later
 (defmethod shoot-a-missile ((dungeon dungeon) (player player)
 			    (missile-weapon active-object/bow)

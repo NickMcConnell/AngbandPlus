@@ -25,11 +25,11 @@ the Free Software Foundation; either version 2 of the License, or
   nil)
 
 (defun define-door-type (id name &key x-char x-attr text-char text-attr
-			 num-idx effect min-depth max-depth rarity
+			 numeric-id effect min-depth max-depth rarity
 			 cave-flags-on cave-flags-off)
   "Defines and registers a door-type."
   
-  (declare (ignore num-idx effect min-depth max-depth rarity))
+  (declare (ignore numeric-id effect min-depth max-depth rarity))
   
   (unless (verify-id id)
     (warn "door-id ~s not valid" id)
@@ -72,6 +72,13 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod text-sym ((obj active-door))
   (text-sym (decor.type obj)))
 
+(defun is-door? (obj)
+  (typep obj 'active-door))
+
+(defun make-door-visible! (the-door dungeon x y)
+  (setf (decor.visible? the-door) t)
+  (light-spot! dungeon x y))
+
 (defmethod get-door (variant key &key (visible t))
   (let ((door-type (gethash key (variant.doors variant))))
     (when door-type
@@ -99,7 +106,7 @@ the Free Software Foundation; either version 2 of the License, or
 					   :var-obj var-obj :selection :random)))
       (when (acceptable-owner? obj new-owner)
 	(setf (house.owner obj) new-owner))))
-  
+
   (cond ((acceptable-owner? obj)
 	 (return-from activate-object obj))
 	(t
@@ -171,7 +178,7 @@ failure and owner on success."
 			       &key
 			       (door-feature nil)
 			       (door-trigger nil)
-			       )
+			       &allow-other-keys)
 
   (when level
 ;;    (warn "building house ~a on level ~a at [~a,~a]" house level topleft-x topleft-y)
@@ -247,12 +254,11 @@ failure and owner on success."
 
     house))
 
-(defun define-house (id &key name (type 'house) number x-attr x-char owner (no-items nil))
+(defun define-house (id &key name (type 'house) number owner (no-items nil))
   "defines a house and adds it to the appropriate table."
   
   (let ((var-obj *variant*)
-	(house (make-instance type :id id :name name :owner owner
-			      :x-attr x-attr :x-char x-char)))
+	(house (make-instance type :id id :name name :owner owner)))
 
     ;; hackish
     (unless no-items

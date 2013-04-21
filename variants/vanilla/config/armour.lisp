@@ -24,8 +24,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 3
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(3 0 0 0)
+  :locations '((3 . 1))
   :weight 20
   :cost 7
   :sort-value 3302
@@ -40,8 +39,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 5
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :locations '((5 . 1))
   :weight 40
   :cost 12
   :sort-value 3303
@@ -56,8 +54,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 20
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :locations '((20 . 1))
   :weight 80
   :cost 50
   :sort-value 3306
@@ -74,12 +71,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 3
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(3 0 0 0)
+  :locations '((3 . 1))
   :weight 15
   :cost 12
   :sort-value 3502
-  :the-kind '<headgear>
+  :the-kind '<helmet>
   :game-values (make-game-values :base-ac 2)) 
 
 (define-object-kind "metal-cap" "& metal cap~"
@@ -90,12 +86,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 10
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :locations '((10 . 1))
   :weight 20
   :cost 30
   :sort-value 3503
-  :the-kind '<headgear>
+  :the-kind '<helmet>
   :game-values (make-game-values :base-ac 3 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "iron-helm" "& iron helm~"
@@ -106,12 +101,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 20
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(20 0 0 0)
+  :locations '((20 . 1))
   :weight 75
   :cost 75
   :sort-value 3505
-  :the-kind '<headgear>
+  :the-kind '<helmet>
   :game-values (make-game-values :base-ac 5 :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "steel-helm" "& steel helm~"
@@ -122,12 +116,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 40
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(40 0 0 0)
+  :locations '((40 . 1))
   :weight 60
   :cost 200
   :sort-value 3506
-  :the-kind '<headgear>
+  :the-kind '<helmet>
   :game-values (make-game-values :base-ac 6 :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "iron-crown" "& iron crown~"
@@ -138,12 +131,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 45
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(45 0 0 0)
+  :locations '((45 . 1))
   :weight 20
   :cost 500
   :sort-value 3610
-  :the-kind '<headgear>
+  :the-kind '<crown>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "golden-crown" "& golden crown~"
@@ -154,12 +146,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 45
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(45 0 0 0)
+  :locations '((45 . 1))
   :weight 30
   :cost 1000
   :sort-value 3611
-  :the-kind '<headgear>
+  :the-kind '<crown>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
 
 (define-object-kind "jewel-crown" "& jewel encrusted crown~"
@@ -170,12 +161,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 50
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(50 0 0 0)
+  :locations '((50 . 1))
   :weight 40
   :cost 2000
   :sort-value 3612
-  :the-kind '<headgear>
+  :the-kind '<crown>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
 
 (define-object-kind "massive-iron-crown" "& massive iron crown~"
@@ -184,13 +174,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 44
   :rarity 0
-  :chance #(0 0 0 0)
-  :locale #(0 0 0 0)
   :weight 20
   :cost 1000
   :flags '(<instant-artifact>)
   :sort-value 3650
-  :the-kind '<headgear>
+  :the-kind '<crown>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 ;;; == bodywear
@@ -203,12 +191,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\(
   :depth 1
   :rarity 0
-  :chance #(1 1 0 0)
-  :locale #(1 50 0 0)
+  :locations '((1 . 1) (50 . 1))
   :weight 20
   :cost 4
   :sort-value 3902
-  :the-kind '<body-armour>
+  :the-kind '<soft-body-armour>
   :game-values (make-game-values :base-ac 2)) 
 
 (define-object-kind "filthy-rag" "& filthy rag~"
@@ -219,12 +206,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\(
   :depth 0
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(0 0 0 0)
+  :locations '((0 . 1))
   :weight 20
   :cost 1
   :sort-value 3901
-  :the-kind '<body-armour>
+  :the-kind '<soft-body-armour>
   :game-values (make-game-values :base-ac 1 :ac-modifier -1)) 
 
 (define-object-kind "soft-leather-armour" "soft leather armour~"
@@ -235,12 +221,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\(
   :depth 3
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(3 0 0 0)
+  :locations '((3 . 1))
   :weight 80
   :cost 18
   :sort-value 3904
-  :the-kind '<body-armour>
+  :the-kind '<soft-body-armour>
   :game-values (make-game-values :base-ac 4)) 
 
 (define-object-kind "soft-studded-leather" "soft studded leather~"
@@ -251,12 +236,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\(
   :depth 3
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(3 0 0 0)
+  :locations '((3 . 1))
   :weight 90
   :cost 35
   :sort-value 3905
-  :the-kind '<body-armour>
+  :the-kind '<soft-body-armour>
   :game-values (make-game-values :base-ac 5 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "hard-leather-armour" "hard leather armour~"
@@ -267,12 +251,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\(
   :depth 5
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(5 0 0 0)
+  :locations '((5 . 1))
   :weight 100
   :cost 150
   :sort-value 3906
-  :the-kind '<body-armour>
+  :the-kind '<soft-body-armour>
   :game-values (make-game-values :base-ac 6 :base-dice 1 :num-dice 1 :tohit-modifier -1)) 
 
 (define-object-kind "hard-studded-leather" "hard studded leather~"
@@ -283,12 +266,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\(
   :depth 10
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :locations '((10 . 1))
   :weight 110
   :cost 200
   :sort-value 3907
-  :the-kind '<body-armour>
+  :the-kind '<soft-body-armour>
   :game-values (make-game-values :base-ac 7 :base-dice 2 :num-dice 1 :tohit-modifier -1)) 
 
 (define-object-kind "leather-scale-mail" "leather scale mail~"
@@ -299,12 +281,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\(
   :depth 15
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
+  :locations '((15 . 1))
   :weight 140
   :cost 450
   :sort-value 3911
-  :the-kind '<body-armour>
+  :the-kind '<soft-body-armour>
   :game-values (make-game-values :base-ac 11 :base-dice 1 :num-dice 1 :tohit-modifier -1)) 
 
 (define-object-kind "metal-scale-mail" "metal scale mail~"
@@ -315,12 +296,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 25
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(25 0 0 0)
+  :locations '((25 . 1))
   :weight 250
   :cost 550
   :sort-value 4003
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 13 :base-dice 4 :num-dice 1 :tohit-modifier -2)) 
 
 (define-object-kind "chain-mail" "chain mail~"
@@ -331,12 +311,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 25
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(25 0 0 0)
+  :locations '((25 . 1))
   :weight 220
   :cost 750
   :sort-value 4004
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 14 :base-dice 4 :num-dice 1 :tohit-modifier -2)) 
 
 (define-object-kind "rusty-chain-mail" "rusty chain mail~"
@@ -347,12 +326,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 25
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(25 0 0 0)
+  :locations '((25 . 1))
   :weight 200
   :cost 550
   :sort-value 4001
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 14 :ac-modifier -8 :base-dice 4 :num-dice 1 :tohit-modifier -5)) 
 
 (define-object-kind "augm-chain-mail" "augmented chain mail~"
@@ -363,12 +341,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 30
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(30 0 0 0)
+  :locations '((30 . 1))
   :weight 270
   :cost 900
   :sort-value 4006
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 16 :base-dice 4 :num-dice 1 :tohit-modifier -2)) 
 
 (define-object-kind "bar-chain-mail" "bar chain mail~"
@@ -379,12 +356,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 35
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(35 0 0 0)
+  :locations '((35 . 1))
   :weight 280
   :cost 950
   :sort-value 4008
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 18 :base-dice 4 :num-dice 1 :tohit-modifier -2)) 
 
 (define-object-kind "metal-brigandine" "metal brigandine armour~"
@@ -395,12 +371,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 35
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(35 0 0 0)
+  :locations '((35 . 1))
   :weight 290
   :cost 1100
   :sort-value 4009
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 19 :base-dice 4 :num-dice 1 :tohit-modifier -3)) 
 
 (define-object-kind "partial-plate" "partial plate armour~"
@@ -411,12 +386,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 45
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(45 0 0 0)
+  :locations '((45 . 1))
   :weight 260
   :cost 1200
   :sort-value 4012
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 22 :base-dice 6 :num-dice 1 :tohit-modifier -3)) 
 
 (define-object-kind "metal-lamellar" "metal lamellar armour~"
@@ -427,12 +401,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 45
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(45 0 0 0)
+  :locations '((45 . 1))
   :weight 340
   :cost 1250
   :sort-value 4013
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 23 :base-dice 6 :num-dice 1 :tohit-modifier -3)) 
 
 (define-object-kind "full-plate" "full plate armour~"
@@ -443,12 +416,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 45
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(45 0 0 0)
+  :locations '((45 . 1))
   :weight 380
   :cost 1350
   :sort-value 4015
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 25 :base-dice 4 :num-dice 2 :tohit-modifier -3)) 
 
 (define-object-kind "ribbed-plate" "ribbed plate armour~"
@@ -459,15 +431,14 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 50
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(50 0 0 0)
+  :locations '((50 . 1))
   :weight 380
   :cost 1500
   :sort-value 4018
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 28 :base-dice 4 :num-dice 2 :tohit-modifier -3)) 
 
-(define-object-kind "adamantite-plater" "adamantite plate mail~"
+(define-object-kind "adamantite-plate" "adamantite plate mail~"
   :numeric-id 118
   :x-attr (tile-file 3)
   :x-char (tile-number 56)
@@ -475,12 +446,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 75
   :rarity 0
-  :chance #(8 0 0 0)
-  :locale #(75 0 0 0)
+  :locations '((75 . 8))
   :weight 420
   :cost 20000
   :sort-value 4030
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 40 :base-dice 4 :num-dice 2 :tohit-modifier -4 :ignores '(<acid>))) 
 
 (define-object-kind "mithril-plate" "mithril plate mail~"
@@ -491,12 +461,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 60
   :rarity 0
-  :chance #(4 0 0 0)
-  :locale #(60 0 0 0)
+  :locations '((60 . 4))
   :weight 300
   :cost 15000
   :sort-value 4025
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 35 :base-dice 4 :num-dice 2 :tohit-modifier -3 :ignores '(<acid>))) 
 
 (define-object-kind "mithril-chain-mail" "mithril chain mail~"
@@ -507,12 +476,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 55
   :rarity 0
-  :chance #(4 0 0 0)
-  :locale #(55 0 0 0)
+  :locations '((55 . 4))
   :weight 150
   :cost 7000
   :sort-value 4020
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 28 :base-dice 4 :num-dice 1 :tohit-modifier -1 :ignores '(<acid>))) 
 
 (define-object-kind "double-chain-mail" "double chain mail~"
@@ -523,12 +491,11 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 30
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(30 0 0 0)
+  :locations '((30 . 1))
   :weight 250
   :cost 850
   :sort-value 4007
-  :the-kind '<body-armour>
+  :the-kind '<hard-body-armour>
   :game-values (make-game-values :base-ac 16 :base-dice 4 :num-dice 1 :tohit-modifier -2)) 
 
 ;;; == handwear
@@ -541,8 +508,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\(
   :depth 1
   :rarity 0
-  :chance #(1 1 0 0)
-  :locale #(1 20 0 0)
+  :locations '((1 . 1) (20 . 1))
   :weight 10
   :cost 3
   :sort-value 3801
@@ -557,8 +523,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\(
   :depth 60
   :rarity 0
-  :chance #(4 0 0 0)
-  :locale #(60 0 0 0)
+  :locations '((60 . 4))
   :weight 5
   :cost 4000
   :sort-value 3806
@@ -573,8 +538,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 1
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(1 0 0 0)
+  :locations '((1 . 1))
   :weight 5
   :cost 3
   :sort-value 3401
@@ -589,8 +553,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 10
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :locations '((10 . 1))
   :weight 25
   :cost 35
   :sort-value 3402
@@ -605,8 +568,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\]
   :depth 50
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(50 0 0 0)
+  :locations '((50 . 1))
   :weight 40
   :cost 100
   :sort-value 3405
@@ -623,8 +585,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\)
   :depth 3
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(3 0 0 0)
+  :locations '((3 . 1))
   :weight 50
   :cost 30
   :sort-value 3702
@@ -639,8 +600,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\)
   :depth 15
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
+  :locations '((15 . 1))
   :weight 100
   :cost 120
   :sort-value 3704
@@ -655,8 +615,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\)
   :depth 10
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(10 0 0 0)
+  :locations '((10 . 1))
   :weight 65
   :cost 50
   :sort-value 3703
@@ -671,8 +630,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\)
   :depth 30
   :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(30 0 0 0)
+  :locations '((30 . 1))
   :weight 120
   :cost 200
   :sort-value 3705
@@ -687,8 +645,7 @@ the Free Software Foundation; either version 2 of the License, or
   :text-char #\[
   :depth 70
   :rarity 0
-  :chance #(8 0 0 0)
-  :locale #(70 0 0 0)
+  :locations '((70 . 8))
   :weight 100
   :cost 10000
   :sort-value 3710

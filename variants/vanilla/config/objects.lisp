@@ -14,6 +14,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
+;;; === Note ===
+;;; vanilla-specific treats
+;;; :depth is translated to power-lvl slot
+;;; chance and locale is translated to the locations slot as (locale . chance)
+
 (define-object-kind "pile" "<pile>"
   :numeric-id 0
   :text-attr #\w

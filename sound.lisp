@@ -14,36 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
-;;; these constants were snatched from the old defines.h
-;;; feel free to change them
-
-(defconstant +sound-hit+ 1)
-(defconstant +sound-miss+ 2)
-(defconstant +sound-flee+ 3)
-(defconstant +sound-drop+ 4)
-(defconstant +sound-kill+ 5)
-(defconstant +sound-level+ 6)
-(defconstant +sound-death+ 7)
-(defconstant +sound-study+ 8)
-(defconstant +sound-teleport+ 9)
-(defconstant +sound-shoot+ 10)
-(defconstant +sound-quaff+ 11)
-(defconstant +sound-zap+ 12)
-(defconstant +sound-walk+ 13)
-(defconstant +sound-tpother+ 14)
-(defconstant +sound-hitwall+ 15)
-(defconstant +sound-eat+ 16)
-(defconstant +sound-store1+ 17)
-(defconstant +sound-store2+ 18)
-(defconstant +sound-store3+ 19)
-(defconstant +sound-store4+ 20)
-(defconstant +sound-dig+ 21)
-(defconstant +sound-opendoor+ 22)
-(defconstant +sound-shutdoor+ 23)
-(defconstant +sound-tplevel+ 24)
-
-(defconstant +sound-intro+ 30)
-
 (defvar *sound-table* (make-hash-table :test #'equal))
 (defvar *music-table* nil)
 

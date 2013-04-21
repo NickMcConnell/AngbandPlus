@@ -142,6 +142,7 @@ and be constructed atop it.")
 (defconstant +store-maximum-items+ 18)
 (defconstant +store-minimum-items+ 6)
 (defconstant +store-turnover+ 9)
+(defconstant +max-itemstack-size+ 99)
 
 ;; make these into variables later.. 
 

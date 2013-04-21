@@ -24,14 +24,7 @@ the rest of the game is init'ed."
   (loop for i from 0
 	for x across *contraband-images*
 	do
-	(cond ((and (consp x) (stringp (second x)))
-	       (when (plusp (length (second x)))
-		 (load-image& var-obj x i #xffffff00)))
-	      ((and (stringp x) (= (length x) 0))
-	       nil)
-	      (t
-	       (error "Unknown image-spec ~s" x))))
-
+	(load-image-spec& var-obj i x))
   
   (pushnew (make-gender :id "male" :symbol '<male> :name "Male" :win-title "King")
 	   (variant.genders var-obj) :test #'eql :key #'gender.symbol)
@@ -102,6 +95,7 @@ the rest of the game is init'ed."
     (initialise-monsters& var-obj :file "townies")
     (initialise-monsters& var-obj :file "leaders")
     (initialise-objects& var-obj :file "objects")
+    (initialise-objects& var-obj :file "armour")
 
     ;; hack, done after objects and monsters are ok'ed.. maybe move to :after
     (load "variants/contraband/tasks/letters.lisp")
@@ -214,17 +208,19 @@ the rest of the game is init'ed."
   "Initialises values dealing with the equipment (sorting, worn slots)."
 
   (let ((equip-order '(
-		       (eq.lefthand  "Left Hand"     active-object/melee-weapon)
-		       (eq.righthand "Right Hand"    active-object/melee-weapon)
-		       (eq.l-ring    "On left hand"  active-object/ring)
-		       (eq.r-ring    "On right hand" active-object/ring)
-		       (eq.neck      "Around neck"   active-object/neckwear)
-		       (eq.armour    "On body"       active-object/body-armour)
-		       (eq.cloak     "About body"    active-object/cloak)
-		       (eq.head      "On head"       active-object/headgear)
-		       (eq.glove     "On hands"      active-object/gloves)
-		       (eq.feet      "On feet"       active-object/boots)
-		       (eq.backpack  "On back"       active-object/container t)
+		       (eq.lefthand    "Left Hand"              active-object/melee-weapon)
+		       (eq.righthand   "Right Hand"             active-object/melee-weapon)
+		       (eq.l-ring      "On left index finger"   active-object/ring)
+		       (eq.r-ring      "On right index finger"  active-object/ring)
+		       (eq.neck        "Around neck"            active-object/neckwear)
+		       (eq.head        "On head"                active-object/headgear) ;; 15%
+		       (eq.armour      "On body"                active-object/body-armour) ;; 50%
+		       (eq.cloak       "About body"             active-object/cloak) ;; bonus armour
+		       (eq.left-glove  "On left hand/forearm"   active-object/glove) ;; 5%
+		       (eq.right-glove "On right hand/forearm"  active-object/glove)  ;; 5%
+		       (eq.legs        "On legs"                active-object/legwear) ;; 15%
+		       (eq.feet        "On feet"                active-object/boots) ;; 10%
+		       (eq.backpack    "On back"                active-object/container t)
 		       )))
     
     (register-slot-order& var-obj equip-order))

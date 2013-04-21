@@ -19,6 +19,9 @@ all.  But I've tried to maintain a list.
 - Kevin Rosenberg for being invaluable aid in improving
   debian-packaging and getting langband into debian main.  
 
+- Andreas Fuchs for providing a patch that allows players to use
+  roguelike keyset.  See faq.html on how to enable.
+
 - Scott Holder for adding numeric-ids to all my monsters when I needed
   them and out of stupidity had forgotten to include them for backward
   compatibility to vanilla angband.  Lots of ugly grunt-work that

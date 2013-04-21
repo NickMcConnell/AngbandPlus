@@ -1,7 +1,7 @@
 
 #|
 
-DESC: lib/compat/savefiles.lisp - reads standard vanilla savefiles
+DESC: modules/compat/savefiles.lisp - reads standard vanilla savefiles
 Copyright (c) 2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify

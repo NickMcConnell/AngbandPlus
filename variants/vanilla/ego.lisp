@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/ego.lisp - ego-item code
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,42 +16,20 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;; Ego code
 
-(defclass ego-item ()
-  ((id          :accessor ego.id          :initform ""  :initarg :id)
-   (name        :accessor ego.name        :initform ""  :initarg :name)
-   (numeric-id  :accessor ego.numeric-id  :initform -1  :initarg :numeric-id)
-   (rating      :accessor ego.rating      :initform 0   :initarg :rating)
-   (xtra        :accessor ego.xtra        :initform 0   :initarg :xtra)
-   (max-to-hit  :accessor ego.max-to-hit  :initform 0   :initarg :max-to-hit)
-   (max-to-dmg  :accessor ego.max-to-dmg  :initform 0   :initarg :max-to-dmg)
-   (max-to-ac   :accessor ego.max-to-ac   :initform 0   :initarg :max-to-ac)
-   (pval        :accessor ego.pval        :initform 0   :initarg :pval)
-   (depth       :accessor ego.depth       :initform 0   :initarg :depth)
-   (rarity      :accessor ego.rarity      :initform 0   :initarg :rarity)
-   (cost        :accessor ego.cost        :initform 0   :initarg :cost)
-   (tval        :accessor ego.tval        :initform 0   :initarg :tval)
-   (min-sval    :accessor ego.min-sval    :initform 0   :initarg :min-sval)
-   (max-sval    :accessor ego.max-sval    :initform 0   :initarg :max-sval)
-   (flags       :accessor ego.flags       :initform '() :initarg :flags)
-   (game-values :accessor ego.game-values :initform nil :initarg :game-values)
-   ))
+(defun get-ego-item (variant id)
+  (etypecase id
+    (string (gethash id (variant.ego-items variant)))))
+
+(defun (setf get-ego-item) (value variant id)
+  (etypecase id
+    (string (setf (gethash id (variant.ego-items variant)) value))))
 
 
-;; remove later
-(defparameter *egos* (make-hash-table :test #'equal))
-
-(defun get-ego (numeric-id)
-  (gethash numeric-id *egos*))
-
-(defun (setf get-ego) (value numeric-id)
-  (setf (gethash numeric-id *egos*) value))
-
-
-(defun define-ego-item (id name &key (numeric-id :unspec) (rating :unspec)
+(defun define-ego-item (id name &key (numeric-id :unspec) (power-lvl :unspec)
 			(xtra :unspec) (max-to-ac :unspec) (max-to-hit :unspec)
-			(max-to-dmg :unspec) (pval :unspec) (depth :unspec) (rarity :unspec)
-			(cost :unspec) (tval :unspec) (min-sval :unspec)
-			(max-sval :unspec) (flags :unspec) (game-values :unspec))
+			(max-to-dmg :unspec) (pval :unspec) (locations :unspec)
+			(cost :unspec) (weight :unspec) (obj-types :unspec)
+			(flags :unspec) (game-values :unspec))
   "Attempts to define an ego-item."
 
 
@@ -74,11 +52,11 @@ the Free Software Foundation; either version 2 of the License, or
 	   (warn "Unknown value for ego-numeric-id: ~s" numeric-id)))
 
     
-    (cond ((integerp rating)
-	   (setf (ego.rating ego-item) rating))
-	  ((eq rating :unspec))
+    (cond ((integerp power-lvl)
+	   (setf (ego.power-lvl ego-item) power-lvl))
+	  ((eq power-lvl :unspec))
 	  (t
-	   (warn "Unknown value for ego-rating: ~s" rating)))
+	   (warn "Unknown value for ego-power-lvl: ~s" power-lvl)))
     
     (cond ((integerp xtra)
 	   ;; check this later
@@ -113,19 +91,11 @@ the Free Software Foundation; either version 2 of the License, or
 	  (t
 	   (warn "Unknown value for ego-pval: ~s" pval)))
 
-    (cond ((integerp depth)
-	   (setf (ego.depth ego-item) depth))
-	  ((eq depth :unspec))
+    (cond ((consp locations)
+	   (setf (ego.locations ego-item) locations))
+	  ((eq locations :unspec))
 	  (t
-	   (warn "Unknown value for ego-depth: ~s" depth)))
-
-    
-    (cond ((integerp rarity)
-	   (setf (ego.rarity ego-item) rarity))
-	  ((eq rarity :unspec))
-	  (t
-	   (warn "Unknown value for ego-rarityt: ~s" rarity)))
-
+	   (warn "Odd ego-locations argument ~s" locations))) 
         
     (cond ((integerp cost)
 	   (setf (ego.cost ego-item) cost))
@@ -133,23 +103,17 @@ the Free Software Foundation; either version 2 of the License, or
 	  (t
 	   (warn "Unknown value for ego-cost: ~s" cost)))
 
-    (cond ((integerp tval)
-	   (setf (ego.tval ego-item) tval))
-	  ((eq tval :unspec))
+    (cond ((integerp weight)
+	   (setf (ego.weight ego-item) weight))
+	  ((eq weight :unspec))
 	  (t
-	   (warn "Unknown value for ego-tval: ~s" tval)))
+	   (warn "Unknown value for ego-weight: ~s" weight)))
 
-    (cond ((integerp min-sval)
-	   (setf (ego.min-sval ego-item) min-sval))
-	  ((eq min-sval :unspec))
+    (cond ((consp obj-types)
+	   (setf (ego.obj-types ego-item) obj-types))
+	  ((eq obj-types :unspec))
 	  (t
-	   (warn "Unknown value for ego-min-sval: ~s" min-sval)))
-    
-    (cond ((integerp max-sval)
-	   (setf (ego.max-sval ego-item) max-sval))
-	  ((eq max-sval :unspec))
-	  (t
-	   (warn "Unknown value for ego-max-sval: ~s" max-sval)))
+	   (warn "Unknown obj-types value ~s for ego-item." obj-types))) 
     
     (cond ((consp flags)
 	   (let ((ok-flags '()))
@@ -182,13 +146,16 @@ the Free Software Foundation; either version 2 of the License, or
 	   (warn "Unknown value for ego-flags: ~s" flags)))
 
     (setf (ego.game-values ego-item) gvals)
-    
-    (setf (get-ego id) ego-item)
+
+
+    (setf (get-ego-item variant id) ego-item)
+
+    (apply-filters-on-obj :ego-items variant ego-item)
     
     ego-item))
 
 
-(defmethod get-loadable-form ((variant variant) (object ego-item) &key (full-dump nil))
+(defmethod get-loadable-form (variant (object ego-item) &key (full-dump nil))
 
 ;;(defun %dump-form (variant object)
   (declare (ignore full-dump))
@@ -204,21 +171,21 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;    (possibly-add :id (ego.id object) "dummy-id")
     (possibly-add :numeric-id (ego.numeric-id object) -1)
-    (possibly-add :rating (ego.rating object) 0)
+    (possibly-add :power-lvl (ego.power-lvl object) 0)
     (possibly-add :xtra (ego.xtra object) 0)
     
     (possibly-add :max-to-hit (ego.max-to-hit object) 0)
     (possibly-add :max-to-dmg (ego.max-to-dmg object) 0)
     (possibly-add :max-to-ac (ego.max-to-ac object) 0)
     (possibly-add :pval (ego.pval object) 0)
-    
-    (possibly-add :depth (ego.depth object) 0)
-    (possibly-add :rarity (ego.rarity object) 0)
-    (possibly-add :cost (ego.cost object) 0)
 
-    (possibly-add :tval (ego.tval object) 0)
-    (possibly-add :min-sval (ego.min-sval object) 0)
-    (possibly-add :max-sval (ego.max-sval object) 0)
+    (possibly-add :locations (ego.locations object) nil)
+    ;;(possibly-add :depth (ego.depth object) 0)
+    ;;(possibly-add :rarity (ego.rarity object) 0)
+    (possibly-add :cost (ego.cost object) 0)
+    (possibly-add :weight (ego.weight object) 0)
+
+    (possibly-add :obj-types (ego.obj-types object) '())
     (possibly-add :flags (ego.flags object) '())
 
     (when-bind (gval (ego.game-values object))
@@ -228,25 +195,53 @@ the Free Software Foundation; either version 2 of the License, or
     the-form)))
 
 
-(defun dump-egos ()
-  (let* ((vals (loop for x being the hash-values of *egos*
-		     collecting x))
-	 (sorted-vals (sort vals #'< :key #'ego.numeric-id))
-	 (*print-case* :downcase)
-	 (*print-right-margin* 120))
-
-    (with-open-file (s #p"ego.dump"
-		       :direction :output
-		       :if-exists :supersede
-		       :if-does-not-exist :create)
-      (loop for x in sorted-vals
-	    do
-	    (pprint (get-loadable-form *variant* x) s))
-      )))
-
 (defmethod print-object ((inst ego-item) stream)
   (print-unreadable-object
    (inst stream :identity t)
    (format stream "~:(~S~) [~S]" (lbsys/class-name inst)
            (ego.name inst) ))
   inst)
+
+#||
+
+(defun dump-egos (&optional (fname "ego.dump"))
+  (let* ((variant *variant*)
+	 (vals (loop for x being the hash-values of (variant.ego-items variant)
+		     collecting x))
+	 (sorted-vals (sort vals #'< :key #'ego.numeric-id))
+	 (*print-case* :downcase)
+	 (*print-right-margin* 140))
+
+    (with-open-file (s (pathname fname)
+		       :direction :output
+		       :if-exists :supersede
+		       :if-does-not-exist :create)
+      (loop for x in sorted-vals
+	    do
+	    (progn
+	      (pprint (get-loadable-form variant x) s)
+	      (terpri s)))
+	    
+      )))
+
+(defun parse-ego-items& (variant file)
+  (let (;;(fname (variant-data-fname variant file))
+	(fname file)
+	(*egos* (make-hash-table :test #'equal)))
+    
+    (warn "Reading ego from ~s" fname)
+
+    (compat-read-ego-file& fname)
+    (dump-egos "ego-items.txt")
+    
+    t))
+
+(in-package :cl-user)
+
+(defun k ()
+  (let ((*package* (find-package :lb)))
+    (load "modules/compat/ego.lisp")
+    (lb::parse-ego-items& nil "ego_item.txt")
+    ))
+
+||#

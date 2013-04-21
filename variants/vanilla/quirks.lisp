@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/quirks.lisp - special settings for Vanilla
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,19 +14,23 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
+
 (defmethod activate-object :before ((var-obj vanilla-variant) &key)
   "Initialises variant-variables that should be there before
 the rest of the game is init'ed."
 
   (setf (variant.images var-obj) (make-array 64 :initial-element nil))
 
+  ;; hack, we start at 6.50am
+  (setf (variant.turn var-obj) (+ (* 6 +van/turns-in-hour+)
+				  (* 50 +van/turns-in-minute+)))
+  
   ;; get the images init'ed right away
   (loop for i from 0
 	for x across *vanilla-images*
 	do
-	(when (and (stringp x) (plusp (length x)))
-	  (load-image& var-obj x i #xffffff00)))
-    
+	(load-image-spec& var-obj i x))
+  
   (pushnew (make-gender :id "male" :symbol '<male> :name "Male" :win-title "King")
 	   (variant.genders var-obj) :test #'eql :key #'gender.symbol)
   (pushnew (make-gender :id "female" :symbol '<female> :name "Female" :win-title "Queen")
@@ -76,7 +80,7 @@ the rest of the game is init'ed."
  
 
   
-  (van-register-levels! var-obj)
+  (van/register-levels! var-obj)
 
   (van-init-skill-system var-obj)
   (van-init-combat-system var-obj)
@@ -109,7 +113,7 @@ the rest of the game is init'ed."
 
   )
 
-(defun van-register-levels! (var-obj)
+(defun van/register-levels! (var-obj)
   "registering the levels this variant will use."
   
   (register-level! var-obj "level"
@@ -126,13 +130,28 @@ the rest of the game is init'ed."
 				    id)
 			     (setf (gethash id obj-table) obj))))
 
+			 t)
+		   :ego-filter
+		   #'(lambda (var-obj obj)
+		       ;;(warn "ego filter for ~s" obj)
+		       (let* ((table (%get-var-table var-obj "level" 'ego-items-by-level))
+			      (id (slot-value obj 'id))
+			      (obj-table (gobj-table.obj-table table)))
+			 (multiple-value-bind (val f-p)
+			     (gethash id obj-table)
+			   (declare (ignore val))
+			   (if f-p
+			     (error "Ego-id ~s already exists in system, obviously not a unique id."
+				    id)
+			     (setf (gethash id obj-table) obj))))
+
 			 t))
-  
+
   (register-level! var-obj "random-level"
 		   :monster-filter
 		   #'(lambda (var-obj obj)
 		       ;; all below 0
-		       (when (> (slot-value obj 'depth) 0)
+		       (when (> (slot-value obj 'power-lvl) 0)
 			 (let* ((which-lvl "random-level")
 				(table (get-mtype-table var-obj which-lvl))
 				(id (slot-value obj 'id))
@@ -150,7 +169,7 @@ the rest of the game is init'ed."
 		   :monster-filter
 		   #'(lambda (var-obj obj)
 		       ;; all equal to 0
-		       (when (= (slot-value obj 'depth) 0)
+		       (when (= (slot-value obj 'power-lvl) 0)
 			 (let* ((which-lvl "town-level")
 				(table (get-mtype-table var-obj which-lvl))
 				(id (slot-value obj 'id))
@@ -302,7 +321,11 @@ the rest of the game is init'ed."
     
     (setf (gobj-table.obj-table-by-lvl o-table)
 	  (convert-obj okind-table :vector :sort-table-p t
-		       :sorted-by-key #'(lambda (x) (slot-value x 'depth))))
+		       :sorted-by-key #'(lambda (x)
+					  ;;(slot-value x 'depth)
+					  (slot-value x 'power-lvl)
+					  ;;(caar (slot-value x 'locations))
+					  )))
     
     (setf (gobj-table.alloc-table o-table)
 	  (funcall alloc-table-creator variant (gobj-table.obj-table-by-lvl o-table)))
@@ -310,112 +333,94 @@ the rest of the game is init'ed."
 
 
 
-(defmethod initialise-monsters& ((var-obj vanilla-variant) &key old-file (file "monsters"))
-  "If old-file is given, use compatibility.  If not use lispy-file."
-  #+cmu
-  (declare (optimize (ext:inhibit-warnings 3)))
+(defmethod initialise-monsters& ((variant vanilla-variant) &key (file "monsters"))
 
-  (cond
-    #+compatibility-monsters
-    (old-file
-     (compat-read-monsters& (variant-data-fname var-obj old-file))) ;; adds to mkind-table
-    
-    #-compatibility-monsters
-    (old-file
-     (error "Trying to read legacy angband-file ~s, but no compatibility support loaded." old-file))
-    
-    (file
-     (let ((*load-verbose* nil))
-       (load-variant-data& var-obj file)))
-    (t
-     (error "No file specified for monster-init.")))
+  (unless file
+    (error "No file specified for monster-init."))
+  
+  (when file
+    (let ((*load-verbose* nil))
+      (load-variant-data& variant file)))
     
   ;; initialise all tables
-  (let ((object-tables (variant.monsters-by-level var-obj)))
+  (let ((object-tables (variant.monsters-by-level variant)))
     (maphash #'(lambda (key obj)
-		 (update-gobj-table! var-obj key obj
+		 (update-gobj-table! variant key obj
 			#'create-alloc-table-monsters))
-	     object-tables))
+	     object-tables)))
+
+
+(defmethod initialise-floors& ((variant vanilla-variant) &key (file "floors"))
+
+  (unless file
+    (error "No file specified for floor-init."))
+
+  (when file
+    (let ((*load-verbose* nil))
+      (load-variant-data& variant file))))
+
+
+(defmethod initialise-objects& ((variant vanilla-variant) &key (file "objects"))
+
+  (unless file
+    (error "No file specified for floor-init."))
   
-  )
+  (when file
+    (let ((*load-verbose* nil))
+      (load-variant-data& variant file)))
 
-
-  
-(defmethod initialise-floors& ((var-obj vanilla-variant) &key old-file (file "floors"))
-  #+cmu
-  (declare (optimize (ext:inhibit-warnings 3)))
-  (cond
-    #+compatibility-floors
-    (old-file
-     (compat-read-floor-file& (variant-data-fname var-obj old-file)))
-    #-compatibility-floors
-    (old-file
-     (error "Trying to read legacy angband-file ~s, but no compatibility support loaded." old-file))
-    (file
-     (let ((*load-verbose* nil))
-       (load-variant-data& var-obj file)))
-    (t
-     (error "No file specified for floor-init."))))
-
-(defmethod initialise-objects& ((var-obj vanilla-variant) &key old-file (file "objects"))
-  #+cmu
-  (declare (optimize (ext:inhibit-warnings 3)))
-  (cond
-    #+compatibility-objects
-    (old-file
-     (compat-read-obj-kind& (variant-data-fname var-obj old-file))) ;; adds to okind-table
-    #-compatibility-objects
-    (old-file
-     (error "Trying to read legacy angband-file ~s, but no compatibility support loaded." old-file))
-    (file
-     (let ((*load-verbose* nil))
-       (load-variant-data& var-obj file)))
-    (t
-     (error "No file specified for floor-init.")))
-
-
-  ;; initialise all tables
-;;    (warn "Mapping ~a" object-tables)
-  ;; let us find some behaviour
-
-  (let ((object-tables (variant.objects-by-level var-obj)))
+  (let ((object-tables (variant.objects-by-level variant)))
     
     (maphash #'(lambda (key obj)
-		 (update-gobj-table! var-obj key obj
+		 (update-gobj-table! variant key obj
 				     #'create-alloc-table-objects))
-	     object-tables))
+	     object-tables)))
 
 
-  
-;;  #+langband-debug
-;;  (%output-kinds-to-file "dumps/obj.lisp")
-  )
+(defun initialise-ego-items& (variant &key (file "ego-items"))
+
+  (unless file
+    (error "No file specified for ego-init."))
+
+  (when file
+    (let ((*load-verbose* nil))
+      (load-variant-data& variant file)))
+    
+  ;; initialise all tables
+  (let ((object-tables (variant.ego-items-by-level variant)))
+    (maphash #'(lambda (key obj)
+		 (update-gobj-table! variant key obj
+			#'create-basic-allocation-table))
+	     object-tables)))
+
 
 
 ;; The real McCoy
 (defmethod activate-object ((var-obj vanilla-variant) &key)
 
-;;  (warn "active..")
+  ;; the last init-call on each fixes all tables
+  (let ((*load-verbose* nil))
+    (load-variant-data& var-obj "objects")
+    (load-variant-data& var-obj "food")
+    (load-variant-data& var-obj "armour")
+    (load-variant-data& var-obj "weapons")
+    (load-variant-data& var-obj "potions")
+    (load-variant-data& var-obj "rings")
+    (load-variant-data& var-obj "neckwear")
+    (load-variant-data& var-obj "scrolls")
+    (load-variant-data& var-obj "sticks")
+    (load-variant-data& var-obj "books")
+    (initialise-objects&  var-obj :file "gold")
+    
+    (load-variant-data& var-obj "monsters")
+    (load-variant-data& var-obj "town-monsters")
+    (initialise-monsters& var-obj :file "uniques")
+    
+    (initialise-floors& var-obj :file "floors")
+    (initialise-ego-items& var-obj :file "ego-items")
+    )
+    
   
-  (initialise-objects&  var-obj :file "objects")
-  (initialise-objects&  var-obj :file "food")
-  (initialise-objects&  var-obj :file "armour")
-  (initialise-objects&  var-obj :file "weapons")
-  (initialise-objects&  var-obj :file "potions")
-  (initialise-objects&  var-obj :file "rings")
-  (initialise-objects&  var-obj :file "neckwear")
-  (initialise-objects&  var-obj :file "scrolls")
-  (initialise-objects&  var-obj :file "sticks")
-  (initialise-objects&  var-obj :file "books")
-  (initialise-objects&  var-obj :file "gold")
-
-  (initialise-monsters& var-obj :file "monsters")
-  (initialise-monsters& var-obj :file "town-monsters")
-  (initialise-monsters& var-obj :file "uniques")
-  
-  (initialise-floors& var-obj :file "floors")
-
-
   ;; after all objects are in
   ;;  (init-flavours& (variant.flavour-types var-obj))
 
@@ -428,17 +433,6 @@ the rest of the game is init'ed."
 	    (setf (flavour-type.unused-flavours x) (coerce an-arr 'list))
 	    t)))
 
-  
-  #||
-  ;; hack, fix later
-  (let ((*load-verbose* nil))
-    (load-variant-data& var-obj "ego-items"))
-  ;; hack
-  (dump-egos)
-  ||#
-;;  (van-combine-effects-with-objects! var-obj (variant.objects var-obj))
-
-  
   ;; ensure that we have a legal gold-table
   (when (eq (variant.gold-table var-obj) nil)
     (let* ((obj-kinds (loop for x being the hash-values of (variant.objects var-obj) ;; hackish
@@ -587,14 +581,3 @@ the rest of the game is init'ed."
       ;; add equipment dmg
       t)))
 
-
-
-#||
-(defun parse-ego-items& (variant &key file)
-  (let ((fname (variant-data-fname variant file)))
-    (warn "Reading ego from ~s" fname)
-
-    (compat-read-ego-file& fname)
-    
-    t))
-||#

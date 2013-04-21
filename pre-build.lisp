@@ -20,6 +20,19 @@ the Free Software Foundation; either version 2 of the License, or
 ;; this is a hack to get out a working release now
 (pushnew :image-support cl:*features*)
 
+;;  #+(or allegro cmu sbcl lispworks)
+;;  (pushnew :use-callback-from-c *features*)
+
+;;  #+(or cmu clisp sbcl)
+(pushnew :handle-char-as-num *features*) ;; always
+
+;; this one should be turned on when maintainer is debugging
+;;  (pushnew :langband-extra-checks *features*)
+
+#+(or cmu sbcl lispworks)
+(pushnew :compiler-that-inlines *features*)
+
+
 #+clisp
 (progn
   (format t "~&Removing some clisp-warnings.. we hope~%")
@@ -46,7 +59,7 @@ the Free Software Foundation; either version 2 of the License, or
 	cl:*compile-print* nil)
   ;; to avoid exit-problems with cmucl on debian
   ;;#+direct-syscall
-  ;;(pushnew :disable-sound cl:*features*)
+  (pushnew :disable-sound cl:*features*)
   #+pcl
   (pushnew 'compile pcl::*defclass-times*))
 

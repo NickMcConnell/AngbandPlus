@@ -15,7 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.vanilla)
 
 (defun %get-power-level (attacker)
-  (let ((mon-lvl (monster.depth (amon.kind attacker))))
+  (let ((mon-lvl (monster.power-lvl (amon.kind attacker))))
     (if (> mon-lvl 1)
 	mon-lvl
 	1)))

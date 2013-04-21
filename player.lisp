@@ -687,7 +687,13 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod on-wear-object ((variant variant) (player player) (obj active-object))
   nil)
 
+(defmethod on-take-off-object ((variant variant) (player player) (obj active-object))
+  nil)
+
 (defmethod on-drop-object ((variant variant) (player player) (obj active-object))
+  nil)
+
+(defmethod on-destroy-object ((variant variant) (player player) (obj active-object))
   nil)
 
 (defmethod get-melee-attack-skill ((variant variant) (player player))
@@ -698,3 +704,37 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod get-search-skill ((variant variant) (player player))
   0)
+
+(defun get-monster-knowledge (player monster)
+  (let* ((id (etypecase monster
+	       (active-monster (monster.id (amon.kind monster)))
+	       (monster-kind (monster.id monster))
+	       (string monster)))
+	 (obj (gethash id (player.monster-knowledge player))))
+
+    (unless obj
+      (setf obj (make-instance 'monster-knowledge :id id))
+      (setf (gethash id (player.monster-knowledge player)) obj))
+
+    obj))
+
+(defun get-object-knowledge (player object)
+  (let* ((id (etypecase object
+	       (active-object (object.id (aobj.kind object)))
+	       (object-kind (object.id object))
+	       (string object)))
+	 (obj (gethash id (player.object-knowledge player))))
+
+    (unless obj
+      (setf obj (make-instance 'object-knowledge :id id))
+      (setf (gethash id (player.object-knowledge player)) obj))
+
+    obj))
+
+(defun add-monster-knowledge-flag! (player monster flag)
+  (let ((know (get-monster-knowledge player monster)))
+    (pushnew flag (monster.flags know))))
+
+(defun add-object-knowledge-flag! (player object flag)
+  (let ((know (get-object-knowledge player object)))
+    (pushnew flag (object.flags know))))

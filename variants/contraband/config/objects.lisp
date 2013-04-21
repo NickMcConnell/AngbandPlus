@@ -5,8 +5,7 @@
 (define-object-kind 
     "backpack" "backpack" :numeric-id 750
     :text-attr #\w :text-char #\&
-    :depth 0 :rarity nil :chance #(0 0 0 0)
-    :locale #(0 0 0 0) :weight nil
+    :power-lvl 3 :weight nil
     :cost 1200 :the-kind '<container>
     :on-create #'(lambda (item)
 		   (let ((container (make-container +common-backpack-size+)))
@@ -63,10 +62,6 @@
   :text-char #\?
   :x-attr (tile-file 10)
   :x-char (tile-number 90)
-  :depth 15
-  :rarity 0
-  :chance #(1 0 0 0)
-  :locale #(15 0 0 0)
   :weight 5
   :cost 125
   :sort-value 5019

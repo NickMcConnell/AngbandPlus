@@ -205,11 +205,11 @@ the Free Software Foundation; either version 2 of the License, or
 (define-basic-flavour '<amulet> "carved oak" :text-attr #\u :text-char #\"	      :x-attr (tile-file 8) :x-char (tile-number 39))
 (define-basic-flavour '<amulet> "dragon tooth" :text-attr #\W :text-char #\"	      :x-attr (tile-file 8) :x-char (tile-number 24))
 (define-basic-flavour '<amulet> "ruby" :text-attr #\r :text-char #\"		      :x-attr (tile-file 8) :x-char (tile-number 31))
-(define-basic-flavour '<amulet> "mithril" :text-attr #\B :text-char #\" :x-attr (tile-file 8) :x-char (tile-number 37))
-(define-basic-flavour '<amulet> "adamant" :text-attr #\G :text-char #\" :x-attr (tile-file 8) :x-char (tile-number 34))
-(define-basic-flavour '<amulet> "flint stone" :text-attr #\s :text-char #\" :x-attr (tile-file 8) :x-char (tile-number 26))
-(define-basic-flavour '<amulet> "sea shell" :text-attr #\B :text-char #\" :x-attr (tile-file 8) :x-char (tile-number 37))
-(define-basic-flavour '<amulet> "mother-of-pearl" :text-attr #\W :text-char #\" :x-attr (tile-file 8) :x-char (tile-number 25))
+(define-basic-flavour '<amulet> "mithril" :text-attr #\B :text-char #\"               :x-attr (tile-file 8) :x-char (tile-number 37))
+(define-basic-flavour '<amulet> "adamant" :text-attr #\G :text-char #\"               :x-attr (tile-file 8) :x-char (tile-number 34))
+(define-basic-flavour '<amulet> "flint stone" :text-attr #\s :text-char #\"           :x-attr (tile-file 8) :x-char (tile-number 26))
+(define-basic-flavour '<amulet> "sea shell" :text-attr #\B :text-char #\"             :x-attr (tile-file 8) :x-char (tile-number 37))
+(define-basic-flavour '<amulet> "mother-of-pearl" :text-attr #\W :text-char #\"       :x-attr (tile-file 8) :x-char (tile-number 25))
 
 ;; ring flavours
 

@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/constants.lisp - constants internal to vanilla
-Copyright (c) 2002 - Stig Erik Sandø
+Copyright (c) 2002-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,3 +32,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defconstant +pl-upd-spells+         #x00000040)
 
 (defconstant +default-detect-radius+ 25 "what is the radius of a detection-spell")
+
+(defconstant +van/turns-in-minute+ 60)
+(defconstant +van/turns-in-hour+ 3600)
+(defconstant +van/turns-in-24hours+ 86400)

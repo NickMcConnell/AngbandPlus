@@ -3,7 +3,7 @@
 					#|
 
 DESC: variants/vanilla/config/traps.lisp - trap-types for vanilla variant
-Copyright (c) 2002 - Stig Erik Sandø
+Copyright (c) 2002-2003 - Stig Erik Sandø
 
 This program is free software  ; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 (define-trap-type "trapdoor" "trap-door"
   :effect (trap-effect (the-trap dungeon x y)
 	    (print-message! "You fall through a trap door!");
+	    (play-sound "trapdoor")
 	    (let ((variant *variant*)
 		  (player *player*) ;; fix later
 		  (level-num (randint 3)))
@@ -138,6 +139,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 (define-trap-type "fire-trap" "fire trap"
   :effect (trap-effect (the-trap dungeon x y)
 	    (print-message! "You are enveloped in flames!")
+	    (play-sound "burning-fire")
 	    (deliver-elemental-damage! *variant* the-trap *player* '<fire> (roll-dice 4 6)))
   :text-attr +term-umber+
   :text-char #\^
@@ -149,6 +151,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 (define-trap-type "acid-trap" "acid trap"
   :effect (trap-effect (the-trap dungeon x y)
 	    (print-message! "You are splashed with acid!")
+	    (play-sound "acid-splash")
 	    (deliver-elemental-damage! *variant* the-trap *player* '<acid> (roll-dice 4 6)))
   :text-attr +term-umber+
   :text-char #\^
@@ -178,6 +181,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 (define-trap-type "dart-trap-red-str" "dart trap (red. str)"
   :effect (trap-effect (the-trap dungeon x y)
 	    (let ((target *player*))
+	      (play-sound "dart-trap")
 	      (cond ((melee-hit-ac? target 125 (get-creature-ac target) t)
 		     (print-message! "A small dart hits you!")
 		     (deliver-damage! *variant* the-trap target (roll-dice 1 4))
@@ -196,6 +200,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 (define-trap-type "dart-trap-red-dex" "dart trap (red. dex)"
   :effect (trap-effect (the-trap dungeon x y)
 	    (let ((target *player*))
+	      (play-sound "dart-trap")
 	      (cond ((melee-hit-ac? target 125 (get-creature-ac target) t)
 		     (print-message! "A small dart hits you!")
 		     (deliver-damage! *variant* the-trap target (roll-dice 1 4))
@@ -214,6 +219,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 (define-trap-type "dart-trap-red-con" "dart trap (red. con)"
   :effect (trap-effect (the-trap dungeon x y)
 	    (let ((target *player*))
+	      (play-sound "dart-trap")
 	      (cond ((melee-hit-ac? target 125 (get-creature-ac target) t)
 		     (print-message! "A small dart hits you!")
 		     (deliver-damage! *variant* the-trap target (roll-dice 1 4))

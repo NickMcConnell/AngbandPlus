@@ -7,15 +7,14 @@
         ((                                                   ))
 
 
-                 Version 0.1.0  --  The Lithping Scare
+                 Version 0.1.5  --  The Lithping Scare
 
-       Written by:  Stig E Sandø <stig@users.sourceforge.net>
+             Written by:  Stig E Sandø <stig@langband.org>
 
-          A dungeon-exploring game written in Common Lisp
+            A dungeon-exploring game written in Common Lisp
 
-      Inspired by Angband (written by Robert Ruehlmann, et.al)
+        Inspired by Angband (written by Robert Ruehlmann, et.al)
 
 
                      http://www.langband.org/
                  news:rec.games.roguelike.angband
-

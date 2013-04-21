@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/config/spells.lisp - definition of spells and spellbooks
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,11 +14,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
+;; spells are 2.9.3 version
 ;; beam-chances are wrong, needs revising later
 
 ;;; === Mage/ranger/rogue spells
 
 (define-spell "Magic Missile"  "magic-missile"
+  :numeric-id 0
   :effect-type "magic-missile"
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -29,13 +31,20 @@ the Free Software Foundation; either version 2 of the License, or
 		))))
 
 
-(define-spell "Detect Monsters" "mage-detect-monsters")
+(define-spell "Detect Monsters" "mage-detect-monsters"
+  :numeric-id 1
+  :effect-type '<divination>
+  :effect (spell-effect (dungeon player spell)
+	    (detect-monsters! dungeon player spell)))
+	    
 (define-spell "Phase Door" "phase-door"
+  :numeric-id 2
   :effect-type '<teleport>
   :effect (spell-effect (dungeon player spell)
 	       (teleport-creature! dungeon player player 10)))
 
 (define-spell "Light Area" "light-area"
+  :numeric-id 3
   :effect-type '<light>
   :effect (spell-effect (dungeon player spell)
 	      (let ((plvl (player.level player)))
@@ -44,8 +53,15 @@ the Free Software Foundation; either version 2 of the License, or
 		)))
 						   
 
-(define-spell "Treasure Detection" "treasure-detection")
+(define-spell "Treasure Detection" "treasure-detection"
+  :numeric-id 4
+  :effect-type '<divination>
+  :effect (spell-effect (dungeon player spell)
+	    (detect-gold! dungeon player spell)
+	    ))
+
 (define-spell "Cure Light Wounds" "mage-cure-light-wounds"
+  :numeric-id 5
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (let ((amount (roll-dice 2 8)))
@@ -53,9 +69,25 @@ the Free Software Foundation; either version 2 of the License, or
 		(modify-creature-state! player '<cut> :subtract '<light>)
 		)))
 		
-(define-spell "Object Detection" "object-detection")
-(define-spell "Find Hidden Traps/Doors" "find-traps/doors")
+(define-spell "Object Detection" "object-detection"
+  :numeric-id 6
+  :effect-type '<divination>
+  :effect (spell-effect (dungeon player spell)
+	    (detect-normal-objects! dungeon player spell)
+	    ))
+
+
+(define-spell "Find Hidden Traps/Doors" "find-traps/doors"
+  :numeric-id 7
+  :effect-type '<divination>
+  :effect (spell-effect (dungeon player spell)
+	    (detect-traps! dungeon player spell)
+	    (detect-doors! dungeon player spell)
+	    ))
+
+
 (define-spell "Stinking Cloud" "stinking-cloud"
+  :numeric-id 8
   :effect-type "poison"
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -65,8 +97,11 @@ the Free Software Foundation; either version 2 of the License, or
 		))))
 
 
-(define-spell "Confuse Monster" "confuse-monster")
+(define-spell "Confuse Monster" "confuse-monster"
+  :numeric-id 9)
+
 (define-spell "Lightning Bolt" "lightning-bolt"
+  :numeric-id 10
   :effect-type "electricity"
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -76,20 +111,27 @@ the Free Software Foundation; either version 2 of the License, or
 					:projected-object spell)
 		))))
 
-(define-spell "Trap/Door Destruction" "trap/door-destruction")
-(define-spell "Sleep I" "sleep-1")
+(define-spell "Trap/Door Destruction" "trap/door-destruction"
+  :numeric-id 11)
+
+(define-spell "Sleep I" "sleep-1"
+  :numeric-id 12)
+
 (define-spell "Cure Poison" "cure-poison"
+  :numeric-id 13
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<poisoned> :new-value nil)))
 
 (define-spell "Teleport Self" "mage-teleport-self"
+  :numeric-id 14
   :effect-type '<teleport>
   :effect (spell-effect (dungeon player spell)
 	    (teleport-creature! dungeon player player (* (player.level player) 5))
 	    ))
 
 (define-spell "Spear of Light" "spear-of-light"
+  :numeric-id 15
   :effect-type '<light>
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -102,6 +144,7 @@ the Free Software Foundation; either version 2 of the License, or
 		  ))))
 
 (define-spell "Frost Bolt" "frost-bolt"
+  :numeric-id 16
   :effect-type "cold"
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -110,23 +153,35 @@ the Free Software Foundation; either version 2 of the License, or
 					  (roll-dice (+ 5 (int-/ (- plvl 5) 4)) 8))
 		  ))))
 
-(define-spell "Turn Stone to Mud" "stone-to-mud")
+(define-spell "Turn Stone to Mud" "stone-to-mud"
+  :numeric-id 17)
 
 
 (define-spell "Satisfy Hunger" "mage-satisfy-hunger"
+  :numeric-id 18
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (alter-food! player (1- +food-max+))))
-(define-spell "Recharge Item I" "recharge-item-1")
-(define-spell "Sleep II" "sleep-2")
-(define-spell "Polymorph Other" "polymorph-other")
+(define-spell "Recharge Item I" "recharge-item-1"
+  :numeric-id 19)
+
+(define-spell "Sleep II" "sleep-2"
+  :numeric-id 20)
+
+(define-spell "Polymorph Other" "polymorph-other"
+  :numeric-id 21)
+
 (define-spell "Identify" "identify"
+  :numeric-id 22
   :effect-type '<divination>
   :effect (spell-effect (dungeon player spell)
 	    (interactive-identify-object! dungeon player :type '<normal)))
 
-(define-spell "Sleep III" "sleep-3")
+(define-spell "Sleep III" "sleep-3"
+  :numeric-id 23)
+
 (define-spell "Fire Bolt" "fire-bolt"
+  :numeric-id 24
   :effect-type "fire"
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -135,10 +190,12 @@ the Free Software Foundation; either version 2 of the License, or
 					(roll-dice (+ 8 (int-/ (- plvl 5) 4)) 8))
 		))))
 
-(define-spell "Slow Monster" "slow-monster")
+(define-spell "Slow Monster" "slow-monster"
+  :numeric-id 25)
 
 
 (define-spell "Frost Ball" "frost-ball"
+  :numeric-id 26
   :effect-type "cold"
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -146,14 +203,20 @@ the Free Software Foundation; either version 2 of the License, or
 		(van-fire-ball! player dir (get-spell-effect '<frost>) (+ 30 plvl) 2)
 		))))
 
-(define-spell "Recharge Item II" "recharge-item-2")
-(define-spell "Teleport Other" "mage-teleport-other")
+(define-spell "Recharge Item II" "recharge-item-2"
+  :numeric-id 27)
+
+(define-spell "Teleport Other" "mage-teleport-other"
+  :numeric-id 28)
+
 (define-spell "Haste Self" "haste-self"
+  :numeric-id 29
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<hasted> :add (+ (player.level player) (random 20)))))
 	    
 (define-spell "Fire Ball" "fire-ball"
+  :numeric-id 30
   :effect-type "fire"
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -161,18 +224,31 @@ the Free Software Foundation; either version 2 of the License, or
 		(van-fire-ball! player dir (get-spell-effect '<fire>) (+ 55 plvl) 2)
 		))))
 
-(define-spell "Word of Destruction" "mage-word-of-destruction")
-(define-spell "Xenocide" "xenocide-1")
+(define-spell "Word of Destruction" "mage-word-of-destruction"
+  :numeric-id 31)
+
+(define-spell "Xenocide" "xenocide-1"
+  :numeric-id 32)
 
 
-(define-spell "Door Creation" "door-creation")
-(define-spell "Stair Creation" "stair-creation")
-(define-spell "Teleport Level" "mage-teleport-level")
-(define-spell "Earthquake" "mage-earthquake")
-(define-spell "Word of Recall" "mage-word-of-recall")
+(define-spell "Door Creation" "door-creation"
+  :numeric-id 33)
+
+(define-spell "Stair Creation" "stair-creation"
+  :numeric-id 34)
+
+(define-spell "Teleport Level" "mage-teleport-level"
+  :numeric-id 35)
+
+(define-spell "Earthquake" "mage-earthquake"
+  :numeric-id 36)
+
+(define-spell "Word of Recall" "mage-word-of-recall"
+  :numeric-id 37)
 
 
 (define-spell "Acid Bolt" "acid-bolt"
+  :numeric-id 38
   :effect-type "acid"
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -182,6 +258,7 @@ the Free Software Foundation; either version 2 of the License, or
 		))))
 
 (define-spell "Cloud Kill" "cloud-kill"
+  :numeric-id 39
   :effect-type "poison"
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -190,6 +267,7 @@ the Free Software Foundation; either version 2 of the License, or
 		))))
 
 (define-spell "Acid Ball" "acid-ball"
+  :numeric-id 40
   :effect-type "acid"
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -198,6 +276,7 @@ the Free Software Foundation; either version 2 of the License, or
 		))))
 
 (define-spell "Ice Storm" "ice-storm"
+  :numeric-id 41
   :effect-type "cold"
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -206,6 +285,7 @@ the Free Software Foundation; either version 2 of the License, or
 		))))
   
 (define-spell "Meteor Swarm" "meteor-swarm"
+  :numeric-id 42
   :effect-type '<meteor>
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -214,6 +294,7 @@ the Free Software Foundation; either version 2 of the License, or
 		))))
 
 (define-spell "Mana Storm" "mana-storm"
+  :numeric-id 43
   :effect-type '<mana>
   :effect (spell-effect (dungeon player spell)
 	    (let ((plvl (player.level player)))
@@ -223,34 +304,55 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 
-(define-spell "Detect Evil" "mage-detect-evil")
-(define-spell "Detect Enchantment" "detect-enchantment")
-(define-spell "Recharge Item III" "recharge-item-3")
-(define-spell "Xenocide" "xenocide-2")
-(define-spell "Mass Xenocide" "mass-xenocide")
+(define-spell "Detect Evil" "mage-detect-evil"
+  :numeric-id 44
+  :effect-type '<divination>
+  :effect (spell-effect (dungeon player spell)
+	    (detect-evil-monsters! dungeon player spell)))
+
+(define-spell "Detect Enchantment" "detect-enchantment"
+  :numeric-id 45
+  :effect-type '<divination>
+  :effect (spell-effect (dungeon player spell)
+	    (detect-normal-objects! dungeon player spell) ;; should do enchantments!
+	    ))
+
+(define-spell "Recharge Item III" "recharge-item-3"
+  :numeric-id 46)
+
+(define-spell "Xenocide" "xenocide-2"
+  :numeric-id 47)
+
+(define-spell "Mass Xenocide" "mass-xenocide"
+  :numeric-id 48)
 
 
 (define-spell "Resist Fire" "resist-fire"
+  :numeric-id 49
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<resist-fire> :add (+ 20 (random 20)))))
 
 (define-spell "Resist Cold" "resist-cold"
+  :numeric-id 50
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<resist-cold> :add (+ 20 (random 20)))))
 
 (define-spell "Resist Acid" "resist-acid"
+  :numeric-id 51
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<resist-acid> :add (+ 20 (random 20)))))
 
 (define-spell "Resist Poison" "resist-poison"
+  :numeric-id 52
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<resist-poison> :add (+ 20 (random 20)))))
 
 (define-spell "Resistance" "resistance"
+  :numeric-id 53
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (let ((time (+ 20 (randint 20))))
@@ -265,6 +367,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (define-spell "Heroism" "heroism"
+  :numeric-id 54
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (heal-creature! player 10)
@@ -274,11 +377,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (define-spell "Shield" "shield"
+  :numeric-id 55
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<shielded> :add (+ 30 (random 20)))))
 
 (define-spell "Berserker" "berserker"
+  :numeric-id 56
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (heal-creature! player 30)
@@ -287,12 +392,14 @@ the Free Software Foundation; either version 2 of the License, or
 	    ))
 
 (define-spell "Essence of Speed" "essence-of-speed"
+  :numeric-id 57
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<hasted> :add (+ 30 (player.level player) (random 30)))
 	    ))
 
 (define-spell "Globe of Invulnerability" "globe-of-invulnerability"
+  :numeric-id 58
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<invulnerable> :add (+ 8 (randint 8)))
@@ -300,8 +407,14 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;; === Priest/paladin spells
 
-(define-spell "Detect Evil" "priest-detect-evil")
+(define-spell "Detect Evil" "priest-detect-evil"
+  :numeric-id 100
+  :effect-type '<divination>
+  :effect (spell-effect (dungeon player spell)
+	    (detect-evil-monsters! dungeon player spell)))
+
 (define-spell "Cure Light Wounds" "priest-cure-light-wounds"
+  :numeric-id 101
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (let ((amount (roll-dice 2 10)))
@@ -310,17 +423,20 @@ the Free Software Foundation; either version 2 of the License, or
 	      )))
 
 (define-spell "Bless" "bless"
+  :numeric-id 102
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<blessed> :add (+ 12 (random 12)))
 	    ))
 
 (define-spell "Remove Fear" "remove-fear"
+  :numeric-id 103
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<fear> :new-value nil)))
 
 (define-spell "Call Light" "call-light"
+  :numeric-id 104
   :effect-type '<light>
   :effect (spell-effect (dungeon player spell)
 	      (let ((plvl (player.level player)))
@@ -328,11 +444,23 @@ the Free Software Foundation; either version 2 of the License, or
 			     (1+ (int-/ plvl 10)))
 		)))
 
-(define-spell "Find Traps" "find-traps")
+(define-spell "Find Traps" "find-traps"
+  :numeric-id 105
+  :effect-type '<divination>
+  :effect (spell-effect (dungeon player spell)
+	    (detect-traps! dungeon player spell)))
 
-(define-spell "Detect Doors/Stairs" "detect-doors/stairs")
+
+(define-spell "Detect Doors/Stairs" "detect-doors/stairs"
+  :numeric-id 106
+  :effect-type '<divination>
+  :effect (spell-effect (dungeon player spell)
+	    (detect-doors! dungeon player spell)
+	    (detect-stairs! dungeon player spell)))
+
 
 (define-spell "Slow Poison" "slow-poison"
+  :numeric-id 107
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    ;; FIX!
@@ -341,14 +469,18 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 
-(define-spell "Scare Monster" "scare-monster")
+(define-spell "Scare Monster" "scare-monster"
+  :numeric-id 108)
+
 (define-spell "Portal" "portal"
+  :numeric-id 109
   :effect-type '<teleport>
   :effect (spell-effect (dungeon player spell)
 	      (teleport-creature! dungeon player player (* (player.level player) 3))
 	      ))
 
 (define-spell "Cure Serious Wounds" "cure-serious-wounds"
+  :numeric-id 110
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	      (heal-creature! player (roll-dice 4 10))
@@ -356,20 +488,26 @@ the Free Software Foundation; either version 2 of the License, or
 	      ))
 
 (define-spell "Chant" "chant"
+  :numeric-id 111
   :effect-type '<enhance>
-   :effect (spell-effect (dungeon player spell)
-	     (modify-creature-state! player '<blessed> :add (+ 24 (random 24)))
+  :effect (spell-effect (dungeon player spell)
+	    (modify-creature-state! player '<blessed> :add (+ 24 (random 24)))
 	    ))
 
-(define-spell "Sanctuary" "sanctuary")
+(define-spell "Sanctuary" "sanctuary"
+  :numeric-id 112)
+
 (define-spell "Satisfy Hunger" "priest-satisfy-hunger"
+  :numeric-id 113
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (alter-food! player (1- +food-max+))))
 
-(define-spell "Remove Curse" "remove-curse")
+(define-spell "Remove Curse" "remove-curse"
+  :numeric-id 114)
 
 (define-spell "Resist Heat and Cold" "resist-heat-and-cold"
+  :numeric-id 115
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<resist-fire> :add (+ 10 (random 10)))
@@ -378,53 +516,65 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (define-spell "Neutralize Poison" "neutralize-poison"
+  :numeric-id 116
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<poisoned> :new-value nil)))
 
-(define-spell "Orb of Draining" "orb-of-draining")
+(define-spell "Orb of Draining" "orb-of-draining"
+  :numeric-id 117)
 
 (define-spell "Cure Critical Wounds" "cure-critical-wounds"
+  :numeric-id 118
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	       (heal-creature! player (roll-dice 6 10))
 	       (modify-creature-state! player '<cut> :new-value nil)))
 
 (define-spell "Sense Invisible" "sense-invisible"
+  :numeric-id 119
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<see-invisible> :add (+ 24 (random 24)))
 	    ))
 
 (define-spell "Protection from Evil" "protection-from-evil"
+  :numeric-id 120
   :effect-type '<enhance>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<prot-from-evil> :add (+ (* 3 (player.level player)) (random 25)))
 	    ))
 
-(define-spell "Earthquake" "priest-earthquake")
+(define-spell "Earthquake" "priest-earthquake"
+  :numeric-id 121)
 
-(define-spell "Sense Surroundings" "sense-surroundings")
+(define-spell "Sense Surroundings" "sense-surroundings"
+  :numeric-id 122)
 
 (define-spell "Cure Mortal Wounds" "cure-mortal-wounds"
+  :numeric-id 123
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (heal-creature! player (roll-dice 6 10))
 	    (modify-creature-state! player '<stun> :new-value nil)
 	    (modify-creature-state! player '<cut>  :new-value nil)))
 
-(define-spell "Turn Undead" "turn-undead")
+(define-spell "Turn Undead" "turn-undead"
+  :numeric-id 124)
 
 
 (define-spell "Prayer" "prayer"
+  :numeric-id 125
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (modify-creature-state! player '<blessed> :add (+ 48 (random 48)))
 	    ))
 
-(define-spell "Dispel Undead" "dispel-undead")
+(define-spell "Dispel Undead" "dispel-undead"
+  :numeric-id 126)
 
 (define-spell "Heal" "heal"
+  :numeric-id 127
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (heal-creature! player 300)
@@ -432,23 +582,44 @@ the Free Software Foundation; either version 2 of the License, or
 	    (modify-creature-state! player '<cut>  :new-value nil)
 	    ))
 
-(define-spell "Dispel Evil" "dispel-evil")
-(define-spell "Glyph of Warding" "glyph-of-warding")
-(define-spell "Holy Word" "holy-word")
+(define-spell "Dispel Evil" "dispel-evil"
+  :numeric-id 128)
+
+(define-spell "Glyph of Warding" "glyph-of-warding"
+  :numeric-id 129)
+
+(define-spell "Holy Word" "holy-word"
+  :numeric-id 130)
 
 
-(define-spell "Detect Monsters" "priest-detect-monsters")
-(define-spell "Detection" "detection")
+(define-spell "Detect Monsters" "priest-detect-monsters"
+  :numeric-id 131
+  :effect (spell-effect (dungeon player spell)
+	    (detect-monsters! dungeon player spell)))
+
+
+(define-spell "Detection" "detection"
+  :numeric-id 132
+  :effect-type '<divination>
+  :effect (spell-effect (dungeon player spell)
+	    (detect-all! dungeon player spell)))
+
+
 (define-spell "Perception" "perception"
+  :numeric-id 133
   :effect-type '<divination>
   :effect (spell-effect (dungeon player spell)
 	    (interactive-identify-object! dungeon player :type '<normal)))
 
-(define-spell "Probing" "probing")
-(define-spell "Clairvoyance" "clairvoyance")
+(define-spell "Probing" "probing"
+  :numeric-id 134)
+
+(define-spell "Clairvoyance" "clairvoyance"
+  :numeric-id 135)
 
 
 (define-spell "Cure Serious Wounds" "cure-serious-wounds-2"
+  :numeric-id 136
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (heal-creature! player (roll-dice 4 10))
@@ -456,6 +627,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    ))
 
 (define-spell "Cure Mortal Wounds" "cure-mortal-wounds-2"
+  :numeric-id 137
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (heal-creature! player (roll-dice 8 10))
@@ -463,6 +635,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    (modify-creature-state! player '<cut>  :new-value nil)))
 
 (define-spell "Healing" "healing"
+  :numeric-id 138
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (heal-creature! player 2000)
@@ -470,6 +643,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    (modify-creature-state! player '<cut> :new-value nil)))
 
 (define-spell "Restoration" "restoration"
+  :numeric-id 139
   :effect-type '<healing>
   :effect (spell-effect (dungeon player spell)
 	    (update-player-stat! player '<str> '<restore>)
@@ -480,36 +654,57 @@ the Free Software Foundation; either version 2 of the License, or
 	    (update-player-stat! player '<chr> '<restore>)
 	    ))
 
-(define-spell "Remembrance" "remembrance")
+(define-spell "Remembrance" "remembrance"
+  :numeric-id 140)
 
 
-(define-spell "Dispel Undead" "dispel-undead-2")
-(define-spell "Dispel Evil" "dispel-evil-2")
-(define-spell "Banishment" "banishment")
-(define-spell "Word of Destruction" "priest-word-of-destruction")
-(define-spell "Annihilation" "annihilation")
+(define-spell "Dispel Undead" "dispel-undead-2"
+  :numeric-id 141)
 
-(define-spell "Unbarring Ways" "unbarring-ways")
-(define-spell "Recharging" "recharging")
-(define-spell "Dispel Curse" "dispel-curse")
-(define-spell "Enchant Weapon" "enchant-weapon")
-(define-spell "Enchant Armour" "enchant-armour")
-(define-spell "Elemental Brand" "elemental-brand")
+(define-spell "Dispel Evil" "dispel-evil-2"
+  :numeric-id 142)
+(define-spell "Banishment" "banishment"
+  :numeric-id 143)
+(define-spell "Word of Destruction" "priest-word-of-destruction"
+  :numeric-id 144)
+(define-spell "Annihilation" "annihilation"
+  :numeric-id 145)
+
+(define-spell "Unbarring Ways" "unbarring-ways"
+  :numeric-id 146)
+(define-spell "Recharging" "recharging"
+  :numeric-id 147)
+(define-spell "Dispel Curse" "dispel-curse"
+  :numeric-id 148)
+(define-spell "Enchant Weapon" "enchant-weapon"
+  :numeric-id 149)
+(define-spell "Enchant Armour" "enchant-armour"
+  :numeric-id 150)
+(define-spell "Elemental Brand" "elemental-brand"
+  :numeric-id 151)
 
 (define-spell "Blink" "blink"
+  :numeric-id 152
   :effect-type '<teleport>
   :effect (spell-effect (dungeon player spell)
 	      (teleport-creature! dungeon player player 10)
 	      ))
 
 (define-spell "Teleport Self" "priest-teleport-self"
+  :numeric-id 153
   :effect-type '<teleport>
   :effect (spell-effect (dungeon player spell)
 	    (teleport-creature! dungeon player player (* (player.level player) 8))
 	    ))
 
-(define-spell "Teleport Other" "priest-teleport-other")
-(define-spell "Teleport Level" "priest-teleport-level")
-(define-spell "Word of Recall" "priest-word-of-recall")
-(define-spell "Alter Reality" "alter-reality")
+(define-spell "Teleport Other" "priest-teleport-other"
+  :numeric-id 154)
 
+(define-spell "Teleport Level" "priest-teleport-level"
+  :numeric-id 155)
+
+(define-spell "Word of Recall" "priest-word-of-recall"
+  :numeric-id 156)
+
+(define-spell "Alter Reality" "alter-reality"
+  :numeric-id 157)

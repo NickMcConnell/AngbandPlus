@@ -173,7 +173,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
   (declare (type fixnum x y))
   (setf (cave-floor dungeon x y) "rubble"))
 
-(defun make-trap-visible (the-trap dungeon x y)
+(defun make-trap-visible! (the-trap dungeon x y)
   (setf (decor.visible? the-trap) t)
   (light-spot! dungeon x y))
 
@@ -184,7 +184,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 		  (funcall (trap.effect trap-type) the-trap dungeon x y)
 		  ;; assuming everything went ok
 		  (disturbance *variant* *player* the-trap :max)
-		  (make-trap-visible the-trap dungeon x y))
+		  (make-trap-visible! the-trap dungeon x y))
 		 (t
 		  (warn "Trap ~s does not have a funcallable effect." (trap.id trap-type))))))
 	(t
@@ -193,13 +193,14 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 			
 ;;  (warn "Executing trap ~s" the-trap)
 
-(let ((trap-event nil))
-  (defun create-simple-trap (type x y)
-    (let ((trap (make-instance 'active-trap :type type :loc-x x :loc-y y)))
-      (unless trap-event
-	(setf trap-event (make-coord-event "step" #'%execute-trap nil)))
-      (push trap-event (decor.events trap))
-      trap)))
+(defvar *cached-trap-event* nil)
+
+(defun create-simple-trap (type x y)
+  (let ((trap (make-instance 'active-trap :type type :loc-x x :loc-y y)))
+    (unless *cached-trap-event*
+      (setf *cached-trap-event* (make-coord-event "step" #'%execute-trap nil)))
+    (push *cached-trap-event* (decor.events trap))
+    trap))
 
 ;; should be reimplemented, slow and ignores rarity
 (defmethod find-random-trap (variant dungeon x y)
@@ -237,7 +238,9 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	     (can-place? dungeon x y :trap))
 
     (when-bind (the-trap (find-random-trap variant dungeon x y))
-      (place-trap! variant dungeon x y the-trap))))
+      (if (is-trap? the-trap)
+	  (place-trap! variant dungeon x y the-trap)
+	  (warn "Did not find a proper trap but got ~s" the-trap)))))
 
 
 (defun let-floor-carry! (dungeon x y obj)
@@ -290,10 +293,11 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	     (setq status :broken))))
 
     (when allow-artifact
-      (cond ((eq status :great)
+      (cond (great-p
+	     (setq rolls 4)) ;; 4 rolls
+	    ((eq status :great)
 	     (setq rolls 1)) ;; one roll
-	    (great-p
-	     (setq rolls 4)))) ;; 3 more rolls
+	    ))
 
     (dotimes (i rolls)
       ;; try for artifact
@@ -314,7 +318,6 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 (defmethod create-object ((variant variant) (dungeon dungeon) good-p great-p)
   "Creates an object for the given dungeon-object."
 
-  (declare (ignore great-p))
   ;; skip good and great
   (let* (;;(prob-sp-object (if good-p 10 1000))
 	 (depth (dungeon.depth dungeon))
@@ -323,7 +326,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	 
 	 (obj (get-active-object-by-level variant level :depth base-obj-depth)))
 
-    (apply-magic! variant obj depth)
+    (apply-magic! variant obj depth :good-p good-p :great-p great-p)
 
     (attempt-multi-creation! variant obj depth)
     
@@ -782,7 +785,7 @@ argument is passed it will be used as new dungeon and returned."
 
       ;; allocate rubble
       ;; allocate traps
-      (dotimes (i 10) ;; hack
+      (dotimes (i (randint depth-constant))
 	(allocate-object! variant dungeon 'alloc-set-both 'alloc-type-trap (randint depth-constant)))
 
       ;; we want monsters

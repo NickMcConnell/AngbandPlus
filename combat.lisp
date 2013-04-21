@@ -21,8 +21,6 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod kill-target! (dungeon attacker (target active-monster) x y)
   "Tries to remove the monster at the location."
 
-  (declare (ignore attacker))
-  
   (let ((var-obj *variant*)
 	(lvl-obj *level*)
 	(the-kind (amon.kind target)))
@@ -40,6 +38,9 @@ the Free Software Foundation; either version 2 of the License, or
     (when (typep the-kind 'unique-monster)
       (setf (monster.already-dead the-kind) t))
     
+    (when (is-player? attacker)
+      (let ((mon-know (get-monster-knowledge attacker target)))
+	(incf (monster.killed mon-know))))
     
     t))
       
@@ -149,7 +150,7 @@ the Free Software Foundation; either version 2 of the License, or
 			 (attack-type.power atype))
 			(t
 			 (get-power-of-attack atype))))
-	   (mlvl (monster.depth (amon.kind attacker)))
+	   (mlvl (monster.power-lvl (amon.kind attacker)))
 	   (rlev (if (plusp mlvl) mlvl 1))
 	   (skill (+ power (* 3 rlev))))
       
@@ -219,7 +220,7 @@ the Free Software Foundation; either version 2 of the License, or
     (player
      (format-message! "~a dies.. " (get-creature-name target)))
     (t
-     (play-sound +sound-kill+)
+     (play-sound "kill-someone")
      (format-message! "The ~a dies.. " (get-creature-name target))))
   nil)
 
@@ -229,10 +230,10 @@ the Free Software Foundation; either version 2 of the License, or
   ;;	(describe the-monster)
   (unless (melee-hit-creature? attacker target the-attack)
     (cmb-describe-miss attacker target)
-    (play-sound +sound-miss+)
+    (play-sound "miss-someone")
     (return-from attack-target! nil))
 
-  (play-sound +sound-hit+)
+  (play-sound "hit-someone")
   
   (let ((cur-hp (current-hp target)))
     (cmb-describe-hit attacker target the-attack)
@@ -266,7 +267,7 @@ the Free Software Foundation; either version 2 of the License, or
   (when-bind (monsters (cave-monsters dungeon x y))
     (let ((the-monster (car monsters)))
       ;; hack
-      ;;(play-sound +sound-hit+)
+      ;;(play-sound "hit-someone")
       (attack-target! dungeon player the-monster x y nil)
       )))
 

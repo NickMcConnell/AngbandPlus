@@ -70,7 +70,6 @@ the Free Software Foundation; either version 2 of the License, or
 
       )))
 
-
 (defun %filed-variant (&key engine-num-version id variant-num-version turn information)
 
   (unless engine-num-version
@@ -106,6 +105,17 @@ the Free Software Foundation; either version 2 of the License, or
     (activate-object var-obj)
     
     var-obj))
+
+(defmethod filed-variant-data ((variant variant) &key turn information &allow-other-keys)
+
+  (when (integerp turn)
+    (setf (variant.turn variant) turn))
+  
+  (when (consp information)
+    (dolist (i information)
+      (setf (get-information (car i) :variant variant) (cdr i))))
+  
+  variant)
 
 (defun %filed-object-kind (&key id (aware :unspec) (flavour :unspec))
 
@@ -334,51 +344,137 @@ the Free Software Foundation; either version 2 of the License, or
 
     door))
 
-(defun %filed-player-misc (&key age status height weight)
-  (let ((misc (make-instance 'misc-player-info)))
-    (when age
-      (setf (playermisc.age misc) age))
-    (when status
-      (setf (playermisc.status misc) status))
-    (when height
-      (setf (playermisc.height misc) height))
-    (when weight
-      (setf (playermisc.weight misc) weight))
-    misc))
-    
+(defmethod filed-player-data ((variant variant) (player player) &rest kwd-args &key  &allow-other-keys)
+  "The engine version handles :name, :race, :class, :gender,
+:cur-xp, :fraction-xp, :max-xp, :cur-hp :fraction-hp, :cur-mana, :fraction-mana,
+:base-stats, :cur-statmods, :equipment, :hp-table, :loc-x, :loc-y,
+:view-x, :view-y, :depth, :max-depth, :gold, :food, :energy, :temp-attrs"
+  ;;(warn "filed player.. ")
 
-(defun %filed-player-info (pl-obj &key name class race gender base-stats cur-statmods
-			   hp-table equipment variant temp-attrs)
-  "modifies the PL-OBJ with the extra info and returns the modified PL-OBJ."
+  ;; handle name
+  (when-bind (name (getf kwd-args :name))
+    (setf (player.name player) name))
 
-  (let* ((var-obj (if (is-variant? variant) variant *variant*))
-	 (the-class (get-char-class class :variant var-obj))
-	 (the-race (get-char-race race :variant var-obj))
-	 (the-gender (get-gender var-obj gender)))
+  ;; handle class
+  (when-bind (class (getf kwd-args :class))
+    (let ((the-class (get-char-class class :variant variant)))
+      (if the-class
+	  (setf (player.class player) the-class)
+	  (error "Unable to find class ~s" class))))
 
-    (setf (player.name pl-obj) name)
-    
-    (if the-class
-	(setf (player.class pl-obj) the-class)
-	(error "Unable to find class ~s" class))
-    (if the-race
-	(setf (player.race pl-obj) the-race)
-	(error "Unable to find race ~s" race))
-    (if the-gender
-	(setf (player.gender pl-obj) the-gender)
-	(progn
-	  (lang-warn "Unable to find gender ~s, assume male" gender)
-	  (setf (player.gender pl-obj) '<male>)))
+  ;; handle race
+  (when-bind (race (getf kwd-args :race))
+    (let ((the-race (get-char-race race :variant variant)))
+      (if the-race
+	  (setf (player.race player) the-race)
+	  (error "Unable to find race ~s" race))))
 
-    (setf (player.base-stats pl-obj) base-stats)
-    (when (and cur-statmods (arrayp cur-statmods))
-      (setf (player.cur-statmods pl-obj) cur-statmods))
+  ;; handle gender
+  (when-bind (gender (getf kwd-args :gender))
+    (let ((the-gender (get-gender variant gender)))
+      (if the-gender
+	  (setf (player.gender player) the-gender)
+	  (progn
+	    (lang-warn "Unable to find gender ~s, assume male" gender)
+	    (setf (player.gender player) '<male>)))))
 
-    (unless equipment
-      (error "When constructing a player, the equipment-list _must_ be kosher."))
+  ;; handle base-stats
+  (when-bind (base-stats (getf kwd-args :base-stats))
+    (unless (arrayp base-stats)
+      (warn "Base-stats aren't an array but ~s" base-stats))
+    (setf (player.base-stats player) base-stats))
 
+  ;; handle statmods
+  (when-bind (cur-statmods (getf kwd-args :cur-statmods))
+    (when (arrayp cur-statmods)
+      (setf (player.cur-statmods player) cur-statmods)))
+
+  ;; handle equipment
+  (when-bind (equipment (getf kwd-args :equipment))
+    (setf (player.equipment player) equipment))
+
+  ;; handle misc
+  (when-bind (misc (getf kwd-args :misc))
+    (cond ((typep misc 'misc-player-info) 
+	   (setf (player.misc player) misc))
+	  (t
+	   (warn "Unknown format for misc-data ~s" misc))))
+
+  
+  ;; handle hp-table
+  (when-bind (hp-table (getf kwd-args :hp-table))
+    (setf (player.hp-table player) hp-table))
+  
+  ;; handle x location
+  (when-bind (loc-x (getf kwd-args :loc-x))
+    (setf (location-x player) loc-x))
+  
+  ;; handle y location
+  (when-bind (loc-y (getf kwd-args :loc-y))
+    (setf (location-y player) loc-y))
+
+
+  ;; handle view-x location
+  (when-bind (view-x (getf kwd-args :view-x))
+    (setf (player.view-x player) view-x))
+  
+  ;; handle view-y location
+  (when-bind (view-y (getf kwd-args :view-y))
+    (setf (player.view-y player) view-y))
+  
+  ;; handle depth
+  (when-bind (depth (getf kwd-args :depth))
+    (setf (player.depth player) depth))
+  
+  ;; handle max-depth
+  (when-bind (max-depth (getf kwd-args :max-depth))
+    (setf (player.max-depth player) max-depth))
+
+  ;; handle cur-xp
+  (when-bind (cur-xp (getf kwd-args :cur-xp))
+    (setf (player.cur-xp player) cur-xp))
+
+  ;; handle max-xp
+  (when-bind (max-xp (getf kwd-args :max-xp))
+    (setf (player.max-xp player) max-xp))
+  
+  ;; handle fraction-xp
+  (when-bind (fraction-xp (getf kwd-args :fraction-xp))
+    (setf (player.fraction-xp player) fraction-xp))
+
+  ;; handle cur-hp
+  (when-bind (cur-hp (getf kwd-args :cur-hp))
+    (setf (current-hp player) cur-hp))
+  
+  ;; handle fraction-hp
+  (when-bind (fraction-hp (getf kwd-args :fraction-hp))
+    (setf (player.fraction-hp player) fraction-hp))
+
+  ;; handle cur-mana
+  (when-bind (cur-mana (getf kwd-args :cur-mana))
+    (setf (current-mana player) cur-mana))
+
+  ;; handle fraction-mana
+  (when-bind (fraction-mana (getf kwd-args :fraction-mana))
+    (setf (player.fraction-mana player) fraction-mana))
+
+  ;; handle gold
+  (when-bind (gold (getf kwd-args :gold))
+    (setf (player.gold player) gold))
+
+  ;; handle food
+  (when-bind (food (getf kwd-args :food))
+    (setf (player.food player) food))
+
+  ;; handle energy
+  (when-bind (energy (getf kwd-args :energy))
+    (setf (player.energy player) energy))
+
+  
+  ;; handle temporary attributes
+  (when-bind (temp-attrs (getf kwd-args :temp-attrs))
     (when (consp temp-attrs)
-      (let ((attr-table (player.temp-attrs pl-obj)))
+      (let ((attr-table (player.temp-attrs player)))
 	(dolist (i temp-attrs)
 	  (assert (eq (first i) :attr))
 	  (assert (eq (third i) :value))
@@ -401,22 +497,26 @@ the Free Software Foundation; either version 2 of the License, or
 			  (attr.duration attr) attr-dur)
 		    (return-from name-search t)))
 	    ))
-	))
-	
-    (setf (player.hp-table pl-obj) hp-table
-	  (player.equipment pl-obj) equipment
-	  ;; calculated
-	  (player.inventory pl-obj) (item-table-find equipment 'eq.backpack))
+	)))
 
-    ;; then we need to recalculate the xp, as we now have race and class
-    (update-xp-table! var-obj pl-obj) ;; hack
-    (update-max-hp! var-obj pl-obj) ;; hack
-    
-    pl-obj))
   
+  player)
+
+(defun %filed-player-misc (&key age status height weight)
+  (let ((misc (make-instance 'misc-player-info)))
+    (when age
+      (setf (playermisc.age misc) age))
+    (when status
+      (setf (playermisc.status misc) status))
+    (when height
+      (setf (playermisc.height misc) height))
+    (when weight
+      (setf (playermisc.weight misc) weight))
+    misc))
+    
 (defun %filed-player (&key name race class gender
 		      base-stats cur-statmods hp-table equipment
-		      temp-attrs
+		      temp-attrs misc
 		      loc-x loc-y view-x view-y
 		      depth max-depth max-xp cur-xp fraction-xp
 		      cur-hp fraction-hp cur-mana fraction-mana
@@ -424,35 +524,31 @@ the Free Software Foundation; either version 2 of the License, or
   
   "Returns a player object or nil."
   
-  (let* ((var-obj *variant*)
-	 (pl-obj (produce-player-object var-obj)))
+  (let* ((variant *variant*)
+	 (pl-obj (produce-player-object variant)))
     
-    (setf (location-x pl-obj) loc-x
-	  (location-y pl-obj) loc-y
-	  (player.view-x pl-obj) view-x
-	  (player.view-y pl-obj) view-y
-	  (player.depth pl-obj) depth
-	  (player.max-depth pl-obj) max-depth
-	  (player.max-xp pl-obj) max-xp
-	  (player.cur-xp pl-obj) cur-xp
-	  (player.fraction-xp pl-obj) fraction-xp
-
-	  (current-hp pl-obj) cur-hp
-	  (player.fraction-hp pl-obj) fraction-hp
-	  (current-mana pl-obj) cur-mana
-	  (player.fraction-mana pl-obj) fraction-mana
-	  (player.gold pl-obj) gold
-	  (player.food pl-obj) food
-	  (player.energy pl-obj) energy)
+    (filed-player-data variant pl-obj :name name :race race :class class :gender gender
+		       :base-stats base-stats :cur-statmods cur-statmods
+		       :temp-attrs temp-attrs :misc misc
+		       :hp-table hp-table :equipment equipment
+		       :loc-x loc-x :loc-y loc-y
+		       :view-x view-x :view-y view-y
+		       :depth depth :max-depth max-depth
+		       :max-xp max-xp :cur-xp cur-xp
+		       :fraction-xp fraction-xp
+		       :cur-hp cur-hp :fraction-hp fraction-hp
+		       :cur-mana cur-mana :fraction-mana fraction-mana
+		       :gold gold :food food :energy energy)
     
+    
+    ;; calculated
+    (setf (player.inventory pl-obj) (item-table-find equipment 'eq.backpack))
 
+    ;; then we need to recalculate the xp, as we now have race and class
+    (update-xp-table! variant pl-obj) ;; hack
+    (update-max-hp! variant pl-obj) ;; hack
 
-    (%filed-player-info pl-obj :name name :race race :class class :gender gender
-			:base-stats base-stats :cur-statmods cur-statmods
-			:temp-attrs temp-attrs
-			:hp-table hp-table :equipment equipment :variant var-obj)
-
-    (calculate-creature-bonuses! var-obj pl-obj)
+    (calculate-creature-bonuses! variant pl-obj)
     
     pl-obj))
 
@@ -609,38 +705,52 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod load-object ((variant variant) (type (eql :player)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
 	 (pl-obj (produce-player-object variant))
-	 (stat-len (variant.stat-length variant)))
-
-    ;; get basic values in
-    (setf (location-x pl-obj) (read-binary 'bt:u16 str)
-	  (location-y pl-obj) (read-binary 'bt:u16 str)
-	  (player.view-x pl-obj) (read-binary 'bt:u16 str)
-	  (player.view-y pl-obj) (read-binary 'bt:u16 str)
-	  (player.depth pl-obj) (read-binary 'bt:s16 str)
-	  (player.max-depth pl-obj) (read-binary 'bt:s16 str)
-	  (player.max-xp pl-obj) (read-binary 'bt:u32 str)
-	  (player.cur-xp pl-obj) (read-binary 'bt:u32 str)
-	  (player.fraction-xp pl-obj) (read-binary 'bt:u32 str)
-
-	  (current-hp pl-obj) (read-binary 'bt:u32 str)
-	  (player.fraction-hp pl-obj) (read-binary 'bt:u32 str)
-	  (current-mana pl-obj) (read-binary 'bt:u32 str)
-	  (player.fraction-mana pl-obj) (read-binary 'bt:u32 str)
-	  (player.gold pl-obj) (read-binary 'bt:u32 str)
-	  (player.food pl-obj) (read-binary 'bt:u32 str)
-	  (player.energy pl-obj) (read-binary 'bt:u16 str))
-
-
-    (setf (player.misc pl-obj) (%filed-player-misc :age (read-binary 'bt:u16 str)
-						   :status (read-binary 'bt:u16 str)
-						   :height (read-binary 'bt:u16 str)
-						   :weight (read-binary 'bt:u16 str)))
+	 (stat-len (variant.stat-length variant))
+	 (loc-x (read-binary 'bt:u16 str))
+	 (loc-y (read-binary 'bt:u16 str))
+	 (view-x (read-binary 'bt:u16 str))
+	 (view-y (read-binary 'bt:u16 str))
+	 (depth (read-binary 'bt:s16 str))
+	 (max-depth (read-binary 'bt:s16 str))
+	 (max-xp (read-binary 'bt:u32 str))
+	 (cur-xp (read-binary 'bt:u32 str))
+	 (frac-xp (read-binary 'bt:u32 str))
+	 (cur-hp (read-binary 'bt:u32 str))
+	 (frac-hp (read-binary 'bt:u32 str))
+	 (cur-mana (read-binary 'bt:u32 str))
+	 (frac-mana (read-binary 'bt:u32 str))
+	 (gold (read-binary 'bt:u32 str))
+	 (food (read-binary 'bt:u32 str))
+	 (energy (read-binary 'bt:u16 str))
+	 (misc (%filed-player-misc :age (read-binary 'bt:u16 str)
+				   :status (read-binary 'bt:u16 str)
+				   :height (read-binary 'bt:u16 str)
+				   :weight (read-binary 'bt:u16 str)))
+	 )
+	   
 	 
-    (%filed-player-info pl-obj
+    (filed-player-data variant pl-obj
 			:name (%bin-read-string str)
 			:race  (%bin-read-string str)
 			:class  (%bin-read-string str)
 			:gender  (%bin-read-string str)
+			:loc-x loc-x
+			:loc-y loc-y
+			:view-x view-x
+			:view-y view-y
+			:depth depth
+			:max-depth max-depth
+			:max-xp max-xp
+			:cur-xp cur-xp
+			:fraction-xp frac-xp
+			:cur-hp cur-hp
+			:fraction-hp frac-hp
+			:cur-mana cur-mana
+			:fraction-mana frac-mana
+			:gold gold
+			:food food
+			:energy energy
+			:misc misc
 			:base-stats (%bin-read-array stat-len 'bt:u16 str)
 			:cur-statmods (%bin-read-array stat-len 'bt:u16 str)
 			:hp-table (%bin-read-array (variant.max-charlevel *variant*) 'bt:u16 str)
@@ -650,7 +760,13 @@ the Free Software Foundation; either version 2 of the License, or
 					  (load-object variant :temp-creature-attribute stream))
 			)
 
-    
+    ;; calculated
+    (setf (player.inventory pl-obj) (item-table-find (player.equipment pl-obj) 'eq.backpack))
+
+    ;; then we need to recalculate the xp, as we now have race and class
+    (update-xp-table! variant pl-obj) ;; hack
+    (update-max-hp! variant pl-obj) ;; hack
+
     ;; recalculate rest
     (calculate-creature-bonuses! variant pl-obj)
     ;;(warn "player loaded")
@@ -689,11 +805,44 @@ the Free Software Foundation; either version 2 of the License, or
 		    :dungeon (load-object variant :dungeon stream))
       )))
 
+;; hack
+(defmethod load-variant-object ((variant variant) (stream l-binary-stream))
+  (let* ((str (lang.stream stream))
+	 (info-len (bt:read-binary 'bt:u32 str))
+	 (info (loop for i from 0 below info-len
+		     collecting 
+		     (let* ((key (%bin-read-string str))
+			    (val-type (bt:read-binary 'bt:u16 str))
+			    (val (%bin-read-string str))
+			    (val-obj (ecase val-type
+				       (1 val)
+				       (2 (read-from-string val))
+				       (3 (char val 0))
+				       (4 nil)
+				       (5 t)
+				       )))
+		       (cons key val-obj)))))
+    
+      (filed-variant-data variant #||:turn turn||# :information info)
+  
+      (let ((obj-len  (bt:read-binary 'bt:u32 str)))
+	(dotimes (i obj-len)
+	  (load-object variant :object-kind  stream)))
+      
+      (let ((mon-len  (bt:read-binary 'bt:u32 str)))
+	(dotimes (i mon-len)
+	  (load-object variant :monster-kind  stream)))
+      
+      variant))
+  
+
 (defmethod load-object (variant (type (eql :variant)) (stream l-binary-stream))
   (assert (eq variant nil))
   (let* ((str (lang.stream stream))
-	 (var-obj (%filed-variant :id (%bin-read-string str)
-				  :turn (bt:read-binary 'bt:u32 str)
+	 (id (%bin-read-string str))
+	 (turn (bt:read-binary 'bt:u32 str))
+	 (var-obj (%filed-variant :id id 
+				  :turn turn
 				  :variant-num-version (bt:read-binary 'bt:u16 str)
 				  :engine-num-version (bt:read-binary 'bt:u16 str))))
 
@@ -704,29 +853,8 @@ the Free Software Foundation; either version 2 of the License, or
     
     (check-type *variant* variant)
 
-    (let ((info-len (bt:read-binary 'bt:u32 str)))
-      (dotimes (i info-len)
-	(let* ((key (%bin-read-string str))
-	       (val-type (bt:read-binary 'bt:u16 str))
-	       (val (%bin-read-string str))
-	       (val-obj (ecase val-type
-			  (1 val)
-			  (2 (read-from-string val))
-			  (3 (char val 0))
-			  (4 nil)
-			  (5 t)
-			  )))
-	  (setf (get-information key :variant var-obj) val-obj))))
-    
+    (load-variant-object var-obj stream)
 
-    (let ((obj-len  (bt:read-binary 'bt:u32 str)))
-      (dotimes (i obj-len)
-	(load-object var-obj :object-kind  stream)))
-    
-    (let ((mon-len  (bt:read-binary 'bt:u32 str)))
-      (dotimes (i mon-len)
-	(load-object var-obj :monster-kind  stream)))
-    
     var-obj))
 
 (defmethod load-object ((variant variant) (type (eql :object-kind)) (stream l-binary-stream))

@@ -77,11 +77,6 @@ struct sdl_winconnection {
     SDL_Surface *background; // pointer to the background surface
 
     Sint32 cx, cy; /* last known cursor coordinates */
-    
-    bool prefer_fresh; /* in case we don't implement FROSH in a graphics engine */
-    bool cursor_on;
-    
-    bool cursor_magic; /* experimental cursor effects */
 
 };
 
@@ -228,7 +223,7 @@ load_plain_image(const char *filename, int image_index, unsigned int transcolour
 }
 
 int
-get_image_width(int idx) {
+sdl_getImageWidth(int idx) {
     if (idx >= 0 && idx < MAX_IMAGES) {
 	return tileInfo->tiles[idx]->w;
     }
@@ -238,7 +233,7 @@ get_image_width(int idx) {
 }
 
 int
-get_image_height(int idx) {
+sdl_getImageHeight(int idx) {
     if (idx >= 0 && idx < MAX_IMAGES) {
 	return tileInfo->tiles[idx]->h;
     }
@@ -302,9 +297,9 @@ sdl_load_font(const char *fname, int ptsize) {
 
     extension++;
 
-    if (FALSE) { }
+    if (0) { }
     else if (!strcmp(extension, "hex")) {
-	fd = load_hex_font(fname, TRUE);
+	fd = load_hex_font(fname, 1);
     }
 #ifdef ALLOW_TTF
     else if (!strcmp(extension, "ttf")) {
@@ -360,8 +355,6 @@ sdlify_frame(LangbandFrame *lf) {
     if (lf->tile_height < wc->font_data->height)
 	lf->tile_height = wc->font_data->height; 
 
-    wc->cursor_on = TRUE;
-    wc->cursor_magic = TRUE;
     wc->background = NULL;
 
     if (lf->allowed_width < 1) {
@@ -401,7 +394,7 @@ sdlify_frame(LangbandFrame *lf) {
 
 
 int
-load_texture(int idx, const char *filename, int target_width, int target_height, int alpha) {
+sdl_loadTexture(int idx, const char *filename, int target_width, int target_height, int alpha) {
     // loads a texture in the given idx spot.
     int i, j;
     SDL_Surface *bg = NULL, *texture = NULL;
@@ -497,7 +490,7 @@ init_sdl(int initarguments) {
 
     if (use_sound) {
 	int retval = -1;
-	if (FALSE) { return -1;}
+	if (0) { return -1;}
 #ifdef USE_OPENAL
 	else if (current_soundsystem() == SOUNDSYSTEM_OPENAL) {
 	    retval = al_init_mixer();
@@ -510,7 +503,7 @@ init_sdl(int initarguments) {
 #endif
 	if (retval != 0) {
 	    // the game can go on, but no sound!
-	    use_sound = FALSE;
+	    use_sound = 0;
 	}
     }
     
@@ -602,7 +595,7 @@ init_sdl(int initarguments) {
 	{
 	    sdl_winconnection *wc = (sdl_winconnection*)lf->ui_connection;
 	    wc->gt = screen_tiles; // improve later
-	    lf->visible = FALSE;
+	    lf->visible = 0;
 	}
 	//DBGPUT("end-loop\n");
     }
@@ -635,7 +628,7 @@ cleanup_SDL(void) {
 	screen_tiles = NULL;
     }
     if (use_sound) {
-	if (FALSE) { return -1;}
+	if (0) { return -1;}
 #ifdef USE_OPENAL
 	else if (current_soundsystem() == SOUNDSYSTEM_OPENAL) {
 	    al_close_mixer();
@@ -772,19 +765,19 @@ exp_complex_blit(short win_num, short x, short y, unsigned int img, int flags) {
 }
 
 int
-exp_full_blit(short win_num, short x, short y, unsigned int img, short flag) {
+sdl_fullBlit(short win_num, short x, short y, unsigned int img, short flag) {
     // also flushes
     return exp_complex_blit(win_num, x, y, img, ALSO_CLEAR_BG | flag);
 }
 
 int
-exp_transparent_blit(short win_num, short x, short y, unsigned int img, short flag) {
+sdl_transparentBlit(short win_num, short x, short y, unsigned int img, short flag) {
     // also flushes
     return exp_complex_blit(win_num, x, y, img, flag);
 }
 
 int
-exp_clear_coords(short win_num, short x, short y, short w, short h) {
+sdl_clearCoords(short win_num, short x, short y, short w, short h) {
     // also flushes
     LangbandFrame *lf = predefinedFrames[win_num];
     sdl_winconnection *wc = NULL;
@@ -827,7 +820,7 @@ exp_clear_coords(short win_num, short x, short y, short w, short h) {
 }
 
 int
-exp_flush_coords(short win_num, short x, short y, short w, short h) {
+sdl_flushCoords(short win_num, short x, short y, short w, short h) {
     LangbandFrame *lf = predefinedFrames[win_num];
     sdl_winconnection *wc = NULL;
     SDL_Rect dr;
@@ -846,6 +839,11 @@ exp_flush_coords(short win_num, short x, short y, short w, short h) {
 
     dr.w = w * lf->tile_width;
     dr.h = h * lf->tile_height;
+
+    // this calculation is very important!!
+    if (dr.w > (lf->allowed_width - (x * lf->tile_width))) {
+	dr.w = (lf->allowed_width - (x * lf->tile_width));
+    }
     
     //DBGPUT("Flush %d,%d,%d,%d\n", dr.x, dr.y, dr.w, dr.h);
     SDL_UpdateRect(wc->face, dr.x, dr.y, dr.w, dr.h);

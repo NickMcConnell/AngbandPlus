@@ -49,23 +49,17 @@ INSTALLSOURCES	:= \
 	load.lisp  death.lisp \
 	birth.lisp ai.lisp loop.lisp \
 	dump.lisp init.lisp verify.lisp \
-	conversation.lisp window.lisp \
-	adts.lisp
-
-COMPATSRC = \
-	modules/compat/monster.lisp \
-	modules/compat/obj-kind.lisp \
-	modules/compat/floor.lisp \
-	modules/compat/savefiles.lisp
+	window.lisp adts.lisp
 
 FOREIGNSRC = \
 	ffi/ffi-acl.lisp \
 	ffi/ffi-clisp.lisp \
 	ffi/ffi-cmu.lisp \
 	ffi/ffi-corman.lisp \
-	ffi/ffi-load.lisp \
 	ffi/ffi-defs.lisp \
+	ffi/ffi-load.lisp \
 	ffi/ffi-lw.lisp \
+	ffi/ffi-openmcl.lisp \
 	ffi/ffi-sbcl.lisp 
 
 
@@ -89,6 +83,7 @@ VANSRC = \
 	variants/vanilla/print.lisp \
 	variants/vanilla/quirks.lisp \
 	variants/vanilla/rooms.lisp \
+	variants/vanilla/save.lisp \
 	variants/vanilla/skills.lisp \
 	variants/vanilla/spells.lisp \
 	variants/vanilla/various.lisp \
@@ -125,7 +120,8 @@ VANCONFSRC = \
 	variants/vanilla/config/traps.lisp \
 	variants/vanilla/config/uniques.lisp \
 	variants/vanilla/config/weapons.lisp \
-	variants/vanilla/config/wizard.lisp 
+	variants/vanilla/config/wizard.lisp \
+	variants/vanilla/config/dead.txt
 
 
 build-arch: build-arch-stamp

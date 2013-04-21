@@ -178,77 +178,7 @@ the Free Software Foundation; either version 2 of the License, or
       pos)))
 
 (defmethod print-tomb ((variant variant) (player player))
-  "Prints a tombstone."
-
-  ;; temporary
-  (let ((hs (produce-high-score-object variant player)))
-
-    (unless (eq (get-system-type) 'sdl)
-      
-;;    (declare (ignore hs))
-      (with-open-file (s (game-data-path "dead.txt")
-			 :direction :input)
-	(loop for x = (read-line s nil 'eof)
-	      for i from 0
-	      until (eq x 'eof)
-	      do
-	      ;;	  (warn "Printing ~s on ~d" x i)
-	      (put-coloured-str! +term-white+ x 0 i))))
-    
-
-    ;; now let's make things perty
-    (let* ((title (get-title-for-level (player.class player) (player.level player)))
-	   (class-name (class.name (player.class player)))
-	   (name (player.name player))
-	   (max-width 31))
-
-      (unless (eq (get-system-type) 'sdl)
-      (flet ((dump-str (str y x)
-	       (put-coloured-str! +term-white+ (%centred-string str max-width) x y)))
-
-	(dump-str name  6 11)
-	(dump-str "the"  7 11)
-	(dump-str title  8 11)
-	(dump-str class-name 10 11)
-	(dump-str (format nil "Level: ~a" (hs-entry.level hs))
-		  11 11)
-	(dump-str (format nil "Xp: ~a" (hs-entry.xp hs))
-		  12 11)
-	(dump-str (format nil "Au: ~a" (hs-entry.gold hs))
-		  13 11)
-	(dump-str (format nil "Killed on level: ~a" (hs-entry.depth hs))
-		  14 11)
-	(dump-str (format nil "by ~a" (hs-entry.cause-of-death hs))
-		  15 11)
-	;; add time
-	;;      (dump-str (%pretty-date-line (hs-entry.date hs)) 17 11)
-    
-	nil))
-
-      (when (eq (get-system-type) 'sdl)
-	(let* ((is-male? (if (eq (gender.symbol (player.gender player)) '<male>)
-			     t nil))
-	       (pronoun (if is-male? "he" "she"))
-	       (owning (if is-male? "his" "her"))
-	       (text (format nil
-			     #.(concatenate 'string "And so it has come to pass, ~a the ~a ~a has died.  "
-					    "The might of Morgoth's armies has so far proven too strong "
-					    "for ~a and ~a many ancestors. "
-					    "Only ~a winters old, but already of rank ~a, ~a fought the "
-					    "evils of Angband valiantly.  Ancestors mourn the loss of yet "
-					    "another hapless adventurer.  ~a was killed "
-					    "by a ~a.  The main claim to fame was ~a brutal killing of "
-					    "innocent townspeople, and ~a will not be missed.")
-			     name title class-name
-			     name
-			     owning
-			     17 (hs-entry.level hs) pronoun
-			     name
-			     (hs-entry.cause-of-death hs) owning pronoun)))
-	  (print-text! 10 27 +term-white+ text
-		       :end-col (- (get-frame-width +full-frame+) 10))))
-      
-      )))
+  t)
 
 (defmethod arrange-game-exit& ((variant variant) player)
   "Organises things dealing with death of a player..
@@ -280,7 +210,8 @@ Thanks for all the fish."
 	(put-coloured-line! +term-white+ "Oops.. you died.. " 0 0)
     
 	(clear-window-from +full-frame+ 0)
-	(paint-gfx-image& "other/thedead.png" 0 0)
+	(when (eq (get-system-type) 'sdl)
+	  (paint-gfx-image& "other/thedead.png" 0 0))
 	
 	(print-tomb variant player)
       

@@ -182,13 +182,14 @@ the Free Software Foundation; either version 2 of the License, or
     (loop named counting-area
 	  for a-obj across table
 	  do
-;;	  (warn "Checking ~a" a-obj)
-	  (when (> (alloc.depth a-obj) depth)
-	    (return-from counting-area nil))
-	  ;; skip chest-check
-	  (setf (alloc.prob3 a-obj) (alloc.prob2 a-obj))
-	  (incf total (alloc.prob3 a-obj))
-	  (incf counter))
+	  (progn
+	    ;;	  (warn "Checking ~a" a-obj)
+	    (when (> (alloc.depth a-obj) depth)
+	      (return-from counting-area nil))
+	    ;; skip chest-check
+	    (setf (alloc.prob3 a-obj) (alloc.prob2 a-obj))
+	    (incf total (alloc.prob3 a-obj))
+	    (incf counter)))
 
 
     (when (= 0 total)
@@ -214,64 +215,44 @@ the Free Software Foundation; either version 2 of the License, or
   (when-bind (the-kind (get-object-kind-by-level variant level :depth depth))
     (create-aobj-from-kind the-kind :variant variant :amount amount)))
 
-
-(defmethod create-alloc-table-objects ((variant variant) obj-table)
-  "Creates an allocation table for objects and returns it."
+(defun create-basic-allocation-table (variant obj-table)
+  "Creates and returns a basic allocation table for the given objects in a table."
   
   ;; first we should scan the obj-table and figure
   ;; out level-organisation and number of allocation
   ;; slots
 
-  (let* ((var-obj *variant*)
-	 (org-size (variant.max-depth var-obj))
+  (let* ((org-size (variant.max-depth variant))
 	 (level-org (make-array org-size :initial-element 0))
 	 (alloc-sz 0))
     
-;;    (warn "Scanning..")
-
-    #+langband-debug
-    (with-open-file (s (pathname (concatenate 'string *dumps-directory* "bar.txt"))
-		       :direction :output 
-		       :if-exists :supersede)
-      (loop for i across obj-table
-	    do (print i s)))
-    
     (loop for k-obj across obj-table
 	  do
-	  (dotimes (j 4)
-	    (unless (= 0 (svref (object.chance k-obj) j))
+	  (dolist (j (slot-value k-obj 'locations))
+	    (unless (= 0 (cdr j))
 	      (incf alloc-sz)
-	      (incf (aref level-org (svref (object.locale k-obj) j)))
+	      (incf (aref level-org (car j)))
 	      )))
 
-;;    (warn "Summing..")
     ;; then we sum up in level-org (init2.c)
     (loop for lvl-num from 1 below org-size
 	  do
 	  (setf (aref level-org lvl-num) (+ (aref level-org lvl-num)
 					    (aref level-org (1- lvl-num)))))
 
-    #||
-    (loop for v across level-org
-	  for i from 0
-	  do
-	  (format t "~&~a: ~a~%" i v))
-    ||#
-
-;;    (warn "doing table ~a ~a ~a" alloc-sz (svref obj-table 0) (svref obj-table 1))
     
     (let ((table (make-array alloc-sz))
 	  (counter 0))
       (loop for k-obj across obj-table
 	    for k-idx from 0
 	    do
-	    (dotimes (j 4)
-	      (let ((chance (svref (object.chance k-obj) j)))
+	    (dolist (j (slot-value k-obj 'locations))
+	      (let ((chance (cdr j)))
 		(unless (= 0 chance)
 		  (let* ((p (int-/ 100 chance))
 			 (alloc-obj (make-alloc-entry :index k-idx
 						      :obj k-obj
-						      :depth (svref (object.locale k-obj) j)
+						      :depth (car j)
 						      :prob1 p
 						      :prob2 p
 						      :prob3 p)))
@@ -282,67 +263,14 @@ the Free Software Foundation; either version 2 of the License, or
 
 
       (setq table (sort table #'< :key #'alloc.depth))
-
-      #+langband-debug
-      (dump-alloc-table table (concatenate 'string *dumps-directory* "foo.txt"))
       
       table)))
+  
 
+(defmethod create-alloc-table-objects ((variant variant) obj-table)
+  "Creates an allocation table for objects and returns it."
+  (create-basic-allocation-table variant obj-table))
 
 (defmethod create-alloc-table-monsters ((variant variant) mon-table)
   "Creates an allocation table for monsters and returns it."
-  
-  ;; first we should scan the mon-table and figure
-  ;; out level-organisation and number of allocation
-  ;; slots
-
-  (let* ((org-size (variant.max-depth variant))
-	 (level-org (make-array org-size :initial-element 0))
-	 (alloc-sz 0))
-    
-    (loop for k-obj across mon-table
-	  do
-	  (when (< 0 (monster.rarity k-obj))
-	    (incf alloc-sz)
-	    (incf (aref level-org (monster.depth k-obj)))
-	    ))
-      
-    ;; then we sum up in level-org (init2.c)
-    (loop for lvl-num from 1 below org-size
-	  do
-	  (setf (aref level-org lvl-num) (+ (aref level-org lvl-num)
-					    (aref level-org (1- lvl-num)))))
-
-   
-    (let ((table (make-array alloc-sz))
-	  (counter 0))
-
-;;      (warn "going second table.")
-      
-      (loop for k-obj across mon-table
-	    for k-idx from 0
-	    do
-	    ;;(warn "i")
-	    (when (< 0 (monster.rarity k-obj))
-	      
-	      (let* ((x (monster.depth k-obj))
-		     (p (int-/ 100 (monster.rarity k-obj)))
-		     (alloc-obj (make-alloc-entry :index k-idx
-						  :obj k-obj
-						  :depth x
-						  :prob1 p
-						  :prob2 p
-						  :prob3 p)))
-;;		(warn "k")
-		(setf (svref table counter) alloc-obj)
-		(incf counter))))
-
-	    
-
-      (setq table (sort table #'< :key #'alloc.depth))
-    
-
-      #+langband-debug
-      (dump-alloc-table table (concatenate 'string *dumps-directory* "formosa.txt"))
-      
-      table)))
+  (create-basic-allocation-table variant mon-table))

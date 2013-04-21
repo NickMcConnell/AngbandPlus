@@ -138,7 +138,10 @@ the Free Software Foundation; either version 2 of the License, or
   "checks if two objects are stackable.. hackish still."
   (and obj-a obj-b
        (equal (object.sort-value (aobj.kind obj-a))
-	      (object.sort-value (aobj.kind obj-b)))))
+	      (object.sort-value (aobj.kind obj-b)))
+       (< (+ (aobj.number obj-a) (aobj.number obj-b)) +max-itemstack-size+)
+       ))
+       
 
 (defun %equip-stacking (table)
   (loop for i from 0

@@ -81,8 +81,9 @@ The direction is a number from the keypad."
 			     (location-y player)
 			     wanted-x
 			     wanted-y)
+	     
 	     (on-move-to-coord var-obj player wanted-x wanted-y)
-
+	     
 	     )
 	    ))
 
@@ -131,17 +132,17 @@ The direction is a number from the keypad."
 		   (decor (coord.decor coord)))
 	      
 	      (when (typep decor 'active-trap)
-		(make-trap-visible decor dungeon cur-x cur-y)
+		(make-trap-visible! decor dungeon cur-x cur-y)
 		(disturbance *variant* player decor :major)
 		(print-message! "You have found a trap."))
 
 	      (when (and (typep decor 'active-door)
 			 (not (decor.visible? decor)))
 		(print-message! "You found a secret door.")
-		(setf (decor.visible? decor) t)
+		(make-door-visible! decor dungeon cur-x cur-y)
 		(disturbance *variant* player decor :major)
 		;;(place-closed-door! dungeon cur-x cur-y)
-		(light-spot! dungeon cur-x cur-y)
+		;;(light-spot! dungeon cur-x cur-y)
 		)
 	  
 	      ;; add more here, traps, chests.. 
@@ -278,6 +279,37 @@ a list if more items occupy the same place."
 	)))
 
 
+(defun interactive-destroy-item! (dungeon player)
+  "Destroys some inventory"
+
+  (when-bind (selection (with-frame (+query-frame+)
+			  (select-item dungeon player '(:backpack :equip :floor)
+				       :prompt "Destroy item: "
+				       :where :backpack)))
+
+    (let* ((var-obj *variant*)
+	   (the-table (get-item-table dungeon player (car selection)))
+	   (removed-obj (item-table-remove! the-table (cdr selection))))
+
+      (unless removed-obj
+	(format-message! "Did not find selected obj ~a" selection)
+	(return-from interactive-destroy-item! nil))
+
+      (when (and (typep removed-obj 'active-object)
+		 (is-cursed? removed-obj))
+	(print-message! "Hmmm, it seems to be cursed.")
+	(item-table-add! the-table removed-obj) ;; put back
+	(return-from interactive-destroy-item! nil))
+
+      (check-type removed-obj active-object)
+
+      ;; do nothing, it should disappear then :-D
+      
+      (on-destroy-object var-obj player removed-obj)
+      (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+)
+      
+      t)))
+	
 (defun interactive-drop-item! (dungeon player)
   "Drop some inventory"
 
@@ -326,6 +358,7 @@ a list if more items occupy the same place."
       (cond ((typep removed-obj 'active-object)
 	     ;; an object was returned
 	     (%put-obj-in-cnt dungeon player :backpack removed-obj)
+	     (on-take-off-object *variant* player removed-obj)
 	     ;;(bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+)
 	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+)
 	     )
@@ -501,7 +534,7 @@ a list if more items occupy the same place."
 (defun open-door! (dungeon x y)
   "hackish, fix me later.."
   (when (is-closed-door? dungeon x y)
-    (play-sound +sound-opendoor+)
+    (play-sound "open-door")
     (decor-operation *variant* (cave-decor dungeon x y) :open :value t)
     ;;(setf (door.closed? (cave-decor dungeon x y)) nil)
     (light-spot! dungeon x y)))
@@ -509,7 +542,7 @@ a list if more items occupy the same place."
 (defun close-door! (dungeon x y)
   "hackish, fix me later.."
   (when (is-open-door? dungeon x y)
-    (play-sound +sound-shutdoor+)
+    (play-sound "shut-door")
     (decor-operation *variant* (cave-decor dungeon x y) :close :value t)
 ;;    (setf (door.closed? (cave-decor dungeon x y)) t)
     (light-spot! dungeon x y)))
@@ -729,9 +762,10 @@ a list if more items occupy the same place."
     (let ((win (aref *windows* *map-frame*)))
       (multiple-value-bind (x y)
 	  (get-relative-coords (target.x target) (target.y target))
-	(setf (window-coord win +effect+ x y) 0)
-	(paint-coord win x y)
-	(flush-coords win x y 1 1)))))
+	(when (and x y)
+	  (setf (window-coord win +effect+ x y) 0)
+	  (paint-coord win x y)
+	  (flush-coords win x y 1 1))))))
 
 ;;; INPUT NOTE: needs to use more sophisticated input, e.g mouseclicks and keys
 (defun interactive-targeting! (dungeon player)
@@ -1011,6 +1045,54 @@ a corridor."
 	    (t
 	     dir))
       )))
+
+
+
+(defun interactive-throw-item! (dungeon player)
+  "Hackish throw-code."
+
+  (block object-shooting
+
+    (when-bind (selection (with-frame (+query-frame+)
+			    (select-item dungeon player '(:backpack :equip)
+					 :prompt "Throw item: "
+					 :where :backpack)))
+
+      (let* ((var-obj *variant*)
+	     (the-table (get-item-table dungeon player (car selection)))
+	     (removed-obj (item-table-remove! the-table (cdr selection))))
+
+	(unless removed-obj
+	  (format-message! "Did not find selected obj ~a" selection)
+	  (return-from interactive-throw-item! nil))
+
+	(when (and (typep removed-obj 'active-object)
+		   (is-cursed? removed-obj))
+	  (print-message! "Hmmm, it seems to be cursed.")
+	  (item-table-add! the-table removed-obj) ;; put back
+	  (return-from interactive-throw-item! nil))
+
+	(check-type removed-obj active-object)
+
+
+	(when-bind (dir (get-aim-direction))
+	  (assert (and (numberp dir) (< dir 10)))
+	      
+	  (multiple-value-bind (tx ty)
+	      (%get-dest-coords player dir 99)
+
+	    (throw-object var-obj player removed-obj tx ty)
+	    
+	    ))
+	))
+    ))
+
+(defmethod throw-object ((variant variant) (player player) (obj active-object) tx ty)
+  (let ((dungeon *dungeon*))
+    (drop-near-location! variant dungeon obj tx ty)
+    (on-drop-object variant player obj)
+    (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+)
+    t))
 
 (defmethod on-move-to-coord (variant creature x y)
   (declare (ignore variant x y))

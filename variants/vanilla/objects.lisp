@@ -3,7 +3,7 @@
 #||
 
 DESC: variants/vanilla/objects.lisp - code related to vanilla object-types
-Copyright (c) 2002 - Stig Erik Sandø
+Copyright (c) 2002-2003 - Stig Erik Sandø
 
 This program is free software  ; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -172,6 +172,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	  (tohit-mod (if gvals (gval.tohit-modifier gvals) 0))
 	  )
 
+      (when-bind (ego (aobj.ego obj))
+	(format stream " ~a" (ego.name ego)))
       
       ;; display armour bonuses
       (when (and obj-known (/= tohit-mod 0))
@@ -202,12 +204,13 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	 (known-obj (is-object-known? obj))
 	 (base (plural-name number (object.name o-type) nil (or store known-obj) nil
 			    :numeric-prefix numeric-prefix))
+	 (suffix (if (aobj.ego obj) (format nil " ~a" (ego.name (aobj.ego obj))) ""))
 	 (gvals (object.game-values obj))
 	 (tohit-mod (if gvals (gval.tohit-modifier gvals) 0))
 	 (dmg-mod (if gvals (gval.dmg-modifier gvals) 0))
 	 )
     (cond (known-obj
-	   (format stream "~a (~@d,~@d)" base tohit-mod dmg-mod))
+	   (format stream "~a~a (~@d,~@d)" base suffix tohit-mod dmg-mod))
 	  (t
 	   (write-string base stream)))))
 
@@ -252,6 +255,20 @@ the Free Software Foundation	 ; either version 2 of the License, or
 (defmethod initialise-object-kind! ((var-obj vanilla-variant) (new-obj object-kind) keyword-args)
 
   (call-next-method)
+
+  (when-bind (depth (getf keyword-args :depth))
+    (assert (>= depth 0))
+    (setf (object.power-lvl new-obj) depth))
+
+  (let ((locale (getf keyword-args :locale))
+	(chance (getf keyword-args :chance)))
+    (when (or locale chance)
+      (check-type chance vector)
+      (check-type locale vector)
+      (setf (object.locations new-obj) (loop for x across locale
+					     for y across chance
+					     when (plusp y)
+					     collecting (cons x y)))))
   
   ;; add stuff here
 
@@ -362,7 +379,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 		  ((> ratio 10) (elt descs 3))
 		  ((> ratio 0) (elt descs 4))
 		  ((<= ratio 0) (elt descs 5))
-		  #-cmu
+		  #-(or cmu sbcl)
 		  (t
 		   (error "Never fall this far!"))))
 	  ))
@@ -400,47 +417,146 @@ the Free Software Foundation	 ; either version 2 of the License, or
     t))
 
 
-(defmethod add-magic-to-item! ((variant variant) (item active-object/weapon) depth quality)
+(defun van/add-ego-ability! (variant item depth quality)
+  (declare (ignore quality)) ;; use this later
+  (block make-ego-item
+    ;;(warn "ego ~s ~s" quality (object.id item))
+    ;; skip boost
+
+    (let ((total 0)
+	  (table (gobj-table.alloc-table (%get-var-table variant "level" 'ego-items-by-level))))
+
+      (loop named counting-area
+	    for a-obj across table
+	    do
+	    (progn
+	      (setf (alloc.prob3 a-obj) 0)
+	   
+	      (when (>= depth (alloc.depth a-obj))
+		;;(warn "Checked ~s at ~s vs ~s" (alloc.obj a-obj) (alloc.depth a-obj) depth)
+		;; test if the ego-obj can fit
+		(let* ((ego (alloc.obj a-obj))
+		       (types (ego.obj-types ego)))
+		  (dolist (i types)
+		    (cond ((symbolp i)
+			   (when (satisfies-obj-type? i item)
+			     ;;(warn "~s satisfied ~s at ~s" ego item depth)
+			     (setf (alloc.prob3 a-obj) (alloc.prob2 a-obj))))
+			  (t nil)))
+		  ))
+	      (incf total (alloc.prob3 a-obj))))
+
+      (when (= 0 total)
+	(warn "No suitable ego-items at depth ~a for ~a" depth item)
+	(return-from make-ego-item nil))
+
+    
+      (let ((val (random total)))
+	(loop for a-obj across table
+	      do
+	      (when (< val (alloc.prob3 a-obj))
+		(assert (typep item 'active-object/vanilla-object))
+		(setf (aobj.ego item) (alloc.obj a-obj))
+		(return-from make-ego-item t))
+	      (decf val (alloc.prob3 a-obj))))
+
+      nil)))
+
+(defun van/add-magic-to-weapon! (variant item depth quality)
+  (block add-magic-to-item!
+    (when (eq quality :normal)
+      (return-from add-magic-to-item! nil))
+
+    ;; skip ego-check for :great and :broken
+    (when (or (eq quality :great) (eq quality :broken))
+      (van/add-ego-ability! variant item depth quality)) ;; returns t for success and nil otherwise
+
+    (ensure-game-values! item)
   
+    (let ((to-hit (+ (randint 5) (magic-bonus-for-level 5 depth)))
+	  (to-dmg (+ (randint 5) (magic-bonus-for-level 5 depth)))
+	  (to-hit-extra (+ (magic-bonus-for-level 10 depth)))
+	  (to-dmg-extra (+ (magic-bonus-for-level 10 depth)))
+	  (gvals (aobj.game-values item))
+	  )
+
+      (case quality
+	(:good
+	 (incf (gval.dmg-modifier gvals) to-dmg)
+	 (incf (gval.tohit-modifier gvals) to-hit))
+	(:great
+	 (incf (gval.dmg-modifier gvals) (+ to-dmg to-dmg-extra))
+	 (incf (gval.tohit-modifier gvals) (+ to-hit to-hit-extra)))
+	(:cursed
+	 (decf (gval.dmg-modifier gvals) to-dmg)
+	 (decf (gval.tohit-modifier gvals) to-hit))
+	(:broken
+	 (decf (gval.dmg-modifier gvals) (+ to-dmg to-dmg-extra))
+	 (decf (gval.tohit-modifier gvals) (+ to-hit to-hit-extra)))
+	(otherwise
+	 (warn "Unknown quality ~s wanted for item ~s" quality item)))
+
+      ;; skip cursed flag
+      ;; skip super-charges
+
+      ;;    (warn "Added magic (~s,~s) to ~s" to-hit to-dmg item)
+    
+      t)))
+
+(defmethod add-magic-to-item! ((variant vanilla-variant) (item active-object/weapon) depth quality)
+  (van/add-magic-to-weapon! variant item depth quality))
+
+(defmethod add-magic-to-item! ((variant vanilla-variant) (item active-object/ammo) depth quality)
+  (van/add-magic-to-weapon! variant item depth quality))
+
+(defmethod add-magic-to-item! ((variant vanilla-variant) (item active-object/armour) depth quality)
+
   (when (eq quality :normal)
     (return-from add-magic-to-item! nil))
 
   ;; skip ego-check for :great and :broken
+  (when (or (eq quality :great) (eq quality :broken))
+    (van/add-ego-ability! variant item depth quality)) ;; returns t for success and nil otherwise
 
-    (unless (aobj.game-values item)
-      (setf (aobj.game-values item) (make-game-values)))
+  (ensure-game-values! item)
   
-  (let ((to-hit (+ (randint 5) (magic-bonus-for-level 5 depth)))
-	(to-dmg (+ (randint 5) (magic-bonus-for-level 5 depth)))
-	(to-hit-extra (+ (magic-bonus-for-level 10 depth)))
-	(to-dmg-extra (+ (magic-bonus-for-level 10 depth)))
+  (let ((to-ac1 (+ (randint 5) (magic-bonus-for-level 5 depth)))
+	(to-ac2 (+ (magic-bonus-for-level 10 depth)))
 	(gvals (aobj.game-values item))
 	)
-    
-
 
     (case quality
       (:good
-       (incf (gval.dmg-modifier gvals) to-dmg)
-       (incf (gval.tohit-modifier gvals) to-hit))
+       (incf (gval.ac-modifier gvals) to-ac1))
       (:great
-       (incf (gval.dmg-modifier gvals) (+ to-dmg to-dmg-extra))
-       (incf (gval.tohit-modifier gvals) (+ to-hit to-hit-extra)))
+       (incf (gval.ac-modifier gvals) (+ to-ac1 to-ac2)))
       (:cursed
-       (decf (gval.dmg-modifier gvals) to-dmg)
-       (decf (gval.tohit-modifier gvals) to-hit))
+       (decf (gval.ac-modifier gvals) to-ac1)
+       (bit-flag-add! (aobj.identify item) (logior +ident-cursed+)))
       (:broken
-       (decf (gval.dmg-modifier gvals) (+ to-dmg to-dmg-extra))
-       (decf (gval.tohit-modifier gvals) (+ to-hit to-hit-extra)))
+       (decf (gval.ac-modifier gvals) (+ to-ac1 to-ac2))
+       (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+)))
       (otherwise
        (warn "Unknown quality ~s wanted for item ~s" quality item)))
 
     ;; skip cursed flag
     ;; skip super-charges
 
-;;    (warn "Added magic (~s,~s) to ~s" to-hit to-dmg item)
-    
-    t))
+    ))
+  
+
+(defmethod add-magic-to-item! :after ((variant vanilla-variant) (item active-object/vanilla-object) depth quality)
+  (declare (ignore depth quality))
+
+  (when-bind (ego (aobj.ego item))
+    ;;(warn "Made ego ~s for ~s" ego item)
+    ;; skip xtra
+    ;; skip broken
+    ;; skip cursed
+    ;; skip penalties/bonuses
+    ;; skip level-feeling
+    ))
+  
 
 ;; all wands should have game-values for charges
 (defmethod initialize-instance :after ((obj active-object/wand) &key)

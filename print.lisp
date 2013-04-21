@@ -23,21 +23,46 @@ ADD_DESC: Various code which just prints stuff somewhere
 (defun print-number (term colour number padding row col)
   ;; hack
   (let ((win (aref *windows* term)))
-    (output-string! win col row colour (format nil "~vd" padding number)))
-;;  (warn "prt-number")
-  nil)
+    ;;(output-string! win col row colour (format nil "~vd" padding number))
+    (win/format win col row colour "~v" padding number) ;; padding number))
+    nil))
+
 
 
 ;; screws up when printing lower values on the character sheet
 ;; this is also vanilla/ad&d specific stuff
 (defun print-stat-value (term colour stat row col)
+
+  (let ((win (aref *windows* term)))
+    ;; a bit ugly but we avoid consing
+    (cond ((>= stat 118)
+	   (output-string! win col row colour "18/")
+	   (win/format win (+ col 3) row colour "~d" (- stat 18)))
+	  ((> stat 27)
+	   (output-string! win col row colour " 18/")
+	   (win/format win (+ col 4) row colour "~d" (- stat 18)))
+	  ((> stat 18)
+	   (output-string! win col row colour " 18/")
+	   (win/format win (+ col 4) row colour "0~d" (- stat 18)))
+	  ((> stat 9)
+	   (win/format win col row colour "    ~d" stat))
+	  (t
+	   (win/format win col row colour "     ~d" stat)))
+    t))
+	  
+  
+  #||
   (output-string! (aref *windows* term)
 		  col row colour (cond ((>= stat 118)
 					(format nil "18/~3,'0d" (- stat 18)))
 				       ((> stat 18)
 					(format nil " 18/~2,'0d" (- stat 18)))
 				       (t
-					(format nil "    ~2d" stat)))))
+					(format nil "    ~2d" stat)
+					)))
+  
+(win/format (aref *windows* term) col row colour "    ~2d" stat))
+||#
 
 (defun print-field (str coord term)
   "Print string at given coordinates in light-blue."

@@ -28,7 +28,7 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :contraband-system)
 
 (asdf:defsystem :contraband
-    :version "0.1.4"
+    :version "0.1.5"
     :components ((:file "base")
 		 (:file "variant" :depends-on ("base"))
 		 (:file "levels" :depends-on ("variant"))
@@ -42,7 +42,7 @@ the Free Software Foundation; either version 2 of the License, or
 		 (:file "wizard" :depends-on ("keys"))
 		 
 		 )
-    :depends-on (langband-engine))
+    :depends-on (langband-engine lbmodule-dialogue))
 
 #-enough-support-for-langband
 (warn "Contraband has not been tested with '~a ~a', skips compilation."

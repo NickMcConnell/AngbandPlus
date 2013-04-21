@@ -37,6 +37,15 @@ ADD_DESC: available in the game.
       
       retval)))
 
+(defun satisfies-obj-type? (type obj)
+  ;; hackish
+  (let ((mapping (gethash type *obj-type-mappings*)))
+    (unless mapping
+      (warn "Obj-type ~s fell through" type))
+    (etypecase obj
+      (object-kind   (typep obj (car mapping)))
+      (active-object (typep obj (cdr mapping))))))
+       
 
 (defun ensure-game-values! (item)
   "Helper-function to make sure given item has game-values."
@@ -116,6 +125,9 @@ ADD_DESC: available in the game.
 
 (defmethod object.name ((obj active-object))
   (object.name (aobj.kind obj)))
+
+(defmethod object.id ((obj active-object))
+  (object.id (aobj.kind obj)))
 
 
 (defmethod object.game-values ((obj active-object))
@@ -402,8 +414,8 @@ with k-info.txt numbers. NUM is the numeric id."
 	 )
 
     
-  (destructuring-bind (&key numeric-id x-attr x-char depth rarity
-			    chance locale weight cost sort-value
+  (destructuring-bind (&key numeric-id x-attr x-char
+			    locations weight cost sort-value
 			    events game-values flags flavour desc the-kind
 			    multiplier
 			    (text-attr :unspec) (text-char :unspec)
@@ -416,6 +428,7 @@ with k-info.txt numbers. NUM is the numeric id."
 			    (on-calculate :unspec)
 			    &allow-other-keys)
       keyword-args
+    ;; depth and rarity is deprecated, remove in sources
     (declare (ignore flavour desc the-kind multiplier))
 
     (when flags
@@ -424,27 +437,10 @@ with k-info.txt numbers. NUM is the numeric id."
 	(setf flags (remove '<easy-know> flags)))
       (setf (object.flags new-obj) flags))
 
-;;    (when (and depth level)
-;;      (error "Object ~s given both level and depth." key))
-
-;;    (when level
-;;      (setf depth level))
-
-    (cond ((and depth (typep depth '(integer 0 *)))
-	   (setf (object.depth new-obj) depth))
-	  (t
-	   (lang-warn "Given illegal depth-value ~s for object ~s" depth key)
-	   (setf (object.depth new-obj) 1))) ;; hack
-
 
     (setf (object.numeric-id new-obj) (if numeric-id
 					  numeric-id
 					  key)
-	  ;;(x-attr new-obj) (convert-obj x-attr :x-attr)
-	  ;;(x-char new-obj) (convert-obj x-char :x-char)
-	  (object.rarity new-obj) rarity
-	  (object.chance new-obj) chance
-	  (object.locale new-obj) locale
 	  (object.weight new-obj) weight
 	  (object.cost new-obj) cost
 	  (object.sort-value new-obj) (if (numberp sort-value)
@@ -453,7 +449,20 @@ with k-info.txt numbers. NUM is the numeric id."
 	  (object.events new-obj) (get-legal-events events)
 	  (object.game-values new-obj) game-values)
 
-    (update-kind-display new-obj :x-attr x-attr :x-char x-char :text-attr text-attr :text-char text-char)
+    
+    (when (consp locations)
+      (setf (object.locations new-obj) locations))
+
+    (assert (listp (object.locations new-obj)))
+    #-langband-release
+    (when (consp (object.locations new-obj))
+      (dolist (i (object.locations new-obj))
+	(assert (<= 0 (car i)))
+	(assert (<= 0 (cdr i)))))
+	
+    
+    (update-kind-display new-obj :x-attr x-attr :x-char x-char
+			 :text-attr text-attr :text-char text-char)
 
     
     (flet ((possible-add-effect (effect var &optional (energy +energy-normal-action+))

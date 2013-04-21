@@ -46,13 +46,9 @@ ADD_DESC: This file just contains simple init and loading of the game
 
   ;; should be on in a released source
   (pushnew :langband-release *features*)
-  
-  ;; this one should be turned on in releases and in curses
-  #+(or win32 langband-release)
-  (pushnew :hide-warnings *features*)
 
 ;;  (pushnew :maintainer-mode *features*)
-  #+(or cmu allegro sbcl lispworks clisp)
+  #+(or cmu allegro sbcl lispworks clisp openmcl)
   (pushnew :use-asdf *features*)
   
 ;;  #+(or clisp)
@@ -132,14 +128,18 @@ ADD_DESC: This file just contains simple init and loading of the game
 	;;(var :vanilla)
 	;;(var :both)
 	)
+    
     (load "langband-engine.asd")
 
     (when (or (eq var :contraband) (eq var :both))
+      (load "modules/dialogue/dialogue.asd")
       (load "variants/contraband/contraband.asd")
       (asdf:oos 'asdf:load-op :contraband))
+    
     (when (or (eq var :vanilla) (eq var :both))
-      (asdf:oos 'asdf:load-op :langband-vanilla)
-      (load "variants/vanilla/langband-vanilla.asd"))
+      (load "variants/vanilla/langband-vanilla.asd")
+      (asdf:oos 'asdf:load-op :langband-vanilla))
+
     (progress-msg "Variants loaded...")
     t))
 

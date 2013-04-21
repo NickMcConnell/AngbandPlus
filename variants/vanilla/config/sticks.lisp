@@ -604,6 +604,11 @@ the Free Software Foundation; either version 2 of the License, or
   :the-kind '<staff>
   :on-add-magic (magic-add (item depth status)
 		    (add-charges! item (+ (randint 5) 6)))
+  :on-zap (object-effect (dungeon player item)
+	    (when (detect-traps! dungeon player item)
+	      (possible-identify! player item))
+	    :still-useful)
+
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-gold" "treasure location"
@@ -620,6 +625,11 @@ the Free Software Foundation; either version 2 of the License, or
   :the-kind '<staff>
   :on-add-magic (magic-add (item depth status)
 		    (add-charges! item (+ (randint 20) 8)))
+  :on-zap (object-effect (dungeon player item)
+	    (when (detect-gold! dungeon player item)
+	      (possible-identify! player item))
+	    :still-useful)
+
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-item" "object location"
@@ -636,6 +646,11 @@ the Free Software Foundation; either version 2 of the License, or
   :the-kind '<staff>
   :on-add-magic (magic-add (item depth status)
 		    (add-charges! item (+ (randint 15) 6)))
+  :on-zap (object-effect (dungeon player item)
+	    (when (detect-normal-objects! dungeon player item)
+	      (possible-identify! player item))
+	    :still-useful)
+
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-teleport" "teleportation"
@@ -828,8 +843,7 @@ the Free Software Foundation; either version 2 of the License, or
   :on-add-magic (magic-add (item depth status)
 		    (add-charges! item (+ (randint 15) 8)))
   :on-zap (object-effect (dungeon player item)
-	    (when (detect-invisible! dungeon player (location-x player) (location-y player)
-				     +default-detect-radius+)
+	    (when (detect-invisible! dungeon player item +default-detect-radius+)
 	      (possible-identify! player item))
 	    :still-useful)
 
@@ -891,6 +905,11 @@ the Free Software Foundation; either version 2 of the License, or
   :the-kind '<staff>
   :on-add-magic (magic-add (item depth status)
 		    (add-charges! item (+ (randint 8) 6)))
+  :on-zap (object-effect (dungeon player item)
+	    (detect-stairs! dungeon player item)
+	    (detect-doors! dungeon player item)
+	    (possible-identify! player item)
+	    :still-useful)
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-remove-curse" "remove curse"
@@ -922,7 +941,12 @@ the Free Software Foundation; either version 2 of the License, or
   :sort-value 4615
   :the-kind '<staff>
   :on-add-magic (magic-add (item depth status)
-		    (add-charges! item (+ (randint 15) 8)))
+		  (add-charges! item (+ (randint 15) 8)))
+  :on-zap (object-effect (dungeon player item)
+	    (when (detect-evil-monsters! dungeon player item +default-detect-radius+)
+	      (possible-identify! player item))
+	    :still-useful)
+
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-curing" "curing"
@@ -1145,6 +1169,11 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 1000
   :sort-value 4501
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	    (detect-doors! dungeon player item)
+	    (detect-stairs! dungeon player item)
+	    (possible-identify! player item)
+	    :still-useful)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-trap-loc" "trap location"
@@ -1159,6 +1188,10 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 100
   :sort-value 4500
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	    (when (detect-traps! dungeon player item)
+	      (possible-identify! player item))
+	    :still-useful)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-probing" "probing"
@@ -1573,6 +1606,10 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 5000
   :sort-value 4506
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	    (when (detect-all! dungeon player item)
+	      (possible-identify! player item))
+	    :still-useful)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-restoration" "restoration"

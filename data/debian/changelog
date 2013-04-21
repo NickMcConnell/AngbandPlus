@@ -1,3 +1,9 @@
+langband-data (0.1.5-1) unstable; urgency=low
+
+  * Minor tweak, just added a single .png to the tiles/ and removed one .bmp 
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Sat,  8 Mar 2003 21:26:23 +0100
+
 langband-data (0.1.4-1) unstable; urgency=low
 
   * Fully revamped langband-data into a source-package.

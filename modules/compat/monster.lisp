@@ -2,7 +2,7 @@
 
 #|
 
-DESC: lib/compat/monster.lisp - code to be compatible with r_info.txt
+DESC: modules/compat/monster.lisp - code to be compatible with r_info.txt
 Copyright (c) 2000-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
@@ -113,9 +113,9 @@ the Free Software Foundation; either version 2 of the License, or
 		     ;; the first should be W
 		     (assert (string-equal (first res) "w"))
 		     ;; the second is level/depth
-		     (setf (monster.depth cur-monster) (parse-integer (second res)))
+		     ;;(setf (monster.depth cur-monster) (parse-integer (second res)))
 		     ;; the third is rarity
-		     (setf (monster.rarity cur-monster) (parse-integer (third res)))
+		     ;;(setf (monster.rarity cur-monster) (parse-integer (third res)))
 		     ;; the fourth is unused
 		     ;; -----
 		     ;; the fifth is xp

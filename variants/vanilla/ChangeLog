@@ -1,3 +1,22 @@
+2003-03-09  Stig E Sandø <stig@users.sourceforge.net>
+	* Tweaked some object-types to make it easier to dispatch on them.
+	* Added 't'hrow object code
+	* Added ego-item code
+	* Improved handling of town-level and shops
+	* Saves/loads shop-content properly
+	* Saves/loads spell-knowledge
+	* Improved startup-speed slightly
+	* Now checks if armour or gloves affect spell-casting and mana
+	* Added most DETECT-XXX spells
+	* Added restocking of shops
+	* Fixed food-consumption to depend on regeneration and digestion
+	* Added refill-command for torches and lanterns
+	* Added code for object- and monster-recall.  not complete
+	* Simplified chance/locale specification for objects.. not
+	transferred all code to new system
+	* Added full spell-specification to all classes
+	* Other minor fixes and tweaks
+
 2003-02-18  Stig E Sandø <stig@users.sourceforge.net>
 	* Moved skill-code to vanilla variant
 	* Added mana constants that had been removed from engine

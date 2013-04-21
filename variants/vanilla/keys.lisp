@@ -14,10 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
-;;(setf *current-key-table* *ang-keys*)
-
-
-
 (define-key-operation 'toggle-run-mode
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
@@ -100,12 +96,12 @@ the Free Software Foundation; either version 2 of the License, or
 	  (flush-messages! t)
 	  (let ((how-long (get-string-input "Rest (0-9999, '*' for HP/SP, '&' as needed): " :max-length 4))
 		(mode nil))
-
 	    (when how-long
 	      (cond ((equal how-long "&")
 		     (setf mode :full-rest))
 		    
-		    ((equal how-long "*")
+		    ((or (equal how-long "*")
+			 (= (length how-long) 0))
 		     (setf mode :normal-rest))
 		    
 		    ((every #'digit-char-p how-long)
@@ -203,14 +199,15 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'drop-item
     #'(lambda (dungeon player)
-	(interactive-drop-item! dungeon player)
-	))
+	(interactive-drop-item! dungeon player)))
 
 (define-key-operation 'take-off-item
     #'(lambda (dungeon player)
-	(interactive-take-off-item! dungeon player)
-	))
+	(interactive-take-off-item! dungeon player)))
 
+(define-key-operation 'destroy-item
+    #'(lambda (dungeon player)
+	(interactive-destroy-item! dungeon player)))
 
 (define-key-operation 'wear-item
     #'(lambda (dungeon player)
@@ -219,6 +216,10 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'use-item
     #'(lambda (dungeon player)
 	(interactive-use-item! dungeon player)))
+
+(define-key-operation 'throw-item
+    #'(lambda (dungeon player)
+	(interactive-throw-item! dungeon player)))
 
 (define-key-operation 'quaff-potion
     #'(lambda (dungeon player)
@@ -250,8 +251,13 @@ the Free Software Foundation; either version 2 of the License, or
 ;;						       (typep x 'active-object/food))
 			       :limit-from '(:backpack :floor) ;; only place with food
 			       :which-use :eat
-			       :sound +sound-eat+
+			       :sound "eat-something"
 			       :prompt "Eat what?")))
+
+(define-key-operation 'refill-item
+    #'(lambda (dungeon player)
+	(interactive-refill-item! dungeon player)))
+
 
 (define-key-operation 'invoke-spell
     #'(lambda (dungeon player)
@@ -325,6 +331,16 @@ the Free Software Foundation; either version 2 of the License, or
 	(with-dialogue ()
 	  (clear-window *cur-win*)
 	  (display-help-topics *variant* "LAangband help (Vanilla)" 3)
+
+	  )))
+
+
+(define-key-operation 'identify-symbol
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon))
+	(with-dialogue ()
+	  (clear-window *cur-win*)
+	  (interactive-identify-symbol *variant* player)
 
 	  )))
 

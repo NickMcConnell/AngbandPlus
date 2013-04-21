@@ -524,3 +524,31 @@ the Free Software Foundation; either version 2 of the License, or
    
     
     notice)))
+
+(defun apply-effect-to-area (dungeon left-x left-y w h effect)
+
+  (let ((table (dungeon.table dungeon)))
+    (loop for x from left-x below (+ left-x w)
+	  do
+	  (loop for y from left-y below (+ left-y h)
+		do
+		(when (in-bounds? dungeon x y)
+		  (funcall effect (aref table x y) x y))))
+    t))
+
+(defun apply-effect-to-circle (dungeon centre-x centre-y radius effect)
+
+  (let ((table (dungeon.table dungeon))
+	(left-x (- centre-x radius))
+	(left-y (- centre-y radius)))
+
+    (loop for x from left-x below (+ left-x radius radius)
+	  do
+	  (loop for y from left-y below (+ left-y radius radius)
+		do
+		(when (and (in-bounds? dungeon x y)
+			   (< (distance centre-x centre-y x y) radius))
+		  (funcall effect (aref table x y) x y))))
+    
+    t))
+

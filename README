@@ -95,7 +95,7 @@ How to play:
     w - wear an item from backpack
    ^X - Save and exit the game. 
 
-  See also lib/help/keys.txt and the actual code in variants/vanilla/keys.lisp
+  See also lib/help/keys.txt and the actual code in variants/vanilla/config/keys.lisp
   
 What to do on crash or bugs:
 
@@ -106,10 +106,7 @@ What to do on crash or bugs:
   though. 
 
 Known bugs:
-  - Things may lock up somewhere in the magic-commands
-  - Eat-command doesn't work
-  - Some repaint-issues when opening/closing doors and when killing
-    monsters with spells.  ^R redraw command usually works though.
+  - Eat-command may not work
   - Windows port does not support TTF-fonts
   - Themes are not awfully changable at the moment, and some parts of
     the code (mouseclick) depend on hardcoded coordinates.  Braindead, I

@@ -91,17 +91,17 @@ the monster
 	       (string (gethash val (variant.floor-types variant)))
 	       ))
 	 #||
-	 (num-idx (etypecase val
-		    (integer val)
-		    (floor-type (floor.num-idx val))
-		    (string (floor.num-idx ft))
-		    ))
+	 (numeric-id (etypecase val
+	 (integer val)
+	 (floor-type (floor.numeric-id val))
+	 (string (floor.numeric-id ft))
+	 ))
 	 ||#
 	 )
 		    
 		     
     ;; fix me
-    ;;(setf (coord.floor coord) num-idx)
+    ;;(setf (coord.floor coord) numeric-id)
     (setf (coord.floor coord) ft)
   
     (if (bit-flag-set? (floor.flags ft) +floor-flag-wall+)
@@ -595,7 +595,9 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   ;; strict check, fails some places
 ;;  (legal-coord? dungeon x y)
   ;; liberal check
-  (and (< y (dungeon.height dungeon))
+  (and (>= y 0)
+       (>= x 0)
+       (< y (dungeon.height dungeon))
        (< x (dungeon.width dungeon)))
   )
 
@@ -810,10 +812,12 @@ car is start and cdr is the non-included end  (ie [start, end> )"
       (unless (bit-flag-set? flag +cave-mark+)
 	(let ((decor (coord.decor coord))
 	      (ft (coord.floor coord)))
-	  (if (and decor (bit-flag-set? (floor.flags ft) +floor-flag-floor+))
-	      ;; skip save of certain floors
-	      nil
-	      (bit-flag-add! (coord.flags coord) +cave-mark+))))
+	  (cond ((bit-flag-set? (floor.flags ft) +floor-flag-floor+)
+		 (when (bit-flag-set? flag +cave-glow+)
+		   (bit-flag-add! (coord.flags coord) +cave-mark+)))
+		 
+		(t
+		 (bit-flag-add! (coord.flags coord) +cave-mark+)))))
   
       )))
 
@@ -1119,7 +1123,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		(let ((ft (make-instance 'floor-type :id id :name name :flags (if (nonboolsym? flags)
 										  (eval flags)
 										  flags)
-					 :num-idx (incf dummy-cnt))))
+					 :numeric-id (incf dummy-cnt))))
 		  (handle-gfx-visual ft (eval x-attr) (eval x-char))
 		  (handle-text-visual ft (eval text-attr) (eval text-char))
 		  
@@ -1155,7 +1159,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
       (let ((real-table (variant.floor-types variant)))
 	(loop for v being the hash-values of legal-syms
 	      do
-	      (setf (gethash (floor.num-idx v) real-table) v)
+	      (setf (gethash (floor.numeric-id v) real-table) v)
 	      (setf (gethash (floor.id v) real-table) v)))
 	      
       (warn "H ~s W ~s" height width)

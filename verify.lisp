@@ -124,10 +124,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  (%ok-check (characterp (x-attr obj)))
   ;; skip alignment
   ;; skip type
-  (%ok-check (integerp (monster.depth obj)))
-  (%ok-check (<= 0 (monster.depth obj)))
-  (%ok-check (integerp (monster.rarity obj)))
-  (%ok-check (<= 0 (monster.rarity obj)))
+  (%ok-check (listp (monster.locations obj)))
   ;; skip hp
   (%ok-check (integerp (monster.armour obj)))
   (%ok-check (<= 0 (monster.armour obj)))

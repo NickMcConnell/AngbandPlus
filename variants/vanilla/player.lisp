@@ -14,6 +14,73 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
+(defmethod is-spellcaster? (obj)
+  (declare (ignore obj))
+  nil)
+
+(defmethod is-spellcaster? ((obj player))
+  (is-spellcaster? (player.class obj)))
+
+(defmethod is-spellcaster? ((obj spellcasting-class))
+  t)
+
+(defmethod produce-character-class ((variant vanilla-variant) id name &key spells magic-abilities &allow-other-keys)
+  ;; we only do stuff if we get magic-abiltiies info, otherwise we assume he is no spell-caster
+
+  (unless (consp magic-abilities)
+    (return-from produce-character-class (call-next-method)))
+  
+  ;; if we have magic abilities:
+
+  (let ((class-obj (make-instance 'spellcasting-class :id id :name name)))
+    
+    (setf (class.learnt-spells class-obj) (make-array 10 :fill-pointer 0 :initial-element nil))
+    
+    ;; handle basic magic-info
+    (destructuring-bind (&key spell-stat spells-at-level max-armour-weight) magic-abilities
+      (when (and spell-stat (symbolp spell-stat))
+	(setf (class.spell-stat class-obj) spell-stat))
+      (when (and spells-at-level (integerp spells-at-level) (plusp spells-at-level))
+	(setf (class.spells-at-level class-obj) spells-at-level))
+      (when (and max-armour-weight (integerp max-armour-weight))
+	(setf (class.max-armour-weight class-obj) max-armour-weight))
+      
+      )
+    
+    ;; handle spells
+    (when (consp spells)
+      (let ((collected-spells '()))
+	(dolist (spell spells)
+	  (destructuring-bind (&key id level mana fail xp) spell
+	    (let ((spell-obj (make-instance 'spell-classdata)))
+	      (if (and id (verify-id id))
+		  (setf (spell.id spell-obj) id)
+		  (error "Unable to understand spell-info for ~s for class ~s" spell id))
+	      (when (and level (integerp level) (plusp level))
+		(setf (spell.level spell-obj) level))
+	      (when (and mana (integerp mana) (plusp mana))
+		(setf (spell.mana spell-obj) mana))
+	      (when (and fail (integerp fail) (<= 0 fail))
+		(setf (spell.failure spell-obj) fail))
+	      (when (and xp (integerp xp) (<= 0 xp))
+		(setf (spell.xp spell-obj) xp))
+	      
+	      ;; check if something matches the def
+	      (unless (gethash id (variant.spells variant))
+		(warn "Can't find reference to spell-id ~s for class ~s" id name))
+	      
+	      (push spell-obj collected-spells))))
+	
+	(assert (plusp (length collected-spells)))
+	(let ((spell-array (make-array (length collected-spells))))
+	  (loop for i from 0
+		for spell in (nreverse collected-spells)
+		do
+		(setf (aref spell-array i) spell))
+	  (setf (class.spells class-obj) spell-array))))
+    
+    class-obj))
+
 ;; this belongs in variant
 (defmethod get-class-tile ((variant vanilla-variant) player)
   
@@ -788,6 +855,8 @@ the Free Software Foundation; either version 2 of the License, or
 		   (alter-attribute! '<see-invisible> calc-attrs +max-sight+))
 		  (<random-teleport>
 		   (alter-attribute! '<random-teleport> calc-attrs t)) ;; boolean
+		  (<slow-digestion>
+		   (alter-attribute! '<slow-digest> calc-attrs 10)) 
 		  (t
 		   (warn "Unhandled item-ability ~s for item ~s" i obj))))
 	      
@@ -1185,6 +1254,9 @@ the Free Software Foundation; either version 2 of the License, or
   (bit-flag-add! *update* +pl-upd-mana+))
 
 (defmethod on-wear-object ((variant vanilla-variant) (player player) (obj active-object))
+  (bit-flag-add! *update* +pl-upd-mana+))
+
+(defmethod on-take-off-object ((variant vanilla-variant) (player player) (obj active-object))
   (bit-flag-add! *update* +pl-upd-mana+))
 
 (defmethod on-drop-object ((variant vanilla-variant) (player player) (obj active-object))

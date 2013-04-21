@@ -456,6 +456,14 @@ ADD_DESC: Most of the code which deals with the game loops.
 (defun run-level! (level player)
   "a loop which runs a dungeon level"
 
+  (unless (level.dungeon level)
+    (warn "No legal DUNGEON object, did you load a dead savefile?")
+    (setf (player.dead? player) t
+	  (player.dead-from player) "fatal failure"
+	  (player.leaving? player) :quit)
+    
+    (return-from run-level! nil))
+  
   (let* ((dungeon (level.dungeon level))
 	 (var-obj *variant*)
 	 (variant *variant*)
@@ -517,8 +525,8 @@ ADD_DESC: Most of the code which deals with the game loops.
     
     (let* ((mon-len (length (dungeon.monsters dungeon)))
 	   (pq (lb-ds:make-priority-queue :size (+ 5 (* 2 mon-len))))
-	   (pq-arr (make-array (+ 5 (* 2 mon-len)) :initial-element nil)))
-	  
+	   (pq-arr (make-array (+ 5 (* 2 mon-len)) :initial-element nil))
+	   (last-world-process -1))
 
       ;; insert all entries
       (dolist (i (dungeon.monsters dungeon))
@@ -605,7 +613,10 @@ ADD_DESC: Most of the code which deals with the game loops.
 	       (return-from run-level! leave-sym)))
 	   
 	   (when (/= 0 *update*) (update-stuff var-obj dungeon player))
-	   (process-world& var-obj dungeon player)
+	   ;;(warn "Compare ~s to ~s" (variant.turn variant) last-world-process)
+	   (when (/= (variant.turn variant) last-world-process)
+	     (process-world& var-obj dungeon player)
+	     (setf last-world-process (variant.turn variant)))
 	   ;; do other stuff
 	   ;; hack
 	   (when (/= 0 *update*) (update-stuff var-obj dungeon player))
@@ -613,54 +624,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 	   )))
       
       )))
-       
-       #||
-       ;; postpone compact
-;;       (warn "loop")
-       (refresh-window *map-frame*)
-       (refresh-window +charinfo-frame+)
 
-       (warn "*Player ~s ~s, Monsters ~s ~s" (get-creature-energy player) (energy-for-speed player)
-	     (length (dungeon.monsters dungeon))
-	     (mapcar #'get-creature-energy (dungeon.monsters dungeon)))
-
-       (energise-creatures! var-obj dungeon player)
-
-       (warn "%Player ~s Monsters ~s ~s" (get-creature-energy player) (length (dungeon.monsters dungeon))
-	     (mapcar #'get-creature-energy (dungeon.monsters dungeon)))
-
-       (when (/= 0 *update*) (update-stuff var-obj dungeon player))
-	      
-       (process-monsters& dungeon player +energy-normal-action+)
-       ;; stuff
-
-       (let ((leave-sym (player.leaving? player)))
-	 (when leave-sym
-	   (return-from run-level! leave-sym)))
-
-       (when (/= 0 *update*) (update-stuff var-obj dungeon player))
-       
-       (process-world& var-obj dungeon player)
-       ;; do other stuff
-       ;; hack
-       (verify-panel dungeon player)
-
-       (when (/= 0 *update*) (update-stuff var-obj dungeon player))
-
-       ;; (warn "redraw is ~a" *redraw*)
-       (when (/= 0 *redraw*) (redraw-stuff var-obj dungeon player))
-
-
-       ;; do this till things are fixed..
-;;       (print-map dungeon player)
-
-       ;;(warn "turn ~s" (variant.turn var-obj))
-       (incf (variant.turn var-obj))
-
-       ))
-       ||#
-               
-    
 
 (defun game-loop& ()
   "This is the main game-loop.  and this function looks _ugly_."
@@ -678,9 +642,9 @@ ADD_DESC: Most of the code which deals with the game loops.
        
        (setq how-level-was-left (run-level! *level* *player*))
        
-;;       (tricky-profile
-;;	(setq how-level-was-left (run-level! *level* *player*))
-;;	:time)
+       ;;(tricky-profile
+	;;(setq how-level-was-left (run-level! *level* *player*))
+	;;:space)
        
        ;; return if we're toast
        (when (or (player.dead? *player*)
@@ -808,6 +772,11 @@ ADD_DESC: Most of the code which deals with the game loops.
 		     (push (cons i (saveheader.desc header)) real-files))))
 		
 		((equal type "lisp") ;; we ignore this one
+		 #||
+		 #-langband-release
+		 (progn
+		   (push (cons i "unknown lisp-file") real-files))
+		 ||#
 		 nil)
 		
 		(t ;; check for badness
@@ -867,8 +836,8 @@ ADD_DESC: Most of the code which deals with the game loops.
 	  (t
 	   (setf *variant* var-obj)
 	   (activate-object var-obj))))
-
-  (%load-window-textures *variant*)
+  (when (eq (get-system-type) 'sdl)
+    (%load-window-textures *variant*))
 
   ;; then it's time to actually create our player (with a dummy level)
   (let* ((*level* (make-instance 'level)) ;; evil hack
@@ -892,20 +861,42 @@ ADD_DESC: Most of the code which deals with the game loops.
 ;;	(old-spread (sys:gsgc-parameter :generation-spread))
 	)
 
-    ;;(when (eq (get-system-type) 'gcu)
-    ;;  (setf *map-frame* +asciimap-frame+))
+    (when (eq (get-system-type) 'gcu)
+      (setf *map-frame* +asciimap-frame+)
+      (loop for x across *windows*
+	    when x
+	    do (setf (window.gfx-tiles? x) nil)))
 
     (loop for x across *windows*
+	  when x 
 	  do (establish-data-in-window x))
 
     (setf *cur-win* (aref *windows* 0))
     
-    ;; !!check if we use gfx first!!
-    (let ((splash-idx (load-image& *variant* '(engine-gfx "other/langtitle.bmp") 1 0)))
-      (when (plusp splash-idx)
-	(fill-area *cur-win* splash-idx 0 0 0 99 36) ;; hack
-	(paint-gfx-image *cur-win* splash-idx 5 0)))
+    (when (eq (get-system-type) 'gcu)
+      (fetch-event *input-event* t)) ;; hack to wake up the gcu side
     
+    ;; !!check if we use gfx first!!
+    (cond ((eq (get-system-type) 'sdl)
+	   (let ((splash-idx (load-image& *variant* '(engine-gfx "other/langtitle.bmp") 1 0)))
+	     (when (plusp splash-idx)
+	       (fill-area *cur-win* splash-idx 0 0 0 99 36) ;; hack
+	       (paint-gfx-image *cur-win* splash-idx 5 0))))
+	  
+	  ((eq (get-system-type) 'gcu)
+	   (with-open-file (s (game-data-path "text-splash.txt")
+			      :direction :input)
+	     (loop for x = (read-line s nil 'eof)
+		   for i from 0
+		   until (eq x 'eof)
+		   do
+		   (put-coloured-str! +term-white+ x 0 i)))
+	   ))
+
+
+    ;;(read-one-character)
+    ;;(pause-last-line!)
+	  
     (print-note! "[Initing sound-system]")
 	    
     (init-sound-system& 40) ;; fix this later
@@ -923,11 +914,13 @@ ADD_DESC: Most of the code which deals with the game loops.
     
     (print-note! "[Initialization complete]")
 
-;;    (pause-last-line!)
+    ;;(pause-last-line!)
      ;; end init_ang
      
     (let ((*load-verbose* nil))
       (load-game-data "prefs.lisp"))
+    
+    (load-user-preference-file&)
 
     ;; hack to remove cursor
     (set-cursor-visibility nil)
@@ -963,11 +956,12 @@ ADD_DESC: Most of the code which deals with the game loops.
 	(setf *player* (%create-new-character wanted-variant)))
       )
     
-
+    (load-user-variant-prefs& *variant*)
+    
     ;; at this point *player* and *variant* must be correct.. *level* can be fixed
     
     (unless *current-key-table*
-      (setf *current-key-table* *ang-keys*))
+      (setf *current-key-table* *angband-keys*))
 
     ;; we must make sure that our player has proper symbol
     (multiple-value-bind (file tile)
@@ -1003,7 +997,8 @@ ADD_DESC: Most of the code which deals with the game loops.
     (block dungeon-running
       (unless *level* 
 	(setf *level* (create-appropriate-level *variant* *level*
-						*player* (player.depth *player*)))
+						*player* (player.depth *player*))))
+      (unless (activated? *level*)
 	(activate-object *level* :player *player*
 			 :leave-method nil))
       

@@ -255,7 +255,7 @@ int JAI_BlitSurfaceAlpha(SDL_Surface *src, SDL_Rect *srcrect,
 #endif
 
 static int
-load_HEX_font_sdl(FontData *fd, const char *filename, bool justmetrics) {
+load_HEX_font_sdl(FontData *fd, const char *filename, int justmetrics) {
 
 	FILE *f;
 
@@ -486,7 +486,7 @@ load_HEX_font_sdl(FontData *fd, const char *filename, bool justmetrics) {
 }
 
 FontData *
-load_hex_font(const char *filename, bool justmetrics) {
+load_hex_font(const char *filename, int justmetrics) {
     
     int retval;
     FontData *fdata = malloc(sizeof(FontData));

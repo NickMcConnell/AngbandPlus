@@ -15,10 +15,12 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.vanilla)
 
 (defclass vanilla-variant (variant)
-  ((dawn-time     :initarg :dawntime   :initform 0    :accessor variant.dawn)
-   (twilight-time :initarg :twilight   :initform 6000 :accessor variant.twilight)
-   (town-seed         :initform nil  :accessor variant.town-seed)
-   (used-scroll-names :initform (make-hash-table :test #'equal) :accessor variant.used-scroll-names)
+  ((dawn-time         :initform 25200 :accessor variant.dawn)
+   (twilight-time     :initform 75600 :accessor variant.twilight)
+   (town-seed         :initform nil   :accessor variant.town-seed)
+   
+   (used-scroll-names :initform (make-hash-table :test #'equal)
+		      :accessor variant.used-scroll-names)
    
    (gold-table     :initarg :gold-table
 		   :initform nil
@@ -35,7 +37,12 @@ the Free Software Foundation; either version 2 of the License, or
 		       :initform nil
 		       :initarg :skill-translations)
 
+   (ego-items :accessor variant.ego-items
+	      :initform (make-hash-table :test #'equal))
 
+   (ego-items-by-level :accessor variant.ego-items-by-level
+		       :initform (make-hash-table :test #'equal))
+   
    ;; 50 is max-level
    (max-charlevel :initform 50)
    ;; put xp-table here right away
@@ -53,8 +60,6 @@ the Free Software Foundation; either version 2 of the License, or
    (legal-effects :initarg :legal-effects
                   :initform '(:quaff :read :eat :create :add-magic :use)
                   :accessor variant.legal-effects)
-;;   (object-effects :initarg :object-effects :initform (make-hash-table :test #'equal)
-;;		   :accessor variant.object-effects)
 
    ))
 
@@ -72,6 +77,31 @@ stores and special behaviour.  The class is used for dispatching."))
 (defclass players-home (house)
   ())
 
+
+(defclass ego-item ()
+  ((id          :accessor ego.id          :initform ""  :initarg :id)
+   (name        :accessor ego.name        :initform ""  :initarg :name)
+   (numeric-id  :accessor ego.numeric-id  :initform -1  :initarg :numeric-id)
+   (power-lvl   :accessor ego.power-lvl   :initform 0)
+   (xtra        :accessor ego.xtra        :initform 0)
+   (max-to-hit  :accessor ego.max-to-hit  :initform 0   :initarg :max-to-hit)
+   (max-to-dmg  :accessor ego.max-to-dmg  :initform 0   :initarg :max-to-dmg)
+   (max-to-ac   :accessor ego.max-to-ac   :initform 0   :initarg :max-to-ac)
+   (pval        :accessor ego.pval        :initform 0   :initarg :pval)
+   (locations   :accessor ego.locations   :initform '())
+   (weight      :accessor ego.weight      :initform 0)
+   (cost        :accessor ego.cost        :initform 0   :initarg :cost)
+   (obj-types   :accessor ego.obj-types   :initform '())
+   #||
+   (tval        :accessor ego.tval        :initform 0   :initarg :tval)
+   (min-sval    :accessor ego.min-sval    :initform 0   :initarg :min-sval)
+   (max-sval    :accessor ego.max-sval    :initform 0   :initarg :max-sval)
+   ||#
+   (flags       :accessor ego.flags       :initform '() :initarg :flags)
+   (game-values :accessor ego.game-values :initform nil :initarg :game-values)
+   ))
+
+
 (defclass magic-spell ()
   ((name   :accessor spell.name
 	   :initform nil
@@ -83,6 +113,10 @@ stores and special behaviour.  The class is used for dispatching."))
 	   :initarg :id
 	   :documentation "Id for the spell, everyone uses this id.")
 
+   ;; hack used for converting spells, use 'id'
+   (numeric-id :accessor spell.numeric-id
+	       :initform -1)
+   
    (effect-type :accessor spell.effect-type
 		:initform nil
 		:documentation "pointer to a spell-effect with necessary info.")
@@ -145,23 +179,25 @@ the spell is usually the same."))
    
 
 (defclass spellcasting-class (character-class)
-  ((spell-stat      :initarg :spell-stat
-		    :initform nil
-		    :accessor class.spell-stat
-		    :documentation "What is the spell-stat?")
-   (spells-at-level :initarg :spells-at-level
-		    :initform 1
-		    :accessor class.spells-at-level
-		    :documentation "At what level does the spellcaster get spells?")
-   (spells          :initarg :spells
-		    :initform nil
-		    :accessor class.spells
-		    :documentation "An array with the possible spells (of type spell-classdata) the class can have.")
-   (learnt-spells   :initarg :learnt-spells
-		    :initform nil
-		    :accessor class.learnt-spells
-		    :documentation "An array with ids to learnt spells (in order).  Is saved with the
-player-object."))
+  ((spell-stat        :initform nil
+		      :accessor class.spell-stat
+		      :documentation "What is the spell-stat?")
+   
+   (spells-at-level   :initform 1
+		      :accessor class.spells-at-level
+		      :documentation "At what level does the spellcaster get spells?")
+   
+   (max-armour-weight :initform -1
+		      :accessor class.max-armour-weight
+		      :documentation "What is the max weight of armour the mage can wear?")
+   
+   (spells            :initform nil
+		      :accessor class.spells
+		      :documentation "An array with the possible spells (of type spell-classdata) the class can have.")
+   
+   (learnt-spells     :initform nil
+		      :accessor class.learnt-spells
+		      :documentation "An array with ids to learnt spells (in order).  Is saved with the player-object."))
   (:documentation "A subclass of the class character-class.  Represents a class with spell-castin capabilities."))
 
 (defclass spell-effect (visual-projectile)
@@ -285,55 +321,60 @@ should return NIL or the state-object (with possibly updated state."))
 
 
 ;;; define relevant object-types for vanilla.
-
-(def-obj-type weapon :key <weapon>)
+(def-obj-type vanilla-object
+    :aobj-slots ((ego :accessor aobj.ego :initform nil)))
+(def-obj-type weapon :key <weapon> :is vanilla-object)
 (def-obj-type melee-weapon :is weapon)
 (def-obj-type sword :key <sword> :is melee-weapon)
 (def-obj-type pole-arm :key <pole-arm> :is melee-weapon)
 (def-obj-type hafted :key <hafted> :is melee-weapon)
 
-(def-obj-type missile-weapon :is weapon) ;; clash with bow?
+(def-obj-type missile-weapon :key <missile-weapon> :is weapon) ;; clash with bow?
 (def-obj-type bow :is missile-weapon :key <bow>
 	      :kind-slots ((multiplier :accessor object.multiplier :initform 1 :initarg :multiplier)))
-(def-obj-type ammo :key <ammo>
+(def-obj-type ammo :is vanilla-object :key <ammo>
 	      :kind-slots ((effect-type :accessor object.effect-type :initform nil)))
 (def-obj-type digger :is weapon :key <digger>)
 
-(def-obj-type armour :key <armour>)
+(def-obj-type armour :is vanilla-object :key <armour>)
 (def-obj-type body-armour :is armour :key <body-armour>)
+(def-obj-type soft-body-armour :is body-armour :key <soft-body-armour>)
+(def-obj-type hard-body-armour :is body-armour :key <hard-body-armour>)
 (def-obj-type dragonscale-armour :is body-armour :key <dsm-armour>)
 (def-obj-type boots :is armour :key <boots>)
 (def-obj-type gloves :is armour :key <gloves>)
 (def-obj-type shield :is armour :key <shield>)
 (def-obj-type headgear :is armour :key <headgear>)
+(def-obj-type helmet :is headgear :key <helmet>)
+(def-obj-type crown :is headgear :key <crown>)
 (def-obj-type cloak :is armour :key <cloak>)
 
-(def-obj-type potion :key <potion>)
-(def-obj-type money :key <money>)
-(def-obj-type scroll :key <scroll>)
-(def-obj-type wand :key <wand>
+(def-obj-type potion :is vanilla-object :key <potion>)
+(def-obj-type money  :is vanilla-object :key <money>)
+(def-obj-type scroll :is vanilla-object :key <scroll>)
+(def-obj-type wand   :is vanilla-object :key <wand>
 	      :kind-slots ((effect-type :accessor object.effect-type :initform nil)))
-(def-obj-type staff :key <staff>)
-(def-obj-type rod :key <rod>
+(def-obj-type staff  :is vanilla-object :key <staff>)
+(def-obj-type rod    :is vanilla-object :key <rod>
 	      :kind-slots ((effect-type :accessor object.effect-type :initform nil))
 	      :aobj-slots ((recharge-time :accessor aobj.recharge-time :initform 0 :initarg :recharge-time)))
-(def-obj-type book :key <book>)
+(def-obj-type book   :is vanilla-object :key <book>)
 (def-obj-type spellbook :is book :key <spellbook>)
 (def-obj-type prayerbook :is book :key <prayerbook>)
-(def-obj-type ring :key <ring>)
-(def-obj-type chest :key <chest>)
-(def-obj-type light-source :key <light-source>
+(def-obj-type ring   :is vanilla-object :key <ring>)
+(def-obj-type chest  :is vanilla-object  :key <chest>)
+(def-obj-type light-source :is vanilla-object :key <light-source>
 	      :kind-slots ((status-descs :accessor object.status-descs :initform nil :initarg :status-descs)
 			   (max-fuel     :accessor object.max-fuel     :initform nil :initarg :max-fuel)))
 	      
-(def-obj-type container :key <container>)
+(def-obj-type container :is vanilla-object :key <container>)
 
-(def-obj-type food :key <food>)
+(def-obj-type food :is vanilla-object :key <food>)
 (def-obj-type mushroom :is food :key <mushroom>)
-(def-obj-type neckwear :key <neckwear>)
+(def-obj-type neckwear :is vanilla-object :key <neckwear>)
 (def-obj-type amulet :is neckwear :key <amulet>)
 
-(def-obj-type junk :key <junk>)
+(def-obj-type junk :is vanilla-object :key <junk>)
 (def-obj-type skeleton :is junk :key <skeleton>)
 
 ;; move away later
@@ -342,44 +383,44 @@ should return NIL or the state-object (with possibly updated state."))
 #| 0 |# "" 
         "" 
         "" 
-        "tiles/dg_armor32.bmp" 
-        "tiles/dg_effects32.bmp" 
-#| 5 |# "tiles/dg_food32.bmp" 
-        "tiles/dg_classm32.bmp" 
-        "tiles/dg_humans32.bmp" 
-        "tiles/dg_jewls32.bmp" 
-        "tiles/dg_magic32.bmp" 
-#| 10 |#"tiles/dg_misc32.bmp" 
-        "tiles/dg_potions32.bmp" 
-        "tiles/dg_wands32.bmp" 
-        "tiles/dg_weapons32.bmp" 
-        "tiles/dg_people32.bmp" 
-#| 15 |#"tiles/dg_dragon32.bmp" 
-        "tiles/dg_monster132.bmp" 
-        "tiles/dg_monster232.bmp" 
-        "tiles/dg_monster332.bmp" 
-        "tiles/dg_monster432.bmp" 
-#| 20 |#"tiles/dg_monster532.bmp" 
-        "tiles/dg_monster632.bmp" 
-        "tiles/dg_monster732.bmp" 
-        "tiles/dg_undead32.bmp" 
-        "tiles/dg_uniques32.bmp" 
-#| 25 |#"tiles/dg_dungeon32.bmp" 
-        "tiles/dg_grounds32.bmp" 
-        "tiles/dg_extra132.bmp" 
-        "tiles/dg_town032.bmp" 
-        "tiles/dg_town132.bmp" 
-#| 30 |#"tiles/dg_town232.bmp" 
-        "tiles/dg_town332.bmp" 
-        "tiles/dg_town432.bmp" 
-        "tiles/dg_town532.bmp" 
-        "tiles/dg_town632.bmp" 
-#| 35 |#"tiles/dg_town732.bmp" 
-        "tiles/dg_town832.bmp" 
-        "tiles/dg_town932.bmp"
-	"tiles/button.bmp"
-	"tiles/button2.bmp"
-#| 40 |#"tiles/crosshair.png"
+        (engine-gfx "tiles/dg_armor32.bmp")
+        (engine-gfx "tiles/dg_effects32.bmp")
+#| 5 |# (engine-gfx "tiles/dg_food32.bmp")
+        (engine-gfx "tiles/dg_classm32.bmp")
+        (engine-gfx "tiles/dg_humans32.bmp")
+        (or (engine-gfx "tiles/upd_jewels.png") (engine-gfx "tiles/dg_jewls32.bmp"))
+        (engine-gfx "tiles/dg_magic32.bmp") 
+#| 10 |#(engine-gfx "tiles/dg_misc32.bmp")
+        (engine-gfx "tiles/dg_potions32.bmp")
+        (engine-gfx "tiles/dg_wands32.bmp")
+        (engine-gfx "tiles/dg_weapons32.bmp")
+        (engine-gfx "tiles/dg_people32.bmp")
+#| 15 |#(engine-gfx "tiles/dg_dragon32.bmp")
+        (engine-gfx "tiles/dg_monster132.bmp")
+        (engine-gfx "tiles/dg_monster232.bmp")
+        (engine-gfx "tiles/dg_monster332.bmp")
+        (engine-gfx "tiles/dg_monster432.bmp")
+#| 20 |#(engine-gfx "tiles/dg_monster532.bmp")
+        (engine-gfx "tiles/dg_monster632.bmp")
+        (engine-gfx "tiles/dg_monster732.bmp") 
+        (engine-gfx "tiles/dg_undead32.bmp") 
+        (engine-gfx "tiles/dg_uniques32.bmp")
+#| 25 |#(engine-gfx "tiles/dg_dungeon32.bmp")
+        (engine-gfx "tiles/dg_grounds32.bmp") 
+        (engine-gfx "tiles/dg_extra132.bmp") 
+        (engine-gfx "tiles/dg_town032.bmp")
+        (engine-gfx "tiles/dg_town132.bmp")
+#| 30 |#(engine-gfx "tiles/dg_town232.bmp")
+        (engine-gfx "tiles/dg_town332.bmp")
+        (engine-gfx "tiles/dg_town432.bmp")
+        (engine-gfx "tiles/dg_town532.bmp")
+        (engine-gfx "tiles/dg_town632.bmp") 
+#| 35 |#(engine-gfx "tiles/dg_town732.bmp") 
+        (engine-gfx "tiles/dg_town832.bmp")
+        (engine-gfx "tiles/dg_town932.bmp")
+	(engine-gfx "tiles/button.bmp")
+	(engine-gfx "tiles/button2.bmp")
+#| 40 |#(engine-gfx "tiles/crosshair.png")
 ;;        "tiles/runes.png" 			   
 	))
 
@@ -391,8 +432,8 @@ should return NIL or the state-object (with possibly updated state."))
   (make-instance 'vanilla-variant
 		 :id "vanilla"
 		 :name "Vanilla"
-		 :version "0.1.4"
-		 :num-version 14
+		 :version "0.1.5"
+		 :num-version 15
 		 :stat-length 6
 		 
 		 :config-path

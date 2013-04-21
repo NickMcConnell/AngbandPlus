@@ -55,32 +55,64 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  (warn "Spells is ~s" spells)
   (make-instance 'character-class :id id :name name))
 
-(defmethod initialise-character-class! ((var-obj variant) (my-class character-class) keyword-args)
+(defmethod initialise-character-class! ((var-obj variant) (my-class character-class) kwd-args)
 
   (let ((id (class.id my-class)))
+
+    ;; handle name
+    (when-bind (symbol (getf kwd-args :symbol))
+      (when (eq symbol t)
+	(warn "Symbol for class ~s is ~s, please use a normal symbol" id symbol))
+      (setf (class.symbol my-class) symbol))
+
+    ;; handle desc
+    (when-bind (desc (getf kwd-args :desc))
+      (check-type desc string)
+      (setf (class.desc my-class) desc))
+
+    ;; handle xp-extra
+    (when-bind (xp-extra (getf kwd-args :xp-extra))
+      (check-type xp-extra integer)
+      (setf (class.xp-extra my-class) xp-extra))
+
+    ;; handle hit-dice
+    (when-bind (hit-dice (getf kwd-args :hit-dice))
+      (check-type hit-dice integer)
+      (setf (class.hit-dice my-class) hit-dice))
+
+    ;; handle titles
+    (when-bind (titles (getf kwd-args :titles))
+      (assert (and (consp titles) (= (length titles) 10)))
+      (setf (class.titles my-class) titles))
+
+    ;; handle starting equipment
+    (when-bind (starting-equipment (getf kwd-args :starting-equipment))
+      (assert (consp starting-equipment))
+      (setf (class.start-eq my-class) starting-equipment))
+
+    ;; handle abilities
+    (when-bind (abilities (getf kwd-args :abilities))
+      (assert (consp abilities))
+      (dolist (i abilities)
+	(cond ((consp i)
+	       (warn "Don't know how to handle class-ability: ~s" i))
+	      ((symbolp i)
+	       (pushnew i (class.abilities my-class)))
+	      (t
+	       (warn "Unknown form of class-ability: ~s" i)))))
     
-    (destructuring-bind (&key symbol desc xp-extra (mod-age :unspec)
+    
+    (destructuring-bind (&key (mod-age :unspec)
 			      (mod-status :unspec) stat-changes (resists :unspec)
-			      (abilities :unspec) titles (stat-sustains :unspec)
-			      starting-equipment hit-dice &allow-other-keys)
-	keyword-args
+			      (stat-sustains :unspec) &allow-other-keys)
+	kwd-args
       (when (or (not (eq resists :unspec))
-		(not (eq abilities :unspec))
 		(not (eq stat-sustains :unspec))
 		)
 	#+langband-extra-checks
 	(warn "Unhandled resists/abilities/sustains ~s/~s/~s for class ~a"
 	      resists abilities stat-sustains id))
 
-      (unless (and (symbolp symbol) (not (eq symbol nil)))
-	(warn "Symbol for class ~s is ~s, please use a normal symbol" id symbol))
-
-      (setf (class.symbol my-class) symbol)
-
-      (when desc
-	(setf (class.desc my-class) desc))
-      (when xp-extra
-	(setf (class.xp-extra my-class) xp-extra))
       (if stat-changes
 	  (setf (class.stat-changes my-class)
 		(build-stat-table-from-symlist var-obj stat-changes))
@@ -93,17 +125,6 @@ the Free Software Foundation; either version 2 of the License, or
       (when (or (integerp mod-status) (consp mod-status) (functionp mod-status))
 	(setf (class.mod-status my-class) mod-status))
 	 
-
-      (when hit-dice
-	(setf (class.hit-dice my-class) hit-dice))
-      (when titles
-	(setf (class.titles my-class) titles))
-
-      (when starting-equipment
-	;;      (warn "Start-eq for ~a is ~a" name starting-equipment)
-	(setf (class.start-eq my-class) starting-equipment))
-
-      
       my-class)))
   
 (defun define-character-class (id name &rest keyword-args &key &allow-other-keys)

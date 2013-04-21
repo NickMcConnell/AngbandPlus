@@ -3,9 +3,9 @@
 # what gui environments do you want (only SDL, WIN and GCU supported)
 # To use SDL on Win, simply say WIN
 
-#ENVIRONMENTS=GCU SDL
+ENVIRONMENTS=GCU SDL
 #ENVIRONMENTS=GCU
-ENVIRONMENTS=SDL
+#ENVIRONMENTS=SDL
 #ENVIRONMENTS=WIN
 
 # Select one of these, or none  (fix paths further down if necessary)
@@ -28,6 +28,7 @@ PICFLAG=-fPIC
 CONFIGFILE=../config/settings.cfg
 SDLCONFIG=/usr/bin/sdl-config
 DLLCOPY=true
+LINKOPT = -shared
 
 #= Truetype setting, select ttf if you have SDL_ttf installed
 TTF_FLAG=-D"ALLOW_TTF"
@@ -37,10 +38,19 @@ TTF_LIB=-lSDL_ttf
 #TTF_LIB=
 #= end truetype
 
+## Some MacOSX info:
+#
+#PICFLAG = -fno-common
+#LINKOPT = -bundle -flat_namespace -undefined suppress
+#For GCU
+#UIDEFINES += -D"USE_GCU" -D"USE_CURSES" $(BASEDEFINES) -DDEBUG -D"DARWIN"
+#UILIBS += -lcurses
+# end macosx info
+
 # GCU settings
 ifeq ($(findstring GCU,$(ENVIRONMENTS)), GCU)
-UIDEFINES += -D"USE_GCU" -D"USE_NCURSES" $(BASEDEFINES)
-UIOBJS += main-gcu.o
+UIDEFINES += -D"USE_GCU" -D"USE_NCURSES" $(BASEDEFINES) -DDEBUG
+UIOBJS += main-gcu.o gcu-extra.o
 UILIBS += -lncurses
 endif
 
@@ -60,7 +70,7 @@ UIFLAGS += -mno-cygwin -ISDL
 DLLEXT=dll
 UIOBJS += sdl-extra.o main-sdl.o main.o #hack
 UILIBS += SDL/SDL.dll SDL/SDL_image.dll
-LINKOPT = -mno-cygwin
+LINKOPT = -shared -mno-cygwin
 PICFLAG=
 DLLCOPY=/bin/cp -f SDL/*.dll ../
 endif
@@ -107,8 +117,8 @@ deb_shared_objs: $(OBJS) $(DAEMONPROG) dummy_call.o
 	$(CC) $(LINKOPT) -shared -Wl,-soname,liblangband_dc.$(DLLEXT) -o liblangband_dc.$(DLLEXT) dummy_call.o
 
 shared_objs: $(OBJS) $(DAEMONPROG) dummy_call.o
-	$(CC) $(LINKOPT) -shared -o liblangband_ui.$(DLLEXT) $(OBJS) $(LIBS)
-	$(CC) $(LINKOPT) -shared -o liblangband_dc.$(DLLEXT) dummy_call.o
+	$(CC) $(LINKOPT) -o liblangband_ui.$(DLLEXT) $(OBJS) $(LIBS)
+	$(CC) $(LINKOPT) -o liblangband_dc.$(DLLEXT) dummy_call.o
 
 
 #write_config:
