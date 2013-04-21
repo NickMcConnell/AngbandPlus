@@ -2,8 +2,8 @@
 
 #|
 
-DESC: variants/vanilla/keys.lisp - assignment of keys
-Copyright (c) 2000-2002 - Stig Erik Sandø
+DESC: variants/vanilla/keys.lisp - key-definitions - keyassignments in config
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,30 +14,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
+;;(setf *current-key-table* *ang-keys*)
 
-(setf *current-key-table* *ang-keys*)
 
-;; move somehwere else later?
-(defun interactive-fire-a-missile (dungeon player)
-  "Hackish shoot-code."
-  (block missile-shooting
-    (let ((the-bow (get-missile-weapon player))
-	  (the-missile nil))
-      (unless (and the-bow (typep the-bow 'active-object/bow))
-	(print-message! "You have no missile weapon!")
-	(return-from missile-shooting nil))
-
-      (with-new-screen ()
-	(setq the-missile (grab-a-selection-item dungeon player '(:backpack :floor)
-						 :prompt "Select missile:"
-						 :where :backpack)))
-
-	
-      (cond ((and the-missile (typep the-missile 'active-object/ammo))
-	     (shoot-a-missile dungeon player the-bow the-missile))
-	    (t
-	     (print-message! "No missile selected!")))
-	)))
 
 (define-key-operation 'toggle-run-mode
     #'(lambda (dungeon player)
@@ -65,7 +44,12 @@ the Free Software Foundation; either version 2 of the License, or
 		 (get-information "running") nil)))
 	(t
 	 (move-player! dungeon player direction))))
-  
+
+(defun %run-direction (dungeon player dir)
+  (setf (get-information "running") t)
+  (van-move-player! dungeon player dir))
+
+
 
 (define-key-operation 'move-up
     #'(lambda (dungeon player) (van-move-player! dungeon player 8)))
@@ -91,6 +75,30 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'move-down-right
     #'(lambda (dungeon player) (van-move-player! dungeon player 3)))
 
+(define-key-operation 'run-up
+    #'(lambda (dungeon player) (%run-direction dungeon player 8)))
+
+(define-key-operation 'run-up-left
+    #'(lambda (dungeon player) (%run-direction dungeon player 7)))
+
+(define-key-operation 'run-up-right
+    #'(lambda (dungeon player) (%run-direction dungeon player 9)))
+
+(define-key-operation 'run-right
+    #'(lambda (dungeon player) (%run-direction dungeon player 6)))
+
+(define-key-operation 'run-left
+    #'(lambda (dungeon player) (%run-direction dungeon player 4)))
+
+(define-key-operation 'run-down
+    #'(lambda (dungeon player) (%run-direction dungeon player 2)))
+
+(define-key-operation 'run-down-left
+    #'(lambda (dungeon player) (%run-direction dungeon player 1)))
+
+(define-key-operation 'run-down-right
+    #'(lambda (dungeon player) (%run-direction dungeon player 3)))
+
 (define-key-operation 'stand-still
     #'(lambda (dungeon player) (van-move-player! dungeon player 5)))
 
@@ -99,35 +107,35 @@ the Free Software Foundation; either version 2 of the License, or
      #'(lambda (dungeon player)
 	 (declare (ignore dungeon))
 	 (with-dialogue ()
-	   (c-clear-from! 0) ;; hack
+	   (clear-window *cur-win*) ;; hack
 	   (let ((table (player.equipment player)))
 	     (item-table-print table :show-pause t :start-x 3))
-	   (c-term-fresh! +dialogue-frame+))
+	   (refresh-window +dialogue-frame+))
 	 ))
 
 (define-key-operation 'show-inventory
     #'(lambda (dungeon player)
 	(declare (ignore dungeon))
 	(with-dialogue ()
-	  (c-clear-from! 0) ;; hack
+	  (clear-window *cur-win*) ;; hack
 	  (let* ((backpack (player.inventory player))
 		 (inventory (aobj.contains backpack)))
 	    (item-table-print inventory :show-pause t :start-x 3))
-	  (c-term-fresh! +dialogue-frame+))
+	  (refresh-window +dialogue-frame+))
 	))
   
 (define-key-operation 'show-character
     #'(lambda (dungeon player)
 	(flush-messages! t)
 	(with-full-frame ()
-	  (c-texture-background! +full-frame+ "plainbook.png" -1)
-	  (c-term-clear!)
+	  (texture-background! +full-frame+ "textures/plainbook.png" -1)
+	  (clear-window *cur-win*)
 	  (block display-input 
 	    (let ((loc-table (gethash :display *current-key-table*)))
 	      (loop
-	       (c-clear-from! 0)
+	       (clear-window +full-frame+)
 	       (display-creature *variant* player)
-	       ;;(c-prt! "['C' to show combat-info, 'R' to show resists,  ESC to continue]"
+	       ;;(put-coloured-line! +term-white+ "['C' to show combat-info, 'R' to show resists,  ESC to continue]"
 	       ;;5 (get-last-console-line))
 	       (print-note! "['C' to show combat-info, 'R' to show resists,  ESC to continue]")
 	       
@@ -141,8 +149,8 @@ the Free Software Foundation; either version 2 of the License, or
 			;; nil
 			)))
 	       )))
-	  (c-texture-background! +full-frame+ "" -1)
-	  (c-wipe-frame! +full-frame+)
+	  (texture-background! +full-frame+ "" -1)
+	  (clear-window +full-frame+)
 
 	  )))
 
@@ -158,14 +166,13 @@ the Free Software Foundation; either version 2 of the License, or
 	(declare (ignore dungeon))
 ;;	(warn "Quitting")
 	(with-frame (+query-frame+)
-	  (c-prt! "Are you sure you wish to quit [will kill character]? " 0 0)
+	  (put-coloured-line! +term-white+ "Are you sure you wish to quit [will kill character]? " 0 0)
 	  (let ((chr (read-one-character)))
 	    (when (or (equal chr #\y)
 		      (equal chr #\Y))
 	      (setf (player.dead? player) t
 		    (player.dead-from player) "quitting"
 		    (player.leaving? player) :quit)
-;;	(c-quit! +c-null-value+) ;; how to quit cleanly to the REPL?
 	      
 	    )))
 	))
@@ -298,7 +305,7 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
 	(with-dialogue ()
-	  (c-clear-from! 0)
+	  (clear-window *cur-win*)
 	  (display-help-topics *variant* "LAangband help (Vanilla)" 3)
 
 	  )))
@@ -320,7 +327,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'previous-messages
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
-	(with-new-screen ()
+	(with-dialogue ()
 	  (show-messages :offset 0))))
 
 
@@ -350,7 +357,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 	;; skip flushes
 	;; do xtra react
-	(org.langband.ffi:c-term-xtra& 10 0) ;; xtra_react
+	;;(org.langband.ffi:c-term-xtra& 10 0) ;; xtra_react
 	;; skip combine & reorder
 
 	(bit-flag-add! *update* #.(logior +pl-upd-torch+
@@ -362,15 +369,18 @@ the Free Software Foundation; either version 2 of the License, or
 					  +print-map+
 					  ;; skip equippy
 					  ))
+	;; fix clear in the right areas!
 	;; do clear
-	(c-term-clear!)
+	;;(c-term-clear!)
 	 
 	;; call handle-stuff
 	(handle-stuff *variant* dungeon player)
 	
 	;; do all windows, we might need this
-
-	(c-term-fresh!)
+	(loop for x across *windows*
+	      do
+	      (when (window.visible? x)
+		(refresh-window x)))
 	
 	))
 
@@ -378,74 +388,3 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(when (eq (get-system-type) 'sdl)
 	  (switch-map-mode dungeon player))))
-
-(define-keypress *ang-keys* :global #\a 'zap-item)
-(define-keypress *ang-keys* :global #\b 'browse-spells)
-(define-keypress *ang-keys* :global #\c 'close-door)
-(define-keypress *ang-keys* :global #\d 'drop-item)
-(define-keypress *ang-keys* :global #\e 'show-equipment)
-(define-keypress *ang-keys* :global #\f 'fire-missile)
-(define-keypress *ang-keys* :global #\g 'get-item)
-(define-keypress *ang-keys* :global #\i 'show-inventory)
-(define-keypress *ang-keys* :global #\j 'jam-door)
-(define-keypress *ang-keys* :global #\m 'invoke-spell)
-(define-keypress *ang-keys* :global #\o 'open-door)
-(define-keypress *ang-keys* :global #\p 'invoke-spell)
-(define-keypress *ang-keys* :global #\q 'quaff-potion)
-(define-keypress *ang-keys* :global #\r 'read-text)
-(define-keypress *ang-keys* :global #\s 'search-area)
-(define-keypress *ang-keys* :global #\t 'take-off-item)
-(define-keypress *ang-keys* :global #\u 'use-item)
-(define-keypress *ang-keys* :global #\w 'wear-item)
-(define-keypress *ang-keys* :global #\z 'zap-item)
-
-(define-keypress *ang-keys* :global #\B 'bash-door)
-(define-keypress *ang-keys* :global #\C 'show-character)
-(define-keypress *ang-keys* :global #\D 'disarm-trap)
-(define-keypress *ang-keys* :global #\E 'eat-item)
-(define-keypress *ang-keys* :global #\L 'learn-spell)
-(define-keypress *ang-keys* :global #\Q 'quit-game)
-(define-keypress *ang-keys* :global #\S 'save-game)
-(define-keypress *ang-keys* :global #\? 'show-help)
-
-(define-keypress *ang-keys* :global #\> 'go-downstairs)
-(define-keypress *ang-keys* :global #\< 'go-upstairs)
-(define-keypress *ang-keys* :global #\* 'select-target)
-
-;; these can die later..
-;;(define-keypress *ang-keys* :global #\A 'print-mapper)
-
-;; Ctrl-P
-(define-keypress *ang-keys* :global (code-char 16) 'previous-messages)
-;; Ctrl-R
-(define-keypress *ang-keys* :global (code-char 18) 'redraw-all)
-(define-keypress *ang-keys* :global (code-char 20) 'swap-map)
-(define-keypress *ang-keys* :global (code-char 24) 'save-and-exit)
-
-
-
-(define-keypress *ang-keys* :global #\, 'stand-still)
-(define-keypress *ang-keys* :global #\1 'move-down-left)
-(define-keypress *ang-keys* :global #\2 'move-down)
-(define-keypress *ang-keys* :global #\3 'move-down-right)
-(define-keypress *ang-keys* :global #\4 'move-left)
-(define-keypress *ang-keys* :global #\5 'stand-still)
-(define-keypress *ang-keys* :global #\6 'move-right)
-(define-keypress *ang-keys* :global #\7 'move-up-left)
-(define-keypress *ang-keys* :global #\8 'move-up)
-(define-keypress *ang-keys* :global #\9 'move-up-right)
-
-(define-keypress *ang-keys* :global #\. 'toggle-run-mode)
-
-;; then those keys used for display
-(define-keypress *ang-keys* :display #\C 'print-attack-table)
-(define-keypress *ang-keys* :display #\M 'print-misc)
-(define-keypress *ang-keys* :display #\R 'print-resists)
-
-
-#||
-(define-keypress *ang-keys* :global #\k 'move-up)
-(define-keypress *ang-keys* :global #\l 'move-right)
-(define-keypress *ang-keys* :global #\j 'move-down)
-(define-keypress *ang-keys* :global #\h 'move-left)
-||#

@@ -3,7 +3,7 @@
 #|
 
 DESC: birth.lisp - character creation
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,19 +23,19 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
   "Interactive questioning to select the basics of the character.
 Modififes the passed player object THE-PLAYER.  This is a long function."
 
-  (clear-the-screen!)
+  (clear-window +full-frame+)
 
   ;; print info on process in upper right corner
-  (c-print-text! (slot-value settings 'instr-x)
-		 (slot-value settings 'instr-y)
-		 (slot-value settings 'instr-attr)
-		 #.(concatenate 'string
-			       "Please answer the following questions.  "
-			       "Legal answers are shown below the marked question.  You may use " 
-			       "arrow-keys to highlight answers and display description, "
-			       "or you may hit 'Q' to quit, 'S' to start all over or '?' " 
-			       "to enter the generic help-system.")
-		:end-col (slot-value settings 'instr-w))
+  (print-text! (slot-value settings 'instr-x)
+	       (slot-value settings 'instr-y)
+	       (slot-value settings 'instr-attr)
+	       #.(concatenate 'string
+			      "Please answer the following questions.  "
+			      "Legal answers are shown below the marked question.  You may use " 
+			      "arrow-keys to highlight answers and display description, "
+			      "or you may hit 'Q' to quit, 'S' to start all over or '?' " 
+			      "to enter the generic help-system.")
+	       :end-col (slot-value settings 'instr-w))
 
   (let ((info-col (slot-value settings 'info-x))
 	(info-row (slot-value settings 'info-y))
@@ -50,11 +50,11 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 	)
   
     ;; First we do the player gender
-    (c-clear-from! info-row) ;; clears things
+    (clear-window-from *cur-win* info-row) ;; clears things
     ;; Print extra-info Extra info
-    (c-print-text! info-col info-row info-colour
-		   "Your 'gender' does not have any significant gameplay effects."
-		   :end-col (slot-value settings 'instr-w))
+    (print-text! info-col info-row info-colour
+		 "Your 'gender' does not have any significant gameplay effects."
+		 :end-col (slot-value settings 'instr-w))
 
     (block input-loop
       (loop
@@ -79,11 +79,11 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
     (put-coloured-str! choice-colour   (get-gender-name the-player) (+ 7 choice-col) choice-row)
 
     
-    (c-clear-from! info-row) ;; clears things
+    (clear-window-from *cur-win* info-row) ;; clears things
 
-    (c-print-text! info-col info-row info-colour
-		   "Your 'race' determines various intrinsic factors and bonuses."
-		   :end-col (slot-value settings 'instr-w))
+    (print-text! info-col info-row info-colour
+		 "Your 'race' determines various intrinsic factors and bonuses."
+		 :end-col (slot-value settings 'instr-w))
 
 
     (block input-loop
@@ -115,17 +115,17 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
       (put-coloured-str! choice-tcolour  "Race" choice-col (+ 1 choice-row))
       (put-coloured-str! choice-colour (get-race-name the-player) (+ 7 choice-col) (+ 1 choice-row))
 
-      (c-clear-from! info-row) ;; clears things
+      (clear-window-from *cur-win* info-row) ;; clears things
 
       ;; time to do classes.. slightly more tricky
 
-      (c-print-text! info-col info-row info-colour
-		     #.(concatenate 'string
-				    "Your 'class' determines various intrinsic abilities and bonuses. "
-				    "Any entries inside (parantheses) should only be used by advanced players."
-				    )
-
-		     :end-col (slot-value settings 'instr-w))
+      (print-text! info-col info-row info-colour
+		   #.(concatenate 'string
+				  "Your 'class' determines various intrinsic abilities and bonuses. "
+				  "Any entries inside (parantheses) should only be used by advanced players."
+				  )
+		   
+		   :end-col (slot-value settings 'instr-w))
       
 
    
@@ -192,7 +192,7 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
   (put-coloured-str! +term-l-blue+ (get-class-name the-player)
 		     (+ 7 choice-col) (+ 2 choice-row))
 
-  (c-clear-from! info-row) ;; clears things
+  (clear-window-from *cur-win* info-row) ;; clears things
   
    
   t))
@@ -244,7 +244,7 @@ Returns the base-stats as an array or NIL if something failed."
   "Rolls up a character and modifies given PLAYER-object."
   ;; dropping auto-roller
   
-  (c-clear-from! 10)
+  (clear-window-from *cur-win* 10)
   
   (roll-stats! variant player)
 
@@ -356,7 +356,7 @@ player.
 (defun get-string-input (prompt &key (max-length 20) (x-pos 0) (y-pos 0))
   "Non-efficient code to read input from the user, and return the string
 on success.  Returns NIL on failure or user-termination (esc)." 
-  (c-prt! prompt x-pos y-pos)
+  (put-coloured-line! +term-white+ prompt x-pos y-pos)
 
   (let ((xpos (+ x-pos (length prompt)))
 	(ypos y-pos)
@@ -367,7 +367,7 @@ on success.  Returns NIL on failure or user-termination (esc)."
 
     ;; wipe before we start to enter stuff
     (put-coloured-str! +term-dark+ wipe-str xpos ypos)
-    (c-term-gotoxy! (+ cnt xpos) ypos)
+    (set-cursor-to *cur-win* :input (+ cnt xpos) ypos)
     
     (block str-input
       (loop
@@ -394,9 +394,9 @@ on success.  Returns NIL on failure or user-termination (esc)."
 	 ;;	    (warn "print ~s" (coerce (reverse collected) 'string))
 	 (put-coloured-str! +term-dark+ wipe-str xpos ypos)
 	 (put-coloured-str! +term-l-blue+ (coerce (reverse collected) 'string) xpos ypos)
-	 (c-term-gotoxy! (+ cnt xpos) ypos))))
+	 (set-cursor-to *cur-win* :input (+ cnt xpos) ypos))))
     
-    (c-prt! "" x-pos y-pos)
+    (put-coloured-line! +term-white+ "" x-pos y-pos)
     
     return-value))
 
@@ -417,10 +417,10 @@ Returns the new PLAYER object or NIL on failure."
 			  (slot-value birth-settings 'note-colour)
 			  +term-white+)))
     
-    (c-term-clear!)
-    (c-term-fresh! +full-frame+)
+    (clear-window +full-frame+)
+    (refresh-window +full-frame+)
 
-    (c-texture-background! +full-frame+ "plainbook.png" -1)
+    (texture-background! +full-frame+ "textures/plainbook.png" -1)
 
     ;; get basics of the character
     (let ((basics (query-for-character-basics! variant player birth-settings)))
@@ -531,8 +531,8 @@ Returns the new PLAYER object or NIL on failure."
 ;;    (warn "stats are now ~s ~s" (player.base-stats the-player) (ok-object? the-player))
     ;;    (add-object-to-inventory! the-player (create-aobj-from-kind-num 118))
 
-    (c-texture-background! +full-frame+ "" -1)
-    (c-wipe-frame! +full-frame+)
+    (texture-background! +full-frame+ "" -1)
+    (clear-window +full-frame+)
     ;;(warn "going switch");
     
     ;;(warn "switched")

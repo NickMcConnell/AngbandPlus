@@ -16,8 +16,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-str" "strength"
   :numeric-id 132
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -38,8 +38,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-dex" "dexterity"
   :numeric-id 133
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -60,8 +60,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-con" "constitution"
   :numeric-id 134
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -82,8 +82,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-int" "intelligence"
   :numeric-id 135
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -104,8 +104,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-speed" "speed"
   :numeric-id 136
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 80
   :rarity 0
   :chance #(1 0 0 0)
@@ -129,8 +129,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-searching" "searching"
   :numeric-id 137
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -144,8 +144,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-teleport" "teleportation"
   :numeric-id 138
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -159,8 +159,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-slow-digest" "slow digestion"
   :numeric-id 139
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -174,8 +174,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-resist-fire" "resist fire"
   :numeric-id 140
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -189,8 +189,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-resist-cold" "resist cold"
   :numeric-id 141
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -204,8 +204,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-feather-fall" "feather falling"
   :numeric-id 142
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -219,8 +219,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-resist-poison" "poison resistance"
   :numeric-id 143
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 40
   :rarity 0
   :chance #(2 0 0 0)
@@ -234,8 +234,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-free-action" "free action"
   :numeric-id 144
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -249,8 +249,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-weakness" "weakness"
   :numeric-id 145
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -268,8 +268,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-flames" "flames"
   :numeric-id 146
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)
@@ -285,8 +285,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-acid" "acid"
   :numeric-id 147
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)
@@ -304,8 +304,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-ice" "ice"
   :numeric-id 148
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)
@@ -322,8 +322,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-woe" "woe"
   :numeric-id 149
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)
@@ -345,8 +345,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-stupid" "stupidity"
   :numeric-id 150
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -364,8 +364,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-dmg" "damage"
   :numeric-id 151
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -386,8 +386,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-to-hit" "accuracy"
   :numeric-id 152
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -408,8 +408,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-protection" "protection"
   :numeric-id 153
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -430,8 +430,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-aggr-monster" "aggravate monster"
   :numeric-id 154
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -445,8 +445,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-see-inv" "see invisible"
   :numeric-id 155
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -460,8 +460,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-sust-str" "sustain strength"
   :numeric-id 156
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -475,8 +475,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-sust-int" "sustain intelligence"
   :numeric-id 157
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -490,8 +490,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-sust-wis" "sustain wisdom"
   :numeric-id 158
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -505,8 +505,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-sust-con" "sustain constitution"
   :numeric-id 159
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -520,8 +520,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-sust-dex" "sustain dexterity"
   :numeric-id 160
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -535,8 +535,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-sust-chr" "sustain charisma"
   :numeric-id 161
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -550,8 +550,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ring-slaying" "slaying"
   :numeric-id 162
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 40
   :rarity 0
   :chance #(1 0 0 0)

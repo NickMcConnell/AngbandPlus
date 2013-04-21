@@ -3,7 +3,7 @@
 #|
 
 DESC: langband-engine.system - another system-def for vanilla
-Copyright (c) 2001-2002 - Stig Erik Sandø
+Copyright (c) 2001-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband-engine-system)
   
 (asdf:defsystem :langband-engine
-    :version "0.1.0"
+    :version "0.1.3"
     :components
     ((:module settings
 	      :pathname ""
@@ -64,54 +64,56 @@ the Free Software Foundation; either version 2 of the License, or
      (:module foreign
 	      :pathname "ffi/"
 	      :components ((:file "ffi-load")
-			   (:file "ffi-sys")
+			   ;;(:file "ffi-sys")
 			   #+cmu
-			   (:file "ffi-cmu")
+			   (:file "ffi-cmu" :depends-on ("ffi-load"))
 			   #+sbcl
-			   (:file "ffi-sbcl")
+			   (:file "ffi-sbcl" :depends-on ("ffi-load"))
 			   #+allegro
-			   (:file "ffi-acl")
+			   (:file "ffi-acl" :depends-on ("ffi-load"))
 			   #+lispworks
-			   (:file "ffi-lw")
+			   (:file "ffi-lw" :depends-on ("ffi-load"))
 			   #+clisp
-			   (:file "ffi-clisp"))
+			   (:file "ffi-clisp" :depends-on ("ffi-load")))
 	      :depends-on (decl))
 
      ;; fix remaining dependency-problems as they show up
      (:module basic
               :pathname ""
-              :components ((:file "memoize")
-			   (:file "base" :depends-on ("memoize"))
+              :components ((:file "base")
 			   (:file "constants" :depends-on ("base"))
 			   (:file "generics")
 			   (:file "classes" :depends-on ("generics" "constants"))
-			   (:file "global" :depends-on ("classes" "generics" "base" "constants"))
-			   (:file "sound")
+			   (:file "adts" :depends-on ("base"))
+			   (:file "sound" :depends-on ("base"))
+			   (:file "window" :depends-on ("classes" "constants"))
+			   (:file "global" :depends-on ("classes" "generics" "base" "constants" "window"))
 			   (:file "character" :depends-on ("classes" "global"))
 			   (:file "object" :depends-on ("classes" "generics" "global"))
 			   (:file "equipment" :depends-on ("global" "object"))
 			   (:file "player" :depends-on ("classes" "global" "character" "equipment"))
 			   (:file "monster" :depends-on ("classes" "global"))
-			   (:file "dungeon" :depends-on ("base" "monster" "classes" "constants"))
-			   (:file "building" :depends-on ("generics" "base" "global" "dungeon"))
-			   (:file "stores" :depends-on ("building" "generics" "equipment"))
+			   (:file "dungeon" :depends-on ("base" "monster" "classes" "constants" "window"))
+			   (:file "building" :depends-on ("generics" "base" "global" "dungeon" "equipment"))
+			   (:file "stores" :depends-on ("building" "generics" "equipment" "character"))
 			   (:file "allocate" :depends-on ("generics" "dungeon" "constants"))
-			   (:file "generate" :depends-on ("dungeon" "allocate" "classes" "object" "equipment" "generics"))
+			   (:file "generate" :depends-on ("dungeon" "allocate" "classes" "object"
+								    "equipment" "generics"))
 			   (:file "print" :depends-on ("generics" "player"))
-			   (:file "util" :depends-on ("dungeon" "classes" "global" "generics" "generate"))
-			   (:file "combat" :depends-on ("generics" "base" "sound" "global" "classes"))
-			   (:file "keys" :depends-on ("base" "dungeon" "constants"))
+			   (:file "util" :depends-on ("dungeon" "classes" "global" "generics" "generate" "building"))
+			   (:file "combat" :depends-on ("generics" "base" "sound" "global" "classes" "dungeon" "player"))
 			   (:file "view" :depends-on ("dungeon" "generics" "constants"))
 			   (:file "project" :depends-on ("base" "generics" "player" "object" "dungeon" "combat"))
-			   (:file "actions" :depends-on ("generics" "util" "keys" "generate" "combat" "project"))
+			   (:file "actions" :depends-on ("generics" "util" "global" "generate" "combat" "project"))
 			   (:file "save" :depends-on ("player" "dungeon" "classes" "global" "generics"))
 			   (:file "load" :depends-on ("save"))
 			   (:file "death" :depends-on ("global" "player" "character"))
 			   (:file "ai" :depends-on ("generics" "monster" "project"))
-			   (:file "loop" :depends-on ("classes" "player" "death" "ai" "print" "view"))
+			   (:file "loop" :depends-on ("classes" "player" "death" "ai" "print" "view" "util" "adts" "load" "window"))
 			   (:file "birth" :depends-on ("generics" "constants" "classes" "player" "loop"))
-			   (:file "dump" :depends-on ("monster" "classes" "object" "character" "global" "building" "equipment"))
-			   (:file "init" :depends-on ("classes" "monster" "object" "loop"))
+			   (:file "dump" :depends-on ("monster" "classes" "object" "character"
+								"global" "building" "equipment"))
+			   (:file "init" :depends-on ("classes" "monster" "object" "loop" "adts" "util"))
 			   (:file "verify" :depends-on ("player" "global" "base" "dungeon" "monster" "character"))
 			   (:file "conversation")
 			   			   

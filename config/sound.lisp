@@ -27,3 +27,5 @@ DESC: config/sound.lisp - sound-settings
 (define-sound-effect +sound-zap+
     "magksnd2.wav" "magksnd8.wav")
 
+;;(define-sound-effect +sound-intro+
+;;    "langband_opening01.ogg")

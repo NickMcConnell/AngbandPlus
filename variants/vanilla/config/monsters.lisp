@@ -16,10 +16,12 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;; === depth 1
 (define-monster-kind "bat-fruit" "fruit bat"
-  :numeric-id  31
+  :numeric-id 31
+  :x-attr (tile-file 19)
+  :x-char (tile-number 1)
   :desc "A fast-moving pest."
-  :x-char #\b
-  :x-attr #\o
+  :text-char #\b
+  :text-attr #\o
   :type '(<animal>)
   :depth 1
   :rarity 1
@@ -32,10 +34,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (1 . 1))))
 
 (define-monster-kind "ant-soldier" "soldier ant"
-  :numeric-id  30
+  :numeric-id 30
+  :x-attr (tile-file 20)
+  :x-char (tile-number 0)
   :desc "A large ant with powerful mandibles."
-  :x-char #\a
-  :x-attr #\W
+  :text-char #\a
+  :text-attr #\W
   :type '(<animal>)
   :depth 1
   :rarity 1
@@ -49,10 +53,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (1 . 2))))
 
 (define-monster-kind "jackal" "jackal"
-  :numeric-id  29
+  :numeric-id 29
+  :x-attr (tile-file 19)
+  :x-char (tile-number 49)
   :desc "It is a yapping snarling dog, dangerous when in a pack."
-  :x-char #\C
-  :x-attr #\U
+  :text-char #\C
+  :text-attr #\U
   :type '(<animal>)
   :depth 1
   :rarity 1
@@ -65,10 +71,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (1 . 1))))
 
 (define-monster-kind "lizard-rock" "rock lizard"
-  :numeric-id  28
+  :numeric-id 28
+  :x-attr (tile-file 22)
+  :x-char (tile-number 12)
   :desc "It is a small lizard with a hardened hide."
-  :x-char #\R
-  :x-attr #\U
+  :text-char #\R
+  :text-attr #\U
   :type '(<animal>)
   :depth 1
   :rarity 1
@@ -81,10 +89,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (1 . 1))))
 
 (define-monster-kind "eye-floating" "floating eye"
-  :numeric-id  27
+  :numeric-id 27
+  :x-attr (tile-file 21)
+  :x-char (tile-number 65)
   :desc "A disembodied eye, floating a few feet above the ground."
-  :x-char #\e
-  :x-attr #\o
+  :text-char #\e
+  :text-attr #\o
   :depth 1
   :rarity 1
   :hitpoints '(3 . 6)
@@ -99,10 +109,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<gaze> :type <paralyse> :damage nil)))
 
 (define-monster-kind "worm-white" "white worm mass"
-  :numeric-id  26
+  :numeric-id 26
+  :x-attr (tile-file 20)
+  :x-char (tile-number 16)
   :desc "It is a large slimy mass of worms."
-  :x-char #\w
-  :x-attr #\w
+  :text-char #\w
+  :text-attr #\w
   :type '(<animal>)
   :depth 1
   :rarity 1
@@ -118,10 +130,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<crawl> :type <poison> :damage (1 . 2))))
 
 (define-monster-kind "kobold" "kobold"
-  :numeric-id  25
+  :numeric-id 25
+  :x-attr (tile-file 16)
+  :x-char (tile-number 12)
   :desc "It is a small, dog-headed humanoid."
-  :x-char #\k
-  :x-attr #\G
+  :text-char #\k
+  :text-attr #\G
   :alignment '<evil>
   :depth 1
   :rarity 1
@@ -137,10 +151,12 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "kobold-small" "small kobold"
-  :numeric-id  24
+  :numeric-id 24
+  :x-attr (tile-file 16)
+  :x-char (tile-number 11)
   :desc "It is a squat and ugly humanoid figure."
-  :x-char #\k
-  :x-attr #\y
+  :text-char #\k
+  :text-attr #\y
   :alignment '<evil>
   :depth 1
   :rarity 1
@@ -156,10 +172,12 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "snake-white" "large white snake"
-  :numeric-id  23
+  :numeric-id 23
+  :x-attr (tile-file 19)
+  :x-char (tile-number 19)
   :desc "It is about eight feet long."
-  :x-char #\J
-  :x-attr #\w
+  :text-char #\J
+  :text-attr #\w
   :type '(<animal>)
   :depth 1
   :rarity 1
@@ -174,10 +192,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<bite> :type <hurt> :damage (1 . 1))))
 
 (define-monster-kind "snake-brown" "large brown snake"
-  :numeric-id  22
+  :numeric-id 22
+  :x-attr (tile-file 19)
+  :x-char (tile-number 18)
   :desc "It is about eight feet long."
-  :x-char #\J
-  :x-attr #\u
+  :text-char #\J
+  :text-attr #\u
   :type '(<animal>)
   :depth 1
   :rarity 1
@@ -192,10 +212,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<bite> :type <hurt> :damage (1 . 3))))
 
 (define-monster-kind "mouse-white" "giant white mouse"
-  :numeric-id  21
+  :numeric-id 21
+  :x-attr (tile-file 16)
+  :x-char (tile-number 24)
   :desc "It is about three feet long with large teeth."
-  :x-char #\r
-  :x-attr #\w
+  :text-char #\r
+  :text-attr #\w
   :type '(<animal>)
   :depth 1
   :rarity 1
@@ -209,10 +231,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (1 . 2))))
 
 (define-monster-kind "icky-clear" "clear icky thing"
-  :numeric-id  20
+  :numeric-id 20
+  :x-attr (tile-file 17)
+  :x-char (tile-number 79)
   :desc "It is a smallish, slimy, icky, blobby creature."
-  :x-char #\i
-  :x-attr #\w
+  :text-char #\i
+  :text-attr #\w
   :depth 1
   :rarity 1
   :hitpoints '(2 . 5)
@@ -225,10 +249,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <hurt> :damage (1 . 2))))
 
 (define-monster-kind "icky-white" "white icky thing"
-  :numeric-id  19
+  :numeric-id 19
+  :x-attr (tile-file 17)
+  :x-char (tile-number 78)
   :desc "It is a smallish, slimy, icky creature."
-  :x-char #\i
-  :x-attr #\w
+  :text-char #\i
+  :text-attr #\w
   :depth 1
   :rarity 1
   :hitpoints '(3 . 5)
@@ -241,10 +267,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <hurt> :damage (1 . 2))))
 
 (define-monster-kind "mold-grey" "grey mold"
-  :numeric-id  15
+  :numeric-id 15
+  :x-attr (tile-file 17)
+  :x-char (tile-number 66)
   :desc "A small strange growth."
-  :x-char #\m
-  :x-attr #\s
+  :text-char #\m
+  :text-attr #\s
   :depth 1
   :rarity 1
   :hitpoints '(1 . 2)
@@ -259,10 +287,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<hit> :type <hurt> :damage (1 . 4))))
 
 (define-monster-kind "centipede-white" "giant white centipede"
-  :numeric-id  18
+  :numeric-id 18
+  :x-attr (tile-file 20)
+  :x-char (tile-number 33)
   :desc "It is about four feet long and carnivorous."
-  :x-char #\c
-  :x-attr #\w
+  :text-char #\c
+  :text-attr #\w
   :type '(<animal>)
   :depth 1
   :rarity 1
@@ -277,10 +307,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<bite> :type <hurt> :damage (1 . 2))))
 
 (define-monster-kind "centipede-yellow" "giant yellow centipede"
-  :numeric-id  17
+  :numeric-id 17
+  :x-attr (tile-file 20)
+  :x-char (tile-number 32)
   :desc "It is about four feet long and carnivorous."
-  :x-char #\c
-  :x-attr #\y
+  :text-char #\c
+  :text-attr #\y
   :type '(<animal>)
   :depth 1
   :rarity 1
@@ -295,10 +327,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<bite> :type <hurt> :damage (1 . 3))))
 
 (define-monster-kind "mushroom-grey" "grey mushroom patch"
-  :numeric-id  16
+  :numeric-id 16
+  :x-attr (tile-file 17)
+  :x-char (tile-number 85)
   :desc "Yum!  It looks quite tasty."
-  :x-char #\,
-  :x-attr #\s
+  :text-char #\,
+  :text-attr #\s
   :depth 1
   :rarity 1
   :hitpoints '(1 . 2)
@@ -316,10 +350,12 @@ the Free Software Foundation; either version 2 of the License, or
 ;;; === depth 2
 
 (define-monster-kind "worm-green" "green worm mass"
-  :numeric-id  48
+  :numeric-id 48
+  :x-attr (tile-file 20)
+  :x-char (tile-number 17)
   :desc "It is a large slimy mass of worms."
-  :x-char #\w
-  :x-attr #\g
+  :text-char #\w
+  :text-attr #\g
   :type '(<animal>)
   :depth 2
   :rarity 1
@@ -335,10 +371,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<crawl> :type <acid> :damage (1 . 3))))
 
 (define-monster-kind "harpy-white" "white harpy"
-  :numeric-id  44
+  :numeric-id 44
+  :x-attr (tile-file 22)
+  :x-char (tile-number 10)
   :desc "A flying, screeching bird with a woman's face."
-  :x-char #\H
-  :x-attr #\w
+  :text-char #\H
+  :text-attr #\w
   :alignment '<evil>
   :type '(<animal>)
   :depth 2
@@ -356,10 +394,12 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<female>)
 
 (define-monster-kind "salamander" "salamander"
-  :numeric-id  43
+  :numeric-id 43
+  :x-attr (tile-file 22)
+  :x-char (tile-number 13)
   :desc "A small black and orange lizard."
-  :x-char #\R
-  :x-attr #\o
+  :text-char #\R
+  :text-attr #\o
   :type '(<animal>)
   :depth 2
   :rarity 1
@@ -374,10 +414,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <fire> :damage (1 . 3))))
 
 (define-monster-kind "snake-yellow" "large yellow snake"
-  :numeric-id  49
+  :numeric-id 49
+  :x-attr (tile-file 19)
+  :x-char (tile-number 20)
   :desc "It is about ten feet long."
-  :x-char #\J
-  :x-attr #\y
+  :text-char #\J
+  :text-attr #\y
   :type '(<animal>)
   :depth 2
   :rarity 1
@@ -392,10 +434,12 @@ the Free Software Foundation; either version 2 of the License, or
 	     (<bite> :type <hurt> :damage (1 . 4))))
 
 (define-monster-kind "ant-black" "giant black ant"
-  :numeric-id  42
+  :numeric-id 42
+  :x-attr (tile-file 20)
+  :x-char (tile-number 1)
   :desc "It is about three feet long."
-  :x-char #\a
-  :x-attr #\D
+  :text-char #\a
+  :text-attr #\D
   :type '(<animal>)
   :depth 2
   :rarity 1
@@ -409,10 +453,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (1 . 4))))
 
 (define-monster-kind "frog-green" "giant green frog"
-  :numeric-id  41
+  :numeric-id 41
+  :x-attr (tile-file 22)
+  :x-char (tile-number 8)
   :desc "It is as big as a wolf."
-  :x-char #\R
-  :x-attr #\g
+  :text-char #\R
+  :text-attr #\g
   :type '(<animal>)
   :depth 2
   :rarity 1
@@ -426,10 +472,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (1 . 3))))
 
 (define-monster-kind "jelly-white" "white jelly"
-  :numeric-id  40
+  :numeric-id 40
+  :x-attr (tile-file 18)
+  :x-char (tile-number 19)
   :desc "Its a large pile of white flesh."
-  :x-char #\j
-  :x-attr #\w
+  :text-char #\j
+  :text-attr #\w
   :depth 2
   :rarity 1
   :hitpoints '(8 . 8)
@@ -444,10 +492,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<touch> :type <poison> :damage (1 . 2))))
 
 (define-monster-kind "mushroom-yellow" "yellow mushroom patch"
-  :numeric-id  39
+  :numeric-id 39
+  :x-attr (tile-file 17)
+  :x-char (tile-number 87)
   :desc "Yum!  It looks quite tasty."
-  :x-char #\,
-  :x-attr #\y
+  :text-char #\,
+  :text-attr #\y
   :depth 2
   :rarity 1
   :hitpoints '(1 . 1)
@@ -461,10 +511,12 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<spore> :type <terrify> :damage (1 . 6))))
 
 (define-monster-kind "spider-cave" "cave spider"
-  :numeric-id  50
+  :numeric-id 50
+  :x-attr (tile-file 18)
+  :x-char (tile-number 56)
   :desc "It is a black spider that moves in fits and starts."
-  :x-char #\S
-  :x-attr #\D
+  :text-char #\S
+  :text-attr #\D
   :type '(<animal>)
   :depth 2
   :rarity 1
@@ -478,11 +530,13 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (1 . 4))))
 
 (define-monster-kind "cat-wild" "wild cat"
-  :numeric-id  51
+  :numeric-id 51
+  :x-attr (tile-file 19)
+  :x-char (tile-number 50)
   :desc "A larger than normal feline, hissing loudly.  Its velvet
 claws conceal a fistful of needles."
-  :x-char #\f
-  :x-attr #\U
+  :text-char #\f
+  :text-attr #\U
   :type '(<animal>)
   :depth 2
   :rarity 2
@@ -496,10 +550,12 @@ claws conceal a fistful of needles."
   :attacks '((<claw> :type <hurt> :damage (1 . 3)) (<claw> :type <hurt> :damage (1 . 3))))
 
 (define-monster-kind "yeek-blue" "blue yeek"
-  :numeric-id  45
+  :numeric-id 45
+  :x-attr (tile-file 18)
+  :x-char (tile-number 58)
   :desc "A small humanoid figure."
-  :x-char #\y
-  :x-attr #\b
+  :text-char #\y
+  :text-attr #\b
   :type '(<animal>)
   :depth 2
   :rarity 1
@@ -514,11 +570,12 @@ claws conceal a fistful of needles."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "priest-novice" "novice priest"
-  :numeric-id  89
-  :numeric-id  37
+  :numeric-id 37
+  :x-attr (tile-file 7)
+  :x-char (tile-number 2)
   :desc "He is tripping over his priestly robes."
-  :x-char #\p
-  :x-attr #\g
+  :text-char #\p
+  :text-attr #\g
   :depth 2
   :rarity 1
   :hitpoints '(7 . 4)
@@ -535,11 +592,12 @@ claws conceal a fistful of needles."
   :appear-in-group? #'van-novice-appears-in-group?)
 
 (define-monster-kind "rogue-novice" "novice rogue"
-  :numeric-id  91
-  :numeric-id  36
+  :numeric-id 36
+  :x-attr (tile-file 7)
+  :x-char (tile-number 1)
   :desc "A rather shifty individual."
-  :x-char #\p
-  :x-attr #\b
+  :text-char #\p
+  :text-attr #\b
   :alignment '<evil>
   :depth 2
   :rarity 1
@@ -558,9 +616,11 @@ claws conceal a fistful of needles."
 
 (define-monster-kind "warriour-novice" "novice warriour"
   :numeric-id 35
+  :x-attr (tile-file 7)
+  :x-char (tile-number 0)
   :desc "He looks inexperienced but tough."
-  :x-char #\p
-  :x-attr #\u
+  :text-char #\p
+  :text-attr #\u
   :depth 2
   :rarity 1
   :hitpoints '(9 . 4)
@@ -577,10 +637,12 @@ claws conceal a fistful of needles."
   :appear-in-group? #'van-novice-appears-in-group?)
 
 (define-monster-kind "centipede-green" "metallic green centipede"
-  :numeric-id  34
+  :numeric-id 34
+  :x-attr (tile-file 20)
+  :x-char (tile-number 34)
   :desc "It is about four feet long and carnivorous."
-  :x-char #\c
-  :x-attr #\g
+  :text-char #\c
+  :text-attr #\g
   :type '(<animal>)
   :depth 2
   :rarity 1
@@ -594,10 +656,12 @@ claws conceal a fistful of needles."
   :attacks '((<crawl> :type <hurt> :damage (1 . 1))))
 
 (define-monster-kind "mushroom-shrieker" "shrieker mushroom patch"
-  :numeric-id  32
+  :numeric-id 32
+  :x-attr (tile-file 17)
+  :x-char (tile-number 86)
   :desc "Yum!  These look quite tasty."
-  :x-char #\,
-  :x-attr #\R
+  :text-char #\,
+  :text-attr #\R
   :depth 2
   :rarity 1
   :hitpoints '(1 . 1)
@@ -611,10 +675,12 @@ claws conceal a fistful of needles."
   :special-abilities '(<shriek> (<frequency> 1/4)))
 
 (define-monster-kind "icky-blubbering" "blubbering icky thing"
-  :numeric-id  33
+  :numeric-id 33
+  :x-attr (tile-file 17)
+  :x-char (tile-number 80)
   :desc "It is a smallish, slimy, icky, hungry creature."
-  :x-char #\i
-  :x-attr #\W
+  :text-char #\i
+  :text-attr #\W
   :depth 2
   :rarity 1
   :hitpoints '(5 . 6)
@@ -629,11 +695,12 @@ claws conceal a fistful of needles."
   :treasures '((<drop-chance> 9/10)))
 
 (define-monster-kind "mage-novice" "novice mage"
-  :numeric-id  77
-  :numeric-id  38
+  :numeric-id 38
+  :x-attr (tile-file 7)
+  :x-char (tile-number 3)
   :desc "He is leaving behind a trail of dropped spell components."
-  :x-char #\p
-  :x-attr #\r
+  :text-char #\p
+  :text-attr #\r
   :depth 2
   :rarity 1
   :hitpoints '(6 . 4)
@@ -653,10 +720,12 @@ claws conceal a fistful of needles."
 
 ;;; === depth 3
 (define-monster-kind "ooze-green" "green ooze"
-  :numeric-id  53
+  :numeric-id 53
+  :x-attr (tile-file 18)
+  :x-char (tile-number 0)
   :desc "It's green and it's oozing."
-  :x-char #\j
-  :x-attr #\g
+  :text-char #\j
+  :text-attr #\g
   :depth 3
   :rarity 2
   :hitpoints '(3 . 4)
@@ -671,10 +740,12 @@ claws conceal a fistful of needles."
   :treasures '((<drop-chance> 9/10)))
 
 (define-monster-kind "poltergeist" "poltergeist"
-  :numeric-id  54
+  :numeric-id 54
+  :x-attr (tile-file 23)
+  :x-char (tile-number 23)
   :desc "It is a ghastly, ghostly form."
-  :x-char #\G
-  :x-attr #\W
+  :text-char #\G
+  :text-attr #\W
   :alignment '<evil>
   :type '(<undead>)
   :depth 3
@@ -693,10 +764,12 @@ claws conceal a fistful of needles."
   :special-abilities '((<spell> <blink>) (<frequency> 1/15)))
 
 (define-monster-kind "centipede-blue" "metallic blue centipede"
-  :numeric-id  55
+  :numeric-id 55
+  :x-attr (tile-file 20)
+  :x-char (tile-number 35)
   :desc "It is about four feet long and carnivorous."
-  :x-char #\c
-  :x-attr #\b
+  :text-char #\c
+  :text-attr #\b
   :type '(<animal>)
   :depth 3
   :rarity 1
@@ -710,10 +783,12 @@ claws conceal a fistful of needles."
   :attacks '((<crawl> :type <hurt> :damage (1 . 2))))
 
 (define-monster-kind "louse-white" "giant white louse"
-  :numeric-id  56
+  :numeric-id 56
+  :x-attr (tile-file 18)
+  :x-char (tile-number 42)
   :desc "It is six inches long."
-  :x-char #\l
-  :x-attr #\w
+  :text-char #\l
+  :text-attr #\w
   :type '(<animal>)
   :depth 3
   :rarity 1
@@ -727,10 +802,12 @@ claws conceal a fistful of needles."
   :attacks '((<bite> :type <hurt> :damage (1 . 1))))
 
 (define-monster-kind "naga-black" "black naga"
-  :numeric-id  57
+  :numeric-id 57
+  :x-attr (tile-file 19)
+  :x-char (tile-number 13)
   :desc "A large black serpent's body with a female torso."
-  :x-char #\n
-  :x-attr #\D
+  :text-char #\n
+  :text-attr #\D
   :alignment '<evil>
   :depth 3
   :rarity 1
@@ -746,10 +823,12 @@ claws conceal a fistful of needles."
   :gender '<female>)
 
 (define-monster-kind "mushroom-spotted" "spotted mushroom patch"
-  :numeric-id  58
+  :numeric-id 58
+  :x-attr (tile-file 17)
+  :x-char (tile-number 88)
   :desc "Yum!  It looks quite tasty."
-  :x-char #\,
-  :x-attr #\o
+  :text-char #\,
+  :text-attr #\o
   :depth 3
   :rarity 1
   :hitpoints '(1 . 1)
@@ -763,10 +842,12 @@ claws conceal a fistful of needles."
   :attacks '((<spore> :type <poison> :damage (2 . 4))))
 
 (define-monster-kind "jelly-silver" "silver jelly"
-  :numeric-id  59
+  :numeric-id 59
+  :x-attr (tile-file 18)
+  :x-char (tile-number 20)
   :desc "It is a large pile of silver flesh that sucks all light from its  surroundings."
-  :x-char #\j
-  :x-attr #\W
+  :text-char #\j
+  :text-attr #\W
   :depth 3
   :rarity 2
   :hitpoints '(10 . 8)
@@ -783,10 +864,12 @@ claws conceal a fistful of needles."
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/15)))
 
 (define-monster-kind "jelly-yellow" "yellow jelly"
-  :numeric-id  60
+  :numeric-id 60
+  :x-attr (tile-file 18)
+  :x-char (tile-number 10)
   :desc "It's a large pile of yellow flesh."
-  :x-char #\j
-  :x-attr #\y
+  :text-char #\j
+  :text-attr #\y
   :depth 3
   :rarity 1
   :hitpoints '(10 . 8)
@@ -802,10 +885,12 @@ claws conceal a fistful of needles."
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/15)))
 
 (define-monster-kind "hobbit-scruffy" "scruffy looking hobbit"
-  :numeric-id  61
+  :numeric-id 61
+  :x-attr (tile-file 16)
+  :x-char (tile-number 0)
   :desc "A short little guy, in bedraggled clothes.  He appears to be looking for a good tavern."
-  :x-char #\h
-  :x-attr #\b
+  :text-char #\h
+  :text-attr #\b
   :alignment '<evil>
   :depth 3
   :rarity 1
@@ -821,10 +906,12 @@ claws conceal a fistful of needles."
   :gender '<male>)
 
 (define-monster-kind "ant-white" "giant white ant"
-  :numeric-id  62
+  :numeric-id 62
+  :x-attr (tile-file 20)
+  :x-char (tile-number 2)
   :desc "It is about two feet long and has sharp pincers."
-  :x-char #\a
-  :x-attr #\w
+  :text-char #\a
+  :text-attr #\w
   :type '(<animal>)
   :depth 3
   :rarity 1
@@ -838,10 +925,12 @@ claws conceal a fistful of needles."
   :attacks '((<bite> :type <hurt> :damage (1 . 4))))
 
 (define-monster-kind "mold-yellow" "yellow mold"
-  :numeric-id  63
+  :numeric-id 63
+  :x-attr (tile-file 17)
+  :x-char (tile-number 70)
   :desc "It is a strange growth on the dungeon floor."
-  :x-char #\m
-  :x-attr #\y
+  :text-char #\m
+  :text-attr #\y
   :depth 3
   :rarity 1
   :hitpoints '(8 . 8)
@@ -855,10 +944,12 @@ claws conceal a fistful of needles."
   :attacks '((<hit> :type <hurt> :damage (1 . 4))))
 
 (define-monster-kind "centipede-red" "metallic red centipede"
-  :numeric-id  64
+  :numeric-id 64
+  :x-attr (tile-file 20)
+  :x-char (tile-number 36)
   :desc "It is about four feet long and carnivorous."
-  :x-char #\c
-  :x-attr #\r
+  :text-char #\c
+  :text-attr #\r
   :type '(<animal>)
   :depth 3
   :rarity 1
@@ -872,10 +963,12 @@ claws conceal a fistful of needles."
   :attacks '((<crawl> :type <hurt> :damage (1 . 2))))
 
 (define-monster-kind "worm-yellow" "yellow worm mass"
-  :numeric-id  65
+  :numeric-id 65
+  :x-attr (tile-file 20)
+  :x-char (tile-number 18)
   :desc "It is a large slimy mass of worms."
-  :x-char #\w
-  :x-attr #\y
+  :text-char #\w
+  :text-attr #\y
   :type '(<animal>)
   :depth 3
   :rarity 2
@@ -891,10 +984,12 @@ claws conceal a fistful of needles."
   :attacks '((<crawl> :type <lose-dex> :damage (1 . 3))))
 
 (define-monster-kind "worm-clear" "clear worm mass"
-  :numeric-id  66
+  :numeric-id 66
+  :x-attr (tile-file 20)
+  :x-char (tile-number 19)
   :desc "It is a disgusting mass of poisonous worms."
-  :x-char #\w
-  :x-attr #\w
+  :text-char #\w
+  :text-attr #\w
   :type '(<animal>)
   :depth 3
   :rarity 2
@@ -910,10 +1005,12 @@ claws conceal a fistful of needles."
   :attacks '((<crawl> :type <poison> :damage (1 . 2))))
 
 (define-monster-kind "eye-radiation" "radiation eye"
-  :numeric-id  67
+  :numeric-id 67
+  :x-attr (tile-file 19)
+  :x-char (tile-number 7)
   :desc "A disembodied eye, crackling with energy."
-  :x-char #\e
-  :x-attr #\R
+  :text-char #\e
+  :text-attr #\R
   :depth 3
   :rarity 1
   :hitpoints '(3 . 6)
@@ -931,10 +1028,12 @@ claws conceal a fistful of needles."
 
 ;;; === depth 4
 (define-monster-kind "lizard-cave" "cave lizard"
-  :numeric-id  68
+  :numeric-id 68
+  :x-attr (tile-file 22)
+  :x-char (tile-number 14)
   :desc "It is an armoured lizard with a powerful bite."
-  :x-char #\R
-  :x-attr #\u
+  :text-char #\R
+  :text-attr #\u
   :type '(<animal>)
   :depth 4
   :rarity 1
@@ -947,11 +1046,12 @@ claws conceal a fistful of needles."
   :attacks '((<bite> :type <hurt> :damage (1 . 5))))
 
 (define-monster-kind "ranger-novice" "novice ranger"
-  :numeric-id  114
-  :numeric-id  69
+  :numeric-id 69
+  :x-attr (tile-file 7)
+  :x-char (tile-number 4)
   :desc "An agile hunter, ready and relaxed."
-  :x-char #\p
-  :x-attr #\W
+  :text-char #\p
+  :text-attr #\W
   :depth 4
   :rarity 1
   :hitpoints '(6 . 8)
@@ -968,11 +1068,12 @@ claws conceal a fistful of needles."
   :appear-in-group? #'van-novice-appears-in-group?)
 
 (define-monster-kind "paladin-novice" "novice paladin"
-  :numeric-id  118
-  :numeric-id  70
+  :numeric-id 70
+  :x-attr (tile-file 7)
+  :x-char (tile-number 5)
   :desc "An adventurer both devoutly religious and skillful in combat."
-  :x-char #\p
-  :x-attr #\w
+  :text-char #\p
+  :text-attr #\w
   :depth 4
   :rarity 1
   :hitpoints '(6 . 8)
@@ -989,10 +1090,12 @@ claws conceal a fistful of needles."
   :appear-in-group? #'van-novice-appears-in-group?)
 
 (define-monster-kind "jelly-blue" "blue jelly"
-  :numeric-id  71
+  :numeric-id 71
+  :x-attr (tile-file 18)
+  :x-char (tile-number 6)
   :desc "It's a large pile of pulsing blue flesh."
-  :x-char #\j
-  :x-attr #\b
+  :text-char #\j
+  :text-attr #\b
   :depth 4
   :rarity 1
   :hitpoints '(12 . 8)
@@ -1007,10 +1110,12 @@ claws conceal a fistful of needles."
   :attacks '((<touch> :type <cold> :damage (1 . 6))))
 
 (define-monster-kind "creeping-copper" "creeping copper coins"
-  :numeric-id  72
+  :numeric-id 72
+  :x-attr (tile-file 10)
+  :x-char (tile-number 7)
   :desc "It is a pile of coins."
-  :x-char #\$
-  :x-attr #\u
+  :text-char #\$
+  :text-attr #\u
   :type '(<animal>)
   :depth 4
   :rarity 2
@@ -1026,10 +1131,12 @@ claws conceal a fistful of needles."
   :treasures '((<drop> "1d2") <only-drop-gold>))
 
 (define-monster-kind "rat-white" "giant white rat"
-  :numeric-id  73
+  :numeric-id 73
+  :x-attr (tile-file 16)
+  :x-char (tile-number 26)
   :desc "It is a very vicious rodent."
-  :x-char #\r
-  :x-attr #\W
+  :text-char #\r
+  :text-attr #\W
   :type '(<animal>)
   :depth 4
   :rarity 1
@@ -1043,10 +1150,12 @@ claws conceal a fistful of needles."
   :attacks '((<bite> :type <poison> :damage (1 . 3))))
 
 (define-monster-kind "worm-blue" "blue worm mass"
-  :numeric-id  74
+  :numeric-id 74
+  :x-attr (tile-file 20)
+  :x-char (tile-number 20)
   :desc "It is a large slimy mass of worms."
-  :x-char #\w
-  :x-attr #\b
+  :text-char #\w
+  :text-attr #\b
   :type '(<animal>)
   :depth 4
   :rarity 1
@@ -1062,10 +1171,12 @@ claws conceal a fistful of needles."
   :attacks '((<crawl> :type <cold> :damage (1 . 4))))
 
 (define-monster-kind "snake-grey" "large grey snake"
-  :numeric-id  75
+  :numeric-id 75
+  :x-attr (tile-file 19)
+  :x-char (tile-number 21)
   :desc "It is about ten feet long."
-  :x-char #\J
-  :x-attr #\s
+  :text-char #\J
+  :text-attr #\s
   :type '(<animal>)
   :depth 4
   :rarity 1
@@ -1081,10 +1192,12 @@ claws conceal a fistful of needles."
 
 ;;; === depth 5
 (define-monster-kind "naga-green" "green naga"
-  :numeric-id  78
+  :numeric-id 78
+  :x-attr (tile-file 19)
+  :x-char (tile-number 14)
   :desc "A large green serpent with a female's torso.  Her green skin glistens with acid."
-  :x-char #\n
-  :x-attr #\g
+  :text-char #\n
+  :text-attr #\g
   :alignment '<evil>
   :depth 5
   :rarity 1
@@ -1101,10 +1214,12 @@ claws conceal a fistful of needles."
   :gender '<female>)
 
 (define-monster-kind "ooze-blue" "blue ooze"
-  :numeric-id  79
+  :numeric-id 79
+  :x-attr (tile-file 18)
+  :x-char (tile-number 1)
   :desc "It's blue and it's oozing."
-  :x-char #\j
-  :x-attr #\b
+  :text-char #\j
+  :text-attr #\b
   :depth 5
   :rarity 1
   :hitpoints '(3 . 4)
@@ -1119,10 +1234,12 @@ claws conceal a fistful of needles."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "ghost-glutton" "green glutton ghost"
-  :numeric-id  80
+  :numeric-id 80
+  :x-attr (tile-file 23)
+  :x-char (tile-number 2)
   :desc "It is a very ugly green ghost with a voracious appetite."
-  :x-char #\G
-  :x-attr #\g
+  :text-char #\G
+  :text-attr #\g
   :alignment '<evil>
   :type '(<undead>)
   :depth 5
@@ -1139,10 +1256,12 @@ claws conceal a fistful of needles."
   :treasures '((<drop-chance> 9/10) (<drop-chance> 3/5)))
 
 (define-monster-kind "jelly-green" "green jelly"
-  :numeric-id  81
+  :numeric-id 81
+  :x-attr (tile-file 18)
+  :x-char (tile-number 17)
   :desc "It is a large pile of pulsing green flesh."
-  :x-char #\j
-  :x-attr #\g
+  :text-char #\j
+  :text-attr #\g
   :depth 5
   :rarity 1
   :hitpoints '(22 . 8)
@@ -1157,10 +1276,12 @@ claws conceal a fistful of needles."
   :attacks '((<touch> :type <acid> :damage (1 . 2))))
 
 (define-monster-kind "kobold-large" "large kobold"
-  :numeric-id  82
+  :numeric-id 82
+  :x-attr (tile-file 16)
+  :x-char (tile-number 13)
   :desc "It a man-sized figure with the all too recognizable face of a kobold."
-  :x-char #\k
-  :x-attr #\b
+  :text-char #\k
+  :text-attr #\b
   :alignment '<evil>
   :depth 5
   :rarity 1
@@ -1176,10 +1297,12 @@ claws conceal a fistful of needles."
   :treasures '((<drop-chance> 9/10)))
 
 (define-monster-kind "kobold-skeleton" "skeleton kobold"
-  :numeric-id  83
+  :numeric-id 83
+  :x-attr (tile-file 23)
+  :x-char (tile-number 59)
   :desc "It is a small animated kobold skeleton."
-  :x-char #\s
-  :x-attr #\w
+  :text-char #\s
+  :text-attr #\w
   :alignment '<evil>
   :type '(<undead>)
   :depth 5
@@ -1195,10 +1318,12 @@ claws conceal a fistful of needles."
   :attacks '((<hit> :type <hurt> :damage (1 . 6))))
 
 (define-monster-kind "icky-grey" "grey icky thing"
-  :numeric-id  84
+  :numeric-id 84
+  :x-attr (tile-file 17)
+  :x-char (tile-number 81)
   :desc "It is a smallish, slimy, icky, nasty creature."
-  :x-char #\i
-  :x-attr #\s
+  :text-char #\i
+  :text-attr #\s
   :depth 5
   :rarity 1
   :hitpoints '(4 . 8)
@@ -1211,10 +1336,12 @@ claws conceal a fistful of needles."
   :attacks '((<touch> :type <hurt> :damage (1 . 5))))
 
 (define-monster-kind "eye-disenchanter" "disenchanter eye"
-  :numeric-id  85
+  :numeric-id 85
+  :x-attr (tile-file 19)
+  :x-char (tile-number 6)
   :desc "A disembodied eye, crackling with magic."
-  :x-char #\e
-  :x-attr #\v
+  :text-char #\e
+  :text-attr #\v
   :depth 5
   :rarity 2
   :hitpoints '(7 . 8)
@@ -1230,10 +1357,12 @@ claws conceal a fistful of needles."
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/9)))
 
 (define-monster-kind "worm-red" "red worm mass"
-  :numeric-id  86
+  :numeric-id 86
+  :x-attr (tile-file 20)
+  :x-char (tile-number 21)
   :desc "It is a large slimy mass of worms."
-  :x-char #\w
-  :x-attr #\r
+  :text-char #\w
+  :text-attr #\r
   :type '(<animal>)
   :depth 5
   :rarity 1
@@ -1249,10 +1378,12 @@ claws conceal a fistful of needles."
   :attacks '((<crawl> :type <fire> :damage (1 . 6))))
 
 (define-monster-kind "snake-copperhead" "copperhead snake"
-  :numeric-id  87
+  :numeric-id 87
+  :x-attr (tile-file 19)
+  :x-char (tile-number 22)
   :desc "It has a copper head and sharp venomous fangs."
-  :x-char #\J
-  :x-attr #\o
+  :text-char #\J
+  :text-attr #\o
   :type '(<animal>)
   :depth 5
   :rarity 1
@@ -1269,10 +1400,12 @@ claws conceal a fistful of needles."
 
 ;;; === depth 6
 (define-monster-kind "mushroom-purple" "purple mushroom patch"
-  :numeric-id  88
+  :numeric-id 88
+  :x-attr (tile-file 17)
+  :x-char (tile-number 89)
   :desc "Yum!  It looks quite tasty."
-  :x-char #\,
-  :x-attr #\v
+  :text-char #\,
+  :text-attr #\v
   :depth 6
   :rarity 2
   :hitpoints '(1 . 1)
@@ -1287,10 +1420,12 @@ claws conceal a fistful of needles."
 	     (<spore> :type <lose-con> :damage (1 . 2))))
 
 (define-monster-kind "mold-brown" "brown mold"
-  :numeric-id  92
+  :numeric-id 92
+  :x-attr (tile-file 17)
+  :x-char (tile-number 71)
   :desc "A strange brown growth on the dungeon floor."
-  :x-char #\m
-  :x-attr #\u
+  :text-char #\m
+  :text-attr #\u
   :depth 6
   :rarity 1
   :hitpoints '(15 . 8)
@@ -1304,10 +1439,12 @@ claws conceal a fistful of needles."
   :attacks '((<hit> :type <confusion> :damage (1 . 4))))
 
 (define-monster-kind "bat-brown" "giant brown bat"
-  :numeric-id  93
+  :numeric-id 93
+  :x-attr (tile-file 19)
+  :x-char (tile-number 2)
   :desc "It screeches as it attacks."
-  :x-char #\b
-  :x-attr #\u
+  :text-char #\b
+  :text-attr #\u
   :type '(<animal>)
   :depth 6
   :rarity 1
@@ -1321,10 +1458,12 @@ claws conceal a fistful of needles."
   :attacks '((<bite> :type <hurt> :damage (1 . 3))))
 
 (define-monster-kind "archer-novice" "novice archer"
-  :numeric-id  94
+  :numeric-id 94
+  :x-attr (tile-file 7)
+  :x-char (tile-number 10)
   :desc "A nasty little fellow with a bow and arrow."
-  :x-char #\p
-  :x-attr #\W
+  :text-char #\p
+  :text-attr #\W
   :depth 6
   :rarity 2
   :hitpoints '(6 . 8)
@@ -1340,10 +1479,12 @@ claws conceal a fistful of needles."
   :special-abilities '((<arrow> 1) (<frequency> 1/3)))
 
 (define-monster-kind "creeping-silver" "creeping silver coins"
-  :numeric-id  95
+  :numeric-id 95
+  :x-attr (tile-file 10)
+  :x-char (tile-number 8)
   :desc "It is a pile of coins, crawling forward on thousands of tiny legs."
-  :x-char #\$
-  :x-attr #\s
+  :text-char #\$
+  :text-attr #\s
   :type '(<animal>)
   :depth 6
   :rarity 2
@@ -1359,10 +1500,12 @@ claws conceal a fistful of needles."
   :treasures '((<drop> "1d2") (<drop-chance> 3/5) <only-drop-gold>))
 
 (define-monster-kind "snaga" "snaga"
-  :numeric-id  96
+  :numeric-id 96
+  :x-attr (tile-file 16)
+  :x-char (tile-number 19)
   :desc "He is one of the many weaker 'slave' orcs, often mistakenly known as a  goblin."
-  :x-char #\o
-  :x-attr #\U
+  :text-char #\o
+  :text-attr #\U
   :alignment '<evil>
   :type '(<orc>)
   :depth 6
@@ -1380,10 +1523,12 @@ claws conceal a fistful of needles."
   :gender '<male>)
 
 (define-monster-kind "snake-rattle" "rattlesnake"
-  :numeric-id  97
+  :numeric-id 97
+  :x-attr (tile-file 19)
+  :x-char (tile-number 23)
   :desc "It is recognized by the hard-scaled end of its body that is often rattled  to frighten its prey."
-  :x-char #\J
-  :x-attr #\r
+  :text-char #\J
+  :text-attr #\r
   :type '(<animal>)
   :depth 6
   :rarity 1
@@ -1400,10 +1545,12 @@ claws conceal a fistful of needles."
 
 ;;; === depth 7
 (define-monster-kind "orc-cave" "cave orc"
-  :numeric-id  98
+  :numeric-id 98
+  :x-attr (tile-file 16)
+  :x-char (tile-number 20)
   :desc "He is often found in huge numbers in deep caves."
-  :x-char #\o
-  :x-attr #\G
+  :text-char #\o
+  :text-attr #\G
   :alignment '<evil>
   :type '(<orc>)
   :depth 7
@@ -1421,10 +1568,12 @@ claws conceal a fistful of needles."
   :gender '<male>)
 
 (define-monster-kind "spider-wood" "wood spider"
-  :numeric-id  99
+  :numeric-id 99
+  :x-attr (tile-file 18)
+  :x-char (tile-number 53)
   :desc "It scuttles towards you."
-  :x-char #\S
-  :x-attr #\U
+  :text-char #\S
+  :text-attr #\U
   :type '(<animal>)
   :depth 7
   :rarity 3
@@ -1439,10 +1588,12 @@ claws conceal a fistful of needles."
   :attacks '((<sting> :type <poison> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 3))))
 
 (define-monster-kind "manes" "manes"
-  :numeric-id  100
+  :numeric-id 100
+  :x-attr (tile-file 16)
+  :x-char (tile-number 36)
   :desc "It is a minor but aggressive demon."
-  :x-char #\u
-  :x-attr #\u
+  :text-char #\u
+  :text-attr #\u
   :alignment '<evil>
   :type '(<demon>)
   :depth 7
@@ -1458,10 +1609,12 @@ claws conceal a fistful of needles."
   :attacks '((<hit> :type <hurt> :damage (1 . 8))))
 
 (define-monster-kind "eye-bloodshot" "bloodshot eye"
-  :numeric-id  101
+  :numeric-id 101
+  :x-attr (tile-file 19)
+  :x-char (tile-number 5)
   :desc "A disembodied eye, bloodshot and nasty."
-  :x-char #\e
-  :x-attr #\r
+  :text-char #\e
+  :text-attr #\r
   :depth 7
   :rarity 3
   :hitpoints '(5 . 8)
@@ -1477,10 +1630,12 @@ claws conceal a fistful of needles."
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/7)))
 
 (define-monster-kind "naga-pink" "pink naga"
-  :numeric-id  102
+  :numeric-id 102
+  :x-attr (tile-file 19)
+  :x-char (tile-number 15)
   :desc "A large pink snake with a woman's torso."
-  :x-char #\n
-  :x-attr #\R
+  :text-char #\n
+  :text-attr #\R
   :alignment '<evil>
   :depth 7
   :rarity 2
@@ -1496,10 +1651,12 @@ claws conceal a fistful of needles."
   :gender '<female>)
 
 (define-monster-kind "jelly-pink" "pink jelly"
-  :numeric-id  103
+  :numeric-id 103
+  :x-attr (tile-file 18)
+  :x-char (tile-number 18)
   :desc "It is a large pulsating mound of red flesh."
-  :x-char #\j
-  :x-attr #\R
+  :text-char #\j
+  :text-attr #\R
   :depth 7
   :rarity 1
   :hitpoints '(26 . 8)
@@ -1514,10 +1671,12 @@ claws conceal a fistful of needles."
   :attacks '((<touch> :type <lose-str> :damage (1 . 5))))
 
 (define-monster-kind "frog-pink" "giant pink frog"
-  :numeric-id  104
+  :numeric-id 104
+  :x-attr (tile-file 22)
+  :x-char (tile-number 9)
   :desc "It looks poisonous."
-  :x-char #\R
-  :x-attr #\R
+  :text-char #\R
+  :text-attr #\R
   :type '(<animal>)
   :depth 7
   :rarity 1
@@ -1531,10 +1690,12 @@ claws conceal a fistful of needles."
   :attacks '((<bite> :type <lose-str> :damage (2 . 4))))
 
 (define-monster-kind "icky-green" "green icky thing"
-  :numeric-id  105
+  :numeric-id 105
+  :x-attr (tile-file 17)
+  :x-char (tile-number 82)
   :desc "It is a smallish, slimy, icky, acidic creature."
-  :x-char #\i
-  :x-attr #\g
+  :text-char #\i
+  :text-attr #\g
   :depth 7
   :rarity 2
   :hitpoints '(5 . 8)
@@ -1548,10 +1709,12 @@ claws conceal a fistful of needles."
   :attacks '((<touch> :type <acid> :damage (2 . 5))))
 
 (define-monster-kind "kobold-zombie" "zombified kobold"
-  :numeric-id  106
+  :numeric-id 106
+  :x-attr (tile-file 23)
+  :x-char (tile-number 27)
   :desc "It is an animated kobold corpse.  Flesh falls off in large chunks as it shambles forward."
-  :x-char #\z
-  :x-attr #\s
+  :text-char #\z
+  :text-attr #\s
   :alignment '<evil>
   :type '(<undead>)
   :depth 7
@@ -1567,10 +1730,12 @@ claws conceal a fistful of needles."
   :attacks '((<hit> :type <hurt> :damage (1 . 2)) (<hit> :type <hurt> :damage (1 . 2))))
 
 (define-monster-kind "soul-lost" "lost soul"
-  :numeric-id  107
+  :numeric-id 107
+  :x-attr (tile-file 23)
+  :x-char (tile-number 22)
   :desc "It is almost insubstantial."
-  :x-char #\G
-  :x-attr #\B
+  :text-char #\G
+  :text-attr #\B
   :alignment '<evil>
   :type '(<undead>)
   :depth 7
@@ -1588,11 +1753,13 @@ claws conceal a fistful of needles."
   :special-abilities '((<spell> <drain-mana>) (<spell> <teleport>) (<frequency> 1/15)))
 
 (define-monster-kind "dark-elf" "dark elf"
-  :numeric-id  108
+  :numeric-id 108
+  :x-attr (tile-file 16)
+  :x-char (tile-number 1)
   :desc "An elven figure with jet black skin and white hair, his eyes are large and 
 twisted with evil."
-  :x-char #\h
-  :x-attr #\D
+  :text-char #\h
+  :text-attr #\D
   :alignment '<evil>
   :depth 7
   :rarity 2
@@ -1609,10 +1776,12 @@ twisted with evil."
   :gender '<male>
   :special-abilities '((<spell> <darkness>) (<spell> <confusion>) (<frequency> 1/10)))
 (define-monster-kind "lizard-night" "night lizard"
-  :numeric-id  109
+  :numeric-id 109
+  :x-attr (tile-file 22)
+  :x-char (tile-number 15)
   :desc "It is a black lizard with overlapping scales and a powerful jaw."
-  :x-char #\R
-  :x-attr #\D
+  :text-char #\R
+  :text-attr #\D
   :type '(<animal>)
   :depth 7
   :rarity 2
@@ -1627,10 +1796,12 @@ twisted with evil."
 
 ;;; === depth 8
 (define-monster-kind "yeek-brown" "brown yeek"
-  :numeric-id  113
+  :numeric-id 113
+  :x-attr (tile-file 18)
+  :x-char (tile-number 57)
   :desc "It is a strange small humanoid."
-  :x-char #\y
-  :x-attr #\u
+  :text-char #\y
+  :text-attr #\u
   :type '(<animal>)
   :depth 8
   :rarity 1
@@ -1645,10 +1816,12 @@ twisted with evil."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "salamander-giant" "giant salamander"
-  :numeric-id  115
+  :numeric-id 115
+  :x-attr (tile-file 22)
+  :x-char (tile-number 13)
   :desc "A large black and yellow lizard.  You'd better run away!"
-  :x-char #\R
-  :x-attr #\y
+  :text-char #\R
+  :text-attr #\y
   :type '(<animal>)
   :depth 8
   :rarity 1
@@ -1664,10 +1837,12 @@ twisted with evil."
   :special-abilities '((<breath> <fire>) (<frequency> 1/9)))
 
 (define-monster-kind "mold-green" "green mold"
-  :numeric-id  116
+  :numeric-id 116
+  :x-attr (tile-file 17)
+  :x-char (tile-number 73)
   :desc "It is a strange growth on the dungeon floor."
-  :x-char #\m
-  :x-attr #\g
+  :text-char #\m
+  :text-attr #\g
   :depth 8
   :rarity 2
   :hitpoints '(21 . 8)
@@ -1681,10 +1856,12 @@ twisted with evil."
   :attacks '((<hit> :type <terrify> :damage (1 . 4))))
 
 (define-monster-kind "orc-skeleton" "skeleton orc"
-  :numeric-id  117
+  :numeric-id 117
+  :x-attr (tile-file 23)
+  :x-char (tile-number 62)
   :desc "It is an animated orc skeleton."
-  :x-char #\s
-  :x-attr #\w
+  :text-char #\s
+  :text-attr #\w
   :alignment '<evil>
   :type '(<undead> <orc>)
   :depth 8
@@ -1700,10 +1877,12 @@ twisted with evil."
   :attacks '((<hit> :type <hurt> :damage (2 . 5))))
 
 (define-monster-kind "lemure" "lemure"
-  :numeric-id  119
+  :numeric-id 119
+  :x-attr (tile-file 16)
+  :x-char (tile-number 37)
   :desc "It is the larval form of a major demon."
-  :x-char #\u
-  :x-attr #\U
+  :text-char #\u
+  :text-attr #\U
   :alignment '<evil>
   :type '(<demon>)
   :depth 8
@@ -1719,10 +1898,12 @@ twisted with evil."
   :attacks '((<hit> :type <hurt> :damage (1 . 8))))
 
 (define-monster-kind "orc-hill" "hill orc"
-  :numeric-id  120
+  :numeric-id 120
+  :x-attr (tile-file 21)
+  :x-char (tile-number 24)
   :desc "He is a hardy well-weathered survivor."
-  :x-char #\o
-  :x-attr #\u
+  :text-char #\o
+  :text-attr #\u
   :alignment '<evil>
   :type '(<orc>)
   :depth 8
@@ -1739,10 +1920,12 @@ twisted with evil."
   :gender '<male>)
 
 (define-monster-kind "bandit" "bandit"
-  :numeric-id  121
+  :numeric-id 121
+  :x-attr (tile-file 7)
+  :x-char (tile-number 13)
   :desc "He is after your cash!"
-  :x-char #\p
-  :x-attr #\b
+  :text-char #\p
+  :text-attr #\b
   :alignment '<evil>
   :depth 8
   :rarity 2
@@ -1760,10 +1943,12 @@ twisted with evil."
 
 ;;; === depth 9
 (define-monster-kind "yeti" "yeti"
-  :numeric-id  122
+  :numeric-id 122
+  :x-attr (tile-file 17)
+  :x-char (tile-number 50)
   :desc "A large white figure covered in shaggy fur."
-  :x-char #\Y
-  :x-attr #\b
+  :text-char #\Y
+  :text-attr #\b
   :type '(<animal>)
   :depth 9
   :rarity 3
@@ -1779,10 +1964,12 @@ twisted with evil."
 	     (<claw> :type <hurt> :damage (1 . 3))))
 
 (define-monster-kind "icky-bloodshot" "bloodshot icky thing"
-  :numeric-id  123
+  :numeric-id 123
+  :x-attr (tile-file 17)
+  :x-char (tile-number 83)
   :desc "It is a strange, slimy, icky creature."
-  :x-char #\i
-  :x-attr #\r
+  :text-char #\i
+  :text-attr #\r
   :depth 9
   :rarity 3
   :hitpoints '(7 . 8)
@@ -1797,10 +1984,12 @@ twisted with evil."
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/11)))
 
 (define-monster-kind "rat-grey" "giant grey rat"
-  :numeric-id  124
+  :numeric-id 124
+  :x-attr (tile-file 16)
+  :x-char (tile-number 25)
   :desc "It is a rodent of unusual size."
-  :x-char #\r
-  :x-attr #\s
+  :text-char #\r
+  :text-attr #\s
   :type '(<animal>)
   :depth 9
   :rarity 1
@@ -1814,10 +2003,12 @@ twisted with evil."
   :vision 8
   :attacks '((<bite> :type <poison> :damage (1 . 4))))
 (define-monster-kind "harpy-black" "black harpy"
-  :numeric-id  125
+  :numeric-id 125
+  :x-attr (tile-file 22)
+  :x-char (tile-number 11)
   :desc "A woman's face on the body of a vicious black bird."
-  :x-char #\H
-  :x-attr #\D
+  :text-char #\H
+  :text-attr #\D
   :alignment '<evil>
   :type '(<animal>)
   :depth 9
@@ -1834,10 +2025,12 @@ twisted with evil."
   :gender '<female>)
 
 (define-monster-kind "orc-shaman" "orc shaman"
-  :numeric-id  126
+  :numeric-id 126
+  :x-attr (tile-file 21)
+  :x-char (tile-number 25)
   :desc "An orc dressed in skins who gestures wildly."
-  :x-char #\o
-  :x-attr #\r
+  :text-char #\o
+  :text-attr #\r
   :alignment '<evil>
   :type '(<orc>)
   :depth 9
@@ -1856,10 +2049,12 @@ twisted with evil."
   :special-abilities '((<spell> <missile>) (<spell> (<cause> 1)) (<spell> <blink>) (<frequency> 1/8)))
 
 (define-monster-kind "baby-dragon-blue" "baby blue dragon"
-  :numeric-id  127
+  :numeric-id 127
+  :x-attr (tile-file 15)
+  :x-char (tile-number 0)
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and  its scales a pale blue."
-  :x-char #\d
-  :x-attr #\b
+  :text-char #\d
+  :text-attr #\b
   :alignment '<evil>
   :type '(<dragon>)
   :depth 9
@@ -1878,10 +2073,12 @@ twisted with evil."
   :special-abilities '((<breath> <electricity>) (<frequency> 1/11)))
 
 (define-monster-kind "baby-dragon-white" "baby white dragon"
-  :numeric-id  128
+  :numeric-id 128
+  :x-attr (tile-file 15)
+  :x-char (tile-number 2)
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and its scales a pale white."
-  :x-char #\d
-  :x-attr #\w
+  :text-char #\d
+  :text-attr #\w
   :alignment '<evil>
   :type '(<dragon>)
   :depth 9
@@ -1900,10 +2097,12 @@ twisted with evil."
   :special-abilities '((<breath> <cold>) (<frequency> 1/11)))
 
 (define-monster-kind "baby-dragon-green" "baby green dragon"
-  :numeric-id  129
+  :numeric-id 129
+  :x-attr (tile-file 15)
+  :x-char (tile-number 3)
   :desc "This hatchling dragon is still soft its eyes unaccustomed to light and its scales a sickly green."
-  :x-char #\d
-  :x-attr #\g
+  :text-char #\d
+  :text-attr #\g
   :alignment '<evil>
   :type '(<dragon>)
   :depth 9
@@ -1922,10 +2121,12 @@ twisted with evil."
   :special-abilities '((<breath> <poison>) (<frequency> 1/11)))
 
 (define-monster-kind "baby-dragon-black" "baby black dragon"
-  :numeric-id  130
+  :numeric-id 130
+  :x-attr (tile-file 15)
+  :x-char (tile-number 4)
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and its scales a dull black."
-  :x-char #\d
-  :x-attr #\s
+  :text-char #\d
+  :text-attr #\s
   :alignment '<evil>
   :type '(<dragon>)
   :depth 9
@@ -1944,10 +2145,12 @@ twisted with evil."
   :special-abilities '((<breath> <acid>) (<frequency> 1/11)))
 
 (define-monster-kind "baby-dragon-red" "baby red dragon"
-  :numeric-id  131
+  :numeric-id 131
+  :x-attr (tile-file 15)
+  :x-char (tile-number 5)
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and its scales a pale red."
-  :x-char #\d
-  :x-attr #\r
+  :text-char #\d
+  :text-attr #\r
   :alignment '<evil>
   :type '(<dragon>)
   :depth 9
@@ -1966,10 +2169,12 @@ twisted with evil."
   :special-abilities '((<breath> <fire>) (<frequency> 1/11)))
 
 (define-monster-kind "ant-pink" "giant pink ant"
-  :numeric-id  132
+  :numeric-id 132
+  :x-attr (tile-file 20)
+  :x-char (tile-number 3)
   :desc "It is large and has venomous mandibles."
-  :x-char #\a
-  :x-attr #\R
+  :text-char #\a
+  :text-attr #\R
   :type '(<animal>)
   :depth 9
   :rarity 2
@@ -1983,10 +2188,12 @@ twisted with evil."
   :attacks '((<sting> :type <lose-str> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 4))))
 
 (define-monster-kind "snake-cobra" "king cobra"
-  :numeric-id  134
+  :numeric-id 134
+  :x-attr (tile-file 19)
+  :x-char (tile-number 24)
   :desc "It is a large snake with a hooded face."
-  :x-char #\J
-  :x-attr #\g
+  :text-char #\J
+  :text-attr #\g
   :type '(<animal>)
   :depth 9
   :rarity 2
@@ -2003,10 +2210,12 @@ twisted with evil."
 
 ;;; === depth 10 and up
 (define-monster-kind "spider-giant" "giant spider"
-  :numeric-id  135
+  :numeric-id 135
+  :x-attr (tile-file 18)
+  :x-char (tile-number 52)
   :desc "It is a vast black spider whose bulbous body is bloated with poison."
-  :x-char #\S
-  :x-attr #\v
+  :text-char #\S
+  :text-attr #\v
   :type '(<animal>)
   :depth 10
   :rarity 2
@@ -2022,10 +2231,12 @@ twisted with evil."
 	     (<bite> :type <poison> :damage (1 . 6)) (<bite> :type <hurt> :damage (1 . 10))))
 
 (define-monster-kind "dark-elf-mage" "dark elven mage"
-  :numeric-id  136
+  :numeric-id 136
+  :x-attr (tile-file 16)
+  :x-char (tile-number 2)
   :desc "A dark elven figure, dressed all in black, hurling spells at you."
-  :x-char #\h
-  :x-attr #\v
+  :text-char #\h
+  :text-attr #\v
   :alignment '<evil>
   :depth 10
   :rarity 1
@@ -2046,9 +2257,11 @@ twisted with evil."
 
 (define-monster-kind "dark-elf-warriour" "dark elven warriour"
   :numeric-id 138
+  :x-attr (tile-file 16)
+  :x-char (tile-number 3)
   :desc "A dark elven figure in armour and ready with his sword."
-  :x-char #\h
-  :x-attr #\u
+  :text-char #\h
+  :text-attr #\u
   :alignment '<evil>
   :depth 10
   :rarity 1
@@ -2065,10 +2278,12 @@ twisted with evil."
   :gender '<male>)
 
 (define-monster-kind "mushroom-clear" "clear mushroom patch"
-  :numeric-id  139
+  :numeric-id 139
+  :x-attr (tile-file 17)
+  :x-char (tile-number 90)
   :desc "Yum!  It looks quite tasty."
-  :x-char #\,
-  :x-attr #\w
+  :text-char #\,
+  :text-attr #\w
   :depth 10
   :rarity 2
   :hitpoints '(1 . 1)
@@ -2082,10 +2297,12 @@ twisted with evil."
   :attacks '((<spore> :type <hurt> :damage (1 . 1))))
 
 (define-monster-kind "tick-white" "giant white tick"
-  :numeric-id  141
+  :numeric-id 141
+  :x-attr (tile-file 18)
+  :x-char (tile-number 42)
   :desc "It is moving slowly towards you."
-  :x-char #\S
-  :x-attr #\w
+  :text-char #\S
+  :text-attr #\w
   :type '(<animal>)
   :depth 10
   :rarity 2
@@ -2100,10 +2317,12 @@ twisted with evil."
   :attacks '((<bite> :type <poison> :damage (2 . 6))))
 
 (define-monster-kind "mold-hairy" "hairy mold"
-  :numeric-id  142
+  :numeric-id 142
+  :x-attr (tile-file 17)
+  :x-char (tile-number 72)
   :desc "It is a strange hairy growth on the dungeon floor."
-  :x-char #\m
-  :x-attr #\o
+  :text-char #\m
+  :text-attr #\o
   :depth 10
   :rarity 2
   :hitpoints '(15 . 8)
@@ -2117,10 +2336,12 @@ twisted with evil."
   :attacks '((<hit> :type <poison> :damage (1 . 3))))
 
 (define-monster-kind "mold-disenchanter" "disenchanter mold"
-  :numeric-id  143
+  :numeric-id 143
+  :x-attr (tile-file 17)
+  :x-char (tile-number 67)
   :desc "It is a strange glowing growth on the dungeon floor."
-  :x-char #\m
-  :x-attr #\v
+  :text-char #\m
+  :text-attr #\v
   :depth 10
   :rarity 2
   :hitpoints '(16 . 8)
@@ -2135,10 +2356,12 @@ twisted with evil."
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/11)))
 
 (define-monster-kind "dragon-pseudo" "pseudo dragon"
-  :numeric-id  144
+  :numeric-id 144
+  :x-attr (tile-file 15)
+  :x-char (tile-number 46)
   :desc "A small relative of the dragon that inhabits dark caves."
-  :x-char #\d
-  :x-attr #\o
+  :text-char #\d
+  :text-attr #\o
   :type '(<dragon>)
   :depth 10
   :rarity 2
@@ -2156,10 +2379,12 @@ twisted with evil."
 		       (<frequency> 1/11)))
 
 (define-monster-kind "tengu" "tengu"
-  :numeric-id  145
+  :numeric-id 145
+  :x-attr (tile-file 16)
+  :x-char (tile-number 38)
   :desc "It is a fast-moving demon that blinks quickly in and out of existence; no  other demon matches its teleporting mastery."
-  :x-char #\u
-  :x-attr #\R
+  :text-char #\u
+  :text-attr #\R
   :alignment '<evil>
   :type '(<demon>)
   :depth 10
@@ -2176,10 +2401,12 @@ twisted with evil."
   :special-abilities '((<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/3)))
 
 (define-monster-kind "creeping-gold" "creeping gold coins"
-  :numeric-id  146
+  :numeric-id 146
+  :x-attr (tile-file 10)
+  :x-char (tile-number 9)
   :desc "It is a pile of coins, crawling forward on thousands of tiny legs."
-  :x-char #\$
-  :x-attr #\y
+  :text-char #\$
+  :text-attr #\y
   :type '(<animal>)
   :depth 10
   :rarity 3
@@ -2195,10 +2422,12 @@ twisted with evil."
   :treasures '((<drop> "1d2") (<drop-chance> 9/10) <only-drop-gold>))
 
 (define-monster-kind "wolf" "wolf"
-  :numeric-id  147
+  :numeric-id 147
+  :x-attr (tile-file 19)
+  :x-char (tile-number 42)
   :desc "It howls and snaps at you."
-  :x-char #\C
-  :x-attr #\u
+  :text-char #\C
+  :text-attr #\u
   :type '(<animal>)
   :depth 10
   :rarity 1
@@ -2212,10 +2441,12 @@ twisted with evil."
   :attacks '((<bite> :type <hurt> :damage (1 . 6))))
 
 (define-monster-kind "fly-fruit" "giant fruit fly"
-  :numeric-id  148
+  :numeric-id 148
+  :x-attr (tile-file 18)
+  :x-char (tile-number 49)
   :desc "A fast-breeding, annoying pest."
-  :x-char #\I
-  :x-attr #\G
+  :text-char #\I
+  :text-attr #\G
   :type '(<animal>)
   :depth 10
   :rarity 6
@@ -2229,10 +2460,12 @@ twisted with evil."
   :attacks '((<bite> :type <hurt> :damage (1 . 2))))
 
 (define-monster-kind "panther" "panther"
-  :numeric-id  149
+  :numeric-id 149
+  :x-attr (tile-file 19)
+  :x-char (tile-number 53)
   :desc "A large black cat, stalking you with intent.  It thinks you're its next  meal."
-  :x-char #\f
-  :x-attr #\u
+  :text-char #\f
+  :text-attr #\u
   :type '(<animal>)
   :depth 10
   :rarity 2
@@ -2246,10 +2479,12 @@ twisted with evil."
   :attacks '((<claw> :type <hurt> :damage (1 . 8)) (<claw> :type <hurt> :damage (1 . 8))))
 
 (define-monster-kind "brigand" "brigand"
-  :numeric-id  150
+  :numeric-id 150
+  :x-attr (tile-file 7)
+  :x-char (tile-number 14)
   :desc "He is eyeing your backpack."
-  :x-char #\p
-  :x-attr #\b
+  :text-char #\p
+  :text-attr #\b
   :alignment '<evil>
   :depth 10
   :rarity 2
@@ -2265,10 +2500,12 @@ twisted with evil."
   :gender '<male>)
 
 (define-monster-kind "baby-dragon-mh" "baby multi-hued dragon"
-  :numeric-id  151
+  :numeric-id 151
+  :x-attr (tile-file 15)
+  :x-char (tile-number 7)
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and its scales shimmering with a hint of colour."
-  :x-char #\d
-  :x-attr #\v
+  :text-char #\d
+  :text-attr #\v
   :alignment '<evil>
   :type '(<dragon>)
   :depth 11
@@ -2288,10 +2525,12 @@ twisted with evil."
 		       (<frequency> 1/11)))
 
 (define-monster-kind "hippogriff" "hippogriff"
-  :numeric-id  152
+  :numeric-id 152
+  :x-attr (tile-file 20)
+  :x-char (tile-number 15)
   :desc "A strange hybrid of eagle, lion and horse.  It looks weird."
-  :x-char #\H
-  :x-attr #\U
+  :text-char #\H
+  :text-attr #\U
   :type '(<animal>)
   :depth 11
   :rarity 1
@@ -2305,10 +2544,12 @@ twisted with evil."
   :attacks '((<bite> :type <hurt> :damage (2 . 5)) (<hit> :type <hurt> :damage (2 . 5))))
 
 (define-monster-kind "orc-zombie" "zombified orc"
-  :numeric-id  153
+  :numeric-id 153
+  :x-attr (tile-file 23)
+  :x-char (tile-number 26)
   :desc "It is a shambling orcish corpse leaving behind a trail of flesh."
-  :x-char #\z
-  :x-attr #\s
+  :text-char #\z
+  :text-attr #\s
   :alignment '<evil>
   :type '(<undead> <orc>)
   :depth 11
@@ -2325,11 +2566,12 @@ twisted with evil."
 	     (<hit> :type <hurt> :damage (1 . 4))))
 
 (define-monster-kind "gnome-mage" "gnome mage"
-  :numeric-id  202
-  :numeric-id  154
+  :numeric-id 154
+  :x-attr (tile-file 16)
+  :x-char (tile-number 4)
   :desc "A mage of short stature."
-  :x-char #\h
-  :x-attr #\r
+  :text-char #\h
+  :text-attr #\r
   :alignment '<evil>
   :depth 11
   :rarity 2
@@ -2348,10 +2590,12 @@ twisted with evil."
   :appear-in-group? #'van-novice-appears-in-group?)
 
 (define-monster-kind "snake-black-mamba" "black mamba"
-  :numeric-id  155
+  :numeric-id 155
+  :x-attr (tile-file 19)
+  :x-char (tile-number 25)
   :desc "It has glistening black skin, a sleek body and highly venomous fangs."
-  :x-char #\J
-  :x-attr #\D
+  :text-char #\J
+  :text-attr #\D
   :type '(<animal>)
   :depth 12
   :rarity 3
@@ -2366,10 +2610,12 @@ twisted with evil."
   :attacks '((<bite> :type <poison> :damage (4 . 4))))
 
 (define-monster-kind "wolf-white" "white wolf"
-  :numeric-id  156
+  :numeric-id 156
+  :x-attr (tile-file 19)
+  :x-char (tile-number 48)
   :desc "A large and muscled wolf from the northern wastes.  Its breath is cold and  icy and its fur coated in frost."
-  :x-char #\C
-  :x-attr #\w
+  :text-char #\C
+  :text-attr #\w
   :type '(<animal>)
   :depth 12
   :rarity 1
@@ -2384,10 +2630,12 @@ twisted with evil."
   :attacks '((<bite> :type <hurt> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 3))))
 
 (define-monster-kind "jelly-grape" "grape jelly"
-  :numeric-id  157
+  :numeric-id 157
+  :x-attr (tile-file 18)
+  :x-char (tile-number 11)
   :desc "It is a pulsing mound of glowing flesh."
-  :x-char #\j
-  :x-attr #\v
+  :text-char #\j
+  :text-attr #\v
   :depth 12
   :rarity 3
   :hitpoints '(52 . 8)
@@ -2403,10 +2651,12 @@ twisted with evil."
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/11)))
 
 (define-monster-kind "worm-nether" "nether worm mass"
-  :numeric-id  158
+  :numeric-id 158
+  :x-attr (tile-file 20)
+  :x-char (tile-number 22)
   :desc "It is a disgusting mass of dark worms, eating each other, the floor, the air, you...."
-  :x-char #\w
-  :x-attr #\D
+  :text-char #\w
+  :text-attr #\D
   :type '(<animal>)
   :depth 12
   :rarity 3
@@ -2422,10 +2672,12 @@ twisted with evil."
   :attacks '((<touch> :type <exp-10> :damage nil)))
 
 (define-monster-kind "yeek-master" "master yeek"
-  :numeric-id  160
+  :numeric-id 160
+  :x-attr (tile-file 18)
+  :x-char (tile-number 59)
   :desc "A small humanoid that radiates some power."
-  :x-char #\y
-  :x-attr #\U
+  :text-char #\y
+  :text-attr #\U
   :alignment '<evil>
   :type '(<animal>)
   :depth 12
@@ -2443,10 +2695,12 @@ twisted with evil."
 		       (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/4)))
 
 (define-monster-kind "priest" "priest"
-  :numeric-id  161
+  :numeric-id 161
+  :x-attr (tile-file 7)
+  :x-char (tile-number 15)
   :desc "A robed humanoid dedicated to his god."
-  :x-char #\p
-  :x-attr #\g
+  :text-char #\p
+  :text-attr #\g
   :alignment '<evil>
   :depth 12
   :rarity 1
@@ -2463,11 +2717,13 @@ twisted with evil."
   :special-abilities '((<summon> <monster>) (<spell> (<cause> 2)) (<spell> <scare>) (<spell> <heal>) (<frequency> 1/3)))
 
 (define-monster-kind "dark-elf-priest" "dark elven priest"
-  :numeric-id  162
+  :numeric-id 162
+  :x-attr (tile-file 16)
+  :x-char (tile-number 5)
   :desc "A dark elven figure, dressed all in black, chanting curses and waiting to
 deliver your soul to hell."
-  :x-char #\h
-  :x-attr #\g
+  :text-char #\h
+  :text-attr #\g
   :alignment '<evil>
   :depth 12
   :rarity 1
@@ -2486,10 +2742,12 @@ deliver your soul to hell."
 		       (<spell> <heal>) (<frequency> 1/5)))
 
 (define-monster-kind "spirit-air" "air spirit"
-  :numeric-id  163
+  :numeric-id 163
+  :x-attr (tile-file 18)
+  :x-char (tile-number 21)
   :desc "A whirlwind of sentient air."
-  :x-char #\E
-  :x-attr #\B
+  :text-char #\E
+  :text-attr #\B
   :alignment '<evil>
   :depth 12
   :rarity 2
@@ -2504,10 +2762,12 @@ deliver your soul to hell."
   :attacks '((<hit> :type <hurt> :damage (1 . 3))))
 
 (define-monster-kind "human-skeleton" "skeleton human"
-  :numeric-id  164
+  :numeric-id 164
+  :x-attr (tile-file 23)
+  :x-char (tile-number 30)
   :desc "It is an animated human skeleton."
-  :x-char #\s
-  :x-attr #\w
+  :text-char #\s
+  :text-attr #\w
   :alignment '<evil>
   :type '(<undead>)
   :depth 12
@@ -2523,10 +2783,12 @@ deliver your soul to hell."
   :attacks '((<hit> :type <hurt> :damage (1 . 8))))
 
 (define-monster-kind "human-zombie" "zombified human"
-  :numeric-id  165
+  :numeric-id 165
+  :x-attr (tile-file 23)
+  :x-char (tile-number 25)
   :desc "It is a shambling human corpse dropping chunks of flesh behind it."
-  :x-char #\z
-  :x-attr #\s
+  :text-char #\z
+  :text-attr #\s
   :alignment '<evil>
   :type '(<undead>)
   :depth 12
@@ -2542,11 +2804,13 @@ deliver your soul to hell."
   :attacks '((<hit> :type <hurt> :damage (1 . 4)) (<hit> :type <hurt> :damage (1 . 4))))
 
 (define-monster-kind "tiger" "tiger"
-  :numeric-id  166
+  :numeric-id 166
+  :x-attr (tile-file 19)
+  :x-char (tile-number 52)
   :desc "One of the largest of its species, a sleek orange and black shape creeps
 towards you, ready to pounce."
-  :x-char #\f
-  :x-attr #\o
+  :text-char #\f
+  :text-attr #\o
   :type '(<animal>)
   :depth 12
   :rarity 2
@@ -2561,10 +2825,12 @@ towards you, ready to pounce."
 	     (<claw> :type <hurt> :damage (1 . 8))))
 
 (define-monster-kind "spirit-moaning" "moaning spirit"
-  :numeric-id  167
+  :numeric-id 167
+  :x-attr (tile-file 23)
+  :x-char (tile-number 20)
   :desc "A ghostly apparition that shrieks horribly."
-  :x-char #\G
-  :x-attr #\u
+  :text-char #\G
+  :text-attr #\u
   :alignment '<evil>
   :type '(<undead>)
   :depth 12
@@ -2582,10 +2848,12 @@ towards you, ready to pounce."
   :special-abilities '((<spell> <scare>) (<spell> <teleport>) (<frequency> 1/15)))
 
 (define-monster-kind "swordsman" "swordsman"
-  :numeric-id  168
+  :numeric-id 168
+  :x-attr (tile-file 7)
+  :x-char (tile-number 16)
   :desc "A warrior of considerable skill."
-  :x-char #\p
-  :x-attr #\U
+  :text-char #\p
+  :text-attr #\U
   :depth 12
   :rarity 1
   :hitpoints '(12 . 8)
@@ -2600,10 +2868,12 @@ towards you, ready to pounce."
   :gender '<male>)
 
 (define-monster-kind "stegocentipede" "stegocentipede"
-  :numeric-id  169
+  :numeric-id 169
+  :x-attr (tile-file 20)
+  :x-char (tile-number 37)
   :desc "It is a vast armoured centipede with massive mandibles and a spiked tail."
-  :x-char #\c
-  :x-attr #\u
+  :text-char #\c
+  :text-attr #\u
   :type '(<animal>)
   :depth 12
   :rarity 2
@@ -2618,10 +2888,12 @@ towards you, ready to pounce."
 	     (<bite> :type <hurt> :damage (2 . 4))))
 
 (define-monster-kind "jelly-spotted" "spotted jelly"
-  :numeric-id  170
+  :numeric-id 170
+  :x-attr (tile-file 18)
+  :x-char (tile-number 16)
   :desc "A jelly thing."
-  :x-char #\j
-  :x-attr #\o
+  :text-char #\j
+  :text-attr #\o
   :depth 12
   :rarity 3
   :hitpoints '(13 . 8)
@@ -2637,10 +2909,12 @@ towards you, ready to pounce."
 	     (<touch> :type <acid> :damage (1 . 10))))
 
 (define-monster-kind "drider" "drider"
-  :numeric-id  171
+  :numeric-id 171
+  :x-attr (tile-file 22)
+  :x-char (tile-number 26)
   :desc "A dark elven torso merged with the bloated form of a giant spider."
-  :x-char #\S
-  :x-attr #\u
+  :text-char #\S
+  :text-attr #\u
   :alignment '<evil>
   :depth 13
   :rarity 2
@@ -2657,10 +2931,12 @@ towards you, ready to pounce."
   :special-abilities '((<spell> <darkness>) (<spell> (<cause> 1)) (<spell> <confusion>) (<frequency> 1/8)))
 
 (define-monster-kind "beetle-brown" "killer brown beetle"
-  :numeric-id  172
+  :numeric-id 172
+  :x-attr (tile-file 22)
+  :x-char (tile-number 17)
   :desc "It is a vicious insect with a tough carapace."
-  :x-char #\K
-  :x-attr #\u
+  :text-char #\K
+  :text-attr #\u
   :type '(<animal>)
   :depth 13
   :rarity 2
@@ -2674,10 +2950,12 @@ towards you, ready to pounce."
   :attacks '((<bite> :type <hurt> :damage (3 . 4))))
 
 (define-monster-kind "ogre" "ogre"
-  :numeric-id  174
+  :numeric-id 174
+  :x-attr (tile-file 16)
+  :x-char (tile-number 14)
   :desc "A hideous, smallish giant that is often found near or with orcs."
-  :x-char #\O
-  :x-attr #\U
+  :text-char #\O
+  :text-attr #\U
   :alignment '<evil>
   :type '(<giant>)
   :depth 13
@@ -2693,10 +2971,12 @@ towards you, ready to pounce."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "creeping-mithril" "creeping mithril coins"
-  :numeric-id  175
+  :numeric-id 175
+  :x-attr (tile-file 10)
+  :x-char (tile-number 10)
   :desc "It is a pile of coins, shambling forward on thousands of tiny legs."
-  :x-char #\$
-  :x-attr #\B
+  :text-char #\$
+  :text-attr #\B
   :type '(<animal>)
   :depth 13
   :rarity 4
@@ -2712,10 +2992,12 @@ towards you, ready to pounce."
   :treasures '((<drop> "2d2") (<drop-chance> 9/10) <only-drop-gold>))
 
 (define-monster-kind "illusionist" "illusionist"
-  :numeric-id  176
+  :numeric-id 176
+  :x-attr (tile-file 7)
+  :x-char (tile-number 17)
   :desc "A deceptive spell caster."
-  :x-char #\p
-  :x-attr #\r
+  :text-char #\p
+  :text-attr #\r
   :alignment '<evil>
   :depth 13
   :rarity 2
@@ -2734,10 +3016,12 @@ towards you, ready to pounce."
 		       (<frequency> 1/3)))
 
 (define-monster-kind "druid" "druid"
-  :numeric-id  177
+  :numeric-id 177
+  :x-attr (tile-file 7)
+  :x-char (tile-number 18)
   :desc "A mystic at one with nature.  Om."
-  :x-char #\p
-  :x-attr #\r
+  :text-char #\p
+  :text-attr #\r
   :alignment '<evil>
   :depth 13
   :rarity 2
@@ -2755,10 +3039,12 @@ towards you, ready to pounce."
 		       (<spell> <blindness>) (<spell> <blink>) (<spell> <haste>) (<frequency> 1/3)))
 
 (define-monster-kind "orc-black" "black orc"
-  :numeric-id  178
+  :numeric-id 178
+  :x-attr (tile-file 21)
+  :x-char (tile-number 26)
   :desc "He is a large orc with powerful arms and deep black skin."
-  :x-char #\o
-  :x-attr #\D
+  :text-char #\o
+  :text-attr #\D
   :alignment '<evil>
   :type '(<orc>)
   :depth 13
@@ -2776,11 +3062,13 @@ towards you, ready to pounce."
   :gender '<male>)
 
 (define-monster-kind "jelly-ochre" "ochre jelly"
-  :numeric-id  179
+  :numeric-id 179
+  :x-attr (tile-file 18)
+  :x-char (tile-number 8)
   :desc "A fast moving highly acidic jelly thing, that is eating away the floor it
 rests on."
-  :x-char #\j
-  :x-attr #\U
+  :text-char #\j
+  :text-attr #\U
   :depth 13
   :rarity 3
   :hitpoints '(13 . 8)
@@ -2795,10 +3083,12 @@ rests on."
 	     (<touch> :type <acid> :damage (1 . 10))))
 
 (define-monster-kind "flea-giant" "giant flea"
-  :numeric-id  180
+  :numeric-id 180
+  :x-attr (tile-file 18)
+  :x-char (tile-number 43)
   :desc "It makes you itch just to look at it."
-  :x-char #\I
-  :x-attr #\s
+  :text-char #\I
+  :text-attr #\s
   :type '(<animal>)
   :depth 14
   :rarity 1
@@ -2812,10 +3102,12 @@ rests on."
   :attacks '((<bite> :type <hurt> :damage (1 . 2))))
 
 (define-monster-kind "dragonfly-white" "giant white dragon fly"
-  :numeric-id  182
+  :numeric-id 182
+  :x-attr (tile-file 20)
+  :x-char (tile-number 56)
   :desc "It is a large fly that drips frost."
-  :x-char #\F
-  :x-attr #\w
+  :text-char #\F
+  :text-attr #\w
   :type '(<animal>)
   :depth 14
   :rarity 3
@@ -2831,11 +3123,13 @@ rests on."
   :special-abilities '((<breath> <cold>) (<frequency> 1/10)))
 
 (define-monster-kind "icky-blue" "blue icky thing"
-  :numeric-id  183
+  :numeric-id 183
+  :x-attr (tile-file 17)
+  :x-char (tile-number 84)
   :desc "It is a strange, slimy, icky creature, with rudimentary intelligence, 
 but evil cunning.  It hungers for food and you look tasty."
-  :x-char #\i
-  :x-attr #\b
+  :text-char #\i
+  :text-attr #\b
   :alignment '<evil>
   :depth 14
   :rarity 4
@@ -2852,10 +3146,12 @@ but evil cunning.  It hungers for food and you look tasty."
   :special-abilities '((<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/8)))
 
 (define-monster-kind "giant-hill" "hill giant"
-  :numeric-id  184
+  :numeric-id 184
+  :x-attr (tile-file 21)
+  :x-char (tile-number 10)
   :desc "A ten foot tall humanoid with powerful muscles."
-  :x-char #\P
-  :x-attr #\U
+  :text-char #\P
+  :text-attr #\U
   :alignment '<evil>
   :type '(<giant>)
   :depth 14
@@ -2871,10 +3167,12 @@ but evil cunning.  It hungers for food and you look tasty."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "golem-flesh" "flesh golem"
-  :numeric-id  185
+  :numeric-id 185
+  :x-attr (tile-file 21)
+  :x-char (tile-number 0)
   :desc "A shambling humanoid monster with long scars."
-  :x-char #\g
-  :x-attr #\R
+  :text-char #\g
+  :text-attr #\R
   :depth 14
   :rarity 1
   :hitpoints '(12 . 8)
@@ -2888,10 +3186,12 @@ but evil cunning.  It hungers for food and you look tasty."
   :attacks '((<hit> :type <hurt> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 6))))
 
 (define-monster-kind "wolf-warg" "warg"
-  :numeric-id  186
+  :numeric-id 186
+  :x-attr (tile-file 19)
+  :x-char (tile-number 46)
   :desc "It is a large wolf with eyes full of cunning."
-  :x-char #\C
-  :x-attr #\s
+  :text-char #\C
+  :text-attr #\s
   :alignment '<evil>
   :type '(<animal>)
   :depth 14
@@ -2906,10 +3206,12 @@ but evil cunning.  It hungers for food and you look tasty."
   :attacks '((<bite> :type <hurt> :damage (1 . 8))))
 
 (define-monster-kind "louse-black" "giant black louse"
-  :numeric-id  187
+  :numeric-id 187
+  :x-attr (tile-file 18)
+  :x-char (tile-number 45)
   :desc "It makes you itch just to look at it."
-  :x-char #\l
-  :x-attr #\D
+  :text-char #\l
+  :text-attr #\D
   :type '(<animal>)
   :depth 14
   :rarity 1
@@ -2923,11 +3225,13 @@ but evil cunning.  It hungers for food and you look tasty."
   :attacks '((<bite> :type <hurt> :damage (1 . 2))))
 
 (define-monster-kind "lurker" "lurker"
-  :numeric-id  188
+  :numeric-id 188
+  :x-attr (tile-file 0)
+  :x-char (tile-number 0)
   :desc "A strange creature that merges with the dungeon floor, trapping its
 victims by enveloping them within its perfectly disguised form."
-  :x-char #\.
-  :x-attr #\w
+  :text-char #\.
+  :text-attr #\w
   :depth 14
   :rarity 3
   :hitpoints '(20 . 10)
@@ -2941,11 +3245,13 @@ victims by enveloping them within its perfectly disguised form."
   :attacks '((<hit> :type <hurt> :damage (1 . 8)) (<hit> :type <hurt> :damage (1 . 8))))
 
 (define-monster-kind "rat-were" "wererat"
-  :numeric-id  189
+  :numeric-id 189
+  :x-attr (tile-file 16)
+  :x-char (tile-number 27)
   :desc "A large rat with glowing red eyes.  The wererat is a disgusting creature
 relishing in filth and disease."
-  :x-char #\r
-  :x-attr #\D
+  :text-char #\r
+  :text-attr #\D
   :alignment '<evil>
   :type '(<animal>)
   :depth 15
@@ -2964,10 +3270,12 @@ relishing in filth and disease."
 		       (<frequency> 1/9)))
 
 (define-monster-kind "ogre-black" "black ogre"
-  :numeric-id  190
+  :numeric-id 190
+  :x-attr (tile-file 16)
+  :x-char (tile-number 15)
   :desc "A massive orc-like figure with black skin and powerful arms."
-  :x-char #\O
-  :x-attr #\D
+  :text-char #\O
+  :text-attr #\D
   :alignment '<evil>
   :type '(<giant>)
   :depth 15
@@ -2983,10 +3291,12 @@ relishing in filth and disease."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "mushroom-magic" "magic mushroom patch"
-  :numeric-id  191
+  :numeric-id 191
+  :x-attr (tile-file 17)
+  :x-char (tile-number 91)
   :desc "Yum!  It looks quite tasty.  It seems to glow with an unusual light."
-  :x-char #\
-  :x-attr #\B
+  :text-char #\
+  :text-attr #\B
   :depth 15
   :rarity 2
   :hitpoints '(1 . 1)
@@ -3000,10 +3310,12 @@ relishing in filth and disease."
   :special-abilities '((<spell> <darkness>) (<spell> <scare>) (<spell> <slow>) (<spell> <blink>) (<frequency> 1)))
 
 (define-monster-kind "naga-guardian" "guardian naga"
-  :numeric-id  192
+  :numeric-id 192
+  :x-attr (tile-file 19)
+  :x-char (tile-number 16)
   :desc "A giant snake-like figure with a woman's torso."
-  :x-char #\n
-  :x-attr #\B
+  :text-char #\n
+  :text-attr #\B
   :alignment '<evil>
   :depth 15
   :rarity 2
@@ -3020,10 +3332,12 @@ relishing in filth and disease."
   :gender '<female>)
 
 (define-monster-kind "hound-light" "light hound"
-  :numeric-id  193
+  :numeric-id 193
+  :x-attr (tile-file 19)
+  :x-char (tile-number 64)
   :desc "A brilliant canine form whose light hurts your eyes, even at this distance."
-  :x-char #\Z
-  :x-attr #\o
+  :text-char #\Z
+  :text-attr #\o
   :type '(<animal>)
   :depth 15
   :rarity 1
@@ -3038,10 +3352,12 @@ relishing in filth and disease."
   :special-abilities '((<breath> <light>) (<frequency> 1/5)))
 
 (define-monster-kind "hound-dark" "dark hound"
-  :numeric-id  194
+  :numeric-id 194
+  :x-attr (tile-file 19)
+  :x-char (tile-number 66)
   :desc "A hole in the air in the shape of a huge hound.  No light falls upon its  form."
-  :x-char #\Z
-  :x-attr #\D
+  :text-char #\Z
+  :text-attr #\D
   :type '(<animal>)
   :depth 15
   :rarity 1
@@ -3056,11 +3372,13 @@ relishing in filth and disease."
   :special-abilities '((<breath> <darkness>) (<frequency> 1/5)))
 
 (define-monster-kind "orc-half" "half-orc"
-  :numeric-id  195
+  :numeric-id 195
+  :x-attr (tile-file 21)
+  :x-char (tile-number 27)
   :desc "He is a hideous deformed cross-breed with man and orc, combining man's
 strength and cunning with orcish evil."
-  :x-char #\o
-  :x-attr #\s
+  :text-char #\o
+  :text-attr #\s
   :alignment '<evil>
   :type '(<orc>)
   :depth 15
@@ -3077,10 +3395,12 @@ strength and cunning with orcish evil."
   :gender '<male>)
 
 (define-monster-kind "spider-tarantula" "giant tarantula"
-  :numeric-id  196
+  :numeric-id 196
+  :x-attr (tile-file 18)
+  :x-char (tile-number 51)
   :desc "A giant spider with hairy black and red legs."
-  :x-char #\S
-  :x-attr #\o
+  :text-char #\S
+  :text-attr #\o
   :type '(<animal>)
   :depth 15
   :rarity 3
@@ -3096,10 +3416,12 @@ strength and cunning with orcish evil."
 	     (<bite> :type <poison> :damage (1 . 6))))
 
 (define-monster-kind "centipede-clear" "giant clear centipede"
-  :numeric-id  197
+  :numeric-id 197
+  :x-attr (tile-file 20)
+  :x-char (tile-number 38)
   :desc "It is about four feet long and carnivorous."
-  :x-char #\c
-  :x-attr #\w
+  :text-char #\c
+  :text-attr #\w
   :type '(<animal>)
   :depth 15
   :rarity 2
@@ -3113,11 +3435,13 @@ strength and cunning with orcish evil."
   :attacks '((<sting> :type <hurt> :damage (2 . 4)) (<bite> :type <hurt> :damage (2 . 4))))
 
 (define-monster-kind "spider-mirkwood" "mirkwood spider"
-  :numeric-id  198
+  :numeric-id 198
+  :x-attr (tile-file 18)
+  :x-char (tile-number 54)
   :desc "A strong and powerful spider from Mirkwood forest.  Cunning and evil, it
 seeks to taste your juicy insides."
-  :x-char #\S
-  :x-attr #\g
+  :text-char #\S
+  :text-attr #\g
   :alignment '<evil>
   :type '(<animal>)
   :depth 15
@@ -3134,10 +3458,12 @@ seeks to taste your juicy insides."
 	     (<bite> :type <hurt> :damage (1 . 8))))
 
 (define-monster-kind "giant-frost" "frost giant"
-  :numeric-id  199
+  :numeric-id 199
+  :x-attr (tile-file 21)
+  :x-char (tile-number 11)
   :desc "A twelve foot tall giant covered in furs."
-  :x-char #\P
-  :x-attr #\w
+  :text-char #\P
+  :text-attr #\w
   :alignment '<evil>
   :type '(<giant>)
   :depth 15
@@ -3154,10 +3480,12 @@ seeks to taste your juicy insides."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "griffon" "griffon"
-  :numeric-id  200
+  :numeric-id 200
+  :x-attr (tile-file 20)
+  :x-char (tile-number 14)
   :desc "It is half lion, half eagle.  It flies menacingly towards you."
-  :x-char #\H
-  :x-attr #\u
+  :text-char #\H
+  :text-attr #\u
   :type '(<animal>)
   :depth 15
   :rarity 1
@@ -3171,10 +3499,12 @@ seeks to taste your juicy insides."
   :attacks '((<bite> :type <hurt> :damage (2 . 6)) (<hit> :type <hurt> :damage (3 . 4))))
 
 (define-monster-kind "homonculous" "homonculous"
-  :numeric-id  201
+  :numeric-id 201
+  :x-attr (tile-file 16)
+  :x-char (tile-number 39)
   :desc "It is a small demonic spirit full of malevolence."
-  :x-char #\u
-  :x-attr #\y
+  :text-char #\u
+  :text-attr #\y
   :alignment '<evil>
   :type '(<demon>)
   :depth 15
@@ -3190,10 +3520,12 @@ seeks to taste your juicy insides."
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <paralyse> :damage (1 . 2))))
 
 (define-monster-kind "hound-clear" "clear hound"
-  :numeric-id  203
+  :numeric-id 203
+  :x-attr (tile-file 19)
+  :x-char (tile-number 58)
   :desc "A completely translucent hound."
-  :x-char #\Z
-  :x-attr #\w
+  :text-char #\Z
+  :text-attr #\w
   :type '(<animal>)
   :depth 15
   :rarity 2
@@ -3208,10 +3540,12 @@ seeks to taste your juicy insides."
 	     (<bite> :type <hurt> :damage (1 . 6))))
 
 (define-monster-kind "golem-clay" "clay golem"
-  :numeric-id  204
+  :numeric-id 204
+  :x-attr (tile-file 21)
+  :x-char (tile-number 1)
   :desc "It is a massive animated statue made out of hardened clay."
-  :x-char #\g
-  :x-attr #\U
+  :text-char #\g
+  :text-attr #\U
   :depth 15
   :rarity 2
   :hitpoints '(14 . 8)
@@ -3226,10 +3560,12 @@ seeks to taste your juicy insides."
   :attacks '((<hit> :type <hurt> :damage (1 . 8)) (<hit> :type <hurt> :damage (1 . 8))))
 
 (define-monster-kind "umber-hulk" "umber hulk"
-  :numeric-id  205
+  :numeric-id 205
+  :x-attr (tile-file 21)
+  :x-char (tile-number 33)
   :desc "This bizarre creature has glaring eyes and large mandibles capable of  slicing through rock."
-  :x-char #\X
-  :x-attr #\U
+  :text-char #\X
+  :text-attr #\U
   :alignment '<evil>
   :type '(<animal>)
   :depth 16
@@ -3246,10 +3582,12 @@ seeks to taste your juicy insides."
   :attacks '((<bite> :type <hurt> :damage (2 . 6)) (<hit> :type <hurt> :damage (1 . 6))
 	     (<hit> :type <hurt> :damage (1 . 6)) (<gaze> :type <confusion> :damage nil)))
 (define-monster-kind "orc-captain" "orc captain"
-  :numeric-id  206
+  :numeric-id 206
+  :x-attr (tile-file 21)
+  :x-char (tile-number 28)
   :desc "An armoured orc with an air of authority."
-  :x-char #\o
-  :x-attr #\o
+  :text-char #\o
+  :text-attr #\o
   :alignment '<evil>
   :type '(<orc>)
   :depth 16
@@ -3267,13 +3605,15 @@ seeks to taste your juicy insides."
   :gender '<male>)
 
 (define-monster-kind "gelatinous-cube" "gelatinous cube"
-  :numeric-id  207
+  :numeric-id 207
+  :x-attr (tile-file 18)
+  :x-char (tile-number 5)
   :desc "It is a strange, vast gelatinous structure that assumes cubic proportions
 as it lines all four walls of the corridors it patrols.  Through its
 transparent jelly structure you can see treasures it has engulfed and a
 few corpses as well."
-  :x-char #\j
-  :x-attr #\G
+  :text-char #\j
+  :text-attr #\G
   :depth 16
   :rarity 4
   :hitpoints '(36 . 10)
@@ -3289,10 +3629,12 @@ few corpses as well."
   :treasures '((<drop> "4d2") (<drop> "1d2")))
 
 (define-monster-kind "dragonfly-green" "giant green dragon fly"
-  :numeric-id  208
+  :numeric-id 208
+  :x-attr (tile-file 20)
+  :x-char (tile-number 57)
   :desc "A vast, foul-smelling dragonfly."
-  :x-char #\F
-  :x-attr #\g
+  :text-char #\F
+  :text-attr #\g
   :type '(<animal>)
   :depth 16
   :rarity 2
@@ -3308,10 +3650,12 @@ few corpses as well."
   :special-abilities '((<breath> <poison>) (<frequency> 1/10)))
 
 (define-monster-kind "giant-fire" "fire giant"
-  :numeric-id  209
+  :numeric-id 209
+  :x-attr (tile-file 21)
+  :x-char (tile-number 12)
   :desc "A glowing fourteen foot tall giant.  Flames drip from its red skin."
-  :x-char #\P
-  :x-attr #\r
+  :text-char #\P
+  :text-attr #\r
   :alignment '<evil>
   :type '(<giant>)
   :depth 16
@@ -3328,10 +3672,12 @@ few corpses as well."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "hummerhorn" "hummerhorn"
-  :numeric-id  210
+  :numeric-id 210
+  :x-attr (tile-file 18)
+  :x-char (tile-number 48)
   :desc "A giant buzzing wasp, its stinger drips venom."
-  :x-char #\I
-  :x-attr #\y
+  :text-char #\I
+  :text-attr #\y
   :type '(<animal>)
   :depth 16
   :rarity 5
@@ -3345,10 +3691,12 @@ few corpses as well."
   :attacks '((<bite> :type <confusion> :damage (2 . 2))))
 
 (define-monster-kind "imp" "imp"
-  :numeric-id  213
+  :numeric-id 213
+  :x-attr (tile-file 16)
+  :x-char (tile-number 42)
   :desc "The lawful evil master's favourite pet."
-  :x-char #\u
-  :x-attr #\g
+  :text-char #\u
+  :text-attr #\g
   :alignment '<evil>
   :type '(<demon>)
   :depth 17
@@ -3367,10 +3715,12 @@ few corpses as well."
 		       (<spell> <teleport-player>) (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/10)))
 
 (define-monster-kind "troll-forest" "forest troll"
-  :numeric-id  214
+  :numeric-id 214
+  :x-attr (tile-file 21)
+  :x-char (tile-number 46)
   :desc "He is green skinned and ugly."
-  :x-char #\T
-  :x-attr #\g
+  :text-char #\T
+  :text-attr #\g
   :alignment '<evil>
   :type '(<troll>)
   :depth 17
@@ -3389,10 +3739,12 @@ few corpses as well."
   :gender '<male>)
 
 (define-monster-kind "hydra-2" "2-headed hydra"
-  :numeric-id  216
+  :numeric-id 216
+  :x-attr (tile-file 19)
+  :x-char (tile-number 33)
   :desc "A strange reptilian hybrid with two heads, guarding its hoard."
-  :x-char #\M
-  :x-attr #\u
+  :text-char #\M
+  :text-attr #\u
   :type '(<animal>)
   :depth 17
   :rarity 2
@@ -3408,10 +3760,12 @@ few corpses as well."
   :special-abilities '((<spell> <scare>) (<frequency> 1/11)))
 
 (define-monster-kind "spirit-water" "water spirit"
-  :numeric-id  217
+  :numeric-id 217
+  :x-attr (tile-file 18)
+  :x-char (tile-number 22)
   :desc "A whirlpool of sentient liquid."
-  :x-char #\E
-  :x-attr #\s
+  :text-char #\E
+  :text-attr #\s
   :alignment '<evil>
   :depth 17
   :rarity 1
@@ -3426,10 +3780,12 @@ few corpses as well."
   :attacks '((<hit> :type <hurt> :damage (2 . 4)) (<hit> :type <hurt> :damage (2 . 4))))
 
 (define-monster-kind "scorpion-pink" "giant pink scorpion"
-  :numeric-id  218
+  :numeric-id 218
+  :x-attr (tile-file 21)
+  :x-char (tile-number 72)
   :desc "It is fast and poisonous."
-  :x-char #\S
-  :x-attr #\R
+  :text-char #\S
+  :text-attr #\R
   :type '(<animal>)
   :depth 17
   :rarity 1
@@ -3443,10 +3799,12 @@ few corpses as well."
   :attacks '((<sting> :type <lose-str> :damage (1 . 7)) (<bite> :type <hurt> :damage (2 . 4))))
 
 (define-monster-kind "spirit-earth" "earth spirit"
-  :numeric-id  219
+  :numeric-id 219
+  :x-attr (tile-file 18)
+  :x-char (tile-number 23)
   :desc "A whirling form of sentient rock."
-  :x-char #\E
-  :x-attr #\u
+  :text-char #\E
+  :text-attr #\u
   :alignment '<evil>
   :depth 17
   :rarity 2
@@ -3462,10 +3820,12 @@ few corpses as well."
   :attacks '((<hit> :type <hurt> :damage (1 . 8)) (<hit> :type <hurt> :damage (1 . 8))))
 
 (define-monster-kind "spirit-fire" "fire spirit"
-  :numeric-id  220
+  :numeric-id 220
+  :x-attr (tile-file 18)
+  :x-char (tile-number 24)
   :desc "A whirlwind of sentient flame."
-  :x-char #\E
-  :x-attr #\r
+  :text-char #\E
+  :text-attr #\r
   :alignment '<evil>
   :depth 18
   :rarity 2
@@ -3480,11 +3840,13 @@ few corpses as well."
   :attacks '((<hit> :type <fire> :damage (2 . 6)) (<hit> :type <fire> :damage (2 . 6))))
 
 (define-monster-kind "hound-fire" "fire hound"
-  :numeric-id  221
+  :numeric-id 221
+  :x-attr (tile-file 19)
+  :x-char (tile-number 61)
   :desc "Flames lick at its feet and its tongue is a blade of fire.  You can feel a
 furnace heat radiating from the creature."
-  :x-char #\Z
-  :x-attr #\r
+  :text-char #\Z
+  :text-attr #\r
   :type '(<animal>)
   :depth 18
   :rarity 1
@@ -3501,11 +3863,13 @@ furnace heat radiating from the creature."
   :special-abilities '((<breath> <fire>) (<frequency> 1/10)))
 
 (define-monster-kind "hound-cold" "cold hound"
-  :numeric-id  222
+  :numeric-id 222
+  :x-attr (tile-file 19)
+  :x-char (tile-number 68)
   :desc "A hound as tall as a man this creature appears to be composed of angular
 planes of ice.  Cold radiates from it and freezes your breath in the air."
-  :x-char #\Z
-  :x-attr #\w
+  :text-char #\Z
+  :text-attr #\w
   :type '(<animal>)
   :depth 18
   :rarity 1
@@ -3522,11 +3886,13 @@ planes of ice.  Cold radiates from it and freezes your breath in the air."
   :special-abilities '((<breath> <cold>) (<frequency> 1/10)))
 
 (define-monster-kind "hound-energy" "energy hound"
-  :numeric-id  223
+  :numeric-id 223
+  :x-attr (tile-file 19)
+  :x-char (tile-number 75)
   :desc "Saint Elmo's Fire forms a ghostly halo around this hound, and sparks sting 
 your fingers as energy builds up in the air around you."
-  :x-char #\Z
-  :x-attr #\b
+  :text-char #\Z
+  :text-attr #\b
   :type '(<animal>)
   :depth 18
   :rarity 1
@@ -3543,11 +3909,13 @@ your fingers as energy builds up in the air around you."
   :special-abilities '((<breath> <electricity>) (<frequency> 1/10)))
 
 (define-monster-kind "mimic-potion" "mimic (potion)"
-  :numeric-id  224
+  :numeric-id 224
+  :x-attr (tile-file 11)
+  :x-char (tile-number 6)
   :desc "A strange creature that disguises itself as discarded objects to lure
 unsuspecting adventurers within reach of its venomous claws."
-  :x-char #\!
-  :x-attr #\w
+  :text-char #\!
+  :text-attr #\w
   :depth 18
   :rarity 3
   :hitpoints '(10 . 10)
@@ -3564,11 +3932,13 @@ unsuspecting adventurers within reach of its venomous claws."
 		       (<spell> <blindness>) (<frequency> 1/6)))
 
 (define-monster-kind "dog-blink" "blink dog"
-  :numeric-id  225
+  :numeric-id 225
+  :x-attr (tile-file 19)
+  :x-char (tile-number 47)
   :desc "A strange magical member of the canine race, its form seems to shimmer and
 fade in front of your very eyes."
-  :x-char #\C
-  :x-attr #\B
+  :text-char #\C
+  :text-attr #\B
   :type '(<animal>)
   :depth 18
   :rarity 2
@@ -3583,10 +3953,12 @@ fade in front of your very eyes."
   :special-abilities '((<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/4)))
 
 (define-monster-kind "orc-uruk" "uruk"
-  :numeric-id  226
+  :numeric-id 226
+  :x-attr (tile-file 21)
+  :x-char (tile-number 29)
   :desc "He is a cunning orc of power, as tall as a man, and stronger.  It fears little."
-  :x-char #\o
-  :x-attr #\B
+  :text-char #\o
+  :text-attr #\B
   :alignment '<evil>
   :type '(<orc>)
   :depth 18
@@ -3604,11 +3976,13 @@ fade in front of your very eyes."
   :gender '<male>)
 
 (define-monster-kind "mound-shambling" "shambling mound"
-  :numeric-id  229
+  :numeric-id 229
+  :x-attr (tile-file 17)
+  :x-char (tile-number 92)
   :desc "A pile of rotting vegetation that slides towards you with a disgusting stench, 
 waking all it nears."
-  :x-char #\
-  :x-attr #\W
+  :text-char #\
+  :text-attr #\W
   :alignment '<evil>
   :depth 18
   :rarity 2
@@ -3625,10 +3999,12 @@ waking all it nears."
   :special-abilities '(<shriek> (<frequency> 1/4)))
 
 (define-monster-kind "giant-stone" "stone giant"
-  :numeric-id  230
+  :numeric-id 230
+  :x-attr (tile-file 21)
+  :x-char (tile-number 13)
   :desc "It is eighteen feet tall and looking at you."
-  :x-char #\P
-  :x-attr #\W
+  :text-char #\P
+  :text-attr #\W
   :alignment '<evil>
   :type '(<giant>)
   :depth 18
@@ -3644,10 +4020,12 @@ waking all it nears."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "dragonfly-black" "giant black dragon fly"
-  :numeric-id  231
+  :numeric-id 231
+  :x-attr (tile-file 20)
+  :x-char (tile-number 58)
   :desc "The size of a large bird this fly drips caustic acid."
-  :x-char #\F
-  :x-attr #\s
+  :text-char #\F
+  :text-attr #\s
   :type '(<animal>)
   :depth 18
   :rarity 2
@@ -3662,10 +4040,12 @@ waking all it nears."
   :special-abilities '((<breath> <acid>) (<frequency> 1/9)))
 
 (define-monster-kind "golem-stone" "stone golem"
-  :numeric-id  232
+  :numeric-id 232
+  :x-attr (tile-file 21)
+  :x-char (tile-number 2)
   :desc "It is a massive animated statue."
-  :x-char #\g
-  :x-attr #\W
+  :text-char #\g
+  :text-attr #\W
   :depth 19
   :rarity 2
   :hitpoints '(28 . 8)
@@ -3680,10 +4060,12 @@ waking all it nears."
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 10))))
 
 (define-monster-kind "mold-red" "red mold"
-  :numeric-id  233
+  :numeric-id 233
+  :x-attr (tile-file 17)
+  :x-char (tile-number 68)
   :desc "It is a strange red growth on the dungeon floor; it seems to burn with flame."
-  :x-char #\m
-  :x-attr #\r
+  :text-char #\m
+  :text-attr #\r
   :depth 19
   :rarity 1
   :hitpoints '(17 . 8)
@@ -3697,10 +4079,12 @@ waking all it nears."
   :attacks '((<touch> :type <fire> :damage (4 . 4))))
 
 (define-monster-kind "dragonfly-gold" "giant gold dragon fly"
-  :numeric-id  234
+  :numeric-id 234
+  :x-attr (tile-file 20)
+  :x-char (tile-number 59)
   :desc "Large beating wings support this dazzling insect.  A loud buzzing noise  pervades the air."
-  :x-char #\F
-  :x-attr #\y
+  :text-char #\F
+  :text-attr #\y
   :type '(<animal>)
   :depth 18
   :rarity 2
@@ -3715,10 +4099,12 @@ waking all it nears."
   :attacks '((<bite> :type <hurt> :damage (1 . 3)))
   :special-abilities '((<breath> <sound>) (<frequency> 1/9)))
 (define-monster-kind "spider-phase" "phase spider"
-  :numeric-id  236
+  :numeric-id 236
+  :x-attr (tile-file 18)
+  :x-char (tile-number 50)
   :desc "A spider that never seems quite there.  Everywhere you look it is just  half-seen in the corner of one eye."
-  :x-char #\S
-  :x-attr #\B
+  :text-char #\S
+  :text-attr #\B
   :type '(<animal>)
   :depth 20
   :rarity 2
@@ -3734,10 +4120,12 @@ waking all it nears."
 	     (<bite> :type <hurt> :damage (1 . 8)))
   :special-abilities '((<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/5)))
 (define-monster-kind "hydra-3" "3-headed hydra"
-  :numeric-id  237
+  :numeric-id 237
+  :x-attr (tile-file 19)
+  :x-char (tile-number 34)
   :desc "A strange reptilian hybrid with three heads, guarding its hoard."
-  :x-char #\M
-  :x-attr #\o
+  :text-char #\M
+  :text-attr #\o
   :type '(<animal>)
   :depth 20
   :rarity 2
@@ -3754,10 +4142,12 @@ waking all it nears."
   :special-abilities '((<spell> <scare>) (<frequency> 1/9)))
 
 (define-monster-kind "hound-earth" "earth hound"
-  :numeric-id  238
+  :numeric-id 238
+  :x-attr (tile-file 19)
+  :x-char (tile-number 74)
   :desc "A beautiful crystalline shape does not disguise the danger this hound  clearly presents.  Your flesh tingles as it approaches."
-  :x-char #\Z
-  :x-attr #\u
+  :text-char #\Z
+  :text-attr #\u
   :type '(<animal>)
   :depth 20
   :rarity 1
@@ -3773,11 +4163,13 @@ waking all it nears."
   :special-abilities '((<breath> <shards>) (<frequency> 1/10)))
 
 (define-monster-kind "hound-air" "air hound"
-  :numeric-id  239
+  :numeric-id 239
+  :x-attr (tile-file 19)
+  :x-char (tile-number 63)
   :desc "Swirling vapours surround this beast as it floats towards you, seemingly
 walking on air.  Noxious gases sting your throat."
-  :x-char #\Z
-  :x-attr #\g
+  :text-char #\Z
+  :text-attr #\g
   :type '(<animal>)
   :depth 20
   :rarity 1
@@ -3794,10 +4186,12 @@ walking on air.  Noxious gases sting your throat."
   :special-abilities '((<breath> <poison>) (<frequency> 1/10)))
 
 (define-monster-kind "tiger-sabre-tooth" "sabre-tooth tiger"
-  :numeric-id  240
+  :numeric-id 240
+  :x-attr (tile-file 19)
+  :x-char (tile-number 55)
   :desc "A fierce and dangerous cat, its huge tusks and sharp claws would lacerate  even the strongest armour."
-  :x-char #\f
-  :x-attr #\y
+  :text-char #\f
+  :text-attr #\y
   :type '(<animal>)
   :depth 20
   :rarity 2
@@ -3812,10 +4206,12 @@ walking on air.  Noxious gases sting your throat."
 	     (<claw> :type <hurt> :damage (1 . 10)) (<claw> :type <hurt> :damage (1 . 10))))
 
 (define-monster-kind "hound-water" "water hound"
-  :numeric-id  241
+  :numeric-id 241
+  :x-attr (tile-file 19)
+  :x-char (tile-number 71)
   :desc "Liquid footprints follow this hound as it pads around the dungeon.  An acrid smell of acid rises from the dog's pelt."
-  :x-char #\Z
-  :x-attr #\s
+  :text-char #\Z
+  :text-attr #\s
   :type '(<animal>)
   :depth 20
   :rarity 2
@@ -3832,11 +4228,13 @@ walking on air.  Noxious gases sting your throat."
   :special-abilities '((<breath> <acid>) (<frequency> 1/10)))
 
 (define-monster-kind "chimera" "chimera"
-  :numeric-id  242
+  :numeric-id 242
+  :x-attr (tile-file 22)
+  :x-char (tile-number 29)
   :desc "It is a strange concoction of lion, dragon and goat.  It looks very odd, 
 but very avoidable."
-  :x-char #\H
-  :x-attr #\r
+  :text-char #\H
+  :text-attr #\r
   :depth 20
   :rarity 1
   :hitpoints '(13 . 8)
@@ -3852,10 +4250,12 @@ but very avoidable."
   :special-abilities '((<breath> <fire>) (<frequency> 1/10)))
 
 (define-monster-kind "quylthulg" "quylthulg"
-  :numeric-id  243
+  :numeric-id 243
+  :x-attr (tile-file 22)
+  :x-char (tile-number 0)
   :desc "It is a strange pulsing mound of flesh."
-  :x-char #\Q
-  :x-attr #\y
+  :text-char #\Q
+  :text-attr #\y
   :depth 20
   :rarity 1
   :hitpoints '(6 . 8)
@@ -3869,10 +4269,12 @@ but very avoidable."
   :special-abilities '((<summon> <monster>) (<spell> <blink>) (<frequency> 1/4)))
 
 (define-monster-kind "sasquatch" "sasquatch"
-  :numeric-id  244
+  :numeric-id 244
+  :x-attr (tile-file 17)
+  :x-char (tile-number 40)
   :desc "A tall shaggy, furry humanoid, it could call the yeti brother."
-  :x-char #\Y
-  :x-attr #\g
+  :text-char #\Y
+  :text-attr #\g
   :type '(<animal>)
   :depth 20
   :rarity 3
@@ -3888,10 +4290,12 @@ but very avoidable."
 	     (<claw> :type <hurt> :damage (1 . 10))))
 
 (define-monster-kind "wolf-were" "werewolf"
-  :numeric-id  245
+  :numeric-id 245
+  :x-attr (tile-file 19)
+  :x-char (tile-number 45)
   :desc "It is a huge wolf with eyes that glow with manly intelligence."
-  :x-char #\C
-  :x-attr #\D
+  :text-char #\C
+  :text-attr #\D
   :alignment '<evil>
   :type '(<animal>)
   :depth 20
@@ -3907,10 +4311,12 @@ but very avoidable."
 	     (<bite> :type <hurt> :damage (1 . 6))))
 
 (define-monster-kind "dark-elf-lord" "dark elven lord"
-  :numeric-id  246
+  :numeric-id 246
+  :x-attr (tile-file 16)
+  :x-char (tile-number 7)
   :desc "A dark elven figure in armour and radiating evil power."
-  :x-char #\h
-  :x-attr #\D
+  :text-char #\h
+  :text-attr #\D
   :alignment '<evil>
   :depth 20
   :rarity 2
@@ -3929,10 +4335,12 @@ but very avoidable."
 		       (<spell> <blindness>) (<spell> <haste>) (<frequency> 1/5)))
 
 (define-monster-kind "giant-cloud" "cloud giant"
-  :numeric-id  247
+  :numeric-id 247
+  :x-attr (tile-file 21)
+  :x-char (tile-number 14)
   :desc "It is a twenty foot tall giant wreathed in clouds."
-  :x-char #\P
-  :x-attr #\b
+  :text-char #\P
+  :text-attr #\b
   :alignment '<evil>
   :type '(<giant>)
   :depth 20
@@ -3949,10 +4357,12 @@ but very avoidable."
   :treasures '((<drop-chance> 9/10)))
 
 (define-monster-kind "bat-blue" "blue dragon bat"
-  :numeric-id  250
+  :numeric-id 250
+  :x-attr (tile-file 19)
+  :x-char (tile-number 3)
   :desc "It is a glowing blue bat with a sharp tail."
-  :x-char #\b
-  :x-attr #\b
+  :text-char #\b
+  :text-attr #\b
   :type '(<animal>)
   :depth 21
   :rarity 1
@@ -3968,10 +4378,12 @@ but very avoidable."
   :special-abilities '((<breath> <electricity>) (<frequency> 1/4)))
 
 (define-monster-kind "mimic-scroll" "mimic (scroll)"
-  :numeric-id  251
+  :numeric-id 251
+  :x-attr (tile-file 10)
+  :x-char (tile-number 76)
   :desc "A strange creature that disguises itself as discarded objects to lure  unsuspecting adventurers within reach of its venomous claws."
-  :x-char #\?
-  :x-attr #\w
+  :text-char #\?
+  :text-attr #\w
   :depth 21
   :rarity 3
   :hitpoints '(10 . 14)
@@ -3988,10 +4400,12 @@ but very avoidable."
 		       (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/5)))
 
 (define-monster-kind "vortex-fire" "fire vortex"
-  :numeric-id  252
+  :numeric-id 252
+  :x-attr (tile-file 21)
+  :x-char (tile-number 36)
   :desc "A whirling maelstrom of fire."
-  :x-char #\v
-  :x-attr #\r
+  :text-char #\v
+  :text-attr #\r
   :depth 21
   :rarity 1
   :hitpoints '(9 . 9)
@@ -4006,10 +4420,12 @@ but very avoidable."
   :special-abilities '((<breath> <fire>) (<frequency> 1/6)))
 
 (define-monster-kind "vortex-water" "water vortex"
-  :numeric-id  253
+  :numeric-id 253
+  :x-attr (tile-file 21)
+  :x-char (tile-number 37)
   :desc "A caustic spinning whirlpool of water."
-  :x-char #\v
-  :x-attr #\s
+  :text-char #\v
+  :text-attr #\s
   :depth 21
   :rarity 1
   :hitpoints '(9 . 9)
@@ -4024,10 +4440,12 @@ but very avoidable."
   :special-abilities '((<breath> <acid>) (<frequency> 1/6)))
 
 (define-monster-kind "vortex-cold" "cold vortex"
-  :numeric-id  254
+  :numeric-id 254
+  :x-attr (tile-file 21)
+  :x-char (tile-number 38)
   :desc "A twisting whirlpool of frost."
-  :x-char #\v
-  :x-attr #\w
+  :text-char #\v
+  :text-attr #\w
   :depth 21
   :rarity 1
   :hitpoints '(9 . 9)
@@ -4042,10 +4460,12 @@ but very avoidable."
   :special-abilities '((<breath> <cold>) (<frequency> 1/6)))
 
 (define-monster-kind "vortex-energy" "energy vortex"
-  :numeric-id  255
+  :numeric-id 255
+  :x-attr (tile-file 21)
+  :x-char (tile-number 39)
   :desc "A shimmering tornado of air, sparks crackle along its length."
-  :x-char #\v
-  :x-attr #\b
+  :text-char #\v
+  :text-attr #\b
   :depth 21
   :rarity 1
   :hitpoints '(12 . 12)
@@ -4060,10 +4480,12 @@ but very avoidable."
   :special-abilities '((<breath> <electricity>) (<frequency> 1/6)))
 
 (define-monster-kind "orc-mummy" "mummified orc"
-  :numeric-id  256
+  :numeric-id 256
+  :x-attr (tile-file 20)
+  :x-char (tile-number 48)
   :desc "It is an orcish figure covered in wrappings."
-  :x-char #\z
-  :x-attr #\w
+  :text-char #\z
+  :text-attr #\w
   :alignment '<evil>
   :type '(<undead> <orc>)
   :depth 21
@@ -4080,10 +4502,12 @@ but very avoidable."
   :treasures '((<drop-chance> 9/10)))
 
 (define-monster-kind "beetle-stag" "killer stag beetle"
-  :numeric-id  257
+  :numeric-id 257
+  :x-attr (tile-file 22)
+  :x-char (tile-number 18)
   :desc "It is a giant beetle with vicious claws."
-  :x-char #\K
-  :x-attr #\g
+  :text-char #\K
+  :text-attr #\g
   :type '(<animal>)
   :depth 22
   :rarity 1
@@ -4097,10 +4521,12 @@ but very avoidable."
   :attacks '((<claw> :type <hurt> :damage (1 . 12)) (<claw> :type <hurt> :damage (1 . 12))))
 
 (define-monster-kind "golem-iron" "iron golem"
-  :numeric-id  258
+  :numeric-id 258
+  :x-attr (tile-file 21)
+  :x-char (tile-number 3)
   :desc "It is a massive metal statue that moves steadily towards you."
-  :x-char #\g
-  :x-attr #\s
+  :text-char #\g
+  :text-attr #\s
   :depth 22
   :rarity 2
   :hitpoints '(80 . 12)
@@ -4114,10 +4540,12 @@ but very avoidable."
   :attacks '((<hit> :type <hurt> :damage (1 . 12)))
   :special-abilities '((<spell> <slow>) (<frequency> 1/7)))
 (define-monster-kind "scorpion-yellow" "giant yellow scorpion"
-  :numeric-id  259
+  :numeric-id 259
+  :x-attr (tile-file 21)
+  :x-char (tile-number 73)
   :desc "It is a giant scorpion with a sharp stinger."
-  :x-char #\S
-  :x-attr #\y
+  :text-char #\S
+  :text-attr #\y
   :type '(<animal>)
   :depth 22
   :rarity 1
@@ -4132,9 +4560,11 @@ but very avoidable."
 
 (define-monster-kind "warriour-hardened" "hardened warriour"
   :numeric-id 261
+  :x-attr (tile-file 7)
+  :x-char (tile-number 19)
   :desc "A scarred warriour who moves with confidence."
-  :x-char #\p
-  :x-attr #\u
+  :text-char #\p
+  :text-attr #\u
   :alignment '<evil>
   :depth 23
   :rarity 1
@@ -4149,10 +4579,12 @@ but very avoidable."
   :treasures '((<drop> "1d2"))
   :gender '<male>)
 (define-monster-kind "rogue-master" "master rogue"
-  :numeric-id  263
+  :numeric-id 263
+  :x-attr (tile-file 7)
+  :x-char (tile-number 20)
   :desc "A thief of great power and shifty speed."
-  :x-char #\p
-  :x-attr #\B
+  :text-char #\p
+  :text-attr #\B
   :alignment '<evil>
   :depth 23
   :rarity 2
@@ -4168,10 +4600,12 @@ but very avoidable."
   :treasures '((<drop> "2d2"))
   :gender '<male>)
 (define-monster-kind "bat-red" "red dragon bat"
-  :numeric-id  264
+  :numeric-id 264
+  :x-attr (tile-file 19)
+  :x-char (tile-number 4)
   :desc "It is a sharp-tailed bat, wreathed in fire."
-  :x-char #\b
-  :x-attr #\r
+  :text-char #\b
+  :text-attr #\r
   :type '(<animal>)
   :depth 23
   :rarity 1
@@ -4186,10 +4620,12 @@ but very avoidable."
   :attacks '((<bite> :type <fire> :damage (1 . 3)))
   :special-abilities '((<breath> <fire>) (<frequency> 1/4)))
 (define-monster-kind "beetle-white" "killer white beetle"
-  :numeric-id  265
+  :numeric-id 265
+  :x-attr (tile-file 22)
+  :x-char (tile-number 19)
   :desc "It is looking for prey."
-  :x-char #\K
-  :x-attr #\w
+  :text-char #\K
+  :text-attr #\w
   :type '(<animal>)
   :depth 23
   :rarity 1
@@ -4202,10 +4638,12 @@ but very avoidable."
   :vision 14
   :attacks '((<bite> :type <hurt> :damage (4 . 5))))
 (define-monster-kind "dragonfly-bronze" "giant bronze dragon fly"
-  :numeric-id  266
+  :numeric-id 266
+  :x-attr (tile-file 20)
+  :x-char (tile-number 60)
   :desc "This vast gleaming bronze fly has wings which beat mesmerically fast."
-  :x-char #\F
-  :x-attr #\U
+  :text-char #\F
+  :text-attr #\U
   :type '(<animal>)
   :depth 18
   :rarity 1
@@ -4220,10 +4658,12 @@ but very avoidable."
   :special-abilities '((<breath> <confusion>) (<frequency> 1/9)))
 
 (define-monster-kind "wight-forest" "forest wight"
-  :numeric-id  267
+  :numeric-id 267
+  :x-attr (tile-file 23)
+  :x-char (tile-number 9)
   :desc "It is a ghostly apparition with a humanoid form."
-  :x-char #\W
-  :x-attr #\g
+  :text-char #\W
+  :text-attr #\g
   :alignment '<evil>
   :type '(<undead>)
   :depth 24
@@ -4243,10 +4683,12 @@ but very avoidable."
   :special-abilities '((<spell> <drain-mana>) (<spell> <scare>) (<frequency> 1/10)))
 
 (define-monster-kind "hydra-4" "4-headed hydra"
-  :numeric-id  270
+  :numeric-id 270
+  :x-attr (tile-file 19)
+  :x-char (tile-number 35)
   :desc "A strange reptilian hybrid with four heads, guarding its hoard."
-  :x-char #\M
-  :x-attr #\y
+  :text-char #\M
+  :text-attr #\y
   :type '(<animal>)
   :depth 24
   :rarity 2
@@ -4263,10 +4705,12 @@ but very avoidable."
   :special-abilities '((<spell> <scare>) (<frequency> 1/7)))
 
 (define-monster-kind "human-mummy" "mummified human"
-  :numeric-id  271
+  :numeric-id 271
+  :x-attr (tile-file 20)
+  :x-char (tile-number 49)
   :desc "It is a human form encased in mouldy wrappings."
-  :x-char #\z
-  :x-attr #\w
+  :text-char #\z
+  :text-attr #\w
   :alignment '<evil>
   :type '(<undead>)
   :depth 24
@@ -4283,10 +4727,12 @@ but very avoidable."
   :treasures '((<drop-chance> 9/10) <only-drop-items>))
 
 (define-monster-kind "bat-vampire" "vampire bat"
-  :numeric-id  272
+  :numeric-id 272
+  :x-attr (tile-file 19)
+  :x-char (tile-number 0)
   :desc "An undead bat that flies at your neck hungrily."
-  :x-char #\b
-  :x-attr #\v
+  :text-char #\b
+  :text-attr #\v
   :alignment '<evil>
   :type '(<undead> <animal>)
   :depth 24
@@ -4302,10 +4748,12 @@ but very avoidable."
   :attacks '((<bite> :type <exp-40> :damage (1 . 4)) (<bite> :type <exp-40> :damage (1 . 4))))
 
 (define-monster-kind "banshee" "banshee"
-  :numeric-id  275
+  :numeric-id 275
+  :x-attr (tile-file 23)
+  :x-char (tile-number 1)
   :desc "It is a ghostly woman's form that wails mournfully."
-  :x-char #\G
-  :x-attr #\b
+  :text-char #\G
+  :text-attr #\b
   :alignment '<evil>
   :type '(<undead>)
   :depth 24
@@ -4324,10 +4772,12 @@ but very avoidable."
   :special-abilities '((<spell> <drain-mana>) (<spell> <teleport>) (<frequency> 1/15)))
 
 (define-monster-kind "pukelman" "pukelman"
-  :numeric-id  276
+  :numeric-id 276
+  :x-attr (tile-file 21)
+  :x-char (tile-number 4)
   :desc "A stumpy figure carved from stone, with glittering eyes, this sentinel  strides towards you with deadly intent."
-  :x-char #\g
-  :x-attr #\D
+  :text-char #\g
+  :text-attr #\D
   :depth 25
   :rarity 3
   :hitpoints '(80 . 12)
@@ -4343,10 +4793,12 @@ but very avoidable."
   :special-abilities '((<spell> (<bolt> <acid>)) (<spell> <confusion>) (<spell> <slow>) (<frequency> 1/4)))
 
 (define-monster-kind "dark-elf-druid" "dark elven druid"
-  :numeric-id  277
+  :numeric-id 277
+  :x-attr (tile-file 16)
+  :x-char (tile-number 8)
   :desc "A powerful dark elf, with mighty nature-controlling enchantments."
-  :x-char #\h
-  :x-attr #\g
+  :text-char #\h
+  :text-attr #\g
   :alignment '<evil>
   :depth 25
   :rarity 3
@@ -4367,10 +4819,12 @@ but very avoidable."
 		       (<spell> <heal>) (<frequency> 1/6)))
 
 (define-monster-kind "troll-stone" "stone troll"
-  :numeric-id  278
+  :numeric-id 278
+  :x-attr (tile-file 21)
+  :x-char (tile-number 47)
   :desc "He is a giant troll with scabrous black skin."
-  :x-char #\T
-  :x-attr #\W
+  :text-char #\T
+  :text-attr #\W
   :alignment '<evil>
   :type '(<troll>)
   :depth 25
@@ -4388,10 +4842,12 @@ but very avoidable."
   :treasures '((<drop-chance> 3/5))
   :gender '<male>)
 (define-monster-kind "troll-priest" "troll priest"
-  :numeric-id  279
+  :numeric-id 279
+  :x-attr (tile-file 21)
+  :x-char (tile-number 48)
   :desc "A troll who is so bright he knows how to read."
-  :x-char #\T
-  :x-attr #\G
+  :text-char #\T
+  :text-attr #\G
   :alignment '<evil>
   :type '(<troll>)
   :depth 25
@@ -4412,11 +4868,13 @@ but very avoidable."
   :special-abilities '((<spell> <darkness>) (<spell> <missile>) (<spell> (<cause> 1)) (<spell> <scare>)
 		       (<spell> <blink>) (<frequency> 1/5)))
 (define-monster-kind "worm-were" "wereworm"
-  :numeric-id  280
+  :numeric-id 280
+  :x-attr (tile-file 20)
+  :x-char (tile-number 23)
   :desc "A huge wormlike shape dripping acid
 twisted by evil sorcery into a foul  monster that breeds on death."
-  :x-char #\w
-  :x-attr #\D
+  :text-char #\w
+  :text-attr #\D
   :type '(<animal>)
   :depth 25
   :rarity 3
@@ -4430,12 +4888,14 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :vision 15
   :attacks '((<bite> :type <poison> :damage (1 . 6)) (<bite> :type <hurt> :damage (1 . 10))
 	     (<crawl> :type <acid> :damage (2 . 4)) (<gaze> :type <exp-20> :damage nil)))
+
 (define-monster-kind "carrion-crawler" "carrion crawler"
-  :numeric-id  353
-  :numeric-id  281
+  :numeric-id 281
+  :x-attr (tile-file 20)
+  :x-char (tile-number 39)
   :desc "A hideous centipede covered in slime and with glowing tentacles around its  head."
-  :x-char #\c
-  :x-attr #\o
+  :text-char #\c
+  :text-attr #\o
   :type '(<animal>)
   :depth 25
   :rarity 2
@@ -4451,10 +4911,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   ;; might need to be slightly adjusted
   :appear-in-group? #'van-novice-appears-in-group?)
 (define-monster-kind "beetle-pink" "killer pink beetle"
-  :numeric-id  282
+  :numeric-id 282
+  :x-attr (tile-file 22)
+  :x-char (tile-number 20)
   :desc "It is a giant beetle with poisonous mandibles."
-  :x-char #\K
-  :x-attr #\R
+  :text-char #\K
+  :text-attr #\R
   :type '(<animal>)
   :depth 25
   :rarity 2
@@ -4467,10 +4929,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :vision 14
   :attacks '((<bite> :type <lose-str> :damage (4 . 4))))
 (define-monster-kind "ant-grey" "giant grey ant"
-  :numeric-id  283
+  :numeric-id 283
+  :x-attr (tile-file 20)
+  :x-char (tile-number 4)
   :desc "It is an ant encased in shaggy grey fur."
-  :x-char #\a
-  :x-attr #\s
+  :text-char #\a
+  :text-attr #\s
   :type '(<animal>)
   :depth 26
   :rarity 1
@@ -4484,10 +4948,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :attacks '((<bite> :type <hurt> :damage (2 . 12))))
 
 (define-monster-kind "displacer-beast" "displacer beast"
-  :numeric-id  285
+  :numeric-id 285
+  :x-attr (tile-file 19)
+  :x-char (tile-number 57)
   :desc "It is a huge black panther, clubbed tentacles sprouting from its shoulders."
-  :x-char #\f
-  :x-attr #\D
+  :text-char #\f
+  :text-attr #\D
   :type '(<animal>)
   :depth 26
   :rarity 2
@@ -4502,10 +4968,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
 	     (<hit> :type <hurt> :damage (1 . 10)) (<bite> :type <hurt> :damage (2 . 8))))
 
 (define-monster-kind "tick-red" "giant red tick"
-  :numeric-id  286
+  :numeric-id 286
+  :x-attr (tile-file 18)
+  :x-char (tile-number 47)
   :desc "It is smoking and burning with great heat."
-  :x-char #\S
-  :x-attr #\r
+  :text-char #\S
+  :text-attr #\r
   :type '(<animal>)
   :depth 26
   :rarity 1
@@ -4519,10 +4987,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :vision 14
   :attacks '((<bite> :type <fire> :damage (3 . 6))))
 (define-monster-kind "ogre-cave" "cave ogre"
-  :numeric-id  287
+  :numeric-id 287
+  :x-attr (tile-file 16)
+  :x-char (tile-number 16)
   :desc "A giant orc-like figure with an awesomely muscled frame."
-  :x-char #\O
-  :x-attr #\u
+  :text-char #\O
+  :text-attr #\u
   :alignment '<evil>
   :type '(<giant>)
   :depth 26
@@ -4537,10 +5007,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :attacks '((<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8)))
   :treasures '((<drop-chance> 3/5)))
 (define-monster-kind "wraith-white" "white wraith"
-  :numeric-id  288
+  :numeric-id 288
+  :x-attr (tile-file 23)
+  :x-char (tile-number 12)
   :desc "It is a tangible but ghostly form made of white fog."
-  :x-char #\W
-  :x-attr #\w
+  :text-char #\W
+  :text-attr #\w
   :alignment '<evil>
   :type '(<undead>)
   :depth 26
@@ -4559,10 +5031,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :treasures '((<drop> "1d2"))
   :special-abilities '((<spell> <darkness>) (<spell> (<cause> 2)) (<spell> <scare>) (<frequency> 1/8)))
 (define-monster-kind "deva-monadic" "monadic deva"
-  :numeric-id  289
+  :numeric-id 289
+  :x-attr (tile-file 17)
+  :x-char (tile-number 54)
   :desc "A lesser angel wearing little more than a loincloth - its steely skin  provides all the protection it needs."
-  :x-char #\A
-  :x-attr #\o
+  :text-char #\A
+  :text-attr #\o
   :depth 26
   :rarity 6
   :hitpoints '(30 . 10)
@@ -4579,10 +5053,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :special-abilities '((<spell> <forget>) (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>)
 		       (<frequency> 1/3)))
 (define-monster-kind "beetle-red" "killer red beetle"
-  :numeric-id  291
+  :numeric-id 291
+  :x-attr (tile-file 22)
+  :x-char (tile-number 21)
   :desc "It is a giant beetle wreathed in flames."
-  :x-char #\K
-  :x-attr #\r
+  :text-char #\K
+  :text-attr #\r
   :type '(<animal>)
   :depth 27
   :rarity 1
@@ -4597,10 +5073,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :attacks '((<spit> :type <fire> :damage (4 . 5)) (<bite> :type <hurt> :damage (3 . 4))))
 
 (define-monster-kind "creeping-adamantite" "creeping adamantite coins"
-  :numeric-id  292
+  :numeric-id 292
+  :x-attr (tile-file 10)
+  :x-char (tile-number 11)
   :desc "It is a pile of coins, slithering forward on thousands of tiny legs."
-  :x-char #\$
-  :x-attr #\G
+  :text-char #\$
+  :text-attr #\G
   :type '(<animal>)
   :depth 27
   :rarity 4
@@ -4617,10 +5095,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :treasures '((<drop> "2d2") (<drop-chance> 9/10) <only-drop-gold>))
 
 (define-monster-kind "algroth" "algroth"
-  :numeric-id  293
+  :numeric-id 293
+  :x-attr (tile-file 21)
+  :x-char (tile-number 49)
   :desc "A powerful troll form.  Venom drips from its needlelike claws."
-  :x-char #\T
-  :x-attr #\o
+  :text-char #\T
+  :text-attr #\o
   :alignment '<evil>
   :type '(<troll>)
   :depth 27
@@ -4638,10 +5118,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "hound-vibration" "vibration hound"
-  :numeric-id  294
+  :numeric-id 294
+  :x-attr (tile-file 19)
+  :x-char (tile-number 59)
   :desc "A blurry canine form which seems to be moving as fast as the eye can  follow.  You can feel the earth resonating beneath your feet."
-  :x-char #\Z
-  :x-attr #\y
+  :text-char #\Z
+  :text-attr #\y
   :type '(<animal>)
   :depth 27
   :rarity 3
@@ -4658,10 +5140,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :special-abilities '((<breath> <sound>) (<frequency> 1/5)))
 
 (define-monster-kind "hound-nexus" "nexus hound"
-  :numeric-id  295
+  :numeric-id 295
+  :x-attr (tile-file 19)
+  :x-char (tile-number 69)
   :desc "A locus of conflicting points coalesce to form the vague shape of a huge  hound.  Or is it just your imagination?"
-  :x-char #\Z
-  :x-attr #\R
+  :text-char #\Z
+  :text-attr #\R
   :type '(<animal>)
   :depth 27
   :rarity 3
@@ -4677,10 +5161,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
 	     (<bite> :type <hurt> :damage (2 . 8)) (<bite> :type <hurt> :damage (2 . 8)))
   :special-abilities '((<breath> <nexus>) (<frequency> 1/5)))
 (define-monster-kind "ogre-mage" "ogre mage"
-  :numeric-id  296
+  :numeric-id 296
+  :x-attr (tile-file 16)
+  :x-char (tile-number 17)
   :desc "A hideous ogre wrapped in black sorcerous robes."
-  :x-char #\O
-  :x-attr #\r
+  :text-char #\O
+  :text-attr #\r
   :alignment '<evil>
   :type '(<giant>)
   :depth 27
@@ -4698,10 +5184,12 @@ twisted by evil sorcery into a foul  monster that breeds on death."
   :special-abilities '((<summon> <monster>) (<spell> (<ball> <cold>)) (<spell> <traps>) (<spell> <paralysis>)
 		       (<spell> <heal>) (<frequency> 1/4)))
 (define-monster-kind "vampire" "vampire"
-  :numeric-id  298
+  :numeric-id 298
+  :x-attr (tile-file 23)
+  :x-char (tile-number 50)
   :desc "It is a humanoid with an aura of power.  You notice a sharp set of front  teeth."
-  :x-char #\V
-  :x-attr #\v
+  :text-char #\V
+  :text-attr #\v
   :alignment '<evil>
   :type '(<undead>)
   :depth 27
@@ -4722,11 +5210,13 @@ twisted by evil sorcery into a foul  monster that breeds on death."
 		       (<spell> <scare>) (<spell> <paralysis>) (<spell> <teleport-player>) (<frequency> 1/9)))
 
 (define-monster-kind "gorgimera" "gorgimera"
-  :numeric-id  299
+  :numeric-id 299
+  :x-attr (tile-file 22)
+  :x-char (tile-number 30)
   :desc "The result of evil experiments, this travesty of nature should never be 
 alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body."
-  :x-char #\H
-  :x-attr #\o
+  :text-char #\H
+  :text-attr #\o
   :depth 27
   :rarity 2
   :hitpoints '(25 . 20)
@@ -4742,10 +5232,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :special-abilities '((<breath> <fire>) (<frequency> 1/8)))
 
 (define-monster-kind "colbran" "colbran"
-  :numeric-id  300
+  :numeric-id 300
+  :x-attr (tile-file 21)
+  :x-char (tile-number 5)
   :desc "A man-shaped form of living lightning, sparks and shocks crackle all over this madly capering figure, as it leaps and whirls around and about you."
-  :x-char #\g
-  :x-attr #\y
+  :text-char #\g
+  :text-attr #\y
   :depth 27
   :rarity 2
   :hitpoints '(80 . 12)
@@ -4760,10 +5252,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :special-abilities '((<spell> (<bolt> <electricity>)) (<frequency> 1/3)))
 
 (define-monster-kind "naga-spirit" "spirit naga"
-  :numeric-id  301
+  :numeric-id 301
+  :x-attr (tile-file 19)
+  :x-char (tile-number 17)
   :desc "A wraithly snake-like form with the torso of a beautiful woman, it is the  most powerful of its kind."
-  :x-char #\n
-  :x-attr #\w
+  :text-char #\n
+  :text-attr #\w
   :alignment '<evil>
   :depth 28
   :rarity 2
@@ -4783,10 +5277,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<frequency> 1/4)))
 
 (define-monster-kind "hydra-5" "5-headed hydra"
-  :numeric-id  302
+  :numeric-id 302
+  :x-attr (tile-file 19)
+  :x-char (tile-number 36)
   :desc "A strange reptilian hybrid with five heads dripping venom."
-  :x-char #\M
-  :x-attr #\g
+  :text-char #\M
+  :text-attr #\g
   :type '(<animal>)
   :depth 28
   :rarity 2
@@ -4803,10 +5299,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop> "4d2") (<drop> "1d2") <only-drop-gold>)
   :special-abilities '((<spell> (<ball> <poison>)) (<spell> <scare>) (<frequency> 1/5)))
 (define-monster-kind "knight-black" "black knight"
-  :numeric-id  303
+  :numeric-id 303
+  :x-attr (tile-file 7)
+  :x-char (tile-number 21)
   :desc "He is a figure encased in deep black plate armour; he looks at you  menacingly."
-  :x-char #\p
-  :x-attr #\s
+  :text-char #\p
+  :text-attr #\s
   :alignment '<evil>
   :depth 28
   :rarity 1
@@ -4824,10 +5322,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :special-abilities '((<spell> <darkness>) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <blindness>)
 		       (<frequency> 1/8)))
 (define-monster-kind "mage" "mage"
-  :numeric-id  305
+  :numeric-id 305
+  :x-attr (tile-file 7)
+  :x-char (tile-number 22)
   :desc "A mage of some power - you can tell by the size of his hat."
-  :x-char #\p
-  :x-attr #\r
+  :text-char #\p
+  :text-attr #\r
   :alignment '<evil>
   :depth 28
   :rarity 1
@@ -4846,10 +5346,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<spell> <teleport-player>) (<spell> <teleport>) (<spell> <haste>) (<frequency> 1/3)))
 
 (define-monster-kind "mind-flayer" "mind flayer"
-  :numeric-id  306
+  :numeric-id 306
+  :x-attr (tile-file 16)
+  :x-char (tile-number 10)
   :desc "A humanoid form with a gruesome head, tentacular mouth, and piercing  eyes.  Claws reach out for you and you feel a presence invade your mind."
-  :x-char #\h
-  :x-attr #\R
+  :text-char #\h
+  :text-attr #\R
   :alignment '<evil>
   :depth 28
   :rarity 1
@@ -4867,10 +5369,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/8)))
 
 (define-monster-kind "basilisk" "basilisk"
-  :numeric-id  308
+  :numeric-id 308
+  :x-attr (tile-file 20)
+  :x-char (tile-number 8)
   :desc "An evil reptile that preys on unsuspecting travellers.  Its eyes stare  deeply at you and your soul starts to wilt!"
-  :x-char #\R
-  :x-attr #\b
+  :text-char #\R
+  :text-attr #\b
   :type '(<animal>)
   :depth 28
   :rarity 3
@@ -4887,10 +5391,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop> "1d2") <only-drop-items>))
 
 (define-monster-kind "troll-ice" "ice troll"
-  :numeric-id  309
+  :numeric-id 309
+  :x-attr (tile-file 21)
+  :x-char (tile-number 50)
   :desc "He is a white troll with powerfully clawed hands."
-  :x-char #\T
-  :x-attr #\w
+  :text-char #\T
+  :text-attr #\w
   :alignment '<evil>
   :type '(<troll>)
   :depth 28
@@ -4909,10 +5415,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop-chance> 3/5))
   :gender '<male>)
 (define-monster-kind "worm-purple" "giant purple worm"
-  :numeric-id  310
+  :numeric-id 310
+  :x-attr (tile-file 20)
+  :x-char (tile-number 24)
   :desc "It is a massive worm form, many feet in length.  Its vast maw drips acid and poison."
-  :x-char #\w
-  :x-attr #\v
+  :text-char #\w
+  :text-attr #\v
   :type '(<animal>)
   :depth 29
   :rarity 3
@@ -4927,10 +5435,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<sting> :type <poison> :damage (1 . 8)) (<bite> :type <acid> :damage (2 . 8))
 	     (<hit> :type <hurt> :damage (1 . 8))))
 (define-monster-kind "deva-movanic" "movanic deva"
-  :numeric-id  311
+  :numeric-id 311
+  :x-attr (tile-file 17)
+  :x-char (tile-number 55)
   :desc "A lesser angel protected by an aura of holiness.  Its muscular form looks  extremely powerful next to your own frail body."
-  :x-char #\A
-  :x-attr #\B
+  :text-char #\A
+  :text-attr #\B
   :depth 29
   :rarity 6
   :hitpoints '(40 . 10)
@@ -4948,10 +5458,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<frequency> 1/3)))
 
 (define-monster-kind "catoblepas" "catoblepas"
-  :numeric-id  312
+  :numeric-id 312
+  :x-attr (tile-file 22)
+  :x-char (tile-number 27)
   :desc "A strange ox-like form with a huge head but a thin, weak neck, it looks  likes the creation of some deranged alchemist."
-  :x-char #\q
-  :x-attr #\g
+  :text-char #\q
+  :text-attr #\g
   :type '(<animal>)
   :depth 29
   :rarity 2
@@ -4968,10 +5480,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop> "2d2") <only-drop-gold>))
 
 (define-monster-kind "mimic-ring" "mimic (ring)"
-  :numeric-id  313
+  :numeric-id 313
+  :x-attr (tile-file 8)
+  :x-char (tile-number 3)
   :desc "A strange creature that disguises itself as discarded objects to lure  unsuspecting adventurers within reach of its venomous claws."
-  :x-char #\=
-  :x-attr #\w
+  :text-char #\=
+  :text-attr #\w
   :depth 29
   :rarity 3
   :hitpoints '(10 . 35)
@@ -4988,10 +5502,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<spell> (<bolt> <fire>)) (<spell> (<bolt> <acid>)) (<spell> <forget>) (<spell> (<cause> 2))
 		       (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/4)))
 (define-monster-kind "young-dragon-blue" "young blue dragon"
-  :numeric-id  314
+  :numeric-id 314
+  :x-attr (tile-file 15)
+  :x-char (tile-number 8)
   :desc "It has a form that legends are made of.  Its still-tender scales are a  deep blue in hue.  Sparks crackle along its length."
-  :x-char #\d
-  :x-attr #\b
+  :text-char #\d
+  :text-attr #\b
   :alignment '<evil>
   :type '(<dragon>)
   :depth 29
@@ -5009,10 +5525,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop> "1d2") (<drop-chance> 9/10) (<drop-chance> 3/5))
   :special-abilities '((<breath> <electricity>) (<spell> <scare>) (<frequency> 1/11)))
 (define-monster-kind "young-dragon-white" "young white dragon"
-  :numeric-id  315
+  :numeric-id 315
+  :x-attr (tile-file 15)
+  :x-char (tile-number 10)
   :desc "It has a form that legends are made of.  Its still-tender scales are a  frosty white in hue.  Icy blasts of cold air come from it as it breathes."
-  :x-char #\d
-  :x-attr #\w
+  :text-char #\d
+  :text-attr #\w
   :alignment '<evil>
   :type '(<dragon>)
   :depth 29
@@ -5030,10 +5548,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop> "1d2") (<drop-chance> 9/10) (<drop-chance> 3/5))
   :special-abilities '((<breath> <cold>) (<spell> <scare>) (<frequency> 1/11)))
 (define-monster-kind "young-dragon-green" "young green dragon"
-  :numeric-id  316
+  :numeric-id 316
+  :x-attr (tile-file 15)
+  :x-char (tile-number 11)
   :desc "It has a form that legends are made of.  Its still-tender scales are a  deep green in hue.  Foul gas seeps through its scales."
-  :x-char #\d
-  :x-attr #\g
+  :text-char #\d
+  :text-attr #\g
   :alignment '<evil>
   :type '(<dragon>)
   :depth 29
@@ -5051,10 +5571,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop> "1d2") (<drop-chance> 9/10) (<drop-chance> 3/5))
   :special-abilities '((<breath> <poison>) (<spell> <scare>) (<frequency> 1/11)))
 (define-monster-kind "young-dragon-bronze" "young bronze dragon"
-  :numeric-id  317
+  :numeric-id 317
+  :x-attr (tile-file 15)
+  :x-char (tile-number 9)
   :desc "It has a form that legends are made of.  Its still-tender scales are a rich bronze hue, and its shape masks its true form."
-  :x-char #\d
-  :x-attr #\U
+  :text-char #\d
+  :text-attr #\U
   :type '(<dragon>)
   :depth 29
   :rarity 3
@@ -5071,10 +5593,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop> "2d2") (<drop-chance> 9/10) (<drop-chance> 3/5))
   :special-abilities '((<breath> <confusion>) (<spell> <scare>) (<frequency> 1/11)))
 (define-monster-kind "golem-mithril" "mithril golem"
-  :numeric-id  318
+  :numeric-id 318
+  :x-attr (tile-file 21)
+  :x-char (tile-number 6)
   :desc "It is a massive statue of purest mithril.  It looks expensive!"
-  :x-char #\g
-  :x-attr #\B
+  :text-char #\g
+  :text-attr #\B
   :depth 30
   :rarity 4
   :hitpoints '(80 . 15)
@@ -5089,10 +5613,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 	     (<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8)))
   :treasures '((<drop> "2d2") <only-drop-gold>))
 (define-monster-kind "drake-shadow" "shadow drake"
-  :numeric-id  319
+  :numeric-id 319
+  :x-attr (tile-file 15)
+  :x-char (tile-number 40)
   :desc "It is a dragon-like form wrapped in shadow.  Glowing red eyes shine out in  the dark."
-  :x-char #\d
-  :x-attr #\D
+  :text-char #\d
+  :text-attr #\D
   :alignment '<evil>
   :type '(<dragon> <animal>)
   :depth 30
@@ -5111,10 +5637,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :special-abilities '((<spell> <darkness>) (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>) (<spell> <haste>)
 		       (<frequency> 1/6)))
 (define-monster-kind "troll-skeleton" "skeleton troll"
-  :numeric-id  320
+  :numeric-id 320
+  :x-attr (tile-file 23)
+  :x-char (tile-number 42)
   :desc "It is a troll skeleton animated by dark dweomers."
-  :x-char #\s
-  :x-attr #\w
+  :text-char #\s
+  :text-attr #\w
   :alignment '<evil>
   :type '(<undead> <troll>)
   :depth 30
@@ -5130,10 +5658,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<bite> :type <hurt> :damage (3 . 4)) (<hit> :type <hurt> :damage (1 . 6))
 	     (<hit> :type <hurt> :damage (1 . 6))))
 (define-monster-kind "manticore" "manticore"
-  :numeric-id  321
+  :numeric-id 321
+  :x-attr (tile-file 22)
+  :x-char (tile-number 31)
   :desc "It is a winged lion's body with a human torso and a tail covered in  vicious spikes."
-  :x-char #\H
-  :x-attr #\y
+  :text-char #\H
+  :text-attr #\y
   :alignment '<evil>
   :depth 30
   :rarity 2
@@ -5148,10 +5678,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 	     (<hit> :type <hurt> :damage (3 . 4)) (<hit> :type <hurt> :damage (3 . 4)))
   :special-abilities '((<arrow> 4) (<frequency> 1/5)))
 (define-monster-kind "ant-blue" "giant blue ant"
-  :numeric-id  322
+  :numeric-id 322
+  :x-attr (tile-file 20)
+  :x-char (tile-number 5)
   :desc "It is a giant ant that crackles with energy."
-  :x-char #\a
-  :x-attr #\b
+  :text-char #\a
+  :text-attr #\b
   :type '(<animal>)
   :depth 30
   :rarity 2
@@ -5166,10 +5698,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<bite> :type <electricity> :damage (5 . 5))))
 
 (define-monster-kind "ant-army" "giant army ant"
-  :numeric-id  323
+  :numeric-id 323
+  :x-attr (tile-file 20)
+  :x-char (tile-number 6)
   :desc "An armoured form moving with purpose.  Powerful on its own, flee when hordes of them march."
-  :x-char #\a
-  :x-attr #\o
+  :text-char #\a
+  :text-attr #\o
   :type '(<animal>)
   :depth 30
   :rarity 3
@@ -5183,10 +5717,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<bite> :type <hurt> :damage (2 . 12))))
 
 (define-monster-kind "wight-grave" "grave wight"
-  :numeric-id  324
+  :numeric-id 324
+  :x-attr (tile-file 23)
+  :x-char (tile-number 8)
   :desc "It is a ghostly form with eyes that haunt you."
-  :x-char #\W
-  :x-attr #\b
+  :text-char #\W
+  :text-attr #\b
   :alignment '<evil>
   :type '(<undead>)
   :depth 30
@@ -5205,10 +5741,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop> "1d2") <only-drop-items>)
   :special-abilities '((<spell> <darkness>) (<spell> (<cause> 3)) (<spell> <scare>) (<frequency> 1/8)))
 (define-monster-kind "beetle-slicer" "killer slicer beetle"
-  :numeric-id  325
+  :numeric-id 325
+  :x-attr (tile-file 22)
+  :x-char (tile-number 22)
   :desc "It is a beetle with deadly sharp cutting mandibles and a rock-hard  carapace."
-  :x-char #\K
-  :x-attr #\y
+  :text-char #\K
+  :text-attr #\y
   :type '(<animal>)
   :depth 30
   :rarity 2
@@ -5221,10 +5759,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :vision 14
   :attacks '((<bite> :type <hurt> :damage (5 . 8)) (<bite> :type <hurt> :damage (5 . 8))))
 (define-monster-kind "ghost" "ghost"
-  :numeric-id  326
+  :numeric-id 326
+  :x-attr (tile-file 23)
+  :x-char (tile-number 24)
   :desc "You don't believe in them."
-  :x-char #\G
-  :x-attr #\w
+  :text-char #\G
+  :text-attr #\w
   :alignment '<evil>
   :type '(<undead>)
   :depth 31
@@ -5242,10 +5782,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop> "1d2") (<drop-chance> 3/5))
   :special-abilities '((<spell> <drain-mana>) (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/15)))
 (define-monster-kind "beetle-death" "death watch beetle"
-  :numeric-id  327
+  :numeric-id 327
+  :x-attr (tile-file 22)
+  :x-char (tile-number 23)
   :desc "It is a giant beetle that produces a chilling sound."
-  :x-char #\K
-  :x-attr #\D
+  :text-char #\K
+  :text-attr #\D
   :type '(<animal>)
   :depth 31
   :rarity 3
@@ -5258,10 +5800,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :vision 16
   :attacks '((<wail> :type <terrify> :damage (5 . 6)) (<bite> :type <hurt> :damage (5 . 4))))
 (define-monster-kind "ogre-shaman" "ogre shaman"
-  :numeric-id  328
+  :numeric-id 328
+  :x-attr (tile-file 16)
+  :x-char (tile-number 18)
   :desc "It is an ogre wrapped in furs and covered in grotesque body paints."
-  :x-char #\O
-  :x-attr #\o
+  :text-char #\O
+  :text-attr #\o
   :alignment '<evil>
   :type '(<giant>)
   :depth 32
@@ -5280,10 +5824,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<spell> <scare>) (<spell> <paralysis>) (<spell> <teleport>) (<frequency> 1/5)))
 
 (define-monster-kind "quylthulg-nexus" "nexus quylthulg"
-  :numeric-id  329
+  :numeric-id 329
+  :x-attr (tile-file 22)
+  :x-char (tile-number 1)
   :desc "It is a very unstable, strange pulsing mound of flesh."
-  :x-char #\Q
-  :x-attr #\R
+  :text-char #\Q
+  :text-attr #\R
   :depth 32
   :rarity 1
   :hitpoints '(10 . 12)
@@ -5297,10 +5843,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :special-abilities '((<spell> <teleport-away>) (<spell> <blink>) (<frequency> 1)))
 
 (define-monster-kind "ninja" "ninja"
-  :numeric-id  331
+  :numeric-id 331
+  :x-attr (tile-file 7)
+  :x-char (tile-number 23)
   :desc "A humanoid clothed in black who moves with blinding speed."
-  :x-char #\p
-  :x-attr #\y
+  :text-char #\p
+  :text-attr #\y
   :alignment '<evil>
   :depth 32
   :rarity 2
@@ -5318,10 +5866,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :gender '<male>)
 
 (define-monster-kind "moss-memory" "memory moss"
-  :numeric-id  332
+  :numeric-id 332
+  :x-attr (tile-file 17)
+  :x-char (tile-number 93)
   :desc "A mass of green vegetation.  You don't remember seeing anything like it  before."
-  :x-char #\,
-  :x-attr #\r
+  :text-char #\,
+  :text-attr #\r
   :depth 32
   :rarity 3
   :hitpoints '(1 . 2)
@@ -5336,10 +5886,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :special-abilities '((<spell> <forget>) (<frequency> 1/6)))
 
 (define-monster-kind "giant-storm" "storm giant"
-  :numeric-id  333
+  :numeric-id 333
+  :x-attr (tile-file 21)
+  :x-char (tile-number 15)
   :desc "It is a twenty-five foot tall giant wreathed in lighting."
-  :x-char #\P
-  :x-attr #\B
+  :text-char #\P
+  :text-attr #\B
   :alignment '<evil>
   :type '(<giant>)
   :depth 32
@@ -5359,10 +5911,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<spell> <confusion>) (<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/8)))
 
 (define-monster-kind "troll-cave" "cave troll"
-  :numeric-id  334
+  :numeric-id 334
+  :x-attr (tile-file 21)
+  :x-char (tile-number 51)
   :desc "He is a vicious monster, feared for his ferocity."
-  :x-char #\T
-  :x-attr #\u
+  :text-char #\T
+  :text-attr #\u
   :alignment '<evil>
   :type '(<troll>)
   :depth 33
@@ -5382,10 +5936,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :gender '<male>)
 
 (define-monster-kind "troll-half" "half-troll"
-  :numeric-id  335
+  :numeric-id 335
+  :x-attr (tile-file 21)
+  :x-char (tile-number 52)
   :desc "A huge, ugly, half-human in search of plunder."
-  :x-char #\T
-  :x-attr #\U
+  :text-char #\T
+  :text-attr #\U
   :alignment '<evil>
   :type '(<troll>)
   :depth 33
@@ -5404,10 +5960,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :gender '<male>)
 
 (define-monster-kind "mystic" "mystic"
-  :numeric-id  336
+  :numeric-id 336
+  :x-attr (tile-file 7)
+  :x-char (tile-number 24)
   :desc "An adept at unarmed combat, the mystic strikes with stunning power.  He  can summon help from nature and is able to focus his power to ease any  pain."
-  :x-char #\p
-  :x-attr #\o
+  :text-char #\p
+  :text-attr #\o
   :depth 33
   :rarity 3
   :hitpoints '(35 . 10)
@@ -5425,10 +5983,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :special-abilities '((<summon> <spider>) (<spell> <heal>) (<frequency> 1/6)))
 
 (define-monster-kind "wight-barrow" "barrow wight"
-  :numeric-id  337
+  :numeric-id 337
+  :x-attr (tile-file 23)
+  :x-char (tile-number 10)
   :desc "It is a ghostly nightmare of a entity."
-  :x-char #\W
-  :x-attr #\v
+  :text-char #\W
+  :text-attr #\v
   :alignment '<evil>
   :type '(<undead>)
   :depth 33
@@ -5449,10 +6009,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<frequency> 1/8)))
 
 (define-monster-kind "troll-giant-skeleton" "giant skeleton troll"
-  :numeric-id  338
+  :numeric-id 338
+  :x-attr (tile-file 23)
+  :x-char (tile-number 55)
   :desc "It is the animated form of a massive troll."
-  :x-char #\s
-  :x-attr #\w
+  :text-char #\s
+  :text-attr #\w
   :alignment '<evil>
   :type '(<undead> <troll>)
   :depth 33
@@ -5469,10 +6031,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 	     (<hit> :type <hurt> :damage (1 . 9)) (<hit> :type <hurt> :damage (1 . 9))))
 
 (define-monster-kind "drake-chaos" "chaos drake"
-  :numeric-id  339
+  :numeric-id 339
+  :x-attr (tile-file 15)
+  :x-char (tile-number 41)
   :desc "A dragon twisted by the forces of chaos.  It seems first ugly, then fair, as its form shimmers and changes in front of your eyes."
-  :x-char #\d
-  :x-attr #\v
+  :text-char #\d
+  :text-attr #\v
   :alignment '<evil>
   :type '(<dragon>)
   :depth 33
@@ -5492,10 +6056,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<spell> <slow>) (<frequency> 1/6)))
 
 (define-monster-kind "drake-law" "law drake"
-  :numeric-id  340
+  :numeric-id 340
+  :x-attr (tile-file 15)
+  :x-char (tile-number 42)
   :desc "This dragon is clever and cunning.  It laughs at your puny efforts to  disturb it."
-  :x-char #\d
-  :x-attr #\B
+  :text-char #\d
+  :text-attr #\B
   :alignment '<evil>
   :type '(<dragon>)
   :depth 33
@@ -5515,10 +6081,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<frequency> 1/6)))
 
 (define-monster-kind "drake-balance" "balance drake"
-  :numeric-id  341
+  :numeric-id 341
+  :x-attr (tile-file 15)
+  :x-char (tile-number 45)
   :desc "A mighty dragon, the balance drake seeks to maintain the Cosmic Balance, and despises your feeble efforts to destroy evil."
-  :x-char #\d
-  :x-attr #\v
+  :text-char #\d
+  :text-attr #\v
   :alignment '<evil>
   :type '(<dragon>)
   :depth 33
@@ -5538,10 +6106,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>) (<frequency> 1/6)))
 
 (define-monster-kind "drake-ethereal" "ethereal drake"
-  :numeric-id  342
+  :numeric-id 342
+  :x-attr (tile-file 15)
+  :x-char (tile-number 39)
   :desc "A dragon of elemental power, with control over light and dark, the ethereal drake's eyes glare with white hatred from the shadows."
-  :x-char #\d
-  :x-attr #\o
+  :text-char #\d
+  :text-attr #\o
   :alignment '<evil>
   :type '(<dragon>)
   :depth 33
@@ -5560,10 +6130,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :special-abilities '((<breath> <darkness>) (<breath> <light>) (<spell> <scare>) (<spell> <confusion>)
 		       (<spell> <slow>) (<frequency> 1/6)))
 (define-monster-kind "shade" "shade"
-  :numeric-id  346
+  :numeric-id 346
+  :x-attr (tile-file 23)
+  :x-char (tile-number 21)
   :desc "A shadowy form clutches at you from the darkness.  A powerful undead with  a deadly touch."
-  :x-char #\G
-  :x-attr #\D
+  :text-char #\G
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead>)
   :depth 33
@@ -5582,10 +6154,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :special-abilities '((<spell> <forget>) (<spell> <drain-mana>) (<spell> <paralysis>) (<spell> <blindness>)
 		       (<frequency> 1/15)))
 (define-monster-kind "spectre" "spectre"
-  :numeric-id  347
+  :numeric-id 347
+  :x-attr (tile-file 23)
+  :x-char (tile-number 7)
   :desc "A phantasmal shrieking spirit.  Its wail drives the intense cold of pure  evil deep within your body."
-  :x-char #\G
-  :x-attr #\U
+  :text-char #\G
+  :text-attr #\U
   :alignment '<evil>
   :type '(<undead>)
   :depth 33
@@ -5604,10 +6178,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :special-abilities '((<spell> <forget>) (<spell> <drain-mana>) (<spell> <paralysis>) (<spell> <blindness>)
 		       (<frequency> 1/15)))
 (define-monster-kind "troll-water" "water troll"
-  :numeric-id  348
+  :numeric-id 348
+  :x-attr (tile-file 21)
+  :x-char (tile-number 53)
   :desc "He is a troll that reeks of brine."
-  :x-char #\T
-  :x-attr #\s
+  :text-char #\T
+  :text-attr #\s
   :alignment '<evil>
   :type '(<troll>)
   :depth 33
@@ -5626,10 +6202,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop-chance> 3/5))
   :gender '<male>)
 (define-monster-kind "elemental-fire" "fire elemental"
-  :numeric-id  349
+  :numeric-id 349
+  :x-attr (tile-file 18)
+  :x-char (tile-number 27)
   :desc "It is a towering inferno of flames."
-  :x-char #\E
-  :x-attr #\r
+  :text-char #\E
+  :text-attr #\r
   :alignment '<evil>
   :depth 33
   :rarity 2
@@ -5645,10 +6223,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<hit> :type <fire> :damage (4 . 6)) (<hit> :type <fire> :damage (4 . 6)))
   :special-abilities '((<spell> (<bolt> <fire>)) (<frequency> 1/6)))
 (define-monster-kind "deva-astral" "astral deva"
-  :numeric-id  350
+  :numeric-id 350
+  :x-attr (tile-file 17)
+  :x-char (tile-number 56)
   :desc "It is an angel moving very quickly, wielding a holy war hammer and casting  a volley of powerful spells in your direction."
-  :x-char #\A
-  :x-attr #\G
+  :text-char #\A
+  :text-attr #\G
   :depth 33
   :rarity 6
   :hitpoints '(45 . 10)
@@ -5667,10 +6247,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<spell> <blindness>) (<spell> <haste>) (<spell> <heal>) (<frequency> 1/3)))
 
 (define-monster-kind "elemental-water" "water elemental"
-  :numeric-id  351
+  :numeric-id 351
+  :x-attr (tile-file 18)
+  :x-char (tile-number 26)
   :desc "It is a towering tempest of water."
-  :x-char #\E
-  :x-attr #\s
+  :text-char #\E
+  :text-attr #\s
   :alignment '<evil>
   :depth 33
   :rarity 2
@@ -5687,10 +6269,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 	     (<hit> :type <hurt> :damage (1 . 10)))
   :special-abilities '((<spell> (<bolt> <cold>)) (<frequency> 1/6)))
 (define-monster-kind "invisible-stalker" "invisible stalker"
-  :numeric-id  352
+  :numeric-id 352
+  :x-attr (tile-file 18)
+  :x-char (tile-number 40)
   :desc "It is impossible to define its form but its violence is legendary."
-  :x-char #\E
-  :x-attr #\y
+  :text-char #\E
+  :text-attr #\y
   :alignment '<evil>
   :depth 34
   :rarity 3
@@ -5705,10 +6289,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<hit> :type <hurt> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 6))
 	     (<hit> :type <hurt> :damage (1 . 6))))
 (define-monster-kind "thief-master" "master thief"
-  :numeric-id  354
+  :numeric-id 354
+  :x-attr (tile-file 7)
+  :x-char (tile-number 25)
   :desc "Cool and confident, fast and lithe; protect your possessions quickly!"
-  :x-char #\p
-  :x-attr #\B
+  :text-char #\p
+  :text-attr #\B
   :alignment '<evil>
   :depth 34
   :rarity 2
@@ -5724,10 +6310,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :treasures '((<drop> "2d2") (<drop-chance> 9/10))
   :gender '<male>)
 (define-monster-kind "lich" "lich"
-  :numeric-id  356
+  :numeric-id 356
+  :x-attr (tile-file 23)
+  :x-char (tile-number 16)
   :desc "It is a skeletal form dressed in robes.  It radiates vastly evil power."
-  :x-char #\L
-  :x-attr #\o
+  :text-char #\L
+  :text-attr #\o
   :alignment '<evil>
   :type '(<undead>)
   :depth 34
@@ -5748,10 +6336,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<spell> <slow>) (<spell> <paralysis>) (<spell> <blindness>) (<spell> <teleport-away>)
 		       (<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/4)))
 (define-monster-kind "vampire-master" "master vampire"
-  :numeric-id  357
+  :numeric-id 357
+  :x-attr (tile-file 23)
+  :x-char (tile-number 51)
   :desc "It is a humanoid form dressed in robes.  Power emanates from its chilling  frame."
-  :x-char #\V
-  :x-attr #\g
+  :text-char #\V
+  :text-attr #\g
   :alignment '<evil>
   :type '(<undead>)
   :depth 34
@@ -5772,10 +6362,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 		       (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <confusion>) (<spell> <paralysis>)
 		       (<spell> <teleport-player>) (<frequency> 1/6)))
 (define-monster-kind "scorpion-grey" "giant grey scorpion"
-  :numeric-id  358
+  :numeric-id 358
+  :x-attr (tile-file 21)
+  :x-char (tile-number 74)
   :desc "It is a giant grey scorpion.  It looks poisonous."
-  :x-char #\S
-  :x-attr #\s
+  :text-char #\S
+  :text-attr #\s
   :type '(<animal>)
   :depth 34
   :rarity 4
@@ -5788,10 +6380,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :vision 12
   :attacks '((<sting> :type <poison> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 6))))
 (define-monster-kind "elemental-earth" "earth elemental"
-  :numeric-id  359
+  :numeric-id 359
+  :x-attr (tile-file 18)
+  :x-char (tile-number 28)
   :desc "It is a towering form composed of rock with fists of awesome power."
-  :x-char #\E
-  :x-attr #\u
+  :text-char #\E
+  :text-attr #\u
   :alignment '<evil>
   :depth 34
   :rarity 2
@@ -5809,10 +6403,12 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 	     (<hit> :type <hurt> :damage (4 . 6)))
   :special-abilities '((<spell> (<bolt> <acid>)) (<frequency> 1/8)))
 (define-monster-kind "elemental-air" "air elemental"
-  :numeric-id  360
+  :numeric-id 360
+  :x-attr (tile-file 18)
+  :x-char (tile-number 35)
   :desc "It is a towering tornado of winds."
-  :x-char #\E
-  :x-attr #\B
+  :text-char #\E
+  :text-attr #\B
   :alignment '<evil>
   :depth 34
   :rarity 2
@@ -5828,12 +6424,14 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <confusion> :damage (1 . 4))
 	     (<hit> :type <hurt> :damage (1 . 10)))
   :special-abilities '((<spell> (<bolt> <electricity>)) (<frequency> 1/8)))
+
 (define-monster-kind "hound-hell" "hell hound"
-  :numeric-id  537
-  :numeric-id  361
+  :numeric-id 361
+  :x-attr (tile-file 19)
+  :x-char (tile-number 43)
   :desc "It is a giant dog that glows with heat.  Flames pour from its nostrils."
-  :x-char #\C
-  :x-attr #\r
+  :text-char #\C
+  :text-attr #\r
   :alignment '<evil>
   :type '(<animal>)
   :depth 35
@@ -5850,12 +6448,14 @@ alive.  It has 3 heads - gorgon, goat and dragon - all attached to a lion's body
 	     (<bite> :type <fire> :damage (3 . 12)))
   :special-abilities '((<breath> <fire>) (<frequency> 1/5))
   :appear-in-group? #'van-novice-appears-in-group?)
+
 (define-monster-kind "golem-eog" "eog golem"
-  :numeric-id  362
-  :desc "It is a massive deep brown statue
-striding towards you with an  all-too-familiar purpose.  Your magic surprisingly feels much less  powerful now."
-  :x-char #\g
-  :x-attr #\u
+  :numeric-id 362
+  :x-attr (tile-file 21)
+  :x-char (tile-number 7)
+  :desc "It is a massive deep brown statue striding towards you with an  all-too-familiar purpose.  Your magic surprisingly feels much less  powerful now."
+  :text-char #\g
+  :text-attr #\u
   :depth 35
   :rarity 4
   :hitpoints '(100 . 20)
@@ -5869,11 +6469,14 @@ striding towards you with an  all-too-familiar purpose.  Your magic surprisingly
   :attacks '((<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6))
 	     (<hit> :type <hurt> :damage (8 . 6)) (<hit> :type <hurt> :damage (8 . 6)))
   :treasures '((<drop> "2d2") <only-drop-gold>))
+
 (define-monster-kind "troll-olog" "olog"
-  :numeric-id  363
+  :numeric-id 363
+  :x-attr (tile-file 21)
+  :x-char (tile-number 54)
   :desc "It is a massive intelligent troll with needle sharp fangs."
-  :x-char #\T
-  :x-attr #\y
+  :text-char #\T
+  :text-attr #\y
   :alignment '<evil>
   :type '(<troll>)
   :depth 35
@@ -5891,10 +6494,12 @@ striding towards you with an  all-too-familiar purpose.  Your magic surprisingly
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "dagashi" "dagashi"
-  :numeric-id  364
+  :numeric-id 364
+  :x-attr (tile-file 7)
+  :x-char (tile-number 26)
   :desc "A human warrior, moving with lightning speed."
-  :x-char #\p
-  :x-attr #\y
+  :text-char #\p
+  :text-attr #\y
   :alignment '<evil>
   :depth 35
   :rarity 4
@@ -5910,12 +6515,15 @@ striding towards you with an  all-too-familiar purpose.  Your magic surprisingly
 	     (<hit> :type <lose-str> :damage (3 . 4)) (<hit> :type <poison> :damage (3 . 4)))
   :treasures '((<drop> "1d2"))
   :gender '<male>)
+
 (define-monster-kind "hound-gravity" "gravity hound"
-  :numeric-id  365
+  :numeric-id 365
+  :x-attr (tile-file 19)
+  :x-char (tile-number 73)
   :desc "Unfettered by the usual constraints of gravity
 these unnatural creatures  are walking on the walls and even the ceiling!  The earth suddenly feels  rather less solid as you see gravity warp all round the monsters."
-  :x-char #\Z
-  :x-attr #\W
+  :text-char #\Z
+  :text-attr #\W
   :type '(<animal>)
   :depth 35
   :rarity 2
@@ -5930,11 +6538,14 @@ these unnatural creatures  are walking on the walls and even the ceiling!  The e
   :attacks '((<claw> :type <hurt> :damage (3 . 3)) (<bite> :type <hurt> :damage (2 . 12))
 	     (<bite> :type <hurt> :damage (2 . 12)) (<bite> :type <hurt> :damage (2 . 12)))
   :special-abilities '((<breath> <gravity>) (<frequency> 1/5)))
+
 (define-monster-kind "cytoplasm-acidic" "acidic cytoplasm"
-  :numeric-id  366
+  :numeric-id 366
+  :x-attr (tile-file 18)
+  :x-char (tile-number 4)
   :desc "A disgusting animated blob of destruction.  Flee its gruesome hunger!"
-  :x-char #\j
-  :x-attr #\s
+  :text-char #\j
+  :text-attr #\s
   :depth 35
   :rarity 5
   :hitpoints '(40 . 10)
@@ -5950,10 +6561,12 @@ these unnatural creatures  are walking on the walls and even the ceiling!  The e
   :treasures '((<drop> "4d2") (<drop> "1d2")))
 
 (define-monster-kind "hound-inertia" "inertia hound"
-  :numeric-id  367
+  :numeric-id 367
+  :x-attr (tile-file 19)
+  :x-char (tile-number 65)
   :desc "Bizarrely, this hound seems to be hardly moving at all, yet it approaches  you with deadly menace.  It makes you tired just to look at it."
-  :x-char #\Z
-  :x-attr #\W
+  :text-char #\Z
+  :text-attr #\W
   :type '(<animal>)
   :depth 35
   :rarity 2
@@ -5970,10 +6583,14 @@ these unnatural creatures  are walking on the walls and even the ceiling!  The e
   :special-abilities '((<breath> <inertia>) (<frequency> 1/5)))
 
 (define-monster-kind "hound-impact" "impact hound"
-  :numeric-id  368
-  :desc "A deep brown shape is visible before you, its canine form strikes you with  an almost physical force.  The dungeon floor buckles as if struck by a  powerful blow as it stalks towards you."
-  :x-char #\Z
-  :x-attr #\u
+  :numeric-id 368
+  :x-attr (tile-file 19)
+  :x-char (tile-number 60)
+  :desc "A deep brown shape is visible before you, its canine form strikes you with
+an almost physical force.  The dungeon floor buckles as if struck by a
+ powerful blow as it stalks towards you."
+  :text-char #\Z
+  :text-attr #\u
   :type '(<animal>)
   :depth 35
   :rarity 2
@@ -5990,11 +6607,13 @@ these unnatural creatures  are walking on the walls and even the ceiling!  The e
   :special-abilities '((<breath> <force>) (<frequency> 1/8)))
 
 (define-monster-kind "dread" "dread"
-  :numeric-id  460
-  :numeric-id  369
-  :desc "It is a form that screams its presence against the eye.  Death incarnate, its hideous black body seems to struggle against reality as the universe  itself struggles to banish it."
-  :x-char #\G
-  :x-attr #\o
+  :numeric-id 369
+  :x-attr (tile-file 23)
+  :x-char (tile-number 0)
+  :desc "It is a form that screams its presence against the eye.  Death incarnate, its
+hideous black body seems to struggle against reality as the universe  itself struggles to banish it."
+  :text-char #\G
+  :text-attr #\o
   :alignment '<evil>
   :type '(<undead>)
   :depth 35
@@ -6015,10 +6634,12 @@ these unnatural creatures  are walking on the walls and even the ceiling!  The e
   :appear-in-group? #'van-novice-appears-in-group?)
 
 (define-monster-kind "elemental-ooze" "ooze elemental"
-  :numeric-id  370
+  :numeric-id 370
+  :x-attr (tile-file 18)
+  :x-char (tile-number 31)
   :desc "It is a towering mass of filth, an eyesore of ooze."
-  :x-char #\E
-  :x-attr #\g
+  :text-char #\E
+  :text-attr #\g
   :alignment '<evil>
   :depth 35
   :rarity 3
@@ -6036,10 +6657,12 @@ these unnatural creatures  are walking on the walls and even the ceiling!  The e
   :special-abilities '((<spell> (<ball> <acid>)) (<spell> (<bolt> <acid>)) (<frequency> 1/5)))
 
 (define-monster-kind "elemental-smoke" "smoke elemental"
-  :numeric-id  371
+  :numeric-id 371
+  :x-attr (tile-file 18)
+  :x-char (tile-number 39)
   :desc "It is a towering blackened form, crackling with heat."
-  :x-char #\E
-  :x-attr #\R
+  :text-char #\E
+  :text-attr #\R
   :alignment '<evil>
   :depth 35
   :rarity 3
@@ -6055,10 +6678,13 @@ these unnatural creatures  are walking on the walls and even the ceiling!  The e
   :special-abilities '((<spell> (<bolt> <fire>)) (<spell> <darkness>) (<frequency> 1/5)))
 
 (define-monster-kind "young-dragon-black" "young black dragon"
-  :numeric-id  372
-  :desc "It has a form that legends are made of.  Its still-tender scales are a  darkest black hue.  Acid drips from its body."
-  :x-char #\d
-  :x-attr #\s
+  :numeric-id 372
+  :x-attr (tile-file 15)
+  :x-char (tile-number 12)
+  :desc "It has a form that legends are made of.  Its still-tender scales are a
+darkest black hue.  Acid drips from its body."
+  :text-char #\d
+  :text-attr #\s
   :alignment '<evil>
   :type '(<dragon>)
   :depth 35
@@ -6077,11 +6703,12 @@ these unnatural creatures  are walking on the walls and even the ceiling!  The e
   :special-abilities '((<breath> <acid>) (<spell> <scare>) (<frequency> 1/11)))
 
 (define-monster-kind "mumak" "mumak"
-  :numeric-id  461
-  :numeric-id  373
+  :numeric-id 373
+  :x-attr (tile-file 20)
+  :x-char (tile-number 61)
   :desc "A massive elephantine form with eyes twisted by madness."
-  :x-char #\q
-  :x-attr #\s
+  :text-char #\q
+  :text-attr #\s
   :type '(<animal>)
   :depth 35
   :rarity 3
@@ -6097,10 +6724,12 @@ these unnatural creatures  are walking on the walls and even the ceiling!  The e
   :appear-in-group? #'van-novice-appears-in-group?)
 
 (define-monster-kind "ant-red" "giant red ant"
-  :numeric-id  374
+  :numeric-id 374
+  :x-attr (tile-file 20)
+  :x-char (tile-number 7)
   :desc "A giant ant covered in shaggy fur.  Its powerful jaws glow with heat."
-  :x-char #\a
-  :x-attr #\r
+  :text-char #\a
+  :text-attr #\r
   :type '(<animal>)
   :depth 35
   :rarity 1
@@ -6115,10 +6744,12 @@ these unnatural creatures  are walking on the walls and even the ceiling!  The e
   :attacks '((<bite> :type <fire> :damage (3 . 12)) (<bite> :type <fire> :damage (3 . 12))))
 
 (define-monster-kind "mature-dragon-white" "mature white dragon"
-  :numeric-id  375
+  :numeric-id 375
+  :x-attr (tile-file 15)
+  :x-char (tile-number 18)
   :desc "A large dragon, scales gleaming bright white."
-  :x-char #\d
-  :x-attr #\w
+  :text-char #\d
+  :text-attr #\w
   :alignment '<evil>
   :type '(<dragon>)
   :depth 35
@@ -6137,11 +6768,13 @@ these unnatural creatures  are walking on the walls and even the ceiling!  The e
   :special-abilities '((<breath> <cold>) (<spell> <scare>) (<frequency> 1/10)))
 
 (define-monster-kind "xorn" "xorn"
-  :numeric-id  376
+  :numeric-id 376
+  :x-attr (tile-file 21)
+  :x-char (tile-number 34)
   :desc "A huge creature of the element Earth.  Able to merge with its element, 
 it has four huge arms protruding from its enormous torso."
-  :x-char #\X
-  :x-attr #\u
+  :text-char #\X
+  :text-attr #\u
   :depth 36
   :rarity 2
   :hitpoints '(16 . 10)
@@ -6157,12 +6790,14 @@ it has four huge arms protruding from its enormous torso."
 	     (<hit> :type <hurt> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 6))))
 
 (define-monster-kind "shadow" "shadow"
-  :numeric-id  377
+  :numeric-id 377
+  :x-attr (tile-file 23)
+  :x-char (tile-number 6)
   :desc "A mighty spirit of darkness of vaguely humanoid form.  Razor-edged claws
 reach out to end your life as it glides towards you, seeking to suck the
 energy from your soul to feed its power."
-  :x-char #\G
-  :x-attr #\D
+  :text-char #\G
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead>)
   :depth 36
@@ -6181,10 +6816,12 @@ energy from your soul to feed its power."
   :special-abilities '((<spell> <slow>) (<spell> <teleport-player>) (<frequency> 1/8)))
 
 (define-monster-kind "phantom" "phantom"
-  :numeric-id  378
+  :numeric-id 378
+  :x-attr (tile-file 23)
+  :x-char (tile-number 20)
   :desc "An unholy creature of darkness, the aura emanating from this evil being  saps your very soul."
-  :x-char #\G
-  :x-attr #\v
+  :text-char #\G
+  :text-attr #\v
   :alignment '<evil>
   :type '(<undead>)
   :depth 36
@@ -6203,10 +6840,12 @@ energy from your soul to feed its power."
   :special-abilities '((<spell> <forget>) (<frequency> 1/5)))
 
 (define-monster-kind "wraith-grey" "grey wraith"
-  :numeric-id  379
+  :numeric-id 379
+  :x-attr (tile-file 23)
+  :x-char (tile-number 13)
   :desc "A tangible but ghostly form made of grey fog.  The air around it feels  deathly cold."
-  :x-char #\W
-  :x-attr #\s
+  :text-char #\W
+  :text-attr #\s
   :alignment '<evil>
   :type '(<undead>)
   :depth 36
@@ -6227,10 +6866,12 @@ energy from your soul to feed its power."
 		       (<frequency> 1/7)))
 
 (define-monster-kind "young-dragon-mh" "young multi-hued dragon"
-  :numeric-id  380
+  :numeric-id 380
+  :x-attr (tile-file 15)
+  :x-char (tile-number 15)
   :desc "It has a form that legends are made of.  Beautiful scales of shimmering  and magical colours cover it."
-  :x-char #\d
-  :x-attr #\v
+  :text-char #\d
+  :text-attr #\v
   :alignment '<evil>
   :type '(<dragon>)
   :depth 36
@@ -6250,10 +6891,12 @@ energy from your soul to feed its power."
 		       (<spell> <scare>) (<frequency> 1/5)))
 
 (define-monster-kind "colossus" "colossus"
-  :numeric-id  381
+  :numeric-id 381
+  :x-attr (tile-file 21)
+  :x-char (tile-number 8)
   :desc "An enormous construct resembling a titan made from stone.  It strides  purposefully towards you, swinging its slow fists with earth-shattering  power."
-  :x-char #\g
-  :x-attr #\G
+  :text-char #\g
+  :text-attr #\G
   :depth 36
   :rarity 4
   :hitpoints '(30 . 100)
@@ -6266,12 +6909,14 @@ energy from your soul to feed its power."
   :vision 12
   :attacks '((<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6))
 	     (<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10))))
+
 (define-monster-kind "young-dragon-gold" "young gold dragon"
-  :numeric-id  382
-  :desc "It has a form that legends are made of.  Its still-tender scales are a tarnished gold hue
-and light is reflected from its form."
-  :x-char #\d
-  :x-attr #\y
+  :numeric-id 382
+  :x-attr (tile-file 15)
+  :x-char (tile-number 14)
+  :desc "It has a form that legends are made of.  Its still-tender scales are a tarnished gold hue and light is reflected from its form."
+  :text-char #\d
+  :text-attr #\y
   :type '(<dragon>)
   :depth 36
   :rarity 2
@@ -6288,10 +6933,12 @@ and light is reflected from its form."
   :special-abilities '((<breath> <sound>) (<spell> <scare>) (<frequency> 1/11)))
 
 (define-monster-kind "mature-dragon-blue" "mature blue dragon"
-  :numeric-id  384
+  :numeric-id 384
+  :x-attr (tile-file 15)
+  :x-char (tile-number 16)
   :desc "A large dragon, scales tinted deep blue."
-  :x-char #\d
-  :x-attr #\b
+  :text-char #\d
+  :text-attr #\b
   :alignment '<evil>
   :type '(<dragon>)
   :depth 36
@@ -6308,11 +6955,14 @@ and light is reflected from its form."
 	     (<claw> :type <hurt> :damage (1 . 8)))
   :treasures '((<drop> "2d2") (<drop-chance> 9/10) (<drop-chance> 3/5))
   :special-abilities '((<breath> <electricity>) (<spell> <scare>) (<frequency> 1/9)))
+
 (define-monster-kind "mature-dragon-green" "mature green dragon"
-  :numeric-id  385
+  :numeric-id 385
+  :x-attr (tile-file 15)
+  :x-char (tile-number 19)
   :desc "A large dragon, scales tinted deep green."
-  :x-char #\d
-  :x-attr #\g
+  :text-char #\d
+  :text-attr #\g
   :alignment '<evil>
   :type '(<dragon>)
   :depth 36
@@ -6331,10 +6981,12 @@ and light is reflected from its form."
   :special-abilities '((<breath> <poison>) (<spell> <scare>) (<frequency> 1/9)))
 
 (define-monster-kind "mature-dragon-bronze" "mature bronze dragon"
-  :numeric-id  386
+  :numeric-id 386
+  :x-attr (tile-file 15)
+  :x-char (tile-number 17)
   :desc "A large dragon with scales of rich bronze."
-  :x-char #\d
-  :x-attr #\U
+  :text-char #\d
+  :text-attr #\U
   :type '(<dragon>)
   :depth 36
   :rarity 2
@@ -6352,10 +7004,12 @@ and light is reflected from its form."
   :special-abilities '((<breath> <confusion>) (<spell> <scare>) (<spell> <confusion>) (<frequency> 1/9)))
 
 (define-monster-kind "young-dragon-red" "young red dragon"
-  :numeric-id  387
+  :numeric-id 387
+  :x-attr (tile-file 15)
+  :x-char (tile-number 13)
   :desc "It has a form that legends are made of.  Its still-tender scales are a  deepest red hue.  Heat radiates from its form."
-  :x-char #\d
-  :x-attr #\r
+  :text-char #\d
+  :text-attr #\r
   :alignment '<evil>
   :type '(<dragon>)
   :depth 36
@@ -6374,10 +7028,12 @@ and light is reflected from its form."
   :special-abilities '((<breath> <fire>) (<spell> <scare>) (<frequency> 1/11)))
 
 (define-monster-kind "trapper" "trapper"
-  :numeric-id  388
+  :numeric-id 388
+  :x-attr (tile-file 0)
+  :x-char (tile-number 0)
   :desc "A larger cousin of the lurker, this creature traps unsuspecting victims  and paralyses them, to be slowly digested later."
-  :x-char #\.
-  :x-attr #\w
+  :text-char #\.
+  :text-attr #\w
   :depth 36
   :rarity 3
   :hitpoints '(60 . 10)
@@ -6391,10 +7047,12 @@ and light is reflected from its form."
   :attacks '((<hit> :type <paralyse> :damage (15 . 1)) (<hit> :type <paralyse> :damage (15 . 1))
 	     (<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8))))
 (define-monster-kind "bodak" "bodak"
-  :numeric-id  389
+  :numeric-id 389
+  :x-attr (tile-file 16)
+  :x-char (tile-number 43)
   :desc "It is a humanoid form composed of flames and hatred."
-  :x-char #\u
-  :x-attr #\r
+  :text-char #\u
+  :text-attr #\r
   :alignment '<evil>
   :type '(<demon>)
   :depth 36
@@ -6412,10 +7070,12 @@ and light is reflected from its form."
   :special-abilities '((<summon> <demon>) (<spell> (<ball> <fire>)) (<spell> (<bolt> <fire>)) (<frequency> 1/4)))
 
 (define-monster-kind "elemental-ice" "ice elemental"
-  :numeric-id  390
+  :numeric-id 390
+  :x-attr (tile-file 21)
+  :x-char (tile-number 64)
   :desc "It is a towering glacier of ice."
-  :x-char #\E
-  :x-attr #\w
+  :text-char #\E
+  :text-attr #\w
   :alignment '<evil>
   :depth 36
   :rarity 2
@@ -6433,10 +7093,12 @@ and light is reflected from its form."
   :special-abilities '((<spell> (<ball> <cold>)) (<spell> (<bolt> <ice>)) (<frequency> 1/5)))
 
 (define-monster-kind "necromancer" "necromancer"
-  :numeric-id  391
+  :numeric-id 391
+  :x-attr (tile-file 7)
+  :x-char (tile-number 27)
   :desc "A gaunt figure, clothed in black robes."
-  :x-char #\p
-  :x-attr #\R
+  :text-char #\p
+  :text-attr #\R
   :alignment '<evil>
   :depth 36
   :rarity 2
@@ -6455,10 +7117,12 @@ and light is reflected from its form."
 		       (<spell> <haste>) (<frequency> 1/3)))
 
 (define-monster-kind "demonologist" "demonologist"
-  :numeric-id  393
+  :numeric-id 393
+  :x-attr (tile-file 7)
+  :x-char (tile-number 28)
   :desc "A figure twisted by evil standing in robes of deepest crimson."
-  :x-char #\p
-  :x-attr #\R
+  :text-char #\p
+  :text-attr #\R
   :alignment '<evil>
   :depth 36
   :rarity 2
@@ -6476,10 +7140,12 @@ and light is reflected from its form."
   :special-abilities '((<summon> <demon>) (<spell> <paralysis>) (<spell> <teleport>) (<frequency> 1/2)))
 
 (define-monster-kind "troll-mummy" "mummified troll"
-  :numeric-id  394
+  :numeric-id 394
+  :x-attr (tile-file 20)
+  :x-char (tile-number 50)
   :desc "It is a massive figure clothed in wrappings.  You are wary of its massive  fists."
-  :x-char #\z
-  :x-attr #\w
+  :text-char #\z
+  :text-attr #\w
   :alignment '<evil>
   :type '(<undead> <troll>)
   :depth 37
@@ -6496,10 +7162,12 @@ and light is reflected from its form."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "will-o-wisp" "will o' the wisp"
-  :numeric-id  396
+  :numeric-id 396
+  :x-attr (tile-file 18)
+  :x-char (tile-number 25)
   :desc "A strange ball of glowing light.  It disappears and reappears and seems to  draw you to it.  You seem somehow compelled to stand still and watch its  strange dancing motion."
-  :x-char #\E
-  :x-attr #\W
+  :text-char #\E
+  :text-attr #\W
   :depth 37
   :rarity 4
   :hitpoints '(20 . 10)
@@ -6517,10 +7185,12 @@ and light is reflected from its form."
 		       (<frequency> 1/2)))
 
 (define-monster-kind "elemental-magma" "magma elemental"
-  :numeric-id  397
+  :numeric-id 397
+  :x-attr (tile-file 18)
+  :x-char (tile-number 33)
   :desc "It is a towering glowing form of molten hate."
-  :x-char #\E
-  :x-attr #\r
+  :text-char #\E
+  :text-attr #\r
   :alignment '<evil>
   :depth 37
   :rarity 2
@@ -6537,10 +7207,12 @@ and light is reflected from its form."
   :special-abilities '((<spell> (<ball> <fire>)) (<spell> (<bolt> <plasma>)) (<frequency> 1/7)))
 
 (define-monster-kind "pudding-black" "black pudding"
-  :numeric-id  398
+  :numeric-id 398
+  :x-attr (tile-file 18)
+  :x-char (tile-number 3)
   :desc "A lump of rotting black flesh that slurrrrrrrps across the dungeon floor."
-  :x-char #\j
-  :x-attr #\D
+  :text-char #\j
+  :text-attr #\D
   :depth 37
   :rarity 5
   :hitpoints '(40 . 10)
@@ -6556,10 +7228,12 @@ and light is reflected from its form."
   :treasures '((<drop> "1d2") (<drop-chance> 9/10) (<drop-chance> 3/5)))
 
 (define-monster-kind "beetle-blue" "killer blue beetle"
-  :numeric-id  399
+  :numeric-id 399
+  :x-attr (tile-file 22)
+  :x-char (tile-number 24)
   :desc "It is a giant beetle, whose carapace shimmers with vibrant energies."
-  :x-char #\K
-  :x-attr #\b
+  :text-char #\K
+  :text-attr #\b
   :type '(<animal>)
   :depth 37
   :rarity 2
@@ -6575,10 +7249,12 @@ and light is reflected from its form."
 	     (<claw> :type <electricity> :damage (1 . 12))))
 
 (define-monster-kind "vortex-nexus" "nexus vortex"
-  :numeric-id  400
+  :numeric-id 400
+  :x-attr (tile-file 21)
+  :x-char (tile-number 40)
   :desc "A maelstrom of potent magical energy."
-  :x-char #\v
-  :x-attr #\R
+  :text-char #\v
+  :text-attr #\R
   :depth 37
   :rarity 1
   :hitpoints '(32 . 10)
@@ -6593,10 +7269,12 @@ and light is reflected from its form."
   :special-abilities '((<breath> <nexus>) (<frequency> 1/6)))
 
 (define-monster-kind "vortex-plasma" "plasma vortex"
-  :numeric-id  401
+  :numeric-id 401
+  :x-attr (tile-file 21)
+  :x-char (tile-number 41)
   :desc "A whirlpool of intense flame, charring the stones at your feet."
-  :x-char #\v
-  :x-attr #\r
+  :text-char #\v
+  :text-attr #\r
   :depth 37
   :rarity 1
   :hitpoints '(32 . 10)
@@ -6611,10 +7289,12 @@ and light is reflected from its form."
   :special-abilities '((<breath> <plasma>) (<frequency> 1/6)))
 
 (define-monster-kind "mature-dragon-red" "mature red dragon"
-  :numeric-id  402
+  :numeric-id 402
+  :x-attr (tile-file 15)
+  :x-char (tile-number 21)
   :desc "A large dragon, scales tinted deep red."
-  :x-char #\d
-  :x-attr #\r
+  :text-char #\d
+  :text-attr #\r
   :alignment '<evil>
   :type '(<dragon>)
   :depth 37
@@ -6633,10 +7313,12 @@ and light is reflected from its form."
   :special-abilities '((<breath> <fire>) (<spell> <scare>) (<spell> <confusion>) (<frequency> 1/9)))
 
 (define-monster-kind "mature-dragon-gold" "mature gold dragon"
-  :numeric-id  403
+  :numeric-id 403
+  :x-attr (tile-file 15)
+  :x-char (tile-number 22)
   :desc "A large dragon with scales of gleaming gold."
-  :x-char #\d
-  :x-attr #\y
+  :text-char #\d
+  :text-attr #\y
   :type '(<dragon>)
   :depth 37
   :rarity 2
@@ -6654,10 +7336,12 @@ and light is reflected from its form."
   :special-abilities '((<breath> <sound>) (<spell> <scare>) (<spell> <confusion>) (<frequency> 1/9)))
 
 (define-monster-kind "drake-crystal" "crystal drake"
-  :numeric-id  404
+  :numeric-id 404
+  :x-attr (tile-file 15)
+  :x-char (tile-number 44)
   :desc "A dragon of strange crystalline form.  Light shines through it, dazzling your eyes with spectrums of colour."
-  :x-char #\d
-  :x-attr #\v
+  :text-char #\d
+  :text-attr #\v
   :alignment '<evil>
   :type '(<dragon>)
   :depth 37
@@ -6675,10 +7359,12 @@ and light is reflected from its form."
   :treasures '((<drop> "4d2") <only-drop-items>)
   :special-abilities '((<breath> <shards>) (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>) (<frequency> 1/6)))
 (define-monster-kind "mature-dragon-black" "mature black dragon"
-  :numeric-id  405
+  :numeric-id 405
+  :x-attr (tile-file 15)
+  :x-char (tile-number 20)
   :desc "A large dragon, with scales of deepest black."
-  :x-char #\d
-  :x-attr #\s
+  :text-char #\d
+  :text-attr #\s
   :alignment '<evil>
   :type '(<dragon>)
   :depth 37
@@ -6696,10 +7382,12 @@ and light is reflected from its form."
   :treasures '((<drop> "2d2") (<drop-chance> 9/10) (<drop-chance> 3/5))
   :special-abilities '((<breath> <acid>) (<spell> <scare>) (<frequency> 1/9)))
 (define-monster-kind "mature-dragon-mh" "mature multi-hued dragon"
-  :numeric-id  406
+  :numeric-id 406
+  :x-attr (tile-file 15)
+  :x-char (tile-number 23)
   :desc "A large dragon, scales shimmering many colours."
-  :x-char #\d
-  :x-attr #\v
+  :text-char #\d
+  :text-attr #\v
   :alignment '<evil>
   :type '(<dragon>)
   :depth 38
@@ -6719,10 +7407,12 @@ and light is reflected from its form."
 		       (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/5)))
 
 (define-monster-kind "knight-death" "death knight"
-  :numeric-id  407
+  :numeric-id 407
+  :x-attr (tile-file 7)
+  :x-char (tile-number 29)
   :desc "It is a humanoid form dressed in armour of an ancient form.  From beneath its helmet, eyes glow a baleful red and seem to pierce you like lances of fire."
-  :x-char #\p
-  :x-attr #\D
+  :text-char #\p
+  :text-attr #\D
   :alignment '<evil>
   :depth 38
   :rarity 1
@@ -6741,10 +7431,12 @@ and light is reflected from its form."
 		       (<spell> <blindness>) (<frequency> 1/5)))
 
 (define-monster-kind "vortex-time" "time vortex"
-  :numeric-id  409
+  :numeric-id 409
+  :x-attr (tile-file 21)
+  :x-char (tile-number 42)
   :desc "You haven't seen it yet."
-  :x-char #\v
-  :x-attr #\B
+  :text-char #\v
+  :text-attr #\B
   :depth 38
   :rarity 4
   :hitpoints '(32 . 10)
@@ -6759,10 +7451,12 @@ and light is reflected from its form."
   :special-abilities '((<breath> <time>) (<frequency> 1/6)))
 
 (define-monster-kind "vortex-shimmering" "shimmering vortex"
-  :numeric-id  410
+  :numeric-id 410
+  :x-attr (tile-file 21)
+  :x-char (tile-number 43)
   :desc "A strange pillar of shining light that hurts your eyes.  Its shape changes  constantly as it cuts through the air towards you.  It is like a beacon, waking monsters from their slumber."
-  :x-char #\v
-  :x-attr #\v
+  :text-char #\v
+  :text-attr #\v
   :depth 38
   :rarity 4
   :hitpoints '(6 . 12)
@@ -6777,10 +7471,12 @@ and light is reflected from its form."
   :special-abilities '(<shriek> (<breath> <light>) (<frequency> 1/4)))
 
 (define-monster-kind "ancient-dragon-blue" "ancient blue dragon"
-  :numeric-id  411
+  :numeric-id 411
+  :x-attr (tile-file 15)
+  :x-char (tile-number 24)
   :desc "A huge draconic form.  Lightning crackles along its length."
-  :x-char #\D
-  :x-attr #\b
+  :text-char #\D
+  :text-attr #\b
   :alignment '<evil>
   :type '(<dragon>)
   :depth 38
@@ -6800,10 +7496,12 @@ and light is reflected from its form."
 		       (<frequency> 1/9)))
 
 (define-monster-kind "ancient-dragon-bronze" "ancient bronze dragon"
-  :numeric-id  412
+  :numeric-id 412
+  :x-attr (tile-file 15)
+  :x-char (tile-number 25)
   :desc "A huge draconic form enveloped in a cascade of colour."
-  :x-char #\D
-  :x-attr #\U
+  :text-char #\D
+  :text-attr #\U
   :type '(<dragon>)
   :depth 38
   :rarity 2
@@ -6823,10 +7521,12 @@ and light is reflected from its form."
 		       (<frequency> 1/6)))
 
 (define-monster-kind "beholder" "beholder"
-  :numeric-id  413
+  :numeric-id 413
+  :x-attr (tile-file 19)
+  :x-char (tile-number 10)
   :desc "A disembodied eye, surrounded by twelve smaller eyes on stalks."
-  :x-char #\e
-  :x-attr #\U
+  :text-char #\e
+  :text-attr #\U
   :alignment '<evil>
   :depth 38
   :rarity 4
@@ -6848,10 +7548,12 @@ and light is reflected from its form."
 		       (<frequency> 1/2)))
 
 (define-monster-kind "wight-emperor" "emperor wight"
-  :numeric-id  414
+  :numeric-id 414
+  :x-attr (tile-file 23)
+  :x-char (tile-number 11)
   :desc "Your life force is torn from your body as this powerful unearthly being  approaches."
-  :x-char #\W
-  :x-attr #\r
+  :text-char #\W
+  :text-attr #\r
   :alignment '<evil>
   :type '(<undead>)
   :depth 38
@@ -6870,12 +7572,14 @@ and light is reflected from its form."
   :treasures '((<drop> "4d2") (<drop-chance> 9/10) <only-drop-items>)
   :special-abilities '((<spell> (<bolt> <nether>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
 		       (<frequency> 1/6)))
+
 (define-monster-kind "angel-planetar" "planetar"
-  :numeric-id  415
-  :desc "It is an angel
-fast and strong.  You are stunned by its extreme holiness  and try to resist all desires to obey it."
-  :x-char #\A
-  :x-attr #\r
+  :numeric-id 415
+  :x-attr (tile-file 17)
+  :x-char (tile-number 58)
+  :desc "It is an angel fast and strong.  You are stunned by its extreme holiness  and try to resist all desires to obey it."
+  :text-char #\A
+  :text-attr #\r
   :depth 38
   :rarity 6
   :hitpoints '(50 . 10)
@@ -6893,12 +7597,14 @@ fast and strong.  You are stunned by its extreme holiness  and try to resist all
   :special-abilities '((<summon> <angel>) (<summon> <monsters>) (<spell> (<bolt> <plasma>)) (<spell> (<bolt> <mana>))
 		       (<spell> <confusion>) (<spell> <teleport-away>) (<spell> <haste>) (<spell> <heal>)
 		       (<frequency> 1/11)))
+
 (define-monster-kind "wraith-black" "black wraith"
-  :numeric-id  417
-  :desc "A figure that seems made of void
-its strangely human shape is cloaked in  shadow.  It reaches out at you."
-  :x-char #\W
-  :x-attr #\D
+  :numeric-id 417
+  :x-attr (tile-file 23)
+  :x-char (tile-number 19)
+  :desc "A figure that seems made of void its strangely human shape is cloaked in  shadow.  It reaches out at you."
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead>)
   :depth 38
@@ -6917,12 +7623,14 @@ its strangely human shape is cloaked in  shadow.  It reaches out at you."
   :treasures '((<drop> "2d2") (<drop> "1d2") <only-drop-items>)
   :special-abilities '((<spell> (<bolt> <nether>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
 		       (<spell> <blindness>) (<frequency> 1/7)))
+
 (define-monster-kind "erinyes" "erinyes"
-  :numeric-id  418
-  :desc "It is a lesser demon of female form; however
-she takes little time to  show her true colours."
-  :x-char #\U
-  :x-attr #\u
+  :numeric-id 418
+  :x-attr (tile-file 16)
+  :x-char (tile-number 30)
+  :desc "It is a lesser demon of female form; however she takes little time to  show her true colours."
+  :text-char #\U
+  :text-attr #\u
   :alignment '<evil>
   :type '(<demon>)
   :depth 38
@@ -6939,13 +7647,14 @@ she takes little time to  show her true colours."
   :treasures '((<drop-chance> 3/5) <only-drop-items>)
   :gender '<female>
   :special-abilities '((<spell> (<bolt> <fire>)) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/7)))
+
 (define-monster-kind "wraith-nether" "nether wraith"
-  :numeric-id  419
-  :desc "A form that hurts the eye
-death permeates the air around it.  As it nears  you
-a coldness saps your soul."
-  :x-char #\W
-  :x-attr #\G
+  :numeric-id 419
+  :x-attr (tile-file 23)
+  :x-char (tile-number 14)
+  :desc "A form that hurts the eye death permeates the air around it.  As it nears you a coldness saps your soul."
+  :text-char #\W
+  :text-attr #\G
   :alignment '<evil>
   :type '(<undead>)
   :depth 39
@@ -6966,10 +7675,12 @@ a coldness saps your soul."
 		       (<spell> <scare>) (<spell> <blindness>) (<frequency> 1/6)))
 
 (define-monster-kind "troll-eldrak" "eldrak"
-  :numeric-id  420
+  :numeric-id 420
+  :x-attr (tile-file 21)
+  :x-char (tile-number 55)
   :desc "A massive troll, larger and stronger than many men together."
-  :x-char #\T
-  :x-attr #\r
+  :text-char #\T
+  :text-attr #\r
   :alignment '<evil>
   :type '(<troll>)
   :depth 39
@@ -6987,10 +7698,12 @@ a coldness saps your soul."
   :treasures '((<drop-chance> 3/5)))
 
 (define-monster-kind "troll-ettin" "ettin"
-  :numeric-id  421
+  :numeric-id 421
+  :x-attr (tile-file 21)
+  :x-char (tile-number 56)
   :desc "A massive troll of huge strength.  Ettins are stupid but violent."
-  :x-char #\T
-  :x-attr #\b
+  :text-char #\T
+  :text-attr #\b
   :alignment '<evil>
   :type '(<troll>)
   :depth 39
@@ -7008,10 +7721,12 @@ a coldness saps your soul."
   :treasures '((<drop> "1d2") <only-drop-items>))
 
 (define-monster-kind "ancient-dragon-white" "ancient white dragon"
-  :numeric-id  424
+  :numeric-id 424
+  :x-attr (tile-file 15)
+  :x-char (tile-number 26)
   :desc "A huge draconic form.  Frost covers it from head to tail."
-  :x-char #\D
-  :x-attr #\w
+  :text-char #\D
+  :text-attr #\w
   :alignment '<evil>
   :type '(<dragon>)
   :depth 39
@@ -7031,10 +7746,12 @@ a coldness saps your soul."
 		       (<frequency> 1/9)))
 
 (define-monster-kind "ancient-dragon-green" "ancient green dragon"
-  :numeric-id  425
+  :numeric-id 425
+  :x-attr (tile-file 15)
+  :x-char (tile-number 27)
   :desc "A huge draconic form enveloped in clouds of poisonous vapour."
-  :x-char #\D
-  :x-attr #\g
+  :text-char #\D
+  :text-attr #\g
   :alignment '<evil>
   :type '(<dragon>)
   :depth 39
@@ -7054,10 +7771,12 @@ a coldness saps your soul."
 		       (<frequency> 1/9)))
 
 (define-monster-kind "hydra-7" "7-headed hydra"
-  :numeric-id  426
+  :numeric-id 426
+  :x-attr (tile-file 19)
+  :x-char (tile-number 38)
   :desc "A strange reptilian hybrid with seven heads dripping venom."
-  :x-char #\M
-  :x-attr #\G
+  :text-char #\M
+  :text-attr #\G
   :type '(<animal>)
   :depth 39
   :rarity 2
@@ -7075,10 +7794,12 @@ a coldness saps your soul."
   :special-abilities '((<breath> <poison>) (<spell> (<ball> <poison>)) (<spell> <scare>) (<frequency> 1/5)))
 
 (define-monster-kind "night-mare" "night mare"
-  :numeric-id  427
+  :numeric-id 427
+  :x-attr (tile-file 22)
+  :x-char (tile-number 28)
   :desc "A fearsome skeletal horse with glowing eyes, that watch you with little  more than a hatred of all that lives."
-  :x-char #\q
-  :x-attr #\D
+  :text-char #\q
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead>)
   :depth 39
@@ -7096,10 +7817,12 @@ a coldness saps your soul."
   :treasures '((<drop> "2d2") <only-drop-gold>))
 
 (define-monster-kind "vampire-lord" "vampire lord"
-  :numeric-id  428
+  :numeric-id 428
+  :x-attr (tile-file 23)
+  :x-char (tile-number 52)
   :desc "A foul wind chills your bones as this ghastly figure approaches."
-  :x-char #\V
-  :x-attr #\b
+  :text-char #\V
+  :text-attr #\b
   :alignment '<evil>
   :type '(<undead>)
   :depth 39
@@ -7121,10 +7844,12 @@ a coldness saps your soul."
 		       (<spell> <blindness>) (<frequency> 1/7)))
 
 (define-monster-kind "ancient-dragon-black" "ancient black dragon"
-  :numeric-id  429
+  :numeric-id 429
+  :x-attr (tile-file 15)
+  :x-char (tile-number 28)
   :desc "A huge draconic form.  Pools of acid melt the floor around it."
-  :x-char #\D
-  :x-attr #\s
+  :text-char #\D
+  :text-attr #\s
   :alignment '<evil>
   :type '(<dragon>)
   :depth 39
@@ -7144,10 +7869,12 @@ a coldness saps your soul."
 		       (<frequency> 1/9)))
 
 (define-monster-kind "worm-disenchanter" "disenchanter worm mass"
-  :numeric-id  430
+  :numeric-id 430
+  :x-attr (tile-file 20)
+  :x-char (tile-number 22)
   :desc "It is a strange mass of squirming worms.  Magical energy crackles  around its disgusting form."
-  :x-char #\w
-  :x-attr #\v
+  :text-char #\w
+  :text-attr #\v
   :type '(<animal>)
   :depth 40
   :rarity 3
@@ -7163,10 +7890,12 @@ a coldness saps your soul."
   :attacks '((<crawl> :type <un-bonus> :damage (1 . 4))))
 
 (define-monster-kind "quylthulg-rotting" "rotting quylthulg"
-  :numeric-id  431
+  :numeric-id 431
+  :x-attr (tile-file 22)
+  :x-char (tile-number 2)
   :desc "It is a pulsing flesh mound that reeks of death and putrefaction."
-  :x-char #\Q
-  :x-attr #\u
+  :text-char #\Q
+  :text-attr #\u
   :alignment '<evil>
   :type '(<animal>)
   :depth 40
@@ -7182,10 +7911,12 @@ a coldness saps your soul."
   :special-abilities '((<summon> <undead>) (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/2)))
 
 (define-monster-kind "troll-spirit" "spirit troll"
-  :numeric-id  432
+  :numeric-id 432
+  :x-attr (tile-file 21)
+  :x-char (tile-number 57)
   :desc "A weird troll from the elemental planes."
-  :x-char #\T
-  :x-attr #\B
+  :text-char #\T
+  :text-attr #\B
   :alignment '<evil>
   :type '(<troll>)
   :depth 40
@@ -7203,10 +7934,12 @@ a coldness saps your soul."
   :treasures '((<drop-chance> 9/10)))
 
 (define-monster-kind "titan-lesser" "lesser titan"
-  :numeric-id  433
+  :numeric-id 433
+  :x-attr (tile-file 21)
+  :x-char (tile-number 16)
   :desc "It is a humanoid figure thirty feet tall that gives off an aura of power  and hate."
-  :x-char #\P
-  :x-attr #\y
+  :text-char #\P
+  :text-attr #\y
   :alignment '<evil>
   :type '(<giant>)
   :depth 40
@@ -7227,10 +7960,12 @@ a coldness saps your soul."
 		       (<frequency> 1/3)))
 
 (define-monster-kind "hydra-9" "9-headed hydra"
-  :numeric-id  434
+  :numeric-id 434
+  :x-attr (tile-file 19)
+  :x-char (tile-number 40)
   :desc "A strange reptilian hybrid with nine smouldering heads."
-  :x-char #\M
-  :x-attr #\r
+  :text-char #\M
+  :text-attr #\r
   :type '(<animal>)
   :depth 40
   :rarity 2
@@ -7250,10 +7985,12 @@ a coldness saps your soul."
   :special-abilities '((<breath> <fire>) (<spell> (<bolt> <fire>)) (<spell> <scare>) (<frequency> 1/4)))
 
 (define-monster-kind "enchantress" "enchantress"
-  :numeric-id  435
+  :numeric-id 435
+  :x-attr (tile-file 7)
+  :x-char (tile-number 30)
   :desc "This elusive female spellcaster has a special affinity for dragons, whom she rarely fights without."
-  :x-char #\p
-  :x-attr #\R
+  :text-char #\p
+  :text-attr #\R
   :alignment '<evil>
   :depth 40
   :rarity 4
@@ -7273,10 +8010,12 @@ a coldness saps your soul."
   :special-abilities '((<summon> <dragon>) (<spell> <blindness>) (<frequency> 1/2)))
 
 (define-monster-kind "priest-arch" "archpriest"
-  :numeric-id  436
+  :numeric-id 436
+  :x-attr (tile-file 7)
+  :x-char (tile-number 31)
   :desc "An evil priest, dressed all in black.  Deadly spells hit you at an  alarming rate as his black spiked mace rains down blow after blow on your  pitiful frame."
-  :x-char #\p
-  :x-attr #\G
+  :text-char #\p
+  :text-attr #\G
   :alignment '<evil>
   :depth 40
   :rarity 2
@@ -7297,10 +8036,12 @@ a coldness saps your soul."
 		       (<spell> <paralysis>) (<spell> <blindness>) (<spell> <heal>) (<frequency> 1/2)))
 
 (define-monster-kind "sorcerer" "sorcerer"
-  :numeric-id  437
+  :numeric-id 437
+  :x-attr (tile-file 7)
+  :x-char (tile-number 32)
   :desc "A human figure in robes, he moves with magically improved speed, and his hands are ablur with spell casting."
-  :x-char #\p
-  :x-attr #\v
+  :text-char #\p
+  :text-attr #\v
   :alignment '<evil>
   :depth 40
   :rarity 2
@@ -7323,10 +8064,12 @@ a coldness saps your soul."
 		       (<frequency> 1/2)))
 
 (define-monster-kind "xaren" "xaren"
-  :numeric-id  438
+  :numeric-id 438
+  :x-attr (tile-file 21)
+  :x-char (tile-number 35)
   :desc "It is a tougher relative of the Xorn.  Its hide glitters with metal ores."
-  :x-char #\X
-  :x-attr #\s
+  :text-char #\X
+  :text-attr #\s
   :depth 40
   :rarity 1
   :hitpoints '(32 . 10)
@@ -7344,10 +8087,12 @@ a coldness saps your soul."
 	     (<hit> :type <hurt> :damage (3 . 4))))
 
 (define-monster-kind "roc-giant" "giant roc"
-  :numeric-id  439
+  :numeric-id 439
+  :x-attr (tile-file 20)
+  :x-char (tile-number 12)
   :desc "A vast legendary bird, its iron talons rake the most impenetrable of  surfaces and its screech echoes through the many winding dungeon corridors."
-  :x-char #\B
-  :x-attr #\u
+  :text-char #\B
+  :text-attr #\u
   :type '(<animal>)
   :depth 40
   :rarity 3
@@ -7364,10 +8109,12 @@ a coldness saps your soul."
 	     (<crush> :type <hurt> :damage (8 . 12))))
 
 (define-monster-kind "minotaur" "minotaur"
-  :numeric-id  441
+  :numeric-id 441
+  :x-attr (tile-file 16)
+  :x-char (tile-number 21)
   :desc "It is a cross between a human and a bull."
-  :x-char #\H
-  :x-attr #\s
+  :text-char #\H
+  :text-attr #\s
   :alignment '<evil>
   :depth 40
   :rarity 2
@@ -7384,10 +8131,12 @@ a coldness saps your soul."
 	     (<butt> :type <hurt> :damage (4 . 6))))
 
 (define-monster-kind "drake-death" "death drake"
-  :numeric-id  443
+  :numeric-id 443
+  :x-attr (tile-file 15)
+  :x-char (tile-number 43)
   :desc "It is a dragon-like form wrapped in darkness.  You cannot make out its  true form but you sense its evil."
-  :x-char #\D
-  :x-attr #\G
+  :text-char #\D
+  :text-attr #\G
   :alignment '<evil>
   :type '(<dragon>)
   :depth 40
@@ -7409,10 +8158,12 @@ a coldness saps your soul."
   :special-abilities '((<breath> <nether>) (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>) (<frequency> 1/6)))
 
 (define-monster-kind "ancient-dragon-red" "ancient red dragon"
-  :numeric-id  444
+  :numeric-id 444
+  :x-attr (tile-file 15)
+  :x-char (tile-number 29)
   :desc "A huge draconic form.  Wisps of smoke steam from its nostrils and the  extreme heat surrounding it makes you gasp for breath."
-  :x-char #\D
-  :x-attr #\r
+  :text-char #\D
+  :text-attr #\r
   :alignment '<evil>
   :type '(<dragon>)
   :depth 40
@@ -7433,10 +8184,12 @@ a coldness saps your soul."
 		       (<frequency> 1/6)))
 
 (define-monster-kind "ancient-dragon-gold" "ancient gold dragon"
-  :numeric-id  445
+  :numeric-id 445
+  :x-attr (tile-file 15)
+  :x-char (tile-number 30)
   :desc "A huge draconic form wreathed in a nimbus of light."
-  :x-char #\D
-  :x-attr #\y
+  :text-char #\D
+  :text-attr #\y
   :type '(<dragon>)
   :depth 40
   :rarity 2
@@ -7456,10 +8209,12 @@ a coldness saps your soul."
 		       (<frequency> 1/6)))
 
 (define-monster-kind "drake-great-crystal" "great crystal drake"
-  :numeric-id  446
+  :numeric-id 446
+  :x-attr (tile-file 15)
+  :x-char (tile-number 44)
   :desc "A huge crystalline dragon.  Its claws could cut you to shreds and its  teeth are razor sharp.  Strange colours ripple through it as it moves in  the light."
-  :x-char #\D
-  :x-attr #\v
+  :text-char #\D
+  :text-attr #\v
   :alignment '<evil>
   :type '(<dragon>)
   :depth 40
@@ -7480,10 +8235,12 @@ a coldness saps your soul."
   :special-abilities '((<breath> <shards>) (<spell> <scare>) (<spell> <confusion>) (<spell> <slow>) (<frequency> 1/6)))
 
 (define-monster-kind "vrock" "vrock"
-  :numeric-id  447
+  :numeric-id 447
+  :x-attr (tile-file 16)
+  :x-char (tile-number 31)
   :desc "It is a demon with a long neck and raking claws."
-  :x-char #\U
-  :x-attr #\s
+  :text-char #\U
+  :text-attr #\s
   :alignment '<evil>
   :type '(<demon>)
   :depth 40
@@ -7503,11 +8260,13 @@ a coldness saps your soul."
   :special-abilities '((<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/8)))
 
 (define-monster-kind "quasit-death" "death quasit"
-  :numeric-id  448
+  :numeric-id 448
+  :x-attr (tile-file 16)
+  :x-char (tile-number 44)
   :desc "It is a demon of small stature
 but its armoured frame moves with  lightning speed and its powers make it a tornado of death and destruction."
-  :x-char #\u
-  :x-attr #\D
+  :text-char #\u
+  :text-attr #\D
   :alignment '<evil>
   :type '(<demon>)
   :depth 40
@@ -7528,10 +8287,12 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
 		       (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/10)))
 
 (define-monster-kind "dark-elf-sorceror" "dark elven sorceror"
-  :numeric-id  450
+  :numeric-id 450
+  :x-attr (tile-file 16)
+  :x-char (tile-number 9)
   :desc "A dark elven figure, dressed in deepest black.  Power seems to crackle  from his slender frame."
-  :x-char #\h
-  :x-attr #\v
+  :text-char #\h
+  :text-attr #\v
   :alignment '<evil>
   :depth 41
   :rarity 2
@@ -7555,10 +8316,12 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
 		       (<spell> <heal>) (<frequency> 1/2)))
 
 (define-monster-kind "lich-master" "master lich"
-  :numeric-id  451
+  :numeric-id 451
+  :x-attr (tile-file 23)
+  :x-char (tile-number 15)
   :desc "A skeletal form wrapped in robes.  Powerful magic crackles along its bony  fingers."
-  :x-char #\L
-  :x-attr #\r
+  :text-char #\L
+  :text-attr #\r
   :alignment '<evil>
   :type '(<undead>)
   :depth 41
@@ -7581,10 +8344,12 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
 		       (<spell> <blindness>) (<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/3)))
 
 (define-monster-kind "hezrou" "hezrou"
-  :numeric-id  452
+  :numeric-id 452
+  :x-attr (tile-file 16)
+  :x-char (tile-number 32)
   :desc "It is a demon of lizard form with cruel-looking jaws."
-  :x-char #\U
-  :x-attr #\v
+  :text-char #\U
+  :text-attr #\v
   :alignment '<evil>
   :type '(<demon>)
   :depth 41
@@ -7603,10 +8368,12 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
   :special-abilities '((<summon> <demon>) (<spell> (<bolt> <fire>)) (<frequency> 1/9)))
 
 (define-monster-kind "angel-solar" "solar"
-  :numeric-id  455
+  :numeric-id 455
+  :x-attr (tile-file 17)
+  :x-char (tile-number 57)
   :desc "Never a more heavenly being have you seen.  The very holiness of its  presence makes you deeply respect it.  Few creatures can match the powers  of a Solar; fewer still live to tell the tale after attacking one."
-  :x-char #\A
-  :x-attr #\y
+  :text-char #\A
+  :text-attr #\y
   :depth 41
   :rarity 6
   :hitpoints '(100 . 35)
@@ -7625,10 +8392,12 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
   :special-abilities '((<summon> <angel>) (<spell> (<bolt> <mana>)) (<spell> (<cause> 4)) (<spell> (<cause> 2))
 		       (<spell> <scare>) (<spell> <blindness>) (<spell> <teleport-player>) (<frequency> 1/3)))
 (define-monster-kind "glabrezu" "glabrezu"
-  :numeric-id  456
+  :numeric-id 456
+  :x-attr (tile-file 16)
+  :x-char (tile-number 33)
   :desc "It is demon with arms and pincers, its form a true mockery of life."
-  :x-char #\U
-  :x-attr #\o
+  :text-char #\U
+  :text-attr #\o
   :alignment '<evil>
   :type '(<demon>)
   :depth 41
@@ -7646,10 +8415,12 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
   :treasures '((<drop-chance> 9/10) <only-drop-items>)
   :special-abilities '((<summon> <demon>) (<spell> (<bolt> <fire>)) (<frequency> 1/9)))
 (define-monster-kind "nalfeshnee" "nalfeshnee"
-  :numeric-id  458
+  :numeric-id 458
+  :x-attr (tile-file 16)
+  :x-char (tile-number 34)
   :desc "It is a large demon with the head of a giant boar.  Flames run up and down  its length."
-  :x-char #\U
-  :x-attr #\r
+  :text-char #\U
+  :text-attr #\r
   :alignment '<evil>
   :type '(<demon>)
   :depth 42
@@ -7669,11 +8440,13 @@ but its armoured frame moves with  lightning speed and its powers make it a torn
   :special-abilities '((<summon> <demon>) (<breath> <fire>) (<spell> <confusion>) (<spell> <blindness>)
 		       (<frequency> 1/9)))
 (define-monster-kind "beholder-undead" "undead beholder"
-  :numeric-id  459
+  :numeric-id 459
+  :x-attr (tile-file 19)
+  :x-char (tile-number 11)
   :desc "A disembodied eye
 floating in the air.  Black nether storms rage around  its bloodshot pupil and light seems to bend as it sucks its power from the  very air around it.  Your soul chills as it drains your vitality for its  evil enchantments."
-  :x-char #\e
-  :x-attr #\u
+  :text-char #\e
+  :text-attr #\u
   :alignment '<evil>
   :type '(<undead>)
   :depth 42
@@ -7694,10 +8467,12 @@ floating in the air.  Black nether storms rage around  its bloodshot pupil and l
 		       (<spell> <mind-blast>) (<spell> <drain-mana>) (<spell> (<cause> 4)) (<spell> <slow>)
 		       (<frequency> 1/2)))
 (define-monster-kind "ancient-dragon-mh" "ancient multi-hued dragon"
-  :numeric-id  462
+  :numeric-id 462
+  :x-attr (tile-file 15)
+  :x-char (tile-number 31)
   :desc "A huge draconic form.  Many colours ripple down its massive frame.  Few  live to see another."
-  :x-char #\D
-  :x-attr #\v
+  :text-char #\D
+  :text-attr #\v
   :alignment '<evil>
   :type '(<dragon>)
   :depth 43
@@ -7718,11 +8493,13 @@ floating in the air.  Black nether storms rage around  its bloodshot pupil and l
   :special-abilities '((<breath> <poison>) (<breath> <electricity>) (<breath> <cold>) (<breath> <fire>) (<breath> <acid>)
 		       (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/5)))
 (define-monster-kind "dragon-ethereal" "ethereal dragon"
-  :numeric-id  463
+  :numeric-id 463
+  :x-attr (tile-file 15)
+  :x-char (tile-number 38)
   :desc "A huge dragon emanating from the elemental plains
 the ethereal dragon is  a master of light and dark.  Its form disappears from sight as it cloaks  itself in unearthly shadows."
-  :x-char #\D
-  :x-attr #\o
+  :text-char #\D
+  :text-attr #\o
   :type '(<dragon>)
   :depth 43
   :rarity 2
@@ -7741,11 +8518,13 @@ the ethereal dragon is  a master of light and dark.  Its form disappears from si
   :special-abilities '((<breath> <confusion>) (<breath> <darkness>) (<breath> <light>) (<spell> <confusion>)
 		       (<spell> <blindness>) (<frequency> 1/5)))
 (define-monster-kind "marilith" "marilith"
-  :numeric-id  465
+  :numeric-id 465
+  :x-attr (tile-file 16)
+  :x-char (tile-number 35)
   :desc "She is a demon of female form with many arms
 each bearing deadly weapons."
-  :x-char #\U
-  :x-attr #\y
+  :text-char #\U
+  :text-attr #\y
   :alignment '<evil>
   :type '(<demon>)
   :depth 43
@@ -7766,10 +8545,12 @@ each bearing deadly weapons."
   :gender '<female>
   :special-abilities '((<summon> <demon>) (<spell> (<cause> 2)) (<spell> <blindness>) (<frequency> 1/9)))
 (define-monster-kind "balrog-lesser" "lesser balrog"
-  :numeric-id  467
+  :numeric-id 467
+  :x-attr (tile-file 16)
+  :x-char (tile-number 58)
   :desc "It is a massive humanoid demon wreathed in flames."
-  :x-char #\U
-  :x-attr #\R
+  :text-char #\U
+  :text-attr #\R
   :alignment '<evil>
   :type '(<demon>)
   :depth 44
@@ -7790,10 +8571,12 @@ each bearing deadly weapons."
   :special-abilities '((<summon> <demon>) (<breath> <fire>) (<spell> <confusion>) (<spell> <blindness>)
 		       (<frequency> 1/4)))
 (define-monster-kind "hydra-11" "11-headed hydra"
-  :numeric-id  469
+  :numeric-id 469
+  :x-attr (tile-file 19)
+  :x-char (tile-number 41)
   :desc "A strange reptilian hybrid with eleven smouldering heads."
-  :x-char #\M
-  :x-attr #\R
+  :text-char #\M
+  :text-attr #\R
   :type '(<animal>)
   :depth 44
   :rarity 2
@@ -7814,10 +8597,12 @@ each bearing deadly weapons."
 		       (<spell> (<bolt> <fire>)) (<spell> <scare>) (<frequency> 1/4)))
 
 (define-monster-kind "priest-patriarch" "patriarch"
-  :numeric-id  470
+  :numeric-id 470
+  :x-attr (tile-file 7)
+  :x-char (tile-number 33)
   :desc "A dark priest of the highest order.  Powerful and evil, beware his many spells."
-  :x-char #\p
-  :x-attr #\G
+  :text-char #\p
+  :text-attr #\G
   :alignment '<evil>
   :depth 44
   :rarity 2
@@ -7838,10 +8623,12 @@ each bearing deadly weapons."
 		       (<spell> <paralysis>) (<spell> <blindness>) (<spell> <heal>) (<frequency> 1/2)))
 
 (define-monster-kind "dreadmaster" "dreadmaster"
-  :numeric-id  471
+  :numeric-id 471
+  :x-attr (tile-file 23)
+  :x-char (tile-number 3)
   :desc "It is an unlife of power almost unequaled.  An affront to existence, its very touch abuses and disrupts the flow of life, and its unearthly limbs, of purest black, crush rock and flesh with ease."
-  :x-char #\G
-  :x-attr #\y
+  :text-char #\G
+  :text-attr #\y
   :alignment '<evil>
   :type '(<undead>)
   :depth 44
@@ -7864,10 +8651,12 @@ each bearing deadly weapons."
 		       (<spell> <confusion>) (<spell> <paralysis>) (<spell> <blindness>) (<spell> <teleport-level>)
 		       (<frequency> 1/9)))
 (define-monster-kind "drolem" "drolem"
-  :numeric-id  472
+  :numeric-id 472
+  :x-attr (tile-file 21)
+  :x-char (tile-number 9)
   :desc "A constructed dragon, the drolem has massive strength.  Powerful spells  weaved during its creation make it a fearsome adversary.  Its eyes show  little intelligence, but it has been instructed to destroy all it meets."
-  :x-char #\g
-  :x-attr #\g
+  :text-char #\g
+  :text-attr #\g
   :type '(<dragon>)
   :depth 44
   :rarity 3
@@ -7886,10 +8675,12 @@ each bearing deadly weapons."
   :special-abilities '((<breath> <poison>) (<arrow> 3) (<spell> <confusion>) (<spell> <slow>) (<spell> <blindness>)
 		       (<frequency> 1/6)))
 (define-monster-kind "titan-greater" "greater titan"
-  :numeric-id  477
+  :numeric-id 477
+  :x-attr (tile-file 21)
+  :x-char (tile-number 17)
   :desc "A forty foot tall humanoid that shakes the ground as it walks.  The power  radiating from its frame shakes your courage, its hatred inspired by your  defiance."
-  :x-char #\P
-  :x-attr #\o
+  :text-char #\P
+  :text-attr #\o
   :alignment '<evil>
   :type '(<giant>)
   :depth 46
@@ -7908,10 +8699,12 @@ each bearing deadly weapons."
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
   :special-abilities '((<summon> <monsters>) (<spell> <teleport-player>) (<spell> <heal>) (<frequency> 1/3)))
 (define-monster-kind "dracolisk" "dracolisk"
-  :numeric-id  478
+  :numeric-id 478
+  :x-attr (tile-file 15)
+  :x-char (tile-number 52)
   :desc "A mixture of dragon and basilisk, the dracolisk stares at you with deep  piercing eyes, its evil breath burning the ground where it stands."
-  :x-char #\D
-  :x-attr #\G
+  :text-char #\D
+  :text-attr #\G
   :alignment '<evil>
   :type '(<dragon> <animal>)
   :depth 46
@@ -7932,10 +8725,12 @@ each bearing deadly weapons."
   :special-abilities '((<breath> <nether>) (<breath> <fire>) (<spell> <scare>) (<spell> <paralysis>) (<frequency> 1/6)))
 
 (define-monster-kind "mold-death" "death mold"
-  :numeric-id  479
+  :numeric-id 479
+  :x-attr (tile-file 17)
+  :x-char (tile-number 74)
   :desc "It is the epitome of all that is evil, in a mold.  Its lifeless form draws  power from sucking the souls of those that approach it, a nimbus of pure  evil surrounds it.  Luckily for you, it can't move."
-  :x-char #\m
-  :x-attr #\D
+  :text-char #\m
+  :text-attr #\D
   :alignment '<evil>
   :depth 47
   :rarity 1
@@ -7953,10 +8748,12 @@ each bearing deadly weapons."
 	     (<hit> :type <un-bonus> :damage (7 . 7))))
 
 (define-monster-kind "mystic-master" "master mystic"
-  :numeric-id  482
+  :numeric-id 482
+  :x-attr (tile-file 7)
+  :x-char (tile-number 34)
   :desc "A lord of all that is natural, skilled in the mystic ways.  He is a master  of martial arts and is at one with nature, able to summon help from the  wild if need be."
-  :x-char #\p
-  :x-attr #\o
+  :text-char #\p
+  :text-attr #\o
   :depth 50
   :rarity 3
   :hitpoints '(11 . 100)
@@ -7976,10 +8773,12 @@ each bearing deadly weapons."
   :special-abilities '((<summon> <spider>) (<spell> <heal>) (<frequency> 1/3)))
 
 (define-monster-kind "nightwing" "nightwing"
-  :numeric-id  484
+  :numeric-id 484
+  :x-attr (tile-file 23)
+  :x-char (tile-number 15)
   :desc "Everywhere colours seem paler and the air chiller.  At the centre of the  cold stands a mighty figure.  Its wings envelop you in the chill of death  as the nightwing reaches out to draw you into oblivion.  Your muscles sag  and your mind loses all will to fight as you stand in awe of this mighty  being."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead>)
   :depth 50
@@ -8003,10 +8802,12 @@ each bearing deadly weapons."
 		       (<spell> <blindness>) (<frequency> 1/4)))
 
 (define-monster-kind "hound-nether" "nether hound"
-  :numeric-id  485
+  :numeric-id 485
+  :x-attr (tile-file 19)
+  :x-char (tile-number 67)
   :desc "You feel a soul-tearing chill upon viewing this beast, a ghostly form of  darkness in the shape of a large dog."
-  :x-char #\Z
-  :x-attr #\G
+  :text-char #\Z
+  :text-attr #\G
   :type '(<animal>)
   :depth 51
   :rarity 2
@@ -8024,11 +8825,13 @@ each bearing deadly weapons."
 	     (<bite> :type <hurt> :damage (2 . 12)))
   :special-abilities '((<breath> <nether>) (<frequency> 1/5)))
 (define-monster-kind "hound-time" "time hound"
-  :numeric-id  486
+  :numeric-id 486
+  :x-attr (tile-file 19)
+  :x-char (tile-number 76)
   :desc "You get a terrible sense of deja vu
 or is it a premonition?  All at once  you see a little puppy and a toothless old dog.  Perhaps you should give  up and go to bed."
-  :x-char #\Z
-  :x-attr #\B
+  :text-char #\Z
+  :text-attr #\B
   :type '(<animal>)
   :depth 51
   :rarity 4
@@ -8046,10 +8849,12 @@ or is it a premonition?  All at once  you see a little puppy and a toothless old
 	     (<bite> :type <hurt> :damage (2 . 12)))
   :special-abilities '((<breath> <time>) (<frequency> 1/8)))
 (define-monster-kind "hound-plasma" "plasma hound"
-  :numeric-id  487
+  :numeric-id 487
+  :x-attr (tile-file 19)
+  :x-char (tile-number 70)
   :desc "The very air warps as pure elemental energy stalks towards you in the  shape of a giant hound.  Your hair stands on end and your palms itch as  you sense trouble."
-  :x-char #\Z
-  :x-attr #\r
+  :text-char #\Z
+  :text-attr #\r
   :type '(<animal>)
   :depth 51
   :rarity 2
@@ -8068,10 +8873,12 @@ or is it a premonition?  All at once  you see a little puppy and a toothless old
   :special-abilities '((<breath> <plasma>) (<frequency> 1/5)))
 
 (define-monster-kind "quylthulg-demonic" "demonic quylthulg"
-  :numeric-id  488
+  :numeric-id 488
+  :x-attr (tile-file 22)
+  :x-char (tile-number 3)
   :desc "A pile of pulsing flesh that glows with an inner hellish fire.  The world  itself seems to cry out against it."
-  :x-char #\Q
-  :x-attr #\r
+  :text-char #\Q
+  :text-attr #\r
   :alignment '<evil>
   :type '(<animal>)
   :depth 51
@@ -8087,12 +8894,14 @@ or is it a premonition?  All at once  you see a little puppy and a toothless old
   :special-abilities '((<summon> <demon>) (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/2)))
 
 (define-monster-kind "wyrm-storm" "great storm wyrm"
-  :numeric-id  489
+  :numeric-id 489
+  :x-attr (tile-file 15)
+  :x-char (tile-number 33)
   :desc "A vast dragon of power.  Storms and lightning crash around its titanic
 form.  Deep blue scales reflect the flashes and highlight the creature's
   great muscles.  It regards you with contempt."
-  :x-char #\D
-  :x-attr #\b
+  :text-char #\D
+  :text-attr #\b
   :alignment '<evil>
   :type '(<dragon>)
   :depth 51
@@ -8114,12 +8923,14 @@ form.  Deep blue scales reflect the flashes and highlight the creature's
 		       (<frequency> 1/6)))
 
 (define-monster-kind "mystic-grand-master" "grand master mystic"
-  :numeric-id  493
+  :numeric-id 493
+  :x-attr (tile-file 7)
+  :x-char (tile-number 35)
   :desc "He is one of the few true masters of the art being extremely skillful in
 all forms of unarmed combat and controlling the world's natural creatures
 with disdainful ease."
-  :x-char #\p
-  :x-attr #\o
+  :text-char #\p
+  :text-attr #\o
   :depth 53
   :rarity 3
   :hitpoints '(22 . 100)
@@ -8140,10 +8951,12 @@ with disdainful ease."
 		       (<frequency> 1/2)))
 
 (define-monster-kind "hound-ethereal" "ethereal hound"
-  :numeric-id  495
+  :numeric-id 495
+  :x-attr (tile-file 19)
+  :x-char (tile-number 72)
   :desc "A pale green hound.  Pulsing red lines and strange fluorescent light hints at internal organs best left to the imagination."
-  :x-char #\Z
-  :x-attr #\G
+  :text-char #\Z
+  :text-attr #\G
   :type '(<animal>)
   :depth 54
   :rarity 3
@@ -8162,11 +8975,13 @@ with disdainful ease."
   :special-abilities '((<breath> <nether>) (<frequency> 1/5)))
 
 (define-monster-kind "wyrm-ice" "great ice wyrm"
-  :numeric-id  496
+  :numeric-id 496
+  :x-attr (tile-file 15)
+  :x-char (tile-number 34)
   :desc "An immense dragon capable of awesome destruction.  You have never felt  such extreme cold
 or witnessed such an icy stare.  Begone quickly or feel  its wrath!"
-  :x-char #\D
-  :x-attr #\w
+  :text-char #\D
+  :text-attr #\w
   :alignment '<evil>
   :type '(<dragon>)
   :depth 54
@@ -8188,12 +9003,14 @@ or witnessed such an icy stare.  Begone quickly or feel  its wrath!"
 		       (<frequency> 1/6)))
 
 (define-monster-kind "nightcrawler" "nightcrawler"
-  :numeric-id  498
+  :numeric-id 498
+  :x-attr (tile-file 23)
+  :x-char (tile-number 16)
   :desc "This intensely evil creature bears the form of a gargantuan black worm.   Its gaping maw is a void of blackness
 acid drips from its steely hide.   It is like nothing you have ever seen before
 and a terrible chill runs  down your spine as you face it."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead>)
   :depth 54
@@ -8217,10 +9034,12 @@ and a terrible chill runs  down your spine as you face it."
 		       (<frequency> 1/4)))
 
 (define-monster-kind "druj-hand" "hand druj"
-  :numeric-id  499
+  :numeric-id 499
+  :x-attr (tile-file 21)
+  :x-char (tile-number 30)
   :desc "A skeletal hand floating in the air motionless except for its flexing fingers."
-  :x-char #\s
-  :x-attr #\y
+  :text-char #\s
+  :text-attr #\y
   :alignment '<evil>
   :type '(<undead>)
   :depth 55
@@ -8237,10 +9056,12 @@ and a terrible chill runs  down your spine as you face it."
 		       (<spell> <confusion>) (<spell> <blindness>) (<spell> <teleport-away>) (<frequency> 1)))
 
 (define-monster-kind "druj-eye" "eye druj"
-  :numeric-id  500
+  :numeric-id 500
+  :x-attr (tile-file 21)
+  :x-char (tile-number 31)
   :desc "A bloodshot eyeball floating in the air you'd be forgiven for assuming it harmless."
-  :x-char #\s
-  :x-attr #\r
+  :text-char #\s
+  :text-attr #\r
   :alignment '<evil>
   :type '(<undead>)
   :depth 55
@@ -8259,11 +9080,13 @@ and a terrible chill runs  down your spine as you face it."
 		       (<spell> (<bolt> <mana>)) (<frequency> 1)))
 
 (define-monster-kind "druj-skull" "skull druj"
-  :numeric-id  501
+  :numeric-id 501
+  :x-attr (tile-file 21)
+  :x-char (tile-number 32)
   :desc "A glowing skull possessed by sorcerous power.  It need not move
 but merely blast you with mighty magic."
-  :x-char #\s
-  :x-attr #\o
+  :text-char #\s
+  :text-attr #\o
   :alignment '<evil>
   :type '(<undead>)
   :depth 55
@@ -8285,10 +9108,12 @@ but merely blast you with mighty magic."
 		       (<spell> (<cause> 4)) (<spell> <slow>) (<frequency> 1)))
 
 (define-monster-kind "vortex-chaos" "chaos vortex"
-  :numeric-id  502
+  :numeric-id 502
+  :x-attr (tile-file 21)
+  :x-char (tile-number 44)
   :desc "Void nothingness spinning destructively."
-  :x-char #\v
-  :x-attr #\v
+  :text-char #\v
+  :text-attr #\v
   :depth 55
   :rarity 1
   :hitpoints '(32 . 20)
@@ -8303,10 +9128,12 @@ but merely blast you with mighty magic."
   :special-abilities '((<breath> <chaos>) (<frequency> 1/6)))
 
 (define-monster-kind "vortex-aether" "aether vortex"
-  :numeric-id  503
+  :numeric-id 503
+  :x-attr (tile-file 21)
+  :x-char (tile-number 45)
   :desc "An awesome vortex of pure magic power radiates from its frame."
-  :x-char #\v
-  :x-attr #\v
+  :text-char #\v
+  :text-attr #\v
   :depth 55
   :rarity 2
   :hitpoints '(32 . 20)
@@ -8329,12 +9156,14 @@ but merely blast you with mighty magic."
 		       (<breath> <fire>) (<breath> <acid>) (<frequency> 1/6)))
 
 (define-monster-kind "wyrm-hell" "great hell wyrm"
-  :numeric-id  506
+  :numeric-id 506
+  :x-attr (tile-file 15)
+  :x-char (tile-number 32)
   :desc "A vast dragon of immense power.  Fire leaps continuously from its huge
 form.  The air around it scalds you.  Its slightest glance burns you and you
 truly realize how insignificant you are."
-  :x-char #\D
-  :x-attr #\r
+  :text-char #\D
+  :text-attr #\r
   :alignment '<evil>
   :type '(<dragon>)
   :depth 55
@@ -8354,11 +9183,13 @@ truly realize how insignificant you are."
 		       (<frequency> 1/6)))
 
 (define-monster-kind "quylthulg-draconic" "draconic quylthulg"
-  :numeric-id  507
+  :numeric-id 507
+  :x-attr (tile-file 22)
+  :x-char (tile-number 4)
   :desc "It looks like it was once a dragon corpse now deeply infected with
 magical bacteria that make it pulse in a foul and degrading way."
-  :x-char #\Q
-  :x-attr #\g
+  :text-char #\Q
+  :text-attr #\g
   :alignment '<evil>
   :type '(<animal>)
   :depth 55
@@ -8374,13 +9205,15 @@ magical bacteria that make it pulse in a foul and degrading way."
   :special-abilities '((<summon> <dragon>) (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/2)))
 
 (define-monster-kind "nightwalker" "nightwalker"
-  :numeric-id  512
+  :numeric-id 512
+  :x-attr (tile-file 23)
+  :x-char (tile-number 17)
   :desc "A huge giant garbed in black more massive than a titan and stronger than a dragon.
 With terrible blows it breaks your armour from your back leaving you defenseless against
 its evil wrath.  It can smell your fear and you in turn smell the awful stench of death
 as this ghastly figure strides towards you menacingly."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead>)
   :depth 59
@@ -8402,12 +9235,14 @@ as this ghastly figure strides towards you menacingly."
 		       (<frequency> 1/4)))
 
 (define-monster-kind "dread-lord" "dreadlord"
-  :numeric-id  515
+  :numeric-id 515
+  :x-attr (tile-file 23)
+  :x-char (tile-number 4)
   :desc "It is a massive form of animated death its colour deeper than black.  It drinks in light
 and space around it is twisted and torn by the weight of its evil.  It is unlife and it knows
 nothing but the stealing of souls and the stench of death.  Flee its hunger!"
-  :x-char #\G
-  :x-attr #\r
+  :text-char #\G
+  :text-attr #\r
   :alignment '<evil>
   :type '(<undead>)
   :depth 62
@@ -8428,11 +9263,13 @@ nothing but the stealing of souls and the stench of death.  Flee its hunger!"
 		       (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/4)))
 
 (define-monster-kind "beetle-chaos" "chaos beetle"
-  :numeric-id  517
+  :numeric-id 517
+  :x-attr (tile-file 22)
+  :x-char (tile-number 25)
   :desc "With biting jaws and catching claws this immense beetle is like
 death incarnate chasing behind you!"
-  :x-char #\K
-  :x-attr #\v
+  :text-char #\K
+  :text-attr #\v
   :type '(<animal>)
   :depth 65
   :rarity 4
@@ -8449,12 +9286,14 @@ death incarnate chasing behind you!"
   :special-abilities '((<breath> <chaos>) (<spell> (<cause> 4)) (<frequency> 1/5)))
 
 (define-monster-kind "hound-chaos" "chaos hound"
-  :numeric-id  518
+  :numeric-id 518
+  :x-attr (tile-file 19)
+  :x-char (tile-number 62)
   :desc "A constantly changing canine form this hound rushes towards you as if expecting
 mayhem and chaos ahead.  It appears to have an almost kamikaze relish for combat.
 You suspect all may not be as it seems."
-  :x-char #\Z
-  :x-attr #\v
+  :text-char #\Z
+  :text-attr #\v
   :type '(<animal>)
   :depth 65
   :rarity 1
@@ -8471,12 +9310,14 @@ You suspect all may not be as it seems."
   :special-abilities '((<breath> <chaos>) (<frequency> 1/5)))
 
 (define-monster-kind "wyrm-chaos" "great wyrm of chaos"
-  :numeric-id  519
+  :numeric-id 519
+  :x-attr (tile-file 15)
+  :x-char (tile-number 35)
   :desc "A massive dragon of changing form.  As you watch it appears first fair
 and then foul.  Its body is twisted by chaotic forces as it strives to  stay real.
 Its very existence distorts the universe around it."
-  :x-char #\D
-  :x-attr #\v
+  :text-char #\D
+  :text-attr #\v
   :alignment '<evil>
   :type '(<dragon>)
   :depth 67
@@ -8496,11 +9337,13 @@ Its very existence distorts the universe around it."
 		       (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/3)))
 
 (define-monster-kind "wyrm-law" "great wyrm of law"
-  :numeric-id  520
+  :numeric-id 520
+  :x-attr (tile-file 15)
+  :x-char (tile-number 36)
   :desc "A massive dragon of powerful intellect.  It seeks to dominate the universe
 and despises all other life.  It sees all who do not obey it as mere insects to be crushed underfoot."
-  :x-char #\D
-  :x-attr #\B
+  :text-char #\D
+  :text-attr #\B
   :type '(<dragon>)
   :depth 67
   :rarity 2
@@ -8519,13 +9362,15 @@ and despises all other life.  It sees all who do not obey it as mere insects to 
 		       (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/3)))
 
 (define-monster-kind "wyrm-balance" "great wyrm of balance"
-  :numeric-id  521
+  :numeric-id 521
+  :x-attr (tile-file 15)
+  :x-char (tile-number 37)
   :desc "A massive dragon
 one of the mightiest of dragonkind.  It is thousands of years old and seeks to
 maintain the Cosmic Balance.  It sees you as an upstart troublemaker without the
 wisdom to control your actions.  It will destroy you."
-  :x-char #\D
-  :x-attr #\v
+  :text-char #\D
+  :text-attr #\v
   :type '(<dragon>)
   :depth 67
   :rarity 4
@@ -8545,10 +9390,12 @@ wisdom to control your actions.  It will destroy you."
 		       (<spell> <blindness>) (<frequency> 1/3)))
 
 (define-monster-kind "reaver-black" "black reaver"
-  :numeric-id  524
+  :numeric-id 524
+  :x-attr (tile-file 23)
+  :x-char (tile-number 19)
   :desc "A humanoid form black as night advancing steadily and unstoppably.  Flee!"
-  :x-char #\L
-  :x-attr #\D
+  :text-char #\L
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead>)
   :depth 71
@@ -8570,10 +9417,12 @@ wisdom to control your actions.  It will destroy you."
 		       (<frequency> 1/3)))
 
 (define-monster-kind "quylthulg-master" "master quylthulg"
-  :numeric-id  525
+  :numeric-id 525
+  :x-attr (tile-file 22)
+  :x-char (tile-number 5)
   :desc "A pulsating mound of flesh shining with silver pulses of throbbing light."
-  :x-char #\Q
-  :x-attr #\B
+  :text-char #\Q
+  :text-attr #\B
   :alignment '<evil>
   :type '(<animal>)
   :depth 71
@@ -8590,10 +9439,12 @@ wisdom to control your actions.  It will destroy you."
 		       (<summon> <undead>) (<summon> <monsters>) (<summon> <monster>) (<frequency> 1/2)))
 
 (define-monster-kind "quylthulg-greater-draconic" "greater draconic quylthulg"
-  :numeric-id  526
+  :numeric-id 526
+  :x-attr (tile-file 22)
+  :x-char (tile-number 6)
   :desc "A massive mound of scaled flesh throbbing and pulsating with multi-hued light."
-  :x-char #\Q
-  :x-attr #\G
+  :text-char #\Q
+  :text-attr #\G
   :alignment '<evil>
   :type '(<animal>)
   :depth 71
@@ -8608,10 +9459,12 @@ wisdom to control your actions.  It will destroy you."
   :vision 20
   :special-abilities '((<summon> <high-dragon>) (<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/2)))
 (define-monster-kind "quylthulg-greater-rotting" "greater rotting quylthulg"
-  :numeric-id  527
+  :numeric-id 527
+  :x-attr (tile-file 22)
+  :x-char (tile-number 7)
   :desc "A massive pile of rotting flesh.  A disgusting stench fills the air as it  throbs and writhes."
-  :x-char #\Q
-  :x-attr #\U
+  :text-char #\Q
+  :text-attr #\U
   :alignment '<evil>
   :type '(<animal>)
   :depth 71
@@ -8626,11 +9479,13 @@ wisdom to control your actions.  It will destroy you."
   :vision 20
   :special-abilities '((<summon> <high-undead>) (<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/2)))
 (define-monster-kind "hound-aether" "aether hound"
-  :numeric-id  531
+  :numeric-id 531
+  :x-attr (tile-file 19)
+  :x-char (tile-number 77)
   :desc "A shifting swirling form.  It seems to be all colours and sizes and shapes
 though the dominant form is that of a huge dog.  You feel very uncertain all of a sudden."
-  :x-char #\Z
-  :x-attr #\v
+  :text-char #\Z
+  :text-attr #\v
   :type '(<animal>)
   :depth 75
   :rarity 2
@@ -8651,11 +9506,13 @@ though the dominant form is that of a huge dog.  You feel very uncertain all of 
 		       (<breath> <cold>) (<breath> <fire>) (<breath> <acid>) (<frequency> 1/5)))
 
 (define-monster-kind "lich-draco" "dracolich"
-  :numeric-id  476
+  :numeric-id 476
+  :x-attr (tile-file 15)
+  :x-char (tile-number 48)
   :desc "The skeletal form of a once-great dragon enchanted by magic most perilous.
 Its animated form strikes with speed and drains life from its prey to satisfy its hunger."
-  :x-char #\D
-  :x-attr #\G
+  :text-char #\D
+  :text-attr #\G
   :alignment '<evil>
   :type '(<undead> <dragon>)
   :depth 46
@@ -8675,10 +9532,12 @@ Its animated form strikes with speed and drains life from its prey to satisfy it
   :special-abilities '((<breath> <nether>) (<breath> <cold>) (<spell> <scare>) (<spell> <confusion>) (<frequency> 1/6)))
 
 (define-monster-kind "quasit" "quasit"
-  :numeric-id  212
+  :numeric-id 212
+  :x-attr (tile-file 16)
+  :x-char (tile-number 40)
   :desc "The chaotic evil master's favourite pet."
-  :x-char #\u
-  :x-attr #\o
+  :text-char #\u
+  :text-attr #\o
   :alignment '<evil>
   :type '(<demon>)
   :depth 16
@@ -8698,10 +9557,12 @@ Its animated form strikes with speed and drains life from its prey to satisfy it
 		       (<spell> <teleport-player>) (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/10)))
 
 (define-monster-kind "ooze-black" "black ooze"
-  :numeric-id  260
+  :numeric-id 260
+  :x-attr (tile-file 18)
+  :x-char (tile-number 2)
   :desc "It is a strangely moving puddle."
-  :x-char #\j
-  :x-attr #\D
+  :text-char #\j
+  :text-attr #\D
   :depth 23
   :rarity 1
   :hitpoints '(6 . 8)

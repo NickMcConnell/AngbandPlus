@@ -16,8 +16,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-blindness" "blindness"
   :numeric-id 1
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -34,8 +34,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-paranoia" "paranoia"
   :numeric-id 2
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -52,8 +52,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-confusion" "confusion"
   :numeric-id 3
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -70,8 +70,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-hallucination" "hallucination"
   :numeric-id 4
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -88,8 +88,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-cure-poison" "cure poison"
   :numeric-id 5
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -106,8 +106,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-cure-blindness" "cure blindness"
   :numeric-id 6
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -124,8 +124,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-cure-paranoia" "cure paranoia"
   :numeric-id 7
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -143,8 +143,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-cure-confusion" "cure confusion"
   :numeric-id 8
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -161,8 +161,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-weakness" "weakness"
   :numeric-id 9
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -181,8 +181,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-unhealth" "unhealth"
   :numeric-id 10
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -195,8 +195,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-restore-con" "restore constitution"
   :numeric-id 11
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -213,8 +213,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-restoring" "restoring"
   :numeric-id 12
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 20
   :rarity 0
   :chance #(8 4 1 0)
@@ -236,8 +236,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-stupidity" "stupidity"
   :numeric-id 13
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -256,8 +256,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-naivety" "naivety"
   :numeric-id 14
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -275,8 +275,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-poison" "poison"
   :numeric-id 15
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 5
   :rarity 0
   :chance #(1 1 0 0)
@@ -293,8 +293,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-sickness" "sickness"
   :numeric-id 16
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -312,8 +312,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-paralysis" "paralysis"
   :numeric-id 17
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -331,8 +331,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-restore-str" "restore strength"
   :numeric-id 18
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -349,8 +349,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-disease" "disease"
   :numeric-id 19
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -364,8 +364,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mushroom-cure-serious" "cure serious wounds"
   :numeric-id 20
-  :x-attr #\d
-  :x-char #\,
+  :text-attr #\d
+  :text-char #\,
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -382,8 +382,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "food-ration" "& ration~ of food"
   :numeric-id 21
-  :x-attr #\U
-  :x-char #\,
+  :text-attr #\U
+  :text-char #\,
+  :x-attr (tile-file 5) :x-char (tile-number 4)
   :depth 0
   :rarity 0
   :chance #(1 1 1 0)
@@ -397,8 +398,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "biscuit" "& hard biscuit~"
   :numeric-id 22
-  :x-attr #\U
-  :x-char #\,
+  :text-attr #\U
+  :text-char #\,
+  :x-attr (tile-file 5) :x-char (tile-number 2)
   :depth 0
   :rarity 0
   :chance #(0 0 0 0)
@@ -412,8 +414,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "beef-jerky" "& strip~ of beef jerky"
   :numeric-id 23
-  :x-attr #\u
-  :x-char #\,
+  :text-attr #\u
+  :text-char #\,
+  :x-attr (tile-file 5) :x-char (tile-number 3)
   :depth 0
   :rarity 0
   :chance #(0 0 0 0)
@@ -427,8 +430,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "slime-mold" "& slime mold~"
   :numeric-id 24
-  :x-attr #\g
-  :x-char #\,
+  :text-attr #\g
+  :text-char #\,
+  :x-attr (tile-file 5) :x-char (tile-number 5)
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -442,8 +446,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "elvish-bread" "& piece~ of elvish waybread"
   :numeric-id 25
-  :x-attr #\B
-  :x-char #\,
+  :text-attr #\B
+  :text-char #\,
+  :x-attr (tile-file 5) :x-char (tile-number 6)
   :depth 5
   :rarity 0
   :chance #(1 1 1 0)
@@ -457,8 +462,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "pint-ale" "& pint~ of fine ale"
   :numeric-id 26
-  :x-attr #\y
-  :x-char #\,
+  :x-attr (tile-file 5)
+  :x-char (tile-number 0)
+  :text-attr #\y
+  :text-char #\,
   :depth 0
   :rarity 0
   :chance #(0 0 0 0)
@@ -472,8 +479,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "pint-wine" "& pint~ of fine wine"
   :numeric-id 27
-  :x-attr #\r
-  :x-char #\,
+  :x-attr (tile-file 5)
+  :x-char (tile-number 1)
+  :text-attr #\r
+  :text-char #\,
   :depth 0
   :rarity 0
   :chance #(0 0 0 0)
@@ -483,4 +492,4 @@ the Free Software Foundation; either version 2 of the License, or
   :sort-value 6039
   :the-kind '<food>
   :on-eat #'%dummy-eat-fun
-  :game-values (make-game-values :food-value 1000)) 
+  :game-values (make-game-values :food-value 1000))

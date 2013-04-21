@@ -124,7 +124,7 @@ should be an exisiting id."
 			      :tolerance tolerance :race race-obj))
 	 (var-obj *variant*))
 
-    (when (and picture (not (image-exists? 'people picture)))
+    (when (and picture (not (image-exists? picture)))
       (warn "Unable to find picture ~s for store-owner ~s." picture id)
       (setf (owner.picture owner) nil))
 
@@ -167,11 +167,11 @@ should be an exisiting id."
 			 (>= top char-num))
 		    char-num)
 		   (t
-		    (c-prt! "Illegal selection!" 0 0)
+		    (put-coloured-line! +term-white+ "Illegal selection!" 0 0)
 		    nil))))
 	  (t
 	   #-cmu
-	   (c-prt! "Odd return-value!" 0 0)
+	   (put-coloured-line! +term-white+ "Odd return-value!" 0 0)
 	   nil))))
 		 
 
@@ -300,7 +300,7 @@ should be an exisiting id."
 	(when (and poss-limit (plusp poss-limit))
 	  (setf store-limit poss-limit))))
 
-    (c-clear-from! 0) ;; hack
+    (clear-window *cur-win*) ;; hack
 
     ;; big empty space when no graphics
     (when (use-images?)
@@ -309,8 +309,7 @@ should be an exisiting id."
       (let ((owner-picture (owner.picture the-owner)))
 	(when (and owner-picture (stringp owner-picture))
 
-	  (%load-people-image owner-picture 6 5)
-	  (%paint-people-image owner-picture 1 1)
+	  (paint-gfx-image& owner-picture 1 1)
 	  
 ;;      (load-scaled-image& "./graphics/people/grim-elf.bmp" -1 6 5)
 ;;      (paint-image& "./graphics/people/grim-elf.bmp" 1 1))
@@ -320,19 +319,11 @@ should be an exisiting id."
     (let ((left-col 20)
           (desc-line 7)
 	  (last-line (get-last-console-line)))
-      
-      (with-foreign-str (s)
-	(lb-format s "~a" store-name)
-	(put-coloured-str! +term-yellow+ s left-col 1))
-      
-      (with-foreign-str (s)
-	(lb-format s "Owned by: ~a (~a)" owner-name owner-race)
-	(put-coloured-str! +term-white+ s left-col 2))
-      
-      (with-foreign-str (s)
-	(lb-format s "Max purchase value: ~a AU" store-limit)
-	(put-coloured-str! +term-white+ s left-col 3))
 
+      
+      (put-coloured-str! +term-yellow+ (format nil "~a" store-name) left-col 1)
+      (put-coloured-str! +term-white+ (format nil "Owned by: ~a (~a)" owner-name owner-race) left-col 2)
+      (put-coloured-str! +term-white+ (format nil "Max purchase value: ~a AU" store-limit) left-col 3)
 
       (put-coloured-str! +term-white+ "Item Description" 3 desc-line)
       (put-coloured-str! +term-white+ "Weight" 60 desc-line)
@@ -363,7 +354,8 @@ should be an exisiting id."
   
   (block input-loop
     (loop
-     (c-term-gotoxy! 10 21)
+     ;; this should vary depending on size and stuff
+     (set-cursor-to *cur-win* :input 10 21)
    
      (let ((val (read-one-character)))
        (flush-messages! t) ;; forced
@@ -373,14 +365,14 @@ should be an exisiting id."
 	      (when-bind (retval (%store-buy-item player level store))
 		(display-house player store)
 		(update-inventory-row player)
-		(c-prt! "" 0 0)))
+		(put-coloured-line! +term-white+ "" 0 0)))
      
 	     ((or (eql val #\d)
 		  (eql val #\s))
 	      (%store-sell-item player level store)
 	      (display-house player store)
 	      (update-inventory-row player)
-	      (c-prt! "" 0 0))
+	      (put-coloured-line! +term-white+ "" 0 0))
 
 	    
 	     ((or (eql val #\Escape)
@@ -390,7 +382,7 @@ should be an exisiting id."
 	     (t
 	      (warn "Unknown key read: ~s" val)))
      
-       ;;     (c-prt! "" 0 0)
+       ;;     (put-coloured-line! +term-white+ "" 0 0)
        ))))
 
 
@@ -402,7 +394,7 @@ should be an exisiting id."
 
   (flush-messages! t)
   (with-dialogue ()
-    (clear-the-screen!)
+    (clear-window *cur-win*)
     (display-house *player* house :offset 0)
     
     (%shop-input-loop *player* level house)

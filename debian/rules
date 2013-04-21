@@ -42,8 +42,7 @@ VANILLAMAN	:= $(VANILLADESTDIR)/usr/share/man/man3
 INSTALLSOURCES	:= \
 	pre-build.lisp \
 	langband-engine.asd  langband-engine.system \
-	package.lisp  memoize.lisp \
-	base.lisp  constants.lisp \
+	package.lisp  base.lisp  constants.lisp \
 	generics.lisp  sys.lisp classes.lisp \
 	global.lisp  sound.lisp \
 	character.lisp  object.lisp \
@@ -51,15 +50,13 @@ INSTALLSOURCES	:= \
 	monster.lisp  dungeon.lisp \
 	building.lisp  stores.lisp \
 	allocate.lisp  generate.lisp  print.lisp \
-	util.lisp  combat.lisp \
-	keys.lisp  actions.lisp \
+	util.lisp  combat.lisp actions.lisp \
 	view.lisp project.lisp save.lisp \
 	load.lisp  death.lisp \
 	birth.lisp ai.lisp loop.lisp \
 	dump.lisp init.lisp verify.lisp \
-	conversation.lisp
-
-#	langband-engine.system \
+	conversation.lisp window.lisp \
+	adts.lisp
 
 COMPATSRC = \
 	lib/compat/monster.lisp \
@@ -78,8 +75,7 @@ FOREIGNSRC = \
 	ffi/ffi-load.lisp \
 	ffi/ffi-defs.lisp \
 	ffi/ffi-lw.lisp \
-	ffi/ffi-sbcl.lisp \
-	ffi/ffi-sys.lisp 
+	ffi/ffi-sbcl.lisp 
 
 
 CONFSRC = \
@@ -127,12 +123,13 @@ VANCONFSRC = \
 	variants/vanilla/config/classes.lisp \
 	variants/vanilla/config/combat.lisp \
 	variants/vanilla/config/defines.lisp \
+	variants/vanilla/config/effects.lisp \
 	variants/vanilla/config/ego-items.lisp \
 	variants/vanilla/config/flavours.lisp \
 	variants/vanilla/config/floors.lisp \
 	variants/vanilla/config/food.lisp \
 	variants/vanilla/config/gold.lisp \
-	variants/vanilla/config/graf-prefs.lisp \
+	variants/vanilla/config/keys.lisp \
 	variants/vanilla/config/monsters.lisp \
 	variants/vanilla/config/neckwear.lisp \
 	variants/vanilla/config/objects.lisp \
@@ -147,7 +144,8 @@ VANCONFSRC = \
 	variants/vanilla/config/town-monsters.lisp \
 	variants/vanilla/config/traps.lisp \
 	variants/vanilla/config/uniques.lisp \
-	variants/vanilla/config/weapons.lisp 
+	variants/vanilla/config/weapons.lisp \
+	variants/vanilla/config/wizard.lisp 
 
 
 build-arch: build-arch-stamp
@@ -202,6 +200,7 @@ install: build
 	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.bmp $(GFXDEST)/other
 	$(INSTALL) $(INSTALLFLAGS) graphics/people/*.png $(GFXDEST)/people
 	$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.bmp $(GFXDEST)/tiles
+	$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.png $(GFXDEST)/tiles
 	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.png $(GFXDEST)/textures
 	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.bmp $(GFXDEST)/textures
 	$(INSTALL) $(INSTALLFLAGS) audio/effects/*.wav $(AUDIODEST)/effects

@@ -245,8 +245,8 @@ the Free Software Foundation; either version 2 of the License, or
 			     17 (hs-entry.level hs) pronoun
 			     name
 			     (hs-entry.cause-of-death hs) owning pronoun)))
-	  (c-print-text! 10 27 +term-white+ text
-			 :end-col (- (get-term-width +full-frame+) 10))))
+	  (print-text! 10 27 +term-white+ text
+		       :end-col (- (get-frame-width +full-frame+) 10))))
       
       )))
 
@@ -279,8 +279,8 @@ Thanks for all the fish."
       (when (not alive?)
 	(put-coloured-line! +term-white+ "Oops.. you died.. " 0 0)
     
-	(c-clear-from! 0)
-	(%paint-other-image "thedead.png" 0 0)
+	(clear-window-from +full-frame+ 0)
+	(paint-gfx-image& "other/thedead.png" 0 0)
 	
 	(print-tomb variant player)
       
@@ -290,7 +290,7 @@ Thanks for all the fish."
 	(unless enter-high-score
 	  (setf hlist (%sort-hscores (cons hs hlist)))
 	  (setf hs-pos (position hs hlist)))
-	(c-clear-from! 0)
+	(clear-window-from +full-frame+ 0)
 	(display-high-scores variant hlist :current hs-pos)
 	)
       

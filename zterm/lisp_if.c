@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "angband.h"
 #include "langband.h"
 
 typedef unsigned long cmucl_lispobj;
@@ -51,6 +50,30 @@ set_lisp_system(LISP_SYSTEMS val) {
 	ERRORMSG("Unknown lisp-system given: %d.\n", val);
     }
     
+}
+
+int
+cleanup_callbacks() {
+
+    //DBGPUT("Cleaning callbacks\n");
+    
+    cmucl_callback_play = 0;
+    cmucl_callback_resize = 0;
+    cmucl_callback_mouseclick = 0;
+    
+    sbcl_callback_play = 0;
+    sbcl_callback_resize = 0;
+    sbcl_callback_mouseclick = 0;
+    
+    acl_callback_play = 0;
+    acl_callback_resize = 0;
+    acl_callback_mouseclick = 0;
+    
+    lispworks_callback_play = 0;
+    lispworks_callback_resize = 0;
+    lispworks_callback_mouseclick = 0;
+
+    return 0;
 }
 
 void
@@ -157,7 +180,7 @@ set_sbcl_callback(char *name, cmucl_lispobj fun) {
 }
 
 
-void
+int
 play_game_lisp() {
 
     if (lisp_will_use_callback) {
@@ -187,13 +210,16 @@ play_game_lisp() {
 
 	else {
 	    ERRORMSG("Unable to handle callback for system %d..\n", current_lisp_system);
+	    return -5;
 	}
     }
     else {
 	ERRORMSG("Tried to play by callback, but lisp-system %d doesn't want callbacking.\n",
 		 current_lisp_system);
+	return -6;
     }
-    
+
+    return 0;
 }
 
 #define make_fixnum(n) ((cmucl_lispobj)((n)<<2))

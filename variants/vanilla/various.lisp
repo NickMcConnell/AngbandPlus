@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/various.lisp - various helper-stuff that should be compiled
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -134,17 +134,19 @@ the Free Software Foundation; either version 2 of the License, or
 	(unless hash-val
 	  (setf (gethash name (variant.used-scroll-names variant)) t)
 	  (let ((flav (make-instance 'flavour
-				     :name name
-				     :x-attr +term-white+
-				     :x-char #.(char-code #\?)
-				     :text-attr +term-white+
-				     :text-char #.(char-code #\?) ;; hackish
-				     )))
-
+				     :name name))
+		(x-attr +term-white+)
+		(x-char #\?)
+		(text-attr +term-white+)
+		(text-char #\?))
+	    
 	    ;; ultra-hack
 	    (when (load-gfx-tiles?)
-	      (setf (x-attr flav) (+ +graphics-start+ 10)
-		    (x-char flav) (+ +graphics-start+ 18 (random 4))))
+	      (setf x-attr (tile-file 10)
+		    x-char (tile-number (+ 18 (random 4)))))
+	    
+	    (handle-gfx-visual flav x-attr x-char)
+	    (handle-text-visual flav text-attr text-char)
 	    
 	    (return-from van-generate-scroll-flavour flav)
 	    ))))
@@ -548,72 +550,6 @@ the Free Software Foundation; either version 2 of the License, or
 					       collecting (list i amount))))))
 
 
-;; move somewhere else later
-(defmethod shoot-a-missile ((dungeon dungeon) (player player)
-			    (missile-weapon active-object/bow)
-			    (arrow active-object/ammo))
-  
-;;  (declare (ignore missile-weapon))
-  (block missile-shooting
-    (when-bind (dir (get-aim-direction))
-      (assert (and (numberp dir) (< dir 10)))
-;;      (check-type arrow active-object)
-      
-;;      (warn "dir is ~s with ~s + ~s" dir missile-weapon arrow)
-      (let* ((pvx (location-x player))
-	     (pvy (location-y player))
-	     (ddx *ddx*)
-	     (ddy *ddy*)
-	     (tx (+ pvx (* 99 (aref ddx dir))))
-	     (ty (+ pvy (* 99 (aref ddy dir))))
-	     (max-range (+ 10 (* 5 (object.multiplier (aobj.kind missile-weapon)))))
-	     (path-arr (make-array (1+ max-range) :fill-pointer 0))
-	     (path-len (project-path dungeon max-range path-arr pvx pvy tx ty 0))
-	     (miss-attr (x-attr arrow))
-	     (miss-char (x-char arrow))
-	     (cur-x pvx)
-	     (cur-y pvy)
-	     )
-
-	(declare (ignore path-len))
-
-	
-	(loop named follow-path
-	      for g across path-arr
-	      do
-	      (let ((x (grid-x g))
-		    (y (grid-y g)))
-		(setq cur-x x
-		      cur-y y)
-		(unless (cave-floor-bold? dungeon x y)
-		  (return-from follow-path nil))
-	      
-		(display-moving-object dungeon x y miss-char miss-attr)
-	      
-		(when-bind (monsters (cave-monsters dungeon x y))
-		  (let* ((fmon (if (consp monsters) (car monsters) monsters))
-			 (mon-name (get-creature-name fmon)))
-		    (when (missile-hit-creature? player fmon missile-weapon arrow)
-		      
-		      (format-message! "The ~a was hit." mon-name)
-		      (missile-inflict-damage! player fmon missile-weapon arrow)
-		      (when (< (current-hp fmon) 0)
-			(format-message! "The ~a died." mon-name)
-			(let ((target-xp (get-xp-value fmon)))
-			  (alter-xp! player (if target-xp target-xp 0)))
-			(kill-target! dungeon player fmon x y)
-			;; repaint spot
-			(light-spot! dungeon x y))
-
-		      (return-from follow-path nil))))
-		))
-
-	;; if it crashes in a wall, your arrow is gone.
-	(when (cave-floor-bold? dungeon cur-x cur-y)
-	  (item-table-add! (get-item-table dungeon player :floor :x cur-x :y cur-y)
-			   arrow))
-
-	))))
 
 (defmethod process-world& ((variant vanilla-variant) (dungeon dungeon) (player player))
   "tries to process important world-stuff every 10 turns."
@@ -807,3 +743,40 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  (warn "Generating ammo")
   ;; ammo is always in groups
   (setf (aobj.number obj) (roll-dice 6 7)))
+
+(defmethod handle-mouse-click ((variant vanilla-variant) window button x y)
+
+  (let ((num-id (window.num-id window))
+	(player *player*)
+	(dungeon *dungeon*))
+  
+    (cond ((= num-id +inv-frame+)
+	   (when (eq button :left)
+	     ;; two button-sets
+	     (cond ((> x 768)
+		    (switch-inventory-view))
+		   ((> x 736) 
+		    (switch-map-mode *dungeon* *player*)))
+	     ))
+	  ((and (= num-id *map-frame*)
+		(eq button :right))
+	   ;; first get panel coords, then translate to real coords
+	   (let* ((loc-x (int-/ x (window.tile-width window)))
+		  (loc-y (int-/ y (window.tile-height window)))
+		  (rx (+ loc-x (player.view-x player)))
+		  (ry (+ loc-y (player.view-y player)))
+		  (tgt (%get-target dungeon rx ry)))
+
+	     (when (is-legal-target? dungeon tgt)
+	       (when (player.target player)
+		 (%remove-target (player.target player)))
+	       (%highlight-target dungeon tgt)
+	       (setf (player.target player) tgt))
+
+	     
+	     ;;(warn "right click in square ~s ~s" loc-x loc-y)
+	     ))
+	  
+	  (t nil))
+    
+    t))

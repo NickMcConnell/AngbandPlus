@@ -16,8 +16,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-480" "copper"
   :numeric-id 480
-  :x-attr #\u
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 7)
+  :text-attr #\u
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -29,8 +31,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-481" "copper"
   :numeric-id 481
-  :x-attr #\u
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 7)
+  :text-attr #\u
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -42,8 +46,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-482" "copper"
   :numeric-id 482
-  :x-attr #\u
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 7)
+  :text-attr #\u
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -55,8 +61,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-483" "silver"
   :numeric-id 483
-  :x-attr #\s
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 8)
+  :text-attr #\s
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -68,8 +76,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-484" "silver"
   :numeric-id 484
-  :x-attr #\s
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 8)
+  :text-attr #\s
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -81,8 +91,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-485" "silver"
   :numeric-id 485
-  :x-attr #\s
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 8)
+  :text-attr #\s
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -94,8 +106,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-486" "garnets"
   :numeric-id 486
-  :x-attr #\r
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 12)
+  :text-attr #\r
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -107,8 +121,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-487" "garnets"
   :numeric-id 487
-  :x-attr #\r
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 12)
+  :text-attr #\r
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -120,8 +136,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-488" "gold"
   :numeric-id 488
-  :x-attr #\y
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 9)
+  :text-attr #\y
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -133,8 +151,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-489" "gold"
   :numeric-id 489
-  :x-attr #\y
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 9)
+  :text-attr #\y
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -146,8 +166,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-490" "gold"
   :numeric-id 490
-  :x-attr #\y
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 9)
+  :text-attr #\y
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -159,8 +181,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-491" "opals"
   :numeric-id 491
-  :x-attr #\W
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 13)
+  :text-attr #\W
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -172,8 +196,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-492" "sapphires"
   :numeric-id 492
-  :x-attr #\b
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 14)
+  :text-attr #\b
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -185,8 +211,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-493" "rubies"
   :numeric-id 493
-  :x-attr #\r
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 15)
+  :text-attr #\r
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -198,8 +226,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-494" "diamonds"
   :numeric-id 494
-  :x-attr #\w
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 16)
+  :text-attr #\w
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -211,8 +241,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-495" "emeralds"
   :numeric-id 495
-  :x-attr #\g
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 17)
+  :text-attr #\g
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -224,8 +256,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-496" "mithril"
   :numeric-id 496
-  :x-attr #\B
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 10)
+  :text-attr #\B
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -237,8 +271,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-497" "adamantite"
   :numeric-id 497
-  :x-attr #\G
-  :x-char #\$
+  :x-attr (tile-file 10)
+  :x-char (tile-number 11)
+  :text-attr #\G
+  :text-char #\$
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)

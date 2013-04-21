@@ -3,7 +3,7 @@
 #|
 
 DESC: sound.lisp - simple functions that deals with sound
-Copyright (c) 2001-2002 - Stig Erik Sandø
+Copyright (c) 2001-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,6 +42,8 @@ the Free Software Foundation; either version 2 of the License, or
 (defconstant +sound-shutdoor+ 23)
 (defconstant +sound-tplevel+ 24)
 
+(defconstant +sound-intro+ 30)
+
 (defvar *sound-table* (make-hash-table :test #'equal))
 
 (defun init-sound-system& (size)
@@ -52,10 +54,13 @@ the Free Software Foundation; either version 2 of the License, or
 (defun play-sound (type)
   "Plays the given sound(s) for type."
   (when (using-sound?)
-    (let ((xtra-code-sound 8)
+    (let (;;(xtra-code-sound 8)
 	  (sounds (gethash type *sound-table*)))
       (when sounds
-	(c-term-xtra& xtra-code-sound (rand-elm sounds))))))
+	;; add sounds back in
+	(c-play-sound-effect (rand-elm sounds))
+
+	))))
 
 
 (defun define-sound-effect (key &rest sounds)
@@ -67,7 +72,7 @@ the Free Software Foundation; either version 2 of the License, or
       
   
       (dolist (i sounds)
-	(let ((idx (c-load-sound-effect& (concatenate 'string base-path i) -1)))
+	(let ((idx (org.langband.ffi:c-load-sound-effect& (concatenate 'string base-path i) -1)))
 	  (pushnew idx current-sounds :test #'equal)))
 
       (setf (gethash key *sound-table*) current-sounds)

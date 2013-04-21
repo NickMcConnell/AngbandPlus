@@ -17,8 +17,10 @@ the Free Software Foundation; either version 2 of the License, or
 (define-monster-kind "urchin" "filthy street urchin"
   :numeric-id  1
   :desc "He looks squalid and thoroughly revolting."
-  :x-char #\t
-  :x-attr #\D
+  :text-char #\t
+  :text-attr #\D
+  :x-attr (tile-file 14)
+  :x-char (tile-number 0)
   :depth 0
   :rarity 2
   :hitpoints '(1 . 4)
@@ -33,9 +35,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "rogue-squint-eyed" "squint eyed rogue"
   :numeric-id  10
+  :x-attr (tile-file 14)
+  :x-char (tile-number 7)
   :desc "A hardy, street-wise crook that knows an easy catch when it sees one."
-  :x-char #\t
-  :x-attr #\b
+  :text-char #\t
+  :text-attr #\b
   :alignment '<evil>
   :depth 0
   :rarity 1
@@ -52,9 +56,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "singing-drunk" "singing, happy drunk"
   :numeric-id  11
+  :x-attr (tile-file 14)
+  :x-char (tile-number 8)
   :desc "He makes you glad to be sober."
-  :x-char #\t
-  :x-attr #\y
+  :text-char #\t
+  :text-attr #\y
   :depth 0
   :rarity 1
   :hitpoints '(2 . 3)
@@ -69,9 +75,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "aimless-merchant" "aimless looking merchant"
   :numeric-id  12
+  :x-attr (tile-file 14)
+  :x-char (tile-number 9)
   :desc "The typical ponce around town, with purse jingling, and looking for more  amulets of adornment to buy."
-  :x-char #\t
-  :x-attr #\o
+  :text-char #\t
+  :text-attr #\o
   :depth 0
   :rarity 1
   :hitpoints '(3 . 3)
@@ -86,9 +94,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "mercenary-mean-looking" "mean looking mercenary"
   :numeric-id  13
+  :x-attr (tile-file 14)
+  :x-char (tile-number 10)
   :desc "No job is too low for him."
-  :x-char #\t
-  :x-attr #\r
+  :text-char #\t
+  :text-attr #\r
   :alignment '<evil>
   :depth 0
   :rarity 1
@@ -104,9 +114,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "scarred-veteran" "battle scarred veteran"
   :numeric-id  14
+  :x-attr (tile-file 14)
+  :x-char (tile-number 11)
   :desc "He doesn't take to strangers kindly."
-  :x-char #\t
-  :x-attr #\B
+  :text-char #\t
+  :text-attr #\B
   :depth 0
   :rarity 1
   :hitpoints '(7 . 8)
@@ -122,8 +134,10 @@ the Free Software Foundation; either version 2 of the License, or
 (define-monster-kind "cat-scrawny" "scrawny cat"
   :numeric-id  2
   :desc "A skinny little furball with sharp claws and a menacing look."
-  :x-char #\f
-  :x-attr #\U
+  :text-char #\f
+  :text-attr #\U
+  :x-attr (tile-file 19)
+  :x-char (tile-number 54)
   :type '(<animal>)
   :depth 0
   :rarity 3
@@ -138,8 +152,10 @@ the Free Software Foundation; either version 2 of the License, or
 (define-monster-kind "dog-scruffy" "scruffy little dog"
   :numeric-id  3
   :desc "A thin flea-ridden mutt, growling as you get close."
-  :x-char #\C
-  :x-attr #\U
+  :text-char #\C
+  :text-attr #\U
+  :x-attr (tile-file 18)
+  :x-char (tile-number 72)
   :type '(<animal>)
   :depth 0
   :rarity 3
@@ -153,9 +169,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "idiot-blubbering" "blubbering idiot"
   :numeric-id  5
+  :x-attr (tile-file 14)
+  :x-char (tile-number 2)
   :desc "He tends to blubber a lot."
-  :x-char #\t
-  :x-attr #\W
+  :text-char #\t
+  :text-attr #\W
   :depth 0
   :rarity 1
   :hitpoints '(1 . 2)
@@ -169,9 +187,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "boiled-wretch" "boil-covered wretch"
   :numeric-id  6
+  :x-attr (tile-file 14)
+  :x-char (tile-number 3)
   :desc "Ugly doesn't begin to describe him."
-  :x-char #\t
-  :x-attr #\g
+  :text-char #\t
+  :text-attr #\g
   :depth 0
   :rarity 1
   :hitpoints '(1 . 2)
@@ -185,9 +205,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "idiot-village" "village idiot"
   :numeric-id  7
+  :x-attr (tile-file 14)
+  :x-char (tile-number 4)
   :desc "Drooling and comical, but then, what do you expect?"
-  :x-char #\t
-  :x-attr #\G
+  :text-char #\t
+  :text-attr #\G
   :depth 0
   :rarity 1
   :hitpoints '(4 . 4)
@@ -201,9 +223,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "beggar" "pitiful looking beggar"
   :numeric-id  8
+  :x-attr (tile-file 14)
+  :x-char (tile-number 5)
   :desc "You just can't help feeling sorry for him."
-  :x-char #\t
-  :x-attr #\U
+  :text-char #\t
+  :text-attr #\U
   :depth 0
   :rarity 1
   :hitpoints '(1 . 4)
@@ -217,9 +241,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "mangy-leper" "mangy looking leper"
   :numeric-id  9
+  :x-attr (tile-file 14)
+  :x-char (tile-number 6)
   :desc "You feel it isn't safe to touch him."
-  :x-char #\t
-  :x-attr #\u
+  :text-char #\t
+  :text-attr #\u
   :depth 0
   :rarity 1
   :hitpoints '(1 . 1)

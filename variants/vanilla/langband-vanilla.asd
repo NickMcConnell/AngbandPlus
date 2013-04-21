@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/langband-vanilla.asd - another system-def for vanilla
-Copyright (c) 2001-2002 - Stig Erik Sandø
+Copyright (c) 2001-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,18 +28,18 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband-vanilla-system)
 
 (asdf:defsystem :langband-vanilla
-    :version "0.1.0"
+    :version "0.1.3"
     :components ((:file "constants")
 		 (:file "base" :depends-on ("constants"))
 		 (:file "quirks" :depends-on ("base"))
 		 (:file "player" :depends-on ("quirks"))
-		 (:file "various" :depends-on ("base" "quirks"))
+		 (:file "various" :depends-on ("base" "quirks" "player"))
 		 (:file "rooms" :depends-on ("base"))
 		 (:file "combat" :depends-on ("player"))
 		 (:file "levels" :depends-on ("base"))
-		 (:file "objects" :depends-on ("base"))
-		 (:file "print" :depends-on ("base"))
 		 (:file "spells" :depends-on ("base" "various" "quirks"))
+		 (:file "objects" :depends-on ("base" "spells"))
+		 (:file "print" :depends-on ("base" "player" "spells"))
 		 (:file "wizard" :depends-on ("spells"))
 		 (:file "keys" :depends-on ("wizard" "spells"))
 		 (:file "verify" :depends-on ("various"))

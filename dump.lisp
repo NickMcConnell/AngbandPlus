@@ -281,6 +281,22 @@ the Free Software Foundation; either version 2 of the License, or
 	   (items.max-size inst)))
   inst)
 
+(defmethod print-object ((inst window) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~a~) [~a ~a ~a]" (class-name (class-of inst)) 
+	   (window.id inst) (window.num-id inst) (window.visible? inst))
+   inst))
+
+(defmethod print-object ((inst visual-projectile) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+           (projectile.id inst)))
+
+  inst)
+
+
 (defun dump-objects (out-file &optional object-list)
   (let ((obj-list (if object-list
 		      object-list

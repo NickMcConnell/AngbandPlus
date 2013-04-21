@@ -34,8 +34,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	      ))
   :min-depth 1
   :max-depth nil
-  :x-char #\^
-  :x-attr +term-white+
+  :text-char #\^
+  :text-attr +term-white+
+  :x-attr (tile-file 10)
+  :x-char (tile-number 38)
   :rarity 1)
 
 (define-trap-type "pit" "pit"
@@ -49,8 +51,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 		    (t
 		       (deliver-damage! variant the-trap player (roll-dice 2 6))))
 	      ))
-  :x-attr +term-slate+
-  :x-char #\^
+  :text-attr +term-slate+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 36)
   )
 
 
@@ -72,8 +76,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 		       (deliver-damage! variant the-trap player dmg))
 		     ))
 	      ))
-  :x-attr +term-slate+
-  :x-char #\^
+  :text-attr +term-slate+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 37)
   )
 
 
@@ -100,8 +106,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 			 (deliver-damage! variant the-trap player dmg))
 		       ))
 		))
-  :x-attr +term-slate+
-  :x-char #\^
+  :text-attr +term-slate+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 67)
   )
 
 
@@ -110,8 +118,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	    (print-message! "You are enveloped in a cloud of smoke!")
 	      ;;; ...
 	    )
-  :x-attr +term-orange+
-  :x-char #\^
+  :text-attr +term-orange+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 39)
   )
 
 (define-trap-type "teleport-trap" "teleport trap"
@@ -119,16 +129,20 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	    (print-message! "You hit a teleport trap!")
 	    (let ((player *player*))
 	      (teleport-creature! dungeon player player 100)))
-  :x-attr +term-orange+
-  :x-char #\^
+  :text-attr +term-orange+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 40)
   )
 
 (define-trap-type "fire-trap" "fire trap"
   :effect (trap-effect (the-trap dungeon x y)
 	    (print-message! "You are enveloped in flames!")
 	    (deliver-elemental-damage! *variant* the-trap *player* '<fire> (roll-dice 4 6)))
-  :x-attr +term-umber+
-  :x-char #\^
+  :text-attr +term-umber+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 35)
   )
 
 
@@ -136,8 +150,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
   :effect (trap-effect (the-trap dungeon x y)
 	    (print-message! "You are splashed with acid!")
 	    (deliver-elemental-damage! *variant* the-trap *player* '<acid> (roll-dice 4 6)))
-  :x-attr +term-umber+
-  :x-char #\^
+  :text-attr +term-umber+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 35)
   )
 
 
@@ -153,8 +169,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 		     (print-message! "A small dart barely misses you.")))
 		))
   
-  :x-attr +term-red+
-  :x-char #\^
+  :text-attr +term-red+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 33)
   )
 
 (define-trap-type "dart-trap-red-str" "dart trap (red. str)"
@@ -168,8 +186,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 		    (t
 		     (print-message! "A small dart barely misses you.")))
 	      ))
-  :x-attr +term-red+
-  :x-char #\^
+  :text-attr +term-red+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 57)
   )
 
 
@@ -184,8 +204,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 		    (t
 		     (print-message! "A small dart barely misses you.")))
 	      ))
-  :x-attr +term-red+
-  :x-char #\^
+  :text-attr +term-red+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 58)
   )
 
 
@@ -200,8 +222,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 		    (t
 		     (print-message! "A small dart barely misses you.")))
 	      ))
-  :x-attr +term-red+
-  :x-char #\^
+  :text-attr +term-red+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 60)
   )
 
 
@@ -211,8 +235,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	    (unless (resists-element? *player* '<blindness>)
 	      (modify-creature-state! *player* '<blindness> :add (+ 25 (randint 50)))
 	      ))
-  :x-attr +term-green+
-  :x-char #\^
+  :text-attr +term-green+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 61)
   )
 
 
@@ -223,8 +249,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	    (unless (resists-element? *player* '<confusion>)
 	      (modify-creature-state! *player* '<confusion> :add (+ 10 (random 20)))
 	      ))
-  :x-attr +term-green+
-  :x-char #\^
+  :text-attr +term-green+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 59)
   )
 
 
@@ -235,8 +263,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	      (modify-creature-state! *player* '<poisoned> :add (+ 20 (randint 20)))
 
 	      ))
-  :x-attr +term-green+
-  :x-char #\^
+  :text-attr +term-green+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 56)
   )
 
 
@@ -246,6 +276,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	    (unless (eq t (get-creature-state *player* '<free-action>))
 	      (modify-creature-state! *player* '<paralysed> :add (+ 5 (randint 10)))
 	      ))
-  :x-attr +term-green+
-  :x-char #\^
+  :text-attr +term-green+
+  :text-char #\^
+  :x-attr (tile-file 10)
+  :x-char (tile-number 61)
   )

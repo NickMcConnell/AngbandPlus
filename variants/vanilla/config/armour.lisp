@@ -18,8 +18,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "soft-leather-boots" "& pair~ of soft leather boots"
   :numeric-id 91
-  :x-attr #\U
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 20)
+  :text-attr #\U
+  :text-char #\]
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -32,8 +34,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "hard-leather-boots" "& pair~ of hard leather boots"
   :numeric-id 92
-  :x-attr #\U
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 21)
+  :text-attr #\U
+  :text-char #\]
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -46,8 +50,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "metal-boots" "& pair~ of metal shod boots"
   :numeric-id 93
-  :x-attr #\s
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 22)
+  :text-attr #\s
+  :text-char #\]
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -62,8 +68,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "hard-leather-cap" "& hard leather cap~"
   :numeric-id 94
-  :x-attr #\u
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 70)
+  :text-attr #\u
+  :text-char #\]
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -76,8 +84,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "metal-cap" "& metal cap~"
   :numeric-id 95
-  :x-attr #\s
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 11)
+  :text-attr #\s
+  :text-char #\]
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -90,8 +100,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "iron-helm" "& iron helm~"
   :numeric-id 96
-  :x-attr #\s
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 12)
+  :text-attr #\s
+  :text-char #\]
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -104,8 +116,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "steel-helm" "& steel helm~"
   :numeric-id 97
-  :x-attr #\W
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 13)
+  :text-attr #\W
+  :text-char #\]
   :depth 40
   :rarity 0
   :chance #(1 0 0 0)
@@ -118,8 +132,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "iron-crown" "& iron crown~"
   :numeric-id 98
-  :x-attr #\s
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 15)
+  :text-attr #\s
+  :text-char #\]
   :depth 45
   :rarity 0
   :chance #(1 0 0 0)
@@ -132,8 +148,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "golden-crown" "& golden crown~"
   :numeric-id 99
-  :x-attr #\y
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 16)
+  :text-attr #\y
+  :text-char #\]
   :depth 45
   :rarity 0
   :chance #(1 0 0 0)
@@ -146,8 +164,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "jewel-crown" "& jewel encrusted crown~"
   :numeric-id 100
-  :x-attr #\v
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 17)
+  :text-attr #\v
+  :text-char #\]
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)
@@ -160,8 +180,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "massive-iron-crown" "& massive iron crown~"
   :numeric-id 499
-  :x-attr #\D
-  :x-char #\]
+  :text-attr #\D
+  :text-char #\]
   :depth 44
   :rarity 0
   :chance #(0 0 0 0)
@@ -177,8 +197,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "robe" "& robe~"
   :numeric-id 101
-  :x-attr #\b
-  :x-char #\(
+  :x-attr (tile-file 3)
+  :x-char (tile-number 34)
+  :text-attr #\b
+  :text-char #\(
   :depth 1
   :rarity 0
   :chance #(1 1 0 0)
@@ -191,8 +213,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "filthy-rag" "& filthy rag~"
   :numeric-id 102
-  :x-attr #\D
-  :x-char #\(
+  :x-attr (tile-file 3)
+  :x-char (tile-number 33)
+  :text-attr #\D
+  :text-char #\(
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -205,8 +229,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "soft-leather-armour" "soft leather armour~"
   :numeric-id 103
-  :x-attr #\U
-  :x-char #\(
+  :x-attr (tile-file 3)
+  :x-char (tile-number 38)
+  :text-attr #\U
+  :text-char #\(
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -219,8 +245,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "soft-studded-leather" "soft studded leather~"
   :numeric-id 104
-  :x-attr #\U
-  :x-char #\(
+  :x-attr (tile-file 3)
+  :x-char (tile-number 39)
+  :text-attr #\U
+  :text-char #\(
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -233,8 +261,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "hard-leather-armour" "hard leather armour~"
   :numeric-id 105
-  :x-attr #\U
-  :x-char #\(
+  :x-attr (tile-file 3)
+  :x-char (tile-number 40)
+  :text-attr #\U
+  :text-char #\(
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -247,8 +277,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "hard-studded-leather" "hard studded leather~"
   :numeric-id 106
-  :x-attr #\U
-  :x-char #\(
+  :x-attr (tile-file 3)
+  :x-char (tile-number 41)
+  :text-attr #\U
+  :text-char #\(
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -261,8 +293,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "leather-scale-mail" "leather scale mail~"
   :numeric-id 107
-  :x-attr #\U
-  :x-char #\(
+  :x-attr (tile-file 3)
+  :x-char (tile-number 42)
+  :text-attr #\U
+  :text-char #\(
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -275,8 +309,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "metal-scale-mail" "metal scale mail~"
   :numeric-id 108
-  :x-attr #\s
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 43)
+  :text-attr #\s
+  :text-char #\[
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -289,8 +325,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "chain-mail" "chain mail~"
   :numeric-id 109
-  :x-attr #\s
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 45)
+  :text-attr #\s
+  :text-char #\[
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -303,8 +341,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "rusty-chain-mail" "rusty chain mail~"
   :numeric-id 110
-  :x-attr #\r
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 44)
+  :text-attr #\r
+  :text-char #\[
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -317,8 +357,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "augm-chain-mail" "augmented chain mail~"
   :numeric-id 111
-  :x-attr #\s
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 47)
+  :text-attr #\s
+  :text-char #\[
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -331,8 +373,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "bar-chain-mail" "bar chain mail~"
   :numeric-id 112
-  :x-attr #\s
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 48)
+  :text-attr #\s
+  :text-char #\[
   :depth 35
   :rarity 0
   :chance #(1 0 0 0)
@@ -345,8 +389,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "metal-brigandine" "metal brigandine armour~"
   :numeric-id 113
-  :x-attr #\s
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 49)
+  :text-attr #\s
+  :text-char #\[
   :depth 35
   :rarity 0
   :chance #(1 0 0 0)
@@ -359,8 +405,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "partial-plate" "partial plate armour~"
   :numeric-id 114
-  :x-attr #\W
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 50)
+  :text-attr #\W
+  :text-char #\[
   :depth 45
   :rarity 0
   :chance #(1 0 0 0)
@@ -373,8 +421,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "metal-lamellar" "metal lamellar armour~"
   :numeric-id 115
-  :x-attr #\W
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 51)
+  :text-attr #\W
+  :text-char #\[
   :depth 45
   :rarity 0
   :chance #(1 0 0 0)
@@ -387,8 +437,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "full-plate" "full plate armour~"
   :numeric-id 116
-  :x-attr #\W
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 52)
+  :text-attr #\W
+  :text-char #\[
   :depth 45
   :rarity 0
   :chance #(1 0 0 0)
@@ -401,8 +453,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ribbed-plate" "ribbed plate armour~"
   :numeric-id 117
-  :x-attr #\W
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 53)
+  :text-attr #\W
+  :text-char #\[
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)
@@ -415,8 +469,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "adamantite-plater" "adamantite plate mail~"
   :numeric-id 118
-  :x-attr #\G
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 56)
+  :text-attr #\G
+  :text-char #\[
   :depth 75
   :rarity 0
   :chance #(8 0 0 0)
@@ -429,8 +485,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mithril-plate" "mithril plate mail~"
   :numeric-id 119
-  :x-attr #\B
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 54)
+  :text-attr #\B
+  :text-char #\[
   :depth 60
   :rarity 0
   :chance #(4 0 0 0)
@@ -443,8 +501,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "mithril-chain-mail" "mithril chain mail~"
   :numeric-id 120
-  :x-attr #\B
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 55)
+  :text-attr #\B
+  :text-char #\[
   :depth 55
   :rarity 0
   :chance #(4 0 0 0)
@@ -457,8 +517,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "double-chain-mail" "double chain mail~"
   :numeric-id 121
-  :x-attr #\s
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 46)
+  :text-attr #\s
+  :text-char #\[
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -473,8 +535,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "cloak" "& cloak~"
   :numeric-id 123
-  :x-attr #\g
-  :x-char #\(
+  :x-attr (tile-file 3)
+  :x-char (tile-number 0)
+  :text-attr #\g
+  :text-char #\(
   :depth 1
   :rarity 0
   :chance #(1 1 0 0)
@@ -487,8 +551,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "shadow-cloak" "& shadow cloak~"
   :numeric-id 124
-  :x-attr #\D
-  :x-char #\(
+  :x-attr (tile-file 3)
+  :x-char (tile-number 1)
+  :text-attr #\D
+  :text-char #\(
   :depth 60
   :rarity 0
   :chance #(4 0 0 0)
@@ -501,8 +567,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "leather-gloves" "& set~ of leather gloves"
   :numeric-id 125
-  :x-attr #\U
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 23)
+  :text-attr #\U
+  :text-char #\]
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -515,8 +583,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "gauntlets" "& set~ of gauntlets"
   :numeric-id 126
-  :x-attr #\U
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 26)
+  :text-attr #\U
+  :text-char #\]
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -529,8 +599,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "cesti" "& set~ of cesti"
   :numeric-id 127
-  :x-attr #\W
-  :x-char #\]
+  :x-attr (tile-file 3)
+  :x-char (tile-number 27)
+  :text-attr #\W
+  :text-char #\]
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)
@@ -545,8 +617,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "small-leather-shield" "& small leather shield~"
   :numeric-id 128
-  :x-attr #\U
-  :x-char #\)
+  :x-attr (tile-file 3)
+  :x-char (tile-number 90)
+  :text-attr #\U
+  :text-char #\)
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -559,8 +633,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "large-leather-shield" "& large leather shield~"
   :numeric-id 129
-  :x-attr #\U
-  :x-char #\)
+  :x-attr (tile-file 3)
+  :x-char (tile-number 29)
+  :text-attr #\U
+  :text-char #\)
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -573,8 +649,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "small-metal-shield" "& small metal shield~"
   :numeric-id 130
-  :x-attr #\s
-  :x-char #\)
+  :x-attr (tile-file 3)
+  :x-char (tile-number 93)
+  :text-attr #\s
+  :text-char #\)
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -587,8 +665,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "large-metal-shield" "& large metal shield~"
   :numeric-id 131
-  :x-attr #\s
-  :x-char #\)
+  :x-attr (tile-file 3)
+  :x-char (tile-number 89)
+  :text-attr #\s
+  :text-char #\)
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -601,8 +681,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "deflection-shield" "& shield~ of deflection"
   :numeric-id 122
-  :x-attr #\B
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 32)
+  :text-attr #\B
+  :text-char #\[
   :depth 70
   :rarity 0
   :chance #(8 0 0 0)
@@ -617,8 +699,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-black" "black dragon scale mail~"
   :numeric-id 400
-  :x-attr #\s
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 59)
+  :text-attr #\s
+  :text-char #\[
   :depth 60
   :rarity 0
   :chance #(8 0 0 0)
@@ -633,8 +717,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-blue" "blue dragon scale mail~"
   :numeric-id 401
-  :x-attr #\b
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 57)
+  :text-attr #\b
+  :text-char #\[
   :depth 40
   :rarity 0
   :chance #(8 0 0 0)
@@ -649,8 +735,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-white" "white dragon scale mail~"
   :numeric-id 402
-  :x-attr #\w
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 58)
+  :text-attr #\w
+  :text-char #\[
   :depth 50
   :rarity 0
   :chance #(8 0 0 0)
@@ -665,8 +753,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-red" "red dragon scale mail~"
   :numeric-id 403
-  :x-attr #\r
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 60)
+  :text-attr #\r
+  :text-char #\[
   :depth 80
   :rarity 0
   :chance #(8 0 0 0)
@@ -681,8 +771,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-green" "green dragon scale mail~"
   :numeric-id 404
-  :x-attr #\g
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 61)
+  :text-attr #\g
+  :text-char #\[
   :depth 70
   :rarity 0
   :chance #(8 0 0 0)
@@ -697,8 +789,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-mh" "multi-hued dragon scale mail~"
   :numeric-id 405
-  :x-attr #\v
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 68)
+  :text-attr #\v
+  :text-char #\[
   :depth 100
   :rarity 0
   :chance #(16 0 0 0)
@@ -714,8 +808,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-shining" "shining dragon scale mail~"
   :numeric-id 406
-  :x-attr #\o
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 64)
+  :text-attr #\o
+  :text-char #\[
   :depth 65
   :rarity 0
   :chance #(16 0 0 0)
@@ -730,8 +826,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-law" "law dragon scale mail~"
   :numeric-id 407
-  :x-attr #\B
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 66)
+  :text-attr #\B
+  :text-char #\[
   :depth 80
   :rarity 0
   :chance #(16 0 0 0)
@@ -746,8 +844,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-bronze" "bronze dragon scale mail~"
   :numeric-id 408
-  :x-attr #\U
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 62)
+  :text-attr #\U
+  :text-char #\[
   :depth 55
   :rarity 0
   :chance #(8 0 0 0)
@@ -762,8 +862,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-gold" "gold dragon scale mail~"
   :numeric-id 409
-  :x-attr #\y
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 63)
+  :text-attr #\y
+  :text-char #\[
   :depth 65
   :rarity 0
   :chance #(8 0 0 0)
@@ -778,8 +880,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-chaos" "chaos dragon scale mail~"
   :numeric-id 410
-  :x-attr #\v
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 65)
+  :text-attr #\v
+  :text-char #\[
   :depth 75
   :rarity 0
   :chance #(16 0 0 0)
@@ -794,8 +898,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-balance" "balance dragon scale mail~"
   :numeric-id 411
-  :x-attr #\v
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 67)
+  :text-attr #\v
+  :text-char #\[
   :depth 90
   :rarity 0
   :chance #(16 0 0 0)
@@ -811,8 +917,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dsm-power" "power dragon scale mail~"
   :numeric-id 412
-  :x-attr #\v
-  :x-char #\[
+  :x-attr (tile-file 3)
+  :x-char (tile-number 69)
+  :text-attr #\v
+  :text-char #\[
   :depth 110
   :rarity 0
   :chance #(64 0 0 0)

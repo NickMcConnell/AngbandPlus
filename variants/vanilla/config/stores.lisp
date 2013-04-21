@@ -227,7 +227,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 108
     :haggle-num 4
     :tolerance 12
-    :picture "male-hobbit-rogue.png"
+    :picture "people/male-hobbit-rogue.png"
     :race '<hobbit>)
 
 (define-store-owner
@@ -239,7 +239,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 108
     :haggle-num 4
     :tolerance 12
-    :picture "male-human-warrior.png"
+    :picture "people/male-human-warrior.png"
     :race '<human>)
 
 (define-store-owner
@@ -251,7 +251,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 107
     :haggle-num 5
     :tolerance 15
-    :picture "male-dwarf-warrior.png"
+    :picture "people/male-dwarf-warrior.png"
     :race '<dwarf>)
 
 (define-store-owner
@@ -263,7 +263,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 107
     :haggle-num 6
     :tolerance 18
-    :picture "female-elf-rogue.png"
+    :picture "people/female-elf-rogue.png"
     :race '<elf>)
 
 ;;; ===== armouries =====
@@ -277,7 +277,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 115
     :haggle-num 5
     :tolerance 7
-    :picture "male-halforc-ranger.png"
+    :picture "people/male-halforc-ranger.png"
     :race '<half-orc>)
 
 (define-store-owner
@@ -289,7 +289,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 111
     :haggle-num 4
     :tolerance 9
-    :picture "male-human-warrior.png"
+    :picture "people/male-human-warrior.png"
     :race '<human>)
 
 (define-store-owner
@@ -301,7 +301,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 112
     :haggle-num 4
     :tolerance 10
-    :picture "male-human-warrior.png"
+    :picture "people/male-human-warrior.png"
     :race '<dunedan>)
 
 (define-store-owner
@@ -313,7 +313,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 112
     :haggle-num 4
     :tolerance 5
-    :picture "male-dwarf-warrior.png"
+    :picture "people/male-dwarf-warrior.png"
     :race '<dwarf>)
 
 ;;; ===== weapon-smiths =====
@@ -327,7 +327,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 115
     :haggle-num 6
     :tolerance 6
-    :picture "male-halftroll-warrior.png"
+    :picture "people/male-halftroll-warrior.png"
     :race '<half-troll>)
 
 (define-store-owner
@@ -339,7 +339,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 110
     :haggle-num 5
     :tolerance 9
-    :picture "male-elf-warrior.png"
+    :picture "people/male-elf-warrior.png"
     :race '<elf>)
 
 (define-store-owner
@@ -351,7 +351,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 115
     :haggle-num 5
     :tolerance 7
-    :picture "male-hobbit-rogue.png"
+    :picture "people/male-hobbit-rogue.png"
     :race '<hobbit>)
 
 (define-store-owner
@@ -363,7 +363,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 112
     :haggle-num 4
     :tolerance 8
-    :picture "male-dwarf-warrior.png"
+    :picture "people/male-dwarf-warrior.png"
     :race '<dwarf>)
 
 ;;; ===== temples =====
@@ -377,7 +377,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 109
     :haggle-num 6
     :tolerance 15
-    :picture "male-human-warrior.png"
+    :picture "people/male-human-warrior.png"
     :race '<human>)
 
 (define-store-owner
@@ -389,7 +389,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 110
     :haggle-num 5
     :tolerance 23
-    :picture "male-human-warrior.png"
+    :picture "people/male-human-warrior.png"
     :race '<human>)
 
 (define-store-owner
@@ -401,7 +401,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 107
     :haggle-num 6
     :tolerance 20
-    :picture "female-elf-rogue.png"
+    :picture "people/female-elf-rogue.png"
     :race '<elf>)
 
 (define-store-owner
@@ -413,7 +413,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 109
     :haggle-num 5
     :tolerance 15
-    :picture "male-dwarf-warrior.png"
+    :picture "people/male-dwarf-warrior.png"
     :race '<dwarf>)
 
 ;;; ===== alchemists =====
@@ -427,7 +427,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 111
     :haggle-num 5
     :tolerance 8
-    :picture "male-highelf-mage.png"
+    :picture "people/male-highelf-mage.png"
     :race '<half-elf>)
 
 (define-store-owner
@@ -439,7 +439,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 111
     :haggle-num 6
     :tolerance 8
-    :picture "male-hobbit-rogue.png"
+    :picture "people/male-hobbit-rogue.png"
     :race '<hobbit>)
 
 (define-store-owner
@@ -451,7 +451,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 116
     :haggle-num 6
     :tolerance 9
-    :picture "male-gnome-rogue.png"
+    :picture "people/male-gnome-rogue.png"
     :race '<gnome>)
 
 (define-store-owner
@@ -463,7 +463,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 111
     :haggle-num 4
     :tolerance 9
-    :picture "female-human-bard.png"
+    :picture "people/female-human-bard.png"
     :race '<human>)
 
 
@@ -478,7 +478,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 110
     :haggle-num 7
     :tolerance 8
-    :picture "female-halfelf-ranger.png"
+    :picture "people/female-halfelf-ranger.png"
     :race '<half-elf>)
 
 (define-store-owner
@@ -490,7 +490,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 113
     :haggle-num 6
     :tolerance 10
-    :picture "male-gnome-rogue.png"
+    :picture "people/male-gnome-rogue.png"
     :race '<gnome>)
 
 (define-store-owner
@@ -502,7 +502,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 110
     :haggle-num 7
     :tolerance 10
-    :picture "male-human-warrior.png"
+    :picture "people/male-human-warrior.png"
     :race '<human>)
 
 (define-store-owner
@@ -514,7 +514,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 110
     :haggle-num 5
     :tolerance 11
-    :picture "female-highelf-ranger.png"
+    :picture "people/female-highelf-ranger.png"
     :race '<high-elf>)
 
 ;;; ===== black markets =====
@@ -528,7 +528,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 150
     :haggle-num 10
     :tolerance 5
-    :picture "male-halftroll-warrior.png"
+    :picture "people/male-halftroll-warrior.png"
     :race '<half-troll>)
 
 (define-store-owner
@@ -540,7 +540,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 150
     :haggle-num 10
     :tolerance 5
-    :picture "male-halforc-ranger.png"
+    :picture "people/male-halforc-ranger.png"
     :race '<half-orc>)
 
 (define-store-owner
@@ -552,7 +552,7 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 150
     :haggle-num 10
     :tolerance 5
-    :picture "male-dwarf-warrior.png"
+    :picture "people/male-dwarf-warrior.png"
     :race '<dwarf>)
 
 (define-store-owner
@@ -564,5 +564,5 @@ the Free Software Foundation; either version 2 of the License, or
     :min-greed 150
     :haggle-num 10
     :tolerance 5
-    :picture "male-highelf-mage.png"
+    :picture "people/male-highelf-mage.png"
     :race '<elf>)

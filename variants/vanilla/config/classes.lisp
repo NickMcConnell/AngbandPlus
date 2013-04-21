@@ -47,6 +47,10 @@ the Free Software Foundation; either version 2 of the License, or
   :starting-equipment '((obj :id "broad-sword")
 			(obj :id "chain-mail")
 			(obj :id "potion-berserk")
+			(obj :id "wand-lightning-bolt")
+			(obj :id "wand-stinking-cloud")
+			(obj :id "rod-lightning-bolts")
+
 			#||
 			(obj :id "ring-teleport")
 			(obj :id "potion-confusion" :amount 2)
@@ -56,7 +60,6 @@ the Free Software Foundation; either version 2 of the License, or
 ;;			(obj :id "ring-resist-poison")
 ;;			(obj :id "ring-woe")
 ;;			(obj :id "ring-stupid")
-			(obj :id "wand-lightning-bolt")
 			(obj :id "staff-identify")
 			(obj :id "potion-speed" :amount 9)
 			
@@ -69,7 +72,7 @@ the Free Software Foundation; either version 2 of the License, or
 			;;(obj :id "scroll-teleport-lvl" :amount 5)
 			;;(obj :id "amulet-resist-acid")
 			;;(obj :id "potion-str" :amount 7)
-			;;(obj :id "rod-lightning-bolts")
+			
 
 			||#
 			
@@ -132,7 +135,8 @@ the Free Software Foundation; either version 2 of the License, or
 	      (<perception> 2 0)
 	      (<fighting> 68 35)
 	      (<shooting> 40 30))
-
+    
+    :magic-abilities '(:spell-stat <wis> :spells-at-level 1) ;; unsure on starting level
     )
 
 (define-character-class "ranger" "Ranger"
@@ -185,6 +189,8 @@ the Free Software Foundation; either version 2 of the License, or
 	      (<perception> 16 0)
 	      (<fighting> 56 30)
 	      (<shooting> 72 45))
+    
+    :magic-abilities '(:spell-stat <int> :spells-at-level 3)
 
     )
 
@@ -416,6 +422,8 @@ the Free Software Foundation; either version 2 of the License, or
 	    (<fighting> 60 40)
 	    (<shooting> 66 30))
   
+  :magic-abilities '(:spell-stat <int> :spells-at-level 5)
+
 )
 
 

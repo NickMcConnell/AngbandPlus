@@ -3,7 +3,7 @@
 #||
 
 DESC: global.lisp - globally available functions/methods
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,6 +19,121 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 
 (in-package :org.langband.engine)
 
+
+(defmacro with-frame ((num) &body body)
+  `(let ((*cur-win* (aref *windows* ,num)))
+    ,@body))
+
+(defmacro with-full-frame (() &body body)
+  `(unwind-protect
+    (progn 
+      (switch-to-full-frame&)
+      (with-frame (+full-frame+)
+	,@body))
+    (switch-to-regular-frameset&)))
+
+;; very bulky
+(defmacro with-dialogue (() &body body)
+  ;; posibly find better solution later
+  `(invoke-in-dialogue #'(lambda () ,@body)))
+
+(defun fetch-event (event-obj only-poll)
+  (let ((listen-arg (if only-poll 1 0))
+	(read-obj nil))
+    (loop
+     (setf read-obj (c-listen-for-event listen-arg))
+     (cond ((plusp read-obj)
+	    ;; analyze
+	    (cond ((bit-flag-set? read-obj #x01) ;; mouse-event
+		   (let ((x (ldb (byte 12 6) read-obj))
+			 (y (ldb (byte 12 18) read-obj))
+			 (m-ev (input-event.mouseclick event-obj))
+			 (button :left))
+		     (when (bit-flag-set? read-obj #x02)
+		       (setf button :left))
+		     (when (bit-flag-set? read-obj #x04)
+		       (setf button :right))
+		     (when (bit-flag-set? read-obj #x08)
+		       (setf button :middle))
+		     
+		     (setf (input-event.type event-obj) :mouse
+			   (mouse-event.x m-ev) x
+			   (mouse-event.y m-ev) y
+			   (mouse-event.button m-ev) button)
+		     (return-from fetch-event event-obj)))
+		  
+		  ;; keyboard-event
+		  (t
+		   (let ((key (ldb (byte 16 8) read-obj))
+			 (k-ev (input-event.keypress event-obj)))
+		     
+		     (setf (kbd-event.key k-ev) nil
+			   (kbd-event.ctrl k-ev) nil
+			   (kbd-event.alt k-ev) nil
+			   (kbd-event.shift k-ev) nil) ;; reset
+
+		     
+		     (when (bit-flag-set? read-obj #x02)
+		       (setf (kbd-event.ctrl k-ev) t))
+		     (when (bit-flag-set? read-obj #x04)
+		       (setf (kbd-event.alt k-ev) t))
+		     (when (bit-flag-set? read-obj #x08)
+		       (setf (kbd-event.shift k-ev) t))
+
+		     (when (< 0 key 126)
+		       (setf (kbd-event.key k-ev) (code-char key)))
+		     ;; hackish,
+		     (when (< 272 key 282)
+		       (setf (kbd-event.key k-ev) (ecase key
+						    (273 #\8)
+						    (274 #\2)
+						    (275 #\6)
+						    (276 #\4)
+						    (277 #\0)
+						    (278 #\7)
+						    (279 #\1)
+						    (280 #\9)
+						    (281 #\3))))
+	    
+		     ;; hackish,
+		     (when (< 255 key 266)
+		       (setf (kbd-event.key k-ev) (ecase key
+						    (256 #\0)
+						    (257 #\1)
+						    (258 #\2)
+						    (259 #\3)
+						    (260 #\4)
+						    (261 #\5)
+						    (262 #\6)
+						    (263 #\7)
+						    (264 #\8)
+						    (265 #\9))))
+
+		     (when (kbd-event.key k-ev)
+		       (setf (input-event.type event-obj) :key)
+		       (return-from fetch-event event-obj))
+
+		     (when (plusp key)
+		       (warn "Got back unhandled key ~s" key))
+		     ))
+		  ))
+		  
+	   (only-poll
+	    (return-from fetch-event nil))
+	   
+	   (t nil))
+     )))
+
+(defun read-one-character ()
+  "Reads one character from the C-side."
+
+  (loop	;; we might get a mouse-event!
+   (let ((ev (fetch-event *input-event* nil)))
+     ;;(warn "got back ~s" ev)
+     (when (and ev (eq (input-event.type ev) :key))
+       ;; fix
+       (return-from read-one-character (kbd-event.key (input-event.keypress ev)))
+       ))))
 
 
 (defmethod convert-obj (obj to &key)
@@ -662,80 +777,6 @@ information from the list skills whose content depends on variant."
     (number code)
     (character (char-code code))))
 
-(defmacro with-new-screen (arg &body body)
-  (declare (ignore arg))
-  `(unwind-protect
-    (prog2
-	(screen-save)
-	,@body)
-    (screen-load)))
-
-(defmacro with-frame ((num) &body body)
-  (let ((sym (gensym)))
-    `(let ((,sym (c-get-cur-term)))
-      (unwind-protect
-	   (progn
-	     (term-activate& ,num)
-	     ,@body)
-	(term-activate& ,sym)))))
-
-(defmacro with-full-frame (() &body body)
-  `(unwind-protect
-    (progn 
-      (switch-to-full-frame&)
-      (with-frame (+full-frame+)
-	,@body))
-    (switch-to-regular-frameset&)))
-
-(defun invoke-in-dialogue (fun)
-  (let ((term (c-get-cur-term)))
-    (cond ((= term +dialogue-frame+)
-	   (funcall fun))
-	  (t
-	   (unwind-protect
-		(progn
-		  (c-deactivate-frame! +charinfo-frame+)
-		  (c-deactivate-frame! *map-frame*)
-		  (c-activate-frame! +dialogue-frame+)
-		  (c-clean-frame! +dialogue-frame+)
-		  (with-frame (+dialogue-frame+)
-		    (funcall fun)))
-
-	     (progn
-	       (c-wipe-frame! +dialogue-frame+)
-	       (c-deactivate-frame! +dialogue-frame+)
-	       (c-activate-frame! +charinfo-frame+)
-	       (c-activate-frame! *map-frame*)
-	       (c-clean-frame! +charinfo-frame+)
-	       (c-clean-frame! *map-frame*)
-	       )))
-	  )))
-
-;; very bulky
-(defmacro with-dialogue (() &body body)
-  ;; posibly find better solution later
-  `(invoke-in-dialogue #'(lambda () ,@body)))
-
-
-;; hackish!
-(defun queue-map-char! (x y col sym tcol tsym)
-  "Queues to the map-frame."
-  (with-frame (*map-frame*)
-    (c-term-queue-char! x y col sym tcol tsym)))
-
-;; ugly hack!
-(defun c-term-fresh! (&optional (term -1))
-  "If term is a negative number (default) it will fresh all terms, if not
-it will fresh specified term."
-  (cond ((>= term 0)
-	 (with-frame (term)
-	   (c-term_fresh!)))
-	(t
-	 ;;(warn "Fresh with negative argument!!!")
-	 (dotimes (i +max-frames+)
-	   (with-frame (i)
-	     ;;(warn "Freshing term ~s" i)
-	     (c-term_fresh!))))))
 
 
 ;; move later
@@ -748,26 +789,6 @@ it will fresh specified term."
       (3 'win)
       (4 'sdl)
       )))
-
-(defun define-key-macros (key &rest macros)
-  (dolist (i macros)
-    (let ((macro (text-to-ascii i)))
-
-;;      (format t "~&~C: " key)
-;;      (loop for x across macro do (format t "~a " (char-code x))
-;;	    finally (format t "~%"))
-;;      (warn "macro ~s" macro)
-      #-lispworks
-      (org.langband.ffi:c_macro_add& macro (string key))
-      #+lispworks
-      (fli:with-foreign-string (s a b)
-	macro
-	(fli:with-foreign-string (st aa bb)
-	  (string key)
-	  (org.langband.ffi:c_macro_add& s st)))
-      ))
-;;      (c-macro-add& macro (string key))))
-  key)
 
 
 #-compiler-that-inlines
@@ -823,16 +844,18 @@ it will fresh specified term."
 (defun %flush-messages! (x-pos &optional (forced nil))
   "Do not use unless you know what you're doing."
   (with-frame (+message-frame+)
-    (%term-putstr! x-pos 0 -1 +term-l-blue+ "-more-")
+    (output-string! *cur-win* x-pos 0 +term-l-blue+ "-more-")
     
     (unless forced
       (block input-loop
 	(loop
 	 (read-one-character)
-	 (c-term-fresh! +message-frame+)
+	 (refresh-window +message-frame+)
 	 ;; see util.c for real code.. just skip now
 	 (return-from input-loop t))))
-    (c_term_erase! 0 0 255)))
+    
+    (clear-row *cur-win* 0 0)))
+
 
 ;; this code is simpler than in C, but does the same job basically
 (let ((msg-col 0)
@@ -842,8 +865,6 @@ it will fresh specified term."
   (defun print-message! (msg &optional (attr +term-white+))
     "If msg is nil, things are flushed."
     ;;  (warn "going fu on ~s" (type-of str))
-    (when (equal msg +c-null-value+)
-      (setq msg nil))
 
     (let ((msg-len (if msg (length msg) 0)))
     
@@ -864,8 +885,8 @@ it will fresh specified term."
 	    messages)
       ;; skip msg-add
       (with-frame (+message-frame+)
-	(%term-putstr! msg-col 0 -1 attr msg))
-      (c-term-fresh! +message-frame+)
+	(output-string! *cur-win* msg-col 0 attr msg))
+      (refresh-window +message-frame+)
       (incf msg-col (1+ msg-len))
       
       t))
@@ -877,11 +898,11 @@ it will fresh specified term."
       ;; skip reset of msg-flag
       (setf msg-col 0))
     ;; we also fake a check of the length here
-    (setf end-col (- (get-term-width +message-frame+) 8)))
+    (setf end-col (- (get-frame-width +message-frame+) 8)))
 
   (defun show-messages (&key (offset 0))
     (declare (ignore offset))
-    (c-clear-from! 0)
+    (clear-window *cur-win*)
     (let ((last-line (get-last-console-line)))
       ;;(warn "last line is ~s" last-line)
       (loop for i from 0 to (- last-line 2)
@@ -896,191 +917,148 @@ it will fresh specified term."
     messages)
   )
 
-
-(let ((screen-lock nil))
-  
-  (defun screen-save ()
-    
-    (when screen-lock
-      (error "Screen already locked, please fix execution-path."))
-
-    ;; flush
-    (print-message! nil)
-    (c-term-save!)
-    (setf screen-lock t))
-  
-  (defun screen-load ()
-    (unless screen-lock
-      (error "Trying to load a screen, but none is locked."))
-    ;; flush
-    (print-message! nil)
-    (c-term-load!)
-    (setf screen-lock nil)))
-
-    
-(defun c-quit! (str)
-  #-lispworks
-  (org.langband.ffi:c_quit! (org.langband.ffi:to-arr str))
-  #+lispworks
-  (fli:with-foreign-string (base-ptr a b)
-    str
-    (org.langband.ffi:c_quit! base-ptr))
-  (values))
-
-;; do not use outside global.lisp!
-(defun %term-putstr! (col row some colour text)
-;;  (warn "putting |~s|" text)
-  #-lispworks
-  (org.langband.ffi:c_term_putstr! col row some colour
-				   (org.langband.ffi:to-arr text))
-  #+lispworks
-  (fli:with-foreign-string (base-ptr a b)
-    text
-    (org.langband.ffi:c_term_putstr! col row some colour base-ptr))
-  (values))
-
-(defun put-coloured-line! (colour text col row)
-  "Erases rest of line and puts a string."
-    (c_term_erase! col row 255)
-    (unless (or (eq text nil) (and (stringp text) (= (length text) 0)))
-      (%term-putstr! col row -1 colour text)))
-
-;; needs to print empty stuff?
-(defun put-coloured-str! (colour text col row)
-  (%term-putstr! col row -1 colour text)
-  (values))
-
-;; deprecated!!
-(defun c-prt! (str col row)
-  (put-coloured-line! +term-white+ str col row))
-
-(defun output-string! (term str col row &optional (attr +term-white+))
-  (with-frame (term) ;; do this on the C-side later
-    (%term-putstr! col row -1 attr str)))
-
-
-
 (defun print-note! (msg &optional (attr +term-white+) &key (row -1))
   "Prints a centred note on the last line."
 
-  (let ((row (if (or (< row 0) (< (get-term-height) row))
+  (let* ((win *cur-win*)
+	 (row (if (or (< row 0) (< (window.height win) row))
 		 (get-last-console-line)
 		 row))
 	;;(row 23) ;;(get-last-console-line))
 	;; screws up somewhat when graphics is enabled
-	(col (- (int-/ (get-last-console-column) 2)
+	(col (- (int-/ (get-last-console-column win) 2)
 		(int-/ (length msg) 2))))
 
-    (c_term_erase! 0 row 255)
+    (clear-row win 0 row)
     (put-coloured-str! attr msg col row)
-    (c-term-flush!)
-    (c-term-fresh!)
+    ;;(c-term-flush!)
+    (refresh-window win)
     ;;(pause-last-line!)
     t))
 
 
-(defun c-bell! (text)
-  (declare (ignore text))
-  ;; fix this later
-  (c-term-fresh!)
-  ;; skip msg-add
-  ;; skip bell
-  ;; skip flush
-  )
-
-(defun c-pause-line! (row &key msg attr)
+(defun pause-at-line! (row &key msg attr)
   (unless msg
     (setf msg "[Press any key to continue]"))
   (unless attr
     (setf attr +term-white+))
   (print-note! msg attr :row row)
-;;  (c_term_erase! 0 row 255)
-;;  (put-coloured-str! attr msg 23 row)
+  
   (let ((read-char (read-one-character)))
-    (c_term_erase! 0 row 255)
+    (clear-row *cur-win* 0 row)
     read-char))
 
 
 (defun get-last-console-line (&optional (term -1))
-  (1- (get-term-height term)))
+  (1- (get-frame-height term)))
 
 (defun get-last-console-column (&optional (term -1))
-  (1- (get-term-width term)))
+  (1- (get-frame-width term)))
 
-;;(trace get-last-console-column)
 
 (defun pause-last-line! (&key msg attr)
-  (c-pause-line! (get-last-console-line) :msg msg :attr attr))
-
-;; fix!
-(defun init-c-side& (ui source-path config-path gfx-path debug-level)
-  #-lispworks
-  (org.langband.ffi:init_c-side& ui source-path config-path gfx-path debug-level)
-  #+lispworks
-  (fli:with-dynamic-foreign-objects ()
-    (flet ((for-str (x)
-	     (fli:convert-to-dynamic-foreign-string x)))
-      (org.langband.ffi:init_c-side& (for-str ui) (for-str source-path)
-				     (for-str config-path)
-				     (for-str gfx-path) debug-level))))
-
-(defun c-add-frame! (key name)
-  #-lispworks
-  (org.langband.ffi:c-add_frame! key name)
-  #+lispworks
-  (fli:with-foreign-string (s a b)
-    name
-    (org.langband.ffi:c-add_frame! key s)))
-
-(defun c-add-frame-tileinfo! (key tw th font bg)
-  #-lispworks
-  (org.langband.ffi:c-add_frame-tileinfo! key tw th font bg)
-  #+lispworks
-  (fli:with-dynamic-foreign-objects ()
-    (flet ((for-str (x)
-	     (fli:convert-to-dynamic-foreign-string x)))
-      (org.langband.ffi:c-add_frame-tileinfo! key tw th
-					      (for-str font) (for-str bg)))))
-
-(defun c-load-sound-effect& (name idx)
-  #-lispworks
-  (org.langband.ffi:c-load_sound-effect& name idx)
-  #+lispworks
-  (fli:with-foreign-string (s a b)
-    name
-    (org.langband.ffi:c-load_sound-effect& s idx)))
-
-(defun c-texture-background! (term fname alpha)
-  #-lispworks
-  (org.langband.ffi:c-texture_background! term fname alpha)
-  #+lispworks
-  (fli:with-foreign-string (s a b)
-    fname
-    (org.langband.ffi:c-texture_background! term s alpha)))
-
-(defun paint-gfx-image& (fname type x y)
-  #-lispworks
-  (org.langband.ffi:c-paint-gfx-image& fname type x y)
-  #+lispworks
-  (fli:with-dynamic-foreign-objects ()
-    (flet ((for-str (x)
-	     (fli:convert-to-dynamic-foreign-string x)))
-      (org.langband.ffi:c-paint-gfx-image& (for-str fname) (for-str type)
-					   x y))))
-
-(defun %load-people-image (name wid height)
-  (let ((pname (concatenate 'string "./graphics/people/" name)))
-    (load-scaled-image& pname -1 wid height)))
-
-(defun %paint-people-image (name x y)
-  (paint-gfx-image& name "people" x y))
-
-(defun %paint-other-image (name x y)
-  (paint-gfx-image& name "other" x y))
+  (pause-at-line! (get-last-console-line) :msg msg :attr attr))
 
 
+(defun paint-gfx-image& (fname x y)
+  (let ((idx (find-image *variant* fname)))
+    (unless idx ;; try to load then
+      (setf idx (load-image& *variant* fname -1 0)))
+    (when (and idx (<= 0 idx))
+      (paint-gfx-image *cur-win* idx x y))))
 
-(defun c-print-text! (col row colour text &key (end-col 80))
+(defun paint-gfx-image (window idx x y &optional (layer +foreground+))
+;;  (warn "Paint ~s ~s to ~s" idx (aref (variant.images *variant*) idx) window)
+
+  (let* ((tile-wid 8) ;; hack
+	 (tile-hgt 16) ;; hack
+	 (img-wid (lb-ffi:c-get-image-width idx))
+	 (img-hgt (lb-ffi:c-get-image-height idx))
+	 (wid (int-/ img-wid tile-wid))
+	 (hgt (int-/ img-hgt tile-hgt)))
+
+;;    (when (= 0 (mod img-wid tile-wid))
+;;      (incf wid))
+
+;;    (warn "Paint ~d (~d,~d,~d,~d)" idx x y (+ x wid) (+ y hgt))
+    
+    (loop for j from 0 below hgt
+	  do
+	  (loop for i from 0 below wid
+		do
+		(let ((val (tile-paint-value idx (+ i (* j wid)))))
+		  ;;(warn "~d at (~d,~d)" (+ i (* j wid)) (+ i x) (+ y j))
+		  (setf (window-coord window layer (+ i x) (+ y j)) val)
+		  ;; paint to (x+i, y+j) and paint tile-num (i + j*wid)
+		  ;;(incf cnt)
+		  )
+		))
+    ;; fresh coord
+    (refresh-window window +winflag-delay-paint+)
+    ))
+
+(defun fill-area (window img tile-num x1 y1 x2 y2)
+  "Paints tile number TILE-NUM from given image IMG, to the rectangle (x1,y1,x2,y2)
+in window WINDOW."
+  
+  (let ((val (tile-paint-value img tile-num)))
+    (loop for x from x1 below x2
+	  do
+	  (loop for y from y1 below y2
+		do
+		(setf (window-coord window +foreground+ x y) val)))))
+
+(defun load-scaled-image& (fname idx wid hgt)
+  (declare (ignore idx wid hgt))
+  (warn "Scale-load image ~s" fname))
+
+
+(defun find-image (variant fname)
+  "Tries to find index for an image, NIL when there is none."
+  (when variant
+    (loop for i from 0
+	  for x across (variant.images variant)
+	  do
+	  (when (equal fname x)
+	    (return-from find-image i))))
+  nil)
+
+(defun load-image& (variant fname idx transcolour)
+  "Tries to load the named image in given idx spot."
+
+  (flet ((load-op (fname idx tr)
+           (org.langband.ffi:load-gfx-image& fname idx tr)))
+               
+
+    (block negative-idx
+      (when (minusp idx)
+	(check-type variant variant)
+	(let ((image-table (variant.images variant)))
+	  (loop for i from 20 below (length image-table)
+		for val = (aref image-table i)
+		do
+		(when (eq val nil)
+		  (setf idx i)
+		  (return-from negative-idx i)))
+	  (error "Unable to find available space for image in image-table."))))
+
+    (let ((trans (if (plusp transcolour)
+		     (1+ transcolour)
+		     0)))
+      (load-op (concatenate 'string *engine-graphics-dir* fname)
+	       idx
+	       trans))
+    
+    (when variant
+      (register-image& variant fname idx))
+    
+    idx))
+
+(defun delay (msecs)
+  "Delays given amount of msecs."
+  (sleep (/ msecs 1000.0)))
+
+(defun print-text! (col row colour text &key (end-col 80))
   "Don't call this if you need non-consing or fast operation."
   
   (let ((startcol col)
@@ -1114,22 +1092,6 @@ it will fresh specified term."
 		     (print-word cur-word))))
 	    finally (return cur-row)))))
 
-(defsubst read-one-character ()
-  "Reads one character from the C-side."
-  (let ((read-obj (c-inkey!)))
-    (etypecase read-obj
-      (number (code-char read-obj))
-      #-cmu
-      (character read-obj)
-      )))
-
-  
-(defsubst clear-the-screen! ()
-  "Clears the screen on the C-side."
-  (c-term-clear!)
-  #+cmu
-  (c-clear-from! 0))
-
 
 (defun quit-game& ()
   "Tries to clean up a few variables."
@@ -1148,7 +1110,8 @@ it will fresh specified term."
      (signal (make-condition 'langband-quit)))
     (otherwise
      (format t "~&Thanks for helping to test Langband.~2%")
-     (c-quit! +c-null-value+)))
+     (signal (make-condition 'langband-quit))
+     ))
   nil)
  
 ;;; === Code related to floors
@@ -1177,18 +1140,11 @@ it will fresh specified term."
 
   (let ((ftype (make-instance 'floor-type :id id
 			      :name name
-			      :x-attr (convert-obj x-attr :x-attr)
-			      :x-char (convert-obj x-char :x-char)
+	
 			      :mimic mimic)))
-    (cond (text-attr
-	   (setf (text-attr ftype) (convert-obj text-attr :text-attr)))
-	  (t
-	   (setf (text-attr ftype) (x-attr ftype))))
-    
-    (cond (text-char
-	   (setf (text-char ftype) (convert-obj text-char :text-char)))
-	  (t
-	   (setf (text-char ftype) (x-char ftype))))
+
+    (handle-gfx-visual ftype x-attr x-char)
+    (handle-text-visual ftype text-attr text-char)
 
     (when (integerp num-idx)
       (setf (floor.num-idx ftype) num-idx))
@@ -1395,12 +1351,17 @@ or removed.  Conses up a new list."
 (defmethod x-char ((obj active-trap))
   (x-char (decor.type obj)))
 
+(defmethod gfx-sym ((obj active-trap))
+  (gfx-sym (decor.type obj)))
+
 (defmethod text-attr ((obj active-trap))
   (text-attr (decor.type obj)))
 
 (defmethod text-char ((obj active-trap))
   (text-char (decor.type obj)))
 
+(defmethod text-sym ((obj active-trap))
+  (text-sym (decor.type obj)))
 
 (defun define-trap-type (id name &key x-char x-attr text-char text-attr
 			 effect min-depth max-depth rarity)
@@ -1409,26 +1370,15 @@ or removed.  Conses up a new list."
     (warn "Trap-id ~s not valid" id)
     (return-from define-trap-type nil))
   
-  (let* ((the-char (etypecase x-char
-		     (character (char-code x-char))
-		     (number x-char)))
-	 (trap-obj (make-instance 'trap-type :id id :name name
-				 :x-char the-char :x-attr x-attr
+  (let ((trap-obj (make-instance 'trap-type :id id :name name
 				 :min-depth min-depth :max-depth max-depth
 				 :rarity rarity
 				 ))
 	(table (variant.traps *variant*)))
 
-    (cond (text-char
-	   (setf (text-char trap-obj) text-char))
-	  (t
-	   (setf (text-char trap-obj) (x-char trap-obj))))
-    
-    (cond (text-attr
-	   (setf (text-attr trap-obj) text-attr))
-	  (t
-	   (setf (text-attr trap-obj) (x-attr trap-obj))))
-    
+    (handle-gfx-visual trap-obj x-attr x-char)
+    (handle-text-visual trap-obj text-attr text-char)
+
     
 ;;    (warn "Effect is ~s ~s ~s" effect (functionp effect) (compiled-function-p effect))
     (when (functionp effect)
@@ -1450,79 +1400,74 @@ or removed.  Conses up a new list."
     `(function ,def)))
 
 (defun c-has-frame? (key type)
-  (if (= (c-has_frame key type) 1)
+  (if (= (org.langband.ffi:c-has_frame key type) 1)
       t
       nil))
 
 (defun c-get-frame-gfx-tiles? (key type)
-  (if (= (c-get_frame-gfx-tiles key type) 1)
+  (if (= (org.langband.ffi:c-get_frame-gfx-tiles key type) 1)
       t
       nil))
 
 
 (defun update-term-sizes! ()
   (dotimes (i +predefined-frames+)
-    (let ((var (aref *predefined-frames* i)))
+    (let ((var (aref *windows* i)))
       (unless var
 	;; check if there should be one
 	(when (c-has-frame? i +frametype-predefined+)
-	  (setf var (make-instance 'subwindow))))
+	  (warn "Must create a dummy window, lacking a themed version.")
+	  (setf var (make-instance 'window :num-id i))))
       
       ;; ok, we have a frame we need more info about
       (when var
 	;; we need to update our info
-	(setf (subwindow.columns var)     (c-get-frame-columns i +frametype-predefined+)
-	      (subwindow.rows var)        (c-get-frame-rows i +frametype-predefined+)
-	      (subwindow.tile-width var)  (c-get-frame-tile-width i +frametype-predefined+)
-	      (subwindow.tile-height var) (c-get-frame-tile-height i +frametype-predefined+)
-	      (subwindow.gfx-tiles? var)  (c-get-frame-gfx-tiles? i +frametype-predefined+))
+	(setf (window.width var)       (c-get-frame-columns i +frametype-predefined+)
+	      (window.height var)      (c-get-frame-rows i +frametype-predefined+)
+	      (window.tile-width var)  (c-get-frame-tile-width i +frametype-predefined+)
+	      (window.tile-height var) (c-get-frame-tile-height i +frametype-predefined+)
+	      (window.gfx-tiles? var)  (c-get-frame-gfx-tiles? i +frametype-predefined+))
 
-	(assert (plusp (subwindow.columns var)))
-	(assert (plusp (subwindow.rows var)))
+	(assert (plusp (window.width var)))
+	(assert (plusp (window.height var)))
 	#+never
 	(warn "window ~s has size [~d,~d,~d,~d] and gfx ~s" i
-	      (subwindow.columns var) (subwindow.rows var)
-	      (subwindow.tile-width var) (subwindow.tile-height var)
-	      (subwindow.gfx-tiles? var))
+	      (window.width var) (window.height var)
+	      (window.tile-width var) (window.tile-height var)
+	      (window.gfx-tiles? var))
 
-	(setf (aref *predefined-frames* i) var))
+	(setf (aref *windows* i) var))
       )))
 
 
 (defun get-frame-width (&optional (term -1))
-  (if (>= term 0)
-      (subwindow.columns (aref *predefined-frames* term))
-      (subwindow.columns (aref *predefined-frames* (c-get-cur-term)))))
-
-;; deprecated
-(defun get-term-width (&optional (term -1))
-  (get-frame-width term))
+  (cond ((typep term 'window)
+	 (window.width term))
+	((>= term 0)
+	 (window.width (aref *windows* term)))
+	(t
+	 (window.width *cur-win*))))
 
 
 (defun get-frame-height (&optional (term -1))
-  (if (>= term 0)
-      (subwindow.rows (aref *predefined-frames* term))
-      (subwindow.rows (aref *predefined-frames* (c-get-cur-term)))))
+  (cond ((typep term 'window)
+	 (window.width term))
+	((>= term 0)
+	 (window.height (aref *windows* term)))
+	(t
+	 (window.height *cur-win*))))
 
-;; deprecated
-(defun get-term-height (&optional (term -1))
-  (get-frame-height term))
-
-(defun get-panel-width ()
-  (get-term-width *map-frame*))
-
-(defun get-panel-height ()
-  (get-term-height *map-frame*))
-
-;; bah!
+; bah!
 (defun load-gfx-tiles? ()
   (eq (get-system-type) 'sdl))
 
 ;; hackish!
 (defun use-gfx-tiles? (&optional (term -1))
   (if (>= term 0)
-      (subwindow.gfx-tiles? (aref *predefined-frames* term))
-      (subwindow.gfx-tiles? (aref *predefined-frames* (c-get-cur-term)))))
+      (window.gfx-tiles? (aref *windows* term))
+      ;; bad style
+      (window.gfx-tiles? *cur-win*)))
+
 
 (defun graphical-map? ()
   (use-gfx-tiles? *map-frame*))
@@ -1532,38 +1477,31 @@ or removed.  Conses up a new list."
       t
       nil))
 
-(defmacro tile-number (num)
-  `(+ +graphics-start+ ,num))
-
-;; also support names!
-(defmacro tile-file (num)
-  `(+ +graphics-start+ ,num))
-
 (defun get-aim-direction ()
   "Interactive!"
   (flush-messages! t)
   (flet ((read-loop ()
 	   (loop
-	    (c-prt! "Direction: " 0 0)
+	    (put-coloured-line! +term-white+ "Direction: " 0 0)
 	    (let ((val (read-one-character)))
 	      (cond ((or (eql val #\.)
 			 (eql val #\0)
 			 (eql val #\t))
-		     (c-prt! "" 0 0)
+		     (put-coloured-line! +term-white+ "" 0 0)
 		     (return-from read-loop 5))
 		    ((digit-char-p val)
-		     (c-prt! "" 0 0)
+		     (put-coloured-line! +term-white+ "" 0 0)
 		     (return-from read-loop (digit-char-p val)))
 		    ((eql val +escape+)
-		     (c-prt! "" 0 0)
+		     (put-coloured-line! +term-white+ "" 0 0)
 		     (return-from read-loop nil))
 		    (t
-		     (c-prt! "Unknown direction!" 0 0)))
+		     (put-coloured-line! +term-white+ "Unknown direction!" 0 0)))
 	      ))))
     
   (with-frame (+query-frame+)
     (let ((retval (read-loop)))
-      (c-prt! "" 0 0)
+      (put-coloured-line! +term-white+ "" 0 0)
       retval))))
   
 ;;; to have empty place-holders
@@ -1572,21 +1510,290 @@ or removed.  Conses up a new list."
   (declare (ignore fname idx wid hgt))
   nil)
 
-(defun image-exists? (type name)
-  (let ((fname (concatenate 'string *engine-graphics-dir* (string-downcase (string type)) "/" name)))
+(defun image-exists? (name)
+  (let ((fname (concatenate 'string *engine-graphics-dir* name)))
     (probe-file fname)))
+
+(defun put-coloured-line! (colour text col row)
+  "Erases rest of line and puts a string."
+    (clear-row *cur-win* col row)
+    (unless (or (eq text nil) (and (stringp text) (= (length text) 0)))
+      (output-string! *cur-win* col row colour text)))
+
+;; needs to print empty stuff?
+(defun put-coloured-str! (colour text col row)
+  (output-string! *cur-win* col row colour text)
+  (values))
+
+(defun output-string! (win col row colour text)
+  ;;(warn "Writing text ~s to %d,%d in ~s" text col row (window.id win))
+  ;; this is _slow_
+  (assert (integerp colour))
+  (let ((flag +winflag-delay-paint+))
+    (loop for x across text
+	  for i from col
+	  do
+	  (let ((pval (if (< colour 256)
+			  (text-paint-value colour x)
+			  (logior colour (if (characterp x) (char-code x) x))
+			  )))
+	    (setf (window-coord win +foreground+ i row) pval)
+	    (paint-coord win i row flag)))
+    ;;(warn "Flush ~s ~s ~s ~s" col row (length text) 1)
+    (flush-coords win col row (length text) 1)
+    ))
+
+
+(defun texture-background! (win fname alpha)
+  (declare (ignore alpha))
+  (let ((idx nil)
+	(var *variant*)
+	(num-win (if (integerp win) win (window.num-id win)))
+	(window (if (integerp win) (aref *windows* win) win)))
+    
+    (when (and (stringp fname) (plusp (length fname)))
+      (setf idx (find-image var fname))
+      (when (or (eq idx nil) (minusp idx))
+	(setf idx (load-image& var fname -1 0))
+	(when (minusp idx)
+	  (setf idx nil))))
+
+    ;;(warn "Assigning background ~s ~s to window ~s" fname idx (window.id window))
+    (setf (window.background window) idx)
+    ;; c-side needs negative value for bad values
+    (lb-ffi::c-add-frame-bg! num-win (if (eq idx nil) -1 idx))))
+
 
 (defun switch-to-full-frame& ()
   (loop for i from 1 below +max-frames+
 	do
-	(c-deactivate-frame! i))
-  (c-activate-frame! +full-frame+)
-  (c-clean-frame! +full-frame+))
+	(deactivate-window i))
+  (activate-window +full-frame+)
+  (paint-window +full-frame+))
 
 ;; fix to no-cons later
 (defun switch-to-regular-frameset& ()
-  (c-deactivate-frame! +full-frame+)
+  (deactivate-window +full-frame+)
   (dolist (i (list +message-frame+ +charinfo-frame+
 		   +misc-frame+ *map-frame* +inv-frame+))
-    (c-activate-frame! i)
-    (c-clean-frame! i)))
+    (activate-window i)
+    (paint-window i)))
+
+(defun invoke-in-dialogue (fun)
+  (cond ((eql (window.num-id *cur-win*) +dialogue-frame+)
+	 (funcall fun))
+	(t
+	 (unwind-protect
+	      (progn
+		(deactivate-window +charinfo-frame+)
+		(deactivate-window *map-frame*)
+		(activate-window +dialogue-frame+)
+		(paint-window +dialogue-frame+)
+		(with-frame (+dialogue-frame+)
+		  (funcall fun)))
+
+	   (progn
+	     (clear-window +dialogue-frame+)
+	     (deactivate-window +dialogue-frame+)
+	     (activate-window +charinfo-frame+)
+	     (activate-window *map-frame*)
+	     (paint-window (aref *windows* +charinfo-frame+))
+	     (paint-window (aref *windows* *map-frame*))
+	     )))
+	))
+
+(defun handle-gfx-visual (obj x-attr x-char)
+  "Handles/sets gfx-visuals for the given object.  Uses x-attr and x-char,
+and if legal assigns their values to the object.  Also sets gfx-sym based
+on these two."
+  (cond ((and x-attr x-char)
+	 ;; strict demands
+	 (check-type x-attr integer)
+	 (check-type x-char integer)
+	 (assert (or (>= x-char (expt 2 8))
+		     (= x-char 0)))
+	 (assert (or (>= x-attr (expt 2 16))
+		     (and (= x-char 0)
+			  (= x-attr 0))))
+	 
+	 (setf (x-char obj) x-char
+	       (x-attr obj) x-attr
+	       (gfx-sym obj) (logior x-attr x-char)))
+	  ((or x-attr x-char)
+	   (error "Only one of x-char and x-char provided for visualisable object ~s, need both."
+		  obj))
+	  (t nil)))
+
+
+(defun handle-text-visual (obj text-attr text-char)
+  "Handles/sets text-visuals for the given object.  Uses text-attr and text-char,
+and if legal assigns their values to the object.  Also sets text-sym based
+on these two."
+    (cond ((and text-attr text-char)
+	   (assert (or (characterp text-attr)
+		       (and (integerp text-attr)
+			    (<= 0 text-attr +term-l-umber+))))
+	   (check-type text-char character)
+
+	   (setf (text-attr obj) (make-legal-attr (if (characterp text-attr)
+						      (convert-obj text-attr :colour-code)
+						      text-attr))
+		 (text-char obj) (char-code text-char))
+	   (check-type (text-attr obj) integer)
+	   (check-type (text-char obj) integer)
+	   
+	   (assert (< (text-char obj) (expt 2 8)))
+	   (assert (or (and (< (text-attr obj) (expt 2 16))
+			    (>= (text-attr obj) (expt 2 8)))
+		       (= (text-attr obj) 0)))
+	   (setf (text-sym obj) (logior (text-attr obj) (text-char obj)))
+	   
+	   )
+	  ((or text-attr text-char)
+	   (error "Only one of text-char and text-attr provided for visualisable object ~s, need both."
+		  obj))
+	  (t nil)))
+
+
+(defvar *key-operations* (make-hash-table :test #'equal))
+
+(defun define-key-operation (key operation)
+  "defines a key-operation which later can be bound."
+  ;; to trigger warnings early
+;;  (when (functionp operation)
+;;    (setf operation (compile nil operation)))
+  (setf (gethash key *key-operations*) operation))
+
+(defun find-key-operation (key)
+  "returns an operation or NIL."
+  (gethash key *key-operations*))
+
+(defun get-key-operations ()
+  "Returns an alist of keys and their operations."
+
+  (let ((collected nil))
+    (maphash #'(lambda (k v)
+		 (push (cons k v) collected))
+	     *key-operations*)
+    (nreverse collected)))
+
+(defun define-key-table (name)
+  "Returns a key-table."
+  (declare (ignore name))
+  (make-hash-table :test #'eql))
+
+(defun make-inner-key-table ()
+  (make-hash-table :test #'equal))
+
+
+(defvar *current-key-table* nil)
+(defvar *ang-keys* (define-key-table "angband"))
+
+(defun define-keypress (key-table where key operation)
+  "Defines a keypress and ties it to the appropriate
+operation."
+
+  (let ((table (gethash where key-table))
+	(oper (find-key-operation operation)))
+
+    (unless oper
+      (warn "Unable to find operation '~a' in ~a for key '~a'"
+	    operation (cons key-table where) key)
+      #-cmu
+      (return-from define-keypress nil))
+    
+    (unless table
+      (setf table (make-inner-key-table))
+      (setf (gethash where key-table) table))
+    
+    ;; would be faster to use oper directly, but when using operation it's easier
+    ;; to update a key-operation without updating key-entries. 
+    (setf (gethash key table) operation) 
+    
+    ))
+    
+
+(defun check-keypress (table key)
+  "checks a keypress vs the given table"
+  (let ((wanted-sym (gethash key table))
+	(poss-fun nil))
+    (check-type wanted-sym symbol)
+    (setf poss-fun (find-key-operation wanted-sym))
+    (assert (or (eq poss-fun nil) (typep poss-fun 'function)))
+    poss-fun))
+
+
+
+(defun register-image& (variant fname idx)
+  "Registers an image with a variant."
+  (setf (aref (variant.images variant) idx) fname))
+
+
+(defun %print-imagelist ()
+  (loop for i from 0
+	for x across (variant.images *variant*)
+	do
+	(format t "~&~d. ~a~%" i x)))
+
+(defun set-cursor-visibility (arg)
+  "Should the cursor be visible?"
+  arg)
+
+(defun set-cursor-to (win cursor x y)
+  "Sets the specified cursor to x,y in the given window.  The
+cursor argument specifies the type of cursor.  Types are e.g
+:input and :crosshair."
+  ;;(warn "Setting ~s cursor to ~s,~s" cursor x y)
+  (let ((painted nil))
+    (when (integerp win)
+      (setf win (aref *windows* win)))
+    
+    (case cursor
+      (:bad-crosshair
+       (setf (window-coord win +effect+ x y) (tile-paint-value 40 0)
+	     painted t))
+      (:legal-crosshair
+       (setf (window-coord win +effect+ x y) (tile-paint-value 40 1)
+	     painted t))
+      (otherwise nil))
+
+    (when painted
+      (paint-coord win x y)
+      (flush-coords win x y 1 1))
+    
+  
+    cursor))
+
+;; haven't I implemented this somewhere else????
+(defun get-direction-from-diff (diff-x diff-y)
+  (cond ((plusp diff-x)
+	 (cond ((plusp diff-y) 3)
+	       ((minusp diff-y) 9)
+	       (t 6)))
+	((minusp diff-x)
+	 (cond ((plusp diff-y) 1)
+	       ((minusp diff-y) 7)
+	       (t 4)))
+	(t
+	 (cond ((plusp diff-y) 2)
+	       ((minusp diff-y) 8)
+	       (t 5)))))
+		
+(defun define-visual-projectile (id &key gfx-path text-path) ;; add rest later
+  (assert (verify-id id))
+  
+  (let ((visual-effect (make-instance 'visual-projectile :id id)))
+
+    (when (arrayp gfx-path)
+      (setf (projectile.gfx-path visual-effect) gfx-path))
+    (when (arrayp text-path)
+      (setf (projectile.text-path visual-effect) text-path))
+
+    (setf (gethash id (variant.visual-effects *variant*)) visual-effect)
+    
+    visual-effect))
+    
+
+;;; === Deprecated functions
+
+;; add deprecated stuff here

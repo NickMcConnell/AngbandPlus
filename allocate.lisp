@@ -61,7 +61,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defun place-monster-group! (dungeon player mon-kind x y sleeping)
   "Tries to scatter a bunch of monsters in the dungeon of the given kind."
 
-  (let ((number (randint 13)) ;; hack
+  (let ((number (randint (dungeon.depth dungeon))) ;; hack
 	(var-obj *variant*)
 	(last-x x)
 	(last-y y)
@@ -71,6 +71,10 @@ the Free Software Foundation; either version 2 of the License, or
     
     (check-type mon-kind monster-kind)
 
+    ;; ugly hack
+    (when (> number 20)
+      (setf number 20))
+    
 ;;    (warn "Trying to place group (~a) of ~a monsters at (~a,~a)."
 ;;	  (monster.id mon-kind) number x y)
     

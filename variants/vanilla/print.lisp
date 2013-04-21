@@ -18,12 +18,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
   "prints current depth somewhere"
   (with-frame (+misc-frame+)
     (let ((column (- (get-frame-width +misc-frame+) 8))) ;;(slot-value setting 'depth)))
-      
-      (with-foreign-str (s)
-	(lb-format s "~d ft" (* 50 (level.depth level)))
-	(put-coloured-line! +term-l-blue+ s column 0)
-	;;(get-last-console-line)
-      ))))
+      (put-coloured-line! +term-l-blue+ (format nil "~d ft" (* 50 (level.depth level))) column 0))))
 
 
 (defmethod print-depth ((level van-town-level) (setting bottom-row-locations))
@@ -41,10 +36,10 @@ the Free Software Foundation	 ; either version 2 of the License, or
          (loc (slot-value setting 'cut))
          (cut-info (%get-cutlvl cuts)))
 
-;;    (warn "print cut ~s ~s" cuts cut-info) 
-    
-    (put-coloured-str! (second cut-info) (third cut-info)
-                       (cdr loc) (car loc))
+    ;;(warn "print cut ~s ~s ~s" cuts cut-info loc) 
+    (with-frame (+charinfo-frame+)
+      (put-coloured-str! (second cut-info) (third cut-info)
+			 (cdr loc) (car loc)))
     ))
 
 
@@ -54,17 +49,18 @@ the Free Software Foundation	 ; either version 2 of the License, or
   (let* ((stun (get-attribute-value '<stun> (player.temp-attrs player)))
          (loc (slot-value setting 'stun))
          (stun-info (%get-stunlvl stun)))
-    
-    (put-coloured-str! (second stun-info) (third stun-info)
-                       (cdr loc) (car loc))
+
+    (with-frame (+charinfo-frame+)
+      (put-coloured-str! (second stun-info) (third stun-info)
+			 (cdr loc) (car loc)))
     ))
 
 (defmethod print-poisoned ((variant vanilla-variant) (player player) 
                            (setting vanilla-bottom-row-locations))
   (with-frame (+misc-frame+)
     (let ((column (slot-value setting 'poisoned))
-	  (row (get-last-console-line)))
-      
+	  (row 0))
+
       (if (get-attribute-value '<poisoned> (player.temp-attrs player))
 	  (put-coloured-str! +term-orange+ "Poisoned" column row)
 	  (put-coloured-str! +term-white+  "        " column row))
@@ -78,8 +74,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	  (colour +term-white+)
 	  (temp-attrs (player.temp-attrs player))
 	  (column (slot-value setting 'state))
-	  (row (get-last-console-line)))
-      
+	  (row 0))
+
       (cond ((get-attribute-value '<paralysed> temp-attrs)
 	     (setf word "Paralysed!"
 		   colour +term-red+))
@@ -97,7 +93,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
   (with-frame (+misc-frame+)
     (let ((column (slot-value setting 'afraid))
-	  (row (get-last-console-line)))
+	  (row 0))
       (if (get-attribute-value '<fear> (player.temp-attrs player))
 	  (put-coloured-str! +term-orange+ "Afraid" column row)
 	  (put-coloured-str! +term-white+  "      " column row))
@@ -108,12 +104,22 @@ the Free Software Foundation	 ; either version 2 of the License, or
   (with-frame (+misc-frame+)
     
     (let ((column (slot-value setting 'confused))
-	  (row (get-last-console-line)))
+	  (row 0))
       (if (get-attribute-value '<confusion> (player.temp-attrs player))
 	  (put-coloured-str! +term-orange+ "Confused" column row)
 	  (put-coloured-str! +term-white+  "        " column row))
       )))
 
+(defmethod print-can-study-more ((variant vanilla-variant) (player player) 
+				 (setting vanilla-bottom-row-locations))
+  
+  (with-frame (+misc-frame+)
+    (let ((column (slot-value setting 'study))
+	  (row 0))
+      (if (can-learn-more-spells? variant player)
+	  (put-coloured-str! +term-l-green+ "Study" column row)
+	  (put-coloured-str! +term-white+  "     " column row))
+      )))
 
 
 (defmethod print-extra-frame-content ((variant vanilla-variant) (dungeon dungeon) (player player))
@@ -127,6 +133,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
     ;; more
     (print-speed variant player bot-set)
     ;; more
+    (print-can-study-more variant player bot-set)
     t))
 
 
@@ -202,7 +209,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
     (when (bit-flag-set? *redraw* +print-study+)
       (bit-flag-remove! *redraw* +print-study+)
-      ;; fix
+      (unless bot-set (setf bot-set (get-setting variant :bottom-row-printing)))
+      (print-can-study-more variant player bot-set)
       (setf retval t))
 
 

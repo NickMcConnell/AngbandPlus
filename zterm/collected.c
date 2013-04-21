@@ -1,27 +1,35 @@
+/*
+ * DESC: collected.h - a kitchen sink of all non-system specific C-code
+ * Copyright (c) 2000-2002 - Stig Erik Sandø
 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ */
 
-#include "angband.h"
 #include "langband.h"
 #include "lbwindows.h"
 
 #if defined(USE_GTK)
-errr init_gtk(int argc, char **argv);
+int init_gtk(int argc, char **argv);
 #endif
 
 #if defined(USE_X11)
-errr init_x11(int argc, char **argv);
+int init_x11(int argc, char **argv);
 #endif
 
 #if defined(USE_GCU)
-errr init_gcu(int argc, char **argv);
+int init_gcu(int argc, char **argv);
 #endif
 
 #if defined(USE_SDL)
-errr init_sdl(int argc, char **argv);
+int init_sdl(int argc, char **argv);
 #endif
 
 
-void handle_stuff(void);
+extern int cleanup_callbacks();
+extern int cleanup_frame_system();
 
 /** defaults to true as cmucl is default */
 int lisp_will_use_callback = 1;
@@ -37,126 +45,11 @@ const char *base_config_path = "./config/";
 const char *base_gfx_path = "./graphics/";
 
 int which_ui_used = -1;
-
-int been_run_earlier = 0;
-
-// hacks, remove later
-int px = 5;
-int py = 5;
-int cur_wid = 60;
-int cur_hgt = 60;
-
-/** quick_messages? */
-//bool quick_messages = TRUE;
-
-/** make -more- simple? */
-//bool auto_more = FALSE;
-
-/** freshen output after dumping stuff? */
-//bool fresh_after = TRUE;
-
-/**
- * Hack -- take notes on line 23
- */
-static void note(cptr str)
-{
-    if (str) {
-	s16b buffer[1024];
-	int i;
-	int s_len = strlen(str);
-	
-	for (i=0; i < s_len; i++) {
-	    buffer[i] = (s16b)str[i];
-	}
-	buffer[i] = 0;
-	
-	Term_erase(0, 23, 255);
-	Term_putstr(20, 23, -1, TERM_WHITE, buffer);
-	Term_fresh();
-    }
-}
-
-
-/*
- * Handle abrupt death of the visual system
- *
- * This routine is called only in very rare situations, and only
- * by certain visual systems, when they experience fatal errors.
- *
- * XXX XXX Hack -- clear the death flag when creating a HANGUP
- * save file so that player can see tombstone when restart.
- */
-void exit_game_panic(void)
-{
-
-}
-
-
-
-/*
- * Display a string on the screen using an attribute, and clear
- * to the end of the line.
- */
-void c_prt(s16b attr, cptr str, int row, int col)
-{
-    if (str) {
-	int i;
-	int s_len = strlen(str);
-	s16b buffer[1024];
-	
-	for (i=0; i < s_len; i++) {
-	    buffer[i] = (s16b)str[i];
-	}
-	buffer[i] = 0;
-	
-	/* Clear line, position cursor */
-	Term_erase(col, row, 255);
-	
-	/* Dump the attr/text */
-	Term_addstr(-1, attr, buffer);
-    }
-}
-
-// we're not handling signals
-/*
- * Do nothing
- */
-void signals_ignore_tstp(void)
-{
-}
-
-/*
- * Do nothing
- */
-void signals_handle_tstp(void)
-{
-}
-
-/*
- * Do nothing
- */
-void signals_init(void)
-{
-}
-
-
-void
-disturb(int stop_search, int unused_flag) {
-
-    (void)(stop_search + unused_flag); // to avoid warning
-    note("disturb");
-}
-
-bool
-save_player(void) {
-
-    note("saving on C-side");
-    return 0;
-}
+int use_sound = 0;
 
 int current_ui() { return which_ui_used; }
 
-errr
+int
 init_c_side(const char *ui, const char *sourcePath, const char *configPath,
 	    const char *gfxPath, int extra_flags) {
 
@@ -176,8 +69,6 @@ init_c_side(const char *ui, const char *sourcePath, const char *configPath,
     use_sound = FALSE;
 #endif
     
-    // z-util
-    argv0 = "Langband";
     
     if (!ui) {
 	ui = "X11";
@@ -319,306 +210,45 @@ init_c_side(const char *ui, const char *sourcePath, const char *configPath,
 	ERRORMSG("Init of UI screwed up miserably, exiting.\n");
 	return init_retval;
     }
-//    printf("late init..\n");
-    
-#if defined(USE_X11) || defined(USE_GCU) || defined(USE_SDL)
-    /* Initialize */
-//    init_angband(graphical);
-//    printf("i a\n");
-//    pause_line(23);
-//    printf("o a\n");
-    play_game(TRUE, graphical);
-#endif
-
-    DBGPUT("returning in flames..");
-    return 0;
-}
-
-
-void
-init_angband(int graphical) {
-
-#if !defined(USE_X11) && !defined(USE_SDL)
-    graphical = 0; // local effect
-#endif
-   
-
-    if (!graphical) {
-	
-	char buf[1024];
-	char fname[1024];
-	
-        FILE *fp;
-	/* Open the News file */
-	sprintf(fname, "%snews.txt", base_config_path);
-	/*printf("Trying to open |%s|\n", fname);*/
-	fp = my_fopen(fname, "r");
-	
-	/* Dump */
-	if (fp)
-	{
-	    int i = 0;
-	    int j = 0;
-	    s16b buffer[1024];
-	    
-	    /* Dump the file to the screen */
-	    while (0 == my_fgets(fp, buf, 1024)) {
-		for (j =0; j < 1022; j++) {
-		    buffer[j] = (s16b)buf[j];
-		}
-		/* Display and advance */
-		Term_putstr(0, i++, -1, (s16b)TERM_WHITE, buffer);
-	    }
-	    
-	    /* Close */
-	    my_fclose(fp);
-	}
-    }
-
-    else {
-#ifdef USE_X11
-	int val = 0;
-	init_graphics();
-	
-	/* paint and load splash */
-
-	val = load_gfx_image("langtitle.bmp", "other");
-
-	if (val >= 0) {
-	    fill_area(val, 0, 0, 0, 40, 23);
-	    paint_gfx_image("langtitle.bmp", "other", 5, 0);
-	}
-
-	note("[Loading tiles, please wait.]");
-	init_tile_files();
-
-#elif USE_SDL
-	
-	int val = 0;
-	
-	/* paint and load splash */
-	//DBGPUT("Load and paint.\n");
-	val = load_gfx_image("langtitle.bmp", "other");
-
-	if (val >= 0) {
-	    //DBGPUT("Fill areas %d %p\n", val, Term);
-	    fill_area(val, 0, 0, 0, 99, 36);
-	    //DBGPUT("paint!");
-	    paint_gfx_image("langtitle.bmp", "other", 5, 0);
-	}
-
-	//DBGPUT("life goes on\n");
-#endif /* use_x11 */
-
-    }
-
-    
-    /* Flush it */
-    Term_fresh();
-    //DBGPUT("after fresh\n");
-}
-
-
-
-void window_stuff(void) {
-
-//    printf("window stuff\n");
-
-}
-
-void handle_stuff(void) {
-
-}
-
-void
-play_game(bool new_game, int graphical) {
-
-    new_game = 0;  // to avoid warning
-    
-    /* Hack -- Increase "icky" depth */
-    character_icky++;
 
     /* Verify main term */
     if (has_frame(0, ACTIVE) == 0) {
-	z_quit("main window does not exist\n");
+	ERRORMSG("main window does not exist\n");
+	return -2;
     }
 
     /* Make sure main term is active */
-    Term_activate(activeFrames[0]->azt);
+    //Term_activate(activeFrames[0]->azt);
 
-#ifndef USE_SDL
     /* Verify minimum size */
-    if ((Term->hgt < 24) || (Term->wid < 80))
-    {
-	z_quit("main window is too small\n");
-    }
-#endif
-    
-    /* Forbid resizing */
-//    Term->fixed_shape = TRUE;
+    /* FIX!!! */
 
-    /* Hack -- Turn off the cursor */
-    (void)Term_set_cursor(0);
-    /* discard old input */
-    Term_flush();
-    flush();
-
-    init_angband(graphical); // move to lisp-side later
-    
-    Term_flush();
-    flush();
-
-//    pause_line(23, "[Please hit a key to start loading lisp-data]");
-    
+#if defined(USE_X11) || defined(USE_GCU) || defined(USE_SDL)
     //DBGPUT("lisp-sys %d, callback %d\n", current_lisp_system, lisp_will_use_callback);
     if (lisp_will_use_callback) {
 	// this is a callback
 	//DBGPUT("going back");
-	play_game_lisp();
+	return play_game_lisp();
     }
-
-}
-
-/* Here we try to do a few things on the C-side to avoid allocating
-   things on the Lisp-side. */
-
-#define MAX_BUF_SZ 1024
-static char *hidden_buffer = NULL;
-
-static void
-clean_hidden_buffer() {
-    if (!hidden_buffer) {
-	C_MAKE(hidden_buffer, MAX_BUF_SZ, char);
-    }
-    memset(hidden_buffer,MAX_BUF_SZ,0);
-}
-
-/*
- * Converts stat num into a six-char (right justified) string
- */
-static void
-cnv_stat(int val, char *out_val) {
-
-    /* Above 18 */
-    if (val > 18) {
-	int bonus = (val - 18);
-
-	if (bonus >= 100) {
-	    sprintf(out_val, "18/%03d", bonus);
-	}
-	else {
-	    sprintf(out_val, " 18/%02d", bonus);
-	}
-    }
-
-    /* From 3 to 18 */
-    else {
-	sprintf(out_val, "    %2d", val);
-    }
-}
-
-
-void
-print_coloured_stat (int wantedTerm,
-		     int attr,
-		     int stat,
-		     int row,
-		     int col) {
+#endif
     
-    term *old = Term;
-	
-    Term_activate(activeFrames[wantedTerm]->azt);
-
-    //DBGPUT("Printing stat %d at row %d\n", stat, row);
-    clean_hidden_buffer();
-    cnv_stat(stat,hidden_buffer);
-    c_put_str((s16b)attr,hidden_buffer, row, col);
-    Term_activate(old);
+    return -1; // never really started the ball.
 }
 
-static const char *token_list[] = {
-    "", // 0
-    "Name",
-    "Cur MP",
-    "Max MP",
-    "Level",
-    "LEVEL", // 5
-    "Exp",
-    "EXP",
-    "Cur HP",
-    "Max HP",
-    "Cur AC", // 10
-    "AU",
-    "Str",
-    "Dex", 
-    "Con",
-    "Int", // 15
-    "Wis",
-    "Chr",
-    "STR",
-    "DEX",
-    "CON", //20
-    "INT",
-    "WIS", 
-    "CHR",
-    "            "
-};
-
-void
-print_coloured_token (int wantedTerm,
-		      int attr,
-		      int token,
-		      int row,
-		      int col) {
-
-    term *old = Term;
-    
-    Term_activate(activeFrames[wantedTerm]->azt);
-    //DBGPUT("Going for token %d\n", token);
-    //DBGPUT("This token is %s\n", token_list[token]);
-    c_put_str((s16b)attr,token_list[token], row, col);
-    Term_activate(old);
-}
-
-void
-print_coloured_number (int wantedTerm,
-		       int attr,
-		       long number,
-		       int padding,
-		       int row,
-		       int col) {
-
-    char *format_str = "%ld";
-    term *old = Term;
-	
-    Term_activate(activeFrames[wantedTerm]->azt);
-
-    clean_hidden_buffer();
-    if (padding == 9) {
-	format_str = "%9ld";
-    }
-    else if (padding == 5) {
-	format_str = "%5ld";
-    }
-    else if (padding == 8) {
-	format_str = "%8ld";
-    }
-    else if (padding == 6) {
-	format_str = "%6ld";
-    }
-    else {
-	ERRORMSG("no print_col_number for %d\n", padding);
-    }
-    sprintf(hidden_buffer, format_str, number);
-    c_put_str((s16b)attr, hidden_buffer, row, col);
-    Term_activate(old);
-}
-
-errr
+int
 cleanup_c_side(void) {
 
     int cur_ui = current_ui();
+
+    cleanup_callbacks();
+    cleanup_frame_system();
+
+    current_lisp_system = LISPSYS_BAD;
+    which_ui_used = -1;
+    use_sound = 0;
+    
     if (0) { }
+    
 #ifdef USE_X11
     else if (cur_ui == UITYPE_X11) {
 	return cleanup_X11();
@@ -638,82 +268,6 @@ cleanup_c_side(void) {
 #endif
    
     return 1;
-}
-
-errr
-my_Term_putstr(int col, int row, int something, int colour, const char* text) {
-    if (text) {
-	int i;
-	int retval;
-	int s_len = strlen(text);
-	s16b buffer[1024];
-	
-	for (i=0; i < s_len; i++) {
-	    buffer[i] = (s16b)text[i];
-	}
-	buffer[i] = 0;
-	retval = Term_putstr(col, row, something, (s16b)colour, buffer);
-	//DBGPUT("Putting %d string %s gave %d\n", something, text, retval);
-	return retval;
-    }
-    else {
-	return -1;
-    }
-}
-
-void
-my_Term_queue_char(int col, int row, int colour, int the_char, int tcol, int tchar) {
-//    byte bcol = (byte)colour;
-//    char bchar = (char)the_char;
-    /*
-    if (colour == 128 && the_char == 128) {
-	DBGPUT("Calling elvis (%d,%d) with (%d,%d) and (%d,%d)\n", 
-	col, row, colour, the_char, bcol, bchar);
-    }
-    */
-    Term_queue_char(col, row, (s16b)colour, (s16b)the_char, (s16b)tcol, (s16b)tchar);
-}
-
-errr
-my_Term_set_cursor(int v) {
-    return Term_set_cursor((bool)v);
-}
-
-int
-my_term_activate(int num) {
-    term *t = NULL;
-    //DBGPUT("want to activate %d.\n", num);
-    if (!legal_frame_key_p(num, ACTIVE)) {
-	ERRORMSG("Illegal key %d given to term_activate().\n", num);
-	return -50;
-    }
-
-    if (activeFrames[num]) {
-	t = activeFrames[num]->azt;
-	//DBGPUT("activate %d %d %p %p %p\n", num, t->active_flag, t->xtra_hook, t->text_hook, t->pict_hook);
-	Term_activate(t);
-	//DBGPUT("now active %d %d %p %p %p\n", num, t->active_flag, t->xtra_hook, t->text_hook, t->pict_hook);
-	return num;
-    }
-
-    else {
-	//ERRORMSG("Tried to activate term for an inactive frame %d.\n", num);
-	return -51;
-    }
-
-}
-
-
-int
-my_get_current_term() {
-    int j;
-    for (j = 0; j < max_activeFrames; j++) {
-	if (activeFrames[j] && (Term == activeFrames[j]->azt)) {
-	    //DBGPUT("current term returns %d\n", j);
-	    return j;
-	}
-    }
-    return -1;
 }
 
 int
@@ -778,13 +332,22 @@ load_sound_effect(const char *fname, int idx) {
 	return -2;
     }
 
+    sb = malloc(sizeof(sound_bite));
+
+    sb->handle = Mix_LoadWAV(fname);
+
+    if (!sb->handle) {
+	ERRORMSG("Mix_LoadWAV: Error '%s' when loading %s\n", Mix_GetError(), fname);
+	// handle error
+	free(sb);
+	return -6;
+    }
+
+    
     ptr = malloc(strlen(fname)+1);
     strcpy(ptr, fname);
-
-    sb = malloc(sizeof(sound_bite));
     
     sb->filename = ptr;
-    sb->handle = Mix_LoadWAV(ptr);
 
     if (sound_bites[idx]) {
 	free(sound_bites[idx]);
@@ -796,13 +359,15 @@ load_sound_effect(const char *fname, int idx) {
     return idx;
 }
 
+extern int sdl_play_sound(int idx);
+
 int
-textureBackground(int term_num, const char *fname, int alpha) {
+play_sound_effect(int sound_idx) {
 
     if (FALSE) { return -1;}
 #ifdef USE_SDL
     else if (which_ui_used == UITYPE_SDL) {
-	return sdl_textureBackground(term_num, fname, alpha);
+	return sdl_play_sound(sound_idx);
     }
 #endif
     else {
@@ -812,12 +377,12 @@ textureBackground(int term_num, const char *fname, int alpha) {
 }
 
 int
-load_gfx_image(const char *fname, const char *type) {
+load_gfx_image(const char *fname, int idx, unsigned int transcolour) {
 
     if (FALSE) { return -1; }
 #ifdef USE_SDL
     else if (which_ui_used == UITYPE_SDL) {
-	return sdl_load_gfx_image(fname, type);
+	return sdl_load_gfx_image(fname, idx, transcolour);
     }
 #endif
     else {
@@ -825,37 +390,6 @@ load_gfx_image(const char *fname, const char *type) {
     }
     
 }
-
-int
-paint_gfx_image(const char *fname, const char *name, int x, int y) {
-
-    if (FALSE) { return -1; }
-#ifdef USE_SDL
-    else if (which_ui_used == UITYPE_SDL) {
-	return sdl_paint_gfx_image(fname, name, x, y);
-    }
-#endif
-    else {
-	return -1;
-    }
-    
-}
-
-int
-load_scaled_image(const char *filename, int image_index, int width, int height) {
-
-    if (FALSE) { return -1; }
-#ifdef USE_SDL
-    else if (which_ui_used == UITYPE_SDL) {
-	return sdl_load_scaled_image(filename, image_index, width, height);
-    }
-#endif
-    else {
-	return -1;
-    }
-    
-}
-
 
 void
 lb_format(FILE *ofile, int priority, const char *fmt, ...) {
@@ -874,11 +408,13 @@ lb_format(FILE *ofile, int priority, const char *fmt, ...) {
 
 FILE *dbgout = NULL;
 
+#if defined(USE_GCU) || defined(WIN32)
 static void
 open_dbg_file () {
     dbgout = fopen("dbgout.txt","a");
     fprintf(dbgout, "---------------------------------------\n");
 }
+#endif
 
 #ifdef DEBUG
 void
@@ -930,36 +466,7 @@ ERRORMSG(const char *fmt, ...) {
 
 }
 
- /*
-  * Redefinable "quit" action
-  */
-void (*quit_aux)(cptr) = NULL;
-
-/*
- * Exit (ala "exit()").  If 'str' is NULL, do "exit(0)".
- * If 'str' begins with "+" or "-", do "exit(atoi(str))".
- * Otherwise, plog() 'str' and exit with an error code of -1.
- * But always use 'quit_aux', if set, before anything else.
- */
-void z_quit(cptr str) {
-    
-    /* do a normal cleanup first */
-    cleanup_c_side();
-    
-    /* Attempt to use the aux function */
-    if (quit_aux) (*quit_aux)(str);
-  
-    /* Success */
-    if (!str) (void)(exit(0));
-  
-    /* Extract a "special error code" */
-    if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
-  
-    /* Send the string as info */
-    if (str && strlen(str)) {
-	INFOMSG(str);
-    }
-  
-    /* Failure */
-    (void)(exit(-1));
+int
+listenForEvent(int option) {
+    return sdl_getEvent(option);
 }

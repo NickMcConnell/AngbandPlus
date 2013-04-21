@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/base.lisp - the base variant class for Vanilla
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -72,13 +72,20 @@ stores and special behaviour.  The class is used for dispatching."))
 	   :initform nil
 	   :initarg :name
 	   :documentation "Name of the spell.")
+
    (id     :accessor spell.id
 	   :initform nil
 	   :initarg :id
 	   :documentation "Id for the spell, everyone uses this id.")
+
+   (effect-type :accessor spell.effect-type
+		:initform nil
+		:documentation "pointer to a spell-effect with necessary info.")
+   
    (effect :accessor spell.effect
-	   :initform nil :initarg
-	   :effect :documentation "A function which is invoked when the spell is cast."))
+	   :initform nil
+	   :documentation "A function which is invoked when the spell is cast."))
+  
   (:documentation "A very simple wrapper about the spell and little else."))
 
 
@@ -151,6 +158,12 @@ the spell is usually the same."))
 		    :documentation "An array with ids to learnt spells (in order).  Is saved with the
 player-object."))
   (:documentation "A subclass of the class character-class.  Represents a class with spell-castin capabilities."))
+
+(defclass spell-effect (visual-projectile)
+  ((gfx-beam :initform 0 :accessor spell-effect.gfx-beam :documentation "gfx code for beam.")
+   (text-beam :initform 0 :accessor spell-effect.text-beam :documentation "text code for beam.")
+   ))
+
 
 ;; this is an ugly hack, it's used for spell-effects as state-info
 (defclass vanilla-monster-effect ()
@@ -237,7 +250,8 @@ should return NIL or the state-object (with possibly updated state."))
 (def-obj-type missile-weapon :is weapon) ;; clash with bow?
 (def-obj-type bow :is missile-weapon :key <bow>
 	      :kind-slots ((multiplier :accessor object.multiplier :initform 1 :initarg :multiplier)))
-(def-obj-type ammo :key <ammo>)
+(def-obj-type ammo :key <ammo>
+	      :kind-slots ((effect-type :accessor object.effect-type :initform nil)))
 (def-obj-type digger :is weapon :key <digger>)
 
 (def-obj-type armour :key <armour>)
@@ -252,9 +266,11 @@ should return NIL or the state-object (with possibly updated state."))
 (def-obj-type potion :key <potion>)
 (def-obj-type money :key <money>)
 (def-obj-type scroll :key <scroll>)
-(def-obj-type wand :key <wand>)
+(def-obj-type wand :key <wand>
+	      :kind-slots ((effect-type :accessor object.effect-type :initform nil)))
 (def-obj-type staff :key <staff>)
 (def-obj-type rod :key <rod>
+	      :kind-slots ((effect-type :accessor object.effect-type :initform nil))
 	      :aobj-slots ((recharge-time :accessor aobj.recharge-time :initform 0 :initarg :recharge-time)))
 (def-obj-type book :key <book>)
 (def-obj-type spellbook :is book :key <spellbook>)
@@ -275,14 +291,62 @@ should return NIL or the state-object (with possibly updated state."))
 (def-obj-type junk :key <junk>)
 (def-obj-type skeleton :is junk :key <skeleton>)
 
+;; move away later
+
+(defvar *vanilla-images* #(
+#| 0 |# "" 
+        "" 
+        "" 
+        "tiles/dg_armor32.bmp" 
+        "tiles/dg_effects32.bmp" 
+#| 5 |# "tiles/dg_food32.bmp" 
+        "tiles/dg_classm32.bmp" 
+        "tiles/dg_humans32.bmp" 
+        "tiles/dg_jewls32.bmp" 
+        "tiles/dg_magic32.bmp" 
+#| 10 |#"tiles/dg_misc32.bmp" 
+        "tiles/dg_potions32.bmp" 
+        "tiles/dg_wands32.bmp" 
+        "tiles/dg_weapons32.bmp" 
+        "tiles/dg_people32.bmp" 
+#| 15 |#"tiles/dg_dragon32.bmp" 
+        "tiles/dg_monster132.bmp" 
+        "tiles/dg_monster232.bmp" 
+        "tiles/dg_monster332.bmp" 
+        "tiles/dg_monster432.bmp" 
+#| 20 |#"tiles/dg_monster532.bmp" 
+        "tiles/dg_monster632.bmp" 
+        "tiles/dg_monster732.bmp" 
+        "tiles/dg_undead32.bmp" 
+        "tiles/dg_uniques32.bmp" 
+#| 25 |#"tiles/dg_dungeon32.bmp" 
+        "tiles/dg_grounds32.bmp" 
+        "tiles/dg_extra132.bmp" 
+        "tiles/dg_town032.bmp" 
+        "tiles/dg_town132.bmp" 
+#| 30 |#"tiles/dg_town232.bmp" 
+        "tiles/dg_town332.bmp" 
+        "tiles/dg_town432.bmp" 
+        "tiles/dg_town532.bmp" 
+        "tiles/dg_town632.bmp" 
+#| 35 |#"tiles/dg_town732.bmp" 
+        "tiles/dg_town832.bmp" 
+        "tiles/dg_town932.bmp"
+	"tiles/button.bmp"
+	"tiles/button2.bmp"
+#| 40 |#"tiles/crosshair.png" 
+	))
+
+
+
 
 ;; path tweaking needed!!!
 (defun van-make-variant-obj ()
   (make-instance 'vanilla-variant
 		 :id "vanilla"
 		 :name "Vanilla"
-		 :version "0.1.2"
-		 :num-version 12
+		 :version "0.1.3"
+		 :num-version 13
 		 :stat-length 6
 		 
 		 :config-path

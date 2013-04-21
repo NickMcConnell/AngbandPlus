@@ -3,7 +3,7 @@
 #||
 
 DESC: classes.lisp - The major classes and structs for langband
-Copyright (c) 2002 - Stig Erik Sandø
+Copyright (c) 2002-2003 - Stig Erik Sandø
 
 This program is free software  ; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -177,6 +177,9 @@ for display, num-version for active-use. u16b should be enough.")
 		 :initform (make-hash-table :test #'eq)
 		 :initarg :attack-types)
 
+   (visual-effects :accessor variant.visual-effects
+		   :initform (make-hash-table :test #'equal))
+  
    (day-length      :accessor variant.day-length
 		    :initarg :day-length
 		    :initform 10000)
@@ -199,6 +202,10 @@ for display, num-version for active-use. u16b should be enough.")
 		    :initarg :worn-item-slots
 		    :initform nil)
 
+   (images :accessor variant.images
+	   :initform nil
+	   :documentation "An array of relevant images to a variant.") 
+	   
    ;; this one is crucial, with lowercase string-keys it stores information that
    ;; is easy to check and save/load
    (information :accessor variant.information
@@ -213,9 +220,9 @@ for display, num-version for active-use. u16b should be enough.")
   hidden)
 
 (defstruct (dungeon-coord (:conc-name coord.))
-;;  (floor 0 :type u-16b)
+;;  (floor 0 :type u16b)
   (floor nil)
-  (flags 0 :type u-16b)  ;; info-flag in angband
+  (flags 0 :type u16b)  ;; info-flag in angband
   (objects nil)
   (monsters nil)
   (decor nil)
@@ -642,6 +649,14 @@ object is an array with index for each element, each element is an integer which
    (text-char :accessor text-char
 	      :initform #.(char-code #\@)
 	      :documentation "Char for player on map.")
+   
+   (gfx-sym :accessor gfx-sym
+	    :initform (text-paint-value +term-white+ #\@)
+	    :documentation "The gfx symbol for the player.")
+   
+   (text-sym :accessor text-sym
+	     :initform (text-paint-value +term-white+ #\@)
+	     :documentation "The gfx symbol for the player.")
 
    ))
 
@@ -920,6 +935,15 @@ by variants."))
    (desc      :accessor monster.desc      :initform "") ;; string 
    (x-char    :accessor x-char            :initform nil) ;; number
    (x-attr    :accessor x-attr            :initform nil) ;; should be number
+   
+   (gfx-sym :accessor gfx-sym
+	    :initform (text-paint-value +term-red+ #\M)
+	    :documentation "The gfx symbol for the monster.")
+   
+   (text-sym :accessor text-sym
+	     :initform (text-paint-value +term-red+ #\M)
+	     :documentation "The textual symbol for the monster.")
+
    (text-char :accessor text-char         :initform nil) ;; number
    (text-attr :accessor text-attr         :initform nil) ;; should be number
    (alignment :accessor monster.alignment :initform nil) ;; symbols/list
@@ -975,7 +999,12 @@ by variants."))
 		 :initarg :x-char
 		 :initform nil
 		 :documentation "The char/tile used when displaying object on the map.")
-
+     
+     (gfx-sym    :accessor gfx-sym
+		 :initform 0
+		 :initarg :gfx-sym
+		 :documentation "A precoded 24-bit bitfield specifying which graphical symbol to use.")
+     
      (text-attr  :accessor text-attr
 		 :initarg :text-attr
 		 :initform nil
@@ -985,6 +1014,11 @@ by variants."))
 		 :initarg :text-char
 		 :initform nil
 		 :documentation "The char used when presenting the obj as text.")
+     
+     (text-sym   :accessor text-sym
+		 :initform 0
+		 :initarg :text-sym
+		 :documentation "A precoded 24-bit bitfield specifying whichtextual symbol to use.")
 
      
      (depth      :accessor object.depth
@@ -1169,8 +1203,10 @@ is all about?")
    (num-idx   :accessor floor.num-idx :initform -1  :initarg :num-idx)
    (x-attr    :accessor x-attr        :initform nil :initarg :x-attr)
    (x-char    :accessor x-char        :initform nil :initarg :x-char)
+   (gfx-sym   :accessor gfx-sym       :initform 0   :initarg :gfx-sym)
    (text-attr :accessor text-attr     :initform nil :initarg :text-attr)
    (text-char :accessor text-char     :initform nil :initarg :text-char)
+   (text-sym  :accessor text-sym      :initform 0   :initarg :text-sym)
    (mimic     :accessor floor.mimic   :initform nil :initarg :mimic)
    (flags     :accessor floor.flags   :initform 0   :initarg :flags)
    ))
@@ -1289,6 +1325,10 @@ is all about?")
 	      :initform +term-red+
 	      :initarg :x-attr
 	      :documentation "the colour of the trap")
+   (gfx-sym   :accessor gfx-sym
+	      :initform 0
+	      :documentation "Graphical symbol for this trap.")
+
    (text-char :accessor text-char
 	      :initform #.(char-code #\^)
 	      :initarg :text-char
@@ -1297,6 +1337,10 @@ is all about?")
 	      :initform +term-red+
 	      :initarg :text-attr
 	      :documentation "the colour of the trap")
+   (text-sym  :accessor text-sym
+	      :initform 0
+	      :documentation "Textual symbol for this trap.")
+
    (effect    :accessor trap.effect
 	      :initform nil
 	      :initarg :effect
@@ -1331,6 +1375,9 @@ is all about?")
 	      :initform +term-l-umber+
 	      :initarg :x-attr
 	      :documentation "the colour of the door")
+   (gfx-sym   :accessor gfx-sym
+	      :initform 0
+	      :documentation "Graphical symbol for this door.")
    (text-char :accessor text-char
 	      :initform #.(char-code #\+)
 	      :initarg :text-char
@@ -1339,6 +1386,10 @@ is all about?")
 	      :initform +term-l-umber+
 	      :initarg :text-attr
 	      :documentation "the colour of the door")
+   (text-sym  :accessor text-sym
+	      :initform 0
+	      :documentation "Textual symbol for this door.")
+
    ;; hackish
    (cave-flags-on :initform 0
 		  :documentation "Flags to turn on in a cave when decor is on.")
@@ -1472,12 +1523,18 @@ is all about?")
    (x-char    :accessor x-char
 	      :initarg :x-char
 	      :initform nil) ;; number
+   (gfx-sym   :accessor gfx-sym
+	      :initarg :gfx-sym
+	      :initform 0) ;; number
    (text-attr :accessor text-attr
 	      :initarg :text-attr
 	      :initform nil) ;; number
    (text-char :accessor text-char
 	      :initarg :text-char
 	      :initform nil) ;; number
+   (text-sym  :accessor text-sym
+	      :initarg :text-sym
+	      :initform 0) ;; number
    ))
 
 
@@ -1549,81 +1606,120 @@ is all about?")
    
    ))
 
-;; also known as a frame or a langbandframe
-(defclass subwindow ()
-  ((name        :accessor subwindow.name
+
+(defclass visual-projectile ()
+  
+  ((id             :initform nil
+		   :accessor projectile.id
+		   :initarg :id)
+   (gfx-path       :initform nil
+	           :accessor projectile.gfx-path)
+   (text-path      :initform nil
+	           :accessor projectile.text-path)
+   (gfx-impact     :initform 0
+	           :accessor projectile.gfx-impact)
+   (text-impact    :initform 0
+		   :accessor projectile.text-impact)
+   (gfx-explosion  :initform 0
+		   :accessor projectile.gfx-explosion)
+   (text-explosion :initform 0
+		   :accessor projectile.text-explosion))
+  
+  (:documentation "Class to keep information about visualisation of projectiles."))
+
+
+
+(defclass window ()
+  ((id         :accessor window.id
+	       :initarg :id
+	       :initform "window"
+	       :documentation "A string id for the window.")
+   
+   (num-id     :accessor window.num-id
+	       :initarg :num-id
+	       :initform -1
+	       :documentation "The numeric id, or index for the window, can be used for array lookups.")
+   
+   (name        :accessor window.name
 		:initarg :name
-		:documentation "The name/var for this window. Should be a symbol"
+		:documentation "The name/var for this window. Should be a string"
 		:initform nil)
-   (key         :accessor subwindow.key
-		:initarg :key
-		:documentation "The key to the window, should be an integer constant."
-		:initform -1)
    
-   (x           :accessor subwindow.x
-		:initarg :x
-		:documentation "The x-offset to upper-left corner of subwindow."
-		:initform -1)
+   (x-offset :accessor window.x-offset
+	     :initform 0
+	     :documentation "The x-offset in pixels on the underlying display area.")
    
-   (y           :accessor subwindow.y
-		:initarg :y
-		:documentation "The y-offset to upper-left corner of subwindow."
-		:initform -1)
+   (y-offset :accessor window.y-offset
+	     :initform 0
+	     :documentation "The y-offset in pixels on the underlying display area.")
    
-   (width       :accessor subwindow.width
-		:initarg :width
-		:documentation "The width (in pixels) of the subwindow."
-		:initform -1)
+   (height     :accessor window.height
+	       :initarg :height
+	       :initform -1
+	       :documentation "Height of window in tiles. Rows.")
+   
+   (width      :accessor window.width
+	       :initarg :width
+	       :initform -1
+	       :documentation "Width of window in tiles. Columns.")
+   
+   (pixel-height :accessor window.pixel-height
+		 :initform -1
+		 :documentation "The max height of the window in pixels.")
+   
+   (pixel-width  :accessor window.pixel-width
+		 :initform -1
+		 :documentation "The max width of the window in pixels.")
 
-   (height      :accessor subwindow.height
-		:initarg :height
-		:documentation "The height (in pixels) of the subwindow."
-		:initform -1)
-
-   (tile-width  :accessor subwindow.tile-width
+   (tile-width  :accessor window.tile-width
 		:initarg :tile-width
 		:documentation "The width of an individual tile."
 		:initform -1)
 
-   (tile-height :accessor subwindow.tile-height
+   (tile-height :accessor window.tile-height
 		:initarg :tile-height
 		:documentation "The height of an individual tile."
 		:initform -1)
 
-   (columns     :accessor subwindow.columns
-		:initarg :columns
-		:documentation "How many columns is the window, (int-/ width tile-width)."
-		:initform -1)
 
-   (rows        :accessor subwindow.rows
-		:initarg :rows
-		:documentation "How many rows is the window, (int-/ height tile-height)."
-		:initform -1)
    
-   (eff-width   :accessor subwindow.eff-width
-		:initarg :eff-width
-		:documentation "The effective width (in pixels) of the subwindow. (* columns tile-width)"
-		:initform -1)
+   (data       :accessor window.data
+	       :initarg :data
+	       :initform nil
+	       :documentation "The actual window data, probably an x,y,z array.")
+   
+   (flagmap    :accessor window.flagmap
+	       :initarg :flagmap
+	       :initform nil
+	       :documentation "An x,y map with flags for various tiles, e.g if it is updated.")
+   
+   (flags      :accessor window.flags
+	       :initarg :flags
+	       :initform 0
+	       :documentation "Any bitflags needed to describe the window.")
+   
+   (visible?   :accessor window.visible?
+	       :initarg :visible?
+	       :initform nil
+	       :documentation "Is the window currently shown/visible?")
 
-   (eff-height  :accessor subwindow.eff-height
-		:initarg :eff-height
-		:documentation "The effective height (in pixels) of the subwindow. (* rows tile-height)"
-		:initform -1)
-   
-   (font        :accessor subwindow.font
-		:initarg :font
-		:documentation "Filename to font"
-		:initform nil)
-   
-   (background  :accessor subwindow.background
-		:initarg :background
-		:documentation "Filename to background"
-		:initform nil)
-   
-   (gfx-tiles?  :accessor subwindow.gfx-tiles?
+  (gfx-tiles?  :accessor window.gfx-tiles?
 		:initarg :gfx-tiles?
 		:documentation "Is the subwindow using graphical tiles or should output be ascii?"
 		:initform nil)
+   
+   (font       :accessor window.font
+	       :initarg :font
+	       :initform nil
+	       :documentation "Filename to the font.")
+   
+   (backgroundfile :accessor window.backgroundfile
+		   :initform nil
+		   :documentation "Either NIL, or a filename for the background image.")
+
+   (background :accessor window.background
+	       :initform nil
+	       :documentation "Either NIL, or an index to the background image.")
 
    ))
 
@@ -1698,6 +1794,20 @@ is all about?")
   (checksum -1) ;; a checksum for the buffer, can be (u128b)
   (data nil)) ;; pointer to the data (length in bytes is len above)
 
-  
+(defstruct (keyboard-event (:conc-name kbd-event.))
+  (key nil)
+  (shift nil)
+  (alt nil)
+  (ctrl nil))
+
+(defstruct (mouse-event (:conc-name mouse-event.))
+  (button nil)
+  (x nil)
+  (y nil))
+
+(defstruct (input-event (:conc-name input-event.))
+  (type nil)
+  (keypress nil)
+  (mouseclick nil))
 
 ;;; end structs

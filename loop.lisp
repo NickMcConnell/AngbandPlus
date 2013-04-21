@@ -3,7 +3,7 @@
 #|
 
 DESC: loop.lisp - the game loop(s)
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,8 +31,6 @@ ADD_DESC: Most of the code which deals with the game loops.
     (when (bit-flag-set? *redraw* +print-map+)
       (bit-flag-remove! *redraw* +print-map+)
       (print-map dungeon player)
-;;      (warn "frsh")
-;;      (c-term-fresh!)
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-basic+)
@@ -239,6 +237,75 @@ ADD_DESC: Most of the code which deals with the game loops.
     retval))
 
 
+(defun %mouse-clicked (button x y)
+  "Figures out what window it happened in and calls handle-mouse-click"
+  (when (eq (get-system-type) 'sdl)
+    ;; let us figure out what window:
+    (let ((win nil))
+	
+      (loop for w across *windows*
+	    for x-off = (window.x-offset w)
+	    for y-off = (window.y-offset w)
+	    do
+	    (when (and (window.visible? w)
+		       (>= x x-off) (< x (+ x-off (window.pixel-width w)))
+		       (>= y y-off) (< y (+ y-off (window.pixel-height w))))
+	      (setf win w)))
+
+      (unless win
+	(warn "Totally unable to figure out which window the button was clicked!"))
+
+      (when win
+	(let ((loc-x (- x (window.x-offset win)))
+	      (loc-y (- y (window.y-offset win))))
+	  (handle-mouse-click *variant* win button loc-x loc-y)))
+
+      t)))
+
+
+(defun get-and-process-command! (dungeon player table)
+  "remove me later"
+
+  (let ((loc-table (gethash table *current-key-table*))
+	(event nil))
+
+    (loop
+     (setf event (fetch-event *input-event* nil))
+     (when event
+       (cond ((eq (input-event.type event) :mouse)
+	      (let ((m-ev (input-event.mouseclick event)))
+		;; don't return now, maybe later
+		(%mouse-clicked (mouse-event.button m-ev)
+				(mouse-event.x m-ev)
+				(mouse-event.y m-ev))))
+	     
+	     ((eq (input-event.type event) :key)
+	      (let* ((kev (input-event.keypress event))
+		     (ch (kbd-event.key kev))
+		     (check nil)
+		     (fun nil))
+
+		;; add ALT-key later as well.. 
+		(when (kbd-event.shift kev)
+		  (setf check (list 'shift ch)) ;; can avoid consing later if it is a problem.
+		  ;;(warn "Looking for ~s" check)
+		  (setf fun (check-keypress loc-table check)))
+
+		(unless (functionp fun)
+		  (setf check (kbd-event.key kev))
+		  (setf fun (check-keypress loc-table check)))
+
+		(cond ((functionp fun)
+		       (return-from get-and-process-command! (funcall fun dungeon player)))
+		      (t
+		       (warn "fell through key with ~s" kev)))
+		))
+	     (t
+	      (warn "Unknown event ~s" (input-event.type event))))
+       ))
+    ))
+
+
 (defun process-player! (variant dungeon player)
   "processes the player in a given turn"
 
@@ -377,7 +444,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 (defun energy-for-speed (crt)
   (aref *energy-table* (get-creature-speed crt)))
 			 
-
+#||
 (defun energise-creatures! (variant dungeon player)
 
   (incf (get-creature-energy player) (energy-for-speed player))
@@ -399,24 +466,26 @@ ADD_DESC: Most of the code which deals with the game loops.
 	  (unless (player.leaving? player)
 	    (process-player! variant dungeon player))))
   )
-
+||#
   
 (defun run-level! (level player)
   "a loop which runs a dungeon level"
 
   (let* ((dungeon (level.dungeon level))
 	 (var-obj *variant*)
+	 (variant *variant*)
 	 (*dungeon* dungeon)
 	 (dungeon-height (dungeon.height dungeon))
 	 (dungeon-width  (dungeon.width dungeon))
 	 )
 
     ;; we're not leaving
-    (setf (player.leaving? player) nil)
+    (setf (player.leaving? player) nil
+	  (player.target player) nil)
       
     ;; setting these to illegal values
-    (setf (player.view-x player) dungeon-width)
-    (setf (player.view-y player) dungeon-height)
+    (setf (player.view-x player) dungeon-width
+	  (player.view-y player) dungeon-height)
   
     ;; no stairs from town
 ;;    (setf (dungeon.up-stairs-p dungeon) nil
@@ -428,19 +497,18 @@ ADD_DESC: Most of the code which deals with the game loops.
     ;; postpone verify of panel
     (verify-panel dungeon player)
     
-    (print-message! +c-null-value+)
+    (print-message! nil) ;; flushes
 
     ;;; == this section needs serious rework.. see angband
     ;; postpone flush
 
-    (clear-the-screen!)
 
     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+) 
     (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-spells+ +pl-upd-mana+) 
 
     (update-stuff var-obj dungeon player)
     
-    (bit-flag-add! *redraw* +print-map+ +print-basic+)
+    (bit-flag-add! *redraw* +print-map+ +print-basic+ +print-extra+)
     (bit-flag-add! *update* +pl-upd-forget-view+ +pl-upd-update-view+ +pl-upd-distance+)
   
     
@@ -465,16 +533,120 @@ ADD_DESC: Most of the code which deals with the game loops.
 	    (assert (ok-object? x :context :in-game :warn-on-failure t)))
       )
 
+    
+    (let* ((mon-len (length (dungeon.monsters dungeon)))
+	   (pq (lb-ds:make-priority-queue :size (* 2 mon-len)))
+	   (pq-arr (make-array (* 2 mon-len) :initial-element nil)))
+	  
 
-    (block main-dungeon-loop
+      ;; insert all entries
+      (dolist (i (dungeon.monsters dungeon))
+	;; all monsters should get some randomness to actions
+	(incf (get-creature-energy i) (random 10))
+	(lb-ds:pq-insert i (get-creature-energy i) pq))
+      ;; we let the player get some randomness too
+      (incf (get-creature-energy player) (random 20))
+      (lb-ds:pq-insert player (get-creature-energy player) pq)
 
-      (loop
+   
+      (block main-dungeon-loop
+	
+	(loop
+
+	 (let ((front (lb-ds:pq-front pq)))
+
+	   (refresh-window *map-frame*)
+	   (refresh-window +charinfo-frame+)
+
+	   ;;(warn "[~s] Checking ~s with energy ~s" (lb-ds:pq-size pq) (get-creature-name front) (get-creature-energy front))
+	   (cond ((> (get-creature-energy front) +energy-normal-action+) ;; he or she can do an action
+		  (etypecase front
+		    (player
+		     (lb-ds:pq-remove pq)
+		     (process-player! variant dungeon player)
+		     (verify-panel dungeon player) ;; hack
+		     (lb-ds:pq-insert player (get-creature-energy player) pq))
+
+		    (active-monster
+		     (let* ((mon (lb-ds:pq-remove pq))
+			    (mx (location-x mon))
+			    (my (location-y mon)))
+		       (check-type mon active-monster)
+		       (when (creature-alive? mon)
+			 (decf (get-creature-energy mon) +energy-normal-action+)
+			 ;; skip the 'sensing' of player
+			 ;; only do something if there is clear sight
+			 (when (player-has-los-bold? dungeon mx my)
+			   (process-single-monster! dungeon player mon)))
+
+		       (when (creature-alive? mon)
+			 (lb-ds:pq-insert mon (get-creature-energy mon) pq))
+		       
+		       ))))
+		 
+		 ;; not even the front one has enough energy, boost them all
+		 (t
+		  #||
+		  (warn "boost energy.")
+		  (loop for i from 1 to (lb-ds::heap-size pq)
+			do (format t "~&~d ~a~%" (lb-ds::pq-elem-priority (aref (lb-ds::heap-array pq) i))
+				   (get-creature-name (lb-ds::pq-elem-value (aref (lb-ds::heap-array pq) i)))))
+		  ||#
+		  ;; move to pq-arr
+		  (loop for cnt from 0 below (lb-ds:pq-size pq)
+			do
+			(setf (aref pq-arr cnt) (lb-ds:pq-remove pq)))
+		  
+		  (loop for i from 0
+			for x across pq-arr
+			do
+			(progn
+			  (when (and x (creature-alive? x))
+			    (incf (get-creature-energy x) (energy-for-speed x))
+			    (lb-ds:pq-insert x (get-creature-energy x) pq))
+			  (setf (aref pq-arr i) nil)))
+
+		  ;; this should be a diff vs the last entry
+		  (incf (variant.turn var-obj))
+
+		  #||
+		  (warn "Boosted")
+		  (loop for i from 1 to (lb-ds::heap-size pq)
+			do (format t "~&~d ~a~%" (lb-ds::pq-elem-priority (aref (lb-ds::heap-array pq) i))
+				   (get-creature-name (lb-ds::pq-elem-value (aref (lb-ds::heap-array pq) i)))))
+
+		  (warn "---")
+		  ||#
+		  ))
+	   
+	   (let ((leave-sym (player.leaving? player)))
+	     (when leave-sym
+	       (return-from run-level! leave-sym)))
+	   
+	   (when (/= 0 *update*) (update-stuff var-obj dungeon player))
+	   (process-world& var-obj dungeon player)
+	   ;; do other stuff
+	   ;; hack
+	   (when (/= 0 *update*) (update-stuff var-obj dungeon player))
+	   (when (/= 0 *redraw*) (redraw-stuff var-obj dungeon player))
+	   )))
+      
+      )))
+       
+       #||
        ;; postpone compact
 ;;       (warn "loop")
-       (c-term-fresh! *map-frame*)
-       (c-term-fresh! +charinfo-frame+)
-       
+       (refresh-window *map-frame*)
+       (refresh-window +charinfo-frame+)
+
+       (warn "*Player ~s ~s, Monsters ~s ~s" (get-creature-energy player) (energy-for-speed player)
+	     (length (dungeon.monsters dungeon))
+	     (mapcar #'get-creature-energy (dungeon.monsters dungeon)))
+
        (energise-creatures! var-obj dungeon player)
+
+       (warn "%Player ~s Monsters ~s ~s" (get-creature-energy player) (length (dungeon.monsters dungeon))
+	     (mapcar #'get-creature-energy (dungeon.monsters dungeon)))
 
        (when (/= 0 *update*) (update-stuff var-obj dungeon player))
 	      
@@ -505,8 +677,9 @@ ADD_DESC: Most of the code which deals with the game loops.
        (incf (variant.turn var-obj))
 
        ))
+       ||#
                
-    ))
+    
 
 (defun game-loop& ()
   "This is the main game-loop.  and this function looks _ugly_."
@@ -606,7 +779,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     (cond ((> (length vars) 1)
 	   (let ((hgt (get-frame-height))
 		 (result nil))
-	     (c-clear-from! (- hgt 4))
+	     (clear-window-from *cur-win* (- hgt 4))
 	     (setf result  (interactive-alt-sel 5 (- hgt 3) vars :ask-for "variant to play"))
 	     
 	     (when (and (integerp result) (>= result 0))
@@ -625,7 +798,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 
 (defun interactive-savefile-select (variant-id)
   "Returns 'new-game for new game or a string with filename to wanted savegame to load."
-
+  
   ;;; This function is ugly.. be careful
   
   (unless (stringp variant-id)
@@ -636,12 +809,15 @@ ADD_DESC: Most of the code which deals with the game loops.
     
     (unless files ;; we have no files, assume new game
       (return-from interactive-savefile-select 'new-game))
-
+    
     ;; only select binaries
     (let ((real-files '()))
       (dolist (i files)
 	(let ((type (pathname-type i)))
-	  (cond ((equal type "bin") ;; we want this one
+	  (cond ((equal type nil)
+		 nil) ;; do nothing
+		
+		((equal type "bin") ;; we want this one
 		 (when-bind (header (load-saveheader i))
 		   (check-type header saveheader)
 		   ;;(warn "Header is ~s" header)
@@ -653,9 +829,10 @@ ADD_DESC: Most of the code which deals with the game loops.
 		
 		(t ;; check for badness
 		 (warn "Unknown filetype ~s for file ~s.  Ignoring." type i)))))
-
-      ;;(warn "files ~s" real-files)
       
+    
+      ;;(warn "files ~s" real-files)
+    
       (flet ((show-desc (num)
 	       (cond ((plusp num)
 		      (let ((elm (elt real-files (1- num))))
@@ -663,16 +840,16 @@ ADD_DESC: Most of the code which deals with the game loops.
 			(cdr elm)))
 		     (t
 		      "                     "))))
-
+      
 	(cond ((= (length real-files) 0)
 	       (return-from interactive-savefile-select nil))
 	      ((> (length real-files) 0) ;; if more files we need choices
-	       
+	     
 	       (let ((hgt (get-frame-height))
 		     (to-show (loop for i in real-files
 				    collecting (pathname-name (car i))))
 		     (result nil))
-		 (c-clear-from! (- hgt 6))
+		 (clear-window-from *cur-win* (- hgt 6))
 		 (setf result  (interactive-alt-sel 5 (- hgt 3) (cons "<<NEW>>" to-show)
 						    :ask-for "savefile to use"
 						    :display-fun #'show-desc
@@ -720,6 +897,7 @@ ADD_DESC: Most of the code which deals with the game loops.
   ;;(warn "back in lisp!!")
   
   (update-term-sizes!)
+  
   (let ((*player* nil)
 	(*level* nil)
 ;;	#+allegro
@@ -728,15 +906,33 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     (when (eq (get-system-type) 'gcu)
       (setf *map-frame* +asciimap-frame+))
-    ;; if non-graphical
-;;    (unless (use-images?)
-;;      (%show-splash-screen (game-data-path "news.txt")))
 
-    ;; doing init_angband() end here
-    (print-note! "[Initing macros]")
+    (loop for x across *windows*
+	  for i from 0
+	  do
+	  (let ((idx (+ 51 i)))
+	    (establish-data-in-window x)
+	    (when (window.backgroundfile x)
+	      (lb-ffi:c-load-texture& idx
+			       (concatenate 'string *engine-graphics-dir* (window.backgroundfile x))
+			       (window.pixel-width x) (window.pixel-height x) 0)
+	      (setf (window.background x) idx)
+	      ;; c-side needs negative value for bad values
+	      (lb-ffi:c-add-frame-bg! i idx)
+	      ;;(print x)
+	      )))
 
-    (init-macro-system&)
-    (init-sound-system& 30) ;; fix this later
+    (setf *cur-win* (aref *windows* 0))
+    
+    ;; !!check if we use gfx first!!
+    (let ((splash-idx (load-image& *variant* "other/langtitle.bmp" 1 0)))
+      (when (plusp splash-idx)
+	(fill-area *cur-win* splash-idx 0 0 0 99 36) ;; hack
+	(paint-gfx-image *cur-win* splash-idx 5 0)))
+    
+    (print-note! "[Initing sound-system]")
+	    
+    (init-sound-system& 40) ;; fix this later
     
     (print-note! "[Initialization complete]")
 
@@ -747,7 +943,7 @@ ADD_DESC: Most of the code which deals with the game loops.
       (load-game-data "prefs.lisp"))
 
     ;; hack to remove cursor
-    (c-set-cursor& 0)
+    (set-cursor-visibility nil)
     (flush-messages! t)
 
     (pause-last-line!)
@@ -758,6 +954,8 @@ ADD_DESC: Most of the code which deals with the game loops.
       (unless (and wanted-variant (stringp wanted-variant))
 	(error "Unable to find any variant ~s" wanted-variant))
 
+      ;;(warn "*variant* here is ~s ~s" *variant* wanted-variant)
+      
       (setf start-action (interactive-savefile-select wanted-variant))
 
       (when (consp start-action)
@@ -787,16 +985,28 @@ ADD_DESC: Most of the code which deals with the game loops.
     ;; we must make sure that our player has proper symbol
     (setf (x-attr *player*) (tile-file +tilefile-classes+)
 	  (x-char *player*) (tile-number (get-class-tile-number *variant* *player*)))
+    (setf (gfx-sym *player*) (logior (x-attr *player*) (x-char *player*)))
     
     
 ;;    (unless *level*
-;;      (c-prt! "Please wait..." 0 0)  
+;;      (put-coloured-line! +term-white+ "Please wait..." 0 0)  
 ;;      (pause-last-line!))
 
     ;; now we want normal layout!
     (switch-to-regular-frameset&)
 
-    (clear-the-screen!)
+    #||
+    (loop for x across *windows*
+	  do
+	  (warn "Win ~s, has ~s,~s offset and ~s,~s coords ~s"
+		(window.id x) (window.x-offset x) (window.y-offset x)
+		(window.pixel-width x) (window.pixel-height x)
+		(window.visible? x)))
+    ||#
+    
+    
+    (setf *cur-win* (aref *windows* *map-frame*))
+    ;;(warn "Curwin is ~s" *cur-win*)
     
     (block dungeon-running
       (unless *level* 
@@ -811,12 +1021,12 @@ ADD_DESC: Most of the code which deals with the game loops.
     ;;(warn "End game and level is ~s" *level*)
     (cond ((and (is-player? *player*) ;;(player.dead? *player*)
 		)
-	   (c-texture-background! +full-frame+ "" -1)
+	   (texture-background! +full-frame+ "" -1)
 	   (flush-messages! t)
 	   (arrange-game-exit& *variant* *player*))
 	   
 	  (t
-	   (c-prt! "Quitting..." 0 0)
+	   (put-coloured-line! +term-white+ "Quitting..." 0 0)
 
 	   ))
     
@@ -852,133 +1062,3 @@ ADD_DESC: Most of the code which deals with the game loops.
 (fli:define-foreign-callable ("LB_MouseClicked" :result-type :void)
     ((button :int) (x :int) (y :int))
   (%mouse-clicked button x y))
-
-
-;;(trace redraw-stuff)
-;;(trace handle-stuff update-stuff)
-
-;; hackish
-(defun update-floor-display (num &key x-attr x-char)
-  (let ((floor (get-floor-type num)))
-    (unless floor
-      ;;(warn "did not find floor with id ~s" num)
-      )
-    (when floor
-      (when x-attr
-	(setf (x-attr floor) (etypecase x-attr
-			       (character (convert-obj x-attr :colour-code))
-			       (number x-attr))))
-      (when x-char
-	(setf (x-char floor) (etypecase x-char
-			       (character (char-code x-char))
-			       (number x-char))))
-
-      floor)))
-
-;; hackish
-(defun update-trap-display (id &key x-attr x-char)
-  (let ((trap (gethash id (variant.traps *variant*))))
-    (unless trap
-      (warn "did not find trap with id ~s" id)
-      (return-from update-trap-display nil))
-
-
-    (when x-attr
-      (setf (x-attr trap) (etypecase x-attr
-			    (character (convert-obj x-attr :colour-code))
-			    (number x-attr))))
-    (when x-char
-      (setf (x-char trap) (etypecase x-char
-			    (character (char-code x-char))
-			    (number x-char))))
-
-    trap))
-
-;; slow
-(defun update-kind-display (num &key x-attr x-char text-attr text-char)
-  (let ((big-obj-table (variant.objects *variant*)))
-    (loop for x being the hash-values of big-obj-table
-	  do
-	  (when (eql num (object.numeric-id x))
-	    (when x-attr
-	      (setf (x-attr x) x-attr))
-	    (when x-char
-	      (setf (x-char x) x-char))
-	    (when text-char
-	      (setf (text-char x) text-char))
-	    (when text-attr
-	      (setf (text-attr x) text-attr))
-	    ))))
-
-(defun update-flavour-display (sym name &key x-attr x-char)
-  (let ((fl-type (gethash sym (variant.flavour-types *variant*))))
-
-    (unless fl-type
-      (warn "Unable to find flavour-type for ~s" sym)
-      (return-from update-flavour-display nil))
-
-    (let ((tbl (flavour-type.table fl-type)))
-
-      ;; at this stage it is a hash-table, not an array (it is later converted)
-      
-      (when (arrayp tbl)
-	(warn "table for flavour ~s is not htbl but ~s" sym (type-of tbl))
-	(return-from update-flavour-display nil))
-
-      (loop for x being the hash-values of tbl
-	    do
-	    (when (string-equal (flavour.name x) name)
-	      
-	      (cond ((and x-attr (numberp x-attr))
-		     (setf (x-attr x) x-attr))
-		    (t
-		     (warn "Odd flavour x-attr ~s for ~s" x-attr x)))
-	      
-	      (cond ((and x-char (numberp x-char))
-		     (setf (x-char x) x-char))
-		    (t
-		     (warn "Odd flavour x-char ~s for ~s" x-char x)))
-	      
-	      (return-from update-flavour-display x)))
-
-	
-      (warn "Unable to find ~s flavour ~s" sym name)
-      ;;(return-from update-flavour-display nil)
-      nil)))
-
-
-   
-
-
-(defvar *hacked* nil)
-(defun update-monster-display (num &key x-attr x-char)
-  (let* ((var-obj *variant*)
-	 (mons (variant.monsters var-obj)))
-
-    #||
-    ;; fallback
-    (unless *hacked*
-      (maphash #'(lambda (k v)
-		   (declare (ignore k))
-		   (setf (x-attr v) (+ +graphics-start+ 7)
-			 (x-char v) (+ +graphics-start+ 2)))
-	       mons)
-      (setf *hacked* t))
-||#    
-		 
-    (let ((mon (gethash num mons)))
-      (unless mon
-	(loop for x being the hash-values of mons
-	  do
-	  (when (eql num (monster.numeric-id x))
-	    (setf mon x))))
-      (unless mon
-	;;(warn "Unable to find monster with id ~s" num)
-	)
-      (when mon
-	(when x-attr
-	  (setf (x-attr mon) (charify-number x-attr)))
-	(when x-char
-	  (setf (x-char mon) (charify-number x-char)))
-	mon)
-      )))

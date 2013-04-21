@@ -3,7 +3,7 @@
 #|
 
 DESC: player.lisp - code for the character object
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -513,16 +513,10 @@ the Free Software Foundation; either version 2 of the License, or
     (when (< (player.max-level player) (player.level player))
       (setf (player.max-level player)  (player.level player)))
 
-    #||
-    (with-foreign-str (s)
-      (lb-format s "You attain level ~d and ~d new hitpoints. " (player.level player) next-hp)
-      (print-message! s))
-    ||#
-    
     (format-message! "You attain level ~d and ~d new hitpoints. " (player.level player) next-hp)
 
     (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-spells+)
-    (bit-flag-add! *redraw* +print-level+ +print-title+ +print-xp+ +print-hp+) ;; mana?
+    (bit-flag-add! *redraw* +print-basic+ +print-extra+) ;; to be on the safe side
     
     ))
 
@@ -689,11 +683,6 @@ the Free Software Foundation; either version 2 of the License, or
 	   (setf (aref cur-mods num) 0)
 	   (bit-flag-add! *update* +pl-upd-bonuses+)
 	   (format-message! "You feel less ~a" (stat.negative-desc stat-obj))
-	   #||
-	   (with-foreign-str (s)
-	     (lb-format s "You feel less ~a" (stat.negative-desc stat-obj))
-	     (print-message! s))
-	   ||#
 	   (return-from update-player-stat! t)))
 	
 	(<increase>
@@ -711,11 +700,6 @@ the Free Software Foundation; either version 2 of the License, or
 	   (bit-flag-add! *update* +pl-upd-bonuses+)
 
 	   (format-message! "You feel ~a" (stat.positive-desc stat-obj))
-	   #||
-	   (with-foreign-str (s)
-	     (lb-format s "You feel ~a" (stat.positive-desc stat-obj))
-	     (print-message! s))
-	   ||#
 	   
 	   (return-from update-player-stat! t)))
 
@@ -723,12 +707,6 @@ the Free Software Foundation; either version 2 of the License, or
 	 (cond ((aref (player.stat-sustains player) num) ;; is it sustained?
 		(format-message! "You feel very ~a for a moment, but the feeling passes."
 				 (stat.negative-desc stat-obj))
-		#||
-		(with-foreign-str (s)
-		  (lb-format s "You feel very ~a for a moment, but the feeling passes."
-			     (stat.negative-desc stat-obj))
-		  (print-message! s))
-		||#
 		(return-from update-player-stat! t))
 	       
 	       (t
@@ -736,11 +714,6 @@ the Free Software Foundation; either version 2 of the License, or
 		(decf (aref cur-mods num) amount)
 		(bit-flag-add! *update* +pl-upd-bonuses+)
 		(format-message! "You feel very ~a." (stat.negative-desc stat-obj))
-		#||
-		(with-foreign-str (s)
-		  (lb-format s "You feel very ~a." (stat.negative-desc stat-obj))
-		  (print-message! s))
-		||#
 		(return-from update-player-stat! t))
 	       ))
 	)

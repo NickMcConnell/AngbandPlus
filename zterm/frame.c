@@ -1,4 +1,3 @@
-#include "angband.h"
 #include "langband.h"
 #include "lbwindows.h"
 
@@ -9,19 +8,11 @@ int num_activeFrames = -1;
 int max_activeFrames = -1;
 LangbandFrame **activeFrames = NULL;
 
-#ifdef USE_SDL
-errr Term_xtra_sdl(int n, int v);
-#endif
-
-#ifdef USE_GCU
-errr Term_xtra_gcu(int n, int v);
-#endif
-
 int
 init_frame_system(int active_size, int predefined_size) {
     int i;
 
-    DBGPUT("Sizes %d and %d\n", active_size, predefined_size);
+    //DBGPUT("Sizes %d and %d\n", active_size, predefined_size);
     
     if (active_size > 0) {
 	max_activeFrames = active_size;
@@ -49,6 +40,42 @@ init_frame_system(int active_size, int predefined_size) {
 	return -2;
     }
 
+    return 0;
+}
+
+int
+cleanup_frame_system() {
+    int i;
+
+    //DBGPUT("Cleaning frame-system\n");
+    
+    if (max_predefinedFrames > 0) {
+        for (i=0; i < max_predefinedFrames; i++) {
+	    if (predefinedFrames[i]) {
+		free(predefinedFrames[i]);
+		predefinedFrames[i] = NULL;
+	    }
+	}
+	free(predefinedFrames);
+	predefinedFrames = NULL;
+	
+	max_predefinedFrames = num_predefinedFrames = -1;
+    }
+
+    if (max_activeFrames > 0) {
+        for (i=0; i < max_activeFrames; i++) {
+	    if (activeFrames[i]) {
+		// just pointers to already cleaned predefined frames
+		//free(activeFrames[i]);
+		activeFrames[i] = NULL;
+	    }
+	}
+	free(activeFrames);
+	activeFrames = NULL;
+	
+	max_activeFrames = num_activeFrames = -1;
+    }
+    
     return 0;
 }
 
@@ -83,11 +110,11 @@ make_frame(int key, const char *name) {
     
     if (legal_frame_key_p(key, PREDEFINED)) {
 	LangbandFrame *lf = malloc(sizeof(LangbandFrame));
-	WIPE(lf, LangbandFrame);
+	memset(lf, 0, sizeof(LangbandFrame));
 	lf->key = key;
 	lf->name = malloc(strlen(name)+1);
 	strcpy(lf->name, name);
-	DEBUGPUT("Made frame %s at %d\n", name, key);
+	//DEBUGPUT("Made frame '%s' at %d\n", name, key);
 	return lf;
     }
     else {
@@ -139,7 +166,7 @@ add_frame_coords(int key, int x, int y, int w, int h) {
 }
 
 int
-add_frame_tileinfo(int key, int tw, int th, const char *font, const char *bg) {
+add_frame_tileinfo(int key, int tw, int th, const char *font) {
 
     if (legal_frame_key_p(key, PREDEFINED)) {
 	LangbandFrame *lf = predefinedFrames[key];
@@ -150,10 +177,10 @@ add_frame_tileinfo(int key, int tw, int th, const char *font, const char *bg) {
 	    lf->fontname = malloc(strlen(font)+1);
 	    strcpy(lf->fontname, font);
 	}
-	if (bg && strlen(bg) > 1) {
-	    lf->backgroundfile = malloc(strlen(bg)+1);
-	    strcpy(lf->backgroundfile, bg);
-	}
+//	if (bg && strlen(bg) > 1) {
+//	    lf->backgroundfile = malloc(strlen(bg)+1);
+//	    strcpy(lf->backgroundfile, bg);
+//	}
 		
 	return 0;
     }
@@ -179,6 +206,25 @@ add_frame_gfxinfo(int key, int use_tiles) {
     }
 }
 
+int
+add_frame_bg(int key, int img_idx) {
+    if (legal_frame_key_p(key, PREDEFINED)) {
+	LangbandFrame *lf = predefinedFrames[key];
+
+	if (!lf) {
+	    return -2;
+	}
+	else {
+	    lf->background = img_idx;
+	    return 0;
+	}
+    }
+    else {
+	ERRORMSG("Illegal key %d for subwindow.\n", key);
+	return -1;
+    }
+
+}
 
 
 LangbandFrame *
@@ -209,57 +255,6 @@ has_frame(int key, FrameType ft) {
     else
 	return FALSE;
 }
-
-int
-activate_frame(int key) {
-    LangbandFrame *lf = NULL;
-
-    if (!legal_frame_key_p(key, PREDEFINED)) {
-	ERRORMSG("Illegal key %d given to activate_frame().\n", key);
-	return -1;
-    }
-
-    DBGPUT("Activate frame %d.\n", key);
-    
-    lf = predefinedFrames[key];
-
-    if (lf) {
-	lf->visible = TRUE;
-	activeFrames[key] = lf;
-	num_activeFrames++;
-	return key;
-    }
-    else {
-	ERRORMSG("Illegal key %d given to activate_frame() (doesn't exist).\n", key);
-	return -2;
-    }
-}
-
-int
-deactivate_frame(int key) {
-    LangbandFrame *lf = NULL;
-    
-    if (!legal_frame_key_p(key, PREDEFINED)) {
-	ERRORMSG("Illegal key %d given to activate_frame().\n", key);
-	return -1;
-    }
-    
-    DBGPUT("Deactivate frame %d.\n", key);
-    
-    lf = predefinedFrames[key];
-
-    if (lf) {
-	lf->visible = FALSE;
-	activeFrames[key] = NULL;
-	num_activeFrames--;
-	return key;
-    }
-    else {
-	// it's ok to deactivate a frame that's not there
-	return -2;
-    }
-}
-
 
 int
 get_frame_columns(int key, FrameType ft) {
@@ -310,11 +305,14 @@ int
 clean_frame(int key) {
     LangbandFrame *lf = get_frame(key, ACTIVE);
     if (lf && lf->visible) {
+	DEBUGPUT("CLEANING FRAME.. BAD!");
+#if 0
 	angband_zterm *old = Term;
 	Term_activate(lf->azt);
 	Term_redraw();
 	Term_fresh();
 	Term_activate(old);
+#endif
 	return key;
     }
     else {
@@ -327,10 +325,12 @@ wipe_frame(int key) {
     LangbandFrame *lf = get_frame(key, ACTIVE);
 
     if (lf && lf->visible) {
+	DBGPUT("Wiping FRAME %d.\n", key);
+#if 0
 	angband_zterm *old = Term;
 	int which_ui = current_ui();
 	
-	//DBGPUT("Wiping %d.\n", key);
+
 	
 	Term_activate(lf->azt);
 	
@@ -354,9 +354,60 @@ wipe_frame(int key) {
 	Term_fresh();
 	Term_activate(old);
 	//DBGPUT("Wiped %d.\n", key);
+#endif
 	return key;
     }
     else {
 	return -1;
+    }
+}
+
+int
+activate_frame(int key) {
+    LangbandFrame *lf = NULL;
+
+    if (!legal_frame_key_p(key, PREDEFINED)) {
+        ERRORMSG("Illegal key %d given to activate_frame().\n", key);
+        return -1;
+    }
+
+    //DBGPUT("Activate frame %d.\n", key);
+    
+    lf = predefinedFrames[key];
+
+    if (lf) {
+        lf->visible = TRUE;
+        activeFrames[key] = lf;
+        num_activeFrames++;
+        return key;
+    }
+    else {
+        ERRORMSG("Illegal key %d given to activate_frame() (doesn't exist).\n", key);
+        return -2;
+    }
+}
+
+int
+deactivate_frame(int key) {
+    LangbandFrame *lf = NULL;
+    
+    if (!legal_frame_key_p(key, PREDEFINED)) {
+        ERRORMSG("Illegal key %d given to activate_frame().\n", key);
+        return -1;
+    }
+    
+    //DBGPUT("Deactivate frame %d.\n", key);
+    
+    lf = predefinedFrames[key];
+
+    if (lf) {
+        lf->visible = FALSE;
+        activeFrames[key] = NULL;
+        num_activeFrames--;
+        return key;
+    }
+    else {
+        // it's ok to deactivate a frame that's not there
+        return -2;
     }
 }

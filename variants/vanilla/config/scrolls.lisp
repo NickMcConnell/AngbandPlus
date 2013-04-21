@@ -16,8 +16,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-enchant-wpn-hit" "enchant weapon to-hit"
   :numeric-id 173
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -33,8 +33,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-enchant-wpn-dmg" "enchant weapon to-dam"
   :numeric-id 174
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -50,8 +50,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-enchant-armour" "enchant armour"
   :numeric-id 175
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -67,8 +67,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-identify" "identify"
   :numeric-id 176
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 1
   :rarity 0
   :chance #(1 1 1 1)
@@ -85,8 +85,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-*identify*" "*identify*"
   :numeric-id 177
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -103,8 +103,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-remove-curse" "remove curse"
   :numeric-id 180
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -116,8 +116,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-illumination" "illumination"
   :numeric-id 181
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 0
   :rarity 0
   :chance #(1 1 1 0)
@@ -134,8 +134,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-summon-monster" "summon monster"
   :numeric-id 184
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -154,8 +154,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-phase-door" "phase door"
   :numeric-id 185
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -171,8 +171,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-teleport" "teleportation"
   :numeric-id 186
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -189,8 +189,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-teleport-lvl" "teleport level"
   :numeric-id 187
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -219,8 +219,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-monster-confusion" "monster confusion"
   :numeric-id 188
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -232,8 +232,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-mapping" "magic mapping"
   :numeric-id 189
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -245,8 +245,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-rune-prot" "rune of protection"
   :numeric-id 190
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 60
   :rarity 0
   :chance #(2 4 0 0)
@@ -258,8 +258,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-*remove-curse*" "*remove curse*"
   :numeric-id 191
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 50
   :rarity 0
   :chance #(2 0 0 0)
@@ -271,8 +271,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-det-gold" "treasure detection"
   :numeric-id 192
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -284,8 +284,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-det-item" "object detection"
   :numeric-id 193
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -297,8 +297,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-det-trap" "trap detection"
   :numeric-id 194
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 5
   :rarity 0
   :chance #(1 1 0 0)
@@ -310,8 +310,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-det-door" "door/stair location"
   :numeric-id 197
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 5
   :rarity 0
   :chance #(1 1 1 0)
@@ -323,8 +323,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-acquirement" "acquirement"
   :numeric-id 198
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 20
   :rarity 0
   :chance #(8 0 0 0)
@@ -336,8 +336,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-*acquirement*" "*acquirement*"
   :numeric-id 199
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 60
   :rarity 0
   :chance #(16 0 0 0)
@@ -349,8 +349,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "sroll-mass-xenocide" "mass xenocide"
   :numeric-id 200
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 50
   :rarity 0
   :chance #(4 0 0 0)
@@ -362,8 +362,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-det-inv" "detect invisible"
   :numeric-id 201
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -381,8 +381,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-aggr-monster" "aggravate monster"
   :numeric-id 202
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -394,8 +394,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-create-trap" "trap creation"
   :numeric-id 203
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -407,8 +407,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-destroy-door" "trap/door destruction"
   :numeric-id 204
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -420,8 +420,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-recharging" "recharging"
   :numeric-id 206
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 40
   :rarity 0
   :chance #(1 0 0 0)
@@ -433,8 +433,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-xenocide" "xenocide"
   :numeric-id 207
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 40
   :rarity 0
   :chance #(4 0 0 0)
@@ -446,8 +446,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-darkness" "darkness"
   :numeric-id 208
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -463,8 +463,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-protect-from-evil" "protection from evil"
   :numeric-id 209
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -481,8 +481,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-satisfy-hunger" "satisfy hunger"
   :numeric-id 210
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -498,8 +498,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-dispel-undead" "dispel undead"
   :numeric-id 211
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 40
   :rarity 0
   :chance #(1 0 0 0)
@@ -511,8 +511,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-*enchant-weapon*" "*enchant weapon*"
   :numeric-id 212
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)
@@ -528,8 +528,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-curse-weapon" "curse weapon"
   :numeric-id 213
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)
@@ -541,8 +541,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-*enchant-armour*" "*enchant armour*"
   :numeric-id 214
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 50
   :rarity 0
   :chance #(1 1 0 0)
@@ -558,8 +558,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-curse-armour" "curse armour"
   :numeric-id 215
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)
@@ -571,8 +571,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-summon-undead" "summon undead"
   :numeric-id 216
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -592,8 +592,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-blessing" "blessing"
   :numeric-id 217
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -609,8 +609,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-holy-chant" "holy chant"
   :numeric-id 218
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -626,8 +626,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-holy-prayer" "holy prayer"
   :numeric-id 219
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -643,8 +643,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-wor" "word of recall"
   :numeric-id 220
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -656,8 +656,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "scroll-*destruction*" "*destruction*"
   :numeric-id 221
-  :x-attr #\d
-  :x-char #\?
+  :text-attr #\d
+  :text-char #\?
   :depth 40
   :rarity 0
   :chance #(1 0 0 0)

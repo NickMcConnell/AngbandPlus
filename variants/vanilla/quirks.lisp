@@ -18,10 +18,19 @@ the Free Software Foundation; either version 2 of the License, or
   "Initialises variant-variables that should be there before
 the rest of the game is init'ed."
 
+  (setf (variant.images var-obj) (make-array 64 :initial-element nil))
+
+  ;; get the images init'ed right away
+  (loop for i from 0
+	for x across *vanilla-images*
+	do
+	(when (and (stringp x) (plusp (length x)))
+	  (load-image& var-obj x i #xffffff00)))
+    
   (pushnew (make-gender :id "male" :symbol '<male> :name "Male" :win-title "King")
-	(variant.genders var-obj) :test #'eql :key #'gender.symbol)
+	   (variant.genders var-obj) :test #'eql :key #'gender.symbol)
   (pushnew (make-gender :id "female" :symbol '<female> :name "Female" :win-title "Queen")
-	(variant.genders var-obj) :test #'eql :key #'gender.symbol)
+	   (variant.genders var-obj) :test #'eql :key #'gender.symbol)
 
 
 ;;  (assert (eq nil (variant.legal-effects var-obj)))
@@ -78,6 +87,7 @@ the rest of the game is init'ed."
     (load-variant-data& var-obj "flavours")
     (load-variant-data& var-obj "traps")
 
+    (load-variant-data& var-obj "effects")
     (load-variant-data& var-obj "spells")
     (load-variant-data& var-obj "races")
     (load-variant-data& var-obj "classes")
@@ -85,6 +95,9 @@ the rest of the game is init'ed."
     (load-variant-data& var-obj "stores")
 
     (load-variant-data& var-obj "combat")
+    
+    (load-variant-data& var-obj "keys")
+    (load-variant-data& var-obj "wizard")
     )
 
   ;; we ensure that any elements in variant are sorted
@@ -402,13 +415,8 @@ the rest of the game is init'ed."
   (initialise-floors& var-obj :file "floors")
 
 
-  (when (load-gfx-tiles?)
-    (let ((*load-verbose* nil))
-      ;;(warn "Loading graf prefs!")
-      (load-variant-data& var-obj "graf-prefs")))
-  ;;  (warn "flav")
   ;; after all objects are in
-;;  (init-flavours& (variant.flavour-types var-obj))
+  ;;  (init-flavours& (variant.flavour-types var-obj))
 
   (loop for x being the hash-values of (variant.flavour-types var-obj)
 	do

@@ -2,130 +2,33 @@
 
 
 (in-package :org.langband.ffi)
-(fli:define-foreign-type cptr () ':pointer)
-
-(fli:define-foreign-type errr () ':int)
+(fli:define-foreign-type cptr () '(:reference-pass :ef-mb-string))
 
 
 (fli:define-foreign-function (c_current_ui "current_ui") nil
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
-(fli:define-foreign-function (c_quit! "z_quit") ((msg :pointer))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-clear-from! "clear_from") ((row :int))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (term-activate& "my_term_activate") ((term-num
-                                                                   :int))
+(fli:define-foreign-function (c-listen-for-event "listenForEvent") ((option
+                                                                     :int))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
-(fli:define-foreign-function (c-prt-token! "print_coloured_token") ((term :int)
-                                                                    (colour
-                                                                     :int)
-                                                                    (token
-                                                                     :int)
-                                                                    (row :int)
-                                                                    (col :int))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-prt-stat! "print_coloured_stat") ((term :int)
-                                                                  (colour :int)
-                                                                  (stat :int)
-                                                                  (row :int)
-                                                                  (col :int))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-prt-number! "print_coloured_number") ((term
-                                                                       :int)
-                                                                      (colour
-                                                                       :int)
-                                                                      (number
-                                                                       :long)
-                                                                      (padding
-                                                                       :int)
-                                                                      (row
-                                                                       :int)
-                                                                      (col
-                                                                       :int))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c_term_putstr! "my_Term_putstr") ((col :int)
-                                                                (row :int)
-                                                                (something
-                                                                 :int)
-                                                                (colour :int)
-                                                                (text :pointer))
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c_term_erase! "Term_erase") ((col :int)
-                                                           (row :int)
-                                                           (something :int))
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-term-queue-char! "my_Term_queue_char") ((col
-                                                                         :int)
-                                                                        (row
-                                                                         :int)
-                                                                        (colour
-                                                                         :int)
-                                                                        (the-char
-                                                                         :int)
-                                                                        (tcolour
-                                                                         :int)
-                                                                        (tchar
-                                                                         :int))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-term-gotoxy! "Term_gotoxy") ((row :int)
-                                                             (col :int))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-set-cursor& "my_Term_set_cursor") ((col :int))
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-term-clear! "Term_clear") nil
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-term-flush! "Term_flush") nil
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-term_fresh! "Term_fresh") nil
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-term-save! "Term_save") nil
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-term-load! "Term_load") nil
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-term-xtra& "Term_xtra") ((msg :int) (arg :int))
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-term-keypress "Term_keypress") ((key :int))
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-inkey! "inkey") nil
-   :result-type :char :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (init_c-side& "init_c_side") ((ui :pointer)
+(fli:define-foreign-function (init-c-side& "init_c_side") ((ui
+                                                            (:reference-pass
+                                                             :ef-mb-string))
                                                            (source-path
-                                                            :pointer)
+                                                            (:reference-pass
+                                                             :ef-mb-string))
                                                            (config-path
-                                                            :pointer)
-                                                           (gfx-path :pointer)
+                                                            (:reference-pass
+                                                             :ef-mb-string))
+                                                           (gfx-path
+                                                            (:reference-pass
+                                                             :ef-mb-string))
                                                            (flags :int))
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
+   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (cleanup-c-side& "cleanup_c_side") nil
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c_macro_add& "macro_add") ((key :pointer)
-                                                         (value :pointer))
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (init-macro-system& "macro_init") nil
-   :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
+   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (c-set-lisp-system! "set_lisp_system") ((type
                                                                       :int))
@@ -134,66 +37,61 @@
 
 #+use-callback-from-c
 (fli:define-foreign-function (c-set-lisp-callback! "set_lisp_callback") ((name
-                                                                          :pointer)
+                                                                          (:reference-pass
+                                                                           :ef-mb-string))
                                                                          (ptr
                                                                           :ptr))
    :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-get-cur-term "my_get_current_term") nil
-   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
-
-
-#+win32
-(fli:define-foreign-function (c-set-hinst! "setHINST") ((val :long))
-   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (c-init-sound-system& "init_sound_system") ((size
                                                                           :int))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
-(fli:define-foreign-function (c-load_sound-effect& "load_sound_effect") ((fname
-                                                                          :pointer)
+(fli:define-foreign-function (c-load-sound-effect& "load_sound_effect") ((fname
+                                                                          (:reference-pass
+                                                                           :ef-mb-string))
                                                                          (idx
                                                                           :int))
-   :result-type errr :language :c :calling-convention :stdcall :module :lang-ffi)
+   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (c-get-sound-status "get_sound_status") nil
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
-(fli:define-foreign-function (c-paint-gfx-image& "paint_gfx_image") ((fname
-                                                                      :pointer)
-                                                                     (type
-                                                                      :pointer)
-                                                                     (x :int)
-                                                                     (y :int))
+(fli:define-foreign-function (c-play-sound-effect "play_sound_effect") ((idx
+                                                                         :int))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
 
 #+image-support
 (fli:define-foreign-function (load-gfx-image& "load_gfx_image") ((fname
-                                                                  :pointer)
-                                                                 (type
-                                                                  :pointer))
+                                                                  (:reference-pass
+                                                                   :ef-mb-string))
+                                                                 (idx :int)
+                                                                 (transcolour
+                                                                  :unsigned))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
 
 #+image-support
-(fli:define-foreign-function (load-scaled-image& "load_scaled_image") ((fname
-                                                                        :pointer)
-                                                                       (idx
-                                                                        :int)
-                                                                       (wid
-                                                                        :int)
-                                                                       (hgt
-                                                                        :int))
+(fli:define-foreign-function (c-load-texture& "load_texture") ((idx :int)
+                                                               (fname
+                                                                (:reference-pass
+                                                                 :ef-mb-string))
+                                                               (twid :int)
+                                                               (thgt :int)
+                                                               (alpha
+                                                                :unsigned))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
-(fli:define-foreign-function (c-texture_background! "textureBackground") ((term
-                                                                           :int)
-                                                                          (fname
-                                                                           :pointer)
-                                                                          (alpha
-                                                                           :int))
+
+#+image-support
+(fli:define-foreign-function (c-get-image-width "get_image_width") ((idx :int))
+   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
+
+
+#+image-support
+(fli:define-foreign-function (c-get-image-height "get_image_height") ((idx
+                                                                       :int))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (c-init-frame-system& "init_frame_system") ((act-size
@@ -202,8 +100,10 @@
                                                                           :int))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
-(fli:define-foreign-function (c-add_frame! "add_frame") ((key :int)
-                                                         (name :pointer))
+(fli:define-foreign-function (c-add-frame! "add_frame") ((key :int)
+                                                         (name
+                                                          (:reference-pass
+                                                           :ef-mb-string)))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (c-add-frame-coords! "add_frame_coords") ((key
@@ -214,16 +114,15 @@
                                                                        (h :int))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
-(fli:define-foreign-function (c-add_frame-tileinfo! "add_frame_tileinfo") ((key
+(fli:define-foreign-function (c-add-frame-tileinfo! "add_frame_tileinfo") ((key
                                                                             :int)
                                                                            (tw
                                                                             :int)
                                                                            (th
                                                                             :int)
                                                                            (font
-                                                                            :pointer)
-                                                                           (bg
-                                                                            :pointer))
+                                                                            (:reference-pass
+                                                                             :ef-mb-string)))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (c-add-frame-gfxinfo! "add_frame_gfxinfo") ((key
@@ -232,20 +131,11 @@
                                                                           :int))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
+(fli:define-foreign-function (c-add-frame-bg! "add_frame_bg") ((key :int)
+                                                               (img-idx :int))
+   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
+
 (fli:define-foreign-function (c-has_frame "has_frame") ((key :int) (type :int))
-   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-activate-frame! "activate_frame") ((key :int))
-   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-deactivate-frame! "deactivate_frame") ((key
-                                                                        :int))
-   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-clean-frame! "clean_frame") ((key :int))
-   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
-
-(fli:define-foreign-function (c-wipe-frame! "wipe_frame") ((key :int))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
 (fli:define-foreign-function (c-get-frame-columns "get_frame_columns") ((key
@@ -276,21 +166,50 @@
                                                                              :int))
    :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
+(fli:define-foreign-function (c-full-blit "exp_full_blit") ((num :short)
+                                                            (x :short)
+                                                            (y :short)
+                                                            (img :unsigned)
+                                                            (flag :short))
+   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
+
+(fli:define-foreign-function (c-transparent-blit "exp_transparent_blit") ((num
+                                                                           :short)
+                                                                          (x
+                                                                           :short)
+                                                                          (y
+                                                                           :short)
+                                                                          (img
+                                                                           :unsigned)
+                                                                          (flag
+                                                                           :short))
+   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
+
+(fli:define-foreign-function (c-clear-coords! "exp_clear_coords") ((num :short)
+                                                                   (x :short)
+                                                                   (y :short)
+                                                                   (w :short)
+                                                                   (h :short))
+   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
+
+(fli:define-foreign-function (c-flush-coords! "exp_flush_coords") ((num :short)
+                                                                   (x :short)
+                                                                   (y :short)
+                                                                   (w :short)
+                                                                   (h :short))
+   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
+
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (export
-   '(c_current_ui c_quit! c-clear-from! term-activate& c-prt-token! c-prt-stat!
-     c-prt-number! c_term_putstr! c_term_erase! c-term-queue-char!
-     c-term-gotoxy! c-set-cursor& c-term-clear! c-term-flush! c-term_fresh!
-     c-term-save! c-term-load! c-term-xtra& c-term-keypress c-inkey!
-     init_c-side& cleanup-c-side& c_macro_add& init-macro-system&
-     c-set-lisp-system! c-set-lisp-callback! c-get-cur-term c-set-hinst!
-     c-init-sound-system& c-load_sound-effect& c-get-sound-status
-     c-paint-gfx-image& load-gfx-image& load-scaled-image&
-     c-texture_background! c-init-frame-system& c-add_frame!
-     c-add-frame-coords! c-add_frame-tileinfo! c-add-frame-gfxinfo! c-has_frame
-     c-activate-frame! c-deactivate-frame! c-clean-frame! c-wipe-frame!
+   '(c_current_ui c-listen-for-event init-c-side& cleanup-c-side&
+     c-set-lisp-system! c-set-lisp-callback! c-init-sound-system&
+     c-load-sound-effect& c-get-sound-status c-play-sound-effect
+     load-gfx-image& c-load-texture& c-get-image-width c-get-image-height
+     c-init-frame-system& c-add-frame! c-add-frame-coords!
+     c-add-frame-tileinfo! c-add-frame-gfxinfo! c-add-frame-bg! c-has_frame
      c-get-frame-columns c-get-frame-rows c-get-frame-tile-width
-     c-get-frame-tile-height c-get_frame-gfx-tiles)))
+     c-get-frame-tile-height c-get_frame-gfx-tiles c-full-blit
+     c-transparent-blit c-clear-coords! c-flush-coords!)))
 
 ;;; End of generated file.

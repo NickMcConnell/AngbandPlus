@@ -1,7 +1,7 @@
 #|
 
 DESC: generics.lisp - the generic function interfaces
-Copyright (c) 2001-2002 - Stig Erik Sandø
+Copyright (c) 2001-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -62,7 +62,13 @@ but one that works with langband-objects."))
   (:documentation "Returns which attr should be displayed for object."))
 
 (defgeneric (setf x-attr) (value object)
-  (:documentation "Returns which attr should be displayed for object."))
+  (:documentation "Sets which attr should be displayed for object."))
+
+(defgeneric gfx-sym (object)
+  (:documentation "Returns the graphic symbol/tile for the object."))
+
+(defgeneric (setf gfx-sym) (value object)
+  (:documentation "Sets the gfx-sym that should be used for a given object."))
 
 
 (defgeneric text-char (object)
@@ -75,7 +81,13 @@ but one that works with langband-objects."))
   (:documentation "Returns which attr should be displayed for object."))
 
 (defgeneric (setf text-attr) (value object)
-  (:documentation "Returns which attr should be displayed for object."))
+  (:documentation "Sets which attr should be displayed for object."))
+
+(defgeneric text-sym (object)
+  (:documentation "Returns which text-symbol should be displayed for object."))
+
+(defgeneric (setf text-sym) (value object)
+  (:documentation "Sets which text-symbol should be displayed for object."))
 
 
 ;;; === End basic
@@ -592,7 +604,7 @@ the given variant and given level."))
 (defgeneric is-stat-array? (variant obj)
   (:documentation "Returns T if the object is a stat-array."))
 
-(defgeneric do-projection (source target-x target-y flag &key effect damage radius range)
+(defgeneric do-projection (source target-x target-y flag &key effect damage radius range projected-object)
   (:documentation "Does a general projection."))
 
 (defgeneric apply-projection-effect! (variant source path-array
@@ -707,3 +719,10 @@ given key.  Returns an active-door or NIL if none was found."))
 
 (defgeneric attempt-multi-creation! (variant obj depth)
   (:documentation "Attempt to create multiple objects (ie increase number)."))
+
+(defgeneric get-visual-projectile (obj)
+  (:documentation "Returns a visual-projectile object for the given object or NIL."))
+
+(defgeneric handle-mouse-click (variant window button x y)
+  (:documentation "Handle a legal mouse-click to a window.  The x and y are
+local to the window."))

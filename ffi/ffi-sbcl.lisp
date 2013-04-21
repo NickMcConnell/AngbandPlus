@@ -5,9 +5,6 @@
 (sb-alien:define-alien-type cptr c-string)
 
 (export 'cptr)
-(sb-alien:define-alien-type errr int)
-
-(export 'errr)
 
 
 (declaim (inline c_current_ui))
@@ -15,143 +12,15 @@
            int)
 
 
-(declaim (inline c_quit!))
-(sb-alien:define-alien-routine ("z_quit" c_quit!)
-           void
-           (msg (* char) :in))
-
-
-(declaim (inline c-clear-from!))
-(sb-alien:define-alien-routine ("clear_from" c-clear-from!)
-           void
-           (row int :in))
-
-
-(declaim (inline term-activate&))
-(sb-alien:define-alien-routine ("my_term_activate" term-activate&)
+(declaim (inline c-listen-for-event))
+(sb-alien:define-alien-routine ("listenForEvent" c-listen-for-event)
            int
-           (term-num int :in))
+           (option int :in))
 
 
-(declaim (inline c-prt-token!))
-(sb-alien:define-alien-routine ("print_coloured_token" c-prt-token!)
-           void
-           (term int :in)
-           (colour int :in)
-           (token int :in)
-           (row int :in)
-           (col int :in))
-
-
-(declaim (inline c-prt-stat!))
-(sb-alien:define-alien-routine ("print_coloured_stat" c-prt-stat!)
-           void
-           (term int :in)
-           (colour int :in)
-           (stat int :in)
-           (row int :in)
-           (col int :in))
-
-
-(declaim (inline c-prt-number!))
-(sb-alien:define-alien-routine ("print_coloured_number" c-prt-number!)
-           void
-           (term int :in)
-           (colour int :in)
-           (number long :in)
-           (padding int :in)
-           (row int :in)
-           (col int :in))
-
-
-(declaim (inline c_term_putstr!))
-(sb-alien:define-alien-routine ("my_Term_putstr" c_term_putstr!)
-           errr
-           (col int :in)
-           (row int :in)
-           (something int :in)
-           (colour int :in)
-           (text (* char) :in))
-
-
-(declaim (inline c_term_erase!))
-(sb-alien:define-alien-routine ("Term_erase" c_term_erase!)
-           errr
-           (col int :in)
-           (row int :in)
-           (something int :in))
-
-
-(declaim (inline c-term-queue-char!))
-(sb-alien:define-alien-routine ("my_Term_queue_char" c-term-queue-char!)
-           void
-           (col int :in)
-           (row int :in)
-           (colour int :in)
-           (the-char int :in)
-           (tcolour int :in)
-           (tchar int :in))
-
-
-(declaim (inline c-term-gotoxy!))
-(sb-alien:define-alien-routine ("Term_gotoxy" c-term-gotoxy!)
-           void
-           (row int :in)
-           (col int :in))
-
-
-(declaim (inline c-set-cursor&))
-(sb-alien:define-alien-routine ("my_Term_set_cursor" c-set-cursor&)
-           errr
-           (col int :in))
-
-
-(declaim (inline c-term-clear!))
-(sb-alien:define-alien-routine ("Term_clear" c-term-clear!)
-           errr)
-
-
-(declaim (inline c-term-flush!))
-(sb-alien:define-alien-routine ("Term_flush" c-term-flush!)
-           errr)
-
-
-(declaim (inline c-term_fresh!))
-(sb-alien:define-alien-routine ("Term_fresh" c-term_fresh!)
-           errr)
-
-
-(declaim (inline c-term-save!))
-(sb-alien:define-alien-routine ("Term_save" c-term-save!)
-           errr)
-
-
-(declaim (inline c-term-load!))
-(sb-alien:define-alien-routine ("Term_load" c-term-load!)
-           errr)
-
-
-(declaim (inline c-term-xtra&))
-(sb-alien:define-alien-routine ("Term_xtra" c-term-xtra&)
-           errr
-           (msg int :in)
-           (arg int :in))
-
-
-(declaim (inline c-term-keypress))
-(sb-alien:define-alien-routine ("Term_keypress" c-term-keypress)
-           errr
-           (key int :in))
-
-
-(declaim (inline c-inkey!))
-(sb-alien:define-alien-routine ("inkey" c-inkey!)
-           char)
-
-
-(declaim (inline init_c-side&))
-(sb-alien:define-alien-routine ("init_c_side" init_c-side&)
-           errr
+(declaim (inline init-c-side&))
+(sb-alien:define-alien-routine ("init_c_side" init-c-side&)
+           int
            (ui cptr)
            (source-path cptr)
            (config-path cptr)
@@ -161,19 +30,7 @@
 
 (declaim (inline cleanup-c-side&))
 (sb-alien:define-alien-routine ("cleanup_c_side" cleanup-c-side&)
-           errr)
-
-
-(declaim (inline c_macro_add&))
-(sb-alien:define-alien-routine ("macro_add" c_macro_add&)
-           void
-           (key cptr)
-           (value cptr))
-
-
-(declaim (inline init-macro-system&))
-(sb-alien:define-alien-routine ("macro_init" init-macro-system&)
-           void)
+           int)
 
 
 (declaim (inline c-set-lisp-system!))
@@ -193,30 +50,15 @@
            (ptr unsigned :in))
 
 
-(declaim (inline c-get-cur-term))
-(sb-alien:define-alien-routine ("my_get_current_term" c-get-cur-term)
-           int)
-
-
-#+win32
-
-(declaim (inline c-set-hinst!))
-
-#+win32
-(sb-alien:define-alien-routine ("setHINST" c-set-hinst!)
-           int
-           (val long :in))
-
-
 (declaim (inline c-init-sound-system&))
 (sb-alien:define-alien-routine ("init_sound_system" c-init-sound-system&)
            int
            (size int :in))
 
 
-(declaim (inline c-load_sound-effect&))
-(sb-alien:define-alien-routine ("load_sound_effect" c-load_sound-effect&)
-           errr
+(declaim (inline c-load-sound-effect&))
+(sb-alien:define-alien-routine ("load_sound_effect" c-load-sound-effect&)
+           int
            (fname cptr)
            (idx int :in))
 
@@ -226,13 +68,10 @@
            int)
 
 
-(declaim (inline c-paint-gfx-image&))
-(sb-alien:define-alien-routine ("paint_gfx_image" c-paint-gfx-image&)
+(declaim (inline c-play-sound-effect))
+(sb-alien:define-alien-routine ("play_sound_effect" c-play-sound-effect)
            int
-           (fname cptr)
-           (type cptr)
-           (x int :in)
-           (y int :in))
+           (idx int :in))
 
 
 #+image-support
@@ -243,28 +82,42 @@
 (sb-alien:define-alien-routine ("load_gfx_image" load-gfx-image&)
            int
            (fname cptr)
-           (type cptr))
-
-
-#+image-support
-
-(declaim (inline load-scaled-image&))
-
-#+image-support
-(sb-alien:define-alien-routine ("load_scaled_image" load-scaled-image&)
-           int
-           (fname cptr)
            (idx int :in)
-           (wid int :in)
-           (hgt int :in))
+           (transcolour unsigned :in))
 
 
-(declaim (inline c-texture_background!))
-(sb-alien:define-alien-routine ("textureBackground" c-texture_background!)
+#+image-support
+
+(declaim (inline c-load-texture&))
+
+#+image-support
+(sb-alien:define-alien-routine ("load_texture" c-load-texture&)
            int
-           (term int :in)
+           (idx int :in)
            (fname cptr)
-           (alpha int :in))
+           (twid int :in)
+           (thgt int :in)
+           (alpha unsigned :in))
+
+
+#+image-support
+
+(declaim (inline c-get-image-width))
+
+#+image-support
+(sb-alien:define-alien-routine ("get_image_width" c-get-image-width)
+           int
+           (idx int :in))
+
+
+#+image-support
+
+(declaim (inline c-get-image-height))
+
+#+image-support
+(sb-alien:define-alien-routine ("get_image_height" c-get-image-height)
+           int
+           (idx int :in))
 
 
 (declaim (inline c-init-frame-system&))
@@ -274,8 +127,8 @@
            (pre-size int :in))
 
 
-(declaim (inline c-add_frame!))
-(sb-alien:define-alien-routine ("add_frame" c-add_frame!)
+(declaim (inline c-add-frame!))
+(sb-alien:define-alien-routine ("add_frame" c-add-frame!)
            int
            (key int :in)
            (name cptr))
@@ -291,14 +144,13 @@
            (h int :in))
 
 
-(declaim (inline c-add_frame-tileinfo!))
-(sb-alien:define-alien-routine ("add_frame_tileinfo" c-add_frame-tileinfo!)
+(declaim (inline c-add-frame-tileinfo!))
+(sb-alien:define-alien-routine ("add_frame_tileinfo" c-add-frame-tileinfo!)
            int
            (key int :in)
            (tw int :in)
            (th int :in)
-           (font cptr)
-           (bg cptr))
+           (font cptr))
 
 
 (declaim (inline c-add-frame-gfxinfo!))
@@ -308,35 +160,18 @@
            (use-tiles int :in))
 
 
+(declaim (inline c-add-frame-bg!))
+(sb-alien:define-alien-routine ("add_frame_bg" c-add-frame-bg!)
+           int
+           (key int :in)
+           (img-idx int :in))
+
+
 (declaim (inline c-has_frame))
 (sb-alien:define-alien-routine ("has_frame" c-has_frame)
            int
            (key int :in)
            (type int :in))
-
-
-(declaim (inline c-activate-frame!))
-(sb-alien:define-alien-routine ("activate_frame" c-activate-frame!)
-           int
-           (key int :in))
-
-
-(declaim (inline c-deactivate-frame!))
-(sb-alien:define-alien-routine ("deactivate_frame" c-deactivate-frame!)
-           int
-           (key int :in))
-
-
-(declaim (inline c-clean-frame!))
-(sb-alien:define-alien-routine ("clean_frame" c-clean-frame!)
-           int
-           (key int :in))
-
-
-(declaim (inline c-wipe-frame!))
-(sb-alien:define-alien-routine ("wipe_frame" c-wipe-frame!)
-           int
-           (key int :in))
 
 
 (declaim (inline c-get-frame-columns))
@@ -374,20 +209,56 @@
            (type int :in))
 
 
+(declaim (inline c-full-blit))
+(sb-alien:define-alien-routine ("exp_full_blit" c-full-blit)
+           int
+           (num short :in)
+           (x short :in)
+           (y short :in)
+           (img unsigned :in)
+           (flag short :in))
+
+
+(declaim (inline c-transparent-blit))
+(sb-alien:define-alien-routine ("exp_transparent_blit" c-transparent-blit)
+           int
+           (num short :in)
+           (x short :in)
+           (y short :in)
+           (img unsigned :in)
+           (flag short :in))
+
+
+(declaim (inline c-clear-coords!))
+(sb-alien:define-alien-routine ("exp_clear_coords" c-clear-coords!)
+           int
+           (num short :in)
+           (x short :in)
+           (y short :in)
+           (w short :in)
+           (h short :in))
+
+
+(declaim (inline c-flush-coords!))
+(sb-alien:define-alien-routine ("exp_flush_coords" c-flush-coords!)
+           int
+           (num short :in)
+           (x short :in)
+           (y short :in)
+           (w short :in)
+           (h short :in))
+
+
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (export
-   '(c_current_ui c_quit! c-clear-from! term-activate& c-prt-token! c-prt-stat!
-     c-prt-number! c_term_putstr! c_term_erase! c-term-queue-char!
-     c-term-gotoxy! c-set-cursor& c-term-clear! c-term-flush! c-term_fresh!
-     c-term-save! c-term-load! c-term-xtra& c-term-keypress c-inkey!
-     init_c-side& cleanup-c-side& c_macro_add& init-macro-system&
-     c-set-lisp-system! c-set-lisp-callback! c-get-cur-term c-set-hinst!
-     c-init-sound-system& c-load_sound-effect& c-get-sound-status
-     c-paint-gfx-image& load-gfx-image& load-scaled-image&
-     c-texture_background! c-init-frame-system& c-add_frame!
-     c-add-frame-coords! c-add_frame-tileinfo! c-add-frame-gfxinfo! c-has_frame
-     c-activate-frame! c-deactivate-frame! c-clean-frame! c-wipe-frame!
+   '(c_current_ui c-listen-for-event init-c-side& cleanup-c-side&
+     c-set-lisp-system! c-set-lisp-callback! c-init-sound-system&
+     c-load-sound-effect& c-get-sound-status c-play-sound-effect
+     load-gfx-image& c-load-texture& c-get-image-width c-get-image-height
+     c-init-frame-system& c-add-frame! c-add-frame-coords!
+     c-add-frame-tileinfo! c-add-frame-gfxinfo! c-add-frame-bg! c-has_frame
      c-get-frame-columns c-get-frame-rows c-get-frame-tile-width
-     c-get-frame-tile-height c-get_frame-gfx-tiles)))
+     c-get-frame-tile-height c-get_frame-gfx-tiles c-full-blit
+     c-transparent-blit c-clear-coords! c-flush-coords!)))
 
 ;;; End of generated file.

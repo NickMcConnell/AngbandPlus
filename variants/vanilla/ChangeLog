@@ -1,3 +1,21 @@
+2003-01-18  Stig E Sandø <stig@users.sourceforge.net>
+	* Updated code to fit large changes in engine, see engine
+	changelog.
+	* Added visual effects for spells and missiles
+	* Added control of images to the variant, and this control is no
+	longer on the C-side.
+	* Reorganised some key-info to use config/ to make it easier to
+	tweak
+	* Added possibility of describing spells directly in the book
+	definition
+	* Fixed several spell-issues, and now displays study-status for
+	spells.
+	* Updated most monsters, objects, flavours, etc with x-attr/x-char
+	info with graphics directly instead of relying on graf-prefs.lisp
+	updates.  Easier to read and understand now.
+	* Other minor fixes.
+		
+
 2002-12-07  Stig E Sandø <stig@users.sourceforge.net>
 	* Added age/status/height/weight info to races in variant.
 	* Added angband-style save-and-exit on ^X and 'Q'uit will now kill

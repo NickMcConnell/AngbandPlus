@@ -3,7 +3,7 @@
 #||
 
 DESC: init.lisp - initialisation code
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -78,62 +78,62 @@ ADD_DESC: at the start.
 	  (car data))
     (return-from process-subwindow-data! nil))
 
-  (let ((sub (make-instance 'subwindow :name (car data))))
+  (let ((sub (make-instance 'window :id (car data))))
 
     (destructuring-bind (&key key x y width height background font tile-width tile-height gfx-tiles?)
 	(cdr data)
 
       (cond ((numberp key)
-	     (setf (subwindow.key sub) key))
+	     (setf (window.num-id sub) key))
 	    ((and (nonboolsym? key)
 		  (numberp (lookup-var theme key)))
-	     (setf (subwindow.key sub) (lookup-var theme key)))
+	     (setf (window.num-id sub) (lookup-var theme key)))
 	    (t
 	     (warn "Can't handle key ~s yet" key)))
       
       (cond ((numberp x)
-	     (setf (subwindow.x sub) x))
+	     (setf (window.x-offset sub) x))
 	    ((numberp (lookup-var theme x))
-	     (setf (subwindow.x sub) (lookup-var theme x)))
+	     (setf (window.x-offset sub) (lookup-var theme x)))
 	    (t
 	     (warn "Can't handle x ~s yet" x)))
 
       (cond ((numberp y)
-	     (setf (subwindow.y sub) y))
+	     (setf (window.y-offset sub) y))
 	    ((numberp (lookup-var theme y))
-	     (setf (subwindow.y sub) (lookup-var theme y)))
+	     (setf (window.y-offset sub) (lookup-var theme y)))
 	    (t
 	     (warn "Can't handle y ~s yet" y)))
 
       (cond ((numberp width)
-	     (setf (subwindow.width sub) width))
+	     (setf (window.pixel-width sub) width))
 	    ((numberp (lookup-var theme width))
-	     (setf (subwindow.width sub) (lookup-var theme width)))
+	     (setf (window.pixel-width sub) (lookup-var theme width)))
 	    (t
 	     (warn "Can't handle width ~s yet" width)))
 
       (cond ((numberp height)
-	     (setf (subwindow.height sub) height))
+	     (setf (window.pixel-height sub) height))
 	    ((numberp (lookup-var theme height))
-	     (setf (subwindow.height sub) (lookup-var theme height)))
+	     (setf (window.pixel-height sub) (lookup-var theme height)))
 	    (t
 	     (warn "Can't handle height ~s yet" height)))
 
       (cond ((eq tile-width nil)
 	     nil)
 	    ((numberp tile-width)
-	     (setf (subwindow.tile-width sub) tile-width))
+	     (setf (window.tile-width sub) tile-width))
 	    ((numberp (lookup-var theme tile-width))
-	     (setf (subwindow.tile-width sub) (lookup-var theme tile-width)))
+	     (setf (window.tile-width sub) (lookup-var theme tile-width)))
 	    (t
 	     (warn "Can't handle tile-width ~s yet" tile-width)))
 
       (cond ((eq tile-height nil)
 	     nil)
 	    ((numberp tile-height)
-	     (setf (subwindow.tile-height sub) tile-height))
+	     (setf (window.tile-height sub) tile-height))
 	    ((numberp (lookup-var theme tile-height))
-	     (setf (subwindow.tile-height sub) (lookup-var theme tile-height)))
+	     (setf (window.tile-height sub) (lookup-var theme tile-height)))
 	    (t
 	     (warn "Can't handle tile-height ~s yet" tile-height)))
 
@@ -141,22 +141,22 @@ ADD_DESC: at the start.
       (cond ((eq nil background)
 	     nil)
 	    ((stringp background)
-	     (setf (subwindow.background sub) background))
+	     (setf (window.backgroundfile sub) background))
 	    (t
 	     (warn "Can't handle background ~s yet" background)))
 
       (cond ((eq nil font)
 	     nil)
 	    ((stringp font)
-	     (setf (subwindow.font sub) font))
+	     (setf (window.font sub) font))
 	    (t
 	     (warn "Can't handle font ~s yet" font)))
       
       (cond ((or (eq gfx-tiles? t) (eq gfx-tiles? nil))
-	     (setf (subwindow.gfx-tiles? sub) gfx-tiles?))
+	     (setf (window.gfx-tiles? sub) gfx-tiles?))
 	    ((or (eq (lookup-var theme gfx-tiles?) t)
 		 (eq (lookup-var theme gfx-tiles?) nil))
-	     (setf (subwindow.gfx-tiles? sub) (lookup-var theme gfx-tiles?)))
+	     (setf (window.gfx-tiles? sub) (lookup-var theme gfx-tiles?)))
 	    (t
 	     (warn "Can't handle gfx-tiles? ~s yet" gfx-tiles?)))
 
@@ -189,25 +189,25 @@ ADD_DESC: at the start.
 
     (dolist (i subwindows)
       (let ((result (process-subwindow-data! theme i)))
-	(when (typep result 'subwindow)
+	(when (typep result 'window)
 	  (push result (theme.windows theme)))))
 
     ;; make sure all subwindows have a font
     (when (stringp (theme.font theme))
       (dolist (i (theme.windows theme))
-	(unless (stringp (subwindow.font i))
-	  (setf (subwindow.font i) (theme.font theme)))))
+	(unless (stringp (window.font i))
+	  (setf (window.font i) (theme.font theme)))))
 
     ;; ensure there are no duplicate keys or names
     (let ((names '())
 	  (keys '()))
       (dolist (i (theme.windows theme))
-	(if (find (subwindow.name i) names :test #'string-equal)
-	    (warn "Duplicate name of window ~s" (subwindow.name i))
-	    (push (subwindow.name i) names))
-	(if (find (subwindow.key i) keys :test #'equal)
-	    (warn "Duplicate key for window ~s" (subwindow.key i))
-	    (push (subwindow.key i) keys))))
+	(if (find (window.id i) names :test #'string-equal)
+	    (warn "Duplicate name of window ~s" (window.id i))
+	    (push (window.id i) names))
+	(if (find (window.num-id i) keys :test #'equal)
+	    (warn "Duplicate key for window ~s" (window.num-id i))
+	    (push (window.num-id i) keys))))
     
     theme))
 
@@ -246,22 +246,26 @@ ADD_DESC: at the start.
 
   (check-type theme theme)
 ;;  (warn "Installing theme ~s" (theme.key theme))
-  
-  (dolist (i (theme.windows theme))
-    (c-add-frame! (subwindow.key i) (string-downcase (string (subwindow.name i))))
-    (c-add-frame-coords! (subwindow.key i)
-			 (subwindow.x i) (subwindow.y i)
-			 (subwindow.width i) (subwindow.height i))
-    (c-add-frame-tileinfo! (subwindow.key i)
-			   (subwindow.tile-width i) (subwindow.tile-height i)
-			   (subwindow.font i)
-			   (if (subwindow.background i)
-			       (subwindow.background i)
-			       ""))
-    (c-add-frame-gfxinfo! (subwindow.key i)
-			  (if (subwindow.gfx-tiles? i)
-			      1 0))
-    )
+
+  (loop for cnt from 0
+	for i in (theme.windows theme)
+	do
+	(progn
+	  ;;(warn "Installing ~s" i)
+	  (org.langband.ffi:c-add-frame! (window.num-id i) (string-downcase (string (window.id i))))
+	  (org.langband.ffi:c-add-frame-coords! (window.num-id i)
+						(window.x-offset i) (window.y-offset i)
+						(window.pixel-width i) (window.pixel-height i))
+	  (org.langband.ffi:c-add-frame-tileinfo! (window.num-id i)
+						  (window.tile-width i) (window.tile-height i)
+						  (window.font i))
+				 
+	  (org.langband.ffi:c-add-frame-gfxinfo! (window.num-id i)
+						 (if (window.gfx-tiles? i)
+						     1 0))
+	  ;; shouldn't this work?
+	  (setf (aref *windows* (window.num-id i)) i)
+	  ))
   
   t)
 
@@ -290,8 +294,15 @@ call appropriately high-level init in correct order."
   (setq cl:*random-state* (cl:make-random-state t))
   (vinfo-init&) ;; init line-of-sight arrays
 
+  (lb-ds:init-pq-pool 60) ;; random number
+  
+  ;; ensure that we always have a valid input-event
+  (unless (and *input-event* (input-event-p *input-event*))
+    (setf *input-event* (make-input-event :keypress (make-keyboard-event) :mouseclick (make-mouse-event))))
+
+  
   (with-open-file (alternative-errors #+win32 #p"lb-warn.txt"
-				      #-win32 #p"langband-warn.txt"
+				      #-win32 #p"warnings-langband.txt"
 				      :direction :output
 				      :if-exists :append
 				      :if-does-not-exist :create)
@@ -372,21 +383,6 @@ call appropriately high-level init in correct order."
   t)
     
 
-(defun %mouse-clicked (button x y)
-  (declare (ignore button))
-  (when (eq (get-system-type) 'sdl)
-    ;; this is a hardcoded hack
-    ;; bottom-right buttons
-    (cond ((and (> x 768) (> y 536))
-	   (switch-inventory-view))
-	  ;; add when you figure out how to handle inkey()
-	  ((and (> x 736) (> y 536))
-	   ;;(switch-map-mode)
-	   (c-term-keypress 20))
-	  )
-    ;;(warn "Button ~s clicked at (~s,~s)" button x y)
-    nil))
-
 (defun arrange-callbacks ()
   "Assures that the C-side has necessary callbacks to the Lisp-side."
 
@@ -428,21 +424,10 @@ call appropriately high-level init in correct order."
 	(mouse-ptr (fli:make-pointer :symbol-name "LB_MouseClicked"))
 	)
     
-    (fli:with-foreign-string (name elm-count byte-count :external-format :ascii)
-      "play-game"
-      (declare (ignore elm-count byte-count))
-      (org.langband.ffi:c-set-lisp-callback! name play-ptr))
-    
-    (fli:with-foreign-string (name elm-count byte-count :external-format :ascii)
-      "adjust-size"
-      (declare (ignore elm-count byte-count))
-      (org.langband.ffi:c-set-lisp-callback! name size-ptr))
-    
-    (fli:with-foreign-string (name elm-count byte-count :external-format :ascii)
-      "mouse-clicked"
-      (declare (ignore elm-count byte-count))
-      (org.langband.ffi:c-set-lisp-callback! name mouse-ptr))
-      )
+    (org.langband.ffi:c-set-lisp-callback! "play-game" play-ptr)
+    (org.langband.ffi:c-set-lisp-callback! "adjust-size" size-ptr)
+    (org.langband.ffi:c-set-lisp-callback! "mouse-clicked" mouse-ptr)
+    )
   
   #-(or sbcl cmu allegro lispworks)
   (error "No callback arranged for implementation..")
@@ -472,6 +457,7 @@ call appropriately high-level init in correct order."
     ))
 
 (defun b (&optional (ui "gcu"))
+  (warn "Curses/GCU not supported in this version.")
   (a ui :gfx nil))
 
 (defun c (&optional (ui "sdl"))
@@ -479,7 +465,7 @@ call appropriately high-level init in correct order."
 
 
 (setf (symbol-function 'cl-user::langband)
-      #'b)
+      #'c)
 
 (setf (symbol-function 'cl-user::gcu-langband)
       #'b)

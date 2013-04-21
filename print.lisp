@@ -33,13 +33,44 @@ ADD_DESC: Various code which just prints stuff somewhere
 (defconstant +token-stat+ 12)
 (defconstant +token-empty-field+ 24)
 
+
+;; rename! (also inefficient)
+(defun print-token (term colour token row col)
+  (let ((win (aref *windows* term))
+	(tok (elt '("" "Name" "Cur MP" "Max MP" "Level" "LEVEL" 
+		    "Exp" "EXP" "Cur HP" "Max HP" "Cur AC" "AU"
+		    "Str" "Dex" "Con" "Int" "Wis" "Chr"
+		    "STR" "DEX" "CON" "INT" "WIS" "CHR"
+		    "            ") token)))
+    (output-string! win col row colour tok)
+    nil))
+
+;; very very inefficient, and wrong.. should use padding
+(defun print-number (term colour number padding row col)
+  ;; hack
+  (let ((win (aref *windows* term)))
+    (output-string! win col row colour (format nil "~vd" padding number)))
+;;  (warn "prt-number")
+  nil)
+
+
+;; scrwes up when printing lower values on the character sheet
+(defun print-stat-value (term colour stat row col)
+  (output-string! (aref *windows* term)
+		  col row colour (cond ((>= stat 118)
+					(format nil "18/~3,'0d" (- stat 18)))
+				       ((> stat 18)
+					(format nil " 18/~2,'0d" (- stat 18)))
+				       (t
+					(format nil "    ~2d" stat)))))
+
 (defun print-field (str coord term)
   "Print string at given coordinates in light-blue."
   ;; clear and then write
   (let ((y (car coord))
 	(x (cdr coord)))
 
-    (c-prt-token! term +term-white+ +token-empty-field+
+    (print-token term +term-white+ +token-empty-field+
 		  y x)
 
     ;; (put-coloured-str! +term-white+ "            " x y)
@@ -59,11 +90,11 @@ ADD_DESC: Various code which just prints stuff somewhere
 	 ;;(name (get-stat-name-from-num num))
 	 )
     
-    (c-prt-token! +charinfo-frame+ +term-white+ (if reduced-stat-p
-				   (+ +token-stat+ num)
-				   (+ +token-stat+ num 6))
-		  (+ num row)
-		  col)
+    (print-token +charinfo-frame+ +term-white+ (if reduced-stat-p
+						   (+ +token-stat+ num)
+						   (+ +token-stat+ num 6))
+		 (+ num row)
+		 col)
     
 ;;    (put-coloured-str! +term-white+ (if reduced-stat-p
 ;;		   name
@@ -72,8 +103,8 @@ ADD_DESC: Various code which just prints stuff somewhere
 ;;	       (+ num row))
 
 
-    (c-prt-stat! +charinfo-frame+ (if reduced-stat-p +term-yellow+ +term-l-green+)
-		 stat-val (+ row num) (+ col 6))
+    (print-stat-value +charinfo-frame+ (if reduced-stat-p +term-yellow+ +term-l-green+)
+		      stat-val (+ row num) (+ col 6))
     
     ))
 
@@ -93,14 +124,14 @@ ADD_DESC: Various code which just prints stuff somewhere
 	 (lev-set (slot-value setting 'level))
 	 (lower-lvl-p (< lev (player.max-level player))))
     
-    (c-prt-token! +charinfo-frame+ +term-white+ (if lower-lvl-p +token-nrm-lvl+ +token-big-lvl+)
-		  (car lev-set) (cdr lev-set))
+    (print-token +charinfo-frame+ +term-white+ (if lower-lvl-p +token-nrm-lvl+ +token-big-lvl+)
+		 (car lev-set) (cdr lev-set))
 
-    (c-prt-number! +charinfo-frame+ (if lower-lvl-p +term-yellow+ +term-l-green+)
-		   lev
-		   6
-		   (car lev-set)
-		   (+ (cdr lev-set) 6))))
+    (print-number +charinfo-frame+ (if lower-lvl-p +term-yellow+ +term-l-green+)
+		  lev
+		  6
+		  (car lev-set)
+		  (+ (cdr lev-set) 6))))
 
 (defun print-xp (player setting)
   "Prints xp in the left frame."
@@ -108,14 +139,14 @@ ADD_DESC: Various code which just prints stuff somewhere
 	 (xp-set (slot-value setting 'xp))
 	 (lower-xp-p (< xp (player.max-xp player))))
 
-    (c-prt-token! +charinfo-frame+ +term-white+ (if lower-xp-p +token-nrm-xp+ +token-big-xp+)
-		  (car xp-set) (cdr xp-set))
+    (print-token +charinfo-frame+ +term-white+ (if lower-xp-p +token-nrm-xp+ +token-big-xp+)
+		 (car xp-set) (cdr xp-set))
 
-    (c-prt-number! +charinfo-frame+ (if lower-xp-p +term-yellow+ +term-l-green+)
-		   xp
-		   8
-		   (car xp-set)
-		   (+ (cdr xp-set) 4))))
+    (print-number +charinfo-frame+ (if lower-xp-p +term-yellow+ +term-l-green+)
+		  xp
+		  8
+		  (car xp-set)
+		  (+ (cdr xp-set) 4))))
 
 
 (defun print-gold (player setting)
@@ -124,9 +155,9 @@ ADD_DESC: Various code which just prints stuff somewhere
   (let ((gold (player.gold player))
 	(gold-set (slot-value setting 'gold)))
 
-    (c-prt-token! +charinfo-frame+ +term-white+ +token-au+ (car gold-set) (cdr gold-set))
+    (print-token +charinfo-frame+ +term-white+ +token-au+ (car gold-set) (cdr gold-set))
 
-    (c-prt-number! +charinfo-frame+ +term-l-green+ gold 9
+    (print-number +charinfo-frame+ +term-l-green+ gold 9
 		   (car gold-set)
 		   (+ (cdr gold-set) 3))
     ))
@@ -140,9 +171,9 @@ ADD_DESC: Various code which just prints stuff somewhere
 		(pl-ability.ac-modifier perc)))
 	(ac-set (slot-value setting 'ac)))
 
-    (c-prt-token! +charinfo-frame+ +term-white+ +token-cur-ac+ (car ac-set) (cdr ac-set))
+    (print-token +charinfo-frame+ +term-white+ +token-cur-ac+ (car ac-set) (cdr ac-set))
 
-    (c-prt-number! +charinfo-frame+ +term-l-green+
+    (print-number +charinfo-frame+ +term-l-green+
 		   ac
 		   5
 		   (car ac-set)
@@ -157,24 +188,24 @@ ADD_DESC: Various code which just prints stuff somewhere
 	(cur-set (slot-value setting 'cur-hp))
 	(max-set (slot-value setting 'max-hp)))
     
-    (c-prt-token! +charinfo-frame+ +term-white+ +token-max-hp+ (car max-set) (cdr max-set))
-    (c-prt-token! +charinfo-frame+ +term-white+ +token-cur-hp+ (car cur-set) (cdr cur-set))
+    (print-token +charinfo-frame+ +term-white+ +token-max-hp+ (car max-set) (cdr max-set))
+    (print-token +charinfo-frame+ +term-white+ +token-cur-hp+ (car cur-set) (cdr cur-set))
 
     ;; max
-    (c-prt-number! +charinfo-frame+ +term-l-green+
+    (print-number +charinfo-frame+ +term-l-green+
 		    max-hp
 		    5
 		    (car max-set)
 		    (+ (cdr max-set) 7))
 
     ;; cur
-    (c-prt-number! +charinfo-frame+ (cond ((>= cur-hp max-hp) +term-l-green+)
-			 ((> cur-hp (int-/ (* max-hp *hitpoint-warning*) 10)) +term-yellow+)
-			 (t +term-red+))
-		   cur-hp
-		   5
-		   (car cur-set)
-		   (+ (cdr cur-set) 7))
+    (print-number +charinfo-frame+ (cond ((>= cur-hp max-hp) +term-l-green+)
+					 ((> cur-hp (int-/ (* max-hp *hitpoint-warning*) 10)) +term-yellow+)
+					 (t +term-red+))
+		  cur-hp
+		  5
+		  (car cur-set)
+		  (+ (cdr cur-set) 7))
     
     ))
 
@@ -186,24 +217,24 @@ ADD_DESC: Various code which just prints stuff somewhere
 	(cur-set (slot-value setting 'cur-mana))
 	(max-set (slot-value setting 'max-mana)))
 
-    (c-prt-token! +charinfo-frame+ +term-white+ +token-max-mp+ (car max-set) (cdr max-set))
-    (c-prt-token! +charinfo-frame+ +term-white+ +token-cur-mp+ (car cur-set) (cdr cur-set))
+    (print-token +charinfo-frame+ +term-white+ +token-max-mp+ (car max-set) (cdr max-set))
+    (print-token +charinfo-frame+ +term-white+ +token-cur-mp+ (car cur-set) (cdr cur-set))
   
-    (c-prt-number! +charinfo-frame+ +term-l-green+
+    (print-number +charinfo-frame+ +term-l-green+
 		   max-hp
 		   5
 		   (car max-set)
 		   (+ (cdr max-set) 7))
 
 
-    (c-prt-number! +charinfo-frame+ (cond ((>= cur-hp max-hp) +term-l-green+)
-			 ((> cur-hp (int-/ (* max-hp *hitpoint-warning*) 10)) +term-yellow+)
-			 (t +term-red+))
-
-		   cur-hp
-		   5
-		   (car cur-set)
-		   (+ (cdr cur-set) 7))
+    (print-number +charinfo-frame+ (cond ((>= cur-hp max-hp) +term-l-green+)
+					 ((> cur-hp (int-/ (* max-hp *hitpoint-warning*) 10)) +term-yellow+)
+					 (t +term-red+))
+		  
+		  cur-hp
+		  5
+		  (car cur-set)
+		  (+ (cdr cur-set) 7))
 
     ))
   
@@ -241,9 +272,9 @@ ADD_DESC: Various code which just prints stuff somewhere
       (print-field "Food" food-set +charinfo-frame+)
       (print-field "Energy" energy-set +charinfo-frame+)
       
-      (c-prt-number! +charinfo-frame+ +term-l-green+ (player.food player) 5
+      (print-number +charinfo-frame+ +term-l-green+ (player.food player) 5
 		     (car food-set) (+ (cdr food-set) 7))
-      (c-prt-number! +charinfo-frame+ +term-l-green+ (player.energy player) 5
+      (print-number +charinfo-frame+ +term-l-green+ (player.energy player) 5
 		     (car energy-set) (+ (cdr energy-set) 7))
       )
     ||#
@@ -257,21 +288,22 @@ ADD_DESC: Various code which just prints stuff somewhere
 (defmethod print-speed ((variant variant) (player player) (setting bottom-row-locations))
   (let ((column (slot-value setting 'speed))
 	(speed (player.speed player))
-        (colour +term-l-green+))
-    (with-foreign-str (s)
+        (colour +term-l-green+)
+	)
+    (let ((s nil))
       (cond ((= speed +speed-base+)
-             (lb-format s "            "))
+             (setf s "            "))
             ((> speed +speed-base+)
-	     (lb-format s "Fast (+~d)" (- speed +speed-base+)))
+	     (setf s (format nil "Fast (+~d)" (- speed +speed-base+))))
             (t
-             (lb-format s "Slow (-~d)" (abs (- speed +speed-base+)))
+             (setf s (format nil "Slow (-~d)" (abs (- speed +speed-base+))))
              (setf colour +term-l-umber+)
              ))
 
       ;;(warn "Printing speed ~s" s)
-
-      (put-coloured-str! +term-l-green+ s column
-			 (get-last-console-line))
+      (with-frame (+misc-frame+)
+	(put-coloured-str! colour s column 0))
+      
       )))
   
 (defun display-player-misc (variant player term settings)
@@ -321,8 +353,8 @@ ADD_DESC: Various code which just prints stuff somewhere
 			    (slot-value settings 'picture-y)
 			    title-row)))
 
-	  (%paint-people-image (get-character-picture variant player)
-			       pic-col pic-row)))
+	  (paint-gfx-image& (get-character-picture variant player)
+			    pic-col pic-row)))
       
       )))
 
@@ -464,11 +496,11 @@ ADD_DESC: Various code which just prints stuff somewhere
   
   
     (put-coloured-str! title-attr  "Blows" col (+ row 17))
-    (put-coloured-str! value-attr (%get-13astr "1/turn")
+    (put-coloured-str! value-attr (format nil "~13@a" "1/turn")
 		       f-col (+ row 17))
   
     (put-coloured-str! title-attr  "Shots" col (+ row 18))
-    (put-coloured-str! value-attr (%get-13astr "1/turn")
+    (put-coloured-str! value-attr (format nil "~13@a" "1/turn")
 		       f-col (+ row 18))
 		   
     (put-coloured-str! title-attr "Infra" col (+ row 19))
@@ -584,7 +616,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 	
 	
 	;; base stat
-	(c-prt-stat! term stats-ok-val its-base (+ row i) (+ col 5))
+	(print-stat-value term stats-ok-val its-base (+ row i) (+ col 5))
 	
 	;;	(put-coloured-str! +term-l-green+ (%get-stat its-base)
 	;;		       (+ col 5) (+ row i))
@@ -607,7 +639,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 	
 
 	;; max stat
-	(c-prt-stat! term stats-ok-val its-mod (+ row i) (+ col 24))
+	(print-stat-value term stats-ok-val its-mod (+ row i) (+ col 24))
 	
 	;;	(put-coloured-str! +term-l-green+ (%get-stat its-mod)
 	;;		       (+ col 24) (+ row i))
@@ -615,7 +647,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 	;; if active is lower than max
 	(when (< its-active its-mod)
 	  ;; max stat
-	  (c-prt-stat! term stats-bad-val its-active (+ row i) (+ col 28)))
+	  (print-stat-value term stats-bad-val its-active (+ row i) (+ col 28)))
 	
 	;;	  (put-coloured-str! +term-yellow+ (%get-stat its-active)
 	;;			 (+ col 28) (+ row i))
@@ -629,7 +661,7 @@ ADD_DESC: Various code which just prints stuff somewhere
   (declare (ignore mode))
   (let ((term +full-frame+) ;; should be passed from the outside!
 	(display-settings (get-setting variant :char-display)))
-    (c-clear-from! 0)
+    (clear-window term)
     (display-player-misc   variant player term display-settings)
     (display-player-stats  variant player term display-settings)
     (display-player-extra  variant player term display-settings)
@@ -643,13 +675,13 @@ ADD_DESC: Various code which just prints stuff somewhere
   (setf (gethash (help-topic.id topic) (variant.help-topics variant)) topic))
 
 (defun %show-help-file (fname)
-  (let ((frame-height (get-term-height))
+  (let ((frame-height (get-frame-height))
 	(key-read nil))
     (with-open-file (in-str (pathname fname)
 			    :direction :input)
       
       ;; hack
-      (c-clear-from! 0)
+      (clear-window *cur-win*)
       (loop named reader
 	    for i from 0
 	    for y from 2
@@ -663,12 +695,12 @@ ADD_DESC: Various code which just prints stuff somewhere
 
 	    ;; time to break?
 	    (when (and (> i 0) (= 0 (mod i (- frame-height 4))))
-	      (setf key-read (c-pause-line! (- frame-height 1)
-					    :msg "[Press <space> to continue]"
-					    :attr +term-yellow+))
+	      (setf key-read (pause-at-line! (- frame-height 1)
+					     :msg "[Press <space> to continue]"
+					     :attr +term-yellow+))
 	      (when (eql key-read #\Escape)
 		(return-from %show-help-file nil))
-	      (c-clear-from! 0)
+	      (clear-window *cur-win*)
 	      (setf y 1))
 	  )
       
@@ -697,12 +729,12 @@ ADD_DESC: Various code which just prints stuff somewhere
 	     (read-one-character)))
 
       (loop
-       (c-clear-from! 0)
+       (clear-window *cur-win*)
        (show-title)
        (show-entries)
        (let ((key (get-valid-key)))
 	 (loop for i being the hash-values of topics
-	       for topic-key = (help-topic.key i)
+	       ;;for topic-key = (help-topic.key i)
 	       for topic-data = (help-topic.data i)
 	       do
 	       (when (eql key (help-topic.key i))
@@ -717,7 +749,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 
 (defun print-attack-graph (var-obj player)
 ;;  (declare (ignore player))
-    (c-clear-from! 0)
+    (clear-window *cur-win*)
     
     (dotimes (i 10)
       (let ((y (- 19 (* i 2))))
@@ -764,7 +796,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 
 (defun print-attack-table (var-obj player)
 ;;  (declare (ignore player))
-    (c-clear-from! 0)
+    (clear-window *cur-win*)
 
     (put-coloured-str! +term-l-blue+ "CHANCE TO HIT" 2 0)
     (put-coloured-str! +term-l-blue+ "=============" 2 1)
@@ -788,7 +820,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 		     ))
 	      ))
 
-      (c-print-text! 2 16 +term-l-blue+ "
+      (print-text! 2 16 +term-l-blue+ "
 The armour-value describes a full set-up of armour, including
     helmet, shield, gloves, boots, cloak and body-armour.  Parts of
     the outfit is expected to have appropriate enchantments, e.g a
@@ -805,7 +837,7 @@ The armour-value describes a full set-up of armour, including
 
 (defun print-resists (var-obj player settings)
 ;;  (declare (ignore player))
-    (c-clear-from! 0)
+    (clear-window *cur-win*)
 
     (let ((title-attr (if settings
 			  (slot-value settings 'title-attr)
@@ -857,7 +889,7 @@ The armour-value describes a full set-up of armour, including
 (defun print-misc-info (var-obj player)
   (declare (ignore var-obj player))
 
-  (c-clear-from! 0)
+  (clear-window *cur-win*)
   (put-coloured-str! +term-l-blue+ "MISC INFO" 2 0)
   (put-coloured-str! +term-l-blue+ "=========" 2 1)
 

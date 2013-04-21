@@ -3,7 +3,7 @@
 #|
 
 DESC: actions.lisp - various actions from the kbd/player
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -182,7 +182,7 @@ is above a stair.  DIR can be :UP or :DOWN"
 	 (flags (floor.flags feat)) 
 	 (leaving-sym nil))
     
-    (declare (type u-16b depth x y feat))
+    ;;(declare (type u16b depth x y feat))
     (case dir
       (:up
        (unless (bit-flag-set? flags +floor-flag-exit-upwards+)
@@ -241,7 +241,8 @@ a list if more items occupy the same place."
 		  (bit-flag-add! *redraw* +print-basic+)
 		  
 		  (when (= 0 (items.cur-size objs))
-		    (setf (cave-objects dungeon x y) nil)))
+		    (setf (cave-objects dungeon x y) nil))
+		  (light-spot! dungeon x y))
 		 
 
 		 (t
@@ -255,7 +256,8 @@ a list if more items occupy the same place."
 			   (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+)
 			   ;; succesful
 			   (when (= 0 (items.cur-size objs))
-			     (setf (cave-objects dungeon x y) nil)))
+			     (setf (cave-objects dungeon x y) nil))
+			   (light-spot! dungeon x y))
 
 			  (t 
 			   ;; not succesful.. put it back
@@ -632,11 +634,16 @@ a list if more items occupy the same place."
       ))
     ))
 
+
 (defun %highlight-target (dungeon target)
   (check-type target target)
-;;  (warn "is at ~s,~s" (target.x target)	(target.y target))
-  (put-cursor-relative! dungeon (target.x target)
-			(target.y target)))
+  (let ((legal (is-legal-target? dungeon target)))
+    ;;  (warn "is at ~s,~s" (target.x target)	(target.y target))
+    (put-cursor-relative! dungeon (target.x target)
+			  (target.y target)
+			  (if legal
+			      :legal-crosshair
+			      :bad-crosshair))))
 
 	 
 
@@ -654,12 +661,6 @@ a list if more items occupy the same place."
 		      :x x :y y))
 	))
 
-(defun is-legal-target? (dungeon target)
-  (and target
-       (typep target 'target)
-       (projectable? dungeon
-		     (location-x *player*) (location-y *player*)
-		     (target.x target) (target.y target))))
 
 (defun %print-target (dungeon target)
   
@@ -685,10 +686,21 @@ a list if more items occupy the same place."
 					 (write-obj-description *variant* first-obj s)))))))))
 	  (t
 	   nil))
-    
-    (c-prt! (format nil "~a ~a" desc-str key-desc) 0 0)))
+    (with-frame (+message-frame+)
+      (put-coloured-line! +term-white+ (format nil "~a ~a" desc-str key-desc) 0 0))
 
+    ))
 
+(defun %remove-target (target)
+  (when (and target (typep target 'target))
+    (let ((win (aref *windows* *map-frame*)))
+      (multiple-value-bind (x y)
+	  (get-relative-coords (target.x target) (target.y target))
+	(setf (window-coord win +effect+ x y) 0)
+	(paint-coord win x y)
+	(flush-coords win x y 1 1)))))
+
+;;; INPUT NOTE: needs to use more sophisticated input, e.g mouseclicks and keys
 (defun interactive-targeting! (dungeon player)
 
   (let ((cur-target (player.target player)))
@@ -696,6 +708,7 @@ a list if more items occupy the same place."
     (when (and cur-target
 	       (typep (target.obj cur-target) 'active-monster)
 	       (not (creature-alive? (target.obj cur-target))))
+      (%remove-target cur-target)
       (setf cur-target nil))
 
     ;; always start at player if we have no old target
@@ -704,13 +717,14 @@ a list if more items occupy the same place."
 				    :x (location-x player)
 				    :y (location-y player))))
 
-;;    (c-prt! "Please use cursor keys to find target, use 't' to target and ESC to exit." 0 0)
-    (c-set-cursor& 1)
+;;    (put-coloured-line! +term-white+ "Please use cursor keys to find target, use 't' to target and ESC to exit." 0 0)
+    (set-cursor-visibility t)
     (block target-input
       (loop
        (%highlight-target dungeon cur-target)
 
-       (let ((key (read-one-character)))
+       (let ((key (read-one-character))
+	     (old-target cur-target))
 	 (cond ((eql key #\t)
 		(return-from target-input cur-target))
 	       
@@ -734,23 +748,26 @@ a list if more items occupy the same place."
 	       
 	       (t
 		(warn "weird key ~s" key))
-	       ))
+	       )
+	 (unless (eq old-target nil)
+	   (%remove-target old-target))
+	 (cond ((is-legal-target? dungeon cur-target)
+		(%print-target dungeon cur-target))
+	       ((eq cur-target nil)
+		(with-frame (+message-frame+)
+		  (put-coloured-line! +term-white+ "[No target]" 0 0))
+		)
+	       (t
+		(with-frame (+message-frame+)
+		  (put-coloured-line! +term-white+ "[Target isn't legal]" 0 0))
+		))
+	 )))
 
-       (cond ((is-legal-target? dungeon cur-target)
-	      (%print-target dungeon cur-target))
-	     ((eq cur-target nil)
-	      (c-prt! "[No target]" 0 0))
-	     (t
-	      (c-prt! "[Target isn't legal]" 0 0)))
-       ))
-
-    (c-set-cursor& 0)
+    (set-cursor-visibility nil)
     ;; flush!
-    (c-prt! "" 0 0)
+    ;;(put-coloured-line! +term-white+ "" 0 0)
 ;;    (warn "New target is ~s" cur-target)
     (setf (player.target player) cur-target)
-
-    
     
     nil))
 

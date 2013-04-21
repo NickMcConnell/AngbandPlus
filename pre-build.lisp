@@ -3,7 +3,7 @@
 #|
 
 DESC: pre-build.lisp - settings that must be set before build
-Copyright (c) 2001-2002 - Stig Erik Sandø
+Copyright (c) 2001-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,7 +15,10 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :cl-user)
 
 ;; should be on in a released source
-(pushnew :langband-release *features*)
+;;(pushnew :langband-release *features*)
+
+;; this is a hack to get out a working release now
+(pushnew :image-support cl:*features*)
 
 #+clisp
 (progn
@@ -53,7 +56,8 @@ the Free Software Foundation; either version 2 of the License, or
 	;;sb-ext:*byte-compile-default* nil
 	*compile-print* nil
 	)
-  ;;(pushnew :disable-sound cl:*features*)
+  ;; to avoid exit-problems with sbcl
+  (pushnew :disable-sound cl:*features*)
   )
   
 
@@ -70,22 +74,22 @@ the Free Software Foundation; either version 2 of the License, or
     (loop for x = (read s nil 'eof)
 	  until (eq x 'eof)
 	  do
-
-	  (cond ((consp x)
-		 (case (car x)
-		   (sound-use
-		    #-clisp
-		    (when (eq (second x) 'yes)
-		      (pushnew :using-sound *features*)))
-		   (environments
-		    (dolist (i (cdr x))
-		      (when (or (eq i 'x11) (eq i 'sdl))
-			(pushnew :image-support *features*))))
-		   (otherwise
-		    (warn "Unknown setting directive ~s in ~s" x fname))))
-		(t
-		 (warn "Unknwon setting directive ~s in ~s" x fname)))
+	  (unless (consp x)
+	    (warn "Unknown setting directive ~s in ~s" x fname))
+	  (when (consp x)
+	    (case (car x)
+	      (sound-use
+	       #-clisp
+	       (when (eq (second x) 'yes)
+		 (pushnew :using-sound *features*)))
+	      (environments
+	       (dolist (i (cdr x))
+		 (when (or (eq i 'x11) (eq i 'sdl) (eq i 'win))
+		   (pushnew :image-support *features*))))
+	      (otherwise
+	       (warn "Unknown setting directive ~s in ~s" x fname))))
 	  )))
+
 
 (ignore-errors
   (%load-settings-file "config/settings.cfg")) ;; fix

@@ -17,8 +17,10 @@ the Free Software Foundation; either version 2 of the License, or
 (define-monster-kind "hobbit-maggott" "Farmer Maggot"
   :numeric-id  4
   :desc "He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy hobbit!"
-  :x-char #\h
-  :x-attr #\w
+  :text-char #\h
+  :text-attr #\w
+  :x-attr (tile-file 14)
+  :x-char (tile-number 1)
   :type '(<unique>)
   :depth 0
   :rarity 4
@@ -36,9 +38,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "dog-fang" "Fang, Farmer Maggot's dog"
   :numeric-id  47
+  :x-attr (tile-file 18)
+  :x-char (tile-number 75)
   :desc "A rather vicious dog belonging to Farmer Maggot.  It thinks you are stealing mushrooms."
-  :x-char #\C
-  :x-attr #\U
+  :text-char #\C
+  :text-attr #\U
   :type '(<animal> <unique>)
   :depth 2
   :rarity 1
@@ -53,9 +57,11 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
 (define-monster-kind "dog-grip" "Grip, Farmer Maggot's dog"
   :numeric-id  46
+  :x-attr (tile-file 18)
+  :x-char (tile-number 73)
   :desc "A rather vicious dog belonging to Farmer Maggot.  It thinks you are stealing mushrooms."
-  :x-char #\C
-  :x-attr #\U
+  :text-char #\C
+  :text-attr #\U
   :type '(<animal> <unique>)
   :depth 2
   :rarity 1
@@ -71,9 +77,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "smeagol" "Smeagol"
   :numeric-id  52
+  :x-attr (tile-file 18)
+  :x-char (tile-number 60)
   :desc "He's been sneaking, and he wants his 'precious.'"
-  :x-char #\h
-  :x-attr #\b
+  :text-char #\h
+  :text-attr #\b
   :alignment '<evil>
   :type '(<unique>)
   :depth 3
@@ -93,9 +101,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "hobbit-bullroarer" "Bullroarer the hobbit"
   :numeric-id  76
+  :x-attr (tile-file 24)
+  :x-char (tile-number 0)
   :desc "He is a sturdy hobbit who is renowned for his unusual strength and vigour.  He can prove a troublesome opponent."
-  :x-char #\h
-  :x-attr #\b
+  :text-char #\h
+  :text-attr #\b
   :type '(<unique>)
   :depth 5
   :rarity 3
@@ -114,9 +124,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "kobold-mughash" "Mughash the kobold lord"
   :numeric-id  110
+  :x-attr (tile-file 24)
+  :x-char (tile-number 1)
   :desc "Strong and powerful, for a kobold."
-  :x-char #\k
-  :x-attr #\b
+  :text-char #\k
+  :text-attr #\b
   :alignment '<evil>
   :type '(<unique>)
   :depth 7
@@ -135,9 +147,11 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 (define-monster-kind "wormtongue" "Wormtongue, Agent of Saruman"
   :numeric-id  111
+  :x-attr (tile-file 24)
+  :x-char (tile-number 2)
   :desc "He's been spying for Saruman.  He is a snivelling wretch with no morals and disgusting habits."
-  :x-char #\p
-  :x-attr #\b
+  :text-char #\p
+  :text-attr #\b
   :alignment '<evil>
   :type '(<unique>)
   :depth 8
@@ -157,9 +171,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<spell> <heal>) (<frequency> 1/5))) 
 (define-monster-kind "orc-lagduf" "Lagduf, the Snaga"
   :numeric-id  112
+  :x-attr (tile-file 24)
+  :x-char (tile-number 3)
   :desc "A captain of a regiment of weaker orcs, Lagduf keeps his troop in order with displays of excessive violence."
-  :x-char #\o
-  :x-attr #\o
+  :text-char #\o
+  :text-attr #\o
   :alignment '<evil>
   :type '(<orc> <unique>)
   :depth 8
@@ -177,9 +193,11 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 (define-monster-kind "brodda" "Brodda, the easterling"
   :numeric-id  133
+  :x-attr (tile-file 24)
+  :x-char (tile-number 4)
   :desc "A nasty piece of work, Brodda picks on defenseless women and children."
-  :x-char #\p
-  :x-attr #\u
+  :text-char #\p
+  :text-attr #\u
   :type '(<unique>)
   :depth 9
   :rarity 2
@@ -196,9 +214,11 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 (define-monster-kind "yeek-orfax" "Orfax, son of Boldor"
   :numeric-id  137
+  :x-attr (tile-file 24)
+  :x-char (tile-number 5)
   :desc "He's just like daddy!  He knows mighty spells, but fortunately he is a  yeek."
-  :x-char #\y
-  :x-attr #\b
+  :text-char #\y
+  :text-attr #\b
   :alignment '<evil>
   :type '(<animal> <unique>)
   :depth 10
@@ -218,9 +238,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<spell> <blink>) (<spell> <heal>) (<frequency> 1/4))) 
 (define-monster-kind "orc-grishnakh" "Grishnakh, the hill-orc"
   :numeric-id 140
+  :x-attr (tile-file 24)
+  :x-char (tile-number 6)
   :desc "He is a cunning and devious orc with a chaotic nature."
-  :x-char #\o
-  :x-attr #\U
+  :text-char #\o
+  :text-attr #\U
   :alignment '<evil>
   :type '(<orc> <unique>)
   :depth 10
@@ -239,9 +261,11 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 (define-monster-kind "castamir" "Castamir the Usurper"
   :numeric-id  408
+  :x-attr (tile-file 24)
+  :x-char (tile-number 35)
   :desc "A Black Numenorean who usurped the throne of Gondor, he is treacherous and  evil."
-  :x-char #\p
-  :x-attr #\R
+  :text-char #\p
+  :text-attr #\R
   :alignment '<evil>
   :type '(<unique>)
   :depth 38
@@ -261,9 +285,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<spell> (<bolt> <fire>)) (<spell> <traps>) (<spell> <heal>) (<frequency> 1/2))) 
 (define-monster-kind "elemental-vargo" "Vargo, Tyrant of Fire"
   :numeric-id  416
+  :x-attr (tile-file 24)
+  :x-char (tile-number 36)
   :desc "A towering fire elemental, Vargo burns everything beyond recognition."
-  :x-char #\E
-  :x-attr #\r
+  :text-char #\E
+  :text-attr #\r
   :alignment '<evil>
   :type '(<unique>)
   :depth 38
@@ -282,9 +308,11 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<spell> (<ball> <fire>)) (<spell> (<bolt> <plasma>)) (<frequency> 1/4))) 
 (define-monster-kind "elemental-waldern" "Waldern, King of Water"
   :numeric-id  422
+  :x-attr (tile-file 24)
+  :x-char (tile-number 37)
   :desc "A towering water elemental, Waldern is master of all things liquid.  Wave after wave drowns your frail body."
-  :x-char #\E
-  :x-attr #\s
+  :text-char #\E
+  :text-attr #\s
   :alignment '<evil>
   :type '(<unique>)
   :depth 39
@@ -304,9 +332,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<spell> (<bolt> <ice>)) (<frequency> 1/4))) 
 (define-monster-kind "dragon-kavlax" "Kavlax the Many-headed"
   :numeric-id  423
+  :x-attr (tile-file 24)
+  :x-char (tile-number 38)
   :desc "A large dragon with a selection of heads, all shouting and arguing as they  look for prey, but each with its own deadly breath weapon."
-  :x-char #\d
-  :x-attr #\v
+  :text-char #\d
+  :text-attr #\v
   :alignment '<evil>
   :type '(<dragon> <unique>)
   :depth 39
@@ -328,9 +358,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<frequency> 1/4))) 
 (define-monster-kind "uvatha" "Uvatha the Horseman"
   :numeric-id  440
+  :x-attr (tile-file 24)
+  :x-char (tile-number 39)
   :desc "A tall black cloaked Ringwraith, he is a master of horsemanship.  He longs  to taste your blood."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 40
@@ -350,9 +382,11 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 (define-monster-kind "medusa" "Medusa, the Gorgon"
   :numeric-id  442
+  :x-attr (tile-file 24)
+  :x-char (tile-number 40)
   :desc "One of the original three ugly sisters.  Her face could sink a thousand  ships.  Her scales rattle as she slithers towards you, venom dripping from  her ghastly mouth."
-  :x-char #\n
-  :x-attr #\o
+  :text-char #\n
+  :text-attr #\o
   :alignment '<evil>
   :type '(<unique>)
   :depth 40
@@ -374,9 +408,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<frequency> 1/2))) 
 (define-monster-kind "orc-golfimbul" "golfimbul, the hill orc chief"
   :numeric-id  159
+  :x-attr (tile-file 24)
+  :x-char (tile-number 7)
   :desc "A leader of a band of raiding orcs, he picks on hobbits."
-  :x-char #\o
-  :x-attr #\U
+  :text-char #\o
+  :text-attr #\U
   :alignment '<evil>
   :type '(<orc> <unique>)
   :depth 12
@@ -395,9 +431,11 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 (define-monster-kind "yeek-boldor" "Boldor, King of the yeeks"
   :numeric-id  173
+  :x-attr (tile-file 24)
+  :x-char (tile-number 8)
   :desc "A great yeek, powerful in magic and sorcery, but a yeek all the same."
-  :x-char #\y
-  :x-attr #\U
+  :text-char #\y
+  :text-attr #\U
   :alignment '<evil>
   :type '(<animal> <unique>)
   :depth 13
@@ -417,9 +455,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<spell> <teleport>) (<spell> <blink>) (<spell> <heal>) (<frequency> 1/3))) 
 (define-monster-kind "ufthak" "Ufthak of Cirith Ungol"
   :numeric-id  181
+  :x-attr (tile-file 24)
+  :x-char (tile-number 9)
   :desc "A strong orc guarding the pass of Cirith Ungol.  He is mortally afraid of  spiders."
-  :x-char #\o
-  :x-attr #\g
+  :text-char #\o
+  :text-attr #\g
   :alignment '<evil>
   :type '(<orc> <unique>)
   :depth 14
@@ -439,9 +479,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "ren" "Ren the Unclean"
   :numeric-id  457
+  :x-attr (tile-file 24)
+  :x-char (tile-number 44)
   :desc "Ren was an insane eastern king who believed himself to be the son of a  volcano god.  At an early age his sanity was destroyed by a plague that  wiped out his family, and he never recovered."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 41
@@ -465,9 +507,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "dawndeath" "Ji Indur Dawndeath"
   :numeric-id  464
+  :x-attr (tile-file 24)
+  :x-char (tile-number 45)
   :desc "This Ringwraith was a weak-minded sorcerer-king who fell easily under  Sauron's power."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 43
@@ -490,9 +534,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "elemental-quaker" "Quaker, Master of Earth"
   :numeric-id  466
+  :x-attr (tile-file 24)
+  :x-char (tile-number 46)
   :desc "A towering stone elemental stands before you.  The walls and ceiling are  reduced to rubble as Quaker advances."
-  :x-char #\E
-  :x-attr #\u
+  :text-char #\E
+  :text-attr #\u
   :alignment '<evil>
   :type '(<unique>)
   :depth 43
@@ -513,9 +559,11 @@ the Free Software Foundation; either version 2 of the License, or
   :special-abilities '((<spell> (<ball> <acid>)) (<spell> (<bolt> <acid>)) (<frequency> 1/6))) 
 (define-monster-kind "elemental-ariel" "Ariel, Queen of Air"
   :numeric-id  468
+  :x-attr (tile-file 24)
+  :x-char (tile-number 47)
   :desc "A towering air elemental, Ariel, the sorceress, avoids your blows with her extreme speed."
-  :x-char #\E
-  :x-attr #\B
+  :text-char #\E
+  :text-attr #\B
   :alignment '<evil>
   :type '(<unique>)
   :depth 44
@@ -536,9 +584,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<frequency> 1/5))) 
 (define-monster-kind "scatha" "Scatha the Worm"
   :numeric-id  473
+  :x-attr (tile-file 24)
+  :x-char (tile-number 48)
   :desc "An ancient and wise Dragon.  Scatha has grown clever over the long years.  His scales are covered with frost, and his breath sends a shower of ice into the air."
-  :x-char #\D
-  :x-attr #\w
+  :text-char #\D
+  :text-attr #\w
   :alignment '<evil>
   :type '(<dragon> <unique>)
   :depth 44
@@ -561,9 +611,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "dwar" "Dwar, Dog-lord of Waw"
   :numeric-id 474
+  :x-attr (tile-file 24)
+  :x-char (tile-number 49)
   :desc "Dwar had a special affinity for dogs in life, and can still command them  at will.  He howls manically as he reaches out to destroy you."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 44
@@ -589,9 +641,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "smaug" "Smaug the Golden"
   :numeric-id  475
+  :x-attr (tile-file 24)
+  :x-char (tile-number 50)
   :desc "Smaug is one of the Uruloki that still survive, a fire-drake of immense  cunning and intelligence.  His speed through air is matched by few other  dragons and his dragonfire is what legends are made of."
-  :x-char #\D
-  :x-attr #\r
+  :text-char #\D
+  :text-attr #\r
   :alignment '<evil>
   :type '(<dragon> <unique>)
   :depth 45
@@ -614,9 +668,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "ulfast" "Ulfast, son of Ulfang"
   :numeric-id  211
+  :x-attr (tile-file 24)
+  :x-char (tile-number 10)
   :desc "A short and swarthy Easterling."
-  :x-char #\p
-  :x-attr #\U
+  :text-char #\p
+  :text-attr #\U
   :alignment '<evil>
   :type '(<unique>)
   :depth 16
@@ -637,9 +693,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "dwarf-nar" "Nar, the dwarf"
   :numeric-id  215
+  :x-attr (tile-file 24)
+  :x-char (tile-number 11)
   :desc "This dwarf became so obsessed by gold that Morgoth tricked him into  betraying his friends."
-  :x-char #\h
-  :x-attr #\y
+  :text-char #\h
+  :text-attr #\y
   :type '(<unique>)
   :depth 17
   :rarity 2
@@ -662,9 +720,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "orc-shagrat" "shagrat, the orc captain"
   :numeric-id  227
+  :x-attr (tile-file 24)
+  :x-char (tile-number 12)
   :desc "He is an Uruk of power and great cunning."
-  :x-char #\o
-  :x-attr #\g
+  :text-char #\o
+  :text-attr #\g
   :alignment '<evil>
   :type '(<orc> <unique>)
   :depth 18
@@ -686,9 +746,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "orc-gorbag" "Gorbag, the orc captain"
   :numeric-id  228
+  :x-attr (tile-file 24)
+  :x-char (tile-number 13)
   :desc "A gruesomely ugly but cunning orc, his eyes regard you with hatred.  His  powerful arms flex menacingly as he advances."
-  :x-char #\o
-  :x-attr #\g
+  :text-char #\o
+  :text-attr #\g
   :alignment '<evil>
   :type '(<orc> <unique>)
   :depth 18
@@ -710,9 +772,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "orc-bolg" "Bolg, son of Azog"
   :numeric-id  235
+  :x-attr (tile-file 24)
+  :x-char (tile-number 14)
   :desc "A large and powerful orc.  He looks just like his daddy.  He is tall and  fast, but fortunately blessed with orcish brains."
-  :x-char #\o
-  :x-attr #\r
+  :text-char #\o
+  :text-attr #\r
   :alignment '<evil>
   :type '(<orc> <unique>)
   :depth 20
@@ -734,9 +798,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "orc-ugluk" "Ugluk, the uruk"
   :numeric-id  248
+  :x-attr (tile-file 24)
+  :x-char (tile-number 15)
   :desc "Another of Morgoth's servants, this orc is strong and cunning.  He is ugly  and scarred from many power struggles."
-  :x-char #\o
-  :x-attr #\b
+  :text-char #\o
+  :text-attr #\b
   :alignment '<evil>
   :type '(<orc> <unique>)
   :depth 20
@@ -758,9 +824,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "orc-lugdush" "Lugdush, the uruk"
   :numeric-id  249
+  :x-attr (tile-file 24)
+  :x-char (tile-number 16)
   :desc "A strong and cunning orc warrior, Lugdush sneers as he insults your mother."
-  :x-char #\o
-  :x-attr #\b
+  :text-char #\o
+  :text-attr #\b
   :alignment '<evil>
   :type '(<orc> <unique>)
   :depth 21
@@ -782,9 +850,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "orc-azog" "Azog, King of the uruk-hai"
   :numeric-id  262
+  :x-attr (tile-file 24)
+  :x-char (tile-number 17)
   :desc "He is also known as the King of Khazad-dum.  His ego is renowned to be  bigger than his head."
-  :x-char #\o
-  :x-attr #\r
+  :text-char #\o
+  :text-attr #\r
   :alignment '<evil>
   :type '(<orc> <unique>)
   :depth 23
@@ -805,9 +875,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "dwarf-ibun" "Ibun, son of Mim"
   :numeric-id  268
+  :x-attr (tile-file 24)
+  :x-char (tile-number 18)
   :desc "One of the last of the petty dwarves.  Ibun is a tricky sorcerous little  being, full of mischief."
-  :x-char #\h
-  :x-attr #\o
+  :text-char #\h
+  :text-attr #\o
   :type '(<unique>)
   :depth 24
   :rarity 2
@@ -829,9 +901,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "dwarf-khim" "Khim, son of Mim"
   :numeric-id  269
+  :x-attr (tile-file 24)
+  :x-char (tile-number 19)
   :desc "One of the last of the petty dwarves.  Khim is a tricky sorcerous little  being, full of mischief."
-  :x-char #\h
-  :x-attr #\o
+  :text-char #\h
+  :text-attr #\o
   :type '(<unique>)
   :depth 24
   :rarity 2
@@ -853,9 +927,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "sangahyando" "Sangahyando of Umbar"
   :numeric-id  273
+  :x-attr (tile-file 24)
+  :x-char (tile-number 20)
   :desc "A Black Numenorean with a blacker heart."
-  :x-char #\p
-  :x-attr #\u
+  :text-char #\p
+  :text-attr #\u
   :alignment '<evil>
   :type '(<unique>)
   :depth 24
@@ -878,9 +954,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "angamaite" "Angamaite of Umbar"
   :numeric-id  274
+  :x-attr (tile-file 24)
+  :x-char (tile-number 21)
   :desc "A Black Numenorean who hates the men of the west."
-  :x-char #\p
-  :x-attr #\u
+  :text-char #\p
+  :text-attr #\u
   :alignment '<evil>
   :type '(<unique>)
   :depth 24
@@ -903,9 +981,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "ulwarth" "Ulwarth, son of Ulfang"
   :numeric-id  284
+  :x-attr (tile-file 24)
+  :x-char (tile-number 22)
   :desc "A short and swarthy Easterling."
-  :x-char #\p
-  :x-attr #\U
+  :text-char #\p
+  :text-attr #\U
   :alignment '<evil>
   :type '(<unique>)
   :depth 26
@@ -924,9 +1004,11 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 (define-monster-kind "dwarf-mim" "Mim, betrayer of turin"
   :numeric-id  290
+  :x-attr (tile-file 24)
+  :x-char (tile-number 23)
   :desc "The last of his race, Mim is a petty dwarf.  Petty dwarves are strange  creatures, powerful in sorcery and originating in the East.  They were  hunted to extinction by high elves."
-  :x-char #\h
-  :x-attr #\o
+  :text-char #\h
+  :text-attr #\o
   :alignment '<evil>
   :type '(<unique>)
   :depth 27
@@ -949,9 +1031,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<frequency> 1/6))) 
 (define-monster-kind "ogre-lokkak" "Lokkak, the ogre chieftain"
   :numeric-id  297
+  :x-attr (tile-file 24)
+  :x-char (tile-number 24)
   :desc "An ogre renowned for acts of surpassing cruelty, Lokkak quickly became the  leader of a large band of violent ogres."
-  :x-char #\O
-  :x-attr #\g
+  :text-char #\O
+  :text-attr #\g
   :alignment '<evil>
   :type '(<giant> <unique>)
   :depth 27
@@ -970,9 +1054,11 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 (define-monster-kind "uldor" "Uldor the accursed"
   :numeric-id  304
+  :x-attr (tile-file 24)
+  :x-char (tile-number 25)
   :desc "An evil and cunning man from the East."
-  :x-char #\p
-  :x-attr #\U
+  :text-char #\p
+  :text-attr #\U
   :alignment '<evil>
   :type '(<unique>)
   :depth 28
@@ -992,9 +1078,11 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>)
 (define-monster-kind "imp-draebor" "Draebor, the imp"
   :numeric-id  307
+  :x-attr (tile-file 24)
+  :x-char (tile-number 26)
   :desc "An intensely irritating git of a monster."
-  :x-char #\u
-  :x-attr #\g
+  :text-char #\u
+  :text-attr #\g
   :alignment '<evil>
   :type '(<demon> <unique>)
   :depth 28
@@ -1016,9 +1104,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/5))) 
 (define-monster-kind "shelob" "Shelob, spider of darkness"
   :numeric-id  330
+  :x-attr (tile-file 24)
+  :x-char (tile-number 27)
   :desc "Shelob is an enormous bloated spider, rumoured to have been one of the  brood of Ungoliant the Unlight.  Her poison is legendary, as is her ego,  which may be her downfall.  She used to guard the pass through Cirith  Ungol, but has not been seen there for many eons."
-  :x-char #\S
-  :x-attr #\D
+  :text-char #\S
+  :text-attr #\D
   :alignment '<evil>
   :type '(<animal> <unique>)
   :depth 32
@@ -1044,9 +1134,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "troll-bert" "Bert the stone troll"
   :numeric-id  343
+  :x-attr (tile-file 24)
+  :x-char (tile-number 28)
   :desc "Big, brawny, powerful and with a taste for hobbit.  He has friends called Bill and Tom."
-  :x-char #\T
-  :x-attr #\W
+  :text-char #\T
+  :text-attr #\W
   :alignment '<evil>
   :type '(<troll> <unique>)
   :depth 33
@@ -1068,9 +1160,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "troll-bill" "Bill the stone troll"
   :numeric-id  344
+  :x-attr (tile-file 24)
+  :x-char (tile-number 29)
   :desc "Big, brawny, powerful and with a taste for hobbit.  He has friends called Bert and Tom."
-  :x-char #\T
-  :x-attr #\W
+  :text-char #\T
+  :text-attr #\W
   :alignment '<evil>
   :type '(<troll> <unique>)
   :depth 33
@@ -1092,9 +1186,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "troll-tom" "Tom the stone troll"
   :numeric-id  345
+  :x-attr (tile-file 24)
+  :x-char (tile-number 30)
   :desc "Big, brawny, powerful and with a taste for hobbit.  He has friends called Bert and Bill."
-  :x-char #\T
-  :x-attr #\W
+  :text-char #\T
+  :text-attr #\W
   :alignment '<evil>
   :type '(<troll> <unique>)
   :depth 33
@@ -1116,9 +1212,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "ulfang" "Ulfang the black"
   :numeric-id  355
+  :x-attr (tile-file 24)
+  :x-char (tile-number 31)
   :desc "A short and swarthy Easterling dressed in Black."
-  :x-char #\p
-  :x-attr #\U
+  :text-char #\p
+  :text-attr #\U
   :alignment '<evil>
   :type '(<unique>)
   :depth 34
@@ -1139,9 +1237,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "troll-rogrog" "Rogrog the black troll"
   :numeric-id  383
+  :x-attr (tile-file 24)
+  :x-char (tile-number 32)
   :desc "A massive and cruel troll of great power, drool slides caustically down  his muscular frame.  Despite his bulk, he strikes with stunning speed."
-  :x-char #\T
-  :x-attr #\D
+  :text-char #\T
+  :text-attr #\D
   :alignment '<evil>
   :type '(<troll> <unique>)
   :depth 36
@@ -1163,9 +1263,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "lorgan" "Lorgan, Chief of the easterlings"
   :numeric-id  392
+  :x-attr (tile-file 24)
+  :x-char (tile-number 33)
   :desc "A mighty warrior from the east, Lorgan hates everything that he cannot  control."
-  :x-char #\p
-  :x-attr #\R
+  :text-char #\p
+  :text-attr #\R
   :alignment '<evil>
   :type '(<unique>)
   :depth 36
@@ -1188,9 +1290,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "ant-queen" "the queen ant"
   :numeric-id  395
+  :x-attr (tile-file 24)
+  :x-char (tile-number 34)
   :desc "She's upset because you hurt her children."
-  :x-char #\a
-  :x-attr #\D
+  :text-char #\a
+  :text-attr #\D
   :type '(<animal> <unique>)
   :depth 37
   :rarity 2
@@ -1212,9 +1316,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "adunaphel" "Adunaphel the quiet"
   :numeric-id  449
+  :x-attr (tile-file 24)
+  :x-char (tile-number 41)
   :desc "A sorceress in life, Adunaphel quickly fell under Sauron's sway and the power of the rings."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 41
@@ -1239,9 +1345,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "akhorahil" "Akhorahil the blind"
   :numeric-id  453
+  :x-attr (tile-file 24)
+  :x-char (tile-number 42)
   :desc "A mighty sorcerer King, Akhorahil was blind in life.  With powerful  enchantments, he created jewelled eyes that enabled him to see better than  any ordinary man ever could."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 41
@@ -1267,9 +1375,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "gorlim" "Gorlim, betrayer of Barahir"
   :numeric-id  454
+  :x-attr (tile-file 24)
+  :x-char (tile-number 43)
   :desc "This once-mighty warrior was so dominated by Morgoth's power that he became little more than a mindless creature of evil."
-  :x-char #\p
-  :x-attr #\s
+  :text-char #\p
+  :text-attr #\s
   :type '(<unique>)
   :depth 41
   :rarity 3
@@ -1291,9 +1401,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "dragon-itangast" "Itangast the fire drake"
   :numeric-id  480
+  :x-attr (tile-file 24)
+  :x-char (tile-number 51)
   :desc "A mighty ancient dragon, Itangast's form scorches your flesh.  Wisps of  smoke curl up from his nostrils as he regards you with disdain."
-  :x-char #\D
-  :x-attr #\r
+  :text-char #\D
+  :text-attr #\r
   :alignment '<evil>
   :type '(<dragon> <unique>)
   :depth 47
@@ -1316,9 +1428,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "dragon-glaurung" "Glaurung, father of the dragons"
   :numeric-id  481
+  :x-attr (tile-file 24)
+  :x-char (tile-number 52)
   :desc "Glaurung is the father of all dragons, and was for a long time the most  powerful.  Nevertheless, he still has full command over his brood and can  command them to appear whenever he so wishes.  He is the definition of  dragonfire."
-  :x-char #\D
-  :x-attr #\r
+  :text-char #\D
+  :text-attr #\r
   :alignment '<evil>
   :type '(<dragon> <unique>)
   :depth 48
@@ -1342,9 +1456,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "balrog-muar" "muar, the balrog"
   :numeric-id  483
+  :x-attr (tile-file 24)
+  :x-char (tile-number 53)
   :desc "A huge balrog surrounded by raging pillars of fire, Muar is indeed a  terrible opponent.  Wielding a great whip of fire and a blazing sword, his  fury blisters your skin and melts your flesh!"
-  :x-char #\U
-  :x-attr #\o
+  :text-char #\U
+  :text-attr #\o
   :alignment '<evil>
   :type '(<demon> <unique>)
   :depth 50
@@ -1367,9 +1483,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "minotaur-baphomet" "Baphomet the minotaur lord"
   :numeric-id  490
+  :x-attr (tile-file 24)
+  :x-char (tile-number 54)
   :desc "A fearsome bull-headed demon, Baphomet swings a mighty axe as he curses  all that defy him."
-  :x-char #\H
-  :x-attr #\s
+  :text-char #\H
+  :text-attr #\s
   :alignment '<evil>
   :type '(<unique>)
   :depth 51
@@ -1392,9 +1510,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<spell> (<bolt> <mana>)) (<arrow> 4) (<spell> <slow>) (<frequency> 1/6))) 
 (define-monster-kind "harowen" "Harowen the black hand"
   :numeric-id  491
+  :x-attr (tile-file 24)
+  :x-char (tile-number 55)
   :desc "He is a master of disguise, an expert of stealth, a genius at traps, and  moves with blinding speed.  Check your pockets!"
-  :x-char #\p
-  :x-attr #\B
+  :text-char #\p
+  :text-attr #\B
   :type '(<unique>)
   :depth 52
   :rarity 3
@@ -1416,9 +1536,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "hoarmurath" "Hoarmurath of Dir"
   :numeric-id  492
+  :x-attr (tile-file 24)
+  :x-char (tile-number 56)
   :desc "A Ringwraith powerful in fell sorcery, he yearns for the life he has lost  for a life of everlasting torment."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 52
@@ -1444,9 +1566,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "khamul" "Khamul the easterling"
   :numeric-id  494
+  :x-attr (tile-file 24)
+  :x-char (tile-number 57)
   :desc "A warrior-king of the East.  Khamul is a powerful opponent, his skill in combat awesome and his form twisted by evil cunning."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 53
@@ -1473,9 +1597,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "phoenix" "the Phoenix"
   :numeric-id  497
+  :x-attr (tile-file 24)
+  :x-char (tile-number 58)
   :desc "A massive glowing eagle bathed in flames.  The searing heat chars your  skin and melts your armour."
-  :x-char #\B
-  :x-attr #\r
+  :text-char #\B
+  :text-attr #\r
   :type '(<animal> <unique>)
   :depth 54
   :rarity 3
@@ -1497,9 +1623,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "hydra-lernean" "the Lernean hydra"
   :numeric-id  504
+  :x-attr (tile-file 24)
+  :x-char (tile-number 59)
   :desc "A massive legendary hydra.  It has twelve powerful heads.  Its many eyes  stare at you as clouds of smoke and poisonous vapour rise from its  seething form."
-  :x-char #\M
-  :x-attr #\w
+  :text-char #\M
+  :text-attr #\w
   :type '(<animal> <unique>)
   :depth 55
   :rarity 2
@@ -1520,9 +1648,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "vampire-thuringwethil" "thuringwethil"
   :numeric-id  505
+  :x-attr (tile-file 24)
+  :x-char (tile-number 60)
   :desc "Chief messenger between Sauron and Morgoth, she is surely the most deadly of her vampire race.  At first she is charming to meet, but her wings and  eyes give away her true form."
-  :x-char #\V
-  :x-attr #\D
+  :text-char #\V
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 55
@@ -1546,9 +1676,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "dwarf-fundin" "Fundin Bluecloak"
   :numeric-id  508
+  :x-attr (tile-file 24)
+  :x-char (tile-number 61)
   :desc "He is one of the greatest dwarven priests to walk the earth.  Fundin has  earned a high position in the church, and his skill with both weapon and  spell only justify his position further.  His combination of both dwarven  strength and priestly wisdom are a true match for any adventurer."
-  :x-char #\h
-  :x-attr #\G
+  :text-char #\h
+  :text-attr #\G
   :type '(<unique>)
   :depth 56
   :rarity 2
@@ -1572,9 +1704,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "angel-uriel" "Uriel, angel of fire"
   :numeric-id  509
+  :x-attr (tile-file 24)
+  :x-char (tile-number 62)
   :desc "A creature of godly appearance, you dare not challenge Uriel's supremacy.   Those who stood against him before are but a memory, cremated by his  mastery of elemental fire."
-  :x-char #\A
-  :x-attr #\r
+  :text-char #\A
+  :text-attr #\r
   :type '(<unique>)
   :depth 56
   :rarity 3
@@ -1598,9 +1732,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "angel-azriel" "Azriel, angel of death"
   :numeric-id  510
+  :x-attr (tile-file 24)
+  :x-char (tile-number 63)
   :desc "Azriel commands awesome power, his visage holy enough to shrivel your  soul.  You shriek with disbelief as his mastery of death draws you to your  grave.  It is truly beyond all but the mightiest of warriors to stand  against him and live."
-  :x-char #\A
-  :x-attr #\D
+  :text-char #\A
+  :text-attr #\D
   :type '(<unique>)
   :depth 57
   :rarity 3
@@ -1624,9 +1760,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "dragon-ancalagon" "Ancalagon the black"
   :numeric-id  511
+  :x-attr (tile-file 24)
+  :x-char (tile-number 64)
   :desc "'Rushing Jaws' is his name, and death is his game.  No dragon of the brood of Glaurung can match him."
-  :x-char #\D
-  :x-attr #\D
+  :text-char #\D
+  :text-attr #\D
   :alignment '<evil>
   :type '(<dragon> <unique>)
   :depth 58
@@ -1650,9 +1788,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "angel-gabriel" "Gabriel, the Messenger"
   :numeric-id  513
+  :x-attr (tile-file 24)
+  :x-char (tile-number 65)
   :desc "Commanding a legion of angels, Gabriel will destroy you for your sins.  He  will crush you like the pitiful insignificant being he sees you to be.   Your very soul will be taken into judgement by his supreme authority as he  cleanses the world of evil."
-  :x-char #\A
-  :x-attr #\w
+  :text-char #\A
+  :text-attr #\w
   :type '(<unique>)
   :depth 59
   :rarity 3
@@ -1676,9 +1816,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "saruman" "Saruman of many colours"
   :numeric-id  514
+  :x-attr (tile-file 24)
+  :x-char (tile-number 66)
   :desc "Originally known as the White, Saruman fell prey to Sauron's wiles.  He  seeks to emulate him and breeds orcs and trolls to fight for him.  He  searches forever for the One Ring, to become a mighty Sorcerer-King of the  world."
-  :x-char #\p
-  :x-attr #\v
+  :text-char #\p
+  :text-attr #\v
   :alignment '<evil>
   :type '(<unique>)
   :depth 60
@@ -1706,9 +1848,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "cat-lord" "the Cat Lord"
   :numeric-id  516
+  :x-attr (tile-file 24)
+  :x-char (tile-number 67)
   :desc "Master of all things feline, the Cat Lord moves with catlike stealth."
-  :x-char #\f
-  :x-attr #\r
+  :text-char #\f
+  :text-attr #\r
   :type '(<unique>)
   :depth 64
   :rarity 3
@@ -1730,9 +1874,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "tselakus" "Tselakus, the Dreadlord"
   :numeric-id  522
+  :x-attr (tile-file 24)
+  :x-char (tile-number 68)
   :desc "This huge affront to existence twists and tears at the fabric of space.  A  master of mighty magic, Tselakus hungers for your tender flesh.  Darkness  itself recoils from the touch of Tselakus as he leaves a trail of death  and destruction.  Tselakus is a being of sneering contempt, laughing at  your pitiful efforts to defy him.  Mighty claws rend reality as he  annihilates all in his path to your soul!"
-  :x-char #\G
-  :x-attr #\r
+  :text-char #\G
+  :text-attr #\r
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 68
@@ -1757,9 +1903,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "tiamat" "Tiamat, Celestial dragon of evil"
   :numeric-id  523
+  :x-attr (tile-file 24)
+  :x-char (tile-number 69)
   :desc "Usually found guarding the first plane of Hell, Tiamat is a formidable  opponent, her five heads breathing death to all who stand against her."
-  :x-char #\D
-  :x-attr #\v
+  :text-char #\D
+  :text-attr #\v
   :alignment '<evil>
   :type '(<dragon> <unique>)
   :depth 70
@@ -1785,9 +1933,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "vecna" "Vecna, the Emperor lich"
   :numeric-id  528
+  :x-attr (tile-file 24)
+  :x-char (tile-number 70)
   :desc "He is a highly cunning, extremely magical being, spoken of in legends.   This ancient shadow of death wilts any living thing it passes."
-  :x-char #\L
-  :x-attr #\R
+  :text-char #\L
+  :text-attr #\R
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 72
@@ -1811,9 +1961,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "omarax" "Omarax the eye tyrant"
   :numeric-id  529
+  :x-attr (tile-file 24)
+  :x-char (tile-number 71)
   :desc "A disembodied eye, floating in the air.  His gaze seems to shred your  soul and his spells crush your will.  He is ancient, his history steeped  in forgotten evils, his atrocities numerous and sickening."
-  :x-char #\e
-  :x-attr #\v
+  :text-char #\e
+  :text-attr #\v
   :alignment '<evil>
   :type '(<unique>)
   :depth 73
@@ -1838,9 +1990,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "spider-ungoliant" "Ungoliant, the Unlight"
   :numeric-id  530
+  :x-attr (tile-file 24)
+  :x-char (tile-number 72)
   :desc "This enormous, hideous spirit of void is in the form of a spider of immense proportions.  She is surrounded by a cloud of Unlight as she sucks  in all living light into her bloated body.  She is always ravenously  hungry and would even eat herself to avoid starvation.  She is rumoured to  have a foul and deadly breath."
-  :x-char #\S
-  :x-attr #\D
+  :text-char #\S
+  :text-attr #\D
   :alignment '<evil>
   :type '(<animal> <unique>)
   :depth 75
@@ -1866,9 +2020,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "mouth-sauron" "the Mouth of Sauron"
   :numeric-id  532
+  :x-attr (tile-file 24)
+  :x-char (tile-number 73)
   :desc "The Mouth of Sauron is a mighty spell caster.  So old that even he cannot  remember his own name, his power and evil are undeniable.  He believes  unshakeably that he is unbeatable and laughs as he weaves his awesome  spells."
-  :x-char #\p
-  :x-attr #\v
+  :text-char #\p
+  :text-attr #\v
   :alignment '<evil>
   :type '(<unique>)
   :depth 78
@@ -1894,9 +2050,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "quylthulg-emperor" "the Emperor quylthulg"
   :numeric-id  533
+  :x-attr (tile-file 24)
+  :x-char (tile-number 74)
   :desc "A huge seething mass of flesh with a rudimentary intelligence, the Emperor  Quylthulg changes colours in front of your eyes.  Pulsating first one  colour then the next, it knows only it must bring help to protect itself."
-  :x-char #\Q
-  :x-attr #\w
+  :text-char #\Q
+  :text-attr #\w
   :alignment '<evil>
   :type '(<animal> <unique>)
   :depth 78
@@ -1915,9 +2073,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "qlzqqlzuup" "Qlzqqlzuup, the Lord of flesh"
   :numeric-id  534
+  :x-attr (tile-file 24)
+  :x-char (tile-number 75)
   :desc "This disgusting creature squeals and snorts as it writhes on the floor.   It pulsates with evil.  Its intent is to overwhelm you with monster after  monster, until it can greedily dine on your remains."
-  :x-char #\Q
-  :x-attr #\o
+  :text-char #\Q
+  :text-attr #\o
   :alignment '<evil>
   :type '(<animal> <unique>)
   :depth 78
@@ -1937,9 +2097,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<summon> <monsters>) (<summon> <monster>) (<frequency> 1))) 
 (define-monster-kind "murazor" "Murazor, the Witch-king of Angmar"
   :numeric-id  535
+  :x-attr (tile-file 24)
+  :x-char (tile-number 76)
   :desc "The Chief of the Ringwraiths.  A fell being of devastating power.  His  spells are lethal and his combat blows crushingly hard.  He moves at  speed, and commands legions of evil to do his bidding.  It is said that he is fated never to die by the hand of mortal man."
-  :x-char #\W
-  :x-attr #\D
+  :text-char #\W
+  :text-attr #\D
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 80
@@ -1965,9 +2127,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<spell> <blindness>) (<spell> <teleport-away>) (<frequency> 1/2))) 
 (define-monster-kind "pazuzu" "Pazuzu, Lord of air"
   :numeric-id  536
+  :x-attr (tile-file 24)
+  :x-char (tile-number 77)
   :desc "A winged humanoid from the Planes of Hell, Pazuzu grins inhumanely at you  as he decides your fate."
-  :x-char #\B
-  :x-attr #\w
+  :text-char #\B
+  :text-attr #\w
   :alignment '<evil>
   :type '(<demon> <unique>)
   :depth 82
@@ -1990,9 +2154,11 @@ the Free Software Foundation; either version 2 of the License, or
                        (<spell> (<bolt> <electricity>)) (<spell> <mind-blast>) (<frequency> 1/3))) 
 (define-monster-kind "cantoras" "Cantoras, the skeletal Lord"
   :numeric-id  538
+  :x-attr (tile-file 24)
+  :x-char (tile-number 78)
   :desc "A legion of evil undead druj animating the skeleton of a once mighty sorcerer.  His power is devastating and his speed unmatched in the underworld.  Flee his wrath!"
-  :x-char #\s
-  :x-attr #\w
+  :text-char #\s
+  :text-attr #\w
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 84
@@ -2017,9 +2183,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "tarrasque" "the Tarrasque"
   :numeric-id  539
+  :x-attr (tile-file 24)
+  :x-char (tile-number 79)
   :desc "The Tarrasque is a massive reptile of legend, rumoured to be unkillable  and immune to magic.  Fear its anger, for its devastation is unmatched!"
-  :x-char #\R
-  :x-attr #\v
+  :text-char #\R
+  :text-attr #\v
   :alignment '<evil>
   :type '(<unique>)
   :depth 84
@@ -2042,9 +2210,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "balrog-lungorthin" "Lungorthin, the balrog of white fire"
   :numeric-id  540
+  :x-attr (tile-file 24)
+  :x-char (tile-number 80)
   :desc "A massive form cloaked in flame.  Lungorthin stares balefully at you with  eyes that smoulder red.  The dungeon floor where he stands is scorched by  the heat of his body."
-  :x-char #\U
-  :x-attr #\w
+  :text-char #\U
+  :text-attr #\w
   :alignment '<evil>
   :type '(<demon> <unique>)
   :depth 85
@@ -2068,9 +2238,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "wolf-draugluin" "Draugluin, Sire of all werewolves"
   :numeric-id  541
+  :x-attr (tile-file 24)
+  :x-char (tile-number 81)
   :desc "Draugluin provides Sauron with a fearsome personal guard.  He is an enormous wolf inhabited with a human spirit.  He is chief of all his kind."
-  :x-char #\C
-  :x-attr #\u
+  :text-char #\C
+  :text-attr #\u
   :alignment '<evil>
   :type '(<animal> <unique>)
   :depth 87
@@ -2094,9 +2266,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "feagwath" "Feagwath the undead sorceror"
   :numeric-id  542
+  :x-attr (tile-file 24)
+  :x-char (tile-number 82)
   :desc "A stench of corruption and decay surrounds this sorcerer, who has clearly  risen from the grave to continue his foul plots and schemes."
-  :x-char #\L
-  :x-attr #\R
+  :text-char #\L
+  :text-attr #\R
   :alignment '<evil>
   :type '(<undead> <unique>)
   :depth 90
@@ -2122,9 +2296,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "wolf-carcharoth" "Carcharoth, the jaws of thirst"
   :numeric-id  543
+  :x-attr (tile-file 24)
+  :x-char (tile-number 83)
   :desc "The first guard of Angband, Carcharoth, also known as 'The Red Maw', is  the largest wolf to ever walk the earth.  He is highly intelligent and a  deadly opponent in combat."
-  :x-char #\C
-  :x-attr #\D
+  :text-char #\C
+  :text-attr #\D
   :alignment '<evil>
   :type '(<animal> <unique>)
   :depth 92
@@ -2149,9 +2325,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "cerberus" "Cerberus, Guardian of Hades"
   :numeric-id  544
+  :x-attr (tile-file 24)
+  :x-char (tile-number 84)
   :desc "A two-headed hell hound of fearsome aspect.  Flame burns merrily from its  hide as it snarls and roars its defiance."
-  :x-char #\C
-  :x-attr #\r
+  :text-char #\C
+  :text-attr #\r
   :alignment '<evil>
   :type '(<animal> <unique>)
   :depth 94
@@ -2174,9 +2352,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "balrog-gothmog" "Gothmog, the High Captain of balrogs"
   :numeric-id  545
+  :x-attr (tile-file 24)
+  :x-char (tile-number 85)
   :desc "Gothmog is the Chief Balrog in Morgoth's personal guard.  He is renowned  for slaying Ecthelion the Warder of the Gates and he has never been  defeated in combat.  With his whip of flame and awesome fiery breath he  saved his master from Ungoliant's rage."
-  :x-char #\U
-  :x-attr #\R
+  :text-char #\U
+  :text-attr #\R
   :alignment '<evil>
   :type '(<demon> <unique>)
   :depth 95
@@ -2200,9 +2380,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "sauron" "Sauron, the Sorcerer"
   :numeric-id  546
+  :x-attr (tile-file 17)
+  :x-char (tile-number 95)
   :desc "He is Morgoth's most powerful servant.  Mighty in spells and enchantments,  he created the One Ring.  His eyes glow with power and his gaze seeks to  destroy your soul.  He has many servants, and rarely fights without them."
-  :x-char #\p
-  :x-attr #\v
+  :text-char #\p
+  :text-attr #\v
   :alignment '<evil>
   :type '(<quest-monster> <unique>)
   :depth 99
@@ -2232,9 +2414,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-monster-kind "morgoth" "Morgoth, Lord of Darkness"
   :numeric-id  547
+  :x-attr (tile-file 18)
+  :x-char (tile-number 71)
   :desc "He is the Master of the Pits of Angband.  His figure is like a black  mountain crowned with Lightning.  He rages with everlasting anger, his  body scarred by Fingolfin's eight mighty wounds.  He can never rest from  his pain, but seeks forever to dominate all that is light and good in the  world.  He is the origin of man's fear of darkness and created many foul  creatures with his evil powers.  Orcs, Dragons, and Trolls are his most  foul corruptions, causing much pain and suffering in the world to please  him.  His disgusting visage, twisted with evil, is crowned with iron, the  two remaining Silmarils forever burning him.  Grond, the mighty Hammer of  the Underworld, cries defiance as he strides towards you to crush you to a  pulp!"
-  :x-char #\P
-  :x-attr #\D
+  :text-char #\P
+  :text-attr #\D
   :alignment '<evil>
   :type '(<quest-monster> <unique>)
   :depth 100

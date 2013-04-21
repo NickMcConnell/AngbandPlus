@@ -38,7 +38,8 @@ How to start it:
 
   - tweak zterm/Makefile
     Probably only ENVIRONMENTS needs to be changed.
-    *** It is safe to have SDL and GCU at the moment***
+    [GCU AND X11 HAVE BEEN DISABLED, ONLY SDL IS WORKING. FOR WINDOWS
+     USE 'WIN' AS ENVIRONMENT]
 
   - run 'make'
     Where make is GNU Make
@@ -50,7 +51,7 @@ How to start it:
 
 Either
   - (langband)
-    loads vanilla variant and runs it in curses-mode.
+    loads vanilla variant and runs it in curses-mode. [IN 0.1.3 STARTS SDL]
 Or
   - (gfx-langband)
     loads vanilla variant and runs it with SDL-support.

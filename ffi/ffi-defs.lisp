@@ -8,133 +8,16 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 
 ;;(def-foreign-type angbyte int) ;; argh
 (def-foreign-type cptr c-string8)
-(def-foreign-type errr int32)
 
 (def-foreign-function ("current_ui" c_current_ui)
     :returns 'int)
 
-(def-foreign-function ("z_quit" c_quit!)
-    :returns 'void
-    :args '((char-arr msg)))
+(def-foreign-function ("listenForEvent" c-listen-for-event)
+    :args '((int option))
+    :returns 'int)
 
-
-;; kill later
-(def-foreign-function ("clear_from" c-clear-from!)
-    :returns 'void
-    :args '((int row)))
-
-(def-foreign-function ("my_term_activate" term-activate&)
+(def-foreign-function ("init_c_side" init-c-side&)
     :returns 'int
-    :args '((int term-num)))
-
-
-
-(def-foreign-function ("print_coloured_token" c-prt-token!)
-    :returns 'void
-    :args '((int term)
-	    (int colour)
-	    (int token)
-	    (int row)
-	    (int col)
-	    ))
-
-(def-foreign-function ("print_coloured_stat" c-prt-stat!)
-    :returns 'void
-    :args '((int term)
-	    (int colour)
-	    (int stat)
-	    (int row)
-	    (int col)
-	    ))
-
-(def-foreign-function ("print_coloured_number" c-prt-number!)
-    :returns 'void
-    :args '((int term)
-	    (int colour)
-	    (long number)
-	    (int padding)
-	    (int row)
-	    (int col)
-	    ))
-
-;; possible kill
-(def-foreign-function ("my_Term_putstr" c_term_putstr!)
-    :returns 'errr
-    :args '(
-	    (int col)
-	    (int row)
-	    (int something)
-	    (int colour)
-	    (char-arr text)
-	    ))
-
-;; later kill?
-(def-foreign-function ("Term_erase" c_term_erase!)
-    :returns 'errr
-    :args '(
-	    (int col)
-	    (int row)
-	    (int something)))
-
-
-(def-foreign-function ("my_Term_queue_char" c-term-queue-char!)
-    :returns 'void
-    :args '(
-	    (int col)
-	    (int row)
-	    (int colour)
-	    (int the-char)
-	    (int tcolour)
-	    (int tchar)
-	    ))
-
-(def-foreign-function ("Term_gotoxy" c-term-gotoxy!)
-    :returns 'void
-    :args '(
-	    (int row)
-	    (int col)
-	    ))
-
-(def-foreign-function ("my_Term_set_cursor" c-set-cursor&)
-    :returns 'errr
-    :args '(
-	    (int col)
-	    ))
-
-(def-foreign-function ("Term_clear" c-term-clear!)
-    :returns 'errr)
-
-(def-foreign-function ("Term_flush" c-term-flush!)
-    :returns 'errr)
-
-(def-foreign-function ("Term_fresh" c-term_fresh!)
-    :returns 'errr)
-
-(def-foreign-function ("Term_save" c-term-save!)
-    :returns 'errr)
-
-(def-foreign-function ("Term_load" c-term-load!)
-    :returns 'errr)
-
-(def-foreign-function ("Term_xtra" c-term-xtra&)
-    :returns 'errr
-    :args '(
-	    (int msg)
-	    (int arg)
-	    ))
-
-(def-foreign-function ("Term_keypress" c-term-keypress)
-    :returns 'errr
-    :args '(
-	    (int key)
-	    ))
-
-
-(def-foreign-function ("inkey" c-inkey!)
-    :returns 'char)
-
-(def-foreign-function ("init_c_side" init_c-side&)
-    :returns 'errr
     :args '((cptr ui)
 	    (cptr source-path)
 	    (cptr config-path)
@@ -143,16 +26,8 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    ))
 
 (def-foreign-function ("cleanup_c_side" cleanup-c-side&)
-    :returns 'errr)
+    :returns 'int)
 
-
-(def-foreign-function ("macro_add" c_macro_add&)
-    :returns 'void
-    :args '((cptr key)
-	    (cptr value)))
-
-(def-foreign-function ("macro_init" init-macro-system&)
-    :returns 'void)
 
 (def-foreign-function ("set_lisp_system" c-set-lisp-system!)
     :returns 'void
@@ -165,69 +40,51 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    )
     :only-when 'use-callback-from-c)
 
-(def-foreign-function ("my_get_current_term" c-get-cur-term)
-    :returns 'int)
-
-
-(def-foreign-function ("setHINST" c-set-hinst!)
-    :returns 'int
-    :args '((long val))
-    :only-when 'win32)
 
 (def-foreign-function ("init_sound_system" c-init-sound-system&)
     :returns 'int
     :args '((int size)))
 
-(def-foreign-function ("load_sound_effect" c-load_sound-effect&)
-    :returns 'errr
+(def-foreign-function ("load_sound_effect" c-load-sound-effect&)
+    :returns 'int
     :args '((cptr fname)
 	    (int idx)))
 
 (def-foreign-function ("get_sound_status" c-get-sound-status)
     :returns 'int)
 
-#+never
-(def-foreign-function ("Term_inkey" c-term-inkey&)
-    :returns 'errr
-    :args '((char-arr text)
-	    (int row)
-	    (int col)
-	    ))
-
-;; experimental
-(def-foreign-function ("paint_gfx_image" c-paint-gfx-image&)
+(def-foreign-function ("play_sound_effect" c-play-sound-effect)
     :returns 'int
-    :args '((cptr fname)
-	    (cptr type)
-	    (int x)
-	    (int y)))
-    
+    :args '((int idx)))
 
 
 (def-foreign-function ("load_gfx_image" load-gfx-image&)
     :returns 'int
     :args '((cptr fname)
-	    (cptr type)
-	    )
-    :only-when 'image-support)
-
-
-(def-foreign-function ("load_scaled_image" load-scaled-image&)
-    :returns 'int
-    :args '((cptr fname)
 	    (int idx)
-	    (int wid)
-	    (int hgt)
+	    (unsigned transcolour)
 	    )
     :only-when 'image-support)
 
-(def-foreign-function ("textureBackground" c-texture_background!)
+(def-foreign-function ("load_texture" c-load-texture&)
     :returns 'int
-    :args '((int term)
+    :args '((int idx)
 	    (cptr fname)
-	    (int alpha)))
+	    (int twid)
+	    (int thgt)
+	    (unsigned alpha)
+	    )
+    :only-when 'image-support)
 
-;;; Frame related stuff
+(def-foreign-function ("get_image_width" c-get-image-width)
+    :returns 'int
+    :args '((int idx))
+    :only-when 'image-support)
+
+(def-foreign-function ("get_image_height" c-get-image-height)
+    :returns 'int
+    :args '((int idx))
+    :only-when 'image-support)
 
 ;;; Subwindow/Frame stuff
 (def-foreign-function ("init_frame_system" c-init-frame-system&)
@@ -236,7 +93,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    (int pre-size)))
 
 
-(def-foreign-function ("add_frame" c-add_frame!)
+(def-foreign-function ("add_frame" c-add-frame!)
     :returns 'int
     :args '((int key)
 	    (cptr name)))
@@ -249,40 +106,28 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    (int w)
 	    (int h)))
 
-(def-foreign-function ("add_frame_tileinfo" c-add_frame-tileinfo!)
+(def-foreign-function ("add_frame_tileinfo" c-add-frame-tileinfo!)
     :returns 'int
     :args '((int key)
 	    (int tw)
 	    (int th)
 	    (cptr font)
-	    (cptr bg)))
+	    ))
 
 (def-foreign-function ("add_frame_gfxinfo" c-add-frame-gfxinfo!)
     :returns 'int
     :args '((int key)
 	    (int use-tiles)))
 
+(def-foreign-function ("add_frame_bg" c-add-frame-bg!)
+    :returns 'int
+    :args '((int key)
+	    (int img-idx)))
 
 (def-foreign-function ("has_frame" c-has_frame)
     :returns 'int
     :args '((int key)
 	    (int type)))
-
-(def-foreign-function ("activate_frame" c-activate-frame!)
-    :returns 'int
-    :args '((int key)))
-
-(def-foreign-function ("deactivate_frame" c-deactivate-frame!)
-    :returns 'int
-    :args '((int key)))
-
-(def-foreign-function ("clean_frame" c-clean-frame!)
-    :returns 'int
-    :args '((int key)))
-
-(def-foreign-function ("wipe_frame" c-wipe-frame!)
-    :returns 'int
-    :args '((int key)))
 
 (def-foreign-function ("get_frame_columns" c-get-frame-columns)
     :returns 'int
@@ -308,4 +153,36 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
     :returns 'int
     :args '((int key)
 	    (int type)))
+
+(def-foreign-function ("exp_full_blit" c-full-blit)
+    :returns 'int
+    :args '((short num)
+	    (short x)
+	    (short y)
+	    (unsigned img)
+	    (short flag)))
+
+(def-foreign-function ("exp_transparent_blit" c-transparent-blit)
+    :returns 'int
+    :args '((short num)
+	    (short x)
+	    (short y)
+	    (unsigned img)
+	    (short flag)))
+
+(def-foreign-function ("exp_clear_coords" c-clear-coords!)
+    :returns 'int
+    :args '((short num)
+	    (short x)
+	    (short y)
+	    (short w)
+	    (short h)))
+
+(def-foreign-function ("exp_flush_coords" c-flush-coords!)
+    :returns 'int
+    :args '((short num)
+	    (short x)
+	    (short y)
+	    (short w)
+	    (short h)))
 

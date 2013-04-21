@@ -11,13 +11,7 @@ DESC: package.lisp - package def for langband
 
 (defpackage :org.langband.ffi
   (:use :common-lisp #+clisp :ffi #+sbcl :sb-alien)
-  (:nicknames :lb-ffi :langband-ffi)
-  (:export #:+c-null-value+
-           #:loc-char-format
-           #:to-arr
-           #:to-str
-           ;; #:str-to-arr
-           ))
+  (:nicknames :lb-ffi :langband-ffi))
 
 
 (defpackage :org.langband.engine
@@ -48,9 +42,38 @@ DESC: package.lisp - package def for langband
 	   #:*engine-version*
 	   #:*engine-num-version*
 
+	   #:text-attr
+	   #:text-char
+	   #:x-attr
+	   #:x-char
+	   #:text-sym
+	   #:gfx-sym
+	   
 	   #:lbsys/get-current-directory
 	   #:lbsys/ensure-dir-name
 	   )
   #+lisp2csf
   (:documentation "This is the Langband game package."))
 
+
+(defpackage :org.langband.datastructures
+  (:nicknames :lb-ds)
+  (:export #:make-heap
+	   #:heap-front
+	   #:heap-remove
+	   #:heap-insert
+	   #:heap-build
+	   #:heap-sort
+
+	   #:make-priority-queue
+	   #:pq-front
+	   #:pq-remove
+	   #:pq-insert
+	   #:pq-size
+	   #:init-pq-pool
+
+	   #:make-queue
+	   #:queue-as-list
+	   #:enqueue
+	   #:dequeue
+	   ))

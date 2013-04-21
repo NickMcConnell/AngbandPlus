@@ -3,7 +3,7 @@
 #|
 
 DESC: constants.lisp - constants for the game code
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -272,9 +272,15 @@ and be constructed atop it.")
 (defconstant +frametype-active+ 0)
 (defconstant +frametype-predefined+ 1)
 
-;; these are dynamic variables mostly
-(defvar *predefined-frames* (make-array +predefined-frames+ :initial-element nil))
+;; allowed to change between ascii and gfx
 (defvar *map-frame* +gfxmap-frame+)
+;;(defvar *map-frame* +asciimap-frame+)
+
+(defvar *windows* (make-array +predefined-frames+ :initial-element nil)
+  "A vector of the available windows.")
+
+(defconstant +winflag-clear-bg+ #x01)
+(defconstant +winflag-delay-paint+ #x02)
 
 ;; alias!
 (defconstant +query-frame+ +message-frame+)
@@ -284,3 +290,12 @@ and be constructed atop it.")
 (defconstant +tilefile-food+ 5)
 (defconstant +tilefile-classes+ 6)
 (defconstant +tilefile-humans+ 7)
+
+;;; these are for the gfxtile system:
+(defconstant +num-gfx-layers+ 4)
+(defconstant +background+ 0)
+(defconstant +decor+ 1)
+(defconstant +foreground+ 2)
+(defconstant +effect+ 3)
+
+(defconstant +coord-updated+ 1)

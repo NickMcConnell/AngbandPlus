@@ -1,3 +1,10 @@
+langband (0.1.3-1) unstable; urgency=low
+
+  * Upstream release.  Only change to langband-data is a new tile with
+    crosshair. 
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Fri, 17 Jan 2003 23:49:00 +0100
+
 langband (0.1.2-1) unstable; urgency=low
 
   * Upstream release

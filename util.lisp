@@ -3,7 +3,7 @@
 #||
 
 DESC: util.lisp - utility-code dependant on other code
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ a number or a symbol identifying the place."
 	(loop
 
 	 (setq printed-prompt (format nil "~a " the-prompt))
-	 (c-prt! printed-prompt 0 0)
+	 (put-coloured-line! +term-white+ printed-prompt 0 0)
        
 	 (when show-mode
 	   (item-table-print (get-item-table dungeon player the-place)
@@ -85,7 +85,7 @@ a number or a symbol identifying the place."
 
 		 ;; improve this code, it just bails out now.
 		 ((alpha-char-p read-char)
-		  (c-prt! "" 0 0)
+		  (put-coloured-line! +term-white+ "" 0 0)
 		  (let ((num (a2i read-char)))
 		    (if (>= num 0)
 			(return-from select-item (cons the-place num))
@@ -96,12 +96,12 @@ a number or a symbol identifying the place."
 		  ;;(error "Fell through on read-char in select-item ~s" read-char)
 		  ))
 	       
-	   (c-prt! "" 0 0))))
+	   (put-coloured-line! +term-white+ "" 0 0))))
 	    
    
       ;; clear prompt
       #-cmu
-      (c-prt! "" 0 0)
+      (put-coloured-line! +term-white+ "" 0 0)
     
       nil)))
 
@@ -398,7 +398,11 @@ a number or a symbol identifying the place."
 
   (let ((var-obj *variant*)
 	(mon-1 (cave-monsters dungeon from-x from-y))
-	(mon-2 (cave-monsters dungeon to-x to-y)))
+	(mon-2 (cave-monsters dungeon to-x to-y))
+	(target (player.target player)))
+    
+    (unless (is-legal-target? dungeon target)
+      (setf target nil))
 
     (setf (cave-monsters dungeon from-x from-y) mon-2
 	  (cave-monsters dungeon to-x to-y) mon-1)
@@ -410,16 +414,20 @@ a number or a symbol identifying the place."
       (setf (location-x player) to-x
 	    (location-y player) to-y)
       ;; add more stuff here
-;;      (warn "move player (~s ~s) -> (~s ~s)" from-x from-y to-x to-y)
+      ;;      (warn "move player (~s ~s) -> (~s ~s)" from-x from-y to-x to-y)
       (bit-flag-add! *update* +pl-upd-update-view+ +pl-upd-distance+
 		     +pl-upd-panel+ +pl-upd-update-flow+)
       ;; skip overhead-window
-;;      (bit-flag-add! *redraw* +print-map+)
-      ) ;; hack, fix later
+      ;;      (bit-flag-add! *redraw* +print-map+)
+      )	;; hack, fix later
 
-
+	   
     (when mon-1
       (dolist (i mon-1)
+	(when (and target (eq (target.obj target) i))
+	  (%remove-target target)
+	  (setf (target.x target) to-x
+		(target.y target) to-y))
 	(setf (location-x i) to-x
 	      (location-y i) to-y)
 	(update-monster! var-obj i t)))
@@ -427,13 +435,19 @@ a number or a symbol identifying the place."
 
     (when mon-2
       (dolist (i mon-2)
-	(setf (location-x i) to-x
-	      (location-y i) to-y)
+
+	(when (and target (eq (target.obj target) i))
+	  (%remove-target target)
+	  (setf (target.x target) from-x
+		(target.y target) from-y))
+	(setf (location-x i) from-x
+	      (location-y i) from-y)
 	(update-monster! var-obj i t)))
 
     
     (light-spot! dungeon from-x from-y)
-    (light-spot! dungeon to-x to-y)))
+    (light-spot! dungeon to-x to-y)
+    ))
 
 
 
@@ -683,11 +697,12 @@ a number or a symbol identifying the place."
 (defun update-inventory-row (player)
   (unless (eq (get-system-type) 'sdl)
     (return-from update-inventory-row t))
-  (let ((off-button (+ +graphics-start+ 38))
-	(on-button (+ +graphics-start+ 39)))
+  (let ((off-button (tile-file 38))
+	(on-button (tile-file 39))
+	(win (aref *windows* +inv-frame+)))
     
     (with-frame (+inv-frame+)
-      (c-clear-from! 0)	;; hack
+      (clear-window +inv-frame+) ;; hack
       (let ((table nil))
 	(cond ((eq *currently-showing-inv* :inventory)
 	       (setf table (aobj.contains (player.inventory player))))
@@ -703,11 +718,12 @@ a number or a symbol identifying the place."
 			  (worn-item-slot-hidden (aref (variant.worn-item-slots *variant*) i)))
 	      do
 	      (progn
-		(c-term-queue-char! i 0 +term-white+ (+ #.(char-code #\a) i) -1 -1)
+		(setf (window-coord win +foreground+ i 0) (text-paint-value +term-white+ (+ #.(char-code #\a) i)))
 		(when obj
-		  (c-term-queue-char! i 1 (x-attr obj) (x-char obj)  -1 -1)))))
+		  (setf (window-coord win +foreground+ i 1) (gfx-sym obj))
+		  ))))
 
-      (let ((col (- (get-term-width +inv-frame+) 1))
+      (let ((col (- (get-frame-width +inv-frame+) 1))
 	    (equip-button (if (eq *currently-showing-inv* :inventory)
 			      off-button
 			      on-button))
@@ -715,13 +731,13 @@ a number or a symbol identifying the place."
 			     on-button
 			     off-button)))
 
-	(c-term-queue-char! col 0 (+ +graphics-start+ 10) +graphics-start+
-			    back-button +graphics-start+)
-	(c-term-queue-char! col 1 (+ +graphics-start+ 3) (+ +graphics-start+ 34)
-			    equip-button +graphics-start+)
+	(setf (window-coord win +foreground+ col 0) (logior (tile-file 10) (tile-number 0))
+	      (window-coord win +background+ col 0) (logior back-button (tile-number 0))
+	      (window-coord win +foreground+ col 1) (logior (tile-file 3) (tile-number 34))
+	      (window-coord win +background+ col 1) (logior equip-button (tile-number 0))
 	)
 
-      (let ((col (- (get-term-width +inv-frame+) 2))
+      (let ((col (- (get-frame-width +inv-frame+) 2))
 	    (map-button (if (eq *current-map-mode* :ascii)
 			    off-button
 			    on-button))
@@ -729,14 +745,17 @@ a number or a symbol identifying the place."
 			      on-button
 			      off-button)))
 
-	(c-term-queue-char! col 0 (+ +graphics-start+ 10) (+ +graphics-start+ 19)
-			    map-button +graphics-start+)
-	(c-term-queue-char! col 1 +term-l-blue+ (char-code #\A)
-			    ascii-button +graphics-start+)
+	(setf (window-coord win +foreground+ col 0) (logior (tile-file 10) (tile-number 19))
+	      (window-coord win +background+ col 0) (logior map-button (tile-number 0))
+	      (window-coord win +foreground+ col 1) (text-paint-value +term-l-blue+ #.(char-code #\A))
+	      (window-coord win +background+ col 1) (logior ascii-button (tile-number 0)))
+	      
 	)
-
+      ;; should do all the actual painting
+      (refresh-window win)
     
-      (c-term-fresh! +inv-frame+))))
+
+      ))))
 
 (defun switch-inventory-view ()
   (if (eq *currently-showing-inv* :inventory)
@@ -745,16 +764,6 @@ a number or a symbol identifying the place."
   (update-inventory-row *player*)
   *currently-showing-inv*)
 
-#||
-(defun c-swap-map& ()
-  (org.langband.ffi:c-swap-map-term&)
-  (update-term-sizes!)
-  (verify-panel *dungeon* *player*)
-  (print-map *dungeon* *player*)
-;;  (bit-flag-add! *redraw* +print-map+)
-  (c-term-fresh!)
-  (c-term-flush!))
-||#
 
 (defun switch-map-mode (dungeon player)
   (if (eq *current-map-mode* :ascii)
@@ -763,22 +772,21 @@ a number or a symbol identifying the place."
   (update-inventory-row *player*)
 
   (cond ((eq *current-map-mode* :ascii)
-	 (c-deactivate-frame! +gfxmap-frame+)
-	 (c-activate-frame! +asciimap-frame+)
+	 (deactivate-window +gfxmap-frame+)
+	 (activate-window +asciimap-frame+)
 	 (setf *map-frame* +asciimap-frame+))
 	
 	((eq *current-map-mode* :gfx-tiles)
-	 (c-deactivate-frame! +asciimap-frame+)
-	 (c-activate-frame! +gfxmap-frame+)
+	 (deactivate-window +asciimap-frame+)
+	 (activate-window +gfxmap-frame+)
 	 (setf *map-frame* +gfxmap-frame+))
 	
 	(t ))
 
-  (c-wipe-frame! *map-frame*)
+  (clear-window *map-frame*)
   (verify-panel dungeon player)
   (print-map dungeon player)
-  (c-term-fresh! *map-frame*)
-  (c-term-flush!)
+  (refresh-window *map-frame*)
 
   *current-map-mode*)
 
@@ -862,7 +870,7 @@ acts on the result:
 		      (if (and (>= r-val 0) (< r-val alt-len))
 			  r-val
 			  (progn
-			    (c-bell! (format nil "Invalid value: ~a" val))
+			    (warn (format nil "Invalid value: ~a" val))
 			    'bad-value))))
 
 		   ;; an arrow-key I guess
@@ -893,7 +901,8 @@ MOD-VALUE is how much space should be between rows (I think)"
   ;; [add more info]
 
   
-  (let ((alt-len (length alternatives)))
+  (let ((alt-len (length alternatives))
+	(win *cur-win*))
     (labels ((display-alternatives (highlight-num)
 	       (let* ((desc (when display-fun
 			     (funcall display-fun highlight-num)))
@@ -910,12 +919,13 @@ MOD-VALUE is how much space should be between rows (I think)"
 		 ;; find a better solution here
 		 (loop for i from clear-row below (get-frame-height)
 		       do
-		       (put-coloured-line! +term-white+ "" text-col i))
-		 ;;(c-clear-from! text-row) ;; clears things
+		       ;;(warn "clear ~s ~s" text-col i)
+		       (clear-row win text-col i))
+;;		       (put-coloured-line! +term-white+ "" text-col i))
+		 ;;(clear-window-from *cur-win* text-row) ;; clears things
 
 		 (when desc
-		   (c-print-text! text-col text-row text-attr desc :end-col (+ text-col text-wid))
-		   )
+		   (print-text! text-col text-row text-attr desc :end-col (+ text-col text-wid)))
 		 
 		 (loop for cur-alt in alternatives
 		       for i from 0
@@ -924,7 +934,7 @@ MOD-VALUE is how much space should be between rows (I think)"
 		       for cur-bg  = (if (= i highlight-num) salt-colour alt-colour)
 		       do
 		       (put-coloured-str! cur-bg (format nil "~c) " (i2a i)) the-col the-row)
-		       (put-coloured-str! cur-bg (format nil "~a" cur-alt) (+ 3 the-col) the-row)
+		       (put-coloured-str! cur-bg (format nil "~10a" cur-alt) (+ 3 the-col) the-row)
 		       )))
 	     
 	     (get-a-value (cur-sel)

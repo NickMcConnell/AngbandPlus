@@ -16,16 +16,20 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "pile" "<pile>"
   :numeric-id 0
-  :x-attr #\w
-  :x-char #\&
+  :text-attr #\w
+  :text-char #\&
+  :x-attr (tile-file 10)
+  :x-char (tile-number 54)
   :depth 0
   :chance #(0 0 0 0)
   :locale #(0 0 0 0)) 
 
 (define-object-kind "shovel" "& shovel~"
   :numeric-id 84
-  :x-attr #\s
-  :x-char #\\
+  :x-attr (tile-file 10)
+  :x-char (tile-number 30)
+  :text-attr #\s
+  :text-char #\\
   :depth 1
   :rarity 0
   :chance #(16 0 0 0)
@@ -39,8 +43,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "gnomish-shovel" "& gnomish shovel~"
   :numeric-id 85
-  :x-attr #\G
-  :x-char #\\
+  :x-attr (tile-file 10)
+  :x-char (tile-number 31)
+  :text-attr #\G
+  :text-char #\\
   :depth 20
   :rarity 0
   :chance #(4 0 0 0)
@@ -54,8 +60,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dwarven-shovel" "& dwarven shovel~"
   :numeric-id 86
-  :x-attr #\B
-  :x-char #\\
+  :x-attr (tile-file 10)
+  :x-char (tile-number 32)
+  :text-attr #\B
+  :text-char #\\
   :depth 40
   :rarity 0
   :chance #(1 0 0 0)
@@ -69,8 +77,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "pick" "& pick~"
   :numeric-id 87
-  :x-attr #\s
-  :x-char #\\
+  :x-attr (tile-file 10)
+  :x-char (tile-number 27)
+  :text-attr #\s
+  :text-char #\\
   :depth 5
   :rarity 0
   :chance #(16 0 0 0)
@@ -84,8 +94,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "orcish-pick" "& orcish pick~"
   :numeric-id 88
-  :x-attr #\g
-  :x-char #\\
+  :x-attr (tile-file 10)
+  :x-char (tile-number 28)
+  :text-attr #\g
+  :text-char #\\
   :depth 30
   :rarity 0
   :chance #(4 0 0 0)
@@ -99,8 +111,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dwarven-pick" "& dwarven pick~"
   :numeric-id 89
-  :x-attr #\b
-  :x-char #\\
+  :x-attr (tile-file 10)
+  :x-char (tile-number 29)
+  :text-attr #\b
+  :text-char #\\
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)
@@ -115,8 +129,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "small-wooden-chest" "& small wooden chest~"
   :numeric-id 338
-  :x-attr #\s
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 0)
+  :text-attr #\s
+  :text-char #\~
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -129,8 +145,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "large-wooden-chest" "& large wooden chest~"
   :numeric-id 339
-  :x-attr #\s
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 1)
+  :text-attr #\s
+  :text-char #\~
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -143,8 +161,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "small-iron-chest" "& small iron chest~"
   :numeric-id 340
-  :x-attr #\s
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 2)
+  :text-attr #\s
+  :text-char #\~
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -157,8 +177,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "large-iron-chest" "& large iron chest~"
   :numeric-id 341
-  :x-attr #\s
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 3)
+  :text-attr #\s
+  :text-char #\~
   :depth 35
   :rarity 0
   :chance #(1 0 0 0)
@@ -171,8 +193,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "small-steel-chest" "& small steel chest~"
   :numeric-id 342
-  :x-attr #\s
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 4)
+  :text-attr #\s
+  :text-char #\~
   :depth 45
   :rarity 0
   :chance #(1 0 0 0)
@@ -185,8 +209,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "large-steel-chest" "& large steel chest~"
   :numeric-id 343
-  :x-attr #\s
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 5)
+  :text-attr #\s
+  :text-char #\~
   :depth 55
   :rarity 0
   :chance #(1 0 0 0)
@@ -199,8 +225,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "ruined-chest" "& ruined chest~"
   :numeric-id 344
-  :x-attr #\s
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 6)
+  :text-attr #\s
+  :text-char #\~
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -213,8 +241,8 @@ the Free Software Foundation; either version 2 of the License, or
 #||
 (define-object-kind "iron-spike" "& iron spike~"
   :numeric-id 345
-  :x-attr #\W
-  :x-char #\~
+  :text-attr #\W
+  :text-char #\~
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -227,8 +255,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "torch" "& wooden torch~"
   :numeric-id 346
-  :x-attr #\u
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 26)
+  :text-attr #\u
+  :text-char #\~
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -244,8 +274,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "lantern" "& brass lantern~"
   :numeric-id 347
-  :x-attr #\U
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 25)
+  :text-attr #\U
+  :text-char #\~
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -261,8 +293,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "oil-flask" "& flask~ of oil"
   :numeric-id 348
-  :x-attr #\y
-  :x-char #\!
+  :x-attr (tile-file 10)
+  :x-char (tile-number 23)
+  :text-attr #\y
+  :text-char #\!
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -274,8 +308,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "empty-bottle" "& empty bottle~"
   :numeric-id 349
-  :x-attr #\w
-  :x-char #\!
+  :x-attr (tile-file 10)
+  :x-char (tile-number 22)
+  :text-attr #\w
+  :text-char #\!
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -287,8 +323,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "pottery-shards" "& shard~ of pottery"
   :numeric-id 389
-  :x-attr #\r
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 34)
+  :text-attr #\r
+  :text-char #\~
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -301,8 +339,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "broken-stick" "& broken stick~"
   :numeric-id 390
-  :x-attr #\r
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 42)
+  :text-attr #\r
+  :text-char #\~
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -315,8 +355,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "broken-skull" "& broken skull~"
   :numeric-id 391
-  :x-attr #\w
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 43)
+  :text-attr #\w
+  :text-char #\~
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -329,8 +371,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "broken-bone" "& broken bone~"
   :numeric-id 392
-  :x-attr #\w
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 44)
+  :text-attr #\w
+  :text-char #\~
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -343,8 +387,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "canine-skeleton" "& canine skeleton~"
   :numeric-id 393
-  :x-attr #\w
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 49)
+  :text-attr #\w
+  :text-char #\~
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -357,8 +403,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "rodent-skeleton" "& rodent skeleton~"
   :numeric-id 394
-  :x-attr #\w
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 50)
+  :text-attr #\w
+  :text-char #\~
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -371,8 +419,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "human-skeleton" "& human skeleton~"
   :numeric-id 395
-  :x-attr #\w
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 45)
+  :text-attr #\w
+  :text-char #\~
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -385,8 +435,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dwarf-skeleton" "& dwarf skeleton~"
   :numeric-id 396
-  :x-attr #\w
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 47)
+  :text-attr #\w
+  :text-char #\~
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -399,8 +451,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "elf-skeleton" "& elf skeleton~"
   :numeric-id 397
-  :x-attr #\w
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 46)
+  :text-attr #\w
+  :text-char #\~
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -413,8 +467,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "gnome-skeleton" "& gnome skeleton~"
   :numeric-id 398
-  :x-attr #\w
-  :x-char #\~
+  :x-attr (tile-file 10)
+  :x-char (tile-number 48)
+  :text-attr #\w
+  :text-char #\~
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -426,11 +482,11 @@ the Free Software Foundation; either version 2 of the License, or
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 ;;; artifact items
-
+#||
 (define-object-kind "the-phial" "& phial~"
   :numeric-id 500
-  :x-attr #\y
-  :x-char #\~
+  :text-attr #\y
+  :text-char #\~
   :depth 1
   :rarity 0
   :chance #(0 0 0 0)
@@ -444,8 +500,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "the-star" "& star~"
   :numeric-id 501
-  :x-attr #\y
-  :x-char #\~
+  :text-attr #\y
+  :text-char #\~
   :depth 30
   :rarity 0
   :chance #(0 0 0 0)
@@ -459,8 +515,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "the-arkenstone" "& arkenstone~"
   :numeric-id 502
-  :x-attr #\y
-  :x-char #\~
+  :text-attr #\y
+  :text-char #\~
   :depth 60
   :rarity 0
   :chance #(0 0 0 0)
@@ -474,8 +530,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "amulet-carlammas" "& amulet~"
   :numeric-id 503
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 50
   :rarity 0
   :chance #(0 0 0 0)
@@ -488,8 +544,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "amulet-ingwe" "& amulet~"
   :numeric-id 504
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 60
   :rarity 0
   :chance #(0 0 0 0)
@@ -502,8 +558,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "dwarven-necklace" "& necklace~"
   :numeric-id 505
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 70
   :rarity 0
   :chance #(0 0 0 0)
@@ -516,8 +572,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-506" "& ring~"
   :numeric-id 506
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 50
   :rarity 0
   :chance #(0 0 0 0)
@@ -530,8 +586,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-507" "& ring~"
   :numeric-id 507
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 90
   :rarity 0
   :chance #(0 0 0 0)
@@ -544,8 +600,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-508" "& ring~"
   :numeric-id 508
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 80
   :rarity 0
   :chance #(0 0 0 0)
@@ -558,8 +614,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-509" "& ring~"
   :numeric-id 509
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 90
   :rarity 0
   :chance #(0 0 0 0)
@@ -572,8 +628,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "object-510" "& ring~"
   :numeric-id 510
-  :x-attr #\d
-  :x-char #\=
+  :text-attr #\d
+  :text-char #\=
   :depth 100
   :rarity 0
   :chance #(0 0 0 0)
@@ -586,8 +642,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "one-ring" "& ring~"
   :numeric-id 511
-  :x-attr #\y
-  :x-char #\=
+  :text-attr #\y
+  :text-char #\=
   :depth 110
   :rarity 0
   :chance #(0 0 0 0)
@@ -597,4 +653,4 @@ the Free Software Foundation; either version 2 of the License, or
   :flags '(<instant-artifact>)
   :sort-value 4437
   :the-kind '<ring>)
-
+||#

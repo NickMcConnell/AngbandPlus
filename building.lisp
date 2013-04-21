@@ -36,8 +36,6 @@ the Free Software Foundation; either version 2 of the License, or
     (return-from define-door-type nil))
   
   (let ((trap-obj (make-instance 'door-type :id id :name name
-				  :x-char (convert-obj x-char :x-char)
-				  :x-attr (convert-obj x-attr :x-attr)
 				  ;;:min-depth min-depth :max-depth max-depth
 				  ;;:rarity rarity
 				  ))
@@ -47,16 +45,9 @@ the Free Software Foundation; either version 2 of the License, or
       (setf (slot-value trap-obj 'cave-flags-on) cave-flags-on))
     (when (integerp cave-flags-off)
       (setf (slot-value trap-obj 'cave-flags-off) cave-flags-off))
-    
-    (cond (text-char
-	   (setf (text-char trap-obj) (convert-obj text-char :text-char)))
-	  (t
-	   (setf (text-char trap-obj) (x-char trap-obj))))
-    
-    (cond (text-attr
-	   (setf (text-attr trap-obj) (convert-obj text-attr :text-attr)))
-	  (t
-	   (setf (text-attr trap-obj) (x-attr trap-obj))))
+
+    (handle-gfx-visual trap-obj x-attr x-char)
+    (handle-text-visual trap-obj text-attr text-char)
 
     ;; removed effects
     (setf (gethash id table) trap-obj)
@@ -69,11 +60,17 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod x-char ((obj active-door))
   (x-char (decor.type obj)))
 
+(defmethod gfx-sym ((obj active-door))
+  (gfx-sym (decor.type obj)))
+
 (defmethod text-attr ((obj active-door))
   (text-attr (decor.type obj)))
 
 (defmethod text-char ((obj active-door))
   (text-char (decor.type obj)))
+
+(defmethod text-sym ((obj active-door))
+  (text-sym (decor.type obj)))
 
 (defmethod get-door (variant key &key (visible t))
   (let ((door-type (gethash key (variant.doors variant))))
@@ -288,7 +285,7 @@ failure and owner on success."
 	     (let ((attr (get-text-colour val))
 		   (desc (with-output-to-string (s)
 			   (write-obj-description *variant* val s :store store))))
-	       (c-prt! "" (- x 2) (+ i y))
+	       (put-coloured-line! +term-white+ "" (- x 2) (+ i y))
 	       (put-coloured-str! +term-white+ (format nil "~a) " (i2a i)) x (+ i y))
 	       
 	       (put-coloured-str! attr desc (+ x 4) (+ i y))
@@ -296,7 +293,7 @@ failure and owner on success."
 	       (let* ((weight (object.weight (aobj.kind val)))
 		      (full-pounds (int-/ weight 10))
 		      (fractions (mod weight 10)))
-		 (c-prt! (format nil "~3d.~d lb~a" full-pounds fractions
+		 (put-coloured-line! +term-white+ (format nil "~3d.~d lb~a" full-pounds fractions
 				 (if (> full-pounds 1)
 				     "s"
 				     ""))

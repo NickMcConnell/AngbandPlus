@@ -33,7 +33,7 @@
        (charinfo :key +charinfo-frame+
 		 :x 0 :y 8
 		 :width 112 :height 480
-		 :background "bumpi.bmp"
+		 :background "textures/bumpi.bmp"
 		 :font "vga8x16.hex")
        
        (gfxmap   :key +gfxmap-frame+
@@ -60,7 +60,7 @@
 		 :x 0 :y 488
 		 :width window.width
 		 :height 32
-		 :background "bumpi.bmp"
+		 :background "textures/bumpi.bmp"
 		 :font "vga8x16.hex"
 		 ;;:font "augie.ttf"
 		 )
@@ -69,15 +69,16 @@
 		 :x 0 :y 520
 		 :width window.width
 		 :height 16
-		 :background "bumpi.bmp"
-		 :font #+win32 "vga8x16.hex" #-win32 "lettergo.ttf"
+		 :background "textures/bumpi.bmp"
+		 ;;:font #+win32 "vga8x16.hex" #-win32 "lettergo.ttf"
+		 :font "vga8x16.hex"
 		 )
 
        (inventory :key +inv-frame+
 		  :x 0 :y 536
 		  :width window.width
 		  :height 64
-		  :background "invbg2.bmp"
+		  :background "textures/invbg2.bmp"
 		  :tile-width gfxtiles.width
 		  :tile-height gfxtiles.height
 		  :font "vga8x16.hex"
@@ -88,7 +89,7 @@
 		 :width 800
 		 :height 480
 		 :font "vga8x16.hex"
-		 :background "woodfloor.png"
+		 :background "textures/woodfloor.png"
 		 :gfx-tiles? false)
        )
 

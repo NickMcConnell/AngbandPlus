@@ -17,8 +17,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "amulet-wis" "wisdom"
   :numeric-id 163
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -32,8 +32,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "amulet-chr" "charisma"
   :numeric-id 164
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -47,8 +47,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "amulet-searching" "searching"
   :numeric-id 165
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 30
   :rarity 0
   :chance #(4 0 0 0)
@@ -62,8 +62,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "amulet-teleport" "teleportation"
   :numeric-id 166
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -77,8 +77,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "amulet-slow-digest" "slow digestion"
   :numeric-id 167
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -92,8 +92,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "amulet-resist-acid" "resist acid"
   :numeric-id 168
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -107,8 +107,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "amulet-adornment" "adornment"
   :numeric-id 169
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -121,8 +121,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "amulet-magi" "the magi"
   :numeric-id 171
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 50
   :rarity 0
   :chance #(4 0 0 0)
@@ -136,8 +136,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-object-kind "amulet-doom" "doom"
   :numeric-id 172
-  :x-attr #\d
-  :x-char #\"
+  :text-attr #\d
+  :text-char #\"
   :depth 50
   :rarity 0
   :chance #(1 0 0 0)

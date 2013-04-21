@@ -3,7 +3,7 @@
 #||
 
 DESC: variants/vanilla/spells.lisp - spell-effects
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software  ; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,15 +14,49 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
+(defun is-legal-effect-type? (effect-type)
+  (find effect-type '(<teleport> "cold"> <light> "acid" "fire" <healing> <mana>
+		      <divination> <enhance> <meteor>
+		      "magic-missile" "poison" "electricity")
+	:test #'equal))
+
 ;; hack
 (defmacro spell-effect (arguments &body body)
-  (assert (= (length arguments) 2))
+  (assert (= (length arguments) 3))
   (let ((def `(lambda ,arguments
 	       (declare (ignorable ,@arguments))
 	       ,@body)))
 ;;    (warn "Def is ~s" def)
     `(function ,def)))
 
+(defun define-spell-effect (id &key gfx-beam text-beam gfx-ball text-ball
+			    gfx-orb text-orb gfx-bolts text-bolts)
+  (declare (ignore gfx-beam text-beam))
+  (assert (verify-id id))
+  
+  (let ((spell-effect (make-instance 'spell-effect :id id)))
+
+    (when (arrayp gfx-bolts)
+      (setf (projectile.gfx-path spell-effect) gfx-bolts))
+    (when (arrayp text-bolts)
+      (setf (projectile.text-path spell-effect) text-bolts))
+
+    (when (numberp gfx-ball)
+      (setf (projectile.gfx-explosion spell-effect) gfx-ball))
+    (when (numberp text-ball)
+      (setf (projectile.text-explosion spell-effect) text-ball))
+
+    (when (numberp gfx-orb)
+      (setf (projectile.gfx-impact spell-effect) gfx-orb))
+    (when (numberp text-orb)
+      (setf (projectile.text-impact spell-effect) text-orb))
+
+    
+    (setf (gethash id (variant.visual-effects *variant*)) spell-effect)
+    
+    spell-effect))
+
+    
 (defun get-spell-effect (type)
   #'(lambda (var source target &key x y damage state-object)
       (apply-spell-effect! var type source target :x x :y y :damage damage :state-object state-object)))
@@ -69,7 +103,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
     t))
 
 
-(defun define-spell (name id &key effect)
+(defun define-spell (name id &key effect-type effect)
   "Defines and registers a new spell."
 
   (assert (stringp name))
@@ -80,6 +114,16 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
     (when (and effect (functionp effect))
       (setf (spell.effect spell) (compile nil effect)))
+
+    ;; checking carefully
+    (when effect-type
+      (unless (is-legal-effect-type? effect-type)
+	(warn "Unknown spell-type ~s for spell ~s" effect-type id))
+
+      (when-bind (lookup (gethash effect-type (variant.visual-effects variant)))
+	;;(warn "spell lookup is ~s" lookup)
+	(setf (spell.effect-type spell) lookup)))
+    
     
     ;; register spell in variant
     (multiple-value-bind (value present-p)
@@ -91,100 +135,94 @@ the Free Software Foundation	 ; either version 2 of the License, or
     
     spell))
 
+(defmethod get-visual-projectile ((obj magic-spell))
+  (spell.effect-type obj))
+
+(defun create-spellbook (name id spells)
+  "Creates and returns a spellbook."
+
+  (check-type name string)
+  (assert (verify-id id))
+  (assert (consp spells))
+	  
+  (let* ((variant *variant*)
+	 (len (length spells))
+	 (book (make-instance 'spellbook :name name :id id :size len)))
+
+    (setf (spellbook.spells book) (make-array len :initial-element nil))
+
+    (loop for i from 0
+	  for spell in spells
+	  do
+	  (let ((spell-obj (gethash spell (variant.spells variant))))
+	    (cond ((and spell-obj (typep spell-obj 'magic-spell))
+		   (setf (aref (spellbook.spells book) i) spell-obj))
+		  (t
+		   (warn "Unable to find spell ~s in vanilla-variant" spell))
+		  )))
+    book))
+
+(defun register-spellbook& (variant book)
+  "Registers spellbook in variant and returns the book."
+  (multiple-value-bind (value present-p)
+      (gethash (spellbook.id book) (variant.spellbooks variant))
+    (when present-p
+      (warn "Replacing spellbook ~s in vanilla variant" value))
+    (setf (gethash (spellbook.id book) (variant.spellbooks variant)) book))
+  
+  book)
+
 (defun define-spellbook (name id &key (size 6) (spells nil))
   "Defines and registers a spellbook, should be done after the spells have been
 made."
 
-  (assert (stringp name))
-  (assert (stringp id))
-  (assert (verify-id id))
-  (assert (and (integerp size) (plusp size)))
-
-  (let ((variant *variant*)
-	(book (make-instance 'spellbook :name name :id id :size size)))
-
-    (setf (spellbook.spells book) (make-array size :initial-element nil))
-
-    (when (consp spells)
-      (assert (<= (length spells) size))
-      (unless (= (length spells) size)
-	(warn "Size of spellbook ~s is ~s, but given ~s spells" size id (length spells)))
-      (loop for i from 0
-	    for spell in spells
-	    do
-	    (let ((spell-obj (gethash spell (variant.spells variant))))
-	      (cond ((and spell-obj (typep spell-obj 'magic-spell))
-		     (setf (aref (spellbook.spells book) i) spell-obj))
-		    (t
-		     (warn "Unable to find spell ~s in vanilla-variant" spell))
-		    ))))
-
-    
-    ;; register spellbook in variant
-    (multiple-value-bind (value present-p)
-	(gethash (spellbook.id book) (variant.spellbooks variant))
-      (when present-p
-	(warn "Replacing spellbook ~s in vanilla variant" value))
-      (setf (gethash (spellbook.id book) (variant.spellbooks variant)) book))
-    
-    book))
-
-(defun %simple-projection (source dir flag effect damage)
-  (let ((dest-x (+ (aref *ddx* dir) (location-x source)))
-	(dest-y (+ (aref *ddy* dir) (location-y source)))
-	(target (player.target source)))
-
-    ;; better check for legality
-    (when (and (= dir 5)
-	       (is-legal-target? *dungeon* target))
-      ;;(warn "Using targ ~s, is at ~s,~s" dir (location-x player) (location-y player))
-
-      (setf dest-x (target.x target)
-	    dest-y (target.y target)))
-
-    (do-projection source dest-x dest-y flag :effect effect :damage damage)))
+  (declare (ignore size))
+  (register-spellbook& *variant* (create-spellbook name id spells)))
 
 
-(defun van-fire-beam! (player dir effect damage)
+(defun %simple-projection (source destination flag effect damage &key projected-object)
+  "Destination can be a target or a direction.  A direction of 5 is interpreted
+as target."
+  
+  (multiple-value-bind (dest-x dest-y)
+      (%get-dest-coords source destination)
+    (do-projection source dest-x dest-y flag :effect effect :damage damage :projected-object projected-object)))
+
+
+(defun van-fire-beam! (player destination effect damage &key projected-object)
   "Fires a beam in a direction."
   (let ((flag (logior +project-kill+ +project-beam+ +project-through+)))
-    (%simple-projection player dir flag effect damage)))
+    (%simple-projection player destination flag effect damage :projected-object projected-object)))
 
-(defun van-fire-bolt! (player dir effect damage)
+(defun van-fire-bolt! (player destination effect damage &key projected-object)
   "Fires a bolt in a direction."
   (let ((flag (logior +project-kill+ +project-stop+ +project-through+)))
-    (%simple-projection player dir flag effect damage)))
+    (%simple-projection player destination flag effect damage :projected-object projected-object)))
 
 
-(defun van-fire-bolt-or-beam! (player beam-chance dir effect damage)
+(defun van-fire-bolt-or-beam! (player beam-chance destination effect damage &key projected-object)
   "Will fire a beam if beam-chance/100 happens, otherwise a bolt."
   (cond ((< (random 100) beam-chance)
-	 (van-fire-beam! player dir effect damage))
+	 (van-fire-beam! player destination effect damage :projected-object projected-object))
 	(t
-	 (van-fire-bolt! player dir effect damage))))
+	 (van-fire-bolt! player destination effect damage :projected-object projected-object))))
 
-(defun van-fire-ball! (source dir effect damage radius)
-  "Fires a bolt in a direction."
-  (let ((flag (logior +project-kill+ +project-grid+ +project-stop+ +project-item+))
-	(dest-x (+ (* 99 (aref *ddx* dir)) (location-x source)))
-	(dest-y (+ (* 99 (aref *ddy* dir)) (location-y source)))
-	(target (player.target source)))
+(defun van-fire-ball! (source destination effect damage radius &key projected-object)
+  "Fires a ball in a direction."
+  (let ((flag (logior +project-kill+ +project-grid+ +project-stop+ +project-item+)))
 
-    ;; better check for legality
-    (when (and (= dir 5)
-	       target
-	       (typep target 'target))
-      (setf dest-x (target.x target)
-	    dest-y (target.y target)))
-
-    (do-projection source dest-x dest-y flag
-		   :effect effect :damage damage
-		   :radius radius)))
-
+    (multiple-value-bind (dest-x dest-y)
+	(%get-dest-coords source destination 99)
+      (do-projection source dest-x dest-y flag
+		     :effect effect :damage damage
+		     :radius radius
+		     :projected-object projected-object)
+      )))
+  
   
 (defun light-room! (dungeon x y &key (type '<light>))
   "Lights the room."
-  (let ((coords (make-queue)))
+  (let ((coords (lb-ds:make-queue)))
     (flet ((add-coord (bx by)
 	     (let ((flag (cave-flags dungeon bx by)))
 	       ;; no recursion
@@ -196,12 +234,12 @@ made."
 
 	       (bit-flag-add! (cave-flags dungeon bx by) +cave-temp+)
 	       ;;(warn "adding ~s ~s" bx by)
-	       (enqueue (cons bx by) coords))))
+	       (lb-ds:enqueue (cons bx by) coords))))
 
       ;; add first grid
       (add-coord x y)
 
-      (dolist (i (queue-as-list coords))
+      (dolist (i (lb-ds:queue-as-list coords))
 	(let ((cx (car i))
 	      (cy (cdr i)))
 	  (when (cave-floor-bold? dungeon cx cy)
@@ -220,7 +258,7 @@ made."
 
     ;;(warn "coords ~s" coords)
     
-    (dolist (i (queue-as-list coords))
+    (dolist (i (lb-ds:queue-as-list coords))
       (let ((flag (cave-flags dungeon (car i) (cdr i))))
 	(bit-flag-remove! flag +cave-temp+)
 	;;(warn "lighting ~s ~s" (car i) (cdr i))
@@ -290,10 +328,7 @@ made."
 	     (let* ((the-table (get-item-table dungeon player (car selection)))
 		    (removed-obj (item-table-remove! the-table (cdr selection))))
 	       (cond (removed-obj
-		      (with-foreign-str (s)
-			(lb-format s "~a ~a glow~a brightly."
-				   "The" "[some-object, FIX]" "s")
-			(print-message! s))
+		      (format-message! "~a ~a glow~a brightly." "The" "[some-object, FIX]" "s")
 		      (setf retval (%local-enchant removed-obj))
 		    
 		      (item-table-add! the-table removed-obj))
@@ -328,7 +363,7 @@ made."
   "Tries to ensure that the player learns the given spell."
 
   (unless (is-spellcaster? player)
-    (print-message! "Player is not a spellcaster and cannot learn spells.")
+    (print-message! "You are not a spellcaster and cannot learn spells.")
     (return-from learn-spell! nil))
 
 ;;  (warn "Trying to learn ~s" spell)
@@ -340,7 +375,7 @@ made."
 	(learnt-spells (class.learnt-spells (player.class player))))
 
     (when (find spell-id learnt-spells :test #'equal)
-      (print-message! "Player already knows the spell.")
+      (print-message! "You already know the spell.")
       (return-from learn-spell! nil))
 
     (let ((spell-data (get-spell-data player spell-id)))
@@ -348,14 +383,15 @@ made."
 		  (<= (spell.level spell-data) (player.level player)))
 	     (vector-push-extend spell-id learnt-spells)
 	     (format-message! "~a learnt." (spell.name spell))
+	     (bit-flag-add! *redraw* +print-study+)
 	     (return-from learn-spell! t))
 	    
 	    ((and (typep spell-data 'spell-classdata)
 		  (> (spell.level spell-data) (player.level player)))
-	     (print-message! "Player is not powerful enough to learn that spell yet."))
+	     (print-message! "You're not powerful enough to learn that spell yet."))
 	    
 	    ((eq spell-data nil)
-	     (print-message! "Player is unable to learn that spell."))
+	     (print-message! "You are unable to learn that spell."))
 	    
 	    (t
 	     (warn "Unknown value returned ~s, ~s." spell-data spell)))
@@ -373,7 +409,26 @@ returns T if the player knows the spell."
 ;;    (warn "Checked for ~s in ~s" spell-id learnt-spells)
     (when existing-spell
       t)))
-  
+
+(defun can-learn-more-spells? (variant player)
+  "Returns T if the player can learn spells, NIL otherwise."
+  (when (is-spellcaster? player)
+    (let* ((pl-class (player.class player))
+	   (stats (variant.stats variant))
+	   (stat-obj (find (class.spell-stat pl-class) stats :key #'stat.symbol))
+	   )
+      (when stat-obj
+	(let* ((stat-val (aref (player.active-stats player) (stat.number stat-obj)))
+	       (half-spells (get-stat-info stat-obj stat-val :half-spells))
+	       (learnt-spells (class.learnt-spells pl-class))
+	       (num-learnt (length learnt-spells))
+	       (max-spells (int-/ (* (player.level player) half-spells) 2)))
+	  
+	  
+	  ;;(warn "Max spells ~s vs learnt ~s" max-spells num-learnt)
+
+	  (> max-spells num-learnt)))
+      )))
 
 (defun interactive-book-selection (dungeon player)
   "Selects a book and returns it or NIL."
@@ -392,7 +447,7 @@ returns T if the player knows the spell."
       (setf books (nreverse books))
 
       (unless books
-	(c-prt! "No books" 0 0)
+	(put-coloured-line! +term-white+ "No books" 0 0)
 	(return-from select-book nil))
     
       (let* ((first-num (i2a (cdar books)))
@@ -400,7 +455,7 @@ returns T if the player knows the spell."
 	     (select-string (format nil "Inven: (~a-~a), * to see, ESC) Use which book? "
 				    first-num last-num)))
 
-	(c-prt! select-string 0 0)
+	(put-coloured-line! +term-white+ select-string 0 0)
 	(loop
 	 (let ((selection (read-one-character)))
 	   (cond ((eql selection +escape+)
@@ -425,25 +480,31 @@ returns T if the player knows the spell."
 (defun van-learn-spell! (dungeon player &key (variant *variant*))
   "Interactive selection of spell to learn."
 
+  (unless (can-learn-more-spells? variant player)
+    (print-message! "You cannot learn more spells at this level.")
+    (return-from van-learn-spell! nil))
+	   
+  
   (block learn-spell
-    (when-bind (book (with-dialogue ()
-		       (interactive-book-selection dungeon player)))
-      (let* ((okind (aobj.kind book))
-	     (book-id (object.id okind)))
-	(when-bind (spell-info (gethash book-id (variant.spellbooks variant)))      
-	  (when-bind (which-one (with-dialogue ()
-				  (interactive-spell-selection player spell-info
-							       :prompt "Learn which spell? ")))
-	    (unless (and (integerp which-one) (>= which-one 0)
+    (with-dialogue ()
+      (when-bind (book (interactive-book-selection dungeon player))
+	(let* ((okind (aobj.kind book))
+	       (book-id (object.id okind)))
+	  (when-bind (spell-info (gethash book-id (variant.spellbooks variant)))      
+	    (when-bind (which-one (interactive-spell-selection player spell-info
+							       :prompt "Learn which spell? "))
+	      (unless (and (integerp which-one) (>= which-one 0)
 			 (< which-one (spellbook.size spell-info)))
-	      (warn "Illegal choice ~s" which-one)
-	      (return-from learn-spell nil))
+		(warn "Illegal choice ~s" which-one)
+		(return-from learn-spell nil))
+	      
+	      (let ((the-spell (aref (spellbook.spells spell-info) which-one)))
+		(learn-spell! player the-spell))
 
-	    (let ((the-spell (aref (spellbook.spells spell-info) which-one)))
-	      (learn-spell! player the-spell))
+	      )))
+	))
+    ))
 
-	    )))
-      )))
 
 (defun van-invoke-spell! (dungeon player &key (variant *variant*))
   "Invokes a spell.. gee."
@@ -482,7 +543,7 @@ returns T if the player knows the spell."
 	    
 	    
 	    (cond ((and spell-effect (functionp spell-effect))
-		   (funcall spell-effect dungeon player)
+		   (funcall spell-effect dungeon player the-spell)
 		   ;; deduct mana, better way?
 		   (decf (current-mana player) (spell.mana spell-data))
 		   (bit-flag-add! *redraw* +print-mana+)
@@ -497,7 +558,7 @@ returns T if the player knows the spell."
 	    ))
 
 	;; clean up some!
-	;; (c-prt! "" 0 0)
+	;; (put-coloured-line! +term-white+ "" 0 0)
 	
       	)))
     
@@ -506,16 +567,15 @@ returns T if the player knows the spell."
 (defun browse-spells (dungeon player &key (variant *variant*))
   "Interactive selection of spell to learn."
 
-    (when-bind (book (with-dialogue ()
-		       (interactive-book-selection dungeon player)))
+  (with-dialogue ()
+    (when-bind (book (interactive-book-selection dungeon player))
       (let* ((okind (aobj.kind book))
 	     (book-id (object.id okind)))
 	(when-bind (spell-info (gethash book-id (variant.spellbooks variant)))
 ;;	  (warn "SI: ~s" spell-info)
-	  (with-dialogue ()
-	    (display-spells player spell-info)
-	    (pause-last-line!)
-	    )))))
+	  (display-spells player spell-info)
+	  (pause-last-line!)
+	  )))))
 
 
 (defun interactive-spell-selection (player spellbook &key (prompt "Cast which spell? "))
@@ -525,7 +585,7 @@ returns T if the player knows the spell."
      (let ((select-string (format nil "(Spells ~a-~a, *=List, ESC) ~a"
 				  #\a (i2a (1- (spellbook.size spellbook))) prompt)))
 
-       (c-prt! select-string 0 0)
+       (put-coloured-line! +term-white+ select-string 0 0)
        (let ((selection (read-one-character)))
 	 (cond ((eql selection +escape+)
 		(return-from select-spell nil))
@@ -602,7 +662,7 @@ returns T if the player knows the spell."
 		       (put-coloured-line! colour str  x row))))
 		  )))
     
-    (c-prt! "" x (+ (spellbook.size spellbook) y  1))
+    (put-coloured-line! +term-white+ "" x (+ (spellbook.size spellbook) y  1))
     
     nil
     ))

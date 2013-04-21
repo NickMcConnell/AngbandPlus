@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/wizard.lisp - wizard-commands
-Copyright (c) 2002 - Stig Erik Sandø
+Copyright (c) 2002-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,8 +14,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
-
-(setf *current-key-table* *ang-keys*)
+;; (setf *current-key-table* *ang-keys*)
 
 (defun van-obj-printer (file obj)
   (let ((var-obj *variant*))
@@ -222,48 +221,60 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'show-objects
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
-	  (let ((obj-list (get-object-list))
-	    	;;(var-obj *variant*)
-		)
+	(let ((objs (get-object-list))
+	      (win (aref *windows* *map-frame*)))
+	  (clear-window win)
+	  (loop for i from 0 
+		for obj in objs
+		for row = (mod i (window.height win))
+		do
+		(progn
+		  (output-string! win 0 row +term-white+ (format nil "~d" (object.numeric-id obj)))
+		  (setf (window-coord win +foreground+ 4 row) (gfx-sym obj))
+		  (setf (window-coord win +foreground+ 5 row) (text-sym obj))
+		  (output-string! win 6 row +term-white+ (if (> (length (object.id obj)) 15)
+							     (subseq (object.id obj) 0 14)
+							     (object.id obj)))
+		  ;;(warn "did object ~s" obj)
+		  (loop for i from 0 below (window.width win)
+			do
+			(paint-coord win i row))
+		  (when (= row (1- (window.height win)))
+		    (read-one-character)
+		    (clear-window win))
+		  ))
+	  (refresh-window win)
+	  (pause-last-line!)
+	  )))
 
-	    (with-new-screen ()
-	      (c-term-clear!)
-
-	    (handler-case
-		(loop for obj in obj-list
-		      for i from 0
-		      for y from 1
-		      do
-
-		      (c_term_erase! 0 y 255)
-		      (put-coloured-str! +term-white+ (format nil "~d" i) 1 y)
-		      
-		      (let* ((flav (object.flavour obj))
-			     (the-attr (if flav (x-attr flav) (x-attr obj)))
-			     (the-char (if flav (x-char flav) (x-char obj))))
-
-			    (c-term-queue-char! 5 y the-attr the-char 0 0)
-			    
-			    (if (>= the-attr +graphics-start+)
-				(c-term-queue-char! 6 y -1 -1 0 0)
-				(c-term-queue-char! 6 y +term-white+ #.(char-code #\Space)
-						    +term-white+ #.(char-code #\Space))))
-		      
-		      (let ((attr (text-attr obj)))
-			(when (= attr +term-dark+)
-			  (setf attr +term-white+))
-			(put-coloured-str! attr (object.name obj) 9 y))
-		      
-		      (when (and (> i 5) (= 0 (mod i 20)))
-			(c-clear-from! (1+ y))
-			(setf y 0) ;; it's incf'ed
-			(pause-last-line!))
-		      )
-	      (error (co)
-		(warn "Erred ~s" co)))
-	    
-	    (c-term-clear!))
-	    )))
+(define-key-operation 'show-monsters
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
+	(let ((objs (get-monster-list *variant*))
+	      (win (aref *windows* *map-frame*)))
+	  (clear-window win)
+	  (loop for i from 0 
+		for obj in objs
+		for row = (mod i (window.height win))
+		do
+		(progn
+		  (output-string! win 0 row +term-white+ (format nil "~d" (monster.numeric-id obj)))
+		  (setf (window-coord win +foreground+ 4 row) (gfx-sym obj))
+		  (setf (window-coord win +foreground+ 5 row) (text-sym obj))
+		  (output-string! win 6 row +term-white+ (if (> (length (monster.id obj)) 15)
+							     (subseq (monster.id obj) 0 14)
+							     (monster.id obj)))
+		  ;;(warn "did object ~s" obj)
+		  (loop for i from 0 below (window.width win)
+			do
+			(paint-coord win i row))
+		  (when (= row (1- (window.height win)))
+		    (read-one-character)
+		    (clear-window win))
+		  ))
+	  (refresh-window win)
+	  (pause-last-line!)
+	  )))
 
 
 (define-key-operation 'dump-features
@@ -279,9 +290,12 @@ the Free Software Foundation; either version 2 of the License, or
 	       (coord-obj (cave-coord dungeon cur-x cur-y)))
 	  (warn "Describing [~a,~a]" cur-x cur-y)
 	  (describe coord-obj)
+	  #||
 	  (multiple-value-bind (the-attr the-char)
 	      (map-info dungeon cur-x cur-y)
-	    (warn "Mapped to (~s . ~s)" the-attr the-char)))))
+	    (warn "Mapped to (~s . ~s)" the-attr the-char))
+	  ||#
+	  )))
 
 (define-key-operation 'in-game-test
     #'(lambda (dungeon player)
@@ -397,11 +411,11 @@ the Free Software Foundation; either version 2 of the License, or
 	(block wizard-input 
 	  (let ((loc-table (gethash :wizard *current-key-table*)))
 	    (loop
-	     ;;	       (c-clear-from! 0)
-	     ;;	       (display-creature *variant* player)
+	     ;;	(clear-window *cur-win*)
+	     ;;	(display-creature *variant* player)
 	     (print-message! nil)
 	     (with-frame (+query-frame+)
-	       (c-prt! "Wizard command: " 0 0)
+	       (put-coloured-line! +term-white+ "Wizard command: " 0 0)
 
 	       (let* ((ch (read-one-character))
 		      (fun (check-keypress loc-table ch)))
@@ -423,34 +437,3 @@ the Free Software Foundation; either version 2 of the License, or
 	(declare (ignore dungeon))
 	  (with-dialogue ()
 	    (activate-conversation "alfred" player nil))))
-
-
-;; Ctrl-A
-(define-keypress *ang-keys* :global (code-char 1) 'wizard-menu)
-
-
-
-;; wizard stuff
-
-(define-keypress *ang-keys* :wizard #\B 'break-game)
-(define-keypress *ang-keys* :wizard #\D 'go-to-depth)
-(define-keypress *ang-keys* :wizard #\G 'set-gold)
-(define-keypress *ang-keys* :wizard #\H 'heal-player)
-(define-keypress *ang-keys* :wizard #\I 'inspect-coord)
-(define-keypress *ang-keys* :wizard #\J 'jump-to-test-level)
-(define-keypress *ang-keys* :wizard #\K 'print-keys)
-(define-keypress *ang-keys* :wizard #\L 'gain-level) 
-(define-keypress *ang-keys* :wizard #\O 'object-create)
-;;(define-keypress *ang-keys* :wizard #\P 'print-map-as-ppm)
-(define-keypress *ang-keys* :wizard #\S 'send-spell)
-;;(define-keypress *ang-keys* :wizard #\T 'print-map)
-(define-keypress *ang-keys* :wizard #\U 'summon)
-(define-keypress *ang-keys* :wizard #\W 'print-odd-info)
-(define-keypress *ang-keys* :wizard #\Z 'in-game-test)
-
-(define-keypress *ang-keys* :wizard #\d 'deliver-damage)
-(define-keypress *ang-keys* :wizard #\l 'load-vanilla)
-(define-keypress *ang-keys* :wizard #\m 'dump-monsters)
-;;(define-keypress *ang-keys* :wizard #\o 'dump-objects)
-(define-keypress *ang-keys* :wizard #\s 'show-objects)
-(define-keypress *ang-keys* :wizard #\t 'dummy-conversation)

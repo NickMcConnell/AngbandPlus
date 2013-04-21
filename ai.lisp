@@ -3,7 +3,7 @@
 #|
 
 DESC: ai.lisp - the game's "intelligence"
-Copyright (c) 2002 - Stig Erik Sandø
+Copyright (c) 2002-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -80,7 +80,7 @@ order to get from monster to player."
 	)
 	
     
-    (declare (type u-16b mx my))
+    (declare (type u16b mx my))
 
     ;;; first check sleep
     (when (plusp (get-attribute-value '<sleeping> temp-attrs))
@@ -181,7 +181,7 @@ order to get from monster to player."
     ;; skip 'remove fear'
     t))
 	    
-
+#||
 (defun process-monsters& (dungeon player needed-energy)
   "Tries to do something nasty to all the monsters."
   
@@ -191,7 +191,7 @@ order to get from monster to player."
 ;;	  (get-creature-speed m) needed-energy)
     
     (when (>= (get-creature-energy mon) needed-energy)
-      ;; we deduct before we do things to be sure, improve  later
+      ;; we deduct before we do things to be sure, improve later
       (decf (get-creature-energy mon) +energy-normal-action+)
       
       (let ((mx (location-x mon))
@@ -205,4 +205,4 @@ order to get from monster to player."
 	))
     
     nil))
-
+||#

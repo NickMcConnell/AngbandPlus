@@ -3,7 +3,7 @@
 #|
 
 DESC: project.lisp - code for doing projections
-Copyright (c) 2001-2002 - Stig Erik Sandø
+Copyright (c) 2001-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
+(defconstant +draw-delay+ 25) ;; hackish, remove later
 
 (defun project-path (dungeon max-range path-array x1 y1 x2 y2 flag)
   "Tries to project a path from (x1,y1) to (x2,y2)."
@@ -115,6 +116,38 @@ the Free Software Foundation; either version 2 of the License, or
 	    )
       )))
 
+
+(defun is-legal-target? (dungeon target)
+  (and target
+       (typep target 'target)
+       (if (typep (target.obj target) 'active-monster)
+	   (creature-alive? (target.obj target))
+	   t)
+			    
+       (projectable? dungeon
+		     (location-x *player*) (location-y *player*)
+		     (target.x target) (target.y target))))
+
+;; rename later
+(defun %get-dest-coords (source destination &optional (mult-factor 1))
+  "Returns dest-x and dest-y for given destination."
+
+  (let ((dest-x nil)
+	(dest-y nil)
+	(check-target (or (= destination 5) (typep destination 'target))))
+    
+    (cond ((and check-target (is-legal-target? *dungeon* (player.target source)))
+	   (let ((target (player.target source)))
+	     (setf dest-x (target.x target)
+		   dest-y (target.y target))))
+	  (t
+	   (setf dest-x (+ (* mult-factor (aref *ddx* destination)) (location-x source))
+		 dest-y (+ (* mult-factor (aref *ddy* destination)) (location-y source)))
+	   ))
+    
+    (values dest-x dest-y)))
+
+
 (defun projectable? (dungeon x1 y1 x2 y2)
   "Is it projectable from (x1,y1) to (x2,y2)"
   
@@ -132,82 +165,27 @@ the Free Software Foundation; either version 2 of the License, or
 	  t)))))
 
 
-(defun display-moving-object (dungeon x y obj-char obj-attr)
+(defun display-moving-object (dungeon x y text-sym gfx-sym)
   "Prints the OBJ-CHAR with OBJ-ATTR at given coordinates with proper delay."
-  (print-relative! dungeon x y obj-char obj-attr)
-  (put-cursor-relative! dungeon x y)
-  (c-term-fresh!)
-  (org.langband.ffi:c-term-xtra& 13 50) ;; 50 msec delay
-  (light-spot! dungeon x y)
-  (c-term-fresh!))
+;;  (warn "reimplement moving-object (~s,~s) ~s ~s" x y text-sym gfx-sym)
+
+  (multiple-value-bind (rx ry)
+      (get-relative-coords x y)
+    (when (and rx ry)
+      (let* ((window (aref *windows* *map-frame*))
+	     (sym (if (window.gfx-tiles? window) gfx-sym text-sym)))
+	
+	(setf (window-coord window +effect+ rx ry) sym)
+	(paint-coord window rx ry)
+	(refresh-window window)
+	(delay +draw-delay+)
+	(light-spot! dungeon x y) ;; clear up
+	))))
 
 
-(defmethod missile-hit-creature? ((attacker player) (target active-monster) missile-weapon missile)
-;;  (declare (ignore missile-weapon missile))
-  
-  (let ((num (random 100)))
-    (when (< num 10)
-      ;; instant hit and miss 5%
-      (return-from missile-hit-creature? (< num 5)))
-
-  
-    (let* ((bonus (+ 0 (gval.tohit-modifier (aobj.game-values missile-weapon))
-		     (gval.tohit-modifier (aobj.game-values missile))))
-	   (chance (+ (skills.shooting (player.skills attacker)) (* 3 bonus))) ;; hack
-	   (dist (distance (location-x attacker) (location-y attacker)
-			   (location-x target) (location-y target)))
-	   (red-chance (- chance dist))
-	   (target-ac (get-creature-ac target))
-	   )
-
-      ;; fix invisible later
-      #+never
-      (warn "chance to hit is ~s on ac ~s" red-chance target-ac)
-      
-      (when (and (plusp red-chance)
-		 (>= (random red-chance) (int-/ (* 3 target-ac) 4)))
-	(return-from missile-hit-creature? t))
-      
-      nil)))
-
-
-(defmethod missile-inflict-damage! ((attacker player) (target active-monster) missile-weapon missile)
-  (declare (ignore missile-weapon missile))
-  (deduct-hp! target (roll-dice 2 4)))
-
-
-
-;;(trace project-path)
-#+never
-(defun project-hack (dungeon player)
-  "a hack"
-  (let* ((pvx (location-x player))
-	 (pvy (location-y player))
-	 (tx (+ 5 pvx))
-	 (ty (+ 4 pvy))
-	 (path-arr (make-array 40 :fill-pointer 0))
-	 (miss-char #\-)
-	 (miss-attr +term-l-blue+)
-	 )
-
-    (let ((path-len (project-path dungeon 18 path-arr pvx pvy tx ty 0))
-;;	  (lst '())
-	  )
-;;      (warn "len from ~s to ~s with ~s is ~s" (cons pvx pvy) (cons tx ty) path-arr path-len)
-      (declare (ignore path-len))
-
-      (loop for g across path-arr
-	    do
-	    (let ((x (grid-x g))
-		  (y (grid-y g)))
-;;	      (push (cons x y) lst)
-	      (display-moving-object dungeon x y miss-char miss-attr)
-	      ))
-
-;;      (warn "did ~s" lst)
-      nil)))
-
-(defmethod do-projection (source target-x target-y flag &key (effect nil) (damage 0) (radius 0) (range +max-range+))
+(defmethod do-projection (source target-x target-y flag &key
+				 (effect nil) (projected-object nil)
+				 (damage 0) (radius 0) (range +max-range+))
 
   
   (let ((source-x (location-x source))
@@ -218,7 +196,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(drawn-beam nil) ;; have we drawn anything?
 	(drawn-blast nil) ;; have we drawn anything?
 	(blind-player nil) ;; fix
-	(draw-delay 50)
+	(draw-delay +draw-delay+)
 	(start-x 0) ;; start-coordinate
 	(start-y 0) ;; start-coordinate
 	(dest-x 0)
@@ -279,8 +257,8 @@ the Free Software Foundation; either version 2 of the License, or
 	    for i from 0 to (1- path-len)
 	    do
 
-	    (let* (;;(old-x cur-x)
-		   ;;(old-y cur-y)
+	    (let* ((old-x cur-x)
+		   (old-y cur-y)
 		   (new-g (aref path-arr i))
 		   (new-x (grid-x new-g))
 		   (new-y (grid-y new-g)))
@@ -301,10 +279,26 @@ the Free Software Foundation; either version 2 of the License, or
 
 		(cond ((and (panel-contains? player cur-x cur-y)
 			    (player-has-los-bold? dungeon cur-x cur-y))
-		       (display-moving-object dungeon cur-x cur-y #\* +term-red+)
-		       (setf drawn-beam t))
+
+		       (let ((gfx-sym (tile-paint-value 4 48)) ;; hack
+			     (text-sym (text-paint-value +term-red+ #\*)) ;; hack
+			     (diff-x (- cur-x old-x))
+			     (diff-y (- cur-y old-y)))
+			 
+			 (when-bind (vis (get-visual-projectile projected-object))
+			   (setf gfx-sym (aref (projectile.gfx-path vis)
+					       (get-direction-from-diff diff-x diff-y)))
+			   (setf text-sym (aref (projectile.text-path vis)
+						(get-direction-from-diff diff-x diff-y))))
+			 
+			 (display-moving-object dungeon cur-x cur-y
+						text-sym gfx-sym)
+			 
+			 
+			 (setf drawn-beam t)))
 		      (drawn-beam
 		       ;; add delay
+		       (warn "beam ~s ~s" cur-x cur-y)
 		       )))
 		
 			    
@@ -364,23 +358,42 @@ the Free Software Foundation; either version 2 of the License, or
 
 	(loop for i from 0 to radius
 	      do
-	      (let ((cur-val (aref explosion-area i)))
+	      (let ((cur-val (aref explosion-area i))
+		    (window (aref *windows* *map-frame*)))
 		(when (consp cur-val)
 		  (dolist (j cur-val)
 		    (let ((loc-x (grid-x j))
 			  (loc-y (grid-y j)))
 		      (when (and (panel-contains? player loc-x loc-y)
 				 (player-has-los-bold? dungeon loc-x loc-y))
+			;;(warn "ball at ~s,~s" loc-x loc-y)
+			(let ((gfx-sym (tile-paint-value 4 60)) ;; hack
+			      (text-sym (text-paint-value +term-red+ #\*))) ;; hack
+			  
+			 (when-bind (vis (get-visual-projectile projected-object))
+			   (when (plusp (projectile.gfx-explosion vis))
+			     (setf gfx-sym (projectile.gfx-explosion vis)))
+			   (when (plusp (projectile.text-explosion vis))
+			     (setf text-sym (projectile.text-explosion vis))))
+
+			 (multiple-value-bind (rx ry)
+			     (get-relative-coords loc-x loc-y)
+			   (when (and rx ry)
+			     (setf (window-coord window +effect+ rx ry) gfx-sym) ;; fix
+			     (paint-coord window rx ry))))
+
 			(setf drawn-blast t)
-			(print-relative! dungeon loc-x loc-y #\* +term-red+))
+			;; FIX add a real draw-call here
+			;;(print-relative! dungeon loc-x loc-y #\* +term-red+)
+			)
 		      )))
-		(put-cursor-relative! dungeon dest-x dest-y)
-		(c-term-fresh!)
+		;;(put-cursor-relative! dungeon dest-x dest-y)
+		(refresh-window *map-frame*)
 		(when (or drawn-blast drawn-beam)
-		  (org.langband.ffi:c-term-xtra& 13 draw-delay) 
+		  (delay draw-delay) 
 		  )
 ;;		(light-spot! dungeon x y)
-;;		(c-term-fresh!)
+;;		(refresh-window)
 		))
 
 	(when drawn-blast
@@ -398,7 +411,7 @@ the Free Software Foundation; either version 2 of the License, or
 		  ))
 	
 	  (put-cursor-relative! dungeon dest-x dest-y)
-	  (c-term-fresh!)
+	  (refresh-window *map-frame*)
 	  ))
 
       (setf notice (apply-projection-effect! *variant* source path-arr :explosion-area explosion-area

@@ -153,13 +153,18 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
     table))
  
 
-(defmethod get-monster-kind ((variant variant) id)
-  "Returns monster-kind or nil.  I think this one is quite limited."
-  (assert (or (stringp id) (symbolp id)))
-  (let ((table (get-mkind-table variant *level*))
-	(key (if (symbolp id) (symbol-name id) id)))
-;;    (warn "htbl has test ~a" (hash-table-test table))
-    (gethash key table)))
+(defmethod get-monster-kind ((variant variant) mon)
+  "Returns monster-kind or nil for a variant (not level dependent.  I think this one is quite limited."
+  (etypecase mon
+    (symbol (gethash (symbol-name mon) (variant.monsters variant)))
+    (string (gethash mon (variant.monsters variant)))
+    (integer (block foo
+	       (loop for x being the hash-values of (variant.monsters variant)
+		     do
+		     (when (eql mon (monster.numeric-id x))
+		       (return-from foo x))
+		     ))
+	     )))
 
 
 (defmethod convert-obj (attacks (to (eql :attk-list)) &key)
@@ -243,9 +248,29 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
       
       drops))
 
+(defun update-monster-display (mon &key x-attr x-char text-attr text-char)
+
+  (let ((m-obj (if (typep mon 'monster-kind)
+		    mon
+		    (get-monster-kind *variant* mon))))
+
+    (unless m-obj
+      (warn "unable to find monster ~s" mon)
+      (return-from update-monster-display nil))
+
+    (check-type m-obj monster-kind)
+
+    (handle-gfx-visual m-obj x-attr x-char)
+    (handle-text-visual m-obj text-attr text-char)
+
+    m-obj))
+
+    
 
 (defun define-monster-kind (id name &key desc x-char x-attr
+			    gfx-sym
 			    (text-char :unspec) (text-attr :unspec)
+			    text-sym
 			    alignment (type :unspec)
 			    numeric-id depth ;;level
 			    rarity hitpoints armour
@@ -262,6 +287,7 @@ the *VARIANT* object so it has to be properly initialised."
 ;;  (lang-warn "Creating monster ~a [~a]" name id)
 
 ;;  (declare (ignore appear-in-group?))
+  (declare (ignore text-sym gfx-sym))
   
   (assert (or (stringp id) (symbolp id)))
   (assert (stringp name))
@@ -284,30 +310,10 @@ the *VARIANT* object so it has to be properly initialised."
 	(setf (monster.desc m-obj) desc)
 	(warn "No description for monster ~a found" id))
 
-    (when x-char
-      (setf (x-char m-obj) (etypecase x-char
-			     (character (char-code x-char))
-			     (number x-char))))
-    (when x-attr
-      (setf (x-attr m-obj) (etypecase x-attr
-			     (number x-attr)
-			     (character (convert-obj x-attr :colour-code))
-			     )))
-    
-    (cond ((eq text-attr :unspec)
-	   (setf (text-attr m-obj) (x-attr m-obj)))
-	  (t
-	   (setf (text-attr m-obj) (etypecase text-attr
-				     (character (convert-obj text-attr :colour-code))
-				     (number (charify-number text-attr))))))
-    
-    (cond ((eq text-char :unspec)
-	   (setf (text-char m-obj) (x-char m-obj)))
-	  (t
-	   (setf (text-char m-obj) (etypecase text-char
-				     (character (char-code text-char))
-				     (number text-char)))))
+	  
+    (update-monster-display m-obj :x-attr x-attr :x-char x-char :text-attr text-attr :text-char text-char)
 
+    
     (when xp
       (setf (monster.xp m-obj) xp))
     (when speed

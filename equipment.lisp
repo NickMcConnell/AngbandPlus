@@ -3,7 +3,7 @@
 #|
 
 DESC: equipment.lisp - code for any equipment in all containers.
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -196,7 +196,7 @@ the Free Software Foundation; either version 2 of the License, or
 	     (let ((attr (get-text-colour val))
 		   (desc (with-output-to-string (s)
 			   (write-obj-description *variant* val s))))
-	       (c-prt! "" (- x 2) (+ i y))
+	       (put-coloured-line! +term-white+ "" (- x 2) (+ i y))
 	       (put-coloured-str! +term-white+ (format nil "~a) " (i2a key)) x (+ i y))
 	       (put-coloured-str! attr desc (+ x 4) (+ i y))
 	       (incf i))))
@@ -392,7 +392,7 @@ to variant obj."
 		   (desc (if val (with-output-to-string (s)
 				   (write-obj-description *variant* val s))
 			     "(nothing)")))
-	       (c-prt! "" (- x 2) (+ i y))
+	       (put-coloured-line! +term-white+ "" (- x 2) (+ i y))
 	       (put-coloured-str! +term-white+ (format nil "~a) ~13a : " (i2a key)
 						       (worn-item-slot-desc (aref slot-info i)))
 				  x (+ i y))

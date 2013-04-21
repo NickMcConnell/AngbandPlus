@@ -1,6 +1,16 @@
 #ifndef LB_WINDOWS_H
 #define LB_WINDOWS_H
 
+/*
+ * DESC: lbwindows.h - the windowing system for langband on the C-side
+ * Copyright (c) 2000-2002 - Stig Erik Sandø
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ */
+
 #include "langband.h"
 
 // authority on these is constants.lisp and this list
@@ -23,12 +33,12 @@
 
 typedef enum { ACTIVE = 0, PREDEFINED = 1} FrameType;
 
-typedef term angband_zterm;
+//typedef term angband_zterm;
 
 
 struct LangbandFrame {
 
-    angband_zterm *azt;
+//    angband_zterm *azt;
         
     char *name; // name of frame
     int key; // the key (for othe rlookups) for the frame
@@ -55,28 +65,10 @@ struct LangbandFrame {
     void *ui_connection; // pointer to a struct with information for an ui
 
     char *fontname; /* maybe only used by some UIs */
-    char *backgroundfile;
-    
-    /* hooks also available to the main-xxx.c */
+    //char *backgroundfile;
 
-    void (*init_hook)(term *t);
-    void (*nuke_hook)(term *t);
-    
-    errr (*user_hook)(int n); /* perhaps this useless function will be used */
-    errr (*xtra_hook)(int n, int v);
-    errr (*curs_hook)(int x, int y);
-    errr (*wipe_hook)(int x, int y, int n);
-    errr (*text_hook)(int x, int y, int n, s16b a, const s16b *s);
-    
-    errr (*pict_hook)(int x, int y, int n, const s16b *ap, const s16b *cp, const s16b *tap, const s16b *tcp);
+    int background;
 
-        // never use!
-//    Uint32 width, height, bpp, flags; 
-    /* XXX width, height, bpp, and flags are only used to provide hints to 
-     * Term_init_sdl(). Consider them write-only values!
-     * If you need  to read the actual window dimensions, use
-     * face->w, face->h, and face->format
-     */
 
 };
 
@@ -97,8 +89,9 @@ INTERFACE int has_frame(int key, FrameType ft);
 
 INTERFACE int add_frame(int key, const char *name);
 INTERFACE int add_frame_coords(int key, int x, int y, int w, int h);
-INTERFACE int add_frame_tileinfo(int key, int tw, int th, const char *font, const char *bg);
+INTERFACE int add_frame_tileinfo(int key, int tw, int th, const char *font);
 INTERFACE int add_frame_gfxinfo(int key, int use_tiles);
+INTERFACE int add_frame_bg(int key, int img_idx);
 INTERFACE int activate_frame(int key);
 INTERFACE int deactivate_frame(int key);
 INTERFACE int clean_frame(int key);

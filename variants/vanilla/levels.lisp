@@ -40,31 +40,29 @@ the Free Software Foundation; either version 2 of the License, or
 	(desc-line 3)
 	(last-line (get-last-console-line)))
 
-    (c-clear-from! 0) ;; hack
+    (clear-window *cur-win*) ;; hack
 
-    (with-foreign-str (s)
-      (lb-format s "~a" store-name)
-      (put-coloured-str! +term-yellow+ s left-col 1))
-      
-      (put-coloured-str! +term-white+ "Item Description" 3 desc-line)
-      (put-coloured-str! +term-white+ "Weight" 60 desc-line)
-;;      (put-coloured-str! +term-white+ "Price" 72 line)
-      
-      ;; should have max here too
-      
-      (item-table-print (house.items home) :store nil :start-y (+ 2 desc-line))
+    (put-coloured-str! +term-yellow+ (format nil "~a" store-name) left-col 1)
+  
+    (put-coloured-str! +term-white+ "Item Description" 3 desc-line)
+    (put-coloured-str! +term-white+ "Weight" 60 desc-line)
+    ;;      (put-coloured-str! +term-white+ "Price" 72 line)
+    
+    ;; should have max here too
+    
+    (item-table-print (house.items home) :store nil :start-y (+ 2 desc-line))
 
-      ;; make these relative to last line
-      (put-coloured-str! +term-yellow+ "ESC" 1 last-line)
-      (put-coloured-str! +term-white+ ") Exit from building." 4 last-line)
-      (put-coloured-str! +term-yellow+ "g" 31 last-line)
-      (put-coloured-str! +term-white+ ") Get item." 32 last-line)
-      (put-coloured-str! +term-yellow+ "d" 51 last-line)
-      (put-coloured-str! +term-white+ ") Drop item." 52 last-line)
-      
-      (put-coloured-str! +term-l-red+ "You may: " 0 (- last-line 1))
-   
-      t))
+    ;; make these relative to last line
+    (put-coloured-str! +term-yellow+ "ESC" 1 last-line)
+    (put-coloured-str! +term-white+ ") Exit from building." 4 last-line)
+    (put-coloured-str! +term-yellow+ "g" 31 last-line)
+    (put-coloured-str! +term-white+ ") Get item." 32 last-line)
+    (put-coloured-str! +term-yellow+ "d" 51 last-line)
+    (put-coloured-str! +term-white+ ") Drop item." 52 last-line)
+    
+    (put-coloured-str! +term-l-red+ "You may: " 0 (- last-line 1))
+    
+    t))
 
 (defun %home-input-loop (player level home)
   (let ((dungeon (level.dungeon level)))
@@ -110,7 +108,8 @@ the Free Software Foundation; either version 2 of the License, or
 		 ))))
 
       (loop
-       (c-term-gotoxy! 10 21)       
+       ;; should depend on size, ...
+       (set-cursor-to *cur-win* :input 10 21)       
        (let ((val (read-one-character)))
 	 (cond ((or (eql val #\g)
 		    (eql val #\p))
@@ -130,7 +129,7 @@ the Free Software Foundation; either version 2 of the License, or
 	       (t
 		(warn "Unknown key read: ~s" val)))
 	 
-	 ;;     (c-prt! "" 0 0)
+	 ;;     (put-coloured-line! +term-white+ "" 0 0)
 	 )))
     )))
  
@@ -143,7 +142,7 @@ the Free Software Foundation; either version 2 of the License, or
   
   (let ((player *player*))
     (with-dialogue ()
-      (clear-the-screen!)
+      (clear-window *cur-win*)
       (display-house player house :offset 0)
       (%home-input-loop player level house))
       ))
@@ -175,8 +174,8 @@ part of the new level."
 		  (dungeon (create-dungeon max-dungeon-width
 					   max-dungeon-height
 					   :its-depth 0))
-		  ;;(term-height (get-term-height *map-frame*))
-		  ;;(term-width (get-term-width *map-frame*))
+		  ;;(term-height (get-frame-height *map-frame*))
+		  ;;(term-width (get-frame-width *map-frame*))
 		  (town-height 22)
 		  (town-width 66)
 		  (qy 0)

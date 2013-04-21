@@ -3,16 +3,17 @@
 # what gui environments do you want (only SDL, WIN and GCU supported)
 # To use SDL on Win, simply say WIN
 
-ENVIRONMENTS=GCU SDL
+#ENVIRONMENTS=GCU SDL
 #ENVIRONMENTS=GCU
-#ENVIRONMENTS=SDL
+ENVIRONMENTS=SDL
 #ENVIRONMENTS=WIN
 
 ## ---- End simple customisation
 
 CC = gcc
-BASEOBJS = z-rand.o z-term.o z-util.o z-virt.o collected.o \
-frame.o variable.o util.o lisp_if.o 
+#BASEOBJS = z-rand.o z-term.o z-util.o z-virt.o collected.o \
+#frame.o variable.o util.o lisp_if.o
+BASEOBJS = collected.o frame.o lisp_if.o
 UIOBJS=
 UIDEFINES=
 UIFLAGS=

@@ -257,6 +257,38 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
   new-obj)
 
+(defmethod initialise-object-kind! ((var-obj vanilla-variant) (new-obj object-kind/ammo) keyword-args)
+
+  (call-next-method)
+  
+  (when-bind (e-t (getf keyword-args :visual-effect))
+    ;; get effect-type
+    (when-bind (lookup (gethash e-t (variant.visual-effects var-obj)))
+      (setf (object.effect-type new-obj) lookup)))
+
+  new-obj)
+
+(defmethod initialise-object-kind! ((var-obj vanilla-variant) (new-obj object-kind/spellbook) keyword-args)
+
+  (call-next-method)
+
+  (let ((spells (getf keyword-args :spells)))
+    (when (consp spells)
+      (let ((book (create-spellbook (object.name new-obj) (object.id new-obj) spells)))
+	(register-spellbook& var-obj book))))
+
+  new-obj)
+
+(defmethod initialise-object-kind! ((var-obj vanilla-variant) (new-obj object-kind/prayerbook) keyword-args)
+
+  (call-next-method)
+
+  (let ((spells (getf keyword-args :spells)))
+    (when (consp spells)
+      (let ((book (create-spellbook (object.name new-obj) (object.id new-obj) spells)))
+	(register-spellbook& var-obj book))))
+
+  new-obj)
 
 (defmethod initialise-object-kind! ((var-obj vanilla-variant) (new-obj object-kind/bow) keyword-args)
 
@@ -269,6 +301,46 @@ the Free Software Foundation	 ; either version 2 of the License, or
       (setf (object.multiplier new-obj) multiplier)))
 
   new-obj)
+
+
+(defmethod get-visual-projectile ((obj active-object/wand))
+  (object.effect-type (aobj.kind obj)))
+
+(defmethod get-visual-projectile ((obj active-object/rod))
+  (object.effect-type (aobj.kind obj)))
+
+(defmethod get-visual-projectile ((obj active-object/ammo))
+  (object.effect-type (aobj.kind obj)))
+
+
+(defmethod initialise-object-kind! ((var-obj vanilla-variant) (new-obj object-kind/wand) keyword-args)
+
+  (call-next-method)
+
+  (when-bind (e-t (getf keyword-args :effect-type))
+    (unless (is-legal-effect-type? e-t)
+      (warn "Uknown effect-type ~s for object ~s" e-t new-obj))
+    ;; get effect-type
+    (when-bind (lookup (gethash e-t (variant.visual-effects var-obj)))
+      
+      (setf (object.effect-type new-obj) lookup)))
+
+  new-obj)
+
+(defmethod initialise-object-kind! ((var-obj vanilla-variant) (new-obj object-kind/rod) keyword-args)
+
+  (call-next-method)
+
+  (when-bind (e-t (getf keyword-args :effect-type))
+    (unless (is-legal-effect-type? e-t)
+      (warn "Uknown effect-type ~s for object ~s" e-t new-obj))
+    ;; get effect-type
+    (when-bind (lookup (gethash e-t (variant.visual-effects var-obj)))
+      
+      (setf (object.effect-type new-obj) lookup)))
+
+  new-obj)
+
 
 (defmethod get-charge-status ((obj active-object))
   nil)

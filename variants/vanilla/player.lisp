@@ -56,61 +56,61 @@ the Free Software Foundation; either version 2 of the License, or
 	(gender-sym (gender.symbol (player.gender player))))
 
     (cond  ((and (eq race-sym '<human>) (eq gender-sym '<male>))
-	    "male-human-warrior.png")
+	    "people/male-human-warrior.png")
 	   ((and (eq race-sym '<human>) (eq gender-sym '<female>))
-	    "female-human-bard.png")
+	    "people/female-human-bard.png")
 	   
 	   ((and (eq race-sym '<gnome>) (eq gender-sym '<male>))
-	    "male-gnome-rogue.png")
+	    "people/male-gnome-rogue.png")
 	   ((and (eq race-sym '<gnome>) (eq gender-sym '<female>))
-	    "female-gnome-bard.png")
+	    "people/female-gnome-bard.png")
 	   
 	   ((and (eq race-sym '<dwarf>) (eq gender-sym '<male>))
-	    "male-dwarf-warrior.png")
+	    "people/male-dwarf-warrior.png")
 	   ((and (eq race-sym '<dwarf>) (eq gender-sym '<female>))
-	    "female-dwarf-warrior.png")
+	    "people/female-dwarf-warrior.png")
 	   
 	   ((and (eq race-sym '<elf>) (eq gender-sym '<male>))
-	    "male-elf-warrior.png")
+	    "people/male-elf-warrior.png")
 	   ((and (eq race-sym '<elf>) (eq gender-sym '<female>))
-	    "female-elf-rogue.png")
+	    "people/female-elf-rogue.png")
 	   
 	   ((and (eq race-sym '<half-elf>) (eq gender-sym '<male>))
-	    "male-halfelf-ranger.png")
+	    "people/male-halfelf-ranger.png")
 	   ((and (eq race-sym '<half-elf>) (eq gender-sym '<female>))
-	    "female-halfelf-ranger.png")
+	    "people/female-halfelf-ranger.png")
 	   
 	   ((and (eq race-sym '<hobbit>) (eq gender-sym '<male>))
-	    "male-hobbit.png")
+	    "people/male-hobbit.png")
 	   ((and (eq race-sym '<hobbit>) (eq gender-sym '<female>))
-	    "female-hobbit-bard.png")
+	    "people/female-hobbit-bard.png")
 	   
 	   ((and (eq race-sym '<high-elf>) (eq gender-sym '<male>))
-	    "male-highelf-mage.png")
+	    "people/male-highelf-mage.png")
 	   ((and (eq race-sym '<high-elf>) (eq gender-sym '<female>))
-	    "female-highelf-ranger.png")
+	    "people/female-highelf-ranger.png")
 
 	   ;; fix these later
 	   ((and (eq race-sym '<dunedan>) (eq gender-sym '<male>))
-	    "male-human-warrior.png")
+	    "people/male-human-warrior.png")
 	   ((and (eq race-sym '<dunedan>) (eq gender-sym '<female>))
-	    "female-human-bard.png")
+	    "people/female-human-bard.png")
 	   
 	   ((and (eq race-sym '<half-orc>) (eq gender-sym '<male>))
-	    "male-halforc-ranger.png")
+	    "people/male-halforc-ranger.png")
 	   ((and (eq race-sym '<half-orc>) (eq gender-sym '<female>))
-	    "female-halforc-rogue.png")
+	    "people/female-halforc-rogue.png")
 	   
 	   ((and (eq race-sym '<half-troll>) (eq gender-sym '<male>))
-	    "male-halftroll-warrior.png")
+	    "people/male-halftroll-warrior.png")
 	   ((and (eq race-sym '<half-troll>) (eq gender-sym '<female>))
-	    "male-halftroll-warrior.png")
+	    "people/male-halftroll-warrior.png")
 
 	   (t
 	    (warn "Unable to find suitable picture for ~s ~s ~s, falls back to a male gnome."
 		 gender-sym race-sym class-sym)
 	    ;; default
-	    "male-gnome-rogue.png"))))
+	    "people/male-gnome-rogue.png"))))
 
   
 (defmethod get-missile-weapon ((crt player))
@@ -1107,4 +1107,8 @@ the Free Software Foundation; either version 2 of the License, or
 	     nil))
       )))
 
- 
+(defmethod gain-level! ((variant vanilla-variant) player)
+
+  (bit-flag-add! *redraw* +print-study+)
+  
+  (call-next-method))

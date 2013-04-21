@@ -3,7 +3,7 @@
 #|
 
 DESC: base.lisp - basic code for the rest of the game
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,13 +18,16 @@ the Free Software Foundation; either version 2 of the License, or
   ;; 28 bits
   (deftype u-fixnum () '(unsigned-byte 28))
   ;; 16 bits
-  (deftype u-16b () '(unsigned-byte 16))
-;;  (deftype vinfo-bit-type () `(unsigned-byte 32))
+  (deftype u16b () '(unsigned-byte 16))
+  (deftype u24b () '(unsigned-byte 24))
+  (deftype u32b () '(unsigned-byte 32))
+
+  ;;  (deftype vinfo-bit-type () `(unsigned-byte 32))
   (deftype vinfo-bit-type () `(unsigned-byte 16))
 
   (deftype =char-code= ()
     #+handle-char-as-num
-    'u-16b
+    'u16b
     #-handle-char-as-num
     'character
     )
@@ -93,12 +96,20 @@ throughout dungeon-generation")
 (defvar *hitpoint-warning* 3
   "Value in [0..9] of when to warn about hitpoint-losses")
 
+;; must change
+(defvar *cur-win* nil "Pointer to the currently active window.
+Should not be altered directly.")
+
+(defvar *input-event* nil "An input-event that can be reused to avoid
+consing up a new one.")
+
+
 (defvar *obj-type-mappings* (make-hash-table :test #'eq)
   "keeps track of mapping from key to object-types, used by factories.")
 
-(defvar *engine-version* "0.1.2" "A version specifier that can be used for
+(defvar *engine-version* "0.1.3" "A version specifier that can be used for
 display and listings, not useful for internal code.")
-(defvar *engine-num-version* 121 "A numeric version for the engine that can
+(defvar *engine-num-version* 122 "A numeric version for the engine that can
 be used by internal code.  It will typically be incremented with every
 non-compatible change, so when connecting a variant to the engine, this is
 the number you should look at. It's quick to compare against and it's unambigious.")
@@ -167,23 +178,6 @@ but optimized for vectors."
                        stuff)))
         ((null next-pos) (nreverse stuff)))))
 
-;;; start queue-code
-(defun make-queue ()
-  (cons nil nil))
-
-(defun queue-as-list (q)
-  (car q))
-
-(defun enqueue (obj q)
-  (if (null (car q))
-      (setf (cdr q) (setf (car q) (list obj)))
-      (setf (cdr (cdr q)) (list obj)
-	    (cdr q) (cdr (cdr q))))
-  (car q))
-
-(defun dequeue (q)
-  (pop (car q)))
-;;; end queue-code
 
 (defmacro charify-number (num)
   #+handle-char-as-num
@@ -409,7 +403,7 @@ and NIL if unsuccesful."
     
     (with-output-to-string (s)
       (loop for x across str
-	  do 
+	    do 
 	    ;;(warn "checking ~s" x)
 	    (cond (backslashed
 		   (case x
@@ -498,116 +492,6 @@ cases.  Leaks memory, only use when testing."
   (format *error-output* "~&~a~%" (apply #'format nil format-string format-args)))
 
 
-;; remove these ones later:
-
-(defun-memo %get-4str (num)
-  (format nil "~4d" num))
-
-(defun-memo %get-13astr (val)
-  (format nil "~13@a" val))
-
-
-(defmacro with-foreign-str ((str-var) &body body)
-  `(let ((,str-var (org.langband.ffi::%get-fresh-str)))
-    (declare (type (array base-char (1024)) ,str-var))
-    ,@body))
-
-
-(defun %wr-str-to-dest (str dest)
-  "Writes to given string.  Returns number of chars written."
-
-  (let* ((cur (fill-pointer dest))
-	 (len (length str))
-	 (dest-len (array-dimension dest 0))
-	 (end-pos (+ cur len))
-	 (diff (- dest-len end-pos)))
-
-    (when (minusp diff)
-      (error "Too long string for destination..")) ;; fix later, an error will do now
-
-    (setf (fill-pointer dest) end-pos)
-    
-    (loop for c across str
-	  for i from cur
-	  do
-	  (setf (char dest i) c))
-    len))
-
-(defun %wr-char-to-dest (chr dest)
-
-;;  (describe dest)
-  (let ((cur (fill-pointer dest)))
-    (setf (fill-pointer dest) (1+ cur))
-    (setf (char dest cur) chr)
-    1))
-
-(defun %wr-int-to-dest (int dest)
-  "Borrowed and modified from CMUCL."
-  (let ((quotient ())
-        (remainder ()))
-    ;; Recurse until you have all the digits pushed on the stack.
-    (if (not (zerop (multiple-value-setq (quotient remainder)
-                      (truncate int *print-base*))))
-        (%wr-int-to-dest quotient dest))
-    ;; Then as each recursive call unwinds, turn the digit (in remainder) 
-    ;; into a character and output the character.
-    (%wr-char-to-dest (code-char (+ (char-code #\0) remainder)) dest)))
-
-
-(defun lb-format (dest format-str &rest args)
-  "Tries to format things right."
-
-  (flet ((output-int (arg)
-	   (let ((*print-base* 10))
-	     (cond ((< arg 0)
-		    (%wr-char-to-dest #\- dest)
-		    (%wr-int-to-dest (- arg) dest))
-		   (t					  
-		    (%wr-int-to-dest arg dest))))))
-	 
-    (cond ((not (stringp dest))
-	   (apply #'cl:format dest format-str args))
-	  (t
-	   (let ((last-char #\a)
-		 (arg-iter args))
-	     (loop for x across format-str
-		   do
-		   (cond ((eql last-char #\~)
-			  (ecase x
-			    (#\a (let ((arg (car arg-iter)))
-				   (etypecase arg
-				     (symbol
-				      (when (keywordp arg)
-					(%wr-char-to-dest #\: dest))
-				      (%wr-str-to-dest (symbol-name arg) dest))
-				     (integer
-				      (output-int arg))
-				    
-				     (string
-				      (%wr-str-to-dest arg dest))
-				     ;;(nil
-				     ;; (%wr-str-to-dest "nil" dest))
-				     )
-				   (setf arg-iter (cdr arg-iter))))
-			  
-			    (#\d (let ((arg (car arg-iter)))
-				   (etypecase arg
-				     (integer
-				      (output-int arg)))
-				   (setf arg-iter (cdr arg-iter))))
-			  
-			    (#\% (%wr-char-to-dest #\Newline dest))
-			    (#\~ (%wr-char-to-dest #\~ dest)))
-			  (setf last-char #\a);; dummy
-			  )
-			 (t
-			  (if (eql x #\~)
-			      nil
-			      (%wr-char-to-dest x dest))
-			  (setf last-char x)))
-		   )))
-	  )))
-
 (declaim (inline mystrcat))
 (defun mystrcat (x y)
   "Basically catenates strings and tries to stringify arguments to be sure"
@@ -639,3 +523,41 @@ symbol which can be passed to e.g defun (as name of function)."
            ))
     ))
 
+
+;; hackish, must be improved later 
+(defun text-paint-value (attr char)
+  (let ((num-val (etypecase char
+		   (character (char-code char))
+		   (integer char))))
+    (logior (dpb attr (byte 8 8) 0) num-val)))
+
+(defun tile-paint-value (file tile)
+  (logior (dpb file (byte 8 24) 0) (dpb tile (byte 16 8) 0)))
+
+#||
+(defmacro tile-number (num)
+  `(+ +graphics-start+ ,num))
+
+;; also support names!
+(defmacro tile-file (num)
+  `(+ +graphics-start+ ,num))
+||#
+#||
+(defmacro tile-number (num)
+  num)
+
+;; also support names!
+(defmacro tile-file (num)
+  num)
+||#
+
+;; put the tile-number in bits 9-24
+(defmacro tile-number (tile)
+  `(dpb ,tile (byte 16 8) 0))
+
+;; put the tile-file in bits 25-32
+(defmacro tile-file (file)
+  `(dpb ,file (byte 8 24) 0))
+
+(defmacro make-legal-attr (attr)
+  `(dpb ,attr (byte 8 8) 0))

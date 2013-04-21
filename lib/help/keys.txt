@@ -31,7 +31,7 @@ S - save game
 ? - show this help
 > - go downstairs
 < - go upstairs
-* - select target [not working]
+* - select target [also right mouse button]
 , - stand still
 . - toggle run-mode (also shift-arrowkey)
 

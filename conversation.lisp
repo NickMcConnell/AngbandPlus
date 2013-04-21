@@ -106,13 +106,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun display-conversation-node (node cparam)
   "Display a single conversation node and its conversation options (replies)."
-  (c-clear-from! 0)
+  (clear-window *cur-win*)
   ;; maybe perform something
   (maybe-perform (cnode.perform node) cparam)
   ;; display text
-  (let* ((row-offset (+ (c-print-text! 6 2 +term-l-blue+ (get-node-text node cparam)) 2))
+  (let* ((row-offset (+ (print-text! 6 2 +term-l-blue+ (get-node-text node cparam)) 2))
 	 (row row-offset)
-	 (picture "male-hobbit-rogue.png")
+	 (picture "people/male-hobbit-rogue.png")
 	 (col 3)
 	 (i -1)
 	 (code-a (char-code #\a))
@@ -123,8 +123,8 @@ the Free Software Foundation; either version 2 of the License, or
       ;; hackish, improve later
       (when (and picture (stringp picture))
 	(let ((pic-col (- (get-frame-width +dialogue-frame+) 20)))
-	  (%load-people-image picture 6 5)
-	  (%paint-people-image picture pic-col 1))))
+	  (paint-gfx-image& picture pic-col 1))))
+
 
     ;; assign characters to filtered options and display them
     (dolist (opt options)
@@ -133,7 +133,7 @@ the Free Software Foundation; either version 2 of the License, or
 	     (text (get-option-text opt cparam)))
 	;; assume that there are not too many options to fit the screen
 	(put-coloured-str! +term-white+ (format nil "~A." c) col row)
-	(setf row (1+ (c-print-text! 6 row +term-l-green+ text)))))
+	(setf row (1+ (print-text! 6 row +term-l-green+ text)))))
     ;; print prompt
     (put-coloured-str! +term-l-blue+ "-> Reply by pressing a key: " col (1+ row))
     ;; loop until we get a valid key

@@ -16,8 +16,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "slime-mold-juice" "slime mold juice"
   :numeric-id 222
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -34,8 +34,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "apple-juice" "apple juice"
   :numeric-id 223
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -53,8 +53,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "water" "water"
   :numeric-id 224
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -72,8 +72,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-str" "strength"
   :numeric-id 225
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -90,8 +90,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-reduce-str" "weakness"
   :numeric-id 226
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -108,8 +108,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-restore-str" "restore strength"
   :numeric-id 227
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -126,8 +126,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-int" "intelligence"
   :numeric-id 228
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -144,8 +144,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-reduce-int" "stupidity"
   :numeric-id 229
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -163,8 +163,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-restore-int" "restore intelligence"
   :numeric-id 230
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -181,8 +181,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-wis" "wisdom"
   :numeric-id 231
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -200,8 +200,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-reduce-wis" "naivety"
   :numeric-id 232
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -219,8 +219,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-restore-wis" "restore wisdom"
   :numeric-id 233
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -237,8 +237,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-chr" "charisma"
   :numeric-id 234
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -256,8 +256,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-reduce-chr" "ugliness"
   :numeric-id 235
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -275,8 +275,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-restore-chr" "restore charisma"
   :numeric-id 236
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 20
   :rarity 0
   :chance #(1 0 0 0)
@@ -293,8 +293,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-cure-light" "cure light wounds"
   :numeric-id 237
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 0
   :rarity 0
   :chance #(1 1 1 0)
@@ -316,8 +316,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-reduce-dex" "clumsiness"
   :numeric-id 238
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -334,8 +334,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-reduce-con" "sickliness"
   :numeric-id 239
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -353,8 +353,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-cure-serious" "cure serious wounds"
   :numeric-id 240
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -378,8 +378,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-cure-critical" "cure critical wounds"
   :numeric-id 241
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -408,8 +408,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-healing" "healing"
   :numeric-id 242
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 15
   :rarity 0
   :chance #(1 0 0 0)
@@ -437,8 +437,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-con" "constitution"
   :numeric-id 243
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -456,8 +456,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-xp" "experience"
   :numeric-id 244
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 65
   :rarity 0
   :chance #(1 0 0 0)
@@ -470,8 +470,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-sleep" "sleep"
   :numeric-id 245
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -489,8 +489,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-blindness" "blindness"
   :numeric-id 246
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -509,8 +509,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-confusion" "confusion"
   :numeric-id 247
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -529,8 +529,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-poison" "poison"
   :numeric-id 248
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -549,8 +549,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-speed" "speed"
   :numeric-id 249
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 1
   :rarity 0
   :chance #(1 1 0 0)
@@ -569,8 +569,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-slowness" "slowness"
   :numeric-id 250
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -587,8 +587,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-dex" "dexterity"
   :numeric-id 251
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 30
   :rarity 0
   :chance #(1 0 0 0)
@@ -606,8 +606,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-restore-dex" "restore dexterity"
   :numeric-id 252
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -624,8 +624,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-restore-con" "restore constitution"
   :numeric-id 253
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -642,8 +642,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-lose-memory" "lose memories"
   :numeric-id 254
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 10
   :rarity 0
   :chance #(1 0 0 0)
@@ -656,8 +656,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "salt-water" "salt water"
   :numeric-id 255
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 0
   :rarity 0
   :chance #(1 0 0 0)
@@ -670,8 +670,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-self-know" "enlightenment"
   :numeric-id 256
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -684,8 +684,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-heroism" "heroism"
   :numeric-id 257
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -706,8 +706,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-berserk" "berserk strength"
   :numeric-id 258
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -728,8 +728,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-boldness" "boldness"
   :numeric-id 259
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -746,8 +746,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-restore-xp" "restore life levels"
   :numeric-id 260
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 40
   :rarity 0
   :chance #(1 0 0 0)
@@ -760,8 +760,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-resist-heat" "resist heat"
   :numeric-id 261
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -779,8 +779,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-resist-cold" "resist cold"
   :numeric-id 262
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -797,8 +797,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-det-inv" "detect invisible"
   :numeric-id 263
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -816,8 +816,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-slow-poison" "slow poison"
   :numeric-id 264
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 1
   :rarity 0
   :chance #(1 0 0 0)
@@ -834,8 +834,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-cure-poison" "neutralize poison"
   :numeric-id 265
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 5
   :rarity 0
   :chance #(1 0 0 0)
@@ -852,8 +852,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-restore-mana" "restore mana"
   :numeric-id 266
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 25
   :rarity 0
   :chance #(1 0 0 0)
@@ -866,8 +866,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-infravision" "infravision"
   :numeric-id 267
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 3
   :rarity 0
   :chance #(1 0 0 0)
@@ -884,8 +884,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-death" "death"
   :numeric-id 415
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 55
   :rarity 0
   :chance #(4 0 0 0)
@@ -898,8 +898,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-ruination" "ruination"
   :numeric-id 416
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 40
   :rarity 0
   :chance #(8 0 0 0)
@@ -912,8 +912,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-detonations" "detonations"
   :numeric-id 417
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 60
   :rarity 0
   :chance #(8 0 0 0)
@@ -926,8 +926,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-augmentation" "augmentation"
   :numeric-id 418
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 40
   :rarity 0
   :chance #(16 0 0 0)
@@ -954,8 +954,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-*healing*" "*healing*"
   :numeric-id 419
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 40
   :rarity 0
   :chance #(4 0 0 0)
@@ -983,8 +983,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-life" "life"
   :numeric-id 420
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 60
   :rarity 0
   :chance #(4 0 0 0)
@@ -1020,8 +1020,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-self-knowledge" "self knowledge"
   :numeric-id 421
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 40
   :rarity 0
   :chance #(1 0 0 0)
@@ -1034,8 +1034,8 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (define-object-kind "potion-*enlightenment*" "*enlightenment*"
   :numeric-id 422
-  :x-attr #\d
-  :x-char #\!
+  :text-attr #\d
+  :text-char #\!
   :depth 70
   :rarity 0
   :chance #(4 0 0 0)

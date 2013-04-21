@@ -3,7 +3,7 @@
 #|
 
 DESC: combat.lisp - the combat-system
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -211,6 +211,7 @@ the Free Software Foundation; either version 2 of the License, or
   (format-message! "~a hits the ~a. " (get-creature-name attacker) (get-creature-name target))
   nil)
 
+
 (defmethod cmb-describe-death (attacker target)
   (declare (ignore attacker))
   (typecase target
@@ -220,6 +221,7 @@ the Free Software Foundation; either version 2 of the License, or
      (play-sound +sound-kill+)
      (format-message! "The ~a dies.. " (get-creature-name target))))
   nil)
+
 
 (defun attack-target! (dungeon attacker target x y the-attack)
 
@@ -273,3 +275,42 @@ the Free Software Foundation; either version 2 of the License, or
   (dolist (the-attack (monster.attacks mon))
     (when (and (creature-alive? mon) (creature-alive? player))
       (attack-target! dungeon mon player the-x the-y the-attack))))
+
+
+(defmethod missile-hit-creature? ((attacker player) (target active-monster) missile-weapon missile)
+  ;;  (declare (ignore missile-weapon missile))
+  
+  (let ((num (random 100)))
+    (when (< num 10)
+      ;; instant hit and miss 5%
+      (return-from missile-hit-creature? (< num 5)))
+
+    (let ((bonus 0))
+      (when-bind (gvals (aobj.game-values missile-weapon))
+	(incf bonus (gval.tohit-modifier gvals)))
+      (when-bind (gvals (aobj.game-values missile))
+	(incf bonus (gval.tohit-modifier gvals)))
+      
+    
+      ;; add bow modifiers back in
+      (let* ((chance (+ (skills.shooting (player.skills attacker)) (* 3 bonus))) ;; hack
+	     (dist (distance (location-x attacker) (location-y attacker)
+			     (location-x target) (location-y target)))
+	     (red-chance (- chance dist))
+	     (target-ac (get-creature-ac target))
+	     )
+
+	;; fix invisible later
+	#+never
+	(warn "chance to hit is ~s on ac ~s" red-chance target-ac)
+      
+	(when (and (plusp red-chance)
+		   (>= (random red-chance) (int-/ (* 3 target-ac) 4)))
+	  (return-from missile-hit-creature? t))
+      
+	nil))))
+
+;; override this in the variant code
+(defmethod missile-inflict-damage! ((attacker player) (target active-monster) missile-weapon missile)
+  (declare (ignore missile-weapon missile))
+  (deduct-hp! target (roll-dice 2 4)))
