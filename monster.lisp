@@ -33,7 +33,7 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
      (rarity :accessor monster.rarity :initform nil)
      (hitpoints :accessor monster.hitpoints :initform nil)
      (armour :accessor monster.armour :initform nil)
-     (speed :accessor monster.speed :initform nil)
+     (speed :accessor monster.speed :initform 0)
      (xp :accessor monster.xp :initform 0)
      (abilities :accessor monster.abilities :initform nil)
      ;;   (resists :accessor monster.resists :initform nil)
@@ -47,24 +47,44 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
      (special-abilities :accessor monster.sp-abilities :initform nil)
      )) 
 
-  (defclass attack ()
-    (
-     (kind :accessor attack.kind :initform nil)
-     (dmg-type :accessor attack.dmg-type :initform nil)
-     (damage :accessor attack.damage :initform nil)
-     ))
 
   )
+
+(defmethod has-ability? ((mon monster-kind) ability)
+  (dolist (i (monster.abilities mon))
+    (cond ((and (symbolp i) (eq ability i))
+	   (return-from has-ability? i))
+	  ((and (consp i) (eq (car i) ability))
+	   (return-from has-ability? i))))
+  nil)
+	  
+(defmethod has-ability? ((mon active-monster) ability)
+  (has-ability? (amon.kind mon) ability))
 
 (defun create-monster (id)
   "Returns an appropriate monster or NIL."
   (let ((kind (get-monster-kind id)))
     
     (when kind
-      (let ((amon (make-instance 'active-monster :kind kind)))
-	(setf (amon.cur-hp amon) 5)
-	;; blah
-	amon))))
+      (create-active-monster kind))))
+
+
+(defun create-active-monster (kind)
+  (assert (not (eq kind nil)))
+  (let ((amon (make-instance 'active-monster :kind kind))
+	(num-hitdice (car (monster.hitpoints kind)))
+	(hitdice (cdr (monster.hitpoints kind))))
+    
+    (if (has-ability? kind '<max-hitpoints>)
+	(setf (current-hp amon) (* num-hitdice hitdice))
+	(setf (current-hp amon) (roll-dice num-hitdice hitdice)))
+
+    (setf (get-creature-max-hp amon) (current-hp amon))
+    (setf (get-creature-speed amon) (monster.speed kind))
+;;    (warn "Monster ~a got ~a hp from ~a dice" (get-creature-name amon)
+;;	  (current-hp amon) (monster.hitpoints kind))
+    ;; blah
+    amon))
 
 (defun define-monster-kind (id name &key desc symbol colour
 			    alignment type level
@@ -114,8 +134,28 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
   inst))
 
 
-(defmethod monster.name ((mon active-monster))
-  (monster.name (amon.kind mon)))
+(defmethod get-xp-value ((creature active-monster))
+  (monster.xp (amon.kind creature)))
+
+(defmethod get-creature-name ((creature active-monster))
+  (monster.name (amon.kind creature)))
+
+(defmethod get-creature-ac ((creature active-monster))
+  (monster.armour (amon.kind creature)))
+
+
+(defmethod monster.name ((creature active-monster)) ;; remove eventually
+  (monster.name (amon.kind creature)))
+
+(defmethod get-creature-name ((creature player))
+  (player.name creature))
+
+(defmethod increase-xp! ((mon active-monster) amount)
+  (declare (ignore amount))
+  nil)
+
+(defmethod monster.attacks ((mon active-monster))
+  (monster.attacks (amon.kind mon)))
 
 (defun get-mkind-table ()
   (let* ((o-table (get-mtype-table *level* *variant*))
@@ -147,8 +187,6 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
   (let ((table (get-mkind-table)))
     (add-monster-kind-to-table! monster-kind id table)))
-
-
 
 
 (defmethod dump-object ((obj monster-kind) stream (style (eql :lispy)))

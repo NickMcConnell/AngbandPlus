@@ -353,6 +353,10 @@ ADD_DESC: Various code which just prints stuff somewhere
 		   (format nil "~12@a" (format nil "[~d,~@d]" (player.base-ac pl) (player.ac-bonus pl)))
 		   10 (1+ f-col))
 
+    (let ((weapon (get-weapon pl)))
+      nil)
+	  
+      
     (c-put-str! "Fight" 11 col)
     (c-col-put-str! +term-l-blue+ (%get-13astr "(+0,+0)")
 		   11 f-col)

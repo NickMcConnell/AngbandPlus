@@ -41,7 +41,7 @@ ADD_DESC: Simple code to access the dungeon object(s)
 
 
 (defun invoke-on-dungeon (dungeon fun)
-  "calls given FUN with four arguments:
+  "calls given FUN with three arguments:
 a COORD
 the X-coordinate of the COORD
 the Y-coordinate of the COORD
@@ -58,6 +58,20 @@ the Y-coordinate of the COORD
   "a WITH- construct.  parameters should be: (dungeon-variable (arg-names to INVOKE))."
 
  `(invoke-on-dungeon ,(car parameters) #'(lambda ,(cadr parameters) ,@code))) 
+
+(defun invoke-on-dungeon-monsters (dun fun)
+  "Calls FUN with TWO arguments:
+the dungeon object
+the monster
+"
+
+  (let ((monster-list (dungeon.monsters dun)))
+    (dolist (i monster-list)
+      (when (creature-alive? i)
+	(funcall fun dun i)))))
+	
+(defmacro with-dungeon-monsters ((dungeon-var monster-var) &body code)
+  `(invoke-on-dungeon-monsters ,dungeon-var #'(lambda (,dungeon-var ,monster-var) ,@code)))
 
 
 (defun create-dungeon (width height &key its-depth) 
@@ -132,6 +146,8 @@ the Y-coordinate of the COORD
 	      :element-type 'fixnum :initial-element 0))
 
 (defun cave-coord (dungeon x y)
+  (assert (and (< x (dungeon.width dungeon))
+	       (< y (dungeon.height dungeon))))
   (aref (dungeon.table dungeon) x y))
 
 (defun cave-feature (dungeon x y)
@@ -248,8 +264,13 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		  (setf ret-attr (feature.x-attr f-obj)
 			ret-char (feature.x-char f-obj))
 
-		    ;; do tricky handling here
-		    
+		  ;; do tricky handling here
+		  ;; torch-light
+		  (when (and (eql ret-attr +term-white+)
+			     (bit-flag-set? flags +cave-seen+)
+			     (not (bit-flag-set? flags +cave-glow+)))
+		    (setf ret-attr +term-yellow+))
+		  
 		  )
 
 		 
@@ -675,3 +696,24 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   (let ((trigger (get-coord-trigger dun x y)))
     (when (and trigger (consp trigger) (functionp (cdr trigger)))
       (funcall (cdr trigger) dun x y))))
+
+(defun put-cursor-relative! (dun x y)
+  "Tries to put the cursor relative to the window."
+  (declare (ignore dun))
+  
+  (let* ((pl *player*)
+	 (pwy (player.view-y pl)) 
+	 (ky (- y pwy))
+	 (pwx (player.view-x pl))
+	 (kx (- x pwx)))
+    
+    (when (and (<= 0 kx)
+               (<= 0 ky)
+               (< ky +screen-height+)
+               (< kx +screen-width+))
+
+      (c-term-gotoxy! (+ +start-column-of-map+ kx)
+		      (+ +start-row-of-map+ ky)))))
+
+
+	 

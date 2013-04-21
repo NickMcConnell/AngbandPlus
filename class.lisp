@@ -31,6 +31,7 @@ ADD_DESC: This file contains basics for dealing with character classes
      (abilities    :accessor class.abilities    :initform nil)
      (titles       :accessor class.titles       :initform nil)
      (starting-eq  :accessor class.start-eq     :initform nil)
+     (skills       :accessor class.skills       :initform nil)
      )
     (:documentation "Information about a character class.")))
 
@@ -66,7 +67,7 @@ ADD_DESC: This file contains basics for dealing with character classes
 	  collecting (gethash i table))))
 
 (defun define-class (id name &key desc xp-extra stat-changes abilities titles
-		     starting-equipment hit-dice)
+		     starting-equipment hit-dice skills)
   "Defines and establishes a class."
 
   (declare (ignore abilities))
@@ -81,8 +82,10 @@ ADD_DESC: This file contains basics for dealing with character classes
     (when xp-extra
       (setf (class.xp-extra my-class) xp-extra))
     (if stat-changes
-      (setf (class.stat-changes my-class) (build-stat-table-from-symlist stat-changes))
-      (setf (class.stat-changes my-class) #1A(0 0 0 0 0 0)))
+      (setf (class.stat-changes my-class)
+	    (build-stat-table-from-symlist stat-changes))
+      (setf (class.stat-changes my-class)
+	    #1A(0 0 0 0 0 0)))
 
     (when hit-dice
       (setf (class.hit-dice my-class) hit-dice))
@@ -92,6 +95,9 @@ ADD_DESC: This file contains basics for dealing with character classes
     (when starting-equipment
 ;;      (warn "Start-eq for ~a is ~a" name starting-equipment)
       (setf (class.start-eq my-class) starting-equipment))
+
+    (setf (class.skills my-class)
+	  (build-skills-obj-from-list *variant* skills))
     
     ;; adding it to the table
     (setf (get-char-class id) my-class)

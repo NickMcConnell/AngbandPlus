@@ -116,6 +116,10 @@ the rest of the game is init'ed."
 					  obj)
 				    t)))
 			    var-obj)
+
+  (van-init-skill-system var-obj)
+  (van-init-combat-system var-obj)
+  
   (let ((*load-verbose* nil))
     (load-variant-data& var-obj "defines")
     (load-variant-data& var-obj "races")
@@ -307,4 +311,32 @@ the rest of the game is init'ed."
 			      (91 . 7000);; priest spellbook
 			      (100 . 7100);; money
 			      )))
+
+(defun van-init-skill-system (var-obj)
+  "Tries to init all that deals with the skill-system."
+
+  ;; we more or less assume these to be complete as we use
+  ;; the CDR-values as a list of slots in several places
+  ;; in the code
+  (register-skill-translation& var-obj
+			       '((<disarming> . disarming)
+				 (<device> . device)
+				 (<saving-throw> . saving-throw)
+				 (<stealth> . stealth)
+				 (<search> . searching)
+				 (<perception> . perception)
+				 (<fighting> . fighting)
+				 (<shooting> . shooting))))
+
+(defun van-init-combat-system (var-obj)
+  "Tries to init all that deals with the combat-system."
+
+  (add-attk-desc var-obj '<beg> "begs you for money.")
+  (add-attk-desc var-obj '<touch> "touches you.")
+  (add-attk-desc var-obj '<claw> "claws you.")
+  (add-attk-desc var-obj '<bite> "bites you.")
+  (add-attk-desc var-obj '<sting> "stings you.")
+  (add-attk-desc var-obj '<drool> "drools on you.")
+  
+  )
 

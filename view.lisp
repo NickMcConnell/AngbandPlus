@@ -105,30 +105,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;(trace vinfo-init-aux)
 
-#-compiler-that-inlines
-(defmacro grid (x y)
-  `(the fixnum (+ (the fixnum (* 256 ,y)) ,x)))
-
-#+compiler-that-inlines
-(defun grid (x y)
-  (the fixnum (+ (* 256 y) x)))
-
-#-compiler-that-inlines
-(defmacro grid-y (g)
-  `(the fixnum (int-/ ,g 256)))
-
-#+compiler-that-inlines
-(defun grid-y (g)
-  (the fixnum (int-/ g 256)))
-
-#-compiler-that-inlines
-(defmacro grid-x (g)
-  `(the fixnum (prog1 (mod ,g 256))))
-
-#+compiler-that-inlines
-(defun grid-x (g)
-  (the fixnum (prog1 (mod g 256))))
-
 (defun vinfo-init ()
   "Inits the *vinfo* object."
   
@@ -311,7 +287,8 @@ the Free Software Foundation; either version 2 of the License, or
 (defun update-view! (dun pl)
   "Updates the view from the given player."
 
-  (declare (optimize (safety 0) (speed 3) (debug 0)))
+  (declare (optimize (safety 0) (speed 3) (debug 0)
+		     #+cmu (ext:inhibit-warnings 3)))
 
   (let* ((py (location-y pl))
 	 (px (location-x pl))
@@ -328,6 +305,11 @@ the Free Software Foundation; either version 2 of the License, or
     
 ;;    (declare (:explain :boxing))
 
+;;    (warn "Rad: ~a" radius)
+    
+    (when (> radius 0)
+      (incf radius))
+    
     (setf (fill-pointer fast-temp) 0)
     
     (flet ((add-coord-info (grid flag)
@@ -624,43 +606,102 @@ the Free Software Foundation; either version 2 of the License, or
     (setf (fill-pointer the-array) 0)))
 
 
-#||
-(defun %hidden-dump ()
+(defun project-path (dun range path-array x1 y1 x2 y2 flag)
+  "Tries to project a path from (x1,y1) to (x2,y2)."
+  (declare (optimize (safety 0) (speed 3) (debug 0)
+		     #+cmu (ext:inhibit-warnings 3)))
+	   
+
+  (declare (type fixnum x1 y1 y2 x2 flag range))
+		     
+  (when (and (= x1 x2)
+	     (= y1 y2))
+    (return-from project-path 0))
   
-;;    (let ((str *standard-output*))
-  (with-open-file (str (pathname "new-dump")
-		       :direction :output 
-		       :if-exists :supersede)
 
-      (loop for i from 0
-	    for x across *vinfo*
-;;	    until (> i 30)
+  (let ((ax 0) ;; absolute
+	(ay 0)
+	(sx 0) ;; offset
+	(sy 0))
 
-	    
-;;	    (format str "~d: x=~d y=~d d=~d r=~d~%"
-;;		    i
-;;		    (vinfo-type.x x)
-;;		    (vinfo-type.y x)
-;;		    (vinfo-type.d x)
-;;		    (vinfo-type.r x))
-	    do
-	    (format str "~3d: " i)
-	    (dotimes (i 4)
-	      (let ((val (* i 2)))
-		(format str "~16,'0b" (aref (vinfo-type.bits x) val))
-		(format str "~16,'0b " (aref (vinfo-type.bits x) (1+ val)))))
-	      
-	    (format str "~%")
+    (declare (type fixnum ax ay)
+	     (type fixnum sx sy))
+    
+    (if (< y2 y1)
+	(setq ay (the fixnum (- y1 y2))
+	      sy -1)
+	(setq ay (the fixnum (- y2 y1))
+	      sy 1))
+    (if (< x2 x1)
+	(setq ax (the fixnum (- x1 x2))
+	      sx -1)
+	(setq ax (the fixnum (- x2 x1))
+	      sx 1))
 
-;;	    (format str "~d: ~s~%" i (vinfo-type.bits x))
-;;	    (format str "~d: ~s~%" i (vinfo-type.grids x))
-;;	    (format str "~d: ~s~%" i (vinfo-type.d x))
-	    ))
-    )
-||#
-
-#||
-(in-package :cl-user)
-(defun kl ()
-  (lb::vinfo-init))
-||#
+    (flet ((go-direction (dir frac x y)
+	     (declare (type fixnum frac x y))
+	     (let* ((m (* frac 2))
+		    (len 0)
+		    (k 0)
+		    (half (the fixnum (* ay ax)))
+		    (full (the fixnum (* half 2))))
+	       
+	       (declare (type fixnum m len k half full))
+	       
+	       (loop
+		(vector-push (grid x y) path-array)
+		(incf len)
+		(when (eq dir :diagonal)
+		  (setq k len))
+		
+		(when (or (>= (+ len (int-/ k 2)) range)
+			  (and (not (bit-flag-set? flag +project-through+))
+			       (and (= x x2)
+				    (= y y2)))
+			  (and (> len 0)
+			       (not (cave-floor-bold? dun x y)))
+			  (and (bit-flag-set? flag +project-stop+)
+			       (and (> len 0)
+				    (cave-monsters dun x y))))
+		  (return-from go-direction len))
+		
+		(unless (= m 0)
+		  (assert (not (eq :diagonal dir)))
+		  (incf frac m)
+		  (when (>= frac half)
+		    (ecase dir
+			  (:vertical   (incf x sx))
+			  (:horisontal (incf y sy)))
+		    
+		    (decf frac full)
+		    (incf k)))
+		
+		(ecase dir
+		  (:vertical   (incf y sy))
+		  (:horisontal (incf x sx))
+		  (:diagonal (incf y sy)
+			     (incf x sx)))
+		)))
+	   
+	   )
+      
+      (cond ((> ay ax) ;; vertical
+	     (go-direction :vertical
+			   (the fixnum (* ax ax))
+			   x1
+			   (the fixnum (+ y1 sy))
+			   ))
+	    ((> ax ay) ;; horisontal
+	     (go-direction :horisontal
+			   (the fixnum (* ay ay))
+			   (the fixnum (+ x1 sx))
+			   y1
+			   ))
+	    (t	     
+	     (go-direction :diagonal
+			   0
+			   (the fixnum (+ x1 sx))
+			   (the fixnum (+ y1 sy))
+			   ))
+	    )
+      )))

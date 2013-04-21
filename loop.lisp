@@ -49,58 +49,278 @@ ADD_DESC: Most of the code which deals with the game loops.
     (update-view! dun pl))
   )
 
-(defun process-single-monster! (dun pl mon)
+
+
+
+(defun %possibly-move-monster! (dun pl mon)
   "Tries to process a single monster."
 
   (let ((mx (location-x mon))
 	(my (location-y mon))
-	(px (location-x pl))
-	(py (location-y pl))
-	)
+	(random-mover (has-ability? mon '<random-mover>)))
+
+    (when random-mover
+;;      (warn "~s is random.." mon)
+      (let ((how-often (second random-mover)))
+	(when (< (random 100) (* 100 how-often))
+	  ;;(warn "moving at random..")
+	  (return-from %possibly-move-monster! t))
+	))
+
+    (when (player-has-los-bold? dun mx my)
+    
+      (let ((px (location-x pl))
+	    (py (location-y pl))
+	    (proj-arr (make-array 40 :fill-pointer 0))
+	    )
 
 ;;    (lang-warn "Action for '~a' at (~s,~s)" (monster.name mon)
 ;;	       mx my)
-    
-    (when (player-has-los-bold? dun mx my)
-;;      (lang-warn "-> '~a' at (~s,~s) can see player at (~s,~s)"
-;;		 (monster.name mon) mx my px py)
-      ;; we can see the evil player..
-      )
 
     
-    ))
 
-(defun process-monsters& (dun pl)
-  "Tries to do something nasty to all the monsters."
+      (setf (fill-pointer proj-arr) 0)
+;;      (lang-warn "-> '~a' at (~s,~s) can see player at (~s,~s)" (get-creature-name mon) mx my px py)
+      (let ((res (project-path dun 18 proj-arr mx my px py 0)))
+;;	(warn "Project gave ~s -> ~s" res (loop for x across proj-arr collecting (cons (grid-x x) (grid-y x))))
+	(when (plusp res)
+	  (let* ((the-grid (aref proj-arr 0))
+		 (the-x (grid-x the-grid))
+		 (the-y (grid-y the-grid)))
+	    
+	    (cond ((and (= px the-x)
+			(= py the-y))
+		   ;; are we close enough to kill the character?
+		   (cmb-monster-attack! dun pl mon the-x the-y))
+		  (t
+		   (let ((legal-x nil)
+			 (legal-y nil)
+			 (project-legal-p (legal-move? dun mx my the-x the-y)))
 
-  (let ((monster-list (dungeon.monsters dun)))
-;;    (lang-warn "On turn ~a there is ~a monsters"
-;;	       (variant.turn *variant*) (length monster-list))
-    (dolist (i monster-list)
-      (when (amon.alive? i)
-	(process-single-monster! dun pl i)))
+		     (when project-legal-p
+		       (setq legal-x the-x
+			     legal-y the-y))
+
+		     (unless (and legal-x legal-y)
+		       (let ((sx (if (< px mx) -1 1))
+			     (sy (if (< py my) -1 1)))
+
+;;			 (warn "Unable to get legal move, trying fuzzy..")
+			 
+			 (cond ((legal-move? dun mx my (+ sx mx) my)
+				(setq legal-x (+ sx mx)
+				      legal-y my))
+			       ((legal-move? dun mx my mx (+ sy my))
+				(setq legal-x mx
+				      legal-y (+ sy my))))))
+
+		     (when (and legal-x legal-y)
+		       (swap-monsters! dun pl mx my legal-x legal-y))
+		     #||
+			 (progn
+			   (unless project-legal-p
+			     (warn "We're at [~s,~s,~a] wanted to go [~s,~s,~a] but went [~s,~s,~a] (~a <-> ~a)"
+				   mx my (cadr (multiple-value-list (map-info dun mx my)))
+				   the-x the-y (cadr (multiple-value-list (map-info dun the-x the-y)))
+				   legal-x legal-y (cadr (multiple-value-list (map-info dun legal-x legal-y)))
+				   res (distance mx my px py)))
+			   
+			   
+			 (warn "We're at [~s,~s,~a] wanted to go [~s,~s,~a] but went [~s,~s,~a] (~a <-> ~a)"
+			       mx my (cadr (multiple-value-list (map-info dun mx my)))
+			       the-x the-y (cadr (multiple-value-list (map-info dun the-x the-y)))
+			       legal-x legal-y nil ;;(cadr (multiple-value-list (map-info dun legal-x legal-y)))
+			       res (distance mx my px py)))
+			 ||#
+		     )))
+
+
+	   ))
+	))
+    )))
+
+
+(defun process-single-monster! (dun pl mon)
+
+  (let ((val (has-ability? mon '<never-move>)))
+    (if val
+	nil ;; no nothing
+	(%possibly-move-monster! dun pl mon))))
+
   
-    nil))
- 
+(defun legal-move? (dun x1 y1 x2 y2)
+  (declare (ignore x1 y1))
+  (if (cave-floor-bold? dun x2 y2)
+      t
+      nil))
+
+
+(defun process-monsters& (dun pl needed-energy)
+  "Tries to do something nasty to all the monsters."
+  
+  (with-dungeon-monsters (dun m)
+;;    (warn "Trying to process monster ~a with energy ~a and speed ~a -> will need ~a energy"
+;;	  (get-creature-name m) (get-creature-energy m)
+;;	  (get-creature-speed m) needed-energy)
+    (when (>= (get-creature-energy m) needed-energy)
+      ;; we deduct before we do things to be sure, improve  later
+      (decf (get-creature-energy m) +energy-normal-action+)
+      (process-single-monster! dun pl m)))
+  nil)
+
+
 (defun process-player! (dun pl)
   "processes the player in a given turn"
+
+  (loop named waste-energy
+	do
+	(put-cursor-relative! dun (location-x pl) (location-y pl))
+	;; assume no energy is used
+	(setf (player.energy-use pl) 0)
+	
+	;; skip paralysis/stun
+	;; skip resting
+	;; skip running
+	;; skip repeat
+	;; do normal command
+
+	(get-and-process-command! dun pl :global)
+	
+	
+	(when (plusp (player.energy-use pl))
+	  (decf (get-creature-energy pl) (player.energy-use pl)))
+
+	while (and (= 0 (player.energy-use pl))
+		   (not (player.leaving-p pl)))
+	))
+
+    
+	       
   
-  ;; fake stuff
-  (setf (player.energy pl) 110)
-  (setf (player.energy-use pl) 100)
+
+(defun regenerate-mana! (crt percent)
+  (declare (ignore crt percent))
+  nil)
+
+(defun regenerate-hp! (crt percent)
+  "Tries to regenerate the creature, and includes percent-chance."
   
-  ;; we need more energy maybe
-  (when (> 100 (player.energy pl))
-    (return-from process-player!))
+  (let* ((regen-base 1442)
+	 (old-hp (current-hp crt))
+	 (new-hp (+ (* (player.max-hp crt) percent) regen-base))
+	 (max-short 32767)
+	 (increase (int-/ new-hp (expt 2 16)))
+	 (new-frac (+ (player.fraction-hp crt)
+		      (logand new-hp #xffff)))
+	 )
 
+    (incf (current-hp crt) increase)
 
-  (while (<= 100 (player.energy pl))
-    (get-and-process-command! dun pl :global)
-    (when (player.energy-use pl)
-      (decf (player.energy pl) (player.energy-use pl)))
-  ))
+    (when (and (minusp (current-hp crt))
+	       (plusp old-hp))
+      (setf (current-hp crt) max-short))
 
+    (if (> new-frac #x10000)
+	(progn
+	  (setf (player.fraction-hp crt) (- new-frac #x10000))
+	  (incf (current-hp crt)))
+	(setf (player.fraction-hp crt) new-frac))
 
+    (when (>= (current-hp crt)
+	      (player.max-hp crt))
+      (setf (current-hp crt) (player.max-hp crt)
+	    (player.fraction-hp crt) 0))
+
+    (when (/= old-hp (current-hp crt))
+;;      (warn "Regenerated..")
+      (bit-flag-add! *redraw* +print-hp+))
+      
+    (current-hp crt)))
+
+;;(trace regenerate-hp!)
+
+(defun process-world& (dun pl)
+  "tries to process important world-stuff every 10 turns."
+
+  (let* ((var-obj *variant*)
+	 (the-turn (variant.turn var-obj))
+	 (lvl (dungeon.depth dun)))
+
+    (unless (= 0 (mod the-turn 10)) ;; every 10 turns only
+      (return-from process-world& nil))
+
+    ;; if in town fix lightning
+
+    (when (plusp lvl) ;; in dungeon
+      ;; shuffle stores
+      nil)
+
+    ;; possibly allocate new monster
+    ;; possible monster-regeration
+
+    ;; fix special damage
+
+    ;; check food
+
+    ;; possible regenerate
+    (let ((regen-amount 197))
+	  
+      ;; affect regen by food
+      ;; affect regen by abilities and items
+
+      (when (< (player.cur-mana pl)
+	       (player.max-mana pl))
+	(regenerate-mana! pl regen-amount))
+
+      ;; affected by condition
+
+      (when (< (player.cur-hp pl)
+	       (player.max-hp pl))
+	(regenerate-hp! pl regen-amount)))
+      
+
+    ;; do timeout'ing of effects
+    
+    ;; burn fuel when needed
+    
+    ;; drain xp
+    
+    ;; check for timeouts on equipment
+    
+    ;; recharge rods
+
+    ;; recharge things on the ground
+    
+    ;; random teleport/WoR
+
+    ))
+
+(defun energy-for-speed (crt)
+  (aref +energy-table+ (get-creature-speed crt)))
+			 
+
+(defun energise-creatures! (dun pl)
+
+  (incf (get-creature-energy pl) (energy-for-speed pl))
+
+  ;; boost all monsters
+  (with-dungeon-monsters (dun m)
+    (declare (ignore dun))
+    (incf (get-creature-energy m) (energy-for-speed m)))
+  
+  ;; can our dear player do anything?
+
+  (loop named player-fun
+	while (and (>= (get-creature-energy pl) +energy-normal-action+) ;; better solution?
+		   (not (player.leaving-p pl)))
+	do
+	(process-monsters& dun pl (1+ (get-creature-energy pl)))
+	
+	(unless (player.leaving-p pl)
+	  (process-player! dun pl)))
+  )
+
+  
 (defun run-level! (level pl)
   "a loop which runs a dungeon level"
 
@@ -147,18 +367,19 @@ ADD_DESC: Most of the code which deals with the game loops.
       (loop
        ;; postpone compact
 
-     
-       ;; do player
-       (update-player! pl)
-       (process-player! dun pl)
 
-       (process-monsters& dun pl)
+       (energise-creatures! dun pl)
+       ;; do player
+       (update-player! pl) ;; remove later
+
+       (process-monsters& dun pl +energy-normal-action+)
        ;; stuff
 
        (let ((leave-sym (player.leaving-p pl)))
 	 (when leave-sym
 	   (return-from run-level! leave-sym)))
        
+       (process-world& dun pl)
        ;; do other stuff
        ;; hack
        (verify-panel dun pl)
@@ -265,8 +486,10 @@ ADD_DESC: Most of the code which deals with the game loops.
       
       (save-current-environment&)
       (game-loop&))
-    
-    (c-prt! "Quitting..." 0 0)  
+
+    (if (and *player* (player.dead-p *player*))
+	(c-prt! "Oops.. you died.. " 0 0)
+	(c-prt! "Quitting..." 0 0))
     (c-pause-line! *last-console-line*)
     (c-quit! +c-null-value+)))
 

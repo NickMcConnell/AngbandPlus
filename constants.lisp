@@ -214,3 +214,40 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +ddy-ddd+ #1A(1 -1 0 0 1 1 -1 -1 0)
 	     "Global arrays for optimizing 'ddx[ddd[i]]'")
 
+
+(defconstant +project-jump+ #x01)
+(defconstant +project-beam+ #x02)
+(defconstant +project-through+ #x04)
+(defconstant +project-stop+ #x08)
+(defconstant +project-grid+ #x10)
+(defconstant +project-item+ #x20)
+(defconstant +project-kill+ #x40)
+(defconstant +project-hide+ #x80)
+
+(defconstant +energy-normal-action+ 100)
+
+(defconstant +energy-table+  #200(
+    1  1  1  1  1  1  1  1  1  1 ;; Slow
+    1  1  1  1  1  1  1  1  1  1 ;; Slow     
+    1  1  1  1  1  1  1  1  1  1 ;; Slow     
+    1  1  1  1  1  1  1  1  1  1 ;; Slow     
+    1  1  1  1  1  1  1  1  1  1 ;; Slow     
+    1  1  1  1  1  1  1  1  1  1 ;; Slow
+    1  1  1  1  1  1  1  1  1  1 ;; S -50
+    2  2  2  2  2  2  2  2  2  2 ;; S -40  
+    2  2  2  2  2  2  2  3  3  3 ;; S -30
+    3  3  3  3  3  4  4  4  4  4 ;; S -20
+    5  5  5  5  6  6  7  7  8  9 ;; S -10
+   10 11 12 13 14 15 16 17 18 19 ;; Normal
+   20 21 22 23 24 25 26 27 28 29 ;; F +10
+   30 31 32 33 34 35 36 36 37 37 ;; F +20
+   38 38 39 39 40 40 40 41 41 41 ;; F +30
+   42 42 42 43 43 43 44 44 44 44 ;; F +40
+   45 45 45 45 45 46 46 46 46 46 ;; F +50
+   47 47 47 47 47 48 48 48 48 48 ;; F +60
+   49 49 49 49 49 49 49 49 49 49 ;; F +70
+   49 49 49 49 49 49 49 49 49 49 ;; Fast
+   ))
+
+
+(defconstant +speed-base+ 110)

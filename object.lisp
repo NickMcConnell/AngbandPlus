@@ -161,41 +161,10 @@ ADD_DESC: available in the game.
   "Forwards to the right place.."
   (object.obj-type (aobj.kind obj)))
 
-(defmethod dump-object ((obj object-kind) stream (style (eql :lispy)))
-  "Dumps the object in a lispy-style which can be evaluated later.
-Loses information."
-  
-  (let ((clause `(define-object-kind
-		  ,(object.id obj)
-		  ,(object.name obj)
-		  :numeric-id ,(object.numeric-id obj)
-		  :x-attr ,(get-letter-from-colour-code (object.x-attr obj))
-		  :x-char ,(object.x-char obj)
-		  :level ,(object.level obj)
-		  :rarity ,(object.rarity obj)
-		  :chance ,(object.chance obj)
-		  :locale ,(object.locale obj)
-		  :weight ,(object.weight obj)
-		  :sort-value ,(object.sort-value obj)
-		  :cost ,(object.cost obj)
-		  :obj-type ,(symbolify (object.obj-type obj))
-		  )))
-		  
-    (pprint clause stream)))
 
-(defmethod print-object ((inst object-kind) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
-	   (object.name inst) (object.level inst)))
-  inst)
+(defmethod object.game-values ((obj active-object))
+  (object.game-values (aobj.kind obj)))
 
-(defmethod print-object ((inst active-object) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
-	   (aobj.kind inst))
-  inst))
 
 (defun obj-is? (obj type-to-check)
   "Checks if given object satisfies given type"
@@ -372,6 +341,43 @@ with k-info.txt numbers. NUM is the numeric id."
 	 )))
 
     tot-str))
+
+
+(defmethod dump-object ((obj object-kind) stream (style (eql :lispy)))
+  "Dumps the object in a lispy-style which can be evaluated later.
+Loses information."
+  
+  (let ((clause `(define-object-kind
+		  ,(object.id obj)
+		  ,(object.name obj)
+		  :numeric-id ,(object.numeric-id obj)
+		  :x-attr ,(get-letter-from-colour-code (object.x-attr obj))
+		  :x-char ,(object.x-char obj)
+		  :level ,(object.level obj)
+		  :rarity ,(object.rarity obj)
+		  :chance ,(object.chance obj)
+		  :locale ,(object.locale obj)
+		  :weight ,(object.weight obj)
+		  :sort-value ,(object.sort-value obj)
+		  :cost ,(object.cost obj)
+		  :obj-type ,(symbolify (object.obj-type obj))
+		  )))
+		  
+    (pprint clause stream)))
+
+(defmethod print-object ((inst object-kind) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
+	   (object.name inst) (object.level inst)))
+  inst)
+
+(defmethod print-object ((inst active-object) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+	   (aobj.kind inst))
+  inst))
 
 
 

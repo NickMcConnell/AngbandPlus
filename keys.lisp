@@ -77,23 +77,18 @@ operation."
 (defun get-and-process-command! (dun pl table)
   "remove me later"
 
-;;  (setq c-inkey-flag 1)
-  (let* ((table (gethash table *current-key-table*))
-;;	 (the-str (make-string 100))
-;;	 (retval (c-term-inkey& the-str 1 0))
-	 (ch (read-one-character))
-	 (fun (check-keypress table ch)))
+  (let ((loc-table (gethash table *current-key-table*)))
 
-;;    (warn "Got ~a" retval)
-    
-    (cond ((and fun (functionp fun))
-	   ;;(prof:with-profiling (:type :time)
-	     (funcall fun dun pl)
-	   ;;  )
-	   ;;(prof:show-flat-profile)
-	   )
-	  (t
-	   (warn "fell through key with ~a ~a" ch (char-code ch))))
+    (loop
+     (let* ((ch (read-one-character))
+	    (fun (check-keypress loc-table ch)))
+       
+       (cond ((and fun (functionp fun))
+	      (let ((retval (funcall fun dun pl)))
+		(return-from get-and-process-command! retval)))
+	     (t
+	      (warn "fell through key with ~a ~a" ch (char-code ch))))
+       ))
     ))
 
 (defun is-closed-door? (dun x y)
@@ -143,29 +138,4 @@ operation."
 			  #'string-lessp)))
 	(dolist (i sorted)
 	  (format s "~a~%" i))))))
-
-#||
-(defun key-test ()
-  (dotimes (i 5)
-    (print (c-read-some-key& 0 0))))
-
-  
-
-
-(defun define-keypress (where ang-key rogue-key function)
-  "Defines a keypress and creates the necessary tables"
-
-  (declare (ignore rogue-key))
-  
-  (let ((table (gethash where *keypress-tables* )))
-
-    (unless table
-      (setf table (make-hash-table))
-      (setf (gethash where *keypress-tables*) table))
-
-    ;; ignore rogue-keys
-    (setf (gethash ang-key table) function)
-
-    ang-key))
-||#
 

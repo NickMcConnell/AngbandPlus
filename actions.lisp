@@ -36,6 +36,7 @@ The direction is a number from the keypad."
       (1 (incf wanted-y) (decf wanted-x))
       (otherwise
        (warn "Unknown direction ~s" direction)
+       (return-from move-player! nil)
        ))
 
     #||
@@ -45,6 +46,8 @@ The direction is a number from the keypad."
 
     ||#
 
+    (setf (player.energy-use pl) +energy-normal-action+)
+    
     (let ((monsters (cave-monsters dun wanted-x wanted-y)))
 
       ;; monsters to attack
@@ -174,13 +177,16 @@ is above a stair.  DIR can be :UP or :DOWN"
        (setf leaving-sym :down-stair))
       
       (otherwise
-       (lang-warn "Unknown direction for stair-use ~a" dir)))
+       (lang-warn "Unknown direction for stair-use ~a" dir)
+       (return-from use-stair! nil)
+       ))
 
     (bit-flag-add! *redraw* +print-map+ +print-basic+)
     (bit-flag-add! *update* +update-view+)
     
-    (setf (player.depth pl) depth)
-    (setf (dungeon.depth dun) depth)
+    (setf (player.depth pl) depth
+	  (player.energy-use pl) +energy-normal-action+ 
+	  (dungeon.depth dun) depth)
 
     
     (setf (player.leaving-p pl) leaving-sym)
@@ -279,7 +285,8 @@ a list if more items occupy the same place."
 			 (item-table-add! (get-item-table dun pl :floor)
 					  retval))))
 		    (t
-		     ;; succesful and nothing returned.. do nothing
+		     ;; succesful and nothing returned.. do nothing, except waste energy
+		     (setf (player.energy-use pl) +energy-normal-action+)
 		     ))
 		    
 	      ))

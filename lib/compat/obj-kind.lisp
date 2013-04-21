@@ -17,6 +17,9 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun compat-read-obj-kind& (fname)
   "not finished"
+  #+cmu
+  (declare (optimize (ext:inhibit-warnings 3)))
+  
   (with-open-file (in-str (pathname fname)
 			  :direction :input)
 
@@ -335,15 +338,21 @@ the Free Software Foundation; either version 2 of the License, or
 			      
 			      (let ((gval (ensure-gval!)))
 				(setf (gval.charges gval) patch-val)
-				(setq patch-val 0))
+				(setq patch-val 0)
 			      
-			      (case subtype-val
-				(0 (add-str-tval '<torch>))
-				(1 (add-str-tval '<lantern>))
-				(4 (add-str-tval '<phial>))
-				(5 (add-str-tval '<star>))
-				(6 (add-str-tval '<arkenstone>))
-				(otherwise (warn "Unknown subtype for light source ~a" subtype-val))))
+				(case subtype-val
+				  (0 (add-str-tval '<torch>)
+				     (setf (gval.light-radius gval) 1))
+				  (1 (add-str-tval '<lantern>)
+				     (setf (gval.light-radius gval) 2))
+				  (4 (add-str-tval '<phial>)
+				     (setf (gval.light-radius gval) 3))
+				  (5 (add-str-tval '<star>)
+				     (setf (gval.light-radius gval) 3))
+				  (6 (add-str-tval '<arkenstone>)
+				     (setf (gval.light-radius gval) 3))
+				  (otherwise (warn "Unknown subtype for light source ~a" subtype-val))
+				  )))
 		       
 			 (40  (add-str-tval '<neckwear>)
 			      (case subtype-val
@@ -622,7 +631,16 @@ the Free Software Foundation; either version 2 of the License, or
 			      
 				(otherwise (warn "Unknown subtype for potion ~a" subtype-val))))
 		       
-			 (77  (add-str-tval '<flask>))
+			 (77  (add-str-tval '<flask>)
+			      
+			      (case subtype-val
+				(0 (add-str-tval '<oil>)
+				   (when (> patch-val 0)
+				     (let ((gval (ensure-gval!)))
+				       (setf (gval.charges gval) patch-val)
+				       (setq patch-val 0))))
+				(otherwise (warn "Unknown subtype for flask ~a" subtype-val))))
+
 			 (80  (add-str-tval '<food>)
 			      ;; food value?
 			      (when (> patch-val 0)

@@ -77,12 +77,16 @@ the Free Software Foundation; either version 2 of the License, or
       (setf (location-x pl) to-x
 	    (location-y pl) to-y))
 	     
-    
     (when mon-1
-      (warn "mon-1"))
+      (dolist (i mon-1)
+	(setf (location-x i) to-x
+	      (location-y i) to-y)))
 
     (when mon-2
-      (warn "mon-2"))
+      (dolist (i mon-2)
+	(setf (location-x i) to-x
+	      (location-y i) to-y)))
+
     
     (light-spot! dun from-x from-y)
     (light-spot! dun to-x to-y)))
@@ -137,8 +141,5 @@ the Free Software Foundation; either version 2 of the License, or
 (defun get-monster-by-level (level)
   "Returns an (active) object by level.  Returns NIL on failure."
   (let ((the-kind (get-monster-kind-by-level level)))
-    (if (not the-kind)
-	nil
-	(let ((a (make-instance 'active-monster :obj the-kind)))
-	  (setf (amon.cur-hp a) 5)
-	  a))))
+    (when the-kind
+      (create-active-monster the-kind))))

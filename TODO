@@ -1,0 +1,67 @@
+THINGS TO DO
+============
+
+This list is _very_ long at the moment even though it
+has been stripped down to what is needed to have a
+vanilla-complete engine/system.
+
+
+TRAPS
+ - not implemented
+
+SEARCHING
+ - not implemented
+
+SPELLS and MAGICAL ITEMS
+ - not implemented
+
+SAVE and LOAD
+ - not implemented
+
+HIGH-SCORE FILE
+ - not implemented
+
+VAULTS and FANCY ROOMS
+ - not implemented
+ - only simple rooms implemented
+
+ARTIFACTS and EGO-WEAPONS
+ - not implemented, not even primitive magical items
+
+MONSTERS
+ - extremely primitive AI, all monsters aggressive
+ - none of the behave as they really should
+ - does not carry items or use items
+ - no monster-memory
+
+COMBAT
+ - no missile/thrown weapons
+ - no special powers or bonuses used in combat
+ - missing proper descriptions for attacks (somewhat improved now)
+ - speed-system doesn't work, everyone has the same speed now.
+   [this is almost fixed now and should work for regular cases though]
+
+MOVING ABOUT
+ - not using light-radius properly [FIXED]
+ - no torch-charges used or oil wasted though :-)
+ - no running
+ - no stay still command [Maybe the key 5, stand-still is ok]
+ - no resting and no regeneration (simple regen for hits added)
+ - no map function
+
+SHOPS
+ - do not work yet
+
+CONTAINERS
+ - stacking doesn't work
+ - it doesn't understand that only one torch is used at a time. 
+
+COMMANDS
+ - no directed 'o'pen command
+ - no wizard-mode
+ - no 'D'estroy item command
+ - eating, drinking, etc not implemented
+ - no redraw of a screwed up screen
+
+BIRTH
+ - writing ones own name missing

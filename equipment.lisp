@@ -64,7 +64,7 @@ the table, the key and the object itself."))
 
 (defmethod item-table-add! (table obj &optional key)
   (declare (ignore obj key))
-  (warn "add not implemented for ~a" (type-of table)))
+  (error "add not implemented for ~a" (type-of table)))
 
 (defmethod item-table-remove! (table key)
   (declare (ignore key))
@@ -318,7 +318,8 @@ to variant obj."
 	  (symbol (get key 'arr-place))
 	  (t
 	   nil)))))
-  
+
+;;(trace %get-equip-key-as-num)
 
 
 (defmethod item-table-add! ((table items-worn) obj &optional key)

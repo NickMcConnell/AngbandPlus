@@ -84,13 +84,19 @@ the Free Software Foundation; either version 2 of the License, or
 	(c-quit! +c-null-value+)))
 
 (define-key-operation 'get-item
-    #'(lambda (dun pl) (pick-up-from-floor! dun pl)))
+    #'(lambda (dun pl)
+	(with-new-screen ()
+	  (pick-up-from-floor! dun pl))))
 
 (define-key-operation 'drop-item
-    #'(lambda (dun pl) (drop-something! dun pl)))
+    #'(lambda (dun pl)
+	(with-new-screen ()
+	  (drop-something! dun pl))))
 
 (define-key-operation 'wear-item
-    #'(lambda (dun pl) (wear-something! dun pl)))
+    #'(lambda (dun pl)
+	(with-new-screen ()
+	  (wear-something! dun pl))))
 
 ;; hackish
 (define-key-operation 'open-all
@@ -98,11 +104,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'print-map
     #'(lambda (dun pl)
-	(declare (ignore pl)) (print-map-to-file dun "./map.ascii")))
+	(declare (ignore pl))
+	(print-map-to-file dun "./map.ascii")))
 
 (define-key-operation 'print-map-as-ppm
     #'(lambda (dun pl)
-	(declare (ignore pl)) (print-map-as-ppm dun "./map.ppm")))
+	(declare (ignore pl))
+	(print-map-as-ppm dun "./map.ppm")))
 
 (define-key-operation 'halt-program
     #'(lambda (dun pl)

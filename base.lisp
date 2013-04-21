@@ -276,9 +276,18 @@ and NIL if unsuccesful."
 (defun parse-dice (str)
   "Parses a dice and returns a CONS with num-dice and base-dice."
   (let ((pos (position #\d str)))
-    (cons (subseq str 0 pos)
-	  (subseq str (1+ pos)))))
+    (cons (parse-integer (subseq str 0 pos))
+	  (parse-integer (subseq str (1+ pos))))))
 
+(defun roll-dice (number dice)
+  "Rolls dice numbber of times and returns the result."
+  (declare (type u-fixnum number dice))
+  (if (plusp number)
+      (loop for x from 1 to number
+	    summing (randint dice))
+      0))
+
+;;(trace roll-dice)
 
 (defmacro bit-flag-add! (loc &rest flags)
   "Same as 'loc |= flags', and uses LOGIOR."

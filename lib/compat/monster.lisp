@@ -88,7 +88,7 @@ the Free Software Foundation; either version 2 of the License, or
 		     ;; the second should be speed
 		     (setf (monster.speed cur-monster) (parse-integer (second res)))
 		     ;; the third should be hitpoints
-		     (setf (monster.hitpoints cur-monster) (third res))
+		     (setf (monster.hitpoints cur-monster) (parse-dice (third res)))
 		     ;; the fourth should be vision
 		     (setf (monster.vision cur-monster) (parse-integer (fourth res)))
 		     ;; the fifth is armour class
@@ -124,12 +124,21 @@ the Free Software Foundation; either version 2 of the License, or
 
 		     ;; the first should be B
 		     (assert (string-equal (first res) "b"))
+		     
 		     ;; the second is what kind
-		     (setf (attack.kind attk) (intern (concatenate 'string "<" (second res) ">")))
+		     (let ((the-kind (second res)))
+		       (when the-kind
+			 (setf (attack.kind attk) (intern (concatenate 'string "<" the-kind ">")))))
+		     
 		     ;; the third is damage type
-		     (setf (attack.dmg-type attk) (intern (concatenate 'string "<" (third res) ">")))
+		     (let ((dmg-type (third res)))
+		       (when dmg-type
+			 (setf (attack.dmg-type attk) (intern (concatenate 'string "<" dmg-type ">")))))
+		     
 		     ;; the fourth is damage
-		     (setf (attack.damage attk) (fourth res))
+		     (let ((the-dmg (fourth res)))
+		       (when the-dmg
+			 (setf (attack.damage attk) (parse-dice the-dmg))))
 
 		     (push attk (monster.attacks cur-monster))
 		     )))

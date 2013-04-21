@@ -23,9 +23,14 @@ ADD_DESC: classes and must be loaded late.
   "Returns item-table or NIL."
   
   (ecase which-table
-    (:floor (cave-objects dungeon 
-			  (location-x player)
-			  (location-y player)))
+    (:floor
+     (let* ((px (location-x player))
+	    (py (location-y player))
+	    (cur-objs (cave-objects dungeon px py)))
+       (unless cur-objs
+	 (setf cur-objs (make-floor-container))
+	 (setf (cave-objects dungeon px py) cur-objs))
+       cur-objs))
     (:backpack (aobj.contains (player.inventory player)))
     (:equip (player.eq player))))
 

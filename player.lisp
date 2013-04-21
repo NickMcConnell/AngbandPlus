@@ -39,23 +39,26 @@ the Free Software Foundation; either version 2 of the License, or
    (level     1)
    (max-level 1)
 
-   (xp-table  nil)
-   (max-xp    0)
-   (cur-xp    0)
+   (xp-table    nil)
+   (max-xp      0)
+   (cur-xp      0)
+   (fraction-xp 0) 
    
-   (hp-table  nil)
-   (max-hp    0)
-   (cur-hp    0)
+   (hp-table    nil)
+   (max-hp      0)
+   (cur-hp      0)
+   (fraction-hp 0)
 
-   (max-mana  0)
-   (cur-mana  0)
+   (max-mana      0)
+   (cur-mana      0)
+   (fraction-mana 0)
 
    
    (leaving-p nil)
 
-   (energy      nil)
-   (energy-use  nil)
-   (speed       nil)
+   (energy      0)
+   (energy-use  0)
+   (speed       +speed-base+)
 
    (base-ac      0)
    (ac-bonus     0)
@@ -93,24 +96,25 @@ the Free Software Foundation; either version 2 of the License, or
   (setf (player.loc-x obj) value))
 (defmethod (setf location-y) (value (obj player))
   (setf (player.loc-y obj) value))
+
+(defmethod current-hp ((crt player))
+  (player.cur-hp crt))
+
+(defmethod (setf current-hp) (value (crt player))
+  (setf (player.cur-hp crt) value))
   
+(defmethod creature-alive? ((crt player))
+  (not (player.dead-p crt)))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  ;; move this to variants later
-  (defclass skills ()
-    ((saving-throw :accessor skills.saving-throw  :initform 0)
-     (stealth      :accessor skills.stealth       :initform 0)
-     (fighting     :accessor skills.fighting      :initform 0)
-     (shooting     :accessor skills.shooting      :initform 0)
-     (disarming    :accessor skills.disarming     :initform 0)
-     (device       :accessor skills.device        :initform 0)
-     (perception   :accessor skills.perception    :initform 0)
-     (searching    :accessor skills.searching     :initform 0))
-    (:documentation "Various skills..")))
+(defmethod (setf creature-alive?) (value (crt player))
+  (setf (player.dead-p crt) (not value))
+  (when (eq value nil)
+    (setf (player.leaving-p crt) :dead)))
+    
 
-(defun make-skills ()
-  "Returns a skills object."
-  (make-instance 'skills))
+(defmethod get-xp-value ((crt player))
+  (* (player.level crt) 20))
+
 
 (defun get-race-name (player)
   "Returns a string with the name of the race."
@@ -124,6 +128,22 @@ the Free Software Foundation; either version 2 of the License, or
   "Returns a string with the name of the sex."
   (cadr (assoc (player.sex player) +sexes+)))
 
+(defmethod get-creature-ac ((crt player))
+  (+ (player.base-ac crt)
+     (player.ac-bonus crt)))
+
+(defmethod get-creature-energy ((crt player))
+  (player.energy crt))
+
+(defmethod (setf get-creature-energy) (val (crt player))
+;;  (when (< val (player.energy crt)) (warn "Reducing energy from ~a to ~a" (player.energy crt) val))
+  (setf (player.energy crt) val))
+
+(defmethod get-creature-speed ((crt player))
+  (player.speed crt))
+
+(defmethod (setf get-creature-speed) (val (crt player))
+  (setf (player.speed crt) val))
 
 (defun create-player-obj ()
   "Creates and returns a PLAYER object."
@@ -156,20 +176,10 @@ the Free Software Foundation; either version 2 of the License, or
 	   (make-and-assign-backpack! :backpack)))))
 
     ;; hack
-    (setf (player.light-radius t-p) 3)
+;;    (setf (player.light-radius t-p) 3)
     
     t-p))
  
-#||
-(defmethod print-object ((inst l-player) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~A ~A ~A]" (class-name (class-of inst))
-	   (player.name inst)
-	   (player.race inst)
-	   (player.class inst)))
-  inst)
-||#
 
 (defun get-stat-bonus (player stat-num)
   "Returns the stat-bonus from race, class and equipment for given stat"
@@ -218,6 +228,15 @@ the Free Software Foundation; either version 2 of the License, or
 (defun update-player! (player)
   "modifies player object appropriately"
 
+  ;; we start the show by reseting variables
+
+  ;; reset some key variables
+  (setf (player.base-ac player) 0
+	(player.ac-bonus player) 0
+	(player.light-radius player) 0
+	(player.speed player) +speed-base+)
+  
+  
   (let ((race (player.race player)))
   
     (dotimes (i +stat-length+)
@@ -237,24 +256,25 @@ the Free Software Foundation; either version 2 of the License, or
 	     #+cmu ;; FIX
 	     (warn "Unhandled racial ability ~a" (car i)))))))
 
-    ;; reset some key variables
-    (setf (player.base-ac player) 0
-	  (player.ac-bonus player) 0)
-	  
+
      
     ;; let us skim through items and update variables
     (let ((slots (player.eq player)))
-      (item-table-iterate! slots
-			   #'(lambda (table key obj)
-			       (declare (ignore table key))
-			       (when obj
-				 (let* ((kind (aobj.kind obj))
-					(gval (object.game-values kind)))
-				   (when gval
-				     (incf (player.base-ac player) (gval.base-ac gval))
-				     (incf (player.ac-bonus player) (gval.ac-bonus gval))))))
-      ))
+      (item-table-iterate!
+       slots
+       #'(lambda (table key obj)
+	   (declare (ignore table key))
+	   (when obj
+	     (let* ((kind (aobj.kind obj))
+		    (gval (object.game-values kind)))
+	       (when gval
+		 (when (> (gval.light-radius gval) (player.light-radius player))
+		   (setf (player.light-radius player) (gval.light-radius gval)))
+		 (incf (player.base-ac player) (gval.base-ac gval))
+		 (incf (player.ac-bonus player) (gval.ac-bonus gval))))))
+       ))
 
+    (update-skills! player (player.skills player))
     
     (bit-flag-add! *redraw* +print-basic+)
     
@@ -288,7 +308,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 
-(defun increase-xp! (player amount)
+(defmethod increase-xp! ((player player) amount)
   "increases xp for the player. update later."
 
   (incf (player.cur-xp player) amount)
@@ -316,3 +336,72 @@ the Free Software Foundation; either version 2 of the License, or
   (setf (aref (player.map player) x y) val)
   ;; more
   )
+
+
+(defmethod get-weapon ((crt player))
+  (let ((the-eq (player.eq crt)))
+    (assert (typep the-eq 'item-table))
+    (item-table-find the-eq 'eq.weapon)))
+
+
+(defun reset-skills! (variant skills-obj reset-val)
+  "Sets all skills to RESET-VAL."
+  (dolist (i (variant.skill-translations variant))
+    (setf (slot-value skills-obj (cdr i)) reset-val)))
+
+
+(defun update-skills! (player skills-obj)
+  "Recalculates and cleans up as needed."
+
+  (flet ((add-to-skill! (which the-skills-obj player-lvl source)
+	   (when source
+	     (let ((obj (slot-value source which)))
+	       (if (not obj)
+		   (warn "Skill-slot ~s does have NIL value, please fix." which)
+		   (incf (slot-value the-skills-obj which)
+			 (cond ((eq obj nil) 0)
+			       ((numberp obj) obj)
+				 ((skill-p obj)
+				  (+ (skill.base obj)
+				     (int-/ (* player-lvl (skill.lvl-gain obj))
+					    10)))
+				 (t
+				  (error "Unknown skill-obj ~a" obj)))))))))
+    
+  (let* ((var-obj *variant*)
+	 (race (player.race player))
+	 (the-class (player.class player))
+	 (racial-skills (race.skills race))
+	 (class-skills (class.skills the-class))
+	 (player-lvl (player.level player))
+	 (skill-list (variant.skill-translations var-obj)))
+    
+    ;; reset to value 0 first
+    (reset-skills! var-obj skills-obj 0)
+
+    (dolist (i skill-list)
+      
+      (add-to-skill! (cdr i)
+		     skills-obj
+		     player-lvl
+		     racial-skills)
+      (add-to-skill! (cdr i)
+		     skills-obj
+		     player-lvl
+		     class-skills))
+
+;;    (describe skills-obj)
+    
+    t)))
+
+
+#||
+(defmethod print-object ((inst l-player) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~A ~A ~A]" (class-name (class-of inst))
+	   (player.name inst)
+	   (player.race inst)
+	   (player.class inst)))
+  inst)
+||#

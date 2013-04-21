@@ -1,3 +1,40 @@
+2001-04-15  Stig E Sandø <stig@users.sourceforge.net>
+	* added more or less the same speed-system as in Angband, which
+	means that speed matters now.  Some actions have different
+	energy-use though
+	* added more generic functions to ensure that code for
+	monsters/player is more or less chared.
+	* ensured that the combat-system uses skill more or less
+	* added a WITH-DUNGEON-MONSTERS macro to simplify code
+	* improved WITH-NEW-SCREEN and use it in more places
+	* added support for monsters that never move and random movers.
+	* added primitive hp-regeneration
+	* tried optimising project-path slightly
+	* 
+	
+2001-04-14  Stig E Sandø <stig@users.sourceforge.net>
+	* added PROJECT-PATH and made all monsters move towards the player
+	to kill him off, which they can.. the town is tough right now.
+	* added a few generic functions to ensure somewhat general ways to
+	do combat between player and monsters, see combat.lisp
+	* fixed bug of monsters walking through walls and a shift-mistake
+	in view.lisp.  Added a fuzzy thing to make monsters move the right
+	way even if something blocks their view.
+	* added more lenient treatment of data when reading old-fashioned
+	monster-file, and also ensured that dice for objects and monsters
+	are parsed as such.
+	* fixed monster creation, now gets correct number of hit-points
+	* made attack-system use weapons and attacks from monster-file.
+	Normal weapon-damage used as well.  50% chance to hit for everyone
+	still.
+	* added dice-rolling function.. really really complex thing :-)
+	* started to add skills to the system.. a long trek with lots of
+	mistakes
+	* improved key-handling to not do anything stupid when a wrong key
+	is entered
+	* added skills to most races and classes
+	* minor edits..
+	
 2001-04-13  Stig E Sandø <stig@users.sourceforge.net>
 	* made generic functions LOCATION-X and LOCATION-Y to abstract
 	away details of various things location
@@ -10,7 +47,7 @@
 	avoid string-allocation.  added a couple of new C-functions for
 	this, and their FFI-declarations. 
 	* started to abstract somewhat on combat and started the long
-	track of monster-processing
+	trek of monster-processing
 	* Fixed buggy LOS from 16-bit change which also fixed an old bug
 	in my old code.. whaddayaknow.
 	* minor edits..

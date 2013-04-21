@@ -72,7 +72,7 @@ the Free Software Foundation; either version 2 of the License, or
      (sort-values    :accessor variant.sort-values
 		     :initform (make-hash-table :test #'eql)
 		     :initarg :sort-values)
-
+     
      (max-depth      :accessor variant.max-depth
 		     :initform 128
 		     :initarg :max-depth)
@@ -111,7 +111,15 @@ the Free Software Foundation; either version 2 of the License, or
      (house-owners :accessor variant.house-owners
 		   :initform (make-hash-table)
 		   :initarg :store-owners)
-		   
+
+     (skill-translations :accessor variant.skill-translations
+			 :initform nil
+			 :initarg :skill-translations)
+
+     (attk-descs :accessor variant.attk-descs
+		 :initform (make-hash-table :test #'eq)
+		 :initarg :attk-descs)
+     
 #||     
      (alloc-table-monsters :accessor variant.alloc-table-monsters
 			   :initarg :alloc-table-monsters

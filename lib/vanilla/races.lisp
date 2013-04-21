@@ -31,6 +31,15 @@ ADD_DESC: Contains definition of races in sexp.
   :stat-changes nil
   :abilities nil
   :classes t
+  :skills '((<disarming> 0 0)
+	    (<device> 0 0)
+	    (<saving-throw> 0 0)
+	    (<stealth> 0 0)
+	    (<search> 0 0)
+	    (<perception> 10 0)
+	    (<fighting> 0 0)
+	    (<shooting> 0 0))
+
   )
 
 (define-race '<half-elf> "Half-elf"
@@ -49,6 +58,16 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<infravision> 2)
 	       )
   :classes t
+  
+  :skills '((<disarming> 2 0)
+	    (<device> 3 0)
+	    (<saving-throw> 3 0)
+	    (<stealth> 1 0)
+	    (<search> 6 0)
+	    (<perception> 11 0)
+	    (<fighting> -1 0)
+	    (<shooting> 5 0))
+
   )
 
 (define-race '<elf> "Elf"
@@ -70,6 +89,16 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<infravision> 3)
 	       )
   :classes '(<paladin> <warrior> <mage>)
+
+  :skills '((<disarming> 5 0)
+	    (<device> 6 0)
+	    (<saving-throw> 6 0)
+	    (<stealth> 1 0)
+	    (<search> 8 0)
+	    (<perception> 12 0)
+	    (<fighting> -5 0)
+	    (<shooting> 15 0))
+
   )
 
 (define-race '<hobbit> "Hobbit"
@@ -92,6 +121,16 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<infravision> 4)
 	       )
   :classes '(<warrior>)
+  
+  :skills '((<disarming> 15 0)
+	    (<device> 18 0)
+	    (<saving-throw> 18 0)
+	    (<stealth> 4 0)
+	    (<search> 12 0)
+	    (<perception> 15 0)
+	    (<fighting> -10 0)
+	    (<shooting> 20 0))
+
   )
 
 (define-race '<gnome>  "Gnome"
@@ -116,6 +155,16 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<infravision> 4)
 	       )
   :classes '(<warrior>)
+  
+  :skills '((<disarming> 10 0)
+	    (<device> 12 0)
+	    (<saving-throw> 12 0)
+	    (<stealth> 3 0)
+	    (<search> 6 0)
+	    (<perception> 13 0)
+	    (<fighting> -8 0)
+	    (<shooting> 12 0))
+
   )
 
 (define-race '<dwarf> "Dwarf"
@@ -142,6 +191,16 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<infravision> 5)
 	       )
   :classes '(<warrior>)
+  
+  :skills '((<disarming> 2 0)
+	    (<device> 9 0)
+	    (<saving-throw> 9 0)
+	    (<stealth> -1 0)
+	    (<search> 7 0)
+	    (<perception> 10 0)
+	    (<fighting> 15 0)
+	    (<shooting> 0 0))
+  
   )
 
 (define-race '<half-orc> "Half-orc"
@@ -165,6 +224,16 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<infravision> 3)
 	       )
   :classes '(<warrior>)
+  
+  :skills '((<disarming> -3 0)
+	    (<device> -3 0)
+	    (<saving-throw> -3 0)
+	    (<stealth> -1 0)
+	    (<search> 0 0)
+	    (<perception> 7 0)
+	    (<fighting> 12 0)
+	    (<shooting> -5 0))
+
   )
 
 (define-race '<half-troll> "Half-troll"
@@ -186,6 +255,16 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<infravision> 3)
 	       )
   :classes '(<warrior>)
+  
+  :skills '((<disarming> -5 0)
+	    (<device> -8 0)
+	    (<saving-throw> -8 0)
+	    (<stealth> -2 0)
+	    (<search> -1 0)
+	    (<perception> 5 0)
+	    (<fighting> 20 0)
+	    (<shooting> -10 0))
+
   )
 
 (define-race '<dunedan> "Dunedan"
@@ -204,6 +283,16 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<sustain> <con>)
 	       )
   :classes '(<warrior>)
+  
+  :skills '((<disarming> 4 0)
+	    (<device> 5 0)
+	    (<saving-throw> 5 0)
+	    (<stealth> 2 0)
+	    (<search> 3 0)
+	    (<perception> 13 0)
+	    (<fighting> 15 0)
+	    (<shooting> 10 0))
+
   )
 
 (define-race '<high-elf> "High-elf"
@@ -226,4 +315,14 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<infravision> 4)
 	       )
   :classes '(<warrior> <ranger>)
+  
+  :skills '((<disarming> 4 0)
+	    (<device> 20 0)
+	    (<saving-throw> 20 0)
+	    (<stealth> 3 0)
+	    (<search> 3 0)
+	    (<perception> 14 0)
+	    (<fighting> 10 0)
+	    (<shooting> 25 0))
+
   )

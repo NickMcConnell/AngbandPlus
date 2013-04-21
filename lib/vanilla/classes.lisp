@@ -50,7 +50,16 @@ ADD_DESC: Contains definition of classes in sexp.
   :starting-equipment '(<broad-sword>
 			(<body-armour> <chain>)
 			(<potion> <berserk-strength>))
+
   
+  :skills '((<disarming> 25 10)
+	    (<device> 18 7)
+	    (<saving-throw> 18 10)
+	    (<stealth> 1 0)
+	    (<search> 14 0)
+	    (<perception> 2 0)
+	    (<fighting> 70 45)
+	    (<shooting> 55 45))
   )
 
 (define-class '<paladin> "Paladin"
@@ -87,6 +96,16 @@ ADD_DESC: Contains definition of classes in sexp.
     :starting-equipment '(<broad-sword>
 			  (<scroll> <protection> <evil>)
 			  (<spellbook> <priest> < beginner>))
+
+    :skills '((<disarming> 20 7)
+	      (<device> 24 10)
+	      (<saving-throw> 25 11)
+	      (<stealth> 1 0)
+	      (<search> 12 0)
+	      (<perception> 2 0)
+	      (<fighting> 68 35)
+	      (<shooting> 40 30))
+
     )
 
 (define-class '<ranger> "Ranger"
@@ -122,6 +141,16 @@ ADD_DESC: Contains definition of classes in sexp.
     :starting-equipment '((<spellbook> <mage> <beginner>)
 			  (<broad-sword>)
 			  (<bow> <long>))
+    
+    :skills '((<disarming> 30 8)
+	      (<device> 32 10)
+	      (<saving-throw> 28 10)
+	      (<stealth> 3 0)
+	      (<search> 24 0)
+	      (<perception> 16 0)
+	      (<fighting> 56 30)
+	      (<shooting> 72 45))
+
     )
 
 (define-class '<priest> "Priest"
@@ -159,6 +188,16 @@ ADD_DESC: Contains definition of classes in sexp.
   :starting-equipment '(<mace>
 			(<spellbook> <priest> <beginner>)
 			(<potion> <cure> <healing> <normal>))
+
+  :skills '((<disarming> 25 7)
+	    (<device> 30 10)
+	    (<saving-throw> 32 12)
+	    (<stealth> 2 0)
+	    (<search> 16 0)
+	    (<perception> 8 0)
+	    (<fighting> 48 20)
+	    (<shooting> 35 20))
+  
 )
 
 (define-class '<mage> "Mage"
@@ -196,6 +235,14 @@ ADD_DESC: Contains definition of classes in sexp.
 			  (<spellbook> <mage> <beginner>)
 			  (<scroll> <word-of-recall>)) 
 
+    :skills '((<disarming> 30 7)
+	      (<device> 36 13)
+	      (<saving-throw> 30 9)
+	      (<stealth> 2 0)
+	      (<search> 16 0)
+	      (<perception> 20 0)
+	      (<fighting> 34 15)
+	      (<shooting> 20 15))
     )
 
 (define-class '<rogue> "Rogue"
@@ -235,6 +282,16 @@ ADD_DESC: Contains definition of classes in sexp.
   :starting-equipment '((<spellbook> <mage> <beginner>)
 			<small-sword>
 			(<body-armour> <soft-leather>))
+  
+  :skills '((<disarming> 45 15)
+	    (<device> 32 10)
+	    (<saving-throw> 28 10)
+	    (<stealth> 5 0)
+	    (<search> 32 0)
+	    (<perception> 24 0)
+	    (<fighting> 60 40)
+	    (<shooting> 66 30))
+  
 )
 
 

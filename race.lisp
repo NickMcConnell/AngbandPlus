@@ -28,6 +28,7 @@ the Free Software Foundation; either version 2 of the License, or
      (abilities    :accessor race.abilities    :initform nil)
      (classes      :accessor race.classes      :initform nil)
      (start-eq     :accessor race.start-eq     :initform nil)
+     (skills       :accessor race.skills       :initform nil)
      )
     (:documentation "Representation for a character race.")))
 
@@ -56,7 +57,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  collecting v)))
 
 (defun define-race (id name &key desc xp-extra stat-changes abilities
-		    hit-dice classes starting-equipment)
+		    hit-dice classes starting-equipment skills)
   "defines a race and updates global race-list"
   
   (let ((race (make-instance 'race)))
@@ -86,9 +87,13 @@ the Free Software Foundation; either version 2 of the License, or
     
     ;; add it to table
     (setf (get-char-race id) race)
+
+
+    (setf (race.skills race) (build-skills-obj-from-list *variant* skills))
     
     ;; return the race
     race))
+
 
 #||
 (defun print-all-races ()

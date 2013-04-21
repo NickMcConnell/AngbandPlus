@@ -50,6 +50,7 @@ in the game at some point."))
      (mana          :accessor gval.mana          :initform 0)
      (charges       :accessor gval.charges       :initform 0)
      (food-val      :accessor gval.food-val      :initform 0)
+     (light-radius  :accessor gval.light-radius  :initform 0)
      (tunnel        :accessor gval.tunnel        :initform 0)
      (speed         :accessor gval.speed         :initform 0)
      (skill-bonuses :accessor gval.skill-bonuses :initform nil)
@@ -62,7 +63,16 @@ in the game at some point."))
      (slays         :accessor gval.slays         :initform nil)
      )
   
-    (:documentation "necessary game-values for an object.")))
+    (:documentation "necessary game-values for an object."))
+
+    (defclass attack ()
+    (
+     (kind :accessor attack.kind :initform nil)
+     (dmg-type :accessor attack.dmg-type :initform nil)
+     (damage :accessor attack.damage :initform nil)
+     ))
+    )
+    
    
 
 (defun make-game-values ()
@@ -100,16 +110,30 @@ in the game at some point."))
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defclass active-monster (activatable)
-    ((kind    :accessor amon.kind   :initarg :obj   :initform nil)
-     (cur-hp  :accessor amon.cur-hp :initarg :hp    :initform nil)
-     (speed   :accessor amon.speed  :initarg :speed :initform nil)
-     (mana    :accessor amon.mana   :initarg :mana  :initform nil)
-     (loc-x   :accessor location-x  :initarg :loc-x :initform nil)
-     (loc-y   :accessor location-y  :initarg :loc-y :initform nil)
-     (alive?  :accessor amon.alive? :initarg :alive? :initform t)
+    ((kind    :accessor amon.kind
+	      :initarg :kind
+	      :initform nil)
+     (cur-hp  :accessor current-hp
+	      :initarg :hp
+	      :initform 0)
+     (max-hp  :accessor get-creature-max-hp
+	      :initarg :max-hp
+	      :initform 0)
+     (speed   :accessor get-creature-speed
+	      :initarg :speed
+	      :initform 0)
+     (energy  :accessor get-creature-energy
+	      :initarg :energy
+	      :initform 0)
+     (mana    :accessor get-creature-mana
+	      :initarg :mana
+	      :initform 0)
+     
+     (loc-x   :accessor location-x      :initarg :loc-x :initform nil)
+     (loc-y   :accessor location-y      :initarg :loc-y :initform nil)
+     (alive?  :accessor creature-alive? :initarg :alive? :initform t)
 
      )))
-   
 
 (defstruct (alloc-entry (:conc-name alloc.))
   (obj nil)
@@ -129,6 +153,92 @@ in the game at some point."))
   (col-rooms nil)
   (room-map nil)
   (crowded nil))
+
+;; this is a dummy for classes, not objects.. the player will have numbers
+(defstruct (skill (:conc-name skill.))
+  (name "")
+  (base 0)
+  (lvl-gain 0)) ;; this is for 10 levels, to allow for fractions
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  ;; move this to variants later
+  (defclass skills ()
+    ((saving-throw :accessor skills.saving-throw  :initform 0)
+     (stealth      :accessor skills.stealth       :initform 0)
+     (fighting     :accessor skills.fighting      :initform 0)
+     (shooting     :accessor skills.shooting      :initform 0)
+     (disarming    :accessor skills.disarming     :initform 0)
+     (device       :accessor skills.device        :initform 0)
+     (perception   :accessor skills.perception    :initform 0)
+     (searching    :accessor skills.searching     :initform 0))
+    (:documentation "Various skills..")
+;;    #+cmu
+;;    (:metaclass pcl::standard-class)
+    ))
+
+(defun make-skills (&key (default-value 0))
+  "Returns a skills object."
+  (let ((obj (make-instance 'skills)))
+    (unless (and (numberp default-value) (= 0 default-value))
+      (let ((skill-list (variant.skill-translations *variant*)))
+	(dolist (i skill-list)
+	  (setf (slot-value obj (cdr i)) default-value))))
+    obj))
+
+(defun register-skill-translation& (variant translation)
+  "Registers a translation (single cons) or a list
+of translations."
+  (flet ((add-single-translation (translation)
+	   (pushnew translation (variant.skill-translations variant)
+		    :test #'eql)))
+    
+    (when (consp translation) 
+      (cond ((and (atom (car translation))
+		  (atom (cdr translation)))
+	     (warn "pushing a single one..")
+	     (add-single-translation translation))
+	  
+	    (t
+	     ;; we have a list
+	     (dolist (i translation)
+	       (assert (and (atom (car i))
+			    (atom (cdr i))))
+	       (add-single-translation i)))))
+    
+    translation))
+  
+
+(defun get-skill-translation (variant key)
+  "Returns a symbol in the appropriate skills-class or nil."
+  (let ((search (assoc key (variant.skill-translations variant))))
+    (when search
+      (cdr search))))
+
+
+(defun build-skills-obj-from-list (variant skills)
+  "Tries to build a skills-obj and include all possible
+information from the list skills whose content depends on variant."
+  
+  (let ((skill-obj (make-skills :default-value nil)))
+
+      (when (listp skills)
+	(dolist (i skills)
+	  (if (not (consp i))
+	      (warn "Skill argument ~s must be a list, like: (skill base-val lvl-val)"
+		    i)
+	      (let* ((skill-sym (first i))
+		     (the-name (get-skill-translation variant skill-sym)))
+		(if (eq the-name nil)
+		    (warn "Unable to find skill-translation from ~s" skill-sym)
+		    (setf (slot-value skill-obj the-name)
+			  (make-skill :name (string-downcase (string the-name))
+				      :base (let ((base-arg (second i)))
+					      (if base-arg base-arg 0))
+				      :lvl-gain (let ((lvl-arg (third i)))
+						  (if lvl-arg lvl-arg 0))))
+		    )))))
+      skill-obj))
+	
 
 #||
 (defmethod print-object ((inst l-alloc-entry) stream)
@@ -198,16 +308,26 @@ in the game at some point."))
 	  (error "Fell through get-letter-from-colour-code.. ~a" (char-code code))
 	  #-cmu
 	  #\w)))
-    
-(defun screen-save ()
-  ;; flush
-  (c-print-message! +c-null-value+)
-  (c-term-save!))
 
-(defun screen-load ()
+(let ((screen-lock nil))
+  
+  (defun screen-save ()
+    
+    (when screen-lock
+      (error "Screen already locked, please fix execution-path."))
+
     ;; flush
-  (c-print-message! +c-null-value+)
-  (c-term-load!))
+    (c-print-message! +c-null-value+)
+    (c-term-save!)
+    (setf screen-lock t))
+  
+  (defun screen-load ()
+    (unless screen-lock
+      (error "Trying to load a screen, but none is locked."))
+    ;; flush
+    (c-print-message! +c-null-value+)
+    (c-term-load!)
+    (setf screen-lock nil)))
 
 
 (defmacro with-new-screen (arg &body body)
@@ -224,6 +344,7 @@ in the game at some point."))
   'x11)
 
 (defun read-pref-file (fname)
+  "Tries to read a named preference file."
   (load fname))
 
 (defun define-key-macros (key &rest macros)
@@ -234,3 +355,28 @@ in the game at some point."))
 ;;      (warn "macro ~s" macro)
       (c-macro-add& macro (string key))))
   key)
+
+
+#-compiler-that-inlines
+(defmacro grid (x y)
+  `(the fixnum (+ (the fixnum (* 256 ,y)) ,x)))
+
+#+compiler-that-inlines
+(defun grid (x y)
+  (the fixnum (+ (* 256 y) x)))
+
+#-compiler-that-inlines
+(defmacro grid-y (g)
+  `(the fixnum (int-/ ,g 256)))
+
+#+compiler-that-inlines
+(defun grid-y (g)
+  (the fixnum (int-/ g 256)))
+
+#-compiler-that-inlines
+(defmacro grid-x (g)
+  `(the fixnum (prog1 (mod ,g 256))))
+
+#+compiler-that-inlines
+(defun grid-x (g)
+  (the fixnum (prog1 (mod g 256))))
