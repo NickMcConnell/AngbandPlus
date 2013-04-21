@@ -482,7 +482,7 @@ int melee_p_increment(const object_type *o_ptr, const monster_type *m_ptr){
 				}
 			}
 
-			if (f1 & (TR3_VAMPIRE))
+			if (f3 & (TR3_VAMPIRE))
 			{
 				/* Notice immunity */
 				if ((r_ptr->flags3 & (RF3_RES_NETHR)) || (r_ptr->flags3 & (RF3_UNDEAD)))
@@ -1027,7 +1027,7 @@ cptr tot_dam_aux_verb(const object_type *o_ptr, const monster_type *m_ptr)
 			}
 
 			/* Vampiric draining */
-			if (f1 & (TR3_VAMPIRE))
+			if (f3 & (TR3_VAMPIRE))
 			{
 				/* Notice immunity */
 				if ((r_ptr->flags3 & (RF3_RES_NETHR)) || (r_ptr->flags3 & (RF3_UNDEAD)))
@@ -1278,7 +1278,7 @@ static bool quiver_carry(object_type *o_ptr, int o_idx)
 	{
 		/* Warn the player */
 		sound(MSG_CURSED);
-		msg_print("Oops! It feels deathly cold!");
+		msg_print("Oops! It feels untrustworthy...");
 
 		/* Remove special inscription, if any */
 		if (j_ptr->discount >= INSCRIP_NULL) j_ptr->discount = 0;

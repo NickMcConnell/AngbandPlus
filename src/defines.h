@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"Beta release"
+#define VERSION_STRING	"Second beta release"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	1
-#define VERSION_PATCH	1
+#define VERSION_PATCH	2
 #define VERSION_EXTRA	0
 
 
@@ -64,7 +64,7 @@
  */
 #define OLD_VERSION_MAJOR	0
 #define OLD_VERSION_MINOR	1
-#define OLD_VERSION_PATCH	0
+#define OLD_VERSION_PATCH	1
 
 
 /*
@@ -188,7 +188,7 @@
 /*
  * Maximum amount of starting equipment
  */
-#define MAX_START_ITEMS	20
+#define MAX_START_ITEMS	200
 
 
 /*
@@ -1551,7 +1551,7 @@ enum {
 #define SV_LITE_MAGELIGHT	11
 
 /* The "sval" codes for TV_AMULET */
-#define SV_AMULET_DOOM			0
+#define SV_AMULET_STEALTH       0
 #define SV_AMULET_TELEPORT		1
 #define SV_AMULET_ADORNMENT		2
 #define SV_AMULET_SLOW_DIGEST	3
@@ -3343,9 +3343,9 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define RF3_EVIL			0x00000040	/* Evil */
 #define RF3_ANIMAL			0x00000080	/* Animal */
 #define RF3_FLYING			0x00000100	/* Monster flies */
-#define RF3_RF3XXX2			0x00000200	/* (?) */
-#define RF3_RF3XXX3			0x00000400	/* Non-Vocal (?) */
-#define RF3_RF3XXX4			0x00000800	/* Non-Living (?) */
+#define RF3_VULN_SLEEP		0x00000200	/* Extra vulnerable to sleep */
+#define RF3_VULN_SLOW		0x00000400	/* Extra vulnerable to slow */
+#define RF3_VULN_CONF		0x00000800	/* Extra vulnerable to confusion */
 #define RF3_HURT_LITE		0x00001000	/* Hurt by lite */
 #define RF3_HURT_ROCK		0x00002000	/* Hurt by rock remover */
 #define RF3_HURT_FIRE		0x00004000	/* Hurt badly by fire */
@@ -4001,24 +4001,24 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
  */
 #define rogue_like_commands		op_ptr->opt[OPT_rogue_like_commands]
 #define quick_messages			op_ptr->opt[OPT_quick_messages]
-#define floor_query_flag		op_ptr->opt[OPT_floor_query_flag]
-#define carry_query_flag		op_ptr->opt[OPT_carry_query_flag]
+#define floor_query_flag		0
+#define carry_query_flag		1
 #define use_old_target			op_ptr->opt[OPT_use_old_target]
 #define always_pickup			op_ptr->opt[OPT_always_pickup]
 #define always_repeat			op_ptr->opt[OPT_always_repeat]
 #define depth_in_feet			op_ptr->opt[OPT_depth_in_feet]
-#define stack_force_notes		op_ptr->opt[OPT_stack_force_notes]
-#define stack_force_costs		op_ptr->opt[OPT_stack_force_costs]
+#define stack_force_notes		0
+#define stack_force_costs		0
 #define expand_inscribe                        op_ptr->opt[OPT_expand_inscribe]
 /* xxx */
 /* xxx */
-#define show_details			op_ptr->opt[OPT_show_details]
+#define show_details			1
 #define ring_bell				op_ptr->opt[OPT_ring_bell]
-#define show_flavors			op_ptr->opt[OPT_show_flavors]
-#define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
-#define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
-#define run_cut_corners			op_ptr->opt[OPT_run_cut_corners]
-#define run_use_corners			op_ptr->opt[OPT_run_use_corners]
+#define show_flavors			1
+#define run_ignore_stairs		1
+#define run_ignore_doors		1
+#define run_cut_corners			1
+#define run_use_corners			1
 #define disturb_move			op_ptr->opt[OPT_disturb_move]
 #define disturb_near			op_ptr->opt[OPT_disturb_near]
 #define disturb_panel			op_ptr->opt[OPT_disturb_panel]
@@ -4036,8 +4036,8 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define allow_themed_levels		0
 /* xxx testing_stack */
 /* xxx testing_carry */
-#define expand_look				op_ptr->opt[OPT_expand_look]
-#define expand_list				op_ptr->opt[OPT_expand_list]
+#define expand_look				1
+#define expand_list				1
 #define view_perma_grids		op_ptr->opt[OPT_view_perma_grids]
 #define view_torch_grids		op_ptr->opt[OPT_view_torch_grids]
 #define dungeon_align			op_ptr->opt[OPT_dungeon_align]
@@ -4045,17 +4045,17 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 /* xxx track_follow */
 /* xxx track_target */
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
-#define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
-#define hidden_player			op_ptr->opt[OPT_hidden_player]
-#define avoid_abort				op_ptr->opt[OPT_avoid_abort]
-#define avoid_other				op_ptr->opt[OPT_avoid_other]
+#define view_reduce_lite		0
+#define hidden_player			0
+#define avoid_abort				0
+#define avoid_other				0
 #define flush_failure			op_ptr->opt[OPT_flush_failure]
 #define flush_disturb			op_ptr->opt[OPT_flush_disturb]
 /* xxx */
-#define fresh_before			op_ptr->opt[OPT_fresh_before]
-#define fresh_after				op_ptr->opt[OPT_fresh_after]
+#define fresh_before			1
+#define fresh_after				0
 /* xxx */
-#define compress_savefile		op_ptr->opt[OPT_compress_savefile]
+#define compress_savefile		1
 #define hilite_player			op_ptr->opt[OPT_hilite_player]
 #define view_yellow_lite		op_ptr->opt[OPT_view_yellow_lite]
 #define view_bright_lite		op_ptr->opt[OPT_view_bright_lite]
@@ -4063,7 +4063,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define view_special_lite		op_ptr->opt[OPT_view_special_lite]
 #define easy_open				op_ptr->opt[OPT_easy_open]
 #define easy_alter				op_ptr->opt[OPT_easy_alter]
-#define easy_floor				op_ptr->opt[OPT_easy_floor]
+#define easy_floor				0
 #define show_piles				op_ptr->opt[OPT_show_piles]
 #define center_player			op_ptr->opt[OPT_center_player]
 #define run_avoid_center		op_ptr->opt[OPT_run_avoid_center]
@@ -4078,7 +4078,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 /* xxx xxx */
 #define birth_point_based		0
 #define birth_auto_roller		0
-#define birth_maximize			op_ptr->opt[OPT_birth_maximize]
+#define birth_maximize			1
 #define birth_preserve			op_ptr->opt[OPT_birth_preserve]
 #define birth_ironman			1
 #define birth_no_stores			1
@@ -4093,7 +4093,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define birth_no_store_services	1
 #define birth_no_discovery		op_ptr->opt[OPT_birth_no_discovery]
 #define birth_easy_start		op_ptr->opt[OPT_birth_easy_start]
-#define birth_no_xtra_artifacts	op_ptr->opt[OPT_birth_no_xtra_artifacts]
+#define birth_no_xtra_artifacts	0
 
 
 /* xxx xxx */
@@ -4106,7 +4106,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 /* xxx xxx */
 #define adult_point_based		0
 #define adult_auto_roller		0
-#define adult_maximize			op_ptr->opt[OPT_adult_maximize]
+#define adult_maximize			1
 #define adult_preserve			op_ptr->opt[OPT_adult_preserve]
 #define adult_ironman			1
 #define adult_no_stores			op_ptr->opt[OPT_adult_no_stores]
@@ -4119,7 +4119,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define adult_no_quests			1
 #define adult_no_player_ghosts	1
 #define adult_no_store_services	1
-#define adult_no_xtra_artifacts	op_ptr->opt[OPT_adult_no_xtra_artifacts]
+#define adult_no_xtra_artifacts	0
 #define adult_no_discovery		op_ptr->opt[OPT_adult_no_discovery]
 #define adult_easy_start		op_ptr->opt[OPT_adult_easy_start]
 #define hp_changes_color  		op_ptr->opt[OPT_hp_changes_color]

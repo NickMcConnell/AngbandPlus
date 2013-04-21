@@ -2354,6 +2354,9 @@ void check_experience(void)
 {
 	s16b gain_stat = 0, choice, success;
 	char prompt[80];
+	byte was_challenged;
+
+	was_challenged = challenged();
 
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
@@ -2511,6 +2514,10 @@ void check_experience(void)
 
 		/* Handle stuff */
 		handle_stuff();
+	}
+
+	if (was_challenged && !(challenged())){
+		msg_print("You no longer feel challenged at this depth. Time to go deeper!");
 	}
 
 }

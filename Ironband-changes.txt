@@ -119,3 +119,21 @@ Fixed bug where SP do not refill when you gain Wis when descending stairs.
 Added some more entries to the notes file.
 Added some more uniques.
 More objects found in the first few dungeon levels, especially weapons and armor.
+
+After beta
+----------
+
+Bugfix - vampiric draining weapons now produce the correct message.
+Various changes to edit files.
+Object price is no longer displayed in description.
+Reduced starting food.
+Starting equipment now depends on race.
+Made many monsters extra-vulnerable to sleep and/or confusion. Sleep, confusion and slow are generally slightly more effective.
+Made artifacts less common above DL20 and much less common above DL10.
+Monsters with RES_NEXUS now cannot be teleported away.
+Stat drain is more painful than before when your stat is over 18.
+Slightly more items are now found lying around.
+If you hang round at too shallow depths for too long, drops eventually become poor.
+Removed and rearranged some options (based on changes to V)
+Assigned graphic tiles to the new monsters and objects (probably still not ideal, but workable)
+Cursed ammo can sometimes be worth using, and also can now be taken off or dropped at will.

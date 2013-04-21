@@ -1086,32 +1086,31 @@ void do_cmd_options(void)
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
-		prt("(2) Disturbance Options", 5, 5);
+		prt("(2) Warning and Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
-		prt("(4) Efficiency Options", 7, 5);
-		prt("(5) Display Options", 8, 5);
-		prt("(6) Birth Options", 9, 5);
-		prt("(7) Cheat Options", 10, 5);
+		prt("(4) Display Options", 7, 5);
+		prt("(5) Birth Options", 8, 5);
+		prt("(6) Cheat Options", 9, 5);
 
 		/* Window flags */
-		prt("(W) Window flags", 12, 5);
+		prt("(W) Window flags", 11, 5);
 
 		/* Squelch menus */
-		prt("(S) Item Squelch and Autoinscribe Menus", 13, 5);
+		prt("(S) Item Squelch and Autoinscribe Menus", 12, 5);
 
 		/* Load and Append */
-		prt("(L) Load a user pref file", 14, 5);
+		prt("(L) Load a user pref file", 13, 5);
 
-		if (!modified)	prt("(A) Append options to a file", 15, 5);
-		else c_prt(TERM_YELLOW ,"(A) Append option modifications to a file", 15, 5);
+		if (!modified)	prt("(A) Append options to a file", 14, 5);
+		else c_prt(TERM_YELLOW ,"(A) Append option modifications to a file", 14, 5);
 
 		/* Special choices */
-		prt("(D) Base Delay Factor", 17, 5);
-		prt("(H) Hitpoint Warning", 18, 5);
-		prt("(P) Panel change offset", 19, 5);
+		prt("(D) Base Delay Factor", 16, 5);
+		prt("(H) Hitpoint Warning", 17, 5);
+		prt("(P) Panel change offset", 18, 5);
 
 		/* Prompt */
-		prt("Command: ", 21, 0);
+		prt("Command: ", 20, 0);
 
 		/* Get command */
 		ch = inkey();
@@ -1128,7 +1127,7 @@ void do_cmd_options(void)
 		/* Disturbance Options */
 		else if (ch == '2')
 		{
-			do_cmd_options_aux(1, "Disturbance Options", &modified);
+			do_cmd_options_aux(1, "Warning and Disturbance Options", &modified);
 		}
 
 		/* Inventory Options */
@@ -1140,25 +1139,19 @@ void do_cmd_options(void)
 		/* Efficiency Options */
 		else if (ch == '4')
 		{
-			do_cmd_options_aux(3, "Efficiency Options", &modified);
+			do_cmd_options_aux(3, "Display Options", &modified);
 		}
 
 		/* Display Options */
 		else if (ch == '5')
 		{
-			do_cmd_options_aux(4, "Display Options", &modified);
+			do_cmd_options_aux(4, "Birth Options", &modified);
 		}
 
 		/* Birth Options */
 		else if (ch == '6')
 		{
-			do_cmd_options_aux(5, "Birth Options", &modified);
-		}
-
-		/* Cheating Options */
-		else if (ch == '7')
-		{
-			do_cmd_options_aux(6, "Cheat Options", &modified);
+			do_cmd_options_aux(5, "Cheat Options", &modified);
 		}
 
 		/* Window flags */
@@ -5081,6 +5074,7 @@ void apply_magic_fake(object_type *o_ptr)
 				/* Amulet of wisdom/infravision */
 				case SV_AMULET_WISDOM:
 				case SV_AMULET_LUCK:
+				case SV_AMULET_STEALTH:
 				case SV_AMULET_INFRAVISION:
 				case SV_AMULET_SEARCHING:
 				case SV_AMULET_ESP:
@@ -5108,22 +5102,6 @@ void apply_magic_fake(object_type *o_ptr)
 					o_ptr->to_h = 1;
 					o_ptr->to_d = 1;
 					o_ptr->pval = 1;
-
-					break;
-				}
-
-				/* Amulet of Doom -- always cursed */
-				case SV_AMULET_DOOM:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = -1;
-					o_ptr->to_a = -1;
 
 					break;
 				}

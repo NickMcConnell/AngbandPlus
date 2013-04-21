@@ -1170,6 +1170,9 @@ bool make_attack_normal(monster_type *m_ptr)
 					}
 					else
 					{
+						if ((adj_wis_sav[p_ptr->stat_ind[A_WIS]] < 0) && one_in_(4)){
+							msg_print("You are an easy victim!");
+						}
 						if (set_afraid(p_ptr->afraid + 3 + randint(rlev)))
 						{
 							obvious = TRUE;
@@ -3947,6 +3950,9 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				 * Inflict damage. Note this spell has a hack
 				 * than handles damage differently in get_dam.
 				 */
+				if ((adj_wis_sav[p_ptr->stat_ind[A_WIS]] < 0) && one_in_(4)){
+					msg_print("You are an easy victim!");
+				}
 				take_hit(get_dam(m_ptr, attack), ddesc);
 
 				/* Cut the player depending on strength of spell. */
@@ -4024,6 +4030,9 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			}
 			else
 			{
+				if ((adj_wis_sav[p_ptr->stat_ind[A_WIS]] < 0) && one_in_(4)){
+					msg_print("You are an easy victim!");
+				}
 				i = div_round(r_ptr->level, 10);
 				(void)set_afraid(p_ptr->afraid + i + rand_range(3, 6));
 			}
@@ -4050,6 +4059,9 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				}
 				else
 				{
+					if ((adj_wis_sav[p_ptr->stat_ind[A_WIS]] < 0) && one_in_(4)){
+						msg_print("You are an easy victim!");
+					}
 					i = div_round(r_ptr->level, 4);
 					(void)set_blind(p_ptr->blind + i + rand_range(5, 10));
 				}
@@ -4074,6 +4086,9 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			}
 			else
 			{
+				if ((adj_wis_sav[p_ptr->stat_ind[A_WIS]] < 0) && one_in_(4)){
+					msg_print("You are an easy victim!");
+				}
 				i = div_round(r_ptr->level, 8);
 				(void)set_confused(p_ptr->confused + i + rand_range(4, 8));
 			}
@@ -4095,6 +4110,9 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			}
 			else
 			{
+				if ((adj_wis_sav[p_ptr->stat_ind[A_WIS]] < 0) && one_in_(4)){
+					msg_print("You are an easy victim!");
+				}
 				i = div_round(r_ptr->level, 25);
 				(void)set_slow(p_ptr->slow + i + rand_range(5, 10));
 			}
@@ -4119,6 +4137,9 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			/* Must not already be paralyzed */
 			else if (!p_ptr->paralyzed)
 			{
+				if ((adj_wis_sav[p_ptr->stat_ind[A_WIS]] < 0) && one_in_(4)){
+					msg_print("You are an easy victim!");
+				}
 				(void)set_paralyzed(p_ptr->paralyzed + rand_range(4, 8));
 			}
 			break;

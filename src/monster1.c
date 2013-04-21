@@ -1098,7 +1098,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->r_l_flags3 & RF3_RES_NETHR) vp[vn++] = "nether";
 	if (l_ptr->r_l_flags3 & RF3_RES_WATER) vp[vn++] = "water";
 	if (l_ptr->r_l_flags3 & RF3_RES_PLAS) vp[vn++] = "plasma";
-	if (l_ptr->r_l_flags3 & RF3_RES_NEXUS) vp[vn++] = "nexus";
+	if (l_ptr->r_l_flags3 & RF3_RES_NEXUS) vp[vn++] = "nexus and teleportation";
 	if (l_ptr->r_l_flags3 & RF3_RES_DISEN) vp[vn++] = "disenchantment";
 
 	/* Describe resistances */
@@ -1123,6 +1123,34 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		text_out(".  ");
 	}
 
+
+	/* Collect vulnerabilities */
+	vn = 0;
+	if (l_ptr->r_l_flags3 & RF3_VULN_SLEEP) vp[vn++] = "sleep";
+	if (l_ptr->r_l_flags3 & RF3_VULN_CONF) vp[vn++] = "confusion";
+	if (l_ptr->r_l_flags3 & RF3_VULN_SLOW) vp[vn++] = "slowing";
+
+	/* Describe non-effects */
+	if (vn)
+	{
+		/* Intro */
+		text_out(format("%^s", wd_he[msex]));
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+			if (n == 0) text_out(" is especially vulnerable to ");
+			else if (n < vn-1) text_out(", ");
+			else text_out(" or ");
+
+			/* Dump */
+			text_out_c(TERM_YELLOW, vp[n]);
+		}
+
+		/* End */
+		text_out(".  ");
+	}
 
 	/* Collect non-effects */
 	vn = 0;

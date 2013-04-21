@@ -827,6 +827,17 @@ struct player_sex
 
 
 /*
+ * Starting equipment entry
+ */
+struct start_item
+{
+	byte tval;	/* Item's tval */
+	byte sval;	/* Item's sval */
+	byte min;	/* Minimum starting amount */
+	byte max;	/* Maximum starting amount */
+};
+
+/*
  * Player racial info
  */
 struct player_race
@@ -871,19 +882,10 @@ struct player_race
 	u32b pr_flags2;		/* Racial Flags, set 2 */
 	u32b pr_flags3;		/* Racial Flags, set 3 */
 	u32b pr_native;		/* Player Native Flags, set 3 */
+
+    start_item start_items[MAX_START_ITEMS];/* The starting inventory */
 };
 
-
-/*
- * Starting equipment entry
- */
-struct start_item
-{
-	byte tval;	/* Item's tval */
-	byte sval;	/* Item's sval */
-	byte min;	/* Minimum starting amount */
-	byte max;	/* Maximum starting amount */
-};
 
 
 /*
@@ -931,7 +933,8 @@ struct player_class
 	u32b sense_base;	/* Base pseudo-id value */
 	u16b sense_div;		/* Pseudo-id divisor */
 
-	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
+    start_item start_items[MAX_START_ITEMS];/* The starting inventory */
+
 
 	player_magic spells; /* Magic spells */
 

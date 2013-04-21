@@ -1014,7 +1014,7 @@ static bool screen_out_head(const object_type *o_ptr)
 		} else if (get_mana_cost(o_ptr->sval,1) - 1 > 0){
 			p_text_out(format("%d",get_mana_cost(o_ptr->sval,1) - 1));
 		} else {
-			p_text_out(nice_mana_cost(get_mana_cost(o_ptr->sval,1) - 1)); 
+			p_text_out(nice_mana_cost(get_mana_cost(o_ptr->sval,1) - 1));
 		}
 		if (get_success_prob(o_ptr->sval,1) == 0){
 			p_text_out(" but the success rate is currently 0. Try boosting your Int.");
@@ -1025,7 +1025,7 @@ static bool screen_out_head(const object_type *o_ptr)
 		}
 		p_text_out("\n\n  Note that talismans (if you have any) will not help with wands.");
 		p_text_out("\n\n  Press 'z' to zap the wand.");
-		has_description = TRUE;		
+		has_description = TRUE;
 	}
 	/* Display the known object description */
 	else if (object_aware_p(o_ptr) || object_known_p(o_ptr))
@@ -1094,18 +1094,6 @@ void object_info_screen(const object_type *o_ptr)
 			text_out_c(TERM_YELLOW, buf);
 		}
 
-		/* Print resale value */
-		p_text_out("\n\n   ");
-		price = object_value(o_ptr);
-		if (price > 0)
-		{
-			text_out_c(TERM_YELLOW, format("It would fetch %i gold %sin an average shop.",
-				price, (o_ptr->number > 1 ? "a piece " : "")));
-		}
-		else
-		{
-			text_out_c(TERM_YELLOW, "It has no value.");
-		}
 
 		text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
 

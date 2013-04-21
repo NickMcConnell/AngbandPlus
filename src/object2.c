@@ -2073,7 +2073,11 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	{
 		/* Penalize */
 		o_ptr->to_h -= tohit1;
-		o_ptr->to_d -= todam1;
+		if (o_ptr->tval==TV_BOLT || o_ptr->tval==TV_ARROW || o_ptr->tval==TV_SHOT){
+			o_ptr->to_d += MIN(todam1,MIN(tohit1,5));
+		} else {
+			o_ptr->to_d -= todam1;
+		}
 
 		/* Very cursed */
 		if (power < -1)
@@ -2084,7 +2088,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		}
 
 		/* Cursed (if "bad") */
-		if (o_ptr->to_h + o_ptr->to_d < 0) o_ptr->ident |= (IDENT_CURSED);
+		if (o_ptr->to_h < 0) o_ptr->ident |= (IDENT_CURSED);
 	}
 
 
@@ -2425,6 +2429,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			{
 				/* Amulet of wisdom/infravision/luck */
 				case SV_AMULET_WISDOM:
+				case SV_AMULET_STEALTH:
 				case SV_AMULET_INFRAVISION:
 				case SV_AMULET_LUCK:
 				{
@@ -2541,21 +2546,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				/* Amulet of Doom -- always cursed */
-				case SV_AMULET_DOOM:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = 0 - (randint(5) + m_bonus(5, level));
-					o_ptr->to_a = 0 - (randint(5) + m_bonus(5, level));
-
-					break;
-				}
 			}
 
 			break;
@@ -2768,6 +2758,10 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	/* Base chance of being "great" */
 	test_great = 7+(lev*3+adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]*5)/8;
 
+	if (!(challenged())){
+		test_great = MIN(7,test_great);
+	}
+
 	/* Assume normal */
 
 	power = 0;
@@ -2814,6 +2808,12 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		}
 	}
 
+	if (danger(p_ptr->depth)<=15){
+		rolls_times_ten = rolls_times_ten / 4;
+	} else if (danger(p_ptr->depth)<=25){
+		rolls_times_ten = rolls_times_ten / 2;
+	}
+
 	num_artifacts_already = 0;
 	for (i = z_info->art_spec_max; i < z_info->art_norm_max; i++)
 	{
@@ -2828,9 +2828,17 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	}
 
 	if (!great){
-		rolls_times_ten = MAX(3,(rolls_times_ten * (MAX(40-num_artifacts_already,adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]/2))) / 40);
+		if (!(challenged())){
+			rolls_times_ten = 0;
+		} else {
+			rolls_times_ten = MAX(3,(rolls_times_ten * (MAX(40-num_artifacts_already,adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]/2))) / 40);
+		}
 	} else {
-		rolls_times_ten = MAX(5,(rolls_times_ten * (MAX(60-num_artifacts_already,adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]))) / 60);
+		if (!(challenged())){
+			rolls_times_ten = 3;
+		} else {
+			rolls_times_ten = MAX(5,(rolls_times_ten * (MAX(60-num_artifacts_already,adj_luc_good_chance[p_ptr->stat_ind[A_LUC]]))) / 60);
+		}
 	}
 
 	/* Get no rolls if not allowed */

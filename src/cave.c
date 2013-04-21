@@ -6888,4 +6888,11 @@ void disturb(int stop_search, int unused_flag)
 	if (flush_disturb) flush();
 }
 
+byte challenged(void){
+	if (p_ptr->max_lev <= danger(p_ptr->depth) + 3){
+		return 1;
+	} else {
+		return 0;
+	}
+}
 

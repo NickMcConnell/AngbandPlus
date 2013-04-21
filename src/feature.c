@@ -608,7 +608,7 @@ u16b fire_trap_smart(int f_idx, int y, int x, byte mode)
  */
 void hit_trap(int f_idx, int y, int x, byte mode, int might_escape)
 {
-	int dice,sides, reps, dam, i, num;
+	int dice,sides, reps, dam, i, num, was_challenged;
 
 	cptr name = "a trap";
 
@@ -759,10 +759,16 @@ void hit_trap(int f_idx, int y, int x, byte mode, int might_escape)
 				}
 
 				/* New depth */
+				was_challenged = challenged();
+
 				p_ptr->depth++;
 
 				potential_effect_on_stats();
 
+				if (!was_challenged && challenged()){
+					msg_print("You feel more challenged now.");
+				}
+				
 				regenmana(100);
 
 				/* Leaving */

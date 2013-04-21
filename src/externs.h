@@ -384,6 +384,8 @@ extern void object_kind_track(int k_idx);
 extern void feature_kind_track(int f_idx);
 extern void disturb(int stop_search, int unused_flag);
 
+extern byte challenged(void);
+
 /* cmd1.c */
 extern int dam_plus_to_percent_added(int to_d);
 extern int test_hit(int chance, int ac, int vis);

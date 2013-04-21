@@ -10375,11 +10375,9 @@ static int get_object_count_default(void)
 	this_danger = danger(p_ptr->depth);
 	if (this_danger <= 10){
 		return (Rand_normal(DUN_AMT_ROOM+5, 3));
-	} else if (this_danger <= 15){
-		return (Rand_normal(DUN_AMT_ROOM+3, 3));
 	} else {
-		return (Rand_normal(DUN_AMT_ROOM+1, 3));
-	}
+		return (Rand_normal(DUN_AMT_ROOM+3, 3));
+	} 
 }
 
 /*

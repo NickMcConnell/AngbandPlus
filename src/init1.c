@@ -266,9 +266,9 @@ static flag_name info_flags[] =
 	{"EVIL", RF3, RF3_EVIL},
 	{"ANIMAL", RF3, RF3_ANIMAL},
 	{"FLYING", RF3, RF3_FLYING},
-	{"RF3XXX2", RF3, RF3_RF3XXX2},
-	{"RF3XXX3", RF3, RF3_RF3XXX3},
-	{"RF3XXX4", RF3, RF3_RF3XXX4},
+	{"VULN_SLEEP", RF3, RF3_VULN_SLEEP},
+	{"VULN_SLOW", RF3, RF3_VULN_SLOW},
+	{"VULN_CONF", RF3, RF3_VULN_CONF},
 	{"HURT_LITE", RF3, RF3_HURT_LITE},
 	{"HURT_ROCK", RF3, RF3_HURT_ROCK},
 	{"HURT_FIRE", RF3, RF3_HURT_FIRE},
@@ -2884,6 +2884,8 @@ errr parse_p_info(char *buf, header *head)
 	/* Current entry */
 	static player_race *pr_ptr = NULL;
 
+	static int cur_equip = 0;
+
 
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')
@@ -2994,6 +2996,40 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->r_mhp = mhp;
 		pr_ptr->r_exp = exp;
 		pr_ptr->infra = infra;
+	}
+
+	/* Process 'E' for "Starting Equipment" */
+	else if (buf[0] == 'E')
+	{
+		int tval, sval, min, max;
+
+		start_item *e_ptr;
+
+		/* There better be a current pr_ptr */
+		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Access the item */
+		e_ptr = &pr_ptr->start_items[cur_equip];
+
+		/* Scan for the values */
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			            &tval, &sval, &min, &max)) return (PARSE_ERROR_GENERIC);
+
+		if ((min < 0) || (max < 0) || (min > 99) || (max > 99))
+			return (PARSE_ERROR_INVALID_ITEM_NUMBER);
+
+		/* Save the values */
+		e_ptr->tval = tval;
+		e_ptr->sval = sval;
+		e_ptr->min = min;
+		e_ptr->max = max;
+
+		/* Next item */
+		cur_equip++;
+
+		/* Limit number of starting items */
+		if (cur_equip > MAX_START_ITEMS)
+			return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Hack -- Process 'I' for "info" and such */

@@ -265,6 +265,8 @@ void potential_effect_on_stats(){
 void do_cmd_go_down(void)
 {
 	byte quest;
+	int was_challenged;
+
 	char out_val[160];
 
 	feature_type *f_ptr= &f_info[cave_feat[p_ptr->py][p_ptr->px]];
@@ -306,9 +308,15 @@ void do_cmd_go_down(void)
 	p_ptr->create_stair = FEAT_LESS;
 
 	/* New level */
+	was_challenged = challenged();
+
 	p_ptr->depth++;
 
 	potential_effect_on_stats();
+
+	if (!was_challenged && challenged()){
+		msg_print("You feel more challenged now.");
+	}
 
 	regenmana(100);
 

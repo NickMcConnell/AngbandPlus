@@ -2978,7 +2978,6 @@ static void calc_bonuses(void)
 	p_ptr->skill_dev += (cp_ptr->x_dev * p_ptr->lev / 10);
 
 	/* Affect Skill -- saving throw (Level, by Class) */
-	p_ptr->skill_sav += (cp_ptr->x_sav * p_ptr->lev / 10);
 
 	if (p_ptr->skill_sav >= 90){
 		p_ptr->skill_sav = 90;

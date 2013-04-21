@@ -844,6 +844,185 @@ static void player_outfit(void)
 		object_wipe (i_ptr);
 	}
 
+	/* Hack -- Give the player his RACIAL equipment */
+	for (i = 0; i < MAX_START_ITEMS; i++)
+	{
+
+		object_type *o_ptr;
+
+		/* Access the item */
+		e_ptr = &(rp_ptr->start_items[i]);
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Hack	-- Give the player an object */
+		if (e_ptr->tval > 0)
+		{
+			/* Get the object_kind */
+			s16b k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+
+			/* Valid item? */
+			if (!k_idx) continue;
+
+			/* Prepare the item */
+			object_prep(i_ptr, k_idx);
+			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
+
+			object_aware(i_ptr);
+			object_known(i_ptr);
+
+			apply_autoinscription(i_ptr);
+
+			/* Remember history */
+			object_history(i_ptr, ORIGIN_BIRTH, 0);
+		}
+
+		else
+		{
+			continue;
+		}
+
+		/* Check the slot */
+		slot = wield_slot(i_ptr);
+
+		/* Ammo gets special rules */
+		if (IS_QUIVER_SLOT(slot))
+		{
+			bool combined = FALSE;
+			int k;
+
+			/* Reset the slot. Check quiver space */
+			slot = -1;
+
+			if (quiver_carry_okay(i_ptr, i_ptr->number, -1))
+			{
+				/* Check quiver slots */
+				for (k = INVEN_QUIVER; k < END_QUIVER; k++)
+				{
+					/* Get the slot */
+					o_ptr = &inventory[k];
+
+					/* Empty slot */
+					if (!o_ptr->k_idx)
+					{
+						/* Remember the slot */
+						slot = k;
+					}
+					/* Occupied slot */
+					else if (object_similar(o_ptr, i_ptr))
+					{
+						/* Remember the slot */
+						slot = k;
+
+						/* Trigger object combination */
+						combined = TRUE;
+
+						/* Done */
+						break;
+					}
+				}
+			}
+
+ 			/* Found a slot */
+			if (slot != -1)
+ 			{
+				char o_name[80];
+
+				/* Get the slot again */
+				o_ptr = &inventory[slot];
+
+				/* Check insertion mode */
+				if (!combined)
+				{
+					/* Raw copy */
+					object_copy(o_ptr, i_ptr);
+				}
+				else
+				{
+					/* Combine */
+					object_absorb(o_ptr, i_ptr);
+				}
+
+				/* Increase the weight by hand */
+				p_ptr->total_weight += (i_ptr->weight * i_ptr->number);
+
+				/* Compute quiver size */
+				find_quiver_size();
+
+				/* Reorder quiver, refresh slot */
+				slot = reorder_quiver(slot);
+
+				/* Get the slot again */
+				o_ptr = &inventory[slot];
+
+				/* Describe the result */
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+				/* Message */
+				msg_format("You have readied %s (%c).", o_name,
+					index_to_label(slot));
+
+				message_flush();
+			}
+		}
+		/*if player can wield an item, do so*/
+		else if (slot >= INVEN_WIELD)
+		{
+
+			cptr act;
+			char o_name[80];
+
+			/* Get the wield slot */
+			o_ptr = &inventory[slot];
+
+			/* Wear the new stuff */
+			object_copy(o_ptr, i_ptr);
+
+			/* Increment the equip counter by hand */
+			p_ptr->equip_cnt++;
+
+			/* Increase the weight */
+			p_ptr->total_weight += i_ptr->weight;
+
+			/* Where is the item now */
+			if (slot == INVEN_WIELD)
+			{
+				act = "You are wielding";
+			}
+			else if (slot == INVEN_BOW)
+			{
+				act = "You are shooting with";
+			}
+			else if (slot == INVEN_LITE)
+			{
+				act = "Your light source is";
+			}
+			else
+			{
+				act = "You are wearing";
+			}
+
+			/* Describe the result */
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+			/* Message */
+			msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+
+			message_flush();
+		}
+
+		/* Object cannot be wielded */
+		if (slot == -1)
+ 		{
+			/*put it in the inventory*/
+			(void)inven_carry(i_ptr);
+		}
+
+		/*Bugfix:  So we don't get duplicate objects*/
+		object_wipe (i_ptr);
+	}
+	
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS  | PU_NATIVE);
 

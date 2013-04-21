@@ -56,8 +56,8 @@ R:12:0x8b:0x89
 # Mean-looking mercenary
 R:13:0x8b:0x8A
 
-# Battle-scarred veteran
-R:14:0x8b:0x8B
+# Black Lotus
+R:14:0x8e:0xCA
 
 # Grey mold
 R:15:0x8e:0xC2
@@ -683,8 +683,8 @@ R:221:0x92:0xA1
 # Gelatinous cube
 R:222:0x8f:0x85
 
-# Ulfast, Son of Ulfang
-R:223:0x95:0x8A
+# Illitha
+R:223:0x8d:0x89
 
 # Imp
 R:224:0x8d:0xAA
@@ -1826,9 +1826,6 @@ R:602:0x8c:0xA6
 # Great Time Wyrm
 R:603:0x8c:0xA3
 
-# Glaurung, Father of the Dragons
-R:604:0x95:0xB4
-
 # Greater draconic quylthulg
 R:605:0x93:0x86
 
@@ -1904,84 +1901,38 @@ R:628:0x95:0xC8
 # The Witch-King of Angmar
 R:629:0x95:0xCC
 
-# Maeglin, the Traitor of Gondolin
-R:630:0x95:0xd7
+# N:604:The Giant Mutant Troll
+R:604:0x95:0xA0
 
-# Pazuzu, Lord of Air
-R:631:0x95:0xCD
+# N:630:Cerevas the Deranged
+R:630:0x84:0x9C
 
-# Great Power Wyrm
-R:632:0x8c:0xA5
+# N:631:Ardomar, Former King of Cardolan
+R:631:0x94:0x91
 
-# Draugluin, Sire of All Werewolves
-R:633:0x95:0xD1
+# N:632:Thrukur, Undead Dwarf Lord
+R:632:0x94:0x98
 
-# Cantoras, the Skeletal Lord
-R:634:0x95:0xCE
+# N:633:Sythsyxxths, the Ambitious Drake
+R:633:0x8c:0xA9
 
-# Ancalagon the Black
-R:635:0x95:0xC0
+# N:634:Spreading infestation
+R:634:0x8e:0xCA
 
-# The Tarrasque
-R:636:0x95:0xCF
+# N:635:Master quylthulg
+R:635:0x95:0xCA
 
-# Kronos, Lord of the Titans
-R:637:0x84:0xA8
+# N:636:Geung, Treasurer of the Witch-King
+R:636:0x95:0x88
 
-# Lungorthin, the Balrog of White Fire
-R:638:0x95:0xD0
+# N:637:The ghost of Tathor
+R:637:0x94:0x98
 
-# Huan, Wolfhound of the Valar
-R:639:0x95:0xD3
+# N:638:Nugrush, the Goblin Lobber
+R:638:0x95:0x87
 
-# Carcharoth, the Jaws of Thirst
-R:640:0x95:0xD4
-
-# Vecna, the Emperor Lich
-R:641:0x95:0xD2
-
-# Gothmog, the High Captain of Balrogs
-R:642:0x95:0xD5
-
-# Sauron, the Sorcerer
-R:643:0x8e:0xDF
-
-# Morgoth, Lord of Darkness
-R:644:0x8f:0xC7
-
-# Skeleton
-R:645:0x94:0x9E
-
-# Zombie
-R:646:0x94:0x99
-
-# Spirit
-R:647:0x94:0x94
-
-# Mummy
-R:648:0x91:0xb4
-
-# Wight
-R:649:0x94:0x88
-
-# Ghost
-R:650:0x94:0x98
-
-# Vampire
-R:651:0x94:0xB2
-
-# Phantom
-R:652:0x94:0x94
-
-# Lich
-R:653:0x94:0x90
-
-# Nether Wraith
-R:654:0x94:0x8E
-
-# Deathlord
-R:655:0x94:0x84
-
+# N:639:The Lord of the Nazgul's Steed
+R:639:0x92:0xCE
 
 
 # Object attr/char definitions
@@ -1994,6 +1945,15 @@ K:2:0x87:0xB4
 
 # & Arkenstone~
 K:3:0x87:0xB5
+
+# Pebble
+K:453:0x87:0xB3
+
+# Stone
+K:454:0x87:0xB4
+
+# Jewel
+K:455:0x87:0xB5
 
 # & Amulet~
 K:4:0x85:0xA6
@@ -2190,6 +2150,9 @@ K:69:0x8a:0x8F
 # & Blade~ of Chaos
 K:70:0x8a:0x91
 
+# Warlock Sword
+K:471:0x8a:0x91
+
 # & Spear~
 K:71:0x8a:0x9C
 
@@ -2295,11 +2258,17 @@ K:104:0x80:0x90
 # & Jewel Encrusted Crown~
 K:105:0x80:0x91
 
+# Wizard Hat
+K:470:0x80:0x91
+
 # & Cloak~
 K:106:0x80:0x81
 
 # & Shadow Cloak~
 K:107:0x80:0x82
+
+# Displacer Cloak
+K:472:0x80:0x82
 
 # & Sling~
 K:108:0x8a:0xAF
@@ -2363,6 +2332,9 @@ K:127:0x80:0x9B
 
 # & Wooden Torch~
 K:128:0x87:0x9A
+
+# & Magic Torch~
+K:456:0x87:0x9A
 
 # & Brass Lantern~
 K:129:0x87:0x99
@@ -3171,14 +3143,14 @@ K:396:0x00:0x2C
 # Restore Constitution
 K:397:0x00:0x2C
 
-# Restoring
-K:398:0x00:0x2C
+# Apple
+K:398:0x82:0x84
 
 # & Ration~ of Food
 K:399:0x82:0x84
 
-# & Slime Mold~
-K:400:0x82:0x85
+# & Beef Jerky~
+K:400:0x82:0x84
 
 # & Piece~ of Elvish Waybread
 K:401:0x82:0x86

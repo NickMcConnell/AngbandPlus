@@ -418,7 +418,11 @@ void do_cmd_wield(void)
 	{
 		/* Warn the player */
 		sound(MSG_CURSED);
-		msg_print("Oops! It feels deathly cold!");
+		if (o_ptr->tval==TV_BOLT || o_ptr->tval==TV_SHOT || o_ptr->tval==TV_ARROW){
+			msg_print("Oops! It feels untrustworthy...");
+		} else {
+			msg_print("Oops! It feels deathly cold!");
+		}
 
 		/* Remove special inscription, if any */
 		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
@@ -478,7 +482,7 @@ void do_cmd_takeoff(void)
 
 
 	/* Item is cursed */
-	if (cursed_p(o_ptr))
+	if (cursed_p(o_ptr) && (!(IS_QUIVER_SLOT(item))))
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -486,17 +490,6 @@ void do_cmd_takeoff(void)
 		/* Nope */
 		return;
 	}
-
-	/* Cursed quiver */
-	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
-	{
-		/* Oops */
-		msg_print("Your quiver is cursed!");
-
-		/* Nope */
-		return;
-	}
-
 
 	/* Take a partial turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE / 2;
@@ -536,20 +529,10 @@ void do_cmd_drop(void)
 	}
 
 	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	if ((item >= INVEN_WIELD) && cursed_p(o_ptr)  && (!(IS_QUIVER_SLOT(item))))
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
-
-		/* Nope */
-		return;
-	}
-
-	/* Cursed quiver */
-	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
-	{
-		/* Oops */
-		msg_print("Your quiver is cursed!");
 
 		/* Nope */
 		return;

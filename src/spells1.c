@@ -353,6 +353,8 @@ void teleport_player_level(int who)
 	bool go_up = FALSE;
 	bool go_down = FALSE;
 
+	int was_challenged;
+
 	/* Take damage from terrain */
 	process_player_terrain_damage();
 
@@ -433,9 +435,15 @@ void teleport_player_level(int who)
 		message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
 		/* New depth */
+		was_challenged = challenged();
+				
 		p_ptr->depth++;
 
 		potential_effect_on_stats();
+
+		if (!was_challenged && challenged()){
+			msg_print("You feel more challenged now.");
+		}
 
 		regenmana(100);
 
@@ -1070,7 +1078,7 @@ static bool dislikes_elec(const object_type *o_ptr)
 		{
 			return (TRUE);
 		}
-		
+
 	}
 
 	return (FALSE);
@@ -1129,7 +1137,7 @@ static bool dislikes_fire(const object_type *o_ptr)
 		{
 			return (TRUE);
 		}
-		
+
 	}
 
 	return (FALSE);
@@ -2193,19 +2201,8 @@ bool dec_stat(int stat, int amount, bool permanent)
 		/* Handle "high" values */
 		else
 		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((cur-18) / 2 + 1) / 2 + 1);
-
-			/* Paranoia */
-			if (loss < 1) loss = 1;
-
-			/* Randomize the loss */
-			loss = ((randint(loss) + loss) * amount) / 100;
-
-			/* Maximal loss */
-			if (loss < amount/2) loss = amount/2;
+			/* Hack -- Decrement by a random amount */
+			loss = randint(amount/2) + amount/2;
 
 			/* Lose some points */
 			cur = cur - loss;
@@ -2236,13 +2233,9 @@ bool dec_stat(int stat, int amount, bool permanent)
 		/* Handle "high" values */
 		else
 		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((max-18) / 2 + 1) / 2 + 1);
-			if (loss < 1) loss = 1;
-			loss = ((randint(loss) + loss) * amount) / 100;
-			if (loss < amount/2) loss = amount/2;
+			/* Hack -- Decrement by a random amount */
+			loss = randint(amount/2) + amount/2;
+
 
 			/* Lose some points */
 			max = max - loss;
@@ -4708,33 +4701,39 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		{
 			if (seen) obvious = TRUE;
 
+			if (r_ptr->flags3 & (RF3_VULN_SLOW)){
+				dam = MAX(dam + 10,(dam*3)/2);
+				note = MON_MSG_HIT_HARD;
+			}
+
 			do_slow = dam;
-			
+
 			/* Powerful monsters can resist */
 			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(2))) ||
-			    ((r_ptr->level/2 + randint(MAX(4, r_ptr->level / 2))) >
+			    ((r_ptr->level/2 + randint(MAX(4, r_ptr->level / 3))) >
 				 (randint(dam+3) )))
 			{
-				note = MON_MSG_UNAFFECTED;
-				obvious = FALSE;
-				if ((seen) && (r_ptr->flags4 & (RF3_NO_SLOW)))
-				    l_ptr->r_l_flags4 |= (RF3_NO_SLOW);
+				note = MON_MSG_RESIST_SOMEWHAT;
 				do_slow = MIN(do_slow,damroll(3,2));
 			}
 
 			/* Powerful monsters can prevent */
 			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(3))) ||
 				(r_ptr->flags3 & (RF3_NO_SLOW)) ||
-			    ((r_ptr->level/2 + randint(MAX(4, r_ptr->level / 2))) >
+			    ((r_ptr->level/2 + randint(MAX(4, r_ptr->level / 3))) >
 				 (randint(dam+7) )))
 			{
 				note = MON_MSG_UNAFFECTED;
 				obvious = FALSE;
-				if ((seen) && (r_ptr->flags4 & (RF3_NO_SLOW)))
-				    l_ptr->r_l_flags4 |= (RF3_NO_SLOW);
+				if ((seen) && (r_ptr->flags3 & (RF3_NO_SLOW)))
+				    l_ptr->r_l_flags3 |= (RF3_NO_SLOW);
 				do_slow = 0;
 			}
-			
+
+			if (do_slow && (r_ptr->flags3 & (RF3_VULN_SLOW))){
+				l_ptr->r_l_flags3 |= (RF3_VULN_SLOW);
+			}
+
 			/* No "real" damage */
 			dam = 0;
 			break;
@@ -4746,10 +4745,15 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		{
 			if (seen) obvious = TRUE;
 
+			if (r_ptr->flags3 & (RF3_VULN_SLEEP)){
+				dam = MAX(dam + 10,(dam*3)/2);
+				note = MON_MSG_HIT_HARD;
+			}
+
 			/* Attempt a saving throw */
 			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(3))) ||
 			    (r_ptr->flags3 & (RF3_NO_SLEEP)) ||
-			    ((r_ptr->level/2 + randint(MAX(4, r_ptr->level / 2))) >
+			    ((r_ptr->level/2 + randint(MAX(4, r_ptr->level / 3))) >
 				 (randint(dam+7) )))
 			{
 				/* Memorize a flag */
@@ -4769,6 +4773,10 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				do_sleep = 500;
 			}
 
+			if (do_sleep && (r_ptr->flags3 & (RF3_VULN_SLEEP))){
+				l_ptr->r_l_flags3 |= (RF3_VULN_SLEEP);
+			}
+
 			/* No "real" damage */
 			dam = 0;
 			break;
@@ -4780,12 +4788,17 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		{
 			if (seen) obvious = TRUE;
 
+			if (r_ptr->flags3 & (RF3_VULN_CONF)){
+				dam = MAX(dam + 10,(dam*3)/2);
+				note = MON_MSG_HIT_HARD;
+			}
+
 			/* Get confused later */
 			do_conf = damroll(3, (dam / 2)) + 1;
 
 			/* Attempt a saving throw to reduce */
 			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(2))) ||
-			    ((r_ptr->level/2 + randint(MAX(4, r_ptr->level / 2))) >
+			    ((r_ptr->level/2 + randint(MAX(4, r_ptr->level / 3))) >
 				 (randint(dam+3))))
 			{
 				/* Memorize a flag */
@@ -4794,18 +4807,16 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 					if (seen) l_ptr->r_l_flags3 |= (RF3_NO_CONF);
 				}
 
-				/* Resist */
+				/* Resist partly */
 				do_conf = MIN(damroll(3,2),do_conf);
 
-				/* No obvious effect */
-				note = MON_MSG_UNAFFECTED;
-				obvious = FALSE;
+				note = MON_MSG_RESIST_SOMEWHAT;
 			}
 
 			/* Attempt a saving throw to prevent */
 			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(3))) ||
 			    (r_ptr->flags3 & (RF3_NO_CONF)) ||
-			    ((r_ptr->level/2 + randint(MAX(4, r_ptr->level / 2))) >
+			    ((r_ptr->level/2 + randint(MAX(4, r_ptr->level / 3))) >
 				 (randint(dam+7))))
 			{
 				/* Memorize a flag */
@@ -4821,7 +4832,11 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				note = MON_MSG_UNAFFECTED;
 				obvious = FALSE;
 			}
-			
+
+			if (do_conf && (r_ptr->flags3 & (RF3_VULN_CONF))){
+				l_ptr->r_l_flags3 |= (RF3_VULN_CONF);
+			}
+
 			/* No "real" damage */
 			dam = 0;
 			break;
@@ -4975,6 +4990,20 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 			/* Prepare to teleport */
 			do_dist = dam;
+
+			if (r_ptr->flags3 & (RF3_RES_NEXUS))
+			{
+				note = MON_MSG_RESIST;
+				do_dist = 0;
+				if (seen) l_ptr->r_l_flags3 |= (RF3_RES_NEXUS);
+			}
+			else if ((r_ptr->flags4 & (RF4_BRTH_NEXUS)) ||
+			    prefix(name, "Nexus"))
+			{
+				note = MON_MSG_RESIST;
+				do_dist = 0;
+				if (seen) l_ptr->r_l_flags4 |= (RF4_BRTH_NEXUS);
+			}
 
 			/* No "real" damage */
 			dam = 0;
@@ -7390,7 +7419,7 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 		 * If a particular diameter for the source of the explosion's
 		 * energy is given, calculate an adjusted damage.
 		 */
-		else 
+		else
 		{
 			dam_temp = (source_diameter * dam) / ((i + 1) * 10);
 			if (dam_temp > (u32b)dam) dam_temp = dam;

@@ -2321,15 +2321,15 @@ cptr window_flag_desc[32] =
 option_type options[OPT_MAX] =
 {
 	{"rogue_like_commands",	"Rogue-like commands",					FALSE},		/* OPT_rogue_like_commands */
-	{"quick_messages",		"Activate quick messages",				TRUE},		/* OPT_quick_messages */
-	{"floor_query_flag",	"Prompt for floor item selection",		FALSE},		/* OPT_floor_query_flag */
-	{"carry_query_flag",	"Prompt before picking things up",		TRUE},		/* OPT_carry_query_flag */
+	{"quick_messages",					"Quick messages",			TRUE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
 	{"use_old_target",		"Use old target by default",			FALSE},		/* OPT_use_old_target */
 	{"always_pickup",		"Pick things up by default",			TRUE},		/* OPT_always_pickup */
 	{"always_repeat",		"Repeat obvious commands",				FALSE},		/* OPT_always_repeat */
 	{"depth_in_feet",		"Show dungeon level in feet",			FALSE},		/* OPT_depth_in_feet */
-	{"stack_force_notes",	"Merge inscriptions when stacking",		FALSE},		/* OPT_stack_force_notes */
-	{"stack_force_costs",	"Merge discounts when stacking",		FALSE},		/* OPT_stack_force_costs */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
 	{"expand_inscribe",     "Expand the power of the inscribe commands", TRUE},	/* OPT_expand_inscribe */
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{NULL,					NULL,									FALSE},		/* xxx */
@@ -2359,7 +2359,7 @@ option_type options[OPT_MAX] =
 	{"expand_look",			"Expand the power of the look command",	TRUE},		/* OPT_expand_look */
 	{"expand_list",			"Expand the power of the list commands",TRUE},		/* OPT_expand_list */
 	{"view_perma_grids",	"Map remembers all perma-lit grids",	TRUE},		/* OPT_view_perma_grids */
-	{"view_torch_grids",	"Map remembers all torch-lit grids",	FALSE},		/* OPT_view_torch_grids */
+	{"view_torch_grids",	"Map remembers all torch-lit grids",	TRUE},		/* OPT_view_torch_grids */
 	{"dungeon_align",		"Generate dungeons with aligned rooms",	TRUE},		/* OPT_dungeon_align */
 	{"dungeon_stair",		"Generate dungeons with connected stairs",TRUE},	/* OPT_dungeon_stair */
 	{NULL,					NULL,	FALSE},/* xxx */
@@ -2386,7 +2386,7 @@ option_type options[OPT_MAX] =
 	{"view_special_lite",	"Use special colors for floor grids",	FALSE},	/* OPT_view_special_lite */
 	{"easy_open",			"Open/Disarm/Close without direction",	TRUE},	/* OPT_easy_open */
 	{"easy_alter",			"Open/Disarm doors/traps on movement",	TRUE},	/* OPT_easy_alter */
-	{"easy_floor",			"Display floor stacks in a list",		FALSE},	/* OPT_easy_floor */
+	{NULL,				NULL,									FALSE},
 	{"show_piles",			"Show stacks using special attr/char",	FALSE},	/* OPT_show_piles */
 	{"center_player",		"Center map continuously (very slow)",	FALSE},	/* OPT_center_player */
 	{"run_avoid_center",	"Avoid centering while running",		FALSE},	/* OPT_run_avoid_center */
@@ -2587,18 +2587,18 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_rogue_like_commands,
 		OPT_quick_messages,
-		OPT_floor_query_flag,
-		OPT_carry_query_flag,
 		OPT_use_old_target,
 		OPT_always_pickup,
 		OPT_always_repeat,
-		OPT_stack_force_notes,
-		OPT_stack_force_costs,
-		OPT_ring_bell,
+		OPT_NONE,
 		OPT_easy_open,
 		OPT_easy_alter,
-		OPT_easy_floor,
 		OPT_expand_inscribe,
+		OPT_verify_destroy,
+		OPT_verify_special,
+		OPT_allow_quantity,
+		OPT_NONE,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2610,20 +2610,20 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/*** Disturbance ***/
 
 	{
-		OPT_run_ignore_stairs,
-		OPT_run_ignore_doors,
-		OPT_run_cut_corners,
-		OPT_run_use_corners,
 		OPT_disturb_move,
 		OPT_disturb_near,
 		OPT_disturb_panel,
 		OPT_disturb_state,
 		OPT_disturb_minor,
 		OPT_disturb_wakeup,
-		OPT_verify_destroy,
-		OPT_verify_special,
-		OPT_allow_quantity,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
 		OPT_auto_more,
+		OPT_flush_failure,
+		OPT_flush_disturb,
+		OPT_ring_bell,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2638,10 +2638,10 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
-		OPT_expand_look,
-		OPT_expand_list,
-		OPT_view_perma_grids,
-		OPT_view_torch_grids,
+		OPT_NONE,
+		OPT_NONE,		
+		OPT_NONE,
+		OPT_NONE,
 		OPT_dungeon_align,
 		OPT_NONE,
 		OPT_NONE,
@@ -2657,60 +2657,35 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_NONE
 	},
 
-	/*** Efficiency ***/
+    /*** Display ***/
 
 	{
-		OPT_view_reduce_lite,
-		OPT_hidden_player,
-		OPT_avoid_abort,
-		OPT_avoid_other,
-		OPT_flush_failure,
-		OPT_flush_disturb,
-		OPT_fresh_before,
-		OPT_fresh_after,
-		OPT_compress_savefile,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-	},
-
-	/*** Display ***/
-
-	{
+		OPT_hp_changes_color,
 		OPT_depth_in_feet,
-		OPT_show_details,
-		OPT_show_flavors,
+		OPT_NONE,
+		OPT_NONE,
 		OPT_hilite_player,
+		OPT_center_player,
+		OPT_run_avoid_center,
 		OPT_view_yellow_lite,
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
- 		OPT_center_player,
- 		OPT_run_avoid_center,
-		OPT_show_piles,
-		OPT_hp_changes_color,
+		OPT_view_perma_grids,
+		OPT_view_torch_grids,
+ 		OPT_show_piles,
 		OPT_NONE,
 		OPT_mark_squelch_items,
 		OPT_toggle_xp,
 		OPT_auto_display_lists,
 		OPT_xchars_to_file,
 		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
 	},
 
 	/*** Birth ***/
 
 	{
-		OPT_birth_maximize,
+		OPT_NONE,
 		OPT_birth_preserve,
 		OPT_NONE,
 		OPT_birth_no_artifacts,
@@ -2719,7 +2694,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	 	OPT_birth_take_notes,
 		OPT_birth_force_small_lev,
 		OPT_birth_retain_squelch,
-		OPT_birth_no_xtra_artifacts,
+		OPT_NONE,
 		OPT_birth_no_discovery,
 		OPT_birth_easy_start,
 		OPT_NONE,

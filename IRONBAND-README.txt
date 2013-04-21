@@ -24,7 +24,9 @@ healing potions to be in short supply from time to time. Some spells
 can help here.
 
 3. You cannot spend gold when there are no shops, but now you get XP
-when you pick money up instead.
+when you pick money up instead. 10 gold worth of treasure converts to 
+1 XP (unless it is too low level; copper and silver soon stop giving 
+you any XP).
 
 4. The maximum character level is CL 36 (rather than 50 as in other
 *bands).
@@ -54,7 +56,7 @@ sources are identified when you put them on. Wands and talismans are
 identified when you first see them. If you wield a pseudo-identified
 weapon or armor, you get to see its plusses (though not any special
 powers it may have). Melee weapons with slays and brands give you
-different hit messages so can be easily recognied.
+different hit messages so can be easily recognised.
 
 10. On the other hand, cursed items now pseudo-ID as 'good' and
 terrible items as 'excellent' or 'special'. So watch out as pseudo-ID
