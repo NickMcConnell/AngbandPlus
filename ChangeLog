@@ -1,3 +1,34 @@
+2001-11-22  Stig E Sandø <stig@users.sourceforge.net>
+	* Added random name-generator (variants/vanilla/*lisp)
+	* Added possibility to enter a player-name (or any string),
+	currently in birth.lisp
+	* Made birth-process use random name generator as default.
+	* Improved death and high-score handling (death.lisp)
+	* Various small fixes, added assertions and some bug-fixing
+		
+2001-10-29  Stig E Sandø <stig@users.sourceforge.net>
+	* Improved 'use'-code in actions.lisp
+	* Fixed repaint when wielding objects
+	* Added queue-code to base.lisp (used by room-lightning code)
+	* Added symbol-handling used by object-macros
+	* Added inheritance of object-types and active-objects, works via
+	an object-macro.  See object.lisp
+	* Added dmg-bonus from weapon in combat
+	* Added beginning of high-score code in death.lisp
+	* Started to add magicification of objects
+	* Improved object-identify/try/aware code greatly, uses generics
+	* Lets active-objects use game-values as they should, removed old
+	hack
+	* Improved object-description-code in object.lisp but it is hardly
+	finished.
+	* Moved creation of object-kinds and active-objects into produce-*
+	factories.
+	* Revamped much of the code for object-effects
+	* Added several scroll-effects
+	* Start to add enchant, light and teleport spells
+	* Added types to the objects in the vanilla-variant
+	* Many many bug-fixes
+		
 2001-08-06  Stig E Sandø <stig@users.sourceforge.net>
 	* Fixed a bug reported by Tijs about 'Q'uit behaviour.  Quit will
 	now return to the Lisp-image for X11 and GCU.

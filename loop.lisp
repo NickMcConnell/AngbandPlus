@@ -22,38 +22,56 @@ ADD_DESC: Most of the code which deals with the game loops.
 (defun redraw-stuff (dun pl)
   "Redraws stuff according to *REDRAW*."
   
-  (when (= 0 *redraw*) (return-from redraw-stuff))
+  (when (= 0 *redraw*) (return-from redraw-stuff nil))
 
-  (when (bit-flag-set? *redraw* +print-map+)
-    (bit-flag-remove! *redraw* +print-map+)
-    (print-map dun pl)
-    )
+  (let ((retval nil))
+    
+    (when (bit-flag-set? *redraw* +print-map+)
+      (bit-flag-remove! *redraw* +print-map+)
+      (print-map dun pl)
+;;      (warn "frsh")
+;;      (c-term-fresh!)
+      (setf retval t))
 
-  (when (bit-flag-set? *redraw* +print-basic+)
-    (bit-flag-remove! *redraw* +print-basic+)
-    (print-basic-frame dun pl))
-  )
+    (when (bit-flag-set? *redraw* +print-basic+)
+      (bit-flag-remove! *redraw* +print-basic+)
+      (print-basic-frame dun pl)
+      (setf retval t))
+
+    retval))
 
 
 (defun update-stuff (dun pl)
   "Updates stuff according to *UPDATE*."
 
-  (when (= 0 *update*) (return-from update-stuff))
-
-  (when (bit-flag-set? *update* +forget-view+)
-    (bit-flag-remove! *update* +forget-view+)
-    (forget-view! dun pl))
-
-  (when (bit-flag-set? *update* +update-view+)
-    (bit-flag-remove! *update* +update-view+)
-    (update-view! dun pl))
+  (when (= 0 *update*) (return-from update-stuff nil))
   
-  (when (bit-flag-set? *update* +update-xp+)
-    (bit-flag-remove! *update* +update-xp+)
-    (update-xp-table! pl))
+  (let ((retval nil))
+    (when (bit-flag-set? *update* +forget-view+)
+      (bit-flag-remove! *update* +forget-view+)
+      (forget-view! dun pl)
+      (setf retval t))
 
-  )
+    (when (bit-flag-set? *update* +update-view+)
+      (bit-flag-remove! *update* +update-view+)
+      (update-view! dun pl)
+      (setf retval t))
+  
+    (when (bit-flag-set? *update* +update-xp+)
+      (bit-flag-remove! *update* +update-xp+)
+      (update-xp-table! pl)
+      (setf retval t))
+  
+    retval))
 
+(defun handle-stuff (dun pl)
+  (let ((retval nil))
+    (unless (= 0 *update*)
+      (setf retval (update-stuff dun pl)))
+    (unless (= 0 *redraw*)
+      (setf retval (or (redraw-stuff dun pl) retval)))
+  ;; add window-stuff
+    retval))
 
 
 (defvar *proj-arr-hack* (make-array 40 :fill-pointer 0))
@@ -375,7 +393,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 
       (loop
        ;; postpone compact
-
+;;       (warn "loop")
 
        (energise-creatures! dun pl)
        ;; do player
@@ -492,7 +510,8 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     ;; hack to remove cursor
     (c-set-cursor& 0)
-    
+
+    ;; FIX: this code _must_ be rewritten!!
     (block creation
       (loop
        (let ((the-player nil)
@@ -524,7 +543,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 	 (unless the-player ;; unable to load one.
 	   
 	   (let ((*level* (make-instance 'level))) ;; evil hack
-	     (setf the-player (create-character))))
+	     (setf the-player (create-character *variant*))))
 
 	 ;; ok have we gotten anything?
 	 (when the-player
@@ -553,10 +572,26 @@ ADD_DESC: Most of the code which deals with the game loops.
       (game-loop&))
 
     (cond ((and *player* (player.dead-p *player*))
-	   (c-prt! "Oops.. you died.. " 0 0)
-	   (c-clear-from! 0)
-	   (print-tomb *player*)
-	   )
+	   (let* ((pl *player*)
+		  (fname ".high-scores")
+		  (var-obj *variant*)
+		  (hs (make-high-score *variant* pl))
+		  (hs-pos (save-high-score& var-obj hs fname)))
+	     (c-prt! "Oops.. you died.. " 0 0)
+	     
+	     (progn
+	       (c-clear-from! 0)
+	       (print-tomb var-obj pl))
+
+	     (c-pause-line! *last-console-line*)
+	     
+	     (progn
+	       (c-clear-from! 0)
+	       (display-high-scores var-obj (get-high-scores var-obj fname) :current hs-pos))
+
+	     
+	     
+	     ))
 	  (t
 	   (c-prt! "Quitting..." 0 0)
 
@@ -571,3 +606,6 @@ ADD_DESC: Most of the code which deals with the game loops.
 (ff:defun-foreign-callable c-callable-play ()
   (play-game&))
 
+
+;;(trace redraw-stuff)
+;;(trace handle-stuff update-stuff)

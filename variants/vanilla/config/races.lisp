@@ -120,7 +120,7 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<sustain> <dex>)
 	       (<infravision> 4)
 	       )
-  :classes '(<warrior>)
+  :classes '(<warrior> <rogue> <mage>)
   
   :skills '((<disarming> 15 0)
 	    (<device> 18 0)
@@ -154,7 +154,7 @@ ADD_DESC: Contains definition of races in sexp.
 	       <free-action>
 	       (<infravision> 4)
 	       )
-  :classes '(<warrior>)
+  :classes '(<warrior> <rogue> <mage>)
   
   :skills '((<disarming> 10 0)
 	    (<device> 12 0)
@@ -190,7 +190,7 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<resist> <blindness>)
 	       (<infravision> 5)
 	       )
-  :classes '(<warrior>)
+  :classes '(<warrior> <rogue> <priest>)
   
   :skills '((<disarming> 2 0)
 	    (<device> 9 0)
@@ -223,7 +223,7 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<resist> <dark>)
 	       (<infravision> 3)
 	       )
-  :classes '(<warrior>)
+  :classes '(<warrior> <rogue>)
   
   :skills '((<disarming> -3 0)
 	    (<device> -3 0)
@@ -254,7 +254,7 @@ ADD_DESC: Contains definition of races in sexp.
 	       (<sustain> <str>)
 	       (<infravision> 3)
 	       )
-  :classes '(<warrior>)
+  :classes '(<warrior> <rogue>)
   
   :skills '((<disarming> -5 0)
 	    (<device> -8 0)

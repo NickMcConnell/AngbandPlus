@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
-#|
+#||
 
 DESC: monster.lisp - monster-code
 Copyright (c) 2000-2001 - Stig Erik Sandø
@@ -14,7 +14,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
-|#
+||#
 
 (in-package :org.langband.engine)
   
@@ -127,15 +127,17 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
   (monster.attacks (amon.kind mon)))
 
 (defun get-mkind-table (&optional (var-obj *variant*))
-  (assert (typep *level* 'level))
-  (assert (typep var-obj 'variant))
+  (check-type *level* level)
+  (check-type var-obj variant)
+  
   (let* ((o-table (get-mtype-table *level* var-obj))
 	 (table (gobj-table.obj-table o-table)))
     table))
 
 (defun %get-mkind-alloc-tbl ()
-  (assert (typep *level* 'level))
-  (assert (typep *variant* 'variant))
+  (check-type *level* level)
+  (check-type *variant* variant)
+  
   (let* ((o-table (get-mtype-table *level* *variant*))
 	 (table (gobj-table.alloc-table o-table)))
     table))
@@ -152,7 +154,8 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 (defun add-new-mkind! (obj id)
   ""
   (declare (ignore id))
-  (assert (typep *variant* 'variant))
+  (check-type *variant* variant)
+  
   (apply-filters-on-obj :monsters *variant* obj))
 
 (defun (setf get-monster-kind) (monster-kind id)

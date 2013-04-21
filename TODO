@@ -27,7 +27,7 @@ SPELLS and MAGICAL ITEMS
 SAVE/LOAD and SCORE
  - 2/3 of save/load implemented
  - save/load misses events, shops, etc.
- - high-score saving not implemented
+ - high-score saving not implemented [almost working]
 
 MONSTERS
  - extremely primitive AI, all monsters aggressive
@@ -37,7 +37,7 @@ MONSTERS
  - no monster-drops
 
 COMBAT
- - no magical weapons done
+ - no magical weapons done [barely started]
  - no ego-weapons done
  - no missile/thrown weapons
  - no special powers or bonuses used in combat

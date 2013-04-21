@@ -21,7 +21,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;;; cure potions
 ;;; ===================
 
-(define-object-effect (<potion> <cure> <light>)
+(define-object-effect (<potion> <cure> <light>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (let ((okind (aobj.kind item))
@@ -34,7 +34,7 @@ the Free Software Foundation; either version 2 of the License, or
       (possible-identify! pl okind))
     :used))
 
-(define-object-effect (<potion> <cure> <serious>)
+(define-object-effect (<potion> <cure> <serious>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (let ((okind (aobj.kind item))
@@ -49,7 +49,7 @@ the Free Software Foundation; either version 2 of the License, or
       (possible-identify! pl okind))
     :used))
 
-(define-object-effect (<potion> <cure> <critical>)
+(define-object-effect (<potion> <cure> <critical>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (let ((okind (aobj.kind item))
@@ -70,7 +70,7 @@ the Free Software Foundation; either version 2 of the License, or
     :used))
 
 
-(define-object-effect (<potion> <cure> <poison>)
+(define-object-effect (<potion> <cure> <poison>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (let ((okind (aobj.kind item)))
@@ -78,7 +78,7 @@ the Free Software Foundation; either version 2 of the License, or
       (possible-identify! pl okind))
     :used))
 
-(define-object-effect (<potion> <cure> <healing> <normal>)
+(define-object-effect (<potion> <cure> <healing> <normal>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (let ((okind (aobj.kind item))
@@ -97,7 +97,7 @@ the Free Software Foundation; either version 2 of the License, or
       (possible-identify! pl okind))
     :used))
 
-(define-object-effect (<potion> <cure> <healing> <powerful>)
+(define-object-effect (<potion> <cure> <healing> <powerful>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (let ((okind (aobj.kind item))
@@ -117,7 +117,7 @@ the Free Software Foundation; either version 2 of the License, or
     :used))
 
 
-(define-object-effect (<potion> <life>)
+(define-object-effect (<potion> <life>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (let ((okind (aobj.kind item))
@@ -144,42 +144,42 @@ the Free Software Foundation; either version 2 of the License, or
 ;;; restore-stat potions
 ;;; =====================
 
-(define-object-effect (<potion> <restore> <str>)
+(define-object-effect (<potion> <restore> <str>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<str> '<restore>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <restore> <dex>)
+(define-object-effect (<potion> <restore> <dex>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<dex> '<restore>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <restore> <con>)
+(define-object-effect (<potion> <restore> <con>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<con> '<restore>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <restore> <int>)
+(define-object-effect (<potion> <restore> <int>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<int> '<restore>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <restore> <wis>)
+(define-object-effect (<potion> <restore> <wis>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<wis> '<restore>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <restore> <chr>)
+(define-object-effect (<potion> <restore> <chr>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<chr> '<restore>)
@@ -190,49 +190,49 @@ the Free Software Foundation; either version 2 of the License, or
 ;;; stat-gain potions
 ;;; ===================
 
-(define-object-effect (<potion> <increase> <str>)
+(define-object-effect (<potion> <increase> <str>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<str> '<increase>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <increase> <dex>)
+(define-object-effect (<potion> <increase> <dex>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<dex> '<increase>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <increase> <con>)
+(define-object-effect (<potion> <increase> <con>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<con> '<increase>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <increase> <int>)
+(define-object-effect (<potion> <increase> <int>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<int> '<increase>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <increase> <wis>)
+(define-object-effect (<potion> <increase> <wis>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<wis> '<increase>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <increase> <chr>)
+(define-object-effect (<potion> <increase> <chr>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<chr> '<increase>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <augmentation>)
+(define-object-effect (<potion> <augmentation>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<str> '<increase>)
@@ -253,42 +253,42 @@ the Free Software Foundation; either version 2 of the License, or
 ;;; lower-stat potions
 ;;; ===================
 
-(define-object-effect (<potion> <reduce> <str>)
+(define-object-effect (<potion> <reduce> <str>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<str> '<reduce>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <reduce> <dex>)
+(define-object-effect (<potion> <reduce> <dex>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<dex> '<reduce>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <reduce> <con>)
+(define-object-effect (<potion> <reduce> <con>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<con> '<reduce>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <reduce> <int>)
+(define-object-effect (<potion> <reduce> <int>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<int> '<reduce>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <reduce> <wis>)
+(define-object-effect (<potion> <reduce> <wis>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<wis> '<reduce>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<potion> <reduce> <chr>)
+(define-object-effect (<potion> <reduce> <chr>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<chr> '<reduce>)
@@ -299,21 +299,21 @@ the Free Software Foundation; either version 2 of the License, or
 ;;; nutrition
 ;;; ===================
 
-(define-object-effect (<potion> <slime-mold>)
+(define-object-effect (<potion> <slime-mold>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (c-print-message! "You feel less thirsty!")
   (possible-identify! pl (aobj.kind item))
   :used)
 
-(define-object-effect (<potion> <apple-juice>)
+(define-object-effect (<potion> <apple-juice>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (c-print-message! "You feel less thirsty!")
   (possible-identify! pl (aobj.kind item))
   :used)
 
-(define-object-effect (<potion> <water>)
+(define-object-effect (<potion> <water>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (c-print-message! "You feel less thirsty!")
@@ -325,7 +325,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;;; assorted potions
 ;;; ===================
 
-(define-object-effect (<potion> <berserk-strength>)
+(define-object-effect (<potion> <berserk-strength>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (let ((okind (aobj.kind item)))
@@ -337,7 +337,7 @@ the Free Software Foundation; either version 2 of the License, or
       (possible-identify! pl okind)))
   :used)
 
-(define-object-effect (<potion> <heroism>)
+(define-object-effect (<potion> <heroism>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (let ((okind (aobj.kind item)))
@@ -349,7 +349,7 @@ the Free Software Foundation; either version 2 of the License, or
       (possible-identify! pl okind)))
   :used)
 
-(define-object-effect (<potion> <boldness>)
+(define-object-effect (<potion> <boldness>) (:effect (:quaff :use))
     (dun pl item)
   (declare (ignore dun))
   (when  (set-creature-state! pl :fear nil)

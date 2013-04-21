@@ -65,6 +65,7 @@ ADD_DESC: This file just contains simple init and loading of the game
   #-defsystem-madness
   nil)
 
+;; make some logical paths for later loading
 (assign-log-path& *current-dir* "langband")
 (assign-log-path& (strcat *current-dir* "tools/") "langband-tools")
 (assign-log-path& (strcat *current-dir* "tests/") "langband-tests")
@@ -95,8 +96,8 @@ ADD_DESC: This file just contains simple init and loading of the game
 		    ))
 
 
-(proclaim *dev-opt*)
-;;(proclaim *normal-opt*)
+;;(proclaim *dev-opt*)
+(proclaim *normal-opt*)
  
 (defun compile-in-environment (func)
   (let (

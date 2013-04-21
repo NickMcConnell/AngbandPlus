@@ -43,7 +43,7 @@ INSTALLSOURCES	:= \
 	stat.lisp  race.lisp \
 	class.lisp  object.lisp \
 	equipment.lisp  player.lisp \
-	birth.lisp  flavours.lisp \
+	flavours.lisp \
 	monster.lisp  dungeon.lisp \
 	building.lisp  stores.lisp \
 	allocate.lisp  rooms.lisp \
@@ -51,7 +51,8 @@ INSTALLSOURCES	:= \
 	util.lisp  combat.lisp \
 	keys.lisp  actions.lisp \
 	view.lisp save.lisp  load.lisp \
-	death.lisp loop.lisp \
+	death.lisp \
+	birth.lisp loop.lisp \
 	init.lisp verify.lisp
 
 COMPATSRC = \
@@ -63,11 +64,15 @@ BINTYPESSRC = \
 	binary-types/binary-types.lisp
 
 FOREIGNSRC = \
-	ffi/ffi-cmu.lisp \
-	ffi/ffi-clisp.lisp \
 	ffi/ffi-acl.lisp \
-	ffi/ffi-sys.lisp \
-	ffi/ffi-load.lisp
+	ffi/ffi-clisp.lisp \
+	ffi/ffi-cmu.lisp \
+	ffi/ffi-corman.lisp \
+	ffi/ffi-load.lisp \
+	ffi/ffi-defs.lisp \
+	ffi/ffi-lw.lisp \
+	ffi/ffi-sys.lisp 
+
 
 CONFSRC = \
 	config/dead.txt \
@@ -75,31 +80,34 @@ CONFSRC = \
 	config/prefs.lisp \
 	config/sound.lisp \
 	config/x11-keys.lisp \
-	config/gcu-keys.lisp
+	config/gcu-keys.lisp \
+	config/win-keys.lisp
 
 
 VANSRC = \
 	variants/vanilla/langband-vanilla.system \
 	variants/vanilla/base.lisp \
-	variants/vanilla/quirks.lisp \
-	variants/vanilla/various.lisp \
-	variants/vanilla/rooms.lisp \
-	variants/vanilla/levels.lisp \
-	variants/vanilla/scrolls.lisp \
-	variants/vanilla/potions.lisp \
 	variants/vanilla/food.lisp \
+	variants/vanilla/keys.lisp \
+	variants/vanilla/levels.lisp \
+	variants/vanilla/potions.lisp \
+	variants/vanilla/quirks.lisp \
+	variants/vanilla/rooms.lisp \
+	variants/vanilla/scrolls.lisp \
 	variants/vanilla/spells.lisp \
-	variants/vanilla/keys.lisp
+	variants/vanilla/various.lisp 
+
+
 
 VANCONFSRC = \
-	variants/vanilla/config/defines.lisp \
-	variants/vanilla/config/races.lisp \
 	variants/vanilla/config/classes.lisp \
+	variants/vanilla/config/defines.lisp \
 	variants/vanilla/config/flavours.lisp \
-	variants/vanilla/config/stores.lisp \
 	variants/vanilla/config/floors.lisp \
+	variants/vanilla/config/monsters.lisp \
 	variants/vanilla/config/objects.lisp \
-	variants/vanilla/config/monsters.lisp 
+	variants/vanilla/config/races.lisp \
+	variants/vanilla/config/stores.lisp 
 
 
 build: 

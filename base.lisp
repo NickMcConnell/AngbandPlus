@@ -161,6 +161,21 @@ but optimized for vectors."
                        stuff)))
         ((null next-pos) (nreverse stuff)))))
 
+(defun make-queue ()
+  (cons nil nil))
+
+(defun queue-as-list (q)
+  (car q))
+
+(defun enqueue (obj q)
+  (if (null (car q))
+      (setf (cdr q) (setf (car q) (list obj)))
+      (setf (cdr (cdr q)) (list obj)
+	    (cdr q) (cdr (cdr q))))
+  (car q))
+
+(defun dequeue (q)
+  (pop (car q)))
 
 
 (defun register-variant-common& (&key before-game-init after-game-init)
@@ -221,6 +236,16 @@ before variant init-functions."
 ;; hack ever so long
 (defun rand-range (a b)
   (+ a (random (1+ (- b a)))))
+
+(defun rand-spread (a b)
+  (rand-range (- a b) (+ a b)))
+
+(defun rand-elm (seq)
+  "Returns a random element from given sequence."
+  (let* ((len (length seq))
+	 (elm (random len)))
+    (elt seq elm)))
+    
 
 #+(or cmu lispworks)
 (defsubst int-/ (a b)
@@ -598,6 +623,37 @@ cases.  Leaks memory, only use when testing."
 			  (setf last-char x)))
 		   )))
 	  )))
+
+(declaim (inline mystrcat))
+(defun mystrcat (x y)
+  "Basically catenates strings and tries to stringify arguments to be sure"
+  (concatenate 'string (string x) (string y)))
+
+
+(defun get-symcase-fun ()
+  "Returns the symcase-fun as a symbol."
+  #+allegro
+  (ecase excl:*current-case-mode*
+    (:case-sensitive-lower
+     'string-downcase)
+    (:case-insensitive-upper
+     'string-upcase))
+  #-allegro
+  'string-upcase)
+
+(defmacro concat-pnames (&rest args) 
+  "concatenates strings or symbols and returns an interned
+symbol which can be passed to e.g defun (as name of function)."
+
+  (let ((str (gensym))
+        (case-fun (get-symcase-fun)))
+
+    `(let ((,str (,case-fun (reduce #'mystrcat (list ,@args)))))
+       (if (and (plusp (length ,str)) (eql (char ,str 0) #\:))
+           (intern (subseq ,str 1) (find-package :keyword))
+           (intern ,str)
+           ))
+    ))
 
 
 #||

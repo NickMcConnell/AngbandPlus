@@ -365,10 +365,14 @@ should be an exisiting id."
     (flet ((iterator-fun (a-table key val)
 	     (declare (ignore a-table key))
 	     (let ((attr (get-attribute val))
-		   (price (get-price val store)))
+		   (price (get-price val store))
+		   (desc (with-output-to-string (s)
+			   (write-obj-description val s :store t))))
 	       (c-prt! "" (+ i y) (- x 2))
 	       (c-col-put-str! +term-white+ (format nil "~a) " (i2a i)) (+ i y) x)
-	       (c-col-put-str! attr (description val :store store) (+ i y) (+ x 4))
+	       
+	       (c-col-put-str! attr desc (+ i y) (+ x 4))
+	       
 	       (let* ((weight (object.weight (aobj.kind val)))
 		      (full-pounds (int-/ weight 10))
 		      (fractions (mod weight 10)))

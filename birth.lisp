@@ -20,6 +20,18 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
 
 
 (defun %birth-input-char (alt-len)
+  "INTERNAL FUNCTION.  Might change!
+
+Reads a character via READ-ONE-CHARACTER and
+acts on the result:
+  Q     - calls QUIT-GAME&
+  S     - returns NIL
+  ESC   - Picks random value and returns it (a number)
+  *     - As ESC
+  ENTER - Returns 'CURRENT (ie the currently selected value)
+  SPACE - As ENTER
+  [a-z] - Checks if the value is legal, returns number if ok, returns 'BAD-VALUE if not legal
+"
   (let ((val (read-one-character)))
     (assert (characterp val))
 ;;    (warn "Got back ~a ~s ~s" val val (type-of val))
@@ -66,7 +78,16 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
 (defun %birth-input (col row alternatives
 		     &key (display-fun nil) (mod-value 5) (bottom-display 10)
 		     (ask-for "value"))
-		     
+  "INTERNAL FUNCTION.
+The COL, ROW argument specifies where the alternatives should start
+ALTERNATIVES is a list of valid alternatives
+DISPLAY-FUN is a function to display help for a given option
+MOD-VALUE is how much space should be between rows (I think)
+BOTTOM-DISPLAY means something
+
+[add more info]
+"
+  
   (let ((alt-len (length alternatives)))
     (labels ((display-alternatives (highlight-num)
 	       (let ((desc (when display-fun
@@ -119,10 +140,11 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
 
 (defun create-character-basics! (the-player)
   "Interactive questioning to select the basics of the character.
-Modififes the given player object."
+Modififes the passed player object THE-PLAYER.  This is a long function."
+  
   (clear-the-screen!)
 
-  ;; in upper right corner
+  ;; print info on process in upper right corner
   (c-print-text! 23 2 +term-white+
 		#.(concatenate 'string
 			       "Please answer the following questions.  "
@@ -137,10 +159,9 @@ Modififes the given player object."
 	(quest-row 21)
 	(quest-col 2))
   
-    ;; Player sex
-
+    ;; First we do the player sex
     (c-clear-from! info-row) ;; clears things
-    ;; Extra info 
+    ;; Print extra-info Extra info 
     (c-term-putstr! info-col info-row -1 info-colour
 		    "Your 'sex' does not have any significant gameplay effects.")
 
@@ -257,7 +278,8 @@ Modififes the given player object."
 		    (return-from input-loop nil))
 		   
 		   (t
-		    (warn "Unknown return-value from class input-loop ~s, must be [0..~s)" inp comb-class-len))
+		    (warn "Unknown return-value from class input-loop ~s, must be [0..~s)"
+			  inp comb-class-len))
 		   ))))
 	)
 
@@ -272,36 +294,41 @@ Modififes the given player object."
   t))
 
 (defun roll-stats! (player)
-  "Rolls stats and modifies given player object."
+  "Rolls stats and modifies given player object.
+Returns the base-stats as an array or NIL if something failed."
   
-  (setf (player.base-stats player) (make-stat-array))
-  (setf (player.curbase-stats player) (make-stat-array))
-  (setf (player.modbase-stats player) (make-stat-array))
-  (setf (player.active-stats player) (make-stat-array))
+  (setf (player.base-stats player)    (make-stat-array)
+	(player.curbase-stats player) (make-stat-array)
+	(player.modbase-stats player) (make-stat-array)
+	(player.active-stats player)  (make-stat-array))
   
-  (let* ((arr-len 18)
+  (let* ((arr-len (* 3 +stat-length+))
 ;;	 (bonus 0)
 	 (rolls (make-array arr-len)))
 
+    ;; roll 1d3, 1d4, 1d5 series
     (block roller
       (while t
 	(dotimes (i arr-len)
 	  (setf (svref rolls i) (randint (+ 3 (mod i 3)))))
-	
+
+	;; sum up rolls
 	(let ((sum (reduce #'+ rolls)))
-;;	  (warn "We have sum ~a" sum)
-	  (when (and (< 42 sum) (> 54 sum))
+	  (when (and (< 42 sum) (> 54 sum)) ;; within acceptable range
 	    (return-from roller)))))
 
+    ;; now assign values
     (dotimes (i +stat-length+)
-      (let ((stat-val (+ 5
-			 (svref rolls (* 3 i))
-			 (svref rolls (1+ (* 3 i)))
-			 (svref rolls (1+ (1+ (* 3 i)))))))
+      (let* ((arr-offset (* 3 i))
+	     (stat-val (+ 5
+			 (svref rolls (+ 0 arr-offset))
+			 (svref rolls (+ 1 arr-offset))
+			 (svref rolls (+ 2 arr-offset)))))
 	
 	(setf (svref (player.base-stats player) i) stat-val
 	      (svref (player.curbase-stats player) i) stat-val))))
-  
+
+  ;; returns the array
   (player.base-stats player))
 
 	    
@@ -332,8 +359,15 @@ Modififes the given player object."
   t)
 
 (defun equip-character! (player settings)
-  "Equips the character with basic equipment."
+  "Equips the character with basic equipment.
+Triggers the events :ON-PRE-EQUIP and :ON-POST-EQUIP
 
+The equipment specififed for class and race will be added to the
+player.
+"
+  
+  ;; trigger an event if something should be done
+  ;; before character is equipped
   (trigger-event settings :on-pre-equip (list player nil))
   
   ;; first check race and class
@@ -341,66 +375,139 @@ Modififes the given player object."
 	 (class (player.class player))
 	 (start-eq-race (race.start-eq race))
 	 (start-eq-class (class.start-eq class))
+	 ;; avoid duplicate equipment
 	 (start-eq (remove-duplicates (append start-eq-race start-eq-class) :test #'eql)))
 
 ;;    (warn "Trying to equip [~a,~a] with ~s" race class start-eq)
-
     
-    
-    (flet ((add-obj-to-player! (obj)
-	     (let* ((backpack (player.inventory player))
+    (flet ((add-obj-to-player! (obj pl)
+	     "Adds the object to the player." 
+	     (let* ((backpack (player.inventory pl))
 		    (inventory (aobj.contains backpack))
 		    (okind (aobj.kind obj)))
 	       ;;(warn "adding ~a to inventory ~a" obj inventory)
-	       (setf (object.identified okind) t) ;; know the object already
-	       (item-table-add! inventory obj))))
+	       (learn-about-object! pl obj :aware)
+	       (learn-about-object! pl obj :known) ;; know the object already
+	       (item-table-add! inventory obj)))
+	   (object-id? (arg)
+	     (keywordp arg)))
 
+      ;; iterate over possible start-equipment
       (dolist (i start-eq)
-	(if (keywordp i)
-	    ;; we deal with an id
-	    (let ((obj (create-aobj-from-id i)))
-	      (if obj
-		  (add-obj-to-player! obj)
-		  (warn "Unable to find starting-object with id ~s" i)))
-	    ;; we have to find something that satisifies
-	    (let ((objs (objs-that-satisfy i)))
-	      ;; we only want one
-	      (if (not objs)
-		  (warn "Did not find any objects satisfying ~s" i)
-		  (let ((len (length objs))
-			(the-obj nil))
-		    (if (> len 1)
-			;; we must just return one
-			(setq the-obj (nth (random len) objs))
-			;; we have just one
-			(setq the-obj (car objs)))
-		    (add-obj-to-player! (create-aobj-from-kind the-obj)))))))
-
-      ;; hack.. give him some gold
-      (setf (player.gold player) (random 200))
+	(cond ((object-id? i)
+	       ;; we deal with an id
+	       (let ((obj (create-aobj-from-id i)))
+		 (if obj
+		     (add-obj-to-player! obj player)
+		     (warn "Unable to find starting-object with id ~s" i))))
+	      
+	      ;; otherwise we have something else
+	      (t
+	       ;; we have to find something that satisifies
+	       (let ((objs (objs-that-satisfy i)))
+		 ;; we only want one
+		 (if (not objs)
+		     (warn "Did not find any objects satisfying ~s" i)
+		     (let ((len (length objs))
+			   (the-obj nil))
+		       (if (> len 1)
+			   ;; we must just return one
+			   (setq the-obj (nth (random len) objs))
+			   ;; we have just one
+			   (setq the-obj (car objs)))
+		       (add-obj-to-player! (create-aobj-from-kind the-obj)
+					   player)))))
+	      ))
       
+      ;; hack.. give the player some gold
+      (setf (player.gold player) (random 200))
+
+      ;; trigger an event that should be done right after equip.
       (trigger-event settings :on-post-equip (list player nil))
       )))
 
-(defun create-character ()
-  "Creates a character with interactive selection.
-Returns the new L-PLAYER object or NIL on failure."
-  
-  (let ((the-player (create-player-obj))
-	(birth-settings (get-setting :birth)))
-	
-	
+(defun get-string-input (prompt &key (max-length 20) (x-pos 0) (y-pos 0))
+  "Non-efficient code to read input from the user, and return the string
+on success.  Returns NIL on failure or user-termination (esc)." 
+  (c-prt! prompt x-pos y-pos)
+
+  (let ((xpos (+ x-pos (length prompt)))
+	(ypos y-pos)
+	(wipe-str (make-string max-length :initial-element #\Space))
+	(cnt 0)
+	(collected '())
+	(return-value nil))
+
+    ;; wipe before we start to enter stuff
+    (c-term-putstr! xpos ypos -1 +term-dark+ wipe-str)
     
+    (block str-input
+      (loop
+       (let ((val (read-one-character)))
+	 ;;(warn "got ~s" val)
+	 (cond ((or (eql val +escape+) #|(eql val #\Escape)|#)
+		(return-from str-input nil))
+	       ((eql val #\Backspace)
+		(when collected
+		  (setq collected (cdr collected))
+		  (decf cnt)))
+	       ((or (eql val #\Return) (eql val #\Newline))
+		
+		(setq return-value (coerce (nreverse collected) 'string))
+		     (return-from str-input nil))
+	       ((alphanumericp val)
+		(push val collected)
+		(incf cnt))
+	       (t
+		(warn "Got unknown char ~s" val)))
+	    
+	 ;;	    (warn "print ~s" (coerce (reverse collected) 'string))
+	 (c-term-putstr! xpos ypos -1 +term-dark+ wipe-str)
+	 (c-term-putstr! xpos ypos -1 +term-l-blue+ (coerce (reverse collected) 'string))
+	 (c-term-gotoxy! (+ cnt xpos) ypos))))
+    
+    (c-prt! "" x-pos y-pos)
+    
+    return-value))
+
+(defun %get-name-input! (the-player)
+  (let ((new-name (get-string-input "Enter name for your character: " :max-length 15)))
+    (when (and new-name (stringp new-name))
+      (setf (player.name the-player) new-name))))
+	;;      (warn "Got ~s" new-name))
+  
+
+(defmethod create-character (variant)
+  "Creates a character with interactive selection.
+Returns the new PLAYER object or NIL on failure."
+
+  (check-type variant variant)
+  
+  (let ((the-player (create-player-obj variant))
+	(birth-settings (get-setting :birth)))
+
+   
     ;; get basics of the character
     (let ((basics (create-character-basics! the-player)))
       (unless basics
 	(return-from create-character nil)))
+
+    ;; now we should have a race
+    (let ((rand-name (generate-random-name variant the-player (player.race the-player))))
+      (when (and rand-name (stringp rand-name))
+	(setf (player.name the-player) rand-name)))
+
+    (unless (player.name the-player)
+      (%get-name-input! the-player))
+
     
     ;;do rolling
     (let ((rolling (roll-up-character! the-player)))
       (unless rolling
 	(return-from create-character nil)))
 
+  
+    ;; time to give him some equipment
     (equip-character! the-player birth-settings)
 
 ;;    (warn "stats are now ~s ~s" (player.base-stats the-player) (ok-object? the-player))

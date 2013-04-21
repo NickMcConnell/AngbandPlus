@@ -79,7 +79,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;(trace vinfo-init-aux)
 
-(defun vinfo-init ()
+(defun vinfo-init& ()
   "Inits the *vinfo* object."
   
   (let ((hack (create-vinfo-hack))

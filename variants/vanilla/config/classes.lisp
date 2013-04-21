@@ -233,7 +233,13 @@ ADD_DESC: Contains definition of classes in sexp.
   
     :starting-equipment '(<dagger>
 			  (<spellbook> <mage> <beginner>)
-			  (<scroll> <word-of-recall>)) 
+			  (<scroll> <word-of-recall>)
+			  ;; hacks
+			  (<scroll> <illuminate>)
+			  (<scroll> <illuminate>)
+			  (<scroll> <enchant> <weapon> <to-hit>)
+			  (<scroll> <enchant> <weapon> <powerful>)
+			  (<scroll> <phase-door>)) 
 
     :skills '((<disarming> 30 7)
 	      (<device> 36 13)

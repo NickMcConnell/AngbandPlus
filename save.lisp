@@ -470,7 +470,8 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod do-save ((type (eql :readable)) fname obj-list)
   (with-open-file (s (pathname fname)
 		     :direction :output
-		     :if-exists :supersede)
+		     :if-exists :supersede
+		     :if-does-not-exist :create)
     (let ((the-lang-stream (make-instance 'l-readable-stream :stream s))
 	  (*print-case* :downcase)
 	  (objs (if (listp obj-list) obj-list (list obj-list))))
@@ -488,7 +489,8 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  #-cormanlisp
   (bt:with-binary-file (s (pathname fname)
 			  :direction :output
-			  :if-exists :supersede)
+			  :if-exists :supersede
+			  :if-does-not-exist :create)
     
     (let ((bt:*endian* :little-endian)
 	  (the-lang-stream (make-instance 'l-binary-stream :stream s))
@@ -504,7 +506,8 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod %save-obj (obj fname)
   (with-open-file (s (pathname fname)
 		     :direction :output
-		     :if-exists :supersede)
+		     :if-exists :supersede
+		     :if-does-not-exist :create)
     (print obj s)))
 
 (defmethod do-load ((type (eql :readable)) fname obj-type)

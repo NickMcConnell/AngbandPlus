@@ -75,12 +75,19 @@ the Free Software Foundation; either version 2 of the License, or
     (when (and (= from-x (location-x pl))
 	       (= from-y (location-y pl)))
       (setf (location-x pl) to-x
-	    (location-y pl) to-y))
-	     
+	    (location-y pl) to-y)
+      ;; add more stuff here
+;;      (warn "move pl (~s ~s) -> (~s ~s)" from-x from-y to-x to-y)
+      (bit-flag-add! *update* +update-view+)
+      (bit-flag-add! *redraw* +print-map+)
+      ) ;; hack, fix later
+
+
     (when mon-1
       (dolist (i mon-1)
 	(setf (location-x i) to-x
 	      (location-y i) to-y)))
+
 
     (when mon-2
       (dolist (i mon-2)
@@ -143,3 +150,5 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((the-kind (get-monster-kind-by-level level)))
     (when the-kind
       (create-active-monster the-kind))))
+
+;;(trace print-map swap-monsters!)

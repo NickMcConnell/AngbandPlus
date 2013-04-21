@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>(Langband tour)</title>
+  </head>
+
+  <body>
+    <h1>(Langband Tour)</h1>
+
+    <p>
+      The first file in this tour is <code>game.lisp</code>.  It's
+      mostly uninteresting unless you're a die-hard lisper.  The trick
+      with it is that it loads the show.  The show is started with the
+      intuitive and apparent command <code>(lb::a)</code>.  The
+      <code>a</code> function is defined in the <a
+	href="#init">init.lisp<a> file.
+    </p>
+    
+    <p>
+      <a name="init"><b>init.lisp</b><br>
+	This is the file which starts the eminent show.  The crucial
+	function is <code>game-init&amp;</code>.  The funny ampersand
+	says that the function alters the global environment, and that
+	is probably what one would expect.  This function is
+	non-trivial though.  What it does:
+    </p>
+    <ul>
+      <li> initialises the random state</li>
+      <li> opens a file for warnings if settings say so [probaly not]</li>
+      <li> The absolutely evil think of calling
+      <code>load-variant&amp;</code> (which also alters the global
+      environment).  The returned variant-object is activated.</li>
+      <li> It initialises the line-of-sight code (which resides in the
+      file <a href="#view">view.lisp</a>) by calling
+      <code>vinfo-init&amp;</code>.</li> 
+      <li> If we're in test-mode it runs the post-tests.  The
+      post-tests are run post/after variant is loaded. Ask on the
+      mailing-list for details.</li>
+      <li> Then a lot of cruft calls the C-side to let it know this is
+      Lisp calling.  If you're lucky it will even give C a
+      callback-function on the lisp-side.  <code>init-c-side&amp;</code>
+      is a function that is called.</li>
+      <li> One way or the other, <code>play-game&amp;</code> is
+      called.  Probably from the C-side.</li>
+    </ul>
+
+    <p>The bad call is the one to <code>load-variant&amp;</code> which
+    does more than most would hope for.  I hope to write more on it
+    another day.</p>
+
+    <p>
+      <a name="view"><b>view.lisp</b><br>
+	This file basically has line-of-sight code.  It's partly
+	optimised.  
+    </p>
+	
+	
+
+
+    <hr>
+    <address><a href="mailto:stig@users.sourceforge.net">Stig E. Sandø</a></address>
+<!-- Created: Fri Sep 21 21:22:23 CEST 2001 -->
+<!-- hhmts start -->
+Last modified: Fri Sep 21 22:28:46 CEST 2001
+<!-- hhmts end -->
+  </body>
+</html>

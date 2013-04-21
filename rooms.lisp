@@ -46,7 +46,8 @@ ADD_DESC: Most of the code which deals with generation of rooms
 	      :initform +illegal-loc-x+)
    (loc-y     :accessor location-y
 	      :initarg :loc-y
-	      :initform +illegal-loc-y+)))
+	      :initform +illegal-loc-y+)
+   ))
      
 		
 

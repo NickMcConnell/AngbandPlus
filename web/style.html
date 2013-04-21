@@ -34,6 +34,12 @@
       
       <li> All functions which manipulate global variables should have a
 	<code>&</code>-suffix, ie <code>init-environment&</code></li>
+
+      <li> Functions that are meant to be internal to their file and
+      not be used outside or exported should use a <code>%</code> prefix.
+      Ane example is <code>%birth-input-char</code> in
+      <tt>birth.lisp</tt> which is only input to birth-functionality
+      and is uninteresting to others. </li>
       
       <li> All game-related symbolic constants should be put between
 	<code>&lt;</code> and <code>&gt;</code>, ie

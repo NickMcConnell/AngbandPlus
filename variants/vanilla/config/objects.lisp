@@ -21,6 +21,7 @@
   :cost 0
   :obj-type '(<blindness> <mushroom> <food>)
   :sort-value 6001
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-2" "paranoia"
@@ -35,6 +36,7 @@
   :cost 0
   :obj-type '(<paranoia> <mushroom> <food>)
   :sort-value 6002
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-3" "confusion"
@@ -49,6 +51,7 @@
   :cost 0
   :obj-type '(<confusion> <mushroom> <food>)
   :sort-value 6003
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-4" "hallucination"
@@ -63,6 +66,7 @@
   :cost 0
   :obj-type '(<hallucination> <mushroom> <food>)
   :sort-value 6004
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-5" "cure poison"
@@ -77,6 +81,7 @@
   :cost 60
   :obj-type '(<mushroom> <food> <cure> <poison>)
   :sort-value 6012
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-6" "cure blindness"
@@ -91,6 +96,7 @@
   :cost 50
   :obj-type '(<mushroom> <food> <cure> <blindness>)
   :sort-value 6013
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-7" "cure paranoia"
@@ -105,6 +111,7 @@
   :cost 25
   :obj-type '(<mushroom> <food> <cure> <paranoia>)
   :sort-value 6014
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-8" "cure confusion"
@@ -119,6 +126,7 @@
   :cost 50
   :obj-type '(<mushroom> <food> <cure> <confusion>)
   :sort-value 6015
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-9" "weakness"
@@ -133,6 +141,7 @@
   :cost 0
   :obj-type '(<mushroom> <food> <reduce> <str>)
   :sort-value 6006
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-10" "unhealth"
@@ -147,6 +156,7 @@
   :cost 50
   :obj-type '(<mushroom> <food> <reduce> <con> <powerful>)
   :sort-value 6010
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :base-dice 10 :num-dice 10 :food-val 500)) 
 
 (define-object-kind "object-11" "restore constitution"
@@ -161,6 +171,7 @@
   :cost 350
   :obj-type '(<mushroom> <food> <restore> <con>)
   :sort-value 6018
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-12" "restoring"
@@ -175,6 +186,7 @@
   :cost 1000
   :obj-type '(<restoring> <mushroom> <food>)
   :sort-value 6019
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-13" "stupidity"
@@ -189,6 +201,7 @@
   :cost 0
   :obj-type '(<mushroom> <food> <reduce> <int>)
   :sort-value 6008
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-14" "naivety"
@@ -203,6 +216,7 @@
   :cost 0
   :obj-type '(<mushroom> <food> <reduce> <wis>)
   :sort-value 6009
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-15" "poison"
@@ -217,6 +231,7 @@
   :cost 0
   :obj-type '(<poison> <mushroom> <food>)
   :sort-value 6000
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-16" "sickness"
@@ -231,6 +246,7 @@
   :cost 0
   :obj-type '(<mushroom> <food> <reduce> <con>)
   :sort-value 6007
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-17" "paralysis"
@@ -245,6 +261,7 @@
   :cost 0
   :obj-type '(<paralysis> <mushroom> <food>)
   :sort-value 6005
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-18" "restore strength"
@@ -259,6 +276,7 @@
   :cost 350
   :obj-type '(<mushroom> <food> <restore> <str>)
   :sort-value 6017
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-19" "disease"
@@ -273,6 +291,7 @@
   :cost 50
   :obj-type '(<mushroom> <food> <reduce> <str> <powerful>)
   :sort-value 6011
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :base-dice 10 :num-dice 10 :food-val 500)) 
 
 (define-object-kind "object-20" "cure serious wounds"
@@ -287,6 +306,7 @@
   :cost 75
   :obj-type '(<mushroom> <food> <cure> <serious>)
   :sort-value 6016
+  :the-kind '<mushroom>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-21" "& ration~ of food"
@@ -301,6 +321,7 @@
   :cost 3
   :obj-type '(<ration> <food>)
   :sort-value 6035
+  :the-kind '<food>
   :game-values (make-instance 'game-values :food-val 5000)) 
 
 (define-object-kind "object-22" "& hard biscuit~"
@@ -315,6 +336,7 @@
   :cost 1
   :obj-type '(<biscuit> <food>)
   :sort-value 6032
+  :the-kind '<food>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-23" "& strip~ of beef jerky"
@@ -329,6 +351,7 @@
   :cost 2
   :obj-type '(<jerky> <food>)
   :sort-value 6033
+  :the-kind '<food>
   :game-values (make-instance 'game-values :food-val 1500)) 
 
 (define-object-kind "object-24" "& slime mold~"
@@ -343,6 +366,7 @@
   :cost 2
   :obj-type '(<slime-mold> <food>)
   :sort-value 6036
+  :the-kind '<food>
   :game-values (make-instance 'game-values :food-val 3000)) 
 
 (define-object-kind "object-25" "& piece~ of elvish waybread"
@@ -357,6 +381,7 @@
   :cost 10
   :obj-type '(<waybread> <food>)
   :sort-value 6037
+  :the-kind '<food>
   :game-values (make-instance 'game-values :food-val 7500)) 
 
 (define-object-kind "object-26" "& pint~ of fine ale"
@@ -371,6 +396,7 @@
   :cost 1
   :obj-type '(<ale> <food>)
   :sort-value 6038
+  :the-kind '<food>
   :game-values (make-instance 'game-values :food-val 500)) 
 
 (define-object-kind "object-27" "& pint~ of fine wine"
@@ -385,6 +411,7 @@
   :cost 2
   :obj-type '(<wine> <food>)
   :sort-value 6039
+  :the-kind '<food>
   :game-values (make-instance 'game-values :food-val 1000)) 
 
 (define-object-kind "object-30" "& broken dagger~"
@@ -400,6 +427,7 @@
   :obj-type '(<broken-dagger> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3201
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :tohit-bonus -2 :dmg-bonus -4)) 
 
 (define-object-kind "object-31" "& bastard sword~"
@@ -415,6 +443,7 @@
   :obj-type '(<bastard> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3221
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 3)) 
 
 (define-object-kind "object-32" "& scimitar~"
@@ -430,6 +459,7 @@
   :obj-type '(<scimitar> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3218
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
 
 (define-object-kind "object-33" "& tulwar~"
@@ -445,6 +475,7 @@
   :obj-type '(<tulwar> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3215
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 2)) 
 
 (define-object-kind "object-34" "& broad sword~"
@@ -460,6 +491,7 @@
   :obj-type '(<broad-sword> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3216
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
 
 (define-object-kind "object-35" "& short sword~"
@@ -475,6 +507,7 @@
   :obj-type '(<short-sword> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3210
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 7 :num-dice 1)) 
 
 (define-object-kind "object-36" "& blade~ of chaos"
@@ -490,6 +523,7 @@
   :obj-type '(<blade-of-chaos> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3230
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 6 :resists '(<chaos> <confusion>))) 
 
 (define-object-kind "object-37" "& two-handed sword~"
@@ -505,11 +539,11 @@
   :obj-type '(<two-handed-sword> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3225
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 3)) 
 
 (define-object-kind "object-38" "& dirk~"
   :numeric-id 38
-  :desc "Main Gauche renamed to dirk."
   :x-attr #\W
   :x-char #\|
   :level 3
@@ -521,6 +555,7 @@
   :obj-type '(<main-gauche> <dirk> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3205
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 1)) 
 
 (define-object-kind "object-39" "& cutlass~"
@@ -536,6 +571,7 @@
   :obj-type '(<cutlass> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3212
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 7 :num-dice 1)) 
 
 (define-object-kind "object-40" "& executioner's sword~"
@@ -551,6 +587,7 @@
   :obj-type '(<exec-sword> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3228
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 4)) 
 
 (define-object-kind "object-41" "& katana~"
@@ -566,6 +603,7 @@
   :obj-type '(<katana> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3220
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 3)) 
 
 (define-object-kind "object-42" "& long sword~"
@@ -581,6 +619,7 @@
   :obj-type '(<long-sword> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3217
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
 
 (define-object-kind "object-43" "& dagger~"
@@ -596,6 +635,7 @@
   :obj-type '(<dagger> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3204
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 1)) 
 
 (define-object-kind "object-44" "& rapier~"
@@ -611,6 +651,7 @@
   :obj-type '(<rapier> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3207
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 1)) 
 
 (define-object-kind "object-45" "& sabre~"
@@ -626,6 +667,7 @@
   :obj-type '(<sabre> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3211
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 7 :num-dice 1)) 
 
 (define-object-kind "object-46" "& small sword~"
@@ -641,6 +683,7 @@
   :obj-type '(<small-sword> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3208
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 1)) 
 
 (define-object-kind "object-47" "& broken sword~"
@@ -656,6 +699,7 @@
   :obj-type '(<broken-sword> <weapon> <sword>)
   :flags '(<show-modififers>)
   :sort-value 3202
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1 :tohit-bonus -2 :dmg-bonus -4)) 
 
 (define-object-kind "object-48" "& ball-and-chain~"
@@ -671,6 +715,7 @@
   :obj-type '(<ball-and-chain> <weapon> <hafted>)
   :flags '(<show-modififers>)
   :sort-value 3006
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 2)) 
 
 (define-object-kind "object-49" "& whip~"
@@ -686,6 +731,7 @@
   :obj-type '(<whip> <weapon> <hafted>)
   :flags '(<show-modififers>)
   :sort-value 3002
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 1)) 
 
 (define-object-kind "object-50" "& flail~"
@@ -701,6 +747,7 @@
   :obj-type '(<flail> <weapon> <hafted>)
   :flags '(<show-modififers>)
   :sort-value 3013
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "object-51" "& two-handed flail~"
@@ -716,6 +763,7 @@
   :obj-type '(<two-handed-flail> <weapon> <hafted>)
   :flags '(<show-modififers>)
   :sort-value 3018
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 3)) 
 
 (define-object-kind "object-52" "& morning star~"
@@ -731,6 +779,7 @@
   :obj-type '(<morning-star> <weapon> <hafted>)
   :flags '(<show-modififers>)
   :sort-value 3012
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "object-53" "& mace~"
@@ -746,6 +795,7 @@
   :obj-type '(<mace> <weapon> <hafted>)
   :flags '(<show-modififers>)
   :sort-value 3005
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 2)) 
 
 (define-object-kind "object-54" "& quarterstaff~"
@@ -761,6 +811,7 @@
   :obj-type '(<quarterstaff> <weapon> <hafted>)
   :flags '(<show-modififers>)
   :sort-value 3003
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 9 :num-dice 1)) 
 
 (define-object-kind "object-55" "& war hammer~"
@@ -776,6 +827,7 @@
   :obj-type '(<war-hammer> <weapon> <hafted>)
   :flags '(<show-modififers>)
   :sort-value 3008
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 3 :num-dice 3)) 
 
 (define-object-kind "object-56" "& lead-filled mace~"
@@ -791,6 +843,7 @@
   :obj-type '(<lead-filled-mace> <weapon> <hafted>)
   :flags '(<show-modififers>)
   :sort-value 3015
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 3)) 
 
 (define-object-kind "object-57" "& mace~ of disruption"
@@ -806,6 +859,7 @@
   :obj-type '(<mace-of-disruption> <weapon> <hafted>)
   :flags '(<show-modififers>)
   :sort-value 3020
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 8 :num-dice 5 :slays '(<undead>))) 
 
 (define-object-kind "object-58" "& lucerne hammer~"
@@ -821,6 +875,7 @@
   :obj-type '(<lucern-hammer> <weapon> <hafted>)
   :flags '(<show-modififers>)
   :sort-value 3010
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
 
 (define-object-kind "object-59" "& beaked axe~"
@@ -836,6 +891,7 @@
   :obj-type '(<beaked-axe> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3110
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "object-60" "& glaive~"
@@ -851,6 +907,7 @@
   :obj-type '(<glaive> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3113
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "object-61" "& halberd~"
@@ -866,6 +923,7 @@
   :obj-type '(<halberd> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3115
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 3)) 
 
 (define-object-kind "object-62" "& awl-pike~"
@@ -881,6 +939,7 @@
   :obj-type '(<awl-pike> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3104
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 8 :num-dice 1)) 
 
 (define-object-kind "object-63" "& pike~"
@@ -896,6 +955,7 @@
   :obj-type '(<pike> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3108
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
 
 (define-object-kind "object-64" "& spear~"
@@ -911,6 +971,7 @@
   :obj-type '(<spear> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3102
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 1)) 
 
 (define-object-kind "object-65" "& trident~"
@@ -926,6 +987,7 @@
   :obj-type '(<trident> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3105
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 8 :num-dice 1)) 
 
 (define-object-kind "object-66" "& lance~"
@@ -941,6 +1003,7 @@
   :obj-type '(<lance> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3120
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 8 :num-dice 2)) 
 
 (define-object-kind "object-67" "& great axe~"
@@ -956,6 +1019,7 @@
   :obj-type '(<great-axe> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3125
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 4)) 
 
 (define-object-kind "object-68" "& battle axe~"
@@ -971,6 +1035,7 @@
   :obj-type '(<battle-axe> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3122
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 8 :num-dice 2)) 
 
 (define-object-kind "object-69" "& lochaber axe~"
@@ -986,6 +1051,7 @@
   :obj-type '(<lochaber-axe> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3128
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 8 :num-dice 3)) 
 
 (define-object-kind "object-70" "& broad axe~"
@@ -1001,6 +1067,7 @@
   :obj-type '(<broad-axe> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3111
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "object-71" "& scythe~"
@@ -1016,6 +1083,7 @@
   :obj-type '(<scythe> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3117
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 3 :num-dice 5)) 
 
 (define-object-kind "object-72" "& scythe~ of slicing"
@@ -1031,6 +1099,7 @@
   :obj-type '(<scythe-slicing> <weapon> <polearm>)
   :flags '(<show-modififers>)
   :sort-value 3130
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 8)) 
 
 (define-object-kind "object-73" "& short bow~"
@@ -1046,6 +1115,7 @@
   :obj-type '(<short> <bow>)
   :flags '(<show-modififers>)
   :sort-value 2812
+  :the-kind '<bow>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-74" "& long bow~"
@@ -1061,6 +1131,7 @@
   :obj-type '(<long> <bow>)
   :flags '(<show-modififers>)
   :sort-value 2813
+  :the-kind '<bow>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-75" "& light crossbow~"
@@ -1076,6 +1147,7 @@
   :obj-type '(<bow> <light> <xbow>)
   :flags '(<show-modififers>)
   :sort-value 2823
+  :the-kind '<bow>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-76" "& heavy crossbow~"
@@ -1091,6 +1163,7 @@
   :obj-type '(<bow> <heavy> <xbow>)
   :flags '(<show-modififers>)
   :sort-value 2824
+  :the-kind '<bow>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-77" "& sling~"
@@ -1106,6 +1179,7 @@
   :obj-type '(<sling> <bow>)
   :flags '(<show-modififers>)
   :sort-value 2802
+  :the-kind '<bow>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-78" "& arrow~"
@@ -1121,6 +1195,7 @@
   :obj-type '(<normal> <ammo> <arrow>)
   :flags '(<show-modififers>)
   :sort-value 2601
+  :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 1)) 
 
 (define-object-kind "object-79" "& seeker arrow~"
@@ -1136,6 +1211,7 @@
   :obj-type '(<heavy> <ammo> <arrow>)
   :flags '(<show-modififers>)
   :sort-value 2602
+  :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 4)) 
 
 (define-object-kind "object-80" "& bolt~"
@@ -1151,6 +1227,7 @@
   :obj-type '(<normal> <ammo> <bolt>)
   :flags '(<show-modififers>)
   :sort-value 2701
+  :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 1)) 
 
 (define-object-kind "object-81" "& seeker bolt~"
@@ -1166,6 +1243,7 @@
   :obj-type '(<heavy> <ammo> <bolt>)
   :flags '(<show-modififers>)
   :sort-value 2702
+  :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 4)) 
 
 (define-object-kind "object-82" "& rounded pebble~"
@@ -1181,6 +1259,7 @@
   :obj-type '(<light> <ammo> <shot>)
   :flags '(<show-modififers>)
   :sort-value 2500
+  :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-83" "& iron shot~"
@@ -1196,6 +1275,7 @@
   :obj-type '(<normal> <ammo> <shot>)
   :flags '(<show-modififers>)
   :sort-value 2501
+  :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "object-84" "& shovel~"
@@ -1211,6 +1291,7 @@
   :obj-type '(<shovel> <digging>)
   :flags '(<show-modififers>)
   :sort-value 2901
+  :the-kind '<digger>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-85" "& gnomish shovel~"
@@ -1226,6 +1307,7 @@
   :obj-type '(<digging> <shovel> <gnome>)
   :flags '(<show-modififers>)
   :sort-value 2902
+  :the-kind '<digger>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-86" "& dwarven shovel~"
@@ -1241,6 +1323,7 @@
   :obj-type '(<digging> <shovel> <dwarf>)
   :flags '(<show-modififers>)
   :sort-value 2903
+  :the-kind '<digger>
   :game-values (make-instance 'game-values :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "object-87" "& pick~"
@@ -1256,6 +1339,7 @@
   :obj-type '(<pick> <digging>)
   :flags '(<show-modififers>)
   :sort-value 2904
+  :the-kind '<digger>
   :game-values (make-instance 'game-values :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "object-88" "& orcish pick~"
@@ -1271,6 +1355,7 @@
   :obj-type '(<digging> <pick> <orc>)
   :flags '(<show-modififers>)
   :sort-value 2905
+  :the-kind '<digger>
   :game-values (make-instance 'game-values :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "object-89" "& dwarven pick~"
@@ -1286,6 +1371,7 @@
   :obj-type '(<digging> <pick> <dwarf>)
   :flags '(<show-modififers>)
   :sort-value 2906
+  :the-kind '<digger>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 1)) 
 
 (define-object-kind "object-91" "& pair~ of soft leather boots"
@@ -1300,6 +1386,7 @@
   :cost 7
   :obj-type '(<soft-leather <boots>)
   :sort-value 3302
+  :the-kind '<boots>
   :game-values (make-instance 'game-values :base-ac 2 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-92" "& pair~ of hard leather boots"
@@ -1314,6 +1401,7 @@
   :cost 12
   :obj-type '(<hard-leather> <boots>)
   :sort-value 3303
+  :the-kind '<boots>
   :game-values (make-instance 'game-values :base-ac 3 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-93" "& pair~ of metal shod boots"
@@ -1328,6 +1416,7 @@
   :cost 50
   :obj-type '(<metal-shod> <boots>)
   :sort-value 3306
+  :the-kind '<boots>
   :game-values (make-instance 'game-values :base-ac 6 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-94" "& hard leather cap~"
@@ -1342,6 +1431,7 @@
   :cost 12
   :obj-type '(<hard-leather> <headgear> <helmet>)
   :sort-value 3502
+  :the-kind '<headgear>
   :game-values (make-instance 'game-values :base-ac 2)) 
 
 (define-object-kind "object-95" "& metal cap~"
@@ -1356,6 +1446,7 @@
   :cost 30
   :obj-type '(<metal-cap> <headgear> <helmet>)
   :sort-value 3503
+  :the-kind '<headgear>
   :game-values (make-instance 'game-values :base-ac 3 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-96" "& iron helm~"
@@ -1370,6 +1461,7 @@
   :cost 75
   :obj-type '(<iron-helm> <headgear> <helmet>)
   :sort-value 3505
+  :the-kind '<headgear>
   :game-values (make-instance 'game-values :base-ac 5 :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "object-97" "& steel helm~"
@@ -1384,6 +1476,7 @@
   :cost 200
   :obj-type '(<steel-helm> <headgear> <helmet>)
   :sort-value 3506
+  :the-kind '<headgear>
   :game-values (make-instance 'game-values :base-ac 6 :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "object-98" "& iron crown~"
@@ -1398,6 +1491,7 @@
   :cost 500
   :obj-type '(<iron> <headgear> <crown>)
   :sort-value 3610
+  :the-kind '<headgear>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-99" "& golden crown~"
@@ -1412,6 +1506,7 @@
   :cost 1000
   :obj-type '(<golden> <headgear> <crown>)
   :sort-value 3611
+  :the-kind '<headgear>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
 
 (define-object-kind "object-100" "& jewel encrusted crown~"
@@ -1426,6 +1521,7 @@
   :cost 2000
   :obj-type '(<jeweled> <headgear> <crown>)
   :sort-value 3612
+  :the-kind '<headgear>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
 
 (define-object-kind "object-101" "& robe~"
@@ -1440,6 +1536,7 @@
   :cost 4
   :obj-type '(<robe> <body-armour> <soft>)
   :sort-value 3902
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 2)) 
 
 (define-object-kind "object-102" "& filthy rag~"
@@ -1454,6 +1551,7 @@
   :cost 1
   :obj-type '(<filthy-rag> <body-armour> <soft>)
   :sort-value 3901
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 1 :ac-bonus -1)) 
 
 (define-object-kind "object-103" "soft leather armour~"
@@ -1468,6 +1566,7 @@
   :cost 18
   :obj-type '(<soft-leather> <body-armour> <soft>)
   :sort-value 3904
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 4)) 
 
 (define-object-kind "object-104" "soft studded leather~"
@@ -1482,6 +1581,7 @@
   :cost 35
   :obj-type '(<soft-studded> <body-armour> <soft>)
   :sort-value 3905
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 5 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-105" "hard leather armour~"
@@ -1496,6 +1596,7 @@
   :cost 150
   :obj-type '(<hard-leather> <body-armour> <soft>)
   :sort-value 3906
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 6 :base-dice 1 :num-dice 1 :tohit-bonus -1)) 
 
 (define-object-kind "object-106" "hard studded leather~"
@@ -1510,6 +1611,7 @@
   :cost 200
   :obj-type '(<hard-studded> <body-armour> <soft>)
   :sort-value 3907
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 7 :base-dice 2 :num-dice 1 :tohit-bonus -1)) 
 
 (define-object-kind "object-107" "leather scale mail~"
@@ -1524,6 +1626,7 @@
   :cost 450
   :obj-type '(<leather-scale> <body-armour> <soft>)
   :sort-value 3911
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 11 :base-dice 1 :num-dice 1 :tohit-bonus -1)) 
 
 (define-object-kind "object-108" "metal scale mail~"
@@ -1538,6 +1641,7 @@
   :cost 550
   :obj-type '(<metal-scale> <body-armour> <hard>)
   :sort-value 4003
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 13 :base-dice 4 :num-dice 1 :tohit-bonus -2)) 
 
 (define-object-kind "object-109" "chain mail~"
@@ -1552,6 +1656,7 @@
   :cost 750
   :obj-type '(<chain> <body-armour> <hard>)
   :sort-value 4004
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 14 :base-dice 4 :num-dice 1 :tohit-bonus -2)) 
 
 (define-object-kind "object-110" "rusty chain mail~"
@@ -1566,6 +1671,7 @@
   :cost 550
   :obj-type '(<rusty-chain> <body-armour> <hard>)
   :sort-value 4001
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 14 :ac-bonus -8 :base-dice 4 :num-dice 1 :tohit-bonus -5)) 
 
 (define-object-kind "object-111" "augmented chain mail~"
@@ -1580,6 +1686,7 @@
   :cost 900
   :obj-type '(<augmented-chain> <body-armour> <hard>)
   :sort-value 4006
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 16 :base-dice 4 :num-dice 1 :tohit-bonus -2)) 
 
 (define-object-kind "object-112" "bar chain mail~"
@@ -1594,6 +1701,7 @@
   :cost 950
   :obj-type '(<bar-chain> <body-armour> <hard>)
   :sort-value 4008
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 18 :base-dice 4 :num-dice 1 :tohit-bonus -2)) 
 
 (define-object-kind "object-113" "metal brigandine armour~"
@@ -1608,6 +1716,7 @@
   :cost 1100
   :obj-type '(<metal-brigandine> <body-armour> <hard>)
   :sort-value 4009
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 19 :base-dice 4 :num-dice 1 :tohit-bonus -3)) 
 
 (define-object-kind "object-114" "partial plate armour~"
@@ -1622,6 +1731,7 @@
   :cost 1200
   :obj-type '(<partial-plate> <body-armour> <hard>)
   :sort-value 4012
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 22 :base-dice 6 :num-dice 1 :tohit-bonus -3)) 
 
 (define-object-kind "object-115" "metal lamellar armour~"
@@ -1636,6 +1746,7 @@
   :cost 1250
   :obj-type '(<metal-lamellar> <body-armour> <hard>)
   :sort-value 4013
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 23 :base-dice 6 :num-dice 1 :tohit-bonus -3)) 
 
 (define-object-kind "object-116" "full plate armour~"
@@ -1650,6 +1761,7 @@
   :cost 1350
   :obj-type '(<full-plate> <body-armour> <hard>)
   :sort-value 4015
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 25 :base-dice 4 :num-dice 2 :tohit-bonus -3)) 
 
 (define-object-kind "object-117" "ribbed plate armour~"
@@ -1664,6 +1776,7 @@
   :cost 1500
   :obj-type '(<ribbed-plate> <body-armour> <hard>)
   :sort-value 4018
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 28 :base-dice 4 :num-dice 2 :tohit-bonus -3)) 
 
 (define-object-kind "object-118" "adamantite plate mail~"
@@ -1678,6 +1791,7 @@
   :cost 20000
   :obj-type '(<adamantite-plate> <body-armour> <hard>)
   :sort-value 4030
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 40 :base-dice 4 :num-dice 2 :tohit-bonus -4 :ignores '(<acid>))) 
 
 (define-object-kind "object-119" "mithril plate mail~"
@@ -1692,6 +1806,7 @@
   :cost 15000
   :obj-type '(<mithril-plate> <body-armour> <hard>)
   :sort-value 4025
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 35 :base-dice 4 :num-dice 2 :tohit-bonus -3 :ignores '(<acid>))) 
 
 (define-object-kind "object-120" "mithril chain mail~"
@@ -1706,6 +1821,7 @@
   :cost 7000
   :obj-type '(<mithril-chain> <body-armour> <hard>)
   :sort-value 4020
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 28 :base-dice 4 :num-dice 1 :tohit-bonus -1 :ignores '(<acid>))) 
 
 (define-object-kind "object-121" "double chain mail~"
@@ -1720,6 +1836,7 @@
   :cost 850
   :obj-type '(<double-chain> <body-armour> <hard>)
   :sort-value 4007
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 16 :base-dice 4 :num-dice 1 :tohit-bonus -2)) 
 
 (define-object-kind "object-122" "& shield~ of deflection"
@@ -1734,6 +1851,7 @@
   :cost 10000
   :obj-type '(<shield> <large> <metal> <deflection>)
   :sort-value 3710
+  :the-kind '<shield>
   :game-values (make-instance 'game-values :base-ac 10 :ac-bonus 10 :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
 
 (define-object-kind "object-123" "& cloak~"
@@ -1748,6 +1866,7 @@
   :cost 3
   :obj-type '(<cloth> <cloak>)
   :sort-value 3801
+  :the-kind '<cloak>
   :game-values (make-instance 'game-values :base-ac 1)) 
 
 (define-object-kind "object-124" "& shadow cloak~"
@@ -1762,6 +1881,7 @@
   :cost 4000
   :obj-type '(<shadow> <cloak>)
   :sort-value 3806
+  :the-kind '<cloak>
   :game-values (make-instance 'game-values :base-ac 6 :ac-bonus 4)) 
 
 (define-object-kind "object-125" "& set~ of leather gloves"
@@ -1776,6 +1896,7 @@
   :cost 3
   :obj-type '(<leather> <gloves>)
   :sort-value 3401
+  :the-kind '<gloves>
   :game-values (make-instance 'game-values :base-ac 1)) 
 
 (define-object-kind "object-126" "& set~ of gauntlets"
@@ -1790,6 +1911,7 @@
   :cost 35
   :obj-type '(<gauntlets> <gloves>)
   :sort-value 3402
+  :the-kind '<gloves>
   :game-values (make-instance 'game-values :base-ac 2 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-127" "& set~ of cesti"
@@ -1804,6 +1926,7 @@
   :cost 100
   :obj-type '(<cesti> <gloves>)
   :sort-value 3405
+  :the-kind '<gloves>
   :game-values (make-instance 'game-values :base-ac 5 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-128" "& small leather shield~"
@@ -1818,6 +1941,7 @@
   :cost 30
   :obj-type '(<shield> <small> <leather>)
   :sort-value 3702
+  :the-kind '<shield>
   :game-values (make-instance 'game-values :base-ac 2 :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-129" "& large leather shield~"
@@ -1832,6 +1956,7 @@
   :cost 120
   :obj-type '(<shield> <large> <leather>)
   :sort-value 3704
+  :the-kind '<shield>
   :game-values (make-instance 'game-values :base-ac 4 :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-130" "& small metal shield~"
@@ -1846,6 +1971,7 @@
   :cost 50
   :obj-type '(<shield> <small> <metal>)
   :sort-value 3703
+  :the-kind '<shield>
   :game-values (make-instance 'game-values :base-ac 3 :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-131" "& large metal shield~"
@@ -1860,6 +1986,7 @@
   :cost 200
   :obj-type '(<shield> <large> <metal>)
   :sort-value 3705
+  :the-kind '<shield>
   :game-values (make-instance 'game-values :base-ac 5 :base-dice 3 :num-dice 1)) 
 
 (define-object-kind "object-132" "strength"
@@ -1875,6 +2002,7 @@
   :obj-type '(<str> <ring>)
   :flags '(<hide-type>)
   :sort-value 4424
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :stat-bonuses '(<str>))) 
 
 (define-object-kind "object-133" "dexterity"
@@ -1890,6 +2018,7 @@
   :obj-type '(<dex> <ring>)
   :flags '(<hide-type>)
   :sort-value 4426
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :stat-bonuses '(<dex>))) 
 
 (define-object-kind "object-134" "constitution"
@@ -1905,6 +2034,7 @@
   :obj-type '(<con> <ring>)
   :flags '(<hide-type>)
   :sort-value 4427
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :stat-bonuses '(<con>))) 
 
 (define-object-kind "object-135" "intelligence"
@@ -1920,6 +2050,7 @@
   :obj-type '(<int> <ring>)
   :flags '(<hide-type>)
   :sort-value 4425
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :stat-bonuses '(<int>))) 
 
 (define-object-kind "object-136" "speed"
@@ -1935,6 +2066,7 @@
   :obj-type '(<speed> <ring>)
   :flags '(<hide-type>)
   :sort-value 4431
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :abilities '(<speed>))) 
 
 (define-object-kind "object-137" "searching"
@@ -1950,6 +2082,7 @@
   :obj-type '(<searching> <ring>)
   :flags '(<hide-type>)
   :sort-value 4423
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :skill-bonuses '(<search>))) 
 
 (define-object-kind "object-138" "teleportation"
@@ -1965,6 +2098,7 @@
   :obj-type '(<teleport> <ring>)
   :flags '(<easy-know> <curse>)
   :sort-value 4404
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :abilities '(<teleport>))) 
 
 (define-object-kind "object-139" "slow digestion"
@@ -1980,6 +2114,7 @@
   :obj-type '(<slow-digestion> <ring>)
   :flags '(<easy-know>)
   :sort-value 4406
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :abilities '(<slow-digestion>))) 
 
 (define-object-kind "object-140" "resist fire"
@@ -1995,6 +2130,7 @@
   :obj-type '(<ring> <resist> <fire>)
   :flags '(<easy-know>)
   :sort-value 4408
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :ignores '(<fire>) :resists '(<fire>))) 
 
 (define-object-kind "object-141" "resist cold"
@@ -2010,6 +2146,7 @@
   :obj-type '(<ring> <resist> <cold>)
   :flags '(<easy-know>)
   :sort-value 4409
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :ignores '(<cold>) :resists '(<cold>))) 
 
 (define-object-kind "object-142" "feather falling"
@@ -2025,6 +2162,7 @@
   :obj-type '(<feather-fall> <ring>)
   :flags '(<easy-know>)
   :sort-value 4407
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :abilities '(<feather-fall>))) 
 
 (define-object-kind "object-143" "poison resistance"
@@ -2040,6 +2178,7 @@
   :obj-type '(<ring> <resist> <poison>)
   :flags '(<easy-know>)
   :sort-value 4420
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :resists '(<poison>))) 
 
 (define-object-kind "object-144" "free action"
@@ -2055,6 +2194,7 @@
   :obj-type '(<free-action> <ring>)
   :flags '(<easy-know>)
   :sort-value 4421
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :abilities '(<free-action>))) 
 
 (define-object-kind "object-145" "weakness"
@@ -2070,6 +2210,7 @@
   :obj-type '(<weakness> <ring>)
   :flags '(<hide-type> <curse>)
   :sort-value 4402
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :stat-bonuses '(<str>))) 
 
 (define-object-kind "object-146" "flames"
@@ -2084,6 +2225,7 @@
   :cost 3000
   :obj-type '(<ring> <protection> <fire>)
   :sort-value 4418
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :ac-bonus 15 :ignores '(<fire>) :resists '(<fire>))) 
 
 (define-object-kind "object-147" "acid"
@@ -2098,6 +2240,7 @@
   :cost 3000
   :obj-type '(<ring> <protection> <acid>)
   :sort-value 4417
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :ac-bonus 15 :ignores '(<acid>) :resists '(<acid>))) 
 
 (define-object-kind "object-148" "ice"
@@ -2112,6 +2255,7 @@
   :cost 3000
   :obj-type '(<ring> <protection> <cold>)
   :sort-value 4419
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :ac-bonus 15 :ignores '(<cold>) :resists '(<cold>))) 
 
 (define-object-kind "object-149" "woe"
@@ -2127,6 +2271,7 @@
   :obj-type '(<woe> <ring>)
   :flags '(<hide-type> <curse>)
   :sort-value 4400
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :stat-bonuses '(<chr> <wis>) :abilities '(<teleport>))) 
 
 (define-object-kind "object-150" "stupidity"
@@ -2142,6 +2287,7 @@
   :obj-type '(<stupidity> <ring>)
   :flags '(<hide-type> <curse>)
   :sort-value 4403
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :stat-bonuses '(<int>))) 
 
 (define-object-kind "object-151" "damage"
@@ -2155,7 +2301,8 @@
   :weight 2
   :cost 500
   :obj-type '(<damage> <ring>)
-  :sort-value 4429) 
+  :sort-value 4429
+  :the-kind '<ring>) 
 
 (define-object-kind "object-152" "accuracy"
   :numeric-id 152
@@ -2168,7 +2315,8 @@
   :weight 2
   :cost 500
   :obj-type '(<accuracy> <ring>)
-  :sort-value 4428) 
+  :sort-value 4428
+  :the-kind '<ring>) 
 
 (define-object-kind "object-153" "protection"
   :numeric-id 153
@@ -2181,7 +2329,8 @@
   :weight 2
   :cost 500
   :obj-type '(<protection> <ring>)
-  :sort-value 4416) 
+  :sort-value 4416
+  :the-kind '<ring>) 
 
 (define-object-kind "object-154" "aggravate monster"
   :numeric-id 154
@@ -2196,6 +2345,7 @@
   :obj-type '(<aggravation> <ring>)
   :flags '(<easy-know> <curse>)
   :sort-value 4401
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :abilities '(<aggravate>))) 
 
 (define-object-kind "object-155" "see invisible"
@@ -2211,6 +2361,7 @@
   :obj-type '(<see-invisible> <ring>)
   :flags '(<easy-know>)
   :sort-value 4422
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :abilities '(<see-invisible>))) 
 
 (define-object-kind "object-156" "sustain strength"
@@ -2226,6 +2377,7 @@
   :obj-type '(<ring> <sustain> <str>)
   :flags '(<easy-know>)
   :sort-value 4410
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :sustains '(<str>))) 
 
 (define-object-kind "object-157" "sustain intelligence"
@@ -2241,6 +2393,7 @@
   :obj-type '(<ring> <sustain> <int>)
   :flags '(<easy-know>)
   :sort-value 4411
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :sustains '(<int>))) 
 
 (define-object-kind "object-158" "sustain wisdom"
@@ -2256,6 +2409,7 @@
   :obj-type '(<ring> <sustain> <wis>)
   :flags '(<easy-know>)
   :sort-value 4412
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :sustains '(<wis>))) 
 
 (define-object-kind "object-159" "sustain constitution"
@@ -2271,6 +2425,7 @@
   :obj-type '(<ring> <sustain> <dex>)
   :flags '(<easy-know>)
   :sort-value 4413
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :sustains '(<con>))) 
 
 (define-object-kind "object-160" "sustain dexterity"
@@ -2286,6 +2441,7 @@
   :obj-type '(<ring> <sustain> <con>)
   :flags '(<easy-know>)
   :sort-value 4414
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :sustains '(<dex>))) 
 
 (define-object-kind "object-161" "sustain charisma"
@@ -2301,6 +2457,7 @@
   :obj-type '(<ring> <sustain> <chr>)
   :flags '(<easy-know>)
   :sort-value 4415
+  :the-kind '<ring>
   :game-values (make-instance 'game-values :sustains '(<chr>))) 
 
 (define-object-kind "object-162" "slaying"
@@ -2316,6 +2473,7 @@
   :obj-type '(<slaying> <ring>)
   :flags '(<show-modififers>)
   :sort-value 4430
+  :the-kind '<ring>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-163" "wisdom"
@@ -2331,6 +2489,7 @@
   :obj-type '(<neckwear> <amulet> <wis>)
   :flags '(<hide-type>)
   :sort-value 4306
+  :the-kind '<amulet>
   :game-values (make-instance 'game-values :stat-bonuses '(<wis>))) 
 
 (define-object-kind "object-164" "charisma"
@@ -2346,6 +2505,7 @@
   :obj-type '(<neckwear> <amulet> <chr>)
   :flags '(<hide-type>)
   :sort-value 4307
+  :the-kind '<amulet>
   :game-values (make-instance 'game-values :stat-bonuses '(<chr>))) 
 
 (define-object-kind "object-165" "searching"
@@ -2361,6 +2521,7 @@
   :obj-type '(<neckwear> <amulet> <searching>)
   :flags '(<hide-type>)
   :sort-value 4305
+  :the-kind '<amulet>
   :game-values (make-instance 'game-values :skill-bonuses '(<search>))) 
 
 (define-object-kind "object-166" "teleportation"
@@ -2376,6 +2537,7 @@
   :obj-type '(<neckwear> <amulet> <teleport>)
   :flags '(<easy-know> <curse>)
   :sort-value 4301
+  :the-kind '<amulet>
   :game-values (make-instance 'game-values :abilities '(<teleport>))) 
 
 (define-object-kind "object-167" "slow digestion"
@@ -2391,6 +2553,7 @@
   :obj-type '(<neckwear> <amulet> <slow-digestion>)
   :flags '(<easy-know>)
   :sort-value 4303
+  :the-kind '<amulet>
   :game-values (make-instance 'game-values :abilities '(<slow-digestion>))) 
 
 (define-object-kind "object-168" "resist acid"
@@ -2406,6 +2569,7 @@
   :obj-type '(<neckwear> <amulet> <resist> <acid>)
   :flags '(<easy-know>)
   :sort-value 4304
+  :the-kind '<amulet>
   :game-values (make-instance 'game-values :ignores '(<acid>) :resists '(<acid>))) 
 
 (define-object-kind "object-169" "adornment"
@@ -2421,6 +2585,7 @@
   :obj-type '(<neckwear> <amulet> <adornment>)
   :flags '(<easy-know>)
   :sort-value 4302
+  :the-kind '<amulet>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-171" "the magi"
@@ -2435,6 +2600,7 @@
   :cost 30000
   :obj-type '(<neckwear> <amulet> <magi>)
   :sort-value 4308
+  :the-kind '<amulet>
   :game-values (make-instance 'game-values :ac-bonus 3 :skill-bonuses '(<search>) :ignores
                               '(<cold> <fire> <electricity> <acid>) :abilities '(<see-invisible> <free-action>))) 
 
@@ -2451,6 +2617,7 @@
   :obj-type '(<neckwear> <amulet> <doom>)
   :flags '(<hide-type> <curse>)
   :sort-value 4300
+  :the-kind '<amulet>
   :game-values (make-instance 'game-values :stat-bonuses '(<chr> <con> <dex> <wis> <int> <str>))) 
 
 (define-object-kind "object-173" "enchant weapon to-hit"
@@ -2464,7 +2631,8 @@
   :weight 5
   :cost 125
   :obj-type '(<scroll> <enchant> <weapon> <to-hit>)
-  :sort-value 5017) 
+  :sort-value 5017
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-174" "enchant weapon to-dam"
   :numeric-id 174
@@ -2477,7 +2645,8 @@
   :weight 5
   :cost 125
   :obj-type '(<scroll> <enchant> <weapon> <to-dmg>)
-  :sort-value 5018) 
+  :sort-value 5018
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-175" "enchant armor"
   :numeric-id 175
@@ -2490,7 +2659,8 @@
   :weight 5
   :cost 125
   :obj-type '(<scroll> <enchant> <armour> <normal>)
-  :sort-value 5016) 
+  :sort-value 5016
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-176" "identify"
   :numeric-id 176
@@ -2503,7 +2673,8 @@
   :weight 5
   :cost 50
   :obj-type '(<scroll> <identify> <normal>)
-  :sort-value 5012) 
+  :sort-value 5012
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-177" "*identify*"
   :numeric-id 177
@@ -2516,7 +2687,8 @@
   :weight 5
   :cost 1000
   :obj-type '(<scroll> <identify> <powerful>)
-  :sort-value 5013) 
+  :sort-value 5013
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-180" "remove curse"
   :numeric-id 180
@@ -2529,7 +2701,8 @@
   :weight 5
   :cost 100
   :obj-type '(<scroll> <remove-curse> <normal>)
-  :sort-value 5014) 
+  :sort-value 5014
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-181" "light"
   :numeric-id 181
@@ -2541,8 +2714,9 @@
   :locale #(0 3 10 0)
   :weight 5
   :cost 15
-  :obj-type '(<light> <scroll>)
-  :sort-value 5024) 
+  :obj-type '(<illuminate> <scroll>)
+  :sort-value 5024
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-184" "summon monster"
   :numeric-id 184
@@ -2555,7 +2729,8 @@
   :weight 5
   :cost 0
   :obj-type '(<scroll> <summon> <monster>)
-  :sort-value 5004) 
+  :sort-value 5004
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-185" "phase door"
   :numeric-id 185
@@ -2568,7 +2743,8 @@
   :weight 5
   :cost 15
   :obj-type '(<phase-door> <scroll>)
-  :sort-value 5008) 
+  :sort-value 5008
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-186" "teleportation"
   :numeric-id 186
@@ -2581,7 +2757,8 @@
   :weight 5
   :cost 40
   :obj-type '(<teleportation> <scroll>)
-  :sort-value 5009) 
+  :sort-value 5009
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-187" "teleport level"
   :numeric-id 187
@@ -2594,7 +2771,8 @@
   :weight 5
   :cost 50
   :obj-type '(<teleport-level> <scroll>)
-  :sort-value 5010) 
+  :sort-value 5010
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-188" "monster confusion"
   :numeric-id 188
@@ -2607,7 +2785,8 @@
   :weight 5
   :cost 30
   :obj-type '(<confuse-monster> <scroll>)
-  :sort-value 5036) 
+  :sort-value 5036
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-189" "magic mapping"
   :numeric-id 189
@@ -2620,7 +2799,8 @@
   :weight 5
   :cost 40
   :obj-type '(<mapping> <scroll>)
-  :sort-value 5025) 
+  :sort-value 5025
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-190" "rune of protection"
   :numeric-id 190
@@ -2633,7 +2813,8 @@
   :weight 5
   :cost 500
   :obj-type '(<scroll> <protection> <rune>)
-  :sort-value 5038) 
+  :sort-value 5038
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-191" "*remove curse*"
   :numeric-id 191
@@ -2646,7 +2827,8 @@
   :weight 5
   :cost 8000
   :obj-type '(<scroll> <remove-curse> <powerful>)
-  :sort-value 5015) 
+  :sort-value 5015
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-192" "treasure detection"
   :numeric-id 192
@@ -2659,7 +2841,8 @@
   :weight 5
   :cost 15
   :obj-type '(<scroll> <detect> <money>)
-  :sort-value 5026) 
+  :sort-value 5026
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-193" "object detection"
   :numeric-id 193
@@ -2672,7 +2855,8 @@
   :weight 5
   :cost 15
   :obj-type '(<scroll> <detect> <item>)
-  :sort-value 5027) 
+  :sort-value 5027
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-194" "trap detection"
   :numeric-id 194
@@ -2685,7 +2869,8 @@
   :weight 5
   :cost 35
   :obj-type '(<scroll> <detect> <trap>)
-  :sort-value 5028) 
+  :sort-value 5028
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-197" "door/stair location"
   :numeric-id 197
@@ -2698,7 +2883,8 @@
   :weight 5
   :cost 35
   :obj-type '(<scroll> <detect> <door>)
-  :sort-value 5029) 
+  :sort-value 5029
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-198" "acquirement"
   :numeric-id 198
@@ -2711,7 +2897,8 @@
   :weight 5
   :cost 100000
   :obj-type '(<scroll> <acquirement> <normal>)
-  :sort-value 5046) 
+  :sort-value 5046
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-199" "*acquirement*"
   :numeric-id 199
@@ -2724,7 +2911,8 @@
   :weight 5
   :cost 200000
   :obj-type '(<scroll> <acquirement> <powerful>)
-  :sort-value 5047) 
+  :sort-value 5047
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-200" "mass genocide"
   :numeric-id 200
@@ -2737,7 +2925,8 @@
   :weight 5
   :cost 1000
   :obj-type '(<scroll> <genocide> <mass>)
-  :sort-value 5045) 
+  :sort-value 5045
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-201" "detect invisible"
   :numeric-id 201
@@ -2750,7 +2939,8 @@
   :weight 5
   :cost 15
   :obj-type '(<scroll> <detect> <invisible>)
-  :sort-value 5030) 
+  :sort-value 5030
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-202" "aggravate monster"
   :numeric-id 202
@@ -2763,7 +2953,8 @@
   :weight 5
   :cost 0
   :obj-type '(<aggravate> <scroll>)
-  :sort-value 5001) 
+  :sort-value 5001
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-203" "trap creation"
   :numeric-id 203
@@ -2776,7 +2967,8 @@
   :weight 5
   :cost 0
   :obj-type '(<create-trap> <scroll>)
-  :sort-value 5007) 
+  :sort-value 5007
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-204" "trap/door destruction"
   :numeric-id 204
@@ -2789,7 +2981,8 @@
   :weight 5
   :cost 50
   :obj-type '(<trap/door-destruction> <scroll>)
-  :sort-value 5039) 
+  :sort-value 5039
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-206" "recharging"
   :numeric-id 206
@@ -2802,7 +2995,8 @@
   :weight 5
   :cost 200
   :obj-type '(<recharge> <scroll>)
-  :sort-value 5022) 
+  :sort-value 5022
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-207" "genocide"
   :numeric-id 207
@@ -2815,7 +3009,8 @@
   :weight 5
   :cost 750
   :obj-type '(<genocide> <scroll>)
-  :sort-value 5044) 
+  :sort-value 5044
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-208" "darkness"
   :numeric-id 208
@@ -2828,7 +3023,8 @@
   :weight 5
   :cost 0
   :obj-type '(<darkness> <scroll>)
-  :sort-value 5000) 
+  :sort-value 5000
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-209" "protection from evil"
   :numeric-id 209
@@ -2841,7 +3037,8 @@
   :weight 5
   :cost 50
   :obj-type '(<scroll> <protection> <evil>)
-  :sort-value 5037) 
+  :sort-value 5037
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-210" "satisfy hunger"
   :numeric-id 210
@@ -2854,7 +3051,8 @@
   :weight 5
   :cost 10
   :obj-type '(<satisfy-hunger> <scroll>)
-  :sort-value 5032) 
+  :sort-value 5032
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-211" "dispel undead"
   :numeric-id 211
@@ -2867,7 +3065,8 @@
   :weight 5
   :cost 200
   :obj-type '(<scroll> <dispel> <undead>)
-  :sort-value 5042) 
+  :sort-value 5042
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-212" "*enchant weapon*"
   :numeric-id 212
@@ -2880,7 +3079,8 @@
   :weight 5
   :cost 500
   :obj-type '(<scroll> <enchant> <weapon> <powerful>)
-  :sort-value 5021) 
+  :sort-value 5021
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-213" "curse weapon"
   :numeric-id 213
@@ -2893,7 +3093,8 @@
   :weight 5
   :cost 0
   :obj-type '(<curse-weapon> <scroll>)
-  :sort-value 5003) 
+  :sort-value 5003
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-214" "*enchant armor*"
   :numeric-id 214
@@ -2906,7 +3107,8 @@
   :weight 5
   :cost 500
   :obj-type '(<scroll> <enchant> <armour> <powerful>)
-  :sort-value 5020) 
+  :sort-value 5020
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-215" "curse armor"
   :numeric-id 215
@@ -2919,7 +3121,8 @@
   :weight 5
   :cost 0
   :obj-type '(<curse-armour> <scroll>)
-  :sort-value 5002) 
+  :sort-value 5002
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-216" "summon undead"
   :numeric-id 216
@@ -2932,7 +3135,8 @@
   :weight 5
   :cost 0
   :obj-type '(<scroll> <summon> <undead>)
-  :sort-value 5005) 
+  :sort-value 5005
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-217" "blessing"
   :numeric-id 217
@@ -2945,7 +3149,8 @@
   :weight 5
   :cost 15
   :obj-type '(<scroll> <blessing> <light>)
-  :sort-value 5033) 
+  :sort-value 5033
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-218" "holy chant"
   :numeric-id 218
@@ -2958,7 +3163,8 @@
   :weight 5
   :cost 40
   :obj-type '(<scroll> <blessing> <chant>)
-  :sort-value 5034) 
+  :sort-value 5034
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-219" "holy prayer"
   :numeric-id 219
@@ -2971,7 +3177,8 @@
   :weight 5
   :cost 80
   :obj-type '(<scroll> <blessing> <prayer>)
-  :sort-value 5035) 
+  :sort-value 5035
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-220" "word of recall"
   :numeric-id 220
@@ -2984,7 +3191,8 @@
   :weight 5
   :cost 150
   :obj-type '(<word-of-recall> <scroll>)
-  :sort-value 5011) 
+  :sort-value 5011
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-221" "*destruction*"
   :numeric-id 221
@@ -2997,7 +3205,8 @@
   :weight 5
   :cost 250
   :obj-type '(<scroll> <destruction> <powerful>)
-  :sort-value 5041) 
+  :sort-value 5041
+  :the-kind '<scroll>) 
 
 (define-object-kind "object-222" "slime mold juice"
   :numeric-id 222
@@ -3011,6 +3220,7 @@
   :cost 2
   :obj-type '(<slime-mold> <potion>)
   :sort-value 5502
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 400)) 
 
 (define-object-kind "object-223" "apple juice"
@@ -3025,6 +3235,7 @@
   :cost 1
   :obj-type '(<apple-juice> <potion>)
   :sort-value 5501
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 250)) 
 
 (define-object-kind "object-224" "water"
@@ -3039,6 +3250,7 @@
   :cost 1
   :obj-type '(<water> <potion>)
   :sort-value 5500
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 200)) 
 
 (define-object-kind "object-225" "strength"
@@ -3053,6 +3265,7 @@
   :cost 8000
   :obj-type '(<potion> <increase> <str>)
   :sort-value 5548
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-226" "weakness"
@@ -3067,6 +3280,7 @@
   :cost 0
   :obj-type '(<potion> <reduce> <str>)
   :sort-value 5516
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-227" "restore strength"
@@ -3081,6 +3295,7 @@
   :cost 300
   :obj-type '(<potion> <restore> <str>)
   :sort-value 5542
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-228" "intelligence"
@@ -3095,6 +3310,7 @@
   :cost 8000
   :obj-type '(<potion> <increase> <int>)
   :sort-value 5549
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-229" "stupidity"
@@ -3109,6 +3325,7 @@
   :cost 0
   :obj-type '(<potion> <reduce> <int>)
   :sort-value 5517
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-230" "restore intelligence"
@@ -3123,6 +3340,7 @@
   :cost 300
   :obj-type '(<potion> <restore> <int>)
   :sort-value 5543
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-231" "wisdom"
@@ -3137,6 +3355,7 @@
   :cost 8000
   :obj-type '(<potion> <increase> <wis>)
   :sort-value 5550
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-232" "naivety"
@@ -3151,6 +3370,7 @@
   :cost 0
   :obj-type '(<potion> <reduce> <wis>)
   :sort-value 5518
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-233" "restore wisdom"
@@ -3165,6 +3385,7 @@
   :cost 300
   :obj-type '(<potion> <restore> <wis>)
   :sort-value 5544
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-234" "charisma"
@@ -3179,6 +3400,7 @@
   :cost 1000
   :obj-type '(<potion> <increase> <chr>)
   :sort-value 5553
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-235" "ugliness"
@@ -3193,6 +3415,7 @@
   :cost 0
   :obj-type '(<potion> <reduce> <chr>)
   :sort-value 5521
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-236" "restore charisma"
@@ -3207,6 +3430,7 @@
   :cost 300
   :obj-type '(<potion> <restore> <chr>)
   :sort-value 5547
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-237" "cure light wounds"
@@ -3221,6 +3445,7 @@
   :cost 15
   :obj-type '(<potion> <cure> <light>)
   :sort-value 5534
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 50)) 
 
 (define-object-kind "object-238" "clumsiness"
@@ -3235,6 +3460,7 @@
   :cost 0
   :obj-type '(<potion> <reduce> <dex>)
   :sort-value 5519
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-239" "sickliness"
@@ -3249,6 +3475,7 @@
   :cost 0
   :obj-type '(<potion> <reduce> <con>)
   :sort-value 5520
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-240" "cure serious wounds"
@@ -3263,6 +3490,7 @@
   :cost 40
   :obj-type '(<potion> <cure> <serious>)
   :sort-value 5535
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 100)) 
 
 (define-object-kind "object-241" "cure critical wounds"
@@ -3277,6 +3505,7 @@
   :cost 100
   :obj-type '(<potion> <cure> <critical>)
   :sort-value 5536
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 100)) 
 
 (define-object-kind "object-242" "healing"
@@ -3291,6 +3520,7 @@
   :cost 300
   :obj-type '(<potion> <cure> <healing> <normal>)
   :sort-value 5537
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 200)) 
 
 (define-object-kind "object-243" "constitution"
@@ -3305,6 +3535,7 @@
   :cost 8000
   :obj-type '(<potion> <increase> <con>)
   :sort-value 5552
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-244" "experience"
@@ -3319,6 +3550,7 @@
   :cost 25000
   :obj-type '(<xp> <potion>)
   :sort-value 5559
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-245" "sleep"
@@ -3333,6 +3565,7 @@
   :cost 0
   :obj-type '(<sleep> <potion>)
   :sort-value 5511
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 100)) 
 
 (define-object-kind "object-246" "blindness"
@@ -3347,6 +3580,7 @@
   :cost 0
   :obj-type '(<blindness> <potion>)
   :sort-value 5507
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-247" "confusion"
@@ -3361,6 +3595,7 @@
   :cost 0
   :obj-type '(<confusion> <potion>)
   :sort-value 5509
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 50)) 
 
 (define-object-kind "object-248" "poison"
@@ -3375,6 +3610,7 @@
   :cost 0
   :obj-type '(<poison> <potion>)
   :sort-value 5506
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-249" "speed"
@@ -3389,6 +3625,7 @@
   :cost 75
   :obj-type '(<speed> <potion>)
   :sort-value 5529
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-250" "slowness"
@@ -3403,6 +3640,7 @@
   :cost 0
   :obj-type '(<slowness> <potion>)
   :sort-value 5504
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 50)) 
 
 (define-object-kind "object-251" "dexterity"
@@ -3417,6 +3655,7 @@
   :cost 8000
   :obj-type '(<potion> <increase> <dex>)
   :sort-value 5551
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-252" "restore dexterity"
@@ -3431,6 +3670,7 @@
   :cost 300
   :obj-type '(<potion> <restore> <dex>)
   :sort-value 5545
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-253" "restore constitution"
@@ -3445,6 +3685,7 @@
   :cost 300
   :obj-type '(<potion> <restore> <con>)
   :sort-value 5546
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-254" "lose memories"
@@ -3459,6 +3700,7 @@
   :cost 0
   :obj-type '(<amnesia> <potion>)
   :sort-value 5513
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-255" "salt water"
@@ -3473,6 +3715,7 @@
   :cost 0
   :obj-type '(<salt-water> <potion>)
   :sort-value 5505
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-256" "enlightenment"
@@ -3487,6 +3730,7 @@
   :cost 800
   :obj-type '(<potion> <enlightenment> <normal>)
   :sort-value 5556
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-257" "heroism"
@@ -3501,6 +3745,7 @@
   :cost 35
   :obj-type '(<heroism> <potion>)
   :sort-value 5532
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-258" "berserk strength"
@@ -3515,6 +3760,7 @@
   :cost 100
   :obj-type '(<berserk-strength> <potion>)
   :sort-value 5533
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-259" "boldness"
@@ -3529,6 +3775,7 @@
   :cost 10
   :obj-type '(<boldness> <potion>)
   :sort-value 5528
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-260" "restore life levels"
@@ -3543,6 +3790,7 @@
   :cost 400
   :obj-type '(<potion> <restore> <xp>)
   :sort-value 5541
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-261" "resist heat"
@@ -3557,6 +3805,7 @@
   :cost 30
   :obj-type '(<potion> <resist> <fire>)
   :sort-value 5530
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-262" "resist cold"
@@ -3571,6 +3820,7 @@
   :cost 30
   :obj-type '(<potion> <resist> <cold>)
   :sort-value 5531
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-263" "detect invisible"
@@ -3585,6 +3835,7 @@
   :cost 50
   :obj-type '(<potion> <detect> <invisible>)
   :sort-value 5525
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-264" "slow poison"
@@ -3599,6 +3850,7 @@
   :cost 25
   :obj-type '(<slow-poison> <potion>)
   :sort-value 5526
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-265" "neutralize poison"
@@ -3613,6 +3865,7 @@
   :cost 75
   :obj-type '(<potion> <cure> <poison>)
   :sort-value 5527
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-266" "restore mana"
@@ -3627,6 +3880,7 @@
   :cost 350
   :obj-type '(<potion> <restore> <mana>)
   :sort-value 5540
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-267" "infra-vision"
@@ -3641,6 +3895,7 @@
   :cost 20
   :obj-type '(<infravision> <potion>)
   :sort-value 5524
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-269" "light"
@@ -3655,6 +3910,7 @@
   :cost 200
   :obj-type '(<light> <wand>)
   :sort-value 4807
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-270" "lightning bolts"
@@ -3669,6 +3925,7 @@
   :cost 600
   :obj-type '(<wand> <bolt> <lightning>)
   :sort-value 4817
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-271" "frost bolts"
@@ -3683,6 +3940,7 @@
   :cost 800
   :obj-type '(<wand> <bolt> <cold>)
   :sort-value 4819
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-272" "fire bolts"
@@ -3697,6 +3955,7 @@
   :cost 1000
   :obj-type '(<wand> <bolt> <fire>)
   :sort-value 4818
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-273" "stone to mud"
@@ -3711,6 +3970,7 @@
   :cost 300
   :obj-type '(<stone-to-mud> <wand>)
   :sort-value 4806
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-274" "polymorph"
@@ -3725,6 +3985,7 @@
   :cost 400
   :obj-type '(<polymorph> <wand>)
   :sort-value 4813
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-275" "heal monster"
@@ -3739,6 +4000,7 @@
   :cost 0
   :obj-type '(<heal-monster> <wand>)
   :sort-value 4800
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-276" "haste monster"
@@ -3753,6 +4015,7 @@
   :cost 0
   :obj-type '(<haste-monster> <wand>)
   :sort-value 4801
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-277" "slow monster"
@@ -3767,6 +4030,7 @@
   :cost 500
   :obj-type '(<slow-monster> <wand>)
   :sort-value 4809
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-278" "confuse monster"
@@ -3781,6 +4045,7 @@
   :cost 500
   :obj-type '(<confuse-monster> <wand>)
   :sort-value 4810
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-279" "sleep monster"
@@ -3795,6 +4060,7 @@
   :cost 500
   :obj-type '(<sleep-monster> <wand>)
   :sort-value 4808
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-280" "drain life"
@@ -3809,6 +4075,7 @@
   :cost 1200
   :obj-type '(<drain-life> <wand>)
   :sort-value 4812
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-281" "trap/door destruction"
@@ -3823,6 +4090,7 @@
   :cost 100
   :obj-type '(<trap/door-destruction> <wand>)
   :sort-value 4805
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-282" "magic missile"
@@ -3837,6 +4105,7 @@
   :cost 200
   :obj-type '(<magic-missile> <wand>)
   :sort-value 4815
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-283" "clone monster"
@@ -3851,6 +4120,7 @@
   :cost 0
   :obj-type '(<clone-monster> <wand>)
   :sort-value 4802
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-284" "scare monster"
@@ -3865,6 +4135,7 @@
   :cost 500
   :obj-type '(<fear-monster> <wand>)
   :sort-value 4811
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-285" "teleport other"
@@ -3879,6 +4150,7 @@
   :cost 350
   :obj-type '(<teleport-away> <wand>)
   :sort-value 4803
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-286" "disarming"
@@ -3893,6 +4165,7 @@
   :cost 700
   :obj-type '(<disarm> <wand>)
   :sort-value 4804
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-287" "lightning balls"
@@ -3907,6 +4180,7 @@
   :cost 1200
   :obj-type '(<wand> <ball> <lightning>)
   :sort-value 4821
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<electricity>))) 
 
 (define-object-kind "object-288" "cold balls"
@@ -3921,6 +4195,7 @@
   :cost 1500
   :obj-type '(<wand> <ball> <cold>)
   :sort-value 4823
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold>))) 
 
 (define-object-kind "object-289" "fire balls"
@@ -3935,6 +4210,7 @@
   :cost 1800
   :obj-type '(<wand> <ball> <fire>)
   :sort-value 4822
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<fire>))) 
 
 (define-object-kind "object-290" "stinking cloud"
@@ -3949,6 +4225,7 @@
   :cost 400
   :obj-type '(<stinking-cloud> <wand>)
   :sort-value 4814
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-291" "acid balls"
@@ -3963,6 +4240,7 @@
   :cost 1650
   :obj-type '(<wand> <ball> <acid>)
   :sort-value 4820
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
 
 (define-object-kind "object-292" "wonder"
@@ -3977,6 +4255,7 @@
   :cost 250
   :obj-type '(<wonder> <wand>)
   :sort-value 4824
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-294" "acid bolts"
@@ -3991,6 +4270,7 @@
   :cost 950
   :obj-type '(<wand> <bolt> <acid>)
   :sort-value 4816
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-295" "dragon's flame"
@@ -4005,6 +4285,7 @@
   :cost 2400
   :obj-type '(<wand> <dragon> <fire>)
   :sort-value 4826
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-296" "dragon's frost"
@@ -4019,6 +4300,7 @@
   :cost 2400
   :obj-type '(<wand> <dragon> <cold>)
   :sort-value 4827
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-297" "dragon's breath"
@@ -4033,6 +4315,7 @@
   :cost 2400
   :obj-type '(<wand> <dragon> <breath>)
   :sort-value 4828
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-298" "annihilation"
@@ -4047,6 +4330,7 @@
   :cost 3000
   :obj-type '(<annihiliation> <wand>)
   :sort-value 4825
+  :the-kind '<wand>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-300" "trap location"
@@ -4061,6 +4345,7 @@
   :cost 350
   :obj-type '(<staff> <detect> <trap>)
   :sort-value 4612
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-301" "treasure location"
@@ -4075,6 +4360,7 @@
   :cost 200
   :obj-type '(<staff> <detect> <money>)
   :sort-value 4610
+  :the-kind '<money>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-302" "object location"
@@ -4089,6 +4375,7 @@
   :cost 200
   :obj-type '(<staff> <detect> <item>)
   :sort-value 4611
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-303" "teleportation"
@@ -4103,6 +4390,7 @@
   :cost 2000
   :obj-type '(<teleportation> <staff>)
   :sort-value 4604
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-304" "earthquakes"
@@ -4117,6 +4405,7 @@
   :cost 350
   :obj-type '(<earthquake> <staff>)
   :sort-value 4628
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-305" "summoning"
@@ -4131,6 +4420,7 @@
   :cost 0
   :obj-type '(<summoning> <staff>)
   :sort-value 4603
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-306" "light"
@@ -4145,6 +4435,7 @@
   :cost 250
   :obj-type '(<light> <staff>)
   :sort-value 4608
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-307" "*destruction*"
@@ -4159,6 +4450,7 @@
   :cost 2500
   :obj-type '(<destruction> <staff>)
   :sort-value 4629
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-308" "starlight"
@@ -4173,6 +4465,7 @@
   :cost 800
   :obj-type '(<star-light> <staff>)
   :sort-value 4607
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-309" "haste monsters"
@@ -4187,6 +4480,7 @@
   :cost 0
   :obj-type '(<haste-monster> <staff>)
   :sort-value 4602
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-310" "slow monsters"
@@ -4201,6 +4495,7 @@
   :cost 800
   :obj-type '(<slow-monster> <staff>)
   :sort-value 4621
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-311" "sleep monsters"
@@ -4215,6 +4510,7 @@
   :cost 700
   :obj-type '(<sleep-monster> <staff>)
   :sort-value 4620
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-312" "cure light wounds"
@@ -4229,6 +4525,7 @@
   :cost 350
   :obj-type '(<staff> <cure> <light>)
   :sort-value 4616
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-313" "detect invisible"
@@ -4243,6 +4540,7 @@
   :cost 200
   :obj-type '(<staff> <detect> <invisible>)
   :sort-value 4614
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-314" "speed"
@@ -4257,6 +4555,7 @@
   :cost 1000
   :obj-type '(<speed> <staff>)
   :sort-value 4622
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-315" "slowness"
@@ -4271,6 +4570,7 @@
   :cost 0
   :obj-type '(<slowness> <staff>)
   :sort-value 4601
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-316" "door/stair location"
@@ -4285,6 +4585,7 @@
   :cost 350
   :obj-type '(<staff> <detect> <door>)
   :sort-value 4613
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-317" "remove curse"
@@ -4299,6 +4600,7 @@
   :cost 500
   :obj-type '(<remove-curse> <staff>)
   :sort-value 4606
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-318" "detect evil"
@@ -4313,6 +4615,7 @@
   :cost 350
   :obj-type '(<staff> <detect> <evil>)
   :sort-value 4615
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-319" "curing"
@@ -4327,6 +4630,7 @@
   :cost 1000
   :obj-type '(<staff> <cure> <curing>)
   :sort-value 4617
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-320" "dispel evil"
@@ -4341,6 +4645,7 @@
   :cost 1200
   :obj-type '(<staff> <dispel> <evil>)
   :sort-value 4624
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-321" "probing"
@@ -4355,6 +4660,7 @@
   :cost 2000
   :obj-type '(<probing> <staff>)
   :sort-value 4623
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-322" "darkness"
@@ -4369,6 +4675,7 @@
   :cost 0
   :obj-type '(<darkness> <staff>)
   :sort-value 4600
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-323" "genocide"
@@ -4383,6 +4690,7 @@
   :cost 3500
   :obj-type '(<genocide> <staff>)
   :sort-value 4627
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-324" "power"
@@ -4397,6 +4705,7 @@
   :cost 4000
   :obj-type '(<power> <staff>)
   :sort-value 4625
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-325" "the magi"
@@ -4411,6 +4720,7 @@
   :cost 4500
   :obj-type '(<magi> <staff>)
   :sort-value 4619
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-326" "perception"
@@ -4425,6 +4735,7 @@
   :cost 400
   :obj-type '(<identify> <staff>)
   :sort-value 4605
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-327" "holiness"
@@ -4439,6 +4750,7 @@
   :cost 4500
   :obj-type '(<holiness> <staff>)
   :sort-value 4626
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-328" "enlightenment"
@@ -4453,6 +4765,7 @@
   :cost 750
   :obj-type '(<mapping> <staff>)
   :sort-value 4609
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-329" "healing"
@@ -4467,6 +4780,7 @@
   :cost 5000
   :obj-type '(<staff> <cure> <healing>)
   :sort-value 4618
+  :the-kind '<staff>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "object-330" "[magic for beginners]"
@@ -4481,6 +4795,7 @@
   :cost 25
   :obj-type '(<beginner> <spellbook> <mage>)
   :sort-value 6900
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-331" "[conjurings and tricks]"
@@ -4495,6 +4810,7 @@
   :cost 100
   :obj-type '(<conjuring> <spellbook> <mage>)
   :sort-value 6901
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-332" "[incantations and illusions]"
@@ -4509,6 +4825,7 @@
   :cost 400
   :obj-type '(<illusions> <spellbook> <mage>)
   :sort-value 6902
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-333" "[sorcery and evocations]"
@@ -4523,6 +4840,7 @@
   :cost 800
   :obj-type '(<sorcery> <spellbook> <mage>)
   :sort-value 6903
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-334" "[beginners handbook]"
@@ -4537,6 +4855,7 @@
   :cost 25
   :obj-type '(<beginner> <spellbook> <priest>)
   :sort-value 7000
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-335" "[words of wisdom]"
@@ -4551,6 +4870,7 @@
   :cost 100
   :obj-type '(<words> <spellbook> <priest>)
   :sort-value 7001
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-336" "[chants and blessings]"
@@ -4565,6 +4885,7 @@
   :cost 300
   :obj-type '(<chants> <spellbook> <priest>)
   :sort-value 7002
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-337" "[exorcism and dispelling]"
@@ -4579,6 +4900,7 @@
   :cost 900
   :obj-type '(<exorcism> <spellbook> <priest>)
   :sort-value 7003
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-338" "& small wooden chest~"
@@ -4593,6 +4915,7 @@
   :cost 20
   :obj-type '(<chest>)
   :sort-value 2401
+  :the-kind '<chest>
   :game-values (make-instance 'game-values :base-dice 3 :num-dice 2)) 
 
 (define-object-kind "object-339" "& large wooden chest~"
@@ -4607,6 +4930,7 @@
   :cost 60
   :obj-type '(<chest>)
   :sort-value 2405
+  :the-kind '<chest>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
 
 (define-object-kind "object-340" "& small iron chest~"
@@ -4621,6 +4945,7 @@
   :cost 100
   :obj-type '(<chest>)
   :sort-value 2402
+  :the-kind '<chest>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 2)) 
 
 (define-object-kind "object-341" "& large iron chest~"
@@ -4635,6 +4960,7 @@
   :cost 150
   :obj-type '(<chest>)
   :sort-value 2406
+  :the-kind '<chest>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "object-342" "& small steel chest~"
@@ -4649,6 +4975,7 @@
   :cost 200
   :obj-type '(<chest>)
   :sort-value 2403
+  :the-kind '<chest>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 2)) 
 
 (define-object-kind "object-343" "& large steel chest~"
@@ -4663,6 +4990,7 @@
   :cost 250
   :obj-type '(<chest>)
   :sort-value 2407
+  :the-kind '<chest>
   :game-values (make-instance 'game-values :base-dice 6 :num-dice 2)) 
 
 (define-object-kind "object-344" "& ruined chest~"
@@ -4676,7 +5004,8 @@
   :weight 250
   :cost 0
   :obj-type '(<chest>)
-  :sort-value 2400) 
+  :sort-value 2400
+  :the-kind '<chest>) 
 
 (define-object-kind "object-345" "& iron spike~"
   :numeric-id 345
@@ -4705,6 +5034,7 @@
   :obj-type '(<torch> <light-source>)
   :flags '(<easy-know>)
   :sort-value 4200
+  :the-kind '<light-source>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :charges 4000 :light-radius 1)) 
 
 (define-object-kind "object-347" "& brass lantern~"
@@ -4720,6 +5050,7 @@
   :obj-type '(<lantern> <light-source>)
   :flags '(<easy-know>)
   :sort-value 4201
+  :the-kind '<light-source>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :charges 7500 :light-radius 2 :ignores '(<fire>))) 
 
 (define-object-kind "object-348" "& flask~ of oil"
@@ -4762,6 +5093,7 @@
   :cost 1000
   :obj-type '(<rod> <detect> <door>)
   :sort-value 4501
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-352" "trap location"
@@ -4776,6 +5108,7 @@
   :cost 100
   :obj-type '(<rod> <detect> <trap>)
   :sort-value 4500
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-353" "probing"
@@ -4790,6 +5123,7 @@
   :cost 4000
   :obj-type '(<probing> <rod>)
   :sort-value 4507
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-354" "recall"
@@ -4804,6 +5138,7 @@
   :cost 4000
   :obj-type '(<recall> <rod>)
   :sort-value 4503
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-355" "illumination"
@@ -4818,6 +5153,7 @@
   :cost 1000
   :obj-type '(<illumination> <rod>)
   :sort-value 4504
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-356" "light"
@@ -4832,6 +5168,7 @@
   :cost 500
   :obj-type '(<light> <rod>)
   :sort-value 4515
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-357" "lightning bolts"
@@ -4846,6 +5183,7 @@
   :cost 2000
   :obj-type '(<rod> <bolt> <lightning>)
   :sort-value 4521
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-358" "frost bolts"
@@ -4860,6 +5198,7 @@
   :cost 2500
   :obj-type '(<rod> <bolt> <cold>)
   :sort-value 4523
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-359" "fire bolts"
@@ -4874,6 +5213,7 @@
   :cost 3000
   :obj-type '(<rod> <bolt> <fire>)
   :sort-value 4522
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-360" "polymorph"
@@ -4888,6 +5228,7 @@
   :cost 1200
   :obj-type '(<polymorph> <rod>)
   :sort-value 4519
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-361" "slow monster"
@@ -4902,6 +5243,7 @@
   :cost 1500
   :obj-type '(<slow-monster> <rod>)
   :sort-value 4517
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-362" "sleep monster"
@@ -4916,6 +5258,7 @@
   :cost 1500
   :obj-type '(<sleep-monster> <rod>)
   :sort-value 4516
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-363" "drain life"
@@ -4930,6 +5273,7 @@
   :cost 3600
   :obj-type '(<drain-life> <rod>)
   :sort-value 4518
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-364" "teleport other"
@@ -4944,6 +5288,7 @@
   :cost 1400
   :obj-type '(<teleport-away> <rod>)
   :sort-value 4513
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-365" "disarming"
@@ -4958,6 +5303,7 @@
   :cost 2100
   :obj-type '(<disarming> <rod>)
   :sort-value 4514
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-366" "lightning balls"
@@ -4972,6 +5318,7 @@
   :cost 4000
   :obj-type '(<rod> <ball> <lightning)
   :sort-value 4525
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-367" "cold balls"
@@ -4986,6 +5333,7 @@
   :cost 4500
   :obj-type '(<rod> <ball> <cold)
   :sort-value 4527
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-368" "fire balls"
@@ -5000,6 +5348,7 @@
   :cost 5000
   :obj-type '(<rod> <ball> <fire>)
   :sort-value 4526
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-369" "acid balls"
@@ -5014,6 +5363,7 @@
   :cost 5500
   :obj-type '(<rod> <ball> <acid>)
   :sort-value 4524
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-370" "acid bolts"
@@ -5028,6 +5378,7 @@
   :cost 3500
   :obj-type '(<rod> <bolt> <acid>)
   :sort-value 4520
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-371" "enlightenment"
@@ -5042,6 +5393,7 @@
   :cost 10000
   :obj-type '(<mapping> <rod>)
   :sort-value 4505
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-372" "perception"
@@ -5056,6 +5408,7 @@
   :cost 13000
   :obj-type '(<identify> <rod>)
   :sort-value 4502
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-373" "curing"
@@ -5070,6 +5423,7 @@
   :cost 15000
   :obj-type '(<curing> <rod>)
   :sort-value 4508
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-374" "healing"
@@ -5084,6 +5438,7 @@
   :cost 20000
   :obj-type '(<healing> <rod>)
   :sort-value 4509
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-375" "detection"
@@ -5098,6 +5453,7 @@
   :cost 5000
   :obj-type '(<detection> <rod>)
   :sort-value 4506
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-376" "restoration"
@@ -5112,6 +5468,7 @@
   :cost 25000
   :obj-type '(<restoration> <rod>)
   :sort-value 4510
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-377" "speed"
@@ -5126,6 +5483,7 @@
   :cost 50000
   :obj-type '(<speed> <rod>)
   :sort-value 4511
+  :the-kind '<rod>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-379" "[resistance of scarabtarices]"
@@ -5140,6 +5498,7 @@
   :cost 5000
   :obj-type '(<resistance> <spellbook> <mage>)
   :sort-value 6904
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-380" "[mordenkainen's escapes]"
@@ -5154,6 +5513,7 @@
   :cost 10000
   :obj-type '(<escapes> <spellbook> <mage>)
   :sort-value 6905
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-381" "[kelek's grimoire of power]"
@@ -5168,6 +5528,7 @@
   :cost 30000
   :obj-type '(<grimoire> <spellbook> <mage>)
   :sort-value 6906
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-382" "[tenser's transformations]"
@@ -5182,6 +5543,7 @@
   :cost 50000
   :obj-type '(<transformations> <spellbook> <mage>)
   :sort-value 6907
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-383" "[raal's tome of destruction]"
@@ -5196,6 +5558,7 @@
   :cost 100000
   :obj-type '(<destruction> <spellbook> <mage>)
   :sort-value 6908
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-384" "[ethereal openings]"
@@ -5210,6 +5573,7 @@
   :cost 5000
   :obj-type '(<openings> <spellbook> <priest>)
   :sort-value 7004
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-385" "[godly insights]"
@@ -5224,6 +5588,7 @@
   :cost 10000
   :obj-type '(<insights> <spellbook> <priest>)
   :sort-value 7005
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-386" "[purifications and healing]"
@@ -5238,6 +5603,7 @@
   :cost 30000
   :obj-type '(<healing> <spellbook> <priest>)
   :sort-value 7006
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-387" "[holy infusions]"
@@ -5252,6 +5618,7 @@
   :cost 50000
   :obj-type '(<infusions> <spellbook> <priest>)
   :sort-value 7007
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-388" "[wrath of god]"
@@ -5266,6 +5633,7 @@
   :cost 100000
   :obj-type '(<wrath> <spellbook> <priest>)
   :sort-value 7008
+  :the-kind '<book>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "object-389" "& shard~ of pottery"
@@ -5421,6 +5789,7 @@
   :obj-type '(<black> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4101
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<acid>))) 
 
@@ -5437,6 +5806,7 @@
   :obj-type '(<blue> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4102
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<electricity>))) 
 
@@ -5453,6 +5823,7 @@
   :obj-type '(<white> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4103
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<cold>))) 
 
@@ -5469,6 +5840,7 @@
   :obj-type '(<red> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4104
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<fire>))) 
 
@@ -5485,6 +5857,7 @@
   :obj-type '(<green> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4105
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<poison>))) 
 
@@ -5501,6 +5874,7 @@
   :obj-type '(<multihued> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4106
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists
                               '(<poison> <cold> <fire> <electricity> <acid>))) 
@@ -5518,6 +5892,7 @@
   :obj-type '(<shining> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4110
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<dark> <light>))) 
 
@@ -5534,6 +5909,7 @@
   :obj-type '(<law> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4112
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<shard> <sound>))) 
 
@@ -5550,6 +5926,7 @@
   :obj-type '(<bronze> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4114
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<confusion>))) 
 
@@ -5566,6 +5943,7 @@
   :obj-type '(<gold> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4116
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<sound>))) 
 
@@ -5582,6 +5960,7 @@
   :obj-type '(<chaos> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4118
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists '(<disenchant> <chaos> <confusion>))) 
 
@@ -5598,6 +5977,7 @@
   :obj-type '(<balance> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4120
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 30 :ac-bonus 10 :base-dice 4 :num-dice 2 :tohit-bonus -2 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists
                               '(<disenchant> <chaos> <shard> <sound> <confusion>))) 
@@ -5615,6 +5995,7 @@
   :obj-type '(<power> <body-armour> <dragon-scale>)
   :flags '(<activation>)
   :sort-value 4130
+  :the-kind '<body-armour>
   :game-values (make-instance 'game-values :base-ac 40 :ac-bonus 15 :base-dice 4 :num-dice 2 :tohit-bonus -3 :ignores
                               '(<cold> <fire> <electricity> <acid>) :resists
                               '(<chaos> <nether> <nexus> <dark> <light> <confusion> <poison> <electricity> <cold>
@@ -5632,6 +6013,7 @@
   :cost 0
   :obj-type '(<death> <potion>)
   :sort-value 5523
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-416" "ruination"
@@ -5646,6 +6028,7 @@
   :cost 0
   :obj-type '(<ruination> <potion>)
   :sort-value 5515
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-417" "detonations"
@@ -5660,6 +6043,7 @@
   :cost 10000
   :obj-type '(<detonations> <potion>)
   :sort-value 5522
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 25 :num-dice 25)) 
 
 (define-object-kind "object-418" "augmentation"
@@ -5674,6 +6058,7 @@
   :cost 60000
   :obj-type '(<augmentation> <potion>)
   :sort-value 5555
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-419" "*healing*"
@@ -5688,6 +6073,7 @@
   :cost 1500
   :obj-type '(<potion> <cure> <healing> <powerful>)
   :sort-value 5538
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-420" "life"
@@ -5702,6 +6088,7 @@
   :cost 5000
   :obj-type '(<life> <potion>)
   :sort-value 5539
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-421" "self knowledge"
@@ -5716,6 +6103,7 @@
   :cost 2000
   :obj-type '(<self-knowledge> <potion>)
   :sort-value 5558
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-422" "*enlightenment*"
@@ -5730,6 +6118,7 @@
   :cost 80000
   :obj-type '(<potion> <enlightenment> <powerful>)
   :sort-value 5557
+  :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-480" "copper"
@@ -5743,7 +6132,8 @@
   :weight 0
   :cost 3
   :obj-type '(<money>)
-  :sort-value 7101) 
+  :sort-value 7101
+  :the-kind '<money>) 
 
 (define-object-kind "object-481" "copper"
   :numeric-id 481
@@ -5756,7 +6146,8 @@
   :weight 0
   :cost 4
   :obj-type '(<money>)
-  :sort-value 7102) 
+  :sort-value 7102
+  :the-kind '<money>) 
 
 (define-object-kind "object-482" "copper"
   :numeric-id 482
@@ -5769,7 +6160,8 @@
   :weight 0
   :cost 5
   :obj-type '(<money>)
-  :sort-value 7103) 
+  :sort-value 7103
+  :the-kind '<money>) 
 
 (define-object-kind "object-483" "silver"
   :numeric-id 483
@@ -5782,7 +6174,8 @@
   :weight 0
   :cost 6
   :obj-type '(<money>)
-  :sort-value 7104) 
+  :sort-value 7104
+  :the-kind '<money>) 
 
 (define-object-kind "object-484" "silver"
   :numeric-id 484
@@ -5795,7 +6188,8 @@
   :weight 0
   :cost 7
   :obj-type '(<money>)
-  :sort-value 7105) 
+  :sort-value 7105
+  :the-kind '<money>) 
 
 (define-object-kind "object-485" "silver"
   :numeric-id 485
@@ -5808,7 +6202,8 @@
   :weight 0
   :cost 8
   :obj-type '(<money>)
-  :sort-value 7106) 
+  :sort-value 7106
+  :the-kind '<money>) 
 
 (define-object-kind "object-486" "garnets"
   :numeric-id 486
@@ -5821,7 +6216,8 @@
   :weight 0
   :cost 9
   :obj-type '(<money>)
-  :sort-value 7107) 
+  :sort-value 7107
+  :the-kind '<money>) 
 
 (define-object-kind "object-487" "garnets"
   :numeric-id 487
@@ -5834,7 +6230,8 @@
   :weight 0
   :cost 10
   :obj-type '(<money>)
-  :sort-value 7108) 
+  :sort-value 7108
+  :the-kind '<money>) 
 
 (define-object-kind "object-488" "gold"
   :numeric-id 488
@@ -5847,7 +6244,8 @@
   :weight 0
   :cost 12
   :obj-type '(<money>)
-  :sort-value 7109) 
+  :sort-value 7109
+  :the-kind '<money>) 
 
 (define-object-kind "object-489" "gold"
   :numeric-id 489
@@ -5860,7 +6258,8 @@
   :weight 0
   :cost 14
   :obj-type '(<money>)
-  :sort-value 7110) 
+  :sort-value 7110
+  :the-kind '<money>) 
 
 (define-object-kind "object-490" "gold"
   :numeric-id 490
@@ -5873,7 +6272,8 @@
   :weight 0
   :cost 16
   :obj-type '(<money>)
-  :sort-value 7111) 
+  :sort-value 7111
+  :the-kind '<money>) 
 
 (define-object-kind "object-491" "opals"
   :numeric-id 491
@@ -5886,7 +6286,8 @@
   :weight 0
   :cost 18
   :obj-type '(<money>)
-  :sort-value 7112) 
+  :sort-value 7112
+  :the-kind '<money>) 
 
 (define-object-kind "object-492" "sapphires"
   :numeric-id 492
@@ -5899,7 +6300,8 @@
   :weight 0
   :cost 20
   :obj-type '(<money>)
-  :sort-value 7113) 
+  :sort-value 7113
+  :the-kind '<money>) 
 
 (define-object-kind "object-493" "rubies"
   :numeric-id 493
@@ -5912,7 +6314,8 @@
   :weight 0
   :cost 24
   :obj-type '(<money>)
-  :sort-value 7114) 
+  :sort-value 7114
+  :the-kind '<money>) 
 
 (define-object-kind "object-494" "diamonds"
   :numeric-id 494
@@ -5925,7 +6328,8 @@
   :weight 0
   :cost 28
   :obj-type '(<money>)
-  :sort-value 7115) 
+  :sort-value 7115
+  :the-kind '<money>) 
 
 (define-object-kind "object-495" "emeralds"
   :numeric-id 495
@@ -5938,7 +6342,8 @@
   :weight 0
   :cost 32
   :obj-type '(<money>)
-  :sort-value 7116) 
+  :sort-value 7116
+  :the-kind '<money>) 
 
 (define-object-kind "object-496" "mithril"
   :numeric-id 496
@@ -5951,7 +6356,8 @@
   :weight 0
   :cost 40
   :obj-type '(<money>)
-  :sort-value 7117) 
+  :sort-value 7117
+  :the-kind '<money>) 
 
 (define-object-kind "object-497" "adamantite"
   :numeric-id 497
@@ -5964,7 +6370,8 @@
   :weight 0
   :cost 80
   :obj-type '(<money>)
-  :sort-value 7118) 
+  :sort-value 7118
+  :the-kind '<money>) 
 
 (define-object-kind "object-498" "& mighty hammer~"
   :numeric-id 498
@@ -5979,6 +6386,7 @@
   :obj-type '(<grond> <weapon> <hafted>)
   :flags '(<instant-artifact> <show-modififers>)
   :sort-value 3050
+  :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 9 :num-dice 3)) 
 
 (define-object-kind "object-499" "& massive iron crown~"
@@ -5994,6 +6402,7 @@
   :obj-type '(<morgoth> <headgear> <crown>)
   :flags '(<instant-artifact>)
   :sort-value 3650
+  :the-kind '<headgear>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "object-500" "& phial~"
@@ -6009,6 +6418,7 @@
   :obj-type '(<phial> <light-source>)
   :flags '(<instant-artifact>)
   :sort-value 4204
+  :the-kind '<light-source>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :light-radius 3)) 
 
 (define-object-kind "object-501" "& star~"
@@ -6024,6 +6434,7 @@
   :obj-type '(<star> <light-source>)
   :flags '(<instant-artifact>)
   :sort-value 4205
+  :the-kind '<light-source>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :light-radius 3)) 
 
 (define-object-kind "object-502" "& arkenstone~"
@@ -6039,6 +6450,7 @@
   :obj-type '(<arkenstone> <light-source>)
   :flags '(<instant-artifact>)
   :sort-value 4206
+  :the-kind '<light-source>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :light-radius 3)) 
 
 (define-object-kind "object-503" "& amulet~"
@@ -6054,6 +6466,7 @@
   :obj-type '(<neckwear> <amulet> <carlammas>)
   :flags '(<instant-artifact>)
   :sort-value 4310
+  :the-kind '<amulet>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-504" "& amulet~"
@@ -6069,6 +6482,7 @@
   :obj-type '(<neckwear> <amulet> <ingwe>)
   :flags '(<instant-artifact>)
   :sort-value 4311
+  :the-kind '<amulet>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-505" "& necklace~"
@@ -6084,6 +6498,7 @@
   :obj-type '(<neckwear> <necklace> <dwarves>)
   :flags '(<instant-artifact>)
   :sort-value 4312
+  :the-kind '<neckwear>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-506" "& ring~"
@@ -6099,6 +6514,7 @@
   :obj-type '(<ring>)
   :flags '(<instant-artifact>)
   :sort-value 4432
+  :the-kind '<ring>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-507" "& ring~"
@@ -6114,6 +6530,7 @@
   :obj-type '(<ring>)
   :flags '(<instant-artifact>)
   :sort-value 4433
+  :the-kind '<ring>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-508" "& ring~"
@@ -6129,6 +6546,7 @@
   :obj-type '(<ring>)
   :flags '(<instant-artifact>)
   :sort-value 4434
+  :the-kind '<ring>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-509" "& ring~"
@@ -6144,6 +6562,7 @@
   :obj-type '(<ring>)
   :flags '(<instant-artifact>)
   :sort-value 4435
+  :the-kind '<ring>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-510" "& ring~"
@@ -6159,6 +6578,7 @@
   :obj-type '(<ring>)
   :flags '(<instant-artifact>)
   :sort-value 4436
+  :the-kind '<ring>
   :game-values (make-instance 'game-values)) 
 
 (define-object-kind "object-511" "& ring~"
@@ -6174,5 +6594,6 @@
   :obj-type '(<ring>)
   :flags '(<instant-artifact>)
   :sort-value 4437
+  :the-kind '<ring>
   :game-values (make-instance 'game-values)) 
 

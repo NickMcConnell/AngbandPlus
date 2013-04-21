@@ -131,7 +131,7 @@ the Free Software Foundation; either version 2 of the License, or
     (if (not kind)
 	(error "Unable to find object-kind ~s" the-kind) ;; make this a warning later
 	
-	(let ((aobj (make-instance 'active-object :obj the-kind)))
+	(let ((aobj (produce-active-object *variant* the-kind)))
 
 	  (setf (location-x aobj) loc-x
 		(location-y aobj) loc-y
@@ -204,7 +204,8 @@ the Free Software Foundation; either version 2 of the License, or
   
   "Returns a player object or nil."
   
-  (let ((pl-obj (create-player-obj)))
+  (let* ((var-obj *variant*)
+	 (pl-obj (create-player-obj var-obj)))
     (setf (player.loc-x pl-obj) loc-x
 	  (player.loc-y pl-obj) loc-y
 	  (player.view-x pl-obj) view-x
@@ -338,9 +339,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod load-object ((type (eql :player)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
-	 (pl-obj (bt:read-binary 'player str)))
+	 (pl-obj (bt:read-binary 'player str))
+	 (var-obj *variant*))
     
-    (init-player-obj! pl-obj)
+    (init-player-obj! pl-obj var-obj)
     
     (%filed-player-info pl-obj
 			:name (%bin-read-string str)

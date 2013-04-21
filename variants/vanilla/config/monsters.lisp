@@ -3403,7 +3403,7 @@
   :treasures '((<drop-chance> 9/10) (<drop-chance> 3/5))
   :special-abilities '((<spell> <drain-mana>) (<spell> <scare>) (<frequency> 1/10))) 
 
-(define-monster-kind "monster-268" "ibun, son of mim"
+(define-monster-kind "monster-268" "Ibun, son of Mim"
   :desc "One of the last of the petty dwarves.  Ibun is a tricky sorcerous little  being, full of mischief."
   :symbol #\h
   :colour #\o
@@ -3424,7 +3424,7 @@
   :sex '<male>
   :special-abilities '((<spell> (<bolt> <fire>)) (<spell> <slow>) (<spell> <heal>) (<frequency> 1/8))) 
 
-(define-monster-kind "monster-269" "khim, son of mim"
+(define-monster-kind "monster-269" "Khim, son of Mim"
   :desc "One of the last of the petty dwarves.  Khim is a tricky sorcerous little  being, full of mischief."
   :symbol #\h
   :colour #\o
@@ -3880,7 +3880,7 @@
   :vision 10
   :attacks '((<bite> :type <hurt> :damage (1 . 1)))) 
 
-(define-monster-kind "monster-290" "mim, betrayer of turin"
+(define-monster-kind "monster-290" "Mim, betrayer of turin"
   :desc "The last of his race, Mim is a petty dwarf.  Petty dwarves are strange  creatures, powerful in sorcery and originating in the East.  They were  hunted to extinction by high elves."
   :symbol #\h
   :colour #\o

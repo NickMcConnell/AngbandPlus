@@ -50,6 +50,9 @@ throughout dungeon-generation")
 
 (defvar *global-event-table* (make-hash-table :test #'equal))
 
+(defvar *obj-type-mappings* (make-hash-table :test #'eq)
+  "keeps track of mapping from key to object-types, used by factories.")
+
 (defvar *engine-source-dir* #+langband-development "./"
 	#-langband-development (translate-logical-pathname "langband:"))
 (defvar *engine-config-dir*

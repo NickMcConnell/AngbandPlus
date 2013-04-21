@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
-#|
+#||
 
 DESC: global.lisp - globally available functions/classes
 Copyright (c) 2000 - Stig Erik Sandø
@@ -15,7 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 ADD_DESC: common langband-specific code of interest for larger
 ADD_DESC: parts of the code.  Small classes, functions, et.al
 
-|#
+||#
 
 (in-package :org.langband.engine)
 
@@ -122,6 +122,11 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
    (loc-y       :accessor location-y
 		:initarg :loc-y
 		:initform +illegal-loc-y+)
+   (identify    :accessor aobj.identify
+		:initarg :identify
+		:initform 0
+		:documentation "Bitfield that says how known the object is.")
+   
    ))
 
 
@@ -208,7 +213,7 @@ in the game at some point."))
 (defgeneric (setf location-y) (value obj)
   (:documentation "Sets the y-location for the object whenever possible."))
     
-(defgeneric use-object! (variant dun pl the-object)
+(defgeneric use-object! (variant dun pl the-object &key which-use)
   (:documentation "Applies the object on the player in the dungeon."))
 
 (defgeneric heal-creature! (crt amount)
@@ -235,9 +240,55 @@ but one that works with langband-objects."))
 (defgeneric get-loadable-form (object &key &allow-other-keys)
   (:documentation "Pretty much similar to MAKE-LOAD-FORM."))
 
+(defgeneric produce-object-kind (variant id name obj-type &key the-kind)
+  (:documentation "Produces an object-kind."))
+(defgeneric produce-active-object (variant okind)
+  (:documentation "Produces an active object based on given object-kind."))
+
+(defgeneric add-magic-to-item! (dungeon item quality)
+  (:documentation "Adds magical properites to an item."))
+
+(defgeneric is-object-known? (object)
+  (:documentation "Returns T if the particular object is known.  NIL if not."))
+
+(defgeneric learn-about-object! (player object what)
+  (:documentation "Lets the player learn certain things about an object."))
+
+(defgeneric is-eatable? (player object)
+  (:documentation "Is the object OBJ eatable by the player?"))
+
+(defgeneric apply-usual-effects-on-used-object! (dun pl obj)
+  (:documentation "Not quite sure here yet.. should be sewn into the USE-protocol."))
+
+(defgeneric write-obj-description (obj stream &key store)
+  (:documentation "Describes the given object to the given stream."))
+
+(defgeneric generate-random-name (variant creature race)
+  (:documentation "Returns a random name for a given creature of race 'race', or NIL on failure."))
+
+(defgeneric create-character (variant)
+  (:documentation "Interactive creation of a player object.  Should return a
+player object or NIL."))
+
+(defgeneric create-player-obj (variant)
+  (:documentation "Creates and returns a bare-bone player-object."))
+
 (defun make-game-values ()
   "Returns an object of type game-values."
   (make-instance 'game-values))
+
+(defun copy-game-values (obj)
+  "Copies the given OBJ and returns a new object that is equal."
+  (check-type obj game-values)
+  
+  (let ((new-obj (make-game-values)))
+    (dolist (i '(base-ac ac-bonus base-dice num-dice tohit-bonus
+		 dmg-bonus mana charges food-val light-radius tunnel
+		 speed skill-bonuses stat-bonuses ignores resists
+		 immunities abilities sustains slays))
+      ;; doesn't handle shared-structures well
+      (setf (slot-value new-obj i) (slot-value obj i)))
+    new-obj))
 
 
 (defun make-skills (&key (default-value 0))

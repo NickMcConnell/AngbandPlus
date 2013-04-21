@@ -14,44 +14,45 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
-(define-object-effect (<food> <mushroom> <poison>) (dun pl item)
+(define-object-effect (<food> <mushroom> <poison>)
+    (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (set-creature-state! pl :poison (+ 10 (random 10)))
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <blindness>) (dun pl item)
+(define-object-effect (<food> <mushroom> <blindness>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (set-creature-state! pl :blindness (+ 200 (random 200)))
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <paranoia>) (dun pl item)
+(define-object-effect (<food> <mushroom> <paranoia>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (set-creature-state! pl :fear (+ 10 (random 10)))
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <confusion>) (dun pl item)
+(define-object-effect (<food> <mushroom> <confusion>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (set-creature-state! pl :confusion (+ 10 (random 10)))
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <hallucination>) (dun pl item)
+(define-object-effect (<food> <mushroom> <hallucination>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (set-creature-state! pl :hallucination (+ 250 (random 250)))
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <paralysis>) (dun pl item)
+(define-object-effect (<food> <mushroom> <paralysis>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (set-creature-state! pl :paralysis (+ 10 (random 10)))
     (possible-identify! pl (aobj.kind item)))
   :used)
 
 ;; weakness
-(define-object-effect (<food> <mushroom> <reduce> <str>) (dun pl item)
+(define-object-effect (<food> <mushroom> <reduce> <str>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   ;; add damage and desc
   (update-player-stat! pl '<str> '<reduce>)
@@ -59,7 +60,7 @@ the Free Software Foundation; either version 2 of the License, or
   :used)
 
 ;; sickness
-(define-object-effect (<food> <mushroom> <reduce> <con>) (dun pl item)
+(define-object-effect (<food> <mushroom> <reduce> <con>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   ;; add damage and desc
   (update-player-stat! pl '<con> '<reduce>)
@@ -67,7 +68,7 @@ the Free Software Foundation; either version 2 of the License, or
   :used)
 
 ;; stupidity
-(define-object-effect (<food> <mushroom> <reduce> <int>) (dun pl item)
+(define-object-effect (<food> <mushroom> <reduce> <int>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   ;; add damage and desc
   (update-player-stat! pl '<int> '<reduce>)
@@ -75,56 +76,56 @@ the Free Software Foundation; either version 2 of the License, or
   :used)
 
 ;; naivety
-(define-object-effect (<food> <mushroom> <reduce> <wis>) (dun pl item)
+(define-object-effect (<food> <mushroom> <reduce> <wis>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   ;; add damage and desc
   (update-player-stat! pl '<wis> '<reduce>)
   (possible-identify! pl (aobj.kind item))
   :used)
 
-(define-object-effect (<food> <mushroom> <cure> <poison>) (dun pl item)
+(define-object-effect (<food> <mushroom> <cure> <poison>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (set-creature-state! pl :poison nil)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <cure> <blindness>) (dun pl item)
+(define-object-effect (<food> <mushroom> <cure> <blindness>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (set-creature-state! pl :blindness nil)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <cure> <paranoia>) (dun pl item)
+(define-object-effect (<food> <mushroom> <cure> <paranoia>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (set-creature-state! pl :fear nil)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <cure> <confusion>) (dun pl item)
+(define-object-effect (<food> <mushroom> <cure> <confusion>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (set-creature-state! pl :confusion nil)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <cure> <serious>) (dun pl item)
+(define-object-effect (<food> <mushroom> <cure> <serious>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (heal-creature! pl (roll-dice 4 8))
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <restore> <str>) (dun pl item)
+(define-object-effect (<food> <mushroom> <restore> <str>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<str> '<restore>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <restore> <con>) (dun pl item)
+(define-object-effect (<food> <mushroom> <restore> <con>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (when (update-player-stat! pl '<con> '<restore>)
     (possible-identify! pl (aobj.kind item)))
   :used)
 
-(define-object-effect (<food> <mushroom> <restoring>) (dun pl item)
+(define-object-effect (<food> <mushroom> <restoring>) (:effect (:eat :use)) (dun pl item)
   (declare (ignore dun))
   (update-player-stat! pl '<str> '<restore>)
   (update-player-stat! pl '<dex> '<restore>)

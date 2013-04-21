@@ -241,10 +241,12 @@ is supplied, stacking-rules will also be checked."))
 
     (flet ((iterator-fun (a-table key val)
 	     (declare (ignore a-table key))
-	     (let ((attr (get-attribute val)))
+	     (let ((attr (get-attribute val))
+		   (desc (with-output-to-string (s)
+			   (write-obj-description val s))))
 	       (c-prt! "" (+ i y) (- x 2))
 	       (c-col-put-str! +term-white+ (format nil "~a) " (i2a i)) (+ i y) x)
-	       (c-col-put-str! attr (description val) (+ i y) (+ x 4))
+	       (c-col-put-str! attr desc (+ i y) (+ x 4))
 	       (incf i))))
       
     (item-table-iterate! table #'iterator-fun)
@@ -387,16 +389,15 @@ to variant obj."
 
     (flet ((iterator-fun (a-table key val)
 	     (declare (ignore a-table key))
-	     (let ((attr (if val (get-attribute val) +term-white+)))
+	     (let ((attr (if val (get-attribute val) +term-white+))
+		   (desc (if val (with-output-to-string (s)
+				   (write-obj-description val s))
+			     "(nothing)")))
 	       (c-prt! "" (+ i y) (- x 2))
 	       (c-col-put-str! +term-white+ (format nil "~a) ~13a : " (i2a i)
 						    (get (aref *equip-slot-order* i) 'description))
 			       (+ i y) x)
-	       (c-col-put-str! attr (format nil "~a"
-					    (if val
-						(description val)
-						"(nothing)"))
-			       (+ i y) (+ x 20))
+	       (c-col-put-str! attr desc (+ i y) (+ x 20))
 	       (incf i))))
       
     (item-table-iterate! table #'iterator-fun)

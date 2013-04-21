@@ -152,7 +152,10 @@ the Free Software Foundation; either version 2 of the License, or
        (= (location-x x)
 	  (location-x y))
        (= (location-y x)
-	  (location-y y))))
+	  (location-y y))
+       (= (aobj.identify x)
+	  (aobj.identify y))
+       ))
 
 (defmethod lang-equal ((x items-on-floor) (y items-on-floor))
 
@@ -365,7 +368,8 @@ the Free Software Foundation; either version 2 of the License, or
        (report-equal (object.obj-type x) (object.obj-type y))
        (report-equal (object.flags x) (object.flags y))
        (lang-equal (object.game-values x) (object.game-values y))
-       (report-equal (object.identified x) (object.identified y))
+       (report-equal (object.easy-know x) (object.easy-know y))
+       (report-equal (object.aware x) (object.aware y))
        (report-equal (object.tried x) (object.tried y))
        (report-equal (object.flavour x) (object.flavour y))
        (report-equal (object.sort-value x) (object.sort-value y))

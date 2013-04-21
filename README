@@ -46,6 +46,8 @@ How to start it:
     If you wish to specify UI, you can do (lb::a 'x11) for X11-window,
     (lb::a 'gcu) for curses/xterm-mode or (lb::a 'win) for Windows. 
 
+  - Use (quit) in CMU/LW/CLISP or (exit) in ACL to quit afterwards.
+
   [If you use the Langband Debian-packages, see README.Debian
    for starting-details.]
 

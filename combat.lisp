@@ -18,7 +18,9 @@ the Free Software Foundation; either version 2 of the License, or
 
   )
 
-(defmethod kill-target! (dun x y target)
+
+
+(defmethod kill-target! (dun attacker target x y)
   "Tries to remove the monster at the location."
   (setf (creature-alive? target) nil)
 
@@ -31,6 +33,10 @@ the Free Software Foundation; either version 2 of the License, or
   (when (typep target 'active-monster)
     (setf (dungeon.monsters dun) (delete target (dungeon.monsters dun))
 	  (cave-monsters dun x y) nil))
+
+  (when (typep target 'player)
+    (setf (player.dead-from target) (get-creature-name attacker)))
+  
   nil)
 
 (defmethod cmb-describe-miss (attacker target)
@@ -145,6 +151,8 @@ the Free Software Foundation; either version 2 of the License, or
 	   (let ((gval (object.game-values weapon)))
 	     (assert gval)
 	     (let ((dmg (roll-dice (gval.num-dice gval) (gval.base-dice gval))))
+	       (incf dmg (gval.dmg-bonus gval))
+	       (when (< dmg 1) (setf dmg 1)) ;; minimum damage
 ;;	       (warn "~ad~a gave ~a dmg to attacker (~a -> ~a hps)"
 ;;		     (gval.num-dice gval) (gval.base-dice gval) dmg
 ;;		     (current-hp target) (- (current-hp target) dmg))
@@ -200,7 +208,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  (let ((target-xp (get-xp-value target)))
 	    (alter-xp! attacker (if target-xp target-xp 0)))
 		
-	  (kill-target! dun x y target)
+	  (kill-target! dun attacker target x y)
 	  ;; repaint
 	  (light-spot! dun x y)
 	  ))))
@@ -231,4 +239,6 @@ the Free Software Foundation; either version 2 of the License, or
 	(warn "'~a' hit the player.." mon-name)
 	(warn "'~a' missed the player.." mon-name))
     ))
-||#  
+||#
+
+;;(trace kill-target!)

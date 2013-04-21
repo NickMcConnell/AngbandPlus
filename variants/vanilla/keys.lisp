@@ -80,7 +80,8 @@ the Free Software Foundation; either version 2 of the License, or
 	(declare (ignore dun))
 ;;	(warn "Quitting")
 	(setf (player.dead-p pl) t
-	      (player.leaving-p pl) t)
+	      (player.dead-from pl) "quitting"
+	      (player.leaving-p pl) :quit)
 ;;	(c-quit! +c-null-value+) ;; how to quit cleanly to the REPL?
 	
 	))
@@ -109,6 +110,7 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dun pl)
 	(with-new-screen ()
 	  (use-something! dun pl :restrict-type '(<potion>)
+			  :which-use :quaff
 			  :limit-from '(:backpack :floor) ;; only place with potions
 			  :prompt "Quaff which potion?")
 	  )))
@@ -118,6 +120,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(with-new-screen ()
 	  (use-something! dun pl :restrict-type '(<scroll>)
 			  :limit-from '(:backpack :floor) ;; only place with scrolls
+			  :which-use :read
 			  :prompt "Read which scroll?")
 	  )))
 
@@ -126,6 +129,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(with-new-screen ()
 	  (let ((retval (use-something! dun pl :restrict-type '(<food>)
 					:limit-from '(:backpack :floor) ;; only place with food
+					:which-use :eat
 					:prompt "Eat what?")))
 	    ;;(warn "Used ~s" retval)
 	    retval)
@@ -138,6 +142,10 @@ the Free Software Foundation; either version 2 of the License, or
 ;; hackish
 (define-key-operation 'open-all
     #'(lambda (dun pl) (open-all! dun pl)))
+
+(define-key-operation 'print-mapper
+    #'(lambda (dun pl)
+	(print-map dun pl)))
 
 (define-key-operation 'print-map
     #'(lambda (dun pl)
@@ -237,6 +245,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;; these can die later..
 (define-keypress *ang-keys* :global #\T 'print-map)
 (define-keypress *ang-keys* :global #\P 'print-map-as-ppm)
+(define-keypress *ang-keys* :global #\A 'print-mapper)
 (define-keypress *ang-keys* :global #\F 'wamp-monsters)
 (define-keypress *ang-keys* :global #\B 'break-game)
 

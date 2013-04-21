@@ -169,13 +169,76 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
     (setf (aobj.number gold-obj) (+ 10 (random 100))) ;; hack
     gold-obj))
 
+(defmethod add-magic-to-item! (dungeon item quality)
+  ;; do nothing, not magical
+  )
+
+(defmethod add-magic-to-item! (dungeon (item active-object/weapon) quality)
+  (warn "checking for magic for weapon."))
+	
+
+(defun apply-magic! (dungeon obj base-level &key good-p great-p (allow-artifact t))
+  
+  (let* ((base-good-chance (+ 10 base-level))
+	 (base-great-chance (int-/ base-good-chance 2))
+	 (status (if great-p
+		     :great
+		     (if good-p
+			 :good
+			 :normal)))
+	 (rolls 0) ;; rolls for artifact
+	 )
+
+    (when (> base-good-chance 75) (setq base-good-chance 75))
+    (when (> base-great-chance 20) (setq base-great-chance 20))
+
+    ;; good or great?
+    (cond ((or (eq status :good) (< (random 100) base-good-chance))
+	   (setq status :good)
+	   (when (or (eq status :great) (< (random 100) base-great-chance))
+	     (setq status :great)))
+	  ;; cursed?
+	  ((< (random 100) base-good-chance)
+	   (setq status :cursed)
+	   (when (< (random 100) base-great-chance)
+	     (setq status :broken))))
+
+    (when allow-artifact
+      (cond ((eq status :great)
+	     (setq rolls 1)) ;; one roll
+	    (great-p
+	     (setq rolls 4)))) ;; 3 more rolls
+
+    (dotimes (i rolls)
+      ;; try for artifact
+      )
+
+    ;; skip analysis of artifact
+
+    
+    (add-magic-to-item! dungeon obj status)
+
+    ;; skip analysis of ego-items
+
+    ;; skip last part
+    ))
+
+
+
 (defun create-object (dungeon good-p great-p)
-  (declare (ignore good-p great-p))
+  "Creates an object for the given dungeon-object."
   
   ;; skip good and great
-  (let* ((depth (dungeon.depth dungeon))
-	 (obj (get-obj-by-level depth)))
+  (let* ((prob-sp-object (if good-p 10 1000))
+	 (depth (dungeon.depth dungeon))
+	 (base-obj-depth (if good-p (+ depth 10) depth))
+	 
+	 (obj (get-obj-by-level base-obj-depth)))
 
+    (apply-magic! dungeon obj depth)
+;;    (cond (good
+	   
+    
     obj))
 
 

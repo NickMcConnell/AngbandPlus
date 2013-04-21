@@ -180,14 +180,20 @@ a list if more items occupy the same place."
 (defun drop-something! (dun pl)
   "Drop some inventory"
 
-  (when-bind (selection (select-item dun pl '(:backpack :equip)
-				     :prompt "Drop item: "
-				     :where :backpack))
-    (let* ((the-table (get-item-table dun pl (car selection)))
-	   (removed-obj (item-table-remove! the-table (cdr selection))))
-      (when removed-obj
-	(item-table-add! (get-item-table dun pl :floor) removed-obj))))
-  )
+  (let ((selection (select-item dun pl '(:backpack :equip)
+				:prompt "Drop item: "
+				:where :backpack)))
+    (cond (selection
+	   (let* ((the-table (get-item-table dun pl (car selection)))
+		  (removed-obj (item-table-remove! the-table (cdr selection))))
+	     (cond (removed-obj
+		    (item-table-add! (get-item-table dun pl :floor) removed-obj))
+		   (t
+		    (warn "Did not find selected obj ~a" selection)))))
+	  (t
+	   (warn "Did not select anything.")))
+    ))
+
 
 (defun %put-obj-in-cnt (dun pl cnt obj)
   (let* ((the-table (if (typep cnt 'item-table) cnt (get-item-table dun pl cnt)))
@@ -228,14 +234,17 @@ a list if more items occupy the same place."
 		
 		(t
 		 ;; succesful and nothing returned.. do nothing, except waste energy
-		 (setf (player.energy-use pl) +energy-normal-action+)
+		 (incf (player.energy-use pl) +energy-normal-action+)
+		 ;; hack, fix later
+		 (bit-flag-add! *update* +forget-view+ +update-view+)
+		 (bit-flag-add! *redraw* +print-map+)
 		 ))
 	  
 	  ))
       
       )))
 
-(defun apply-usual-effects-on-used-object (dun pl obj)
+(defmethod apply-usual-effects-on-used-object! (dun pl obj)
   (declare (ignore dun))
 
   (let* ((okind (etypecase obj
@@ -246,7 +255,7 @@ a list if more items occupy the same place."
   ;; we have tried object
   ;;(tried-object)
   
-    (when (is-eatable? obj)
+    (when (is-eatable? pl obj)
       (alter-food! pl (+ (player.food pl)
 			 (gval.food-val gvals))))
     
@@ -256,7 +265,9 @@ a list if more items occupy the same place."
 
 (defun use-something! (dun pl
 		       &key
-		       restrict-type (prompt "Use item?")
+		       (restrict-type nil)
+		       (prompt "Use item?")
+		       (which-use :use)
 		       (limit-from '(:backpack :floor)))
   
   "Tries to use an item."
@@ -284,15 +295,16 @@ a list if more items occupy the same place."
       
 ;;      (warn "Will ~a ~s" prompt removed-obj)
 	  
-      (let ((retval (use-object! *variant* dun pl removed-obj)))
+      (let ((retval (use-object! *variant* dun pl removed-obj :which-use which-use)))
 ;;	(warn "use returned ~s" retval)
-	(cond ((eq retval nil) ;; didn't use the object for some reason..
+	(cond ((or (eq retval nil) ;; didn't use the object for some reason..
+		   (eq retval :not-used))
 	       (%put-obj-in-cnt dun pl the-table removed-obj))
 	      
 	      ((eq retval :still-useful) ;; we should keep it
 	       (let ((back-obj (%put-obj-in-cnt dun pl the-table removed-obj)))
 		 ;; add energy use
-		 (apply-usual-effects-on-used-object dun pl removed-obj)
+		 (apply-usual-effects-on-used-object! dun pl removed-obj)
 		 back-obj))
 	      
 	      ((eq retval :used) ;; we have used the item
@@ -301,7 +313,7 @@ a list if more items occupy the same place."
 		 (decf (aobj.number removed-obj))
 		 (%put-obj-in-cnt dun pl the-table removed-obj))
 ;;	       (warn "used object ~a" removed-obj)
-	       (apply-usual-effects-on-used-object dun pl removed-obj)
+	       (apply-usual-effects-on-used-object! dun pl removed-obj)
 	       nil)
 	      
 	      (t

@@ -131,6 +131,15 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +update-view+    #x00020000)
 (defconstant +update-xp+      #x00040000)
 
+(defconstant +ident-sense+  #x01 "Item has been 'sensed'")
+(defconstant +ident-fixed+  #x02 "Item has been 'haggled'")
+(defconstant +ident-empty+  #x04 "Item charges are known")
+(defconstant +ident-known+  #x08 "Item abilities are known")
+(defconstant +ident-rumour+ #x10 "Item background is known")
+(defconstant +ident-mental+ #x20 "Item information is known")
+(defconstant +ident-cursed+ #x40 "Item is temporarily cursed")
+(defconstant +ident-broken+ #x80 "Item is permanently worthless")
+
   
 (defconstant +block-height+ 11)
 (defconstant +block-width+ 11)

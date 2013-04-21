@@ -229,7 +229,7 @@ call appropriately high-level init in correct order."
 	   (setf *variant* var-obj)
 	   (activate-object var-obj))))
 
-  (vinfo-init)
+  (vinfo-init&)
     
   ;; run tests after variant has been loaded
   #+xp-testing
@@ -292,4 +292,3 @@ call appropriately high-level init in correct order."
     (game-init& ui)
 ;;    (format t "~&Thanks for helping to test Langband.~2%")
     ))
-

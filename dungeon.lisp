@@ -418,13 +418,16 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   
   (let ((ty (+ +start-row-of-map+ +screen-height+))
 	(tx (+ +start-column-of-map+ +screen-width+))
+	(*player* player)
 ;;	(dungeon-height (dungeon.height dungeon))
 ;;	(dungeon-width (dungeon.width dungeon))
 	)
 
     (declare (type fixnum ty tx))
 
-;;    (warn "printing map")
+;;    (warn "printing map (~s ~s)" (location-x player) (location-y player))
+
+    (assert (eq player *player*))
     
     (loop for y of-type fixnum from (player.view-y player)
 	  for vy of-type fixnum from +start-row-of-map+ to (the fixnum (1- ty))
@@ -529,21 +532,21 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun distance (x1 y1 x2 y2)
   "returns a fixnum"
-  (declare (type u-fixnum x1 x2 y1 y2))
+  (declare (type fixnum x1 x2 y1 y2))
 ;;  (declare (optimize (speed 3) (safety 0) (debug 0)))
   
   (let ((ay (if (> y1 y2)
-		(the u-fixnum (- y1 y2))
-		(the u-fixnum (- y2 y1))))
+		(the fixnum (- y1 y2))
+		(the fixnum (- y2 y1))))
 	(ax (if (> x1 x2)
-		(the u-fixnum (- x1 x2))
-		(the u-fixnum (- x2 x1)))))
+		(the fixnum (- x1 x2))
+		(the fixnum (- x2 x1)))))
     
-    (declare (type u-fixnum ax ay))
+    (declare (type fixnum ax ay))
     
     (if (> ay ax)
-	(the u-fixnum (+ ay (the u-fixnum (int-/ ax 2))))
-	(the u-fixnum (+ ax (the u-fixnum (int-/ ay 2)))))
+	(the fixnum (+ ay (the fixnum (int-/ ax 2))))
+	(the fixnum (+ ax (the fixnum (int-/ ay 2)))))
     ))
 	     
   

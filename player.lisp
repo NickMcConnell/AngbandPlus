@@ -18,7 +18,7 @@ the Free Software Foundation; either version 2 of the License, or
   
     ;; === Need Special saving ===
   
-    (name "Foo")
+    (name nil)
     (class nil)
     (race nil)
     (sex nil)
@@ -27,6 +27,7 @@ the Free Software Foundation; either version 2 of the License, or
     (curbase-stats nil);; "this is the current (possibly drained) base stats"
     (hp-table    nil) ;; should be saved
     (equipment   nil)
+    (dead-from   "") ;; who killed the player?
 
     ;; === Directly savable to binary ===
 
@@ -153,13 +154,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 
-(defun init-player-obj! (t-p)
+(defmethod init-player-obj! (t-p variant)
   "Creates and returns a PLAYER object."
   
-    (setf (player.base-stats t-p)    (make-stat-array)
-	  (player.curbase-stats t-p) (make-stat-array)
-	  (player.modbase-stats t-p) (make-stat-array)
-	  (player.active-stats t-p)  (make-stat-array))
+  (setf (player.base-stats t-p)    (make-stat-array)
+	(player.curbase-stats t-p) (make-stat-array)
+	(player.modbase-stats t-p) (make-stat-array)
+	(player.active-stats t-p)  (make-stat-array))
 
     (assert (let ((bstat-table (player.base-stats t-p))
 		  (cstat-table (player.curbase-stats t-p))
@@ -199,10 +200,9 @@ the Free Software Foundation; either version 2 of the License, or
     
     t-p)
 
-(defun create-player-obj ()
-  (init-player-obj! (make-player)))
+(defmethod create-player-obj (variant)
+  (init-player-obj! (make-player) variant))
 
-;;(trace init-player-obj!)
 
 (defun get-stat-bonus (player stat-num)
   "Returns the stat-bonus from race, class and equipment for given stat"
@@ -435,7 +435,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod get-weapon ((crt player))
   (let ((the-eq (player.eq crt)))
-    (assert (typep the-eq 'item-table))
+    (check-type the-eq item-table)
+    
     (item-table-find the-eq 'eq.weapon)))
 
 
@@ -559,10 +560,13 @@ the Free Software Foundation; either version 2 of the License, or
   
   nil)
 
-(defun possible-identify! (pl okind)
-  "fix later to depend on character."
-  (declare (ignore pl))
-  (setf (object.identified okind) t))
+(defmethod possible-identify! (pl (obj active-object))
+  (learn-about-object! pl obj :tried)
+  ;; fix later
+  (learn-about-object! pl obj :aware)
+  (learn-about-object! pl obj :known)
+  ;; add xp?
+  )
 
 (defun update-player-stat! (pl stat action)
   "Action can be <restore> or a positive or negative integer."
@@ -596,7 +600,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     ))
 
-(trace update-player-stat!)
+
 
 (defun alter-food! (pl new-food-amount)
   ;; lots of minor pooh
@@ -604,3 +608,5 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 ;;(trace find-level-for-xp)
+;;(trace init-player-obj!)
+;;(trace update-player-stat!)

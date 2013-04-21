@@ -14,8 +14,67 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
+(defconstant +van-dwarf-syllables+
+  '(("B" "D" "F" "G" "Gl" "H" "K" "L" "M" "N" "R" "S" "T" "Th" "V")
+    ("a" "e" "i" "o" "oi" "u")
+    ("bur" "fur" "gan" "gnus" "gnar" "li" "lin" "lir" "mli" "nar"
+     "nus" "rin" "ran" "sin" "sil" "sur")))
 
-(defconstant +scroll-syllables+ #1A(
+(defconstant +van-elf-syllables+
+  '(("Al" "An" "Bal" "Bel" "Cal" "Cel" "El" "Elr" "Elv" "Eow" "Ear"
+     "F" "Fal" "Fel" "Fin" "G" "Gal" "Gel" "Gl" "Is" "Lan" "Leg" "Lom" 
+     "N" "Nal" "Nel"  "S" "Sal" "Sel" "T" "Tal" "Tel" "Thr" "Tin")
+    ("a" "adrie" "ara" "e" "ebri" "ele" "ere" "i" "io" "ithra" "ilma"
+     "il-Ga" "ili" "o" "orfi" "u" "y")
+    ("l" "las" "lad" "ldor" "ldur" "linde" "lith" "mir" "n" "nd" "ndel"
+     "ndil" "ndir" "nduil" "ng" "mbor" "r" "rith" "ril" "riand" "rion"
+     "s" "thien" "viel" "wen" "wyn")))
+
+(defconstant +van-gnome-syllables+
+  '(("Aar" "An" "Ar" "As" "C" "H" "Han" "Har" "Hel" "Iir" "J" "Jan"
+     "Jar" "K" "L" "M" "Mar" "N" "Nik" "Os" "Ol" "P" "R" "S" "Sam"
+     "San" "T" "Ter" "Tom" "Ul" "V" "W" "Y")
+    ("a" "aa"  "ai" "e" "ei" "i" "o" "uo" "u" "uu")
+    ("ron" "re" "la" "ki" "kseli" "ksi" "ku" "ja" "ta" "na" "namari"
+     "neli" "nika" "nikki" "nu" "nukka" "ka" "ko" "li" "kki" "rik" "po"
+     "to" "pekka" "rjaana" "rjatta" "rjukka" "la" "lla" "lli" "mo" "nni")))
+
+(defconstant +van-hobbit-syllables+
+  '(("B" "Ber" "Br" "D" "Der" "Dr" "F" "Fr" "G" "H" "L" "Ler" "M"
+     "Mer" "N" "P" "Pr" "Per" "R" "S" "T" "W")
+    ("a" "e" "i" "ia" "o" "oi" "u")
+    ("bo" "ck" "decan" "degar" "do" "doc" "go" "grin" "lba" "lbo"
+     "lda" "ldo" "lla" "ll" "lo" "m" "mwise" "nac" "noc" "nwise"
+     "p" "ppin" "pper" "tho" "to")))
+
+(defconstant +van-human-syllables+
+  '(("Ab" "Ac" "Ad" "Af" "Agr" "Ast" "As" "Al" "Adw" "Adr"
+     "Ar" "B" "Br" "C" "Cr" "Ch" "Cad" "D" "Dr" "Dw" "Ed"
+     "Eth" "Et" "Er" "El" "Eow" "F" "Fr" "G" "Gr" "Gw" "Gal"
+     "Gl" "H" "Ha" "Ib" "Jer" "K" "Ka" "Ked" "L" "Loth" "Lar"
+     "Leg" "M" "Mir" "N" "Nyd" "Ol" "Oc" "On" "P" "Pr" "R" "Rh"
+     "S" "Sev" "T" "Tr" "Th" "V" "Y" "Z" "W" "Wic")
+    ("a" "ae" "au" "ao" "are" "ale" "ali" "ay" "ardo" "e" "ei"
+     "ea" "eri" "era" "ela" "eli" "enda" "erra" "i" "ia" "ie"
+     "ire" "ira" "ila" "ili" "ira" "igo" "o" "oa" "oi" "oe"
+     "ore" "u" "y")
+    ("a" "and" "b" "bwyn" "baen" "bard" "c" "ctred" "cred" "ch"
+     "can" "d" "dan" "don" "der" "dric" "dfrid" "dus" "f" "g"
+     "gord" "gan" "l" "li" "lgrin" "lin" "lith" "lath" "loth"
+     "ld" "ldric" "ldan" "m" "mas" "mos" "mar" "mond" "n" "nydd"
+     "nidd" "nnon" "nwan" "nyth" "nad" "nn" "nnor" "nd" "p" "r"
+     "ron" "rd" "s" "sh" "seth" "sean" "t" "th" "tha" "tlan"
+     "trem" "tram" "v" "vudd" "w" "wan" "win" "wyn" "wyr" "wyr" "wyth")))
+
+(defconstant +van-orc-syllables+
+  '(("B" "Er" "G" "Gr" "H" "P" "Pr" "R" "V" "Vr" "T" "Tr" "M" "Dr")
+    ("a" "i" "o" "oo" "u" "ui")
+    ("dash" "dish" "dush" "gar" "gor" "gdush" "lo" "gdish" "k" "lg"
+     "nak" "rag" "rbag" "rg" "rk" "ng" "nk" "rt" "ol" "urk" "shnak" "mog"
+     "mak" "rak")))
+
+
+(defconstant +van-scroll-syllables+ #1A(
 				    "a" "ab" "ag" "aks" "ala" "an" "ankh" "app"
 				    "arg" "arze" "ash" "aus" "ban" "bar" "bat" "bek"
 				    "bie" "bin" "bit" "bjor" "blu" "bot" "bu"
@@ -40,22 +99,22 @@ the Free Software Foundation; either version 2 of the License, or
 (defvar *van-used-scroll-names* (make-hash-table :test #'equal)
   "a table with already created names of scrolls")
 
-(defun van-make-scroll-name ()
+(defun van-make-scroll-name (&key (max-length 15))
   "Returns a string with the name of a scroll"
   (let ((scroll-name "")
-	(syl-len (length +scroll-syllables+)))
+	(syl-len (length +van-scroll-syllables+)))
     (loop
      (let ((syl-num (random 2)))
        (setq scroll-name (concatenate 'string
 				      scroll-name
-				      (svref +scroll-syllables+ (random syl-len))
+				      (svref +van-scroll-syllables+ (random syl-len))
 				      ;; possible second syllable
 				      (if (= syl-num 1)
-					  (svref +scroll-syllables+ (random syl-len))
+					  (svref +van-scroll-syllables+ (random syl-len))
 					  "")
 				      " "))
        ;; if long enough, return
-       (when (< 15 (length scroll-name))
+       (when (< max-length (length scroll-name))
 	 (return-from van-make-scroll-name (string-right-trim '(#\Space #\Tab #\Newline) scroll-name)))))
 
     "<failure in scr name-gen>"))
@@ -77,38 +136,67 @@ the Free Software Foundation; either version 2 of the License, or
 	  (return-from van-generate-scroll-flavour (list name +term-white+)))))
 
 
+(defconstant +legal-effects+ '(:use :quaff :read :eat))
+
+(defstruct effect-entry
+  type
+  fun
+  energy-use)
+
 (defvar *van-object-effects* (make-hash-table :test #'equal))
 
 
-(defmethod use-object! ((var vanilla-variant) dun pl the-object)
+(defmethod use-object! ((var vanilla-variant) dun pl the-object &key (which-use :use))
 ;;  (declare (ignore var))
   (assert (typep the-object 'active-object))
   
   (let* ((okind (aobj.kind the-object))
 	 (effects (object.effects okind))
-	 (use-effect (assoc :use effects)))
+	 (the-effect (find which-use effects :key #'effect-entry-type))
+	 (retval :not-used))
 
-    (cond (use-effect
-	   (let ((effect-fun (cdr use-effect)))
-	     (assert (functionp effect-fun))
-	     (funcall effect-fun dun pl the-object)))
-	  (t
-	   ;;(warn "Didn't find any effect for ~s ~s" (object.id okind) (object.obj-type okind))
-	   :used)
-	  )))
+;;    (warn "Found use-effect ~s" use-effect)
+
+    (unless the-effect 
+      (warn "Didn't find any effect for ~s ~s" (object.id okind) (object.obj-type okind)))
+    
+    (when the-effect
+      (assert (and (effect-entry-p the-effect)
+		   (functionp (effect-entry-fun the-effect))))
+;;      (unless (compiled-function-p (effect-entry-fun the-effect))
+;;	(warn "not compiled"))
+      (setf retval (funcall (effect-entry-fun the-effect) dun pl the-object))
+      (ecase retval
+	(:used
+	 (incf (player.energy-use pl) (effect-entry-energy-use the-effect)))
+	(:still-useful
+	 (incf (player.energy-use pl) (effect-entry-energy-use the-effect)))
+	(:not-used
+	 )))
+
+    retval))
 
 (defun %van-sort-obj-types (obj-types)
   (sort obj-types #'string< :key #'symbol-name))
 
-(defun van-ensure-object-effect (obj-types fun)
-  (let ((sorted-types (%van-sort-obj-types obj-types)))
-    (setf (gethash sorted-types *van-object-effects*) fun)) 
-  (values))
+(defun van-ensure-object-effect (obj-types fun
+				 &key (effect :use)
+				 (cost +energy-normal-action+))
+
+  (let ((effects (if (listp effect) effect (list effect))))
+    (assert (every #'(lambda (x) (member x +legal-effects+)) effects))
+    (let ((sorted-types (%van-sort-obj-types obj-types)))
+      (setf (gethash sorted-types *van-object-effects*)
+	    (loop for x in effects
+		  collecting (make-effect-entry :type x :fun fun :energy-use cost))))
+    (values)))
 
 (defun van-combine-effects-with-objects! (objects)
   "Tries to hack things together."
   (assert (hash-table-p objects))
   (let ((htbl *van-object-effects*))
+    (unless (hash-table-p htbl)
+      (warn "Odd.. obj-effects is not a hash-table!"))
     (when (hash-table-p htbl)
       (loop for o-table being the hash-values of objects
 	    for okind-table = (gobj-table.obj-table o-table)
@@ -116,29 +204,37 @@ the Free Software Foundation; either version 2 of the License, or
 	    (loop for obj being the hash-values of okind-table
 		  do
 		  (let* ((the-types (%van-sort-obj-types (copy-seq (object.obj-type obj))))
-			 (effect (gethash the-types htbl)))
-		  (cond ((and effect (functionp effect))
-;;			 (warn "Found effect for ~s ~a" the-types (compiled-function-p effect))
-			 (push (cons :use effect) (object.effects obj))
-			 (remhash the-types htbl))
-			((obj-is? obj '<potion>)
-			 ;;(warn "Found no definition for potion: ~s" the-types)
-			 ))
+			 (effects (gethash the-types htbl)))
+
+		    (assert (listp effects))
+
+		    (dolist (i effects)
+		      (assert (effect-entry-p i))
+		      (pushnew i (object.effects obj)))
+		    ;; let the info remain, maybe remove it in production
+		    #+langband-production
+		    (remhash the-types htbl)
+		    
 		)))
-    
+      #+langband-production
       (loop for x being the hash-keys of htbl
 	    do
-	    (warn "Unable to find matching object for ~s effect." x)))
+	    (warn "Unable to find matching object for ~s effect." x))
+      )
     
-    ;; try to remove it, a good idea??
+    ;; remove all in production
+    #+langband-production
     (setf *van-object-effects* nil)
     
     (values)))
 
 
-(defmacro define-object-effect (obj-types args &body the-body)
+(defmacro define-object-effect (obj-types (&key (effect :use)
+						(cost +energy-normal-action+))
+				args &body the-body)
   (assert (= 3 (length args)))
-  `(van-ensure-object-effect ',obj-types #'(lambda ,args ,@the-body)))
+  `(van-ensure-object-effect ',obj-types #'(lambda ,args ,@the-body)
+    :effect ',effect :cost ,cost))
 
 
 (defmethod get-price ((object active-object) (store black-market))
@@ -156,3 +252,79 @@ the Free Software Foundation; either version 2 of the License, or
     (when (and some-obj (plusp (get-price some-obj the-store))
 	       (not (obj-is? o-type '<chest>))) ;; hack
       some-obj)))
+
+(defun teleport-creature! (dun pl creature range)
+  (assert (numberp range))
+
+  (let* ((minimum (floor range))
+	 (cx (location-x creature))
+	 (cy (location-y creature))
+	 (tx cx)
+	 (ty cy)
+	 (cur-d range))
+    (block find-grid
+      (loop
+       (when (> range 200)
+	 (setf range 200))
+       
+       (block legal-dist
+	 (dotimes (i 500)
+	   (setf tx (rand-spread cx range)
+		 ty (rand-spread cy range))
+	   (setf cur-d (distance cx cy tx ty))
+	   (when (and (>= cur-d minimum) (<= cur-d minimum))
+	     (return-from legal-dist))))
+       
+       (when (and (in-bounds-fully? dun tx ty)
+		  (cave-boldly-naked? dun tx ty)
+		  (not (cave-icky? dun tx ty)))
+	 (return-from find-grid))
+       
+       (setf range (* 2 range)
+	     minimum (floor minimum 2))))
+
+    ;; we found an ok spot!
+    (assert (and (in-bounds-fully? dun tx ty)
+		 (cave-boldly-naked? dun tx ty)
+		 (not (cave-icky? dun tx ty))))
+
+    ;; sound
+
+    ;; swap monster
+    (swap-monsters! dun pl cx cy tx ty)
+#||    
+    (warn "UPD: ~s (~s ~s ~a)  -> (~s ~s ~a), ~s"
+	  *update* cx cy (multiple-value-bind (a b) (map-info dun cx cy) b)
+	  (location-x pl) (location-y pl) (multiple-value-bind (a b) (map-info dun (location-x pl) (location-y pl)) b)
+	  (distance cx cy tx ty))
+    ||#
+;;    (handle-stuff dun pl) ;; hack
+
+;;    (print-map dun pl)
+    ))
+
+				     
+
+(defmethod generate-random-name ((variant vanilla-variant) creature race)
+  (declare (ignore creature))
+  (let* ((the-race (cond ((symbolp race)
+			  race)
+			 ((typep race 'race)
+			  (race.id race))
+			 (t
+			  (error "Unknown race-object ~s" race))))
+	 (ptr (ecase the-race
+	       ((<half-elf> <elf> <high-elf>) +van-elf-syllables+)
+	       ((<human> <dunedan>) +van-human-syllables+)
+	       (<hobbit> +van-hobbit-syllables+)
+	       (<dwarf> +van-dwarf-syllables+)
+	       ((<half-orc> <half-troll>) +van-orc-syllables+)
+	       (<gnome> +van-gnome-syllables+))))
+    
+
+    (when (consp ptr)
+      (concatenate 'string (rand-elm (first ptr)) (rand-elm (second ptr)) (rand-elm (third ptr))))
+    ))
+
+
+;;(trace teleport-creature!)

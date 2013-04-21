@@ -130,13 +130,13 @@ init_c_side(const char *ui, const char *basePath, int debugging_level) {
 	ui = "X11";
     }
 
-    {
-        FILE *foo;
+//    {
+//        FILE *foo;
 //    foo = fopen("c:/tmp/lang-err.txt","w");
 //	foo = stderr;
 //	fprintf(foo,"C-side.. %s %s %d\n", ui, basePath, debugging_level);
 //    fclose(foo);
-    }
+//    }
     if (basePath && (strlen(basePath)>0)) {
 	base_config_dir = basePath;
     }

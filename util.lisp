@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
-#|
+#||
 
 DESC: util.lisp - utility-code dependant on other code
 Copyright (c) 2000 - Stig Erik Sandø
@@ -15,7 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 ADD_DESC: Convenient utilities which is based on several
 ADD_DESC: classes and must be loaded late.
 
-|#
+||#
 
 (in-package :org.langband.engine)
 
@@ -61,13 +61,17 @@ a number or a symbol identifying the place."
 			   :show-pause nil))
 
        ;; add setting of cursor.
-       
-       (let ((read-char (read-one-character)))
 
-	 (cond ((eq read-char #\*)
+       ;; how to do graceful exit of loop?
+       (let ((read-char (read-one-character)))
+	 ;;(warn "read-char ~s" read-char)
+	 (cond ((eql read-char +escape+)
+		(return-from select-item nil))
+	       
+	       ((eql read-char #\*)
 		(setq show-mode t))
 	       
-	       ((eq read-char #\/)
+	       ((eql read-char #\/)
 		(when (or (and allow-equip    (eq the-place :backpack))
 			  (and allow-backpack (eq the-place :equip)))
 		  (setq the-place (if (eq the-place :backpack) :equip :backpack))))
@@ -75,11 +79,20 @@ a number or a symbol identifying the place."
 	       ((and allow-floor (eq read-char #\-))
 		(select-item dungeon player allow-from
 			     :prompt prompt :where :floor))
-	       
+
+	       ;; improve this code, it just bails out now.
 	       ((alpha-char-p read-char)
 		(c-prt! "" 0 0)
-		(return-from select-item (cons the-place (a2i read-char)))))
-	 
+		(let ((num (a2i read-char)))
+		  (if (>= num 0)
+		      (return-from select-item (cons the-place num))
+		      (return-from select-item nil))))
+	       
+	       (t
+		;; maybe go through loop again instead?
+		;;(error "Fell through on read-char in select-item ~s" read-char)
+		))
+	       
 	 (c-prt! "" 0 0))))
 	    
    
@@ -89,6 +102,7 @@ a number or a symbol identifying the place."
     
     nil))
 
+;;(trace select-item :encapsulate t)
 
 (defun get-item-table (dungeon player which-table)
   "Returns item-table or NIL."

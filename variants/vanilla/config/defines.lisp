@@ -26,6 +26,7 @@ the Free Software Foundation; either version 2 of the License, or
     :level 0 :rarity nil :chance #(0 0 0 0)
     :locale #(0 0 0 0) :weight nil
     :cost 1200 :obj-type '(<container> <backpack>)
+    :the-kind '<container>
     :events (list :backpack-creation))
 
 (define-room "simple-room" #'common-make-simple-room)

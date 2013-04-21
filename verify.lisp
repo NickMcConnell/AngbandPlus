@@ -46,6 +46,8 @@ the Free Software Foundation; either version 2 of the License, or
 	 (stringp (player.name player))
 	 (typep (player.race pl) 'race)
 	 (typep (player.class pl) 'character-class)
+
+	 (stringp (player.dead-from player))
 	 
 	 (arrayp (player.base-stats player))
 	 (arrayp (player.curbase-stats player))
