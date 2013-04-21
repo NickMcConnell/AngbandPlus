@@ -1,0 +1,52 @@
+ Character Creation Screen                                                      
+                                                                                
+ Your character is about to embark on adventure, journeying through Hell.       
+ Each character is different, and now is the time to decide on yours.           
+                                                                                
+                                                                                
+                                                                                
+ /----------------------------------------------------------------------------\ 
+ |                    |                                                       | 
+ |                    |                                                       | 
+ |                    |                                                       | 
+ |                    |                                                       | 
+ |                    |                                                       | 
+ |                    |                                                       |  
+ |                    |                                                       | 
+ |                    |                                                       | 
+ |                    |                                                       | 
+ |                    |                                                       |  
+ |                    |                                                       |  
+ |                    |                                                       | 
+ |                    |                                                       | 
+ |                    |                                                       |	
+ \----------------------------------------------------------------------------/ 
+ ?) Help             =) Options          S) reStart          Q) Quit            
+                                                                                
+rrrrrrrrrrrrrrrrrrrrrrrrrrrrrr                                                  
+                                                                                
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo    
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo    
+                                                                                
+yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ WWWwwwwwwwwwwww     WWwwwwwwwwwwwww     WWwwwwwwwwwwwwwww   WWwwwwwwwww        
+  WwWwWwW                                                                       
+
+

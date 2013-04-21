@@ -1274,7 +1274,7 @@ bool set_stun(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	if (p_ptr->prace == RACE_GOLEM)
+	if (p_ptr->prace == GUARDIAN)
 		v = 0;
 
 	/* Knocked out */
@@ -1424,10 +1424,10 @@ bool set_cut(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	if (p_ptr->prace == RACE_GOLEM || p_ptr->prace == RACE_SKELETON ||
-		p_ptr->prace == RACE_SPECTRE )
+	if (p_ptr->prace == GUARDIAN || p_ptr->prace == SKELETON ||
+		p_ptr->prace == SPECTRE )
 		v = 0;
-	else if (p_ptr->prace == RACE_ZOMBIE && p_ptr->lev > 11)
+	else if (p_ptr->prace == MUMMY && p_ptr->lev > 11)
 		v = 0;
 
 	/* Mortal wound */
@@ -1899,7 +1899,7 @@ void check_experience(void)
 		if (p_ptr->lev > p_ptr->max_plv)
 		{
 			p_ptr->max_plv = p_ptr->lev;
-			if ((p_ptr->pclass == CLASS_DIABOLIST) || (p_ptr->pclass == CLASS_DEMONOLOGIST))
+			if ((p_ptr->pclass == CLASS_HELL_KNIGHT) || (p_ptr->pclass == CLASS_WARLOCK))
 			{
 				level_reward = TRUE;
 
@@ -1908,7 +1908,7 @@ void check_experience(void)
 			{
 				level_reward = TRUE;
 			}
-			if (p_ptr->prace == RACE_DEVILSPAWN)
+			if (p_ptr->prace == DEVILSPAWN)
 			{
 				if (randint(5)==1) level_corruption = TRUE;
 			}
@@ -2009,14 +2009,14 @@ static int get_coin_type(monster_race *r_ptr)
 		if (strstr(name, " copper ")) return (2);
 		if (strstr(name, " silver ")) return (5);
 		if (strstr(name, " gold ")) return (10);
-		if (strstr(name, " mithril ")) return (16);
+		if (strstr(name, " bronze ")) return (16);
 		if (strstr(name, " adamantite ")) return (17);
 
 		/* Look for textual clues */
 		if (strstr(name, "Copper ")) return (2);
 		if (strstr(name, "Silver ")) return (5);
 		if (strstr(name, "Gold ")) return (10);
-		if (strstr(name, "Mithril ")) return (16);
+		if (strstr(name, "Bronze ")) return (16);
 		if (strstr(name, "Adamantite ")) return (17);
 	}
 
@@ -4971,7 +4971,7 @@ bool gain_corruption(int choose_mut)
 	}
 	else
 	{
-		if (p_ptr->prace == RACE_VAMPIRE &&
+		if ( ( p_ptr->prace == VAMPIRE || p_ptr->prace == WEREWOLF ) &&
 			!(p_ptr->muta2 & COR2_POISON_FANGS) &&
 			(randint(10)<7))
 		{
@@ -4980,7 +4980,7 @@ bool gain_corruption(int choose_mut)
 			muta_desc = "Your fangs start to drip poison...";
 		}
 
-		else if (p_ptr->prace == RACE_IMP &&
+		else if (p_ptr->prace == IMP &&
 			!(p_ptr->muta2 & COR2_CLAWS) &&
 			(randint(10)<7))
 		{
@@ -4989,7 +4989,7 @@ bool gain_corruption(int choose_mut)
 			muta_desc = "Your fingernails grow into razor sharp claws!";
 		}
 
-		else if (p_ptr->prace == RACE_YEEK &&
+		else if (p_ptr->prace == IMP &&
 			!(p_ptr->muta1 & COR1_SHRIEK) &&
 			(randint(10)<7))
 		{
@@ -4998,7 +4998,7 @@ bool gain_corruption(int choose_mut)
 			muta_desc = "Your vocal cords get much tougher.";
 		}
 
-		else if (p_ptr->prace == RACE_DEVILSPAWN &&
+		else if (p_ptr->prace == DEVILSPAWN &&
 			!(p_ptr->muta1 & COR1_POLYMORPH) &&
 			(randint(10)<2))
 		{
@@ -5007,7 +5007,7 @@ bool gain_corruption(int choose_mut)
 			muta_desc = "Your body seems mutable.";
 		}
 
-		else if (p_ptr->prace == RACE_KLACKON &&
+		else if (p_ptr->psign == SIGN_MORUI &&
 			!(p_ptr->muta2 & COR2_SPINES) &&
 			(randint(10)<7))
 		{

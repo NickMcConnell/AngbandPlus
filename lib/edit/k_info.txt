@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:0.8.1
+V:0.8.3
 
 
 ##### Something special #####
@@ -916,7 +916,7 @@ A:75/8
 P:40:2d4:-4:0:0
 F:IGNORE_ACID
 
-N:119:Mithril Plate Mail~
+N:119:Platinum Plate Mail~
 G:[:B
 I:37:25:0
 W:60:0:300:15000
@@ -924,7 +924,7 @@ A:60/4
 P:35:2d4:-3:0:0
 F:IGNORE_ACID
 
-N:120:Mithril Chain Mail~
+N:120:Platinum Chain Mail~
 G:[:B
 I:37:20:0
 W:55:0:150:7000
@@ -2851,42 +2851,42 @@ W:0:0:2:0
 A:0/1
 P:0:1d1:0:0:0
 
-N:393:& Canine Skeleton~
+N:393:& Leg~
 G:~:w
 I:1:4:0
 W:1:0:10:0
 A:1/1
 P:0:1d1:0:0:0
 
-N:394:& Rodent Skeleton~
+N:394:& Arm~
 G:~:w
 I:1:3:0
 W:1:0:10:0
 A:1/1
 P:0:1d1:0:0:0
 
-N:395:& Human Skeleton~
+N:395:& Hand~
 G:~:w
 I:1:8:0
 W:5:0:60:0
 A:5/1
 P:0:1d2:0:0:0
 
-N:396:& Dwarf Skeleton~
+N:396:Human Skin~
 G:~:w
 I:1:7:0
 W:5:0:50:0
 A:5/1
 P:0:1d2:0:0:0
 
-N:397:& Elf Skeleton~
+N:397:& Skeleton~
 G:~:w
 I:1:6:0
 W:5:0:40:0
 A:5/1
 P:0:1d2:0:0:0
 
-N:398:& Gnome Skeleton~
+N:398:& Rib~
 G:~:w
 I:1:5:0
 W:5:0:30:0
@@ -3313,7 +3313,7 @@ G:$:g
 I:100:16:0
 W:1:0:0:32
 
-N:496:mithril
+N:496:topaz
 G:$:B
 I:100:17:0
 W:1:0:0:40
@@ -3504,7 +3504,7 @@ A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# Folk Spellbooks
+# Charms Spellbooks
 
 N:516:[Cantrips for Beginners]
 G:?:s
@@ -3570,7 +3570,7 @@ A:50/4
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# Corporeal Spellbooks
+# Somatic Spellbooks
 
 N:524:[Basic Chi Flow]
 G:?:U
@@ -3611,7 +3611,7 @@ W:10:0:80:1000
 A:10/1
 P:0:1d1:0:0:0
 
-N:529:Golden Corslet~
+N:529:Golden corslet~
 G:[:y
 I:37:35:0
 W:40:0:340:7500
@@ -3619,3 +3619,14 @@ A:40/3
 P:40:2d4:-6:0:15
 F:IGNORE_ACID
 
+N:530:& Small bag~
+G:~:b
+I:7:8:0
+W:5:0:25:20
+A:5/1
+P:0:2d3:0:0:0
+
+N:531:bronze
+G:$:r
+I:100:19:0
+W:1:0:0:10

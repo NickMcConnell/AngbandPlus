@@ -46,7 +46,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	char		out_val[160];
 
 	int use_realm = (realm_2?p_ptr->realm2:p_ptr->realm1);
-	cptr p = ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell");
+	cptr p = ((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "prayer" : "spell");
 
 #ifdef ALLOW_REPEAT /* TNB */
 
@@ -465,7 +465,7 @@ void do_cmd_study(void)
 	handle_stuff();
 
 	/* Mage -- Learn a selected spell */
-	if (mp_ptr->spell_book != TV_LIFE_BOOK)
+	if (mp_ptr->spell_book != TV_MIRACLES_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
 		if (!get_spell(&spell, "study", sval, (bool)FALSE,(bool)(increment?TRUE:FALSE))
@@ -612,8 +612,8 @@ void do_poly_self(void)
 				do { new_race = randint(MAX_RACES) -1; } while (new_race == p_ptr->prace);
 
 				msg_format("You turn into a%s %s!",
-					((new_race == RACE_ELF
-					|| new_race == RACE_IMP)?"n":""),
+					((new_race == ELF
+					|| new_race == IMP)?"n":""),
 					race_info[new_race].title);
 
 				p_ptr->prace = new_race;
@@ -827,8 +827,8 @@ static void call_the_(void)
 	else
 	{
 		msg_format("You %s the %s too close to a wall!",
-			((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
-			((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell"));
+			((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "recite" : "cast"),
+			((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "prayer" : "spell"));
 		msg_print("There is a loud explosion!");
 		destroy_area(py, px, 20+(p_ptr->lev), TRUE);
 		msg_print("The dungeon collapses...");
@@ -996,7 +996,7 @@ void do_cmd_cast(void)
 	int	ii = 0, ij = 0;
 
 	bool	none_came = FALSE;
-	const cptr prayer = ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell");
+	const cptr prayer = ((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "prayer" : "spell");
 
 	object_type	*o_ptr;
 
@@ -1066,7 +1066,7 @@ void do_cmd_cast(void)
 	else realm = p_ptr->realm1-1;
 
 	/* Ask for a spell */
-	if (!get_spell(&spell, ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
+	if (!get_spell(&spell, ((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "recite" : "cast"),
 		sval, (bool)TRUE, (bool)(increment?TRUE:FALSE)))
 	{
 		if (spell == -2)
@@ -1086,7 +1086,7 @@ void do_cmd_cast(void)
 	{
 		/* Warning */
 		msg_format("You do not have enough mana to %s this %s.",
-			((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
+			((mp_ptr->spell_book == TV_MIRACLES_BOOK) ? "recite" : "cast"),
 			prayer);
 
 		/* Verify */
@@ -1104,7 +1104,7 @@ void do_cmd_cast(void)
 
 		msg_format("You failed to get the %s off!", prayer);
 
-		if (o_ptr->tval == TV_CHAOS_BOOK && (randint(100)<spell))
+		if (o_ptr->tval == TV_DEMONIC_BOOK && (randint(100)<spell))
 		{
 			msg_print("You produce a chaotic effect!");
 			wild_magic(spell);
@@ -1286,7 +1286,7 @@ void do_cmd_cast(void)
 				(void)set_invuln(p_ptr->invuln + randint(7) + 7);
 				break;
 			default:
-				msg_format("You cast an unknown Life spell: %d.", spell);
+				msg_format("You cast an unknown Miracle: %d.", spell);
 				msg_print(NULL);
 			}
 			break;
@@ -1468,7 +1468,7 @@ void do_cmd_cast(void)
 				break;
 			case 4: /* Daylight */
 				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-				if ((p_ptr->prace == RACE_VAMPIRE) && !(p_ptr->resist_lite))
+				if ((p_ptr->prace == VAMPIRE) && !(p_ptr->resist_lite))
 				{
 					msg_print("The daylight scorches your flesh!");
 					take_hit(damroll(2,2), "daylight");
@@ -1596,7 +1596,7 @@ void do_cmd_cast(void)
 
 				fire_ball(GF_LITE, 0, 150, 8);
 				wiz_lite();
-				if ((p_ptr->prace == RACE_VAMPIRE) && !(p_ptr->resist_lite))
+				if ((p_ptr->prace == VAMPIRE) && !(p_ptr->resist_lite))
 				{
 					msg_print("The sunlight scorches your flesh!");
 					take_hit(50, "sunlight");
@@ -1834,7 +1834,7 @@ void do_cmd_cast(void)
 				fire_ball(GF_FIRE, 0,
 					150 + (2*plev), 8);
 				break;
-			case 27: /* Call Chaos */
+			case 27: /* Call Primal Chaos */
 				call_chaos();
 				break;
 			case 28: /* Shard Ball */
@@ -1856,7 +1856,7 @@ void do_cmd_cast(void)
 				call_the_();
 				break;
 			default:
-				msg_format("You cast an unknown Chaos spell: %d.", spell);
+				msg_format("You cast an unknown demonic spell: %d.", spell);
 				msg_print(NULL);
 			}
 			break;
@@ -2758,7 +2758,7 @@ void do_cmd_cast(void)
 				msg_print("Nobody answers to your call.");
 			}
 			break;
-		case 6: /* Folk */
+		case 6: /* Charms */
 			switch (spell)
 			{
 			case 0: /* Zap */
@@ -2902,11 +2902,11 @@ void do_cmd_cast(void)
 				}
 				break;
 			default:
-				msg_format("You cast an unknown Folk spell: %d.", spell);
+				msg_format("You cast an unknown Charm: %d.", spell);
 				msg_print(NULL);
 			}
 			break;
-		case 7: /* * Corporeal * */
+		case 7: /* * Somatic * */
 			switch (spell)
 			{
 			case 0: /* Cure Light Wounds */
@@ -3068,7 +3068,7 @@ void do_cmd_cast(void)
 				(void)set_invuln(p_ptr->invuln + randint(7) + 7);
 				break;
 			default:
-				msg_format("You cast an unknown Corporeal spell: %d.", spell);
+				msg_format("You cast an unknown Somatic spell: %d.", spell);
 				msg_print(NULL);
 			}
 			break;

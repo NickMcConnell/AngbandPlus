@@ -99,26 +99,6 @@ void init_file_paths(char *path)
 	tail = path + strlen(path);
 
 
-#ifdef VM
-
-
-	/*** Use "flat" paths with VM/ESA ***/
-
-	/* Use "blank" path names */
-	ANGBAND_DIR_APEX = string_make("");
-	ANGBAND_DIR_BONE = string_make("");
-	ANGBAND_DIR_DATA = string_make("");
-	ANGBAND_DIR_EDIT = string_make("");
-	ANGBAND_DIR_FILE = string_make("");
-	ANGBAND_DIR_HELP = string_make("");
-	ANGBAND_DIR_INFO = string_make("");
-	ANGBAND_DIR_SAVE = string_make("");
-	ANGBAND_DIR_PREF = string_make("");
-	ANGBAND_DIR_XTRA = string_make("");
-
-
-#else /* VM */
-
 
 	/*** Build the sub-directory names ***/
 
@@ -161,8 +141,6 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "xtra");
 	ANGBAND_DIR_XTRA = string_make(path);
-
-#endif /* VM */
 
 
 #ifdef NeXT
@@ -2062,15 +2040,15 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
+		{ TV_MIRACLES_BOOK, 0 },
+		{ TV_MIRACLES_BOOK, 0 },
+		{ TV_MIRACLES_BOOK, 0 },
+		{ TV_MIRACLES_BOOK, 0 },
 
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
+		{ TV_MIRACLES_BOOK, 1 },
+		{ TV_MIRACLES_BOOK, 1 },
+		{ TV_MIRACLES_BOOK, 1 },
+		{ TV_MIRACLES_BOOK, 1 },
 
 		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_MACE },
@@ -2209,15 +2187,15 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SORCERY_BOOK, 1 },
 		{ TV_SORCERY_BOOK, 1 },
 
-		{ TV_FOLK_BOOK, 0 },
-		{ TV_FOLK_BOOK, 0 },
-		{ TV_FOLK_BOOK, 1 },
-		{ TV_FOLK_BOOK, 1 },
+		{ TV_CHARMS_BOOK, 0 },
+		{ TV_CHARMS_BOOK, 0 },
+		{ TV_CHARMS_BOOK, 1 },
+		{ TV_CHARMS_BOOK, 1 },
 
-		{ TV_FOLK_BOOK, 2 },
-		{ TV_FOLK_BOOK, 2 },
-		{ TV_FOLK_BOOK, 3 },
-		{ TV_FOLK_BOOK, 3 },
+		{ TV_CHARMS_BOOK, 2 },
+		{ TV_CHARMS_BOOK, 2 },
+		{ TV_CHARMS_BOOK, 3 },
+		{ TV_CHARMS_BOOK, 3 },
 
 	},
 
@@ -2305,10 +2283,10 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_NATURE_BOOK, 1 },
 		{ TV_NATURE_BOOK, 1 },
 
-		{ TV_CHAOS_BOOK, 0 },
-		{ TV_CHAOS_BOOK, 0 },
-		{ TV_CHAOS_BOOK, 1 },
-		{ TV_CHAOS_BOOK, 1 },
+		{ TV_DEMONIC_BOOK, 0 },
+		{ TV_DEMONIC_BOOK, 0 },
+		{ TV_DEMONIC_BOOK, 1 },
+		{ TV_DEMONIC_BOOK, 1 },
 
 		{ TV_DEATH_BOOK, 0 },
 		{ TV_DEATH_BOOK, 0 },
@@ -2320,35 +2298,35 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_PLANAR_BOOK, 1 },
 		{ TV_PLANAR_BOOK, 1 },
 
-		{ TV_FOLK_BOOK, 0 },
-		{ TV_FOLK_BOOK, 0 },
-		{ TV_FOLK_BOOK, 1 },
-		{ TV_FOLK_BOOK, 1 },
+		{ TV_CHARMS_BOOK, 0 },
+		{ TV_CHARMS_BOOK, 0 },
+		{ TV_CHARMS_BOOK, 1 },
+		{ TV_CHARMS_BOOK, 1 },
 
-		{ TV_FOLK_BOOK, 2 },
-		{ TV_FOLK_BOOK, 2 },
-		{ TV_FOLK_BOOK, 3 },
-		{ TV_FOLK_BOOK, 3 },
+		{ TV_CHARMS_BOOK, 2 },
+		{ TV_CHARMS_BOOK, 2 },
+		{ TV_CHARMS_BOOK, 3 },
+		{ TV_CHARMS_BOOK, 3 },
 
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
+		{ TV_MIRACLES_BOOK, 0 },
+		{ TV_MIRACLES_BOOK, 0 },
+		{ TV_MIRACLES_BOOK, 0 },
+		{ TV_MIRACLES_BOOK, 0 },
 
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
+		{ TV_MIRACLES_BOOK, 1 },
+		{ TV_MIRACLES_BOOK, 1 },
+		{ TV_MIRACLES_BOOK, 1 },
+		{ TV_MIRACLES_BOOK, 1 },
 
 		{ TV_DEATH_BOOK, 0 },
 		{ TV_DEATH_BOOK, 0 },
 		{ TV_DEATH_BOOK, 1 },
 		{ TV_DEATH_BOOK, 1 },
 
-		{ TV_CORPOREAL_BOOK, 0 },
-		{ TV_CORPOREAL_BOOK, 0 },
-		{ TV_CORPOREAL_BOOK, 1 },
-		{ TV_CORPOREAL_BOOK, 1 },
+		{ TV_SOMATIC_BOOK, 0 },
+		{ TV_SOMATIC_BOOK, 0 },
+		{ TV_SOMATIC_BOOK, 1 },
+		{ TV_SOMATIC_BOOK, 1 },
 
 		{ TV_NATURE_BOOK, 0 },
 		{ TV_NATURE_BOOK, 0 },
@@ -2993,9 +2971,10 @@ void init_angband(void)
 	(void)fd_close(fd);
 
 
-	/* Aw screw it,  everybody loves colour ;) */
+	/* Aw screw it, everybody loves colour ;) */
 	use_colour = 1;
-    do_cmd_load_screen( ANGBAND_DIR_FILE ,  "NEWS_COLOR.TXT" );
+	do_cmd_load_screen(ANGBAND_DIR_FILE, "news_color.txt");
+
 	/*void restore_screen( void )*/
 	/*(void)msg_flush_wait();*/
 
@@ -3080,6 +3059,10 @@ void init_angband(void)
 	/* build a name for the basic 'help' index */
 	sprintf(syshelpfile,"help-%s.txt", "win");
 
+	/* build a name for the basic 'help' index */
+	sprintf(syshelpfile_birth,"chargen.txt");
+	
+	
 	/* Access the "basic" pref file */
 	strcpy(buf, "pref.prf");
 

@@ -47,7 +47,8 @@ extern owner_type owners[MAX_STORES][MAX_OWNERS];
 extern u16b extract_energy[200];
 extern s32b player_exp[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
-extern player_race race_info[MAX_RACES];
+extern player_race race_info[COUNT_SUBRACES];
+extern player_race sign_info[COUNT_SIGNS];
 extern player_class class_info[MAX_CLASS];
 extern player_magic magic_info[MAX_CLASS];
 extern u32b fake_spell_flags[4];
@@ -72,6 +73,7 @@ extern cptr class_sub_name[MAX_CLASS][MAX_REALM+1];
 /* variable.c */
 extern cptr copyright[5];
 extern char syshelpfile[20];
+extern char syshelpfile_birth[20];
 extern byte version_major;
 extern byte version_minor;
 extern byte version_patch;
@@ -280,7 +282,7 @@ extern int player_egid;
 extern char player_name[32];
 extern char player_base[32];
 extern char died_from[80];
-extern char history[4][60];
+extern char history[4][70];
 extern char savefile[1024];
 extern s16b lite_n;
 extern byte lite_y[LITE_MAX];
@@ -334,6 +336,7 @@ extern player_sex *sp_ptr;
 extern player_race *rp_ptr;
 extern player_class *cp_ptr;
 extern player_magic *mp_ptr;
+extern player_race *bsp_ptr;
 extern u32b spell_learned1;
 extern u32b spell_learned2;
 extern u32b spell_worked1;
@@ -529,6 +532,7 @@ extern void do_cmd_mix(void);
 /* dungeon.c */
 extern void play_game(bool new_game);
 extern bool psychometry(void);
+extern cptr value_check_aux1(object_type *o_ptr);
 
 /* files.c */
 extern void safe_setuid_drop(void);
@@ -913,6 +917,7 @@ extern void handle_stuff(void);
 extern bool mystic_empty_hands();
 extern bool mystic_heavy_armour();
 extern void day_to_date(s16b day,char *date);
+extern byte health_colour( s16b current, s16b max );
 
 /* xtra2.c */
 extern bool set_blind(int v);

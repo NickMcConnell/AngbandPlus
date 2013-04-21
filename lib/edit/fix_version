@@ -1,0 +1,32 @@
+#!/usr/bin/java judo 
+
+doFile("a_info.txt");
+doFile("e_info.txt");
+doFile("f_info.txt");
+doFile("k_info.txt");
+doFile("r_info.txt");
+doFile("v_info.txt");
+
+
+function doFile( filename ){
+
+fc = getFileAsString( filename );
+//Do backup
+fbackup = openTextFile( filename @ ".bak" , "w");
+. <fbackup> fc;
+fbackup.close();
+
+f = openTextFile( filename , "w");
+
+fca = fc.split("\\n");
+for  x in fca {
+  if( x.startsWith('V:') ){ x = "V:0.8.3"; }
+  . <f> x;
+  
+}
+
+f.close();
+
+}
+
+

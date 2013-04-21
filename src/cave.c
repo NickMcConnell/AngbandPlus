@@ -3614,10 +3614,6 @@ void disturb(int stop_stealth, int unused_flag)
 	if (flush_disturb) flush();
 }
 
-
-
-
-
 /*
 * Hack -- Check if a level is a "quest" level
 */
@@ -3636,8 +3632,8 @@ bool is_quest(int level)
 	/* Check quests */
 	for (i = 0; i < MAX_Q_IDX; i++)
 	{
-		/* Check for quest */
-		if (q_list[i].level == level) return (TRUE);
+		/* Check for quest, some integer magic that might be shorter to write */
+		if (q_list[i].level == (unsigned int)abs(level)) return (TRUE);
 	}
 
 	/* Nope */

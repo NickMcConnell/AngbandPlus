@@ -3559,6 +3559,10 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 	*/	
 
 	/* Apply magic (good or bad) according to type */
+	
+	(void)level;/*Not used??*/
+	(void)power;/*Not used??*/
+	
 	switch (o_ptr->tval)
 	{
 
@@ -3602,6 +3606,8 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 static void a_m_aux_5(object_type *o_ptr, int level, int power)
 {
 	int i;
+	
+	(void)level;/*Not used??*/
 
 	/* Hack -- Torches -- random fuel */
 	if (o_ptr->sval == SV_LITE_TORCH)
@@ -4337,14 +4343,14 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
-		/* Books -- High level books are good (except Folk books) */
-	case TV_LIFE_BOOK:
+		/* Books -- High level books are good (except Books of Charms) */
+	case TV_MIRACLES_BOOK:
 	case TV_SORCERY_BOOK:
 	case TV_NATURE_BOOK:
-	case TV_CHAOS_BOOK:
+	case TV_DEMONIC_BOOK:
 	case TV_DEATH_BOOK:
 	case TV_PLANAR_BOOK:
-	case TV_CORPOREAL_BOOK:
+	case TV_SOMATIC_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
@@ -6088,7 +6094,7 @@ s16b spell_chance(int spell,int realm)
 		&& (p_ptr->pclass != CLASS_MAGE)
 		&& (p_ptr->pclass != CLASS_MINDCRAFTER)
 		&& (p_ptr->pclass != CLASS_HIGH_MAGE)
-		&& (p_ptr->pclass != CLASS_DEMONOLOGIST))
+		&& (p_ptr->pclass != CLASS_WARLOCK))
 	{
 		if (minfail < 5) minfail = 5;
 	}
@@ -6096,8 +6102,8 @@ s16b spell_chance(int spell,int realm)
 	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
 	if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_DRUID)) && (p_ptr->icky_wield)) chance += 25;
 
-	/* Hack -- Demonologist spell penalty for *any* weapons */
-	if ((p_ptr->pclass == CLASS_DEMONOLOGIST) && (p_ptr->icky_wield)) chance += 25;
+	/* Hack -- Warlock spell penalty for *any* weapons */
+	if ((p_ptr->pclass == CLASS_WARLOCK) && (p_ptr->icky_wield)) chance += 25;
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
@@ -6178,7 +6184,7 @@ static void spell_info(char *p, int spell, int realm)
 		/* Analyze the spell */
 		switch (realm)
 		{
-		case 0: /* Life */
+		case 0: /* Miracles */
 			switch (spell)
 			{
 			case 1: strcpy(p, " heal 2d10"); break;
@@ -6239,7 +6245,7 @@ static void spell_info(char *p, int spell, int realm)
 			}
 			break;
 
-		case 3: /* Chaos */
+		case 3: /* Demonic */
 			switch (spell)
 			{
 			case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
@@ -6308,7 +6314,7 @@ static void spell_info(char *p, int spell, int realm)
 			case 22: sprintf(p, " dam %d", plev * 3); break;
 			}
 			break;
-		case 6: /* Folk */
+		case 6: /* Charms */
 			switch (spell)
 			{
 			case 0: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)); break;
@@ -6326,7 +6332,7 @@ static void spell_info(char *p, int spell, int realm)
 			case 31: strcpy(p, " dur 25+30"); break;
 			}
 			break;
-		case 7: /* Corporeal */
+		case 7: /* Somatic */
 			switch (spell)
 			{
 			case 0: strcpy(p, " heal 2d10"); break;
@@ -6621,3 +6627,4 @@ void alchemy_describe(char *buf, size_t max, int sval)
 	/* Print a message */
 	strnfmt(buf, max, "%s = %s + %s  (odds: %d percent)", o_name1, o_name2, o_name3 , (int)(25 + (/*p_ptr->skill[SK_ALC]*/ 60) - ( k_ptr->pval /  5)) );
 }
+

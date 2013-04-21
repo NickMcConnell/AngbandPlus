@@ -19,7 +19,7 @@
 /*
 * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
 */
-static cptr value_check_aux1(object_type *o_ptr)
+cptr value_check_aux1(object_type *o_ptr)
 {
 
 	/* Artifacts */
@@ -53,9 +53,14 @@ static cptr value_check_aux1(object_type *o_ptr)
 
 	/* Good "weapon" bonus */
 	if (o_ptr->to_h + o_ptr->to_d > 0) return "good";
-
-	/* Default to "average" */
-	return "average";
+	
+	/*If the shopkeeper doesnt like it, it's worthless ;)*/
+	if( object_value(o_ptr) <= 0 )
+		return "worthless";
+	else if ( object_value(o_ptr) > 1000 )
+		return "great";
+	else
+		return "average";
 }
 
 
@@ -135,7 +140,7 @@ static void sense_inventory(void)
 			break;
 		}
 
-	case CLASS_MAGE: case CLASS_HIGH_MAGE: case CLASS_DEMONOLOGIST:
+	case CLASS_MAGE: case CLASS_HIGH_MAGE: case CLASS_WARLOCK:
 		{
 			/* Very bad (light) sensing */
 			if (0 != rand_int(240000L / (plev + 5))) return;
@@ -209,7 +214,7 @@ static void sense_inventory(void)
 			break;
 		}
 
-	case CLASS_DIABOLIST:
+	case CLASS_HELL_KNIGHT:
 		{
 
 			/* Bad sensing */
@@ -355,7 +360,7 @@ static void pattern_teleport(void)
 
 		for (i = 0; i < MAX_Q_IDX; i++)
 		{
-			if ((q_list[i].level || (q_list[i].cur_num != q_list[i].max_num)) && (q_list[i].level < highestquest))   highestquest = q_list[i].level;
+			if ((q_list[i].level || (q_list[i].cur_num != q_list[i].max_num)) && (q_list[i].level < (unsigned int)abs(highestquest)))   highestquest = q_list[i].level;
 		}
 		if(highestquest > p_ptr->max_dun_level) highestquest = p_ptr->max_dun_level;
 		/* Prompt */
@@ -442,7 +447,7 @@ static bool pattern_effect(void)
 		return FALSE;
 
 
-	if ((p_ptr->prace == RACE_NEPHILIM) && (p_ptr->cut>0) &&
+	if ((p_ptr->prace == NEPHILIM) && (p_ptr->cut>0) &&
 		(randint(10)==1))
 	{
 		wreck_the_pattern();
@@ -491,7 +496,7 @@ static bool pattern_effect(void)
 
 	else
 	{
-		if ((p_ptr->prace == RACE_NEPHILIM) && (randint(2)!=1))
+		if ((p_ptr->prace == NEPHILIM) && (randint(2)!=1))
 			return TRUE;
 		else
 			if (!(p_ptr->invuln))
@@ -1024,7 +1029,7 @@ static void process_world(void)
 
 
 	/* (Vampires) Take damage from sunlight */
-	if (p_ptr->prace == RACE_VAMPIRE)
+	if (p_ptr->prace == VAMPIRE)
 
 	{
 		if ((dun_level <= 0)
@@ -1077,10 +1082,10 @@ static void process_world(void)
 		cave_no_regen = TRUE;
 		if (!(p_ptr->invuln)
 			&& !(p_ptr->wraith_form) && ((p_ptr->chp > ((p_ptr->lev)/5))
-			|| (p_ptr->prace != RACE_SPECTRE)))
+			|| (p_ptr->prace != SPECTRE)))
 		{
 			cptr dam_desc;
-			if (p_ptr->prace == RACE_SPECTRE)
+			if (p_ptr->prace == SPECTRE)
 			{
 				msg_print("Your body feels disrupted!");
 				dam_desc = "density";
@@ -2532,7 +2537,7 @@ static void process_command(void)
 				cptr which_power = "magic";
 				if (p_ptr->pclass == CLASS_MINDCRAFTER)
 					which_power = "psionic powers";
-				else if (mp_ptr->spell_book == TV_LIFE_BOOK)
+				else if (mp_ptr->spell_book == TV_MIRACLES_BOOK)
 					which_power = "prayer";
 
 				msg_format("An anti-magic shell disrupts your %s!", which_power);
@@ -3796,10 +3801,10 @@ void play_game(bool new_game)
 		player_birth();
 
 		/* Hack -- enter the world at day unless undead*/
-		if ((p_ptr->prace == RACE_SPECTRE) ||
-			(p_ptr->prace == RACE_ZOMBIE) ||
-			(p_ptr->prace == RACE_SKELETON) ||
-			(p_ptr->prace == RACE_VAMPIRE))
+		if ((p_ptr->prace == SPECTRE) ||
+			(p_ptr->prace == MUMMY) ||
+			(p_ptr->prace == SKELETON) ||
+			(p_ptr->prace == VAMPIRE))
 		{
 			turn=50001;
 		}
@@ -3811,13 +3816,15 @@ void play_game(bool new_game)
 		/* You have received a letter */
 		msg_print("You have a received a letter.");
 		msg_print(NULL);
+
 		/* Show the letter */
-		do_cmd_load_screen( ANGBAND_DIR_FILE ,  "LEVEL0.TXT" );
+		do_cmd_load_screen(ANGBAND_DIR_FILE, "level0.txt");
+
 		/*void restore_screen( void )*/
 		(void)msg_flush_wait();
 		msg_print("You travel to Volterra in Italy.");
 		msg_print(NULL);
-		msg_print("You mutter 'Lasciate ogne esperanza, voi chi intrate'");
+		msg_print("You mutter 'Lasciate ogne esperanza, voi chi intrate'.");
 		msg_print(NULL);		
 	}
 

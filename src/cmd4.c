@@ -112,12 +112,6 @@ void do_cmd_change_name(void)
 		/* Display the player */
 		display_player(mode);
 
-		if (mode == 6)
-		{
-			mode = 0;
-			display_player(mode);
-		}
-
 		/* Prompt */
 		Term_putstr(2, 23, -1, TERM_WHITE,
 			"['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
@@ -151,6 +145,11 @@ void do_cmd_change_name(void)
 		else if (c == 'h')
 		{
 			mode++;
+            /*Hack, because of how files are displayed, 
+            I needed to show something straight after the corruptions,
+            which is the first screen, so we jump after that to 2nd (0 base)*/
+            if (mode == 4)
+                mode = 1;
 		}
 
 		/* Oops */
@@ -2607,7 +2606,7 @@ static char hack[17] = "dwsorgbuDWvyRGBU";
 /*
 * Hack, splitting up the original so that it can be used for more than 1 purpose
 */
-void restore_screen( void )
+void restore_screen(void)
 {
 	/* Restore the screen */
 	Term_load();
@@ -2620,7 +2619,7 @@ void restore_screen( void )
 /*
 * Hack -- load a screen dump from a file
 */
-void do_cmd_load_screen( cptr path , cptr file )
+void do_cmd_load_screen(cptr path, cptr file)
 {
 	int i, y, x;
 
@@ -2635,7 +2634,7 @@ void do_cmd_load_screen( cptr path , cptr file )
 
 
 	/* Build the filename */
-	path_build(buf, 1024, path , file );
+	path_build(buf, 1024, path, file);
 
 	/* Append to the file */
 	fff = my_fopen(buf, "r");

@@ -582,25 +582,42 @@ void self_knowledge(void)
 		f3 |= t3;
 	}
 
+	/* Birth sign powers ... */
+	switch (p_ptr->psign)
+	{
+		case SIGN_PLUTUS:
+			if (plev > 4)
+				info[i++] = "You can find traps, doors and stairs (cost 5).";
+			break;
+		case SIGN_MORUI:
+		{
+			if (plev > 8)
+			{
+				sprintf(Dummy, "You can spit acid, dam. %d (cost 9).",
+						plev);
+				info[i++] = Dummy;
+			}
+		}
+		break;
+		case SIGN_DRACO:
+		{
+			sprintf(Dummy, "You can breathe, dam. %d (cost %d).", 2 * plev,
+					plev);
+			info[i++] = Dummy;
+		}
+		break;			
+	}
 
 	/* Racial powers... */
 	switch (p_ptr->prace)
 	{
-	case RACE_NIBELUNG: case RACE_DWARF:
+	case DWARF:
 		{
 			if (plev > 4)
 				info[i++] = "You can find traps, doors and stairs (cost 5).";
 		}
 		break;
-	case RACE_HOBBIT:
-		{
-			if (plev > 14)
-			{
-				info[i++] = "You can produce food (cost 10).";
-			}
-		}
-		break;
-	case RACE_GNOME:
+	case GNOME: case LEPRECHAUN:
 		{
 			if (plev > 4)
 			{
@@ -610,19 +627,13 @@ void self_knowledge(void)
 			}
 		}
 		break;
-	case RACE_HALF_ORC:
-		{
-			if (plev > 2)
-				info[i++] = "You can remove fear (cost 5).";
-		}
-		break;
-	case RACE_HALF_TROLL:
+	case TROLL:
 		{
 			if (plev > 9)
 				info[i++] = "You enter berserk fury (cost 12).";
 		}
 		break;
-	case RACE_NEPHILIM:
+	case NEPHILIM:
 		{
 			if (plev > 29)
 				info[i++] = "You can dream travel (cost 50).";
@@ -630,31 +641,32 @@ void self_knowledge(void)
 				info[i++] = "You can dream a better self (cost 75).";
 		}
 		break;
-	case RACE_BARBARIAN:
+	case NORDIC:
 		{
 			if (plev > 7)
 				info[i++] = "You can enter berserk fury (cost 10).";
 		}
 		break;
-	case RACE_HALF_OGRE:
+	case OGRE:
 		{
 			if (plev > 24)
 				info[i++] = "You can set an Explosive Rune (cost 35).";
 		}
 		break;
-	case RACE_HALF_GIANT:
+	case GIANT:
 		{
 			if (plev > 19)
 				info[i++] = "You can break stone walls (cost 10).";
 		}
 		break;
-	case RACE_HALF_TITAN:
+	case TITAN:
 		{
 			if (plev > 34)
 				info[i++] = "You can probe monsters (cost 20).";
 		}
 		break;
-	case RACE_CYCLOPS:
+/*		
+	case :
 		{
 			if (plev > 19)
 			{
@@ -664,23 +676,14 @@ void self_knowledge(void)
 			}
 		}
 		break;
-	case RACE_YEEK:
+	case :
 		{
 			if (plev > 14)
 				info[i++] = "You can make a terrifying scream (cost 15).";
 		}
 		break;
-	case RACE_KLACKON:
-		{
-			if (plev > 8)
-			{
-				sprintf(Dummy, "You can spit acid, dam. %d (cost 9).",
-					plev);
-				info[i++] = Dummy;
-			}
-		}
-		break;
-	case RACE_KOBOLD:
+*/		
+	case KOBOLD:
 		{
 			if (plev > 11)
 			{
@@ -691,7 +694,7 @@ void self_knowledge(void)
 			}
 		}
 		break;
-	case RACE_DARK_ELF:
+	case ATLANTIAN:
 		{
 			if (plev > 1)
 			{
@@ -701,14 +704,7 @@ void self_knowledge(void)
 			}
 		}
 		break;
-	case RACE_DRACONIAN:
-		{
-			sprintf(Dummy, "You can breathe, dam. %d (cost %d).", 2 * plev,
-				plev);
-			info[i++] = Dummy;
-		}
-		break;
-	case RACE_MIND_FLAYER:
+	case HORROR:
 		{
 			if (plev > 14)
 				sprintf(Dummy, "You can mind blast your enemies, dam %d (cost 12).",
@@ -716,7 +712,7 @@ void self_knowledge(void)
 			info[i++] = Dummy;
 		}
 		break;
-	case RACE_IMP:
+	case IMP:
 		{
 			if (plev > 29)
 			{
@@ -732,19 +728,19 @@ void self_knowledge(void)
 			}
 		}
 		break;
-	case RACE_GOLEM:
+	case GUARDIAN:
 		{
 			if (plev > 19)
 				info[i++] = "You can turn your skin to stone, dur d20+30 (cost 15).";
 		}
 		break;
-	case RACE_ZOMBIE: case RACE_SKELETON:
+	case MUMMY: case SKELETON:
 		{
 			if (plev > 29)
 				info[i++] = "You can restore lost life forces (cost 30).";
 		}
 		break;
-	case RACE_VAMPIRE:
+	case VAMPIRE:
 		{
 			if (plev > 1)
 			{
@@ -754,7 +750,7 @@ void self_knowledge(void)
 			}
 		}
 		break;
-	case RACE_SPECTRE:
+	case SPECTRE:
 		{
 			if (plev > 3)
 			{
@@ -762,7 +758,7 @@ void self_knowledge(void)
 			}
 		}
 		break;
-	case RACE_SPRITE:
+	case FAE:
 		{
 			if (plev > 11)
 			{
@@ -2077,10 +2073,10 @@ bool detect_objects_magic(void)
 			(tv == TV_AMULET) || (tv == TV_RING) ||
 			(tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 			(tv == TV_SCROLL) || (tv == TV_POTION) ||
-			(tv == TV_LIFE_BOOK) || (tv == TV_SORCERY_BOOK) ||
-			(tv == TV_NATURE_BOOK) || (tv == TV_CHAOS_BOOK) ||
-			(tv == TV_DEATH_BOOK) || (tv == TV_CORPOREAL_BOOK) ||
-			(tv == TV_PLANAR_BOOK) || (tv == TV_FOLK_BOOK) ||
+			(tv == TV_MIRACLES_BOOK) || (tv == TV_SORCERY_BOOK) ||
+			(tv == TV_NATURE_BOOK) || (tv == TV_DEMONIC_BOOK) ||
+			(tv == TV_DEATH_BOOK) || (tv == TV_SOMATIC_BOOK) ||
+			(tv == TV_PLANAR_BOOK) || (tv == TV_CHARMS_BOOK) ||
 			((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -4030,7 +4026,7 @@ bool create_artefact(object_type *o_ptr, bool a_scroll)
 		case CLASS_WARRIOR:
 			artefact_bias = BIAS_WARRIOR;
 			break;
-		case CLASS_MAGE: case CLASS_HIGH_MAGE: case CLASS_DEMONOLOGIST:
+		case CLASS_MAGE: case CLASS_HIGH_MAGE: case CLASS_WARLOCK:
 			artefact_bias = BIAS_MAGE;
 			break;
 		case CLASS_PRIEST: case CLASS_DRUID:
@@ -4052,7 +4048,7 @@ bool create_artefact(object_type *o_ptr, bool a_scroll)
 			artefact_bias = BIAS_MAGE;
 			warrior_artefact_bias = 40;
 			break;
-		case CLASS_DIABOLIST:
+		case CLASS_HELL_KNIGHT:
 			artefact_bias = BIAS_CHAOS;
 			warrior_artefact_bias = 40;
 			break;

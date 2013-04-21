@@ -924,6 +924,7 @@ static void wr_extra(void)
 
 	/* Race/Class/Gender/Spells */
 	wr_byte(p_ptr->prace);
+	wr_byte(p_ptr->psign);	
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
 	wr_byte(p_ptr->realm1);
@@ -1507,27 +1508,10 @@ bool save_player(void)
 	char    safe[1024];
 
 
-#ifdef SET_UID
-
-# ifdef SECURE
-
-	/* Get "games" permissions */
-	beGames();
-
-# endif
-
-#endif
-
 
 	/* New savefile */
 	strcpy(safe, savefile);
 	strcat(safe, ".new");
-
-#ifdef VM
-	/* Hack -- support "flat directory" usage on VM/ESA */
-	strcpy(safe, savefile);
-	strcat(safe, "n");
-#endif /* VM */
 
 	/* Remove it */
 	fd_kill(safe);
@@ -1541,11 +1525,6 @@ bool save_player(void)
 		strcpy(temp, savefile);
 		strcat(temp, ".old");
 
-#ifdef VM
-		/* Hack -- support "flat directory" usage on VM/ESA */
-		strcpy(temp, savefile);
-		strcat(temp, "o");
-#endif /* VM */
 
 		/* Remove it */
 		fd_kill(temp);
@@ -1576,18 +1555,6 @@ bool save_player(void)
 		/* Success */
 		result = TRUE;
 	}
-
-
-#ifdef SET_UID
-
-# ifdef SECURE
-
-	/* Drop "games" permissions */
-	bePlayer();
-
-# endif
-
-#endif
 
 
 	/* Return the result */
@@ -1631,7 +1598,7 @@ bool load_player(void)
 	if (!savefile[0]) return (TRUE);
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(VM)
+#if !defined(MACINTOSH) && !defined(WINDOWS)
 
 	/* XXX XXX XXX Fix this */
 

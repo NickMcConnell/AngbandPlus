@@ -692,6 +692,7 @@ static byte bolt_graf_attr(int type)
 */
 static byte ball_graf_attr(int type)
 {
+	(void)type;/* For now, we will always use the same attr */
 	return(145);
 }
 
@@ -1013,14 +1014,14 @@ static bool hates_fire(object_type *o_ptr)
 		}
 
 		/* Books */
-	case TV_LIFE_BOOK:
+	case TV_MIRACLES_BOOK:
 	case TV_SORCERY_BOOK:
 	case TV_NATURE_BOOK:
-	case TV_CHAOS_BOOK:
+	case TV_DEMONIC_BOOK:
 	case TV_DEATH_BOOK:
 	case TV_PLANAR_BOOK:
-	case TV_FOLK_BOOK:
-	case TV_CORPOREAL_BOOK:
+	case TV_CHARMS_BOOK:
+	case TV_SOMATIC_BOOK:
 		{
 			return (TRUE);
 		}
@@ -2349,7 +2350,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				break;
 			}
 
-			/* Mana and Chaos -- destroy everything */
+			/* Mana and Primal Chaos -- destroy everything */
 		case GF_MANA: 
 			{
 				do_kill = TRUE;
@@ -2820,7 +2821,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Chaos -- Chaos breathers resist 1 time in 3*/
+		/* Primal Chaos -- Chaos breathers resist 1 time in 3*/
 	case GF_CHAOS:
 		{
 			do_poly = TRUE;
@@ -4513,7 +4514,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (fuzzy) msg_print("You are hit by nether forces!");
 			if (p_ptr->resist_neth)
 			{
-				if (!(p_ptr->prace == RACE_SPECTRE))
+				if (!(p_ptr->prace == SPECTRE))
 					dam *= 6; dam /= (randint(6) + 6);
 			}
 			else
@@ -4533,7 +4534,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 					lose_exp(200 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
 				}
 			}
-			if (p_ptr->prace == RACE_SPECTRE) {
+			if (p_ptr->prace == SPECTRE) {
 				msg_print("You feel invigorated!");
 				hp_player(dam / 4);
 			} else {
@@ -4564,7 +4565,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			break;
 		}
 
-		/* Chaos -- many effects */
+		/* Primal Chaos -- many effects */
 	case GF_CHAOS:
 		{
 			if (fuzzy) msg_print("You are hit by a wave of anarchy!");
@@ -4762,7 +4763,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
-			if (p_ptr->prace == RACE_VAMPIRE) {
+			if (p_ptr->prace == VAMPIRE) {
 				msg_print("The light scorches your flesh!");
 				dam *= 2;
 			}
@@ -4789,7 +4790,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (p_ptr->resist_dark)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
-				if (p_ptr->prace == RACE_VAMPIRE)
+				if (p_ptr->prace == VAMPIRE)
 					dam = 0;
 			}
 			else if (!blind && !p_ptr->resist_blind)

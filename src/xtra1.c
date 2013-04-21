@@ -440,6 +440,16 @@ static void prt_ac(void)
 	c_put_str(TERM_L_GREEN, tmp, ROW_AC, COL_AC + 7);
 }
 
+/* Return a color corresponding to current hp/mp or future others and the hitpoint warning setting */
+byte health_colour( s16b current, s16b max )
+{
+	if (current >= max)
+		return TERM_L_GREEN;
+	else if (current > (max * hitpoint_warn) / 10)
+		return TERM_YELLOW;
+	else
+		return TERM_RED;
+}
 
 /*
 * Prints Cur/Max hit points
@@ -447,9 +457,7 @@ static void prt_ac(void)
 static void prt_hp(void)
 {
 	char tmp[32];
-
-	byte colour;
-
+	int colour;
 
 	put_str("Max HP ", ROW_MAXHP, COL_MAXHP);
 
@@ -462,19 +470,8 @@ static void prt_hp(void)
 	put_str("Cur HP ", ROW_CURHP, COL_CURHP);
 
 	sprintf(tmp, "%5d", p_ptr->chp);
-
-	if (p_ptr->chp >= p_ptr->mhp)
-	{
-		colour = TERM_L_GREEN;
-	}
-	else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10)
-	{
-		colour = TERM_YELLOW;
-	}
-	else
-	{
-		colour = TERM_RED;
-	}
+	
+	colour = health_colour( p_ptr->chp ,  p_ptr->mhp );
 
 	c_put_str(colour, tmp, ROW_CURHP, COL_CURHP + 7);
 }
@@ -504,19 +501,8 @@ static void prt_sp(void)
 	put_str("Cur SP ", ROW_CURSP, COL_CURSP);
 
 	sprintf(tmp, "%5d", p_ptr->csp);
-
-	if (p_ptr->csp >= p_ptr->msp)
-	{
-		colour = TERM_L_GREEN;
-	}
-	else if (p_ptr->csp > (p_ptr->msp * hitpoint_warn) / 10)
-	{
-		colour = TERM_YELLOW;
-	}
-	else
-	{
-		colour = TERM_RED;
-	}
+	
+	colour = health_colour( p_ptr->csp ,  p_ptr->msp );
 
 	/* Show mana */
 	c_put_str(colour, tmp, ROW_CURSP, COL_CURSP + 7);
@@ -2206,57 +2192,55 @@ static void calc_bonuses(void)
 
 
 	/* Base infravision (purely racial) */
-	p_ptr->see_infra = rp_ptr->infra;
+	p_ptr->see_infra = rp_ptr->infra + bsp_ptr->infra;
 
 
 	/* Base skill -- disarming */
-	p_ptr->skill_dis = rp_ptr->r_dis + cp_ptr->c_dis;
+	p_ptr->skill_dis = rp_ptr->r_dis + cp_ptr->c_dis + bsp_ptr->r_dis;
 
 	/* Base skill -- magic devices */
-	p_ptr->skill_dev = rp_ptr->r_dev + cp_ptr->c_dev;
+	p_ptr->skill_dev = rp_ptr->r_dev + cp_ptr->c_dev + bsp_ptr->r_dev;
 
 	/* Base skill -- saving throw */
-	p_ptr->skill_sav = rp_ptr->r_sav + cp_ptr->c_sav;
+	p_ptr->skill_sav = rp_ptr->r_sav + cp_ptr->c_sav + bsp_ptr->r_sav;
 
 	/* Base skill -- stealth */
-	p_ptr->skill_stl = rp_ptr->r_stl + cp_ptr->c_stl;
+	p_ptr->skill_stl = rp_ptr->r_stl + cp_ptr->c_stl + bsp_ptr->r_stl;
 
 	/* Base skill -- searching ability */
-	p_ptr->skill_srh = rp_ptr->r_srh + cp_ptr->c_srh;
+	p_ptr->skill_srh = rp_ptr->r_srh + cp_ptr->c_srh + bsp_ptr->r_srh;
 
 	/* Base skill -- searching frequency */
-	p_ptr->skill_fos = rp_ptr->r_fos + cp_ptr->c_fos;
+	p_ptr->skill_fos = rp_ptr->r_fos + cp_ptr->c_fos + bsp_ptr->r_fos;
 
 	/* Base skill -- combat (normal) */
-	p_ptr->skill_thn = rp_ptr->r_thn + cp_ptr->c_thn;
+	p_ptr->skill_thn = rp_ptr->r_thn + cp_ptr->c_thn + bsp_ptr->r_thn;
 
 	/* Base skill -- combat (shooting) */
-	p_ptr->skill_thb = rp_ptr->r_thb + cp_ptr->c_thb;
+	p_ptr->skill_thb = rp_ptr->r_thb + cp_ptr->c_thb + bsp_ptr->r_thb;
 
 	/* Base skill -- combat (throwing) */
-	p_ptr->skill_tht = rp_ptr->r_thb + cp_ptr->c_thb;
+	p_ptr->skill_tht = rp_ptr->r_thb + cp_ptr->c_thb + bsp_ptr->r_thb;
 
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
 
 
 	/* Elf */
-	if (p_ptr->prace == RACE_ELF) p_ptr->resist_lite = TRUE;
-
-	/* Hobbit */
-	if (p_ptr->prace == RACE_HOBBIT) p_ptr->sustain_dex = TRUE;
+	if (p_ptr->prace == ELF) p_ptr->resist_lite = TRUE;
 
 	/* Gnome */
-	if (p_ptr->prace == RACE_GNOME) p_ptr->free_act = TRUE;
+	if (p_ptr->prace == GNOME) p_ptr->free_act = TRUE;
 
+	/* Leprechaun */
+	if (p_ptr->prace == LEPRECHAUN) p_ptr->free_act = TRUE;
+	
 	/* Dwarf */
-	if (p_ptr->prace == RACE_DWARF) p_ptr->resist_blind = TRUE;
+	if (p_ptr->prace == DWARF) p_ptr->resist_blind = TRUE;
 
-	/* Half-Orc */
-	if (p_ptr->prace == RACE_HALF_ORC) p_ptr->resist_dark = TRUE;
 
 	/* Half-Troll */
-	if (p_ptr->prace == RACE_HALF_TROLL)
+	if (p_ptr->prace == TROLL)
 	{
 		p_ptr->sustain_str = TRUE;
 		if (p_ptr->lev>14)
@@ -2270,19 +2254,19 @@ static void calc_bonuses(void)
 	/* Warriors */
 	if (((p_ptr->pclass == CLASS_WARRIOR) && (p_ptr->lev > 29)) ||
 		((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev > 39)) ||
-		((p_ptr->pclass == CLASS_DIABOLIST) && (p_ptr->lev > 39)))
+		((p_ptr->pclass == CLASS_HELL_KNIGHT) && (p_ptr->lev > 39)))
 	{
 		p_ptr->resist_fear = TRUE;
 	}
 
-	/* Diabolists: resist chaos at level 30 */
-	if ((p_ptr->pclass == CLASS_DIABOLIST) && (p_ptr->lev > 29))
+	/* Hell Knights: resist chaos at level 30 */
+	if ((p_ptr->pclass == CLASS_HELL_KNIGHT) && (p_ptr->lev > 29))
 	{
 		p_ptr->resist_chaos = TRUE;
 	}
 
-	/* Demonologist: resist chaos at level 20 */
-	if ((p_ptr->pclass == CLASS_DEMONOLOGIST) && (p_ptr->lev > 19))
+	/* Warlock: resist chaos at level 20 */
+	if ((p_ptr->pclass == CLASS_WARLOCK) && (p_ptr->lev > 19))
 	{
 		p_ptr->resist_chaos = TRUE;
 	}
@@ -2306,66 +2290,29 @@ static void calc_bonuses(void)
 	}
 
 	/* Nephilim */
-	if (p_ptr->prace == RACE_NEPHILIM)
+	if (p_ptr->prace == NEPHILIM)
 	{
 		p_ptr->sustain_con = TRUE;
 		p_ptr->regenerate = TRUE;  /* Nephilim heal fast... */
 
 	}
-
-	/* High Elf */
-	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->resist_lite = TRUE;
-	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->see_inv = TRUE;
-
-	if (p_ptr->prace == RACE_BARBARIAN) p_ptr->resist_fear = TRUE;
-	else if (p_ptr->prace == RACE_HALF_OGRE)
-	{   p_ptr->resist_dark = TRUE;
-	p_ptr->sustain_str = TRUE;
-	}
-	else if (p_ptr->prace == RACE_HALF_GIANT)
+	
+	/* This can be with muliple races */
+	if(p_ptr->psign == SIGN_SERPENS)
 	{
-		p_ptr->sustain_str = TRUE;
-		p_ptr->resist_shard = TRUE;
+		p_ptr->resist_pois = TRUE;
 	}
-	else if (p_ptr->prace == RACE_HALF_TITAN)
-	{
-		p_ptr->resist_chaos = TRUE;
-	}
-	else if (p_ptr->prace == RACE_CYCLOPS)
-	{
-		p_ptr->resist_sound = TRUE;
-	}
-	else if (p_ptr->prace == RACE_YEEK)
-	{
-		p_ptr->resist_acid = TRUE;
-		if (p_ptr->lev > 19)
-		{
-			p_ptr->immune_acid = TRUE;
-		}
-	}
-	else if (p_ptr->prace == RACE_KLACKON)
+	if (p_ptr->psign == SIGN_MORUI)
 	{
 		p_ptr->resist_conf = TRUE;
 		p_ptr->resist_acid = TRUE;
 	}
-	else if (p_ptr->prace == RACE_KOBOLD)
-	{
-		p_ptr->resist_pois = TRUE;
-	}
-	else if (p_ptr->prace == RACE_NIBELUNG)
+	if (p_ptr->psign == SIGN_PLUTUS)
 	{
 		p_ptr->resist_disen = TRUE;
 		p_ptr->resist_dark = TRUE;
 	}
-	else if (p_ptr->prace == RACE_DARK_ELF)
-	{
-		p_ptr->resist_dark = TRUE;
-		if (p_ptr->lev > 19)
-		{
-			p_ptr->see_inv = TRUE;
-		}
-	}
-	else if (p_ptr->prace == RACE_DRACONIAN)
+	if (p_ptr->psign == SIGN_DRACO)
 	{
 		p_ptr->ffall = TRUE;
 		if (p_ptr->lev > 4)
@@ -2388,9 +2335,42 @@ static void calc_bonuses(void)
 		{
 			p_ptr->resist_pois = TRUE;
 		}
-
+		
 	}
-	else if (p_ptr->prace == RACE_MIND_FLAYER)
+	
+
+	/* Elder */
+	if (p_ptr->prace == ELDER) p_ptr->resist_lite = TRUE;
+	if (p_ptr->prace == ELDER) p_ptr->see_inv = TRUE;
+
+	if (p_ptr->prace == NORDIC) p_ptr->resist_fear = TRUE;
+	else if (p_ptr->prace == OGRE)
+	{   
+		p_ptr->resist_dark = TRUE;
+		p_ptr->sustain_str = TRUE;
+	}
+	else if (p_ptr->prace == GIANT)
+	{
+		p_ptr->sustain_str = TRUE;
+		p_ptr->resist_shard = TRUE;
+	}
+	else if (p_ptr->prace == TITAN)
+	{
+		p_ptr->resist_chaos = TRUE;
+	}
+	else if (p_ptr->prace == KOBOLD)
+	{
+		p_ptr->resist_pois = TRUE;
+	}
+	else if (p_ptr->prace == ATLANTIAN)
+	{
+		p_ptr->resist_dark = TRUE;
+		if (p_ptr->lev > 19)
+		{
+			p_ptr->see_inv = TRUE;
+		}
+	}
+	else if (p_ptr->prace == HORROR)
 	{
 		p_ptr->sustain_int = TRUE;
 		p_ptr->sustain_wis = TRUE;
@@ -2403,7 +2383,7 @@ static void calc_bonuses(void)
 			p_ptr->telepathy = TRUE;
 		}
 	}
-	else if (p_ptr->prace == RACE_IMP)
+	else if (p_ptr->prace == IMP)
 	{
 		p_ptr->resist_fire = TRUE;
 		if (p_ptr->lev > 9)
@@ -2415,7 +2395,7 @@ static void calc_bonuses(void)
 			p_ptr->immune_fire = TRUE;
 		}
 	}
-	else if (p_ptr->prace == RACE_GOLEM)
+	else if (p_ptr->prace == GUARDIAN)
 	{
 		if (p_ptr->lev > 34)
 		{
@@ -2426,7 +2406,7 @@ static void calc_bonuses(void)
 		p_ptr->see_inv = TRUE;
 		p_ptr->resist_pois = TRUE;
 	}
-	else if (p_ptr->prace == RACE_SKELETON)
+	else if (p_ptr->prace == SKELETON)
 	{
 		p_ptr->resist_shard = TRUE;
 		p_ptr->hold_life = TRUE;
@@ -2437,7 +2417,7 @@ static void calc_bonuses(void)
 			p_ptr->resist_cold = TRUE;
 		}
 	}
-	else if (p_ptr->prace == RACE_ZOMBIE)
+	else if (p_ptr->prace == MUMMY)
 	{
 		p_ptr->resist_neth = TRUE;
 		p_ptr->hold_life = TRUE;
@@ -2449,7 +2429,7 @@ static void calc_bonuses(void)
 			p_ptr->resist_cold = TRUE;
 		}
 	}
-	else if (p_ptr->prace == RACE_VAMPIRE)
+	else if (p_ptr->prace == VAMPIRE)
 	{
 		p_ptr->resist_dark = TRUE;
 		p_ptr->hold_life = TRUE;
@@ -2458,7 +2438,7 @@ static void calc_bonuses(void)
 		p_ptr->resist_pois = TRUE;
 		p_ptr->lite = TRUE;
 	}
-	else if (p_ptr->prace == RACE_SPECTRE)
+	else if (p_ptr->prace == SPECTRE)
 	{
 		p_ptr->resist_neth = TRUE;
 		p_ptr->hold_life = TRUE;
@@ -2472,17 +2452,17 @@ static void calc_bonuses(void)
 			p_ptr->telepathy = TRUE;
 		}
 	}
-	else if (p_ptr->prace == RACE_SPRITE)
+	else if (p_ptr->prace == FAE)
 	{
 		p_ptr->ffall = TRUE;
 		p_ptr->resist_lite = TRUE;
 	}
-	else if (p_ptr->prace == RACE_DEVILSPAWN)
+	else if (p_ptr->prace == DEVILSPAWN || p_ptr->prace == LILI || p_ptr->prace == SUCCUBUS)
 	{
 		p_ptr->resist_conf  = TRUE;
+		p_ptr->resist_chaos = TRUE;
 		p_ptr->resist_sound = TRUE;
 	}
-
 
 	/* Start with "normal" speed */
 	p_ptr->pspeed = 110;
@@ -2507,7 +2487,7 @@ static void calc_bonuses(void)
 		for (i = 0; i < 6; i++)
 		{
 			/* Modify the stats for "race" */
-			p_ptr->stat_add[i] += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
+			p_ptr->stat_add[i] += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i] + bsp_ptr->r_adj[i]);
 		}
 	}
 
@@ -2853,9 +2833,9 @@ static void calc_bonuses(void)
 	}
 
 	/* Hack -- aura of fire also provides light */
-	if (p_ptr->sh_fire) p_ptr->lite = TRUE;
+	if (p_ptr->sh_fire || p_ptr->prace == ELDER ) p_ptr->lite = TRUE;
 
-	if (p_ptr->prace == RACE_GOLEM) /* Golems also get an intrinsic AC bonus */
+	if (p_ptr->prace == GUARDIAN) /* Golems also get an intrinsic AC bonus */
 	{
 		p_ptr->to_a += 20 + (p_ptr->lev / 5);
 		p_ptr->dis_to_a += 20 + (p_ptr->lev / 5);
@@ -3031,8 +3011,8 @@ static void calc_bonuses(void)
 		p_ptr->pspeed -= 10;
 	}
 
-	/* Klackons become faster... */
-	if ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE) ||
+	/* Morui(ex-Klackons) become faster, so do fae's and mystics if they dont wear too heavy armour */
+	if ((p_ptr->psign == SIGN_MORUI) || (p_ptr->prace == FAE) ||
 		((p_ptr->pclass == CLASS_MYSTIC) && !(mystic_heavy_armour())))
 	{
 		p_ptr->pspeed += (p_ptr->lev) / 10;
@@ -3240,7 +3220,7 @@ static void calc_bonuses(void)
 		case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
 
 			/* Mage */
-		case CLASS_MAGE: case CLASS_HIGH_MAGE: case CLASS_DEMONOLOGIST:
+		case CLASS_MAGE: case CLASS_HIGH_MAGE: case CLASS_WARLOCK:
 			num = 4; wgt = 40; mul = 2; break;
 
 			/* Priest, Mindcrafter */
@@ -3259,8 +3239,8 @@ static void calc_bonuses(void)
 			/* Warrior-Mage */
 		case CLASS_WARRIOR_MAGE: num = 5; wgt = 35; mul = 3; break;
 
-			/* Diabolist */
-		case CLASS_DIABOLIST: num = 5; wgt = 30; mul = 4; break;
+			/* Hell Knight */
+		case CLASS_HELL_KNIGHT: num = 5; wgt = 30; mul = 4; break;
 
 			/* Monk */
 		case CLASS_MYSTIC: num = (p_ptr->lev<40?3:4);
@@ -3361,8 +3341,8 @@ static void calc_bonuses(void)
 		/* Icky weapon */
 		p_ptr->icky_wield = TRUE;
 	}
-	/* Weapon penalty for Demonologists if not using a blade of chaos*/
-	if ((p_ptr->pclass == CLASS_DEMONOLOGIST) && (inventory[INVEN_WIELD].k_idx) &&
+	/* Weapon penalty for Warlocks if not using a blade of chaos*/
+	if ((p_ptr->pclass == CLASS_WARLOCK) && (inventory[INVEN_WIELD].k_idx) &&
 		((o_ptr->tval != TV_SWORD) || (o_ptr->sval != SV_BLADE_OF_CHAOS)))
 	{
 		u32b f1,f2,f3;
@@ -3497,7 +3477,7 @@ static void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->icky_wield)
 		{
-			if(p_ptr->pclass == CLASS_DEMONOLOGIST)
+			if(p_ptr->pclass == CLASS_WARLOCK)
 			{
 				msg_print("Your weapon restricts the flow of chaos through you.");
 			}
@@ -3512,9 +3492,9 @@ static void calc_bonuses(void)
 		}
 		else
 		{
-			if(p_ptr->pclass == CLASS_DEMONOLOGIST)
+			if(p_ptr->pclass == CLASS_WARLOCK)
 			{
-				msg_print("Chaos flows freely through you again.");
+				msg_print("You feel aligned with your patron again.");
 			}
 			else
 			{

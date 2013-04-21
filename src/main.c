@@ -29,6 +29,9 @@ static void quit_hook(cptr s)
 {
 	int j;
 
+	/* Unused parameter */
+	(void)s;
+	
 	/* Scan windows */
 	for (j = 8 - 1; j >= 0; j--)
 	{
@@ -75,19 +78,18 @@ extern unsigned _ovrbuffer = 0x1500;
 * since the "init_file_paths()" function will simply append the
 * relevant "sub-directory names" to the given path.
 *
-* Note that the "path" must be "Angband:" for the Amiga, and it
-* is ignored for "VM/ESA", so I just combined the two.
+* Note that the "path" must be "Angband:" for the Amiga.
 */
 static void init_stuff(void)
 {
 	char path[1024];
 
-#if defined(AMIGA) || defined(VM)
+#if defined(AMIGA)
 
 	/* Hack -- prepare "path" */
 	strcpy(path, "Angband:");
 
-#else /* AMIGA / VM */
+#else /* AMIGA */
 
 	cptr tail;
 
@@ -100,7 +102,7 @@ static void init_stuff(void)
 	/* Hack -- Add a path separator (only if needed) */
 	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
 
-#endif /* AMIGA / VM */
+#endif /* AMIGA */
 
 	/* Initialize */
 	init_file_paths(path);
@@ -261,11 +263,6 @@ int main(int argc, char *argv[])
 
 	/* Default permissions on files */
 	(void)umask(022);
-
-# ifdef SECURE
-	/* Authenticate */
-	Authenticate();
-# endif
 
 #endif
 

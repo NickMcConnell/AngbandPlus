@@ -344,14 +344,14 @@ void do_cmd_eat_food(int item)
 
 
 	/* Food can feed the player */
-	if (p_ptr->prace == RACE_VAMPIRE) {
+	if (p_ptr->prace == VAMPIRE) {
 		/* Reduced nutritional benefit */
 		(void)set_food(p_ptr->food + (o_ptr->pval / 10));
 		msg_print("Mere victuals hold scant sustenance for a being such as yourself.");
 		if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
 			msg_print("Your hunger can only be satisfied with fresh blood!");
 	}
-	else if (p_ptr->prace == RACE_SKELETON)
+	else if (p_ptr->prace == SKELETON)
 	{
 
 
@@ -377,8 +377,7 @@ void do_cmd_eat_food(int item)
 		}
 
 	}
-	else if ((p_ptr->prace == RACE_GOLEM) || (p_ptr->prace == RACE_ZOMBIE) ||
-		(p_ptr->prace == RACE_SPECTRE))
+	else if ((p_ptr->prace == GUARDIAN) || (p_ptr->prace == MUMMY) || (p_ptr->prace == SPECTRE))
 	{
 		msg_print("The food of mortals is poor sustenance for you.");
 		set_food(p_ptr->food + ((o_ptr->pval) / 20));
@@ -1001,7 +1000,7 @@ void do_cmd_quaff_potion(int item)
 
 	}
 
-	if ((p_ptr->prace == RACE_SKELETON) && (randint(12)==1))
+	if ((p_ptr->prace == SKELETON) && (randint(12)==1))
 	{
 		msg_print("Some of the fluid falls through your jaws!");
 		potion_smash_effect(0, py, px, o_ptr->sval);
@@ -1665,7 +1664,7 @@ void do_cmd_read_scroll(int item)
 			fire_ball(GF_CHAOS, 0,
 				222, 4);
 			if (!p_ptr->resist_chaos)
-				take_hit(111+randint(111), "a Scroll of Chaos");
+				take_hit(111+randint(111), "a Scroll of Primal Chaos");
 			ident = TRUE;
 			break;
 		}
@@ -1970,7 +1969,7 @@ void do_cmd_use_staff(int item)
 
 	case SV_STAFF_CURE_LIGHT:
 		{
-			if (hp_player(randint(8))) ident = TRUE;
+			if (hp_player(randint(10)+25)) ident = TRUE;
 			break;
 		}
 

@@ -384,14 +384,14 @@ static bool object_easy_know(int i)
 	switch (k_ptr->tval)
 	{
 		/* Spellbooks */
-	case TV_LIFE_BOOK:
+	case TV_MIRACLES_BOOK:
 	case TV_SORCERY_BOOK:
 	case TV_NATURE_BOOK:
-	case TV_CHAOS_BOOK:
+	case TV_DEMONIC_BOOK:
 	case TV_DEATH_BOOK:
 	case TV_PLANAR_BOOK:
-	case TV_FOLK_BOOK:
-	case TV_CORPOREAL_BOOK:
+	case TV_CHARMS_BOOK:
+	case TV_SOMATIC_BOOK:
 		{
 			return (TRUE);
 		}
@@ -547,7 +547,7 @@ static byte default_tval_to_attr(int tval)
 			return (TERM_GREEN);
 		}
 
-	case TV_LIFE_BOOK:
+	case TV_MIRACLES_BOOK:
 		{
 			return (TERM_WHITE);
 		}
@@ -562,7 +562,7 @@ static byte default_tval_to_attr(int tval)
 			return (TERM_L_GREEN);
 		}
 
-	case TV_CHAOS_BOOK:
+	case TV_DEMONIC_BOOK:
 		{
 			return (TERM_L_RED);
 		}
@@ -574,11 +574,11 @@ static byte default_tval_to_attr(int tval)
 		{
 			return (TERM_ORANGE);
 		}
-	case TV_FOLK_BOOK:
+	case TV_CHARMS_BOOK:
 		{
 			return (TERM_L_WHITE);
 		}
-	case TV_CORPOREAL_BOOK:
+	case TV_SOMATIC_BOOK:
 		{
 			return (TERM_YELLOW);
 		}
@@ -1627,21 +1627,21 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 		/* Magic Books */
-	case TV_LIFE_BOOK:
+	case TV_MIRACLES_BOOK:
 		{
 			modstr = basenm;
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Life Magic #";
+			if (mp_ptr->spell_book == TV_MIRACLES_BOOK)
+				basenm = "& Book~ of Miracles #";
 			else
 
-				basenm = "& Life Spellbook~ #";
+				basenm = "& Book~ of Miracles #";
 			break;
 		}
 
 	case TV_SORCERY_BOOK:
 		{
 			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
+			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
 				basenm = "& Book~ of Sorcery #";
 			else
 				basenm = "& Sorcery Spellbook~ #";
@@ -1651,26 +1651,26 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	case TV_NATURE_BOOK:
 		{
 			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
+			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
 				basenm = "& Book~ of Nature Magic #";
 			else
 				basenm = "& Nature Spellbook~ #";
 			break;
 		}
 
-	case TV_CHAOS_BOOK:
+	case TV_DEMONIC_BOOK:
 		{
 			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Chaos Magic #";
+			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
+				basenm = "& Book~ of the Damned #";
 			else
-				basenm = "& Chaos Spellbook~ #";
+				basenm = "& Demonic Spellbook~ #";
 			break;
 		}
 	case TV_DEATH_BOOK:
 		{
 			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
+			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
 				basenm = "& Book~ of Death Magic #";
 			else
 				basenm = "& Death Spellbook~ #";
@@ -1681,30 +1681,30 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	case TV_PLANAR_BOOK:
 		{
 			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
+			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
 				basenm = "& Book~ of Planar Magic #";
 			else
 				basenm = "& Planar Spellbook~ #";
 			break;
 		}
 
-	case TV_FOLK_BOOK:
+	case TV_CHARMS_BOOK:
 		{
 			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Folk Magic #";
+			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
+				basenm = "& Book~ of Charms #";
 			else
-				basenm = "& Folk Spellbook~ #";
+				basenm = "& Book~ of Charms #";
 			break;
 		}
 
-	case TV_CORPOREAL_BOOK:
+	case TV_SOMATIC_BOOK:
 		{
 			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Corporeal Magic #";
+			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
+				basenm = "& Book~ of Somatic Magic #";
 			else
-				basenm = "& Corporeal Spellbook~ #";
+				basenm = "& Somatic Spellbook~ #";
 			break;
 		}
 
@@ -3715,7 +3715,7 @@ bool item_tester_okay(object_type *o_ptr)
 	if (item_tester_tval)
 	{
 		/* Is it a spellbook? If so, we need a hack -- TY */
-		if (item_tester_tval<=TV_DEATH_BOOK && item_tester_tval>=TV_LIFE_BOOK)
+		if (item_tester_tval<=TV_DEATH_BOOK && item_tester_tval>=TV_MIRACLES_BOOK)
 			return check_book_realm(o_ptr->tval);
 		else
 			if (!(item_tester_tval == o_ptr->tval)) return (FALSE);

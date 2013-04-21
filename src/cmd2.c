@@ -240,37 +240,42 @@ void do_cmd_go_down(void)
 				go_down = TRUE;
 			}
 		}
+
 		if (go_down)
 		{
 			energy_use = 0;
+
 			if (fall_trap)
 			{
 				msg_print("You deliberately jump through the trap door.");
 			}
 			else
 			{
-				/* Success */
 				/* Check for entering a dungeon */
-				if(dun_level==0 && (p_ptr->visits & (0x1<<dun_level)) == 0  )
+				if ((p_ptr->visits & (0x1 << dun_level)) == 0)
 				{
-					msg_print("You enter the sewers of Volterra.");
-					msg_print( NULL );
-					/* Show the appropriate file */
-					do_cmd_load_screen( ANGBAND_DIR_FILE ,  "LEVEL1.TXT" );
-					(void)msg_flush_wait();
-					(void)restore_screen();
-					p_ptr->visits |= (0x1<<dun_level) ;
+					const char *msg = NULL;
+
+					if (dun_level == 0)
+						msg = "You enter the sewers of Volterra.";
+					else if (dun_level == 1)
+						msg = "You descend into the lower levels of Hell.";
+
+					if (msg)
+					{
+						msg_print(msg);
+						msg_print(NULL);
+
+						/* Show the appropriate file */
+						do_cmd_load_screen(ANGBAND_DIR_FILE, 
+						            format("level%d.txt", dun_level + 1));
+
+						(void)msg_flush_wait();
+						(void)restore_screen();
+						p_ptr->visits |= (0x1 << dun_level);
+					}
 				}
-				if(dun_level==1 && (p_ptr->visits & (0x1<<dun_level)) == 0  )
-				{
-					msg_print("You descend into the lower levels of Hell");
-					msg_print( NULL );
-					/* Show the appropriate file */
-					do_cmd_load_screen( ANGBAND_DIR_FILE ,  "LEVEL2.TXT" );
-					(void)msg_flush_wait();
-					(void)restore_screen();
-					p_ptr->visits |= (0x1<<dun_level) ;
-				}				
+
 				/* Now actually go down */
 				if (autosave_l)
 				{
@@ -661,6 +666,8 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 	cave_type *c_ptr;
 
 	bool more = FALSE;
+	
+	(void)dir; /* I prefer to acknowledge oddness than break interfaces */
 
 	/* Take a turn */
 	energy_use = 100;
@@ -868,6 +875,8 @@ static bool do_cmd_close_aux(int y, int x, int dir)
 
 	bool		more = FALSE;
 
+	(void)dir; /* I prefer to acknowledge oddness than break interfaces */
+	
 	/* Take a turn */
 	energy_use = 100;
 
@@ -1027,6 +1036,8 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 
 	bool more = FALSE;
 
+	(void)dir; /* I prefer to acknowledge oddness than break interfaces */
+	
 	/* Take a turn */
 	energy_use = 100;
 
@@ -1406,6 +1417,10 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	bool more = FALSE;
 
 	object_type *o_ptr = &o_list[o_idx];
+	
+	char o_name[80];
+	
+	char out_val[160];
 
 
 	/* Take a turn */
@@ -1433,19 +1448,27 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	/* Already disarmed/unlocked */
 	else if (o_ptr->pval <= 0)
 	{
-		msg_print("The chest is not trapped.");
-	}
+		/* Message */	
+		object_desc(o_name, o_ptr, TRUE, 3);
+		sprintf(out_val, "There are no traps on %s.", o_name);						
+		msg_print(out_val);	}
 
 	/* No traps to find. */
 	else if (!chest_traps[o_ptr->pval])
 	{
-		msg_print("The chest is not trapped.");
+		/* Message */	
+		object_desc(o_name, o_ptr, TRUE, 3);
+		sprintf(out_val, "There are no traps on %s.", o_name);						
+		msg_print(out_val);
 	}
 
 	/* Success (get a lot of experience) */
 	else if (rand_int(100) < j)
 	{
-		msg_print("You have disarmed the chest.");
+		/* Message */	
+		object_desc(o_name, o_ptr, TRUE, 3);
+		sprintf(out_val, "You have disarmed %s.", o_name);						
+		msg_print(out_val);
 		gain_exp(o_ptr->pval);
 		o_ptr->pval = (0 - o_ptr->pval);
 	}
@@ -1456,7 +1479,10 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 		/* We may keep trying */
 		more = TRUE;
 		if (flush_failure) flush();
-		msg_print("You failed to disarm the chest.");
+		/* Message */	
+		object_desc(o_name, o_ptr, TRUE, 3);
+		sprintf(out_val, "You failed to disarm %s.", o_name);						
+		msg_print(out_val);
 	}
 
 	/* Failure -- Set off the trap */
@@ -3048,7 +3074,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 
 # if 0
 	if (p_ptr->csp < cost) {
-		if ((p_ptr->pclass != CLASS_WARRIOR) && (p_ptr->prace == RACE_VAMPIRE)) {
+		if ((p_ptr->pclass != CLASS_WARRIOR) && (p_ptr->prace == VAMPIRE)) {
 			msg_print("Your powers are too depleted!");
 			return FALSE;
 		} else {
@@ -3127,10 +3153,6 @@ static void cmd_racial_power_aux (void)
 	char ch = 0;
 	int nephilim_power = 0;
 	int dir = 0;
-	int Type = (randint(3)==1?GF_COLD:GF_FIRE);
-	cptr Type_desc = (Type == GF_COLD?"cold":"fire");
-	object_type *q_ptr;
-	object_type forge;
 	int dummy = 0;
 	cave_type *c_ptr;
 	int y = 0, x = 0;
@@ -3138,7 +3160,7 @@ static void cmd_racial_power_aux (void)
 
 	switch(p_ptr->prace)
 	{
-	case RACE_DWARF:
+	case DWARF:
 		if (racial_aux(5, 5, A_WIS, 12))
 		{
 			msg_print("You examine your surroundings.");
@@ -3147,47 +3169,24 @@ static void cmd_racial_power_aux (void)
 			(void)detect_stairs();
 		}
 		break;
-	case RACE_HOBBIT:
-		if (racial_aux(15,10,A_INT,10))
-		{
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Create the item */
-			object_prep(q_ptr, 21);
-
-			/* Drop the object from heaven */
-			drop_near(q_ptr, -1, py, px);
-			msg_print("You cook some food.");
-		}
-		break;
-	case RACE_GNOME:
+	case GNOME: case LEPRECHAUN:
 		if (racial_aux(5, (5+(plev/5)), A_INT, 12))
 		{
 			msg_print("Blink!");
 			teleport_player(10 + (plev));
 		}
 		break;
-	case RACE_HALF_ORC:
-		if (racial_aux(3, 5, A_WIS,
-			(p_ptr->pclass == CLASS_WARRIOR?5:10)))
-		{
-			msg_print("You play tough.");
-			(void)set_afraid(0);
-		}
-		break;
-	case RACE_HALF_TROLL:
+	case TROLL:
 		if (racial_aux(10, 12, A_WIS,
 			(p_ptr->pclass == CLASS_WARRIOR?6:12)))
 		{
 			msg_print("RAAAGH!");
 			(void)set_afraid(0);
-
 			(void)set_shero(p_ptr->shero + 10 + randint(plev));
 			(void)hp_player(30);
 		}
 		break;
-	case RACE_NEPHILIM:
+	case NEPHILIM:
 		/* Select power to use */
 		while (TRUE)
 		{
@@ -3196,8 +3195,6 @@ static void cmd_racial_power_aux (void)
 				nephilim_power = 0;
 				break;
 			}
-
-
 			if (ch == 'G' || ch == 'g')
 			{
 				nephilim_power = 1;
@@ -3208,7 +3205,6 @@ static void cmd_racial_power_aux (void)
 				nephilim_power = 2;
 				break;
 			}
-
 		}
 		if (nephilim_power == 1)
 		{
@@ -3248,25 +3244,25 @@ static void cmd_racial_power_aux (void)
 			}
 		}
 		break;
-	case RACE_BARBARIAN:
+	case NORDIC:
 		if (racial_aux(8, 10, A_WIS,
 			(p_ptr->pclass == CLASS_WARRIOR?6:12)))
 		{
-			msg_print("Raaagh!");
+			msg_print("You summon a berserker rage!");
 			(void)set_afraid(0);
 
 			(void)set_shero(p_ptr->shero + 10 + randint(plev));
 			(void)hp_player(30);
 		}
 		break;
-	case RACE_HALF_OGRE:
+	case OGRE:
 		if (racial_aux(25, 35, A_INT, 15))
 		{
 			msg_print("You carefully set an explosive rune...");
 			explosive_rune();
 		}
 		break;
-	case RACE_HALF_GIANT:
+	case GIANT:
 		if (racial_aux(20, 10, A_STR, 12))
 		{
 			if (!get_aim_dir(&dir)) break;
@@ -3274,14 +3270,15 @@ static void cmd_racial_power_aux (void)
 			(void)wall_to_mud(dir);
 		}
 		break;
-	case RACE_HALF_TITAN:
+	case TITAN:
 		if (racial_aux(35, 20, A_INT, 12))
 		{
 			msg_print("You examine your foes...");
 			probing();
 		}
 		break;
-	case RACE_CYCLOPS:
+/* One day I might need boulder throwing code
+	case :
 		if (racial_aux(20, 15, A_STR, 12))
 		{
 			if (!get_aim_dir(&dir)) break;
@@ -3289,7 +3286,9 @@ static void cmd_racial_power_aux (void)
 			fire_bolt(GF_MISSILE, dir, (3 * p_ptr->lev) / 2);
 		}
 		break;
-	case RACE_YEEK:
+*/
+/*One day I might need screaming code
+	case :
 		if (racial_aux(15, 15, A_WIS, 10))
 		{
 			if (!get_aim_dir(&dir)) break;
@@ -3297,18 +3296,9 @@ static void cmd_racial_power_aux (void)
 			(void)fear_monster(dir, plev);
 		}
 		break;
-	case RACE_KLACKON:
-		if (racial_aux(9, 9, A_DEX, 14))
-		{
-			if (!(get_aim_dir(&dir))) break;
-			msg_print("You spit acid.");
-			if (p_ptr->lev < 25)
-				fire_bolt(GF_ACID, dir, plev);
-			else
-				fire_ball(GF_ACID, dir, plev, 2);
-		}
-		break;
-	case RACE_KOBOLD:
+*/		
+
+	case KOBOLD:
 		if (racial_aux(12, 8, A_DEX, 14))
 		{
 			if(!get_aim_dir(&dir)) break;
@@ -3316,16 +3306,7 @@ static void cmd_racial_power_aux (void)
 			fire_bolt(GF_POIS, dir, plev);
 		}
 		break;
-	case RACE_NIBELUNG:
-		if (racial_aux(10, 5, A_WIS, 10))
-		{
-			msg_print("You examine your surroundings.");
-			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
-		}
-		break;
-	case RACE_DARK_ELF:
+	case ATLANTIAN:
 		if (racial_aux(2, 2, A_INT, 9))
 		{
 			if (!get_aim_dir(&dir)) break;
@@ -3334,107 +3315,7 @@ static void cmd_racial_power_aux (void)
 				damroll(3 + ((plev - 1) / 5), 4));
 		}
 		break;
-	case RACE_DRACONIAN:
-		if (randint(100)<p_ptr->lev)
-		{
-			switch (p_ptr->pclass)
-			{
-			case CLASS_WARRIOR: case CLASS_RANGER: case CLASS_DRUID:
-				if (randint(3)==1)
-				{
-					Type = GF_MISSILE;
-					Type_desc = "the elements";
-				}
-				else
-				{
-					Type = GF_SHARDS;
-					Type_desc = "shards";
-				}
-				break;
-			case CLASS_MAGE: case CLASS_WARRIOR_MAGE:
-			case CLASS_HIGH_MAGE:
-				if (randint(3)==1)
-				{
-					Type = GF_MANA;
-					Type_desc = "mana";
-				}
-				else
-				{
-					Type = GF_DISENCHANT;
-					Type_desc = "disenchantment";
-				}
-				break;
-			case CLASS_DIABOLIST: case CLASS_DEMONOLOGIST:
-				if (randint(3)!=1)
-				{
-					Type = GF_CONFUSION;
-					Type_desc = "confusion";
-				}
-				else
-				{
-					Type = GF_CHAOS;
-					Type_desc = "chaos";
-				}
-				break;
-			case CLASS_MYSTIC:
-				if (randint(3)!=1)
-				{
-					Type = GF_CONFUSION;
-					Type_desc = "confusion";
-				}
-				else
-				{
-					Type = GF_SOUND;
-					Type_desc = "sound";
-				}
-				break;
-			case CLASS_MINDCRAFTER:
-				if (randint(3)!=1)
-				{
-					Type = GF_CONFUSION;
-					Type_desc = "confusion";
-				}
-				else
-				{
-					Type = GF_PSI;
-					Type_desc = "mental energy";
-				}
-				break;
-			case CLASS_PRIEST: case CLASS_PALADIN:
-				if (randint(3)==1)
-				{
-					Type = GF_HELL_FIRE;
-					Type_desc = "hellfire";
-				}
-				else
-				{
-					Type = GF_HOLY_FIRE;
-					Type_desc = "holy fire";
-				}
-				break;
-			case CLASS_ROGUE:
-				if (randint(3)==1)
-				{
-					Type = GF_DARK;
-					Type_desc = "darkness";
-				}
-				else
-				{
-					Type = GF_POIS;
-					Type_desc = "poison";
-				}
-				break;
-			}
-		}
-		if (racial_aux(1, p_ptr->lev, A_CON, 12))
-		{
-			if (!get_aim_dir(&dir)) break;
-			msg_format("You breathe %s.", Type_desc);
-			fire_ball(Type, dir, (p_ptr->lev)*2,
-				-((p_ptr->lev)/15) + 1);
-		}
-		break;
-	case RACE_MIND_FLAYER:
+	case HORROR:
 		if (racial_aux(15, 12, A_INT, 14))
 		{
 			if (!get_aim_dir(&dir)) break;
@@ -3445,7 +3326,7 @@ static void cmd_racial_power_aux (void)
 			}
 		}
 		break;
-	case RACE_IMP:
+	case IMP:
 		if (racial_aux(9, 15, A_WIS, 15))
 		{
 			if (!get_aim_dir(&dir)) break;
@@ -3461,13 +3342,13 @@ static void cmd_racial_power_aux (void)
 			}
 		}
 		break;
-	case RACE_GOLEM:
+	case GUARDIAN:
 		if (racial_aux(20, 15, A_CON, 8))
 		{
 			(void)set_shield(p_ptr->shield + randint(20) + 30);
 		}
 		break;
-	case RACE_SKELETON: case RACE_ZOMBIE:
+	case SKELETON: case MUMMY:
 		if (racial_aux(30, 30, A_WIS, 18))
 		{
 			msg_print("You attempt to restore your lost energies.");
@@ -3475,7 +3356,7 @@ static void cmd_racial_power_aux (void)
 		}
 		break;
 
-	case RACE_VAMPIRE:
+	case VAMPIRE:
 		if (racial_aux(2, (1+(plev/3)), A_CON, 9))
 		{
 			/* Only works on adjacent monsters */
@@ -3508,7 +3389,7 @@ static void cmd_racial_power_aux (void)
 		}
 		break;
 
-	case RACE_SPECTRE:
+	case SPECTRE:
 		if (racial_aux(4, 6, A_INT, 3))
 		{
 			msg_print("You emit an eldritch howl!");
@@ -3516,7 +3397,7 @@ static void cmd_racial_power_aux (void)
 			(void)fear_monster(dir, plev);
 		}
 		break;
-	case RACE_SPRITE:
+	case FAE:
 		if (racial_aux(12, 12, A_INT, 15))
 		{
 			msg_print("You throw some magic dust...");
@@ -3559,7 +3440,6 @@ void do_cmd_racial_power(void)
 	char            out_val[160];
 
 	int lvl = p_ptr->lev;
-	bool warrior = ((p_ptr->pclass == CLASS_WARRIOR)?TRUE:FALSE);
 
 	int pets = 0, pet_ctr = 0;
 	bool all_pets = FALSE;
@@ -3568,6 +3448,12 @@ void do_cmd_racial_power(void)
 	bool has_racial = FALSE;
 
 	cptr racial_power = "(none)";
+	
+	/* 3 vars nicked from cmd_racial_power_aux to make the birth ability of the Morui work */
+	s16b plev = p_ptr->lev;
+	int Type = (randint(3)==1?GF_COLD:GF_FIRE);
+	cptr Type_desc = (Type == GF_COLD?"cold":"fire");
+	
 
 	for (num = 0; num < 36; num++)
 	{
@@ -3587,171 +3473,136 @@ void do_cmd_racial_power(void)
 	switch (p_ptr->prace)
 	{
 
-	case RACE_DWARF:
+	case DWARF:
 		if (lvl < 5)
 			racial_power = "detect doors+traps (racial, unusable until level 5)";
 		else
 			racial_power = "detect doors+traps (racial, cost 5, WIS based)";
 		has_racial = TRUE;
 		break;
-	case RACE_NIBELUNG:
-		if (lvl < 5)
-			racial_power = "detect doors+traps (racial, WIS based, unusable until level 5)";
-		else
-			racial_power = "detect doors+traps (racial, cost 5, WIS based)";
-		has_racial = TRUE;
-		break;
-	case RACE_HOBBIT:
-		if (lvl < 15)
-			racial_power = "create food        (racial, unusable until level 15)";
-		else
-			racial_power = "create food        (racial, cost 10, INT based)";
-		has_racial = TRUE;
-		break;
-	case RACE_GNOME:
+	case GNOME: case LEPRECHAUN:
 		if (lvl < 5)
 			racial_power = "teleport           (racial, unusable until level 5)";
 		else
 			racial_power = "teleport           (racial, cost 5 + lvl/5, INT based)";
 		has_racial = TRUE;
 		break;
-	case RACE_HALF_ORC:
-		if (lvl < 3)
-			racial_power = "remove fear        (racial, unusable until level 3)";
-		else if (warrior)
-			racial_power = "remove fear        (racial, cost 5, WIS based)";
-		else
-			racial_power = "remove fear        (racial, cost 5, WIS based)";
-		has_racial = TRUE;
-		break;
-	case RACE_HALF_TROLL:
+	case TROLL:
 		if (lvl < 10)
 			racial_power = "berserk            (racial, unusable until level 10)";
-		else if (warrior)
-			racial_power = "berserk            (racial, cost 12, WIS based)";
 		else
 			racial_power = "berserk            (racial, cost 12, WIS based)";
 		has_racial = TRUE;
 		break;
-	case RACE_BARBARIAN:
+	case NORDIC:
 		if (lvl < 8)
 			racial_power = "berserk            (racial, unusable until level 8)";
-		else if (warrior)
-			racial_power = "berserk            (racial, cost 10, WIS based)";
 		else
 			racial_power = "berserk            (racial, cost 10, WIS based)";
 		has_racial = TRUE;
 		break;
-	case RACE_NEPHILIM:
+	case NEPHILIM:
 		if (lvl < 30)
 			racial_power = "divine powers    (unusable until level 30/40)";
 		else
 			racial_power = "divine powers    (racial, cost 50/75, INT/WIS based)";
 		has_racial = TRUE;
 		break;
-	case RACE_HALF_OGRE:
+	case OGRE:
 		if (lvl < 25)
 			racial_power = "explosive rune     (racial, unusable until level 25)";
 		else
 			racial_power = "explosive rune     (racial, cost 35, INT based)";
 		has_racial = TRUE;
 		break;
-	case RACE_HALF_GIANT:
+	case GIANT:
 		if (lvl < 20)
 			racial_power = "stone to mud       (racial, unusable until level 20)";
 		else
 			racial_power = "stone to mud       (racial, cost 10, STR based)";
 		has_racial = TRUE;
 		break;
-	case RACE_HALF_TITAN:
+	case TITAN:
 		if (lvl < 35)
 			racial_power = "probing            (racial, unusable until level 35)";
 		else
 			racial_power = "probing            (racial, cost 20, INT based)";
 		has_racial = TRUE;
 		break;
-	case RACE_CYCLOPS:
+/*		
+	case :
 		if (lvl < 20)
 			racial_power = "throw boulder      (racial, unusable until level 20)";
 		else
 			racial_power = "throw boulder      (racial, cost 15, dam 3*lvl, STR based)";
 		has_racial = TRUE;
 		break;
-	case RACE_YEEK:
+	case :
 		if (lvl < 15)
 			racial_power = "scare monster      (racial, unusable until level 15)";
 		else
 			racial_power = "scare monster      (racial, cost 15, WIS based)";
 		has_racial = TRUE;
 		break;
-	case RACE_SPECTRE:
+*/
+	case SPECTRE:
 		if (lvl < 4)
 			racial_power = "scare monster      (racial, unusable until level 4)";
 		else
 			racial_power = "scare monster      (racial, cost 3, INT based)";
 		has_racial = TRUE;
 		break;
-	case RACE_KLACKON:
-		if (lvl < 9)
-			racial_power = "spit acid          (racial, unusable until level 9)";
-		else
-			racial_power = "spit acid          (racial, cost 9, dam lvl, DEX based)";
-		has_racial = TRUE;
-		break;
-	case RACE_KOBOLD:
+	case KOBOLD:
 		if (lvl < 12)
 			racial_power = "poison dart        (racial, unusable until level 12)";
 		else
 			racial_power = "poison dart        (racial, cost 8, dam lvl, DEX based)";
 		has_racial = TRUE;
 		break;
-	case RACE_DARK_ELF:
+	case ATLANTIAN:
 		if (lvl < 2)
 			racial_power = "magic missile      (racial, unusable until level 2)";
 		else
 			racial_power = "magic missile      (racial, cost 2, INT based)";
 		has_racial = TRUE;
 		break;
-	case RACE_DRACONIAN:
-		racial_power = "breath weapon      (racial, cost lvl, dam 2*lvl, CON based)";
-		has_racial = TRUE;
-		break;
-	case RACE_MIND_FLAYER:
+
+	case HORROR:
 		if (lvl < 15)
 			racial_power = "mind blast         (racial, unusable until level 15)";
 		else
 			racial_power = "mind blast         (racial, cost 12, dam lvl, INT based)";
 		has_racial = TRUE;
 		break;
-	case RACE_IMP:
+	case IMP:
 		if (lvl < 9)
 			racial_power = "fire bolt/ball     (racial, unusable until level 9/30)";
 		else
 			racial_power = "fire bolt/ball(30) (racial, cost 15, dam lvl, WIS based)";
 		has_racial = TRUE;
 		break;
-	case RACE_GOLEM:
+	case GUARDIAN:
 		if (lvl < 20)
 			racial_power = "stone skin         (racial, unusable until level 20)";
 		else
 			racial_power = "stone skin         (racial, cost 15, dur 30+d20, CON based)";
 		has_racial = TRUE;
 		break;
-	case RACE_SKELETON: case RACE_ZOMBIE:
+	case SKELETON: case MUMMY:
 		if (lvl < 30)
 			racial_power = "restore life       (racial, unusable until level 30)";
 		else
 			racial_power = "restore life       (racial, cost 30, WIS based)";
 		has_racial = TRUE;
 		break;
-	case RACE_VAMPIRE:
+	case VAMPIRE:
 		if (lvl < 2)
 			racial_power = "drain life         (racial, unusable until level 2)";
 		else
 			racial_power = "drain life         (racial, cost 1 + lvl/3, based)";
 		has_racial = TRUE;
 		break;
-	case RACE_SPRITE:
+	case FAE:
 		if (lvl < 12)
 			racial_power = "sleeping dust      (racial, unusable until level 12)";
 		else
@@ -3760,7 +3611,7 @@ void do_cmd_racial_power(void)
 		break;
 	}
 
-	if (!(has_racial) && !(p_ptr->muta1))
+	if (!(has_racial) && !(p_ptr->muta1) && !(p_ptr->psign))
 	{
 		msg_print("You have no powers to activate.");
 		energy_use = 0;
@@ -3773,6 +3624,33 @@ void do_cmd_racial_power(void)
 		strcpy(power_desc[0], racial_power);
 		num++;
 	}
+	
+	if(p_ptr->psign)
+	{
+		switch (p_ptr->psign)
+		{
+		case SIGN_PLUTUS:
+			if (lvl < 5)
+				strcpy(power_desc[num], "detect doors+traps (unusable until level 5)" );
+			else
+				strcpy(power_desc[num], "detect doors+traps (cost 5, WIS based)" );
+				powers[num++] = ABILITY_DETECT_DOOR_TRAPS;
+			break;
+		case SIGN_MORUI:
+			if (lvl < 9)
+				strcpy(power_desc[num], "spit acid          (unusable until level 9)" );
+			else
+				strcpy(power_desc[num], "spit acid          (cost 9, dam lvl, DEX based)" );
+				powers[num++] = ABILITY_SPIT_ACID;
+			break;	
+		case SIGN_DRACO:
+			strcpy(power_desc[num],"breath weapon      (cost lvl, dam 2*lvl, CON based)");
+				powers[num++] = ABILITY_BREATHE_ELEMENTS;
+			msg_format("You can do %d.", ABILITY_BREATHE_ELEMENTS);
+			break;
+		}
+	}
+	
 
 	if (p_ptr->muta1)
 	{
@@ -4215,6 +4093,126 @@ void do_cmd_racial_power(void)
 
 		switch (powers[i])
 		{
+		case ABILITY_SPIT_ACID:
+			if (racial_aux(9, 9, A_DEX, 14))
+			{
+				if (!(get_aim_dir(&dir))) break;
+				msg_print("You spit acid.");
+				if (p_ptr->lev < 25)
+					fire_bolt(GF_ACID, dir, plev);
+				else
+					fire_ball(GF_ACID, dir, plev, 2);
+			}
+			break;
+		case ABILITY_BREATHE_ELEMENTS:
+			if (randint(100)<p_ptr->lev)
+			{
+				switch (p_ptr->pclass)
+				{
+					case CLASS_WARRIOR: case CLASS_RANGER: case CLASS_DRUID:
+						if (randint(3)==1)
+						{
+							Type = GF_MISSILE;
+							Type_desc = "the elements";
+						}
+						else
+						{
+							Type = GF_SHARDS;
+							Type_desc = "shards";
+						}
+						break;
+					case CLASS_MAGE: case CLASS_WARRIOR_MAGE:
+					case CLASS_HIGH_MAGE:
+						if (randint(3)==1)
+						{
+							Type = GF_MANA;
+							Type_desc = "mana";
+						}
+						else
+						{
+							Type = GF_DISENCHANT;
+							Type_desc = "disenchantment";
+						}
+						break;
+					case CLASS_HELL_KNIGHT: case CLASS_WARLOCK:
+						if (randint(3)!=1)
+						{
+							Type = GF_CONFUSION;
+							Type_desc = "confusion";
+						}
+						else
+						{
+							Type = GF_CHAOS;
+							Type_desc = "chaos";
+						}
+						break;
+					case CLASS_MYSTIC:
+						if (randint(3)!=1)
+						{
+							Type = GF_CONFUSION;
+							Type_desc = "confusion";
+						}
+						else
+						{
+							Type = GF_SOUND;
+							Type_desc = "sound";
+						}
+						break;
+					case CLASS_MINDCRAFTER:
+						if (randint(3)!=1)
+						{
+							Type = GF_CONFUSION;
+							Type_desc = "confusion";
+						}
+						else
+						{
+							Type = GF_PSI;
+							Type_desc = "mental energy";
+						}
+						break;
+					case CLASS_PRIEST: case CLASS_PALADIN:
+						if (randint(3)==1)
+						{
+							Type = GF_HELL_FIRE;
+							Type_desc = "hellfire";
+						}
+						else
+						{
+							Type = GF_HOLY_FIRE;
+							Type_desc = "holy fire";
+						}
+						break;
+					case CLASS_ROGUE:
+						if (randint(3)==1)
+						{
+							Type = GF_DARK;
+							Type_desc = "darkness";
+						}
+						else
+						{
+							Type = GF_POIS;
+							Type_desc = "poison";
+						}
+						break;
+				}
+			}
+			if (racial_aux(1, p_ptr->lev, A_CON, 12))
+			{
+				if (!get_aim_dir(&dir)) break;
+				msg_format("You breathe %s.", Type_desc);
+				fire_ball(Type, dir, (p_ptr->lev)*2,
+						  -((p_ptr->lev)/15) + 1);
+			}
+			break;
+		case ABILITY_DETECT_DOOR_TRAPS:
+			if (racial_aux(5, 5, A_WIS, 12))
+			{
+				msg_print("You examine your surroundings.");
+				(void)detect_traps();
+				(void)detect_doors();
+				(void)detect_stairs();
+			}
+			break;	
 		case COR1_SPIT_ACID:
 			if (racial_aux(9, 9, A_DEX, 15))
 			{

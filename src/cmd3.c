@@ -435,8 +435,8 @@ void do_cmd_drop(void)
 
 static bool high_level_book(object_type * o_ptr)
 {
-	if ((o_ptr->tval == TV_LIFE_BOOK) || (o_ptr->tval == TV_SORCERY_BOOK) ||
-		(o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_CHAOS_BOOK) ||
+	if ((o_ptr->tval == TV_MIRACLES_BOOK) || (o_ptr->tval == TV_SORCERY_BOOK) ||
+		(o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_DEMONIC_BOOK) ||
 		(o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_PLANAR_BOOK))
 	{
 		if (o_ptr->sval>1) return TRUE;
@@ -619,11 +619,11 @@ void do_cmd_destroy(void)
 		{
 			if (p_ptr->realm1 == 1)
 			{
-				if (o_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
+				if (o_ptr->tval != TV_MIRACLES_BOOK) gain_expr = TRUE;
 			}
 			else
 			{
-				if (o_ptr->tval == TV_LIFE_BOOK) gain_expr = TRUE;
+				if (o_ptr->tval == TV_MIRACLES_BOOK) gain_expr = TRUE;
 			}
 		}
 
@@ -1794,10 +1794,10 @@ void do_cmd_handle(void)
 			do_cmd_eat_food(item);
 			break;
 		}
-	case TV_LIFE_BOOK:case TV_SORCERY_BOOK:
-	case TV_NATURE_BOOK:case TV_CHAOS_BOOK:
+	case TV_MIRACLES_BOOK:case TV_SORCERY_BOOK:
+	case TV_NATURE_BOOK:case TV_DEMONIC_BOOK:
 	case TV_DEATH_BOOK:case TV_PLANAR_BOOK:
-	case TV_FOLK_BOOK:case TV_CORPOREAL_BOOK:
+	case TV_CHARMS_BOOK:case TV_SOMATIC_BOOK:
 		{
 			do_cmd_browse(item);
 			break;

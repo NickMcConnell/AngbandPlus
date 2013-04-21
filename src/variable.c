@@ -27,6 +27,7 @@ cptr copyright[5] =
 
 /* The name of the help index file */
 char syshelpfile[20];
+char syshelpfile_birth[20];
 
 /*
 * Executable version
@@ -404,7 +405,7 @@ char died_from[80];
 /*
 * Hack -- Textual "history" for the Player
 */
-char history[4][60];
+char history[4][70];
 
 /*
 * Buffer to hold the current savefile name
@@ -699,7 +700,7 @@ player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
 player_magic *mp_ptr;
-
+player_race *bsp_ptr;
 
 /*
 * More spell info

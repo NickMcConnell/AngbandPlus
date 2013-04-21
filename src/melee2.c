@@ -2895,8 +2895,6 @@ bool make_attack_spell(int m_idx)
 
 	bool no_inate = FALSE;
 
-
-
 	/* Target location */
 	int x = px;
 	int y = py;
@@ -2919,7 +2917,6 @@ bool make_attack_spell(int m_idx)
 	/* Assume "projectable" */
 	bool direct = TRUE;
 
-
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) return (FALSE);
 
@@ -2927,7 +2924,13 @@ bool make_attack_spell(int m_idx)
 	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
 	if (m_ptr->smart & (SM_ALLY)) return (FALSE);
 
-
+	/*And if we are dealing with a dragon, then that dragon has a change of mind*/
+	if( (r_ptr->d_char == 'D' || r_ptr->d_char == 'd' ) && p_ptr->psign == SIGN_DRACO  )
+	{
+		msg_format("%^s recognizes your birthright." , m_name);
+		m_ptr->smart |= SM_ALLY;
+		return (FALSE);
+	}
 
 	/* Hack -- Extract the spell probability */
 	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;

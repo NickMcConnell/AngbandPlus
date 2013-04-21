@@ -25,8 +25,8 @@ ifeq ($(NATIVE),unix-gcc)
   # Rememeber to have the ncurses dev headers installed if you want to compile!
 
   CC = ccache gcc
-  CFLAGS = -ggdb -DUSE_GCU -USE_NCURSES -DHAVE_MKSTEMP
-  LIBS = -lncurses
+  CFLAGS = -ggdb -DUSE_GCU -USE_NCURSES -DHAVE_MKSTEMP -DUSE_X11
+  LIBS = -lncurses -lX11
 
 endif
 
@@ -82,21 +82,43 @@ endif
 
 ifeq ($(WARNINGS),all)
 
-  WARNING = -Wbad-function-cast -Wmissing-declarations -Wmissing-prototypes -Wnested-externs \
-    -Wold-style-definition -Wstrict-prototypes -Wtraditional -Wdeclaration-after-statement \
-    -Wno-pointer-sign -fsyntax-only -pedantic -w -Wextra -Wall -Waggregate-return -Wcast-align \
-    -Wcast-qual  -Wchar-subscripts  -Wcomment -Wconversion  -Wno-deprecated-declarations \
-    -Wno-div-by-zero -Wno-endif-labels -Werror-implicit-function-declaration -Wfloat-equal \
-    -Wformat=2 -Wno-format-extra-args -Wformat-nonliteral -Wformat-security -Wformat-y2k \
-    -Wimplicit -Wimplicit-function-declaration  -Wimplicit-int -Wimport -Wno-import \
-    -Winit-self -Winline -Winvalid-pch -Wlong-long \
-    -Wmain -Wmissing-braces -Wmissing-field-initializers -Wmissing-format-attribute \
-    -Wmissing-include-dirs -Wmissing-noreturn -Wno-multichar -Wnonnull -Wpacked -Wpadded \
-    -Wparentheses -Wpointer-arith -Wredundant-decls -Wreturn-type -Wsequence-point -Wshadow \
-    -Wsign-compare -Wstrict-aliasing=2 -Wswitch -Wswitch-default -Wswitch-enum -Wsystem-headers \
-    -Wtrigraphs -Wundef -Wuninitialized -Wunknown-pragmas -Wunreachable-code -Wunused \
-    -Wunused-function -Wunused-label -Wunused-parameter -Wunused-value -Wunused-variable \
-    -Wwrite-strings -Wvariadic-macros -std=iso9899:199409
+  ifeq ($(FOREIGN),win-mingw32-primitive)
+
+    WARNING = -Wbad-function-cast -Wmissing-declarations -Wmissing-prototypes -Wnested-externs \
+      -Wold-style-definition -Wstrict-prototypes -Wtraditional -Wdeclaration-after-statement \
+      -fsyntax-only -pedantic -w -Wextra -Wall -Waggregate-return -Wcast-align \
+      -Wcast-qual  -Wchar-subscripts  -Wcomment -Wconversion  -Wno-deprecated-declarations \
+      -Wno-div-by-zero -Wno-endif-labels -Werror-implicit-function-declaration -Wfloat-equal \
+      -Wformat=2 -Wno-format-extra-args -Wformat-nonliteral -Wformat-security -Wformat-y2k \
+      -Wimplicit -Wimplicit-function-declaration  -Wimplicit-int -Wimport -Wno-import \
+      -Winit-self -Winline -Winvalid-pch -Wlong-long \
+      -Wmain -Wmissing-braces -Wmissing-format-attribute \
+      -Wmissing-noreturn -Wno-multichar -Wnonnull -Wpacked -Wpadded \
+      -Wparentheses -Wpointer-arith -Wredundant-decls -Wreturn-type -Wsequence-point -Wshadow \
+      -Wsign-compare -Wstrict-aliasing=2 -Wswitch -Wswitch-default -Wswitch-enum -Wsystem-headers \
+      -Wtrigraphs -Wundef -Wuninitialized -Wunknown-pragmas -Wunreachable-code -Wunused \
+      -Wunused-function -Wunused-label -Wunused-parameter -Wunused-value -Wunused-variable \
+      -Wwrite-strings -std=iso9899:199409
+	
+  else
+	
+    WARNING = -Wbad-function-cast -Wmissing-declarations -Wmissing-prototypes -Wnested-externs \
+      -Wold-style-definition -Wstrict-prototypes -Wtraditional -Wdeclaration-after-statement \
+      -Wno-pointer-sign -fsyntax-only -pedantic -w -Wextra -Wall -Waggregate-return -Wcast-align \
+      -Wcast-qual  -Wchar-subscripts  -Wcomment -Wconversion  -Wno-deprecated-declarations \
+      -Wno-div-by-zero -Wno-endif-labels -Werror-implicit-function-declaration -Wfloat-equal \
+      -Wformat=2 -Wno-format-extra-args -Wformat-nonliteral -Wformat-security -Wformat-y2k \
+      -Wimplicit -Wimplicit-function-declaration  -Wimplicit-int -Wimport -Wno-import \
+      -Winit-self -Winline -Winvalid-pch -Wlong-long \
+      -Wmain -Wmissing-braces -Wmissing-field-initializers -Wmissing-format-attribute \
+      -Wmissing-include-dirs -Wmissing-noreturn -Wno-multichar -Wnonnull -Wpacked -Wpadded \
+      -Wparentheses -Wpointer-arith -Wredundant-decls -Wreturn-type -Wsequence-point -Wshadow \
+      -Wsign-compare -Wstrict-aliasing=2 -Wswitch -Wswitch-default -Wswitch-enum -Wsystem-headers \
+      -Wtrigraphs -Wundef -Wuninitialized -Wunknown-pragmas -Wunreachable-code -Wunused \
+      -Wunused-function -Wunused-label -Wunused-parameter -Wunused-value -Wunused-variable \
+      -Wwrite-strings -Wvariadic-macros -std=iso9899:199409	
+	
+	endif
 
  # -pedantic-errors -Werror -Wfatal-errors
 
@@ -106,7 +128,7 @@ endif
 
 # Add these warnings to the CFLAGS list
 CFLAGS += $(WARNING)
-
+F_CFLAGS += $(WARNING)
 
 ifdef F_OBJDIR
 

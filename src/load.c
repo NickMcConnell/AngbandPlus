@@ -878,11 +878,12 @@ static void rd_extra(void)
 
 	for (i = 0; i < 4; i++)
 	{
-		rd_string(history[i], 60);
+		rd_string(history[i], 70);
 	}
 
 	/* Class/Race/Gender/Spells */
 	rd_byte(&p_ptr->prace);
+	rd_byte(&p_ptr->psign);	
 	rd_byte(&p_ptr->pclass);
 	rd_byte(&p_ptr->psex);
 	rd_byte(&p_ptr->realm1);
@@ -1635,6 +1636,7 @@ static errr rd_savefile_new_aux(void)
 	/* Important -- Initialize the race/class */
 	rp_ptr = &race_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
+	bsp_ptr = &sign_info[p_ptr->psign];
 
 	/* Important -- Initialize the magic */
 	mp_ptr = &magic_info[p_ptr->pclass];

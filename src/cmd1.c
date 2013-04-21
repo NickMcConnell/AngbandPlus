@@ -210,6 +210,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	u32b f1, f2, f3;
+	
+	(void)tdam; /*This makes me feel odd in the stomach, what is tdam and why am I not using it ??*/
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -290,7 +292,10 @@ void search(void)
 	s16b this_o_idx, next_o_idx = 0;
 
 	cave_type *c_ptr;
-
+	
+	char o_name[80];
+	
+	char out_val[160];
 
 	/* Start with base search ability */
 	chance = p_ptr->skill_srh;
@@ -315,7 +320,7 @@ void search(void)
 				{
 					/* Pick a trap */
 					pick_trap(y, x);
-
+					
 					/* Message */
 					msg_print("You have found a trap.");
 
@@ -357,8 +362,11 @@ void search(void)
 					/* Identify once */
 					if (!object_known_p(o_ptr))
 					{
+						
+						object_desc(o_name, o_ptr, TRUE, 3);
+						sprintf(out_val, "You have discovered a trap on %s ", o_name);						
 						/* Message */
-						msg_print("You have discovered a trap on the chest!");
+						msg_print(out_val);
 
 						/* Know the trap */
 						object_known(o_ptr);
@@ -387,8 +395,9 @@ void carry(int pickup)
 	s16b this_o_idx, next_o_idx = 0;
 
 	char o_name[80];
-
-
+    
+    cptr feel;
+    
 	/* Scan the pile of objects */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -429,7 +438,43 @@ void carry(int pickup)
 		/* Pick up objects */
 		else
 		{
-			/* Describe the object */
+            /*those born under plutus have super pseudo id sense*/
+            if(p_ptr->psign == SIGN_PLUTUS && ! ((object_known_p(o_ptr)) || (o_ptr->ident & IDENT_SENSE)) )
+            {
+                if(p_ptr->lev >= 30)
+                {
+                    /* Identify it fully */
+                    object_aware(o_ptr);
+                    object_known(o_ptr);                    
+                    /* We have "felt" it in every way */
+                    o_ptr->ident |= (IDENT_MENTAL);                    
+                    /* Describe the object again with our new full knowledge */
+                    object_desc(o_name, o_ptr, TRUE, 3);                                        
+                }
+                else if( p_ptr->lev >= 15 )
+                {
+                    /* Identify it fully */
+                    object_aware(o_ptr);
+                    object_known(o_ptr);
+                    /* Describe the object again with our new knowledge */
+                    object_desc(o_name, o_ptr, TRUE, 3);                                                            
+                }
+                else
+                {
+                    /* Check for a feeling */
+                    feel = value_check_aux1(o_ptr);
+                    if(feel)
+                    {
+                        /* We have "felt" it */
+                        o_ptr->ident |= (IDENT_SENSE);
+                        /* Inscribe it textually */
+                        if (!o_ptr->note) o_ptr->note = quark_add(feel);
+                        /* Describe the object again with the added quark */
+                        object_desc(o_name, o_ptr, TRUE, 3);                    
+                    }
+                }
+            }
+  			/* Describe the object */
 			if (!pickup)
 			{
 				msg_format("You see %s.", o_name);
@@ -437,7 +482,7 @@ void carry(int pickup)
 
 			/* If the object is worthless then destroy it instead of picking it up */
 			/* Fix konijn, dont go destroying 'worhtless' artefacts... */
-			else if ((auto_destroy) && (object_value(o_ptr) <= 0) && !artefact_p(o_ptr))
+			else if ((auto_destroy) && (object_value(o_ptr) <= 0) && !artefact_p(o_ptr) && o_ptr->tval!=TV_POTION)
 			{     
 				/* Delete the object */
 				delete_object_idx(this_o_idx);
@@ -1382,7 +1427,7 @@ void py_attack(int y, int x)
 					}
 					if (drain_msg)
 					{
-						msg_format("Your weapon drains life from %s!", m_name);
+						msg_format("Your weapon drained life from %s!", m_name);
 						drain_msg = FALSE;
 					}
 					hp_player(drain_heal);
@@ -1682,7 +1727,7 @@ void move_player(int dir, int do_pickup)
 
 	/* Player can not walk through "permanent walls"... */
 	/* unless in Shadow Form */
-	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE))
+	if ((p_ptr->wraith_form) || (p_ptr->prace == SPECTRE))
 	{
 		p_can_pass_walls = TRUE;
 		if ((cave[y][x].feat >= FEAT_PERM_BUILDING) && (cave[y][x].feat <= FEAT_PERM_SOLID))

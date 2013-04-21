@@ -478,6 +478,9 @@ static errr Term_xtra_gcu_alive(int v)
  */
 static void Term_init_gcu(term *t)
 {
+	/* Unused parameter */
+	(void)t;
+	
 	/* Count init's, handle first */
 	if (active++ != 0) return;
 
@@ -500,6 +503,9 @@ static void Term_init_gcu(term *t)
  */
 static void Term_nuke_gcu(term *t)
 {
+	/* Unused parameter */
+	(void)t;
+	
 	/* Count nuke's, handle last */
 	if (--active != 0) return;
 

@@ -100,14 +100,14 @@ static grouper group_item[] =
 	{ TV_WAND,              "Wands" },
 	{ TV_STAFF,             "Staffs" },
 
-	{ TV_LIFE_BOOK,       "Books (Life)" },
+	{ TV_MIRACLES_BOOK,       "Books (Miracles)" },
 	{ TV_SORCERY_BOOK,    "Books (Sorcery)" },
 	{ TV_NATURE_BOOK,     "Books (Nature)" },
-	{ TV_CHAOS_BOOK,      "Books (Chaos)" },
+	{ TV_DEMONIC_BOOK,      "Books (Demonic)" },
 	{ TV_DEATH_BOOK,      "Books (Death)" },
 	{ TV_PLANAR_BOOK,      "Books (Planar)" },
-	{ TV_FOLK_BOOK,     "Books (Folk)" },
-	{ TV_CORPOREAL_BOOK,     "Books (Corporeal)"},
+	{ TV_CHARMS_BOOK,     "Books (Charms)" },
+	{ TV_SOMATIC_BOOK,     "Books (Somatic)"},
 
 	{ TV_CHEST,             "Chests" },
 
@@ -374,11 +374,6 @@ static void spoil_obj_desc(cptr fname)
 * MAX_LINE_LEN specifies when a line should wrap.
 */
 #define MAX_LINE_LEN 75
-
-/*
-* Given an array, determine how many elements are in the array
-*/
-#define N_ELEMENTS(a) (sizeof (a) / sizeof ((a)[0]))
 
 /*
 * The artefacts categorized by type

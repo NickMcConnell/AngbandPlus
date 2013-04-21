@@ -33,14 +33,14 @@
 
 
 /*
-* Current version number of Hellband: 0.8.1
+* Current version number of Hellband: 0.8.3
 */
-#define VERSION_NAME	"Hellband 0.8.1"
+#define VERSION_NAME	"Hellband 0.8.3"
 
 /* <<VERSION STAMP>> */
 #define VERSION_MAJOR   0
 #define VERSION_MINOR   8
-#define VERSION_PATCH   1
+#define VERSION_PATCH   3
 
 /*
 * This value is not currently used
@@ -123,10 +123,10 @@
 */
 #define MAX_CLASS            13
 
-/* The number of "patrons" available (for Diabolists) */
+/* The number of "patrons" available (for Hell Knights) */
 #define MAX_PATRON          16
 
-/* Diabolist: Reward types: */
+/* Hell Knight: Reward types: */
 #define REW_POLY_SLF    0
 #define REW_GAIN_EXP    1
 #define REW_LOSE_EXP    2
@@ -199,6 +199,9 @@
 #define COR1_COLD_TOUCH                 0x40000000L
 #define COR1_LAUNCHER                   0x80000000L
 
+#define ABILITY_SPIT_ACID               0x00000101L
+#define ABILITY_BREATHE_ELEMENTS        0x00000102L
+#define ABILITY_DETECT_DOOR_TRAPS       0x00000103L
 
 /* Randomly activating corruptions must be COR2_* */
 #define COR2_BERS_RAGE                  0x00000001L
@@ -538,14 +541,14 @@
 /* Possible realms that can be chosen; currently used only by birth.c
 and tables.c --TY */
 #define CH_NONE              0x00
-#define CH_LIFE                0x01
+#define CH_MIRACLES                0x01
 #define CH_SORCERY      0x02
 #define CH_NATURE         0x04
-#define CH_CHAOS           0x08
+#define CH_DAMNATION           0x08
 #define CH_DEATH            0x10
 #define CH_PLANAR          0x20
 #define CH_FOLK               0x40
-#define CH_CORPOREAL    0x80
+#define CH_SOMATIC    0x80
 #define MAX_REALM          8
 
 /*
@@ -610,40 +613,6 @@ and tables.c --TY */
 #define SEX_MALE                1
 
 /*
-* Player race constants (hard-coded by save-files, arrays, etc)
-*/
-#define RACE_BARBARIAN		0 
-#define RACE_CYCLOPS		1
-#define RACE_DARK_ELF		2
-#define RACE_DEVILSPAWN		3
-#define RACE_DRACONIAN		4
-#define RACE_DWARF			5
-#define RACE_ELF			6
-#define RACE_GNOME			7
-#define RACE_GOLEM			8
-#define RACE_HALF_ELF		9
-#define RACE_HALF_GIANT     10
-#define RACE_HALF_OGRE		11
-#define RACE_HALF_ORC		12
-#define RACE_HALF_TITAN     13
-#define RACE_HALF_TROLL     14
-#define RACE_HIGH_ELF       15
-#define RACE_HOBBIT         16
-#define RACE_HUMAN          17
-#define RACE_IMP            18
-#define RACE_KLACKON        19
-#define RACE_KOBOLD         20
-#define RACE_MIND_FLAYER    21
-#define RACE_NEPHILIM		22
-#define RACE_NIBELUNG       23
-#define RACE_SKELETON       24
-#define RACE_SPECTRE        25
-#define RACE_SPRITE         26
-#define RACE_VAMPIRE        27
-#define RACE_YEEK           28
-#define RACE_ZOMBIE         29
-
-/*
 * Player class constants (hard-coded by save-files, arrays, etc)
 */
 #define CLASS_WARRIOR		0
@@ -653,13 +622,67 @@ and tables.c --TY */
 #define CLASS_RANGER		4
 #define CLASS_PALADIN		5
 #define CLASS_WARRIOR_MAGE	6
-#define CLASS_DIABOLIST		7
+#define CLASS_HELL_KNIGHT		7
 #define CLASS_MYSTIC		8
 #define CLASS_MINDCRAFTER	9
 #define CLASS_HIGH_MAGE		10
 #define CLASS_DRUID			11
-#define CLASS_DEMONOLOGIST	12
+#define CLASS_WARLOCK	12
 
+#define COUNT_LINES  14
+#define COUNT_SEXES  2
+#define COUNT_RACES  4
+#define COUNT_SUBRACES 28
+#define COUNT_SIGNS 5
+#define COUNT_AFFLICTIONS 5
+
+#define LADY 0
+#define GENTLEMAN 1
+
+#define R_HUMAN  0
+#define R_FAERIE 1
+#define R_SPAWN  2
+#define R_ELDER  3
+
+/*
+ * Player race constants (hard-coded by save-files, arrays, etc)
+ */
+
+#define FLORENTIAN 	0
+#define GIPSY		1
+#define NORDIC		2
+#define ATLANTIAN	3
+#define DWARF		4
+#define ELF			5
+#define OGRE		6
+#define TROLL		7
+#define GIANT		8
+#define TITAN		9	
+#define NEPHILIM	10
+#define HUMAN		11 /*Special case for shop owners*/
+#define AFFLICTED	11 /*Special caseto indicate these guys dont have a birthsign*/
+#define FAE 		12
+#define GNOME		13
+#define LEPRECHAUN	14
+#define KOBOLD		15	
+#define DEVILSPAWN	16
+#define IMP			17
+#define SUCCUBUS	18
+#define LILI		19	
+#define ELDER		20
+#define GUARDIAN	21
+#define HORROR		22
+#define VAMPIRE     23
+#define WEREWOLF    24
+#define SKELETON    25
+#define MUMMY       26
+#define SPECTRE     27
+
+#define SIGN_FREE    0
+#define SIGN_DRACO   1
+#define SIGN_SERPENS 2
+#define SIGN_PLUTUS  3
+#define SIGN_MORUI   4
 
 /*** Screen Locations ***/
 
@@ -1315,14 +1338,14 @@ ART_THOTH -> ART_KINSLAYER
 #define TV_POTION       75
 #define TV_FLASK        77
 #define TV_FOOD         80
-#define TV_LIFE_BOOK    90
+#define TV_MIRACLES_BOOK    90
 #define TV_SORCERY_BOOK 91
 #define TV_NATURE_BOOK  92
-#define TV_CHAOS_BOOK   93
+#define TV_DEMONIC_BOOK   93
 #define TV_DEATH_BOOK   94
 #define TV_PLANAR_BOOK   95
-#define TV_FOLK_BOOK  96
-#define TV_CORPOREAL_BOOK 97
+#define TV_CHARMS_BOOK  96
+#define TV_SOMATIC_BOOK 97
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 
 
@@ -2567,7 +2590,7 @@ ART_THOTH -> ART_KINSLAYER
 #define RF4_BR_DARK                 0x00008000      /* Breathe Dark */
 #define RF4_BR_CONF                 0x00010000      /* Breathe Confusion */
 #define RF4_BR_SOUN                 0x00020000      /* Breathe Sound */
-#define RF4_BR_CHAO                 0x00040000      /* Breathe Chaos */
+#define RF4_BR_CHAO                 0x00040000      /* Breathe Primal Chaos */
 #define RF4_BR_DISE                 0x00080000      /* Breathe Disenchant */
 #define RF4_BR_NEXU                 0x00100000      /* Breathe Nexus */
 #define RF4_BR_TIME                 0x00200000      /* Breathe Time */
@@ -2579,7 +2602,7 @@ ART_THOTH -> ART_KINSLAYER
 #define RF4_BR_MANA                 0x08000000      /* Breathe Mana */
 #define RF4_BA_SLIM                 0x10000000  /* TY: Hell slime */
 #define RF4_BR_SLIM                 0x20000000  /* TY: Toxic Breath */
-#define RF4_BA_CHAO                 0x40000000  /* TY: Chaos Ball */
+#define RF4_BA_CHAO                 0x40000000  /* TY: Primal Chaos Ball */
 #define RF4_BR_DISI                 0x80000000 /* Breathe Disintegration */
 
 /*
@@ -2948,16 +2971,6 @@ ART_THOTH -> ART_KINSLAYER
 
 
 
-/*
-* Hack -- Prepare to use the "Secure" routines
-*/
-#if defined(SET_UID) && defined(SECURE)
-extern int PlayerUID;
-# define getuid() PlayerUID
-# define geteuid() PlayerUID
-#endif
-
-
 
 /*** Color constants ***/
 
@@ -3080,3 +3093,9 @@ extern int PlayerUID;
  */
 #define WORN					0
 #define CARRIED					1
+
+/*
+ * Given an array, determine how many elements are in the array
+ */
+#define N_ELEMENTS(a) (sizeof (a) / sizeof ((a)[0]))
+

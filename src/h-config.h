@@ -277,24 +277,9 @@
 
 
 /*
-* OPTION: Define "HAS_STRICMP" only if "stricmp()" exists.
-* Note that "stricmp()" is not actually used by Angband.
-*/
-/* #define HAS_STRICMP */
-
-/*
-* Linux has "stricmp()" with a different name
-*/
-#if defined(linux)
-# define HAS_STRICMP
-# define stricmp strcasecmp
-#endif
-
-
-/*
-* OPTION: Define "HAS_MEMSET" only if "memset()" exists.
-* Note that the "memset()" routines are used in "z-virt.h"
-*/
+ * OPTION: Define "HAS_MEMSET" only if "memset()" exists.
+ * Note that the "memset()" routines are used in "z-virt.h"
+ */
 #define HAS_MEMSET
 
 

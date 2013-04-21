@@ -1,0 +1,52 @@
+echo on
+echo Master install script
+rm -rv hb083
+rm -rv hb083win
+rm hb083src.zip
+rm hb083win.zip
+
+svn export https://hellband.googlecode.com/svn/trunk/ hb083
+
+echo zipping up source ...
+
+cd hb083
+rm -rv www
+rm pkg_win
+cd ..
+
+zip -9 -r -q hb083src.zip hb083
+
+cd hb083
+cd src 
+mkdir mingw32
+export FOREIGN=win-mingw32-primitive
+#export WARNINGS=all
+make -fmakefile.sid
+
+cd ..
+cd ..
+
+cp -r hb083 hb083win
+cd hb083win
+
+rm -rv src
+rm .svnignore
+rm hellband.cfg
+rm pkg_win
+rm lib/xtra/sound/*.wav
+rm lib/xtra/graf/*.bmp
+rm lib/pref/*x11*
+rm lib/pref/*dos*
+rm lib/pref/*mac*
+rm lib/pref/*ami*
+rm lib/pref/*acn*
+rm lib/pref/*emx*
+rm lib/pref/*lsl*
+rm lib/pref/*xaw*
+rm lib/edit/*backup*
+rm lib/edit/*judo*
+rm lib/apex/*.raw
+
+cd ..
+
+zip -9 -r hb083win.zip hb083win

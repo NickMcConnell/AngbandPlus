@@ -150,8 +150,10 @@ static void set_ghost_aux_2(void)
 			r_ptr->x_char = r_info[174].x_char;
 			r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 			r_ptr->flags3 |= (RF3_IM_COLD);
-			if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
-			if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
+			if (grace == NEPHILIM) r_ptr->flags3 |= (RF3_FALLEN_ANGEL);
+			if (grace == TROLL) r_ptr->flags3 |= (RF3_TROLL);
+			if (grace == GIANT) r_ptr->flags3 |= (RF3_GIANT);
+			if (grace == DEVILSPAWN || grace == SUCCUBUS || grace == LILI) r_ptr->flags3 |= (RF3_DEVIL);	
 			r_ptr->ac = 26;
 			r_ptr->speed = 110;
 			r_ptr->num_blows=2;
@@ -169,8 +171,10 @@ static void set_ghost_aux_2(void)
 			r_ptr->x_char = r_info[175].x_char;
 			r_ptr->flags1 |= (RF1_DROP_60 | RF1_DROP_90);
 			r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
-			if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
-			if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
+			if (grace == NEPHILIM) r_ptr->flags3 |= (RF3_FALLEN_ANGEL);
+			if (grace == TROLL) r_ptr->flags3 |= (RF3_TROLL);
+			if (grace == GIANT) r_ptr->flags3 |= (RF3_GIANT);
+			if (grace == DEVILSPAWN || grace == SUCCUBUS || grace == LILI) r_ptr->flags3 |= (RF3_DEVIL);	
 			r_ptr->ac = 30;
 			r_ptr->speed = 110;
 			r_ptr->hside *= 2;
@@ -189,8 +193,10 @@ static void set_ghost_aux_2(void)
 			r_ptr->x_char = r_info[281].x_char;
 			r_ptr->flags1 |= (RF1_DROP_1D2);
 			r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
-			if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
-			if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
+			if (grace == NEPHILIM) r_ptr->flags3 |= (RF3_FALLEN_ANGEL);
+			if (grace == TROLL) r_ptr->flags3 |= (RF3_TROLL);
+			if (grace == GIANT) r_ptr->flags3 |= (RF3_GIANT);
+			if (grace == DEVILSPAWN || grace == SUCCUBUS || grace == LILI) r_ptr->flags3 |= (RF3_DEVIL);	
 			r_ptr->ac = 35;
 			r_ptr->speed = 110;
 			r_ptr->hside *= 2;
@@ -464,7 +470,8 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev)
 
 	monster_race *r_ptr = &r_info[MAX_R_IDX-1];
 
-
+	(void)gclass;/* gclass is no longer used */
+	
 	/* Extract the basic ghost name */
 	strcpy(gb_name, pname);
 
@@ -1565,11 +1572,14 @@ void sanity_blast (monster_type * m_ptr, bool necro)
 		r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
 
 		/* Demon characters are unaffected */
-		if (p_ptr->prace == RACE_IMP) return;
+		if (p_ptr->prace == DEVILSPAWN ) return;
+		if (p_ptr->prace == IMP) return;
+		if (p_ptr->prace == SUCCUBUS) return;
+		if (p_ptr->prace == LILI) return;
 
 		/* Undead characters are 50% likely to be unaffected */
-		if ((p_ptr->prace == RACE_SKELETON) || (p_ptr->prace == RACE_ZOMBIE)
-			|| (p_ptr->prace == RACE_VAMPIRE) || (p_ptr->prace == RACE_SPECTRE))
+		if ((p_ptr->prace == SKELETON) || (p_ptr->prace == MUMMY)
+			|| (p_ptr->prace == VAMPIRE) || (p_ptr->prace == SPECTRE))
 		{
 			if (randint(100) < (25 + (p_ptr->lev))) return;
 		}

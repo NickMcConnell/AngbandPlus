@@ -715,8 +715,6 @@ struct owner_type
 	byte insult_max;	/* Insult limit */
 
 	byte owner_race;	/* Owner race */
-
-	byte unused;		/* Unused */
 };
 
 
@@ -823,6 +821,8 @@ typedef struct player_sex player_sex;
 struct player_sex
 {
 	cptr title;			/* Type of sex */
+	
+	cptr address;        /* 'Addressment' of the sex */
 
 	cptr winner;		/* Name of winner */
 };
@@ -930,6 +930,7 @@ struct player_type
 {
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
+	byte psign;         /* Birth Sign Index */
 	byte pclass;		/* Class index */
 	byte realm1;        /* First magic realm */
 	byte realm2;        /* Second magic realm */
@@ -1179,5 +1180,37 @@ struct mindcraft_power {
 	int mana_cost;
 	int fail;
 	cptr name;
+};
+
+/* Header for stats in character screen*/
+typedef struct header_struct header_struct;
+struct header_struct 
+{
+	cptr title;
+	byte colour;
+	int position;
+};
+
+/* Container for related stats in character screen */
+/* An example would be cursed, heavy cursed, perma cursed, which can occupy 1 line */
+typedef struct related_flags_struct related_flags_struct;
+struct related_flags_struct
+{
+	int n;
+	u32b flag;
+	byte colour;
+	cptr s;
+};
+
+/*Container for weapon related flags in character screen */
+/* An example would be "Slay Angel" 2 TR2_SLAY_ANGEL TERM_YELLOW "+ */
+typedef struct weapon_flags_struct weapon_flags_struct;
+struct weapon_flags_struct
+{
+	cptr name;
+	int n;
+	u32b flag;
+	byte colour;
+	cptr s;	
 };
 

@@ -18,7 +18,7 @@
 * Heino.VanderSanden@AdValvas.Be
 *
 */
-
+	
 #include "angband.h"
 
 void show_dun_bias(void)
@@ -66,7 +66,7 @@ int get_quest_monster(void)
 	int i;
 	for (i = 0; i < MAX_Q_IDX; i++)
 	{
-		if (q_list[i].level == dun_level) return (q_list[i].r_idx);
+		if (q_list[i].level == (unsigned int)abs(dun_level)) return (q_list[i].r_idx);
 	}
 	return 0;
 }
@@ -80,7 +80,7 @@ int get_max_monster(void)
 
 	for (i = 0; i < MAX_Q_IDX; i++)
 	{
-		if (q_list[i].level == dun_level) return (q_list[i].max_num);
+		if (q_list[i].level ==  (unsigned int)abs(dun_level)) return (q_list[i].max_num);
 	}
 	return 0;
 }
@@ -95,7 +95,7 @@ int get_quest_number(void)
 
 	for (i=0; i < MAX_Q_IDX; i++)
 	{
-		if (q_list[i].level == dun_level)
+		if (q_list[i].level ==  (unsigned int)abs(dun_level))
 		{
 			return (i);
 		}

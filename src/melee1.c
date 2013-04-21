@@ -170,7 +170,25 @@ bool make_attack_normal(int m_idx)
 
 	/* ...nor if friendly */
 	if (m_ptr->smart & SM_ALLY)  return FALSE;
+	
+	/* Get the monster name (or "it") */
+	monster_desc(m_name, m_ptr, 0);
+	
+	/*And if we are dealing with a snake, then that snake has a change of mind*/
+	if( r_ptr->d_char == 'J' && p_ptr->psign == SIGN_SERPENS  )
+	{
+		msg_format("%^s recognizes your birthright." , m_name);
+		m_ptr->smart |= SM_ALLY;
+		return (FALSE);
+	}
 
+	/*And if we are dealing with a dragon, then that dragon has a change of mind*/
+	if( (r_ptr->d_char == 'D' || r_ptr->d_char == 'd' ) && p_ptr->psign == SIGN_DRACO  )
+	{
+		msg_format("%^s recognizes your birthright." , m_name);
+		m_ptr->smart |= SM_ALLY;
+		return (FALSE);
+	}
 
 	/* Total armour */
 	ac = p_ptr->ac + p_ptr->to_a;
@@ -179,8 +197,7 @@ bool make_attack_normal(int m_idx)
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
 
-	/* Get the monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
+
 
 	/* Get the "died from" information (i.e. "a kobold") */
 	monster_desc(ddesc, m_ptr, 0x88);

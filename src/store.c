@@ -429,161 +429,39 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 * Buying and selling adjustments for race combinations.
 * Entry[owner][player] gives the basic "cost inflation".
 */
-static byte rgold_adj[MAX_RACES][MAX_RACES] =
+static byte rgold_adj[COUNT_SUBRACES][COUNT_SUBRACES] =
 {
-	/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Barbarian,
-	HfOg, HGn, HTn, Cyc, Yek, Klc, Kbd, Nbl, DkE, Drc, Mind Flayer,
-	Imp,  Glm, Skl, Zombie, Vampire, Spectre */
+			  	  /*  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27 */
+				  /*Flo, Gip, Nor, Atl, Dwa, Elf, Ogr, Tro, Gia, Tit, Nep, Aff,	Fae, Gno, Lep, Kob, Dev, Imp, Suc, Lil, Eld, Gua, Hor, Vam, Wer, Ske, Mum, Spe */
 
-	/* Human */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-		124, 120, 110, 125, 115, 120, 120, 120, 120, 115, 120,
-		115, 105, 125, 125, 125, 125, 105, 120 },
-
-		/* Half-Elf */
-	{ 110, 100, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	120, 115, 108, 115, 110, 110, 120, 120, 115, 115, 110,
-	120, 110, 110, 110, 120, 110, 100, 125 },
-
-	/* Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	120, 120, 105, 120, 110, 105, 125, 125, 110, 115, 108,
-	120, 115, 110, 110, 120, 110, 100, 125},
-
-	/* Halfling */
-	{ 115, 110, 105,  95, 105, 110, 115, 130, 115, 105, 115,
-	125, 120, 120, 125, 115, 110, 120, 120, 120, 115, 115,
-	120, 110, 120, 120, 130, 110, 110, 130 },
-
-	/* Gnome */
-	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
-	120, 125, 110, 120, 110, 105, 120, 110, 110, 105, 110,
-	120, 101, 110, 110, 120, 120, 115, 130 },
-
-	/* Dwarf */
-	{ 115, 120, 120, 110, 110,  95, 125, 135, 115, 120, 115,
-	125, 140, 130, 130, 120, 115, 115, 115, 135, 125, 120,
-	120, 105, 115, 115, 115, 115, 120, 130 },
-
-	/* Half-Orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	115, 125, 120, 120, 115, 120, 125, 115 },
-
-	/* Half-Troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	110, 115, 112, 112, 115, 112, 120, 110 },
-
-	/* Nephilim  */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-	120, 120, 105, 120, 115, 105, 115, 120, 110, 105, 105,
-	120, 105, 120, 120, 125, 120, 105, 135 },
-
-	/* High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	125, 115, 120, 120, 125, 120, 100, 125 },
-
-	/* Human / Barbarian (copied from human) */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-	124, 120, 110, 125, 115, 120, 120, 120, 120, 115, 120,
-	115, 105, 125, 125, 130, 125, 115, 120 },
-
-	/* Half-Ogre: theoretical, copied from half-troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	110, 115, 112, 112, 115, 112, 120, 110 },
-
-	/* Half-Giant: theoretical, copied from half-troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	110, 115, 112, 112, 115, 112, 130, 120 },
-
-	/* Half-Titan: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	125, 115, 120, 120, 120, 120, 130, 130   },
-
-	/* Cyclops: theoretical, copied from half-troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	110, 115, 112, 112, 115, 112, 130, 130  },
-
-	/* Yeek: theoretical, copied from Half-Orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	115, 125, 120, 120, 120, 120, 130, 130  },
-
-	/* Klackon: theoretical, copied from Gnome */
-	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
-	120, 125, 110, 120, 110, 105, 120, 110, 110, 105, 110,
-	120, 101, 110, 110, 120, 120, 130, 130  },
-
-	/* Kobold: theoretical, copied from Half-Orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	115, 125, 120, 120, 120, 120, 130, 130  },
-
-	/* Nibelung: theoretical, copied from Dwarf */
-	{ 115, 120, 120, 110, 110,  95, 125, 135, 115, 120, 115,
-	125, 140, 130, 130, 120, 115, 115, 115, 135, 125, 120,
-	120, 105, 115, 115, 120, 120, 130, 130   },
-
-	/* Dark Elf */
-	{ 110, 110, 110, 115, 120, 130, 115, 115, 120, 110, 115,
-	115, 115, 116, 115, 120, 120, 115, 115, 101, 110, 110,
-	110, 110, 112, 122, 110, 110, 110, 115  },
-
-	/* Draconian: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	125, 115, 120, 120, 120, 120, 130, 130  },
-
-	/* Mind Flayer: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	125, 115, 120, 120, 120, 120, 130, 130   },
-
-	/* Imp: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	125, 115, 120, 120, 120, 120, 130, 130   },
-
-	/* Golem: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	125, 115, 120, 120, 120, 120, 130, 130 },
-
-	/* Skeleton: theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	115, 125, 120, 120, 120, 120, 130, 130   },
-
-	/* Zombie: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	115, 125, 120, 120, 120, 120, 130, 130   },
-
-	/* Vampire: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	115, 125, 120, 120, 120, 120, 130, 130   },
-
-	/* Spectre: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	115, 125, 120, 120, 120, 120, 130, 130   },
-
-	/* Sprite: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	115, 125, 120, 120, 120, 120, 130, 130   },
-
-	/* Devilspawn: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	115, 125, 120, 120, 120, 120, 130, 130   },
+/* Florentian  0*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },
+/* Gipsy       1*/ { 90,  90, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },
+/* Nordic      2*/ { 90, 105,  90, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },	
+/* Atlantian   3*/ { 90, 105, 105,  90, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },		
+/* Dwarf       4*/ { 90, 105, 105, 110,  90, 115, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },		
+/* Elf         5*/ { 90, 105, 105, 110, 130,  90, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },				
+/* Ogre        6*/ {115, 115, 115, 115, 115, 115,  90,  90,  90, 100, 100, 100, 100, 105, 100, 100, 125, 125, 125, 125, 100, 115, 130, 130, 100, 115, 115, 115 },			
+/* Troll       7*/ {115, 115, 115, 115, 115, 115,  90,  90,  90, 100, 100, 100, 100, 105, 100, 100, 125, 125, 125, 125, 100, 115, 130, 130, 100, 115, 115, 115 },
+/* Giant       8*/ {115, 115, 115, 115, 115, 115,  90,  90,  90, 100, 100, 100, 100, 105, 100, 100, 125, 125, 125, 125, 100, 115, 130, 130, 100, 115, 115, 115 },
+/* Titan       9*/ { 90, 100, 100, 100, 100, 100, 100, 100, 100, 100,  90, 100,  90, 100, 100, 100, 100, 100, 115, 115, 100, 100, 105, 105, 100, 100, 100, 105 },			
+/* Nephilim   10*/ { 90, 100, 100, 100, 100, 100, 100, 100, 100, 100,  90, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 },
+/* Afflicted  11*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125, 125, 115, 115, 115, 100, 115, 130, 130, 130, 125, 125, 130 },
+/* Fae        12*/ { 90,  90,  90,  90,  90,  90,  90, 115, 115,  90,  90, 100,  90,  90,  90, 115, 130, 130, 130, 130,  90,  90,  90, 130, 130, 130, 130, 130 },	
+/* Gnome      13*/ { 90, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,  90,  90, 100, 100, 100, 100, 115, 115, 100, 100, 105, 105, 100, 100, 100, 105 },			
+/* Leprechaun 14*/ { 90, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,  90,  90, 100, 100, 100, 100, 115, 115, 100, 100, 105, 105, 100, 100, 100, 105 },				
+/* Kobold     15*/ {120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 125, 125, 125, 125, 120, 120, 130, 120, 120, 120, 120, 120 },				
+/* Devilspawn 16*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 100, 100, 100, 100, 100 },
+/* Imp        17*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 100, 100, 100, 100, 100 },
+/* Succubus   18*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 100, 100, 100, 100, 100 },
+/* Lili       19*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 100, 100, 100, 100, 100 },	
+/* Elder      20*/ { 90, 105, 105, 105, 105, 105, 105, 105, 105, 105,  90, 105,  90, 105, 105, 105, 105, 105, 115, 115,  90, 105, 105, 105, 105, 105, 105, 105 },				
+/* Guardian   21*/ { 90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90 },
+/* Horror     22*/ { 90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90 },	
+/* Vampire    23*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130,  90, 140, 100, 100, 100 },
+/* Werewolf   24*/ { 90, 105, 105, 110, 115, 100, 120, 125, 120, 105, 100, 100,  95, 105, 110, 125,  90,  90,  90,  90, 100, 115, 130, 140,  90, 100, 100, 100 },	
+/* Skeleton   25*/ { 90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90 },
+/* Mummy      26*/ { 90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90 },	
+/* Spectre    27*/ { 90, 105, 105, 105, 105, 105, 105, 105, 105, 105,  90, 105,  90, 105, 105, 105, 105, 105, 115, 115,  90, 105, 105, 105, 105, 105, 105, 105 },				
 
 };
 
@@ -714,14 +592,14 @@ static void mass_produce(object_type *o_ptr)
 			break;
 		}
 
-	case TV_LIFE_BOOK:
+	case TV_MIRACLES_BOOK:
 	case TV_SORCERY_BOOK:
 	case TV_NATURE_BOOK:
-	case TV_CHAOS_BOOK:
+	case TV_DEMONIC_BOOK:
 	case TV_DEATH_BOOK:
 	case TV_PLANAR_BOOK:
-	case TV_FOLK_BOOK:
-	case TV_CORPOREAL_BOOK:
+	case TV_CHARMS_BOOK:
+	case TV_SOMATIC_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -1019,7 +897,7 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-			case TV_LIFE_BOOK:
+			case TV_MIRACLES_BOOK:
 			case TV_SCROLL:
 			case TV_POTION:
 			case TV_HAFTED:
@@ -1057,11 +935,11 @@ static bool store_will_buy(object_type *o_ptr)
 			{
 			case TV_SORCERY_BOOK:
 			case TV_NATURE_BOOK:
-			case TV_CHAOS_BOOK:
+			case TV_DEMONIC_BOOK:
 			case TV_DEATH_BOOK:
 			case TV_PLANAR_BOOK:
-			case TV_FOLK_BOOK:
-			case TV_CORPOREAL_BOOK:
+			case TV_CHARMS_BOOK:
+			case TV_SOMATIC_BOOK:
 			case TV_AMULET:
 			case TV_RING:
 			case TV_STAFF:
@@ -1083,12 +961,12 @@ static bool store_will_buy(object_type *o_ptr)
 			{
 			case TV_SORCERY_BOOK:
 			case TV_NATURE_BOOK:
-			case TV_CHAOS_BOOK:
+			case TV_DEMONIC_BOOK:
 			case TV_DEATH_BOOK:
-			case TV_LIFE_BOOK:
+			case TV_MIRACLES_BOOK:
 			case TV_PLANAR_BOOK:
-			case TV_FOLK_BOOK:
-			case TV_CORPOREAL_BOOK:
+			case TV_CHARMS_BOOK:
+			case TV_SOMATIC_BOOK:
 				break;
 			default:
 				return (FALSE);
@@ -1707,7 +1585,10 @@ static void display_entry(int pos)
 
 			/* Actually draw the price (not fixed) */
 			(void)sprintf(out_val, "%9ld F", (long)x);
-			put_str(out_val, i+6, 68);
+			if(x>p_ptr->au)
+				c_put_str(TERM_L_DARK, out_val, i+6, 68);	
+			else
+				put_str(out_val, i+6, 68);
 		}
 
 		/* Display a "taxed" cost */
@@ -1721,8 +1602,10 @@ static void display_entry(int pos)
 
 			/* Actually draw the price (with tax) */
 			(void)sprintf(out_val, "%9ld  ", (long)x);
-			put_str(out_val, i+6, 68);
-		}
+			if(x>p_ptr->au)
+				c_put_str(TERM_L_DARK, out_val, i+6, 68);	
+			else
+				put_str(out_val, i+6, 68);		}
 
 		/* Display a "haggle" cost */
 		else
@@ -1732,7 +1615,10 @@ static void display_entry(int pos)
 
 			/* Actually draw the price (not fixed) */
 			(void)sprintf(out_val, "%9ld  ", (long)x);
-			put_str(out_val, i+6, 68);
+			if(x>p_ptr->au)
+				c_put_str(TERM_L_DARK, out_val, i+6, 68);	
+			else
+				put_str(out_val, i+6, 68);
 		}
 	}
 }
@@ -2321,6 +2207,13 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 
 	/* Update bargaining info */
 	updatebargain(*price, final_ask);
+	
+	/* Those born under plutus can only part with a quarter of their treasure at a time */
+	if( p_ptr->psign==SIGN_PLUTUS && *price > p_ptr->au/4)
+	{
+		msg_print("You cannot part from that much treasure!");
+		return(TRUE);
+	}
 
 	/* Do not cancel */
 	return (FALSE);
@@ -2488,6 +2381,13 @@ static bool service_haggle(s32b service_cost, s32b *price)
 
 	/* Update bargaining info */
 	updatebargain(*price, final_ask);
+		
+	/* Those born under plutus can only part with a quarter of their treasure at a time */
+	if( p_ptr->psign==SIGN_PLUTUS && *price > p_ptr->au/4)
+	{
+		msg_print("You cannot part from that much treasure!");
+		return(TRUE);
+	}
 
 	/* Do not cancel */
 	return (FALSE);
@@ -3312,10 +3212,10 @@ static void store_examine(void)
 	o_ptr = &st_ptr->stock[item];
 
 	/* If it is a spell book then browse it */
-	if ((o_ptr->tval == TV_LIFE_BOOK) || (o_ptr->tval == TV_SORCERY_BOOK) ||
-		(o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_CHAOS_BOOK) ||
-		(o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_CORPOREAL_BOOK) ||
-		(o_ptr->tval == TV_PLANAR_BOOK) || (o_ptr->tval == TV_FOLK_BOOK))
+	if ((o_ptr->tval == TV_MIRACLES_BOOK) || (o_ptr->tval == TV_SORCERY_BOOK) ||
+		(o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_DEMONIC_BOOK) ||
+		(o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_SOMATIC_BOOK) ||
+		(o_ptr->tval == TV_PLANAR_BOOK) || (o_ptr->tval == TV_CHARMS_BOOK))
 	{
 		do_store_browse(o_ptr);
 		return;
@@ -3621,10 +3521,11 @@ static void store_process_command(void)
 					}
 					else
 					{
-						if ((p_ptr->prace == RACE_SPECTRE) ||
-							(p_ptr->prace == RACE_ZOMBIE) ||
-							(p_ptr->prace == RACE_SKELETON) ||
-							(p_ptr->prace == RACE_VAMPIRE))
+						if ((p_ptr->prace == SPECTRE) ||
+							(p_ptr->prace == MUMMY) ||
+							(p_ptr->prace == SKELETON) ||
+							(p_ptr->prace == WEREWOLF) ||
+							(p_ptr->prace == VAMPIRE))
 						{
 							room_rest(TRUE);
 						}
@@ -3665,10 +3566,10 @@ static void store_process_command(void)
 								/* Be happy */
 								decrease_insults();
 								store_prt_gold();
-								if ((p_ptr->prace == RACE_SPECTRE) ||
-									(p_ptr->prace == RACE_ZOMBIE) ||
-									(p_ptr->prace == RACE_SKELETON) ||
-									(p_ptr->prace == RACE_VAMPIRE))
+								if ((p_ptr->prace == SPECTRE) ||
+									(p_ptr->prace == MUMMY) ||
+									(p_ptr->prace == SKELETON) ||
+									(p_ptr->prace == VAMPIRE))
 								{
 									room_rest(TRUE);
 								}
@@ -4162,7 +4063,7 @@ void do_cmd_store(void)
 			}
 		case STORE_LIBRARY:
 			{
-				prt(" G) Gain a spell.",22, 60);
+				prt(" r) Gain a spell.",22, 60);
 				break;
 			}
 		case STORE_INN:
