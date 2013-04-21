@@ -137,3 +137,29 @@ If you hang round at too shallow depths for too long, drops eventually become po
 Removed and rearranged some options (based on changes to V)
 Assigned graphic tiles to the new monsters and objects (probably still not ideal, but workable)
 Cursed ammo can sometimes be worth using, and also can now be taken off or dropped at will.
+
+After second beta
+-----------------
+
+Put some options back in that were removed earlier, and changed a couple of defaults.
+Options are now displayed properly in the character dump.
+You can now run through sand.
+Poison still hurts a lot, but wears off quicker than before.
+Getting confused will occasionally make you hallucinate for a short period, if you don't have confusion or chaos resistance.
+If you try to teleport away a monster that resists nexus, it is not teleported but its energy is drained.
+For convenience, wands still give a mana bonus even when you cast the spell from a book.
+Glowing stones and glowing jewels can now have special properties.
+Various changes to edit files.
+Pseudo-id produces 'magic' instead of 'good', 'splendid' instead of 'excellent'
+Elemental rings no longer activate for resist element (since they already give immunity)
+Fixed bug where text appears on the wrong line during character generation
+Plural of 'knife' is 'knives'
+
+TO DO
+-----
+
+GET TERRAIN FEATURES ALIGNED WITH TILES FOR BOLT, GERVAIS SETS
+
+SOME PEOPLE HAVE INSTALL/COMPILE PROBLEMS...
+
+CAN WALLS BE MADE VISIBLE UNDER VISTA?

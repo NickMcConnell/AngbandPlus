@@ -4996,6 +4996,7 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				note = MON_MSG_RESIST;
 				do_dist = 0;
 				if (seen) l_ptr->r_l_flags3 |= (RF3_RES_NEXUS);
+				m_ptr->m_energy -= (BASE_ENERGY_MOVE); 
 			}
 			else if ((r_ptr->flags4 & (RF4_BRTH_NEXUS)) ||
 			    prefix(name, "Nexus"))
@@ -5003,6 +5004,7 @@ bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				note = MON_MSG_RESIST;
 				do_dist = 0;
 				if (seen) l_ptr->r_l_flags4 |= (RF4_BRTH_NEXUS);
+				m_ptr->m_energy -= (BASE_ENERGY_MOVE); 
 			}
 
 			/* No "real" damage */
@@ -6021,7 +6023,7 @@ bool project_p(int who, int y, int x, int dam, int typ, cptr msg)
 		/* Nether -- drain experience */
 		case GF_NETHER:
 		{
-			if (blind) msg_print("You are hit by something strange!");
+			if (blind) msg_print("You are hit by something horrible!");
 			if (p_ptr->resist_nethr)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
@@ -6147,6 +6149,10 @@ bool project_p(int who, int y, int x, int dam, int typ, cptr msg)
 			if (allow_player_confusion())
 			{
 				(void)set_confused(p_ptr->confused + randint(20) + 10);
+				if ((!p_ptr->resist_chaos) && one_in_(10))
+				{
+					set_image(p_ptr->image + rand_range(2,4));
+				}
 			}
 			take_hit(dam, killer);
 			break;

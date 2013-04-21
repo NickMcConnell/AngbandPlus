@@ -2323,7 +2323,7 @@ option_type options[OPT_MAX] =
 	{"rogue_like_commands",	"Rogue-like commands",					FALSE},		/* OPT_rogue_like_commands */
 	{"quick_messages",					"Quick messages",			TRUE},		/* xxx */
 	{NULL,					NULL,									FALSE},		/* xxx */
-	{NULL,					NULL,									FALSE},		/* xxx */
+	{"carry_query_flag",    "Prompt before picking things up",      TRUE},
 	{"use_old_target",		"Use old target by default",			FALSE},		/* OPT_use_old_target */
 	{"always_pickup",		"Pick things up by default",			TRUE},		/* OPT_always_pickup */
 	{"always_repeat",		"Repeat obvious commands",				FALSE},		/* OPT_always_repeat */
@@ -2359,9 +2359,9 @@ option_type options[OPT_MAX] =
 	{"expand_look",			"Expand the power of the look command",	TRUE},		/* OPT_expand_look */
 	{"expand_list",			"Expand the power of the list commands",TRUE},		/* OPT_expand_list */
 	{"view_perma_grids",	"Map remembers all perma-lit grids",	TRUE},		/* OPT_view_perma_grids */
-	{"view_torch_grids",	"Map remembers all torch-lit grids",	TRUE},		/* OPT_view_torch_grids */
+	{"view_torch_grids",	"Map remembers all torch-lit grids",	FALSE},		/* OPT_view_torch_grids */
+	{NULL,					NULL,	FALSE},/* xxx */
 	{"dungeon_align",		"Generate dungeons with aligned rooms",	TRUE},		/* OPT_dungeon_align */
-	{"dungeon_stair",		"Generate dungeons with connected stairs",TRUE},	/* OPT_dungeon_stair */
 	{NULL,					NULL,	FALSE},/* xxx */
 	{NULL,					NULL,	FALSE},/* xxx */
 	{NULL,					NULL,	FALSE},/* xxx track_follow */
@@ -2386,7 +2386,7 @@ option_type options[OPT_MAX] =
 	{"view_special_lite",	"Use special colors for floor grids",	FALSE},	/* OPT_view_special_lite */
 	{"easy_open",			"Open/Disarm/Close without direction",	TRUE},	/* OPT_easy_open */
 	{"easy_alter",			"Open/Disarm doors/traps on movement",	TRUE},	/* OPT_easy_alter */
-	{NULL,				NULL,									FALSE},
+	{"easy_floor",			"Display floor stacks in a list",   	FALSE},	/* OPT_easy_alter */
 	{"show_piles",			"Show stacks using special attr/char",	FALSE},	/* OPT_show_piles */
 	{"center_player",		"Center map continuously (very slow)",	FALSE},	/* OPT_center_player */
 	{"run_avoid_center",	"Avoid centering while running",		FALSE},	/* OPT_run_avoid_center */
@@ -2448,7 +2448,7 @@ option_type options[OPT_MAX] =
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,				NULL,												FALSE},/* xxx */
-	{"birth_maximize",			"Birth: Maximize effect of race/class bonuses",	TRUE},	/* OPT_birth_maximize */
+	{NULL,					NULL,	FALSE},/* xxx */
 	{"birth_preserve",			"Birth: Preserve artifacts when leaving level",	FALSE},	/* OPT_birth_preserve */
 	{NULL,NULL,FALSE},/* xxx */
 	{"birth_no_artifacts",		"Birth: Restrict creation of artifacts",		FALSE},	/* OPT_birth_no_artifacts */
@@ -2457,7 +2457,7 @@ option_type options[OPT_MAX] =
 	{"birth_take_notes",		"Birth: Have notes written to a file",			TRUE},	/* OPT_birth_auto_notes */
 	{"birth_force_small_lev",	"Birth: All levels will be generated as small",	FALSE},	/* OPT_birth_force_small_lev */
 	{"birth_retain_squelch", 	"Birth: Retain squelch settings",				FALSE},	/* OPT_birth_retain_squelch */
-	{"birth_no_xtra_artifacts", "Birth: Disable extra artifacts",				FALSE},	/* OPT_birth_no_xtra_artifacts*/
+	{NULL,					NULL,	FALSE},/* xxx */
 	{"birth_no_discovery",		"Birth: No special statgain at DL 2, 4, 6",		FALSE},	/* OPT_birth_no_discovery*/
 	{"birth_easy_start",		"Birth: Easy start (but mid game is harder)",	FALSE},	/* OPT_birth_easy_start*/
 	{NULL,NULL,	FALSE},/* xxx */
@@ -2512,18 +2512,20 @@ option_type options[OPT_MAX] =
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
-	{"adult_maximize",			"Adult: Maximize effect of race/class bonuses",	TRUE},	/* OPT_adult_maximize */
+	{NULL,					NULL,	FALSE},/* xxx */
 	{"adult_preserve",			"Adult: Preserve artifacts when leaving level",	FALSE},	/* OPT_adult_preserve */
-	{"adult_no_stores",			"Adult: Restrict the use of stores/home",		FALSE},	/* OPT_adult_no_stores */
+	{NULL,					NULL,	FALSE},/* xxx */
 	{"adult_no_artifacts",		"Adult: Restrict creation of artifacts",		FALSE},	/* OPT_adult_no_artifacts */
 	{"adult_rand_artifacts",	"Adult: Randomize some of the artifacts",		FALSE},	/* OPT_adult_rand_artifacts */
 	{"adult_no_stacking",		"Adult: Never stack objects on the floor",		FALSE},	/* OPT_adult_no_stacking */
 	{"adult_take_notes",		"Adult: Have notes to written to a file",		TRUE},	/* OPT_adult_auto_notes */
 	{"adult_force_small_lev",	"Adult: All levels generated small",			FALSE},	/* OPT_adult_force_small_lev*/
 	{"adult_retain_squelch",	"Adult: Retain squelch settings",				FALSE},	/* OPT_adult_retain_squelch */
-	{"adult_no_xtra_artifacts",	"Adult: Disable extra artifacts",				FALSE},	/* OPT_adult_no_xtra_artifacts*/
+	{NULL,					NULL,	FALSE},/* xxx */
 	{"adult_no_discovery",		"Adult: No special statgain at DL 2, 4, 6",		FALSE},	/* OPT_adult_no_discovery*/
 	{"adult_no_easy_start",		"Adult: Easy start (but mid game is harder)",	FALSE},	/* OPT_adult_no_easy_start*/
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -2572,8 +2574,6 @@ option_type options[OPT_MAX] =
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
-	{NULL,NULL,FALSE},/* xxx */
-	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE} /* xxx */
 };
 
@@ -2589,15 +2589,15 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_quick_messages,
 		OPT_use_old_target,
 		OPT_always_pickup,
+		OPT_carry_query_flag,
 		OPT_always_repeat,
-		OPT_NONE,
 		OPT_easy_open,
 		OPT_easy_alter,
+		OPT_easy_floor,
 		OPT_expand_inscribe,
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
-		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2616,7 +2616,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_disturb_state,
 		OPT_disturb_minor,
 		OPT_disturb_wakeup,
-		OPT_NONE,
+		OPT_run_ignore_doors,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_auto_more,
@@ -2679,7 +2679,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_toggle_xp,
 		OPT_auto_display_lists,
 		OPT_xchars_to_file,
-		OPT_NONE,
+		OPT_show_flavors,
 	},
 
 	/*** Birth ***/
@@ -2742,10 +2742,10 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"cursed",
 	"broken",
 	"average",
-	"good",
-	"good",
-	"excellent",
-	"special",
+	"magic",
+	"magic",
+	"splendid",
+	"unique",
 	"uncursed",
 	"indestructible"
 };

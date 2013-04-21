@@ -1219,9 +1219,12 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			if ((o_ptr->number != 1) && !(known && artifact_p(o_ptr)))
 			{
 				char k = t[-1];
+				char k2 = t[-2];
 
 				/* Hack -- "Cutlass-es" and "Torch-es" */
 				if ((k == 's') || (k == 'h')) *t++ = 'e';
+
+				if ((k == 'e') && (k2 == 'f')) *(t-2) = 'v';
 
 				/* Add an 's' */
 				*t++ = 's';

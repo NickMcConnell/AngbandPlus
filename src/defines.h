@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"Second beta release"
+#define VERSION_STRING	"Third beta release"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	1
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 #define VERSION_EXTRA	0
 
 
@@ -1540,15 +1540,16 @@ enum {
 
 /* The sval codes for TV_LITE */
 #define SV_LITE_TORCH		0
-#define SV_LITE_LANTERN		1
 #define SV_LITE_GALADRIEL	4
 #define SV_LITE_ELENDIL		5
 #define SV_LITE_THRAIN		6
 #define SV_LITE_PALANTIR	7
-#define SV_LITE_GLOW1		8
-#define SV_LITE_GLOW2		9
-#define SV_LITE_GLOW3		10
-#define SV_LITE_MAGELIGHT	11
+#define SV_LITE_GEM			8
+#define SV_LITE_LANTERN		9
+#define SV_LITE_GLOW1		10
+#define SV_LITE_GLOW2		11
+#define SV_LITE_GLOW3		12
+#define SV_LITE_MAGELIGHT	13
 
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_STEALTH       0
@@ -3860,7 +3861,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
  */
 #define OPT_USER_INTERFACE			0
 #define OPT_DISTURBANCE			    16
-#define OPT_GAME_PLAY			    32
+#define OPT_GAME_PLAY			    41
 #define OPT_EFFICIENCY			    48
 #define OPT_BIRTH					128
 #define OPT_CHEAT					160
@@ -3915,8 +3916,8 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define OPT_expand_list				37
 #define OPT_view_perma_grids		38
 #define OPT_view_torch_grids		39
-#define OPT_dungeon_align			40
-#define OPT_dungeon_stair			41
+#define OPT_dungeon_stair			40
+#define OPT_dungeon_align			41
 /* xxx track_follow */
 /* xxx track_target */
 #define OPT_smart_cheat				47
@@ -4002,7 +4003,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define rogue_like_commands		op_ptr->opt[OPT_rogue_like_commands]
 #define quick_messages			op_ptr->opt[OPT_quick_messages]
 #define floor_query_flag		0
-#define carry_query_flag		1
+#define carry_query_flag		op_ptr->opt[OPT_carry_query_flag]
 #define use_old_target			op_ptr->opt[OPT_use_old_target]
 #define always_pickup			op_ptr->opt[OPT_always_pickup]
 #define always_repeat			op_ptr->opt[OPT_always_repeat]
@@ -4014,9 +4015,9 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 /* xxx */
 #define show_details			1
 #define ring_bell				op_ptr->opt[OPT_ring_bell]
-#define show_flavors			1
+#define show_flavors			op_ptr->opt[OPT_show_flavors]
 #define run_ignore_stairs		1
-#define run_ignore_doors		1
+#define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
 #define run_cut_corners			1
 #define run_use_corners			1
 #define disturb_move			op_ptr->opt[OPT_disturb_move]
@@ -4063,7 +4064,7 @@ _feat_ff3_match(f_info + cave_feat[y][x], flags)
 #define view_special_lite		op_ptr->opt[OPT_view_special_lite]
 #define easy_open				op_ptr->opt[OPT_easy_open]
 #define easy_alter				op_ptr->opt[OPT_easy_alter]
-#define easy_floor				0
+#define easy_floor				op_ptr->opt[OPT_easy_floor]
 #define show_piles				op_ptr->opt[OPT_show_piles]
 #define center_player			op_ptr->opt[OPT_center_player]
 #define run_avoid_center		op_ptr->opt[OPT_run_avoid_center]

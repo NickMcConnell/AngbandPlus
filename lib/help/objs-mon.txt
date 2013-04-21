@@ -37,19 +37,19 @@ armour).  If you learn something, the item is inscribed.
 
      Item description               
      average item:                   "average"
-     item with plusses               "good"
-     ego-item (e.g. weapon of flame) "excellent"
-     artifact (unique item)          "special"
+     item with plusses               "magic"
+     ego-item (e.g. weapon of flame) "splendid"
+     artifact (unique item)          "unique"
 
      If you then wield the item, you will learn its plusses (though, if it is
-excellent or better, it may have other powers which you will not learn until
+splendid or better, it may have other powers which you will not learn until
 you Identify it).
 
-     But watch out! Cursed items pseudo-identify as 'good'. If you put one 
+     But watch out! Cursed items pseudo-identify as 'magic'. If you put one 
 of these on, it will have very bad plusses and you will not be able to take 
 it off until you cast Remove Curse.
 
-     And some extra-bad items identify as 'excellent' - but these are really
+     And some extra-bad items identify as 'splendid' - but these are really
 perma-cursed. Ordinary Remove Curse does not work properly on these - it may
 reduce some hit/damage/AC penalties, but will not allow you to take the item off.
 In this case you need the super version *Remove Curse*. This comes on scrolls, 

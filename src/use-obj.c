@@ -1446,7 +1446,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 	sval = o_ptr->sval;
 
-	mana_cost = get_mana_cost(sval,1) - 1; 
+	mana_cost = get_mana_cost(sval,1); 
 	chance = get_success_prob(sval,1);
 
 	/* Disallow "dangerous" spells */
@@ -2747,7 +2747,6 @@ static bool activate_object(object_type *o_ptr)
 			case SV_RING_ACID:
 			{
 				fire_ball(GF_ACID, dir, 70, 2);
-				set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
 				o_ptr->timeout = rand_int(50) + 50;
 				break;
 			}
@@ -2755,7 +2754,6 @@ static bool activate_object(object_type *o_ptr)
 			case SV_RING_FLAMES:
 			{
 				fire_ball(GF_FIRE, dir, 80, 2);
-				set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
 				o_ptr->timeout = rand_int(50) + 50;
 				break;
 			}
@@ -2763,7 +2761,6 @@ static bool activate_object(object_type *o_ptr)
 			case SV_RING_ICE:
 			{
 				fire_ball(GF_COLD, dir, 75, 2);
-				set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
 				o_ptr->timeout = rand_int(50) + 50;
 				break;
 			}
@@ -2771,7 +2768,6 @@ static bool activate_object(object_type *o_ptr)
 			case SV_RING_LIGHTNING:
 			{
 				fire_ball(GF_ELEC, dir, 85, 2);
-				set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
 				o_ptr->timeout = rand_int(50) + 50;
 				break;
 			}

@@ -103,7 +103,7 @@
 
 # Version stamp (required)
 
-V:0.1.2
+V:0.1.3
 
 ##### Non-race (contains the player picture) #####
 N:0:<player>
@@ -1311,17 +1311,6 @@ F:NO_FEAR | NO_CONF | NO_SLEEP
 D:It is a strange growth on the dungeon floor.
 
 
-N:126:Giant salamander
-G:R:y
-I:110:6d7:6:40:1
-W:8:1:0:50
-B:BITE:FIRE:3d6
-F:FORCE_SLEEP | RAND_25 | ANIMAL | HURT_COLD | IM_FIRE
-S:SPELL_PCT_12 | POW_0
-S:BRTH_FIRE
-D:A large black and yellow lizard.  You'd better run away!
-
-
 N:127:Lagduf, the Snaga
 G:o:y
 I:110:19d10:20:32:30
@@ -1430,14 +1419,14 @@ D:An orc dressed in skins who gestures wildly.
 
 N:136:Baby blue dragon
 G:d:b
-I:110:10d10:20:30:70
+I:110:15d10:20:30:70
 W:9:2:0:35
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
 B:BITE:HURT:1d5
 F:FORCE_MAXHP | FORCE_SLEEP | ONLY_GOLD | DROP_60 | DROP_2D2
 F:OPEN_DOOR | BASH_DOOR | DRAGON | EVIL | IM_ELEC | VULN_SLEEP
-S:SPELL_PCT_8 | POW_0
+S:SPELL_PCT_15 | POW_0
 S:BRTH_ELEC
 D:This hatchling dragon is still soft, its eyes unaccustomed to light
 D: and its scales a pale blue.
@@ -1445,7 +1434,7 @@ D: and its scales a pale blue.
 
 N:137:Baby white dragon
 G:d:w
-I:110:10d10:20:30:70
+I:110:15d10:20:30:70
 W:9:2:0:35
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
@@ -1453,7 +1442,7 @@ B:BITE:HURT:1d5
 F:FORCE_MAXHP | FORCE_SLEEP | ONLY_GOLD | DROP_60 | DROP_2D2
 F:OPEN_DOOR | BASH_DOOR | DRAGON | EVIL | HURT_FIRE | VULN_SLEEP
 F:IM_COLD | N_ICE
-S:SPELL_PCT_8 | POW_0
+S:SPELL_PCT_15 | POW_0
 S:BRTH_COLD
 D:This hatchling dragon is still soft, its eyes unaccustomed to light
 D: and its scales a pale white.
@@ -1461,14 +1450,14 @@ D: and its scales a pale white.
 
 N:138:Baby green dragon
 G:d:g
-I:110:10d10:20:30:70
+I:110:15d10:20:30:70
 W:9:2:0:35
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
 B:BITE:HURT:1d5
 F:FORCE_MAXHP | FORCE_SLEEP | ONLY_GOLD | DROP_60 | DROP_2D2
 F:OPEN_DOOR | BASH_DOOR | DRAGON | EVIL | IM_POIS | VULN_SLEEP
-S:SPELL_PCT_8 | POW_0
+S:SPELL_PCT_15 | POW_0
 S:BRTH_POIS
 D:This hatchling dragon is still soft, its eyes unaccustomed to light
 D: and its scales a sickly green.
@@ -1476,7 +1465,7 @@ D: and its scales a sickly green.
 
 N:139:Baby black dragon
 G:d:s
-I:110:10d10:20:30:70
+I:110:15d10:20:30:70
 W:9:2:0:35
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
@@ -1484,7 +1473,7 @@ B:BITE:HURT:1d5
 F:FORCE_MAXHP | FORCE_SLEEP | ONLY_GOLD | DROP_60 | DROP_2D2
 F:OPEN_DOOR | BASH_DOOR | DRAGON | EVIL | IM_ACID | VULN_SLEEP
 F:N_ACID
-S:SPELL_PCT_8 | POW_0
+S:SPELL_PCT_15 | POW_0
 S:BRTH_ACID
 D:This hatchling dragon is still soft, its eyes unaccustomed to light
 D: and its scales a dull black.
@@ -1492,7 +1481,7 @@ D: and its scales a dull black.
 
 N:140:Baby red dragon
 G:d:r
-I:110:10d10:20:30:70
+I:110:15d10:20:30:70
 W:9:2:0:35
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
@@ -1500,7 +1489,7 @@ B:BITE:FIRE:1d5
 F:FORCE_MAXHP | FORCE_SLEEP | ONLY_GOLD | DROP_60 | DROP_2D2
 F:HAS_LITE | OPEN_DOOR | BASH_DOOR | DRAGON | EVIL | VULN_SLEEP
 F:HURT_COLD | IM_FIRE | N_FIRE
-S:SPELL_PCT_8 | POW_0
+S:SPELL_PCT_15 | POW_0
 S:BRTH_FIRE
 D:This hatchling dragon is still soft, its eyes unaccustomed to light
 D: and its scales a pale red.
@@ -1508,14 +1497,14 @@ D: and its scales a pale red.
 
 N:141:Baby bronze dragon
 G:d:U
-I:110:10d10:20:30:70
+I:110:15d10:20:30:70
 W:9:2:0:35
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
 B:BITE:HURT:1d5
 F:FORCE_MAXHP | FORCE_SLEEP | ONLY_GOLD | DROP_60 | DROP_2D2
 F:OPEN_DOOR | BASH_DOOR | DRAGON | EVIL | NO_CONF | VULN_SLEEP
-S:SPELL_PCT_8 | POW_0
+S:SPELL_PCT_15 | POW_0
 S:BRTH_CONFU
 D:This hatchling dragon is still soft, its eyes unaccustomed to light
 D: and its scales a dull bronze.
@@ -1523,14 +1512,14 @@ D: and its scales a dull bronze.
 
 N:142:Baby gold dragon
 G:d:y
-I:110:10d10:20:30:70
+I:110:15d10:20:30:70
 W:9:2:0:35
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
 B:BITE:HURT:1d5
 F:FORCE_MAXHP | FORCE_SLEEP | ONLY_GOLD | DROP_60 | DROP_2D2
 F:OPEN_DOOR | BASH_DOOR | DRAGON | EVIL | VULN_SLEEP
-S:SPELL_PCT_8 | POW_0
+S:SPELL_PCT_15 | POW_0
 S:BRTH_SOUND
 D:This hatchling dragon is still soft, its eyes unaccustomed to light
 D: and its scales a pale gold.
@@ -1801,7 +1790,7 @@ D:A mage of short stature.
 
 N:164:Baby chromatic dragon
 G:d:v
-I:110:13d10:20:30:70
+I:110:18d10:20:30:70
 W:11:2:0:45
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
@@ -1810,7 +1799,7 @@ F:ATTR_MULTI | FORCE_MAXHP | FORCE_SLEEP | ONLY_GOLD | DROP_60
 F:DROP_2D2 | OPEN_DOOR | BASH_DOOR | DRAGON | EVIL | VULN_SLEEP
 F:IM_ACID | IM_ELEC | IM_FIRE | IM_COLD | IM_POIS
 F:N_ICE | N_FIRE | N_ACID
-S:SPELL_PCT_8 | POW_0
+S:SPELL_PCT_15 | POW_0
 S:BRTH_ACID | BRTH_ELEC | BRTH_FIRE | BRTH_COLD | BRTH_POIS
 D:This hatchling dragon is still soft, its eyes unaccustomed to light
 D: and its scales shimmering with hints of many different colours.
@@ -2149,7 +2138,7 @@ D: but evil cunning.  It hungers for food, and you look tasty.
 
 N:192:Ochre jelly
 G:j:U
-I:120:13d8:12:18:1
+I:115:13d8:12:18:1
 W:14:3:0:40
 B:TOUCH:ACID:1d10
 B:TOUCH:ACID:2d6
@@ -2410,7 +2399,7 @@ D:A giant snake-like figure with a woman's torso.
 
 N:214:Hummerhorn
 G:I:y
-I:120:2d2:8:14:10
+I:115:2d2:8:14:10
 W:16:4:0:2
 B:BITE:CONFUSE:2d2
 F:RAND_25 | RAND_50 | WEIRD_MIND | MULTIPLY | FLYING
@@ -3909,8 +3898,8 @@ D: about you.
 
 N:327:M[^i]m, Betrayer of T['u]rin
 G:h:o1
-I:120:11d100:20:80:20
-W:27:4:78:1100
+I:118:11d100:20:80:20
+W:27:4:78:1000
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
@@ -4173,7 +4162,7 @@ D: looks likes the creation of some deranged alchemist.
 
 N:344:Young blue dragon
 G:d:b
-I:110:27d10:20:50:70
+I:110:35d10:20:50:70
 W:23:1:17:300
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
@@ -4188,14 +4177,14 @@ D: deep blue in hue.  Sparks crackle along its length.
 
 N:345:Young white dragon
 G:d:w
-I:110:27d10:20:50:70
+I:110:35d10:20:50:70
 W:23:1:17:300
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
 B:BITE:COLD:2d6
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_2D2 | OPEN_DOOR | BASH_DOOR
 F:DRAGON | EVIL | HURT_FIRE | IM_COLD | N_ICE
-S:SPELL_PCT_15 | POW_3
+S:SPELL_PCT_10 | POW_3
 S:BRTH_COLD | SCARE
 D:It has a form that legends are made of.  Its still-tender scales are a
 D: frosty white in hue.  Icy blasts of cold air come from it as it
@@ -4204,7 +4193,7 @@ D: breathes.
 
 N:346:Young green dragon
 G:d:g
-I:110:27d10:20:50:70
+I:110:35d10:20:50:70
 W:23:1:17:300
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
@@ -4219,7 +4208,7 @@ D: deep green in hue.  Foul gas seeps through its scales.
 
 N:347:Young bronze dragon
 G:d:U
-I:110:27d10:20:50:70
+I:110:35d10:20:50:70
 W:23:1:17:400
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
@@ -4410,7 +4399,7 @@ D:It is a massive statue of purest mithril.  It looks expensive!
 
 N:361:Young red dragon
 G:d:r
-I:110:30d10:20:60:70
+I:110:35d10:20:60:70
 W:25:1:23:300
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
@@ -4418,7 +4407,7 @@ B:BITE:FIRE:2d8
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_3D2 | HAS_LITE | OPEN_DOOR
 F:BASH_DOOR | DRAGON | EVIL | HURT_COLD | IM_FIRE | VULN_SLEEP
 F:N_FIRE
-S:SPELL_PCT_15 | POW_3
+S:SPELL_PCT_10 | POW_3
 S:BRTH_FIRE | SCARE
 D:It has a form that legends are made of.  Its still-tender scales are a
 D: deepest red hue.  Heat radiates from its form.
@@ -4426,7 +4415,7 @@ D: deepest red hue.  Heat radiates from its form.
 
 N:362:Young black dragon
 G:d:s
-I:110:30d10:20:60:70
+I:110:35d10:20:60:70
 W:25:1:23:300
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
@@ -4441,7 +4430,7 @@ D: darkest black hue.  Acid drips from its body.
 
 N:363:Young gold dragon
 G:d:y
-I:110:30d10:20:60:70
+I:110:35d10:20:60:70
 W:25:1:23:400
 B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
@@ -4495,7 +4484,7 @@ D:A humanoid clothed in black who moves with blinding speed.
 
 N:368:Young chromatic dragon
 G:d:v
-I:110:32d10:20:60:70
+I:110:40d10:20:60:70
 W:29:1:23:500
 B:CLAW:FIRE:3d6
 B:CLAW:COLD:3d6
@@ -4504,7 +4493,7 @@ F:ATTR_MULTI | FORCE_MAXHP | FORCE_SLEEP | DROP_1D2 | DROP_3D2
 F:OPEN_DOOR | BASH_DOOR | DRAGON | EVIL | IM_ACID | VULN_SLEEP
 F:IM_ELEC | IM_FIRE | IM_COLD | IM_POIS | N_ICE
 F:N_FIRE | N_ACID
-S:SPELL_PCT_15 | POW_15
+S:SPELL_PCT_20 | POW_15
 S:BRTH_ACID | BRTH_ELEC | BRTH_FIRE | BRTH_COLD | BRTH_POIS
 S:SCARE
 D:It has a form that legends are made of.  Beautiful scales of
@@ -4905,7 +4894,7 @@ B:BITE:COLD:4d8
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_4D2 | FLYING | BASH_DOOR
 F:DRAGON | EVIL | HURT_FIRE | IM_COLD | NO_CONF | VULN_SLEEP
 F:N_ICE
-S:SPELL_PCT_20 | POW_8
+S:SPELL_PCT_10 | POW_8
 S:BRTH_COLD | SCARE
 D:A large dragon, scales gleaming bright white.
 
@@ -4919,7 +4908,7 @@ B:CLAW:HURT:2d8
 B:BITE:ELEC:4d8
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_4D2 | FLYING | BASH_DOOR
 F:DRAGON | EVIL | IM_ELEC | NO_CONF | VULN_SLEEP
-S:SPELL_PCT_20 | POW_8
+S:SPELL_PCT_15 | POW_8
 S:BRTH_ELEC | SCARE
 D:A large dragon, scales tinted deep blue.
 
@@ -4933,7 +4922,7 @@ B:CLAW:HURT:2d8
 B:BITE:POISON:4d8
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_4D2 | FLYING | BASH_DOOR
 F:DRAGON | EVIL | IM_POIS | NO_CONF | VULN_SLEEP
-S:SPELL_PCT_20 | POW_8
+S:SPELL_PCT_15 | POW_8
 S:BRTH_POIS | SCARE
 D:A large dragon, scales tinted deep green.
 
@@ -4947,15 +4936,15 @@ B:CLAW:HURT:2d8
 B:BITE:CONFUSE:4d8
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_4D2 | FLYING | BASH_DOOR
 F:DRAGON | EVIL | NO_CONF | VULN_SLEEP
-S:SPELL_PCT_20 | POW_10
+S:SPELL_PCT_15 | POW_10
 S:BRTH_CONFU | SCARE | CONF
 D:A large dragon with scales of rich bronze.
 
 
 N:398:Bert the Stone Troll
 G:T:s
-I:120:11d100:20:70:50
-W:34:7:15:2000
+I:115:11d100:20:70:50
+W:34:7:15:1600
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
 B:BITE:WOUND:3d10
@@ -4971,8 +4960,8 @@ D: called Bill and Tom.
 
 N:399:Bill the Stone Troll
 G:T:s
-I:120:11d100:20:70:50
-W:34:7:15:2000
+I:115:11d100:20:70:50
+W:34:7:15:1600
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
 B:BITE:WOUND:3d10
@@ -4988,8 +4977,8 @@ D: called Bert and Tom.
 
 N:400:Tom the Stone Troll
 G:T:s
-I:120:11d100:20:70:50
-W:34:7:15:2000
+I:115:11d100:20:70:50
+W:34:7:15:1600
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
 B:BITE:WOUND:3d10
@@ -5005,7 +4994,7 @@ D: called Bert and Bill.
 
 N:401:Acidic cytoplasm
 G:j:s
-I:120:40d10:12:18:1
+I:115:40d10:12:18:1
 W:35:5:0:180
 B:TOUCH:ACID:1d10
 B:TOUCH:ACID:1d10
@@ -5125,8 +5114,8 @@ D:It is a giant dog that glows with heat.  Flames pour from its nostrils.
 
 N:411:Dread
 G:G:o
-I:120:25d20:20:30:10
-W:35:2:50:600
+I:118:25d20:20:30:10
+W:35:2:50:500
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
 B:HIT:LOSE_PER:3d4
@@ -5438,7 +5427,7 @@ D: control.
 
 N:432:Mature red dragon
 G:d:r1
-I:115:50d10:20:80:70
+I:115:40d10:20:80:70
 W:31:1:31:900
 B:CLAW:HURT:2d10
 B:CLAW:HURT:2d10
@@ -5446,14 +5435,14 @@ B:BITE:FIRE:4d10
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_2D2 | DROP_3D2 | HAS_LITE
 F:FLYING | BASH_DOOR | DRAGON | EVIL | HURT_COLD
 F:IM_FIRE | NO_CONF | VULN_SLEEP | N_FIRE
-S:SPELL_PCT_20 | POW_8
+S:SPELL_PCT_10 | POW_8
 S:BRTH_FIRE | SCARE | CONF
 D:A large dragon, scales tinted deep red.
 
 
 N:433:Mature black dragon
 G:d:s1
-I:115:50d10:20:80:70
+I:115:40d10:20:80:70
 W:31:1:31:900
 B:CLAW:HURT:2d10
 B:CLAW:HURT:2d10
@@ -5461,7 +5450,7 @@ B:BITE:ACID:4d10
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_2D2 | DROP_3D2 | FLYING
 F:BASH_DOOR | DRAGON | EVIL | IM_ACID | NO_CONF
 F:VULN_SLEEP | N_ACID
-S:SPELL_PCT_20 | POW_8
+S:SPELL_PCT_15 | POW_8
 S:BRTH_ACID | SCARE
 D:A large dragon, with scales of deepest black.
 
@@ -5599,14 +5588,14 @@ D:A spirit that descended into Arda in the beginning.
 
 N:444:Mature gold dragon
 G:d:y1
-I:115:50d10:20:80:70
+I:115:40d10:20:80:70
 W:31:1:31:1000
 B:CLAW:HURT:2d10
 B:CLAW:HURT:2d10
 B:BITE:CONFUSE:4d10
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_2D2 | DROP_3D2 | FLYING
 F:BASH_DOOR | DRAGON | EVIL | NO_CONF | VULN_SLEEP
-S:SPELL_PCT_20 | POW_10
+S:SPELL_PCT_15 | POW_10
 S:BRTH_SOUND | SCARE | CONF
 D:A large dragon with scales of gleaming gold.
 
@@ -5634,8 +5623,8 @@ D: desire to recover the three Silmarils.
 
 N:447:The Queen Ant
 G:a:v
-I:120:15d100:30:100:10
-W:37:2:150:2000
+I:115:15d100:30:100:10
+W:37:2:150:1600
 B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 B:BITE:HURT:2d8
@@ -5761,7 +5750,7 @@ D: like lances of fire.
 
 N:456:Castamir the Usurper
 G:p:v1
-I:120:88d10:20:90:40
+I:118:88d10:20:90:40
 W:38:5:78:1600
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
@@ -5815,7 +5804,7 @@ D: in shadow.  It reaches out at you.
 
 N:459:Mature chromatic dragon
 G:d:v
-I:115:60d10:20:80:70
+I:115:50d10:20:80:70
 W:33:1:31:1200
 B:CLAW:WOUND:3d12
 B:CLAW:WOUND:3d12
@@ -5942,7 +5931,7 @@ D:A weird ghostly troll-like being from the ethereal plane.
 
 N:468:Storm giant
 G:P:B
-I:120:40d20:20:60:40
+I:118:40d20:20:60:40
 W:40:1:78:1000
 B:HIT:ELEC:10d8
 B:HIT:ELEC:10d8
@@ -6021,8 +6010,8 @@ D: your pitiful frame.
 
 N:473:Ancient blue dragon
 G:D:b
-I:120:72d10:20:90:80
-W:35:1:39:1200
+I:118:72d10:20:90:80
+W:38:1:39:1000
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
 B:BITE:ELEC:6d8
@@ -6037,8 +6026,8 @@ D:A huge draconic form.  Lightning crackles along its length.
 
 N:474:Ancient bronze dragon
 G:D:U
-I:120:72d10:20:90:80
-W:38:1:39:1500
+I:118:72d10:20:90:80
+W:42:1:39:1300
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
 B:BITE:CONFUSE:6d8
@@ -6053,8 +6042,8 @@ D:A huge draconic form enveloped in a cascade of colour.
 
 N:475:Ancient white dragon
 G:D:w
-I:120:72d10:20:90:80
-W:35:1:39:1200
+I:118:72d10:20:90:80
+W:38:1:39:1200
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
 B:BITE:COLD:6d8
@@ -6070,8 +6059,8 @@ D:A huge draconic form.  Frost covers it from head to tail.
 
 N:476:Ancient green dragon
 G:D:g
-I:120:72d10:20:90:80
-W:38:1:39:1500
+I:118:72d10:20:90:80
+W:42:1:39:1500
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
 B:BITE:POISON:6d8
@@ -6131,8 +6120,8 @@ D:It is a cross between a human and a bull.
 
 N:480:Sorcerer
 G:p:R1
-I:130:52d10:20:60:10
-W:40:2:106:2150
+I:120:52d10:20:60:10
+W:40:2:106:1650
 B:HIT:HURT:2d8
 B:HIT:HURT:2d8
 B:HIT:HURT:2d8
@@ -6179,7 +6168,7 @@ D: chieftain of its tribe. It fears nothing.
 
 N:483:Medusa, the Gorgon
 G:n:v
-I:120:24d100:30:100:5
+I:118:24d100:30:100:5
 W:40:3:106:9000
 B:GAZE:EXP_80
 B:GAZE:PARALYZE
@@ -6236,8 +6225,8 @@ D: camouflage, so you will need magically enhanced seeing to spot him.
 
 N:486:Ancient black dragon
 G:D:s
-I:120:10d100:20:90:80
-W:37:1:39:1200
+I:118:10d100:20:90:80
+W:38:1:39:1200
 B:CLAW:HURT:4d9
 B:CLAW:HURT:4d9
 B:BITE:ACID:6d9
@@ -6253,8 +6242,8 @@ D:A huge draconic form.  Pools of acid melt the floor around it.
 
 N:487:Ancient red dragon
 G:D:r
-I:120:10d100:20:90:80
-W:37:1:39:1200
+I:118:10d100:20:90:80
+W:38:1:39:1200
 B:CLAW:HURT:4d9
 B:CLAW:HURT:4d9
 B:BITE:FIRE:6d9
@@ -6271,8 +6260,8 @@ D: extreme heat surrounding it makes you gasp for breath.
 
 N:488:Ancient gold dragon
 G:D:y
-I:120:10d100:20:90:80
-W:37:1:39:1500
+I:118:10d100:20:90:80
+W:42:1:39:1500
 B:CLAW:HURT:4d9
 B:CLAW:HURT:4d9
 B:BITE:CONFUSE:6d9
@@ -6302,8 +6291,8 @@ D:It is a demon of lizard form with cruel-looking jaws.
 
 N:490:Dark elven sorcerer
 G:h:R
-I:130:80d10:20:70:10
-W:41:2:119:3000
+I:125:80d10:20:70:10
+W:41:2:119:2000
 B:HIT:HURT:2d8
 B:HIT:HURT:2d8
 B:HIT:HURT:2d8
@@ -6320,8 +6309,8 @@ D: from his slender frame.
 
 N:491:Kavlax the Many-Headed
 G:M:v1
-I:125:13d100:20:85:30
-W:41:3:0:5000
+I:120:13d100:20:85:30
+W:41:3:0:4000
 B:BITE:HURT:3d12
 B:BITE:HURT:3d12
 B:BITE:HURT:3d12
@@ -6341,8 +6330,8 @@ D: they look for prey, but each with its own deadly breath weapon.
 
 N:492:Beholder
 G:e:U
-I:120:16d100:30:80:10
-W:41:3:43:6000
+I:115:16d100:30:80:10
+W:41:3:43:4000
 B:GAZE:EXP_40:2d6
 B:GAZE:UN_BONUS:2d6
 B:GAZE:LOSE_INT:2d6
@@ -6359,8 +6348,8 @@ D: stalks, and a huge mouth filled with sharp teeth.
 
 N:493:Gorlim, Betrayer of Barahir
 G:p:s1
-I:120:16d100:20:120:40
-W:41:3:78:7000
+I:118:16d100:20:120:40
+W:41:3:78:6000
 B:HIT:HURT:8d6
 B:HIT:HURT:8d6
 B:HIT:UN_BONUS:6d8
@@ -6380,7 +6369,7 @@ D: side of his "bargain" was not kept.
 
 N:494:Master lich
 G:L:r
-I:120:18d100:20:80:50
+I:118:18d100:20:80:50
 W:41:2:91:10000
 B:TOUCH:EXP_80:2d2
 B:TOUCH:EXP_80:2d2
@@ -6400,7 +6389,7 @@ D: bony fingers.
 
 N:495:Dread
 G:G:o
-I:120:25d20:20:30:10
+I:118:25d20:20:30:10
 W:42:1:50:600
 B:HIT:HURT:6d6
 B:HIT:LOSE_STR:6d6
@@ -6418,8 +6407,8 @@ D: as the universe itself struggles to banish it.
 
 N:496:Vampire lord
 G:V:b
-I:120:16d100:20:70:10
-W:42:1:78:1800
+I:118:16d100:20:70:10
+W:42:1:78:1500
 B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 B:BITE:EXP_80:4d6
@@ -6436,7 +6425,7 @@ D:A foul wind chills your bones as this ghastly figure approaches.
 
 N:497:Power drake
 G:d:v
-I:120:65d10:30:100:70
+I:118:65d10:30:100:70
 W:42:1:56:2500
 B:CLAW:ACID:4d5
 B:CLAW:ELEC:4d5
@@ -6594,8 +6583,8 @@ D: the power of the rings.
 
 N:508:Ancient chromatic dragon
 G:D:v
-I:120:21d100:25:100:80
-W:39:1:50:1600
+I:118:21d100:25:100:80
+W:44:1:50:1600
 B:CLAW:COLD:4d10
 B:CLAW:ELEC:4d10
 B:BITE:ACID:7d10
@@ -6631,8 +6620,8 @@ D:A strange reptilian hybrid with eight heads.
 
 N:510:Dreadmaster
 G:G:y
-I:120:15d100:20:100:10
-W:44:2:91:9000
+I:118:15d100:20:100:10
+W:44:2:91:8000
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
 B:HIT:LOSE_PER:3d4
@@ -6651,8 +6640,8 @@ D: unearthly limbs, of purest black, crush rock and flesh with ease.
 
 N:512:Cyclops
 G:P:u
-I:120:60d20:20:120:20
-W:45:2:0:1500
+I:115:60d20:20:120:20
+W:45:2:0:1200
 B:HIT:HURT:9d9
 B:HIT:HURT:9d9
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_1D2 | OPEN_DOOR | BASH_DOOR
@@ -6719,8 +6708,8 @@ D: down its length.
 
 N:518:Undead beholder
 G:e:u
-I:120:27d100:30:100:10
-W:45:3:99:8000
+I:115:27d100:30:100:10
+W:45:3:99:6000
 B:GAZE:EXP_40:3d6
 B:GAZE:UN_BONUS:3d6
 B:GAZE:LOSE_INT:3d6
@@ -6776,8 +6765,8 @@ D: cloaks itself in unearthly shadows.
 
 N:521:Greater basilisk
 G:R:D
-I:120:20d100:25:100:15
-W:45:2:0:10000
+I:118:20d100:25:100:15
+W:45:2:0:9000
 B:GAZE:PARALYZE:3d12
 B:GAZE:PARALYZE:3d12
 B:BITE:POISON:2d12
@@ -6852,7 +6841,7 @@ D: all it meets.
 N:525:Scatha the Worm
 G:D:W1
 I:125:25d100:30:130:70
-W:43:2:78:12000
+W:45:2:78:12000
 B:CLAW:HURT:4d10
 B:CLAW:HURT:4d10
 B:CLAW:COLD:4d14
@@ -6940,7 +6929,7 @@ D: true form but you sense its evil.
 N:530:Itangast the Fire Drake
 G:D:R1
 I:125:25d100:30:120:70
-W:45:2:84:15000
+W:47:2:84:15000
 B:CLAW:HURT:4d10
 B:CLAW:HURT:4d10
 B:BITE:FIRE:6d14
@@ -7013,7 +7002,7 @@ D: that wiped out his family, and he never recovered.
 N:534:Smaug the Golden
 G:D:R1
 I:125:28d100:30:130:70
-W:47:2:84:16000
+W:49:2:84:16000
 B:CLAW:HURT:4d12
 B:CLAW:HURT:4d12
 B:BITE:FIRE:6d14
@@ -7052,8 +7041,8 @@ D:It is a massive humanoid demon wreathed in flames.
 
 N:536:E["o]l, the Dark Elf
 G:h:D1
-I:130:80d30:20:100:60
-W:49:2:91:27000
+I:125:80d30:20:100:60
+W:49:2:91:21000
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
@@ -7110,8 +7099,8 @@ D:A strange reptilian hybrid with ten heads dripping acid.
 
 N:539:The Balrog of Moria
 G:U:v1
-I:130:30d100:20:100:80
-W:50:3:155:25000
+I:125:30d100:20:100:80
+W:50:3:155:18000
 B:HIT:FIRE:6d12
 B:HIT:FIRE:6d12
 B:CRUSH:HURT:5d12
@@ -7147,7 +7136,7 @@ D: of darkness in the shape of a large dog.
 
 N:542:Time hound
 G:Z:B
-I:125:60d15:30:100:0
+I:120:60d15:30:100:0
 W:51:4:0:3000
 B:CLAW:HURT:3d12
 B:CLAW:HURT:3d12
@@ -7164,8 +7153,8 @@ D: should give up and go to bed.
 
 N:543:Harowen the Black Hand
 G:p:D1
-I:135:25d100:40:90:0
-W:51:3:73:20000
+I:130:25d100:40:90:0
+W:51:3:73:16000
 B:TOUCH:HURT:5d5
 B:TOUCH:EAT_ITEM:5d5
 B:HIT:BLIND:10d5
@@ -7234,8 +7223,8 @@ D:A strange reptilian hybrid with eleven heads.
 
 N:548:Elder vampire
 G:V:r
-I:125:30d100:20:90:10
-W:54:3:78:4500
+I:120:30d100:20:90:10
+W:54:3:78:3500
 B:HIT:HURT:4d6
 B:HIT:HURT:4d6
 B:BITE:EXP_80:5d6
@@ -7351,8 +7340,8 @@ D: foraging for food to feed her voracious appetite.
 
 N:555:Ar-Pharaz[^o]n the Golden
 G:p:y
-I:130:40d100:30:45:255
-W:55:1:134:27500
+I:125:40d100:30:45:255
+W:55:1:134:22500
 B:HIT:HURT:8d8
 B:HIT:HURT:8d8
 B:HIT:HURT:8d8
@@ -7370,8 +7359,8 @@ D: themselves, and condemned N['u]menor to oblivion.
 
 N:556:Lesser titan
 G:P:y
-I:120:24d100:30:80:15
-W:56:3:147:6000
+I:115:24d100:30:80:15
+W:56:3:147:4500
 B:HIT:CONFUSE:9d9
 B:HIT:CONFUSE:9d9
 B:HIT:CONFUSE:9d9
@@ -7546,8 +7535,8 @@ D:A strange reptilian hybrid with thirteen heads.
 
 N:569:Saruman of Many Colours
 G:A:v
-I:125:50d100:100:100:0
-W:60:1:162:35000
+I:120:50d100:100:100:0
+W:60:1:162:25000
 B:HIT:UN_BONUS:6d8
 B:HIT:UN_BONUS:6d8
 B:HIT:HURT:5d5
@@ -7791,8 +7780,8 @@ D:A strange reptilian hybrid with fourteen heads.
 
 N:585:The Mouth of Sauron
 G:p:v1
-I:130:70d100:60:100:10
-W:62:3:147:28000
+I:125:70d100:60:100:10
+W:62:3:147:22000
 B:HIT:UN_BONUS:6d8
 B:HIT:UN_BONUS:6d8
 B:HIT:CONFUSE:5d5
@@ -7813,8 +7802,8 @@ D: awesome spells.
 
 N:586:Greater titan
 G:P:o
-I:125:38d100:30:125:15
-W:66:3:119:20500
+I:120:38d100:30:125:15
+W:66:3:119:16500
 B:HIT:CONFUSE:12d12
 B:HIT:CONFUSE:12d12
 B:HIT:CONFUSE:12d12
@@ -8089,7 +8078,7 @@ D:Thrukur remains a greedy and malevolent ghost.
 
 N:633:Sythsyxxths, the Ambitious Drake
 G:d:U
-I:120:16d100:30:110:40
+I:118:16d100:30:110:40
 W:43:3:80:4000
 B:CLAW:ACID:5d5
 B:CLAW:ELEC:5d5

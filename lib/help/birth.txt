@@ -173,8 +173,8 @@ fight, sneak and cast spells.
  
           Constitution
                Constitution is a character's ability to resist damage to his
-               body, and to recover from damage received.  Therefore a
-               character with a high constitution will receive more hit
+               body, and to recover from damage, poison and stunning received.  
+               A character with a high constitution will receive more hit
                points and also recover them faster while resting. Very high
                Constitution also allows the character to eat less.
  

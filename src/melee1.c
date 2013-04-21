@@ -1140,6 +1140,13 @@ bool make_attack_normal(monster_type *m_ptr)
 						{
 							obvious = TRUE;
 						}
+						if ((!p_ptr->resist_chaos) && one_in_(10))
+							{
+							if (set_image(p_ptr->image + rand_range(2,4)))
+							{
+								obvious = TRUE;
+							}
+						}
 					}
 
 					/* Learn about the player */
@@ -1428,7 +1435,7 @@ bool make_attack_normal(monster_type *m_ptr)
 					/* Increase "image" */
 					if (!p_ptr->resist_chaos)
 					{
-						if (set_image(p_ptr->image + 3 + randint(rlev / 2)))
+						if (set_image(p_ptr->image + rand_range(2,4)))
 						{
 							obvious = TRUE;
 						}
@@ -3858,6 +3865,10 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				if (allow_player_confusion())
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+					if ((!p_ptr->resist_chaos) && one_in_(10))
+						{
+						set_image(p_ptr->image + rand_range(2,4));
+					}
 				}
 
 				take_hit(get_dam(m_ptr, attack), ddesc);
@@ -4091,6 +4102,10 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				}
 				i = div_round(r_ptr->level, 8);
 				(void)set_confused(p_ptr->confused + i + rand_range(4, 8));
+				if ((!p_ptr->resist_chaos) && one_in_(10))
+				{
+					set_image(p_ptr->image + rand_range(2,4));
+				}
 			}
 			break;
 		}

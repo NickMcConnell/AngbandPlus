@@ -1256,7 +1256,7 @@ static void process_world(void)
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
 		/* Apply some healing */
-		(void)set_poisoned(p_ptr->poisoned - ((p_ptr->poisoned>=10) ? (p_ptr->poisoned/10-1) : 0) - adjust);
+		(void)set_poisoned(p_ptr->poisoned - 2*(((p_ptr->poisoned>=10) ? (p_ptr->poisoned/10-1) : 0) + adjust));
 	}
 
 	/* Stun */

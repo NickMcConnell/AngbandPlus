@@ -7,16 +7,6 @@ Various concepts mentioned below:
                     including any macros in progress
      "fresh"      : dump any pending output to the screen
 
-Options you may want to change to your preferences include:
-     - Roguelike commands, if you are used to the commands used in certain other
-       roguelike games, or have no number pad.
-     - Checking that the hitpoint warning is non-zero can save your character's
-       life.
-     - Set the delay factor to two or more, and turn ON "fresh_before", if you
-       want to see pretty ball explosions and whatnot.
-     - Playing around with the lighting options in the Display Options section
-       can be a lot of fun.
-
 Saving options:
      Options are saved in your character's savefile, but you may want to use the
 same options for other characters too.  Whenever you save options, you have
@@ -44,17 +34,6 @@ Activate quick messages                       [quick_messages]       (on) :
 Allows most keys to mean "no" to any "[y/n]" prompt.  Use of this option can
 be dangerous!
 
-***** <floor_query_flag>
-Prompt for floor item selection               [floor_query_flag]     (off):
-     Allows you to choose any item in a floor stack, even if you do not have
-"easy_floor" on.
-
-***** <carry_query_flag>
-Prompt before picking things up               [carry_query_flag]     (on) :
-    Forces the game to ask your permission before allowing you to pick up any
-object.  Usually turned on if "auto_pickup" is also ON.  If it is OFF, use of
-this option is normally not necessary.
-
 ***** <use_old_target>
 Use old target by default                     [use_old_target]       (off):
      Forces all commands which normally ask for a direction to use the current
@@ -68,25 +47,17 @@ Picking up objects this way takes no additional energy.  Note the "g" and "-"
 commands, which can be used to reverse this option for a single turn, and the
 option "carry_query_flag", which lets you decide whether to pick things up.
 
+***** <carry_query_flag>
+Prompt before picking things up               [carry_query_flag]     (on) :
+    Forces the game to ask your permission before allowing you to pick up any
+object.  Usually turned on if "auto_pickup" is also ON.  If it is OFF, use of
+this option is normally not necessary.
+
 ***** <always_repeat>
 Repeat obvious commands                       [always_repeat]        (off):
      The tunneling, altering, resting, disarming, opening, closing, and bashing
 commands will repeat 99 times unless you explicitly give a different command
 count.
-
-***** <stack_force_notes>
-Merge inscriptions when stacking              [stack_force_notes]    (off):
-     Allows objects with and without inscriptions to stack, retaining any
-inscription.
-
-***** <stack_force_costs>
-Merge discounts when stacking                 [stack_force_costs]    (off):
-     Allows objects with greater and lesser discounts to stack, retaining the
-larger discount.
-
-***** <ring_bell>
-Audible bell (on errors, etc)                 [ring_bell]            (on) :
-     Make a bell sound when errors occur (such as typing an invalid key).
 
 ***** <easy_open>
 Open/Disarm/Close without direction           [easy_open]            (on):
@@ -108,27 +79,23 @@ Expand the power of the inscribe commands     [expand_inscribe]       (on):
      Prompt for automatic addition and removal of inscriptions every time
 an object is inscribed.
 
+***** <verify_destroy>
+Verify destruction of objects                 [verify_destroy]       (on) :
+     Gives you an "are you sure" message when you try to destroy an object.
+
+***** <verify_special>
+Verify use of special commands                [verify_special]       (on) :
+     Asks if you are certain before entering wizard, debug, or borg mode (if
+allowed).
+
+***** <allow_quantity>
+Allow quantity specification                  [allow_quantity]       (on) :
+     Prompt for a quantity when necessary, instead of defaulting to a single
+object.  If you prefer to enter command counts before commands instead of typing
+quantities when prompted, turn this option off.
+
 
 --- Option Set #2:  Disturbance ---
-
-***** <run_ignore_stairs>
-When running, ignore stairs                   [run_ignore_stairs]    (on) :
-     Ignore stairs when running.
-
-***** <run_ignore_doors>
-When running, ignore doors                    [run_ignore_doors]     (on) :
-     Ignore open doors when running.
-
-***** <run_cut_corners>
-When running, cut corners                     [run_cut_corners]      (on) :
-     Cut sharply around known corners when running.  This will result in faster
-running (which matters if you are fleeing), but may cause you to run into a
-lurking monster.
-
-***** <run_use_corners>
-When running, use corners                     [run_use_corners]      (on) :
-     Fully examine potential corners in corridors.  Activates only in special
-cases.
 
 ***** <disturb_move>
 Disturb whenever any monster moves            [disturb_move]         (on) :
@@ -164,20 +131,9 @@ Disturb whenever viewable monster wakes up   [disturb_wakeup]        (on) :
      This option causes you to be disturbed when viewable monster 
 wakes up or stirrs.
 
-***** <verify_destroy>
-Verify destruction of objects                 [verify_destroy]       (on) :
-     Gives you an "are you sure" message when you try to destroy an object.
-
-***** <verify_special>
-Verify use of special commands                [verify_special]       (on) :
-     Asks if you are certain before entering wizard, debug, or borg mode (if
-allowed).
-
-***** <allow_quantity>
-Allow quantity specification                  [allow_quantity]       (on) :
-     Prompt for a quantity when necessary, instead of defaulting to a single
-object.  If you prefer to enter command counts before commands instead of typing
-quantities when prompted, turn this option off.
+***** <run_ignore_doors>
+When running, ignore doors                    [run_ignore_doors]     (on) :
+     Ignore open doors when running.
 
 ***** <auto_more>
 Automatically clear '-more-' prompts          [auto_more]            (off):
@@ -185,67 +141,6 @@ Automatically clear '-more-' prompts          [auto_more]            (off):
 erases the message instead.  This may speed up play, but can cause you to miss
 important warnings or interesting occurrences if you do not have an extra window
 devoted to message recall.
-
---- Option Set #3:  Game-Play ---
-
-***** <expand_look>
-Expand the power of the look command          [expand_look]          (on) :
-    Expand the look command to allow the user to inspect grids which are not
-actually in view of the player, allowing the examination of objects/monsters
-which have only been detected by spells, or sensed via telepathy.
-
-***** <expand_list>
-Expand the power of the list commands         [expand_list]          (on) :
-    Allows the targeting interface to cycle through all appropriate grids, and
-your monster recall to browse through all of the monsters of a given type.
-
-***** <view_perma_grids>
-Map remembers all perma-lit grids             [view_perma_grids]     (on) :
-     Memorize all permanently lit floor grids.  Turning this option off allows
-you to know which lit floor grids are in line of sight.  If you are using color,
-however, the "view_bright_lite" option works better.
-
-***** <view_torch_grids>
-Map remembers all torch-lit grids             [view_torch_grids]     (off):
-     Memorize all floor grids that have ever been lit up by the player.  This is
-one way to help keep track of which areas you have explored.
-
-***** <dungeon_align>
-Generate dungeons with aligned rooms          [dungeon_align]        (on) :
-     Aligns rooms to 11x33 blocks (as opposed to 11x11 ones).  This makes it
-less likely that a room will continue past the current panel view, but reduces
-the number of large rooms (greater vaults in particular).
-
-***** <smart_cheat>
-Monsters exploit players weaknesses           [smart_cheat]          (off):
-     Monsters instantly know all your resistances, and need spend no time
-learning.
-
-
---- Option Set #4:  Efficiency ---
-
-***** <view_reduce_lite>
-Reduce lite-radius when running               [view_reduce_lite]     (off):
-     When running, your light radius is reduced to one.  Not recommended for use
-unless your machine is very slow.
-
-***** <hidden_player>
-Hide player symbol when running               [hidden_player]        (off):
-     Saves a small amount of time by not refreshing your symbol when running.
-Again, makes little difference except on very slow machines.
-
-***** <avoid_abort>
-Avoid checking for user abort                 [avoid_abort]          (off):
-     Avoid checking to see if the user has pressed a key during resting or
-running or repeated commands.  On some system, this makes the game more
-efficient, but on others (including most graphical ones) it can be troublesome.
-Resting for long periods of time with this option set is dangerous since the
-resting may not stop until the user takes damage from starvation.
-
-***** <avoid_other>
-Avoid processing special colors               [avoid_other]          (off):
-     Forbids chromatic monsters to shimmer and makes clear monsters appear
-white.  May increase speed on some older machines.
 
 ***** <flush_failure>
 Flush input on various failures               [flush_failure]        (on) :
@@ -262,48 +157,53 @@ character is disturbed.  This is useful if you use macros that take time, since
 it will prevent you from continuing your macro while being attacked by a
 monster.
 
-***** <fresh_before>
-Flush output before every command             [fresh_before]         (on) :
-     Refresh the screen before commands, which gives you much more information
-but slows down the game slightly.  You must turn this option on to see spell
-effects.
-
-***** <fresh_after>
-Flush output after various things             [fresh_after]          (off):
-     This option forces the game to flush all output not only after every player
-command, but also after every round of processing monsters and objects, and
-after every message.  This maximizes your information, but may slow down the
-game (especially on slower machines) and on faster machines you cannot see the
-results anyway.
-
-***** <compress_savefile>
-Compress messages in savefiles                [compress_savefile]    (on) :
-     Compress the savefile, saving only the most recent player messages.  This
-can cut the size of the savefile substantially, but will result in the loss of
-message information.
+***** <ring_bell>
+Audible bell (on errors, etc)                 [ring_bell]            (on) :
+     Make a bell sound when errors occur (such as typing an invalid key).
 
 
---- Option Set #5:  Display ---
+--- Option Set #3:  Game-Play ---
+
+***** <dungeon_align>
+Generate dungeons with aligned rooms          [dungeon_align]        (on) :
+     Aligns rooms to 11x33 blocks (as opposed to 11x11 ones).  This makes it
+less likely that a room will continue past the current panel view, but reduces
+the number of large rooms (greater vaults in particular).
+
+***** <smart_cheat>
+Monsters exploit players weaknesses           [smart_cheat]          (off):
+     Monsters instantly know all your resistances, and need spend no time
+learning.
+
+
+--- Option Set #4:  Display ---
+
+***** <hp_changes_color>
+Player color indicates low hit points         [hp_changes_color]     (off) :
+	As a player's hitpoints drops, the color of the player changes 
+as a warning.  90-100% of max hp - White.  70-89% - Yellow.  50-69% -
+Orange.  30-49% - Light Red.  Less than 30% of max hp - Red.
 
 ***** <depth_in_feet>
 Show dungeon level in feet                    [depth_in_feet]        (off):
      Displays dungeon level in feet, as opposed to level.
 
-***** <show_details>
-Show details in monster descriptions          [show_details]         (on) :
-     Display a description and number of kills for each monster in the monster
-recall.
-
-***** <show_flavors>
-Show flavors in object descriptions           [show_flavors]         (on) :
-     Display "flavors" (color or variety) in object descriptions and information
-screens, even for objects whose type is known.  This does not affect objects in
-stores.
-
 ***** <hilite_player>
 Hilite the player with the cursor             [hilite_player]        (off) :
      Place the visible cursor on the player.  This looks fine on some UNIX
 terminals, but horrible on most graphics machines.
+
+***** <center_player>
+Center map continuously (very slow)           [center_player]        (off) :
+     Center the map continuously.  Advantages include removal of the need to
+adjust the map panel and less jerky character movement; disadvantages include
+not being able to control your field of view and constant map shifting.
+Substantially slows down the game.
+
+***** <run_avoid_center>
+Avoid centering while running                 [run_avoid_center]     (off) :
+     Don't center the map when running.  A compromise between normal and always
+centered movement.
 
 ***** <view_yellow_lite>
 Use special colors for torch lite             [view_yellow_lite]     (off) :
@@ -346,27 +246,20 @@ use the normal "white".  Turning this option off will probably increase
 the speed of the game.  This option may not work well if the attr/char
 codes for walls/veins have been changed, or if "graphics" are being used.
 
-***** <center_player>
-Center map continuously (very slow)           [center_player]        (off) :
-     Center the map continuously.  Advantages include removal of the need to
-adjust the map panel and less jerky character movement; disadvantages include
-not being able to control your field of view and constant map shifting.
-Substantially slows down the game.
+***** <view_perma_grids>
+Map remembers all perma-lit grids             [view_perma_grids]     (on) :
+     Memorize all permanently lit floor grids.  Turning this option off allows
+you to know which lit floor grids are in line of sight.  If you are using color,
+however, the "view_bright_lite" option works better.
 
-***** <run_avoid_center>
-Avoid centering while running                 [run_avoid_center]     (off) :
-     Don't center the map when running.  A compromise between normal and always
-centered movement.
+***** <view_torch_grids>
+Map remembers all torch-lit grids             [view_torch_grids]     (off):
+     Memorize all floor grids that have ever been lit up by the player.  This is
+one way to help keep track of which areas you have explored.
 
 ***** <show_piles>
 Show stacks using special attr/char           [show_piles]           (off) :
      Displays a stack of floor objects using a special character.
-
-***** <hp_changes_color>
-Player color indicates low hit points         [hp_changes_color]     (off) :
-	As a player's hitpoints drops, the color of the player changes 
-as a warning.  90-100% of max hp - White.  70-89% - Yellow.  50-69% -
-Orange.  30-49% - Light Red.  Less than 30% of max hp - Red.
 
 ***** <mark_squelch_items>
 Items marked for squelch appear as dot        [mark_squelch_items]    (off) :
@@ -389,20 +282,19 @@ Automatically display drop-down lists	    [always_show_list]   (off)  :
 Allow accents in output files		    [xchars_to_file]   	 (off)  :	
     Allow non-ascii characters to be saved in output files.
 
---- Option Set #6:  Birth ---
+***** <show_flavors>
+Show flavors in object descriptions           [show_flavors]         (on) :
+     Display "flavors" (color or variety) in object descriptions and information
+screens, even for objects whose type is known.  This does not affect objects in
+stores.
+
+
+--- Option Set #5:  Birth ---
 
      You may only change birth options when starting up a new character.
 
-***** <birth_maximize>
-Adult: Maximize effect of race/class bonuses  [adult_maximize]       (on) :
-     If maximize mode is ON, racial and class adjustments to vital statistics
-(stat) act as permanent modifiers.  A Dwarven priest will be able to raise his
-inherent wisdom to 18/150, but his intelligence only to 18/40.
-     Maximize mode makes races play more differently, usually to the
-player's benefit; it is therefore recommended in most cases.
-
 ***** <birth_preserve>
-Adult: Preserve artifacts when leaving level  [adult_preserve]       (off) :
+Adult: Preserve artifacts when leaving level  [adult_preserve]       (on) :
      If preserve mode is ON, artifacts will not be lost unless you actually
 identify then abandon them.  However, you get no special feelings (which help
 you to find artifacts).  If this option is OFF, artifacts appear once and once
@@ -448,15 +340,6 @@ Adult: 	Retain squelch settings		      [birth_retain_squelch]  (off) :
     his immediate ancestor. If it is not set, the character's squelch settings
     will revert to the defaults.
 
-***** <birth_no_xtra_artifacts>
-Adult: 	Disable extra artifacts		      [birth_no_xtra_artifacts](off) :
-    If this option is set, no additional artifacts are created during game play.
-    Note that the standard artifact set, or any alternate set of artifacts 
-    created with the birth_rand_artifacts option, are unaffected.  This option
-    just prevents additional artifacts from being created in mid-game.
-    If birth_no_artifacts option is set to true, no artifacts are generated and
-    this option has no effect.
-
 ***** <birth_no_discovery>
 Adult: 	No special statgain at DL 2, 4, 6     [birth_no_discovery](off) :
     If this option is set, you no longer 'discover your potential' at 
@@ -474,7 +357,7 @@ Adult: 	Easy start (but mid game is harder)     [birth_easy_start](off) :
     This option can make it easy to get started, but try to stop using it
     when you've gotten used to the game.
 
---- Option Set #7:  Cheat ---
+--- Option Set #6:  Cheat ---
 
 ***** <cheat_peek>
 Peek into object creation                     [cheat_peek]           (off) :

@@ -716,23 +716,23 @@ static void describe_item_activation(const object_type *o_ptr, char *random_name
 		{
 			case SV_RING_ACID:
 			{
-				my_strcat(random_name, "acid resistance (20+d20 turns) and acid ball (70) every 50+d50 turns", max);
+				my_strcat(random_name, "acid ball (70) every 50+d50 turns", max);
 				break;
 			}
 			case SV_RING_FLAMES:
 			{
-				my_strcat(random_name, "fire resistance (20+d20 turns) and fire ball (80) every 50+d50 turns", max);
+				my_strcat(random_name, "fire ball (80) every 50+d50 turns", max);
 				break;
 			}
 			case SV_RING_ICE:
 			{
-				my_strcat(random_name, "cold resistance (20+d20 turns) and cold ball (75) every 50+d50 turns", max);
+				my_strcat(random_name, "cold ball (75) every 50+d50 turns", max);
 				break;
 			}
 
 			case SV_RING_LIGHTNING:
 			{
-				my_strcat(random_name, "electricity resistance (20+d20 turns) and electricity ball (85) every 50+d50 turns", max);
+				my_strcat(random_name, "electricity ball (85) every 50+d50 turns", max);
 				break;
 			}
 		}
@@ -1009,12 +1009,12 @@ static bool screen_out_head(const object_type *o_ptr)
 		p_text_out("It enables you to cast the spell ");
 		p_text_out(newspells[o_ptr->sval].name);
 		p_text_out(", if you have enough mana and you are high enough level.\n\n  The mana cost of the spell is reduced to ");
-		if (get_mana_cost(o_ptr->sval,1) - 1 <= -3){
+		if (get_mana_cost(o_ptr->sval,1) <= -3){
 			p_text_out("1/16");
-		} else if (get_mana_cost(o_ptr->sval,1) - 1 > 0){
-			p_text_out(format("%d",get_mana_cost(o_ptr->sval,1) - 1));
+		} else if (get_mana_cost(o_ptr->sval,1) > 0){
+			p_text_out(format("%d",get_mana_cost(o_ptr->sval,1)));
 		} else {
-			p_text_out(nice_mana_cost(get_mana_cost(o_ptr->sval,1) - 1));
+			p_text_out(nice_mana_cost(get_mana_cost(o_ptr->sval,1)));
 		}
 		if (get_success_prob(o_ptr->sval,1) == 0){
 			p_text_out(" but the success rate is currently 0. Try boosting your Int.");

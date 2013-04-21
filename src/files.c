@@ -4261,7 +4261,7 @@ void get_name(void)
 	clear_from(23);
 
 	/* Prompt */
-	put_str("Select Name Using Random Name Generator? (y/n)", 24, 10);
+	put_str("Select Name Using Random Name Generator? (y/n)", 23, 10);
 
 	do
 	{

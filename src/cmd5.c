@@ -4194,11 +4194,12 @@ void do_cmd_study(void)
 	p_ptr->window |= (PW_OBJECT);
 }
 
-int get_mana_cost(int spell_code, int talismans_dont_help) /* does not include wand bonus */
+int get_mana_cost(int spell_code, int talismans_dont_help) /* does include wand bonus */
 {
 	int result, school1_talisman=0, school1_other=0, school2_talisman=0, school2_other=0;
 	object_type *o_ptr;
 	int i;
+	int wand_bonus = 0;
 
 	/* Scan through the slots backwards */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -4215,6 +4216,10 @@ int get_mana_cost(int spell_code, int talismans_dont_help) /* does not include w
 			if (newspells[spell_code].school2==o_ptr->sval){
 				school2_talisman = 1;
 			}
+		}
+
+		if ((o_ptr->tval==TV_WAND && o_ptr->sval==spell_code)){
+			wand_bonus = 1;
 		}
 	}
 	for (i = INVEN_WIELD; i < END_EQUIPMENT; ++i)
@@ -4334,9 +4339,9 @@ int get_mana_cost(int spell_code, int talismans_dont_help) /* does not include w
 		}
 
 	
-}
+	}
 
-	result = newspells[spell_code].cost;
+	result = newspells[spell_code].cost - wand_bonus;
 	if (!talismans_dont_help){
 		if (school1_talisman){
 			if (result > 6){
