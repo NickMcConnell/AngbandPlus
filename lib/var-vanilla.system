@@ -14,8 +14,8 @@
      (:module variant
               :source-pathname "vanilla"
               :components ((:file "quirks")
-			   (:file "stores")
-			   (:file "flavours")
+			   ;;(:file "stores")
+			   (:file "various")
 			   ;;(:file "objects")
 			   (:file "rooms")
 			   (:file "levels")

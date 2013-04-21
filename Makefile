@@ -5,6 +5,7 @@ all:
 
 clean:
 	cd lib; $(MAKE) clean
+	cd tools; $(MAKE) clean
 	cd doc; $(MAKE) clean
-	$(RM) *.o *.so *.fasl *.x86f *.err
+	$(RM) *.o *.so *.fasl *.x86f *.err prof.dump
 

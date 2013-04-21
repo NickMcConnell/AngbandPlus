@@ -64,13 +64,14 @@ the Free Software Foundation; either version 2 of the License, or
 	    (cadr i)))
     table))
 
+
 (defun cnv-stat (val)
   "Converts given stat integer to a 6 char long string with
 space padding on the left."
   (cond ;;((<= val 9)
 	 ;;(format nil "~6@a" val))
 	((<= val 18)
-	 (format nil "~6d" val))
+	 (%get-6str val)) ;; hackish
 	(t
 	 (let ((extra (- val 18)))
 	   (if (>= extra 100)

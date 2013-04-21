@@ -105,9 +105,14 @@ operation."
 
 ;;    (warn "Got ~a" retval)
     
-    (if fun
-	(funcall fun dun pl)
-	(warn "fell through key with ~a ~a" ch (char-code ch)))
+    (cond ((and fun (functionp fun))
+	   ;;(prof:with-profiling (:type :time)
+	     (funcall fun dun pl)
+	   ;;  )
+	   ;;(prof:show-flat-profile)
+	   )
+	  (t
+	   (warn "fell through key with ~a ~a" ch (char-code ch))))
     ))
 
 (defun is-closed-door? (dun x y)
@@ -118,8 +123,8 @@ operation."
 (defun open-door! (dun x y)
   "hackish, fix me later.."
   (setf (cave-feature dun x y) +feature-open+)
-  (light-spot! dun x y)
-  )
+  (light-spot! dun x y))
+
 
 (defun open-all! (dun pl)
   "opens all doors around.."
@@ -133,7 +138,8 @@ operation."
       (when (is-closed-door? dun (car i) (cdr i))
 	(open-door! dun (car i) (cdr i))))))
 
-
+#||
 (defun key-test ()
   (dotimes (i 5)
     (print (c-read-some-key& 0 0))))
+||#

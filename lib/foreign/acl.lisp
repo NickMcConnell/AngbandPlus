@@ -104,7 +104,11 @@ ADD_DESC: in C from ACL.
 						   (c :int fixnum))
   :returning errr)
 
-(ff:def-foreign-call (c-read-some-key& "read_some_key") ((a :int fixnum)
-							 (c :int fixnum))
-  :returning :char)
+;;(ff:def-foreign-call (c-read-some-key& "read_some_key") ((a :int fixnum)
+;;							 (c :int fixnum))
+;;  :returning :char)
 
+
+(ff:def-foreign-call (c-macro-add& "macro_add") ((b cptr)
+						 (a cptr))
+  :returning :void)

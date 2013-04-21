@@ -1,0 +1,27 @@
+;;; -*- Mode: Lisp -*-
+
+#+CLISP
+(in-package :user)
+#-CLISP
+(in-package :cl-user)
+
+;;; System definition
+
+(mk:defsystem :lb-test
+    :source-pathname "tests"
+    :source-extension "lisp"
+;;    :binary-pathname nil
+;;    :binary-extension nil
+    :components ((:module basic
+			  :source-pathname ""
+			  :components ((:file "package")
+				       (:file "base"
+					      :depends-on ("package"))))
+		 (:module usual
+			  :source-pathname ""
+			  :components ((:file "core")
+				       (:file "stat")
+				       (:file "building")
+				       )
+			  :depends-on (basic))
+		 ))

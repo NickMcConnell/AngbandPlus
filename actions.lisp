@@ -25,10 +25,14 @@ The direction is a number from the keypad."
 	 (wanted-y cur-y))
 
     (case direction
+      (9 (decf wanted-y) (incf wanted-x))
       (8 (decf wanted-y))
+      (7 (decf wanted-y) (decf wanted-x))
       (6 (incf wanted-x))
-      (2 (incf wanted-y))
       (4 (decf wanted-x))
+      (3 (incf wanted-y) (incf wanted-x))
+      (2 (incf wanted-y))
+      (1 (incf wanted-y) (decf wanted-x))
       (otherwise (warn "Unknown direction")))
 
     #||
@@ -61,7 +65,11 @@ The direction is a number from the keypad."
 	    ))
 
     (bit-flag-add! *update* +update-view+)
-    
+
+    ;; hack
+    (apply-possible-coord-trigger dun
+				  (player.loc-x pl)
+				  (player.loc-y pl))
     pl))
 
     
@@ -92,8 +100,6 @@ a number or a symbol identifying the place."
 	(the-place where)
 	(printed-prompt nil)
 	)
-
-
 
     (block read-loop
       (loop
@@ -137,7 +143,8 @@ a number or a symbol identifying the place."
   
 
 (defun use-stair! (dun pl dir)
-  "temporary function to say that we're using a stair.."
+  "Uses a stair in direction DIR if the player PL
+is above a stair."
 
   (let* ((depth (player.depth pl))
 	 (x (player.loc-x pl))

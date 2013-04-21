@@ -16,6 +16,13 @@ ADD_DESC: This file just contains simple init and loading of the game
 
 |#
 
+;; add features we need
+(eval-when (:execute :load-toplevel :compile-toplevel)
+  
+;;  (push :xp-testing *features*)
+
+  )
+  
 #+(or cmu clisp allegro lispworks)
 (progn
   (unless (find-package :make)
@@ -46,8 +53,11 @@ ADD_DESC: This file just contains simple init and loading of the game
 ||#
 
 #+allegro
-(setq *load-local-names-info* t)
-
+(progn
+  (setf *load-local-names-info* t
+	;;(sys:gsgc-switch :print) t
+	))
+  
 (defun compile-in-environment (func)
   (let (
 	#+cmu (*compile-print* nil)
@@ -70,7 +80,9 @@ ADD_DESC: This file just contains simple init and loading of the game
     (load "langband.system")
     (mk:operate-on-system 'langband 'compile :verbose nil)
     (format t "~&System loaded...~%"))
-    
+
+(compile-in-environment #'load-game)
+
 #||
 (defun load-variant (key)
   (let ((var-obj 
@@ -78,11 +90,27 @@ ADD_DESC: This file just contains simple init and loading of the game
   (mk:operate-on-system 'vanilla-variant 'compile :verbose nil)
   (format t "~&Variant loaded...~%"))
 ||#
+
+#+xp-testing	
+(defun load-tests ()
+  (load "tools/XPTest.system")
+  (mk:operate-on-system 'XPTest 'compile :verbose nil)
+  
+  (load "tests/tests.system")
+  (mk:operate-on-system 'lb-test 'compile :verbose nil)
+  (format t "~&Tests loaded.~%"))
 	
-(compile-in-environment #'load-game)
+#+xp-testing
+(compile-in-environment #'load-tests)
+
+
 ;;(compile-in-environment #'load-vanilla-variant)
 
 (in-package :langband)
+
+#+xp-testing
+(defun do-a-test (stage)
+  (lb-test::run-lb-test stage :verbose t))
 
 (defun a ()
   ;; to make sure dumps look pretty
@@ -91,3 +119,6 @@ ADD_DESC: This file just contains simple init and loading of the game
 	#+cmu (*compile-print* nil)
 	)
     (game-init&)))
+
+#+xp-testing
+(do-a-test :pre)

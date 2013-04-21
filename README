@@ -1,28 +1,76 @@
 [This file will be updated]
 
-Currently Langband is crippled and barely working, but it can be
-loaded and used.
+Currently Langband is not anywhere close to being to finished and it
+is barely working.  It can be loaded and you may attempt to move
+around somewhate. 
 
 You need:
-- A decent computer and system (Linux, fast enough and with a decent
-  amount of memory)
-- CMU Common Lisp (there exists a decent package for Debian)
+
+  - A decent computer and system
+    Linux, fast enough and with a decent amount of memory
+    
+  - CMU Common Lisp
+    There exists a decent package for Debian
 
 Might be used:
-- Allegro Common Lisp (is not active dev-platform anymore due to license)
 
+  - Allegro Common Lisp
+    is not active dev-platform anymore due to license
+
+    
 How to start it:
 
-- tweak lib/zterm/Makefile  (Probably only ENVIRONMENT and CMUCL needs to be changed.)
-- run 'make'  (where make is GNU Make)
-- start lisp
-- (load "game")  ;; loads/compiles the core engine mostly
-- (lb::a)        ;; loads/compiles vanilla variant and helper-libraries
-                 ;; on first run, it will take a _lot_ of time on obj-kind.lisp
+  - tweak lib/zterm/Makefile
+    Probably only ENVIRONMENT and CMUCL needs to be changed.
+    ***Only the X11 option is really recommended right now***
+    
+  - run 'make'
+    Where make is GNU Make
+    
+  - start your lisp and get a prompt for the two following commands:
+  
+  - (load "game")
+    loads/compiles the core engine mostly
+  
+  - (lb::a)
+    loads/compiles vanilla variant and helper-libraries
+    on first run, it will take a _lot_ of time on obj-kind.lisp
 
-(Select a character and try it out)
+
+How to play:
+
+  Create a character, the details do not matter at this stage so
+  anything will do.  You will eventually find yourself (the @) in a
+  town, but currently no shops work and silly messages are printed now
+  and then.  Move around the character with the arrowkeys or the
+  numpad. Other keys:
+  
+    > - go down a stair
+    < - go up a stair
+    e - show worn equipment
+    i - show backpack equipment
+    C - show the character facts
+    g - get an item from the ground
+    d - drop an item to the ground
+    w - wear an item from backpack
+    o - open all surrounding doors
+    p - prints a map of dungeon to map.ascii (debugging)
+    P - prints a ppm map to map.ppm (debugging)
+    z - "zap" the game (expert debugging)
+    Q - quit the game
+
+  The keys and their code may be found in lib/common/keys.lisp
+
+  
+What to do on crash or bugs:
+
+  See the docs in the web/ directory.  An undocumented feature is the
+  GAME-LOOP& function which might in some cases be called if an
+  already working game has given you the lisp-prompt and you have
+  fixed any problems.  This is mainly of use to me at this stage
+  though. 
 
 Docs:
 
-See the web/-directory.
+  See the web/-directory.  
 

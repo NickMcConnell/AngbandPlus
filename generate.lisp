@@ -477,7 +477,7 @@ light argument is a boolean."
 
 
 
-(defmethod generate-level! ((level random-level) player dun)
+(defmethod generate-level! ((level random-level) player)
   "Generates a dungeon level and returns it.  If the optional dungeon
 argument is passed it will be used as new dungeon and returned."
  
@@ -485,14 +485,13 @@ argument is passed it will be used as new dungeon and returned."
 	 (settings (get-setting :random-level))
 	 (dungeon-height (slot-value settings 'max-height))
 	 (dungeon-width (slot-value settings 'max-width))
-	 (dungeon (if dun dun (create-dungeon dungeon-width
-					      dungeon-height)))
+	 (dungeon (create-dungeon dungeon-width dungeon-height
+				  :its-depth (level.depth level)))
 	 (*cur-dun* (make-dun-data))
 	 ;;(qy +screen-height+)
 	 ;;(qx +screen-width+)
 	 )
 
-;;    (setf (player.map player) (make-map dungeon))
     
     ;; start with granite
     (fill-dungeon-with-feature! dungeon +feature-wall-extra+)
@@ -570,6 +569,7 @@ argument is passed it will be used as new dungeon and returned."
 
       (setf (dun-data.room-centres *cur-dun*) centres)
 
+;;      (warn "tunnel..")
       (let* ((last (svref centres (1- len)))
 	     (x (car last))
 	     (y (cdr last)))
@@ -577,12 +577,13 @@ argument is passed it will be used as new dungeon and returned."
 	      for this-x = (car c)
 	      for this-y = (cdr c)
 	      do
-	      (build-tunnel! dun this-x this-y x y)
+	      (build-tunnel! dungeon this-x this-y x y)
 	      (setf x this-x
 		    y this-y)))
 
       
       )
+    
 
     ;; place unplaced doors
     (let ((doors (dun-data.doors *cur-dun*)))
@@ -594,7 +595,6 @@ argument is passed it will be used as new dungeon and returned."
 	  (try-door! dungeon x (1- y))
 	  (try-door! dungeon x (1+ y)))))
     
-
     (let ((stairs-up (slot-value settings 'stairs-up))
 	  (stairs-down (slot-value settings 'stairs-down)))
 
@@ -604,7 +604,7 @@ argument is passed it will be used as new dungeon and returned."
       (allocate-stairs! dungeon :up   (rand-range (car stairs-up)
 						  (cdr stairs-up)) 3))
    
-
+    
     (let ((monster-amount (int-/ (dungeon.depth dungeon) 3)))
       (when (> monster-amount 10) (setq monster-amount 10))
       (when (< monster-amount 2)  (setq monster-amount 2))
@@ -613,11 +613,11 @@ argument is passed it will be used as new dungeon and returned."
 
       (dotimes (i monster-amount)
 	(allocate-monster! dungeon player 0 t)))
-    
+
     
     (new-player-spot! dungeon player)
 
-
+    
     ;; in rooms
     (allocate-object! dungeon 'alloc-set-room 'alloc-type-object 9)
 	

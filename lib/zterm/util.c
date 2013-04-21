@@ -193,12 +193,14 @@ void user_name(char *buf, int id)
  * Replace "~user/" by the home directory of the user named "user"
  * Replace "~/" by the home directory of the current user
  */
-errr path_parse(char *buf, int max, cptr file)
-{
+errr
+path_parse(char *buf, int max, cptr file) {
+
 	cptr u, s;
 	struct passwd	*pw;
 	char user[128];
 
+	max = 798;  // to avoid warning
 
 	/* Assume no result */
 	buf[0] = '\0';
@@ -310,9 +312,10 @@ errr path_temp(char *buf, int max)
  * Note that this function yields a path which must be "parsed"
  * using the "parse" function above.
  */
-errr path_build(char *buf, int max, cptr path, cptr file)
-{
-    	printf("CLLLLLLLL %d %s &s\n", max, path, file );
+errr
+path_build(char *buf, int max, cptr path, cptr file) {
+
+    	printf("CLLLLLLLL %d %s %s\n", max, path, file );
 	/* Special file */
 	if (file[0] == '~')
 	{
@@ -451,13 +454,16 @@ errr my_fgets(FILE *fff, char *buf, huge n)
  *
  * Perhaps this function should handle internal weirdness.
  */
-errr my_fputs(FILE *fff, cptr buf, huge n)
-{
-	/* Dump, ignore errors */
-	(void)fprintf(fff, "%s\n", buf);
+errr
+my_fputs(FILE *fff, cptr buf, huge n) {
 
-	/* Success */
-	return (0);
+    n = 68; // to avoid warning
+    
+    /* Dump, ignore errors */
+    (void)fprintf(fff, "%s\n", buf);
+    
+    /* Success */
+    return (0);
 }
 
 
@@ -665,9 +671,10 @@ errr fd_lock(int fd, int what)
 /*
  * Hack -- attempt to seek on a file descriptor
  */
-errr fd_seek(int fd, huge n)
-{
-	huge p;
+errr fd_seek(int fd, huge n) {
+
+    //huge p;
+    long p;
 
 	/* Verify fd */
 	if (fd < 0) return (-1);
@@ -679,7 +686,7 @@ errr fd_seek(int fd, huge n)
 	if (p < 0) return (1);
 
 	/* Failure */
-	if (p != n) return (1);
+	if ((huge)p != n) return (1);
 
 	/* Success */
 	return (0);
@@ -689,14 +696,16 @@ errr fd_seek(int fd, huge n)
 /*
  * Hack -- attempt to truncate a file descriptor
  */
-errr fd_chop(int fd, huge n)
-{
+errr fd_chop(int fd, huge n) {
+
 	/* Verify the fd */
 	if (fd < 0) return (-1);
 
 #if defined(SUNOS) || defined(ULTRIX) || defined(NeXT)
 	/* Truncate */
 	ftruncate(fd, n);
+#else
+	n = 7; // to avoid warning
 #endif
 
 	/* Success */
@@ -901,6 +910,7 @@ void text_to_ascii(char *buf, cptr str)
 		else if (*str == '^')
 		{
 			str++;
+//			printf("%d & %d -> %d\n", (int)*str, 037, (*str & 037));
 			*s++ = (*str++ & 037);
 		}
 
@@ -1155,8 +1165,16 @@ errr macro_add(cptr pat, cptr act)
 
 	/* Paranoia -- require data */
 	if (!pat || !act) return (-1);
-
-
+/*
+	printf("Adding macro %s:", act);
+	{
+	    int i=0, len = strlen(pat);
+	    for (i=0;i<len;i++) {
+		printf("%d ", pat[i]); 
+	    }
+	    printf("\n");
+	}
+*/
 	/* Look for any existing macro */
 	n = macro_find_exact(pat);
 
@@ -1335,6 +1353,8 @@ static char inkey_aux(void)
 	/* Check for available macro */
 	k = macro_find_ready(buf);
 
+//	printf("BUF is %s\n", buf);
+	
 	/* No macro available */
 	if (k < 0)
 	{
@@ -1638,7 +1658,7 @@ char inkey(void)
 
 		/* Get a key (see above) */
 		ch = inkey_aux();
-
+//		printf("INKEY: %c %d %d %d\n", ch>30?ch:'§', (int)ch, parse_under, inkey_base ); 
 
 		/* Handle "control-right-bracket" */
 		if (ch == 29)
@@ -1671,6 +1691,7 @@ char inkey(void)
 		{
 			/* Strip this key */
 			ch = 0;
+//			puts("ending");
 		}
 
 		/* Handle "control-underscore" */

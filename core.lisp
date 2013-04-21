@@ -23,7 +23,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
-  (defclass variant ()
+  (defclass variant (activatable)
     (
      (id        :accessor variant.id
 		:initform :lithping
@@ -99,7 +99,18 @@ the Free Software Foundation; either version 2 of the License, or
      (filters :accessor variant.filters
 	      :initform (make-hash-table :test #'eq)
 	      :initarg :filters)
-		   
+     
+     (flavour-types :accessor variant.flavour-types
+		    :initform nil
+		    :initarg :flavour-types)
+
+     (house-types :accessor variant.house-types
+		  :initform (make-hash-table)
+		  :initarg :store-types)
+     
+     (house-owners :accessor variant.house-owners
+		   :initform (make-hash-table)
+		   :initarg :store-owners)
 		   
 #||     
      (alloc-table-monsters :accessor variant.alloc-table-monsters
@@ -220,4 +231,20 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((filters (gethash type (variant.filters var-obj))))
     (dolist (i filters)
       (funcall (cdr i) var-obj obj))))
+
+(defun register-sorting-values& (var-obj sort-values)
+  "The SORT-VALUES are a list where the CARTS are CONSes. In
+each such CONS the CAR is an appropriate key and the CDR is
+the sorting-value which is a positive integer, lowest numbers
+are sorted first.  Returns nothing."
+
+  (let ((table (variant.sort-values var-obj)))
+    (dolist (i sort-values)
+      (let ((key (car i))
+	    (sort-val (cdr i)))
+	(setf (gethash key table) sort-val)))
+    (values)))
+
+
+
 

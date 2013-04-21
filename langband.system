@@ -5,7 +5,8 @@
     (
      (:module decl
               :source-pathname ""
-              :components ((:file "package")))
+              :components ((:file "package")
+			   (:file "memoize")))
      (:module basic
               :source-pathname ""
               :components ((:file "base")
@@ -33,6 +34,7 @@
 			   (:file "flavours")
 			   (:file "monster")
 			   (:file "dungeon")
+			   (:file "building")
 			   (:file "stores")
 			   (:file "allocate")
 			   (:file "rooms")

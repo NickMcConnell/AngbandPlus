@@ -269,9 +269,10 @@ the table, the key and the object itself."))
 
 (defun register-slot-order& (order)
   "Takes a list of lists (symbol description types-allowed)
-and adds settings to various places."
+and adds settings to various places.  Must be FIXed and moved
+to variant obj."
   
-  (warn "Registering slot order.")
+;;  (warn "Registering slot order.")
 
   (let ((len (length order)))
 

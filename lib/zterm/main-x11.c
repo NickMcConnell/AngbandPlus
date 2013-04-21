@@ -318,7 +318,7 @@ static XImage *ReadBMP(Display *disp, char Name[])
 
 	char *Data,cname[8];
 
-	int ncol,depth,x,y;
+	unsigned int ncol,depth,x,y;
 
 	RGB clrg;
 

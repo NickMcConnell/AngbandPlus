@@ -17,7 +17,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
  
-  (defclass level ()
+  (defclass level (activatable)
     (
      (id      :accessor level.id      :initarg :id      :initform 'level)
      (dungeon :accessor level.dungeon :initarg :dungeon :initform nil)
@@ -37,15 +37,15 @@ the Free Software Foundation; either version 2 of the License, or
 
   )
 
-(defgeneric generate-level! (level player dungeon)
-  (:documentation "Returns the level-object.  If the
-dungeon object is valid and can be reused, it will be reused."))
+(defgeneric generate-level! (level player)
+  (:documentation "Returns the level-object."))
 
 
-(defmethod generate-level! (level player dungeon)
-  (declare (ignore level player dungeon))
-  (error "The basic GENERATE-LEVEL is not implemented, please pass
-a proper LEVEL object."))
+(defmethod generate-level! (level player)
+  (declare (ignore level player))
+  (warn "The basic GENERATE-LEVEL is not implemented, please pass
+a proper LEVEL object.")
+  nil)
 
 ;; see generate.lisp and variants
 

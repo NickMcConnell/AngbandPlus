@@ -1,3 +1,50 @@
+2001-02-12  Stig E Sandø <stig@users.sourceforge.net>
+	* added activable mixin-class for being consistent with
+	acticate-object state and later deactivation
+	* activable objects: house, variant, active-object, level and
+	active-monster 
+	* removed reuse of dungeon arrays to allow easier saving of levels
+	later.
+	* added a hack to allow easy restart after a crash by saving state
+	now and then.  the game-loop can be restarted with GAME-LOOP&.
+	* added 'z' key to get a LISP-prompt, the restart function over
+	can be used afterwards.
+	* removed warnings from C-code
+	* did some optimisations on UPDATE-VIEW!, need a real rewrite
+	later to stop using bignums.
+	* regenerated web/file-list.html
+	* updated README and added COPYING to the fray
+	
+2001-02-10  Stig E Sandø <stig@users.sourceforge.net>
+	* reduced cons'ing slightly and optimised UPDATE-VIEW! slightly.
+	* added memoize.lisp and memoised a few string allocation
+	functions in print.lisp (moved to base.lisp)
+	* macrofied a few bit-twiddlers for allegro only
+	* small adjustments elsewhere
+
+2001-02-08  Stig E Sandø <stig@users.sourceforge.net>
+	* made an improvement to the shuffle-array function and added a
+	handy array-with-num thing to base.lisp
+	* started placing stores/houses stuff in the variant object, not
+	quite there yet
+	* added a trigger-mechanism that can be set to a special
+	coordinate in the dungeon and which will be triggered when the
+	player moves atop the location  GET-COORD-TRIGGER and it's SETF
+	* added XP testing framework, source gotten from onShore Inc.  See
+	tools/xptest-COPYING for copying details.  Only simple tests added
+	to code.  This testing imposes some overhead on the current
+	cvs-tree code
+	* Moved minor stuff around in the vanilla variant code
+		
+2001-02-02  Stig E Sandø <stig@users.sourceforge.net>
+	* added support for numpad and arrowkeys and diagonal movement.
+	* added code to allow key-macros to be set and loaded from lisp.
+	Angband-pref-files are now plain LOADed lisp.
+	* started writing a technical overview of Langband
+	* Added lazy flavouring to Langband.  an object is flavoured the
+	first time an object of a certain kind is created. 
+
+		
 2001-01-21  Stig E Sandø <stig@users.sourceforge.net>
 	* Pretty drastic upgrade of a lot of the code, wrt to levels and
 	possibly theming.  the town-level in vanilla is now a themed level

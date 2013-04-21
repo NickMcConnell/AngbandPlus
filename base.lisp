@@ -16,8 +16,15 @@ the Free Software Foundation; either version 2 of the License, or
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   ;; 28 bits
-  (deftype u-fixnum () '(integer 0 268435455))
-  )
+  (deftype u-fixnum () '(unsigned-byte 28))
+  (deftype vinfo-bit-type () `(unsigned-byte 32))
+
+  (defclass activatable ()
+    ((activated :accessor activated? :initform nil))
+    (:documentation "Mixin-class for activatation of objects,
+may be removed later for efficiency-reasons."))
+  
+)
 
 (defmacro defsubst (name arglist &body body)
   "Declare an inline defun."
@@ -203,17 +210,20 @@ and NIL if unsuccesful."
 	 nil)))
 
 
-(defun htbl-to-vector (htbl &optional sort-table-p &key sorted-by-key sorted-by-fun)
+(defun htbl-to-vector (htbl &key sort-table-p sorted-by-key sorted-by-fun fill-pointer)
   "Takes a hash-table and returns a vector with the elements."
   
   (let* ((len (hash-table-count htbl))
-	 (arr (make-array len)))
+	 (arr (if fill-pointer
+		  (make-array len :initial-element nil :fill-pointer t)
+		  (make-array len :initial-element nil))))
+	 
     (declare (type u-fixnum len))
     
     (loop for i of-type u-fixnum from 0
 	  for x being the hash-values of htbl
 	  do
-	  (setf (svref arr i) x))
+	  (setf (aref arr i) x))
     
     (when sort-table-p
       (let ((sort-args (list arr (if sorted-by-fun sorted-by-fun #'<))))
@@ -227,16 +237,24 @@ and NIL if unsuccesful."
   "Shuffles the given array"
   (declare (type u-fixnum len))
   
-  (let ((tmp-val 0))
-
-    (loop for i of-type u-fixnum from 0 to (1- len)
-	  for rnd-val = (random len)
-	  do
-	  (setf tmp-val (aref tmp-arr i))
-	  (setf (aref tmp-arr i) (aref tmp-arr rnd-val))
-	  (setf (aref tmp-arr rnd-val) tmp-val)))
+  (loop for i of-type u-fixnum from 0 to (1- len)
+	for rnd-val = (random len)
+	do
+	(rotatef (aref tmp-arr i) (aref tmp-arr rnd-val)))
   
   tmp-arr)
+
+(defun get-array-with-numbers (len &key fill-pointer)
+  "Returns an array with increasing numbers."
+  (let ((arr (if fill-pointer
+		 (make-array len :fill-pointer t)
+		 (make-array len))))
+    
+    (loop for i from 0 to (1- len)
+	  do
+	  (setf (aref arr i) i))
+    
+    arr))
 
 (defun parse-dice (str)
   "Parses a dice and returns a CONS with num-dice and base-dice."
@@ -254,10 +272,20 @@ and NIL if unsuccesful."
   `(setf ,loc (logandc2 ,loc ,flag)))
 
 ;; change me into a macro at some point?
+#+allegro
+(defmacro bit-flag-set? (loc flag)
+  `(/= 0 (logand ,loc ,flag)))
+
+#-allegro
 (defun bit-flag-set? (loc flag)
   "Checks if the given flag is set, and returns T or NIL."
   (/= 0 (logand loc flag)))
 
+#+allegro
+(defmacro bit-flag-and (pos1 pos2)
+  `(/= 0 (logand ,pos1 ,pos2)))
+
+#-allegro
 (defun bit-flag-and (pos1 pos2)
   (/= 0 (logand pos1 pos2)))
 
@@ -293,6 +321,10 @@ The object in question should be returned."))
 (defmethod activate-object (obj &key)
 
   obj)
+
+(defmethod activate-object :after ((obj activatable) &key)
+   (setf (activated? obj) t))
+
 
 #||
 ;; move me later
@@ -344,3 +376,87 @@ level/room/player combo.  Allowed to return NIL."))
 	      #+cmu (extensions:*gc-verbose* nil)
 	      )
     (funcall func)))
+
+(defun text-to-ascii (str)
+  "converts a c-type string to a lisp-string in ascii."
+  
+  (let ((backslashed nil)
+	(controlled nil))
+    
+    (with-output-to-string (s)
+      (loop for x across str
+	  do 
+	    ;;(warn "checking ~s" x)
+	    (cond (backslashed
+		   (case x
+		     (#\\ (write-char #\\ s))
+		     (#\s (write-char #\Space s))
+		     (#\b (write-char #\Backspace s))
+		     (#\n (write-char #\Linefeed s))
+		     (#\r (write-char #\Return s))
+		     (#\t (write-char #\Tab s))
+		     ;; skip hex
+		     (otherwise
+		      (write-char x s)))
+		   (setq backslashed nil))
+
+		  (controlled
+		   (write-char (code-char (logand (char-code x) #o37)) s)
+		   (setq controlled nil))
+		  ((eql x #\\) 
+		   (setq backslashed t))
+		  ((eql x #\^)
+		   (setq controlled t))
+		  
+		  (t
+		   (write-char x s))))
+      s)))
+
+;;(trace text-to-ascii)
+
+#+allegro
+(defmacro tricky-profile (expr type)
+  `(prof:with-profiling (:type ,type)
+    (prog1
+	,expr
+      (with-open-file (s (pathname "prof.dump")
+			    :direction :output
+			    :if-exists :supersede)
+	   (prof:show-flat-profile :stream s :verbose t)
+	   (prof:show-call-graph :stream s :verbose t)
+	   ))))
+
+#+cmu
+(defmacro tricky-profile (expr type)
+  (declare (ignore type))
+  `(time ,expr))
+
+#||
+(defvar *left-adj-6str* (make-hash-table :test #'eql))
+
+(dotimes (i 60)
+  (setf (gethash i *left-adj-6str*) (format nil "~6d" i)))
+
+(defmacro %get-6str (num)
+  `(progn
+    (assert (< ,num 60)) ;; the length
+    (gethash ,num *left-adj-6str*)))
+||#
+
+(defun-memo %get-6str (num)
+  (format nil "~6d" num))
+
+(defun-memo %get-5str (num)
+  (format nil "~5d" num))
+
+(defun-memo %get-4str (num)
+  (format nil "~4d" num))
+
+(defun-memo %get-8str (num)
+  (format nil "~8d" num))
+
+(defun-memo %get-9str (num)
+  (format nil "~9d" num))
+
+(defun-memo %get-13astr (val)
+  (format nil "~13@a" val))

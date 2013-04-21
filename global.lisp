@@ -53,7 +53,7 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
-  (defclass active-object ()
+  (defclass active-object (activatable)
     ((kind        :accessor aobj.kind
 		  :initarg :obj
 		  :initform nil)
@@ -74,7 +74,7 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
-  (defclass active-monster ()
+  (defclass active-monster (activatable)
     ((kind   :accessor amon.kind   :initarg :obj   :initform nil)
      (cur-hp :accessor amon.cur-hp :initarg :hp    :initform nil)
      (speed  :accessor amon.speed  :initarg :speed :initform nil)
@@ -189,3 +189,19 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 	,@body)
     (screen-load)))
 
+;; move later
+
+(defun get-system-type ()
+  'x11)
+
+(defun read-pref-file (fname)
+  (load fname))
+
+(defun define-key-macros (key &rest macros)
+  (dolist (i macros)
+    (let ((macro (text-to-ascii i)))
+;;      (loop for x across macro do (format t "~a " (char-code x)))
+;;      (format t "~%")
+;;      (warn "macro ~s" macro)
+      (c-macro-add& macro (string key))))
+  key)

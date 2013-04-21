@@ -76,7 +76,9 @@ ADD_DESC: Most of the code which deals with the game loops.
   (let* ((dun (level.dungeon level))
 	 (*dungeon* dun)
 	 (dungeon-height (dungeon.height dun))
-	 (dungeon-width  (dungeon.width dun)))
+	 (dungeon-width  (dungeon.width dun))
+
+	 )
 	
   
     ;; we're not leaving
@@ -145,7 +147,53 @@ ADD_DESC: Most of the code which deals with the game loops.
        ))
     ))
 
+(defun game-loop& ()
+  "This is the main game-loop."
+  (multiple-value-bind (*player* *variant* *level*)
+      (load-old-environment&)
+    
+      (loop
+       ;; clean up to prevent too many delays while running the dungeon
+       #+cmu
+       (ext:gc)
+       #+allegro
+       (excl:gc t)
+       ;; let's run this dungeon
 
+       (let* ((how-level-was-left
+	       ;;(tricky-profile
+	       (time
+		(run-level! *level* *player*)
+		;;:space)
+		)
+		))
+	   
+	 
+	   ;; return if we're toast
+	   (when (player.dead-p *player*)
+	     (return-from game-loop&))
+       
+	 ;; generate new cave
+	 (setq *level* (create-appropriate-level *variant* *level*
+						 *player* (player.depth *player*)))
+	 
+	 (activate-object *level* :player *player*
+			  :leave-method how-level-was-left)
+	 ;; safety?
+	 (save-current-environment&)
+
+	 ))))
+
+(defun save-current-environment& ()
+  (setf (get '*player* 'last-value) *player*)
+  (setf (get '*variant* 'last-value) *variant*)
+  (setf (get '*level* 'last-value) *level*)
+  (values))
+
+(defun load-old-environment& ()
+  (values (get '*player* 'last-value)
+	  (get '*variant* 'last-value)
+	  (get '*level* 'last-value)))
 
 (defun play-game& ()
   "Should not be called directly."
@@ -156,7 +204,13 @@ ADD_DESC: Most of the code which deals with the game loops.
   
   ;; hack to remove cursor
   (let ((*player* nil)
-	(*level* nil))
+	(*level* nil)
+;;	#+allegro
+;;	(old-spread (sys:gsgc-parameter :generation-spread))
+	)
+
+    (let ((*load-verbose* t))
+      (load "lib/file/prefs.lisp"))
     
     (c-set-cursor& 0)
 
@@ -187,25 +241,8 @@ ADD_DESC: Most of the code which deals with the game loops.
 	(activate-object *level* :player *player*
 			  :leave-method nil))
       
-      (loop
-       ;; clean up to prevent too many delays while running the dungeon
-       #+cmu
-       (ext:gc)
-       ;; let's run this dungeon
-       (let ((how-level-was-left (run-level! *level* *player*)))
-
-	 ;; return if we're toast
-	 (when (player.dead-p *player*)
-	   (return-from dungeon-running))
-       
-	 ;; generate new cave, try to use the existing
-	 (setq *level* (create-appropriate-level *variant* *level*
-						 *player* (player.depth *player*)))
-	 (activate-object *level* :player *player*
-			  :leave-method how-level-was-left)
-	 
-       )))
-    
+      (save-current-environment&)
+      (game-loop&))
     
     (c-prt "Quitting..." 0 0)  
     (c-pause-line *last-console-line*)

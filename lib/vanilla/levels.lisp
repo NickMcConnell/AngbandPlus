@@ -17,26 +17,52 @@ the Free Software Foundation; either version 2 of the License, or
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
   (defclass van-town-level (themed-level)
-    ((id :initform 'town-level))
+    ((id :initform 'town-level)
+     (stores        :initarg :stores     :initform nil  :accessor variant.stores)
+     (num-stores    :initarg :num-stores :initform 8 :accessor variant.num-stores)
+     (home-num      :initarg :home-num   :initform 7 :accessor variant.home-num))
+
     ))
+
+#||
+(defun van-store-build! (dungeon number xx yy
+			 &key
+			 (y-offset +screen-height+)
+			 (x-offset +screen-width+))
+			 
+  "more or less taken directly"
+
+  (let ((the-house (get-house number)))
+    (when the-house
+      (build-house! *level* the-house xx yy))))
+  
+       ;; fake it
+;;       (setf (get-coord-trigger dungeon x y) #'(lambda (dun x y)
+;;						 (warn "Entering shop ~a" number)))
+;;       (setf (cave-feature dungeon x y) (+ +feature-shop-head+ number)))
+
+||#
+     
+
 
 (defmethod level-ready? ((level van-town-level))
   (when (level.dungeon level)
     t))
 
 
-(defmethod generate-level! ((level van-town-level) player dun)
+(defmethod generate-level! ((level van-town-level) player)
   "Generates a town and returns it.  If the dungeon
 argument is non-NIL it will be re-used and returned as
 part of the new level."
 
   (let* ((*level* level)
+	 (var-obj *variant*)
 	 (settings (get-setting :random-level)) ;; hack
 	 (max-dungeon-width  (slot-value settings 'max-width))
 	 (max-dungeon-height (slot-value settings 'max-height))
-	 (dungeon (if dun dun (create-dungeon max-dungeon-width
-					      max-dungeon-height
-					      :its-depth 0)))
+	 (dungeon (create-dungeon max-dungeon-width
+				  max-dungeon-height
+				  :its-depth 0))
 	 (qy +screen-height+)
 	 (qx +screen-width+))
 
@@ -53,17 +79,36 @@ part of the new level."
 				     (cons (1+ +screen-height+) (+ +screen-height+ qy -1)))
 
     ;; we need stores
-    (let ((room-numbers (stable-sort (loop for x of-type u-fixnum from 0 to (1- +max-stores+)
-					   collecting x)
-				     #'(lambda (x y)
-					 (declare (ignore x y))
-					 (let ((val (random 100)))
-					   (oddp val))))))
+    (let* ((y-offset +screen-height+)
+	   (x-offset +screen-width+)
+	   (store-num (variant.num-stores level))
+	   (store-numbers (shuffle-array! (get-array-with-numbers store-num :fill-pointer t)
+					 store-num))
+;;	   (stores (loop for x from 0 to (1- store-num) collecting (create-store (1+ x))))
+	   )
+
+      ;; move actual stores to level object
+;;      (warn "Stores is ~a" stores)
+
+      (setf (level.dungeon level) dungeon)
+
+	    
       (dotimes (y 2)
 	(dotimes (x 4)
-	  (store-build! dungeon (pop room-numbers) x y))))
+	  (let* ((house-num (vector-pop store-numbers))
+		 (the-house (get-house house-num)))
+	    (when the-house
+	      (let ((x0 (+ x-offset (* x 14) 12))
+		    (y0 (+ y-offset (* y 9) 6)))
+		(warn "building ~s [~a]" the-house house-num)
+		(build-house! level the-house x0 y0
+			      :door-feature (1- (+ +feature-shop-head+ house-num))
+			      :door-trigger  #'(lambda (dun x y)
+						 (warn "Entering shop ~a" (1+ house-num))))
+		)))
+	  )))
 
-
+    
 
     (loop named place-the-player
 	  for x of-type u-fixnum = (with-type u-fixnum (+ qx (rand-range 3 (- +screen-width+ 4))))
@@ -75,22 +120,21 @@ part of the new level."
 	    (return-from place-the-player nil)))
 
     
-    (setf (level.dungeon level) dungeon)
+;;    (setf (level.dungeon level) dungeon)
 
     level))
 
 
 (defvar *van-saved-town-seed* nil)
 
-(defun van-make-town-level-obj (old-level player)
+(defun van-make-town-level-obj (player)
   "A sucky function which should be simplified greatly."
 
   (flet ((do-generation (seed)
 	   (let* ((town (make-instance 'van-town-level :depth 0))
 		  (cl:*random-state* (cl:make-random-state seed)))
 
-	     (generate-level! town player
-			      (if old-level (level.dungeon old-level) nil)))))
+	     (generate-level! town player))))
   
     ;; we already have a saved value
     (cond (*van-saved-town-seed*
@@ -106,14 +150,15 @@ part of the new level."
 
 (defmethod create-appropriate-level ((variant vanilla-variant) old-level player depth)
 
+  (declare (ignore old-level))
   (let ((level (if (= depth 0)
-		   (van-make-town-level-obj old-level player)
+		   (van-make-town-level-obj player)
 		   (make-random-level-obj depth))))
 
     (unless (level-ready? level)
-      (warn "Generating level ~a" level)
-      (generate-level! level player
-		       (if old-level (level.dungeon old-level) nil)))
+      ;; (warn "Generating level ~a" level)
+      (generate-level! level player))
+
 
     (assert (level-ready? level))
     

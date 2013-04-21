@@ -18,9 +18,8 @@ the Free Software Foundation; either version 2 of the License, or
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defclass vanilla-variant (variant)
     (
-     (dawn-time :initarg :dawntime :initform 0 :accessor variant.dawn)
-     (twilight-time :initarg :twilight :initform 6000 :accessor variant.twilight)
-     
+     (dawn-time     :initarg :dawntime   :initform 0 :accessor variant.dawn)
+     (twilight-time :initarg :twilight   :initform 6000 :accessor variant.twilight)
      )))
 
 (defun van-make-variant-obj ()

@@ -1,4 +1,12 @@
-(in-package :user)
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: CL-USER -*-
+
+#|
+
+DESC: package.lisp - package def for langband
+
+|#
+
+(in-package :cl-user)
 
 (defpackage :langband
   (:nicknames :lb)

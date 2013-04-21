@@ -21,6 +21,12 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'move-up
     #'(lambda (dun pl) (move-player! dun pl 8)))
 
+(define-key-operation 'move-up-left
+    #'(lambda (dun pl) (move-player! dun pl 7)))
+
+(define-key-operation 'move-up-right
+    #'(lambda (dun pl) (move-player! dun pl 9)))
+
 (define-key-operation 'move-right
     #'(lambda (dun pl) (move-player! dun pl 6)))
 
@@ -29,6 +35,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'move-down
     #'(lambda (dun pl) (move-player! dun pl 2)))
+
+(define-key-operation 'move-down-left
+    #'(lambda (dun pl) (move-player! dun pl 1)))
+
+(define-key-operation 'move-down-right
+    #'(lambda (dun pl) (move-player! dun pl 3)))
+
 
 (define-key-operation 'show-equipment
      #'(lambda (dun pl)
@@ -88,10 +101,28 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dun pl)
 	(declare (ignore pl)) (print-map-as-ppm dun "./map.ppm")))
 
+(define-key-operation 'halt-program
+    #'(lambda (dun pl)
+	(declare (ignore dun))
+	(assert (eq pl nil))))
+
+(define-keypress *ang-keys* :global #\z 'halt-program) 
+
+#||
 (define-keypress *ang-keys* :global #\k 'move-up)
 (define-keypress *ang-keys* :global #\l 'move-right)
 (define-keypress *ang-keys* :global #\j 'move-down)
 (define-keypress *ang-keys* :global #\h 'move-left)
+||#
+
+(define-keypress *ang-keys* :global #\8 'move-up)
+(define-keypress *ang-keys* :global #\7 'move-up-left)
+(define-keypress *ang-keys* :global #\9 'move-up-right)
+(define-keypress *ang-keys* :global #\6 'move-right)
+(define-keypress *ang-keys* :global #\4 'move-left)
+(define-keypress *ang-keys* :global #\2 'move-down)
+(define-keypress *ang-keys* :global #\1 'move-down-left)
+(define-keypress *ang-keys* :global #\3 'move-down-right)
 
 (define-keypress *ang-keys* :global #\e 'show-equipment)
 (define-keypress *ang-keys* :global #\i 'show-inventory)
@@ -119,10 +150,3 @@ the Free Software Foundation; either version 2 of the License, or
 
 ||#
 
-#||
-;; does not work
-(define-keypress :global #\8 #\8 #'(lambda (dun pl) (move-viewport! dun pl 8)))
-(define-keypress :global #\6 #\6 #'(lambda (dun pl) (move-viewport! dun pl 6)))
-(define-keypress :global #\2 #\2 #'(lambda (dun pl) (move-viewport! dun pl 2)))
-(define-keypress :global #\4 #\4 #'(lambda (dun pl) (move-viewport! dun pl 4)))
-||#

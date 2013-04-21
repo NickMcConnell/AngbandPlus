@@ -108,14 +108,10 @@ ADD_DESC: available in the game.
   (let* ((o-table (get-otype-table *level* *variant*))
 	 (table (gobj-table.alloc-table o-table)))
     table))
-  
 
 (defun get-obj-kind (id)
   "Returns the obj-kind for the given id."
-
-    (gethash id (get-okind-table)))
-
-
+  (gethash id (get-okind-table)))
 
 (defun (setf get-obj-kind) (obj id)
   ;;  (warn "Adding ~a" obj)
@@ -219,6 +215,7 @@ and NIL if unsuccesful."
 (defun objs-that-satisfy (demand)
   "Returns a list of objects that satisfies the list of demands.
 Returns NIL on failure."
+  
   (let ((retval nil)
 	(demand-list (if (listp demand) demand (list demand)))
 	(table (get-okind-table)))
@@ -233,7 +230,6 @@ Returns NIL on failure."
 	    (when satisfy-p
 	      (push x retval))))
     retval))
-	    
 
 (defun create-aobj-from-id (id &optional (amount 1))
   "Creates an active object from object-kind identified by id.
@@ -253,6 +249,7 @@ with k-info.txt numbers. NUM is the numeric id."
   "Creates an aobj from a given kind."
   (let ((obj (make-instance 'active-object :obj kind :number amount)))
     (trigger-event obj :on-create (list nil nil))
+    (activate-object obj)
     obj))
 
 (defmethod trigger-event ((obj active-object) event arg-list)

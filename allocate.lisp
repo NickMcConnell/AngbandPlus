@@ -39,7 +39,7 @@ the Free Software Foundation; either version 2 of the License, or
   ))
 
 (defun place-single-monster! (dun pl mon x y sleeping)
-  "blah.."
+  "places a single monster MON at (X,Y) in dungeon DUN."
   (declare (ignore pl sleeping))
   
   (setf (cave-monsters dun x y) mon)
@@ -54,7 +54,6 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((possible-monster (get-monster-by-level (dungeon.depth dungeon))))
     (when possible-monster
       (place-single-monster! dungeon player possible-monster x y sleeping)))
-
   
   )
 
@@ -132,7 +131,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defun get-monster-by-level (level)
-  "Returns an (active) object by level."
+  "Returns an (active) object by level.  Returns NIL on failure."
   (let ((the-kind (get-monster-kind-by-level level)))
     (if (not the-kind)
 	nil

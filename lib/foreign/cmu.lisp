@@ -128,10 +128,10 @@ ADD_DESC: in C from CMUCL.
   (row int :in)
   (col int :in))
 
-(alien:def-alien-routine ("read_some_key" c-read-some-key&)
-    char
-  (row int :in)
-  (col int :in))
+;;(alien:def-alien-routine ("read_some_key" c-read-some-key&)
+;;    char
+;;  (row int :in)
+;;  (col int :in))
 
 (alien:def-alien-routine ("inkey" c-inkey)
     char)
@@ -144,5 +144,9 @@ ADD_DESC: in C from CMUCL.
 (alien:def-alien-routine ("init_angband" c-init-angband!)
     void)
 
+(alien:def-alien-routine ("macro_add" c-macro-add&)
+    void
+  (a cptr)
+  (b cptr))
 
 

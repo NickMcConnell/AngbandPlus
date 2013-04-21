@@ -30,7 +30,7 @@ Contains definition of stores and store-owners in sexp.
     :name "Weapon Smith"
     :number 3)
 
-(define-store '<Temple>
+(define-store '<temple>
     :name "Temple"
     :number 4)
 

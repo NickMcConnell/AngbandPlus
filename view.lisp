@@ -19,10 +19,12 @@ the Free Software Foundation; either version 2 of the License, or
 (defconstant +vinfo-max-grids+ 161)
 (defconstant +vinfo-max-slopes+ 126)
 
-(defconstant +vinfo-bits-3+ #x3FFFFFFF)
-(defconstant +vinfo-bits-2+ #xFFFFFFFF)
-(defconstant +vinfo-bits-1+ #xFFFFFFFF)
-(defconstant +vinfo-bits-0+ #xFFFFFFFF)
+   
+(defconst +vinfo-bits-3+ vinfo-bit-type #x3FFFFFFF "")
+(defconst +vinfo-bits-2+ vinfo-bit-type #xFFFFFFFF "")
+(defconst +vinfo-bits-1+ vinfo-bit-type #xFFFFFFFF "")
+(defconst +vinfo-bits-0+ vinfo-bit-type #xFFFFFFFF "")
+
 
 (defconstant +scale+ 100000)
 
@@ -65,7 +67,7 @@ the Free Software Foundation; either version 2 of the License, or
     (when (and (> m 0)
 	       (<= m +scale+))
       (loop named inner
-	    for j from 0 to (1- slope-num)
+	    for j of-type u-fixnum from 0 to (1- slope-num)
 	    do
 	    (incf i)
 	    (when (= m (svref (vinfo-hack.slopes hack) j))
@@ -87,14 +89,29 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;(trace vinfo-init-aux)
 
+#+allegro
+(defmacro grid (x y)
+  `(the fixnum (+ (the fixnum (* 256 ,y)) ,x)))
+
+#-allegro
 (defun grid (x y)
-  (+ (* 256 y) x))
+  (the fixnum (+ (* 256 y) x)))
 
+#+allegro
+(defmacro grid-y (g)
+  `(the fixnum (int-/ ,g 256)))
+
+#-allegro
 (defun grid-y (g)
-  (int-/ g 256))
+  (the fixnum (int-/ g 256)))
 
+#+allegro
+(defmacro grid-x (g)
+  `(the fixnum (prog1 (mod ,g 256))))
+
+#-allegro
 (defun grid-x (g)
-  (mod g 256))
+  (the fixnum (prog1 (mod g 256))))
 
 (defun vinfo-init ()
   (let ((hack (create-vinfo-hack))
@@ -144,7 +161,8 @@ the Free Software Foundation; either version 2 of the License, or
     (loop for i from 0 to (1- +vinfo-max-grids+)
 	  do
 	  (setf (svref vinfo i) (make-vinfo-type :grids (make-array 8 :initial-element 0)
-						 :bits (make-array 4 :initial-element 0)
+						 :bits (make-array 4 :element-type 'vinfo-bit-type
+								   :initial-element 0)
 						 :x 0
 						 :y 0
 						 :d 0
@@ -193,7 +211,7 @@ the Free Software Foundation; either version 2 of the License, or
 			 (> m (aref (vinfo-hack.slopes-min hack) x y))
 			 (< m (aref (vinfo-hack.slopes-max hack) x y)))
 		
-		(bit-flag-add! (svref (vinfo-type.bits vinfo-obj) (int-/ i 32))
+		(bit-flag-add! (aref (vinfo-type.bits vinfo-obj) (int-/ i 32))
 			       (expt 2 (mod i 32)))
 		)))
 	  
@@ -255,38 +273,57 @@ the Free Software Foundation; either version 2 of the License, or
 						0))))
 	  
 					
-		
-
 	  )))
 
-    
-;;    (%hidden-dump)
+    ;;(%hidden-dump)
     
     (values)))
 
+
+(defvar *array-view* (make-array 1536 :fill-pointer 0))
+(defvar *temp-view* (make-array 1536 :fill-pointer 0))
+
 ;; seems to be a list, despite the name
-(defvar *view-hack-arr* nil)
+;;(defvar *view-hack-arr* nil)
 
 (defun update-view! (dun pl)
   "Updates the view from the given player."
 
-  
+  (declare (optimize (safety 0) (speed 3) (debug 0)))
+
   (let* ((py (player.loc-y pl))
 	 (px (player.loc-x pl))
 	 (pg (grid px py))
 	 (radius (player.light-radius pl))
-	 (fast-view nil)
-	 (fast-temp nil)
+	 (fast-view *array-view*)
+	 (fast-temp *temp-view*)
 	 (vinfo *vinfo*)
 	 ;;(fast-view (make-map dun))
 	 )
 
+    (declare (type u-fixnum py px pg radius))
+    (declare (type (vector t 1536) fast-temp fast-view))
+    
+;;    (declare (:explain :boxing))
+
+    (setf (fill-pointer fast-temp) 0)
+    
     (flet ((add-coord-info (grid flag)
 	     ;; remove cons'ing later
-	     (push (cons grid flag) fast-view))
+	     (declare (ignore flag)
+		      (type fixnum grid)
+		      (type u-fixnum flag))
+	     (vector-push grid fast-view)
+;;	     (push (cons grid flag) fast-view)
+	     )
 	   (add-temp-info (grid flag)
-	     (push (cons grid flag) fast-temp))
+	     (declare (ignore flag)
+		      (type fixnum grid))
+	     (vector-push grid fast-temp) 
+;;	     (push (cons grid flag) fast-temp)
+	     )
 	   (get-real-flag (grid)
+	     (declare (type fixnum grid))
 	     (cave-flags dun (grid-x grid) (grid-y grid)))
 	   (update-real-flags (grid flag)
 	     (setf (cave-flags dun (grid-x grid) (grid-y grid)) flag)))
@@ -296,10 +333,11 @@ the Free Software Foundation; either version 2 of the License, or
       ;; step 0
 
       (block save-old-flags
-	(dolist (i *view-hack-arr*)
-	  (let* ((grid (car i))
+	(loop for grid of-type fixnum across fast-view do
+
+	  (let* (;;(grid (car i))
 		 (flag (get-real-flag grid)))
-		
+	    (declare (type u-fixnum flag))
 	    (when (bit-flag-set? flag +cave-seen+)
 	      (bit-flag-add! flag +cave-temp+)
 	      (add-temp-info grid flag))
@@ -308,7 +346,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    (bit-flag-remove! flag #.(logior +cave-view+ +cave-seen+))
 	    (update-real-flags grid flag))))
 
-      
+      (setf (fill-pointer fast-view) 0)
       
       ;; step 1 - player grid
       
@@ -317,6 +355,7 @@ the Free Software Foundation; either version 2 of the License, or
 	       (flag (coord.flags coord))
 	       )
 
+	  (declare (type u-fixnum flag))
 	  ;; assume viewed
 	  (bit-flag-add! flag +cave-view+)
 
@@ -338,7 +377,7 @@ the Free Software Foundation; either version 2 of the License, or
 
       (block octant-run
 	;; octants
-	(loop for o2 from 0 to 7;; size of the grid array
+	(loop for o2 of-type u-fixnum from 0 to 7;; size of the grid array
 	      do
 	    
 	      ;; (warn "octant ~a" o2)
@@ -347,13 +386,22 @@ the Free Software Foundation; either version 2 of the License, or
 		    (queue-tail 0)
 		    (queue (make-array (* 2 +vinfo-max-grids+) :initial-element nil))
 		    ;;(num-slopes (vinfo-hack.num-slopes hack))
-		    (bit-arr (vector +vinfo-bits-0+ +vinfo-bits-1+
-				     +vinfo-bits-2+ +vinfo-bits-3+))
+		    (bit-arr (make-array 4 :element-type 'vinfo-bit-type))
 		    (last-v (svref vinfo 0))
 		    ;;(count 0)
 		    )
-		  
-	      
+
+		(declare (type (simple-array vinfo-bit-type (4)) bit-arr))
+		(declare (type vinfo-type last-v))
+		
+;;		(warn "fish")
+		(setf (aref bit-arr 0) +vinfo-bits-0+
+		      (aref bit-arr 1) +vinfo-bits-1+
+		      (aref bit-arr 2) +vinfo-bits-2+
+		      (aref bit-arr 3) +vinfo-bits-3+)
+		
+;;		(warn "go..")
+		
 		(setf (svref queue queue-tail) (svref vinfo 1))
 		(incf queue-tail)
 		(setf (svref queue queue-tail) (svref vinfo 2))
@@ -372,23 +420,26 @@ the Free Software Foundation; either version 2 of the License, or
 			 (its-d (vinfo-type.d vinfo-obj))
 			 (bits (vinfo-type.bits vinfo-obj))
 			 (grid-array (vinfo-type.grids vinfo-obj))
-			 (g (+ pg (svref grid-array o2)))
+			 (g (+ pg (the fixnum (svref grid-array o2))))
 			 (x (grid-x g))
 			 (y (grid-y g))
 			 )
-
+		    
+		    (declare (type u-fixnum g x y its-d))
+		    (declare (type (simple-array vinfo-bit-type (4)) bits))
+		    
 		    (incf queue-head)
 
-		    ;; (warn "Bit-arr[~a]: ~s vs ~s" queue-head bit-arr bits)
+		    ;;(warn "Bit-arr[~a]: ~s vs ~s" queue-head bit-arr bits)
 		  
-		    (when (or (bit-flag-and (svref bit-arr 0)
-					    (svref bits 0))
-			      (bit-flag-and (svref bit-arr 1)
-					    (svref bits 1))
-			      (bit-flag-and (svref bit-arr 2)
-					    (svref bits 2))
-			      (bit-flag-and (svref bit-arr 3)
-					    (svref bits 3)))
+		    (when (or (bit-flag-and (aref bit-arr 0)
+					    (aref bits 0))
+			      (bit-flag-and (aref bit-arr 1)
+					    (aref bits 1))
+			      (bit-flag-and (aref bit-arr 2)
+					    (aref bits 2))
+			      (bit-flag-and (aref bit-arr 3)
+					    (aref bits 3)))
 
 		      (when (minusp g)
 			(error "{pg=~s,px=~s,py=~s} -> {g=~s,x=~s,y=~s} -> {o2=~s,e=~s} -> ~s"
@@ -396,7 +447,8 @@ the Free Software Foundation; either version 2 of the License, or
 		      
 		      (let* ((coord (cave-coord dun x y))
 			     (info (coord.flags coord)))
-		      
+
+			(declare (type u-fixnum info))
 
 ;;			(warn "bit ok at {~a,~a} -> ~a" x y info)
 		      
@@ -405,8 +457,8 @@ the Free Software Foundation; either version 2 of the License, or
 			(cond ((bit-flag-set? info +cave-wall+)
 
 			       (dotimes (i 4)
-				 (bit-flag-remove! (svref bit-arr i)
-						   (svref bits i)))
+				 (bit-flag-remove! (aref bit-arr i)
+						   (aref bits i)))
 			       ;;(warn "{~a,~a} -> a wall" x y)
 
 			       ;; we just do stuff to new walls
@@ -445,7 +497,8 @@ the Free Software Foundation; either version 2 of the License, or
 			       ;; no wall
 			       (let ((n-0 (vinfo-type.next-0 vinfo-obj))
 				     (n-1 (vinfo-type.next-1 vinfo-obj)))
-				   
+				 ;; n-0 et al is of type VINFO-TYPE
+				 (declare (type vinfo-type n-0 n-1))
 				 (when (not (eql last-v n-0))
 				   (setf (svref queue queue-tail) n-0
 					 last-v n-0)
@@ -483,9 +536,11 @@ the Free Software Foundation; either version 2 of the License, or
       (block process-new-grids
       
 	;; fix the new view
-	(dolist (i fast-view)
-	  (let* ((the-grid (car i))
+	(loop for the-grid across fast-view do
+
+	  (let* (;;(the-grid (car i))
 		 (the-flag (get-real-flag the-grid)))
+	    (declare (type u-fixnum the-flag))
 	    ;; was not seen, is now seen
 	    (when (and (bit-flag-set? the-flag +cave-seen+)
 		       (not (bit-flag-set? the-flag +cave-temp+)))
@@ -497,13 +552,14 @@ the Free Software Foundation; either version 2 of the License, or
 
       (block process-old-grids
 
-	(dolist (i fast-temp)
-	  (let* ((grid (car i))
+	(loop for grid across fast-temp do
+	  (let* (;;(grid (car i))
 		 (x (grid-x grid))
 		 (y (grid-y grid))
 		 (coord (cave-coord dun x y))
 		 (flag (coord.flags coord)))
 
+	    (declare (type u-fixnum flag))
 
 	    ;; remove temp-flag
 	    (bit-flag-remove! flag +cave-temp+)
@@ -516,10 +572,9 @@ the Free Software Foundation; either version 2 of the License, or
 	    )))
     
 
-      (setf *view-hack-arr* fast-view)
+;;      (setf *view-hack-arr* fast-view)
     
       (values))))
-
 	      
 				       
 		  
@@ -529,20 +584,22 @@ the Free Software Foundation; either version 2 of the License, or
   (declare (ignore pl))
   
 ;;  (warn "(forget-view!)")
-
-  (dolist (i *view-hack-arr*)
-    (let* ((the-grid (car i))
-	   (x (grid-x the-grid))
-	   (y (grid-y the-grid))
-	   (flag (cave-flags dun x y)))
-
-      (setf (cave-flags dun x y) (bit-flag-remove! flag #.(logior +cave-view+ +cave-seen+)))
-      (light-spot! dun x y)
+  (let ((the-array *array-view*))
+  
+    (loop for the-grid across the-array
+	  do
+	  (let* (;;(the-grid (car i))
+		 (x (grid-x the-grid))
+		 (y (grid-y the-grid))
+		 (flag (cave-flags dun x y)))
+	    
+	    (setf (cave-flags dun x y) (bit-flag-remove! flag #.(logior +cave-view+ +cave-seen+)))
+	    (light-spot! dun x y)
+	    
       
-      
-      ))
-
-  (setf *view-hack-arr* nil))
+	    ))
+    
+    (setf (fill-pointer the-array) 0)))
 
 
 
@@ -559,19 +616,13 @@ the Free Software Foundation; either version 2 of the License, or
 		    (vinfo-type.d x)
 		    (vinfo-type.r x))||#
 	    do
-;;	    (format str "~d: ~s~%" i (vinfo-type.bits x))
+	    (format str "~d: ~s~%" i (vinfo-type.bits x))
 ;;	    (format str "~d: ~s~%" i (vinfo-type.grids x))
-	    (format str "~d: ~s~%" i (vinfo-type.d x))
+;;	    (format str "~d: ~s~%" i (vinfo-type.d x))
 	    ))
     )
 
 (in-package :cl-user)
 (defun kl ()
   (lb::vinfo-init))
-
-
-
-
-
-
 

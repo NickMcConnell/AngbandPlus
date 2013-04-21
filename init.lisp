@@ -19,63 +19,36 @@ ADD_DESC: at the start.
 
 (in-package :langband)
 
-(defun init-flavours& (obj-table)
+(defun init-flavours& (flavour-type-list)
   "initiates flavours and updates symbols relating to flavours"
     
   
-  (dolist (x *flavour-types*)
+  (dolist (x flavour-type-list)
     
     ;; we wish to avoid helping flavours with their own
     ;; functions
-    (unless (get x 'flavour-generator)
+    (unless (flavour-type.generator-fn x)
 
-      ;; make a shuffled flavour-selector and change the flavour-table
-      ;; into a vector
+      ;; make a shuffled vector of the flavour-htbl
 	  
-      (let* ((flavour-htbl (get x 'flavour-table))
-	     (len (hash-table-count flavour-htbl))
-	     (tmp-arr (make-array len :initial-element 0 :fill-pointer t)))
-	
-	  ;; make numbered array and assign htbl values to vector
-	  (loop for i from 0 to (1- len)
-		do
-		(setf (aref tmp-arr i) i))
+      (let* ((flavour-htbl (flavour-type.table x))
+	     (flavour-array (htbl-to-vector flavour-htbl :fill-pointer t))
+	     (len (hash-table-count flavour-htbl)))
 
-	  ;; shuffle
-	  (shuffle-array! tmp-arr len)
+	(cond ((> len 0)
+	       (setf (fill-pointer flavour-array) len)
+	       
+	       ;; shuffle
+	       (shuffle-array! flavour-array len))
+	      
+	      (t
+	       (warn "The flavour-type ~s has no flavours" (flavour-type.symbol x))))
 
-	  (setf (fill-pointer tmp-arr) 0) ;; set fill-pointer to start
-	  (setf (get x 'flavour-selector) tmp-arr)
+	(setf (fill-pointer flavour-array) 0) ;; set fill-pointer to start
 
-	  ;; make sure the flavour-table is a vector now
-	  (setf (get x 'flavour-table) (htbl-to-vector flavour-htbl))
-	  
-	  )))
-
-  ;; go through the object table
-  (loop for x being the hash-values of obj-table
-	do
-	(let ((which-sym (obj-is-in? x *flavour-types*)))
-	  (when which-sym
-	    
-	    (let ((flavour-generator (get which-sym 'flavour-generator))
-		  (flavour-vector (get which-sym 'flavour-table))
-		  (flavour-selector (get which-sym 'flavour-selector)))
-
-	      ;; if we have a function, call it and use return value
-	      (cond (flavour-generator
-		     (setf (object.flavour x) (funcall flavour-generator x)))
-		    
-		  ;; otherwise use tables and selector
-		    (t
-		     (setf (object.flavour x)
-			   (svref flavour-vector
-				  (aref flavour-selector (fill-pointer flavour-selector))))
-		     (incf (fill-pointer flavour-selector))))
-
-	      )))
-
-	))
+;;	(warn "Val is ~a" (aref flavour-array 0))
+	(setf (flavour-type.table x) flavour-array))
+      )))
 
 
 (defun create-alloc-table-objects (obj-table)
@@ -239,6 +212,10 @@ call appropriately high-level init in correct order."
       (setf *variant* var-obj)
       (activate-object var-obj)))
 
+  ;; run tests after variant has been loaded
+  #+xp-testing
+  (do-a-test :post)
+  
   (unless *current-key-table*
     (setf *current-key-table* *ang-keys*))
 

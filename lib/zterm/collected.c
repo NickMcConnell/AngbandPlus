@@ -94,8 +94,10 @@ void prt(cptr str, int row, int col)
 }
 
 
-void disturb(int stop_search, int unused_flag)
-{
+void
+disturb(int stop_search, int unused_flag) {
+
+    (void)(stop_search + unused_flag); // to avoid warning
     note("disturb");
 }
 
@@ -154,6 +156,7 @@ play_game_lisp() {
 
 }
 
+#ifdef SMALL_BOYS_FOR_BREAKFAST
 /*
  * Hack -- Explain a broken "lib" folder and quit (see below).
  *
@@ -178,13 +181,14 @@ static void init_angband_aux(cptr why)
         /* Quit with error */
         quit("Fatal Error.");
 }
+#endif
 
+void
+init_angband(void) {
 
-void init_angband(void) {
+//       int fd = -1;
 
-       int fd = -1;
-
-        int mode = 0644;
+//        int mode = 0644;
 
         FILE *fp;
 
@@ -215,8 +219,15 @@ void init_angband(void) {
 
         /* Flush it */
         Term_fresh();
+
+	macro_init();
+
+#ifdef USE_X11
+//	process_pref_file("./lib/file/user.prf");
+//	puts("prof..");
+#endif
 	
-	 note("[Initialization complete]");
+	note("[Initialization complete]");
 
 }
 
@@ -582,7 +593,7 @@ void signals_init(void)
  */
 void close_game(void)
 {
-	char buf[1024];
+//	char buf[1024];
 
 
 	/* Handle stuff */
@@ -612,6 +623,8 @@ void handle_stuff(void) {
 
 void play_game(bool new_game) {
 
+    new_game = 0;  // to avoid warning
+    
         /* Hack -- Increase "icky" depth */
         character_icky++;
 
@@ -640,6 +653,7 @@ void play_game(bool new_game) {
 #endif
 }
 
+/*
 int more_chars = 0;
 char my_inkey_buffer[1024];
 
@@ -651,7 +665,7 @@ read_some_key(int a, int b) {
     // fix events
     if (Term->key_head == Term->key_tail)
     {
-	/* Process events (do not wait) */
+	// Process events (do not wait) 
 	Term_xtra(TERM_XTRA_EVENT, FALSE);
     }
 
@@ -659,4 +673,642 @@ read_some_key(int a, int b) {
 
     return retval;
 }
+*/
+#ifdef SMALL_BOYS_EAT_VEGETABLES
 
+/*
+ * Parse a sub-file of the "extra info" (format shown below)
+ *
+ * Each "action" line has an "action symbol" in the first column,
+ * followed by a colon, followed by some command specific info,
+ * usually in the form of "tokens" separated by colons or slashes.
+ *
+ * Blank lines, lines starting with white space, and lines starting
+ * with pound signs ("#") are ignored (as comments).
+ *
+ * Note the use of "tokenize()" to allow the use of both colons and
+ * slashes as delimeters, while still allowing final tokens which
+ * may contain any characters including "delimiters".
+ *
+ * Note the use of "strtol()" to allow all "integers" to be encoded
+ * in decimal, hexidecimal, or octal form.
+ *
+ * Note that "monster zero" is used for the "player" attr/char, "object
+ * zero" will be used for the "stack" attr/char, and "feature zero" is
+ * used for the "nothing" attr/char.
+ *
+ * Specify the attr/char values for "monsters" by race index.
+ *   R:<num>:<a>/<c>
+ *
+ * Specify the attr/char values for "objects" by kind index.
+ *   K:<num>:<a>/<c>
+ *
+ * Specify the attr/char values for "features" by feature index.
+ *   F:<num>:<a>/<c>
+ *
+ * Specify the attr/char values for "special" things.
+ *   S:<num>:<a>/<c>
+ *
+ * Specify the attribute values for inventory "objects" by kind tval.
+ *   E:<tv>:<a>
+ *
+ * Define a macro action, given an encoded macro action.
+ *   A:<str>
+ *
+ * Create a macro, given an encoded macro trigger.
+ *   P:<str>
+ *
+ * Create a keymap, given an encoded keymap trigger.
+ *   C:<num>:<str>
+ *
+ * Turn an option off, given its name.
+ *   X:<str>
+ *
+ * Turn an option on, given its name.
+ *   Y:<str>
+ *
+ * Turn a window flag on or off, given a window, flag, and value.
+ *   W:<win>:<flag>:<value>
+ *
+ * Specify visual information, given an index, and some data
+ *   V:<num>:<kv>:<rv>:<gv>:<bv>
+ */
+errr process_pref_file_aux(char *buf)
+{
+	int i, j, n1, n2;
+
+	char *zz[16];
+
+//	printf("going %s\n", buf);
+	
+	/* Skip "empty" lines */
+	if (!buf[0]) return (0);
+
+	/* Skip "blank" lines */
+	if (isspace(buf[0])) return (0);
+
+	/* Skip comments */
+	if (buf[0] == '#') return (0);
+
+
+	/* Paranoia */
+	/* if (strlen(buf) >= 1024) return (1); */
+
+
+	/* Require "?:*" format */
+	if (buf[1] != ':') return (1);
+
+
+	/* Process "R:<num>:<a>/<c>" -- attr/char for monster races */
+	if (buf[0] == 'R')
+	{
+		if (tokenize(buf+2, 3, zz) == 3)
+		{
+			monster_race *r_ptr;
+			i = (huge)strtol(zz[0], NULL, 0);
+			n1 = strtol(zz[1], NULL, 0);
+			n2 = strtol(zz[2], NULL, 0);
+			if (i >= MAX_R_IDX) return (1);
+			r_ptr = &r_info[i];
+			if (n1) r_ptr->x_attr = n1;
+			if (n2) r_ptr->x_char = n2;
+			return (0);
+		}
+	}
+
+
+	/* Process "K:<num>:<a>/<c>"  -- attr/char for object kinds */
+	else if (buf[0] == 'K')
+	{
+		if (tokenize(buf+2, 3, zz) == 3)
+		{
+			object_kind *k_ptr;
+			i = (huge)strtol(zz[0], NULL, 0);
+			n1 = strtol(zz[1], NULL, 0);
+			n2 = strtol(zz[2], NULL, 0);
+			if (i >= MAX_K_IDX) return (1);
+			k_ptr = &k_info[i];
+			if (n1) k_ptr->x_attr = n1;
+			if (n2) k_ptr->x_char = n2;
+			return (0);
+		}
+	}
+
+
+	/* Process "F:<num>:<a>/<c>" -- attr/char for terrain features */
+	else if (buf[0] == 'F')
+	{
+		if (tokenize(buf+2, 3, zz) == 3)
+		{
+			feature_type *f_ptr;
+			i = (huge)strtol(zz[0], NULL, 0);
+			n1 = strtol(zz[1], NULL, 0);
+			n2 = strtol(zz[2], NULL, 0);
+			if (i >= MAX_F_IDX) return (1);
+			f_ptr = &f_info[i];
+			if (n1) f_ptr->x_attr = n1;
+			if (n2) f_ptr->x_char = n2;
+			return (0);
+		}
+	}
+
+
+	/* Process "S:<num>:<a>/<c>" -- attr/char for special things */
+	else if (buf[0] == 'S')
+	{
+		if (tokenize(buf+2, 3, zz) == 3)
+		{
+			j = (byte)strtol(zz[0], NULL, 0);
+			n1 = strtol(zz[1], NULL, 0);
+			n2 = strtol(zz[2], NULL, 0);
+			misc_to_attr[j] = n1;
+			misc_to_char[j] = n2;
+			return (0);
+		}
+	}
+
+
+	/* Process "E:<tv>:<a>" -- attribute for inventory objects */
+	else if (buf[0] == 'E')
+	{
+		if (tokenize(buf+2, 2, zz) == 2)
+		{
+			j = (byte)strtol(zz[0], NULL, 0) % 128;
+			n1 = strtol(zz[1], NULL, 0);
+			if (n1) tval_to_attr[j] = n1;
+			return (0);
+		}
+	}
+
+
+	/* Process "A:<str>" -- save an "action" for later */
+	else if (buf[0] == 'A')
+	{
+		text_to_ascii(macro_buffer, buf+2);
+		return (0);
+	}
+
+	/* Process "P:<str>" -- create macro */
+	else if (buf[0] == 'P')
+	{
+		char tmp[1024];
+		text_to_ascii(tmp, buf+2);
+		macro_add(tmp, macro_buffer);
+		return (0);
+	}
+
+	/* Process "C:<num>:<str>" -- create keymap */
+	else if (buf[0] == 'C')
+	{
+		int mode;
+
+		char tmp[1024];
+
+		if (tokenize(buf+2, 2, zz) != 2) return (1);
+
+		mode = strtol(zz[0], NULL, 0);
+		if ((mode < 0) || (mode >= KEYMAP_MODES)) return (1);
+
+		text_to_ascii(tmp, zz[1]);
+		if (!tmp[0] || tmp[1]) return (1);
+		i = (byte)(tmp[0]);
+
+		string_free(keymap_act[mode][i]);
+
+		keymap_act[mode][i] = string_make(macro_buffer);
+
+		return (0);
+	}
+
+
+	/* Process "V:<num>:<kv>:<rv>:<gv>:<bv>" -- visual info */
+	else if (buf[0] == 'V')
+	{
+		if (tokenize(buf+2, 5, zz) == 5)
+		{
+			i = (byte)strtol(zz[0], NULL, 0);
+			angband_color_table[i][0] = (byte)strtol(zz[1], NULL, 0);
+			angband_color_table[i][1] = (byte)strtol(zz[2], NULL, 0);
+			angband_color_table[i][2] = (byte)strtol(zz[3], NULL, 0);
+			angband_color_table[i][3] = (byte)strtol(zz[4], NULL, 0);
+			return (0);
+		}
+	}
+
+
+
+
+	/* Failure */
+	return (1);
+}
+
+
+/*
+ * Helper function for "process_pref_file()"
+ *
+ * Input:
+ *   v: output buffer array
+ *   f: final character
+ *
+ * Output:
+ *   result
+ */
+static cptr process_pref_file_expr(char **sp, char *fp)
+{
+	cptr v;
+
+	char *b;
+	char *s;
+
+	char b1 = '[';
+	char b2 = ']';
+
+	char f = ' ';
+
+	/* Initial */
+	s = (*sp);
+
+	/* Skip spaces */
+	while (isspace(*s)) s++;
+
+	/* Save start */
+	b = s;
+
+	/* Default */
+	v = "?o?o?";
+
+	/* Analyze */
+	if (*s == b1)
+	{
+		const char *p;
+		const char *t;
+
+		/* Skip b1 */
+		s++;
+
+		/* First */
+		t = process_pref_file_expr(&s, &f);
+
+		/* Oops */
+		if (!*t)
+		{
+			/* Nothing */
+		}
+
+		/* Function: IOR */
+		else if (streq(t, "IOR"))
+		{
+			v = "0";
+			while (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+				if (*t && !streq(t, "0")) v = "1";
+			}
+		}
+
+		/* Function: AND */
+		else if (streq(t, "AND"))
+		{
+			v = "1";
+			while (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+				if (*t && streq(t, "0")) v = "0";
+			}
+		}
+
+		/* Function: NOT */
+		else if (streq(t, "NOT"))
+		{
+			v = "1";
+			while (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+				if (*t && !streq(t, "0")) v = "0";
+			}
+		}
+
+		/* Function: EQU */
+		else if (streq(t, "EQU"))
+		{
+			v = "1";
+			if (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+			}
+			while (*s && (f != b2))
+			{
+				p = t;
+				t = process_pref_file_expr(&s, &f);
+				if (*t && !streq(p, t)) v = "0";
+			}
+		}
+
+		/* Function: LEQ */
+		else if (streq(t, "LEQ"))
+		{
+			v = "1";
+			if (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+			}
+			while (*s && (f != b2))
+			{
+				p = t;
+				t = process_pref_file_expr(&s, &f);
+				if (*t && (strcmp(p, t) >= 0)) v = "0";
+			}
+		}
+
+		/* Function: GEQ */
+		else if (streq(t, "GEQ"))
+		{
+			v = "1";
+			if (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+			}
+			while (*s && (f != b2))
+			{
+				p = t;
+				t = process_pref_file_expr(&s, &f);
+				if (*t && (strcmp(p, t) <= 0)) v = "0";
+			}
+		}
+
+		/* Oops */
+		else
+		{
+			while (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+			}
+		}
+
+		/* Verify ending */
+		if (f != b2) v = "?x?x?";
+
+		/* Extract final and Terminate */
+		if ((f = *s) != '\0') *s++ = '\0';
+	}
+
+	/* Other */
+	else
+	{
+		/* Accept all printables except spaces and brackets */
+		while (isprint(*s) && !strchr(" []", *s)) ++s;
+
+		/* Extract final and Terminate */
+		if ((f = *s) != '\0') *s++ = '\0';
+
+		/* Variable */
+		if (*b == '$')
+		{
+			/* System */
+			if (streq(b+1, "SYS"))
+			{
+				v = ANGBAND_SYS;
+			}
+
+			/* Graphics */
+			else if (streq(b+1, "GRAF"))
+			{
+				v = ANGBAND_GRAF;
+			}
+
+			/* Race */
+			else if (streq(b+1, "RACE"))
+			{
+				v = rp_ptr->title;
+			}
+
+			/* Class */
+			else if (streq(b+1, "CLASS"))
+			{
+				v = cp_ptr->title;
+			}
+
+			/* Player */
+			else if (streq(b+1, "PLAYER"))
+			{
+				v = op_ptr->base_name;
+			}
+		}
+
+		/* Constant */
+		else
+		{
+			v = b;
+		}
+	}
+
+	/* Save */
+	(*fp) = f;
+
+	/* Save */
+	(*sp) = s;
+
+	/* Result */
+	return (v);
+}
+
+
+/*
+ * Process the "user pref file" with the given name
+ *
+ * See the function above for a list of legal "commands".
+ *
+ * We also accept the special "?" and "%" directives, which
+ * allow conditional evaluation and filename inclusion.
+ */
+errr process_pref_file(cptr name)
+{
+	FILE *fp;
+
+	char buf[1024];
+
+	char old[1024];
+
+	int num = -1;
+
+	errr err = 0;
+
+	bool bypass = FALSE;
+
+//	puts("going open..");
+	/* Build the filename */
+//	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+
+	// hack
+	strcpy(buf, name);
+	
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	printf("opening %s and got %d\n", buf, fp);
+	
+	/* No such file */
+	if (!fp) return (-1);
+
+
+	/* Process the file */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Count lines */
+		num++;
+
+
+		/* Skip "empty" lines */
+		if (!buf[0]) continue;
+
+		/* Skip "blank" lines */
+		if (isspace(buf[0])) continue;
+
+		/* Skip comments */
+		if (buf[0] == '#') continue;
+
+
+		/* Save a copy */
+		strcpy(old, buf);
+
+
+		/* Process "?:<expr>" */
+		if ((buf[0] == '?') && (buf[1] == ':'))
+		{
+			char f;
+			cptr v;
+			char *s;
+
+			/* Start */
+			s = buf + 2;
+
+			/* Parse the expr */
+			v = process_pref_file_expr(&s, &f);
+
+			/* Set flag */
+			bypass = (streq(v, "0") ? TRUE : FALSE);
+
+			/* Continue */
+			continue;
+		}
+
+		/* Apply conditionals */
+		if (bypass) continue;
+
+
+		/* Process "%:<file>" */
+		if (buf[0] == '%')
+		{
+			/* Process that file if allowed */
+			(void)process_pref_file(buf + 2);
+
+			/* Continue */
+			continue;
+		}
+
+
+		/* Process the line */
+		err = process_pref_file_aux(buf);
+
+		/* Oops */
+		if (err) break;
+	}
+
+
+	/* Error */
+	if (err)
+	{
+		/* Useful error message */
+		msg_format("Error %d in line %d of file '%s'.", err, num, name);
+		msg_format("Parsing '%s'", old);
+		msg_print(NULL);
+	}
+
+	/* Close the file */
+	my_fclose(fp);
+
+	/* Result */
+	return (err);
+}
+
+
+
+
+/*
+ * Extract the first few "tokens" from a buffer
+ *
+ * This function uses "colon" and "slash" as the delimeter characters.
+ *
+ * We never extract more than "num" tokens.  The "last" token may include
+ * "delimeter" characters, allowing the buffer to include a "string" token.
+ *
+ * We save pointers to the tokens in "tokens", and return the number found.
+ *
+ * Hack -- Attempt to handle the 'c' character formalism
+ *
+ * Hack -- An empty buffer, or a final delimeter, yields an "empty" token.
+ *
+ * Hack -- We will always extract at least one token
+ */
+s16b tokenize(char *buf, s16b num, char **tokens)
+{
+	int i = 0;
+
+	char *s = buf;
+
+
+	/* Process */
+	while (i < num - 1)
+	{
+		char *t;
+
+		/* Scan the string */
+		for (t = s; *t; t++)
+		{
+			/* Found a delimiter */
+			if ((*t == ':') || (*t == '/')) break;
+
+			/* Handle single quotes */
+			if (*t == '\'')
+			{
+				/* Advance */
+				t++;
+
+				/* Handle backslash */
+				if (*t == '\\') t++;
+
+				/* Require a character */
+				if (!*t) break;
+
+				/* Advance */
+				t++;
+
+				/* Hack -- Require a close quote */
+				if (*t != '\'') *t = '\'';
+			}
+
+			/* Handle back-slash */
+			if (*t == '\\') t++;
+		}
+
+		/* Nothing left */
+		if (!*t) break;
+
+		/* Nuke and advance */
+		*t++ = '\0';
+
+		/* Save the token */
+		tokens[i++] = s;
+
+		/* Advance */
+		s = t;
+	}
+
+	/* Save the token */
+	tokens[i++] = s;
+
+	/* Number found */
+	return (i);
+}
+
+#endif /* SMALL_BOYS_EAT_VEGETABLES */

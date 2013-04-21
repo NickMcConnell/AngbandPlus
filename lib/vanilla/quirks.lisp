@@ -14,51 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
-(defun van-init-sorting-values (var-obj)
-  "Initialises the sorting values for later reading of the vanilla objects."
-
-  ;; highest value listed first..
-  
-  (let ((table (variant.sort-values var-obj)))
-    
-    (setf (gethash 1 table)  2000 ;; skeleton
-	  (gethash 2 table)  2100 ;; bottle
-	  (gethash 3 table)  2200 ;; junk
-	  (gethash 5 table)  2300 ;; spike
-	  (gethash 7 table)  2400 ;; chest
-	  (gethash 16 table) 2500 ;; ammo, shot
-	  (gethash 17 table) 2600 ;; ammo, arrow
-	  (gethash 18 table) 2700 ;; ammo, bolt
-	  (gethash 19 table) 2800 ;; bow
-	  (gethash 20 table) 2900 ;; digging tool
-	  (gethash 21 table) 3000 ;; hafted weapon
-	  (gethash 22 table) 3100 ;; polearm
-	  (gethash 23 table) 3200 ;; sword
-	  (gethash 30 table) 3300 ;; boots
-	  (gethash 31 table) 3400 ;; gloves
-	  (gethash 32 table) 3500 ;; helmets
-	  (gethash 33 table) 3600 ;; crowns
-	  (gethash 34 table) 3700 ;; shields
-	  (gethash 35 table) 3800 ;; cloaks
-	  (gethash 36 table) 3900 ;; soft armours
-	  (gethash 37 table) 4000 ;; hard armours
-	  (gethash 38 table) 4100 ;; dragon-scale
-	  (gethash 39 table) 4200 ;; light-source
-	  (gethash 40 table) 4300 ;; neckwear
-	  (gethash 45 table) 4400 ;; rings
-	  (gethash 66 table) 4500 ;; rods
-	  (gethash 55 table) 4600 ;; staves
-	  (gethash 65 table) 4800 ;; wands
-	  (gethash 70 table) 5000 ;; scrolls
-	  (gethash 75 table) 5500 ;; potions
-	  (gethash 77 table) 5700 ;; flasks
-	  (gethash 80 table) 6000 ;; food
-	  (gethash 90 table) 6900 ;; mage spellbook
-	  (gethash 91 table) 7000 ;; priest spellbook
-	  (gethash 100 table) 7100 ;; money
-	
-	  )))
-
 (defmethod activate-object :before ((var-obj vanilla-variant) &key)
   "Initialises variant-variables that should be there before
 the rest of the game is init'ed."
@@ -165,27 +120,13 @@ the rest of the game is init'ed."
   (load-variant-data& var-obj "defines")
   (load-variant-data& var-obj "races")
   (load-variant-data& var-obj "classes")
+  (load-variant-data& var-obj "flavours")
+  (load-variant-data& var-obj "stores")
 
   
-  (van-init-sorting-values var-obj)
+  (van-init-equipment-values var-obj)
 
-  ;; move to variant object
-  (let ((equip-order '(
-		       (eq.weapon   "Wielding"      <weapon>)
-		       (eq.bow      "Shooting"      <bow>)
-		       (eq.l-ring   "On left hand"  <ring>)
-		       (eq.r-ring   "On right hand" <ring>)
-		       (eq.neck     "Around neck"   <neckwear>)
-		       (eq.light    "Light source"  <light-source>)
-		       (eq.armour   "On body"       <body-armour>)
-		       (eq.cloak    "About body"    <cloak>)
-		       (eq.shield   "On arm"        <shield>)
-		       (eq.head     "On head"       <headgear>)
-		       (eq.glove    "On hands"      <glove>)
-		       (eq.feet     "On feet"       <boots>)
-		       (eq.backpack "On back"       <container>))))
-    
-    (register-slot-order& equip-order)))
+  )
 
 ;; EVENT function
 (defun van-add-basic-equip (player dungeon)
@@ -240,7 +181,7 @@ the rest of the game is init'ed."
   (let ((okind-table (gobj-table.obj-table o-table)))
     
     (setf (gobj-table.obj-table-by-lvl o-table)
-	  (htbl-to-vector okind-table t
+	  (htbl-to-vector okind-table :sort-table-p t
 			  :sorted-by-key #'(lambda (x) (slot-value x 'level))))
     
     (setf (gobj-table.alloc-table o-table)
@@ -288,8 +229,7 @@ the rest of the game is init'ed."
 	     object-tables))
 
 
-  ;; skip flavouring ever so long.
-;;    (init-flavours& okind-table)
+  (init-flavours& (variant.flavour-types var-obj))
   
   #+langband-debug
   (%output-kinds-to-file "dumps/obj.lisp")
@@ -304,3 +244,67 @@ the rest of the game is init'ed."
   (initialise-features& var-obj :old-file "lib/edit/f_info.txt")
 
   )
+
+
+(defun van-init-equipment-values (var-obj)
+  "Initialises values dealing with the equipment (sorting, worn slots)."
+
+  ;; move to variant object
+  (let ((equip-order '(
+		       (eq.weapon   "Wielding"      <weapon>)
+		       (eq.bow      "Shooting"      <bow>)
+		       (eq.l-ring   "On left hand"  <ring>)
+		       (eq.r-ring   "On right hand" <ring>)
+		       (eq.neck     "Around neck"   <neckwear>)
+		       (eq.light    "Light source"  <light-source>)
+		       (eq.armour   "On body"       <body-armour>)
+		       (eq.cloak    "About body"    <cloak>)
+		       (eq.shield   "On arm"        <shield>)
+		       (eq.head     "On head"       <headgear>)
+		       (eq.glove    "On hands"      <glove>)
+		       (eq.feet     "On feet"       <boots>)
+		       (eq.backpack "On back"       <container>))))
+    
+    (register-slot-order& equip-order))
+  
+  ;; highest value listed first..
+  (register-sorting-values& var-obj
+			    '(
+    
+			      (1 . 2000);; skeleton
+			      (2 . 2100);; bottle
+			      (3 . 2200);; junk
+			      (5 . 2300);; spike
+			      (7 . 2400);; chest
+			      (16 . 2500);; ammo, shot
+			      (17 . 2600);; ammo, arrow
+			      (18 . 2700);; ammo, bolt
+			      (19 . 2800);; bow
+			      (20 . 2900);; digging tool
+			      (21 . 3000);; hafted weapon
+			      (22 . 3100);; polearm
+			      (23 . 3200);; sword
+			      (30 . 3300);; boots
+			      (31 . 3400);; gloves
+			      (32 . 3500);; helmets
+			      (33 . 3600);; crowns
+			      (34 . 3700);; shields
+			      (35 . 3800);; cloaks
+			      (36 . 3900);; soft armours
+			      (37 . 4000);; hard armours
+			      (38 . 4100);; dragon-scale
+			      (39 . 4200);; light-source
+			      (40 . 4300);; neckwear
+			      (45 . 4400);; rings
+			      (66 . 4500);; rods
+			      (55 . 4600);; staves
+			      (65 . 4800);; wands
+			      (70 . 5000);; scrolls
+			      (75 . 5500);; potions
+			      (77 . 5700);; flasks
+			      (80 . 6000);; food
+			      (90 . 6900);; mage spellbook
+			      (91 . 7000);; priest spellbook
+			      (100 . 7100);; money
+			      )))
+

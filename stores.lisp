@@ -15,190 +15,83 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (defclass store ()
-    ((id :accessor store.id :initform nil)
-     (name :accessor store.name :initform nil)
-     (owner :accessor store.owner :initform nil)
-     (number :accessor store.number :initform nil)
-     (items :accessor store.items :initform nil)
+  
+  (defclass store (house)
+    ((id     :accessor store.id     :initform nil :initarg :id)
+     (name   :accessor store.name   :initform nil :initarg :name)
+     (number :accessor store.number :initform nil :initarg :number)
+     
+     (poss-owners :accessor store.poss-owners
+		  :initform nil ;;(make-hash-table :test #'eq)
+		  :initarg :poss-owners)
+     
+     ;; unsure on this
+     (items  :accessor store.items  :initform nil :initarg :items)
      ))
 
-  (defclass store-owner ()
-    ((id :accessor owner.id :initform nil)
-     (name :accessor owner.name :initform nil)
-     (purse :accessor owner.purse :initform nil)
-     (max-greed :accessor owner.max-greed :initform nil)
-     (min-greed :accessor owner.min-greed :initform nil)
-     (haggle-num :accessor owner.haggle-num :initform nil)
-     (tolerance :accessor owner.tolerance :initform nil)
-     (race :accessor owner.race :initform nil)
+ 
+  (defclass store-owner (owner)
+    ((purse      :accessor owner.purse      :initform nil :initarg :purse)
+     (max-greed  :accessor owner.max-greed  :initform nil :initarg :max-greed)
+     (min-greed  :accessor owner.min-greed  :initform nil :initarg :min-greed)
+     (haggle-num :accessor owner.haggle-num :initform nil :initarg :haggle-num)
+     (tolerance  :accessor owner.tolerance  :initform nil :initarg :tolerance)
+     (race       :accessor owner.race       :initform nil :initarg :race)
+     ))
 
-     )))
-
-
-(defmethod print-object ((inst store) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~A ~A]" (class-name (class-of inst))
-	   (slot-value inst 'name)
-	   (slot-value inst 'owner)))
-	   
-  inst)
-
-(defmethod print-object ((inst store-owner) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~A]" (class-name (class-of inst))
-	   (slot-value inst 'name)))
-	   
-  inst)
-
-
-;; array with the active stores, indexed by number
-(defvar *active-stores* (make-array +max-stores+))
-
-;; array with store id's, indexed by number
-(defvar *store-ids* (make-array +max-stores+))
-
-;; the different store-types indexed by id
-(defvar *store-types* (make-hash-table :test #'eql))
-
-;; the different owners indexed by id
-(defvar *owners* (make-hash-table :test #'eql))
-
-;; a mapping from store id to a list of possible owners
-(defvar *store-owners* (make-hash-table :test #'eql))
-
-
-
-(defun store-init& (num)
-
-;;  (warn "init on ~a" num)
   
-  ;; let's find an owner for this joint
-  (let* ((store-id (aref *store-ids* num))
-	 (possible-owners (get-store-owners store-id))
-	 (chosen-owner (nth (random (length possible-owners)) possible-owners))
-	 (the-store (get-store-type store-id)))
+  )
 
-    (setf (store.owner the-store) chosen-owner)
-    (setf (aref *active-stores* num) the-store)
+(defmethod find-owner-for-house (level (house store)
+				       &key
+				       (var-obj *variant*)
+				       (selection :random))
+  
+  (declare (ignore level))
+  
+  (let ((poss-owners (store.poss-owners house))
+	(the-owner nil))
     
-    the-store))
+    (unless poss-owners
+      (warn "Unable to find any possible owners for store ~a" house)
+      (return-from find-owner-for-house nil))
 
-(defun store-delete-obj (num )
-  (let ((the-store (aref *active-stores* num)))
-    (pop (store.items the-store)))
-  (values))
+    (ecase selection
+      (:random
+       (setf the-owner (elt poss-owners (random (length poss-owners)))))
+      )
+    
+    (assert the-owner)
 
-(defun store-create-obj (num)
+    (get-owner the-owner var-obj)
+    ))
 
-  (let ((some-obj (get-obj-by-level (+ 25 (randint 25))))
-	(the-store (aref *active-stores* num)))
 
-    (when some-obj
-	(push some-obj (store.items the-store))))
+(defun add-owner-to-store-type! (owner store-type-id
+				 &optional (var-obj *variant*))
+  "The OWNER argument should be an owner, the STORE-TYPE-ID
+should be an exisiting id."
   
-  (values))
+  (let* ((v-obj var-obj)
+	 (store-type (get-house store-type-id v-obj)))
+    
+    (if (and store-type (typep store-type 'store))
+	(pushnew (owner.id owner) (store.poss-owners store-type))
+	(warn "Unable to find store-type ~a" store-type-id))))
+	 
 
-(defun store-display-inventory (num)
-  (let ((the-store (aref *active-stores* num)))
-
-    (loop for i from 0
-	  for item in (store.items the-store)
-	  do
-	  (store-display-entry num i item))))
-
-(defun store-display-entry (num item-num item)
-  (declare (ignore num))
-  
-  (let ((row (+ item-num 6))
-	(o-type (aobj.kind item)))
-
-	(c-prt (format nil "~c) " (code-char (+ (char-code #\a) item-num))) row 0)
-
-	(c-prt (format nil "~a " (object-description item :store t)) row 5)
-	
-	;; weight
-	(let ((weight (object.weight o-type)))
-	  (c-prt (format nil "~d.~d" (int-/ weight 10) (mod weight 10))
-		 row 61))
-
-	))
-	
-
-(defun store-maint! (num)
-
-;;  (warn "maint on ~a" num)
-;;  (warn "Active ~a" *active-stores*)
-  (let ((the-store (aref *active-stores* num))
-	;; fix level-rating to use new system
-	;;(*level-rating* 0)
-	)
-    ;; we need to sell some stuff
-    (let* ((len (length (store.items the-store)))
-	   (j len))
-      ;; silly calc
-      (setq j (- j (randint +store-turnover+)))
-      (if (> j +store-maximum-items+)
-	  (setq j +store-maximum-items+)
-	  (if (< j +store-minimum-items+)
-	      (setq j +store-minimum-items+)))
-      
-      ;; wipe objects
-;;      (warn "Comparing ~a with ~a" (length (store.items the-store)) j)
-      
-      (while (> (length (store.items the-store)) j)
-	(store-delete-obj num))
-
-      (setq j (length (store.items the-store)))
-      
-      (setq j (- j (randint +store-turnover+)))
-      (if (> j +store-maximum-items+)
-	  (setq j +store-maximum-items+)
-	  (if (< j +store-minimum-items+)
-	      (setq j +store-minimum-items+)))
-
-      (store-create-obj num)
-      )))
-
-
-(defun establish-store-type& (store)
-  "adds a store to the table of possible stores"
-  (setf (gethash (store.id store) *store-types*) store))
-
-(defun get-store-type (id)
-  "gets a store from the table of possible stores"
-  (gethash id *store-types*))
-
-(defun establish-owner& (owner)
-  "adds an owner to the table of possible owners"
-  (setf (gethash (owner.id owner) *owners*) owner))
-
-(defun get-owner (id)
-  "gets an owner from the table of possible owners"
-  (gethash id *owners*))
-
-(defun establish-store-owner-rel& (store-id owner)
-  "adds a relation from a store-type to an owner"
-  (push owner (gethash store-id *store-owners*)))
-
-(defun get-store-owners (id)
-  "returns a list of possible owners for given store-id/store-type"
-  (gethash id *store-owners*))
-
-
-(defun define-store (id &key name number)
+(defun define-store (id &key name number x-attr x-char)
   "creates a store object and adds it to the appropriate table"
 ;;  (declare (ignore args))
-  (let ((store (make-instance 'store)))
-    (setf (store.id store) id
-	  (store.name store) name
-	  (store.number store) number)
+  (let ((var-obj *variant*)
+	(store (make-instance 'store :id id :name name :number number
+			      :x-attr x-attr :x-char x-char)))
 
-    (establish-store-type& store)
-    ;; add to numbered position
-    (setf (aref *store-ids* (1- (store.number store))) (store.id store))
+    (establish-house& var-obj store)
+
+    (when (and number (numberp number))
+      ;; add to numbered position
+      (establish-house& var-obj store :house-key number))
     
     store))
 
@@ -207,93 +100,145 @@ the Free Software Foundation; either version 2 of the License, or
 			   special-owner)
   "creates an owner and adds him or her to appropriate tables"
   
-  (let ((owner (make-instance 'store-owner)))
-    (setf (owner.id owner) id
-	  (owner.name owner) name
-	  (owner.purse owner) purse
-	  (owner.max-greed owner) max-greed
-	  (owner.min-greed owner) min-greed
-	  (owner.haggle-num owner) haggle-num
-	  (owner.tolerance owner) tolerance
-	  (owner.race owner) race)
+  (let ((owner (make-instance 'store-owner :id id :name name
+			      :purse purse :max-greed max-greed
+			      :min-greed min-greed :haggle-num haggle-num
+			      :tolerance tolerance :race race))
+	(var-obj *variant*))
+
 
     ;; we add it to the owner-table
-    (establish-owner& owner)
+    (establish-owner& var-obj owner)
     
     ;; we just want generic owners to the relation table
     (unless special-owner
-      (establish-store-owner-rel& store-type owner))
+      (add-owner-to-store-type! owner store-type var-obj))
 
     owner))
 
 
-(defun store-build! (dungeon number xx yy)
-  "more or less taken directly"
-  
-   (let* ((qy +screen-height+)
-	  (qx +screen-width+)
-	  (y0 (+ qy (* yy 9) 6))
-	  (x0 (+ qx (* xx 14) 12))
-	  (y1 (- y0 (randint (if (= 0 yy) 3 2))))
-	  (y2 (+ y0 (randint (if (= 1 yy) 3 2))))
-	  (x1 (- x0 (randint 5)))
-	  (x2 (+ x0 (randint 5))))
-
-     (loop for y from y1 to y2 do
-	   (loop for x from x1 to x2 do
-		 (setf (cave-feature dungeon x y) +feature-perm-extra+)))
-
-
-     ;; add doors
-     (let ((tmp (random 4))
-	   (x 0)
-	   (y 0))
-
-       ;; skip relocating annoying doors
-       
-       (case tmp
-	 ;; bottom
-	 (0 (setq y y2
-		  x (rand-range x1 x2)))
-	 ;; top
-	 (1 (setq y y1
-		  x (rand-range x1 x2)))
-	 ;; right
-	 (2 (setq y (rand-range y1 y2)
-		  x x2))
-	 ;; left
-	 (3 (setq y (rand-range y1 y2)
-		  x x1))
-	 
-	 (t
-	  (warn "Fall-through in door placement")
-	  (setq y y2
-		x x2)))
-
-       ;; fake it
-       (setf (cave-feature dungeon x y) (+ +feature-shop-head+ number)))
-       
-     
-     ))
-	  
-
-(defun initialise-stores& ()
-  (dotimes (i +max-stores+)
-
-    (unless (eql i +the-home+)
-      (store-init& i)
-      ;; maint it ten times
-      (dotimes (j 10) (store-maint! i)))
-
-;;    (warn "Store: ~a" (aref *active-stores* i))
-    ))
-
-;;(trace store-maint)
 
 (defun show-store (num)
   "Shows the store number num."
-  (clear-the-screen)
-  (store-display-inventory num)
-  (c-pause-line *last-console-line*)
-  (clear-the-screen))
+  (with-new-screen ()
+   
+    ;;  (clear-the-screen)
+    
+;;    (store-display-inventory num)
+    (c-pause-line *last-console-line*)
+    ;;(clear-the-screen)
+    ))
 
+
+(defun create-store (type
+		     &key
+		     (owner :random)
+		     (var-obj *variant*)
+		     (level *level*))
+  "The TYPE argument can be either an id (preferred)
+or a number.  Returns NIL on failure."
+
+  (unless (or (typep type 'number)
+	      (typep type 'symbol))
+    (warn "Store type should be a number or symbol, was given ~s [~a]."
+	  type (type-of type))
+    (return-from create-store nil))
+  
+  (let* ((wanted-house (get-house type var-obj)))
+    
+    (when (or (eq nil wanted-house)
+	      (not (typep wanted-house 'store)))
+      (warn "Unable to find store ~a" type)
+      (return-from create-store nil))
+    
+
+    (let ((its-owner (if (eq owner :random)
+			 (find-owner-for-house level wanted-house :var-obj var-obj :selection :random)
+			 (get-owner owner var-obj))))
+      
+      (unless its-owner
+	(warn "Unable to find owner ~a for ~a" owner wanted-house)
+	(return-from create-store nil))
+
+      (activate-object wanted-house :owner its-owner)
+      (activate-object its-owner)
+      
+      wanted-house)))
+    
+#||
+(defun establish-store-type& (var-obj store)
+  "adds a store to the table of possible stores.
+Is added by both id and number."
+  (warn "establish-store-type& deprecated")
+  (establish-house& var-obj store))
+
+(defun get-store-type (id &optional var-obj)
+  "gets a store from the table of possible stores"
+  (warn "get-store-type& deprecated")
+  (get-house id var-obj))
+
+
+  (let ((table (variant.house-types var-obj)))
+    (setf (gethash (house.id store) table) store)
+    (setf (gethash (store.number store) table) store)
+    ))
+
+  (let* ((v-obj (if var-obj var-obj *variant*))
+	 (table (variant.house-types v-obj)))
+    
+    (gethash id table)))
+
+
+(defun establish-owner&% (var-obj owner)
+  "adds an owner to the table of possible owners"
+  (let ((table (variant.house-owners var-obj)))
+    (setf (gethash (owner.id owner) table) owner)))
+
+(defun get-owner% (id &optional var-obj)
+  "gets an owner from the table of possible owners"
+  (let* ((v-obj (if var-obj var-obj *variant*))
+	 (table (variant.house-owners v-obj)))
+
+    (gethash id table)))
+
+  (let* ((v-obj (if var-obj var-obj *variant*))
+	 (table (variant.store-types v-obj)))
+    (loop for x being the hash-values of table
+	  do
+	  (when (= (store.number x) number)
+	    (return-from get-store-type-by-num x)))
+    nil))
+
+
+
+(defun get-store-type-by-num (number &optional var-obj)
+  "Returns a store-type matching the given number. O(n)"
+  (get-store-type number var-obj))
+
+  
+
+(defun get-owner-by-store (store-type &optional (var-obj *variant*))
+  "Returns an owner based on store-type."
+
+  (let* ((v-obj var-obj) 
+	 (s-type (etypecase store-type
+		   (store store-type)
+		   (symbol (get-house store-type v-obj)))))
+    
+    (unless (and s-type (typep s-type 'store))
+      (warn "Unable to find store ~a" store-type)
+      (return-from get-owner-by-store nil))
+    
+    (let ((poss-owners (store.poss-owners s-type)))
+      
+      (unless poss-owners
+	(warn "Unable to find any possible owners for store ~a" store-type)
+	(return-from get-owner-by-store nil))
+
+      (let ((the-owner (elt poss-owners (random (length poss-owners)))))
+	(assert the-owner)
+
+	(get-owner the-owner v-obj)))))
+
+
+||#

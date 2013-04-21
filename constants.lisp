@@ -157,10 +157,11 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconst +escape+ =char-code= (charify-number 27) "escape-key")
 
 ;;(defconstant +max-depth+ 128)
-
+#||
 ;; stores.lisp mostly
 (defconst +max-stores+ u-fixnum 8 "max stores..")
 (defconst +the-home+ u-fixnum 7 "house number.") ;; the num is displayed as 8
+||#
 
 (defconstant +store-item-limit+ 24)
 (defconstant +store-maximum-items+ 18)

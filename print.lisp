@@ -18,6 +18,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 
 (in-package :langband)
 
+;;(defvar *string-pool* (make-hash-table :test #'equal))
 
 (defun print-field (str coord)
   "Print string at given coordinates in light-blue."
@@ -70,7 +71,7 @@ ADD_DESC: Various code which just prints stuff somewhere
     (c-put-str (if lower-lvl-p "Level" "LEVEL")
 	       (car lev-set) (cdr lev-set))
     (c-col-put-str (if lower-lvl-p +term-yellow+ +term-l-green+)
-		   (format nil "~6d" lev)
+		   (%get-6str lev)
 		   (car lev-set)
 		   (+ (cdr lev-set) 6))))
 
@@ -83,7 +84,7 @@ ADD_DESC: Various code which just prints stuff somewhere
     (c-put-str (if lower-xp-p "Exp" "EXP")
 	       (car xp-set) (cdr xp-set))
     (c-col-put-str (if lower-xp-p +term-yellow+ +term-l-green+)
-		   (format nil "~8d" xp)
+		   (%get-8str xp)
 		   (car xp-set)
 		   (+ (cdr xp-set) 4))))
 
@@ -96,7 +97,7 @@ ADD_DESC: Various code which just prints stuff somewhere
     (c-put-str "AU"
 	       (car gold-set) (cdr gold-set))
     (c-col-put-str +term-l-green+
-		   (format nil "~9d" gold)
+		   (%get-9str gold)
 		   (car gold-set)
 		   (+ (cdr gold-set) 3))))
 
@@ -111,7 +112,7 @@ ADD_DESC: Various code which just prints stuff somewhere
     (c-put-str "Cur AC"
 	       (car ac-set) (cdr ac-set))
     (c-col-put-str +term-l-green+
-		   (format nil "~5d" ac)
+		   (%get-5str ac)
 		   (car ac-set)
 		   (+ (cdr ac-set) 7))))
 
@@ -127,7 +128,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 	(c-put-str "Max HP" (car max-set) (cdr max-set))
   
 	(c-col-put-str +term-l-green+
-	  (format nil "~5d" max-hp)
+	  (%get-5str  max-hp)
 	  (car max-set)
 	  (+ (cdr max-set) 7))
 
@@ -137,7 +138,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 			     ((> cur-hp (int-/ (* max-hp *hitpoint-warning*) 10)) +term-yellow+)
 			     (t +term-red+))
 		       
-	  (format nil "~5d" cur-hp)
+	  (%get-5str cur-hp)
 	  (car cur-set)
 	  (+ (cdr cur-set) 7))
 
@@ -154,7 +155,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 	(c-put-str "Max MP" (car max-set) (cdr max-set))
   
 	(c-col-put-str +term-l-green+
-	  (format nil "~5d" max-hp)
+	  (%get-5str max-hp)
 	  (car max-set)
 	  (+ (cdr max-set) 7))
 
@@ -163,10 +164,10 @@ ADD_DESC: Various code which just prints stuff somewhere
 	(c-col-put-str (cond ((>= cur-hp max-hp) +term-l-green+)
 			     ((> cur-hp (int-/ (* max-hp *hitpoint-warning*) 10)) +term-yellow+)
 			     (t +term-red+))
-		       
-	  (format nil "~5d" cur-hp)
-	  (car cur-set)
-	  (+ (cdr cur-set) 7))
+
+		       (%get-5str cur-hp)
+		       (car cur-set)
+		       (+ (cdr cur-set) 7))
 
 	))
   
@@ -251,15 +252,15 @@ ADD_DESC: Various code which just prints stuff somewhere
 
 
     (c-put-str "Age" 3 col)
-    (c-col-put-str +term-l-blue+ (format nil "~4d" 0)  3 f-col)
+    (c-col-put-str +term-l-blue+ (%get-4str 0) 3 f-col)
 
     (c-put-str "Height" 4 col)
-    (c-col-put-str +term-l-blue+ (format nil "~4d" 0)  4 f-col)
+    (c-col-put-str +term-l-blue+ (%get-4str 0)  4 f-col)
 
     (c-put-str "Weight" 5 col)
-    (c-col-put-str +term-l-blue+ (format nil "~4d" 0)  5 f-col)
+    (c-col-put-str +term-l-blue+ (%get-4str 0)  5 f-col)
     (c-put-str "Status" 6 col)
-    (c-col-put-str +term-l-blue+ (format nil "~4d" 0)  6 f-col)
+    (c-col-put-str +term-l-blue+ (%get-4str 0)  6 f-col)
 
     ;; always in maximize and preserve, do not include
 
@@ -316,23 +317,23 @@ ADD_DESC: Various code which just prints stuff somewhere
 		   10 (1+ f-col))
 
     (c-put-str "Fight" 11 col)
-    (c-col-put-str +term-l-blue+ (format nil "~13@a" "(+0,+0)")
+    (c-col-put-str +term-l-blue+ (%get-13astr "(+0,+0)")
 		   11 f-col)
 
     (c-put-str "Melee" 12 col)
-    (c-col-put-str +term-l-blue+ (format nil "~13@a" "(+0,+0)")
+    (c-col-put-str +term-l-blue+ (%get-13astr "(+0,+0)")
 		   12 f-col)
 
     (c-put-str "Shoot" 13 col)
-    (c-col-put-str +term-l-blue+ (format nil "~13@a" "(+0,+0)")
+    (c-col-put-str +term-l-blue+ (%get-13astr "(+0,+0)")
 		   13 f-col)
     
     (c-put-str "Blows" 14 col)
-    (c-col-put-str +term-l-blue+ (format nil "~13@a" "1/turn")
+    (c-col-put-str +term-l-blue+ (%get-13astr "1/turn")
 		   14 f-col)
     
     (c-put-str "Shots" 15 col)
-    (c-col-put-str +term-l-blue+ (format nil "~13@a" "1/turn")
+    (c-col-put-str +term-l-blue+ (%get-13astr "1/turn")
 		   15 f-col)
 		   
     (c-put-str "Infra" 17 col)

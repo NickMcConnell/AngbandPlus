@@ -34,7 +34,9 @@ ADD_DESC: Simple code to access the dungeon object(s)
 
   (depth nil)
   (monsters nil)
-  (rooms nil))
+  (rooms nil) ;; unused
+  (triggers nil)
+  )
   
 
 
@@ -116,6 +118,9 @@ the Y-coordinate of the COORD
     (declare (ignore x y))
     (clean-coord! coord))
 
+  (setf (dungeon.rooms dungeon) nil
+	(dungeon.monsters dungeon) nil
+	(dungeon.triggers dungeon) nil)
 
   dungeon)
 
@@ -613,3 +618,29 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 			(format s "~a" (feature.x-char (get-feature point-info))))))
 	  (format s "~%"))))
 
+(defun get-coord-trigger (dun x y)
+  "Tries to find a trigger at a given point."
+  (dolist (i (dungeon.triggers dun))
+    (let ((place (car i)))
+      (when (and (= (car place) x)
+		 (= (cdr place) y))
+	(return-from get-coord-trigger i))))
+  nil)
+
+(defun (setf get-coord-trigger) (val dun x y)
+  "Adds a trigger to the given dungeon."
+  (dolist (i (dungeon.triggers dun))
+    (let ((place (car i)))
+      (when (and (= (car place) x)
+		 (= (cdr place) y))
+	(setf (cdr i) val)
+	(return-from get-coord-trigger i))))
+  
+  (push (cons (cons x y) val) (dungeon.triggers dun)))
+
+
+(defun apply-possible-coord-trigger (dun x y)
+  "This is a hack.. fix me later.."
+  (let ((trigger (get-coord-trigger dun x y)))
+    (when (and trigger (consp trigger) (functionp (cdr trigger)))
+      (funcall (cdr trigger) dun x y))))
