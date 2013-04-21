@@ -137,9 +137,9 @@ are sorted first.  Returns nothing."
 		   ;; the : shows up here, so no ordinary tokenising :(
 		   ;; no assert
 		   ;; the second should be the symbol to paint
-		   (setf (object.x-char cur-obj) (schar l 2))
+		   (setf (x-char cur-obj) (schar l 2))
 		   ;; the third should be the colour
-		   (setf (object.x-attr cur-obj) (convert-obj (schar l 4) :colour-code))
+		   (setf (x-attr cur-obj) (convert-obj (schar l 4) :colour-code))
 		 
 		   ))
 

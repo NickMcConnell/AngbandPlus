@@ -73,7 +73,7 @@ the Free Software Foundation; either version 2 of the License, or
   :flags '(<easy-know> <curse>)
   :sort-value 4301
   :the-kind '<amulet>
-  :game-values (make-game-values :abilities '(<teleport>))) 
+  :game-values (make-game-values :abilities '(<random-teleport>))) 
 
 (define-object-kind "amulet-slow-digest" "slow digestion"
   :numeric-id 167

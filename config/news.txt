@@ -1,24 +1,21 @@
 
         ((                                                   ))
-       ((   \\     ___            ___  __   ___          __    ))   
+       ((   \\     ___            ___  __   ___          __    ))  
       ((     \\   // \\ |\  ||  //    |  \ // \\ |\  || || \\   ))
       ((     /\\  |---| ||\ || ||  == |==| |---| ||\ || || ||   ))
        ((   // \\ || || || \||  \\__/ |__/ || || || \|| ||_//  ))
-        ((                                                   )) 
-       
+        ((                                                   ))
+
 
                  Version 0.1.0  --  The Lithping Scare
-	   
+
        Written by:  Stig E Sandø <stig@users.sourceforge.net>
 
           A dungeon-exploring game written in Common Lisp
 
       Inspired by Angband (written by Robert Ruehlmann, et.al)
-     
 
-                 http://langband.sourceforge.net/
+
+                     http://www.langband.org/
                  news:rec.games.roguelike.angband
-
-
-
 

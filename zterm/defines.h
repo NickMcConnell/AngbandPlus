@@ -470,10 +470,10 @@ extern int PlayerUID;
 #define SOUND_MAX 25
 
 
-
 /*
  * Available graphic modes
  */
-#define GRAPHICS_NONE       0
-#define GRAPHICS_ORIGINAL   1
-#define GRAPHICS_ADAM_BOLT  2
+#define GRAPHICS_NONE           0
+#define GRAPHICS_ORIGINAL       1
+#define GRAPHICS_ADAM_BOLT      2
+#define GRAPHICS_DAVID_GERVAIS  3

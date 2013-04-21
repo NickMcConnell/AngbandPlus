@@ -30,7 +30,7 @@ cptr copyright[5] =
 bool arg_fiddle;			/* Command arg -- Request fiddle mode */
 bool arg_wizard;			/* Command arg -- Request wizard mode */
 bool arg_sound;				/* Command arg -- Request special sounds */
-bool arg_graphics;			/* Command arg -- Request graphics mode */
+byte arg_graphics;			/* Command arg -- Request graphics mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
 
@@ -147,3 +147,8 @@ bool use_transparency = FALSE;
  * Game can be saved
  */
 bool can_save = TRUE;
+
+/* does the game use the big tiles.. must be turned on in init */
+bool use_bigtile = FALSE;
+
+  

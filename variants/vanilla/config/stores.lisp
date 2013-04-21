@@ -32,7 +32,8 @@ the Free Software Foundation; either version 2 of the License, or
 	     (obj :id "shovel")
 	     (obj :id "pick")
 	     (obj :id "cloak" :weight 3)
-	     ))
+	     )
+    :buys '(<food> <light-source> <ammo> <digger> <cloak>)) ;; add spikes and flasks too
 
 
 (define-store '<armoury>
@@ -59,7 +60,11 @@ the Free Software Foundation; either version 2 of the License, or
 	     (obj :id "small-leather-shield" :weight 2)
 	     (obj :id "large-leather-shield")
 	     (obj :id "small-metal-shield")
-	     ))
+	     )
+    :buys #'(lambda (obj store)
+	      (declare (ignore store))
+	      (when (typep obj 'active-object/armour)
+		t)))
 
 (define-store '<weapon-smith>
     :name "Weapon Smith"
@@ -92,7 +97,13 @@ the Free Software Foundation; either version 2 of the License, or
 	     (obj :id "iron-shot" :weight 3)
 	     (obj :id "arrow" :weight 3)
 	     (obj :id "bolt" :weight 3)
-	     ))
+	     )
+    :buys #'(lambda (obj store)
+	      (declare (ignore store))
+	      (when (or (typep obj 'active-object/weapon)
+			(typep obj 'active-object/ammo))
+		t)))
+
 
 (define-store '<temple>
     :name "Temple"
@@ -116,7 +127,22 @@ the Free Software Foundation; either version 2 of the License, or
 	     (obj :id "potion-cure-critical" :weight 2)
 	     (obj :id "potion-restore-xp" :weight 3)
 	     ;; prayer books
-	     ))
+	     )
+    :buys #'(lambda (obj store)
+	      (declare (ignore store))
+	      (cond ((or (typep obj 'active-object/hafted)
+			 (typep obj 'active-object/scroll)
+			 (typep obj 'active-object/potion)
+			 (typep obj 'active-object/prayerbook))
+		     t)
+
+		    ((or (typep obj 'active-object/weapon))
+		     ;; check if blessed
+		     nil)
+		    
+		    (t
+		     nil))))
+
 
 (define-store '<alchemist>
     :name "Alchemist"
@@ -125,7 +151,7 @@ the Free Software Foundation; either version 2 of the License, or
 	     (obj :id "scroll-enchant-wpn-dmg")
 	     (obj :id "scroll-enchant-armour")
 	     (obj :id "scroll-identify" :weight 4)
-	     (obj :id "scroll-light")
+	     (obj :id "scroll-illumination")
 	     (obj :id "scroll-phase-door" :weight 3)
 	     (obj :id "scroll-monster-confusion")
 	     (obj :id "scroll-mapping" :weight 2)
@@ -145,7 +171,8 @@ the Free Software Foundation; either version 2 of the License, or
 	     (obj :id "potion-restore-dex")
 	     (obj :id "potion-restore-con")
 	     (obj :id "potion-restore-chr")
-	     ))
+	     )
+    :buys '(<potion> <scroll>))
 	     
 
 (define-store '<magic-shop>
@@ -174,15 +201,18 @@ the Free Software Foundation; either version 2 of the License, or
 	     (obj :id "staff-teleport" :weight 2)
 	     (obj :id "staff-identify" :weight 2)
 	     ;; spellbooks
-	     ))
+	     )
+    :buys '(<potion> <scroll> <ring> <amulet> <staff> <rod> <wand> <spellbook>))
 
 (define-store '<black-market>
     :name "Black Market"
     :type 'black-market
-    :number 7)
+    :number 7
+    :buys t)
 
 (define-house '<home>
     :name "Player's home"
+    :type 'players-home
     :number 8
     :owner :player)
 
@@ -199,7 +229,6 @@ the Free Software Foundation; either version 2 of the License, or
     :tolerance 12
     :race '<hobbit>)
 
-
 (define-store-owner
     :store-type '<general-store>
     :id '"rincewind"
@@ -210,7 +239,6 @@ the Free Software Foundation; either version 2 of the License, or
     :haggle-num 4
     :tolerance 12
     :race '<human>)
-
 
 (define-store-owner
     :store-type '<general-store>
@@ -223,7 +251,6 @@ the Free Software Foundation; either version 2 of the License, or
     :tolerance 15
     :race '<dwarf>)
 
-
 (define-store-owner
     :store-type '<general-store>
     :id "lyar"
@@ -235,71 +262,291 @@ the Free Software Foundation; either version 2 of the License, or
     :tolerance 18
     :race '<elf>)
 
-;;; =====
+;;; ===== armouries =====
 
 (define-store-owner
     :store-type '<armoury>
-    :id 'owner-kondar2
+    :id "kon-dar"
     :name "Kon-Dar the Ugly"
     :purse 5000
     :max-greed 210
     :min-greed 115
     :haggle-num 5
     :tolerance 7
+    :picture "half-orc.bmp"
     :race '<half-orc>)
+
+(define-store-owner
+    :store-type '<armoury>
+    :id "darg-low"
+    :name "Darg-Low the Grim"
+    :purse 10000
+    :max-greed 190
+    :min-greed 111
+    :haggle-num 4
+    :tolerance 9
+;;    :picture "stern-human.bmp"
+    :race '<human>)
+
+(define-store-owner
+    :store-type '<armoury>
+    :id "decado"
+    :name "Decado the Handsome"
+    :purse 25000
+    :max-greed 200
+    :min-greed 112
+    :haggle-num 4
+    :tolerance 10
+    :race '<dunedan>)
+
+(define-store-owner
+    :store-type '<armoury>
+    :id "mauglin"
+    :name "Mauglin the Grumpy"
+    :purse 30000
+    :max-greed 200
+    :min-greed 112
+    :haggle-num 4
+    :tolerance 5
+    :race '<dwarf>)
+
+;;; ===== weapon-smiths =====
 
 (define-store-owner
     :store-type '<weapon-smith>
-    :id 'owner-kondar3
-    :name "Kon-Dar the Ugly"
+    :id "ithyl"
+    :name "Ithyl-Mak the Beastly"
     :purse 5000
     :max-greed 210
     :min-greed 115
+    :haggle-num 6
+    :tolerance 6
+    :picture "nasty-half-troll.bmp"
+    :race '<half-troll>)
+
+(define-store-owner
+    :store-type '<weapon-smith>
+    :id "arndal"
+    :name "Arndal Beast-Slayer"
+    :purse 10000
+    :max-greed 185
+    :min-greed 110
+    :haggle-num 5
+    :tolerance 9
+    :picture "elf-warr.bmp"
+    :race '<elf>)
+
+(define-store-owner
+    :store-type '<weapon-smith>
+    :id "tarl"
+    :name "Tarl Beast-Master"
+    :purse 25000
+    :max-greed 190
+    :min-greed 115
     :haggle-num 5
     :tolerance 7
-    :race '<half-orc>)
+    :picture "male-hobbit.bmp"
+    :race '<hobbit>)
+
+(define-store-owner
+    :store-type '<weapon-smith>
+    :id "oglign"
+    :name "Oglign Dragon-Slayer"
+    :purse 30000
+    :max-greed 195
+    :min-greed 112
+    :haggle-num 4
+    :tolerance 8
+    :picture "dwarf-male.bmp"
+    :race '<dwarf>)
+
+;;; ===== temples =====
 
 (define-store-owner
     :store-type '<temple>
-    :id 'owner-kondar4
-    :name "Kon-Dar the Ugly"
-    :purse 5000
-    :max-greed 210
-    :min-greed 115
+    :id "ludwig"
+    :name "Ludwig the Humble"
+    :purse 15000
+    :max-greed 175
+    :min-greed 109
+    :haggle-num 6
+    :tolerance 15
+    :race '<human>)
+
+(define-store-owner
+    :store-type '<temple>
+    :id "gunnar"
+    :name "Gunnar the Paladin"
+    :purse 20000
+    :max-greed 185
+    :min-greed 110
     :haggle-num 5
-    :tolerance 7
-    :race '<half-orc>)
+    :tolerance 23
+    :picture "stern-human.bmp"
+    :race '<human>)
+
+(define-store-owner
+    :store-type '<temple>
+    :id "delilah"
+    :name "Delilah the Pure"
+    :purse 25000
+    :max-greed 180
+    :min-greed 107
+    :haggle-num 6
+    :tolerance 20
+    :picture "old-woman.bmp"
+    :race '<elf>)
+
+(define-store-owner
+    :store-type '<temple>
+    :id "bosk"
+    :name "Bosk the Wise"
+    :purse 30000
+    :max-greed 185
+    :min-greed 109
+    :haggle-num 5
+    :tolerance 15
+    :race '<dwarf>)
+
+;;; ===== alchemists =====
 
 (define-store-owner
     :store-type '<alchemist>
-    :id 'owner-kondar5
-    :name "Kon-Dar the Ugly"
-    :purse 5000
-    :max-greed 210
-    :min-greed 115
+    :id "mauser"
+    :name "Mauser the Chemist"
+    :purse 10000
+    :max-greed 190
+    :min-greed 111
     :haggle-num 5
-    :tolerance 7
-    :race '<half-orc>)
+    :tolerance 8
+    :picture "stern-man.bmp"
+    :race '<half-elf>)
+
+(define-store-owner
+    :store-type '<alchemist>
+    :id "wizzle"
+    :name "Wizzle the Chaotic"
+    :purse 10000
+    :max-greed 190
+    :min-greed 111
+    :haggle-num 6
+    :tolerance 8
+    :race '<hobbit>)
+
+(define-store-owner
+    :store-type '<alchemist>
+    :id "ganat"
+    :name "Ga-nat the Greedy"
+    :purse 15000
+    :max-greed 200
+    :min-greed 116
+    :haggle-num 6
+    :tolerance 9
+    :picture "gnome-male.bmp"
+    :race '<gnome>)
+
+(define-store-owner
+    :store-type '<alchemist>
+    :id "vella"
+    :name "Vella the Slender"
+    :purse 15000
+    :max-greed 220
+    :min-greed 111
+    :haggle-num 4
+    :tolerance 9
+    :race '<human>)
+
+
+;;; ===== magic shops =====
 
 (define-store-owner
     :store-type '<magic-shop>
-    :id 'owner-kondar6
-    :name "Kon-Dar the Ugly"
-    :purse 5000
-    :max-greed 210
-    :min-greed 115
+    :id "ariel"
+    :name "Ariel the Sorceress"
+    :purse 15000
+    :max-greed 200
+    :min-greed 110
+    :haggle-num 7
+    :tolerance 8
+    :picture "halfelf-female.bmp"
+    :race '<half-elf>)
+
+(define-store-owner
+    :store-type '<magic-shop>
+    :id "buggerby"
+    :name "Buggerby the Great"
+    :purse 20000
+    :max-greed 215
+    :min-greed 113
+    :haggle-num 6
+    :tolerance 10
+    :race '<gnome>)
+
+(define-store-owner
+    :store-type '<magic-shop>
+    :id "inglorian"
+    :name "Inglorian the Mage"
+    :purse 25000
+    :max-greed 200
+    :min-greed 110
+    :haggle-num 7
+    :tolerance 10
+    :race '<human>)
+
+(define-store-owner
+    :store-type '<magic-shop>
+    :id "luthien"
+    :name "Luthien Starshine"
+    :purse 30000
+    :max-greed 175
+    :min-greed 110
     :haggle-num 5
-    :tolerance 7
+    :tolerance 11
+    :race '<high-elf>)
+
+;;; ===== black markets =====
+
+(define-store-owner
+    :store-type '<black-market>
+    :id "lohak"
+    :name "Lo-Hak the Awful"
+    :purse 15000
+    :max-greed 250
+    :min-greed 150
+    :haggle-num 10
+    :tolerance 5
+    :race '<half-troll>)
+
+(define-store-owner
+    :store-type '<black-market>
+    :id "histor"
+    :name "Histor the Brute"
+    :purse 20000
+    :max-greed 250
+    :min-greed 150
+    :haggle-num 10
+    :tolerance 5
     :race '<half-orc>)
 
 (define-store-owner
     :store-type '<black-market>
-    :id 'owner-kondar7
-    :name "Kon-Dar the Ugly"
-    :purse 5000
-    :max-greed 210
-    :min-greed 115
-    :haggle-num 5
-    :tolerance 7
-    :race '<half-orc>)
+    :id "durwin"
+    :name "Durwin the Shifty"
+    :purse 30000
+    :max-greed 250
+    :min-greed 150
+    :haggle-num 10
+    :tolerance 5
+    :race '<dwarf>)
 
+(define-store-owner
+    :store-type '<black-market>
+    :id "drago"
+    :name "Drago the Fair"
+    :purse 30000
+    :max-greed 250
+    :min-greed 150
+    :haggle-num 10
+    :tolerance 5
+    :picture "grim-elf.bmp"
+    :race '<elf>)

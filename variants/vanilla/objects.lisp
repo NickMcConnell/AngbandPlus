@@ -90,14 +90,16 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	 (gvals (object.game-values obj))
 	 (known-type (or store (object.aware o-type)))
 	 (obj-known (or store (is-object-known? obj)))
-	 (flavour (if store nil (object.flavour o-type))))
+	 (flav-obj (if store nil (object.flavour o-type)))
+	 )
     
-    ;; temporary hack
-    (when flavour (setf flavour (car flavour)))
+;;    (when flav-obj
+;;      (setf flavour (flavour.text-attr flav-obj)))
+
     
     (write-pluralised-string stream "& #ring~@" (aobj.number obj)
 			     :ident known-type :actual-name (object.name obj)
-			     :flavour flavour :numeric-prefix numeric-prefix)
+			     :flavour flav-obj :numeric-prefix numeric-prefix)
     
     (when obj-known
       
@@ -216,10 +218,6 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	 ;;(plural-string nil)
 	 )
 
-    ;; temporary hack
-    (when flavour (setf flavour (car flavour)))
-    
-;;    (warn "tot-str ~s" tot-str)
 
     (let ((str (typecase obj
 		 (active-object/mushroom

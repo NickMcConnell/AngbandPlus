@@ -2,9 +2,6 @@
 
 
 (in-package :org.langband.ffi)
-(sb-alien:define-alien-type angbyte unsigned-char)
-
-(export 'angbyte)
 (sb-alien:define-alien-type cptr c-string)
 
 (export 'cptr)
@@ -33,7 +30,7 @@
 (declaim (inline c-prt-token!))
 (sb-alien:define-alien-routine ("print_coloured_token" c-prt-token!)
            void
-           (colour angbyte)
+           (colour int :in)
            (token int :in)
            (row int :in)
            (col int :in))
@@ -42,7 +39,7 @@
 (declaim (inline c-prt-stat!))
 (sb-alien:define-alien-routine ("print_coloured_stat" c-prt-stat!)
            void
-           (colour angbyte)
+           (colour int :in)
            (stat int :in)
            (row int :in)
            (col int :in))
@@ -51,7 +48,7 @@
 (declaim (inline c-prt-number!))
 (sb-alien:define-alien-routine ("print_coloured_number" c-prt-number!)
            void
-           (colour angbyte)
+           (colour int :in)
            (number long :in)
            (padding int :in)
            (row int :in)
@@ -59,12 +56,12 @@
 
 
 (declaim (inline c_term_putstr!))
-(sb-alien:define-alien-routine ("Term_putstr" c_term_putstr!)
+(sb-alien:define-alien-routine ("my_Term_putstr" c_term_putstr!)
            errr
            (col int :in)
            (row int :in)
            (something int :in)
-           (colour angbyte)
+           (colour int :in)
            (text (* char) :in))
 
 
@@ -77,12 +74,14 @@
 
 
 (declaim (inline c-term-queue-char!))
-(sb-alien:define-alien-routine ("Term_queue_char" c-term-queue-char!)
+(sb-alien:define-alien-routine ("my_Term_queue_char" c-term-queue-char!)
            void
            (row int :in)
            (col int :in)
-           (colour angbyte)
-           (the-char char))
+           (colour int :in)
+           (the-char int :in)
+           (tcolour int :in)
+           (tchar int :in))
 
 
 (declaim (inline c-term-gotoxy!))
@@ -93,13 +92,18 @@
 
 
 (declaim (inline c-set-cursor&))
-(sb-alien:define-alien-routine ("Term_set_cursor" c-set-cursor&)
+(sb-alien:define-alien-routine ("my_Term_set_cursor" c-set-cursor&)
            errr
            (col int :in))
 
 
 (declaim (inline c-term-clear!))
 (sb-alien:define-alien-routine ("Term_clear" c-term-clear!)
+           errr)
+
+
+(declaim (inline c-term-flush!))
+(sb-alien:define-alien-routine ("Term_flush" c-term-flush!)
            errr)
 
 
@@ -150,6 +154,11 @@
            (value cptr))
 
 
+(declaim (inline init-macro-system&))
+(sb-alien:define-alien-routine ("macro_init" init-macro-system&)
+           void)
+
+
 (declaim (inline c-set-lisp-system!))
 (sb-alien:define-alien-routine ("set_lisp_system" c-set-lisp-system!)
            void
@@ -198,13 +207,51 @@
            (fname cptr))
 
 
+#+image-support
+
+(declaim (inline paint-gfx-image&))
+
+#+image-support
+(sb-alien:define-alien-routine ("paint_gfx_image" paint-gfx-image&)
+           int
+           (fname cptr)
+           (type cptr)
+           (x int :in)
+           (y int :in))
+
+
+#+image-support
+
+(declaim (inline load-gfx-image&))
+
+#+image-support
+(sb-alien:define-alien-routine ("load_gfx_image" load-gfx-image&)
+           int
+           (fname cptr)
+           (type cptr))
+
+
+#+image-support
+
+(declaim (inline load-scaled-image&))
+
+#+image-support
+(sb-alien:define-alien-routine ("load_scaled_image" load-scaled-image&)
+           int
+           (fname cptr)
+           (idx int :in)
+           (wid int :in)
+           (hgt int :in))
+
+
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (export
    '(c_current_ui c_quit! c-clear-from! c-prt-token! c-prt-stat! c-prt-number!
      c_term_putstr! c_term_erase! c-term-queue-char! c-term-gotoxy!
-     c-set-cursor& c-term-clear! c-term-fresh! c-term-save! c-term-load!
-     c-term-xtra& c-inkey! init_c-side& cleanup-c-side& c_macro_add&
-     c-set-lisp-system! c-set-lisp-callback! c-get-term-height c-get-term-width
-     c-set-hinst! c-load-sound&)))
+     c-set-cursor& c-term-clear! c-term-flush! c-term-fresh! c-term-save!
+     c-term-load! c-term-xtra& c-inkey! init_c-side& cleanup-c-side&
+     c_macro_add& init-macro-system& c-set-lisp-system! c-set-lisp-callback!
+     c-get-term-height c-get-term-width c-set-hinst! c-load-sound&
+     paint-gfx-image& load-gfx-image& load-scaled-image&)))
 
 ;;; End of generated file.

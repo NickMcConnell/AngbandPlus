@@ -40,7 +40,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  (hs (make-hs-entry)))
       
       (setf
-       (hs-entry.version hs) "0.1p"
+       (hs-entry.version hs) *engine-version*
        (hs-entry.variant hs) (variant.name variant)
        (hs-entry.name hs) (player.name player)
        (hs-entry.race hs) race-key

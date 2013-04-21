@@ -1,3 +1,15 @@
+2002-09-16  Stig E Sandø <stig@users.sourceforge.net>
+	* Sent out a release, 0.1.0
+
+2002-09-16  Stig E Sandø <stig@users.sourceforge.net>
+	* Tweaked and added more commands (disarm, bash, ...)
+	* Added code for player's home
+	* Added stun/cut/... code
+	* Updated help-system
+	* Updated code to new and more advanced flavouring system
+	* Thanks to Scott, added numeric-ids to monsters again
+	* Many other minor changes and bugfixes
+
 2002-07-29  Stig E Sandø <stig@users.sourceforge.net>
 	* Sent out a release, 0.0.21
 

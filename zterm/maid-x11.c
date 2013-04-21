@@ -272,6 +272,7 @@ XImage *ReadBMP(Display *dpy, char *Name)
 	u32b x, y;
 
 	unsigned long clr_pixels[256];
+	char errorMsg[1024];
 
 
 	/* Open the BMP file */
@@ -308,7 +309,8 @@ XImage *ReadBMP(Display *dpy, char *Name)
 	    (fileheader.bfType != 19778) ||
 	    (infoheader.biSize != 40))
 	{
-		quit_fmt("Incorrect BMP file format %s", Name);
+	    sprintf(errorMsg, "Incorrect BMP file format %s", Name);
+	    quit(errorMsg);
 	}
 
 	/* The two headers above occupy 54 bytes total */
@@ -361,19 +363,28 @@ XImage *ReadBMP(Display *dpy, char *Name)
 			int ch = getc(f);
 
 			/* Verify not at end of file XXX XXX */
-			if (feof(f)) quit_fmt("Unexpected end of file in %s", Name);
+			if (feof(f)) {
+			    sprintf(errorMsg, "Unexpected end of file in %s", Name);
+			    quit(errorMsg);
+			}
 
 			if (infoheader.biBitCount == 24)
 			{
 				int c3, c2 = getc(f);
 
 				/* Verify not at end of file XXX XXX */
-				if (feof(f)) quit_fmt("Unexpected end of file in %s", Name);
+				if (feof(f)) {
+				    sprintf(errorMsg, "Unexpected end of file in %s", Name);
+				    quit(errorMsg);
+				}
 
 				c3 = getc(f);
 
 				/* Verify not at end of file XXX XXX */
-				if (feof(f)) quit_fmt("Unexpected end of file in %s", Name);
+				if (feof(f)) {
+				    sprintf(errorMsg, "Unexpected end of file in %s", Name);
+				    quit(errorMsg);
+				}
 
 				XPutPixel(Res, x, y2, create_pixel(dpy, ch, c2, c3));
 			}
@@ -390,8 +401,9 @@ XImage *ReadBMP(Display *dpy, char *Name)
 			else
 			{
 				/* Technically 1 bit is legal too */
-				quit_fmt("Illegal biBitCount %d in %s",
-				         infoheader.biBitCount, Name);
+				sprintf(errorMsg, "Illegal biBitCount %d in %s",
+					infoheader.biBitCount, Name);
+				quit(errorMsg);
 			}
 		}
 	}

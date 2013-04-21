@@ -29,32 +29,34 @@ the Free Software Foundation; either version 2 of the License, or
 (defun get-attribute-value (key table)
   "Returns the value of the attribute identified by KEY in the TABLE."
   (let ((val (gethash key table)))
-    (check-type val player-attribute)
+    (check-type val creature-attribute)
     (attr.value val)))
 
-(defun add-player-attribute (player attr)
+(defmethod add-creature-attribute ((player player) attr)
   (ecase (attr.type attr)
     (:calculated (setf (gethash (attr.key attr) (player.calc-attrs player))
 		       attr))
     (:temporary (setf (gethash (attr.key attr) (player.temp-attrs player))
 		       attr))))
 
-(defun make-player-attribute (name key
-			      &key type desc value default-value
+(defun make-creature-attribute (name key
+			      &key type desc value (value-type 'boolean) default-value
 			      turned-on-msg turned-off-msg
 			      update-fun on-update)
   (case type
     (:temporary
-     (make-instance 'temp-player-attribute
+     (make-instance 'temp-creature-attribute
 		    :name name :key key :type type :desc desc
-		    :value value :default-value default-value
+		    :value value :value-type value-type
+		    :default-value default-value
 		    :duration 0 :turned-on-msg turned-on-msg
 		    :turned-off-msg turned-off-msg
 		    :on-update on-update
 		    :update-fun update-fun))
     (otherwise
-     (make-instance 'player-attribute
+     (make-instance 'creature-attribute
 		    :name name :key key :type type :desc desc
+		    :value-type value-type
 		    :value value :default-value default-value))
     ))
 
@@ -312,7 +314,7 @@ the Free Software Foundation; either version 2 of the License, or
 #||
 (defun %reset-plattr (key table)
   (let ((attr (gethash key table)))
-    (check-type attr player-attribute)
+    (check-type attr creature-attribute)
     (setf (attr.value attr) (attr.default-value attr))))
 ||#
 
@@ -349,7 +351,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun alter-attribute! (key table new-value)
   (let ((attr (gethash key table)))
-    (check-type attr player-attribute)
+    (check-type attr creature-attribute)
     (setf (attr.value attr) new-value)
     new-value))
     
@@ -489,9 +491,9 @@ the Free Software Foundation; either version 2 of the License, or
     t))
 
 
-(defmethod gain-level! (player)
+(defmethod gain-level! (variant player)
   "lets the player gain a level.. woah!  must be updated later"
-
+  (declare (ignore variant))
   (let* ((the-level (player.level player))
 	 (hp-table (player.hp-table player))
 	 (next-hp (aref hp-table the-level)))
@@ -511,9 +513,13 @@ the Free Software Foundation; either version 2 of the License, or
     (when (< (player.max-level player) (player.level player))
       (setf (player.max-level player)  (player.level player)))
 
+    #||
     (with-foreign-str (s)
       (lb-format s "You attain level ~d and ~d new hitpoints. " (player.level player) next-hp)
       (print-message! s))
+    ||#
+    
+    (format-message! "You attain level ~d and ~d new hitpoints. " (player.level player) next-hp)
 
     (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-spells+)
     (bit-flag-add! *redraw* +print-level+ +print-title+ +print-xp+ +print-hp+) ;; mana?
@@ -556,7 +562,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;     (warn "comparing ~s and ~s at lvl ~s -> ~a" cur-xp next-limit cur-level (> cur-xp next-limit))
      (if (>= cur-xp next-limit)
-	 (gain-level! player)
+	 (gain-level! *variant* player)
 	 (return-from alter-xp! nil)))
   
    ))
@@ -602,7 +608,7 @@ the Free Software Foundation; either version 2 of the License, or
     (let ((xp-table (player.xp-table player)))
       
       (setf (aref xp-table 0) 0)
-      (loop for i of-type u-fixnum from 1 to (1- max-char-level)
+      (loop for i of-type u-fixnum from 1 below max-char-level
 	    do
 	    (setf (aref xp-table i) (int-/ (* (aref base-xp-table (1- i)) xp-extra)
 					   100))))
@@ -615,7 +621,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(hp-table (player.hp-table player)))
     
     (setf (maximum-hp player)
-	  (loop for i from 0 to (1- lvl)
+	  (loop for i from 0 below lvl
 		summing (aref hp-table i))))
   player)
 	   
@@ -680,31 +686,61 @@ the Free Software Foundation; either version 2 of the License, or
       (ecase action
 	(<restore>
 	 (when (minusp (aref cur-mods num))
-	   (setf (aref cur-mods num) 0))
-	 (bit-flag-add! *update* +pl-upd-bonuses+)
-	 (with-foreign-str (s)
-	   (lb-format s "You feel less ~a" (stat.negative-desc stat-obj))
-	   (print-message! s))
-	 (return-from update-player-stat! t))
+	   (setf (aref cur-mods num) 0)
+	   (bit-flag-add! *update* +pl-upd-bonuses+)
+	   (format-message! "You feel less ~a" (stat.negative-desc stat-obj))
+	   #||
+	   (with-foreign-str (s)
+	     (lb-format s "You feel less ~a" (stat.negative-desc stat-obj))
+	     (print-message! s))
+	   ||#
+	   (return-from update-player-stat! t)))
 	
 	(<increase>
-	 (warn "increase stat not implemented.")
-	 )
+	 
+	 (update-player-stat! player stat '<restore>) ;; first restore!
+	 
+	 (let ((amount (roll-dice 1 4))
+	       (cur-value (aref (player.base-stats player) num)))
+	   
+	   (incf cur-value amount)
+	   (when (> cur-value #.(+ 18 100)) ;; hack
+	     (setf cur-value #.(+ 18 100)))
+	   (setf (aref (player.base-stats player) num) cur-value)
+	   
+	   (bit-flag-add! *update* +pl-upd-bonuses+)
+
+	   (format-message! "You feel ~a" (stat.positive-desc stat-obj))
+	   #||
+	   (with-foreign-str (s)
+	     (lb-format s "You feel ~a" (stat.positive-desc stat-obj))
+	     (print-message! s))
+	   ||#
+	   
+	   (return-from update-player-stat! t)))
+
 	(<reduce>
 	 (cond ((aref (player.stat-sustains player) num) ;; is it sustained?
+		(format-message! "You feel very ~a for a moment, but the feeling passes."
+				 (stat.negative-desc stat-obj))
+		#||
 		(with-foreign-str (s)
 		  (lb-format s "You feel very ~a for a moment, but the feeling passes."
 			     (stat.negative-desc stat-obj))
 		  (print-message! s))
+		||#
 		(return-from update-player-stat! t))
 	       
 	       (t
 		;; the alghorithm in regular angband is more sophisticated.. test that later
 		(decf (aref cur-mods num) amount)
 		(bit-flag-add! *update* +pl-upd-bonuses+)
+		(format-message! "You feel very ~a." (stat.negative-desc stat-obj))
+		#||
 		(with-foreign-str (s)
 		  (lb-format s "You feel very ~a." (stat.negative-desc stat-obj))
 		  (print-message! s))
+		||#
 		(return-from update-player-stat! t))
 	       ))
 	)

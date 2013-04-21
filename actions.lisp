@@ -25,6 +25,15 @@ The direction is a number from the keypad."
 	 (wanted-x cur-x)
 	 (wanted-y cur-y))
 
+    ;; hack, move to variant later
+    (when (get-attribute-value '<confusion> (player.temp-attrs player))
+      (let ((new-dir (randint 9)))
+	;; ultra-hack
+	(when (eql new-dir 5)
+	  (setf new-dir direction))
+	(setf direction new-dir)))
+ 
+    
     (case direction
       (9 (decf wanted-y) (incf wanted-x))
       (8 (decf wanted-y))
@@ -82,9 +91,9 @@ The direction is a number from the keypad."
 	(assert (plusp (items.cur-size objs)))
 	(let ((obj (item-table-find objs 0)))
 	  (check-type obj active-object)
-	  (print-message! (format nil "You see ~a."
-				    (with-output-to-string (s)
-				      (write-obj-description var-obj obj s))))
+	  (format-message! "You see ~a."
+			   (with-output-to-string (s)
+			     (write-obj-description var-obj obj s)))
 	  ))
       
       (bit-flag-add! *update* +pl-upd-update-view+)
@@ -102,35 +111,36 @@ The direction is a number from the keypad."
   (let ((chance (skills.searching (player.skills player)))
 	(x (location-x player))
 	(y (location-y player))
-	)
+	(ddx-ddd *ddx-ddd*)
+	(ddy-ddd *ddy-ddd*))
     
     (check-type chance fixnum)
     
     (incf (player.energy-use player) +energy-normal-action+)
     
     ;; hack, improve with diagonal later
-    (dolist (i (list (cons x (1- y))
-		     (cons x (1+ y))
-		     (cons (1- x) y)
-		     (cons (1+ x) y)))
-      (when (< (random 100) chance)
-	(let* ((cur-x (car i))
-	       (cur-y (cdr i))
-	       (coord (cave-coord dungeon cur-x cur-y))
-	       (floor (coord.floor coord))
-	       (decor (coord.decor coord)))
-
-	  (when (typep decor 'active-trap)
-	    (make-trap-visible decor dungeon cur-x cur-y)
-	    (print-message! "You have found a trap."))
+    (loop for i from 0 below +normal-direction-number+
+	  for cur-x = (+ x (svref ddx-ddd i))
+	  for cur-y = (+ y (svref ddy-ddd i))
+	  do
+	  (when (< (random 100) chance)
+	    (let* ((coord (cave-coord dungeon cur-x cur-y))
+		   (floor (coord.floor coord))
+		   (decor (coord.decor coord)))
+	      
+	      (when (typep decor 'active-trap)
+		(make-trap-visible decor dungeon cur-x cur-y)
+		(print-message! "You have found a trap."))
+	      
+	      (when (= floor +floor-secret-door+)
+		(print-message! "You found a secret door.")
+		(place-closed-door! dungeon cur-x cur-y)
+		(light-spot! dungeon cur-x cur-y))
 	  
-	  (when (= floor +floor-secret-door+)
-	    (print-message! "You found a secret door!")
-	    (place-closed-door! dungeon cur-x cur-y))
-	  
-	  ;; add more here, traps, chests.. 
-	  )))
+	      ;; add more here, traps, chests.. 
+	      )))
     ))
+
 
 (defun change-depth! (dungeon player &key (direction :down) (amount 1) type)
 
@@ -193,7 +203,7 @@ is above a stair.  DIR can be :UP or :DOWN"
 
 
 
-    (change-depth! dungeon player :direction dir :amount depth :type leaving-sym)
+    (change-depth! dungeon player :direction dir :amount 1 :type leaving-sym)
     
 
     t))
@@ -234,9 +244,9 @@ a list if more items occupy the same place."
 			 (retval (item-table-add! backpack removed-obj)))
 
 		    (cond (retval
-			   (print-message! (format nil "You pick up ~a."
-						     (with-output-to-string (s)
-						       (write-obj-description var-obj removed-obj s))))
+			   (format-message! "You pick up ~a."
+					    (with-output-to-string (s)
+					      (write-obj-description var-obj removed-obj s)))
 			   ;; succesful
 			   (when (= 0 (items.cur-size objs))
 			     (setf (cave-objects dungeon x y) nil)))
@@ -254,29 +264,35 @@ a list if more items occupy the same place."
 	)))
 
 
-(defun drop-something! (dungeon player)
+(defun interactive-drop-item! (dungeon player)
   "Drop some inventory"
 
-  (let ((var-obj *variant*)
-	(selection (with-new-screen ()
-		     (select-item dungeon player '(:backpack :equip)
-				  :prompt "Drop item: "
-				  :where :backpack))))
-    (cond (selection
-	   (let* ((the-table (get-item-table dungeon player (car selection)))
-		  (removed-obj (item-table-remove! the-table (cdr selection))))
-	     (cond (removed-obj
-		    (drop-near-location! var-obj dungeon removed-obj (location-x player) (location-y player))
-		    (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+)
-		    ;;(item-table-add! (get-item-table dungeon player :floor) removed-obj)
-		    )
-		   (t
-		    (print-message! (format nil "Did not find selected obj ~a" selection)
-				      )))))
-	  (t
-	   ;;(warn "Did not select anything.")
-	   ))
-    ))
+  (when-bind (selection (with-new-screen ()
+			  (select-item dungeon player '(:backpack :equip)
+				       :prompt "Drop item: "
+				       :where :backpack)))
+
+    (let* ((var-obj *variant*)
+	   (the-table (get-item-table dungeon player (car selection)))
+	   (removed-obj (item-table-remove! the-table (cdr selection))))
+
+      (unless removed-obj
+	(format-message! "Did not find selected obj ~a" selection)
+	(return-from interactive-drop-item! nil))
+
+      (when (and (typep removed-obj 'active-object)
+		 (is-cursed? removed-obj))
+	(print-message! "Hmmm, it seems to be cursed.")
+	(item-table-add! the-table removed-obj) ;; put back
+	(return-from interactive-drop-item! nil))
+
+      (check-type removed-obj active-object)
+
+      (drop-near-location! var-obj dungeon removed-obj (location-x player) (location-y player))
+      (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+)
+      ;;(item-table-add! (get-item-table dungeon player :floor) removed-obj)
+      t)))
+			     
 
 
 (defun %put-obj-in-cnt (dungeon player cnt obj)
@@ -290,44 +306,48 @@ a list if more items occupy the same place."
 
 ;;(trace %put-obj-in-cnt)
 
-(defun wear-something! (dungeon player)
+(defun interactive-wear-item! (dungeon player)
   "Puts something in an equipment-slot."
 
-  ;;    (warn "Selected ~a" selection)
-  (when-bind (selection (select-item dungeon player '(:backpack :floor)
-				     :prompt "Wear item"
-				     :where :backpack))
+  (when-bind (selection (with-new-screen ()
+			  (select-item dungeon player '(:backpack :floor)
+				       :prompt "Wear item"
+				       :where :backpack)))
     
     
     (let* ((the-table (get-item-table dungeon player (car selection)))
-	   (removed-obj (item-table-remove! the-table (cdr selection) :only-single-items t)))
+	   (removed-obj (item-table-remove! the-table (cdr selection) :only-single-items t))
+	   (other-obj nil))
 ;;      (warn "Removed ~a" removed-obj)
-      
-      (when removed-obj
-	(let ((retval (item-table-add! (get-item-table dungeon player :equip) removed-obj)))
-;;	  (warn "Adding to equip gave: ~a" retval)
-	  
-		  
-	  (cond ((eq retval nil)
-		 ;; something screwed up, put object back
-		 (item-table-add! the-table removed-obj))
-		
-		((typep retval 'active-object)
-		 ;; an object was returned
-		 (%put-obj-in-cnt dungeon player :backpack retval)
-		 (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+))
-		
-		(t
-		 ;; succesful and nothing returned.. do nothing, except waste energy
-		 (incf (player.energy-use player) +energy-normal-action+)
-		 ;; hack, fix later
 
-		 (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+)
-		 ;; add window-stuff
-		 ))
-	  
-	  ))
+      (unless removed-obj ;; we need to get an object, if not return!
+	(return-from interactive-wear-item! nil))
+
+      ;; another obj?
+      (setf other-obj (item-table-add! (get-item-table dungeon player :equip) removed-obj))
+;;	  (warn "Adding to equip gave: ~a" other-obj)
+
+      (when (eq other-obj nil)
+	;; something screwed up, put object back
+	(item-table-add! the-table removed-obj)
+	(return-from interactive-wear-item! nil))
+
+      (when (is-cursed? removed-obj)
+	(print-message! "Oops! It feels deathly cold!"))
       
+      (cond ((typep other-obj 'active-object)
+	     ;; an object was returned
+	     (%put-obj-in-cnt dungeon player :backpack other-obj)
+	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+))
+	    
+	    (t
+	     ;; succesful and nothing returned.. do nothing, except waste energy
+	     (incf (player.energy-use player) +energy-normal-action+)
+	     ;; hack, fix later
+	     
+	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+)
+	     ;; add window-stuff
+	     ))
       )))
 
 (defmethod apply-usual-effects-on-used-object! (dungeon player obj)
@@ -349,13 +369,13 @@ a list if more items occupy the same place."
     t))
 
 
-(defun use-something! (dungeon player
-		       &key
-		       (need-effect nil)
-		       (selection-function nil)
-		       (prompt "Use item?")
-		       (which-use :use)
-		       (limit-from '(:backpack :floor)))
+(defun interactive-use-item! (dungeon player
+			      &key
+			      (need-effect nil)
+			      (selection-function nil)
+			      (prompt "Use item?")
+			      (which-use :use)
+			      (limit-from '(:backpack :floor)))
   
   "Tries to use an item."
 
@@ -378,16 +398,17 @@ a list if more items occupy the same place."
 		    nil))))
   
   (let ((variant *variant*)
-	(selection (select-item dungeon player limit-from
-				:prompt prompt
-				:where (first limit-from)
-				:selection-function (if selection-function
-							selection-function
-							#'allowed-object)
-				)))
+	(selection (with-new-screen ()
+		     (select-item dungeon player limit-from
+				  :prompt prompt
+				  :where (first limit-from)
+				  :selection-function (if selection-function
+							  selection-function
+							  #'allowed-object)
+				  ))))
 
     (unless (and selection (consp selection))
-      (return-from use-something! nil))
+      (return-from interactive-use-item! nil))
 
     
 ;;    (warn "Selected ~s for use" selection)
@@ -397,7 +418,7 @@ a list if more items occupy the same place."
 ;;      (warn "Removed ~a" removed-obj)
       
       (unless (and removed-obj (typep removed-obj 'active-object))
-	(return-from use-something! nil))
+	(return-from interactive-use-item! nil))
       
 ;;      (warn "Will ~a ~s" prompt removed-obj)
 	  
@@ -441,6 +462,16 @@ a list if more items occupy the same place."
     (setf (cave-floor dungeon x y) +floor-door-head+)
     (light-spot! dungeon x y)))
 
+(defun bash-door! (dungeon x y)
+  "hackish, fix me later.."
+  ;; add paralysis, hitpoints, ...
+;;  (warn "trying to bash door")
+  (when (is-closed-door? dungeon x y)
+    (when (= 1 (random 4)) ;; 1/4 chance
+      (setf (cave-floor dungeon x y) +floor-broken-door+)
+      (light-spot! dungeon x y))))
+
+
 (defun interactive-door-operation! (dungeon player operation)
 
   (block door-operation
@@ -452,28 +483,39 @@ a list if more items occupy the same place."
       (:open (setf check-predicate #'is-closed-door?
 		   operation-fun #'open-door!))
       (:close (setf check-predicate #'is-open-door?
-		    operation-fun #'close-door!)))
+		    operation-fun #'close-door!))
+      (:bash (setf check-predicate #'is-closed-door?
+		   operation-fun #'bash-door!))
+      (:jam
+       (warn "Jamming is not properly implemented yet.")
+       (return-from door-operation nil)))
 
+;;    (warn "going ~s ~s ~s" operation check-predicate operation-fun)
      
     (let* ((x (location-x player))
 	   (y (location-y player))
-	   (poss-door-locs (list (cons x (1- y))
-				 (cons x (1+ y))
-				 (cons (1- x) y)
-				 (cons (1+ x) y)))) ;; extend to 8 dirs
+	   (ddx-ddd *ddx-ddd*)
+	   (ddy-ddd *ddy-ddd*))
+      
 
       ;; first check if there is just one door, then we operate on it
 
       (let ((count 0))
-	(dolist (i poss-door-locs)
-	  (when (funcall check-predicate dungeon (car i) (cdr i))
-	    (incf count)))
+	(loop for i from 0 below +normal-direction-number+
+	      for test-x = (+ x (svref ddx-ddd i))
+	      for test-y = (+ y (svref ddy-ddd i))
+	      do
+	      (when (funcall check-predicate dungeon test-x test-y)
+		(incf count)))
 
 	(cond ((= count 1)
-	       (dolist (i poss-door-locs)
-		 (when (funcall check-predicate dungeon (car i) (cdr i))
-		   (funcall operation-fun dungeon (car i) (cdr i))
-		   (return-from door-operation t))))
+	       (loop for i from 0 below +normal-direction-number+
+		     for test-x = (+ x (svref ddx-ddd i))
+		     for test-y = (+ y (svref ddy-ddd i))
+		     do
+		     (when (funcall check-predicate dungeon test-x test-y)
+		       (funcall operation-fun dungeon test-x test-y)
+		       (return-from door-operation t))))
 	      ((= count 0)
 	       ;;(print-message! "No doors near you.!")
 	       (return-from door-operation t))
@@ -490,6 +532,80 @@ a list if more items occupy the same place."
 		     ;; maybe add message on failure?
 		     nil)))
 
+	      (t
+	       nil)))
+      ))
+    ))
+
+(defun disarm-trap! (dungeon x y)
+  ;; hackish
+  (let ((decor (cave-decor dungeon x y)))
+    (when (and (typep decor 'active-trap)
+	       (= (random 4) 1))
+      (setf (cave-decor dungeon x y) nil)
+      (setf (dungeon.decor dungeon) (delete decor (dungeon.decor dungeon)))
+      (print-message! "You disarm the trap.")
+      (light-spot! dungeon x y)
+      t)))
+
+(defun is-visible-trap? (dungeon x y)
+  (let ((decor (cave-decor dungeon x y)))
+    (and (typep decor 'active-trap)
+	 (decor.visible? decor))))
+
+   
+
+(defun interactive-trap-operation! (dungeon player operation)
+
+  (block trap-operation
+
+    (let ((check-predicate nil)
+	  (operation-fun nil))
+      
+    (ecase operation
+      (:disarm (setf check-predicate #'is-visible-trap?
+		     operation-fun #'disarm-trap!)))
+    
+    (let* ((x (location-x player))
+	   (y (location-y player))
+	   (ddx-ddd *ddx-ddd*)
+	   (ddy-ddd *ddy-ddd*))
+      
+      
+      ;; first check if there is just one trap, then we operate on it
+      
+      (let ((count 0))
+	(loop for i from 0 below +normal-direction-number+
+	      for test-x = (+ x (svref ddx-ddd i))
+	      for test-y = (+ y (svref ddy-ddd i))
+	      do
+	      (when (funcall check-predicate dungeon test-x test-y)
+		(incf count)))
+
+	(cond ((= count 1)
+	       (loop for i from 0 below +normal-direction-number+
+		     for test-x = (+ x (svref ddx-ddd i))
+		     for test-y = (+ y (svref ddy-ddd i))
+		     do
+		     (when (funcall check-predicate dungeon test-x test-y)
+		       (funcall operation-fun dungeon test-x test-y)
+		       (return-from trap-operation t))))
+	      ((= count 0)
+	       ;;(print-message! "No doors near you.!")
+	       (return-from trap-operation t))
+	      ))
+      
+      ;; then we need to find which trap
+      (let ((dir (%read-direction)))
+	(cond ((integerp dir)
+	       (let ((new-x (+ x (aref *ddx* dir)))
+		     (new-y (+ y (aref *ddy* dir))))
+		 ;;(warn "Checking ~s (~s,~s) from (~s,~s)" dir new-x new-y x y)
+		 (if (funcall check-predicate dungeon new-x new-y)
+		     (funcall operation-fun dungeon new-x new-y)
+		     ;; maybe add message on failure?
+		     nil)))
+	      
 	      (t
 	       nil)))
       ))

@@ -1,0 +1,21 @@
+Many people should be thanked and I cannot remember you
+all.  But I've tried to maintain a list.
+
+- #angband on IRC with it's many inhabitants.  Many of them
+  know the angband sources well and have patiently answered
+  many of my questions.
+
+- all those who have tested and reported bugs, problems and
+  improvements for langband.
+
+- Scott Holder for adding numeric-ids to all my monsters when I needed
+  them and out of stupidity had forgotten to include them for backward
+  compatibility to vanilla angband.  Lots of ugly grunt-work that
+  needed doing.
+ 
+- The tiles in graphics/tiles have been made by David E Gervais.
+
+- The pictures in graphics/people/ have been made by various people on
+  the Net.  The ones used are just examples to demonstrate the code,
+  and will be replaced at a later stage with pictures with specific
+  permissions for use with Langband.

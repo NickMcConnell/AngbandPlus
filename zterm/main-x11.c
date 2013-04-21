@@ -319,6 +319,7 @@ struct infofnt
 	cptr name;
 
 	s16b wid;
+    	s16b twid;
 	s16b hgt;
 	s16b asc;
 
@@ -583,7 +584,7 @@ static errr Infowin_set_name(cptr name)
 	XTextProperty tp;
 	char buf[128];
 	char *bp = buf;
-	strcpy(buf, name);
+	my_strcpy(buf, name, sizeof(buf));
 	st = XStringListToTextProperty(&bp, 1, &tp);
 	if (st) XSetWMName(Metadpy->dpy, Infowin->win, &tp);
 	return (0);
@@ -601,7 +602,7 @@ static errr Infowin_set_icon_name(cptr name)
 	XTextProperty tp;
 	char buf[128];
 	char *bp = buf;
-	strcpy(buf, name);
+	my_strcpy(buf, name);
 	st = XStringListToTextProperty(&bp, 1, &tp);
 	if (st) XSetWMIconName(Metadpy->dpy, Infowin->win, &tp);
 	return (0);
@@ -1236,6 +1237,14 @@ static errr Infofnt_prepare(XFontStruct *info)
 	ifnt->wid = cs->width;
 #endif
 
+	if (use_bigtile) {
+	    ifnt->twid = 2 * cs->width;
+	    //fprintf(stderr,"Using bigtile %d\n", ifnt->twid);
+	}
+	else {
+	    ifnt->twid = cs->width;
+	}
+	
 	/* Success */
 	return (0);
 }
@@ -1457,10 +1466,14 @@ struct term_data
 
 #ifdef USE_GRAPHICS
 
-	XImage *tiles;
+    
+    XImage *tiles[IMAGE_ARRAY_SIZE];
+    int tiles_col[IMAGE_ARRAY_SIZE];
+    const char *image_files[IMAGE_ARRAY_SIZE];
+    int num_tiles;
 
-	/* Tempory storage for overlaying tiles. */
-	XImage *TmpImage;
+    /* Tempory storage for overlaying tiles. */
+    XImage *TmpImage;
 
 #endif
 
@@ -1477,6 +1490,7 @@ struct term_data
  */
 //static term_data data[MAX_TERM_DATA];
 
+static int num_loc_terms = 1; // counter of actual terms
 static term_data *loc_terms = NULL;
 
 /*
@@ -1936,9 +1950,7 @@ static errr Term_xtra_x11(int n, int v)
 
 
 /*
- * Draw the cursor as an inverted rectangle.
- *
- * Consider a rectangular outline like "main-mac.c".  XXX XXX
+ * Draw the cursor as a rectangular outline
  */
 static errr Term_curs_x11(int x, int y)
 {
@@ -1951,6 +1963,19 @@ static errr Term_curs_x11(int x, int y)
 	return (0);
 }
 
+/*
+ * Draw the double width cursor as a rectangular outline
+ */
+static errr Term_bigcurs_x11(int x, int y)
+{
+	XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
+			 x * Infofnt->wid + Infowin->ox,
+			 y * Infofnt->hgt + Infowin->oy,
+			 Infofnt->twid - 1, Infofnt->hgt - 1);
+
+	/* Success */
+	return (0);
+}
 
 /*
  * Erase some characters.
@@ -1971,38 +1996,55 @@ static errr Term_wipe_x11(int x, int y, int n)
 /*
  * Draw some textual characters.
  */
-static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
+static errr Term_text_x11(int x, int y, int n, s16b a, const s16b *s)
 {
+
+    
+    char buffer[1024];
+    int i;
+
+    if (!s || a==-1) {
+	return -1;
+    }
+    
+    //fprintf(stderr, "text %d %d %p\n", n, a, s);
+
+
+	for (i=0; i < n; i++)
+	    buffer[i] = (char)s[i];
+
 	/* Draw the text */
 	Infoclr_set(clr[a]);
 
+	
 	/* Draw the text */
-	Infofnt_text_std(x, y, s, n);
+	Infofnt_text_std(x, y, buffer, n);
 
 	/* Success */
 	return (0);
 }
-
 
 #ifdef USE_GRAPHICS
 
 /*
  * Draw some graphical characters.
  */
-static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
+static errr Term_pict_x11(int x, int y, int n, const s16b *ap, const s16b *cp, const s16b *tap, const s16b *tcp)
 {
 	int i, x1, y1;
+	int group1, group2;
 
-	byte a;
-	char c;
+	s16b a;
+	s16b c;
 
-	byte ta;
-	char tc;
+	s16b ta;
+	s16b tc;
 
 	int x2, y2;
 	int k,l;
 
 	unsigned long pixel, blank;
+	unsigned long BLANK_PIXEL = 0xfefefeL; /* hack!! */
 
 	term_data *td = (term_data*)(Term->data);
 
@@ -2013,48 +2055,145 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, c
 	y += Infowin->oy;
 	x += Infowin->ox;
 
+//	fprintf(stderr, "blank %lx\n", BLANK_PIXEL);
+//	fprintf(stderr, "pict %d %p %p\n", n, ap, cp);
+	
 	for (i = 0; i < n; ++i)
 	{
 		a = *ap++;
 		c = *cp++;
 
-		/* For extra speed - cache these values */
-		x1 = (c&0x7F) * td->fnt->wid;
-		y1 = (a&0x7F) * td->fnt->hgt;
+//		fprintf(stderr, "checking %d %d\n", a, c);
+			
+		/* Second byte of Bigtile (dummy) */
+		if ((a == -1) && (c == -1)) continue;
 
 		ta = *tap++;
 		tc = *tcp++;
 
-		/* For extra speed - cache these values */
-		x2 = (tc&0x7F) * td->fnt->wid;
-		y2 = (ta&0x7F) * td->fnt->hgt;
-
-		/* Optimise the common case */
-		if ((x1 == x2) && (y1 == y2))
+		if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
 		{
-			/* Draw object / terrain */
-			XPutImage(Metadpy->dpy, td->win->win,
-		  	        clr[0]->gc,
-		  	        td->tiles,
-		  	        x1, y1,
-		  	        x, y,
-		  	        td->fnt->wid, td->fnt->hgt);
+			group1 = (a  - LANGBAND_GFX_START);
+			group2 = (ta - LANGBAND_GFX_START);
+
+			/* Dummy or illegal group */
+			if (td->tiles[group1])
+			{
+				/* For extra speed - cache these values */
+				x1 = ((c - LANGBAND_GFX_START) % td->tiles_col[group1]) * td->fnt->twid;
+				y1 = ((c - LANGBAND_GFX_START) / td->tiles_col[group1]) * td->fnt->hgt;
+			}
+
+			/* For extra speed - cache these values */
+			if (!td->tiles[group2])
+			{
+				group2 = group1;
+				x2 = x1;
+				y2 = y1;
+			}
+			else
+			{
+				group2 = (ta - LANGBAND_GFX_START);
+				x2 = ((tc - LANGBAND_GFX_START) % td->tiles_col[group2]) * td->fnt->twid;
+				y2 = ((tc - LANGBAND_GFX_START) / td->tiles_col[group2]) * td->fnt->hgt;
+			}
+		}
+		else
+		{
+			/* For extra speed - cache these values */
+			x1 = (c - LANGBAND_GFX_START) * td->fnt->twid;
+			y1 = (a - LANGBAND_GFX_START) * td->fnt->hgt;
+			group1 = 0;
+
+			/* For extra speed - cache these values */
+			x2 = (tc - LANGBAND_GFX_START) * td->fnt->twid;
+			y2 = (ta - LANGBAND_GFX_START) * td->fnt->hgt;
+			group2 = 0;
+		}
+
+//		fprintf(stderr,"want to draw %d %d, from %d,%d at (%d) %d,%d, but %d,%d\n", a, c,
+//			x1, y1, group1, x, y, ta, tc);
+
+		/* Blank tile */
+		if (!td->tiles[group1])
+		{
+//		    fprintf(stderr, "Erase\n");
+			/* Erase rectangle */
+			XFillRectangle(Metadpy->dpy, Infowin->win, clr[0]->gc,
+			               x, y, td->fnt->twid, td->fnt->hgt);
+		}
+
+		/* make this more sane! */
+		/* Optimise the common case */
+		else if (((x1 == x2) && (y1 == y2) && (group1 == group2)) ||
+		         !((ta >= LANGBAND_GFX_START) && (tc >= LANGBAND_GFX_START)))
+		{
+//		    fprintf(stderr, "second way\n");
+		    
+			if (arg_graphics != GRAPHICS_DAVID_GERVAIS)
+			{
+				/* Draw object / terrain */
+				XPutImage(Metadpy->dpy, td->win->win,
+				          clr[0]->gc,
+				          td->tiles[group1],
+				          x1, y1,
+				          x, y,
+				          td->fnt->twid, td->fnt->hgt);
+			}
+			else
+			{
+
+				/* Mega Hack^2 - assume the top left corner is "blank" */
+//				blank = XGetPixel(td->tiles[3], 0, 0);
+				blank = BLANK_PIXEL;
+//				fprintf(stderr, "blank is %lx\n", blank);
+				
+				for (k = 0; k < td->fnt->twid; k++)
+				{
+					for (l = 0; l < td->fnt->hgt; l++)
+					{
+						/* If mask set... */
+						if ((pixel = XGetPixel(td->tiles[group1], x1 + k, y1 + l)) == blank)
+							pixel = 0L;
+
+						/* Store into the temp storage. */
+						XPutPixel(td->TmpImage, k, l, pixel);
+					}
+				}
+				
+//				fprintf(stderr,"imgput %p %p\n", Metadpy->dpy, td->TmpImage);
+				
+				/* Draw to screen */
+				XPutImage(Metadpy->dpy, td->win->win,
+				          clr[0]->gc,
+				          td->TmpImage,
+				          0, 0, x, y,
+				          td->fnt->twid, td->fnt->hgt);
+			}
 		}
 		else
 		{
 
-			/* Mega Hack^2 - assume the top left corner is "black" */
-			blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6);
+//		    fprintf(stderr, "third way\n");
+			/* Mega Hack^2 - assume the top left corner is "blank" */
+			if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
+			    blank = BLANK_PIXEL;
+//				blank = XGetPixel(td->tiles[3], 0, 0);
+			else
+			    blank = XGetPixel(td->tiles[group1], 0, td->fnt->hgt * 6);
 
-			for (k = 0; k < td->fnt->wid; k++)
+			for (k = 0; k < td->fnt->twid; k++)
 			{
 				for (l = 0; l < td->fnt->hgt; l++)
 				{
 					/* If mask set... */
-					if ((pixel = XGetPixel(td->tiles, x1 + k, y1 + l)) == blank)
+					if ((pixel = XGetPixel(td->tiles[group1], x1 + k, y1 + l)) == blank)
 					{
 						/* Output from the terrain */
-						pixel = XGetPixel(td->tiles, x2 + k, y2 + l);
+						pixel = XGetPixel(td->tiles[group2], x2 + k, y2 + l);
+
+						if (pixel == blank)
+							pixel = 0L;
 					}
 
 					/* Store into the temp storage. */
@@ -2062,14 +2201,14 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, c
 				}
 			}
 
-
+//			fprintf(stderr,"put %p %p\n", Metadpy->dpy, td->TmpImage);
+			
 			/* Draw to screen */
-
 			XPutImage(Metadpy->dpy, td->win->win,
-		    	      clr[0]->gc,
-		     	     td->TmpImage,
-		     	     0, 0, x, y,
-		     	     td->fnt->wid, td->fnt->hgt);
+			          clr[0]->gc,
+			          td->TmpImage,
+			          0, 0, x, y,
+			          td->fnt->twid, td->fnt->hgt);
 		}
 
 		x += td->fnt->wid;
@@ -2166,7 +2305,11 @@ static errr term_data_init(term_data *td, int i)
 	/* Prepare the standard font */
 	MAKE(td->fnt, infofnt);
 	Infofnt_set(td->fnt);
-	Infofnt_init_data(font);
+	if (Infofnt_init_data(font)) {
+	    char buffer[1024];
+	    sprintf(buffer, "Couldn't load the requested font. (%s)", font);
+	    quit(buffer);
+	}
 
 	/* Hack -- key buffer size */
 	num = ((i == 0) ? 1024 : 16);
@@ -2196,7 +2339,7 @@ static errr term_data_init(term_data *td, int i)
 
 	if (ch == NULL) quit("XAllocClassHint failed");
 
-	strcpy(res_name, name);
+	my_strcpy(res_name, name, sizeof(res_name));
 	res_name[0] = FORCELOWER(res_name[0]);
 	ch->res_name = res_name;
 
@@ -2267,6 +2410,7 @@ static errr term_data_init(term_data *td, int i)
 	/* Hooks */
 	t->xtra_hook = Term_xtra_x11;
 	t->curs_hook = Term_curs_x11;
+	t->bigcurs_hook = Term_bigcurs_x11;
 	t->wipe_hook = Term_wipe_x11;
 	t->text_hook = Term_text_x11;
 
@@ -2280,12 +2424,58 @@ static errr term_data_init(term_data *td, int i)
 	return (0);
 }
 
-
 const char help_x11[] = "Basic X11, subopts -d<display> -n<windows>"
 #ifdef USE_GRAPHICS
                         " -s(moothRescale)"
+                        "\n           -b(Bigtile) -o(original) -a(AdamBolt) -g(David Gervais)"
 #endif
                         ;
+
+#if 0
+static const char *original_tile_files[] = {"8x8.bmp", NULL};
+static const char *adam_bolt_tile_files[] = {"16x16.bmp", NULL};
+#endif
+static const char *david_gervais_tile_files[] = {
+        "", 
+        "", 
+        "", 
+        "dg_armor32.bmp", 
+        "dg_effects32.bmp", 
+        "dg_food32.bmp", 
+        "dg_classm32.bmp", 
+        "dg_humans32.bmp", 
+        "dg_jewls32.bmp", 
+        "dg_magic32.bmp", 
+        "dg_misc32.bmp", 
+        "dg_potions32.bmp", 
+        "dg_wands32.bmp", 
+        "dg_weapons32.bmp", 
+        "dg_people32.bmp", 
+        "dg_dragon32.bmp", 
+        "dg_monster132.bmp", 
+        "dg_monster232.bmp", 
+        "dg_monster332.bmp", 
+        "dg_monster432.bmp", 
+        "dg_monster532.bmp", 
+        "dg_monster632.bmp", 
+        "dg_monster732.bmp", 
+        "dg_undead32.bmp", 
+        "dg_uniques32.bmp", 
+        "dg_dungeon32.bmp", 
+        "dg_grounds32.bmp", 
+        "dg_extra132.bmp", 
+        "dg_town032.bmp", 
+        "dg_town132.bmp", 
+        "dg_town232.bmp", 
+        "dg_town332.bmp", 
+        "dg_town432.bmp", 
+        "dg_town532.bmp", 
+        "dg_town632.bmp", 
+        "dg_town732.bmp", 
+        "dg_town832.bmp", 
+        "dg_town932.bmp", 
+        NULL
+};
 
 int
 loc_err_handler(Display *disp, XErrorEvent *ev) {
@@ -2296,6 +2486,432 @@ loc_err_handler(Display *disp, XErrorEvent *ev) {
     fprintf(stderr,"Error: %s\n", buf);
     
     return 0; 
+}
+
+
+static int
+load_image_data(const char *filename, int image_index, int tiled, int tile_width, int tile_height) {
+
+    int i;
+    int group = image_index;
+    
+    Display *dpy = Metadpy->dpy;
+
+    XImage *tiles_raw;
+
+//    fprintf(stderr, "Reading file %s %d %d\n", filename, tiled, image_index);
+    /* Load the graphical tiles */
+    tiles_raw = ReadBMP(dpy, (char *)filename);
+    
+    /* No such file */
+    if (!tiles_raw) {
+	fprintf(stderr, "Didn't find graphics %s\n", filename);
+	return -1;
+    }
+    
+    /* Initialize the windows */
+    for (i = 0; i < num_loc_terms; i++)
+    {
+	int j;
+	bool same = FALSE;
+	
+	term_data *td = &loc_terms[i];
+	term_data *o_td;
+	
+	term *t = &td->t;
+	
+	/* Graphics hook */
+	t->pict_hook = Term_pict_x11;
+	
+	/* Use graphics sometimes */
+	t->higher_pict = TRUE;
+	
+	/* Look for another term with same font size */
+	for (j = 0; j < i; j++)
+	{
+	    o_td = &loc_terms[j];
+	    
+	    if ((td->fnt->twid == o_td->fnt->twid) && (td->fnt->hgt == o_td->fnt->hgt))
+	    {
+		same = TRUE;
+		break;
+	    }
+	}
+	
+	if (!same)
+	{
+	    if (tiled) {
+		/* Resize tiles */
+		td->tiles[group] = ResizeImage(dpy, tiles_raw,
+					       tile_width, tile_height,
+					       td->fnt->twid, td->fnt->hgt);
+		/* Free tiles_raw */
+		FREE(tiles_raw);
+	    }
+	    else {
+		if (tile_width <= 0 && tile_height <= 0) {
+		    /* use directly if it's not tiled */
+		    td->tiles[group] = tiles_raw;
+		}
+		else {
+		    int orig_wid = tiles_raw->width;
+		    int orig_hgt = tiles_raw->height;
+		    int wid = tile_width * td->fnt->twid;
+		    int hgt = tile_height * td->fnt->hgt;
+		    
+//		    fprintf(stderr, "Resizing from %d,%d to %d,%d\n", orig_wid, orig_hgt, wid, hgt);
+		    td->tiles[group] = ResizeImage(dpy, tiles_raw, orig_wid, orig_hgt, wid, hgt);
+		    /* Free tiles_raw */
+		    FREE(tiles_raw);
+		}
+	    }
+	}
+	else
+	{
+	    /* Use same graphics */
+	    td->tiles[group] = o_td->tiles[group];
+	}
+	
+	td->tiles_col[group] = td->tiles[group]->width / td->fnt->twid;
+
+	/* leak */
+	if (filename && (strlen(filename) > 1)) {
+	    char *ptr;
+	    C_MAKE(ptr, 128, char);
+	    strncpy(ptr, filename, 126);
+	    td->image_files[group] = ptr;
+	}
+
+    }
+
+    
+
+    return image_index;
+}
+
+int
+load_tiled_image(const char *filename, int image_index, int tile_width, int tile_height) {
+    return load_image_data(filename,image_index, 1, tile_width, tile_height);
+}
+
+int
+load_plain_image(const char *filename, int image_index) {
+    return load_image_data(filename,image_index, 0, -1, -1);
+}
+
+int
+load_scaled_image(const char *filename, int image_index, int width, int height) {
+    if (image_index == -1) {
+	term_data *td = &loc_terms[0];
+	image_index = td->num_tiles++;
+    }
+    return load_image_data(filename, image_index, 0, width, height);
+}
+
+int
+find_image(const char *fname) {
+    int i = 0;
+    term_data *td = &loc_terms[i];
+    
+    for (i=0; i < td->num_tiles; i++) {
+	if (td->image_files[i] &&
+	    !strcmp(td->image_files[i], fname)) {
+	    return i;
+	}
+    }
+    return -1;
+}
+
+int
+paint_image(const char *fname, int x, int y) {
+
+    int j = 0;
+    int i = 0;
+    term_data *td = &loc_terms[i];
+ 
+    int idx = find_image(fname);
+
+    if (idx < 0) {
+	idx = load_plain_image(fname, td->num_tiles);
+	if (idx > 0) {
+	    td->num_tiles++;
+	}
+	else {
+	    return -1;
+	}
+    }
+
+/*
+    fprintf (stderr, "col %d, wid %d, hgt %d, fn-twid %d, fn-wid %d, fn-hgt %d\n",
+	     td->tiles_col[idx], td->tiles[idx]->width, td->tiles[idx]->height,
+	     td->fnt->twid, td->fnt->wid, td->fnt->hgt);
+*/
+    {
+	int attr = idx + LANGBAND_GFX_START;
+	int counter = LANGBAND_GFX_START;	
+	int wid = td->tiles[idx]->width / td->fnt->twid;
+	int hgt = td->tiles[idx]->height / td->fnt->hgt; // cut some
+	int xstart = x * 2;
+
+//	if (td->tiles[idx]->width % td->fnt->twid)
+//	    wid++;
+	
+	if (td->tiles[idx]->height % td->fnt->hgt)
+	    hgt++;
+/*	
+	fprintf (stderr, "attr %d, col %d, wid %d, hgt %d, img-wid %d, img-hgt %d, fn-twid %d, fn-wid %d, fn-hgt %d\n",
+		 attr, td->tiles_col[idx],
+		 wid,
+		 hgt,
+		 td->tiles[idx]->width, td->tiles[idx]->height,
+		 td->fnt->twid, td->fnt->wid, td->fnt->hgt);
+*/
+
+		
+	for (j=0; j < hgt; j++) {
+	    for (i=0; i < wid; i++) {
+		/* time to paint it */
+		int spot = xstart + i*2;
+//		int c = (i + (j * wid)) | 0x80;
+//		fprintf(stderr, "Printing %d %d at %d,%d\n", attr, counter, spot, y+j);
+//		if (j==0 && i==0) {
+//		    fprintf(stderr, "Printing %d %d at %d,%d\n", attr, counter, spot, y+j);
+//		}
+		Term_queue_char(spot,   y+j, (s16b)attr, (s16b)counter++, 0, 0);
+		//fprintf(stderr, " go\n");
+		Term_queue_char(spot+1, y+j, -1, -1, 0, 0);
+	    }
+	}
+    }
+    
+//    fprintf(stderr,"done printing\n");
+//    print_image_list();
+    
+    Term_fresh();
+    
+//    fprintf(stderr,"all done printing\n");
+/*
+    XPutImage(Metadpy->dpy, td->win->win,
+	      clr[0]->gc,
+	      td->tiles[idx],
+	      0, 0, 0, 0,
+	      td->tiles[idx]->width,  td->tiles[idx]->height);
+*/  
+    return 0;
+}
+
+int
+fill_area(int image_index, int tile_num, int x1, int y1, int x2, int y2) {
+    
+    int j = 0;
+    int i = 0;
+    
+    term_data *td = &loc_terms[i];
+
+
+    if (image_index < 0 || image_index >= IMAGE_ARRAY_SIZE ||
+	!td->tiles[image_index]) {
+	fprintf(stderr, "Image with idx %d not legal/found.\n", image_index);
+	return -1;
+    }
+
+    if (tile_num < 0) {
+	fprintf(stderr, "Tile-num %d not legal/found.\n", tile_num);
+	return -1;
+    }
+
+    {
+	s16b attr = image_index + LANGBAND_GFX_START;
+	s16b tile = tile_num + LANGBAND_GFX_START;
+
+	int xstart = x1 * 2;
+	int xrange = x2 - x1;
+    
+	for (i = 0; i < xrange; i++) {
+	    for (j = y1; j < y2; j++) {
+		int spot = xstart + i*2;
+//	    fprintf(stderr, "Filling %d,%d at %d,%d\n", attr, tile_num, spot, j);
+		Term_queue_char(spot, j, attr, tile, 0, 0);
+		Term_queue_char(spot+1, j, -1, -1, 0, 0);
+	    }
+	}
+    }
+
+
+    return 0;
+}
+
+errr
+init_graphics() {
+
+    int i;
+    int num_term = num_loc_terms;
+	const char **tile_files;
+//	char filename[1024];
+	
+	int pict_wid = 0;
+	int pict_hgt = 0;
+
+	char *TmpData;
+
+	
+	/* Try graphics */
+	switch (arg_graphics)
+	{
+#if 0	    
+	case GRAPHICS_ADAM_BOLT:
+		/* Use tile graphics of Adam Bolt */
+		tile_files = adam_bolt_tile_files;
+
+		/* Try the "16x16.bmp" file */
+		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, format("graf/%s", tile_files[0]));
+
+		/* Use the "16x16.bmp" file if it exists */
+		if (0 == fd_close(fd_open(filename, O_RDONLY)))
+		{
+			/* Use graphics */
+			use_graphics = TRUE;
+			use_transparency = TRUE;
+
+			pict_wid = pict_hgt = 16;
+
+			ANGBAND_GRAF = "new";
+
+			break;
+		}
+		/* Fall through */
+
+	case GRAPHICS_ORIGINAL:
+		/* Use original tile graphics */
+		tile_files = original_tile_files;
+
+		/* Try the "8x8.bmp" file */
+		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, format("graf/%s", tile_files[0]));
+
+		/* Use the "8x8.bmp" file if it exists */
+		if (0 == fd_close(fd_open(filename, O_RDONLY)))
+		{
+			/* Use graphics */
+			use_graphics = TRUE;
+
+			pict_wid = pict_hgt = 8;
+
+			ANGBAND_GRAF = "old";
+			break;
+		}
+		break;
+#endif /* 0 */
+		
+	case GRAPHICS_DAVID_GERVAIS:
+		/* Use tile graphics of David Gervais */
+		tile_files = david_gervais_tile_files;
+
+		/* Use graphics */
+		use_graphics = TRUE;
+		use_transparency = TRUE;
+
+		pict_wid = pict_hgt = 32;
+
+		ANGBAND_GRAF = "david";
+		break;
+
+	case GRAPHICS_NONE:
+	    use_graphics = FALSE;
+	    use_transparency = FALSE;
+	    break;
+	    
+	default:
+	    quit("Unknown graphics-mode..");
+	    break;
+	}
+
+	/* Load graphics */
+	if (use_graphics)
+	{
+
+		int group;
+		Display *dpy = Metadpy->dpy;
+
+		//fprintf(stdout, "Loading gfx\n");
+		/* Initialize */
+		for (group = 0; group < IMAGE_ARRAY_SIZE; group++)
+		{
+			for (i = 0; i < num_term; i++)
+			{
+				term_data *td = &loc_terms[i];
+				td->tiles[group] = NULL;
+				td->image_files[group] = NULL; /* hack */
+			}
+		}
+
+		
+		/* Initialize the transparency masks */
+		for (i = 0; i < num_term; i++)
+		{
+			term_data *td = &loc_terms[i];
+			int ii, jj;
+			int depth = DefaultDepth(dpy, DefaultScreen(dpy));
+			Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
+			int total;
+
+
+			/* Determine total bytes needed for image */
+			ii = 1;
+			jj = (depth - 1) >> 2;
+			while (jj >>= 1) ii <<= 1;
+			total = td->fnt->twid * td->fnt->hgt * ii;
+
+
+			TmpData = (char *)malloc(total);
+
+			td->TmpImage = XCreateImage(dpy,visual,depth,
+				ZPixmap, 0, TmpData,
+				td->fnt->twid, td->fnt->hgt, 32, 0);
+
+		}
+	}
+
+	return 0;
+
+}
+
+int
+init_tile_files() {
+    int group;
+    int i;
+    int pict_wid = 32;
+    int pict_hgt = 32;
+    const char **tile_files = david_gervais_tile_files;
+    char filename[1024];
+    int num_term = num_loc_terms;
+    
+    /* Load each group of tile set */
+    for (group = 0; tile_files[group]; group++)
+    {
+	/*fprintf(stderr,"checking index %d\n", group); */
+	/* Dummy group */
+	if (!tile_files[group][0]) continue;
+	
+	/* bad hack */
+	sprintf(filename,"%s%s", "./graphics/tiles/", tile_files[group]);
+	
+	load_tiled_image(filename, group, pict_wid, pict_hgt); 
+    }
+    
+    /* hack */
+    for (i = 0; i < num_term; i++)
+    {
+	term_data *td = &loc_terms[i];
+	td->num_tiles = group+1;
+//	fprintf(stderr, "Num tiles %d\n", td->num_tiles);
+	
+//		    sprintf(filename, "%s%s", "./lib/xtra/graf/", "langtitle.bmp");
+//		    load_plain_image(filename, td->num_tiles++);
+
+	
+    }
+    
+    return 0;
 }
 
 /*
@@ -2309,34 +2925,19 @@ errr init_x11(int argc, char **argv)
 
 	int num_term = 1;
 
-#ifdef USE_GRAPHICS
 
-	char filename[1024];
+	arg_graphics = GRAPHICS_NONE;
+	/* we ignore some args in langband */
 	
-	int pict_wid = 0;
-	int pict_hgt = 0;
-
-	char *TmpData;
-
-#endif /* USE_GRAPHICS */
-
-
 	/* Parse args */
 	for (i = 1; i < argc; i++)
 	{
+	    /*
 		if (prefix(argv[i], "-d"))
 		{
 			dpy_name = &argv[i][2];
 			continue;
 		}
-
-#ifdef USE_GRAPHICS
-		if (prefix(argv[i], "-s"))
-		{
-			smoothRescaling = FALSE;
-			continue;
-		}
-#endif /* USE_GRAPHICS */
 
 		if (prefix(argv[i], "-n"))
 		{
@@ -2345,10 +2946,20 @@ errr init_x11(int argc, char **argv)
 			else if (num_term < 1) num_term = 1;
 			continue;
 		}
+	    */
+	    if (prefix(argv[i], "-g"))
+		{
+		    smoothRescaling = FALSE;
+		    arg_graphics = GRAPHICS_DAVID_GERVAIS;
+		    use_bigtile = TRUE;
+		    continue;
+		}
 
 		sprintf(errormsg,"Ignoring option: %s", argv[i]);
 		plog(errormsg);
 	}
+
+		
 
 	// init the pointer
 	MAKE(Metadpy,metadpy);
@@ -2363,8 +2974,9 @@ errr init_x11(int argc, char **argv)
 	Infoclr_set(xor);
 	Infoclr_init_ppn(Metadpy->fg, Metadpy->bg, "xor", 0);
 	
-	C_MAKE(loc_terms,MAX_TERM_DATA,term_data);
-
+	C_MAKE(loc_terms, MAX_TERM_DATA, term_data);
+	num_loc_terms = num_term;
+	
 	/* Prepare normal colors */
 	for (i = 0; i < 256; ++i)
 	{
@@ -2406,6 +3018,9 @@ errr init_x11(int argc, char **argv)
 		/* Initialize the term_data */
 		term_data_init(td, i);
 
+		/* hack */
+		td->num_tiles = 1;
+
 		/* Save global entry */
 		angband_term[i] = Term;
 	}
@@ -2418,107 +3033,46 @@ errr init_x11(int argc, char **argv)
 	Term_activate(&loc_terms[0].t);
 
 
-#ifdef USE_GRAPHICS
-
-	/* Try graphics */
-	if (arg_graphics)
-	{
-		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
-
-		/* Use the "16x16.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
-		{
-			/* Use graphics */
-			use_graphics = TRUE;
-
-			use_transparency = TRUE;
-
-			pict_wid = pict_hgt = 16;
-
-			ANGBAND_GRAF = "new";
-		}
-		else
-		{
-			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
-
-			/* Use the "8x8.bmp" file if it exists */
-			if (0 == fd_close(fd_open(filename, O_RDONLY)))
-			{
-				/* Use graphics */
-				use_graphics = TRUE;
-
-				pict_wid = pict_hgt = 8;
-
-				ANGBAND_GRAF = "old";
-			}
-		}
-	}
-
-	/* Load graphics */
-	if (use_graphics)
-	{
-		Display *dpy = Metadpy->dpy;
-
-		XImage *tiles_raw;
-
-		/* Load the graphical tiles */
-		tiles_raw = ReadBMP(dpy, filename);
-
-		/* Initialize the windows */
-		for (i = 0; i < num_term; i++)
-		{
-			term_data *td = &loc_terms[i];
-
-			term *t = &td->t;
-
-			/* Graphics hook */
-			t->pict_hook = Term_pict_x11;
-
-			/* Use graphics sometimes */
-			t->higher_pict = TRUE;
-
-			/* Resize tiles */
-			td->tiles =
-			ResizeImage(dpy, tiles_raw,
-			            pict_wid, pict_hgt,
-			            td->fnt->wid, td->fnt->hgt);
-		}
-
-		/* Initialize the transparency masks */
-		for (i = 0; i < num_term; i++)
-		{
-			term_data *td = &loc_terms[i];
-			int ii, jj;
-			int depth = DefaultDepth(dpy, DefaultScreen(dpy));
-			Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
-			int total;
-
-
-			/* Determine total bytes needed for image */
-			ii = 1;
-			jj = (depth - 1) >> 2;
-			while (jj >>= 1) ii <<= 1;
-			total = td->fnt->wid * td->fnt->hgt * ii;
-
-
-			TmpData = (char *)malloc(total);
-
-			td->TmpImage = XCreateImage(dpy,visual,depth,
-				ZPixmap, 0, TmpData,
-				td->fnt->wid, td->fnt->hgt, 32, 0);
-
-		}
-
-		/* Free tiles_raw? XXX XXX */
-	}
-
-#endif /* USE_GRAPHICS */
-
 
 	/* Success */
 	return (0);
+}
+
+
+/* loads a file from graf-dir, handles things magically, returns number to
+   image, and -1 on failure */
+int
+load_gfx_image(const char *fname, const char *type) {
+
+    int i = 0;
+    term_data *td = &loc_terms[i];
+    char filename[1024];
+    
+    sprintf(filename, "%s/%s/%s", "./graphics", type , fname);
+    return load_plain_image(filename, td->num_tiles++);
+}
+
+int
+paint_gfx_image(const char *fname, const char *type, int x, int y) {
+    char filename[1024];
+    
+    sprintf(filename, "%s/%s/%s", "./graphics", type, fname);
+
+    return paint_image(filename, x, y);
+}
+
+void
+print_image_list() {
+    int i = 0;
+    term_data *td = &loc_terms[i];
+
+    for (i = 0; i < td->num_tiles; i++) {
+	fprintf(stderr, "%3d. ", i);
+	if (td->tiles[i] && td->image_files[i]) {
+	    fprintf(stderr, "%s", td->image_files[i]);
+	}
+	fprintf(stderr,"\n");
+    }
 }
 
 errr

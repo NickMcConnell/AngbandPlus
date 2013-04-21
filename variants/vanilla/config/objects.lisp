@@ -208,8 +208,9 @@ the Free Software Foundation; either version 2 of the License, or
   :weight 250
   :cost 0
   :sort-value 2400
-  :the-kind '<chest>) 
+  :the-kind '<chest>)
 
+#||
 (define-object-kind "iron-spike" "& iron spike~"
   :numeric-id 345
   :x-attr #\W
@@ -222,6 +223,7 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 1
   :sort-value 2300
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
+||#
 
 (define-object-kind "torch" "& wooden torch~"
   :numeric-id 346

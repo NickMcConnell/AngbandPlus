@@ -33,14 +33,15 @@ the Free Software Foundation; either version 2 of the License, or
     (item-table-find the-eq 'eq.weapon)))
 
 
-(defun %modify-boolean-effect (player state &key add subtract new-value)
+(defun %modify-boolean-effect (creature state &key add subtract new-value)
   "Sets the value of a temorary attribute/effect.  Only supports boolean ones."
-  (let* ((attr (gethash state (player.temp-attrs player)))
+
+  (let* ((attr (gethash state (slot-value creature 'temp-attributes)))
 	 (old-value (attr.value attr))
 	 (new-duration (attr.duration attr))
 	 (noticed nil))
     
-    (check-type attr temp-player-attribute)
+    (check-type attr temp-creature-attribute)
 
     (when add
       (cond ((numberp add)
@@ -93,7 +94,7 @@ the Free Software Foundation; either version 2 of the License, or
     (when noticed
       (let ((on-upd (attr.on-update attr)))
 	(when (and on-upd (functionp on-upd))
-	  (funcall on-upd player attr))))
+	  (funcall on-upd creature attr))))
 
     ;; call to handle-stuff ?
     t))
@@ -131,15 +132,15 @@ the Free Software Foundation; either version 2 of the License, or
 	 `(0 ,+term-white+  "            " "You are no longer stunned."))
 	))
 
-(defun %modify-leveled-effect (player state &key add subtract new-value)
+(defun %modify-leveled-effect (creature state &key add subtract new-value)
   "Sets the value of cuts."
 
-  (let* ((attr (gethash state (player.temp-attrs player)))
+  (let* ((attr (gethash state (slot-value creature 'temp-attributes)))
 	 (old-duration (attr.duration attr))
 	 (new-duration (attr.duration attr))
 	 (noticed nil))
     
-    (check-type attr temp-player-attribute)
+    (check-type attr temp-creature-attribute)
 
 ;;    (warn "Changing ~s from ~s" state old-duration)
 
@@ -177,39 +178,40 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;    (warn "Changed ~s from ~s to ~s" state old-duration new-duration)
 
-      
-    (let* ((lvl-fun (ecase state
-		      (<cut> #'%get-cutlvl)
-		      (<stun> #'%get-stunlvl)))
-	   (old-cutlvl (funcall lvl-fun old-duration))
-	   (new-cutlvl (funcall lvl-fun new-duration))
-	   (old-lvl (car old-cutlvl))
-	   (new-lvl (car new-cutlvl)))
-
-      (cond ((> new-lvl old-lvl)
-	     (print-message! (fourth new-cutlvl))
-	     (setf noticed t))
-	    ((< new-lvl old-lvl)
-	     (when (= (first new-cutlvl) 0)
-	       (print-message! (fourth new-cutlvl)))
-	     (setf noticed t)))
-      
-
-      (setf (attr.duration attr) new-duration)
-      (setf (attr.value attr) new-duration)
-
-;;      (warn "Cut-val ~s" (get-attribute-value '<cut> (player.temp-attrs player)))
-      (when noticed
-	;; skip disturb
-	(bit-flag-add! *update* +pl-upd-bonuses+)
+    ;; to print various messages if we're player
+    (when (typep creature 'player) ;; ugly hack
+      (let* ((lvl-fun (ecase state
+			(<cut> #'%get-cutlvl)
+			(<stun> #'%get-stunlvl)))
+	     (old-cutlvl (funcall lvl-fun old-duration))
+	     (new-cutlvl (funcall lvl-fun new-duration))
+	     (old-lvl (car old-cutlvl))
+	     (new-lvl (car new-cutlvl)))
 	
-	(ecase state
-	  (<cut> (bit-flag-add! *redraw* +print-cut+))
-	  (<stun> (bit-flag-add! *redraw* +print-stun+)))
-		 
-	;; skip handle-stuff
+	(cond ((> new-lvl old-lvl)
+	       (print-message! (fourth new-cutlvl))
+	       (setf noticed t))
+	      ((< new-lvl old-lvl)
+	       (when (= (first new-cutlvl) 0)
+		 (print-message! (fourth new-cutlvl)))
+	       (setf noticed t)))
 
-	noticed))))
+	;;      (warn "Cut-val ~s" (get-attribute-value '<cut> (player.temp-attrs player)))
+	(when noticed
+	  ;; skip disturb
+	  (bit-flag-add! *update* +pl-upd-bonuses+)
+	  
+	  (ecase state
+	    (<cut> (bit-flag-add! *redraw* +print-cut+))
+	    (<stun> (bit-flag-add! *redraw* +print-stun+)))
+	  
+	  ;; skip handle-stuff
+	  )))
+
+    (setf (attr.duration attr) new-duration)
+    (setf (attr.value attr) new-duration)
+      
+    noticed))
 
 
 
@@ -225,16 +227,16 @@ the Free Software Foundation; either version 2 of the License, or
       (setf (player.temp-attrs pl-obj) (make-hash-table :test #'eq)))
 
     (flet ((install-attribute (&rest args)
-	     (let ((attr (apply #'make-player-attribute args)))
+	     (let ((attr (apply #'make-creature-attribute args)))
 	       (unless (is-legal-effect? variant (attr.key attr))
 		 (warn "The attribute ~s does not seem legal" attr))
-	     (add-player-attribute pl-obj attr)))
+	     (add-creature-attribute pl-obj attr)))
 	   )
 					      
       
       ;; add attributes to the player-object
       (install-attribute "slow digest" '<slow-digest> :type :calculated
-			 :value 0 :default-value 0
+			 :value 0 :default-value 0 :value-type 'integer
 			 :desc "number, specifies how slow digestion is, 0 is normal.")
       
       (install-attribute "feather fall" '<feather-fall> :type :calculated
@@ -242,23 +244,23 @@ the Free Software Foundation; either version 2 of the License, or
 			 :desc "boolean, are we falling like a feather?")
       
       (install-attribute "glowing" '<glowing> :type :calculated
-			 :value 0 :default-value 0
-			 :desc "number, specifies radius for player-glow.")
+			 :value 0 :default-value 0 :value-type 'integer
+ 			 :desc "number, specifies radius for player-glow.")
       
       (install-attribute "regenerate" '<regenerate> :type :calculated
-			 :value 0 :default-value 0
+			 :value 0 :default-value 0 :value-type 'integer
 			 :desc "number, specifies regeneration-speed.")
       
       (install-attribute "telepathy" '<telepathy> :type :calculated
-			 :value 0 :default-value 0
+			 :value 0 :default-value 0 :value-type 'integer
 			 :desc "number, specifies radius for telepathy.")
       
       (install-attribute "see invisible" '<see-invisible> :type :calculated
-			 :value 0 :default-value 0
+			 :value 0 :default-value 0 :value-type 'integer
 			 :desc "number, specifies radius.")
       
       (install-attribute "infravision" '<infravision> :type :calculated
-			 :value 0 :default-value 0
+			 :value 0 :default-value 0 :value-type 'integer
 			 :desc "number, specifies radius.")
       
       (install-attribute "free action" '<free-action> :type :calculated
@@ -274,7 +276,7 @@ the Free Software Foundation; either version 2 of the License, or
 			 :desc "boolean, do the blows cause earthquakes?")
       
       (install-attribute "aggravate" '<aggravates> :type :calculated
-			 :value 0 :default-value 0
+			 :value 0 :default-value 0 :value-type 'integer
 			 :desc "number, specifies radius for aggravation.")
       
       (install-attribute "random teleporting" '<random-teleport> :type :calculated
@@ -292,12 +294,12 @@ the Free Software Foundation; either version 2 of the License, or
       ;; then those attributes that are "temporary" in nature
 
       (install-attribute "cut" '<cut> :type :temporary ;; cut has special code
-			 :value 0 :default-value 0
+			 :value 0 :default-value 0 :value-type 'integer
 			 :update-fun #'%modify-leveled-effect
 			 :desc "number, size of cuts")
 
       (install-attribute "stun" '<stun> :type :temporary ;; stun has special code
-			 :value 0 :default-value 0
+			 :value 0 :default-value 0 :value-type 'integer
 			 :update-fun #'%modify-leveled-effect
 			 :desc "number, stun-power")
 
@@ -660,7 +662,9 @@ the Free Software Foundation; either version 2 of the License, or
 		  (<free-action>
 		   (alter-attribute! '<free-action> calc-attrs t)) ;; boolean
 		  (<see-invisible>
-		   (alter-attribute! '<see-invisible> calc-attrs +max-sight+)) 
+		   (alter-attribute! '<see-invisible> calc-attrs +max-sight+))
+		  (<random-teleport>
+		   (alter-attribute! '<random-teleport> calc-attrs t)) ;; boolean
 		  (t
 		   (warn "Unhandled item-ability ~s for item ~s" i obj))))
 	      
@@ -946,7 +950,7 @@ the Free Software Foundation; either version 2 of the License, or
       (let ((calc-attrs (player.calc-attrs player)))
 	(setf attr (gethash state calc-attrs))))
 
-    (if (and attr (typep attr 'player-attribute))
+    (if (and attr (typep attr 'creature-attribute))
 	(attr.value attr)
 	(error "Attribute ~s is not know for player" state))
     ))
@@ -972,7 +976,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;; ===
 
 
-(defmethod modify-creature-state! ((player player) state &key add subtract new-value)
+(defmethod modify-creature-state! (creature state &key add subtract new-value)
   (block modify-creature-state!
 
     #||
@@ -993,11 +997,12 @@ the Free Software Foundation; either version 2 of the License, or
     ||#
 
     ;; this is not very good
-    (let* ((temp-attrs (player.temp-attrs player))
+    (let* ((temp-attrs (slot-value creature 'temp-attributes))
 	   (attr (gethash state temp-attrs)))
       
       (cond ((and attr (attr.update-fun attr))
-	     (funcall (attr.update-fun attr) player state :add add :subtract subtract :new-value new-value))
+	     (funcall (attr.update-fun attr) creature state :add add
+		      :subtract subtract :new-value new-value))
 	    (t
 	     (warn "Not implemented support for creature-state ~s" state)
 	     nil))

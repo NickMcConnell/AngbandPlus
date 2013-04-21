@@ -38,7 +38,7 @@ ADD_DESC: This file just contains simple init and loading of the game
 (eval-when (:execute :load-toplevel :compile-toplevel)
 
 ;;  (pushnew :xp-testing *features*)
-;;  (pushnew :langband-development *features*)
+  (pushnew :langband-development *features*)
 ;;  #-clisp
 ;;  (push :using-sound *features*)
   ;; this one should be turned on in releases and in curses
@@ -141,7 +141,7 @@ ADD_DESC: This file just contains simple init and loading of the game
   (let ((asdf:*central-registry* (list *default-pathname-defaults* "variants/vanilla/"))
 	;;#+lispworks ;; possibly others too
 	(asdf::*compile-file-failure-behaviour* :ignore)
-	(asdf:*compile-file-warnings-behaviour* :ignore))
+	(asdf::*compile-file-warnings-behaviour* :ignore))
     (load "langband-engine.asd")
     (load "variants/vanilla/langband-vanilla.asd")
     (asdf:oos 'asdf:load-op :langband-vanilla)

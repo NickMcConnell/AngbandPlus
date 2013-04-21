@@ -80,14 +80,14 @@ ADD_DESC: available in the game.
       (and (object.easy-know (aobj.kind object))
 	   (object.aware (aobj.kind object)))))
 
-(defmethod get-colour ((obj active-object))
-  (get-colour (aobj.kind obj)))
+(defmethod get-text-colour ((obj active-object))
+  (get-text-colour (aobj.kind obj)))
 
-(defmethod get-colour ((kind object-kind))
+(defmethod get-text-colour ((kind object-kind))
   (let ((flavour (object.flavour kind)))
     (if flavour
-	(cdr flavour)
-	(object.x-attr kind))))
+	(text-attr flavour)
+	(text-attr kind))))
 
 (defmethod get-okind-table ((var-obj variant) (level level))
   
@@ -120,11 +120,11 @@ ADD_DESC: available in the game.
 	gvals
 	(object.game-values (aobj.kind obj)))))
 
-(defmethod object.x-attr ((obj active-object))
-  (object.x-attr (aobj.kind obj)))
+(defmethod x-attr ((obj active-object))
+  (x-attr (aobj.kind obj)))
 
-(defmethod object.x-char ((obj active-object))
-  (object.x-char (aobj.kind obj)))
+(defmethod x-char ((obj active-object))
+  (x-char (aobj.kind obj)))
 
 (defmethod object.weight ((obj active-object))
   (* (aobj.number obj) (object.weight (aobj.kind obj))))
@@ -186,6 +186,9 @@ with k-info.txt numbers. NUM is the numeric id."
 				(numeric-prefix t))
   (declare (type u-16b number)
 	   (type simple-base-string plural-string))
+
+  (assert (or (eq nil flavour) (typep flavour 'flavour)))
+  
   (let ((plural (> number 1))
 	(counter 0))
     (declare (type u-16b counter))
@@ -206,7 +209,7 @@ with k-info.txt numbers. NUM is the numeric id."
 	     ;; should take into account flavour! should also check length
 	     (let ((next-char (schar plural-string counter)))
 	       (when (and (eql next-char #\#) flavour) ;; use flavour if we have a flavour sign
-		 (setf next-char (schar flavour 0)))
+		 (setf next-char (schar (flavour.name flavour) 0)))
 	       ;;(format t "~&Checking ~s for vowel in '~a'~%" next-char plural-string)
 	       (cond ((find next-char '(#\a #\e #\i #\o #\u #\y))
 		      (write-string "an " stream))
@@ -217,7 +220,7 @@ with k-info.txt numbers. NUM is the numeric id."
 	    (t nil)))
 	   
     
-    (loop for i of-type u-16b from counter to (1- (length plural-string))
+    (loop for i of-type u-16b from counter below (length plural-string)
 	  for x = (schar plural-string i)
 	  do
 	  (case x
@@ -237,7 +240,7 @@ with k-info.txt numbers. NUM is the numeric id."
 		     ))
 	    ||#	    
 	    (#\# (when flavour
-		   (write-string flavour stream)
+		   (write-string (flavour.name flavour) stream)
 		   (write-char #\Space stream)
 		   ))
 	    
@@ -270,6 +273,11 @@ with k-info.txt numbers. NUM is the numeric id."
 (defmethod is-artifact? ((obj active-object))
   nil)
 
+(defmethod is-cursed? ((obj active-object))
+  (bit-flag-set? (aobj.identify obj) +ident-cursed+))
+
+(defmethod is-broken? ((obj active-object))
+  (bit-flag-set? (aobj.identify obj) +ident-broken+))
 
 
 (defun get-object-list (&key (var-obj *variant*) (level *level*))
@@ -337,7 +345,9 @@ with k-info.txt numbers. NUM is the numeric id."
   (destructuring-bind (&key numeric-id x-attr x-char depth rarity
 			    chance locale weight cost sort-value
 			    events game-values flags flavour desc the-kind
-			    multiplier (on-quaff :unspec)
+			    multiplier
+			    (text-attr :unspec) (text-char :unspec)
+			    (on-quaff :unspec)
 			    (on-read :unspec) (on-eat :unspec)
 			    (on-create :unspec) (on-add-magic :unspec)
 			    (on-wear :unspec) (on-drop :unspec)
@@ -370,10 +380,12 @@ with k-info.txt numbers. NUM is the numeric id."
     (setf (object.numeric-id new-obj) (if numeric-id
 					  numeric-id
 					  key)
-	  (object.x-attr new-obj) (etypecase x-attr
-				    (character (convert-obj x-attr :colour-code))
-				    (number (charify-number x-attr)))
-	  (object.x-char new-obj) x-char
+	  (x-attr new-obj) (etypecase x-attr
+			     (character (convert-obj x-attr :colour-code))
+			     (number (charify-number x-attr)))
+	  (x-char new-obj) (etypecase x-char
+			     (character (char-code x-char))
+			     (number x-char))
 	  (object.rarity new-obj) rarity
 	  (object.chance new-obj) chance
 	  (object.locale new-obj) locale
@@ -385,6 +397,22 @@ with k-info.txt numbers. NUM is the numeric id."
 	  (object.events new-obj) (get-legal-events events)
 	  (object.game-values new-obj) game-values)
 
+
+    (cond ((eq text-attr :unspec)
+	   (setf (text-attr new-obj) (x-attr new-obj)))
+	  (t
+	   (setf (text-attr new-obj) (etypecase text-attr
+				       (character (convert-obj text-attr :colour-code))
+				       (number (charify-number text-attr))))))
+
+    (cond ((eq text-char :unspec)
+	   (setf (text-char new-obj) (x-char new-obj)))
+	  (t
+	   (setf (text-char new-obj) (etypecase text-char
+				       (character (char-code text-char))
+				       (number text-char)))))
+
+    
     (flet ((possible-add-effect (effect var &optional (energy +energy-normal-action+))
 	     (cond ((eq :unspec var))
 		   ((is-object-effect? var)
@@ -456,13 +484,27 @@ the *VARIANT* object so it has to be properly initialised."
 	 (gvals (when (object.game-values okind)
 		  (copy-game-values variant (object.game-values okind))))
 	 )
-;;    (unless gvals
-;;      (warn "No gvals for ~s" okind))
-    (cond ((and mapping (consp mapping))
-	   (make-instance (cdr mapping) :obj okind :game-values gvals))
-	  (t 
-	   (make-instance 'active-object :obj okind :game-values gvals)))))
 
+    (let ((new-obj (cond ((and mapping (consp mapping))
+			  (make-instance (cdr mapping) :obj okind :game-values gvals))
+			 (t 
+			  (make-instance 'active-object :obj okind :game-values gvals)))))
+
+
+      (when (find '<curse> (object.flags okind))
+	(bit-flag-add! (aobj.identify new-obj) (logior +ident-cursed+ +ident-broken+)))
+
+      new-obj)))
+
+
+;; this is a hack
+(defmethod produce-active-object ((variant variant) (id string))
+  (let ((okind (get-object-kind variant id)))
+    (cond ((typep okind 'object-kind)
+	   (produce-active-object variant okind))
+	  (t
+	   (warn "Unable to find object with id ~s" id)
+	   nil))))
 
 
 (defmethod produce-object-kind ((variant variant) id name &key the-kind)
@@ -483,23 +525,60 @@ the *VARIANT* object so it has to be properly initialised."
 	  )))
 
 
-(defun define-flavour-type (symbol &optional generator-fn)
+(defun define-flavour-type (symbol &key generator-fn x-char text-char)
   "Defines a flavour-type"
   (let* ((var-obj *variant*)
-	 (ft-obj (make-flavour-type :symbol symbol
-				    :generator-fn generator-fn))
+	 (ft-obj (make-instance 'flavour-type
+				:symbol symbol
+				:x-char x-char
+				:text-char text-char
+				:generator-fn generator-fn))
 	 (table (variant.flavour-types var-obj)))
     (setf (gethash symbol table) ft-obj)
     ft-obj))
 
 (defun legal-flavour-obj? (flav)
+  (typep flav 'flavour))
+
+#||
   (and (consp flav)
        (stringp (car flav))
        (atom (car flav)) ;; integer 0..16 ?
        ))
+||#
   
-(defun establish-flavour& (table name colour)
-  (setf (gethash name table) (cons name colour)))
+(defun establish-flavour& (f-type name &key x-attr x-char text-attr text-char)
+
+  (when (characterp x-char)
+    (setf x-char (char-code x-char)))
+  
+  (when (characterp text-char)
+    (setf text-char (char-code text-char)))
+
+  (when (characterp x-attr)
+    (setf x-attr (convert-obj x-attr :colour-code)))
+  
+  (when (characterp text-attr)
+    (setf text-attr (convert-obj text-attr :colour-code)))
+  
+    
+  (let ((flav (make-instance 'flavour :name name :x-attr x-attr :text-attr text-attr))
+	(table (flavour-type.table f-type)))
+    
+    (when (and (eq text-attr nil) (< x-attr +graphics-start+))
+      (setf (text-attr flav) x-attr))
+    
+    (when (and x-char (numberp x-char))
+      (setf (x-char flav) x-char)
+
+      (when (and (eq nil text-char) (< x-char +graphics-start+))
+	(setf (text-char flav) x-char))
+      )
+
+    (push flav (flavour-type.unused-flavours f-type))
+    (setf (gethash name table) flav)
+    
+    flav))
 
 (defun find-flavour-type (variant-obj type)
   "Tries to find given flavour-type in given variant-obj."
@@ -507,18 +586,23 @@ the *VARIANT* object so it has to be properly initialised."
 
 ;;(trace find-flavour-type)
 
-(defun define-basic-flavour (type name colour)
+(defun define-basic-flavour (type name &key x-char x-attr text-char text-attr)
   "Defines a basic flavour.."
   
   (let ((ft-obj (find-flavour-type *variant* type)))
     (unless ft-obj
       (warn "Unable to find flavour-type ~s" type)
       (return-from define-basic-flavour nil))
-    (let ((table (flavour-type.table ft-obj)))
-      (establish-flavour& table name colour))))
+
+    (establish-flavour& ft-obj name
+			:x-attr x-attr
+			:text-attr text-attr
+			:x-char (if x-char x-char (flavour-type.x-char ft-obj))
+			:text-char (if text-char text-char (flavour-type.text-char ft-obj))
+			)))
 	
 
-
+#||
 (defun use-flavour-table (flavour-to-use used-by &key (variant *variant*))
   "a handy way to re-use a flavour-table for another kind
 of objects.  all entries are copied, not shared."
@@ -537,30 +621,33 @@ of objects.  all entries are copied, not shared."
     ;;(warn "~s will use ~s" used-by-type type-to-use)
     
     used-by-type))
+||#
 
 (defmethod flavour-object! ((variant variant) (obj object-kind))
   ;; do nothing
   (warn "Not added flavouring to ~a" obj)
   nil)
 
-(defun %flavour-obj-kind! (obj)
+(defun %flavour-obj-kind! (kind)
   "Flavours the given object OBJ."
-  (let* ((kind obj) ;; hack
-	 (var-obj *variant*)
-	 (f-type (gethash (object.the-kind obj) (variant.flavour-types var-obj))))
+  (let* ((var-obj *variant*)
+	 (f-type (gethash (object.the-kind kind) (variant.flavour-types var-obj))))
     (when f-type
-      (let ((gen-fn (flavour-type.generator-fn f-type))
-	    (table (flavour-type.table f-type)))
-	(cond (gen-fn
-	       (setf (object.flavour kind) (funcall gen-fn var-obj kind)))
-	      ((and table (typep table 'array))
-	       (let ((next-flavour (aref table (fill-pointer table))))
-		 (setf (object.flavour kind) next-flavour)
-		 (incf (fill-pointer table))))
-	      (t
-	       (describe f-type)
-	       (error "Unable to flavour object kind ~a with ~s" kind (flavour-type.symbol f-type))
-	       ))
+      (cond ((flavour-type.generator-fn f-type)
+	     (setf (object.flavour kind) (funcall (flavour-type.generator-fn f-type)
+						  var-obj kind)))
+	    
+	    ((consp (flavour-type.unused-flavours f-type))
+	     (setf (object.flavour kind) (pop (flavour-type.unused-flavours f-type))))
+	    
+	    ((null (flavour-type.unused-flavours f-type))
+	     (warn "No more unused ~s flavours for ~s" (object.the-kind kind)
+		   (object.id kind)))
+	    (t
+	     (describe f-type)
+	     (error "Unable to flavour object kind ~a with ~s" kind (flavour-type.symbol f-type))
+	     )))
     
-	(assert (legal-flavour-obj? (object.flavour kind)))))
-    obj))
+    (assert (legal-flavour-obj? (object.flavour kind)))
+    
+    kind))

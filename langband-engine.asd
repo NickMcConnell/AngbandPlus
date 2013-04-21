@@ -19,8 +19,8 @@ the Free Software Foundation; either version 2 of the License, or
   #+(or allegro cmu sbcl lispworks)
   (pushnew :use-callback-from-c *features*)
 
-  #+(or cmu clisp sbcl)
-  (pushnew :handle-char-as-num *features*)
+;;  #+(or cmu clisp sbcl)
+  (pushnew :handle-char-as-num *features*) ;; always
 
   #+(or cmu allegro lispworks sbcl)
   (pushnew :enough-support-for-langband *features*)
@@ -44,7 +44,7 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband-engine-system)
   
 (asdf:defsystem :langband-engine
-    :version "0.0.19"
+    :version "0.1.0"
     :components
     ((:module settings
 	      :pathname ""
@@ -93,7 +93,7 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "player" :depends-on ("classes" "global" "character" "equipment"))
 			   (:file "monster" :depends-on ("classes" "global"))
 			   (:file "dungeon" :depends-on ("base" "monster" "classes" "constants"))
-			   (:file "building" :depends-on ("generics" "base" "global"))
+			   (:file "building" :depends-on ("generics" "base" "global" "dungeon"))
 			   (:file "stores" :depends-on ("building" "generics" "equipment"))
 			   (:file "allocate" :depends-on ("generics" "dungeon" "constants"))
 			   (:file "generate" :depends-on ("dungeon" "allocate" "classes" "object" "equipment" "generics"))
@@ -118,6 +118,7 @@ the Free Software Foundation; either version 2 of the License, or
 	      :depends-on (foreign))
      
      ;; this can safely be commented all out, or parts of it may be commented out
+     #+never
      (:module compat
 	      :pathname "lib/compat/"
 	      :components (

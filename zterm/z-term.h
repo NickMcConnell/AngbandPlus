@@ -38,17 +38,17 @@ struct term_win
 	bool cu, cv;
 	byte cx, cy;
 
-	byte **a;
-	char **c;
+	s16b **a;
+	s16b **c;
 
-	byte *va;
-	char *vc;
+	s16b *va;
+	s16b *vc;
 
-	byte **ta;
-	char **tc;
+	s16b **ta;
+	s16b **tc;
 
-	byte *vta;
-	char *vtc;
+	s16b *vta;
+	s16b *vtc;
 };
 
 
@@ -157,9 +157,9 @@ typedef struct term term;
 
 struct term
 {
-	vptr user;
+	void *user;
 
-	vptr data;
+	void *data;
 
 	bool user_flag;
 
@@ -188,14 +188,14 @@ struct term
 	u16b key_xtra;
 	u16b key_size;
 
-	byte wid;
-	byte hgt;
+	u16b wid;
+	u16b hgt;
 
-	byte y1;
-	byte y2;
+	u16b y1;
+	u16b y2;
 
-	byte *x1;
-	byte *x2;
+	u16b *x1;
+	u16b *x2;
 
 	term_win *old;
 	term_win *scr;
@@ -211,12 +211,14 @@ struct term
 	errr (*xtra_hook)(int n, int v);
 
 	errr (*curs_hook)(int x, int y);
+    
+        errr (*bigcurs_hook)(int x, int y);
 
 	errr (*wipe_hook)(int x, int y, int n);
 
-	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
+	errr (*text_hook)(int x, int y, int n, s16b a, const s16b *s);
 
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
+	errr (*pict_hook)(int x, int y, int n, const s16b *ap, const s16b *cp, const s16b *tap, const s16b *tcp);
 };
 
 
@@ -270,26 +272,26 @@ extern term *Term;
 extern errr Term_user(int n);
 INTERFACE errr Term_xtra(int n, int v);
 
-INTERFACE void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
-extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
+extern void Term_queue_char(int x, int y, s16b a, s16b c, s16b ta, s16b tc);
+extern void Term_queue_chars(int x, int y, int n, s16b a, s16b *s);
 
 extern errr Term_fresh(void);
-INTERFACE errr Term_set_cursor(int v);
+extern errr Term_set_cursor(bool v);
 INTERFACE errr Term_gotoxy(int x, int y);
-extern errr Term_draw(int x, int y, byte a, char c);
-extern errr Term_addch(byte a, char c);
-extern errr Term_addstr(int n, byte a, cptr s);
-extern errr Term_putch(int x, int y, byte a, char c);
-INTERFACE errr Term_putstr(int x, int y, int n, byte a, cptr s);
+extern errr Term_draw(int x, int y, s16b a, s16b c);
+extern errr Term_addch(s16b a, s16b c);
+extern errr Term_addstr(int n, s16b a, s16b *s);
+extern errr Term_putch(int x, int y, s16b a, s16b c);
+extern errr Term_putstr(int x, int y, int n, s16b a, s16b *s);
 INTERFACE errr Term_erase(int x, int y, int n);
 INTERFACE errr Term_clear(void);
 extern errr Term_redraw(void);
 extern errr Term_redraw_section(int x1, int y1, int x2, int y2);
 
-extern errr Term_get_cursor(int *v);
+extern errr Term_get_cursor(bool *v);
 extern errr Term_get_size(int *w, int *h);
 extern errr Term_locate(int *x, int *y);
-extern errr Term_what(int x, int y, byte *a, char *c);
+extern errr Term_what(int x, int y, s16b *a, s16b *c);
 
 extern errr Term_flush(void);
 extern errr Term_keypress(int k);

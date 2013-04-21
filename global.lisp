@@ -48,6 +48,13 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 	    nil)
 	   )))
 
+;; expanding function defined later in file.
+(defmacro format-message! (format-str &rest args)
+  `(print-message! (format nil ,format-str ,@args)))
+
+(defmacro format-note! (format-str &rest args)
+  `(print-note! (format nil ,format-str ,@args)))
+
 
 (defun define-effect (symbol name &key number bit-flag)
   (let ((var-obj *variant*))
@@ -138,6 +145,7 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
     (let ((var-constructor (gethash id registered-variants))
 	  (var-obj nil))
       (cond ((functionp var-constructor)
+	     (format-note! "[Loading '~a' variant, please wait]" id)
 	     (setf var-obj (funcall var-constructor)))
 	    (t
 	     (error "Unable to find variant ~s" id)))
@@ -161,6 +169,17 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   (let ((fname (variant-data-fname var-obj data-file)))
     (load fname)))
 
+(defmacro attack-effect (arguments &body body)
+  (assert (= (length arguments) 4))
+  (let ((def `(lambda ,arguments
+	       (declare (ignorable ,@arguments))
+	       ,@body)))
+;;    (warn "Def is ~s" def)
+    `(function ,def)))
+
+(defun get-attack-type (key &optional (variant *variant*))
+  "Returns a possible attack-type object registered with the given variant object."
+  (gethash key (variant.attack-types variant)))
 
 #||
       (let ((sys-file (variant.sys-file var-obj)))
@@ -660,9 +679,10 @@ information from the list skills whose content depends on variant."
 
 ;; this code is simpler than in C, but does the same job basically
 (let ((msg-col 0)
-      (end-col 72))
+      (end-col 72)
+      (messages '())) ;; make into a limited and circular sequence
   
-  (defun print-message! (msg)
+  (defun print-message! (msg &optional (attr +term-white+))
     "If msg is nil, things are flushed."
     ;;  (warn "going fu on ~s" (type-of str))
     (when (equal msg +c-null-value+)
@@ -683,9 +703,11 @@ information from the list skills whose content depends on variant."
       (when (> msg-len 500) ;; panic
 	(return-from print-message! nil))
 
+      (push (make-message :text msg :attr attr)
+	    messages)
       ;; skip msg-add
       
-      (%term-putstr! msg-col 0 -1 +term-white+ msg)
+      (%term-putstr! msg-col 0 -1 attr msg)
 
       (incf msg-col (1+ msg-len))
       
@@ -696,10 +718,25 @@ information from the list skills whose content depends on variant."
     (when (plusp msg-col)
       (%flush-messages! msg-col)
       ;; skip reset of msg-flag
-      (setf msg-col 0))))
+      (setf msg-col 0)))
 
-;;(defun c-print-message! (msg)
-;;  (print-message! msg))
+  (defun show-messages (&key (offset 0))
+    (declare (ignore offset))
+    (c-clear-from! 0)
+    (let ((last-line (get-last-console-line)))
+      ;;(warn "last line is ~s" last-line)
+      (loop for i from 0 to (- last-line 2)
+	    for msg in messages
+	    do
+	    ;;(warn "Value ~s" msg)
+	    (put-coloured-str! (message.attr msg) (message.text msg) 1 (1+ i))
+	    ))
+    (pause-last-line!))
+
+  (defun get-messages ()
+    messages)
+  )
+
 
 (let ((screen-lock nil))
   
@@ -748,6 +785,7 @@ information from the list skills whose content depends on variant."
 
 ;; do not use outside global.lisp!
 (defun %term-putstr! (col row some colour text)
+;;  (warn "putting |~s|" text)
   #-lispworks
   (org.langband.ffi:c_term_putstr! col row some colour (org.langband.ffi:to-arr text))
   #+lispworks
@@ -756,6 +794,24 @@ information from the list skills whose content depends on variant."
     (org.langband.ffi:c_term_putstr! col row some colour base-ptr))
   (values))
 
+
+(defun print-note! (msg &optional (attr +term-white+))
+  "Prints a centred note on the last line."
+
+  (let ((row (get-last-console-line))
+	;;(row 23) ;;(get-last-console-line))
+	;; screws up somewhat when graphics is enabled
+	(col (if *use-graphics*
+		 19
+		 (- (int-/ (get-last-console-column) 2)
+		    (int-/ (length msg) 2))))
+	)
+    (c_term_erase! 0 row 255)
+    (put-coloured-str! attr msg col row)
+    (c-term-flush!)
+    (c-term-fresh!)
+    ;;(pause-last-line!)
+    t))
 
 
 (defun c-bell! (text)
@@ -767,11 +823,17 @@ information from the list skills whose content depends on variant."
   ;; skip flush
   )
 
-(defun c-pause-line! (row)
-  (c-prt! "" row 0)
-  (put-coloured-str! +term-white+ "[Press any key to continue]" 23 row)
+(defun c-pause-line! (row &key msg attr)
+  (unless msg
+    (setf msg "[Press any key to continue]"))
+  (unless attr
+    (setf attr +term-white+))
+  (c_term_erase! 0 row 255)
+  (put-coloured-str! attr msg 23 row)
   (read-one-character)
-  (c-prt! "" row 0))
+  (c_term_erase! 0 row 255)
+  t)
+
 
 (defun get-last-console-line ()
   (+ +start-row-of-map+ *screen-height*))
@@ -781,8 +843,8 @@ information from the list skills whose content depends on variant."
 
 ;;(trace get-last-console-column)
 
-(defun pause-last-line! ()
-  (c-pause-line! (get-last-console-line)))
+(defun pause-last-line! (&key msg attr)
+  (c-pause-line! (get-last-console-line) :msg msg :attr attr))
 
 (defun init-c-side& (ui base-path debug-level)
   #-lispworks
@@ -833,12 +895,11 @@ information from the list skills whose content depends on variant."
 
 (defsubst read-one-character ()
   "Reads one character from the C-side."
+  (let ((read-obj (c-inkey!)))
+    (etypecase read-obj
+      (number (code-char read-obj))
+      (character read-obj))))
 
-  #-handle-char-as-num
-  (c-inkey!)
-  #+handle-char-as-num
-  (code-char (c-inkey!))
-  )
   
 (defsubst clear-the-screen! ()
   "Clears the screen on the C-side."
@@ -884,8 +945,10 @@ information from the list skills whose content depends on variant."
   (let ((ftype (make-instance 'floor-type :id id
 			      :name name
 			      :x-attr (etypecase x-attr
-					(number (charify-number x-attr)))
-			      :x-char x-char
+					(number (charify-number x-attr)))  ;; right??
+			      :x-char (etypecase x-char
+					(character (char-code x-char))
+					(number x-char))
 			      :mimic mimic)))
     (setf (get-floor-type id) ftype)
     ftype))
@@ -919,11 +982,10 @@ information from the list skills whose content depends on variant."
 		 :return return-action))
 
 (defun make-coord-event (id function extra)
-  (let ((ret-event (make-event id :step-on-coord function
-			       :state (if (listp extra)
-					  extra
-					  (list extra)))))
-    ret-event))
+  (make-event id :step-on-coord function
+	      :state (if (listp extra)
+			 extra
+			 (list extra))))
  
 
 (defun define-normal-event (dummy-arg id type function &key (variant *variant*))
@@ -1072,11 +1134,11 @@ or removed.  Conses up a new list."
 	    (cadr i)))
     table))
 
-(defmethod decor.x-attr ((obj active-trap))
-  (trap.x-attr (trap.type obj)))
+(defmethod x-attr ((obj active-trap))
+  (x-attr (trap.type obj)))
 
-(defmethod decor.x-char ((obj active-trap))
-  (trap.x-char (trap.type obj)))
+(defmethod x-char ((obj active-trap))
+  (x-char (trap.type obj)))
 
 
 (defun define-trap-type (id name &key x-char x-attr effect min-depth max-depth rarity)
@@ -1085,8 +1147,11 @@ or removed.  Conses up a new list."
     (warn "Trap-id ~s not valid" id)
     (return-from define-trap-type nil))
   
-  (let ((trap-obj (make-instance 'trap-type :id id :name name
-				 :x-char x-char :x-attr x-attr
+  (let* ((the-char (etypecase x-char
+		     (character (char-code x-char))
+		     (number x-char)))
+	 (trap-obj (make-instance 'trap-type :id id :name name
+				 :x-char the-char :x-attr x-attr
 				 :min-depth min-depth :max-depth max-depth
 				 :rarity rarity
 				 ))
@@ -1111,15 +1176,26 @@ or removed.  Conses up a new list."
 ;;    (warn "Def is ~s" def)
     `(function ,def)))
 
+
 (defun get-screen-width ()
   "This is slow and uses c-side, use *screen-width* for cached result."
-  
-  (- (c-get-term-width) +start-column-of-map+ 1))
+  (let ((base (- (c-get-term-width) +start-column-of-map+ 1)))
+    (if *use-graphics*
+	(int-/ base 2)
+	base)))
 
 (defun get-screen-height ()
   "This is slow and uses c-side, use *screen-width* for cached result."
   
   (- (c-get-term-height) +start-row-of-map+ 1))
+
+(defun get-panel-width ()
+  (if *use-graphics*
+      16
+      33))
+
+(defun get-panel-height ()
+  11)
 
 (defun %read-direction ()
   (flush-messages!)
@@ -1142,3 +1218,14 @@ or removed.  Conses up a new list."
 			    (c-prt! "Unknown direction!" 0 0))))))))
     (c-prt! "" 0 0)
     retval))
+
+;;; to have empty place-holders
+#-image-support
+(defun load-scaled-image& (fname idx wid hgt)
+  (declare (ignore fname idx wid hgt))
+  nil)
+
+#-image-support
+(defun paint-gfx-image& (fname type x y)
+  (declare (ignore fname type x y))
+  nil)

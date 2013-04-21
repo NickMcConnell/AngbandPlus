@@ -271,8 +271,6 @@ ADD_DESC: Most of the code which deals with the game loops.
 	)
   t))
 
-    
-	       
   
 
 (defun regenerate-mana! (crt percent)
@@ -497,6 +495,9 @@ ADD_DESC: Most of the code which deals with the game loops.
   (multiple-value-bind (*player* *variant* *level*)
       (load-old-environment&)
     
+    ;; ultra hackish
+    (let ((*screen-height* (get-screen-height))
+	  (*screen-width* (get-screen-width)))
     (loop
      ;; clean up to prevent too many delays while running the dungeon
      ;; it may take quite some time
@@ -527,7 +528,7 @@ ADD_DESC: Most of the code which deals with the game loops.
        (garbage-collect :global t)
        ;; safety? we will reload in less than a second :-)
        (save-current-environment&)))
-    ))
+    )))
 
 (defun save-current-environment& ()
   "Attempts to save the environment."
@@ -563,7 +564,21 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     (values the-level the-player the-var)))
 
+#+never
+(defun %show-splash-screen (fname)
+  (c-term-clear!)
+  (with-open-file (s (pathname fname)
+		     :direction :input)
+      (loop for x = (read-line s nil 'eof)
+            for i from 0
+            until (eq x 'eof)
+            do
+            (put-coloured-str! +term-white+ x 0 i)))
+  (c-term-fresh!)
+  t)
 
+
+;;; This one is a mess!!! please divide in more fitting functions!
 (defun play-game& ()
   "Should not be called directly."
   
@@ -572,11 +587,27 @@ ADD_DESC: Most of the code which deals with the game loops.
 	;; insert these two to prevent f*cked values.. gcu seems to need them now though :-/
 	(*screen-height* (get-screen-height))
 	(*screen-width* (get-screen-width))
+	(*panel-height* (get-panel-height))
+	(*panel-width* (get-panel-width))
 
 ;;	#+allegro
 ;;	(old-spread (sys:gsgc-parameter :generation-spread))
 	)
 
+    ;; if non-graphical
+;;    (unless *use-graphics*
+;;      (%show-splash-screen (game-data-path "news.txt")))
+
+    ;; doing init_angband() end here
+    (print-note! "[Initing macros]")
+
+    (init-macro-system&)
+    
+    (print-note! "[Initialization complete]")
+
+;;    (pause-last-line!)
+     ;; end init_ang
+     
     (let ((*load-verbose* nil))
       (load-game-data "prefs.lisp"))
 
@@ -591,8 +622,10 @@ ADD_DESC: Most of the code which deals with the game loops.
 	     (the-level nil)
 	     (the-variant nil)
 	     (save-combos (list
-			   (cons (concatenate 'string (home-langband-path) *binary-save-file*)  :binary)
-			   (cons (concatenate 'string (home-langband-path) *readable-save-file*)  :readable)))
+			   (cons (concatenate 'string (home-langband-path)
+					      *binary-save-file*)  :binary)
+			   (cons (concatenate 'string (home-langband-path)
+					      *readable-save-file*)  :readable)))
 	     
 	     )
 	 
@@ -613,10 +646,28 @@ ADD_DESC: Most of the code which deals with the game loops.
 		   (if (and var (typep var 'variant))
 		       (setf the-variant var)
 		       (warn "Unable to load variant from ~s" the-save-file))
+		   (pause-last-line!)
 		   (return-from possible-read-file t)
 		   )))))
 
 	 (unless the-player ;; unable to load one.
+	   
+	   ;; so far we just load vanilla
+	   (let* ((var-key "langband-vanilla")
+		  (var-obj (load-variant& var-key :verbose t)))
+	     (cond ((not var-obj)
+		    (warn "Unable to find variant ~s" var-key)
+		    (return-from play-game& nil))
+		   (t
+		    (setf *variant* var-obj)
+		    (activate-object var-obj))))
+
+    
+	   ;; run tests after variant has been loaded
+	   #+xp-testing
+	   (do-a-test :post)
+  
+	   (pause-last-line!)
 	   
 	   (let ((*level* (make-instance 'level))) ;; evil hack
 	     (setf the-player (interactive-creation-of-player *variant*))))
@@ -630,6 +681,9 @@ ADD_DESC: Most of the code which deals with the game loops.
        
 	 (warn "Trying to create player again..")
 	 )))
+
+    (unless *current-key-table*
+      (setf *current-key-table* *ang-keys*))
 
 ;;    (unless *level*
 ;;      (c-prt! "Please wait..." 0 0)  
@@ -692,3 +746,183 @@ ADD_DESC: Most of the code which deals with the game loops.
 
 ;;(trace redraw-stuff)
 ;;(trace handle-stuff update-stuff)
+
+;; hackish
+(defun update-floor-display (num &key x-attr x-char)
+  (let ((floor (get-floor-type num)))
+    (unless floor
+      ;;(warn "did not find floor with id ~s" num)
+      )
+    (when floor
+      (when x-attr
+	(setf (x-attr floor) (etypecase x-attr
+			       (character (convert-obj x-attr :colour-code))
+			       (number x-attr))))
+      (when x-char
+	(setf (x-char floor) (etypecase x-char
+			       (character (char-code x-char))
+			       (number x-char))))
+
+      floor)))
+
+;; slow
+(defun update-kind-display (num &key x-attr x-char text-attr text-char)
+  (let ((big-obj-table (variant.objects *variant*)))
+    (loop for x being the hash-values of big-obj-table
+	  do
+	  (when (eql num (object.numeric-id x))
+	    (when x-attr
+	      (setf (x-attr x) x-attr))
+	    (when x-char
+	      (setf (x-char x) x-char))
+	    (when text-char
+	      (setf (text-char x) text-char))
+	    (when text-attr
+	      (setf (text-attr x) text-attr))
+	    ))))
+
+(defun update-flavour-display (sym name &key x-attr x-char)
+  (let ((fl-type (gethash sym (variant.flavour-types *variant*))))
+
+    (unless fl-type
+      (warn "Unable to find flavour-type for ~s" sym)
+      (return-from update-flavour-display nil))
+
+    (let ((tbl (flavour-type.table fl-type)))
+
+      ;; at this stage it is a hash-table, not an array (it is later converted)
+      
+      (when (arrayp tbl)
+	(warn "table for flavour ~s is not htbl but ~s" sym (type-of tbl))
+	(return-from update-flavour-display nil))
+
+      (loop for x being the hash-values of tbl
+	    do
+	    (when (string-equal (flavour.name x) name)
+	      
+	      (cond ((and x-attr (numberp x-attr))
+		     (setf (x-attr x) x-attr))
+		    (t
+		     (warn "Odd flavour x-attr ~s for ~s" x-attr x)))
+	      
+	      (cond ((and x-char (numberp x-char))
+		     (setf (x-char x) x-char))
+		    (t
+		     (warn "Odd flavour x-char ~s for ~s" x-char x)))
+	      
+	      (return-from update-flavour-display x)))
+
+	
+      (warn "Unable to find ~s flavour ~s" sym name)
+      ;;(return-from update-flavour-display nil)
+      nil)))
+
+
+   
+
+
+(defvar *hacked* nil)
+(defun update-monster-display (num &key x-attr x-char)
+  (let* ((var-obj *variant*)
+	 (mons (variant.monsters var-obj)))
+
+    ;; fallback
+    (unless *hacked*
+      (maphash #'(lambda (k v)
+		   (declare (ignore k))
+		   (setf (x-attr v) (+ +graphics-start+ 7)
+			 (x-char v) (+ +graphics-start+ 2)))
+	       mons)
+      (setf *hacked* t))
+    
+		 
+    (let ((mon (gethash num mons)))
+      (unless mon
+	(loop for x being the hash-values of mons
+	  do
+	  (when (eql num (monster.numeric-id x))
+	    (setf mon x))))
+      (unless mon
+	;;(warn "Unable to find monster with id ~s" num)
+	)
+      (when mon
+	(when x-attr
+	  (setf (x-attr mon) (charify-number x-attr)))
+	(when x-char
+	  (setf (x-char mon) (charify-number x-char)))
+	mon)
+      )))
+
+#||
+(defun %hack-data (fname predicate alter)
+  (with-open-file (s fname
+		     :direction :input)
+    (loop for x = (read s nil 'eof)
+	  for i from 0
+	  until (eq x 'eof)
+	  do
+	  (when (funcall predicate x)
+	    (funcall alter x)))))
+
+(defun guzzle ()
+  (let ((*print-case* :downcase)
+	(*print-right-margin* 120))
+    (with-open-file (ffile (pathname "dump.lsp")
+			   :direction :output
+			   :if-exists :supersede
+			   :if-does-not-exist :create)
+      
+      (%hack-data "graf-prefs.lisp"
+		  #'(lambda (x) (and (consp x)
+				     (eq 'update-kind-display (car x))))
+		  #'(lambda (x)
+		      (let ((attr (if (>= (fourth x) 128)
+				      `(+ +graphics-start+ ,(- (fourth x) 128))
+				      (fourth x)))
+			    (char (if (>= (sixth x) 128)
+				      `(+ +graphics-start+ ,(- (sixth x) 128))
+				      (sixth x))))
+			(pprint `(update-kind-display ,(second x) :x-attr ,attr :x-char ,char)
+				ffile)))))))
+
+(defun guzzle2 ()
+  (let ((*print-case* :downcase)
+	(*print-right-margin* 120))
+    (with-open-file (ffile (pathname "dump.lsp")
+			   :direction :output
+			   :if-exists :supersede
+			   :if-does-not-exist :create)
+      
+      (%hack-data "graf-prefs.lisp"
+		  #'(lambda (x) (and (consp x)
+				     (eq 'update-monster-display (car x))))
+		  #'(lambda (x)
+		      (let ((attr (if (>= (fourth x) 128)
+				      `(+ +graphics-start+ ,(- (fourth x) 128))
+				      (fourth x)))
+			    (char (if (>= (sixth x) 128)
+				      `(+ +graphics-start+ ,(- (sixth x) 128))
+				      (sixth x))))
+		      (pprint `(update-monster-display ,(cadr x) :x-attr ,attr :x-char ,char)
+			      ffile)))))))
+
+(defun guzzle3 ()
+  (let ((*print-case* :downcase)
+	(*print-right-margin* 120))
+    (with-open-file (ffile (pathname "dump.lsp")
+			   :direction :output
+			   :if-exists :supersede
+			   :if-does-not-exist :create)
+      
+      (%hack-data "graf-prefs.lisp"
+		  #'(lambda (x) (and (consp x)
+				     (eq 'update-floor-display (car x))))
+		  #'(lambda (x)
+		      (let ((attr (- (fourth x) 128))
+			    (char (- (sixth x) 128)))
+		      (pprint `(update-floor-display ,(cadr x) :x-attr (+ +graphics-start+ ,attr)
+				:x-char (+ +graphics-start+ ,char))
+			      ffile)))))))
+
+
+||#

@@ -2,9 +2,6 @@
 
 
 (in-package :org.langband.ffi)
-(alien:def-alien-type angbyte c-call:unsigned-char)
-
-(export 'angbyte)
 (alien:def-alien-type cptr c-call:c-string)
 
 (export 'cptr)
@@ -33,7 +30,7 @@
 (declaim (inline c-prt-token!))
 (alien:def-alien-routine ("print_coloured_token" c-prt-token!)
            c-call:void
-           (colour angbyte)
+           (colour c-call:int :in)
            (token c-call:int :in)
            (row c-call:int :in)
            (col c-call:int :in))
@@ -42,7 +39,7 @@
 (declaim (inline c-prt-stat!))
 (alien:def-alien-routine ("print_coloured_stat" c-prt-stat!)
            c-call:void
-           (colour angbyte)
+           (colour c-call:int :in)
            (stat c-call:int :in)
            (row c-call:int :in)
            (col c-call:int :in))
@@ -51,7 +48,7 @@
 (declaim (inline c-prt-number!))
 (alien:def-alien-routine ("print_coloured_number" c-prt-number!)
            c-call:void
-           (colour angbyte)
+           (colour c-call:int :in)
            (number c-call:long :in)
            (padding c-call:int :in)
            (row c-call:int :in)
@@ -59,12 +56,12 @@
 
 
 (declaim (inline c_term_putstr!))
-(alien:def-alien-routine ("Term_putstr" c_term_putstr!)
+(alien:def-alien-routine ("my_Term_putstr" c_term_putstr!)
            errr
            (col c-call:int :in)
            (row c-call:int :in)
            (something c-call:int :in)
-           (colour angbyte)
+           (colour c-call:int :in)
            (text (* char) :in))
 
 
@@ -77,12 +74,14 @@
 
 
 (declaim (inline c-term-queue-char!))
-(alien:def-alien-routine ("Term_queue_char" c-term-queue-char!)
+(alien:def-alien-routine ("my_Term_queue_char" c-term-queue-char!)
            c-call:void
            (row c-call:int :in)
            (col c-call:int :in)
-           (colour angbyte)
-           (the-char char))
+           (colour c-call:int :in)
+           (the-char c-call:int :in)
+           (tcolour c-call:int :in)
+           (tchar c-call:int :in))
 
 
 (declaim (inline c-term-gotoxy!))
@@ -93,13 +92,18 @@
 
 
 (declaim (inline c-set-cursor&))
-(alien:def-alien-routine ("Term_set_cursor" c-set-cursor&)
+(alien:def-alien-routine ("my_Term_set_cursor" c-set-cursor&)
            errr
            (col c-call:int :in))
 
 
 (declaim (inline c-term-clear!))
 (alien:def-alien-routine ("Term_clear" c-term-clear!)
+           errr)
+
+
+(declaim (inline c-term-flush!))
+(alien:def-alien-routine ("Term_flush" c-term-flush!)
            errr)
 
 
@@ -150,6 +154,11 @@
            (value cptr))
 
 
+(declaim (inline init-macro-system&))
+(alien:def-alien-routine ("macro_init" init-macro-system&)
+           c-call:void)
+
+
 (declaim (inline c-set-lisp-system!))
 (alien:def-alien-routine ("set_lisp_system" c-set-lisp-system!)
            c-call:void
@@ -198,13 +207,51 @@
            (fname cptr))
 
 
+#+image-support
+
+(declaim (inline paint-gfx-image&))
+
+#+image-support
+(alien:def-alien-routine ("paint_gfx_image" paint-gfx-image&)
+           c-call:int
+           (fname cptr)
+           (type cptr)
+           (x c-call:int :in)
+           (y c-call:int :in))
+
+
+#+image-support
+
+(declaim (inline load-gfx-image&))
+
+#+image-support
+(alien:def-alien-routine ("load_gfx_image" load-gfx-image&)
+           c-call:int
+           (fname cptr)
+           (type cptr))
+
+
+#+image-support
+
+(declaim (inline load-scaled-image&))
+
+#+image-support
+(alien:def-alien-routine ("load_scaled_image" load-scaled-image&)
+           c-call:int
+           (fname cptr)
+           (idx c-call:int :in)
+           (wid c-call:int :in)
+           (hgt c-call:int :in))
+
+
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (export
    '(c_current_ui c_quit! c-clear-from! c-prt-token! c-prt-stat! c-prt-number!
      c_term_putstr! c_term_erase! c-term-queue-char! c-term-gotoxy!
-     c-set-cursor& c-term-clear! c-term-fresh! c-term-save! c-term-load!
-     c-term-xtra& c-inkey! init_c-side& cleanup-c-side& c_macro_add&
-     c-set-lisp-system! c-set-lisp-callback! c-get-term-height c-get-term-width
-     c-set-hinst! c-load-sound&)))
+     c-set-cursor& c-term-clear! c-term-flush! c-term-fresh! c-term-save!
+     c-term-load! c-term-xtra& c-inkey! init_c-side& cleanup-c-side&
+     c_macro_add& init-macro-system& c-set-lisp-system! c-set-lisp-callback!
+     c-get-term-height c-get-term-width c-set-hinst! c-load-sound&
+     paint-gfx-image& load-gfx-image& load-scaled-image&)))
 
 ;;; End of generated file.

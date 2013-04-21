@@ -6,7 +6,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 
 (in-package :org.langband.ffi)
 
-(def-foreign-type angbyte uchar8)
+;;(def-foreign-type angbyte int) ;; argh
 (def-foreign-type cptr c-string8)
 (def-foreign-type errr int32)
 
@@ -27,7 +27,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 
 (def-foreign-function ("print_coloured_token" c-prt-token!)
     :returns 'void
-    :args '((angbyte colour)
+    :args '((int colour)
 	    (int token)
 	    (int row)
 	    (int col)
@@ -35,7 +35,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 
 (def-foreign-function ("print_coloured_stat" c-prt-stat!)
     :returns 'void
-    :args '((angbyte colour)
+    :args '((int colour)
 	    (int stat)
 	    (int row)
 	    (int col)
@@ -43,7 +43,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 
 (def-foreign-function ("print_coloured_number" c-prt-number!)
     :returns 'void
-    :args '((angbyte colour)
+    :args '((int colour)
 	    (long number)
 	    (int padding)
 	    (int row)
@@ -51,13 +51,13 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    ))
 
 ;; possible kill
-(def-foreign-function ("Term_putstr" c_term_putstr!)
+(def-foreign-function ("my_Term_putstr" c_term_putstr!)
     :returns 'errr
     :args '(
 	    (int col)
 	    (int row)
 	    (int something)
-	    (angbyte colour)
+	    (int colour)
 	    (char-arr text)
 	    ))
 
@@ -70,13 +70,15 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    (int something)))
 
 
-(def-foreign-function ("Term_queue_char" c-term-queue-char!)
+(def-foreign-function ("my_Term_queue_char" c-term-queue-char!)
     :returns 'void
     :args '(
 	    (int row)
 	    (int col)
-	    (angbyte colour)
-	    (char the-char)
+	    (int colour)
+	    (int the-char)
+	    (int tcolour)
+	    (int tchar)
 	    ))
 
 (def-foreign-function ("Term_gotoxy" c-term-gotoxy!)
@@ -86,13 +88,16 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    (int col)
 	    ))
 
-(def-foreign-function ("Term_set_cursor" c-set-cursor&)
+(def-foreign-function ("my_Term_set_cursor" c-set-cursor&)
     :returns 'errr
     :args '(
 	    (int col)
 	    ))
 
 (def-foreign-function ("Term_clear" c-term-clear!)
+    :returns 'errr)
+
+(def-foreign-function ("Term_flush" c-term-flush!)
     :returns 'errr)
 
 (def-foreign-function ("Term_fresh" c-term-fresh!)
@@ -129,6 +134,9 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
     :returns 'void
     :args '((cptr key)
 	    (cptr value)))
+
+(def-foreign-function ("macro_init" init-macro-system&)
+    :returns 'void)
 
 (def-foreign-function ("set_lisp_system" c-set-lisp-system!)
     :returns 'void
@@ -167,3 +175,29 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    (int col)
 	    ))
 
+;; experimental
+(def-foreign-function ("paint_gfx_image" paint-gfx-image&)
+    :returns 'int
+    :args '((cptr fname)
+	    (cptr type)
+	    (int x)
+	    (int y)
+	    )
+    :only-when 'image-support)
+
+(def-foreign-function ("load_gfx_image" load-gfx-image&)
+    :returns 'int
+    :args '((cptr fname)
+	    (cptr type)
+	    )
+    :only-when 'image-support)
+
+
+(def-foreign-function ("load_scaled_image" load-scaled-image&)
+    :returns 'int
+    :args '((cptr fname)
+	    (int idx)
+	    (int wid)
+	    (int hgt)
+	    )
+    :only-when 'image-support)

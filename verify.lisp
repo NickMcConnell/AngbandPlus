@@ -120,8 +120,8 @@ the Free Software Foundation; either version 2 of the License, or
 
   (%ok-check (stringp (monster.id obj)))
   (%ok-check (stringp (monster.desc obj)))
-  (%ok-check (characterp (monster.symbol obj)))
-;;  (%ok-check (characterp (monster.colour obj)))
+;;  (%ok-check (characterp (x-char obj)))
+;;  (%ok-check (characterp (x-attr obj)))
   ;; skip alignment
   ;; skip type
   (%ok-check (integerp (monster.depth obj)))

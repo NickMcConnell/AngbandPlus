@@ -90,8 +90,6 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 	  (num-hitdice (car (monster.hitpoints the-kind)))
 	  (hitdice (cdr (monster.hitpoints the-kind))))
 
-      (setf (amon.status amon) (make-instance 'monster-status))
-      
       (if (has-ability? the-kind '<max-hitpoints>)
 	  (setf (current-hp amon) (* num-hitdice hitdice))
 	  (setf (current-hp amon) (roll-dice num-hitdice hitdice)))
@@ -105,7 +103,7 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
       (when (has-ability? the-kind '<initial-sleeper>)
 	;; sleepy!
 	)
-      
+
       amon)))
 
 
@@ -134,6 +132,11 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
   (declare (ignore amount))
   nil)
 
+(defmethod add-creature-attribute ((amon active-monster) attr)
+  (ecase (attr.type attr)
+    (:temporary (setf (gethash (attr.key attr) (amon.temp-attrs amon))
+		      attr))))
+
 (defmethod monster.attacks ((mon active-monster))
   (monster.attacks (amon.kind mon)))
 
@@ -161,26 +164,25 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
 (defmethod convert-obj (attacks (to (eql :attk-list)) &key)
   (mapcar #'(lambda (x)
-	      (list (attack.kind x) :type (attack.dmg-type x) :damage (attack.damage x)))
+	      (list (attack.kind x)
+		    :type (if (typep (attack.dmg-type x) 'attack-type)
+			      (attack-type.key (attack.dmg-type x))
+			      (attack.dmg-type x))
+		    :damage (attack.damage x)))
 	  attacks))
 
 (defmethod convert-obj (attk-list (to (eql :attacks)) &key)
   "Converts attacks in list-form to a list of attack instances."
-  (let ((attacks '()))
-    (dolist (i attk-list)
-      (cond ((consp i)
-	     (assert (symbolp (car i)))
-	     (let ((attk (make-instance 'attack :kind (car i))))
-	       (do ((x (cdr i) (cddr x)))
-		   ((null x))
-		 (ecase (car x)
-		   (:type (setf (attack.dmg-type attk) (cadr x)))
-		   (:damage (setf (attack.damage attk) (cadr x)))))
-
-	       (push attk attacks)))
-	    (t
-	     (warn "Unknown attack-info ~s" i))))
-    (nreverse attacks)))
+  (loop for i in attk-list
+	if (and (consp i) (symbolp (car i)))
+	collect (make-instance 'attack :kind (car i)
+			       :dmg-type (when-bind (wanted-type (getf (cdr i) :type))
+					   (if (get-attack-type wanted-type)
+					       (get-attack-type wanted-type)
+					       wanted-type))
+			       :damage (getf (cdr i) :damage))
+	else if (not (eq i nil)) do
+	(warn "Unknown attack-info ~s" i)))
 
 
 (defmethod get-monster-list ((var-obj variant) &key (sort-key #'monster.id) (predicate #'string<))
@@ -242,9 +244,9 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
       drops))
 
 
-(defun define-monster-kind (id name &key desc symbol colour
+(defun define-monster-kind (id name &key desc x-char x-attr
 			    alignment (type :unspec)
-			    depth ;;level
+			    numeric-id depth ;;level
 			    rarity hitpoints armour
 			    speed xp abilities
 			    (immunities :unspec) alertness
@@ -273,18 +275,23 @@ the *VARIANT* object so it has to be properly initialised."
   (let* ((var-obj *variant*)
 	 (m-obj (produce-monster-kind var-obj id name :the-kind type)))
 
+    (if (integerp numeric-id)
+	(setf (monster.numeric-id m-obj) numeric-id)
+	(warn "Monster ~s,~s does not have a numeric-id" id name))
     
     (if (stringp desc)
 	(setf (monster.desc m-obj) desc)
 	(warn "No description for monster ~a found" id))
 
-    (when symbol
-      (setf (monster.symbol m-obj) symbol))
-    (when colour
-      (setf (monster.colour m-obj) (etypecase colour
-				     (number (charify-number colour))
-				     (character (convert-obj colour :colour-code))
-				     )))
+    (when x-char
+      (setf (x-char m-obj) (etypecase x-char
+			     (character (char-code x-char))
+			     (number x-char))))
+    (when x-attr
+      (setf (x-attr m-obj) (etypecase x-attr
+			     (number x-attr)
+			     (character (convert-obj x-attr :colour-code))
+			     )))
     (when xp
       (setf (monster.xp m-obj) xp))
     (when speed
@@ -350,11 +357,21 @@ the *VARIANT* object so it has to be properly initialised."
       (setf (monster.vulnerabilities m-obj) vulnerabilities))
     (when vision
       (setf (monster.vision m-obj) vision))
-    (when attacks
-      (cond ((consp attacks)
-	     (setf (monster.attacks m-obj) (convert-obj attacks :attacks)))
-	    (t
-	     (lang-warn "Unknown form of attacks-argument ~s for monster ~s" attacks name))))
+
+    (cond ((consp attacks)
+	   (let ((attks (convert-obj attacks :attacks)))
+	     #||     
+	     (dolist (i attks)
+	       ;;(when (not (consp (attack.damage i)))
+		;; (warn "A: ~s for ~s" i id))
+	       (when (not (typep (attack.dmg-type i) 'attack-type))
+		 (warn "A: ~s for ~s" i id))
+	       )
+	     ||# 
+	     (setf (monster.attacks m-obj) attks)))
+	  ((eq attacks nil) nil)
+	  (t
+	   (lang-warn "Unknown form of attacks-argument ~s for monster ~s" attacks name)))
 
     (cond ((eq treasures :unspec))
 	  ((consp treasures)
@@ -392,6 +409,25 @@ the *VARIANT* object so it has to be properly initialised."
     ;;(add-new-mkind! m-obj id)
     
     m-obj))
+
+
+(defun define-monster-attack (key &key power hit-effect)
+  (let ((akind (make-instance 'attack-type :key key)))
+    (cond ((numberp power)
+	   (setf (attack-type.power akind) power))
+	  (t
+	   (warn "Unknown format for power ~s for attack-type ~s"
+		 power key)))
+    (cond ((functionp hit-effect)
+	   (setf (attack-type.hit-effect akind) (compile nil hit-effect)))
+	  (t
+	   (warn "No legal hit-effect ~s passed to attack-type ~s"
+		 hit-effect key)))
+    
+    (setf (gethash key (variant.attack-types *variant*)) akind)
+
+    akind))
+ 
 
 (defmethod appears-in-group? ((variant variant) (level level) (monster active-monster))
   (appears-in-group? variant level (amon.kind monster)))

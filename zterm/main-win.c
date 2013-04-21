@@ -3192,13 +3192,13 @@ init_win(void)
     ANGBAND_SYS = "win";
 
     /* Initialize */
-    init_angband();
+//    init_angband();
 
     /* We are now initialized */
     initialized = TRUE;
 
-    pause_line(23);
-    play_game(TRUE);
+//    pause_line(23);
+    play_game(TRUE, 0); // no graphics on windows yet
     /* Prompt the user */
 //	c_prt(TERM_WHITE,"[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
     Term_fresh();

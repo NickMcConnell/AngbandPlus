@@ -22,6 +22,9 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +false+ 0)
 (defconstant +true+ 1)
 
+(defconstant +text-end+ #xff "The last legal text-value for an attr or char.")  
+(defconstant +graphics-start+ #x100 "The first graphics value.")
+
 ;;; === The colours that the TERM can display.
 (defconst +term-dark+    =char-code= (charify-number 0) "a colour")
 (defconst +term-white+   =char-code= (charify-number 1) "a colour")
@@ -174,8 +177,8 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 ;; make these into variables later.. 
 
 
-(defconstant +panel-height+ 11)
-(defconstant +panel-width+ 33)
+;;(defconstant +panel-height+ 11)
+;;(defconstant +panel-width+ 33)
 
 
 (defconstant +start-row-of-map+ 1)
@@ -210,6 +213,9 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 	     "Global arrays for optimizing 'ddx[ddd[i]]'")
 (defvar *ddy-ddd* #1A(1 -1 0 0 1 1 -1 -1 0)
 	"Global arrays for optimizing 'ddx[ddd[i]]'")
+
+(defconstant +simple-direction-number+ 4 "basic nswe directions in ddd arrays")
+(defconstant +normal-direction-number+ 8 "basic nswe directions in ddd arrays plus diagonals")
 
 
 (defconstant +project-jump+ #x01)

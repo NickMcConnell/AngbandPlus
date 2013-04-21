@@ -41,8 +41,8 @@
 
 		  Langband is a rewrite of the traditional/vanilla version of
 		  Angband.  It is based on version 2.9.3, but has
-		  parts found in version 3.0, e.g bigscreen.  Langband
-		  is written in Common Lisp, 
+		  parts found in version 3.0, e.g bigscreen and
+		  bigtile graphics.  Langband is written in Common Lisp, 
 		  which will allow me to combine the dynamic nature of easy
 		  scripting with good compiler technology providing an
 		  environment that allows a very high level of customisation and
@@ -51,7 +51,7 @@
 		  even if it is a toy-project, I try to write quality-code and
 		  have a good design.  This also ensures that it will take more
 		  time than the usual Angband-variant.</li>
-
+		<br>
 		<li> <b>Where can I download it?</b><br>
 		  It isn't finished yet and won't be finished for some time as
 		  it will need go to through several stages, as all newly
@@ -61,7 +61,7 @@
 		  though.  There are also some experimental debian-packages if
 		  you use debian, and if you have Debian these are the simplest to
 		  get started with. </li>
-
+		<br>
 		<li> <b>Does it run on [insert OS]?</b><br>
 		  The main development-platform is my x86 Debian-system,
 		  using CMU Common Lisp.  The status of various ports is as
@@ -89,7 +89,7 @@
 		    <li> Win is a very immature port with many errors.
 		  </ul>
 		</li>
-
+		<br>
 		<li> <b>I found a bug, what do I do?</b><br>
 		  Please check if the bug has been reported first in the <a
 		    href="http://sourceforge.net/bugs/?group_id=6938">Sourceforge
@@ -100,7 +100,7 @@
 		  accomplished in CMUCL with the command 'backtrace' and in ACL
 		  with the command ':zo'.  These commands work in the
 		  debugger.</li>
-		
+		<br>		
 		<li> <b>How can I see if a bug is fixed?</b><br>
 		  A reported bug will be marked as FIXED when it is fixed and
 		  the updated code has been put in the CVS-tree.  The priority
@@ -110,14 +110,14 @@
 		  whenever there is an update on the bug.<br>
 		  BTW: If you have extra
 		  information on a non-fixed bug, please add it.</li>
-
+		<br>
 		<li> <b>My save-game from last version does not work in the
 		    newest version, why?</b><br>
 		  As long as the game is not really playable the save/load code
 		  is not enhanced for backward-compatibility and is all-in-all
 		  one of the more fragile parts of Langband.  But please report
 		  bugs and they will be fixed.</li>
-		
+		<br>		
 		<li> <b>The game is sluggish once in awhile, why?</b><br>
 		  I have noticed this earlier though not frequently anymore.  It
 		  might be the garbage-collector interfering.  This will be
@@ -128,7 +128,7 @@
 		  win32-port if the lispworks-code isn't compiled.  Gradual
 		  optimisation of the code will probably "remove" this
 		  "problem".  </li>
-
+		<br>
 		<li> <b>The game holds for a few seconds when I change levels, why?</b><br>
 		  There are two replies, choose the one that you feel
 		  comfortable with.  <br>
@@ -141,43 +141,49 @@
 		      before and after level­generation.  This slows down change
 		      between levels.  This is very noticable in ACL. </li>
 		  </ul>
-		  
+		<br>		  
 		<li> <b>How do I get things working with CLISP?</b><br>
 		  It's a bit tricky still but can be done.  Assuming csh/tcsh
 		  you can do:
-		  
+		  <font size="-1">
 		  <pre>
-		    $ make
-		    $ clisp -q -ansi
-		    &gt; (load "game")  ;; this stops at foreign loading, use ^D to quit
-		    $ setenv LD_LIBRARY_PATH `pwd`/linking
-		    $ make clisp-link
-		    $ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
-		    &gt; (load "game") ;; this should work now
+$ make
+$ clisp -q -ansi
+&gt; (load "game")  ;; this stops at foreign loading, use ^D to quit
+$ setenv LD_LIBRARY_PATH `pwd`/linking
+$ make clisp-link
+$ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
+&gt; (load "game") ;; this should work now
 		  </pre>
+		  </font>
 		  This will be improved later, but it's an important step
 		  ahead.  You might need to edit the paths in Makefile and
 		  linking/Makefile.  For other shells use the equivalent command
 		  of setenv which sets and environment value.</li> 
-
+		<br>
+		
 		<li> <b>How do I get things working with LispWorks Windows?</b><br>
 		  Currently it's not 100% streamlined, but if you have it
 		  installed in <tt>c:/cygwin/home/default/langband/</tt> you
 		  might edit zterm/Makefile and set ENVIRONMENTS to WIN and
 		  compile zterm with 'make', and then do:
-
+		  
+		  <font size="-1">
 		  <pre>
-		    &gt; (setq *default-pathname-defaults* #p"c:/cygwin/home/default/langband/")
-		    &gt; (load "game")
-		    &gt; (lb::a)
+ &gt; (setq *default-pathname-defaults*
+            #p"c:/cygwin/home/default/langband/")
+ &gt; (load "game")
+ &gt; (lb::a)
 		  </pre>
+		  </font>
+		<br>
 		  
 		<li> <b>How is the code structured?</b><br>
 		  Currently the code is changed frequently and this answer may
 		  not be up-to-date.  Please look at the <a
 		    href="tech.html">Technical description</a> for an hopefully
 		  updated description.</li> 
-
+		<br>
 		<li> <b>You seem to favour classes with datamembers over
 		    bitfields, why?</b><br>
 		  I tend to favour using clear and readable classes over
@@ -189,7 +195,7 @@
 		  are examples of bitfields that are generated from a
 		  specification.
 		</li>
-
+		<br>
 		
 		<li> <b>The code in CVS crashes/does not work, why?</b><br>
 		  The code in CVS is development code, and might not even
@@ -198,7 +204,7 @@
 		  may have bug-fixes and features missing in releases.  CVS is
 		  also where exciting things happen and where you can track
 		  day-to-day development.</li>
-
+		<br>
 		<li> <b>Regular Angband has several windows, where are the other
 		    windows in Langband?</b><br>
 		  Several windows can be quite useful but they introduce some
@@ -206,7 +212,7 @@
 		  development.  So until the game reaches a stage where more
 		  windows is needed it will remain a single-window game.
 		</li>
-		
+		<br>		
 		<li> <b>When I quit the game, my whole lisp is terminated, why?</b><br>
 		  Some parts of the UI-code is still structured as if it was
 		  still an app with main() that is started and then quitted when
@@ -215,7 +221,7 @@
 		  I hope to eventually make things more intelligent, but this
 		  will take time.  <b>[Note: This should be fixed in current CVS
 		    for X11 and curses, tested with CMUCL, Lispworks and ACL.]</b></li>
-		
+		  <br>
 		<li> <b>How do I get sounds working?</b><br>
 		  <ol>
 		    <li> uncomment the using-sound line in game.lisp</li>
@@ -232,7 +238,13 @@
 		    <li> quit game and exit the sound_daemon</li>
 		  </ol>
 		</li>
-
+		<br>
+		<li><b>How can I get big graphic tiles?</b><br>
+		  <p>Set the angband font environment variable, e.g
+		  with the tcsh-command:<br>
+		    <code>setenv ANGBAND_X11_FONT_0 "-*-fixed-medium-r-normal--32-*-*-*-*-*-iso8859-1"</code><br>
+		    </p></li>
+		<br>		    
 		<li><b>The C-code seems to be filled with gcc-isms and
 		    C++-style comments, why?</b><br>
 		  <p>I don't think there should be many gcc-isms
@@ -241,7 +253,7 @@
 		    <tt>/*... */</tt> comments.  When things
 		    stabilise, they will be turned into regular
 		    C-comments.</p></li> 
-
+		<br>
 		<li> <b>I am a lisper, but I find parts of the code a bit odd,
 		    why is it the way it is?</b><br>
 
@@ -276,7 +288,7 @@
 	  <tr>
 	    <td width="46" valign="bottom"><img src="leftcorner.png" width="46" height="46" alt=""></td>
 	    <td width="203"><center>Last updated May 2002<br>by <a
-		  href="mailto:stig@users.sourceforge.net">Stig E Sandø</a>.</center></td>
+		  href="mailto:stig@langband.org">Stig E Sandø</a>.</center></td>
 	    <td width="203">
 	      <center>
 		See also: <br>

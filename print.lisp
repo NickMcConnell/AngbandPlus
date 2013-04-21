@@ -556,8 +556,34 @@ ADD_DESC: Various code which just prints stuff somewhere
 ;; no warning on duplicates
 (defun register-help-topic& (variant topic)
   "Registers a help-topic with the variant."
-  (setf (gethash (help-topic-id topic) (variant.help-topics variant)) topic))
+  (setf (gethash (help-topic.id topic) (variant.help-topics variant)) topic))
 
+(defun %show-help-file (fname)
+  (with-open-file (in-str (pathname fname)
+                          :direction :input)
+
+    ;; hack
+    (c-clear-from! 0)
+    (loop named reader
+	  for i from 0
+	  for y from 2
+	  for str = (read-line in-str nil 'eof)
+	  do
+	  (when (eq str 'eof)
+	    (return-from reader nil))
+	  (when (stringp str)
+	    ;; can be too long, check later
+	    (put-coloured-str! +term-white+ str 1 y))
+
+	  (when (and (> i 0) (= 0 (mod i 18)))
+	    (c-pause-line! 22 :msg "[Press <space> to continue]" :attr +term-yellow+)
+	    (c-clear-from! 0)
+	    (setf y 1))
+	  )
+
+    (pause-last-line!)
+    
+    nil))
 
 (defun display-help-topics (variant title start-row)
   "Displays help-topics to screen and asks for input on further help."
@@ -572,18 +598,29 @@ ADD_DESC: Various code which just prints stuff somewhere
 	     (loop for cnt from 3
 		   for i being the hash-values of topics
 		   do
-		   (let ((key (help-topic-key i)))
+		   (let ((key (help-topic.key i)))
 		     (put-coloured-str! +term-l-green+ (format nil "~a." key) 3 (+ start-row cnt))
-		     (put-coloured-str! +term-l-green+ (help-topic-name i)    6 (+ start-row cnt))
+		     (put-coloured-str! +term-l-green+ (help-topic.name i)    6 (+ start-row cnt))
 		     )))
 	   (get-valid-key ()
 	     (put-coloured-str! +term-l-blue+ "-> Please enter selection (Esc to exit): " 3 20)
 	     (read-one-character)))
 
-      (loop 
+      (loop
+       (c-clear-from! 0)
        (show-title)
        (show-entries)
        (let ((key (get-valid-key)))
+	 (loop for i being the hash-values of topics
+	       for topic-key = (help-topic.key i)
+	       for topic-data = (help-topic.data i)
+	       do
+	       (when (eql key (help-topic.key i))
+		 (cond ((stringp topic-data)
+			(%show-help-file topic-data))
+		       (t
+			(warn "Unable to show help ~s" topic-data))
+		       )))
 	 (when (eql key +escape+)
 	   (return-from display-help-topics nil)))
        ))))

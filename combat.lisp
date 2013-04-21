@@ -66,14 +66,12 @@ the Free Software Foundation; either version 2 of the License, or
 
   ;; update with uniques later
   (let ((p-or-u? (is-player? target)))
-  
-    (with-foreign-str (s)
-      (lb-format s "~a misses ~a~a."
-		 (get-creature-name attacker)
-		 (if p-or-u? "" "the ")
-		 (get-creature-name target))
-      (print-message! s)))
-  nil)
+
+    (format-message! "~a misses ~a~a."
+		     (get-creature-name attacker)
+		     (if p-or-u? "" "the ")
+		     (get-creature-name target))
+    nil))
 
 
 (defun %calc-perchance (chance the-ac)
@@ -119,41 +117,75 @@ the Free Software Foundation; either version 2 of the License, or
       
     (melee-hit-ac? target chance monster-ac visible-p)))
 
+    
+;; move to variant
+(defun get-power-of-attack (kind)
+  (ccase kind
+    ;; these are not too common below 1000'
+    (<eat-item> 5)
+    (<eat-food> 5)
+    (<eat-light> 5)
+    (<un-power> 15)
+    (<un-bonus> 20)
+    (<exp-10> 5)
+    (<exp-20> 5)
+    (<exp-80> 5)
+    (nil nil)
+    ;; the rest should be defined in variant  (combat.lisp)
+    ))
+
 
 (defmethod melee-hit-creature? ((attacker active-monster) (target player) the-attack)
-  (declare (ignore the-attack))
+
+  (check-type the-attack attack)
+
+  (let ((atype (attack.dmg-type the-attack)))
+    (unless atype
+      (return-from melee-hit-creature? t)) ;; right?
+  
     
-  (let* ((power 60) ;; hit_hurt
-	 (mlvl (monster.depth (amon.kind attacker)))
-	 (rlev (if (plusp mlvl) mlvl 1)))
-    
-    (melee-hit-ac? target (+ power (* 3 rlev))
-		 (get-creature-ac target)
-		 t)))
+    (let* ((power (cond ((typep atype 'attack-type)
+			 (attack-type.power atype))
+			(t
+			 (get-power-of-attack atype))))
+	   (mlvl (monster.depth (amon.kind attacker)))
+	   (rlev (if (plusp mlvl) mlvl 1))
+	   (skill (+ power (* 3 rlev))))
+      
+;;      (warn "Monster (~s ~s): ~s" (get-creature-name attacker) (attack.dmg-type the-attack) skill)
+      
+      (melee-hit-ac? target skill
+		     (get-creature-ac target)
+		     t))
+    ))
 
 
 (defun deduct-hp! (target amount)
-  (decf (current-hp target) amount))
+  (when (plusp amount)
+    (decf (current-hp target) amount)))
 
-(defmethod melee-inflict-damage! ((attacker active-monster) target the-attack)
+(defmethod melee-inflict-damage! ((attacker active-monster) target (the-attack attack))
   
-  (let (;;(kind (amon.kind attacker))
-	(dmg-dice (attack.damage the-attack)))
+  (let* ((dmg-dice (attack.damage the-attack))
+	 (damage 0))
+    
+    (when (consp dmg-dice)
+      (setf damage (roll-dice (car dmg-dice) (cdr dmg-dice))))
+    
+    (let ((atype (attack.dmg-type the-attack)))
+      (when (and (typep atype 'attack-type)
+		 (functionp (attack-type.hit-effect atype)))
+	(return-from melee-inflict-damage! (funcall (attack-type.hit-effect atype)
+						    attacker target the-attack damage))))
 
-    (cond ((not (consp dmg-dice))
-	   0)
+    ;; simple fallback
+    (when (plusp damage)
+      (deduct-hp! target damage)
+      (when (is-player? target)
+	(bit-flag-add! *redraw* +print-hp+)))
 
-	  (t
-	   (let ((dmg (roll-dice (car dmg-dice) (cdr dmg-dice))))
-;;	     (warn "~ad~a gave ~a dmg to attacker (~a -> ~a hps)"
-;;		   (car dmg-dice) (cdr dmg-dice) dmg
-;;		   (current-hp target) (- (current-hp target) dmg))
-	     (deduct-hp! target dmg)
-	     (when (is-player? target)
-	       (bit-flag-add! *redraw* +print-hp+))
+    damage))
 
-	     dmg))
-	  )))
 
 
   
@@ -170,46 +202,55 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod cmb-describe-hit ((attacker active-monster) (target player) the-attack)
   (let ((desc (get-attk-desc the-attack)))
-    (with-foreign-str (s)
-      (lb-format s "The ~a ~a " (get-creature-name attacker) desc)
-      (print-message! s))))
+    (format-message! "The ~a ~a " (get-creature-name attacker) desc)
+    ))
+    
 
 (defmethod cmb-describe-hit (attacker target the-attack)
   (declare (ignore the-attack))
-  (with-foreign-str (s)
-    (lb-format s "~a hits the ~a. "
-	    (get-creature-name attacker)
-	    (get-creature-name target))
-;;    (warn "Going format on ~s" (type-of s))
-    (print-message! s))
+  (format-message! "~a hits the ~a. " (get-creature-name attacker) (get-creature-name target))
   nil)
 
 (defmethod cmb-describe-death (attacker target)
   (declare (ignore attacker))
-  (with-foreign-str (s)
-    (lb-format s "The ~a dies.. " (get-creature-name target))
-    (print-message! s))
+  (typecase target
+    (player
+     (format-message! "~a dies.. " (get-creature-name target)))
+    (t
+     (format-message! "The ~a dies.. " (get-creature-name target))))
   nil)
 
 (defun attack-target! (dungeon attacker target x y the-attack)
   (play-sound 1)
   ;;	(describe the-monster)
-  (if (not (melee-hit-creature? attacker target the-attack))
-      (cmb-describe-miss attacker target)
-      (progn
-	(cmb-describe-hit attacker target the-attack)
-	(melee-inflict-damage! attacker target the-attack)
-	      	      
-	(when (< (current-hp target) 0)
-	  (cmb-describe-death attacker target)
-	  (let ((target-xp (get-xp-value target)))
-	    (alter-xp! attacker (if target-xp target-xp 0)))
-		
-	  (kill-target! dungeon attacker target x y)
-	  ;; repaint
-	  (light-spot! dungeon x y)
-	  ))))
+  (unless (melee-hit-creature? attacker target the-attack)
+    (cmb-describe-miss attacker target)
+    (return-from attack-target! nil))
 
+  (let ((cur-hp (current-hp target)))
+    (cmb-describe-hit attacker target the-attack)
+    (melee-inflict-damage! attacker target the-attack)
+
+    ;; target is still alive!
+    (when (>= (current-hp target) 0)
+
+      ;; if we got any dmg, let's repaint some
+      (when (and (is-player? target)
+		 (/= (current-hp target) cur-hp))
+	(bit-flag-add! *redraw* +print-hp+))
+
+      (return-from attack-target! t))
+
+    
+    ;; target actually died!
+    (cmb-describe-death attacker target)
+    (let ((target-xp (get-xp-value target)))
+      (alter-xp! attacker (if target-xp target-xp 0)))
+    
+    (kill-target! dungeon attacker target x y)
+    ;; repaint
+    (light-spot! dungeon x y)
+    ))
 
 
 (defun attack-location! (dungeon player x y)
@@ -228,26 +269,3 @@ the Free Software Foundation; either version 2 of the License, or
   (dolist (the-attack (monster.attacks mon))
     (when (and (creature-alive? mon) (creature-alive? player))
       (attack-target! dungeon mon player the-x the-y the-attack))))
-
-    
-  
-#||
-  (let ((mon-name (monster.name mon)))
-  
-    (if (melee-hit-creature? mon player)
-	(warn "'~a' hit the player.." mon-name)
-	(warn "'~a' missed the player.." mon-name))
-    ))
-||#
-
-#||
-(defmethod melee-hit-creature? (attk target the-attack)
-  (declare (ignore attk target the-attack))
-  (error "not impl."))
-||#
-#||
-(defmethod melee-inflict-damage! (attacker target the-attack)
-  (declare (ignore the-attack))
-  (error "Unknown combo ~s ~s" attacker target))
-||#
-  

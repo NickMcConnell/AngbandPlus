@@ -160,6 +160,10 @@ a succesful ACTIVATE-OBJECT."))
    (attk-descs :accessor variant.attk-descs
 	       :initform (make-hash-table :test #'eq)
 	       :initarg :attk-descs)
+   
+   (attack-types :accessor variant.attack-types
+		 :initform (make-hash-table :test #'eq)
+		 :initarg :attack-types)
 
    (day-length      :accessor variant.day-length
 		    :initarg :day-length
@@ -216,6 +220,7 @@ a succesful ACTIVATE-OBJECT."))
   (monsters nil)
   (objects nil)
   (rooms nil)
+  (decor nil) ;; list of all decor
   (active nil)
   (triggers nil) ;; can't be used yet
   )
@@ -297,17 +302,21 @@ Each location is a fixnum with column in the last row."))
    ))
 
 
-(defclass player-attribute ()
+(defclass creature-attribute ()
   ((name  :accessor attr.name  :initform ""  :initarg :name)
    (key   :accessor attr.key   :initform nil :initarg :key)
    (type  :accessor attr.type  :initform nil :initarg :type)
    (desc  :accessor attr.desc  :initform ""  :initarg :desc)
    (value :accessor attr.value :initform 0   :initarg :value)
-   (default-value :accessor attr.default-value :initform 0   :initarg :default-value)
+   (value-type    :accessor attr.value-type
+		  :initform 'boolean
+		  :initarg :value-type)
+   (default-value :accessor attr.default-value
+                  :initform 0
+		  :initarg :default-value)
    ))
 
-
-(defclass temp-player-attribute (player-attribute)
+(defclass temp-creature-attribute (creature-attribute)
   ((duration       :accessor attr.duration
 		   :initform 0
 		   :initarg :duration
@@ -416,6 +425,14 @@ Each location is a fixnum with column in the last row."))
 		  :initform ""
 		  :documentation "who killed the player?")
 
+   (monster-knowledge :accessor player.monster-knowledge
+		      :initform (make-hash-table :test #'equal)
+		      :documentation "Knowledge about monsters.")
+   
+   (object-knowledge :accessor player.object-knowledge
+		     :initform (make-hash-table :test #'equal)
+		     :documentation "Knowledge about objects.")
+   
    
    ;; === Directly savable to binary ===
    
@@ -523,6 +540,16 @@ object is an array with index for each element, each element is an integer which
    (temp-attributes :accessor player.temp-attrs
 		    :initform nil
 		    :documentation "Should be a hash-table with temporary attributes.")
+
+   ;; === the following does not need saving
+
+   (x-attr :accessor x-attr
+	   :initform +term-white+
+	   :documentation "Attr for player on map.")
+
+   (x-char :accessor x-char
+	   :initform #.(char-code #\@)
+	   :documentation "Char for player on map.")
    
    ))
 
@@ -595,6 +622,17 @@ object is an array with index for each element, each element is an integer which
   
   (:documentation "necessary game-values for an object."))
 
+(defclass attack-type ()
+  ((key        :accessor attack-type.key
+	       :initarg :key
+	       :initform nil)
+   (power      :accessor attack-type.power
+	       :initarg :power
+	       :initform 0)
+   (hit-effect :accessor attack-type.hit-effect
+	       :initarg :hit-effect
+	       :initform nil))
+  (:documentation "Represents a type of attack, typically by a monster."))
 
 (defclass attack ()
   ((kind     :accessor attack.kind
@@ -644,15 +682,6 @@ object is an array with index for each element, each element is an integer which
    
    ))
 
-;; hack, replace later
-(defclass monster-status ()
-  ((sleeping :accessor status.sleeping :initform 0) ;; counters
-   (confused :accessor status.confused :initform 0)
-   (fearful  :accessor status.fearful  :initform 0)
-   (stunned  :accessor status.stunned  :initform 0)
-   (distance :accessor status.distance :initform 666) ;; distance from player
-   (vis-flag :accessor status.vis-flag :initform 0) ;; visibility flag
-   ))
 
 (defclass active-monster (activatable)
   ((kind    :accessor amon.kind
@@ -676,11 +705,13 @@ object is an array with index for each element, each element is an integer which
    (seen    :accessor amon.seen-by-player?
 	    :initarg :seen
 	    :initform nil)
+   (distance :accessor amon.distance
+	     :initarg :distance
+	     :documentation "Distance from monster to player."
+	     :initform 666)
+   (vis-flag :accessor amon.vis-flag
+	     :initform 0) ;; visibility flag
    
-   (status  :accessor amon.status
-	    :initarg :status
-	    :initform nil)
-       
    (loc-x   :accessor location-x
 	    :initarg :loc-x
 	    :initform nil)
@@ -690,7 +721,11 @@ object is an array with index for each element, each element is an integer which
    (alive?  :accessor creature-alive?
 	    :initarg :alive?
 	    :initform t)
-       
+
+   (temp-attributes :accessor amon.temp-attrs
+		    :initform (make-hash-table :test #'eq)
+		    :documentation "Should be a hash-table with temporary attributes.")
+   
    ))
 
 
@@ -784,12 +819,17 @@ by variants."))
 	      :accessor monster.id
 	      :initform ""
 	      :documentation "Should be a legal (string) id.")
+   (numeric-id :accessor monster.numeric-id ;; possibly remove later
+	       :initarg :numeric-id
+	       :initform nil)
    (name      :initarg :name
 	      :accessor monster.name
 	      :initform "")
    (desc      :accessor monster.desc      :initform "") ;; string 
-   (symbol    :accessor monster.symbol    :initform nil) ;; character
-   (colour    :accessor monster.colour    :initform nil) ;; varies with implementation
+   (x-char    :accessor x-char            :initform nil) ;; number
+   (x-attr    :accessor x-attr            :initform nil) ;; should be number
+   (text-char :accessor monster.text-char :initform nil) ;; number
+   (text-attr :accessor monster.text-attr :initform nil) ;; should be number
    (alignment :accessor monster.alignment :initform nil) ;; symbols/list
    (type      :accessor monster.type      :initform nil) ;; symbols/list
    (depth     :accessor monster.depth     :initform 0) ;; positive int
@@ -834,14 +874,27 @@ by variants."))
 		 :initarg :name
 		 :initform nil)
    
-     (x-attr     :accessor object.x-attr
+     (x-attr     :accessor x-attr
 		 :initarg :x-attr
-		 :initform nil)
-   
-     (x-char     :accessor object.x-char
+		 :initform nil
+		 :documentation "The attr used when displaying object on the map.")
+        
+     (x-char     :accessor x-char
 		 :initarg :x-char
-		 :initform nil)
+		 :initform nil
+		 :documentation "The char/tile used when displaying object on the map.")
+
+     (text-attr  :accessor text-attr
+		 :initarg :text-attr
+		 :initform nil
+		 :documentation "The attr used when presenting the obj as text.")
    
+     (text-char  :accessor text-char
+		 :initarg :text-char
+		 :initform nil
+		 :documentation "The char used when presenting the obj as text.")
+
+     
      (depth      :accessor object.depth
 		 :initarg :depth
 		 :initform 0);; fix later
@@ -981,16 +1034,16 @@ is all about?")
 (defclass floor-type ()
   ((id     :accessor floor.id     :initform nil :initarg :id)
    (name   :accessor floor.name   :initform nil :initarg :name)
-   (x-attr :accessor floor.x-attr :initform nil :initarg :x-attr)
-   (x-char :accessor floor.x-char :initform nil :initarg :x-char)
+   (x-attr :accessor x-attr :initform nil :initarg :x-attr)
+   (x-char :accessor x-char :initform nil :initarg :x-char)
    (mimic  :accessor floor.mimic  :initform nil :initarg :mimic)
    ))
 
 (defclass decor ()
   ((id       :accessor decor.id       :initform nil :initarg :id)
    (name     :accessor decor.name     :initform nil :initarg :name)
-   (x-attr   :accessor decor.x-attr   :initform nil :initarg :x-attr)
-   (x-char   :accessor decor.x-char   :initform nil :initarg :x-char)
+   (x-attr   :accessor x-attr   :initform nil :initarg :x-attr)
+   (x-char   :accessor x-char   :initform nil :initarg :x-char)
    (visible? :accessor decor.visible? :initform t   :initarg :visible?)
    (loc-x     :accessor location-x
 	      :initarg :loc-x
@@ -1091,11 +1144,11 @@ is all about?")
 	      :initform ""
 	      :initarg :name
 	      :documentation "displayable name")
-   (x-char    :accessor trap.x-char
-	      :initform #\^
+   (x-char    :accessor x-char
+	      :initform #.(char-code #\^)
 	      :initarg :x-char
 	      :documentation "the displayed char")       
-   (x-attr    :accessor trap.x-attr
+   (x-attr    :accessor x-attr
 	      :initform +term-red+
 	      :initarg :x-attr
 	      :documentation "the colour of the trap")
@@ -1166,8 +1219,8 @@ is all about?")
 (defclass house (activatable)
   ((id     :accessor house.id     :initform nil :initarg :id)
    (name   :accessor house.name   :initform nil :initarg :name)
-   (x-attr :accessor house.x-attr :initform nil :initarg :x-attr)
-   (x-char :accessor house.x-char :initform nil :initarg :x-char)
+   (x-attr :accessor x-attr :initform nil :initarg :x-attr)
+   (x-char :accessor x-char :initform nil :initarg :x-char)
    
    (owner  :accessor house.owner :initform nil :initarg :owner)
    ;; the current items
@@ -1191,6 +1244,7 @@ is all about?")
    ;; unsure on this
 
    (sells        :accessor store.sells        :initform nil :initarg :sells)
+   (buys         :accessor store.buys         :initform nil :initarg :buys)
    (items        :accessor store.items        :initform nil :initarg :items)
    (turnover     :accessor store.turnover     :initform 9   :initarg :turnover)
    (min-items    :accessor store.min-items    :initform 6   :initarg :min-items)
@@ -1208,6 +1262,7 @@ is all about?")
    (haggle-num :accessor owner.haggle-num :initform nil :initarg :haggle-num)
    (tolerance  :accessor owner.tolerance  :initform nil :initarg :tolerance)
    (race       :accessor owner.race       :initform nil :initarg :race)
+   (picture    :accessor owner.picture    :initform nil :initarg :picture)
    ))
 
 
@@ -1222,6 +1277,72 @@ is all about?")
 
 ;;; end stream-wrappers
 
+(defclass flavour ()
+  ((name      :accessor flavour.name
+	      :initarg :name
+	      :initform nil)
+   (x-attr    :accessor x-attr
+	      :initarg :x-attr
+	      :initform nil) ;; number
+   (x-char    :accessor x-char
+	      :initarg :x-char
+	      :initform nil) ;; number
+   (text-attr :accessor text-attr
+	      :initarg :text-attr
+	      :initform nil) ;; number
+   (text-char :accessor text-char
+	      :initarg :text-char
+	      :initform nil) ;; number
+   ))
+
+
+(defclass flavour-type ()
+  ((symbol    :accessor flavour-type.symbol
+	      :initarg :symbol
+	      :initform nil)
+   (x-char    :accessor flavour-type.x-char
+	      :initarg :x-char
+	      :initform nil)
+   (text-char :accessor flavour-type.text-char
+	      :initarg :text-char
+	      :initform nil)
+   (table     :accessor flavour-type.table
+	      :initarg :table
+	      :initform (make-hash-table :test #'equal)) ;; this will be changed to a vector later
+   (unused-flavours  :accessor flavour-type.unused-flavours
+		     :initarg :unused-flavours
+		     :initform '())
+   (generator-fn :accessor flavour-type.generator-fn
+		 :initarg :generator-fn
+		 :initform nil) ;; generator-function should return a cons
+  ))
+
+(defclass object-knowledge ()
+  ((id :accessor object.id
+       :initarg :id
+       :documentation "Id for object we know something about."
+       :initform nil)
+   (flags :accessor object.flags
+	  :initarg :flags
+	  :documentation "Flags for object we know something about."
+	  :initform 0)
+   ))
+
+(defclass monster-knowledge ()
+  ((id :accessor monster.id
+       :initarg :id
+       :documentation "Id for monster we know something about."
+       :initform nil)
+   (flags :accessor monster.flags
+	  :initarg :flags
+	  :documentation "Flags the monster has."
+	  :initform 0)
+   (killed :accessor monster.killed
+	   :initarg :killed
+	   :initform 0
+	   :documentation "How many have you killed?")
+   ))
+
 ;;; Other structs
 
 (defstruct (game-obj-table (:conc-name gobj-table.))
@@ -1235,17 +1356,12 @@ is all about?")
   (base 0)
   (lvl-gain 0));; this is for 10 levels, to allow for fractions
 
-(defstruct help-topic
+(defstruct (help-topic (:conc-name help-topic.))
   id
   key
   name
   data)
 
-(defstruct (flavour-type (:conc-name flavour-type.))
-  (symbol nil)
-  (table (make-hash-table)) ;; this will be changed to a vector later
-  (generator-fn nil) ;; generator-function should return a cons
-  )
 
 (defstruct (alloc-entry (:conc-name alloc.))
   (obj nil)
@@ -1264,5 +1380,11 @@ is all about?")
   (col-rooms nil)
   (room-map nil)
   (crowded nil))
+
+
+(defstruct (message (:conc-name message.))
+  (text nil)
+  (attr nil)
+  )
 
 ;;; end structs

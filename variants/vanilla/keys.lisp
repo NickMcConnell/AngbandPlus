@@ -140,7 +140,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'drop-item
     #'(lambda (dungeon player)
-	(drop-something! dungeon player)
+	(interactive-drop-item! dungeon player)
 	))
 
 (define-key-operation 'take-off-item
@@ -151,52 +151,41 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'wear-item
     #'(lambda (dungeon player)
-	(with-new-screen ()
-	  (wear-something! dungeon player))))
+	(interactive-wear-item! dungeon player)))
 
 (define-key-operation 'use-item
     #'(lambda (dungeon player)
-	(with-new-screen ()
-	  (use-something! dungeon player))))
+	(interactive-use-item! dungeon player)))
 
 (define-key-operation 'quaff-potion
     #'(lambda (dungeon player)
-	(with-new-screen ()
-	  (use-something! dungeon player :need-effect '(:quaff)
-			  :which-use :quaff
-			  :limit-from '(:backpack :floor) ;; only place with potions
-			  :prompt "Quaff which potion?")
-	  )))
+	(interactive-use-item! dungeon player :need-effect '(:quaff)
+			       :which-use :quaff
+			       :limit-from '(:backpack :floor) ;; only place with potions
+			       :prompt "Quaff which potion?")))
 
 (define-key-operation 'zap-item
     #'(lambda (dungeon player)
-	(with-new-screen ()
-	  (use-something! dungeon player :need-effect '(:zap)
-			  :which-use :zap
-			  :limit-from '(:backpack :floor) ;; only place with zappers I think
-			  :prompt "Zap which stick?")
-	  )))
+	(interactive-use-item! dungeon player :need-effect '(:zap)
+			       :which-use :zap
+			       :limit-from '(:backpack :floor) ;; only place with zappers I think
+			       :prompt "Zap which stick?")))
+	
 
 
 (define-key-operation 'read-text
     #'(lambda (dungeon player)
-	(with-new-screen ()
-	  (use-something! dungeon player :need-effect '(:read)
-			  :limit-from '(:backpack :floor) ;; only place with scrolls
-			  :which-use :read
-			  :prompt "Read which scroll?")
-	  )))
+	(interactive-use-item! dungeon player :need-effect '(:read)
+			       :limit-from '(:backpack :floor) ;; only place with scrolls
+			       :which-use :read
+			       :prompt "Read which scroll?")))
 
-(define-key-operation 'eat-something
+(define-key-operation 'eat-item
     #'(lambda (dungeon player)
-	(with-new-screen ()
-	  (let ((retval (use-something! dungeon player :need-effect '(:eat)
-					:limit-from '(:backpack :floor) ;; only place with food
-					:which-use :eat
-					:prompt "Eat what?")))
-	    ;;(warn "Used ~s" retval)
-	    retval)
-	  )))
+	(interactive-use-item! dungeon player :need-effect '(:eat)
+			       :limit-from '(:backpack :floor) ;; only place with food
+			       :which-use :eat
+			       :prompt "Eat what?")))
 
 (define-key-operation 'invoke-spell
     #'(lambda (dungeon player)
@@ -211,8 +200,20 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(interactive-door-operation! dungeon player :close)))
 
+(define-key-operation 'bash-door
+    #'(lambda (dungeon player)
+	(interactive-door-operation! dungeon player :bash)))
+
+(define-key-operation 'jam-door
+    #'(lambda (dungeon player)
+	(interactive-door-operation! dungeon player :jam)))
+
 (define-key-operation 'search-area
     #'(lambda (dungeon player) (search-area! dungeon player)))
+
+(define-key-operation 'disarm-trap
+    #'(lambda (dungeon player)
+	(interactive-trap-operation! dungeon player :disarm)))
 
 
 ;; unused
@@ -264,6 +265,12 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(interactive-fire-a-missile dungeon player)))
 
+(define-key-operation 'previous-messages
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
+	(with-new-screen ()
+	  (show-messages :offset 0))))
+
 
 (define-key-operation 'print-attack-table
     #'(lambda (dungeon player)
@@ -285,6 +292,34 @@ the Free Software Foundation; either version 2 of the License, or
 	(print-misc-info *variant* player)
 	))
 
+(define-key-operation 'redraw-all
+    #'(lambda (dungeon player)
+
+	;; skip flushes
+	;; do xtra react
+	(org.langband.ffi:c-term-xtra& 10 0) ;; xtra_react
+	;; skip combine & reorder
+
+	(bit-flag-add! *update* #.(logior +pl-upd-torch+
+					  +pl-upd-forget-view+
+					  +pl-upd-update-view+ 
+					  +pl-upd-monsters+))
+	(bit-flag-add! *redraw* #.(logior +print-extra+
+					  +print-basic+
+					  +print-map+
+					  ;; skip equippy
+					  ))
+	;; do clear
+	(c-term-clear!)
+	 
+	;; call handle-stuff
+	(handle-stuff *variant* dungeon player)
+	
+	;; do all windows, we might need this
+
+	(c-term-fresh!)
+	
+	))
 
 (define-keypress *ang-keys* :global #\a 'zap-item)
 (define-keypress *ang-keys* :global #\b 'browse-spells)
@@ -294,6 +329,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :global #\f 'fire-missile)
 (define-keypress *ang-keys* :global #\g 'get-item)
 (define-keypress *ang-keys* :global #\i 'show-inventory)
+(define-keypress *ang-keys* :global #\j 'jam-door)
 (define-keypress *ang-keys* :global #\m 'invoke-spell)
 (define-keypress *ang-keys* :global #\o 'open-door)
 (define-keypress *ang-keys* :global #\p 'invoke-spell)
@@ -305,8 +341,10 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :global #\w 'wear-item)
 (define-keypress *ang-keys* :global #\z 'zap-item)
 
+(define-keypress *ang-keys* :global #\B 'bash-door)
 (define-keypress *ang-keys* :global #\C 'show-character)
-(define-keypress *ang-keys* :global #\E 'eat-something)
+(define-keypress *ang-keys* :global #\D 'disarm-trap)
+(define-keypress *ang-keys* :global #\E 'eat-item)
 (define-keypress *ang-keys* :global #\L 'learn-spell)
 (define-keypress *ang-keys* :global #\Q 'quit-game)
 (define-keypress *ang-keys* :global #\S 'save-game)
@@ -317,6 +355,11 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;; these can die later..
 ;;(define-keypress *ang-keys* :global #\A 'print-mapper)
+
+;; Ctrl-P
+(define-keypress *ang-keys* :global (code-char 16) 'previous-messages)
+;; Ctrl-R
+(define-keypress *ang-keys* :global (code-char 18) 'redraw-all)
 
 
 

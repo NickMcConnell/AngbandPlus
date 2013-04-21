@@ -50,6 +50,23 @@ the Free Software Foundation; either version 2 of the License, or
       
   nil)
 
+(defun %distribute-traps! (dungeon traps)
+
+  (dolist (i (reverse traps))
+    (let ((its-x (location-x i))
+	  (its-y (location-y i)))
+
+      (unless (legal-coord? dungeon its-x its-y)
+	(error "Trying to set coord [~a,~a] when size is [~a,~a] on objs ~s"
+	       its-x its-y (dungeon.width dungeon) (dungeon.height dungeon) i))
+
+      (place-trap! *variant* dungeon its-x its-y i)
+      ))
+      
+  nil)
+
+
+
 (defun %filed-variant (&key id turn)
 
   (unless (and id (stringp id))
@@ -68,6 +85,8 @@ the Free Software Foundation; either version 2 of the License, or
 
     (setf (variant.turn var-obj) turn)
 
+    ;; hackish
+    (activate-object var-obj)
     
     var-obj))
 
@@ -88,13 +107,33 @@ the Free Software Foundation; either version 2 of the License, or
 	   (error "Unknown aware-value ~s for kind ~s" aware id)))
     
     (cond ((eq flavour :unspec))
-	  ((or (eq flavour nil)
-	       (and (consp flavour)
-		    (stringp (car flavour))
-		    (characterp (cdr flavour))))
-	   (if flavour
-	       (setf (object.flavour the-kind) (cons (car flavour) (convert-obj (cdr flavour) :colour-code)))
-	       (setf (object.flavour the-kind) nil)))
+	  ((eq flavour nil)
+	   (setf (object.flavour the-kind) nil))
+	  ((stringp flavour)
+	   ;; find flavour
+	   (let ((f-type (gethash (object.the-kind the-kind) (variant.flavour-types var-obj)))
+		 (wanted-flavour nil))
+	     (cond ((and f-type (flavour-type.generator-fn f-type))
+		    (setf wanted-flavour (funcall (flavour-type.generator-fn f-type)
+						  var-obj the-kind))
+		    ;; scroll hack! (not portable)
+		    (setf (flavour.name wanted-flavour) flavour)
+		    )
+		   (f-type
+		    (let ((lookup (gethash flavour (flavour-type.table f-type))))
+		      (when (legal-flavour-obj? lookup)
+			(setf wanted-flavour lookup)
+			(setf (flavour-type.unused-flavours f-type)
+			      (delete lookup (flavour-type.unused-flavours f-type)))
+			)))
+		   (t
+		    ;; do nothing
+		    ))
+
+	     (unless wanted-flavour
+	       (warn "Unable to find flavour ~s for ~s" flavour id))
+	     (setf (object.flavour the-kind) wanted-flavour)
+	     ))
 	       
 	  (t
 	   (error "Unknown flavour-value ~s for kind ~s" flavour id)))
@@ -140,7 +179,7 @@ the Free Software Foundation; either version 2 of the License, or
     the-level))
 
 
-(defun %filed-dungeon (&key width height depth table monsters objects rooms)
+(defun %filed-dungeon (&key width height depth table monsters objects rooms decor)
   "returns a dungeon-object or nil."
   
   (let ((dungeon (create-dungeon width height :its-depth depth)))
@@ -163,6 +202,9 @@ the Free Software Foundation; either version 2 of the License, or
     (when rooms
       ;; need more?
       (setf (dungeon.rooms dungeon) rooms))
+
+    (when decor
+      (%distribute-traps! dungeon decor))
     
     dungeon))
 
@@ -243,10 +285,23 @@ the Free Software Foundation; either version 2 of the License, or
     
     ret-obj))
 
-(defun %filed-player-info (pl-obj &key name class race gender base-stats cur-statmods
-			   hp-table equipment variant)
-  "modifies the PL-OBJ with the extra info and returns the modified PL-OBJ."
+(defun %filed-trap (&key type loc-x loc-y)
+  "returns an active-trap or nil."
+  (let* ((var-obj *variant*)
+	 (table (variant.traps var-obj))
+	 (type-obj (gethash type table)))
 
+    (cond ((typep type-obj 'trap-type)
+	   (create-simple-trap type-obj loc-x loc-y))
+	  (t
+	   (warn "Unable to find trap-type ~s" type)
+	   nil))
+    ))
+
+
+(defun %filed-player-info (pl-obj &key name class race gender base-stats cur-statmods
+			   hp-table equipment variant temp-attrs)
+  "modifies the PL-OBJ with the extra info and returns the modified PL-OBJ."
 
   (let* ((var-obj (if (and variant (typep variant 'variant))
 		      variant
@@ -275,7 +330,33 @@ the Free Software Foundation; either version 2 of the License, or
 
     (unless equipment
       (error "When constructing a player, the equipment-list _must_ be kosher."))
-    
+
+    (when (consp temp-attrs)
+      (let ((attr-table (player.temp-attrs pl-obj)))
+	(dolist (i temp-attrs)
+	  (assert (eq (first i) :attr))
+	  (assert (eq (third i) :value))
+	  (assert (eq (fifth i) :duration))
+	  (let ((attr-name (second i))
+		(attr-val (fourth i))
+		(attr-dur (sixth i)))
+	    (loop named name-search
+		  for attr being the hash-values of attr-table
+		  do
+		  (when (string-equal attr-name (attr.name attr))
+		    (ecase (attr.value-type attr)
+		      (boolean (when (numberp attr-val)
+				 (if (= 0 attr-val)
+				     (setf attr-val nil)
+				     (setf attr-val t))))
+		      (integer
+		       (assert (integerp attr-val))))
+		    (setf (attr.value attr) attr-val
+			  (attr.duration attr) attr-dur)
+		    (return-from name-search t)))
+	    ))
+	))
+	
     (setf (player.hp-table pl-obj) hp-table
 	  (player.equipment pl-obj) equipment
 	  ;; calculated
@@ -289,6 +370,7 @@ the Free Software Foundation; either version 2 of the License, or
   
 (defun %filed-player (&key name race class gender
 		      base-stats cur-statmods hp-table equipment
+		      temp-attrs
 		      loc-x loc-y view-x view-y
 		      depth max-depth max-xp cur-xp fraction-xp
 		      cur-hp fraction-hp cur-mana fraction-mana
@@ -321,6 +403,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     (%filed-player-info pl-obj :name name :race race :class class :gender gender
 			:base-stats base-stats :cur-statmods cur-statmods
+			:temp-attrs temp-attrs
 			:hp-table hp-table :equipment equipment :variant var-obj)
 
     (calculate-creature-bonuses! var-obj pl-obj)
@@ -389,7 +472,12 @@ the Free Software Foundation; either version 2 of the License, or
 			 collecting (load-object variant :active-room stream))))
 	(when objs
 	  (setf (dungeon.rooms dungeon) objs)))
-
+      
+      (let* ((dec-len (bt:read-binary 'bt:u32 str))
+	     (objs (loop for i from 1 to dec-len
+			 collecting (load-object variant :active-trap stream))))
+	(when objs
+	  (%distribute-traps! dungeon objs)))
       
       dungeon)))
 
@@ -434,6 +522,20 @@ the Free Software Foundation; either version 2 of the License, or
     (%filed-room :type id :loc-x (bt:read-binary 'bt:u16 str)
 		 :loc-y (bt:read-binary 'bt:u16 str))))
 
+(defmethod load-object ((variant variant) (type (eql :active-trap)) (stream l-binary-stream))
+  (let* ((str (lang.stream stream))
+	 (id (%bin-read-string str)))
+
+    (%filed-trap :type id :loc-x (bt:read-binary 'bt:u16 str)
+		 :loc-y (bt:read-binary 'bt:u16 str))))
+
+
+(defmethod load-object ((variant variant) (type (eql :temp-creature-attribute)) (stream l-binary-stream))
+  (let ((str (lang.stream stream)))
+    (list :attr (%bin-read-string str) :value (bt:read-binary 'bt:s32 str)
+	  :duration (bt:read-binary 'bt:u16 str))))
+
+
 (defmethod load-object ((variant variant) (type (eql :player)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
 	 (pl-obj (produce-player-object variant))
@@ -468,13 +570,16 @@ the Free Software Foundation; either version 2 of the License, or
 			:base-stats (%bin-read-array stat-len 'bt:u16 str)
 			:cur-statmods (%bin-read-array stat-len 'bt:u16 str)
 			:hp-table (%bin-read-array (variant.max-charlevel *variant*) 'bt:u16 str)
-			:equipment (load-object variant :items-worn stream) 
+			:equipment (load-object variant :items-worn stream)
+			:temp-attrs (loop for i from 1 to (bt:read-binary 'bt:u16 str)
+					  collecting
+					  (load-object variant :temp-creature-attribute stream))
 			)
 
     
     ;; recalculate rest
     (calculate-creature-bonuses! variant pl-obj)
-    
+    ;;(warn "player loaded")
     pl-obj))
 
 (defmethod load-object ((variant variant) (type (eql :items-in-container)) (stream l-binary-stream))
@@ -538,9 +643,7 @@ the Free Software Foundation; either version 2 of the License, or
 	 (flavour nil))
 
     (when (= flavoured 1)
-      (let* ((desc (%bin-read-string str))
-	     (letter (code-char (bt:read-binary 'bt:s16 str))))
-	(setf flavour (cons desc letter))))
+      (setf flavour (%bin-read-string str)))
     
     (%filed-object-kind :id id :aware aware :flavour flavour)
     ))
@@ -550,9 +653,10 @@ the Free Software Foundation; either version 2 of the License, or
 	 (id (%bin-read-string str))
 	 (wiped-flag (bt:read-binary 'bt:s16 str)))
     
-    (%filed-monster-kind :id id :already-dead (cond ((= wiped-flag 0) nil)
-						    ((= wiped-flag 1) t)
-						    ((= wiped-flag 2) :unspec)
-						    (t
-						     (error "Unknown 'already-dead'-flag ~s" wiped-flag))))
+    (%filed-monster-kind :id id
+			 :already-dead (cond ((= wiped-flag 0) nil)
+					     ((= wiped-flag 1) t)
+					     ((= wiped-flag 2) :unspec)
+					     (t
+					      (error "Unknown 'already-dead'-flag ~s" wiped-flag))))
     ))

@@ -94,6 +94,7 @@ throughout dungeon-generation")
 (defvar *obj-type-mappings* (make-hash-table :test #'eq)
   "keeps track of mapping from key to object-types, used by factories.")
 
+(defvar *engine-version* "0.1.0")
 (defvar *engine-source-dir* #+langband-development "./"
 	#-langband-development (translate-logical-pathname "langband:"))
 (defvar *engine-config-dir*
@@ -106,6 +107,9 @@ throughout dungeon-generation")
   #-(or unix win32)
   (pathname "./config/"))
 
+;; must be set to T by init for use of graphics.
+(defvar *use-graphics* nil)
+
 (defvar *readable-save-file* "_save-game.lisp")
 (defvar *binary-save-file* "_save-game.bin")
 
@@ -113,6 +117,10 @@ throughout dungeon-generation")
 
 (defvar *screen-height* 22 "height of screen")
 (defvar *screen-width* 66 "width of screen")
+
+(defvar *panel-height* 11 "The height of the panel.")
+(defvar *panel-width* (if *use-graphics* 16 33) "The width of the panel.")
+
 
 ;;; === End dynamic variables
 
@@ -273,7 +281,7 @@ but optimized for vectors."
 	(cur-obj nil))
     (declare (type u-fixnum cur-write len))
     
-    (loop for cur-read of-type fixnum from 0 to (the fixnum (1- len))
+    (loop for cur-read of-type fixnum from 0 below len
 	  do
 	  (setq cur-obj (aref arr cur-read))
 	  (when cur-obj
@@ -304,7 +312,7 @@ and NIL if unsuccesful."
   "Shuffles the given array"
   (declare (type u-fixnum len))
   
-  (loop for i of-type u-fixnum from 0 to (1- len)
+  (loop for i of-type u-fixnum from 0 below len
 	for rnd-val = (random len)
 	do
 	(rotatef (aref tmp-arr i) (aref tmp-arr rnd-val)))
@@ -317,7 +325,7 @@ and NIL if unsuccesful."
 		 (make-array len :fill-pointer t)
 		 (make-array len))))
     
-    (loop for i from 0 to (1- len)
+    (loop for i from 0 below len
 	  do
 	  (setf (aref arr i) i))
     

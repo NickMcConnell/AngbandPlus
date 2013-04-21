@@ -6,6 +6,11 @@ usr/share/common-lisp/repositories/langband/engine/ffi
 usr/share/common-lisp/repositories/langband/engine/lib
 usr/share/common-lisp/repositories/langband/engine/lib/compat
 usr/share/common-lisp/repositories/langband/engine/lib/common
+usr/share/langband
+usr/share/langband/graphics
+usr/share/langband/graphics/other
+usr/share/langband/graphics/people
+usr/share/langband/graphics/tiles
 usr/share/doc/langband-engine
 usr/share/doc/langband-engine/web
 var/lib/games/langband

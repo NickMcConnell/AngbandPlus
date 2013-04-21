@@ -22,6 +22,7 @@ VANCONFDEST	:= $(VANILLADESTDIR)/var/lib/games/langband/vanilla
 
 #FOREIGNDEST     := $(SOURCESDEST)/lib/foreign
 ENGINEDOC	:= $(DESTDIR)/usr/share/doc/langband-engine
+GFXDEST		:= $(DESTDIR)/usr/share/langband/graphics
 WEBDEST		:= $(ENGINEDOC)/web
 VANILLADOC	:= $(VANILLADESTDIR)/usr/share/doc/langband-vanilla
 ZTERMDOC	:= $(ZTERMDESTDIR)/usr/share/doc/langband-zterm
@@ -33,8 +34,9 @@ ENGINEMAN	:= $(DESTDIR)/usr/share/man/man3
 VANILLAMAN	:= $(VANILLADESTDIR)/usr/share/man/man3
 
 INSTALLSOURCES	:= \
-	langband-engine.system  pre-build.lisp \
+	pre-build.lisp \
 	langband-engine.asd  \
+	langband-engine.system \
 	package.lisp  memoize.lisp \
 	base.lisp  constants.lisp \
 	generics.lisp  sys.lisp classes.lisp \
@@ -107,12 +109,14 @@ VANCONFSRC = \
 	variants/vanilla/config/armour.lisp \
 	variants/vanilla/config/books.lisp \
 	variants/vanilla/config/classes.lisp \
+	variants/vanilla/config/combat.lisp \
 	variants/vanilla/config/defines.lisp \
 	variants/vanilla/config/ego-items.lisp \
 	variants/vanilla/config/flavours.lisp \
 	variants/vanilla/config/floors.lisp \
 	variants/vanilla/config/food.lisp \
 	variants/vanilla/config/gold.lisp \
+	variants/vanilla/config/graf-prefs.lisp \
 	variants/vanilla/config/monsters.lisp \
 	variants/vanilla/config/neckwear.lisp \
 	variants/vanilla/config/objects.lisp \
@@ -166,6 +170,9 @@ binary-arch: build
 	$(INSTALL) $(INSTALLFLAGS) man/langband-engine.3l $(ENGINEMAN)
 	$(INSTALL) $(INSTALLFLAGS) ChangeLog $(ENGINEDOC)/changelog
 	$(INSTALL) $(INSTALLFLAGS) web/*.html $(WEBDEST)
+	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.bmp $(GFXDEST)/other
+	$(INSTALL) $(INSTALLFLAGS) graphics/people/*.bmp $(GFXDEST)/people
+	$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.bmp $(GFXDEST)/tiles
 
 	# Vanilla stuff
 	$(INSTALL) $(INSTALLFLAGS) $(VANSRC) $(VANILLADEST)

@@ -4,6 +4,8 @@
 # (currently only GCU, X11, WIN and GTK supported)
 
 ENVIRONMENTS=X11 GCU
+#ENVIRONMENTS=X11
+#ENVIRONMENTS=GCU
 #ENVIRONMENTS=GTK
 #ENVIRONMENTS=WIN
 
@@ -24,7 +26,7 @@ BASEDEFINES=
 BASEFLAGS=-Wall -W -ggdb
 DLLEXT=so
 PICFLAG=-fPIC
-
+CONFIGFILE=../config/settings.cfg
 
 
 # GCU settings
@@ -78,7 +80,7 @@ endif
 	$(CC) $(CFLAGS) $(PICFLAG) -c $<
 
 ifneq ("$(strip $(ENVIRONMENTS))","")
-all: shared_objs
+all: shared_objs write_config
 else
 all:;@echo 'Please specify environments'
 endif
@@ -89,6 +91,10 @@ shared_objs: $(OBJS) $(DAEMONPROG) dummy_call.o
 
 sound_daemon:$(DAEMONOBJ)
 	$(CC) -o $@ $(DAEMONOBJ)
+
+write_config:
+	@echo "(SOUND-USE ${SOUND_USE})" > $(CONFIGFILE)
+	@echo "(ENVIRONMENTS ${ENVIRONMENTS})" >> $(CONFIGFILE)
 
 clean:
 	$(RM) *.o *.so *.fasl *.dll *.a *~

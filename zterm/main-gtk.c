@@ -9,10 +9,11 @@
  */
 
 #include "angband.h"
-#include "langband.h"
 
 
 #ifdef USE_GTK
+
+//#include "main.h"
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -21,7 +22,7 @@
  * Include some helpful X11 code.
  */
 //#include "maid-x11.h"
-
+#include "langband.h"
 
 #define NO_PADDING 0
 
@@ -71,7 +72,7 @@ static bool game_in_progress = FALSE;
 /*
  * Number of active terms
  */
-static int num_term = MAX_TERM_DATA;
+static int num_term = 1;
 
 
 /*
@@ -127,25 +128,50 @@ static errr Term_wipe_gtk(int x, int y, int n)
 
 
 /*
- * Draw some textual characters.
+ * Set foreground color
  */
-static errr Term_text_gtk(int x, int y, int n, byte a, cptr s)
+static void set_foreground_color(term_data *td, byte a)
 {
-	int i;
-	term_data *td = (term_data*)(Term->data);
+	static unsigned int failed = 0;
+
 	GdkColor color;
 
-	color.red = angband_color_table[a][1] * 256;
+	color.red   = angband_color_table[a][1] * 256;
 	color.green = angband_color_table[a][2] * 256;
-	color.blue = angband_color_table[a][3] * 256;
+	color.blue  = angband_color_table[a][3] * 256;
 
 	g_assert(td->pixmap != NULL);
 	g_assert(td->drawing_area->window != 0);
 
-	if (!gdk_colormap_alloc_color(gdk_colormap_get_system(), &color, TRUE, FALSE))
-		g_print("Couldn't allocate color.");
+	if (gdk_colormap_alloc_color(gdk_colormap_get_system(), &color,
+								 FALSE, TRUE))
+		gdk_gc_set_foreground(td->gc, &color);
+	else if (!failed++)
+		g_print("Couldn't allocate color.\n");
+}
 
-	gdk_gc_set_foreground(td->gc, &color);
+
+/*
+ * Draw some textual characters.
+ */
+static errr Term_text_gtk(int x, int y, int n, s16b a, const s16b *str)
+{
+	int i;
+	char buffer[1024];
+	cptr s;
+	term_data *td = (term_data*)(Term->data);
+	
+	if (!str || a==-1) {
+	    return -1;
+	}
+
+	for (i=0; i < n; i++)
+	    buffer[i] = (char)str[i];
+
+	s = &buffer[0];
+
+	
+	set_foreground_color(td, a);
 
 	/* Clear the line */
 	Term_wipe_gtk(x, y, n);
@@ -228,20 +254,8 @@ static errr Term_curs_gtk(int x, int y)
 {
 	term_data *td = (term_data*)(Term->data);
 
-	GdkColor color;
-
-	color.red = angband_color_table[TERM_YELLOW][1] * 256;
-	color.green = angband_color_table[TERM_YELLOW][2] * 256;
-	color.blue = angband_color_table[TERM_YELLOW][3] * 256;
-
-	g_assert(td->pixmap != NULL);
-	g_assert(td->drawing_area->window != 0);
-
-	if (!gdk_colormap_alloc_color(gdk_colormap_get_system(), &color, TRUE, FALSE))
-		g_print("Couldn't allocate color.");
-
-	gdk_gc_set_foreground(td->gc, &color);
-
+	set_foreground_color(td, TERM_YELLOW);
+	
 	gdk_draw_rectangle(td->pixmap, td->gc, FALSE,
 	                   x * td->font_wid, y * td->font_hgt, td->font_wid - 1, td->font_hgt - 1);
 
@@ -260,7 +274,7 @@ static void save_game_gtk(void)
 {
 	if (game_in_progress && character_generated)
 	{
-		if (!inkey_flag || !can_save)
+		if (!inkey_flag)
 		{
 			plog("You may not do that right now.");
 			return;
@@ -315,7 +329,7 @@ static void new_event_handler(GtkButton *was_clicked, gpointer user_data)
 	{
 		game_in_progress = TRUE;
 		Term_flush();
-		play_game(TRUE);
+		play_game(TRUE, 0);
 #ifdef HAS_CLEANUP
 //		cleanup_angband();
 #endif /* HAS_CLEANUP */
@@ -379,21 +393,21 @@ static void change_font_event_handler(GtkWidget *widget, gpointer user_data)
 	gtk_widget_show(GTK_WIDGET(font_selector));
 }
 
-
+#if 0
 static void file_ok_callback(GtkWidget *widget, GtkWidget *file_selector)
 {
-    plog("Not implemented!");
-/*	
-    strcpy(savefile, gtk_file_selection_get_filename(GTK_FILE_SELECTION(file_selector)));
+    
+	char *f = gtk_file_selection_get_filename(GTK_FILE_SELECTION(file_selector));
+
+	my_strcpy(savefile, f, sizeof(savefile));
 
 	gtk_widget_destroy(file_selector);
-
+    
 	game_in_progress = TRUE;
 	Term_flush();
-	play_game(FALSE);
+	play_game(FALSE, 0);
 //	cleanup_angband();
 	quit(NULL);
-*/
 }
 
 
@@ -408,16 +422,14 @@ static void open_event_handler(GtkButton *was_clicked, gpointer user_data)
 	}
 	else
 	{
-	    plog("No savefile-support!");
-#if 0	    
 		/* Prepare the savefile path */
-		path_build(buf, 1024, ANGBAND_DIR_SAVE, "*");
-
+		path_build(buf, sizeof(buf), ANGBAND_DIR_SAVE, "*");
+		
 		file_selector = gtk_file_selection_new("Select a savefile");
 		gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_selector), buf);
 		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->ok_button),
 		                   "clicked", file_ok_callback, (gpointer)file_selector);
-
+		
 		/* Ensure that the dialog box is destroyed when the user clicks a button. */
 		gtk_signal_connect_object(GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->ok_button),
 		                          "clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy),
@@ -429,10 +441,9 @@ static void open_event_handler(GtkButton *was_clicked, gpointer user_data)
 
 		gtk_window_set_modal(GTK_WINDOW(file_selector), TRUE);
 		gtk_widget_show(GTK_WIDGET(file_selector));
-#endif
 	}
 }
-
+#endif
 
 static gboolean delete_event_handler(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
@@ -490,7 +501,7 @@ static gboolean keypress_event_handler(GtkWidget *widget, GdkEventKey *event, gp
 
 
 	/* Handle a few standard keys (bypass modifiers) XXX XXX XXX */
-	switch ((uint) event->keyval)
+	switch (event->keyval)
 	{
 		case GDK_Escape:
 		{
@@ -627,43 +638,19 @@ static void init_gtk_window(term_data *td, int i)
 	GtkWidget *options_item, *options_menu, *options_font_item;
 
 	/* Get default font for this term */
-	load_font(td, DEFAULT_X11_FONT_0);
 //	font = get_default_font(i);
 
 //	load_font(td, font);
-
+	load_font(td, DEFAULT_X11_FONT_0);
+	
 	/* Create widgets */
 	td->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	box = gtk_vbox_new(FALSE, 0);
 	td->drawing_area = gtk_drawing_area_new();
 
-	/* Create menu */
-	if (main_window)
-	{
-		menu_bar = gtk_menu_bar_new();
-		file_item = gtk_menu_item_new_with_label("File");
-		file_menu = gtk_menu_new();
-		file_new_item = gtk_menu_item_new_with_label("New");
-		file_open_item = gtk_menu_item_new_with_label("Open");
-		seperator_item = gtk_menu_item_new();
-		file_exit_item = gtk_menu_item_new_with_label("Exit");
-		options_item = gtk_menu_item_new_with_label("Options");
-		options_menu = gtk_menu_new();
-		options_font_item = gtk_menu_item_new_with_label("Font");
-	}
-
 	/* Set attributes */
 	gtk_window_set_title(GTK_WINDOW(td->window), td->name);
 	gtk_drawing_area_size(GTK_DRAWING_AREA(td->drawing_area), td->cols * td->font_wid, td->rows * td->font_hgt);
-
-	/* Register callbacks */
-	if (main_window)
-	{
-		gtk_signal_connect(GTK_OBJECT(file_exit_item), "activate", quit_event_handler, NULL);
-		gtk_signal_connect(GTK_OBJECT(file_new_item), "activate", new_event_handler, NULL);
-		gtk_signal_connect(GTK_OBJECT(file_open_item), "activate", open_event_handler, NULL);
-		gtk_signal_connect(GTK_OBJECT(options_font_item), "activate", change_font_event_handler, td);
-	}
 
 	gtk_signal_connect(GTK_OBJECT(td->window), "delete_event", GTK_SIGNAL_FUNC(delete_event_handler), NULL);
 	gtk_signal_connect(GTK_OBJECT(td->window), "key_press_event", GTK_SIGNAL_FUNC(keypress_event_handler), NULL);
@@ -674,29 +661,46 @@ static void init_gtk_window(term_data *td, int i)
 	else
 		gtk_signal_connect(GTK_OBJECT(td->window), "destroy_event", GTK_SIGNAL_FUNC(hide_event_handler), td);
 
-	/* Pack widgets */
 	gtk_container_add(GTK_CONTAINER(td->window), box);
 
+	/* Create main-menu */
 	if (main_window)
 	{
-		gtk_box_pack_start(GTK_BOX(box), menu_bar, FALSE, FALSE, NO_PADDING);
-	}
+		/* Create the menu-bar and menu-items */
+		menu_bar = gtk_menu_bar_new();
+		file_item = gtk_menu_item_new_with_label("File");
+		file_menu = gtk_menu_new();
+		file_new_item = gtk_menu_item_new_with_label("New");
+		//file_open_item = gtk_menu_item_new_with_label("Open");
+		seperator_item = gtk_menu_item_new();
+		file_exit_item = gtk_menu_item_new_with_label("Exit");
+		options_item = gtk_menu_item_new_with_label("Options");
+		options_menu = gtk_menu_new();
+		options_font_item = gtk_menu_item_new_with_label("Font");
 
-	gtk_box_pack_start_defaults(GTK_BOX(box), td->drawing_area);
+		/* Register callbacks */
+		gtk_signal_connect(GTK_OBJECT(file_exit_item), "activate", quit_event_handler, NULL);
+		gtk_signal_connect(GTK_OBJECT(file_new_item), "activate", new_event_handler, NULL);
+		//gtk_signal_connect(GTK_OBJECT(file_open_item), "activate", open_event_handler, NULL);
+		gtk_signal_connect(GTK_OBJECT(options_font_item), "activate", change_font_event_handler, td);
 
-	/* Pack the menu bar */
-	if (main_window)
-	{
+		/* Build the menu bar */
 		gtk_menu_bar_append(GTK_MENU_BAR(menu_bar), file_item);
 		gtk_menu_bar_append(GTK_MENU_BAR(menu_bar), options_item);
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(file_item), file_menu);
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(options_item), options_menu);
 		gtk_menu_append(GTK_MENU(file_menu), file_new_item);
-		gtk_menu_append(GTK_MENU(file_menu), file_open_item);
+		//gtk_menu_append(GTK_MENU(file_menu), file_open_item);
 		gtk_menu_append(GTK_MENU(file_menu), seperator_item);
 		gtk_menu_append(GTK_MENU(file_menu), file_exit_item);
 		gtk_menu_append(GTK_MENU(options_menu), options_font_item);
+
+		/* Pack the menu bar */
+		gtk_box_pack_start(GTK_BOX(box), menu_bar, FALSE, FALSE, NO_PADDING);
 	}
+
+	/* Pack the display area */
+	gtk_box_pack_start_defaults(GTK_BOX(box), td->drawing_area);
 
 	/* Show the widgets */
 	gtk_widget_show_all(td->window);
@@ -718,6 +722,10 @@ static void init_gtk_window(term_data *td, int i)
 }
 
 
+const char help_gtk[] =
+	"GTK for X11, subopts -n<windows> and standard GTK options";
+
+
 /*
  * Initialization function
  */
@@ -727,10 +735,25 @@ errr init_gtk(int argc, char **argv)
 
 	/* Initialize the environment */
 	gtk_init(&argc, &argv);
+#if 0
+	/* Parse args */
+	for (i = 1; i < argc; i++)
+	{
+		if (prefix(argv[i], "-n"))
+		{
+			num_term = atoi(&argv[i][2]);
+			if (num_term > MAX_TERM_DATA) num_term = MAX_TERM_DATA;
+			else if (num_term < 1) num_term = 1;
+			continue;
+		}
 
-
+		plog_fmt("Ignoring option: %s", argv[i]);
+	}
+#endif
+	num_term = 1;
+	
 	/* Initialize the windows */
-	for (i = 0; i < 1; i++)
+	for (i = 0; i < num_term; i++)
 	{
 		term_data *td = &data[i];
 
@@ -758,10 +781,10 @@ errr init_gtk(int argc, char **argv)
 	signals_init();
 
 	/* Initialize */
-	init_angband();
+	init_angband(0);
 
 	/* Prompt the user */
-	c_prt(TERM_WHITE,"[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
+	c_prt(TERM_WHITE, "[Please choose 'New' from the 'File' menu]", 23, 17);
 	Term_fresh();
 
 	/* Processing loop */

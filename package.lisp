@@ -45,6 +45,7 @@ DESC: package.lisp - package def for langband
 	   #:report-equal
 	   #:*level*
 	   #:*variant*
+	   #:*engine-version*
 	   )
   #+lisp2csf
   (:documentation "This is the Langband game package."))

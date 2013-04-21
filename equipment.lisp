@@ -117,7 +117,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod item-table-clean! ((table items-in-container))
   (when (next-method-p)
     (call-next-method table))
-  (loop for i from 0 to (1- (items.max-size table))
+  (loop for i from 0 below (items.max-size table)
 	do
 	(setf (aref (items.objs table) i) nil))
   nil)
@@ -172,7 +172,7 @@ the Free Software Foundation; either version 2 of the License, or
   
 
 (defmethod item-table-iterate! ((table items-in-container) function)
-  (loop for i from 0 to (1- (items.cur-size table))
+  (loop for i from 0 below (items.cur-size table)
 	for x = (aref (items.objs table) i)
 	do
 	(funcall function table i x)))
@@ -193,7 +193,7 @@ the Free Software Foundation; either version 2 of the License, or
 	       (return-from iterator-fun nil))
 
 	     (assert (integerp key))
-	     (let ((attr (get-colour val))
+	     (let ((attr (get-text-colour val))
 		   (desc (with-output-to-string (s)
 			   (write-obj-description *variant* val s))))
 	       (c-prt! "" (- x 2) (+ i y))
@@ -331,7 +331,7 @@ to variant obj."
 
 
 (defmethod item-table-iterate! ((table items-worn) function)
-  (loop for i from 0 to (1- (length (items.objs table)))
+  (loop for i from 0 below (length (items.objs table))
 	for x = (aref (items.objs table) i)
 	do
 	(funcall function table i x))
@@ -351,7 +351,7 @@ to variant obj."
 	     (when (and (functionp print-selection) (eq nil (funcall print-selection val))) ;; should it be printed?
 	       (return-from iterator-fun nil))
 
-	     (let ((attr (if val (get-colour val) +term-white+))
+	     (let ((attr (if val (get-text-colour val) +term-white+))
 		   (desc (if val (with-output-to-string (s)
 				   (write-obj-description *variant* val s))
 			     "(nothing)")))

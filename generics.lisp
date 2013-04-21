@@ -52,6 +52,32 @@ but one that works with langband-objects."))
 (defgeneric get-loadable-form (variant object &key &allow-other-keys)
   (:documentation "Pretty much similar to MAKE-LOAD-FORM."))
 
+(defgeneric x-char (object)
+  (:documentation "Returns which char should be displayed for object."))
+
+(defgeneric (setf x-char) (value object)
+  (:documentation "Sets which char should be displayed for object."))
+
+(defgeneric x-attr (object)
+  (:documentation "Returns which attr should be displayed for object."))
+
+(defgeneric (setf x-attr) (value object)
+  (:documentation "Returns which attr should be displayed for object."))
+
+
+(defgeneric text-char (object)
+  (:documentation "Returns which char should be displayed for object."))
+
+(defgeneric (setf text-char) (value object)
+  (:documentation "Sets which char should be displayed for object."))
+
+(defgeneric text-attr (object)
+  (:documentation "Returns which attr should be displayed for object."))
+
+(defgeneric (setf text-attr) (value object)
+  (:documentation "Returns which attr should be displayed for object."))
+
+
 ;;; === End basic
 
 ;;; == Overridable Factories
@@ -231,6 +257,12 @@ and if so, marks the object."))
 (defgeneric is-artifact? (object)
   (:documentation "Returns T if the object is an artifact, NIL otherwise."))
 
+(defgeneric is-cursed? (object)
+  (:documentation "Returns T if the object is cursed, NIL otherwise."))
+
+(defgeneric is-broken? (object)
+  (:documentation "Returns T if the object is cursed, NIL otherwise."))
+
 (defgeneric need-flavour? (variant object)
   (:documentation "Does this object need to be flavoured before use?  (t or nil)"))
 
@@ -317,7 +349,14 @@ value specifying how to select the owner, e.g :random "))
 
 (defgeneric store-mass-produce! (variant store object)
   (:documentation "Possibly mass-produces and alters the object, and may add discount."))
-  
+
+(defgeneric store-buys-item? (obj store)
+  (:documentation "Does the shop buy such items as obj?"))
+
+(defgeneric display-house (player house &key offset)
+  (:documentation "Displays the house in some appropriate way.  Offset is
+used e.g when printing list of items."))
+
 ;;; === End store
 
 
@@ -392,8 +431,8 @@ given situation."))
   (:documentation "Returns a number with an offered price for an object
 in a certain situation."))
 
-(defgeneric get-colour (object)
-  (:documentation "Returns the colour/attr for a given object."))
+(defgeneric get-text-colour (object)
+  (:documentation "Returns the colour/attr for a given object for text."))
 
 ;; overridable player interface
 (defgeneric update-xp-table! (variant player)
@@ -442,7 +481,7 @@ player object or NIL."))
 (defgeneric organise-death& (variant player)
   (:documentation "Organises complete funeral for the dead player."))
 
-(defgeneric create-gold (variant dungeon)
+(defgeneric create-gold (variant dungeon &key originator)
   (:documentation "Creates gold in the dungeon."))
 
 (defgeneric place-gold! (variant dungeon x y)
@@ -599,8 +638,11 @@ It is passed the object returned by GET-OLD-PLAYER-INFO at start of recalculatio
 (defgeneric find-random-trap (variant dungeon x y)
   (:documentation "Finds a random trap and returns it initialised."))
 
-(defgeneric place-trap! (variant dungeon x y)
+(defgeneric place-trap! (variant dungeon x y trap)
   (:documentation "Places a trap at the given coord."))
+
+(defgeneric place-random-trap! (variant dungeon x y)
+  (:documentation "Creates a fitting and random trap, and places the trap at the given coord."))
 
 (defgeneric deliver-elemental-damage! (variant source target element damage)
   (:documentation "Gives out decent elemental damage to a target."))
@@ -625,3 +667,15 @@ but does not need to be 100% updated always."))
 
 (defgeneric print-state (variant player setting)
   (:documentation "prints state-info."))
+
+(defgeneric gain-level! (variant player)
+  (:documentation "The player just gained a level."))
+
+(defgeneric redraw-stuff (variant dungeon player)
+  (:documentation "Redraws stuff based on value of *redraw*."))
+
+(defgeneric print-extra-frame-content (variant dungeon player)
+  (:documentation "Prints extra frame content."))
+
+(defgeneric add-creature-attribute (creature attr)
+  (:documentation "Adds an attribute to the creature."))

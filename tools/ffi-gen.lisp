@@ -252,6 +252,7 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
 (defmethod get-type-translation (type (backend (eql :cmucl)))
   (case type
     (uchar8 'c-call:unsigned-char)
+    (char8 'c-call:char)
     (c-string8 'c-call:c-string)
     (char-arr '(* char))
     (int32 'c-call:int)
@@ -267,6 +268,7 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
 (defmethod get-type-translation (type (backend (eql :sbcl)))
   (case type
     (uchar8 'unsigned-char)
+    (char8 'char)
     (c-string8 'c-string)
     (char-arr '(* char))
     (int32 'int)
@@ -290,6 +292,7 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
   
   (case type
     (uchar8 'uchar)
+    (char8 'char)
     (c-string8 'c-string)
     (cptr 'c-string)
     (char-arr 'c-string) ;; fix later
@@ -311,6 +314,7 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
   ||#  
   (case type
     (uchar8 :unsigned-char)
+    (char8 :char)
     (c-string8 '(* :char))
 ;;    (char-arr (values '(* :char) '(simple-array (unsigned-byte 8) (*))))
 ;;    (char-arr (values '(* (* :char)) 'integer))
@@ -329,6 +333,7 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
 
   (case type
     (uchar8 :char)
+    (char8 :char)
     (char-arr :pointer)
     (c-string8 :pointer)
     (ptr-type :ptr)

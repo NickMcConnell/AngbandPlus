@@ -53,3 +53,29 @@ the Free Software Foundation; either version 2 of the License, or
 	;;(sys:gsgc-switch :print) t
 	))
  
+(defun %load-settings-file (fname)
+  "Loads settings info."
+  (with-open-file (s (pathname fname)
+		     :direction :input)
+    (loop for x = (read s nil 'eof)
+	  until (eq x 'eof)
+	  do
+
+	  (cond ((consp x)
+		 (case (car x)
+		   (sound-use
+		    #-clisp
+		    (when (eq (second x) 'yes)
+		      (pushnew :using-sound *features*)))
+		   (environments
+		    (dolist (i (cdr x))
+		      (when (eq i 'x11)
+			(pushnew :image-support *features*))))
+		   (otherwise
+		    (warn "Unknown setting directive ~s in ~s" x fname))))
+		(t
+		 (warn "Unknwon setting directive ~s in ~s" x fname)))
+	  )))
+
+(ignore-errors
+  (%load-settings-file "config/settings.cfg")) ;; fix

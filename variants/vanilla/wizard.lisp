@@ -219,6 +219,52 @@ the Free Software Foundation; either version 2 of the License, or
 	(dump-objects (concatenate 'string *dumps-directory* "obj.list"))
 	))
 
+(define-key-operation 'show-objects
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
+	  (let ((obj-list (get-object-list))
+	    	(var-obj *variant*))
+
+	    (with-new-screen ()
+	      (c-term-clear!)
+
+	    (handler-case
+		(loop for obj in obj-list
+		      for i from 0
+		      for y from 1
+		      do
+
+		      (c_term_erase! 0 y 255)
+		      (put-coloured-str! +term-white+ (format nil "~d" i) 1 y)
+		      
+		      (let* ((flav (object.flavour obj))
+			     (the-attr (if flav (x-attr flav) (x-attr obj)))
+			     (the-char (if flav (x-char flav) (x-char obj))))
+
+			    (c-term-queue-char! 5 y the-attr the-char 0 0)
+			    
+			    (if (>= the-attr +graphics-start+)
+				(c-term-queue-char! 6 y -1 -1 0 0)
+				(c-term-queue-char! 6 y +term-white+ #.(char-code #\Space)
+						    +term-white+ #.(char-code #\Space))))
+		      
+		      (let ((attr (text-attr obj)))
+			(when (= attr +term-dark+)
+			  (setf attr +term-white+))
+			(put-coloured-str! attr (object.name obj) 9 y))
+		      
+		      (when (and (> i 5) (= 0 (mod i 20)))
+			(c-clear-from! (1+ y))
+			(setf y 0) ;; it's incf'ed
+			(pause-last-line!))
+		      )
+	      (error (co)
+		(warn "Erred ~s" co)))
+	    
+	    (c-term-clear!))
+	    )))
+
+
 (define-key-operation 'dump-features
     #'(lambda (dungeon player)
 	(declare (ignore dungeon player))
@@ -251,7 +297,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  ||#
 
 	))
-
+#||
 (define-key-operation 'print-map
     #'(lambda (dungeon player)
 	(declare (ignore player))
@@ -266,7 +312,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(print-map-as-ppm dungeon "./map.ppm")
 	(print-message! "Map printed to map.ppm.")
 	))
-
+||#
 (define-key-operation 'gain-level
     #'(lambda (dungeon player)
 	(declare (ignore dungeon))
@@ -385,9 +431,9 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :wizard #\K 'print-keys)
 (define-keypress *ang-keys* :wizard #\L 'gain-level) 
 (define-keypress *ang-keys* :wizard #\O 'object-create)
-(define-keypress *ang-keys* :wizard #\P 'print-map-as-ppm)
+;;(define-keypress *ang-keys* :wizard #\P 'print-map-as-ppm)
 (define-keypress *ang-keys* :wizard #\S 'send-spell)
-(define-keypress *ang-keys* :wizard #\T 'print-map)
+;;(define-keypress *ang-keys* :wizard #\T 'print-map)
 (define-keypress *ang-keys* :wizard #\U 'summon)
 (define-keypress *ang-keys* :wizard #\W 'print-odd-info)
 (define-keypress *ang-keys* :wizard #\Z 'in-game-test)
@@ -396,3 +442,4 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :wizard #\l 'load-vanilla)
 (define-keypress *ang-keys* :wizard #\m 'dump-monsters)
 (define-keypress *ang-keys* :wizard #\o 'dump-objects)
+(define-keypress *ang-keys* :wizard #\s 'show-objects)

@@ -133,10 +133,26 @@ the Free Software Foundation; either version 2 of the License, or
 	do
 	(unless hash-val
 	  (setf (gethash name (variant.used-scroll-names variant)) t)
-	  (return-from van-generate-scroll-flavour (cons name +term-white+)))))
+	  (let ((flav (make-instance 'flavour
+				     :name name
+				     :x-attr +term-white+
+				     :x-char #.(char-code #\?)
+				     :text-attr +term-white+
+				     :text-char #.(char-code #\?) ;; hackish
+				     )))
 
-(defmethod create-gold ((variant vanilla-variant) (dungeon dungeon))
- 
+	    ;; ultra-hack
+	    (when *use-graphics*
+	      (setf (x-attr flav) (+ +graphics-start+ 10)
+		    (x-char flav) (+ +graphics-start+ 18 (random 4))))
+	    
+	    (return-from van-generate-scroll-flavour flav)
+	    ))))
+
+(defmethod create-gold ((variant vanilla-variant) (dungeon dungeon) &key originator)
+
+  (declare (ignore originator)) ;; fix for creeping coins
+  
   (let* ((gold-table (variant.gold-table variant))
 	 (gold-len (length gold-table))
 	 (obj-level (dungeon.depth dungeon))
@@ -245,6 +261,34 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod get-offer ((object active-object) (store black-market))
   (int-/ (get-price object store) 4)) ;; decent value, eh?
+
+(defmethod store-buys-item? ((object active-object) (store store))
+  ;; hackish
+  (let ((buy-value (store.buys store)))
+    (cond ((eq nil buy-value)
+	   buy-value)
+	  
+	  ((eq t buy-value)
+	   buy-value)
+	  
+	  ((functionp buy-value)
+	   (funcall buy-value object store))
+	  
+	  ((consp buy-value)
+	   (let ((kind-type (object.the-kind (aobj.kind object))))
+	     (unless (symbolp kind-type)
+	       (error "Unknown the-kind ~s for object ~s" kind-type object))
+	     (when (find kind-type buy-value)
+	       t)))
+	  
+	  (t
+	   (error "Uknown buy-information in store ~s" buy-value)))
+    ))
+
+(defmethod store-buys-item? ((object active-object) (store black-market))
+  ;; buy everything!
+  t)
+
 
 (defmethod store-generate-object ((variant vanilla-variant) (the-store black-market))
   (let* ((object-depth (+ 25 (randint 25)))
@@ -384,7 +428,7 @@ the Free Software Foundation; either version 2 of the License, or
 						:dying-note (meff.dying-note meff))))
 		 (unless is-dead? ;; he died
 		   ;; improve message later
-		   (print-message! (format nil "~a was hurt." (monster.name target)))
+		   (format-message! "~a was hurt." (monster.name target))
 		   ;; skip fear
 		   ;; skip sleep
 		   )))
@@ -525,8 +569,8 @@ the Free Software Foundation; either version 2 of the License, or
 	     (max-range (+ 10 (* 5 (object.multiplier (aobj.kind missile-weapon)))))
 	     (path-arr (make-array (1+ max-range) :fill-pointer 0))
 	     (path-len (project-path dungeon max-range path-arr pvx pvy tx ty 0))
-	     (miss-attr (object.x-attr arrow))
-	     (miss-char (object.x-char arrow))
+	     (miss-attr (x-attr arrow))
+	     (miss-char (x-char arrow))
 	     (cur-x pvx)
 	     (cur-y pvy)
 	     )
@@ -551,10 +595,10 @@ the Free Software Foundation; either version 2 of the License, or
 			 (mon-name (get-creature-name fmon)))
 		    (when (missile-hit-creature? player fmon missile-weapon arrow)
 		      
-		      (print-message! (format nil "The ~a was hit." mon-name))
+		      (format-message! "The ~a was hit." mon-name)
 		      (missile-inflict-damage! player fmon missile-weapon arrow)
 		      (when (< (current-hp fmon) 0)
-			(print-message! (format nil "The ~a died." mon-name))
+			(format-message! "The ~a died." mon-name)
 			(let ((target-xp (get-xp-value fmon)))
 			  (alter-xp! player (if target-xp target-xp 0)))
 			(kill-target! dungeon player fmon x y)
@@ -575,7 +619,8 @@ the Free Software Foundation; either version 2 of the License, or
   "tries to process important world-stuff every 10 turns."
 
   (let ((the-turn (variant.turn variant))
-	(temp-attrs (player.temp-attrs player)))
+	(temp-attrs (player.temp-attrs player))
+	(calc-attrs (player.calc-attrs player)))
 
     (unless (= 0 (mod the-turn 10)) ;; every 10 turns only
       (return-from process-world& nil))
@@ -676,27 +721,78 @@ the Free Software Foundation; either version 2 of the License, or
     ;; recharge things on the ground
     
     ;; random teleport/WoR
-
+    (when-bind (rand-tp (get-attribute-value '<random-teleport> calc-attrs))
+      (when (= (random 100) 0) ;; 1/100 chance
+	(teleport-creature! dungeon player player 40)))
+    
     )))
 
 (defun interactive-take-off-item! (dungeon player)
-  (let (;;(var-obj *variant*)
-        (selection (with-new-screen ()
-                     (select-item dungeon player '(:equip)
-                                  :prompt "Take off item: "
-                                  :where :equip))))
-    (cond (selection
-           (let* ((the-table (get-item-table dungeon player (car selection)))
-                  (removed-obj (item-table-remove! the-table (cdr selection))))
-             (cond ((typep removed-obj 'active-object)
-		    ;; an object was returned
-		    (%put-obj-in-cnt dungeon player :backpack removed-obj)
-		    (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+))
-		   
-                   (t
-                    (print-message! (format nil "Did not find selected obj ~a" selection)
-				    )))))
-          (t
-           ;;(warn "Did not select anything.")
-           ))
+
+  (when-bind (selection (with-new-screen ()
+			  (select-item dungeon player '(:equip)
+				       :prompt "Take off item: "
+				       :where :equip)))
+
+    (let* ((the-table (get-item-table dungeon player (car selection)))
+	   (removed-obj (item-table-remove! the-table (cdr selection))))
+      (when (and (typep removed-obj 'active-object)
+		 (is-cursed? removed-obj))
+	(print-message! "Hmmm, it seems to be cursed.")
+	(item-table-add! the-table removed-obj) ;; put back
+	(return-from interactive-take-off-item! nil))
+      
+      (cond ((typep removed-obj 'active-object)
+	     ;; an object was returned
+	     (%put-obj-in-cnt dungeon player :backpack removed-obj)
+	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+))
+	    
+	    (t
+	     (format-message! "Did not find selected obj ~a" selection)
+	     )))
     ))
+
+;; we override to add our own stuff
+(defmethod produce-active-monster ((variant vanilla-variant) mon-type)
+  
+  (let ((amon (call-next-method)))
+
+    (flet ((install-attribute (&rest args)
+	     (let ((attr (apply #'make-creature-attribute args)))
+	       (unless (is-legal-effect? variant (attr.key attr))
+		 (warn "The attribute ~s does not seem legal" attr))
+	       (add-creature-attribute amon attr))))
+      
+      (install-attribute "stun" '<stun> :type :temporary ;; stun has special code
+			 :value 0 :default-value 0 :value-type 'integer
+			 :update-fun #'%modify-leveled-effect
+			 :desc "number, stun-power")
+            
+      (install-attribute "hasted" '<hasted> :type :temporary
+			 :value nil :default-value nil
+			 :update-fun #'%modify-boolean-effect
+			 :desc "boolean, in vanilla hasted means +10")
+      
+      (install-attribute "slowed" '<slowed> :type :temporary
+			 :value nil :default-value nil
+			 :update-fun #'%modify-boolean-effect
+			 :desc "boolean, in vanilla slowed means -10")
+      
+      (install-attribute "sleeping" '<sleeping> :type :temporary
+			 :value 0 :default-value 0 :value-type 'integer
+			 :update-fun #'%modify-leveled-effect
+			 :desc "integer, how sound asleep")
+
+      (install-attribute "confusion" '<confusion> :type :temporary
+			 :value 0 :default-value 0 :value-type 'integer
+			 :update-fun #'%modify-leveled-effect
+			 :desc "integer, how confused")
+
+      (install-attribute "fear" '<fear> :type :temporary
+			 :value 0 :default-value 0 :value-type 'integer
+			 :update-fun #'%modify-boolean-effect
+			 :desc "integer, how afraid")
+      
+	   )
+      
+      amon))

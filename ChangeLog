@@ -1,3 +1,23 @@
+2002-09-16  Stig E Sandø <stig@users.sourceforge.net>
+	* Sent out a release, 0.1.0
+	
+2002-09-16  Stig E Sandø <stig@users.sourceforge.net>
+	* Added confusion effect on player
+	* Added cursed items
+	* Added 'bash door'
+	* Added 'disarm' for traps
+	* Added simple home to store items in
+	* Added more exotic melee attacks by monsters
+	* Added code to do bigtile graphics (X11 only)
+	* Added code to show bmp images in window (X11 only)
+	* Now storing messages (needs later tweaking)
+	* Fixed save/load code to work pretty well (missing features, but
+	does not crash)
+	* Added temporary attributes to monsters (largely unused still)
+	* Now does flavouring with real objects
+	* Updated much store-code, also added images to store-code
+	* Many other bugfixes and smaller changes
+
 2002-07-29  Stig E Sandø <stig@users.sourceforge.net>
 	* Sent out a release, 0.0.21
 

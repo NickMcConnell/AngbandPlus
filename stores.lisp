@@ -79,7 +79,7 @@ should be an exisiting id."
 
 
 (defun define-store (id &key (type 'store) name number
-		     (sells nil) 
+		     (sells nil) (buys nil)
 		     x-attr x-char (owner :random) (no-items nil))
   "creates a store object and adds it to the appropriate table"
 ;;  (declare (ignore args))
@@ -90,6 +90,9 @@ should be an exisiting id."
     
     (when (and (eq type 'store) sells)
       (setf (store.sells store) sells))
+    
+    (when (and (eq type 'store) buys)
+      (setf (store.buys store) buys))
     
     ;; hackish
     (unless no-items
@@ -106,9 +109,10 @@ should be an exisiting id."
 
 (defun define-store-owner (&key store-type id name purse max-greed
 			   min-greed haggle-num tolerance race
-			   special-owner)
+			   picture special-owner)
   "creates an owner and adds him or her to appropriate tables"
-  
+
+;;  (warn "Looking for ~s in ~s" race (get-races-as-a-list))
   (let* ((race-obj (if (and race (or (symbolp race)
 				     (stringp race)))
 		       (get-char-race race)
@@ -116,6 +120,7 @@ should be an exisiting id."
 	 (owner (make-instance 'store-owner :id id :name name
 			      :purse purse :max-greed max-greed
 			      :min-greed min-greed :haggle-num haggle-num
+			      :picture picture
 			      :tolerance tolerance :race race-obj))
 	 (var-obj *variant*))
 
@@ -178,12 +183,12 @@ should be an exisiting id."
 		 (the-price (get-price act-obj store))
 		 (backpack (aobj.contains (player.inventory player))))
 	    ;;(warn "Buying ~s for ~s" act-obj the-price)
-	    (unless (< the-price (player.gold player))
-	      (c-prt! "You cannot afford that item!" 0 0)
+	    (unless (<= the-price (player.gold player))
+	      (print-message! "You cannot afford that item!")
 	      (return-from buying nil))
 
 	    (unless (item-table-more-room? backpack)
-	      (c-prt! "No room in backpack!" 0 0)
+	      (print-message! "No room in backpack!")
 	      (return-from buying nil))
 
 	    (cond ((= 1 (aobj.number act-obj))
@@ -217,7 +222,7 @@ should be an exisiting id."
     (block selling
 
       (when-bind (selection (select-item dungeon player '(:backpack :equip)
-					 :prompt "Sell which item?"
+					 :prompt "Sell which item? "
 					 :where :backpack))
       
 
@@ -226,26 +231,52 @@ should be an exisiting id."
 
 	  (when removed-obj
 
-	    (let ((price (get-offer removed-obj store))
-		  (shop-items (store.items store)))
+	    ;; does the shop want to buy that kind of object?
+	    (let ((might-buy (store-buys-item? removed-obj store)))
+	      (unless might-buy
+		(print-message! "- I don't buy such items.")
+		;; put it back.
+		(item-table-add! the-table removed-obj)
+		(return-from selling nil)))
 
-	      (cond ((and (plusp price)
-			  (item-table-more-room? shop-items))
-		   
-		     (item-table-add! shop-items removed-obj)
-		;;	       (item-table-remove! the-table removed-obj)
+	    ;; does the shop have any room?
+	    (let ((shop-items (store.items store)))
+	      (unless (item-table-more-room? shop-items)
+		(print-message! "- I have no more room in the store.")
+		;; put it back.
+		(item-table-add! the-table removed-obj)
+		(return-from selling nil)))
+	    
+	    ;; can we get a decent price?
+	    (let ((price (get-offer removed-obj store)))
+	      (cond ((plusp price)
+		     (print-message! "- It's a deal.")
+		     ;; add to shop
+		     (item-table-add! (store.items store) removed-obj)
 		     (incf (player.gold player) price)
-		     (return-from %store-sell-item t))
-		    ;; something screwed up, put it back.
-		    (t 
-		     (item-table-add! the-table removed-obj)))
-	      ))
-	  ))
-      
-      nil)))
+		     (return-from selling t))
+		    ;; no decent price
+		    (t
+		     (print-message! "- That item is worthless, I don't want it.")
+		     (item-table-add! the-table removed-obj)
+		     (return-from selling nil))))
 
-(defun %store-display (player store)
+	    nil))
+	
+	))))
 
+(defun %load-people-image (name wid height)
+  (let ((pname (concatenate 'string "./graphics/people/" name)))
+    (load-scaled-image& pname -1 wid height)))
+
+(defun %paint-people-image (name x y)
+  (paint-gfx-image& name "people" x y))
+
+
+(defmethod display-house ((player player) (store store) &key (offset 0))
+
+  (declare (ignore offset))
+  
   (let ((store-name (store.name store))
 	(store-limit 50000)
 	(the-owner (house.owner store))
@@ -255,64 +286,101 @@ should be an exisiting id."
     (when (and the-owner (typep the-owner 'store-owner))
       (setf owner-name (owner.name the-owner))
       (let ((the-race (owner.race the-owner)))
+	
+	(when (and the-race (symbolp the-race))
+	  (setf the-race (get-char-race the-race)))
+	
 	(when (and the-race (typep the-race 'character-race))
 	  (setf owner-race (race.name the-race))))
+      
       (let ((poss-limit (owner.purse the-owner)))
 	(when (and poss-limit (plusp poss-limit))
 	  (setf store-limit poss-limit))))
 
     (c-clear-from! 0) ;; hack
-    
-    (with-foreign-str (s)
-      (lb-format s "~a (~a)" owner-name owner-race)
-      (put-coloured-str! +term-white+ s 10 3))
 
-    (with-foreign-str (s)
-      (lb-format s "~a (~a)" store-name store-limit)
-      (put-coloured-str! +term-white+ s 50 3))
+    ;; big empty space when no graphics
+    (when *use-graphics*
+      ;; hackish, improve later
 
-    
-    (put-coloured-str! +term-white+ "Item Description" 3 5)
-    (put-coloured-str! +term-white+ "Weight" 60 5)
-    (put-coloured-str! +term-white+ "Price" 72 5)
+      (let ((owner-picture (owner.picture the-owner)))
+	(when (and owner-picture (stringp owner-picture))
 
-    (put-coloured-str! +term-white+ "Gold Remaining:" 53 19)
-    
-    (put-coloured-str! +term-white+
-		       (format nil "~9d" (player.gold player))
-		       68 19)
+	  (%load-people-image owner-picture 6 5)
+	  (%paint-people-image owner-picture 1 1)
+	  
+;;      (load-scaled-image& "./graphics/people/grim-elf.bmp" -1 6 5)
+;;      (paint-image& "./graphics/people/grim-elf.bmp" 1 1))
 
-    
-    (item-table-print (house.items store) :store store)
+	  )))
+	  
+    (let ((left-col 20)
+          (desc-line 7)
+	  (last-line (get-last-console-line)))
+      
+      (with-foreign-str (s)
+	(lb-format s "~a" store-name)
+	(put-coloured-str! +term-yellow+ s left-col 1))
+      
+      (with-foreign-str (s)
+	(lb-format s "Owned by: ~a (~a)" owner-name owner-race)
+	(put-coloured-str! +term-white+ s left-col 2))
+      
+      (with-foreign-str (s)
+	(lb-format s "Max purchase value: ~a AU" store-limit)
+	(put-coloured-str! +term-white+ s left-col 3))
 
-    (put-coloured-str! +term-white+ " ESC) Exit from building." 0 22)
-    (put-coloured-str! +term-white+ " g) Get/purchase item." 31 22)
-    (put-coloured-str! +term-white+ " d) Drop/sell item." 31 23)
 
-    (put-coloured-str! +term-white+ "You may: " 0 21)
+      (put-coloured-str! +term-white+ "Item Description" 3 desc-line)
+      (put-coloured-str! +term-white+ "Weight" 60 desc-line)
+      (put-coloured-str! +term-white+ "Price" 72 desc-line)
+
+      (put-coloured-str! +term-white+ "Gold Remaining:" 53 (- last-line 3))
+      
+      (put-coloured-str! +term-white+
+			 (format nil "~9d" (player.gold player))
+			 68 (- last-line 3))
+
+      ;; pass last-line as info here
+      (item-table-print (house.items store) :store store :start-y (1+ desc-line))
+
+      (put-coloured-str! +term-yellow+ "ESC" 1 (1- last-line))
+      (put-coloured-str! +term-white+ ") Exit from building." 4 (1- last-line))
+      (put-coloured-str! +term-yellow+ "g" 31 (1- last-line))
+      (put-coloured-str! +term-white+ ") Get/purchase item." 32  (1- last-line))
+      (put-coloured-str! +term-yellow+ "d" 31 last-line)
+      (put-coloured-str! +term-white+ ") Drop/sell item." 32 last-line)
+
+      (put-coloured-str! +term-white+ "You may: " 0 (- last-line 2)))
 
    
     t))
 
 (defun %shop-input-loop (player level store)
+  (block input-loop
   (loop
    (c-term-gotoxy! 10 21)       
    (let ((val (read-one-character)))
-     (cond ((eql val #\g)
+     (cond ((or (eql val #\g)
+		(eql val #\p))
 	    (let ((retval (%store-buy-item player level store)))
 	      (when retval
-		(%store-display player store))))
-	    ((eql val #\d)
+		(display-house player store ))))
+     
+	    ((or (eql val #\d)
+		 (eql val #\s))
 	     (when-bind (retval (%store-sell-item player level store))
-	       (%store-display player store)))
+	       (display-house player store)))
+	    
 	    ((or (eql val #\Escape)
 		 (eql val #\Q))
-	     (return-from %shop-input-loop t))
+	     (return-from input-loop t))
+	    
 	    (t
 	     (warn "Unknown key read: ~s" val)))
      
-     (c-prt! "" 0 0)
-     )))
+;;     (c-prt! "" 0 0)
+     ))))
 
 
 (defmethod visit-house (level (house store))
@@ -323,7 +391,7 @@ should be an exisiting id."
   
   (with-new-screen ()
     (clear-the-screen!)
-    (%store-display *player* house)
+    (display-house *player* house :offset 0)
     (%shop-input-loop *player* level house)
     
     ;;(pause-last-line!)
@@ -381,48 +449,3 @@ should be an exisiting id."
   (when-bind (new-obj (store-generate-object variant the-store))
     (item-table-add! (store.items the-store) new-obj)))
 
-
-(defmethod item-table-print ((table items-in-store)
-			     &key
-			     show-pause
-			     start-x start-y
-			     print-selection
-			     (store t))
-
-  (declare (ignore print-selection))
-  (let ((x (if start-x start-x 0))
-	(y (if start-y start-y 6))
-	(i 0))
-
-    (flet ((iterator-fun (a-table key val)
-	     (declare (ignore a-table key))
-	     (let ((attr (get-colour val))
-		   (price (get-price val store))
-		   (desc (with-output-to-string (s)
-			   (write-obj-description *variant* val s :store t))))
-	       (c-prt! "" (- x 2) (+ i y))
-	       (put-coloured-str! +term-white+ (format nil "~a) " (i2a i)) x (+ i y))
-	       
-	       (put-coloured-str! attr desc (+ x 4) (+ i y))
-	       
-	       (let* ((weight (object.weight (aobj.kind val)))
-		      (full-pounds (int-/ weight 10))
-		      (fractions (mod weight 10)))
-		 (c-prt! (format nil "~3d.~d lb~a" full-pounds fractions
-				 (if (> full-pounds 1)
-				     "s"
-				     ""))
-			 61 (+ i y)))
-	       
-	       (put-coloured-str! +term-white+ (format nil "~9d " price)
-			       70 (+ i y))
-
-	       (incf i))))
-      
-      
-      (item-table-iterate! table #'iterator-fun)
-    
-      (when show-pause
-	(pause-last-line!))
-
-      )))

@@ -329,7 +329,7 @@ made."
       (cond ((and (typep spell-data 'spell-classdata)
 		  (<= (spell.level spell-data) (player.level player)))
 	     (vector-push-extend spell-id learnt-spells)
-	     (print-message! (format nil "~a learnt." (spell.name spell)))
+	     (format-message! "~a learnt." (spell.name spell))
 	     (return-from learn-spell! t))
 	    
 	    ((and (typep spell-data 'spell-classdata)
@@ -414,8 +414,10 @@ returns T if the player knows the spell."
 	     (book-id (object.id okind)))
 	(when-bind (spell-info (gethash book-id (variant.spellbooks variant)))      
 	  (when-bind (which-one (with-new-screen ()
-				  (interactive-spell-selection player spell-info :prompt "Learn which spell? ")))
-	    (unless (and (integerp which-one) (>= which-one 0) (< which-one (spellbook.size spell-info)))
+				  (interactive-spell-selection player spell-info
+							       :prompt "Learn which spell? ")))
+	    (unless (and (integerp which-one) (>= which-one 0)
+			 (< which-one (spellbook.size spell-info)))
 	      (warn "Illegal choice ~s" which-one)
 	      (return-from learn-spell nil))
 
@@ -453,7 +455,7 @@ returns T if the player knows the spell."
 	    ;;(warn "Spell ~s: know (~s), learnt (~s)" the-spell spell-data learnt-spell)
 	    
 	    (unless (and spell-data learnt-spell)
-	      (print-message! (format nil "You don't know the ~a spell." (spell.name the-spell)))
+	      (format-message! "You don't know the ~a spell." (spell.name the-spell))
 	      (return-from cast-spell nil))
 
 	    (unless (>= (current-mana player) (spell.mana spell-data))
@@ -473,7 +475,7 @@ returns T if the player knows the spell."
 
 		   )
 		  (t
-		   (print-message! (format nil "The ~a spell is not implemented yet." (spell.name the-spell)))))
+		   (format-message! "The ~a spell is not implemented yet." (spell.name the-spell))))
 	    ))
 
 	;; clean up some!
@@ -593,7 +595,7 @@ returns T if the player knows the spell."
   (let ((item-table (cave-objects dungeon x y)) 
 	(desc (with-output-to-string (s)
 		(write-obj-description variant obj s))))
-	   (print-message! (format nil "~a ~a." desc msg))
+	   (format-message! "~a ~a." desc msg)
 	   (item-table-remove! item-table obj)
 	   (when (= 0 (items.cur-size item-table))
 	     (setf (cave-objects dungeon x y) nil))
@@ -725,18 +727,18 @@ returns T if the player knows the spell."
 ;; this one uses radius, not panel
 ;; fix it to use center-x and center-y instead of using the distance flag!
 (defun detect-invisible! (dungeon player center-x center-y radius)
+  (declare (ignore center-x center-y)) ;; remove ignore
   (let ((success nil))
     (dolist (mon (dungeon.monsters dungeon))
       (when (creature-alive? mon)
-	(let ((mstatus (amon.status mon))
-	      (mx (location-x mon))
+	(let ((mx (location-x mon))
 	      (my (location-y mon)))
-	  (when (and (< (status.distance mstatus) radius)
+	  (when (and (< (amon.distance mon) radius)
 		     (panel-contains? player mx my))
 	    (when (has-ability? (amon.kind mon) '<invisible>)
 	      ;; skip lore
 	      ;; skip recall
-	      (bit-flag-add! (status.vis-flag mstatus) #.(logior +monster-flag-mark+ +monster-flag-show+))
+	      (bit-flag-add! (amon.vis-flag mon) #.(logior +monster-flag-mark+ +monster-flag-show+))
 	      (update-monster! *variant* mon nil)
 	      (setf success t)
 	      ))
@@ -778,9 +780,9 @@ returns T if the player knows the spell."
 	;; put object back where it was found
 	(%put-obj-in-cnt dungeon player the-table removed-obj)
 
-	(print-message! (format nil "Object is ~a."
-				(with-output-to-string (s)
-				  (write-obj-description variant removed-obj s))))
+	(format-message! "Object is ~a."
+			 (with-output-to-string (s)
+			   (write-obj-description variant removed-obj s)))
 
 	t))
     ))

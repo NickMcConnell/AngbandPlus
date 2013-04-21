@@ -164,11 +164,11 @@ failure and owner on success."
 
     house))
 
-(defun define-house (id &key name number x-attr x-char owner (no-items nil))
+(defun define-house (id &key name (type 'house) number x-attr x-char owner (no-items nil))
   "defines a house and adds it to the appropriate table."
   
   (let ((var-obj *variant*)
-	(house (make-instance 'house :id id :name name :owner owner
+	(house (make-instance type :id id :name name :owner owner
 			      :x-attr x-attr :x-char x-char)))
 
     ;; hackish
@@ -185,4 +185,48 @@ failure and owner on success."
     house))
 
 
-;;(trace get-house)
+(defmethod item-table-print ((table items-in-house)
+			     &key
+			     show-pause
+			     start-x start-y
+			     print-selection
+			     (store t))
+
+  (declare (ignore print-selection))
+  (let ((x (if start-x start-x 0))
+	(y (if start-y start-y 6))
+	(i 0))
+
+    (flet ((iterator-fun (a-table key val)
+	     (declare (ignore a-table key))
+	     (let ((attr (get-text-colour val))
+		   (desc (with-output-to-string (s)
+			   (write-obj-description *variant* val s :store store))))
+	       (c-prt! "" (- x 2) (+ i y))
+	       (put-coloured-str! +term-white+ (format nil "~a) " (i2a i)) x (+ i y))
+	       
+	       (put-coloured-str! attr desc (+ x 4) (+ i y))
+	       
+	       (let* ((weight (object.weight (aobj.kind val)))
+		      (full-pounds (int-/ weight 10))
+		      (fractions (mod weight 10)))
+		 (c-prt! (format nil "~3d.~d lb~a" full-pounds fractions
+				 (if (> full-pounds 1)
+				     "s"
+				     ""))
+			 61 (+ i y)))
+
+	       (when store
+		 (let ((price (get-price val store)))
+		   (put-coloured-str! +term-white+ (format nil "~9d " price)
+				      70 (+ i y))))
+
+	       (incf i))))
+      
+      
+      (item-table-iterate! table #'iterator-fun)
+    
+      (when show-pause
+	(pause-last-line!))
+
+      )))

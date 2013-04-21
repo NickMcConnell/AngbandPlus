@@ -35,7 +35,7 @@ extern cptr copyright[5];
 extern bool arg_fiddle;
 extern bool arg_wizard;
 extern bool arg_sound;
-extern bool arg_graphics;
+extern byte arg_graphics;
 extern bool arg_force_original;
 extern bool arg_force_roguelike;
 extern bool character_generated;
@@ -70,13 +70,14 @@ extern cptr ANGBAND_GRAF;
 extern cptr ANGBAND_DIR_XTRA;
 extern bool use_transparency;
 extern bool can_save;
+extern bool use_bigtile; /* always */
 
 
 /* collected.c */
 extern const char *base_config_dir;
 extern int been_run_earlier;
-extern void play_game(bool new_game);
-INTERFACE void init_angband(void);
+extern void play_game(bool new_game, int graphical);
+INTERFACE void init_angband(int graphical);
 //extern bool quick_messages;
 //extern bool auto_more;
 //extern bool fresh_after;
@@ -84,14 +85,20 @@ extern void window_stuff(void);
 extern void exit_game_panic(void);
 extern void handle_stuff(void);
 INTERFACE int current_ui();
-INTERFACE void print_coloured_token(byte colour, int token, int row, int col);
-INTERFACE void print_coloured_stat(byte colour, int stat, int row, int col);
-INTERFACE void print_coloured_number(byte colour, long number, int padding, int row, int col);
-INTERFACE errr init_c_side(const char *ui, const char *base_path, int debug);
+INTERFACE void print_coloured_token(int colour, int token, int row, int col);
+INTERFACE void print_coloured_stat(int colour, int stat, int row, int col);
+INTERFACE void print_coloured_number(int colour, long number, int padding, int row, int col);
+INTERFACE errr init_c_side(const char *ui, const char *base_path, int extra_flags);
 INTERFACE char *load_sound(int msg, char *fname);
 void play_game_lisp();
 void readjust_screen_lisp(int width, int height);
 void mouse_clicked(int button, int x, int y);
+
+/* hacks */
+INTERFACE errr my_Term_putstr(int col, int row, int something, int colour, const char* text);
+INTERFACE void my_Term_queue_char(int col, int row, int colour, int the_char, int tcol, int tchar);
+INTERFACE errr my_Term_set_cursor(int v);
+
 
 /** will we access lisp through callbacks? */
 extern int lisp_will_use_callback;
@@ -112,6 +119,8 @@ extern FILE *my_fopen(cptr file, cptr mode);
 extern errr my_fclose(FILE *fff);
 extern errr my_fgets(FILE *fff, char *buf, huge n);
 extern errr my_fputs(FILE *fff, cptr buf, huge n);
+extern size_t my_strcpy(char *buf, const char *src, size_t bufsize);
+
 /*
 extern errr fd_kill(cptr file);
 extern errr fd_move(cptr file, cptr what);
@@ -141,9 +150,9 @@ extern void sound(int val);
 //extern void msg_format(cptr fmt, ...);
 //extern void screen_save(void);
 //extern void screen_load(void);
-extern void c_put_str(byte attr, cptr str, int row, int col);
+extern void c_put_str(s16b attr, cptr str, int row, int col);
 //INTERFACE void put_str(cptr str, int row, int col);
-extern void c_prt(byte attr, cptr str, int row, int col);
+extern void c_prt(s16b attr, cptr str, int row, int col);
 //INTERFACE void c_prt(byte attr, cptr str, int row, int col);
 //INTERFACE void prt(cptr str, int row, int col);
 INTERFACE void clear_from(int row);
@@ -151,7 +160,7 @@ INTERFACE void clear_from(int row);
 //extern bool get_string(cptr prompt, char *buf, int len);
 //extern bool get_check(cptr prompt);
 //extern bool get_com(cptr prompt, char *command);
-INTERFACE void pause_line(int row);
+INTERFACE void pause_line(int row, cptr msg);
 
 #ifdef WIN32
 INTERFACE int setHINST(long val);

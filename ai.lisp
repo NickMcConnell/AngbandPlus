@@ -72,7 +72,7 @@ order to get from monster to player."
 	(my (location-y mon))
 	(px (location-x player))
 	(py (location-y player))
-	(mstatus (amon.status mon))
+	(temp-attrs (amon.temp-attrs mon))
 	(staggering nil)
 	(moves nil)
 	(use-move nil)
@@ -83,11 +83,11 @@ order to get from monster to player."
     (declare (type u-16b mx my))
 
     ;;; first check sleep
-    (when (plusp (status.sleeping mstatus))
+    (when (plusp (get-attribute-value '<sleeping> temp-attrs))
       ;; we do a hack here
       (cond ((<= 50 (random 100))
-	     (setf (status.sleeping mstatus) 0) ;; awakened
-	     )
+	     (modify-creature-state! mon '<sleeping> :new-value 0)) ;; awakened
+	     
 	    (t ;; still sleeping
 	     (return-from process-single-monster! t))))
 
@@ -104,7 +104,7 @@ order to get from monster to player."
     ;;; check confuse
 
     ;; confused monsters stagger about
-    (cond ((plusp (status.confused mstatus))
+    (cond ((plusp (get-attribute-value '<confusion> temp-attrs))
 	   (setf staggering t))
 	  ;; some monsters even move randomly
 	  ((when-bind (random-mover (has-ability? mon '<random-mover>))

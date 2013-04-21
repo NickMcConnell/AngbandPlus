@@ -152,6 +152,7 @@ a number or a symbol identifying the place."
     (push obj (items.objs table))
     (incf (items.cur-size table))
 
+;;    (warn "Added ~s to floor at ~s,~s" obj tab-x tab-y)
     ;; let's notify about the change
     (note-spot! dungeon tab-x tab-y)
     (light-spot! dungeon tab-x tab-y)
@@ -345,8 +346,10 @@ a number or a symbol identifying the place."
 					new-obj (location-x mon) (location-y mon)))
 		 )
 		(:gold
-		 (warn "Gold-drops not implemented yet."))
-		)
+		 (let ((new-gold (create-gold variant (level.dungeon level) :originator mon)))
+		   (drop-near-location! variant (level.dungeon level)
+					new-gold (location-x mon) (location-y mon)))
+		 ))
 
 	      ))
 ;;	      (warn "Dropping ~s ~s at (~s,~s)" quality type (location-x mon) (location-y mon)
@@ -428,7 +431,6 @@ a number or a symbol identifying the place."
 	 (my (location-y mon))
 	 (dungeon *dungeon*)
 	 (kind (amon.kind mon))
-	 (mstatus (amon.status mon))
 	 (seen nil) ;; seen at all
 	 (by-eyes nil) ;; direct vision
 	 (distance 666))
@@ -436,14 +438,14 @@ a number or a symbol identifying the place."
     (cond (full-update?  ;; get full distance
 	   ;; no inlining
 	   (setf distance (distance px py mx my)
-		 (status.distance mstatus) distance)
+		 (amon.distance mon) distance)
 	   )
 	  (t
 	   ;; simple
-	   (setf distance (status.distance mstatus))))
+	   (setf distance (amon.distance mon))))
 
     ;; more stuff
-    (when (bit-flag-set? (status.vis-flag mstatus) +monster-flag-mark+)
+    (when (bit-flag-set? (amon.vis-flag mon) +monster-flag-mark+)
       (setf seen t))
 
     (when (<= distance +max-sight+)
@@ -491,13 +493,13 @@ a number or a symbol identifying the place."
 	     )))
 
     (cond (by-eyes
-	   (unless (bit-flag-set? (status.vis-flag mstatus) +monster-flag-view+)
-	     (bit-flag-add! (status.vis-flag mstatus) +monster-flag-view+)
+	   (unless (bit-flag-set? (amon.vis-flag mon) +monster-flag-view+)
+	     (bit-flag-add! (amon.vis-flag mon) +monster-flag-view+)
 	     ;; skip disturb
 	     ))
 	  (t
-	   (when (bit-flag-set? (status.vis-flag mstatus) +monster-flag-view+)
-	     (bit-flag-remove! (status.vis-flag mstatus) +monster-flag-view+)
+	   (when (bit-flag-set? (amon.vis-flag mon) +monster-flag-view+)
+	     (bit-flag-remove! (amon.vis-flag mon) +monster-flag-view+)
 	     ;; skip disturb
 	     )))
 	  
@@ -524,9 +526,9 @@ a number or a symbol identifying the place."
       (setf did-target-die? t)
       ;; make a message about it
       (cond (dying-note
-	     (print-message! (format nil "The ~a~a" (monster.name target) dying-note)))
+	     (format-message! "The ~a~a" (monster.name target) dying-note))
 	    (t
-	     (print-message! (format nil "You have slain ~a." (monster.name target)))))
+	     (format-message! "You have slain ~a." (monster.name target))))
 
       (let ((attacker *player*)
 	    (dungeon *dungeon*)
@@ -554,7 +556,7 @@ a number or a symbol identifying the place."
     (when (minusp (current-hp target))
       (setf did-target-die? t)
 
-      (print-message! (format nil "You were killed by a ~a" (trap.name (trap.type source))))
+      (format-message! "You were killed by a ~a" (trap.name (trap.type source)))
       (kill-target! *dungeon* source target (location-x target) (location-y target))
       )
 

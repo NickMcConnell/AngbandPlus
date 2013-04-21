@@ -15,9 +15,10 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.vanilla)
 
 (define-monster-kind "urchin" "filthy street urchin"
+  :numeric-id  1
   :desc "He looks squalid and thoroughly revolting."
-  :symbol #\t
-  :colour #\D
+  :x-char #\t
+  :x-attr #\D
   :depth 0
   :rarity 2
   :hitpoints '(1 . 4)
@@ -26,13 +27,15 @@ the Free Software Foundation; either version 2 of the License, or
   :abilities '(<open-door> <pick-up-item> (<random-mover> 1/4))
   :alertness 40
   :vision 4
-  :attacks '((<touch> :type <eat-gold> :damage nil) (<beg> :type nil :damage nil))
+  :attacks '((<touch> :type <eat-gold> :damage nil)
+	     (<beg> :type nil :damage nil))
   :gender '<male>) 
 
 (define-monster-kind "rogue-squint-eyed" "squint eyed rogue"
+  :numeric-id  10
   :desc "A hardy, street-wise crook that knows an easy catch when it sees one."
-  :symbol #\t
-  :colour #\b
+  :x-char #\t
+  :x-attr #\b
   :alignment '<evil>
   :depth 0
   :rarity 1
@@ -42,14 +45,16 @@ the Free Software Foundation; either version 2 of the License, or
   :abilities '(<bash-door> <open-door> <pick-up-item>)
   :alertness 99
   :vision 10
-  :attacks '((<touch> :type <eat-item> :damage nil) (<hit> :type <hurt> :damage (1 . 6)))
+  :attacks '((<touch> :type <eat-item> :damage nil)
+	     (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop-chance> 3/5))
   :gender '<male>) 
 
 (define-monster-kind "singing-drunk" "singing, happy drunk"
+  :numeric-id  11
   :desc "He makes you glad to be sober."
-  :symbol #\t
-  :colour #\y
+  :x-char #\t
+  :x-attr #\y
   :depth 0
   :rarity 1
   :hitpoints '(2 . 3)
@@ -63,9 +68,10 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 
 (define-monster-kind "aimless-merchant" "aimless looking merchant"
+  :numeric-id  12
   :desc "The typical ponce around town, with purse jingling, and looking for more  amulets of adornment to buy."
-  :symbol #\t
-  :colour #\o
+  :x-char #\t
+  :x-attr #\o
   :depth 0
   :rarity 1
   :hitpoints '(3 . 3)
@@ -79,9 +85,10 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 
 (define-monster-kind "mercenary-mean-looking" "mean looking mercenary"
+  :numeric-id  13
   :desc "No job is too low for him."
-  :symbol #\t
-  :colour #\r
+  :x-char #\t
+  :x-attr #\r
   :alignment '<evil>
   :depth 0
   :rarity 1
@@ -96,9 +103,10 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 
 (define-monster-kind "scarred-veteran" "battle scarred veteran"
+  :numeric-id  14
   :desc "He doesn't take to strangers kindly."
-  :symbol #\t
-  :colour #\B
+  :x-char #\t
+  :x-attr #\B
   :depth 0
   :rarity 1
   :hitpoints '(7 . 8)
@@ -112,9 +120,10 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 
 (define-monster-kind "cat-scrawny" "scrawny cat"
+  :numeric-id  2
   :desc "A skinny little furball with sharp claws and a menacing look."
-  :symbol #\f
-  :colour #\U
+  :x-char #\f
+  :x-attr #\U
   :type '(<animal>)
   :depth 0
   :rarity 3
@@ -127,9 +136,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<claw> :type <hurt> :damage (1 . 1)))) 
 
 (define-monster-kind "dog-scruffy" "scruffy little dog"
+  :numeric-id  3
   :desc "A thin flea-ridden mutt, growling as you get close."
-  :symbol #\C
-  :colour #\U
+  :x-char #\C
+  :x-attr #\U
   :type '(<animal>)
   :depth 0
   :rarity 3
@@ -142,9 +152,10 @@ the Free Software Foundation; either version 2 of the License, or
   :attacks '((<bite> :type <hurt> :damage (1 . 1)))) 
 
 (define-monster-kind "idiot-blubbering" "blubbering idiot"
+  :numeric-id  5
   :desc "He tends to blubber a lot."
-  :symbol #\t
-  :colour #\W
+  :x-char #\t
+  :x-attr #\W
   :depth 0
   :rarity 1
   :hitpoints '(1 . 2)
@@ -157,9 +168,10 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 
 (define-monster-kind "boiled-wretch" "boil-covered wretch"
+  :numeric-id  6
   :desc "Ugly doesn't begin to describe him."
-  :symbol #\t
-  :colour #\g
+  :x-char #\t
+  :x-attr #\g
   :depth 0
   :rarity 1
   :hitpoints '(1 . 2)
@@ -172,9 +184,10 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 
 (define-monster-kind "idiot-village" "village idiot"
+  :numeric-id  7
   :desc "Drooling and comical, but then, what do you expect?"
-  :symbol #\t
-  :colour #\G
+  :x-char #\t
+  :x-attr #\G
   :depth 0
   :rarity 1
   :hitpoints '(4 . 4)
@@ -187,9 +200,10 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 
 (define-monster-kind "beggar" "pitiful looking beggar"
+  :numeric-id  8
   :desc "You just can't help feeling sorry for him."
-  :symbol #\t
-  :colour #\U
+  :x-char #\t
+  :x-attr #\U
   :depth 0
   :rarity 1
   :hitpoints '(1 . 4)
@@ -202,9 +216,10 @@ the Free Software Foundation; either version 2 of the License, or
   :gender '<male>) 
 
 (define-monster-kind "mangy-leper" "mangy looking leper"
+  :numeric-id  9
   :desc "You feel it isn't safe to touch him."
-  :symbol #\t
-  :colour #\u
+  :x-char #\t
+  :x-attr #\u
   :depth 0
   :rarity 1
   :hitpoints '(1 . 1)

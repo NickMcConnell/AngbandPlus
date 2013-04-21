@@ -58,7 +58,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-element '<fear>        "fear"        :bit-flag #x00010000 :number 16)
 (define-element '<sleep>       "sleep"       :bit-flag #x00020000 :number 17)
 
-;; various effects for the player in vanilla
+;; various effects for the players and the monsters in vanilla
 
 (define-effect '<telepathy>       "telepathy"           :number 0  :bit-flag #x000000001)
 (define-effect '<hold-life>       "hold life"           :number 1  :bit-flag #x000000002)
@@ -96,3 +96,4 @@ the Free Software Foundation; either version 2 of the License, or
 (define-effect '<resist-fire>     "resist fire"         :number 33 :bit-flag #x200000000)
 (define-effect '<resist-cold>     "resist cold"         :number 34 :bit-flag #x400000000)
 (define-effect '<resist-poison>   "resist poison"       :number 35 :bit-flag #x800000000)
+(define-effect '<sleeping>        "sleeping"            :number 36 :bit-flag #x1000000000)

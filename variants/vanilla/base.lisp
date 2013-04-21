@@ -64,6 +64,8 @@ the Free Software Foundation; either version 2 of the License, or
   (:documentation "The Vanilla variant has a special town-level with
 stores and special behaviour.  The class is used for dispatching."))
 
+(defclass players-home (house)
+  ())
 
 (defclass magic-spell ()
   ((name   :accessor spell.name
@@ -204,6 +206,23 @@ should return NIL or the state-object (with possibly updated state."))
 (defgeneric get-light-source (creature)
   (:documentation "Returns the light-source used."))
 
+(defgeneric get-charge-status (object)
+  (:documentation "Returns the charge-status of the given object or NIL."))
+
+(defgeneric print-cut (variant player settings)
+  (:documentation "Prints cut-info according to settings."))
+
+(defgeneric print-stun (variant player settings)
+  (:documentation "Prints stun-info according to settings."))
+
+(defgeneric print-poisoned (variant player settings)
+  (:documentation "Prints poison-info according to settings."))
+
+(defgeneric print-afraid (variant player settings)
+  (:documentation "Prints fear-info according to settings."))
+
+(defgeneric print-confused (variant player settings)
+  (:documentation "Prints confusion-info according to settings."))
 
 ;;; define relevant object-types for vanilla.
 
@@ -219,7 +238,7 @@ should return NIL or the state-object (with possibly updated state."))
 (def-obj-type ammo :key <ammo>)
 (def-obj-type digger :is weapon :key <digger>)
 
-(def-obj-type armour)
+(def-obj-type armour :key <armour>)
 (def-obj-type body-armour :is armour :key <body-armour>)
 (def-obj-type dragonscale-armour :is body-armour :key <dsm-armour>)
 (def-obj-type boots :is armour :key <boots>)

@@ -31,7 +31,125 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  (warn "triggered..")
   (let ((house (get-house house-num)))
     (visit-house *level* house)))
+
+(defmethod display-house ((player player) (home players-home) &key (offset 0))
+
+  (declare (ignore offset))
+  (let ((store-name "Your home")
+	(left-col 1)
+	(desc-line 3)
+	(last-line (get-last-console-line)))
+
+    (c-clear-from! 0) ;; hack
+
+    (with-foreign-str (s)
+      (lb-format s "~a" store-name)
+      (put-coloured-str! +term-yellow+ s left-col 1))
+      
+      (put-coloured-str! +term-white+ "Item Description" 3 desc-line)
+      (put-coloured-str! +term-white+ "Weight" 60 desc-line)
+;;      (put-coloured-str! +term-white+ "Price" 72 line)
+      
+      ;; should have max here too
+      
+      (item-table-print (house.items home) :store nil :start-y (+ 2 desc-line))
+
+      ;; make these relative to last line
+      (put-coloured-str! +term-yellow+ "ESC" 1 last-line)
+      (put-coloured-str! +term-white+ ") Exit from building." 4 last-line)
+      (put-coloured-str! +term-yellow+ "g" 31 last-line)
+      (put-coloured-str! +term-white+ ") Get item." 32 last-line)
+      (put-coloured-str! +term-yellow+ "d" 51 last-line)
+      (put-coloured-str! +term-white+ ") Drop item." 52 last-line)
+      
+      (put-coloured-str! +term-l-red+ "You may: " 0 (- last-line 1))
+   
+      t))
+
+(defun %home-input-loop (player level home)
+  (let ((dungeon (level.dungeon level)))
+    
+  (block input-loop
+    (flet ((drop-item ()
+	     (when-bind (selection (select-item dungeon player '(:backpack :equip)
+						:prompt "Drop which item? "
+						:where :backpack))
+	       
+	       (let* ((the-table (get-item-table dungeon player (car selection)))
+		      (removed-obj (item-table-remove! the-table (cdr selection) :only-single-items t)))
+		 (when removed-obj
+		   ;; check if full!
+		   (item-table-add! (house.items home) removed-obj)
+		   t))))
+	   
+	   (get-item ()
+	     (let ((item-len (items.cur-size (house.items home))))
+	       (put-coloured-str! +term-white+
+				  (format nil "(Items ~a-~a, ESC to exit) Which item are you interested in?"
+					  (i2a 0) (i2a (1- item-len)))
+				  0 0)
+	       (let* ((selected (%store-select-item 0 (1- item-len))))
+		 (when (and selected (numberp selected))
+		   (let* ((items (house.items home))
+			  (act-obj (item-table-find items selected))
+			  (backpack (aobj.contains (player.inventory player))))
+		   
+		   (cond ((= 1 (aobj.number act-obj))
+			  
+			  (item-table-add! backpack act-obj)
+			  (item-table-remove! items act-obj)
+			  t)
+			 
+			 ((> (aobj.number act-obj) 1)
+			  (let ((new-obj (copy-active-object *variant* act-obj)))
+			    (decf (aobj.number act-obj))
+			    (setf (aobj.number new-obj) 1)
+			    (item-table-add! backpack new-obj)
+			    t))
+			 )))
+		 ))))
+
+      (loop
+       (c-term-gotoxy! 10 21)       
+       (let ((val (read-one-character)))
+	 (cond ((or (eql val #\g)
+		    (eql val #\p))
+		(when (get-item)
+		  (display-house player home)))
+	       
+	       ((or (eql val #\d)
+		    (eql val #\s))
+		(when (drop-item)
+		  (display-house player home)))
+	       
+	       ((or (eql val #\Escape)
+		    (eql val #\Q))
+		
+	      (return-from input-loop t))
+	       
+	       (t
+		(warn "Unknown key read: ~s" val)))
+	 
+	 ;;     (c-prt! "" 0 0)
+	 )))
+    )))
+ 
+
+(defmethod visit-house (level (house players-home))
+  "Visit the player home."
+
+  (unless (activated? house)
+    (activate-object house))
   
+  (let ((player *player*))
+    (with-new-screen ()
+      (clear-the-screen!)
+      (display-house player house :offset 0)
+      (%home-input-loop player level house))
+    
+    ;;(pause-last-line!)
+    ))
+
 
 (defmethod generate-level! ((variant vanilla-variant) (level van-town-level) player)
   "Generates a town and returns it.  If the dungeon

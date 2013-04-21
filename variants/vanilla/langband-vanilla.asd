@@ -28,7 +28,7 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband-vanilla-system)
 
 (asdf:defsystem :langband-vanilla
-    :version "0.0.19"
+    :version "0.1.0"
     :components ((:file "constants")
 		 (:file "base" :depends-on ("constants"))
 		 (:file "quirks" :depends-on ("base"))

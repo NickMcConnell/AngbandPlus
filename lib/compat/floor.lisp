@@ -60,9 +60,9 @@ the Free Software Foundation; either version 2 of the License, or
 		   ;; the : shows up here, so no ordinary tokenising :(
 		   ;; no assert
 		   ;; the second should be the symbol to paint
-		   (setf (floor.x-char cur-floor) (schar l 2))
+		   (setf (x-char cur-floor) (schar l 2))
 		   ;; the third should be the colour
-		   (setf (floor.x-attr cur-floor) (convert-obj (schar l 4) :colour-code))
+		   (setf (x-attr cur-floor) (convert-obj (schar l 4) :colour-code))
 		   ))
 		   
 		

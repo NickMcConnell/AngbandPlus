@@ -828,7 +828,7 @@ static errr Term_wipe_gcu(int x, int y, int n)
 /*
  * Place some text on the screen using an attribute
  */
-static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
+static errr Term_text_gcu(int x, int y, int n, s16b a, const s16b *s)
 {
 	term_data *td = (term_data *)(Term->data);
 
@@ -847,10 +847,10 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 	{
 #ifdef USE_GRAPHICS
 		/* Special character */
-		if (use_graphics && (s[i] & 0x80))
+		if (use_graphics && (s[i] >= LANGBAND_GFX_START))
 		{
 			/* Determine picture to use */
-			switch (s[i] & 0x7F)
+			switch (s[i] - LANGBAND_GFX_START)
 			{
 #ifdef ACS_CKBOARD
                                 /* Wall */

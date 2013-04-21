@@ -81,9 +81,9 @@ the Free Software Foundation; either version 2 of the License, or
 		     ;; the first should be G
 		     (assert (string-equal (car res) "g"))
 		     ;; the next is the symbol
-		     (setf (monster.symbol cur-monster) (schar (cadr res) 0))
+		     (setf (x-char cur-monster) (schar (cadr res) 0))
 		     ;; the third is the colour
-		     (setf (monster.colour cur-monster)
+		     (setf (x-attr cur-monster)
 			   (convert-obj (schar (caddr res) 0) :colour-code))
 		     )))
 

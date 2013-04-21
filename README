@@ -20,12 +20,17 @@ Might be used:
   - CLISP
     is a bit tricky to get working, see the FAQ for more info
 
-  - Lispworks on Linux and Win32
-    Both ports are recent and may have problems.  See FAQ for more
-    info on the Win32 port.
+  - Lispworks on Linux
+    Should work fairly well.
+
+  - Lispworks on Win32
+    
+    May have problems, and has not been tested recently.  See FAQ for
+    more info on the Win32 port.
 
   - SBCL (on Linux)
-    A recent port which may be unstable.  You need v0.7.1 or newer.
+
+    Should work fairly well, make sure you get v0.7.7 or newer.
 
 
     
@@ -43,10 +48,13 @@ How to start it:
   - (load "game")
     loads/compiles the core engine mostly
   
-  - (lb::a)
-    loads vanilla variant and runs it
-    If you wish to specify UI, you can do (lb::a 'x11) for X11-window,
-    (lb::a 'gcu) for curses/xterm-mode or (lb::a 'win) for Windows. 
+  - (langband)
+    loads vanilla variant and runs it with no graphics.
+    If you wish to specify UI, you can do (langband 'x11) for X11-window,
+    (langband 'gcu) for curses/xterm-mode or (langband 'win) for Windows.
+
+    You can play on X11 with graphics by starting it with (gfx-langband)
+
 
   - Use (quit) in CMUCL/SBCL/LW/CLISP or (exit) in ACL to quit afterwards.
 
@@ -75,13 +83,13 @@ How to play:
     q - quaff a potion
     Q - quit the game
     r - read a scroll
-    S - save the game (save-file will be used on restart)
+    s - search area
+    S - save the game (save-file in ~/.angband/langband/ will be used on restart)
     u - use an item
     w - wear an item from backpack
 
 
   The keys and their code may be found in variants/vanilla/keys.lisp
-
   
 What to do on crash or bugs:
 

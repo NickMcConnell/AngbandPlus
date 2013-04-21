@@ -28,7 +28,37 @@ char *memset(char *s, int c, huge n)
 	return (s);
 }
 
-#endif
+#endif /* has_memset */
+
+
+/*
+ * The my_strcpy() function copies up to 'bufsize'-1 characters from 'src'
+ * to 'buf' and NUL-terminates the result.  The 'buf' and 'src' strings may
+ * not overlap.
+ *
+ * my_strcpy() returns strlen(src).  This makes checking for truncation
+ * easy.  Example: if (my_strcpy(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
+ *
+ * This function should be equivalent to the strlcpy() function in BSD.
+ */
+size_t my_strcpy(char *buf, const char *src, size_t bufsize)
+{
+        size_t len = strlen(src);
+        size_t ret = len;
+
+        /* Paranoia */
+        if (bufsize == 0) return ret;
+
+        /* Truncate */
+        if (len >= bufsize) len = bufsize - 1;
+
+        /* Copy the string and terminate it */
+        (void)memcpy(buf, src, len);
+        buf[len] = '\0';
+
+        /* Return strlen(src) */
+        return ret;
+}
 
 
 
@@ -628,6 +658,7 @@ errr macro_init(void)
 
 
 
+
 /*
  * Flush all pending input.
  *
@@ -680,7 +711,8 @@ static bool parse_under = FALSE;
  */
 static char inkey_aux(void)
 {
-	int k = 0, n, p = 0, w = 0;
+	int k, n;
+	int p = 0, w = 0;
 
 	char ch;
 
@@ -756,8 +788,6 @@ static char inkey_aux(void)
 	/* Check for available macro */
 	k = macro_find_ready(buf);
 
-//	printf("BUF is %s\n", buf);
-	
 	/* No macro available */
 	if (k < 0)
 	{
@@ -828,6 +858,18 @@ static char inkey_aux(void)
 static cptr inkey_next = NULL;
 
 
+#ifdef ALLOW_BORG
+
+/*
+ * Mega-Hack -- special "inkey_hack" hook.  XXX XXX XXX
+ *
+ * This special function hook allows the "Borg" (see elsewhere) to take
+ * control of the "inkey()" function, and substitute in fake keypresses.
+ */
+char (*inkey_hack)(int flush_first) = NULL;
+
+#endif /* ALLOW_BORG */
+
 
 /*
  * Get a keypress from the user.
@@ -879,9 +921,9 @@ static cptr inkey_next = NULL;
  * any time.  These sub-commands could include commands to take a picture of
  * the current screen, to start/stop recording a macro action, etc.
  *
- * If "angband_term[0]" is not active, we will make it active during this
+ * If "term_screen" is not active, we will make it active during this
  * function, so that the various "main-xxx.c" files can assume that input
- * is only requested (via "Term_inkey()") when "angband_term[0]" is active.
+ * is only requested (via "Term_inkey()") when "term_screen" is active.
  *
  * Mega-Hack -- This function is used as the entry point for clearing the
  * "signal_count" variable, and of the "character_saved" variable.
@@ -893,7 +935,7 @@ static cptr inkey_next = NULL;
  */
 char inkey(void)
 {
-	int v;
+	bool cursor_state;
 
 	char kk;
 
@@ -921,6 +963,20 @@ char inkey(void)
 	inkey_next = NULL;
 
 
+#ifdef ALLOW_BORG
+
+	/* Mega-Hack -- Use the special hook */
+	if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
+	{
+		/* Cancel the various "global parameters" */
+		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+
+		/* Accept result */
+		return (ch);
+	}
+
+#endif /* ALLOW_BORG */
+
 
 	/* Hack -- handle delayed "flush()" */
 	if (inkey_xtra)
@@ -937,18 +993,18 @@ char inkey(void)
 
 
 	/* Get the cursor state */
-	(void)Term_get_cursor(&v);
+	(void)Term_get_cursor(&cursor_state);
 
 	/* Show the cursor if waiting, except sometimes in "command" mode */
-	if (!inkey_scan && (!inkey_flag || character_icky))
+	if (!inkey_scan && (!inkey_flag || TRUE || character_icky))
 	{
 		/* Show the cursor */
-		(void)Term_set_cursor(1);
+		(void)Term_set_cursor(TRUE);
 	}
 
 
 	/* Hack -- Activate main screen */
-	Term_activate(angband_term[0]);
+	Term_activate(term_screen);
 
 
 	/* Get a key */
@@ -972,7 +1028,7 @@ char inkey(void)
 			Term_fresh();
 
 			/* Hack -- activate main screen */
-			Term_activate(angband_term[0]);
+			Term_activate(term_screen);
 
 			/* Mega-Hack -- reset saved flag */
 			character_saved = FALSE;
@@ -1035,7 +1091,7 @@ char inkey(void)
 
 		/* Get a key (see above) */
 		ch = inkey_aux();
-//		printf("INKEY: %c %d %d %d\n", ch>30?ch:'§', (int)ch, parse_under, inkey_base ); 
+
 
 		/* Handle "control-right-bracket" */
 		if (ch == 29)
@@ -1068,7 +1124,6 @@ char inkey(void)
 		{
 			/* Strip this key */
 			ch = 0;
-//			puts("ending");
 		}
 
 		/* Handle "control-underscore" */
@@ -1095,7 +1150,7 @@ char inkey(void)
 
 
 	/* Restore the cursor */
-	Term_set_cursor(v);
+	Term_set_cursor(cursor_state);
 
 
 	/* Cancel the various "global parameters" */
@@ -1186,10 +1241,21 @@ void move_cursor(int row, int col)
  * At the given location, using the given attribute, if allowed,
  * add the given string.  Do not clear the line.
  */
-void c_put_str(byte attr, cptr str, int row, int col)
+void c_put_str(s16b attr, cptr str, int row, int col)
 {
+    if (str) {
+	int i;
+	int s_len = strlen(str);
+	s16b buffer[1024];
+	
+	for (i=0; i < s_len; i++) {
+	    buffer[i] = (s16b)str[i];
+	}
+	buffer[i] = 0;
+
 	/* Position cursor, Dump the attr/text */
-	Term_putstr(col, row, -1, attr, str);
+	Term_putstr(col, row, -1, attr, buffer);
+    }
 }
 
 
@@ -1228,13 +1294,18 @@ void clear_from(int row)
  *
  * This function is stupid.  XXX XXX XXX
  */
-void pause_line(int row)
+void pause_line(int row, cptr msg)
 {
-	char ch;
-	c_prt(TERM_WHITE,"", row, 0);
-	c_put_str(TERM_WHITE, "[Press any key to continue]", row, 23);
-	ch = inkey();
-	c_prt(TERM_WHITE,"", row, 0);
+    char ch;
+    cptr realmsg = "[Press any key to continue]";
+    
+    if (msg && strlen(msg))
+	realmsg = msg;
+
+    c_prt(TERM_WHITE,"", row, 0);
+    c_put_str(TERM_WHITE, msg, row, 23);
+    ch = inkey();
+    c_prt(TERM_WHITE,"", row, 0);
 }
 
 

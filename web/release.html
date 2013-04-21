@@ -44,62 +44,74 @@
 	      <p> The Lepton-release will show that basic features of the goal
 		of an engine that supports pluggable angband-variants are
 		implemented or implementable.  It will not have all features, nor
-		all features fully implemented.  Trendsetting rules for what to
-		include: </p>
+		all features fully implemented.</p>
+
+
+	      <p>The v0.1 release has many of the most used commands
+	      and functionality.  Focus has been on the most important
+	      and most used functions, and those you meet early in the
+	      game.  Some basic principles in development: </p>
 	      <ul>
-		<li> Objects and monsters found below 1000' and their abilities
+		<li> Focus on objects and monsters found before 1000' and their abilities
 		  and powers. </li>
 		<li> No fancy features, e.g visuals. </li>
 		<li> No extended features when a simpler solution
 		  exists, e.g no point-based stat-system, but simple
 		  autoroller, and no haggling, but fixed prices. </li>
-		<li> Features not strictly needed, e.g target-code,
+		<li> Don't implement features not strictly needed, e.g target-code,
 		  hitpoints-warnings, ...</li>
 	      </ul>
 
+	      <h3>Things that are included</h3>
+	      <ul>
+		<li>Most commands (eat, drop, drink, pick up, read,
+		zap wand, ...). 
+		<li>Basic fighting and basic spells
+		<li>Most common objects with effects
+		<li>Doors, traps, corridors and rooms in the dungeon
+		<li>Graphical tiles for X11, *including* <a
+		href="screenshots.html">images</a> (which is not 
+		in any other angband variant)
+		<li>Aggressive monsters and nasty combat attacks by
+		monsters.
+		<li>Bows, wands, staves and rods and a fireball for
+		your enemies.
+		<li> Simple stores, a simple home and quick to create
+		a character.
+		  
+	      </ul>
+		  
+	      
 	      <b>Things that will not be included:</b>
 	      <ul>
 		<li> vaults or pits
 		<li> artifacts
-		<li> monster-powers commonly found below 1000'
-		<li> object-powers commonly found below 1000'
-		<li> spellbooks below 1000'
+		<li> monster-powers commonly found below 1000' (some exceptions)
+		<li> object-powers commonly found below 1000' (some exceptions)
+		<li> spellbooks below 1000' (some exceptions)
 		<li> store restock, restricted buy in shops
 		<li> day/night in town
 		<li> integrated room-code
 		<li> ego-effects of below 1000'
-		<li> monster use items or monster pick-up
+		<li> monster use items or monsters pick up items
 		<li> no monster-memory
 		<li> perfect descriptions or perfect screens
 		<li> character-dumps to text-files
-		<li> no directed 'o'pen command or a 'D'estroy command
-		<li> targeting code
+		<li> a 'D'estroy command
+		<li> targeting, running or resting commands
 		<li> no point-based birth or haggling
-		<li> refill of lamps
+		<li> refill of lamps or spiking of doors
 		<li> perfect division of jobs between variant-code and
 		engine
 		<li> fully integrated event-code
-		<li> message-log
-		<li> no working home
+		<li> home in town is not saved, also some other
+		missing features in save/load
 	      </ul>
 
-	      <b>The release will have:</b>
-	      <ul>
-		<li> Basic spells
-		<li> Basic object-examples of most kinds (rod, staff,
-		wand, ring, amulet, weapons, armour, ..) with
-		effects. 
-		<li> Simple birth, simple stores, simple town
-		<li> Fairly straightforward dungeons, with monsters,
-		objects and rooms to explore.
-		<li> Most basic commands needed in the game.
-		<li> Basic calculations of abilities, combat, ...
-	      </ul>
 	      
 	      <p>Quickly summed up, this means that a lot of things
-	      still need to be added, but I hope I'll be able to do
-	      this.  I suspect that I will need v0.0.19, v0.0.20 and
-	      v0.0.21 to reach v0.1 though.</p>
+	      still need to be added and improved.  I hope I'll be able to do
+	      this, but some help would be appreciated.</p>
 
 	      
 	      
@@ -108,8 +120,8 @@
 	  
 	  <tr>
 	    <td width="46" valign="bottom"><img src="leftcorner.png" width="46" height="46" alt=""></td>
-	    <td width="203"><center>Last updated July 2002<br>by <a
-		  href="mailto:stig@users.sourceforge.net">Stig E Sandø</a>.</center></td>
+	    <td width="203"><center>Last updated September 2002<br>by <a
+		  href="mailto:stig@langband.org">Stig E Sandø</a>.</center></td>
 	    <td width="203">
 	      <center>
 		See also: <br>

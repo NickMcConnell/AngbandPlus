@@ -155,7 +155,7 @@ the Free Software Foundation; either version 2 of the License, or
   :flags '(<easy-know> <curse>)
   :sort-value 4404
   :the-kind '<ring>
-  :game-values (make-game-values :abilities '(<teleport>))) 
+  :game-values (make-game-values :abilities '(<random-teleport>))) 
 
 (define-object-kind "ring-slow-digest" "slow digestion"
   :numeric-id 139
@@ -340,7 +340,8 @@ the Free Software Foundation; either version 2 of the License, or
 		      (setf (gval.ac-modifier gvals) (- -5 (magic-bonus-for-level 10 depth)))
 		      ))
 
-  :game-values (make-game-values :stat-modifiers '(<chr> <wis>) :abilities '(<teleport>))) 
+  :game-values (make-game-values :stat-modifiers '(<chr> <wis>)
+				 :abilities '(<random-teleport>))) 
 
 (define-object-kind "ring-stupid" "stupidity"
   :numeric-id 150

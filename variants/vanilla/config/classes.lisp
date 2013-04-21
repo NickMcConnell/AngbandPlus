@@ -47,16 +47,15 @@ the Free Software Foundation; either version 2 of the License, or
   :starting-equipment '((obj :id "broad-sword")
 			(obj :id "chain-mail")
 			(obj :id "potion-berserk")
-			
 			#||
+			(obj :id "ring-teleport")
+
 			;; various objects I use when testing stuff
 ;;			(obj :id "ring-feather-fall")
 ;;			(obj :id "ring-resist-poison")
-			(obj :id "ring-dmg")
 ;;			(obj :id "ring-woe")
 ;;			(obj :id "ring-stupid")
 			(obj :id "wand-lightning-bolt")
-			(obj :id "rod-lightning-bolts")
 			(obj :id "staff-identify")
 			(obj :id "potion-speed" :amount 9)
 			
@@ -68,7 +67,11 @@ the Free Software Foundation; either version 2 of the License, or
 			;;(obj :id "potion-sleep" :amount 3)
 			;;(obj :id "scroll-teleport-lvl" :amount 5)
 			;;(obj :id "amulet-resist-acid")
+			;;(obj :id "potion-str" :amount 7)
+			;;(obj :id "rod-lightning-bolts")
+
 			||#
+			
 			)
 			
 

@@ -23,7 +23,7 @@ the Free Software Foundation; either version 2 of the License, or
   #+(or allegro cmu sbcl)
   (pushnew :use-callback-from-c *features*)
 
-  #+(or cmu clisp sbcl)
+;;  #+(or cmu clisp sbcl)
   (pushnew :handle-char-as-num *features*)
 
   #+(or cmu allegro lispworks sbcl)
@@ -117,12 +117,13 @@ the Free Software Foundation; either version 2 of the License, or
 			   )
 	      :depends-on (foreign))
      ;; this can safely be commented all out, or parts of it may be commented out
+     #+never
      (:module compat
               :source-pathname "lib/compat/"
               :components (
 			   #+never
 			   (:file "ego")
-
+			   #+never
 			   (:file "savefiles")
 			   )
 	      :depends-on (basic))

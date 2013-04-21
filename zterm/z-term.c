@@ -14,6 +14,7 @@
 
 #include "z-virt.h"
 
+#include "langband.h"
 
 /*
  * This file provides a generic, efficient, terminal window package,
@@ -185,6 +186,7 @@
  *   Term->user_hook = Perform user actions
  *   Term->xtra_hook = Perform extra actions
  *   Term->curs_hook = Draw (or Move) the cursor
+ *   Term->bigcurs_hook = Draw (or Move) the big cursor (bigtile mode)
  *   Term->wipe_hook = Draw some blank spaces
  *   Term->text_hook = Draw some text in the window
  *   Term->pict_hook = Draw some attr/chars in the window
@@ -316,20 +318,20 @@ static errr term_win_init(term_win *s, int w, int h)
 	int y;
 
 	/* Make the window access arrays */
-	C_MAKE(s->a, h, byte*);
-	C_MAKE(s->c, h, char*);
+	C_MAKE(s->a, h, s16b*);
+	C_MAKE(s->c, h, s16b*);
 
 	/* Make the window content arrays */
-	C_MAKE(s->va, h * w, byte);
-	C_MAKE(s->vc, h * w, char);
+	C_MAKE(s->va, h * w, s16b);
+	C_MAKE(s->vc, h * w, s16b);
 
 	/* Make the terrain access arrays */
-	C_MAKE(s->ta, h, byte*);
-	C_MAKE(s->tc, h, char*);
+	C_MAKE(s->ta, h, s16b*);
+	C_MAKE(s->tc, h, s16b*);
 
 	/* Make the terrain content arrays */
-	C_MAKE(s->vta, h * w, byte);
-	C_MAKE(s->vtc, h * w, char);
+	C_MAKE(s->vta, h * w, s16b);
+	C_MAKE(s->vtc, h * w, s16b);
 
 	/* Prepare the window access arrays */
 	for (y = 0; y < h; y++)
@@ -356,17 +358,17 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 	/* Copy contents */
 	for (y = 0; y < h; y++)
 	{
-		byte *f_aa = f->a[y];
-		char *f_cc = f->c[y];
+		s16b *f_aa = f->a[y];
+		s16b *f_cc = f->c[y];
 
-		byte *s_aa = s->a[y];
-		char *s_cc = s->c[y];
+		s16b *s_aa = s->a[y];
+		s16b *s_cc = s->c[y];
 
-		byte *f_taa = f->ta[y];
-		char *f_tcc = f->tc[y];
+		s16b *f_taa = f->ta[y];
+		s16b *f_tcc = f->tc[y];
 
-		byte *s_taa = s->ta[y];
-		char *s_tcc = s->tc[y];
+		s16b *s_taa = s->ta[y];
+		s16b *s_tcc = s->tc[y];
 
 		for (x = 0; x < w; x++)
 		{
@@ -449,7 +451,7 @@ static errr Term_wipe_hack(int x, int y, int n)
 /*
  * Hack -- fake hook for "Term_text()" (see above)
  */
-static errr Term_text_hack(int x, int y, int n, byte a, const char *cp)
+static errr Term_text_hack(int x, int y, int n, s16b a, const s16b *cp)
 {
 	/* Compiler silliness */
 	if (x || y || n || a || cp) return (-2);
@@ -462,7 +464,7 @@ static errr Term_text_hack(int x, int y, int n, byte a, const char *cp)
 /*
  * Hack -- fake hook for "Term_pict()" (see above)
  */
-static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
+static errr Term_pict_hack(int x, int y, int n, const s16b *ap, const s16b *cp, const s16b *tap, const s16b *tcp)
 {
 	/* Compiler silliness */
 	if (x || y || n || ap || cp || tap || tcp) return (-2);
@@ -480,20 +482,34 @@ static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, 
  *
  * Assumes given location and values are valid.
  */
-void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc)
+void Term_queue_char(int x, int y, s16b a, s16b c, s16b ta, s16b tc)
 {
-	byte *scr_aa = Term->scr->a[y];
-	char *scr_cc = Term->scr->c[y];
+    /*
+        if (a==128 && c==-128) {
+	    fprintf(stderr, "Printing %d,%d,%d,%d at (%d,%d)\n",
+		    a, c, ta, tc, x, y);
+		    }*/
+	{
 
-	int oa = scr_aa[x];
-	int oc = scr_cc[x];
+	s16b *scr_aa = Term->scr->a[y];
+	s16b *scr_cc = Term->scr->c[y];
 
-	byte *scr_taa = Term->scr->ta[y];
-	char *scr_tcc = Term->scr->tc[y];
+	s16b oa = scr_aa[x];
+	s16b oc = scr_cc[x];
 
-	int ota = scr_taa[x];
-	int otc = scr_tcc[x];
+	s16b *scr_taa = Term->scr->ta[y];
+	s16b *scr_tcc = Term->scr->tc[y];
 
+	s16b ota = scr_taa[x];
+	s16b otc = scr_tcc[x];
+
+/*	
+	if (a == 128 && c == -128) {
+	    fprintf(stderr, "Printing %d,%d,%d,%d at (%d,%d)\n",
+		    a, c, ta, tc, x, y);
+	}
+*/
+	
 	/* Don't change is the terrain value is 0 */
 	if (!ta) ta = ota;
 	if (!tc) tc = otc;
@@ -515,6 +531,7 @@ void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc)
 	/* Check for new min/max col info for this row */
 	if (x < Term->x1[y]) Term->x1[y] = x;
 	if (x > Term->x2[y]) Term->x2[y] = x;
+	}
 }
 
 
@@ -526,24 +543,24 @@ void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc)
  * a valid location, so the first "n" characters of "s" can all be added
  * starting at (x,y) without causing any illegal operations.
  */
-void Term_queue_chars(int x, int y, int n, byte a, cptr s)
+void Term_queue_chars(int x, int y, int n, s16b a, s16b *s)
 {
 	int x1 = -1, x2 = -1;
 
-	byte *scr_aa = Term->scr->a[y];
-	char *scr_cc = Term->scr->c[y];
+	s16b *scr_aa = Term->scr->a[y];
+	s16b *scr_cc = Term->scr->c[y];
 
-	byte *scr_taa = Term->scr->ta[y];
-	char *scr_tcc = Term->scr->tc[y];
+	s16b *scr_taa = Term->scr->ta[y];
+	s16b *scr_tcc = Term->scr->tc[y];
 
 	/* Queue the attr/chars */
 	for ( ; n; x++, s++, n--)
 	{
-		int oa = scr_aa[x];
-		int oc = scr_cc[x];
+		s16b oa = scr_aa[x];
+		s16b oc = scr_cc[x];
 
-		int ota = scr_taa[x];
-		int otc = scr_tcc[x];
+		s16b ota = scr_taa[x];
+		s16b otc = scr_tcc[x];
 
 		/* Hack -- Ignore non-changes */
 		if ((oa == a) && (oc == *s) && (ota == 0) && (otc == 0)) continue;
@@ -587,23 +604,23 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 {
 	int x;
 
-	byte *old_aa = Term->old->a[y];
-	char *old_cc = Term->old->c[y];
+	s16b *old_aa = Term->old->a[y];
+	s16b *old_cc = Term->old->c[y];
 
-	byte *scr_aa = Term->scr->a[y];
-	char *scr_cc = Term->scr->c[y];
+	s16b *scr_aa = Term->scr->a[y];
+	s16b *scr_cc = Term->scr->c[y];
 
-	byte *old_taa = Term->old->ta[y];
-	char *old_tcc = Term->old->tc[y];
+	s16b *old_taa = Term->old->ta[y];
+	s16b *old_tcc = Term->old->tc[y];
 
-	byte *scr_taa = Term->scr->ta[y];
-	char *scr_tcc = Term->scr->tc[y];
+	s16b *scr_taa = Term->scr->ta[y];
+	s16b *scr_tcc = Term->scr->tc[y];
 
-	byte ota;
-	char otc;
+	s16b ota;
+	s16b otc;
 
-	byte nta;
-	char ntc;
+	s16b nta;
+	s16b ntc;
 
 	/* Pending length */
 	int fn = 0;
@@ -611,11 +628,11 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 	/* Pending start */
 	int fx = 0;
 
-	byte oa;
-	char oc;
+	s16b oa;
+	s16b oc;
 
-	byte na;
-	char nc;
+	s16b na;
+	s16b nc;
 
 	/* Scan "modified" columns */
 	for (x = x1; x <= x2; x++)
@@ -684,20 +701,20 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 {
 	int x;
 
-	byte *old_aa = Term->old->a[y];
-	char *old_cc = Term->old->c[y];
-	byte *scr_aa = Term->scr->a[y];
-	char *scr_cc = Term->scr->c[y];
+	s16b *old_aa = Term->old->a[y];
+	s16b *old_cc = Term->old->c[y];
+	s16b *scr_aa = Term->scr->a[y];
+	s16b *scr_cc = Term->scr->c[y];
 
-	byte *old_taa = Term->old->ta[y];
-	char *old_tcc = Term->old->tc[y];
-	byte *scr_taa = Term->scr->ta[y];
-	char *scr_tcc = Term->scr->tc[y];
+	s16b *old_taa = Term->old->ta[y];
+	s16b *old_tcc = Term->old->tc[y];
+	s16b *scr_taa = Term->scr->ta[y];
+	s16b *scr_tcc = Term->scr->tc[y];
 
-	byte ota;
-	char otc;
-	byte nta;
-	char ntc;
+	s16b ota;
+	s16b otc;
+	s16b nta;
+	s16b ntc;
 
 	/* The "always_text" flag */
 	int always_text = Term->always_text;
@@ -709,13 +726,13 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 	int fx = 0;
 
 	/* Pending attr */
-	byte fa = Term->attr_blank;
+	s16b fa = Term->attr_blank;
 
-	byte oa;
-	char oc;
+	s16b oa;
+	s16b oc;
 
-	byte na;
-	char nc;
+	s16b na;
+	s16b nc;
 
 	/* Scan "modified" columns */
 	for (x = x1; x <= x2; x++)
@@ -767,8 +784,11 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		old_tcc[x] = ntc;
 
 		/* Handle high-bit attr/chars */
-		if ((na & 0x80) && (nc & 0x80))
+		if ((na >= LANGBAND_GFX_START) && (nc >= LANGBAND_GFX_START))
 		{
+			/* 2nd s16b of bigtile */
+			if ((na == -1) && (nc == -1)) continue;
+
 			/* Flush */
 			if (fn)
 			{
@@ -852,11 +872,11 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 {
 	int x;
 
-	byte *old_aa = Term->old->a[y];
-	char *old_cc = Term->old->c[y];
+	s16b *old_aa = Term->old->a[y];
+	s16b *old_cc = Term->old->c[y];
 
-	byte *scr_aa = Term->scr->a[y];
-	char *scr_cc = Term->scr->c[y];
+	s16b *scr_aa = Term->scr->a[y];
+	s16b *scr_cc = Term->scr->c[y];
 
 	/* The "always_text" flag */
 	int always_text = Term->always_text;
@@ -868,13 +888,13 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 	int fx = 0;
 
 	/* Pending attr */
-	byte fa = Term->attr_blank;
+	s16b fa = Term->attr_blank;
 
-	byte oa;
-	char oc;
+	s16b oa;
+	s16b oc;
 
-	byte na;
-	char nc;
+	s16b na;
+	s16b nc;
 
 
 	/* Scan "modified" columns */
@@ -1114,6 +1134,7 @@ errr Term_fresh(void)
 
 	/* Paranoia -- use "fake" hooks to prevent core dumps */
 	if (!Term->curs_hook) Term->curs_hook = Term_curs_hack;
+	if (!Term->bigcurs_hook) Term->bigcurs_hook = Term->curs_hook;
 	if (!Term->wipe_hook) Term->wipe_hook = Term_wipe_hack;
 	if (!Term->text_hook) Term->text_hook = Term_text_hack;
 	if (!Term->pict_hook) Term->pict_hook = Term_pict_hack;
@@ -1122,22 +1143,23 @@ errr Term_fresh(void)
 	/* Handle "total erase" */
 	if (Term->total_erase)
 	{
-		byte na = Term->attr_blank;
-		char nc = Term->char_blank;
+		s16b na = Term->attr_blank;
+		s16b nc = Term->char_blank;
 
 		/* Physically erase the entire window */
 		Term_xtra(TERM_XTRA_CLEAR, 0);
 
 		/* Hack -- clear all "cursor" data */
-		old->cv = old->cu = old->cx = old->cy = 0;
+		old->cv = old->cu = FALSE;
+		old->cx = old->cy = 0;
 
 		/* Wipe each row */
 		for (y = 0; y < h; y++)
 		{
-			byte *aa = old->a[y];
-			char *cc = old->c[y];
-			byte *taa = old->ta[y];
-			char *tcc = old->tc[y];
+			s16b *aa = old->a[y];
+			s16b *cc = old->c[y];
+			s16b *taa = old->ta[y];
+			s16b *tcc = old->tc[y];
 
 			/* Wipe each column */
 			for (x = 0; x < w; x++)
@@ -1176,17 +1198,17 @@ errr Term_fresh(void)
 			int tx = old->cx;
 			int ty = old->cy;
 
-			byte *old_aa = old->a[ty];
-			char *old_cc = old->c[ty];
+			s16b *old_aa = old->a[ty];
+			s16b *old_cc = old->c[ty];
 
-			byte oa = old_aa[tx];
-			char oc = old_cc[tx];
+			s16b oa = old_aa[tx];
+			s16b oc = old_cc[tx];
 
-			byte *old_taa = old->ta[ty];
-			char *old_tcc = old->tc[ty];
+			s16b *old_taa = old->ta[ty];
+			s16b *old_tcc = old->tc[ty];
 
-			byte ota = old_taa[tx];
-			char otc = old_tcc[tx];
+			s16b ota = old_taa[tx];
+			s16b otc = old_tcc[tx];
 
 			/* Hack -- use "Term_pict()" always */
 			if (Term->always_pict)
@@ -1195,7 +1217,7 @@ errr Term_fresh(void)
 			}
 
 			/* Hack -- use "Term_pict()" sometimes */
-			else if (Term->higher_pict && (oa & 0x80) && (oc & 0x80))
+			else if (Term->higher_pict && (oa >= LANGBAND_GFX_START) && (oc >= LANGBAND_GFX_START))
 			{
 				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc, &ota, &otc));
 			}
@@ -1296,8 +1318,16 @@ errr Term_fresh(void)
 		/* Draw the cursor */
 		if (!scr->cu && scr->cv)
 		{
-			/* Call the cursor display routine */
-			(void)((*Term->curs_hook)(scr->cx, scr->cy));
+			if ((scr->cx + 1 < w) && (old->a[scr->cy][scr->cx + 1] == -1))
+			{
+				/* Double width cursor for the Bigtile mode */
+				(void)((*Term->bigcurs_hook)(scr->cx, scr->cy));
+			}
+			else
+			{
+				/* Call the cursor display routine */
+				(void)((*Term->curs_hook)(scr->cx, scr->cy));
+			}
 		}
 	}
 
@@ -1359,7 +1389,7 @@ errr Term_fresh(void)
 /*
  * Set the cursor visibility
  */
-errr Term_set_cursor(int v)
+errr Term_set_cursor(bool v)
 {
 	/* Already done */
 	if (Term->scr->cv == v) return (1);
@@ -1403,7 +1433,7 @@ errr Term_gotoxy(int x, int y)
  * Do not change the cursor position
  * No visual changes until "Term_fresh()".
  */
-errr Term_draw(int x, int y, byte a, char c)
+errr Term_draw(int x, int y, s16b a, s16b c)
 {
 	int w = Term->wid;
 	int h = Term->hgt;
@@ -1439,7 +1469,7 @@ errr Term_draw(int x, int y, byte a, char c)
  * positive value, future calls to either function will
  * return negative ones.
  */
-errr Term_addch(byte a, char c)
+errr Term_addch(s16b a, s16b c)
 {
 	int w = Term->wid;
 
@@ -1485,7 +1515,7 @@ errr Term_addch(byte a, char c)
  * positive value, future calls to either function will
  * return negative ones.
  */
-errr Term_addstr(int n, byte a, cptr s)
+errr Term_addstr(int n, s16b a, s16b *s)
 {
 	int k;
 
@@ -1522,7 +1552,7 @@ errr Term_addstr(int n, byte a, cptr s)
 /*
  * Move to a location and, using an attr, add a char
  */
-errr Term_putch(int x, int y, byte a, char c)
+errr Term_putch(int x, int y, s16b a, s16b c)
 {
 	errr res;
 
@@ -1540,7 +1570,7 @@ errr Term_putch(int x, int y, byte a, char c)
 /*
  * Move to a location and, using an attr, add a string
  */
-errr Term_putstr(int x, int y, int n, byte a, cptr s)
+errr Term_putstr(int x, int y, int n, s16b a, s16b *s)
 {
 	errr res;
 
@@ -1569,14 +1599,14 @@ errr Term_erase(int x, int y, int n)
 	int x1 = -1;
 	int x2 = -1;
 
-	int na = Term->attr_blank;
-	int nc = Term->char_blank;
+	s16b na = Term->attr_blank;
+	s16b nc = Term->char_blank;
 
-	byte *scr_aa;
-	char *scr_cc;
+	s16b *scr_aa;
+	s16b *scr_cc;
 
-	byte *scr_taa;
-	char *scr_tcc;
+	s16b *scr_taa;
+	s16b *scr_tcc;
 
 	/* Place cursor */
 	if (Term_gotoxy(x, y)) return (-1);
@@ -1591,11 +1621,17 @@ errr Term_erase(int x, int y, int n)
 	scr_taa = Term->scr->ta[y];
 	scr_tcc = Term->scr->tc[y];
 
+	if ((n > 0) && (scr_cc[x] == -1) && (scr_aa[x] == -1))
+	{
+		x--;
+		n++;
+	}
+
 	/* Scan every column */
 	for (i = 0; i < n; i++, x++)
 	{
-		int oa = scr_aa[x];
-		int oc = scr_cc[x];
+		s16b oa = scr_aa[x];
+		s16b oc = scr_cc[x];
 
 		/* Hack -- Ignore "non-changes" */
 		if ((oa == na) && (oc == nc)) continue;
@@ -1643,8 +1679,8 @@ errr Term_clear(void)
 	int w = Term->wid;
 	int h = Term->hgt;
 
-	byte na = Term->attr_blank;
-	char nc = Term->char_blank;
+	s16b na = Term->attr_blank;
+	s16b nc = Term->char_blank;
 
 	/* Cursor usable */
 	Term->scr->cu = 0;
@@ -1655,10 +1691,10 @@ errr Term_clear(void)
 	/* Wipe each row */
 	for (y = 0; y < h; y++)
 	{
-		byte *scr_aa = Term->scr->a[y];
-		char *scr_cc = Term->scr->c[y];
-		byte *scr_taa = Term->scr->ta[y];
-		char *scr_tcc = Term->scr->tc[y];
+		s16b *scr_aa = Term->scr->a[y];
+		s16b *scr_cc = Term->scr->c[y];
+		s16b *scr_taa = Term->scr->ta[y];
+		s16b *scr_tcc = Term->scr->tc[y];
 
 		/* Wipe each column */
 		for (x = 0; x < w; x++)
@@ -1713,7 +1749,7 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 {
 	int i, j;
 
-	char *c_ptr;
+	s16b *c_ptr;
 
 	/* Bounds checking */
 	if (y2 >= Term->hgt) y2 = Term->hgt - 1;
@@ -1729,6 +1765,9 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 	/* Set the x limits */
 	for (i = Term->y1; i <= Term->y2; i++)
 	{
+		if ((x1 > 0) && (Term->old->a[i][x1] == -1))
+			x1--;
+
 		Term->x1[i] = x1;
 		Term->x2[i] = x2;
 
@@ -1759,7 +1798,7 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 /*
  * Extract the cursor visibility
  */
-errr Term_get_cursor(int *v)
+errr Term_get_cursor(bool *v)
 {
 	/* Extract visibility */
 	(*v) = Term->scr->cv;
@@ -1805,7 +1844,7 @@ errr Term_locate(int *x, int *y)
  * Note that this refers to what will be on the window after the
  * next call to "Term_fresh()".  It may or may not already be there.
  */
-errr Term_what(int x, int y, byte *a, char *c)
+errr Term_what(int x, int y, s16b *a, s16b *c)
 {
 	int w = Term->wid;
 	int h = Term->hgt;
@@ -2088,8 +2127,8 @@ errr Term_resize(int w, int h)
 
 	int wid, hgt;
 
-	byte *hold_x1;
-	byte *hold_x2;
+	u16b *hold_x1;
+	u16b *hold_x2;
 
 	term_win *hold_old;
 	term_win *hold_scr;
@@ -2097,7 +2136,6 @@ errr Term_resize(int w, int h)
 	term_win *hold_tmp;
 
 
-//	fprintf(stderr,"try to resize term from %d,%d to %d,%d mod: %d\n", Term->wid, Term->hgt, w, h, Term->fixed_shape);
 	/* Resizing is forbidden */
 	if (Term->fixed_shape) return (-1);
 
@@ -2131,8 +2169,8 @@ errr Term_resize(int w, int h)
 	hold_tmp = Term->tmp;
 
 	/* Create new scanners */
-	C_MAKE(Term->x1, h, byte);
-	C_MAKE(Term->x2, h, byte);
+	C_MAKE(Term->x1, h, s16b);
+	C_MAKE(Term->x2, h, s16b);
 
 	/* Create new window */
 	MAKE(Term->old, term_win);
@@ -2248,7 +2286,7 @@ errr Term_resize(int w, int h)
 	/* Assume change */
 	Term->y1 = 0;
 	Term->y2 = h - 1;
-
+	
 	/* langband addition */
 	/*
 	{
@@ -2259,7 +2297,7 @@ errr Term_resize(int w, int h)
 	*/
 	
 	readjust_screen_lisp(w,h);
-	
+
 	/* Success */
 	return (0);
 }
@@ -2401,8 +2439,8 @@ errr term_init(term *t, int w, int h, int k)
 	t->hgt = h;
 
 	/* Allocate change arrays */
-	C_MAKE(t->x1, h, byte);
-	C_MAKE(t->x2, h, byte);
+	C_MAKE(t->x1, h, u16b);
+	C_MAKE(t->x2, h, u16b);
 
 
 	/* Allocate "displayed" */

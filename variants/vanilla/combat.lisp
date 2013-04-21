@@ -46,7 +46,7 @@ the Free Software Foundation; either version 2 of the License, or
   
     ;; wake it up
     ;; deliver damage
-    (setf (current-hp target) (- (current-hp target) damage))
+    (decf (current-hp target) damage)
 
     (bit-flag-add! *redraw* +print-hp+)
     
@@ -54,7 +54,7 @@ the Free Software Foundation; either version 2 of the License, or
       (setf did-target-die? t)
 
       ;; this might fail badly, but at least it will be visible!
-      (print-message! (format nil "You were killed by ~a" source))
+      (format-message! "You were killed by ~a" source)
 
       (kill-target! *dungeon* source target (location-x target) (location-y target))
       )

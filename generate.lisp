@@ -74,16 +74,16 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
   (let ((retval 0)
 	(ddx-ddd *ddx-ddd*)
 	(ddy-ddd *ddy-ddd*))
+
+    (loop for i below +simple-direction-number+
+	  for tmp-x of-type u-fixnum = (+ x (svref ddx-ddd i))
+	  for tmp-y of-type u-fixnum = (+ y (svref ddy-ddd i))
+	  do
+	  (unless (or (not (cave-floor-bold? dungeon tmp-x tmp-y))
+		      (/= (cave-floor dungeon tmp-x tmp-y) +floor-regular+)
+		      (cave-is-room? dungeon tmp-x tmp-y))
+	    (incf retval)))
     
-    (dotimes (i 4)
-      (let ((tmp-x (+ x (svref ddx-ddd i)))
-	    (tmp-y (+ y (svref ddy-ddd i))))
-	(declare (type u-fixnum tmp-x tmp-y))
-	
-	(unless (or (not (cave-floor-bold? dungeon tmp-x tmp-y))
-		    (/= (cave-floor dungeon tmp-x tmp-y) +floor-regular+)
-		    (cave-is-room? dungeon tmp-x tmp-y))
-	  (incf retval))))
     retval))
 
 (defun possible-doorway? (dungeon x y)
@@ -153,6 +153,13 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 			
 ;;  (warn "Executing trap ~s" the-trap)
 
+(let ((trap-event nil))
+  (defun create-simple-trap (type x y)
+    (let ((trap (make-instance 'active-trap :type type :loc-x x :loc-y y)))
+      (unless trap-event
+	(setf trap-event (make-coord-event "step" #'%execute-trap nil)))
+      (push trap-event (decor.events trap))
+      trap)))
 
 ;; should be reimplemented, slow and ignores rarity
 (defmethod find-random-trap (variant dungeon x y)
@@ -165,23 +172,32 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	  for v being the hash-values of table
 	  do
 	  (when (= i which-trap)
-	    (let ((trap (make-instance 'active-trap :type v :loc-x x :loc-y y)))
-	      (return-from find-random-trap trap))))
-    nil))
- 
+	    (return-from find-random-trap (create-simple-trap v x y))))
 
-(defmethod place-trap! ((variant variant) dungeon x y)
+    nil))
+
+(defmethod place-trap! ((variant variant) dungeon x y (the-trap active-trap))
+;;  (warn "trying to place trap ~s at (~s,~s) where we have ~s,~s"
+;;	the-trap x y (cave-floor dungeon x y) (dungeon.decor dungeon))
+  (when (and (in-bounds? dungeon x y)
+	     (or (cave-boldly-naked? dungeon x y)
+		 ;; this is to allow us put a trap in an old spot!
+		 (and (eql (cave-floor dungeon x y) +floor-invisible-trap+)
+		      (eq (cave-decor dungeon x y) nil))))
+    (setf (cave-decor dungeon x y) the-trap)
+    (pushnew the-trap (dungeon.decor dungeon))
+    ;; hack I guess
+    (setf (cave-floor dungeon x y) +floor-invisible-trap+)
+    ))
+
+
+(defmethod place-random-trap! ((variant variant) dungeon x y)
   "Tries to place a trap at given location."
   (when (and (in-bounds? dungeon x y)
 	     (cave-boldly-naked? dungeon x y))
 
     (when-bind (the-trap (find-random-trap variant dungeon x y))
-;;      (warn "Making trap (~s) at ~s,~s" (trap.name (trap.type the-trap)) x y)
-      (push (make-coord-event "step" #'%execute-trap nil) (decor.events the-trap))
-      (setf (cave-decor dungeon x y) the-trap)
-      ;; hack I guess
-      (setf (cave-floor dungeon x y) +floor-invisible-trap+))
-    ))
+      (place-trap! variant dungeon x y the-trap))))
 
 
 (defun let-floor-carry! (dungeon x y obj)
@@ -196,7 +212,8 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
   (values))
 
-(defmethod create-gold ((variant variant) (dungeon dungeon))
+(defmethod create-gold ((variant variant) (dungeon dungeon) &key originator)
+  (declare (ignore originator))
   (error "Please make CREATE-GOLD for variant.. this depends heavily on variant."))
 
 (defmethod add-magic-to-item! ((variant variant) item depth quality)
@@ -327,7 +344,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
       
       (case type
 	(alloc-type-rubble (place-rubble! variant dungeon x y))
-	(alloc-type-trap   (place-trap! variant dungeon x y))
+	(alloc-type-trap   (place-random-trap! variant dungeon x y))
 	;; add again later
 	(alloc-type-gold   (place-gold! variant dungeon x y))
 	(alloc-type-object (place-object! variant dungeon x y nil nil))))
@@ -512,7 +529,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 (defun random-direction ()
   "Returns two values with a random nsew direction"
-  (let ((val (random 4)))
+  (let ((val (random +simple-direction-number+)))
     (values (svref *ddx-ddd* val)
 	    (svref *ddy-ddd* val))))
 	    
@@ -621,13 +638,13 @@ argument is passed it will be used as new dungeon and returned."
 
     ;; perm walls on top and bottom
     (loop for y in (list 0 (1- dungeon-height))
-	  for x from 0 to (1- dungeon-width)
+	  for x from 0 below dungeon-width
 	  do
 	  (setf (cave-floor dungeon x y) +floor-perm-solid+))
     
     ;; perm walls on left and right
     (loop for x in (list 0 (1- dungeon-width))
-	  for y from 0 to (1- dungeon-height)
+	  for y from 0 below dungeon-height
 	  do
 	  (setf (cave-floor dungeon x y) +floor-perm-solid+))
     
@@ -643,7 +660,7 @@ argument is passed it will be used as new dungeon and returned."
 	    (setf (svref centres i) c))
 
       ;; scramble
-      (loop for i from 0 to (1- len)
+      (loop for i from 0 below len
 	    do
 	    (let* ((pick1 (random len))
 		   (pick2 (random len))

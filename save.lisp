@@ -99,7 +99,7 @@ the Free Software Foundation; either version 2 of the License, or
 	 (ind (%get-indent-str indent))
 	 (flavour-arg (object.flavour obj))
 	 (flav-to-print (if flavour-arg
-			    `(cons ,(car flavour-arg) ,(convert-obj (cdr flavour-arg) :letter))
+			    (flavour.name flavour-arg)
 			    nil)))
 	    
     #+langband-extra-checks
@@ -122,8 +122,9 @@ the Free Software Foundation; either version 2 of the License, or
     (write-binary 's16 str flav-num)
     (when flavour
       (assert (legal-flavour-obj? flavour))
-      (%bin-save-string (car flavour) str)
-      (write-binary 's16 str (char-code (convert-obj (cdr flavour) :letter))))
+      (%bin-save-string (flavour.name flavour) str)
+      ;;(write-binary 's16 str (char-code (convert-obj (cdr flavour) :letter)))
+      )
 
 
     nil))
@@ -200,6 +201,14 @@ the Free Software Foundation; either version 2 of the License, or
 	(dolist (i rooms)
 	  (save-object variant i stream (+ 2 indent)))
 	(format str "~a )~%" ind)))
+
+    (let ((decor (dungeon.decor object)))
+      (when decor
+	(format str "~a :decor (list ~%" ind)
+	(dolist (i decor)
+	  (save-object variant i stream (+ 2 indent)))
+	(format str "~a )~%" ind)))
+
     
     (format str "~a) ;; end dng~%" ind)
     ))
@@ -240,6 +249,14 @@ the Free Software Foundation; either version 2 of the License, or
       
       (bt:write-binary 'bt:u32 str room-len)
       (dolist (i rooms)
+	(save-object variant i stream indent)))
+    
+    ;; write decor
+    (let* ((decor (dungeon.decor object))
+	   (dec-len (length decor)))
+      
+      (bt:write-binary 'bt:u32 str dec-len)
+      (dolist (i decor)
 	(save-object variant i stream indent)))
 
     
@@ -370,6 +387,36 @@ the Free Software Foundation; either version 2 of the License, or
 
     nil))
 
+(defmethod save-object ((variant variant) (obj active-trap) (stream l-readable-stream) indent)
+  
+;;  (assert (ok-object? obj :context :in-game :warn-on-failure t))
+
+  (let ((str (lang.stream stream))
+	(ind (%get-indent-str indent)))
+
+    (format str "~a(%filed-trap :type ~s :loc-x ~s :loc-y ~s)~%"
+	    ind (trap.id (trap.type obj))
+	    (location-x obj) (location-y obj))
+    
+    nil))
+
+(defmethod save-object ((variant variant) (obj active-trap) (stream l-binary-stream) indent)
+  (declare (ignore indent))
+;;  (assert (ok-object? obj :context :in-game :warn-on-failure t))
+
+  (let ((str (lang.stream stream))
+	(loc-x (location-x obj))
+	(loc-y (location-y obj))
+	)
+
+    (%bin-save-string (trap.id (trap.type obj)) str)
+    (bt:write-binary 'u16 str loc-x)
+    (bt:write-binary 'u16 str loc-y)
+     
+    nil))
+
+
+
 (defmethod save-object ((variant variant) (obj active-room) (stream l-readable-stream) indent)
   
   (assert (ok-object? obj :context :in-game :warn-on-failure t))
@@ -397,6 +444,34 @@ the Free Software Foundation; either version 2 of the License, or
     (bt:write-binary 'u16 str loc-y)
      
     nil))
+
+(defmethod save-object ((variant variant) (obj temp-creature-attribute) (stream l-readable-stream) indent)
+;;  (assert (ok-object? obj :context :in-game :warn-on-failure t))
+  (let ((str (lang.stream stream))
+	(ind (%get-indent-str indent)))
+    (format str "~a'(:attr ~s :value ~s :duration ~s)~%" ind (attr.name obj)
+	    (attr.value obj) (attr.duration obj))
+    nil))
+
+(defmethod save-object ((variant variant) (obj temp-creature-attribute) (stream l-binary-stream) indent)
+  (declare (ignore indent))
+  ;;(assert (ok-object? obj :context :in-game :warn-on-failure t))
+
+  (let ((str (lang.stream stream))
+	(val (attr.value obj)))
+
+    (ecase (attr.value-type obj)
+      (integer )
+      (boolean (if val
+		   (setf val 1)
+		   (setf val 0))))
+
+    (%bin-save-string (attr.name obj) str)
+    (bt:write-binary 'bt:s32 str val)
+    (bt:write-binary 'bt:u16 str (attr.duration obj))
+     
+    nil))
+
 
 (defmethod save-object ((variant variant) (obj player) (stream l-readable-stream) indent)
   (assert (ok-object? obj :context :in-game :warn-on-failure t))
@@ -436,7 +511,13 @@ the Free Software Foundation; either version 2 of the License, or
     
     (format str "~a  :equipment ~%" ind)
     (save-object variant (player.equipment obj) stream (+ 2 indent))
-  
+
+    (format str "~a  :temp-attrs (list ~%" ind)
+    (loop for i being the hash-values of (player.temp-attrs obj)
+	  do
+	  (save-object variant i stream (+ 2 indent)))
+    (format str " ~a) ;; end player ~%" ind)
+	
     (format str " ~a)) ;; end player ~%" ind)
 
     nil))
@@ -477,6 +558,11 @@ the Free Software Foundation; either version 2 of the License, or
 
     (save-object variant (player.equipment obj) stream indent)
     
+    (bt:write-binary 'bt:u16 str (hash-table-count (player.temp-attrs obj)))
+    (loop for i being the hash-values of (player.temp-attrs obj)
+	  do
+	  (save-object variant i stream indent))
+    
     nil))
 
 
@@ -500,13 +586,13 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((str (lang.stream stream))
 	(ind (%get-indent-str indent)))
     
-    (format str "~a(%filed-worn-items :objs (list " ind)
+    (format str "~a(%filed-worn-items :objs (list ~%" ind)
 
 ;;    (format str "nil")
     (flet ((save-objs (tbl num loc-obj)
 	     (declare (ignore tbl num))
 	     (if (not loc-obj)
-		 (format str " nil ")
+		 (format str "~a nil ~%" ind)
 		 (save-object variant loc-obj stream (+ 2 indent)))))
       
       (item-table-iterate! obj #'save-objs))
@@ -686,7 +772,10 @@ the Free Software Foundation; either version 2 of the License, or
 	      (t
 	       (error "Unable to read level-object from file ~a" fname))))
       
-      
+;;      (warn "Returning ~s ~s ~s ~s ~s ~s" *variant* (activated? *variant*)
+;;	    *player* T *level* (activated? *level*))
+;;      (warn "Status ~s ~s of ~s" s (file-position s) (file-length s))
+;;      (break)
       (list *variant* *player* *level*)
       )))
 

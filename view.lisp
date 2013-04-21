@@ -57,7 +57,7 @@ the Free Software Foundation; either version 2 of the License, or
     (when (and (> m 0)
 	       (<= m +scale+))
       (loop named inner
-	    for j from 0 to (1- slope-num)
+	    for j from 0 below slope-num
 	    do
 	    (incf i)
 	    (when (= m (svref (vinfo-hack.slopes hack) j))
@@ -126,7 +126,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;;    (print (vinfo-hack.slopes hack))
 
 ;;    (warn "last part")
-    (loop for i from 0 to (1- +vinfo-max-grids+)
+    (loop for i from 0 below +vinfo-max-grids+
 	  do
 	  (setf (svref vinfo i) (make-vinfo-type :grids (make-array +vinfo-grid-field-len+ :initial-element 0)
 						 :bits (make-array +vinfo-bit-field-len+
@@ -361,7 +361,7 @@ the Free Software Foundation; either version 2 of the License, or
 
       (block octant-run
 	;; octants
-	(loop for o2 of-type u-fixnum from 0 to #.(1- +vinfo-grid-field-len+) ;; size of the grid array
+	(loop for o2 of-type u-fixnum from 0 below +vinfo-grid-field-len+ ;; size of the grid array
 	      do
 	    
 	      ;; (warn "octant ~a" o2)

@@ -29,7 +29,28 @@ the rest of the game is init'ed."
 
   ;; fix these two to something real
   (register-help-topic& var-obj (make-help-topic :id "keys" :key #\k :name "Show commands/keys"))
-  (register-help-topic& var-obj (make-help-topic :id "chlog" :key #\c :name "Show changelog"))
+
+  (register-help-topic& var-obj
+			(make-help-topic :id "general" :key #\g :name "General information"
+					 :data "./lib/help/general.txt"))
+
+  (register-help-topic& var-obj
+			(make-help-topic :id "dungeon" :key #\d :name "Simple information about the dungeons"
+					 :data "./lib/help/dungeon.txt"))
+
+  (register-help-topic& var-obj
+			(make-help-topic :id "birth" :key #\b :name "Information about creating a character"
+					 :data "./lib/help/birth.txt"))
+
+    (register-help-topic& var-obj
+			(make-help-topic :id "playing" :key #\p :name "Tips and hints on how to play langband"
+					 :data "./lib/help/playing.txt"))
+
+    (register-help-topic& var-obj
+			(make-help-topic :id "version" :key #\v :name "Show version information"
+					 :data "./lib/help/version.txt"))
+  
+;;  (register-help-topic& var-obj (make-help-topic :id "chlog" :key #\c :name "Show changelog"))
   
   (van-register-levels! var-obj)
 
@@ -40,12 +61,15 @@ the rest of the game is init'ed."
     (load-variant-data& var-obj "defines")
     (load-variant-data& var-obj "stats")
     (load-variant-data& var-obj "flavours")
-    (load-variant-data& var-obj "stores")
     (load-variant-data& var-obj "traps")
 
     (load-variant-data& var-obj "spells")
     (load-variant-data& var-obj "races")
     (load-variant-data& var-obj "classes")
+    ;; need races
+    (load-variant-data& var-obj "stores")
+
+    (load-variant-data& var-obj "combat")
     )
 
   ;; we ensure that any elements in variant are sorted
@@ -298,12 +322,38 @@ the rest of the game is init'ed."
   (initialise-monsters& var-obj :file "town-monsters")
   (initialise-monsters& var-obj :file "uniques")
   
-  (initialise-floors& var-obj)
+  (initialise-floors& var-obj :file "floors")
 
+  (when *use-graphics*
+    (load-variant-data& var-obj "graf-prefs"))
   ;;  (warn "flav")
   ;; after all objects are in
-  (init-flavours& (variant.flavour-types var-obj))
+;;  (init-flavours& (variant.flavour-types var-obj))
 
+  (loop for x being the hash-values of (variant.flavour-types var-obj)
+	do
+	(unless (flavour-type.generator-fn x) ;; no point if generated
+	  ;; turn into array, shuffle and put back
+	  (let ((an-arr (coerce (flavour-type.unused-flavours x) 'vector)))
+	    (shuffle-array! an-arr (length an-arr))
+	    (setf (flavour-type.unused-flavours x) (coerce an-arr 'list))
+	    t)))
+
+  
+#||
+  ;; hackish, move elsewhere later!
+  (when *use-graphics*
+    (let ((objs (variant.objects var-obj)))
+      (loop for obj being the hash-values of objs
+	    do
+	    (when (typep obj 'object-kind/scroll)
+	      (let ((x (object.flavour obj)))
+		(warn "Setting value on ~s" (flavour.name x))
+		(setf (x-attr x) (+ +graphics-start+ 10)
+		      (x-char x) (+ +graphics-start+ 18 (random 4)))
+		)))))
+||#  
+  
   #||
   ;; hack, fix later
   (let ((*load-verbose* nil))

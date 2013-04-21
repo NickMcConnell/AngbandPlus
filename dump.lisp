@@ -58,8 +58,8 @@ the Free Software Foundation; either version 2 of the License, or
 			 (object.name object)))
     (possibly-add :numeric-id (object.numeric-id object))
 ;;    (possibly-add :desc (object.desc object))
-    (possibly-add :x-attr (convert-obj (object.x-attr object) :letter))
-    (possibly-add :x-char (object.x-char object))
+    (possibly-add :x-attr (convert-obj (x-attr object) :letter))
+    (possibly-add :x-char (x-char object))
     (possibly-add :depth (object.depth object))
     (possibly-add :rarity (object.rarity object))
     (possibly-add :chance (object.chance object) #(0 0 0 0))
@@ -93,8 +93,8 @@ the Free Software Foundation; either version 2 of the License, or
 			   (monster.name object)))
       
       (possibly-add :desc (monster.desc object))
-      (possibly-add :symbol (monster.symbol object))
-      (possibly-add :colour (convert-obj (monster.colour object) :letter))
+      (possibly-add :x-char (x-char object))
+      (possibly-add :x-attr (x-attr object))
       (possibly-add :alignment (monster.alignment object))
       (possibly-add :type (monster.type object))
       (possibly-add :depth (monster.depth object))
@@ -172,6 +172,13 @@ the Free Software Foundation; either version 2 of the License, or
 	   (aobj.number inst) (aobj.kind inst) (location-x inst) (location-y inst))
   inst))
 
+(defmethod print-object ((inst flavour) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+	   (flavour.name inst)))
+  inst)
+
 (defmethod print-object ((inst monster-kind) stream)
   (print-unreadable-object
    (inst stream :identity t)
@@ -208,14 +215,14 @@ the Free Software Foundation; either version 2 of the License, or
 	   (drop.chance inst) (drop.quality inst) (drop.amount inst) (drop.type inst))
    inst))
 
-(defmethod print-object ((inst player-attribute) stream)
+(defmethod print-object ((inst creature-attribute) stream)
   (print-unreadable-object
    (inst stream :identity t)
    (format stream "~:(~a~) [~a ~a]" (class-name (class-of inst)) 
 	   (attr.key inst) (attr.value inst))
    inst))
 
-(defmethod print-object ((inst temp-player-attribute) stream)
+(defmethod print-object ((inst temp-creature-attribute) stream)
   (print-unreadable-object
    (inst stream :identity t)
    (format stream "~:(~a~) [~a ~a - ~a]" (class-name (class-of inst)) 
@@ -234,6 +241,20 @@ the Free Software Foundation; either version 2 of the License, or
    (inst stream :identity t)
    (format stream "~:(~a~) [~a ~a]" (class-name (class-of inst)) 
 	   (gender.id inst) (gender.symbol inst))
+   inst))
+
+(defmethod print-object ((inst attack) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~a~) [~a ~a ~a]" (class-name (class-of inst)) 
+	   (attack.kind inst) (attack.dmg-type inst) (attack.damage inst))
+   inst))
+
+(defmethod print-object ((inst attack-type) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~a~) [~a ~a]" (class-name (class-of inst)) 
+	   (attack-type.key inst) (attack-type.power inst))
    inst))
 
 
@@ -283,8 +304,17 @@ the Free Software Foundation; either version 2 of the License, or
 	      do
 	      (pprint `(define-floor-type ,(floor.id x)
 			,(floor.name x)
-			,(floor.x-attr x)
-			,(floor.x-char x)
+			,(x-attr x)
+			,(x-char x)
 			:mimic ,(floor.mimic x))
 		      ffile))))))
 
+
+(defun dump-alloc-table (table fname)
+  "Dumps an alloc-table to the given file."
+  (with-open-file (s (pathname fname)
+		     :direction :output 
+		     :if-exists :supersede)
+    (loop for i across table
+	  do
+	  (format s "~&~a: ~a~%" (alloc.depth i) (alloc.obj i)))))
