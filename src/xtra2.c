@@ -4164,10 +4164,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
  */
 void panel_bounds(void)
 {
-	panel_row_min = panel_row * (SCREEN_HGT / 2);
 	panel_row_max = panel_row_min + SCREEN_HGT - 1;
 	panel_row_prt = panel_row_min - 1;
-	panel_col_min = panel_col * (SCREEN_WID / 2);
 	panel_col_max = panel_col_min + SCREEN_WID - 1;
 	panel_col_prt = panel_col_min - 13;
 }
@@ -4187,37 +4185,61 @@ void verify_panel(void)
 	int y = py;
 	int x = px;
 
-	int prow = panel_row;
-	int pcol = panel_col;
+        int prow = panel_row_min;
+        int pcol = panel_col_min;
 
-	/* Scroll screen when 2 grids from top/bottom edge */
-	if ((y < panel_row_min + 2) || (y > panel_row_max - 2))
+	/* Center on player */
+        if (center_player)
 	{
-		prow = ((y - SCREEN_HGT / 4) / (SCREEN_HGT / 2));
-		if (prow > max_panel_rows) prow = max_panel_rows;
-		else if (prow < 0) prow = 0;
-	}
 
-	/* Scroll screen when 4 grids from left/right edge */
-	if ((x < panel_col_min + 4) || (x > panel_col_max - 4))
-	{
-		pcol = ((x - SCREEN_WID / 4) / (SCREEN_WID / 2));
-		if (pcol > max_panel_cols) pcol = max_panel_cols;
-		else if (pcol < 0) pcol = 0;
+		/* Center vertically */
+                prow = y - (PANEL_HGT);
+                if (prow < 0) 
+		    prow = 0;
+                else if (prow > max_panel_rows * (SCREEN_HGT / 2)) 
+		    prow = max_panel_rows * (SCREEN_HGT / 2);
+
+
+		/* Center horizontally */
+                pcol = x - (PANEL_WID);
+                if (pcol < 0) 
+		    pcol = 0;
+                else if (pcol > max_panel_cols * (SCREEN_WID / 2)) 
+		    pcol = max_panel_cols * (SCREEN_WID / 2);
+
 	}
+	else
+	{
+                /* Scroll screen when 2 grids from top/bottom edge */
+                if ((y < panel_row_min + 2) || (y > panel_row_max - 2))
+                {
+                        prow = (y / SCREEN_HGT) * SCREEN_HGT;
+                        if (prow > max_panel_rows * PANEL_HGT) prow = max_panel_rows * PANEL_HGT;
+                        else if (prow < 0) prow = 0;
+                }
+
+                /* Scroll screen when 4 grids from left/right edge */
+                if ((x < panel_col_min + 4) || (x > panel_col_max - 4))
+                {
+                        pcol = (x / SCREEN_WID) * SCREEN_WID;
+                        if (pcol > max_panel_cols * PANEL_WID) pcol = max_panel_cols * PANEL_WID;
+                        else if (pcol < 0) pcol = 0;
+                }
+        }
 
 	/* Check for "no change" */
-	if ((prow == panel_row) && (pcol == panel_col)) return;
+        if ((prow == panel_row_min) && (pcol == panel_col_min)) return;
 
 	/* Hack -- optional disturb on "panel change" */
-	if (disturb_panel) disturb(0, 0);
+	if (disturb_panel && !center_player) disturb(0, 0);
 
 	/* Save the new panel info */
-	panel_row = prow;
-	panel_col = pcol;
+        panel_row_min = prow;
+        panel_col_min = pcol;
 
 	/* Recalculate the boundaries */
-	panel_bounds();
+//        if (!center_player) panel_bounds();
+        panel_bounds();
 
 	/* Update stuff */
 	p_ptr->update |= (PU_MONSTERS);

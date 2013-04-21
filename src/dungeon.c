@@ -4527,14 +4527,14 @@ static void dungeon(void)
 
 
 	/* Choose a panel row */
-	panel_row = ((py - SCREEN_HGT / 4) / (SCREEN_HGT / 2));
-	if (panel_row > max_panel_rows) panel_row = max_panel_rows;
-	else if (panel_row < 0) panel_row = 0;
+        panel_row_min = py - SCREEN_HGT / 4;
+        if (panel_row_min > max_panel_rows) panel_row_min = max_panel_rows;
+        else if (panel_row_min < 0) panel_row_min = 0;
 
 	/* Choose a panel col */
-	panel_col = ((px - SCREEN_WID / 4) / (SCREEN_WID / 2));
-	if (panel_col > max_panel_cols) panel_col = max_panel_cols;
-	else if (panel_col < 0) panel_col = 0;
+        panel_col_min = px - SCREEN_WID / 4;
+        if (panel_col_min > max_panel_cols) panel_col_min = max_panel_cols;
+        else if (panel_col_min < 0) panel_col_min = 0;
 
 	/* Recalculate the boundaries */
 	panel_bounds();

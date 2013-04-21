@@ -262,6 +262,9 @@ C:1:V
 ?:[EQU $SYS acn]
 %:pref-acn.prf
 
+?:[EQU $SYS sdl]
+%:pref-sdl.prf
+
 ?:1
 
 

@@ -11,6 +11,11 @@
  */
 
 
+/* Hajo: hope this helps to get angband done with Mingw32 */
+#ifdef USE_SDL
+#undef WINDOWS
+#endif
+
 /*
  * Look through the following lines, and where a comment includes the
  * tag "OPTION:", examine the associated "#define" statements, and decide

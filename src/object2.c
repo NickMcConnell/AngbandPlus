@@ -1732,7 +1732,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Clear the record */
-	o_ptr=WIPE(o_ptr, object_type);
+        o_ptr = WIPE(o_ptr, object_type);
 
 	/* Save the kind index */
 	o_ptr->k_idx = k_idx;
@@ -4731,7 +4731,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 		object_prep(j_ptr, k_idx);
 	}
 
-	/* Apply magic (allow artifacts) */
+       /* Apply magic (allow artifacts) */
 	apply_magic(j_ptr, object_level, TRUE, good, great);
 
 	/* Hack -- generate multiple spikes/missiles */

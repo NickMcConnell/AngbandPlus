@@ -1118,6 +1118,11 @@ void do_cmd_eat_food(void)
 		msg_print("The food of mortals is poor sustenance for you.");
                 set_food(p_ptr->food + ((fval) / 20));
 	}
+        else if (p_ptr->prace == RACE_ENT)
+	{
+                msg_print("Food is poor sustenance for you.");
+                set_food(p_ptr->food + ((fval) / 20));
+	}
 	else
 	{
                 (void)set_food(p_ptr->food + fval);
@@ -3068,6 +3073,12 @@ void do_cmd_use_staff(void)
 	/* Hack -- let staffs of identify get aborted */
 	bool use_charge = TRUE;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
 
 	/* Restrict choices to wands */
 	item_tester_tval = TV_STAFF;
@@ -3506,6 +3517,13 @@ void do_cmd_aim_wand(void)
 
 	cptr q, s;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
 
@@ -3916,6 +3934,13 @@ void zap_combine_rod_tip(object_type *q_ptr, int tip_item)
         object_kind *k_ptr;
 	cptr q, s;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
 	/* Restrict choices to rods */
         item_tester_hook = item_tester_hook_attachable;
 
@@ -3980,6 +4005,13 @@ void do_cmd_zap_rod(void)
 
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
+
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
 
 
 	/* Restrict choices to rods */

@@ -3111,9 +3111,6 @@ void calc_bonuses(void)
         /* Spell power */
         p_ptr->to_s = 0;
 
-        /* Anti-summon field */
-        p_ptr->antisummon = 0;
-
 	/* Clear the Displayed/Real armor class */
 	p_ptr->dis_ac = p_ptr->ac = 0;
 
@@ -3193,6 +3190,10 @@ void calc_bonuses(void)
 	p_ptr->immune_cold = FALSE;
 
         p_ptr->precognition = FALSE;
+
+        /* The anti magic field surrounding the player */
+        p_ptr->antimagic = 0;
+        p_ptr->antimagic_dis = 0;
 
 
 	/* Base infravision (purely racial) */
@@ -3285,7 +3286,8 @@ void calc_bonuses(void)
 				p_ptr->free_act = TRUE;
 			break;
                 case CLASS_UNBELIEVER:
-                        p_ptr->antisummon += (p_ptr->lev / 10) + 1;
+                        p_ptr->antimagic += p_ptr->lev;
+                        p_ptr->antimagic_dis += (p_ptr->lev / 10) + 1;
 
                         if (p_ptr->class_extra6 & CLASS_ANTIMAGIC)
                         {

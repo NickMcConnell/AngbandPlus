@@ -341,7 +341,7 @@ bool closing_flag;		/* Dungeon is closing */
  */
 
 s16b max_panel_rows, max_panel_cols;
-s16b panel_row, panel_col;
+//s16b panel_row, panel_col;
 s16b panel_row_min, panel_row_max;
 s16b panel_col_min, panel_col_max;
 s16b panel_col_prt, panel_row_prt;
@@ -1243,3 +1243,8 @@ bool zang_monsters, joke_monsters, pern_monsters, cth_monsters;
  * How will mana staf & weapons of life act
  */
 bool munchkin_multipliers = TRUE;
+
+/*
+ * Center view
+ */
+bool center_player = FALSE;

@@ -1275,9 +1275,6 @@ static bool monst_spell_monst(int m_idx)
 		see_either = (see_m || see_t);
 		see_both = (see_m && see_t);
 
-                /* mega hack that is used by the antisummoning field */
-                summoner_monster = m_ptr;
-
 		switch (thrown_spell)
 		{
 		/* RF4_SHRIEK */
@@ -2834,9 +2831,6 @@ static bool monst_spell_monst(int m_idx)
 			}
    }
 
-   /* Deactivate the HACK */
-   summoner_monster = NULL;
- 
    if (wake_up)
    {
 	   t_ptr->csleep = 0;
@@ -3060,7 +3054,7 @@ bool make_attack_spell(int m_idx)
 	char            m_name[80];
 	char            m_poss[80];
 	char            ddesc[80];
-	bool            no_inate = FALSE;
+        bool            no_inate = FALSE;
 
 	/* Target location */
 	int x = px;
@@ -3256,9 +3250,13 @@ bool make_attack_spell(int m_idx)
 		}
 	}
 
-        /* mega hack that is used by the antisummoning field */
-        summoner_monster = m_ptr;
-
+        /* Can the player disrupt it's punny attemps ? */
+        if ((p_ptr->antimagic_dis <= m_ptr->cdis) && (magik(p_ptr->antimagic)) && (thrown_spell >= 128))
+        {
+                msg_format("Your anti-magic field disrupts %^s spell.", m_name);
+        }
+        else
+        {
 	/* Cast the spell. */
 	switch (thrown_spell)
 	{
@@ -4711,10 +4709,8 @@ bool make_attack_spell(int m_idx)
 			 break;
 		 }
 	}
+        }
 
-        /* Deactivate the HACK */
-        summoner_monster = NULL;
-	
 	/* Remember what the monster did to us */
 	if (seen)
 	{

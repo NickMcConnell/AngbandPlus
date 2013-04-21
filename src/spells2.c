@@ -1626,6 +1626,10 @@ void self_knowledge(FILE *fff)
 	{
 		info[i++] = "You are surrounded with electricity.";
 	}
+        if (p_ptr->antimagic)
+	{
+                info[i++] = "You are surrounded by an anti-magic field.";
+	}
 	if (p_ptr->anti_magic)
 	{
 		info[i++] = "You are surrounded by an anti-magic shell.";
@@ -1750,7 +1754,7 @@ void self_knowledge(FILE *fff)
 	}
         if (p_ptr->resist_continuum)
 	{
-                info[i++] = "The space-time continuum can be disrupted near you.";
+                info[i++] = "The space-time continuum can be disrupted around you.";
 	}
 
 	if (p_ptr->sustain_str)

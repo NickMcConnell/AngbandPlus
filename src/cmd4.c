@@ -1969,7 +1969,8 @@ void do_cmd_visuals(void)
 
 				/* Dump the monster attr/char info */
 				fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
+//				        (byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
+				        0x80, (byte)(r_ptr->x_char) | 0x80);
 			}
 
 			/* All done */
@@ -2029,7 +2030,8 @@ void do_cmd_visuals(void)
 
 				/* Dump the object attr/char info */
 				fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
+//				        (byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
+				        0x80, (byte)(k_ptr->x_char) | 0x80);
 			}
 
 			/* All done */
@@ -2089,7 +2091,8 @@ void do_cmd_visuals(void)
 
 				/* Dump the feature attr/char info */
 				fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
+//				        (byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
+				        0x80, (byte)(f_ptr->x_char) | 0x80);
 			}
 
 			/* All done */

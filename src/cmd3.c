@@ -1137,8 +1137,8 @@ void do_cmd_locate(void)
 
 
 	/* Start at current panel */
-	y2 = y1 = panel_row;
-	x2 = x1 = panel_col;
+        y2 = y1 = (panel_row_min / PANEL_HGT) * PANEL_HGT;
+        x2 = x1 = (panel_col_min / PANEL_WID) * PANEL_WID;
 
 	/* Show panels until done */
 	while (1)
@@ -1158,7 +1158,7 @@ void do_cmd_locate(void)
 		/* Prepare to ask which way to look */
 		sprintf(out_val,
 		        "Map sector [%d,%d], which is%s your sector.  Direction?",
-		        y2, x2, tmp_val);
+                        y2 / PANEL_HGT, x2 / PANEL_WID, tmp_val);
 
 		/* Assume no direction */
 		dir = 0;
@@ -1182,23 +1182,23 @@ void do_cmd_locate(void)
 		if (!dir) break;
 
 		/* Apply the motion */
-		y2 += ddy[dir];
-		x2 += ddx[dir];
+                y2 += ddy[dir] * PANEL_HGT;
+                x2 += ddx[dir] * PANEL_WID;
 
 		/* Verify the row */
-		if (y2 > max_panel_rows) y2 = max_panel_rows;
+                if (y2 > max_panel_rows * PANEL_HGT) y2 = max_panel_rows * PANEL_HGT;
 		else if (y2 < 0) y2 = 0;
 
 		/* Verify the col */
-		if (x2 > max_panel_cols) x2 = max_panel_cols;
+                if (x2 > max_panel_cols * PANEL_WID) x2 = max_panel_cols * PANEL_WID;
 		else if (x2 < 0) x2 = 0;
 
 		/* Handle "changes" */
-		if ((y2 != panel_row) || (x2 != panel_col))
+                if ((y2 != panel_row_min) || (x2 != panel_col_min))
 		{
 			/* Save the new panel info */
-			panel_row = y2;
-			panel_col = x2;
+                        panel_row_min = y2;
+                        panel_col_min = x2;
 
 			/* Recalculate the boundaries */
 			panel_bounds();

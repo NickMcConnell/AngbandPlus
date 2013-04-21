@@ -29,7 +29,10 @@ V:31:0x01:0x60:0xF0:0x40
 ?:[NOT [EQU $SYS xxx]]
 
 # Standard file
-%:graf-xxx.prf
+#%:graf-xxx.prf
+
+?:[EQU $GRAF iso]
+%:graf-iso.prf
 
 ?:1
 

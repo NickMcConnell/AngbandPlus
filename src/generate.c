@@ -7883,8 +7883,8 @@ void generate_cave(void)
                         max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
 
                         /* Assume illegal panel */
-                        panel_row = max_panel_rows;
-                        panel_col = max_panel_cols;
+                        panel_row_min = max_panel_rows * (SCREEN_HGT / 2);
+                        panel_col_min = max_panel_cols * (SCREEN_WID / 2);
        
                         for (y = 0; y < cur_hgt; y++)
                         {
@@ -7920,8 +7920,8 @@ void generate_cave(void)
                                 max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
 
                                 /* Assume illegal panel */
-                                panel_row = max_panel_rows;
-                                panel_col = max_panel_cols;
+                                panel_row_min = max_panel_rows * (SCREEN_HGT / 2);
+                                panel_col_min = max_panel_cols * (SCREEN_WID / 2);
 
                                 /* Make the wilderness */
                                 wilderness_gen(0);
@@ -7940,8 +7940,8 @@ void generate_cave(void)
                                 max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
 
                                 /* Assume illegal panel */
-                                panel_row = max_panel_rows;
-                                panel_col = max_panel_cols;
+                                panel_row_min = max_panel_rows * (SCREEN_HGT / 2);
+                                panel_col_min = max_panel_cols * (SCREEN_WID / 2);
 
                                 /* Make the wilderness */
                                 wilderness_gen_small();
@@ -7966,8 +7966,8 @@ void generate_cave(void)
                                 max_panel_cols = 1;
 
 				/* Assume illegal panel */
-				panel_row = max_panel_rows;
-				panel_col = max_panel_cols;
+                                panel_row_min = max_panel_rows * (SCREEN_HGT / 2);
+                                panel_col_min = max_panel_cols * (SCREEN_WID / 2);
 
 				if (cheat_room)
                                         msg_format("X:1, Y:1.");
@@ -7989,8 +7989,8 @@ void generate_cave(void)
 				max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
 
 				/* Assume illegal panel */
-				panel_row = max_panel_rows;
-				panel_col = max_panel_cols;
+                                panel_row_min = max_panel_rows * (SCREEN_HGT / 2);
+                                panel_col_min = max_panel_cols * (SCREEN_WID / 2);
 
 				if (cheat_room)
 					msg_format("X:%d, Y:%d.", max_panel_cols, max_panel_rows);
@@ -8006,8 +8006,8 @@ void generate_cave(void)
 				max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
 
 				/* Assume illegal panel */
-                                panel_row = max_panel_rows;
-				panel_col = max_panel_cols;
+                                panel_row_min = max_panel_rows * (SCREEN_HGT / 2);
+                                panel_col_min = max_panel_cols * (SCREEN_WID / 2);
 			}
 
 			/* Make a dungeon */

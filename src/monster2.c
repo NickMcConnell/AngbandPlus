@@ -3016,11 +3016,6 @@ bool alloc_monster(int dis, bool slp)
  */
 static int summon_specific_type = 0;
 
-/*
- * Hack -- The monste that summons
- */
-monster_type *summoner_monster = NULL;
-
 
 /*
  * Hack -- help decide if a monster race is "okay" to summon
@@ -3340,16 +3335,6 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	bool Group_ok = TRUE;
 	bool (*old_get_mon_num_hook)(int r_idx);
 
-        if (summoner_monster != NULL)
-        {
-                if (summoner_monster->cdis <= p_ptr->antisummon)
-                {
-                        msg_print("Your anti-summoning field disrupt the summoning!");
-                        return FALSE;
-                }
-        }
-        summoner_monster = NULL;
-
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
 	{
@@ -3432,16 +3417,6 @@ bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok)
 {
 	int i, x, y, r_idx;
 	bool (*old_get_mon_num_hook)(int r_idx);
-
-        if (summoner_monster != NULL)
-        {
-                if (summoner_monster->cdis <= p_ptr->antisummon)
-                {
-                        msg_print("Your anti-summoning field disrupt the summoning!");
-                        return FALSE;
-                }
-        }
-        summoner_monster = NULL;
 
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)

@@ -6,6 +6,10 @@
 #include "angband.h"
 
 
+// Hajo: need this include for print_rel replacement
+#include "hajo_src/world_adaptor.h"
+
+
 /*
  * Support for Adam Bolt's tileset, lighting and transparency effects
  * by Robert Ruehlmann (rr9@angband.org)
@@ -680,7 +684,18 @@ void map_info(int y, int x, byte *ap, char *cp)
 	byte a;
 	byte c;
 
-	bool graf_new = (use_graphics && (strcmp(ANGBAND_GRAF, "new") == 0));
+	bool graf_new = use_graphics && 
+                        ((strcmp(ANGBAND_GRAF, "new") == 0) || 
+                         (strcmp(ANGBAND_GRAF, "iso") == 0));
+
+	/* Hajo: iso-view needs bounds check */
+	if(x<0 || y<0 || x>=cur_wid || y>=cur_hgt) {
+            /* return a graphical space for the iso view */
+	    *tap = *ap = 0x80;
+	    *tcp = *cp = 0x80 + 0x20;
+	    return;
+	}
+
 
 	/* Get the cave */
 	c_ptr = &cave[y][x];
@@ -841,6 +856,11 @@ void map_info(int y, int x, byte *ap, char *cp)
                         {
                                 c = st_info[c_ptr->special].chr;
                                 a = st_info[c_ptr->special].attr;
+
+				/* Hajo: hack: assume all dungeon things are graphical */
+
+				a  = 0x00;
+				c  |= 0x80;
                         }
 
 			/* Add trap color - Illusory wall masks everythink */
@@ -1366,7 +1386,19 @@ void move_cursor_relative(int row, int col)
  * Place an attr/char pair at the given map coordinate, if legal.
  */
 void print_rel(char c, byte a, int y, int x)
-{
+{       
+
+    // Hajo:
+    // Iso-View needs to replace this.
+        
+//    printf("print_rel x=%d y=%d\n", x, y);
+
+    if(strcmp(ANGBAND_GRAF, "iso") == 0) {
+
+	display_image_ij(x, y, c, a);
+
+    } else {
+ 
 	/* Only do "legal" locations */
 	if (panel_contains(y, x))
 	{
@@ -1381,6 +1413,8 @@ void print_rel(char c, byte a, int y, int x)
 		/* Draw the char using the attr */
 		Term_draw(x-panel_col_prt, y-panel_row_prt, a, c);
 	}
+
+    }
 }
 
 

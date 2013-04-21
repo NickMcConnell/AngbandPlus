@@ -1,5 +1,0 @@
-Known bugs:
-- When saving while in a 'only once' quest and then reloading if you exit
-  without completing the quest it's not marked as failed ...
-- Corpses weight ... is strange when hacked
-- when god gets angry it may crash the game, but the savefile is safe

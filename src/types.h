@@ -1336,7 +1336,8 @@ struct player_type
 
 	s16b ac;			/* Base ac */
 
-        byte antisummon;        /* Radius of the anti summoning field */
+        byte antimagic;         /* Power of the anti magic field */
+        byte antimagic_dis;     /* Radius of the anti magic field */
 
 	s16b see_infra;		/* Infravision range */
 

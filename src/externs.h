@@ -276,7 +276,7 @@ extern s16b rating;
 extern bool good_item_flag;
 extern bool closing_flag;
 extern s16b max_panel_rows, max_panel_cols;
-extern s16b panel_row, panel_col;
+//extern s16b panel_row, panel_col;
 extern s16b panel_row_min, panel_row_max;
 extern s16b panel_col_min, panel_col_max;
 extern s16b panel_col_prt, panel_row_prt;
@@ -476,6 +476,7 @@ extern bool rand_birth;
 extern bool fast_autoroller;
 extern bool zang_monsters, joke_monsters, pern_monsters, cth_monsters;
 extern bool munchkin_multipliers;
+extern bool center_player;
 
 /* birth.c */
 extern errr init_randart(void);
@@ -767,7 +768,6 @@ extern void display_roff(int r_idx);
 
 /* monster2.c */
 extern monster_race* race_info_idx(int r_idx, int ego);
-extern monster_type *summoner_monster;
 extern int get_wilderness_flag(void);
 extern void sanity_blast(monster_type * m_ptr, bool necro);
 extern void delete_monster_idx(int i);

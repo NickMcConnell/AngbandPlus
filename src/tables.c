@@ -4923,7 +4923,7 @@ option_type option_info[] =
 	{ &view_perma_grids,            TRUE,   3,      1, 6,
 	"view_perma_grids",             "Map remembers all perma-lit grids" },
 
-	{ &view_torch_grids,            FALSE,  3,      1, 7,
+	{ &view_torch_grids,            TRUE,   3,      1, 7,
 	"view_torch_grids",             "Map remembers all torch-lit grids" },
 
 	{ &dungeon_align,               TRUE,   3,      1, 8,
@@ -4988,16 +4988,16 @@ option_type option_info[] =
         { &hilite_player,               FALSE,  4,      1, 27,
 	"hilite_player",                "Hilite the player with the cursor" },
 
-        { &view_yellow_lite,            FALSE,  4,      1, 28,
+        { &view_yellow_lite,            FALSE,   4,      1, 28,
 	"view_yellow_lite",             "Use special colors for torch-lit grids" },
 
-        { &view_bright_lite,            FALSE,  4,      1, 29,
+        { &view_bright_lite,            FALSE,   4,      1, 29,
 	"view_bright_lite",             "Use special colors for 'viewable' grids" },
 
         { &view_granite_lite,           FALSE,   4,      1, 30,
 	"view_granite_lite",            "Use special colors for wall grids (slow)" },
 
-        { &view_special_lite,           FALSE,  4,      1, 31,
+        { &view_special_lite,           FALSE,   4,      1, 31,
 	"view_special_lite",            "Use special colors for floor grids (slow)" },
 
 	{ &skip_mutations,              FALSE, 5, 5, 0,
@@ -5045,6 +5045,9 @@ option_type option_info[] =
 
         { &easy_tunnel,                   FALSE, 5,5,13,
         "easy_tunnel",                    "Automaticaly tunnel walls" },
+
+        { &center_player,               FALSE,  5, 5, 14,
+        "center_player",                "Center the view on the player (very slow)" },
 
         /*** Birth Options ***/
 

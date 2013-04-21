@@ -281,6 +281,13 @@ void do_cmd_mindcraft(void)
 	int             plev = p_ptr->lev;
         magic_power     spell;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
 	/* not if confused */
 	if (p_ptr->confused)
 	{
@@ -694,6 +701,13 @@ void do_cmd_mimic(void)
 	int             minfail = 0;
 	int             plev = p_ptr->lev;
         magic_power     spell;
+
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
 
 	/* not if confused */
 	if (p_ptr->confused)
@@ -1124,6 +1138,14 @@ void do_cmd_alchemist(void)
 
         cptr q, s;
         char com[80];
+
+
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
 
         q_ptr = &forge;
 
@@ -1795,6 +1817,13 @@ void do_cmd_powermage(void)
 
         int dir, chance;
         int ty = 0, tx = 0;
+
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
 
         s_ptr = select_spell(FALSE);
     
@@ -3425,6 +3454,13 @@ void do_cmd_possessor()
 {
         char ch, ext;
 
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
+
         while (TRUE)
         {
                 if (!get_com("[U]se your race powers or your [I]ncarnating powers ?", &ch))
@@ -3725,6 +3761,13 @@ void do_cmd_necromancer(void)
         int mto_s2=p_ptr->to_s/2;
 
         mto_s2 = (mto_s2==0)?1:mto_s2;
+
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
 
 	/* not if confused */
 	if (p_ptr->confused)

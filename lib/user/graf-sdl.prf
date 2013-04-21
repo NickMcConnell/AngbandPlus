@@ -1,0 +1,11 @@
+# File: graf-sdl.prf
+
+#
+# This file defines special attr/char mappings for use in "graphics" mode
+# with the isometric view and main-sdl.
+#
+# By Hansjoerg Malthaner < hansjoerg.malthaner@gmx.de >
+#
+
+?:[EQU $GRAF iso]
+%:graf-iso.prf

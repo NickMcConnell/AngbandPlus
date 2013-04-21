@@ -1,0 +1,50 @@
+                                                                               
+Half-Troll   ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰
+Alchemist    ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰
+Student      ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰
+LEVEL      2 ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰
+EXP       22 ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰
+AU        36 ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰
+             ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰
+STR:      18 ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰
+INT:      13 ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰
+WIS:      17 ‰ñññññ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰éééééééé‰‰‰‰‰
+DEX:      11 ñ‰‰‰‰‰ññññññññ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰éééééééééééééé
+CON:      15 ‰‰‰‰‰‰‰‰‰‰‰‰‰‰ñ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰éééééééééééééé
+CHR:       4 ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ññ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ééé½½½½½½½½½½
+Cur AC     9 ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ññññññ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰éé½ôôôôôôôôô
+HP   14/   14‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ññññ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ééé½éññññññññ
+SN   17/   17‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ñññññ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ééé½éñôôôôñññ
+             ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ññññ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ééé½éñô¤ôôôôô
+             ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ñ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ééé½éñôôôôôôô
+             ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ñ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ééé½éñôôô½½½½
+             ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ñ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ééé½éññôô½½îî
+             ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ññ‰‰‰‰‰‰‰‰‰‰‰‰‰‰ééé½éññôô½½îî
+             ‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰‰ññ‰‰‰‰‰‰‰‰‰‰‰‰éééé½éññôô½½ïï
+                                                                         Bree  
+
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+BBBBBBBBBBwwwoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+BBBBBBBBBwwwwoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+BBBBBBBwwwwwwoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+wwwwwwGGGGGGwoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+wwwwGGGGGGGGwoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+wwwGGGGGGGGGwoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+wwwwwwwwwwwwwoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+wwwwwwGGGGGGwoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+wwwwwwGGGGGGwoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+wwwwwwGGGGGGwosssssooooooooooooooooooooooooooooooooooooooooooooooossssssssooooo
+wwwwwwGGGGGGwsooooossssssssoooooooooooooooooooooooooooooooooooooossssssssssssss
+wwwwwwGGGGGGwoooooooooooooosooooooooooooooooooooooooooooooooooooossssssssssssss
+wwwwwwGGGGGGwooooooooooooooossoooooooooooooooooooooooooooooooooooosssssssssssss
+wwwwwwwGGGGGwooooooooooooooooossssssooooooooooooooooooooooooooooooossssssssssss
+wwGGGGGGGGGGGooooooooooooooooooooooossssoooooooooooooooooooooooooosssssssssssss
+wwGGGGGGGGGGGooooooooooooooooooooooooooosssssooooooooooooooooooooosssssswwwwsss
+wwwwwwwwwwwwwoooooooooooooooooooooooooooooooossssooooooooooooooooosssssswdwwwww
+wwwwwwwwwwwwwoooooooooooooooooooooooooooooooooooosoooooooooooooooosssssswwwwwww
+wwwwwwwwwwwwwooooooooooooooooooooooooooooooooooooosooooooooooooooosssssswwwssss
+wwwwwwwwwwwwwooooooooooooooooooooooooooooooooooooosooooooooooooooossssssswwssss
+wwwwwwwwwwwwwooooooooooooooooooooooooooooooooooooossoooooooooooooossssssswwssss
+wwwwwwwwwwwwwoooooooooooooooooooooooooooooooooooooossoooooooooooosssssssswwssss
+GGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+

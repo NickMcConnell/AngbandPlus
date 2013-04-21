@@ -485,6 +485,32 @@ int main(int argc, char *argv[])
 	/* Drop privs (so X11 will work correctly) */
 	safe_setuid_drop();
 
+#ifdef USE_ISOV_X11
+	/* Attempt to use the "isov-x11.c" support */
+	if (!done && (!mstr || (streq(mstr, "x11"))))
+	{
+		extern errr init_x11(int, char**);
+		if (0 == init_x11(argc, argv))
+		{
+			ANGBAND_SYS = "x11";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_SDL
+        /* Attempt to use the "main-gtk.c" support */
+        if (!done && (!mstr || (streq(mstr, "sdl"))))
+        {
+                extern errr init_sdl(int argc, char **argv);
+                if (0 == init_sdl(argc, argv))
+                {
+                        ANGBAND_SYS = "sdl";
+                        done = TRUE;
+                }
+        }
+#endif /* USE_SDL */
+
 
 #ifdef USE_XAW
 	/* Attempt to use the "main-xaw.c" support */

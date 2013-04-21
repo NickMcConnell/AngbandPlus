@@ -5871,6 +5871,13 @@ void do_cmd_cast(void)
 	magic_type	*s_ptr;
 	
 	cptr q, s;
+
+        /* No magic */
+        if (p_ptr->antimagic)
+        {
+                msg_print("Your anti-magic field disrupts any magic attemps.");
+                return;
+        }
 	
 	/* Require spell ability */
 	if (!p_ptr->realm1)
