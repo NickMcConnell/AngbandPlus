@@ -1176,7 +1176,7 @@ player_sex sex_info[MAX_SEXES] =
  * Player Races
  *
  *	Title,
- *	{STR,INT,WIS,DEX,CON,CHR},
+ *	{ STR,INT,WIS,DEX,CON,CHR },
  *	r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
  *	hitdie, exp base,
  *	Age (Base, Mod),
@@ -1313,7 +1313,7 @@ player_race race_info[MAX_RACES] =
  * Player Classes
  *
  *	Title,
- *	{STR,INT,WIS,DEX,CON,CHR},
+ *	{ STR,INT,WIS,DEX,CON,CHR },
  *	c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
  *	x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
  *	HD, Exp
@@ -1322,7 +1322,7 @@ player_class class_info[MAX_CLASS] =
 {
 	{
 		"Warrior",
-		{ 5, -2, -2, 2, 2, -1},
+		{ 5, -2, -2, 2, 2, -1 },
 		25, 18, 18, 1,  14, 2, 70, 55,
 		10, 7,  10, 0,  0,  0,  45, 45,
 		9,  0
@@ -1330,7 +1330,7 @@ player_class class_info[MAX_CLASS] =
 
 	{
 		"Mage",
-		{-5, 3, 0, 1, -2, 1},
+		{ -5, 3, 0, 1, -2, 1 },
 		30, 36, 30, 2,  16, 20, 34, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
 		0, 30
@@ -1338,7 +1338,7 @@ player_class class_info[MAX_CLASS] =
 
 	{
 		"Priest",
-		{-1, -3, 3, -1, 0, 2},
+		{ -1, -3, 3, -1, 0, 2 },
 		25, 30, 32, 2,  16, 8, 48, 35,
 		7,  10, 12, 0,  0,  0, 20, 20,
 		2, 20
@@ -1346,7 +1346,7 @@ player_class class_info[MAX_CLASS] =
 
 	{
 		"Rogue",
-		{ 2, 1, -2, 3, 1, -1},
+		{ 2, 1, -2, 3, 1, -1 },
 		45, 32, 28, 5, 32, 24, 60, 66,
 		15, 10, 10, 0,  0,  0, 40, 30,
 		6, 25
@@ -1354,7 +1354,7 @@ player_class class_info[MAX_CLASS] =
 
 	{
 		"Ranger",
-		{ 2, 2, 0, 1, 1, 1},
+		{ 2, 2, 0, 1, 1, 1 },
 		30, 32, 28, 3,  24, 16, 56, 72,
 		8,  10, 10, 0,  0,  0,  30, 45,
 		4, 30
@@ -1362,10 +1362,26 @@ player_class class_info[MAX_CLASS] =
 
 	{
 		"Paladin",
-		{ 3, -3, 1, 0, 2, 2},
+		{ 3, -3, 1, 0, 2, 2 },
 		20, 24, 25, 1,  12, 2, 68, 40,
-		7,  10, 11, 0,  0,  0,  35, 30,
+		7,  10, 11, 0,  0,  0, 35, 30,
 		6, 35
+	},
+
+	{
+		"Druid",
+		{ -1, 1, 3, 1, 3, 1 },
+		30, 20, 40, 3, 20, 12, 30, 35,
+		12,  7, 15, 0,  0,  0, 15, 18,
+		10, 35
+	},
+
+	{
+		"Citizen",
+		{ -5, -3, -2, -1, -2, -1 },
+		20, 18, 18, 1, 12, 2, 34, 20,
+		7,   7, 10, 0,  0, 0, 15, 15,
+		0, 0
 	}
 };
 
@@ -1817,9 +1833,9 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0, 0,    0},
 			{ 99,  0, 0,    0},
 
-			{ 8, 15,  50,  30},
-			{ 8, 15,  50,  30},
-			{ 8, 15,  50,  30},
+			{  8, 15, 50,  30},
+			{  8, 15, 50,  30},
+			{  8, 15, 50,  30},
 			{ 16, 25, 75,  50},
 			{ 25, 40, 85,  70},
 
@@ -1921,6 +1937,183 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0}
 		}
+	},
+	
+	{
+		/*** Druid ***/
+
+		TV_ELE_BOOK,
+		0,
+
+		A_WIS,
+		2,
+
+		1,
+		300,
+
+		{
+			{ 1,  1,  22,   4},
+			{ 1,  2,  26,   4},
+			{ 2,  2,  26,   3},
+			{ 2,  2,  34,   4},
+			{ 3,  2,  25,   4},
+			{ 3,  2,  28,   4},
+			{ 4,  3,  25,   4},
+			{ 4,  3,  28,   4},
+
+			{ 5,  8,  50,   6},
+			{ 5,  4,  30,   4},
+			{ 5,  4,  30,   4},
+			{ 6,  5,  30,   4},
+			{ 7,  5,  32,   4},
+			{ 7,  5,  36,   4},
+			{ 8,  6,  40,   5},
+			{ 8,  6,  40,   5},
+
+			{ 9,  6,  42,   4},
+			{ 9,  6,  44,   5},
+			{ 10, 7,  45,   5},
+			{ 11, 7,  48,   5},
+			{ 11, 8,  45,   4},
+			{ 12, 7,  45,   4},
+			{ 13, 8,  47,   5},
+			{ 13, 10, 45,   3},
+
+			{ 14, 10, 46,   4},
+			{ 15, 10, 50,   5},
+			{ 16, 12, 51,   5},
+			{ 17, 14, 55,   7},
+			{ 18, 15, 50,   6},
+			{ 20, 18, 55,   8},
+			{ 22, 19, 60,   9},
+			{ 24, 20, 70,  12},
+
+			{ 12, 12, 50,  10},
+			{ 14, 15, 55,  20},
+			{ 15, 17, 55,  30},
+			{ 18, 20, 50,  50},
+			{ 99, 0,  0,    0},
+			{ 99, 0,  0,    0},
+
+			{ 20, 22, 30,  50},
+			{ 22, 28, 33,  70},
+			{ 24, 30, 37,  90},
+			{ 27, 35, 40, 100},
+			{ 30, 40, 45, 120},
+			{ 35, 46, 55, 170},
+
+			{ 16, 24, 25,  80},
+			{ 18, 24, 30, 100},
+			{ 18, 24, 30, 100},
+			{ 20, 36, 35, 150},
+			{ 30, 40, 40, 180},
+			{ 40, 50, 50, 200},
+
+			{ 13, 18, 50,  20},
+			{ 19, 20, 55,  50},
+			{ 25, 22, 58,  80},
+			{ 30, 25, 60, 100},
+			{ 99, 0,  0,    0},
+			{ 99, 0,  0,    0},
+
+			{ 30, 30, 60, 100},
+			{ 30, 30, 60, 100},
+			{ 35, 35, 60, 120},
+			{ 40, 50, 50, 100},
+			{ 45, 70, 50, 250},
+			{ 99, 0,  0,    0},
+			{ 99, 0,  0,    0},
+			{ 99, 0,  0,    0}
+		}
+	},
+
+	{
+		/*** Citizen ***/
+
+		0,
+		0,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+
+		{
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0}
+		}
 	}
 };
 
@@ -1928,7 +2121,7 @@ player_magic magic_info[MAX_CLASS] =
 /*
  * Spells in each book (mage spells then priest spells)
  */
-u32b spell_flags[2][9][2] =
+u32b spell_flags[3][9][2] =
 {
 	{
 		/*** Mage spell books ***/
@@ -1954,6 +2147,19 @@ u32b spell_flags[2][9][2] =
 		{ 0x00000000, 0x000001f0 },
 		{ 0x00000000, 0x000fc000 },
 		{ 0x00000000, 0x00003e00 }
+	},
+
+	{
+		/*** Druid (elemental) spell books ***/
+		{ 0x000000ff, 0x00000000 },
+		{ 0x0000ff00, 0x00000000 },
+		{ 0x00ff0000, 0x00000000 },
+		{ 0xff000000, 0x00000000 },
+		{ 0x00000000, 0x0000000f },
+		{ 0x00000000, 0x00000fc0 },
+		{ 0x00000000, 0x0003f000 },
+		{ 0x00000000, 0x003c0000 },
+		{ 0x00000000, 0x1f000000 }
 	}
 };
 
@@ -1961,7 +2167,7 @@ u32b spell_flags[2][9][2] =
 /*
  * Names of the spells (mage spells then priest spells)
  */
-cptr spell_names[2][64] =
+cptr spell_names[3][64] =
 {
 	/*** Mage Spells ***/
 
@@ -2060,8 +2266,8 @@ cptr spell_names[2][64] =
 		"Bless",
 		"Remove Fear",
 		"Call Light",
-		"Find Traps",
-		"Detect Doors/Stairs",
+		"Detect Traps/Doors",
+		"Force Hammer",
 		"Slow Poison",
 
 		/* Words of Wisdom (sval 1) */
@@ -2132,6 +2338,93 @@ cptr spell_names[2][64] =
 
 		"(blank)",
 		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)"
+	},
+
+
+	/*** Druid spells ***/
+
+	{
+		/* Volume I (sval 0) */
+		"Elemental Force",
+		"Light Area",
+		"Remove Fear",
+		"Slow Poison",
+		"Detect Evil",
+		"Detect Invisible",
+		"Confuse Monster",
+		"Poison Ball",
+
+		/* Volume II (sval 1) */
+		"Elemental Brand",
+		"Resist Fire",
+		"Resist Cold",
+		"Resist Acid",
+		"Detect Monsters",
+		"Sleep I",
+		"Lightning Bolt",
+		"Cure Poison",
+
+		/* Volume III (sval 2) */
+		"Scare Monster",
+		"Light Spear",
+		"Resist Poison",
+		"Remove Curse",
+		"Turn Undead",
+		"Sleep II",
+		"Frost Bolt",
+		"Satisfy Hunger",
+
+		/* Volume IV (sval 3) */
+		"Protection from Evil",
+		"Stone to Mud",
+		"Detect Enchantment",
+		"Fire Bolt",
+		"Sense Surroundings",
+		"Sleep III",
+		"Acid Bolt",
+		"Identify",
+
+		/* Void (sval 4) */
+		"Dispel Undead",
+		"Dispel Evil",
+		"Dispel Curse",
+		"Remove Traps & Doors",
+		"(blank)",
+		"(blank)",
+
+		/* Elemental Wrath (sval 5) */
+		"Death Cloud",
+		"Frost Ball",
+		"Fire Ball",
+		"Acid Ball",
+		"Ice Storm",
+		"Meteor Swarm",
+
+		/* Resistance (sval 6) */
+		"Resist Elements",
+		"Resist Light",
+		"Resist Dark",
+		"Resist Confusion",
+		"Resist Shards",
+		"Resist Time",
+
+		/* Restoration (sval 7) */
+		"Cure Wounds",
+		"Clairvoyance",
+		"Restoration",
+		"Remembrance",
+		"(blank)",
+		"(blank)",
+
+		/* Enchantment (sval 8) */
+		"Enchant Weapon To-Hit",
+		"Enchant Weapon To-Dam",
+		"Enchant Armour",
+		"*Identify*",
+		"Take Life",
 		"(blank)",
 		"(blank)",
 		"(blank)"
@@ -2312,7 +2605,35 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Low Paladin",
 		"High Paladin",
 		"Paladin Lord",
-	}
+	},
+
+	/* Druids */
+	{
+		"Initiate",
+		"Initiate",
+		"Initiate",
+		"Initiate",
+		"Initiate",
+		"Initiate",
+		"Initiate",
+		"Initiate",
+		"Druid",
+		"Archdruid"
+	},
+
+	/* Citizens */
+	{
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+	},
 };
 
 
@@ -2370,8 +2691,8 @@ cptr window_flag_desc[32] =
 {
 	"Display inven/equip",
 	"Display equip/inven",
-	"Display player flags",
-	"Display player screen",
+	"Display player (basic)",
+	"Display player (extra)",
 	NULL,
 	NULL,
 	"Display messages",
@@ -2410,7 +2731,7 @@ cptr option_text[OPT_MAX] =
 {
 	"rogue_like_commands",	/* OPT_rogue_like_commands */
 	"quick_messages",	/* OPT_quick_messages */
-	"other_query_flag",	/* OPT_other_query_flag */
+	"floor_query_flag",	/* OPT_floor_query_flag */
 	"carry_query_flag",	/* OPT_carry_query_flag */
 	"use_old_target",	/* OPT_use_old_target */
 	"always_pickup",	/* OPT_always_pickup */
@@ -2423,7 +2744,7 @@ cptr option_text[OPT_MAX] =
 	"show_choices",		/* OPT_show_choices */
 	"show_details",		/* OPT_show_details */
 	"ring_bell",		/* OPT_ring_bell */
-	"inventory_colors",	/* OPT_inventory_colors */
+	"show_flavors",		/* OPT_show_flavors */
 	"run_ignore_stairs",	/* OPT_run_ignore_stairs */
 	"run_ignore_doors",	/* OPT_run_ignore_doors */
 	"run_cut_corners",	/* OPT_run_cut_corners */
@@ -2448,24 +2769,24 @@ cptr option_text[OPT_MAX] =
 	"expand_list",		/* OPT_expand_list */
 	"view_perma_grids",	/* OPT_view_perma_grids */
 	"view_torch_grids",	/* OPT_view_torch_grids */
-	"dungeon_align",	/* OPT_dungeon_align */
-	"dungeon_stair",	/* OPT_dungeon_stair */
+	NULL, /* "dungeon_align", */	/* OPT_dungeon_align */
+	NULL, /* "dungeon_stair", */	/* OPT_dungeon_stair */
 	"flow_by_sound",	/* OPT_flow_by_sound */
 	"flow_by_smell",	/* OPT_flow_by_smell */
-	"track_follow",		/* OPT_track_follow */
-	"track_target",		/* OPT_track_target */
+/*	"track_follow",*/ NULL,	/* OPT_track_follow */
+/*	"track_target",*/ NULL,	/* OPT_track_target */
 	"smart_learn",		/* OPT_smart_learn */
 	"smart_cheat",		/* OPT_smart_cheat */
 	"view_reduce_lite",	/* OPT_view_reduce_lite */
-	"view_reduce_view",	/* OPT_view_reduce_view */
+	"hidden_player",	/* OPT_hidden_player */
 	"avoid_abort",		/* OPT_avoid_abort */
 	"avoid_other",		/* OPT_avoid_other */
 	"flush_failure",	/* OPT_flush_failure */
 	"flush_disturb",	/* OPT_flush_disturb */
-	"flush_command",	/* OPT_flush_command */
+/*	"flush_command",*/ NULL,/* OPT_flush_command */
 	"fresh_before",		/* OPT_fresh_before */
 	"fresh_after",		/* OPT_fresh_after */
-	"fresh_message",	/* OPT_fresh_message */
+/*	"fresh_message",*/ NULL,/* OPT_fresh_message */
 	"compress_savefile",	/* OPT_compress_savefile */
 	"hilite_player",	/* OPT_hilite_player */
 	"view_yellow_lite",	/* OPT_view_yellow_lite */
@@ -2490,12 +2811,12 @@ cptr option_desc[OPT_MAX] =
 	"Show dungeon level in feet",			/* OPT_depth_in_feet */
 	"Merge inscriptions when stacking",		/* OPT_stack_force_notes */
 	"Merge discounts when stacking",		/* OPT_stack_force_costs */
-	"Show labels in object listings",		/* OPT_show_labels */
-	"Show weights in object listings",		/* OPT_show_weights */
-	"Show choices in certain sub-windows",		/* OPT_show_choices */
-	"Show details in certain sub-windows",		/* OPT_show_details */
+	"Show labels in equipment listings",		/* OPT_show_labels */
+	"Show weights in all object listings",		/* OPT_show_weights */
+	"Show choices in inven/equip windows",		/* OPT_show_choices */
+	"Show details in monster descriptions",		/* OPT_show_details */
 	"Audible bell (on errors, etc)",		/* OPT_ring_bell */
-	"Use color for inventory listings",		/* OPT_inventory_colors */
+	"Show flavors in object descriptions",		/* OPT_show_flavors */
 	"When running, ignore stairs",			/* OPT_run_ignore_stairs */
 	"When running, ignore doors",			/* OPT_run_ignore_doors */
 	"When running, cut corners",			/* OPT_run_cut_corners */
@@ -2520,30 +2841,30 @@ cptr option_desc[OPT_MAX] =
 	"Expand the power of the list commands",	/* OPT_expand_list */
 	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
 	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
-	"Generate dungeons with aligned rooms",		/* OPT_dungeon_align */
-	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
+	NULL, /* "Generate dungeons with aligned rooms", */		/* OPT_dungeon_align */
+	NULL, /* "Generate dungeons with connected stairs", */	/* OPT_dungeon_stair */
 	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
 	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
-	"Monsters follow the player (broken)",		/* OPT_track_follow */
-	"Monsters target the player (broken)",		/* OPT_track_target */
+/*	"Monsters follow the player (broken)",*/ NULL,	/* OPT_track_follow */
+/*	"Monsters target the player (broken)",*/ NULL,	/* OPT_track_target */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
 	"Reduce lite-radius when running",		/* OPT_view_reduce_lite */
-	"Reduce view-radius in town",			/* OPT_view_reduce_view */
+	"Hide player symbol when running",		/* OPT_hidden_player */
 	"Avoid checking for user abort",		/* OPT_avoid_abort */
 	"Avoid processing special colors",		/* OPT_avoid_other */
 	"Flush input on various failures",		/* OPT_flush_failure */
 	"Flush input whenever disturbed",		/* OPT_flush_disturb */
-	"Flush input before every command",		/* OPT_flush_command */
+/*	"Flush input before every command",*/	NULL,	/* OPT_flush_command */
 	"Flush output before every command",		/* OPT_fresh_before */
-	"Flush output after every command",		/* OPT_fresh_after */
-	"Flush output after every message",		/* OPT_fresh_message */
+	"Flush output after various things",		/* OPT_fresh_after */
+/*	"Flush output after every message",*/	NULL,	/* OPT_fresh_message */
 	"Compress messages in savefiles",		/* OPT_compress_savefile */
 	"Hilite the player with the cursor",		/* OPT_hilite_player */
-	"Use special colors for torch-lit grids",	/* OPT_view_yellow_lite */
-	"Use special colors for 'viewable' grids",	/* OPT_view_bright_lite */
-	"Use special colors for wall grids (slow)",	/* OPT_view_granite_lite */
-	"Use special colors for floor grids (slow)"	/* OPT_view_special_lite */
+	"Use special colors for torch lite",		/* OPT_view_yellow_lite */
+	"Use special colors for field of view",		/* OPT_view_bright_lite */
+	"Use special colors for wall grids",		/* OPT_view_granite_lite */
+	"Use special colors for floor grids"		/* OPT_view_special_lite */
 };
 
 
@@ -2554,7 +2875,7 @@ bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */
 	FALSE,		/* OPT_quick_messages */
-	TRUE,		/* OPT_other_query_flag */
+	TRUE,		/* OPT_floor_query_flag */
 	FALSE,		/* OPT_carry_query_flag */
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
@@ -2567,7 +2888,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_show_choices */
 	TRUE,		/* OPT_show_details */
 	TRUE,		/* OPT_ring_bell */
-	TRUE,		/* OPT_inventory_colors */
+	TRUE,		/* OPT_show_flavors */
 	TRUE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
@@ -2592,24 +2913,24 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
 	FALSE,		/* OPT_view_torch_grids */
-	TRUE,		/* OPT_dungeon_align */
-	TRUE,		/* OPT_dungeon_stair */
+	TRUE,		/* (unused) was OPT_dungeon_align */
+	TRUE,		/* (unused) was OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
-	FALSE,		/* OPT_track_follow */
-	FALSE,		/* OPT_track_target */
+	FALSE,		/* (unused) was OPT_track_follow */
+	FALSE,		/* (unused) was OPT_track_target */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
-	FALSE,		/* OPT_view_reduce_view */
+	FALSE,		/* OPT_hidden_player */
 	FALSE,		/* OPT_avoid_abort */
 	FALSE,		/* OPT_avoid_other */
 	TRUE,		/* OPT_flush_failure */
 	FALSE,		/* OPT_flush_disturb */
-	FALSE,		/* OPT_flush_command */
+	FALSE,		/* (unused) was OPT_flush_command */
 	TRUE,		/* OPT_fresh_before */
 	FALSE,		/* OPT_fresh_after */
-	FALSE,		/* OPT_fresh_message */
+	FALSE,		/* (unused) was OPT_fresh_message */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
 	FALSE,		/* OPT_view_yellow_lite */
@@ -2629,7 +2950,7 @@ byte option_page[4][16] =
 	{
 		OPT_rogue_like_commands,
 		OPT_quick_messages,
-		OPT_other_query_flag,
+		OPT_floor_query_flag,
 		OPT_carry_query_flag,
 		OPT_use_old_target,
 		OPT_always_pickup,
@@ -2641,8 +2962,8 @@ byte option_page[4][16] =
 		OPT_show_weights,
 		OPT_show_choices,
 		OPT_show_details,
-		OPT_ring_bell,
-		OPT_inventory_colors
+		OPT_show_flavors,
+		OPT_ring_bell
 	},
 
 	/*** Disturbance ***/
@@ -2675,14 +2996,18 @@ byte option_page[4][16] =
 		OPT_expand_list,
 		OPT_view_perma_grids,
 		OPT_view_torch_grids,
-		OPT_dungeon_align,
-		OPT_dungeon_stair,
+		/* OPT_dungeon_align, */
+		/* OPT_dungeon_stair, */
 		OPT_flow_by_sound,
 		OPT_flow_by_smell,
-		OPT_track_follow,
-		OPT_track_target,
+		/* OPT_track_follow, */
+		/* OPT_track_target, */
 		OPT_smart_learn,
 		OPT_smart_cheat,
+		255,
+		255,
+		255,
+		255,
 		255,
 		255
 	},
@@ -2691,21 +3016,23 @@ byte option_page[4][16] =
 
 	{
 		OPT_view_reduce_lite,
-		OPT_view_reduce_view,
+		OPT_hidden_player,
 		OPT_avoid_abort,
 		OPT_avoid_other,
 		OPT_flush_failure,
 		OPT_flush_disturb,
-		OPT_flush_command,
+		/* OPT_flush_command, */
 		OPT_fresh_before,
 		OPT_fresh_after,
-		OPT_fresh_message,
+		/* OPT_fresh_message, */
 		OPT_compress_savefile,
 		OPT_hilite_player,
 		OPT_view_yellow_lite,
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
-		OPT_view_special_lite
+		OPT_view_special_lite,
+		255,
+		255
 	}
 };
 

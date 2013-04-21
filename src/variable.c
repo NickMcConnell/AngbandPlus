@@ -16,7 +16,7 @@
  */
 cptr copyright[6] =
 {
-	"Copyright (C)1997 by Robert Shiells, and",
+	"Copyright (C)1997-1999 by Robert Shiells, and",
 	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke",
 	"",
 	"This software may be copied and distributed for educational, research,",
@@ -68,8 +68,8 @@ bool character_dungeon;		/* The character has a dungeon */
 bool character_loaded;		/* The character was loaded from a savefile */
 bool character_saved;		/* The character was just saved to a savefile */
 
-bool character_icky;		/* The game is in an icky full screen mode */
-bool character_xtra;		/* The game is in an icky startup mode */
+s16b character_icky;		/* The game is in an icky full screen mode */
+s16b character_xtra;		/* The game is in an icky startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
@@ -140,23 +140,23 @@ char savefile[1024];
 /*
  * Array of grids lit by player lite (see "cave.c")
  */
-s16b lite_n;
+/*s16b lite_n;
 byte lite_y[LITE_MAX];
-byte lite_x[LITE_MAX];
+byte lite_x[LITE_MAX];*/
 
 /*
  * Array of grids viewable to the player (see "cave.c")
  */
-s16b view_n;
-byte view_y[VIEW_MAX];
-byte view_x[VIEW_MAX];
+sint view_n = 0;
+u16b *view_g;
 
 /*
  * Array of grids for use by various functions (see "cave.c")
  */
-s16b temp_n;
-byte temp_y[TEMP_MAX];
-byte temp_x[TEMP_MAX];
+sint temp_n = 0;
+u16b *temp_g;
+byte *temp_y;
+byte *temp_x;
 
 
 /*
@@ -177,18 +177,18 @@ cptr *macro__act;
 /*
  * Array of macro types [MACRO_MAX]
  */
-bool *macro__cmd;
+/*bool *macro__cmd;*/
 
 /*
  * Current macro action [1024]
  */
-char *macro__buf;
+/*char *macro__buf;*/
 
 
 /*
- * The number of quarks
+ * The number of quarks (first quark is NULL)
  */
-s16b quark__num;
+s16b quark__num = 1;
 
 /*
  * The pointers to the quarks [QUARK_MAX]
@@ -311,24 +311,24 @@ char angband_sound_name[SOUND_MAX][16] =
 /*
  * The array of cave grid flow "cost" values
  */
-byte cave_cost[DUNGEON_HGT][DUNGEON_WID];
+byte (*cave_cost)[DUNGEON_WID];
 
 /*
  * The array of cave grid flow "when" stamps
  */
-byte cave_when[DUNGEON_HGT][DUNGEON_WID];
+byte (*cave_when)[DUNGEON_WID];
 
 #endif	/* MONSTER_FLOW */
 
 /*
  * The array of cave grid info flags
  */
-byte cave_info[DUNGEON_HGT][DUNGEON_WID];
+byte (*cave_info)[256];
 
 /*
  * The array of cave grid feature codes
  */
-byte cave_feat[DUNGEON_HGT][DUNGEON_WID];
+byte (*cave_feat)[DUNGEON_WID];
 
 
 /*
@@ -342,7 +342,7 @@ byte cave_feat[DUNGEON_HGT][DUNGEON_WID];
  * any object is in a grid, and relatively fast determination of which objects
  * are in a grid.
  */
-s16b cave_o_idx[DUNGEON_HGT][DUNGEON_WID];
+s16b (*cave_o_idx)[DUNGEON_WID];
 
 /*
  * The array of cave grid monster indexes
@@ -354,29 +354,29 @@ s16b cave_o_idx[DUNGEON_HGT][DUNGEON_WID];
  * the player structure, but provides extremely fast determination of which,
  * if any, monster or player is in any given grid.
  */
-s16b cave_m_idx[DUNGEON_HGT][DUNGEON_WID];
+s16b (*cave_m_idx)[DUNGEON_WID];
 
 
 /*
  * The array of dungeon objects
  */
-object_type o_list[MAX_O_IDX];
+object_type *o_list;
 
 /*
  * The array of dungeon monsters
  */
-monster_type m_list[MAX_M_IDX];
+monster_type *m_list;
 
 /*
  * Hack -- Quest array
  */
-quest q_list[MAX_Q_IDX];
+quest *q_list;
 
 
 /*
- * The stores [MAX_STORES]
+ * The home
  */
-store_type *store;
+struct home_type home;
 
 /*
  * The player's inventory [INVEN_TOTAL]
@@ -410,8 +410,8 @@ alloc_entry *alloc_race_table;
  * Specify attr/char pairs for visual special effects
  * Be sure to use "index & 0x7F" to avoid illegal access
  */
-byte misc_to_attr[128];
-char misc_to_char[128];
+byte misc_to_attr[256];
+char misc_to_char[256];
 
 
 /*
@@ -421,19 +421,21 @@ char misc_to_char[128];
 byte tval_to_attr[128];
 
 /*
- * Simple keymap method, see "init.c" and "cmd6.c".
- * Be sure to use "index & 0x7F" to avoid illegal access
+ * Current (or recent) macro action
  */
-byte keymap_cmds[128];
-byte keymap_dirs[128];
+char macro_buffer[1024];
 
+
+/*
+ * Keymaps for each "mode" associated with each keypress.
+ */
+cptr keymap_act[KEYMAP_MODES][256];
 
 
 /*** Player information ***/
 
 /*
- * Pointer to the player tables
- * (sex, race, class, magic)
+ * Pointer to the player tables (sex, race, class, magic)
  */
 player_sex *sp_ptr;
 player_race *rp_ptr;

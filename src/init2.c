@@ -1766,7 +1766,6 @@ static errr init_v_info(void)
 
 
 
-
 /*
  * Initialize some other arrays
  */
@@ -1776,23 +1775,65 @@ static errr init_other(void)
 
 	/*** Prepare the various "bizarre" arrays ***/
 
-	/* Macro variables */
-	C_MAKE(macro__pat, MACRO_MAX, cptr);
-	C_MAKE(macro__act, MACRO_MAX, cptr);
-	C_MAKE(macro__cmd, MACRO_MAX, bool);
+	/* Initialize the "macro" package */
+	(void)macro_init();
 
-	/* Macro action buffer */
-	C_MAKE(macro__buf, 1024, char);
+	/* Initialize the "quark" package */
+	(void)quark_init();
 
-	/* Quark variables */
-	C_MAKE(quark__str, QUARK_MAX, cptr);
+	/* Initialize the "message" package */
+	(void)message_init();
 
-	/* Message variables */
-	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
-	C_MAKE(message__buf, MESSAGE_BUF, char);
 
-	/* Hack -- No messages yet */
-	message__tail = MESSAGE_BUF;
+	/*** Prepare grid arrays ***/
+
+	/* Array of grids */
+	C_MAKE(view_g, VIEW_MAX, u16b);
+
+	/* Array of grids */
+	C_MAKE(temp_g, TEMP_MAX, u16b);
+
+	/* Hack -- use some memory twice */
+	temp_y = ((byte*)(temp_g)) + 0;
+	temp_x = ((byte*)(temp_g)) + TEMP_MAX;
+
+
+	/*** Prepare dungeon arrays ***/
+
+	/* Padded into array */
+	C_MAKE(cave_info, DUNGEON_HGT, byte_256);
+
+	/* Feature array */
+	C_MAKE(cave_feat, DUNGEON_HGT, byte_wid);
+
+	/* Entity arrays */
+	C_MAKE(cave_o_idx, DUNGEON_HGT, s16b_wid);
+	C_MAKE(cave_m_idx, DUNGEON_HGT, s16b_wid);
+
+	/* Flow arrays */
+	C_MAKE(cave_cost, DUNGEON_HGT, byte_wid);
+	C_MAKE(cave_when, DUNGEON_HGT, byte_wid);
+
+
+	/*** Prepare "vinfo" array ***/
+
+	/* Used by "update_view()" */
+	(void)vinfo_init();
+
+
+	/*** Prepare entity arrays ***/
+
+	/* Objects */
+	C_MAKE(o_list, MAX_O_IDX, object_type);
+
+	/* Monsters */
+	C_MAKE(m_list, MAX_M_IDX, monster_type);
+
+
+	/*** Prepare quest array ***/
+
+	/* Quests */
+	C_MAKE(q_list, MAX_Q_IDX, quest);
 
 
 	/*** Prepare the Player inventory ***/
@@ -1801,23 +1842,13 @@ static errr init_other(void)
 	C_MAKE(inventory, INVEN_TOTAL, object_type);
 
 
-	/*** Prepare the Stores ***/
+	/*** Prepare the home ***/
 
-	/* Allocate the stores */
-	C_MAKE(store, MAX_STORES, store_type);
+	/* Assume full stock */
+	home.stock_size = STORE_INVEN_MAX;
 
-	/* Fill in each store */
-	for (i = 0; i < MAX_STORES; i++)
-	{
-		/* Access the store */
-		store_type *st_ptr = &store[i];
-
-		/* Assume full stock */
-		st_ptr->stock_size = STORE_INVEN_MAX;
-
-		/* Allocate the stock */
-		C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
-	}
+	/* Allocate the stock */
+	C_MAKE(home.stock, home.stock_size, object_type);
 
 
 	/*** Pre-allocate the basic "auto-inscriptions" ***/

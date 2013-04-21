@@ -55,7 +55,7 @@
 #undef bool
 
 /*
- * Include the proper "header" file
+ * Include the proper header file
  */
 #ifdef USE_NCURSES
 # include <ncurses.h>

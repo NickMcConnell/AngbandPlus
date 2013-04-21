@@ -25,18 +25,18 @@ all: ingband.exe gredit.exe makepref.exe
 
 # Use whichever of these two you wish...
 ingband.exe: $(OBJS) ingband.lnk
-   wlink system dos4g @ingband.lnk
-#   wlink system pmodew @ingband.lnk
+#   wlink system dos4g @ingband.lnk
+   wlink system pmodew @ingband.lnk
 
 # Use whichever of these two you wish...
 gredit.exe: gredit.obj gredit.lnk
-   wlink system dos4g @gredit.lnk
-#   wlink system pmodew @gredit.lnk
+#   wlink system dos4g @gredit.lnk
+   wlink system pmodew @gredit.lnk
 
 # Use whichever of these two you wish...
 makepref.exe: makepref.obj makepref.lnk
-   wlink system dos4g @makepref.lnk
-#   wlink system pmodew @makepref.lnk
+#   wlink system dos4g @makepref.lnk
+   wlink system pmodew @makepref.lnk
 
 angband.lnk:
     %create  ingband.lnk
@@ -66,4 +66,7 @@ gredit.lnk:
     $(CC) $(CFLAGS) $[*.c
 
 clean:
-    del *.err *.obj *.exe *.lnk
+    del *.err
+    del *.obj
+    del *.exe
+    del *.lnk

@@ -274,7 +274,6 @@ void teleport_player_to(int ny, int nx)
 void teleport_player_level(void)
 {
 	/* only ever go up if level is quest or deepest */
-
 	if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		msg_print("You rise up through the ceiling.");
@@ -285,6 +284,7 @@ void teleport_player_level(void)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
+
 	else
 	{
 		msg_print("You sink through the floor.");
@@ -349,6 +349,51 @@ static byte spell_color(int type)
 
 
 
+/*
+ * Find the attr/char pair to use for a spell effect
+ *
+ * It is moving (or has moved) from (x,y) to (nx,ny).
+ *
+ * If the distance is not "one", we (may) return "*".
+ */
+static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
+{
+	int base;
+
+	byte k;
+
+	byte a;
+	char c;
+
+	/* No motion (*) */
+	if ((ny == y) && (nx == x)) base = 0x30;
+
+	/* Vertical (|) */
+	else if (nx == x) base = 0x40;
+
+	/* Horizontal (-) */
+	else if (ny == y) base = 0x50;
+
+	/* Diagonal (/) */
+	else if ((ny-y) == (x-nx)) base = 0x60;
+
+	/* Diagonal (\) */
+	else if ((ny-y) == (nx-x)) base = 0x70;
+
+	/* Weird (*) */
+	else base = 0x30;
+
+	/* Basic spell color */
+	k = spell_color(typ);
+
+	/* Obtain attr/char */
+	a = misc_to_attr[base+k];
+	c = misc_to_char[base+k];
+
+	/* Create pict */
+	return (PICT(a,c));
+}
+
 
 
 
@@ -359,7 +404,7 @@ static byte spell_color(int type)
  *
  * Hack -- this function allows the user to save (or quit) the game
  * when he dies, since the "You die." message is shown before setting
- * the player to "dead".  XXX XXX XXX
+ * the player to "dead".
  */
 void take_hit(int dam, cptr kb_str)
 {
@@ -385,7 +430,7 @@ void take_hit(int dam, cptr kb_str)
 	p_ptr->redraw |= (PR_HP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Dead player */
 	if (p_ptr->chp < 0)
@@ -417,7 +462,10 @@ void take_hit(int dam, cptr kb_str)
 	if (p_ptr->chp < warning)
 	{
 		/* Hack -- bell on first notice */
-		if (alert_hitpoint && (old_chp > warning)) bell();
+		if (alert_hitpoint && (old_chp > warning))
+		{
+			bell("Low hitpoint warning!");
+		}
 
 		/* Message */
 		msg_print("*** LOW HITPOINT WARNING! ***");
@@ -763,7 +811,7 @@ static int minus_ac(void)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Item was damaged */
 	return (TRUE);
@@ -1017,6 +1065,7 @@ bool dec_stat(int stat, int amount, int permanent)
 			/* and one-half of the stat bonus times the percentage, with a */
 			/* minimum damage of half the percentage. -CWS */
 			loss = (((max-18) / 2 + 1) / 2 + 1);
+			if (loss < 1) loss = 1;
 			loss = ((randint(loss) + loss) * amount) / 100;
 			if (loss < amount/2) loss = amount/2;
 
@@ -1078,11 +1127,11 @@ bool res_stat(int stat)
 /*
  * Apply disenchantment to the player's stuff
  *
- * XXX XXX XXX This function is also called from the "melee" code
+ * This function is also called from the "melee" code.
  *
  * The "mode" is currently unused.
  *
- * Return "TRUE" if the player notices anything
+ * Return "TRUE" if the player notices anything.
  */
 bool apply_disenchant(int mode)
 {
@@ -1163,7 +1212,7 @@ bool apply_disenchant(int mode)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Notice */
 	return (TRUE);
@@ -1262,7 +1311,7 @@ static int project_m_y;
  *
  * Hack -- We also "see" grids which are "memorized".
  *
- * Perhaps we should affect doors and/or walls. XXX XXX
+ * Perhaps we should affect doors and/or walls.
  */
 static bool project_f(int who, int r, int y, int x, int dam, int typ)
 {
@@ -1357,8 +1406,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
 					    (cave_feat[y][x] <= FEAT_DOOR_TAIL))
 					{
-						/* Update some things */
-						p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+						/* Update the visuals */
+						p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 					}
 				}
 
@@ -1484,8 +1533,11 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				cave_set_feat(y, x, FEAT_FLOOR);
 			}
 
-			/* Update some things */
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+			/* Fully update the flow */
+			p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 			break;
 		}
@@ -1502,8 +1554,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* Observe */
 			if (cave_info[y][x] & (CAVE_MARK)) obvious = TRUE;
 
-			/* Update some things */
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 			break;
 		}
@@ -1527,18 +1579,15 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* Turn on the light */
 			cave_info[y][x] |= (CAVE_GLOW);
 
-			/* Notice */
-			note_spot(y, x);
+			/* Grid is in line of sight */
+			if (player_has_los_bold(y, x))
+			{
+				/* Observe */
+				obvious = TRUE;
 
-			/* Redraw */
-			lite_spot(y, x);
-
-			/* Observe */
-			if (player_can_see_bold(y, x)) obvious = TRUE;
-
-			/* Mega-Hack -- Update the monster in the affected grid */
-			/* This allows "spear of light" (etc) to work "correctly" */
-			if (cave_m_idx[y][x] > 0) update_mon(cave_m_idx[y][x], FALSE);
+				/* Fully update the visuals */
+				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+			}
 
 			break;
 		}
@@ -1547,10 +1596,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_DARK_WEAK:
 		case GF_DARK:
 		{
-			/* Notice */
-			if (player_can_see_bold(y, x)) obvious = TRUE;
-
-			/* Turn off the light. */
+			/* Turn off the light */
 			cave_info[y][x] &= ~(CAVE_GLOW);
 
 			/* Hack -- Forget "boring" grids */
@@ -1558,17 +1604,17 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			{
 				/* Forget */
 				cave_info[y][x] &= ~(CAVE_MARK);
-
-				/* Notice */
-				note_spot(y, x);
 			}
 
-			/* Redraw */
-			lite_spot(y, x);
+			/* Grid is in line of sight */
+			if (player_has_los_bold(y, x))
+			{
+				/* Observe */
+				obvious = TRUE;
 
-			/* Mega-Hack -- Update the monster in the affected grid */
-			/* This allows "spear of light" (etc) to work "correctly" */
-			if (cave_m_idx[y][x] > 0) update_mon(cave_m_idx[y][x], FALSE);
+				/* Fully update the visuals */
+				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+			}
 
 			/* All done */
 			break;
@@ -2062,14 +2108,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Arrow -- XXX no defense */
+		/* Arrow -- no defense XXX */
 		case GF_ARROW:
 		{
 			if (seen) obvious = TRUE;
 			break;
 		}
 
-		/* Plasma -- XXX perhaps check ELEC or FIRE */
+		/* Plasma -- perhaps check ELEC or FIRE XXX */
 		case GF_PLASMA:
 		{
 			if (seen) obvious = TRUE;
@@ -2368,9 +2414,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* No overflow */
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
-			/* Redraw (later) if needed */
-			if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Message */
 			note = " looks healthier.";
@@ -2884,7 +2927,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Create a new monster (no groups) */
 			(void)place_monster_aux(y, x, tmp, FALSE, FALSE);
 
-			/* XXX XXX XXX Hack -- Assume success */
+			/* Hack -- Assume success XXX XXX XXX */
 
 			/* Hack -- Get new monster */
 			m_ptr = &m_list[cave_m_idx[y][x]];
@@ -2977,9 +3020,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* If another monster did the damage, hurt the monster by hand */
 	if (who > 0)
 	{
-		/* Redraw (later) if needed */
-		if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
-
 		/* Wake the monster up */
 		m_ptr->csleep = 0;
 
@@ -3093,8 +3133,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
  * is reduced (see "project_m()" above).  This can happen if a monster breathes
  * at the player and hits a wall instead.
  *
- * We return "TRUE" if any "obvious" effects were observed.  XXX XXX Actually,
- * we just assume that the effects were obvious, for historical reasons.
+ * We return "TRUE" if any "obvious" effects were observed.
+ *
+ * Actually, for historical reasons, we just assume that the effects were
+ * obvious.  XXX XXX XXX
  */
 static bool project_p(int who, int r, int y, int x, int dam, int typ)
 {
@@ -3129,8 +3171,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	if (cave_m_idx[y][x] == who) return (FALSE);
 
 
-	/* XXX XXX XXX */
-	/* Limit maximum damage */
+	/* Limit maximum damage XXX XXX XXX */
 	if (dam > 1600) dam = 1600;
 
 	/* Reduce damage by distance */
@@ -3217,7 +3258,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Arrow -- XXX no dodging */
+		/* Arrow -- no dodging XXX */
 		case GF_ARROW:
 		{
 			if (fuzzy) msg_print("You are hit by something sharp!");
@@ -3225,7 +3266,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Plasma -- XXX No resist */
+		/* Plasma -- No resist XXX */
 		case GF_PLASMA:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
@@ -3275,7 +3316,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				(void)set_stun(p_ptr->stun + randint(40));
 			}
-			if (!p_ptr->resist_confu)
+			if ((!p_ptr->resist_confu) && (!p_ptr->oppose_conf))
 			{
 				(void)set_confused(p_ptr->confused + randint(5) + 5);
 			}
@@ -3291,7 +3332,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			if (!p_ptr->resist_confu)
+			if ((!p_ptr->resist_confu) && (!p_ptr->oppose_conf))
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
@@ -3324,11 +3365,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_SHARD:
 		{
 			if (fuzzy) msg_print("You are hit by something sharp!");
+			if (p_ptr->oppose_shards) dam = 0;
 			if (p_ptr->resist_shard)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			else
+			else if (!p_ptr->oppose_shards)
 			{
 				(void)set_cut(p_ptr->cut + dam);
 			}
@@ -3357,11 +3399,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_CONFUSION:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-			if (p_ptr->resist_confu)
+			if ((p_ptr->resist_confu) || (p_ptr->oppose_conf))
 			{
 				dam *= 5; dam /= (randint(6) + 6);
 			}
-			if (!p_ptr->resist_confu)
+			if ((!p_ptr->resist_confu) && (!p_ptr->oppose_conf))
 			{
 				(void)set_confused(p_ptr->confused + randint(20) + 10);
 			}
@@ -3426,7 +3468,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_LITE:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-			if (p_ptr->resist_lite)
+			if (p_ptr->oppose_light)
+			{
+				dam /= 3;
+			}
+			else if (p_ptr->resist_lite)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
 			}
@@ -3458,8 +3504,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_TIME:
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
-
-			switch (randint(10))
+			if (p_ptr->oppose_time)
+			{
+				dam /= 3;
+			}
+			else switch (randint(10))
 			{
 				case 1: case 2: case 3: case 4: case 5:
 				{
@@ -3542,7 +3591,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something sharp!");
 			cold_dam(dam, killer);
-			if (!p_ptr->resist_shard)
+			if ((!p_ptr->resist_shard) && (!p_ptr->oppose_shards))
 			{
 				(void)set_cut(p_ptr->cut + damroll(5, 8));
 			}
@@ -3574,27 +3623,6 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 }
 
 
-
-
-
-
-
-
-
-/*
- * Find the char to use to draw a moving bolt
- * It is moving (or has moved) from (x,y) to (nx,ny).
- * If the distance is not "one", we (may) return "*".
- */
-static char bolt_char(int y, int x, int ny, int nx)
-{
-	if ((ny == y) && (nx == x)) return '*';
-	if (ny == y) return '-';
-	if (nx == x) return '|';
-	if ((ny-y) == (x-nx)) return '/';
-	if ((ny-y) == (nx-x)) return '\\';
-	return '*';
-}
 
 
 
@@ -3722,9 +3750,6 @@ static char bolt_char(int y, int x, int ny, int nx)
  * maximum distance allowed (MAX_RANGE), no "blast" will be induced.  This
  * may be relevant even for bolts, since they have a "1x1" mini-blast.
  *
- * Some people have requested an "auto-explode ball attacks at max range"
- * option, which should probably be handled by this function.  XXX XXX XXX
- *
  * Note that for consistency, we "pretend" that the bolt actually takes "time"
  * to move from point A to point B, even if the player cannot see part of the
  * projection path.  Note that in general, the player will *always* see part
@@ -3732,8 +3757,16 @@ static char bolt_char(int y, int x, int ny, int nx)
  *
  * Hack -- we assume that every "projection" is "self-illuminating".
  *
- * Mega-Hack -- when only a single monster is affected, we automatically track
- * (and recall) that monster, unless "PROJECT_JUMP" is used.  XXX XXX XXX
+ * Hack -- when only a single monster is affected, we automatically track
+ * (and recall) that monster, unless "PROJECT_JUMP" is used.
+ *
+ * Note that all projections now "explode" at their final destination, even
+ * if they were being projected at a more distant destination.  This means
+ * that "ball" spells will *always* explode.
+ *
+ * Note that we must call "handle_stuff()" after affecting terrain features
+ * in the blast radius, in case the "illumination" of the grid was changed,
+ * and "update_view()" and "update_monsters()" need to be called.
  */
 bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 {
@@ -3741,7 +3774,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	int px = p_ptr->px;
 
 	int i, t, dist;
-	int y9, x9;
+
 	int y1, x1;
 	int y2, x2;
 
@@ -3759,6 +3792,12 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Is the player blind? */
 	bool blind = (p_ptr->blind ? TRUE : FALSE);
 
+	/* Number of grids in the "path" */
+	int path_n = 0;
+
+	/* Actual grids in the "path" */
+	u16b path_g[512];
+
 	/* Number of grids in the "blast area" (including the "beam" path) */
 	int grids = 0;
 
@@ -3774,6 +3813,9 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	{
 		x1 = x;
 		y1 = y;
+
+		/* Clear the flag */
+		flg &= ~(PROJECT_JUMP);
 	}
 
 	/* Start at player */
@@ -3817,19 +3859,43 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	for (dist = 0; dist < 16; dist++) gm[dist] = 0;
 
 
+	/* Initial grid */
+	y = y1;
+	x = x1;
+
+	/* Collect beam grids */
+	if (flg & (PROJECT_BEAM))
+	{
+		gy[grids] = y;
+		gx[grids] = x;
+		grids++;
+	}
+
+
+	/* Calculate the projection path */
+	path_n = project_path(path_g, MAX_RANGE, y1, x1, y2, x2, flg);
+
+
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-
-	/* Start at the source */
-	x = x9 = x1;
-	y = y9 = y1;
-	dist = 0;
-
-	/* Project until done */
-	while (1)
+	/* Project along the path */
+	for (i = 0; i < path_n; ++i)
 	{
-		/* Gather beam grids */
+		int oy = y;
+		int ox = x;
+
+		int ny = GRID_Y(path_g[i]);
+		int nx = GRID_X(path_g[i]);
+
+		/* Hack -- Balls explode before reaching walls */
+		if (!cave_floor_bold(ny, nx) && (rad > 0)) break;
+
+		/* Advance */
+		y = ny;
+		x = nx;
+
+		/* Collect beam grids */
 		if (flg & (PROJECT_BEAM))
 		{
 			gy[grids] = y;
@@ -3837,67 +3903,57 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			grids++;
 		}
 
-		/* XXX XXX Hack -- Display "beam" grids */
-		if (!blind && !(flg & (PROJECT_HIDE)) &&
-		    dist && (flg & (PROJECT_BEAM)) &&
-		    panel_contains(y, x) && player_has_los_bold(y, x))
-		{
-			/* Hack -- Visual effect -- "explode" the grids */
-			print_rel('*', spell_color(typ), y, x);
-		}
-
-		/* Never pass through walls */
-		if (dist && !cave_floor_bold(y, x)) break;
-
-		/* Check for arrival at "final target" (if desired) */
-		if (!(flg & (PROJECT_THRU)) && (x == x2) && (y == y2)) break;
-
-		/* If allowed, and we have moved at all, stop when we hit anybody */
-		if ((flg & (PROJECT_STOP)) && dist && (cave_m_idx[y][x] != 0)) break;
-
-
-		/* Calculate the new location */
-		y9 = y;
-		x9 = x;
-		mmove2(&y9, &x9, y1, x1, y2, x2);
-
-		/* Hack -- Balls explode BEFORE reaching walls or doors */
-		if (!cave_floor_bold(y9, x9) && (rad > 0)) break;
-
-		/* Keep track of the distance traveled */
-		dist++;
-
-		/* Nothing can travel furthur than the maximal distance */
-		if (dist > MAX_RANGE) break;
-
-		/* Only do visual effects (and delay) if requested */
+		/* Only do visuals if requested */
 		if (!blind && !(flg & (PROJECT_HIDE)))
 		{
 			/* Only do visuals if the player can "see" the bolt */
-			if (panel_contains(y9, x9) && player_has_los_bold(y9, x9))
+			if (panel_contains(y, x) && player_has_los_bold(y, x))
 			{
-				/* Use misc_to_attr/misc_to_char XXX XXX XXX XXX */
-				/* Visual effects -- Display, Highlight, Flush, Pause, Erase */
-				print_rel(bolt_char(y, x, y9, x9), spell_color(typ), y9, x9);
-				move_cursor_relative(y9, x9);
-				Term_fresh();
-				visual = TRUE;
+				u16b p;
+
+				byte a;
+				char c;
+
+				/* Obtain the bolt pict */
+				p = bolt_pict(oy, ox, y, x, typ);
+
+				/* Extract attr/char */
+				a = PICT_A(p);
+				c = PICT_C(p);
+
+				/* Visual effects */
+				print_rel(c, a, y, x);
+				move_cursor_relative(y, x);
+				if (fresh_before) Term_fresh();
 				Term_xtra(TERM_XTRA_DELAY, msec);
-				lite_spot(y9, x9);
-				Term_fresh();
+				lite_spot(y, x);
+				if (fresh_before) Term_fresh();
+
+				/* Display "beam" grids */
+				if (flg & (PROJECT_BEAM))
+				{
+					/* Obtain the explosion pict */
+					p = bolt_pict(y, x, y, x, typ);
+
+					/* Extract attr/char */
+					a = PICT_A(p);
+					c = PICT_C(p);
+
+					/* Visual effects */
+					print_rel(c, a, y, x);
+				}
+
+				/* Hack -- Activate delay */
+				visual = TRUE;
 			}
 
-			/* Hack -- make sure to delay anyway for consistency */
+			/* Hack -- delay anyway for consistency */
 			else if (visual)
 			{
 				/* Delay for consistency */
 				Term_xtra(TERM_XTRA_DELAY, msec);
 			}
 		}
-
-		/* Save the new location */
-		y = y9;
-		x = x9;
 	}
 
 
@@ -3911,11 +3967,14 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Hack -- make sure beams get to "explode" */
 	gm[1] = grids;
 
-	/* If we found a "target", explode there */
-	if (dist <= MAX_RANGE)
+	/* Explode */
+	if (TRUE)
 	{
-		/* Mega-Hack -- remove the final "beam" grid */
-		if ((flg & (PROJECT_BEAM)) && (grids > 0)) grids--;
+		/* Hack -- remove final beam grid */
+		if (flg & (PROJECT_BEAM))
+		{
+			grids--;
+		}
 
 		/* Determine the blast area, work from the inside out */
 		for (dist = 0; dist <= rad; dist++)
@@ -3951,7 +4010,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	if (!grids) return (FALSE);
 
 
-	/* Display the "blast area" */
+	/* Display the "blast area" if requested */
 	if (!blind && !(flg & (PROJECT_HIDE)))
 	{
 		/* Then do the "blast", from inside out */
@@ -3964,14 +4023,25 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 				y = gy[i];
 				x = gx[i];
 
-				/* The player can see it */
+				/* Only do visuals if the player can "see" the blast */
 				if (panel_contains(y, x) && player_has_los_bold(y, x))
 				{
+					u16b p;
+
+					byte a;
+					char c;
+
 					drawn = TRUE;
 
-					/* Use misc_to_attr/misc_to_char XXX XXX XXX XXX */
+					/* Obtain the explosion pict */
+					p = bolt_pict(y, x, y, x, typ);
+
+					/* Extract attr/char */
+					a = PICT_A(p);
+					c = PICT_C(p);
+
 					/* Visual effects -- Display */
-					print_rel('*', spell_color(typ), y, x);
+					print_rel(c, a, y, x);
 				}
 			}
 
@@ -3979,7 +4049,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			move_cursor_relative(y2, x2);
 
 			/* Flush each "radius" seperately */
-			Term_fresh();
+			if (fresh_before) Term_fresh();
 
 			/* Delay (efficiently) */
 			if (visual || drawn)
@@ -4009,7 +4079,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			move_cursor_relative(y2, x2);
 
 			/* Flush the explosion */
-			Term_fresh();
+			if (fresh_before) Term_fresh();
 		}
 	}
 
@@ -4034,6 +4104,10 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			if (project_f(who, dist, y, x, dam, typ)) notice = TRUE;
 		}
 	}
+
+
+	/* Update stuff if needed */
+	if (p_ptr->update) update_stuff();
 
 
 	/* Check objects */
@@ -4097,9 +4171,6 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 				/* Hack -- auto-recall */
 				if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-				/* Hack - auto-track */
-				if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 			}
 		}
 	}
@@ -4130,8 +4201,6 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Return "something was noticed" */
 	return (notice);
 }
-
-
 
 
 

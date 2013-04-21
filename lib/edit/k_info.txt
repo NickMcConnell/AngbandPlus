@@ -2,14 +2,14 @@
 
 
 # This file is used to initialize the "lib/raw/k_info.raw" file, which is
-# used to initialize the "object kind" information for the Angband game.
+# used to initialize the "object kind" information for the Ingband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/raw/k_info.raw" file.
 
 # Available slots (?):
-#   29, 29, 90, 177, 178, 179, 182, 183, 195, 196, 205,
+#   28, 29, 90, 177, 178, 179, 182, 183, 195, 196, 205,
 #   268, 270, 293, 299, 350, 351, 399, 413, 414, 423-479
 
 # XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
@@ -23,7 +23,7 @@
 
 # Version stamp (required)
 
-V:0.1.1
+V:0.2.0
 
 
 ##### Something special #####
@@ -3004,7 +3004,77 @@ P:0:1d1:0:0:0
 ## XXX 424 XXX ##
 
 
-##### Items 425 to 439 unused #####
+##### Elemental magic books #####
+
+N:425:[Volume I]
+G:?:R
+I:92:0:0
+W:5:0:30:25
+A:5/1
+P:0:1d1:0:0:0
+
+N:426:[Volume II]
+G:?:R
+I:92:1:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:427:[Volume III]
+G:?:R
+I:92:2:0
+W:20:0:30:400
+A:20/1
+P:0:1d1:0:0:0
+
+N:428:[Volume IV]
+G:?:R
+I:92:3:0
+W:30:0:30:800
+A:30/1
+P:0:1d1:0:0:0
+
+N:429:[Volume V]
+G:?:r
+I:92:4:0
+W:40:0:30:5000
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:430:[Volume VI]
+G:?:r
+I:92:5:0
+W:50:0:30:10000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:431:[Volume VII]
+G:?:r
+I:92:6:0
+W:60:0:30:30000
+A:60/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:432:[Volume VIII]
+G:?:r
+I:92:7:0
+W:80:0:30:50000
+A:80/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:433:[Volume IX]
+G:?:r
+I:92:8:0
+W:100:0:30:100000
+A:100/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+##### Items 434 to 439 unused #####
 
 ##### Items 440 to 444 reserved (old "fake" objects) #####
 

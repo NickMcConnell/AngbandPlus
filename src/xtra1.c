@@ -289,7 +289,7 @@ static void prt_sp(void)
 
 
 	/* Do not show mana unless it matters */
-	if (!mp_ptr->spell_book) return;
+	if ((!mp_ptr->spell_book) || (mp_ptr->spell_book == TV_ELE_BOOK)) return;
 
 
 	put_str("Max SP ", ROW_MAXSP, COL_MAXSP);
@@ -491,14 +491,14 @@ static void prt_state(void)
 			i = n / 100;
 			text[9] = '0';
 			text[8] = '0';
-			text[7] = '0' + (i % 10);
+			text[7] = I2D(i % 10);
 			if (i >= 10)
 			{
 				i = i / 10;
-				text[6] = '0' + (i % 10);
+				text[6] = I2D(i % 10);
 				if (i >= 10)
 				{
-					text[5] = '0' + (i / 10);
+					text[5] = I2D(i / 10);
 				}
 			}
 		}
@@ -507,25 +507,25 @@ static void prt_state(void)
 		else if (n >= 100)
 		{
 			i = n;
-			text[9] = '0' + (i % 10);
+			text[9] = I2D(i % 10);
 			i = i / 10;
-			text[8] = '0' + (i % 10);
-			text[7] = '0' + (i / 10);
+			text[8] = I2D(i % 10);
+			text[7] = I2D(i / 10);
 		}
 
 		/* Medium (timed) rest */
 		else if (n >= 10)
 		{
 			i = n;
-			text[9] = '0' + (i % 10);
-			text[8] = '0' + (i / 10);
+			text[9] = I2D(i % 10);
+			text[8] = I2D(i / 10);
 		}
 
 		/* Short (timed) rest */
 		else if (n > 0)
 		{
 			i = n;
-			text[9] = '0' + (i);
+			text[9] = I2D(i);
 		}
 
 		/* Rest until healed */
@@ -681,90 +681,6 @@ static void prt_stun(void)
 
 
 /*
- * Redraw the "monster health bar"
- *
- * The "monster health bar" provides visual feedback on the "health"
- * of the monster currently being "tracked".  There are several ways
- * to "track" a monster, including targetting it, attacking it, and
- * affecting it (and nobody else) with a ranged attack.  When nothing
- * is being tracked, we clear the health bar.  If the monster being
- * tracked is not currently visible, a special health bar is shown.
- */
-static void health_redraw(void)
-{
-	/* Not tracking */
-	if (!p_ptr->health_who)
-	{
-		/* Erase the health bar */
-		Term_erase(COL_INFO, ROW_INFO, 12);
-	}
-
-	/* Tracking an unseen monster */
-	else if (!m_list[p_ptr->health_who].ml)
-	{
-		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
-	}
-
-	/* Tracking a hallucinatory monster */
-	else if (p_ptr->image)
-	{
-		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
-	}
-
-	/* Tracking a dead monster (???) */
-	else if (!m_list[p_ptr->health_who].hp < 0)
-	{
-		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
-	}
-
-	/* Tracking a visible monster */
-	else
-	{
-		int pct, len;
-
-		monster_type *m_ptr = &m_list[p_ptr->health_who];
-
-		/* Default to almost dead */
-		byte attr = TERM_RED;
-
-		/* Extract the "percent" of health */
-		pct = 100L * m_ptr->hp / m_ptr->maxhp;
-
-		/* Badly wounded */
-		if (pct >= 10) attr = TERM_L_RED;
-
-		/* Wounded */
-		if (pct >= 25) attr = TERM_ORANGE;
-
-		/* Somewhat Wounded */
-		if (pct >= 60) attr = TERM_YELLOW;
-
-		/* Healthy */
-		if (pct >= 100) attr = TERM_L_GREEN;
-
-		/* Afraid */
-		if (m_ptr->monfear) attr = TERM_VIOLET;
-
-		/* Asleep */
-		if (m_ptr->csleep) attr = TERM_BLUE;
-
-		/* Convert percent into "health" */
-		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
-
-		/* Default to "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
-
-		/* Dump the current "health" (use '*' symbols) */
-		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
-	}
-}
-
-
-
-/*
  * Display basic info (mostly left of map)
  */
 static void prt_frame_basic(void)
@@ -799,9 +715,6 @@ static void prt_frame_basic(void)
 
 	/* Current depth */
 	prt_depth();
-
-	/* Special */
-	health_redraw();
 }
 
 
@@ -902,9 +815,9 @@ static void fix_equip(void)
 
 
 /*
- * Hack -- display flags in sub-windows
+ * Hack -- display player in sub-windows (mode 0)
  */
-static void fix_pflags(void)
+static void fix_player_0(void)
 {
 	int j;
 
@@ -917,40 +830,7 @@ static void fix_pflags(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_SPELL))) continue;
-
-		/* Activate */
-		Term_activate(angband_term[j]);
-
-		/* Display flags */
-		display_player(2);
-
-		/* Fresh */
-		Term_fresh();
-
-		/* Restore */
-		Term_activate(old);
-	}
-}
-
-
-/*
- * Hack -- display character in sub-windows
- */
-static void fix_player(void)
-{
-	int j;
-
-	/* Scan windows */
-	for (j = 0; j < 8; j++)
-	{
-		term *old = Term;
-
-		/* No window */
-		if (!angband_term[j]) continue;
-
-		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_PLAYER))) continue;
+		if (!(op_ptr->window_flag[j] & (PW_PLAYER_0))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -969,9 +849,42 @@ static void fix_player(void)
 
 
 /*
+ * Hack -- display player in sub-windows (mode 1)
+ */
+static void fix_player_1(void)
+{
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_PLAYER_1))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Display flags */
+		display_player(1);
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
+
+
+/*
  * Hack -- display recent messages in sub-windows
  *
- * XXX XXX XXX Adjust for width and split messages
+ * Adjust for width and split messages.  XXX XXX XXX
  */
 static void fix_message(void)
 {
@@ -1144,7 +1057,7 @@ static void calc_spells(void)
 
 	magic_type *s_ptr;
 
-	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((mp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
 
 
 	/* Hack -- must be literate */
@@ -1407,8 +1320,7 @@ static void calc_mana(void)
 	object_type *o_ptr;
 
 
-	/* Hack -- Must be literate */
-	if (!mp_ptr->spell_book) return;
+	if ((!mp_ptr->spell_book) || (mp_ptr->spell_book == TV_ELE_BOOK)) return;
 
 
 	/* Extract "effective" player level */
@@ -1499,7 +1411,7 @@ static void calc_mana(void)
 		p_ptr->redraw |= (PR_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
 
@@ -1579,7 +1491,7 @@ static void calc_hitpoints(void)
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -1627,11 +1539,8 @@ static void calc_torch(void)
 	/* Notice changes in the "lite radius" */
 	if (p_ptr->old_lite != p_ptr->cur_lite)
 	{
-		/* Update the lite */
-		p_ptr->update |= (PU_LITE);
-
-		/* Update the monsters */
-		p_ptr->update |= (PU_MONSTERS);
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 		/* Remember the old lite */
 		p_ptr->old_lite = p_ptr->cur_lite;
@@ -2129,7 +2038,7 @@ static void calc_bonuses(void)
 	/* Extract the "weight limit" (in tenth pounds) */
 	i = weight_limit();
 
-	/* XXX XXX XXX Apply "encumbrance" from weight */
+	/* Apply "encumbrance" from weight */
 	if (j > i/2) p_ptr->pspeed -= ((j - (i/2)) / (i / 10));
 
 	/* Bloating slows the player down (a little) */
@@ -2419,7 +2328,7 @@ static void calc_bonuses(void)
 			p_ptr->redraw |= (PR_STATS);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_SPELL | PW_PLAYER);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 		}
 
 		/* Notice changes */
@@ -2429,7 +2338,7 @@ static void calc_bonuses(void)
 			p_ptr->redraw |= (PR_STATS);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_SPELL | PW_PLAYER);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 		}
 
 		/* Notice changes */
@@ -2489,7 +2398,7 @@ static void calc_bonuses(void)
 		p_ptr->redraw |= (PR_ARMOR);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
 	/* Hack -- handle "xtra" mode */
@@ -2634,35 +2543,28 @@ void update_stuff(void)
 	if (character_icky) return;
 
 
-	if (p_ptr->update & (PU_UN_LITE))
+	if (p_ptr->update & (PU_FORGET_VIEW))
 	{
-		p_ptr->update &= ~(PU_UN_LITE);
-		forget_lite();
-	}
-
-	if (p_ptr->update & (PU_UN_VIEW))
-	{
-		p_ptr->update &= ~(PU_UN_VIEW);
+		p_ptr->update &= ~(PU_FORGET_VIEW);
 		forget_view();
 	}
 
-
-	if (p_ptr->update & (PU_VIEW))
+	if (p_ptr->update & (PU_UPDATE_VIEW))
 	{
-		p_ptr->update &= ~(PU_VIEW);
+		p_ptr->update &= ~(PU_UPDATE_VIEW);
 		update_view();
 	}
 
-	if (p_ptr->update & (PU_LITE))
+
+	if (p_ptr->update & (PU_FORGET_FLOW))
 	{
-		p_ptr->update &= ~(PU_LITE);
-		update_lite();
+		p_ptr->update &= ~(PU_FORGET_FLOW);
+		forget_flow();
 	}
 
-
-	if (p_ptr->update & (PU_FLOW))
+	if (p_ptr->update & (PU_UPDATE_FLOW))
 	{
-		p_ptr->update &= ~(PU_FLOW);
+		p_ptr->update &= ~(PU_UPDATE_FLOW);
 		update_flow();
 	}
 
@@ -2678,6 +2580,13 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_MONSTERS);
 		update_monsters(FALSE);
+	}
+
+
+	if (p_ptr->update & (PU_PANEL))
+	{
+		p_ptr->update &= ~(PU_PANEL);
+		verify_panel();
 	}
 }
 
@@ -2700,15 +2609,6 @@ void redraw_stuff(void)
 
 
 
-	/* Hack -- clear the screen */
-	if (p_ptr->redraw & (PR_WIPE))
-	{
-		p_ptr->redraw &= ~(PR_WIPE);
-		msg_print(NULL);
-		Term_clear();
-	}
-
-
 	if (p_ptr->redraw & (PR_MAP))
 	{
 		p_ptr->redraw &= ~(PR_MAP);
@@ -2722,7 +2622,7 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_MISC | PR_TITLE | PR_STATS);
 		p_ptr->redraw &= ~(PR_LEV | PR_EXP | PR_GOLD);
 		p_ptr->redraw &= ~(PR_ARMOR | PR_HP | PR_MANA);
-		p_ptr->redraw &= ~(PR_DEPTH | PR_HEALTH);
+		p_ptr->redraw &= ~(PR_DEPTH);
 		prt_frame_basic();
 	}
 
@@ -2791,13 +2691,6 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_DEPTH);
 		prt_depth();
 	}
-
-	if (p_ptr->redraw & (PR_HEALTH))
-	{
-		p_ptr->redraw &= ~(PR_HEALTH);
-		health_redraw();
-	}
-
 
 	if (p_ptr->redraw & (PR_EXTRA))
 	{
@@ -2917,18 +2810,18 @@ void window_stuff(void)
 		fix_equip();
 	}
 
-	/* Display pflags */
-	if (p_ptr->window & (PW_SPELL))
+	/* Display player (mode 0) */
+	if (p_ptr->window & (PW_PLAYER_0))
 	{
-		p_ptr->window &= ~(PW_SPELL);
-		fix_pflags();
+		p_ptr->window &= ~(PW_PLAYER_0);
+		fix_player_0();
 	}
 
-	/* Display player */
-	if (p_ptr->window & (PW_PLAYER))
+	/* Display player (mode 1) */
+	if (p_ptr->window & (PW_PLAYER_1))
 	{
-		p_ptr->window &= ~(PW_PLAYER);
-		fix_player();
+		p_ptr->window &= ~(PW_PLAYER_1);
+		fix_player_1();
 	}
 
 	/* Display overhead view */

@@ -169,17 +169,6 @@
 
 
 /*
- * OPTION: Hack -- Compile in support for "Wizard Commands"
- */
-#define ALLOW_WIZARD
-
-/*
- * OPTION: Hack -- Compile in support for "Spoiler Generation"
- */
-#define ALLOW_SPOILERS
-
-
-/*
  * OPTION: Allow "do_cmd_colors" at run-time
  */
 #define ALLOW_COLORS
@@ -258,23 +247,6 @@
 
 
 /*
- * Allow "Wizards" to yield "high scores"
- */
-/* #define SCORE_WIZARDS */
-
-/*
- * Allow "Borgs" to yield "high scores"
- */
-/* #define SCORE_BORGS */
-
-/*
- * Allow "Cheaters" to yield "high scores"
- */
-/* #define SCORE_CHEATERS */
-
-
-
-/*
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
  * software options, which enable "monster flowing".
  */
@@ -286,6 +258,22 @@
  */
 #define MONSTER_FLOW_DEPTH 32
 
+
+/*
+ * OPTION: Support multiple "player" grids in "map_info()"
+ */
+/* #define MAP_INFO_MULTIPLE_PLAYERS */
+
+
+/*
+ * OPTION: Use the new "update_view()" algorithm
+ */
+#define UPDATE_VIEW_NEW
+
+/*
+ * OPTION: Use the "complex" wall illumination code
+ */
+/* #define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION */
 
 
 /*
@@ -381,20 +369,13 @@
 
 
 /*
- * OPTION: For some brain-dead computers with no command line interface,
- * namely Macintosh, there has to be some way of "naming" your savefiles.
- * The current "Macintosh" hack is to make it so whenever the character
- * name changes, the savefile is renamed accordingly.  But on normal
- * machines, once you manage to "load" a savefile, it stays that way.
- * Macintosh is particularly weird because you can load savefiles that
- * are not contained in the "lib:save:" folder, and if you change the
- * player's name, it will then save the savefile elsewhere.  Note that
- * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
+ * Compile-time Debugging options
  */
-#if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
-# define SAVEFILE_MUTABLE
-#endif
-
+/* #if 0 */
+#define ENABLE_DEBUG_CHEATS	/* Enable all the old "cheating" options */
+#define ALLOW_DEBUG		/* Support debug commands */
+#define ALLOW_SPOILERS		/* Support spoiler generation (debug cmd) */
+/* #endif */
 
 /*
  * OPTION: Capitalize the "user_name" (for "default" player name)
@@ -451,7 +432,7 @@
 # undef MONSTER_FLOW
 # undef WDT_TRACK_OPTIONS
 # undef DRS_SMART_OPTIONS
-# undef ALLOW_WIZARD
+# undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
 # undef DELAY_LOAD_R_TEXT

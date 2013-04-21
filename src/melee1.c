@@ -516,9 +516,6 @@ bool make_attack_normal(int m_idx)
 							m_ptr->hp += j * o_ptr->pval * o_ptr->number;
 							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 
-							/* Redraw (later) if needed */
-							if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-
 							/* Uncharge */
 							o_ptr->pval = 0;
 
@@ -583,7 +580,7 @@ bool make_attack_normal(int m_idx)
 						p_ptr->redraw |= (PR_GOLD);
 
 						/* Window stuff */
-						p_ptr->window |= (PW_SPELL | PW_PLAYER);
+						p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 						/* Blink away */
 						blinked = TRUE;

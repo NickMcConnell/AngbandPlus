@@ -1,22 +1,22 @@
 === Version Information ===
 
-This file was last updated for Ingband 0.1.
+This file was last updated for Ingband 0.2.0.
 
 Make sure to read the newsgroup "rec.games.roguelike.angband", and to
 visit the website "http://www.elemental.demon.co.uk/ingband" for the most
 up to date information about Ingband.
 
-Ingband is based on Angband 2.8.2, which has an incredibly complex history,
-and is the result of a
-lot of work by a lot of people, all of whom have contributed their time
-and energy for free, being rewarded only by the pleasure of keeping alive
-one of the best freeware games available anywhere.
+Ingband is based on Angband 2.8.3, which has an incredibly complex history,
+and is the result of a lot of work by a lot of people, all of whom have
+contributed their time and energy for free, being rewarded only by the pleasure
+of keeping alive one of the best freeware games available anywhere.
 
 The version control files, if they existed, would span more than ten years
 time, and more than five different primary developers.  Without such files,
 we must rely on simpler methods, such as change logs, source file diffs, and
 word of mouth.  Some of this information is summarized in this file.
 
+Please be sure to read the copyright information at the end of this file.
 
 === Brief Version History ===
 
@@ -61,12 +61,13 @@ code that acted as a "curses" emulator.  One such port was "Macintosh
 Angband 2.6.1", by Keith Randall, which added support for color, and
 which formed the basis for the first release of Angband 2.7.0.
 
-During the last half of 1994, I (Ben Harrison) had been playing with
-the Angband source, primarily to investigate the possibility of making
-some kind of automatic player for Angband, like the old "rogue-o-matic"
+During the last half of 1994, Ben Harrison had been playing with the
+Angband source, primarily to investigate the possibility of making some
+kind of automatic player for Angband, like the old "rogue-o-matic"
 program for the game "rogue".  The difficulty of compiling a version
 for the Macintosh, and the complexity of the code, prevented this, and
-so I began cleaning up the code in various ways for my own personal use.
+so he began cleaning up the code in various ways for his own personal
+use.
 
 In late 1994, Charles Swiger announced that he was starting a real job
 and would no longer be able to be the Angband maintainer.  This induced
@@ -74,9 +75,9 @@ some amount of uproar in the Angband community (as represented by the
 Angband newsgroup), with various people attempting to form "committees"
 to take over the maintenance of Angband.  Since committees have never
 given us anything but trouble (think "COBOL"), there was very little
-resistance when, on the first day of 1995, I made my code available,
+resistance when, on the first day of 1995, Ben made his code available,
 calling it "Angband 2.7.0", and by default, taking over as the new
-maintainer of Angband.  Or, at least, that is how I remember it...
+maintainer of Angband.  Or, at least, that is how he remembers it...
 
 Angband 2.7.0 was a very clean (but very buggy) rewrite that, among other
 things, allowed extremely simple porting to multiple platforms, starting
@@ -90,27 +91,24 @@ to the major ftp archives as the first "stable" version in a year or so,
 with new "help files" and "spoiler files" for the "online help", plus a
 variety of minor tweaks and some new features.
 
-After Angband 2.7.8 was released, I created a web site to keep track of
+After Angband 2.7.8 was released, Ben created a web site to keep track of
 all the changes made in each version (though a few may have been missed),
-and acquired the use of a new develoepement ftp server to supplement the
-official "mirror" server.  The next few releases, from Angband 2.7.9v1
-through Angband 2.7.9v6, really should have been given their own separate
-version numbers, but I kept thinking that I wanted to save Angband 2.8.0
-for a really special release.  Angband 2.8.0 and Angband 2.8.1 were then
-released using a more normal version scheme.  Angband 2.8.2 will hopefully
-be an official stable release cleanup, and includes mostly just bug fixes
-and general cleanup of Angband 2.8.1, plus a few minor new features.  Note
-that almost all changes made in each version released after Angband 2.7.8
-can be found at the Official Angband Home Page, and I just wish that I had
-thought of keeping a change log for the earlier versions as well.
+and acquired the use of a new developement ftp server to supplement the
+official "mirror" server.  This web site is now permanently located at
+the Official Angband Home Page (http://www.phial.com).  Unfortunately,
+the next six versions were numbered Angband 2.7.9v1 to Angband 2.7.9v6,
+but really each were rather major updates.  Angband 2.8.0 and 2.8.1 were
+released using a more normal version scheme.  Angband 2.8.2 and 2.8.3 add
+a few random features, clean up some code, and provide graphics support
+and such for a few more platforms.
 
-The Official Angband Home Page ("http://www.voicenet.com/~benh/Angband/")
-was created to serve as the most up to date description of Angband, listing
+The Official Angband Home Page ("http://www.phial.com/angband/") serves
+not only as the most up to date description of Angband, but also lists
 changes made between versions, and changes planned for upcoming versions,
-and to list various email addresses and web sites related to Angband.
+and lists various email addresses and web sites related to Angband.
 
 
-=== Some of the changes from Angband 2.6.1 to Angband 2.7.9 ===
+=== Some of the changes between Angband 2.6.1 and Angband 2.7.8 ===
 
 It is very hard to pin down, along the way from 2.6.2 to 2.7.8, exactly
 what changes were made, and exactly when they were made.  Most releases
@@ -119,8 +117,8 @@ not very useful, since often the diff files are as long as the code itself.
 Most of the changes, with the notable exception of the creation of some of
 the new "main-xxx.c" files for the various new platforms, and a few other
 minor exceptions generally noted directly in comments in the source, were
-written by myself, either spontaneously, or, more commonly, as the result of
-a suggestion or comment by an Angband player.
+written by myself, either spontaneously, or, more commonly, as the result
+of a suggestion or comment by an Angband player.
 
 The most important modification was a massive "code level cleanup" that made
 all of my other modifications much simpler and safer.  This cleanup was so
@@ -245,7 +243,9 @@ changes (and bug fixes) can be found at the Official Angband Home Page.
 
 Makes Angband 2.8.2 look like a picnic.  Harder, faster (you die more),
 and harder still.  No stores, so you cannot buy any decent equipment -
-you have to find everything.
+you have to find everything.  Reasonably accurate change information
+for Angband 2.8.2-Ingband 0.1.0 and later versions can be found in the
+"CHANGES" file supplied with Ingband distributions.
 
 === A Posting from the Original Author ===
 
@@ -438,6 +438,7 @@ Angband Version 2.7   : 19950101 Ben Harrison
 
 Angband Version 2.8   : 19970101 Ben Harrison
 
-Ingband Version 0.1   : 199709?? Robert Shiells
+Ingband Version 0.1   : 19971008 Robert Shiells
 
+Ingband Version 0.2   : 1999???? Robert Shiells
 

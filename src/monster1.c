@@ -127,7 +127,7 @@ static void roff_aux(int r_idx)
 	int vn = 0;
 	cptr vp[64];
 
-	monster_race save_mem;
+/*	monster_race save_mem; */
 
 
 
@@ -150,58 +150,6 @@ static void roff_aux(int r_idx)
 
 	/* Access the race and lore */
 	r_ptr = &r_info[r_idx];
-
-
-	/* Cheat -- know everything */
-	if (cheat_know)
-	{
-		/* XXX XXX XXX */
-
-		/* Hack -- save memory */
-		COPY(&save_mem, r_ptr, monster_type);
-
-		/* Hack -- Maximal kills */
-		r_ptr->r_tkills = MAX_SHORT;
-
-		/* Hack -- Maximal info */
-		r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
-
-		/* Observe "maximal" attacks */
-		for (m = 0; m < 4; m++)
-		{
-			/* Examine "actual" blows */
-			if (r_ptr->blow[m].effect || r_ptr->blow[m].method)
-			{
-				/* Hack -- maximal observations */
-				r_ptr->r_blows[m] = MAX_UCHAR;
-			}
-		}
-
-		/* Hack -- maximal drops */
-		r_ptr->r_drop_gold = r_ptr->r_drop_item =
-		(((r_ptr->flags1 & (RF1_DROP_4D2)) ? 8 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_3D2)) ? 6 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_2D2)) ? 4 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_1D2)) ? 2 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_90))  ? 1 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_60))  ? 1 : 0));
-
-		/* Hack -- but only "valid" drops */
-		if (r_ptr->flags1 & (RF1_ONLY_GOLD)) r_ptr->r_drop_item = 0;
-		if (r_ptr->flags1 & (RF1_ONLY_ITEM)) r_ptr->r_drop_gold = 0;
-
-		/* Hack -- observe many spells */
-		r_ptr->r_cast_inate = MAX_UCHAR;
-		r_ptr->r_cast_spell = MAX_UCHAR;
-
-		/* Hack -- know all the flags */
-		r_ptr->r_flags1 = r_ptr->flags1;
-		r_ptr->r_flags2 = r_ptr->flags2;
-		r_ptr->r_flags3 = r_ptr->flags3;
-		r_ptr->r_flags4 = r_ptr->flags4;
-		r_ptr->r_flags5 = r_ptr->flags5;
-		r_ptr->r_flags6 = r_ptr->flags6;
-	}
 
 
 	/* Extract a gender (if applicable) */
@@ -1344,14 +1292,6 @@ static void roff_aux(int r_idx)
 
 	/* All done */
 	roff("\n");
-
-
-	/* Cheat -- know everything */
-	if (cheat_know)
-	{
-		/* Hack -- restore memory */
-		COPY(r_ptr, &save_mem, monster_type);
-	}
 }
 
 

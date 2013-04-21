@@ -1,6 +1,8 @@
-/* File: store.c */
+/* File: home.c */
 
 /*
+ * Copyright (C)1997 elemental
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -11,36 +13,31 @@
 #include "angband.h"
 
 /*
- * We store the current "store page" here so everyone can access it
+ * We store the current "inventory page" here so everyone can access it
  */
 static int store_top = 0;
 
-/*
- * We store the current "store pointer" here so everyone can access it
- */
-static store_type *st_ptr = NULL;
-
 
 /*
- * Check to see if the shop will be carrying too many objects
+ * Check to see if the home will be carrying too many objects
  *
- * Note that the shop, just like a player, will not accept things
+ * Note that the home, just like a player, will not accept things
  * it cannot hold.  Before, one could "nuke" objects this way, by
  * adding them to a pile which was already full.
  */
-static bool store_check_num(object_type *o_ptr)
+static bool home_check_num(object_type *o_ptr)
 {
 	int i;
 	object_type *j_ptr;
 
 	/* Free space is always usable */
-	if (st_ptr->stock_num < st_ptr->stock_size) return TRUE;
+	if (home.stock_num < home.stock_size) return TRUE;
 
 	/* Check all the items */
-	for (i = 0; i < st_ptr->stock_num; i++)
+	for (i = 0; i < home.stock_num; i++)
 	{
 		/* Get the existing item */
-		j_ptr = &st_ptr->stock[i];
+		j_ptr = &home.stock[i];
 
 		/* Can the new object be combined with the old one? */
 		if (object_similar(j_ptr, o_ptr)) return (TRUE);
@@ -51,13 +48,13 @@ static bool store_check_num(object_type *o_ptr)
 }
 
 /*
- * Add the item "o_ptr" to the inventory of the "Home"
+ * Add the item "o_ptr" to the inventory of the "home"
  *
  * In all cases, return the slot (or -1) where the object was placed
  *
  * Note that this is a hacked up version of "inven_carry()".
  *
- * Also note that it may not correctly "adapt" to "knowledge" bacoming
+ * Also note that it may not correctly "adapt" to "knowledge" becoming
  * known, the player may have to pick stuff up and drop it again.
  */
 static int home_carry(object_type *o_ptr)
@@ -69,10 +66,10 @@ static int home_carry(object_type *o_ptr)
 
 
 	/* Check each existing item (try to combine) */
-	for (slot = 0; slot < st_ptr->stock_num; slot++)
+	for (slot = 0; slot < home.stock_num; slot++)
 	{
 		/* Get the existing item */
-		j_ptr = &st_ptr->stock[slot];
+		j_ptr = &home.stock[slot];
 
 		/* The home acts just like the player */
 		if (object_similar(j_ptr, o_ptr))
@@ -86,17 +83,17 @@ static int home_carry(object_type *o_ptr)
 	}
 
 	/* No space? */
-	if (st_ptr->stock_num >= st_ptr->stock_size) return (-1);
+	if (home.stock_num >= home.stock_size) return (-1);
 
 
 	/* Determine the "value" of the item */
 	value = object_value(o_ptr);
 
 	/* Check existing slots to see if we must "slide" */
-	for (slot = 0; slot < st_ptr->stock_num; slot++)
+	for (slot = 0; slot < home.stock_num; slot++)
 	{
 		/* Get that item */
-		j_ptr = &st_ptr->stock[slot];
+		j_ptr = &home.stock[slot];
 
 		/* Hack -- readable books always come first */
 		if ((o_ptr->tval == mp_ptr->spell_book) &&
@@ -120,6 +117,13 @@ static int home_carry(object_type *o_ptr)
 		if (!object_known_p(o_ptr)) continue;
 		if (!object_known_p(j_ptr)) break;
 
+		/* Hack:  otherwise identical rods sort by
+		   increasing recharge time --dsb */
+		if (o_ptr->tval == TV_ROD) {
+			if (o_ptr->pval < j_ptr->pval) break;
+			if (o_ptr->pval > j_ptr->pval) continue;
+		}
+
 		/* Objects sort by decreasing value */
 		j_value = object_value(j_ptr);
 		if (value > j_value) break;
@@ -127,17 +131,17 @@ static int home_carry(object_type *o_ptr)
 	}
 
 	/* Slide the others up */
-	for (i = st_ptr->stock_num; i > slot; i--)
+	for (i = home.stock_num; i > slot; i--)
 	{
 		/* Hack -- slide the objects */
-		object_copy(&st_ptr->stock[i], &st_ptr->stock[i-1]);
+		object_copy(&home.stock[i], &home.stock[i-1]);
 	}
 
 	/* More stuff now */
-	st_ptr->stock_num++;
+	home.stock_num++;
 
 	/* Hack -- Insert the new item */
-	object_copy(&st_ptr->stock[slot], o_ptr);
+	object_copy(&home.stock[slot], o_ptr);
 
 	/* Return the location */
 	return (slot);
@@ -146,13 +150,13 @@ static int home_carry(object_type *o_ptr)
 /*
  * Remove a slot if it is empty
  */
-static void store_item_optimize(int item)
+static void home_item_optimize(int item)
 {
 	int j;
 	object_type *o_ptr;
 
 	/* Get the item */
-	o_ptr = &st_ptr->stock[item];
+	o_ptr = &home.stock[item];
 
 	/* Must exist */
 	if (!o_ptr->k_idx) return;
@@ -161,21 +165,21 @@ static void store_item_optimize(int item)
 	if (o_ptr->number) return;
 
 	/* One less item */
-	st_ptr->stock_num--;
+	home.stock_num--;
 
 	/* Slide everyone */
-	for (j = item; j < st_ptr->stock_num; j++)
+	for (j = item; j < home.stock_num; j++)
 	{
-		st_ptr->stock[j] = st_ptr->stock[j + 1];
+		home.stock[j] = home.stock[j + 1];
 	}
 
 	/* Nuke the final slot */
-	object_wipe(&st_ptr->stock[j]);
+	object_wipe(&home.stock[j]);
 }
 
 
 /*
- * Re-displays a single store entry
+ * Re-displays a single home entry
  */
 static void display_entry(int pos)
 {
@@ -188,7 +192,7 @@ static void display_entry(int pos)
 	byte attr;
 
 	/* Get the item */
-	o_ptr = &st_ptr->stock[pos];
+	o_ptr = &home.stock[pos];
 
 	/* Get the "offset" */
 	i = (pos % 12);
@@ -209,7 +213,7 @@ static void display_entry(int pos)
 	attr = tval_to_attr[o_ptr->tval & 0x7F];
 
 	/* Disable inventory colors */
-	if (!inventory_colors) attr = TERM_WHITE;
+/*	if (!inventory_colors) attr = TERM_WHITE; */
 
 	/* Display the object */
 	c_put_str(attr, o_name, i+6, 3);
@@ -226,7 +230,7 @@ static void display_entry(int pos)
 
 
 /*
- * Display a store's inventory
+ * Display a home's inventory
  *
  * All prices are listed as "per individual object"
  */
@@ -238,7 +242,7 @@ static void display_inventory(void)
 	for (k = 0; k < 12; k++)
 	{
 		/* Do not display "dead" items */
-		if (store_top + k >= st_ptr->stock_num) break;
+		if (store_top + k >= home.stock_num) break;
 
 		/* Display that line */
 		display_entry(store_top + k);
@@ -251,7 +255,7 @@ static void display_inventory(void)
 	put_str("        ", 5, 20);
 
 	/* Visual reminder of "more items" */
-	if (st_ptr->stock_num > 12)
+	if (home.stock_num > 12)
 	{
 		/* Show "more" reminder (after the last item) */
 		prt("-more-", k + 6, 3);
@@ -263,9 +267,9 @@ static void display_inventory(void)
 
 
 /*
- * Display store (after clearing screen)
+ * Display home (after clearing screen)
  */
-static void display_store(void)
+static void display_home(void)
 {
 	/* Clear screen */
 	Term_clear();
@@ -289,7 +293,7 @@ static void display_store(void)
 
 
 /*
- * Get the index of a store item
+ * Get the index of a home item
  *
  * Return TRUE if an item was selected
  */
@@ -330,7 +334,7 @@ static bool get_stock(int *com_val, cptr pmt, int i, int j)
 		}
 
 		/* Oops */
-		bell();
+		bell("Illegal command.");
 	}
 
 	/* Clear the prompt */
@@ -345,16 +349,16 @@ static bool get_stock(int *com_val, cptr pmt, int i, int j)
 
 
 /*
- * Increase, by a given amount, the number of a certain item
- * in a certain store.  This can result in zero items.
+ * Increase, by a given amount, the number of a certain item.
+ * This can result in zero items.
  */
-static void store_item_increase(int item, int num)
+static void home_item_increase(int item, int num)
 {
 	int cnt;
 	object_type *o_ptr;
 
 	/* Get the item */
-	o_ptr = &st_ptr->stock[item];
+	o_ptr = &home.stock[item];
 
 	/* Verify the number */
 	cnt = o_ptr->number + num;
@@ -368,9 +372,9 @@ static void store_item_increase(int item, int num)
 
 
 /*
- * Buy an item from a store
+ * Get an item from a home
  */
-static void store_purchase(void)
+static void home_get(void)
 {
 	int i, amt = 1;
 	int item, item_new;
@@ -386,7 +390,7 @@ static void store_purchase(void)
 
 
 	/* Empty? */
-	if (st_ptr->stock_num <= 0)
+	if (home.stock_num <= 0)
 	{
 		msg_print("Your home is empty.");
 		return;
@@ -394,7 +398,7 @@ static void store_purchase(void)
 
 
 	/* Find the number of objects on this and following pages */
-	i = (st_ptr->stock_num - store_top);
+	i = (home.stock_num - store_top);
 
 	/* And then restrict it to the current page */
 	if (i > 12) i = 12;
@@ -409,7 +413,7 @@ static void store_purchase(void)
 	item = item + store_top;
 
 	/* Get the actual item */
-	o_ptr = &st_ptr->stock[item];
+	o_ptr = &home.stock[item];
 
 	/* prompt for quantity (or use p_ptr->command_arg) */
 	if ( o_ptr->number > 1 ) {
@@ -446,14 +450,14 @@ static void store_purchase(void)
 	handle_stuff();
 
 	/* Take note if we take the last one */
-	i = st_ptr->stock_num;
+	i = home.stock_num;
 
 	/* Remove the items from the home */
-	store_item_increase(item, -amt);
-	store_item_optimize(item);
+	home_item_increase(item, -amt);
+	home_item_optimize(item);
 
 	/* Hack -- Item is still here */
-	if (i == st_ptr->stock_num)
+	if (i == home.stock_num)
 	{
 		/* Redraw the item */
 		display_entry(item);
@@ -463,10 +467,10 @@ static void store_purchase(void)
 	else
 	{
 		/* Nothing left */
-		if (st_ptr->stock_num == 0) store_top = 0;
+		if (home.stock_num == 0) store_top = 0;
 
 		/* Nothing left on that screen */
-		else if (store_top >= st_ptr->stock_num) store_top -= 12;
+		else if (store_top >= home.stock_num) store_top -= 12;
 
 		/* Redraw everything */
 		display_inventory();
@@ -477,9 +481,9 @@ static void store_purchase(void)
 
 
 /*
- * Sell an item to the store (or home)
+ * Put an item in a home
  */
-static void store_sell(void)
+static void home_put(void)
 {
 	int item, item_pos; int amt = 1;
 
@@ -541,7 +545,7 @@ static void store_sell(void)
 	object_desc(o_name, i_ptr, TRUE, 3);
 
 	/* Is there room in the home? */
-	if (!store_check_num(i_ptr))
+	if (!home_check_num(i_ptr))
 	{
 		msg_print("Your home is full.");
 		return;
@@ -561,7 +565,7 @@ static void store_sell(void)
 	/* Let the home carry it */
 	item_pos = home_carry(i_ptr);
 
-	/* Update store display */
+	/* Update home display */
 	if (item_pos >= 0)
 	{
 		store_top = (item_pos / 12) * 12;
@@ -570,22 +574,22 @@ static void store_sell(void)
 }
 
 
-static bool leave_store = FALSE;
+static bool leave_home = FALSE;
 
 
 /*
- * Process a command in a store
+ * Process a command in a home
  *
  * Note that we must allow the use of a few "special" commands
- * in the stores which are not allowed in the dungeon, and we
+ * in the home which are not allowed in the dungeon, and we
  * must disable some commands which are allowed in the dungeon
- * but not in the stores, to prevent chaos.
+ * but not in the home, to prevent chaos.
  *
  * Hack -- note the bizarre code to handle the "=" command,
  * which is needed to prevent the "redraw" from affecting
- * the display of the store.  XXX XXX XXX
+ * the display of the home.  XXX XXX XXX
  */
-static void store_process_command(void)
+static void home_process_command(void)
 {
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
@@ -593,21 +597,21 @@ static void store_process_command(void)
 		/* Leave */
 		case ESCAPE:
 		{
-			leave_store = TRUE;
+			leave_home = TRUE;
 			break;
 		}
 
 		/* Browse */
 		case ' ':
 		{
-			if (st_ptr->stock_num <= 12)
+			if (home.stock_num <= 12)
 			{
 				msg_print("Entire inventory is shown.");
 			}
 			else
 			{
 				store_top += 12;
-				if (store_top >= st_ptr->stock_num) store_top = 0;
+				if (store_top >= home.stock_num) store_top = 0;
 				display_inventory();
 			}
 			break;
@@ -617,21 +621,21 @@ static void store_process_command(void)
 		case KTRL('R'):
 		{
 			do_cmd_redraw();
-			display_store();
+			display_home();
 			break;
 		}
 
 		/* Get */
 		case 'g':
 		{
-			store_purchase();
+			home_get();
 			break;
 		}
 
 		/* Drop */
 		case 'd':
 		{
-			store_sell();
+			home_put();
 			break;
 		}
 
@@ -791,7 +795,7 @@ static void store_process_command(void)
 			do_cmd_options();
 			character_icky = TRUE;
 			do_cmd_redraw();
-			display_store();
+			display_home();
 			break;
 		}
 
@@ -859,7 +863,7 @@ static void store_process_command(void)
 		/* Unknown command */
 		default:
 		{
-			msg_print("That command does not work in stores.");
+			msg_print("That command does not work in the home.");
 			break;
 		}
 	}
@@ -867,40 +871,16 @@ static void store_process_command(void)
 
 
 /*
- * Enter a store, and interact with it.
+ * Enter a home, and interact with it.
  *
  * Note that we use the standard "request_command()" function
  * to get a command, allowing us to use "p_ptr->command_arg" and all
- * command macros and other nifty stuff, but we use the special
- * "shopping" argument, to force certain commands to be converted
- * into other commands, normally, we convert "p" (pray) and "m"
- * (cast magic) into "g" (get), and "s" (search) into "d" (drop).
+ * command macros and other nifty stuff.
  */
-void do_cmd_store(void)
+void do_cmd_home(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int tmp_chr;
 
-	/* Verify a store */
-	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
-	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)))
-	{
-		msg_print("You see no store here.");
-		return;
-	}
-
-	/* All stores (except the home) are locked */
-	if (cave_feat[py][px] - FEAT_SHOP_HEAD < 7)
-	{
-		msg_print("The doors are locked.");
-		return;
-	}
-
-
-	/* Forget the lite */
-	forget_lite();
 
 	/* Forget the view */
 	forget_view();
@@ -919,20 +899,17 @@ void do_cmd_store(void)
 	/* No automatic command */
 	p_ptr->command_new = 0;
 
-	/* Save the store and owner pointers */
-	st_ptr = &store[7];
-
 	/* Start at the beginning */
 	store_top = 0;
 
-	/* Display the store */
-	display_store();
+	/* Display the home */
+	display_home();
 
 	/* Do not leave */
-	leave_store = FALSE;
+	leave_home = FALSE;
 
 	/* Interact with player */
-	while (!leave_store)
+	while (!leave_home)
 	{
 		/* Hack -- Clear line 1 */
 		prt("", 1, 0);
@@ -947,7 +924,7 @@ void do_cmd_store(void)
 		prt(" ESC) Exit from Building.", 22, 0);
 
 		/* Browse if necessary */
-		if (st_ptr->stock_num > 12)
+		if (home.stock_num > 12)
 		{
 			prt(" SPACE) Next page of stock", 23, 0);
 		}
@@ -960,10 +937,10 @@ void do_cmd_store(void)
 		prt("You may: ", 21, 0);
 
 		/* Get a command */
-		request_command(TRUE);
+		request_command();
 
 		/* Process the command */
-		store_process_command();
+		home_process_command();
 
 		/* Hack -- Character is still in "icky" mode */
 		character_icky = TRUE;
@@ -981,13 +958,13 @@ void do_cmd_store(void)
 
 			object_type *o_ptr = &inventory[item];
 
-			if (!store_check_num(o_ptr))
+			if (!home_check_num(o_ptr))
 			{
 				/* Message */
 				msg_print("Your pack is so full that you flee your home...");
 
 				/* Leave */
-				leave_store = TRUE;
+				leave_home = TRUE;
 			}
 
 			/* Hack -- Drop items into the home */
@@ -1035,9 +1012,6 @@ void do_cmd_store(void)
 				}
 			}
 		}
-
-		/* Hack -- Redisplay store prices if charisma changes */
-		if (tmp_chr != p_ptr->stat_use[A_CHR]) display_inventory();
 	}
 
 
@@ -1064,9 +1038,8 @@ void do_cmd_store(void)
 	Term_clear();
 
 
-	/* Update everything */
-	p_ptr->update |= (PU_VIEW | PU_LITE);
-	p_ptr->update |= (PU_MONSTERS);
+	/* Update the visuals */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 	/* Redraw entire screen */
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA);
@@ -1078,31 +1051,57 @@ void do_cmd_store(void)
 	p_ptr->window |= (PW_OVERHEAD);
 }
 
+void home_generate_item( int tval, int sval, int l_range, int h_range )
+{
+	object_type *i_ptr;
+	object_type object_type_body;
 
+	i_ptr = &object_type_body;
+	object_prep( i_ptr, lookup_kind( tval, sval ));
+	i_ptr->number = rand_range( l_range, h_range );
+	object_aware( i_ptr );
+	object_known( i_ptr );
+	home_carry( i_ptr );
+}
 
 /*
- * Initialize the stores
+ * Initialize the home
  */
-void store_init() {
+void home_init()
+{
 	int k;
 
-	store[0].stock_num = 0;
-	store[1].stock_num = 0;
-	store[2].stock_num = 0;
-	store[3].stock_num = 0;
-	store[4].stock_num = 0;
-	store[5].stock_num = 0;
-	store[6].stock_num = 0;
-
-	st_ptr = &store[7];
-
-	/* Initialize the store */
-	st_ptr->stock_num = 0;
+	/* Initialize the home */
+	home.stock_num = 0;
 
 	/* Clear any old items */
-	for (k = 0; k < st_ptr->stock_size; k++)
+	for (k = 0; k < home.stock_size; k++)
 	{
-		object_wipe(&st_ptr->stock[k]);
+		object_wipe(&home.stock[k]);
+	}
+
+	/* Stock up the home */
+
+	/* Some food */
+	switch (p_ptr->prace) {
+		case RACE_HALF_ELF:
+		case RACE_ELF:
+		case RACE_HIGH_ELF:
+			home_generate_item( TV_FOOD, SV_FOOD_RATION, 3, 7 );
+			home_generate_item( TV_FOOD, SV_FOOD_WAYBREAD, 1, 2 );
+			break;
+
+		default:
+			home_generate_item( TV_FOOD, SV_FOOD_RATION, 5, 10 );
+	}
+
+	if ( rand_range( 1, 100 ) >= 76 ) {
+		/* A lantern and some flasks of oil */
+		home_generate_item( TV_LITE, SV_LITE_LANTERN, 1, 1 );
+		home_generate_item( TV_FLASK, 0, 1, 3 );
+	} else {
+		/* Some torches */
+		home_generate_item( TV_LITE, SV_LITE_TORCH, 5, 10 );
 	}
 }
 

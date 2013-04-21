@@ -831,20 +831,20 @@ static void wr_xtra(int k_idx)
 
 
 /*
- * Write a "store" record
+ * Write a "home" record
  */
-static void wr_store(store_type *st_ptr)
+static void wr_home(void)
 {
 	int j;
 
 	/* Save the stock size */
-	wr_byte(st_ptr->stock_num);
+	wr_byte(home.stock_num);
 
 	/* Save the stock */
-	for (j = 0; j < st_ptr->stock_num; j++)
+	for (j = 0; j < home.stock_num; j++)
 	{
 		/* Save each item in stock */
-		wr_item(&st_ptr->stock[j]);
+		wr_item(&home.stock[j]);
 	}
 }
 
@@ -906,12 +906,6 @@ static void wr_options(void)
 	c = 0;
 
 	if (p_ptr->wizard) c |= 0x0002;
-
-	/* Save the cheating flags */
-	for (i = 0; i < CHEAT_MAX; i++)
-	{
-		if (p_ptr->cheat[i]) c |= (0x0100 << i);
-	}
 
 	wr_u16b(c);
 
@@ -1446,12 +1440,8 @@ static bool wr_savefile_new(void)
 	wr_u16b(0xFFFF);
 
 
-	/* Note the stores */
-	tmp16u = MAX_STORES;
-	wr_u16b(tmp16u);
-
-	/* Dump the stores */
-	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
+	/* Dump the home */
+	wr_home();
 
 
 	/* Player is not dead, write the dungeon */
@@ -1648,9 +1638,9 @@ bool save_player(void)
  *
  * Note that savefiles from 2.7.0 - 2.7.2 are completely obsolete.
  *
- * Pre-2.8.0 savefiles lose some data, see "load2.c" for info.
+ * Pre-2.8.0 savefiles lose some data, see "loader.c" for info.
  *
- * Pre-2.7.0 savefiles lose a lot of things, see "load1.c" for info.
+ * Pre-2.7.0 savefiles lose a lot of things, see "loader.c" for info.
  *
  * On multi-user systems, you may only "read" a savefile if you will be
  * allowed to "write" it later, this prevents painful situations in which
@@ -1800,7 +1790,7 @@ bool load_player(void)
 		} else
 
 		/* Parse current savefiles */
-		if ((sf_major == 0) && (sf_minor == 1))
+		if ((sf_major == 0) && ((sf_minor == 1) || (sf_minor ==2)))
 		{
 			/* Attempt to load */
 			err = rd_savefile_new();

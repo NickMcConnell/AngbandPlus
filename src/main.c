@@ -471,7 +471,10 @@ int main(int argc, char *argv[])
 
 
 	/* Drop privs (so X11 will work correctly) */
+
+#ifndef USE_LSL
 	safe_setuid_drop();
+#endif
 
 
 #ifdef USE_XAW
@@ -565,7 +568,11 @@ int main(int argc, char *argv[])
 	if (!done)
 	{
 		extern errr init_lsl(void);
+
+		puts( "Initialising lsl" );
 		if (0 == init_lsl()) done = TRUE;
+		puts( "Done" );
+
 		if (done) ANGBAND_SYS = "lsl";
 	}
 #endif

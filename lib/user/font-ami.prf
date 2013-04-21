@@ -1,9 +1,11 @@
-# font-ami.prf
+# File: font-ami.prf
+
 #
 # This file contains text remapping data
 # currently used in the Amiga version.
 #
 # Lars Haugseth <larshau@ifi.uio.no>
+#
 
 
 # Color palette - Text

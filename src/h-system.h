@@ -103,9 +103,9 @@
 #  include <string.h>
 # else
 #  include <strings.h>
-extern char *strstr();
+/*extern char *strstr();
 extern char *strchr();
-extern char *strrchr();
+extern char *strrchr();*/
 # endif
 
 #else
@@ -125,4 +125,5 @@ extern long atol();
 
 
 #endif
+
 

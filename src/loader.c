@@ -1,4 +1,4 @@
-/* File: load2.c */
+/* File: loader.c */
 
 /*
  * Copyright (c) 1997 Ben Harrison, and others
@@ -522,12 +522,10 @@ static void rd_lore(int r_idx)
 
 
 /*
- * Read a store
+ * Read a home
  */
-static errr rd_store(int n)
+static errr rd_home(void)
 {
-	store_type *st_ptr = &store[n];
-
 	int j;
 
 	byte num;
@@ -551,12 +549,12 @@ static errr rd_store(int n)
 		rd_item(i_ptr);
 
 		/* Acquire valid items */
-		if (st_ptr->stock_num < STORE_INVEN_MAX)
+		if (home.stock_num < STORE_INVEN_MAX)
 		{
-			int k = st_ptr->stock_num++;
+			int k = home.stock_num++;
 
 			/* Acquire the item */
-			object_copy(&st_ptr->stock[k], i_ptr);
+			object_copy(&home.stock[k], i_ptr);
 		}
 	}
 
@@ -634,17 +632,11 @@ static void rd_options(void)
 	op_ptr->hitpoint_warn = b;
 
 
-	/*** Cheating options ***/
+	/*** Cheat flags ***/
 
 	rd_u16b(&c);
 
 	if (c & 0x0002) p_ptr->wizard = TRUE;
-
-	/* Extract the cheating flags */
-	for (i = 0; i < CHEAT_MAX; ++i)
-	{
-		p_ptr->cheat[i] = (c & (0x0100 << i)) ? TRUE : FALSE;
-	}
 
 
 	/*** Normal Options ***/
@@ -1478,12 +1470,8 @@ static errr rd_savefile_new_aux(void)
 	}
 
 
-	/* Read the stores */
-	rd_u16b(&tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		if (rd_store(i)) return (22);
-	}
+	/* Read the home */
+	if (rd_home()) return (22);
 
 
 	/* I'm not dead yet... */

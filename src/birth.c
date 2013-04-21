@@ -36,9 +36,9 @@ struct birther
 
 
 /*
- * The last character displayed
+ * Roll history - the player can choose one of these
  */
-static birther prev;
+static birther rolls[10];
 
 
 
@@ -254,7 +254,7 @@ static s16b stat_use[6];
 /*
  * Save the current data for later
  */
-static void save_prev_data(void)
+static void save_roll_data( int roll )
 {
 	int i;
 
@@ -262,100 +262,52 @@ static void save_prev_data(void)
 	/*** Save the current data ***/
 
 	/* Save the data */
-	prev.age = p_ptr->age;
-	prev.wt = p_ptr->wt;
-	prev.ht = p_ptr->ht;
-	prev.sc = p_ptr->sc;
-	prev.au = p_ptr->au;
+	rolls[ roll ].age = p_ptr->age;
+	rolls[ roll ].wt = p_ptr->wt;
+	rolls[ roll ].ht = p_ptr->ht;
+	rolls[ roll ].sc = p_ptr->sc;
+	rolls[ roll ].au = p_ptr->au;
 
 	/* Save the stats */
-	for (i = 0; i < 6; i++)
+	for ( i = 0; i < 6; i++ )
 	{
-		prev.stat[i] = p_ptr->stat_max[i];
+		rolls[ roll ].stat[ i ] = p_ptr->stat_max[ i ];
 	}
 
 	/* Save the history */
-	for (i = 0; i < 4; i++)
+	for ( i = 0; i < 4; i++ )
 	{
-		strcpy(prev.history[i], p_ptr->history[i]);
+		strcpy( rolls[ roll ].history[ i ], p_ptr->history[ i ] );
 	}
 }
 
 
 /*
- * Load the previous data
+ * Load the roll data
  */
-static void load_prev_data(void)
+static void load_roll_data( int roll )
 {
 	int i;
 
-	birther temp;
-
-
-	/*** Save the current data ***/
-
-	/* Save the data */
-	temp.age = p_ptr->age;
-	temp.wt = p_ptr->wt;
-	temp.ht = p_ptr->ht;
-	temp.sc = p_ptr->sc;
-	temp.au = p_ptr->au;
-
-	/* Save the stats */
-	for (i = 0; i < 6; i++)
-	{
-		temp.stat[i] = p_ptr->stat_max[i];
-	}
-
-	/* Save the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(temp.history[i], p_ptr->history[i]);
-	}
-
-
-	/*** Load the previous data ***/
 
 	/* Load the data */
-	p_ptr->age = prev.age;
-	p_ptr->wt = prev.wt;
-	p_ptr->ht = prev.ht;
-	p_ptr->sc = prev.sc;
-	p_ptr->au = prev.au;
+	p_ptr->age = rolls[ roll ].age;
+	p_ptr->wt = rolls[ roll ].wt;
+	p_ptr->ht = rolls[ roll ].ht;
+	p_ptr->sc = rolls[ roll ].sc;
+	p_ptr->au = rolls[ roll ].au;
 
 	/* Load the stats */
-	for (i = 0; i < 6; i++)
+	for ( i = 0; i < 6; i++ )
 	{
-		p_ptr->stat_max[i] = prev.stat[i];
-		p_ptr->stat_cur[i] = prev.stat[i];
+		p_ptr->stat_max[ i ] = rolls[ roll ].stat[ i ];
+		p_ptr->stat_cur[ i ] = rolls[ roll ].stat[ i ];
 	}
 
 	/* Load the history */
-	for (i = 0; i < 4; i++)
+	for ( i = 0; i < 4; i++ )
 	{
-		strcpy(p_ptr->history[i], prev.history[i]);
-	}
-
-
-	/*** Save the current data ***/
-
-	/* Save the data */
-	prev.age = temp.age;
-	prev.wt = temp.wt;
-	prev.ht = temp.ht;
-	prev.sc = temp.sc;
-	prev.au = temp.au;
-
-	/* Save the stats */
-	for (i = 0; i < 6; i++)
-	{
-		prev.stat[i] = temp.stat[i];
-	}
-
-	/* Save the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(prev.history[i], temp.history[i]);
+		strcpy( p_ptr->history[ i ], rolls[ roll ].history[ i ] );
 	}
 }
 
@@ -417,7 +369,7 @@ static void get_stats(void)
 /*
  * Roll for some info that the auto-roller ignores
  */
-static void get_extra(void)
+void get_extra(void)
 {
 	int i, j, min_value, max_value;
 
@@ -641,15 +593,15 @@ static void get_ahw(void)
 	/* Calculate the height/weight for males */
 	if (p_ptr->psex == SEX_MALE)
 	{
-		p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-		p_ptr->wt = randnor(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
+		p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
+		p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
 	}
 
 	/* Calculate the height/weight for females */
 	else if (p_ptr->psex == SEX_FEMALE)
 	{
-		p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		p_ptr->wt = randnor(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+		p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
+		p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
 	}
 }
 
@@ -740,175 +692,12 @@ static void player_wipe(void)
 }
 
 
-
-
-/*
- * Each player starts out with a few items, given as tval/sval pairs.
- * The player is also given some food and light sources.
- */
-
-#define PLAYER_ITEMS_COUNT 37
-static byte player_start_items[ PLAYER_ITEMS_COUNT ][ 3 ] = {
-	/* These MUST be ordered by class */
-	/* The third number identifies groups of items */
-	/* The player will only be given one item from each group */
-
-	/* Warrior */
-	{ TV_SWORD, SV_BROAD_SWORD, 1 },
-	{ TV_SWORD, SV_LONG_SWORD, 1 },
-	{ TV_HARD_ARMOR, SV_CHAIN_MAIL, 2 },
-	{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL, 2 },
-	{ TV_HELM, SV_METAL_CAP, 3 },
-	{ TV_HELM, SV_HARD_LEATHER_CAP, 3 },
-	{ TV_POTION, SV_POTION_BESERK_STRENGTH, 4 },
-	{ TV_POTION, SV_POTION_HEROISM, 4 },
-
-	/* Mage */
-	{ TV_MAGIC_BOOK, 0, 1 },
-	{ TV_SWORD, SV_DAGGER, 2 },
-	{ TV_SCROLL, SV_SCROLL_IDENTIFY, 3 },
-	{ TV_MAGIC_BOOK, 1, 4 },
-	{ TV_SOFT_ARMOR, SV_ROBE, 4 },
-
-	/* Priest */
-	{ TV_PRAYER_BOOK, 0, 1 },
-	{ TV_HAFTED, SV_MACE, 2 },
-	{ TV_POTION, SV_POTION_HEALING, 3 },
-	{ TV_PRAYER_BOOK, 1, 4 },
-	{ TV_SOFT_ARMOR, SV_ROBE, 4 },
-
-	/* Rogue */
-	{ TV_MAGIC_BOOK, 0, 1 },
-	{ TV_SWORD, SV_SMALL_SWORD, 2 },
-	{ TV_SWORD, SV_RAPIER, 2 },
-	{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 3 },
-	{ TV_SOFT_ARMOR, SV_SOFT_STUDDED_LEATHER, 3 },
-	{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS, 4 },
-	{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES, 4 },
-
-	/* Ranger */
-	{ TV_MAGIC_BOOK, 0, 1 },
-	{ TV_SWORD, SV_BROAD_SWORD, 2 },
-	{ TV_BOW, SV_LONG_BOW, 3 },
-	{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR, 4 },
-	{ TV_SOFT_ARMOR, SV_SOFT_STUDDED_LEATHER, 4 },
-	{ TV_ARROW, SV_AMMO_NORMAL, 5 },
-
-	/* Paladin */
-	{ TV_PRAYER_BOOK, 0, 1 },
-	{ TV_SWORD, SV_BROAD_SWORD, 2 },
-	{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL, 3 },
-	{ TV_SOFT_ARMOR, SV_SOFT_STUDDED_LEATHER, 4 },
-	{ TV_PRAYER_BOOK, 1, 4 }
-};
-
-
-
-/*
- * Init players with some belongings
- *
- * Having an item makes the player "aware" of its purpose.
- */
-static void player_outfit(void)
-{
-	int i, tv, sv, item_count, ii;
-	byte class_counter, prev_val, root_idx;
-
-	object_type *i_ptr;
-	object_type object_type_body;
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Give the player some food */
-	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	i_ptr->number = rand_range(5, 10);
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Give the player some torches */
-	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-	i_ptr->number = rand_range(5, 10);
-	i_ptr->pval = 2500;
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
-
-
-	/* Random item selection... */
-
-	/* Find the index of the first item for the class */
-	i = 0;
-	for ( prev_val = 0, class_counter = p_ptr->pclass; class_counter > 0; class_counter-- ) {
-		while ( player_start_items[i][2] >= prev_val ) {
-			prev_val = player_start_items[i][2];
-			i++;
-		}
-		prev_val = 0;
-	}
-
-
-	/* Now to give the player some items (hopefully ;) */
-	while ( i < PLAYER_ITEMS_COUNT ) {
-		root_idx = i;
-
-		/* Find the number of items we can choose from */
-		for ( prev_val = player_start_items[i][2]; prev_val==player_start_items[i][2]; i++ )
-			;
-
-		/* Choose an item in the given range */
-		root_idx += randint( i - root_idx ) - 1;
-
-
-		/* Give the player that item */
-		/* Note that for arrows, we give 10d2 items */
-
-		tv = player_start_items[root_idx][0];
-		sv = player_start_items[root_idx][1];
-
-		if ( tv == TV_ARROW )
-			item_count = damroll( 10, 2 );
-		else
-			item_count = 1;
-
-		for ( ii = 0; ii < item_count; ii++ ) {
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Give the player an object */
-			object_prep(i_ptr, lookup_kind(tv, sv));
-			object_aware(i_ptr);
-			object_known(i_ptr);
-			(void)inven_carry(i_ptr);
-		}
-
-
-		/* Have we made all the choices for this class? */
-		if ( prev_val > player_start_items[i][2] ) break;
-	}
-}
-
-
 /*
  * Helper function for 'player_birth()'
- *
- * The delay may be reduced, but is recommended to keep players
- * from continuously rolling up characters, which can be VERY
- * expensive CPU wise.  And it cuts down on player stupidity.
  */
 static bool player_birth_aux()
 {
-	int k, n;
-
-	int mode = 0;
-
-	bool prev = FALSE;
+	int k, n, roll;
 
 	cptr str;
 
@@ -924,22 +713,10 @@ static bool player_birth_aux()
 	char buf[80];
 
 
-	/*** Intro ***/
+	/*** Instructions ***/
 
 	/* Clear screen */
 	Term_clear();
-
-	/* Title everything */
-	put_str("Name        :", 2, 1);
-	put_str("Sex         :", 3, 1);
-	put_str("Race        :", 4, 1);
-	put_str("Class       :", 5, 1);
-
-	/* Dump the default name */
-	c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 15);
-
-
-	/*** Instructions ***/
 
 	/* Display some helpful information */
 	Term_putstr(5, 10, -1, TERM_WHITE,
@@ -979,19 +756,16 @@ static bool player_birth_aux()
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
+		if (c == ESCAPE) c = 'a';
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
-		else bell();
+		else bell("Illegal sex!");
 	}
 
 	/* Set sex */
 	p_ptr->psex = k;
 	sp_ptr = &sex_info[p_ptr->psex];
-	str = sp_ptr->title;
-
-	/* Display */
-	c_put_str(TERM_L_BLUE, str, 3, 15);
 
 	/* Clean up */
 	clear_from(15);
@@ -1024,67 +798,23 @@ static bool player_birth_aux()
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
+		if (c == ESCAPE) c = 'a';
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
-		else bell();
+		else bell("Illegal race!");
 	}
 
 	/* Set race */
 	p_ptr->prace = k;
 	rp_ptr = &race_info[p_ptr->prace];
-	str = rp_ptr->title;
-
-	/* Display */
-	c_put_str(TERM_L_BLUE, str, 4, 15);
 
 	/* Clean up */
 	clear_from(15);
 
 
-	/*** Player class ***/
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Your 'class' determines various intrinsic abilities and bonuses.");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"Any entries with a (*) should only be used by advanced players.");
-
-	/* Dump classes */
-	for (n = 0; n < MAX_CLASS; n++)
-	{
-		cptr mod = "";
-
-		/* Analyze */
-		p_ptr->pclass = n;
-		cp_ptr = &class_info[p_ptr->pclass];
-		mp_ptr = &magic_info[p_ptr->pclass];
-		str = cp_ptr->title;
-
-		/* Verify legality */
-		if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
-
-		/* Display */
-		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
-		put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
-	}
-
-	/* Get a class */
-	while ( TRUE )
-	{
-		sprintf(buf, "Choose a class (%c-%c): ", I2A(0), I2A(n-1));
-		put_str(buf, 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		k = (islower(c) ? A2I(c) : -1);
-		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help();
-		else bell();
-	}
-
 	/* Set class */
-	p_ptr->pclass = k;
+	p_ptr->pclass = MAX_CLASS-1;
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &magic_info[p_ptr->pclass];
 	str = cp_ptr->title;
@@ -1098,20 +828,14 @@ static bool player_birth_aux()
 
 	/*** Generate ***/
 
-	/* Roll */
-	while ( TRUE )
-	{
+	/* Do 10 rolls */
+	for ( roll=0; roll<10; roll++ ) {
+
 		/* Get a new character */
 		get_stats();
 
 		/* Flush input */
 		flush();
-
-
-		/*** Display ***/
-
-		/* Mode */
-		mode = 0;
 
 		/* Roll for base hitpoints */
 		get_extra();
@@ -1123,84 +847,77 @@ static bool player_birth_aux()
 		get_history();
 
 		/* Roll for gold */
-		p_ptr->au = 0;  /* Hehe... money is meaningless */
+		p_ptr->au = 0;  /* Start with no money (it's useless in town) */
 
-		/* Input loop */
-		while ( TRUE )
-		{
-			/* Calculate the bonuses and hitpoints */
-			p_ptr->update |= (PU_BONUS | PU_HP);
+		save_roll_data( roll );
+	}
 
-			/* Update stuff */
-			update_stuff();
+	roll = 0;
 
-			/* Fully healed */
-			p_ptr->chp = p_ptr->mhp;
+	/* Input loop */
+	while ( TRUE )
+	{
+		load_roll_data( roll );
 
-			/* Fully rested */
-			p_ptr->csp = p_ptr->msp;
+		/* Calculate the bonuses and hitpoints */
+		p_ptr->update |= (PU_BONUS | PU_HP);
 
-			/* Display the player */
-			display_player(mode);
+		/* Update stuff */
+		update_stuff();
 
-			/* Prepare a prompt (must squeeze everything in) */
-			Term_gotoxy(2, 23);
-			Term_addch(TERM_WHITE, b1);
-			Term_addstr(-1, TERM_WHITE, "'r' to reroll");
-			if (prev) Term_addstr(-1, TERM_WHITE, ", 'p' for prev");
-			if (mode) Term_addstr(-1, TERM_WHITE, ", 'h' for Misc.");
-			else Term_addstr(-1, TERM_WHITE, ", 'h' for History");
-			Term_addstr(-1, TERM_WHITE, ", or ESC to accept");
-			Term_addch(TERM_WHITE, b2);
+		/* Fully healed */
+		p_ptr->chp = p_ptr->mhp;
 
-			/* Prompt and get a command */
-			c = inkey();
+		/* Fully rested */
+		p_ptr->csp = p_ptr->msp;
 
-			/* Quit */
-			if (c == 'Q') quit(NULL);
+		/* Display the player */
+		display_player(0);
 
-			/* Start over */
-			if (c == 'S') return (FALSE);
+		/* Prepare a prompt (must squeeze everything in) */
+		Term_gotoxy(2, 23);
+		Term_addch(TERM_WHITE, b1);
+		if ( roll < 9 ) Term_addstr(-1, TERM_WHITE, "'n' for next");
+		if ( roll > 0 ) Term_addstr(-1, TERM_WHITE,
+			( roll < 9 ) ? ", 'p' for prev" : "'p' for prev");
+		Term_addstr(-1, TERM_WHITE, ", or ESC to accept");
+		Term_addch(TERM_WHITE, b2);
 
-			/* Escape accepts the roll */
-			if (c == ESCAPE) break;
+		/* Prompt and get a command */
+		c = inkey();
 
-			/* Reroll this character */
-			if ((c == ' ') || (c == 'r')) break;
+		/* Quit */
+		if (c == 'Q') quit(NULL);
 
-			/* Previous character */
-			if (prev && (c == 'p'))
-			{
-				load_prev_data();
-				continue;
-			}
+		/* Start over */
+		if (c == 'S') return (FALSE);
 
-			/* Toggle the display */
-			if ((c == 'H') || (c == 'h'))
-			{
-				mode = ((mode != 0) ? 0 : 1);
-				continue;
-			}
-
-			/* Help */
-			if (c == '?')
-			{
-				do_cmd_help();
-				continue;
-			}
-
-			/* Warning */
-			bell();
-		}
-
-		/* Are we done? */
+		/* Escape accepts the roll */
 		if (c == ESCAPE) break;
 
-		/* Save this for the "previous" character */
-		save_prev_data();
+		/* Previous character */
+		if ( ( roll > 0 ) && ( c == 'p' ))
+		{
+			roll--;
+			continue;
+		}
 
-		/* Note that a previous roll exists */
-		prev = TRUE;
+		/* Next character */
+		if ( ( roll < 9 ) && ( c == 'n' ))
+		{
+			roll++;
+			continue;
+		}
+
+		/* Help */
+		if (c == '?')
+		{
+			do_cmd_help();
+			continue;
+		}
+
+		/* Warning */
+		bell("Illegal command!");
 	}
 
 	/* Clear prompt */
@@ -1209,8 +926,11 @@ static bool player_birth_aux()
 
 	/*** Finish up ***/
 
-	/* Get a name, recolor it, prepare savefile */
+	/* Get a name, prepare savefile */
 	get_name();
+
+	/* Display the player */
+	display_player(0);
 
 	/* Prompt for it */
 	prt("['Q' to suicide, 'S' to start over, or ESC to continue]", 23, 10);
@@ -1256,9 +976,5 @@ void player_birth(void)
 	message_add(" ");
 
 
-	/* Outfit the player */
-	player_outfit();
-
-
-	store_init();
+	home_init();
 }

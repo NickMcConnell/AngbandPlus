@@ -12,7 +12,7 @@ OBJS = \
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o loader.o \
+  home.o guild.o birth.o loader.o \
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o \
   main-ami.o sound-ami.o main.o
@@ -65,7 +65,8 @@ save.o: save.c $(INCS)
 sound-ami.o: sound-ami.c sound-ami.h
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
-store.o: store.c $(INCS)
+home.o: home.c $(INCS)
+guild.o: guild.c $(INCS)
 tables.o: tables.c $(INCS)
 util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)

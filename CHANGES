@@ -1,8 +1,31 @@
-This is the CHANGES file for Ingband 0.1.1 (19971105)
+This is the CHANGES file for Ingband 0.2.0 (19990509)
+
+Ingband 0.1.1 - Ingband 0.2.0 (19990509)
+	Limited character re-rolling; now have a choice of one from ten rolls
+	All characters start as a new character class: Citizen
+	Start equipment removed; now created in player's home
+	Moved character class selection to buildings in town
+	Extended random starting equipment
+	New character class: Druid
+	Added Elemental Magic Books for the Druid's magic
+	Possibility of starting with lantern & flasks of oil instead of torches
+	Merged pray and magic commands to ease implementation of Druid spells
+	Added Priest spell "Force Hammer"
+	New start-up screen (wow!)
+	Implemented new Druid spells
+	Removed cheating options
+	Removed monster health bar
+	A few minor fixes
+	Ported changes from Angband 2.8.2 - Angband 2.8.3
+	Added trapped doors
+	Made each building in town a different guild (& removed temp. p/n cmds)
+	Added guild information, displayed in each guild
+	Expanded object identification (/) command (old Angband patch)
+	Otherwise identical rods sort by recharge time (old Angband patch)
 
 Ingband 0.1.0 - Ingband 0.1.1 (19971105)
-	Fixed problem with DOS version
-	Fixed some file discrepancies in some Makefiles
+	Fixed problem with colours in DOS version
+	Fixed some filename discrepancies in some Makefiles
 
 Angband 2.8.2 - Ingband 0.1.0 (19971008)
 	All stores are locked (the owners have left town!)
