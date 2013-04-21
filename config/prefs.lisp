@@ -16,5 +16,8 @@ this file defines preferences done the lispy way
 (when (eq (get-system-type) 'gcu)
   (read-pref-file "gcu-keys.lisp"))
 
+(when (eq (get-system-type) 'win)
+  (read-pref-file "win-keys.lisp"))
+
 (when (using-sound?)
   (read-pref-file "sound.lisp"))

@@ -21,3 +21,11 @@ the Free Software Foundation; either version 2 of the License, or
 ;;  (when  (set-creature-state! pl :fear nil)
 ;;    (possible-identify! pl (aobj.kind item)))
   :used)
+
+(define-object-effect (<scroll> <light>)
+    (dun pl item)
+;;  (declare (ignore dun pl item))
+  (warn "light.")
+  (when (light-area! dun pl (roll-dice 2 8) 2) ;; 2d8 dmg, radius 2
+    (possible-identify! pl (aobj.kind item)))
+  :used)

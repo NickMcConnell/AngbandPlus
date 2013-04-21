@@ -19,49 +19,43 @@ ADD_DESC: for different parts of the code
 
 (in-package :org.langband.engine)
 
+(defclass settings ()
+  ((name   :accessor setting.name   :initform "No-name" :initarg :name)
+   (events :accessor setting.events :initform nil :initarg nil)))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
- 
-  (defclass settings ()
-    ((name   :accessor setting.name   :initform "No-name" :initarg :name)
-     (events :accessor setting.events :initform nil :initarg nil)))
+(defclass birth-settings (settings)
+  ((allow-all-classes :accessor birth.allow-classes :initform nil))
+  (:documentation "Settings when creating characters."))
 
-  (defclass birth-settings (settings)
-    ((allow-all-classes :accessor birth.allow-classes :initform nil))
-    (:documentation "Settings when creating characters."))
+(defclass dungeon-settings (settings)
+  ((max-width   :initarg :max-width   :initform 198)
+   (max-height  :initarg :max-height  :initform 66)
+   ;; how many rooms
+   (room-number :initarg :room-number :initform 50)
+   ;; ranges
+   (stairs-down :initarg :stairs-down :initform '(3 4))
+   (stairs-up   :initarg :stairs-up   :initform '(1 2)))
+  (:documentation "A class I will be expanding later.."))
 
-  (defclass dungeon-settings (settings)
-    ((max-width   :initarg :max-width   :initform 198)
-     (max-height  :initarg :max-height  :initform 66)
-     ;; how many rooms
-     (room-number :initarg :room-number :initform 50)
-     ;; ranges
-     (stairs-down :initarg :stairs-down :initform '(3 4))
-     (stairs-up   :initarg :stairs-up   :initform '(1 2)))
-    (:documentation "A class I will be expanding later.."))
-
-   (defclass printing-settings (settings)
-    ((race   :initarg :race)
-     (class  :initarg :class)
-     (title  :initarg :title)
-     (level  :initarg :level)
-     (xp     :initarg :xp)
-     (gold   :initarg :gold)
-     (food   :initarg :food)
-     (energy :initarg :energy)
-     (stat   :initarg :stat)
-     (ac     :initarg :ac)
-     (max-hp   :initarg :max-hp)
-     (cur-hp   :initarg :cur-hp)
-     (max-mana :initarg :max-mana)
-     (cur-mana :initarg :cur-mana))
-
-    (:documentation "Locations and various settings when printing stuff.
+(defclass printing-settings (settings)
+  ((race   :initarg :race)
+   (class  :initarg :class)
+   (title  :initarg :title)
+   (level  :initarg :level)
+   (xp     :initarg :xp)
+   (gold   :initarg :gold)
+   (food   :initarg :food)
+   (energy :initarg :energy)
+   (stat   :initarg :stat)
+   (ac     :initarg :ac)
+   (max-hp   :initarg :max-hp)
+   (cur-hp   :initarg :cur-hp)
+   (max-mana :initarg :max-mana)
+   (cur-mana :initarg :cur-mana))
+  
+  (:documentation "Locations and various settings when printing stuff.
 Each location should be a cons with (row . col)."))
   
-   )
-
-
 
 (defmethod trigger-event ((obj settings) event arg-list)
   "trigger events registered for the settings."

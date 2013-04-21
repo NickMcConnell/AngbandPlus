@@ -44,6 +44,7 @@ Contains definition of stores and store-owners in sexp.
 
 (define-store '<black-market>
     :name "Black Market"
+    :type 'black-market
     :number 7)
 
 (define-house '<home>

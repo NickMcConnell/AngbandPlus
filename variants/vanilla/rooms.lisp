@@ -24,9 +24,8 @@ the Free Software Foundation; either version 2 of the License, or
 	 (the-room nil))
 
     ;; might surprise someone 
-    (cond ((< some-val 1)
-	   (setf the-room (funcall (get-room "shop-room"))))
-	  
+    (cond ((< some-val 15)
+	   (setf the-room (funcall (get-room "overlapping-room"))))
 	  (t
 	   (setf the-room (funcall (get-room "simple-room")))
 	   ))

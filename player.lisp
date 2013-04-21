@@ -14,7 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
-
 (bt:define-binary-struct (player (:conc-name player.)) ()
   
     ;; === Need Special saving ===
@@ -81,6 +80,7 @@ the Free Software Foundation; either version 2 of the License, or
     (active-stats nil);; "this is the current active stat-value (curbase + race + class + eq)"
   
     )
+
 
 ;; hack, remove later
 (defun player.eq (pl-obj)
@@ -161,6 +161,18 @@ the Free Software Foundation; either version 2 of the License, or
 	  (player.modbase-stats t-p) (make-stat-array)
 	  (player.active-stats t-p)  (make-stat-array))
 
+    (assert (let ((bstat-table (player.base-stats t-p))
+		  (cstat-table (player.curbase-stats t-p))
+		  (mstat-table (player.modbase-stats t-p))
+		  (astat-table (player.active-stats t-p)))
+	      
+	      (and (not (eq bstat-table cstat-table))
+		   (not (eq bstat-table mstat-table))
+		   (not (eq bstat-table astat-table))
+		   (not (eq cstat-table mstat-table))
+		   (not (eq cstat-table astat-table))
+		   (not (eq mstat-table astat-table)))))
+    
     (setf (player.skills t-p) (make-skills))
     (setf (player.eq t-p) (make-equipment-slots))
     
@@ -201,7 +213,7 @@ the Free Software Foundation; either version 2 of the License, or
     ;; iterate through equipment
     (the fixnum (+ (the fixnum (svref race-mod stat-num))
 		   (the fixnum (svref class-mod stat-num))))))
-    
+
 (defun add-stat-bonus (base amount)
   "Returns a numeric value with base incremented with amount"
   (declare (type fixnum base amount))
@@ -229,11 +241,21 @@ the Free Software Foundation; either version 2 of the License, or
 (defun calculate-stat! (player num)
   "modifies appropriate arrays.."
 
+  (assert (and (>= num 0)
+	       (< num +stat-length+)))
+  
   (let ((bstat-table (player.base-stats player))
 	(cstat-table (player.curbase-stats player))
 	(mstat-table (player.modbase-stats player))
 	(astat-table (player.active-stats player)))
-	
+
+    (assert (and (not (eq bstat-table cstat-table))
+		 (not (eq bstat-table mstat-table))
+		 (not (eq bstat-table astat-table))
+		 (not (eq cstat-table mstat-table))
+		 (not (eq cstat-table astat-table))
+		 (not (eq mstat-table astat-table))))
+		 
     ;; two of these are required.. bstat and cstat
 
   
@@ -242,9 +264,12 @@ the Free Software Foundation; either version 2 of the License, or
 	  (bonus (get-stat-bonus player num)))
 
       (setf (svref mstat-table num) (add-stat-bonus base-stat bonus))
-      (setf (svref astat-table num) (add-stat-bonus cur-stat bonus)))
-  
+      (setf (svref astat-table num) (add-stat-bonus cur-stat bonus))
+      )
+    
     (values)))
+
+;;(trace add-stat-bonus get-stat-bonus)
 
 (defun update-player! (player)
   "modifies player object appropriately"
@@ -273,9 +298,13 @@ the Free Software Foundation; either version 2 of the License, or
 		 (arrayp (player.active-stats player))
 		 (arrayp (player.modbase-stats player))))
 
-    
+
     (dotimes (i +stat-length+)
-      (calculate-stat! player i))
+;;      (warn ">B fore ~s" (svref (player.base-stats player) i))
+      (calculate-stat! player i)
+;;      (warn ">B after ~s" (svref (player.base-stats player) i))
+      )
+    
 
 
     ;; hackish, change later
@@ -300,23 +329,25 @@ the Free Software Foundation; either version 2 of the License, or
     (let ((slots (player.eq player)))
       (unless slots
 	(error "Can't find equipment-slots for player, bad."))
-      (item-table-iterate!
-       slots
-       #'(lambda (table key obj)
-	   (declare (ignore table key))
-	   (when obj
-	     (let* ((kind (aobj.kind obj))
-		    (gval (object.game-values kind)))
-	       (when gval
-		 (when (> (gval.light-radius gval) (player.light-radius player))
-		   (setf (player.light-radius player) (gval.light-radius gval)))
-		 (incf (player.base-ac player) (gval.base-ac gval))
-		 (incf (player.ac-bonus player) (gval.ac-bonus gval))))))
-       ))
+      (flet ((item-iterator (table key obj)
+	       (declare (ignore table key))
+	       (when obj
+		 (let* ((kind (aobj.kind obj))
+			(gval (object.game-values kind)))
+		   (when gval
+		     (when (> (gval.light-radius gval) (player.light-radius player))
+		       (setf (player.light-radius player) (gval.light-radius gval)))
+		     (incf (player.base-ac player) (gval.base-ac gval))
+		     (incf (player.ac-bonus player) (gval.ac-bonus gval)))))))
+	(declare (dynamic-extent #'item-iterator))
+	(item-table-iterate! slots #'item-iterator)))
 
-    ;; do this more intelligently later.. 
-    (unless (player.xp-table player)
-      (update-xp-table! player))
+
+    ;; do this more intelligently later..
+    (let ((tbl (player.xp-table player)))
+      (when (or (eq nil tbl) (and (arrayp tbl)
+				  (= 0 (aref tbl 1)))) ;; hack
+	(update-xp-table! player)))
 
     (let ((xp-table (player.xp-table player)))
       (setf (player.level player) (find-level-for-xp (player.cur-xp player)
@@ -370,7 +401,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(when (> x xp)
 ;;	  (warn "Returning lvl ~s for xp ~s" (1- i) xp)
 	  (return-from find-level-for-xp (1- i))))
-  50) ;; fix me later
+  1) ;; fix me later
 
 ;;(trace find-level-for-xp)
 
@@ -432,7 +463,7 @@ the Free Software Foundation; either version 2 of the License, or
 						      10))))
 			       (t
 				(error "Unknown skill-obj ~a" obj)))))))))
-    
+    (declare (dynamic-extent #'add-to-skill!))
     (let* ((var-obj *variant*)
 	   (race (player.race player))
 	   (the-class (player.class player))
@@ -565,6 +596,11 @@ the Free Software Foundation; either version 2 of the License, or
 
     ))
 
+(trace update-player-stat!)
+
 (defun alter-food! (pl new-food-amount)
   ;; lots of minor pooh
   (setf (player.food pl) new-food-amount))
+
+
+;;(trace find-level-for-xp)

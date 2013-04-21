@@ -32,4 +32,8 @@ DESC: tests/stat.lisp - testing code for stats
 			    (lb::%get-8str i)))
 	(test-assert (equal (format nil "~13@a" i)
 			    (lb::%get-13astr i)))
-	))
+	)
+  
+  t)
+
+

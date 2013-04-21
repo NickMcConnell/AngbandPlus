@@ -9,7 +9,6 @@
     <h1 align=center>Langband code</h1>
     <div align=center>
 
-      
 <!-- Automatically generated. -->
 <table border=0 bgcolor="#D0F0D0">
 <tr><td><b>File</b></td><td><b>Purpose</b></td></tr>
@@ -20,11 +19,12 @@
 <tr><td>binary-types/example.lisp</td><td>&nbsp;</td></tr>
 <tr><td>birth.lisp</td><td>character creation</td></tr>
 <tr><td>building.lisp</td><td>code which deals with buildings</td></tr>
-<tr><td>checking.lisp</td><td>equality and various predicates</td></tr>
 <tr><td>class.lisp</td><td>character class code</td></tr>
 <tr><td>combat.lisp</td><td>the combat-system</td></tr>
+<tr><td>config/gcu-keys.lisp</td><td>key-definitions for gcu-keys</td></tr>
 <tr><td>config/prefs.lisp</td><td>main file for user preferences.</td></tr>
 <tr><td>config/sound.lisp</td><td>sound-settings</td></tr>
+<tr><td>config/win-keys.lisp</td><td>key-definitions for windows keys</td></tr>
 <tr><td>config/x11-keys.lisp</td><td>key-definitions for x11-keys</td></tr>
 <tr><td>constants.lisp</td><td>constants for the game code</td></tr>
 <tr><td>core.lisp</td><td>core classes, generics and functions</td></tr>
@@ -33,6 +33,14 @@
 <tr><td>dyn-vars.lisp</td><td>global dynamic variables for the game code</td></tr>
 <tr><td>equipment.lisp</td><td>code for any equipment in all containers.</td></tr>
 <tr><td>event.lisp</td><td>general event-classes and functionality</td></tr>
+<tr><td>ffi/ffi-acl.lisp</td><td>&nbsp;</td></tr>
+<tr><td>ffi/ffi-clisp.lisp</td><td>&nbsp;</td></tr>
+<tr><td>ffi/ffi-cmu.lisp</td><td>&nbsp;</td></tr>
+<tr><td>ffi/ffi-corman.lisp</td><td>&nbsp;</td></tr>
+<tr><td>ffi/ffi-defs.lisp</td><td>the foreign declarations that [L] uses</td></tr>
+<tr><td>ffi/ffi-load.lisp</td><td>settings that must be set before foreign build</td></tr>
+<tr><td>ffi/ffi-lw.lisp</td><td>&nbsp;</td></tr>
+<tr><td>ffi/ffi-sys.lisp</td><td>basic code for ffi</td></tr>
 <tr><td>flavours.lisp</td><td>basic code for flavour</td></tr>
 <tr><td>floor.lisp</td><td>deals with floor/tile/feature code</td></tr>
 <tr><td>game.lisp</td><td>simple load of the game</td></tr>
@@ -41,23 +49,9 @@
 <tr><td>init.lisp</td><td>initialisation code</td></tr>
 <tr><td>keys.lisp</td><td>keypressing code</td></tr>
 <tr><td>level.lisp</td><td>describing a level</td></tr>
-<tr><td>lib/common/keys.lisp</td><td>assignment of keys</td></tr>
-<tr><td>lib/common/objects.lisp</td><td>common objects</td></tr>
-<tr><td>lib/common/parameters.lisp</td><td>parameters common to all variants</td></tr>
-<tr><td>lib/common/quirks.lisp</td><td>various variant settings which should be common.</td></tr>
-<tr><td>lib/common/rooms.lisp</td><td>room-builders that should be common</td></tr>
 <tr><td>lib/compat/floor.lisp</td><td>reads standard vanilla floors/features</td></tr>
 <tr><td>lib/compat/monster.lisp</td><td>code to be compatible with r_info.txt</td></tr>
 <tr><td>lib/compat/obj-kind.lisp</td><td>code to be compatible with k_info.txt</td></tr>
-<tr><td>lib/foreign/base.lisp</td><td>basic code for ffi</td></tr>
-<tr><td>lib/foreign/build.lisp</td><td>batch lisp-code for building FFI-declarations</td></tr>
-<tr><td>lib/foreign/defs.lisp</td><td>the foreign declarations that [L] uses</td></tr>
-<tr><td>lib/foreign/ffigen.lisp</td><td>code that reads defs and generates actual ffi-code.</td></tr>
-<tr><td>lib/foreign/gen-acl.lisp</td><td>&nbsp;</td></tr>
-<tr><td>lib/foreign/gen-clisp.lisp</td><td>&nbsp;</td></tr>
-<tr><td>lib/foreign/gen-cmu.lisp</td><td>&nbsp;</td></tr>
-<tr><td>lib/foreign/package.lisp</td><td>package def for langband-ffi</td></tr>
-<tr><td>pre-build.lisp</td><td>settings that must be set before foreign build</td></tr>
 <tr><td>load.lisp</td><td>loading of various parts of the game</td></tr>
 <tr><td>loop.lisp</td><td>the game loop(s)</td></tr>
 <tr><td>memoize.lisp</td><td>memoization from PAIP</td></tr>
@@ -79,13 +73,17 @@
 <tr><td>tests/building.lisp</td><td>testing code for buildings</td></tr>
 <tr><td>tests/checking.lisp</td><td>testing code for equality functions</td></tr>
 <tr><td>tests/core.lisp</td><td>testing code for variant obj</td></tr>
+<tr><td>tests/equal.lisp</td><td>equality and various predicates</td></tr>
 <tr><td>tests/ffi.lisp</td><td>testing code for stats</td></tr>
 <tr><td>tests/format.lisp</td><td>testing code for stats</td></tr>
+<tr><td>tests/monster.lisp</td><td>testing code for monsters</td></tr>
 <tr><td>tests/package.lisp</td><td>package def for langband-test</td></tr>
 <tr><td>tests/player.lisp</td><td>testing code for player-obj</td></tr>
 <tr><td>tests/save.lisp</td><td>testing code for save/load of game</td></tr>
 <tr><td>tests/stat.lisp</td><td>testing code for stats</td></tr>
 <tr><td>tools/defsystem.lisp</td><td>&nbsp;</td></tr>
+<tr><td>tools/ffi-build.lisp</td><td>batch lisp-code for building FFI-declarations</td></tr>
+<tr><td>tools/ffi-gen.lisp</td><td>code that reads defs and generates actual ffi-code.</td></tr>
 <tr><td>tools/package.lisp</td><td>&nbsp;</td></tr>
 <tr><td>tools/xptest-example.lisp</td><td>&nbsp;</td></tr>
 <tr><td>tools/xptestsuite.lisp</td><td>&nbsp;</td></tr>
@@ -94,18 +92,24 @@
 <tr><td>variants/vanilla/config/classes.lisp</td><td>classes for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/defines.lisp</td><td>various defines that should be loaded as data</td></tr>
 <tr><td>variants/vanilla/config/flavours.lisp</td><td>flavours for vanilla variant</td></tr>
+<tr><td>variants/vanilla/config/floors.lisp</td><td>&nbsp;</td></tr>
+<tr><td>variants/vanilla/config/monsters.lisp</td><td>&nbsp;</td></tr>
+<tr><td>variants/vanilla/config/objects.lisp</td><td>&nbsp;</td></tr>
 <tr><td>variants/vanilla/config/races.lisp</td><td>races for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/stores.lisp</td><td>stores and owners for vanilla variant</td></tr>
+<tr><td>variants/vanilla/food.lisp</td><td>effects of food</td></tr>
+<tr><td>variants/vanilla/keys.lisp</td><td>assignment of keys</td></tr>
 <tr><td>variants/vanilla/levels.lisp</td><td>level customisation for Vanilla</td></tr>
 <tr><td>variants/vanilla/potions.lisp</td><td>potion-effects</td></tr>
 <tr><td>variants/vanilla/quirks.lisp</td><td>special settings for Vanilla</td></tr>
 <tr><td>variants/vanilla/rooms.lisp</td><td>room-builders that should be common</td></tr>
 <tr><td>variants/vanilla/scrolls.lisp</td><td>scroll-effects</td></tr>
+<tr><td>variants/vanilla/spells.lisp</td><td>spell-effects</td></tr>
 <tr><td>variants/vanilla/various.lisp</td><td>various helper-stuff that should be compiled</td></tr>
 <tr><td>verify.lisp</td><td>verification of objects</td></tr>
 <tr><td>view.lisp</td><td>code for figuring out what is seen</td></tr>
-<tr><td>_obsolete/obsolete.lsp</td><td>&nbsp;</td></tr>
 </table>
+
 
 
 

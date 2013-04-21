@@ -394,24 +394,7 @@ static void open_event_handler(GtkButton *was_clicked, gpointer user_data)
 	else
 	{
 		/* Prepare the savefile path */
-		path_build(buf, 1024, ANGBAND_DIR_SAVE, "*");
-
-		file_selector = gtk_file_selection_new("Select a savefile");
-		gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_selector), buf);
-		gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->ok_button),
-		                   "clicked", file_ok_callback, (gpointer)file_selector);
-		
-		/* Ensure that the dialog box is destroyed when the user clicks a button. */
-		gtk_signal_connect_object(GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->ok_button),
-		                          "clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy),
-		                          (gpointer)file_selector);
-
-		gtk_signal_connect_object(GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->cancel_button),
-		                          "clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy),
-		                          (gpointer)file_selector);
-
-		gtk_window_set_modal(GTK_WINDOW(file_selector), TRUE);
-		gtk_widget_show(GTK_WIDGET(file_selector));
+	    plog("No savefile-support yet.");
 	}
 }
 

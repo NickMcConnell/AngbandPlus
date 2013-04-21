@@ -23,6 +23,7 @@ DESC: tools/ffi-build.lisp - batch lisp-code for building FFI-declarations
 (generate-for-type :cmucl "../ffi/ffi-cmu.lisp")
 (generate-for-type :acl   "../ffi/ffi-acl.lisp")
 (generate-for-type :clisp "../ffi/ffi-clisp.lisp")
+(generate-for-type :lispworks "../ffi/ffi-lw.lisp")
 
 #+cmu
 (when ext:*batch-mode*

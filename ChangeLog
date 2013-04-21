@@ -1,3 +1,46 @@
+2001-08-06  Stig E Sandø <stig@users.sourceforge.net>
+	* Fixed a bug reported by Tijs about 'Q'uit behaviour.  Quit will
+	now return to the Lisp-image for X11 and GCU.
+	* Minor bug-fixing.
+		
+2001-08-05  Stig E Sandø <stig@users.sourceforge.net>
+	* Ported to LispWorks on Linux and on Win32.  Both are fairly
+	fragile ports.   They also made me uncover bugs in the source.
+	* Cleaned up much in zterm/ and made main-win.c work as a
+	shared-library too.  Removed unused files, and added some
+	declarations for Win32 DLL-export
+	* Provided a simple non-defsystem loading of the system for corman
+	lisp and LWW
+	* Added Lispworks support to the FFI-generator
+	* Improved verification of some objects, and improved testing
+	* Added win-keys and fonts for windows in config/
+	* Improved the FAQ slightly
+	
+2001-07-31  Stig E Sandø <stig@users.sourceforge.net>
+	* Improved testing-code and equality-checking considerably.
+	* Added generic CONVERT-OBJ where new methods replace a few of the
+	foo-to-bar methods that converted objects and structures.
+	* Added dumping and reading of object-kinds and monsters.  Vanilla
+	does not rely on any *_info.txt anymore, just lisp-definitions.
+	* Updated binary-types from upstream, fixes binary-struct at
+	toplevel bug
+	* Other minor changes.
+	
+2001-07-23  Stig E Sandø <stig@users.sourceforge.net>
+	* Upgraded the feature-class and made a convertor from f_info.txt
+	to floors.lisp and installed new floors.lisp in vanilla
+	* Moved key-defs to vanilla from lib/common
+	* Minor bug-fixing
+	
+2001-07-22  Stig E Sandø <stig@users.sourceforge.net>
+	* Improved shops, basic trading is now possible (everything
+	functions as black-markets though, apart from prices where only
+	black-market is of class black-market and have steep prices)
+	* Added colours to equipment, shop-listings
+	* Added a few helper-functions like GET-PRICE, GET-ATTRIBUTE, etc.
+	* Added overlapping room, removed dummy shop-room
+	* Minor changes elsewhere
+	
 2001-07-18  Stig E Sandø <stig@users.sourceforge.net>
 	* Improved UI-handling considerably for zterm, including
 	now-usable curses-support
@@ -23,7 +66,7 @@
 	* Rewrote part of the C-side code to not depend on DEFINEs for
 	lisp-system.  To avoid linking-errors a dummycall shared-object is
 	also linked for ACL and CLISP.
-	* Tuned much of the FFI-code for ACl and slightly for CMUCL.  With
+	* Tuned much of the FFI-code for ACL and slightly for CMUCL.  With
 	an intricate system of WITH-FOREIGN-STR and string-conversions and
 	even a non-consing LB-FORMAT (FORMAT-replacement) consing is down
 	and strings are basically passed as addresses in ACL and most of
@@ -34,7 +77,7 @@
 	* added Debian-packaging in three separate packages: the
 	c-library, the engine and currently the vanilla variant.  The
 	langband-engine depends on binary-types debian package.
-	* updated READMe and some docs.
+	* updated README and some docs.
 	* renamed packages to org.langband.engine, org.langband.ffi,
 	org.langband.testing
 	* fixed bug in xp-awarding/gain-level
@@ -44,7 +87,7 @@
 	* ensured that build-system works when "developing", ie (load
 	"game") and when loading it on a debian-system.
 	* probably other minor things, but most importantly: reduced
-	consing and new improved build-ystsem with debian-package support
+	consing and new improved build-system with debian-package support
 	directly. 
 	
 2001-04-25  Stig E Sandø <stig@users.sourceforge.net>

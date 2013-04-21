@@ -150,6 +150,15 @@ typedef vptr	(*func_key)(vptr);
 
 
 
+typedef enum {
+    LISPSYS_CMUCL = 0,
+    LISPSYS_ACL   = 1,
+    LISPSYS_CLISP = 2,
+    LISPSYS_LISPWORKS = 3,
+    LISPSYS_BAD   = 10
+} LISP_SYSTEMS;
+
+
 #endif
 
 

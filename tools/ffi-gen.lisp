@@ -81,7 +81,7 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
   (let ((the-type (get-type-translation (car arg) backend))
 	(the-name (cadr arg)))
     (case the-type
-      ((cptr byte char) (list the-name the-type))
+      ((cptr byte angbyte char) (list the-name the-type))
       (otherwise (list the-name the-type :in)))))
 
 (defmethod get-arg-info (arg (backend (eql :acl)))
@@ -97,6 +97,13 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
 	     (list the-name))))))
 
 (defmethod get-arg-info (arg (backend (eql :clisp)))
+  (let ((the-type (get-type-translation (car arg) backend))
+	(the-name (cadr arg)))
+    (if the-type
+	(list the-name the-type)
+	(list the-name))))
+
+(defmethod get-arg-info (arg (backend (eql :lispworks)))
   (let ((the-type (get-type-translation (car arg) backend))
 	(the-name (cadr arg)))
     (if the-type
@@ -148,6 +155,22 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
 	(export-name lisp-name stream))
       ||#
       
+      (terpri stream)
+      )))
+
+(defmethod generate-foreign-functions (foreign-list stream (backend (eql :lispworks)))
+  
+  (dolist (i foreign-list)
+    (let ((c-name (foreign-fun-c-name i))
+	  (lisp-name (foreign-fun-lisp-name i))
+	  (the-retval (get-type-translation (foreign-fun-returns i) backend))
+	  (args (mapcar #'(lambda (x) (get-arg-info x backend)) (foreign-fun-arguments i)))
+	  (when-restrict (foreign-fun-only-when i)))
+      (print-restrict when-restrict stream)
+      
+      (format stream "~&(fli:define-foreign-function (~a ~s) ~s~%   :result-type ~s :language :c :calling-convention :stdcall :module :lang-ffi)~%"
+	      lisp-name c-name args
+	      the-retval)
       (terpri stream)
       )))
 
@@ -239,6 +262,21 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
     (otherwise type)
     ))
 
+(defmethod get-type-translation (type (backend (eql :lispworks)))
+
+  (case type
+    (uchar8 :char)
+    (char-arr :pointer)
+    (c-string8 :pointer)
+    (cptr :pointer)
+    (int :int)
+    (int32 :int)
+    (long :long)
+    (void :void)
+    (char :char)
+    (unsigned :unsigned)
+    (otherwise type)))
+  
 
 (defmethod generate-foreign-types (foreign-list stream (backend (eql :cmucl)))
   (dolist (i foreign-list)
@@ -267,6 +305,19 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
       (terpri stream)
       
       )))
+
+(defmethod generate-foreign-types (foreign-list stream (backend (eql :lispworks)))
+  (dolist (i foreign-list)
+    (let ((o-name (foreign-type-old-name i))
+	  (n-name (foreign-type-new-name i))
+	  )
+      (format stream "~&(fli:define-foreign-type ~a () '~s)~%" n-name
+	      (get-type-translation o-name backend))
+
+      (terpri stream)
+      
+      )))
+
 
 (defmethod generate-foreign-types (foreign-list stream (backend (eql :clisp)))
   (dolist (i foreign-list)

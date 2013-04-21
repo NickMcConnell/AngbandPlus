@@ -15,23 +15,23 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.engine)
 
 
-  (defclass game-parameter ()
-    ((key :accessor param.key
-	  :initarg :key :initform nil)
-     (name :accessor param.name
-	   :initarg :name :initform nil)
-     (desc :accessor param.desc
-	   :initarg :desc :initform nil)
-     (value :accessor param.value
-	    :initarg :value :initform nil)
-     (alternatives :accessor param.alts
-		   :initarg :alternatives
-		   :initform nil)))
+(defclass game-parameter ()
+  ((key :accessor param.key
+	:initarg :key :initform nil)
+   (name :accessor param.name
+	 :initarg :name :initform nil)
+   (desc :accessor param.desc
+	 :initarg :desc :initform nil)
+   (value :accessor param.value
+	  :initarg :value :initform nil)
+   (alternatives :accessor param.alts
+		 :initarg :alternatives
+		 :initform nil)))
 
-  (defclass param-alt ()
-    ((key  :accessor param-alt.key :initarg :key :initform nil)
-     (name :accessor param-alt.name :initarg :name :initform nil)
-     (desc :accessor param-alt.desc :initarg :desc :initform nil)))
+(defclass param-alt ()
+  ((key  :accessor param-alt.key :initarg :key :initform nil)
+   (name :accessor param-alt.name :initarg :name :initform nil)
+   (desc :accessor param-alt.desc :initarg :desc :initform nil)))
 
 
 (defun make-game-parameter (key name desc value alts)
@@ -90,7 +90,7 @@ the Free Software Foundation; either version 2 of the License, or
     (if (legal-param-value? init-val alternatives)
 	(let ((param-obj (make-game-parameter key name desc init-val alternatives))
 	      (existing-param (game-parameter key)))
-	  (when existing-param
+	  (when (and existing-param (not (equal (param.name existing-param) (param.name param-obj))))
 	    (warn "Replacing old parameter ~a with ~a.~a"
 		  (param.name existing-param) (param.name param-obj)
 		  (if (string-equal (param.name existing-param) (param.name param-obj))
@@ -105,3 +105,41 @@ the Free Software Foundation; either version 2 of the License, or
     retval))
 
 				    
+;;; Some parameter definitions.. move them later:
+
+
+;; langband default parameters
+    
+(define-parameter :initial-backpack
+    "Initial backpack"
+  "This value sets which backpack which is default for starting
+characters"
+  :backpack  ;; default value
+  (list (make-parameter-alternative :backpack
+				    "A normal backpack"
+				    "This is the vanilla backpack with room for 23 objects.")
+	(make-parameter-alternative :small-backpack
+				    "A small backpack"
+				    "This is a smaller backpack with only room for 10 objects.")))
+
+(define-parameter :backpack-constant-p
+    "Can the backpack be changed?"
+  "This value sets whether the character can choose appropriate
+backpack himself  or if it is set in stone, ie vanilla."
+  :yes  ;; default value
+  (list (make-parameter-alternative :yes
+				    "Backpack is constant"
+				    "You cannot change backpack, just like in vanilla.")
+	(make-parameter-alternative :no
+				    "Backpack is not constant"
+				    "You can buy and change backpack like other equipment.")))
+
+(define-parameter :equipment-organisation
+    "How are equipment slots organised?"
+  "With this parameter you can change how equipment is handled.
+Currently only available in vanilla mode."
+  :vanilla  ;; default value
+  (list (make-parameter-alternative :vanilla
+				    "Vanilla equipment org."
+				    "weapon, bow, armour, shield, light and cloak slots.")))
+

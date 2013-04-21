@@ -79,43 +79,7 @@ the rest of the game is init'ed."
 	      4500000
 	      5000000))
 
-  ;; registering the levels this variant will use
-  (register-level! 'level var-obj)
-  (register-level! 'random-level var-obj)
-  (register-level! 'town-level var-obj)
-
-  ;; we need to sort out objects/monsters to the right places
-  (register-object-filter! 'level
-			   #'(lambda (var-obj obj)
-			       (let ((table (get-otype-table 'level var-obj)))
-				 (setf (gethash (slot-value obj 'id)
-						(gobj-table.obj-table table))
-				       obj)
-				 t))
-			   var-obj)
-
-  (register-monster-filter! 'random-level
-			    #'(lambda (var-obj obj)
-				;; all below 0
-				(when (> (slot-value obj 'level) 0)
-				  (let ((table (get-mtype-table 'random-level var-obj)))
-				    (setf (gethash (slot-value obj 'id)
-						   (gobj-table.obj-table table))
-					  obj)
-				    t)))
-			    var-obj)
-						
-
-  (register-monster-filter! 'town-level
-			    #'(lambda (var-obj obj)
-				;; all equal to 0
-				(when (= (slot-value obj 'level) 0)
-				  (let ((table (get-mtype-table 'town-level var-obj)))
-				    (setf (gethash (slot-value obj 'id)
-						   (gobj-table.obj-table table))
-					  obj)
-				    t)))
-			    var-obj)
+  (van-register-levels! var-obj)
 
   (van-init-skill-system var-obj)
   (van-init-combat-system var-obj)
@@ -131,6 +95,39 @@ the rest of the game is init'ed."
   (van-init-equipment-values var-obj)
 
   )
+
+(defun van-register-levels! (var-obj)
+  "registering the levels this variant will use."
+  (register-level! var-obj 'level
+		   :object-filter
+		   #'(lambda (var-obj obj)
+		       (let ((table (get-otype-table 'level var-obj)))
+			 (setf (gethash (slot-value obj 'id)
+					(gobj-table.obj-table table))
+			       obj)
+			 t)))
+  (register-level! var-obj 'random-level
+		   :monster-filter
+		   #'(lambda (var-obj obj)
+		       ;; all below 0
+		       (when (> (slot-value obj 'level) 0)
+			 (let ((table (get-mtype-table 'random-level var-obj)))
+			   (setf (gethash (slot-value obj 'id)
+					  (gobj-table.obj-table table))
+				 obj)
+			   t))))
+  (register-level! var-obj 'town-level
+		   :monster-filter
+		   #'(lambda (var-obj obj)
+		       ;; all equal to 0
+		       (when (= (slot-value obj 'level) 0)
+			 (let ((table (get-mtype-table 'town-level var-obj)))
+			   (setf (gethash (slot-value obj 'id)
+					  (gobj-table.obj-table table))
+				 obj)
+			   t))))
+  )
+			   
 
 ;; EVENT function
 (defun van-add-basic-equip (state player dungeon)
@@ -206,8 +203,8 @@ the rest of the game is init'ed."
   (let ((okind-table (gobj-table.obj-table o-table)))
     
     (setf (gobj-table.obj-table-by-lvl o-table)
-	  (htbl-to-vector okind-table :sort-table-p t
-			  :sorted-by-key #'(lambda (x) (slot-value x 'level))))
+	  (convert-obj okind-table :vector :sort-table-p t
+		       :sorted-by-key #'(lambda (x) (slot-value x 'level))))
     
     (setf (gobj-table.alloc-table o-table)
 	  (funcall alloc-table-creator (gobj-table.obj-table-by-lvl o-table)))
@@ -215,12 +212,26 @@ the rest of the game is init'ed."
 
 
 
-(defmethod initialise-monsters& ((var-obj vanilla-variant) &key old-file)
-  
-  (if old-file
-      (compat-read-monsters& (variant-data-fname var-obj old-file)) ;; adds to mkind-table
-      (error "No lispy monster-file reader"))
-  
+(defmethod initialise-monsters& ((var-obj vanilla-variant) &key old-file (file "monsters"))
+  "If old-file is given, use compatibility.  If not use lispy-file."
+  #+cmu
+  (declare (optimize (ext:inhibit-warnings 3)))
+
+  (cond
+    #+compatibility-monsters
+    (old-file
+     (compat-read-monsters& (variant-data-fname var-obj old-file))) ;; adds to mkind-table
+    
+    #-compatibility-monsters
+    (old-file
+     (error "Trying to read legacy angband-file ~s, but no compatibility support loaded." old-file))
+    
+    (file
+     (let ((*load-verbose*))
+       (load-variant-data& var-obj file)))
+    (t
+     (error "No file specified for monster-init.")))
+    
   ;; initialise all tables
   (let ((object-tables (variant.monsters var-obj)))
     (maphash #'(lambda (key obj)
@@ -233,17 +244,38 @@ the rest of the game is init'ed."
   
 
   
-(defmethod initialise-features& ((var-obj vanilla-variant) &key old-file)
-  (if old-file
-      (compat-read-feature-file& (variant-data-fname var-obj old-file))
-      (error "No lispy feature-file reader")))
+(defmethod initialise-floors& ((var-obj vanilla-variant) &key old-file (file "floors"))
+  #+cmu
+  (declare (optimize (ext:inhibit-warnings 3)))
+  (cond
+    #+compatibility-floors
+    (old-file
+     (compat-read-floor-file& (variant-data-fname var-obj old-file)))
+    #-compatibility-floors
+    (old-file
+     (error "Trying to read legacy angband-file ~s, but no compatibility support loaded." old-file))
+    (file
+     (let ((*load-verbose* nil))
+       (load-variant-data& var-obj file)))
+    (t
+     (error "No file specified for floor-init."))))
 
+(defmethod initialise-objects& ((var-obj vanilla-variant) &key old-file (file "objects"))
+  #+cmu
+  (declare (optimize (ext:inhibit-warnings 3)))
+  (cond
+    #+compatibility-objects
+    (old-file
+     (compat-read-obj-kind& (variant-data-fname var-obj old-file))) ;; adds to okind-table
+    #-compatibility-objects
+    (old-file
+     (error "Trying to read legacy angband-file ~s, but no compatibility support loaded." old-file))
+    (file
+     (let ((*load-verbose* nil))
+       (load-variant-data& var-obj file)))
+    (t
+     (error "No file specified for floor-init.")))
 
-(defmethod initialise-objects& ((var-obj vanilla-variant) &key old-file)
-  
-  (if old-file
-    (compat-read-obj-kind& (variant-data-fname var-obj old-file)) ;; adds to okind-table
-    (error "No lispy monster-file reader"))
 
   ;; initialise all tables
   (let ((object-tables (variant.objects var-obj)))
@@ -267,9 +299,12 @@ the rest of the game is init'ed."
 ;; The real McCoy
 (defmethod activate-object ((var-obj vanilla-variant) &key)
 
-  (initialise-objects&  var-obj :old-file "k_info.txt")
-  (initialise-monsters& var-obj :old-file "r_info.txt")
-  (initialise-features& var-obj :old-file "f_info.txt")
+;;  (initialise-objects&  var-obj :old-file "k_info.txt")
+  (initialise-objects&  var-obj :file "objects")
+;;  (initialise-monsters& var-obj :old-file "r_info.txt")
+  (initialise-monsters& var-obj :file "monsters")
+;;  (initialise-floors& var-obj :old-file "f_info.txt")
+  (initialise-floors& var-obj)
 
   var-obj)
 
@@ -294,7 +329,10 @@ the rest of the game is init'ed."
 		       (eq.backpack "On back"       <container>))))
     
     (register-slot-order& equip-order))
-  
+
+  (van-register-sorting-values! var-obj))
+
+(defun van-register-sorting-values! (var-obj)
   ;; highest value listed first..
   (register-sorting-values& var-obj
 			    '(

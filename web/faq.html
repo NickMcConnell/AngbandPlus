@@ -29,18 +29,35 @@
 	version ready in the 3rd quarter of 2001.  You can check it
 	out from CVS or download pre-alpha versions on Sourceforge
 	though.  There are also some experimental debian-packages if
-	you use debian, if you have Debian these are the simplest to
+	you use debian, and if you have Debian these are the simplest to
 	get started with. </li>
 
       <li> <b>Does it run on [insert OS]?</b><br>
 	The main development-platform is my x86 Debian-system,
-	using CMU Common Lisp.  It is also tested once in awhile with
-	Allegro Common Lisp and has been made to work with CLISP on a
-	Debian-system.  It should be portable to other 
-	OSes and other Lisp-systems at later stages though.  However,
-	I might sacrifice support for older systems in order to get
-	the best possible result with newer systems, e.g ditch the
-	Athena-widget support to concentrate on Gtk+. </li>
+	using CMU Common Lisp.  The status of various ports is as
+	follows (things are still in development so the overall
+	"product" is fairly incomplete):
+
+	<table border=1>
+	  <tr><th>Implementation</th><th>Architecture</th><th>Status</th></tr>
+	  <tr><td>CMUCL 3.x</td><td>Debian x86</td><td>Well-tested</td></tr>
+	  <tr><td>ACL 6.0 (Prof)</td><td>Debian x86</td><td>Tested bi-weekly</td></tr>
+	  <tr><td>CLISP 2.26</td><td>Debian x86</td><td>Tested monthly.  not optimised</td></tr>
+	  <tr><td>LispWorks 4.1.20</td><td>Debian x86</td><td>Recent/immature port.  not optimised</td></tr>
+	  <tr><td>LispWorks 4.1.20</td><td>Win98</td><td>Recent/immature port.  not optimised</td></tr>
+	  <tr><td>Corman Lisp 1.5b</td><td>Win98</td><td>Incomplete port.  not finished</td></tr>
+	</table>
+
+	The status for the various UI-interfaces are as follows:
+	<ul>
+	  <li> X11 is the most mature and the one used for
+	  development.
+	  <li> GCU is tested basically only for releases.
+	  <li> Gtk+ is non-prioritised at the moment, but is usually
+	  tested at releases.
+	  <li> Win is a very immature port with many errors.
+	</ul>
+      </li>
 
       <li> <b>I found a bug, what do I do?</b><br>
 	Please check if the bug has been reported first in the <a
@@ -55,25 +72,24 @@
       
       <li> <b>How can I see if a bug is fixed?</b><br>
 	A reported bug will be marked as FIXED when it is fixed and
-	the updated code has been put in the CVS-tree.  It will be
+	the updated code has been put in the CVS-tree.  The priority
+	of a FIXED bug is set to the minimum.  It will be
 	marked as CLOSED when a new release have been made where the
 	bug is fixed.  If you reported the bug, you will be mailed
 	whenever there is an update on the bug.<br>
 	BTW: If you have extra
 	information on a non-fixed bug, please add it.</li>
 
-      <li> <b>CMUCL freezes in lib/compat/obj-kind.lisp, or?</b><br>
-	It just takes a really really long time to compile in CMUCL,
-	several minutes.  This file is for compatibility with
-	traditional angband and isn't really needed when the necessary
-	files have been converted to lisp.  Please be patient. </li>
-
       <li> <b>The game hangs once in awhile, why?</b><br>
 	I have noticed this earlier though not frequently anymore.  It
 	might be the garbage-collector interfering.  This will be
 	adressed gradually and memory-allocation will be reduced when
 	it is a problem.  But during early development this isn't
-	crucial. </li>
+	crucial. <br>
+	Note: This is still visible in the slower CLISP and in the
+	win32-port if the lispworks-code isn't compiled.  Gradual
+	optimisation of the code will probably "remove" this
+	"problem". </li>
       
       <li> <b>How do I get things working with CLISP?</b><br>
 	It's a bit tricky still but can be done.  Assuming csh/tcsh
@@ -92,7 +108,19 @@
 	ahead.  You might need to edit the paths in Makefile and
 	linking/Makefile.  For other shells use the equivalent command
 	of setenv which sets and environment value.</li> 
-	  
+
+      <li> <b>How do I get things working with LispWorks Windows?</b><br>
+	Currently it's not 100% streamlined, but if you have it
+	installed in <tt>c:/cygwin/home/default/langband/</tt> you
+	might edit zterm/Makefile and set ENVIRONMENTS to WIN and
+	compile zterm with 'make', and then do:
+
+	<pre>
+	  &gt; (setq *default-pathname-defaults* #p"c:/cygwin/home/default/langband/")
+	  &gt; (load "game")
+	  &gt; (lb::a)
+	</pre>
+      
       <li> <b>How is the code structured?</b><br>
 	Currently the code is changed frequently and this answer may
 	not be up-to-date.  Please look at the <a
@@ -103,8 +131,27 @@
 	The code in CVS is development code, and might not even
 	compile, and much less work.  Please use releases if you want
 	things to "work".  The CVS-version is bleeding edge though and
-	may have bug-fixes and features missing in releases.</li>
+	may have bug-fixes and features missing in releases.  CVS is
+	also where exciting things happen and where you can track
+	day-to-day development.</li>
 
+      <li> <b>Regular Angband has several windows, where are the other
+      windows in Langband?</b><br>
+	Several windows can be quite useful but they introduce some
+	extra complexity which isn't essential this early in
+	development.  So until the game reaches a stage where more
+	windows is needed it will remain a single-window game.
+      </li>
+      
+      <li> <b>When I quit the game, my whole lisp is terminated, why?</b><br>
+	Some parts of the UI-code is still structured as if it was
+	still an app with main() that is started and then quitted when
+	one is done playing.  This is extremely annoying if you use a
+	slow loader like CMUCL or a big graphical IDE like LispWorks.
+	I hope to eventually make things more intelligent, but this
+	will take time.  <b>[Note: This should be fixed in current CVS
+	for X11 and curses, tested with CMUCL, Lispworks and ACL.]</b></li>
+      
       <li> <b>How do I get sounds working?</b><br>
 	<ol>
 	  <li> uncomment the using-sound line in game.lisp</li>
@@ -121,6 +168,13 @@
 	  <li> quit game and exit the sound_daemon</li>
 	</ol>
       </li>
+
+      <li> <b>CMUCL freezes in lib/compat/obj-kind.lisp, or? [obsolete]</b><br>
+	It just takes a really really long time to compile in CMUCL,
+	several minutes.  This file is for compatibility with
+	traditional angband and isn't really needed when the necessary
+	files have been converted to lisp.  Please be patient. </li>
+
       
     </ol>
 	

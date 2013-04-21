@@ -6,7 +6,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 
 (in-package :org.langband.ffi)
 
-(def-foreign-type byte uchar8)
+(def-foreign-type angbyte uchar8)
 (def-foreign-type cptr c-string8)
 (def-foreign-type errr int32)
 
@@ -40,7 +40,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 
 (def-foreign-function ("print_coloured_token" c-prt-token!)
     :returns 'void
-    :args '((byte colour)
+    :args '((angbyte colour)
 	    (int token)
 	    (int row)
 	    (int col)
@@ -48,7 +48,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 
 (def-foreign-function ("print_coloured_stat" c-prt-stat!)
     :returns 'void
-    :args '((byte colour)
+    :args '((angbyte colour)
 	    (int stat)
 	    (int row)
 	    (int col)
@@ -56,7 +56,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 
 (def-foreign-function ("print_coloured_number" c-prt-number!)
     :returns 'void
-    :args '((byte colour)
+    :args '((angbyte colour)
 	    (long number)
 	    (int padding)
 	    (int row)
@@ -75,7 +75,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    (int col)
 	    (int row)
 	    (int something)
-	    (byte colour)
+	    (angbyte colour)
 	    (char-arr text)
 	    ))
 
@@ -84,7 +84,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
     :args '(
 	    (int row)
 	    (int col)
-	    (byte colour)
+	    (angbyte colour)
 	    (char the-char)
 	    ))
 
@@ -130,16 +130,16 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 (def-foreign-function ("inkey" c-inkey!)
     :returns 'char)
 
-(def-foreign-function ("init_c_side" init-c-side&)
+(def-foreign-function ("init_c_side" init_c-side&)
     :returns 'errr
     :args '((cptr ui)
 	    (cptr base-path)
 	    (int debug-level)
 	    ))
 
+(def-foreign-function ("cleanup_c_side" cleanup-c-side&)
+    :returns 'errr)
 
-(def-foreign-function ("init_angband" c-init.angband!)
-    :returns 'void)
 
 (def-foreign-function ("macro_add" c_macro_add&)
     :returns 'void
@@ -156,16 +156,22 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    )
     :only-when 'use-callback-from-c)
 
+(def-foreign-function ("setHINST" c-set-hinst!)
+    :returns 'int
+    :args '((long val))
+    :only-when 'win32)
+
 (def-foreign-function ("load_sound" c-load-sound&)
     :returns 'errr
     :args '((int msg)
 	    (cptr fname))
     :only-when 'using-sound)
 
+
 #||
 (def-foreign-function ("roff" c_roff!)
     :returns 'void
-    :args '((byte colour)
+    :args '((angbyte colour)
 	    (cptr text)
 	    ))
 
@@ -173,13 +179,10 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
     :returns 'int
     :args '((char-arr msg)
 	    (cptr alt)))
-||#
 
 (def-foreign-function ("test_calling_2" c_test_calling!)
     :returns 'int
     :args '((char-arr msg)))
-
-#||
 
 (def-foreign-function ("put_str" c-put-str!)
     :returns 'void
@@ -188,13 +191,15 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    (int col)
 	    ))
 
-
 (def-foreign-function ("c_put_str" c_col_put_str!)
     :returns 'void
-    :args '((byte colour)
+    :args '((angbyte colour)
 	    (char-arr text)
 	    (int row)
 	    (int col)
 	    ))
+
+(def-foreign-function ("init_angband" c-init.angband!)
+    :returns 'void)
 
 ||#

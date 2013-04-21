@@ -20,6 +20,22 @@ the Free Software Foundation; either version 2 of the License, or
    (twilight-time :initarg :twilight   :initform 6000 :accessor variant.twilight)
    ))
 
+
+(defclass van-town-level (themed-level)
+  ((id :initform 'town-level)
+   (stores        :initarg :stores     :initform nil  :accessor level.stores)
+   (num-stores    :initarg :num-stores :initform 8 :accessor level.num-stores)
+   (home-num      :initarg :home-num   :initform 7 :accessor level.home-num))
+
+  (:documentation "The Vanilla variant has a special town-level with
+stores and special behaviour.  The class is used for dispatching."))
+
+
+(defclass black-market (store)
+  ()
+  (:documentation "A store with steep prices, used as a dispatch class."))
+
+
 (defun van-make-variant-obj ()
   (make-instance 'vanilla-variant
 		 :id 'langband-vanilla

@@ -29,6 +29,9 @@ ZTERMDOC	:= $(ZTERMDESTDIR)/usr/share/doc/langband-zterm
 CLIB_PATH	:= $(ZTERMDESTDIR)/usr/lib
 LIBS		:= zterm/liblangband_ui.so zterm/liblangband_dc.so
 
+ENGINEMAN	:= $(DESTDIR)/usr/share/man/man3
+VANILLAMAN	:= $(VANILLADESTDIR)/usr/share/man/man3
+
 INSTALLSOURCES	:= \
 	langband-engine.system pre-build.lisp \
 	package.lisp memoize.lisp \
@@ -47,17 +50,9 @@ INSTALLSOURCES	:= \
 	generate.lisp  print.lisp \
 	util.lisp  combat.lisp \
 	keys.lisp  actions.lisp \
-	view.lisp checking.lisp \
-	save.lisp  load.lisp \
+	view.lisp save.lisp  load.lisp \
 	death.lisp loop.lisp \
 	init.lisp verify.lisp
-
-COMMONSRC = \
-	lib/common/parameters.lisp \
-	lib/common/objects.lisp \
-	lib/common/quirks.lisp \
-	lib/common/rooms.lisp \
-	lib/common/keys.lisp \
 
 COMPATSRC = \
 	lib/compat/monster.lisp \
@@ -92,7 +87,9 @@ VANSRC = \
 	variants/vanilla/levels.lisp \
 	variants/vanilla/scrolls.lisp \
 	variants/vanilla/potions.lisp \
-	variants/vanilla/food.lisp
+	variants/vanilla/food.lisp \
+	variants/vanilla/spells.lisp \
+	variants/vanilla/keys.lisp
 
 VANCONFSRC = \
 	variants/vanilla/config/defines.lisp \
@@ -100,10 +97,9 @@ VANCONFSRC = \
 	variants/vanilla/config/classes.lisp \
 	variants/vanilla/config/flavours.lisp \
 	variants/vanilla/config/stores.lisp \
-	variants/vanilla/config/k_info.txt \
-	variants/vanilla/config/k_info.txt \
-	variants/vanilla/config/r_info.txt \
-	variants/vanilla/config/f_info.txt
+	variants/vanilla/config/floors.lisp \
+	variants/vanilla/config/objects.lisp \
+	variants/vanilla/config/monsters.lisp 
 
 
 build: 
@@ -135,11 +131,11 @@ binary-arch: build
 	# Add here commands to install the files into debian/tmp
 	$(INSTALL) $(INSTALLFLAGS) $(INSTALLSOURCES) $(ENGINEDEST)
 	$(INSTALL) $(INSTALLFLAGS) $(FOREIGNSRC) $(ENGINEDEST)/ffi
-	$(INSTALL) $(INSTALLFLAGS) $(COMMONSRC) $(ENGINEDEST)/lib/common
 #	$(INSTALL) $(INSTALLFLAGS) $(BINTYPESSRC) $(ENGINEDEST)/binary-types
-	$(INSTALL) $(INSTALLFLAGS) $(COMPATSRC) $(ENGINEDEST)/lib/compat
+#	$(INSTALL) $(INSTALLFLAGS) $(COMPATSRC) $(ENGINEDEST)/lib/compat
 	$(INSTALL) $(INSTALLFLAGS) $(CONFSRC) $(ENGINECONFDEST)
 
+	$(INSTALL) $(INSTALLFLAGS) man/langband-engine.3l $(ENGINEMAN)
 	$(INSTALL) $(INSTALLFLAGS) ChangeLog $(ENGINEDOC)/changelog
 	$(INSTALL) $(INSTALLFLAGS) web/*.html $(WEBDEST)
 
@@ -147,6 +143,7 @@ binary-arch: build
 	$(INSTALL) $(INSTALLFLAGS) $(VANSRC) $(VANILLADEST)
 	$(INSTALL) $(INSTALLFLAGS) $(VANCONFSRC) $(VANCONFDEST)
 	$(INSTALL) $(INSTALLFLAGS) debian/README.Debian $(VANILLADOC)
+	$(INSTALL) $(INSTALLFLAGS) man/langband-vanilla.3l $(VANILLAMAN)
 
 	# Zterm stuff
 	$(INSTALL) $(INSTALLFLAGS) $(LIBS) $(CLIB_PATH)
@@ -156,7 +153,7 @@ binary-arch: build
 #	dh_installexamples
 	dh_installmenu
 	dh_installcron
-	dh_installmanpages
+#	dh_installmanpages
 #	dh_undocumented
 	dh_installchangelogs
 	dh_link

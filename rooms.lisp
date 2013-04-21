@@ -19,42 +19,42 @@ ADD_DESC: Most of the code which deals with generation of rooms
 (in-package :org.langband.engine)
 
 
-  (defclass room-type ()
-    ((id        :accessor room-type.id
-		:initarg :id
-		:initform nil)
+(defclass room-type ()
+  ((id        :accessor room-type.id
+	      :initarg :id
+	      :initform nil)
      
-     (name      :accessor room-type.name
-		:initarg :name
-		:initform "room")
+   (name      :accessor room-type.name
+	      :initarg :name
+	      :initform "room")
      
-     (size-mod  :accessor room-type.size-mod
-		:initarg :size-mod
-		:initform #1A(0 0 0 0 0))
+   (size-mod  :accessor room-type.size-mod
+	      :initarg :size-mod
+	      :initform #1A(0 0 0 0 0))
      
-     (min-level :accessor room-type.min-level
-		:initarg :min-level
-		:initform 1)
-     ))
+   (min-level :accessor room-type.min-level
+	      :initarg :min-level
+	      :initform 1)
+   ))
 
-  (defclass active-room (activatable)
-    ((type      :accessor room.type
-		:initarg :type
-		:initform nil)
-     (loc-x     :accessor location-x
-		:initarg :loc-x
-		:initform +illegal-loc-x+)
-     (loc-y     :accessor location-y
-		:initarg :loc-y
-		:initform +illegal-loc-y+)))
+(defclass active-room (activatable)
+  ((type      :accessor room.type
+	      :initarg :type
+	      :initform nil)
+   (loc-x     :accessor location-x
+	      :initarg :loc-x
+	      :initform +illegal-loc-x+)
+   (loc-y     :accessor location-y
+	      :initarg :loc-y
+	      :initform +illegal-loc-y+)))
      
 		
 
-  (defgeneric build-room! (room dungeon player where-x where-y)
-    (:documentation "Builds given room in the dungeon at [where-x, where-y]."))
+(defgeneric build-room! (room dungeon player where-x where-y)
+  (:documentation "Builds given room in the dungeon at [where-x, where-y]."))
   
-  (defgeneric find-appropriate-room (variant level player)
-    (:documentation "Tries to find an appropriate room-type for given
+(defgeneric find-appropriate-room (variant level player)
+  (:documentation "Tries to find an appropriate room-type for given
 dungeon."))
   
 

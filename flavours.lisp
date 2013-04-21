@@ -30,9 +30,11 @@ ADD_DESC: flavouring of variants
 
 (defun define-flavour-type (symbol &optional generator-fn)
   "Defines a flavour-type"
-  (let ((ft-obj (make-flavour-type :symbol symbol
+  (let ((var-obj *variant*)
+	(ft-obj (make-flavour-type :symbol symbol
 				   :generator-fn generator-fn)))
-    (push ft-obj (variant.flavour-types *variant*))
+    (setf (variant.flavour-types var-obj) (remove symbol (variant.flavour-types var-obj) :test #'equal :key #'flavour-type.symbol))
+    (push ft-obj (variant.flavour-types var-obj))
     ft-obj))
 
   

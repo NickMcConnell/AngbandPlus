@@ -10,13 +10,13 @@ DUNGEON and TOWN
  - searching not implemented
  - vaults not implemented
  - pits not implemented
- - only simple rooms implemented
- - shops do not work yet
+ - only simple rooms implemented [+overlapping]
+ - shops do not work yet [barely working]
 
 SPELLS and MAGICAL ITEMS
  - priest-spells not implemented
  - mage-spells not implemented
- - scrolls not implemented
+ - scrolls not implemented [barely started]
  - mushrooms not implemented [started]
  - potions not implemented [half done]
  - wands not implemented
@@ -54,7 +54,7 @@ MOVING ABOUT
  - no map function
 
 CONTAINERS
- - stacking doesn't work 
+ - stacking doesn't work [barely working]
  - it doesn't understand that only one torch is used at a time. 
 
 COMMANDS

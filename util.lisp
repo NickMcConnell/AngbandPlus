@@ -19,6 +19,77 @@ ADD_DESC: classes and must be loaded late.
 
 (in-package :org.langband.engine)
 
+    
+(defun select-item (dungeon player allow-from
+		    &key prompt (where :backpack)
+		    selection-function)
+  "Selects and returns a CONS (where . which) when succesful or
+NIL.  Where is a keyword :floor, :backpack or :equip and which is either
+a number or a symbol identifying the place."
+
+  (let ((allow-floor (if (or (eq allow-from :floor)
+			     (find :floor allow-from))
+			 t
+			 nil))
+	
+	(allow-equip (if (or (eq allow-from :equip)
+			     (find :equip allow-from))
+			 t
+			 nil))
+	
+	(allow-backpack (if (or (eq allow-from :backpack)
+				(find :backpack allow-from))
+			    t
+			    nil))
+	(the-prompt (if prompt prompt "Inventory command:"))
+
+	(show-mode nil)
+	(the-place where)
+	(printed-prompt nil)
+	)
+
+    (block read-loop
+      (loop
+       (when selection-function
+	 (warn "selection function not implemented."))
+       
+       (setq printed-prompt (format nil "~a " the-prompt))
+       (c-prt! printed-prompt 0 0)
+       
+       (when show-mode
+	 (item-table-print (get-item-table dungeon player the-place)
+			   :show-pause nil))
+
+       ;; add setting of cursor.
+       
+       (let ((read-char (read-one-character)))
+
+	 (cond ((eq read-char #\*)
+		(setq show-mode t))
+	       
+	       ((eq read-char #\/)
+		(when (or (and allow-equip    (eq the-place :backpack))
+			  (and allow-backpack (eq the-place :equip)))
+		  (setq the-place (if (eq the-place :backpack) :equip :backpack))))
+	       
+	       ((and allow-floor (eq read-char #\-))
+		(select-item dungeon player allow-from
+			     :prompt prompt :where :floor))
+	       
+	       ((alpha-char-p read-char)
+		(c-prt! "" 0 0)
+		(return-from select-item (cons the-place (a2i read-char)))))
+	 
+	 (c-prt! "" 0 0))))
+	    
+   
+    ;; clear prompt
+    #-cmu
+    (c-prt! "" 0 0)
+    
+    nil))
+
+
 (defun get-item-table (dungeon player which-table)
   "Returns item-table or NIL."
   
@@ -104,6 +175,147 @@ ADD_DESC: classes and must be loaded late.
 	do
 	(funcall function table i obj)))
 
+(defmethod item-table-more-room? ((table items-on-floor) &optional obj)
+  (declare (ignore obj))
+  t)
+
+
+
 (defmethod calculate-score (variant player)
   (declare (ignore variant))
   (+ (player.max-xp player) (* 100 (player.depth player))))
+
+;;; Code for backpacks.. move later
+
+(defconstant +common-backpack-size+ 23)
+
+(defun common-creating-backpack (state dungeon player aobj)
+  "Assigns a container to aobj.contains."
+  
+  (declare (ignore player dungeon state))
+  
+  (let ((container (make-container +common-backpack-size+)))
+    (setf (aobj.contains aobj) container)
+    t))
+
+
+;;; === Some simple code for actual rooms, move them later.
+
+(defclass simple-room (room-type)
+  ())
+
+(defclass overlapping-room (room-type)
+  ())
+
+(defun common-make-simple-room ()
+  "constructor for the simple room."
+  (let ((room (make-instance 'simple-room :id "simple-room"
+			     :name "simple room"
+			     :size-mod #1A(0 0 -1 1)
+			     :min-level 1)))
+
+    room))
+
+(defun common-make-overlapping-room ()
+  "constructor for the overlapping room."
+  (let ((room (make-instance 'overlapping-room :id "overlapping-room"
+			     :name "overlapping room"
+			     :size-mod #1A(0 0 -1 1)
+			     :min-level 1)))
+
+    room))
+
+(defun %room-has-light? (room dungeon &optional (chance 25))
+  (declare (ignore room))
+  (<= (dungeon.depth dungeon) (randint chance)))
+
+(defmethod build-room! ((room simple-room) dungeon player x0 y0)
+
+  (declare (ignore player))
+  
+  (let (;;(depth (dungeon.depth dungeon))
+	(light (%room-has-light? room dungeon 25))
+	(y1 (- y0 (randint 4)))
+	(y2 (+ y0 (randint 3)))
+	(x1 (- x0 (randint 11)))
+	(x2 (+ x0 (randint 11))))
+
+    (generate-room dungeon (1- x1) (1- y1) (1+ x2) (1+ y2) light)
+    (generate-draw dungeon (1- x1) (1- y1) (1+ x2) (1+ y2) +feature-wall-outer+)
+    (generate-fill dungeon x1 y1 x2 y2 +feature-floor+)
+
+    (cond ((= 0 (random 20)) ;; pillar room
+	   (loop for y from y1 to y2 by 2
+		 do
+		 (loop for x from x1 to x2 by 2
+		       do
+		       (setf (cave-feature dungeon x y) +feature-wall-inner+))))
+	  
+	  ((= 0 (random 50)) ;; ragged
+	   (loop for y from (+ y1 2) to (- y2 2) by 2
+		 do
+		 (setf (cave-feature dungeon x1 y) +feature-wall-inner+)
+		 (setf (cave-feature dungeon x2 y) +feature-wall-inner+))
+	   
+	   (loop for x from (+ x1 2) to (- x2 2) by 2
+		 do
+		 (setf (cave-feature dungeon x y1) +feature-wall-inner+)
+		 (setf (cave-feature dungeon x y2) +feature-wall-inner+))
+	   ))
+
+    ))
+
+(defmethod build-room! ((room overlapping-room) dungeon player x0 y0)
+
+  (declare (ignore player))
+  
+  (let ((light (%room-has-light? room dungeon 25))
+	(a-y1 (- y0 (randint 4)))
+	(a-y2 (+ y0 (randint 3)))
+	(a-x1 (- x0 (randint 11)))
+	(a-x2 (+ x0 (randint 10)))
+	(b-y1 (- y0 (randint 3)))
+	(b-y2 (+ y0 (randint 4)))
+	(b-x1 (- x0 (randint 10)))
+	(b-x2 (+ x0 (randint 11))))
+	
+
+    (generate-room dungeon (1- a-x1) (1- a-y1) (1+ a-x2) (1+ a-y2) light)
+    (generate-room dungeon (1- b-x1) (1- b-y1) (1+ b-x2) (1+ b-y2) light)
+	
+    (generate-draw dungeon (1- a-x1) (1- a-y1) (1+ a-x2) (1+ a-y2) +feature-wall-outer+)
+    (generate-draw dungeon (1- b-x1) (1- b-y1) (1+ b-x2) (1+ b-y2) +feature-wall-outer+)
+    
+    (generate-fill dungeon a-x1 a-y1 a-x2 a-y2 +feature-floor+)
+    (generate-fill dungeon b-x1 b-y1 b-x2 b-y2 +feature-floor+)
+    ))
+
+(defmethod get-loadable-form ((object game-values) &key)
+  (let ((the-form '()))
+    (flet ((possibly-add (initarg val &optional (def-val nil))
+	     (unless (equal val def-val)
+	       (setf the-form (nconc the-form (list initarg (loadable-val val)))))))
+      (setf the-form (list 'make-instance ''game-values))
+      
+      (possibly-add :base-ac (gval.base-ac object) 0)
+      (possibly-add :ac-bonus (gval.ac-bonus object) 0)
+      (possibly-add :base-dice (gval.base-dice object) 0)
+      (possibly-add :num-dice (gval.num-dice object) 0)
+      (possibly-add :tohit-bonus (gval.tohit-bonus object) 0)
+      (possibly-add :dmg-bonus (gval.dmg-bonus object) 0)
+      (possibly-add :mana (gval.mana object) 0)
+      (possibly-add :charges (gval.charges object) 0)
+      (possibly-add :food-val (gval.food-val object) 0)
+      (possibly-add :light-radius (gval.light-radius object) 0)
+      (possibly-add :tunnel (gval.tunnel object) 0)
+      (possibly-add :speed (gval.speed object) 0)
+      (possibly-add :skill-bonuses (gval.skill-bonuses object))
+      (possibly-add :stat-bonuses (gval.stat-bonuses object))
+      (possibly-add :ignores (gval.ignores object))
+      (possibly-add :resists (gval.resists object))
+      (possibly-add :immunities (gval.immunities object))
+      (possibly-add :abilities (gval.abilities object))
+      (possibly-add :sustains (gval.sustains object))
+      (possibly-add :slays (gval.slays object))
+
+      the-form)))

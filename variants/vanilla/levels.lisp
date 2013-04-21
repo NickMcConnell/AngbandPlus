@@ -14,13 +14,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
-(defclass van-town-level (themed-level)
-  ((id :initform 'town-level)
-   (stores        :initarg :stores     :initform nil  :accessor level.stores)
-   (num-stores    :initarg :num-stores :initform 8 :accessor level.num-stores)
-   (home-num      :initarg :home-num   :initform 7 :accessor level.home-num))
 
-  )
+(defvar *van-saved-town-seed* nil "A saved seed to ensure that the town
+looks the same.")
+
 
 (defun van-create-bare-town-level-obj ()
   "Returns a bare town-level."
@@ -125,9 +122,6 @@ part of the new level."
 ;;    (setf (level.dungeon level) dungeon)
 
     level))
-
-
-(defvar *van-saved-town-seed* nil)
 
 
 (defun van-make-town-level-obj (player)

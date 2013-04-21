@@ -1,0 +1,45 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" Template-author: Stig E Sandoe
+.\" CCLAN-NOTE: If you customise this page, please change author at the bottom
+.\" 
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH CCLAN 3l "Summer 2001" 
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.\" CCLAN-NOTE: set NAME to your package, and then \- short description
+.SH NAME
+langband-vanilla \- The roguelike game Langband - Vanilla plugin
+.SH SYNOPSIS
+.B (require :langband-vanilla)
+
+.SH DESCRIPTION
+.\"Add longer description here, I have just pasted from control here
+This plugin allows you to play vanilla/classic Angband with the 
+Langband-engine. 
+
+This man-page is very simplified.  Please check the
+package-documentation in /usr/share/doc/langband-vanilla/
+
+.SH CONFORMING TO
+This package follow the common-lisp-controller policy which is further
+described for your version on /usr/share/doc/common-lisp-controller
+and it follows the CCLAN-policy further described at
+http://cclan.sf.net/
+
+.SH SEE ALSO
+.BR langband-engine (3l), register-common-lisp-source (1), unregister-common-lisp-source (1).
+.SH AUTHOR
+This manual page was written by Stig E Sandoe <stig@ii.uib.no>,
+for the CCLAN archive (but may be used by others).

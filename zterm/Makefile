@@ -1,16 +1,9 @@
 ## ---- Start simple customisation
 
 # what gui environments do you want
-# (currently only GCU, X11 and GTK supported)
+# (currently only GCU, X11, WIN and GTK supported)
 ENVIRONMENTS=X11 GCU
-
-
-# set this variable to wanted lisp-system
-# should not bee needed anymore
-#LISP_SYSTEM=CMUCL
-#LISP_SYSTEM=ACL
-#LISP_SYSTEM=CLISP
-
+#ENVIRONMENTS=WIN
 
 # do you want to use experimental sound
 #SOUND_USE=YES
@@ -20,25 +13,15 @@ SOUND_USE=NO
 ## ---- End simple customisation
 
 CC = gcc
-BASEOBJS = z-form.o z-rand.o z-term.o z-util.o z-virt.o collected.o variable.o util.o lisp_if.o #init2.o
+BASEOBJS = z-rand.o z-term.o z-util.o z-virt.o collected.o \
+variable.o util.o lisp_if.o signals.o #tests.o
 UIOBJS=
 UIDEFINES=
 UIFLAGS=
 BASEDEFINES=
-BASEFLAGS=-Wall -W -g
-
-#ifeq ($(LISP_SYSTEM),CMUCL)
-#BASEDEFINES= -DUSE_CMUCL=1
-#endif
-
-#ifeq ($(LISP_SYSTEM),ACL)
-#BASEDEFINES= -DUSE_ACL=1
-#endif
-
-#ifeq ($(LISP_SYSTEM),CLISP)
-#BASEDEFINES= -DUSE_CLISP=1
-#endif
-
+BASEFLAGS=-Wall -W #-ggdb
+DLLEXT=so
+PICFLAG=-fPIC
 
 
 
@@ -64,6 +47,16 @@ UIOBJS += main-gtk.o
 UILIBS += `gtk-config --libs`
 endif
 
+# hack
+ifeq ($(findstring WIN,$(ENVIRONMENTS)), WIN)
+UIDEFINES += -D"WIN_MAKEDLL" -D"USE_WIN" -D"WINDOWS" -D"WIN32" #-mno-cygwin
+DLLEXT=dll
+UIOBJS += dummy_call.o main-win.o #hack
+UILIBS += cygwin1.dll -s -mwindows -lwinmm
+LINKOPT=#-Wl,--out-implib,libfoo.import.a
+PICFLAG=
+endif
+
 DEFINES=$(UIDEFINES) $(BASEDEFINES)
 CFLAGS= $(BASEFLAGS) $(DEFINES) $(UIFLAGS)
 OBJS=$(BASEOBJS) $(UIOBJS)
@@ -78,7 +71,6 @@ DAEMONPROG = sound_daemon
 OBJS += use_sound.o
 endif
 
-PICFLAG=-fPIC
 
 %.o : %.c
 	$(CC) $(CFLAGS) $(PICFLAG) -c $<
@@ -90,12 +82,12 @@ all:;@echo 'Please specify environments'
 endif
 
 shared_objs: $(OBJS) $(DAEMONPROG) dummy_call.o
-	$(CC) -shared -o liblangband_ui.so $(OBJS) $(LIBS)
-	$(CC) -shared -o liblangband_dc.so dummy_call.o
+	$(CC) $(LINKOPT) -shared -o liblangband_ui.$(DLLEXT) $(OBJS) $(LIBS)
+	$(CC) $(LINKOPT) -shared -o liblangband_dc.$(DLLEXT) dummy_call.o
 
 sound_daemon:$(DAEMONOBJ)
 	$(CC) -o $@ $(DAEMONOBJ)
 
 clean:
-	$(RM) *.o *.so *.fasl
+	$(RM) *.o *.so *.fasl *.dll *.a *~
 

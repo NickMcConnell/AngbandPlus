@@ -82,7 +82,7 @@ extern void plog(cptr str);
 
 /* Exit, with optional message */
 /* it is quite messy for CMUCL which has a function of the same name */
-extern void z_quit(cptr str);
+INTERFACE void z_quit(cptr str);
 
 #define quit(a) z_quit(a)
 

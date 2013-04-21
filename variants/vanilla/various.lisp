@@ -139,3 +139,20 @@ the Free Software Foundation; either version 2 of the License, or
 (defmacro define-object-effect (obj-types args &body the-body)
   (assert (= 3 (length args)))
   `(van-ensure-object-effect ',obj-types #'(lambda ,args ,@the-body)))
+
+
+(defmethod get-price ((object active-object) (store black-market))
+  #+cmu
+  (declare (optimize (ext:inhibit-warnings 3)))
+  (* 3 (call-next-method)))
+
+(defmethod get-offer ((object active-object) (store black-market))
+  (int-/ (get-price object store) 4)) ;; decent value, eh?
+
+(defmethod store-generate-object ((the-store black-market))
+    (let* ((some-obj (get-obj-by-level (+ 25 (randint 25))))
+	 (o-type (when some-obj (aobj.kind some-obj))))
+
+    (when (and some-obj (plusp (get-price some-obj the-store))
+	       (not (obj-is? o-type '<chest>))) ;; hack
+      some-obj)))

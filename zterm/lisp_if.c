@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "angband.h"
 #include "langband.h"
 
 typedef unsigned long cmucl_lispobj;
@@ -14,7 +15,7 @@ set_lisp_system(LISP_SYSTEMS val) {
     if (val == LISPSYS_CMUCL || val == LISPSYS_ACL) {
 	current_lisp_system = val;
     }
-    else if (val == LISPSYS_CLISP) {
+    else if (val == LISPSYS_CLISP || val == LISPSYS_LISPWORKS) {
 	current_lisp_system = val;
 	lisp_will_use_callback = 0;
     }
@@ -61,7 +62,9 @@ play_game_lisp() {
 /*	fprintf(stderr,"Note: playing lisp-game through callback from C\n"); */
 	
 	if (current_lisp_system == LISPSYS_CMUCL && cmucl_callback_fun) {
+#ifndef WIN32
 	    funcall0(cmucl_callback_fun);
+#endif
 	}
 	else if (current_lisp_system == LISPSYS_ACL && acl_callback_fun) {
 	    (*acl_callback_fun)();

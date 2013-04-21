@@ -43,22 +43,27 @@ ADD_DESC: This file just contains simple init and loading of the game
   (pushnew :hide-warnings *features*)
 
 ;;  (pushnew :maintainer-mode *features*)
-  
+  #+(or cmu clisp allegro (and lispworks unix))
+  (pushnew :defsystem-madness *features*)
   )
 
-(defconstant +defsystem-file+ #+ecl "tools/defsystem.lisp"
-	     #-ecl "tools/defsystem")
+(defconstant +defsystem-file+
+  #+(or ecl cormanlisp) "tools/defsystem.lisp"
+  #-(or ecl cormanlisp) "tools/defsystem")
 
 (defun strcat (&rest args)
   (apply #'concatenate 'string args))
 
 (defun assign-log-path& (log-path name)
+  #+defsystem-madness
   (setf (logical-pathname-translations name)
 	(list (list ";**;*.*.*"  (strcat log-path "**/*.*"))
 	      (list "**;*.*.*"  (strcat log-path "**/*.*"))
 ;;	      (list "**;*"     (strcat log-path "**/*")) 
 	      (list ";*.*.*"  (strcat log-path "*.*"))
-	      (list "*.*.*"  (strcat log-path "*.*")))))
+	      (list "*.*.*"  (strcat log-path "*.*"))))
+  #-defsystem-madness
+  nil)
 
 (assign-log-path& *current-dir* "langband")
 (assign-log-path& (strcat *current-dir* "tools/") "langband-tools")
@@ -66,12 +71,10 @@ ADD_DESC: This file just contains simple init and loading of the game
 (assign-log-path& (strcat *current-dir* "variants/vanilla/") "langband-vanilla")
 ;;(assign-log-path& (strcat *current-dir* "lib/foreign/") "langband-foreign")
 
-
-;;#+(or cmu clisp allegro lispworks)
-(progn
-  (unless (find-package :make)
-    (load +defsystem-file+ :verbose nil)
-    ))
+#+defsystem-madness
+(unless (find-package :make)
+    (load +defsystem-file+ :verbose nil))
+    
 
 (defvar *normal-opt* '(optimize
 		       #+cmu (ext:inhibit-warnings 3)
@@ -79,14 +82,16 @@ ADD_DESC: This file just contains simple init and loading of the game
 		       (compilation-speed 0)
 		       (safety 1)
 		       (debug 1)
+		       #+lispworks (fixnum-safety 3)
 		       ))
 
 (defvar *dev-opt* '(optimize
 		    #+cmu (ext:inhibit-warnings 2)
 		    (speed 1)
 		    (compilation-speed 2)
-		    (safety 2)
+		    (safety 3)
 		    (debug 3)
+		    #+lispworks (fixnum-safety 3)
 		    ))
 
 
@@ -95,8 +100,8 @@ ADD_DESC: This file just contains simple init and loading of the game
  
 (defun compile-in-environment (func)
   (let (
-	#+cmu (*compile-print* nil)
-	      #+cmu (*load-verbose* nil)
+	#+(or cmu lispworks) (*compile-print* nil)
+	      #+(or cmu lispworks) (*load-verbose* nil)
 	      (*load-print* nil)
 	      ;;#+cmu (*error-output* o-str)
 	      #+cmu (extensions:*gc-verbose* nil)
@@ -106,6 +111,7 @@ ADD_DESC: This file just contains simple init and loading of the game
 (defun progress-msg (msg)
   (format t "~&~a~%" msg))
 
+#+defsystem-madness
 (defun load-game ()
   "Tries to load the game."
   ;;  (push :langband-debug *features*)
@@ -121,8 +127,61 @@ ADD_DESC: This file just contains simple init and loading of the game
   (mk:operate-on-system 'langband-vanilla 'compile :verbose nil)
   (progress-msg "Variant loaded...")
   t)
-  
+
+#-defsystem-madness
+(defun load-game ()
+  (labels ((%cl (x)
+	     (let* ((fname (strcat x ".lisp"))
+		    (cfname (compile-file-pathname fname))
+		    (*load-print* nil))
+	       (if (probe-file cfname)
+		   (load cfname)
+		   (progn
+		     (compile-file fname)
+		     (load cfname)))))
+	   (c-files (&rest files)
+	     (dolist (i files)
+	       (%cl i))))
+    
+    (%cl "pre-build")
+    (%cl "binary-types/binary-types")
+    (%cl "package")
+    (%cl "ffi/ffi-load")
+    (%cl "ffi/ffi-sys")
+    #+cormanlisp
+    (%cl "ffi/ffi-corman")
+    #+lispworks
+    (%cl "ffi/ffi-lw")
+
+    (c-files "memoize" "base" "constants" "dyn-vars"
+	     "event" "core" "parameters" "global"
+	     "settings" "level" "floor" "sound"
+	     "stat" "race" "class" "object"
+	     "equipment" "player" "flavours" "monster"
+	     "dungeon" "building" "stores" "allocate"
+	     "rooms" "generate" "print" "util"
+	     "combat" "keys" "actions" "view"
+	     "save" "load" "death"
+	     "birth" "loop" "init" "verify")
+    (progress-msg "Base engine loaded...")
+
+    (map nil #'(lambda (x)
+		 (%cl (strcat "variants/vanilla/" x)))
+	 (list
+	  "base" "quirks"
+	  "various" "rooms"
+	  "levels" "spells"
+	  "potions" "scrolls"
+	  "food" "keys"))
+
+    (progress-msg "Variant loaded...")
+    t))
+
+    
+    
+    
 (compile-in-environment #'load-game)
+
 
 #+xp-testing	
 (defun load-tests ()

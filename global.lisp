@@ -19,158 +19,221 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 
 (in-package :org.langband.engine)
 
-
-  (defgeneric location-x (obj)
-    (:documentation "Generic function for all things that have a location
-in the game at some point."))
+(defclass game-values ()
+  ((base-ac       :accessor gval.base-ac
+		  :initarg :base-ac
+		  :initform 0)
+   (ac-bonus      :accessor gval.ac-bonus
+		  :initarg :ac-bonus
+		  :initform 0)
+   (base-dice     :accessor gval.base-dice
+		  :initarg :base-dice
+		  :initform 0)
+   (num-dice      :accessor gval.num-dice
+		  :initarg :num-dice
+		  :initform 0)
+   (tohit-bonus   :accessor gval.tohit-bonus
+		  :initarg :tohit-bonus
+		  :initform 0)
+   (dmg-bonus     :accessor gval.dmg-bonus
+		  :initarg :dmg-bonus
+		  :initform 0)
+   (mana          :accessor gval.mana
+		  :initarg :mana
+		  :initform 0)
+   (charges       :accessor gval.charges
+		  :initarg :charges
+		  :initform 0)
+   (food-val      :accessor gval.food-val
+		  :initarg :food-val
+		  :initform 0)
+   (light-radius  :accessor gval.light-radius
+		  :initarg :light-radius
+		  :initform 0)
+   (tunnel        :accessor gval.tunnel
+		  :initarg :tunnel
+		  :initform 0)
+   (speed         :accessor gval.speed
+		  :initarg :speed
+		  :initform 0)
+   (skill-bonuses :accessor gval.skill-bonuses
+		  :initarg :skill-bonuses
+		  :initform nil)
+   (stat-bonuses  :accessor gval.stat-bonuses
+		  :initarg :stat-bonuses
+		  :initform nil)
+   (ignores       :accessor gval.ignores
+		  :initarg :ignores
+		  :initform nil)
+   (resists       :accessor gval.resists
+		  :initarg :resists
+		  :initform nil)
+   (immunities    :accessor gval.immunities
+		  :initarg :immunities
+		  :initform nil)
+   (abilities     :accessor gval.abilities
+		  :initarg :abilities
+		  :initform nil)
+   (sustains      :accessor gval.sustains
+		  :initarg :sustains
+		  :initform nil)
+   (slays         :accessor gval.slays
+		  :initarg :slays
+		  :initform nil)
+   )
   
-  (defgeneric (setf location-x) (value obj)
-    (:documentation "Sets the x-location for the object whenever possible."))
-  
-  (defgeneric location-y (obj)
-    (:documentation "Generic function for all things that have a location
-in the game at some point."))
-  
-  (defgeneric (setf location-y) (value obj)
-    (:documentation "Sets the y-location for the object whenever possible."))
+  (:documentation "necessary game-values for an object."))
 
-
-  (defclass game-values ()
-    ((base-ac       :accessor gval.base-ac       :initform 0)
-     (ac-bonus      :accessor gval.ac-bonus      :initform 0)
-     (base-dice     :accessor gval.base-dice     :initform 0)
-     (num-dice      :accessor gval.num-dice      :initform 0)
-     (tohit-bonus   :accessor gval.tohit-bonus   :initform 0)
-     (dmg-bonus     :accessor gval.dmg-bonus     :initform 0)
-     (mana          :accessor gval.mana          :initform 0)
-     (charges       :accessor gval.charges       :initform 0)
-     (food-val      :accessor gval.food-val      :initform 0)
-     (light-radius  :accessor gval.light-radius  :initform 0)
-     (tunnel        :accessor gval.tunnel        :initform 0)
-     (speed         :accessor gval.speed         :initform 0)
-     (skill-bonuses :accessor gval.skill-bonuses :initform nil)
-     (stat-bonuses  :accessor gval.stat-bonuses  :initform nil)
-     (ignores       :accessor gval.ignores       :initform nil)
-     (resists       :accessor gval.resists       :initform nil)
-     (immunities    :accessor gval.immunities    :initform nil)
-     (abilities     :accessor gval.abilities     :initform nil)
-     (sustains      :accessor gval.sustains      :initform nil)
-     (slays         :accessor gval.slays         :initform nil)
-     )
-  
-    (:documentation "necessary game-values for an object."))
-
-    (defclass attack ()
-    (
-     (kind :accessor attack.kind :initform nil)
-     (dmg-type :accessor attack.dmg-type :initform nil)
-     (damage :accessor attack.damage :initform nil)
-     ))
-   
+(defclass attack ()
+  ((kind     :accessor attack.kind
+	     :initarg :kind
+	     :initform nil)
+   (dmg-type :accessor attack.dmg-type
+	     :initarg :dmg-type
+	     :initform nil)
+   (damage   :accessor attack.damage
+	     :initarg :damage
+	     :initform nil))
+  (:documentation "Representation for a monster-attack."))
     
    
 
-    (defclass active-object (activatable)
-      ((kind        :accessor aobj.kind
-		    :initarg :obj
-		    :initform nil)
-       (inscription :accessor aobj.inscr
-		    :initform "")
-       (number      :accessor aobj.number
-		    :initarg :number
-		    :initform 1)
-       (contains    :accessor aobj.contains
-		    :initarg :contains
-		    :initform nil)
-       (events      :accessor aobj.events
-		    :initarg :events
-		    :initform nil)
-       (loc-x       :accessor location-x
-		    :initarg :loc-x
-		    :initform +illegal-loc-x+)
-       (loc-y       :accessor location-y
-		    :initarg :loc-y
-		    :initform +illegal-loc-y+)
-       ))
-
-
-
-    (defclass active-monster (activatable)
-      ((kind    :accessor amon.kind
-		:initarg :kind
+(defclass active-object (activatable)
+  ((kind        :accessor aobj.kind
+		:initarg :obj
 		:initform nil)
-       (cur-hp  :accessor current-hp
-		:initarg :hp
-		:initform 0)
-       (max-hp  :accessor get-creature-max-hp
-		:initarg :max-hp
-		:initform 0)
-       (speed   :accessor get-creature-speed
-		:initarg :speed
-		:initform 0)
-       (energy  :accessor get-creature-energy
-		:initarg :energy
-		:initform 0)
-       (mana    :accessor get-creature-mana
-		:initarg :mana
-		:initform 0)
+   (inscription :accessor aobj.inscr
+		:initform "")
+   (number      :accessor aobj.number
+		:initarg :number
+		:initform 1)
+   (contains    :accessor aobj.contains
+		:initarg :contains
+		:initform nil)
+   (game-values :accessor aobj.game-values
+		:initarg :game-values
+		:initform nil)
+   (events      :accessor aobj.events
+		:initarg :events
+		:initform nil)
+   (loc-x       :accessor location-x
+		:initarg :loc-x
+		:initform +illegal-loc-x+)
+   (loc-y       :accessor location-y
+		:initarg :loc-y
+		:initform +illegal-loc-y+)
+   ))
+
+
+
+(defclass active-monster (activatable)
+  ((kind    :accessor amon.kind
+	    :initarg :kind
+	    :initform nil)
+   (cur-hp  :accessor current-hp
+	    :initarg :hp
+	    :initform 0)
+   (max-hp  :accessor get-creature-max-hp
+	    :initarg :max-hp
+	    :initform 0)
+   (speed   :accessor get-creature-speed
+	    :initarg :speed
+	    :initform 0)
+   (energy  :accessor get-creature-energy
+	    :initarg :energy
+	    :initform 0)
+   (mana    :accessor get-creature-mana
+	    :initarg :mana
+	    :initform 0)
        
-       (loc-x   :accessor location-x      :initarg :loc-x :initform nil)
-       (loc-y   :accessor location-y      :initarg :loc-y :initform nil)
-       (alive?  :accessor creature-alive? :initarg :alive? :initform t)
+   (loc-x   :accessor location-x      :initarg :loc-x :initform nil)
+   (loc-y   :accessor location-y      :initarg :loc-y :initform nil)
+   (alive?  :accessor creature-alive? :initarg :alive? :initform t)
        
-       ))
+   ))
 
-    (defstruct (alloc-entry (:conc-name alloc.))
-      (obj nil)
-      (index nil)
-      (level nil)
-      (prob1 nil)
-      (prob2 nil)
-      (prob3 nil))
-
-
-    (defstruct (dun-data (:conc-name dun-data.))
-      (room-centres nil)
-      (doors nil)
-      (walls nil)
-      (tunnels nil)
-      (row-rooms nil)
-      (col-rooms nil)
-      (room-map nil)
-      (crowded nil))
-
-    ;; this is a dummy for classes, not objects.. the player will have numbers
-    (defstruct (skill (:conc-name skill.))
-      (name "")
-      (base 0)
-      (lvl-gain 0)) ;; this is for 10 levels, to allow for fractions
+(defstruct (alloc-entry (:conc-name alloc.))
+  (obj nil)
+  (index nil)
+  (level nil)
+  (prob1 nil)
+  (prob2 nil)
+  (prob3 nil))
 
 
-    ;; move this to variants later
-    (defclass skills ()
-      ((saving-throw :accessor skills.saving-throw  :initform 0)
-       (stealth      :accessor skills.stealth       :initform 0)
-       (fighting     :accessor skills.fighting      :initform 0)
-       (shooting     :accessor skills.shooting      :initform 0)
-       (disarming    :accessor skills.disarming     :initform 0)
-       (device       :accessor skills.device        :initform 0)
-       (perception   :accessor skills.perception    :initform 0)
-       (searching    :accessor skills.searching     :initform 0))
-      (:documentation "Various skills..")
-      ;;    #+cmu
-      ;;    (:metaclass pcl::standard-class)
-      )
+(defstruct (dun-data (:conc-name dun-data.))
+  (room-centres nil)
+  (doors nil)
+  (walls nil)
+  (tunnels nil)
+  (row-rooms nil)
+  (col-rooms nil)
+  (room-map nil)
+  (crowded nil))
 
+;; this is a dummy for classes, not objects.. the player will have numbers
+(defstruct (skill (:conc-name skill.))
+  (name "")
+  (base 0)
+  (lvl-gain 0));; this is for 10 levels, to allow for fractions
+
+
+;; move this to variants later
+(defclass skills ()
+  ((saving-throw :accessor skills.saving-throw  :initform 0)
+   (stealth      :accessor skills.stealth       :initform 0)
+   (fighting     :accessor skills.fighting      :initform 0)
+   (shooting     :accessor skills.shooting      :initform 0)
+   (disarming    :accessor skills.disarming     :initform 0)
+   (device       :accessor skills.device        :initform 0)
+   (perception   :accessor skills.perception    :initform 0)
+   (searching    :accessor skills.searching     :initform 0))
+  (:documentation "Various skills..")
+  ;;    #+cmu
+  ;;    (:metaclass pcl::standard-class)
+  )
+
+
+(defgeneric location-x (obj)
+  (:documentation "Generic function for all things that have a location
+in the game at some point."))
+  
+(defgeneric (setf location-x) (value obj)
+  (:documentation "Sets the x-location for the object whenever possible."))
+  
+(defgeneric location-y (obj)
+  (:documentation "Generic function for all things that have a location
+in the game at some point."))
+  
+(defgeneric (setf location-y) (value obj)
+  (:documentation "Sets the y-location for the object whenever possible."))
     
-    (defgeneric use-object! (variant dun pl the-object)
-      (:documentation "Applies the object on the player in the dungeon."))
-    (defgeneric heal-creature! (crt amount)
-      (:documentation "Tries to heal the creature with a certain amount of hits."))
-    (defgeneric set-creature-state! (crt state value)
-      (:documentation "Tries to heal the creature with a certain amount of hits."))
-    
+(defgeneric use-object! (variant dun pl the-object)
+  (:documentation "Applies the object on the player in the dungeon."))
 
+(defgeneric heal-creature! (crt amount)
+  (:documentation "Tries to heal the creature with a certain amount of hits."))
+
+(defgeneric set-creature-state! (crt state value)
+  (:documentation "Tries to heal the creature with a certain amount of hits."))
+
+(defgeneric get-price (object situation)
+  (:documentation "Returns a number with the price for the object in the
+given situation."))
+
+(defgeneric get-offer (object situation)
+  (:documentation "Returns a number with an offered price for an object
+in a certain situation."))
+
+(defgeneric get-attribute (object)
+  (:documentation "Returns attribute for a given object."))
+
+(defgeneric lang-equal (first-obj second-obj)
+  (:documentation "A recursive check for equality (along the lines of EQUAL)
+but one that works with langband-objects."))
+
+(defgeneric get-loadable-form (object &key &allow-other-keys)
+  (:documentation "Pretty much similar to MAKE-LOAD-FORM."))
 
 (defun make-game-values ()
   "Returns an object of type game-values."
@@ -240,8 +303,8 @@ information from the list skills whose content depends on variant."
 		    )))))
       skill-obj))
 
-;; make this one into an array-access later
-(defun get-colour-code-from-letter (letter)
+(defmethod convert-obj ((letter character) (to (eql :colour-code)) &key)
+  ;; make this one into an array-access later
   "Returns a code which can be sent to C-functions as colour."
   
   (case letter
@@ -264,12 +327,11 @@ information from the list skills whose content depends on variant."
     (#\U +term-l-umber+)
 
     (otherwise
-     (error "Fell through get-colour-code-from-letter.. ~a" letter)
+     (error "Fell through (CONVERT-OBJ ~s -> :colour-code)" letter)
      #-cmu
      +term-white+)))
 
-;; make this one into array access later.
-(defun get-letter-from-colour-code (code)
+(defmethod convert-obj (code (to (eql :letter)) &key)
   "Returns a char for the appropriate colour-code."
   #||
   (warn "compare ~s vs ~s, ~a vs ~a, ~a vs ~a, ~a vs ~a, ~a"
@@ -278,26 +340,26 @@ information from the list skills whose content depends on variant."
 	(eq code +term-dark+) (eql code +term-dark+) (case code (+term-dark+ t) (t nil)))
   ||#
 
-  (cond  ((eq code +term-dark+)    #\d) 
-	 ((eq code +term-white+)   #\w)
-	 ((eq code +term-slate+)   #\s) 
-	 ((eq code +term-orange+)  #\o) 
-	 ((eq code +term-red+)     #\r) 
-	 ((eq code +term-green+)   #\g) 
-	 ((eq code +term-blue+)    #\b) 
-	 ((eq code +term-umber+)   #\u) 
+  (cond  ((eql code +term-dark+)    #\d) 
+	 ((eql code +term-white+)   #\w)
+	 ((eql code +term-slate+)   #\s) 
+	 ((eql code +term-orange+)  #\o) 
+	 ((eql code +term-red+)     #\r) 
+	 ((eql code +term-green+)   #\g) 
+	 ((eql code +term-blue+)    #\b) 
+	 ((eql code +term-umber+)   #\u) 
 	 
-	 ((eq code +term-l-dark+)  #\D) 
-	 ((eq code +term-l-white+) #\W) 
-	 ((eq code +term-violet+)  #\v) 
-	 ((eq code +term-yellow+)  #\y) 
-	 ((eq code +term-l-red+)   #\R) 
-	 ((eq code +term-l-green+) #\G) 
-	 ((eq code +term-l-blue+)  #\B) 
-	 ((eq code +term-l-umber+) #\U) 
+	 ((eql code +term-l-dark+)  #\D) 
+	 ((eql code +term-l-white+) #\W) 
+	 ((eql code +term-violet+)  #\v) 
+	 ((eql code +term-yellow+)  #\y) 
+	 ((eql code +term-l-red+)   #\R) 
+	 ((eql code +term-l-green+) #\G) 
+	 ((eql code +term-l-blue+)  #\B) 
+	 ((eql code +term-l-umber+) #\U) 
 
 	 (t
-	  (error "Fell through get-letter-from-colour-code.. ~a" (char-code code))
+	  (error "Fell through (CONVERT-OBJ ~s -> :letter)" (char-code code))
 	  #-cmu
 	  #\w)))
 
@@ -336,7 +398,10 @@ information from the list skills whose content depends on variant."
     (ecase num
       (0 'x11)
       (1 'gcu)
-      (2 'gtk))))
+      (2 'gtk)
+      (3 'win)
+
+      )))
 
 (defun define-key-macros (key &rest macros)
   (dolist (i macros)
@@ -346,7 +411,14 @@ information from the list skills whose content depends on variant."
 ;;      (loop for x across macro do (format t "~a " (char-code x))
 ;;	    finally (format t "~%"))
 ;;      (warn "macro ~s" macro)
+      #-lispworks
       (org.langband.ffi:c_macro_add& macro (string key))
+      #+lispworks
+      (fli:with-foreign-string (s a b)
+	macro
+	(fli:with-foreign-string (st aa bb)
+	  (string key)
+	  (org.langband.ffi:c_macro_add& s st)))
       ))
 ;;      (c-macro-add& macro (string key))))
   key)
@@ -391,24 +463,53 @@ information from the list skills whose content depends on variant."
   "Tries to read a named preference file."
   (load-game-data fname))
 
+(defun loadable-val (val)
+  (cond ((or (keywordp val) (stringp val) (characterp val) (numberp val) (arrayp val))
+	 val)
+	((eq val nil)
+	 nil)
+	((or (symbolp val) (consp val))
+	 (list 'quote val))
+	(t
+	 (error "Unknown how to make val ~s of type ~s loadable" val (type-of val)))))
 
 ;; some wrappers for C-functions.
 
 (defun c-print-message! (str)
 ;;  (warn "going fu on ~s" (type-of str))
+  #-lispworks
   (org.langband.ffi:c_msg_print! (org.langband.ffi:to-arr str))
+  #+lispworks
+  (fli:with-foreign-string (base-ptr a b)
+    str
+    (org.langband.ffi:c_msg_print! base-ptr))
   (values))
 
 (defun c-quit! (str)
+  #-lispworks
   (org.langband.ffi:c_quit! (org.langband.ffi:to-arr str))
+  #+lispworks
+  (fli:with-foreign-string (base-ptr a b)
+    str
+    (org.langband.ffi:c_quit! base-ptr))
   (values))
 
 (defun c-prt! (str row col)
+  #-lispworks
   (org.langband.ffi:c_prt! (org.langband.ffi:to-arr str) row col)
+  #+lispworks
+  (fli:with-foreign-string (base-ptr a b)
+    str
+    (org.langband.ffi:c_prt! base-ptr row col))
   (values))
 
 (defun c-term-putstr! (col row some colour text)
+  #-lispworks
   (org.langband.ffi:c_term_putstr! col row some colour (org.langband.ffi:to-arr text))
+  #+lispworks
+  (fli:with-foreign-string (base-ptr a b)
+    text
+    (org.langband.ffi:c_term_putstr! col row some colour base-ptr))
   (values))
 
 (defun c-col-put-str! (colour text row col)
@@ -419,8 +520,26 @@ information from the list skills whose content depends on variant."
   (c-term-putstr! col row -1 +term-white+ text))
 
 (defun c-bell! (text)
+  #-lispworks
   (org.langband.ffi:c_bell! (org.langband.ffi:to-arr text))
+  #+lispworks
+  (fli:with-foreign-string (base-ptr a b)
+    text
+    (org.langband.ffi:c_bell! base-ptr))
   (values))
+
+(defun init-c-side& (ui base-path debug-level)
+  #-lispworks
+  (init_c-side& ui base-path debug-level)
+  #+lispworks
+  (fli:with-foreign-string (ui-ptr elm-count byte-count :external-format :ascii)
+    ui
+    (declare (ignore elm-count byte-count))
+    (fli:with-foreign-string (base-ptr elem-count bbyte-count :external-format :ascii)
+      base-path
+      (declare (ignore elem-count bbyte-count))
+;;      (warn "Going ahead with ~s ~s" ui-ptr base-ptr)
+      (init_c-side& ui-ptr base-ptr debug-level))))
 
 (defun c-print-text! (col row colour text &key (end-col 80))
   "Don't call this if you need non-consing or fast operation."
@@ -463,29 +582,16 @@ information from the list skills whose content depends on variant."
 	*player* nil
 	*dungeon* nil)
   (garbage-collect :global t)
-  (format t "~&Thanks for helping to test Langband.~2%")
   ;;#+boys-eating-their-vegetables
   (finish-output cl:*error-output*)
   (finish-output cl:*standard-output*)
   (finish-output cl:*trace-output*)
-  (c-quit! +c-null-value+)
+  (case (get-system-type)
+    ((x11 gcu)
+     (cleanup-c-side&)
+     (signal (make-condition 'langband-quit)))
+    (otherwise
+     (format t "~&Thanks for helping to test Langband.~2%")
+     (c-quit! +c-null-value+)))
   nil)
  
-
-#||
-;:; see above for macro-add&
-(defun c-macro-add& (key value)
-  (org.langband.ffi:c_macro_add& key value);;(%to-ffi-arr key) (%to-ffi-arr value))
-  (values))
-||#
-	
-#||
-;; comment this out when code is working.. it conses and isn't needed
-(defmethod print-object ((inst skills) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) ~{ ~S~}" (class-name (class-of inst)) 
-	   (mapcar #'(lambda (x) (slot-value inst (cdr x))) (variant.skill-translations *variant*))))
-  inst)
-||#
-

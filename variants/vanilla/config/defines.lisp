@@ -20,13 +20,13 @@ the Free Software Foundation; either version 2 of the License, or
   #'common-creating-backpack)
 
 
-(define-object-kind ()
+(define-object-kind 
     :backpack "backpack" :numeric-id 750
-    :x-attr +term-white+ :x-char #\&
+    :x-attr #\w :x-char #\&
     :level 0 :rarity nil :chance #(0 0 0 0)
     :locale #(0 0 0 0) :weight nil
     :cost 1200 :obj-type '(<container> <backpack>)
     :events (list :backpack-creation))
 
 (define-room "simple-room" #'common-make-simple-room)
-(define-room "shop-room" #'common-make-shop-room)
+(define-room "overlapping-room" #'common-make-overlapping-room)

@@ -88,7 +88,7 @@ ADD_DESC: This file contains basics for dealing with character classes
       (setf (class.stat-changes my-class)
 	    (build-stat-table-from-symlist stat-changes))
       (setf (class.stat-changes my-class)
-	    #1A(0 0 0 0 0 0)))
+	    (make-stat-array)))
 
     (when hit-dice
       (setf (class.hit-dice my-class) hit-dice))

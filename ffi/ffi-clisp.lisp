@@ -2,7 +2,7 @@
 
 
 (in-package :langband-ffi)
-(ffi:def-c-type byte uchar)
+(ffi:def-c-type angbyte uchar)
 
 (ffi:def-c-type cptr c-string)
 
@@ -29,23 +29,23 @@
                                                                                      int)) (:return-type nil))
 
 (ffi:def-call-out c-prt-token! (:name "print_coloured_token") (:language :stdc) (:arguments (colour
-                                                                                             byte)(token
-                                                                                                   int)(row
-                                                                                                        int)(col
-                                                                                                             int)) (:return-type nil))
+                                                                                             angbyte)(token
+                                                                                                      int)(row
+                                                                                                           int)(col
+                                                                                                                int)) (:return-type nil))
 
 (ffi:def-call-out c-prt-stat! (:name "print_coloured_stat") (:language :stdc) (:arguments (colour
-                                                                                           byte)(stat
-                                                                                                 int)(row
-                                                                                                      int)(col
-                                                                                                           int)) (:return-type nil))
+                                                                                           angbyte)(stat
+                                                                                                    int)(row
+                                                                                                         int)(col
+                                                                                                              int)) (:return-type nil))
 
 (ffi:def-call-out c-prt-number! (:name "print_coloured_number") (:language :stdc) (:arguments (colour
-                                                                                               byte)(number
-                                                                                                     long)(padding
-                                                                                                           int)(row
-                                                                                                                int)(col
-                                                                                                                     int)) (:return-type nil))
+                                                                                               angbyte)(number
+                                                                                                        long)(padding
+                                                                                                              int)(row
+                                                                                                                   int)(col
+                                                                                                                        int)) (:return-type nil))
 
 (ffi:def-call-out c_msg_print! (:name "msg_print") (:language :stdc) (:arguments (msg
                                                                                   c-string)) (:return-type nil))
@@ -54,14 +54,14 @@
                                                                                       int)(row
                                                                                            int)(something
                                                                                                 int)(colour
-                                                                                                     byte)(text
-                                                                                                           c-string)) (:return-type errr))
+                                                                                                     angbyte)(text
+                                                                                                              c-string)) (:return-type errr))
 
 (ffi:def-call-out c-term-queue-char! (:name "Term_queue_char") (:language :stdc) (:arguments (row
                                                                                               int)(col
                                                                                                    int)(colour
-                                                                                                        byte)(the-char
-                                                                                                              char)) (:return-type nil))
+                                                                                                        angbyte)(the-char
+                                                                                                                 char)) (:return-type nil))
 
 (ffi:def-call-out c-term-gotoxy! (:name "Term_gotoxy") (:language :stdc) (:arguments (row
                                                                                       int)(col
@@ -89,12 +89,12 @@
 
 (ffi:def-call-out c-inkey! (:name "inkey") (:language :stdc) (:arguments ) (:return-type char))
 
-(ffi:def-call-out init-c-side& (:name "init_c_side") (:language :stdc) (:arguments (ui
+(ffi:def-call-out init_c-side& (:name "init_c_side") (:language :stdc) (:arguments (ui
                                                                                     c-string)(base-path
                                                                                               c-string)(debug-level
                                                                                                         int)) (:return-type errr))
 
-(ffi:def-call-out c-init.angband! (:name "init_angband") (:language :stdc) (:arguments ) (:return-type nil))
+(ffi:def-call-out cleanup-c-side& (:name "cleanup_c_side") (:language :stdc) (:arguments ) (:return-type errr))
 
 (ffi:def-call-out c_macro_add& (:name "macro_add") (:language :stdc) (:arguments (key
                                                                                   c-string)(value
@@ -109,13 +109,15 @@
                                                                                                   c-pointer)) (:return-type nil))
 
 
+#+win32
+(ffi:def-call-out c-set-hinst! (:name "setHINST") (:language :stdc) (:arguments (val
+                                                                                 long)) (:return-type int))
+
+
 #+using-sound
 (ffi:def-call-out c-load-sound& (:name "load_sound") (:language :stdc) (:arguments (msg
                                                                                     int)(fname
                                                                                          c-string)) (:return-type errr))
-
-(ffi:def-call-out c_test_calling! (:name "test_calling_2") (:language :stdc) (:arguments (msg
-                                                                                          c-string)) (:return-type int))
 
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
@@ -124,7 +126,7 @@
      c-prt-token! c-prt-stat! c-prt-number! c_msg_print! c_term_putstr!
      c-term-queue-char! c-term-gotoxy! c-set-cursor& c-term-clear!
      c-term-fresh! c-term-save! c-term-load! c-term-xtra& c-term-inkey&
-     c-inkey! init-c-side& c-init.angband! c_macro_add& c-set-lisp-system!
-     c-set-lisp-callback! c-load-sound& c_test_calling!)))
+     c-inkey! init_c-side& cleanup-c-side& c_macro_add& c-set-lisp-system!
+     c-set-lisp-callback! c-set-hinst! c-load-sound&)))
 
 ;;; End of generated file.

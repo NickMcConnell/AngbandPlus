@@ -9,6 +9,17 @@
  * This file simply includes other low level header files.
  */
 
+#ifndef INTERFACE
+#if defined(WIN_MAKEDLL)
+#  define INTERFACE __declspec(dllexport)
+#elif defined(WIN_USEDLL)
+#  define INTERFACE __declspec(dllimport)
+#else
+#  define INTERFACE
+#endif
+#endif /* iface */
+
+
 /* System Configuration */
 #include "h-config.h"
 

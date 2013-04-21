@@ -15,7 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
-(defun compat-read-feature-file& (fname)
+(defun compat-read-floor-file& (fname)
   "Reads floor from 2.9.0"
   
   (with-open-file (in-str (pathname fname)
@@ -62,7 +62,7 @@ the Free Software Foundation; either version 2 of the License, or
 		   ;; the second should be the symbol to paint
 		   (setf (feature.x-char cur-feature) (schar l 2))
 		   ;; the third should be the colour
-		   (setf (feature.x-attr cur-feature) (get-colour-code-from-letter (schar l 4)))
+		   (setf (feature.x-attr cur-feature) (convert-obj (schar l 4) :colour-code))
 		   ))
 		   
 		
@@ -84,4 +84,4 @@ the Free Software Foundation; either version 2 of the License, or
       )))
 
 
-
+(pushnew :compatibility-floors cl:*features*)

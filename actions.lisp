@@ -55,6 +55,9 @@ The direction is a number from the keypad."
 	     (attack-location! dun pl wanted-x wanted-y)
 	     )
 
+	    ((is-closed-door? dun wanted-x wanted-y)
+	     (open-door! dun wanted-x wanted-y))
+	    
 	    ;; something is in the way
 	    ((not (cave-floor-bold? dun wanted-x wanted-y))
 	     (c-print-message! "Cannot walk that way.."))
@@ -78,75 +81,6 @@ The direction is a number from the keypad."
 				  (location-y pl))
     pl))
 
-    
-(defun select-item (dungeon player allow-from
-		    &key prompt (where :backpack)
-		    selection-function)
-  "Selects and returns a CONS (where . which) when succesful or
-NIL.  Where is a keyword :floor, :backpack or :equip and which is either
-a number or a symbol identifying the place."
-
-  (let ((allow-floor (if (or (eq allow-from :floor)
-			     (find :floor allow-from))
-			 t
-			 nil))
-	
-	(allow-equip (if (or (eq allow-from :equip)
-			     (find :equip allow-from))
-			 t
-			 nil))
-	
-	(allow-backpack (if (or (eq allow-from :backpack)
-				(find :backpack allow-from))
-			    t
-			    nil))
-	(the-prompt (if prompt prompt "Inventory command:"))
-
-	(show-mode nil)
-	(the-place where)
-	(printed-prompt nil)
-	)
-
-    (block read-loop
-      (loop
-       (when selection-function
-	 (warn "selection function not implemented."))
-       
-       (setq printed-prompt (format nil "~a " the-prompt))
-       (c-prt! printed-prompt 0 0)
-       
-       (when show-mode
-	 (item-table-print (get-item-table dungeon player the-place)
-			   :show-pause nil))
-
-       ;; add setting of cursor.
-       
-       (let ((read-char (read-one-character)))
-
-	 (cond ((eq read-char #\*)
-		(setq show-mode t))
-	       
-	       ((eq read-char #\/)
-		(when (or (and allow-equip    (eq the-place :backpack))
-			  (and allow-backpack (eq the-place :equip)))
-		  (setq the-place (if (eq the-place :backpack) :equip :backpack))))
-	       
-	       ((and allow-floor (eq read-char #\-))
-		(select-item dungeon player allow-from
-			     :prompt prompt :where :floor))
-	       
-	       ((alpha-char-p read-char)
-		(c-prt! "" 0 0)
-		(return-from select-item (cons the-place (a2i read-char)))))
-	 
-	 (c-prt! "" 0 0))))
-	    
-   
-    ;; clear prompt
-    #-cmu
-    (c-prt! "" 0 0)
-    
-    nil))
   
 
 (defun use-stair! (dun pl dir)

@@ -5,7 +5,6 @@ This is a lispier Angband, and is a complete rewrite of Angband
 in Common Lisp.  This packaging is still very preliminary though.
 
 Known bugs:
-- splash screen not working.
 - not particularly configurable
 - unsafe
 - and all the other problems of the upstream version.

@@ -269,6 +269,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     ;; fix special damage
 
     ;; check food
+    (decf (player.food pl))
 
     ;; possible regenerate
     (let ((regen-amount 197))

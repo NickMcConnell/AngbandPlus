@@ -276,26 +276,26 @@ extern term *Term;
 /**** Available Functions ****/
 
 extern errr Term_user(int n);
-extern errr Term_xtra(int n, int v);
+INTERFACE errr Term_xtra(int n, int v);
 
 #ifdef USE_TRANSPARENCY
-extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
+INTERFACE void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
 #else /* USE_TRANSPARENCY */
-extern void Term_queue_char(int x, int y, byte a, char c);
+INTERFACE void Term_queue_char(int x, int y, byte a, char c);
 #endif /* USE_TRANSPARENCY */
 
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
 
 extern errr Term_fresh(void);
-extern errr Term_set_cursor(int v);
-extern errr Term_gotoxy(int x, int y);
+INTERFACE errr Term_set_cursor(int v);
+INTERFACE errr Term_gotoxy(int x, int y);
 extern errr Term_draw(int x, int y, byte a, char c);
 extern errr Term_addch(byte a, char c);
 extern errr Term_addstr(int n, byte a, cptr s);
 extern errr Term_putch(int x, int y, byte a, char c);
-extern errr Term_putstr(int x, int y, int n, byte a, cptr s);
+INTERFACE errr Term_putstr(int x, int y, int n, byte a, cptr s);
 extern errr Term_erase(int x, int y, int n);
-extern errr Term_clear(void);
+INTERFACE errr Term_clear(void);
 extern errr Term_redraw(void);
 
 extern errr Term_get_cursor(int *v);
@@ -306,10 +306,10 @@ extern errr Term_what(int x, int y, byte *a, char *c);
 extern errr Term_flush(void);
 extern errr Term_keypress(int k);
 extern errr Term_key_push(int k);
-extern errr Term_inkey(char *ch, bool wait, bool take);
+INTERFACE errr Term_inkey(char *ch, bool wait, bool take);
 
-extern errr Term_save(void);
-extern errr Term_load(void);
+INTERFACE errr Term_save(void);
+INTERFACE errr Term_load(void);
 
 extern errr Term_exchange(void);
 

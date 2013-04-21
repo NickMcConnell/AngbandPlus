@@ -102,8 +102,21 @@ ADD_DESC: available in the game.
      
      ))
 
-(defun get-okind-table ()
-  (let* ((o-table (get-otype-table *level* *variant* ))
+(defmethod get-attribute ((obj active-object))
+  (get-attribute (aobj.kind obj)))
+
+(defmethod get-attribute ((kind object-kind))
+  (let ((flavour (object.flavour kind)))
+    (if flavour
+	(cadr flavour)
+	(object.x-attr kind))))
+
+
+
+(defun get-okind-table (&optional (var-obj *variant*))
+  (assert (typep var-obj 'variant))
+  (assert (typep *level* 'level))
+  (let* ((o-table (get-otype-table *level* var-obj))
 	 (table (gobj-table.obj-table o-table)))
     table))
 
@@ -134,43 +147,6 @@ ADD_DESC: available in the game.
 ;;  (warn "Adding obj with id ~s" id)
   (apply-filters-on-obj :objects *variant* obj))
 
-
-(defun define-object-kind (dummy-arg id name
-			   &key numeric-id x-attr x-char level rarity
-			   chance locale weight cost obj-type sort-value
-			   events)
-  "creates and establishes an object corresponding to parameters"
-  (declare (ignore dummy-arg))
-  
-  (assert (or (stringp id) (symbolp id)))
-  
-  (let* ((key (if (symbolp id) (symbol-name id) id))
-	 (new-obj (make-instance 'object-kind
-				:id key
-				:numeric-id (if numeric-id
-						numeric-id
-						key)
-				:name name
-				:x-attr x-attr
-				:x-char x-char
-				:level level
-				:rarity rarity
-				:chance chance
-				:locale locale
-				:weight weight
-				:cost cost
-				:sort-value sort-value
-				:obj-type (if (listp obj-type)
-					      obj-type
-					      (list obj-type))
-				:events (get-legal-events events)
-				)))
-    
-    (add-new-okind! new-obj id)
-;;    (apply-filters-on-obj :objects *variant* new-obj)
-;;    (setf (get-obj-kind id) new-obj)
-    
-    new-obj))
 
 (defmethod object.obj-type ((obj active-object))
   "Forwards to the right place.."
@@ -320,7 +296,7 @@ with k-info.txt numbers. NUM is the numeric id."
 			   (write-char #\a s))))
 	      (#\# (when flavour
 		     (write-string flavour s)
-		     (write-char #\Space s)
+		     ;;(write-char #\Space s)
 		     ))
 
 	      (#\@ (when ident
@@ -367,6 +343,8 @@ with k-info.txt numbers. NUM is the numeric id."
 	   (plural-name number "& scroll~ #@" flavour known-type name))
 	  ((obj-is? o-type '<spellbook>)
 	   (plural-name number "& ritual-book~ #@" flavour known-type name))
+	  ((obj-is? o-type '<amulet>)
+	   (plural-name number "& #amulet~@" flavour known-type name))
 	  (t
 ;;	   (warn "Fell through with object ~a ~s" name (object.obj-type o-type)) 
 	   (plural-name number name nil known-type nil)))
@@ -393,4 +371,115 @@ with k-info.txt numbers. NUM is the numeric id."
   (or (obj-is? o-type '<food>)
       (obj-is? o-type '<potion>)
       (obj-is? o-type '<mushroom>)))
-      
+
+(defmethod get-price ((object active-object) situation)
+  (declare (ignore situation))
+  (let* ((kind (aobj.kind object))
+	 (id (object.identified kind)))
+    
+    (if id
+	(object.cost kind)
+	20) ;; just a default
+    ))
+
+(defun get-object-list (&optional (var-obj *variant*))
+  "returns a fresh list.  Remove me!"
+  (let ((table (get-okind-table var-obj)))
+    (stable-sort (loop for v being each hash-value of table
+		       collecting v)
+		 #'<
+		 :key #'object.numeric-id)))
+
+
+(defun define-object-kind (id name
+			   &key numeric-id x-attr x-char level rarity
+			   chance locale weight cost obj-type sort-value
+			   events game-values flags flavour desc)
+  "creates and establishes an object corresponding to parameters"
+
+  (declare (ignore flavour desc))
+  (assert (or (stringp id) (symbolp id)))
+  
+  (let* ((key (if (symbolp id) (symbol-name id) id))
+	 (new-obj (make-instance 'object-kind
+				:id key
+				:numeric-id (if numeric-id
+						numeric-id
+						key)
+				:name name
+				:x-attr (etypecase x-attr
+					  (character (convert-obj x-attr :colour-code))
+					  (number (charify-number x-attr)))
+				:x-char x-char
+				:flags flags
+				:level level
+				:rarity rarity
+				:chance chance
+				:locale locale
+				:weight weight
+				:cost cost
+				:sort-value (if (numberp sort-value)
+						sort-value
+						0) ;; hack
+				:obj-type (if (listp obj-type)
+					      obj-type
+					      (list obj-type))
+				:events (get-legal-events events)
+				:game-values game-values
+				)))
+    
+    (add-new-okind! new-obj id)
+;;    (apply-filters-on-obj :objects *variant* new-obj)
+;;    (setf (get-obj-kind id) new-obj)
+    
+    new-obj))
+
+(defmethod get-loadable-form ((object object-kind) &key (full-dump nil))
+  
+  (let ((the-form '()))
+    (flet ((possibly-add (initarg val &optional (def-val nil))
+	     (unless (equal val def-val)
+	       (setf the-form (nconc the-form (list initarg (loadable-val val)))))))
+    (setf the-form (list 'define-object-kind 
+			 (object.id object)
+			 (object.name object)))
+    (possibly-add :numeric-id (object.numeric-id object))
+    (possibly-add :x-attr (convert-obj (object.x-attr object) :letter))
+    (possibly-add :x-char (object.x-char object))
+    (possibly-add :level (object.level object))
+    (possibly-add :rarity (object.rarity object))
+    (possibly-add :chance (object.chance object) #(0 0 0 0))
+    (possibly-add :locale (object.locale object) #(0 0 0 0))
+    (possibly-add :weight (object.weight object))
+    (possibly-add :cost (object.cost object))
+    (possibly-add :obj-type (object.obj-type object))
+    (possibly-add :flags (object.flags object))
+    (possibly-add :identified (object.tried object))
+    (possibly-add :sort-value (object.sort-value object) 0)
+    (when full-dump
+      (possibly-add :flavour (object.flavour object)))
+
+
+    (when-bind (gval (object.game-values object))
+      (setf the-form (append the-form (list :game-values (get-loadable-form gval)))))
+    
+    the-form)))
+
+(defun dump-objects (out-file &optional object-list)
+  (let ((obj-list (if object-list
+		      object-list
+		      (get-object-list)))
+	(*print-case* :downcase)
+	(*print-right-margin* 120))
+    
+    (with-open-file (ffile (pathname out-file)
+			   :direction :output
+			   :if-exists :supersede
+			   :if-does-not-exist :create)
+      (pprint '(in-package :langband)
+	      ffile)
+      (terpri ffile)
+      (dolist (x obj-list)
+	(print (get-loadable-form x) ffile)
+	(terpri ffile))
+      (terpri ffile))))

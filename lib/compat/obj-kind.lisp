@@ -67,7 +67,7 @@ the Free Software Foundation; either version 2 of the License, or
 		   ;; the second should be the symbol to paint
 		   (setf (object.x-char cur-obj) (schar l 2))
 		   ;; the third should be the colour
-		   (setf (object.x-attr cur-obj) (get-colour-code-from-letter (schar l 4)))
+		   (setf (object.x-attr cur-obj) (convert-obj (schar l 4) :colour-code))
 		 
 		   ))
 
@@ -127,6 +127,9 @@ the Free Software Foundation; either version 2 of the License, or
 			    ;; the third should be subtype-val (sval)
 			    (subtype-val (parse-integer (third res))))
 
+		       (assert (numberp type-val))
+		       (assert (numberp subtype-val))
+			       
 		       ;; the fourth should be patch-val (pval)
 		       (setq patch-val (parse-integer (fourth res)))
 		       
@@ -931,3 +934,4 @@ the Free Software Foundation; either version 2 of the License, or
 	    )))
 
 
+(pushnew :compatibility-objects cl:*features*)

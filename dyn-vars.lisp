@@ -52,5 +52,12 @@ throughout dungeon-generation")
 
 (defvar *engine-source-dir* #+langband-development "./"
 	#-langband-development (translate-logical-pathname "langband:"))
-(defvar *engine-config-dir* #+langband-development (pathname "./config/")
-	#-langband-development "/var/lib/games/langband/")
+(defvar *engine-config-dir*
+  #+unix
+  (progn
+    #+langband-development (pathname "./config/")
+    #-langband-development "/var/lib/games/langband/")
+  #+win32
+  (pathname "c:/cygwin/home/default/langband/config/")
+  #-(or unix win32)
+  (pathname "./config/"))

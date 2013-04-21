@@ -14,138 +14,140 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
   
-  (defstruct (game-obj-table (:conc-name gobj-table.))
-    (obj-table nil)
-    (alloc-table nil)
-    (obj-table-by-lvl nil))
+(defstruct (game-obj-table (:conc-name gobj-table.))
+  (obj-table nil)
+  (alloc-table nil)
+  (obj-table-by-lvl nil))
 
 
-  (defclass variant (activatable)
-    ((id        :accessor variant.id
-		:initform :lithping
-		:initarg :id)
+(defclass variant (activatable)
+  ((id        :accessor variant.id
+	      :initform :lithping
+	      :initarg :id)
    
-     (name      :accessor variant.name
-		:initform "lithping"
-		:initarg :name)
+   (name      :accessor variant.name
+	      :initform "lithping"
+	      :initarg :name)
 
-     (sys-file  :accessor variant.sys-file ;; used for?
+   (sys-file  :accessor variant.sys-file;; used for?
+	      :initform nil
+	      :initarg :sys-file)
+
+   (config-path :accessor variant.config-path;; where is the configuration-files?
 		:initform nil
-		:initarg :sys-file)
+		:initarg :config-path)
 
-     (config-path :accessor variant.config-path ;; where is the configuration-files?
-		  :initform nil
-		  :initarg :config-path)
-
-     ;; the rest can be done lazily
+   ;; the rest can be done lazily
      
-     (races     :accessor variant.races
-		:initform (make-hash-table :test #'equal)
-		:initarg :races)
+   (races     :accessor variant.races
+	      :initform (make-hash-table :test #'equal)
+	      :initarg :races)
    
-     (classes   :accessor variant.classes
+   (classes   :accessor variant.classes
+	      :initform (make-hash-table :test #'equal)
+	      :initarg :classes)
+
+   (turn      :accessor variant.turn
+	      :initform 0
+	      :initarg :turn)
+
+   (turn-events :accessor variant.turn-events
 		:initform (make-hash-table :test #'equal)
-		:initarg :classes)
-
-     (turn      :accessor variant.turn
-		:initform 0
-		:initarg :turn)
-
-     (turn-events :accessor variant.turn-events
-		  :initform (make-hash-table :test #'equal)
-		  :initarg :turn-events)
+		:initarg :turn-events)
 
 
-     ;; a level builder is a constructor that must be funcalled
-     ;; the key is the level-id
-     (level-builders :accessor variant.level-builders
-		     :initform (make-hash-table :test #'equal)
-		     :initarg :level-builders)
+   ;; a level builder is a constructor that must be funcalled
+   ;; the key is the level-id
+   (level-builders :accessor variant.level-builders
+		   :initform (make-hash-table :test #'equal)
+		   :initarg :level-builders)
 
-     (floor-features :accessor variant.floor-features
-		     :initform (make-hash-table :test #'eql)
-		     :initarg :floor-features)
+   (floor-features :accessor variant.floor-features
+		   :initform (make-hash-table :test #'eql)
+		   :initarg :floor-features)
 
-     (room-builders  :accessor variant.room-builders
-		     :initform (make-hash-table :test #'equal)
-		     :initarg :room-builders)
+   (room-builders  :accessor variant.room-builders
+		   :initform (make-hash-table :test #'equal)
+		   :initarg :room-builders)
 
-     (sort-values    :accessor variant.sort-values
-		     :initform (make-hash-table :test #'eql)
-		     :initarg :sort-values)
+   (sort-values    :accessor variant.sort-values
+		   :initform (make-hash-table :test #'eql)
+		   :initarg :sort-values)
      
-     (max-depth      :accessor variant.max-depth
-		     :initform 128
-		     :initarg :max-depth)
+   (max-depth      :accessor variant.max-depth
+		   :initform 128
+		   :initarg :max-depth)
      
-     (max-charlevel  :accessor variant.max-charlevel
-		     :initform 50
-		     :initarg :max-charlevel)
+   (max-charlevel  :accessor variant.max-charlevel
+		   :initform 50
+		   :initarg :max-charlevel)
      
-     (xp-table  :accessor variant.xp-table
-		:initarg :xp-table
-		;; maybe have a default? or maybe not
-		;; it should be an array of size max-charlevel
-		:initform nil)
+   (xp-table  :accessor variant.xp-table
+	      :initarg :xp-table
+	      ;; maybe have a default? or maybe not
+	      ;; it should be an array of size max-charlevel
+	      :initform nil)
 
-     ;; these are just types.. not actual monsters
-     (monsters :accessor variant.monsters
+   ;; these are just types.. not actual monsters
+   (monsters :accessor variant.monsters
+	     :initform (make-hash-table :test #'eq)
+	     :initarg :monsters)
+
+   (objects :accessor variant.objects
+	    :initform (make-hash-table :test #'eq)
+	    :initarg :objects)
+     
+   (filters :accessor variant.filters
+	    :initform (make-hash-table :test #'eq)
+	    :initarg :filters)
+     
+   (flavour-types :accessor variant.flavour-types
+		  :initform nil
+		  :initarg :flavour-types)
+
+   (house-types :accessor variant.house-types
+		:initform (make-hash-table)
+		:initarg :store-types)
+     
+   (house-owners :accessor variant.house-owners
+		 :initform (make-hash-table)
+		 :initarg :store-owners)
+
+   (skill-translations :accessor variant.skill-translations
+		       :initform nil
+		       :initarg :skill-translations)
+
+   (attk-descs :accessor variant.attk-descs
 	       :initform (make-hash-table :test #'eq)
-	       :initarg :monsters)
+	       :initarg :attk-descs)
 
-     (objects :accessor variant.objects
-	      :initform (make-hash-table :test #'eq)
-	      :initarg :objects)
+   (day-length      :accessor variant.day-length
+		    :initarg :day-length
+		    :initform 10000)
      
-     (filters :accessor variant.filters
-	      :initform (make-hash-table :test #'eq)
-	      :initarg :filters)
-     
-     (flavour-types :accessor variant.flavour-types
-		    :initform nil
-		    :initarg :flavour-types)
+   ))
 
-     (house-types :accessor variant.house-types
-		  :initform (make-hash-table)
-		  :initarg :store-types)
-     
-     (house-owners :accessor variant.house-owners
-		   :initform (make-hash-table)
-		   :initarg :store-owners)
-
-     (skill-translations :accessor variant.skill-translations
-			 :initform nil
-			 :initarg :skill-translations)
-
-     (attk-descs :accessor variant.attk-descs
-		 :initform (make-hash-table :test #'eq)
-		 :initarg :attk-descs)
-
-     (day-length      :accessor variant.day-length
-		      :initarg :day-length
-		      :initform 10000)
-     
-     ))
-
-  (defgeneric initialise-monsters& (variant &key &allow-other-keys)
-    (:documentation "Initialises monsters for the given variant."))
+(defgeneric initialise-monsters& (variant &key &allow-other-keys)
+  (:documentation "Initialises monsters for the given variant."))
   
-  (defgeneric initialise-features& (variant &key &allow-other-keys)
-    (:documentation "Initialises features for the given variant."))
+(defgeneric initialise-floors& (variant &key &allow-other-keys)
+  (:documentation "Initialises floors for the given variant."))
   
-  (defgeneric initialise-objects& (variant &key &allow-other-keys)
-    (:documentation "Initialises objects for the given variant."))
+(defgeneric initialise-objects& (variant &key &allow-other-keys)
+  (:documentation "Initialises objects for the given variant."))
 
-  (defgeneric calculate-score (variant player)
-    (:documentation "Calculates the score for the player based on the variant's
+(defgeneric calculate-score (variant player)
+  (:documentation "Calculates the score for the player based on the variant's
 scoring-system."))
 
+(defgeneric variant-data-fname (var-obj data-fname)
+  (:documentation "Returns a fname for a data-file for the variant."))
  
 (defmethod initialise-monsters& (variant &key)
   (error "No INIT-MONSTERS for ~s" (type-of variant)))
   
-(defmethod initialise-features& (variant &key)
-  (error "No INIT-FEATURES for ~s" (type-of variant)))
+(defmethod initialise-floors& (variant &key)
+  (error "No INIT-FLOORS for ~s" (type-of variant)))
 
 (defmethod initialise-objects& (variant &key)
   (error "No INIT-OBJECTS for ~s" (type-of variant)))
@@ -157,7 +159,7 @@ scoring-system."))
 ;;  (warn "Trying to run variant ~a" (variant.name var-obj))
   (setf (get 'variants (variant.id var-obj)) var-obj))
 
-(defun variant-data-fname (var-obj data-fname)
+(defmethod variant-data-fname (var-obj data-fname)
   "Returns a full pathname for data."
   (let ((file-path (variant.config-path var-obj)))
     (if file-path
@@ -192,9 +194,9 @@ scoring-system."))
 ||#
 	     
 
-(defun get-sort-value (key)
+(defun get-sort-value (key &optional (var-obj *variant*))
   "Returns a number for the key, or NIL."
-  (let ((table (variant.sort-values *variant*)))
+  (let ((table (variant.sort-values var-obj)))
     (gethash key table)))
 
 (defun execute-turn-events! (var-obj)
@@ -213,15 +215,6 @@ scoring-system."))
   (push event (gethash wanted-turn (variant.turn-events var-obj))))
 
 
-(defun register-monster-filter! (id filter var-obj)
-  (push (cons id filter)
-	(gethash :monsters (variant.filters var-obj))))
-
-(defun register-object-filter! (id filter var-obj)
-  (push (cons id filter)
-	(gethash :objects (variant.filters var-obj))))
-
-
 ;;(defun get-monster-filters (type var-obj)
 ;;  (gethash type (variant.filters var-obj)))
 
@@ -232,7 +225,7 @@ scoring-system."))
       (funcall (cdr i) var-obj obj))))
 
 (defun register-sorting-values& (var-obj sort-values)
-  "The SORT-VALUES are a list where the CARTS are CONSes. In
+  "The SORT-VALUES are a list where the CARs are CONSes. In
 each such CONS the CAR is an appropriate key and the CDR is
 the sorting-value which is a positive integer, lowest numbers
 are sorted first.  Returns nothing."

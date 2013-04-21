@@ -76,7 +76,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     (if stat-changes
 	(setf (race.stat-changes race) (build-stat-table-from-symlist stat-changes))
-	(setf (race.stat-changes race) #1A(0 0 0 0 0 0)))
+	(setf (race.stat-changes race) (make-stat-array)))
 
     (when abilities
       (setf (race.abilities race) abilities))

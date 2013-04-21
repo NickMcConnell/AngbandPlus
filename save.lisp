@@ -485,7 +485,7 @@ the Free Software Foundation; either version 2 of the License, or
       )))
 
 (defmethod do-save ((type (eql :binary)) fname obj-list)
-
+;;  #-cormanlisp
   (bt:with-binary-file (s (pathname fname)
 			  :direction :output
 			  :if-exists :supersede)
@@ -517,7 +517,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defmethod do-load ((type (eql :binary)) fname obj-type-list)
-
+;;  #-cormanlisp
   (bt:with-binary-file (s (pathname fname)
 			  :direction :input)
     

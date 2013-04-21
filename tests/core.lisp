@@ -17,6 +17,20 @@ DESC: tests/core.lisp - testing code for variant obj
   ()
   (:documentation "Simple (post) fixture for testing a var obj."))
 
+(defun %test-colour-codes ()
+  (flet ((from-letter (x)
+	   (eql x (lb::convert-obj (lb::convert-obj x :colour-code) :letter)))
+	 (from-code (x)
+	   (eql x (lb::convert-obj (lb::convert-obj x :letter) :colour-code))))
+    (and (from-letter #\d)
+	 (from-letter #\w)
+	 (from-letter #\D)
+	 (from-letter #\r)
+	 (from-letter #\u)
+	 (from-code lb::+term-dark+)
+	 (from-code lb::+term-white+)
+	 (from-code lb::+term-yellow+)
+	 )))
 
 (defmethod perform-test ((fix var-fixture))
   
@@ -24,6 +38,7 @@ DESC: tests/core.lisp - testing code for variant obj
 
     ;; do dummy tests with no meaning
     (test-assert (eq nil var-obj)) ;; it really shouldn't have a value
+    (test-assert (eq t (%test-colour-codes)))
     ))
 
 

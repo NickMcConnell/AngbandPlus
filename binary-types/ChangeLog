@@ -1,3 +1,11 @@
+2001-07-27  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.84
+
+	* binary-types.lisp: Removed (superfluous) LET* from
+	DEFINE-BINARY-STRUCT's expansion, so as not to hinder such forms
+	from being proper top-level forms.
+
 2001-07-12  Frode Vatvedt Fjeld  <frodef@acm.org>
 
 	* RELEASE: 0.83

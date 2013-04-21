@@ -42,9 +42,11 @@ the Free Software Foundation; either version 2 of the License, or
 	       ;;(:file "objects")
 	       (:file "rooms")
 	       (:file "levels")
+	       (:file "spells")
 	       (:file "potions")
 	       (:file "scrolls")
 	       (:file "food")
+	       (:file "keys")
 	       )
   :depends-on (langband-engine))
 

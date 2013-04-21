@@ -23,7 +23,9 @@ the Free Software Foundation; either version 2 of the License, or
    clos::*warn-if-gf-already-called* nil
    clos::*gf-warn-on-replacing-method* nil
    system::*source-file-types* '(".lisp" ".lsp")))
-  
+
+#+cormanlisp
+(setq cl::*support-eql-specializers* t)
   
 #+ecl
 (setq sys:*gc-verbose* nil)

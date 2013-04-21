@@ -6,6 +6,8 @@ DESC: config/gcu-keys.lisp - key-definitions for gcu-keys
 
 |#
 
+(in-package :langband)
+
 (define-key-macros #\.
     "\\e[3~")
 

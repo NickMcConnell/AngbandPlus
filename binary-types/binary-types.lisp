@@ -9,8 +9,6 @@
 ;;;; Created at:    Fri Nov 19 18:53:57 1999
 ;;;; Distribution:  See the accompanying file COPYING.
 ;;;;                
-;;;; $Id: binary-types.lisp,v 1.11 2001/07/17 15:48:30 stig Exp $
-;;;;                
 ;;;;------------------------------------------------------------------
 
 (defpackage binary-types
@@ -43,6 +41,8 @@
 	   read-binary-string
 	   ;; record handling
 	   binary-record-slot-names	; [func] list names of binary slots.
+	   binary-slot-value		; [func] get "binary" version of slot's value
+	   binary-slot-type		; [func] get binary slot's binary type
 	   slot-offset			; [func] determine offset of slot.
 	   ;; misc
 	   find-binary-type		; [func] accessor to binary-types namespace
@@ -77,7 +77,7 @@
 ;;; 
 ;;; ----------------------------------------------------------------
 
-(eval-when (compile eval load)
+(eval-when (:compile-toplevel :load-toplevel :execute)
   (deftype endianess ()
     "These are the legal declarations of endianess. The value NIL
 means that the endianess is determined by the dynamic value of *endian*."
@@ -97,7 +97,7 @@ means that the endianess is determined by the dynamic value of *endian*."
 (defun find-binary-type (name &optional (errorp t))
   (or (gethash name *binary-type-namespace*)
       (if errorp
-	  (error "Unable to find binary type ~A." name)
+	  (error "Unable to find binary type named ~S." name)
 	nil)))
 
 (defun (setf find-binary-type) (value name)
@@ -295,12 +295,11 @@ or nil if TYPE is not constant-sized."))
   (write-binary 'u8 stream (char-code object)))
 
 ;;; ----------------------------------------------------------------
-;;;             Padding Type (Implicitly named by integers)
+;;;     Padding Type (Implicitly defined and named by integers)
 ;;; ----------------------------------------------------------------
 
 ;;; The padding type of size 3 octets is named by the integer 3, and
-;;; so on. You may find it useful to have zero-sized padding fields in
-;;; binclasses to emulate "labels".
+;;; so on.
 
 (defmethod sizeof ((type integer)) type)
 
@@ -314,6 +313,7 @@ or nil if TYPE is not constant-sized."))
 
 (defmethod write-binary ((type integer) stream object &key &allow-other-keys)
   (declare (ignore object))
+  (check-type *padding-byte* (unsigned-byte 8))
   (dotimes (i type)
     (write-binary 'u8 stream *padding-byte*))
   type)
@@ -327,6 +327,8 @@ or nil if TYPE is not constant-sized."))
 If SIZE is provided and non-nil, exactly SIZE octets are read, but the returned
 string is still terminated by TERMINATORS. The string and the number of octets
 read are returned."
+  (check-type size (or null (integer 0 *)))
+  (check-type terminators list)
   (assert (or size terminators) (size terminators)
     "Can't read a binary-string without a size limitation nor terminating bytes.")
   (let (bytes-read)
@@ -334,12 +336,12 @@ read are returned."
 	      (loop with string-terminated = nil
 		  for count upfrom 0
 		  until (if size (= count size) string-terminated)
-		  for byte = (funcall *binary-read-byte* stream)
-		  do (cond
-		      ((member byte terminators :test #'=)
-		       (setf string-terminated t))
-		      ((not string-terminated)
-		       (write-char (code-char byte) string)))
+		  do (let ((byte (funcall *binary-read-byte* stream)))
+		       (cond
+			((member byte terminators :test #'=)
+			 (setf string-terminated t))
+			((not string-terminated)
+			 (write-char (code-char byte) string))))
 		  finally (setf bytes-read count)))
 	    bytes-read)))
 
@@ -442,7 +444,7 @@ read are returned."
 
 (defun binary-record-slot-names (type &optional (padding-slots-p nil))
   "Returns a list of the slot-names of TYPE, in sequence."
-  (unless (typep type 'binary-record)
+  (when (symbolp type)
     (setf type (find-binary-type type)))
   (if padding-slots-p
       (mapcar #'record-slot-name (binary-record-slots type))
@@ -451,6 +453,14 @@ read are returned."
 		    nil
 		  (list (record-slot-name slot))))
 	    (binary-record-slots type))))
+
+(defun binary-slot-type (type slot-name)
+  (when (symbolp type)
+    (setf type (find-binary-type type)))
+  (let ((slot (find slot-name (binary-record-slots type) :key #'record-slot-name)))
+    (assert slot (slot-name)
+      "No slot named ~S in binary-type ~S." slot-name type)
+    (record-slot-type slot)))
 
 (defun quoted-name-p (form)
   (and (listp form)
@@ -597,24 +607,23 @@ read are returned."
 				     (declare (ignore options))
 				     (if bintype
 					 (list (make-record-slot :name slot-name
-								   :type bintype))
+								 :type bintype))
 				       nil)))
 				 slot-descriptions))
 	       (slot-types (mapcar #'record-slot-type binslots)))
 	  `(progn
 	     ,@embedded-declarations
-	     (let* ((record-size (loop for s in ',slot-types sum (sizeof s))))
-	       (defstruct ,name-and-options
-		 ,@doc
-		 ,@(mapcar #'parse-slot-description slot-descriptions))
-	       (setf (find-binary-type ',type-name)
-		 (make-instance 'binary-struct
-		   'name ',type-name
-		   'sizeof record-size
-		   'slots ',binslots
-		   'offset 0
-		   'constructor (find-symbol (format nil "~A-~A" '#:make ',type-name))))
-	       ',type-name)))))))
+	     (defstruct ,name-and-options
+	       ,@doc
+	       ,@(mapcar #'parse-slot-description slot-descriptions))
+	     (setf (find-binary-type ',type-name)
+	       (make-instance 'binary-struct
+		 'name ',type-name
+		 'sizeof (loop for s in ',slot-types sum (sizeof s))
+		 'slots ',binslots
+		 'offset 0
+		 'constructor (find-symbol (format nil "~A-~A" '#:make ',type-name))))
+	     ',type-name))))))
 
 
 (defmethod read-binary ((type binary-record) stream &key start stop &allow-other-keys)
@@ -832,6 +841,7 @@ record object."
     (setf type (find-binary-type type)))
   (bitfield-compute-numeric-value type symbolic-value))
 
+
 (defun bitfield-compute-numeric-value (type symbolic-value)
   "Returns the numeric representation of a bitfields symbolic value."
   (etypecase symbolic-value
@@ -871,6 +881,7 @@ record object."
     (values (bitfield-compute-symbolic-value type storage-obj)
 	    num-octets-read)))
   
+
 (defmethod write-binary ((type bitfield) stream symbolic-value &rest key-args)
   (apply #'write-binary
 	 (storage-type type)
@@ -887,7 +898,8 @@ A run-time assertion on the stream's actual element type is performed,
 unless you disable this feature by setting the keyword option :check-stream
 to nil."
   (let ((check-stream (getf key-args :check-stream t))
-	(fwd-key-args (copy-list key-args)))
+	(fwd-key-args (copy-list key-args))
+	)
     ;; This is manual parsing of keyword arguments. We force :element-type
     ;; to (unsigned-byte 8), and remove :check-stream from the arguments
     ;; passed on to WITH-OPEN-FILE.
@@ -895,6 +907,7 @@ to nil."
     ;; #-(and allegro-version>= (version>= 6 0))
     (setf (getf fwd-key-args :element-type) ''(unsigned-byte 8))
     `(with-open-file (,stream-var ,path ,@fwd-key-args)
+      #-cormanlisp
        ,@(when check-stream
 	   `((let ((stream-type (stream-element-type ,stream-var)))
 	       (assert (and (subtypep '(unsigned-byte 8) stream-type)

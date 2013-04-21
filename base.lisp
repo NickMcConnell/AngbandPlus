@@ -28,21 +28,21 @@ the Free Software Foundation; either version 2 of the License, or
     'u-16b
     #-handle-char-as-num
     'character
-    )
+    ))
   
-
+(define-condition langband-quit (condition) ()) 
   
-  (defclass activatable ()
-    ((activated :reader activated? :initform nil))
-    (:documentation "Mixin-class for activatation of objects,
+(defclass activatable ()
+  ((activated :reader activated? :initform nil))
+  (:documentation "Mixin-class for activatation of objects,
 may be removed later for efficiency-reasons.  It enforces a
 protocol that allows activated? to be set automagically after
 a succesful ACTIVATE-OBJECT."))
   
   
-  ;; move me later
-  (defgeneric activate-object (obj &key &allow-other-keys)
-    (:documentation "Most objects in Langband is created lazily.
+;; move me later
+(defgeneric activate-object (obj &key &allow-other-keys)
+  (:documentation "Most objects in Langband is created lazily.
 This means that an object may be created but may not be fully initialised
 and filled with appropriate values right away.  The normal CL/CLOS mechanisms
 deal with the actual creation of the bare object, but non-trivial objects
@@ -50,17 +50,24 @@ should also be \"activated\", ie get proper values on all variables.
 The object in question must be returned, failure to do so may lead to a
 situation where the system assumes the object is invalid."))  
 
-  (defgeneric ok-object? (obj)
-    (:documentation "Checks to make sure the object is ok."))
-  
+(defgeneric ok-object? (obj)
+  (:documentation "Checks to make sure the object is ok."))
 
-  )
+(defgeneric convert-obj (obj to &key &allow-other-keys)
+  (:documentation "Tries to convert the OBJ to the TO form, in pretty
+much the same way as COERCE."))
+
+
 
 ;; some binary types
 (bt:define-unsigned u64 8)
 (bt:define-signed s64 8)
 
 
+(defmethod convert-obj (obj to &key)
+  (error "Conversion from ~s to ~s not implemented." obj to)
+  ;;(coerce obj to)
+  )
 
 (defmethod activate-object (obj &key)
 
@@ -170,6 +177,15 @@ before variant init-functions."
   `(code-char ,num)
   )
 
+(defmacro numberify-char (chr)
+  #+handle-char-as-num
+  chr
+  #-handle-char-as-num
+  `(char-code ,chr)
+  )
+
+
+
 (defun symbolify (data)
   "Returns a symbol in a form which can be understood when reading code."
   (if (eq data nil)
@@ -206,18 +222,19 @@ before variant init-functions."
 (defun rand-range (a b)
   (+ a (random (1+ (- b a)))))
 
-#+cmu
+#+(or cmu lispworks)
 (defsubst int-/ (a b)
 ;;  (declare (type u-fixnum a b))
 ;;  (the u-fixnum
-    (floor a b)
+    (prog1 (floor a b))
 ;;    )
   )
 
-#-cmu
+
+#-(or cmu lispworks)
 (defmacro int-/ (a b)
   "Integer division, as in C."
-  `(the fixnum (floor ,a ,b)))
+  `(prog1 (floor ,a ,b)))
 
 
 
@@ -256,7 +273,7 @@ and NIL if unsuccesful."
 	 nil)))
 
 
-(defun htbl-to-vector (htbl &key sort-table-p sorted-by-key sorted-by-fun fill-pointer)
+(defmethod convert-obj ((htbl hash-table) (to (eql :vector)) &key sort-table-p sorted-by-key sorted-by-fun fill-pointer)
   "Takes a hash-table and returns a vector with the elements."
   
   (let* ((len (hash-table-count htbl))
@@ -353,17 +370,11 @@ and NIL if unsuccesful."
   (code-char (c-inkey!))
   )
   
-
 (defsubst clear-the-screen! ()
   "Clears the screen on the C-side."
   (c-term-clear!)
   #+cmu
   (c-clear-from! 0))
-
-
-;; move me later
-
-;; move me later
 
 (defun compile-in-environment (func)
   (let (
@@ -449,7 +460,8 @@ or load time, ie totally dynamic."
   #+cmu (ext:gc)
   #+allegro (excl:gc t)
   #+clisp (ext:gc)
-  #-(or allegro cmu clisp)
+  #+lispworks (hcl:normal-gc)
+  #-(or allegro cmu clisp lispworks)
   (lang-warn "explicit GC not implemented."))
 
 (defun lang-warn (format-string &rest format-args)

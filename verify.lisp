@@ -52,6 +52,18 @@ the Free Software Foundation; either version 2 of the License, or
 	 (arrayp (player.active-stats player))
 	 (arrayp (player.modbase-stats player))
 
+	 (let ((bstat-table (player.base-stats player))
+	       (cstat-table (player.curbase-stats player))
+	       (mstat-table (player.modbase-stats player))
+	       (astat-table (player.active-stats player)))
+	   
+	   (and (not (eq bstat-table cstat-table))
+		(not (eq bstat-table mstat-table))
+		(not (eq bstat-table astat-table))
+		(not (eq cstat-table mstat-table))
+		(not (eq cstat-table astat-table))
+		(not (eq mstat-table astat-table))))
+	 
 	 )))
 
 (defmethod ok-object? ((obj level))
@@ -72,3 +84,7 @@ the Free Software Foundation; either version 2 of the License, or
        (symbolp (event.type obj))
        ))
  
+(defmethod ok-object? ((obj monster-kind))
+  (and (numberp (monster.level obj))
+       (numberp (monster.rarity obj))
+       (symbolp (monster.id obj))))

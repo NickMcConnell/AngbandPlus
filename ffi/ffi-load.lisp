@@ -27,8 +27,12 @@ the Free Software Foundation; either version 2 of the License, or
   (values))
   
   
-  (defun load-shared-lib (&optional (lib "./zterm/liblangband_ui.so"))
+  (defun load-shared-lib (&key
+			  (lib "./zterm/liblangband_ui.so")
+			  (key :unknown))
     "Loads the necessary shared-lib."
+    #-lispworks
+    (declare (ignore key))
     
     (let ((is-there (probe-file lib)))
       (unless is-there
@@ -43,18 +47,35 @@ the Free Software Foundation; either version 2 of the License, or
     (alien:load-foreign lib)
     #+clisp
     nil
-    #-(or cmu allegro clisp)
+    #+lispworks
+    (fli:register-module key :real-name lib :connection-style :manual)
+    #-(or cmu allegro clisp lispworks)
     (warn "Did not load shared-library.."))
   
   )
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
-  (let ((lib-path #+langband-development "./zterm/"
-		  #-langband-development "/usr/lib/"))
+  (let ((lib-path "./zterm/"))
 
-    #-cmu
-    (load-shared-lib (concatenate 'string lib-path "liblangband_dc.so"))
-    ;; everyone
-    (load-shared-lib (concatenate 'string lib-path "liblangband_ui.so"))
-    ))
+    #+unix
+    (progn
+      (setq lib-path
+	    #+langband-development "./zterm/"
+	    #-langband-development "/usr/lib/"))
+    #+win32
+    (progn
+      ;; hack
+      (setq lib-path "c:/cygwin/home/default/langband/zterm/"))
+
+    #+unix
+    (progn
+      #-cmu
+      (load-shared-lib :key :dc :lib (concatenate 'string lib-path "liblangband_dc.so"))
+      ;; everyone
+      (load-shared-lib :key :lang-ffi :lib (concatenate 'string lib-path "liblangband_ui.so")))
+    #+win32
+    (progn
+      (load-shared-lib :key :lang-ffi :lib (concatenate 'string lib-path "liblangband_ui.dll"))
+      
+    )))
 

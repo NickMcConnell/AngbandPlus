@@ -32,7 +32,7 @@ ADD_DESC: at the start.
       ;; make a shuffled vector of the flavour-htbl
 	  
       (let* ((flavour-htbl (flavour-type.table x))
-	     (flavour-array (htbl-to-vector flavour-htbl :fill-pointer t))
+	     (flavour-array (convert-obj flavour-htbl :vector :fill-pointer t))
 	     (len (hash-table-count flavour-htbl)))
 
 	(cond ((> len 0)
@@ -198,7 +198,7 @@ ADD_DESC: at the start.
     (string obj)
     (symbol (symbol-name obj))))
 
-(defun game-init& (&optional (ui "x11"))
+(defun game-init& (&optional (ui #+win32 "win" #-win32 "x11"))
   "This function should be called from the outside to
 start the whole show.  It will deal with low-level and
 call appropriately high-level init in correct order."
@@ -239,22 +239,30 @@ call appropriately high-level init in correct order."
     (setf *current-key-table* *ang-keys*))
 
   ;; time to register our lisp
-  #+(or cmu allegro clisp)
-  (c-set-lisp-system! #+cmu 0 #+allegro 1 #+clisp 2)
+  #+(or cmu allegro clisp lispworks)
+  (c-set-lisp-system! #+cmu 0 #+allegro 1 #+clisp 2 #+lispworks 3)
   
-  #-(or cmu allegro clisp)
+  #-(or cmu allegro clisp lispworks)
   (error "lisp-system ~s unknown for C-side." (lisp-implementation-type))
+
+  #+(and lispworks win32)
+  (c-set-hinst! (win32:get-active-window))
+;;  (c-set-hinst! (win32:get-window-long (win32:get-active-window) -6))
   
   #+use-callback-from-c
   (arrange-callback)
 
-  (init-c-side& (%to-a-string ui)
-		(namestring *engine-config-dir*)
-		0) ;; no debug
-  
-  ;;(warn "return..")
-  #-use-callback-from-c
-  (play-game&)
+  (handler-case
+      (progn
+	(init-c-side& (%to-a-string ui)
+		      (namestring *engine-config-dir*)
+		      0) ;; no debug
+	
+	;;(warn "return..")
+	#-use-callback-from-c
+	(play-game&))
+    (langband-quit ()
+      (format t "~&Thanks for helping to test Langband.~2%")))
   
   )))
 
@@ -275,13 +283,13 @@ call appropriately high-level init in correct order."
   )
 
 ;;; hackish thing to start the game ever so long.
-(defun a (&optional (ui "x11"))
+(defun a (&optional (ui #+win32 "win" #-win32 "x11"))
   ;; to make sure dumps look pretty
   (let ((*package* (find-package :langband))
 	#+cmu (extensions:*gc-verbose* nil)
 	#+cmu (*compile-print* nil)
 	)
     (game-init& ui)
-    (format t "~&Thanks for helping to test Langband.~2%")
+;;    (format t "~&Thanks for helping to test Langband.~2%")
     ))
 

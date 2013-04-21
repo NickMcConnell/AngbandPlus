@@ -1,8 +1,5 @@
 ;;; -*- Mode: Lisp -*-
 
-#+CLISP
-(in-package :user)
-#-CLISP
 (in-package :cl-user)
 
 ;;; System definition
@@ -19,7 +16,8 @@
 			  :source-pathname ""
 			  :components ((:file "package")
 				       (:file "base"
-					      :depends-on ("package"))))
+					      :depends-on ("package"))
+				       (:file "equal"))
 		 (:module usual
 			  :source-pathname ""
 			  :components ((:file "core")
@@ -30,6 +28,7 @@
 				       (:file "save")
 				       (:file "ffi")
 				       (:file "format")
+				       (:file "monster")
 				       )
 			  :depends-on (basic))
 		 ))

@@ -829,8 +829,11 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 {
 	term_data *td = (term_data *)(Term->data);
 
-	int i, pic;
-
+	int i;
+#ifdef USE_GRAPHICS
+	int pic;
+#endif
+	
 #ifdef A_COLOR
 	/* Set the color */
 	if (can_use_color) wattrset(td->win, colortable[a & 0x0F]);
@@ -942,27 +945,27 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
  */
 errr init_gcu(int argc, char *argv[])
 {
-	int i;
+    int i = 0 * argc;
 
-	int num_term = MAX_TERM_DATA, next_win = 0;
+    int num_term = MAX_TERM_DATA, next_win = 0;
 
-	/* Extract the normal keymap */
-	keymap_norm_prepare();
+    /* Extract the normal keymap */
+    keymap_norm_prepare();
 
 
 #if defined(USG)
-	/* Initialize for USG Unix */
-	if (initscr() == NULL) return (-1);
+    /* Initialize for USG Unix */
+    if (initscr() == NULL) return (-1);
 #else
-	/* Initialize for other systems */
-	if (initscr() == (WINDOW*)ERR) return (-1);
+    /* Initialize for other systems */
+    if (initscr() == (WINDOW*)ERR) return (-1);
 #endif
-
-	/* Require standard size screen */
-	if ((LINES < 24) || (COLS < 80))
-	{
-		quit("Angband needs at least an 80x24 'curses' screen");
-	}
+    
+    /* Require standard size screen */
+    if ((LINES < 24) || (COLS < 80))
+    {
+	quit("Angband needs at least an 80x24 'curses' screen");
+    }
 
 
 #ifdef USE_GRAPHICS
@@ -1135,6 +1138,12 @@ errr init_gcu(int argc, char *argv[])
 	return (0);
 }
 
+errr
+cleanup_GCU(void) {
+
+    Term_xtra_gcu_alive(0);
+    return 0;
+}
 
 #endif /* USE_GCU */
 

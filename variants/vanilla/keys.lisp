@@ -2,7 +2,7 @@
 
 #|
 
-DESC: lib/common/keys.lisp - assignment of keys
+DESC: variants/vanilla/keys.lisp - assignment of keys
 Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
@@ -14,7 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
-(defvar *ang-keys* (define-key-table "angband"))
 
 (setf *current-key-table* *ang-keys*)
 
@@ -198,6 +197,18 @@ the Free Software Foundation; either version 2 of the License, or
 	(print-key-table (gethash :global *ang-keys*)
 			 "table.keys")))
 
+(define-key-operation 'wamp-monsters
+    #'(lambda (dun pl)
+	(declare (ignore dun pl))
+	(dump-features "dumps/feat.list")
+	(dump-monsters "dumps/mon.list" (get-all-monsters))
+	(dump-objects "dumps/obj.list")
+	))
+
+(define-key-operation 'break-game
+    #'(lambda (dun pl)
+	(declare (ignore dun pl))
+	(break)))
 
 (define-keypress *ang-keys* :global #\d 'drop-item)
 (define-keypress *ang-keys* :global #\e 'show-equipment)
@@ -226,6 +237,8 @@ the Free Software Foundation; either version 2 of the License, or
 ;; these can die later..
 (define-keypress *ang-keys* :global #\T 'print-map)
 (define-keypress *ang-keys* :global #\P 'print-map-as-ppm)
+(define-keypress *ang-keys* :global #\F 'wamp-monsters)
+(define-keypress *ang-keys* :global #\B 'break-game)
 
 (define-keypress *ang-keys* :global #\. 'stand-still)
 (define-keypress *ang-keys* :global #\1 'move-down-left)

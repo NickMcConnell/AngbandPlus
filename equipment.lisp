@@ -15,43 +15,41 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.engine)
 
 
-  (defclass item-table ()
-    ((cur-size :accessor items.cur-size :initarg :cur-size :initform 0))
-    (:documentation "abstract interface for all item-tables."))
+(defclass item-table ()
+  ((cur-size :accessor items.cur-size :initarg :cur-size :initform 0))
+  (:documentation "abstract interface for all item-tables."))
 
-  (defclass items-on-floor (item-table)
-    ((obj-list :accessor items.objs
-	       :initform nil)
-     (dungeon  :accessor items.dun
-	       :initarg :dungeon
-	       :initform nil)
-     (loc-x    :accessor location-x
-	       :initarg :loc-x
-	       :initform +illegal-loc-x+) ;; invalid value
-     (loc-y    :accessor location-y
-	       :initarg :loc-y
-	       :initform +illegal-loc-y+))
+(defclass items-on-floor (item-table)
+  ((obj-list :accessor items.objs
+	     :initform nil)
+   (dungeon  :accessor items.dun
+	     :initarg :dungeon
+	     :initform nil)
+   (loc-x    :accessor location-x
+	     :initarg :loc-x
+	     :initform +illegal-loc-x+);; invalid value
+   (loc-y    :accessor location-y
+	     :initarg :loc-y
+	     :initform +illegal-loc-y+))
     
-    (:documentation "Represents the items on the floor."))
+  (:documentation "Represents the items on the floor."))
 
-  (defclass items-in-container (item-table)
-    ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil)
-     (max-size :accessor items.max-size :initarg :max-size :initform 5))
-    (:documentation "A container for other objects, ie a backpack."))
+(defclass items-in-container (item-table)
+  ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil)
+   (max-size :accessor items.max-size :initarg :max-size :initform 5))
+  (:documentation "A container for other objects, ie a backpack."))
 
-  (defclass items-worn (item-table)
-    ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil))
-    (:documentation "What is worn."))  
+(defclass items-worn (item-table)
+  ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil))
+  (:documentation "What is worn."))  
 
-  (defclass items-in-house (items-in-container)
-    ((max-size :initform 24))
-    (:documentation "What is in a house."))
+(defclass items-in-house (items-in-container)
+  ((max-size :initform 24))
+  (:documentation "What is in a house."))
   
-  (defclass items-in-store (items-in-house)
-    ()
-    (:documentation "What is in a store."))
-
-
+(defclass items-in-store (items-in-house)
+  ()
+  (:documentation "What is in a store."))
 
 
 (defgeneric item-table-add!       (table obj &optional key))  
@@ -66,8 +64,13 @@ the table, the key and the object itself."))
 (defgeneric item-table-verify-key (table key)
   (:documentation "Returns T when key is OK, and NIL when it is not."))
 
-(defgeneric item-table-print (table &key show-pause start-x start-y)
+(defgeneric item-table-print (table &key show-pause start-x start-y &allow-other-keys)
   (:documentation "Returns T when key is OK, and NIL when it is not."))
+
+(defgeneric item-table-more-room? (table &optional obj)
+  (:documentation "Returns T if there is room for OBJ, NIL if there is not.
+If OBJ is not supplied it checks if there is more room in general.  If OBJ
+is supplied, stacking-rules will also be checked."))
 
 ;;; -----------------------------
 
@@ -110,8 +113,10 @@ the table, the key and the object itself."))
   (declare (ignore show-pause start-x start-y))
   (warn "[Printing not implemented for table ~s]" table))
 
-
-
+(defmethod item-table-more-room? (table &optional obj)
+  (declare (ignore obj))
+  (warn "[MORE-ROOM? isn't implemented for table ~s]" table)
+  nil)
 
 ;;; ----------------------------
 ;; backpack
@@ -147,8 +152,20 @@ the table, the key and the object itself."))
 		      (decf (items.cur-size table))
 		      old-obj))))
 	   ))
+	((typep key 'active-object)
+	 (loop for i from 0
+	       for x across (items.objs table)
+	       do
+	       (when (eq key x)
+		 (return-from item-table-remove!
+		   (item-table-remove! table i
+				       :only-single-items only-single-items))))
+	 (warn "[Object ~a not found when removing from container]"
+	       key)
+	 nil)
+	 
 	(t
-	 (warn "illegal key ~a" key)
+	 (warn "[illegal key ~a when removing from container]" key)
 	 nil)))
 
 (defmethod item-table-clean! ((table items-in-container))
@@ -160,18 +177,35 @@ the table, the key and the object itself."))
   nil)
 
 (defmethod item-table-find ((table items-in-container) key)
-  (when (item-table-verify-key table key)
-    (let ((key-as-num (typecase key
-			(character (a2i key))
-			(number key)
-			(otherwise nil))))
-      (when key-as-num
-	(aref (items.objs table) key-as-num)))))
+  (cond ((item-table-verify-key table key)
+	 (let ((key-as-num (typecase key
+			     (character (a2i key))
+			     (number key)
+			     (otherwise nil))))
+	   (when key-as-num
+	     (aref (items.objs table) key-as-num))))
+	((typep key 'active-object)
+	 (find key (items.objs table)))
+	(t nil)))
 
 (defun stackable? (obj-a obj-b)
   "checks if two objects are stackable.. hackish still."
-  (equal (object.sort-value (aobj.kind obj-a))
-	 (object.sort-value (aobj.kind obj-b))))
+  (and obj-a obj-b
+       (equal (object.sort-value (aobj.kind obj-a))
+	      (object.sort-value (aobj.kind obj-b)))))
+
+(defun %equip-stacking (table)
+  (loop for i from 0
+	for x across (items.objs table)
+	with prev = nil
+	do
+;;	(warn "comparing ~s ~s -> ~s" x prev (stackable? x prev))
+	(when (stackable? x prev)
+	  (incf (aobj.number prev) (aobj.number x))
+	  (item-table-remove! table i)
+	  (return-from %equip-stacking nil))
+	(setf prev x))
+  t)
 
 (defmethod item-table-sort! ((table items-in-container) sorter)
   (declare (ignore sorter))
@@ -183,18 +217,12 @@ the table, the key and the object itself."))
 					       (if x
 						   (object.sort-value (aobj.kind x))
 						   0))
-				      )))
-  #||
-  (loop for i from 0
-	for x across (items.objs table)
-	do
-	(when (and x (< i (1- (items.max-size table))))
-	  (let ((next (aref (items.objs table) (1+ i))))
-	    (when (and next (stackable? x next))
-	      (incf (aobj.number x))
-	      (item-table-remove! table (1+ i))))))
-  ||#
-
+				      ))
+  
+  (loop
+   (let ((stacking-done (%equip-stacking table)))
+     (when stacking-done
+       (return-from item-table-sort! nil)))))
   
 
 (defmethod item-table-iterate! ((table items-in-container) function)
@@ -213,12 +241,11 @@ the table, the key and the object itself."))
 
     (flet ((iterator-fun (a-table key val)
 	     (declare (ignore a-table key))
-	     (c-prt! "" (+ i y) (- x 2))
-	     (c-put-str! (format nil "~a) ~a" (i2a i)
-				(description val))
-			(+ i y) x)
-	   
-	     (incf i)))
+	     (let ((attr (get-attribute val)))
+	       (c-prt! "" (+ i y) (- x 2))
+	       (c-col-put-str! +term-white+ (format nil "~a) " (i2a i)) (+ i y) x)
+	       (c-col-put-str! attr (description val) (+ i y) (+ x 4))
+	       (incf i))))
       
     (item-table-iterate! table #'iterator-fun)
     
@@ -226,6 +253,10 @@ the table, the key and the object itself."))
       (c-pause-line! *last-console-line*))
 
     )))
+
+(defmethod item-table-more-room? ((table items-in-container) &optional obj)
+  (declare (ignore obj))
+  (< (items.cur-size table) (items.max-size table)))
 
 
 (defmethod print-object ((inst items-in-container) stream)
@@ -356,14 +387,17 @@ to variant obj."
 
     (flet ((iterator-fun (a-table key val)
 	     (declare (ignore a-table key))
-	     (c-prt! "" (+ i y) (- x 2))
-	     (c-put-str! (format nil "~a) ~13a : ~a" (i2a i)
-				 (get (aref *equip-slot-order* i) 'description)
-				 (if val
-				     (description val)
-				     "(nothing)"))
-			 (+ i y) x)
-	     (incf i)))
+	     (let ((attr (if val (get-attribute val) +term-white+)))
+	       (c-prt! "" (+ i y) (- x 2))
+	       (c-col-put-str! +term-white+ (format nil "~a) ~13a : " (i2a i)
+						    (get (aref *equip-slot-order* i) 'description))
+			       (+ i y) x)
+	       (c-col-put-str! attr (format nil "~a"
+					    (if val
+						(description val)
+						"(nothing)"))
+			       (+ i y) (+ x 20))
+	       (incf i))))
       
     (item-table-iterate! table #'iterator-fun)
     
@@ -371,6 +405,13 @@ to variant obj."
       (c-pause-line! *last-console-line*))
 
     )))
+
+(defmethod item-table-more-room? ((table items-worn) &optional obj)
+  (declare (ignore obj))
+  ;; this one is sortof complex, postpone
+  nil)
+
+
 
 ;;; ----------------------------
 
@@ -396,3 +437,4 @@ to variant obj."
 
 ;;(trace make-container)
 ;;(trace make-floor-container)
+

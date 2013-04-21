@@ -40,12 +40,14 @@ ADD_DESC: Most of the code which deals with keyboard input.
 (defun define-key-table (name)
   "Returns a key-table."
   (declare (ignore name))
-  (make-hash-table :test #'eq))
+  (make-hash-table :test #'eql))
 
 (defun make-inner-key-table ()
-  (make-hash-table :test #'eq))
+  (make-hash-table :test #'eql))
+
 
 (defvar *current-key-table* nil)
+(defvar *ang-keys* (define-key-table "angband"))
 
 (defun define-keypress (key-table where key operation)
   "Defines a keypress and ties it to the appropriate
@@ -105,7 +107,8 @@ operation."
 (defun open-all! (dun pl)
   "opens all doors around.."
   (let ((x (location-x pl))
-	(y (location-y pl)))
+	(y (location-y pl))
+	(collected '()))
     
     (dolist (i (list (cons x (1- y))
 		     (cons x (1+ y))

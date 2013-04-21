@@ -76,7 +76,7 @@ the Free Software Foundation; either version 2 of the License, or
 		     (setf (monster.symbol cur-monster) (schar (cadr res) 0))
 		     ;; the third is the colour
 		     (setf (monster.colour cur-monster)
-			   (get-colour-code-from-letter (schar (caddr res) 0)))
+			   (convert-obj (schar (caddr res) 0) :colour-code))
 		     )))
 
 		;; Info
@@ -532,3 +532,5 @@ the Free Software Foundation; either version 2 of the License, or
 
       )))
 
+
+(pushnew :compatibility-monsters cl:*features*)

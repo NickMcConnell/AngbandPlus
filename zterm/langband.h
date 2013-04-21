@@ -1,6 +1,19 @@
 #ifndef LANGBAND_H
 #define LANGBAND_H
 
+
+
+#ifdef WIN32
+/* angband.h included earlier with these defs */
+#ifndef INCLUDED_H_TYPE_H
+typedef unsigned char byte;
+typedef const char *cptr;
+typedef int errr;
+typedef char bool;
+#endif
+#endif /* win32 */
+
+
 #ifdef USE_SOUND
 
 typedef struct {
@@ -23,20 +36,6 @@ sound_init (void);
 
 #endif /* use_sound */
 
-typedef enum {
-    LISPSYS_CMUCL = 0,
-    LISPSYS_ACL   = 1,
-    LISPSYS_CLISP = 2,
-    LISPSYS_BAD   = 10
-} LISP_SYSTEMS;
 
-/* lisp-related stuff */
-void play_game_lisp();
-void set_lisp_system(LISP_SYSTEMS val);
-void set_lisp_callback(void *ptr);
-
-/** will we access lisp through callbacks? */
-extern int lisp_will_use_callback;
-extern LISP_SYSTEMS current_lisp_system;
 
 #endif /* langband_h */

@@ -84,7 +84,7 @@
     equipment handling, shops, etc. </p>
 
     <p>The variant object is available to the engine and it's own code
-    in the global dynamical variable <code>*VARIABLE*</code>, just as
+    in the global dynamical variable <code>*VARIANT*</code>, just as
     the player object is available in the <code>*PLAYER*</code>
     variable. </p>
 
@@ -114,10 +114,83 @@
     </table>
 
     <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0D0F0">
+      
+      <tr valign=top><td>
+	  <h2>Variant object</h2>
+	  <table>
+	    <tr valign=top><td>Slot</td><td>Structure</td></tr>
+	    <tr><td>attk-descs</td><td>EQ hash-table, symbol ->
+	    description</td></tr>
+	    <tr><td>skill-translations</td><td>association list, (from
+	    . to) </td></tr>
+	    <tr><td>house-owners</td><td>EQL hash-table</td></tr>
+	    <tr><td>house-types</td><td>EQL hash-table</td></tr>
+	    <tr><td>flavour-types</td><td>list of structs
+	    (FLAVOUR-TYPE)</td></tr>
+	    <tr><td>filters</td><td>EQ hash-table</td></tr>
+	    <tr><td>objects</td><td>EQ hash-table (see monsters)</td></tr>
+	    <tr><td>monsters</td><td>EQ hash-table, symbols ->
+	    struct game-obj-table </td></tr>
+	    <tr><td>xp-table</td><td>array with positive integers</td></tr>
+	    <tr><td>max-charlevel</td><td>positive fixnum</td></tr>
+	    <tr><td>max-depth</td><td>positive fixnum</td></tr>
+	  </table>
+
+	  <b>Other slots:</b><br>
+<pre>
+ SORT-VALUES           #&lt;EQL hash table, 35 entries {486D439D}>
+ ROOM-BUILDERS         #&lt;EQUAL hash table, 2 entries {486D43DD}>
+ FLOOR-FEATURES        #&lt;EQL hash table, 64 entries {486D441D}>
+ LEVEL-BUILDERS        #&lt;EQUAL hash table, 2 entries {486D445D}>
+ TURN-EVENTS           #&lt;EQUAL hash table, 0 entries {486D449D}>
+ TURN                  138
+ CLASSES               #&lt;EQUAL hash table, 6 entries {486D44DD}>
+ RACES                 #&lt;EQUAL hash table, 10 entries {486D451D}>
+ CONFIG-PATH           "./variants/vanilla/config"
+ SYS-FILE              "./variants/vanilla/langband-vanilla.system"
+ NAME                  "Vanilla"
+ ID                    LANGBAND-VANILLA
+ TWILIGHT-TIME         6000
+ DAWN-TIME             0
+</pre>
+
+	  <b>Filter-table:</b><br>
+	  <pre>
+{:OBJECTS} -> {((LEVEL
+                  . #&lt;Function "DEFMETHOD ACTIVATE-OBJECT :BEFORE (VANILLA-VARIANT)"
+                      {4836FC69}>))}
+{:MONSTERS} -> {((TOWN-LEVEL
+                  . #&lt;Function "DEFMETHOD ACTIVATE-OBJECT :BEFORE (VANILLA-VARIANT)"
+                      {4836F959}>)
+                 (RANDOM-LEVEL
+                  . #&lt;Function "DEFMETHOD ACTIVATE-OBJECT :BEFORE (VANILLA-VARIANT)"
+                      {4836FAE1}>))}
+	  </pre>
+	  
+	</td></tr>
+    </table>
+    
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0D0F0">
+      
+      <tr valign=top><td>
+	  
+	  <h2>Langband statistics [CVS 17th july]</h2>
+	  <ul>
+	    <li> 49 classes + 11 structs
+	    <li> 50 generic functions (with 254 methods)
+	    <li> 436 functions
+	    <li> 38 macros
+	    <li> 45 dynamic variables
+	    <li> 208 constants
+	  </ul>
+	</td></tr>
+    </table>
+    
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0D0F0">
 
     <tr valign=top><td>
 
-    <h2>Langband symbols</h1>
+    <h2>Langband symbols</h2>
 
     <p>This is an attempt to list certain symbols that one should be
     careful about manipulating, as they're used by the engine
@@ -139,7 +212,7 @@
 
     <tr valign=top><td>
     
-    <h2>Langband events</h1>
+    <h2>Langband events</h2>
 
 	  <p>[Please rewrite]</p>
     <p>This is an attempt to list known events that are triggered and

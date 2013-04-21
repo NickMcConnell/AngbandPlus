@@ -6,6 +6,8 @@ DESC: config/x11-keys.lisp - key-definitions for x11-keys
 
 |#
 
+(in-package :langband)
+
 (define-key-macros #\0
     "^__FFB0\\r"
   "^__FF63\\r"

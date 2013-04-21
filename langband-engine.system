@@ -26,10 +26,13 @@ the Free Software Foundation; either version 2 of the License, or
   #+(or cmu clisp)
   (pushnew :handle-char-as-num *features*)
 
-  #+(or cmu allegro)
+  #+(or cmu allegro lispworks)
   (pushnew :enough-support-for-langband *features*)
   #+(and clisp langband-development) ;; clisp not ready in debian yet
   (pushnew :enough-support-for-langband *features*)
+
+  #-langband-development
+  (pushnew :hide-warnings *features*)
   
   #+cmu
   (pushnew :compiler-that-inlines *features*)
@@ -62,6 +65,8 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "ffi-cmu")
 			   #+allegro
 			   (:file "ffi-acl")
+			   #+lispworks
+			   (:file "ffi-lw")
 			   #+clisp
 			   (:file "ffi-clisp"))
 	      :depends-on (decl))
@@ -98,24 +103,8 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "util")
 			   (:file "combat")
 			   (:file "keys")
-			   (:file "actions"))
-	      :depends-on (foreign)
-	      )
-     
-     (:module common
-	      :source-pathname "lib/common/"
-              :components ((:file "parameters")
-			   (:file "objects")
-			   (:file "quirks")
-			   (:file "rooms")
-			   (:file "keys"))
-
-	      :depends-on (basic))
-
-     (:module execution
-	      :source-pathname ""
-	      :components ((:file "view")
-			   (:file "checking")
+			   (:file "actions")
+			   (:file "view")
 			   (:file "save")
 			   (:file "load")
 			   (:file "death")
@@ -128,17 +117,18 @@ the Free Software Foundation; either version 2 of the License, or
 			   ;; hack
 ;;			   (:file "variants/vanilla/base")
 			   )
-              :depends-on (common))
-     
+	      :depends-on (foreign))
+
+     #||
      ;; compatibility with classic angband, remove later
      
      (:module compatibility
 	      :source-pathname "lib/compat/"
-              :components ((:file "monster")
+              :components (;;(:file "monster")
 			   (:file "obj-kind")
-			   (:file "floor")
+			   ;;(:file "floor")
 			   ))
-
+     ||#
      )
     
     :depends-on (#-langband-development

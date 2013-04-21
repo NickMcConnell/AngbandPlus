@@ -16,6 +16,12 @@ errr init_x11(int argc, char **argv);
 errr init_gcu(int argc, char **argv);
 #endif
 
+#if defined(USE_WIN)
+errr voff_win();
+#endif
+
+void handle_stuff(void);
+
 /** defaults to true as cmucl is default */
 int lisp_will_use_callback = 1;
 
@@ -24,6 +30,19 @@ LISP_SYSTEMS current_lisp_system = LISPSYS_BAD;
 
 /** the base path for config files */
 const char *base_config_dir = "./";
+
+int which_ui_used = -1;
+
+int been_run_earlier = 0;
+
+/** quick_messages? */
+bool quick_messages = TRUE;
+
+/** make -more- simple? */
+bool auto_more = FALSE;
+
+/** freshen output after dumping stuff? */
+bool fresh_after = TRUE;
 
 /**
  * Hack -- take notes on line 23
@@ -47,35 +66,7 @@ static void note(cptr str)
  */
 void exit_game_panic(void)
 {
-    /* If nothing important has happened, just quit */
-    if (!character_generated || character_saved) quit("panic");
 
-	/* Mega-Hack -- see "msg_print()" */
-    msg_flag = FALSE;
-
-    /* Clear the top line */
-    prt("", 0, 0);
-
-    /* Hack -- turn off some things */
-    disturb(1, 0);
-
-    /* Hack -- Delay death XXX XXX XXX */
-    if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;
-
-    /* Hardcode panic save */
-    p_ptr->panic_save = 1;
-
-    /* Forbid suspend */
-    signals_ignore_tstp();
-
-    /* Indicate panic save */
-    strcpy(p_ptr->died_from, "(panic save)");
-
-    /* Panic save, or get worried */
-    if (!save_player()) quit("panic save failed!");
-
-    /* Successful panic save */
-    quit("panic save succeeded!");
 }
 
 
@@ -118,11 +109,7 @@ save_player(void) {
     return 0;
 }
 
-
-int which_ui_used = -1;
-
 int current_ui() { return which_ui_used; }
-
 
 errr
 init_c_side(const char *ui, const char *basePath, int debugging_level) {
@@ -134,6 +121,8 @@ init_c_side(const char *ui, const char *basePath, int debugging_level) {
     // leak
     int argc = 1;
     char **argv = malloc(100);
+
+    
     argv[0] = "langband";
     argv[1] = NULL;
 
@@ -141,6 +130,13 @@ init_c_side(const char *ui, const char *basePath, int debugging_level) {
 	ui = "X11";
     }
 
+    {
+        FILE *foo;
+//    foo = fopen("c:/tmp/lang-err.txt","w");
+//	foo = stderr;
+//	fprintf(foo,"C-side.. %s %s %d\n", ui, basePath, debugging_level);
+//    fclose(foo);
+    }
     if (basePath && (strlen(basePath)>0)) {
 	base_config_dir = basePath;
     }
@@ -152,31 +148,37 @@ init_c_side(const char *ui, const char *basePath, int debugging_level) {
 	wanted_ui = default_mode;
     }
     else if (!strcmp(ui, "X11") ||
-	!strcmp(ui, "x11") ||
-	!strcmp(ui, "X")) {
+	     !strcmp(ui, "x11") ||
+	     !strcmp(ui, "X")) {
 	wanted_ui = 0;
     }
     else if (!strcmp(ui, "gcu") ||
-	  !strcmp(ui, "curses") ||
-	  !strcmp(ui, "GCU")) {
+	     !strcmp(ui, "curses") ||
+	     !strcmp(ui, "GCU")) {
 	wanted_ui = 1;
     }
     else if (!strcmp(ui, "gtk") ||
-	  !strcmp(ui, "gtk+") ||
-	  !strcmp(ui, "GTK")) {
+	     !strcmp(ui, "gtk+") ||
+	     !strcmp(ui, "GTK")) {
 	wanted_ui = 2;
     }
+    else if (!strcmp(ui, "win") ||
+	     !strcmp(ui, "Win") ||
+	     !strcmp(ui, "WIN")) {
+	wanted_ui = 3;
+    }
+				     
     else {
 	fprintf(stderr, "Unable to find compatible UI with spec '%s'\n", ui);
 	return -1;
     }
 
-    if (wanted_ui >= 0 && wanted_ui <= 2) {
+    if (wanted_ui >= 0 && wanted_ui <= 3) {
 
     }
     else {
 	fprintf(stderr, "The UI-value is set to an illegal value: %d\n", wanted_ui);
-	return -1;
+	return -2;
     }
 
     
@@ -222,6 +224,13 @@ init_c_side(const char *ui, const char *basePath, int debugging_level) {
     }
 #endif
 
+#if defined (USE_WIN)
+    else if (wanted_ui == 3) {
+	which_ui_used = 3;
+	init_win();
+    }
+#endif
+    
     else {
 	if (!possible_to_go_X && (wanted_ui == 0 || wanted_ui == 2)) {
 	    fprintf(stderr, "Wanted an X-dependent UI, but unable to find X (no DISPLAY env).\n");
@@ -229,13 +238,17 @@ init_c_side(const char *ui, const char *basePath, int debugging_level) {
 	else {
 	    fprintf(stderr,"Unable to find a suitable UI to use [%s,%d].\n", ui, wanted_ui);
 	}
-	return -1;
+	return -10 - wanted_ui;
     }
-	
+
+//    printf("late init..\n");
+    
 #if defined(USE_X11) || defined(USE_GCU)
     /* Initialize */
     init_angband();
+//    printf("i a\n");
     pause_line(23);
+//    printf("o a\n");
     play_game(TRUE);
 #endif
 
@@ -280,8 +293,10 @@ init_angband(void) {
     /* Flush it */
     Term_fresh();
 
+//    puts("mac i");
     macro_init();
-
+    message_init();
+//    puts("/mac i");
 #ifdef USE_X11
 //	process_pref_file("./lib/file/user.prf");
 //	puts("prof..");
@@ -292,387 +307,11 @@ init_angband(void) {
 }
 
 
-/*
- * Global array for converting numbers to uppercase hecidecimal digit
- * This array can also be used to convert a number to an octal digit
- */
-char hexsym[16] = {
-    '0', '1', '2', '3', '4', '5', '6', '7',
-    '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-};
-
 
 void window_stuff(void) {
 
-    printf("window stuff\n");
+//    printf("window stuff\n");
 
-}
-
-
-#ifdef HANDLE_SIGNALS
-
-
-#include <signal.h>
-
-
-/*
- * Handle signals -- suspend
- *
- * Actually suspend the game, and then resume cleanly
- */
-static void handle_signal_suspend(int sig)
-{
-    /* Disable handler */
-    (void)signal(sig, SIG_IGN);
-
-#ifdef SIGSTOP
-
-    /* Flush output */
-    Term_fresh();
-
-    /* Suspend the "Term" */
-    Term_xtra(TERM_XTRA_ALIVE, 0);
-
-    /* Suspend ourself */
-    (void)kill(0, SIGSTOP);
-
-    /* Resume the "Term" */
-    Term_xtra(TERM_XTRA_ALIVE, 1);
-
-    /* Redraw the term */
-    Term_redraw();
-
-    /* Flush the term */
-    Term_fresh();
-
-#endif
-
-    /* Restore handler */
-    (void)signal(sig, handle_signal_suspend);
-}
-
-
-/*
- * Handle signals -- simple (interrupt and quit)
- *
- * This function was causing a *huge* number of problems, so it has
- * been simplified greatly.  We keep a global variable which counts
- * the number of times the user attempts to kill the process, and
- * we commit suicide if the user does this a certain number of times.
- *
- * We attempt to give "feedback" to the user as he approaches the
- * suicide thresh-hold, but without penalizing accidental keypresses.
- *
- * To prevent messy accidents, we should reset this global variable
- * whenever the user enters a keypress, or something like that.
- */
-static void handle_signal_simple(int sig)
-{
-    /* Disable handler */
-    (void)signal(sig, SIG_IGN);
-
-
-	/* Nothing to save, just quit */
-    if (!character_generated || character_saved) quit(NULL);
-
-
-    /* Count the signals */
-    signal_count++;
-
-
-    /* Terminate dead characters */
-    if (p_ptr->is_dead)
-    {
-	/* Mark the savefile */
-	strcpy(p_ptr->died_from, "Abortion");
-
-		/* Close stuff */
-	close_game();
-
-	/* Quit */
-	quit("interrupt");
-    }
-
-    /* Allow suicide (after 5) */
-    else if (signal_count >= 5)
-    {
-	/* Cause of "death" */
-	strcpy(p_ptr->died_from, "Interrupting");
-
-		/* Commit suicide */
-	p_ptr->is_dead = TRUE;
-
-	/* Stop playing */
-	p_ptr->playing = FALSE;
-
-	/* Leaving */
-	p_ptr->leaving = TRUE;
-
-	/* Close stuff */
-	close_game();
-
-	/* Quit */
-	quit("interrupt");
-    }
-
-    /* Give warning (after 4) */
-    else if (signal_count >= 4)
-    {
-	/* Make a noise */
-	Term_xtra(TERM_XTRA_NOISE, 0);
-
-		/* Clear the top line */
-	Term_erase(0, 0, 255);
-
-	/* Display the cause */
-	Term_putstr(0, 0, -1, TERM_WHITE, "Contemplating suicide!");
-
-	/* Flush */
-	Term_fresh();
-    }
-
-    /* Give warning (after 2) */
-    else if (signal_count >= 2)
-    {
-	/* Make a noise */
-	Term_xtra(TERM_XTRA_NOISE, 0);
-    }
-
-    /* Restore handler */
-    (void)signal(sig, handle_signal_simple);
-}
-
-
-/*
- * Handle signal -- abort, kill, etc
- */
-static void
-handle_signal_abort(int sig) {
-
-    /* Disable handler */
-    (void)signal(sig, SIG_IGN);
-
-
-    /* Nothing to save, just quit */
-    if (!character_generated || character_saved) quit(NULL);
-
-
-    /* Clear the bottom line */
-    Term_erase(0, 23, 255);
-
-    /* Give a warning */
-    Term_putstr(0, 23, -1, TERM_RED,
-		"A gruesome software bug LEAPS out at you!");
-
-    /* Message */
-    Term_putstr(45, 23, -1, TERM_RED, "Panic save...");
-
-    /* Flush output */
-    Term_fresh();
-
-    /* Panic Save */
-    p_ptr->panic_save = 1;
-
-    /* Panic save */
-    strcpy(p_ptr->died_from, "(panic save)");
-
-    /* Forbid suspend */
-    signals_ignore_tstp();
-
-    /* Attempt to save */
-    if (save_player())
-    {
-	Term_putstr(45, 23, -1, TERM_RED, "Panic save succeeded!");
-    }
-
-    /* Save failed */
-    else
-    {
-	Term_putstr(45, 23, -1, TERM_RED, "Panic save failed!");
-    }
-
-    /* Flush output */
-    Term_fresh();
-
-    /* Quit */
-    quit("software bug");
-}
-
-
-
-
-/*
- * Ignore SIGTSTP signals (keyboard suspend)
- */
-void signals_ignore_tstp(void)
-{
-
-#ifdef SIGTSTP
-	(void)signal(SIGTSTP, SIG_IGN);
-#endif
-
-}
-
-/*
- * Handle SIGTSTP signals (keyboard suspend)
- */
-void signals_handle_tstp(void)
-{
-
-#ifdef SIGTSTP
-	(void)signal(SIGTSTP, handle_signal_suspend);
-#endif
-
-}
-
-
-/*
- * Prepare to handle the relevant signals
- */
-void signals_init(void)
-{
-
-#ifdef SIGHUP
-	(void)signal(SIGHUP, SIG_IGN);
-#endif
-
-
-#ifdef SIGTSTP
-	(void)signal(SIGTSTP, handle_signal_suspend);
-#endif
-
-
-#ifdef SIGINT
-	(void)signal(SIGINT, handle_signal_simple);
-#endif
-
-#ifdef SIGQUIT
-	(void)signal(SIGQUIT, handle_signal_simple);
-#endif
-
-
-#ifdef SIGFPE
-	(void)signal(SIGFPE, handle_signal_abort);
-#endif
-
-#ifdef SIGILL
-	(void)signal(SIGILL, handle_signal_abort);
-#endif
-
-#ifdef SIGTRAP
-	(void)signal(SIGTRAP, handle_signal_abort);
-#endif
-
-#ifdef SIGIOT
-	(void)signal(SIGIOT, handle_signal_abort);
-#endif
-
-#ifdef SIGKILL
-	(void)signal(SIGKILL, handle_signal_abort);
-#endif
-
-#ifdef SIGBUS
-	(void)signal(SIGBUS, handle_signal_abort);
-#endif
-
-#ifdef SIGSEGV
-	(void)signal(SIGSEGV, handle_signal_abort);
-#endif
-
-#ifdef SIGTERM
-	(void)signal(SIGTERM, handle_signal_abort);
-#endif
-
-#ifdef SIGPIPE
-	(void)signal(SIGPIPE, handle_signal_abort);
-#endif
-
-#ifdef SIGEMT
-	(void)signal(SIGEMT, handle_signal_abort);
-#endif
-
-#ifdef SIGDANGER
-	(void)signal(SIGDANGER, handle_signal_abort);
-#endif
-
-#ifdef SIGSYS
-	(void)signal(SIGSYS, handle_signal_abort);
-#endif
-
-#ifdef SIGXCPU
-	(void)signal(SIGXCPU, handle_signal_abort);
-#endif
-
-#ifdef SIGPWR
-	(void)signal(SIGPWR, handle_signal_abort);
-#endif
-
-}
-
-
-#else	/* HANDLE_SIGNALS */
-
-
-/*
- * Do nothing
- */
-void signals_ignore_tstp(void)
-{
-}
-
-/*
- * Do nothing
- */
-void signals_handle_tstp(void)
-{
-}
-
-/*
- * Do nothing
- */
-void signals_init(void)
-{
-}
-
-
-#endif	/* HANDLE_SIGNALS */
-
-
-
-/*
- * Close up the current game (player may or may not be dead)
- *
- * This function is called only from "main.c" and "signals.c".
- *
- * Note that the savefile is not saved until the tombstone is
- * actually displayed and the player has a chance to examine
- * the inventory and such.  This allows cheating if the game
- * is equipped with a "quit without save" method.  XXX XXX XXX
- */
-void close_game(void)
-{
-//	char buf[1024];
-
-
-    /* Handle stuff */
-    handle_stuff();
-
-    /* Flush the messages */
-    msg_print(NULL);
-
-    /* Flush the input */
-    flush();
-
-
-    /* No suspending now */
-    signals_ignore_tstp();
-
-
-    /* ... */
-
-
-	/* Allow suspending now */
-    signals_handle_tstp();
 }
 
 void handle_stuff(void) {
@@ -759,7 +398,8 @@ print_coloured_stat (byte attr,
 		     int stat,
 		     int row,
 		     int col) {
-    
+
+//    printf("Printing stat %d at row %d\n", stat, row);
     clean_hidden_buffer();
     cnv_stat(stat,hidden_buffer);
     c_put_str(attr,hidden_buffer, row, col);
@@ -835,83 +475,22 @@ print_coloured_number (byte attr,
 
 }
 
-#ifdef SMALL_BOYS_FOR_BREAKFAST
-/*
- * Hack -- Explain a broken "lib" folder and quit (see below).
- *
- * XXX XXX XXX This function is "messy" because various things
- * may or may not be initialized, but the "plog()" and "quit()"
- * functions are "supposed" to work under any conditions.
- */
-static void init_angband_aux(cptr why)
-{
-    /* Why */
-    plog(why);
+errr
+cleanup_c_side(void) {
 
-        /* Explain */
-    plog("The 'lib' directory is probably missing or broken.");
-
-    /* More details */
-    plog("Perhaps the archive was not extracted correctly.");
-
-    /* Explain */
-    plog("See the 'README' file for more information.");
-
-    /* Quit with error */
-    quit("Fatal Error.");
-}
+    int cur_ui = current_ui();
+    if (0) { }
+#ifdef USE_X11
+    else if (cur_ui == 0) {
+	return cleanup_X11();
+    }
 #endif
 
-
-int
-test_calling(const char *arr, const char *alt) {
-
-    if (arr == NULL) {
-//	fprintf(stderr, "Arr is NULL\n");
+#ifdef USE_GCU
+    else if (cur_ui == 1) {
+	return cleanup_GCU();
     }
-    if (alt == NULL) {
-//	fprintf(stderr, "Alt is NULL\n");
-    }
-    if (alt == NULL && arr == NULL) {
-	return 0;
-    }
-
-    if (arr && alt) {
-//	fprintf(stderr, "Have two strings\n");
-	if (arr == alt) {
-//	    fprintf(stderr, "Strings are eq: [%s]\n", alt);
-	    return 0;
-	}
-	else if (!strcmp(arr,alt)) {
-//	    fprintf(stderr, "Strings are equal: [%s]\n", alt);
-	    return 0;
-	}
-	else if (!strcasecmp(arr,alt)) {
-//	    fprintf(stderr, "Strings are equalp, and [%s] [%s]\n", arr, alt);
-	    return 1;
-	}
-	else {
-//	    fprintf(stderr, "Strings aren't even equalp: [%s] vs [%s]\n", arr, alt);
-	    return -1;
-	}
-    }
+#endif
     
-    return -1;
-    
-}
-
-
-int
-test_calling_2(const char *arr) {
-
-    if (arr) {
-	int len = strlen(arr);
-	if (len > 10) {
-	    printf("My function got |%s|\n", arr);
-	}
-	return len;
-    }
-    else {
-	return -1;
-    }
+    return 1;
 }

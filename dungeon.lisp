@@ -717,16 +717,15 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   "Adds a trigger to the given dungeon."
 
 ;;  (warn "Adding ~s at ~d,~d" val x y)
-
-  (dolist (i (dungeon.triggers dun))
-    (let ((place (car i)))
-      (when (and (= (car place) x)
-		 (= (cdr place) y))
-	(setf (cdr i) val)
-	(return-from get-coord-trigger i))))
-  
-  (push (cons (cons x y) val) (dungeon.triggers dun)))
-
+  (block setf-coord-trigger
+    (dolist (i (dungeon.triggers dun))
+      (let ((place (car i)))
+	(when (and (= (car place) x)
+		   (= (cdr place) y))
+	  (setf (cdr i) val)
+	  (return-from setf-coord-trigger i))))
+    
+    (push (cons (cons x y) val) (dungeon.triggers dun))))
 
 
 (defun apply-possible-coord-trigger (dun x y)

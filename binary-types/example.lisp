@@ -9,8 +9,6 @@
 ;;;; Created at:    Wed Dec  8 15:15:06 1999
 ;;;; Distribution:  See the accompanying file COPYING.
 ;;;;                
-;;;; $Id: example.lisp,v 1.3 2001/07/12 16:10:55 stig Exp $
-;;;;                
 ;;;;------------------------------------------------------------------
 
 (defpackage "EXAMPLE"

@@ -25,6 +25,7 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((decoded-vals (cl:decode-universal-time univ-time)))
     (format nil "~a" decoded-vals)))
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
   (bt:define-binary-struct (hs-entry (:conc-name hs-entry.)) ()
     
     (version nil) ;; string
@@ -45,6 +46,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     (date        0 :bt u64) ;; time of death
     )
+)
 
 (defun make-high-score (variant player)
   "Returns a high-score entry for the player."

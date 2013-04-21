@@ -21,6 +21,7 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
 
 (defun %birth-input-char (alt-len)
   (let ((val (read-one-character)))
+    (assert (characterp val))
 ;;    (warn "Got back ~a ~s ~s" val val (type-of val))
     (cond ((eql val #\Q)
 	   (quit-game&))
@@ -273,10 +274,10 @@ Modififes the given player object."
 (defun roll-stats! (player)
   "Rolls stats and modifies given player object."
   
-  (setf (player.base-stats player) #1A(0 0 0 0 0 0))
-  (setf (player.curbase-stats player) #1A(0 0 0 0 0 0))
-  (setf (player.modbase-stats player) #1A(0 0 0 0 0 0))
-  (setf (player.active-stats player) #1A(0 0 0 0 0 0))
+  (setf (player.base-stats player) (make-stat-array))
+  (setf (player.curbase-stats player) (make-stat-array))
+  (setf (player.modbase-stats player) (make-stat-array))
+  (setf (player.active-stats player) (make-stat-array))
   
   (let* ((arr-len 18)
 ;;	 (bonus 0)
@@ -374,6 +375,9 @@ Modififes the given player object."
 			;; we have just one
 			(setq the-obj (car objs)))
 		    (add-obj-to-player! (create-aobj-from-kind the-obj)))))))
+
+      ;; hack.. give him some gold
+      (setf (player.gold player) (random 200))
       
       (trigger-event settings :on-post-equip (list player nil))
       )))
@@ -399,7 +403,7 @@ Returns the new L-PLAYER object or NIL on failure."
 
     (equip-character! the-player birth-settings)
 
-;;    (add-object-to-inventory! the-player (create-aobj-from-kind-num 118))
+;;    (warn "stats are now ~s ~s" (player.base-stats the-player) (ok-object? the-player))
+    ;;    (add-object-to-inventory! the-player (create-aobj-from-kind-num 118))
     
     the-player))
-
