@@ -1,0 +1,37 @@
+|||||oy
+#####R === PernAngband Magic - Valarin Realm ===
+
+The Valar, stewards of Eru, possess the inherent power of the world
+itself. Drawing out the enchantments of earth, water, and air, the 
+Valarin realm harnesses light and life to aid its devotees.  Having 
+the fullest complement of healing spells, the primeval powers of the
+universe can also be unleashed in lightning and earthquake and even
+the rain of falling stars. The highest power given to followers 
+allows them to become equal in power to the Valar themselves, albeit
+for a limited time.
+
+It contains many healing spells, a few self-altering spells, some 
+attack spells and some utility spells.
+
+#####GPermitted Classes
+#####BThe Valarin Realm is only permitted to:
+Monks as a primary realm
+Priests as a primary realm
+
+#####GValarin Spellbooks
+The are nine books available for the Valarin realm, four of which can be
+easily found at bookstores back in town. The other five are very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Call of the West
+Light of Valinor
+Divine Mastery
+Words of Power
+
+[[[[[BRare Books]
+Hunt of Orome
+Holy Santifications
+Secrets of the Feanturi
+War of Wrath
+Gifts of Iluvatar

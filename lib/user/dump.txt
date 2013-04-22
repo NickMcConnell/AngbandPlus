@@ -1,0 +1,50 @@
+                                                                               
+Human                     ### #              ^ ^#^ #   ^ ^                     
+Unbeliever               .?.....             ^ ^ ^ ^   # ^                     
+Thinker                 ...........          ^ ^ ^ #   ^ ^                     
+LEVEL      6            ..............       ^ # ^ ^   ^ ^                     
+EXP      163           ......;....;.......###^ ^ # #   ^ ^                     
+AU       100           ............?......'    ^ # ^   ^ ^                     
+                       ...................#^^^ ^ ^ #   # #                     
+STR:   18/60            .0............       ^^^ ^ ^   # #                     
+INT:       3            ..........;              ^ ^   # ^                     
+WIS:       3             .;.....                 ^ ^   # #                     
+DEX:   18/40             ######                  ^ ^   ^ ^                     
+CON:   18/50                                     ^ ^#^^# ^                     
+CHR:      11                                     ^       ^                     
+Cur AC    16                                     #^#^^^# #                     
+HP   12/   84                                          #v#                     
+SN   20/   20                                          ^@^                     
+                                                       #.^                     
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                        BDw 1  
+
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+BBBBBwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwUwUGUwGwwwUwUwwwwwwwwwwwwwwwwwwwww
+BBBBBBBBBBwwwwwwwwwwwwwwwuwuuuuuwwwwwwwwwwwwwUwUwUwUwwwGwUwwwwwwwwwwwwwwwwwwwww
+BBBBBBBwwwwwwwwwwwwwwwwwuuuuuguuuugwwwwwwwwwwUwUwUwGwwwUwUwwwwwwwwwwwwwwwwwwwww
+wwwwwwGGGGGGwwwwwwwwwwwwuuuuuuuuuuuuuuwwwwwwwUwGwUwUwwwUwUwwwwwwwwwwwwwwwwwwwww
+wwwwGGGGGGGGwwwwwwwwwwwuuuguuguguuguuuuuugwGGUwUwGwGwwwUwUwwwwwwwwwwwwwwwwwwwww
+wwwGGGGGGGGGwwwwwwwwwwwuuuuuuguuuuuwuguuuuUwwwwUwGwUwwwUwUwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwuuuuuuguuuuuuuuuuugwUUUwUwUwGwwwGwGwwwwwwwwwwwwwwwwwwwww
+wwwwwwGGGGGGwwwwwwwwwwwwuBuuuuuuuuguuuwwwwwwwUUUwUwUwwwGwGwwwwwwwwwwwwwwwwwwwww
+wwwwwwGGGGGGwwwwwwwwwwwwuuuuuuuuuggwwwwwwwwwwwwwwUwUwwwGwUwwwwwwwwwwwwwwwwwwwww
+wwwwwwGGGGGGwwwwwwwwwwwwwugguuuuwwwwwwwwwwwwwwwwwUwUwwwGwGwwwwwwwwwwwwwwwwwwwww
+wwwwwwGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwUwUwwwUwUwwwwwwwwwwwwwwwwwwwww
+wwwwwwGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwUwUGUUGwUwwwwwwwwwwwwwwwwwwwww
+wwwwwwGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwUwwwwwwwUwwwwwwwwwwwwwwwwwwwww
+wwwwwwwGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwGUGUUUGwGwwwwwwwwwwwwwwwwwwwww
+wwyyyyyyyyyyywwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwGwGwwwwwwwwwwwwwwwwwwwww
+wwGGGGGGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwUwUwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwGuUwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+GGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+

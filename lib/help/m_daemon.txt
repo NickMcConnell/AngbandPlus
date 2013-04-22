@@ -1,0 +1,30 @@
+|||||oy
+#####R === PernAngband Magic - Daemon Realm ===
+
+Available only to daemonologists, this realm deals mainly with dark 
+summoning and daemonic powers. 
+
+The Daemon Realm contains some powerful attack spells, a few combat-
+enchancing spells, some summoning spells, but no healing spells.
+
+#####GPermitted Classes
+#####BThe Daemon Realm is only permitted to:
+Daemonologists as a primary realm
+
+#####GDemonblades
+Unlike the other realms, the spells for the Daemon realm are found as
+inscriptions on special weapons known as Demonblades. 
+
+The are five types of Demonblades available for the Daemon realm, two 
+of which can be easily found at bookstores back in town. The other three 
+are very rare, and may only be found by searching the depths of the
+dungeon.
+
+[[[[[BTown Blades]
+Dark Incantations
+Immortal Rituals
+
+[[[[[BRare Blades]
+Minions of Azathoth
+Demonthoughts
+Hellfire Tome

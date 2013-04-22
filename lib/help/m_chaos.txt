@@ -1,0 +1,28 @@
+|||||oy
+#####R === PernAngband Magic - Chaos Realm ===
+
+The minor realm of Choas is the domain of Chaos Warriors and Daemonologists,
+and deals with magics of destruction, calling on the power that exists in
+the underlying chaos of the universe.
+
+The chaos realm contains many powerful attack spells, but not many utility
+and no healing type spells.
+
+#####GPermitted Classes
+#####BThe Realm of Chaos is only permitted to:
+Chaos Warriors as a primary realm
+Daemonologists as a secondary realm
+Sorcerors (all)
+
+#####GChaos Spellbooks
+The are four spellbooks available for the Chaos realm, two of which can be
+easily found at bookstores back in town. The other two are very rare, and 
+may only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Sign of Chaos
+Chaos Mastery
+
+[[[[[BRare Books]
+Chaos Channels
+Armageddon Tome

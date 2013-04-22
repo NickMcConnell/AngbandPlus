@@ -188,7 +188,6 @@ bool always_pickup;             /* Pick things up by default */
 bool prompt_pickup_heavy;       /* Don't pick up the corpses */
 bool always_repeat;             /* Repeat obvious commands */
 bool depth_in_feet;             /* Show dungeon level in feet */
-bool telnet;			/* Telnet option */
 
 bool stack_force_notes;		/* Merge inscriptions when stacking */
 bool stack_force_costs;		/* Merge discounts when stacking */

@@ -1,0 +1,61 @@
+  [PernAngband 5.0.1 Character Dump]
+
+ Name  : Kaliron                Age                 18       Str:     14  18/30
+ Sex   : Male                   Height              67       Int:      7     10
+ Race  : Human                  Weight             232       Wis:      6      9
+ Class : Warrior                Social Class         1       Dex:     14  18/10
+ Body  : Player                                              Con:     14  18/10
+                                                             Chr:      5     10
+                                                                               
+ + To Hit            4      Level             24    Max Hit Points       229   
+ + To Damage         4      Experience     12168    Cur Hit Points       102   
+ + To AC             0      Max Exp        12518    Max SP (Mana)          0   
+   Base AC           0      Exp to Adv.    12500    Cur SP (Mana)          0   
+                            Gold            1100    Loan                   0   
+                                                    Loan time              0   
+                         (Miscellaneous Abilities)                             
+ Fighting    : Heroic       Perception  : Poor         Blows/Round:  1         
+ Bows/Throw  : Heroic       Searching   : Poor         Shots/Round:  1         
+ Saving Throw: Excellent    Disarming   : Very Good    Wpn.dmg/Rnd:  4         
+ Stealth     : Poor         Magic Device: Good         Infra-Vision: 0 feet    
+                                                       Tactic:       normal    
+                                                       Explor:       normal    
+[equipment]
+e) a Ring of Fear Resistance
+m) a Wooden Torch (with 1728 turns of light)
+
+  [Character Inventory]
+
+a) 4 Rations of Food
+b) a Scroll of Detect Invisible
+c) a Scroll of Summon Monster
+d) a Scroll of Rumour
+e) 3 Wooden Torches (with 2500 turns of light)
+f) Chain Mail (-2) [14,+0]
+g) a Broad Sword (2d5) (+0,+0)
+h) a Parchment - Adventurer's guide to Middle Earth
+
+last words:
+The Giant Worker Ant bites you.
+J. K. Banks says: 'Surrender, miserable flea!'
+J. K. Banks seems sad about something.
+You're not as strong as you used to be...
+J. K. Banks gazes at you.
+J. K. Banks claws you.
+You feel very ugly.
+J. K. Banks tells you to get off his land.
+You feel your life has clocked back.
+J. K. Banks gazes at you.
+You turn into an unthinking vegetable.
+
+I plan to change Maggot's words to:
+whispers a hair-brained idea.
+evokes memories of your misspent youth.
+mumbles theorems.
+says: 'A natural system cannot exist without a supernatural system'
+excitedly discusses rocks.
+excitedly discusses cells.
+excitedly discusses math.
+etc.
+Greater and lesser nerds use these in their confusing attacks.
+

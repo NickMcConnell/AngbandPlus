@@ -1,0 +1,39 @@
+|||||oy
+#####R === PernAngband Magic - Nether Realm ===
+
+The dominion of Morgoth has permanently altered the infra-structure
+of the earth, imbuing it with his native power that is the Nether 
+realm. The powers of the undead and corrupted life are at the call
+of a Nether adept, as well as the invocations of haunting fear and 
+eternal darkness. The lifeblood of the caster must sometimes be 
+sacrificed to harness the awesome destructive potentials of the realm.
+
+It contains some attack spells, some utility spells, some combat-
+enhancing spells, and some self-altering spells.
+
+#####GPermitted Classes
+#####BThe Realm of Nether is only permitted to:
+High Mages as a primary realm
+Mages as a primary realm
+Necromancers as a primary realm
+Priests as a primary realm
+Rogues as a primary realm
+Sorcerors (all)
+
+#####GNether Spellbooks
+The are nine spellbooks available for the Nether realm, four of which can be
+easily found at bookstores back in town. The other five are very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Nether Openings
+Unholy Blessings
+Necromantic Incantations
+Curses of Angmar
+
+[[[[[BRare Books]
+Eye of Sauron
+Flame of Udun
+Corruptions of Melkor
+Crescent of Morgul
+Morgoth's Ring

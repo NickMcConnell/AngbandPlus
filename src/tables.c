@@ -3570,8 +3570,8 @@ option_type option_info[] =
         { &use_old_target,              FALSE,  1,      4,
         "use_old_target",               "Use old target by default" },
 
-	{ &telnet,			FALSE,  1,	5,
-	"telnet"			"Redraws screen every panel change" },
+        { &always_pickup,               TRUE,  1,       5,
+	"always_pickup",                "Pick things up by default" },
 
         { &prompt_pickup_heavy,         TRUE,   1,      6,
         "prompt_pickup_heavy",          "Prompt before picking up heavy objects" },
@@ -3741,7 +3741,7 @@ option_type option_info[] =
         { &empty_levels,                TRUE,   3,      18,
         "empty_levels",                 "Allow empty 'arena' levels" },
 
-        { &always_pickup,               TRUE,  1,      19,
+        { &always_pickup,               TRUE,  3,      19,
 	"always_pickup",                "Pick things up by default" },
 
 

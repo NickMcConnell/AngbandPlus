@@ -1,0 +1,30 @@
+|||||oy
+#####R === PernAngband Magic - Prayer Realm ===
+
+The Prayer realm is there for those who wish to play with the traditional
+Vanilla (standard) Angband priest spells.
+
+It contains a few attack spells, some utility spells, some combat-
+enhancing spells, and many healing spells.
+
+#####GPermitted Classes
+#####BThe Realm of Prayer is only permitted to:
+Priests as a primary realm
+
+#####GPrayer Spellbooks
+The are nine spellbooks available for the Prayer realm, four of which can be
+easily found at bookstores back in town. The other five are very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Beginners Handbook
+Words of Wisdom
+Chants and Blessings
+Exorcism and Dispelling
+
+[[[[[BRare Books]
+Ethereal Openings
+Godly Insights
+Purifications and Healing
+Holy Infusions
+Wrath of God

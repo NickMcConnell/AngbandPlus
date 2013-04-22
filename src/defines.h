@@ -55,6 +55,12 @@
 #define SAVEFILE_VERSION 29
 
 /*
+ * Stupid Hack Trick -- set to TRUE for telnet mode
+ */
+#define telnet FALSE
+
+
+/*
  * This value is not currently used
  */
 #define VERSION_EXTRA   0

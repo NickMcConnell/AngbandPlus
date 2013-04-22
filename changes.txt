@@ -1,53 +1,3 @@
-11/12/1999
-- Add wilderness encounters
-- Add Oangband rod/wand stacking
-- Amulets of the Serpent from Sadi Khan <sadik@christa.unh.edu>:
-  Resist Poison, Dexterity, some AC and Poison breathing
-
-12/12/1999 - PernAngband 4.0.5
-
-18/12/1999
-- Updated the makefiles and renamed object3.c to traps.c
-- Add 5 new essences from Sadi Khan: Force, Darkness, Lightning, Mana and
-  Knowledge
-- Fixed the bug that was placing the player at the town entrance when
-  leaving a building
-
-20/12/1999
-- Add the tool slot. It's actually only used to wield a shovel/pick but I've
-  some plans for it
-- You can only dig walls if you use a shovel/pick in your tool slot
-
-24/12/1999
-- Removed the player ghosts, well in fact made them a compile-time option(see
-  config.h)
-
-26/12/1999
-- Added the Necromancer class. But again not quite the same as you've seen
-  before. They can't be killed as easily as the other class. In fact when
-  their HP comes to 0 they don't die but become undead for a while. While
-  being undead their HP is replaced by DP(Death Points) that have a max
-  inferior to the max HP and that are slowly decreasing(1 DP less each turn).
-  They can use all the healing spells/potions/... but this won't stop them
-  from being reduced again. The only way for them to come back in the world
-  of the living is to kill 2 * player_level monsters.
-
-01/01/2000
-- Happy New Year !
-
-02/01/2000
-- Add a new curse(as suggested by LucFrench@aol.com). When a weapon has this
-  curse and that the wielder attacks a monster with it, it can clone it !
-  And it's REALLY REALLY annoying, especially when fighting some kinds of
-  wyrms :)
-
-10/01/2000
-- Finally fixed the flags shown on the character display.
-- The quit without save command(CTRL + L) is now a compile time option disabled
-  by default
-- The Necromancer class now has 5 spells (used the same way as the mindcrafter
-  powers)
-
 17/01/2000
 - Power gained by levelling artifacts has been reduced
 - New unique monster: The Greater Lag Monster... beware :)
@@ -1567,3 +1517,7 @@ NTAngband 41073 aka "0.6"
 - Hacked in a "telnet" option that redraws the screen at several points
   that tend to leave droppings on the screen (monster death and panel
   change specifically)
+FIX
+- Changed "telnet" to a #define in defines.h
+- Cleaned up minor problems with options
+- Fixed the makefiles so that -DDEFAULT_PATH is defined properly
