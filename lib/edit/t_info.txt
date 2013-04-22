@@ -1,1 +1,34 @@
-# File: t_info.txt# Includes the town definitions# Preferences for the town features%:t_pref.txt# Town 1?:[AND [EQU $TOWN 1] [EQU $WILDERNESS LITE] ]%:t_lite.txt?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NORMAL] ]%:t0000001.txt?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NONE] ]%:t_basic.txt?:1# Town 2?:[EQU $TOWN 2]%:t0000002.txt# Town 3?:[EQU $TOWN 3]%:t0000003.txt# Town 4?:[EQU $TOWN 4]%:t0000004.txt# Town 5?:[EQU $TOWN 5]%:t0000005.txt
+# File: t_info.txt
+
+# Includes the town definitions
+
+# Town file names modified -- Prfnoff
+
+# Preferences for the town features
+%:t_pref.txt
+
+# Town 1
+?:[AND [EQU $TOWN 1] [EQU $WILDERNESS LITE] ]
+%:t_lite.txt
+?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NORMAL] ]
+%:t_outpos.txt
+?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NONE] ]
+%:t_basic.txt
+?:1
+
+# Town 2
+?:[EQU $TOWN 2]
+%:t_telmor.txt
+
+# Town 3
+?:[EQU $TOWN 3]
+%:t_moriva.txt
+
+# Town 4
+?:[EQU $TOWN 4]
+%:t_angwil.txt
+
+# Town 5
+?:[EQU $TOWN 5]
+%:t_rlyeh.txt
+
