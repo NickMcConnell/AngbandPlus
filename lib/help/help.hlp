@@ -1,30 +1,36 @@
-Welcome to the Angband Online Help System.
+|||||oy
+#####RWelcome to the T.o.M.E. Online Help System.
+#####R===========================================
 
 Please choose one of the following online help files:
-    (1) General Information        (general.txt)
-    (2) Creating a Character       (birth.txt)
-    (3) Exploring the Dungeon      (dungeon.txt)
-    (4) Attacking Monsters         (attack.txt)
-    (5) Playing the Game           (playing.txt)
-    (6) Command Descriptions       (command.txt)
-    (7) Option Descriptions        (option.txt)
-    (8) Version Information        (version.txt)
-    (9) Spoiler Menu (if any)      (spoiler.hlp)
-    (0) User Menu (if any)         (user.hlp)
 
-Browser/help commands:
-  #     go to line         %  go to file         ?  go to last file/main menu
-  SPACE advance 1 page     -  back up 1 page     /  search for text
-  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
-  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sentitivity
-***** [1] general.txt
-***** [2] birth.txt
-***** [3] dungeon.txt
-***** [4] attack.txt
-***** [5] playing.txt
-***** [6] command.txt
-***** [7] option.txt
-***** [8] version.txt
-***** [9] spoiler.hlp
-***** [0] user.hlp
+    *****/aTANG.txt*0[(a) The Angband Newbie Faq
+    *****/bgeneral.txt*0[(b) General Information]
+    *****/cbirth.txt*0[(c) Creating a Character]
+    *****/ddungeon.txt*0[(d) Exploring the Dungeon]
+    *****/eattack.txt*0[(e) Attacking Monsters]
+    *****/fcommand.txt*0[(f) List of Commands]
+    *****/goption.txt*0[(g) List of Options]
+    *****/hversion.txt*0[(h) Version Information]
+    *****/imacroFAQ.txt*0[(i) The Angband Macro FAQ]
 
+    *****/uuser.txt*0[(u) User menu (if any)]
+    *****/sspoiler.hlp*0[(s) Spoiler menu]
+
+#####GBasic keys:
+Space          | Advance 1 page (screen)
+2, down arrow  | Advance 1 line
+8, up arrow    | Back up 1 line
+-              | Back up 1 a page (screen)
+6, right arrow | Advance 1 link
+4, left arrow  | Back up 1 link
+Return         | Activate the selected link
+Escape         | Leave the Online Help
+Backspace, ?   | Return to previous Help File
+
+#####GContacts:
+Report bugs to bugs@t-o-m-e.net (this redirects to a mailling list).
+Report various ideas and improvments to ideas@t-o-m-e.net (this
+redirects to a mailling list).
+
+You can also directly contact me at darkgod@t-o-m-e.net .

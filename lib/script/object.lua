@@ -102,6 +102,8 @@ function eat_food(object)
 				ident = TRUE
 			end
 		end
+	elseif object.sval == SV_FOOD_MAGIC then
+		/* not yet decided */
 	end
 
 	-- Food can feed the player
@@ -955,6 +957,7 @@ end
 function activate_object(object)
 	local success
 	local dir
+	local mageart
 
 	-- Check the recharge
 	if object.timeout > 0 then
@@ -1193,17 +1196,29 @@ function activate_object(object)
 		elseif artifact.activation == ACT_BERSERKER then
 			msg_print(format("Your %s glows in anger...", o_name))
 			set_shero(player.shero + randint(50) + 50)
-		end
-
-		-- Set the recharge time
-		if artifact.randtime then
-			object.timeout = artifact.time + randint(artifact.randtime)
+		elseif artifact.activation == ACT_MANA then
+			if player.csp < player.msp then
+			player.csp = player.msp
+			player.csp_frac = 0
+			msg_print("Your feel your head clear.")
+			player.redraw = bOr(player.redraw, PR_MANA)
+			player.window = bOr(player.window, PW_PLAYER_0, PW_PLAYER_1)
+			end
 		else
-			object.timeout = artifact.time
+			mageart = TRUE
 		end
 
-		-- Window stuff
-		player.window = bOr(player.window, PW_INVEN, PW_EQUIP)
+		if !mageart then
+			-- Set the recharge time
+			if artifact.randtime then
+				object.timeout = artifact.time + randint(artifact.randtime)
+			else
+				object.timeout = artifact.time
+			end
+
+			-- Window stuff
+			player.window = bOr(player.window, PW_INVEN, PW_EQUIP)
+		end
 
 		return FALSE, FALSE
 	end
@@ -1316,6 +1331,7 @@ function activate_object(object)
 			object.timeout = rand_int(50) + 50
 		end
 
+		/* Mage Weapons do not work in LUA, because I don't know enough LUA to code them. */
 		-- Window stuff
 		player.window = bOr(player.window, PW_EQUIP)
 
@@ -1404,7 +1420,8 @@ function describe_item_activation_hook(object)
 			"fire branding of bolts",
 			"starlight (10d8)",
 			"mana bolt (12d8)",
-			"berserk rage (50+d50 turns)"}
+			"berserk rage (50+d50 turns)",
+			"replensih mana"}
 
 		local artifact = a_info[object.name1 + 1]
 
@@ -1458,7 +1475,7 @@ function describe_item_activation_hook(object)
 		return activations[object.sval]
 	end
 
-	-- No activation
+	-- No activation /*  mage weapons won't be described, sorry.  I don't know enough LUA to translate the code.  Mage Weapons won't FUNCTION either, though.   */
 	return ""
 end
 

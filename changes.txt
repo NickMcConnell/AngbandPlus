@@ -1,3 +1,21 @@
+Updated makefiles, some compilation problems accidentaly introduced immediately before original upload have been fixed.  
+
+
+Changes in NuAngband 1.0
+- Crossbows are more powerful but take time to reload.
+- New element Law
+- Globe of Invulnerability is back, but not as powerful as it used to be.
+  It now drains your mana when yu take damage.  
+- Many monsters have been changed.  The entire monster list has been reorganized.
+- LUA is not fully supported.  I don't know enough LUA to put the new 'mage weapon'
+  code in the LUA copy of the do_cmd_activate() function.  All other new spells are
+  included.  
+
+
+Report any bugs or balance problems to [NBrown0@hotmail.com], or post on RGRA or in
+the forums at [http://www.dnet.net/user/jvndy/angband/]
+
+
 Changes in Angband 3.0:
 - Added Jonathan Ellis' JLE patch that adds a new player race
   ("Kobold"), many new artifacts, vaults, monsters, objects, and

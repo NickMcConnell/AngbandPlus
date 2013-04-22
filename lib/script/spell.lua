@@ -231,7 +231,7 @@ SPELL_LIGHTNING_BOLT = add_magic_spell
 			local success, dir = get_aim_dir()
 			if not success then return FALSE end
 
-			fire_beam(GF_ELEC, dir, damroll(3 + ((player.lev - 5) / 6), 6))
+			fire_bounce(GF_ELEC, dir, damroll(3 + ((player.lev - 5) / 6), plev/10 +1, plev/10 +2))
 			return TRUE
 		end,
 }
@@ -628,9 +628,12 @@ SPELL_MASS_SLEEP = add_magic_spell
 		end,
 }
 
-SPELL_BEDLAM = add_magic_spell
+SPELL_LAW_STRIKE = add_magic_spell
 {
-	name = "Bedlam",
+	name = "Law Strike",
+	info = function()
+			return format(" dam 13d%d", player.lev)
+		end,
 	effect = function()
 			local success, dir = get_aim_dir()
 			if not success then return FALSE end
@@ -644,14 +647,14 @@ SPELL_REND_SOUL = add_magic_spell
 {
 	name = "Rend Soul",
 	info = function()
-			return format(" dam 11d%d", player.lev)
+			return format(" dam 13d%d", player.lev)
 		end,
 	effect = function()
 			local success, dir = get_aim_dir()
 			if not success then return FALSE end
 
-			fire_bolt_or_beam(beam_chance() / 4, GF_NETHER, dir,
-			                  damroll(11, player.lev))
+			fire_bolt_or_beam(beam_chance(), GF_LAW, dir,
+			                  damroll(13, player.lev))
 			return TRUE
 		end,
 }
@@ -927,6 +930,46 @@ SPELL_MANA_STORM = add_magic_spell
 		end,
 }
 
+SPELL_FLOOD = add_magic_spell
+{
+	name = "Flood",
+	info = function()
+			return format(" dam %d", lev))
+		end,
+	effect = function()
+			local success, dir = get_aim_dir()
+			if not success then return FALSE end
+
+			fire_flood(1, GF_WATER, dir, plev)
+			return TRUE
+		end,
+}
+
+SPELL_GLOBE_OF_INVULNERABILITY = add_magic_spell
+{
+	name = "Globe of Invulnerability",
+	effect = function()
+			set_invuln(1)
+			return TRUE
+		end,
+}
+
+SPELL_BLASTING = add_magic_spell
+{
+	name = "Blasting",
+	info = function()
+			return format(" dam %d", lev))
+		end,
+	effect = function()
+			local success, dir = get_aim_dir()
+			if not success then return FALSE end
+
+			fire_ball(GF_KILL_WALL, dir, 1, 1+plev/10)
+			return TRUE
+		end,
+}
+
+
 
 -----------------------------------------------------------
 -- Add spells to the spell-books
@@ -982,7 +1025,8 @@ add_book(magic_spells, 4,
           SPELL_RESIST_FIRE,
           SPELL_RESIST_POISON,
           SPELL_RESISTANCE,
-          SPELL_SHIELD})
+          SPELL_SHIELD,
+	    SPELL_GLOBE_OF_INVULNERABILITY})
 
 -- Raal's Tome of Destruction
 add_book(magic_spells, 5,
@@ -992,7 +1036,8 @@ add_book(magic_spells, 5,
           SPELL_ACID_BALL,
           SPELL_ICE_STORM,
           SPELL_METEOR_SWARM,
-          SPELL_RIFT})
+          SPELL_RIFT,
+	    SPELL_FLOOD})
 
 -- Mordenkainen's Escapes
 add_book(magic_spells, 6,
@@ -1000,7 +1045,8 @@ add_book(magic_spells, 6,
           SPELL_STAIR_CREATION,
           SPELL_TELEPORT_LEVEL,
           SPELL_WORD_OF_RECALL,
-          SPELL_RUNE_OF_PROTECTION})
+          SPELL_RUNE_OF_PROTECTION,
+	    SPELL_BLASTING})
 
 -- Tenser's transformations
 add_book(magic_spells, 7,
@@ -1014,11 +1060,11 @@ add_book(magic_spells, 7,
 -- Kelek's Grimoire of Power
 add_book(magic_spells, 8,
          {SPELL_EARTHQUAKE,
-          SPELL_BEDLAM,
           SPELL_REND_SOUL,
           SPELL_GENOCIDE,
           SPELL_WORD_OF_DESTRUCTION,
           SPELL_MASS_GENOCIDE,
+	    SPELL_LAW_STRIKE,
           SPELL_CHAOS_STRIKE,
           SPELL_MANA_STORM})
 

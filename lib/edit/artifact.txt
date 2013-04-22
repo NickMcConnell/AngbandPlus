@@ -1,13 +1,10 @@
 # File: artifact.txt
 
-
 # This file is used to initialize the "lib/data/artifact.raw" file, which
 # is used to initialize the "artifact" information for the Angband game.
-
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/data/artifact.raw" file.
-
 # The artifact indexes are defined in "defines.h", and must not be changed.
 
 # Hack -- "Grond" and "Morgoth" MUST have a rarity of one, or they might
@@ -64,7 +61,7 @@
 
 # Version stamp (required)
 
-V:3.0.0
+V:3.127.0
 
 
 # Here is the list of "Special" artifacts - Amulets, Light Sources, Rings.

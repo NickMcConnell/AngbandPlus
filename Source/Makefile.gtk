@@ -1,0 +1,73 @@
+# File: Makefile.gtk
+
+#
+# The "source" and "object" files.
+#
+
+include Srcobj.make
+
+#
+# This is my compiler of choice, it seems to work most everywhere.
+#
+CC = gcc
+
+
+##
+## Compile for Linux
+##
+CFLAGS = -Wall -O `gtk-config --cflags` \
+         -D"USE_GTK" -g
+LIBS = `gtk-config --libs`
+
+#
+# Default target.
+#
+all: angband
+
+
+#
+# Install the game.
+#
+
+install: angband
+	cp angband ..
+
+
+#
+# Build the "Angband" program
+#
+
+angband: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
+
+
+#
+# Clean up old junk
+#
+
+clean:
+	-rm -f *.o angband
+	-rm -f ./lua/*.o ./lua/tolua
+
+
+#
+# Generate dependencies automatically
+#
+
+depend:
+	makedepend -D__MAKEDEPEND__ $(SRCS)
+
+
+#
+# Lua stuff
+#
+
+lua/tolua: $(TOLUAOBJS)
+	$(CC) -o lua/tolua $(TOLUAOBJS) $(LDFLAGS) $(LIBS)
+
+
+#
+# Hack -- some file dependencies
+#
+
+include Dep.make

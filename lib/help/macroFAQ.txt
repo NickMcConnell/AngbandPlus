@@ -1,0 +1,3105 @@
+
+======================================================================
+                          Angband Macro FAQ
+
+                             by Jim Lyon
+                        (jplyon@attglobal.net)
+                             21-Dec-2000
+               Compiled from usenet postings to r.g.r.a
+                  and Angband source & documentation
+
+======================================================================
+1. Introduction
+======================================================================
+
+----------------------------------------------------------------------
+1.1 About this FAQ
+----------------------------------------------------------------------
+
+This FAQ is mean to be a companion to the standard Angband help files
+for using inscriptions, macros, and keymaps. The Angband help files 
+which also describe them are listed in the "References" section.
+
+This documentation is for standard (Vanilla) Angband, version 2.9.1.
+Variants and other versions may use different names for some commands,
+may use different keys, and may have missing, unimplemented, renamed, 
+or new editing features.
+
+##################################
+######### SPOILER ALERT ##########
+##################################
+
+This document gives some information on how the game does or doesn't 
+work that might be considered spoiling.
+(Most players advanced enough to use macros probably won't notice.)
+
+----------------------------------------------------------------------
+1.2 Table of contents
+----------------------------------------------------------------------
+
+ 1. Introduction
+ 2. Quick start tutorial
+ 3. Overview
+ 4. Common macros and techniques
+ 5. Common questions
+ 6. Common problems
+ 7. Inscriptions added by the game
+ 8. Keys and commands
+ 9. Pref files
+10. Macro editing commands
+11. Advanced macro techniques
+12. Miscellaneous
+
+----------------------------------------------------------------------
+1.3 How to obtain this FAQ
+----------------------------------------------------------------------
+
+= Usenet =
+This document or a link to it will be posted semi-regularly to
+"rec.games.roguelike.angband".
+
+= Web =
+The newest version is at: "http://angbandfiles.50megs.com/faqs.html".
+
+----------------------------------------------------------------------
+1.4 Notation
+----------------------------------------------------------------------
+
+Single Quotes (')
+These are generally used to delimit a single character to be typed in.
+These shouldn't by typed in themselves.
+
+Double Quotes (")
+These are generally used to delimit a sequence of characters to be 
+typed in. These shouldn't by typed in themselves.
+
+Parentheses ( )
+These are generally used for single-key Angband commands.
+
+Braces { }
+These are used to enclose inscriptions. These aren't typed in as part
+of inscribing an item. They are added by the interface.
+
+= Special Keys =
+-----------------------------------
+The following abbreviations are used in this document. These keys may
+be named differently or missing on some keyboards. Some keys may be 
+duplicated. These abbreviations shouldn't be typed in literally. For 
+example, when F1 is encountered in a string of keys to press it means 
+to press the F1 function key, not 'F','1', unless otherwise stated. 
+Additional special keys may be listed later.
+
+Alt    Alt
+Ctrl   Control
+Del    Delete
+Esc    Escape
+Enter	 Enter / Return
+F1     Function key F1, ...
+Shift  Shift
+
+= System abbreviations =
+-----------------------------------
+Each system that Angband compiles on has a semi-standard 3-letter 
+abbreviation. These are commonly referred to in the source and docs
+using "xxx" as a "wildcard" standing for any one of them. In this 
+document "***" is used instead because there are actual generic files
+not associated with any specific system that use "xxx". Sometimes this
+refers to a feature instead of a specific system: "xxx" is used for a 
+generic / default file, and "new" is used for Adam Bolt's tiles.
+
+
+======================================================================
+2. Quick Start Tutorial
+======================================================================
+
+This section is designed to get you quickly using the most common
+keymaps and macros. Later sections explain the techniques used in more
+detail. These examples may not be the "best" ones to use in real play.
+These should be the same for versions 2.8.3 - 2.9.1 unless noted.
+
+----------------------------------------------------------------------
+2.0 Definitions
+----------------------------------------------------------------------
+
+First, you should know some fundamental terms:
+
+Actions are sequences of keypresses that the game can recognize. They 
+can't be recorded by the game, but must be input manually.
+
+Macros and keymaps map a keypress to an action. They can be used to 
+customize the keyboard, reduce typing, and speed up game play. Macros 
+must be used when the trigger key doesn't have a system-independent 
+representation. Keymap actions can only contain built-in commands.
+Most customization should be done with keymaps instead of macros when 
+there is a choice.
+
+Inscriptions are "markings" which you can put on any game item. One 
+use is to label items in a way that doesn't depend on inventory 
+position. Another allows verifying the selection of an item. Under the 
+right conditions they can save your life.
+
+----------------------------------------------------------------------
+2.1 Swap weapons
+----------------------------------------------------------------------
+
+First inscribe your main weapon:
+(Press the following keys in sequence)
+
+1) {    Inscribe an object
+2) *    Show inventory list
+3) /    Switch to equipment list
+4) a    Main weapon slot
+5) @w0  Wield when object 0 is chosen
+6)      (Hit Enter)
+
+Now inscribe the second weapon:
+
+1) {    Inscribe an object
+2) *    Show inventory list
+3)      (Choose letter of second weapon)
+4) @w0  Wield when object 0 is chosen
+5)      (Hit Enter)
+
+Now to swap weapons, just press the trigger key 'X' which is bound to
+the default keymap "w0". You may also press "w0" directly to swap.
+If the keymap is missing or altered, it can be [re]added as follows:
+
+1) @    Interact with macros
+2) 8    Create a keymap
+3) X    The trigger key for the keymap
+4) w0   Wield object 0
+5)      (Hit Enter)
+6)      (Hit Esc to exit the editor)
+
+----------------------------------------------------------------------
+2.2 Labeling ammunition
+----------------------------------------------------------------------
+
+First inscribe your ammo:
+
+1) {    Inscribe an object
+2) *    Show inventory list
+3)      (Choose the letter of the ammo)
+4) @f0  Fire when object 0 is chosen
+5)      (Hit Enter)
+
+Now when you press 'f' to fire your missile weapon, you can press '0'
+at the prompt instead of the letter of the ammo in the inventory. You 
+may also use any decimal digit 0-9 instead of 0. If more than one ammo
+is inscribed with "@0" or "@f0", the first one in the inventory list 
+will be used.
+
+----------------------------------------------------------------------
+2.3 Auto-fire macro
+----------------------------------------------------------------------
+
+Add a macro to fire a missile at the nearest target:
+(this assumes ammo inscribed as in previous example)
+
+1) @    Interact with macros
+2) 4    Create a macro
+3) F1   The trigger key for the macro (function key F1)
+4) \e\e\e*qf0*t
+        \e\e\e - clear command buffer
+        *q - Cancel current target
+        f0 - Fire ammo 0
+        *t - Select nearest target
+5)      (Hit Enter)
+6)      (Hit Esc to exit the editor)
+
+Now pressing key F1 repeatedly will keep firing at the closest target.
+Macros which use or modifying targetingrequire care to work safely. 
+See article "Firing at the nearest target" for more on this. 
+
+----------------------------------------------------------------------
+2.4 Magic books
+----------------------------------------------------------------------
+
+Inscribe the 1st Mage spell book by number:
+
+1) {    Inscribe an object
+2) *    Show inventory list
+3)      (Choose letter of 1st spellbook)
+4) @m1@b1@G1!d!k!v
+        @m1 - use as book 1 when casting spell (m)
+        @b1 - use as book 1 when browsing (b)
+        @G1 - use as book 1 when gaining a spell (G)
+        !d!k!v - don't drop, destroy, throw without verifying 
+5)      (Hit Enter)
+
+Now you can use '1' when choosing this spellbook. For example, casting 
+Magic Missile can be done as "m1a". Further spell books should be 
+inscribed using 2,3,4 ... Priest spell books are inscribed similarly, 
+using @p1@b1@G1... This topic is covered in more detail later on.
+
+These inscriptions are so useful that almost all players who use 
+macros/keymaps use them. All actions in this FAQ will use them.
+
+----------------------------------------------------------------------
+2.5 Prevent unwanted use of an item
+----------------------------------------------------------------------
+
+Prevent "losing" an item by "accident":
+
+1) {    Inscribe an object
+2) *    Show inventory list
+3)      (Choose an item)
+4) !d!k!v
+        !d - don't drop (d)
+        !k - don't destroy (k)
+        !v - don't throw (v)
+5)      (Hit Enter)
+
+This prevents dropping, destroying, or throwing the item. You will be
+asked if you really want to do so. This is one of the most common 
+inscriptions used, and one of the most useful.
+
+Prevent "using" an item at all:
+
+1) {    Inscribe an object
+2) *    Show inventory list
+3)      (Choose an item)
+4) !*   Don't do anything with this item without verifying
+5)      (Hit Enter)
+
+This inscription is commonly used on Scrolls of Recall,...
+
+----------------------------------------------------------------------
+2.6 Saving these macros and keymaps for reuse
+----------------------------------------------------------------------
+
+Save the macros and keymaps for reuse by the current character:
+
+1) @    Interact with macros
+2) 2    Append macros to a file
+        (optionally enter a filename: e.g. dump.prf or dump.txt)
+        (Hit Enter to save the file with the filename shown)
+3) 6    Append keymaps to a file
+        (Hit Enter to save the file with the filename shown)
+4)      (Hit Esc to exit the editor)
+
+This pref file will be automatically loaded any time a character with
+a name, race, or class matching the filename is loaded.
+
+The "Append macros/keymaps to a file" commands will append ALL current
+macros/keymaps to the given file. They will not overwrite the file.
+
+You should edit the file to remove macros that weren't added by you, 
+to reduce clutter and prevent errors. Unfortunately the best way to do 
+this is still "by hand". Open up the pref file in a text editor and 
+remove the duplicate macros and keymaps added. These will be added 
+after the headers "# Automatic macro dump" and "# Automatic keymap 
+dump". The ones you added will be the very last ones in the list. The
+others are the entire set of keymaps and macros from all other prefs
+loaded. (This step isn't necessary, but is very helpful)
+
+
+======================================================================
+3. Overview
+======================================================================
+
+----------------------------------------------------------------------
+3.1 Inscriptions
+----------------------------------------------------------------------
+
+Inscriptions are "markings" which you can inscribe on any game item.
+
+One common use is recording where you got one of your favorite items.
+Example: The Broad Sword 'Glamdring' (2d5) (+10,+15) {icky thing, 50'!}
+
+Another is to note important resists or activations on an item to make
+figuring out resist combinations easier.
+Example: The Nice Shiny Armor (-3) [35,+25] {resDk,resDis,A:Geno}
+
+Inscriptions can "number" an item so that you don't have to know where
+it is in your inventory.
+Example: inscribing your arrows {@f1} lets you use '1' at the prompt
+for which ammo to use, instead of having to use the inventory letter,
+which can change unnoticed.
+
+Number inscriptions work together with macros to allow reproducible 
+labeling of items independent of inventory position.
+
+Note that the game produces "fake" inscriptions, which look like real
+inscriptions, but are really just displayed the same way.
+
+----------------------------------------------------------------------
+3.2 Macros
+----------------------------------------------------------------------
+
+Macros are mappings from a single "logical" keypress to a sequence of
+keypresses, allowing you to use special keys on the keyboard, such as
+function keys or keypad keys, possibly in conjunction with modifier 
+keys, to "automate" repetitive multi-key commands that you use a lot.
+
+For keys which don't have a system-independent representation, such as
+function keys, this is the only way to change their behavior.
+
+See articles:
+- "Can I create an infinite loop using a macro?"
+- "Can I use macros inside other macros?"
+- "How can I tell if a key has a keymap/macro?"
+- "How do I find out what the built-in commands are?"
+- "If macros are so dangerous, why use them at all?"
+- "My macro works all the time when I press its key!"
+
+----------------------------------------------------------------------
+3.3 Keysets
+----------------------------------------------------------------------
+
+Keysets are fully customizable sets of command key "layouts" that 
+Angband uses. Angband supports two -- "original" and "roguelike". They 
+can be toggled between using the (=) Options command. The "original" 
+keyset is almost identical to the built-in commands, with some 
+additions for ease of use such as the number keys moving you in that 
+direction. The "roguelike" keyset uses letters for movement, which 
+allows easy movement on a keyboard without a numeric keypad. As a 
+consequence its letter keys are almost completely "full". In older 
+versions these keysets were hard-coded in the source. Now keymaps are 
+used to implement them. The default keymaps are in PREF.PRF.
+
+----------------------------------------------------------------------
+3.4 Keymaps
+----------------------------------------------------------------------
+
+The term "keymap" is short for "keyset mapping". A keymap translates a 
+single keypress into a sequence of characters in the built-in command 
+set, which bypasses both keymaps and macros. Because keymap and macro 
+expansion isn't done, keymap actions must be specified using built-in 
+commands. Keymaps can only be bound to keys with a system independent 
+representation. Keymaps and their pref file format are thus portable 
+between systems. This allows the keymaps used in the pref files that 
+ship with Angband to be used on any system. Keymap expansion is only 
+done when Angband is "expecting" a command, so they are safer than 
+macros. Each key can have 2 distinct keymaps, one for each keyset. The 
+keymap for the current mode is used when the keymap is expanded. These 
+can be added, removed, and edited independently of eachother. 
+
+See articles:
+- "How can I tell if a key has a keymap/macro?"
+- "How do I convert a macro to a keymap?"
+- "How do I find out what the built-in commands are?"
+- "Why can't I add a keymap for a function key?"
+- "Will my macros/keymaps still work in graphics mode?"
+
+----------------------------------------------------------------------
+3.5 Pref files
+----------------------------------------------------------------------
+
+Preference files save commands such as macros and keymaps which are
+used to customize the game. They are used to implement the "original" 
+and "roguelike" keysets. They provide default appearances for items.
+They implement the default behaviors which make Angband look and play 
+the same (for the most part) on different systems.
+
+Pref files can be saved with the name of a player name, class, and 
+race, and whenever a player with a matching characteristic is loaded,
+the appropriate pref file is loaded. This makes some customizations
+transparent and automatic.
+
+Pref files let you do some things that could otherwise only reasonably
+be done by changing the info files or source, such as changing the 
+appearance of a given terrain feature, or the symbol used for the
+player.
+
+Pref files let you set up and save your favorite game options, and
+have them available for new characters without having to redo them.
+
+See section "Pref files" for a full description.
+
+See articles:
+- "I changed some macros in a pref file and nothing happened!"
+- "Automatically loading pref files" for possible problems.
+
+======================================================================
+4. Common macros and techniques
+======================================================================
+
+----------------------------------------------------------------------
+4.1 Clearing the command buffer
+----------------------------------------------------------------------
+
+############ This is one of the most important techniques! ########### 
+
+Almost all action strings should begin with a sequence to clear the 
+buffer of existing commands and messages. These sequences are often 
+omitted in usenet postings and in this FAQ because they clutter the 
+description, but they should almost always be used.
+
+If an unfinished command is still waiting for input when you press the 
+trigger key of a macro or keymap, the characters of its action string 
+will be taken as input for the command. The command will ignore keys 
+it doesn't know how to handle until it finds one that it does. This 
+often leads to something completely unexpected, with embarrassing 
+results such as your death, or losing a really nifty item.
+
+If there are still messages waiting, the first characters in the 
+action will instead just clear the waiting messages. How this happens 
+depends on whether the option (quick_messages) is set. Then the action 
+will start executing in the middle of its action string, with equally 
+dangerous results as in the above case. Note that some messages caused 
+by a command are quite rare, and others could be produced by a game 
+state change like becoming hungry that has nothing to do the command.
+
+These types of problems are more common when using an action such as 
+auto-firing where a trigger key is repeatedly pressed. 
+
+"\e\e\e"
+Multiple escapes are used to clear the command buffer. Escape cancels 
+any command/input still being processed, and also clears a [single] 
+message whether/not the (quick_messages) option is set. This string 
+should be used to begin all action strings. It is also wise to put it 
+between actions in multi-action macros. Note that this technique can 
+also be dangerous, hiding warnings or important information.
+Example: an action like "*tf1" would be changed to "\e\e\e*tf1".
+
+There are a few situations in which you do not want to use escapes.
+For example, after the spell Detect Monsters, an escape will clear the 
+detection. Or if the action is part of a multi-part action or is meant 
+to wait for user input such as the firing action "f1" which will wait 
+for targeting information.
+
+"\s\s\s"
+Spaces are useful for clearing messages, but won't cancel a command 
+that is waiting for an item choice. Sometimes it is useful to split 
+an action into two parts and bind them to two separate trigger keys. 
+Prefixing spaces before the 2nd action will discard any remaining 
+messages without canceling unfinished commands from the 1st one. Some 
+players create a macro consisting of a large number of spaces to be 
+used to clear a flood of messages.
+
+See articles:
+- "Messages and Questions" for how to deal with them.
+- "My macro outputs "e - Floating Eye"..." for an example of a common 
+  mistake using escape sequences.
+- "My macro drops/takes off my main weapon!" for an example of the 
+  kind of thing that can go wrong when you fail to use them.
+- "What just killed me?" for an example of skipping over messages 
+  *too* fast.
+
+----------------------------------------------------------------------
+4.2 Swap weapons
+----------------------------------------------------------------------
+
+The 'X' key has a default keymap "w0", which will wield the first item
+inscribed as "@0" or "@w0". This will swap between 2 weapons which are
+both inscribed with {@0} or {@w0}. If there is more than one item in
+the inventory inscribed as 0, it will use the first one.
+
+(This is documented in an older pref file as being able to cycle thru 
+a set of them. This doesn't appear to have ever worked that way.)
+
+This will also work for other wieldable items. For example, if you 
+have a helm which gives telepathy, which can be a real pain when you
+need to rest, it can be used to swap it with another helm.
+
+Inscribing weapons with {@w1@w0}, {@w2@w0} allows directly wielding a 
+specific one. If you don't want that ability, you can just inscribe 
+both with {w0}. These can also be inscribed as just {@1@0} and {@2@0} 
+if you don't inscribe any other items with numbers, although this is
+not recommended.
+
+----------------------------------------------------------------------
+4.3 Resting
+----------------------------------------------------------------------
+
+= Rest as needed =
+"R&\r"
+R   - rest
+&   - until 100% healthy
+\r  - return.
+
+Note that this isn't particularly dangerous, because the game will
+break out of the resting command if you are disturbed by hunger,
+sensing a monster, ... Note that there are options which will prevent 
+you from being disturbed by important events. If you are using these 
+options the Rest command become more dangerous.
+
+= Rest for a specific duration =
+"R100\r"
+R   - rest
+100 - turn count
+\r  - return
+
+This version is useful if you are already healed up. For fighter 
+pseudo-id, for example. Also useful for recovering a fixed amount of 
+mana before/after a spell, waiting for a Recall spell to kick in,...
+
+Note that this is one of the few times when you can directly enter the
+count after the command. Usually you need to enter the count before 
+the command, using the (0) count command.
+
+= Maximum Rest =
+"R9999\r"
+
+The maximum number of turns you can use as an argument. This can be 
+useful when waiting for shop inventory to change, etc. Be sure to take
+off any non-permanent light source, and have plenty of food when you 
+rest for long periods of time.
+
+----------------------------------------------------------------------
+4.4 Activate the Phial
+----------------------------------------------------------------------
+
+"Af\s\s"
+A   - Activate
+f   - light source (the Phial).
+\s  - skip message
+\s  - skip message
+
+"Af\s\sR50\r"
+Activate the Phial and rest for 50 turns.
+
+This can be bound to 'F' key since you won't need to refuel lanterns 
+much after you have the Phial :).
+
+----------------------------------------------------------------------
+4.5 Kill item(s) on floor
+----------------------------------------------------------------------
+
+The need to destroy large numbers of items arises as one reaches 
+deeper levels of the dungeon. The auto-squelch feature only partially
+reduces the need for this. The behavior of these actions is affected 
+by two options: (quick_messages) and (easy_floor), and the possible 
+presence of a pile of items on the floor.
+
+(quick_messages) allows any key to cancel a message.
+
+(easy_floor) allows the player to select an item from the floor from a 
+menu, entering an item index when there is a pile (more than one item).
+This option was added in version 2.8.5. This generally complicates 
+writing these macros.
+
+Note that space '\s' is used to clear messages in the action strings, 
+but one could use escape '\e' just as well.
+
+Note: you cannot destroy artifacts, so these macros are safer and more 
+useful than they might first appear. The (k) Destroy item command will 
+fail when trying to destroy an artifact, leaving any following 
+characters in the action string, which may be interpreted differently 
+than anticipated.
+
+"k-yy"
+k   - Kill item
+-   - Select item from floor
+y   - "yes" to query "Really destroy a <item>?"
+y   - skip the "you destroy the <item>" message.
+
+This version only works when (quick_messages) option is on. Here the 
+last 'y' key gets rid of the last message, since any key will.
+This won't work for piles if (easy_floor) is on. The 'y' will be 
+ignored as an invalid item choice.
+
+"k-y\s"
+k   - Kill item
+-   - Select item from floor
+y   - "yes" to query "Really destroy a <item>?"
+\s  - skip the "you destroy the <item>" message.
+
+This version works as above, but also when (quick_messages) is off. 
+
+"0k-y\s"
+0   - enter count (causes to skip prompt for how many to destroy)
+k   - Kill item
+-   - Select item from floor
+\s  - skip the "you destroy the <item>" message.
+
+Destroy a single item on floor below you. Doesn't prompt for a count.
+This won't work for piles with (easy_floor) on, which will prompt you 
+for the item. Works correctly when (quick_messages) is off, because 
+there is no prompt for how many to destroy.
+
+"0k-ay\e"
+0   - enter count (causes to skip prompt for how many to destroy)
+k   - Kill item
+-   - Select item from floor
+a   - either item 'a', or ignored
+\e  - escape (ignored), or cancel message
+
+Destroy a single item on floor below you. Doesn't ask to confirm.
+WARNING: This action can destroy the first item in your inventory if 
+there aren't any items on the floor below you! 
+
+The leading '0' causes a prompt for a count to be skipped. If there is 
+a pile, the 'a' key will select the top item in the pile. If not, the 
+'a' will aim a wand, the following 'y' will be ignored, and the final 
+escape will cancel the aiming.
+
+"0k-yay\e"
+0   - enter count (causes to skip prompt for how many to destroy)
+k   - Kill item
+-   - Select item from floor
+y   - "yes" to query "Really destroy a <item>?", or ignored.
+a   - top item (a) in a pile, or activate wand.
+y   - "yes" to query "Really destroy a <item>?" (for piles).
+\e  - skip the "you destroy the <item>" message.
+
+The above action will work in most cases. This version works correctly 
+for piles when (easy_floor) is on. If there is a pile, the 'y' is 
+ignored and the 'a' selects the top item. If there isn't a pile, then 
+the 'y' will correctly answer the yes/no question "Really destroy a 
+<item>?", and the following "ay" will aim a rod, and then ignore the 
+'y' key press, and the final escape will cancel the aiming. Works 
+correctly when (quick_messages) is off. When (quick_messages) is on, 
+and there is no pile, the 'a' will cancel the message, and the 
+following 'y' will be passed thru as an unimplemented command, and the 
+space will cancel the error message.
+
+Backspaces "\\" may be required to keep the 'y's from being 
+interpreted as keymaps in case 'y' has been assigned one.
+
+----------------------------------------------------------------------
+4.6 Firing at the nearest target
+----------------------------------------------------------------------
+
+Each of these needs "\e\e\e\e" afterwards to cancel up to 4 possible 
+messages. The first message will always occur. Using too many escapes 
+can cause you to miss messages in which a monster fights back.
+- "You have NN <ammo> left. -more-"
+- "The <ammo> hits the <monster>. -more-"
+- "It was a <adj> hit! The monster ... -more-"
+- "The <monster> dies/grunts with pain/..."
+
+"f1*t"
+f   - fire
+1   - ammo inscribed 1
+*   - target
+t   - select first target
+
+Note that targeting is affected by the option (use_old_target). If 
+this action is used with the (use_old_target) option set, the "f1"
+part will fire the missile before the targeting part "*t" is reached.
+
+"*tf1"
+*t  - select first target
+f1  - fire ammo inscribed 1
+
+If (use_old_target) is on, this works correctly, by selecting the 
+target before firing. If the option is off, it will still prompt you
+to select a target, even though you just selected one.
+
+"*tf1*t"
+*t  - select first target
+f1  - fire ammo inscribed 1
+*t  - select first target
+
+This works correctly for (use_old_target) either on/off. If the option
+is on, this works by selecting the target before firing. If the option 
+is off, the first target selection will be ignored, and firing will 
+wait on the second target selection.
+
+Note that if there are no valid targets, "*t" will select the player's
+current position. Also, it is fairly easy to make safe assumptions 
+about the (use_old_target) option, since players don't tend to change 
+back and forth. It is generally easier to make one set of actions that 
+work for (use_old_target) on, and another for when it's off.
+
+A common problem with auto-firing is having both arrows and bolts 
+inscribed with {@f1}. The bolts will sort first in the inventory, and 
+if you are firing a bow, they will be found first and the fire command 
+will fail, since you can't fire a bolt with a bow. See article "Can I 
+inscribe multiple items with the same number?".
+
+See article "My auto-firing macro shoots the wrong target!".
+
+These actions can be modified for use with targeted spells or devices, 
+by changing "f1" to "m1a" (Magic Missile), "a1" (Aim wand 1), ...
+
+----------------------------------------------------------------------
+4.7 Canceling targeting
+----------------------------------------------------------------------
+
+"*\e\s"
+*   - start targeting
+\e  - cancel targeting.
+\s  - skip message "Target Aborted."
+
+OR
+
+"*q\r"
+*   - start targeting
+q   - cancels targeting.
+\r  - skip message "Target Aborted."
+
+This is useful before casting Stone to Mud, or a ball spell. For ball 
+spells you usually want to target the middle of a pack, or sometimes 
+to "miss" the creature in order to get the ball to detonate on a 
+nearby wall.
+
+Using a targeted action after this will cause the user to be prompted 
+for a target.
+
+Canceling targeting is made necessary by the existence of the option
+(use_last_target), which causes an action which requires a target to
+use the last target without prompting. See article "My auto-firing 
+macro shoots the wrong target!" for more on this.
+
+----------------------------------------------------------------------
+4.8 Verifying actions
+----------------------------------------------------------------------
+
+The verification character '!' will ask you to verify the use of an 
+item as a choice for a specific command. This only applies if you are 
+asked to select the item for the command. See the related prevention 
+character '^' which forces verification an action even when the item 
+isn't being used. 
+
+= Verify All =
+{!*}
+verify any attempt to use this item. Useful for some things such as 
+Scrolls/rods of Recall that you don't want to lose or use by accident.
+
+= Verify drop, destroy, throw =
+{!d!k!v}
+don't drop, destroy, or throw this item. Prevents dropping your 
+favorite weapon,... This is one of the most useful inscriptions, as it 
+prevents the kind of typing accidents that can get you killed.
+
+= Verify selling =
+{!d}
+Prevents selling as well as dropping.
+
+= Prevent Tunneling =
+{!T} 
+Use on main weapon to prevent tunneling with it by mistake.
+
+= Multiple verification =
+These inscriptions can be repeated. So {!*!*} will make you confirm 
+twice for any action using that item.
+
+----------------------------------------------------------------------
+4.9 Preventing actions
+----------------------------------------------------------------------
+
+The inscription {^<cmmd>}, where <cmmd> is a command character, causes 
+verification of that command if the inscribed item is currently being 
+wielded, even if the item isn't "used" by the command. This applies to 
+all equipment items, not just the current weapon. For example, if you 
+try to tunnel, and your boots have {^T} inscribed, you will be asked 
+if you really want to do that. Inventory items won't be checked at all.
+This inscription allows preventing actions such as going down stairs, 
+which don't "use" any item at all. Don't confuse this with a control 
+character! In this article {^m} does not mean Ctrl-m.
+
+= Prevent Tunneling =
+{^T}
+Use on main weapon to prevent tunneling with it by mistake.
+
+= Prevent going up/down stairs =
+{^<}
+{^>}
+Inscribe boots to make confirm before going down stairs. This can also 
+be useful on Charisma boosting items that you wear around town but 
+don't want to take into the dungeon.
+{^>^r^z^m^p}
+Prevent leaving town with this item. Need to catch stairs, scrolls and
+rods of Recall, and Mage and Priest Word of Recall spells.
+
+= Prevent walking with shovel =
+{^;}
+Inscribe shovel to prevent walking with it equipped (instead of your 
+main weapon). Command (;) is the walk command, which is "hidden" from
+the user by keymaps in PREF.PRF.
+{^.}
+Prevents running with the item. This allows merely walking, which you 
+usually do in the process of tunneling out a vein.
+
+= Prevent All =
+{^*}
+Verify any attempt to perform an action with this item wielded.
+
+= Multiple prevention =
+These inscriptions can be repeated. So {^*^*} will make you confirm 
+twice for any action while wielding that item.
+
+----------------------------------------------------------------------
+4.10 Mage macros and inscriptions
+----------------------------------------------------------------------
+
+= Spell books =
+{@m1@b1@G1!d!k!v} [Magic for Beginners]
+{@m2@b2@G2!d!k!v} [Conjurings and Tricks]]
+{@m3@b3@G3!d!k!v} [Incantations and Illusions]
+{@m4@b4@G4!d!k!v} [Sorcery and Evocations]
+
+Others should be labeled similarly in spoiler order.
+
+Labeling spellbooks is one of the most useful uses of labeling. They 
+can be lost to theft or fire attacks, which can unexpectedly leave you 
+casting the wrong spell. In some games you won't find a book until 
+much later in the game, or may need to ditch one to free an inventory 
+slot. Gaining a spellbook can cause the same problem, if you have an 
+inscription like "!d!k!v" and the merge inscriptions option is off, 
+all spellbooks after that one will be wrong.
+
+Warning: when using macros there is the danger of casting a spell you 
+don't have enough mana for, and having the macro skip over the warning 
+message. Your character can then faint from the effort, becoming 
+completely helpless in a room full of nasties. This is a danger you 
+face without macros as well, but it is the kind of thing that keeps 
+some players from using macros at all.
+
+See article "Firing at the nearest target" for how to make auto-firing 
+actions for targeted spells.
+See article "How do I inscribe my 10th spellbook?".
+
+----------------------------------------------------------------------
+4.11 Priest macros and inscriptions
+----------------------------------------------------------------------
+
+= Spell books =
+{@b1@p1@G1!d!k!v} [Beginners Handbook]
+{@b2@p2@G2!d!k!v} [Words of Wisdom]
+{@b3@p3@G3!d!k!v} [Chants and Blessings]
+{@b4@p4@G4!d!k!v} [Exorcism and Dispelling]
+
+Others should be labeled similarly in spoiler order.
+
+(See the warning above about casting spells with insufficient mana.)
+
+See article "Firing at the nearest target" for how to make auto-firing 
+actions for targeted spells.
+See article "How do I inscribe my 10th spellbook?".
+
+----------------------------------------------------------------------
+4.12 Warrior macros and inscriptions
+----------------------------------------------------------------------
+
+= Identify with list =
+Inscribe Identify scrolls {@r0}.
+Then action "r0*" will cast Identify and bring up the inventory list.
+
+= Identify floor =
+"r0-" will Identify without showing the inventory.
+
+----------------------------------------------------------------------
+4.13 Easy running
+----------------------------------------------------------------------
+
+Bind Shift+<keypad dir> to running for each of the directions.
+For example, running "North":
+
+1) @    Interact with macros
+2) 4    Create a macro
+3) Shift+8   (Trigger key for the macro)
+4) \\.  Run
+   8    "North"
+5)      (Hit Enter)
+6)      (Hit Esc to exit the editor)
+
+Macros for the other directions are added similarly. Remember that the
+original and roguelike keysets differ, and using the backslashes makes
+sure that the built-in command gets used.
+
+ 7 8 9
+ 4   6
+ 1 2 3
+
+These macros are already in the "pref-***.prf" files that ship with
+the standard Angband distribution for some systems, but not all.
+Systems "mac", "win", "x11" have them. If you aren't sure if you have
+them, just try moving in any direction with the shift key down.
+
+These do have to be macros instead of keymaps, because they rely on 
+keypad keys having different scan codes than the top-row number keys.
+
+There are also default macros for Ctrl+<dir> which applies the command 
+(+) Alter to that direction.
+
+----------------------------------------------------------------------
+4.14 Automatically loading pref files
+----------------------------------------------------------------------
+
+Angband automatically loads pref files when a character is loaded or 
+born. Among the last ones loaded are: "<$RACE>.prf", "<$CLASS>.prf", 
+and "<$PLAYER>.prf", in that order. These are the best ones to use to 
+customize the game for individuals. The order is important because 
+pref files which load later will overwrite options and macros/keymaps 
+from previous ones.
+
+Here <$RACE> is the name of the character's race, <$CLASS> is the name 
+of its class, and <$PLAYER> is the character's name. Both <$RACE> and 
+<$CLASS> have a fixed number of choices. These are listed for Standard 
+(Vanilla) Angband in article "Pref file loading order".
+
+Pref files can also conditionally load other pref files using the "%:" 
+and "?:" pref lines. See standard file USER.PRF for an example, and 
+article "Conditional expression lines ?:" for an explanation.
+
+Your character's name is the one that appears during game play in the 
+upper left hand corner of the screen. If it isn't visible there, you 
+can use the (C) Character description command. Note that this name may 
+be different than the filename of the character's save file.
+
+Filenames for the save and pref files are built from a "base name", 
+which is the player name with all non-alphanumeric characters changed 
+to underscores (_). On Windows and DOS systems the base name will also 
+be truncated to 8 characters. This could lead to different characters 
+having the same (default) pref files.
+Example: "Grog the Elder" and "Grog the Younger" would both try to 
+load the same pref file "Grog_the.prf".
+
+In recent versions of Angband "<$PLAYER>.prf" is the default filename 
+when saving your macros and keymaps from the (@) Interact with macros 
+screen. Just hit Enter to accept that name.
+
+On some systems you may encounter problems automatically loading this 
+file if your name is more than 8 characters, or if it contains spaces 
+or special characters.
+
+See article "Saving these macros and keymaps for reuse" for how to 
+save your character's preferences.
+
+See article "Pref file loading order" for the full list of pref files 
+loaded and their order.
+
+Note: for pref files to load automatically they must end in the file 
+extension "prf", which is the default when saving pref files. But it 
+is possible to save and load pref files with any or no file extension, 
+from the macros and visuals editor screens.
+
+----------------------------------------------------------------------
+4.15 Multiple macros bound to one trigger key
+----------------------------------------------------------------------
+
+Angband supports using modifier keys on trigger keys. One thing this 
+lets you do is easily choose between variants of an action. Another is 
+to minimize the amount of moving your hands have to do, speeding up 
+play and reducing stress on your wrists.
+
+You can bind multiple versions of the same macro to the same trigger 
+key, using Alt, Control, Shift in different combinations to choose 
+among the different versions.
+Example: use <Alt> for targeted, and <Shift> for non-targeted.
+
+Another use is to heavily use modifiers on numeric keypad keys. The 
+standard version already comes with Shift-<digit> bound to running in 
+that direction. But by using various combinations of modifier keys, it 
+is possibly to play with the right hand almost always on the numeric 
+keypad, and the left on the modifier keys.
+
+----------------------------------------------------------------------
+4.16 Multi-part actions 
+----------------------------------------------------------------------
+
+Better to only do this when spells have ~0% failure.
+Be careful of the order of commands. Commands that leave useful info 
+on the screen shouldn't be followed by ones that will clear it.
+Be careful of commands that set or clear targets.
+Use "\e\e\e\e" in-between commands to be safe.
+
+----------------------------------------------------------------------
+4.17 Macros can contain their own trigger key
+----------------------------------------------------------------------
+
+It is permissible to make a macro or keymap which contains its own key
+in its action. It won't cause recursion, but there are a few wrinkles.
+
+Example: you can bind "*tf1" to the 'f' key, to cause it to auto-fire 
+at the nearest target. You can still use the 'f' key for Fire in other
+macros or keymaps. 
+
+If you bound 'f' as a keymap you will need to use "\\f" for Fire when 
+it is used in a macro action string. You don't need to do anything 
+special to use it in a keymap in its usual sense. Keymap and macro 
+expansion isn't done inside keymap action strings.
+
+If you bound 'f' as a macro, the problem will be in entering the new 
+macro or keymap in the editor. When you try to press an 'f' key for
+the action, it will expand to "*tf1", even when you don't want it to. 
+You will first have to remove the macro bound to 'f', then add the 
+macro or keymap that uses 'f' in its action, and then reenter the 'f' 
+macro. You can also create the macro in a pref file and load it using 
+the "Load pref file" command in the (@) Interact with macros screen.
+
+----------------------------------------------------------------------
+4.19 Recharging a rod using a Recharge Item spell
+----------------------------------------------------------------------
+
+(You can also recharge staffs and wands this way, but not artifacts.)
+
+Inscribe the rod with {@m<d>}, where <d> is any decimal digit not 
+already used as a label.
+
+The trick is that we want to use a digit to label the rod so we can 
+refer to it using its label instead of its inventory letter, but we 
+have usually used up many of the digits for spell books. If we were to 
+label the rod with {@m1} and the first spellbook was also labeled with 
+{@m1}, then the spellbook will sort first in the inventory so it will 
+be found first when looking for item '1' to use with the (m) command. 
+So that would try to recharge the spellbook, which will fail. Angband 
+doesn't restrict itself to "appropriate" items when looking for a 
+labeled item. It simply finds the first one whose command letter and 
+digit match.
+
+You can't get around this by omitting the letter 'm', or using 'z' 
+instead. Using no command letter will still match it. And if you do 
+use a command letter it has to be 'm', because that is the built-in 
+trigger for the current command.
+
+Note that the digits used with different command triggers can be 
+different, so inscribing {@z1@m0} is perfectly legal. Then use digit 1 
+when zapping the rod, and 0 when referring to it during the casting of 
+a [mage] spell.
+
+You can also use this technique with scrolls. In that case you need to 
+use the inscription {@r<d>} since the item is being referred to while 
+processing the (r) Read scroll command.
+
+----------------------------------------------------------------------
+4.20 Bypassing macros and keymaps
+----------------------------------------------------------------------
+
+Typing a backslash (\) at a command prompt will bypass macro/keymap 
+substitution on the next key pressed and use the original command for 
+that key. This is useful if you need access to a built-in command that 
+you have remapped the key for. This will not remove the macro/keymap 
+from that key. 
+
+For example, if you bound the key (@) to a macro, you wouldn't be able 
+to enter the macro editor to rebind it to itself. Pressing '\' first, 
+then '@' causes the command handler to use its built-in command, which 
+allows you to enter the "Interact with macros" screen.
+
+If you aren't at a visible prompt, pressing (\) will bring the prompt 
+"Command: " which will accept a key without macro or keymap expansion.
+
+You can also bypass keymap expansion in an action string. Precede the 
+key with a doubled backslash "\\". Do not use just a single backslash, 
+or it will be ignored, and possibly alter the meaning of the character 
+that follows it, and thus the rest of the action.
+
+Macro expansion is never done on keys in an action string, and an 
+action string for a keymap does no expansion at all, so the use of 
+backslashes isn't necessary. But if you include them, the action will 
+work as either a macro or a keymap.
+
+Backslash only works when Angband is looking for the next command, not 
+when it is already in the middle of one. For example, if you have the 
+action ";2" (walk south) bound to a macro, and you have a keymap for 
+the key '2', then using ";\2" or ";\\2" won't prevent the keymap from 
+expanding. After it has read the walk command ';', it is in special 
+direction handling code which behaves differently.
+
+----------------------------------------------------------------------
+4.21 Disabling a built-in command
+----------------------------------------------------------------------
+
+At times it may be useful to disable a built-in Angband command. For 
+example, a dangerous key may be too easy to press by accident. The 
+macro editor commands for removing macros and keymaps can't be used in 
+this situation. Instead bind the trigger key to the action string 
+"\x00". This special 'command' takes no "energy" and won't generate an 
+error message. It truly does "nothing". This will work for both macros 
+and keymaps. If possible you should use a keymap instead of a macro to 
+disable the key. A keymap will catch occurrances of the key both in 
+macros and by typing, and will still allow you to use the key when it 
+isn't being interpreted as a command.
+
+If you use the "Query a macro/keymap" on a trigger key bound to this 
+action, it will report having found it, but no action string will be 
+printed.
+
+Another technique is to use the action "\e\e\e". This is used in some 
+of the standard Angband pref files.
+
+See article "Bypassing macros and keymaps" on how to access a built-in 
+command that you have remapped the key for.
+
+----------------------------------------------------------------------
+4.22 "Naming" an item (patch)
+----------------------------------------------------------------------
+
+= 'Fake artifact' name =
+# "Name" an item
+This isn't an actual command in the interface, but a flag character 
+that alters the way an item description is generated. This isn't part 
+of standard Angband. It's added by Tom Morton's 'fake artifact' patch.
+
+Example: inscription {#Thumper} will cause a Club (+8,+8) to display
+as Club 'Thumper' (+8,+8) in your inventory and messages.
+
+----------------------------------------------------------------------
+4.23 Using the same trigger key for different classes
+----------------------------------------------------------------------
+
+One of the virtues of macros and keymaps is the ability to play the 
+game the same way independently of the type of character being used. 
+So you type in what you _want_ to do, not _how_ to do it. Macros can 
+be produced to accomplish the same basic task in different ways for 
+different classes. Example: for my characters the [Tab] key lights up 
+a room no matter what character I'm playing. This may require changing 
+the action bound to a key during a game. This can be done easily by 
+adding them to that character's <$PLAYER> pref file, since it will 
+overwrite the <$CLASS> and <$RACE> pref files which load before it.
+
+= Light room =
+Af   - (all) Activate Phial
+z0   - (all) Rod of Illumination
+u0   - (all) Staff of Light
+m1d  - (Mage) Light Area
+p1e  - (Priest) Call Light
+
+= Auto-fire =
+f1   - (all) Fire bow/crossbow/sling
+a1   - (all) Wand of Magic Missile/...
+v1   - (Fighter) Throw Dagger (stack)
+m1a  - (Mage) Magic Missile
+
+= Identify =
+r2   - (all) Scroll of Identify
+u2   - (all) Staff of Perception
+z2   - (all) Rod of Perception
+m3e  - (Mage) Identify
+p6c  - (Priest) Perception
+A common variant is to append "-y" to ID the (top) item on the floor.
+
+= Detection =
+z3   - (all) Rod of Detection
+m1hm1b - (Mage) Find Traps/Doors; Detect Monsters
+p1fp1g - (Priest) Find Traps; Detect Doors/Stairs
+p6b  - (Priest) Detection
+
+= Recall =
+r4   - (all) Word of Recall scroll
+z4   - (all) Rod of Recall
+m6e  - (Mage) Word of Recall spell
+U?   - (special) Use mutation "Travel between town and the depths" [Z]
+
+= Heal =
+q5   - (all) Potion of Cure *** Wounds/Healing
+u5   - (all) Staff of Cure Light Wounds/...
+m1f  - (Mage) Cure Light Wounds
+p1b  - (Priest) Cure Light Wounds
+p2c  - (Priest) Cure Medium Wounds
+...
+
+(other common actions)
+= *Heal* =
+= Recharging =
+= Speed self =
+= Teleport =
+
+----------------------------------------------------------------------
+4.24 Using PageUp and PageDown in Help files
+----------------------------------------------------------------------
+
+Navigation in help files is done using keys as described in help file 
+GENERAL.TXT. It is possible to bind these to more standard navigation 
+keys using macros. This must be done with macros, because only macros 
+are expanded when not in "command" mode. Trigger keys must be chosen 
+carefully, because they will continue to expand all the time. One way 
+to avoid problems is to use modifier keys such as Shift. You can't 
+easily use number keys, because that would break the use of number 
+keys for other menus in the program.
+
+Space - page down
+_     - page up (underscore)
+
+Enter - line down
+=     - line up
+
+-     - 1/2 page up
++     - 1/2 page down
+
+Bind the PageUp key:
+
+1) @    Interact with macros
+2) 4    Create a macro
+3) PageUp (trigger key to use)
+   _    page up in help file 
+4)      (Hit Enter)
+5) Esc  (Exit macro editor when done)
+
+----------------------------------------------------------------------
+4.25 Swapping upper- and lower- case commands on a key
+----------------------------------------------------------------------
+
+Some common commands are on shifted letter keys. To reduce the need to 
+use the Shift key, some players swap the commands on the shifted and 
+normal versions of the key. This is a small enough change that it's 
+easy to remember, and makes typing easier. You can also move Control 
+and Alt key combinations around this way.
+
+To do this with keymaps, just bind the keys to the opposite version. 
+For macros, you must precede the key in the action string with "\\". 
+
+If the keys weren't built-in commands, you will have to re-enter the 
+actions in swapped order, or use the technique from article "How do I 
+convert a macro to a keymap?" to do so.
+
+
+======================================================================
+5. Common Questions ======================================================================
+
+----------------------------------------------------------------------
+5.1 Why can't I add a keymap for a function key?
+----------------------------------------------------------------------
+
+Because keymaps can only be created for keys with system-independent representations. This leaves out function keys, and several other 
+special keys. The "Create a keymap" command will continue waiting for 
+a keypress until you press a valid keymap trigger. You can, however, 
+create a macro for a function key.
+ 
+----------------------------------------------------------------------
+5.2 How can I automatically inscribe items when I pick them up?
+----------------------------------------------------------------------
+
+You need to turn on the "Merge inscriptions when stacking" option.
+If you are already carrying the same item with an inscription, a new
+one will be added to the stack. Note that this WON'T merge discounts.
+Although discounts display like inscriptions, they are different.
+
+1) =   Angband options
+2) 1   User interface options
+3)     "Merge inscriptions when stacking" (stack_force_notes)
+       move down to this line and change to "yes".
+
+----------------------------------------------------------------------
+5.3 How do I inscribe my 10th spellbook?
+----------------------------------------------------------------------
+
+You can't in Vanilla! There are only nine ;).
+In many variants there are more. So start numbering with 0, or use 0
+for 10. Note that there is no "order" to the digits you use. They are
+just labels. You can use any mapping of digits to spellbooks you want,
+as long as you can remember which is which! Most people start with 1.
+Many programmers start with 0. This is a "religious" issue. This FAQ 
+numbers all spellbooks in actions starting with 1.
+
+----------------------------------------------------------------------
+5.4 Can I use macros inside other macros?
+----------------------------------------------------------------------
+
+No. Macros don't expand macro triggers they contain in their actions, 
+in order to avoid recursion and other problems. However, keymap 
+substitution is done, so you can use keymaps to alter the behavior of 
+macros. This keymap expansion can be bypassed by preceding a trigger 
+with "\\" in the action.
+
+Keymaps don't expand macro or keymap triggers in their actions.
+
+Also see article "Can I create an infinite loop using a macro?".
+
+----------------------------------------------------------------------
+5.5 How do I find out what the built-in commands are?
+----------------------------------------------------------------------
+
+These are described in the help files PLAYING.TXT and COMMAND.TXT.
+Help files can be viewed from within the game using command (?) Help.
+Note that some very common "commands" are actually keymaps in the 
+"original" keyset. These are defined in PREF.PRF. The original and 
+roguelike command sets differ, and both are different from the built-
+in command set.
+
+See article "Using PageUp and PageDown in Help files" for a short list 
+of navigation commands. See help file GENERAL.TXT for the full list.
+
+----------------------------------------------------------------------
+5.6 How can I tell if a key has a keymap/macro?
+----------------------------------------------------------------------
+
+= Newer versions =
+
+In newer versions (>= 2.8.3) this is easy:
+1) @    Interact with macros
+2) 3    Query a macro
+OR 7    Query a keymap
+3)      (Press the trigger key to test)
+4) Esc  (Exit macro editor when done)
+
+It will report "Found no macro" or "Found a macro" at the top of the
+screen. The action it is bound to will be displayed at the bottom of
+the screen, under the "Current action..." line. You must test for both 
+macros and keymaps, and keymaps will only show for the current "mode", 
+i.e. original/roguelike. 
+
+= Older versions =
+
+In older versions (< 2.8.3) this is harder and more dangerous.
+The safest way is probably to just look at the pref files. If you 
+don't know the internal sequence used for the key, finding out what
+the trigger key sequence is will require overwriting any existing
+macro on that key.
+1) @    Interact with macros
+2) 7    Create an identity macro
+3)      (Press the trigger key)
+(repeat for as many keys as you want)
+4) 2    Dump macros
+5)      (Enter a safe temporary filename)
+4) Esc  (Exit the macro editor)
+
+The keys you modified will be listed at the end of the dumped file. 
+Warning: this will remove any existing macro on this key, without
+letting you know what it was, or if there was one. You will probably
+want to restart after doing this.
+
+= Notes =
+
+Note: on some machines, there are duplicate keys such as left and right
+Shift keys. These will generally  produce different key codes and can
+have different macros and keymaps.
+
+Note: just because a key doesn't have a macro doesn't mean there isn't
+a command that uses that key. 
+
+----------------------------------------------------------------------
+5.7 How can I tell if a key has a built-in command bound to it?
+----------------------------------------------------------------------
+
+Er ... try pressing the key. If there is a command bound to that key 
+it should usually generate a message of some kind. If there isn't one,
+it should respond: "Type '?' for help.". Some keys may not generate 
+any message at all. Function keys are a good example.
+
+In some variants, the game will generate "silly" error messages which
+may not look like error messages at first. After a few repeated key
+presses they should use the standard "Type '?' for help." message.
+
+Failing that, look in COMMAND.TXT or PLAYING.TXT, which list all 
+commands, and are usually up-to-date. There is no specific method for 
+checking if a key has a command bound to it from within the game.
+
+----------------------------------------------------------------------
+5.8 Can I inscribe multiple items with the same number?
+----------------------------------------------------------------------
+
+You can, but it can cause problems if you aren't careful. Use the 
+command letter in the inscriptions to minimize problems. For example, 
+it is safe to inscribe both arrows with {@f1} and a spell book with 
+{@m1} because the command letter allows distinguishing the two.
+
+When the game looks for an item to use with a command, it tries the 
+first one it finds that matches. If the command fails on that item, it
+doesn't continue looking. So if you inscribe both bolts and arrows 
+with {@f1}, and try to fire a bow using "f1", it will find the bolt 
+that matches first and the command will fail. But firing a crossbow 
+will work, because bolts sort before arrows in the inventory. This 
+also applies to ammo used with slings.
+
+The search for a matching item also doesn't know how to only check the 
+right kind of item, so if you have Flasks of Oil inscribed {@1} and 
+arrows inscribed {@1} or {@f1}, when you fire a bow it will find the 
+flasks first, even though it doesn't make sense to use them with a 
+bow, and the command will fail.
+
+Note that it can be useful to inscribe several types of ammo with the 
+same number, eg {@f1}. The most powerful will generally sort first, so
+it will be fired first. When you run out of that kind the next one 
+will be used, and so on.
+
+You can also inscribe items with more than one number. For example you
+could inscribe all arrows with {@f2}, and the least powerful ones with
+{@f1@f2}. Then "f1" will fire just the weakest ones, and "f2" will 
+fire the best ones first, since they sort before the less powerful 
+ones. Note that {@f2@f1} works the same as {@f1@f2}.
+
+----------------------------------------------------------------------
+5.9 How do I convert a macro to a keymap? 
+----------------------------------------------------------------------
+
+You can simply remove it and re-add it "by hand", but for more complex 
+actions there are faster, safer ways.
+
+= Directly modifying the pref file =
+
+A macro with the following form in the pref file:
+  A:<action string>
+  P:<trigger>\r
+Should be converted to the keymap form:
+  A:<action string>
+  C:0:<trigger>
+The "\r" needs to be removed, and the 0 (zero) means standard keyset.
+Use 1 for roguelike keyset. To make a keymap for both keysets:
+  A:<action string>
+  C:0:<trigger>
+  C:1:<trigger>
+
+= Using the "Interact with Macros" editor =
+
+1) @    Interact with Macros
+2) 3    Query a macro
+   <k>  The trigger key for the macro
+        (its action string will now become the current action)
+3) 5    Remove a macro
+   <k>  The trigger key for the macro
+4) 8    Create a keymap
+   <k>  The trigger key for the keymap
+5)      (Hit Enter to accept the current action)
+        (Hit Esc to clear the message "Added a keymap")
+
+This technique can also be used to move or copy actions between macros 
+or keymaps of the same kind. And old macro MUST be removed from a key 
+before it can be used as the trigger key for a keymap, otherwise the 
+macro action will expand when you press the trigger key in the editor. 
+Converting a keymap to a macro doesn't require removing the keymap 
+first.
+
+Note that not all macros can be converted to keymaps. Keymaps don't do 
+macro or keymap expansion on their action strings, so macros that rely 
+on this will no longer work. Also, keymaps can only be bound to a 
+trigger key with a printable internal representation. For example, a 
+function key can't be a trigger for a keymap.
+
+----------------------------------------------------------------------
+5.10 Can I create an infinite loop using a macro?
+----------------------------------------------------------------------
+
+No. Well, okay, you can, but only if you work *really* hard at it and 
+abuse bugs in the macro handling code. This isn't something that will 
+happen by accident just by using the trigger key inside its action.
+
+You also can't create recursion. So don't worry about this. See the 
+article "Macros can contain their own trigger key" for more info.
+
+----------------------------------------------------------------------
+5.11 What just killed me?
+----------------------------------------------------------------------
+
+When you are using lots of escapes and spaces in your macros to skip 
+over messages, you can miss important things happening. One of these 
+is dying. Usually when something goes wrong, you can just use the (^P) 
+Previous Messages command to see what happened. But if you died the 
+escapes can take you past the tombstone screen, your last chance to 
+examine the prevous messages list. This also happens without macros.
+
+To examine your recall, load the savefile and start a new character. 
+You will then be able to use the previous messages command to see the 
+last messages of that character's previous incarnation.
+
+----------------------------------------------------------------------
+5.12 If macros are so dangerous, why use them at all?
+----------------------------------------------------------------------
+
+Because many of the keys on the keyboard can't be bound using keymaps, 
+which only work for keys with system-independent representations. For 
+example, the only way to use function keys is with macros. And they 
+are required when you want to use modifier keys, such as Alt or Ctrl.
+
+They are also more powerful, if more dangerous. If the game is in the 
+middle of handling a command, the only way to intercept a key is with 
+a macro. Macros can also distinguish between different keys with the 
+same symbol on them, so '1' on the keypad and on the top row can have 
+different actions bound to them.
+
+See articles:
+- "Using PageUp and PageDown in Help files"
+- "Multiple macros bound to one trigger key"
+
+----------------------------------------------------------------------
+5.13 Will my macros/keymaps still work in graphics mode?
+----------------------------------------------------------------------
+
+Yes. Behavior of macros/keymaps doesn't depend on whether or not you 
+are using ascii, graphical tiles, or tk. Macros and keymaps just "play 
+back" sequences of keypresses to the game, and this generally doesn't 
+depend on whether or not you are using graphics.
+
+----------------------------------------------------------------------
+5.14 Will my macros work on another computer?
+----------------------------------------------------------------------
+
+Keymaps are portable between systems, including their pref file dumps. 
+That's how the original and roguelike keysets are implemented. So they 
+can be moved or shared without difficulty.
+
+Macros are less portable between systems. Their actions are okay, but 
+the save files for macros won't generally be, because they depend on 
+keycodes generated by the hardware, and "macro trigger encodings" 
+which are defined in the MAIN-***.C source files and vary between 
+systems.
+
+Pref files can contain a mixture of macros, keymaps, and other pref 
+lines which customize Angband behavior. So you may want to split the 
+unportable parts such as macros out from the portable stuff. Note that 
+the variable $SYS can be used in pref files to tailor the behavior of 
+a pref file based on the current system. See section "Pref files" for 
+more. See PREF.PRF and others for examples using the $SYS variable.
+
+Note that some system-specific pref files such as USER-MAC.PRF add new 
+macros/keymaps not in the other pref files. If you have macros which 
+depend on these keymaps, they won't work properly on a new system 
+unless the missing keymaps are also added. On multiplayer systems the 
+standard pref files may have been altered by the system adiministrator, 
+leading to the same problem. 
+
+----------------------------------------------------------------------
+5.15 Can I trigger an action when I become confused/hungry/...?
+----------------------------------------------------------------------
+
+No. Macros and keymaps can only be bound to keypresses. The game state 
+changing isn't a keypress, so you can't "trigger" an action when you 
+become blind, confused, hungry, poisoned, slowed, pseudo-id an item, 
+pick up an item, gain a level, have a rod recharge, have a spell wear 
+off, or any other event that isn't directly triggered by a keypress.
+
+Sometimes an inscription will "trigger" when something "happens" in 
+the game, but this can't be used to trigger an action of your own. For 
+example the inscription {=g} will cause you to pick up an item of the 
+same kind when you walk on it. But there is no way to bind an action 
+to this.
+
+
+======================================================================
+6. Common Problems ======================================================================
+
+----------------------------------------------------------------------
+6.1 Recovering
+----------------------------------------------------------------------
+
+Restarting Angband clears all macros entered during the last session. 
+
+You can use "Load a pref file" in the "Interact with macros" screen to 
+reload a good set of prefs, overwriting bad ones being used. This will 
+not "erase" a macro/keymap which doesn't have a corresponding saved 
+one in the pref file. So if you add a macro/keymap to a trigger key 
+which didn't have anything bound to it, reloading the pref file won't
+restore the key to its original state.
+
+If you still have problems, restore or edit any modified *.prf files 
+that might be loaded.
+
+Try saving your macros, and examine them to see what went wrong.
+
+See article "Bypassing macros and keymaps" on how to access a built-in 
+command that you have remapped the key for.
+
+You can remove a macro/keymap from an essential key (such as the Esc 
+key). Use the (@) "Interact with macros" command to access the remove  
+commands. In older versions you will have to use the "Create an 
+identity macro" command to "remove" it.
+
+----------------------------------------------------------------------
+6.2 Keys to avoid remapping
+----------------------------------------------------------------------
+
+These don't really *need* to be avoided, but all carry dangers of one 
+kind or another. You should consider potential problems before using 
+them. You have been warned.
+
+= Navigation keys =
+Enter, Esc, Backspace, ...
+These aren't a good choice unless you *really* need them. If you do it 
+is far better to use keymaps. If you bind a macro to the Enter key, 
+you will lose the ability to enter line-based commands like Inscribe.
+
+= Commands generated internally =
+(_) Enter store
+This command is generated internally by the game when the player moves 
+onto the door of a store. In some versions, if this key has a keymap 
+bound to it, that will fire when you try to enter a store.
+
+= Keys with important Operating System meanings =
+^Z  (un*x) Suspends the game and returns to the command shell. This 
+    is an operating system command, not an Angband command.
+    Command "fg" returns to Angband.
+^\, ^D, ^S 
+    These are documented (in PLAYING.TXT) as keys that shouldn't be 
+    bound to macros or have their behavior altered.
+
+= Keys with dangerous Angband meanings =
+(Q) Quit (commit suicide), (k) destroy item, (^A) Enter Debug mode...
+Using these as triggers is dangerous in case, for some reason, you 
+wind up in a situation where the macro hasn't loaded or is disabled. 
+You also don't want to get into a habit of typing these too fast.
+
+= Selection keys =
+(e) Equipment, (i) Inventory, (-) Floor item, (/) Switch inventory 
+lists. You should avoid binding these as macro triggers, to prevent 
+making inventory and choice management next to impossible. But even as
+keymaps they hold some dangers.
+Example: you bind keymap on '-' to destroy item on the floor. Now if 
+you try to do an action on a floor item, and it fails (such as using 
+rod to identify), then the '-' can be taken from the input stream and 
+used as a keymap, which would destroy the item you tried to identify. 
+
+= Response keys =
+(y) yes, (n) no, (Esc) cancel, (Space) skip message,...
+Binding macros to these is a Very Bad Idea. Macro expansion will then 
+be done when you answer a question like "Are you sure you want to quit 
+the game without saving?". The expanded macro action string will be 
+used as the input, and may not lead to the answer you were trying for. 
+Keymaps don't have this problem. As a rule you should never use a 
+macro instead of a keymap unless necessary.
+
+= Keys used internally =
+Angband "reserves" some ASCII key codes for internal use. They are 
+intercepted in the macro/keymap handling code, and actions that you 
+have bound to them will never get used. Some are:
+\x00 NUL (shouldn't be generated by a key)
+\x7F DEL Ctrl-Backspace 
+\x1D     Ctrl-]
+\x1E     Ctrl-^
+\x1F     Ctrl-_
+
+----------------------------------------------------------------------
+6.3 My macro works all the time when I press its key!
+----------------------------------------------------------------------
+
+Macros *do* work all the time. Every time you press a key, macro 
+expansion is done on it, and then keymap expansion. So if you use 'y' 
+as a trigger key for a macro, and then you try and answer a yes/no 
+prompt with 'y', instead you will get the macro's action string.
+
+The answer to this is to change your macro to a keymap. These can be 
+bound to keys which have a system-independent representation in the 
+game, which includes all keys that you would use when interacting with
+the game interface.
+
+If you don't want to change it to a keymap, try changing the trigger 
+key to a "special" key, such as a function key.
+
+----------------------------------------------------------------------
+6.4 My auto-firing macro shoots the wrong target! 
+----------------------------------------------------------------------
+
+Your macro is probably firing at the previous target. This will happen 
+if the option (use_old_target) is set. Then a macro will like "f1*t" 
+or "m1a*t" will execute as:
+
+f   Fire
+1   Ammo inscribed 1
+    (it will now fire at the last [wrong] target)
+*   Choose a [new] target
+t   Accept first target
+
+If there are no valid targets, the (t) targeting command will center 
+on your position. If you move, the target will still be your old 
+square. The first time you use the "f1*t" macro it will fire at that 
+square, even if there is now a valid target (monster) nearby.
+
+One fix is to turn off the (use_old_taret) option, since the action 
+doesn't require it. This is done with the (=) Set Options command.
+
+Another is to change the action to choose the target before it fires. 
+Example: "*tf1".
+
+Note: just because you can "see" a monster doesn't mean you can target  
+it. The code used for vision (line of sight) and firing (projection) 
+is slightly different. So when shooting near corners or pillars it may 
+happen that you can "see" a monster but not target it. If your action 
+kills messages at the end, you could keep hitting your auto-fire macro 
+and the only thing happening would be a large pile of missiles quietly 
+accumulating underneath you. 
+
+----------------------------------------------------------------------
+6.5 I used to have items inscribed, and now they aren't!
+----------------------------------------------------------------------
+
+The game only knows about inscriptions that you are carrying. There is 
+no way to "store" them independently of a character's save file. So if 
+you lose all of an item that was inscribed, picking up another of that 
+kind won't automatically inscribe it.
+
+Also, some versions can overwrite your inscriptions with its own. See 
+article "Inscriptions added by the game".
+
+Normal inscriptions aren't affected by your player's "memory".
+
+Note that some items, when fully identified, could have their
+descriptions grow so long that no inscription will show. In that case
+you can use the (I) Identify command. It will display the full 
+description, even if nothing special is known about that item.
+
+----------------------------------------------------------------------
+6.6 I changed some macros in a pref file and nothing happened!
+----------------------------------------------------------------------
+
+Settings loaded in later pref files will overwrite earlier ones. So if 
+you add macros for the same trigger key to files "<$CLASS>.prf" and 
+"<$PLAYER>.prf", the second one will get used because its file loads 
+later. This affects macros, keymaps, actions, attrs/colors, and other 
+info. See article "Pref lines summary" for all the types of settings 
+that can be loaded. Also see article "Pref file loading order".
+
+It is possible that the pref file isn't getting loaded at all if you 
+didn't accept the default name. See article "Automatically loading 
+pref files" for possible problems.
+
+----------------------------------------------------------------------
+6.7 I can't even FIND the macro editing commands!
+----------------------------------------------------------------------
+
+Angband can be compiled without the ALLOW_MACROS symbol. This is done
+on some systems to reduce executable size. Macros and keymaps are 
+still used by the game and loaded from files, but they can't be edited
+or saved from within the game. The "Interact with macros" screen only
+has the single option "Load a user pref file" in this case.
+
+----------------------------------------------------------------------
+6.8 It moves me when I try to use my bow/rod/wand!
+----------------------------------------------------------------------
+
+Example: you type "f1" and it moves you in direction 1 (South West).
+What is happening is that the 'f' key isn't being handled correctly.
+It may be remapped to a bogus command, or one which doesn't take an 
+argument. So the 'f' command is skipped/dealt with, and the '1' key is 
+then expanded as a keymap. You can examine what is going on with the 
+'f' key using the (@) Interact with macros screen to check for any 
+macros or keymaps bound to that key. Use the appropriate "Remove ..." 
+command to restore the built-in Angband command.
+
+----------------------------------------------------------------------
+6.9 My macro drops/takes off my main weapon!
+----------------------------------------------------------------------
+
+This is probably caused by an auto-fire macro like "*tm1a" for magic 
+missile. If you hold down the trigger key to repeatedly use it, and 
+some game event (possibly caused by the macro) creates a message, then 
+the action will be interpreted as:
+*    (cancel message)
+t    Take off item
+m    (ignored as invalid)
+1    (ignored as invalid)
+a    Item a (main weapon)
+
+If there is room in your inventory, it will be put there. If not, your 
+inventory will overflow and it will be dropped on the ground. If this 
+happens during combat this is a very good way to die. This is just 
+another good reason to have {!d!k!v} inscribed on your main weapon. 
+See the article "Prevent unwanted use of an item".
+
+This can be fixed by using the escape sequence "\e\e\e" before and 
+after the action string to cancel any pending messages or commands.
+See the article "Clearing the command buffer".
+
+----------------------------------------------------------------------
+6.10 My macro outputs "e - Floating Eye" on the message line!
+----------------------------------------------------------------------
+
+It is wise to add an escape sequence "\e\e\e" to the beginning and end 
+of all macros for which this doesn't destroy useful information. See 
+article "Clearing the command buffer" for more information on this.
+
+But many players are familiar with both unix, which uses '/' as the 
+path separator for files, and Windows/DOS, which uses '\', and type a 
+forward slash when they mean to type a backslash. So some actions in 
+macros/keymaps in usenet posts have the wrong type of slash. (This 
+error is much rarer now.)
+
+The game sees this as:
+/    Identify a character
+e    Character to be identified
+And outputs "e - Floating Eye" on the message line.
+
+If this sequence gets expanded when you are trying to select an item, 
+it will lead to different behaviors.
+Example:
+/    Switch between inventory and equipment
+e    Select item e.
+Or:
+/    Switch between inventory and equipment
+e    (ignored because invalid) Select item e.
+/    Switch between inventory and equipment
+e    Select item e.
+
+----------------------------------------------------------------------
+6.11 I changed versions and my macros don't work anymore!
+----------------------------------------------------------------------
+
+The way macros and keymaps works changed with version 2.8.3. The terms 
+don't even mean the same thing anymore! The format of the pref files 
+also changed. This can also a problem when switching between variants.
+
+Greg Harvey has a document ANGBAND-MACROS.TXT explaining changes in 
+the pref file format between 2.8.2 and 2.8.3, and a conversion utility 
+MACROCVT for such files, written in C.
+
+See articles:
+- "Obsolete/changed lines for pre 2.8.3 versions"
+- "Version differences"
+- "References"
+
+----------------------------------------------------------------------
+6.12 Problems remapping number keys in Roguelike mode
+----------------------------------------------------------------------
+
+The roguelike keyset uses letter keys for movement, which is useful 
+when you don't have a numeric keypad. But it is very hard to find free 
+keys to use for macros or keymaps. The number keys on the top row are 
+the next best thing to having function keys, and can be used for 
+keymaps, but there is a bug which makes them more difficult to use.
+This also happens in the "original" keyset, but you aren't likely to 
+remap the number keys there.
+
+In the roguelike keyset, the (b) key is bound to action ";1" (walk 
+SW). But if you bind a keymap to (1), keymap expansion is done on the 
+direction digit, making movement almost impossible. So mapping action 
+"m2a*t" to key (1), will actually move you South (direction 2) if you 
+press (b), because Angband looks for a direction number, skips 'm' as 
+invalid, and finds the '2'. The roguelike keymaps for Shift-<dir> and 
+Ctrl-<dir>, where <dir> is a roguelike direction letter, won't work 
+right either, because they also use the same direction numbers, which 
+will do keymap expansion the same way.
+
+This bug exists in versions of Angband that use the new macro code, 
+and variants based on these versions. There is a bug patch for this on 
+Thangorodrim: "http://thangorodrim.angband.org/bugs/keymaps.diff". 
+
+And there is a workaround. In the action bound to a digit key (#), you 
+must prefix the action with "#\e". For example, the action "Af" bound 
+to the key (3) would change to "3\eAf". When the direction handling 
+code looks for a direction digit in this action, it will find the '3' 
+and behave correctly. When you press the trigger key (3), it sees:
+3   - built-in command 3 (there is none!)
+      prints error message "Type '?' for help."
+\e  - cancels the error message
+Af  - the action you wanted
+
+Note that the 'command' (\) doesn't work here because the direction 
+numbers aren't commands, but arguments to the commands (;) Walk, (.) 
+Run, and (+) Alter. Similarly, putting a "\e" at the front doesn't 
+cancel the walk command, because once we are inside the walk command, 
+we are in special direction handling code that doesn't know about 
+canceling commands.
+
+Using macros for the number keys isn't an option, because this causes 
+them to expand ALL the time, making use of many menus impossible.
+
+----------------------------------------------------------------------
+6.13 I can't use some keys at all!
+----------------------------------------------------------------------
+
+Not all keys are "recognized" on all systems. This is handled in the 
+"main-***.c" source files, and is system-dependent. And some keys have 
+special operating system meanings and are deliberately not handled. If 
+a key combination isn't recognized, you won't be able to use it as a 
+trigger key for a macro/keymap.
+
+To test if a key is recognized, use the "Query a macro" command in the 
+(@) Interact with Macros editor. If it isn't recognized, the editor 
+will continue to wait for a valid keypress. Also, if pressing the key 
+produces an operating system action, then it isn't recognized by the 
+game, and you won't be able to map it to an action.
+
+Note that some key combinations won't be recognized, even if the base 
+key is. For example, in Windows the Space key is recognized, but the 
+Alt-Space combination isn't, because it has the OS meaning "Activate 
+system menu" so is ignored.
+
+Modifier keys such as Alt, Control, Shift can't be used as a trigger 
+key when pressed by themselves.
+
+= Un*x =
+Function keys may not be recognized on some Un*x systems.
+
+= PC/Windows =
+Doesn't recognize the WINDOWS key (start menu) or the APPLICATION key 
+(context menu). Also Alt-Space, Alt-Tab.
+
+On some systems, doesn't recognize modifier keys (Alt, Ctrl, Shift) on 
+keypad keys when NumLock is on.
+
+See special_key_list[] in "main-win.c" for list of "special" keys that
+are recognized.
+
+
+======================================================================
+7. Inscriptions added by the game
+======================================================================
+
+Some inscriptions are added by the game itself. These can overwrite
+your inscriptions. There are also "fake" and "special" inscriptions,
+which "look" like real inscriptions to the player.
+
+----------------------------------------------------------------------
+7.1 Fake inscriptions
+----------------------------------------------------------------------
+
+These "fake" inscriptions are "covered up" by real inscriptions, but 
+will reappear if the real inscription is removed.
+
+"fake" inscriptions are unaffected by the uninscribe command (}).
+
+{cursed} - cursed item
+{empty}  - item out of charges
+{tried}  - a "flavored" item which the character
+           has used, but whose effects are unknown.
+{N% off} - item bought on sale
+
+----------------------------------------------------------------------
+7.2 Auto-inscriptions
+----------------------------------------------------------------------
+
+These added when your character gets a "feeling" about an item.
+In newer versions (>= 2.9.0) these are "special" inscriptions, like
+"fake" inscriptions above, which don't overwrite user inscriptions.
+They just hide user inscriptions, which are still there.
+
+In older versions (< 2.9.0) these are true inscriptions which will 
+overwrite a user inscription, and be overwritten by user inscriptions.
+Those inscriptions could be removed using the uninscribe command (}).
+
+{terrible}  - cursed or broken artifact
+{broken}    - broken item
+{cursed}    - cursed item
+{uncursed}  - previously cursed item
+{average}
+{good}      - good (magical) item
+{excellent} - ego item
+{special}   - unique item
+{on sale}   - displayed only in the store
+
+
+======================================================================
+8. Keys and commands
+======================================================================
+
+This section gives short descriptions of keys and commands used in 
+actions and trigger key representations. They are only listed in this 
+section if they aren't fully described elsewhere in this FAQ. Not all 
+of these keys are actually for "commands". See the normal Angband help 
+for a fuller description. The commands and keysets are documented in 
+help files PLAYING.TXT and COMMAND.TXT.
+
+----------------------------------------------------------------------
+8.1 Item selection
+----------------------------------------------------------------------
+
+(*) - gives list of choices
+(-) - selects item on the floor
+(/) - toggles between the inventory and equipment lists.
+
+(space) - shows list of choices. Pressing (space) again hides the list.
+(lower) - selects the inventory item with that letter.
+(upper) - selects the inventory item with that letter, and requires 
+    confirmation.
+(digit) - selects first item inscribed with "@#" or "@x#" where 'x' is 
+    the command, and '#' is the digit. Only legal items are allowed.
+
+----------------------------------------------------------------------
+8.2 Directions and Movement
+----------------------------------------------------------------------
+
+Original keyset directions
+7 8 9
+4 5 6
+1 2 3
+
+Roguelike keyset directions
+y k u
+h 5 l
+b j n
+
+= Built-in commands which take a direction =
+
+-  Walk (flip pickup)
+;  Walk (with pickup)
++  Alter
+.  Run
+
+Digits AREN'T built-in movement commands in Angband. They are actually 
+keymaps found in the standard pref file PREF.PRF. Digits are instead
+direction arguments to several movement commands such as (;) Walk.
+
+= Attacking =
+
+Attacking isn't a command. It is accomplished using commands (+) Alter 
+grid, (;) Walk, and (.) Run. So you don't really "attack" Morgoth, you 
+just _alter_ him. First he's alive, then he's not. :) 
+
+----------------------------------------------------------------------
+8.3 Escape sequences
+----------------------------------------------------------------------
+
+Many [non-printable] characters have a standard printable encoding 
+which uses an "escape" character to change the meaning of the 
+following character. The backslash character is used as in the C 
+language for many keys. The caret '^' is used for control keys.
+
+= Escape sequences =
+\b backspace
+\e escape
+\n newline
+\r return
+\s space
+\t tab
+\xNN hex ASCII char
+\\ (literal) backslash
+\^ (literal) caret 
+
+= Backslash =
+In a macro, "\\" followed by a character uses the built-in command for 
+that character without translation. This is useful in macros to avoid 
+keymaps changing the behavior of the macro. In particular thiscan be 
+used to make macros which work for both original and roguelikekeysets. 
+Keymaps don't have this problem.
+
+= Newline and Return =
+These two characters can be used interchangeably.
+
+= ASCII chars =
+Any ASCII character can be encoded using the hex notation. Thus many 
+keys will have more than one representation. For example, [Enter] can 
+be "\r", "^M", and "\x09". The backslash representations are case 
+sensitive, so "\t" is [Tab], but "\T" will just be interpreted as "T". 
+The hexadecimal number must be exactly 2 digits.
+
+= Escape and Space =
+See article "Clearing the command buffer" for their main uses.
+
+----------------------------------------------------------------------
+8.4 Repeats and Counts
+----------------------------------------------------------------------
+
+= Auto repeat =
+Some commands will automatically repeat. These are:
+(T) Tunnel
+(B) Bash
+(D) Disarm
+(o) Open
+(c) Close
+(+) Alter
+
+= Number keys =
+
+0 - starts a repeat count. Some commands take a repeat count argument.
+They can be entered as "0<count><cmmd>". If the command is movement, 
+it can (must) be preceded by space(s) to separate the direction
+(command) number from the count number.
+
+----------------------------------------------------------------------
+8.5 Messages and Questions
+----------------------------------------------------------------------
+
+= Yes/No queries =
+Yes/No questions can be answered with 'y', 'n', or Esc. These are not 
+case sensitive. Only 'y' or 'Y' will respond Yes. 'n', 'N', and Esc 
+are No. If the option (quick_messages) is on, any other keypress is 
+also No. When the option is off, it will keep waiting for a valid key.
+
+"-more-" message prompts.
+These may be cleared by Esc(\e), Space(\s), Enter(\r), or Newline(\n).
+If the (quick_messages) option is on, they can be cleared by any key.
+
+----------------------------------------------------------------------
+8.6 Special keys
+----------------------------------------------------------------------
+
+= Function keys =
+Function keys are free for reassignment, but only as macros. Function 
+keys can be modified by Alt, Ctrl, Shift like other keys.
+
+= Alt keys =
+Alt-modified keys are generally free for reassignment as either macros 
+or keymaps.
+
+= Control keys =
+Control keys can be entered in as "^x" where 'x' is the key. Note 
+that the case of 'x' is unimportant. This also allows typing control 
+keys which would be intercepted by the operating system, such as ^C. 
+You must type the caret '^' and the following key separately. Note 
+that some have special meanings, such as ^M for Return, and ^H for 
+backspace. Some also have special Operating System meanings, such as 
+"^Z" in un*x, and "^C" in DOS. Control keys can be trigger keys for 
+both macros and keymaps.
+
+= Interrupting the game =
+(^C) This will kill your character and quit the game, after verifying.
+
+----------------------------------------------------------------------
+8.7 Keys used in inscriptions
+----------------------------------------------------------------------
+
+= Confirm command =
+^ Confirm the following command.
+This isn't an actual command, but a character with a special meaning
+inside command strings. {^*} will confirm all actions for the item.
+
+{=g}
+This inscription will cause an item of the same kind to be picked up
+from the floor without prompting. (Versions >= 2.8.5)
+
+----------------------------------------------------------------------
+8.8 Num lock
+----------------------------------------------------------------------
+
+Whether or not NumLock is on can make a difference on some systems.
+For example, if NumLock is on under X11 the 'X' macro won't work.
+
+
+======================================================================
+9. Pref files
+======================================================================
+
+All pref files are loaded from and saved to folder "\lib\user". The 
+folder "\lib\pref" is unused at this time! The location and name of 
+this folder can be configured.
+
+Warning: the directory "\lib\pref" is unused by the game. Pref files
+moved there will never get used (unless the user has redirected the
+folder locations).
+
+Integers can be in hex "0x10", decimal "16", or octal "020" formats. 
+These are converted using the C library fn strtol(), and are case 
+insensitive. 
+
+Decimal numbers start with '1'-'9'.
+Octal numbers must start with '0' (zero).
+Hex numbers start with '0x' or '0X'.
+
+----------------------------------------------------------------------
+9.1 Standard Pref files
+----------------------------------------------------------------------
+
+Below "***" stands for the 3-letter system abbreviations, such as
+"acn", "mac", "win", "x11", ...
+
+"FONT.PRF"
+Includes "FONT-***.PRF" files.
+This file defines special attr/char mappings for "text" mode.
+
+"GRAF.PRF"
+Includes "GRAF-***.PRF" files.
+This file defines special attr/char mappings for "graphics" mode.
+
+"PREF.PRF"
+Includes "PREF-***.PRF" files.
+This file defines "default" actions of various kinds. This includes
+mapping the original and roguelike keysets to the built-in keyset.
+Provides an example of using the $SYS variable.
+
+"USER.PRF"
+Includes "USER-***.PRF" files.
+This file defines "override" actions of various kinds. It includes the 
+pref files based on system, race, and class. Provides an example of 
+using the variables $RACE and $CLASS.
+
+"XTRA-***.PRF"
+This file defines special attr/char mappings for "graphics" mode.
+Currently this just maps the player icon based on race and class.
+"new" refers to Adam Bolt's tiles.
+
+"MESSAGE.PRF"
+Assigns colors to different message types. These are in format
+M:<message-type>:<color>. See article "Message color lines" for more 
+information.
+
+Warning: you shouldn't edit the base pref files without a good reason,
+and understanding what you are doing. Breaking these files can make
+your game unusable. They are, however, the place to make changes that
+should affect all users. 
+
+----------------------------------------------------------------------
+9.2 Pref file loading order
+----------------------------------------------------------------------
+
+This loading order follows from the order of includes in PREF.PRF.
+Files which are "hard-coded" in the source are preceded with an index.
+The rest are included by the other files. Files which come later will 
+overwrite settings from earlier files. 
+
+(1) "PREF.PRF"
+    "MESSAGE.PRF"
+    "PREF-***.PRF"
+
+(2) "GRAF.PRF"
+    "FONT-XXX.PRF"
+    "GRAF-***.PRF"
+
+(3) "FONT.PRF"
+    "FONT-XXX.PRF"
+    "FONT-***.PRF"
+
+(4) "USER.PRF"
+    "USER-***.PRF"
+    "<$RACE>.prf"
+    "<$CLASS>.prf"
+
+(5) "<$PLAYER>.prf"
+
+(6) ".angband.prf"
+
+
+= $RACE =
+Can be one of: Dunadan, Dwarf, Elf, Gnome, Half-Elf, Half-Orc,
+    Half-Troll, H-Troll, High-Elf, Hobbit, Human.
+
+= $CLASS =
+Can be one of: Mage, Paladin, Priest, Ranger, Rogue, Warrior.
+
+= $PLAYER =
+The name of the current player being loaded or born. See article 
+"Automatically loading pref files" for more information.
+
+= Specific pref files =
+-----------------------------------
+
+"USER-MAC.PRF"
+This is the only user pref file with example macros that ships with 
+standard (Vanilla) Angband. A good set of examples.
+
+"PREF-WIN.PRF"
+This is the same as (missing) "PREF-DOS.PRF" and "PREF-IBM.PRF".
+
+"COLOURS.PRF"
+Amiga only. Contains Amiga palette.
+
+".angband.prf"
+Only on multi-user systems. This doesn't ship with the source. This
+file must be located in the directory contained in environ variable
+"HOME".
+
+----------------------------------------------------------------------
+9.3 Pref lines summary
+----------------------------------------------------------------------
+
+Comment lines start with a '#' and extend to end of line.
+
+Note: integer values can be specified as decimal, as hexadecimal by 
+preceding with an "x", or as octal by using a leading "0" (zero).
+
+E:<tv>:<a> - attr/char values for inventory objects by index
+F:<num>:<a>:<c> - attr/char values for features by index
+K:<num>:<a>:<c> - attr/char values for objects by index
+R:<num>:<a>:<c> - attr/char values for monsters by index
+S:<num>:<a>:<c> - attr/char values for special things by index
+
+A:<str> - action line
+  An action line should be followed by a keymap trigger "C:" line 
+  or a macro trigger "P:" line. There can be intervening comments 
+  and lines. The same action will be [re]used by all keymap and 
+  command lines which follow it until there is another action line.
+P:<str> - macro line
+  <str> a macro encoding of a keypress. (system dependent)
+C:<mode>:<str> - keymap line
+  <mode> 0 = "original, 1 = "roguelike".
+  <str> logical keypress, including backslash codes such as "\e" and 
+    control codes such as "^K". (system independent)
+  Note that there are 2 independent sets of keymaps now. Changing a
+    keymap in one doesn't affect the other.
+
+M:<type>:<attr> - specify colors for message types.
+  <type> message index.
+  <attr> standard Angband color "attribute".
+  (see article "Message color lines" below for both of these)
+
+V:<num>:<kv>:<rv>:<gv>:<bv> - specify visual information
+  <num> is the color index (0-255, only 0-15 used)
+  <kv> black (?) value -- unused
+  <rv> red value (0-255)
+  <gv> green value (0-255)
+  <bv> blue value (0-255)
+W:<win>:<flag>:<value> - turn a window flag on/off.
+  <win>   window number (1-7)
+  <flag>  (0-31)
+  <value> 0 = off, 1 = on
+
+X:<str> - turn option off
+Y:<str> - turn option on
+  <str> the name of an option in option_text[].
+  These are the names displayed in the options screen (=).
+
+?: - conditional expression
+%: - include another pref file
+
+
+= Obsolete/changed lines for pre 2.8.3 versions =
+-----------------------------------
+
+C:<num>:<str> - was "command macro"
+  (Note: this is very different from how it's done now)
+  <num> a direction/count for following
+  <str> a macro expansion of a keypress. (system dependent)
+P:<str> - was "normal macro" line
+  <str> a macro expansion of a keypress. (system dependent)
+  (Note: this is very different from how it's done now)
+S:<key><map><dir> - was "keymap" line
+  (pre 2.8.3 only -- Note that "S:" lines have a new meaning now.)
+  (Note: this is very different from how it's done now)
+  <key> is a single key to remap
+  <map> is the single key to map it to
+  <dir> is a direction 1-9 to map it to, or 0 for none
+U:<tv>:<a>:<c>  - attr/char values for unaware objects by index
+  (pre 2.8.3 only)
+
+----------------------------------------------------------------------
+9.4 Option lines "X:" and "Y:"
+----------------------------------------------------------------------
+
+Options and their descriptions are listed in help file OPTION.TXT.
+These options are set within the game using the (=) Options command, 
+and the option names are the ones displayed within parentheses in the 
+options screen.
+
+= Common options =
+rogue_like_commands
+use_old_target
+always_pickup
+depth_in_feet
+alert_hitpoint
+auto_haggle
+auto_scum
+
+----------------------------------------------------------------------
+9.5 Conditional expression lines "?:" 
+----------------------------------------------------------------------
+
+expressions are lisp-like prefix notation.
+names (class, race, ...) aren't placed in quotes.
+AND     - logical AND
+IOR     - inclusive OR
+EQU     - (string) equals
+NOT     - logical negation
+LEQ     - (string) less than or equal to
+GEQ     - (string) greater than or equal to
+[,]     - group expressions
+$CLASS  - current class
+$GRAF   - 3-letter graphics abbr in "GRAF-***.PRF" (old, new)
+$PLAYER - current player name
+$RACE   - current race
+$SYS    - 3-letter system abbr in "PREF-***.PRF" (ami, mac, win,...)
+
+0 - false
+1 - true (can't just be non-zero)
+
+If the conditional expression is false all pref file commands 
+encountered until the next conditional pref line are skipped.
+
+This isn't an actual command. It only works in pref files.
+
+The variables $CLASS, $GRAF, $PLAYER, $RACE, $PLAYER, $SYS and the 
+string values they take on are case sensitive. The values also can't 
+contain spaces. These constraints on the values hold when they are 
+used in a pref file, but might not when used as pref filenames.
+
+This can be "turned back on" using the pref line "?:1", which is
+generally the last line in a file which contains conditional macros,
+to make sure that any files loaded after it don't get ignored as well.
+
+----------------------------------------------------------------------
+9.6 Macro trigger lines "P:"
+----------------------------------------------------------------------
+
+All "special" keys are translated by "main-***.c" into encoded "macro 
+triggers". These macro triggers have the encoded form "^_MMMxSS\r", 
+where the "modifier" flags are stored in "MMM", and the two digit 
+hexadecimal scan code of the keypress is stored in "SS". See source 
+file "main-ibm.c" and others for more info. Note that because these 
+scan codes are system-dependent, macro trigger encodings are as well.
+Keymaps are used for system independent mapping of triggers to actions.
+
+Modifier flags
+
+A - Alt
+C - Control
+S - Shift
+O - Option key (Mac)
+
+IBM Scan codes
+
+x47 - keypad 7
+x48 - keypad 8
+x49 - keypad 9
+x4A - keypad -
+x4B - keypad 4
+x4C - keypad 5
+x4D - keypad 6
+x4E - keypad +
+x4F - keypad 1
+x50 - keypad 2
+x51 - keypad 3
+x52 - keypad Ins / . 
+x53 - keypad Del / Enter
+x45 - Pause
+
+Others can be found using the "Query a macro" feature.
+
+Note that scan codes can't be assumed to be "in order", even for keys
+like function keys which "logically" should be!
+
+Note that you can't always just add a modifier to a known scan code 
+because that combination might not be recognized by the hardware or 
+the translation code in "main-***.c".
+
+Example: a Windows system will recognize function key F1, Shift-F1, 
+and Ctrl-F1, but not Ctrl-Shift-F1. Similarly Pause and Alt-Pause are  
+recognized, but not Ctrl-Pause, and Shift-Pause gives the same 
+encoding as Pause alone.
+
+----------------------------------------------------------------------
+9.7 Message color lines "M:"
+----------------------------------------------------------------------
+
+M:<type>:<attr> - specify colors for message types. Type is an integer 
+index here.
+
+<type>
+ 0 MSG_GENERIC
+ 1 MSG_HIT
+ 2 MSG_MISS
+ 3 MSG_FLEE
+ 4 MSG_DROP
+ 5 MSG_KILL
+ 6 MSG_LEVEL 
+ 7 MSG_DEATH 
+ 8 MSG_STUDY 
+ 9 MSG_TELEPORT 
+10 MSG_SHOOT 
+11 MSG_QUAFF 
+12 MSG_ZAP 
+13 MSG_WALK 
+14 MSG_TPOTHER 
+15 MSG_HITWALL 
+16 MSG_EAT 
+17 MSG_STORE1 
+18 MSG_STORE2 
+19 MSG_STORE3 
+20 MSG_STORE4 
+21 MSG_DIG 
+22 MSG_OPENDOOR 
+23 MSG_SHUTDOOR 
+24 MSG_TPLEVEL 
+25 MSG_BELL 
+26 MSG_NOTHING_TO_OPEN 
+27 MSG_LOCKPICK_FAIL 
+28 MSG_STAIRS 
+
+<attr> Standard (16) Angband attribute values.
+These are TERM_* in the source. L_ is for lighter values.
+
+ 0  d  DARK     Dark (black)
+ 1  w  WHITE    White
+ 2  s  SLATE    Slate (gray)
+ 3  o  ORANGE   Orange
+ 4  r  RED      Red
+ 5  g  GREEN    Green
+ 6  b  BLUE     Blue
+ 7  u  UMBER    Umber
+ 8  D  L_DARK   Light Dark
+ 9  W  L_WHITE  Light Slate
+10  v  VIOLET   Violet
+11  y  YELLOW   Yellow
+12  R  L_RED    Light Red
+13  G  L_GREEN  Light Green
+14  B  L_BLUE   Light Blue
+15  U  L_UMBER  Light Umber
+
+----------------------------------------------------------------------
+9.8 Saving to a pref file
+----------------------------------------------------------------------
+
+Commands "Append macros to file" and "Append keymaps to file" don't 
+erase the previous macros or keymaps. Instead they are appended. Note 
+that this can produce *large* files after a while. Newer versions 
+append to "<$PLAYER>.prf" by default, whereas older versions appended 
+to file USER.PRF. The appended sections are preceded by headers of the 
+form "Automatic macro/keymap dump". Using a distinctive comment line 
+such as ###... after your entries can make editing the appended ones 
+easier.
+
+Note: macros and keymaps aren't saved in the character file, so they 
+must be saved separately. All macros and keymaps entered by the user 
+are lost when Angband terminates. 
+
+Note: keeping macros in the <$PLAYER>.prf files allows several users 
+to share the same installation without interfering with each other.
+You can easily reuse or share preferences by moving them into a pref
+file "<my-name>.prf" and using the pref line "%:<my-name>.prf" to 
+include them in USER.PRF for single user installations, or 
+<$PLAYER>.prf for multi-user installations.
+
+----------------------------------------------------------------------
+9.9 File permissions
+----------------------------------------------------------------------
+
+If you lack write permission to the pref file currently loaded by the
+game, try saving to a file with a new name. The macros can be copied 
+over "by hand" later.
+
+On a multi-player system, the last pref file automatically loaded is 
+".angband.prf" from your home directory. Use this file if no others 
+will work. If necessary, you can use the conditional pref line "?" and 
+the inclusion pref line "%" to load all of your preferences for all of 
+your characters using this file. See USER.PRF for an example of how to 
+do this, and other articles in this section for a fuller explanation.
+
+----------------------------------------------------------------------
+9.10 Editing pref files
+----------------------------------------------------------------------
+
+This is still most easily done in a text editor.
+
+
+======================================================================
+10. Macro editing commands
+======================================================================
+
+----------------------------------------------------------------------
+10.1 (") Enter a User Pref Command
+----------------------------------------------------------------------
+
+This allows entering a single pref line.
+Example: "X:auto_scum" turns auto-scum off.
+
+Example "A:<str>" sets the current action string. If you open the
+"Interact with macros" screen this action will be the default used.
+Then using the (") command again with "P:<key>" will create a macro 
+for the action <str> previously entered.
+
+Not all pref commands can be used here, or are meaningful.
+The "pseudo" pref commands (?), (%) cannot be used here.
+
+See section "Advanced macro techniques" for ways to [ab]use this.
+
+----------------------------------------------------------------------
+10.2 (@) Interact with macros
+----------------------------------------------------------------------
+
+= Vanilla command set = (2.8.3 - 2.9.1)
+-----------------------------------
+Load a user pref file
+Append macros to a file
+Query a macro action
+Create a macro
+Remove a macro
+Append keymaps to a file
+Query a keymap
+Create a keymap
+Remove a keymap
+Enter a new action
+
+= Load a user pref file =
+-----------------------------------
+Loads a user pref file from "lib\user". Defaults to the name of the
+current character. Macros/keymaps loaded will replace existing ones.
+
+= Append macros to a file =
+-----------------------------------
+Macros are dumped in macro list order. Newer ones are at the end.
+Macros are *appended* to the file. The old one isn't overwritten. This
+prevents you from accidentally wiping out your old pref file. However,
+the file can grow very long without your noticing it. Placing a line 
+of ###'s at the end of your macros can help sort out what is what.
+Macros are labeled with comment "# Macro 'NNN' ". These numbers are the
+internal macro list numbers, and have no relation to key scan codes.
+The filename must end in ".prf". It will save correctly without this 
+extension, or with a different one, but if you save as "<$NAME>" 
+instead of "<$NAME>.prf", it won't be automatically loaded when you 
+load the character with that name.
+
+= Query a macro =
+-----------------------------------
+Press the trigger key to test at the prompt.
+This will show "Found a macro" on the message line if it found one, 
+and the line "Trigger: <trigger>". This will show "Found no macro" 
+on the message line if it didn't find a macro. Some keys such as 
+function keys won't be recognized by the prompt. It will wait until 
+you hit a key it recognizes.
+
+This command doesn't alter any settings. It will return to the main 
+menu after you hit any key it recognizes. 
+
+Unimplemented in versions < 2.8.3.
+
+= Create a macro =
+-----------------------------------
+After choosing this command, press the trigger key for the macro.
+The internal form will be shown after the "Trigger: " prompt.
+Note that some keys may not be recognized for remapping, such as the 
+new Windows keys, as well as modifier keys such as Alt, Control, Shift
+pressed by themselves. In this case it will continue to wait for a
+valid trigger key.
+
+The current action (if any) will be shown *below* the "Trigger: " 
+prompt line. On the prompt line ("Action: ") will be shown the last 
+macro sequence entered. This is the action in the "action buffer". 
+This isn't necessarily the macro sequence currently bound to this key. 
+This is the action that will be bound to the current trigger key if
+you hit Enter.
+
+You may type in an action string to replace the one after the prompt.
+Hit Enter when you are finished.
+
+For versions >= 2.8.3 you can quit the command assignment by hitting 
+Esc. The new action entered won't be assigned, and the previous one 
+will remain unaltered.
+
+WARNING: In older versions (<= 2.8.2) hitting Esc will bind the escape 
+key itself to the macro! If this happens use the (old) "Create an 
+identity macro" command to reset the Esc key to its default meaning.
+
+= Remove a macro =
+-----------------------------------
+Removes the macro from the trigger key by creating an identity macro 
+on that key for itself. So the macro isn't completely removed, just 
+overwritten. The new identity macro will be saved when the macros are 
+appended to a file. This is different from the "Remove a keymap" 
+command, which completely removes the keymap.
+
+----------------------------------------------------------------------
+The following "keymap" commands only apply to the current "mode" 
+(original/roguelike). Keymaps for the other mode will be unaffected. 
+Because keymaps can only be bound to trigger keys which have a system 
+independent representation, some key presses won't be recognized by 
+these editing commands. They will instead wait until you press a valid 
+trigger key.
+----------------------------------------------------------------------
+
+= Append keymaps to a file =
+-----------------------------------
+Works just like "Append macros to a file". These are appended after a 
+header comment "# Automatic keymap dump".
+
+= Query a keymap =
+-----------------------------------
+Works just like "Query a macro". This will show "Found a keymap" on 
+the message line if it found one, and will display "Keypress: <map>". 
+This will show "Found no keymap" on the message line if it didn't 
+find a keymap. This command doesn't alter any settings. It will return 
+to the main menu after you hit any key it recognizes. 
+
+= Create a keymap =
+-----------------------------------
+Works just like the "Create a macro" command. Keymaps can only be 
+assigned to keys which have a system independent representation. Note 
+that creating a keymap will cause the behavior of any macro whose 
+action string contains that key to change.
+
+= Remove a keymap =
+-----------------------------------
+Removes the keymap completely from the trigger key. If the key had a 
+built-in command it can now be used again. Note that removing a keymap 
+will cause the behavior of any macro whose action string contained 
+that key to change. This behaves differently from the "Remove a macro" 
+command, which creates an identity macro.
+ 
+If the original "command" was itself a keymap, removing a user-entered 
+keymap won't restore it. Example: the key (n) is bound to the built-in
+command "Repeat last action" in file PREF.PRF via a keymap. If you add 
+a new keymap for (n) and then remove it, the old "Repeat last command" 
+functionality won't be restored. You will have to add it back by hand, 
+or reload a pref file that contains that stored keymap. In particular 
+almost all roguelike commands are now implemented as keymaps.
+
+= Enter a new action =
+-----------------------------------
+Allows entering a new action. Actions are entered into a static buffer 
+which is shared by both macros and keymaps. The action string entered 
+will become the default action for creating a keymap or action, and 
+will only change when a keymap or macro is created with a different 
+action string, or when one is queried. Note that the same action can 
+be bound to multiple trigger keys by hitting Enter when using the 
+commands to create a keymap/macro.
+
+----------------------------------------------------------------------
+10.3 Macro editing in earlier versions
+----------------------------------------------------------------------
+
+Editing macros in older versions (< 2.8.3) is more difficult and 
+dangerous. Note that the meaning of the terms "macro" and "keymap" has 
+changed since then. This article was added because some variants use 
+the older editing methods.
+
+= Create a command macro =
+-----------------------------------
+After choosing this command, press the trigger key for the macro.
+WARNING: once you have pressed the trigger key, the macro is set. You 
+MUST set the action FIRST using the "Enter a new action" command.
+If you bound the trigger to the wrong action, you can set the action 
+and redo the command assignment. If the key you just rebound is one 
+such as Esc that you need for command navigation, use the "Create an 
+identity macro" command to "undo" your change.
+
+= Create a normal macro =
+-----------------------------------
+"Normal" macros are expanded any time the user presses a key. They are
+*not* the ones you will usually use in customizing the game for play. 
+This can lead to situations where the Angband interface becomes very 
+difficult to use because the keys you need to change things back are 
+being remapped!
+
+Note: you can't have both a "normal" and "command" macro bound to the 
+same trigger key. The newest one added will overwrite the old one.
+
+= Create an identity macro =
+-----------------------------------
+Creates a macro for the trigger key to itself. This can used to 
+effectively "remove" a command/normal macro from a key. In versions 
+with this command there is no way to truly remove a macro.
+
+= Create an empty macro =
+-----------------------------------
+This creates a macro with the action "". This causes this key (and its 
+use in macros) to do nothing. This is not the best way to remove a 
+user-entered macro from a key. Use "Create an identity macro" instead.
+
+----------------------------------------------------------------------
+10.4 Unbound keys
+----------------------------------------------------------------------
+
+The help file PLAYING.TXT provides a concise list of keys which are
+[un]used for commands, for both original and roguelike keysets.
+
+Note that the roguelike keyset has far fewer unused keys than the 
+original keyset, because it uses many letter keys for directions.
+
+Note that there are keys that you probably shouldn't reassign. See
+article "Keys to avoid remapping".
+
+Note that keys used by the game are still good for reassignment if you
+don't use them! Example: the command (F) "Fuel lantern/torch" won't be 
+used much after you find the Phial. Also, the standard "swap weapons" 
+keymap key 'X' isn't used by many players.
+
+See article "Bypassing macros and keymaps" on how to access a built-in 
+command that you have remapped the key for.
+
+Other rarely used commands:
+(V) Version
+(-) Jump
+(,) Stay still
+(_) Enter store
+(j) Jam a door with spikes
+'(' Load screen dump
+')' Save screen dump
+
+= Function keys =
+F1-F12. These are generally unassigned on all systems.
+
+= Special keys =
+Tab, Pause
+
+= Standard keyset =
+h,n,x,y
+H,J,K,N,O,P,W,X,Y,Z
+#,[,],'
+^B,^D,^G,^H,^K,^L,^N,^O,^T,^U,^V,^Y
+
+[,] - these are no longer used for screen dumps. 
+| - this is documented as not being used. It is the same as '~'.
+
+= Roguelike keyset =
+X
+$,[,],'
+^G,^O
+
+
+======================================================================
+11. Advanced Macro Techniques ======================================================================
+
+This section outlines advanced techniques not really required for game 
+play. But macros become addictive after a while ...
+
+Action strings in this section are enclosed in braces {} because many 
+use a double quote (") inside the action string. These are not 
+inscriptions.
+
+----------------------------------------------------------------------
+11.1 Farming techniques
+----------------------------------------------------------------------
+
+### NOTE: This is considered scumming! (cheating) ###
+
+Farming is the practice of automatically "harvesting" large numbers of 
+weaker monsters for their experience value. This is usually done to 
+advance a lower level character. There are apparently several methods 
+that the "old timers" used to use. I don't know that farming is that 
+popular any more. Even then it was sort of a lark.
+
+Apparently a golf ball is just the right size and weight for many 
+keyboards to hold a key down and get it to auto repeat. Then you walk
+away, and the next morning you have gained several levels. Ballpoint 
+pen caps are also supposed to be good at wedging a key down.
+
+Using a farming macro for long periods of time like this requires a 
+way of getting food, so it really needs to be employed by a magic user
+who can create their own food. 
+
+Use turn counts with attack (move) commands to move around the room, 
+mowing down creatures as you move. Periodically rest enough to 
+regenerate to full mana. This may not be necessary if it takes long 
+enough to kill the monsters as you move.
+
+This requires an effective macro and a room full of breeders which 
+can't attack for enough damage to kill you. Farming for short periods 
+of time with a fighter class is quite feasible. The limitation for 
+fighters is food. The limitation for spell casters is probably hit 
+points. You may also need to insert action sequences for healing if 
+the farmed monsters are capable of significantly damaging you.
+
+Note that red and green worm masses can knock down the doors of the 
+room you're in. Blues can destroy potions and flasks, so you will need
+to stash your potions outside somewhere before farming.
+
+----------------------------------------------------------------------
+11.2 Set current action inside an action
+----------------------------------------------------------------------
+
+= using (@) command =
+{@0<str>\r\e}
+@    - Interact with macros
+0    - Enter a new action
+<str>- (action string)
+\r   - Enter the action
+\e   - Exit the macro editor
+
+= using (") command =
+{"A:<action>\r}  - sets the current action.
+"    - Enter pref line
+A:   - Action line
+<str>- (action string)
+\r   - Enter the action
+
+These work in either a macro or keymap.
+
+----------------------------------------------------------------------
+11.3 Create a new keymap in an action
+----------------------------------------------------------------------
+
+{"A:<act>\r"C:0:<key>\r}
+Here <act> can't contain an '\e' or '\r'.
+
+Example {"A:z0\r"C:0:J\r} binds action "z0" to (standard) keymap 'J'.
+
+----------------------------------------------------------------------
+11.4 Create a new macro in an action
+----------------------------------------------------------------------
+
+{"A:<act>\r"P:<key>\r}
+Here <act> can't contain an '\e' or '\r'.
+Here <key> is a standard key. (not a "special" one like F1, \b, or ^A)
+
+Example
+{"A:<action1>\r"P:j\r} binds action <action1> to trigger 'j'.
+{"A:<action2>\r"P:j\r} binds action <action2> to trigger 'j'.
+If we bind these 2 macros to different trigger keys, the action that 
+is on key (j) can be swapped back and forth.
+
+----------------------------------------------------------------------
+11.5 Turning an option on/off in an action
+----------------------------------------------------------------------
+
+Turn an option on:
+{"Y:<option_name>\r}
+
+Turn an option of:
+{"Y:<option_name>\r}
+
+Example: Turn (quick_messages) on, do an action, and turn it back off:
+{"Y:quick_messages\r<action>"X:quick_messages\r}
+
+This will work in either a macro or keymap. <option_name> is the name 
+of the option as it appears in the option editor accessed through the 
+(=) command. These are also listed in the help file OPTION.TXT. Note 
+that option names contain underscores instead of spaces.
+
+----------------------------------------------------------------------
+11.6 Inscribe/Uninscribe an item in an action
+----------------------------------------------------------------------
+
+(These action strings are enclosed in double quotes)
+
+Inscribe an item:
+"{<item>\s<inscr>\r"
+
+Uninscribe an item:
+"}<item>\r"
+
+<item> must be the inventory letter of the item, possibly preceded by 
+a '/' to switch to the equipment list. You can't use digit labels for 
+items with inscriptions that contain the command triggers '{' or '}', 
+but you can use "@<digit>". 
+
+This works in either a macro or keymap.
+
+----------------------------------------------------------------------
+11.7 Loading a pref file in an action
+----------------------------------------------------------------------
+
+{@1<filename>\r\s\e}
+@    - Interact with macros
+1    - Load a user pref file
+<filename>
+     - The name of a pref file in the "lib\user\" directory
+<str>- (action string)
+\r   - Enter the filename
+\s   - Skip message "Loaded '<filename>'."
+\e   - Exit the macro editor
+
+The inclusion pref line "%:" can't be used to load a pref file, since 
+it isn't a command, but a special symbol that only has meaning inside 
+a pref file.
+
+This works in either a macro or keymap.
+
+----------------------------------------------------------------------
+11.8 Binding keymaps to ASCII codes without a key
+----------------------------------------------------------------------
+
+Keymaps can be bound to any (8-bit) ASCII code, even if it lacks a 
+physical key to generate it. These codes can be generated by a macro 
+action string. This means that there is no trigger key which can be 
+pressed by accident. This also avoids "using up" a real trigger key. 
+This is only used for making keymaps for sole use inside macro actions.
+
+Raw ASCII codes can be embedded in action strings using format "\xHH", 
+where H is a hexadecimal digit.
+
+You can't enter an ASCII code directly in the macro editor in the \xHH 
+form. It takes the first key pressed directly. The easiest way is to 
+enter the keymap and its action in a pref file and load it. Another 
+way is to make a macro whose action is the scan code. Now to bind the 
+keymap to its action, press the macro trigger to generate the disired 
+keymap code. Then enter the action string normally.
+
+Note that it isn't always obvious whether or not an ASCII key code has 
+a printable representation. For example, \x01 is ^A. However, none of 
+the keys from x80-xFF are printable, and all are free for assignment.
+
+----------------------------------------------------------------------
+11.9 Changing the player's color and character
+----------------------------------------------------------------------
+
+= Using the Enter User Pref command =
+{"R:0:<attr>:<char>\r}
+<attr> - the attr (color) specified as an integer index.
+<char> - the (ASCII) character specified as an integer.
+
+This will work in either a keymap or macro.
+
+You can't directly use the Angband attr letters to specify colors, but 
+must instead use their index. Eg 4 is Red. These indexes can be found 
+from within the game using the (&) Interact with colors command. That 
+editor also allows you to change the colors used by the game. These 
+color indexes are also listed in article "Message color lines".
+
+The <char> integer is generally the index of an (ASCII) character. 
+Non-ASCII characters may be available on some systems. Available 
+characters can found using the (%) Interact with visuals command.
+
+These integers can be specified in decimal, hexadecimal, or octal 
+notation. Decimal is the default, hexadecimal numbers are prefixed 
+with "0x", and octal numbers are prefixed with 0 (zero). Example: the 
+standard character for the player is '@'. This may be entered as "64", 
+"0x40", or "0100". Yellow may be entered as "11", "0x0B", or "013".
+
+This pref line can be added to any pref file to save the change for 
+future reuse. Changes made using the internal colors editor screen can 
+be dumped from that screen. Note that colors and characters saved in 
+pref dumps are in hexadecimal.
+
+After making a change, you must move the character or otherwise cause 
+a screen redraw for the change to be visible.
+
+If you make a mistake, you can use the (0) command in the editor to 
+reset the visuals to their original colors and characters.
+
+= Options which Change Player appearance = 
+These are accessible through the (=) Set options command.
+
+(hilite_player) -- causes the player's symbol to be drawn with the 
+"cursor" on it. It will be drawn with the same color as the character.
+
+(player_symbols) -- for graphics mode only, and only works when option 
+(use_graphics) is also on. This apparently varies the player graphic 
+and its color based on class, race, and sex.
+
+
+======================================================================
+12. Miscellaneous 
+======================================================================
+
+----------------------------------------------------------------------
+12.1 Version differences
+----------------------------------------------------------------------
+
+= Key changes =
+
+[   was "wear/wield" in < 2.8.0
+]   was "take off" in < 2.8.0
++   was "Tunnel" in < 2.8.1
++   became "Alter grid" in 2.8.1
+^T  "Tunnel" key added in 2.8.1
+^V  became "repeat last command" in recent 2.9.0
+
+Changes in Specific Versions
+-----------------------------------
+
+= Version 2.9.1v2 =
+Fixes the bug described in article "Problems remapping number keys in 
+Roguelike mode".
+
+= Version 2.9.0 =
+----------------------------------------------------------------------
+"Auto-inscriptions" added by the game are no longer implemented as real
+inscriptions. They are now "special" inscription like the "fake" ones.
+(^V) "Repeat last command" added.
+
+= Version 2.8.5 =
+Inscription {=g} now causes an item of the same name to be picked up
+from the floor without prompting.
+
+= Version 2.8.3 =
+Major changes to the way macros/keymaps are handled and edited.
+The meaning of the terms "macro" and "keymap" have changed some!
+Macro editing screens changed.
+Changes to pref file format.
+
+= Version 2.8.1 =
+(+) "Dig" key changed to "Alter grid".
+(^T)"Tunnel" key added.
+
+= Version 2.8.0 =
+(_) "Enter store" command added
+([) "Wear/wield" key removed
+(]) "Take off" key removed
+
+----------------------------------------------------------------------
+12.2 References
+----------------------------------------------------------------------
+
+"COMMAND.TXT"
+- lists standard and roguelike keys and commands. full descriptions.
+- short explanation of macros.
+
+"DUNGEON.TXT"
+- look under "Objects Found in the Dungeon".
+
+"OPTION.TXT"
+- list of options and their descriptions.
+
+"PLAYING.TXT"
+- list of standard and roguelike keysets.
+- long description of command behavior.
+- intro to macros and user pref files.
+
+"INSCRIPTIONS.HTML"
+- short intro by Julian Lighton. Available from "http://www.fragment.com/~jl8e/angband/inscriptions.html".
+
+"ANGBAND-MACROS.TXT"
+- comments on converting pre 2.8.3 macros by Greg Harvey.
+This accompanies the "macrocvt" conversion utility of his.
+This was after Ben made major changes to how they work for [V]2.8.3.
+
+----------------------------------------------------------------------
+12.3 Contributors
+----------------------------------------------------------------------
+
+This FAQ was largely compiled from newsgroup postings to "r.g.r.a".
+So thanks to the generous contributors to the newsgroup! Email 
+addresses have been removed to foil spam-bots.
+
+Ben Harrison    -- maintainer: Angband 2.7.1 - 2.8.5, =Ben= in source.
+Robert Ruehlman -- maintainer: Angband 2.9.0 - present.
+ 
+Scott Bigham, DamonShawX, Jonathan Ellis, Steven Fuerst, George W. 
+Harris, Roger Hoyle, Graham S. Johnson, Chris Kern, Matthias Kurzke, 
+Steve Lamb, Julian Lighton, Art Mruczek, Daniel Nash, Timo Pietilä, 
+Jack Wise, Greg Wooledge, and others.
+
+----------------------------------------------------------------------
+12.4 Legalese
+----------------------------------------------------------------------
+
+Copyright 2000 Jim Lyon and others. Redistribution of unaltered copies
+of this document is permitted without restriction. Distribution of 
+altered copies is permitted without restriction as long as the 
+alteration does not significantly alter the content. (For example,
+translation and conversion to another format is permitted.) 
+Distribution of all other altered copies is permitted as long as credit
+for previous authors is maintained, the contact information is 
+replaced with that of the alterer, and redistribution is not further 
+restricted.
+
+

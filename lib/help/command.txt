@@ -418,6 +418,12 @@ Fire an item (f) or Fire an item (t)
         a direction.  Targeting mode (see the next command) can be invoked
         with "*" at the "Direction?" prompt.  This command takes some energy.
 
+        If you are weilding a crossbow it must be loaded.  You load bolts one at
+        time, but some crossbows can hold more than one bolt.  If your crossbow
+        is partialy loaded you will be asked if you want to load another bolt.
+        Replying 'N' will fire the bolt already loaded.  You cannot load dissimilar
+        bolts into a crossbow.  
+
 Throw an item (v)
         You may throw any object carried by your character.  The lighter
         the object, the farther you can throw it.  Only one object from a
