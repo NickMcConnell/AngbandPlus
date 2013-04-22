@@ -1683,8 +1683,7 @@ char inkey(void)
 
 #ifdef USE_SCRIPT
 
-	if (result = inkey_borg_callback(inkey_base, inkey_xtra,
-	                                 inkey_flag, inkey_scan))
+	if (result = inkey_borg_callback(inkey_base, inkey_xtra, inkey_flag, inkey_scan))
 	{
 		/* Cancel the various "global parameters" */
 		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
@@ -1875,7 +1874,7 @@ char inkey(void)
 
 #ifdef USE_SCRIPT
 
-	if (result = inkey_callback(ch)) return result;
+	if ((result = inkey_callback(ch))) return result;
 
 #endif /* USE_SCRIPT */
 
@@ -2028,8 +2027,9 @@ cptr message_str(int age)
  */
 void message_add(cptr str)
 {
-	int i, k, x, n;
+	int i, k, x, m, n;
 
+	char u[1024];
 
 	/*** Step 1 -- Analyze the message ***/
 
@@ -2046,10 +2046,69 @@ void message_add(cptr str)
 	/*** Step 2 -- Attempt to optimize ***/
 
 	/* Limit number of messages to check */
-	k = message_num() / 4;
+	m = message_num();
+
+	k = m / 4;
 
 	/* Limit number of messages to check */
 	if (k > MESSAGE_MAX / 32) k = MESSAGE_MAX / 32;
+
+	/* Check previous message */
+	for (i = message__next; m; m--)
+	{
+		int j = 1;
+
+		char buf[1024];
+		char *t;
+
+		cptr old;
+
+		/* Back up and wrap if needed */
+		if (i-- == 0) i = MESSAGE_MAX - 1;
+
+		/* Access the old string */
+		old = &message__buf[message__ptr[i]];
+
+		/* Skip small messages */
+		if (!old) continue;
+
+		strcpy(buf, old);
+
+		/* Find multiple */
+		for (t = buf; *t && (*t != '<'); t++);
+
+		if (*t)
+		{
+			/* Message is too small */
+			if (strlen(buf) < 6) break;
+
+			/* Drop the space */
+			*(t - 1) = '\0';
+
+			/* Get multiplier */
+			j = atoi(++t);
+		}
+
+		/* Limit the multiplier to 1000 */
+		if (buf && streq(buf, str) && (j < 1000))
+		{
+			j++;
+
+			/* Overwrite */
+			message__next = i;
+
+			str = u;
+
+			/* Write it out */
+			sprintf(u, "%s <%dx>", buf, j);
+
+			/* Message length */
+			n = strlen(str);
+		}
+
+		/* Done */
+		break;
+	}
 
 	/* Check the last few messages (if any to count) */
 	for (i = message__next; k; k--)
@@ -2848,8 +2907,6 @@ s16b get_quantity(cptr prompt, int max)
 		return (amt);
 	}
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Get the item index */
 	if ((max != 1) && repeat_pull(&amt))
 	{
@@ -2862,8 +2919,6 @@ s16b get_quantity(cptr prompt, int max)
 		/* Use it */
 		return (amt);
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Build a prompt if needed */
 	if (!prompt)
@@ -2897,11 +2952,7 @@ s16b get_quantity(cptr prompt, int max)
 	/* Enforce the minimum */
 	if (amt < 0) amt = 0;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	if (amt) repeat_push(amt);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Return the result */
 	return (amt);
@@ -3347,8 +3398,6 @@ int get_keymap_dir(char ch)
 }
 
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 #define REPEAT_MAX		20
 
 /* Number of chars saved */
@@ -3424,137 +3473,6 @@ void repeat_check(void)
 	}
 }
 
-#endif /* ALLOW_REPEAT -- TNB */
-
-
-#ifdef SORT_R_INFO
-
-/*
- * Array size for which InsertionSort
- * is used instead of QuickSort
- */
-#define CUTOFF 4
-
-
-/*
- * Exchange two sort-entries
- * (should probably be coded inline
- * for speed increase)
- */
-static void swap(tag_type *a, tag_type *b)
-{
-	tag_type temp;
-
-	temp.tag = a->tag;
-	temp.pointer = a->pointer;
-
-	a->tag = b->tag;
-	a->pointer = b->pointer;
-
-	b->tag = temp.tag;
-	b->pointer = temp.pointer;
-}
-
-
-/*
- * Insertion-Sort algorithm
- * (used by the Quicksort algorithm)
- */
-static void InsertionSort(tag_type elements[], int number)
-{
-	int j, P;
-
-	tag_type tmp;
-
-	for (P = 1; P < number; P++)
-	{
-		tmp = elements[P];
-		for (j = P; (j > 0) && (elements[j - 1].tag > tmp.tag); j--)
-			elements[j] = elements[j - 1];
-		elements[j] = tmp;
-	}
-}
-
-
-/*
- * Helper function for Quicksort
- */
-static tag_type median3(tag_type elements[], int left, int right)
-{
-	int center = (left + right) / 2;
-
-	if (elements[left].tag > elements[center].tag)
-		swap(&elements[left], &elements[center]);
-	if (elements[left].tag > elements[right].tag)
-		swap(&elements[left], &elements[right]);
-	if (elements[center].tag > elements[right].tag)
-		swap(&elements[center], &elements[right]);
-
-	swap(&elements[center], &elements[right - 1]);
-	return (elements[right - 1]);
-}
-
-
-/*
- * Quicksort algorithm
- *
- * The "median of three" pivot selection eliminates
- * the bad case of already sorted input.
- *
- * We use InsertionSort for smaller sub-arrays,
- * because it is faster in this case.
- *
- * For details see: "Data Structures and Algorithm
- * Analysis in C" by Mark Allen Weiss.
- */
-static void quicksort(tag_type elements[], int left, int right)
-{
-	int i, j;
-	tag_type pivot;
-
-	if (left + CUTOFF <= right)
-	{
-		pivot = median3(elements, left, right);
-
-		i = left; j = right -1;
-
-		while (TRUE)
-		{
-			while (elements[++i].tag < pivot.tag);
-			while (elements[--j].tag > pivot.tag);
-
-			if (i < j)
-				swap(&elements[i], &elements[j]);
-			else
-				break;
-		}
-
-		/* Restore pivot */
-		swap(&elements[i], &elements[right - 1]);
-
-		quicksort(elements, left, i - 1);
-		quicksort(elements, i + 1, right);
-	}
-	else
-	{
-		/* Use InsertionSort on small arrays */
-		InsertionSort(elements + left, right - left + 1);
-	}
-}
-
-
-/*
- * Frontend for the sorting algorithm
- *
- * Sorts an array of tagged pointers
- * with <number> elements.
- */
-void tag_sort(tag_type elements[], int number)
-{
-	quicksort(elements, 0, number - 1);
-}
-
-#endif /* SORT_R_INFO */
 
 /*
  * A Roman numeral generator/decoder. -- Prfnoff

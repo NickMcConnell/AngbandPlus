@@ -1,4 +1,5 @@
 === Functional Town Overview ===
+
 The town is composed of both stores and buildings. 
 
 Classical stores:
@@ -14,7 +15,7 @@ Home: to store some of your precious treasures.
 ZAngband additional (if you not prefer Ironman/Vanilla):
 The Fighter's Halls, Order of Paladins, Ranger's Taverns, 
 Gilds of Thieves, and the diverse Towers of magic realms 
-are no longer restricted to the professionels involved. 
+are no longer restricted to the professionals involved. 
 Nevertheless some of the services are exclusive for members. 
 Look out for ambitious quests! 
 
@@ -28,5 +29,5 @@ Inns: Resting will refresh, and those ghosts prowl at night...
 
 All buildings are made of stone and unlikely to move around.
 
-This file is accurate for ZAngband 2.2.4
+This file is accurate for Zangband 2.2.4
 

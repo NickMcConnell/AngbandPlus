@@ -847,6 +847,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
+	monster_race *r_ptr = &r_info[o_ptr->pval];
+
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
@@ -1306,7 +1308,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* No more details wanted */
 	if (mode < 1) goto copyback;
 
-
 	/* Hack -- Chests must be described in detail */
 	if (o_ptr->tval == TV_CHEST)
 	{
@@ -1670,6 +1671,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	if (o_ptr->note)
 	{
 		strcpy(tmp_val2, quark_str(o_ptr->note));
+	}
+
+	/* Use the game-generated "feeling" otherwise, if available */
+	else if (o_ptr->feeling)
+	{
+		strcpy(tmp_val2, game_inscriptions[o_ptr->feeling]);
 	}
 
 	/* Note "cursed" if the item is known to be cursed */

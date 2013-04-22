@@ -28,7 +28,7 @@
  * For example, if M is 100, you get "percentile dice"
  */
 #define rand_int(M) \
-	(Rand_div(M))
+	((s32b)Rand_div(M))
 
 /*
  * Generates a random long integer X where A<=X<=B
@@ -64,6 +64,12 @@
 
 #define one_in_(X) \
 	(rand_int(X) == 0)
+
+/*
+ * Evaluate to TRUE "S" percent of the time
+ */
+#define saving_throw(S) \
+	(rand_int(100) < (S))
 
 
 /**** Available Variables ****/

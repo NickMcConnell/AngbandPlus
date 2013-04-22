@@ -24,6 +24,7 @@
 void pick_trap(int y, int x)
 {
 	int feat;
+	s16b pval; /* Prfnoff */
 
 	cave_type *c_ptr = &cave[y][x];
 
@@ -34,15 +35,22 @@ void pick_trap(int y, int x)
 	while (1)
 	{
 		/* Hack -- pick a trap */
-		feat = FEAT_TRAP_HEAD + rand_int(16);
+		pval = rand_int(PV_TRAP_MAX);
+
+		/* Get the feature -- Prfnoff */
+		feat = cave_get_feat(pval, FF1_TRAP);
+
+		/* Don't accept non-features -- Prfnoff */
+		if (feat == FEAT_NONE) continue;
+
+		/* Accept non-trapdoors */
+		if (pval != PV_TRAP_TRAPDOOR) break;
 
 		/* Hack -- no trap doors on special levels */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && quest_number(dun_level))
-			continue;
+		if (quest_number(dun_level)) continue;
 
 		/* Hack -- no trap doors on the deepest level */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && (dun_level >= MAX_DEPTH-1))
-			continue;
+		if (dun_level >= MAX_DEPTH-1) continue;
 
 		/* Done */
 		break;
@@ -71,7 +79,7 @@ void place_trap(int y, int x)
 	if (!cave_naked_bold(y, x)) return;
 
 	/* Place an invisible trap */
-	cave_set_feat(y, x, FEAT_INVIS);
+	cave_pick_feat(y, x, PV_FLOOR_TRAP, FF1_FLOOR); /* Prfnoff */
 }
 
 
@@ -104,6 +112,47 @@ static int check_hit(int power)
 }
 
 
+/*
+ * Is this trap ignorable? -- Prfnoff
+ */
+bool ignore_trap(cave_type *c_ptr)
+{
+	bool ignore = FALSE;
+
+	switch (cave_pval_grid(c_ptr))
+	{
+		case PV_TRAP_TRAPDOOR:
+		case PV_TRAP_PIT:
+		case PV_TRAP_SPIKED_PIT:
+		case PV_TRAP_POISON_PIT:
+			if (p_ptr->ffall) ignore = TRUE;
+			break;
+		case PV_TRAP_TELEPORT:
+			if (p_ptr->anti_tele) ignore = TRUE;
+			break;
+		case PV_TRAP_FIRE:
+			if (p_ptr->immune_fire) ignore = TRUE;
+			break;
+		case PV_TRAP_ACID:
+			if (p_ptr->immune_acid) ignore = TRUE;
+			break;
+		case PV_TRAP_BLIND:
+			if (p_ptr->resist_blind) ignore = TRUE;
+			break;
+		case PV_TRAP_CONFUSE:
+			if (p_ptr->resist_conf) ignore = TRUE;
+			break;
+		case PV_TRAP_POISON:
+			if (p_ptr->resist_pois) ignore = TRUE;
+			break;
+		case PV_TRAP_SLEEP:
+			if (p_ptr->free_act) ignore = TRUE;
+			break;
+	}
+
+	return (ignore);
+}
+
 
 /*
  * Handle player hitting a real trap
@@ -124,9 +173,9 @@ void hit_trap(void)
 	c_ptr = &cave[py][px];
 
 	/* Analyze XXX XXX XXX */
-	switch (c_ptr->feat)
+	switch (cave_pval_grid(c_ptr))
 	{
-		case FEAT_TRAP_HEAD + 0x00:
+		case PV_TRAP_TRAPDOOR:
 		{
 			if (p_ptr->ffall)
 			{
@@ -152,7 +201,7 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x01:
+		case PV_TRAP_PIT:
 		{
 			if (p_ptr->ffall)
 			{
@@ -168,7 +217,7 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x02:
+		case PV_TRAP_SPIKED_PIT:
 		{
 			if (p_ptr->ffall)
 			{
@@ -198,7 +247,7 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x03:
+		case PV_TRAP_POISON_PIT:
 		{
 			if (p_ptr->ffall)
 			{
@@ -242,11 +291,11 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x04:
+		case PV_TRAP_TY_CURSE:
 		{
 			msg_print("There is a flash of shimmering light!");
 			c_ptr->info &= ~(CAVE_MARK);
-			cave_set_feat(py, px, FEAT_FLOOR);
+			cave_pick_feat(py, px, PV_FLOOR_NORMAL, FF1_FLOOR);
 			num = 2 + randint(3);
 			for (i = 0; i < num; i++)
 			{
@@ -256,24 +305,25 @@ void hit_trap(void)
 			if (dun_level > randint(100)) /* No nasty effect for low levels */
 			{
 				bool stop_ty = FALSE; /* Prfnoff */
+				int count = 0;
 
 				do
 				{
-					stop_ty = activate_ty_curse(stop_ty);
+					stop_ty = activate_ty_curse(stop_ty, &count);
 				}
 				while (randint(6) == 1);
 			}
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x05:
+		case PV_TRAP_TELEPORT:
 		{
 			msg_print("You hit a teleport trap!");
 			teleport_player(100);
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x06:
+		case PV_TRAP_FIRE:
 		{
 			msg_print("You are enveloped in flames!");
 			dam = damroll(4, 6);
@@ -281,7 +331,7 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x07:
+		case PV_TRAP_ACID:
 		{
 			msg_print("You are splashed with acid!");
 			dam = damroll(4, 6);
@@ -289,7 +339,7 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x08:
+		case PV_TRAP_SLOW:
 		{
 			if (check_hit(125))
 			{
@@ -305,7 +355,7 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x09:
+		case PV_TRAP_LOSE_STR:
 		{
 			if (check_hit(125))
 			{
@@ -321,7 +371,7 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0A:
+		case PV_TRAP_LOSE_DEX:
 		{
 			if (check_hit(125))
 			{
@@ -337,7 +387,7 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0B:
+		case PV_TRAP_LOSE_CON:
 		{
 			if (check_hit(125))
 			{
@@ -353,7 +403,7 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0C:
+		case PV_TRAP_BLIND:
 		{
 			msg_print("A black gas surrounds you!");
 			if (!p_ptr->resist_blind)
@@ -363,7 +413,7 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0D:
+		case PV_TRAP_CONFUSE:
 		{
 			msg_print("A gas of scintillating colors surrounds you!");
 			if (!p_ptr->resist_conf)
@@ -373,7 +423,7 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0E:
+		case PV_TRAP_POISON:
 		{
 			msg_print("A pungent green gas surrounds you!");
 			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
@@ -383,12 +433,12 @@ void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0F:
+		case PV_TRAP_SLEEP:
 		{
 			msg_print("A strange white mist surrounds you!");
 			if (!p_ptr->free_act)
 			{
-				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
+				(void)set_sleep(p_ptr->paralyzed + rand_int(10) + 5);
 			}
 			break;
 		}

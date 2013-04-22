@@ -12,11 +12,7 @@
 
 #include "angband.h"
 
-#define MAX_HORROR 20
-#define MAX_FUNNY 22
-#define MAX_COMMENT 5
-
-static cptr horror_desc[MAX_HORROR] =
+cptr horror_desc[MAX_SAN_HORROR] =
 {
 	"abominable",
 	"abysmal",
@@ -43,7 +39,7 @@ static cptr horror_desc[MAX_HORROR] =
 	"unspeakable",
 };
 
-static cptr funny_desc[MAX_FUNNY] =
+cptr funny_desc[MAX_SAN_FUNNY] =
 {
 	"silly",
 	"hilarious",
@@ -73,7 +69,7 @@ static cptr funny_desc[MAX_FUNNY] =
 	"preposterous",
 };
 
-static cptr funny_comments[MAX_COMMENT] =
+cptr funny_comments[MAX_SAN_COMMENT] =
 {
 	"Wow, cosmic, man!",
 	"Rad!",
@@ -526,6 +522,13 @@ s16b get_mon_num(int level)
 	/* Boost the level */
 	if (level > 0)
 	{
+		/* Nightmare mode allows more out-of depth monsters */
+		if (nightmare_enemies && !rand_int(NASTY_MON))
+		{
+			/* What a bizarre calculation */
+			level = 1 + (level * MAX_DEPTH / randint(MAX_DEPTH));
+		}
+
 		/* Occasional "nasty" monster */
 		if (rand_int(NASTY_MON) == 0)
 		{
@@ -567,7 +570,7 @@ s16b get_mon_num(int level)
 		r_ptr = &r_info[r_idx];
 
 		/* Hack -- "unique" monsters must be "unique" */
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
+		if (((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flags3 & (RF3_UNIQUE_7))) &&
 		    (r_ptr->cur_num >= r_ptr->max_num))
 		{
 			continue;
@@ -579,8 +582,9 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
-		/* Depth Monsters never appear out of depth */
-		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > dun_level))
+		/* Depth Monsters never appear out of depth, unless in Nightmare mode */
+		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > dun_level) &&
+		    (!nightmare_enemies || (r_ptr->flags1 & (RF1_QUESTOR))))
 		{
 			continue;
 		}
@@ -927,204 +931,75 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 
 
 
-void sanity_blast(monster_type *m_ptr, bool necro)
+void sanity_blast(monster_type *m_ptr)
 {
-	bool happened = FALSE;
-	int power = 100;
+	int             power = 100;
+	char            m_name[80];
+	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
-	if (!necro)
+	power = r_ptr->level + 10;
+
+	monster_desc(m_name, m_ptr, 0);
+
+	if (!(r_ptr->flags1 & RF1_UNIQUE))
 	{
-		char            m_name[80];
-		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+		if (r_ptr->flags1 & RF1_FRIENDS)
+		power /= 2;
+	}
+	else power *= 2;
 
-		power = r_ptr->level + 10;
+	if (!hack_mind)
+		return; /* No effect yet, just loaded... */
 
-		monster_desc(m_name, m_ptr, 0);
+	if (!m_ptr->ml)
+		return; /* Cannot see it for some reason */
 
-		if (!(r_ptr->flags1 & RF1_UNIQUE))
-		{
-			if (r_ptr->flags1 & RF1_FRIENDS)
-			power /= 2;
-		}
-		else power *= 2;
-
-		if (!hack_mind)
-			return; /* No effect yet, just loaded... */
-
-		if (!m_ptr->ml)
-			return; /* Cannot see it for some reason */
-
-		if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR))
-			return; /* oops */
+	if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR))
+		return; /* oops */
 
 
+	if (is_pet(m_ptr) && (randint(8) != 1))
+		return; /* Pet eldritch horrors are safe most of the time */
 
-		if (is_pet(m_ptr) && (randint(8) != 1))
-			return; /* Pet eldritch horrors are safe most of the time */
+	if (saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		return; /* Save, no adverse effects */
+	}
 
-		if (randint(power) < p_ptr->skill_sav)
-		{
-			return; /* Save, no adverse effects */
-		}
-
-
-		if (p_ptr->image)
-		{
-			/* Something silly happens... */
-			msg_format("You behold the %s visage of %s!",
-				funny_desc[rand_int(MAX_FUNNY)], m_name);
-
-			if (randint(3) == 1)
-			{
-				msg_print(funny_comments[rand_int(MAX_COMMENT)]);
-				p_ptr->image = p_ptr->image + randint(r_ptr->level);
-			}
-
-			return; /* Never mind; we can't see it clearly enough */
-		}
-
-		/* Something frightening happens... */
+	if (p_ptr->image)
+	{
+		/* Something silly happens... */
 		msg_format("You behold the %s visage of %s!",
-			horror_desc[rand_int(MAX_HORROR)], m_name);
+			funny_desc[rand_int(MAX_SAN_FUNNY)], m_name);
 
-		r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
-
-		/* Demon characters are unaffected */
-		if (p_ptr->prace == RACE_IMP) return;
-
-		/* Undead characters are 50% likely to be unaffected */
-		if ((p_ptr->prace == RACE_SKELETON) || (p_ptr->prace == RACE_ZOMBIE)
-			|| (p_ptr->prace == RACE_VAMPIRE) || (p_ptr->prace == RACE_SPECTRE))
+		if (randint(3) == 1)
 		{
-			if (randint(100) < (25 + p_ptr->lev)) return;
+			msg_print(funny_comments[rand_int(MAX_SAN_COMMENT)]);
+			p_ptr->image = p_ptr->image + randint(r_ptr->level);
 		}
+
+		return; /* Never mind; we can't see it clearly enough */
 	}
-	else
+
+	/* Something frightening happens... */
+	msg_format("You behold the %s visage of %s!",
+		horror_desc[rand_int(MAX_SAN_HORROR)], m_name);
+
+	r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
+
+	/* Demon characters are unaffected */
+	if (p_ptr->prace == RACE_IMP) return;
+
+	/* Undead characters are 50% likely to be unaffected */
+	if ((p_ptr->prace == RACE_SKELETON) ||
+	    (p_ptr->prace == RACE_ZOMBIE) ||
+	    (p_ptr->prace == RACE_VAMPIRE) ||
+	    (p_ptr->prace == RACE_SPECTRE))
 	{
-		msg_print("Your sanity is shaken by reading the Necronomicon!");
+		if (saving_throw(25 + p_ptr->lev)) return;
 	}
 
-	if (randint(power) < p_ptr->skill_sav) /* Mind blast */
-	{
-		if (!p_ptr->resist_conf)
-		{
-			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
-		}
-		if ((!p_ptr->resist_chaos) && (randint(3) == 1))
-		{
-			(void)set_image(p_ptr->image + rand_int(250) + 150);
-		}
-		return;
-	}
-
-	if (randint(power) < p_ptr->skill_sav) /* Lose int & wis */
-	{
-		do_dec_stat(A_INT);
-		do_dec_stat(A_WIS);
-		return;
-	}
-
-	if (randint(power) < p_ptr->skill_sav) /* Brain smash */
-	{
-		if (!p_ptr->resist_conf)
-		{
-			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
-		}
-		if (!p_ptr->free_act)
-		{
-			(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
-		}
-		while (rand_int(100) > p_ptr->skill_sav)
-			(void)do_dec_stat(A_INT);
-		while (rand_int(100) > p_ptr->skill_sav)
-			(void)do_dec_stat(A_WIS);
-		if (!p_ptr->resist_chaos)
-		{
-			(void)set_image(p_ptr->image + rand_int(250) + 150);
-		}
-		return;
-	}
-
-	if (randint(power) < p_ptr->skill_sav) /* Permanent lose int & wis */
-	{
-		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
-		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
-		if (happened)
-			msg_print("You feel much less sane than before.");
-		return;
-	}
-
-	if (randint(power) < p_ptr->skill_sav) /* Amnesia */
-	{
-
-		if (lose_all_info())
-			msg_print("You forget everything in your utmost terror!");
-		return;
-	}
-
-	/* Else gain permanent insanity */
-	if ((p_ptr->muta3 & MUT3_MORONIC) && (p_ptr->muta2 & MUT2_BERS_RAGE) &&
-	   ((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
-	   ((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
-	{
-		/* The poor bastard already has all possible insanities! */
-		return;
-	}
-
-	while (!happened)
-	{
-		switch (randint(4))
-		{
-			case 1:
-				if (!(p_ptr->muta3 & MUT3_MORONIC))
-				{
-					msg_print("You turn into an utter moron!");
-					if (p_ptr->muta3 & MUT3_HYPER_INT)
-					{
-						msg_print("Your brain is no longer a living computer.");
-						p_ptr->muta3 &= ~(MUT3_HYPER_INT);
-					}
-					p_ptr->muta3 |= MUT3_MORONIC;
-					happened = TRUE;
-				}
-				break;
-			case 2:
-				if (!(p_ptr->muta2 & MUT2_COWARDICE) && !p_ptr->resist_fear)
-				{
-					msg_print("You become paranoid!");
-
-					/* Duh, the following should never happen, but anyway... */
-					if (p_ptr->muta3 & MUT3_FEARLESS)
-					{
-						msg_print("You are no longer fearless.");
-						p_ptr->muta3 &= ~(MUT3_FEARLESS);
-					}
-
-					p_ptr->muta2 |= MUT2_COWARDICE;
-					happened = TRUE;
-				}
-				break;
-			case 3:
-				if (!(p_ptr->muta2 & MUT2_HALLU) && !p_ptr->resist_chaos)
-				{
-					msg_print("You are afflicted by a hallucinatory insanity!");
-					p_ptr->muta2 |= MUT2_HALLU;
-					happened = TRUE;
-				}
-				break;
-			default:
-				if (!(p_ptr->muta2 & MUT2_BERS_RAGE))
-				{
-					msg_print("You become subject to fits of berserk rage!");
-					p_ptr->muta2 |= MUT2_BERS_RAGE;
-					happened = TRUE;
-				}
-				break;
-		}
-	}
-
-	p_ptr->update |= PU_BONUS;
-	handle_stuff();
+	lose_sanity(power); /* Prfnoff */
 }
 
 
@@ -1214,7 +1089,7 @@ void update_mon(int m_idx, bool full)
 		int dx = (px > fx) ? (px - fx) : (fx - px);
 
 		/* Approximate distance */
-		d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+		d = (dy > dx) ? (dy + (dx >> 1)) : (dx + (dy >> 1));
 
 		/* Restrict distance */
 		if (d > 255) d = 255;
@@ -1359,7 +1234,7 @@ void update_mon(int m_idx, bool full)
 			/* Eldritch Horror */
 			if (r_ptr->flags2 & RF2_ELDRITCH_HORROR)
 			{
-				sanity_blast(m_ptr, FALSE);
+				sanity_blast(m_ptr);
 			}
 
 			/* Disturb on appearance */
@@ -1495,16 +1370,14 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	/* Require empty space (if not ghostly) */
 	if (!cave_empty_bold(y, x) &&
 	    !((r_ptr->flags2 & RF2_PASS_WALL) &&
-	    !cave_perma_bold(y, x))) return (FALSE);
+	     !(cave_perma_bold(y, x) || cave[y][x].m_idx ||
+	     ((y == py) && (x == px))))) return (FALSE);
 
 	/* Hack -- no creation on glyph of warding */
-	if (cave[y][x].feat == FEAT_GLYPH) return (FALSE);
-	if (cave[y][x].feat == FEAT_MINOR_GLYPH) return (FALSE);
+	if (cave_glyph_bold(y, x)) return (FALSE);
 
 	/* Nor on the Pattern */
-	if ((cave[y][x].feat >= FEAT_PATTERN_START)
-	 && (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-		return (FALSE);
+	if (cave_pattern_bold(y, x)) return (FALSE); /* Prfnoff */
 
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
@@ -1519,14 +1392,16 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	}
 
 	/* Hack -- "unique" monsters must be "unique" */
-	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
+	if (((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flags3 & (RF3_UNIQUE_7))) &&
+		 (r_ptr->cur_num >= r_ptr->max_num))
 	{
 		/* Cannot create */
 		return (FALSE);
 	}
 
-	/* Depth monsters may NOT be created out of depth */
-	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (dun_level < r_ptr->level))
+	/* Depth monsters may NOT be created out of depth, unless in Nightmare mode */
+	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (dun_level < r_ptr->level) &&
+	    (!nightmare_enemies || (r_ptr->flags1 & (RF1_QUESTOR))))
 	{
 		/* Cannot create */
 		return (FALSE);
@@ -1616,7 +1491,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	m_ptr->csleep = 0;
 
 	/* Enforce sleeping if needed */
-	if (slp && r_ptr->sleep)
+	if (slp && r_ptr->sleep && !nightmare_enemies)
 	{
 		int val = r_ptr->sleep;
 		m_ptr->csleep = ((val * 2) + randint(val * 10));
@@ -1630,6 +1505,14 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	else
 	{
 		m_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
+	}
+
+	/* Monsters have double hitpoints in Nightmare mode */
+	if (nightmare_enemies)
+	{
+		u32b hp = m_ptr->maxhp * 2L;
+
+		m_ptr->maxhp = (s16b)MIN(30000, hp);
 	}
 
 	/* And start out fully healthy */
@@ -1651,8 +1534,14 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	/* Give a random starting energy */
 	m_ptr->energy = (byte)rand_int(100);
 
-	/* Force monster to wait for player */
-	if (r_ptr->flags1 & RF1_FORCE_SLEEP)
+	/* Nightmare monsters are more prepared */
+	if (nightmare_enemies)
+	{
+		m_ptr->energy *= 2;
+	}
+
+	/* Force monster to wait for player, unless in Nightmare mode */
+	if ((r_ptr->flags1 & RF1_FORCE_SLEEP) && !nightmare_enemies)
 	{
 		/* Monster is still being nice */
 		m_ptr->mflag |= (MFLAG_NICE);
@@ -1934,66 +1823,17 @@ bool place_monster(int y, int x, bool slp, bool grp)
 
 
 
-/*
- * XXX XXX XXX Player Ghosts are such a hack, they have been completely
- * removed until Angband 2.8.0, in which there will actually be a small
- * number of "unique" monsters which will serve as the "player ghosts".
- * Each will have a place holder for the "name" of a deceased player,
- * which will be extracted from a "bone" file, or replaced with a
- * "default" name if a real name is not available.  Each ghost will
- * appear exactly once and will not induce a special feeling.
- *
- * Possible methods:
- *   (s) 1 Skeleton
- *   (z) 1 Zombie
- *   (M) 1 Mummy
- *   (G) 1 Polterguiest, 1 Spirit, 1 Ghost, 1 Shadow, 1 Phantom
- *   (W) 1 Wraith
- *   (V) 1 Vampire, 1 Vampire Lord
- *   (L) 1 Lich
- *
- * Possible change: Lose 1 ghost, Add "Master Lich"
- *
- * Possible change: Lose 2 ghosts, Add "Wraith", Add "Master Lich"
- *
- * Possible change: Lose 4 ghosts, lose 1 vampire lord
- *
- * Note that ghosts should never sleep, should be very attentive, should
- * have maximal hitpoints, drop only good (or great) items, should be
- * cold blooded, evil, undead, immune to poison, sleep, confusion, fear.
- *
- * Base monsters:
- *   Skeleton
- *   Zombie
- *   Mummy
- *   Poltergeist
- *   Spirit
- *   Ghost
- *   Vampire
- *   Wraith
- *   Vampire Lord
- *   Shadow
- *   Phantom
- *   Lich
- *
- * This routine will simply extract ghost names from files, and
- * attempt to allocate a player ghost somewhere in the dungeon,
- * note that normal allocation may also attempt to place ghosts,
- * so we must work with some form of default names.
- *
- * XXX XXX XXX
- */
-
-
-
 #ifdef MONSTER_HORDES
 
 bool alloc_horde(int y, int x)
 {
+	monster_race *r_ptr;
+
 	int r_idx;
-	monster_race * r_ptr;
-	monster_type * m_ptr;
+
 	int attempts = 1000;
+	int cy = y;
+	int cx = x;
 
 	/* Prepare allocation table */
 	get_mon_num_prep(get_monster_hook(), get_monster_hook2(y, x));
@@ -2008,9 +1848,7 @@ bool alloc_horde(int y, int x)
 
 		r_ptr = &r_info[r_idx];
 
-		if (!(r_ptr->flags1 & RF1_UNIQUE)
-		 && !(r_ptr->flags1 & RF1_ESCORTS))
-			break;
+		if (!(r_ptr->flags1 & RF1_UNIQUE)) break;
 	}
 
 	if (attempts < 1) return FALSE;
@@ -2025,14 +1863,16 @@ bool alloc_horde(int y, int x)
 
 	if (attempts < 1) return FALSE;
 
-
-	m_ptr = &m_list[hack_m_idx_ii];
-
 	summon_kin_type = r_ptr->d_char;
 
 	for (attempts = randint(10) + 5; attempts; attempts--)
 	{
-		(void)summon_specific(m_ptr->fy, m_ptr->fx, dun_level, SUMMON_KIN, TRUE, FALSE, FALSE);
+		scatter(&cy, &cx, y, x, 5, 0);
+
+		(void)summon_specific(cy, cx, dun_level, SUMMON_KIN, TRUE, FALSE, FALSE);
+
+		y = cy;
+		x = cx;
 	}
 
 	return TRUE;
@@ -2053,7 +1893,7 @@ bool alloc_horde(int y, int x)
  */
 bool alloc_monster(int dis, bool slp)
 {
-	int			y, x;
+	int			y = 0, x = 0;
 	int         attempts_left = 10000;
 
 	/* Find a legal, distant, unoccupied, space */
@@ -2391,13 +2231,10 @@ bool summon_specific(int y1, int x1, int lev, int type, bool group, bool friendl
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Hack -- no summon on glyph of warding */
-		if (cave[y][x].feat == FEAT_GLYPH) continue;
-		if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
+		if (cave_glyph_bold(y, x)) continue;
 
 		/* ... nor on the Pattern */
-		if ((cave[y][x].feat >= FEAT_PATTERN_START) &&
-		    (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-			continue;
+		if (cave_pattern_bold(y, x)) continue; /* Prfnoff */
 
 		/* Okay */
 		break;
@@ -2424,6 +2261,40 @@ bool summon_specific(int y1, int x1, int lev, int type, bool group, bool friendl
 
 	/* Success */
 	return (TRUE);
+}
+
+/* A "dangerous" function, creates a pet of the specified type */
+bool summon_named_creature(int oy, int ox, int r_idx, bool slp, bool group_ok, bool pet)
+{
+	int i, x, y;
+	bool success = FALSE;
+
+	/* Paranoia */
+	/* if (!r_idx) return; */
+
+	/* Prevent illegal monsters */
+	if (r_idx >= max_r_idx) return FALSE;
+
+	/* Try 10 times */
+	for (i = 0; i < 10; i++)
+	{
+		int d = 1;
+
+		/* Pick a location */
+		scatter(&y, &x, oy, ox, d, 0);
+
+		/* Require empty grids */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Place it (allow groups) */
+		if (place_monster_aux(y, x, r_idx, slp, group_ok, FALSE, pet))
+		{
+			success = TRUE;
+			break;
+		}
+	}
+
+	return success;
 }
 
 
@@ -2475,16 +2346,14 @@ bool multiply_monster(int m_idx, bool clone, bool friendly, bool pet)
  */
 void message_pain(int m_idx, int dam)
 {
-	long            oldhp, newhp, tmp;
-	int             percentage;
-	monster_type    *m_ptr = &m_list[m_idx];
-	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-	char            m_name[80];
+	long oldhp, newhp, tmp;
+	int percentage;
 
-#if 0
-	if (!(player_can_see_bold(m_ptr->fy, m_ptr->fx)))
-		return;
-#endif
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	char m_name[80];
+
 
 	/* Get the monster name */
 	monster_desc(m_name, m_ptr, 0);
@@ -2503,8 +2372,8 @@ void message_pain(int m_idx, int dam)
 	percentage = (int)(tmp);
 
 
-	/* Jelly's, Mold's, Vortex's, Quthl's */
-	if (strchr("jmvQ", r_ptr->d_char))
+	/* Mushrooms, Eyes, Jellies, Molds, Vortices, Worms, Quylthulgs */
+	if (strchr(",ejmvwQ", r_ptr->d_char))
 	{
 		if (percentage > 95)
 			msg_format("%^s barely notices.", m_name);
@@ -2521,6 +2390,207 @@ void message_pain(int m_idx, int dam)
 		else
 			msg_format("%^s jerks limply.", m_name);
 	}
+
+
+	/* Fish */
+	else if (strchr("~", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s barely notices.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s flinches.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s hesitates.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s quivers in pain.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s writhes about.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s writhes in agony.", m_name);
+		else
+			msg_format("%^s jerks limply.", m_name);
+	}
+
+
+	/* Golems, Walls, Doors, Stairs */
+	else if (strchr("g#+<>", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s shrugs off the attack.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s roars thunderously.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s rumbles.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s grunts.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s hesitates.", m_name);
+		else
+			msg_format("%^s crumples.", m_name);
+	}
+
+
+	/* Snakes, Hydrae, Reptiles, Mimics */
+	else if (strchr("JMR", r_ptr->d_char) || !isalpha(r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s barely notices.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s hisses.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s rears up in anger.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s hisses furiously.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s writhes about.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s writhes in agony.", m_name);
+		else
+			msg_format("%^s jerks limply.", m_name);
+	}
+
+
+	/* Felines */
+	else if (strchr("f", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s shrugs off the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s roars.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s growls angrily.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s hisses with pain.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s mewls in pain.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s hisses in agony.", m_name);
+		else
+			msg_format("%^s mewls pitifully.", m_name);
+	}
+
+
+	/* Ants, Centipedes, Flies, Insects, Beetles, Spiders */
+	else if (strchr("acFIKS", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s chitters.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s scuttles about.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s twitters.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s jerks in pain.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s jerks in agony.", m_name);
+		else
+			msg_format("%^s twitches.", m_name);
+	}
+
+
+	/* Birds */
+	else if (strchr("B", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s chirps.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s twitters.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s squawks.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s chatters.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s jeers.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s flutters about.", m_name);
+		else
+			msg_format("%^s squeaks.", m_name);
+	}
+
+
+	/* Dragons, Demons, High Undead */
+	else if (strchr("duDLUW", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s flinches.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s hisses in pain.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s snarls with pain.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s roars with pain.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s gasps.", m_name);
+		else
+			msg_format("%^s snarls feebly.", m_name);
+	}
+
+
+	/* Skeletons */
+	else if (strchr("s", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s shrugs off the attack.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s rattles.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s stumbles.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s rattles.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s staggers.", m_name);
+		else
+			msg_format("%^s clatters.", m_name);
+	}
+
+
+	/* Zombies */
+	else if (strchr("z", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s shrugs off the attack.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s groans.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s moans.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s hesitates.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s grunts.", m_name);
+		else
+			msg_format("%^s staggers.", m_name);
+	}
+
+
+	/* Ghosts */
+	else if (strchr("G", r_ptr->d_char))
+	{
+		if (percentage > 95)
+			msg_format("%^s ignores the attack.", m_name);
+		else if (percentage > 75)
+			msg_format("%^s shrugs off the attack.", m_name);
+		else if (percentage > 50)
+			msg_format("%^s moans.", m_name);
+		else if (percentage > 35)
+			msg_format("%^s wails.", m_name);
+		else if (percentage > 20)
+			msg_format("%^s howls.", m_name);
+		else if (percentage > 10)
+			msg_format("%^s moans softly.", m_name);
+		else
+			msg_format("%^s sighs.", m_name);
+	}
+
 
 	/* Dogs and Hounds */
 	else if (strchr("CZ", r_ptr->d_char))
@@ -2542,7 +2612,7 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* One type of monsters (ignore,squeal,shriek) */
-	else if (strchr("FIKMRSXabclqrst", r_ptr->d_char))
+	else if (strchr("Xbilqrt", r_ptr->d_char))
 	{
 		if (percentage > 95)
 			msg_format("%^s ignores the attack.", m_name);
@@ -2581,14 +2651,11 @@ void message_pain(int m_idx, int dam)
 }
 
 
-
 /*
  * Learn about an "observed" resistance.
  */
 void update_smart_learn(int m_idx, int what)
 {
-#ifdef DRS_SMART_OPTIONS
-
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -2692,12 +2759,9 @@ void update_smart_learn(int m_idx, int what)
 		break;
 
 	case DRS_REFLECT:
-		if (p_ptr->reflect) m_ptr-> smart |= (SM_IMM_REFLECT);
+		if (p_ptr->reflect) m_ptr->smart |= (SM_IMM_REFLECT);
 		break;
 	}
-
-#endif /* DRS_SMART_OPTIONS */
-
 }
 
 

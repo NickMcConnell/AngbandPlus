@@ -245,6 +245,15 @@
 #include <commdlg.h>
 
 /*
+ * HTML-Help requires htmlhelp.h and htmlhelp.lib from Microsoft's
+ * HTML Workshop < http://www.microsoft.com/workshop/author/htmlhelp/ >.
+ */
+/* #define HTML_HELP */
+#ifdef HTML_HELP
+#include <htmlhelp.h>
+#endif /* HTML_HELP */
+
+/*
  * Include the support for loading bitmaps
  */
 #ifdef USE_GRAPHICS
@@ -3154,6 +3163,20 @@ static void process_menus(WORD wCmd)
 
 		case IDM_HELP_GENERAL:
 		{
+#ifdef HTML_HELP
+			char tmp[1024];
+			path_build(tmp, 1024, ANGBAND_DIR_XTRA_HELP, "zangbaa.chm");
+			if (check_file(tmp))
+			{
+				HtmlHelp(data[0].w, tmp, HH_DISPLAY_TOPIC, 0);
+			}
+			else
+			{
+				plog_fmt("Cannot find help file: %s", tmp);
+				plog("Use the online help files instead.");
+			}
+			break;
+#else /* HTML_HELP */
 			char buf[1024];
 			char tmp[1024];
 			path_build(tmp, 1024, ANGBAND_DIR_XTRA_HELP, "angband.hlp");
@@ -3168,10 +3191,25 @@ static void process_menus(WORD wCmd)
 				plog("Use the online help files instead.");
 			}
 			break;
+#endif /* HTML_HELP */
 		}
 
 		case IDM_HELP_SPOILERS:
 		{
+#ifdef HTML_HELP
+			char tmp[1024];
+			path_build(tmp, 1024, ANGBAND_DIR_XTRA_HELP, "zkb.chm");
+			if (check_file(tmp))
+			{
+				HtmlHelp(data[0].w, tmp, HH_DISPLAY_TOPIC, 0);
+			}
+			else
+			{
+				plog_fmt("Cannot find help file: %s", tmp);
+				plog("Use the online help files instead.");
+			}
+			break;
+#else /* HTML_HELP */
 			char buf[1024];
 			char tmp[1024];
 			path_build(tmp, 1024, ANGBAND_DIR_XTRA_HELP, "spoilers.hlp");
@@ -3186,6 +3224,7 @@ static void process_menus(WORD wCmd)
 				plog("Use the online help files instead.");
 			}
 			break;
+#endif /* HTML_HELP */
 		}
 	}
 }
@@ -3969,13 +4008,22 @@ static void init_stuff(void)
 	/* Hack -- Validate the paths */
 	validate_dir(ANGBAND_DIR_APEX, FALSE);
 	validate_dir(ANGBAND_DIR_BONE, FALSE);
-	validate_dir(ANGBAND_DIR_DATA, FALSE);
-	validate_dir(ANGBAND_DIR_EDIT, TRUE);
+
+	/* Allow missing 'edit' directory */
+	if (!check_dir(ANGBAND_DIR_EDIT))
+	{
+		/* Must have 'data'! */
+		validate_dir(ANGBAND_DIR_DATA, TRUE);
+	}
+	else
+	{
+		/* Don't need 'data' */
+		validate_dir(ANGBAND_DIR_DATA, FALSE);
+	}
 
 #ifdef USE_SCRIPT
 	validate_dir(ANGBAND_DIR_SCRIPT, TRUE);
 #endif /* USE_SCRIPT */
-
 	validate_dir(ANGBAND_DIR_FILE, TRUE);
 	validate_dir(ANGBAND_DIR_HELP, FALSE);
 	validate_dir(ANGBAND_DIR_INFO, FALSE);

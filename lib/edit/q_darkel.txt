@@ -40,7 +40,7 @@ F:g:1:8:323
 # Stunwall (level:18, Speed:110, XP:50, #:6, Tot:300)
 F:#:1:8:326
 
-# Dark eleven lord (level:20, Speed:120, XP:500, #:3, Tot:1500)
+# Dark elven lord (level:20, Speed:120, XP:500, #:5, Tot:2500)
 F:h:1:8:348
 
 # The doors, floors and treasures
@@ -50,7 +50,7 @@ F: :1:8
 # Dungeon layout
 D:XXXXXXXXX
 D:X       X
-D:X   h   X
+D:X h h h X
 D:X       X
 D:X h   h X
 D:X       X

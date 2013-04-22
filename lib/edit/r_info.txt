@@ -118,6 +118,54 @@
 
 # Note that monster zero is used for the "player" picture.
 
+# === Understanding r_info.txt ===
+
+# N: serial number : monster name
+# G: symbol : color
+# I: speed : hit points : vision : armor class : alertness
+# W: depth : rarity
+# B: attack method : attack effect : damage
+# S: spell frequency |
+# S: spell type | spell type | etc
+# F: flag | flag | etc
+# D: Description
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item. Entry 0 is used for the player.
+
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
+
+# D - Black        w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Dark Gray    W - Light Gray     v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+
+# 'I' is for information - speed, health, vision in tens of feet,
+# armor class, and alertness. 110 is normal speed. Alertness ranges
+# from 0 (ever vigilant for intruders) to 255 (prefers to ignore
+# intruders).
+
+# 'W' is for more information - level, rarity, and experience for
+# killing. The third slot is unused.
+
+# 'B' is for blows - method of attack, effect of attack, and damage
+# from attack. There may be up to four of these lines; effect and
+# damage are optional.
+
+# 'S' is for spells. The first S: line must be S:1_IN_X with X the
+# number of monster turns, on average, before the monster will cast
+# one of its spells. X must not be zero.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+# 'D' is for description. As many D: lines may be used as are needed
+# to describe the monster. Note that lines may need spaces at their
+# ends to prevent words from running together in the monster memory.
+
+
 # Version stamp (required)
 
 V:2.8.1
@@ -204,11 +252,11 @@ D:A thin flea-ridden mutt, growling as you get close.
 N:8:Farmer Maggot
 G:h:w
 I:110:35d10:40:10:3
-W:0:4:0:0
+W:0:3:0:0
 B:HIT:HURT:1d3
 F:UNIQUE | MALE | CAN_SPEAK | DROP_CORPSE | FRIENDLY
 F:FORCE_MAXHP | WILD_TOWN | WILD_ONLY
-F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP
 D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy 
@@ -327,7 +375,7 @@ G:P:w
 I:109:35d20:50:15:4
 W:0:4:0:0
 B:HIT:HURT:1d3
-F:UNIQUE | MALE | CAN_SPEAK | FRIENDLY
+F:UNIQUE | MALE | GIANT | CAN_SPEAK | FRIENDLY
 F:FORCE_MAXHP | DROP_CORPSE | WILD_TOWN | WILD_ONLY
 F:ONLY_ITEM | DROP_90 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
@@ -397,7 +445,7 @@ D:It is about four feet long and carnivorous.
 N:25:White icky thing
 G:i:w
 I:110:3d5:12:7:10
-W:1:1:0:2
+W:1:1:0:1
 B:TOUCH:HURT:1d2
 F:RAND_50 | RAND_25 | CAN_SWIM |
 F:EMPTY_MIND | DROP_CORPSE
@@ -406,7 +454,7 @@ D:It is a smallish, slimy, icky creature.
 N:26:Clear icky thing
 G:i:B
 I:110:2d5:12:6:10
-W:1:1:0:1
+W:2:1:0:1
 B:TOUCH:HURT:1d2
 F:ATTR_CLEAR | CAN_SWIM |
 F:RAND_50 | RAND_25 | 
@@ -446,9 +494,9 @@ D:It is a squat and ugly humanoid figure.
 
 N:30:Kobold
 G:k:g
-I:110:3d7:20:16:10
-W:1:1:0:5
-B:HIT:HURT:1d6
+I:110:5d5:20:16:10
+W:3:1:0:3
+B:HIT:HURT:1d8
 F:DROP_60 | WILD_TOO |
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
 F:EVIL | IM_POIS
@@ -732,7 +780,7 @@ G:R:g
 I:110:2d8:12:8:30
 W:2:1:0:6
 B:BITE:HURT:1d3
-F:RAND_25 | WILD_ONLY | WILD_SHORE | WILD_SWAMP | DROP_CORPSE
+F:RAND_25 | WILD_SHORE | WILD_SWAMP | DROP_CORPSE
 F:BASH_DOOR | 
 F:ANIMAL
 D:It is as big as a wolf.
@@ -787,7 +835,7 @@ I:120:3d5:40:12:0
 W:2:2:0:8
 B:BITE:HURT:1d3
 B:BITE:HURT:1d3
-F:ANIMAL | WILD_ONLY | CAN_FLY | DROP_CORPSE | FORCE_MAXHP
+F:ANIMAL | CAN_FLY | DROP_CORPSE | FORCE_MAXHP
 D:It is a hooded crow, gray except for the black wings and head.
 
 N:62:Wild cat
@@ -868,7 +916,7 @@ I:120:4d5:40:12:0
 W:3:2:0:8
 B:BITE:HURT:1d4
 B:BITE:HURT:1d4
-F:ANIMAL | WILD_ONLY | CAN_FLY | DROP_CORPSE | FORCE_MAXHP
+F:ANIMAL | CAN_FLY | DROP_CORPSE | FORCE_MAXHP
 D:Larger than a crow, pitch black.
 
 N:69:Giant white louse
@@ -1128,7 +1176,7 @@ F:DROP_60 | OPEN_DOOR | BASH_DOOR | FRIENDS | DROP_CORPSE |
 F:WILD_TOO | WILD_WOOD
 S:1_IN_8
 S:ARROW_1
-D:A cute little bear, full of merchandising potential. 
+D:A cute, furry little animal, full of merchandising potential. 
 
 N:93:Novice mage
 G:p:R
@@ -1380,11 +1428,10 @@ G:r:R
 I:120:9d10:12:20:20
 W:6:1:0:10
 B:BITE:HURT:3d2
-B:BITE:HURT:3d1
 B:BITE:HURT:3d2
 F:EVIL | ANIMAL | DROP_CORPSE
 S:1_IN_9
-S:SCARE | CONF
+S:SCARE
 D:A ratlike creature with a humanlike face. "The bones of the 
 D:tiny paws, it is rumoured, imply prehensile characteristics 
 D:more typical of a diminutive monkey than a of a rat; while the 
@@ -1458,7 +1505,7 @@ G:R:R
 I:110:5d8:12:16:50
 W:7:1:0:16
 B:BITE:LOSE_STR:2d4
-F:RAND_50 | WILD_ONLY | WILD_SHORE | WILD_SWAMP |
+F:RAND_50 | WILD_SHORE | WILD_SWAMP |
 F:BASH_DOOR | DROP_CORPSE
 F:ANIMAL
 D:It looks poisonous.
@@ -1842,7 +1889,7 @@ B:CLAW:EAT_FOOD:1d2
 B:BITE:EAT_FOOD:1d3
 F:MULTIPLY | IM_POIS | HURT_LITE | EVIL | DEMON | OPEN_DOOR | 
 F:TAKE_ITEM | CAN_SWIM 
-D:Don't feed them after midnight!
+D:Don't splash water on them, and don't feed them after midnight!
 
 N:154:Yeti
 G:Y:w
@@ -1910,7 +1957,7 @@ B:CLAW:HURT:1d5
 B:CLAW:HURT:1d5
 B:BITE:HURT:1d10
 F:BASH_DOOR | FORCE_MAXHP | FORCE_SLEEP | UNIQUE | DROP_CORPSE
-F:ANIMAL | WILD_ONLY | WILD_WOOD | WILD_GRASS | WILD_MOUNTAIN 
+F:ANIMAL | WILD_WOOD | WILD_GRASS | WILD_MOUNTAIN 
 D:A wounded bear, who has occasionally attacked humans.
 
 N:160:Portuguese man-o-war
@@ -2057,7 +2104,7 @@ I:120:6d6:30:30:20
 W:9:1:0:30
 B:BITE:HURT:1d10
 B:BITE:HURT:1d10
-F:BASH_DOOR | WILD_ONLY | WILD_GRASS | WILD_WOOD | DROP_CORPSE
+F:BASH_DOOR | WILD_GRASS | WILD_WOOD | DROP_CORPSE
 F:ANIMAL | UNIQUE | FORCE_MAXHP
 D:It has been terrorizing the nearby villages.
 
@@ -2079,7 +2126,7 @@ W:9:2:0:22
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
 B:BITE:HURT:1d6
-F:ANIMAL | CAN_FLY | WILD_ONLY | WILD_WASTE | WILD_MOUNTAIN | WILD_WOOD
+F:ANIMAL | CAN_FLY | WILD_WASTE | WILD_MOUNTAIN | WILD_WOOD
 F:DROP_CORPSE
 D:A magnificent huge predatory bird.
 
@@ -2315,7 +2362,7 @@ B:CLAW:HURT:1d5
 B:CLAW:HURT:1d5
 B:BITE:HURT:1d10
 F:BASH_DOOR | WILD_WOOD | WILD_MOUNTAIN | DROP_CORPSE
-F:ANIMAL | WILD_ONLY
+F:ANIMAL
 D:A huge, beastly bear.
 
 N:192:Disenchanter mold
@@ -2504,7 +2551,7 @@ B:TOUCH:PARALYZE
 B:CRUSH:HURT:2d12
 S:1_IN_10
 S:TELE_TO
-F:ANIMAL | NEVER_MOVE | COLD_BLOOD | WILD_ONLY | WILD_WOOD |
+F:ANIMAL | NEVER_MOVE | COLD_BLOOD | WILD_WOOD |
 F:EMPTY_MIND | UNIQUE | FORCE_MAXHP | FORCE_SLEEP |
 F:RES_WATE | IM_POIS | IM_ACID
 F:DROP_90 | DROP_GOOD | ONLY_ITEM
@@ -3499,7 +3546,7 @@ B:HIT:HURT:3d4
 F:MALE | WILD_TOO |
 F:DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | ESCORT | DROP_SKELETON | DROP_CORPSE
-F:EVIL | ORC
+F:EVIL | ORC | CAN_SPEAK
 S:1_IN_15
 S:ARROW_1
 D:An armoured orc with an air of authority.
@@ -4077,7 +4124,7 @@ B:CRUSH:HURT:3d6
 B:CRUSH:HURT:3d6
 B:CRUSH:HURT:3d6
 F:DROP_60 | NO_SLEEP | NO_CONF | ANIMAL | WEIRD_MIND | EVIL
-F:RES_WATE | IM_COLD | NEVER_MOVE | WILD_ONLY | WILD_WOOD |
+F:RES_WATE | IM_COLD | NEVER_MOVE | WILD_WOOD |
 S:1_IN_9
 S:BLINK | TELE_TO
 D:A very strong near-sentient tree, which has become hostile 
@@ -4161,8 +4208,8 @@ W:20:2:0:150
 B:CLAW:HURT:6d3
 B:CLAW:HURT:6d3
 B:BITE:HURT:3d6
-F:CAN_FLY |
-F:WILD_ONLY | WILD_MOUNTAIN | WILD_VOLCANO
+F:CAN_FLY | FRIENDLY |
+F:WILD_MOUNTAIN | WILD_VOLCANO
 F:ANIMAL | GOOD | DROP_CORPSE
 D:An agent of supernatural beings, this creature looks like a 
 D:huge eagle.
@@ -4402,10 +4449,10 @@ N:353:Chest mimic
 G:~:s
 I:110:10d14:30:40:0
 W:21:6:0:70
-B:SPIT:POISON:3d4
-B:SPIT:POISON:3d4
-B:HIT:CONFUSE:2d3
-B:HIT:BLIND:2d3
+B:GAZE:CONFUSE:2d3
+B:CLAW:POISON:3d4
+B:CLAW:POISON:3d4
+B:SPIT:BLIND:2d3
 F:CHAR_MULTI | 
 F:FORCE_SLEEP | NEVER_MOVE | 
 F:EMPTY_MIND | COLD_BLOOD |
@@ -4565,8 +4612,7 @@ N:365:Vampiric mist
 G:#:D
 I:110:10d8:12:55:10
 W:22:1:0:40
-B:ENGULF:EXP_20:1d6
-B:ENGULF:EXP_20:1d6
+B:ENGULF:EXP_VAMP:2d6
 F:RAND_25 | 
 F:IM_COLD | IM_POIS | IM_ACID | RES_NETH | WILD_TOO | WILD_SWAMP |
 F:EVIL | EMPTY_MIND | COLD_BLOOD | FRIENDS
@@ -4818,12 +4864,12 @@ D:Alberich's son, born of a mortal woman won with gold.
 N:384:Meneldor the Swift
 G:B:u
 I:130:80d10:20:65:20
-W:24:6:0:360
+W:24:5:0:360
 B:CLAW:HURT:7d3
 B:CLAW:HURT:7d3
 B:BITE:HURT:3d7
 F:CAN_FLY | UNIQUE | FORCE_MAXHP | DROP_CORPSE
-F:WILD_ONLY | WILD_MOUNTAIN | WILD_VOLCANO | FRIENDLY
+F:WILD_MOUNTAIN | WILD_VOLCANO | FRIENDLY
 F:ANIMAL | GOOD
 D:An agent of supernatural beings, this creature looks like a 
 D:huge eagle.
@@ -5072,8 +5118,8 @@ N:402:Black
 G:j:d
 I:111:14d14:12:65:30
 W:25:3:0:50
-B:ENGULF:EXP_40:2d6
-B:ENGULF:EXP_40:2d6
+B:ENGULF:EXP_VAMP:2d6
+B:ENGULF:EXP_VAMP:2d6
 F:RAND_25 | 
 F:IM_COLD | IM_POIS | IM_ACID | RES_NETH |
 F:EVIL | EMPTY_MIND | COLD_BLOOD | FRIENDS
@@ -5124,7 +5170,7 @@ G:~:D
 I:110:22d22:20:50:20
 W:26:1:0:120
 B:STING:POISON:2d8
-B:STING:EXP_40:2d8
+B:STING:EXP_VAMP:2d8
 F:ANIMAL | EVIL | AQUATIC | RES_NETH | IM_POIS | WILD_TOO
 S:1_IN_6
 S:HEAL | SCARE | CAUSE_3 | BLIND | FORGET | HASTE
@@ -5176,12 +5222,12 @@ D:He is out to have a revenge on you who have desecrated his tomb.
 N:410:Gwaihir the Windlord
 G:B:u
 I:130:85d10:20:65:20
-W:24:6:0:360
+W:24:5:0:360
 B:CLAW:HURT:15d2
 B:CLAW:HURT:15d2
 B:BITE:HURT:3d10
 F:CAN_FLY | UNIQUE | FORCE_MAXHP | DROP_CORPSE
-F:WILD_ONLY | WILD_MOUNTAIN | WILD_VOLCANO | FRIENDLY
+F:WILD_MOUNTAIN | WILD_VOLCANO | FRIENDLY
 F:ANIMAL | GOOD
 D:An agent of supernatural beings, this creature looks like a 
 D:huge eagle.
@@ -5487,8 +5533,7 @@ I:110:25d12:20:45:10
 W:27:1:0:175
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
-B:BITE:EXP_20:1d4
-B:BITE:EXP_20:1d4
+B:BITE:EXP_VAMP:1d8
 F:FORCE_SLEEP | 
 F:COLD_BLOOD | DROP_60 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | REGENERATE | CAN_FLY |
@@ -6040,7 +6085,7 @@ B:CLAW:HURT:16d2
 B:CLAW:HURT:16d2
 B:BITE:HURT:4d10
 F:CAN_FLY | UNIQUE | FORCE_MAXHP | DROP_CORPSE
-F:WILD_ONLY | WILD_MOUNTAIN | WILD_VOLCANO | FRIENDLY
+F:WILD_MOUNTAIN | WILD_VOLCANO | FRIENDLY
 F:ANIMAL | GOOD
 D:An agent of supernatural being, Thorondor is the lord of eagles.
 
@@ -6816,8 +6861,8 @@ I:110:34d10:20:60:10
 W:34:3:0:750
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
-B:BITE:EXP_40:1d4
-B:BITE:EXP_40:1d4
+B:BITE:EXP_40:1d7
+B:BITE:EXP_40:1d7
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_4D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | CAN_FLY |
@@ -6834,7 +6879,7 @@ I:110:30d12:20:60:10
 W:34:3:0:750
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
-B:BITE:EXP_40:1d4
+B:BITE:EXP_40:1d8
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_4D2 | CAN_FLY |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | INVISIBLE | PASS_WALL |
@@ -6850,7 +6895,7 @@ I:110:54d13:30:68:255
 W:34:3:0:800
 B:CLAW:LOSE_CON:1d6
 B:CLAW:DISEASE:1d6
-B:GAZE:EXP_40:1d4
+B:GAZE:EXP_VAMP:3d4
 B:GAZE:TERRIFY:1d4
 F:FORCE_SLEEP | FORCE_MAXHP | NO_FEAR | EVIL | UNDEAD |
 F:COLD_BLOOD |
@@ -7053,9 +7098,9 @@ G:V:r
 I:120:30d25:20:40:10
 W:35:2:0:700
 B:CLAW:LOSE_STR:4d4
-B:BITE:EXP_20:4d4
+B:BITE:EXP_VAMP:4d4
 B:CLAW:LOSE_STR:4d4
-B:BITE:EXP_20:4d4
+B:BITE:EXP_VAMP:4d4
 F:EVIL | ELDRITCH_HORROR | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NONLIVING | CAN_FLY |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN
@@ -7345,18 +7390,18 @@ D:deathly cold.
 
 N:555:Revenant
 G:W:u
-I:110:111d2:20:50:10
-W:36:1:0:725
+I:125:111d2:30:70:5
+W:36:1:0:800
 B:GAZE:PARALYZE
-B:CLAW:LOSE_CON:1d10
-B:CLAW:LOSE_CON:1d10
+B:CLAW:LOSE_CON:2d10
+B:CLAW:LOSE_CON:2d10
 B:GAZE:EXP_40
 F:FORCE_SLEEP | FORCE_MAXHP | REGENERATE |
 F:DROP_60 | DROP_90 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:EVIL | UNDEAD | HURT_LITE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_7 |
-S:CONF | SCARE | CAUSE_3 | DARKNESS
+S:1_IN_4 |
+S:CONF | SCARE | CAUSE_3 | DARKNESS | BO_FIRE
 D:Back from the grave, to wreak vengeance upon the living. A skeletal figure 
 D:wearing a black robe, with eyes that burn with undying hatred.
 
@@ -7620,8 +7665,8 @@ N:572:The Greater hell magic mushroom were-quylthulg
 G:Q:s
 I:120:19d99:50:80:50
 W:36:3:0:2500
-B:GAZE:EXP_40:4d8
-B:GAZE:EXP_40:4d8
+B:GAZE:EXP_VAMP:4d8
+B:GAZE:EXP_VAMP:4d8
 B:CRUSH:ACID:8d8
 B:CRUSH:ACID:8d8
 F:FORCE_MAXHP | FORCE_SLEEP | UNIQUE | NO_STUN | NO_CONF |
@@ -7661,7 +7706,7 @@ I:110:26d26:20:50:20
 W:36:2:0:600
 B:GAZE:HURT:10d10
 B:GAZE:UN_BONUS:5d2
-B:GAZE:EXP_40:5d2
+B:GAZE:EXP_VAMP:5d2
 B:GAZE:PARALYZE:5d2
 F:FORCE_MAXHP | BASH_DOOR | EVIL | CAN_FLY 
 D:It has two eyestalks and a large central eye. Its gaze can kill.
@@ -8471,8 +8516,8 @@ I:120:16d100:20:70:10
 W:39:3:0:1800
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
-B:BITE:EXP_80:1d6
-B:BITE:EXP_80:1d6
+B:BITE:EXP_VAMP:2d6
+B:BITE:EXP_VAMP:2d6
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:DROP_60 | DROP_4D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | RES_TELE
@@ -8936,8 +8981,8 @@ N:652:Fallen angel
 G:A:D
 I:130:100d35:30:140:255
 W:41:6:0:15000
-B:GAZE:EXP_40:4d4
-B:GAZE:EXP_40:4d4
+B:GAZE:EXP_VAMP:4d4
+B:GAZE:EXP_VAMP:4d4
 B:HIT:HURT:8d6
 B:HIT:HURT:8d6
 F:FORCE_SLEEP | 
@@ -8947,7 +8992,7 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_TELE | RES_NETH |
 F:CAN_FLY 
 S:1_IN_3 | 
 S:TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA | 
-S:S_DEMON | BO_NETH
+S:S_DEMON | BO_NETH | INVULNER
 D:An angelic being who was mighty once but dared defy the Omnipotent 
 D:to arms.
 
@@ -9111,7 +9156,7 @@ F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_TELE | CAN_FLY 
 S:1_IN_3 | 
 S:TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA | 
-S:S_ANGEL
+S:S_ANGEL | INVULNER
 D:Never a more heavenly being have you seen.  The very holiness of its 
 D:presence makes you deeply respect it.  Few creatures can match the powers 
 D:of an Archon; fewer still live to tell the tale after attacking one.
@@ -9269,15 +9314,14 @@ D:of innumerable sailors!
 
 N:670:Jack of Shadows
 G:p:s
-I:160:30d100:70:150:4
+I:150:30d100:70:150:4
 W:42:4:0:10000
 B:HIT:HURT:5d10
 B:HIT:HURT:5d10
 B:HIT:EAT_ITEM:2d10
 B:HIT:EAT_ITEM:2d10
-F:MALE | FORCE_MAXHP | CAN_SPEAK | REFLECTING | DROP_SKELETON | DROP_CORPSE
-F:REGENERATE | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR |
-F:IM_ACID | IM_ELEC | IM_COLD | IM_FIRE | IM_POIS | RES_TELE |
+F:MALE | FORCE_MAXHP | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE
+F:REGENERATE | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR | RES_TELE |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | UNIQUE |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | SMART | POWERFUL |
 S:1_IN_3
@@ -9540,15 +9584,15 @@ D:ankylosed in posture of an eternal dreadful groping."
 
 N:685:Shoggoth
 G:j:D
-I:140:50d20:20:80:20
+I:140:50d20:100:80:20
 W:44:2:0:2500
 B:CRUSH:ACID:5d6
 B:CRUSH:ACID:5d6
 B:CRUSH:ACID:5d6
 B:CRUSH:HURT:9d9
-F:REGENERATE | ONLY_ITEM | KILL_ITEM | DROP_2D2 | DROP_90 | DROP_60
-F:BASH_DOOR | EVIL | NO_CONF | NO_SLEEP | KILL_BODY | CAN_SWIM |
-F:FORCE_MAXHP | FORCE_SLEEP | HURT_LITE | POWERFUL |
+F:REGENERATE | KILL_ITEM | CAN_SPEAK | 
+F:BASH_DOOR | EVIL | DEMON | NO_CONF | NO_FEAR | NO_SLEEP | KILL_BODY | CAN_SWIM |
+F:FORCE_MAXHP | FORCE_SLEEP | HURT_LITE | POWERFUL | ELDRITCH_HORROR | 
 F:IM_ACID | IM_FIRE | RES_PLAS | IM_POIS | IM_COLD | IM_ELEC | RES_TELE
 D:"The nightmare, plastic column of fetid, black iridescence oozed 
 D:tightly onward... A shapeless congerie of protoplasmic bubbles, 
@@ -9794,7 +9838,7 @@ W:45:2:0:13333
 B:WAIL:TERRIFY
 B:HIT:EXP_80:64d1
 B:HIT:EXP_80:64d1
-B:HIT:EXP_80:8d8
+B:HIT:EXP_VAMP:8d8
 F:CHAR_MULTI | EVIL | IM_POIS | IM_COLD | IM_FIRE | RES_NETH |
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP | CAN_FLY |
 F:COLD_BLOOD | BASH_DOOR | NONLIVING |
@@ -9836,7 +9880,7 @@ W:46:2:0:18000
 B:CLAW:HURT:4d12
 B:CLAW:HURT:4d12
 B:BITE:EXP_80:3d6
-B:BITE:EXP_80:3d6
+B:BITE:EXP_VAMP:3d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | RES_TELE
 F:COLD_BLOOD | CAN_FLY |
@@ -9966,27 +10010,27 @@ N:708:Ent
 G:#:G
 I:120:40d100:30:120:15
 W:46:3:0:12500
-B:CRUSH:HURT:12d13
-B:CRUSH:HURT:12d13
-B:CRUSH:HURT:12d13
-B:CRUSH:HURT:12d13
+B:CRUSH:HURT:10d11
+B:CRUSH:HURT:10d11
+B:CRUSH:HURT:10d11
+B:CRUSH:HURT:10d11
 F:FORCE_SLEEP | FORCE_MAXHP | FRIENDLY |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | MOVE_BODY |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
-F:GOOD | ANIMAL 
-D:A treeherd, a sentient, moving tree. Its wrath is fearsome!
+F:GOOD | GIANT | MALE
+D:A treeherd; a sentient, moving tree. Its wrath is fearsome!
 
 N:709:Hru
 G:P:s
 I:120:40d100:30:150:15
-W:46:3:0:14500
-B:HIT:SHATTER:12d13
-B:HIT:SHATTER:12d13
-B:HIT:SHATTER:12d13
-B:HIT:SHATTER:12d13
+W:56:3:0:14500
+B:CRUSH:SHATTER:10d11
+B:CRUSH:SHATTER:10d11
+B:CRUSH:SHATTER:10d11
+B:CRUSH:SHATTER:10d11
 F:FORCE_SLEEP | FORCE_MAXHP | HURT_ROCK |
 F:ONLY_GOLD | DROP_4D2 | MOVE_BODY | KILL_WALL |
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
+F:SMART | KILL_ITEM | BASH_DOOR |
 F:EVIL | GIANT | MALE
 D:A rock giant, a being made of living stone.
 
@@ -10016,7 +10060,7 @@ W:47:1:0:1000
 B:HIT:UN_BONUS:7d7
 B:HIT:UN_BONUS:7d7
 B:HIT:UN_BONUS:7d7
-B:HIT:EXP_80:5d5
+B:HIT:EXP_VAMP:5d5
 F:FORCE_SLEEP | NEVER_MOVE | CAN_SWIM |
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
@@ -10043,18 +10087,18 @@ D:The mighty dragon of the Norse myth, Fafner was a giant who slew his
 D:brother to win a treasure hoard, and then transformed himself into 
 D:a dragon, greedily watching over his hoard.
 
-N:713:Fangorn the Treebeard
+N:713:Fangorn
 G:#:G
 I:120:50d100:30:120:15
 W:47:3:0:13500
-B:CRUSH:HURT:13d13
-B:CRUSH:HURT:13d13
-B:CRUSH:HURT:13d13
-B:CRUSH:HURT:13d13
+B:CRUSH:HURT:12d11
+B:CRUSH:HURT:12d11
+B:CRUSH:HURT:12d11
+B:CRUSH:HURT:12d11
 F:FORCE_SLEEP | FORCE_MAXHP | UNIQUE | CAN_SPEAK |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | MOVE_BODY |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
-F:GOOD | ANIMAL | FRIENDLY
+F:GOOD | GIANT | FRIENDLY | MALE
 D:The oldest of all ents, a respected and feared ancient creature.
 
 N:714:Zhar the Twin Obscenity
@@ -10579,7 +10623,7 @@ N:742:Demilich
 G:L:U
 I:120:30d100:20:100:50
 W:54:2:0:12500
-B:TOUCH:EXP_80
+B:TOUCH:EXP_VAMP:1d12
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:4d12
 B:TOUCH:LOSE_DEX:4d12
@@ -10677,7 +10721,7 @@ D:It is the embodiment of Slaanesh's perverted magic.
 N:747:Shudde M'ell
 G:w:s
 I:125:100d40:20:90:20
-W:39:2:0:23000
+W:54:2:0:23000
 B:CRUSH:SHATTER:55d2
 B:CRUSH:SHATTER:55d2
 B:TOUCH:LOSE_CON:1d2
@@ -10784,8 +10828,8 @@ I:120:39d111:20:133:70
 W:55:2:0:25000
 B:CLAW:LOSE_CON:8d12
 B:CLAW:LOSE_CON:8d12
-B:BITE:EXP_80:8d15
-B:BITE:EXP_80:8d15
+B:BITE:EXP_VAMP:8d15
+B:BITE:EXP_VAMP:8d15
 F:UNIQUE | CAN_FLY | RES_NETH |
 F:FORCE_SLEEP | FORCE_MAXHP | SMART |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | IM_POIS |
@@ -10826,7 +10870,7 @@ G:V:D
 I:130:40d100:20:145:10
 W:55:4:0:23000
 B:BITE:HURT:5d8
-B:BITE:EXP_80:6d6
+B:BITE:EXP_VAMP:6d6
 B:HIT:CONFUSE:6d6
 B:HIT:CONFUSE:6d6
 F:UNIQUE | FEMALE | 
@@ -11030,7 +11074,7 @@ N:765:Azriel, Angel of Death
 G:A:D
 I:130:60d100:40:170:10
 W:57:3:0:30000
-B:TOUCH:EXP_80
+B:TOUCH:EXP_VAMP:1d12
 B:HIT:BLIND:10d5
 B:HIT:HURT:10d10
 B:HIT:HURT:10d10
@@ -11133,7 +11177,7 @@ F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 S:1_IN_2 |
-S:TELE_TO | BLIND | BO_MANA | S_ANGEL | S_KIN
+S:TELE_TO | BLIND | BO_MANA | S_ANGEL | S_KIN | INVULNER
 D:Commanding a legion of angels, Raphael will destroy you for your sins.  He 
 D:will crush you like the pitiful insignificant being he sees you to be.  
 D:Your very soul will be taken into judgement by his supreme authority as he 
@@ -11143,9 +11187,9 @@ N:770:Artsi the Champion of Chaos
 G:h:G
 I:130:111d66:25:175:10
 W:59:2:0:20000
-B:HIT:EXP_80:10d10
-B:HIT:EXP_80:10d10
-B:HIT:EXP_80:10d10
+B:HIT:EXP_VAMP:6d6
+B:HIT:EXP_VAMP:8d8
+B:HIT:EXP_VAMP:10d10
 F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | DROP_CORPSE
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | 
@@ -11275,7 +11319,7 @@ N:776:Archlich
 G:L:B
 I:120:35d100:20:120:50
 W:64:2:0:20000
-B:TOUCH:EXP_80
+B:TOUCH:EXP_VAMP:1d16
 B:TOUCH:UN_POWER
 B:TOUCH:LOSE_DEX:8d12
 B:TOUCH:LOSE_DEX:8d12
@@ -11353,8 +11397,8 @@ N:780:Vlad Dracula, Prince of Darkness
 G:V:b
 I:130:50d100:20:166:10
 W:66:4:0:33333
-B:BITE:EXP_80:8d8
-B:BITE:EXP_80:8d8
+B:BITE:EXP_VAMP:8d8
+B:BITE:EXP_VAMP:8d8
 B:HIT:CONFUSE:8d8
 B:HIT:CONFUSE:8d8
 F:UNIQUE | MALE | 
@@ -11629,7 +11673,7 @@ S:S_DRAGON | S_HI_DRAGON |
 S:SCARE | BLIND
 D:The mightiest elemental dragon of air, it can destroy you with ease.
 
-N:794:Julian, Master of Forest Amber
+N:794:Julian, Master of Arden Forest
 G:p:g
 I:130:55d100:100:100:20
 W:69:1:0:36000
@@ -11808,7 +11852,7 @@ G:.:d
 I:110:50d100:30:100:20
 W:72:2:0:32500
 B:TOUCH:LOSE_ALL:6d16
-B:TOUCH:EXP_80:6d16
+B:TOUCH:EXP_VAMP:6d16
 B:TOUCH:UN_POWER:6d16
 F:PASS_WALL | NO_CONF | NO_SLEEP | NONLIVING | IM_ACID | CAN_FLY |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | SMART | EVIL |
@@ -12102,7 +12146,7 @@ G:p:g
 I:130:74d100:60:110:10
 W:78:3:0:45000
 B:TOUCH:LOSE_ALL:50d1
-B:TOUCH:EXP_80:50d1
+B:TOUCH:EXP_VAMP:50d1
 B:TOUCH:UN_BONUS:50d1
 F:UNIQUE | FEMALE | CAN_SPEAK | POWERFUL | RES_TELE |
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
@@ -12404,8 +12448,8 @@ N:831:Mephistopheles, Lord of Hell
 G:U:r
 I:140:30d222:20:150:50
 W:84:2:0:42500
-B:GAZE:EXP_80:1d5
-B:GAZE:TERRIFY:1d5
+B:GAZE:EXP_VAMP:1d15
+B:GAZE:TERRIFY:1d15
 B:TOUCH:FIRE:4d5
 B:TOUCH:UN_POWER:4d5
 F:MALE | UNIQUE | CAN_SPEAK | CAN_FLY |
@@ -12495,10 +12539,11 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT | EVIL | AURA_FIRE |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | TAKE_ITEM | CAN_SPEAK |
 F:IM_FIRE | NO_CONF | NO_SLEEP | IM_POIS | HURT_COLD | GIANT |
 F:REGENERATE
-S:1_IN_5 |
+S:1_IN_3 |
 S:SHRIEK | HASTE | HEAL | DRAIN_MANA | TPORT | TELE_TO | TELE_AWAY |
 S:TELE_LEVEL | FORGET | S_CYBER | S_DEMON | HAND_DOOM | S_HI_UNDEAD |
 S:S_UNIQUE | S_HI_DRAGON | BA_DARK | BA_MANA | S_AMBERITES | ANIM_DEAD
+S:INVULNER
 D:Loki, the god of mischief, is a nasty person. He will use every 
 D:dirty trick in the book, and then some. In the end, his half-giant 
 D:heritage is bound to show, as he will defect to the side of the 

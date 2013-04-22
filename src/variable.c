@@ -110,6 +110,9 @@ s16b cur_hgt;			/* Current dungeon height */
 s16b cur_wid;			/* Current dungeon width */
 s16b dun_level;			/* Current dungeon level */
 s16b num_repro;			/* Current reproducer count */
+
+bool mon_fight;			/* Monster fighting indicator */
+
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
 s16b base_level;        /* Base dungeon level */
@@ -196,9 +199,7 @@ bool show_details;			/* Show details in certain sub-windows */
 bool ring_bell;				/* Ring the bell (on errors, etc) */
 bool use_color;				/* Use color if possible (slow) */
 
-bool show_inven_graph;		/* Show graphics in inventory */
-bool show_equip_graph;		/* Show graphics in equip list */
-bool show_store_graph;		/* Show graphics in store */
+bool show_list_graph;		/* Show graphics in object lists -- Prfnoff */
 
 
 
@@ -225,7 +226,6 @@ bool stack_floor;		/* Allow objects to stack on floor */
 bool empty_levels;		/* Allow empty 'arena' levels */
 bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
-bool skip_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
 bool stupid_monsters;		/* Monsters use old AI */
 bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
@@ -903,21 +903,18 @@ bool (*get_obj_num_hook)(int k_idx);
 bool monk_armour_aux;
 bool monk_notify_aux;
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
 bool easy_open;
-#endif /* ALLOW_EASY_OPEN -- TNB */
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
 bool easy_disarm;
-#endif /* ALLOW_EASY_DISARM -- TNB */
-
-#ifdef ALLOW_EASY_FLOOR /* TNB */
 bool easy_floor;
-#endif /* ALLOW_EASY_FLOOR -- TNB */
 
 bool use_command;
 bool center_player; /* Prfnoff -- scroll */
 bool avoid_center; /* Prfnoff -- scroll */
+
+bool pillar_tunnels;
+
+/* Auto-destruction options */
+bool destroy_worthless;
 
 
 /*
@@ -999,6 +996,11 @@ char quest_text[10][80];
 int quest_text_line;
 
 /*
+ * Default spell color table (quark index)
+ */
+s16b gf_color[MAX_GF];
+
+/*
  * Flags for initialization
  */
 int init_flags;
@@ -1025,7 +1027,6 @@ bool ironman_small_levels;    /* Always create unusually small dungeon levels */
 bool ironman_downward;        /* Don't allow climbing upwards/recalling */
 bool ironman_autoscum;        /* Permanently enable the autoscummer */
 bool ironman_hard_quests;     /* Quest monsters get reinforcements */
-bool lite_town;               /* Use "lite" town without wilderness */
 bool ironman_empty_levels;    /* Prfnoff -- Always create empty 'arena' levels */
 bool terrain_streams;         /* Prfnoff -- Create terrain 'streamers' in the dungeon */
 bool munchkin_mindcraft;      /* Prfnoff -- Allow the 'Dimension Door' Mindcraft power */
@@ -1036,6 +1037,12 @@ bool munchkin_quest;          /* Prfnoff -- Allow some quests to be tried again 
 bool munchkin_weapon;         /* Prfnoff -- Allow certain weapons to get extra powers */
 bool munchkin_mutation;       /* Prfnoff -- Disallow mutation healing penalties */
 bool munchkin_wield;          /* Prfnoff -- Allow objects to be wielded in any way */
+bool nightmare_enemies;       /* Prfnoff -- Monsters are a nuisance */
+bool nightmare_bells;         /* Prfnoff -- Ask not for who the bell tolls */
+bool nightmare_sleep;         /* Prfnoff -- You have very bad dreams */
+bool nightmare_misc;          /* Prfnoff -- Miscellaneous nasty things happen */
+bool munchkin_invuln;         /* Prfnoff -- Disallow monster invulnerability */
+bool munchkin_lite;           /* Prfnoff -- Use full enlightenment effect */
 
 bool use_transparency = FALSE; /* Use transparent tiles */
 

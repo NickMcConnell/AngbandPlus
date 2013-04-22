@@ -24,28 +24,40 @@ void do_cmd_go_up(void)
 	/* Player grid */
 	c_ptr = &cave[py][px];
 
-	/* Quest up stairs */
-	if (c_ptr->feat == FEAT_QUEST_UP)
+	if (!cave_stair_grid(c_ptr) || cave_hard_grid(c_ptr)) /* Prfnoff */
 	{
-		/* Success */
-		msg_print("You enter the up staircase.");
+		msg_print("I see no up staircase here.");
+		return;
+	}
 
-		set_inside_quest(c_ptr->special, TRUE); /* Prfnoff */
+	switch (cave_pval_grid(c_ptr))
+	{
+		/* Quest up stairs */
+		case PV_STAIR_QUEST:
+		{
+			/* Success */
+			msg_print("You enter the up staircase.");
+
+			set_inside_quest(c_ptr->special, TRUE); /* Prfnoff */
 
 #ifdef USE_SCRIPT
-		if (cmd_go_up_callback()) return;
+			if (cmd_go_up_callback()) return;
 #endif /* USE_SCRIPT */
-	}
-	/* Normal up stairs */
-	else if (c_ptr->feat == FEAT_LESS)
-	{
-		if (!dun_level)
-		{
-			go_up = TRUE;
+
+			break;
 		}
-		else
+
+		/* Quest exit -- Prfnoff */
+		case PV_STAIR_ENTER:
 		{
-			if (confirm_stairs)
+			set_inside_quest(c_ptr->special, TRUE);
+			break;
+		}
+
+		/* Normal up stairs */
+		case PV_STAIR_NORMAL:
+		{
+			if ((dun_level > 0) && confirm_stairs)
 			{
 				if (get_check("Really leave the level? "))
 					go_up = TRUE;
@@ -54,57 +66,53 @@ void do_cmd_go_up(void)
 			{
 				go_up = TRUE;
 			}
-		}
 
-		if (go_up)
-		{
+			if (go_up)
+			{
 
 #if 0
-	/*
-	 * I'm experimenting without this... otherwise the monsters get to
-	 * act first when we go up stairs, theoretically resulting in a possible
-	 * insta-death.
-	 */
-			/* Hack -- take a turn */
-			energy_use = 100;
+				/*
+				 * I'm experimenting without this... otherwise the monsters get to
+				 * act first when we go up stairs, theoretically resulting in a possible
+				 * insta-death.
+				 */
+				/* Hack -- take a turn */
+				energy_use = 100;
 #else
-			energy_use = 0;
+				energy_use = 0;
 #endif
 
-			/* Success */
-			msg_print("You enter a maze of up staircases.");
+				/* Success */
+				msg_print("You enter a maze of up staircases.");
 
-			if (autosave_l) do_cmd_save_game(TRUE);
+				if (autosave_l) do_cmd_save_game(TRUE);
 
 #ifdef USE_SCRIPT
-			if (cmd_go_up_callback()) return;
+				if (cmd_go_up_callback()) return;
 #endif /* USE_SCRIPT */
 
-			if (p_ptr->inside_quest)
-			{
-				set_inside_quest(c_ptr->special, TRUE); /* Prfnoff */
+				if (p_ptr->inside_quest)
+				{
+					set_inside_quest(c_ptr->special, TRUE); /* Prfnoff */
+				}
+				else
+				{
+					/* Create a way back */
+					create_down_stair = TRUE;
+
+					/* New depth */
+					dun_level--;
+
+					/* Leaving the dungeon to town */
+					if (!dun_level && p_ptr->town_num)
+						p_ptr->leaving_dungeon = TRUE;
+
+					/* Leaving */
+					p_ptr->leaving = TRUE;
+				}
 			}
-			else
-			{
-				/* Create a way back */
-				create_down_stair = TRUE;
-
-				/* New depth */
-				dun_level--;
-
-				/* Leaving the dungeon to town */
-				if (!dun_level && p_ptr->town_num)
-					p_ptr->leaving_dungeon = TRUE;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
+			break;
 		}
-	}
-	else
-	{
-		msg_print("I see no up staircase here.");
-		return;
 	}
 }
 
@@ -117,81 +125,142 @@ void do_cmd_go_down(void)
 	cave_type *c_ptr;
 	bool go_down = FALSE;
 	bool fall_trap = FALSE;
+	s16b pval; /* Prfnoff */
 
 	/* Player grid */
 	c_ptr = &cave[py][px];
 
-	if (c_ptr->feat == (FEAT_TRAP_HEAD + 0x00)) fall_trap = TRUE;
-
-	/* Quest down stairs */
-	if (c_ptr->feat == FEAT_QUEST_DOWN)
+	if (cave_trap_grid(c_ptr) &&
+	    (cave_pval_grid(c_ptr) == PV_TRAP_TRAPDOOR))
 	{
-		msg_print("You enter the down staircase.");
-
-		set_inside_quest(c_ptr->special, TRUE); /* Prfnoff */
+		fall_trap = TRUE;
+		pval = PV_STAIR_NORMAL; /* hack! */
 	}
-	/* Verify stairs */
-	else if ((c_ptr->feat != FEAT_MORE) && !fall_trap)
+	else if (!cave_stair_grid(c_ptr) || !cave_hard_grid(c_ptr)) /* Prfnoff */
 	{
 		msg_print("I see no down staircase here.");
 		return;
 	}
 	else
 	{
-		if (!dun_level)
-		{
-			go_down = TRUE;
+		pval = cave_pval_grid(c_ptr);
+	}
 
-			/* Save old player position */
-			p_ptr->oldpx = px;
-			p_ptr->oldpy = py;
-		}
-		else
+	switch (pval)
+	{
+		/* Quest down stairs */
+		case PV_STAIR_QUEST:
 		{
-			if (confirm_stairs)
-			{
-				if (get_check("Really leave the level? "))
-					go_down = TRUE;
-			}
-			else
+			msg_print("You enter the down staircase.");
+			set_inside_quest(c_ptr->special, TRUE); /* Prfnoff */
+			break;
+		}
+
+		/* Quest entrance -- Prfnoff */
+		case PV_STAIR_ENTER:
+		{
+			/* Player enters a new quest */
+			set_inside_quest(c_ptr->special, TRUE); /* Prfnoff */
+			break;
+		}
+
+		/* Normal down stairs and trap doors */
+		case PV_STAIR_NORMAL:
+		{
+			if (!dun_level)
 			{
 				go_down = TRUE;
-			}
-		}
 
-		if (go_down)
-		{
+				/* Save old player position */
+				p_ptr->oldpx = px;
+				p_ptr->oldpy = py;
+			}
+			else
+			{
+				if (confirm_stairs)
+				{
+					if (get_check("Really leave the level? "))
+						go_down = TRUE;
+				}
+				else
+				{
+					go_down = TRUE;
+				}
+			}
+
+			if (go_down)
+			{
 
 #if 0
-			/* Hack -- take a turn */
-			energy_use = 100;
+				/* Hack -- take a turn */
+				energy_use = 100;
 #else
-			energy_use = 0;
+				energy_use = 0;
 #endif
 
-			if (fall_trap)
-				msg_print("You deliberately jump through the trap door.");
-			else
-				/* Success */
-				msg_print("You enter a maze of down staircases.");
+				if (fall_trap)
+					msg_print("You deliberately jump through the trap door.");
+				else /* Success */
+					msg_print("You enter a maze of down staircases.");
 
-			if (autosave_l) do_cmd_save_game(TRUE);
+				if (autosave_l) do_cmd_save_game(TRUE);
 
-			/* Go down */
-			dun_level++;
+				/* Go down */
+				dun_level++;
 
-			/* Leaving */
-			p_ptr->leaving = TRUE;
+				/* Leaving */
+				p_ptr->leaving = TRUE;
 
-			if (!fall_trap)
-			{
-				/* Create a way back */
-				create_up_stair = TRUE;
+				if (!fall_trap)
+				{
+					/* Create a way back */
+					create_up_stair = TRUE;
+				}
 			}
+
+			break;
 		}
 	}
 }
 
+
+/*
+ * Enter a store or building -- Prfnoff
+ */
+void do_cmd_enter(void)
+{
+	cave_type *c_ptr;
+	int which;
+
+	/* Access the player grid */
+	c_ptr = &cave[py][px];
+
+	/* Verify a store */
+	if (cave_shop_grid(c_ptr))
+	{
+		/* Extract the store code */
+		which = cave_pval_grid(c_ptr);
+
+		/* Enter the store */
+		store_enter(which);
+	}
+
+	/* Verify a building */
+	else if (cave_bldg_grid(c_ptr))
+	{
+		/* Extract the building code */
+		which = cave_pval_grid(c_ptr);
+
+		/* Enter the building */
+		bldg_enter(which);
+	}
+
+	/* Can't do that here */
+	else
+	{
+		msg_print("You see no store or building here.");
+	}
+}
 
 
 /*
@@ -444,8 +513,8 @@ static void chest_trap(int y, int x, s16b o_idx)
 
 		for (i = 0; i < num; i++)
 		{
-			if (randint(100)<dun_level)
-				activate_hi_summon();
+			if (randint(100) < dun_level)
+				(void)activate_hi_summon();
 			else
 				(void)summon_specific(y, x, dun_level, 0, TRUE, FALSE, FALSE);
 		}
@@ -536,15 +605,15 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 }
 
 
-#if defined(ALLOW_EASY_OPEN) || defined(ALLOW_EASY_DISARM) /* TNB */
-
 /*
  * Return the number of features around (or under) the character.
  * Usually look for doors and floor traps.
  */
-static int count_dt(int *y, int *x, byte f1, byte f2)
+static int count_dt(int *y, int *x, u32b flags1, bool under)
 {
-	int d, count;
+	int d;
+	int xx, yy;
+	int count = 0;
 
 	/* Count how many matches */
 	count = 0;
@@ -552,16 +621,18 @@ static int count_dt(int *y, int *x, byte f1, byte f2)
 	/* Check around (and under) the character */
 	for (d = 0; d < 9; d++)
 	{
+		/* If not searching under player, continue */
+		if ((d == 8) && !under) continue;
+
 		/* Extract adjacent (legal) location */
-		int yy = py + ddy_ddd[d];
-		int xx = px + ddx_ddd[d];
+		yy = py + ddy_ddd[d];
+		xx = px + ddx_ddd[d];
 
 		/* Must have knowledge */
 		if (!(cave[yy][xx].info & (CAVE_MARK))) continue;
 
-		/* Not looking for this feature */
-		if (cave[yy][xx].feat < f1) continue;
-		if (cave[yy][xx].feat > f2) continue;
+		/* Not looking for this feature */ /* Prfnoff */
+		if ((f_info[cave[yy][xx].feat].flags1 & flags1) != flags1) continue;
 
 		/* OK */
 		++count;
@@ -639,8 +710,6 @@ static int coords_to_dir(int y, int x)
 	return d[dx + 1][dy + 1];
 }
 
-#endif /* defined(ALLOW_EASY_OPEN) || defined(ALLOW_EASY_DISARM) -- TNB */
-
 
 /*
  * Perform the basic "open" command on doors
@@ -667,14 +736,14 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 	c_ptr = &cave[y][x];
 
 	/* Jammed door */
-	if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x08)
+	if (cave_hard_grid(c_ptr))
 	{
 		/* Stuck */
 		msg_print("The door appears to be stuck.");
 	}
 
 	/* Locked door */
-	else if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x01)
+	else if (cave_pval_grid(c_ptr) > 0)
 	{
 		/* Disarm factor */
 		i = p_ptr->skill_dis;
@@ -684,7 +753,7 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 		if (p_ptr->confused || p_ptr->image) i = i / 10;
 
 		/* Extract the lock power */
-		j = c_ptr->feat - FEAT_DOOR_HEAD;
+		j = cave_pval_grid(c_ptr);
 
 		/* Extract the difficulty XXX XXX XXX */
 		j = i - (j * 4);
@@ -699,7 +768,7 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 			msg_print("You have picked the lock.");
 
 			/* Open the door */
-			cave_set_feat(y, x, FEAT_OPEN);
+			cave_pick_feat(y, x, PV_DOOR_OPEN, FF1_OPEN);
 
 			/* Update some things */
 			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
@@ -729,7 +798,7 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 	else
 	{
 		/* Open the door */
-		cave_set_feat(y, x, FEAT_OPEN);
+		cave_pick_feat(y, x, PV_DOOR_OPEN, FF1_OPEN);
 
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
@@ -759,29 +828,23 @@ void do_cmd_open(void)
 
 	bool more = FALSE;
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
-
 	/* Option: Pick a direction */
 	if (easy_open)
 	{
 		int num_doors, num_chests;
 
 		/* Count closed doors (locked or jammed) */
-		num_doors = count_dt(&y, &x, FEAT_DOOR_HEAD, FEAT_DOOR_TAIL);
+		num_doors = count_dt(&y, &x, FF1_DOOR, FALSE);
 
 		/* Count chests (locked) */
 		num_chests = count_chests(&y, &x, FALSE);
 
 		/* See if only one target */
-		if (num_doors || num_chests)
+		if ((num_doors + num_chests) == 1)
 		{
-			bool too_many = (num_doors && num_chests) || (num_doors > 1) ||
-			    (num_chests > 1);
-			if (!too_many) command_dir = coords_to_dir(y, x);
+			command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_OPEN -- TNB */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -882,7 +945,7 @@ static bool do_cmd_close_aux(int y, int x, int dir)
 	c_ptr = &cave[y][x];
 
 	/* Broken door */
-	if (c_ptr->feat == FEAT_BROKEN)
+	if (cave_pval_grid(c_ptr) == PV_DOOR_BROKEN)
 	{
 		/* Message */
 		msg_print("The door appears to be broken.");
@@ -892,7 +955,7 @@ static bool do_cmd_close_aux(int y, int x, int dir)
 	else
 	{
 		/* Close the door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+		cave_pick_feat(y, x, 0, FF1_DOOR);
 
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
@@ -917,19 +980,15 @@ void do_cmd_close(void)
 
 	bool more = FALSE;
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
-
 	/* Option: Pick a direction */
 	if (easy_open)
 	{
 		/* Count open doors */
-		if (count_dt(&y, &x, FEAT_OPEN, FEAT_OPEN) == 1)
+		if (count_dt(&y, &x, FF1_OPEN, FALSE) == 1)
 		{
 			command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_OPEN -- TNB */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -955,7 +1014,7 @@ void do_cmd_close(void)
 		c_ptr = &cave[y][x];
 
 		/* Require open/broken door */
-		if ((c_ptr->feat != FEAT_OPEN) && (c_ptr->feat != FEAT_BROKEN))
+		if (!cave_open_grid(c_ptr))
 		{
 			/* Message */
 			msg_print("You see nothing there to close.");
@@ -1003,7 +1062,9 @@ static bool do_cmd_tunnel_test(int y, int x)
 	}
 
 	/* Must be a wall/door/etc */
-	if (cave_floor_bold(y, x))
+	if (cave_floor_bold(y, x) &&
+	    (!cave_terrain_bold(y, x) ||
+	     (cave_pval_bold(y, x) != PV_TERRAIN_TREE)))
 	{
 		/* Message */
 		msg_print("You see nothing there to tunnel.");
@@ -1027,18 +1088,20 @@ static bool do_cmd_tunnel_test(int y, int x)
  * This will, however, produce grids which are NOT illuminated
  * (or darkened) along with the rest of the room.
  */
-static bool twall(int y, int x, byte feat)
+static bool twall(int y, int x, s16b pval, u32b flags1)
 {
 	cave_type	*c_ptr = &cave[y][x];
 
 	/* Paranoia -- Require a wall or door or some such */
-	if (cave_floor_bold(y, x)) return (FALSE);
+	if (cave_floor_bold(y, x) &&
+	    (!cave_terrain_bold(y, x) ||
+	     (cave_pval_bold(y, x) != PV_TERRAIN_TREE))) return (FALSE);
 
 	/* Forget the wall */
 	c_ptr->info &= ~(CAVE_MARK);
 
 	/* Remove the feature */
-	cave_set_feat(y, x, feat);
+	cave_pick_feat(y, x, pval, flags1); /* Prfnoff */
 
 	/* Update some things */
 	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
@@ -1062,6 +1125,7 @@ static bool twall(int y, int x, byte feat)
 static bool do_cmd_tunnel_aux(int y, int x, int dir)
 {
 	cave_type *c_ptr;
+	s16b pval, xtra; /* Prfnoff */
 
 	bool more = FALSE;
 
@@ -1074,26 +1138,36 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 	/* Get grid */
 	c_ptr = &cave[y][x];
 
+	/* Get "power" index -- Prfnoff */
+	pval = cave_pval_grid(c_ptr);
+
+	/* Get grid toughness -- Prfnoff */
+	xtra = cave_xtra_grid(c_ptr);
+
 	/* Sound */
 	sound(SOUND_DIG);
 
-	/* Titanium */
-	if ((c_ptr->feat >= FEAT_PERM_EXTRA) &&
-	    (c_ptr->feat <= FEAT_PERM_SOLID))
+	/* Permanent feature -- Prfnoff */
+	if (cave_permwall_grid(c_ptr))
 	{
-		msg_print("This seems to be permanent rock.");
+		if (pval < PV_PERMA_MOUNTAIN)
+		{
+			/* Titanium */
+			msg_print("This seems to be permanent rock.");
+		}
+		else
+		{
+			/* No tunnelling through mountains */
+			msg_print("You can't tunnel through that!");
+		}
 	}
 
-	/* No tunnelling through mountains */
-	else if (c_ptr->feat == FEAT_MOUNTAIN)
-	{
-		msg_print("You can't tunnel through that!");
-	}
-
-	else if (c_ptr->feat == FEAT_TREES) /* -KMW- */
+	else if (cave_terrain_grid(c_ptr) && /* Prfnoff */
+	         (pval == PV_TERRAIN_TREE)) /* -KMW- */
 	{
 		/* Chop Down */
-		if ((p_ptr->skill_dig > 10 + rand_int(400)) && twall(y, x, FEAT_GRASS))
+		if ((p_ptr->skill_dig > (xtra / 40) + rand_int(xtra)) &&
+		    twall(y, x, PV_TERRAIN_GRASS, FF1_TERRAIN)) /* Prfnoff */
 		{
 			msg_print("You have cleared away the trees.");
 		}
@@ -1112,11 +1186,11 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 
 
 	/* Granite */
-	else if ((c_ptr->feat >= FEAT_WALL_EXTRA) &&
-	         (c_ptr->feat <= FEAT_WALL_SOLID))
+	else if (cave_granite_grid(c_ptr)) /* Prfnoff */
 	{
 		/* Tunnel */
-		if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x, FEAT_FLOOR))
+		if ((p_ptr->skill_dig > (xtra / 40) + rand_int(xtra)) &&
+		    twall(y, x, PV_FLOOR_NORMAL, FF1_FLOOR))
 		{
 			msg_print("You have finished the tunnel.");
 		}
@@ -1132,36 +1206,14 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 
 
 	/* Quartz / Magma */
-	else if ((c_ptr->feat >= FEAT_MAGMA) &&
-	    (c_ptr->feat <= FEAT_QUARTZ_K))
+	else if (cave_vein_grid(c_ptr)) /* Prfnoff */
 	{
-		bool okay = FALSE;
-		bool gold = FALSE;
-		bool hard = FALSE;
-
-		/* Found gold */
-		if (c_ptr->feat >= FEAT_MAGMA_H) gold = TRUE;
-
-		/* Extract "quartz" flag XXX XXX XXX */
-		if ((c_ptr->feat - FEAT_MAGMA) & 0x01) hard = TRUE;
-
-		/* Quartz */
-		if (hard)
-		{
-			okay = (p_ptr->skill_dig > 20 + rand_int(800));
-		}
-
-		/* Magma */
-		else
-		{
-			okay = (p_ptr->skill_dig > 10 + rand_int(400));
-		}
-
 		/* Success */
-		if (okay && twall(y, x, FEAT_FLOOR))
+		if ((p_ptr->skill_dig > (xtra / 40) + rand_int(xtra)) &&
+		    twall(y, x, PV_FLOOR_NORMAL, FF1_FLOOR)) /* Prfnoff */
 		{
 			/* Found treasure */
-			if (gold)
+			if (pval > PV_VEIN_NO_GOLD)
 			{
 				/* Place some gold */
 				place_gold(y, x);
@@ -1179,7 +1231,7 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 		}
 
 		/* Failure (quartz) */
-		else if (hard)
+		else if (cave_hard_grid(c_ptr))
 		{
 			/* Message, continue digging */
 			msg_print("You tunnel into the quartz vein.");
@@ -1196,10 +1248,12 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 	}
 
 	/* Rubble */
-	else if (c_ptr->feat == FEAT_RUBBLE)
+	else if (cave_wall_grid(c_ptr) && !cave_realwall_grid(c_ptr) &&
+	         (pval == PV_BLOCK_RUBBLE)) /* Prfnoff */
 	{
 		/* Remove the rubble */
-		if ((p_ptr->skill_dig > rand_int(200)) && twall(y, x, FEAT_FLOOR))
+		if ((p_ptr->skill_dig > (xtra / 40) + rand_int(xtra)) &&
+		    twall(y, x, PV_FLOOR_NORMAL, FF1_FLOOR)) /* Prfnoff */
 		{
 			/* Message */
 			msg_print("You have removed the rubble.");
@@ -1227,10 +1281,12 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 	}
 
 	/* Secret doors */
-	else if (c_ptr->feat >= FEAT_SECRET)
+	else if (cave_wall_grid(c_ptr) && !cave_realwall_grid(c_ptr) &&
+	         (pval == PV_BLOCK_SECRET)) /* Prfnoff */
 	{
 		/* Tunnel */
-		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x, FEAT_FLOOR))
+		if ((p_ptr->skill_dig > (xtra / 40) + rand_int(xtra)) &&
+		    twall(y, x, PV_FLOOR_NORMAL, FF1_FLOOR)) /* Prfnoff */
 		{
 			msg_print("You have finished the tunnel.");
 		}
@@ -1251,7 +1307,8 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 	else
 	{
 		/* Tunnel */
-		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x, FEAT_FLOOR))
+		if ((p_ptr->skill_dig > (xtra / 40) + rand_int(xtra)) &&
+		    twall(y, x, PV_FLOOR_NORMAL, FF1_FLOOR)) /* Prfnoff */
 		{
 			msg_print("You have finished the tunnel.");
 		}
@@ -1326,15 +1383,17 @@ void do_cmd_tunnel(void)
 		}
 
 		/* No tunnelling through air */
-		else if (cave_floor_grid(c_ptr) || ((c_ptr->feat >= FEAT_MINOR_GLYPH) &&
-		    (c_ptr->feat <= FEAT_PATTERN_XTRA2)))
+		else if (cave_floor_bold(y, x) &&
+		         (!cave_terrain_bold(y, x) ||
+		          (cave_pval_bold(y, x) != PV_TERRAIN_TREE)))
 		{
 			/* Message */
 			msg_print("You cannot tunnel through air.");
 		}
 
 		/* No tunnelling through mountains */
-		else if (c_ptr->feat == FEAT_MOUNTAIN)
+		else if (cave_permwall_grid(c_ptr) && /* Prfnoff */
+		         (cave_pval_grid(c_ptr) == PV_PERMA_MOUNTAIN))
 		{
 			msg_print("You can't tunnel through that!");
 		}
@@ -1365,8 +1424,6 @@ void do_cmd_tunnel(void)
 }
 
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
-
 /*
  * easy_open_door --
  *
@@ -1391,14 +1448,14 @@ bool easy_open_door(int y, int x)
 	}
 
 	/* Jammed door */
-	if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x08)
+	if (cave_hard_grid(c_ptr))
 	{
 		/* Stuck */
 		msg_print("The door appears to be stuck.");
 	}
 
 	/* Locked door */
-	else if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x01)
+	else if (cave_pval_grid(c_ptr) > 0)
 	{
 		/* Disarm factor */
 		i = p_ptr->skill_dis;
@@ -1408,7 +1465,7 @@ bool easy_open_door(int y, int x)
 		if (p_ptr->confused || p_ptr->image) i = i / 10;
 
 		/* Extract the lock power */
-		j = c_ptr->feat - FEAT_DOOR_HEAD;
+		j = cave_pval_grid(c_ptr);
 
 		/* Extract the difficulty XXX XXX XXX */
 		j = i - (j * 4);
@@ -1423,7 +1480,7 @@ bool easy_open_door(int y, int x)
 			msg_print("You have picked the lock.");
 
 			/* Open the door */
-			cave_set_feat(y, x, FEAT_OPEN);
+			cave_pick_feat(y, x, PV_DOOR_OPEN, FF1_OPEN);
 
 			/* Update some things */
 			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
@@ -1450,7 +1507,7 @@ bool easy_open_door(int y, int x)
 	else
 	{
 		/* Open the door */
-		cave_set_feat(y, x, FEAT_OPEN);
+		cave_pick_feat(y, x, PV_DOOR_OPEN, FF1_OPEN);
 
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
@@ -1462,8 +1519,6 @@ bool easy_open_door(int y, int x)
 	/* Result */
 	return (TRUE);
 }
-
-#endif /* ALLOW_EASY_OPEN -- TNB */
 
 
 /*
@@ -1557,15 +1612,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
  *
  * Returns TRUE if repeated commands may continue
  */
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 bool do_cmd_disarm_aux(int y, int x, int dir)
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-static bool do_cmd_disarm_aux(int y, int x, int dir)
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 {
 	int i, j, power;
 
@@ -1616,19 +1663,10 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		c_ptr->info &= ~(CAVE_MARK);
 
 		/* Remove the trap */
-		cave_set_feat(y, x, FEAT_FLOOR);
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
+		cave_pick_feat(y, x, PV_FLOOR_NORMAL, FF1_FLOOR);
 
 		/* Move the player onto the trap */
 		move_player(dir, easy_disarm);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-		/* move the player onto the trap grid */
-		move_player(dir, FALSE);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 	}
 
 	/* Failure -- Keep trying */
@@ -1650,17 +1688,8 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		/* Message */
 		msg_format("You set off the %s!", name);
 
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 		/* Move the player onto the trap */
 		move_player(dir, easy_disarm);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-		/* Move the player onto the trap */
-		move_player(dir, FALSE);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 	}
 
 	/* Result */
@@ -1681,15 +1710,13 @@ void do_cmd_disarm(void)
 
 	bool more = FALSE;
 
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 	/* Option: Pick a direction */
 	if (easy_disarm)
 	{
 		int num_traps, num_chests;
 
 		/* Count visible traps */
-		num_traps = count_dt(&y, &x, FEAT_TRAP_HEAD, FEAT_TRAP_TAIL);
+		num_traps = count_dt(&y, &x, FF1_TRAP, TRUE);
 
 		/* Count chests (trapped) */
 		num_chests = count_chests(&y, &x, TRUE);
@@ -1702,8 +1729,6 @@ void do_cmd_disarm(void)
 			if (!too_many) command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -1799,8 +1824,8 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 	/* (Ranges from 3 to 20 to 100 to 200) */
 	bash = adj_str_blow[p_ptr->stat_ind[A_STR]];
 
-	/* Extract door power */
-	temp = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
+	/* Extract door power -- Prfnoff */
+	temp = cave_pval_grid(c_ptr);
 
 	/* Compare bash power to door power XXX XXX XXX */
 	temp = (bash - (temp * 10));
@@ -1817,13 +1842,13 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		/* Break down the door */
 		if (rand_int(100) < 50)
 		{
-			cave_set_feat(y, x, FEAT_BROKEN);
+			cave_pick_feat(y, x, PV_DOOR_BROKEN, FF1_OPEN);
 		}
 
 		/* Open the door */
 		else
 		{
-			cave_set_feat(y, x, FEAT_OPEN);
+			cave_pick_feat(y, x, PV_DOOR_OPEN, FF1_OPEN);
 		}
 
 		/* Sound */
@@ -1995,42 +2020,40 @@ void do_cmd_alter(void)
 		}
 
 		/* Tunnel through walls */
-		else if (((c_ptr->feat >= FEAT_SECRET) &&
-		          (c_ptr->feat < FEAT_MINOR_GLYPH)) ||
-		         ((c_ptr->feat == FEAT_TREES) ||
-		          (c_ptr->feat == FEAT_MOUNTAIN)))
+		else if (cave_wall_grid(c_ptr) || /* Prfnoff */
+		         (cave_terrain_grid(c_ptr) &&
+		          (cave_pval_grid(c_ptr) == PV_TERRAIN_TREE)))
 		{
 			/* Tunnel */
 			more = do_cmd_tunnel_aux(y, x, dir);
 		}
 
-		/* Bash jammed doors */
-		else if ((c_ptr->feat >= FEAT_DOOR_HEAD + 0x08) &&
-		         (c_ptr->feat < FEAT_MINOR_GLYPH))
+		else if (cave_door_grid(c_ptr))
 		{
-			/* Tunnel */
-			more = do_cmd_bash_aux(y, x, dir);
-		}
+			/* Bash jammed doors */
+			if (cave_hard_grid(c_ptr))
+			{
+				/* Tunnel */
+				more = do_cmd_bash_aux(y, x, dir);
+			}
 
-		/* Open closed doors */
-		else if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		         (c_ptr->feat < FEAT_MINOR_GLYPH))
-		{
-			/* Tunnel */
-			more = do_cmd_open_aux(y, x, dir);
+			/* Open closed doors */
+			else
+			{
+				/* Tunnel */
+				more = do_cmd_open_aux(y, x, dir);
+			}
 		}
 
 		/* Close open doors */
-		else if ((c_ptr->feat == FEAT_OPEN) ||
-		         (c_ptr->feat == FEAT_BROKEN))
+		else if (cave_open_grid(c_ptr))
 		{
 			/* Tunnel */
 			more = do_cmd_close_aux(y, x, dir);
 		}
 
 		/* Disarm traps */
-		else if ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
-		         (c_ptr->feat < FEAT_MINOR_GLYPH))
+		else if (cave_trap_grid(c_ptr))
 		{
 			/* Tunnel */
 			more = do_cmd_disarm_aux(y, x, dir);
@@ -2090,6 +2113,7 @@ static bool get_spike(int *ip)
 void do_cmd_spike(void)
 {
 	int y, x, dir, item;
+	int f, p; /* Prfnoff */
 
 	cave_type *c_ptr;
 
@@ -2140,11 +2164,20 @@ void do_cmd_spike(void)
 			/* Successful jamming */
 			msg_print("You jam the door with a spike.");
 
-			/* Convert "locked" to "stuck" XXX XXX XXX */
-			if (c_ptr->feat < FEAT_DOOR_HEAD + 0x08) c_ptr->feat += 0x08;
+			/* Get door strength -- Prfnoff */
+			p = cave_pval_grid(c_ptr);
 
-			/* Add one spike to the door */
-			if (c_ptr->feat < FEAT_DOOR_TAIL) c_ptr->feat++;
+			/* Convert "locked" to "stuck" -- Prfnoff */
+			if ((f = cave_get_feat(p, (FF1_DOOR | FF1_HARD))) != FEAT_NONE)
+			{
+				c_ptr->feat = f;
+			}
+
+			/* Add one spike to the door -- Prfnoff */
+			if ((f = cave_get_feat(p + 1, (FF1_DOOR | FF1_HARD))) != FEAT_NONE)
+			{
+				c_ptr->feat = f;
+			}
 
 			/* Use up, and describe, a single spike, from the bottom */
 			inven_item_increase(item, -1);
@@ -2159,7 +2192,7 @@ void do_cmd_spike(void)
 /*
  * Support code for the "Walk" and "Jump" commands
  */
-void do_cmd_walk(int pickup)
+void do_cmd_walk(int weird_pickup)
 {
 	int dir;
 
@@ -2186,7 +2219,7 @@ void do_cmd_walk(int pickup)
 		energy_use = 100;
 
 		/* Actually move the character */
-		move_player(dir, pickup);
+		move_player(dir, weird_pickup);
 
 		/* Allow more walking */
 		more = TRUE;
@@ -2269,30 +2302,14 @@ void do_cmd_stay(int pickup)
 	carry(pickup);
 
 
-	/* Hack -- enter a store if we are on one */
-	if (cave_shop_grid(c_ptr))
+	/* Hack -- enter a shop or building if we are on one */
+	if (cave_shop_grid(c_ptr) || cave_bldg_grid(c_ptr))
 	{
 		/* Disturb */
 		disturb(0, 0);
 
-		/* Hack -- enter store */
+		/* Hack -- enter store or building */
 		command_new = '_';
-	}
-
-	/* Hack -- enter a building if we are on one -KMW- */
-	else if (cave_bldg_grid(c_ptr))
-	{
-		/* Disturb */
-		disturb(0, 0);
-
-		/* Hack -- enter building */
-		command_new = ']';
-	}
-
-	/* Exit a quest if reach the quest exit */
-	else if (c_ptr->feat == FEAT_QUEST_EXIT)
-	{
-		set_inside_quest(c_ptr->special, TRUE);
 	}
 }
 
@@ -2446,9 +2463,6 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 
 	bool hit_body = FALSE;
 
-	byte missile_attr;
-	char missile_char;
-
 	char o_name[80];
 
 	int msec = delay_factor * delay_factor * delay_factor;
@@ -2499,10 +2513,6 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 
 	/* Describe the object */
 	object_desc(o_name, q_ptr, FALSE, 3);
-
-	/* Find the color and symbol for the object for throwing */
-	missile_attr = object_attr(q_ptr);
-	missile_char = object_char(q_ptr);
 
 
 	/* Use the proper number of shots */
@@ -2611,20 +2621,19 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		/* Advance the distance */
 		cur_dis++;
 
-		/* Save the new location */
-		x = nx;
-		y = ny;
-
 
 		/* The player can see the (on screen) missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x))
+		if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
 		{
+			char c = object_char(q_ptr);
+			byte a = object_attr(q_ptr);
+
 			/* Draw, Hilite, Fresh, Pause, Erase */
-			print_rel(missile_char, missile_attr, y, x);
-			move_cursor_relative(y, x);
+			print_rel(c, a, ny, nx);
+			move_cursor_relative(ny, nx);
 			Term_fresh();
 			Term_xtra(TERM_XTRA_DELAY, msec);
-			lite_spot(y, x);
+			lite_spot(ny, nx);
 			Term_fresh();
 		}
 
@@ -2634,6 +2643,10 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 			/* Pause anyway, for consistancy */
 			Term_xtra(TERM_XTRA_DELAY, msec);
 		}
+
+		/* Save the new location */
+		x = nx;
+		y = ny;
 
 
 		/* Monster here, Try to hit it */
@@ -2665,7 +2678,6 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 					note_dies = " is destroyed.";
 				}
 
-
 				/* Handle unseen monster */
 				if (!visible)
 				{
@@ -2689,15 +2701,6 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(c_ptr->m_idx);
-
-					/* Anger friends */
-					if (!is_hostile(m_ptr))
-					{
-						char m_name[80];
-						monster_desc(m_name, m_ptr, 0);
-						msg_format("%s gets angry!", m_name);
-						set_hostile(m_ptr);
-					}
 				}
 
 				/* Apply special damage XXX XXX XXX */
@@ -2725,6 +2728,9 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 				{
 					/* Message */
 					message_pain(c_ptr->m_idx, tdam);
+
+					/* Anger the monster */
+					if (tdam > 0) anger_monster(m_ptr);
 
 					/* Take note */
 					if (fear && m_ptr->ml)
@@ -2811,9 +2817,6 @@ void do_cmd_throw_aux(int mult)
 	bool hit_body = FALSE;
 	bool hit_wall = FALSE;
 
-	byte missile_attr;
-	char missile_char;
-
 	char o_name[80];
 
 	int msec = delay_factor * delay_factor * delay_factor;
@@ -2847,28 +2850,8 @@ void do_cmd_throw_aux(int mult)
 	/* Obtain a local object */
 	object_copy(q_ptr, o_ptr);
 
-	/*
-	 * Hack -- If rods or wands are thrown, the total maximum timeout or
-	 * charges need to be allocated between the two stacks.
-	 */
-	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
-	{
-		q_ptr->pval = o_ptr->pval / o_ptr->number;
-
-		if (o_ptr->number > 1) o_ptr->pval -= q_ptr->pval;
-
-		/* Hack -- Rods also need to have their timeouts distributed.  The
-		 * thrown rod will accept all time remaining to charge up to its
-		 * maximum.
-		 */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
-		{
-			if (q_ptr->pval > o_ptr->timeout) q_ptr->timeout = o_ptr->timeout;
-			else q_ptr->timeout = q_ptr->pval;
-
-			if (o_ptr->number > 1) o_ptr->timeout -= q_ptr->timeout;
-		}
-	}
+	/* Distribute the charges of rods/wands between the stacks */
+	distribute_charges(o_ptr, q_ptr, 1);
 
 	/* Single object */
 	q_ptr->number = 1;
@@ -2891,10 +2874,6 @@ void do_cmd_throw_aux(int mult)
 
 	/* Description */
 	object_desc(o_name, q_ptr, FALSE, 3);
-
-	/* Find the color and symbol for the object for throwing */
-	missile_attr = object_attr(q_ptr);
-	missile_char = object_char(q_ptr);
 
 	/* Extract a "distance multiplier" */
 	/* Changed for 'launcher' mutation */
@@ -2962,20 +2941,18 @@ void do_cmd_throw_aux(int mult)
 		/* Advance the distance */
 		cur_dis++;
 
-		/* Save the new location */
-		x = nx;
-		y = ny;
-
-
 		/* The player can see the (on screen) missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x))
+		if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
 		{
+			char c = object_char(q_ptr);
+			byte a = object_attr(q_ptr);
+
 			/* Draw, Hilite, Fresh, Pause, Erase */
-			print_rel(missile_char, missile_attr, y, x);
-			move_cursor_relative(y, x);
+			print_rel(c, a, ny, nx);
+			move_cursor_relative(ny, nx);
 			Term_fresh();
 			Term_xtra(TERM_XTRA_DELAY, msec);
-			lite_spot(y, x);
+			lite_spot(ny, nx);
 			Term_fresh();
 		}
 
@@ -2985,6 +2962,10 @@ void do_cmd_throw_aux(int mult)
 			/* Pause anyway, for consistancy */
 			Term_xtra(TERM_XTRA_DELAY, msec);
 		}
+
+		/* Save the new location */
+		x = nx;
+		y = ny;
 
 
 		/* Monster here, Try to hit it */
@@ -3068,14 +3049,9 @@ void do_cmd_throw_aux(int mult)
 					/* Message */
 					message_pain(c_ptr->m_idx, tdam);
 
-					/* Anger friends */
-					if (!is_hostile(m_ptr) && !object_is_potion(q_ptr))
-					{
-						char m_name[80];
-						monster_desc(m_name, m_ptr, 0);
-						msg_format("%s gets angry!", m_name);
-						set_hostile(m_ptr);
-					}
+					/* Anger the monster */
+					if ((tdam > 0) && !object_is_potion(q_ptr))
+						anger_monster(m_ptr);
 
 					/* Take note */
 					if (fear && m_ptr->ml)
@@ -3105,12 +3081,12 @@ void do_cmd_throw_aux(int mult)
 	/* Potions smash open */
 	if (object_is_potion(q_ptr))
 	{
-		if ((hit_body) || (hit_wall) || (randint(100) < j))
+		if (hit_body || hit_wall || (randint(100) < j))
 		{
 			/* Message */
 			msg_format("The %s shatters!", o_name);
 
-			if (potion_smash_effect(0, y, x, q_ptr->sval))
+			if (potion_smash_effect(0, y, x, q_ptr->k_idx))
 			{
 				if (cave[y][x].m_idx && !is_hostile(&m_list[cave[y][x].m_idx]))
 				{

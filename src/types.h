@@ -121,9 +121,10 @@ struct feature_type
 
 	byte mimic;			/* Feature to mimic */
 
-	byte extra;			/* Extra byte (unused) */
+	byte priority;		/* Feature priority -- Prfnoff */
 
-	s16b unused;		/* Extra bytes (unused) */
+	s16b pval;			/* Extra info -- Prfnoff */
+	s16b xtra;			/* More extra info -- Prfnoff */
 
 	byte d_attr;		/* Default feature attribute */
 	char d_char;		/* Default feature character */
@@ -131,6 +132,9 @@ struct feature_type
 
 	byte x_attr;		/* Desired feature attribute */
 	char x_char;		/* Desired feature character */
+
+
+	u32b flags1;		/* Flags, set 1 -- Prfnoff */
 };
 
 
@@ -544,6 +548,8 @@ struct object_type
 	u16b note;			/* Inscription index */
 	u16b art_name;      /* Artifact name (random artifacts) */
 
+	byte feeling;          /* Game generated inscription number (eg, pseudo-id) */
+
 	u32b art_flags1;        /* Flags, set 1  Alas, these were necessary */
 	u32b art_flags2;        /* Flags, set 2  for the random artifacts of*/
 	u32b art_flags3;        /* Flags, set 3  Zangband */
@@ -609,6 +615,7 @@ struct monster_type
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
+	byte invulner;		/* Monster is temporarily invulnerable */
 
 	byte cdis;			/* Current dis from player */
 
@@ -629,12 +636,7 @@ struct monster_type
 
 #endif /* WDT_TRACK_OPTIONS */
 
-#ifdef DRS_SMART_OPTIONS
-
 	u32b smart;			/* Field for "smart_learn" */
-
-#endif /* DRS_SMART_OPTIONS */
-
 };
 
 
@@ -1183,9 +1185,9 @@ struct player_type
 	s16b pspeed;		/* Current speed */
 
 	/*** Pet commands ***/
-	byte pet_follow_distance; /* Length of the imaginary "leash" for pets */
-	byte pet_open_doors;      /* flag - allow pets to open doors */
-	byte pet_pickup_items;    /* flag - allow pets to pickup items */
+	s16b pet_follow_distance; /* Length of the imaginary "leash" for pets */
+	bool pet_open_doors;      /* flag - allow pets to open doors */
+	bool pet_pickup_items;    /* flag - allow pets to pickup items */
 
 	/*** Temporary fields ***/
 	bool leaving;			/* True if player is leaving */
@@ -1412,5 +1414,5 @@ struct dun_data
 	bool room_map[MAX_ROOMS_ROW][MAX_ROOMS_COL];
 
 	/* Hack -- there is a pit/nest on this level */
-	bool crowded;
+	int crowded;
 };

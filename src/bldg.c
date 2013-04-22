@@ -369,7 +369,7 @@ static bool gamble_comm(int cmd)
 					odds = 1;
 					roll1 = randint(6);
 					roll2 = randint(6);
-					roll3 = roll1 +  roll2;
+					roll3 = roll1 + roll2;
 					choice = roll3;
 					sprintf(tmp_str, "First roll: %d %d    Total: %d", roll1,
 						 roll2, roll3);
@@ -385,7 +385,7 @@ static bool gamble_comm(int cmd)
 							msg_print(NULL);
 							roll1 = randint(6);
 							roll2 = randint(6);
-							roll3 = roll1 +  roll2;
+							roll3 = roll1 + roll2;
 
 							sprintf(tmp_str, "Roll result: %d %d   Total:     %d",
 								 roll1, roll2, roll3);
@@ -504,6 +504,103 @@ static bool gamble_comm(int cmd)
 }
 
 
+bool get_nightmare(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Require eldritch horrors */
+	if (!(r_ptr->flags2 & (RF2_ELDRITCH_HORROR))) return (FALSE);
+
+	/* Require high level */
+	if (r_ptr->level <= p_ptr->lev) return (FALSE);
+
+	/* Accept this monster */
+	return (TRUE);
+}
+
+
+void have_nightmare(int r_idx)
+{
+	int power = 100;
+
+	monster_race *r_ptr = &r_info[r_idx];
+
+	char m_name[80];
+	cptr desc = r_name + r_ptr->name;
+
+	power = r_ptr->level + 10;
+
+	if (!(r_ptr->flags1 & RF1_UNIQUE))
+	{
+		/* Describe it */
+		sprintf(m_name, "%s %s", (is_a_vowel(desc[0]) ? "an" : "a"), desc);
+
+		if (r_ptr->flags1 & RF1_FRIENDS)
+		{
+			power /= 2;
+		}
+	}
+	else
+	{
+		/* Describe it */
+		sprintf(m_name, "%s", desc);
+
+		power *= 2;
+	}
+
+	if (saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		msg_format("%^s chases you through your dreams.", m_name);
+
+		/* Safe */
+		return;
+	}
+
+	if (p_ptr->image)
+	{
+		/* Something silly happens... */
+		msg_format("You behold the %s visage of %s!",
+		           funny_desc[rand_int(MAX_SAN_FUNNY)], m_name);
+
+		if (one_in_(3))
+		{
+			msg_print(funny_comments[rand_int(MAX_SAN_COMMENT)]);
+			p_ptr->image = p_ptr->image + randint(r_ptr->level);
+		}
+
+		/* Never mind; we can't see it clearly enough */
+		return;
+	}
+
+	/* Something frightening happens... */
+	msg_format("You behold the %s visage of %s!",
+	           horror_desc[rand_int(MAX_SAN_HORROR)], desc);
+
+	r_ptr->r_flags2 |= (RF2_ELDRITCH_HORROR);
+
+	switch (p_ptr->prace)
+	{
+		/* Imps may make a saving throw */
+		case RACE_IMP:
+		{
+			if (saving_throw(20 + p_ptr->lev)) return;
+			break;
+		}
+		/* Undead may make a saving throw */
+		case RACE_SKELETON:
+		case RACE_ZOMBIE:
+		case RACE_SPECTRE:
+		case RACE_VAMPIRE:
+		{
+			if (saving_throw(10 + p_ptr->lev)) return;
+			break;
+		}
+	}
+
+	lose_sanity(power); /* Prfnoff */
+}
+
+
 /*
  * inn commands
  * Note that resting for the night was a perfect way to avoid player
@@ -515,7 +612,7 @@ static bool gamble_comm(int cmd)
  */
 static bool inn_comm(int cmd)
 {
-	int dawnval;
+	s32b dawnval; /* Prfnoff -- was int */
 
 	switch (cmd)
 	{
@@ -536,13 +633,36 @@ static bool inn_comm(int cmd)
 					msg_print("Sorry, but don't want anyone dying in here.");
 					return (FALSE);
 				}
+				else if (nightmare_sleep)
+				{
+					msg_print("Horrible visions flit through your mind as you sleep.");
+
+					/* Pick a nightmare */
+					get_mon_num_prep(get_nightmare, NULL);
+
+					/* Have some nightmares */
+					while (1)
+					{
+						have_nightmare(get_mon_num(MAX_DEPTH));
+
+						if (!one_in_(3)) break;
+					}
+
+					/* Remove the monster restriction */
+					get_mon_num_prep(NULL, NULL);
+
+					msg_print("You awake screaming.");
+					turn = ((turn / 50000) + 1) * 50000;
+				}
 				else
 				{
 					turn = ((turn / 50000) + 1) * 50000;
-					p_ptr->chp = p_ptr->mhp;
 					set_blind(0);
 					set_confused(0);
-					p_ptr->stun = 0;
+					set_stun(0);
+					p_ptr->chp = p_ptr->mhp;
+					p_ptr->csp = p_ptr->msp;
+
 					msg_print("You awake refreshed for the new day.");
 				}
 			}
@@ -1296,7 +1416,7 @@ static void bldg_process_command(building_type *bldg, int i)
 
 #ifdef USE_SCRIPT
 
-	if (building_command_callback(cave[py][px].feat - FEAT_BLDG_HEAD, i))
+	if (building_command_callback(cave_pval_bold(py, px), i))
 	{
 		/* Script paid the price */
 		paid = TRUE;
@@ -1358,6 +1478,10 @@ static void bldg_process_command(building_type *bldg, int i)
 				break;
 			case BACT_IDENTS: /* needs work */
 				identify_pack();
+
+				/* Combine / Reorder the pack (later) */
+				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
 				msg_print("Your posessions have been identified.");
 				msg_print(NULL);
 				paid = TRUE;
@@ -1406,6 +1530,7 @@ static void bldg_process_command(building_type *bldg, int i)
 				p_ptr->word_recall = 1;
 				msg_print("The air about you becomes charged...");
 				paid = TRUE;
+				p_ptr->redraw |= (PR_STATUS);
 				break;
 			case BACT_TELEPORT_LEVEL:
 				amt = get_quantity("Teleport to which level? ", 98);
@@ -1415,6 +1540,7 @@ static void bldg_process_command(building_type *bldg, int i)
 					p_ptr->max_dlv = amt;
 					msg_print("The air about you becomes charged...");
 					paid = TRUE;
+					p_ptr->redraw |= (PR_STATUS);
 				}
 				break;
 			case BACT_LOSE_MUTATION:
@@ -1438,51 +1564,15 @@ static void bldg_process_command(building_type *bldg, int i)
 
 
 /*
- * Enter quest level
- */
-void do_cmd_quest(void)
-{
-	cave_type *c_ptr;
-
-	/* Access the player grid */
-	c_ptr = &cave[py][px];
-
-	/* Verify a quest entrance */
-	if (c_ptr->feat != FEAT_QUEST_ENTER)
-	{
-		msg_print("You see no quest level here.");
-		return;
-	}
-	else
-	{
-		/* Player enters a new quest */
-		set_inside_quest(c_ptr->special, TRUE); /* Prfnoff */
-	}
-}
-
-
-/*
  * Do building commands
  */
-void do_cmd_bldg(void)
+void bldg_enter(int which)
 {
-	int             i, which;
+	int             i;
 	char            command;
 	bool            validcmd;
 	building_type   *bldg;
-	cave_type       *c_ptr;
 
-
-	/* Access the player grid */
-	c_ptr = &cave[py][px];
-
-	if (!cave_bldg_grid(c_ptr))
-	{
-		msg_print("You see no building here.");
-		return;
-	}
-
-	which = (c_ptr->feat - FEAT_BLDG_HEAD);
 	building_loc = which;
 
 	bldg = &building[which];
@@ -1560,7 +1650,7 @@ void do_cmd_bldg(void)
 	Term_clear();
 
 	/* Update the visuals */
-	p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_BONUS);
+	p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_BONUS | PU_LITE);
 
 	/* Redraw entire screen */
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_EQUIPPY | PR_MAP);
@@ -1635,12 +1725,7 @@ int quest_number(int level)
 	}
 
 	/* Check for random quest */
-	/* Eliminated warning -- Prfnoff */
-	if ((i = random_quest_number(level)) != 0)
-		return (i);
-
-	/* Nope */
-	return (0);
+	return (random_quest_number(level));
 }
 
 

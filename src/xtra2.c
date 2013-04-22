@@ -260,6 +260,7 @@ void monster_death(int m_idx)
 				case RBE_EXP_80:    typ = GF_MISSILE; break;
 				case RBE_DISEASE:   typ = GF_POIS; break;
 				case RBE_TIME:      typ = GF_TIME; break;
+				case RBE_EXP_VAMP:  typ = GF_MISSILE; break;
 			}
 
 			project(m_idx, 3, y, x, damage, typ, flg);
@@ -379,7 +380,7 @@ void monster_death(int m_idx)
 					if (!p_ptr->inside_quest)
 						create_stairs = TRUE;
 
-					if (!quest[i].flags & QUEST_FLAG_SILENT)
+					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
 						msg_print("You just completed your quest!");
 						msg_print(NULL);
@@ -407,7 +408,7 @@ void monster_death(int m_idx)
 					 /* completed quest */
 					quest[i].status = QUEST_STATUS_COMPLETED;
 
-					if (!quest[i].flags & QUEST_FLAG_SILENT)
+					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
 						msg_print("You just completed your quest!");
 						msg_print(NULL);
@@ -436,7 +437,7 @@ void monster_death(int m_idx)
 		msg_print("A magical staircase appears...");
 
 		/* Create stairs down */
-		cave_set_feat(y, x, FEAT_MORE);
+		cave_pick_feat(y, x, PV_STAIR_NORMAL, (FF1_STAIR | FF1_HARD));
 
 		/* Remember to update everything */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
@@ -482,10 +483,7 @@ void monster_death(int m_idx)
 		q_ptr->art_flags3 |= (TR3_CURSED | TR3_HEAVY_CURSE);
 		q_ptr->ident |= IDENT_CURSED;
 
-		if (randint(2) == 1)
-			q_ptr->art_flags3 |= (TR3_DRAIN_EXP);
-		else
-			q_ptr->art_flags3 |= (TR3_AGGRAVATE);
+		q_ptr->art_flags3 |= (TR3_DRAIN_EXP | TR3_AGGRAVATE);
 
 #ifdef USE_SCRIPT
 		q_ptr->python = object_create_callback(q_ptr);
@@ -503,8 +501,9 @@ void monster_death(int m_idx)
 	{
 		if (randint(20) != 13)
 		{
-			int wy = py, wx = px;
+			int wy = y, wx = x;
 			int attempts = 100;
+			bool pet = is_pet(m_ptr);
 
 			do
 			{
@@ -514,7 +513,7 @@ void monster_death(int m_idx)
 
 			if (attempts > 0)
 			{
-				if (summon_specific(wy, wx, 100, SUMMON_DAWN, FALSE, is_friendly(m_ptr), is_pet(m_ptr)))
+				if (summon_specific(wy, wx, 100, SUMMON_DAWN, FALSE, is_friendly(m_ptr), pet))
 				{
 					if (player_can_see_bold(wy, wx))
 						msg_print("A new warrior steps forth!");
@@ -527,12 +526,13 @@ void monster_death(int m_idx)
 	else if (strstr((r_name + r_ptr->name), "ink horror"))
 	{
 		bool notice = FALSE;
+		bool pet = is_pet(m_ptr);
 
 		for (i = 0; i < 2; i++)
 		{
 			int wy = y, wx = x;
 
-			if (summon_specific(wy, wx, 100, SUMMON_BLUE_HORROR, FALSE, is_friendly(m_ptr), is_pet(m_ptr)))
+			if (summon_specific(wy, wx, 100, SUMMON_BLUE_HORROR, FALSE, is_friendly(m_ptr), pet))
 			{
 				if (player_can_see_bold(wy, wx))
 					notice = TRUE;
@@ -560,7 +560,30 @@ void monster_death(int m_idx)
 		/* Prepare to make a Blade of Chaos */
 		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
 
-		apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE);
+		apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE, FALSE);
+
+#ifdef USE_SCRIPT
+		q_ptr->python = object_create_callback(q_ptr);
+#endif /* USE_SCRIPT */
+
+		/* Drop it in the dungeon */
+		(void)drop_near(q_ptr, -1, y, x);
+	}
+
+	/* Mega^2-hack -- Get a t-shirt from our first Greater Hell-beast kill */
+	else if (!r_ptr->r_pkills && strstr((r_name + r_ptr->name), "Greater hell-beast"))
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Prepare to make the Stormbringer */
+		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_T_SHIRT));
+
+		/* Mega-Hack -- Name the shirt  */
+		q_ptr->art_name = quark_add("'I killed the GHB and all I got was this lousy t-shirt!'");
+
+		q_ptr->art_flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
+									 TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
 
 #ifdef USE_SCRIPT
 		q_ptr->python = object_create_callback(q_ptr);
@@ -585,7 +608,7 @@ void monster_death(int m_idx)
 			q_ptr->name1 = ART_GROND;
 
 			/* Mega-Hack -- Actually create "Grond" */
-			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE, FALSE);
 
 #ifdef USE_SCRIPT
 			q_ptr->python = object_create_callback(q_ptr);
@@ -604,7 +627,7 @@ void monster_death(int m_idx)
 			q_ptr->name1 = ART_MORGOTH;
 
 			/* Mega-Hack -- Actually create "Morgoth" */
-			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE, FALSE);
 
 #ifdef USE_SCRIPT
 			q_ptr->python = object_create_callback(q_ptr);
@@ -829,6 +852,22 @@ void monster_death(int m_idx)
 }
 
 
+/*
+ * Modify the physical damage done to the monster.
+ * (for example when it's invulnerable or shielded)
+ *
+ * ToDo: Accept a damage-type to calculate the modified damage from
+ * things like fire, frost, lightning, poison, ... attacks.
+ *
+ * "type" is not yet used and should be 0.
+ */
+int mon_damage_mod(monster_type *m_ptr, int dam, int type)
+{
+	if (m_ptr->invulner && !(randint(PENETRATE_INVULNERABILITY) == 1))
+		return (0);
+	else
+		return (dam);
+}
 
 
 /*
@@ -870,7 +909,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
-
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
@@ -885,17 +923,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
 
+		/* Don't kill Amberites */
 		if ((r_ptr->flags3 & RF3_AMBERITE) && (randint(2) == 1))
 		{
 			int curses = 1 + randint(3);
 			bool stop_ty = FALSE; /* Prfnoff */
+			int count = 0;
 
 			msg_format("%^s puts a terrible blood curse on you!", m_name);
 			curse_equipment(100, 50);
 
 			do
 			{
-				stop_ty = activate_ty_curse(stop_ty);
+				stop_ty = activate_ty_curse(stop_ty, &count);
 			}
 			while (--curses);
 		}
@@ -911,7 +951,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 					msg_format("%^s says: %s", m_name, line_got);
 			}
 
-			if ((randint(REWARD_CHANCE) == 1) &&
+			if ((r_ptr->flags1 & RF1_UNIQUE) && (randint(REWARD_CHANCE) == 1) &&
 			    !(r_ptr->flags7 & RF7_FRIENDLY))
 			{
 				if (!get_rnd_line("crime.txt", m_ptr->r_idx, line_got))
@@ -989,6 +1029,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 0;
+
+		/* When the player kills a Nazgul, it stays dead */
+		if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num--;
 
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & RF1_UNIQUE))
@@ -1198,7 +1241,7 @@ void verify_panel(void)
 	}
 
 	else
-  	{
+	{
 		int prow = panel_row;
 		int pcol = panel_col;
 
@@ -1589,60 +1632,8 @@ static bool target_set_accept(int y, int x)
 	/* Interesting memorized features */
 	if (c_ptr->info & (CAVE_MARK))
 	{
-		/* Notice glyphs */
-		if (c_ptr->feat == FEAT_GLYPH) return (TRUE);
-		if (c_ptr->feat == FEAT_MINOR_GLYPH) return (TRUE);
-
-		/* Notice the Pattern */
-		if ((c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
-		    (c_ptr->feat >= FEAT_PATTERN_START))
-			return (TRUE);
-
-		/* Notice doors */
-		if (c_ptr->feat == FEAT_OPEN) return (TRUE);
-		if (c_ptr->feat == FEAT_BROKEN) return (TRUE);
-
-		/* Notice stairs */
-		if (c_ptr->feat == FEAT_LESS) return (TRUE);
-		if (c_ptr->feat == FEAT_MORE) return (TRUE);
-
-		/* Notice shops */
-		if (cave_shop_grid(c_ptr)) return (TRUE);
-
-		/* Notice buildings -KMW- */
-		if (cave_bldg_grid(c_ptr)) return (TRUE);
-
-		/* Notice traps */
-		if (cave_trap_grid(c_ptr)) return (TRUE);
-
-		/* Notice doors */
-		if (cave_door_grid(c_ptr)) return (TRUE);
-
-		/* Notice rubble */
-		if (c_ptr->feat == FEAT_RUBBLE) return (TRUE);
-
-		/* Notice veins with treasure */
-		if (c_ptr->feat == FEAT_MAGMA_K) return (TRUE);
-		if (c_ptr->feat == FEAT_QUARTZ_K) return (TRUE);
-
-#if 0
-		/* Notice water, lava, ... */
-		if (c_ptr->feat == FEAT_DEEP_WATER) return (TRUE);
-		if (c_ptr->feat == FEAT_SHAL_WATER) return (TRUE);
-		if (c_ptr->feat == FEAT_DEEP_LAVA) return (TRUE);
-		if (c_ptr->feat == FEAT_SHAL_LAVA) return (TRUE);
-		if (c_ptr->feat == FEAT_DIRT) return (TRUE);
-		if (c_ptr->feat == FEAT_GRASS) return (TRUE);
-		if (c_ptr->feat == FEAT_DARK_PIT) return (TRUE);
-		if (c_ptr->feat == FEAT_TREES) return (TRUE);
-		if (c_ptr->feat == FEAT_MOUNTAIN) return (TRUE);
-#endif
-
-		/* Notice quest features */
-		if (c_ptr->feat == FEAT_QUEST_ENTER) return (TRUE);
-		if (c_ptr->feat == FEAT_QUEST_EXIT) return (TRUE);
-		if (c_ptr->feat == FEAT_QUEST_DOWN) return (TRUE);
-		if (c_ptr->feat == FEAT_QUEST_UP) return (TRUE);
+		/* All but 'boring' grids -- Prfnoff */
+		if (!cave_boring_grid(c_ptr)) return (TRUE);
 	}
 
 	/* Nope */
@@ -1917,8 +1908,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		}
 
 
-#ifdef ALLOW_EASY_FLOOR
-
 		/* Scan all objects in the grid */
 		if (easy_floor)
 		{
@@ -1990,8 +1979,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			}
 		}
 
-#endif /* ALLOW_EASY_FLOOR */
-
 
 		/* Scan all objects in the grid */
 		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -2058,40 +2045,61 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		}
 
 		/* Terrain feature if needed */
-		if (boring || (feat > FEAT_INVIS))
+		if (boring || !(f_info[feat].flags1 & FF1_FLOOR))
 		{
 			cptr name;
 
 			/* Hack -- special handling for building doors */
-			if ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL))
+			if (f_info[feat].flags1 & FF1_BLDG)
 			{
-				name = building[feat - FEAT_BLDG_HEAD].name;
+				name = building[f_info[feat].pval].name;
 			}
 			else
 			{
 				name = f_name + f_info[feat].name;
 			}
 
+			/* Hack -- special handling for quest entrances */
+			if (feat == FEAT_QUEST_ENTER)
+			{
+				/* Set the quest number temporary */
+				int old_quest = p_ptr->inside_quest;
+				p_ptr->inside_quest = c_ptr->special;
+
+				/* Get the quest text */
+				init_flags = INIT_SHOW_TEXT;
+				quest_text_line = 0;
+				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+
+				name = quest[c_ptr->special].name;
+
+				/* Reset the old quest number */
+				p_ptr->inside_quest = old_quest;
+			}
+
 			/* Hack -- handle unknown grids */
 			if (feat == FEAT_NONE) name = "unknown grid";
 
 			/* Pick a prefix */
-			if (*s2 && ((feat >= FEAT_MINOR_GLYPH) &&
-			   (feat <= FEAT_PATTERN_XTRA2)))
+			if (*s2 && (f_info[feat].flags1 & FF1_PATTERN)) /* Prfnoff */
 			{
 				s2 = "on ";
 			}
-			else if (*s2 && ((feat >= FEAT_DOOR_HEAD) &&
-				(feat <= FEAT_PERM_SOLID)))
+			else if (*s2 && ((f_info[feat].flags1 & FF1_WALL) ||
+			                 (f_info[feat].flags1 & FF1_DOOR)))
 			{
 				s2 = "in ";
 			}
 
 			/* Hack -- special introduction for store & building doors -KMW- */
-			if (((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)) ||
-			    ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL)))
+			if ((f_info[feat].flags1 & FF1_SHOP) ||
+			    (f_info[feat].flags1 & FF1_BLDG))
 			{
 				s3 = "the entrance to the ";
+			}
+			else if (feat == FEAT_QUEST_ENTER)
+			{
+				s3 = "the quest-entrance to the ";
 			}
 			else if ((feat == FEAT_FLOOR) || (feat == FEAT_DIRT))
 			{
@@ -2631,8 +2639,6 @@ bool get_aim_dir(int *dp)
 
 	cptr	p;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	if (repeat_pull(dp))
 	{
 		/* Confusion? */
@@ -2643,8 +2649,6 @@ bool get_aim_dir(int *dp)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Initialize */
 	(*dp) = 0;
@@ -2732,11 +2736,7 @@ bool get_aim_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	repeat_push(dir);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* A "valid" direction was entered */
 	return (TRUE);
@@ -2764,14 +2764,10 @@ bool get_rep_dir(int *dp)
 {
 	int dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	if (repeat_pull(dp))
 	{
 		return (TRUE);
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Initialize */
 	(*dp) = 0;
@@ -2824,11 +2820,7 @@ bool get_rep_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	repeat_push(dir);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -2849,14 +2841,19 @@ void gain_level_reward(int chosen_reward)
 	int         nasty_chance = 6;
 	int         dummy = 0, dummy2 = 0;
 	int         type, effect;
+	int         count = 0;
+	int         patron_index; /* Prfnoff */
+	cptr        patron_name; /* Prfnoff */
 
+
+	patron_index = p_ptr->chaos_patron; /* Prfnoff */
+	patron_name = chaos_patrons[patron_index]; /* Prfnoff */
 
 	if (!chosen_reward)
 	{
 		if (multi_rew) return;
 		else multi_rew = TRUE;
 	}
-
 
 	if (p_ptr->lev == 13) nasty_chance = 2;
 	else if (!(p_ptr->lev % 13)) nasty_chance = 3;
@@ -2872,15 +2869,13 @@ void gain_level_reward(int chosen_reward)
 	type--;
 
 
-	sprintf(wrath_reason, "the Wrath of %s",
-		chaos_patrons[p_ptr->chaos_patron]);
+	sprintf(wrath_reason, "the Wrath of %s", patron_name);
 
-	effect = chaos_rewards[p_ptr->chaos_patron][type];
+	effect = chaos_rewards[patron_index][type];
 
 	if ((randint(6) == 1) && !chosen_reward)
 	{
-		msg_format("%^s rewards you with a mutation!",
-			chaos_patrons[p_ptr->chaos_patron]);
+		msg_format("%^s rewards you with a mutation!", patron_name);
 		(void)gain_random_mutation(0);
 		return;
 	}
@@ -2888,14 +2883,15 @@ void gain_level_reward(int chosen_reward)
 	switch (chosen_reward ? chosen_reward : effect)
 	{
 		case REW_POLY_SLF:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Thou needst a new form, mortal!'");
 			do_poly_self();
 			break;
+		}
 		case REW_GAIN_EXP:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Well done, mortal! Lead on!'");
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
@@ -2905,113 +2901,64 @@ void gain_level_reward(int chosen_reward)
 				gain_exp(ee);
 			}
 			break;
+		}
 		case REW_LOSE_EXP:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Thou didst not deserve that, slave.'");
 			lose_exp(p_ptr->exp / 6);
 			break;
+		}
 		case REW_GOOD_OBJ:
-			msg_format("The voice of %s whispers:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s whispers:", patron_name);
 			msg_print("'Use my gift wisely.'");
 			acquirement(py, px, 1, FALSE, FALSE);
 			break;
+		}
 		case REW_GREA_OBJ:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Use my gift wisely.'");
 			acquirement(py, px, 1, TRUE, FALSE);
 			break;
+		}
 		case REW_CHAOS_WP:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Thy deed hath earned thee a worthy blade.'");
 			/* Get local object */
 			q_ptr = &forge;
 			dummy = TV_SWORD;
 			switch (randint(p_ptr->lev))
 			{
-				case 0: case 1:
-					dummy2 = SV_DAGGER;
-					break;
-				case 2: case 3:
-					dummy2 = SV_MAIN_GAUCHE;
-					break;
-				case 4:
-					dummy2 = SV_TANTO;
-					break;
-				case 5: case 6:
-					dummy2 = SV_RAPIER;
-					break;
-				case 7: case 8:
-					dummy2 = SV_SMALL_SWORD;
-					break;
-				case 9: case 10:
-					dummy2 = SV_BASILLARD;
-					break;
-				case 11: case 12: case 13:
-					dummy2 = SV_SHORT_SWORD;
-					break;
-				case 14: case 15:
-					dummy2 = SV_SABRE;
-					break;
-				case 16: case 17:
-					dummy2 = SV_CUTLASS;
-					break;
-				case 18:
-					dummy2 = SV_WAKIZASHI;
-					break;
-				case 19:
-					dummy2 = SV_KHOPESH;
-					break;
-				case 20:
-					dummy2 = SV_TULWAR;
-					break;
-				case 21:
-					dummy2 = SV_BROAD_SWORD;
-					break;
-				case 22: case 23:
-					dummy2 = SV_LONG_SWORD;
-					break;
-				case 24: case 25:
-					dummy2 = SV_SCIMITAR;
-					break;
-				case 26:
-					dummy2 = SV_NINJATO;
-					break;
-				case 27:
-					dummy2 = SV_KATANA;
-					break;
-				case 28: case 29:
-					dummy2 = SV_BASTARD_SWORD;
-					break;
-				case 30:
-					dummy2 = SV_GREAT_SCIMITAR;
-					break;
-				case 31:
-					dummy2 = SV_CLAYMORE;
-					break;
-				case 32:
-					dummy2 = SV_ESPADON;
-					break;
-				case 33:
-					dummy2 = SV_TWO_HANDED_SWORD;
-					break;
-				case 34:
-					dummy2 = SV_FLAMBERGE;
-					break;
-				case 35:
-					dummy2 = SV_NO_DACHI;
-					break;
-				case 36:
-					dummy2 = SV_EXECUTIONERS_SWORD;
-					break;
-				case 37:
-					dummy2 = SV_ZWEIHANDER;
-					break;
-				default:
-					dummy2 = SV_BLADE_OF_CHAOS;
+				case 0: case 1: dummy2 = SV_DAGGER; break;
+				case 2: case 3: dummy2 = SV_MAIN_GAUCHE; break;
+				case 4: dummy2 = SV_TANTO; break;
+				case 5: case 6: dummy2 = SV_RAPIER; break;
+				case 7: case 8: dummy2 = SV_SMALL_SWORD; break;
+				case 9: case 10: dummy2 = SV_BASILLARD; break;
+				case 11: case 12: case 13: dummy2 = SV_SHORT_SWORD; break;
+				case 14: case 15: dummy2 = SV_SABRE; break;
+				case 16: case 17: dummy2 = SV_CUTLASS; break;
+				case 18: dummy2 = SV_WAKIZASHI; break;
+				case 19: dummy2 = SV_KHOPESH; break;
+				case 20: dummy2 = SV_TULWAR; break;
+				case 21: dummy2 = SV_BROAD_SWORD; break;
+				case 22: case 23: dummy2 = SV_LONG_SWORD; break;
+				case 24: case 25: dummy2 = SV_SCIMITAR; break;
+				case 26: dummy2 = SV_NINJATO; break;
+				case 27: dummy2 = SV_KATANA; break;
+				case 28: case 29: dummy2 = SV_BASTARD_SWORD; break;
+				case 30: dummy2 = SV_GREAT_SCIMITAR; break;
+				case 31: dummy2 = SV_CLAYMORE; break;
+				case 32: dummy2 = SV_ESPADON; break;
+				case 33: dummy2 = SV_TWO_HANDED_SWORD; break;
+				case 34: dummy2 = SV_FLAMBERGE; break;
+				case 35: dummy2 = SV_NO_DACHI; break;
+				case 36: dummy2 = SV_EXECUTIONERS_SWORD; break;
+				case 37: dummy2 = SV_ZWEIHANDER; break;
+				default: dummy2 = SV_BLADE_OF_CHAOS; break;
 			}
 
 			object_prep(q_ptr, lookup_kind(dummy, dummy2));
@@ -3027,66 +2974,75 @@ void gain_level_reward(int chosen_reward)
 			/* Drop it in the dungeon */
 			(void)drop_near(q_ptr, -1, py, px);
 			break;
+		}
 		case REW_GOOD_OBS:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Thy deed hath earned thee a worthy reward.'");
 			acquirement(py, px, randint(2) + 1, FALSE, FALSE);
 			break;
+		}
 		case REW_GREA_OBS:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Behold, mortal, how generously I reward thy loyalty.'");
 			acquirement(py, px, randint(2) + 1, TRUE, FALSE);
 			break;
+		}
 		case REW_TY_CURSE:
-			msg_format("The voice of %s thunders:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s thunders:", patron_name);
 			msg_print("'Thou art growing arrogant, mortal.'");
-			(void)activate_ty_curse(FALSE); /* Prfnoff */
+			(void)activate_ty_curse(FALSE, &count); /* Prfnoff */
 			break;
+		}
 		case REW_SUMMON_M:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'My pets, destroy the arrogant mortal!'");
 			for (dummy = 0; dummy < randint(5) + 1; dummy++)
 			{
 				(void)summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE);
 			}
 			break;
+		}
 		case REW_H_SUMMON:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Thou needst worthier opponents!'");
 			activate_hi_summon();
 			break;
+		}
 		case REW_DO_HAVOC:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Death and destruction! This pleaseth me!'");
 			call_chaos();
 			break;
+		}
 		case REW_GAIN_ABL:
-			msg_format("The voice of %s rings out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s rings out:", patron_name);
 			msg_print("'Stay, mortal, and let me mold thee.'");
-			if ((randint(3) == 1) && !(chaos_stats[p_ptr->chaos_patron] < 0))
+			if ((randint(3) == 1) && !(chaos_stats[patron_index] < 0))
 				do_inc_stat(chaos_stats[p_ptr->chaos_patron]);
 			else
 				do_inc_stat(rand_int(6));
 			break;
+		}
 		case REW_LOSE_ABL:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'I grow tired of thee, mortal.'");
-			if ((randint(3) == 1) && !(chaos_stats[p_ptr->chaos_patron] < 0))
-				do_dec_stat(chaos_stats[p_ptr->chaos_patron]);
+			if ((randint(3) == 1) && !(chaos_stats[patron_index] < 0))
+				do_dec_stat(chaos_stats[patron_index]);
 			else
 				(void)do_dec_stat(rand_int(6));
 			break;
+		}
 		case REW_RUIN_ABL:
-			msg_format("The voice of %s thunders:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s thunders:", patron_name);
 			msg_print("'Thou needst a lesson in humility, mortal!'");
 			msg_print("You feel less powerful!");
 			for (dummy = 0; dummy < 6; dummy++)
@@ -3094,30 +3050,34 @@ void gain_level_reward(int chosen_reward)
 				(void)dec_stat(dummy, 10 + randint(15), TRUE);
 			}
 			break;
+		}
 		case REW_POLY_WND:
-			msg_format("You feel the power of %s touch you.",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("You feel the power of %s touch you.", patron_name);
 			do_poly_wounds();
 			break;
+		}
 		case REW_AUGM_ABL:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Receive this modest gift from me!'");
 			for (dummy = 0; dummy < 6; dummy++)
 			{
 				(void)do_inc_stat(dummy);
 			}
 			break;
+		}
 		case REW_HURT_LOT:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Suffer, pathetic fool!'");
 			fire_ball(GF_DISINTEGRATE, 0, p_ptr->lev * 4, 4);
 			take_hit(p_ptr->lev * 4, wrath_reason);
 			break;
-	   case REW_HEAL_FUL:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		}
+		case REW_HEAL_FUL:
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Rise, my servant!'");
 			restore_level();
 			(void)set_poisoned(0);
@@ -3132,26 +3092,29 @@ void gain_level_reward(int chosen_reward)
 				(void)do_res_stat(dummy);
 			}
 			break;
+		}
 		case REW_CURSE_WP:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Thou reliest too much on thy weapon.'");
 			(void)curse_weapon();
 			break;
+		}
 		case REW_CURSE_AR:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Thou reliest too much on thine equipment.'");
 			(void)curse_armor();
 			break;
+		}
 		case REW_PISS_OFF:
-			msg_format("The voice of %s whispers:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s whispers:", patron_name);
 			msg_print("'Now thou shalt pay for annoying me.'");
 			switch (randint(4))
 			{
 				case 1:
-					(void)activate_ty_curse(FALSE); /* Prfnoff */
+					(void)activate_ty_curse(FALSE, &count); /* Prfnoff */
 					break;
 				case 2:
 					activate_hi_summon();
@@ -3167,9 +3130,10 @@ void gain_level_reward(int chosen_reward)
 					}
 			}
 			break;
+		}
 		case REW_WRATH:
-			msg_format("The voice of %s thunders:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s thunders:", patron_name);
 			msg_print("'Die, mortal!'");
 			take_hit(p_ptr->lev * 4, wrath_reason);
 			for (dummy = 0; dummy < 6; dummy++)
@@ -3177,56 +3141,69 @@ void gain_level_reward(int chosen_reward)
 				(void)dec_stat(dummy, 10 + randint(15), FALSE);
 			}
 			activate_hi_summon();
-			(void)activate_ty_curse(FALSE); /* Prfnoff */
+			(void)activate_ty_curse(FALSE, &count); /* Prfnoff */
 			if (randint(2) == 1) (void)curse_weapon();
 			if (randint(2) == 1) (void)curse_armor();
 			break;
+		}
 		case REW_DESTRUCT:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Death and destruction! This pleaseth me!'");
 			destroy_area(py, px, 25, TRUE);
 			break;
+		}
 		case REW_GENOCIDE:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Let me relieve thee of thine oppressors!'");
 			(void)genocide(FALSE);
 			break;
+		}
 		case REW_MASS_GEN:
-			msg_format("The voice of %s booms out:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s booms out:", patron_name);
 			msg_print("'Let me relieve thee of thine oppressors!'");
 			(void)mass_genocide(FALSE);
 			break;
+		}
 		case REW_DISPEL_C:
-			msg_format("You can feel the power of %s assault your enemies!",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("You can feel the power of %s assault your enemies!", patron_name);
 			(void)dispel_monsters(p_ptr->lev * 4);
 			break;
+		}
 		case REW_IGNORE:
-			msg_format("%s ignores you.",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("%s ignores you.", patron_name);
 			break;
+		}
 		case REW_SER_DEMO:
-			msg_format("%s rewards you with a demonic servant!",chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("%s rewards you with a demonic servant!", patron_name);
 			if (!summon_specific(py, px, dun_level, SUMMON_DEMON, FALSE, TRUE, TRUE))
 				msg_print("Nobody ever turns up...");
 			break;
+		}
 		case REW_SER_MONS:
-			msg_format("%s rewards you with a servant!",chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("%s rewards you with a servant!", patron_name);
 			if (!summon_specific(py, px, dun_level, SUMMON_NO_UNIQUES, FALSE, TRUE, TRUE))
 				msg_print("Nobody ever turns up...");
 			break;
+		}
 		case REW_SER_UNDE:
-			msg_format("%s rewards you with an undead servant!",chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("%s rewards you with an undead servant!", patron_name);
 			if (!summon_specific(py, px, dun_level, SUMMON_UNDEAD, FALSE, TRUE, TRUE))
 				msg_print("Nobody ever turns up...");
 			break;
+		}
 		default:
-			msg_format("The voice of %s stammers:",
-				chaos_patrons[p_ptr->chaos_patron]);
+		{
+			msg_format("The voice of %s stammers:", patron_name);
 			msg_format("'Uh... uh... the answer's %d/%d, what's the question?'", type, effect);
+		}
 	}
 }
 
@@ -3249,13 +3226,13 @@ bool tgt_pt(int *x, int *y)
 	Term->scr->cv = 1;
 	msg_print("Select a point and press space.");
 
-	while ((ch != 27) && (ch != ' '))
+	while ((ch != ESCAPE) && (ch != ' '))
 	{
-		move_cursor_relative(*y,*x);
+		move_cursor_relative(*y, *x);
 		ch = inkey();
 		switch (ch)
 		{
-		case 27:
+		case ESCAPE:
 			break;
 		case ' ':
 			success = TRUE; break;
@@ -3269,12 +3246,12 @@ bool tgt_pt(int *x, int *y)
 			*y += ddy[d];
 
 			/* Hack -- Verify x */
-			if ((*x>=cur_wid-1) || (*x>=panel_col_min + SCREEN_WID)) (*x)--;
-			else if ((*x<=0) || (*x<=panel_col_min)) (*x)++;
+			if ((*x >= cur_wid-1) || (*x >= panel_col_min + SCREEN_WID)) (*x)--;
+			else if ((*x <= 0) || (*x <= panel_col_min)) (*x)++;
 
 			/* Hack -- Verify y */
-			if ((*y>=cur_hgt-1) || (*y>=panel_row_min + SCREEN_HGT)) (*y)--;
-			else if ((*y<=0) || (*y<=panel_row_min)) (*y)++;
+			if ((*y >= cur_hgt-1) || (*y >= panel_row_min + SCREEN_HGT)) (*y)--;
+			else if ((*y <= 0) || (*y <= panel_row_min)) (*y)++;
 
 			break;
 		}

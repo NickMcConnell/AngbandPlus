@@ -1300,9 +1300,11 @@ static void give_activation_power(object_type *o_ptr)
 }
 
 
-static void get_random_name(char *return_name, bool armour, int power)
+static void get_random_name(char *return_name, byte tval, int power)
 {
-	if (randint(100) <= TABLE_NAME)
+	if ((randint(100) <= TABLE_NAME) ||
+	    (tval == TV_AMULET) ||
+	    (tval == TV_RING))
 	{
 		get_table_name(return_name);
 	}
@@ -1310,39 +1312,41 @@ static void get_random_name(char *return_name, bool armour, int power)
 	{
 		cptr filename;
 
-		switch (armour)
+		if (tval >= TV_BOOTS)
 		{
-			case 1:
-				switch (power)
-				{
-					case 0:
-						filename = "a_cursed.txt";
-						break;
-					case 1:
-						filename = "a_low.txt";
-						break;
-					case 2:
-						filename = "a_med.txt";
-						break;
-					default:
-						filename = "a_high.txt";
-				}
-				break;
-			default:
-				switch (power)
-				{
-					case 0:
-						filename = "w_cursed.txt";
-						break;
-					case 1:
-						filename = "w_low.txt";
-						break;
-					case 2:
-						filename = "w_med.txt";
-						break;
-					default:
-						filename = "w_high.txt";
-				}
+			switch (power)
+			{
+				case 0:
+					filename = "a_cursed.txt";
+					break;
+				case 1:
+					filename = "a_low.txt";
+					break;
+				case 2:
+					filename = "a_med.txt";
+					break;
+				default:
+					filename = "a_high.txt";
+					break;
+			}
+		}
+		else
+		{
+			switch (power)
+			{
+				case 0:
+					filename = "w_cursed.txt";
+					break;
+				case 1:
+					filename = "w_low.txt";
+					break;
+				case 2:
+					filename = "w_med.txt";
+					break;
+				default:
+					filename = "w_high.txt";
+					break;
+			}
 		}
 
 		(void)get_rnd_line(filename, 0, return_name);
@@ -1362,6 +1366,10 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool a_cursed) /* Prfnof
 
 
 	artifact_bias = 0;
+
+	/* Nuke enchantments */
+	o_ptr->name1 = 0;
+	o_ptr->name2 = 0;
 
 	if (a_scroll && (randint(4) == 1))
 	{
@@ -1505,7 +1513,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool a_cursed) /* Prfnof
 		give_activation_power(o_ptr);
 	}
 
-	if (o_ptr->tval>=TV_BOOTS)
+	if (o_ptr->tval >= TV_BOOTS)
 	{
 		if (a_cursed) power_level = 0;
 		else if (total_flags < 10000) power_level = 1;
@@ -1524,11 +1532,15 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool a_cursed) /* Prfnof
 	if (a_scroll)
 	{
 		char dummy_name[80];
+
 		strcpy(dummy_name, "");
 		(void)identify_fully_aux(o_ptr);
 		o_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
 		if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
-			strcpy(new_name, "(a DIY Artifact)");
+		{
+			get_random_name(new_name, o_ptr->tval, power_level);
+			strcat(new_name, " (DIY)");
+		}
 		else
 		{
 			strcpy(new_name, "called '");
@@ -1544,7 +1556,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool a_cursed) /* Prfnof
 	}
 	else
 	{
-		get_random_name(new_name, (bool)(o_ptr->tval >= TV_BOOTS), power_level);
+		get_random_name(new_name, o_ptr->tval, power_level);
 	}
 
 	if (cheat_xtra)
@@ -1799,7 +1811,7 @@ bool activate_random_artifact(object_type * o_ptr)
 		case ACT_DISP_EVIL:
 		{
 			msg_print("It floods the area with goodness...");
-			dispel_evil(p_ptr->lev * 5);
+			dispel_evil(plev * 5);
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
@@ -1807,7 +1819,7 @@ bool activate_random_artifact(object_type * o_ptr)
 		case ACT_DISP_GOOD:
 		{
 			msg_print("It floods the area with evil...");
-			dispel_good(p_ptr->lev * 5);
+			dispel_good(plev * 5);
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
@@ -1849,8 +1861,8 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_TERROR:
 		{
-			turn_monsters(40 + p_ptr->lev);
-			o_ptr->timeout = 3 * (p_ptr->lev + 10);
+			turn_monsters(40 + plev);
+			o_ptr->timeout = 3 * (plev + 10);
 			break;
 		}
 
@@ -2101,7 +2113,7 @@ bool activate_random_artifact(object_type * o_ptr)
 		case ACT_PROT_EVIL:
 		{
 			msg_print("It lets out a shrill wail...");
-			k = 3 * p_ptr->lev;
+			k = 3 * plev;
 			(void)set_protevil(p_ptr->protevil + randint(25) + k);
 			o_ptr->timeout = rand_int(225) + 225;
 			break;
@@ -2151,7 +2163,7 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_WRAITH:
 		{
-			set_shadow(p_ptr->wraith_form + randint(plev / 2) + (plev / 2));
+			set_wraith_form(p_ptr->wraith_form + randint(plev / 2) + (plev / 2));
 			o_ptr->timeout = 1000;
 			break;
 		}
@@ -2290,23 +2302,8 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_RECALL:
 		{
-			if (dun_level && (p_ptr->max_dlv > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-				p_ptr->max_dlv = dun_level;
-			}
-
 			msg_print("It glows soft white...");
-			if (!p_ptr->word_recall)
-			{
-				p_ptr->word_recall = randint(20) + 15;
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
+			word_of_recall(); /* Prfnoff */
 			o_ptr->timeout = 200;
 			break;
 		}
@@ -2322,25 +2319,9 @@ bool activate_random_artifact(object_type * o_ptr)
 }
 
 
-void random_artifact_resistance(object_type * o_ptr)
+void random_artifact_resistance(object_type *o_ptr)
 {
 	bool give_resistance = FALSE, give_power = FALSE;
-
-	if (o_ptr->name1 == ART_TERROR) /* Terror Mask is for warriors... */
-	{
-		if (p_ptr->pclass == CLASS_WARRIOR)
-		{
-			give_power = TRUE;
-			give_resistance = TRUE;
-		}
-		else
-		{
-			o_ptr->art_flags3 |=
-			    (TR3_CURSED | TR3_HEAVY_CURSE | TR3_AGGRAVATE | TR3_TY_CURSE);
-			o_ptr->ident |= IDENT_CURSED;
-			return;
-		}
-	}
 
 	switch (o_ptr->name1)
 	{
@@ -2394,6 +2375,7 @@ void random_artifact_resistance(object_type * o_ptr)
 			}
 			break;
 		case ART_POWER:
+		case ART_TERROR:
 		case ART_GONDOR:
 		case ART_AULE:
 			{

@@ -105,7 +105,7 @@ static bool know_damage(int r_idx, int i)
  */
 static void roff_aux(int r_idx, int remem)
 {
-	monster_race    *r_ptr;
+	monster_race    *r_ptr = &r_info[r_idx];
 
 	bool            old = FALSE;
 	bool            sin = FALSE;
@@ -115,6 +115,8 @@ static void roff_aux(int r_idx, int remem)
 	cptr            p, q;
 
 	int             msex = 0;
+
+	int mspeed = (nightmare_enemies) ? r_ptr->speed + 5 : r_ptr->speed;
 
 	bool            breath = FALSE;
 	bool            magic = FALSE;
@@ -484,20 +486,20 @@ static void roff_aux(int r_idx, int remem)
 			roff(" erratically");
 
 			/* Hack -- Occasional conjunction */
-			if (r_ptr->speed != 110) roff(", and");
+			if (mspeed != 110) roff(", and");
 		}
 
 		/* Speed */
-		if (r_ptr->speed > 110)
+		if (mspeed > 110)
 		{
-			if (r_ptr->speed > 130) roff(" incredibly");
-			else if (r_ptr->speed > 120) roff(" very");
+			if (mspeed > 130) roff(" incredibly");
+			else if (mspeed > 120) roff(" very");
 			roff(" quickly");
 		}
-		else if (r_ptr->speed < 110)
+		else if (mspeed < 110)
 		{
-			if (r_ptr->speed < 90) roff(" incredibly");
-			else if (r_ptr->speed < 100) roff(" very");
+			if (mspeed < 90) roff(" incredibly");
+			else if (mspeed < 100) roff(" very");
 			roff(" slowly");
 		}
 		else
@@ -759,7 +761,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags5 & (RF5_HOLD))            vp[vn++] = "paralyze";
 	if (flags6 & (RF6_HASTE))           vp[vn++] = "haste-self";
 	if (flags6 & (RF6_HEAL))            vp[vn++] = "heal-self";
-	if (flags6 & (RF6_XXX2))            vp[vn++] = "do something";
+	if (flags6 & (RF6_INVULNER))        vp[vn++] = "make invulnerable";
 	if (flags6 & (RF6_BLINK))           vp[vn++] = "blink-self";
 	if (flags6 & (RF6_TPORT))           vp[vn++] = "teleport-self";
 	if (flags6 & (RF6_XXX3))            vp[vn++] = "do something";
@@ -1305,6 +1307,7 @@ static void roff_aux(int r_idx, int remem)
 			case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
 			case RBE_DISEASE:	q = "disease"; break;
 			case RBE_TIME:      q = "time"; break;
+			case RBE_EXP_VAMP:  q = "drain life force"; break;
 		}
 
 
@@ -1441,6 +1444,18 @@ static void roff_top(int r_idx)
 	Term_addstr(-1, TERM_WHITE, "/('");
 	Term_addch(a2, c2);
 	Term_addstr(-1, TERM_WHITE, "'):");
+
+	/* Wizards get extra info */
+	if (wizard)
+	{
+		char buf[6];
+
+		sprintf(buf, "%d", r_idx);
+
+		Term_addstr(-1, TERM_WHITE, " (");
+		Term_addstr(-1, TERM_L_BLUE, buf);
+		Term_addch(TERM_WHITE, ')');
+	}
 }
 
 
@@ -1522,7 +1537,7 @@ bool monster_dungeon(int r_idx)
 }
 
 
-bool monster_ocean(int r_idx)
+static bool monster_ocean(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1533,7 +1548,7 @@ bool monster_ocean(int r_idx)
 }
 
 
-bool monster_shore(int r_idx)
+static bool monster_shore(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1544,7 +1559,7 @@ bool monster_shore(int r_idx)
 }
 
 
-bool monster_waste(int r_idx)
+static bool monster_waste(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1555,7 +1570,7 @@ bool monster_waste(int r_idx)
 }
 
 
-bool monster_town(int r_idx)
+static bool monster_town(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1566,7 +1581,7 @@ bool monster_town(int r_idx)
 }
 
 
-bool monster_wood(int r_idx)
+static bool monster_wood(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1577,7 +1592,7 @@ bool monster_wood(int r_idx)
 }
 
 
-bool monster_volcano(int r_idx)
+static bool monster_volcano(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1588,7 +1603,7 @@ bool monster_volcano(int r_idx)
 }
 
 
-bool monster_mountain(int r_idx)
+static bool monster_mountain(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1599,7 +1614,7 @@ bool monster_mountain(int r_idx)
 }
 
 
-bool monster_grass(int r_idx)
+static bool monster_grass(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1610,7 +1625,7 @@ bool monster_grass(int r_idx)
 }
 
 
-bool monster_deep_water(int r_idx)
+static bool monster_deep_water(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1623,7 +1638,7 @@ bool monster_deep_water(int r_idx)
 }
 
 
-bool monster_shallow_water(int r_idx)
+static bool monster_shallow_water(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1636,7 +1651,7 @@ bool monster_shallow_water(int r_idx)
 }
 
 
-bool monster_lava(int r_idx)
+static bool monster_lava(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1688,57 +1703,37 @@ monster_hook_type get_monster_hook(void)
 monster_hook_type get_monster_hook2(int y, int x)
 {
 	/* Set the monster list */
-	switch (cave[y][x].feat)
+	if (!cave_terrain_bold(y, x))
 	{
-	case FEAT_SHAL_WATER:
-		return monster_shallow_water;
-	case FEAT_DEEP_WATER:
-		return monster_deep_water;
-	case FEAT_DEEP_LAVA:
-	case FEAT_SHAL_LAVA:
-		return monster_lava;
-	default:
-		return NULL;
+		return (NULL);
+	}
+	else if (cave_pval_bold(y, x) == PV_TERRAIN_LAVA)
+	{
+		return (monster_lava);
+	}
+	else if (cave_pval_bold(y, x) == PV_TERRAIN_WATER)
+	{
+		if (cave_hard_bold(y, x))
+			return (monster_deep_water);
+		else
+			return (monster_shallow_water);
+	}
+	else
+	{
+		return (NULL);
 	}
 }
 
-
-bool is_friendly(monster_type *m_ptr)
-{
-	if (m_ptr->smart & SM_FRIENDLY)
-		return (TRUE);
-	else
-		return (FALSE);
-}
 
 void set_friendly(monster_type *m_ptr)
 {
 	m_ptr->smart |= SM_FRIENDLY;
 }
 
-bool is_pet(monster_type *m_ptr)
-{
-	if (m_ptr->smart & SM_PET)
-		return (TRUE);
-	else
-		return (FALSE);
-}
-
 
 void set_pet(monster_type *m_ptr)
 {
 	m_ptr->smart |= SM_PET;
-}
-
-/*
- * Is the monster friendly or a pet?
- */
-bool is_hostile(monster_type *m_ptr)
-{
-	if (is_friendly(m_ptr) || is_pet(m_ptr))
-		return (FALSE);
-	else
-		return (TRUE);
 }
 
 
@@ -1751,6 +1746,21 @@ void set_hostile(monster_type *m_ptr)
 	m_ptr->smart &= ~SM_FRIENDLY;
 }
 
+
+/*
+ * Anger the monster
+ */
+void anger_monster(monster_type *m_ptr)
+{
+	if (!is_hostile(m_ptr))
+	{
+		char m_name[80];
+
+		monster_desc(m_name, m_ptr, 0);
+		msg_format("%^s gets angry!", m_name);
+		set_hostile(m_ptr);
+	}
+}
 
 
 /*
@@ -1802,30 +1812,33 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
  */
 bool are_enemies(monster_type *m_ptr1, monster_type *m_ptr2)
 {
-	monster_race *r_ptr1 = &r_info[m_ptr1->r_idx];
-	monster_race *r_ptr2 = &r_info[m_ptr2->r_idx];
+	monster_race *r_ptr = &r_info[m_ptr1->r_idx];
+	monster_race *s_ptr = &r_info[m_ptr2->r_idx];
 
 	/* Never pet vs. pet, friendly vs. friendly, normal vs. normal */
 	if ((is_friendly(m_ptr1) == is_friendly(m_ptr2)) &&
-		(is_pet(m_ptr1) == is_pet(m_ptr2)))
+		(is_pet(m_ptr1) == is_pet(m_ptr2)) &&
+		!(r_ptr->flags7 & RF7_RIGHTEOUS) &&
+		!(s_ptr->flags7 & RF7_RIGHTEOUS))
 	{
 		return FALSE;
 	}
 
 	/* Pet vs. normal */
-	if ((is_pet(m_ptr1) && !is_friendly(m_ptr2)) ||
-	    (is_pet(m_ptr2) && !is_friendly(m_ptr1)))
+	if ((is_pet(m_ptr1) && is_hostile(m_ptr2)) ||
+	    (is_pet(m_ptr2) && is_hostile(m_ptr1)))
 	{
 		return TRUE;
 	}
 
 	/* Friendly vs. opposite aligned normal or pet */
-	if (((r_ptr1->flags3 & RF3_EVIL) &&
-	     (r_ptr2->flags3 & RF3_GOOD)) ||
-	    ((r_ptr1->flags3 & RF3_GOOD) &&
-	     (r_ptr2->flags3 & RF3_EVIL)))
+	/* Or righteous against any opposite aligned -- Prfnoff */
+	if (((r_ptr->flags3 & RF3_EVIL) &&
+	     (s_ptr->flags3 & RF3_GOOD)) ||
+	    ((r_ptr->flags3 & RF3_GOOD) &&
+	     (s_ptr->flags3 & RF3_EVIL)))
 	{
-			return TRUE;
+		return TRUE;
 	}
 
 	/* Default */
@@ -1976,6 +1989,38 @@ static char *orc_syllable3[] =
 	"shnak", "mog", "mak", "rak",
 };
 
+/* Klackon (from CthAngband -- Prfnoff) */
+static char *klackon_syllable1[] =
+{
+	"K'", "K", "Kri", "Kir", "Kiri", "Iriki", "Irik", "Karik", "Iri","Akri",
+};
+
+static char *klackon_syllable2[] =
+{
+	"arak", "i", "iri", "ikki", "ki", "kiri","ikir","irak","arik","k'","r",
+};
+
+static char *klackon_syllable3[] =
+{
+	"akkak", "ak", "ik", "ikkik", "irik", "arik", "kidik", "kii", "k","ki","riki","irk",
+};
+
+/* Cthuloid (from CthAngband -- Prfnoff) */
+static char *cthuloid_syllable1[] =
+{
+	"Cth","Az","Fth","Ts","Xo","Q'N","R'L","Ghata","L","Zz","Fl","Cl","S","Y",
+};
+
+static char *cthuloid_syllable2[] =
+{
+	"nar","loi","ul","lu","noth","thon","ath","'N","rhy","oth","aza","agn","oa","og",
+};
+
+static char *cthuloid_syllable3[] =
+{
+	"l","a","u","oa","oggua","oth","ath","aggua","lu","lo","loth","lotha","agn","axl",
+};
+
 
 /*
  * Random Name Generator
@@ -2020,6 +2065,16 @@ void create_name(int type, char *name)
 			strcpy(name, orc_syllable1[rand_int(sizeof(orc_syllable1) / sizeof(char*))]);
 			strcat(name, orc_syllable2[rand_int(sizeof(orc_syllable2) / sizeof(char*))]);
 			strcat(name, orc_syllable3[rand_int(sizeof(orc_syllable3) / sizeof(char*))]);
+			break;
+		case NAME_KLACKON:
+			strcpy(name, klackon_syllable1[rand_int(sizeof(klackon_syllable1) / sizeof(char*))]);
+			strcat(name, klackon_syllable2[rand_int(sizeof(klackon_syllable2) / sizeof(char*))]);
+			strcat(name, klackon_syllable3[rand_int(sizeof(klackon_syllable3) / sizeof(char*))]);
+			break;
+		case NAME_CTHULOID:
+			strcpy(name, cthuloid_syllable1[rand_int(sizeof(cthuloid_syllable1) / sizeof(char*))]);
+			strcat(name, cthuloid_syllable2[rand_int(sizeof(cthuloid_syllable2) / sizeof(char*))]);
+			strcat(name, cthuloid_syllable3[rand_int(sizeof(cthuloid_syllable3) / sizeof(char*))]);
 			break;
 		/* Create an empty name */
 		case NAME_NONE: /* Prfnoff */

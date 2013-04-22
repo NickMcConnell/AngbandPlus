@@ -19,70 +19,70 @@
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
-static cptr value_check_aux1(object_type *o_ptr)
+static byte value_check_aux1(object_type *o_ptr)
 {
 	/* Artifacts */
 	if (artifact_p(o_ptr) || o_ptr->art_name)
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return "terrible";
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return FEEL_TERRIBLE;
 
 		/* Normal */
-		return "special";
+		return FEEL_SPECIAL;
 	}
 
 	/* Ego-Items */
 	if (ego_item_p(o_ptr))
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return "worthless";
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return FEEL_WORTHLESS;
 
 		/* Normal */
-		return "excellent";
+		return FEEL_EXCELLENT;
 	}
 
 	/* Cursed items */
-	if (cursed_p(o_ptr)) return "cursed";
+	if (cursed_p(o_ptr)) return FEEL_CURSED;
 
 	/* Broken items */
-	if (broken_p(o_ptr)) return "broken";
+	if (broken_p(o_ptr)) return FEEL_BROKEN;
 
 	/* Good "armor" bonus */
-	if (o_ptr->to_a > 0) return "good";
+	if (o_ptr->to_a > 0) return FEEL_GOOD;
 
 	/* Good "weapon" bonus */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return "good";
+	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
 
 	/* Default to "average" */
-	return "average";
+	return FEEL_AVERAGE;
 }
 
 
 /*
  * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
  */
-static cptr value_check_aux2(object_type *o_ptr)
+static byte value_check_aux2(object_type *o_ptr)
 {
 	/* Cursed items (all of them) */
-	if (cursed_p(o_ptr)) return "cursed";
+	if (cursed_p(o_ptr)) return FEEL_CURSED;
 
 	/* Broken items (all of them) */
-	if (broken_p(o_ptr)) return "broken";
+	if (broken_p(o_ptr)) return FEEL_BROKEN;
 
 	/* Artifacts -- except cursed/broken ones */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return "good";
+	if (artifact_p(o_ptr) || o_ptr->art_name) return FEEL_GOOD;
 
 	/* Ego-Items -- except cursed/broken ones */
-	if (ego_item_p(o_ptr)) return "good";
+	if (ego_item_p(o_ptr)) return FEEL_GOOD;
 
 	/* Good armor bonus */
-	if (o_ptr->to_a > 0) return "good";
+	if (o_ptr->to_a > 0) return FEEL_GOOD;
 
 	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return "good";
+	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
 
 	/* No feeling */
-	return (NULL);
+	return (FEEL_NONE);
 }
 
 
@@ -104,7 +104,7 @@ static void sense_inventory(void)
 	int         i;
 	int         plev = p_ptr->lev;
 	bool        heavy = FALSE;
-	cptr        feel;
+	byte        feel;
 	object_type *o_ptr;
 	char        o_name[80];
 
@@ -296,7 +296,7 @@ static void sense_inventory(void)
 		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
 
 		/* Skip non-feelings */
-		if (!feel) continue;
+		if (feel == FEEL_NONE) continue;
 
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
@@ -309,7 +309,8 @@ static void sense_inventory(void)
 		{
 			msg_format("You feel the %s (%c) you are %s %s %s...",
 			           o_name, index_to_label(i), describe_use(i),
-			           ((o_ptr->number == 1) ? "is" : "are"), feel);
+			           ((o_ptr->number == 1) ? "is" : "are"),
+			           game_inscriptions[feel]);
 		}
 
 		/* Message (inventory) */
@@ -317,14 +318,15 @@ static void sense_inventory(void)
 		{
 			msg_format("You feel the %s (%c) in your pack %s %s...",
 			           o_name, index_to_label(i),
-			           ((o_ptr->number == 1) ? "is" : "are"), feel);
+			           ((o_ptr->number == 1) ? "is" : "are"),
+			           game_inscriptions[feel]);
 		}
 
 		/* We have "felt" it */
 		o_ptr->ident |= (IDENT_SENSE);
 
-		/* Inscribe it textually */
-		if (!o_ptr->note) o_ptr->note = quark_add(feel);
+		/* Set the "inscription" */
+		o_ptr->feeling = feel;
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -405,7 +407,7 @@ static void wreck_the_pattern(void)
 {
 	int to_ruin = 0, r_y, r_x;
 
-	if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
+	if (cave_pval_bold(py, px) == PV_PATTERN_XTRA2)
 	{
 		/* Ruined already */
 		return;
@@ -423,23 +425,24 @@ static void wreck_the_pattern(void)
 	{
 		scatter(&r_y, &r_x, py, px, 4, 0);
 
-		if ((cave[r_y][r_x].feat >= FEAT_PATTERN_START) &&
-		    (cave[r_y][r_x].feat < FEAT_PATTERN_XTRA2))
+		if (cave_pattern_bold(r_y, r_x) && /* Prfnoff */
+		    (cave_pval_bold(r_y, r_x) != PV_PATTERN_XTRA2))
 		{
-			cave_set_feat(r_y, r_x, FEAT_PATTERN_XTRA2);
+			cave_pick_feat(r_y, r_x, PV_PATTERN_XTRA2, FF1_PATTERN);
 		}
 	}
 
-	cave_set_feat(py, px, FEAT_PATTERN_XTRA2);
+	cave_pick_feat(py, px, PV_PATTERN_XTRA2, FF1_PATTERN);
 }
 
 
 /* Returns TRUE if we are on the Pattern... */
 static bool pattern_effect(void)
 {
-	if ((cave[py][px].feat < FEAT_PATTERN_START) ||
-	    (cave[py][px].feat > FEAT_PATTERN_XTRA2))
-		return FALSE;
+	if (!cave_pattern_bold(py, px)) /* Prfnoff */
+	{
+		return (FALSE);
+	}
 
 	if ((p_ptr->prace == RACE_AMBERITE) &&
 	    (p_ptr->cut > 0) && (randint(10) == 1))
@@ -447,7 +450,7 @@ static bool pattern_effect(void)
 		wreck_the_pattern();
 	}
 
-	if (cave[py][px].feat == FEAT_PATTERN_END)
+	if (cave_pval_bold(py, px) == PV_PATTERN_END)
 	{
 		(void)set_poisoned(0);
 		(void)set_image(0);
@@ -463,7 +466,7 @@ static bool pattern_effect(void)
 		(void)do_res_stat(A_CHR);
 		(void)restore_level();
 		(void)hp_player(1000);
-		cave_set_feat(py, px, FEAT_PATTERN_OLD);
+		cave_pick_feat(py, px, PV_PATTERN_OLD, FF1_PATTERN);
 		msg_print("This section of the Pattern looks less powerful.");
 	}
 
@@ -475,15 +478,15 @@ static bool pattern_effect(void)
 	 * in the middle of the pattern...
 	 */
 
-	else if (cave[py][px].feat == FEAT_PATTERN_OLD)
+	else if (cave_pval_bold(py, px) == PV_PATTERN_OLD)
 	{
 		/* No effect */
 	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA1)
+	else if (cave_pval_bold(py, px) == PV_PATTERN_XTRA1)
 	{
 		pattern_teleport();
 	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
+	else if (cave_pval_bold(py, px) == PV_PATTERN_XTRA2)
 	{
 		if (!p_ptr->invuln)
 		take_hit(200, "walking the corrupted Pattern");
@@ -648,7 +651,7 @@ static void regen_monsters(void)
 }
 
 
-static void notice_lite_change(object_type *o_ptr)
+void notice_lite_change(object_type *o_ptr)
 {
 	/* Hack -- notice interesting fuel steps */
 	if ((o_ptr->pval < 100) || (!(o_ptr->pval % 100)))
@@ -697,7 +700,7 @@ bool psychometry(void)
 	int             item;
 	object_type     *o_ptr;
 	char            o_name[80];
-	cptr            feel;
+	byte            feel;
 	cptr            q, s;
 
 
@@ -732,38 +735,21 @@ bool psychometry(void)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Skip non-feelings */
-	if (!feel)
+	if (feel == FEEL_NONE)
 	{
 		msg_format("You do not perceive anything unusual about the %s.", o_name);
 		return TRUE;
 	}
 
 	msg_format("You feel that the %s %s %s...",
-	    o_name, ((o_ptr->number == 1) ? "is" : "are"), feel);
+	           o_name, ((o_ptr->number == 1) ? "is" : "are"),
+	           game_inscriptions[feel]);
 
 	/* We have "felt" it */
 	o_ptr->ident |= (IDENT_SENSE);
 
-	/* Access the inscription */
-	q = quark_str(o_ptr->note);
-
-	/* Hack -- Remove auto-inscriptions */
-	if (q && ((streq(q, "cursed")) ||
-	    (streq(q, "broken")) ||
-	    (streq(q, "good")) ||
-	    (streq(q, "average")) ||
-	    (streq(q, "excellent")) ||
-	    (streq(q, "worthless")) ||
-	    (streq(q, "special")) ||
-	    (streq(q, "terrible"))))
-	{
-		/* Forget the inscription */
-		o_ptr->note = 0;
-	}
-
-	/* Inscribe it textually */
-	if (!o_ptr->note)
-		o_ptr->note = quark_add(feel);
+	/* "Inscribe" it */
+	o_ptr->feeling = feel;
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -822,7 +808,7 @@ static void recharged_notice(object_type *o_ptr)
 static void process_world(void)
 {
 	int x, y, i, j;
-	int regen_amount;
+	s32b regen_amount;
 	bool cave_no_regen = FALSE;
 	int upkeep_factor = 0;
 	cave_type *c_ptr;
@@ -878,6 +864,10 @@ static void process_world(void)
 			do_cmd_save_game(TRUE);
 	}
 
+	if (mon_fight)
+	{
+		msg_print("You hear noise.");
+	}
 
 	/*** Handle the wilderness/town (sunshine) ***/
 
@@ -933,9 +923,7 @@ static void process_world(void)
 						c_ptr = &cave[y][x];
 
 						/* Darken "boring" features */
-						if ((c_ptr->feat <= FEAT_INVIS) ||
-						    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-							(c_ptr->feat <= FEAT_TREES)))
+						if (cave_plain_grid(c_ptr) || cave_terrain_grid(c_ptr)) /* Prfnoff */
 						{
 							/* Forget the grid */
 							c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
@@ -1036,45 +1024,51 @@ static void process_world(void)
 		}
 	}
 
-	if ((cave[py][px].feat == FEAT_SHAL_LAVA) &&
-		!p_ptr->invuln && !p_ptr->immune_fire && !p_ptr->ffall)
+	/* Check for lava -- Prfnoff */
+	if (cave_terrain_bold(py, px) && (cave_pval_bold(py, px) == PV_TERRAIN_LAVA) &&
+	    !p_ptr->invuln && !p_ptr->immune_fire)
 	{
-		int damage = p_ptr->lev;
-
-		if (p_ptr->resist_fire) damage = damage / 3;
-		if (p_ptr->oppose_fire) damage = damage / 3;
-
-		if (damage)
-		{
-			/* Take damage */
-			msg_print("The lava burns you!");
-			take_hit(damage, "shallow lava");
-			cave_no_regen = TRUE;
-		}
-	}
-
-	else if ((cave[py][px].feat == FEAT_DEEP_LAVA) &&
-		!p_ptr->invuln && !p_ptr->immune_fire)
-	{
-		int damage = p_ptr->lev * 2;
+		int damage;
 		cptr message;
 		cptr hit_from;
 
+		/* Deep lava */
+		if (cave_hard_bold(py, px))
+		{
+			/* Lots of damage */
+			damage = p_ptr->lev * 2;
+
+			/* Levitation provides partial protection */
+			if (p_ptr->ffall)
+			{
+				/* Reduced damage */
+				damage = damage / 5;
+
+				/* Messages */
+				message = "The heat burns you!";
+				hit_from = "flying over deep lava";
+			}
+			else
+			{
+				/* Messages */
+				message = "The lava burns you!";
+				hit_from = "deep lava";
+			}
+		}
+
+		/* Shallow lava - levitation provides protection */
+		else if (!p_ptr->ffall)
+		{
+			/* A bit of damage */
+			damage = p_ptr->lev;
+
+			/* Messages */
+			message = "The lava burns you!";
+			hit_from = "shallow lava";
+		}
+
 		if (p_ptr->resist_fire) damage = damage / 3;
 		if (p_ptr->oppose_fire) damage = damage / 3;
-
-		if (p_ptr->ffall)
-		{
-			damage = damage / 5;
-
-			message = "The heat burns you!";
-			hit_from = "flying over deep lava";
-		}
-		else
-		{
-			message = "The lava burns you!";
-			hit_from = "deep lava";
-		}
 
 		if (damage)
 		{
@@ -1086,7 +1080,10 @@ static void process_world(void)
 		}
 	}
 
-	else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->ffall)
+	/* Check for deep water -- Prfnoff */
+	else if (cave_terrain_bold(py, px) &&
+	         (cave_pval_bold(py, px) == PV_TERRAIN_WATER) &&
+	         cave_hard_bold(py, px) && !p_ptr->ffall)
 	{
 		if (p_ptr->total_weight > ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
 		{
@@ -1107,7 +1104,8 @@ static void process_world(void)
 	if (!cave_floor_bold(py, px))
 	{
 		/* Player can walk through trees */
-		if (cave[py][px].feat == FEAT_TREES)
+		if (cave_terrain_bold(py, px) && /* Prfnoff */
+		    (cave_pval_bold(py, px) == PV_TERRAIN_TREE))
 		{
 			/* Do nothing */
 		}
@@ -1130,6 +1128,63 @@ static void process_world(void)
 			}
 
 			take_hit(1 + (p_ptr->lev / 5), dam_desc);
+		}
+	}
+
+
+	/* Nightmare mode activates the TY_CURSE at midnight */
+	if (nightmare_bells)
+	{
+		s32b len = 10L * TOWN_DAWN;
+		s32b tick = turn % len + len / 4;
+
+		int hour = (24 * tick / len) % 24;
+		int min = (1440 * tick / len) % 60;
+		int prev_min = (1440 * (tick - 10) / len) % 60;
+
+		/* Require exact minute */
+		if (min != prev_min)
+		{
+			/* Every 15 minutes after 11:00 pm */
+			if ((hour == 23) && !(min % 15))
+			{
+				/* Disturbing */
+				disturb(0, 0);
+
+				switch (min / 15)
+				{
+					case 0:
+					{
+						msg_print("You hear a distant bell toll ominously.");
+						break;
+					}
+					case 1:
+					{
+						msg_print("A distant bell sounds twice.");
+						break;
+					}
+					case 2:
+					{
+						msg_print("A distant bell sounds three times.");
+						break;
+					}
+					case 3:
+					{
+						msg_print("A distant bell tolls four times.");
+						break;
+					}
+				}
+			}
+
+			/* TY_CURSE activates at midnight! */
+			if (!hour && !min)
+			{
+				int count = 0;
+
+				disturb(1, 0);
+				msg_print("A distant bell tolls many times, fading into an deathly silence.");
+				activate_ty_curse(FALSE, &count);
+			}
 		}
 	}
 
@@ -1271,8 +1326,8 @@ static void process_world(void)
 		{
 			upkeep_factor = total_friend_levels;
 
-			if (upkeep_factor > 100) upkeep_factor = 100;
-			else if (upkeep_factor < 10) upkeep_factor = 10;
+			if (upkeep_factor > 95) upkeep_factor = 95;
+			else if (upkeep_factor < 5) upkeep_factor = 5;
 
 #ifdef TRACK_FRIENDS
 			if (wizard)
@@ -1321,8 +1376,7 @@ static void process_world(void)
 	/* Regenerate Hit Points if needed */
 	if ((p_ptr->chp < p_ptr->mhp) && !cave_no_regen)
 	{
-		if ((cave[py][px].feat < FEAT_PATTERN_END) &&
-		    (cave[py][px].feat >= FEAT_PATTERN_START))
+		if (cave_pattern_bold(py, px)) /* Prfnoff */
 		{
 			regenhp(regen_amount / 5); /* Hmmm. this should never happen? */
 		}
@@ -1415,7 +1469,7 @@ static void process_world(void)
 	/* Wraith form */
 	if (p_ptr->wraith_form)
 	{
-		(void)set_shadow(p_ptr->wraith_form - 1);
+		(void)set_wraith_form(p_ptr->wraith_form - 1);
 	}
 
 	/* Heroism */
@@ -1533,406 +1587,7 @@ static void process_world(void)
 	/*** Process mutation effects ***/
 	if (p_ptr->muta2)
 	{
-		if ((p_ptr->muta2 & MUT2_BERS_RAGE) && (randint(3000) == 1))
-		{
-			disturb(0, 0);
-			msg_print("RAAAAGHH!");
-			msg_print("You feel a fit of rage coming over you!");
-			(void)set_shero(p_ptr->shero + 10 + randint(p_ptr->lev));
-		}
-
-		if ((p_ptr->muta2 & MUT2_COWARDICE) && (randint(3000) == 13))
-		{
-			if (!(p_ptr->resist_fear || p_ptr->hero || p_ptr->shero))
-			{
-				disturb(0, 0);
-				msg_print("It's so dark... so scary!");
-				set_afraid(p_ptr->afraid + 13 + randint(26));
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_RTELEPORT) && (randint(5000) == 88))
-		{
-			if (!p_ptr->resist_nexus && !p_ptr->muta1 & MUT1_VTELEPORT &&
-			    !p_ptr->anti_tele)
-			{
-				disturb(0, 0);
-
-				/* Teleport player */
-				msg_print("Your position suddenly seems very uncertain...");
-				msg_print(NULL);
-				teleport_player(40);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_ALCOHOL) && (randint(6400) == 321))
-		{
-			if (!(p_ptr->resist_chaos || p_ptr->resist_conf))
-			{
-				disturb(0, 0);
-				p_ptr->redraw |= PR_EXTRA;
-				msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
-
-				if (randint(20) == 1)
-				{
-					msg_print(NULL);
-					if (randint(3) == 1) lose_all_info();
-					else wiz_dark();
-					teleport_player(100);
-					wiz_dark();
-					msg_print("You wake up somewhere with a sore head...");
-					msg_print("You can't remember a thing, or how you got here!");
-				}
-				else
-				{
-					if (!p_ptr->resist_conf)
-					{
-						(void)set_confused(p_ptr->confused + rand_int(20) + 15);
-					}
-
-					if ((randint(3) == 1) && !p_ptr->resist_chaos)
-					{
-						msg_print("Thishcischs GooDSChtuff!");
-						(void)set_image(p_ptr->image + rand_int(150) + 150);
-					}
-				}
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_HALLU) && (randint(6400) == 42))
-		{
-			if (!p_ptr->resist_chaos)
-			{
-				disturb(0, 0);
-				p_ptr->redraw |= PR_EXTRA;
-				(void)set_image(p_ptr->image + rand_int(50) + 20);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_FLATULENT) && (randint(3000) == 13))
-		{
-			disturb(0, 0);
-
-			msg_print("BRRAAAP! Oops.");
-			msg_print(NULL);
-			fire_ball(GF_POIS, 0, p_ptr->lev, 3);
-		}
-
-		if ((p_ptr->muta2 & MUT2_PROD_MANA) &&
-		    !p_ptr->anti_magic && (randint(9000) == 1))
-		{
-			int dire = 0;
-			disturb(0, 0);
-			msg_print("Magical energy flows through you! You must release it!");
-			flush();
-			msg_print(NULL);
-			(void)get_hack_dir(&dire);
-			fire_ball(GF_MANA, dire, p_ptr->lev * 2, 3);
-		}
-
-		if ((p_ptr->muta2 & MUT2_ATT_DEMON) &&
-		    !p_ptr->anti_magic && (randint(6666) == 666))
-		{
-			bool pet = (randint(6) == 1);
-
-			if (summon_specific(py, px,
-				    dun_level, SUMMON_DEMON, TRUE, FALSE, pet))
-			{
-				msg_print("You have attracted a demon!");
-				disturb(0, 0);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_SPEED_FLUX) && (randint(6000) == 1))
-		{
-			disturb(0, 0);
-			if (randint(2) == 1)
-			{
-				msg_print("You feel less energetic.");
-				if (p_ptr->fast > 0)
-				{
-					set_fast(0);
-				}
-				else
-				{
-					set_slow(p_ptr->slow + randint(30) + 10);
-				}
-			}
-			else
-			{
-				msg_print("You feel more energetic.");
-				if (p_ptr->slow > 0)
-				{
-					set_slow(0);
-				}
-				else
-				{
-					set_fast(p_ptr->fast + randint(30) + 10);
-				}
-			}
-			msg_print(NULL);
-		}
-		if ((p_ptr->muta2 & MUT2_BANISH_ALL) && (randint(9000) == 1))
-		{
-			disturb(0, 0);
-			msg_print("You suddenly feel almost lonely.");
-			banish_monsters(100);
-			if (!dun_level && p_ptr->town_num)
-			{
-				msg_print("You see one of the shopkeepers running for the hills!");
-				store_shuffle(rand_int(MAX_STORES));
-			}
-			msg_print(NULL);
-		}
-
-		if ((p_ptr->muta2 & MUT2_EAT_LIGHT) && one_in_(3000))
-		{
-			object_type *o_ptr;
-
-			msg_print("A shadow passes over you.");
-			msg_print(NULL);
-
-			/* Absorb light from the current possition */
-			if (cave[py][px].info & CAVE_GLOW)
-			{
-				hp_player(10);
-			}
-
-			o_ptr = &inventory[INVEN_LITE];
-
-			/* Absorb some fuel in the current lite */
-			if (o_ptr->tval == TV_LITE)
-			{
-				/* Use some fuel (except on artifacts) */
-				if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
-				{
-					/* Heal the player a bit */
-					hp_player(o_ptr->pval / 20);
-
-					/* Decrease life-span of lite */
-					o_ptr->pval /= 2;
-
-					msg_print("You absorb energy from your light!");
-
-					/* Notice interesting fuel steps */
-					notice_lite_change(o_ptr);
-				}
-			}
-
-			/*
-			 * Unlite the area (radius 10) around player and
-			 * do 50 points damage to every affected monster
-			 */
-			unlite_area(50, 10);
-		}
-
-		if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) &&
-		   !p_ptr->anti_magic && one_in_(7000))
-		{
-			bool pet = (randint(3) == 1);
-
-			if (summon_specific(py, px, dun_level, SUMMON_ANIMAL,
-			    TRUE, FALSE, pet))
-			{
-				msg_print("You have attracted an animal!");
-				disturb(0, 0);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_RAW_CHAOS) &&
-		    !p_ptr->anti_magic && one_in_(8000))
-		{
-			disturb(0, 0);
-			msg_print("You feel the world warping around you!");
-			msg_print(NULL);
-			fire_ball(GF_CHAOS, 0, p_ptr->lev, 8);
-		}
-		if ((p_ptr->muta2 & MUT2_NORMALITY) && one_in_(5000))
-		{
-			if (!lose_mutation(0))
-				msg_print("You feel oddly normal.");
-		}
-		if ((p_ptr->muta2 & MUT2_WRAITH) && !p_ptr->anti_magic && one_in_(3000))
-		{
-			disturb(0, 0);
-			msg_print("You feel insubstantial!");
-			msg_print(NULL);
-			set_shadow(p_ptr->wraith_form + randint(p_ptr->lev / 2) + (p_ptr->lev / 2));
-		}
-		if ((p_ptr->muta2 & MUT2_POLY_WOUND) && one_in_(3000))
-		{
-			do_poly_wounds();
-		}
-		if ((p_ptr->muta2 & MUT2_WASTING) && one_in_(3000))
-		{
-			int which_stat = rand_int(6);
-			int sustained = FALSE;
-
-			switch (which_stat)
-			{
-			case A_STR:
-				if (p_ptr->sustain_str) sustained = TRUE;
-				break;
-			case A_INT:
-				if (p_ptr->sustain_int) sustained = TRUE;
-				break;
-			case A_WIS:
-				if (p_ptr->sustain_wis) sustained = TRUE;
-				break;
-			case A_DEX:
-				if (p_ptr->sustain_dex) sustained = TRUE;
-				break;
-			case A_CON:
-				if (p_ptr->sustain_con) sustained = TRUE;
-				break;
-			case A_CHR:
-				if (p_ptr->sustain_chr) sustained = TRUE;
-				break;
-			default:
-				msg_print("Invalid stat chosen!");
-				sustained = TRUE;
-			}
-
-			if (!sustained)
-			{
-				disturb(0, 0);
-				msg_print("You can feel yourself wasting away!");
-				msg_print(NULL);
-				(void)dec_stat(which_stat, randint(6) + 6, randint(3) == 1);
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_ATT_DRAGON) &&
-		   !p_ptr->anti_magic && one_in_(3000))
-		{
-			bool pet = (randint(5) == 1);
-
-			if (summon_specific(py, px, dun_level, SUMMON_DRAGON,
-			    TRUE, FALSE, pet))
-			{
-				msg_print("You have attracted a dragon!");
-				disturb(0, 0);
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_WEIRD_MIND) && !p_ptr->anti_magic &&
-			one_in_(3000))
-		{
-			if (p_ptr->tim_esp > 0)
-			{
-				msg_print("Your mind feels cloudy!");
-				set_tim_esp(0);
-			}
-			else
-			{
-				msg_print("Your mind expands!");
-				set_tim_esp(p_ptr->lev);
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_NAUSEA) && !p_ptr->slow_digest &&
-			one_in_(9000))
-		{
-			disturb(0, 0);
-			msg_print("Your stomach roils, and you lose your lunch!");
-			msg_print(NULL);
-			set_food(PY_FOOD_WEAK);
-		}
-
-		if ((p_ptr->muta2 & MUT2_WALK_SHAD) &&
-		   !p_ptr->anti_magic && one_in_(12000))
-		{
-			alter_reality();
-		}
-
-		if ((p_ptr->muta2 & MUT2_WARNING) && one_in_(1000))
-		{
-			int danger_amount = 0;
-			int monster;
-
-			for (monster = 0; monster < m_max; monster++)
-			{
-				monster_type    *m_ptr = &m_list[monster];
-				monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-
-				/* Paranoia -- Skip dead monsters */
-				if (!m_ptr->r_idx) continue;
-
-				if (r_ptr->level >= p_ptr->lev)
-				{
-					danger_amount += r_ptr->level - p_ptr->lev + 1;
-				}
-			}
-
-			if (danger_amount > 100)
-				msg_print("You feel utterly terrified!");
-			else if (danger_amount > 50)
-				msg_print("You feel terrified!");
-			else if (danger_amount > 20)
-				msg_print("You feel very worried!");
-			else if (danger_amount > 10)
-				msg_print("You feel paranoid!");
-			else if (danger_amount > 5)
-				msg_print("You feel almost safe.");
-			else
-				msg_print("You feel lonely.");
-		}
-		if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic &&
-			one_in_(5000))
-		{
-			disturb(0, 0);
-			msg_print("You feel invincible!");
-			msg_print(NULL);
-			(void)set_invuln(p_ptr->invuln + randint(8) + 8);
-		}
-		if ((p_ptr->muta2 & MUT2_SP_TO_HP) && one_in_(2000))
-		{
-			int wounds = p_ptr->mhp - p_ptr->chp;
-
-			if (wounds > 0)
-			{
-				int healing = p_ptr->csp;
-
-				if (healing > wounds)
-				{
-					healing = wounds;
-				}
-
-				hp_player(healing);
-				p_ptr->csp -= healing;
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_HP_TO_SP) && !p_ptr->anti_magic &&
-			one_in_(4000))
-		{
-			int wounds = p_ptr->msp - p_ptr->csp;
-
-			if (wounds > 0)
-			{
-				int healing = p_ptr->chp;
-
-				if (healing > wounds)
-				{
-					healing = wounds;
-				}
-
-				p_ptr->csp += healing;
-				take_hit(healing, "blood rushing to the head");
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_DISARM) && one_in_(10000))
-		{
-			object_type *o_ptr;
-
-			disturb(0, 0);
-			msg_print("You trip over your own feet!");
-			take_hit(randint(p_ptr->wt / 6), "tripping");
-
-			msg_print(NULL);
-			o_ptr = &inventory[INVEN_WIELD];
-			if (o_ptr->k_idx)
-			{
-				msg_print("You drop your weapon!");
-				inven_drop(INVEN_WIELD, 1);
-			}
-		}
+		process_mutations(); /* Prfnoff */
 	}
 
 
@@ -1972,7 +1627,9 @@ static void process_world(void)
 		/* TY Curse */
 		if ((f3 & TR3_TY_CURSE) && (randint(TY_CURSE_CHANCE) == 1))
 		{
-			(void)activate_ty_curse(FALSE); /* Prfnoff */
+			int count = 0;
+
+			(void)activate_ty_curse(FALSE, &count); /* Prfnoff */
 		}
 
 		/* Make a chainsword noise */
@@ -2127,11 +1784,13 @@ static void process_world(void)
 		/* Count down towards recall */
 		p_ptr->word_recall--;
 
+		p_ptr->redraw |= (PR_STATUS);
+
 		/* Activate the recall */
 		if (!p_ptr->word_recall)
 		{
 			/* Disturbing! */
-  			disturb(0, 0);
+			disturb(0, 0);
 
 			/* Determine the level */
 			if (dun_level || p_ptr->inside_quest)
@@ -2150,6 +1809,23 @@ static void process_world(void)
 				/* New depth */
 				dun_level = p_ptr->max_dlv;
 				if (dun_level < 1) dun_level = 1;
+
+				/* Nightmare mode makes recall more dangerous */
+				if (nightmare_misc && one_in_(666))
+				{
+					if (dun_level < 50)
+					{
+						dun_level *= 2;
+					}
+					else if (dun_level < 99)
+					{
+						dun_level = (dun_level + 99) / 2;
+					}
+					else if (dun_level > 100)
+					{
+						dun_level = MAX_DEPTH - 1;
+					}
+				}
 
 				/* Save player position */
 				p_ptr->oldpx = px;
@@ -2286,12 +1962,8 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Handle repeating the last command */
 	repeat_check();
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Parse the command */
 	switch (command_cmd)
@@ -2450,32 +2122,14 @@ static void process_command(void)
 		/* Move (usually pick up things) */
 		case ';':
 		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 			do_cmd_walk(FALSE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-			do_cmd_walk(always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
-
 			break;
 		}
 
 		/* Move (usually do not pick up) */
 		case '-':
 		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 			do_cmd_walk(TRUE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-			do_cmd_walk(!always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
-
 			break;
 		}
 
@@ -2527,24 +2181,10 @@ static void process_command(void)
 
 		/*** Stairs and Doors and Chests and Traps ***/
 
-		/* Enter store */
+		/* Enter store or building -- Prfnoff */
 		case '_':
 		{
-			do_cmd_store();
-			break;
-		}
-
-		/* Enter building -KMW- */
-		case ']':
-		{
-			do_cmd_bldg();
-			break;
-		}
-
-		/* Enter quest level -KMW- */
-		case '[':
-		{
-			do_cmd_quest();
+			do_cmd_enter();
 			break;
 		}
 
@@ -2805,7 +2445,7 @@ static void process_command(void)
 		/* Character description */
 		case 'C':
 		{
-			do_cmd_change_name();
+			do_cmd_character();
 			break;
 		}
 
@@ -2893,13 +2533,6 @@ static void process_command(void)
 			break;
 		}
 
-		/* Show quest status -KMW- */
-		case KTRL('Q'):
-		{
-			do_cmd_checkquest();
-			break;
-		}
-
 		/* Redraw the screen */
 		case KTRL('R'):
 		{
@@ -2940,7 +2573,6 @@ static void process_command(void)
 
 		/* Check artifacts, uniques, objects */
 		case '~':
-		case '|':
 		{
 			do_cmd_knowledge();
 			break;
@@ -3001,7 +2633,16 @@ static void process_player(void)
 	}
 
 	/* Give the player some energy */
-	p_ptr->energy += extract_energy[p_ptr->pspeed];
+	if ((p_ptr->pspeed > 199) || (p_ptr->pspeed < 0))
+	{
+		/* player has speed outside range of table : punish him/her */
+		p_ptr->energy += 0;
+	}
+	else
+	{
+		/* Give the player some energy */
+		p_ptr->energy += extract_energy[p_ptr->pspeed];
+	}
 
 	/* No turn yet */
 	if (p_ptr->energy < 100) return;
@@ -3414,18 +3055,21 @@ static void dungeon(void)
 		/* Place a stairway */
 		if (cave_valid_bold(py, px))
 		{
+			u32b flags1; /* Prfnoff */
+
 			/* XXX XXX XXX */
 			delete_object(py, px);
 
 			/* Make stairs */
 			if (create_down_stair)
 			{
-				cave_set_feat(py, px, FEAT_MORE);
+				flags1 = (FF1_STAIR | FF1_HARD);
 			}
 			else
 			{
-				cave_set_feat(py, px, FEAT_LESS);
+				flags1 = FF1_STAIR;
 			}
+			cave_pick_feat(py, px, PV_STAIR_NORMAL, flags1);
 		}
 
 		/* Cancel the stair request */
@@ -3433,18 +3077,41 @@ static void dungeon(void)
 	}
 
 
-	/* Choose a panel row */
-	panel_row = ((py - SCREEN_HGT / 4) / (SCREEN_HGT / 2));
-	if (panel_row > max_panel_rows) panel_row = max_panel_rows;
-	else if (panel_row < 0) panel_row = 0;
+	/* Center on player -- Prfnoff (scroll) */
+	if (center_player)
+	{
+		int max_prow_min = max_panel_rows * (SCREEN_HGT / 2);
+		int max_pcol_min = max_panel_cols * (SCREEN_WID / 2);
 
-	/* Choose a panel col */
-	panel_col = ((px - SCREEN_WID / 4) / (SCREEN_WID / 2));
-	if (panel_col > max_panel_cols) panel_col = max_panel_cols;
-	else if (panel_col < 0) panel_col = 0;
+		/* Center vertically */
+		panel_row_min = py - SCREEN_HGT / 2;
+		if (panel_row_min > max_prow_min) panel_row_min = max_prow_min;
+		else if (panel_row_min < 0) panel_row_min = 0;
 
-	/* Recalculate the boundaries */
-	panel_bounds();
+		/* Center horizontally */
+		panel_col_min = px - SCREEN_WID / 2;
+		if (panel_col_min > max_pcol_min) panel_col_min = max_pcol_min;
+		else if (panel_col_min < 0) panel_col_min = 0;
+
+		/* Recalculate the boundaries */
+		panel_bounds_center();
+	}
+
+	else
+  	{
+		/* Choose a panel row */
+		panel_row = ((py - SCREEN_HGT / 4) / (SCREEN_HGT / 2));
+		if (panel_row > max_panel_rows) panel_row = max_panel_rows;
+		else if (panel_row < 0) panel_row = 0;
+
+		/* Choose a panel col */
+		panel_col = ((px - SCREEN_WID / 4) / (SCREEN_WID / 2));
+		if (panel_col > max_panel_cols) panel_col = max_panel_cols;
+		else if (panel_col < 0) panel_col = 0;
+
+		/* Recalculate the boundaries */
+		panel_bounds();
+	}
 
 
 	/* Flush messages */
@@ -3575,16 +3242,6 @@ static void dungeon(void)
 			correct_inven_cnt++;
 		}
 
-#ifdef INVENTORY_DEBUG
-		if (correct_inven_cnt != inven_cnt)
-		{
-			msg_print("*** Warning ***  Inventory corruption detected!");
-			msg_print("Please save the game and send a copy of the savefile to:");
-			msg_print("rr9@angband.org");
-			inven_cnt = correct_inven_cnt;
-		}
-#endif /* INVENTORY_DEBUG */
-
 		/* Update stuff */
 		if (p_ptr->update) update_stuff();
 
@@ -3599,9 +3256,6 @@ static void dungeon(void)
 
 		/* Hack -- Notice death or departure */
 		if (!alive || death) break;
-
-		total_friends = 0;
-		total_friend_levels = 0;
 
 		/* Process all of the monsters */
 		process_monsters();
@@ -3829,7 +3483,7 @@ void play_game(bool new_game)
 		    (p_ptr->prace == RACE_SPECTRE))
 		{
 			/* Undead start at midnight */
-			turn = (30L * TOWN_DAWN) / 4;
+			turn = (30L * TOWN_DAWN) / 4 + 1;
 		}
 		else
 		{
@@ -4020,6 +3674,7 @@ void play_game(bool new_game)
 
 					/* Hack -- Prevent recall */
 					p_ptr->word_recall = 0;
+					p_ptr->redraw |= (PR_STATUS);
 				}
 
 				/* Note cause of death XXX XXX XXX */

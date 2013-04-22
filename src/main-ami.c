@@ -2661,6 +2661,7 @@ static void amiga_map( void )
    {
       for ( j = 0; j < cur_hgt; j++ )
       {
+#if 0 /* Prfnoff */
          /* Get frame tile */
          if ( i==0 || i == cur_wid - 1 || j == 0 || j == cur_hgt - 1 )
          {
@@ -2673,6 +2674,9 @@ static void amiga_map( void )
          {
             map_info(j, i, &ta, (char *) &tc);
          }
+#else /* Prfnoff */
+         map_info(j, i, &ta, (char *) &tc);
+#endif /* Prfnoff */
 
          /* Ignore non-graphics */
          if (ta & 0x80)

@@ -247,8 +247,9 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (ZAngband %c%d.%d.%d)\n\n\n", /* Prfnoff */
-		I2A(VARIANT_MAJOR), FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	fprintf(fff, "Spoiler File -- Basic Items (ZAngba%c %d.%d.%d)\n\n\n", /* Prfnoff */
+	        FORCEUPPER(I2A(VARIANT_MAJOR)),
+	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 
 	/* More Header */
 	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
@@ -659,7 +660,7 @@ typedef struct
  */
 static void spoiler_out_n_chars(int n, char c)
 {
-	while (--n >= 0) fputc(c, fff);
+	while (n-- > 0) fputc(c, fff);
 }
 
 
@@ -977,8 +978,9 @@ static void print_header(void)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
 #else /* FAKE_VERSION */
-	sprintf(buf, "Artifact Spoilers for ZAngband Version %c%d.%d.%d", /* Prfnoff */
-	        I2A(VARIANT_MAJOR), FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	sprintf(buf, "Artifact Spoilers for ZAngba%c Version %d.%d.%d", /* Prfnoff */
+	        FORCEUPPER(I2A(VARIANT_MAJOR)),
+	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 #endif /* FAKE_VERSION */
 
@@ -1081,8 +1083,8 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 			 * Don't print a trailing list separator but do print a trailing
 			 * item separator.
 			 */
-			if (line_len > 1 && line[line_len - 1] == ' '
-			    && line[line_len - 2] == LIST_SEP)
+			if ((line_len > 1) && (line[line_len - 1] == ' ') &&
+			    (line[line_len - 2] == LIST_SEP))
 			{
 				/* Ignore space and separator */
 				line[line_len - 2] = '\0';
@@ -1292,6 +1294,7 @@ static void spoil_mon_desc(cptr fname)
 {
 	int i, n = 0;
 
+	u16b why = 2;
 	s16b *who;
 
 	char buf[1024];
@@ -1330,8 +1333,9 @@ static void spoil_mon_desc(cptr fname)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #else
-	fprintf(fff, "Monster Spoilers for ZAngband Version %d.%d.%d\n", /* Prfnoff */
-	        I2A(VARIANT_MAJOR), FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	fprintf(fff, "Monster Spoilers for ZAngba%c Version %d.%d.%d\n", /* Prfnoff */
+	        FORCEUPPER(I2A(VARIANT_MAJOR)),
+	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #endif
 
@@ -1350,6 +1354,13 @@ static void spoil_mon_desc(cptr fname)
 		/* Use that monster */
 		if (r_ptr->name) who[n++] = i;
 	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook_recall;
+	ang_sort_swap = ang_sort_swap_hook_recall;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 
 	/* Scan again */
@@ -1552,8 +1563,9 @@ static void spoil_mon_info(cptr fname)
 	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-	sprintf(buf, "Monster Spoilers for ZAngband Version %c%d.%d.%d\n", /* Prfnoff */
-	     I2A(VARIANT_MAJOR), FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	sprintf(buf, "Monster Spoilers for ZAngba%c Version %d.%d.%d\n", /* Prfnoff */
+	     FORCEUPPER(I2A(VARIANT_MAJOR)),
+	     FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
 	spoil_out(buf);
@@ -1853,7 +1865,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags5 & (RF5_HOLD))              vp[vn++] = "paralyze";
 		if (flags6 & (RF6_HASTE))             vp[vn++] = "haste-self";
 		if (flags6 & (RF6_HEAL))              vp[vn++] = "heal-self";
-		if (flags6 & (RF6_XXX2))              vp[vn++] = "do something";
+		if (flags6 & (RF6_INVULNER))          vp[vn++] = "make invulnerable";
 		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
 		if (flags6 & (RF6_TPORT))             vp[vn++] = "teleport-self";
 		if (flags6 & (RF6_XXX3))              vp[vn++] = "do something";
@@ -2219,6 +2231,7 @@ static void spoil_mon_info(cptr fname)
 				case RBE_EXP_80:        q = "lower experience (by 80d6+)"; break;
 				case RBE_DISEASE:       q = "disease"; break;
 				case RBE_TIME:          q = "time"; break;
+				case RBE_EXP_VAMP:      q = "drain life force"; break;
 			}
 
 

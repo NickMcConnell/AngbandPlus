@@ -8,8 +8,6 @@
 %:t_pref.txt
 
 # Town 1
-?:[AND [EQU $TOWN 1] [EQU $WILDERNESS LITE] ]
-%:t_lite.txt
 ?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NORMAL] ]
 %:t_outpos.txt
 ?:[AND [EQU $TOWN 1] [EQU $WILDERNESS NONE] ]

@@ -12,10 +12,6 @@
 
 #include "angband.h"
 
-/* 1/x chance of hurting even if invulnerable!*/
-#define PENETRATE_INVULNERABILITY 13
-
-
 /*
  * Set "p_ptr->blind", notice observable changes
  *
@@ -53,6 +49,9 @@ bool set_blind(int v)
 
 	/* Use the value */
 	p_ptr->blind = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -113,6 +112,9 @@ bool set_confused(int v)
 	/* Use the value */
 	p_ptr->confused = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -162,6 +164,9 @@ bool set_poisoned(int v)
 
 	/* Use the value */
 	p_ptr->poisoned = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -213,6 +218,9 @@ bool set_afraid(int v)
 	/* Use the value */
 	p_ptr->afraid = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -262,6 +270,77 @@ bool set_paralyzed(int v)
 
 	/* Use the value */
 	p_ptr->paralyzed = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->paralyzed", notice observable changes
+ * Modified message; nightmare mode -- Prfnoff
+ */
+bool set_sleep(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->paralyzed)
+		{
+			msg_print("You fall asleep!");
+			notice = TRUE;
+
+			if (nightmare_sleep)
+			{
+				msg_print("A horrible vision enters your mind.");
+
+				/* Pick a nightmare */
+				get_mon_num_prep(get_nightmare, NULL);
+
+				/* Have some nightmares */
+				have_nightmare(get_mon_num(MAX_DEPTH));
+
+				/* Remove the monster restriction */
+				get_mon_num_prep(NULL, NULL);
+			}
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->paralyzed)
+		{
+			msg_print("You are awake again.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->paralyzed = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -314,6 +393,9 @@ bool set_image(int v)
 
 	/* Use the value */
 	p_ptr->image = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -371,6 +453,9 @@ bool set_fast(int v)
 	/* Use the value */
 	p_ptr->fast = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -421,6 +506,9 @@ bool set_slow(int v)
 	/* Use the value */
 	p_ptr->slow = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -470,6 +558,9 @@ bool set_shield(int v)
 
 	/* Use the value */
 	p_ptr->shield = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -522,6 +613,9 @@ bool set_blessed(int v)
 	/* Use the value */
 	p_ptr->blessed = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -571,6 +665,9 @@ bool set_hero(int v)
 
 	/* Use the value */
 	p_ptr->hero = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -625,6 +722,9 @@ bool set_shero(int v)
 	/* Use the value */
 	p_ptr->shero = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -678,6 +778,9 @@ bool set_protevil(int v)
 	/* Use the value */
 	p_ptr->protevil = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -692,9 +795,9 @@ bool set_protevil(int v)
 }
 
 /*
- * Set "p_ptr->set_shadow", notice observable changes
+ * Set "p_ptr->wraith_form", notice observable changes
  */
-bool set_shadow(int v)
+bool set_wraith_form(int v)
 {
 	bool notice = FALSE;
 
@@ -742,6 +845,9 @@ bool set_shadow(int v)
 	/* Use the value */
 	p_ptr->wraith_form = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -751,15 +857,11 @@ bool set_shadow(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
-
-
-
 	/* Handle stuff */
 	handle_stuff();
 
 	/* Result */
 	return (TRUE);
-
 }
 
 
@@ -814,6 +916,9 @@ bool set_invuln(int v)
 	/* Use the value */
 	p_ptr->invuln = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -863,6 +968,9 @@ bool set_tim_esp(int v)
 
 	/* Use the value */
 	p_ptr->tim_esp = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -917,6 +1025,9 @@ bool set_tim_invis(int v)
 	/* Use the value */
 	p_ptr->tim_invis = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -969,6 +1080,9 @@ bool set_tim_infra(int v)
 
 	/* Use the value */
 	p_ptr->tim_infra = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1023,6 +1137,9 @@ bool set_oppose_acid(int v)
 	/* Use the value */
 	p_ptr->oppose_acid = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -1069,6 +1186,9 @@ bool set_oppose_elec(int v)
 
 	/* Use the value */
 	p_ptr->oppose_elec = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1117,6 +1237,9 @@ bool set_oppose_fire(int v)
 	/* Use the value */
 	p_ptr->oppose_fire = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -1164,6 +1287,9 @@ bool set_oppose_cold(int v)
 	/* Use the value */
 	p_ptr->oppose_cold = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -1210,6 +1336,9 @@ bool set_oppose_pois(int v)
 
 	/* Use the value */
 	p_ptr->oppose_pois = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1352,6 +1481,9 @@ bool set_stun(int v)
 
 	/* Use the value */
 	p_ptr->stun = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* No change */
 	if (!notice) return (FALSE);
@@ -1565,6 +1697,9 @@ bool set_cut(int v)
 	/* Use the value */
 	p_ptr->cut = v;
 
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* No change */
 	if (!notice) return (FALSE);
 
@@ -1762,6 +1897,9 @@ bool set_food(int v)
 
 	/* Use the value */
 	p_ptr->food = v;
+
+	/* Redraw status bar*/
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -2095,7 +2233,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Sustain */
-	if (sust)
+	if (sust && !(nightmare_misc && one_in_(13)))
 	{
 		/* Message */
 		msg_format("You feel %s for a moment, but the feeling passes.",
@@ -2106,7 +2244,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Attempt to reduce the stat */
-	if (dec_stat(stat, 10, FALSE))
+	if (dec_stat(stat, 10, (nightmare_misc && one_in_(13))))
 	{
 		/* Message */
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
@@ -2220,25 +2358,10 @@ bool lose_all_info(void)
 		if (o_ptr->ident & (IDENT_MENTAL)) continue;
 
 		/* Remove "default inscriptions" */
-		if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE)))
-		{
-			/* Access the inscription */
-			cptr q = quark_str(o_ptr->note);
+		o_ptr->feeling = FEEL_NONE;
 
-			/* Hack -- Remove auto-inscriptions */
-			if ((streq(q, "cursed")) ||
-			    (streq(q, "broken")) ||
-			    (streq(q, "good")) ||
-			    (streq(q, "average")) ||
-			    (streq(q, "excellent")) ||
-			    (streq(q, "worthless")) ||
-			    (streq(q, "special")) ||
-			    (streq(q, "terrible")))
-			{
-				/* Forget the inscription */
-				o_ptr->note = 0;
-			}
-		}
+		/* Forget the inscription -- Prfnoff */
+		o_ptr->note = 0;
 
 		/* Hack -- Clear the "empty" flag */
 		o_ptr->ident &= ~(IDENT_EMPTY);
@@ -2350,12 +2473,12 @@ void do_poly_self(void)
 			if (effect_msg[0])
 			{
 				char tmp_msg[10];
-				sprintf(tmp_msg,"%s ",effect_msg);
-				sprintf(effect_msg,"deformed %s ",tmp_msg);
+				sprintf(tmp_msg, "%s ", effect_msg);
+				sprintf(effect_msg, "deformed %s ", tmp_msg);
 			}
 			else
 			{
-				sprintf(effect_msg,"deformed ");
+				sprintf(effect_msg, "deformed ");
 			}
 		}
 
@@ -2388,9 +2511,10 @@ void do_poly_self(void)
 		if (!effect_msg[0]) /* Prfnoff */
 		{
 			msg_format("You turn into a%s %s!",
-				((new_race == RACE_AMBERITE || new_race == RACE_ELF
-				|| new_race == RACE_IMP) ? "n" : ""),
-				race_info[new_race].title);
+			           (((new_race == RACE_AMBERITE) ||
+			             (new_race == RACE_ELF) ||
+			             (new_race == RACE_IMP)) ? "n" : ""),
+			           race_info[new_race].title);
 		}
 		else
 		{

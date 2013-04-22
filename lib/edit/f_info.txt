@@ -14,531 +14,818 @@
 
 # Note that terrain feature zero contains the "darkness" picture.
 
+# === Understanding f_info.txt ===
+
+# N:serial number:terrain name
+# G:symbol:color
+
+# N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
+
+# D - Black        w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Dark Gray    W - Light Gray     v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+
+# 'F' has feature flags.
+# 'P' has two items: power and running priority. 20 is the normal value.
+# (Prfnoff)
+
 
 # Version stamp (required)
 
 V:2.8.1
 
 
-# 0x00 --> nothing
+# 0x00 --> nothing (with a *really* bad flag -- Prfnoff)
 
 N:0:nothing
 G: :w
-
+F:FLOOR | BORING
+P:0:2
 
 # 0x01 --> open floor
 
 N:1:open floor
 G:.:w
+F:FLOOR | CLEAN | LITE | BORING
+P:1:5
 
 # 0x02 --> invisible trap (drawn as open floor)
 
 N:2:invisible trap
 G:.:w
 M:1
+F:FLOOR | LITE | BORING
+P:2:5
 
 # 0x03 --> glyph of warding
 
 N:3:glyph of warding
 G:;:y
+F:GLYPH | LITE
+P:0:20
+X:550
 
 # 0x04 --> open door
 
 N:4:open door
 G:':U
+F:OPEN
+P:0:15
 
 # 0x05 --> broken door
 
 N:5:broken door
 G:':U
+F:OPEN
+P:1:15
 
 # 0x06 --> up stairs (perm)
 
 N:6:up staircase
 G:<:w
+F:STAIR | LITE
+P:0:25
 
 # 0x07 --> down stairs (perm)
 
 N:7:down staircase
 G:>:w
+F:STAIR | HARD | LITE
+P:0:25
 
 N:8:quest entrance
 G:>:y
+F:STAIR | HARD
+P:1:25
 
 N:9:quest exit
 G:<:y
+F:STAIR
+P:1:25
 
 N:10:quest down level
 G:>:r
+F:STAIR | HARD
+P:2:25
 
 N:11:quest up level
 G:<:r
-
-N:12:town exit
-G:>:g
+F:STAIR
+P:2:25
 
 # 0x10 --> visible trap -- trap door
 
 N:16:trap door
 G:^:w
+F:TRAP | LITE
+P:0:20
 
 # 0x11 --> visible trap -- open pit
 
 N:17:pit
 G:^:s
+F:TRAP | LITE
+P:1:20
 
 # 0x12 --> visible trap -- spiked pit
 
 N:18:pit
 G:^:s
+F:TRAP | LITE
+P:2:20
 
 # 0x13 --> visible trap -- poison pit
 
 N:19:pit
 G:^:s
+F:TRAP | LITE
+P:3:20
 
 # 0x14 --> visible trap -- rune -- summon
 
-N:20:strange rune
-G:^:o
+N:20:evil rune
+G:^:G
+F:TRAP | LITE
+P:4:20
 
 # 0x15 --> visible trap -- rune -- teleport
 
 N:21:strange rune
 G:^:o
+F:TRAP | LITE
+P:5:20
 
 # 0x16 --> visible trap -- spot -- fire
 
 N:22:discolored spot
 G:^:u
+F:TRAP | LITE
+P:6:20
 
 # 0x17 --> visible trap -- spot -- acid
 
 N:23:discolored spot
 G:^:u
+F:TRAP | LITE
+P:7:20
 
 # 0x18 --> visible trap -- dart -- slow
 
 N:24:dart trap
 G:^:r
+F:TRAP | LITE
+P:8:20
 
 # 0x19 --> visible trap -- dart -- lose str
 
 N:25:dart trap
 G:^:r
+F:TRAP | LITE
+P:9:20
 
 # 0x1A --> visible trap -- dart -- lose dex
 
 N:26:dart trap
 G:^:r
+F:TRAP | LITE
+P:10:20
 
 # 0x1B --> visible trap -- dart -- lose con
 
 N:27:dart trap
 G:^:r
+F:TRAP | LITE
+P:11:20
 
 # 0x1C --> visible trap -- gas -- blind
 
 N:28:gas trap
 G:^:g
+F:TRAP | LITE
+P:12:20
 
 # 0x1D --> visible trap -- gas -- confuse
 
 N:29:gas trap
 G:^:g
+F:TRAP | LITE
+P:13:20
 
 # 0x1E --> visible trap -- gas -- poison
 
 N:30:gas trap
 G:^:g
+F:TRAP | LITE
+P:14:20
 
 # 0x1F --> visible trap -- gas -- sleep
 
 N:31:gas trap
 G:^:g
+F:TRAP | LITE
+P:15:20
 
 # 0x2x --> locked door (power 0)
 
 N:32:door
 G:+:U
 M:32
+F:DOOR
+P:0:17
+X:1200
 
 # 0x2x --> locked door (power 1)
 
 N:33:locked door
 G:+:U
 M:32
+F:DOOR
+P:1:20
+X:1200
 
 # 0x2x --> locked door (power 2)
 
 N:34:locked door
 G:+:U
 M:32
+F:DOOR
+P:2:20
+X:1200
 
 # 0x2x --> locked door (power 3)
 
 N:35:locked door
 G:+:U
 M:32
+F:DOOR
+P:3:20
+X:1200
 
 # 0x2x --> locked door (power 4)
 
 N:36:locked door
 G:+:U
 M:32
+F:DOOR
+P:4:20
+X:1200
 
 # 0x2x --> locked door (power 5)
 
 N:37:locked door
 G:+:U
 M:32
+F:DOOR
+P:5:20
+X:1200
 
 # 0x2x --> locked door (power 6)
 
 N:38:locked door
 G:+:U
 M:32
+F:DOOR
+P:6:20
+X:1200
 
 # 0x2x --> locked door (power 7)
 
 N:39:locked door
 G:+:U
 M:32
+F:DOOR
+P:7:20
+X:1200
 
 # 0x2x --> jammed door (power 0)
 
 N:40:jammed door
 G:+:U
 M:32
+F:DOOR | HARD
+P:0:20
+X:1200
 
 # 0x2x --> jammed door (power 1)
 
 N:41:jammed door
 G:+:U
 M:32
+F:DOOR | HARD
+P:1:20
+X:1200
 
 # 0x2x --> jammed door (power 2)
 
 N:42:jammed door
 G:+:U
 M:32
+F:DOOR | HARD
+P:2:20
+X:1200
 
 # 0x2x --> jammed door (power 3)
 
 N:43:jammed door
 G:+:U
 M:32
+F:DOOR | HARD
+P:3:20
+X:1200
 
 # 0x2x --> jammed door (power 4)
 
 N:44:jammed door
 G:+:U
 M:32
+F:DOOR | HARD
+P:4:20
+X:1200
 
 # 0x2x --> jammed door (power 5)
 
 N:45:jammed door
 G:+:U
 M:32
+F:DOOR | HARD
+P:5:20
+X:1200
 
 # 0x2x --> jammed door (power 6)
 
 N:46:jammed door
 G:+:U
 M:32
+F:DOOR | HARD
+P:6:20
+X:1200
 
 # 0x2x --> jammed door (power 7)
 
 N:47:jammed door
 G:+:U
 M:32
+F:DOOR | HARD
+P:7:20
+X:1200
 
 # 0x30 --> secret door
 
 N:48:secret door
 G:#:w
 M:56
+F:WALL | LITE | BORING
+P:4:10
+X:1200
 
 # 0x31 --> rubble
 
 N:49:pile of rubble
 G:::w
+F:WALL | LITE
+P:5:13
+X:200
 
 # 0x32 --> magma vein
 
 N:50:magma vein
 G:%:s
+F:WALL | VEIN | LITE | BORING
+P:0:12
+X:400
 
 # 0x33 --> quartz vein
 
 N:51:quartz vein
 G:%:w
+F:WALL | VEIN | HARD | LITE | BORING
+P:0:11
+X:800
 
 # 0x34 --> magma vein + treasure
 
 N:52:magma vein
 G:%:s
 M:50
+F:WALL | VEIN | LITE | BORING
+P:1:12
+X:400
 
 # 0x35 --> quartz vein + treasure
 
 N:53:quartz vein
 G:%:w
 M:51
+F:WALL | VEIN | HARD | LITE | BORING
+P:1:11
+X:800
 
 # 0x36 --> magma vein + known treasure
 
 N:54:magma vein with treasure
 G:*:o
+F:WALL | VEIN | LITE
+P:2:19
+X:400
 
 # 0x37 --> quartz vein + known treasure
 
 N:55:quartz vein with treasure
 G:*:o
+F:WALL | VEIN | HARD | LITE
+P:2:19
+X:800
 
 # 0x38 --> granite wall -- basic
 
 N:56:granite wall
 G:#:w
+F:WALL | GRANITE | LITE | BORING
+P:0:20
+X:1600
 
 # 0x39 --> granite wall -- inner
 
 N:57:granite wall
 G:#:w
 M:56
+F:WALL | GRANITE | LITE | BORING
+P:1:20
+X:1600
 
 # 0x3A --> granite wall -- outer
 
 N:58:granite wall
 G:#:w
 M:56
+F:WALL | GRANITE | LITE | BORING
+P:2:20
+X:1600
 
 # 0x3B --> granite wall -- solid
 
 N:59:granite wall
 G:#:w
 M:56
+F:WALL | GRANITE | LITE | BORING
+P:3:20
+X:1600
 
 # 0x3C --> permanent wall -- basic (perm)
 
 N:60:permanent wall
 G:#:w
+F:WALL | PERMA | LITE | BORING
+P:0:20
 
 # 0x3D --> permanent wall -- inner (perm)
 
 N:61:permanent wall
 G:#:w
 M:60
+F:WALL | PERMA | LITE | BORING
+P:1:20
 
 # 0x3E --> permanent wall -- outer (perm)
 
 N:62:permanent wall
 G:#:w
 M:60
+F:WALL | PERMA | LITE | BORING
+P:2:20
 
 # 0x3F --> permanent wall -- solid (perm)
 
 N:63:permanent wall
 G:#:w
 M:60
+F:WALL | PERMA | LITE | BORING
+P:3:20
 
 N:64:explosive rune
 G:*:R
+F:GLYPH | LITE
+P:1:20
+X:99
 
 N:65:Pattern startpoint
 G:*:w
+F:PATTERN
+P:0:20
 
 N:66:section of the Pattern
 G:*:B
+F:PATTERN
+P:1:20
 
 N:67:section of the Pattern
 G:*:b
+F:PATTERN
+P:2:20
 
 N:68:section of the Pattern
 G:*:B
+F:PATTERN
+P:3:20
 
 N:69:section of the Pattern
 G:*:b
+F:PATTERN
+P:4:20
 
 N:70:section of the Pattern
 G:*:W
+F:PATTERN
+P:5:20
 
 N:71:section of the Pattern (discharged)
 G:*:W
+F:PATTERN
+P:6:20
 
 N:72:Pattern exit
 G:*:w
+F:PATTERN
+P:7:20
 
 N:73:corrupted section of the Pattern
 G:*:D
+F:PATTERN
+P:8:20
 
 # 0x4A --> shop -- general store (perm)
 
 N:74:General Store
 G:1:U
+F:SHOP
+P:0:20
 
 # 0x4B --> shop -- armoury (perm)
 
 N:75:Armoury
 G:2:s
+F:SHOP
+P:1:20
 
 # 0x4C --> shop -- weapon shop (perm)
 
 N:76:Weapon Smiths
 G:3:w
+F:SHOP
+P:2:20
 
 # 0x4D --> shop -- temple (perm)
 
 N:77:Temple
 G:4:g
+F:SHOP
+P:3:20
 
 # 0x4E --> shop -- alchemist (perm)
 
 N:78:Alchemy Shop
 G:5:b
+F:SHOP
+P:4:20
 
 # 0x4F --> shop -- magic shop (perm)
 
 N:79:Magic Shop
 G:6:r
+F:SHOP
+P:5:20
 
 # 0x50 --> shop -- black market (perm)
 
 N:80:Black Market
 G:7:D
+F:SHOP
+P:6:20
 
 # 0x51 --> shop -- home (perm)
 
 N:81:Home
 G:8:y
+F:SHOP
+P:7:20
 
 # 0x52 --> shop -- bookstore (perm)
 
 N:82:Bookstore
 G:9:o
+F:SHOP
+P:8:20
 
 # 0x53 --> terrain -- deep water
 
 N:83:pool of deep water
-G:#:b
+G:&:b
+F:TERRAIN | HARD | LITE | BORING
+P:3:20
 
 N:84:stream of shallow water
-G:#:B
+G:&:B
+F:TERRAIN | CLEAN | LITE | BORING
+P:3:20
 
 N:85:pool of deep lava
-G:#:r
+G:&:r
+F:TERRAIN | HARD | LITE | BORING
+P:4:20
 
 N:86:stream of shallow lava
-G:#:U
+G:&:U
+F:TERRAIN | CLEAN | LITE | BORING
+P:4:20
 
 N:87:dark pit
-G:#:D
+G:&:D
+F:TERRAIN | LITE | BORING
+P:5:20
 
 N:88:dirt
 G:.:u
+F:TERRAIN | CLEAN | LITE | BORING
+P:1:6
 
 N:89:patch of grass
 G:.:g
+F:TERRAIN | CLEAN | LITE | BORING
+P:2:6
 
 N:96:tree
-G:#:G
+G:&:G
+F:TERRAIN | LITE | BORING
+P:0:6
+X:400
 
 N:97:mountain chain
 G:^:U
+F:WALL | PERMA | LITE | BORING
+P:4:20
 
 N:128:Building
 G:+:U
+F:BLDG
+P:0:20
 
 N:129:Building
 G:+:U
+F:BLDG
+P:1:20
 
 N:130:Building
 G:+:U
+F:BLDG
+P:2:20
 
 N:131:Building
 G:+:U
+F:BLDG
+P:3:20
 
 N:132:Building
 G:+:U
+F:BLDG
+P:4:20
 
 N:133:Building
 G:+:U
+F:BLDG
+P:5:20
 
 N:134:Building
 G:+:U
+F:BLDG
+P:6:20
 
 N:135:Building
 G:+:o
+F:BLDG
+P:7:20
 
 N:136:Building
 G:+:R
+F:BLDG
+P:8:20
 
 N:137:Building
 G:+:G
+F:BLDG
+P:9:20
 
 N:138:Building
 G:+:v
+F:BLDG
+P:10:20
 
 N:139:Building
 G:+:u
+F:BLDG
+P:11:20
 
 N:140:Building
 G:+:w
+F:BLDG
+P:12:20
 
 N:141:Building
 G:+:B
+F:BLDG
+P:13:20
 
 N:142:Building
 G:+:B
+F:BLDG
+P:14:20
 
 N:143:Building
 G:+:B
+F:BLDG
+P:15:20
 
 N:144:Building
 G:+:B
+F:BLDG
+P:16:20
 
 N:145:Building
 G:+:B
+F:BLDG
+P:17:20
 
 N:146:Building
 G:+:B
+F:BLDG
+P:18:20
 
 N:147:Building
 G:+:B
+F:BLDG
+P:19:20
 
 N:148:Building
 G:+:B
+F:BLDG
+P:20:20
 
 N:149:Building
 G:+:B
+F:BLDG
+P:21:20
 
 N:150:Building
 G:+:B
+F:BLDG
+P:22:20
 
 N:151:Building
 G:+:B
+F:BLDG
+P:23:20
 
 N:152:Building
 G:+:B
+F:BLDG
+P:24:20
 
 N:153:Building
 G:+:B
+F:BLDG
+P:25:20
 
 N:154:Building
 G:+:B
+F:BLDG
+P:26:20
 
 N:155:Building
 G:+:B
+F:BLDG
+P:27:20
 
 N:156:Building
 G:+:B
+F:BLDG
+P:28:20
 
 N:157:Building
 G:+:B
+F:BLDG
+P:29:20
 
 N:158:Building
 G:+:B
+F:BLDG
+P:30:20
 
 N:159:Building
 G:+:B
+F:BLDG
+P:31:20
 

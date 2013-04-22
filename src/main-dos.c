@@ -976,7 +976,7 @@ static errr Term_user_dos(int n)
 				}
 
 				/* Get a new resolution */
-				prt(format("Screen Resolution : %d",resolution), 20, 0);
+				prt(format("Screen Resolution : %d", resolution), 20, 0);
 				k = inkey();
 				if (k == ESCAPE) break;
 				if (isdigit(k)) resolution = D2I(k);

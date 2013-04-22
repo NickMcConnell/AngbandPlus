@@ -39,7 +39,7 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-/* Added for ZAngband */
+/* Fake version */
 #ifdef USE_SCRIPT
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 3
@@ -49,7 +49,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 3
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_PATCH 5
 #define VARIANT_MAJOR  0 /* Prfnoff */
 #endif /* USE_SCRIPT */
 
@@ -118,6 +118,23 @@
 #define SAFE_MAX_ATTEMPTS 5000 /* See "generate.c" -- Prfnoff */
 
 /*
+ * Hack -- Dungeon allocation "places"
+ * See "alloc_object" for more information -- Prfnoff
+ */
+#define ALLOC_SET_CORR		1	/* Hallway */
+#define ALLOC_SET_ROOM		2	/* Room */
+#define ALLOC_SET_BOTH		3	/* Anywhere */
+
+/*
+ * Hack -- Dungeon allocation "types"
+ * See "alloc_object" for more information -- Prfnoff
+ */
+#define ALLOC_TYP_RUBBLE	1	/* Rubble */
+#define ALLOC_TYP_TRAP		3	/* Trap */
+#define ALLOC_TYP_GOLD		4	/* Gold */
+#define ALLOC_TYP_OBJECT	5	/* Object */
+
+/*
  * Maximum numbers of rooms along each axis (currently 6x6)
  * See "generate.c" -- Prfnoff
  */
@@ -183,7 +200,7 @@
 /*
  * Total number of owners per store (see "store.c", etc)
  */
-#define MAX_OWNERS      4
+#define MAX_OWNERS      32
 
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
@@ -197,6 +214,11 @@
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
+
+/* Number of entries in the sanity-blast descriptions */
+#define MAX_SAN_HORROR 20
+#define MAX_SAN_FUNNY 22
+#define MAX_SAN_COMMENT 5
 
 /* Chaos Warrior: Reward types: */
 #define REW_POLY_SLF    1
@@ -476,8 +498,6 @@
  * Misc constants
  */
 #define TOWN_DAWN               10000   /* Number of turns from dawn to dawn XXX */
-#define BREAK_GLYPH             550             /* Rune of protection resistance */
-#define BREAK_MINOR_GLYPH       99             /* For explosive runes */
 #define BTH_PLUS_ADJ    3       /* Adjust BTH per plus-to-hit */
 #define MON_MULT_ADJ    8               /* High value slows multiplication */
 #define MON_SUMMON_ADJ  2               /* Adjust level of summoned creatures */
@@ -507,6 +527,33 @@
 #define BIAS_WARRIOR        18
 #define BIAS_RANGER         19
 
+
+/*** Pet constants ***/
+
+
+/*
+ * Commands
+ */
+#define PET_DISMISS					1
+#define PET_STAY_CLOSE				2
+#define PET_FOLLOW_ME				3
+#define PET_SEEK_AND_DESTROY		4
+#define PET_ALLOW_SPACE				5
+#define PET_STAY_AWAY				6
+#define PET_OPEN_DOORS           7
+#define PET_TAKE_ITEMS				8
+
+/*
+ * Follow distances
+ */
+#define PET_CLOSE_DIST				1
+#define PET_FOLLOW_DIST				6
+#define PET_SEEK_DIST				10
+#define PET_DESTROY_DIST			255
+#define PET_SPACE_DIST				(-10)
+#define PET_AWAY_DIST				(-25)
+
+
 /*
  * There is a 1/20 (5%) chance of inflating the requested object_level
  * during the creation of an object (see "get_obj_num()" in "object.c").
@@ -520,6 +567,9 @@
  * Lower values yield harder monsters more often.
  */
 #define NASTY_MON       50              /* 1/chance of inflated monster level */
+
+/* 1/x chance of hurting even if invulnerable! */
+#define PENETRATE_INVULNERABILITY 13
 
 
 
@@ -789,6 +839,9 @@
 #define ROW_INFO                20
 #define COL_INFO                0       /* "xxxxxxxxxxxx" */
 
+#define ROW_MAP                 0
+#define COL_MAP                 12
+
 #define ROW_CUT                 21
 #define COL_CUT                 0       /* <cut> */
 
@@ -822,6 +875,11 @@
 #define ROW_DEPTH               23
 #define COL_DEPTH               70      /* "Lev NNN" / "NNNN ft" */
 
+#define ROW_STATBAR             14
+#define COL_STATBAR             0       /* "Status bar" */
+
+
+#define MAX_EFFECTS             30      /* Max #of player timed effects*/
 
 
 /*** Terrain Feature Indexes (see "lib/edit/f_info.txt") ***/
@@ -832,11 +890,12 @@
 /* Various */
 #define FEAT_FLOOR              0x01
 #define FEAT_INVIS              0x02
-#define FEAT_GLYPH              0x03
-#define FEAT_OPEN               0x04
-#define FEAT_BROKEN             0x05
-#define FEAT_LESS               0x06
-#define FEAT_MORE               0x07
+
+/* Glyph of warding 0x03 */
+
+/* Open and broken doors 0x04 - 0x05 */
+
+/* Up and down stairs 0x06 - 0x07 */
 
 /* Quest features -KMW- */
 #define FEAT_QUEST_ENTER		0x08
@@ -846,47 +905,18 @@
 
 /* Feature 0x0C - 0x0F unused */
 
-/* Traps */
-#define FEAT_TRAP_HEAD          0x10
-#define FEAT_TRAP_TRAPDOOR      0x10
-#define FEAT_TRAP_PIT           0x11
-#define FEAT_TRAP_SPIKED_PIT    0x12
-#define FEAT_TRAP_POISON_PIT    0x13
-#define FEAT_TRAP_SUMMON        0x14
-#define FEAT_TRAP_TELEPORT      0x15
-#define FEAT_TRAP_FIRE          0x16
-#define FEAT_TRAP_ACID          0x17
-#define FEAT_TRAP_SLOW          0x18
-#define FEAT_TRAP_LOSE_STR      0x19
-#define FEAT_TRAP_LOSE_DEX      0x1A
-#define FEAT_TRAP_LOSE_CON      0x1B
-#define FEAT_TRAP_BLIND         0x1C
-#define FEAT_TRAP_CONFUSE       0x1D
-#define FEAT_TRAP_POISON        0x1E
-#define FEAT_TRAP_SLEEP         0x1F
-#define FEAT_TRAP_TAIL          0x1F
+/* Traps 0x10 - 0x1F */
 
-/* Doors */
-#define FEAT_DOOR_HEAD          0x20
-#define FEAT_DOOR_TAIL          0x2F
+/* Doors 0x20 - 0x2F */
 
 /* Extra */
 #define FEAT_SECRET             0x30
 #define FEAT_RUBBLE             0x31
 
-/* Seams */
-#define FEAT_MAGMA              0x32
-#define FEAT_QUARTZ             0x33
-#define FEAT_MAGMA_H            0x34
-#define FEAT_QUARTZ_H           0x35
-#define FEAT_MAGMA_K            0x36
-#define FEAT_QUARTZ_K           0x37
+/* Veins 0x32 - 0x37 */
 
-/* Walls */
-#define FEAT_WALL_EXTRA         0x38
-#define FEAT_WALL_INNER         0x39
-#define FEAT_WALL_OUTER         0x3A
-#define FEAT_WALL_SOLID         0x3B
+/* Granite 0x38 - 0x3B */
+
 #define FEAT_PERM_EXTRA         0x3C
 #define FEAT_PERM_INNER         0x3D
 #define FEAT_PERM_OUTER         0x3E
@@ -895,16 +925,7 @@
 /* Glyph */
 #define FEAT_MINOR_GLYPH        0x40
 
-/* Pattern */
-#define FEAT_PATTERN_START      0x41
-#define FEAT_PATTERN_1          0x42
-#define FEAT_PATTERN_2          0x43
-#define FEAT_PATTERN_3          0x44
-#define FEAT_PATTERN_4          0x45
-#define FEAT_PATTERN_END        0x46
-#define FEAT_PATTERN_OLD        0x47
-#define FEAT_PATTERN_XTRA1      0x48
-#define FEAT_PATTERN_XTRA2      0x49
+/* Pattern 0x41 - 0x49 */
 
 /* Shops */
 #define FEAT_SHOP_HEAD          0x4A
@@ -931,6 +952,96 @@
 #define FEAT_BLDG_HEAD          0x80
 #define FEAT_BLDG_TAIL          0x9F
 
+
+/* Feature flags -- Prfnoff */
+#define FF1_FLOOR               0x00000001 /* Looks like a floor */
+#define FF1_CLEAN               0x00000002 /* Acts like a floor */
+#define FF1_TRAP                0x00000004 /* Visible trap */
+#define FF1_DOOR                0x00000008 /* Closed, non-secret door */
+#define FF1_WALL                0x00000010 /* Wall-like object */
+#define FF1_PERMA               0x00000020 /* Permanent wall-like object */
+#define FF1_SHOP                0x00000040 /* Shop door */
+#define FF1_BLDG                0x00000080 /* Building door */
+#define FF1_STAIR               0x00000100 /* Normal or quest stair */
+#define FF1_PATTERN             0x00000200 /* Pattern tile */
+#define FF1_HARD                0x00000400 /* 'Hard' feature */
+#define FF1_VEIN                0x00000800 /* Magma or quartz vein */
+#define FF1_LITE                0x00001000 /* 16x16 tile supports lighting */
+#define FF1_GRANITE             0x00002000 /* Granite wall */
+#define FF1_GLYPH               0x00004000 /* Protects against monsters */
+#define FF1_OPEN                0x00008000 /* Open or broken door */
+#define FF1_TERRAIN             0x00010000 /* Any special terrain (except mountains) */
+#define FF1_BORING              0x00020000 /* Uninteresting */
+
+/* Feature "pval" codes -- Prfnoff */
+
+#define PV_FLOOR_NORMAL       1
+#define PV_FLOOR_TRAP         2
+
+#define PV_GLYPH_WARDING      0
+#define PV_GLYPH_EXPLODE      1
+
+#define PV_DOOR_OPEN          0
+#define PV_DOOR_BROKEN        1
+
+#define PV_TRAP_MAX           16 /* Number of trap types */
+#define PV_DOOR_MAX           8 /* Number of door strengths */
+
+#define PV_STAIR_NORMAL       0
+#define PV_STAIR_ENTER        1
+#define PV_STAIR_QUEST        2
+
+#define PV_TRAP_TRAPDOOR      0
+#define PV_TRAP_PIT           1
+#define PV_TRAP_SPIKED_PIT    2
+#define PV_TRAP_POISON_PIT    3
+#define PV_TRAP_TY_CURSE      4
+#define PV_TRAP_TELEPORT      5
+#define PV_TRAP_FIRE          6
+#define PV_TRAP_ACID          7
+#define PV_TRAP_SLOW          8
+#define PV_TRAP_LOSE_STR      9
+#define PV_TRAP_LOSE_DEX      10
+#define PV_TRAP_LOSE_CON      11
+#define PV_TRAP_BLIND         12
+#define PV_TRAP_CONFUSE       13
+#define PV_TRAP_POISON        14
+#define PV_TRAP_SLEEP         15
+
+#define PV_BLOCK_SECRET       4
+#define PV_BLOCK_RUBBLE       5
+
+#define PV_VEIN_NO_GOLD       0
+#define PV_VEIN_H_GOLD        1
+#define PV_VEIN_K_GOLD        2
+
+#define PV_WALL_EXTRA         0
+#define PV_WALL_INNER         1
+#define PV_WALL_OUTER         2
+#define PV_WALL_SOLID         3
+
+#define PV_PERMA_EXTRA        0
+#define PV_PERMA_INNER        1
+#define PV_PERMA_OUTER        2
+#define PV_PERMA_SOLID        3
+#define PV_PERMA_MOUNTAIN     4
+
+#define PV_PATTERN_START      0 /* Start of the Pattern */
+#define PV_PATTERN_1          1 /* Pattern segment */
+#define PV_PATTERN_2          2 /* Pattern segment */
+#define PV_PATTERN_3          3 /* Pattern segment */
+#define PV_PATTERN_4          4 /* Pattern segment */
+#define PV_PATTERN_END        5 /* End of the Pattern */
+#define PV_PATTERN_OLD        6 /* Discharged Pattern */
+#define PV_PATTERN_XTRA1      7 /* Pattern extra */
+#define PV_PATTERN_XTRA2      8 /* Corrupted Pattern */
+
+#define PV_TERRAIN_TREE       0
+#define PV_TERRAIN_GRASS      1
+#define PV_TERRAIN_DIRT       2
+#define PV_TERRAIN_WATER      3
+#define PV_TERRAIN_LAVA       4
+#define PV_TERRAIN_PIT        5
 
 
 /*
@@ -1395,7 +1506,8 @@
 #define TV_ARCANE_BOOK  96
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 
-
+/* Any subvalue */
+#define SV_ANY 					255
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT                    0	/* pebbles */
@@ -1427,7 +1539,6 @@
 #define SV_BALL_AND_CHAIN                6	/* 2d4  */
 #define SV_JO_STAFF                      7	/* 1d7  */
 #define SV_WAR_HAMMER                    8	/* 3d3  */
-#define SV_LUCERN_HAMMER                10	/* 2d5  */
 #define SV_THREE_PIECE_ROD              11	/* 3d3  */
 #define SV_MORNING_STAR                 12	/* 2d6  */
 #define SV_FLAIL                        13	/* 2d6  */
@@ -1451,6 +1562,7 @@
 #define SV_NAGINATA                      9  /* 2d6 */
 #define SV_BEAKED_AXE                   10	/* 2d6 */
 #define SV_BROAD_AXE                    11	/* 2d6 */
+#define SV_LUCERN_HAMMER                11	/* 2d5 */
 #define SV_GLAIVE                       13	/* 2d6 */
 #define SV_LAJATANG                     14	/* 2d7 */
 #define SV_HALBERD                      15	/* 3d4 */
@@ -1533,6 +1645,7 @@
 #define SV_SET_OF_CESTI                  5
 
 /* The "sval" codes for TV_SOFT_ARMOR */
+#define SV_T_SHIRT                       0
 #define SV_FILTHY_RAG                    1
 #define SV_ROBE                          2
 #define SV_PAPER_ARMOR                   3  /* 4 */
@@ -1963,15 +2076,17 @@
  *   ITEM: Affect each object in the "blast area" in some way
  *   KILL: Affect each monster in the "blast area" in some way
  *   HIDE: Hack -- disable "visual" feedback from projection
+ *   CONE: Area of effect is conical rather than circular
  */
-#define PROJECT_JUMP    0x01
-#define PROJECT_BEAM    0x02
-#define PROJECT_THRU    0x04
-#define PROJECT_STOP    0x08
-#define PROJECT_GRID    0x10
-#define PROJECT_ITEM    0x20
-#define PROJECT_KILL    0x40
-#define PROJECT_HIDE    0x80
+#define PROJECT_JUMP    0x0001
+#define PROJECT_BEAM    0x0002
+#define PROJECT_THRU    0x0004
+#define PROJECT_STOP    0x0008
+#define PROJECT_GRID    0x0010
+#define PROJECT_ITEM    0x0020
+#define PROJECT_KILL    0x0040
+#define PROJECT_HIDE    0x0080
+#define PROJECT_CONE    0x0100
 
 /*
  * Bit flags for the "enchant()" function
@@ -2090,7 +2205,7 @@
 #define PR_CUT          0x00001000L     /* Display Extra (Cut) */
 #define PR_STUN         0x00002000L     /* Display Extra (Stun) */
 #define PR_HUNGER       0x00004000L     /* Display Extra (Hunger) */
-/* xxx */
+#define PR_STATUS       0x00008000L     /* Display Status Bar */
 #define PR_BLIND        0x00010000L     /* Display Extra (Blind) */
 #define PR_CONFUSED     0x00020000L     /* Display Extra (Confused) */
 #define PR_AFRAID       0x00040000L     /* Display Extra (Afraid) */
@@ -2245,6 +2360,8 @@
 #define GF_DOMINATION   89
 #define GF_DISP_GOOD    90
 
+#define MAX_GF				91
+
 
 /*
  * Some things which induce learning
@@ -2277,6 +2394,25 @@
  * rings, amulets), and the ones from 16 to 127 are "normal".
  */
 #define ART_MIN_NORMAL          16
+
+
+/*
+ * Game generated inscription indices. These are stored in the object,
+ * and are used to index the string array from tables.c.
+ */
+
+#define FEEL_NONE              0
+#define FEEL_BROKEN            1
+#define FEEL_TERRIBLE          2
+#define FEEL_WORTHLESS         3
+#define FEEL_CURSED            4
+#define FEEL_UNCURSED          5
+#define FEEL_AVERAGE           6
+#define FEEL_GOOD              7
+#define FEEL_EXCELLENT         8
+#define FEEL_SPECIAL           9
+
+#define FEEL_MAX               9
 
 
 /*
@@ -2535,6 +2671,7 @@
 #define RBE_EXP_80      28
 #define RBE_DISEASE     29
 #define RBE_TIME        30
+#define RBE_EXP_VAMP    31
 
 
 /*** Monster flag values (hard-coded) ***/
@@ -2726,7 +2863,7 @@
 #define RF6_HASTE           0x00000001  /* Speed self */
 #define RF6_HAND_DOOM       0x00000002  /* Hand of Doom */
 #define RF6_HEAL            0x00000004  /* Heal self */
-#define RF6_XXX2            0x00000008  /* Heal a lot (?) */
+#define RF6_INVULNER        0x00000008  /* Invulnerability */
 #define RF6_BLINK           0x00000010  /* Teleport Short */
 #define RF6_TPORT           0x00000020  /* Teleport Long */
 #define RF6_XXX3            0x00000040  /* Move to Player (?) */
@@ -2763,6 +2900,7 @@
 #define RF7_CAN_SWIM            0x00000002  /* Monster can swim */
 #define RF7_CAN_FLY             0x00000004  /* Monster can fly */
 #define RF7_FRIENDLY            0x00000008  /* Monster is friendly */
+#define RF7_RIGHTEOUS           0x00000010  /* Monster attacks oppositely aligned */
 
 
 /*
@@ -2779,7 +2917,6 @@
 #define RF8_XXX8X08             0x00000100
 #define RF8_WILD_MOUNTAIN       0x00000200
 #define RF8_WILD_GRASS          0x00000400
-
 #define RF8_WILD_TOO            0x80000000
 
 /*
@@ -2793,8 +2930,8 @@
   (RF5_HOLD | RF5_SLOW | RF5_CONF | RF5_BLIND | RF5_SCARE)
 
 #define RF6_INT_MASK \
-   (RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
-    RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
+   (RF6_BLINK | RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
+    RF6_HEAL | RF6_INVULNER | RF6_HASTE | RF6_TRAPS | \
     RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
@@ -3030,36 +3167,29 @@
 
 
 /*
- * Determine if a "legal" grid is a "floor" grid
+ * Determine if a "legal" grid is a "floor" grid -- Prfnoff
  *
- * Line 1 -- forbid doors, rubble, seams, walls
+ * Line 1 -- forbid rubble, seams, walls
+ * Line 2 -- forbid doors
  *
  * Note that the terrain features are split by a one bit test
  * into those features which block line of sight and those that
- * do not, allowing an extremely fast single bit check below.
- *
- * Add in the fact that some new terrain (water & lava) do NOT block sight
- * -KMW-
+ * do not, allowing an extremely fast single bit check below. XXX XXX XXX
  */
 #define cave_floor_bold(Y,X) \
-	(!(cave[Y][X].feat & 0x20))
+    (!(f_info[cave[Y][X].feat].flags1 & FF1_WALL) && \
+     !(f_info[cave[Y][X].feat].flags1 & FF1_DOOR))
 
 
 /*
  * Determine if a "legal" grid is a "clean" floor grid
  *
- * Line 1 -- forbid non-floors
- * Line 2 -- forbid deep water -KMW-
- * Line 3 -- forbid deep lava -KMW-
- * Line 4 -- forbid normal objects
+ * Line 1 -- forbid non-floors, deep water, deep lava -KMW-
+ * Line 2 -- forbid normal objects
  */
 #define cave_clean_bold(Y,X) \
-	(((cave[Y][X].feat == FEAT_FLOOR) || \
-	  (cave[Y][X].feat == FEAT_SHAL_WATER) || \
-	  (cave[Y][X].feat == FEAT_SHAL_LAVA) || \
-	  (cave[Y][X].feat == FEAT_GRASS) || \
-	  (cave[Y][X].feat == FEAT_DIRT)) && \
-	  (cave[Y][X].o_idx == 0))
+	((f_info[cave[Y][X].feat].flags1 & FF1_CLEAN) && \
+	 (cave[Y][X].o_idx == 0))
 
 
 /*
@@ -3079,51 +3209,114 @@
  * Determine if a "legal" grid is an "naked" floor grid
  *
  * Line 1 -- forbid non-floors, non-shallow water & lava -KMW-
- * Line 4 -- forbid normal objects
- * Line 5 -- forbid player/monsters
+ * Line 2 -- forbid normal objects
+ * Line 3 -- forbid player/monsters
  */
 #define cave_naked_bold(Y,X) \
-	(((cave[Y][X].feat == FEAT_FLOOR) || \
-	  (cave[Y][X].feat == FEAT_SHAL_WATER) || \
-	  (cave[Y][X].feat == FEAT_SHAL_LAVA) || \
-	  (cave[Y][X].feat == FEAT_GRASS) || \
-	  (cave[Y][X].feat == FEAT_DIRT)) && \
-	  (cave[Y][X].o_idx == 0) && \
-	  (cave[Y][X].m_idx == 0))
-
+	((f_info[cave[Y][X].feat].flags1 & FF1_CLEAN) && \
+	 (cave[Y][X].o_idx == 0) && \
+	 (cave[Y][X].m_idx == 0))
 
 
 /*
- * Determine if a "legal" grid is "permanent"
+ * Determine if a "legal" grid is "permanent" -- Prfnoff
  *
- * Line 1   -- perma-walls
- * Line 2-3 -- stairs
- * Line 4-5 -- building doors -KMW-
- * Line 6-7 -- shop doors
+ * Line 1 -- perma-walls
+ * Line 2 -- stairs
+ * Line 3 -- the Pattern
+ * Line 4 -- store doors
+ * Line 5 -- building doors -KMW-
  */
 #define cave_perma_bold(Y,X) \
-	((cave[Y][X].feat >= FEAT_PERM_EXTRA) || \
-	((cave[Y][X].feat == FEAT_LESS) || \
-	 (cave[Y][X].feat == FEAT_MORE)) || \
-	((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
-	 (cave[Y][X].feat <= FEAT_BLDG_TAIL)) || \
-	((cave[Y][X].feat >= FEAT_SHOP_HEAD) && \
-	 (cave[Y][X].feat <= FEAT_SHOP_TAIL)))
+    ((f_info[cave[Y][X].feat].flags1 & FF1_PERMA) || \
+     (f_info[cave[Y][X].feat].flags1 & FF1_STAIR) || \
+     (f_info[cave[Y][X].feat].flags1 & FF1_PATTERN) || \
+     (f_info[cave[Y][X].feat].flags1 & FF1_SHOP) || \
+     (f_info[cave[Y][X].feat].flags1 & FF1_BLDG))
+
+
+/*
+ * Determine if a "legal" grid looks like a floor -- Prfnoff
+ */
+#define cave_plain_bold(Y,X) \
+    (f_info[cave[Y][X].feat].flags1 & FF1_FLOOR)
+
+/*
+ * Determine if a "legal" grid acts like a floor -- Prfnoff
+ */
+#define cave_safe_bold(Y,X) \
+    (f_info[cave[Y][X].feat].flags1 & FF1_CLEAN)
+
+/*
+ * Determine if a "legal" grid has a terrain (not mountains) -- Prfnoff
+ */
+#define cave_terrain_bold(Y,X) \
+    (f_info[cave[Y][X].feat].flags1 & FF1_TERRAIN)
+
+/*
+ * Determine if a "legal" grid acts as a granite wall -- Prfnoff
+ */
+#define cave_granite_bold(Y,X) \
+    (f_info[cave[Y][X].feat].flags1 & FF1_GRANITE)
+
+/*
+ * Determine if a "legal" grid is a stair -- Prfnoff
+ */
+#define cave_stair_bold(Y,X) \
+    (f_info[cave[Y][X].feat].flags1 & FF1_STAIR)
+
+/*
+ * Determine if a "legal" grid acts as a real wall -- Prfnoff
+ */
+#define cave_realwall_bold(Y,X) \
+    ((f_info[cave[Y][X].feat].flags1 & FF1_GRANITE) || \
+     (f_info[cave[Y][X].feat].flags1 & FF1_VEIN) || \
+     (f_info[cave[Y][X].feat].flags1 & FF1_PERMA))
+
+/*
+ * Determine if a "legal" grid acts as a permanent wall -- Prfnoff
+ */
+#define cave_permwall_bold(Y,X) \
+    (f_info[cave[Y][X].feat].flags1 & FF1_PERMA)
+
+/*
+ * Determine if a "legal" grid is "hard" -- Prfnoff
+ */
+#define cave_hard_bold(Y,X) \
+    (f_info[cave[Y][X].feat].flags1 & FF1_HARD)
+
+/*
+ * Determine if a "legal" grid protects against monsters -- Prfnoff
+ */
+#define cave_glyph_bold(Y,X) \
+    (f_info[cave[Y][X].feat].flags1 & FF1_GLYPH)
+
+/*
+ * Determine if a "legal" grid is a Pattern tile -- Prfnoff
+ */
+#define cave_pattern_bold(Y,X) \
+    (f_info[cave[Y][X].feat].flags1 & FF1_PATTERN)
+
+/*
+ * Determine the "power" index of a "legal" grid -- Prfnoff
+ */
+#define cave_pval_bold(Y,X) \
+    (f_info[cave[Y][X].feat].pval)
 
 
 /*
  * Grid based version of "cave_floor_bold()"
  */
 #define cave_floor_grid(C) \
-    (!((C)->feat & 0x20))
-
+    (!(f_info[(C)->feat].flags1 & FF1_WALL) && \
+     !(f_info[(C)->feat].flags1 & FF1_DOOR))
 
 /*
  * Grid based version of "cave_clean_bold()"
  */
 #define cave_clean_grid(C) \
-    (((C)->feat == FEAT_FLOOR) && \
-     (!(C)->o_idx))
+	((f_info[(C)->feat].flags1 & FF1_CLEAN) && \
+	 ((C)->o_idx == 0))
 
 /*
  * Grid based version of "cave_empty_bold()"
@@ -3137,58 +3330,148 @@
  * Grid based version of "cave_empty_bold()"
  */
 #define cave_naked_grid(C) \
-    (((C)->feat == FEAT_FLOOR) && \
+    ((f_info[(C)->feat].flags1 & FF1_CLEAN) && \
      !((C)->o_idx) && \
      !((C)->m_idx) && \
      !((C) == &cave[py][px]))
 
-
 /*
- * Grid based version of "cave_perma_bold()"
+ * Grid based version of "cave_perma_bold()" -- Prfnoff
  */
 #define cave_perma_grid(C) \
-	((((C)->feat >= FEAT_PERM_EXTRA) && \
-	  ((C)->feat <= FEAT_PERM_SOLID)) || \
-	  ((C)->feat == FEAT_LESS) || \
-	  ((C)->feat == FEAT_MORE) || \
-	  ((C)->feat == FEAT_MOUNTAIN) || \
-	 (((C)->feat >= FEAT_QUEST_ENTER) && \
-	  ((C)->feat <= FEAT_QUEST_UP)) || \
-	 (((C)->feat >= FEAT_PATTERN_START) && \
-	  ((C)->feat <= FEAT_PATTERN_XTRA2)) || \
-	 (((C)->feat >= FEAT_SHOP_HEAD) && \
-	  ((C)->feat <= FEAT_SHOP_TAIL)) || \
-	 (((C)->feat >= FEAT_BLDG_HEAD) && \
-	  ((C)->feat <= FEAT_BLDG_TAIL)))
-
+    ((f_info[(C)->feat].flags1 & FF1_PERMA) || \
+     (f_info[(C)->feat].flags1 & FF1_STAIR) || \
+     (f_info[(C)->feat].flags1 & FF1_PATTERN) || \
+     (f_info[(C)->feat].flags1 & FF1_SHOP) || \
+     (f_info[(C)->feat].flags1 & FF1_BLDG))
 
 /*
  * Determine if a grid is a (closed and non-secret) door -- Prfnoff
  */
 #define cave_door_grid(C) \
-	(((C)->feat >= FEAT_DOOR_HEAD) && \
-	 ((C)->feat <= FEAT_DOOR_TAIL))
+    (f_info[(C)->feat].flags1 & FF1_DOOR)
+
+/*
+ * Determine if a grid is an open (or broken) door -- Prfnoff
+ */
+#define cave_open_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_OPEN)
 
 /*
  * Determine if a grid is a (non-invisible) trap -- Prfnoff
  */
 #define cave_trap_grid(C) \
-	(((C)->feat >= FEAT_TRAP_HEAD) && \
-	 ((C)->feat <= FEAT_TRAP_TAIL))
+    (f_info[(C)->feat].flags1 & FF1_TRAP)
 
 /*
  * Determine if a grid is a store entrance -- Prfnoff
  */
 #define cave_shop_grid(C) \
-	(((C)->feat >= FEAT_SHOP_HEAD) && \
-	 ((C)->feat <= FEAT_SHOP_TAIL))
+    (f_info[(C)->feat].flags1 & FF1_SHOP)
 
 /*
  * Determine if a grid is a building entrance -- Prfnoff
  */
 #define cave_bldg_grid(C) \
-	(((C)->feat >= FEAT_BLDG_HEAD) && \
-	 ((C)->feat <= FEAT_BLDG_TAIL))
+    (f_info[(C)->feat].flags1 & FF1_BLDG)
+
+/*
+ * Grid based version of "cave_plain_bold()" -- Prfnoff
+ */
+#define cave_plain_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_FLOOR)
+
+/*
+ * Grid based version of "cave_safe_bold()" -- Prfnoff
+ */
+#define cave_safe_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_CLEAN)
+
+/*
+ * Grid based version of "cave_terrain_bold()" -- Prfnoff
+ */
+#define cave_terrain_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_TERRAIN)
+
+/*
+ * Determine if a grid's 16x16 tile supports lighting -- Prfnoff
+ */
+#define cave_lite_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_LITE)
+
+/*
+ * Determine if a grid acts as a wall -- Prfnoff
+ */
+#define cave_wall_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_WALL)
+
+/*
+ * Determine if a grid is a magma or quartz vein -- Prfnoff
+ */
+#define cave_vein_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_VEIN)
+
+/*
+ * Grid based version of "cave_granite_bold()" -- Prfnoff
+ */
+#define cave_granite_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_GRANITE)
+
+/*
+ * Grid based version of "cave_stair_bold()" -- Prfnoff
+ */
+#define cave_stair_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_STAIR)
+
+/*
+ * Grid based version of "cave_realwall_bold()" -- Prfnoff
+ */
+#define cave_realwall_grid(C) \
+    ((f_info[(C)->feat].flags1 & FF1_GRANITE) || \
+     (f_info[(C)->feat].flags1 & FF1_VEIN) || \
+     (f_info[(C)->feat].flags1 & FF1_PERMA))
+
+/*
+ * Grid based version of "cave_permwall_bold()" -- Prfnoff
+ */
+#define cave_permwall_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_PERMA)
+
+/*
+ * Grid based version of "cave_hard_bold()" -- Prfnoff
+ */
+#define cave_hard_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_HARD)
+
+/*
+ * Grid based version of "cave_glyph_bold()" -- Prfnoff
+ */
+#define cave_glyph_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_GLYPH)
+
+/*
+ * Grid based version of "cave_pattern_bold()" -- Prfnoff
+ */
+#define cave_pattern_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_PATTERN)
+
+/*
+ * Determine if a grid is 'boring -- Prfnoff
+ */
+#define cave_boring_grid(C) \
+    (f_info[(C)->feat].flags1 & FF1_BORING)
+
+/*
+ * Determine a grid's "power" index -- Prfnoff
+ */
+#define cave_pval_grid(C) \
+    (f_info[(C)->feat].pval)
+
+/*
+ * Determine a grid's "extra" index -- Prfnoff
+ */
+#define cave_xtra_grid(C) \
+    (f_info[(C)->feat].xtra)
 
 
 
@@ -3200,6 +3483,25 @@
 #define player_has_los_bold(Y,X) \
     ((cave[Y][X].info & (CAVE_VIEW)) != 0)
 
+
+/*
+ * Is the monster a pet of the player?
+ */
+#define is_pet(T) \
+	 ((bool)(((T)->smart & SM_PET) != 0))
+
+/*
+ * Is the monster friendly toward the player?
+ */
+#define is_friendly(T) \
+	 ((bool)(((T)->smart & SM_FRIENDLY) != 0))
+
+
+/*
+ * Is the monster hostile toward the player?
+ */
+#define is_hostile(T) \
+	 ((bool)(!is_pet(T) && !is_friendly(T)))
 
 
 
@@ -3433,14 +3735,16 @@ extern int PlayerUID;
 /*
  * Modes for the random name generator
  */
-#define NAME_NONE	0 /* Prfnoff */
-#define NAME_DWARF	1
-#define NAME_ELF	2
-#define NAME_GNOME	3
-#define NAME_HOBBIT	4
-#define NAME_HUMAN	5
-#define NAME_ORC	6
-#define NAME_MAX	6 /* Prfnoff */
+#define NAME_NONE		0 /* Prfnoff */
+#define NAME_DWARF		1
+#define NAME_ELF		2
+#define NAME_GNOME		3
+#define NAME_HOBBIT		4
+#define NAME_HUMAN		5
+#define NAME_ORC		6
+#define NAME_KLACKON	7 /* Prfnoff */
+#define NAME_CTHULOID	8 /* Prfnoff */
+#define NAME_MAX		8 /* Prfnoff */
 
 /*
  * Modes for the tokenizer

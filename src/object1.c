@@ -329,10 +329,111 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 			}
 		}
 	}
+}
 
-	/* Hack - Chaos resistance provides resist confusion */
-	if ((*f2) & TR2_RES_CHAOS)
-		(*f2) |= TR2_RES_CONF;
+
+/*
+ * HACK - Obtain the "random flags" for an item which are known to the player -- Prfnoff
+ */
+void object_flags_known_random(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+{
+	bool spoil = FALSE;
+
+	/* Clear */
+	(*f1) = (*f2) = (*f3) = 0L;
+
+	/* Must be identified */
+	if (!object_known_p(o_ptr)) return;
+
+
+#ifdef SPOIL_ARTIFACTS
+	/* Full knowledge for some artifacts */
+	if (artifact_p(o_ptr) || o_ptr->art_name) spoil = TRUE;
+#endif /* SPOIL_ARTIFACTS */
+
+#ifdef SPOIL_EGO_ITEMS
+	/* Full knowledge for some ego-items */
+	if (ego_item_p(o_ptr)) spoil = TRUE;
+#endif /* SPOIL_EGO_ITEMS */
+
+	/* Need full knowledge or spoilers */
+	if (spoil || (o_ptr->ident & IDENT_MENTAL))
+	{
+		/* Random artifact ! */
+		if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3)
+		{
+			(*f1) |= o_ptr->art_flags1;
+			(*f2) |= o_ptr->art_flags2;
+			(*f3) |= o_ptr->art_flags3;
+		}
+
+		if (!(o_ptr->art_name))
+		{
+			/* Extra powers */
+			switch (o_ptr->xtra1)
+			{
+				case EGO_XTRA_SUSTAIN:
+				{
+					/* Choose a sustain */
+					switch (o_ptr->xtra2 % 6)
+					{
+						case 0: (*f2) |= (TR2_SUST_STR); break;
+						case 1: (*f2) |= (TR2_SUST_INT); break;
+						case 2: (*f2) |= (TR2_SUST_WIS); break;
+						case 3: (*f2) |= (TR2_SUST_DEX); break;
+						case 4: (*f2) |= (TR2_SUST_CON); break;
+						case 5: (*f2) |= (TR2_SUST_CHR); break;
+					}
+
+					break;
+				}
+
+				case EGO_XTRA_POWER:
+				{
+					/* Choose a power */
+					switch (o_ptr->xtra2 % 11)
+					{
+						case  0: (*f2) |= (TR2_RES_BLIND);  break;
+						case  1: (*f2) |= (TR2_RES_CONF);   break;
+						case  2: (*f2) |= (TR2_RES_SOUND);  break;
+						case  3: (*f2) |= (TR2_RES_SHARDS); break;
+						case  4: (*f2) |= (TR2_RES_NETHER); break;
+						case  5: (*f2) |= (TR2_RES_NEXUS);  break;
+						case  6: (*f2) |= (TR2_RES_CHAOS);  break;
+						case  7: (*f2) |= (TR2_RES_DISEN);  break;
+						case  8: (*f2) |= (TR2_RES_POIS);   break;
+						case  9: (*f2) |= (TR2_RES_DARK);   break;
+						case 10: (*f2) |= (TR2_RES_LITE);   break;
+					}
+
+					break;
+				}
+
+				case EGO_XTRA_ABILITY:
+				{
+					/* Choose an ability */
+					switch (o_ptr->xtra2 % 8)
+					{
+						case 0: (*f3) |= (TR3_FEATHER);     break;
+						case 1: (*f3) |= (TR3_LITE);        break;
+						case 2: (*f3) |= (TR3_SEE_INVIS);   break;
+						case 3: (*f3) |= (TR3_TELEPATHY);   break;
+						case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
+						case 5: (*f3) |= (TR3_REGEN);       break;
+						case 6: (*f2) |= (TR2_FREE_ACT);    break;
+						case 7: (*f2) |= (TR2_HOLD_LIFE);   break;
+					}
+
+					break;
+				}
+			}
+		}
+	}
+
+	/* Hack - Ignore randart IGNORE_XXXX flags -- Prfnoff */
+	if (o_ptr->art_name)
+		(*f3) &= ~(TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
+	               TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
 }
 
 
@@ -382,7 +483,7 @@ cptr item_activation(object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Require activation ability */
-	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
+	if (!(f3 & (TR3_ACTIVATE))) return ("nothing");
 
 
 	/*
@@ -953,7 +1054,7 @@ cptr item_activation(object_type *o_ptr)
 	}
 
 	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
+	if (o_ptr->tval != TV_DRAG_ARMOR) return ("a strange glow");
 
 	/* Branch on the sub-type */
 	switch (o_ptr->sval)
@@ -1013,17 +1114,886 @@ cptr item_activation(object_type *o_ptr)
 	}
 
 	/* Oops */
-	return NULL;
+	return "breathe air";
 }
 
 
 /*
- * Generate a description for a "fully identified" item -- Prfnoff
+ * Generate a description for random attributes of a "fully identified"
+ * item for use in the character-dump routine -- Prfnoff
  */
-int identify_fully_aux_gen(object_type *o_ptr, cptr info[])
+int identify_random_gen(object_type *o_ptr, cptr info[], bool is_equip)
 {
 	int i = 0;
 	u32b f1, f2, f3;
+
+
+	/* Find random object attributes -- Prfnoff */
+	object_flags_known_random(o_ptr, &f1, &f2, &f3);
+
+
+	/* Mega-Hack -- describe activation */
+	if (o_ptr->art_name && (f3 & (TR3_ACTIVATE)))
+	{
+		info[i++] = "It can be activated for...";
+		info[i++] = item_activation(o_ptr);
+		info[i++] = "...if it is being worn.";
+	}
+
+
+	/* Hack -- describe lite's */
+	if (o_ptr->tval == TV_LITE)
+	{
+		if (o_ptr->art_name)
+		/* I don't think there are randart lites, but do this anyway -- Prfnoff */
+		{
+			info[i++] = "It provides light (radius 3) forever.";
+		}
+	}
+
+
+	/* And then describe it fully */
+
+	if (f1 & (TR1_STR))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel strong!";
+		}
+		else
+		{
+			info[i++] = "It affects your strength.";
+		}
+	}
+	if (f1 & (TR1_INT))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel smart!";
+		}
+		else
+		{
+			info[i++] = "It affects your intelligence.";
+		}
+	}
+	if (f1 & (TR1_WIS))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel wise!";
+		}
+		else
+		{
+			info[i++] = "It affects your wisdom.";
+		}
+	}
+	if (f1 & (TR1_DEX))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel nimble!";
+		}
+		else
+		{
+			info[i++] = "It affects your dexterity.";
+		}
+	}
+	if (f1 & (TR1_CON))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel healthy!";
+		}
+		else
+		{
+			info[i++] = "It affects your constitution.";
+		}
+	}
+	if (f1 & (TR1_CHR))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you look great!";
+		}
+		else
+		{
+			info[i++] = "It affects your charisma.";
+		}
+	}
+
+	if (f1 & (TR1_STEALTH))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It looks muffled.";
+		}
+		else
+		{
+			info[i++] = "It affects your stealth.";
+		}
+	}
+	if (f1 & (TR1_SEARCH))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you see better.";
+		}
+		else
+		{
+			info[i++] = "It affects your searching.";
+		}
+	}
+	if (f1 & (TR1_INFRA))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you see tiny red animals.";
+		}
+		else
+		{
+			info[i++] = "It affects your infravision.";
+		}
+	}
+	if (f1 & (TR1_TUNNEL))
+	{
+		if (is_equip)
+		{
+			info[i++] = "Gravel flies from it!";
+		}
+		else
+		{
+			info[i++] = "It affects your ability to tunnel.";
+		}
+	}
+	if (f1 & (TR1_SPEED))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you move faster!";
+		}
+		else
+		{
+			info[i++] = "It affects your speed.";
+		}
+	}
+	if (f1 & (TR1_BLOWS))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It seems faster!";
+		}
+		else
+		{
+			info[i++] = "It affects your attack speed.";
+		}
+	}
+
+	if (f1 & (TR1_BRAND_ACID))
+	{
+		if (is_equip)
+		{
+			info[i++] = "Its smell makes you feel dizzy.";
+		}
+		else
+		{
+			info[i++] = "It does extra damage from acid.";
+		}
+	}
+	if (f1 & (TR1_BRAND_ELEC))
+	{
+		if (is_equip)
+		{
+			info[i++] = "Ouch! It zaps you!";
+		}
+		else
+		{
+			info[i++] = "It does extra damage from electricity.";
+		}
+	}
+	if (f1 & (TR1_BRAND_FIRE))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It feels hot!";
+		}
+		else
+		{
+			info[i++] = "It does extra damage from fire.";
+		}
+	}
+	if (f1 & (TR1_BRAND_COLD))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It feels cold!";
+		}
+		else
+		{
+			info[i++] = "It does extra damage from frost.";
+		}
+	}
+
+	if (f1 & (TR1_BRAND_POIS))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It smells rotten.";
+		}
+		else
+		{
+			info[i++] = "It poisons your foes.";
+		}
+	}
+
+	if (f1 & (TR1_CHAOTIC))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It looks very confusing.";
+		}
+		else
+		{
+			info[i++] = "It produces chaotic effects.";
+		}
+	}
+
+	if (f1 & (TR1_VAMPIRIC))
+	{
+		if (is_equip)
+		{
+			info[i++] = "You think it bit you!";
+		}
+		else
+		{
+			info[i++] = "It drains life from your foes.";
+		}
+	}
+
+	if (f1 & (TR1_IMPACT))
+	{
+		if (is_equip)
+		{
+			info[i++] = "The ground trembles beneath you.";
+		}
+		else
+		{
+			info[i++] = "It can cause earthquakes.";
+		}
+	}
+
+	if (f1 & (TR1_VORPAL))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It looks extremely sharp!";
+		}
+		else
+		{
+			info[i++] = "It is very sharp and can cut your foes.";
+		}
+	}
+
+	if (f1 & (TR1_KILL_DRAGON))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel an intense hatred of dragons.";
+		}
+		else
+		{
+			info[i++] = "It is a great bane of dragons.";
+		}
+	}
+	else if (f1 & (TR1_SLAY_DRAGON))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you hate dragons.";
+		}
+		else
+		{
+			info[i++] = "It is especially deadly against dragons.";
+		}
+	}
+	if (f1 & (TR1_SLAY_ORC))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you hate orcs.";
+		}
+		else
+		{
+			info[i++] = "It is especially deadly against orcs.";
+		}
+	}
+	if (f1 & (TR1_SLAY_TROLL))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you hate trolls.";
+		}
+		else
+		{
+			info[i++] = "It is especially deadly against trolls.";
+		}
+	}
+	if (f1 & (TR1_SLAY_GIANT))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you hate giants.";
+		}
+		else
+		{
+			info[i++] = "It is especially deadly against giants.";
+		}
+	}
+	if (f1 & (TR1_SLAY_DEMON))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you hate demons.";
+		}
+		else
+		{
+			info[i++] = "It strikes at demons with holy wrath.";
+		}
+	}
+	if (f1 & (TR1_SLAY_UNDEAD))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you hate undead creatures.";
+		}
+		else
+		{
+			info[i++] = "It strikes at undead with holy wrath.";
+		}
+	}
+	if (f1 & (TR1_SLAY_EVIL))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you hate evil creatures.";
+		}
+		else
+		{
+			info[i++] = "It fights against evil with holy fury.";
+		}
+	}
+	if (f1 & (TR1_SLAY_ANIMAL))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you start hating animals.";
+		}
+		else
+		{
+			info[i++] = "It is especially deadly against natural creatures.";
+		}
+	}
+
+	if (f2 & (TR2_SUST_STR))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel you cannot become weaker.";
+		}
+		else
+		{
+			info[i++] = "It sustains your strength.";
+		}
+	}
+	if (f2 & (TR2_SUST_INT))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel you cannot become more stupid.";
+		}
+		else
+		{
+			info[i++] = "It sustains your intelligence.";
+		}
+	}
+	if (f2 & (TR2_SUST_WIS))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel you cannot become simpler.";
+		}
+		else
+		{
+			info[i++] = "It sustains your wisdom.";
+		}
+	}
+	if (f2 & (TR2_SUST_DEX))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel you cannot become clumsier.";
+		}
+		else
+		{
+			info[i++] = "It sustains your dexterity.";
+		}
+	}
+	if (f2 & (TR2_SUST_CON))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel you cannot become less healthy.";
+		}
+		else
+		{
+			info[i++] = "It sustains your constitution.";
+		}
+	}
+	if (f2 & (TR2_SUST_CHR))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel you cannot become uglier.";
+		}
+		else
+		{
+			info[i++] = "It sustains your charisma.";
+		}
+	}
+
+	if (f2 & (TR2_IM_ACID))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It looks totally incorruptible.";
+		}
+		else
+		{
+			info[i++] = "It provides immunity to acid.";
+		}
+	}
+	if (f2 & (TR2_IM_ELEC))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It looks completely grounded.";
+		}
+		else
+		{
+			info[i++] = "It provides immunity to electricity.";
+		}
+	}
+	if (f2 & (TR2_IM_FIRE))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It feels very cool.";
+		}
+		else
+		{
+			info[i++] = "It provides immunity to fire.";
+		}
+	}
+	if (f2 & (TR2_IM_COLD))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It feels very warm.";
+		}
+		else
+		{
+			info[i++] = "It provides immunity to cold.";
+		}
+	}
+
+	if (f2 & (TR2_FREE_ACT))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel like a young rebel!";
+		}
+		else
+		{
+			info[i++] = "It provides immunity to paralysis.";
+		}
+	}
+	if (f2 & (TR2_HOLD_LIFE))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel immortal.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to life draining.";
+		}
+	}
+	if (f2 & (TR2_RES_FEAR))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel brave!";
+		}
+		else
+		{
+			info[i++] = "It makes you completely fearless.";
+		}
+	}
+	if (f2 & (TR2_RES_ACID))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes your stomach rumble.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to acid.";
+		}
+	}
+	if (f2 & (TR2_RES_ELEC))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel grounded.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to electricity.";
+		}
+	}
+	if (f2 & (TR2_RES_FIRE))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel cool!";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to fire.";
+		}
+	}
+	if (f2 & (TR2_RES_COLD))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel full of hot air!";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to cold.";
+		}
+	}
+	if (f2 & (TR2_RES_POIS))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes breathing easier for you.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to poison.";
+		}
+	}
+
+	if (f2 & (TR2_RES_LITE))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes everything look darker.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to light.";
+		}
+	}
+	if (f2 & (TR2_RES_DARK))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes everything look brighter.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to dark.";
+		}
+	}
+
+	if (f2 & (TR2_RES_BLIND))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel you are wearing glasses.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to blindness.";
+		}
+	}
+	if (f2 & (TR2_RES_CONF))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel very determined.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to confusion.";
+		}
+	}
+	if (f2 & (TR2_RES_SOUND))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel deaf!";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to sound.";
+		}
+	}
+	if (f2 & (TR2_RES_SHARDS))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes your skin feel thicker.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to shards.";
+		}
+	}
+
+	if (f2 & (TR2_RES_NETHER))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel like visiting a graveyard!";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to nether.";
+		}
+	}
+	if (f2 & (TR2_RES_NEXUS))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel normal.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to nexus.";
+		}
+	}
+	if (f2 & (TR2_RES_CHAOS))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel very firm.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to chaos.";
+		}
+	}
+	if (f2 & (TR2_RES_DISEN))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It is surrounded by a static feeling.";
+		}
+		else
+		{
+			info[i++] = "It provides resistance to disenchantment.";
+		}
+	}
+
+	if (f3 & (TR3_WRAITH))
+	{
+		info[i++] = "It renders you incorporeal.";
+	}
+	if (f3 & (TR3_FEATHER))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It feels lighter.";
+		}
+		else
+		{
+			info[i++] = "It allows you to levitate.";
+		}
+	}
+	if (f3 & (TR3_LITE))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It starts shining.";
+		}
+		else
+		{
+			info[i++] = "It provides permanent light.";
+		}
+	}
+	if (f3 & (TR3_SEE_INVIS))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you see the air!";
+		}
+		else
+		{
+			info[i++] = "It allows you to see invisible monsters.";
+		}
+	}
+	if (f3 & (TR3_TELEPATHY))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you hear voices inside your head!";
+		}
+		else
+		{
+			info[i++] = "It gives telepathic powers.";
+		}
+	}
+	if (f3 & (TR3_SLOW_DIGEST))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It makes you feel less hungry.";
+		}
+		else
+		{
+			info[i++] = "It slows your metabolism.";
+		}
+	}
+	if (f3 & (TR3_REGEN))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It looks as good as new.";
+		}
+		else
+		{
+			info[i++] = "It speeds your regenerative powers.";
+		}
+	}
+	if (f2 & (TR2_REFLECT))
+	{
+		info[i++] = "It reflects bolts and arrows.";
+	}
+	if (f3 & (TR3_SH_FIRE))
+	{
+		info[i++] = "It produces a fiery sheath.";
+	}
+	if (f3 & (TR3_SH_ELEC))
+	{
+		info[i++] = "It produces an electric sheath.";
+	}
+	if (f3 & (TR3_NO_MAGIC))
+	{
+		info[i++] = "It produces an anti-magic shell.";
+	}
+	if (f3 & (TR3_NO_TELE))
+	{
+		info[i++] = "It prevents teleportation.";
+	}
+	if (f3 & (TR3_XTRA_MIGHT))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It looks mightier than before.";
+		}
+		else
+		{
+			info[i++] = "It fires missiles with extra might.";
+		}
+	}
+	if (f3 & (TR3_XTRA_SHOTS))
+	{
+		if (is_equip)
+		{
+			info[i++] = "It seems faster!";
+		}
+		else
+		{
+			info[i++] = "It fires missiles excessively fast.";
+		}
+	}
+
+	if (f3 & (TR3_DRAIN_EXP))
+	{
+		info[i++] = "It drains experience.";
+	}
+	if (f3 & (TR3_TELEPORT))
+	{
+		if (is_equip)
+		{
+			info[i++] = "Its position feels uncertain!";
+		}
+		else
+		{
+			info[i++] = "It induces random teleportation.";
+		}
+	}
+	if (f3 & TR3_AGGRAVATE)
+	{
+		info[i++] = "It aggravates nearby creatures.";
+	}
+
+	if (f3 & TR3_BLESSED)
+	{
+		info[i++] = "It has been blessed by the gods.";
+	}
+
+	if (f3 & TR3_PERMA_CURSE)
+	{
+		info[i++] = "It is permanently cursed.";
+	}
+	else if (f3 & TR3_HEAVY_CURSE)
+	{
+		info[i++] = "It is heavily cursed.";
+	}
+	else if (f3 & TR3_CURSED)
+	{
+		info[i++] = "It is cursed.";
+	}
+
+	if (f3 & TR3_TY_CURSE)
+	{
+		info[i++] = "It carries an ancient foul curse.";
+	}
+
+	if (f3 & (TR3_IGNORE_ACID))
+	{
+		info[i++] = "It cannot be harmed by acid.";
+	}
+	if (f3 & (TR3_IGNORE_ELEC))
+	{
+		info[i++] = "It cannot be harmed by electricity.";
+	}
+	if (f3 & (TR3_IGNORE_FIRE))
+	{
+		info[i++] = "It cannot be harmed by fire.";
+	}
+	if (f3 & (TR3_IGNORE_COLD))
+	{
+		info[i++] = "It cannot be harmed by cold.";
+	}
+
+
+	/* Return the number of lines */
+	return (i);
+}
+
+
+/*
+ * Describe a "fully identified" item
+ */
+bool identify_fully_aux(object_type *o_ptr)
+{
+	int             i = 0, j, k;
+	cptr            info[128];
+	u32b            f1, f2, f3;
 
 
 	/* Extract the flags */
@@ -1420,25 +2390,6 @@ int identify_fully_aux_gen(object_type *o_ptr, cptr info[])
 	}
 
 
-	/* Return the number of lines */
-	return (i);
-}
-
-
-/*
- * Describe a "fully identified" item
- */
-bool identify_fully_aux(object_type *o_ptr)
-{
-	int                     i = 0, j, k;
-
-	cptr            info[128];
-
-
-	/* No special effects */
-	if (!(i = identify_fully_aux_gen(o_ptr, info))) return (FALSE);
-
-
 	/* Save the screen */
 	screen_save();
 
@@ -1722,7 +2673,7 @@ cptr describe_use(int i)
 
 /* Hack: Check if a spellbook is one of the realms we can use. -- TY */
 
-bool check_book_realm(const byte book_tval)
+static bool check_book_realm(const byte book_tval)
 {
 	return (REALM1_BOOK == book_tval || REALM2_BOOK == book_tval);
 }
@@ -1821,6 +2772,12 @@ void display_inven(void)
 		/* Get a color */
 		attr = tval_to_attr[o_ptr->tval % 128];
 
+		/* Grey out charging items */
+		if (o_ptr->timeout)
+		{
+			attr = TERM_L_DARK;
+		}
+
 		/* Hack -- fake monochrome */
 		if (!use_color) attr = TERM_WHITE;
 
@@ -1892,6 +2849,12 @@ void display_equip(void)
 		/* Get the color */
 		attr = tval_to_attr[o_ptr->tval % 128];
 
+		/* Grey out charging items */
+		if (o_ptr->timeout)
+		{
+			attr = TERM_L_DARK;
+		}
+
 		/* Hack -- fake monochrome */
 		if (!use_color) attr = TERM_WHITE;
 
@@ -1961,7 +2924,7 @@ void show_inven(void)
 	if (show_weights) lim -= 9;
 
 	/* Require space for icon */
-	if (show_inven_graph) lim -= 2;
+	if (show_list_graph) lim -= 2;
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -1992,6 +2955,13 @@ void show_inven(void)
 		/* Save the object index, color, and description */
 		out_index[k] = i;
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
+
+		/* Grey out charging items */
+		if (o_ptr->timeout)
+		{
+			out_color[k] = TERM_L_DARK;
+		}
+
 		(void)strcpy(out_desc[k], o_name);
 
 		/* Find the predicted "line length" */
@@ -2001,7 +2971,7 @@ void show_inven(void)
 		if (show_weights) l += 9;
 
 		/* Account for icon if displayed */
-		if (show_inven_graph) l += 2;
+		if (show_list_graph) l += 2;
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -2032,7 +3002,7 @@ void show_inven(void)
 		put_str(tmp_val, j + 1, col);
 
 		/* Display graphics for object, if desired */
-		if (show_inven_graph)
+		if (show_list_graph)
 		{
 			byte  a = object_attr(o_ptr);
 			char c = object_char(o_ptr);
@@ -2046,7 +3016,7 @@ void show_inven(void)
 
 
 		/* Display the entry itself */
-		c_put_str(out_color[j], out_desc[j], j + 1, show_inven_graph ? (col + 5) : (col + 3));
+		c_put_str(out_color[j], out_desc[j], j + 1, show_list_graph ? (col + 5) : (col + 3));
 
 		/* Display the weight if needed */
 		if (show_weights)
@@ -2096,7 +3066,7 @@ void show_equip(void)
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
-	if (show_equip_graph) lim -= 2;
+	if (show_list_graph) lim -= 2;
 
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2115,6 +3085,13 @@ void show_equip(void)
 		/* Save the color */
 		out_index[k] = i;
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
+
+		/* Grey out charging items */
+		if (o_ptr->timeout)
+		{
+			out_color[k] = TERM_L_DARK;
+		}
+
 		(void)strcpy(out_desc[k], o_name);
 
 		/* Extract the maximal length (see below) */
@@ -2126,7 +3103,7 @@ void show_equip(void)
 		/* Increase length for weight (if needed) */
 		if (show_weights) l += 9;
 
-		if (show_equip_graph) l += 2;
+		if (show_list_graph) l += 2;
 
 		/* Maintain the max-length */
 		if (l > len) len = l;
@@ -2156,7 +3133,7 @@ void show_equip(void)
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j+1, col);
 
-		if (show_equip_graph)
+		if (show_list_graph)
 		{
 			byte a = object_attr(o_ptr);
 			char c = object_char(o_ptr);
@@ -2173,17 +3150,17 @@ void show_equip(void)
 		{
 			/* Mention the use */
 			(void)sprintf(tmp_val, "%-14s: ", mention_use(i));
-			put_str(tmp_val, j+1, show_equip_graph ? col + 5 : col + 3);
+			put_str(tmp_val, j+1, show_list_graph ? col + 5 : col + 3);
 
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, show_equip_graph ? col + 21 : col + 19);
+			c_put_str(out_color[j], out_desc[j], j+1, show_list_graph ? col + 21 : col + 19);
 		}
 
 		/* No labels */
 		else
 		{
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, show_equip_graph ? col + 5 : col + 3);
+			c_put_str(out_color[j], out_desc[j], j+1, show_list_graph ? col + 5 : col + 3);
 		}
 
 		/* Display the weight if needed */
@@ -2482,11 +3459,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	char out_val[160];
 
 
-#ifdef ALLOW_EASY_FLOOR /* TNB */
-
 	if (easy_floor) return get_item_floor(cp, pmt, str, mode);
-
-#endif /* ALLOW_EASY_FLOOR -- TNB */
 
 	/* Extract args */
 	if (mode & (USE_EQUIP)) equip = TRUE;
@@ -2974,6 +3947,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
 
+	/* Forget the item_tester_full restriction -- Prfnoff */
+	item_tester_full = FALSE;
+
 
 	/* Clean up */
 	if (show_choices)
@@ -2999,8 +3975,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	return (item);
 }
 
-
-#ifdef ALLOW_EASY_FLOOR
 
 /*
  * scan_floor --
@@ -3188,8 +4162,6 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 
 	int floor_num, floor_list[23], floor_top = 0;
 
-#ifdef ALLOW_REPEAT
-
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
@@ -3213,6 +4185,9 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 				/* Forget the item_tester_hook restriction */
 				item_tester_hook = NULL;
 
+				/* Forget the item_tester_full restriction -- Prfnoff */
+				item_tester_full = FALSE;
+
 				/* Success */
 				return (TRUE);
 			}
@@ -3227,12 +4202,13 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 			/* Forget the item_tester_hook restriction */
 			item_tester_hook = NULL;
 
+			/* Forget the item_tester_full restriction -- Prfnoff */
+			item_tester_full = FALSE;
+
 			/* Success */
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
 
 	/* Extract args */
 	if (mode & (USE_EQUIP)) equip = TRUE;
@@ -3311,8 +4287,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	else
 	{
 		/* Hack -- Start on equipment if requested */
-		if (command_see && (command_wrk == (USE_EQUIP))
-			&& allow_equip)
+		if (command_see && (command_wrk == (USE_EQUIP)) && allow_equip)
 		{
 			command_wrk = (USE_EQUIP);
 		}
@@ -3822,6 +4797,9 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
 
+	/* Forget the item_tester_full restriction -- Prfnoff */
+	item_tester_full = FALSE;
+
 
 	/* Clean up */
 	if (show_choices)
@@ -3843,9 +4821,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	/* Warning if needed */
 	if (oops && str) msg_print(str);
 
-#ifdef ALLOW_REPEAT
 	if (item) repeat_push(*cp);
-#endif /* ALLOW_REPEAT */
 
 	/* Result */
 	return (item);
@@ -3943,17 +4919,6 @@ void py_pickup_floor(int pickup)
 			/* Access the object */
 			o_ptr = &o_list[floor_o_idx];
 
-#ifdef ALLOW_EASY_SENSE
-
-			/* Option: Make object sensing easy */
-			if (easy_sense)
-			{
-				/* Sense the object */
-				(void) sense_object(o_ptr);
-			}
-
-#endif /* ALLOW_EASY_SENSE */
-
 			/* Describe the object */
 			object_desc(o_name, o_ptr, TRUE, 3);
 
@@ -3980,17 +4945,6 @@ void py_pickup_floor(int pickup)
 		{
 			/* Access the object */
 			o_ptr = &o_list[floor_o_idx];
-
-#ifdef ALLOW_EASY_SENSE
-
-			/* Option: Make object sensing easy */
-			if (easy_sense)
-			{
-				/* Sense the object */
-				(void) sense_object(o_ptr);
-			}
-
-#endif /* ALLOW_EASY_SENSE */
 
 			/* Describe the object */
 			object_desc(o_name, o_ptr, TRUE, 3);
@@ -4021,17 +4975,6 @@ void py_pickup_floor(int pickup)
 			/* Access the object */
 			o_ptr = &o_list[floor_o_idx];
 
-#ifdef ALLOW_EASY_SENSE
-
-			/* Option: Make object sensing easy */
-			if (easy_sense)
-			{
-				/* Sense the object */
-				(void) sense_object(o_ptr);
-			}
-
-#endif /* ALLOW_EASY_SENSE */
-
 			/* Describe the object */
 			object_desc(o_name, o_ptr, TRUE, 3);
 
@@ -4060,26 +5003,6 @@ void py_pickup_floor(int pickup)
 
 		int item;
 
-#ifdef ALLOW_EASY_SENSE
-
-		/* Option: Make object sensing easy */
-		if (easy_sense)
-		{
-			int i;
-
-			/* Sense each object in the stack */
-			for (i = 0; i < floor_num; i++)
-			{
-				/* Access the object */
-				o_ptr = &o_list[floor_list[i]];
-
-				/* Sense the object */
-				(void) sense_object(o_ptr);
-			}
-		}
-
-#endif /* ALLOW_EASY_SENSE */
-
 		/* Restrict the choices */
 		item_tester_hook = inven_carry_okay;
 
@@ -4098,17 +5021,6 @@ void py_pickup_floor(int pickup)
 
 	/* Access the object */
 	o_ptr = &o_list[this_o_idx];
-
-#ifdef ALLOW_EASY_SENSE
-
-	/* Option: Make object sensing easy */
-	if (easy_sense)
-	{
-		/* Sense the object */
-		(void) sense_object(o_ptr);
-	}
-
-#endif /* ALLOW_EASY_SENSE */
 
 	/* Carry the object */
 	slot = inven_carry(o_ptr);
@@ -4138,5 +5050,3 @@ void py_pickup_floor(int pickup)
 	/* Delete the object */
 	delete_object_idx(this_o_idx);
 }
-
-#endif /* ALLOW_EASY_FLOOR */

@@ -693,6 +693,278 @@ static void prt_stun(void)
 
 
 
+static int bar_count = 0;
+
+static void clear_status_bar(void)
+{
+	Term_putstr(COL_STATBAR, ROW_STATBAR, 12, TERM_WHITE, "            ");
+}
+
+
+static void show_status_bar(cptr letter, byte *colour, int num)
+{
+	int i;
+
+	if (num <= 12)
+	{
+		/* Reset everything */
+		bar_count = 0;
+		clear_status_bar();
+
+		/* Display the flags */
+		for (i = 0; i < num; i++)
+		{
+			Term_putch(COL_STATBAR + i, ROW_STATBAR, colour[i], letter[i]);
+		}
+	}
+	else
+	{
+		/* increment the count (scroll the flags) */
+		bar_count++;
+
+		if (bar_count >= num) bar_count = 0;
+
+		if (bar_count + 12 < num)
+		{
+			/* Simple case - all in a row */
+			for (i = 0; i < 12; i++)
+			{
+				Term_putch(COL_STATBAR + i, ROW_STATBAR,
+				           colour[i + bar_count], letter[i + bar_count]);
+			}
+		}
+		else
+		{
+			/* Split over boundary */
+			for (i = 0; i < num - bar_count; i++)
+			{
+				Term_putch(COL_STATBAR + i, ROW_STATBAR,
+				           colour[i + bar_count], letter[i + bar_count]);
+			}
+			for (i = 0; i < 12 + bar_count - num; i++)
+			{
+				Term_putch(COL_STATBAR + i + num - bar_count, ROW_STATBAR,
+					colour[i], letter[i]);
+			}
+		}
+	}
+}
+
+
+
+
+/* Show status bar */
+
+static void prt_status(void)
+{
+	int num = 0;
+	char letter[30];
+	byte colour[30];
+
+	/* Collate active flags */
+
+	/* Hack -- Hallucinating */
+	if (p_ptr->image)
+	{
+		letter[num] = 'H';
+		colour[num] = TERM_VIOLET;
+		num++;
+	}
+
+	/* Blindness */
+	if (p_ptr->blind)
+	{
+		letter[num] = 'B';
+		colour[num] = TERM_L_DARK;
+		num++;
+	}
+
+	/* Times see-invisible */
+	if (p_ptr->tim_invis)
+	{
+		letter[num] = 'I';
+		colour[num] = TERM_L_BLUE;
+		num++;
+	}
+
+	/* Timed esp */
+	if (p_ptr->tim_esp)
+	{
+		letter[num] = 'E';
+		colour[num] = TERM_ORANGE;
+		num++;
+	}
+
+	/* Timed infra-vision */
+	if (p_ptr->tim_infra)
+	{
+		letter[num] = 'I';
+		colour[num] = TERM_L_RED;
+		num++;
+	}
+
+	/* Paralysis */
+	if (p_ptr->paralyzed)
+	{
+		letter[num] = 'P';
+		colour[num] = TERM_RED;
+		num++;
+	}
+
+	/* Confusion */
+	if (p_ptr->confused)
+	{
+		letter[num] = 'C';
+		colour[num] = TERM_VIOLET;
+		num++;
+	}
+
+	/* Afraid */
+	if (p_ptr->afraid)
+	{
+		letter[num] = 'A';
+		colour[num] = TERM_YELLOW;
+		num++;
+	}
+
+	/* Fast */
+	if (p_ptr->fast)
+	{
+		letter[num] = 'S';
+		colour[num] = TERM_GREEN;
+		num++;
+	}
+
+	/* Slow */
+	if (p_ptr->slow)
+	{
+		letter[num] = 'S';
+		colour[num] = TERM_RED;
+		num++;
+	}
+
+	/* Protection from evil */
+	if (p_ptr->protevil)
+	{
+		letter[num] = 'E';
+		colour[num] = TERM_L_DARK;
+		num++;
+	}
+
+	/* Invulnerability */
+	if (p_ptr->invuln)
+	{
+		letter[num] = 'I';
+		colour[num] = TERM_YELLOW;
+		num++;
+	}
+
+	/* Wraith form */
+	if (p_ptr->wraith_form)
+	{
+		letter[num] = 'W';
+		colour[num] = TERM_L_DARK;
+		num++;
+	}
+
+	/* Heroism */
+	if (p_ptr->hero)
+	{
+		letter[num] = 'H';
+		colour[num] = TERM_WHITE;
+		num++;
+	}
+
+	/* Super Heroism / berserk */
+	if (p_ptr->shero)
+	{
+		letter[num] = 'B';
+		colour[num] = TERM_RED;
+		num++;
+	}
+
+	/* Blessed */
+	if (p_ptr->blessed)
+	{
+		letter[num] = 'B';
+		colour[num] = TERM_WHITE;
+		num++;
+	}
+
+	/* Shield */
+	if (p_ptr->shield)
+	{
+		letter[num] = 'S';
+		colour[num] = TERM_WHITE;
+		num++;
+	}
+
+	/* Oppose Acid */
+	if (p_ptr->oppose_acid)
+	{
+		letter[num] = 'A';
+		colour[num] = TERM_GREEN;
+		num++;
+	}
+
+	/* Oppose Lightning */
+	if (p_ptr->oppose_elec)
+	{
+		letter[num] = 'E';
+		colour[num] = TERM_BLUE;
+		num++;
+	}
+
+	/* Oppose Fire */
+	if (p_ptr->oppose_fire)
+	{
+		letter[num] = 'F';
+		colour[num] = TERM_RED;
+		num++;
+	}
+
+	/* Oppose Cold */
+	if (p_ptr->oppose_cold)
+	{
+		letter[num] = 'C';
+		colour[num] = TERM_WHITE;
+		num++;
+	}
+
+	/* Oppose Poison */
+	if (p_ptr->oppose_pois)
+	{
+		letter[num] = 'P';
+		colour[num] = TERM_GREEN;
+		num++;
+	}
+
+	/* Word of Recall */
+	if (p_ptr->word_recall)
+	{
+		letter[num] = 'W';
+		colour[num] = TERM_WHITE;
+		num++;
+	}
+
+	/* Confusing Hands */
+	if (p_ptr->confusing)
+	{
+		letter[num] = 'C';
+		colour[num] = TERM_RED;
+		num++;
+	}
+
+	if (num)
+	{
+		/* Display the status bar if there are flags set */
+		show_status_bar(letter, colour, num);
+	}
+	else clear_status_bar();
+}
+
+
+
 /*
  * Redraw the "monster health bar"	-DRS-
  * Rather extensive modifications by	-BEN-
@@ -771,6 +1043,9 @@ static void health_redraw(void)
 		/* Asleep */
 		if (m_ptr->csleep) attr = TERM_BLUE;
 
+		/* Invulnerable */
+		if (m_ptr->invulner) attr = TERM_WHITE;
+
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
 
@@ -807,6 +1082,9 @@ static void prt_frame_basic(void)
 
 	/* All Stats */
 	for (i = 0; i < 6; i++) prt_stat(i);
+
+	/* Status Bar */
+	prt_status();
 
 	/* Armor */
 	prt_ac();
@@ -1368,10 +1646,10 @@ static void calc_spells(void)
 		if (j >= 99) break;
 
 		/* Access the spell */
-		if (j<32)
+		if (j < 32)
 			s_ptr = &mp_ptr->info[use_realm1][j];
 		else
-			s_ptr = &mp_ptr->info[use_realm2][j%32];
+			s_ptr = &mp_ptr->info[use_realm2][j % 32];
 
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
@@ -1407,7 +1685,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have remembered the %s of %s.",
-			           p, spell_names[which][j%32]);
+			           p, spell_names[which][j % 32]);
 
 			/* One less can be learned */
 			p_ptr->new_spells--;
@@ -1425,7 +1703,7 @@ static void calc_spells(void)
 		if (j<32)
 			s_ptr = &mp_ptr->info[use_realm1][j];
 		else
-			s_ptr = &mp_ptr->info[use_realm2][j%32];
+			s_ptr = &mp_ptr->info[use_realm2][j % 32];
 
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
@@ -1444,11 +1722,11 @@ static void calc_spells(void)
 
 	if (p_ptr->realm2 == REALM_NONE)
 	{
-		if (k>32) k = 32;
+		if (k > 32) k = 32;
 	}
 	else
 	{
-		if (k>64) k = 64;
+		if (k > 64) k = 64;
 	}
 
 	/* Cannot learn more spells than exist */
@@ -1576,52 +1854,12 @@ static void calc_mana(void)
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
 	{
-
-#if 1
-
-		/* XXX XXX XXX New mana maintenance */
-
 		/* Enforce maximum */
 		if (p_ptr->csp >= msp)
 		{
 			p_ptr->csp = msp;
 			p_ptr->csp_frac = 0;
 		}
-
-#else
-
-		/* Player has no mana now */
-		if (!msp)
-		{
-			/* No mana left */
-			p_ptr->csp = 0;
-			p_ptr->csp_frac = 0;
-		}
-
-		/* Player had no mana, has some now */
-		else if (!p_ptr->msp)
-		{
-			/* Reset mana */
-			p_ptr->csp = msp;
-			p_ptr->csp_frac = 0;
-		}
-
-		/* Player had some mana, adjust current mana */
-		else
-		{
-			s32b value;
-
-			/* change current mana proportionately to change of max mana, */
-			/* divide first to avoid overflow, little loss of accuracy */
-			value = ((((long)p_ptr->csp << 16) + p_ptr->csp_frac) /
-			         p_ptr->msp * msp);
-
-			/* Extract mana components */
-			p_ptr->csp = (value >> 16);
-			p_ptr->csp_frac = (value & 0xFFFF);
-		}
-
-#endif
 
 		/* Save new mana */
 		p_ptr->msp = msp;
@@ -1700,30 +1938,12 @@ static void calc_hitpoints(void)
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
 	{
-
-#if 1
-
-		/* XXX XXX XXX New hitpoint maintenance */
-
 		/* Enforce maximum */
 		if (p_ptr->chp >= mhp)
 		{
 			p_ptr->chp = mhp;
 			p_ptr->chp_frac = 0;
 		}
-
-#else
-
-		s32b value;
-
-		/* change current hit points proportionately to change of mhp */
-		/* divide first to avoid overflow, little loss of accuracy */
-		value = (((long)p_ptr->chp << 16) + p_ptr->chp_frac) / p_ptr->mhp;
-		value = value * mhp;
-		p_ptr->chp = (value >> 16);
-		p_ptr->chp_frac = (value & 0xFFFF);
-
-#endif
 
 		/* Save the new max-hitpoints */
 		p_ptr->mhp = mhp;
@@ -2014,196 +2234,102 @@ void calc_bonuses(void)
 #endif /* USE_SCRIPT */
 
 	{
-		switch (p_ptr->pclass)
-		{
-			case CLASS_WARRIOR:
-				if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
-				break;
-			case CLASS_PALADIN:
-				if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
-				break;
-			case CLASS_CHAOS_WARRIOR:
-				if (p_ptr->lev > 29) p_ptr->resist_chaos = TRUE;
-				if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
-				break;
-			case CLASS_MINDCRAFTER:
-				if (p_ptr->lev >  9) p_ptr->resist_fear = TRUE;
-				if (p_ptr->lev > 19) p_ptr->sustain_wis = TRUE;
-				if (p_ptr->lev > 29) p_ptr->resist_conf = TRUE;
-				if (p_ptr->lev > 39) p_ptr->telepathy = TRUE;
-				break;
-			case CLASS_MONK:
-				/* Unencumbered Monks become faster every 10 levels */
-				if (!(monk_heavy_armor()))
-					if (munchkin_combo || /* Prfnoff */
-					    !((p_ptr->prace == RACE_KLACKON) ||
-						  (p_ptr->prace == RACE_SPRITE)))
-						p_ptr->pspeed += (p_ptr->lev) / 10;
+		int pval; /* Prfnoff */
 
-				/* Free action if unencumbered at level 25 */
-				if  ((p_ptr->lev > 24) && !monk_heavy_armor())
-					p_ptr->free_act = TRUE;
-				break;
-		}
-	}
+		/* Extract the player flags */
+		player_flags(&f1, &f2, &f3, &pval);
 
-	/***** Races ****/
-	switch (p_ptr->prace)
-	{
-		case RACE_ELF:
-			p_ptr->resist_lite = TRUE;
-			break;
-		case RACE_HOBBIT:
-			p_ptr->sustain_dex = TRUE;
-			break;
-		case RACE_GNOME:
-			p_ptr->free_act = TRUE;
-			break;
-		case RACE_DWARF:
-			p_ptr->resist_blind = TRUE;
-			break;
-		case RACE_HALF_ORC:
-			p_ptr->resist_dark = TRUE;
-			break;
-		case RACE_HALF_TROLL:
-			p_ptr->sustain_str = TRUE;
+		/* Hack */
+		if (p_ptr->prace == RACE_SPECTRE) p_ptr->pass_wall = TRUE;
 
-			if (p_ptr->lev > 14)
-			{
-				/* High level trolls heal fast... */
-				p_ptr->regenerate = TRUE;
+		/* Affect stats */
+		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += pval;
+		if (f1 & (TR1_INT)) p_ptr->stat_add[A_INT] += pval;
+		if (f1 & (TR1_WIS)) p_ptr->stat_add[A_WIS] += pval;
+		if (f1 & (TR1_DEX)) p_ptr->stat_add[A_DEX] += pval;
+		if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += pval;
+		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += pval;
 
-				if ((p_ptr->pclass == CLASS_WARRIOR) || /* Prfnoff */
-				    (munchkin_combo && (p_ptr->pclass == CLASS_ROGUE)))
-				{
-					p_ptr->slow_digest = TRUE;
-					/* Let's not make Regeneration
-					 * a disadvantage for the poor warriors who can
-					 * never learn a spell that satisfies hunger (actually
-					 * neither can rogues, but half-trolls are not
-					 * supposed to play rogues) */
-				}
-			}
-			break;
-		case RACE_AMBERITE:
-			p_ptr->sustain_con = TRUE;
-			p_ptr->regenerate = TRUE;  /* Amberites heal fast... */
-			break;
-		case RACE_HIGH_ELF:
-			p_ptr->resist_lite = TRUE;
-			p_ptr->see_inv = TRUE;
-			break;
-		case RACE_BARBARIAN:
-			p_ptr->resist_fear = TRUE;
-			break;
-		case RACE_HALF_OGRE:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->sustain_str = TRUE;
-			break;
-		case RACE_HALF_GIANT:
-			p_ptr->sustain_str = TRUE;
-			p_ptr->resist_shard = TRUE;
-			break;
-		case RACE_HALF_TITAN:
-			p_ptr->resist_chaos = TRUE;
-			break;
-		case RACE_CYCLOPS:
-			p_ptr->resist_sound = TRUE;
-			break;
-		case RACE_YEEK:
-			p_ptr->resist_acid = TRUE;
-			if (p_ptr->lev > 19) p_ptr->immune_acid = TRUE;
-			break;
-		case RACE_KLACKON:
-			p_ptr->resist_conf = TRUE;
-			p_ptr->resist_acid = TRUE;
+		/* Affect stealth */
+		if (f1 & (TR1_STEALTH)) p_ptr->skill_stl += pval;
 
-			/* Klackons become faster */
-			p_ptr->pspeed += (p_ptr->lev) / 10;
-			break;
-		case RACE_KOBOLD:
-			p_ptr->resist_pois = TRUE;
-			break;
-		case RACE_NIBELUNG:
-			p_ptr->resist_disen = TRUE;
-			p_ptr->resist_dark = TRUE;
-			break;
-		case RACE_DARK_ELF:
-			p_ptr->resist_dark = TRUE;
-			if (p_ptr->lev > 19) p_ptr->see_inv = TRUE;
-			break;
-		case RACE_DRACONIAN:
-			p_ptr->ffall = TRUE;
-			if (p_ptr->lev >  4) p_ptr->resist_fire = TRUE;
-			if (p_ptr->lev >  9) p_ptr->resist_cold = TRUE;
-			if (p_ptr->lev > 14) p_ptr->resist_acid = TRUE;
-			if (p_ptr->lev > 19) p_ptr->resist_elec = TRUE;
-			if (p_ptr->lev > 34) p_ptr->resist_pois = TRUE;
-			break;
-		case RACE_MIND_FLAYER:
-			p_ptr->sustain_int = TRUE;
-			p_ptr->sustain_wis = TRUE;
-			if (p_ptr->lev > 14) p_ptr->see_inv = TRUE;
-			if (p_ptr->lev > 29) p_ptr->telepathy = TRUE;
-			break;
-		case RACE_IMP:
-			p_ptr->resist_fire = TRUE;
-			if (p_ptr->lev > 9) p_ptr->see_inv = TRUE;
-			break;
-		case RACE_GOLEM:
-			p_ptr->slow_digest = TRUE;
-			p_ptr->free_act = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			if (p_ptr->lev > 34) p_ptr->hold_life = TRUE;
-			break;
-		case RACE_SKELETON:
-			p_ptr->resist_shard = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			if (p_ptr->lev > 9) p_ptr->resist_cold = TRUE;
-			break;
-		case RACE_ZOMBIE:
-			p_ptr->resist_neth = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			if (p_ptr->lev > 4) p_ptr->resist_cold = TRUE;
-			break;
-		case RACE_VAMPIRE:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->resist_neth = TRUE;
-			p_ptr->resist_cold = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->lite = TRUE;
-			break;
-		case RACE_SPECTRE:
-			p_ptr->resist_neth = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			p_ptr->resist_cold = TRUE;
-			p_ptr->pass_wall = TRUE;
-			if (p_ptr->lev > 34) p_ptr->telepathy = TRUE;
-			break;
-		case RACE_SPRITE:
-			p_ptr->ffall = TRUE;
-			p_ptr->resist_lite = TRUE;
+		/* Affect searching ability (factor of five) */
+		if (f1 & (TR1_SEARCH)) p_ptr->skill_srh += (pval * 5);
 
-			/* Sprites become faster */
-			p_ptr->pspeed += (p_ptr->lev) / 10;
-			break;
-		case RACE_BEASTMAN:
-			p_ptr->resist_conf  = TRUE;
-			p_ptr->resist_sound = TRUE;
-			break;
-		default:
-			/* Do nothing */
-			;
+		/* Affect searching frequency (factor of five) */
+		if (f1 & (TR1_SEARCH)) p_ptr->skill_fos += (pval * 5);
+
+		/* Affect infravision */
+		if (f1 & (TR1_INFRA)) p_ptr->see_infra += pval;
+
+		/* Affect digging (factor of 20) */
+		if (f1 & (TR1_TUNNEL)) p_ptr->skill_dig += (pval * 20);
+
+		/* Affect speed */
+		if (f1 & (TR1_SPEED)) p_ptr->pspeed += pval;
+
+		/* Affect blows */
+		if (f1 & (TR1_BLOWS)) extra_blows += pval;
+
+		/* Hack -- cause earthquakes */
+		if (f1 & (TR1_IMPACT)) p_ptr->impact = TRUE;
+
+		/* Boost shots */
+		if (f3 & (TR3_XTRA_SHOTS)) extra_shots++;
+
+		/* Various flags */
+		if (f3 & (TR3_AGGRAVATE))   p_ptr->aggravate = TRUE;
+		if (f3 & (TR3_TELEPORT))    p_ptr->teleport = TRUE;
+		if (f3 & (TR3_DRAIN_EXP))   p_ptr->exp_drain = TRUE;
+		if (f3 & (TR3_BLESSED))     p_ptr->bless_blade = TRUE;
+		if (f3 & (TR3_XTRA_MIGHT))  p_ptr->xtra_might = TRUE;
+		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+		if (f3 & (TR3_REGEN))       p_ptr->regenerate = TRUE;
+		if (f3 & (TR3_TELEPATHY))   p_ptr->telepathy = TRUE;
+		if (f3 & (TR3_LITE))        p_ptr->lite = TRUE;
+		if (f3 & (TR3_SEE_INVIS))   p_ptr->see_inv = TRUE;
+		if (f3 & (TR3_FEATHER))     p_ptr->ffall = TRUE;
+		if (f2 & (TR2_FREE_ACT))    p_ptr->free_act = TRUE;
+		if (f2 & (TR2_HOLD_LIFE))   p_ptr->hold_life = TRUE;
+		if (f3 & (TR3_WRAITH))      p_ptr->wraith_form = MAX(p_ptr->wraith_form, 20);
+
+		/* Immunity flags */
+		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
+		if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
+		if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
+		if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
+
+		/* Resistance flags */
+		if (f2 & (TR2_RES_ACID))   p_ptr->resist_acid = TRUE;
+		if (f2 & (TR2_RES_ELEC))   p_ptr->resist_elec = TRUE;
+		if (f2 & (TR2_RES_FIRE))   p_ptr->resist_fire = TRUE;
+		if (f2 & (TR2_RES_COLD))   p_ptr->resist_cold = TRUE;
+		if (f2 & (TR2_RES_POIS))   p_ptr->resist_pois = TRUE;
+		if (f2 & (TR2_RES_FEAR))   p_ptr->resist_fear = TRUE;
+		if (f2 & (TR2_RES_CONF))   p_ptr->resist_conf = TRUE;
+		if (f2 & (TR2_RES_SOUND))  p_ptr->resist_sound = TRUE;
+		if (f2 & (TR2_RES_LITE))   p_ptr->resist_lite = TRUE;
+		if (f2 & (TR2_RES_DARK))   p_ptr->resist_dark = TRUE;
+		if (f2 & (TR2_RES_CHAOS))  p_ptr->resist_chaos = TRUE;
+		if (f2 & (TR2_RES_DISEN))  p_ptr->resist_disen = TRUE;
+		if (f2 & (TR2_RES_SHARDS)) p_ptr->resist_shard = TRUE;
+		if (f2 & (TR2_RES_NEXUS))  p_ptr->resist_nexus = TRUE;
+		if (f2 & (TR2_RES_BLIND))  p_ptr->resist_blind = TRUE;
+		if (f2 & (TR2_RES_NETHER)) p_ptr->resist_neth = TRUE;
+
+		if (f2 & (TR2_REFLECT))  p_ptr->reflect = TRUE;
+		if (f3 & (TR3_SH_FIRE))  p_ptr->sh_fire = TRUE;
+		if (f3 & (TR3_SH_ELEC))  p_ptr->sh_elec = TRUE;
+		if (f3 & (TR3_NO_MAGIC)) p_ptr->anti_magic = TRUE;
+		if (f3 & (TR3_NO_TELE))  p_ptr->anti_tele = TRUE;
+
+		/* Sustain flags */
+		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
+		if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
+		if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
+		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
+		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
+		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 	}
 
 	/* Hack -- apply racial/class stat maxes */
@@ -2221,64 +2347,10 @@ void calc_bonuses(void)
 	/* I'm adding the mutations here for the lack of a better place... */
 	if (p_ptr->muta3)
 	{
-		/* Hyper Strength */
-		if (p_ptr->muta3 & MUT3_HYPER_STR)
+		/* Extract stat modifiers -- Prfnoff */
+		for (i = 0; i < 6; i++)
 		{
-			p_ptr->stat_add[A_STR] += 4;
-		}
-
-		/* Puny */
-		if (p_ptr->muta3 & MUT3_PUNY)
-		{
-			p_ptr->stat_add[A_STR] -= 4;
-		}
-
-		/* Living computer */
-		if (p_ptr->muta3 & MUT3_HYPER_INT)
-		{
-			p_ptr->stat_add[A_INT] += 4;
-			p_ptr->stat_add[A_WIS] += 4;
-		}
-
-		/* Moronic */
-		if (p_ptr->muta3 & MUT3_MORONIC)
-		{
-			p_ptr->stat_add[A_INT] -= 4;
-			p_ptr->stat_add[A_WIS] -= 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_RESILIENT)
-		{
-			p_ptr->stat_add[A_CON] += 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_XTRA_FAT)
-		{
-			p_ptr->stat_add[A_CON] += 2;
-			p_ptr->pspeed -= 2;
-		}
-
-		if (p_ptr->muta3 & MUT3_ALBINO)
-		{
-			p_ptr->stat_add[A_CON] -= 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_FLESH_ROT)
-		{
-			p_ptr->stat_add[A_CON] -= 2;
-			p_ptr->stat_add[A_CHR] -= 1;
-			p_ptr->regenerate = FALSE;
-			/* Cancel innate regeneration */
-		}
-
-		if (p_ptr->muta3 & MUT3_SILLY_VOI)
-		{
-			p_ptr->stat_add[A_CHR] -= 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_BLANK_FAC)
-		{
-			p_ptr->stat_add[A_CHR] -= 1;
+			p_ptr->stat_add[i] += mutation_stat_mod(i);
 		}
 
 		if (p_ptr->muta3 & MUT3_XTRA_EYES)
@@ -2302,102 +2374,9 @@ void calc_bonuses(void)
 			p_ptr->see_infra += 3;
 		}
 
-		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
-		{
-			p_ptr->pspeed += 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_SHORT_LEG)
-		{
-			p_ptr->pspeed -= 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
-		{
-			p_ptr->sh_elec = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_FIRE_BODY)
-		{
-			p_ptr->sh_fire = TRUE;
-			p_ptr->lite = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_WART_SKIN)
-		{
-			p_ptr->stat_add[A_CHR] -= 2;
-			p_ptr->to_a += 5;
-			p_ptr->dis_to_a += 5;
-		}
-
-		if (p_ptr->muta3 & MUT3_SCALES)
-		{
-			p_ptr->stat_add[A_CHR] -= 1;
-			p_ptr->to_a += 10;
-			p_ptr->dis_to_a += 10;
-		}
-
-		if (p_ptr->muta3 & MUT3_IRON_SKIN)
-		{
-			p_ptr->stat_add[A_DEX] -= 1;
-			p_ptr->to_a += 25;
-			p_ptr->dis_to_a += 25;
-		}
-
-		if (p_ptr->muta3 & MUT3_WINGS)
-		{
-			p_ptr->ffall = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			p_ptr->resist_fear = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_REGEN)
-		{
-			p_ptr->regenerate = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_ESP)
-		{
-			p_ptr->telepathy =TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_LIMBER)
-		{
-			p_ptr->stat_add[A_DEX] += 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_ARTHRITIS)
-		{
-			p_ptr->stat_add[A_DEX] -= 3;
-		}
-
 		if (p_ptr->muta3 & MUT3_MOTION)
 		{
-			p_ptr->free_act =TRUE;
 			p_ptr->skill_stl += 1;
-		}
-
-		if (p_ptr->muta3 & MUT3_SUS_STATS)
-		{
-			p_ptr->sustain_con =TRUE;
-			if (p_ptr->lev > 9)
-				p_ptr->sustain_str = TRUE;
-			if (p_ptr->lev > 19)
-				p_ptr->sustain_dex = TRUE;
-			if (p_ptr->lev > 29)
-				p_ptr->sustain_wis = TRUE;
-			if (p_ptr->lev > 39)
-				p_ptr->sustain_int = TRUE;
-			if (p_ptr->lev > 49)
-				p_ptr->sustain_chr = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_ILL_NORM)
-		{
-			p_ptr->stat_add[A_CHR] = 0;
 		}
 	}
 
@@ -2683,7 +2662,6 @@ void calc_bonuses(void)
 		p_ptr->dis_to_d -= 5;
 	}
 
-
 	/* Invulnerability */
 	if (p_ptr->invuln)
 	{
@@ -2762,12 +2740,6 @@ void calc_bonuses(void)
 	}
 
 
-	/* Hack -- Res Chaos -> Res Conf */
-	if (p_ptr->resist_chaos)
-	{
-		p_ptr->resist_conf = TRUE;
-	}
-
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->hero || p_ptr->shero)
 	{
@@ -2842,7 +2814,7 @@ void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
 
-	/* It is hard to carholdry a heavy bow */
+	/* It is hard to carry a heavy bow */
 	if (hold < o_ptr->weight / 10)
 	{
 		/* Hard to wield a heavy bow */
@@ -2980,7 +2952,7 @@ void calc_bonuses(void)
 
 			/* Monk */
 			case CLASS_MONK:
-				num = (p_ptr->lev<40?3:4); wgt = 40; mul = 4; break;
+				num = ((p_ptr->lev < 40) ? 3 : 4); wgt = 40; mul = 4; break;
 		}
 
 		/* Enforce a minimum "weight" (tenth pounds) */
@@ -3372,7 +3344,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_BASIC))
 	{
 		p_ptr->redraw &= ~(PR_BASIC);
-		p_ptr->redraw &= ~(PR_MISC | PR_TITLE | PR_STATS);
+		p_ptr->redraw &= ~(PR_MISC | PR_TITLE | PR_STATS | PR_STATUS);
 		p_ptr->redraw &= ~(PR_LEV | PR_EXP | PR_GOLD);
 		p_ptr->redraw &= ~(PR_ARMOR | PR_HP | PR_MANA);
 		p_ptr->redraw &= ~(PR_DEPTH | PR_HEALTH);
@@ -3419,6 +3391,12 @@ void redraw_stuff(void)
 		prt_stat(A_DEX);
 		prt_stat(A_CON);
 		prt_stat(A_CHR);
+	}
+
+	if (p_ptr->redraw & (PR_STATUS))
+	{
+		p_ptr->redraw &= ~(PR_STATUS);
+		prt_status();
 	}
 
 	if (p_ptr->redraw & (PR_ARMOR))

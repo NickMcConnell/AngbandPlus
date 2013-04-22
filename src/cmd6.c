@@ -514,23 +514,27 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_CONFUSION: /* Booze */
 		{
-			if (!((p_ptr->resist_conf) || (p_ptr->resist_chaos)))
+			if (!p_ptr->resist_conf)
 			{
 				if (set_confused(p_ptr->confused + rand_int(20) + 15))
 				{
 					ident = TRUE;
 				}
-				if (randint(2) == 1)
+			}
+
+			if (!p_ptr->resist_chaos)
+			{
+				if (one_in_(2))
 				{
 					if (set_image(p_ptr->image + rand_int(150) + 150))
 					{
 						ident = TRUE;
 					}
 				}
-				if (randint(13) == 1)
+				if (one_in_(13))
 				{
 					ident = TRUE;
-					if (randint(3) == 1) lose_all_info();
+					if (one_in_(3)) lose_all_info();
 					else wiz_dark();
 					teleport_player(100);
 					wiz_dark();
@@ -545,7 +549,7 @@ static void do_cmd_quaff_potion_aux(int item)
 		{
 			if (!p_ptr->free_act)
 			{
-				if (set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4))
+				if (set_sleep(p_ptr->paralyzed + rand_int(4) + 4))
 				{
 					ident = TRUE;
 				}
@@ -893,7 +897,14 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_ENLIGHTENMENT:
 		{
 			msg_print("An image of your surroundings forms in your mind...");
-			wiz_lite();
+			if (munchkin_lite)
+			{
+				wiz_lite();
+			}
+			else
+			{
+				map_dungeon();
+			}
 			ident = TRUE;
 			break;
 		}
@@ -902,7 +913,14 @@ static void do_cmd_quaff_potion_aux(int item)
 		{
 			msg_print("You begin to feel more enlightened...");
 			msg_print(NULL);
-			wiz_lite();
+			if (munchkin_lite)
+			{
+				wiz_lite();
+			}
+			else
+			{
+				map_dungeon();
+			}
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
 			(void)detect_traps();
@@ -971,14 +989,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_NEW_LIFE:
 		{
-			do_cmd_rerate();
-			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
-			{
-				msg_print("You are cured of all mutations.");
-				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
-				p_ptr->update |= PU_BONUS;
-				handle_stuff();
-			}
+			new_life();
 			ident = TRUE;
 			break;
 		}
@@ -987,7 +998,7 @@ static void do_cmd_quaff_potion_aux(int item)
 	if (p_ptr->prace == RACE_SKELETON)
 	{
 		msg_print("Some of the fluid falls through your jaws!");
-		potion_smash_effect(0, py, px, q_ptr->sval);
+		(void)potion_smash_effect(0, py, px, q_ptr->k_idx);
 	}
 
 	/* Combine / Reorder the pack (later) */
@@ -1326,6 +1337,7 @@ static void do_cmd_read_scroll_aux(int item)
 				msg_print("Your hands begin to glow.");
 				p_ptr->confusing = TRUE;
 				ident = TRUE;
+				p_ptr->redraw |= (PR_STATUS);
 			}
 			break;
 		}
@@ -1394,7 +1406,7 @@ static void do_cmd_read_scroll_aux(int item)
 			break;
 		}
 
-		/* New Zangband scrolls */
+		/* New scrolls */
 		case SV_SCROLL_FIRE:
 		{
 			fire_ball(GF_FIRE, 0, 150, 4);
@@ -1629,6 +1641,10 @@ static void do_cmd_use_staff_aux(int item)
 		flush();
 		msg_print("The staff has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
 		return;
 	}
 
@@ -1703,11 +1719,31 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_STARLITE:
 		{
+			int num = damroll(5, 3);
+			int y, x;
+			int attempts;
+
 			if (!p_ptr->blind)
 			{
 				msg_print("The end of the staff glows brightly...");
 			}
-			for (k = 0; k < 8; k++) (void)lite_line(ddd[k]);
+
+			for (k = 0; k < num; k++)
+			{
+				attempts = 1000;
+
+				while (attempts--)
+				{
+					scatter(&y, &x, py, px, 4, 0);
+
+					if (!cave_floor_bold(y, x)) continue;
+
+					if ((y != py) || (x != px)) break;
+				}
+
+				project(0, 0, y, x, damroll(6, 8), GF_LITE_WEAK,
+				        (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_KILL));
+			}
 			ident = TRUE;
 			break;
 		}
@@ -2059,6 +2095,10 @@ static void do_cmd_aim_wand_aux(int item)
 		flush();
 		msg_print("The wand has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
 		return;
 	}
 
@@ -2824,7 +2864,7 @@ void ring_of_power(int dir)
  */
 static void do_cmd_activate_aux(int item)
 {
-	int         i, k, dir, lev, chance;
+	int         k, dir, lev, chance;
 	object_type *o_ptr;
 
 
@@ -2865,7 +2905,8 @@ static void do_cmd_activate_aux(int item)
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE) ||
+	    ((o_ptr->ident & IDENT_CURSED) && (randint(3) != 1)))
 	{
 		flush();
 		msg_print("You failed to activate it properly.");
@@ -2925,7 +2966,14 @@ static void do_cmd_activate_aux(int item)
 			case ART_THRAIN:
 			{
 				msg_print("The Jewel flashes bright red!");
-				wiz_lite();
+				if (munchkin_lite)
+				{
+					wiz_lite();
+				}
+				else
+				{
+					map_dungeon();
+				}
 				msg_print("The Jewel drains your vitality...");
 				take_hit(damroll(3, 8), "the Jewel of Judgement");
 				(void)detect_traps();
@@ -3020,8 +3068,29 @@ static void do_cmd_activate_aux(int item)
 
 			case ART_RAZORBACK:
 			{
+				int num = damroll(5, 3);
+				int y, x;
+				int attempts;
+
 				msg_print("Your armor is surrounded by lightning...");
-				for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3);
+
+				for (k = 0; k < num; k++)
+				{
+					attempts = 1000;
+
+					while (attempts--)
+					{
+						scatter(&y, &x, py, px, 4, 0);
+
+						if (!cave_floor_bold(y, x)) continue;
+
+						if ((y != py) || (x != px)) break;
+					}
+
+					project(0, 3, y, x, 150, GF_ELEC,
+					        (PROJECT_THRU | PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
+				}
+
 				o_ptr->timeout = 1000;
 				break;
 			}
@@ -3088,13 +3157,8 @@ static void do_cmd_activate_aux(int item)
 			case ART_DOR:
 			case ART_TERROR:
 			{
-#if 0
-				for (i = 0; i < 8; i++) fear_monster(ddd[i], (p_ptr->lev)+10);
-#else
 				turn_monsters(40 + p_ptr->lev);
-#endif
 				o_ptr->timeout = 3 * (p_ptr->lev + 10);
-
 				break;
 			}
 
@@ -3391,23 +3455,8 @@ static void do_cmd_activate_aux(int item)
 
 			case ART_AVAVIR:
 			{
-				if (dun_level && (p_ptr->max_dlv > dun_level))
-				{
-					if (get_check("Reset recall depth? "))
-					p_ptr->max_dlv = dun_level;
-				}
-
 				msg_print("Your scythe glows soft white...");
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				word_of_recall(); /* Prfnoff */
 				o_ptr->timeout = 200;
 				break;
 			}
@@ -3850,6 +3899,23 @@ void do_cmd_use(void)
 		/* Read a scroll */
 		case TV_SCROLL:
 		{
+			/* Check some conditions first -- Prfnoff */
+			if (p_ptr->blind)
+			{
+				msg_print("You can't see anything.");
+				return;
+			}
+			if (no_lite())
+			{
+				msg_print("You have no light to read by.");
+				return;
+			}
+			if (p_ptr->confused)
+			{
+				msg_print("You are too confused!");
+				return;
+			}
+
 			do_cmd_read_scroll_aux(item);
 			break;
 		}

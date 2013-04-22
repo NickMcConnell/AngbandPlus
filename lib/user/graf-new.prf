@@ -4623,3 +4623,6 @@ R:862:0xB4/0x8D
 # Load the special player pictures
 %:xtra-new.prf
 
+# Load the spell color definitions -- Prfnoff
+%:bolt-new.prf
+

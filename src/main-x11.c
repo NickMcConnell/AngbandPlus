@@ -297,7 +297,7 @@ typedef struct BITMAPINFOHEADER
 
 typedef struct RGB
 {
-     unsigned char r,g,b;
+     unsigned char b,g,r;
      unsigned char filler;
 } RGB;
 
@@ -375,6 +375,417 @@ static XImage *ReadBMP(Display *disp, char Name[])
 	return Res;
 }
 
+/* ========================================================*/
+/* Code for smooth icon rescaling from Uwe Siems, Jan 2000 */
+/* ========================================================*/
+
+/* to save ourselves some labour, define a maximum expected icon width here: */
+
+#define MAX_ICON_WIDTH 32
+
+/* some static variables for composing and decomposing pixel values into
+ * red, green and blue values
+ */
+static unsigned long redMask, greenMask, blueMask;
+static int redShift, greenShift, blueShift;
+
+/*
+ * Use smooth rescaling?
+ */
+static bool smoothRescaling = TRUE;
+
+/* GetScaledRow reads a scan from the given XImage, scales it smoothly
+ * and returns the red, green and blue values in arrays.
+ * The values in this arrays must be divided by a certain value that is
+ * calculated in ScaleIcon.
+ * x, y is the position, iw is the input width and ow the output width
+ * redScan, greenScan and blueScan must be sufficiently sized
+ */
+
+static void GetScaledRow (XImage *Im, int x, int y, int iw, int ow,
+    	    	    	  unsigned long *redScan, unsigned long *greenScan,
+			  unsigned long *blueScan)
+{
+    int xi, si, sifrac, ci, cifrac, addWhole, addFrac;
+    unsigned long pix;
+    int prevRed, prevGreen, prevBlue, nextRed, nextGreen, nextBlue;
+    bool getNextPix;
+
+    if (iw == ow) 
+    {
+    	/* unscaled */
+    	for (xi=0; xi<ow; xi++)
+	{
+	    pix = XGetPixel(Im, x+xi, y);
+	    redScan   [xi] = (pix>>redShift)&redMask;
+	    greenScan [xi] = (pix>>greenShift)&greenMask;
+	    blueScan  [xi] = (pix>>blueShift)&blueMask;
+	}
+    }
+    else if (iw < ow)
+    {
+    	/* scaling by subsampling (grow) */
+    	iw--;
+	ow--;
+	/* read first pixel: */
+    	pix = XGetPixel (Im, x, y);
+	nextRed   = (pix>>redShift)&redMask;
+	nextGreen = (pix>>greenShift)&greenMask;
+	nextBlue  = (pix>>blueShift)&blueMask;
+	prevRed   = nextRed;
+	prevGreen = nextGreen;
+	prevBlue  = nextBlue;
+	/* si and sifrac give the subsampling position: */
+	si = x;
+	sifrac = 0;
+	/* getNextPix tells us, that we need the next pixel */
+	getNextPix = TRUE;
+	for (xi=0; xi<=ow; xi++)
+	{
+	    if (getNextPix)
+	    {
+		prevRed   = nextRed;
+		prevGreen = nextGreen;
+		prevBlue  = nextBlue;
+		if (xi < ow)
+		{
+		    /* only get next pixel if in same icon */
+    		    pix = XGetPixel (Im, si+1, y);
+		    nextRed   = (pix>>redShift)&redMask;
+		    nextGreen = (pix>>greenShift)&greenMask;
+		    nextBlue  = (pix>>blueShift)&blueMask;
+		}
+	    }
+	    
+	    /* calculate subsampled color values: */
+	    /* division by ow occurs in ScaleIcon */
+    	    redScan   [xi] = prevRed   * (ow-sifrac) + nextRed   * sifrac;
+    	    greenScan [xi] = prevGreen * (ow-sifrac) + nextGreen * sifrac;
+    	    blueScan  [xi] = prevBlue  * (ow-sifrac) + nextBlue  * sifrac;
+
+    	    /* advance sampling position: */
+	    sifrac+=iw;
+	    if (sifrac>=ow)
+	    {
+	    	si++;
+		sifrac-=ow;
+		getNextPix=TRUE;
+	    }
+	    else
+	    {
+	    	getNextPix=FALSE;
+	    }
+		
+	}
+    }
+    else
+    {
+    	/* scaling by averaging (shrink) */
+	/* width of an output pixel in input pixels: */
+    	addWhole=iw/ow;
+	addFrac=iw%ow;
+	/* start position of the first output pixel: */
+	si = x;
+	sifrac = 0;
+	/* get first input pixel: */
+    	pix = XGetPixel (Im, x, y);
+	nextRed   = (pix>>redShift)&redMask;
+	nextGreen = (pix>>greenShift)&greenMask;
+	nextBlue  = (pix>>blueShift)&blueMask;
+	for (xi=0; xi<ow; xi++)
+	{
+	    /* find endpoint of the current output pixel: */
+	    ci = si+addWhole;
+	    cifrac = sifrac+addFrac;
+	    if (cifrac>=ow) {
+	    	ci++;
+		cifrac-=ow;
+	    }
+	    /* take fraction of current input pixel (starting segment): */
+    	    redScan[xi]   = nextRed   * (ow-sifrac);
+    	    greenScan[xi] = nextGreen * (ow-sifrac);
+    	    blueScan[xi]  = nextBlue  * (ow-sifrac);
+	    si++;
+	    /* add values for whole pixels: */
+	    while (si<ci)
+	    {
+    		pix = XGetPixel (Im, si, y);
+		redScan[xi]   += ((pix>>redShift)&redMask)     *ow;
+		greenScan[xi] += ((pix>>greenShift)&greenMask) *ow;
+		blueScan[xi]  += ((pix>>blueShift)&blueMask)   *ow;
+		si++;
+	    }
+	    /* add fraction of current input pixel (ending segment): */
+	    if (xi<ow-1)
+	    {
+	    	/* only get next pixel if still in icon: */
+    		pix = XGetPixel (Im, si, y);
+		nextRed   = (pix>>redShift)&redMask;
+		nextGreen = (pix>>greenShift)&greenMask;
+		nextBlue  = (pix>>blueShift)&blueMask;
+	    }
+	    sifrac = cifrac;
+	    if (sifrac > 0) 
+	    {
+    		redScan[xi]   += nextRed   * sifrac;
+    		greenScan[xi] += nextGreen * sifrac;
+    		blueScan[xi]  += nextBlue  * sifrac;
+	    }
+	}
+    }
+}
+
+/* PutRGBScan takes arrays for red, green and blue and writes pixel values
+ * according to this values in the XImage-structure. w is the number of
+ * pixels to write and div is the value by which all red/green/blue values
+ * are divided first.
+ */
+
+static void PutRGBScan (XImage *Im, int x, int y, int w, int div,
+    	    	        unsigned long *redScan, unsigned long *greenScan,
+			unsigned long *blueScan)
+{
+    int xi;
+    unsigned long pix;
+    unsigned long adj = div/2;
+    for (xi=0; xi<w; xi++)
+    {
+    	pix =  ((((redScan[xi]  +adj)/div)&redMask)  <<redShift)
+	     + ((((greenScan[xi]+adj)/div)&greenMask)<<greenShift)
+	     + ((((blueScan[xi] +adj)/div)&blueMask) <<blueShift);
+	XPutPixel(Im, x+xi, y, pix);
+    }
+}
+
+/* ScaleIcon transfers an area from XImage ImIn, locate (x1,y1) to
+ * ImOut, locate (x2, y2). Source size is (ix, iy) and destination size
+ * is (ox, oy).
+ * It does this by getting icon scan line from GetScaledScan and handling
+ * them the same way as pixels are handled in GetScaledScan.
+ * This even allows icons to be scaled differently in horizontal and
+ * vertical directions (eg. shrink horizontal, grow vertical).
+ */
+
+static void ScaleIcon (XImage *ImIn, XImage *ImOut,
+    	    	       int x1, int y1, int x2, int y2,
+		       int ix, int iy, int ox, int oy)
+{
+    int div;
+    int xi, yi, si, sifrac, ci, cifrac, addWhole, addFrac;
+    /* buffers for pixel rows: */
+    unsigned long prevRed   [MAX_ICON_WIDTH],
+    	    	  prevGreen [MAX_ICON_WIDTH],
+    	          prevBlue  [MAX_ICON_WIDTH];
+    unsigned long nextRed   [MAX_ICON_WIDTH],
+    	    	  nextGreen [MAX_ICON_WIDTH],
+    	    	  nextBlue  [MAX_ICON_WIDTH];
+    unsigned long tempRed   [MAX_ICON_WIDTH],
+    	    	  tempGreen [MAX_ICON_WIDTH],
+    	    	  tempBlue  [MAX_ICON_WIDTH];
+    bool getNextRow;
+
+    /* get divider value for the horizontal scaling: */
+    if (ix == ox)
+    	div = 1;
+    else if (ix < ox)
+    	div = ox-1;
+    else
+    	div = ix;
+
+    if (iy == oy) 
+    {
+    	/* no scaling needed vertically: */
+    	for (yi=0; yi<oy; yi++)
+	{
+	    GetScaledRow (ImIn, x1, y1+yi, ix, ox,
+	    	    	   tempRed, tempGreen, tempBlue);
+	    PutRGBScan (ImOut, x2, y2+yi, ox, div,
+	    	    	tempRed, tempGreen, tempBlue);
+	}
+    }
+    else if (iy < oy)
+    {
+    	/* scaling by subsampling (grow): */
+    	iy--;
+	oy--;
+	div *= oy;
+	/* get first row: */
+	GetScaledRow (ImIn, x1, y1, ix, ox, nextRed, nextGreen, nextBlue);
+	/* si and sifrac give the subsampling position: */
+	si = y1;
+	sifrac = 0;
+	/* getNextRow tells us, that we need the next row */
+	getNextRow = TRUE;
+	for (yi=0; yi<=oy; yi++)
+	{
+	    if (getNextRow)
+	    {
+	    	for (xi=0; xi<ox; xi++)
+		{
+		    prevRed[xi]   = nextRed[xi];
+		    prevGreen[xi] = nextGreen[xi];
+		    prevBlue[xi]  = nextBlue[xi];
+		}
+		if (yi<oy)
+		{
+		    /* only get next row if in same icon */
+		    GetScaledRow (ImIn, x1, si+1, ix, ox,
+		    	           nextRed, nextGreen, nextBlue);
+		}
+	    }
+	    
+	    /* calculate subsampled color values: */
+	    /* division by oy occurs in PutRGBScan */
+	    for (xi=0; xi<ox; xi++)
+	    {
+    	    	tempRed[xi]   =  prevRed[xi]   * (oy-sifrac)
+		    	       + nextRed[xi]   * sifrac;
+    	    	tempGreen[xi] =  prevGreen[xi] * (oy-sifrac)
+		    	       + nextGreen[xi] * sifrac;
+    	    	tempBlue[xi]  =  prevBlue[xi]  * (oy-sifrac)
+		    	       + nextBlue[xi]  * sifrac;
+	    }
+	    /* write row to output image: */
+	    PutRGBScan (ImOut, x2, y2+yi, ox, div,
+	    	    	tempRed, tempGreen, tempBlue);
+
+    	    /* advance sampling position: */
+	    sifrac+=iy;
+	    if (sifrac>=oy)
+	    {
+	    	si++;
+		sifrac-=oy;
+		getNextRow=TRUE;
+	    }
+	    else
+	    {
+	    	getNextRow=FALSE;
+	    }
+		
+	}
+    }
+    else
+    {
+    	/* scaling by averaging (shrink) */
+    	div *= iy;
+	/* height of a output row in input rows: */
+    	addWhole=iy/oy;
+	addFrac=iy%oy;
+	/* start position of the first output row: */
+	si = y1;
+	sifrac = 0;
+	/* get first input row: */
+	GetScaledRow (ImIn, x1, y1, ix, ox, nextRed, nextGreen, nextBlue);
+	for (yi=0; yi<oy; yi++)
+	{
+	    /* find endpoint of the current output row: */
+	    ci = si+addWhole;
+	    cifrac = sifrac+addFrac;
+	    if (cifrac>=oy) {
+	    	ci++;
+		cifrac-=oy;
+	    }
+	    /* take fraction of current input row (starting segment): */
+	    for (xi=0; xi<ox; xi++)
+	    {
+    		tempRed[xi]   = nextRed[xi]   * (oy-sifrac);
+    		tempGreen[xi] = nextGreen[xi] * (oy-sifrac);
+    		tempBlue[xi]  = nextBlue[xi]  * (oy-sifrac);
+	    }
+	    si++;
+	    /* add values for whole pixels: */
+	    while (si<ci)
+	    {
+	    	GetScaledRow (ImIn, x1, si, ix, ox,
+		    	       nextRed, nextGreen, nextBlue);
+		for (xi=0; xi<ox; xi++)
+		{
+		    tempRed[xi]   += nextRed[xi]   * oy;
+		    tempGreen[xi] += nextGreen[xi] * oy;
+		    tempBlue[xi]  += nextBlue[xi]  * oy;
+		}
+		si++;
+	    }
+	    /* add fraction of current input row (ending segment): */
+	    if (yi<oy-1) {
+	    	/* only get next row if still in icon: */
+		GetScaledRow (ImIn, x1, si, ix, ox,
+		    	       nextRed, nextGreen, nextBlue);
+	    }
+	    sifrac = cifrac;
+	    for (xi=0; xi<ox; xi++)
+	    {
+		tempRed[xi]   += nextRed[xi]   * sifrac;
+		tempGreen[xi] += nextGreen[xi] * sifrac;
+		tempBlue[xi]  += nextBlue[xi]  * sifrac;
+	    }
+	    /* write row to output image: */
+	    PutRGBScan (ImOut, x2, y2+yi, ox, div,
+	    	    	tempRed, tempGreen, tempBlue);
+	}
+    }
+}
+    	
+
+
+static XImage *ResizeImageSmooth(Display *disp, XImage *Im,
+                                 int ix, int iy, int ox, int oy)
+{
+	int width1, height1, width2, height2;
+	int x1, x2, y1, y2;
+	
+	XImage *Tmp;
+
+	char *Data;
+
+	width1 = Im->width;
+	height1 = Im->height;
+
+	width2 = ox * width1 / ix;
+	height2 = oy * height1 / iy;
+
+	Data = (char *)malloc(width2 * height2 * Im->bits_per_pixel / 8);
+
+	Tmp = XCreateImage(disp,
+	                   DefaultVisual(disp, DefaultScreen(disp)),
+	                   Im->depth, ZPixmap, 0, Data, width2, height2,
+	                   32, 0);
+
+    	/* compute values for decomposing pixel into color values: */
+    	redMask = Im->red_mask;
+	redShift = 0;
+	while ((redMask&1) == 0)
+	{
+	    redShift++;
+	    redMask>>=1;
+	}
+    	greenMask = Im->green_mask;
+	greenShift = 0;
+	while ((greenMask&1) == 0)
+	{
+	    greenShift++;
+	    greenMask>>=1;
+	}
+    	blueMask = Im->blue_mask;
+	blueShift = 0;
+	while ((blueMask&1) == 0)
+	{
+	    blueShift++;
+	    blueMask>>=1;
+	}
+
+    	/* scale each icon: */
+    	for (y1=0, y2=0; (y1 < height1) && (y2 < height2); y1+=iy, y2+=oy)
+	{
+		for (x1=0, x2=0; (x1 < width1) && (x2 < width2); x1+=ix, x2+=ox)
+		{
+			ScaleIcon (Im, Tmp, x1, y1, x2, y2,
+			           ix, iy, ox, oy);
+		}
+	}
+
+	return Tmp;
+}
 
 
 /*
@@ -394,7 +805,12 @@ static XImage *ResizeImage(Display *disp, XImage *Im,
 
 	char *Data;
 
-
+    	if (smoothRescaling && (ix != ox || iy != oy)
+	    && DefaultVisual(disp, DefaultScreen(disp))->class == TrueColor)
+	{
+	    return ResizeImageSmooth (disp, Im, ix, iy, ox, oy);
+	}
+    	
 	width1 = Im->width;
 	height1 = Im->height;
 
@@ -438,11 +854,11 @@ static XImage *ResizeImage(Display *disp, XImage *Im,
 		dy2 = &iy;
 	}
 
-	Ty = *dy1;
+	Ty = *dy1/2;
 
 	for (y1=0, y2=0; (y1 < height1) && (y2 < height2); )
 	{
-		Tx = *dx1;
+		Tx = *dx1/2;
 
 		for (x1=0, x2=0; (x1 < width1) && (x2 < width2); )
 		{
@@ -610,8 +1026,6 @@ static metadpy *Metadpy = &metadpy_default;
 static infowin *Infowin = (infowin*)(NULL);
 static infoclr *Infoclr = (infoclr*)(NULL);
 static infofnt *Infofnt = (infofnt*)(NULL);
-
-
 
 /**** Available code ****/
 
@@ -881,7 +1295,7 @@ static errr Infowin_prepare(Window xid)
 static errr Infowin_init_real(Window xid)
 {
 	/* Wipe it clean */
-	WIPE(Infowin, infowin);
+	(void) WIPE(Infowin, infowin);
 
 	/* Start out non-nukable */
 	Infowin->nuke = 0;
@@ -911,7 +1325,7 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
 	Window xid;
 
 	/* Wipe it clean */
-	WIPE(Infowin, infowin);
+	(void) WIPE(Infowin, infowin);
 
 
 	/*** Error Check XXX ***/
@@ -1306,7 +1720,7 @@ static errr Infoclr_init_1(GC gc)
 	infoclr *iclr = Infoclr;
 
 	/* Wipe the iclr clean */
-	WIPE(iclr, infoclr);
+	(void) WIPE(iclr, infoclr);
 
 	/* Assign the GC */
 	iclr->gc = gc;
@@ -1401,7 +1815,7 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
 	/*** Initialize ***/
 
 	/* Wipe the iclr clean */
-	WIPE(iclr, infoclr);
+	(void) WIPE(iclr, infoclr);
 
 	/* Assign the GC */
 	iclr->gc = gc;
@@ -1519,7 +1933,7 @@ static errr Infofnt_prepare(XFontStruct *info)
 static errr Infofnt_init_real(XFontStruct *info)
 {
 	/* Wipe the thing */
-	WIPE(Infofnt, infofnt);
+	(void) WIPE(Infofnt, infofnt);
 
 	/* No nuking */
 	Infofnt->nuke = 0;
@@ -1557,7 +1971,7 @@ static errr Infofnt_init_data(cptr name)
 	/*** Init the font ***/
 
 	/* Wipe the thing */
-	WIPE(Infofnt, infofnt);
+	(void) WIPE(Infofnt, infofnt);
 
 	/* Attempt to prepare it */
 	if (Infofnt_prepare(info))
@@ -2272,8 +2686,8 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		XPutImage(Metadpy->dpy, td->inner->win,
 		          clr[15]->gc,
 		          td->tiles,
-		          (c&0x7F) * td->fnt->wid + 1,
-		          (a&0x7F) * td->fnt->hgt + 1,
+		          (c&0x7F) * td->fnt->wid,
+		          (a&0x7F) * td->fnt->hgt,
 		          x, y,
 		          td->fnt->wid, td->fnt->hgt);
 
@@ -2398,6 +2812,12 @@ errr init_x11(int argc, char *argv[])
 		if (prefix(argv[i], "-d"))
 		{
 			dpy_name = &argv[i][2];
+			continue;
+		}
+
+		if (prefix(argv[i], "-s"))
+		{
+			smoothRescaling = FALSE;
 			continue;
 		}
 

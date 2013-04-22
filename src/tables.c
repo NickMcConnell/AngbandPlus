@@ -69,6 +69,26 @@ char hexsym[16] =
 
 
 /*
+ * Global array for converting numbers to a logical list symbol
+ */
+char listsym[] =
+{
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+	'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+	'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+	'\0'
+};
+
+
+/*
+ * Encode the screen colors
+ */
+cptr color_char = "dwsorgbuDWvyRGBU";
+
+
+/*
  * Stat Table (INT/WIS) -- Number of half-spells per level
  */
 byte adj_mag_study[] =
@@ -1108,72 +1128,333 @@ byte blows_table[12][12] =
 /*
  * Store owners (exactly four "possible" owners per store, chosen randomly)
  * { name, purse, max greed, min greed, haggle_per, tolerance, race, unused }
+ * 
+ * Lifted extra shopkeepers from CthAngband (don't you just love open source
+ * development? ;-)). Since this gave less than 32 unique names for some
+ * shops, those have their first x names copied to reach 32.
+ * 
+ * For the weapon and armour shops, several owners have a limit of 5k.
+ * 
+ * I want to do 50k owners, but the purse is currently s16b. Perhaps
+ * we should just store 1/10th of the purse?
  */
 owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
-		/* General store */
+		/* General store - 32 unique names */
 		{ "Bilbo the Friendly",         200,    170, 108,  5, 15, RACE_HOBBIT},
 		{ "Raistlin the Chicken",       200,    175, 108,  4, 12, RACE_HUMAN},
 		{ "Sultan the Midget",          300,    170, 107,  5, 15, RACE_GNOME},
 		{ "Lyar-el the Comely",         300,    165, 107,  6, 18, RACE_ELF},
+		{ "Falilmawen the Friendly",         250,    170, 108,  5, 15, RACE_HOBBIT},
+		{ "Voirin the Cowardly",       500,    175, 108,  4, 12, RACE_HUMAN},
+		{ "Erashnak the Midget",          750,    170, 107,  5, 15, RACE_BEASTMAN},
+		{ "Grug the Comely",        1000,    165, 107,  6, 18, RACE_HALF_TITAN},
+		{ "Forovir the Cheap",         250,    170, 108,  5, 15, RACE_HUMAN},
+		{ "Ellis the Fool",       500,    175, 108,  4, 12, RACE_HUMAN},
+		{ "Filbert the Hungry",          750,    170, 107,  5, 15, RACE_VAMPIRE},
+		{ "Fthnargl Psathiggua",        1000,    165, 107,  6, 18, RACE_MIND_FLAYER},
+		{ "Eloise Long-Dead",         250,    170, 108,  5, 15, RACE_SPECTRE},
+		{ "Fundi the Slow",       500,    175, 108,  4, 12, RACE_ZOMBIE},
+		{ "Granthus",          750,    170, 107,  5, 15, RACE_SKELETON},
+		{ "Lorax the Suave",        1000,    165, 107,  6, 18, RACE_VAMPIRE},
+		{ "Butch",         250,    170, 108,  5, 15, RACE_HALF_ORC},
+		{ "Elbereth the Beautiful",       500,    175, 108,  4, 12, RACE_HIGH_ELF},
+		{ "Sarleth the Sneaky",          750,    170, 107,  5, 15, RACE_GNOME},
+		{ "Narlock",        1000,    165, 107,  6, 18, RACE_DWARF},
+		{ "Haneka the Small",         250,    170, 108,  5, 15, RACE_GNOME},
+		{ "Loirin the Mad",       500,    175, 108,  4, 12, RACE_HALF_GIANT},
+		{ "Wuto Poisonbreath",          750,    170, 107,  5, 15, RACE_DRACONIAN},
+		{ "Araaka the Rotund",        1000,    165, 107,  6, 18, RACE_DRACONIAN},
+		{ "Poogor the Dumb",         250,    170, 108,  5, 15, RACE_BEASTMAN},
+		{ "Felorfiliand",       500,    175, 108,  4, 12, RACE_ELF},
+		{ "Maroka the Aged",          750,    170, 107,  5, 15, RACE_GNOME},
+		{ "Sasin the Bold",        1000,    165, 107,  6, 18, RACE_HALF_GIANT},
+		{ "Abiemar the Peasant",         250,    170, 108,  5, 15, RACE_HUMAN},
+		{ "Hurk the Poor",       500,    175, 108,  4, 12, RACE_HALF_ORC},
+		{ "Soalin the Wretched",          750,    170, 107,  5, 15, RACE_ZOMBIE},
+		{ "Merulla the Humble",        1000,    165, 107,  6, 18, RACE_ELF},
 	},
 	{
-		/* Armoury */
+		/* Armoury - 28 unique names */
+		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
+		{ "Darg-Low the Grim",          10000,  190, 111,  4,  9, RACE_HUMAN},
+		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_AMBERITE},
+		{ "Wieland the Smith",          30000,  200, 112,  4,  5, RACE_DWARF},
+		{ "Kon-Dar the Ugly",           10000,   210, 115,  5,  7, RACE_HALF_ORC},
+		{ "Darg-Low the Grim",          15000,  190, 111,  4,  9, RACE_HUMAN},
+		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_AMBERITE},
+		{ "Elo Dragonscale",          30000,  200, 112,  4,  5, RACE_ELF},
+		{ "Delicatus",           10000,   210, 115,  5,  7, RACE_SPRITE},
+		{ "Gruce the Huge",          15000,  190, 111,  4,  9, RACE_HALF_GIANT},
+		{ "Animus",            25000,  200, 112,  4, 10, RACE_GOLEM},
+		{ "Malvus",          30000,  200, 112,  4,  5, RACE_HALF_TITAN},
+		{ "Selaxis",           10000,   210, 115,  5,  7, RACE_ZOMBIE},
+		{ "Deathchill",          5000,  190, 111,  4,  9, RACE_SPECTRE},
+		{ "Drios the Faint",            25000,  200, 112,  4, 10, RACE_SPECTRE},
+		{ "Bathric the Cold",          30000,  200, 112,  4,  5, RACE_VAMPIRE},
+		{ "Vengella the Cruel",           10000,   210, 115,  5,  7, RACE_HALF_TROLL},
+		{ "Wyrana the Mighty",          15000,  190, 111,  4,  9, RACE_HUMAN},
+		{ "Yojo II",            25000,  200, 112,  4, 10, RACE_DWARF},
+		{ "Ranalar the Sweet",          30000,  200, 112,  4,  5, RACE_AMBERITE},
+		{ "Horbag the Unclean",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
+		{ "Elelen the Telepath",          15000,  190, 111,  4,  9, RACE_DARK_ELF},
+		{ "Isedrelias",            25000,  200, 112,  4, 10, RACE_SPRITE},
+		{ "Vegnar One-eye",          5000,  200, 112,  4,  5, RACE_CYCLOPS},
+		{ "Rodish the Chaotic",           10000,   210, 115,  5,  7, RACE_BEASTMAN},
+		{ "Hesin Swordmaster",          15000,  190, 111,  4,  9, RACE_NIBELUNG},
+		{ "Elvererith the Cheat",           10000,  200, 112,  4, 10, RACE_DARK_ELF},
+		{ "Zzathath the Imp",          30000,  200, 112,  4,  5, RACE_IMP},
 		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
 		{ "Darg-Low the Grim",          10000,  190, 111,  4,  9, RACE_HUMAN},
 		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_AMBERITE},
 		{ "Wieland the Smith",          30000,  200, 112,  4,  5, RACE_DWARF},
 	},
 	{
-		/* Weapon Smith */
+		/* Weapon Smith - 28 unique names */
+		{ "Arnold the Beastly",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
+		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
+		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
+		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
+		{ "Drew the Skilled",      10000,   210, 115,  6,  6, RACE_HUMAN},
+		{"Orrax Dragonson",        15000,  185, 110,  5,  9, RACE_DRACONIAN},
+		{ "Anthrax Disease-Carrier",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
+		{ "Arkhoth the Stout",       30000,  195, 112,  4,  8, RACE_DWARF},
+		{ "Sarlyas the Rotten",      5000,   210, 115,  6,  6, RACE_ZOMBIE},
+		{"Tuethic Bare-Bones",        15000,  185, 110,  5,  9, RACE_SKELETON},
+		{ "Bilious",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
+		{ "Fasgul",       30000,  195, 112,  4,  8, RACE_ZOMBIE},
+		{ "Ellefris the Paladin",      10000,   210, 115,  6,  6, RACE_BARBARIAN},
+		{"K'trrik'k",        15000,  185, 110,  5,  9, RACE_KLACKON},
+		{ "Drocus Spiderfriend",         25000,  190, 115,  5,  7, RACE_DARK_ELF},
+		{ "Fungus Giant-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
+		{ "Delantha",      10000,   210, 115,  6,  6, RACE_ELF},
+		{"Solvistani the Ranger",        15000,  185, 110,  5,  9, RACE_HALF_ELF},
+		{ "Xoril the Slow",         25000,  190, 115,  5,  7, RACE_GOLEM},
+		{ "Aeon Flux",       20000,  195, 112,  4,  8, RACE_HALF_ELF},
+		{ "Nadoc the Strong",      10000,   210, 115,  6,  6, RACE_HOBBIT},
+		{"Eramog the Weak",        15000,  185, 110,  5,  9, RACE_KOBOLD},
+		{ "Eowilith the Fair",         25000,  190, 115,  5,  7, RACE_VAMPIRE},
+		{ "Huimog Balrog-Slayer",       30000,  195, 112,  4,  8, RACE_HALF_ORC},
+		{ "Peadus the Cruel",      5000,   210, 115,  6,  6, RACE_HUMAN},
+		{ "Vamog Slayer",        15000,  185, 110,  5,  9, RACE_HALF_OGRE},
+		{ "Hooshnak the Vicious",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
+		{ "Balenn War-Dancer",       30000,  195, 112,  4,  8, RACE_BARBARIAN},
 		{ "Arnold the Beastly",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
 		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
 		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
 		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
 	},
 	{
-		/* Temple */
+		/* Temple - 22 unique names */
 		{ "Ludwig the Humble",          5000,   175, 109,  6, 15, RACE_DWARF},
 		{ "Gunnar the Paladin",         10000,  185, 110,  5, 23, RACE_HALF_TROLL},
 		{ "Torin the Chosen",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
 		{ "Sarastro the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
+		{ "Sir Parsival the Pure",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
+		{ "Asenath the Holy",          30000,  185, 109,  5, 15, RACE_HUMAN},
+		{ "McKinnon",         10000,   175, 109,  6, 15, RACE_HUMAN},
+		{ "Mistress Chastity",         15000,  185, 110,  5, 23, RACE_HIGH_ELF},
+		{ "Hashnik the Druid",           25000,  180, 107,  6, 20, RACE_HOBBIT},
+		{ "Finak",          30000,  185, 109,  5, 15, RACE_YEEK},
+		{ "Krikkik",         10000,   175, 109,  6, 15, RACE_KLACKON},
+		{ "Morival the Wild",         15000,  185, 110,  5, 23, RACE_ELF},
+		{ "Hoshak the Dark",           25000,  180, 107,  6, 20, RACE_IMP},
+		{ "Atal the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
+		{ "Ibenidd the Chaste",         10000,   175, 109,  6, 15, RACE_HUMAN},
+		{ "Eridish",         15000,  185, 110,  5, 23, RACE_HALF_TROLL},
+		{ "Vrudush the Shaman",           25000,  180, 107,  6, 20, RACE_HALF_OGRE},
+		{ "Haob the Berserker",          30000,  185, 109,  5, 15, RACE_BARBARIAN},
+		{ "Proogdish the Youthfull",         10000,   175, 109,  6, 15, RACE_HALF_OGRE},
+		{ "Lumwise the Mad",         15000,  185, 110,  5, 23, RACE_YEEK},
+		{ "Muirt the Virtuous",           25000,  180, 107,  6, 20, RACE_KOBOLD},
+		{ "Dardobard the Weak",          30000,  185, 109,  5, 15, RACE_SPECTRE},
+		{ "Ludwig the Humble",          5000,   175, 109,  6, 15, RACE_DWARF},
+		{ "Gunnar the Paladin",         10000,  185, 110,  5, 23, RACE_HALF_TROLL},
+		{ "Torin the Chosen",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
+		{ "Sarastro the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
+		{ "Sir Parsival the Pure",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
+		{ "Asenath the Holy",          30000,  185, 109,  5, 15, RACE_HUMAN},
+		{ "McKinnon",         10000,   175, 109,  6, 15, RACE_HUMAN},
+		{ "Mistress Chastity",         15000,  185, 110,  5, 23, RACE_HIGH_ELF},
+		{ "Hashnik the Druid",           25000,  180, 107,  6, 20, RACE_HOBBIT},
+		{ "Finak",          30000,  185, 109,  5, 15, RACE_YEEK},
 	},
 	{
-		/* Alchemist */
+		/* Alchemist - 26 unique names */
 		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
 		{ "Wizzle the Chaotic",         10000,  190, 110,  6,  8, RACE_HOBBIT},
 		{ "Midas the Greedy",           15000,  200, 116,  6,  9, RACE_GNOME},
 		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
+		{ "Kakalrakakal",           15000,  200, 116,  6,  9, RACE_KLACKON},
+		{ "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
+		{ "Fanelath the Cautious",         10000,  190, 111,  5,  8, RACE_DWARF},
+		{ "Runcie the Insane",         10000,  190, 110,  6,  8, RACE_HUMAN},
+		{ "Grumbleworth",           15000,  200, 116,  6,  9, RACE_GNOME},
+		{ "Flitter",       15000,  220, 111,  4,  9, RACE_SPRITE},
+		{ "Xarillus",         10000,  190, 111,  5,  8, RACE_HUMAN},
+		{ "Egbert the Old",         10000,  190, 110,  6,  8, RACE_DWARF},
+		{ "Valindra the Proud",           15000,  200, 116,  6,  9, RACE_HIGH_ELF},
+		{ "Taen the Alchemist",       15000,  220, 111,  4,  9, RACE_HUMAN},
+		{ "Cayd the Sweet",         10000,  190, 111,  5,  8, RACE_VAMPIRE},
+		{ "Fulir the Dark",         10000,  190, 110,  6,  8, RACE_NIBELUNG},
+		{ "Domli the Humble",           15000,  200, 116,  6,  9, RACE_DWARF},
+		{ "Yaarjukka Demonspawn",       15000,  220, 111,  4,  9, RACE_IMP},
+		{ "Gelaraldor the Herbmaster",         10000,  190, 111,  5,  8, RACE_HIGH_ELF},
+		{ "Olelaldan the Wise",         10000,  190, 110,  6,  8, RACE_BARBARIAN},
+		{ "Fthoglo the Demonicist",           15000,  200, 116,  6,  9, RACE_IMP},
+		{ "Dridash the Alchemist",       15000,  220, 111,  4,  9, RACE_HALF_ORC},
+		{ "Nelir the Strong",         10000,  190, 111,  5,  8, RACE_CYCLOPS},
+		{ "Lignus the Pungent",         10000,  190, 110,  6,  8, RACE_HALF_ORC},
+		{ "Tilba",           15000,  200, 116,  6,  9, RACE_HOBBIT},
+		{ "Myrildric the Wealthy",       15000,  220, 111,  4,  9, RACE_HUMAN},
+		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
+		{ "Wizzle the Chaotic",         10000,  190, 110,  6,  8, RACE_HOBBIT},
+		{ "Midas the Greedy",           15000,  200, 116,  6,  9, RACE_GNOME},
+		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
+		{ "Kakalrakakal",           15000,  200, 116,  6,  9, RACE_KLACKON},
+		{ "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
 	},
 	{
-		/* Magic Shop */
+		/* Magic Shop - 23 unique names */
 		{ "Lo Pan the Sorcerer",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
 		{ "Buggerby the Great",         20000,  215, 113,  6, 10, RACE_GNOME},
 		{ "The Wizard of Yendor",       30000,  200, 110,  7, 10, RACE_HUMAN},
 		{ "Rjak the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
+		{ "Kyria the Illusionist",       30000,  200, 110,  7, 10, RACE_HUMAN},
+		{ "Nikki the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Solostoran",        15000,  200, 110,  7,  8, RACE_SPRITE},
+		{ "Achshe the Tentacled",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
+		{ "Kaza the Noble",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
+		{ "Fazzil the Dark",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Keldorn the Grand",        15000,  200, 110,  7,  8, RACE_DWARF},
+		{ "Philanthropus",         20000,  215, 113,  6, 10, RACE_HOBBIT},
+		{ "Agnar the Enchantress",       30000,  200, 110,  7, 10, RACE_HUMAN},
+		{ "Buliance the Necromancer",       30000,  175, 110,  5, 11, RACE_BEASTMAN},
+		{ "Vuirak the High-Mage",        15000,  200, 110,  7,  8, RACE_BEASTMAN},
+		{ "Madish the Smart",         20000,  215, 113,  6, 10, RACE_BEASTMAN},
+		{ "Falebrimbor",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
+		{ "Felil-Gand the Subtle",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Thalegord the Shaman",        15000,  200, 110,  7,  8, RACE_BARBARIAN},
+		{ "Cthoaloth the Mystic",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
+		{ "Ibeli the Illusionist",       30000,  200, 110,  7, 10, RACE_SKELETON},
+		{ "Heto the Necromancer",       30000,  175, 110,  5, 11, RACE_YEEK},
+		{ "Lo Pan the Sorcerer",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
+		{ "Buggerby the Great",         20000,  215, 113,  6, 10, RACE_GNOME},
+		{ "The Wizard of Yendor",       30000,  200, 110,  7, 10, RACE_HUMAN},
+		{ "Rjak the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
+		{ "Kyria the Illusionist",       30000,  200, 110,  7, 10, RACE_HUMAN},
+		{ "Nikki the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Solostoran",        15000,  200, 110,  7,  8, RACE_SPRITE},
+		{ "Achshe the Tentacled",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
 	},
 	{
-		/* Black Market */
+		/* Black Market - 32 unique names */
 		{ "Gary Gygaz",                 20000,  250, 150, 10,  5, RACE_HALF_TROLL},
 		{ "Histor the Goblin",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
 		{ "Quark the Ferengi",          30000,  250, 150, 10,  5, RACE_DWARF},
 		{ "Topi the Fair(?)",           30000,  250, 150, 10,  5, RACE_HUMAN},
+		{ "Vhassa the Dead",             20000,  250, 150, 10,  5, RACE_ZOMBIE},
+		{ "Kyn the Treacherous",          20000,  250, 150, 10,  5, RACE_VAMPIRE},
+		{ "Bubonicus",          30000,  250, 150, 10,  5, RACE_BEASTMAN},
+		{ "Corpselight",           30000,  250, 150, 10,  5, RACE_SPECTRE},
+		{ "Parrish the Bloodthirsty",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
+		{ "Vile",          20000,  250, 150, 10,  5, RACE_SKELETON},
+		{ "Prentice the Trusted",          30000,  250, 150, 10,  5, RACE_SKELETON},
+		{ "Griella Humanslayer",           30000,  250, 150, 10,  5, RACE_IMP},
+		{ "Angel",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
+		{ "Flotsam the Bloated",          20000,  250, 150, 10,  5, RACE_ZOMBIE},
+		{ "Nieval",          30000,  250, 150, 10,  5, RACE_VAMPIRE},
+		{ "Anastasia the Luminous",           30000,  250, 150, 10,  5, RACE_SPECTRE},
+		{ "Charity the Necromancer", 20000,  250, 150, 10,  5, RACE_DARK_ELF},
+		{ "Pugnacious the Pugilist",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
+		{ "Footsore the Lucky",          30000,  250, 150, 10,  5, RACE_BEASTMAN},
+		{ "Sidria Lighfingered",           30000,  250, 150, 10,  5, RACE_HUMAN},
+		{ "Riatho the Juggler",                 20000,  250, 150, 10,  5, RACE_HOBBIT},
+		{ "Janaaka the Shifty",          20000,  250, 150, 10,  5, RACE_GNOME},
+		{ "Cina the Rogue",          30000,  250, 150, 10,  5, RACE_GNOME},
+		{ "Arunikki Greatclaw",           30000,  250, 150, 10,  5, RACE_DRACONIAN},
+		{ "Chaeand the Poor",                 20000,  250, 150, 10,  5, RACE_HUMAN},
+		{ "Afardorf the Brigand",          20000,  250, 150, 10,  5, RACE_BARBARIAN},
+		{ "Lathaxl the Greedy",          30000,  250, 150, 10,  5, RACE_MIND_FLAYER},
+		{ "Falarewyn",           30000,  250, 150, 10,  5, RACE_SPRITE},
+		{ "Vosur the Wrinkled",                 20000,  250, 150, 10,  5, RACE_NIBELUNG},
+		{ "Araord the Handsome",          20000,  250, 150, 10,  5, RACE_AMBERITE},
+		{ "Theradfrid the Loser",          30000,  250, 150, 10,  5, RACE_HUMAN},
+		{ "One-Legged Eroolo",           30000,  250, 150, 10,  5, RACE_HALF_OGRE},
 	},
 	{
 		/* Home */
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99}
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
+		{ "Your home",                          0,      100, 100,  0, 99, 99},
 	},
 
 	{
-		/* Bookstore */
+		/* Bookstore - 21 unique names */
 		{ "Dolaf the Greedy", 10000, 175, 108, 4, 12, RACE_HUMAN},
 		{ "Odnar the Sage", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
 		{ "Gandar the Neutral", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
 		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_ELF},
+		{ "Randolph Carter", 15000, 175, 108, 4, 12, RACE_HUMAN},
+		{ "Sarai the Swift", 15000, 175, 108, 4, 12, RACE_HUMAN},
+		{ "Bodril the Seer", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
+		{ "Veloin the Quiet", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
+		{ "Vanthylas the Learned", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
+		{ "Ossein the Literate", 15000, 175, 108, 4, 12, RACE_SKELETON},
+		{ "Olvar Bookworm", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
+		{ "Shallowgrave", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
+		{ "Death Mask", 30000, 140, 105, 6, 12, RACE_ZOMBIE},
+		{ "Asuunu the Learned", 15000, 175, 108, 4, 12, RACE_MIND_FLAYER},
+		{ "Prirand the Dead", 20000, 120, 105, 6, 16, RACE_ZOMBIE},
+		{ "Ronar the Iron", 25000, 120, 110, 7, 19, RACE_GOLEM},
+		{ "Galil-Gamir", 30000, 140, 105, 6, 12, RACE_ELF},
+		{ "Rorbag Book-Eater", 15000, 175, 108, 4, 12, RACE_KOBOLD},
+		{ "Kiriarikirk", 20000, 120, 105, 6, 16, RACE_KLACKON},
+		{ "Rilin the Quiet", 25000, 120, 110, 7, 19, RACE_DWARF},
+		{ "Isung the Lord", 30000, 140, 105, 6, 12, RACE_HIGH_ELF},
+		{ "Dolaf the Greedy", 10000, 175, 108, 4, 12, RACE_HUMAN},
+		{ "Odnar the Sage", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
+		{ "Gandar the Neutral", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
+		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_ELF},
+		{ "Randolph Carter", 15000, 175, 108, 4, 12, RACE_HUMAN},
+		{ "Sarai the Swift", 15000, 175, 108, 4, 12, RACE_HUMAN},
+		{ "Bodril the Seer", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
+		{ "Veloin the Quiet", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
+		{ "Vanthylas the Learned", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
+		{ "Ossein the Literate", 15000, 175, 108, 4, 12, RACE_SKELETON},
+		{ "Olvar Bookworm", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
 	}
 };
 
@@ -3010,7 +3291,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 9, 6, 40, 2 },
 				{ 11, 8, 45, 2 },
 				{ 13, 8, 40, 3 },
-				{ 17,17, 90, 4 },
+				{ 17, 17, 90, 4 },
 
 				{ 20, 19, 85, 4 },
 				{ 23, 25, 90, 3 },
@@ -5657,301 +5938,310 @@ option_type option_info[] =
 {
 	/*** User-Interface ***/
 
-	{ &rogue_like_commands,         FALSE,  1,      0, 0,
+	{ &rogue_like_commands,         FALSE, 1, 0, 0,
 	"rogue_like_commands",          "Rogue-like commands" },
 
-	{ &quick_messages,              TRUE,  1,      0, 1,
+	{ &quick_messages,              TRUE, 1, 0, 1,
 	"quick_messages",               "Activate quick messages" },
 
-	{ &other_query_flag,            FALSE,  1,      0, 2,
+	{ &other_query_flag,            FALSE, 1, 0, 2,
 	"other_query_flag",             "Prompt for various information" },
 
-	{ &carry_query_flag,            FALSE,  1,      0, 3,
+	{ &carry_query_flag,            FALSE, 1, 0, 3,
 	"carry_query_flag",             "Prompt before picking things up" },
 
-	{ &use_old_target,              FALSE,  1,      0, 4,
+	{ &use_old_target,              FALSE, 1, 0, 4,
 	"use_old_target",               "Use old target by default" },
 
-	{ &always_pickup,               TRUE,   1,      0, 5,
+	{ &always_pickup,               TRUE, 1, 0, 5,
 	"always_pickup",                "Pick things up by default" },
 
-	{ &always_repeat,               TRUE,   1,      0, 6,
+	{ &always_repeat,               TRUE, 1, 0, 6,
 	"always_repeat",                "Repeat obvious commands" },
 
-	{ &depth_in_feet,               FALSE,  1,      0, 7,
+	{ &depth_in_feet,               FALSE, 1, 0, 7,
 	"depth_in_feet",                "Show dungeon level in feet" },
 
-	{ &stack_force_notes,           TRUE,  1,      0, 8,
+	{ &stack_force_notes,           TRUE, 1, 0, 8,
 	"stack_force_notes",            "Merge inscriptions when stacking" },
 
-	{ &stack_force_costs,           FALSE,  1,      0, 9,
+	{ &stack_force_costs,           FALSE, 1, 0, 9,
 	"stack_force_costs",            "Merge discounts when stacking" },
 
-	{ &show_labels,                 TRUE,   1,      0, 10,
+	{ &show_labels,                 TRUE, 1, 0, 10,
 	"show_labels",                  "Show labels in object listings" },
 
-	{ &show_weights,                TRUE,  1,      0, 11,
+	{ &show_weights,                TRUE, 1, 0, 11,
 	"show_weights",                 "Show weights in object listings" },
 
-	{ &show_inven_graph,            FALSE,  1,      2, 0,
-	"show_inven_graph",             "Show graphics in inventory list" },
+	{ &show_list_graph,             FALSE, 1, 2, 0,
+	"show_list_graph",              "Show graphics in object lists" },
 
-	{ &show_equip_graph,            FALSE,  1,      2, 1,
-	"show_equip_graph",             "Show graphics in equipment list" },
-
-	{ &show_store_graph,            FALSE,  1,      2, 2,
-	"show_store_graph",             "Show graphics in stores" },
-
-	{ &show_choices,                TRUE,  1,      0, 12,
+	{ &show_choices,                TRUE, 1, 0, 12,
 	"show_choices",                 "Show choices in certain sub-windows" },
 
-	{ &show_details,                TRUE,  1,      0, 13,
+	{ &show_details,                TRUE, 1, 0, 13,
 	"show_details",                 "Show details in certain sub-windows" },
 
-	{ &ring_bell,                   FALSE,   1,      0, 14,
+	{ &ring_bell,                   FALSE, 1, 0, 14,
 	"ring_bell",                    "Audible bell (on errors, etc)" },
 
-	{ &use_color,                   TRUE,   1,      0, 15,
+	{ &use_color,                   TRUE, 1, 0, 15,
 	"use_color",                    "Use color if possible (slow)" },
 
 
 	/*** Disturbance ***/
 
-	{ &find_ignore_stairs,          FALSE,   2,      0, 16,
+	{ &find_ignore_stairs,          FALSE, 2, 0, 16,
 	"find_ignore_stairs",           "Run past stairs" },
 
-	{ &find_ignore_doors,           TRUE,   2,      0, 17,
+	{ &find_ignore_doors,           TRUE, 2, 0, 17,
 	"find_ignore_doors",            "Run through open doors" },
 
-	{ &find_cut,                    FALSE,   2,      0, 18,
+	{ &find_cut,                    FALSE, 2, 0, 18,
 	"find_cut",                     "Run past known corners" },
 
-	{ &find_examine,                TRUE,   2,      0, 19,
+	{ &find_examine,                TRUE, 2, 0, 19,
 	"find_examine",                 "Run into potential corners" },
 
-	{ &disturb_move,                TRUE,   2,      0, 20,
+	{ &disturb_move,                TRUE, 2, 0, 20,
 	"disturb_move",                 "Disturb whenever any monster moves" },
 
-	{ &disturb_near,                TRUE,   2,      0, 21,
+	{ &disturb_near,                TRUE, 2, 0, 21,
 	"disturb_near",                 "Disturb whenever viewable monster moves" },
 
-	{ &disturb_panel,               TRUE,   2,      0, 22,
+	{ &disturb_panel,               TRUE, 2, 0, 22,
 	"disturb_panel",                "Disturb whenever map panel changes" },
 
-	{ &disturb_state,               TRUE,   2,      0, 23,
+	{ &disturb_state,               TRUE, 2, 0, 23,
 	"disturb_state",                "Disturb whenever player state changes" },
 
-	{ &disturb_minor,               TRUE,   2,      0, 24,
+	{ &disturb_minor,               TRUE, 2, 0, 24,
 	"disturb_minor",                "Disturb whenever boring things happen" },
 
-	{ &alert_hitpoint,              FALSE,  2,      0, 26,
+	{ &disturb_other,               TRUE, 2, 0, 25,
+	"disturb_other",                "Disturb whenever random things happen" },
+
+	{ &alert_hitpoint,              FALSE, 2, 0, 26,
 	"alert_hitpoint",               "Alert user to critical hitpoints" },
 
-	{ &alert_failure,               FALSE,  2,      0, 27,
+	{ &alert_failure,               FALSE, 2, 0, 27,
 	"alert_failure",                "Alert user to various failures" },
+
+	{ &disturb_pets,                FALSE, 2, 5, 6,
+	"disturb_pets",                 "Disturb when visible pets move" },
 
 
 	/*** Game-Play ***/
 
-	{ &auto_haggle,                 FALSE,  3,      1, 0,
+	{ &auto_haggle,                 FALSE, 3, 1, 0,
 	"auto_haggle",                  "Auto-haggle in stores" },
 
-	{ &auto_scum,                   FALSE,  3,      1, 1,
+	{ &auto_scum,                   FALSE, 3, 1, 1,
 	"auto_scum",                    "Auto-scum for good levels" },
 
-	{ &expand_look,                 TRUE,  3,      1, 4,
+	{ &expand_look,                 TRUE, 3, 1, 4,
 	"expand_look",                  "Expand the power of the look command" },
 
-	{ &expand_list,                 TRUE,  3,      1, 5,
+	{ &expand_list,                 TRUE, 3, 1, 5,
 	"expand_list",                  "Expand the power of the list commands" },
 
-	{ &view_perma_grids,            TRUE,   3,      1, 6,
+	{ &view_perma_grids,            TRUE, 3, 1, 6,
 	"view_perma_grids",             "Map remembers all perma-lit grids" },
 
-	{ &view_torch_grids,            FALSE,  3,      1, 7,
+	{ &view_torch_grids,            FALSE, 3, 1, 7,
 	"view_torch_grids",             "Map remembers all torch-lit grids" },
 
-	{ &dungeon_align,               TRUE,   3,      1, 8,
+	{ &dungeon_align,               FALSE, 3, 1, 8,
 	"dungeon_align",                "Generate dungeons with aligned rooms" },
 
-	{ &dungeon_stair,               TRUE,   3,      1, 9,
+	{ &dungeon_stair,               TRUE, 3, 1, 9,
 	"dungeon_stair",                "Generate dungeons with connected stairs" },
 
-	{ &flow_by_sound,               FALSE,  3,      1, 10,
+	{ &flow_by_sound,               FALSE, 3, 1, 10,
 	"flow_by_sound",                "Monsters chase current location (v.slow)" },
 
-	{ &flow_by_smell,               FALSE,  3,      1, 11,
+	{ &flow_by_smell,               FALSE, 3, 1, 11,
 	"flow_by_smell",                "Monsters chase recent locations (v.slow)" },
 
-	{ &smart_learn,                 FALSE,  3,      1, 14,
+	{ &smart_learn,                 FALSE, 3, 1, 14,
 	"smart_learn",                  "Monsters learn from their mistakes" },
 
-	{ &smart_cheat,                 FALSE,  3,      1, 15,
+	{ &smart_cheat,                 FALSE, 3, 1, 15,
 	"smart_cheat",                  "Monsters exploit players weaknesses" },
+
+	{ &stack_floor,                 TRUE, 3, 7, 30,
+	"stack_floor",                  "Allow objects to stack on floor" },
+
+	{ &last_words,                  FALSE, 3, 0, 28, /* Prfnoff turned off */
+	"last_words",                   "Get last words when the character dies" },
+
+	{ &speak_unique,                FALSE, 3, 0, 29, /* Prfnoff turned off */
+	"speak_unique",                 "Allow shopkeepers and uniques to speak" },
+
+	{ &small_levels,                TRUE, 3, 0, 30,
+	"small_levels",                 "Allow unusually small dungeon levels" },
+
+	{ &empty_levels,                TRUE, 3, 0, 31,
+	"empty_levels",                 "Allow empty 'arena' levels" },
+
+	{ &stupid_monsters,             FALSE, 3, 5, 2,
+	"stupid_monsters",              "Monsters behave stupidly" },
 
 
 	/*** Efficiency ***/
 
-	{ &view_reduce_lite,            FALSE,  4,      1, 16,
+	{ &view_reduce_lite,            FALSE, 4, 1, 16,
 	"view_reduce_lite",             "Reduce lite-radius when running" },
 
-	{ &view_reduce_view,            FALSE,  4,      1, 17,
+	{ &view_reduce_view,            FALSE, 4, 1, 17,
 	"view_reduce_view",             "Reduce view-radius in town" },
 
-	{ &avoid_abort,                 FALSE,  4,      1, 18,
+	{ &avoid_abort,                 FALSE, 4, 1, 18,
 	"avoid_abort",                  "Avoid checking for user abort" },
 
-	{ &avoid_other,                 FALSE,  4,      1, 19,
+	{ &avoid_other,                 FALSE, 4, 1, 19,
 	"avoid_other",                  "Avoid processing special colors" },
 
-	{ &flush_disturb,               FALSE,  4,      1, 21,
+	{ &flush_disturb,               FALSE, 4, 1, 21,
 	"flush_disturb",                "Flush input whenever disturbed" },
 
-	{ &center_player,               FALSE,  4,      5, 11, /* Prfnoff (scroll) */
-	"center_player",                "Always center on the player (*slow*)" },
-
-	{ &avoid_center,                FALSE,  4,      5, 12, /* Prfnoff (scroll) */
-	"avoid_center",                 "Avoid centering while running" },
-
-	{ &compress_savefile,           TRUE,   4,      1, 26,
+	{ &compress_savefile,           TRUE, 4, 1, 26,
 	"compress_savefile",            "Compress messages in savefiles" },
 
-	{ &hilite_player,               TRUE,   4,      1, 27,
+	{ &hilite_player,               TRUE, 4, 1, 27,
 	"hilite_player",                "Hilite the player with the cursor" },
 
-	{ &view_yellow_lite,            FALSE,  4,      1, 28,
+	{ &view_yellow_lite,            FALSE, 4, 1, 28,
 	"view_yellow_lite",             "Use special colors for torch-lit grids" },
 
-	{ &view_bright_lite,            FALSE,  4,      1, 29,
+	{ &view_bright_lite,            FALSE, 4, 1, 29,
 	"view_bright_lite",             "Use special colors for 'viewable' grids" },
 
-	{ &view_granite_lite,           FALSE,  4,      1, 30,
+	{ &view_granite_lite,           FALSE, 4, 1, 30,
 	"view_granite_lite",            "Use special colors for wall grids (slow)" },
 
-	{ &view_special_lite,           FALSE,  4,      1, 31,
+	{ &view_special_lite,           FALSE, 4, 1, 31,
 	"view_special_lite",            "Use special colors for floor grids (slow)" },
 
-
-	/*** ZAngband options ***/
-
-	{ &disturb_other,               TRUE,   5,      0, 25,
-	"disturb_other",                "Disturb whenever random things happen" },
-
-	{ &last_words,                  FALSE,  5,      0, 28, /* Prfnoff turned off */
-	"last_words",                   "Get last words when the character dies" },
-
-	{ &speak_unique,                FALSE,  5,      0, 29, /* Prfnoff turned off */
-	"speak_unique",                 "Allow shopkeepers and uniques to speak" },
-
-	{ &small_levels,                TRUE,   5,      0, 30,
-	"small_levels",                 "Allow unusually small dungeon levels" },
-
-	{ &stack_floor,                 TRUE,   255,    7, 30,
-	"stack_floor",                  "Allow objects to stack on floor" },
-
-	{ &empty_levels,                TRUE,   5,      0, 31,
-	"empty_levels",                 "Allow empty 'arena' levels" },
-
-	{ &player_symbols,              FALSE,   5,      1, 13,
+	{ &player_symbols,              FALSE, 4, 1, 13,
 	"player_symbols",               "Use special symbols for the player char"},
 
-	{ &equippy_chars,               TRUE,  5,      1, 12,
+	{ &equippy_chars,               TRUE, 4, 1, 12,
 	"equippy_chars",                "Display 'equippy' chars" },
 
-	{ &skip_mutations,              FALSE, 5, 5, 0,
-	"skip_mutations",               "Skip mutations in 'C'haracter Display" },
+
+	/*** Convenience options ***/
 
 	{ &plain_descriptions,          FALSE, 5, 5, 1,
 	"plain_descriptions",           "Plain object descriptions" },
 
-	{ &stupid_monsters,             FALSE, 5, 5, 2,
-	"stupid_monsters",              "Monsters behave stupidly" },
-
 	{ &auto_destroy,                FALSE, 5, 5, 3,
 	"auto_destroy",                 "No query to destroy known worthless items" },
 
-	{ &wear_confirm,                FALSE, 5,5, 4,
+	{ &wear_confirm,                FALSE, 5, 5, 4,
 	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
 
 	{ &confirm_stairs,              FALSE, 5, 5, 5,
 	"confirm_stairs",               "Prompt before exiting a dungeon level" },
 
-	{ &disturb_pets,                FALSE, 5, 5, 6,
-	"disturb_pets",                 "Disturb when visible pets move" },
-
-#ifdef ALLOW_EASY_OPEN
-	{ &easy_open,                   FALSE, 5,5,7,
+	{ &easy_open,                   FALSE, 5, 5, 7,
 	"easy_open",                    "Automatically open doors" },
-#endif /* ALLOW_EASY_OPEN */
 
-#ifdef ALLOW_EASY_DISARM
-	{ &easy_disarm,                 FALSE, 5,5,8,
+	{ &easy_disarm,                 FALSE, 5, 5, 8,
 	"easy_disarm",                  "Automatically disarm traps" },
-#endif /* ALLOW_EASY_DISARM */
 
-#ifdef ALLOW_EASY_FLOOR /* TNB */
-	{ &easy_floor,                  FALSE,  5, 5, 9,
+	{ &easy_floor,                  FALSE, 5, 5, 9,
 	"easy_floor",                   "Display floor stacks in a list" },
-#endif /* ALLOW_EASY_FLOOR -- TNB */
 
-	{ &use_command,                 FALSE,  5, 5, 10,
+	{ &use_command,                 TRUE, 5, 5, 10, /* Prfnoff turned on */
 	"use_command",                  "Allow unified use command" },
 
-	{ &vanilla_town,                TRUE, 6,6,0, /* Prfnoff turned on */
+	{ &center_player,               FALSE, 5, 5, 11, /* Prfnoff (scroll) */
+	"center_player",                "Always center on the player (*slow*)" },
+
+	{ &avoid_center,                FALSE, 5, 5, 12, /* Prfnoff (scroll) */
+	"avoid_center",                 "Avoid centering while running" },
+
+	{ &destroy_worthless,           FALSE, 5, 5, 13,
+	"destroy_worthless",            "Auto-destroy known worthless items" },
+
+	{ &pillar_tunnels,              FALSE, 5, 5, 14,
+	"pillar_tunnels",               "Allow pillared tunnels in the dungeon" },
+
+
+	/*** Startup options ***/
+
+	{ &vanilla_town,                TRUE, 6, 6, 0, /* Prfnoff turned on */
 	"vanilla_town",                 "Use 'vanilla' town without quests and wilderness" },
 
-	{ &lite_town,                   FALSE, 6,6,1,
-	"lite_town",                    "Use 'lite' town without a wilderness" },
-
-	{ &ironman_shops,               FALSE, 6,6,2,
+	{ &ironman_shops,               FALSE, 6, 6, 2,
 	"ironman_shops",                "Stores are permanently closed" },
 
-	{ &ironman_small_levels,        FALSE, 6,6,3,
+	{ &ironman_small_levels,        FALSE, 6, 6, 3,
 	"ironman_small_levels",         "Always create unusually small dungeon levels" },
 
-	{ &ironman_downward,            FALSE, 6,6,4,
+	{ &ironman_downward,            FALSE, 6, 6, 4,
 	"ironman_downward",             "Don't allow climbing upwards/recalling" },
 
-	{ &ironman_autoscum,            FALSE, 6,6,5,
+	{ &ironman_autoscum,            FALSE, 6, 6, 5,
 	"ironman_autoscum",             "Permanently enable the autoscummer" },
 
-	{ &ironman_hard_quests,         FALSE, 6,6,6,
+	{ &ironman_hard_quests,         FALSE, 6, 6, 6,
 	"ironman_hard_quests",          "Quest monsters get reinforcements" },
 
-	{ &ironman_empty_levels,        FALSE, 6,6,8, /* Prfnoff */
+	{ &ironman_empty_levels,        FALSE, 6, 6, 8, /* Prfnoff */
 	"ironman_empty_levels",         "Always create empty 'arena' levels" },
 
-	{ &terrain_streams,             FALSE, 6,6,9, /* Prfnoff */
+	{ &terrain_streams,             FALSE, 6, 6, 9, /* Prfnoff */
 	"terrain_streams",              "Create terrain 'streamers' in the dungeon" },
 
-	{ &munchkin_mindcraft,          FALSE, 6,6,10, /* Prfnoff */
-	"munchkin_mindcraft",           "Allow the 'Dimension Door' Mindcraft power" },
-
-	{ &munchkin_death,              FALSE, 6,6,11, /* Prfnoff */
-	"munchkin_death",               "Ask for saving death" },
-
-	{ &ironman_rooms,               FALSE, 6,6,12, /* Prfnoff */
+	{ &ironman_rooms,               FALSE, 6, 6, 12, /* Prfnoff */
 	"ironman_rooms",                "Always generate very unusual rooms" },
 
-	{ &munchkin_combo,              FALSE, 6,6,16, /* Prfnoff */
+	{ &munchkin_mindcraft,          FALSE, 6, 6, 10, /* Prfnoff */
+	"munchkin_mindcraft",           "Use the old Mindcraft powers" },
+
+	{ &munchkin_death,              FALSE, 6, 6, 11, /* Prfnoff */
+	"munchkin_death",               "Ask for saving death" },
+
+	{ &munchkin_combo,              FALSE, 6, 6, 16, /* Prfnoff */
 	"munchkin_combo",               "Help various 'illegal' race/class combinations" },
 
-	{ &munchkin_quest,              FALSE, 6,6,7, /* Prfnoff */
+	{ &munchkin_quest,              FALSE, 6, 6, 7, /* Prfnoff */
 	"munchkin_quest",               "Allow some quests to be tried again" },
 
-	{ &munchkin_weapon,             FALSE, 6,6,17, /* Prfnoff */
+	{ &munchkin_weapon,             FALSE, 6, 6, 17, /* Prfnoff */
 	"munchkin_weapon",              "Allow certain weapons to get extra powers" },
 
-	{ &munchkin_mutation,           FALSE, 6,6,18, /* Prfnoff */
+	{ &munchkin_mutation,           FALSE, 6, 6, 18, /* Prfnoff */
 	"munchkin_mutation",            "Disallow mutation healing penalties" },
 
-	{ &munchkin_wield,              FALSE, 6,6,19, /* Prfnoff */
+	{ &munchkin_wield,              FALSE, 6, 6, 19, /* Prfnoff */
 	"munchkin_wield",               "Allow objects to be wielded in any way (*silly*)" },
+
+	{ &munchkin_invuln,             FALSE, 6, 6, 24, /* Prfnoff */
+	"munchkin_invuln",              "Disallow monster invulnerability" },
+
+	{ &munchkin_lite,               FALSE, 6, 6, 25, /* Prfnoff */
+	"munchkin_lite",                "Allow full enlightenment effects" },
+
+	{ &nightmare_enemies,           FALSE, 6, 6, 20, /* Prfnoff */
+	"nightmare_enemies",            "Monsters are a nuisance (*unfair*)" },
+
+	{ &nightmare_bells,             FALSE, 6, 6, 21, /* Prfnoff */
+	"nightmare_bells",              "Ask not for who the bell tolls (*unfair*)" },
+
+	{ &nightmare_sleep,             FALSE, 6, 6, 22, /* Prfnoff */
+	"nightmare_sleep",              "You have very bad dreams (*unfair*)" },
+
+	{ &nightmare_misc,              FALSE, 6, 6, 23, /* Prfnoff */
+	"nightmare_misc",               "Miscellaneous nasty things happen (*unfair*)" },
 
 
 	/*** End of Table ***/
 
-	{ NULL,                         0, 0, 0, 0,
+	{ NULL,                         FALSE, 0, 0, 0,
 	NULL,                           NULL }
 };
 
@@ -6176,4 +6466,23 @@ martial_arts ma_blows[MAX_MA] =
 	{ "You punch %s.",                          45, 35, 10, 10, 16 },
 	{ "You punch %s.",                          48, 35, 10, 12, 18 },
 #endif
+};
+
+
+/* 
+ * Table of game-generated inscriptions (indexed by the defines in
+ * defines.h). -- RG
+ */
+cptr game_inscriptions[] = 
+{
+	NULL,            /* FEEL_NONE */
+	"broken",        /* FEEL_BROKEN */
+	"terrible",      /* FEEL_TERRIBLE */
+	"worthless",     /* FEEL_WORTHLESS */
+	"cursed",        /* FEEL_CURSED */
+	"uncursed",      /* FEEL_UNCURSED */
+	"average",       /* FEEL_AVERAGE */
+	"good",          /* FEEL_GOOD */
+	"excellent",     /* FEEL_EXCELLENT */
+	"special",       /* FEEL_SPECIAL */
 };

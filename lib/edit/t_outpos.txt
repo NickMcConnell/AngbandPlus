@@ -26,12 +26,6 @@ F:v:89:3
 # Default for Quest 28 = entrance is stone
 F:w:63:3
 
-# Default for Quest 29 = entrance is stone
-F:u:63:3
-
-# Default for Quest 30 = entrance is stone
-F:t:63:3
-
 # Default for Quest 31 = entrance is grass
 F:s:89:3
 
@@ -141,10 +135,10 @@ F:b:129:3:0:0:0:0:0:18
 ?:[EQU $QUEST18 2]
 F:b:129:3:0:0:0:0:0:18
 
-# Quest 18 rewarding, reward is Ring of Poison Resistance, continue with quest 28
+# Quest 18 rewarding, reward is Ring of Lordly Protection, continue with quest 28
 ?:[EQU $QUEST18 3]
 F:b:129:3:0:0:0:0:0:28
-F:!:1:3:0:143
+F:!:1:3:0:435
 
 # Quest 18 finished, continue with quest 28
 ?:[EQU $QUEST18 4]
@@ -183,75 +177,11 @@ F:b:129:3
 ?:1
 
 
-############### Quest 29 - Thieves Quest 1 ###############
-
-# Quest 29 untaken
-?:[EQU $QUEST29 0]
-F:a:128:3:0:0:0:0:0:29
-
-# Quest 29 taken, entrance is quest entrance
-?:[EQU $QUEST29 1]
-F:u:8:3:0:0:0:0:0:29
-F:a:128:3:0:0:0:0:0:29
-
-# Quest 29 completed
-?:[EQU $QUEST29 2]
-F:a:128:3:0:0:0:0:0:29
-
-# Quest 29 rewarding, reward is Ring of See Invisible
-# continue with quest 30
-?:[EQU $QUEST29 3]
-F:a:128:3:0:0:0:0:0:30
-F:@:1:3:0:155
-
-# Quest 29 finished, continue with quest 30
-?:[EQU $QUEST29 4]
-F:a:128:3:0:0:0:0:0:30
-
-# Quest 29 failed, wait for the player to enter the Inn
-?:[EQU $QUEST29 5]
-F:a:128:3:0:0:0:0:0:29
-
-# Quest 29 failed but done, continue with quest 30
-?:[EQU $QUEST29 6]
-F:a:128:3:0:0:0:0:0:30
-
-?:1
-
-
-############### Quest 30 - Thieves Quest 2 ###############
-
-# Quest 30 taken, entrance is quest entrance
-?:[EQU $QUEST30 1]
-F:t:8:3:0:0:0:0:0:30
-F:a:128:3:0:0:0:0:0:30
-
-# Quest 30 completed
-?:[EQU $QUEST30 2]
-F:a:128:3:0:0:0:0:0:30
-
-# Quest 30 rewarding, reward is Ring of Free Action
-# continue with quest 31
-?:[EQU $QUEST30 3]
-F:a:128:3:0:0:0:0:0:31
-F:@:1:3:0:144
-
-# Quest 30 finished, continue with quest 31
-?:[EQU $QUEST30 4]
-F:a:128:3:0:0:0:0:0:31
-
-# Quest 30 failed, wait for the player to enter the Inn
-?:[EQU $QUEST30 5]
-F:a:128:3:0:0:0:0:0:30
-
-# Quest 30 failed but done, continue with quest 31
-?:[EQU $QUEST30 6]
-F:a:128:3:0:0:0:0:0:31
-
-?:1
-
-
 ############### Quest 31 - Old Man Willow Quest ###############
+
+# Quest 31 untaken
+?:[EQU $QUEST31 0]
+F:a:128:3:0:0:0:0:0:31
 
 # Quest 31 taken, entrance is quest entrance
 ?:[EQU $QUEST31 1]
@@ -437,8 +367,8 @@ D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTT---.-WW##........####
 D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWWTTTTTTTTTTTTTTT----.-WW##........########.....#########......#########...############.....##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
 D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWTTTTTTTTTTTTTTTTTTTT---.,WW##........########.....#########......#########...############.....##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
 D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWWTTTTTTTTTTTTTTTTTTTTTTTT--.,WW##........########.....#########......#########....................##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTT----.,WW##....................................####t####....................##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
-D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##.............#####u#####.........................................##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTT----.,WW##....................................#########....................##WW,.--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
+D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTWTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##.............###########.........................................##WW,.---TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT#
 D:#TTTTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##....##x##....###########....#######...................####.......##WW,.----TTTTTTTTTTTTTTTTTT..................TTTTTTTTTTTTTTTTTTTT#
 D:#TTTTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##....#####....#####7#####....#######.....###q###.......###8.......##WW,.----TTTTT.............TTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTTT#
 D:#TTTTTTTTTTTTTTTTTTTTTTTWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT---.,WW##....#####...................#######.....###r###.......####.......##WW,..........TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.TTTTTTTTTTTTTTTTTT#
@@ -492,14 +422,6 @@ P:19:176
 # Starting position when coming from quest 28
 ?:[EQU $LEAVING_QUEST 28]
 P:22:92
-
-# Starting position when coming from quest 29
-?:[EQU $LEAVING_QUEST 29]
-P:43:84
-
-# Starting position when coming from quest 30
-?:[EQU $LEAVING_QUEST 30]
-P:42:106
 
 # Starting position when coming from quest 31
 ?:[EQU $LEAVING_QUEST 31]

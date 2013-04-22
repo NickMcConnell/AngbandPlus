@@ -6,8 +6,12 @@
 
 
 #ifdef CHECK_MODIFICATION_TIME
+#ifdef MACINTOSH
+#include <stat.h>
+#else /* MACINTOSH */
 #include <sys/types.h>
 #include <sys/stat.h>
+#endif /* MACINTOSH */
 #endif /* CHECK_MODIFICATION_TIME */
 
 
@@ -266,19 +270,18 @@ static errr check_modification_date(int fd, cptr template_file)
 	/* Access stats on text file */
 	if (stat(buf, &txt_stat))
 	{
-		/* Error */
-		return (-1);
+		/* No text file - continue */
 	}
 
 	/* Access stats on raw file */
-	if (fstat(fd, &raw_stat))
+	else if (fstat(fd, &raw_stat))
 	{
 		/* Error */
 		return (-1);
 	}
 
 	/* Ensure text file is not newer than raw file */
-	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	else if (txt_stat.st_mtime > raw_stat.st_mtime)
 	{
 		/* Reprocess text file */
 		return (-1);
@@ -344,7 +347,6 @@ static errr init_f_info_raw(int fd)
 	fd_read(fd, (char*)(f_text), f_head->text_size);
 
 #endif /* DELAY_LOAD_F_TEXT */
-
 
 	/* Success */
 	return (0);
@@ -875,7 +877,6 @@ static errr init_a_info_raw(int fd)
 
 #endif /* DELAY_LOAD_A_TEXT */
 
-
 	/* Success */
 	return (0);
 }
@@ -1135,7 +1136,6 @@ static errr init_e_info_raw(int fd)
 	fd_read(fd, (char*)(e_text), e_head->text_size);
 
 #endif /* DELAY_LOAD_E_TEXT */
-
 
 	/* Success */
 	return (0);
@@ -1398,7 +1398,6 @@ static errr init_r_info_raw(int fd)
 	fd_read(fd, (char*)(r_text), r_head->text_size);
 
 #endif /* DELAY_LOAD_R_TEXT */
-
 
 	/* Success */
 	return (0);
@@ -2080,7 +2079,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_HAFTED, SV_BO_STAFF },
 
 		{ TV_HAFTED, SV_WAR_HAMMER },
-		{ TV_HAFTED, SV_LUCERN_HAMMER },
+		{ TV_HAFTED, SV_WAR_HAMMER },
 		{ TV_HAFTED, SV_MORNING_STAR },
 		{ TV_HAFTED, SV_FLAIL },
 
@@ -2673,19 +2672,28 @@ static errr init_alloc(void)
 
 #ifdef SORT_R_INFO
 
-	tag_type *elements;
+	u16b	why = 0;
+	u16b	*who;
 
-	/* Allocate the "r_info" array */
-	C_MAKE(elements, max_r_idx, tag_type);
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
 
 	/* Scan the monsters */
 	for (i = 1; i < max_r_idx; i++)
 	{
-		elements[i].tag = r_info[i].level;
-		elements[i].pointer = (void*)i;
+		/* Collect all monsters */
+		who[i] = i;
 	}
 
-	tag_sort(elements, max_r_idx);
+	/* Sort by level */
+	why = 2;
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook_recall;
+	ang_sort_swap = ang_sort_swap_hook_recall;
+
+	/* Sort the array */
+	ang_sort(who, &why, max_r_idx);
 
 	/*** Initialize monster allocation info ***/
 
@@ -2699,7 +2707,7 @@ static errr init_alloc(void)
 	for (i = 1; i < max_r_idx; i++)
 	{
 		/* Get the i'th race */
-		r_ptr = &r_info[(int)elements[i].pointer];
+		r_ptr = &r_info[who[i]];
 
 		/* Count valid pairs */
 		if (r_ptr->rarity)
@@ -2713,7 +2721,7 @@ static errr init_alloc(void)
 			p = (100 / r_ptr->rarity);
 
 			/* Load the entry */
-			alloc_race_table[i].index = (int)elements[i].pointer;
+			alloc_race_table[i].index = who[i];
 			alloc_race_table[i].level = x;
 			alloc_race_table[i].prob1 = p;
 			alloc_race_table[i].prob2 = p;
@@ -2811,6 +2819,12 @@ static errr init_alloc(void)
 	}
 
 #endif /* SORT_R_INFO */
+
+#if 0
+
+	write_r_info_txt();
+
+#endif
 
 	/* Init the "alloc_kind_table" */
 	(void)init_object_alloc();

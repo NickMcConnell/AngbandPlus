@@ -89,8 +89,6 @@ static int get_mindcraft_power(int *sn)
 	/* Assume cancelled */
 	*sn = (-1);
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Get the spell, if available */
 	if (repeat_pull(sn))
 	{
@@ -101,8 +99,6 @@ static int get_mindcraft_power(int *sn)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Nothing chosen yet */
 	flag = FALSE;
@@ -260,11 +256,7 @@ static int get_mindcraft_power(int *sn)
 	/* Save the choice */
 	(*sn) = i;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	repeat_push(*sn);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -277,9 +269,9 @@ static int get_mindcraft_power(int *sn)
  */
 static bool cast_mindcrafter_spell(int spell)
 {
-	int             b = 0;
-	int             dir;
-	int             plev = p_ptr->lev;
+	int b = 0;
+	int dir;
+	int plev = p_ptr->lev;
 
 
 	/* spell code */
@@ -287,7 +279,16 @@ static bool cast_mindcrafter_spell(int spell)
 	{
 	case 0:   /* Precog */
 		if (plev > 44)
-			wiz_lite();
+		{
+			if (munchkin_lite)
+			{
+				wiz_lite();
+			}
+			else
+			{
+				map_dungeon();
+			}
+		}
 		else if (plev > 19)
 			map_area();
 
@@ -295,7 +296,11 @@ static bool cast_mindcrafter_spell(int spell)
 		{
 			b = detect_monsters_normal();
 			if (plev > 14) b |= detect_monsters_invis();
-			if (plev > 4)  b |= detect_traps();
+			if (plev > 4)
+			{
+				b |= detect_traps();
+				if (!munchkin_mindcraft) b |= detect_doors();
+			}
 		}
 		else
 		{
@@ -318,13 +323,9 @@ static bool cast_mindcrafter_spell(int spell)
 		break;
 	case 2:
 		/* Minor displace */
-		if (plev < 25)
+		if ((plev < 25) || (!munchkin_mindcraft && (plev < 40))) /* Prfnoff */
 		{
 			teleport_player(10);
-		}
-		else if (!munchkin_mindcraft) /* Prfnoff */
-		{
-			teleport_player(20);
 		}
 		else
 		{
@@ -369,7 +370,7 @@ static bool cast_mindcrafter_spell(int spell)
 		break;
 	case 7:
 		/* Psychometry */
-		if (plev < 40)
+		if ((plev < 25) || (!munchkin_mindcraft && (plev < 40))) /* Prfnoff */
 			return psychometry();
 		else
 			return ident_spell();
@@ -387,7 +388,17 @@ static bool cast_mindcrafter_spell(int spell)
 		/* Adrenaline */
 		set_afraid(0);
 		set_stun(0);
-		hp_player(plev);
+
+		/*
+		 * Only heal when Adrenalin Channeling is not active. We check
+		 * that by checking if the player isn't fast and 'heroed' atm.
+		 * Added munchkin option -- Prfnoff
+		 */
+		if (munchkin_mindcraft || !p_ptr->fast || !(p_ptr->hero || p_ptr->shero))
+		{
+			hp_player(plev);
+		}
+
 		b = 10 + randint((plev * 3) / 2);
 		if (plev < 35)
 			set_hero(p_ptr->hero + b);
@@ -408,8 +419,11 @@ static bool cast_mindcrafter_spell(int spell)
 		/* Psychic Drain */
 		if (!get_aim_dir(&dir)) return FALSE;
 
+		/* This is always a radius-0 ball now */
+		/* Except when Munchkin option is on -- Prfnoff */
 		b = damroll(plev / 2, 6);
-		if (fire_ball(GF_PSI_DRAIN, dir, b, 0 + (plev - 25) / 10))
+		if (fire_ball(GF_PSI_DRAIN, dir, b,
+		              (munchkin_mindcraft ? ((plev - 25) / 10) : 0)))
 			p_ptr->energy -= randint(150);
 		break;
 	case 11:

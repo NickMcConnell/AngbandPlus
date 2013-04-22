@@ -25,12 +25,8 @@ void do_cmd_inven(void)
 	/* Note that we are in "inventory" mode */
 	command_wrk = FALSE;
 
-#ifdef ALLOW_EASY_FLOOR
-
 	/* Note that we are in "inventory" mode */
 	if (easy_floor) command_wrk = (USE_INVEN);
-
-#endif /* ALLOW_EASY_FLOOR */
 
 	/* Save screen */
 	screen_save();
@@ -86,12 +82,8 @@ void do_cmd_equip(void)
 	/* Note that we are in "equipment" mode */
 	command_wrk = TRUE;
 
-#ifdef ALLOW_EASY_FLOOR
-
 	/* Note that we are in "equipment" mode */
 	if (easy_floor) command_wrk = (USE_EQUIP);
-
-#endif /* ALLOW_EASY_FLOOR  */
 
 	/* Save the screen */
 	screen_save();
@@ -205,15 +197,8 @@ void do_cmd_wield(void)
 		/* Choose the slot */
 		if (!get_item(&slot, q, s, (USE_EQUIP)))
 		{
-			/* Reset flag */
-			item_tester_full = FALSE;
-
-			/* Exit */
 			return;
 		}
-
-		/* Reset flag */
-		item_tester_full = FALSE;
 	}
 
 	/* Check the slot */
@@ -566,32 +551,14 @@ void do_cmd_destroy(void)
 	/* Take a turn */
 	energy_use = 100;
 
-	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+	/* Can the player destroy the object? */
+	if (!can_player_destroy_object(o_ptr))
 	{
-		cptr feel = "special";
-
+		/* Don't take a turn */
 		energy_use = 0;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
-
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
-
-		/* Hack -- inscribe the artifact */
-		o_ptr->note = quark_add(feel);
-
-		/* We have "felt" it (again) */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		p_ptr->redraw |= (PR_EQUIPPY);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
 		return;
@@ -626,23 +593,15 @@ void do_cmd_destroy(void)
 			s32b tester_exp = p_ptr->max_exp / 20;
 			if (tester_exp > 10000) tester_exp = 10000;
 			if (o_ptr->sval < 3) tester_exp /= 4;
-			if (tester_exp<1) tester_exp = 1;
+			if (tester_exp < 1) tester_exp = 1;
 
 			msg_print("You feel more experienced.");
 			gain_exp(tester_exp * amt);
 		}
 	}
 
-	/*
-	 * Hack -- If rods or wand are destroyed, the total maximum timeout or
-	 * charges of the stack needs to be reduced, unless all the items are
-	 * being destroyed. -LM-
-	 */
-	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) &&
-		(amt < o_ptr->number))
-	{
-		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
-	}
+	/* Reduce the charges of rods/wands */
+	reduce_charges(o_ptr, amt);
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
@@ -836,9 +795,10 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
 
-	/* Laterns are okay */
+	/* Lanterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN)) return (TRUE);
+	    (o_ptr->sval == SV_LITE_LANTERN) &&
+	    (o_ptr->pval > 0)) return (TRUE);
 
 	/* Assume not okay */
 	return (FALSE);
@@ -862,8 +822,8 @@ static void do_cmd_refill_lamp(void)
 	item_tester_hook = item_tester_refill_lantern;
 
 	/* Get an item */
-	q = "Refill with which flask? ";
-	s = "You have no flasks of oil.";
+	q = "Refill with which source of oil? ";
+	s = "You have no sources of oil.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -1284,7 +1244,7 @@ static cptr ident_info[] =
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform on "u".
  */
-static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
+bool ang_sort_comp_hook_recall(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1359,7 +1319,7 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform.
  */
-static void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
+void ang_sort_swap_hook_recall(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1515,7 +1475,7 @@ void do_cmd_query_symbol(void)
 
 
 	/* Prompt XXX XXX XXX */
-	put_str("Recall details? (k/p/y/n): ", 0, 40);
+	put_str("Recall details? (k/y/n): ", 0, 40);
 
 	/* Query */
 	query = inkey();
@@ -1523,6 +1483,14 @@ void do_cmd_query_symbol(void)
 	/* Restore */
 	prt(buf, 0, 0);
 
+	why = 2;
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook_recall;
+	ang_sort_swap = ang_sort_swap_hook_recall;
+
+	/* Sort the array */
+	ang_sort(who, &why, n);
 
 	/* Sort by kills (and level) */
 	if (query == 'k')
@@ -1531,23 +1499,16 @@ void do_cmd_query_symbol(void)
 		query = 'y';
 	}
 
-	/* Sort by level */
-	if (query == 'p')
-	{
-		why = 2;
-		query = 'y';
-	}
-
 	/* Catch "escape" */
 	if (query != 'y') return;
 
 
 	/* Sort if needed */
-	if (why)
+	if (why == 4)
 	{
 		/* Select the sort method */
-		ang_sort_comp = ang_sort_comp_hook;
-		ang_sort_swap = ang_sort_swap_hook;
+		ang_sort_comp = ang_sort_comp_hook_recall;
+		ang_sort_swap = ang_sort_swap_hook_recall;
 
 		/* Sort the array */
 		ang_sort(who, &why, n);
@@ -1731,8 +1692,8 @@ bool research_mon(void)
 	if (why)
 	{
 		/* Select the sort method */
-		ang_sort_comp = ang_sort_comp_hook;
-		ang_sort_swap = ang_sort_swap_hook;
+		ang_sort_comp = ang_sort_comp_hook_recall;
+		ang_sort_swap = ang_sort_swap_hook_recall;
 
 		/* Sort the array */
 		ang_sort(who, &why, n);

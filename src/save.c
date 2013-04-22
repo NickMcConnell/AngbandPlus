@@ -490,6 +490,11 @@ static void wr_byte(byte v)
 	sf_put(v);
 }
 
+static void wr_bool(bool v) /* Prfnoff */
+{
+	sf_put(v);
+}
+
 static void wr_u16b(u16b v)
 {
 	sf_put((byte)(v & 0xFF));
@@ -590,6 +595,9 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->xtra1);
 	wr_byte(o_ptr->xtra2);
 
+	/* Feelings */
+	wr_byte(o_ptr->feeling);
+
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
 	{
@@ -650,6 +658,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
+	wr_byte(m_ptr->invulner);
 	wr_u32b(m_ptr->smart);
 	wr_byte(0);
 }
@@ -824,8 +833,8 @@ static void wr_options(void)
 	wr_u16b(c);
 
 	/* Autosave info */
-	wr_byte(autosave_l);
-	wr_byte(autosave_t);
+	wr_bool(autosave_l);
+	wr_bool(autosave_t);
 	wr_s16b(autosave_freq);
 
 	/*** Extract options ***/
@@ -941,8 +950,8 @@ static void wr_extra(void)
 	wr_s16b(0);
 	wr_s16b(0);
 	wr_s16b(p_ptr->inside_quest);
-	wr_byte((byte) TRUE);
-	wr_byte((byte) TRUE);
+	wr_bool(TRUE);
+	wr_bool(TRUE);
 
 	wr_s16b(p_ptr->oldpx);
 	wr_s16b(p_ptr->oldpy);
@@ -1519,9 +1528,9 @@ static bool wr_savefile_new(void)
 	}
 
 	/* Write the pet command settings */
-	wr_byte(p_ptr->pet_follow_distance);
-	wr_byte(p_ptr->pet_open_doors);
-	wr_byte(p_ptr->pet_pickup_items);
+	wr_s16b(p_ptr->pet_follow_distance);
+	wr_bool(p_ptr->pet_open_doors);
+	wr_bool(p_ptr->pet_pickup_items);
 
 	/* Player is not dead, write the dungeon */
 	if (!death)

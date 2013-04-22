@@ -28,8 +28,9 @@
  */
 bool teleport_away(int m_idx, int dis)
 {
-	int ny, nx, oy, ox, d, i, min;
+	int oy, ox, d, i, min;
 	int tries = 0;
+	int ny = 0, nx = 0;
 
 	bool look = TRUE;
 
@@ -73,12 +74,10 @@ bool teleport_away(int m_idx, int dis)
 			if (!cave_empty_bold(ny, nx)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
-			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
-			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
+			if (cave_glyph_bold(ny, nx)) continue;
 
 			/* ...nor onto the Pattern */
-			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-			    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
+			if (cave_pattern_bold(ny, nx)) continue; /* Prfnoff */
 
 			/* No teleporting into vaults and such */
 			if (!p_ptr->inside_quest)
@@ -182,12 +181,10 @@ void teleport_to_player(int m_idx)
 			if (!cave_empty_bold(ny, nx)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
-			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
-			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
+			if (cave_glyph_bold(ny, nx)) continue;
 
 			/* ...nor onto the Pattern */
-			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-			    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
+			if (cave_pattern_bold(ny, nx)) continue; /* Prfnoff */
 
 			/* No teleporting into vaults and such */
 			/* if (cave[ny][nx].info & (CAVE_ICKY)) continue; */
@@ -292,8 +289,9 @@ void teleport_player(int dis)
 			/* Ignore illegal locations */
 			if (!in_bounds(y, x)) continue;
 
-			/* Require "naked" floor space */
-			if (!cave_naked_bold(y, x)) continue;
+			/* Require "naked" floor space or trees */
+			if (!(cave_naked_bold(y, x) ||
+			    (cave[y][x].feat == FEAT_TREES))) continue;
 
 			/* No teleporting into vaults and such */
 			if (cave[y][x].info & CAVE_ICKY) continue;
@@ -548,6 +546,7 @@ void recall_player(int turns)
 			p_ptr->max_dlv = dun_level;
 
 	}
+
 	if (!p_ptr->word_recall)
 	{
 		p_ptr->word_recall = turns;
@@ -558,6 +557,8 @@ void recall_player(int turns)
 		p_ptr->word_recall = 0;
 		msg_print("A tension leaves the air around you...");
 	}
+
+	p_ptr->redraw |= (PR_STATUS);
 }
 
 
@@ -847,7 +848,7 @@ void brand_weapon(int brand_type)
 }
 
 
-void call_the_(void)
+void call_the_void(void)
 {
 	int i;
 
@@ -1019,7 +1020,7 @@ bool warding_glyph(void)
 	}
 
 	/* Create a glyph */
-	cave_set_feat(py, px, FEAT_GLYPH);
+	cave_pick_feat(py, px, PV_GLYPH_WARDING, FF1_GLYPH);
 
 	return TRUE;
 }
@@ -1038,7 +1039,7 @@ bool explosive_rune(void)
 	}
 
 	/* Create a glyph */
-	cave_set_feat(py, px, FEAT_MINOR_GLYPH);
+	cave_pick_feat(py, px, PV_GLYPH_EXPLODE, FF1_GLYPH);
 
 	return TRUE;
 }
@@ -1128,7 +1129,7 @@ static int remove_curse_aux(int all)
 			o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
 
 		/* Take note */
-		o_ptr->note = quark_add("uncursed");
+		o_ptr->feeling = FEEL_UNCURSED;
 
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -1227,27 +1228,12 @@ bool alchemy(void)
 	}
 
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+	if (!can_player_destroy_object(o_ptr))
 	{
-		cptr feel = "special";
+		byte feel = FEEL_SPECIAL;
 
 		/* Message */
 		msg_format("You fail to turn %s to gold!", o_name);
-
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
-
-		/* Hack -- inscribe the artifact */
-		o_ptr->note = quark_add(feel);
-
-		/* We have "felt" it (again) */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
 		return FALSE;
@@ -1322,20 +1308,20 @@ void stair_creation(void)
 	else if (!dun_level || ironman_downward)
 	{
 		/* Town/wilderness or Ironman */
-		cave_set_feat(py, px, FEAT_MORE);
+		cave_pick_feat(py, px, PV_STAIR_NORMAL, (FF1_STAIR | FF1_HARD));
 	}
 	else if (quest_number(dun_level) || (dun_level >= MAX_DEPTH - 1))
 	{
 		/* Quest level */
-		cave_set_feat(py, px, FEAT_LESS);
+		cave_pick_feat(py, px, PV_STAIR_NORMAL, FF1_STAIR);
 	}
 	else if (rand_int(100) < 50)
 	{
-		cave_set_feat(py, px, FEAT_MORE);
+		cave_pick_feat(py, px, PV_STAIR_NORMAL, (FF1_STAIR | FF1_HARD));
 	}
 	else
 	{
-		cave_set_feat(py, px, FEAT_LESS);
+		cave_pick_feat(py, px, PV_STAIR_NORMAL, FF1_STAIR);
 	}
 }
 
@@ -1421,7 +1407,7 @@ static void break_curse(object_type *o_ptr)
 		if (o_ptr->art_flags3 & TR3_HEAVY_CURSE)
 			o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
 
-		o_ptr->note = quark_add("uncursed");
+		o_ptr->feeling = FEEL_UNCURSED;
 	}
 }
 
@@ -1674,7 +1660,8 @@ bool artifact_scroll(void)
 		if (o_ptr->number > 1)
 		{
 			msg_print("Not enough enough energy to enchant more than one object!");
-			msg_format("%d of your %s %s destroyed!",(o_ptr->number)-1, o_name, (o_ptr->number>2?"were":"was"));
+			msg_format("%d of your %s %s destroyed!", (o_ptr->number - 1), o_name,
+			           ((o_ptr->number > 2) ? "were" : "was"));
 			o_ptr->number = 1;
 		}
 		okay = create_artifact(o_ptr, TRUE, FALSE);
@@ -2227,7 +2214,7 @@ bool bless_weapon(void)
 		o_ptr->ident |= (IDENT_SENSE);
 
 		/* Take note */
-		o_ptr->note = quark_add("uncursed");
+		o_ptr->feeling = FEEL_UNCURSED;
 
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -2330,7 +2317,7 @@ bool bless_weapon(void)
  *          the potion was in her inventory);
  *    o_ptr --- pointer to the potion object.
  */
-bool potion_smash_effect(int who, int y, int x, int o_sval)
+bool potion_smash_effect(int who, int y, int x, int k_idx)
 {
 	int     radius = 2;
 	int     dt = 0;
@@ -2338,7 +2325,9 @@ bool potion_smash_effect(int who, int y, int x, int o_sval)
 	bool    ident = FALSE;
 	bool    angry = FALSE;
 
-	switch (o_sval)
+	object_kind *k_ptr = &k_info[k_idx];
+
+	switch (k_ptr->sval)
 	{
 		case SV_POTION_SALT_WATER:
 		case SV_POTION_SLIME_MOLD:
@@ -2421,6 +2410,7 @@ bool potion_smash_effect(int who, int y, int x, int o_sval)
 			break;
 		case SV_POTION_DEATH:
 			dt = GF_DEATH_RAY;    /* !! */
+			dam = k_ptr->level * 10;
 			angry = TRUE;
 			radius = 1;
 			ident = TRUE;
@@ -2758,7 +2748,7 @@ bool spell_okay(int spell, bool known, int realm)
  * We can use up to 14 characters of the buffer 'p'
  *
  * The strings in this function were extracted from the code in the
- * functions "do_cmd_cast()" and "do_cmd_pray()" and may be dated.
+ * functions "do_cmd_cast()" and may be dated.
  */
 static void spell_info(char *p, int spell, int realm)
 {
@@ -3280,18 +3270,11 @@ int inven_damage(inven_func typ, int perc)
 				/* Potions smash open */
 				if (object_is_potion(o_ptr))
 				{
-					(void)potion_smash_effect(0, py, px, o_ptr->sval);
+					(void)potion_smash_effect(0, py, px, o_ptr->k_idx);
 				}
 
-				/* Hack -- If rods or wand are destroyed, the total maximum
-				 * timeout or charges of the stack needs to be reduced,
-				 * unless all the items are being destroyed. -LM-
-				 */
-				if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
-					&& (amt < o_ptr->number))
-				{
-					o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
-				}
+				/* Reduce the charges of rods/wands */
+				reduce_charges(o_ptr, amt);
 
 				/* Destroy "amt" items */
 				inven_item_increase(i, -amt);
@@ -3584,8 +3567,8 @@ bool curse_armor(void)
 		o_ptr->to_h = 0;
 		o_ptr->to_d = 0;
 		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
+		o_ptr->dd = 1;
+		o_ptr->ds = 1;
 		o_ptr->art_flags1 = 0;
 		o_ptr->art_flags2 = 0;
 		o_ptr->art_flags3 = 0;
@@ -3651,8 +3634,8 @@ bool curse_weapon(void)
 		o_ptr->to_d = 0 - randint(5) - randint(5);
 		o_ptr->to_a = 0;
 		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
+		o_ptr->dd = 1;
+		o_ptr->ds = 1;
 		o_ptr->art_flags1 = 0;
 		o_ptr->art_flags2 = 0;
 		o_ptr->art_flags3 = 0;

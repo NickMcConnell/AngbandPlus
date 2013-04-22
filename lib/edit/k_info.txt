@@ -21,6 +21,49 @@
 
 # Note that object zero is used for the "stack" picture (unused).
 
+# === Understanding k_info.txt ===
+
+# N: serial number : & object name~
+# G: symbol : color
+# I: tval : sval : pval
+# W: depth : rarity : weight : cost
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
+# A: depth/rarity : depth/rarity : etc
+# F: flag | flag | etc
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item. The '&' and '~' symbols are use to
+# include articles and pluralization as necessary to ensure
+# grammatical correctness in object descriptions.
+
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
+
+# D - Black        w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Dark Gray    W - Light Gray     v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+
+# 'I' is for basic information. The tval is for the type of item, the
+# sval identifies the subtype and the pval indicates the amount of
+# effect the item has, if applicable. 
+
+# 'W' is for extra information. Depth is the depth the object is
+# normally found at, rarity determines how common the object is,
+# weight is in tenth-pounds and cost is the items value.
+
+# 'P' is for power information. The items base armor class, its base
+# damage and pluses to-hit, to-dam and to-ac.
+
+# 'A' is for allocation - depth and rarity, in pairs. This allows an
+# item to have multiple natural depths and rarities. It is used to
+# ensure that certain vital items such as food and identify scrolls
+# are found throughout the dungeon.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
 
 # Version stamp (required)
 
@@ -447,8 +490,8 @@ P:0:5d8:0:0:0
 F:SLAY_UNDEAD | SHOW_MODS
 
 N:58:& Lucerne Hammer~
-G:\:B
-I:21:10:0
+G:/:B
+I:22:12:0
 W:10:0:120:376
 A:10/1
 P:0:2d5:0:0:0
@@ -1320,7 +1363,10 @@ G:":d
 I:40:0:-5
 W:50:0:3:0
 A:50/1
-F:CURSED | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
+P:0:7d7:-5:-5:5
+F:CURSED | HEAVY_CURSE | STR | INT | WIS | DEX | CON | CHR | 
+F:TY_CURSE | NO_TELE | NO_MAGIC | REGEN | WRAITH | 
+F:HIDE_TYPE
 
 
 ##### Scrolls #####
@@ -2578,203 +2624,203 @@ N:350:Havoc
 G:-:d
 I:66:28:250
 W:95:0:15:150000
-A:100/16
+A:50/8:100/16
 P:0:1d1:0:0:0
 
 N:351:Door/Stair Location
 G:-:d
 I:66:1:70
-W:15:0:15:1000
-A:15/1
+W:7:0:15:1000
+A:7/2:15/1
 P:0:1d1:0:0:0
 
 N:352:Trap Location
 G:-:d
 I:66:0:15
-W:5:0:15:100
-A:5/1
+W:3:0:15:100
+A:3/2:5/1
 P:0:1d1:0:0:0
 
 N:353:Probing
 G:-:d
 I:66:7:50
-W:40:0:15:4000
-A:40/4
+W:20:0:15:4000
+A:20/8:40/4
 P:0:1d1:0:0:0
 
 N:354:Recall
 G:-:d
 I:66:3:60
-W:30:0:15:4000
-A:30/4
+W:15:0:15:4000
+A:15/8:30/4
 P:0:1d1:0:0:0
 
 N:355:Illumination
 G:-:d
 I:66:4:16
-W:20:0:15:1000
-A:20/1
+W:10:0:15:1000
+A:10/2:20/1
 P:0:1d1:0:0:0
 
 N:356:Light
 G:-:d
 I:66:15:9
-W:10:0:15:500
-A:10/1
+W:5:0:15:500
+A:5/2:10/1
 P:0:1d1:0:0:0
 
 N:357:Lightning Bolts
 G:-:d
 I:66:21:11
-W:20:0:15:2000
-A:20/1
+W:10:0:15:2000
+A:10/2:20/1
 P:0:1d1:0:0:0
 
 N:358:Frost Bolts
 G:-:d
 I:66:23:13
-W:25:0:15:2500
-A:25/1
+W:13:0:15:2500
+A:13/2:25/1
 P:0:1d1:0:0:0
 
 N:359:Fire Bolts
 G:-:d
 I:66:22:15
-W:30:0:15:3000
-A:30/1
+W:15:0:15:3000
+A:15/2:30/1
 P:0:1d1:0:0:0
 
 N:360:Polymorph
 G:-:d
 I:66:19:25
-W:35:0:15:1200
-A:35/1
+W:18:0:15:1200
+A:18/2:35/1
 P:0:1d1:0:0:0
 
 N:361:Slow Monster
 G:-:d
 I:66:17:20
-W:30:0:15:1500
-A:30/1
+W:15:0:15:1500
+A:15/2:30/1
 P:0:1d1:0:0:0
 
 N:362:Sleep Monster
 G:-:d
 I:66:16:18
-W:30:0:15:1500
-A:30/1
+W:15:0:15:1500
+A:15/2:30/1
 P:0:1d1:0:0:0
 
 N:363:Drain Life
 G:-:d
 I:66:18:23
-W:75:0:15:3600
-A:75/4
+W:38:0:15:3600
+A:38/8:75/4
 P:0:1d1:0:0:0
 
 N:364:Teleport Other
 G:-:d
 I:66:13:3
-W:45:0:15:1400
-A:45/2
+W:23:0:15:1400
+A:23/4:45/2
 P:0:1d1:0:0:0
 
 N:365:Disarming
 G:-:d
 I:66:14:22
-W:35:0:15:2100
-A:35/1
+W:18:0:15:2100
+A:18/2:35/1
 P:0:1d1:0:0:0
 
 N:366:Lightning Balls
 G:-:d
 I:66:25:23
-W:55:0:15:4000
-A:55/1
+W:28:0:15:4000
+A:28/2:55/1
 P:0:1d1:0:0:0
 
 N:367:Cold Balls
 G:-:d
 I:66:27:25
-W:60:0:15:4500
-A:60/1
+W:30:0:15:4500
+A:30/2:60/1
 P:0:1d1:0:0:0
 
 N:368:Fire Balls
 G:-:d
 I:66:26:30
-W:75:0:15:5000
-A:75/1
+W:38:0:15:5000
+A:38/2:75/1
 P:0:1d1:0:0:0
 
 N:369:Acid Balls
 G:-:d
 I:66:24:27
-W:70:0:15:5500
-A:70/1
+W:35:0:15:5500
+A:35/2:70/1
 P:0:1d1:0:0:0
 
 N:370:Acid Bolts
 G:-:d
 I:66:20:12
-W:40:0:15:3500
-A:40/1
+W:20:0:15:3500
+A:20/2:40/1
 P:0:1d1:0:0:0
 
 N:371:Enlightenment
 G:-:d
 I:66:5:99
-W:65:0:15:10000
-A:65/4
+W:33:0:15:10000
+A:33/8:65/4
 P:0:1d1:0:0:0
 
 N:372:Perception
 G:-:d
 I:66:2:10
-W:50:0:15:13000
-A:50/8:100/8
+W:25:0:15:13000
+A:25/16:50/8
 P:0:1d1:0:0:0
 
 N:373:Curing
 G:-:d
 I:66:8:999
-W:65:0:15:15000
-A:65/8
+W:33:0:15:15000
+A:33/16:65/8
 P:0:1d1:0:0:0
 
 N:374:Healing
 G:-:d
 I:66:9:999
-W:80:0:15:20000
-A:80/8
+W:40:0:15:20000
+A:40/16:80/8
 P:0:1d1:0:0:0
 
 N:375:Detection
 G:-:d
 I:66:6:99
-W:30:0:15:5000
-A:30/8
+W:15:0:15:5000
+A:15/16:30/8
 P:0:1d1:0:0:0
 
 N:376:Restoration
 G:-:d
 I:66:10:999
-W:80:0:15:25000
-A:80/16
+W:40:0:15:25000
+A:40/32:80/16
 P:0:1d1:0:0:0
 
 N:377:Speed
 G:-:d
 I:66:11:99
-W:95:0:15:50000
-A:95/16
+W:48:0:15:50000
+A:48/32:95/16
 P:0:1d1:0:0:0
 
 N:378:Pesticide
 G:-:d
 I:66:12:3
-W:20:0:15:3000
-A:20/20:50/2
+W:25:0:15:3000
+A:25/4:50/2
 P:0:1d1:0:0:0
 
 ##### Special Books (note resistances) #####
@@ -3926,3 +3972,10 @@ I:39:3:0
 W:20:10:5:20000
 P:0:1d1:0:0:0
 F:INSTA_ART
+
+N:565:& T-shirt~
+G:~:w
+I:36:0:0
+W:1:0:10:0
+A:1/255
+P:1:1d1:0:0:0

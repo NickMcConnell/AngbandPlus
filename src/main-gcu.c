@@ -823,7 +823,10 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 {
 	term_data *td = (term_data *)(Term->data);
 
-	int i, pic;
+	int i;
+#ifdef USE_GRAPHICS
+	int pic;
+#endif
 
 #ifdef A_COLOR
 	/* Set the color */

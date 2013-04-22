@@ -1,0 +1,48 @@
+# File: bolt-new.prf
+
+#
+# This file defines "default" colors to be used when drawing spells
+#
+# This file includes, if appropriate, various "sub-files"
+#
+# See "lib/help/command.txt" and "src/files.c" for more information.
+#
+
+Z:MISSILE:0x0F
+Z:ACID:0x04
+Z:ELEC:0x02
+Z:FIRE:0x00
+Z:COLD:0x01
+Z:POIS:0x03
+Z:HOLY_FIRE:0x00
+Z:HELL_FIRE:0x00
+Z:MANA:0x0E
+Z:ARROW:0x0F
+Z:WATER:0x04
+Z:NETHER:0x07
+Z:CHAOS:wsorgbuDWvyRGBU
+Z:DISENCHANT:0x05
+Z:NEXUS:0x0C
+Z:CONFUSION:rgby
+Z:SOUND:0x09
+Z:SHARDS:0x08
+Z:FORCE:0x09
+Z:INERTIA:0x09
+Z:GRAVITY:0x09
+Z:TIME:0x09
+Z:LITE_WEAK:0x06
+Z:LITE:0x06
+Z:DARK_WEAK:0x07
+Z:DARK:0x07
+Z:PLASMA:0x0B
+Z:METEOR:0x00
+Z:ICE:0x01
+Z:ROCKET:0x0F
+Z:DEATH_RAY:0x07
+Z:NUKE:rg
+Z:DISINTEGRATE:0x05
+Z:PSI:0x09
+Z:PSI_DRAIN:0x09
+Z:TELEKINESIS:0x09
+Z:DOMINATION:0x09
+

@@ -110,6 +110,7 @@ static cptr r_info_blow_effect[] =
 	"EXP_80",
 	"DISEASE",
 	"TIME",
+	"EXP_VAMP",
 	NULL
 };
 
@@ -317,7 +318,7 @@ static cptr r_info_flags6[] =
 	"HASTE",
 	"HAND_DOOM",
 	"HEAL",
-	"XXX2X6",
+	"INVULNER",
 	"BLINK",
 	"TPORT",
 	"XXX3X6",
@@ -358,7 +359,7 @@ static cptr r_info_flags7[] =
 	"CAN_SWIM",
 	"CAN_FLY",
 	"FRIENDLY",
-	"XXX7X4",
+	"RIGHTEOUS",
 	"XXX7X5",
 	"XXX7X6",
 	"XXX7X7",
@@ -587,6 +588,46 @@ static cptr k_info_flags3[] =
 
 
 /*
+ * Feature flags -- Prfnoff
+ */
+static cptr f_info_flags1[] =
+{
+	"FLOOR",
+	"CLEAN",
+	"TRAP",
+	"DOOR",
+	"WALL",
+	"PERMA",
+	"SHOP",
+	"BLDG",
+	"STAIR",
+	"PATTERN",
+	"HARD",
+	"VEIN",
+	"LITE",
+	"GRANITE",
+	"GLYPH",
+	"OPEN",
+	"TERRAIN",
+	"BORING",
+	"XXX1X18",
+	"XXX1X19",
+	"XXX1X20",
+	"XXX1X21",
+	"XXX1X22",
+	"XXX1X23",
+	"XXX1X24",
+	"XXX1X25",
+	"XXX1X26",
+	"XXX1X27",
+	"XXX1X28",
+	"XXX1X29",
+	"XXX1X30",
+	"XXX1X31"
+};
+
+
+/*
  * Convert a "color letter" into an "actual" color
  * The colors are: dwsorgbuDWvyRGBU, as shown below
  */
@@ -803,13 +844,38 @@ errr init_v_info_txt(FILE *fp, char *buf, bool start)
 
 
 /*
+ * Grab one flag in a feature_type from a textual string -- Prfnoff
+ */
+static errr grab_one_feature_flag(feature_type *f_ptr, cptr what)
+{
+	int i;
+
+	/* Check flags1 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, f_info_flags1[i]))
+		{
+			f_ptr->flags1 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown feature flag '%s'.", what);
+
+	/* Error */
+	return (1);
+}
+
+
+/*
  * Initialize the "f_info" array, by parsing an ascii "template" file
  */
 errr init_f_info_txt(FILE *fp, char *buf)
 {
 	int i;
 
-	char *s;
+	char *s, *t;
 
 	/* Not ready yet */
 	bool okay = FALSE;
@@ -983,6 +1049,63 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			/* Save the values */
 			f_ptr->d_attr = tmp;
 			f_ptr->d_char = buf[2];
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Hack -- Process 'F' for flags -- Prfnoff */
+		if (buf[0] == 'F')
+		{
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_feature_flag(f_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'P' for "power" and such -- Prfnoff */
+		if (buf[0] == 'P')
+		{
+			int pval, priority;
+
+			/* Scan for the values */
+			if (2 != sscanf(buf+2, "%d:%d", &pval, &priority)) return (1);
+
+			f_ptr->pval = pval;
+			f_ptr->priority = priority;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Hack -- Process 'X' for "extra" -- Prfnoff */
+		if (buf[0] == 'X')
+		{
+			int x;
+
+			/* Scan for the values */
+			if (1 != sscanf(buf+2, "%d", &x)) return (1);
+
+			f_ptr->xtra = x;
 
 			/* Next... */
 			continue;
@@ -1313,7 +1436,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			k_ptr->ds = hd2;
 			k_ptr->to_h = th;
 			k_ptr->to_d = td;
-			k_ptr->to_a =  ta;
+			k_ptr->to_a = ta;
 
 			/* Next... */
 			continue;
@@ -1608,7 +1731,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			a_ptr->ds = hd2;
 			a_ptr->to_h = th;
 			a_ptr->to_d = td;
-			a_ptr->to_a =  ta;
+			a_ptr->to_a = ta;
 
 			/* Next... */
 			continue;
@@ -2447,6 +2570,8 @@ static int i = 0;
 #define RANDOM_EGO          0x08
 #define RANDOM_ARTIFACT     0x10
 #define RANDOM_TRAP         0x20
+#define RANDOM_MONSTER_50   0x40 /* Prfnoff */
+#define RANDOM_OBJECT_50    0x80 /* Prfnoff */
 
 
 typedef struct dungeon_grid dungeon_grid;
@@ -2565,6 +2690,16 @@ static errr parse_line_feature(char *buf)
 						letter[index].object = atoi(zz[4]);
 					}
 				}
+				else if (zz[4][0] == '%')
+				{
+					letter[index].random |= (RANDOM_OBJECT | RANDOM_OBJECT_50);
+
+					if (zz[4][1])
+					{
+						zz[4]++;
+						letter[index].object = atoi(zz[4]);
+					}
+				}
 				else
 				{
 					letter[index].object = atoi(zz[4]);
@@ -2575,6 +2710,15 @@ static errr parse_line_feature(char *buf)
 				if (zz[3][0] == '*')
 				{
 					letter[index].random |= RANDOM_MONSTER;
+					if (zz[3][1])
+					{
+						zz[3]++;
+						letter[index].monster = atoi(zz[3]);
+					}
+				}
+				else if (zz[3][0] == '%') /* Prfnoff */
+				{
+					letter[index].random |= (RANDOM_MONSTER | RANDOM_MONSTER_50);
 					if (zz[3][1])
 					{
 						zz[3]++;
@@ -2830,6 +2974,8 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			int monster_index = letter[idx].monster;
 			int random = letter[idx].random;
 			int artifact_index = letter[idx].artifact;
+			int trap_index = letter[idx].trap; /* Prfnoff */
+			int ego_index = letter[idx].ego; /* Prfnoff */
 
 			/* Lay down a floor */
 			c_ptr->feat = letter[idx].feature;
@@ -2843,11 +2989,14 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			/* Create a monster */
 			if (random & RANDOM_MONSTER)
 			{
-				monster_level = base_level + monster_index;
+				if (!(random & RANDOM_MONSTER_50) || (rand_int(100) < 50)) /* Prfnoff */
+				{
+					monster_level = base_level + monster_index;
 
-				place_monster(*y, *x, TRUE, TRUE);
+					place_monster(*y, *x, TRUE, TRUE);
 
-				monster_level = base_level;
+					monster_level = base_level;
+				}
 			}
 			else if (monster_index)
 			{
@@ -2861,9 +3010,10 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				/* Make alive again */
 				if (r_info[monster_index].flags3 & RF3_UNIQUE_7)
 				{
-					if (r_info[monster_index].cur_num == 7)
-						r_info[monster_index].cur_num = 6;
-					r_info[monster_index].max_num = 7;
+					if (r_info[monster_index].cur_num == r_info[monster_index].max_num)
+					{
+						r_info[monster_index].max_num++;
+					}
 				}
 
 				/* Place it */
@@ -2878,31 +3028,63 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				/*
 				 * Random trap and random treasure defined
 				 * 25% chance for trap and 75% chance for object
+				 * Made chances modifiable -- Prfnoff
 				 */
-				if (rand_int(100) < 75)
+				if (rand_int(100) < ((trap_index == 0) ? 25 : trap_index))
 				{
-					place_object(*y, *x, FALSE, FALSE);
+					place_trap(*y, *x);
 				}
 				else
 				{
-					place_trap(*y, *x);
+					place_object(*y, *x, FALSE, FALSE);
 				}
 
 				object_level = base_level;
 			}
 			else if (random & RANDOM_OBJECT)
 			{
-				object_level = base_level + object_index;
+				if (!(random & RANDOM_OBJECT_50) || (rand_int(100) < 50)) /* Prfnoff */
+				{
+					bool ego_flag, art_flag; /* Prfnoff */
 
-				/* Create an out of deep object */
-				if (rand_int(100) < 75)
-					place_object(*y, *x, FALSE, FALSE);
-				else if (rand_int(100) < 80)
-					place_object(*y, *x, TRUE, FALSE);
-				else
-					place_object(*y, *x, TRUE, TRUE);
+					object_level = base_level + object_index;
 
-				object_level = base_level;
+					if (!(random & RANDOM_EGO))
+					{
+						ego_flag = rand_int(100) < 25;
+					}
+					else if (ego_index == 0)
+					{
+						ego_flag = TRUE;
+					}
+					else
+					{
+						ego_flag = rand_int(100) < ego_index;
+					}
+
+					if (!(random & RANDOM_ARTIFACT))
+					{
+						art_flag = rand_int(100) < 20;
+					}
+					else if (artifact_index == 0)
+					{
+						art_flag = TRUE;
+					}
+					else
+					{
+						art_flag = rand_int(100) < artifact_index;
+					}
+
+					/* Create an out of deep object */
+					if (!ego_flag)
+						place_object(*y, *x, FALSE, FALSE);
+					else if (!art_flag)
+						place_object(*y, *x, TRUE, FALSE);
+					else
+						place_object(*y, *x, TRUE, TRUE);
+
+					object_level = base_level;
+				}
 			}
 			/* Random trap */
 			else if (random & RANDOM_TRAP)
@@ -2925,7 +3107,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				}
 
 				/* Apply magic (no messages, no artifacts) */
-				apply_magic(o_ptr, base_level, FALSE, TRUE, FALSE);
+				apply_magic(o_ptr, base_level, FALSE, TRUE, FALSE, FALSE);
 
 #ifdef USE_SCRIPT
 				o_ptr->python = object_create_callback(o_ptr);
@@ -2933,9 +3115,8 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 
 				(void)drop_near(o_ptr, -1, *y, *x);
 			}
-
 			/* Artifact */
-			if (artifact_index)
+			else if (artifact_index) /* Prfnoff */
 			{
 				/* Create the artifact */
 				create_named_art(artifact_index, *y, *x);
@@ -2983,7 +3164,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				q_ptr->k_idx   = atoi(zz[8]);
 
 				if (num > 9)
-					q_ptr->flags  = atoi(zz[9]);
+					q_ptr->flags = atoi(zz[9]);
 
 				r_ptr = &r_info[q_ptr->r_idx];
 				if (r_ptr->flags1 & RF1_UNIQUE)
@@ -3169,7 +3350,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 
 
 static char tmp[8];
-static cptr variant = "ZANGBAND";
+static cptr variant = "ZANGBA%c";
 
 
 /*
@@ -3246,7 +3427,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			while (*s && (f != b2))
 			{
 				t = process_dungeon_file_expr(&s, &f);
-				if (*t && streq(t, "1")) v = "0";
+				if (*t && !streq(t, "0")) v = "0";
 			}
 		}
 
@@ -3422,7 +3603,8 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Variant name */
 			else if (streq(b+1, "VARIANT"))
 			{
-				v = variant;
+				sprintf(tmp, variant, FORCEUPPER(I2A(VARIANT_MAJOR))); /* Prfnoff */
+				v = tmp;
 			}
 
 			/* Wilderness */
@@ -3430,8 +3612,6 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			{
 				if (vanilla_town)
 					sprintf(tmp, "NONE");
-				else if (lite_town)
-					sprintf(tmp, "LITE");
 				else
 					sprintf(tmp, "NORMAL");
 				v = tmp;
@@ -3560,4 +3740,223 @@ errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax)
 
 	/* Result */
 	return (err);
+}
+
+
+void write_r_info_txt(void)
+{
+	int i, j, z, fc, bc;
+	int dlen;
+
+	cptr flags[288];
+
+	u32b f_ptr[9];
+	cptr *n_ptr[9];
+
+	monster_race *r_ptr;
+
+	monster_blow *b_ptr;
+
+	FILE *fff = fopen("output.txt", "wt");
+
+	cptr desc;
+
+	int mode = -1;
+
+	if (!fff) return;
+
+	fprintf(fff, "# File: r_info.txt (autogenerated)\n\n");
+
+	fprintf(fff, "# Version stamp (required)\n\n");
+
+	/* Write Version */
+	fprintf(fff, "V:%d.%d.%d\n\n\n", r_head->v_major, r_head->v_minor, r_head->v_patch);
+
+	/* Write a note */
+	fprintf(fff, "##### The Player #####\n\n");
+
+	for (z = -1; z < alloc_race_size; z++)
+	{
+		/* Output the monsters in order */
+		i = (z >= 0) ? alloc_race_table[z].index : 0;
+
+		/* Acquire the monster */
+		r_ptr = &r_info[i];
+
+		/* Ignore empty monsters */
+		if (!strlen(r_name + r_ptr->name)) continue;
+
+		/* Ignore useless monsters */
+		if (i && !r_ptr->speed) continue;
+
+		/* Write a note if necessary */
+		if (i && (!r_ptr->level != !mode))
+		{
+			/* Note the town */
+			if (!r_ptr->level)
+			{
+				fprintf(fff, "\n##### Town monsters #####\n\n");
+			}
+			/* Note the dungeon */
+			else
+			{
+				fprintf(fff, "\n##### Normal monsters #####\n\n");
+			}
+
+			/* Record the change */
+			mode = r_ptr->level;
+		}
+
+		/* Acquire the flags */
+		f_ptr[0] = r_ptr->flags1; n_ptr[0] = r_info_flags1;
+		f_ptr[1] = r_ptr->flags2; n_ptr[1] = r_info_flags2;
+		f_ptr[2] = r_ptr->flags3; n_ptr[2] = r_info_flags3;
+		f_ptr[3] = r_ptr->flags4; n_ptr[3] = r_info_flags4;
+		f_ptr[4] = r_ptr->flags5; n_ptr[4] = r_info_flags5;
+		f_ptr[5] = r_ptr->flags6; n_ptr[5] = r_info_flags6;
+		f_ptr[6] = r_ptr->flags7; n_ptr[6] = r_info_flags7;
+		f_ptr[7] = r_ptr->flags8; n_ptr[7] = r_info_flags8;
+		f_ptr[8] = r_ptr->flags9; n_ptr[8] = r_info_flags9;
+
+		/* Write New/Number/Name */
+		fprintf(fff, "N:%d:%s\n", z + 1, r_name + r_ptr->name);
+
+		/* Write Graphic */
+		fprintf(fff, "G:%c:%c\n", r_ptr->d_char, color_char[r_ptr->d_attr]);
+
+		/* Write Information */
+		fprintf(fff, "I:%d:%dd%d:%d:%d:%d\n",
+		        r_ptr->speed, r_ptr->hdice, r_ptr->hside,
+		        r_ptr->aaf, r_ptr->ac, r_ptr->sleep);
+
+		/* Write more information */
+		fprintf(fff, "W:%d:%d:%d:%ld\n", r_ptr->level, r_ptr->rarity, r_ptr->extra, r_ptr->mexp);
+
+		/* Write Blows */
+		for(j = 0; j < 4; j++)
+		{
+			b_ptr = &(r_ptr->blow[j]);
+
+			/* Stop when done */
+			if (!b_ptr->method) break;
+
+			/* Write the blows */
+			fprintf(fff, "B:%s:%s:%dd%d\n",
+			        r_info_blow_method[b_ptr->method],
+			        r_info_blow_effect[b_ptr->effect],
+			        b_ptr->d_dice, b_ptr->d_side);
+		}
+
+		/* Extract the flags */
+		for (fc = 0, j = 0; j < 96; j++)
+		{
+			/* Check this flag */
+			if (f_ptr[j / 32] & (1L << (j % 32))) flags[fc++] = n_ptr[j / 32][j % 32];
+		}
+
+		/* Extract the extra flags */
+		for (j = 192; j < 288; j++)
+		{
+			/* Check this flag */
+			if (f_ptr[j / 32] & (1L << (j % 32))) flags[fc++] = n_ptr[j / 32][j % 32];
+		}
+
+		/* Write the flags */
+		for (j = 0; j < fc;)
+		{
+			char buf[160];
+
+			/* Start the line */
+			sprintf(buf, "F:");
+
+			for (bc = 0; (bc < 60) && (j < fc); j++)
+			{
+				char t[80];
+
+				/* Format the flag */
+				sprintf(t, "%s%s", flags[j], (j < fc - 1) ? " | " : "");
+
+				/* Add it to the buffer */
+				strcat(buf, t);
+
+				/* Note the length */
+				bc += strlen(t);
+			}
+
+			/* Done with this line; write it */
+			fprintf(fff, "%s\n", buf);
+		}
+
+		/* Write Spells if applicable */
+		if (r_ptr->freq_spell)
+		{
+			/* Write the frequency */
+			fprintf(fff, "S:1_IN_%d | \n", 100 / r_ptr->freq_spell);
+
+			/* Extract the spell flags */
+			for (fc = 0, j = 96; j < 192; j++)
+			{
+				/* Check this flag */
+				if (f_ptr[j / 32] & (1L << (j % 32))) flags[fc++] = n_ptr[j / 32][j % 32];
+			}
+
+			/* Write the flags */
+			for (j = 0; j < fc;)
+			{
+				char buf[160], *t;
+
+				/* Start the line */
+				sprintf(buf, "S:");
+
+				for (bc = 0, t = buf + 2; (bc < 60) && (j < fc); j++)
+				{
+					int tlen;
+
+					/* Format the flag */
+					sprintf(t, "%s%s", flags[j], (j < fc - 1) ? " | " : "");
+
+					tlen = strlen(t);
+
+					/* Note the length */
+					bc += tlen;
+
+					/* Advance */
+					t += tlen;
+				}
+
+				/* Done with this line; write it */
+				fprintf(fff, "%s\n", buf);
+			}
+		}
+
+		/* Acquire the description */
+		desc = r_text + r_ptr->text;
+		dlen = strlen(desc);
+
+		/* Write Description */
+		for (j = 0; j < dlen;)
+		{
+			char buf[160], *t;
+
+			/* Start the line */
+			sprintf(buf, "D:");
+
+			for (bc = 0, t = buf + 2; ((bc < 60) || !isspace(desc[j])) && (j < dlen); j++, bc++, t++)
+			{
+				*t = desc[j];
+			}
+
+			/* Terminate it */
+			*t = '\0';
+
+			/* Done with this line; write it */
+			fprintf(fff, "%s\n", buf);
+		}
+
+		/* Space between entries */
+		fprintf(fff, "\n");
+	}
+
+	/* Done */
+	fclose(fff);
 }

@@ -1,7 +1,7 @@
 
-                         ****************************
-                         **    Zangband a2.3.0b    **
-                         ****************************
+                          *************************
+                          **    ZangbaA 2.3.5    **
+                          *************************
 
           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
               and Umoria:    Copyright (c) 1989 James E. Wilson
@@ -11,7 +11,7 @@
        Old Zangband code:    (Mr) Topi Ylinen (f1toyl@uta.fi)
        New ZAngband code:    Robert Ruehlmann < rr9@angband.org >
      Current maintainers:    The ZAngband Dev Team
-        ZAngband a2.3.0b:    Prfnoff <prfnoff@thecia.net>
+         ZAngbaA variant:    Prfnoff <prfnoff@thecia.net>
 
       Browse the Angband newgroup at "news:rec.games.roguelike.angband"
     Send all comments, bug reports, patches, etc, to "prfnoff@thecia.net".

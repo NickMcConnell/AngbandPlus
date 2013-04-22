@@ -27,7 +27,7 @@ OBJS = \
   generate.o dungeon.o init1.o init2.o \
   store.o birth.o wizard1.o wizard2.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  load1.o load2.o save.o files.o \
+  load.o save.o files.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o monster1.o monster2.o \
   variable.o tables.o util.o cave.o \
@@ -35,14 +35,14 @@ OBJS = \
   bldg.o script.o effects.o racial.o \
   artifact.o mutation.o flavor.o spells3.o \
   mspells1.o mspells2.o scores.o mind.o \
-  obj_kind.o genroom.o wild.o
+  obj_kind.o genroom.o genfeat.o wild.o
 
 # Compiler
 CC = gcc
 
 # Compiler flags
 CFLAGS = \
--Wall -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
+-Wall -O2 -s -fno-strength-reduce -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
 -DUSE_TRANSPARENCY \
 # -DUSE_MOD_FILES \
 
@@ -54,14 +54,14 @@ LIBS = -lpc -lalleg
 # Targets
 #
 
-default: zangband.exe
-	copy zangband.exe ..
-	del zangband.exe
+default: zangbaa.exe
+	copy zangbaa.exe ..
+	del zangbaa.exe
 
-install: zangband.exe
-	copy zangband.exe ..
+install: zangbaa.exe
+	copy zangbaa.exe ..
 
-all: zangband.exe
+all: zangbaa.exe
 	@echo All done.  Use 'make install' to install.
 
 
@@ -69,7 +69,7 @@ all: zangband.exe
 # Link executables
 #
 
-zangband.exe: $(OBJS)
+zangbaa.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 
@@ -108,10 +108,10 @@ files.o: files.c $(INCS)
 flavor.o: flavor.c $(INCS)
 generate.o: generate.c $(INCS)
 genroom.o: genroom.c $(INCS)
+genfeat.o: genfeat.c $(INCS)
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
-load1.o: load1.c $(INCS)
-load2.o: load2.c $(INCS)
+load.o: load.c $(INCS)
 main-dos.o: main-dos.c $(INCS)
 main.o: main.c $(INCS)
 melee1.o: melee1.c $(INCS)

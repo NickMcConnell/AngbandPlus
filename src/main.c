@@ -501,8 +501,11 @@ int main(int argc, char *argv[])
 	quit_aux = quit_hook;
 
 
-	/* Drop privs (so X11 will work correctly) */
-	safe_setuid_drop();
+	/* Drop privs (so X11 will work correctly), unless we are running */
+	/* the Linux-SVGALib version. */
+#ifndef USE_LSL
+ 	safe_setuid_drop();
+#endif
 
 
 #ifdef USE_XAW
@@ -656,7 +659,9 @@ int main(int argc, char *argv[])
 
 
 	/* Grab privs (dropped above for X11) */
-	safe_setuid_grab();
+#ifndef USE_LSL
+ 	safe_setuid_grab();
+#endif
 
 
 	/* Make sure we have a display! */

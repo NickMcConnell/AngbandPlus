@@ -1,8 +1,10 @@
 N:*:Default
-613
+648
 They say that you can't trust rumors.
 You have no more Black Potions of Death.
 They say that smart guys hang around at 1600'.
+They say that smart guys hang around at 1500'.
+They say that tough guys hang around at 1600'.
 They say that tough guys hang around at 1500'.
 They say that handsome guys hang around at 1200'.
 They say that a visit to 3250' can be quite an experience.
@@ -34,8 +36,9 @@ A Wand of Death is useless against monsters that are tougher than you.
 A Wand of Death is of little use against foes that are dead already.
 Try taking off your armor before fighting a Gelatinous Cube!
 They say that only one sword can score *CRITICAL* hits.
-You have Error in objdes()
+You have an error in object_desc()!
 This rumor is not true.
+This rumor is as true as the previous rumor.
 Trump power may be useful in some circumstances: free teleport!
 If you can fall like a feather, you need not care about gravity.
 They say that you should rejoice if you find a scroll labeled ""!
@@ -217,6 +220,7 @@ If I cancel tomorrow the undead will thank me today.
 Hellfire will burn your soul... (if you're not of evil alignment!)
 Never attempt to Call the Void in an enclosed space!
 Call the Void needs a lot of room to cast...
+Call the Void will grant you power over space monsters.
 Why doesn't Detect Monsters show invisible monsters? 'Cos you can't see 'em!
 I'll tell you the truth, son: your soul's gonna burn in a lake of fire!
 Not satisfied with being a human? Then polymorph into an Amberite!
@@ -225,6 +229,7 @@ Slab: Jus' say AarrghaarrghpleeassennononoUGH.
 You feel the Windows (95) on your hard disk is broken...
 There is a rare spellbook called [M$ PowerFools] {cursed}
 *** LOW HITPOINT WARNING! ***
+You may be a ***WINNER*** if you recall within 1000 turns!
 The Jewel of Judgement is actually the other eye of the Serpent of Chaos.
 The Serpent' dreaming eye is green, his track is moon-silver...
 Isn't your very head an especially prized one?
@@ -243,6 +248,9 @@ A staff is just like a colleague. But a reliable one!
 You are prepared to thrill us with a traditional heroic display?
 Some underworld lads would *LOVE* to blacken your name!
 Beware! The Castle now and then provides regrettable accidents.
+Never use a Staff of Insanity.
+Staffs of Insanity will confuse all monsters you can see.
+Staffs of Insanity can be used to turn the enemy against itself...
 Let the sun of wilderness melt the chill from your life!
 By combining our minds with motion we can tune for the shadow we desire.
 I can show ya the wayy back to chaos, if ya'r gettin homesick.
@@ -272,17 +280,16 @@ Be (n)ever hopeful the poison will wear off eventually.
 A new arrival such as yours should perhaps be cautioned. No mercy to weaklings.
 Drifting bits of memory drawn together, assemble them into an entire fabric.
 From the standpoints of reason, business, caution you are wrong? Who cares!
-If the fogs are but slowly broken, they better were not vampiric!
 Heroes? What them are needed for: imagination, grave-garlands and necromancy.
-After some encounters with jellies you might feel like overnarcotized, lame.
+After some encounters with jellies you might feel overnarcotized or lame.
 It came to assail me: no escape? Yet another crawl from the Pit of Creation?
 If in good enough shape you'd better throw your legs over the edge...
 While standing in the shadows to regain stamina have visions of sugar plums...
-Encounter them orcs!, know they are countless: no rest for you for hours!
+Encounter them orcs! know they are countless: no rest for you for hours!
 A monk might have a very foul blow, about four inches below the belt buckle.
 Are you really suffering withdrawal symptoms and want something crushable?
-Smaug and allohol may disturb your .. was it sanity, courage or boredom?
-Ha treasures! Like all vaults it was full of depths and dangers.
+Smaug and alcohol may disturb your .. was it sanity, courage or boredom?
+Ha, treasures! Like all vaults it was full of depths and dangers.
 The benefits of alchemy are my marriage, danger is my passion.
 Any dungeons offer mazes. But don't they lack the ZAngband sense of humor?
 Bodychecks, bodycounts itching all my ways but the awful software bugs...
@@ -300,6 +307,7 @@ Let your mind drift over the perversely plotted events of the past levels.
 Another loss? Curse your inertia at having let the situation slide for so long.
 So you have been another cockerel who'd crow before he thinks? Foolish heart!
 Wicked adventures? First and foremost: negotiate with the devil (inside)!
+This is the first turn of the rest of your game.
 Do not pour vinegar into your own mental wounds of pride.
 Head over heels? There comes a point in any illness when...
 A flash of your all-to-familiar arrogance might make you bungle.
@@ -308,6 +316,7 @@ One ill turn deserves another.
 To say it blunt: you *cannot* afford another mistake. - What you say, really?
 Our dreams are too much with us. They imply a breach of security.
 Groo seems almost too well organized to be a mental case.
+Smaug is induced by pollution.  Do you resist poison?
 They say that the Jewel of Judgement controls all the elements.
 They say: Droppa MaPantz is the court jester of Amber and a master of traps.
 They say: Spores that turn to jewel shards might smash you like bullets.
@@ -332,22 +341,25 @@ Jellies? Some encounters are chilly though they take you no further forwards.
 The best way to treat enemies is to make friends with them. Charm monsters!
 Uniques remain mostly impervious to your attempts to confuse them.
 Half the treasures of a vault could be crushed by an earthquake.
+Vaults are immune to destruction.
 A chaotic weapon could haunt you with earthquakes.
 Chaotic weapons tend now and then to change your adversaries seriously.
 Mutations may not increase your beauty but surely your repertoire!
 The thrum of serious risk-taking heightens the suspense. Hitchcock them!
-They pay you the compliment of being perfectly straight? OOps, a hero!
+They pay you the compliment of being perfectly straight? Oops, a hero!
 Try to line up your opponents to dispatch them one after the other.
 Some orcish leaders are extremely keen to meet you quite soon.
 Gee! You say you were nearly vanqished by the trickery of priests?
 Run over the facts in your head before confronting special tough guys.
 Kind creatures? They make you stay put if your free action is unsustained.
 Are you ready to vanish discreetly when those packs are after you?
-Any stupid Umber Hulk might destroy YOU if being not too confusionproof.
+Make sure you can keep your wits about you when Umber Hulks draw near.
 Magic doors make fine fences against weak masses of critters.
 Traps, Summoners, Zephyrs. The foreboding of evil grows heavier with stairs.
 Weak dangers? You may be overwhelmed by sheer numbers.
 Deep waters are a nice separation against some poisonous animals.
+Deep waters may contain poisonous animals.
+If you see deep water, a flood may be near.
 It is best to waylay heavy magic users in narrow passages around the corners.
 Heart is downcast? Huh, that's beyond even your accustomed folly. Courage!
 Dark is the Shadow and yet your heart rejoices.
@@ -361,7 +373,9 @@ How hope beyond hopes is fulfilled is yours to stumble upon.
 Do not grudge his chance of peril him who advances beyond hopes.
 Thou shalt see what comes to him who sets his foolish webs before these feet.
 Tolkien said: "The dread of the Ringwraith cannot be shaken off." Fearless!
+The world will end if you Call the Void.
 Potion mimics are wicked summoners. Hurry up to knock them out, quickly! 
+Potion mimics make good beverages.
 Full-scale priests look innocent but are among the nastiest sort of summoners.
 Summoners? Victory is slipping from your grasp even as you stretch out hands.
 Winning vault treasures is just like pulling chestnuts out of spreading fire.
@@ -421,14 +435,16 @@ Never go near Bull Gates without maximum dexterity or lose lots of money!
 He cackles and sneers at you and throws traps as his confetti: Bully Gates!
 If the singular naga Jasra finds open ground she will call her hydras on you!
 You must capitalize (s)ecrets to find its Keepers. You'll really love them!
+Never wield a Glaive of Pain.
 The true name of Shudde is 747. But this will not help you sufficiently. Run!
 I balanced all, brought all to mind. In balance with this life, this death.
 A visit in the Inner Temple is less expensive than bundles of Restore potions.
 Trolls, Paladins or Bloodletters are fine to make money - if you top them.
 The goddess of cats drains dexterity dramatically. Don't forget to sustain it.
-Scrolls of artifact creation need a plain weapon/armour to enhance it.
-The definitely best way to fill a gear gap is creating your own artifact.
+Scrolls of artifact creation need a plain weapon/armour to enhance.
+The best way to fill a gear gap is by creating your own artifact.
 Iron liches are *very* deadly if you're not hard to breath and summons alike.
+Iron liches rust easily.
 Maulotaurs tend to rely on fire and overwhelming shattering strength. Prepare!
 Think out ways to get hold on some unusual nasty unique thieves. Ooh, Santa!
 They say that everyone has some skeletons in the cellar. Some are harmful!
@@ -442,7 +458,8 @@ In deep waters any treasures will be lost! Lure them coastwards.
 Any means of digging are crucial for designing the battleground as You like!
 You may assault nasty Zephyr packs at doubled corners safe from their breath.
 Only permanent walls will prevent Ethearal or Deathdrakes to come after you.
-Drujs are not good for you. So as folks (dare)say: Let sleeping wyverns lie.
+Druj are not good for you.
+Let sleeping wyverns lie.
 Sort of Pit-diver you are - those who seek after artifacts beyond the Rim.
 A jagged tentacle of the constantly shifting kind is moving toward your leg...
 Raal's? Ya might have to fool with it a long while just to figure it out.
@@ -453,7 +470,7 @@ An uncursed amulet of anti-teleportation supports Your choice of battleground.
 Try to get unknown to your old self. No compromising awhile.
 The inn has rot-gut with a kick that blows the wax out of your ears!
 Too bad who not supports innkeepers! YOU have a stillness which is dangerous.
-A moral cudgel is truly not an effective weapon against farmer Maggot.
+A moral cudgel is truly not an effective weapon against Farmer Maggot.
 Where are you going, unbeliever? The stairs down are but seemingly easy!
 You might end up in the grip of sinister forces who rule by torture n infamy?
 The gods love us, they even created birds to throw presents down.
@@ -471,10 +488,11 @@ Flee while you can. Any decent adventurer has to honour the priorities.
 The average mage soon becomes accustomed to hard work and poor leisure.
 Are you sure to surpass your predecessors, being more than a mere brawler?
 Life: to mortgage yesterdays gains in order to move on to the next intermezzo.
-The art of dragon mail maintenance is: Never get stuck without escape chance.
+The art of dragon mail maintenance is: Never get stuck without an escape chance.
 Oh I see! Now I'm not good enough!
 Prices? Any complaints and you'll be bumped out faster than you can breathe.
 Prices? If you insist on haggling you'll never advance seriously!
+Haggling is the only way to get the best prices.
 Well, I tell ya, the dungeons landlords are mulling this over gloomily!
 Don't you think you are on a descending curve, young firehead?
 You are starting to loose your temper? So what? Gnaw your pistachios!
@@ -482,12 +500,12 @@ It shrieks? Don't bother! Presumably there will be just innocent bystanders.
 Still you might still fade out again! Been seeing so many ghostly apparitions.
 Even if the bluff fails them never give up! The caves are hotbed of banditry.
 Before I settled down, in my younger days I won the arena price.
-Yegh! Assuming you are not the refined sensitive type you're disguised as?
+Are you not the refined sensitive type you're disguised as?
 However you shouldn't want to upset sensitivities hereabout. Learn xenology!
 Critters? If action was taken early this conspiracy could be nipped in the bed.
 Nothin ever so awful as the advancing everchanging Spawns of Ubbo-Sathla!
 Do not behold the baleful visage of The Greater magic mushroom were-quylthulg!
-And yet it is worth! it to best that Greater hell magic mushroom were-quylthulg!
+It is worth it to best the Greater hell magic mushroom were-quylthulg!
 Forget your childlike lore: mushrooms are not tasty but awholotta challenge!
 Hi matador, like to get gored to death by an infuriated gory minotaur?
 Never get caught by the notorious bloodhound Judge Porn-Starr, the beholder.
@@ -505,9 +523,11 @@ Precious Blades of Chaos (6d5) are won by defeating a Bloodletter's platoon.
 Nether and Life draining are not just the same, as by breath or by touching?
 Examination of rings of nether resistance reveals two granted intrinsics.
 To stand your ground against adversaries who heal-self you'll need...
+Vampires are not the only ones who must flee when the Dawn approaches.
 It's the Grail Brotherhood who is behind it all!
 There is no such thing as 'fearless', not unless a man is mad. But hide it!
 When the monsters don't eat you, ooh, let's say you're home.
+The GAH does not exist.
 Young ones are made stupid, it's their protection against life's unkindness.
 And what about your due contribution to All-Fool's Day celebration? None?
 For the shared blood of your Ancestors you'll know about depth devilries.
@@ -516,17 +536,21 @@ I saw dragon scale mail priced 11000 gp more for having +17 instead of +16.
 The strong rely on strength. The not-so-strong must mint means of shrewdness.
 If not your might might make tremble them and flee you need good spy ability.
 Pay heed to the Quylthulg race: invisible, powerful summoners, able to escape.
-(S)He has the devil of a time who encounters the neversleeping quylthulgs.
+One has a devil of a time who encounters the neversleeping quylthulgs.
 Your pet aversion against all sorts of hounds won't lead you to anything!
 An inertia hound is gorgeous dinner: giving pleasure and sleepy satisfaction.
 Patience at ambush will help to defeat many hounds.
 Without catching acid I have once eliminated 10 water hounds 1 by 1 in melee!
-You'll get The_object_resists_the_spell if your Rune of Protection won't work.
+Runes of protection require space to scribe.
 As shopkeepers rarely change you'll be glad about any high maximum merchants.
 It seems not smart to have your high bonus missiles destroyed by breathers.
-Against those some_hundert_hp_drain attacks you'll need means of heal-self!
+Against the most powerful of attacks you'll need a means of healing!
 If you cover your back by fencing or digging no summoned will surround you.
 It's deciding which things are crucial that separates the wise from others.
+Invulnerability is impenetrable.
+Invulnerability may be penetrated by evil creatures.
+Resistance to nether will guard against invulnerability-penetration.
+Creatures of good alignment are not deterred by invlnerability.
 Being clocked backwards is just a terrible irony of fate.
 Time is a weird attack - not even sustained stats will save you.
 Stumble on a death mold: another unsettling occurrence in an unsettling world.
@@ -534,12 +558,13 @@ Too many errors and one's luck would run out at last.
 Errorowwww!
 The highest bonused ring of damage I have seen was +23!
 The highest bonused amulets of searching/brilliance I have seen was +6!
+Haven't you found a Ring of Extra Attacks (+5) yet?
 It's your own fault if you don't use all non-cheating means of awareness.
 Pay ANY price for a Rod of Perception for it saves you lots of scrolls/staffs.
 Rods seem somewhat secure from fire/acid/lightning attacks, but get stolen!
 Some black humored remarks (rumors) on common morals are not easily outwitted.
 Ever read Ambrose Bierce, From the devil's dictionary? No, didn't steal there.
-Remember that? Irony is a sophisticated art of talk by saying some opposite.
+Irony is a sophisticated art of talk by saying some opposite.
 There are Uniques that are (friendly), but alas! they won't [yet] talk to you.
 Ents (friendly) are equally strong as Hrus and tend to clear the vault fields.
 You could hate an Ent (friendly) who picks up the dragon scale mails you left.
@@ -547,7 +572,8 @@ Ahtu is somewhat the evil mirror of Treebeard. Beware to confront these foes!
 They say that there's work to be done, and no rest this side of Heaven.
 There are no guarantees in life, but it's smarter to take fewer chances.
 Artsi is not susceptible to sorcery, ideal warrior! If ever get him in melee.
-It's a crying shame but 30000's the highest one_item_price you ever will get.
+It's a crying shame, but 30000's the highest you'll ever sell an item for.
+There is a shopkeeper who may pay 50000 gold for an item.
 Is it really true that a good chain armour once rusted can't be restored?
 Never thought about that daylight might be not just an illumination?
 Stone Skin is valuable as diamonds: even the tougher foes will miss you.
@@ -558,18 +584,17 @@ If you ever, ever manage to best The Stormbringer you'll be amazed!
 The deeper you dive the more grateful you'll be about sustaining equipment.
 You'll love Reflection if you ever encounter those smashing halfling legions.
 Surprisingly not only crossbows use bolts that could bounce...
-At an early stage you are yet quite happy to find e.g. rods of trap detection.
+At an early stage you will be quite happy to find rods of trap detection.
 There is but one use for charisma boosting items: shopkeeper charming.
 It's a happy moment when sufficient DEX makes you "grab hold of your backpack".
 Even a nasty Amberite blood curse could fail if you're lucky.
 Don't go deeper down the cliffs unless you find secure footholds (equipment).
-Value in ART is so to say your scores relation of light and shade.
 You'd like an illustration on "sowing dragon's teeth"? Try Sorcery tower Quest!
 Waste of time, the crying. Fight and live - fight and die, then enter renewed.
 The say that to want too much was stupidity, waste of precious time and effort.
 Down at 650' is an ill-omened place where the swift ochre jellies roam.
 Below 2500' you'll need sustained maximum spell stats to secure your heal-self.
-The miracle of Herbal Healing is like Book-stories told by priests, amazing.
+The miracle of Herbal Healing is like stories told by priests - amazing.
 A fallen Angel is likely to stay behind a stone obstacle in chequered pits.
 A screaming willingness to the flash and bang of damnation, freed of the suspence.
 They say that all these inevitable tombstones are but blessings in disguise. 
@@ -578,28 +603,34 @@ Kittens. Always going for the dramatic. Watching too many adventure holos.
 Young Heroes-to-be are always kept on diet, to increase their aggressiveness.
 Free at last from the blood curse: mirth welled up, boiled over as pure laughter.
 If you encounter groups of usual solitary cats look out for Bast, Cat's godess!
-Even protected Books are destroyed by breathers of chaos balls. Area effect!
+Even protected Books are destroyed by breathers of chaos balls.
 It is more secure to carry precious books yourself, IF you provide resistances.
+Do not cast stone-to-mud while your skin is made of stone.
 There are but sometimes shopkeepers that pay full price of 25000gp for a Book.
 Being hit by Cold breathes while carrying potions might speed and heal foes!
 You'll rarely get a chance to fight Fiona down and off, she loves her jumpiness!
 Why are Poison Resistance rings higher priced than even Disenchantment rings?
 Are there any cumulative effects by adding another means of resistance? Well?
 IF there are no free places around you, the worst summoning will not itch you.
+Summoners may summon ethereal beings even when you are cornered.
 You can win against the ever-aware quylthulgs by blocking their lines of sight.
 Any hounds are disastrous to containment by Door Building. Extinct them quickly!
 Regularly the god of the merchants is the same as that of the thieves.
 We are all natural born victims.
 Without information life is quite short.
 Information age has not just begun today! Hermes, Loki, Prometheus are tradition.
-Scrolls of Dispel XX are able to damage the foe for about 60 hitpoints.
-Scrolls of Fire/Ice/Chaos produce a balleffect, centered on you. Damaging you?
-Scrolls of Ice do double damage compared to SoF, but a little less than SoC.
+Dispel scrolls will destroy any affected monster.
+Dispel scrolls are unreliable.
+Scrolls of Dispel Evil will remove or reverse bad enchantments.
+Scrolls of Fire, Ice, and Chaos are good in emergencies.
+You will not want to read scrolls of Fire, Ice, or Chaos.
+Scrolls of Ice deal twice the damage of Fire, but less than Chaos.
 To find a Rod of Havoc means nothing else than: chaos at your fingertips.
 If the sages speak of Curing this comprehends the recovery of 6! traumata.
 The traumata to suffer: Cut, Stun, Blind, Confused, Terrified, Hallucination.
 Staffs of Power will dispel any monster.
-Staffs of Holiness will dispel evil ones and also protect you.
+Staffs of Power are almost as unpleasant as Raal's Tomes.
+Staffs of Holiness will dispel evil monsters and also protect you.
 Staffs of the Magi will help eggheads to clear the head and recover energies.
 Those who seek knowledge of the sources must be experienced hunters of hints.
 You have difficulties to find survey or details in the source files? Combat!
@@ -612,4 +643,8 @@ Rumors are sort of wishing wells.
 Not any waters seem drinkable for those not thirsty!
 There are unclean waters. Well, boil them up!
 Time heals all wounds?? But surely time wounds all heels!
-OOOOOOOOOOOOOOOOOO
+Some say the RNG itself lurks deep in the caverns.
+They say some space monsters are not what they appear to be.
+Never read a scroll that asks you to use an item.
+There is a powerful spell which can remove even the strongest curses...
+You feel the Windows (2000) on your hard disk is broken...

@@ -34,10 +34,8 @@ void do_cmd_redraw(void)
 	/* Hack -- react to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
-
 	/* Combine and Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 
 	/* Update torch */
 	p_ptr->update |= (PU_TORCH);
@@ -85,88 +83,6 @@ void do_cmd_redraw(void)
 		/* Restore */
 		Term_activate(old);
 	}
-}
-
-
-/*
- * Hack -- change name
- */
-void do_cmd_change_name(void)
-{
-	char	c;
-
-	int		mode = 0;
-
-	char	tmp[160];
-
-
-	/* Save the screen */
-	screen_save();
-
-	/* Forever */
-	while (1)
-	{
-		/* Display the player */
-		display_player(mode);
-
-		if (mode == 6)
-		{
-			mode = 0;
-			display_player(mode);
-		}
-
-		/* Prompt */
-		Term_putstr(2, 23, -1, TERM_WHITE,
-			"['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
-
-		/* Query */
-		c = inkey();
-
-		/* Exit */
-		if (c == ESCAPE) break;
-
-		/* Change name */
-		if (c == 'c')
-		{
-			get_name();
-		}
-
-		/* File dump */
-		else if (c == 'f')
-		{
-			sprintf(tmp, "%s.txt", player_base);
-			if (get_string("File name: ", tmp, 80))
-			{
-				if (tmp[0] && (tmp[0] != ' '))
-				{
-					file_character(tmp, TRUE);
-				}
-			}
-		}
-
-		/* Toggle mode */
-		else if (c == 'h')
-		{
-			mode++;
-		}
-
-		/* Oops */
-		else
-		{
-			bell();
-		}
-
-		/* Flush messages */
-		msg_print(NULL);
-	}
-
-	/* Restore the screen */
-	screen_load();
-
-	/* Redraw everything */
-	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-
-	handle_stuff();
 }
 
 
@@ -420,6 +336,7 @@ static option_type cheat_info[CHEAT_MAX] =
 	"cheat_live",		"Allow player to avoid death" }
 };
 
+
 /*
  * Interact with some options for cheating
  */
@@ -639,6 +556,7 @@ static void do_cmd_options_autosave(cptr info)
 				autosave_freq = toggle_frequency(autosave_freq);
 				prt(format("Timed autosave frequency: every %d turns",
 				    autosave_freq), 5, 0);
+				break;
 			}
 
 			default:
@@ -754,6 +672,54 @@ void do_cmd_options_aux(int page, cptr info)
 			}
 		}
 	}
+}
+
+
+/*
+ * View some options -- Prfnoff
+ */
+void do_cmd_options_view(int page, cptr info)
+{
+	int     i, n = 0;
+	int     opt[24];
+	char    buf[80];
+
+
+	/* Lookup the options */
+	for (i = 0; i < 24; i++) opt[i] = 0;
+
+	/* Scan the options */
+	for (i = 0; option_info[i].o_desc; i++)
+	{
+		/* Notice options on this "page" */
+		if (option_info[i].o_page == page) opt[n++] = i;
+	}
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Prompt XXX XXX XXX */
+	sprintf(buf, "%s [Press any key to continue]", info);
+	prt(buf, 23, 0);
+
+	/* Display the options */
+	for (i = 0; i < n; i++)
+	{
+		byte a = TERM_WHITE;
+
+		/* Display the option text */
+		sprintf(buf, "%-48s: %s  (%.23s)",
+			    option_info[opt[i]].o_desc,
+			    (*option_info[opt[i]].o_var ? "yes" : "no "),
+			    option_info[opt[i]].o_text);
+		c_prt(TERM_WHITE, buf, i + 2, 0);
+	}
+
+	/* Clear the top line */
+	prt("", 0, 0);
+
+	/* Wait for key */
+	(void)inkey();
 }
 
 
@@ -960,8 +926,9 @@ void do_cmd_options(void)
 		prt("(2) Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
+		prt("(5) Convenience Options", 8, 5);
+		prt("(6) Startup Options (view-only)", 9, 5);
 
-		prt("(Z/5) Zangband Options", 9, 5);
 		/* Special choices */
 		prt("(D) Base Delay Factor", 11, 5);
 		prt("(H) Hitpoint Warning", 12, 5);
@@ -969,7 +936,7 @@ void do_cmd_options(void)
 
 
 		/* Window flags */
-		prt("(W) Window Flags", 14, 5);
+		prt("(W) Window Flags", 15, 5);
 
 		/* Cheating */
 		prt("(C) Cheating Options", 16, 5);
@@ -1018,10 +985,17 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Zangband Options */
-			case 'Z': case 'z': case '5':
+			/* Convenience Options */
+			case '5':
 			{
-				do_cmd_options_aux(5, "Zangband Options");
+				do_cmd_options_aux(5, "Convenience Options");
+				break;
+			}
+
+			/* Startup Options (view-only!) -- Prfnoff */
+			case '6':
+			{
+				do_cmd_options_view(6, "Startup Options");
 				break;
 			}
 
@@ -2487,8 +2461,9 @@ void do_cmd_version(void)
 	msg_format("You are playing Angband %d.%d.%d.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-	msg_format("You are playing ZAngband %c%d.%d.%d.", /* Prfnoff */
-	            I2A(VARIANT_MAJOR), FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	msg_format("You are playing ZAngba%c %d.%d.%d.", /* Prfnoff */
+	           FORCEUPPER(I2A(VARIANT_MAJOR)),
+	           FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
 }
@@ -2786,7 +2761,7 @@ void do_cmd_save_screen(void)
 /*
  * Check the status of "artifacts"
  */
-void do_cmd_knowledge_artifacts(void)
+static void do_cmd_knowledge_artifacts(void)
 {
 	int i, k, z, x, y;
 
@@ -2928,12 +2903,48 @@ void do_cmd_knowledge_artifacts(void)
  */
 static void do_cmd_knowledge_uniques(void)
 {
-	int k;
-
 	FILE *fff;
 
 	char file_name[1024];
 
+	int i, n;
+
+	u16b    why = 2;
+	u16b    *who;
+
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
+
+	/* Collect matching monsters */
+	for (n = 0, i = 1; i < max_r_idx; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* Nothing to recall */
+		if (!cheat_know && !r_ptr->r_sights) continue;
+
+		/* Require unique monsters if needed */
+		if (!(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+
+		/* Collect "appropriate" monsters */
+		who[n++] = i;
+	}
+
+	/* Nothing to recall */
+	if (!n)
+	{
+		/* No monsters to recall */
+		msg_print("No known uniques.");
+		msg_print(NULL);
+		return;
+	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook_recall;
+	ang_sort_swap = ang_sort_swap_hook_recall;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -2942,24 +2953,14 @@ static void do_cmd_knowledge_uniques(void)
 	fff = my_fopen(file_name, "w");
 
 	/* Scan the monster races */
-	for (k = 1; k < max_r_idx; k++)
+	for (i = 0; i < n; i++)
 	{
-		monster_race *r_ptr = &r_info[k];
+		monster_race *r_ptr = &r_info[who[i]];
+		bool dead = (r_ptr->max_num == 0);
 
-		/* Only print Uniques */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
-		{
-			bool dead = (r_ptr->max_num == 0);
-
-			/* Only display "known" uniques */
-			if (dead || cheat_know || r_ptr->r_sights)
-			{
-				/* Print a message */
-				fprintf(fff, "     %s is %s\n",
-				        (r_name + r_ptr->name),
-				        (dead ? "dead" : "alive"));
-			}
-		}
+		/* Print a message */
+		fprintf(fff, "     %s is %s\n",(r_name + r_ptr->name),
+		        (dead ? "dead" : "alive"));
 	}
 
 	/* Close the file */
@@ -3096,6 +3097,7 @@ void plural_aux(char *Name)
 	}
 }
 
+
 /*
  * Display current pets
  */
@@ -3133,7 +3135,7 @@ static void do_cmd_knowledge_pets(void)
 			t_levels += r_info[m_ptr->r_idx].level;
 			monster_desc(pet_name, m_ptr, 0x88);
 			strcat(pet_name, "\n");
-			fprintf(fff, pet_name);
+			fprintf(fff, "%s (%s)\n", pet_name, look_mon_desc(i));
 		}
 	}
 
@@ -3141,13 +3143,14 @@ static void do_cmd_knowledge_pets(void)
 	{
 		show_upkeep = t_levels;
 
-		if (show_upkeep > 100) show_upkeep = 100;
-		else if (show_upkeep < 10) show_upkeep = 10;
+		if (show_upkeep > 95) show_upkeep = 95;
+		else if (show_upkeep < 5) show_upkeep = 5;
 	}
 
 
 	fprintf(fff, "----------------------------------------------\n");
-	fprintf(fff, "   Total: %d pet%s.\n", t_friends, (t_friends==1?"":"s"));
+	fprintf(fff, "   Total: %d pet%s.\n",
+	        t_friends, (t_friends == 1 ? "" : "s"));
 	fprintf(fff, "   Upkeep: %d%% mana.\n", show_upkeep);
 
 
@@ -3169,14 +3172,47 @@ static void do_cmd_knowledge_pets(void)
  */
 static void do_cmd_knowledge_kill_count(void)
 {
-	int k;
-
 	FILE *fff;
 
 	char file_name[1024];
 
 	s32b Total = 0;
 
+	int i, n;
+
+	u16b	why = 2;
+	u16b	*who;
+
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
+
+	/* Collect matching monsters */
+	for (n = 0, i = 1; i < max_r_idx; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* Nothing to recall */
+		if (!cheat_know && !r_ptr->r_sights) continue;
+
+		/* Collect "appropriate" monsters */
+		who[n++] = i;
+	}
+
+	/* Nothing to recall */
+	if (!n)
+	{
+		/* No monsters to recall */
+		msg_print("No known monsters!");
+		msg_print(NULL);
+		return;
+	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook_recall;
+	ang_sort_swap = ang_sort_swap_hook_recall;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -3213,19 +3249,19 @@ static void do_cmd_knowledge_kill_count(void)
 		}
 
 		if (Total < 1)
-			fprintf(fff,"You have defeated no enemies yet.\n\n");
+			fprintf(fff, "You have defeated no enemies yet.\n\n");
 		else if (Total == 1)
-			fprintf(fff,"You have defeated one enemy.\n\n");
+			fprintf(fff, "You have defeated one enemy.\n\n");
 		else
-			fprintf(fff,"You have defeated %lu enemies.\n\n", Total);
+			fprintf(fff, "You have defeated %lu enemies.\n\n", Total);
 	}
 
 	Total = 0;
 
 	/* Scan the monster races */
-	for (k = 1; k < max_r_idx; k++)
+	for (i = 0; i < n; i++)
 	{
-		monster_race *r_ptr = &r_info[k];
+		monster_race *r_ptr = &r_info[who[i]];
 
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
@@ -3270,7 +3306,8 @@ static void do_cmd_knowledge_kill_count(void)
 	}
 
 	fprintf(fff,"----------------------------------------------\n");
-	fprintf(fff,"   Total: %lu creature%s killed.\n", Total, (Total==1?"":"s"));
+	fprintf(fff,"   Total: %lu creature%s killed.\n",
+	        Total, (Total == 1 ? "" : "s"));
 
 	/* Close the file */
 	my_fclose(fff);
@@ -3350,7 +3387,7 @@ static void do_cmd_knowledge_quests(void)
 	FILE *fff;
 	char file_name[1024];
 	char tmp_str[80];
-	char rand_tmp_str[80] = "\0";
+	char rand_tmp_str[110] = "\0";
 	char name[80];
 	monster_race *r_ptr;
 	int i;
@@ -3535,115 +3572,103 @@ void do_cmd_knowledge(void)
 
 
 /*
- * Check on the status of an active quest
- */
-void do_cmd_checkquest(void)
-{
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Save the screen */
-	screen_save();
-
-	/* Quest info */
-	do_cmd_knowledge_quests();
-
-	/* Restore the screen */
-	screen_load();
-}
-
-
-/*
- * Check the current "game time"
+ * Display the time and date
  */
 void do_cmd_time(void)
 {
-	/* dummy is % thru day/night */
-	int dummy = ((turn % ((10L * TOWN_DAWN)/2) * 100) / ((10L * TOWN_DAWN)/2));
-	int minute = ((turn % ((10L * TOWN_DAWN)/2) * 720) / ((10L * TOWN_DAWN)/2)) % 60;
-	int hour = ((12 * dummy) / 100) - 6;    /* -6 to +6 */
-	int hour12 = 0;
-	bool morning = FALSE;
-	int day = 0;
+	s32b len = 10L * TOWN_DAWN;
+	s32b tick = turn % len + len / 4;
 
-	if (turn <= (10L * TOWN_DAWN) / 4)
+	int day = turn / len + 1;
+	int hour = (24 * tick / len) % 24;
+	int min = (1440 * tick / len) % 60;
+	int full = hour * 100 + min;
+
+	int start = 9999;
+	int end = -9999;
+
+	int num = 0;
+
+	char desc[1024];
+
+	char buf[1024];
+
+	FILE *fff;
+
+	strcpy(desc, "It is a strange time.");
+
+	/* Message */
+	msg_format("This is day %d. The time is %d:%02d %s.",
+	           day, (hour % 12 == 0) ? 12 : (hour % 12),
+	           min, (hour < 12) ? "AM" : "PM");
+
+	/* Find the path */
+	if (!rand_int(10) || p_ptr->image)
 	{
-		day = 1;
+		path_build(buf, 1024, ANGBAND_DIR_FILE, "timefun.txt");
 	}
 	else
 	{
-		day = (turn - (10L * TOWN_DAWN / 4)) / (10L * TOWN_DAWN) + 1;
+		path_build(buf, 1024, ANGBAND_DIR_FILE, "timenorm.txt");
 	}
 
-	/* night: 6pm -- 6am */
-	if ((turn / ((10L * TOWN_DAWN) / 2)) % 2)
+	/* Open this file */
+	fff = my_fopen(buf, "rt");
+
+	/* Oops */
+	if (!fff) return;
+
+	/* Find this time */
+	while (!my_fgets(fff, buf, 1024))
 	{
-		if (hour < 0)
-		{
-			hour12 = 12 - (hour * -1);
-		}
-		else
-		{
-			hour12 = hour;
-		}
+		/* Ignore comments */
+		if (!buf[0] || (buf[0] == '#')) continue;
 
-		if (hour >= 0) morning = TRUE;
-		else morning = FALSE;
+		/* Ignore invalid lines */
+		if (buf[1] != ':') continue;
 
-		msg_format("%d:%02d %s, day %d.", hour12, minute, (morning ? "AM" : "PM"),
-			turn / (10L * TOWN_DAWN) + 1);
+		/* Process 'Start' */
+		if (buf[0] == 'S')
+		{
+			/* Extract the starting time */
+			start = atoi(buf + 2);
 
-		if (dummy < 5)
-			msg_print("The sun has set.");
-		else if (dummy == 50)
-			msg_print("It is midnight.");
-		else if ((dummy > 94) && (dummy < 101))
-			msg_print("The sun is near to rising.");
-		else if ((dummy > 75) && (dummy < 95))
-			msg_print("It is early morning, but still dark.");
-		else if (dummy > 100)
-			msg_format("What a funny night-time! (%d)", dummy);
-		else
-			msg_format("It is night.");
-	}
-	else
-	/* day */
-	{
-		if (hour <= 0)
-		{
-			hour12 = 12 - (hour * -1);
-		}
-		else
-		{
-			hour12 = hour;
+			/* Assume valid for an hour */
+			end = start + 59;
+
+			/* Next... */
+			continue;
 		}
 
-		if (hour >= 0) morning = FALSE;
-		else morning = TRUE;
+		/* Process 'End' */
+		if (buf[0] == 'E')
+		{
+			/* Extract the ending time */
+			end = atoi(buf + 2);
 
-		msg_format("%d:%02d %s, day %d.", hour12, minute, (morning? "AM" : "PM"),
-			turn / (10L * TOWN_DAWN) + 1);
+			/* Next... */
+			continue;
+		}
 
-		if (dummy < 5)
-			msg_print("Morning has broken...");
-		else if (dummy < 25)
-			msg_print("It is early morning.");
-		else if (dummy < 50)
-			msg_print("It is late morning.");
-		else if (dummy == 50)
-			msg_print("It is noon.");
-		else if (dummy < 65)
-			msg_print("It is early afternoon.");
-		else if (dummy < 85)
-			msg_print("It is late afternoon.");
-		else if (dummy < 95)
-			msg_print("It is early evening.");
-		else if (dummy < 101)
-			msg_print("The sun is setting.");
-		else
-			msg_format("What a strange daytime! (%d)", dummy);
+		/* Ignore incorrect range */
+		if ((start > full) || (full > end)) continue;
+
+		/* Process 'Description' */
+		if (buf[0] == 'D')
+		{
+			num++;
+
+			/* Apply the randomizer */
+			if (!rand_int(num)) strcpy(desc, buf + 2);
+
+			/* Next... */
+			continue;
+		}
 	}
 
-	/* Show the turn-number */
-	msg_format("Current turn: %d.", turn);
+	/* Message */
+	msg_print(desc);
+
+	/* Close the file */
+	my_fclose(fff);
 }

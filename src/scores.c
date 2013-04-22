@@ -167,7 +167,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str("                Zangband Hall of Fame", 0, 0);
+		put_str("                Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)

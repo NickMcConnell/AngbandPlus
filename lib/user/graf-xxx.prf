@@ -4712,3 +4712,6 @@ K:563:0xCE:0x8E
 # Load the special player pictures
 %:xtra-xxx.prf
 
+# Load the spell color definitions -- Prfnoff
+%:bolt-xxx.prf
+

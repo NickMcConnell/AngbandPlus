@@ -22,6 +22,11 @@
 #define AUTOROLLER_STEP 25L
 
 /*
+ * Define this to cut down processor use while autorolling
+ */
+#define AUTOROLLER_DELAY
+
+/*
  * Maximum number of tries for selection of a proper quest monster
  */
 #define MAX_TRIES 100
@@ -46,6 +51,10 @@ struct birther
 	s16b stat[6];
 
 	char history[4][60];
+
+	s16b patron;
+
+	s16b hp[PY_MAX_LEVEL];
 };
 
 
@@ -440,7 +449,7 @@ static hist_type bg[] =
 
 	{"a Necromancer.  ", 30, 108, 62, 50 },
 	{"a Wizard.  ", 50, 108, 62, 50 },
-	{"a restless spirit.  ",60, 108, 62, 50 },
+	{"a restless spirit.  ", 60, 108, 62, 50 },
 	{"an Evil Priest.  ", 70, 108, 62, 50 },
 	{"a pact with the demons.  ", 80, 108, 62, 50 },
 	{"a curse.  ", 95, 108, 62, 30 },
@@ -593,7 +602,7 @@ static s32b last_round;
 /*
  * Choose from one of the available magical realms
  */
-static byte choose_realm(byte choices)
+static byte choose_realm(byte choices, bool *startover) /* Prfnoff */
 {
 	int picks[MAX_REALM] = {0};
 	int k;
@@ -719,6 +728,12 @@ static byte choose_realm(byte choices)
 			remove_loc();
 			quit(NULL);
 		}
+		if (c == 'S')
+		{
+			/* Hack -- start over -- Prfnoff */
+			*startover = TRUE;
+			return (REALM_NONE);
+		}
 		if (c == '*')
 		{
 			k = rand_int(n);
@@ -749,6 +764,8 @@ static byte choose_realm(byte choices)
  */
 static bool get_player_realms(void)
 {
+	bool startover = FALSE; /* Prfnoff */
+
 #ifdef USE_SCRIPT
 	int result = get_player_realms_callback();
 
@@ -761,7 +778,10 @@ static bool get_player_realms(void)
 #endif /* USE_SCRIPT */
 
 	/* Select the first realm */
-	p_ptr->realm1 = choose_realm(realm_choices1[p_ptr->pclass]);
+	p_ptr->realm1 = choose_realm(realm_choices1[p_ptr->pclass], &startover);
+
+	/* Hack -- start over if requested -- Prfnoff */
+	if (startover) return (FALSE);
 
 	if (p_ptr->realm1)
 	{
@@ -770,7 +790,10 @@ static bool get_player_realms(void)
 		c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1], 6, 15);
 
 		/* Select the second realm */
-		p_ptr->realm2 = choose_realm(realm_choices2[p_ptr->pclass]);
+		p_ptr->realm2 = choose_realm(realm_choices2[p_ptr->pclass], &startover);
+
+		/* Hack -- start over if requested -- Prfnoff */
+		if (startover) return (FALSE);
 
 		/* Print the realm */
 		if (p_ptr->realm2)
@@ -809,6 +832,15 @@ static void save_prev_data(void)
 	{
 		strcpy(prev.history[i], history[i]);
 	}
+
+	/* Save the patron */
+	prev.patron = p_ptr->chaos_patron;
+
+	/* Save the hitpoints */
+	for (i = 0; i < PY_MAX_LEVEL; i++)
+	{
+		prev.hp[i] = player_hp[i];
+	}
 }
 
 
@@ -843,6 +875,15 @@ static void load_prev_data(void)
 		strcpy(temp.history[i], history[i]);
 	}
 
+	/* Save the patron */
+	temp.patron = p_ptr->chaos_patron;
+
+	/* Save the hitpoints */
+	for (i = 0; i < PY_MAX_LEVEL; i++)
+	{
+		temp.hp[i] = player_hp[i];
+	}
+
 
 	/*** Load the previous data ***/
 
@@ -866,6 +907,15 @@ static void load_prev_data(void)
 		strcpy(history[i], prev.history[i]);
 	}
 
+	/* Load the patron */
+	p_ptr->chaos_patron = prev.patron;
+
+	/* Load the hitpoints */
+	for (i = 0; i < PY_MAX_LEVEL; i++)
+	{
+		player_hp[i] = prev.hp[i];
+	}
+
 
 	/*** Save the current data ***/
 
@@ -886,6 +936,15 @@ static void load_prev_data(void)
 	for (i = 0; i < 4; i++)
 	{
 		strcpy(prev.history[i], temp.history[i]);
+	}
+
+	/* Save the patron */
+	prev.patron = temp.patron;
+
+	/* Save the hitpoints */
+	for (i = 0; i < PY_MAX_LEVEL; i++)
+	{
+		prev.hp[i] = temp.hp[i];
 	}
 }
 
@@ -1555,7 +1614,7 @@ static void player_wipe(void)
 	noscore = 0;
 
 	/* Default pet command settings */
-	p_ptr->pet_follow_distance = 6;
+	p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
 	p_ptr->pet_open_doors = FALSE;
 	p_ptr->pet_pickup_items = FALSE;
 }
@@ -2231,7 +2290,7 @@ static bool player_birth_aux(void)
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Using 'maximize' mode makes the game harder at the start,");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-	    "but often makes it easier to win. In Zangband, 'maximize'");
+	    "but often makes it easier to win. In this variant, 'maximize'");
 	Term_putstr(5, 17, -1, TERM_WHITE,
 	    "mode is recommended for spellcasters.");
 
@@ -2459,16 +2518,16 @@ static bool player_birth_aux(void)
 
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
-		"You can input yourself the number of quest you'd like to");
+		"You can enter the number of quest you'd like to perform next");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"perform next to two obligatory ones ( Oberon and the Serpent of Chaos )");
+		"to the two obligatory ones (Oberon and the Serpent of Chaos)");
 	Term_putstr(5, 17, -1, TERM_WHITE,
-		"In case you do not want any additional quest, just enter 0");
+		"In case you do not want any additional quests, just enter 0");
 
 	/* Ask the number of additional quests */
 	while (TRUE)
 	{
-		put_str(format("Number of additional quest? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 20, 2);
+		put_str(format("Number of additional quests? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 20, 2);
 
 		/* Get a the number of additional quest */
 		while (TRUE)
@@ -2542,6 +2601,13 @@ static bool player_birth_aux(void)
 			quest_r_ptr->flags1 |= RF1_QUESTOR;
 
 			q_ptr->max_num = 1;
+		}
+		else if (quest_r_ptr->flags3 & RF3_UNIQUE_7)
+		{
+			/* Mark uniques */
+			quest_r_ptr->flags1 |= RF1_QUESTOR;
+
+			q_ptr->max_num = randint(quest_r_ptr->max_num);
 		}
 		else
 		{
@@ -2628,7 +2694,15 @@ static bool player_birth_aux(void)
 			auto_round++;
 
 			/* Hack -- Prevent overflow */
-			if (auto_round >= 1000000L) break;
+			if (auto_round >= 1000000L)
+			{
+				auto_round = 1;
+
+				for (i = 0; i < 6; i++)
+				{
+					stat_match[i] = 0;
+				}
+			}
 
 			/* Check and count acceptable stats */
 			for (i = 0; i < 6; i++)
@@ -2661,11 +2735,13 @@ static bool player_birth_aux(void)
 				/* Dump round */
 				put_str(format("%10ld", auto_round), 10, col+20);
 
-				/* Make sure they see everything */
-				Term_fresh();
-
+#ifdef AUTOROLLER_DELAY
 				/* Delay 1/10 second */
 				if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
+#endif
+
+				/* Make sure they see everything */
+				Term_fresh();
 
 				/* Do not wait for a key */
 				inkey_scan = TRUE;
@@ -2773,9 +2849,8 @@ static bool player_birth_aux(void)
 			else if (c == '=')
 			{
 				screen_save();
-				do_cmd_options_aux(6, "Startup Options");
+				do_cmd_options_view(6, "Startup Options"); /* Prfnoff */
 				screen_load();
-				continue;
 			}
 
 			/* Warning */
@@ -2798,7 +2873,7 @@ static bool player_birth_aux(void)
 
 	/*** Finish up ***/
 
-	/* Check for Roman numerals at end of name */
+	/* Check for Roman numerals at end of name -- Prfnoff */
 	k = roman_extract(player_name, &i);
 
 	if (k > 0)

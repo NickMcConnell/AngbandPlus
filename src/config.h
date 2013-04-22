@@ -224,13 +224,6 @@
  */
 #define ALLOW_TEMPLATES
 
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-#define ALLOW_OLD_SAVEFILES
-
 
 /*
  * OPTION: Delay the loading of the "f_text" array until it is actually
@@ -315,26 +308,6 @@
  * OPTION: Allow use of the monster health bar	-DRS-
  */
 #define DRS_SHOW_HEALTH_BAR
-
-
-/*
- * OPTION: Enable the "smart_learn" and "smart_cheat" options.
- * They let monsters make more "intelligent" choices about attacks
- * (including spell attacks) based on their observations of the
- * player's reactions to previous attacks.  The "smart_cheat" option
- * lets the monster know how the player would react to an attack
- * without actually needing to make the attack.  The "smart_learn"
- * option requires that a monster make a "failed" attack before
- * learning that the player is not harmed by that attack.
- *
- * This adds about 3K to the memory and about 5K to the executable.
- *
- * SPECIAL NOTE: In Z, the "smart" field is also used to store such
- * monster information as "friendly" and "cloned". Therefore this
- * option should always be defined when compiling Zangband 2.1.0
- * or later.
- */
-#define DRS_SMART_OPTIONS
 
 
 
@@ -462,7 +435,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
+#define MAINTAINER	"benh@phial.com"
 
 
 /*
@@ -505,8 +478,6 @@
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
 # undef WDT_TRACK_OPTIONS
-# undef DRS_SMART_OPTIONS
-# undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_WIZARD
 # undef ALLOW_SPOILERS
@@ -532,21 +503,12 @@
 # define VERIFY_TIMESTAMPS
 #endif
 
-/* Zangband options: */
-
-/* (see above) */
-#ifndef DRS_SMART_OPTIONS
- #define DRS_SMART_OPTIONS
-#endif
 
 /* Should the player know his / her starting life rate? */
 # define SHOW_LIFE_RATE
 
 /* Do we want different characters for different races? */
 # define VARIABLE_PLAYER_GRAPH
-
-/* To turn on the "confirm staircases" check  -- obsolete in 2.1.0 and later */
-/* # define CONFIRM_STAIRCASES */
 
 /* For longer martial arts descriptions */
 # define VERBOSE_MARTIAL_ARTS
@@ -556,31 +518,8 @@
 
 /* Wizard mode testing options: */
 
-/* For testing the vaults */
-/* # define FORCE_V_IDX */
-
 /* Testing upkeep */
 /* # define TRACK_FRIENDS */
-
-/*
- * OPTION: Repeat last command -- TNB
- */
-#define ALLOW_REPEAT
-
-/*
- * OPTION: Make opening and closing things easy -- TNB
- */
-#define ALLOW_EASY_OPEN
-
-/*
- * OPTION: Make disarming traps easy -- TNB
- */
-#define ALLOW_EASY_DISARM
-
-/*
- * OPTION: Make floor stacks easy -- TNB
- */
-#define ALLOW_EASY_FLOOR
 
 /*
  * Check the modification time of *_info.raw files
@@ -601,13 +540,13 @@
 
 #ifdef USE_SCRIPT
 /*
- * Python is statically linked into ZAngband
+ * Python is statically linked
  */
 # define STATIC_PYTHON
 /* # define SCRIPT_OBJ_KIND */
 #endif /* USE_SCRIPT */
 
 /*
- * Check for corruption of inven_cnt
+ * Add caverns and lakes to the dungeon (buggy)
  */
-/* #define INVENTORY_DEBUG */
+/* #define ALLOW_CAVERNS_AND_LAKES */

@@ -6,20 +6,19 @@
 # Added extra targets: mrmarcel@eos.ncsu.edu (Mike Marcelais)
 
 OBJS = \
-  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-  variable.o tables.o util.o cave.o \
-  object1.o object2.o monster1.o monster2.o \
-  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
-  load1.o load2.o save.o files.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o wizard1.o wizard2.o \
+  main.o main-ibm.o \
   generate.o dungeon.o init1.o init2.o \
-  effects.o racial.o \
+  store.o birth.o wizard1.o wizard2.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+  load.o save.o files.o genroom.o genfeat.o \
+  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
+  object1.o object2.o monster1.o monster2.o \
+  variable.o tables.o util.o cave.o \
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o \
+  bldg.o script.o effects.o racial.o \
   artifact.o mutation.o flavor.o spells3.o \
   mspells1.o mspells2.o scores.o mind.o \
-  bldg.o obj_kind.o genroom.o wild.o \
-  main-ibm.o main.o
-
+  obj_kind.o wild.o
 
 # Compiler
 
@@ -27,7 +26,7 @@ CC = gcc
 
 # Compiler flags
 
-CFLAGS = -Wall -O2 -DUSE_IBM
+CFLAGS = -Wall -O2 -fno-strength-reduce -DUSE_IBM
 
 # Libraries
 

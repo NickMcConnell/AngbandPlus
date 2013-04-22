@@ -313,9 +313,13 @@ bool gain_random_mutation(int choose_mut)
 			muta_desc = "Your stomach starts to roil nauseously.";
 			break;
 		case 110: case 111:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_CHAOS_GIFT;
-			muta_desc = "You attract the notice of a chaos deity!";
+			/* Chaos warriors already have a chaos deity */
+			if (p_ptr->pclass != CLASS_CHAOS_WARRIOR)
+			{
+				muta_class = &(p_ptr->muta2);
+				muta_which = MUT2_CHAOS_GIFT;
+				muta_desc = "You attract the notice of a chaos deity!";
+			}
 			break;
 		case 112:
 			muta_class = &(p_ptr->muta2);
@@ -522,12 +526,12 @@ bool gain_random_mutation(int choose_mut)
 		if (muta_chosen == TRUE) break;
 	}
 
-	if (!muta_chosen)
+	if (!muta_chosen && !choose_mut) /* Prfnoff */
 	{
 		msg_print("You feel normal.");
 		return FALSE;
 	}
-	else
+	else if (!choose_mut) /* Prfnoff */
 	{
 		if (p_ptr->prace == RACE_VAMPIRE &&
 		  !(p_ptr->muta1 & MUT1_HYPN_GAZE) &&
@@ -575,144 +579,146 @@ bool gain_random_mutation(int choose_mut)
 		}
 
 		msg_print("You mutate!");
-		msg_print(muta_desc);
-		*muta_class |= muta_which;
-
-		if (muta_class == &(p_ptr->muta3))
-		{
-			if (muta_which == MUT3_PUNY)
-			{
-				if (p_ptr->muta3 & MUT3_HYPER_STR)
-				{
-					msg_print("You no longer feel super-strong!");
-					p_ptr->muta3 &= ~(MUT3_HYPER_STR);
-				}
-			}
-			else if (muta_which == MUT3_HYPER_STR)
-			{
-				if (p_ptr->muta3 & MUT3_PUNY)
-				{
-					msg_print("You no longer feel puny!");
-					p_ptr->muta3 &= ~(MUT3_PUNY);
-				}
-			}
-			else if (muta_which == MUT3_MORONIC)
-			{
-				if (p_ptr->muta3 & MUT3_HYPER_INT)
-				{
-					msg_print("Your brain is no longer a living computer.");
-					p_ptr->muta3 &= ~(MUT3_HYPER_INT);
-				}
-			}
-			else if (muta_which == MUT3_HYPER_INT)
-			{
-				if (p_ptr->muta3 & MUT3_MORONIC)
-				{
-					msg_print("You are no longer moronic.");
-					p_ptr->muta3 &= ~(MUT3_MORONIC);
-				}
-			}
-			else if (muta_which == MUT3_IRON_SKIN)
-			{
-				if (p_ptr->muta3 & MUT3_SCALES)
-				{
-					msg_print("You lose your scales.");
-					p_ptr->muta3 &= ~(MUT3_SCALES);
-				}
-				if (p_ptr->muta3 & MUT3_FLESH_ROT)
-				{
-					msg_print("Your flesh rots no longer.");
-					p_ptr->muta3 &= ~(MUT3_FLESH_ROT);
-				}
-				if (p_ptr->muta3 & MUT3_WART_SKIN)
-				{
-					msg_print("You lose your warts.");
-					p_ptr->muta3 &= ~(MUT3_WART_SKIN);
-				}
-			}
-			else if (muta_which == MUT3_WART_SKIN || muta_which == MUT3_SCALES
-				|| muta_which == MUT3_FLESH_ROT)
-			{
-				if (p_ptr->muta3 & MUT3_IRON_SKIN)
-				{
-					msg_print("Your skin is no longer made of steel.");
-					p_ptr->muta3 &= ~(MUT3_IRON_SKIN);
-				}
-			}
-			else if (muta_which == MUT3_FEARLESS)
-			{
-				if (p_ptr->muta2 & MUT2_COWARDICE)
-				{
-					msg_print("You are no longer cowardly.");
-					p_ptr->muta2 &= ~(MUT2_COWARDICE);
-				}
-			}
-			else if (muta_which == MUT3_FLESH_ROT)
-			{
-				if (p_ptr->muta3 & MUT3_REGEN)
-				{
-					msg_print("You stop regenerating.");
-					p_ptr->muta3 &= ~(MUT3_REGEN);
-				}
-			}
-			else if (muta_which == MUT3_REGEN)
-			{
-				if (p_ptr->muta3 & MUT3_FLESH_ROT)
-				{
-					msg_print("Your flesh stops rotting.");
-					p_ptr->muta3 &= ~(MUT3_FLESH_ROT);
-				}
-			}
-			else if (muta_which == MUT3_LIMBER)
-			{
-				if (p_ptr->muta3 & MUT3_ARTHRITIS)
-				{
-					msg_print("Your joints stop hurting.");
-					p_ptr->muta3 &= ~(MUT3_ARTHRITIS);
-				}
-			}
-			else if (muta_which == MUT3_ARTHRITIS)
-			{
-				if (p_ptr->muta3 & MUT3_LIMBER)
-				{
-					msg_print("You no longer feel limber.");
-					p_ptr->muta3 &= ~(MUT3_LIMBER);
-				}
-			}
-		}
-		else if (muta_class == &(p_ptr->muta2))
-		{
-			if (muta_which == MUT2_COWARDICE)
-			{
-				if (p_ptr->muta3 & MUT3_FEARLESS)
-				{
-					msg_print("You no longer feel fearless.");
-					p_ptr->muta3 &= ~(MUT3_FEARLESS);
-				}
-			}
-			if (muta_which == MUT2_BEAK)
-			{
-				if (p_ptr->muta2 & MUT2_TRUNK)
-				{
-					msg_print("Your nose is no longer elephantine.");
-					p_ptr->muta2 &= ~(MUT2_TRUNK);
-				}
-			}
-			if (muta_which == MUT2_TRUNK)
-			{
-				if (p_ptr->muta2 & MUT2_BEAK)
-				{
-					msg_print("You no longer have a hard beak.");
-					p_ptr->muta2 &= ~(MUT2_BEAK);
-				}
-			}
-		}
-
-		mutant_regenerate_mod = calc_mutant_regenerate_mod();
-		p_ptr->update |= PU_BONUS;
-		handle_stuff();
-		return TRUE;
 	}
+
+	msg_print(muta_desc);
+	*muta_class |= muta_which;
+
+	if (muta_class == &(p_ptr->muta3))
+	{
+		if (muta_which == MUT3_PUNY)
+		{
+			if (p_ptr->muta3 & MUT3_HYPER_STR)
+			{
+				msg_print("You no longer feel super-strong!");
+				p_ptr->muta3 &= ~(MUT3_HYPER_STR);
+			}
+		}
+		else if (muta_which == MUT3_HYPER_STR)
+		{
+			if (p_ptr->muta3 & MUT3_PUNY)
+			{
+				msg_print("You no longer feel puny!");
+				p_ptr->muta3 &= ~(MUT3_PUNY);
+			}
+		}
+		else if (muta_which == MUT3_MORONIC)
+		{
+			if (p_ptr->muta3 & MUT3_HYPER_INT)
+			{
+				msg_print("Your brain is no longer a living computer.");
+				p_ptr->muta3 &= ~(MUT3_HYPER_INT);
+			}
+		}
+		else if (muta_which == MUT3_HYPER_INT)
+		{
+			if (p_ptr->muta3 & MUT3_MORONIC)
+			{
+				msg_print("You are no longer moronic.");
+				p_ptr->muta3 &= ~(MUT3_MORONIC);
+			}
+		}
+		else if (muta_which == MUT3_IRON_SKIN)
+		{
+			if (p_ptr->muta3 & MUT3_SCALES)
+			{
+				msg_print("You lose your scales.");
+				p_ptr->muta3 &= ~(MUT3_SCALES);
+			}
+			if (p_ptr->muta3 & MUT3_FLESH_ROT)
+			{
+				msg_print("Your flesh rots no longer.");
+				p_ptr->muta3 &= ~(MUT3_FLESH_ROT);
+			}
+			if (p_ptr->muta3 & MUT3_WART_SKIN)
+			{
+				msg_print("You lose your warts.");
+				p_ptr->muta3 &= ~(MUT3_WART_SKIN);
+			}
+		}
+		else if ((muta_which == MUT3_WART_SKIN) ||
+		         (muta_which == MUT3_SCALES) ||
+		         (muta_which == MUT3_FLESH_ROT))
+		{
+			if (p_ptr->muta3 & MUT3_IRON_SKIN)
+			{
+				msg_print("Your skin is no longer made of steel.");
+				p_ptr->muta3 &= ~(MUT3_IRON_SKIN);
+			}
+		}
+		else if (muta_which == MUT3_FEARLESS)
+		{
+			if (p_ptr->muta2 & MUT2_COWARDICE)
+			{
+				msg_print("You are no longer cowardly.");
+				p_ptr->muta2 &= ~(MUT2_COWARDICE);
+			}
+		}
+		else if (muta_which == MUT3_FLESH_ROT)
+		{
+			if (p_ptr->muta3 & MUT3_REGEN)
+			{
+				msg_print("You stop regenerating.");
+				p_ptr->muta3 &= ~(MUT3_REGEN);
+			}
+		}
+		else if (muta_which == MUT3_REGEN)
+		{
+			if (p_ptr->muta3 & MUT3_FLESH_ROT)
+			{
+				msg_print("Your flesh stops rotting.");
+				p_ptr->muta3 &= ~(MUT3_FLESH_ROT);
+			}
+		}
+		else if (muta_which == MUT3_LIMBER)
+		{
+			if (p_ptr->muta3 & MUT3_ARTHRITIS)
+			{
+				msg_print("Your joints stop hurting.");
+				p_ptr->muta3 &= ~(MUT3_ARTHRITIS);
+			}
+		}
+		else if (muta_which == MUT3_ARTHRITIS)
+		{
+			if (p_ptr->muta3 & MUT3_LIMBER)
+			{
+				msg_print("You no longer feel limber.");
+				p_ptr->muta3 &= ~(MUT3_LIMBER);
+			}
+		}
+	}
+	else if (muta_class == &(p_ptr->muta2))
+	{
+		if (muta_which == MUT2_COWARDICE)
+		{
+			if (p_ptr->muta3 & MUT3_FEARLESS)
+			{
+				msg_print("You no longer feel fearless.");
+				p_ptr->muta3 &= ~(MUT3_FEARLESS);
+			}
+		}
+		if (muta_which == MUT2_BEAK)
+		{
+			if (p_ptr->muta2 & MUT2_TRUNK)
+			{
+				msg_print("Your nose is no longer elephantine.");
+				p_ptr->muta2 &= ~(MUT2_TRUNK);
+			}
+		}
+		if (muta_which == MUT2_TRUNK)
+		{
+			if (p_ptr->muta2 & MUT2_BEAK)
+			{
+				msg_print("You no longer have a hard beak.");
+				p_ptr->muta2 &= ~(MUT2_BEAK);
+			}
+		}
+	}
+
+	mutant_regenerate_mod = calc_mutant_regenerate_mod();
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
 }
 
 
@@ -1222,7 +1228,7 @@ bool lose_mutation(int choose_mut)
 				muta_chosen = TRUE;
 			}
 		}
-		if (muta_chosen == TRUE) break;
+		if (muta_chosen) break;
 	}
 
 	if (!muta_chosen)
@@ -1680,7 +1686,7 @@ static int count_bits(u32b x)
 	{
 		n++;
 	}
-	while (0 != (x = x&(x-1)));
+	while (0 != (x = x & (x - 1)));
 
 	return (n);
 }
@@ -1874,9 +1880,7 @@ void mutation_power_aux(u32b power)
 					msg_print("You bite into thin air!");
 					break;
 				}
-				else if (((c_ptr->feat >= FEAT_PERM_EXTRA) &&
-					(c_ptr->feat <= FEAT_PERM_SOLID)) ||
-					(c_ptr->feat == FEAT_MOUNTAIN))
+				else if (cave_permwall_bold(y, x)) /* Prfnoff */
 				{
 					msg_print("Ouch!  This wall is harder than your teeth!");
 					break;
@@ -1893,13 +1897,11 @@ void mutation_power_aux(u32b power)
 				}
 				else
 				{
-					if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-						(c_ptr->feat <= FEAT_RUBBLE))
+					if (!cave_realwall_grid(c_ptr))
 					{
 						(void)set_food(p_ptr->food + 3000);
 					}
-					else if ((c_ptr->feat >= FEAT_MAGMA) &&
-						(c_ptr->feat <= FEAT_QUARTZ_K))
+					else if (cave_vein_grid(c_ptr))
 					{
 						(void)set_food(p_ptr->food + 5000);
 					}
@@ -1963,7 +1965,7 @@ void mutation_power_aux(u32b power)
 					if (!o_ptr->k_idx) continue;
 					if (!cursed_p(o_ptr)) continue;
 
-					o_ptr->note = quark_add("cursed");
+					o_ptr->feeling = FEEL_CURSED;
 				}
 			}
 			break;
@@ -2112,11 +2114,11 @@ void mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_STERILITY:
-			if (racial_aux(20, 40, A_CHR, 18))
+			if (racial_aux(12, 23, A_CHR, 15))
 			{
 				/* Fake a population explosion. */
 				msg_print("You suddenly have a headache!");
-				take_hit(randint(30) + 30, "the strain of forcing abstinence");
+				take_hit(randint(17) + 17, "the strain of forcing abstinence");
 				num_repro += MAX_REPRO;
 			}
 			break;
@@ -2162,21 +2164,7 @@ void mutation_power_aux(u32b power)
 		case MUT1_RECALL:
 			if (racial_aux(17, 50, A_INT, 16))
 			{
-				if (dun_level && (p_ptr->max_dlv > dun_level))
-				{
-					if (get_check("Reset recall depth? "))
-						p_ptr->max_dlv = dun_level;
-				}
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(21) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				word_of_recall(); /* Prfnoff */
 			}
 			break;
 
@@ -2249,5 +2237,597 @@ void mutation_power_aux(u32b power)
 		default:
 			energy_use = 0;
 			msg_format("Power %s not implemented. Oops.", power);
+	}
+}
+
+
+/*
+ * Rerate hitpoints and cure all mutations as if through a
+ * Potion of New Life -- Prfnoff
+ */
+void new_life(void)
+{
+	do_cmd_rerate();
+	if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+	{
+		msg_print("You are cured of all mutations.");
+		p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+		p_ptr->update |= PU_BONUS;
+		handle_stuff();
+	}
+}
+
+
+/*
+ * Effect of mutations on a stat -- Prfnoff
+ */
+int mutation_stat_mod(int stat)
+{
+	int dummy = 0;
+
+	if (stat == A_STR)
+	{
+		if (p_ptr->muta3 & MUT3_HYPER_STR) dummy += 4;
+		if (p_ptr->muta3 & MUT3_PUNY) dummy -= 4;
+	}
+	else if (stat == A_WIS || stat == A_INT)
+	{
+		if (p_ptr->muta3 & MUT3_HYPER_INT) dummy += 4;
+		if (p_ptr->muta3 & MUT3_MORONIC) dummy -= 4;
+	}
+	else if (stat == A_DEX)
+	{
+		if (p_ptr->muta3 & MUT3_IRON_SKIN) dummy -= 1;
+		if (p_ptr->muta3 & MUT3_LIMBER) dummy += 3;
+		if (p_ptr->muta3 & MUT3_ARTHRITIS) dummy -= 3;
+	}
+	else if (stat == A_CON)
+	{
+		if (p_ptr->muta3 & MUT3_RESILIENT) dummy += 4;
+		if (p_ptr->muta3 & MUT3_XTRA_FAT) dummy += 2;
+		if (p_ptr->muta3 & MUT3_ALBINO) dummy -= 4;
+		if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 2;
+	}
+	else if (stat == A_CHR)
+	{
+		if (p_ptr->muta3 & MUT3_SILLY_VOI) dummy -= 4;
+		if (p_ptr->muta3 & MUT3_BLANK_FAC) dummy -= 1;
+		if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 1;
+		if (p_ptr->muta3 & MUT3_SCALES) dummy -= 1;
+		if (p_ptr->muta3 & MUT3_WART_SKIN) dummy -= 2;
+		if (p_ptr->muta3 & MUT3_ILL_NORM) dummy = 0;
+	}
+
+	return (dummy);
+}
+
+
+/*
+ * Sanity loss caused by 'eldritch horror' monsters -- Prfnoff
+ */
+void lose_sanity(int power)
+{
+	bool happened = FALSE;
+
+	/* Mind blast */
+	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		if (!p_ptr->resist_conf)
+		{
+			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+		}
+		if (!p_ptr->resist_chaos && one_in_(3))
+		{
+			(void)set_image(p_ptr->image + rand_int(250) + 150);
+		}
+		return;
+	}
+
+	/* Lose int & wis */
+	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		do_dec_stat(A_INT);
+		do_dec_stat(A_WIS);
+		return;
+	}
+
+	/* Brain smash */
+	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		if (!p_ptr->resist_conf)
+		{
+			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+		}
+		if (!p_ptr->free_act)
+		{
+			(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
+		}
+		while (!saving_throw(p_ptr->skill_sav))
+		{
+			(void)do_dec_stat(A_INT);
+		}
+		while (!saving_throw(p_ptr->skill_sav))
+		{
+			(void)do_dec_stat(A_WIS);
+		}
+		if (!p_ptr->resist_chaos)
+		{
+			(void)set_image(p_ptr->image + rand_int(250) + 150);
+		}
+		return;
+	}
+
+	/* Permanent lose int & wis */
+	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
+		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
+		if (happened)
+		{
+			msg_print("You feel much less sane than before.");
+		}
+		return;
+	}
+
+	/* Amnesia */
+	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		if (lose_all_info())
+		{
+			msg_print("You forget everything in your utmost terror!");
+		}
+		return;
+	}
+
+	/* Else gain permanent insanity */
+	if ((p_ptr->muta3 & MUT3_MORONIC) && (p_ptr->muta2 & MUT2_BERS_RAGE) &&
+		((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
+		((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
+	{
+		/* The poor bastard already has all possible insanities! */
+		return;
+	}
+
+	while (!happened)
+	{
+		switch (randint(4))
+		{
+			case 1:
+			{
+				/* Moronic */
+				if (gain_random_mutation(129)) happened = TRUE;
+				break;
+			}
+			case 2:
+			{
+				/* Coward */
+				if (!p_ptr->resist_fear && gain_random_mutation(76)) happened = TRUE;
+				break;
+			}
+			case 3:
+			{
+				/* Hallucination */
+				if (!p_ptr->resist_chaos && gain_random_mutation(79)) happened = TRUE;
+				break;
+			}
+			default:
+			{
+				/* Berserk rage */
+				if (gain_random_mutation(75)) happened = TRUE;
+				break;
+			}
+		}
+	}
+}
+
+
+/*
+ * Process the effects of the player's mutations -- Prfnoff
+ */
+void process_mutations(void)
+{
+	if ((p_ptr->muta2 & MUT2_BERS_RAGE) && (randint(3000) == 1))
+	{
+		disturb(0, 0);
+		msg_print("RAAAAGHH!");
+		msg_print("You feel a fit of rage coming over you!");
+		(void)set_shero(p_ptr->shero + 10 + randint(p_ptr->lev));
+	}
+
+	if ((p_ptr->muta2 & MUT2_COWARDICE) && (randint(3000) == 13))
+	{
+		if (!(p_ptr->resist_fear || p_ptr->hero || p_ptr->shero))
+		{
+			disturb(0, 0);
+			msg_print("It's so dark... so scary!");
+			set_afraid(p_ptr->afraid + 13 + randint(26));
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_RTELEPORT) && (randint(5000) == 88))
+	{
+		if (!p_ptr->resist_nexus && !p_ptr->muta1 & MUT1_VTELEPORT &&
+		    !p_ptr->anti_tele)
+		{
+			disturb(0, 0);
+
+			/* Teleport player */
+			msg_print("Your position suddenly seems very uncertain...");
+			msg_print(NULL);
+			teleport_player(40);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_ALCOHOL) && (randint(6400) == 321))
+	{
+		if (!p_ptr->resist_conf || !p_ptr->resist_chaos)
+		{
+			disturb(0, 0);
+			p_ptr->redraw |= PR_EXTRA;
+			msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
+		}
+
+		if (!p_ptr->resist_conf)
+		{
+			(void)set_confused(p_ptr->confused + rand_int(20) + 15);
+		}
+
+		if (!p_ptr->resist_chaos)
+		{
+			if (one_in_(20))
+			{
+				msg_print(NULL);
+				if (one_in_(3)) lose_all_info();
+				else wiz_dark();
+				teleport_player(100);
+				wiz_dark();
+				msg_print("You wake up somewhere with a sore head...");
+				msg_print("You can't remember a thing, or how you got here!");
+			}
+			else
+			{
+				if (one_in_(3))
+				{
+					msg_print("Thishcischs GooDSChtuff!");
+					(void)set_image(p_ptr->image + rand_int(150) + 150);
+				}
+			}
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_HALLU) && (randint(6400) == 42))
+	{
+		if (!p_ptr->resist_chaos)
+		{
+			disturb(0, 0);
+			p_ptr->redraw |= PR_EXTRA;
+			(void)set_image(p_ptr->image + rand_int(50) + 20);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_FLATULENT) && (randint(3000) == 13))
+	{
+		disturb(0, 0);
+
+		msg_print("BRRAAAP! Oops.");
+		msg_print(NULL);
+		fire_ball(GF_POIS, 0, p_ptr->lev, 3);
+	}
+
+	if ((p_ptr->muta2 & MUT2_PROD_MANA) &&
+	    !p_ptr->anti_magic && (randint(9000) == 1))
+	{
+		int dire = 0;
+
+		disturb(0, 0);
+		msg_print("Magical energy flows through you! You must release it!");
+		flush();
+		msg_print(NULL);
+		(void)get_hack_dir(&dire);
+		fire_ball(GF_MANA, dire, p_ptr->lev * 2, 3);
+	}
+
+	if ((p_ptr->muta2 & MUT2_ATT_DEMON) &&
+	    !p_ptr->anti_magic && (randint(6666) == 666))
+	{
+		bool pet = (randint(6) == 1);
+
+		if (summon_specific(py, px,
+	               	        dun_level, SUMMON_DEMON, TRUE, FALSE, pet))
+		{
+			msg_print("You have attracted a demon!");
+			disturb(0, 0);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_SPEED_FLUX) && (randint(6000) == 1))
+	{
+		disturb(0, 0);
+		if (randint(2) == 1)
+		{
+			msg_print("You feel less energetic.");
+			if (p_ptr->fast > 0)
+			{
+				set_fast(0);
+			}
+			else
+			{
+				set_slow(p_ptr->slow + randint(30) + 10);
+			}
+		}
+		else
+		{
+			msg_print("You feel more energetic.");
+			if (p_ptr->slow > 0)
+			{
+				set_slow(0);
+			}
+			else
+			{
+				set_fast(p_ptr->fast + randint(30) + 10);
+			}
+		}
+		msg_print(NULL);
+	}
+	if ((p_ptr->muta2 & MUT2_BANISH_ALL) && (randint(9000) == 1))
+	{
+		disturb(0, 0);
+		msg_print("You suddenly feel almost lonely.");
+		banish_monsters(100);
+		if (!dun_level && p_ptr->town_num)
+		{
+			msg_print("You see one of the shopkeepers running for the hills!");
+			store_shuffle(rand_int(MAX_STORES));
+		}
+		msg_print(NULL);
+	}
+
+	if ((p_ptr->muta2 & MUT2_EAT_LIGHT) && one_in_(3000))
+	{
+		object_type *o_ptr;
+
+		msg_print("A shadow passes over you.");
+		msg_print(NULL);
+
+		/* Absorb light from the current possition */
+		if (cave[py][px].info & CAVE_GLOW)
+		{
+			hp_player(10);
+		}
+
+		o_ptr = &inventory[INVEN_LITE];
+
+		/* Absorb some fuel in the current lite */
+		if (o_ptr->tval == TV_LITE)
+		{
+			/* Use some fuel (except on artifacts) */
+			if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+			{
+				/* Heal the player a bit */
+				hp_player(o_ptr->pval / 20);
+
+				/* Decrease life-span of lite */
+				o_ptr->pval /= 2;
+
+				msg_print("You absorb energy from your light!");
+
+				/* Notice interesting fuel steps */
+				notice_lite_change(o_ptr);
+			}
+		}
+
+		/*
+		 * Unlite the area (radius 10) around player and
+		 * do 50 points damage to every affected monster
+		 */
+		unlite_area(50, 10);
+	}
+
+	if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) &&
+	   !p_ptr->anti_magic && one_in_(7000))
+	{
+		bool pet = (randint(3) == 1);
+
+		if (summon_specific(py, px, dun_level, SUMMON_ANIMAL,
+		    TRUE, FALSE, pet))
+		{
+			msg_print("You have attracted an animal!");
+			disturb(0, 0);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_RAW_CHAOS) &&
+	    !p_ptr->anti_magic && one_in_(8000))
+	{
+		disturb(0, 0);
+		msg_print("You feel the world warping around you!");
+		msg_print(NULL);
+		fire_ball(GF_CHAOS, 0, p_ptr->lev, 8);
+	}
+	if ((p_ptr->muta2 & MUT2_NORMALITY) && one_in_(5000))
+	{
+		if (!lose_mutation(0))
+			msg_print("You feel oddly normal.");
+	}
+	if ((p_ptr->muta2 & MUT2_WRAITH) && !p_ptr->anti_magic && one_in_(3000))
+	{
+		disturb(0, 0);
+		msg_print("You feel insubstantial!");
+		msg_print(NULL);
+		set_wraith_form(p_ptr->wraith_form + randint(p_ptr->lev / 2) + (p_ptr->lev / 2));
+	}
+	if ((p_ptr->muta2 & MUT2_POLY_WOUND) && one_in_(3000))
+	{
+		do_poly_wounds();
+	}
+	if ((p_ptr->muta2 & MUT2_WASTING) && one_in_(3000))
+	{
+		int which_stat = rand_int(6);
+		int sustained = FALSE;
+
+		switch (which_stat)
+		{
+		case A_STR:
+			if (p_ptr->sustain_str) sustained = TRUE;
+			break;
+		case A_INT:
+			if (p_ptr->sustain_int) sustained = TRUE;
+			break;
+		case A_WIS:
+			if (p_ptr->sustain_wis) sustained = TRUE;
+			break;
+		case A_DEX:
+			if (p_ptr->sustain_dex) sustained = TRUE;
+			break;
+		case A_CON:
+			if (p_ptr->sustain_con) sustained = TRUE;
+			break;
+		case A_CHR:
+			if (p_ptr->sustain_chr) sustained = TRUE;
+			break;
+		default:
+			msg_print("Invalid stat chosen!");
+			sustained = TRUE;
+		}
+
+		if (!sustained)
+		{
+			disturb(0, 0);
+			msg_print("You can feel yourself wasting away!");
+			msg_print(NULL);
+			(void)dec_stat(which_stat, randint(6) + 6, randint(3) == 1);
+		}
+	}
+	if ((p_ptr->muta2 & MUT2_ATT_DRAGON) &&
+	   !p_ptr->anti_magic && one_in_(3000))
+	{
+		bool pet = (randint(5) == 1);
+
+		if (summon_specific(py, px, dun_level, SUMMON_DRAGON,
+		    TRUE, FALSE, pet))
+		{
+			msg_print("You have attracted a dragon!");
+			disturb(0, 0);
+		}
+	}
+	if ((p_ptr->muta2 & MUT2_WEIRD_MIND) && !p_ptr->anti_magic &&
+		one_in_(3000))
+	{
+		if (p_ptr->tim_esp > 0)
+		{
+			msg_print("Your mind feels cloudy!");
+			set_tim_esp(0);
+		}
+		else
+		{
+			msg_print("Your mind expands!");
+			set_tim_esp(p_ptr->lev);
+		}
+	}
+	if ((p_ptr->muta2 & MUT2_NAUSEA) && !p_ptr->slow_digest &&
+		one_in_(9000))
+	{
+		disturb(0, 0);
+		msg_print("Your stomach roils, and you lose your lunch!");
+		msg_print(NULL);
+		set_food(PY_FOOD_WEAK);
+	}
+
+	if ((p_ptr->muta2 & MUT2_WALK_SHAD) &&
+	   !p_ptr->anti_magic && one_in_(12000))
+	{
+		alter_reality();
+	}
+
+	if ((p_ptr->muta2 & MUT2_WARNING) && one_in_(1000))
+	{
+		int danger_amount = 0;
+		int monster;
+
+		for (monster = 0; monster < m_max; monster++)
+		{
+			monster_type    *m_ptr = &m_list[monster];
+			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+			/* Paranoia -- Skip dead monsters */
+			if (!m_ptr->r_idx) continue;
+
+			if (r_ptr->level >= p_ptr->lev)
+			{
+				danger_amount += r_ptr->level - p_ptr->lev + 1;
+			}
+		}
+
+		if (danger_amount > 100)
+			msg_print("You feel utterly terrified!");
+		else if (danger_amount > 50)
+			msg_print("You feel terrified!");
+		else if (danger_amount > 20)
+			msg_print("You feel very worried!");
+		else if (danger_amount > 10)
+			msg_print("You feel paranoid!");
+		else if (danger_amount > 5)
+			msg_print("You feel almost safe.");
+		else
+			msg_print("You feel lonely.");
+	}
+	if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic &&
+		one_in_(5000))
+	{
+		disturb(0, 0);
+		msg_print("You feel invincible!");
+		msg_print(NULL);
+		(void)set_invuln(p_ptr->invuln + randint(8) + 8);
+	}
+	if ((p_ptr->muta2 & MUT2_SP_TO_HP) && one_in_(2000))
+	{
+		int wounds = p_ptr->mhp - p_ptr->chp;
+
+		if (wounds > 0)
+		{
+			int healing = p_ptr->csp;
+
+			if (healing > wounds)
+			{
+				healing = wounds;
+			}
+
+			hp_player(healing);
+			p_ptr->csp -= healing;
+		}
+	}
+	if ((p_ptr->muta2 & MUT2_HP_TO_SP) && !p_ptr->anti_magic &&
+		one_in_(4000))
+	{
+		int wounds = p_ptr->msp - p_ptr->csp;
+
+		if (wounds > 0)
+		{
+			int healing = p_ptr->chp;
+
+			if (healing > wounds)
+			{
+				healing = wounds;
+			}
+
+			p_ptr->csp += healing;
+			take_hit(healing, "blood rushing to the head");
+		}
+	}
+	if ((p_ptr->muta2 & MUT2_DISARM) && one_in_(10000))
+	{
+		object_type *o_ptr;
+
+		disturb(0, 0);
+		msg_print("You trip over your own feet!");
+		take_hit(randint(p_ptr->wt / 6), "tripping");
+
+		msg_print(NULL);
+		o_ptr = &inventory[INVEN_WIELD];
+		if (o_ptr->k_idx)
+		{
+			msg_print("You drop your weapon!");
+			inven_drop(INVEN_WIELD, 1);
+		}
 	}
 }

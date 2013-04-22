@@ -23,6 +23,11 @@
 %:font-xxx.prf
 
 
+##### Spell color definitions #####
+
+%:bolt-xxx.prf
+
+
 ##### System Specific Subfiles #####
 
 ?:[IOR [EQU $SYS xaw] [EQU $SYS x11]]

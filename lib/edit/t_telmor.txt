@@ -226,10 +226,10 @@ F:b:129:3:0:0:0:0:0:15
 F:b:129:3:0:0:0:0:0:15
 
 # Quest 15 rewarding, no new quest available,
-# Reward is potion of augmentation
+# Reward is potion of life
 ?:[EQU $QUEST15 3]
 F:b:129:3
-F:!:1:3:0:418
+F:!:1:3:0:420
 
 # Quest 15 finished, no new quest available,
 ?:[EQU $QUEST15 4]

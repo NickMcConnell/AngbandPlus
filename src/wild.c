@@ -444,7 +444,7 @@ static void generate_wilderness_area(int terrain, u32b seed, bool border, bool c
 		{
 			for (x1 = 0; x1 < MAX_WID; x1++)
 			{
-				cave[y1][x1].feat = FEAT_PERM_SOLID;
+				place_solid_perm(y1, x1);
 			}
 		}
 
@@ -572,7 +572,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 			for (y1 = 1; y1 < MAX_HGT/2; y1++)
 			{
 				x1 = MAX_WID/2;
-				cave[y1][x1].feat = FEAT_FLOOR;
+				place_floor(y1, x1);
 			}
 		}
 
@@ -582,7 +582,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 			for (y1 = MAX_HGT/2; y1 < MAX_HGT - 1; y1++)
 			{
 				x1 = MAX_WID/2;
-				cave[y1][x1].feat = FEAT_FLOOR;
+				place_floor(y1, x1);
 			}
 		}
 
@@ -592,7 +592,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 			for (x1 = MAX_WID/2; x1 < MAX_WID - 1; x1++)
 			{
 				y1 = MAX_HGT/2;
-				cave[y1][x1].feat = FEAT_FLOOR;
+				place_floor(y1, x1);
 			}
 		}
 
@@ -602,7 +602,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 			for (x1 = 1; x1 < MAX_WID/2; x1++)
 			{
 				y1 = MAX_HGT/2;
-				cave[y1][x1].feat = FEAT_FLOOR;
+				place_floor(y1, x1);
 			}
 		}
 	}
@@ -623,6 +623,18 @@ void wilderness_gen(void)
 	int i, y, x;
 	bool daytime;
 	cave_type *c_ptr;
+
+   	/* Big town */
+	cur_hgt = MAX_HGT;
+	cur_wid = MAX_WID;
+
+	/* Determine number of panels */
+	max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
+	max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+
+	/* Assume illegal panel */
+	panel_row = max_panel_rows;
+	panel_col = max_panel_cols;
 
 	/* Init the wilderness */
 	process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
@@ -761,9 +773,7 @@ void wilderness_gen(void)
 			else
 			{
 				/* Darken "boring" features */
-				if ((c_ptr->feat <= FEAT_INVIS) ||
-				    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-					(c_ptr->feat <= FEAT_TREES)))
+				if (cave_plain_grid(c_ptr) || cave_terrain_grid(c_ptr))
 				{
 					/* Forget the grid */
 					c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);

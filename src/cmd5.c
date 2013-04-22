@@ -37,8 +37,6 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	int         use_realm = (realm_2 ? p_ptr->realm2 : p_ptr->realm1);
 	cptr        p = ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell");
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Get the spell, if available */
 	if (repeat_pull(sn))
 	{
@@ -49,8 +47,6 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Extract spells */
 	for (spell = 0; spell < 32; spell++)
@@ -207,11 +203,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	/* Save the choice */
 	(*sn) = spell;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	repeat_push(*sn);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -412,8 +404,8 @@ void do_cmd_study(void)
 	if (mp_ptr->spell_book != TV_LIFE_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "study", sval, FALSE, (bool)(increment ? TRUE : FALSE))
-			&& (spell == -1)) return;
+		if (!get_spell(&spell, "study", sval, FALSE,
+		    (bool)(increment ? TRUE : FALSE)) && (spell == -1)) return;
 	}
 
 	/* Priest -- Learn a random prayer */
@@ -509,96 +501,154 @@ void do_cmd_study(void)
 }
 
 
-void wild_magic(int spell)
+#define MAX_BIZARRE		6
+
+
+static int bizarre_num[MAX_BIZARRE] =
 {
-	int counter = 0;
-	int type = SUMMON_BIZARRE1 + rand_int(6);
+	SUMMON_BIZARRE1,
+	SUMMON_BIZARRE2,
+	SUMMON_BIZARRE3,
+	SUMMON_BIZARRE4,
+	SUMMON_BIZARRE5,
+	SUMMON_BIZARRE6,
+};
 
-	if (type < SUMMON_BIZARRE1) type = SUMMON_BIZARRE1;
-	else if (type > SUMMON_BIZARRE6) type = SUMMON_BIZARRE6;
 
+static void wild_magic(int spell)
+{
 	switch (randint(spell) + randint(8) + 1)
 	{
-	case 1:
-	case 2:
-	case 3:
-		teleport_player(10);
-		break;
-	case 4:
-	case 5:
-	case 6:
-		teleport_player(100);
-		break;
-	case 7:
-	case 8:
-		teleport_player(200);
-		break;
-	case 9:
-	case 10:
-	case 11:
-		unlite_area(10, 3);
-		break;
-	case 12:
-	case 13:
-	case 14:
-		lite_area(damroll(2, 3), 2);
-		break;
-	case 15:
-		destroy_doors_touch();
-		break;
-	case 16: case 17:
-		wall_breaker();
-	case 18:
-		sleep_monsters_touch();
-		break;
-	case 19:
-	case 20:
-		trap_creation();
-		break;
-	case 21:
-	case 22:
-		door_creation();
-		break;
-	case 23:
-	case 24:
-	case 25:
-		aggravate_monsters(1);
-		break;
-	case 26:
-		earthquake(py, px, 5);
-		break;
-	case 27:
-	case 28:
-		(void)gain_random_mutation(0);
-		break;
-	case 29:
-	case 30:
-		apply_disenchant(0);
-		break;
-	case 31:
-		lose_all_info();
-		break;
-	case 32:
-		fire_ball(GF_CHAOS, 0, spell + 5, 1 + (spell / 10));
-		break;
-	case 33:
-		wall_stone();
-		break;
-	case 34:
-	case 35:
-		while (counter++ < 8)
+		case 1:
+		case 2:
+		case 3:
 		{
-			(void)summon_specific(py, px, (dun_level * 3) / 2, type, TRUE, FALSE, FALSE);
+			teleport_player(10);
+			break;
 		}
-		break;
-	case 36:
-	case 37:
-		activate_hi_summon();
-		break;
-	case 38:
-		summon_cyber();
-	default:
-		(void)activate_ty_curse(FALSE); /* Prfnoff */
+		case 4:
+		case 5:
+		case 6:
+		{
+			teleport_player(100);
+			break;
+		}
+		case 7:
+		case 8:
+		{
+			teleport_player(200);
+			break;
+		}
+		case 9:
+		case 10:
+		case 11:
+		{
+			unlite_area(10, 3);
+			break;
+		}
+		case 12:
+		case 13:
+		case 14:
+		{
+			lite_area(damroll(2, 3), 2);
+			break;
+		}
+		case 15:
+		{
+			destroy_doors_touch();
+			break;
+		}
+		case 16: case 17:
+		{
+			wall_breaker();
+			break;
+		}
+		case 18:
+		{
+			sleep_monsters_touch();
+			break;
+		}
+		case 19:
+		case 20:
+		{
+			trap_creation();
+			break;
+		}
+		case 21:
+		case 22:
+		{
+			door_creation();
+			break;
+		}
+		case 23:
+		case 24:
+		case 25:
+		{
+			aggravate_monsters(1);
+			break;
+		}
+		case 26:
+		{
+			earthquake(py, px, 5);
+			break;
+		}
+		case 27:
+		case 28:
+		{
+			(void)gain_random_mutation(0);
+			break;
+		}
+		case 29:
+		case 30:
+		{
+			apply_disenchant(0);
+			break;
+		}
+		case 31:
+		{
+			lose_all_info();
+			break;
+		}
+		case 32:
+		{
+			fire_ball(GF_CHAOS, 0, spell + 5, 1 + (spell / 10));
+			break;
+		}
+		case 33:
+		{
+			wall_stone();
+			break;
+		}
+		case 34:
+		case 35:
+		{
+			int i;
+			int type = bizarre_num[rand_int(MAX_BIZARRE)];
+
+			for (i = 0; i < 8; i++)
+			{
+				(void)summon_specific(py, px, (dun_level * 3) / 2, type, TRUE, FALSE, FALSE);
+			}
+			break;
+		}
+		case 36:
+		case 37:
+		{
+			activate_hi_summon();
+			break;
+		}
+		case 38:
+		{
+			(void)summon_cyber(-1, py, px);
+			break;
+		}
+		default:
+		{
+			int count = 0;
+
+			(void)activate_ty_curse(FALSE, &count); /* Prfnoff */
+			break;
+		}
 	}
 
 	return;
@@ -882,7 +932,14 @@ static bool cast_sorcery_spell(int spell)
 		explosive_rune();
 		break;
 	case 27: /* Clairvoyance */
-		wiz_lite();
+		if (munchkin_lite)
+		{
+			wiz_lite();
+		}
+		else
+		{
+			map_dungeon();
+		}
 		if (!(p_ptr->telepathy))
 		{
 			(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
@@ -1118,6 +1175,7 @@ static bool cast_chaos_spell(int spell)
 		{
 			msg_print("Your hands start glowing.");
 			p_ptr->confusing = TRUE;
+			p_ptr->redraw |= (PR_STATUS);
 		}
 		break;
 	case 4: /* Manaburst */
@@ -1210,7 +1268,6 @@ static bool cast_chaos_spell(int spell)
 			}
 			break;
 		}
-		break;
 	case 9: /* Chaos Bolt */
 		if (!get_aim_dir(&dir)) return FALSE;
 
@@ -1343,7 +1400,7 @@ static bool cast_chaos_spell(int spell)
 		fire_ball(GF_CHAOS, dir, p_ptr->chp, 2);
 		break;
 	case 31: /* Call the Void */
-		call_the_();
+		call_the_void();
 		break;
 	default:
 		msg_format("You cast an unknown Chaos spell: %d.", spell);
@@ -1385,7 +1442,7 @@ static bool cast_death_spell(int spell)
 		{   /* Special effect first */
 			dummy = randint(1000);
 			if (dummy == 666)
-				fire_bolt(GF_DEATH_RAY, dir, plev);
+				fire_bolt(GF_DEATH_RAY, dir, plev * 200);
 			else if (dummy < 500)
 				fire_bolt(GF_TURN_ALL, dir, plev);
 			else if (dummy < 800)
@@ -1520,22 +1577,22 @@ static bool cast_death_spell(int spell)
 			else if (die < 56)
 			{
 				fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
-					damroll(3+((plev-5)/4),8));
+					damroll(3 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 61)
 			{
 				fire_bolt_or_beam(beam - 10, GF_COLD, dir,
-					damroll(5+((plev-5)/4),8));
+					damroll(5 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 66)
 			{
 				fire_bolt_or_beam(beam, GF_ACID, dir,
-					damroll(6+((plev-5)/4),8));
+					damroll(6 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 71)
 			{
 				fire_bolt_or_beam(beam, GF_FIRE, dir,
-					damroll(8+((plev-5)/4),8));
+					damroll(8 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 76)
 			{
@@ -1737,7 +1794,7 @@ static bool cast_death_spell(int spell)
 
 		break;
 	case 31: /* Wraithform */
-		set_shadow(p_ptr->wraith_form + randint(plev / 2) + (plev / 2));
+		set_wraith_form(p_ptr->wraith_form + randint(plev / 2) + (plev / 2));
 		break;
 	default:
 		msg_format("You cast an unknown Death spell: %d.", spell);
@@ -1805,8 +1862,10 @@ static bool cast_trump_spell(int spell, bool success)
 				}
 				else if (die < 18)
 				{
+					int count = 0;
+
 					msg_print("Oh no! It's the Hanged Man.");
-					(void)activate_ty_curse(FALSE); /* Prfnoff */
+					(void)activate_ty_curse(FALSE, &count); /* Prfnoff */
 				}
 				else if (die < 22)
 				{
@@ -1908,14 +1967,7 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 111)
 				{
 					msg_print("It's the Judgement.");
-					do_cmd_rerate();
-					if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
-					{
-						msg_print("You are cured of all mutations.");
-						p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
-						p_ptr->update |= PU_BONUS;
-						handle_stuff();
-					}
+					new_life();
 				}
 				else if (die < 120)
 				{
@@ -2203,7 +2255,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			msg_print("You concentrate on the trump of a Cyberdemon...");
 
-			if (summon_specific(py, px, plev, SUMMON_CYBER, FALSE, FALSE, pet))
+			if (summon_specific(py, px, plev * 2, SUMMON_CYBER, FALSE, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("The summoned Cyberdemon gets angry!");
@@ -2478,10 +2530,10 @@ static bool cast_arcane_spell(int spell)
 
 		switch (randint(4))
 		{
-			case 1:  dummy = GF_FIRE;
-			case 2:  dummy = GF_ELEC;
-			case 3:  dummy = GF_COLD;
-			default: dummy = GF_ACID;
+			case 1:  dummy = GF_FIRE; break;
+			case 2:  dummy = GF_ELEC; break;
+			case 3:  dummy = GF_COLD; break;
+			default: dummy = GF_ACID; break;
 		}
 		fire_ball(dummy, dir, 75 + (plev), 2);
 		break;
@@ -2492,7 +2544,14 @@ static bool cast_arcane_spell(int spell)
 		word_of_recall();
 		break;
 	case 31: /* Clairvoyance */
-		wiz_lite();
+		if (munchkin_lite)
+		{
+			wiz_lite();
+		}
+		else
+		{
+			map_dungeon();
+		}
 		if (!p_ptr->telepathy)
 		{
 			(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
@@ -2639,7 +2698,8 @@ void do_cmd_cast(void)
 		{
 			if ((sval == 3) && (randint(2) == 1))
 			{
-				sanity_blast(0, TRUE);
+				msg_print("Your sanity is shaken by reading the Necronomicon!");
+				lose_sanity(100); /* Prfnoff */
 			}
 			else
 			{
@@ -2757,46 +2817,29 @@ void do_cmd_cast(void)
 
 
 /*
- * Pray a prayer -- Unused in Zangband
- */
-void do_cmd_pray(void)
-{
-	msg_print("Praying is not used in Zangband. Use magic spell casting instead.");
-}
-
-
-/*
  * Issue a pet command
  */
 void do_cmd_pet(void)
 {
 	int             i = 0;
-	int             num = 0;
+	int             num;
 	int             powers[36];
-	char            power_desc[36][80];
+	cptr            power_desc[36];
 	bool            flag, redraw;
 	int             ask;
 	char            choice;
 	char            out_val[160];
-	int             pets = 0, pet_ctr = 0;
+	int             pets = 0, pet_ctr;
 	bool            all_pets = FALSE;
 	monster_type    *m_ptr;
 
+	int mode = 0;
 
-	for (num = 0; num < 36; num++)
-	{
-		powers[num] = 0;
-		strcpy(power_desc[num], "");
-	}
+	byte y = 1, x = 0;
+	int ctr = 0;
+	char buf[160];
 
 	num = 0;
-
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused to command your pets");
-		energy_use = 0;
-		return;
-	}
 
 	/* Calculate pets */
 	/* Process the monsters (backwards) */
@@ -2808,51 +2851,90 @@ void do_cmd_pet(void)
 		if (is_pet(m_ptr)) pets++;
 	}
 
-	if (pets == 0)
+	if (pets)
 	{
-		msg_print("You have no pets.");
-		energy_use = 0;
-		return;
+		power_desc[num] = "dismiss pets";
+		powers[num++] = PET_DISMISS;
+	}
+
+	power_desc[num] = "stay close";
+	if (p_ptr->pet_follow_distance == PET_CLOSE_DIST) mode = num;
+	powers[num++] = PET_STAY_CLOSE;
+
+	power_desc[num] = "follow me";
+	if (p_ptr->pet_follow_distance == PET_FOLLOW_DIST) mode = num;
+	powers[num++] = PET_FOLLOW_ME;
+
+	power_desc[num] = "seek and destroy";
+	if (p_ptr->pet_follow_distance == PET_DESTROY_DIST) mode = num;
+	powers[num++] = PET_SEEK_AND_DESTROY;
+
+	power_desc[num] = "give me space";
+	if (p_ptr->pet_follow_distance == PET_SPACE_DIST) mode = num;
+	powers[num++] = PET_ALLOW_SPACE;
+
+	power_desc[num] = "stay away";
+	if (p_ptr->pet_follow_distance == PET_AWAY_DIST) mode = num;
+	powers[num++] = PET_STAY_AWAY;
+
+	if (p_ptr->pet_open_doors)
+	{
+		power_desc[num] = "pets may open doors";
 	}
 	else
 	{
-		strcpy(power_desc[num], "dismiss pets");
-		powers[num++] = 1;
-		strcpy(power_desc[num], "call pets");
-		powers[num++] = 2;
-		strcpy(power_desc[num], "follow me");
-		powers[num++] = 6;
-		strcpy(power_desc[num], "seek and destroy");
-		powers[num++] = 3;
-		if (p_ptr->pet_open_doors)
-			strcpy(power_desc[num], "disallow open doors");
-		else
-			strcpy(power_desc[num], "allow open doors");
-		powers[num++] = 4;
-		if (p_ptr->pet_pickup_items)
-			strcpy(power_desc[num], "disallow pickup items");
-		else
-			strcpy(power_desc[num], "allow pickup items");
-		powers[num++] = 5;
+		power_desc[num] = "pets may not open doors";
 	}
+	powers[num++] = PET_OPEN_DOORS;
+
+	if (p_ptr->pet_pickup_items)
+	{
+		power_desc[num] = "pets may pick up items";
+	}
+	else
+	{
+		power_desc[num] = "pets may not pick up items";
+	}
+	powers[num++] = PET_TAKE_ITEMS;
 
 	/* Nothing chosen yet */
 	flag = FALSE;
-
-	/* No redraw yet */
-	redraw = FALSE;
 
 	/* Build a prompt (accept all spells) */
 	if (num <= 26)
 	{
 		/* Build a prompt (accept all spells) */
-		(void)strnfmt(out_val, 78, "(Command %c-%c, *=List, ESC=exit) Select a command: ",
+		strnfmt(out_val, 78, "(Command %c-%c, *=List, ESC=exit) Select a command: ",
 			I2A(0), I2A(num - 1));
 	}
 	else
 	{
-		(void)strnfmt(out_val, 78, "(Command %c-%c, *=List, ESC=exit) Select a command: ",
+		strnfmt(out_val, 78, "(Command %c-%c, *=List, ESC=exit) Select a command: ",
 			I2A(0), '0' + num - 27);
+	}
+
+	/* Show list */
+	redraw = TRUE;
+
+	/* Save the screen */
+	Term_save();
+
+	prt("", y++, x);
+
+	while (ctr < num)
+	{
+		sprintf(buf, "%s%c) %s", (ctr == mode) ? "*" : " ", I2A(ctr), power_desc[ctr]);
+		prt(buf, y + ctr, x);
+		ctr++;
+	}
+
+	if (ctr < 17)
+	{
+		prt("", y + ctr, x);
+	}
+	else
+	{
+		prt("", y + 17, x);
 	}
 
 	/* Get a command from the user */
@@ -2864,24 +2946,22 @@ void do_cmd_pet(void)
 			/* Show the list */
 			if (!redraw)
 			{
-				byte y = 1, x = 0;
-				int ctr = 0;
-				char dummy[80];
-
-				strcpy(dummy, "");
+				y = 1;
+				x = 0;
+				ctr = 0;
 
 				/* Show list */
 				redraw = TRUE;
 
 				/* Save the screen */
-				screen_save();
+				Term_save();
 
 				prt("", y++, x);
 
 				while (ctr < num)
 				{
-					sprintf(dummy, "%c) %s", I2A(ctr), power_desc[ctr]);
-					prt(dummy, y + ctr, x);
+					sprintf(buf, "%s%c) %s", (ctr == mode) ? "*" : " ", I2A(ctr), power_desc[ctr]);
+					prt(buf, y + ctr, x);
 					ctr++;
 				}
 
@@ -2902,7 +2982,7 @@ void do_cmd_pet(void)
 				redraw = FALSE;
 
 				/* Restore the screen */
-				screen_load();
+				Term_load();
 			}
 
 			/* Redo asking */
@@ -2942,13 +3022,11 @@ void do_cmd_pet(void)
 		/* Verify it */
 		if (ask)
 		{
-			char tmp_val[160];
-
 			/* Prompt */
-			(void)strnfmt(tmp_val, 78, "Use %s? ", power_desc[i]);
+			strnfmt(buf, 78, "Use %s? ", power_desc[i]);
 
 			/* Belay that order */
-			if (!get_check(tmp_val)) continue;
+			if (!get_check(buf)) continue;
 		}
 
 		/* Stop the loop */
@@ -2956,7 +3034,7 @@ void do_cmd_pet(void)
 	}
 
 	/* Restore the screen */
-	if (redraw) screen_load();
+	if (redraw) Term_load();
 
 	/* Abort if needed */
 	if (!flag)
@@ -2967,7 +3045,7 @@ void do_cmd_pet(void)
 
 	switch (powers[i])
 	{
-		case 1: /* Dismiss pets */
+		case PET_DISMISS: /* Dismiss pets */
 		{
 			int Dismissed = 0;
 
@@ -3008,25 +3086,43 @@ void do_cmd_pet(void)
 			break;
 		}
 		/* Call pets */
-		case 2:
+		case PET_STAY_CLOSE:
 		{
-			p_ptr->pet_follow_distance = 1;
+			p_ptr->pet_follow_distance = PET_CLOSE_DIST;
+			break;
+		}
+		/* "Follow me" */
+		case PET_FOLLOW_ME:
+		{
+			p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
 			break;
 		}
 		/* "Seek and destoy" */
-		case 3:
+		case PET_SEEK_AND_DESTROY:
 		{
-			p_ptr->pet_follow_distance = 255;
+			p_ptr->pet_follow_distance = PET_DESTROY_DIST;
+			break;
+		}
+		/* "Give me space" */
+		case PET_ALLOW_SPACE:
+		{
+			p_ptr->pet_follow_distance = PET_SPACE_DIST;
+			break;
+		}
+		/* "Stay away" */
+		case PET_STAY_AWAY:
+		{
+			p_ptr->pet_follow_distance = PET_AWAY_DIST;
 			break;
 		}
 		/* flag - allow pets to open doors */
-		case 4:
+		case PET_OPEN_DOORS:
 		{
 			p_ptr->pet_open_doors = !p_ptr->pet_open_doors;
 			break;
 		}
 		/* flag - allow pets to pickup items */
-		case 5:
+		case PET_TAKE_ITEMS:
 		{
 			p_ptr->pet_pickup_items = !p_ptr->pet_pickup_items;
 
@@ -3045,12 +3141,6 @@ void do_cmd_pet(void)
 				}
 			}
 
-			break;
-		}
-		/* "Follow Me" */
-		case 6:
-		{
-			p_ptr->pet_follow_distance = 6;
 			break;
 		}
 	}

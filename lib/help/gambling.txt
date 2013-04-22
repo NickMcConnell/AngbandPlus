@@ -8,7 +8,6 @@ Craps: Two dice are rolled. On first roll, a 7 or 11 wins. A
        is matched (win) or a 7 is rolled (loss). Pays 2 to 1
 Wheel: Pick a number from 0-9. If the number shows on wheel
        after it stops spinning, you win. Pays 10 to 1
-
 Slots: Three dice rolled. Matches win gold. Numbers are:
        1=Lemon, 2=Orange, 3=Sword, 4=Shield, 5=Plum, 6=Cherry
        Payoffs are as follows:
@@ -19,5 +18,6 @@ Slots: Three dice rolled. Matches win gold. Numbers are:
        Sword Sword Sword    6-1   Shield Shield Shield 25-1
        Plum Plum Plum       9-1   Cherry Cherry Cherry 36-1
 
+--
 This file was last updated for Kangband 2.8.3i.
 

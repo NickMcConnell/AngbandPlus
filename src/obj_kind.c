@@ -207,7 +207,7 @@ errr init_object_alloc(void)
 byte get_object_level(object_type *o_ptr)
 {
 #if 0
-	return (byte)get_object_level_callback(o_ptr);
+	return get_object_level_callback(o_ptr);
 #else
 	return k_info[o_ptr->k_idx].level;
 #endif

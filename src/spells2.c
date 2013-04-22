@@ -36,11 +36,20 @@ void self_knowledge(void)
 
 	char Dummy[80];
 
-	cptr info[200];
+	cptr info[220];
 
 	int plev = p_ptr->lev;
 
+	int percent;
+
 	strcpy(Dummy, "");
+
+	percent = (int)(((long)player_hp[PY_MAX_LEVEL - 1] * 200L) /
+	                (2 * p_ptr->hitdie +
+	                 ((PY_MAX_LEVEL - 1) * (p_ptr->hitdie + 1))));
+
+	sprintf(Dummy, "Your current Life Rating is %d/100.", percent);
+	info[i++] = Dummy;
 
 	/* Acquire item flags from equipment */
 	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
@@ -1175,7 +1184,7 @@ void report_magics(void)
 	if (p_ptr->word_recall)
 	{
 		info2[i]  = report_magics_aux(p_ptr->word_recall);
-		info[i++] = "You waiting to be recalled";
+		info[i++] = "You are waiting to be recalled";
 	}
 	if (p_ptr->oppose_acid)
 	{
@@ -1257,7 +1266,7 @@ bool detect_traps(void)
 			c_ptr = &cave[y][x];
 
 			/* Detect invisible traps */
-			if (c_ptr->feat == FEAT_INVIS)
+			if (cave_plain_grid(c_ptr) && (cave_pval_grid(c_ptr) == PV_FLOOR_TRAP))
 			{
 				/* Pick a trap */
 				pick_trap(y, x);
@@ -1310,16 +1319,15 @@ bool detect_doors(void)
 			c_ptr = &cave[y][x];
 
 			/* Detect secret doors */
-			if (c_ptr->feat == FEAT_SECRET)
+			if (cave_wall_grid(c_ptr) && !cave_realwall_grid(c_ptr) &&
+			    (cave_pval_grid(c_ptr) == PV_BLOCK_SECRET))
 			{
 				/* Pick a door */
 				place_closed_door(y, x);
 			}
 
 			/* Detect doors */
-			if (cave_door_grid(c_ptr) ||
-			    ((c_ptr->feat == FEAT_OPEN) ||
-			     (c_ptr->feat == FEAT_BROKEN)))
+			if (cave_door_grid(c_ptr) || cave_open_grid(c_ptr))
 			{
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
@@ -1364,8 +1372,7 @@ bool detect_stairs(void)
 			c_ptr = &cave[y][x];
 
 			/* Detect stairs */
-			if ((c_ptr->feat == FEAT_LESS) ||
-			    (c_ptr->feat == FEAT_MORE))
+			if (cave_stair_grid(c_ptr)) /* Prfnoff */
 			{
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
@@ -1410,16 +1417,21 @@ bool detect_treasure(void)
 			c_ptr = &cave[y][x];
 
 			/* Notice embedded gold */
-			if ((c_ptr->feat == FEAT_MAGMA_H) ||
-			    (c_ptr->feat == FEAT_QUARTZ_H))
+			if (cave_vein_grid(c_ptr) && (cave_pval_grid(c_ptr) == PV_VEIN_H_GOLD))
 			{
 				/* Expose the gold */
-				c_ptr->feat += 0x02;
+				if (cave_hard_grid(c_ptr)) /* Prfnoff */
+				{
+					c_ptr->feat = cave_get_feat(PV_VEIN_K_GOLD, (FF1_VEIN | FF1_HARD));
+				}
+				else
+				{
+					c_ptr->feat = cave_get_feat(PV_VEIN_K_GOLD, FF1_VEIN);
+				}
 			}
 
 			/* Magma/Quartz + Known Gold */
-			if ((c_ptr->feat == FEAT_MAGMA_K) ||
-			    (c_ptr->feat == FEAT_QUARTZ_K))
+			if (cave_vein_grid(c_ptr) && (cave_pval_grid(c_ptr) == PV_VEIN_K_GOLD))
 			{
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
@@ -2177,12 +2189,6 @@ void aggravate_monsters(int who)
 				m_ptr->mspeed = r_ptr->speed + 10;
 				speed = TRUE;
 			}
-
-			/* Friendly monster may get angry (50% chance) */
-			if (!is_hostile(m_ptr) && (randint(2) == 1))
-			{
-				set_hostile(m_ptr);
-			}
 		}
 	}
 
@@ -2396,7 +2402,7 @@ bool probing(void)
  * Later we may use one function for both "destruction" and
  * "earthquake" by using the "full" to select "destruction".
  */
-bool destroy_area(int y1, int x1, int r, int full)
+bool destroy_area(int y1, int x1, int r, bool full)
 {
 	int       y, x, k, t;
 	cave_type *c_ptr;
@@ -2472,28 +2478,29 @@ bool destroy_area(int y1, int x1, int r, int full)
 				if (t < 20)
 				{
 					/* Create granite wall */
-					c_ptr->feat = FEAT_WALL_EXTRA;
+					c_ptr->feat = cave_get_feat(PV_WALL_EXTRA, (FF1_WALL | FF1_GRANITE));
 				}
 
 				/* Quartz */
 				else if (t < 70)
 				{
 					/* Create quartz vein */
-					c_ptr->feat = FEAT_QUARTZ;
+					c_ptr->feat = cave_get_feat(PV_VEIN_NO_GOLD,
+					                            (FF1_WALL | FF1_VEIN | FF1_HARD));
 				}
 
 				/* Magma */
 				else if (t < 100)
 				{
 					/* Create magma vein */
-					c_ptr->feat = FEAT_MAGMA;
+					c_ptr->feat = cave_get_feat(PV_VEIN_NO_GOLD, (FF1_WALL | FF1_VEIN));
 				}
 
 				/* Floor */
 				else
 				{
 					/* Create floor */
-					c_ptr->feat = FEAT_FLOOR;
+					c_ptr->feat = cave_get_feat(PV_FLOOR_NORMAL, FF1_FLOOR);
 				}
 			}
 		}
@@ -2780,13 +2787,10 @@ bool earthquake(int cy, int cx, int r)
 							if (!cave_empty_bold(y, x)) continue;
 
 							/* Hack -- no safety on glyph of warding */
-							if (cave[y][x].feat == FEAT_GLYPH) continue;
-							if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
+							if (cave_glyph_bold(y, x)) continue;
 
 							/* ... nor on the Pattern */
-							if ((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
-							    (cave[y][x].feat >= FEAT_PATTERN_START))
-								continue;
+							if (cave_pattern_bold(y, x)) continue; /* Prfnoff */
 
 							/* Important -- Skip "quake" grids */
 							if (map[16+y-cy][16+x-cx]) continue;
@@ -2893,28 +2897,29 @@ bool earthquake(int cy, int cx, int r)
 				if (t < 20)
 				{
 					/* Create granite wall */
-					c_ptr->feat = FEAT_WALL_EXTRA;
+					c_ptr->feat = cave_get_feat(PV_WALL_EXTRA, (FF1_WALL | FF1_GRANITE));
 				}
 
 				/* Quartz */
 				else if (t < 70)
 				{
 					/* Create quartz vein */
-					c_ptr->feat = FEAT_QUARTZ;
+					c_ptr->feat = cave_get_feat(PV_VEIN_NO_GOLD,
+					                            (FF1_WALL | FF1_VEIN | FF1_HARD));
 				}
 
 				/* Magma */
 				else if (t < 100)
 				{
 					/* Create magma vein */
-					c_ptr->feat = FEAT_MAGMA;
+					c_ptr->feat = cave_get_feat(PV_VEIN_NO_GOLD, (FF1_WALL | FF1_VEIN));
 				}
 
 				/* Floor */
 				else
 				{
 					/* Create floor */
-					c_ptr->feat = FEAT_FLOOR;
+					c_ptr->feat = cave_get_feat(PV_FLOOR_NORMAL, FF1_FLOOR);
 				}
 			}
 		}
@@ -2962,68 +2967,76 @@ bool earthquake(int cy, int cx, int r)
  */
 static void cave_temp_room_lite(void)
 {
-	int i;
+	int i, j;
 
 	/* Clear them all */
 	for (i = 0; i < temp_n; i++)
 	{
-		int y = temp_y[i];
-		int x = temp_x[i];
-
-		cave_type *c_ptr = &cave[y][x];
-
-		/* No longer in the array */
-		c_ptr->info &= ~(CAVE_TEMP);
-
-		/* Update only non-CAVE_GLOW grids */
-		/* if (c_ptr->info & (CAVE_GLOW)) continue; */
-
-		/* Perma-Lite */
-		c_ptr->info |= (CAVE_GLOW);
-
-		/* Process affected monsters */
-		if (c_ptr->m_idx)
+		for (j = 0; j < 8; j++)
 		{
-			int chance = 25;
+			int y = temp_y[i] + ddy_cdd[j];
+			int x = temp_x[i] + ddx_cdd[j];
 
-			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+			cave_type *c_ptr;
 
-			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			/* Verify */
+			if (!in_bounds2(y, x)) continue;
 
-			/* Update the monster */
-			update_mon(c_ptr->m_idx, FALSE);
+			c_ptr = &cave[y][x];
 
-			/* Stupid monsters rarely wake up */
-			if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
+			/* No longer in the array */
+			c_ptr->info &= ~(CAVE_TEMP);
 
-			/* Smart monsters always wake up */
-			if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
+			/* Update only non-CAVE_GLOW grids */
+			if (c_ptr->info & (CAVE_GLOW)) continue;
 
-			/* Sometimes monsters wake up */
-			if (m_ptr->csleep && (rand_int(100) < chance))
+			/* Perma-Lite */
+			c_ptr->info |= (CAVE_GLOW);
+
+			/* Process affected monsters */
+			if (c_ptr->m_idx)
 			{
-				/* Wake up! */
-				m_ptr->csleep = 0;
+				int chance = 25;
 
-				/* Notice the "waking up" */
-				if (m_ptr->ml)
+				monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+
+				monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+				/* Update the monster */
+				update_mon(c_ptr->m_idx, FALSE);
+
+				/* Stupid monsters rarely wake up */
+				if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
+
+				/* Smart monsters always wake up */
+				if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
+
+				/* Sometimes monsters wake up */
+				if (m_ptr->csleep && (rand_int(100) < chance))
 				{
-					char m_name[80];
+					/* Wake up! */
+					m_ptr->csleep = 0;
 
-					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0);
+					/* Notice the "waking up" */
+					if (m_ptr->ml)
+					{
+						char m_name[80];
 
-					/* Dump a message */
-					msg_format("%^s wakes up.", m_name);
+						/* Acquire the monster name */
+						monster_desc(m_name, m_ptr, 0);
+
+						/* Dump a message */
+						msg_format("%^s wakes up.", m_name);
+					}
 				}
 			}
+
+			/* Note */
+			note_spot(y, x);
+
+			/* Redraw */
+			lite_spot(y, x);
 		}
-
-		/* Note */
-		note_spot(y, x);
-
-		/* Redraw */
-		lite_spot(y, x);
 	}
 
 	/* None left */
@@ -3045,41 +3058,49 @@ static void cave_temp_room_lite(void)
  */
 static void cave_temp_room_unlite(void)
 {
-	int i;
+	int i, j;
 
 	/* Clear them all */
 	for (i = 0; i < temp_n; i++)
 	{
-		int y = temp_y[i];
-		int x = temp_x[i];
-
-		cave_type *c_ptr = &cave[y][x];
-
-		/* No longer in the array */
-		c_ptr->info &= ~(CAVE_TEMP);
-
-		/* Darken the grid */
-		c_ptr->info &= ~(CAVE_GLOW);
-
-		/* Hack -- Forget "boring" grids */
-		if (c_ptr->feat <= FEAT_INVIS)
+		for (j = 0; j < 8; j++)
 		{
-			/* Forget the grid */
-			c_ptr->info &= ~(CAVE_MARK);
+			int y = temp_y[i] + ddy_cdd[j];
+			int x = temp_x[i] + ddx_cdd[j];
 
-			/* Notice */
-			note_spot(y, x);
+			cave_type *c_ptr;
+
+			/* Verify */
+			if (!in_bounds2(y, x)) continue;
+
+			c_ptr = &cave[y][x];
+
+			/* No longer in the array */
+			c_ptr->info &= ~(CAVE_TEMP);
+
+			/* Darken the grid */
+			c_ptr->info &= ~(CAVE_GLOW);
+
+			/* Hack -- Forget "boring" grids */
+			if (cave_plain_grid(c_ptr)) /* Prfnoff */
+			{
+				/* Forget the grid */
+				c_ptr->info &= ~(CAVE_MARK);
+
+				/* Notice */
+				note_spot(y, x);
+			}
+
+			/* Process affected monsters */
+			if (c_ptr->m_idx)
+			{
+				/* Update the monster */
+				update_mon(c_ptr->m_idx, FALSE);
+			}
+
+			/* Redraw */
+			lite_spot(y, x);
 		}
-
-		/* Process affected monsters */
-		if (c_ptr->m_idx)
-		{
-			/* Update the monster */
-			update_mon(c_ptr->m_idx, FALSE);
-		}
-
-		/* Redraw */
-		lite_spot(y, x);
 	}
 
 	/* None left */
@@ -3087,6 +3108,62 @@ static void cave_temp_room_unlite(void)
 }
 
 
+/*
+ * Determine how much contiguous open space this grid is next to
+ */
+static int next_to_open(int cy, int cx)
+{
+	int i;
+
+	int y, x;
+
+	int len = 0;
+	int blen = 0;
+
+	for (i = 0; i < 16; i++)
+	{
+		y = cy + ddy_cdd[i % 8];
+		x = cx + ddx_cdd[i % 8];
+
+		/* Found a wall, break the length */
+		if (!cave_floor_bold(y, x))
+		{
+			/* Track best length */
+			if (len > blen)
+			{
+				blen = len;
+			}
+
+			len = 0;
+		}
+		else
+		{
+			len++;
+		}
+	}
+
+	return (MAX(len, blen));
+}
+
+
+static int next_to_walls_adj(int cy, int cx)
+{
+	int i;
+
+	int y, x;
+
+	int c = 0;
+
+	for (i = 0; i < 8; i++)
+	{
+		y = cy + ddy_ddd[i];
+		x = cx + ddx_ddd[i];
+
+		if (!cave_floor_bold(y, x)) c++;
+	}
+
+	return c;
+}
 
 
 /*
@@ -3094,13 +3171,33 @@ static void cave_temp_room_unlite(void)
  */
 static void cave_temp_room_aux(int y, int x)
 {
-	cave_type *c_ptr = &cave[y][x];
+	cave_type *c_ptr;
+
+	/* Verify */
+	if (!in_bounds(y, x)) return;
+
+	/* Get the grid */
+	c_ptr = &cave[y][x];
 
 	/* Avoid infinite recursion */
 	if (c_ptr->info & (CAVE_TEMP)) return;
 
-	/* Do not "leave" the current room */
-	if (!(c_ptr->info & (CAVE_ROOM))) return;
+	/* If a wall, exit */
+	if (!cave_floor_bold(y, x)) return;
+
+	/* Do not exceed the maximum spell range */
+	if (distance(py, px, y, x) > MAX_RANGE) return;
+
+	/* Verify this grid */
+	/*
+	 * The reason why it is ==6 instead of >5 is that 8 is impossible
+	 * due to the check for cave_bold above.
+	 * 7 lights dead-end corridors (you need to do this for the
+	 * checkboard interesting rooms, so that the boundary is lit
+	 * properly.
+	 * This leaves only a check for 6 bounding walls!
+	 */
+	if ((next_to_walls_adj(y, x) == 6) && (next_to_open(y, x) <= 1)) return;
 
 	/* Paranoia -- verify space */
 	if (temp_n == TEMP_MAX) return;
@@ -3113,7 +3210,6 @@ static void cave_temp_room_aux(int y, int x)
 	temp_x[temp_n] = x;
 	temp_n++;
 }
-
 
 
 
@@ -3542,7 +3638,7 @@ bool fear_monster(int dir, int plev)
 bool death_ray(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_DEATH_RAY, dir, plev, flg));
+	return (project_hook(GF_DEATH_RAY, dir, plev * 200, flg));
 }
 
 
@@ -3667,161 +3763,240 @@ void call_chaos(void)
  * rr9: Stop the nasty things when a Cyberdemon is summoned
  * or the player gets paralyzed.
  */
-bool activate_ty_curse(bool stop_ty)
+bool activate_ty_curse(bool stop_ty, int *count)
 {
-	int     i = 0;
-	/* bool    stop_ty = FALSE; */ /* Prfnoff */
+	int stat = 0;
+	int flg = (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
 
 	do
 	{
-		switch (randint(27))
+		switch (randint(34))
 		{
-		case 1: case 2: case 3: case 16: case 17:
-			aggravate_monsters(1);
-			if (randint(6) != 1) break;
-		case 4: case 5: case 6:
-			activate_hi_summon();
-			if (randint(6) != 1) break;
-		case 7: case 8: case 9: case 18:
-			(void)summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE);
-			if (randint(6) != 1) break;
-		case 10: case 11: case 12:
-			msg_print("You feel your life draining away...");
-			lose_exp(p_ptr->exp / 16);
-			if (randint(6) != 1) break;
-		case 13: case 14: case 15: case 19: case 20:
-			/* Prfnoff added stop_ty */
-			if (stop_ty || p_ptr->free_act && (randint(100) < p_ptr->skill_sav))
+			case 28: case 29:
 			{
-				/* Do nothing */ ;
-			}
-			else
-			{
-				msg_print("You feel like a statue!");
-				if (p_ptr->free_act)
-					set_paralyzed(p_ptr->paralyzed + randint(3));
-				else
-					set_paralyzed(p_ptr->paralyzed + randint(13));
-				stop_ty = TRUE;
-			}
-			if (randint(6) != 1) break;
-		case 21: case 22: case 23:
-			(void)do_dec_stat(rand_int(6));
-			if (randint(6) != 1) break;
-		case 24:
-			msg_print("Huh? Who am I? What am I doing here?");
-			lose_all_info();
-			/* break; */
-			if (randint(6) != 1) break; /* Prfnoff */
-		case 25:
-			/*
-			 * Only summon Cyberdemons deep in the dungeon.
-			 */
-			if ((dun_level > 65) && !stop_ty)
-			{
-				summon_cyber();
-				stop_ty = TRUE;
-				break;
-			}
-			if (randint(6) != 1) break; /* Prfnoff */
-		default:
-			while (i < 6)
-			{
-				do
+				if (!(*count))
 				{
-					(void)do_dec_stat(i);
+					msg_print("The ground trembles...");
+					earthquake(py, px, 5 + rand_int(10));
+					if (randint(6) != 1) break;
 				}
-				while (randint(2) == 1);
+			}
+			case 30: case 31:
+			{
+				if (!(*count))
+				{
+					msg_print("A portal opens to a plane of raw mana!");
+					destroy_area(py, px, 20, TRUE);
+					project(1, 3, py, px, damroll(10, 5), GF_MANA, flg);
+					if (randint(6) != 1) break;
+				}
+			}
+			case 32: case 33:
+			{
+				if (!(*count))
+				{
+					msg_print("Space warps about you!");
+					teleport_player(damroll(10, 10));
+					if (rand_int(13)) (*count) += activate_hi_summon();
+					if (randint(6) != 1) break;
+				}
+			}
+			case 34:
+			{
+				msg_print("You feel a surge of energy!");
+				wall_breaker();
+				if (!rand_int(7))
+				{
+					project(1, 7, py, px, 50, GF_KILL_WALL, flg);
+				}
+				if (randint(6) != 1) break;
+			}
+			case 1: case 2: case 3: case 16: case 17:
+			{
+				aggravate_monsters(1);
+				if (randint(6) != 1) break;
+			}
+			case 4: case 5: case 6:
+			{
+				(*count) += activate_hi_summon();
+				if (randint(6) != 1) break;
+			}
+			case 7: case 8: case 9: case 18:
+			{
+				(*count) += summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE);
+				if (randint(6) != 1) break;
+			}
+			case 10: case 11: case 12:
+			{
+				msg_print("You feel your life draining away...");
+				lose_exp(p_ptr->exp / 16);
+				if (randint(6) != 1) break;
+			}
+			case 13: case 14: case 15: case 19: case 20:
+			{
+				/* Prfnoff added stop_ty */
+				if (stop_ty || p_ptr->free_act && (randint(100) < p_ptr->skill_sav))
+				{
+					/* Do nothing */
+				}
+				else
+				{
+					msg_print("You feel like a statue!");
+					if (p_ptr->free_act)
+						set_paralyzed(p_ptr->paralyzed + randint(3));
+					else
+						set_paralyzed(p_ptr->paralyzed + randint(13));
+					stop_ty = TRUE;
+				}
+				if (randint(6) != 1) break;
+			}
+			case 21: case 22: case 23:
+			{
+				(void)do_dec_stat(rand_int(6));
+				if (randint(6) != 1) break;
+			}
+			case 24:
+			{
+				msg_print("Huh? Who am I? What am I doing here?");
+				lose_all_info();
+				if (randint(6) != 1) break; /* Prfnoff */
+			}
+			case 25:
+			{
+				/*
+				 * Only summon Cyberdemons deep in the dungeon.
+				 */
+				if ((dun_level > 65) && !stop_ty)
+				{
+					(*count) += summon_cyber(-1, py, px);
+					stop_ty = TRUE;
+					break;
+				}
+				if (randint(6) != 1) break; /* Prfnoff */
+			}
+			default:
+			{
+				while (stat < 6)
+				{
+					do
+					{
+						(void)do_dec_stat(stat);
+					}
+					while (randint(2) == 1);
 
-				i++;
+					stat++;
+				}
 			}
 		}
 	}
 	while ((randint(3) == 1) && !stop_ty);
-	return stop_ty; /* Prfnoff */
+
+	return (stop_ty); /* Prfnoff */
 }
 
 
-void activate_hi_summon(void)
+int activate_hi_summon(void)
 {
 	int i;
+	int count = 0;
 
 	for (i = 0; i < (randint(9) + (dun_level / 40)); i++)
 	{
 		switch (randint(26) + (dun_level / 20))
 		{
 			case 1: case 2:
-				(void)summon_specific(py, px, dun_level, SUMMON_ANT, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_ANT, TRUE, FALSE, FALSE);
 				break;
 			case 3: case 4:
-				(void)summon_specific(py, px, dun_level, SUMMON_SPIDER, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_SPIDER, TRUE, FALSE, FALSE);
 				break;
 			case 5: case 6:
-				(void)summon_specific(py, px, dun_level, SUMMON_HOUND, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_HOUND, TRUE, FALSE, FALSE);
 				break;
 			case 7: case 8:
-				(void)summon_specific(py, px, dun_level, SUMMON_HYDRA, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_HYDRA, TRUE, FALSE, FALSE);
 				break;
 			case 9: case 10:
-				(void)summon_specific(py, px, dun_level, SUMMON_ANGEL, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_ANGEL, TRUE, FALSE, FALSE);
 				break;
 			case 11: case 12:
-				(void)summon_specific(py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
 				break;
 			case 13: case 14:
-				(void)summon_specific(py, px, dun_level, SUMMON_DRAGON, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_DRAGON, TRUE, FALSE, FALSE);
 				break;
 			case 15: case 16:
-				(void)summon_specific(py, px, dun_level, SUMMON_DEMON, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_DEMON, TRUE, FALSE, FALSE);
 				break;
 			case 17:
-				(void)summon_specific(py, px, dun_level, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
 				break;
 			case 18: case 19:
-				(void)summon_specific(py, px, dun_level, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
 				break;
 			case 20: case 21:
-				(void)summon_specific(py, px, dun_level, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
 				break;
 			case 22: case 23:
-				(void)summon_specific(py, px, dun_level, SUMMON_HI_DRAGON, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, dun_level, SUMMON_HI_DRAGON, TRUE, FALSE, FALSE);
 				break;
 			case 24: case 25:
-				(void)summon_specific(py, px, 100, SUMMON_CYBER, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, 100, SUMMON_CYBER, TRUE, FALSE, FALSE);
 				break;
 			default:
-				(void)summon_specific(py, px,(((dun_level * 3) / 2) + 5), 0, TRUE, FALSE, FALSE);
+				count += summon_specific(py, px, (((dun_level * 3) / 2) + 5), 0, TRUE, FALSE, FALSE);
 		}
 	}
+
+	return count;
 }
 
 
 /* ToDo: check */
-void summon_cyber(void)
+int summon_cyber(int who, int y, int x)
 {
 	int i;
 	int max_cyber = (dun_level / 50) + randint(6);
+	int count = 0;
+
+	bool friendly = FALSE;
+	bool pet = FALSE;
+
+	/* Summoned by a monster */
+	if (who > 0)
+	{
+		monster_type *m_ptr = &m_list[who];
+
+		friendly = is_friendly(m_ptr);
+		pet = is_pet(m_ptr);
+	}
 
 	for (i = 0; i < max_cyber; i++)
 	{
-		(void)summon_specific(py, px, 100, SUMMON_CYBER, TRUE, FALSE, FALSE);
+		count += summon_specific(y, x, 100, SUMMON_CYBER, FALSE, friendly, pet);
 	}
+
+	return count;
 }
 
 
 void wall_breaker(void)
 {
-	int dummy = 5;
+	int i;
+	int y, x;
+	int attempts = 1000;
 
 	if (randint(80 + p_ptr->lev) < 70)
 	{
-		do
+		while (attempts--)
 		{
-			dummy = randint(9);
-		}
-		while ((dummy == 5) || (dummy == 0));
+			scatter(&y, &x, py, px, 4, 0);
 
-		wall_to_mud(dummy);
+			if ((y != py) || (x != px)) break;
+		}
+
+		project(0, 0, y, x, 20 + randint(30), GF_KILL_WALL,
+				  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
 	}
 	else if (randint(100) > 30)
 	{
@@ -3829,9 +4004,19 @@ void wall_breaker(void)
 	}
 	else
 	{
-		for (dummy = 1; dummy < 10; dummy++)
+		int num = damroll(5, 3);
+
+		for (i = 0; i < num; i++)
 		{
-			if (dummy - 5) wall_to_mud(dummy);
+			for (;;)
+			{
+				scatter(&y, &x, py, px, 10, 0);
+
+				if ((y != py) && (x != px)) break;
+			}
+
+			project(0, 0, y, x, 20 + randint(30), GF_KILL_WALL,
+					  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
 		}
 	}
 }
@@ -3983,7 +4168,7 @@ bool turn_monsters(int dam)
  */
 bool deathray_monsters(void)
 {
-	return (project_hack(GF_DEATH_RAY, p_ptr->lev));
+	return (project_hack(GF_DEATH_RAY, p_ptr->lev * 200));
 }
 
 
