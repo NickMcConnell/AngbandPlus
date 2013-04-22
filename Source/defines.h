@@ -48,7 +48,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.0.0, on V3.0.0 code base"
+#define VERSION_STRING	"1.0.1, on V3.0.0 code base"
 
 
 /*
@@ -56,7 +56,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	0
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -65,7 +65,7 @@
  */
 #define OLD_VERSION_MAJOR	1
 #define OLD_VERSION_MINOR	0
-#define OLD_VERSION_PATCH	0
+#define OLD_VERSION_PATCH	1
 
 
 /*
@@ -3132,5 +3132,5 @@ extern int PlayerUID;
 #define N_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
 
 #ifndef min(a)
-define min(a) (MIN(a))
+#define min(a) (MIN(a))
 #endif

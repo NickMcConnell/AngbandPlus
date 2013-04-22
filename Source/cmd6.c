@@ -1,4 +1,4 @@
-/* File: cmd6.c */
+/* File: cmd6.c (object use commands) */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke

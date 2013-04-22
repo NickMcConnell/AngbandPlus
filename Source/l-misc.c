@@ -10,7 +10,7 @@ int tolua_misc_open (lua_State* tolua_S);
 void tolua_misc_close (lua_State* tolua_S);
 
 #include "angband.h"
-
+#ifdef USE_SCRIPT
 /* function to register type */
 static void toluaI_reg_types (lua_State* tolua_S)
 {
@@ -111,3 +111,4 @@ void tolua_misc_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ddx_ddd");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ddy_ddd");
 }
+#endif // USE_SCRIPT

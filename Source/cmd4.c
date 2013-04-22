@@ -1,4 +1,4 @@
-/* File: cmd4.c */
+/* File: cmd4.c (info commands) */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke

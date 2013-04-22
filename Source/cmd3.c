@@ -1,4 +1,4 @@
-/* File: cmd3.c */
+/* File: cmd3.c (inventory commands) */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke

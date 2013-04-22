@@ -56,12 +56,44 @@ static int monster_critical(int dice, int sides, int dam)
 static bool check_hit(int power, int level)
 {
 	int chance, ac;
+	char parry_desc[80];
 
 	/* Calculate the "attack quality" */
 	chance = (power + (level * 3));
 
+	/* apply dodging 
+	 * note:  in future add support for flavor messages, 
+	 * since that was the original purpose of the change */
+	if (!(p_ptr->paralyzed) && (p_ptr->skill_dge  > randint(level + power)))
+	{
+		msg_print("You dodge the attack.");
+		return (FALSE);
+	}
+
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
+
+	/* apply parrying
+	 * note:  in future add support for flavor messages, 
+	 * since that was the original purpose of the change */
+	if ( inventory[INVEN_WIELD1].k_idx && 
+		(inventory[INVEN_WIELD1].ac + inventory[INVEN_WIELD1].to_a > 0) && 
+		p_ptr->skill_pry + inventory[INVEN_WIELD1].to_a > randint(chance))
+	{
+		ac += inventory[INVEN_WIELD1].ac;
+		ac += inventory[INVEN_WIELD1].to_a;
+		object_desc(parry_desc,&inventory[INVEN_WIELD1], FALSE, 2);
+		msg_format("You parry the blow with your %s.", parry_desc);
+	}
+	if ( inventory[INVEN_WIELD2].k_idx && 
+		(inventory[INVEN_WIELD2].ac + inventory[INVEN_WIELD2].to_a > 0) && 
+		p_ptr->skill_pry + inventory[INVEN_WIELD2].to_a > randint(chance))
+	{
+		ac += inventory[INVEN_WIELD2].ac;
+		ac += inventory[INVEN_WIELD2].to_a;
+		object_desc(parry_desc,&inventory[INVEN_WIELD2], FALSE, 2);
+		msg_format("You parry the blow with your %s.", parry_desc);
+	}
 
 	/* Check if the player was hit */
 	return test_hit(chance, ac, TRUE);

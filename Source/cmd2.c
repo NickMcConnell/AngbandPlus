@@ -1,4 +1,4 @@
-/* File: cmd2.c */
+/* File: cmd2.c (mundane commands, excluding running, walking, and melee) */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -2365,7 +2365,7 @@ void do_cmd_load()
 
 	object_type *i_ptr;
 
-	char j_name[80];
+	char j_name[80] = "weapon";
 
 	cptr q, s;
 
@@ -2373,7 +2373,6 @@ void do_cmd_load()
 	char o_name1[80], o_name2[80];
 	
 	j_ptr = &inventory[INVEN_BOW];
-
 
 	msg_format("You laboriously crank your %s", j_name);
 	/* Get an item */
@@ -2428,6 +2427,10 @@ void do_cmd_load()
 		floor_item_increase(0 - item, -1);
 		floor_item_optimize(0 - item);
 	}
+
+	/* energy use */
+	p_ptr->energy_use = (100);
+
 	return;
 }
 
@@ -2501,9 +2504,10 @@ void do_cmd_fire(void)
 	/* Require proper missile */
 	item_tester_tval = p_ptr->ammo_tval;
 
-	if ((j_ptr->loaded < p_ptr->num_fire) && ((&k_info[j_ptr->k_idx])->flags4 | TR4_XBOW))
+	if ((j_ptr->loaded < p_ptr->num_fire) && ((&k_info[j_ptr->k_idx])->flags4 & TR4_XBOW))
 	{
 		if (get_check("Load more bolts(y) or fire (n) ")) do_cmd_load();
+		return;
 	}
 	
 

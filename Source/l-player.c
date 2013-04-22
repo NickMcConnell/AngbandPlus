@@ -10,7 +10,7 @@ int tolua_player_open (lua_State* tolua_S);
 void tolua_player_close (lua_State* tolua_S);
 
 #include "angband.h"
-
+#ifdef USE_SCRIPT
 /* function to register type */
 static void toluaI_reg_types (lua_State* tolua_S)
 {
@@ -6697,3 +6697,4 @@ void tolua_player_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"res_stat");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"restore_level");
 }
+#endif // USE_SCRIPT

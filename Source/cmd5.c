@@ -1,4 +1,4 @@
-/* File: cmd5.c */
+/* File: cmd5.c (magic) */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -1417,7 +1417,7 @@ void do_cmd_high(void)
 	int realm, realms/*, spell*/;
 
 /*	char buf[160];*/
-	cptr index;
+	char *index;
 	bool redraw = FALSE;
 	bool done = FALSE;
 
@@ -1441,7 +1441,7 @@ void do_cmd_high(void)
 	while(!done && get_com("which realm? hit space, *, or ? for list", index))
 	{
 		/* Request redraw */
-		if ((index == ' ') || (index == '*') || (index == '?'))
+		if ((index == " ") || (index == "*") || (index == "?"))
 		{
 			/* Hide the list */
 			if (redraw)

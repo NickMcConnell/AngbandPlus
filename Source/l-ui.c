@@ -10,7 +10,7 @@ int tolua_ui_open (lua_State* tolua_S);
 void tolua_ui_close (lua_State* tolua_S);
 
 #include "angband.h"
-
+#ifdef USE_SCRIPT
 /* function to register type */
 static void toluaI_reg_types (lua_State* tolua_S)
 {
@@ -769,3 +769,4 @@ void tolua_ui_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"text_out");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"Term_clear");
 }
+#endif // USE_SCRIPT

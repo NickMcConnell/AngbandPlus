@@ -262,7 +262,7 @@ static errr wr_savefile(void)
 	data_next = data_head;
 
 
-#if 0
+#if 1
 	/* Operating system */
 	wr_u32b(sf_xtra);
 
@@ -302,7 +302,7 @@ static errr wr_savefile(void)
 
 	/* XXX XXX XXX */
 
-#if 0
+#if 1
 
 	/* Dump the "messages" */
 

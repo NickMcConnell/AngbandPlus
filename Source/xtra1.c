@@ -1839,6 +1839,13 @@ static void calc_bonuses(void)
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
 
+	/* new skills */
+	/* Base skill -- combat (dodge) */
+	p_ptr->skill_dge = rp_ptr->r_dge + cp_ptr->c_dge;
+
+	/* Base skill -- combat (parry) */
+	p_ptr->skill_pry = rp_ptr->r_pry + cp_ptr->c_pry;
+
 	/*** Analyze player ***/
 
 	/* Extract the player flags */
@@ -1996,6 +2003,11 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
 		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
+
+		/* Hack -- do not apply "weapon" bonuses */
+		if (i == INVEN_WIELD1) continue;
+		if (i == INVEN_WIELD2) continue;
+
 		/* Modify the base armor class */
 		p_ptr->ac += o_ptr->ac;
 
@@ -2008,9 +2020,7 @@ static void calc_bonuses(void)
 		/* Apply the mental bonuses to armor class, if known */
 		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
 
-		/* Hack -- do not apply "weapon" bonuses */
-		if (i == INVEN_WIELD1) continue;
-		if (i == INVEN_WIELD2) continue;
+
 
 		/* Hack -- do not apply "bow" bonuses */
 		if (i == INVEN_BOW) continue;
@@ -2183,13 +2193,13 @@ static void calc_bonuses(void)
 	/*** Apply modifier bonuses ***/
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
+	/* p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128); /* now dodge */
 	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
+	/* p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);  /* now dodge */
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
@@ -2239,6 +2249,16 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- combat (throwing) (Level, by Class) */
 	p_ptr->skill_tht += (cp_ptr->x_thb * p_ptr->lev / 10);
+
+	/* Affect Skill -- combat (dodging) (Level, by Class, Dex, STR/weight)
+	 * uses existing tables */
+	p_ptr->skill_dge += (cp_ptr->x_dge * p_ptr->lev /10);
+	p_ptr->skill_dge += adj_dex_safe[p_ptr->stat_ind[A_DEX]];
+	p_ptr->skill_dge *= adj_str_wgt[p_ptr->stat_ind[A_STR]];
+	p_ptr->skill_dge /= p_ptr->total_weight+p_ptr->wt+1;
+
+	/* Affect Skill -- combat (parry) (level, by class) */
+	p_ptr->skill_pry += (cp_ptr->x_pry * p_ptr->lev / 10);
 
 	/* Limit Skill -- digging from 1 up */
 	if (p_ptr->skill_dig < 1) p_ptr->skill_dig = 1;

@@ -1,4 +1,4 @@
-/* File: cmd1.c */
+/* File: cmd1.c (running, walking, and melee combat) */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -394,9 +394,10 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 		}
 	}
 
+	tdam += mult * damroll(o_ptr->dd,o_ptr->ds);
 
 	/* Return the total damage */
-	return (tdam * mult);
+	return (tdam);
 }
 
 

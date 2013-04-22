@@ -2308,15 +2308,15 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'R' for "Racial Skills" (one line only) */
 	else if (buf[0] == 'R')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, stl, srh, fos, thn, thb, dge, pry;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+		if (10 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			            &srh, &fos, &thn, &thb, &dge, &pry)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pr_ptr->r_dis = dis;
@@ -2327,6 +2327,8 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->r_fos = fos;
 		pr_ptr->r_thn = thn;
 		pr_ptr->r_thb = thb;
+		pr_ptr->r_dge = dge;
+		pr_ptr->r_pry = pry;
 	}
 
 	/* Process 'X' for "Extra Info" (one line only) */
@@ -2572,15 +2574,15 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'C' for "Class Skills" (one line only) */
 	else if (buf[0] == 'C')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, stl, srh, fos, thn, thb, dge, pry;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+		if (10 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			            &srh, &fos, &thn, &thb, &dge, &pry)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->c_dis = dis;
@@ -2591,20 +2593,22 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_fos = fos;
 		pc_ptr->c_thn = thn;
 		pc_ptr->c_thb = thb;
+		pc_ptr->c_dge = dge;
+		pc_ptr->c_pry = pry;
 	}
 
 	/* Process 'X' for "Extra Skills" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, stl, srh, fos, thn, thb, dge, pry;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+		if (10 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			            &srh, &fos, &thn, &thb, &dge, &pry)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->x_dis = dis;
@@ -2615,6 +2619,8 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->x_fos = fos;
 		pc_ptr->x_thn = thn;
 		pc_ptr->x_thb = thb;
+		pc_ptr->x_dge = dge;
+		pc_ptr->x_pry = pry;
 	}
 
 	/* Process 'I' for "Info" (one line only) */

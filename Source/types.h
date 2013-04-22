@@ -679,6 +679,9 @@ struct player_race
 	s16b r_fos;			/* search frequency */
 	s16b r_thn;			/* combat (normal) */
 	s16b r_thb;			/* combat (shooting) */
+	s16b r_dge;			/* class dodge */
+	s16b r_pry;			/* class parry */
+
 
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
@@ -739,6 +742,8 @@ struct player_class
 	s16b c_fos;			/* class searching frequency */
 	s16b c_thn;			/* class to hit (normal) */
 	s16b c_thb;			/* class to hit (bows) */
+	s16b c_dge;			/* class dodge */
+	s16b c_pry;			/* class parry */
 
 	s16b x_dis;			/* extra disarming */
 	s16b x_dev;			/* extra magic devices */
@@ -748,6 +753,8 @@ struct player_class
 	s16b x_fos;			/* extra searching frequency */
 	s16b x_thn;			/* extra to hit (normal) */
 	s16b x_thb;			/* extra to hit (bows) */
+	s16b x_dge;			/* extra dodge */
+	s16b x_pry;			/* extra parry */
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
@@ -1064,6 +1071,9 @@ struct player_type
 	s16b skill_thb;		/* Skill: To hit (shooting) */
 	s16b skill_tht;		/* Skill: To hit (throwing) */
 	s16b skill_dig;		/* Skill: Digging */
+	/* new skills */
+	s16b skill_dge;		/* Skill: Dodge */
+	s16b skill_pry;		/* Skill: Parry */
 
 	u32b noise;			/* Derived from stealth */
 
