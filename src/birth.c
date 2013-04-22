@@ -3488,8 +3488,8 @@ repeat_player_class:
                 p_ptr->grace = 0;
                 p_ptr->god_favor = 0;
         }
-
-        if ((!p_ptr->pgod) && ((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_PALADIN)))
+	
+	if ((!p_ptr->pgod) && ((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_PALADIN)))
         {
                 p_ptr->pgod = randint(MAX_GODS - 1);
         }

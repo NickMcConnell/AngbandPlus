@@ -2787,9 +2787,14 @@ void do_cmd_version(void)
 {
 
    /* Silly message */
-#ifndef FAKE_VERSION
+/*#ifndef FAKE_VERSION
     msg_format("You are playing Angband %d.%d.%d.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+*/
+#ifdef NTMESS
+    msg_format("YOU are playing NTANGBAND!!!  The demented number is %d.",
+		DEMENTED_NUMBER);
+    msg_format("%s", NTMESS);
 #else
     msg_format("You are playing PernAngband %d.%d.%d.",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);

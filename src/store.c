@@ -502,8 +502,8 @@ static void mass_produce(object_type *o_ptr)
                 case TV_DRUID_BOOK:
 		case TV_DAEMON_BOOK:
 		{
-			if (cost <= 50L) size += mass_roll(2, 3);
-			if (cost <= 500L) size += mass_roll(1, 3);
+			if (cost <= 50L) size += mass_roll(4, 3);
+			if (cost <= 500L) size += mass_roll(2, 3);
 			break;
 		}
 

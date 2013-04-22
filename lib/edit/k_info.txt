@@ -3328,7 +3328,15 @@ I:8:203:0
 W:36:100:5:10000
 A:36/3
 
-### Numbers 444-464 unused ###
+#out of place music book (666 test)
+#N:444:[Apprentice Handbook]
+#G:?:o
+#I:119:0:0
+#W:10:0:30:100
+#A:10/1
+#P:0:1d1:0:0:0
+
+### Numbers 445-464 unused ###
 
 N:465:& Silver Arrow~
 G:{:W
@@ -4881,11 +4889,13 @@ A:10/2
 
 ##### Music Books #####
 
+# this would be the 666th item, wouldn't it?
+
 N:665:[Apprentice Handbook]
 G:?:o
 I:119:0:0
 W:10:0:30:100
-A:10/1
+A:0/1:10/1
 P:0:1d1:0:0:0
 
 N:666:[Minstrel's Music]

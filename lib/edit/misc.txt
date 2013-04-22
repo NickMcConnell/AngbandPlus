@@ -20,7 +20,7 @@ M:Z:10
 M:R:1041
 
 # Maximum number of monsters in re_info.txt
-M:r:12
+M:r:15
 
 # Maximum number of items in k_info.txt
 M:K:812

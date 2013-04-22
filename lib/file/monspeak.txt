@@ -26,6 +26,22 @@
 #
 # Have fun with this!     --Matt G
 
+N:1:Cute Little Puppy Dog
+4
+pants and wags its tail.
+makes a mess on the floor.
+eats something disgusting.
+chases its tail.
+2
+whimpers and puts its tail between its legs.
+lies at your feet and whines.
+
+N:61:Little Lie
+3
+whispers the latest.
+slyly implies something.
+
+
 N:8:Farmer Maggot
 3
 says, 'I'm carrying CASH!'

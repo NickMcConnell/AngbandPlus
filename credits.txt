@@ -32,3 +32,10 @@ drop me a line please) in no particular order:
 
 - All the friendly people of #angband
 - All the friendly people of the PernAngband mailling list
+
+-- my credits
+-Ivan Tkatchev, inspiration
+-DarkGod, a platform
+-Albert, the schizodiskic computer
+-Abe, the little Minix box that could
+-George, the 486 on which I play Vanilla

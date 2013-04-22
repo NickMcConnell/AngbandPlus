@@ -1,33 +1,3 @@
-24/10/1998 - PernAngband 2.9.9a
-- Added the DragonRider from the Anne McCaffrey's Books, masters of
-  teleportation.
-- The CTRL+l key leaves the game without saving
-- Added the Tanker point, like the mana point, but can only be refilled
-  by eating the Firestone (for DragonRiders)
-- Added the RohanKnight race, fast and wise
-- Added the Ent race, can grow trees, but slow
-- Removed some races from Zangband which were not enough tolkienian...
-- Added the BeastMaster class which can summon pets
-- Added the Blood of Life
-- DragonRider now can choose to breathe a bolt, a beam or a ball
-- Added the Unique level patch from Glenn Vanzanden
-- Added the Mage Staves , with new ego items:
-        -of Mana : multiply your max mana
-        -of Spell : Increase your spell power
-        -of Mana & Spell : try to find !:)
-        -of Power : Activate for some spell, they carry 2 spells
-  All the ego mage staves have a penalty to damage and to hit
-- Added The Mage Staff of Gandalf, extremely powerful but even rarer than
-  the One Ring !
-- Added the boots of jumping activatable for phase door every 10+d10 turns
-- Added Helm of the Dwarves and of the Noldor
-- Beastmasters' pets now give kill experience to the player
-- Added the Alchemist class which use power batteries to convert magic item
-- New unique level : Treasure room at level 11
-- Replaced the Trump Hound from the Trump realm by the Trump Home spell, which
-  allows the player to access to her/his home from everywhere in the dungeon
-- Added the new artifact The Ring of F'lar, which belonged to F'lar the
-  powerful DragonRider
 
 26/10/1998
 - Added potions of Mutation
@@ -2600,3 +2570,9 @@ becomes 0, allowing spells to summon fiery blades and such
 - Fixed file existence function for dumb systems :)
 
 07/09/2001 - PernAngband 5.0.1 aka "Brunswik Disipator"
+
+10/05/2001 - NTAngband 5730297 aka "0.1"
+- Added "breaking" abilities for stun, slow and confusion
+- Dumped the Pern monster list, will return dearly beloved nasties
+- Current r_info.txt will be the shared monster list when I implement
+  separate monster lists for each dungeon

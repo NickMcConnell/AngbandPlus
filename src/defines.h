@@ -45,6 +45,10 @@
 #define FAKE_VER_MINOR 0
 #define FAKE_VER_PATCH 1
 
+/* Added for NTAngband */
+#define DEMENTED_NUMBER 5730297
+#define NTMESS "No Tolkien was butchered in the making of this game."
+
 #define ANGBAND_2_8_1
 
 #define SAVEFILE_VERSION 29
@@ -4084,7 +4088,7 @@ extern int PlayerUID;
 #define MUSIC_HOLY              17
 #define MUSIC_HIDE              18
 #define MUSIC_LIBERTY           19
-#define MUSIC_RAISE             20
+#define MUSIC_BEAUTY            20
 #define MUSIC_SHADOW            21
 #define MUSIC_STAR_ID           22
 

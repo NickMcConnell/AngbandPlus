@@ -6312,7 +6312,7 @@ void cast_music_spell(int spell, byte level)
 	int	plev = p_ptr->lev;
         int to_s2=(level + p_ptr->to_s)/2;
         to_s2 = (to_s2==0)?1:to_s2;
-
+	
         if(p_ptr->class_extra1)
         {
                 msg_print("You stop singing.");
@@ -6332,16 +6332,11 @@ void cast_music_spell(int spell, byte level)
                         if (info_spell) return;
                        p_ptr->class_extra1 = MUSIC_NONE;
 		       break;
-                case 2:  /* The note which kill */
+                case 2:  /* The note which scares */
                         if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %dd4", 4 + ((plev - 1) / 5));
-                                return;
-                        }
+                            return;
                        msg_print("You cry out in an ear-wracking voice...");
-                       if (!get_aim_dir(&dir)) return;
-                       fire_beam(GF_SOUND, dir,
-                              damroll(4 + ((plev - 1) / 5), 4));
+                       scare_monsters();
 		       break;
                 case 3:  /* Stunning song */
                         if (info_spell) return;
@@ -6398,9 +6393,7 @@ void cast_music_spell(int spell, byte level)
                                 return;
                         }
                        msg_print("You call out with a terrible curse...");
-                       if (!get_aim_dir(&dir)) return;
-                       fire_beam(GF_SOUND, dir,
-                              damroll(10 + ((plev - 1) / 5), 6));
+                       project_hack(GF_SOUND, damroll(5 + ((plev - 1) / 5), 1));
                        break;
                 case 12:  /* song of illusion */
                         if (info_spell) return;
@@ -6575,7 +6568,7 @@ void cast_music_spell(int spell, byte level)
                        msg_print("You weave a slow, soothing melody of imploration...");
                        p_ptr->class_extra1 = MUSIC_CHARME;
                        break;
-                case 27:  /* between shriek */
+                case 27:  /* become a god */
                         if (info_spell) return;
                        msg_print("The holy power of the Music of the Ainur enters you...");
                        p_ptr->class_extra1 = MUSIC_HOLY;
@@ -6594,14 +6587,14 @@ void cast_music_spell(int spell, byte level)
                        msg_print("You recall the valor of Fingolfin's challenge to the Dark Lord...");
                        p_ptr->class_extra1 = MUSIC_LIBERTY;
                        break;
-                case 30:  /* song of the Undeads */
+                case 30:  /* dispels evil */
                         if (info_spell)
                         {
                                 sprintf(spell_txt, " rad 1");
                                 return;
                         }
                        msg_print("The themes of life and revival are woven into your song...");
-                       p_ptr->class_extra1 = MUSIC_RAISE;
+                       p_ptr->class_extra1 = MUSIC_BEAUTY;
                        break;
                 case 31:  /* Immaterial song */
                         if (info_spell) return;

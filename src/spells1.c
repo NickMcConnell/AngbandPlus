@@ -29,14 +29,14 @@
  */
 s16b poly_r_idx(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+  monster_race *r_ptr = &r_info[r_idx];
 
-        int i, r;
+    int i, r;
 
 #if 0 /* No more -- hehehe -- DG */
 	/* Allowable range of "levels" for resulting monster */
-        int lev1 = r_ptr->level - ((randint(20) / randint(9)) + 1);
-        int lev2 = r_ptr->level + ((randint(20) / randint(9)) + 1);
+    int lev1 = r_ptr->level - ((randint(20) / randint(9)) + 1);
+    int lev2 = r_ptr->level + ((randint(20) / randint(9)) + 1);
 #endif
 
 	/* Hack -- Uniques/Questors never polymorph */
@@ -5073,7 +5073,19 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Normal monsters slow down */
 			else
 			{
-				if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
+			        if(p_ptr->pclass == CLASS_HARPER && 
+				   m_ptr->mspeed > 9)
+				  {
+				  m_ptr->mspeed -= 10;
+				  if(m_ptr->mspeed == 0)
+				    {
+				    m_ptr->ego = 14;
+				    gain_exp(m_ptr->exp * (100 + p_ptr->lev) / 100);
+				    }
+				  }
+				else if(m_ptr->mspeed > 60)
+				    m_ptr->mspeed -= 10;
+				 
 				note = " starts moving slower.";
 			}
 
@@ -6285,7 +6297,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		c_ptr = &cave[y][x];
 	}
 
-	/* Sound and Impact breathers never stun */
+	/* Sound and Impact breathers never get stunned */
 	else if (do_stun &&
 	    !(r_ptr->flags4 & (RF4_BR_SOUN)) &&
 	    !(r_ptr->flags4 & (RF4_BR_WALL)))
@@ -6306,9 +6318,25 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 
 		/* Apply stun */
-		m_ptr->stunned = (tmp < 200) ? tmp : 200;
+		if(p_ptr->pclass == CLASS_HARPER)
+		  m_ptr->stunned = (tmp < 2000) ? tmp : 2000;
+		else
+		  m_ptr->stunned = (tmp < 200) ? tmp : 200;
+		
+		if(m_ptr->stunned > (-(p_ptr->pclass == CLASS_HARPER) *
+		  (r_ptr->flags2 & RF2_SMART) * 4 +
+		  (r_ptr->flags2 & RF2_WEIRD_MIND) * 4 +
+		  (r_ptr->flags3 & RF3_UNDEAD) * 2 +
+		  (r_ptr->flags3 & RF3_HURT_ROCK) * 2 +
+		  (p_ptr->pclass == CLASS_HARPER) *
+		  (r_ptr->flags4 & RF4_BR_SOUN) +
+		  (m_ptr->level / 10)
+		   * 100))
+		  {
+		  m_ptr->ego = 13;
+		  gain_exp((m_ptr->exp * (100 + p_ptr->lev)) / 100);
+		  }
 	}
-
 	/* Confusion and Chaos breathers (and sleepers) never confuse */
 	else if (do_conf &&
 		 !(r_ptr->flags3 & (RF3_NO_CONF)) &&
@@ -6333,8 +6361,24 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 
 		/* Apply confusion */
-		m_ptr->confused = (tmp < 200) ? tmp : 200;
+		if(p_ptr->pclass == CLASS_HARPER)
+		  m_ptr->confused = (tmp < 2000) ? tmp : 2000;
+		else
+		  m_ptr->confused = (tmp < 200) ? tmp : 200;
+		
+		if(m_ptr->confused > (-(p_ptr->pclass == CLASS_HARPER) *
+		  (r_ptr->flags2 & RF2_SMART) * 4 + 
+		  (r_ptr->flags1 & RF1_FRIENDS) * 4 + 
+		  (r_ptr->flags3 & RF3_GOOD) * 3 +
+		  (r_ptr->flags3 & RF3_EVIL) * 2 +
+		  (m_ptr->level / 10) 
+		   * 100))
+		  {
+		  m_ptr->ego = 12;
+		  gain_exp((m_ptr->exp * (100 + p_ptr->lev)) / 100);
+		  }
 	}
+	
 
 
 	/* Fear */

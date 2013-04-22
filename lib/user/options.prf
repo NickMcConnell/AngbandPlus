@@ -1,0 +1,325 @@
+
+
+# Automatic option dump
+
+# Option 'Rogue-like commands'
+X:rogue_like_commands
+
+# Option 'Activate quick messages'
+Y:quick_messages
+
+# Option 'Prompt for various information'
+X:other_query_flag
+
+# Option 'Prompt before picking things up'
+X:carry_query_flag
+
+# Option 'Use old target by default'
+X:use_old_target
+
+# Option 'Pick things up by default'
+X:always_pickup
+
+# Option 'Prompt before picking up heavy objects'
+Y:prompt_pickup_heavy
+
+# Option 'Repeat obvious commands'
+Y:always_repeat
+
+# Option 'Show dungeon level in feet'
+X:depth_in_feet
+
+# Option 'Merge inscriptions when stacking'
+Y:stack_force_notes
+
+# Option 'Merge discounts when stacking'
+X:stack_force_costs
+
+# Option 'Show labels in object listings'
+Y:show_labels
+
+# Option 'Show weights in object listings'
+Y:show_weights
+
+# Option 'Show graphics in inventory list'
+X:show_inven_graph
+
+# Option 'Show graphics in equipment list'
+X:show_equip_graph
+
+# Option 'Show graphics in stores'
+X:show_store_graph
+
+# Option 'Show choices in certain sub-windows'
+Y:show_choices
+
+# Option 'Show details in certain sub-windows'
+Y:show_details
+
+# Option 'Audible bell (on errors, etc)'
+X:ring_bell
+
+# Option 'Use color if possible (slow)'
+Y:use_color
+
+# Option 'Run past stairs'
+X:find_ignore_stairs
+
+# Option 'Run through open doors'
+Y:find_ignore_doors
+
+# Option 'Run past known corners'
+X:find_cut
+
+# Option 'Run into potential corners'
+Y:find_examine
+
+# Option 'Disturb whenever any monster moves'
+X:disturb_move
+
+# Option 'Disturb whenever viewable monster moves'
+Y:disturb_near
+
+# Option 'Disturb whenever map panel changes'
+Y:disturb_panel
+
+# Option 'Disturb whenever player state changes'
+Y:disturb_state
+
+# Option 'Disturb whenever boring things happen'
+Y:disturb_minor
+
+# Option 'Disturb whenever random things happen'
+Y:disturb_other
+
+# Option 'Alert user to critical hitpoints'
+X:alert_hitpoint
+
+# Option 'Alert user to various failures'
+X:alert_failure
+
+# Option 'Get last words when the character dies'
+Y:last_words
+
+# Option 'Allow shopkeepers and uniques to speak'
+Y:speak_unique
+
+# Option 'No query to destroy known worthless items'
+Y:auto_destroy
+
+# Option 'Confirm to wear/wield known cursed items'
+Y:confirm_wear
+
+# Option 'Prompt before exiting a dungeon level'
+X:confirm_stairs
+
+# Option 'Disturb when visible pets move'
+X:disturb_pets
+
+# Option 'Automatically open doors'
+Y:easy_open
+
+# Option 'Automatically disarm traps'
+Y:easy_disarm
+
+# Option 'Automaticaly tunnel walls'
+X:easy_tunnel
+
+# Option 'Auto-haggle in stores'
+Y:auto_haggle
+
+# Option 'Auto-scum for good levels'
+Y:auto_scum
+
+# Option 'Allow weapons and armor to stack'
+Y:stack_allow_items
+
+# Option 'Allow wands/staffs/rods to stack'
+Y:stack_allow_wands
+
+# Option 'Expand the power of the look command'
+X:expand_look
+
+# Option 'Expand the power of the list commands'
+X:expand_list
+
+# Option 'Map remembers all perma-lit grids'
+Y:view_perma_grids
+
+# Option 'Map remembers all torch-lit grids'
+X:view_torch_grids
+
+# Option 'Generate dungeons with aligned rooms'
+Y:dungeon_align
+
+# Option 'Generate dungeons with connected stairs'
+Y:dungeon_stair
+
+# Option 'Monsters chase current location (v.slow)'
+X:flow_by_sound
+
+# Option 'Monsters chase recent locations (v.slow)'
+X:flow_by_smell
+
+# Option 'Use special symbols for the player char'
+X:player_symbols
+
+# Option 'Plain object descriptions'
+Y:plain_descriptions
+
+# Option 'Monsters learn from their mistakes'
+X:smart_learn
+
+# Option 'Monsters exploit players weaknesses'
+X:smart_cheat
+
+# Option 'Monsters behave stupidly'
+X:stupid_monsters
+
+# Option 'Allow unusually small dungeon levels'
+Y:small_levels
+
+# Option 'Allow empty 'arena' levels'
+Y:empty_levels
+
+# Option 'Reduce lite-radius when running'
+X:view_reduce_lite
+
+# Option 'Reduce view-radius in town'
+X:view_reduce_view
+
+# Option 'Avoid checking for user abort'
+X:avoid_abort
+
+# Option 'Avoid processing special colors'
+X:avoid_other
+
+# Option 'Flush input on various failures'
+Y:flush_failure
+
+# Option 'Flush input whenever disturbed'
+X:flush_disturb
+
+# Option 'Flush input before every command'
+X:flush_command
+
+# Option 'Flush output before every command'
+Y:fresh_before
+
+# Option 'Flush output after every command'
+X:fresh_after
+
+# Option 'Flush output after every message'
+X:fresh_message
+
+# Option 'Compress messages in savefiles'
+Y:compress_savefile
+
+# Option 'Hilite the player with the cursor'
+X:hilite_player
+
+# Option 'Use special colors for torch-lit grids'
+X:view_yellow_lite
+
+# Option 'Use special colors for 'viewable' grids'
+X:view_bright_lite
+
+# Option 'Use special colors for wall grids (slow)'
+X:view_granite_lite
+
+# Option 'Use special colors for floor grids (slow)'
+X:view_special_lite
+
+# Option 'Center the view on the player (very slow)'
+X:center_player
+
+# Option 'Show silly messages when fighting'
+Y:flavored_attacks
+
+# Option 'Ingame contextual help'
+X:ingame_help
+
+# Option 'Show the experience needed for next level'
+X:exp_need
+
+# Option 'Use the old(Z) coloring scheme(reload the game)'
+X:old_colors
+
+# Option 'Allow objects to stack on floor'
+Y:testing_stack
+
+# Option 'Allow monsters to carry objects'
+Y:testing_carry
+
+# Window 'Mirror', Flag 'Display inven/equip'
+W:1:0:1
+
+# Window 'Mirror', Flag 'Display equip/inven'
+W:1:1:0
+
+# Window 'Mirror', Flag 'Display spell list'
+W:1:2:0
+
+# Window 'Mirror', Flag 'Display character'
+W:1:3:0
+
+# Window 'Mirror', Flag 'Show visible monsters'
+W:1:4:0
+
+# Window 'Mirror', Flag 'Display messages'
+W:1:6:0
+
+# Window 'Mirror', Flag 'Display overhead view'
+W:1:7:0
+
+# Window 'Mirror', Flag 'Display monster recall'
+W:1:8:0
+
+# Window 'Mirror', Flag 'Display object recall'
+W:1:9:0
+
+# Window 'Mirror', Flag 'Display snap-shot'
+W:1:11:0
+
+# Window 'Mirror', Flag 'Display borg messages'
+W:1:14:0
+
+# Window 'Mirror', Flag 'Display borg status'
+W:1:15:0
+
+# Window 'Recall', Flag 'Display inven/equip'
+W:2:0:0
+
+# Window 'Recall', Flag 'Display equip/inven'
+W:2:1:0
+
+# Window 'Recall', Flag 'Display spell list'
+W:2:2:0
+
+# Window 'Recall', Flag 'Display character'
+W:2:3:0
+
+# Window 'Recall', Flag 'Show visible monsters'
+W:2:4:1
+
+# Window 'Recall', Flag 'Display messages'
+W:2:6:1
+
+# Window 'Recall', Flag 'Display overhead view'
+W:2:7:0
+
+# Window 'Recall', Flag 'Display monster recall'
+W:2:8:1
+
+# Window 'Recall', Flag 'Display object recall'
+W:2:9:1
+
+# Window 'Recall', Flag 'Display snap-shot'
+W:2:11:0
+
+# Window 'Recall', Flag 'Display borg messages'
+W:2:14:0
+
+# Window 'Recall', Flag 'Display borg status'
+W:2:15:0
+

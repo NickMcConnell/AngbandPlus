@@ -104,10 +104,10 @@ static cptr desc_insult[] =
  */
 static cptr desc_moan[] =
 {
-	"seems sad about something.",
-	"asks if you have seen his dogs.",
-	"tells you to get off his land.",
-        "mumbles something about mushrooms.",
+	"discusses its latest theory.",
+	"reminds you of your misspent youth.",
+	"mumbles theorems.",
+        "yells 'All your base are belong to us!'",
 
         /* Mathilde's sentence */
         "giggles at you.",

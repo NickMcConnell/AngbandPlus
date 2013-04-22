@@ -1004,8 +1004,8 @@ static void gere_music(s16b music)
                 case MUSIC_LIBERTY:
                         set_invuln(2);
                         break;
-                case MUSIC_RAISE:
-                        fire_explosion(py, px, GF_RAISE, 1, 1);
+                case MUSIC_BEAUTY:
+                        project_hack(GF_DISP_EVIL, damroll(p_ptr->lev/3, 3));
                         break;
                 case MUSIC_SHADOW:
                         set_shadow(2);
@@ -1147,7 +1147,7 @@ static void check_music()
         }
         }
 
-        /* Music singed by player */
+        /* Music sung by player */
         if(p_ptr->pclass != CLASS_HARPER) return;
         if(!p_ptr->class_extra1) return;
 

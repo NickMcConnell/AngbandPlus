@@ -1941,10 +1941,10 @@ player_class class_info[MAX_CLASS] =
 	{
                 "Harper",              /* Note : spell stat is Charisma */
                 "Harpers can read complex music books and sing songs\nfull of power, beauty or sadness to affect everything that can hear them.",
-                {-2, 3, 0, 0, -2, 4},
+                {-4, 3, -1, 2, 0, 4},
                 10, 16, 20, -5, 16, 20, 34, 20,
                 8,  13, 12, 0,  0,  0,  15, 15,
-                0, 50,
+                0, 75,
                 { -1, -1, -1, -1},
                 CF1_ZERO_FAIL,
 	},
@@ -4290,7 +4290,7 @@ cptr spell_names[MAX_REALM][64][2] =
                 /******* Apprentice Handbook *******/
                 {"Song of Holding", "Slows down all monsters listening the song."},
                 {"Stop singing", "Stops your current song"},
-                {"Horrible Note", "You scream a directed beam of sound."},
+                {"Horrible Note", "You scream a horrible note."},
                 {"Stun Pattern", "Stuns all monsters listening the song."},
                 {"Flow of Life", "Heals you as long as you sing."},
                 {"Clairaudience", "Provides telepathy as long as you sing."},
@@ -4324,7 +4324,7 @@ cptr spell_names[MAX_REALM][64][2] =
                 {"Ainulindale", "Provides Ainur-like powers as long as you sing."},
                 {"The Horns of Ylmir", "Destroys the area around you."},
                 {"Fingolfin's Challenge", "Gives you invulnerability as long as you sing."},
-                {"Firiel's Song", "Calls upon the dead to your help."},
+                {"Firiel's Song", "Converts evil monsters into good, disembodied spirits."},
                 {"Luthien's Mourning", "Turns you into a wraith being as long as you sing."},
 
         },
@@ -4985,6 +4985,7 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 	},
 
         /* Harper */
+	/* Regular titles 
 	{
                 "Apprentice",
                 "Songsmith",
@@ -4997,8 +4998,22 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
                 "Dreamweaver",
                 "Master Harper",
 	},
-
-        /* Power Mage */
+	*/
+	/* CUSSD titles */
+	{
+		"Elem. Beginner",
+		"Elem. Advanced",
+		"Cadet Band",
+		"Crusader Band",
+		"Marching Band",
+		"Concert Band",
+		"Symphonic Band",
+		"Unemployed",
+		"Destitute",
+		"Director",
+	},
+        
+	/* Power Mage */
 	{
                 "Chaos Slave",
                 "Chaos Serf",
@@ -7180,7 +7195,7 @@ deity deity_info[MAX_GODS] = {
   { "Manwe",     "Winds",      5, 0, RACE_HIGH_ELF, RACE_HALF_ELF, "Vala of the winds, his followers move with supernatural grace and swiftness." },
   { "Varda",     "Stars",      4, 0, RACE_DUNADAN, -1, "Vala of the stars, her followers have keen and clear minds." },
 
-  { "Iluvatar",  "Being",      2, 1, RACE_ELF, RACE_HUMAN, "Also known as Illuvatar, he is the creator, the god of being.  Those who\nfollow him are granted knowledge beyond that of ordinary mortals, but\nthey are so strongly connected to life that it is hard for them to kill\ndirectly." },
+  { "Iluvatar",  "Being",      2, 1, RACE_ELF, RACE_HUMAN, "Also known as Eru, he is the creator, the God.  Those who\nfollow him are granted knowledge beyond that of ordinary mortals, but\nthey are so strongly connected to life that it is hard for them to kill\ndirectly." },
   { "The RNG",   "Randomness", 9, 1, RACE_MOLD, -1, "The god of chaos, it is as unpredictable and irrational as an\nAngband variant maintainer." },
 };
 
@@ -7263,17 +7278,17 @@ activation activation_info[MAX_T_ACT] = {
  * Possible Musics.
  */
 music music_info[MAX_MUSICS] = {
-  {"singing a song of freedom",MUSIC_BETWEEN,10,40,10,1,10},
-  {"singing a charming song",MUSIC_CHARME,6,60,20,1,15},
-  {"singing a knowledge song",MUSIC_ID,6,50,5,2,10},
-  {"singing a *knowledge* song",MUSIC_STAR_ID,2,100,50,4,100}, /* Never random, only for the Harp of Master Robinton */
-  {"singing a beautiful song",MUSIC_NONE,0,0,0,1,1},
-  {"singing a hiding song",MUSIC_HIDE,20,50,8,3,6},
-  {"singing a song of brightness",MUSIC_LITE,60,20,4,1,5},
-  {"singing a immaterial song",MUSIC_SHADOW,30,50,2,5,15},
-  {"singing a godness song",MUSIC_HOLY,20,100,20,6,15},
-  {"singing a *godness* song",MUSIC_HOLY,30,100,20,5,100}, /* Never random, only for the Drum of Piemur */
-  {"singing a *charming* song",MUSIC_CHARME,20,100,20,1,100}, /* Never random, only for the Flute of Menolly */
+  {"playing a song of freedom",MUSIC_BETWEEN,10,40,10,1,10},
+  {"playing a charming song",MUSIC_CHARME,6,60,20,1,15},
+  {"playing a knowledge song",MUSIC_ID,6,50,5,2,10},
+  {"playing a *knowledge* song",MUSIC_STAR_ID,2,100,50,4,100}, /* Never random, only for the Harp of Master Robinton */
+  {"playing a beautiful song",MUSIC_BEAUTY,10,100,20,1,90},
+  {"playing a hiding song",MUSIC_HIDE,20,50,8,3,6},
+  {"playing a song of brightness",MUSIC_LITE,60,20,4,1,5},
+  {"playing a immaterial song",MUSIC_SHADOW,30,50,2,5,15},
+  {"playing a song of the Valar",MUSIC_HOLY,20,100,20,6,15},
+  {"playing a song of the Valar",MUSIC_HOLY,30,100,20,5,100}, /* Never random, only for the Drum of Piemur */
+  {"playing a *charming* song",MUSIC_CHARME,20,100,20,1,100}, /* Never random, only for the Flute of Menolly */
 };
 
 /*
