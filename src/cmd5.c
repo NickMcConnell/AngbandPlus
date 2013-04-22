@@ -414,22 +414,13 @@ void do_cmd_browse(void)
 
 	object_type	*o_ptr;
 
-        if(p_ptr->pclass == CLASS_POWERMAGE)
-        {
-                random_spell *s_ptr;
-                s_ptr = select_spell(TRUE);
-                if(s_ptr == NULL) return;
-                msg_format("%s : %s",s_ptr->name,s_ptr->desc);
-                return;
-        }
-
 	/* Warriors are illiterate */
 	if (!(p_ptr->realm1 || p_ptr->realm2))
 	{
 		msg_print("You cannot read books!");
 		return;
 	}
-#if 0
+
 	/* No lite */
 	if (p_ptr->blind || no_lite())
 	{
@@ -437,6 +428,7 @@ void do_cmd_browse(void)
 		return;
 	}
 
+#if 0
 	/* Confused */
 	if (p_ptr->confused)
 	{
@@ -444,6 +436,7 @@ void do_cmd_browse(void)
 		return;
 	}
 #endif
+
 	/* Restrict choices to "useful" books */
 	item_tester_tval = mp_ptr->spell_book;
 
@@ -3118,14 +3111,6 @@ void cast_shadow_spell(int spell, byte level)
                         /* Accept request */
                         msg_format("A tunnel of shadows is open to the level %d.", dest);
 
-                        if (autosave_l)
-                        {
-                                is_autosave = TRUE;
-                                msg_print("Autosaving the game...");
-                                do_cmd_save_game();
-                                is_autosave = FALSE;
-                        }
-
                         /* Change level */
                         dun_level = dest;
 
@@ -3336,396 +3321,6 @@ void cast_shadow_spell(int spell, byte level)
                         break;
         }
 }
-
-
-void cast_chaos_spell(int spell, byte level)
-{
-	int	dir, i, beam;
-	int	plev = p_ptr->lev;
-        int     to_s = level + p_ptr->to_s;
-        long    rad, dam;
-
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
-	else beam = plev / 2;
-
-	switch (spell)
-	{
-		case 0: /* Magic Missile */
-                        dam = apply_power_dice(3 + ((plev - 1) / 5), to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %ldd4", dam);
-                                return;
-                        }
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
-                                                  damroll(dam, 4));
-                break;
-        case 1: /* Trap / Door destruction, was: Blink */
-                        if (info_spell) return;
-			(void)destroy_doors_touch();
-			break;
-        case 2: /* Flash of Light == Light Area */
-                        if (info_spell) return;
-                        (void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-			break;
-        case 3: /* Touch of Confusion */
-                        if (info_spell) return;
-            if (!(p_ptr->confusing))
-            {
-                msg_print("Your hands start glowing.");
-                p_ptr->confusing = TRUE;
-            }
-			break;
-       case 4: /* Manaburst */
-                        rad = apply_power_dice(((plev < 30) ? 2 : 3), to_s, 1);
-                        dam = apply_power_dam(plev + (plev / (((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4)), to_s, 2);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam 3d5+%ld", dam);
-                                return;
-                        }
-                        if (!get_aim_dir(&dir)) return;
-                        fire_ball(GF_MISSILE, dir,
-                                (damroll(3, 5) + dam),
-                                rad);
-                        /* Shouldn't actually use GF_MANA, as it will destroy all items on the floor */
-             break;
-        case 5: /* Fire Bolt */
-                        dam = apply_power_dice(8, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %dd%ld", 8 + ((plev - 5) / 4), dam);
-                                return;
-                        }
-			if (!get_aim_dir(&dir)) return;
-			fire_bolt_or_beam(beam, GF_FIRE, dir,
-                                damroll(8+((plev-5)/4), dam));
-			break;
-        case 6: /* Fist of Force ("Fist of Fun") */
-                        dam = apply_power_dice(8, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %dd%ld", 8 + ((plev - 5) / 4), dam);
-                                return;
-                        }
-			if (!get_aim_dir(&dir)) return;
-                        fire_ball(GF_FORCE, dir,
-                                damroll(8+((plev-5)/4), dam), 0);
-                        break;
-		case 7: /* Teleport Self */
-                        dam = apply_power_dur(plev * 5, to_s, 15);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " range %ld", dam);
-                                return;
-                        }
-                        teleport_player(dam);
-			break;
-        case 8: /* Wonder */
-           {
-           /* This spell should become more useful (more
-              controlled) as the player gains experience levels.
-              Thus, add 1/5 of the player's level to the die roll.
-              This eliminates the worst effects later on, while
-              keeping the results quite random.  It also allows
-              some potent effects only at high level. */
-
-               int die = randint(100) + plev / 5 + (level + p_ptr->to_s);
-
-                        if (info_spell) return;
-
-               if (!get_aim_dir(&dir)) return;
-               if (die > 100)
-                   msg_print ("You feel a surge of power!");
-               if (die < 8) clone_monster (dir);
-               else if (die < 14) speed_monster (dir);
-               else if (die < 26) heal_monster (dir);
-               else if (die < 31) poly_monster (dir);
-               else if (die < 36)
-                   fire_bolt_or_beam (beam - 10,
-                   GF_MISSILE, dir,
-                   damroll(3 + ((plev - 1) / 5), 4));
-               else if (die < 41) confuse_monster (dir, plev);
-               else if (die < 46) fire_ball (GF_POIS, dir, 20 + (plev / 2), 3);
-               else if (die < 51) lite_line (dir);
-               else if (die < 56)
-                   fire_bolt_or_beam (beam - 10, GF_ELEC, dir,
-                   damroll(3+((plev-5)/4),8));
-               else if (die < 61)
-                   fire_bolt_or_beam (beam - 10, GF_COLD, dir,
-                   damroll(5+((plev-5)/4),8));
-               else if (die < 66)
-                   fire_bolt_or_beam (beam, GF_ACID, dir,
-                   damroll(6+((plev-5)/4),8));
-               else if (die < 71)
-                   fire_bolt_or_beam (beam, GF_FIRE, dir,
-                   damroll(8+((plev-5)/4),8));
-               else if (die < 76) drain_life (dir, 75+((level + p_ptr->to_s)*2));
-               else if (die < 81) fire_ball (GF_ELEC, dir, 30 + plev / 2, 2);
-               else if (die < 86) fire_ball (GF_ACID, dir, 40 + plev, 2);
-               else if (die < 91) fire_ball (GF_ICE, dir, 70 + plev, 3);
-               else if (die < 96) fire_ball (GF_FIRE, dir, 80 + plev, 3);
-               else if (die < 101) drain_life (dir, 100 + plev);
-               else if (die < 104) earthquake (py, px, 12);
-               else if (die < 106) destroy_area (py, px, 15, TRUE);
-               else if (die < 108) genocide(TRUE);
-               else if (die < 110) dispel_monsters (120+((level + p_ptr->to_s)*2));
-               else /* RARE */
-               {
-                   dispel_monsters (150+((level + p_ptr->to_s)*2));
-                   slow_monsters();
-                   sleep_monsters();
-                   hp_player (300+((level + p_ptr->to_s)*3));
-               }
-               break;
-           }
-			break;
-		case 9: /* Chaos Bolt */
-                        dam = apply_power_dice(8, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %dd%ld", 10 + ((plev - 5) / 4), dam);
-                                return;
-                        }
-                        if (!get_aim_dir(&dir)) return;
-			fire_bolt_or_beam(beam, GF_CHAOS, dir,
-                                damroll(10+((plev-5)/4), dam));
-			break;
-        case 10: /* Sonic Boom */
-                        rad = apply_power_dice(2 + (plev / 10), to_s, 1);
-                        dam = apply_power_dam(45 + plev, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %ld", dam);
-                                return;
-                        }
-                        msg_print("BOOM! The room shakes!");
-                        project(0, rad, py, px,
-                                dam, GF_SOUND, PROJECT_KILL|PROJECT_ITEM);
-                        break;
-                case 11: /* Doom Bolt -- always beam in 2.0.7 or later */
-                        dam = apply_power_dice(8, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %dd%ld", 11+((plev-5)/4), dam);
-                                return;
-                        }
-                        if (!get_aim_dir(&dir)) return;
-                        fire_beam(GF_MANA, dir, damroll(11+((plev-5)/4), dam));
-			break;
-		case 12: /* Fire Ball */
-                        rad = apply_power_dice(2, to_s, 1);
-                        dam = apply_power_dam(55 + plev, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %ld", dam);
-                                return;
-                        }
-			if (!get_aim_dir(&dir)) return;
-                        fire_ball(GF_FIRE, dir, dam, rad);
-			break;
-		case 13: /* Teleport Other */
-                        dam = apply_power_dam(plev, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %ld", dam);
-                                return;
-                        }
-                        if (!get_aim_dir(&dir)) return;
-                        (void)fire_beam(GF_AWAY_ALL, dir, dam);
-			break;
-		case 14: /* Word of Destruction */
-                        if (info_spell) return;
-                        destroy_area(py, px, 15, TRUE);
-			break;
-                case 15: /* Invoke chaos */
-                        rad = apply_power_dice(plev / 5, to_s, 1);
-                        dam = apply_power_dam(66 + plev, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %ld", dam);
-                                return;
-                        }
-			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_CHAOS, dir,
-                                        dam, rad);
-			break;
-                case 16: /* Polymorph Other */
-                        if (info_spell) return;
-			if (!get_aim_dir(&dir)) return;
-			(void)poly_monster(dir);
-			break;
-                case 17: /* Chain Lightning */
-                        dam = apply_power_dice(8, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %dd%ld", 5 + (plev / 10), dam);
-                                return;
-                        }
-                        for (dir = 0; dir <= 9; dir++)
-                                fire_beam(GF_ELEC, dir, damroll(5+(plev/10), dam));
-                        break;
-                case 18: /* Arcane Binding == Charging */
-                        if (info_spell) return;
-                        (void)recharge(40);
-			break;
-                case 19: /* Disintegration */
-                        rad = apply_power_dice(3 + (plev / 40), to_s, 1);
-                        dam = apply_power_dam(80 + plev, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %ld", dam);
-                                return;
-                        }
-			if (!get_aim_dir(&dir)) return;
-                        fire_ball(GF_DISINTEGRATE, dir,
-                                dam, rad);
-                        break;
-                case 20: /* Alter Reality */
-                        if (info_spell) return;
-			msg_print("The world changes!");
-                        if (autosave_l)
-                        {
-                                is_autosave = TRUE;
-                                msg_print("Autosaving the game...");
-                                do_cmd_save_game();
-                                is_autosave = FALSE;
-                        }
-			/* Leaving */
-			p_ptr->leaving = TRUE;
-
-			break;
-                case 21: /* Polymorph Self */
-                        if (info_spell) return;
-                        do_poly_self();
-                        break;
-                case 22: /* Chaos Branding */
-                        if (info_spell) return;
-                        brand_weapon(1);
-                        break;
-                case 23: /* Summon monster, demon */
-                        if (info_spell) return;
-                        if (randint(3) == 1)
-                        {
-                                if (summon_specific(py, px, (plev*3)/2, SUMMON_DEMON))
-                                {
-                                        msg_print("The area fills with a stench of sulphur and brimstone.");
-                                        msg_print("'NON SERVIAM! Wretch! I shall feast on thy mortal soul!'");
-                                }
-                        }
-                        else
-                        {
-                                if (summon_specific_friendly(py, px, (plev*3)/2,
-                                        SUMMON_DEMON, (plev == 50 ? TRUE : FALSE)))
-                                {
-                                        msg_print("The area fills with a stench of sulphur and brimstone.");
-                                        msg_print("'What is thy bidding... Master?'");
-                                }
-                        }
-                        break;
-                case 24: /* Beam of Gravity */
-                        dam = apply_power_dice(8, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %dd%ld", 9 + ((plev - 5) / 4), dam);
-                                return;
-                        }
-			if (!get_aim_dir(&dir)) return;
-                        fire_beam(GF_GRAVITY, dir, damroll(9+((plev-5)/4), dam));
-                        break;
-                case 25: /* Meteor Swarm  */
-                {
-                        int x, y, dx, dy, d, count = 0;
-                        int b = 10 + randint(10);
-
-                        dam = apply_power_dam(plev * 3 / 2, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam (10+d10)*%ld", dam);
-                                return;
-                        }
-
-                        for (i = 0; i < b; i++)
-                        {
-                                do
-                                {
-                                        count++;
-                                        if (count > 1000)  break;
-                                        x = px - 5 + randint(10);
-                                        y = py - 5 + randint(10);
-                                        dx = (px > x) ? (px - x) : (x - px);
-                                        dy = (py > y) ? (py - y) : (y - py);
-                                        /* Approximate distance */
-                                d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
-                                } while ((d > 5) || (!(player_has_los_bold(y, x))));
-
-                                if (count > 1000)   break;
-                                count = 0;
-                                project(0, 2, y, x, dam, GF_METEOR, PROJECT_KILL|PROJECT_JUMP|PROJECT_ITEM);
-                        }
-                }
-                break;
-		case 26: /* Flame Strike */
-                        rad = apply_power_dice(8, to_s, 1);
-                        dam = apply_power_dam(150 + (plev * 2), to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %ld", dam);
-                                return;
-                        }
-                        fire_ball(GF_FIRE, 0, dam, rad);
-			break;
-                case 27: /* Call Chaos */
-                        if (info_spell) return;
-                        call_chaos();
-			break;
-                case 28: /* Magic Rocket */
-                        rad = apply_power_dice(2, to_s, 1);
-                        dam = apply_power_dam(120 + plev, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %ld", dam);
-                                return;
-                        }
-			if (!get_aim_dir(&dir)) return;
-                        msg_print("You launch a rocket!");
-			fire_ball(GF_ROCKET, dir,
-                                        dam, rad);
-			break;
-                case 29: /* Mana Storm */
-                        rad = apply_power_dice(4, to_s, 1);
-                        dam = apply_power_dam(300 + (plev * 2), to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %ld", dam);
-                                return;
-                        }
-			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_MANA, dir,
-                                dam, rad);
-                        break;
-                case 30: /* Breathe chaos */
-                        rad = apply_power_dice(2, to_s, 1);
-                        dam = apply_power_dam(p_ptr->chp, to_s, 1);
-                        if (info_spell)
-                        {
-                                sprintf(spell_txt, " dam %ld", dam);
-                                return;
-                        }
-                        if (!get_aim_dir(&dir)) return;
-                        fire_ball(GF_CHAOS, dir, dam, rad);
-                        break;
-                case 31: /* Call the Void */
-                        if (info_spell) return;
-			call_the_();
-			break;
-                default:
-                        msg_format("You cast an unknown Chaos spell: %d.", spell);
-                        msg_print(NULL);
-	}
-}
-
 
 
 void cast_crusade_spell(int spell, byte level)
@@ -5314,6 +4909,53 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
         return num;
 }
 
+void cast_para_spell(int spell, byte level)
+{
+long dam = 0;
+int i;
+switch(spell)
+  {
+  /* Fungus Strike */
+  case 0:
+    { 
+    int y, x;
+    cave_type *c_ptr;
+    monster_type *m_ptr;
+	    
+    /* Pick a target.  If none, quit. */            	    
+    if (!tgt_pt(&x,&y)) return;
+    c_ptr = &cave[y][x];
+
+    if (!(c_ptr->m_idx)) break;
+    m_ptr = &m_list[c_ptr->m_idx];
+	    
+    /* Find Damage */
+    for (i = 1; i < m_max; i++)
+      {
+      monster_type *m_ptr = &m_list[i];
+
+      /* Paranoia -- Skip dead monsters */
+      if (!m_ptr->r_idx) continue;
+
+      /* Require line of sight */
+      if (!player_has_los_bold(m_ptr->fy, m_ptr->fx)) continue;
+		
+      dam += (r_info[m_ptr->r_idx].d_char == 'm' || 
+              r_info[m_ptr->r_idx].d_char == ',') * r_info[m_ptr->r_idx].level;
+      }
+	    
+    dam *= (p_ptr->lev * (100 * p_ptr->csp / p_ptr->msp)) / 100;
+	    
+    /* Apply Damage */
+    if(r_info[m_ptr->r_idx].d_char == 'm' || r_info[m_ptr->r_idx].d_char == ',')
+      m_ptr->hp += dam;
+    else
+      m_ptr->hp -= dam;
+    break;
+    }
+  }
+}
+
 void cast_symbiotic_spell(int spell, byte level)
 {
         object_type *o_ptr;
@@ -5356,7 +4998,7 @@ void cast_symbiotic_spell(int spell, byte level)
                 slow_monsters();
                 break;
 
-        case 2: /* Vamiric healing */
+        case 2: /* Vampiric healing */
         {
                 int dummy,plev=p_ptr->lev,dir;
                 int max;
@@ -5526,7 +5168,7 @@ void cast_symbiotic_spell(int spell, byte level)
                 else msg_print("You are not in symbiosis.");
                 break;
 
-        case 21: /* Use Ennemy's Powers */
+        case 21: /* Use Enemy's Powers */
         {
                 int y,x;
                 cave_type *c_ptr;
@@ -5575,7 +5217,7 @@ void cast_music_spell(int spell, byte level)
                         if (info_spell) return;
                        p_ptr->class_extra1 = MUSIC_NONE;
 		       break;
-                case 2:  /* The note which scares */
+                case 2:  /* The note that scares */
                         if (info_spell)
                             return;
                        msg_print("You cry out in an ear-wracking voice...");
@@ -7176,9 +6818,6 @@ void cast_spell(int realm, int spell, byte level)
                 case REALM_SHADOW: /* * SHADOW * */
                         cast_shadow_spell(spell, level);
 			break;
-		case REALM_CHAOS: /* * CHAOS * */
-                        cast_chaos_spell(spell, level);
-			break;
                 case REALM_CRUSADE: /* CRUSADE */
                         cast_crusade_spell(spell, level);
 			break;
@@ -7332,12 +6971,7 @@ void do_cmd_cast(void)
                 msg_format("A cloud of %s appears above you.", sfail);
 		sound(SOUND_FAIL);
 
-		if (o_ptr->tval == TV_CHAOS_BOOK && (randint(100)<spell))
-		{
-			msg_print("You produce a chaotic effect!");
-			wild_magic(spell);
-		}
-                else if (o_ptr->tval == TV_MUSIC_BOOK && (randint(100)<spell))
+		if (o_ptr->tval == TV_MUSIC_BOOK && (randint(100)<spell))
 		{
                         msg_print("You produce a horrible shriek!");
                         shriek_effect();

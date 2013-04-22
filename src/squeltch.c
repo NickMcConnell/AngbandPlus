@@ -222,7 +222,6 @@ static void init_categories(void)
 	cat_type[TV_VALARIN_BOOK]=ITEM_BOOK_VALA;
 	cat_type[TV_MAGERY_BOOK]=ITEM_BOOK_MAGE;
 	cat_type[TV_SHADOW_BOOK]=ITEM_BOOK_SHAD;
-	cat_type[TV_CHAOS_BOOK]=ITEM_BOOK_CHAO;
 	cat_type[TV_CRUSADE_BOOK]=ITEM_BOOK_CRUS;
 	cat_type[TV_SIGALDRY_BOOK]=ITEM_BOOK_SIGA;
 	cat_type[TV_MAGIC_BOOK]=ITEM_BOOK_MAGI;

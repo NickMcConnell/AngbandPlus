@@ -568,7 +568,7 @@ static bool high_level_book(object_type * o_ptr)
             if (o_ptr->sval>3) return TRUE;
             else return FALSE;
         }
-    if ((o_ptr->tval == TV_CHAOS_BOOK) || (o_ptr->tval == TV_CRUSADE_BOOK) ||
+    if ((o_ptr->tval == TV_CRUSADE_BOOK) ||
         (o_ptr->tval == TV_SYMBIOTIC_BOOK) || (o_ptr->tval == TV_MUSIC_BOOK))
         {
             if (o_ptr->sval>3) return TRUE;

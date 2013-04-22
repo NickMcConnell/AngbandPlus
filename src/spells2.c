@@ -2390,7 +2390,7 @@ bool detect_objects_magic(void)
                     (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) || (tv == TV_ROD_MAIN) ||
                     (tv == TV_SCROLL) || (tv == TV_POTION) || (tv == TV_POTION2) ||
                     (tv == TV_VALARIN_BOOK) || (tv == TV_MAGERY_BOOK) ||
-                    (tv == TV_SHADOW_BOOK) || (tv == TV_CHAOS_BOOK) || (tv == TV_SPIRIT_BOOK) ||
+                    (tv == TV_SHADOW_BOOK) || (tv == TV_SPIRIT_BOOK) ||
                     (tv == TV_CRUSADE_BOOK) || 
 		    (tv == TV_SIGALDRY_BOOK) || (tv == TV_SYMBIOTIC_BOOK) || 
 		    (tv == TV_MUSIC_BOOK) || ((o_ptr->to_a > 0) || 
@@ -7361,14 +7361,6 @@ void change_wild_mode(void)
 
 	p_ptr->wild_mode = !p_ptr->wild_mode;
 
-	if (autosave_l)
-	{
-		is_autosave = TRUE;
-		msg_print("Autosaving the game...");
-		do_cmd_save_game();
-		is_autosave = FALSE;
-	}
-
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 }
@@ -7377,14 +7369,6 @@ void change_wild_mode(void)
 void alter_reality(void)
 {
 	msg_print("The world changes!");
-
-	if (autosave_l)
-	{
-		is_autosave = TRUE;
-		msg_print("Autosaving the game...");
-		do_cmd_save_game();
-		is_autosave = FALSE;
-	}
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;

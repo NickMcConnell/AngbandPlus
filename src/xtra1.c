@@ -716,8 +716,8 @@ static void prt_sp(void)
 
 
 	/* Do not show mana unless it matters */
-        if ((!mp_ptr->spell_book) && (p_ptr->pclass != CLASS_POWERMAGE) &&
-            (p_ptr->pclass != CLASS_RUNECRAFTER) && (p_ptr->pclass != CLASS_MIMIC) && (p_ptr->pclass != CLASS_POSSESSOR)) return;
+        if ((!mp_ptr->spell_book) && (p_ptr->pclass != CLASS_RUNECRAFTER) 
+	   && (p_ptr->pclass != CLASS_MIMIC) && (p_ptr->pclass != CLASS_POSSESSOR)) return;
 
 
         put_str("SP ", ROW_SP, COL_SP);
@@ -1744,7 +1744,7 @@ static void calc_spells(void)
                 return;
         }
 
-        if (p_ptr->pclass != CLASS_POWERMAGE) {
+        if (1) {
 
 	/* Hack -- must be literate */
 	if (!mp_ptr->spell_book) return;
@@ -1782,16 +1782,11 @@ static void calc_spells(void)
         /* Limit the number of spells each class can learn */
         switch(p_ptr->pclass)
         {
-                case CLASS_WARLOCK:
-                        class_max = 48;
-                        break;
-
                 case CLASS_ROGUE:
                 case CLASS_MONK:
                         class_max = 24;
                         break;
 
-                case CLASS_CHAOS_WARRIOR:
                 case CLASS_RANGER:
                 case CLASS_PALADIN:
                 case CLASS_HARPER:
@@ -1978,32 +1973,6 @@ static void calc_spells(void)
 	}
         }
 
-    else
-
-    /* Generate some Power Mage spells. */
-    if ((p_ptr->pclass == CLASS_POWERMAGE)&&(spell_num<MAX_SPELLS)) {
-
-       levels = p_ptr->lev;
-
-        /* Extract total allowed spells */
-        num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] *
-                 levels / 2);
-
-       k = num_allowed - spell_num;
-
-      /* Don't forget known powers -- no cheating! */
-      if (k < 1) return;
-    
-      for (j = 0; j < k; j++) {
-        generate_spell(p_ptr->lev);
-      }
-    
-      if (k == 1) {
-        msg_print("You have gained one new power.");
-      } else {
-        msg_format("You have gained %d new powers.", k);
-      }
-    }
 }
 
 /* Ugly hack */
@@ -2191,10 +2160,10 @@ static void calc_mana(void)
 
 
 	/* Hack -- Must be literate */
-        if ((!mp_ptr->spell_book)&&(p_ptr->pclass!=CLASS_POWERMAGE)&&(p_ptr->pclass!=CLASS_RUNECRAFTER)&&(p_ptr->pclass!=CLASS_MIMIC)&&(p_ptr->pclass!=CLASS_POSSESSOR)) return;
+        if ((!mp_ptr->spell_book)&&(p_ptr->pclass!=CLASS_RUNECRAFTER)&&(p_ptr->pclass!=CLASS_MIMIC)&&(p_ptr->pclass!=CLASS_POSSESSOR)) return;
 
         if ((p_ptr->pclass == CLASS_MINDCRAFTER)||(p_ptr->pclass == CLASS_MIMIC)||
-            (p_ptr->pclass == CLASS_POWERMAGE)||(p_ptr->pclass == CLASS_RUNECRAFTER)||(p_ptr->pclass == CLASS_POSSESSOR))
+            (p_ptr->pclass == CLASS_RUNECRAFTER)||(p_ptr->pclass == CLASS_POSSESSOR))
 	{
 		levels = p_ptr->lev;
 	}
@@ -2227,9 +2196,6 @@ static void calc_mana(void)
 
 	/* Hack: High mages have a 25% mana bonus */
 	if (msp && (p_ptr->pclass == CLASS_HIGH_MAGE)) msp += msp / 4;
-
-        /* Hack: Power mages have a 75% mana bonus */
-        if (msp && (p_ptr->pclass == CLASS_POWERMAGE)) msp += msp * 3 / 4;
 
         /* Hack: Sorcerer have a 150% mana bonus */
         if (msp && (p_ptr->pclass == CLASS_SORCERER)) msp += msp * 3 / 2;
@@ -3256,7 +3222,6 @@ void analyze_blow(int *num, int *wgt, int *mul)
 			/* Mage */
 			case CLASS_MAGE:
 			case CLASS_HIGH_MAGE:
-                        case CLASS_POWERMAGE:
                         case CLASS_RUNECRAFTER:
                                 *num = 4; *wgt = 40; *mul = 2; break;
 
@@ -3285,14 +3250,6 @@ void analyze_blow(int *num, int *wgt, int *mul)
 
 			/* Paladin */
                         case CLASS_PALADIN:             
-                                *num = 5; *wgt = 30; *mul = 4; break;
-
-			/* Warrior-Mage */
-			case CLASS_WARLOCK:
-                                *num = 5; *wgt = 35; *mul = 3; break;
-
-			/* Chaos Warrior */
-			case CLASS_CHAOS_WARRIOR:
                                 *num = 5; *wgt = 30; *mul = 4; break;
 
 			/* Monk */
@@ -3548,10 +3505,6 @@ void calc_bonuses(void)
 		case CLASS_PALADIN:
 			if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
 			break;
-		case CLASS_CHAOS_WARRIOR:
-                        if (p_ptr->lev > 24) p_ptr->resist_chaos = TRUE;
-			if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
-			break;
 		case CLASS_MINDCRAFTER:
 			if (p_ptr->lev >  9) p_ptr->resist_fear = TRUE;
 			if (p_ptr->lev > 19) p_ptr->sustain_wis = TRUE;
@@ -3637,10 +3590,6 @@ void calc_bonuses(void)
 		case RACE_HALF_GIANT:
 			p_ptr->sustain_str = TRUE;
 			p_ptr->resist_shard = TRUE;
-			break;
-		case RACE_NIBELUNG:
-			p_ptr->resist_disen = TRUE;
-			p_ptr->resist_dark = TRUE;
 			break;
                 case RACE_RKNIGHT:
                         /* Rohan's Knights become faster */
@@ -4716,13 +4665,7 @@ void calc_bonuses(void)
                         case CLASS_UNBELIEVER:
 				p_ptr->num_blow += (p_ptr->lev / 15);
 				break;
-			case CLASS_WARLOCK: /* 2 extra blows */
-				p_ptr->num_blow += (p_ptr->lev / 25);
-				break;
                         case CLASS_PALADIN:
-			case CLASS_CHAOS_WARRIOR: /* 1 extra blow */
-				if (p_ptr->lev > 24) p_ptr->num_blow += 1;
-				break;
 			case CLASS_WEAPONMASTER:
 			/*
 			 * Weaponmasters only get 1 blow with weapons that
@@ -4818,7 +4761,6 @@ void calc_bonuses(void)
 			p_ptr->dis_to_d += (p_ptr->lev/5);
 			break;
                 case CLASS_PALADIN:
-		case CLASS_CHAOS_WARRIOR:
 			p_ptr->to_h += (p_ptr->lev/10);
 			p_ptr->to_d += (p_ptr->lev/10);
 			p_ptr->dis_to_h += (p_ptr->lev/10);

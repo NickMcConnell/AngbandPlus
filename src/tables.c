@@ -1282,7 +1282,7 @@ player_race race_info[MAX_RACES] =
 		66,  6, 130, 15,
 		62,  6, 100, 10,
 		2,
-                0xFFFFFFFF - BIT(CLASS_POWERMAGE) - BIT(CLASS_UNBELIEVER),
+                0xFFFFFFFF - BIT(CLASS_UNBELIEVER),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1296,7 +1296,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		3,
-                0xFFFFFFFF - BIT(CLASS_PALADIN)- BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_UNBELIEVER),
+                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_UNBELIEVER),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1310,7 +1310,7 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		4,
-                0xFFFFFFFF - BIT(CLASS_PRIEST) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_PRIEST) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
                 { PWR_COOK_FOOD, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1324,7 +1324,7 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST),
                 { PWR_PASSWALL, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1338,7 +1338,7 @@ player_race race_info[MAX_RACES] =
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID),
                 { PWR_UNFEAR, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1352,7 +1352,7 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID),
                 { PWR_BERSERK, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1366,7 +1366,7 @@ player_race race_info[MAX_RACES] =
 		82, 5, 190, 20,
 		78,  6, 180, 15,
 		0,
-                0xFFFFFFFF - BIT(CLASS_MIMIC) - BIT(CLASS_POWERMAGE),
+                0xFFFFFFFF - BIT(CLASS_MIMIC),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1380,7 +1380,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_UNBELIEVER),
+                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_UNBELIEVER),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1394,7 +1394,7 @@ player_race race_info[MAX_RACES] =
 		92, 10, 255, 60,
 		80,  8, 235, 60,
 		3,
-                0xFFFFFFFF - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_WEAPONMASTER),
                 { PWR_EXPL_RUNE, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1408,22 +1408,8 @@ player_race race_info[MAX_RACES] =
 		100,10, 255, 65,
 		80, 10, 240, 64,
 		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_PALADIN) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
                 { PWR_STM, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-/**/	{
-                "Petty Dwarf",
-                "A nearly extinct subrace of dwarves.\nThey prefer to live in the darkness.",
-		{ 1, -1, 2, 0, 2, -4 },
-		3, 5, 10, 1, 5, 10, 9, 0,
-		11, 135,
-		40, 12,
-		43,  3, 92,  6,
-		40,  3, 78,  3,
-		5,
-                0xFFFFFFFF - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_SORCERER),
-                { PWR_DETECT_TD, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
 	{
@@ -1436,7 +1422,7 @@ player_race race_info[MAX_RACES] =
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_MIMIC) - BIT(CLASS_HARPER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_MIMIC) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_WEAPONMASTER),
                 { PWR_GROW_TREE, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1450,7 +1436,7 @@ player_race race_info[MAX_RACES] =
 		60,  3, 80,  4,
 		54,  3, 70,  4,
                 0,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POWERMAGE) - BIT(CLASS_POSSESSOR) - BIT(CLASS_DRUID),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POSSESSOR) - BIT(CLASS_DRUID),
                 { PWR_ROHAN, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1464,7 +1450,7 @@ player_race race_info[MAX_RACES] =
                 180,  6, 255, 25,
                 150,  4, 230, 20,
                 0,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POWERMAGE) - BIT(CLASS_POSSESSOR) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POSSESSOR) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_WEAPONMASTER),
                 { PWR_DRAGON, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
         },
@@ -1479,7 +1465,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
                 4,
-                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_WEAPONMASTER),
+                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_WEAPONMASTER),
                 { -1, -1, -1, -1},
                 {1, 1, 1, 2, 1, 1},
 	},
@@ -1587,7 +1573,7 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 1,
                 0xFFFFFFF - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDDER),
                 0,
-                BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_POWERMAGE) + BIT(CLASS_HIGH_MAGE) +
+                BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_HIGH_MAGE) +
                 BIT(CLASS_ILLUSIONIST),
                 { PWR_REST_LIFE, -1, -1, -1},
                 {0, 0, 0, 0, 0, 0},
@@ -1625,7 +1611,7 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 BIT(RACE_HUMAN) + BIT(RACE_DWARF) + BIT(RACE_HALF_ORC) + BIT(RACE_HALF_TROLL)
                 + BIT(RACE_HALF_OGRE) + BIT(RACE_HALF_GIANT),
                 0,
-                BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_POWERMAGE) + BIT(CLASS_HIGH_MAGE) +
+                BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_HIGH_MAGE) +
                 + BIT(CLASS_ILLUSIONIST),
                 { PWR_BERSERK, -1, -1, -1},
                 {0, 0, 0, 0, 0, 0},
@@ -1767,27 +1753,6 @@ player_class class_info[MAX_CLASS] =
                 0,
 	},
 
-/**/	{
-                "Warlock",
-                "Warrior mages, trained in both melee and some forms of magic.\nThey can learn up to 48 spells.",
-		{ 2, 2, 0, 1, 0, 1},
-		30, 30, 28, 2,  18, 16, 50, 25,
-		7,  10,  9, 0,  0,  0,  20, 20,
-                4, 50,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-/**/	{
-		"Chaos-Warrior",
-                "Fighters of chaos, followed by the somewhat unreliable chaos\npatrons they can use the chaos realm to enhance their destructive powers.",
-		{ 2, 1, 0, 1, 2, -2},
-		20, 25, 25, 1,  14, 12, 65, 40,
-		7,  11, 10, 0,  0,  0,  34, 29,
-                6, 35,
-                { -1, -1, -1, -1},
-                0,
-	},
 
 	{
 		"Monk",
@@ -1875,17 +1840,6 @@ player_class class_info[MAX_CLASS] =
                 0, 75,
                 { -1, -1, -1, -1},
                 CF1_ZERO_FAIL,
-	},
-
-	{
-/**/            "Power-Mage",
-                "Powermage spells come from within and are different for each character.\nSince attack is the best defence, all their spells are offensive.",
-                {-5, 5, -2, 0, -2, -1},
-                20, 36, 30, 2,  16, 20, 14, 10,
-                7,  13, 9,  0,  0,  0,   7,  7,
-                0, 20,
-                { -1, -1, -1, -1},
-                0,
 	},
 
 /**/	{
@@ -2237,47 +2191,6 @@ magic_type realm_info_base[MAX_REALM][64] =
                 {50, 59, 90, 150},
         },
 
-				/* Mage: Chaos Magic */
-
-			{
-				{ 1, 1, 20, 4 },
-				{ 1, 2, 22, 4 },
-				{ 2, 2, 25, 4 },
-				{ 5, 5, 30, 1 },
-				{ 9, 6, 50, 1 },
-				{ 13, 9, 45, 6 },
-				{ 14, 9, 45, 6 },
-				{ 15, 9, 35, 5 },
-
-				{ 17, 10, 25, 5 },
-				{ 19, 12, 45, 9 },
-				{ 21, 13, 45, 10 },
-				{ 23, 15, 50, 11 },
-				{ 25, 16, 50, 12 },
-				{ 25, 18, 60, 8 },
-				{ 30, 20, 80, 15 },
-				{ 35, 40, 85, 40 },
-
-				{ 11, 7, 45, 9 },
-				{ 15, 15, 80, 35 },
-				{ 16, 14, 80, 35 },
-				{25, 25, 85, 100 },
-				{ 30, 25, 85, 150 },
-				{ 42, 50, 85, 250 },
-				{ 45, 90, 80, 250 },
-				{ 47, 100, 90, 250 },
-
-				{ 20, 20, 66, 8 },
-				{ 35, 32, 85, 35 },
-				{ 37, 34, 75, 40 },
-				{ 41, 42, 85, 100 },
-				{ 43, 44, 80, 150 },
-				{ 45, 48, 85, 200 },
-				{ 47, 75, 80, 200 },
-				{ 49, 100, 85, 250 }
-			},
-
-        
         /* Crusade Magic */
 
         {
@@ -2916,43 +2829,9 @@ player_magic magic_info[MAX_CLASS] =
                 3,
     },
 
+
+
     {
-        /*** Warrior-Mage ***/
-
-        TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                3,
-                18,
-                13,
-		1,
-                350,
-
-                4,
-	},
-
-	{
-                /*** Chaos Warrior ***/
-                TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                1,
-                9,
-                5,
-                2,
-                400,
-
-                4,
-	},
-
-
-	{
         /*** Monk ***/
 
         TV_VALARIN_BOOK,
@@ -2968,7 +2847,7 @@ player_magic magic_info[MAX_CLASS] =
 		300,
 
                 3,
-	},
+    },
 
 	{
         /*** Mindcrafter ***/
@@ -3087,23 +2966,6 @@ player_magic magic_info[MAX_CLASS] =
                 0,
                 1,
                 300,
-
-                1,
-	},
-        {
-                /*** Power Mage ***/
-
-		0,
-		0,
-
-                A_INT,
-		0,
-
-                0,
-                0,
-                0,
-		99,
-		300,
 
                 1,
 	},
@@ -3418,8 +3280,6 @@ u32b Mrealm_choices[MAX_CLASS]=
 /* Rogue */         (CH_MAGERY | CH_SHADOW | CH_ILLUSION | CH_SPIRIT | CH_SIGALDRY),
 /* Ranger */        (CH_ILLUSION | CH_TRIBAL),
 /* Paladin */       (CH_CRUSADE),
-/* Warrior-Mage */  (CH_SIGALDRY),
-/* Chaos Warrior */ (CH_CHAOS),
 /* Monk */          (CH_VALARIN | CH_SPIRIT | CH_ILLUSION | CH_TRIBAL),
 /* Mindcrafter */   (CH_NONE),
 /* High Mage */     (CH_MAGERY | CH_SHADOW | CH_SIGALDRY | CH_SPIRIT | CH_ILLUSION),
@@ -3428,10 +3288,9 @@ u32b Mrealm_choices[MAX_CLASS]=
 /* Alchemist   */   (CH_NONE),
 /* Symbiant    */   (CH_NONE),
 /* Harper      */   (CH_NONE),
-/* Power Mage  */   (CH_NONE),
 /* Runecrafter */   (CH_NONE),
 /* Possessor */     (CH_NONE),
-/* Sorceror */      (CH_MAGERY | CH_SHADOW | CH_CHAOS | CH_SIGALDRY |
+/* Sorceror */      (CH_MAGERY | CH_SHADOW | CH_SIGALDRY |
                      CH_ILLUSION | CH_SPIRIT),
 /* Archer */        (CH_NONE),
 /* Illusionist */   (CH_ILLUSION),
@@ -3449,8 +3308,6 @@ u32b mrealm_choices[MAX_CLASS]=
 /* Rogue */         (CH_NONE),
 /* Ranger */        (CH_NONE),
 /* Paladin */       (CH_NONE),
-/* Warrior-Mage */  (CH_SPIRIT | CH_ILLUSION),
-/* Chaos Warrior */ (CH_NONE),
 /* Monk */          (CH_NONE),
 /* Mindcrafter */   (CH_NONE),
 /* High Mage */     (CH_NONE),
@@ -3459,7 +3316,6 @@ u32b mrealm_choices[MAX_CLASS]=
 /* Alchemist   */   (CH_NONE),
 /* Symbiant    */   (CH_SYMBIOTIC),
 /* Harper      */   (CH_MUSIC),
-/* Power Mage  */   (CH_NONE),
 /* Runecrafter */   (CH_NONE),
 /* Possessor */     (CH_NONE),
 /* Sorceror */      (CH_NONE),
@@ -3477,7 +3333,6 @@ cptr realm_names [] =
         "Valarin",
         "Magery",
         "Shadow",
-	"Chaos",
         "Crusade",
         "Sigaldry",
         "Symbiotic",
@@ -3746,49 +3601,6 @@ cptr spell_names[MAX_REALM][64][2] =
                 {"Hellfire", "Summons fires of hell from the dark to ravage your foes"},
                 {"Control The Ring", "Releases the dark force of the One Ring in a powerful explosion!"},
 	},
-
-	/*** Chaos Spells ***/
-
-	{
-		/* Common Chaos Spellbooks */
-                {"Magic Missile", "This spell creates a magic missile to strike your foes."},
-                {"Trap / Door Destruction", "This spell destroys all traps and doors near you."},
-                {"Flash of Light", "This spell lights up the room."},
-                {"Touch of Confusion", "This spell confuses the next monster you hit in melee."},
-                {"Mana Burst", "This spell release a ball of mana to crush your foes."},
-                {"Fire Bolt", "This spell invokes the fire element in a bolt."},
-                {"Fist of Force", "This spell projects a bolt of force to crush your foes."},
-                {"Teleport Self", "This spell allows you to teleport away."},
-
-                {"Wonder", "It will do random things."},
-                {"Chaos Bolt", "Harnesses chaotic energies into a powerful bolt."},
-                {"Sonic Boom", "Unleashes a sonic wave around you."},
-                {"Doom Bolt", "Creates a malevolent projectile."},
-                {"Fire Ball", "Releases a ball of fire to engulf your foes."},
-                {"Teleport Other", "It will teleport monsters away."},
-                {"Word of Destruction", "Shakes the earth, causing damage to the dungeon around you."},
-                {"Invoke Chaos", "Unleashes the primal forces of chaos in a ball around your foes."},
-
-		/* Rare Chaos Spellbooks */
-                {"Polymorph Other", "Polymorphs a monster into a different one."},
-                {"Chain Lightning", "Fires beams of lightning in all directions."},
-                {"Arcane Binding", "Absorb ambient mana to recharge a magical item."},
-                {"Disintegrate", "Projects a ball of disintegration force."},
-                {"Alter Reality", "Alters the world to recreate the current level."},
-                {"Polymorph Self", "Polymorphs you into another form."},
-                {"Chaos Branding", "Brands a weapon with the Mark of Chaos."},
-                {"Summon Demon", "Summons demonic servants to your aid."},
-
-                {"Beam of Gravity", "Creates a beam that warps gravity to dispatch your foes."},
-                {"Meteor Swarm", "Hurls meteors down from the sky."},
-                {"Flame Strike", "Creates a huge fireball."},
-                {"Call Chaos", "Creates a powerful random attack."},
-                {"Magic Rocket", "Concentrates magic into an explosive ball."},
-                {"Mana Storm", "Disrupt the magic continuum and unleashes its power on your foes."},
-                {"Breathe Chaos", "Lets you breathe a ball of chaotic energy."},
-                {"Call the Void", "It will do random powerful things."},
-	},
-
 
         /* Crusade Spellbooks */
 	{
@@ -4314,50 +4126,6 @@ cptr spell_names[MAX_REALM][64][2] =
                 {"Drain Level Mana", ""},
         },
 
-	/* Demon -SCSCSC- */
-	{
-		/* Dark Incantations */
-                {"Detect Good", "Detects all good beings near you."},
-                {"Phase Door", "Teleport you a few squares."},
-                {"Resist Fire", "Makes you resistant to fire for a short duration."},
-                {"Unearthly Blessing", "Temporarily protects you and increases your fighting accuracy."},
-                {"Steal Thoughts", "Attempts to confuse monsters."},
-                {"Demon Eyes", "Allows you to detect all monsters for a short duration."},
-                {"Mend Flesh", "Heals you."},
-                {"Vision", "Reveals the level around you."},
-
-		/* Immortal Rituals */
-                {"Detect Angels and Demons", "Detects angels and demons near you."},
-                {"Protection from Good", "Deflects attacks made by good beings."},
-                {"Invisibility", "Turns you invisible."},
-                {"Manes Summoning", "Summons an inferior demon to your aid."},
-                {"Demoncloak", "Protects you from fire and cold and shields you."},
-                {"Breath Fire", "Unleashes a powerful fire ball."},
-                {"Fire Blade", "Hastes you, surrounds you with fire and makes you fight with berserk fury."},
-                {"Circle of Madness", "Fires explosions of chaos, confusion and charm."},
-
-		/* Minions of Azathoth */
-                {"Bladecalm", "It needs to be coded :)"},
-                {"Control Demons", "Attempts to charm demons."},
-                {"Revive", "It will revive dead demons."},
-                {"Trap Demonsoul", "Attempts to enslave a demon."},
-                {"Discharge Minions", "Makes all your pets explode like powerful bombs."},
-                {"Summon Demons", "Calls some demons to your aid."},
-
-		/* Demonthoughts */
-                {"Rain of Lava", "Creates a ball of lava."},
-                {"Kiss of the Succubus", "Unleashes a ball of nexus."},
-                {"Immortality", "Allows you to resist the ravages of time."},
-                {"Glyph of Warding", "It will create a glyph that prevents monsters movement."},
-                {"Lava Storm", "Creates a powerful ball of lava."},
-                {"Demonform", "Turns you into a demon lord for a short duration."},
-
-		/* Hellfire Tome */
-                {"Unholy word", "Heals and cures you."},
-                {"Hellfire", "Creates 2 balls of powerful hellfire."},
-                {"Armageddon", "Sends into oblivion all monsters near you."},
-                {"Shield of the Damned", "Makes you nearly invulnerable for a short duration."},
-	},
 
         /* Spirit */
         {
@@ -4491,33 +4259,6 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Paladin Lord",
 	},
 
-	/* Warrior-Mage */
-	{
-		"Novice",
-		"Apprentice",
-		"Journeyman",
-		"Veteran",
-		"Enchanter",
-		"Champion",
-		"Mage-Hero",
-		"Baron Mage",
-		"Battlemage",
-		"Wizard Lord",
-	},
-
-	/* Chaos Warrior */
-	{
-		"Rookie",
-		"Soldier",
-		"Mercenary",
-		"Veteran",
-		"Swordsman",
-		"Champion",
-		"Chaos Hero",
-		"Chaos Baron",
-		"Chaos Duke",
-		"Chaos Lord",
-	},
 
 	/* Monk */
 	{
@@ -4618,48 +4359,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 	},
 
         /* Harper */
-	/* Regular titles 
 	{
                 "Apprentice",
-                "Songsmith",
-                "Bard",
-                "Companion",
+                "Chord-strummer",
+		"Finger-picker",
+                "Folk Singer",
+                "Skald",
                 "Minstrel",
                 "Harper",
-                "Loreweaver",
-                "Muse",
+                "Bard",
                 "Dreamweaver",
                 "Master Harper",
 	},
-	*/
-	/* CUSSD titles */
-	{
-		"Elem. Beginner",
-		"Elem. Advanced",
-		"Cadet Band",
-		"Crusader Band",
-		"Marching Band",
-		"Concert Band",
-		"Symphonic Band",
-		"Unemployed",
-		"Destitute",
-		"Director",
-	},
         
-	/* Power Mage */
-	{
-                "Chaos Slave",
-                "Chaos Serf",
-                "Chaos Novice",
-                "Chaos Caster",
-                "Chaos Wielder",
-                "Chaos Lord",
-                "Chaos Master",
-                "Chaos Fiend",
-                "Chaos King",
-                "Chaos King",
-	},
-
         /* Runecrafter */
 	{
                 "Ignoramus",
@@ -6784,7 +6496,7 @@ cptr deity_rarity[2] = {
 deity deity_info[MAX_GODS] = {
   { "Yavanna",   "Forest",     2, 0, RACE_ENT, -1, "The vala in charge of forests, she protects her followers from cold." },
   { "Ulmo",      "Waters",     3, 0, RACE_ELF, RACE_HUMAN, "The vala of water, he can protect the worthy from poison and sound." },
-  { "Aule",      "Earth",      3, 0, RACE_DWARF, RACE_NIBELUNG, "The smith of the vala, associated with earth.  His followers are free to\nmove about the earth and will not be harmed by shards of earth." },
+  { "Aule",      "Earth",      3, 0, RACE_DWARF, -1, "The smith of the vala, associated with earth.  His followers are free to\nmove about the earth and will not be harmed by shards of earth." },
   { "Melkor",    "Darkness",   9, 0, RACE_HALF_ORC, RACE_HALF_TROLL, "Yes, this is Morgoth, the guy you're spending the entire game trying\nto whack.  But you can still worship him.  He grants sustains, and\nprotects his followers from several dark powers." },
   { "Tilion",    "Moon",       4, 0, RACE_ELF, -1, "Vala of the moon, whose followers need fear neither the dark or the\ncreatures that dwell in it." },
   { "Arien",     "Sun",        3, 0, RACE_HUMAN, RACE_RKNIGHT, "Vala of the sun, whose followers have no fear during the day." },
@@ -8069,7 +7781,6 @@ tval_desc tval_descs[] =
         {TV_SHADOW_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_ILLUSION_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_TRIBAL_BOOK, "This mystical book is used by rangers and a few others to cast spells."},
-        {TV_CHAOS_BOOK, "This magic book is used by chaos warriors and few others to cast spells"},
         {TV_CRUSADE_BOOK, "This holy book is used by paladins and a few others to call upon their god."},
         {TV_SIGALDRY_BOOK, "This magic book is used by spellcasters to cast spells."},
         {TV_SYMBIOTIC_BOOK, "This mystical book is used by symbiants to extend their symbiosis."},

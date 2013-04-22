@@ -41,15 +41,6 @@
 # including some monster name changes, some symbol redistributions, and
 # some color changes.
 
-# The Umber Hulk joined the Xorn/Xaren (X). The ticks (t) joined the
-# spiders (S). The townspeople (t) left the people (p). The "Jabberwock"
-# became the "Chaos beetle" (K). The major demons (&) became (U) and the
-# minor demons (I) became (u). Multiplying insects (fleas, fruit flies,
-# hummerhorns) became (I), visually "matching" the multiplying lice (l).
-# The "ant lions" (a) became "ants" (a). The mummified monsters (M)
-# joined the zombified monsters (z). The multi-headed hydras (M) left
-# the reptiles (R). The snakes (J) left the reptiles (R).
-
 # Some of the old "red" or "brown" monsters became "pink" if they lower
 # strength, while some of the old "fire" monsters became simply "red"
 # monsters. The "dragons" and "hounds" and related monsters underwent
@@ -76,17 +67,6 @@
 # prefer "black" thief characters. Also color can be (and should) be used to
 # convey information, but more importantly it is a visual presentation
 # of the creature and should be what the creature "looks" like.
-
-# Many of the "unique" monsters were changed to "match" the "base" monster
-# from which they were derived. Angband 2.8.0 may require every "unique"
-# monster to be based on a "normal" monster, and may enforce color matching.
-# This may result in the addition of some new monsters, to serve as "base"
-# monsters, possibly including Ogre captains, Greater Balrogs, Black Trolls,
-# Vampire Queens, Giant Werewolves, and others. This may be accompanied by
-# a separation of the monster list into a "normal" monster list (r_info)
-# with 512 entries, and a "unique" monster list (u_info) with 128 entries,
-# which will require reorganization of the list. Some new "player ghost"
-# unique monsters will probably be added at the same time.
 
 # Mushrooms look just like food (and use the "," symbol for both the recall
 # window and for normal display), Creeping coins look just like coins (and
@@ -340,6 +320,19 @@ F:ANIMAL | IM_ACID |
 F:MORTAL | BASEANGBAND
 D:A small humanoid figure. 
 
+N:23:Cave spider
+G:A:D
+I:120:2d6:8:16:80
+W:2:1:400:7
+E:0:1:0:2:1:0
+O:0:0:0:0
+B:BITE:HURT:1d4
+F:FRIENDS | 
+F:WEIRD_MIND | BASH_DOOR | DROP_SKELETON | DROP_CORPSE | 
+F:ANIMAL | SPIDER | HURT_LITE | 
+F:MORTAL | BASEANGBAND
+D:It is a black spider that moves in fits and starts. 
+
 # level 3 
 
 N:30:Geologist
@@ -459,7 +452,7 @@ O:0:0:0:0
 B:ENGULF:PARASITE:1d1
 B:ENGULF:TERRIFY:1d1
 B:ENGULF:TERRIFY:1d1
-F:INVISIBLE | NEVER_MOVE
+F:INVISIBLE | NEVER_MOVE | STUPID
 D:Highly annoying, rather humiliating, but not very dangerous.
 
 # level 6
@@ -471,7 +464,7 @@ W:6:5:350:0
 E:0:0:0:0:0:0
 O:0:0:0:0
 B:HIT:HURT:10d5
-F:PET | SMART | UNIQUE
+F:PET | SMART | UNIQUE | MALE
 S:1_IN_2
 S:HASTE | S_KIN | ARROW_2 | BLINK | TPORT | HEAL
 D:At 3 feet tall, this yeek towers head and shoulders over the other yeeks.
@@ -557,12 +550,29 @@ S:HEAL | BLINK | TPORT | BLIND | SLOW |
 S:S_KIN | S_MONSTER
 D:A great yeek, powerful in magic and sorcery, but a yeek all the same. 
 
+# level 9
+N:90:Black Smorn
+G:p:s
+I:110:5d15:7:50:125
+W:9:1:1500:15
+E:1:1:1:2:1:1
+O:0:60:25:15
+B:HIT:HURT:2d5
+B:HIT:HURT:3d6
+B:HIT:POISON:1d10
+B:TOUCH:LOSE_CHR
+F:EVIL | OPEN_DOOR | BASH_DOOR | DROP_CORPSE | 
+F:MORTAL
+D:Tall and gangly with an acid-blackened face that tells of its allegiance
+D:to the giants of evil.  It is not above using various chemicals to advance
+D:it's cause.
+
 # level 10
 
 N:100:Random Number Generator
 G:I:b
 I:130:1d6:10:50:0
-W:10:1:0:10
+W:10:25:0:10
 E:0:0:0:0:0:0
 O:20:20:20:20
 B:INSULT:*
@@ -584,6 +594,48 @@ B:ENGULF:DISEASE
 B:ENGULF:LOSE_CHR:1d4
 F:CAN_FLY | INVISIBLE | WILD_TOO | IM_COLD | FRIENDS
 D:Don't worry, it's not contagious.
+
+# level 11
+N:110:Trichinella spiralis
+G:j:g
+I:150:1d1:0:250:255
+W:11:1:1:11
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:ENGULF:PARASITE:1d1
+B:ENGULF:PARALYZE:1d4
+B:ENGULF:EAT_FOOD:2d5
+F:INVISIBLE | WILD_TOO | NEVER_MOVE | STUPID
+S:1_IN_3
+S:SLOW | BRAIN_SMASH | CONF
+D:I hope this teaches you to thoroughly cook your meat!
+
+N:111:boor
+G:+:U
+I:110:1d1:1:100:255
+W:11:1:1250:12
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:HIT:ACID:10d10
+F:NEVER_MOVE | STUPID
+D:The product of a stupid typo, this critter blends in perfectly with doors
+D:nearby.
+
+# level 12
+
+N:120:Mark Constantino
+G:L:W
+I:120:250d2:100:0:0
+W:12:1:0:12500
+E:0:0:0:0:0:0
+O:20:20:20:20
+B:SHOW:CONFUSE:12d6
+F:AI_ANNOY | IM_FIRE |
+F:DROP_GREAT | DROP_4D2 | UNIQUE
+S:1_IN_2
+S:BR_NEXU | BR_CHAO 
+D:Twisted by the foul powers of Morgoth, this troll pollutes R.G.R.A with 
+D:his irrelevant messages.
 
 # level 14
 
@@ -771,6 +823,18 @@ D:nothing next to him. Do not think that since he loves the novels of
 D:Pern he is to be ignored! He wishes to translate your soul into 
 D:assembler, the one hitch being that he must kill you first. If you 
 D:encounter him, pray your deity holds you in good stead.
+
+N:503:slime mold
+G:,:g
+I:150:50d100:10:0:0
+W:50:1:5:0
+E:0:0:0:0:0:0
+O:0:0:0:0
+B:HIT:HURT:30d100
+F:GOOD | UNIQUE | FORCE_SLEEP | SMART | NEVER_MOVE 
+S:1_IN_1
+S:BR_POIS
+D:Touch it and DIE!
 
 # N: serial number : monster name
 # G: symbol : color

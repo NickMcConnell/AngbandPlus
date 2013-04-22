@@ -797,14 +797,6 @@ void teleport_player_level(void)
 	{
 		msg_print("You sink through the floor.");
 
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
-
 		dun_level++;
 
 		/* Leaving */
@@ -813,14 +805,6 @@ void teleport_player_level(void)
 	else if (is_quest(dun_level) || (dun_level >= MAX_DEPTH-1))
 	{
 		msg_print("You rise up through the ceiling.");
-
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
 
 		dun_level--;
 
@@ -831,14 +815,6 @@ void teleport_player_level(void)
 	{
 		msg_print("You rise up through the ceiling.");
 
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
-
 		dun_level--;
 
 		/* Leaving */
@@ -847,14 +823,6 @@ void teleport_player_level(void)
 	else
 	{
 		msg_print("You sink through the floor.");
-
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
 
 		dun_level++;
 
@@ -1444,7 +1412,6 @@ static bool hates_fire(object_type *o_ptr)
                 case TV_VALARIN_BOOK:
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
-		case TV_CHAOS_BOOK:
                 case TV_CRUSADE_BOOK:
                 case TV_SIGALDRY_BOOK:
                 case TV_SYMBIOTIC_BOOK:
@@ -8111,48 +8078,6 @@ bool potion_smash_effect(int who, int y, int x, int o_sval)
 	return angry;
 }
 
-	/* This is for Power-mages */
-static const int destructive_attack_types[10] = {
-  GF_KILL_WALL,
-  GF_KILL_WALL,
-  GF_KILL_WALL,
-  GF_STONE_WALL,
-  GF_STONE_WALL,
-  GF_STONE_WALL,
-  GF_DESTRUCTION,
-  GF_DESTRUCTION,
-  GF_DESTRUCTION,
-  GF_DESTRUCTION,
-};
-
-	/* Also for Power-mages */
-static const int attack_types[25] = {
-  GF_ARROW, 
-  GF_MISSILE, 
-  GF_MANA,
-  GF_WATER, 
-  GF_PLASMA, 
-  GF_METEOR, 
-  GF_ICE, 
-  GF_GRAVITY,
-  GF_INERTIA, 
-  GF_FORCE, 
-  GF_TIME,
-  GF_ACID, 
-  GF_ELEC, 
-  GF_FIRE, 
-  GF_COLD, 
-  GF_POIS, 
-  GF_LITE, 
-  GF_DARK, 
-  GF_CONFUSION, 
-  GF_SOUND, 
-  GF_SHARDS, 
-  GF_NEXUS, 
-  GF_NETHER, 
-  GF_CHAOS,
-  GF_DISENCHANT,
-};
 
 /*
  * Describe the attack using normal names. 
@@ -8201,148 +8126,3 @@ void describe_attack_fully(int type, char* r) {
   }
 }
 
-/*
- * Give a randomly-generated spell a name.
- * Note that it only describes the first effect!
- */
-
-static void name_spell(random_spell* s_ptr) {
-  char buff[30];
-  cptr buff2 = "???";
-
-  if (s_ptr->proj_flags & PROJECT_STOP && s_ptr->radius == 0) {
-    buff2 = "Bolt";
-
-  } else if (s_ptr->proj_flags & PROJECT_BEAM) {
-    buff2 = "Beam";
-
-  } else if (s_ptr->proj_flags & PROJECT_STOP && s_ptr->radius > 0) {
-    buff2 = "Ball";
-
-  } else if (s_ptr->proj_flags & PROJECT_BLAST) {
-    buff2 = "Blast";
-
-  } else if (s_ptr->proj_flags & PROJECT_METEOR_SHOWER) {
-    buff2 = "Area";
-
-  } else if (s_ptr->proj_flags & PROJECT_VIEWABLE) {
-    buff2 = "View";
-  }
-
-  describe_attack_fully(s_ptr->GF, buff);
-  strnfmt(s_ptr->name, 30, "%s - %s", buff2, buff);
-}
-
-void generate_spell(int plev)
-{
-  random_spell* rspell;
-
-  int dice, sides, chance, mana, power;
-
-  bool destruc_gen = FALSE;
-  bool simple_gen = TRUE;
-
-  if (spell_num == MAX_SPELLS) return;
-
-  rspell = &random_spells[spell_num];
-
-  power = Rand_div(15);
-
-  dice = plev/5;
-  sides = plev*2;
-  mana = plev;
-
-  /* Make the spell more or less powerful. */
-  dice += power/5;
-  sides += power/2;
-  mana += (plev*power)/8;
-
-  /* Stay within reasonable bounds. */
-  if (dice < 1) dice = 1;
-  if (dice > 10) dice = 10;
-
-  if (sides < 1) sides = 1;
-  if (sides > 100) sides = 100;
-
-  if (mana < 1) mana = 1;
-
-  rspell->level = plev;
-  rspell->mana = mana;
-  rspell->untried = TRUE;
-
-  /* Spells are always maximally destructive. */
-  rspell->proj_flags = PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID;
-
-  chance = randint(100);
-
-  /* Hack -- Always start with Magic Missile or derivative at lev. 1 */
-  if (plev == 1 || chance < 25) {
-    rspell->proj_flags |= PROJECT_STOP;
-    rspell->dam_dice = dice;
-    rspell->dam_sides = sides;
-    rspell->radius = 0;
-  } else if (chance < 50) {
-    rspell->proj_flags |= PROJECT_BEAM;
-    rspell->dam_dice = dice;
-    rspell->dam_sides = sides;
-    rspell->radius = 0;
-
-  } else if (chance < 76) {
-    rspell->proj_flags |= PROJECT_STOP;
-    rspell->radius = dice;
-    rspell->dam_dice = sides;
-    rspell->dam_sides = 1;
-    
-  } else if (chance < 83) {
-    rspell->proj_flags |= PROJECT_BLAST;
-    rspell->radius = sides/3;
-    rspell->dam_dice = dice;
-    rspell->dam_sides = sides;
-
-    destruc_gen = TRUE;
-    simple_gen = FALSE;
-      
-  } else if (chance < 90) {
-    rspell->proj_flags |= PROJECT_METEOR_SHOWER;
-    rspell->dam_dice = dice;
-    rspell->dam_sides = sides;
-    rspell->radius = sides/3;
-    if(rspell->radius < 4) rspell->radius = 4;
-
-    destruc_gen = TRUE;
-
-  } else {
-    rspell->proj_flags |= PROJECT_VIEWABLE;
-    rspell->dam_dice = dice;
-    rspell->dam_sides = sides;
-  }
-
-  /* Both a destructive and a simple spell requested -- 
-   * pick one or the other. */
-  if (destruc_gen && simple_gen) {
-    if (magik(25)) {
-      simple_gen = FALSE;
-    } else {
-      destruc_gen = FALSE;
-    }
-  }
-
-  /* Pick a simple spell */
-  if (simple_gen) {
-    rspell->GF = attack_types[rand_int(25)];
-
-  /* Pick a destructive spell */
-  } else {
-    rspell->GF = destructive_attack_types[rand_int(10)];
-  }
-
-  /* Give the spell a name. */
-  name_spell(rspell);
-  sprintf(rspell->desc, "Damage: %dd%d, Power: %d", dice, sides, power);
-
-  spell_num++;
-
-  if (random_spells[0].dam_dice < 2) random_spells[0].dam_dice = 2;
-  if (random_spells[0].dam_sides < 4) random_spells[0].dam_sides = 4;
-  if (wizard) msg_print("Forcing 2d4");
-}

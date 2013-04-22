@@ -46,7 +46,7 @@
 #define FAKE_VER_PATCH 1
 
 /* Added for NTAngband */
-#define DEMENTED_NUMBER 37842
+#define DEMENTED_NUMBER -98752
 #define NTMESS "This is member-supported public Angband.  The great thing about\
  public Angband is that there are no commercials.  You get great Angband for\
  free!  So take this time to send some money to the current maintainer."
@@ -161,8 +161,8 @@
 
 /*
  * Maximum number of player "race" types (see "table.c", etc)
+ * JKB:  Moved to right after the individual race numbers
  */
-#define MAX_RACES           16
 
 /*
  * Maximum number of player "race mod" types (see "table.c", etc)
@@ -171,8 +171,8 @@
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
+ * Moved to after the list of individual class numbers
  */
-#define MAX_CLASS            26
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
@@ -588,34 +588,32 @@
 #define CH_VALARIN      0x00000001
 #define CH_MAGERY       0x00000002
 #define CH_SHADOW       0x00000004
-#define CH_CHAOS        0x00000008
-#define CH_CRUSADE      0x00000010
-#define CH_SIGALDRY     0x00000020
-#define CH_SYMBIOTIC    0x00000040
-#define CH_MUSIC        0x00000080
-#define CH_MAGIC        0x00000100
-#define CH_PRAYER       0x00000200
-#define CH_ILLUSION     0x00000400
-#define CH_TRIBAL       0x00000800
-#define CH_DRUID        0x00001000
-#define CH_SPIRIT       0x00002000
+#define CH_CRUSADE      0x00000008
+#define CH_SIGALDRY     0x00000010
+#define CH_SYMBIOTIC    0x00000020
+#define CH_MUSIC        0x00000040
+#define CH_MAGIC        0x00000080
+#define CH_PRAYER       0x00000100
+#define CH_ILLUSION     0x00000200
+#define CH_TRIBAL       0x00000400
+#define CH_DRUID        0x00000800
+#define CH_SPIRIT       0x00001000
 
 #define REALM_NONE         0
 #define REALM_VALARIN      1
 #define REALM_MAGERY       2
 #define REALM_SHADOW       3
-#define REALM_CHAOS        4
-#define REALM_CRUSADE      5
-#define REALM_SIGALDRY     6
-#define REALM_SYMBIOTIC    7
-#define REALM_MUSIC        8
-#define REALM_MAGIC        9
-#define REALM_PRAYER       10
-#define REALM_ILLUSION     11
-#define REALM_TRIBAL       12
-#define REALM_DRUID        13
-#define REALM_SPIRIT       14
-#define MAX_REALM          15
+#define REALM_CRUSADE      4
+#define REALM_SIGALDRY     5
+#define REALM_SYMBIOTIC    6
+#define REALM_MUSIC        7
+#define REALM_MAGIC        8
+#define REALM_PRAYER       9
+#define REALM_ILLUSION     10
+#define REALM_TRIBAL       11
+#define REALM_DRUID        12
+#define REALM_SPIRIT       13
+#define MAX_REALM          14
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -699,11 +697,11 @@
 #define RACE_HIGH_ELF           8
 #define RACE_HALF_OGRE          9
 #define RACE_HALF_GIANT         10
-#define RACE_NIBELUNG           11
-#define RACE_ENT                12
-#define RACE_RKNIGHT            13
-#define RACE_DRAGONRIDDER       14
-#define RACE_WOOD_ELF           15
+#define RACE_ENT                11
+#define RACE_RKNIGHT            12
+#define RACE_DRAGONRIDDER       13
+#define RACE_WOOD_ELF           14
+#define MAX_RACES		15
 
 /*
  * Player race constants (hard-coded by save-files, arrays, etc)
@@ -727,26 +725,25 @@
 #define CLASS_ROGUE             3
 #define CLASS_RANGER            4
 #define CLASS_PALADIN           5
-#define CLASS_WARLOCK           6
-#define CLASS_CHAOS_WARRIOR     7
-#define CLASS_MONK              8
-#define CLASS_MINDCRAFTER       9
-#define CLASS_HIGH_MAGE         10
-#define CLASS_MIMIC             11
-#define CLASS_BEASTMASTER       12
-#define CLASS_ALCHEMIST         13
-#define CLASS_SYMBIANT          14
-#define CLASS_HARPER            15
-#define CLASS_POWERMAGE         16
-#define CLASS_RUNECRAFTER       17
-#define CLASS_POSSESSOR         18
-#define CLASS_SORCERER          19
-#define CLASS_ARCHER            20
-#define CLASS_ILLUSIONIST       21
-#define CLASS_DRUID             22
-#define CLASS_UNBELIEVER        23
-#define CLASS_WEAPONMASTER      24
-#define CLASS_MYCOPARA		25
+#define CLASS_MONK              6
+#define CLASS_MINDCRAFTER       7
+#define CLASS_HIGH_MAGE         8
+#define CLASS_MIMIC             9
+#define CLASS_BEASTMASTER       10
+#define CLASS_ALCHEMIST         11
+#define CLASS_SYMBIANT          12
+#define CLASS_HARPER            13
+#define CLASS_RUNECRAFTER       14
+#define CLASS_POSSESSOR         15
+#define CLASS_SORCERER          16
+#define CLASS_ARCHER            17
+#define CLASS_ILLUSIONIST       18
+#define CLASS_DRUID             19
+#define CLASS_UNBELIEVER        20
+#define CLASS_WEAPONMASTER      21
+#define CLASS_MYCOPARA		22
+/*Add one to the number above to get the number below*/
+#define MAX_CLASS		23					
 
 /* Class flags */
 #define CF1_ZERO_FAIL           0x00000001L     /* Fail rates can reach 0% */

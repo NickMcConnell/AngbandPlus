@@ -10,7 +10,7 @@
 |ZAngband code:     (Mr) Topi Ylinen (f1toyl@uta.fi)            | Rings? |    h|
 |                   and Robert Ruehlmann (rr9@angband.org)       \______/     T|
 |PernAngband code:  Dark God < darkgod@ifrance.com >           Then play...    |
-|NTA code:	    James Banks (jameskbanks@juno.com)    |\  | -+-  /\  | | | |
+|NTA code:          James Banks (jameskbanks@juno.com)    |\  | -+-  /\  | | | |
 |Internet site:     nothing://null.nowhere.nil/void       |  \|  |  |--| * * * |
 `---------> Congratulations to Alexander Malmberg, who won the <---------------'
           Mithril medal in the bugfix event of the 2002 Oiolossics

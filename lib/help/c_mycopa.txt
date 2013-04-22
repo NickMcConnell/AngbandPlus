@@ -1,0 +1,20 @@
+#####R=== Mycoparasitologists ===
+
+#####GDescription
+Mycoparasitologists are strange hermits who have spent years in tropical
+jungles.  These experiences, combined with certain magic spells, give them
+terrible command over molds, mushrooms, and parasites.  They gain experience
+with parasites and eventually can cause parasite eggs to hatch into parasites
+they have studied.  They must infest most monsters in a level in 1000 to 2000
+turns, however, as their eggs will hatch in about that time and infest the 
+handiest target, which may well be themselves.
+
+#####GPrimary Stats
+Constitution (you'll need lots of it)
+Intelligence (spell-casting stat)
+
+#####GMagic Usage
+Some
+
+#####GStarting Equipment
+Stuff		

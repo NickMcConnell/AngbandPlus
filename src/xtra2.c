@@ -71,7 +71,7 @@ bool set_parasite(int v, int r)
 
                                 if (place_monster_one(wy, wx, p_ptr->parasite_r_idx, 0, FALSE, MSTATUS_ENEMY))
                                 {
-                                        cmsg_format(TERM_L_BLUE, "Your body convulse and spawn %s.", r_name);
+                                        cmsg_format(TERM_L_BLUE, "Your body convulses and spawns %s.", r_name);
                                         p_ptr->food -= 750;
                                         if (p_ptr->food < 100) p_ptr->food = 100;
                                 }
@@ -3097,10 +3097,6 @@ void check_experience(void)
 		if (p_ptr->lev > p_ptr->max_plv)
 		{
 			p_ptr->max_plv = p_ptr->lev;
-			if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-			{
-				level_reward = TRUE;
-			}
 			if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
 			{
 				level_reward = TRUE;

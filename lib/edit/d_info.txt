@@ -21,7 +21,7 @@
 # R:<percent>:<flags mode>
 # M:<monster flags>
 # S:<monster spells>
-# T:<subdirectory for other template files>
+# T:<subdirectory>
 
 # Note for <flags mode> :
 # 0 = No restriction
@@ -81,7 +81,7 @@ F:PRINCIPAL | CAVERN
 R:100:0
 T:old
 
-# MMyesss... The Cave!!!  J. K. Banks' little repository of weird monsters
+# MMyesss... The Cave!!!  My little repository of weird monsters
 # Some are boring "Natural" monsters.
 N:4:Cave
 D:Cve:a tight crawl.
@@ -89,7 +89,8 @@ W:1:50:1:1:14:160
 L:1:100:1:0:1:0
 A:56:100:56:0:56:0:57:58
 O:20:20:20:20
-F:PRINCIPAL | CAVERN | WATER_RIVERS | CIRCULAR_ROOMS | CAVE
+F:PRINCIPAL | CAVERN | WATER_RIVERS | CIRCULAR_ROOMS | CAVE | 
+F:FINAL_GUARDIAN_503 | FINAL_ARTIFACT_1
 T:cave
 
 # The Additional dungeons

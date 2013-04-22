@@ -1042,7 +1042,7 @@ typedef struct player_sex player_sex;
 
 struct player_sex
 {
-	cptr title;			/* Type of sex */
+	cptr title;			/* Gender name */
 	
 	cptr winner;		/* Name of winner */
 };
@@ -1740,22 +1740,6 @@ struct music {
   s16b turn_recharge;     /* Recharge time for each more turn */
   byte min_inst;          /* Minimum instrument for the music */
   byte rarity;            /* Rarity of the music(use 100 to unallow to be randomly generated) */
-};
-
-/* A structure to describe the random spells of the Power Mages */
-typedef struct random_spell random_spell;
-struct random_spell {
-  char desc[30];          /* Desc of the spell */
-  char name[30];          /* Name of the spell */
-  s16b mana;              /* Mana cost */
-  s16b fail;              /* Failure rate */
-  u32b proj_flags;        /* Project function flags */
-  byte GF;                /* Type of the projection */
-  byte radius;
-  byte dam_sides;
-  byte dam_dice;
-  byte level;             /* Level needed */
-  bool untried;           /* Is the spell was tried? */
 };
 
 /* A structure to describe the fate of the player */

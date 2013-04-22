@@ -4036,7 +4036,6 @@ bool kind_is_theme(int k_idx)
                 case TV_VALARIN_BOOK:   prob = match_theme.magic; break;
                 case TV_MAGERY_BOOK:    prob = match_theme.magic; break;
                 case TV_SHADOW_BOOK:    prob = match_theme.magic; break;
-                case TV_CHAOS_BOOK:     prob = match_theme.magic; break;
                 case TV_CRUSADE_BOOK:   prob = match_theme.magic; break;
                 case TV_SIGALDRY_BOOK:  prob = match_theme.magic; break;
                 case TV_SYMBIOTIC_BOOK: prob = match_theme.magic; break;
@@ -4173,7 +4172,6 @@ static bool kind_is_good(int k_idx)
                 case TV_SIGALDRY_BOOK:
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
-		case TV_CHAOS_BOOK:
                 case TV_CRUSADE_BOOK:
                 case TV_MUSIC_BOOK:
                 case TV_SYMBIOTIC_BOOK:
@@ -6043,13 +6041,6 @@ static void spell_info(char *p, int spell, int realm, byte level)
                         case REALM_SHADOW: /* Shadow */
                                 info_spell = TRUE;
                                 cast_shadow_spell(spell, get_spell_level(realm, spell) - 1);
-                                sprintf(p, spell_txt);
-                                info_spell = FALSE;
-				break;
-
-                        case REALM_CHAOS: /* Chaos */
-                                info_spell = TRUE;
-                                cast_chaos_spell(spell, get_spell_level(realm, spell) - 1);
                                 sprintf(p, spell_txt);
                                 info_spell = FALSE;
 				break;

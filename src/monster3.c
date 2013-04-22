@@ -45,15 +45,15 @@ bool is_enemy(monster_type *m_ptr, monster_type *t_ptr)
 {
         monster_race *r_ptr = &r_info[m_ptr->r_idx], *rt_ptr = &r_info[t_ptr->r_idx];
         int s1 = is_friend(m_ptr), s2 = is_friend(t_ptr);
-#if 0
-        /* Stupid monsters attacks just about everything */
+
+        /* Stupid monsters attack just about everything */
         if ((r_ptr->flags2 & RF2_STUPID) && (r_ptr->d_char != rt_ptr->d_char)) return TRUE;
-#endif
-        /* Monsters hates breeders */
+
+        /* Monsters hate breeders */
         if ((m_ptr->status != MSTATUS_NEUTRAL) && (rt_ptr->flags4 & RF4_MULTIPLY) && (num_repro > MAX_REPRO * 2 / 3) && (r_ptr->d_char != rt_ptr->d_char)) return TRUE;
         if ((t_ptr->status != MSTATUS_NEUTRAL) && (r_ptr->flags4 & RF4_MULTIPLY) && (num_repro > MAX_REPRO * 2 / 3) && (r_ptr->d_char != rt_ptr->d_char)) return TRUE;
 
-        /* No special conditions, lets test normal flags */
+        /* No special conditions, let's test normal flags */
         if (s1 && s2 && (s1 == -s2)) return TRUE;
 
         /* Not ennemy */

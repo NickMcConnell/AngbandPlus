@@ -391,7 +391,6 @@ static bool object_easy_know(int i)
                 case TV_SPIRIT_BOOK:
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
-		case TV_CHAOS_BOOK:
                 case TV_CRUSADE_BOOK:
                 case TV_SIGALDRY_BOOK:
                 case TV_MUSIC_BOOK:
@@ -1484,16 +1483,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 basenm = "& Book~ of Spirit Magic #";
             else
                 basenm = "& Spirit Spellbook~ #";
-			break;
-		}
-
-	case TV_CHAOS_BOOK:
-		{
-			modstr = basenm;
-            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
-                basenm = "& Book~ of Chaos Magic #";
-            else
-                basenm = "& Chaos Spellbook~ #";
 			break;
 		}
 

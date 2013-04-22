@@ -216,14 +216,12 @@ static void set_ghost_aux_1(void)
 		/* Mage */
                 case CLASS_MAGE:
                 case CLASS_HIGH_MAGE:
-                case CLASS_POWERMAGE:
                 case CLASS_RUNECRAFTER:
                 case CLASS_HARPER:
                 case CLASS_SORCERER:
                 case CLASS_ILLUSIONIST:
                 case CLASS_DRUID:
                 case CLASS_ALCHEMIST:
-                case CLASS_CHAOS_WARRIOR:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 2;
 			r_ptr->flags4 |= (RF4_ARROW_1);
@@ -284,7 +282,6 @@ static void set_ghost_aux_1(void)
 
 		/* Ranger */
                 case CLASS_RANGER:
-                case CLASS_WARLOCK:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 6;
 			r_ptr->flags4 |= (RF4_ARROW_1);
@@ -455,14 +452,12 @@ static void set_ghost_aux_1(void)
 		/* Mage */
                 case CLASS_MAGE:
                 case CLASS_HIGH_MAGE:
-                case CLASS_POWERMAGE:
                 case CLASS_RUNECRAFTER:
                 case CLASS_HARPER:
                 case CLASS_SORCERER:
                 case CLASS_ILLUSIONIST:
                 case CLASS_DRUID:
                 case CLASS_ALCHEMIST:
-                case CLASS_CHAOS_WARRIOR:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 3 / 2;
@@ -506,7 +501,6 @@ static void set_ghost_aux_1(void)
 
 		/* Ranger */
 		case CLASS_RANGER:
-                case CLASS_WARLOCK:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 2;

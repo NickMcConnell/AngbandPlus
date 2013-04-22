@@ -255,15 +255,6 @@ static hist_type bg[] =
     {"of a Marshal of the Riddermark.  ",                    99, 85, 50, 100},
     {"of a King of the Rohirrim.  ",                        100, 85, 50, 120},
 
-	{"You are one of several children of ", 100, 87, 88, 89 },
-
-	{"a Nibelung Slave.  ", 30, 88, 18, 20 },
-	{"a Nibelung Thief.  ", 50, 88, 18, 40 },
-	{"a Nibelung Smith.  ", 70, 88, 18, 60 },
-	{"a Nibelung Miner.  ", 90, 88, 18, 75 },
-	{"a Nibelung Shaman.  ", 95, 88, 18, 100 },
-	{"Mime, the Nibelung.  ", 100, 88, 18, 100 },
-
         {"You are one of several children of a DragonRider. ", 85, 89, 91, 50  },
         {"You are the only child of a DragonRider. ", 100, 89, 91, 60 },
 
@@ -552,7 +543,6 @@ void create_random_name(int race, char *name)
 		/* Create the monster name */
 	case RACE_DWARF:
 	case RACE_HALF_GIANT:
-	case RACE_NIBELUNG:
 		strcpy(name, dwarf_syllable1[rand_int(sizeof(dwarf_syllable1) / sizeof(char*))]);
 		strcat(name, dwarf_syllable2[rand_int(sizeof(dwarf_syllable2) / sizeof(char*))]);
 		strcat(name, dwarf_syllable3[rand_int(sizeof(dwarf_syllable3) / sizeof(char*))]);
@@ -654,14 +644,6 @@ byte choose_realm(s32b choices)
                 sprintf(buf, "%c%c %s", I2A(n), p2, "Shadow");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 		picks[n]=3;
-		n++;
-	}
-
-	if ((choices & CH_CHAOS) && (p_ptr->realm1 != REALM_CHAOS))
-	{
-		sprintf(buf, "%c%c %s", I2A(n), p2, "Chaos");
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=4;
 		n++;
 	}
 
@@ -1313,11 +1295,6 @@ static void get_history(void)
 			chart = 84;
 			break;
 		}
-		case RACE_NIBELUNG:
-		{
-			chart = 87;
-			break;
-		}
                 case RACE_DRAGONRIDDER:
 		{
 			chart = 89;
@@ -1713,9 +1690,6 @@ static void player_wipe(void)
 	/* Assume no cheating */
 	noscore = 0;
 
-        /* Assume no innate spells */
-        spell_num = 0;
-
         /* Clear the fate */
         for (i = 0; i < MAX_FATES; i++)
 	{
@@ -1851,20 +1825,6 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Warrior-Mage */
-                { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_SWORD, SV_SHORT_SWORD },
-                { TV_SHADOW_BOOK, 0 } /* Hack: for realm2 book */
-	},
-
-	{
-		/* Chaos Warrior */
-                { TV_MAGERY_BOOK, 0 }, /* Hack: For realm1 book */
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
-	},
-
-	{
 		/* Monk */
                 { TV_MAGERY_BOOK, 0 },
 		{ TV_POTION, SV_POTION_HEALING },
@@ -1920,12 +1880,6 @@ static byte player_init[MAX_CLASS][3][2] =
                 { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
 	},
 
-	{
-                /* Power Mage */
-                { TV_POTION, SV_POTION_DETONATIONS },
-                { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-                { TV_POTION, SV_POTION_HEALING }
-	},
 
 	{
                 /* Runecrafter */
@@ -2012,8 +1966,6 @@ byte random_present[MAX_CLASS] =
                 BIRTH_NONE,
                 /* WArrior Mage */
                 BIRTH_NONE,
-                /* Chaos warrior */
-                BIRTH_NONE,
                 /* Monk */
                 BIRTH_NONE,
                 /* Mindcrafter */
@@ -2029,8 +1981,6 @@ byte random_present[MAX_CLASS] =
                 /* Symbiant */
                 BIRTH_NONE,
                 /* Harper */
-                BIRTH_NONE,
-                /* Powermage */
                 BIRTH_NONE,
                 /* Runecrafter */
                 BIRTH_NONE,
@@ -2347,11 +2297,6 @@ static void player_outfit(void)
 		(void)inven_carry(q_ptr, FALSE);
 	}
 
-        if(p_ptr->pclass == CLASS_POWERMAGE)
-        {
-                generate_spell(1);
-        }
-
 #if 0 /* hummm -- DG */
         /* Hack -- Give the player a random something */
         if (rand_birth)
@@ -2482,8 +2427,6 @@ s16b classes_warrior[] =
         CLASS_WEAPONMASTER,
         CLASS_UNBELIEVER,
         CLASS_MONK,
-        CLASS_CHAOS_WARRIOR,
-        CLASS_WARLOCK,
         CLASS_RANGER,
         CLASS_ARCHER,
         -1,
@@ -2492,7 +2435,6 @@ s16b classes_mage[] =
 {
         CLASS_MAGE,
         CLASS_HIGH_MAGE,
-        CLASS_POWERMAGE,
         CLASS_RUNECRAFTER,
         CLASS_SORCERER,
         CLASS_ILLUSIONIST,
@@ -4341,7 +4283,6 @@ static void validate_bg(void)
         race_chart[RACE_HALF_OGRE] = 74;
         race_chart[RACE_HALF_GIANT] = 75;
         race_chart[RACE_RKNIGHT] = 84;
-        race_chart[RACE_NIBELUNG] = 87;
         race_chart[RACE_DRAGONRIDDER] = 89;
         race_chart[RACE_ENT] = 94;
         race_chart[RACE_WOOD_ELF] = 7;
@@ -4664,7 +4605,7 @@ bool begin_screen()
                 Term_clear();
 
                 /* Let the user choose */
-                c_put_str(TERM_YELLOW, "Welcome to PernAngband, to play you will need a character.", 1, 10);
+                c_put_str(TERM_YELLOW, "Welcome to NTAngband, to play you will need a character.", 1, 10);
                 put_str("Press 8/2/4/6 to move, Return to select, Backspace to delete a savefile.", 3, 3);
                 put_str("and Esc to quit.", 4, 32);
 

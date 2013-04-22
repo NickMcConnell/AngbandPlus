@@ -111,7 +111,6 @@ static grouper group_item[] =
         { TV_VALARIN_BOOK,  "Books (Valarin)" },
         { TV_MAGERY_BOOK,   "Books (Magery)" },
         { TV_SHADOW_BOOK,   "Books (Shadow)" },
-	{ TV_CHAOS_BOOK,    "Books (Chaos)" },
         { TV_CRUSADE_BOOK,  "Books (Crusade)" },
         { TV_SIGALDRY_BOOK, "Books (Sigaldry)" },
         { TV_SYMBIOTIC_BOOK,"Books (Symbiotic)" },

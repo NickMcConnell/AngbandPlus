@@ -1255,19 +1255,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 								a = TERM_WHITE;
 							c = 253;
 	                        	   		break;
-						case CLASS_WARLOCK:
-							if (p_ptr->lev < 20)
-								a = TERM_L_RED;
-							else
-								a = TERM_VIOLET;
-							break;
-						case CLASS_CHAOS_WARRIOR:
-							do
-							{
-								a = randint(15);
-							}
-							while (a == TERM_DARK);
-							break;
                                                 case CLASS_UNBELIEVER:
                                                         a = TERM_L_DARK;
                                                         break;
@@ -1349,9 +1336,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 							break;
                                                 case RACE_RKNIGHT:
 							c = 229;
-							break;
-						case RACE_NIBELUNG:
-							c = 144;
 							break;
                                                 case RACE_DRAGONRIDDER:
 							if (p_ptr->lev < 20)

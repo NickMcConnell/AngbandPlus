@@ -56,14 +56,6 @@ void teleport_player_town(int town)
 {
         int x = 0, y = 0;
 
-	if (autosave_l)
-	{
-		is_autosave = TRUE;
-		msg_print("Autosaving the game...");
-		do_cmd_save_game();
-		is_autosave = FALSE;
-	}
-
         /* Change town */
         dun_level = 0;
         p_ptr->town_num = town;
@@ -566,7 +558,6 @@ static tval_desc2 tvals[] =
         { TV_VALARIN_BOOK,      "Valarin Spellbook"    },
         { TV_MAGERY_BOOK,       "Magery Spellbook"     },
         { TV_SHADOW_BOOK,       "Shadow Spellbook"     },
-	{ TV_CHAOS_BOOK,        "Chaos Spellbook"      },
         { TV_CRUSADE_BOOK,      "Crusade Spellbook"    },
         { TV_SIGALDRY_BOOK,     "Sigaldry Spellbook",  },
         { TV_SYMBIOTIC_BOOK,    "Symbiotic Spellbook", },
@@ -1474,14 +1465,6 @@ static void do_cmd_wiz_jump(void)
 
 	/* Accept request */
 	msg_format("You jump to dungeon level %d.", command_arg);
-
-	if (autosave_l)
-	{
-		is_autosave = TRUE;
-		msg_print("Autosaving the game...");
-		do_cmd_save_game();
-		is_autosave = FALSE;
-	}
 
 	/* Change level */
 	dun_level = command_arg;

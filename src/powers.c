@@ -504,13 +504,7 @@ static void power_activate(int power)
                 case PWR_WRECK_WORLD:
                         msg_print("The power of Eru Iluvatar flows through you!");
                         msg_print("The world changes!");
-                        if (autosave_l)
-                        {
-                                is_autosave = TRUE;
-                                msg_print("Autosaving the game...");
-                                do_cmd_save_game();
-                                is_autosave = FALSE;
-                        }
+
 			/* Leaving */
 			p_ptr->leaving = TRUE;
 			break;

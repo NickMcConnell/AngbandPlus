@@ -713,15 +713,6 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
             take_hit(damroll(2,8), "a trap door");
          }
 
-	 /* Still alive and autosave enabled */
-	 if (autosave_l && (p_ptr->chp >= 0))
-	 {
-	    is_autosave = TRUE;
-	    msg_print("Autosaving the game...");
-	    do_cmd_save_game();
-	    is_autosave = FALSE;
-	 }
-
          if (d_ptr->flags1 & DF1_TOWER) dun_level--;
          else dun_level++;
 

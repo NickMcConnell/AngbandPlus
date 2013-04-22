@@ -248,7 +248,6 @@ static void sense_inventory(void)
                 case CLASS_POSSESSOR:
                 case CLASS_MIMIC:
                 case CLASS_BEASTMASTER:
-                case CLASS_POWERMAGE:
                 case CLASS_ARCHER:
 		{
 			/* Good sensing */
@@ -328,7 +327,6 @@ static void sense_inventory(void)
 		}
 
                 case CLASS_DRUID:
-		case CLASS_WARLOCK:
 		{
 
 			/* Bad sensing */
@@ -345,19 +343,6 @@ static void sense_inventory(void)
 
 			/* Bad sensing */
 			if (0 != rand_int(55000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_CHAOS_WARRIOR:
-		{
-
-			/* Bad sensing */
-			if (0 != rand_int(80000L / (plev * plev + 40))) return;
-
-			/* Changed! */
-			heavy = TRUE;
 
 			/* Done */
 			break;
@@ -544,14 +529,6 @@ static void pattern_teleport(void)
 
 	/* Accept request */
 	msg_format("You teleport to dungeon level %d.", command_arg);
-
-	if (autosave_l)
-	{
-		is_autosave = TRUE;
-		msg_print("Autosaving the game...");
-		do_cmd_save_game();
-		is_autosave = FALSE;
-	}
 
 	/* Change level */
 	dun_level = command_arg;
@@ -1271,18 +1248,6 @@ static void process_world(void)
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 			}
-		}
-	}
-
-	/*** Attempt timed autosave ***/
-	if (autosave_t && autosave_freq)
-	{
-		if (!(turn % ((s32b) autosave_freq * 10 )))
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
 		}
 	}
 
@@ -3117,7 +3082,39 @@ static void process_world(void)
                                 mx=px;
                                 my=py+1;
                                 get_pos_player(5, &my, &mx);
-                                msg_print("Your egg hatchs!");
+                                msg_print("Your egg hatches!");
+                                place_monster_aux(my, mx, o_ptr->pval2, FALSE, FALSE, MSTATUS_PET);
+
+                                m_ptr = &m_list[cave[my][mx].m_idx];
+                                r_ptr = race_inf(m_ptr);
+                                if ((r_ptr->flags9 & RF9_IMPRESED) && can_create_companion())
+                                {
+                                        msg_print("And you have given the imprint to your monster!");
+                                        m_ptr->status = MSTATUS_COMPANION;
+                                }
+
+                                inven_item_increase(i, -1);
+                                inven_item_describe(i);
+                                inven_item_optimize(i);
+                                j++;
+			}
+		}	
+                /* Hatch parasite eggs */
+                if(o_ptr->tval == TV_PARA_EGG)
+                {
+                        int mx,my;
+			if (!o_ptr->timeout) o_ptr->pval--;
+
+			/* Notice changes */
+			if (o_ptr->pval <= 0)
+			{
+                                monster_type *m_ptr;
+                                monster_race *r_ptr;
+
+                                mx=px;
+                                my=py+1;
+                                get_pos_player(5, &my, &mx);
+                                msg_print("Your egg hatches!");
                                 place_monster_aux(my, mx, o_ptr->pval2, FALSE, FALSE, MSTATUS_PET);
 
                                 m_ptr = &m_list[cave[my][mx].m_idx];
@@ -3243,6 +3240,25 @@ static void process_world(void)
                                 floor_item_optimize(i);
 			}
                 }
+		/* Hatch parasite eggs */
+                if(o_ptr->tval == TV_PARA_EGG)
+                {
+                        int mx,my;
+			if (!o_ptr->timeout) o_ptr->pval--;
+
+			/* Notice changes */
+			if (o_ptr->pval <= 0)
+			{
+                                mx=o_ptr->ix;
+                                my=o_ptr->iy;
+                                get_pos_player(5, &my, &mx);
+                                msg_print("An egg hatches!");
+                                place_monster_one(my, mx, o_ptr->pval2, 0, FALSE, MSTATUS_NEUTRAL);
+                                floor_item_increase(i, -1);
+                                floor_item_describe(i);
+                                floor_item_optimize(i);
+			}
+                }
 	}
 
 
@@ -3251,18 +3267,6 @@ static void process_world(void)
 	/* Delayed Word-of-Recall */
         if (p_ptr->word_recall && (!p_ptr->astral) && (dungeon_type != DUNGEON_DEATH))
 	{
-		/*
-		 * HACK: Autosave BEFORE resetting the recall counter (rr9)
-		 * The player is yanked up/down as soon as
-		 * he loads the autosaved game.
-		 */
-		if (autosave_l && (p_ptr->word_recall == 1))
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
 
 		/* Count down towards recall */
 		p_ptr->word_recall--;
@@ -3331,6 +3335,7 @@ static void process_world(void)
 /*
  * Verify use of "wizard" mode
  */
+
 static bool enter_wizard_mode(void)
 {
 	/* Ask first time */
@@ -3870,8 +3875,6 @@ static void process_command(void)
                                                 do_cmd_alchemist();
                                         else if (p_ptr->pclass == CLASS_MIMIC)
                                                 do_cmd_mimic();
-                                        else if (p_ptr->pclass == CLASS_POWERMAGE)
-                                                do_cmd_powermage();
                                         else if (p_ptr->pclass == CLASS_RUNECRAFTER)
                                                 do_cmd_runecrafter();
                                         else if (p_ptr->pclass == CLASS_ARCHER)
@@ -3921,7 +3924,7 @@ static void process_command(void)
                         break;
                 }
 
-                /* Steal an item form a monster */
+                /* Steal an item from a monster */
                 case 'Z':
                 {
                         if(!p_ptr->wild_mode) do_cmd_steal();
@@ -4130,20 +4133,10 @@ static void process_command(void)
                 /* Sacrifice at an altar */
                 case 'O':
                 {
-                        if(!p_ptr->wild_mode)
-                        {
-                         if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-                         {
-                                 msg_print("Chaos Warriors cannot sacrifice to other gods");
-                         }
-                         else
-                         {
-                                 do_cmd_sacrifice();
-                         }
-                        }
-                         break;
-                }
-
+                        if(!p_ptr->wild_mode) do_cmd_sacrifice();
+            		break;
+		}
+                 
 		/*** Looking at Things (nearby or on map) ***/
 
 		/* Full dungeon map */

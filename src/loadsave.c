@@ -21,7 +21,6 @@ static void do_string(char*, int, int);
 static void do_lore(int, int);
 static void do_monster(monster_type*, int);
 static void do_randomizer(int flag);
-static void do_spells(int, int);
 static void note(cptr);
 static void do_fate(int,int);
 static void do_ghost(int);
@@ -532,9 +531,6 @@ static void do_extra(int flag)
 		do_s16b(&bounties[i][1], flag);
 		}
 	do_u32b(&total_bounties, flag);
-	do_s16b(&spell_num, flag);
-	for(i = 0; i < MAX_SPELLS; i++)
-		do_spells(i, flag);
 	do_s16b(&rune_num, flag);
 	for (i = 0; i < MAX_RUNES; i++)
 		{
@@ -2136,24 +2132,6 @@ if(flag == LS_LOAD)
 	r_ptr->x_char = r_ptr->d_char;
 	}
 }
-
-/* Load/Save the random spells info */
-static void do_spells(int i, int flag)
-{
-	random_spell *s_ptr = &random_spells[i];
-	do_string(s_ptr->name, 30, flag);
-	do_string(s_ptr->desc, 30, flag);
-	do_s16b(&s_ptr->mana, flag);
-	do_s16b(&s_ptr->fail, flag);
-	do_u32b(&s_ptr->proj_flags, flag);
-	do_byte(&s_ptr->GF, flag);
-	do_byte(&s_ptr->radius, flag);
-	do_byte(&s_ptr->dam_sides, flag);
-	do_byte(&s_ptr->dam_dice, flag);
-	do_byte(&s_ptr->level, flag);
-	do_byte(&s_ptr->untried, flag);
-}
-
 
 /*
  * Handle player inventory

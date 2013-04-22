@@ -523,7 +523,7 @@ term *angband_term[ANGBAND_TERM_MAX];
  */
 char angband_term_name[8][16] =
 {
-        "PernAngband",
+        "NTAngband",
 	"Mirror",
 	"Recall",
 	"Choice",
@@ -1168,12 +1168,6 @@ random_artifact random_artifacts[MAX_RANDARTS];
  * r_idx of the monster, and the second the monster's worth.
  */
 s16b bounties[MAX_BOUNTIES][2];
-
-/*
- * Random spells.
- */
-random_spell random_spells[MAX_SPELLS];
-s16b spell_num;
 
 /*
  * Runecrafter's selfmade spells.

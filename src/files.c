@@ -1502,12 +1502,6 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 		if (p_ptr->lev > 39)
 			(*f2) |= (TR2_RES_FEAR);
 		break;
-	case CLASS_CHAOS_WARRIOR:
-                if (p_ptr->lev > 24)
-			(*f2) |= (TR2_RES_CHAOS);
-		if (p_ptr->lev > 39)
-			(*f2) |= (TR2_RES_FEAR);
-		break;
 	case CLASS_MONK:
 		if ((p_ptr->lev > 9) && !monk_heavy_armor())
 			(*f1) |= TR1_SPEED;
@@ -1585,10 +1579,6 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 	case RACE_HALF_GIANT:
 		(*f2) |= (TR2_RES_SHARDS);
 		(*f2) |= (TR2_SUST_STR);
-		break;
-	case RACE_NIBELUNG:
-		(*f2) |= (TR2_RES_DISEN);
-		(*f2) |= (TR2_RES_DARK);
 		break;
         case RACE_DRAGONRIDDER:
             (*f3) |= TR3_FEATHER;
@@ -3023,8 +3013,6 @@ void display_player(int mode)
                 put_str("Body  :", 6, 1);
                 if (p_ptr->realm1 || p_ptr->realm2)
                         put_str("Magic :", 7, 1);
-                if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-                        put_str("Patron:", 8, 1);
 		if (p_ptr->pclass == CLASS_WEAPONMASTER)
                         put_str("Specialty   :", 7, 1);
 
@@ -3062,8 +3050,6 @@ void display_player(int mode)
 		}
                 else if (p_ptr->realm1)
                         c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1], 7, 9);
-                if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-                        c_put_str(TERM_L_BLUE, chaos_patrons[p_ptr->chaos_patron], 8, 9);
                 else if (p_ptr->realm2)
                         c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2], 8, 9);
 
@@ -3239,14 +3225,8 @@ errr file_character(cptr name, bool full)
 	}
 
 
-#ifndef FAKE_VERSION
-	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-#else
-   fprintf(fff, "  [PernAngband %d.%d.%d Character Dump]\n\n",
+   fprintf(fff, "  [NTAngband %d.%d.%d Character Dump]\n\n",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
-#endif
 
 
 	/* Display player */
@@ -4533,12 +4513,8 @@ void do_cmd_save_game(void)
         /* Save the current level if in a persistent level */
         save_dungeon();
 
-	/* Autosaves do not disturb */
-	if (!is_autosave)
-	{
-		/* Disturb the player */
-		disturb(1, 0);
-	}
+	/* Disturb the player */
+	disturb(1, 0);
 
 	/* Clear messages */
 	msg_print(NULL);
@@ -5227,7 +5203,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-                put_str("              PernAngband Hall of Fame", 0, 0);
+                put_str("              NTAngband Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)

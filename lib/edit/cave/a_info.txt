@@ -79,3 +79,8 @@ V:2.8.1
 #D:have been prevented if he had this bow.  Unfortunately, it requires 
 #D:a character with a real eye for bows to use it properly.
 
+# The certificate of achievement
+N:1:Certificate of Achievement
+I:8:9:0
+W:50:1:2:0
+F:SPECIAL_GENE
