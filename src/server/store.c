@@ -1196,6 +1196,12 @@ static void store_create(int st)
 				black_market_potion--;
 				force_num = rand_range(3, 9);
 			}
+			if (black_market_potion == 4)
+			  {
+			    i = lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT);
+			    black_market_potion--;
+			    force_num = rand_range(2, 4);
+			  }
 
 			/* Handle failure */
 			if (!i) continue;
@@ -2309,7 +2315,7 @@ void store_maint(int which)
 
 	/* Acquire some new items */
 	/* We want speed & healing & mana pots in the BM */
-	black_market_potion = 3;
+	black_market_potion = 4;
 	while (st_ptr->stock_num < j)
 	  {
 	    store_create(store_num);

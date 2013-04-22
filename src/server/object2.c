@@ -1090,7 +1090,7 @@ bool object_similar(int Ind, object_type *o_ptr, object_type *j_ptr)
 		case TV_LITE:
 		{
 			/* Require full knowledge of both items */
-			if (!object_known_p(Ind, o_ptr) || !object_known_p(Ind, j_ptr)) return (0);
+			if (!object_known_p(Ind, o_ptr) || !object_known_p(Ind, j_ptr) || (!o_ptr->name3)) return (0);
 
 			/* Fall through */
 		}
@@ -3348,8 +3348,10 @@ static bool kind_is_good(int k_idx)
 
 		/* Books -- High level books are good */
 		case TV_MAGIC_BOOK:
-		case TV_PRAYER_BOOK:
-		{
+	        case TV_PRAYER_BOOK:
+	case TV_SORCERY_BOOK:
+	case TV_SHADOW_BOOK:
+		  {
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
 		}
@@ -3365,6 +3367,9 @@ static bool kind_is_good(int k_idx)
 		case TV_AMULET:
 		{
 			if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_THE_MOON) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_SPEED) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_TERKEN) return (TRUE);
 			return (FALSE);
 		}
 	}

@@ -731,7 +731,7 @@ static void get_money(int Ind)
 		p_ptr->exp = 15000000;
 		p_ptr->noscore = 1;
 		/* permanent invulnerability */
-		p_ptr->invuln = -1;
+		//p_ptr->invuln = -1;
 	}
 	if (!strcmp(p_ptr->name,cfg_dungeon_master))
 	{
@@ -931,15 +931,15 @@ static void player_outfit(int Ind)
 	 */
 	 if (!strcmp(p_ptr->name,cfg_admin_wizard) || !strcmp(p_ptr->name, cfg_dungeon_master))
 	 {
-	 	for (i = 0; i < 0; i++)
-	 	{
-			invcopy(o_ptr, lookup_kind(TV_DRAG_ARMOR, SV_DRAGON_POWER));
-			o_ptr->number = 1;
-			apply_magic(100, o_ptr, 100, TRUE, TRUE, TRUE);
-			object_aware(Ind, o_ptr);
-			object_known(o_ptr);		
-			(void)inven_carry(Ind, o_ptr);
-		}
+	   //	for (i = 0; i < 15; i++)
+	   //{
+	   //invcopy(o_ptr, lookup_kind(TV_SWORD, SV_DAGGER));
+	   //	o_ptr->number = 1;
+	   //apply_magic(100, o_ptr, 100, TRUE, TRUE, TRUE);
+	   //	object_aware(Ind, o_ptr);
+	   //object_known(o_ptr);		
+	   //(void)inven_carry(Ind, o_ptr);
+	   //}
 
 		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY));
 		o_ptr->number = 99;
@@ -953,33 +953,33 @@ static void player_outfit(int Ind)
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_INC_INT));
-		o_ptr->number = 99;
-		o_ptr->discount = 100;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
+		//invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_INC_INT));
+		//o_ptr->number = 99;
+		//o_ptr->discount = 100;
+		//object_known(o_ptr);
+		//(void)inven_carry(Ind, o_ptr);
 
-		invcopy(o_ptr, lookup_kind(TV_SHIELD, SV_ORCISH_SHIELD));
-		o_ptr->number = 99;
-		o_ptr->bpval = 2;
-		o_ptr->discount = 100;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
+		//	invcopy(o_ptr, lookup_kind(TV_SHIELD, SV_ORCISH_SHIELD));
+		//o_ptr->number = 99;
+		//o_ptr->bpval = 2;
+		//o_ptr->discount = 100;
+		//object_known(o_ptr);
+		//(void)inven_carry(Ind, o_ptr);
 
-		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_CON));
-		o_ptr->number = 9;
-		o_ptr->pval = 7;
-		o_ptr->discount = 100;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
+		//invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_CON));
+		//o_ptr->number = 9;
+		//o_ptr->pval = 7;
+		//o_ptr->discount = 100;
+		//object_known(o_ptr);
+		//(void)inven_carry(Ind, o_ptr);
 
-	 	for (i = 1; i < 6; i++)
-	 	{
-			invcopy(o_ptr, lookup_kind(TV_SHADOW_BOOK, i));
-			o_ptr->number = 1;
-			o_ptr->discount = 100;
-			object_known(o_ptr);
-			(void)inven_carry(Ind, o_ptr);
+			       	for (i = 1; i < 6; i++)
+		{
+		  invcopy(o_ptr, lookup_kind(TV_SHADOW_BOOK, i));
+		  o_ptr->number = 1;
+		  o_ptr->discount = 100;
+		  object_known(o_ptr);
+		  (void)inven_carry(Ind, o_ptr);
 		}
 	}
 #endif

@@ -1241,6 +1241,9 @@ struct player_type
 	s16b tim_invisibility;		/* Timed -- Invisibility */
 	s16b tim_invis_power;	/* Timed -- Invisibility Power */
 	s16b tim_traps; 	/* Timed -- Avoid traps */
+	s16b tim_manashield;    /* Timed -- Mana Shield */
+	s16b tim_mimic; 	/* Timed -- Mimicry */
+	s16b tim_mimic_what; 	/* Timed -- Mimicry */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -1384,6 +1387,8 @@ struct player_type
 	byte tval_ammo;		/* Correct ammo tval */
 
 	s16b pspeed;		/* Current speed */
+	
+	bool r_killed[MAX_R_IDX];	/* Uniques killed */
 };
 
 

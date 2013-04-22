@@ -210,8 +210,8 @@
  * machine as well.
  * Probably almost never used.
 */
-#define	BIND_NAME "198.252.166.41"
-#define	BIND_IP "198.252.166.41"
+//#define BIND_NAME "198.252.166.41"
+//#define BIND_IP "198.252.166.41"
 
 
 /* Define the password for the server console, used if NEW_SERVER_CONSOLE

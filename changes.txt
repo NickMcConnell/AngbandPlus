@@ -6,9 +6,8 @@ Change list for PernMangband
 - Acid Bolt is gone, replaced by Mana Strike(a powerfull spell but only a bolt)
 - Reduced the spell cost and failure rate of some mage spells to make them more
   usefull
-- GoI is stackable but 60% will only reduce the damage by 2 instead of
-  ignoring it
-- Added Gloves of Magic, that reduce fighting but increase mana(from 10 to 60%)
+- GoI is stackable but 1/2 will only reduce the damage instead of ignoring it
+- Added Gloves of Magic, that reduce fighting but increase mana(from 10 to 100%)
   Now Mages will hopefully play in a more "mage-like" way
 - Added the Yeek race, -5 to all stats, bad HP, but very few experience
   needed to gain a level.
@@ -16,8 +15,11 @@ Change list for PernMangband
 - Ball spells from party members dont hurt anymore
 - Sorcerors can project wraithfrom, speed, shield on other players
 - Got a permanent server(198.252.166.41) thanks a lot Crimson !
-- Rogues got the Shadow realm with 6 books with unique spells
-- Warriors got fighting books form which they can learn fighting technics
-- Lots of other things I dont remember :)
+- Rings & lights artifacts
+- Rogues got a brand new magic realm(6 books)
+- Warriors got books of fighting(2) with fighting technics
+- Separate unique list for each players
+- Call on varda priest spell
+- Way more I just can't remember :)
 
-13/10/2000 - PernMangband 3.0.0
+07/11/2000 - PernMangband 3.0.4

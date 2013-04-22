@@ -17,6 +17,113 @@
 
 
 /*
+ * Set "p_ptr->tim_mimic", notice observable changes
+ */
+bool set_mimic(int Ind, int v, int p)
+{
+	player_type *p_ptr = Players[Ind];
+
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_mimic)
+		{
+			msg_print(Ind, "Your image changes !");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_mimic)
+		{
+			msg_print(Ind, "Your image is back to normality.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_mimic = v;
+	
+	/* Enforce good values */
+	if (p < 0) p = 0;
+	if (p >= MAX_CLASS) p = MAX_CLASS - 1;
+	p_ptr->tim_mimic_what = p;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (p_ptr->disturb_state) disturb(Ind, 0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS | PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff(Ind);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_manashield", notice observable changes
+ */
+bool set_tim_manashield(int Ind, int v)
+{
+	player_type *p_ptr = Players[Ind];
+
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_manashield)
+		{
+			msg_print(Ind, "You feel immortal !");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_manashield)
+		{
+			msg_print(Ind, "You feel less immortal.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_manashield = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (p_ptr->disturb_state) disturb(Ind, 0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff(Ind);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
  * Set "p_ptr->tim_traps", notice observable changes
  */
 bool set_tim_traps(int Ind, int v)
@@ -2263,7 +2370,7 @@ void monster_death(int Ind, int m_idx)
 	if (r_ptr->flags1 & RF1_UNIQUE)
 	{
 		/* Remember */
-		r_ptr->killer = p_ptr->id;
+		p_ptr->r_killed[m_ptr->r_idx] = TRUE;
 		
 		/* give credit to the killer by default */
 		sprintf(buf,"%s was slain by %s.",(r_name + r_ptr->name), p_ptr->name);
@@ -2451,33 +2558,6 @@ void player_death(int Ind)
 			party_leave(Ind);
 		}
 
-		/* Bring back to life the uniques he slew */
-		for (i = 1; i < MAX_R_IDX; i++)
-		{
-			monster_race *r_ptr = &r_info[i];
-
-			/* Check for unique-ness */
-			if (!(r_ptr->flags1 & RF1_UNIQUE))
-				continue;
-
-			/* See if this guy was the killer */
-			if (r_ptr->killer == p_ptr->id)
-			{
-				/* Resurrect the unique */
-				r_ptr->max_num = 1;
-
-				/* No more killer */
-				r_ptr->killer = 0;
-				
-				r_ptr->respawn_timer = -1;
-				
-				/* Tell every player */ 
-				sprintf(buf,"%s rises from the dead!",(r_name + r_ptr->name));							
-				msg_broadcast(0, buf);
-				
-			}
-		}
-
 		/* One less player here */
 		players_on_depth[p_ptr->dun_depth]--;
 
@@ -2567,33 +2647,6 @@ void player_death(int Ind)
 	}
 
 	if (p_ptr->fruit_bat != -1)
-
-	/* Bring back to life the uniques he slew */
-	for (i = 1; i < MAX_R_IDX; i++)
-	{
-		monster_race *r_ptr = &r_info[i];
-
-		/* Check for unique-ness */
-		if (!(r_ptr->flags1 & RF1_UNIQUE))
-			continue;
-
-		/* See if this guy was the killer */
-		if (r_ptr->killer == p_ptr->id)
-		{
-			/* Resurrect the unique */
-			r_ptr->max_num = 1;
-
-			/* No more killer */
-			r_ptr->killer = 0;
-			
-			r_ptr->respawn_timer = 0;
-			sprintf(buf,"%s rises from the dead!",(r_name + r_ptr->name));
-				
-			/* Tell every player */
-			msg_broadcast(0,buf);
-			
-		}
-	}
 
 	/* Handle suicide */
 	if (!p_ptr->alive)
@@ -2849,7 +2902,9 @@ bool mon_take_hit(int Ind, int m_idx, int dam, bool *fear, cptr note)
 		monster_death(Ind, m_idx);
 
 		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 0;
+		/* No more, this is handled byt p_ptr->r_killed -- DG */
+//		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 0;
+		p_ptr->r_killed[m_ptr->r_idx] = TRUE;
 
 		/* Recall even invisible uniques or winners */
 		if (p_ptr->mon_vis[m_idx] || (r_ptr->flags1 & RF1_UNIQUE))
@@ -3998,7 +4053,7 @@ bool do_scroll_life(int Ind)
 	 	{
 	   		c_ptr = &cave[p_ptr->dun_depth][p_ptr->py+y][p_ptr->px+x];
 	
-	  		if ((c_ptr->m_idx < 0) && (cave_floor_bold(p_ptr->dun_depth, p_ptr->py+y, p_ptr->px+x)))
+	  		if ((c_ptr->m_idx < 0) && (cave_floor_bold(p_ptr->dun_depth, p_ptr->py+y, p_ptr->px+x)) && (!(c_ptr->info & CAVE_ICKY)))
 	   		{
    				if (Players[0 - c_ptr->m_idx]->ghost)
    				{

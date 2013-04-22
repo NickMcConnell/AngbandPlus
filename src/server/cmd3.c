@@ -317,6 +317,7 @@ static bool item_tester_hook_wear(int Ind, object_type *o_ptr)
 			case INVEN_HEAD:
 			case INVEN_OUTER:
 			case INVEN_LITE:
+		case INVEN_ARM:
 				return TRUE;
 		}
 	}
@@ -1131,6 +1132,9 @@ void do_cmd_steal(int Ind, int dir)
  */
 static bool item_tester_refill_lantern(object_type *o_ptr)
 {
+  /* Randarts are not refillable */
+  if (o_ptr->name3) return (FALSE);
+
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
 

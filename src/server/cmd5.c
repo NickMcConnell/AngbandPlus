@@ -232,7 +232,7 @@ static void spell_info(int Ind, char *p, int j)
 			case 38: strcpy(p, " heal 2000"); break;
 			case 41: sprintf(p, " dam d%d", 4*plev); break;
 			case 42: sprintf(p, " dam d%d", 4*plev); break;
-			case 45: strcpy(p, " dam 200"); break;
+			case 45: sprintf(p, " dam %d", (plev * 5)); break;
 			case 52: strcpy(p, " range 10"); break;
 			case 53: sprintf(p, " range %d", 8*plev); break;
 		}
@@ -264,7 +264,7 @@ static void spell_info(int Ind, char *p, int j)
                         case 30: sprintf(p, " dam %d", 130 + (plev * 5 / 2)); break;
                         case 36: sprintf(p, " dur %d+d20", 20); break;
                         case 38: sprintf(p, " dam 8*%dd%d", 15 + (plev / 10), 8); break;
-                        case 39: sprintf(p, " dur 8+d6"); break;
+                        case 39: sprintf(p, " dur 8+d10"); break;
                         case 44: sprintf(p, " dam %d", 100 + (3 * plev)); break;
                         case 46: sprintf(p, " dam %d", 600 + (2 * plev)); break;
                         case 56: sprintf(p, " dam 2*15d%d", 7); break;
@@ -289,6 +289,7 @@ static void spell_info(int Ind, char *p, int j)
                         case 1: sprintf(p, " dam %d", 8 + (plev / 2)); break;
                         case 9: sprintf(p, " power %d", 30 + (plev * 3)); break;
                         case 13: sprintf(p, " dur %d+d20", 20 + plev); break;
+                        case 18: sprintf(p, " dur %d+d20", 20 + plev); break;
                         case 33: sprintf(p, " range %d", 10 + (plev / 5)); break;
                         case 40: sprintf(p, " dur %d+d20", 20 + plev); break;
                         case 43: sprintf(p, " dur %d+d20", 30 + plev); break;
@@ -1839,10 +1840,10 @@ void do_cmd_sorc(int Ind, int book, int spell)
                         break;
                 }
                 case 25: /* Meditation */
-                	if (!p_ptr->tim_meditation)
+		  //                	if (!p_ptr->tim_meditation)
                         	set_tim_meditation(Ind, p_ptr->tim_meditation + 20 + randint(20));
-	                 else
-                        	set_tim_meditation(Ind, p_ptr->tim_meditation + 5);
+				//     else
+                        	//set_tim_meditation(Ind, p_ptr->tim_meditation + 5);
                         break;
                 case 26: /* Gravitic Distortion */
                         fire_ball(Ind, GF_GRAVITY, 0, 10, 2);
@@ -1958,7 +1959,7 @@ void do_cmd_sorc(int Ind, int book, int spell)
                         break;
                 }
                 case 39: /* Disruption Shield */
-			(void)set_invuln(Ind, p_ptr->invuln + randint(6) + 8);
+			(void)set_tim_manashield(Ind, p_ptr->tim_manashield + randint(10) + 8);
                         break;
 
                 case 40: /* Earthquake */
@@ -3092,8 +3093,8 @@ void do_cmd_pray_aux(int Ind, int dir)
 		{
 			msg_print(Ind, "Gilthoniel A Elbereth!");
 			msg_format_near(Ind, "%s shouts 'Gilthoniel A Elbereth!'.", p_ptr->name);
-			fire_ball(Ind, GF_LITE, 0,
-			          plev * 5, plev / 7 + 2);
+			fire_ball(Ind, GF_HOLY_ORB, dir,
+			          (plev * 5), (plev / 7) + 2);
 			(void)hp_player(Ind, 500);
 			break;
 		}
@@ -3947,7 +3948,7 @@ void do_cmd_shad(int Ind, int book, int spell)
 			}
 			case 13: /* invis */
 			{
-				set_invis(Ind, p_ptr->tim_invisibility + 20 + randint(20) + plev, plev);
+				set_invis(Ind, p_ptr->tim_invisibility + 20 + randint(20) + plev, plev * 8 / 3);
 				break;
 			}
 			case 14: /* create food */
@@ -3965,6 +3966,35 @@ void do_cmd_shad(int Ind, int book, int spell)
 				p_ptr->current_spell = j;
 				get_aim_dir(Ind);
 				return;
+			}
+			
+			case 18: /* Cloak of Changement */
+			{
+				int what;
+				int i, tries = 200;
+				
+				while(tries--)
+				{
+					player_type *q_ptr;
+				
+					/* 1 < i < NumPlayers */
+					i = randint(NumPlayers);
+					
+					q_ptr = Players[i];
+
+					/* Disguising into a rogue is .. mhh ... stupid */
+					if (q_ptr->pclass == CLASS_ROGUE) continue;
+					
+					/* Ok we found a good class lets mimic */
+					what = q_ptr->pclass;
+					break;
+				}
+				
+				/* Arg nothing .. bah be a warrior */
+				if (!tries) what = CLASS_WARRIOR;
+			
+				set_mimic(Ind, p_ptr->tim_mimic + 20 + randint(20) + plev, what);
+				break;
 			}
 			
 		case 19: /* trap craetion */

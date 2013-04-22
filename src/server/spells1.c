@@ -287,8 +287,11 @@ void teleport_player_to(int Ind, int ny, int nx)
 			if (in_bounds(Depth, y, x)) break;
 		}
 
-		/* Accept "naked" floor grids */
-		if (cave_naked_bold(Depth, y, x)) break;
+		/* Cant telep in houses */
+		if (((Depth <= 0) && !(cave[Depth][y][x].info & CAVE_ICKY)) || (Depth > 0))
+		  {
+		    if (cave_naked_bold(Depth, y, x)) break;
+		  }
 
 		/* Occasionally advance the distance */
 		if (++ctr > (4 * dis * dis + 4 * dis + 1))
@@ -559,6 +562,28 @@ void take_hit(int Ind, int damage, cptr hit_from)
 		/* Otherwise damage is reduced by the shield */
 		damage = damage / 2;
   	}
+
+	if (p_ptr->tim_manashield)
+	  {
+	     if (p_ptr->csp > 0)
+	       {
+		 int taken = (damage);
+
+		 if (p_ptr->csp < taken)
+		   {
+		     damage -= taken - p_ptr->csp;
+		     p_ptr->csp = 0;
+		   }
+		 else
+		   {
+		     damage = 0;
+		     p_ptr->csp -= taken;
+		   }
+		 
+		 /* Display the spellpoints */
+		 p_ptr->redraw |= (PR_MANA);
+	       }
+	  }
 		
 	/* Hurt the player */
 	p_ptr->chp -= damage;

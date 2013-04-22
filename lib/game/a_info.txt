@@ -494,7 +494,15 @@ F:STEALTH |
 F:FREE_ACT | IM_ACID | SEE_INVIS
 
 
-# Artifact 51 is unused
+# The Long Sword of Murazor
+
+N:51:of Murazor
+I:23:17:-5
+W:20:20:130:3000
+P:0:4d5:-22:-25:0
+F:SPEED | CURSED | HEAVY_CURSE | DRAIN_EXP | AGGRAVATE | IM_COLD
+F:FREE_ACT | RES_FIRE | RES_DARK | SEE_INVIS | SLOW_DIGEST | REGEN | 
+F:SHOW_MODS
 
 
 # The Set of Leather Gloves 'Cambeleg'

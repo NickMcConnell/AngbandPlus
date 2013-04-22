@@ -8035,12 +8035,12 @@ D:the heat of his body.
 
 N:541:Draugluin, Sire of All Werewolves
 G:C:u
-I:130:70d100:80:90:90
+I:140:80d100:80:90:90
 W:87:2:0:40000
-B:CLAW:HURT:3d3
-B:CLAW:HURT:3d3
-B:BITE:POISON:2d6
-B:BITE:POISON:2d6
+B:CLAW:HURT:13d3
+B:CLAW:HURT:13d3
+B:BITE:POISON:12d3
+B:BITE:POISON:12d3
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | ESCORTS | 
@@ -8056,7 +8056,7 @@ D:enormous wolf inhabited with a human spirit.  He is chief of all his kind.
 
 N:542:Feagwath the Undead Sorceror
 G:L:R
-I:130:60d100:100:100:0
+I:140:70d100:100:100:0
 W:90:3:0:45000
 B:HIT:UN_BONUS:6d8
 B:HIT:UN_BONUS:6d8
@@ -8069,21 +8069,21 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | 
-S:1_IN_3 | 
+S:1_IN_1 | 
 S:TPORT | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | 
-S:BA_MANA | BO_MANA | BA_FIRE | 
+S:BA_MANA | BO_MANA | BA_FIRE | CAUSE_4
 S:S_MONSTERS | S_DEMON | S_HI_UNDEAD
 D:A stench of corruption and decay surrounds this sorcerer, who has clearly 
 D:risen from the grave to continue his foul plots and schemes.
 
 N:543:Carcharoth, the Jaws of Thirst
 G:C:D
-I:130:75d100:80:110:10
+I:140:85d100:80:110:10
 W:92:2:0:40000
-B:CLAW:HURT:3d3
-B:CLAW:HURT:3d3
-B:BITE:POISON:4d4
-B:BITE:POISON:4d4
+B:CLAW:HURT:3d13
+B:CLAW:HURT:3d13
+B:BITE:POISON:14d4
+B:BITE:POISON:14d4
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
@@ -8099,12 +8099,12 @@ D:deadly opponent in combat.
 
 N:544:Cerberus, Guardian of Hades
 G:C:r
-I:130:100d100:50:160:10
+I:130:120d100:50:160:10
 W:94:1:0:40000
-B:HIT:FIRE:9d12
-B:HIT:FIRE:9d12
-B:HIT:FIRE:9d12
-B:HIT:FIRE:9d12
+B:HIT:FIRE:10d12
+B:HIT:FIRE:10d12
+B:HIT:FIRE:10d12
+B:HIT:FIRE:10d12
 F:UNIQUE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
@@ -8119,10 +8119,10 @@ D:hide as it snarls and roars its defiance.
 
 N:545:Gothmog, the High Captain of Balrogs
 G:U:R
-I:130:80d100:100:140:0
+I:140:90d100:100:140:0
 W:95:1:0:43000
-B:HIT:FIRE:9d12
-B:HIT:FIRE:9d12
+B:HIT:FIRE:10d12
+B:HIT:FIRE:10d12
 B:CRUSH:HURT:8d12
 B:TOUCH:UN_POWER
 F:UNIQUE | MALE | 
@@ -8147,7 +8147,7 @@ D:saved his master from Ungoliant's rage.
 
 N:546:Sauron, the Sorcerer
 G:p:v
-I:130:105d100:100:160:0
+I:140:150d100:100:160:0
 W:99:1:0:50000
 B:HIT:UN_BONUS:10d12
 B:HIT:UN_BONUS:10d12
@@ -8159,7 +8159,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
 F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_2 | 
+S:1_IN_1 | 
 S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | 
 S:BRAIN_SMASH | FORGET | 
 S:BO_ICEE | BO_MANA | BO_PLAS | 
@@ -8175,11 +8175,11 @@ D:destroy your soul.  He has many servants, and rarely fights without them.
 
 N:547:Morgoth, Lord of Darkness
 G:P:D
-I:140:200d100:100:150:0
+I:150:300d100:100:150:0
 W:100:1:0:60000
-B:HIT:SHATTER:20d10
-B:HIT:SHATTER:20d10
-B:HIT:LOSE_ALL:10d12
+B:HIT:SHATTER:20d14
+B:HIT:SHATTER:20d14
+B:HIT:LOSE_ALL:12d12
 B:TOUCH:UN_POWER
 F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | 
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
@@ -8188,10 +8188,10 @@ F:SMART | KILL_WALL | MOVE_BODY |
 F:REGENERATE | UNIQUE | QUESTOR | MALE
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_3 | 
+S:1_IN_2 | 
 S:BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_NETH | 
-S:S_MONSTERS | S_UNIQUE | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON
+S:S_MONSTERS | S_UNIQUE | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON | S_DEMON
 D:He is the Master of the Pits of Angband.  His figure is like a black 
 D:mountain crowned with Lightning.  He rages with everlasting anger, his 
 D:body scarred by Fingolfin's eight mighty wounds.  He can never rest from 
@@ -8204,3 +8204,21 @@ D:two remaining Silmarils forever burning him.  Grond, the mighty Hammer of
 D:the Underworld, cries defiance as he strides towards you to crush you to a 
 D:pulp!
 
+N:548:Greater Balrog
+G:U:D
+I:135:100d100:100:200:0
+W:85:2:0:40000
+B:HIT:HURT:15d10
+B:HIT:HURT:15d10
+B:HIT:HURT:15d10
+B:HIT:HURT:15d10
+F:FORCE_SLEEP | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_GOOD | DROP_GREAT | DROP_1D2
+F:SMART | KILL_WALL | MOVE_BODY |
+F:EVIL | DEMON | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR |
+S:1_IN_2
+S:BLIND | CONF | SCARE | BRAIN_SMASH |
+S:BO_MANA | BA_NETH | BR_FIRE | BR_NETH | BR_DARK |
+S:S_HI_UNDEAD | S_DEMON |
+D:It is a massive humanoid demon wreathed in flames.

@@ -3251,7 +3251,7 @@ static bool player_invis(int Ind, monster_type *m_ptr)
                 mlv = 1;
         }
 
-        return (inv >= randint(mlv*2));
+        return (inv >= randint(mlv * 10 / 7));
 }
 
 

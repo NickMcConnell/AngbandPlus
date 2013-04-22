@@ -226,7 +226,7 @@ s32b artifact_power (artifact_type *a_ptr)
 		}
 		case TV_LITE:
 		{
-			p += 10;
+			p += 35;
 			break;
 		}
 		case TV_RING:
@@ -802,7 +802,9 @@ artifact_type *randart_make(object_type *o_ptr)
 	    (k_ptr->tval!=TV_CLOAK) &&
 	    (k_ptr->tval!=TV_SOFT_ARMOR) &&
 	    (k_ptr->tval!=TV_DRAG_ARMOR) &&
-	    (k_ptr->tval!=TV_HARD_ARMOR))
+	    (k_ptr->tval!=TV_HARD_ARMOR) &&
+	    (k_ptr->tval!=TV_RING) &&
+	    (k_ptr->tval!=TV_LITE))
 	{
 		/* Not an allowed type */
 		return(NULL);
@@ -842,6 +844,7 @@ artifact_type *randart_make(object_type *o_ptr)
 	a_ptr->tval = k_ptr->tval;
 	a_ptr->sval = k_ptr->sval;
 	a_ptr->pval = k_ptr->pval;
+	if (k_ptr->tval == TV_LITE) a_ptr->pval = 0;
 	a_ptr->to_h = k_ptr->to_h;
 	a_ptr->to_d = k_ptr->to_d;
 	a_ptr->to_a = k_ptr->to_a;

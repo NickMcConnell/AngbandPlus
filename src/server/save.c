@@ -800,7 +800,7 @@ static void wr_lore(int r_idx)
 	wr_byte(r_ptr->max_num);
 
 	/* Killer */
-	wr_s32b(r_ptr->killer);
+//	wr_s32b(r_ptr->killer);
 
 	/* Later (?) */
 	wr_byte(0);
@@ -1037,6 +1037,7 @@ static void wr_extra(int Ind)
 	player_type *p_ptr = Players[Ind];
 
 	int i;
+	u16b tmp16u;
 
 	wr_string(p_ptr->name);
 
@@ -1150,9 +1151,18 @@ static void wr_extra(int Ind)
 	wr_s16b(p_ptr->tim_invis_power);
 
 	wr_s16b(p_ptr->furry);
+
+	wr_s16b(p_ptr->tim_manashield);
 	
 	wr_s16b(p_ptr->tim_traps);
-	
+	wr_s16b(p_ptr->tim_mimic);
+	wr_s16b(p_ptr->tim_mimic_what);
+
+	/* Dump the monster lore */
+	tmp16u = MAX_R_IDX;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++) wr_byte(p_ptr->r_killed[i]);
+		
 	/* Future use */
 	for (i = 0; i < 44; i++) wr_byte(0);
 

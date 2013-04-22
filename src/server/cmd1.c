@@ -1625,8 +1625,17 @@ void move_player(int Ind, int dir, int do_pickup)
 			/* Don't tell people they bumped into the Dungeon Master */
 			if (strcmp(q_ptr->name,cfg_dungeon_master))
 			{
-				msg_format(Ind, "You switch places with %s.", q_ptr->name);
-				msg_format(Ind2, "You switch places with %s.", p_ptr->name);
+				/* Hack if invisible */
+				if (p_ptr->play_vis[Ind2])				
+					msg_format(Ind, "You switch places with %s.", q_ptr->name);
+				else
+					msg_format(Ind, "You switch places with it.");
+				
+				/* Hack if invisible */
+				if (q_ptr->play_vis[Ind])
+					msg_format(Ind2, "You switch places with %s.", p_ptr->name);
+				else
+					msg_format(Ind2, "You switch places with it.");
 			}
 
 			/* Disturb both of them */
@@ -1642,8 +1651,17 @@ void move_player(int Ind, int dir, int do_pickup)
 		else if (strcmp(p_ptr->name,cfg_dungeon_master))
 		{
 			/* Tell both about it */
-			msg_format(Ind, "You bump into %s.", q_ptr->name);
-			msg_format(Ind2, "%s bumps into you.", p_ptr->name);
+			/* Hack if invisible */
+			if (p_ptr->play_vis[Ind2])
+				msg_format(Ind, "You bump into %s.", q_ptr->name);
+			else
+				msg_format(Ind, "You bump into it.");
+			
+			/* Hack if invisible */
+			if (q_ptr->play_vis[Ind])
+				msg_format(Ind2, "%s bumps into you.", p_ptr->name);
+			else
+				msg_format(Ind2, "It bumps into you.");
 
 			/* Disturb both parties */
 			disturb(Ind, 1, 0);

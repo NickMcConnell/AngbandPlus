@@ -1908,7 +1908,7 @@ player_magic magic_info[MAX_CLASS] =
 			
 			/* Killing Made Easy */
 			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
+			{ 22, 15, 30,  31},
 			{ 24, 15, 30,  32},
 			{ 25, 10, 38,  35},
 			{ 30, 15, 40,  40},
@@ -2361,7 +2361,7 @@ u32b spell_flags[5][9][2] =
 		/*** Shadow spell books ***/
                 {0x000000ff, 0x00000000},
                 {0x0001ff00, 0x00000000},
-                {0x00780000, 0x00000000},
+                {0x00780000 + (1 << 18), 0x00000000},
                 {0x7f000000, 0x00000000},
                 {0x00000000, 0x0000000f},
                 {0x00000000, 0x00000f00},
@@ -2673,7 +2673,7 @@ cptr spell_names[6][64] =
 
 		/* Killing made easy */
 		"",
-		"",
+		"Cloak of Changement",
 		"Create Traps",
 		"Fear Monsters",
 		"Sleep Monsters",

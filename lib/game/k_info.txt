@@ -1038,7 +1038,7 @@ N:136:Speed
 G:=:d
 I:45:31:0
 W:80:0:2:50000
-A:80/1
+A:80/5
 F:SPEED | HIDE_TYPE
 
 N:137:Searching
@@ -1394,7 +1394,7 @@ A:1/1
 N:186:Teleportation
 G:?:d
 I:70:9:0
-W:10:0:5:40
+W:10:0:5:400
 A:10/1
 
 N:187:Teleport Level

@@ -967,7 +967,9 @@ extern void window_stuff(int Ind);
 extern void handle_stuff(int Ind);
 
 /* xtra2.c */
+extern bool set_mimic(int Ind, int v, int p);
 extern bool set_tim_traps(int Ind, int v);
+extern bool set_tim_manashield(int Ind, int v);
 extern bool set_invis(int Ind, int v, int p);
 extern bool set_furry(int Ind, int v);
 extern bool set_tim_meditation(int Ind, int v);

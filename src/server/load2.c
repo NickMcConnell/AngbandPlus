@@ -768,7 +768,7 @@ static void rd_lore(int r_idx)
 	rd_byte(&r_ptr->max_num);
 
 	/* Read the "killer" info */
-	if (!older_than(0,4,1))
+	if (!older_than(0,4,1) && older_than(3, 0, 3))
 		rd_s32b(&r_ptr->killer);
 
 	/* Later (?) */
@@ -1252,8 +1252,43 @@ static bool rd_extra(int Ind)
 	
 		rd_s16b(&p_ptr->furry);
 	}
+
+	if (!older_than(3, 0, 1))
+	  {
+	    rd_s16b(&p_ptr->tim_manashield);
+	  }
 	
 	rd_s16b(&p_ptr->tim_traps);
+
+	if (!older_than(3, 0, 2))
+	{
+		rd_s16b(&p_ptr->tim_mimic);
+		rd_s16b(&p_ptr->tim_mimic_what);
+	}
+
+	/* Read the unique list info */
+	if (!older_than(3, 0, 3))
+	{
+		int i;
+		u16b tmp16u;
+		
+		/* Monster Memory */
+		rd_u16b(&tmp16u);
+
+		/* Incompatible save files */
+		if (tmp16u > MAX_R_IDX)
+		{
+			note(format("Too many (%u) monster races!", tmp16u));
+			return (22);
+		}
+		
+		for (i = 0; i < tmp16u; i++) rd_byte(&p_ptr->r_killed[i]);
+	}
+	else
+	{
+		int i;
+		for (i = 0; i < MAX_R_IDX; i++) p_ptr->r_killed[i] = FALSE;
+	}
 	
 	/* Future use */
 	for (i = 0; i < 44; i++) rd_byte(&tmp8u);

@@ -413,46 +413,33 @@ void do_cmd_check_uniques(int Ind, int line)
 		/* Only print Uniques */
 		if (r_ptr->flags1 & RF1_UNIQUE)
 		{
-			bool dead = (r_ptr->max_num == 0);
-
-			/* Only display "known" uniques */
-			if (dead || cheat_know || r_ptr->r_sights)
+			/* Only process uniques */
+			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
-				/* Print a message */
-				fprintf(fff, "     %s is %s",
-				        (r_name + r_ptr->name),
-				        (dead ? "dead" : "alive"));
-
-				/* If dead, print killer */
-								
-				if (dead)
+				/* Only display known uniques */
+				if (r_ptr->r_sights)
 				{
-					killer = lookup_player_name(r_ptr->killer);
-					/*
-					
-					killer = lookup_player_name(r_ptr->killer);
-					if (killer)
-						fprintf(fff, " (killed by %s)",
-							killer);
-							
-					Now displays the respawn time.....
-					*/
-					
-					if (killer)
-					{																						
-						fprintf(fff, " (killed by %s,",killer);
-						/* Hack -- round the displayed
-						 * respawn time off to the
-						 * nearest 10 minutes...
-						 */
-						fprintf(fff, " safe %d min)",
-							((r_ptr->respawn_timer/10)+1)*10);
+					int i;
+					byte ok = FALSE;
+			
+					/* Format message */
+					fprintf(fff, "%s has been killed by:\n", r_name + r_ptr->name);
+				
+					for (i = 1; i <= NumPlayers; i++)
+					{
+						player_type *q_ptr = Players[i];
+						
+						if (q_ptr->r_killed[k])
+						{
+							fprintf(fff, "        %s\n", q_ptr->name);
+							ok = TRUE;
+						}
 					}
-
+					if (!ok) fprintf(fff, "       Nobody\n");
 				}
 
 				/* Terminate line */
-				fprintf(fff, "\n");
+				//				fprintf(fff, "\n");
 			}
 		}
 	}

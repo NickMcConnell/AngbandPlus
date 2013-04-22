@@ -1149,7 +1149,7 @@ static void calc_mana(int Ind)
 	/* Meditation increase mana at the cost of hp */
 	if (p_ptr->tim_meditation)
 	{
-		new_mana += new_mana / 3;
+		new_mana += new_mana / 2;
 	}
 	
 	/* Warrior dont get much */
@@ -1313,7 +1313,7 @@ static void calc_hitpoints(int Ind)
 	/* Meditation increase mana at the cost of hp */
 	if (p_ptr->tim_meditation)
 	{
-		mhp /= 2;
+		mhp = mhp * 3 / 5;
 	}
 
 	/* New maximum hitpoints */

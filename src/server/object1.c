@@ -1810,7 +1810,7 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Hack -- Process Lanterns/Torches */
-	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval < SV_LITE_DWARVEN))
+	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval < SV_LITE_DWARVEN) && (!o_ptr->name3))
 	{
 		/* Hack -- Turns of light for normal lites */
 		t = object_desc_str(t, " (with ");

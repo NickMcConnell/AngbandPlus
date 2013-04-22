@@ -457,6 +457,7 @@ static void image_random(byte *ap, char *cp)
 static byte player_color(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
+	int pcolor = p_ptr->pclass;
 
 	/* Ghosts are black */
 	if (p_ptr->ghost) return TERM_L_DARK;
@@ -464,9 +465,11 @@ static byte player_color(int Ind)
 	/* Bats are orange */
 	
 	if (p_ptr->fruit_bat) return TERM_ORANGE;
+	
+	if (p_ptr->tim_mimic) pcolor = p_ptr->tim_mimic_what;
 
 	/* Color is based off of class */
-	switch (p_ptr->pclass)
+	switch (pcolor)
 	{
 		case CLASS_WARRIOR:
 			return TERM_UMBER;
@@ -3413,7 +3416,7 @@ void wiz_dark(int Ind)
 		/* Bye bye light */
 		if (o_ptr->k_idx)
 		{
-			if ((o_ptr->sval == SV_LITE_TORCH) || (o_ptr->sval == SV_LITE_LANTERN))
+			if (((o_ptr->sval == SV_LITE_TORCH) || (o_ptr->sval == SV_LITE_LANTERN)) && (!o_ptr->name3))
 			{
 				msg_print(Ind, "Your light suddently empty.");
 				

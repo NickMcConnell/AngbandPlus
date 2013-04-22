@@ -1211,6 +1211,18 @@ static void process_player_end(int Ind)
 			(void)set_tim_traps(Ind, p_ptr->tim_traps - 1);
 		}
 
+		/* Hack -- Mimicry */
+		if (p_ptr->tim_mimic)
+		{
+			(void)set_mimic(Ind, p_ptr->tim_mimic - 1, p_ptr->tim_mimic_what);
+		}
+
+		/* Hack -- Timed manashield */
+		if (p_ptr->tim_manashield)
+		  {
+		    set_tim_manashield(Ind, p_ptr->tim_manashield - 1);
+		  }
+
 		/* Hack -- Meditation */
 		if (p_ptr->tim_meditation)
 		{
@@ -1404,7 +1416,7 @@ static void process_player_end(int Ind)
 		{
 			/* Hack -- Use some fuel (sometimes) */
 			if (!artifact_p(o_ptr) && !(o_ptr->sval == SV_LITE_DWARVEN)
-				&& !(o_ptr->sval == SV_LITE_FEANOR) && (o_ptr->pval > 0))
+				&& !(o_ptr->sval == SV_LITE_FEANOR) && (o_ptr->pval > 0) && (!o_ptr->name3))
 			{
 				/* Decrease life-span */
 				o_ptr->pval--;
@@ -1676,7 +1688,7 @@ static void process_various(void)
 
 		}
 
-
+#if 0 /* No more reswpan */
 		/* Update the unique respawn timers */
 		for (i = 1; i < MAX_R_IDX-1; i++)
 		{
@@ -1708,7 +1720,8 @@ static void process_various(void)
     				msg_broadcast(0,buf); 
     			}	    			
  		}
-
+#endif
+ 		
 		// If the level unstaticer is not disabled
 		if (cfg_level_unstatic_chance > 0)
 		{

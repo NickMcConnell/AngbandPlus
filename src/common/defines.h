@@ -37,7 +37,7 @@
  
 #define VERSION_MAJOR	3
 #define VERSION_MINOR	0
-#define VERSION_PATCH	0
+#define VERSION_PATCH	3
 
 /*
  * This value specifys the suffix to the version info sent to the metaserver.
@@ -185,7 +185,7 @@
 #define MAX_K_IDX	531	/* Max size for "k_info[]" */
 #define MAX_A_IDX	128	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
-#define MAX_R_IDX	549	/* Max size for "r_info[]" */
+#define MAX_R_IDX	550     /* Max size for "r_info[]" */
 #define MAX_V_IDX 	256	/* Max size for "v_info[]" */
 
 
@@ -468,7 +468,7 @@
 
 
 /* Randart rarity */
-#define RANDART_RARITY	50
+#define RANDART_RARITY	60
 
 
 /*

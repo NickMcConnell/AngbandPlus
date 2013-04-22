@@ -1,0 +1,12 @@
+diff -Naur --exclude=*.o server/cmd4.c /pm/src/server/cmd4.c
+--- server/cmd4.c	Fri Sep 15 23:08:19 2000
++++ /pm/src/server/cmd4.c	Fri Sep 15 23:07:24 2000
+@@ -518,7 +518,7 @@
+ 		fprintf(fff, "%c", attr);
+ 
+ 		/* Print a message */
+-		if(q_ptr->fruit_bat)
++		if(p_ptr->fruit_bat)
+ 		{
+ 			fprintf(fff, "     %s the %s %s (Fruit bat, Level %d, %s)",
+ 				q_ptr->name, race_info[q_ptr->prace].title,

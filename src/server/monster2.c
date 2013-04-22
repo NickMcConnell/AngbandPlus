@@ -519,11 +519,12 @@ s16b get_mon_num(int level)
 		r_ptr = &r_info[r_idx];
 
 		/* Hack -- "unique" monsters must be "unique" */
-		if ((r_ptr->flags1 & RF1_UNIQUE) &&
-		    (r_ptr->cur_num >= r_ptr->max_num))
+		/* For each players -- DG */
+/*		if ((r_ptr->flags1 & RF1_UNIQUE) &&
+		    (unique_allowed(r_idx, level))
 		{
 			continue;
-		}
+		}*/
 
 		/* Depth Monsters never appear out of depth */
 		/* FIXME: This might cause FORCE_DEPTH monsters to appear out of depth */
@@ -1253,7 +1254,11 @@ void update_player(int Ind)
 			if (!strcmp(q_ptr->name,cfg_dungeon_master)) flag = FALSE;
 			
 			/* Can we see invisibvle players ? */
-			if (!p_ptr->see_inv && q_ptr->invis) flag = FALSE;
+			if (!p_ptr->see_inv && q_ptr->invis)
+			{
+				if ((q_ptr->lev > p_ptr->lev) || (randint(p_ptr->lev) > (q_ptr->lev / 2)))
+					flag = FALSE;
+			}
 		}
 
 		/* Player is now visible */
@@ -1357,6 +1362,27 @@ void update_players(void)
 }
 
 
+/* Scan all players on the level and see if at least one can find the unique */
+bool allow_unique_level(int r_idx, int Depth)
+{
+	int i;
+	
+	for (i = 1; i <= NumPlayers; i++)
+	{
+		player_type *p_ptr = Players[i];
+
+		/* Is the player on the level and did he killed the unique already ? */
+		if (!p_ptr->r_killed[r_idx] && (p_ptr->dun_depth == Depth))
+		{
+			/* One is enough */
+			return (TRUE);
+		}
+	}
+	
+	/* Yeah but we need at least ONE */
+	return (FALSE);
+}
+
 /*
  * Attempt to place a monster of the given race at the given location.
  *
@@ -1408,7 +1434,7 @@ static bool place_monster_one(int Depth, int y, int x, int r_idx, bool slp)
 
 
 	/* Hack -- "unique" monsters must be "unique" */
-	if ((r_ptr->flags1 & RF1_UNIQUE) && (r_ptr->cur_num >= r_ptr->max_num))
+	if ((r_ptr->flags1 & RF1_UNIQUE) && (!allow_unique_level(r_idx, Depth)))
 	{
 		/* Cannot create */
 		return (FALSE);
