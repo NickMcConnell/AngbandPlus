@@ -827,9 +827,13 @@ static void calc_spells(int Ind)
 
 	magic_type		*s_ptr;
 
-	cptr p = ((p_ptr->mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((p_ptr->mp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
 
-
+        if (p_ptr->pclass == CLASS_WARRIOR)
+        {
+        	p = "technic";
+ 	}
+	
 	/* Hack -- must be literate */
 	if (!p_ptr->mp_ptr->spell_book) return;
 
@@ -1086,6 +1090,7 @@ static void calc_mana(int Ind)
 
 	object_type	*o_ptr;
 
+	u32b f1, f2, f3;
 
 	/* Hack -- Must be literate */
 	if (!p_ptr->mp_ptr->spell_book) return;
@@ -1103,20 +1108,17 @@ static void calc_mana(int Ind)
 	/* Hack -- usually add one mana */
 	if (new_mana) new_mana++;
 
+	/* Get the gloves */
+	o_ptr = &p_ptr->inventory[INVEN_HANDS];
+
+	/* Examine the gloves */
+	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Only mages are affected */
 	if (p_ptr->mp_ptr->spell_book == TV_MAGIC_BOOK)
 	{
-		u32b f1, f2, f3;
-
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
-
-		/* Get the gloves */
-		o_ptr = &p_ptr->inventory[INVEN_HANDS];
-
-		/* Examine the gloves */
-		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
@@ -1131,6 +1133,31 @@ static void calc_mana(int Ind)
 		}
 	}
 
+	/* Sorcerer really need that */
+	if (p_ptr->pclass == CLASS_SORCERER)
+	{
+		new_mana += (new_mana * 4) / 10;
+	}
+
+	/* Gloves of magic are nice things */
+	if (f1 & TR1_MANA)
+	{
+		/* 1 pval = 10% more mana */
+		new_mana += new_mana * o_ptr->pval / 10;
+	}
+	
+	/* Meditation increase mana at the cost of hp */
+	if (p_ptr->tim_meditation)
+	{
+		new_mana += new_mana / 3;
+	}
+	
+	/* Warrior dont get much */
+	if (p_ptr->pclass == CLASS_WARRIOR)
+	{
+		new_mana /= 8;
+		if (!new_mana) new_mana++;
+	}
 
 	/* Assume player not encumbered by armor */
 	p_ptr->cumber_armor = FALSE;
@@ -1250,9 +1277,10 @@ static void calc_mana(int Ind)
  * Adjust current hitpoints if necessary
  */
  
-/* An option of giving mages a bonus hitpoint per level has been added,
- * to hopefully facilitate them making it down to 1500 feet and finding
- * CON potions.
+/* An option of giving mages an extra hit point per level has been added,
+ * to hopefully facilitate them making it down to 1600ish and finding  
+ * Constitution potions.  This should probably be changed to stop after level
+ * 30.
  */
 
 static void calc_hitpoints(int Ind)
@@ -1265,20 +1293,28 @@ static void calc_hitpoints(int Ind)
 	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128);
 
 	/* Calculate hitpoints */
-	if (p_ptr->fruit_bat) mhp = p_ptr->lev + 2;
+	if (p_ptr->fruit_bat) mhp = (p_ptr->player_hp[p_ptr->lev-1] / 4) + (bonus * p_ptr->lev);
 	
 	else mhp = p_ptr->player_hp[p_ptr->lev-1] + (bonus * p_ptr->lev / 2);
 
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
-	/* Option : give (most!) mages a bonus hitpoint / lvl */
+	/* Option : give mages a bonus hitpoint / lvl */
 	if (cfg_mage_hp_bonus)
-		if ((p_ptr->pclass == CLASS_MAGE) && (strcmp(p_ptr->name,"Seth"))) mhp += p_ptr->lev;
+		if (p_ptr->pclass == CLASS_MAGE) mhp += p_ptr->lev;
 
 	/* Factor in the hero / superhero settings */
 	if (p_ptr->hero) mhp += 10;
 	if (p_ptr->shero) mhp += 30;
+	
+	if (p_ptr->furry) mhp += 40;
+	
+	/* Meditation increase mana at the cost of hp */
+	if (p_ptr->tim_meditation)
+	{
+		mhp /= 2;
+	}
 
 	/* New maximum hitpoints */
 	if (mhp != p_ptr->mhp)
@@ -1311,7 +1347,7 @@ static void calc_hitpoints(int Ind)
 static void calc_torch(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
-
+	
 	object_type *o_ptr = &p_ptr->inventory[INVEN_LITE];
 
 	/* Base light radius */
@@ -1429,6 +1465,8 @@ static void calc_bonuses(int Ind)
 	int			extra_shots;
 
 	object_type		*o_ptr;
+	object_kind		*k_ptr;
+	ego_item_type 		*e_ptr;
 
 	u32b		f1, f2, f3;
 
@@ -1475,7 +1513,7 @@ static void calc_bonuses(int Ind)
 	p_ptr->free_act = FALSE;
 	p_ptr->slow_digest = FALSE;
 	p_ptr->regenerate = FALSE;
-	p_ptr->ffall = FALSE;
+	p_ptr->feather_fall = FALSE;
 	p_ptr->hold_life = FALSE;
 	p_ptr->telepathy = FALSE;
 	p_ptr->lite = FALSE;
@@ -1506,6 +1544,8 @@ static void calc_bonuses(int Ind)
 	p_ptr->immune_fire = FALSE;
 	p_ptr->immune_cold = FALSE;
 
+	/* Invisibility */
+	p_ptr->invis = 0;
 
 
 	/* Base infravision (purely racial) */
@@ -1568,6 +1608,13 @@ static void calc_bonuses(int Ind)
 	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->resist_lite = TRUE;
 	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->see_inv = TRUE;
 
+	/* Yeek */
+	if (p_ptr->prace == RACE_YEEK) p_ptr->feather_fall = TRUE;
+
+	/* Goblin */
+	if (p_ptr->prace == RACE_GOBLIN) p_ptr->resist_dark = TRUE;
+	if (p_ptr->prace == RACE_GOBLIN) p_ptr->feather_fall = TRUE;
+
 	/* Ghost */
 	if (p_ptr->ghost) p_ptr->see_inv = TRUE;
 	if (p_ptr->ghost) p_ptr->resist_neth = TRUE;
@@ -1580,6 +1627,7 @@ static void calc_bonuses(int Ind)
 
 	/* Bats get +10 speed ... they need it!*/
 	if (p_ptr->fruit_bat) p_ptr->pspeed += 10;
+	if (p_ptr->fruit_bat) p_ptr->feather_fall = TRUE;
 
 	/* Start with a single blow per turn */
 	p_ptr->num_blow = 1;
@@ -1629,12 +1677,70 @@ static void calc_bonuses(int Ind)
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &p_ptr->inventory[i];
+		k_ptr = &k_info[o_ptr->k_idx];
+		e_ptr = &e_info[o_ptr->name2];
 
 		/* Skip missing items */
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the item flags */
 		object_flags(o_ptr, &f1, &f2, &f3);
+
+		/* Hack -- first add any "base bonuses" of the item.  A new
+		 * feature in MAngband 0.7.0 is that the magnitude of the
+		 * base bonuses is stored in bpval instead of pval, making the
+		 * magnitude of "base bonuses" and "ego bonuses" independent 
+		 * from each other.
+		 * An example of an item that uses this independency is an
+		 * Orcish Shield of the Avari that gives +1 to STR and +3 to
+		 * CON. (base bonus from the shield +1 STR,CON, ego bonus from
+		 * the Avari +2 CON).  
+		 * Of course, the proper fix would be to redesign the object
+		 * type so that each of the ego bonuses has its own independent
+		 * parameter.
+		 */
+		/* If we have any base bonuses to add, add them */
+		if (k_ptr->flags1 & TR1_PVAL_MASK)
+		{
+			/* Affect stats */
+			if (k_ptr->flags1 & TR1_STR) p_ptr->stat_add[A_STR] += o_ptr->bpval;
+			if (k_ptr->flags1 & TR1_INT) p_ptr->stat_add[A_INT] += o_ptr->bpval;
+			if (k_ptr->flags1 & TR1_WIS) p_ptr->stat_add[A_WIS] += o_ptr->bpval;
+			if (k_ptr->flags1 & TR1_DEX) p_ptr->stat_add[A_DEX] += o_ptr->bpval;
+			if (k_ptr->flags1 & TR1_CON) p_ptr->stat_add[A_CON] += o_ptr->bpval;
+			if (k_ptr->flags1 & TR1_CHR) p_ptr->stat_add[A_CHR] += o_ptr->bpval;
+
+			/* Affect stealth */
+			if (k_ptr->flags1 & TR1_STEALTH) p_ptr->skill_stl += o_ptr->bpval;
+
+			/* Affect searching ability (factor of five) */
+			if (k_ptr->flags1 & TR1_SEARCH) p_ptr->skill_srh += (o_ptr->bpval * 5);
+
+			/* Affect searching frequency (factor of five) */
+			if (k_ptr->flags1 & TR1_SEARCH) p_ptr->skill_fos += (o_ptr->bpval * 5);
+
+			/* Affect infravision */
+			if (k_ptr->flags1 & TR1_INFRA) p_ptr->see_infra += o_ptr->bpval;
+
+			/* Affect digging (factor of 20) */
+			if (k_ptr->flags1 & TR1_TUNNEL) p_ptr->skill_dig += (o_ptr->bpval * 20);
+
+			/* Affect speed */
+			if (k_ptr->flags1 & TR1_SPEED) p_ptr->pspeed += o_ptr->bpval;
+
+			/* Affect blows */
+			if (k_ptr->flags1 & TR1_BLOWS) extra_blows += o_ptr->bpval;
+		}
+
+		/* Next, add our ego bonuses */
+		/* Hack -- clear out any pval bonuses that are in the base item
+		 * bonus but not the ego bonus so we don't add them twice.
+		*/
+		if (o_ptr->name2)
+		{
+			f1 &= ~(k_ptr->flags1 & TR1_PVAL_MASK & ~e_ptr->flags1);
+		}
+
 
 		/* Affect stats */
 		if (f1 & TR1_STR) p_ptr->stat_add[A_STR] += o_ptr->pval;
@@ -1682,7 +1788,7 @@ static void calc_bonuses(int Ind)
 		if (f3 & TR3_TELEPATHY) p_ptr->telepathy = TRUE;
 		if (f3 & TR3_LITE) p_ptr->lite += 1;
 		if (f3 & TR3_SEE_INVIS) p_ptr->see_inv = TRUE;
-		if (f3 & TR3_FEATHER) p_ptr->ffall = TRUE;
+		if (f3 & TR3_FEATHER) p_ptr->feather_fall = TRUE;
 		if (f2 & TR2_FREE_ACT) p_ptr->free_act = TRUE;
 		if (f2 & TR2_HOLD_LIFE) p_ptr->hold_life = TRUE;
 
@@ -1863,6 +1969,12 @@ static void calc_bonuses(int Ind)
 		p_ptr->dis_to_h += 10;
 	}
 
+	/* Temprory invisibility */
+	if (p_ptr->tim_invisibility)
+	{
+		p_ptr->invis = p_ptr->tim_invis_power;
+	}
+
 	/* Temprory shield */
 	if (p_ptr->shield)
 	{
@@ -1884,6 +1996,18 @@ static void calc_bonuses(int Ind)
 		p_ptr->dis_to_h += 24;
 		p_ptr->to_a -= 10;
 		p_ptr->dis_to_a -= 10;
+	}
+
+	/* Temporary "Furry" */
+	if (p_ptr->furry)
+	{
+		p_ptr->to_h += 10;
+		p_ptr->dis_to_h += 10;
+		p_ptr->to_a += 10;
+		p_ptr->dis_to_a += 10;
+		p_ptr->pspeed += 10;
+		p_ptr->to_a -= 25;
+		p_ptr->dis_to_a -= 25;
 	}
 
 	/* Temporary "fast" */
@@ -2104,6 +2228,9 @@ static void calc_bonuses(int Ind)
 
 			/* Paladin */
 			case CLASS_PALADIN: num = 5; wgt = 30; mul = 4; break;
+
+			/* Sorcerer */
+			case CLASS_SORCERER:num = 1; wgt = 40; mul = 2; break;
 		}
 
 		/* Enforce a minimum "weight" (tenth pounds) */

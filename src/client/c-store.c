@@ -363,7 +363,6 @@ void display_store(void)
 		case 6: feature = "Black Market"; break;
 		case 7: feature = "Your home"; break;
 	}
-
 	
 	/* The "Home" is special */
 	if (store_num == 7)
@@ -404,6 +403,9 @@ void display_store(void)
                 /* Label the asking price (in stores) */
                 put_str("Price", 5, 72);
 	}
+
+	/* Display the inventory */
+	display_inventory();
 
 	/* Don't leave */
 	leave_store = FALSE;
@@ -454,6 +456,11 @@ void display_store(void)
 		{
 			/* Re-fresh the screen */
 			Term_fresh();
+
+			/* Update our timer and send a keepalive packet if
+			 * neccecary */
+			update_ticks();
+			do_keepalive();
 
 			if (Net_flush() == -1)
 			{

@@ -1248,8 +1248,12 @@ void update_player(int Ind)
 				/* Visible */
 				hard = flag = TRUE;
 			}
-		/* hack -- dungeon masters are invisible */
-		if (!strcmp(q_ptr->name,cfg_dungeon_master)) flag = FALSE;
+			
+			/* hack -- dungeon masters are invisible */
+			if (!strcmp(q_ptr->name,cfg_dungeon_master)) flag = FALSE;
+			
+			/* Can we see invisibvle players ? */
+			if (!p_ptr->see_inv && q_ptr->invis) flag = FALSE;
 		}
 
 		/* Player is now visible */
@@ -2502,7 +2506,7 @@ void setup_monsters(void)
 	}
 }
 
-/* takes a monster name and returns an index, or 0 if no such monster
+/* Takes a monster name and returns an index, or 0 if no such monster
  * was found.
  */
 int race_index(char * name)
@@ -2510,7 +2514,7 @@ int race_index(char * name)
 	int i;
 
 	/* for each monster race */
-	for (i = 1; i < alloc_race_size; i++)
+	for (i = 1; i <= alloc_race_size; i++)
 	{
 		if (!strcmp(&r_name[r_info[i].name],name)) return i;
 	}

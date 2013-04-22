@@ -192,7 +192,9 @@ void teleport_player(int Ind, int dis)
 			{
 				y = rand_spread(p_ptr->py, dis);
 				x = rand_spread(p_ptr->px, dis);
+
 				d = distance(p_ptr->py, p_ptr->px, y, x);
+				//plog(format("y%d x%d d%d min%d dis%d", y, x, d, min, dis));
 				if ((d >= min) && (d <= dis)) break;
 			}
 
@@ -528,8 +530,14 @@ void take_hit(int Ind, int damage, cptr hit_from)
 {
 	player_type *p_ptr = Players[Ind];
 
+	// This is probably unused
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
 
+	// The "number" that the character is displayed as before the hit
+	int old_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+	int new_num; 
+
+	if (old_num >= 7) old_num = 10;
 
 	/* Paranoia */
 	if (p_ptr->death) return;
@@ -539,8 +547,19 @@ void take_hit(int Ind, int damage, cptr hit_from)
 	disturb(Ind, 1, 0);
 
 	/* Mega-Hack -- Apply "invulnerability" */
-	if (p_ptr->invuln && (damage < 9000)) return;
-
+	if (p_ptr->invuln)
+	{
+		/* 1 in 2 chance to fully deflect the damage */
+		if (magik(40))
+		{
+			msg_print(Ind, "The attack is fully deflected by the shield.");
+			return;
+	  	}
+	  	
+		/* Otherwise damage is reduced by the shield */
+		damage = damage / 2;
+  	}
+		
 	/* Hurt the player */
 	p_ptr->chp -= damage;
 
@@ -549,6 +568,14 @@ void take_hit(int Ind, int damage, cptr hit_from)
 
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
+
+	/* Figure out of if the player's "number" has changed */
+	new_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+	if (new_num >= 7) new_num = 10;
+
+	/* If so then refresh everyone's view of this player */
+	if (new_num != old_num)
+		everyone_lite_spot(p_ptr->dun_depth, p_ptr->py, p_ptr->px);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
@@ -706,6 +733,8 @@ static bool hates_fire(object_type *o_ptr)
 		/* Books */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_FIGHT_BOOK:
+		case TV_SORCERY_BOOK:
 		{
 			return (TRUE);
 		}
@@ -1584,6 +1613,25 @@ static bool project_f(int Ind, int who, int r, int Depth, int y, int x, int dam,
 			break;
 		}
 
+		case GF_STONE_WALL:
+		{
+			/* Require a "naked" floor grid */
+			if (!cave_naked_bold(Depth, y, x)) break;
+
+               		/* Beware of the houses in town */
+               		if ((Depth <= 0) && (cave[Depth][y][x].info & CAVE_ICKY)) break;
+
+                        /* Place a wall */
+			c_ptr->feat = FEAT_WALL_EXTRA;
+					
+			/* Notice */
+			note_spot(Ind, y, x);
+
+			/* Redraw */
+			everyone_lite_spot(Depth, y, x);
+			break;
+		}
+
 		/* Burn trees and grass */
 		case GF_FIRE:
 		{
@@ -2096,6 +2144,17 @@ static bool project_i(int Ind, int who, int r, int Depth, int y, int x, int dam,
 	/* Analyze the type */
 	switch (typ)
 	{
+		/* Identify */
+		case GF_IDENTIFY:
+		{
+			do_kill = FALSE;
+			
+			/* Identify it fully */
+			object_aware(Ind, o_ptr);
+			object_known(o_ptr);
+			break;
+		}
+		
 		/* Acid -- Lots of things */
 		case GF_ACID:
 		{
@@ -2447,6 +2506,15 @@ static bool project_m(int Ind, int who, int r, int Depth, int y, int x, int dam,
 	/* Analyze the damage type */
 	switch (typ)
 	{
+		/* Earthquake the area */
+		case GF_EARTHQUAKE:
+		{
+			if (seen) obvious = TRUE;
+			earthquake(Depth, y, x, dam);
+			dam = 0;
+			break;
+		}
+
 			/* Magic Missile -- pure damage */
 		case GF_MISSILE:
 		{
@@ -2611,6 +2679,13 @@ static bool project_m(int Ind, int who, int r, int Depth, int y, int x, int dam,
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 			}
+			break;
+		}
+
+			/* Sound -- Sound breathers resist */
+		case GF_STUN:
+		{
+			do_stun = (10 + randint(15)) / div;
 			break;
 		}
 
@@ -3598,7 +3673,8 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 
 		/* Do not become hostile if it was a healing or teleport spell */
 		
-		if ((typ != GF_HEAL_PLAYER) && (typ != GF_AWAY_ALL))
+		if ((typ != GF_HEAL_PLAYER) && (typ != GF_AWAY_ALL) && (typ != GF_WRAITH_PLAYER)
+		    && (typ != GF_SPEED_PLAYER) && (typ != GF_SHIELD_PLAYER) && (typ != GF_RECALL_PLAYER))
 		{
 			/* If this was intentional, make target hostile */
 			if (check_hostile(0 - who, Ind))
@@ -3610,8 +3686,17 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 				}
 			}
 			
-			/* XXX Reduce damage by 1/3 */
-			dam = (dam + 2) / 3;			
+			/* people not in the same party hit each other */			
+			if (!player_in_party(Players[0 - who]->party, Ind))
+			{			
+				/* XXX Reduce damage by 1/3 */
+				dam = (dam + 2) / 3;
+			}
+			else
+			{
+				/* Players in the same party can't harm each others */
+				return;
+			}
 		}
 	}
 
@@ -3724,6 +3809,16 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 			(void)set_confused(Ind, p_ptr->confused + randint(5) + 5);
 		}
 		take_hit(Ind, dam, killer);
+		break;
+
+		/* Stun */
+		case GF_STUN:
+		if (fuzzy) msg_print(Ind, "You are hit by something!");
+		if (!p_ptr->resist_sound)
+		{
+			(void)set_stun(Ind, p_ptr->stun + randint(40));
+			dam = 0;
+		}
 		break;
 
 		/* Chaos -- many effects */
@@ -3932,6 +4027,11 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 			int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
 			(void)set_stun(Ind, p_ptr->stun + k);
 		}
+		/* Feather fall lets us resist gravity */
+		if (p_ptr->feather_fall)
+		{
+			dam *= 6; dam /= (randint(6) + 6);
+		}
 		take_hit(Ind, dam, killer);
 		break;
 
@@ -3969,6 +4069,7 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 		break;
 
 		case GF_HEAL_PLAYER:
+		{
 		
 		if (fuzzy) msg_print(Ind, "You are hit by something good!");		
 		else msg_format(Ind, "%^s heals you!", killer);
@@ -3977,6 +4078,59 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 		set_cut(Ind, Players[Ind]->cut - 10);
 		
 		break;
+                }
+		case GF_WRAITH_PLAYER:		
+		{
+			if (fuzzy) msg_print(Ind, "You feel less consitant!");
+			else msg_format(Ind, "%^s turns you into a wraith!", killer);
+		
+			set_tim_wraith(Ind, p_ptr->tim_wraith + dam);
+			break;
+                }
+		case GF_SPEED_PLAYER:		
+		{
+			if (fuzzy) msg_print(Ind, "You feel faster!");
+			else msg_format(Ind, "%^s speeds you up!", killer);
+		
+			if (!p_ptr->fast)
+			{
+                                (void)set_fast(Ind, dam);
+			}
+			else
+			{
+                                (void)set_fast(Ind, p_ptr->fast + (dam / 5));
+			}
+			break;
+                }
+		case GF_SHIELD_PLAYER:
+		{
+			if (fuzzy) msg_print(Ind, "You feel protected!");
+			else msg_format(Ind, "%^s shields you!", killer);
+		
+                	if (!p_ptr->shield)
+                        	(void)set_shield(Ind, dam);
+                 	else
+                        	(void)set_shield(Ind, p_ptr->shield + (dam / 5));
+			break;
+                }
+		case GF_RECALL_PLAYER:
+		{
+			if (!p_ptr->word_recall)
+			{
+				p_ptr->recall_depth = p_ptr->max_dlv;
+				p_ptr->word_recall = dam;
+				if (fuzzy) msg_print(Ind, "You feel unstable!");
+				else msg_format(Ind, "%^s recalls you!", killer);
+			}
+			else
+			{
+				p_ptr->word_recall = 0;
+				if (fuzzy) msg_print(Ind, "You feel more stable!");
+				else msg_format(Ind, "%^s stops your recall!", killer);
+			}
+				dam = 0;
+			break;
+                }
 
 		case GF_OLD_CONF:
 		
@@ -4042,6 +4196,7 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 		}
 		else
 		{
+			msg_print(Ind, "The magic continuum twists around you!");
 			apply_morph(Ind, dam, killer);
 		}
 		break;
@@ -4381,6 +4536,9 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 			
 			/* healing spells hit everybody */			
 			if (typ == GF_HEAL_PLAYER) break;
+			if (typ == GF_WRAITH_PLAYER) break;
+			if (typ == GF_SPEED_PLAYER) break;
+			if (typ == GF_SHIELD_PLAYER) break;
 			
 			/* neutral people hit each other */			
 			if (!Players[0 - who]->party) break;

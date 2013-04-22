@@ -300,9 +300,9 @@ void console_init(void)
 
 
 	/* Create net socket */
-	if ((Socket = CreateDgramSocket(0)) == -1)
+	if ((Socket = CreateClientSocket(server_name, 18347)) == -1)
 	{
-		quit("Could not create Dgram socket\n");
+		quit("Could not connect to console port\n");
 	}
 
 	/* Make it non-blocking */
@@ -313,19 +313,13 @@ void console_init(void)
 
 	/* Create a socket buffer */
 	if (Sockbuf_init(&ibuf, Socket, CLIENT_SEND_SIZE,
-		SOCKBUF_READ | SOCKBUF_WRITE | SOCKBUF_DGRAM) == -1)
+		SOCKBUF_READ | SOCKBUF_WRITE) == -1)
 	{
 		quit("No memory for socket buffer\n");
 	}
 
 	/* Clear it */
 	Sockbuf_clear(&ibuf);
-	
-	/* Connect to server */
-	if ((DgramConnect(Socket, server_name, 18347)) == -1)
-	{
-		quit("Could not connect to MAngband server.\n");
-	}
 	
 	/* Get input, send commands, and read the response */
 	Input_loop();

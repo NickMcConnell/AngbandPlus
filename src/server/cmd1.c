@@ -561,7 +561,7 @@ void carry(int Ind, int pickup, int confirm)
 	if (!(c_ptr->o_idx)) return;
 
 	/* Ghosts cannot pick things up */
-	if ((p_ptr->ghost) || (p_ptr->fruit_bat)) return;
+	if ((p_ptr->ghost)) return;
 
 	/* Get the object */
 	o_ptr = &o_list[c_ptr->o_idx];
@@ -710,7 +710,7 @@ static void hit_trap(int Ind)
 
 
 	/* Ghosts ignore traps */
-	if ((p_ptr->ghost) || (p_ptr->fruit_bat)) return;
+	if ((p_ptr->ghost) || (p_ptr->tim_traps)) return;
 
 	/* Disturb the player */
 	disturb(Ind, 0, 0);
@@ -731,7 +731,7 @@ static void hit_trap(int Ind)
 			}
 
 			msg_print(Ind, "You fell through a trap door!");
-			if (p_ptr->ffall)
+			if (p_ptr->feather_fall)
 			{
 				msg_print(Ind, "You float gently down to the next level.");
 			}
@@ -766,7 +766,7 @@ static void hit_trap(int Ind)
 		case FEAT_TRAP_HEAD + 0x01:
 		{
 			msg_print(Ind, "You fell into a pit!");
-			if (p_ptr->ffall)
+			if (p_ptr->feather_fall)
 			{
 				msg_print(Ind, "You float gently to the bottom of the pit.");
 			}
@@ -782,7 +782,7 @@ static void hit_trap(int Ind)
 		{
 			msg_print(Ind, "You fall into a spiked pit!");
 
-			if (p_ptr->ffall)
+			if (p_ptr->feather_fall)
 			{
 				msg_print(Ind, "You float gently to the floor of the pit.");
 				msg_print(Ind, "You carefully avoid touching the spikes.");
@@ -812,7 +812,7 @@ static void hit_trap(int Ind)
 		{
 			msg_print(Ind, "You fall into a spiked pit!");
 
-			if (p_ptr->ffall)
+			if (p_ptr->feather_fall)
 			{
 				msg_print(Ind, "You float gently to the floor of the pit.");
 				msg_print(Ind, "You carefully avoid touching the spikes.");
@@ -1073,7 +1073,7 @@ void py_attack_player(int Ind, int y, int x)
 			if (p_ptr->ghost)
 				k = p_ptr->lev;
 			if (p_ptr->fruit_bat)
-				k = (p_ptr->lev / 5) + 1;
+				k = p_ptr->lev * ((p_ptr->lev / 10) + 1);
 
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
@@ -1125,6 +1125,27 @@ void py_attack_player(int Ind, int y, int x)
 				}
 			}
 
+			/* Stunning attack */
+			if (p_ptr->stunning)
+			{
+				/* Cancel heavy hands */
+				p_ptr->stunning = FALSE;
+
+				/* Message */
+				msg_print(Ind, "Your hands feel less heavy.");
+
+				/* Stun the monster */
+				if (rand_int(100) < q_ptr->lev)
+				{
+					msg_format(Ind, "%^s is unaffected.", p_name);
+				}
+				else
+				{
+					msg_format(Ind, "%^s appears stunned.", p_name);
+					set_stun(0 - c_ptr->m_idx, q_ptr->stun + 20 + rand_int(p_ptr->lev) / 5);
+				}
+			}
+
 			/* Ghosts get fear attacks */
 			if (p_ptr->ghost)
 			{
@@ -1135,6 +1156,18 @@ void py_attack_player(int Ind, int y, int x)
 					msg_format(Ind, "%^s appears afraid.", p_name);
 					set_afraid(0 - c_ptr->m_idx, q_ptr->afraid + 4 + rand_int(p_ptr->lev) / 5);
 				}
+			}
+
+			/* Fruit bats get life stealing */
+			if (p_ptr->fruit_bat)
+			{
+				int leech;
+				
+				leech = q_ptr->chp;
+				if (k < leech) leech = k;
+				leech /= 10;
+			
+				hp_player(Ind, rand_int(leech));
 			}
 		}
 
@@ -1254,7 +1287,7 @@ void py_attack_mon(int Ind, int y, int x)
 				k = p_ptr->lev;
 				
 			if (p_ptr->fruit_bat)
-				k = (p_ptr->lev / 5) + 1;
+				k = p_ptr->lev * ((p_ptr->lev / 10) + 1);
 
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
@@ -1316,6 +1349,35 @@ void py_attack_mon(int Ind, int y, int x)
 				}
 			}
 
+			/* Stunning attack */
+			if (p_ptr->stunning)
+			{
+				/* Cancel heavy hands */
+				p_ptr->stunning = FALSE;
+
+				/* Message */
+				msg_print(Ind, "Your hands feel less heavy.");
+
+				/* Stun the monster */
+				if (r_ptr->flags3 & RF3_NO_STUN)
+				{
+					if (p_ptr->mon_vis[c_ptr->m_idx]) r_ptr->r_flags3 |= RF3_NO_STUN;
+					msg_format(Ind, "%^s is unaffected.", m_name);
+				}
+				else if (rand_int(115) < r_ptr->level)
+				{
+					msg_format(Ind, "%^s is unaffected.", m_name);
+				}
+				else
+				{
+					if (!m_ptr->stunned)
+						msg_format(Ind, "%^s appears stuned.", m_name);
+					else
+						msg_format(Ind, "%^s appears more stunned.", m_name);
+					m_ptr->stunned += 20 + rand_int(p_ptr->lev) / 5;
+				}
+			}
+
 			/* Ghosts get fear attacks */
 			if (p_ptr->ghost)
 			{
@@ -1328,6 +1390,18 @@ void py_attack_mon(int Ind, int y, int x)
 				}
 			}
 
+
+			/* Fruit bats get life stealing */
+			if (p_ptr->fruit_bat)
+			{
+				int leech;
+				
+				leech = m_ptr->hp;
+				if (k < leech) leech = k;
+				leech /= 10;
+			
+				hp_player(Ind, rand_int(leech));
+			}
 		}
 
 		/* Player misses */
@@ -1477,7 +1551,7 @@ void move_player(int Ind, int dir, int do_pickup)
 			forget_view(Ind);			
 		
 			/* Hack -- take a turn */
-			p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+			p_ptr->energy -= level_speed(p_ptr->dun_depth);
 			
 			/* A player has left this depth */
 			players_on_depth[p_ptr->dun_depth]--;
@@ -1605,7 +1679,7 @@ void move_player(int Ind, int dir, int do_pickup)
 	}
 
 	/* Player can not walk through "walls", but ghosts can */
-	else if (!p_ptr->ghost && !cave_floor_bold(Depth, y, x))
+	else if ((!p_ptr->ghost) && (!p_ptr->tim_wraith) && (!cave_floor_bold(Depth, y, x)))
 	{
 		/* Disturb the player */
 		disturb(Ind, 0, 0);
@@ -1661,12 +1735,7 @@ void move_player(int Ind, int dir, int do_pickup)
 			else if ((c_ptr->feat < FEAT_SECRET && c_ptr->feat >= FEAT_DOOR_HEAD) || 
 			         (c_ptr->feat >= FEAT_HOME_HEAD && c_ptr->feat <= FEAT_HOME_TAIL))
 			{
-				/* auto door open if the option is set */
-				if (cfg_door_bump_open)
-				{
-					do_cmd_open(Ind, dir);
-				}
-				else msg_print(Ind, "There is a closed door blocking your way.");
+				msg_print(Ind, "There is a closed door blocking your way.");
 			}
 
 			/* Tree */
@@ -1683,8 +1752,24 @@ void move_player(int Ind, int dir, int do_pickup)
 		}
 	}
 
+	/* Wraiths trying to walk into a house */
+	else if (p_ptr->tim_wraith && (((c_ptr->feat >= FEAT_HOME_HEAD) && (c_ptr->feat <= FEAT_HOME_TAIL)) ||
+	         ((cave[Depth][y][x].info & CAVE_ICKY) && (Depth <= 0))))
+	{
+		disturb(Ind, 0, 0);
+	}
+
+	/* Wraiths can't enter vaults so easily :) trying to walk into a permanent wall */
+	else if (p_ptr->tim_wraith && c_ptr->feat >= FEAT_PERM_EXTRA && (Depth > 0))
+	{
+		/* Message */
+		msg_print(Ind, "The wall blocks your movement.");
+
+		disturb(Ind, 0, 0);
+	}
+
 	/* Ghost trying to walk into a permanent wall */
-	else if (p_ptr->ghost && c_ptr->feat >= FEAT_PERM_SOLID)
+	else if ((p_ptr->ghost || p_ptr->tim_wraith) && c_ptr->feat >= FEAT_PERM_SOLID)
 	{
 		/* Message */
 		msg_print(Ind, "The wall blocks your movement.");
@@ -1812,7 +1897,7 @@ void move_player(int Ind, int dir, int do_pickup)
 /*
  * Hack -- Check for a "motion blocker" (see below)
  */
-static int see_wall(int Ind, int dir, int y, int x)
+int see_wall(int Ind, int dir, int y, int x)
 {
 	player_type *p_ptr = Players[Ind];
 	int Depth = p_ptr->dun_depth;
@@ -1822,7 +1907,7 @@ static int see_wall(int Ind, int dir, int y, int x)
 	x += ddx[dir];
 
 	/* Ghosts run right through everything */
-	if (p_ptr->ghost) return (FALSE);
+	if ((p_ptr->ghost || p_ptr->tim_wraith)) return (FALSE);
 
 	/* Do wilderness hack, keep running from one outside level to another */
 	if ( (!in_bounds(Depth, y, x)) && (Depth <= 0) ) return FALSE;
@@ -2182,7 +2267,7 @@ static bool run_test(int Ind)
 
 
 	/* XXX -- Ghosts never stop running */
-	if (p_ptr->ghost) return (FALSE);
+	if (p_ptr->ghost || p_ptr->tim_wraith) return (FALSE);
 
 	/* No options yet */
 	option = 0;
@@ -2531,8 +2616,8 @@ static bool run_test(int Ind)
  */
 void run_step(int Ind, int dir)
 {
-	cave_type *c_ptr;
 	player_type *p_ptr = Players[Ind];
+	cave_type *c_ptr;
 
 	/* Check for just changed level */
 	if (p_ptr->new_level_flag) return;
@@ -2540,6 +2625,8 @@ void run_step(int Ind, int dir)
 	/* Start running */
 	if (dir)
 	{
+		// Running into walls and doors is now checked in do_cmd_run.
+		#if 0
 		/* Hack -- do not start silly run */
 		if (see_wall(Ind, dir, p_ptr->py, p_ptr->px))
 		{
@@ -2549,12 +2636,12 @@ void run_step(int Ind, int dir)
 			if (cfg_door_bump_open)
 			{
 				/* Get requested grid */
-				c_ptr = &cave[p_ptr->dun_depth][p_ptr->py+ddy[dir]][p_ptr->px+ddy[dir]];
+				c_ptr = &cave[p_ptr->dun_depth][p_ptr->py+ddy[dir]][p_ptr->px+ddx[dir]];
 
 				/* If a door, open it */
-				if (((c_ptr->feat >= FEAT_DOOR_HEAD) || 
+				if (((c_ptr->feat >= FEAT_DOOR_HEAD) && 
 				      (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
-				    ((c_ptr->feat >= FEAT_HOME_HEAD) ||
+				    ((c_ptr->feat >= FEAT_HOME_HEAD) &&
 				      (c_ptr->feat <= FEAT_HOME_TAIL))) 
 					{
 						do_cmd_open(Ind, dir);
@@ -2571,6 +2658,7 @@ void run_step(int Ind, int dir)
 			/* Done */
 			return;
 		}
+		#endif
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);

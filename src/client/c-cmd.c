@@ -20,6 +20,13 @@ void process_command()
                         break;
                 }
 
+                /* Clear buffer */
+                case ')':
+                {
+                        cmd_clear_buffer();
+                        break;
+                }
+
                 /*** Movement Commands ***/
 
                 /* Dig a tunnel*/
@@ -277,6 +284,12 @@ void process_command()
                         break;
                 }
 
+                case 'n':
+                {
+                        cmd_fight();
+                        break;
+                }
+
 		case 'U':
 		{
 			cmd_ghost();
@@ -338,7 +351,6 @@ void process_command()
 			cmd_help();
 			break;
 		}
-
 		/*** Miscellaneous ***/
 		case ':':
 		{
@@ -425,6 +437,11 @@ void process_command()
 
 
 
+
+void cmd_clear_buffer(void)
+{
+	Send_clear_buffer();
+}
 
 
 
@@ -631,6 +648,9 @@ void cmd_inven(void)
 	/* The whole screen is "icky" */
 	screen_icky = TRUE;
 
+	/* First, erase our current location */
+
+	/* Then, save the screen */
 	Term_save();
 
 	command_gap = 50;
@@ -639,7 +659,9 @@ void cmd_inven(void)
 
 	(void)inkey();
 
+	/* restore the screen */
 	Term_load();
+	/* print our new location */
 
 	/* The screen is OK now */
 	screen_icky = FALSE;
@@ -1324,6 +1346,37 @@ void cmd_throw(void)
 	Send_throw(item, dir);
 }
 
+static bool item_tester_browsable(object_type *o_ptr)
+{
+	if (((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_RANGER)) &&
+	    (o_ptr->tval == TV_MAGIC_BOOK))
+	{
+		return TRUE;
+	}
+	if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_PALADIN)) &&
+	    (o_ptr->tval == TV_PRAYER_BOOK))
+	{
+		return TRUE;
+	}
+	
+	if ((p_ptr->pclass == CLASS_SORCERER) && (o_ptr->tval == TV_SORCERY_BOOK))
+	{
+		return TRUE;
+	}
+	
+	if ((p_ptr->pclass == CLASS_ROGUE) && (o_ptr->tval == TV_SHADOW_BOOK))
+	{
+		return TRUE;
+	}
+	
+	if ((p_ptr->pclass == CLASS_WARRIOR) && (o_ptr->tval == TV_FIGHT_BOOK))
+	{
+		return TRUE;
+	}
+	
+	return FALSE;
+}
+
 void cmd_browse(void)
 {
 	int item;
@@ -1334,15 +1387,7 @@ void cmd_browse(void)
 		return;
 	}
 
-	if (class == CLASS_WARRIOR)
-	{
-		c_msg_print("You cannot read books!");
-		return;
-	}
-
-	if (class == CLASS_PRIEST || class == CLASS_PALADIN)
-		item_tester_tval = TV_PRAYER_BOOK;
-	else item_tester_tval = TV_MAGIC_BOOK;
+	item_tester_hook = item_tester_browsable;
 
 	if (!c_get_item(&item, "Browse which book? ", FALSE, TRUE, FALSE))
 	{
@@ -1358,15 +1403,7 @@ void cmd_study(void)
 {
 	int item;
 
-	if (class == CLASS_WARRIOR)
-	{
-		c_msg_print("You cannot gain spells!");
-		return;
-	}
-
-	if (class == CLASS_PRIEST || class == CLASS_PALADIN)
-		item_tester_tval = TV_PRAYER_BOOK;
-	else item_tester_tval = TV_MAGIC_BOOK;
+	item_tester_hook = item_tester_browsable;
 
 	if (!c_get_item(&item, "Gain from which book? ", FALSE, TRUE, FALSE))
 	{
@@ -1378,17 +1415,25 @@ void cmd_study(void)
 	do_study(item);
 }
 
+static bool item_tester_magicable(object_type *o_ptr)
+{
+	if (((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_RANGER)) && (o_ptr->tval == TV_MAGIC_BOOK)) return TRUE;
+	if ((p_ptr->pclass == CLASS_SORCERER) && (o_ptr->tval == TV_SORCERY_BOOK)) return TRUE;
+	if ((p_ptr->pclass == CLASS_ROGUE) && (o_ptr->tval == TV_SHADOW_BOOK)) return TRUE;
+	return FALSE;
+}
+
 void cmd_cast(void)
 {
 	int item;
 
-	if (class != CLASS_MAGE && class != CLASS_ROGUE && class != CLASS_RANGER)
+	if (class != CLASS_MAGE && class != CLASS_ROGUE && class != CLASS_RANGER && class != CLASS_SORCERER)
 	{
 		c_msg_print("You cannot cast spells!");
 		return;
 	}
 
-	item_tester_tval = TV_MAGIC_BOOK;
+	item_tester_hook = item_tester_magicable;
 
 	if (!c_get_item(&item, "Cast from what book? ", FALSE, TRUE, FALSE))
 	{
@@ -1420,6 +1465,28 @@ void cmd_pray(void)
 
 	/* Pick a spell and do it */
 	do_pray(item);
+}
+
+void cmd_fight(void)
+{
+	int item;
+
+	if (class != CLASS_WARRIOR)
+	{
+		c_msg_print("You are not strong enough.");
+		return;
+	}
+
+	item_tester_tval = TV_FIGHT_BOOK;
+
+	if (!c_get_item(&item, "Fight from what book? ", FALSE, TRUE, FALSE))
+	{
+		if (item == -2) c_msg_print("You have no books that you can fight from.");
+		return;
+	}
+
+	/* Pick a spell and do it */
+	do_fight(item);
 }
 
 void cmd_ghost(void)

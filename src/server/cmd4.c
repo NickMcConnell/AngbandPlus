@@ -1,3 +1,4 @@
+
 /* File: cmd4.c */
 
 /* Purpose: Interface commands */
@@ -518,11 +519,21 @@ void do_cmd_check_players(int Ind, int line)
 		fprintf(fff, "%c", attr);
 
 		/* Print a message */
-		fprintf(fff, "     %s the %s %s (Level %d, %s)",
-			q_ptr->name, race_info[q_ptr->prace].title,
-			class_info[q_ptr->pclass].title, q_ptr->lev,
-			parties[q_ptr->party].name);
-
+		if(q_ptr->fruit_bat)
+		{
+			fprintf(fff, "     %s the %s %s (Fruit bat, Level %d, %s)",
+				q_ptr->name, race_info[q_ptr->prace].title,
+				class_info[q_ptr->pclass].title, q_ptr->lev,
+				parties[q_ptr->party].name);
+	    	}
+	    	else
+	    	{
+			fprintf(fff, "     %s the %s %s (Level %d, %s)",
+				q_ptr->name, race_info[q_ptr->prace].title,
+				class_info[q_ptr->pclass].title, q_ptr->lev,
+				parties[q_ptr->party].name);
+	    	}
+				
 		/* Print extra info if these people are in the same party */
 		/* Hack -- always show extra info to dungeon master */
 		if ((p_ptr->party == q_ptr->party && p_ptr->party) || (!strcmp(p_ptr->name,cfg_dungeon_master)))

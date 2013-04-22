@@ -311,6 +311,45 @@ void choose_stat_order(void)
 	clear_from(20);
 }
 
+/*
+ * Gets a character class				-JWT-
+ */
+static void choose_class_mage(void)
+{
+	player_class *cp_ptr;
+	int          j, k, l, m;
+
+	char         c;
+
+	char	 out_val[160];
+
+
+	/* Get a class */
+	while (1)
+	{
+		put_str("Choose the max number of blows you want(1-4) (? for Help, Q to Quit)", 20, 2);
+		put_str("The less blows you have the fastest your mana regenerate :", 21, 2);
+		c = inkey();
+		if (c == 'Q') quit(NULL);
+		j = A2I(c);
+		if ((j <= 4) && (j >= 1))
+		{
+			class_extra = j;
+			break;
+		}
+		else if (c == '?')
+		{
+			/*do_cmd_help("help.hlp");*/
+		}
+		else
+		{
+			bell();
+		}
+	}
+
+	clear_from(20);
+}
+
 
 /*
  * Get the name/pass for this character.
@@ -376,6 +415,16 @@ void get_char_info(void)
 	/* Choose a class */
 	choose_class();
 
+	class_extra = 0;	
+	switch (class)
+	{
+		case CLASS_MAGE:
+		{
+//			choose_class_mage();
+			break;
+		}
+	}
+		
 	/* Choose stat order */
 	choose_stat_order();
 

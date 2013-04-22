@@ -1073,7 +1073,8 @@ static byte store_table[MAX_STORES-3][STORE_CHOICES][2] =
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
+		
+		{ TV_FIGHT_BOOK, 0 },
 	},
 
 	{
@@ -1161,7 +1162,7 @@ static byte store_table[MAX_STORES-3][STORE_CHOICES][2] =
 	{
 		/* Magic-User store */
 
-		{ TV_RING, SV_RING_SEARCHING },
+/* 		{ TV_RING, SV_RING_SEARCHING }, */
 		{ TV_RING, SV_RING_FEATHER_FALL },
 		{ TV_RING, SV_RING_PROTECTION },
 		{ TV_AMULET, SV_AMULET_CHARISMA },
@@ -1173,13 +1174,13 @@ static byte store_table[MAX_STORES-3][STORE_CHOICES][2] =
 		{ TV_WAND, SV_WAND_SLEEP_MONSTER },
 		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
 		{ TV_WAND, SV_WAND_STINKING_CLOUD },
-		{ TV_WAND, SV_WAND_WONDER },
+/*		{ TV_WAND, SV_WAND_WONDER },   */
 		{ TV_STAFF, SV_STAFF_LITE },
 		{ TV_STAFF, SV_STAFF_MAPPING },
 		{ TV_STAFF, SV_STAFF_DETECT_TRAP },
 		{ TV_STAFF, SV_STAFF_DETECT_DOOR },
 
-		{ TV_STAFF, SV_STAFF_DETECT_GOLD },
+/*		{ TV_STAFF, SV_STAFF_DETECT_GOLD }, */
 		{ TV_STAFF, SV_STAFF_DETECT_ITEM },
 		{ TV_STAFF, SV_STAFF_DETECT_INVIS },
 		{ TV_STAFF, SV_STAFF_DETECT_EVIL },
@@ -1190,12 +1191,16 @@ static byte store_table[MAX_STORES-3][STORE_CHOICES][2] =
 
 		{ TV_MAGIC_BOOK, 0 },
 		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
 		{ TV_MAGIC_BOOK, 1 },
 		{ TV_MAGIC_BOOK, 1 },
 		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 3 }
+		{ TV_MAGIC_BOOK, 3 },
+	
+		{ TV_SORCERY_BOOK, 0 },
+		{ TV_SORCERY_BOOK, 0 },
+		{ TV_SORCERY_BOOK, 1 },
+		{ TV_SORCERY_BOOK, 2 },
+		{ TV_SORCERY_BOOK, 3 },
 	}
 };
 
@@ -1614,6 +1619,10 @@ void set_server_option(char * option, char * value)
 	{
 		cfg_meta_address = strdup(value);
 	}
+	else if (!strcmp(option,"BIND_NAME"))
+	{
+		cfg_bind_name = strdup(value);
+	}
 	else if (!strcmp(option,"CONSOLE_PASSWORD"))
 	{
 		cfg_console_password = strdup(value);
@@ -1659,6 +1668,10 @@ void set_server_option(char * option, char * value)
 	else if (!strcmp(option,"LEVEL_UNSTATIC_CHANCE"))
 	{
 		cfg_level_unstatic_chance = atoi(value);
+	}
+	else if (!strcmp(option,"RETIRE_TIMER"))
+	{
+		cfg_retire_timer = atoi(value);
 	}
 	else printf("Error : unrecognized mangband.cfg option %s\n", option);
 }
@@ -1728,7 +1741,7 @@ void load_server_cfg_aux(FILE * cfg)
 void load_server_cfg(void)
 {
 	FILE * cfg;
-
+	
 	/* Attempt to open the file */
 	cfg = fopen("mangband.cfg", "r");
 

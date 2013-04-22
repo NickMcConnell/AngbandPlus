@@ -47,9 +47,6 @@ player or to all players in the normal fashion.
 asked for the player's name.  Note that this doesn't stop the player from
 immediately rejoining.
 
-"Reload the server preferences" -- This causes the game to reload the server
-preferences that are defined in the file mangband.cfg.
-
 "Shutdown the server" -- This saves all savefiles and shuts the server down
 cleanly.  It is a good idea to always use this method of shutting the server
 down.

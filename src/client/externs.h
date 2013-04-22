@@ -111,6 +111,8 @@ extern s16b race;
 extern s16b class;
 extern s16b sex;
 
+extern s16b class_extra;
+
 extern s16b stat_order[6];
 
 extern bool topline_icky;
@@ -263,6 +265,7 @@ extern void cmd_browse(void);
 extern void cmd_study(void);
 extern void cmd_cast(void);
 extern void cmd_pray(void);
+extern void cmd_fight(void);
 extern void cmd_ghost(void);
 extern void cmd_load_pref(void);
 extern void cmd_redraw(void);
@@ -366,6 +369,9 @@ extern void do_cmd_messages(void);
 /* client.c */
 
 /* netclient.c */
+extern int ticks;
+extern void update_ticks();
+extern void do_keepalive();
 extern int Net_setup(void);
 extern int Net_verify(char *real, char *nick, char *pass, int sex, int race, int class);
 extern int Net_init(char *server, int port);
@@ -415,6 +421,7 @@ extern int Send_item(int item);
 extern int Send_gain(int book, int spell);
 extern int Send_cast(int book, int spell);
 extern int Send_pray(int book, int spell);
+extern int Send_fight(int book, int spell);
 extern int Send_ghost(int ability);
 extern int Send_map(void);
 extern int Send_locate(int dir);
@@ -429,6 +436,7 @@ extern int Send_purchase_house(int dir);
 extern int Send_suicide(void);
 extern int Send_options(void);
 extern int Send_master(s16b command, cptr buf);
+extern int Send_clear_buffer(void);
 
 
 

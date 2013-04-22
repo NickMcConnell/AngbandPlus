@@ -1,3 +1,68 @@
+6/10/00:
+	Fixed a bug that caused a player to become a *KING* after killing Sauron,
+		and revised the winning code to make anyone >= level 40 in the same
+		party and on the same level as the killer of Morgoth a *KING*.
+	Added a retire timer option to mangband.cfg, RETIRE_TIMER.  Setting this 
+		option will cause a player to be automatically retired after
+		the specified number of minutes of play since winning the game.
+	Made it so that people who are't total winners can't wield Grond or
+		the Massive Iron Crown of Morgoth.
+	Increased the weight of the Massive Iron Crown of Morgoth from 2 to 20 
+		lbs.
+	Disabled the prayer alter reality until later when I have time to fix it.
+	
+6/08/00:
+	Revised the pricing and rarities of the deep books so that the deepest
+		deep books worth more money and easier to find.
+	Reworked the code so that types of items can be created that
+		instrinsically have ego powers, and that when excellent can
+		have additional independent ego powers.
+		Example : An Orcish Shield intrinsically gives 1d2 STR and CON.
+		When a shield of the Avari, it will additionally give 1d2 CON.
+		An Orcish Shield of the Avari (+1) (+2) will therefore have two
+		independent ego bonuses -- +1 STR,CON from the shield and +2 CON from the
+		Avari ego, and will therefore give +1 STR and +3 CON when worn. 
+	Made feather falling give resistance to gravity attacks.
+	Made Defenders no longer give feather falling.
+	Made holy avenger weapons additionaly give slay orc and slay troll.
+	Amulets of the magi have been given a random high resist and made rarer
+		at deeper depths than they were previously.
+	Some new items have been added to the game : amulet of the
+		Moon, amulet of Terken, amulet of Speed, Kolla (a type of cloak), Witan Boots,
+		Orcish Shield and Elven Gloves.  Also, some new types of ego armor have been
+		added : shield of the Avari, cloak of Resistance, cloak of the Teleri, cloak of
+		Lordly Resistance, missile weapon of Lothlorien, missile weapon of the Numenor, 
+		boots of Mirkwood, and gloves of the Istari.  
+	
+
+6/07/00:
+	The client and server networking code has been rewritten.  All
+		communications between client and server now use TCP.  The old
+		code was using a guarenteed delivery transmittion scheme
+		piggybacked on top of UDP to transmit all the game data.  TCP
+		not surprisingly appears to do a better job of this.
+	A proper command queue has been added for each player.  When the server
+		receives an "important" command from a player and the player
+		doesn't have enough energy to execute it, the command will be
+		added to the command queue.  Any pending commands on the queue
+		are executed in order as soon as the player gets enough energy
+		to execute them.
+	The time system has been revised so that resting rates and spell durations
+		scale to the speed of the level a player is on.
+	The autoattacker has been changed to be more intelligent in selecting
+		its target.  It has also been changed to "take effect" as soon
+		as possobile.
+	In order to make game motion more smooth, the games FPS has been increased
+		by a factor of 5 and the other game constants scaled accordingly.
+	Changed the mage spell GOI so that it lasts longer but doesn't stack.
+
+5/25/00: 
+	Fixed some minor bugs relating to the door_bump_open option.
+
+5/04/00:
+	Fixed a bug that caused the game to freeze for a bit when people 
+		exited a level, it unstaticed, and they came back into rock.
+
 4/27/00:
 	----- MAngband 0.6.1 released -----
 
@@ -41,6 +106,7 @@
 		templates takes a trivial amount of time on any modern
 		processor.
 
+>>>>>>> 1.15
 2/5/00:	 Made death terminate WOR spells.
 	 Increased the store max prices by 25x in the BM and 15x everywhere
 	 	else.

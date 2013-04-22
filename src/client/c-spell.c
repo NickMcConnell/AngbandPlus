@@ -45,6 +45,9 @@ static int get_spell(int *sn, cptr prompt, int book, bool known)
 	
 	p = ((class == CLASS_PRIEST || class == CLASS_PALADIN) ? "prayer" : "spell");
 
+	if (p_ptr->pclass == CLASS_WARRIOR)
+		p = "technic";
+
 	if (p_ptr->ghost)
 		p = "power";
 
@@ -125,7 +128,7 @@ static int get_spell(int *sn, cptr prompt, int book, bool known)
 		}
 		
 		/* hack for CAPITAL prayers (heal other) */
-		if ((class == CLASS_PRIEST) || (class == CLASS_PALADIN))
+		if ((class == CLASS_PRIEST) || (class == CLASS_PALADIN) || (class == CLASS_SORCERER))
 		{
 			/* lowercase */
 			if (islower(choice))
@@ -225,15 +228,20 @@ void do_study(int book)
 	int j;
 	cptr p = ((class == CLASS_PRIEST || class == CLASS_PALADIN) ? "prayer" : "spell");
 
+	if (p_ptr->pclass == CLASS_WARRIOR)
+		p = "technic";
+
+	/* Priest -- Learn random spell */
+	if (!strcmp(p, "prayer"))
+	{
+		j = -1;
+	}
 	/* Mage -- Learn a selected spell */
-	if (!strcmp(p, "spell"))
+	else
 	{
 		/* Ask for a spell, allow cancel */
 		if (!get_spell(&j, "study", book, FALSE)) return;
 	}
-
-	/* Priest -- Learn random spell */
-	else j = -1;
 
 	/* Tell the server */
 	/* Note that if we are a priest, the server ignores the spell parameter */
@@ -266,6 +274,20 @@ void do_pray(int book)
 
 	/* Tell the server */
 	Send_pray(book, j);
+}
+
+/*
+ * Use a technic
+ */
+void do_fight(int book)
+{
+	int j;
+
+	/* Ask for a spell, allow cancel */
+	if (!get_spell(&j, "use", book, FALSE)) return;
+
+	/* Tell the server */
+	Send_fight(book, j);
 }
 
 /*

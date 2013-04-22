@@ -254,11 +254,11 @@ struct ego_item_type
 	byte level;			/* Minimum level */
 	byte rarity;		/* Object rarity */
 
-	byte max_to_h;		/* Maximum to-hit bonus */
-	byte max_to_d;		/* Maximum to-dam bonus */
-	byte max_to_a;		/* Maximum to-ac bonus */
+	char max_to_h;		/* Maximum to-hit bonus */
+	char max_to_d;		/* Maximum to-dam bonus */
+	char max_to_a;		/* Maximum to-ac bonus */
 
-	byte max_pval;		/* Maximum pval */
+	char max_pval;		/* Maximum pval */
 
 	s32b cost;			/* Ego-item "cost" */
 
@@ -489,7 +489,8 @@ struct object_type
 	byte tval;			/* Item type (from kind) */
 	byte sval;			/* Item sub-type (from kind) */
 
-	s32b pval;			/* Item extra-parameter */
+	s32b bpval;			/* Base item extra-parameter */
+	s32b pval;			/* Extra enchantment item extra-parameter */
 
 	byte discount;		/* Discount (if any) */
 
@@ -499,6 +500,7 @@ struct object_type
 
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
+	s32b name3;			/* Randart seed, if any */
 
 	byte xtra1;			/* Extra info type */
 	byte xtra2;			/* Extra info index */
@@ -545,7 +547,7 @@ struct monster_type
 	s16b csleep;		/* Inactive counter */
 
 	byte mspeed;		/* Monster "speed" */
-	byte energy;		/* Monster "energy" */
+	s16b energy;		/* Monster "energy" */
 
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
@@ -1009,6 +1011,8 @@ struct player_type
 	byte pclass;		/* Class index */
 	byte male;			/* Sex of character */
 	byte oops;			/* Unused */
+	
+	s16b class_extra;	/* Class extra info */
 
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
@@ -1173,6 +1177,9 @@ struct player_type
 	s16b died_from_depth;	/* what depth we died on */
 
 	u16b total_winner;	/* Is this guy the winner */
+	u16b retire_timer;	/* The number of minutes this guy can play until
+				   he will be forcibly retired.
+				 */
 
 	u16b noscore;		/* Has he cheated in some way (hopefully not) */
 	s16b command_rep;	/* Command repetition */
@@ -1223,10 +1230,17 @@ struct player_type
 	s16b invuln;		/* Timed -- Invulnerable */
 	s16b hero;			/* Timed -- Heroism */
 	s16b shero;			/* Timed -- Super Heroism */
+	s16b furry;			/* Timed -- Furry */
 	s16b shield;		/* Timed -- Shield Spell */
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
+	s16b tim_wraith;	/* Timed -- Wraithform */
+	bool wraith_in_wall;
+	s16b tim_meditation;	/* Timed -- Meditation */
+	s16b tim_invisibility;		/* Timed -- Invisibility */
+	s16b tim_invis_power;	/* Timed -- Invisibility Power */
+	s16b tim_traps; 	/* Timed -- Avoid traps */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -1241,6 +1255,7 @@ struct player_type
 	s16b food;			/* Current nutrition */
 
 	byte confusing;		/* Glowing hands */
+	byte stunning;		/* Heavy hands */
 	byte searching;		/* Currently searching */
 
 	s16b new_spells;	/* Number of spells available */
@@ -1322,8 +1337,8 @@ struct player_type
 
 	bool exp_drain;		/* Experience draining */
 
-	bool ffall;			/* No damage falling */
-	bool lite;			/* Permanent light */
+	bool feather_fall;	/* No damage falling */
+	bool lite;		/* Permanent light */
 	bool free_act;		/* Never paralyzed */
 	bool see_inv;		/* Can see invisible */
 	bool regenerate;	/* Regenerate hit pts */
@@ -1333,6 +1348,8 @@ struct player_type
 	bool bless_blade;	/* Blessed blade */
 	bool xtra_might;	/* Extra might bow */
 	bool impact;		/* Earthquake blows */
+	
+	s16b invis;		/* Invisibility */
 
 	s16b dis_to_h;		/* Known bonus to hit */
 	s16b dis_to_d;		/* Known bonus to dam */

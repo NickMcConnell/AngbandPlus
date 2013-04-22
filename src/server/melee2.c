@@ -485,7 +485,7 @@ bool make_attack_spell(int Ind, int m_idx)
 		if (m_ptr->cdis > MAX_RANGE) return (FALSE);
 
 		/* Check path */
-		if (!projectable(p_ptr->dun_depth, m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)) return (FALSE);
+		if (!projectable_wall(p_ptr->dun_depth, m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)) return (FALSE);
 	}
 
 
@@ -2379,7 +2379,7 @@ static void process_monster(int Ind, int m_idx)
 	bool		did_kill_wall;
 
 
-	/* Hack -- don't process monsters on wilderness levels that have not
+/* Hack -- don't process monsters on wilderness levels that have not
 	   been regenerated yet.
 	*/
 	if (cave[Depth] == NULL) return;
@@ -2445,7 +2445,11 @@ static void process_monster(int Ind, int m_idx)
 		}
 
 		/* Still sleeping */
-		if (m_ptr->csleep) return;
+		if (m_ptr->csleep) 
+		{
+			m_ptr->energy -= level_speed(m_ptr->dun_depth);
+			return;
+		}
 	}
 
 
@@ -2488,7 +2492,11 @@ static void process_monster(int Ind, int m_idx)
 		}
 
 		/* Still stunned */
-		if (m_ptr->stunned) return;
+		if (m_ptr->stunned) 
+		{
+			m_ptr->energy -= level_speed(m_ptr->dun_depth);
+			return;
+		}
 	}
 
 
@@ -2561,7 +2569,6 @@ static void process_monster(int Ind, int m_idx)
 		}
 	}
 
-
 	/* Get the origin */
 	oy = m_ptr->fy;
 	ox = m_ptr->fx;
@@ -2594,13 +2601,19 @@ static void process_monster(int Ind, int m_idx)
 					if (p_ptr->mon_vis[m_idx]) r_ptr->r_flags2 |= RF2_MULTIPLY;
 
 					/* Multiplying takes energy */
+					m_ptr->energy -= level_speed(m_ptr->dun_depth);
+
 					return;
 				}
 			}
 		}
 						
 	/* Attempt to cast a spell */
-	if (make_attack_spell(Ind, m_idx)) return;
+	if (make_attack_spell(Ind, m_idx)) 
+	{
+		m_ptr->energy -= level_speed(m_ptr->dun_depth);
+		return;
+	}
 
 
 	/* Hack -- Assume no movement */
@@ -3111,9 +3124,12 @@ static void process_monster(int Ind, int m_idx)
 		}
 
 		/* Stop when done */
-		if (do_turn) break;
+		if (do_turn) 
+		{
+			m_ptr->energy -= level_speed(m_ptr->dun_depth);
+			break;
+		}
 	}
-
 
 	/* Notice changes in view */
 	if (do_view)
@@ -3174,6 +3190,69 @@ static void process_monster(int Ind, int m_idx)
 	}
 }
 
+
+/* Determine whether the player is invisible to a monster */
+static bool player_invis(int Ind, monster_type *m_ptr)
+{
+	player_type *p_ptr = Players[Ind];
+	s16b inv, mlv;
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+        inv = p_ptr->invis;
+
+	mlv = (s16b) r_ptr->level;
+
+	if (r_ptr->flags3 & RF3_NO_SLEEP)
+	{
+		mlv += 5;
+	}
+	if (r_ptr->flags3 & RF3_DRAGON)
+	{
+		mlv += 10;
+	}
+	if (r_ptr->flags3 & RF3_UNDEAD)
+	{
+		mlv += 12;
+	}
+	if (r_ptr->flags3 & RF3_DEMON)
+	{
+		mlv += 10;
+	}
+	if (r_ptr->flags3 & RF3_ANIMAL)
+	{
+		mlv += 3;
+	}
+	if (r_ptr->flags3 & RF3_ORC)
+	{
+		mlv -= 15;
+	}
+	if (r_ptr->flags3 & RF3_TROLL)
+	{
+		mlv -= 10;
+	}
+	if (r_ptr->flags2 & RF2_STUPID)
+	{
+		mlv /= 2;
+	}
+	if (r_ptr->flags2 & RF2_SMART)
+	{
+		mlv = (mlv * 5) / 4;
+	}
+	if (r_ptr->flags1 & RF1_QUESTOR)
+	{
+		inv = 0;
+	}
+	if (r_ptr->flags2 & RF2_INVISIBLE)
+	{
+                inv = 0;
+        }
+        if (mlv < 1)
+        {
+                mlv = 1;
+        }
+
+        return (inv >= randint(mlv*2));
+}
 
 
 
@@ -3250,12 +3329,12 @@ void process_monsters(void)
 		/* Give this monster some energy */
 		m_ptr->energy += e;
 
+		/* Make sure we don't store up too much energy */
+		if (m_ptr->energy > level_speed(m_ptr->dun_depth))
+			m_ptr->energy = level_speed(m_ptr->dun_depth);
 
 		/* Not enough energy to move */
 		if (m_ptr->energy < level_speed(m_ptr->dun_depth)) continue;
-
-		/* Use up "some" energy */
-		m_ptr->energy -= level_speed(m_ptr->dun_depth);
 
 		/* Find the closest player */
 		for (pl = 1; pl < NumPlayers + 1; pl++)
@@ -3287,6 +3366,9 @@ void process_monsters(void)
 
 			/* Skip if same distance and stronger */
 			if (j == dis_to_closest && p_ptr->chp > lowhp) continue;
+			
+			/* Skip if the monster can't see the player */
+			if (player_invis(pl, m_ptr)) continue;
 
 			/* Remember this player */
 			dis_to_closest = j;
@@ -3350,7 +3432,6 @@ void process_monsters(void)
 		}
 #endif
 
-
 		/* Do nothing */
 		if (!test) continue;
 
@@ -3362,9 +3443,8 @@ void process_monsters(void)
 		if (!p_ptr->alive || p_ptr->death || p_ptr->new_level_flag) break;
 	}
 
-
-	/* Only when needed, every ten game turns */
-	if (scan_monsters)
+	/* Only when needed, every five game turns */
+	if (scan_monsters && (!(turn%5)))
 	{
 		/* Shimmer multi-hued monsters */
 		for (i = 1; i < m_max; i++)

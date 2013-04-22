@@ -24,7 +24,7 @@
 
 # Version stamp (required)
 
-V:0.6.1
+V:2.9.9
 
 
 ##### Something special #####
@@ -1037,7 +1037,7 @@ F:INT | HIDE_TYPE
 N:136:Speed
 G:=:d
 I:45:31:0
-W:80:0:2:100000
+W:80:0:2:50000
 A:80/1
 F:SPEED | HIDE_TYPE
 
@@ -1274,15 +1274,22 @@ W:15:0:3:20
 A:15/1
 F:EASY_KNOW
 
-## XXX 170 XXX ##
+N:170:the Moon
+G:":d
+I:40:9:5
+W:38:0:3:30000
+A:38/8:50/4
+P:0:0d0:5:5:0
+F:SEE_INVIS | INFRA | ACTIVATE | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:171:the Magi
 G:":d
 I:40:8:0
-W:50:0:3:30000
-A:50/4
+W:50:0:3:40000
+A:50/8:70/4
 P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SEARCH |
+F:FREE_ACT | SEE_INVIS | SEARCH | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:172:DOOM
@@ -1323,7 +1330,7 @@ N:177:*Identify*
 G:?:d
 I:70:13:0
 W:30:0:5:1000
-A:30/1
+A:30/1:60/1
 
 N:178:Life
 G:?:d
@@ -1331,7 +1338,17 @@ I:70:48:0
 W:20:0:5:500
 A:20/1
 
-## XXX 179 XXX ##
+
+# This shield does not belong here
+
+N:179:& Orcish Shield~
+G:):D
+I:34:7:0
+W:40:0:100:25000
+A:40/4
+P:5:1d3:0:0:5
+F:STR | CON
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
 
 N:180:Remove Curse
 G:?:d
@@ -1345,9 +1362,22 @@ I:70:24:0
 W:0:0:5:15
 A:0/1:3/1:10/1
 
-## XXX 182 XXX ##
+N:182:& Kolla~
+G:(:G
+I:35:3:0
+W:65:0:5:80000
+A:65/4
+P:3:0d0:0:0:4
+F:STR | CON | DEX | SUST_STR | SUST_CON | SUST_DEX
 
-## XXX 183 XXX ##
+N:183:& Pair~ of Witan Boots
+G:]:b
+I:30:8:0
+W:60:0:80:4000
+A:60/1
+P:8:1d1:0:0:5
+F:STEALTH | IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC
+
 
 N:184:Summon Monster
 G:?:d
@@ -1415,9 +1445,27 @@ I:70:28:0
 W:5:0:5:35
 A:5/1:10/1
 
-## XXX 195 XXX ##
+# Amulet of Terken
+# This is out of place... the format of this file really should be changed so
+# that the system will automatically number these.
+# One random ability
+N:195:Terken
+G:":d
+I:40:13:0
+W:38:0:3:30000
+A:43/8:63/4
+P:0:0d0:0:0:0
+F:SEE_INVIS | FREE_ACT | SEARCH |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 196 XXX ##
+# Once again, this is out of place, the format of this file needs to be revised.
+N:196:& Set~ of Elven Gloves
+G:]:g
+I:31:4:0
+W:1:0:40:4000
+A:20/16
+P:1:0d0:0:0:0
+F:REGEN
 
 N:197:Door/Stair Location
 G:?:d
@@ -1467,7 +1515,16 @@ I:70:39:0
 W:10:0:5:50
 A:10/1
 
-## XXX 205 XXX ##
+# Amulet of Speed
+# This is out of place... the format of this file really should be changed so
+# that the system will automatically number these.
+N:205:Speed
+G:":d
+I:40:14:0
+W:38:0:3:20000
+A:30/16
+P:0:0d0:0:0:0
+F:SPEED | HIDE_TYPE
 
 N:206:Recharging
 G:?:d
@@ -2682,7 +2739,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:380:[Mordenkainen's Escapes]
 G:?:r
 I:90:5:0
-W:50:0:30:10000
+W:50:0:30:15000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2690,7 +2747,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:381:[Kelek's Grimoire of Power]
 G:?:r
 I:90:6:0
-W:60:0:30:30000
+W:60:0:30:40000
 A:60/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2698,16 +2755,16 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:382:[Tenser's Transformations]
 G:?:r
 I:90:7:0
-W:80:0:30:50000
-A:80/2
+W:70:0:30:300000
+A:70/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:383:[Raal's Tome of Destruction]
 G:?:r
 I:90:8:0
-W:100:0:30:100000
-A:100/4
+W:100:0:30:500000
+A:75/8
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -2722,7 +2779,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:385:[Godly Insights]
 G:?:g
 I:91:5:0
-W:50:0:30:10000
+W:50:0:30:25000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2730,7 +2787,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:386:[Purifications and Healing]
 G:?:g
 I:91:6:0
-W:60:0:30:30000
+W:60:0:30:50000
 A:60/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2738,16 +2795,16 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:387:[Holy Infusions]
 G:?:g
 I:91:7:0
-W:80:0:30:50000
-A:80/2
+W:80:0:30:100000
+A:70/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:388:[Wrath of God]
 G:?:g
 I:91:8:0
-W:100:0:30:100000
-A:100/4
+W:100:0:30:400000
+A:75/8
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3331,3 +3388,125 @@ I:45:37:0
 W:110:0:2:5000000
 F:INSTA_ART
 
+##### Sorcery Books #####
+
+N:512:[Apprentice Handbook]
+G:?:R
+I:92:0:0
+W:5:0:30:25
+A:5/1
+P:0:1d1:0:0:0
+
+N:513:[Mystical Words]
+G:?:R
+I:92:1:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:514:[Arcane Chants]
+G:?:R
+I:92:2:0
+W:20:0:30:400
+A:20/1
+P:0:1d1:0:0:0
+
+N:515:[Locus of Force]
+G:?:R
+I:92:3:0
+W:30:0:30:800
+A:30/1
+P:0:1d1:0:0:0
+
+N:516:[Powerfull Sigils]
+G:?:o
+I:92:4:0
+W:40:0:30:10000
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:517:[Disruptive Forces]
+G:?:o
+I:92:5:0
+W:50:0:30:15000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:518:[Forces of the Mind]
+G:?:o
+I:92:6:0
+W:60:0:30:40000
+A:60/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:519:[Power of Ancient Sorcerors]
+G:?:o
+I:92:7:0
+W:80:0:30:300000
+A:80/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+##### Fighting Books #####
+
+N:520:[Bashing for Beginners]
+G:?:U
+I:93:0:0
+W:5:0:30:200
+A:5/1
+P:0:1d1:0:0:0
+
+N:521:[Fury and Killing]
+G:?:U
+I:93:1:0
+W:50:0:30:50000
+A:50/1
+P:0:1d1:0:0:0
+
+N:522:[Robbers Handbook]
+G:?:D
+I:94:0:0
+W:5:0:30:25
+A:5/1
+P:0:1d1:0:0:0
+
+N:523:[Shadows and Illusions]
+G:?:D
+I:94:1:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:524:[Killing Made Easy]
+G:?:D
+I:94:2:0
+W:20:0:30:400
+A:20/1
+P:0:1d1:0:0:0
+
+N:525:[Bilbo's Tome of Burglary]
+G:?:D
+I:94:3:0
+W:50:0:30:15000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:526:[Shadows Escapes]
+G:?:D
+I:94:4:0
+W:60:0:30:40000
+A:60/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:527:[Great Shadows]
+G:?:D
+I:94:5:0
+W:70:0:30:300000
+A:70/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD

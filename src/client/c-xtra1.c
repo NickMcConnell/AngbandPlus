@@ -171,7 +171,10 @@ void prt_sp(int max, int cur)
 	char tmp[32];
 	byte color;
 
-	put_str("Max SP ", ROW_MAXSP, COL_MAXSP);
+	if (p_ptr->pclass == CLASS_WARRIOR)
+		put_str("Max ST ", ROW_MAXSP, COL_MAXSP);
+	else
+		put_str("Max SP ", ROW_MAXSP, COL_MAXSP);
 
 	sprintf(tmp, "%5d", max);
 	color = TERM_L_GREEN;
@@ -179,8 +182,11 @@ void prt_sp(int max, int cur)
 	c_put_str(color, tmp, ROW_MAXSP, COL_MAXSP + 7);
 
 
-	put_str("Cur SP ", ROW_CURSP, COL_CURSP);
-
+	if (p_ptr->pclass == CLASS_WARRIOR)
+		put_str("Cur ST ", ROW_CURSP, COL_CURSP);
+  	else
+		put_str("Cur SP ", ROW_CURSP, COL_CURSP);
+		
 	sprintf(tmp, "%5d", cur);
 
 	if (cur >= max)
@@ -482,6 +488,7 @@ void prt_basic(void)
 		case 7: r = "Half-troll"; break;
 		case 8: r = "Dunadan"; break;
 		case 9: r = "High-elf"; break;
+		case RACE_YEEK: r = "Yeek"; break;
 	}
 
 	switch(class)
@@ -492,6 +499,7 @@ void prt_basic(void)
 		case 3: c = "Rogue"; break;
 		case 4: c = "Ranger"; break;
 		case 5: c = "Paladin"; break;
+		case CLASS_SORCERER: c = "Sorceror"; break;
 	}
 
 	prt_field(r, ROW_RACE, COL_RACE);

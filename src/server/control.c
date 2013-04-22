@@ -364,18 +364,44 @@ void NewConsole(int read_fd, int arg)
 {
 	char ch, passwd[80], buf[1024];
 	int i, j, bytes;
+	static int newsock = 0;
+
+	/* Make a TCP connection */
+	/* Hack -- check if this data has arrived on the contact socket or not.
+	 * If it has, then we have not created a connection with the client yet, 
+	 * and so we must do so.
+	 */
+	if (read_fd == ConsoleSocket)
+	{
+		// Hack -- make sure that two people haven't tried to use mangconsole
+		// at the same time.  Since I am currently too lazy to support this,
+		// we will remove the input of the first person when the second person
+		// connects.
+		if (newsock) remove_input(newsock);
+		if ((newsock = SocketAccept(read_fd)) == -1)
+		{
+			quit("Couldn't accept TCP connection.\n");
+		}
+		console_buf.sock = newsock;
+		install_input(NewConsole, newsock, 2);
+		return;
+	}
+
 
 	/* Clear the buffer */
 	Sockbuf_clear(&console_buf);
-
 	/* Read the message */
 	bytes = DgramReceiveAny(read_fd, console_buf.buf, console_buf.size);
 
-	/* Check for errors */
-	if (bytes < 0)
+	/* Check for errors or our TCP connection closing */
+	if (bytes <= 0)
 	{
-		/* Message */
-		s_printf("Error reading from console socket\n");
+		/* If this happens our TCP connection has probably been severed.
+		 * Remove the input.
+		 */
+		//s_printf("Error reading from console socket\n");
+		remove_input(newsock);
+		newsock = 0;
 
 		return;
 	}
@@ -400,7 +426,7 @@ void NewConsole(int read_fd, int arg)
 		Packet_printf(&console_buf, "%c", CONSOLE_DENIED);
 		
 		/* Send it */
-		DgramReply(read_fd, console_buf.buf, console_buf.len);
+		DgramWrite(read_fd, console_buf.buf, console_buf.len);
 
 		/* Log this to the local console */
 		s_printf("Illegal console command from %s.\n", DgramLastname());
@@ -477,7 +503,7 @@ void NewConsole(int read_fd, int arg)
 	}
 
 	/* Write the response */
-	DgramReply(console_buf.sock, console_buf.ptr, console_buf.len);
+	DgramWrite(console_buf.sock, console_buf.ptr, console_buf.len);
 }
 
 /*
@@ -486,7 +512,7 @@ void NewConsole(int read_fd, int arg)
 bool InitNewConsole(int write_fd)
 {
 	/* Initialize buffer */
-	if (Sockbuf_init(&console_buf, write_fd, 8192, SOCKBUF_READ | SOCKBUF_WRITE | SOCKBUF_DGRAM))
+	if (Sockbuf_init(&console_buf, write_fd, 8192, SOCKBUF_READ | SOCKBUF_WRITE))
 	{
 		/* Failed */
 		s_printf("No memory for console buffer.\n");

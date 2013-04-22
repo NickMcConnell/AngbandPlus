@@ -14,7 +14,7 @@
  *
  * This software is provided "as is" without any express or implied warranty.
  *
- * RCS:      $Id: net-unix.c,v 1.6 1999/12/13 19:06:40 crimson Exp $
+ * RCS:      $Id: net-unix.c,v 1.5 2000/08/08 16:27:54 mangadm Exp $
  *
  * Revision 1.1.1.1  1992/05/11  12:32:34  bjoerns
  * XPilot v1.0
@@ -33,7 +33,7 @@
 
 #ifndef lint
 static char sourceid[] =
-    "@(#)$Id: net-unix.c,v 1.6 1999/12/13 19:06:40 crimson Exp $";
+    "@(#)$Id: net-unix.c,v 1.5 2000/08/08 16:27:54 mangadm Exp $";
 #endif
 
 #ifdef TERMNET
@@ -260,6 +260,7 @@ int	port;
 {
     int			fd;
     int			retval;
+    int			option=1;
 
 #ifdef UNIX_SOCKETS     
     struct sockaddr_un  addr_in;
@@ -297,6 +298,8 @@ int	port;
 #endif
     addr_in.sin_port		= htons(port);
     fd = socket(AF_INET, SOCK_STREAM, 0);
+    /* Set this so we don't wait forever on startups */
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR , (void*)&option, sizeof(int)); 
     if (fd < 0)
     {
 	sl_errno = SL_ESOCKET;
@@ -309,7 +312,7 @@ int	port;
     if (retval < 0)
     {
 	sl_errno = SL_EBIND;
-	fprintf( stderr, " Server Socket Bind Error: %d,%d\n",retval,errno);
+	/* fprintf( stderr, " Server Socket Bind Error: %d,%d\n",retval,errno); */
 	(void) close(fd);
 	return (-1);
     }
@@ -688,6 +691,7 @@ SocketLinger(fd)
 int	fd;
 #endif /* __STDC__ */
 {
+    int option=1;
 #if defined(LINUX0) || !defined(SO_LINGER)
     /*
      * As of 0.99.12 Linux doesn't have LINGER stuff.
@@ -1115,7 +1119,7 @@ int	fd;
     return (0);
 } /* SocketReadable */
 
-
+
 /*
  *******************************************************************************
  *
@@ -1190,6 +1194,10 @@ static inthandler()
  *
  * Originally coded by Arne Helme
  */
+
+ /* This function is not compatible with MAngband.  This is probably
+  * because it messes up the signals.
+  */
 int
 #ifdef __STDC__
 SocketRead(int fd, char *buf, int size)

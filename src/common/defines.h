@@ -32,12 +32,12 @@
  */
 
 /*
- * Current version number of MAngband: 0.6.0
+ * Current version number of PernMAngband:
  */
  
-#define VERSION_MAJOR	0
-#define VERSION_MINOR	6
-#define VERSION_PATCH	1
+#define VERSION_MAJOR	3
+#define VERSION_MINOR	0
+#define VERSION_PATCH	0
 
 /*
  * This value specifys the suffix to the version info sent to the metaserver.
@@ -47,7 +47,7 @@
  * 2 - "beta"
  * 3 - "development"
  */
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	2
 
 
 /*
@@ -148,12 +148,12 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           10
+#define MAX_RACES           12
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            6
+#define MAX_CLASS            7
 
 /*
  * Maximum number of parties to allow.  If, while trying to create a new
@@ -167,6 +167,8 @@
  * Maximum number of houses available.
  */
 #define MAX_HOUSES	1024
+#define HOUSE_KEY	0
+#define HOUSE_PASS	1
 
 /*
  * Number of entries in the player name hash table.
@@ -180,7 +182,7 @@
  */
  
 #define MAX_F_IDX	128	/* Max size for "f_info[]" */
-#define MAX_K_IDX	512	/* Max size for "k_info[]" */
+#define MAX_K_IDX	531	/* Max size for "k_info[]" */
 #define MAX_A_IDX	128	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
 #define MAX_R_IDX	549	/* Max size for "r_info[]" */
@@ -361,7 +363,7 @@
 /*
  * Misc constants
  */
-#define SERVER_SAVE	1000		/* How often to save the server state */
+#define SERVER_SAVE	800		/* How often to save the server state */
 #define TOWN_DAWN		10000	/* Number of turns from dawn to dawn XXX */
 #define GROW_TREE	5000		/* How often to grow a new tree in town */
 #define BREAK_GLYPH		550		/* Rune of protection resistance */
@@ -465,6 +467,9 @@
 #define PY_REGEN_MNBASE		524		/* Min amount mana regen*2^16 */
 
 
+/* Randart rarity */
+#define RANDART_RARITY	50
+
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -528,16 +533,19 @@
 #define RACE_HALF_TROLL	7
 #define RACE_DUNADAN	8
 #define RACE_HIGH_ELF	9
+#define RACE_YEEK   	10
+#define RACE_GOBLIN 	11
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
  */
 #define CLASS_WARRIOR	0
-#define CLASS_MAGE		1
+#define CLASS_MAGE	1
 #define CLASS_PRIEST	2
-#define CLASS_ROGUE		3
+#define CLASS_ROGUE	3
 #define CLASS_RANGER	4
 #define CLASS_PALADIN	5
+#define CLASS_SORCERER	6
 
 
 
@@ -844,6 +852,8 @@ that keeps many algorithms happy.
 #define ART_BARD			125
 #define ART_CUBRAGOL		126
 
+/* Randarts */
+#define ART_RANDART		127
 
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
@@ -874,7 +884,7 @@ that keeps many algorithms happy.
 #define EGO_ENDURE_FIRE		18
 #define EGO_ENDURE_COLD		19
 #define EGO_ENDURANCE		20
-/* xxx */
+#define EGO_AVARI               21
 /* xxx */
 /* xxx */
 
@@ -892,47 +902,48 @@ that keeps many algorithms happy.
 #define EGO_REGENERATION	34
 #define EGO_TELEPORTATION	35
 #define EGO_STUPIDITY		36
-#define EGO_NAIVETY			37
+#define EGO_NAIVETY		37
 #define EGO_UGLINESS		38
 #define EGO_SICKLINESS		39
 
 /* Cloaks */
 #define EGO_PROTECTION		40
-#define EGO_STEALTH			41
-#define EGO_AMAN			42
-/* xxx */
+#define EGO_STEALTH		41
+#define EGO_AMAN		42
+#define EGO_TELERI              43
 #define EGO_ENVELOPING		44
 #define EGO_VULNERABILITY	45
 #define EGO_IRRITATION		46
-/* xxx */
+#define EGO_CLOAK_RES           47
+#define EGO_CLOAK_LORDLY_RES	114 
 
 /* Gloves */
 #define EGO_FREE_ACTION		48
-#define EGO_SLAYING			49
-#define EGO_AGILITY			50
-#define EGO_POWER			51
-/* xxx */
-/* xxx */
+#define EGO_SLAYING		49
+#define EGO_AGILITY		50
+#define EGO_POWER		51
+#define EGO_ISTARI              52
+#define EGO_MAGIC               53
 #define EGO_WEAKNESS		54
 #define EGO_CLUMSINESS		55
 
 /* Boots */
 #define EGO_SLOW_DESCENT	56
-#define EGO_QUIET			57
-#define EGO_MOTION			58
-#define EGO_SPEED			59
-/* xxx */
-#define EGO_NOISE			61
+#define EGO_QUIET		57
+#define EGO_MOTION		58
+#define EGO_SPEED		59
+#define EGO_MIRKWOOD            60
+#define EGO_NOISE		61
 #define EGO_SLOWNESS		62
 #define EGO_ANNOYANCE		63
 
 /* Weapons */
-#define EGO_HA				64
-#define EGO_DF				65
+#define EGO_HA			64
+#define EGO_DF			65
 #define EGO_BLESS_BLADE		66
 /* xxx */
-#define EGO_WEST			68
-#define EGO_ATTACKS			69
+#define EGO_WEST		68
+#define EGO_ATTACKS		69
 /* xxx */
 /* xxx */
 #define EGO_BRAND_ACID		72
@@ -971,8 +982,8 @@ that keeps many algorithms happy.
 /* Bows */
 #define EGO_ACCURACY		104
 #define EGO_VELOCITY		105
-/* xxx */
-/* xxx */
+#define EGO_LORIEN              106
+#define EGO_NUMENOR             107
 #define EGO_EXTRA_MIGHT		108
 #define EGO_EXTRA_SHOTS		109
 /* xxx */
@@ -981,7 +992,6 @@ that keeps many algorithms happy.
 /* Ammo */
 #define EGO_HURT_ANIMAL		112
 #define EGO_HURT_EVIL		113
-/* xxx */
 /* xxx */
 /* xxx */
 /* xxx */
@@ -1049,6 +1059,9 @@ that keeps many algorithms happy.
 #define TV_FOOD         80
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
+#define TV_SORCERY_BOOK 92
+#define TV_FIGHT_BOOK 	93
+#define TV_SHADOW_BOOK 	94
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 
@@ -1131,6 +1144,7 @@ that keeps many algorithms happy.
 #define SV_SMALL_METAL_SHIELD		3
 #define SV_LARGE_LEATHER_SHIELD		4
 #define SV_LARGE_METAL_SHIELD		5
+#define SV_ORCISH_SHIELD                7
 #define SV_SHIELD_OF_DEFLECTION		10
 
 /* The "sval" codes for TV_HELM */
@@ -1146,15 +1160,18 @@ that keeps many algorithms happy.
 /* The "sval" codes for TV_BOOTS */
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS	2
 #define SV_PAIR_OF_HARD_LEATHER_BOOTS	3
-#define SV_PAIR_OF_METAL_SHOD_BOOTS		6
+#define SV_PAIR_OF_METAL_SHOD_BOOTS     6
+#define SV_PAIR_OF_WITAN_BOOTS          8
 
 /* The "sval" codes for TV_CLOAK */
 #define SV_CLOAK					1
+#define SV_KOLLA                                        3
 #define SV_SHADOW_CLOAK				6
 
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES	1
 #define SV_SET_OF_GAUNTLETS			2
+#define SV_SET_OF_ELVEN_GLOVES			4
 #define SV_SET_OF_CESTI				5
 
 /* The "sval" codes for TV_SOFT_ARMOR */
@@ -1216,10 +1233,12 @@ that keeps many algorithms happy.
 #define SV_AMULET_WISDOM		6
 #define SV_AMULET_CHARISMA		7
 #define SV_AMULET_THE_MAGI		8
-/* xxx */
+#define SV_AMULET_THE_MOON              9
 #define SV_AMULET_CARLAMMAS		10
 #define SV_AMULET_INGWE			11
 #define SV_AMULET_DWARVES		12
+#define SV_AMULET_TERKEN		13
+#define SV_AMULET_SPEED			14
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE				0
@@ -1786,6 +1805,14 @@ that keeps many algorithms happy.
 #define GF_DISP_EVIL	68
 #define GF_DISP_ALL	69
 #define	GF_HEAL_PLAYER	70
+#define	GF_STONE_WALL 	71
+#define	GF_EARTHQUAKE 	72
+#define	GF_WRAITH_PLAYER 73
+#define	GF_SPEED_PLAYER  74
+#define	GF_SHIELD_PLAYER 75
+#define GF_RECALL_PLAYER 76
+#define GF_STUN          77
+#define GF_IDENTIFY      78
 
 /*
  * Some things which induce learning
@@ -1893,7 +1920,7 @@ that keeps many algorithms happy.
 #define TR1_DEX				0x00000008L	/* DEX += "pval" */
 #define TR1_CON				0x00000010L	/* CON += "pval" */
 #define TR1_CHR				0x00000020L	/* CHR += "pval" */
-#define TR1_XXX1			0x00000040L	/* Later */
+#define TR1_MANA			0x00000040L	/* SP += "pval" * SP / 10 */
 #define TR1_XXX2			0x00000080L	/* Later */
 #define TR1_STEALTH			0x00000100L	/* Stealth += "pval" */
 #define TR1_SEARCH			0x00000200L	/* Search += "pval" */
@@ -1994,7 +2021,7 @@ that keeps many algorithms happy.
  */
 #define TR1_PVAL_MASK	\
         (TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
-         TR1_CON | TR1_CHR | TR1_XXX1 | TR1_XXX2 | \
+         TR1_CON | TR1_CHR | TR1_MANA | TR1_XXX2 | \
          TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
          TR1_SPEED | TR1_BLOWS | TR1_XXX3 | TR1_XXX4)
 
@@ -2719,3 +2746,9 @@ extern int PlayerUID;
 # define MESSAGE_BUF	4096
 #endif
 
+
+
+/*
+ * Ghost spell "realm"
+ */
+#define GHOST_SPELLS	5

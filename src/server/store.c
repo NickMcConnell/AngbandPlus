@@ -493,6 +493,7 @@ static void mass_produce(object_type *o_ptr)
 		}
 
 		case TV_MAGIC_BOOK:
+		case TV_SORCERY_BOOK:
 		case TV_PRAYER_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
@@ -744,6 +745,7 @@ static bool store_will_buy(int Ind, object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
+				case TV_FIGHT_BOOK:
 				case TV_SHOT:
 				case TV_BOLT:
 				case TV_ARROW:
@@ -798,6 +800,7 @@ static bool store_will_buy(int Ind, object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 				case TV_MAGIC_BOOK:
+				case TV_SORCERY_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -1135,6 +1138,8 @@ static void store_delete(int st)
 	store_item_optimize(st, what);
 }
 
+static int black_market_potion;
+
 
 /*
  * Creates a random item and gives it to a store
@@ -1153,6 +1158,7 @@ static void store_create(int st)
 	int			i, tries, level;
 	object_type		tmp_obj;
 	object_type		*o_ptr = &tmp_obj;
+	int force_num = 0;
 
 
 	/* Paranoia -- no room left */
@@ -1170,6 +1176,26 @@ static void store_create(int st)
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
+			
+			/* MEGA HACK */
+			if (black_market_potion == 1)
+			{
+				i = lookup_kind(TV_POTION, SV_POTION_SPEED);
+				black_market_potion--;
+				force_num = rand_range(10, 20);
+			}
+			if (black_market_potion == 2)
+			{
+				i = lookup_kind(TV_POTION, SV_POTION_HEALING);
+				black_market_potion--;
+				force_num = rand_range(3, 9);
+			}
+			if (black_market_potion == 3)
+			{
+				i = lookup_kind(TV_POTION, SV_POTION_RESTORE_MANA);
+				black_market_potion--;
+				force_num = rand_range(3, 9);
+			}
 
 			/* Handle failure */
 			if (!i) continue;
@@ -1229,6 +1255,8 @@ static void store_create(int st)
 
 		/* Mass produce and/or Apply discount */
 		mass_produce(o_ptr);
+		
+		if (force_num) o_ptr->number = force_num;
 
 		/* Attempt to carry the (known) item */
 		(void)store_carry(st, o_ptr);
@@ -1429,6 +1457,12 @@ static void display_store(int Ind)
 	/* Clear screen */
 	/*Term_clear();*/
 
+	/* Display the current gold */
+	store_prt_gold(Ind);
+
+	/* Draw in the inventory */
+	display_inventory(Ind);
+
 	/* The "Home" is special */
 	if (p_ptr->store_num == 7)
 	{
@@ -1443,11 +1477,6 @@ static void display_store(int Ind)
 		Send_store_info(Ind, p_ptr->store_num, st_ptr->owner, st_ptr->stock_num);
 	}
 
-	/* Display the current gold */
-	store_prt_gold(Ind);
-
-	/* Draw in the inventory */
-	display_inventory(Ind);
 }
 
 
@@ -2131,7 +2160,7 @@ void store_shuffle(int which)
 	int i, j;
 	store_type *st_ptr;
 	owner_type *ot_ptr;
-
+	int tries = 100;
 
 	/* Ignore home */
 	if (which == 7) return;
@@ -2152,8 +2181,9 @@ void store_shuffle(int which)
 
 	/* Pick a new owner */
 	for (j = st_ptr->owner; j == st_ptr->owner; )
-	{
+	{	  
 		st_ptr->owner = rand_int(MAX_OWNERS);
+		if ((!(--tries))) break;
 	}
 
 	/* Activate the new owner */
@@ -2198,6 +2228,7 @@ void store_maint(int which)
 	store_type *st_ptr;
 	owner_type *ot_ptr;
 
+	int tries = 200;
 
 	/* Ignore home */
 	if (which == 7) return;
@@ -2277,8 +2308,14 @@ void store_maint(int which)
 	if (j >= st_ptr->stock_size) j = st_ptr->stock_size - 1;
 
 	/* Acquire some new items */
-	while (st_ptr->stock_num < j) store_create(store_num);
-
+	/* We want speed & healing & mana pots in the BM */
+	black_market_potion = 3;
+	while (st_ptr->stock_num < j)
+	  {
+	    store_create(store_num);
+       	    tries--;
+	      if (!tries) break;
+	  }
 
 	/* Hack -- Restore the rating */
 	rating = old_rating;

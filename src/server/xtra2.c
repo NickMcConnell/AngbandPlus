@@ -17,6 +17,274 @@
 
 
 /*
+ * Set "p_ptr->tim_traps", notice observable changes
+ */
+bool set_tim_traps(int Ind, int v)
+{
+	player_type *p_ptr = Players[Ind];
+
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_traps)
+		{
+			msg_print(Ind, "You can avoid all the traps !");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_traps)
+		{
+			msg_print(Ind, "You should worry about traps again.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_traps = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (p_ptr->disturb_state) disturb(Ind, 0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff(Ind);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_invis", notice observable changes
+ */
+bool set_invis(int Ind, int v, int p)
+{
+	player_type *p_ptr = Players[Ind];
+
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_invisibility)
+		{
+			msg_format_near(Ind, "%s fades in the shadows!", p_ptr->name);
+			msg_print(Ind, "You fade in the shadow!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_invisibility)
+		{
+			msg_format_near(Ind, "The shadows enveloping %s disipate.", p_ptr->name);
+			msg_print(Ind, "The shadows enveloping you disipate.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_invisibility = v;
+	p_ptr->tim_invis_power = p;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (p_ptr->disturb_state) disturb(Ind, 0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS | PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff(Ind);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->furry", notice observable changes
+ */
+bool set_furry(int Ind, int v)
+{
+	player_type *p_ptr = Players[Ind];
+
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->furry)
+		{
+			msg_print(Ind, "You grow a furry!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->furry)
+		{
+			msg_print(Ind, "The furry stops.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->furry = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (p_ptr->disturb_state) disturb(Ind, 0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff(Ind);
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_meditation", notice observable changes
+ */
+bool set_tim_meditation(int Ind, int v)
+{
+	player_type *p_ptr = Players[Ind];
+
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_meditation)
+		{
+			msg_format_near(Ind, "%s starts a calm meditation!", p_ptr->name);
+			msg_print(Ind, "You start a calm meditation!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_meditation)
+		{
+			msg_format_near(Ind, "%s stops meditating.", p_ptr->name);
+			msg_print(Ind, "You stop your meditation.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_meditation = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (p_ptr->disturb_state) disturb(Ind, 0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_HP | PU_MANA);
+
+	/* Handle stuff */
+	handle_stuff(Ind);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_wraith", notice observable changes
+ */
+bool set_tim_wraith(int Ind, int v)
+{
+	player_type *p_ptr = Players[Ind];
+
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_wraith)
+		{
+			msg_format_near(Ind, "%s turns into a wraith!", p_ptr->name);
+			msg_print(Ind, "You turn into a wraith!");
+			notice = TRUE;
+			
+			p_ptr->wraith_in_wall = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_wraith)
+		{
+			msg_format_near(Ind, "%s loses his wraith powers.", p_ptr->name);
+			msg_print(Ind, "You lose your wraith powers.");
+			notice = TRUE;
+			
+			/* That will hopefully prevent game hinging when loading */
+			if (cave_floor_bold(p_ptr->dun_depth, p_ptr->py, p_ptr->px)) p_ptr->wraith_in_wall = FALSE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_wraith = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (p_ptr->disturb_state) disturb(Ind, 0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff(Ind);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
  * Set "p_ptr->blind", notice observable changes
  *
  * Note the use of "PU_UN_LITE" and "PU_UN_VIEW", which is needed to
@@ -1881,6 +2149,7 @@ static int get_coin_type(monster_race *r_ptr)
 void monster_death(int Ind, int m_idx)
 {
 	player_type *p_ptr = Players[Ind];
+	player_type *q_ptr = Players[Ind];
 
 	int			i, j, y, x, ny, nx, Depth;
 
@@ -2051,12 +2320,53 @@ void monster_death(int Ind, int m_idx)
 
 		/* Drop it in the dungeon */
 		drop_near(&prize, -1, Depth, y, x);
+
+		/* Nothing left, game over... */
+		for (i = 1; i <= NumPlayers; i++)
+		{
+			q_ptr = Players[i];
+			/* Make everyone in the game in the same party on the
+			 * same level greater than or equal to level 40 total
+			 * winners.
+			 */
+			if ((((p_ptr->party) && (q_ptr->party == p_ptr->party)) ||
+			   (q_ptr == p_ptr) ) && q_ptr->lev >= 40 && p_ptr->dun_depth == q_ptr->dun_depth)
+			{
+				/* Total winner */
+				q_ptr->total_winner = TRUE;
+
+				/* Redraw the "title" */
+				q_ptr->redraw |= (PR_TITLE);
+
+				/* Congratulations */
+				msg_print(i, "*** CONGRATULATIONS ***");
+				msg_print(i, "You have won the game!");
+				msg_print(i, "You may retire (commit suicide) when you are ready.");
+
+				/* Set his retire_timer if neccecary */
+				if (cfg_retire_timer >= 0)
+				{
+					q_ptr->retire_timer = cfg_retire_timer;
+				}
+			}
+		}	
+		/* Hack -- instantly retire any new winners if neccecary */
+		if (cfg_retire_timer == 0)
+		{
+			for (i = 1; i <= NumPlayers; i++)
+			{
+				p_ptr = Players[i];
+				if (p_ptr->total_winner)
+					do_cmd_suicide(i);
+			}
+		}
+
+		return;
 	}
 
 
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & RF1_QUESTOR)) return;
-
 
 	/* Hack -- Mark quests as complete */
 	for (i = 0; i < MAX_Q_IDX; i++)
@@ -2104,22 +2414,6 @@ void monster_death(int Ind, int m_idx)
 
 		/* Remember to update everything */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
-	}
-
-
-	/* Nothing left, game over... */
-	else
-	{
-		/* Total winner */
-		p_ptr->total_winner = TRUE;
-
-		/* Redraw the "title" */
-		p_ptr->redraw |= (PR_TITLE);
-
-		/* Congratulations */
-		msg_print(Ind, "*** CONGRATULATIONS ***");
-		msg_print(Ind, "You have won the game!");
-		msg_print(Ind, "You may retire (commit suicide) when you are ready.");
 	}
 }
 
@@ -2332,7 +2626,7 @@ void player_death(int Ind)
 
 	if (p_ptr->fruit_bat == -1) 
 	{
-		p_ptr->mhp = p_ptr->lev + 2;
+		p_ptr->mhp = (p_ptr->player_hp[p_ptr->lev-1] / 4) + (((adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128) * p_ptr->lev);
 		p_ptr->chp = p_ptr->mhp;
 		p_ptr->chp_frac = 0;
 	}
@@ -3645,11 +3939,6 @@ bool get_rep_dir(int *dp)
 #endif
 
 
-
-/* Selects the recall depth.
-   Setting negative levels is now legal, assuming that the player has explored
-   the respective wilderness level.
-*/
 void set_recall_depth(player_type * p_ptr, object_type * o_ptr)
 {
 	int recall_depth = 0;
@@ -3753,11 +4042,15 @@ bool do_restoreXP_other(int Ind)
   }
   
 
+/* Hack -- since the framerate has been boosted by five times since version
+ * 0.6.0 to make game movement more smooth, we return the old level speed
+ * times five to keep the same movement rate.
+ */
 
 int level_speed(int Ind)
 {
-	if ( Ind <= 0) return level_speeds[0];
-	else return level_speeds[Ind];
+	if ( Ind <= 0) return level_speeds[0]*5;
+	else return level_speeds[Ind]*5;
 }
 
 /* these Dungeon Master commands should probably be added somewhere else, but I am
@@ -3960,6 +4253,14 @@ u16b master_summon_aux_monster_type( char monster_type, char * monster_parms)
 	/* failure */
 	return 0;
 
+}
+
+/* Temporary debugging hack, to test the new excellents.
+ */
+bool master_acquire(int Ind, char * parms)
+{
+	player_type * p_ptr = Players[Ind];
+	acquirement(p_ptr->dun_depth, p_ptr->py, p_ptr->px, 1, TRUE);
 }
 
 /* Monster summoning options. More documentation on this later. */

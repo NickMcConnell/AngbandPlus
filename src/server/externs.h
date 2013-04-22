@@ -12,9 +12,17 @@
  * Automatically generated "variable" declarations
  */
 
+/* #include "netserver.h" */
+
 /* netserver.c */
 extern long Id;
 extern int NumPlayers;
+extern int ConsoleSocket;
+extern void process_pending_commands(int Ind);
+
+/* randart.c */
+extern artifact_type *randart_make(object_type *o_ptr);
+extern void randart_name(object_type *o_ptr, char *buffer);
 
 /* tables.c */
 extern s16b ddd[9];
@@ -55,8 +63,8 @@ extern player_race race_info[MAX_RACES];
 extern player_class class_info[MAX_CLASS];
 extern player_magic magic_info[MAX_CLASS];
 extern magic_type ghost_spells[64];
-extern u32b spell_flags[2][9][2];
-extern cptr spell_names[3][64];
+extern u32b spell_flags[5][9][2];
+extern cptr spell_names[6][64];
 extern byte chest_traps[64];
 extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
 extern cptr color_names[16];
@@ -157,6 +165,7 @@ extern s32b m_top;
 
 extern bool cfg_report_to_meta;
 extern char * cfg_meta_address;
+extern char * cfg_bind_name;
 extern char * cfg_console_password;
 extern char * cfg_admin_wizard;
 extern char * cfg_dungeon_master;
@@ -168,7 +177,7 @@ extern bool cfg_door_bump_open;
 extern s32b cfg_unique_respawn_time;
 extern s32b cfg_unique_max_respawn_time;
 extern s32b cfg_level_unstatic_chance;
-
+extern s32b cfg_retire_timer;
 
 extern bool rogue_like_commands;
 extern bool quick_messages;
@@ -434,6 +443,7 @@ extern void carry(int Ind, int pickup, int confirm);
 extern void py_attack(int Ind, int y, int x);
 extern void move_player(int Ind, int dir, int do_pickup);
 extern void run_step(int Ind, int dir);
+extern int see_wall(int Ind, int dir, int y, int x);
 
 /* cmd2.c */
 extern void do_cmd_go_up(int Ind);
@@ -448,7 +458,7 @@ extern void do_cmd_bash(int Ind, int dir);
 extern void do_cmd_spike(int Ind, int dir);
 extern void do_cmd_walk(int Ind, int dir, int pickup);
 extern void do_cmd_stay(int Ind, int pickup);
-extern void do_cmd_run(int Ind, int dir);
+extern int do_cmd_run(int Ind, int dir);
 /*extern void do_cmd_rest(void);*/
 extern void do_cmd_fire(int Ind, int dir, int item);
 extern void do_cmd_throw(int Ind, int dir, int item);
@@ -499,8 +509,14 @@ extern void do_cmd_browse(int Ind, int book);
 extern void do_cmd_study(int Ind, int book, int spell);
 extern void do_cmd_cast(int Ind, int book, int spell);
 extern void do_cmd_cast_aux(int Ind, int dir);
+extern void do_cmd_sorc(int Ind, int book, int spell);
+extern void do_cmd_sorc_aux(int Ind, int dir);
 extern void do_cmd_pray(int Ind, int book, int spell);
 extern void do_cmd_pray_aux(int Ind, int dir);
+extern void do_cmd_shad(int Ind, int book, int spell);
+extern void do_cmd_shad_aux(int Ind, int dir);
+extern void do_cmd_fight(int Ind, int book, int spell);
+extern void do_cmd_fight_aux(int Ind, int dir);
 extern void show_ghost_spells(int Ind);
 extern void do_cmd_ghost_power(int Ind, int ability);
 extern void do_cmd_ghost_power_aux(int Ind, int dir);
@@ -555,6 +571,7 @@ extern void signals_ignore_tstp(void);
 extern void signals_handle_tstp(void);
 extern void signals_init(void);
 extern void kingly(int Ind);
+extern errr get_rnd_line(cptr file_name, int entry, char *output);
 
 /* generate.c */
 extern void alloc_dungeon_level(int Depth);
@@ -787,6 +804,8 @@ extern void install_timer_tick(void (*func)(void), int freq);
 extern void install_input(void (*func)(int, int), int fd, int arg);
 extern void remove_input(int fd);
 extern void sched(void);
+extern void block_timer(void);
+extern void allow_timer(void);
 
 /* spells1.c */
 extern s16b poly_r_idx(int r_idx);
@@ -803,10 +822,12 @@ extern bool inc_stat(int Ind, int stat);
 extern bool dec_stat(int Ind, int stat, int amount, int permanent);
 extern bool res_stat(int Ind, int stat);
 extern bool apply_disenchant(int Ind, int mode);
+extern bool project_hook(int Ind, int typ, int dir, int dam, int flg);
 extern bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int flg);
 
 /* spells2.c */
 extern bool hp_player(int Ind, int num);
+extern bool hp_player_quiet(int Ind, int num);
 extern void warding_glyph(int Ind);
 extern bool do_dec_stat(int Ind, int stat);
 extern bool do_res_stat(int Ind, int stat);
@@ -840,6 +861,8 @@ extern bool recharge_aux(int Ind, int item, int num);
 extern bool speed_monsters(int Ind);
 extern bool slow_monsters(int Ind);
 extern bool sleep_monsters(int Ind);
+extern bool fear_monsters(int Ind);
+extern bool stun_monsters(int Ind);
 extern void aggravate_monsters(int Ind, int who);
 extern bool genocide(int Ind);
 extern bool mass_genocide(int Ind);
@@ -851,6 +874,7 @@ extern bool dispel_monsters(int Ind, int dam);
 extern bool turn_undead(int Ind);
 extern void destroy_area(int Depth, int y1, int x1, int r, bool full);
 extern void earthquake(int Depth, int cy, int cx, int r);
+extern void wipe_spell(int Depth, int cy, int cx, int r);
 extern void lite_room(int Ind, int Depth, int y1, int x1);
 extern void unlite_room(int Ind, int Depth, int y1, int x1);
 extern bool lite_area(int Ind, int dam, int rad);
@@ -943,6 +967,11 @@ extern void window_stuff(int Ind);
 extern void handle_stuff(int Ind);
 
 /* xtra2.c */
+extern bool set_tim_traps(int Ind, int v);
+extern bool set_invis(int Ind, int v, int p);
+extern bool set_furry(int Ind, int v);
+extern bool set_tim_meditation(int Ind, int v);
+extern bool set_tim_wraith(int Ind, int v);
 extern bool set_blind(int Ind, int v);
 extern bool set_confused(int Ind, int v);
 extern bool set_poisoned(int Ind, int v);
@@ -999,6 +1028,7 @@ extern bool master_level(int Ind, char * parms);
 extern bool master_build(int Ind, char * parms);
 extern bool master_summon(int Ind, char * parms);
 extern bool master_generate(int Ind, char * parms);
+extern bool master_acquire(int Ind, char * parms);
 
 /*extern bool get_rep_dir(int *dp);*/
 

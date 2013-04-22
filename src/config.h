@@ -53,7 +53,7 @@
  * result in a server that crashes more frequently, as a core dump
  * will be done instead of killing the bad connection.
  */
-/* #define DEBUG */
+#define DEBUG
 
 /*
  * OPTION: Break graphics on the client side.  Due to a very bad
@@ -200,8 +200,7 @@
  * players on.  Define this to be an empty string if you don't want to
  * report to a metaserver.
  */
-#define	META_ADDRESS "mangband.org"  
-//#define		META_ADDRESS ""
+#define	META_ADDRESS "www.mangband.org"  
 
 /*
  * OPTION: Set a vhost bind address.  This is only used if you have
@@ -211,8 +210,8 @@
  * machine as well.
  * Probably almost never used.
 */
-//#define	BIND_NAME "mangband.org" 
-//#define	BIND_IP "198.252.166.15" 
+#define	BIND_NAME "198.252.166.41"
+#define	BIND_IP "198.252.166.41"
 
 
 /* Define the password for the server console, used if NEW_SERVER_CONSOLE
@@ -545,7 +544,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"adingle@crud.net"
+#define MAINTAINER	"darkgod@pernangband.org"
 
 
 /*

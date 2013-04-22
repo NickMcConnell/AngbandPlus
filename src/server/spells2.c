@@ -19,11 +19,16 @@
 
 
 /*
- * Increase players hit points, notice effects
+ * Increase players hit points, notice effects, and tell the player about it.
  */
 bool hp_player(int Ind, int num)
 {
 	player_type *p_ptr = Players[Ind];
+
+	// The "number" that the character is displayed as before healing
+	int old_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+	int new_num; 
+
 
 	if (p_ptr->chp < p_ptr->mhp)
 	{
@@ -40,6 +45,14 @@ bool hp_player(int Ind, int num)
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
+
+		/* Figure out of if the player's "number" has changed */
+		new_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+		if (new_num >= 7) new_num = 10;
+
+		/* If so then refresh everyone's view of this player */
+		if (new_num != old_num)
+			everyone_lite_spot(p_ptr->dun_depth, p_ptr->py, p_ptr->px);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
@@ -73,6 +86,52 @@ bool hp_player(int Ind, int num)
 
 	return (FALSE);
 }
+
+/*
+ * Increase players hit points, notice effects, and don't tell the player it.
+ */
+bool hp_player_quiet(int Ind, int num)
+{
+	player_type *p_ptr = Players[Ind];
+
+	// The "number" that the character is displayed as before healing
+	int old_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+	int new_num; 
+
+
+	if (p_ptr->chp < p_ptr->mhp)
+	{
+		p_ptr->chp += num;
+
+		if (p_ptr->chp > p_ptr->mhp)
+		{
+			p_ptr->chp = p_ptr->mhp;
+			p_ptr->chp_frac = 0;
+		}
+
+		/* Update health bars */
+		update_health(0 - Ind);
+
+		/* Redraw */
+		p_ptr->redraw |= (PR_HP);
+
+		/* Figure out of if the player's "number" has changed */
+		new_num = (p_ptr->chp * 95) / (p_ptr->mhp*10); 
+		if (new_num >= 7) new_num = 10;
+
+		/* If so then refresh everyone's view of this player */
+		if (new_num != old_num)
+			everyone_lite_spot(p_ptr->dun_depth, p_ptr->py, p_ptr->px);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
 
 
 
@@ -487,6 +546,10 @@ void self_knowledge(int Ind)
 	{
 		info[i++] = "Your hands are glowing dull red.";
 	}
+	if (p_ptr->stunning)
+	{
+		info[i++] = "Your hands are very heavy.";
+	}
 	if (p_ptr->searching)
 	{
 		info[i++] = "You are looking around very carefully.";
@@ -507,7 +570,7 @@ void self_knowledge(int Ind)
 	{
 		info[i++] = "You can see invisible creatures.";
 	}
-	if (p_ptr->ffall)
+	if (p_ptr->feather_fall)
 	{
 		info[i++] = "You land gently.";
 	}
@@ -2241,6 +2304,26 @@ bool sleep_monsters(int Ind)
 	return (project_hack(Ind, GF_OLD_SLEEP, p_ptr->lev));
 }
 
+/*
+ * Fear monsters
+ */
+bool fear_monsters(int Ind)
+{
+	player_type *p_ptr = Players[Ind];
+
+	return (project_hack(Ind, GF_TURN_ALL, p_ptr->lev));
+}
+
+/*
+ * Stun monsters
+ */
+bool stun_monsters(int Ind)
+{
+	player_type *p_ptr = Players[Ind];
+
+	return (project_hack(Ind, GF_STUN, p_ptr->lev));
+}
+
 
 /*
  * Banish evil monsters
@@ -3127,6 +3210,57 @@ void earthquake(int Depth, int cy, int cx, int r)
 	}
 }
 
+/* Wipe everything */
+void wipe_spell(int Depth, int cy, int cx, int r)
+{
+	int		i, t, y, x, yy, xx, dy, dx, oy, ox;
+
+	cave_type	*c_ptr;
+
+
+
+	/* Don't hurt town or surrounding areas */
+	if (Depth <= 0 ? wild_info[Depth].radius <= 2 : 0)
+		return;
+
+	/* Paranoia -- Dnforce maximum range */
+	if (r > 12) r = 12;
+
+	/* Check around the epicenter */
+	for (dy = -r; dy <= r; dy++)
+		for (dx = -r; dx <= r; dx++)
+		{
+			/* Extract the location */
+			yy = cy + dy;
+			xx = cx + dx;
+
+			/* Skip illegal grids */
+			if (!in_bounds(Depth, yy, xx)) continue;
+
+			/* Skip distant grids */
+			if (distance(cy, cx, yy, xx) > r) continue;
+
+			/* Access the grid */
+			c_ptr = &cave[Depth][yy][xx];
+
+			/* Hack -- ICKY spaces are protected outside of the dungeon */
+			if (c_ptr->info & CAVE_ICKY) continue;
+
+			/* Lose room and vault */
+			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
+			
+			/* Turn into basic floor */
+			c_ptr->feat = FEAT_FLOOR;
+			
+			/* Delete monsters */
+			delete_monster(Depth, yy, xx);
+			
+			/* Delete objects */
+			delete_object(Depth, yy, xx);
+
+			everyone_lite_spot(Depth, yy, xx);
+		}
+}
 
 
 /*
@@ -3477,7 +3611,7 @@ bool fire_ball(int Ind, int typ, int dir, int dam, int rad)
 /*
  * Hack -- apply a "projection()" in a direction (or at the target)
  */
-static bool project_hook(int Ind, int typ, int dir, int dam, int flg)
+bool project_hook(int Ind, int typ, int dir, int dam, int flg)
 {
 	player_type *p_ptr = Players[Ind];
 

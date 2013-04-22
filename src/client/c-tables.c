@@ -1454,8 +1454,32 @@ player_race race_info[MAX_RACES] =
 		82, 10, 180, 15,
 		4,
 		0x1F
+	},
+
+	{
+		"Yeek",
+		{  -5, -5, -5, -5, -5, -5 },
+		0,  0,  0,  0,  0,  10,  0,  0,
+		8,  30,
+		14,  6,
+		72,  6, 180, 25,
+		66,  4, 150, 20,
+		0,
+		0x3F
 	}
 };
+/*
+ * Player Race Information:
+ *    Title,
+ *    {STR,INT,WIS,DEX,CON,CHR},
+ *    r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
+ *    hitdie, exp base,
+ *    Age (Base, Mod),
+ *    Male (Hgt, Wgt),
+ *    Female (Hgt, Wgt)
+ *    infra,
+ *    class-choices
+ */
 
 
 /*
@@ -1515,6 +1539,14 @@ player_class class_info[MAX_CLASS] =
 		20, 24, 25, 1,  12, 2, 68, 40,
 		7,  10, 11, 0,  0,  0,  35, 30,
 		6, 35
+	},
+
+	{
+		"Sorceror",
+		{-5, 5, 1, 0, -1, 0},
+		35, 40, 30, 2, 16, 20, 30, 20,
+		8,  15,  9, 0,  0,  0, 11, 15,
+		0, 30
 	}
 };
 
@@ -2069,14 +2101,103 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0}
 		}
-	}
+	},
+
+	{
+		/*** Sorcerer ***/
+
+		TV_SORCERY_BOOK,
+		0,
+
+		A_INT,
+		2,
+
+		1,
+		300,
+
+		{
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0}
+		}
+	},
 };
 
 
 /*
  * Spells in each book (mage spells then priest spells)
  */
-u32b spell_flags[2][9][2] =
+u32b spell_flags[3][9][2] =
 {
 	{
 		/*** Mage spell books ***/
@@ -2102,14 +2223,27 @@ u32b spell_flags[2][9][2] =
 		{ 0x00000000, 0x000001f0 },
 		{ 0x00000000, 0x000fc000 },
 		{ 0x00000000, 0x00003e00 }
-	}
+	},
+	
+	{
+		/*** Sorcery spell books ***/
+		{ 0x000001ff, 0x00000000 },
+		{ 0x0003fe00, 0x00000000 },
+		{ 0x03fc0000, 0x00000000 },
+		{ 0xfc000000, 0x00000001 },
+		{ 0x00000000, 0x003e0000 },
+		{ 0x00000000, 0x0000003e },
+		{ 0x00000000, 0x0001f000 },
+		{ 0x00000000, 0x07c00000 },
+		{ 0x00000000, 0x00000fc0 }
+	},
 };
 
 
 /*
  * Names of the spells (mage spells then priest spells)
  */
-cptr spell_names[2][64] =
+cptr spell_names[3][64] =
 {
 	/*** Mage Spells ***/
 
@@ -2283,7 +2417,93 @@ cptr spell_names[2][64] =
 		"(blank)",
 		"(blank)",
 		"(blank)"
-	}
+	},
+	
+	/*** Sorcery Spells ***/
+	{
+		/* Magic for Beginners (sval 0) */
+		"Magic Missile",
+		"Detect Creatures",
+		"Phase Door",
+		"Light Area",
+		"Treasure Detection",
+		"Cure Light Wounds",
+		"Object Detection",
+		"Find Hidden Traps/Doors",
+		"Stinking Cloud",
+
+		/* Conjurings and Tricks (sval 1) */
+		"Confuse Monster",
+		"Lightning Bolt",
+		"Trap/Door Destruction",
+		"Sleep I",
+		"Cure Poison",
+		"Teleport Self",
+		"Spear of Light",
+		"Frost Bolt",
+		"Turn Stone to Mud",
+
+		/* Incantations and Illusions (sval 2) */
+		"Satisfy Hunger",
+		"Recharge Item I",
+		"Tidal Wave",
+		"Polymorph Other",
+		"Identify",
+		"Sleep II",
+		"Fire Bolt",
+		"Slow Monster",
+
+		/* Sorcery and Evocations (sval 3) */
+		"Frost Ball",
+		"Recharge Item II",
+		"Teleport Other",
+		"Haste Self",
+		"Fire Ball",
+		"Word of Destruction",
+		"Genocide",
+
+		/* Mordenkainen's Escapes (sval 5) */
+		"Door Creation",
+		"Stair Creation",
+		"Teleport Level",
+		"Earthquake",
+		"Word of Recall",
+
+		/* Raal's Tome of Destruction (sval 8) */
+		"Cloud Kill",
+		"Acid Ball",
+		"Ice Storm",
+		"Meteor Swarm",
+		"Mana Storm",
+		"Mana Strike",
+
+		/* Kelek's Grimoire of Power (sval 6) */
+		"Detect Evil",
+		"Detect Enchantment",
+		"Recharge Item III",
+		"Genocide",
+		"Mass Genocide",
+
+		/* Resistance of Scarabtarices (sval 4) */
+		"Resist Fire",
+		"Resist Cold",
+		"Resist Acid",
+		"Resist Poison",
+		"Resistance",
+
+		/* Tenser's transformations... (sval 7) */
+		"Heroism",
+		"Shield",
+		"Berserker",
+		"Essence of Speed",
+		"Globe of Invulnerability",
+
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)"
+	},
 };
 
 
@@ -2460,7 +2680,21 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Low Paladin",
 		"High Paladin",
 		"Paladin Lord",
-	}
+	},
+
+	/* Sorcerer */
+	{
+		"Novice",
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Mage Lord",
+	},
 };
 
 

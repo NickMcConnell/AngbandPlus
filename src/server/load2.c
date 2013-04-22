@@ -503,6 +503,11 @@ static void rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->tval);
 	rd_byte(&o_ptr->sval);
 
+	/* Base pval */
+	if (!older_than(0,7,0))
+		rd_s32b(&o_ptr->bpval);
+	else o_ptr->bpval = 0;
+
 	/* Special pval */
 	if (older_than(0,6,1))
 	{
@@ -516,6 +521,7 @@ static void rd_item(object_type *o_ptr)
 
 	rd_byte(&o_ptr->name1);
 	rd_byte(&o_ptr->name2);
+	rd_s32b(&o_ptr->name3);
 	rd_s16b(&o_ptr->timeout);
 
 	rd_s16b(&o_ptr->to_h);
@@ -592,19 +598,6 @@ static void rd_item(object_type *o_ptr)
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-
-	/* Paranoia */
-	if (o_ptr->name1)
-	{
-		artifact_type *a_ptr;
-
-		/* Obtain the artifact info */
-		a_ptr = &a_info[o_ptr->name1];
-
-		/* Verify that artifact */
-		if (!a_ptr->name) o_ptr->name1 = 0;
-	}
-
 	/* Paranoia */
 	if (o_ptr->name2)
 	{
@@ -636,7 +629,15 @@ static void rd_item(object_type *o_ptr)
 		artifact_type *a_ptr;
 
 		/* Obtain the artifact info */
-		a_ptr = &a_info[o_ptr->name1];
+		/* Hack -- Randarts! */
+		if (o_ptr->name1 == ART_RANDART)
+		{
+			a_ptr = randart_make(o_ptr);
+		}
+		else
+		{
+			a_ptr = &a_info[o_ptr->name1];
+		}
 
 		/* Acquire new artifact "pval" */
 		o_ptr->pval = a_ptr->pval;
@@ -1235,16 +1236,27 @@ static bool rd_extra(int Ind)
 	rd_s16b(&p_ptr->oppose_pois);
 
 	rd_byte(&p_ptr->confusing);
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
+	rd_s16b(&p_ptr->tim_wraith);
+	rd_byte(&p_ptr->wraith_in_wall);
 	rd_byte(&p_ptr->searching);
 	rd_byte(&p_ptr->maximize);
 	rd_byte(&p_ptr->preserve);
-	rd_byte(&tmp8u);
+	rd_byte(&p_ptr->stunning);
 
+	rd_s16b(&p_ptr->tim_meditation);
+	
+	if (!older_than(3, 0, 0))
+	{
+		rd_s16b(&p_ptr->tim_invisibility);
+		rd_s16b(&p_ptr->tim_invis_power);
+	
+		rd_s16b(&p_ptr->furry);
+	}
+	
+	rd_s16b(&p_ptr->tim_traps);
+	
 	/* Future use */
-	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
+	for (i = 0; i < 44; i++) rd_byte(&tmp8u);
 
 	/* Skip the flags */
 	strip_bytes(12);
@@ -1258,6 +1270,8 @@ static bool rd_extra(int Ind)
 	/* Special stuff */
 	rd_u16b(&panic_save);
 	rd_u16b(&p_ptr->total_winner);
+	if (!older_than(0,7,0))
+		rd_u16b(&p_ptr->retire_timer);
 	rd_u16b(&p_ptr->noscore);
 
 
@@ -1819,6 +1833,18 @@ static errr rd_savefile_new_aux(int Ind)
 	rd_u32b(&p_ptr->spell_worked2);
 	rd_u32b(&p_ptr->spell_forgotten1);
 	rd_u32b(&p_ptr->spell_forgotten2);
+
+	/* Hack, rogue spells tottaly changed */
+	if ((p_ptr->pclass == CLASS_ROGUE) && (older_than(3,0,0)))
+	{
+		p_ptr->spell_learned1 = 0;
+		p_ptr->spell_learned2 = 0;
+		p_ptr->spell_worked1 = 0;
+		p_ptr->spell_worked2 = 0;
+		p_ptr->spell_forgotten1 = 0;
+		p_ptr->spell_forgotten2 = 0;
+		p_ptr->update |= PU_SPELLS;
+	}
 
 	for (i = 0; i < 64; i++)
 	{

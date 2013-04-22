@@ -480,6 +480,8 @@ static byte player_color(int Ind)
 			return TERM_L_WHITE;
 		case CLASS_PALADIN:
 			return TERM_L_BLUE;
+		case CLASS_SORCERER:
+			return TERM_ORANGE;
 	}
 
 	/* Oops */
@@ -3389,45 +3391,73 @@ void wiz_lite(int Ind)
  */
 void wiz_dark(int Ind)
 {
-	player_type *p_ptr = Players[Ind];
-	int Depth = p_ptr->dun_depth;
-	int        y, x;
+	player_type *p_ptr, *q_ptr = Players[Ind];
+	int Depth;
+	int y, x, i;
+	object_type *o_ptr;
 
 
-	/* Forget every grid */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	/* Check for every other player */
+	for (i = 1; i <= NumPlayers; i++)
 	{
-		for (x = 0; x < p_ptr->cur_wid; x++)
+		p_ptr = Players[i];
+		
+		Depth = p_ptr->dun_depth;
+		
+		
+		/* Only works for players on the level */
+		if (q_ptr->dun_depth != Depth) continue;
+		
+		o_ptr = &p_ptr->inventory[INVEN_LITE];
+		
+		/* Bye bye light */
+		if (o_ptr->k_idx)
 		{
-			cave_type *c_ptr = &cave[Depth][y][x];
-			byte *w_ptr = &p_ptr->cave_flag[y][x];
-
-			/* Process the grid */
-			*w_ptr &= ~CAVE_MARK;
-
-			/* Forget every object */
-			if (c_ptr->o_idx)
+			if ((o_ptr->sval == SV_LITE_TORCH) || (o_ptr->sval == SV_LITE_LANTERN))
 			{
-				/* Forget the object */
-				p_ptr->obj_vis[c_ptr->o_idx] = FALSE;
+				msg_print(Ind, "Your light suddently empty.");
+				
+				/* No more light, it's Rogues day today :) */
+				o_ptr->pval = 0;
 			}
 		}
+	
+		/* Forget every grid */
+		for (y = 0; y < p_ptr->cur_hgt; y++)
+		{
+			for (x = 0; x < p_ptr->cur_wid; x++)
+			{
+				cave_type *c_ptr = &cave[Depth][y][x];
+				byte *w_ptr = &p_ptr->cave_flag[y][x];
+
+				/* Process the grid */
+				*w_ptr &= ~CAVE_MARK;
+				c_ptr->info &= ~CAVE_GLOW;
+
+				/* Forget every object */
+				if (c_ptr->o_idx)
+				{
+					/* Forget the object */
+					p_ptr->obj_vis[c_ptr->o_idx] = FALSE;
+				}
+			}
+		}
+
+		/* Mega-Hack -- Forget the view and lite */
+		p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
+
+		/* Update the view and lite */
+		p_ptr->update |= (PU_VIEW | PU_LITE);
+
+		/* Update the monsters */
+		p_ptr->update |= (PU_MONSTERS);
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
 	}
-
-	/* Mega-Hack -- Forget the view and lite */
-	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
-
-	/* Update the view and lite */
-	p_ptr->update |= (PU_VIEW | PU_LITE);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
 }
 
 
@@ -3565,7 +3595,30 @@ bool projectable(int Depth, int y1, int x1, int y2, int x2)
 	/* Assume obstruction */
 	return (FALSE);
 }
+bool projectable_wall(int Depth, int y1, int x1, int y2, int x2)
+{
+	int dist, y, x;
 
+	/* Start at the initial location */
+	y = y1, x = x1;
+
+	/* See "project()" */
+	for (dist = 0; dist <= MAX_RANGE; dist++)
+	{
+		/* Check for arrival at "final target" */
+		if ((x == x2) && (y == y2)) return (TRUE);
+
+		/* Never go through walls */
+		if (dist && !cave_floor_bold(Depth, y, x)) break;
+
+		/* Calculate the new location */
+		mmove2(&y, &x, y1, x1, y2, x2);
+	}
+
+
+	/* Assume obstruction */
+	return (FALSE);
+}
 
 
 /*

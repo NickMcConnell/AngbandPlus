@@ -227,8 +227,16 @@ static char inkey_aux(void)
 			/* If we got a key, break */
 			if (ch) break;
 
-			/* Wait for .01 sec, or until there is net input */
-			SetTimeout(0, 10000);
+			/* Update our timer and if neccecary send a keepalive packet
+			 */
+			update_ticks();
+			do_keepalive();
+
+			/* Flush the network output buffer */
+			Net_flush();
+
+			/* Wait for .001 sec, or until there is net input */
+			SetTimeout(0, 1000);
 
 			/* Parse net input if we got any */
 			if (SocketReadable(net_fd))
@@ -237,9 +245,6 @@ static char inkey_aux(void)
 				{
 					quit(NULL);
 				}
-
-				/* Flush the network output buffer */
-				Net_flush();
 
 				/* Update the screen */
 				Term_fresh();

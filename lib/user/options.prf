@@ -5,36 +5,36 @@
 # Also remember that not all options are used.
 
 X:rogue_like_commands
-X:quick_messages
+Y:quick_messages
 X:other_query_flag
 X:carry_query_flag
 Y:use_old_target
-Y:always_pickup
+X:always_pickup
 Y:always_repeat
 Y:depth_in_feet
 Y:stack_force_notes
-X:stack_force_costs
+Y:stack_force_costs
 Y:show_labels
 Y:show_weights
 X:show_choices
-X:show_details
+Y:show_details
 Y:ring_bell
 Y:use_color
 
-Y:find_ignore_stairs
+X:find_ignore_stairs
 Y:find_ignore_doors
 Y:find_cut
 Y:find_examine
-Y:disturb_move
-Y:disturb_near
-Y:disturb_panel
-Y:disturb_state
-Y:disturb_minor
-Y:disturb_other
+X:disturb_move
+X:disturb_near
+X:disturb_panel
+X:disturb_state
+X:disturb_minor
+X:disturb_other
 X:alert_hitpoint
 X:alert_failure
 
-X:auto_haggle
+Y:auto_haggle
 X:auto_scum
 Y:stack_allow_items
 Y:stack_allow_wands

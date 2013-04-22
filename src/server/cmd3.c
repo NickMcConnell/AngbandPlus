@@ -304,8 +304,27 @@ void do_cmd_equip(void)
  */
 static bool item_tester_hook_wear(int Ind, object_type *o_ptr)
 {
-	/* Check for a usable slot */
-	if (wield_slot(Ind, o_ptr) >= INVEN_WIELD) return (TRUE);
+	player_type *p_ptr = Players[Ind];
+	
+	/* Restrict fruit bats */
+	if (p_ptr->fruit_bat)
+	{
+		switch(wield_slot(Ind, o_ptr))
+		{
+			case INVEN_RIGHT:
+			case INVEN_LEFT:
+			case INVEN_NECK:
+			case INVEN_HEAD:
+			case INVEN_OUTER:
+			case INVEN_LITE:
+				return TRUE;
+		}
+	}
+	else
+	{
+		/* Check for a usable slot */
+		if (wield_slot(Ind, o_ptr) >= INVEN_WIELD) return (TRUE);
+	}
 
 	/* Assume not wearable */
 	return (FALSE);
@@ -393,9 +412,31 @@ void do_cmd_wield(int Ind, int item)
 	}
 #endif
 
+	/* Mega-hack -- prevent anyone but total winners from wielding the Massive Iron
+	 * Crown of Morgoth or the Mighty Hammer 'Grond'.
+	 */
+	if (!p_ptr->total_winner)
+	{
+		/* Attempting to wear the crown if you are not a winner is a very, very bad thing
+		 * to do.
+		 */
+		if (o_ptr->name1 == ART_MORGOTH)
+		{
+			msg_print(Ind, "You are blasted by the Crown's power!");
+			/* This should pierce invulnerability */
+			take_hit(Ind, 10000, "the Massive Iron Crown of Morgoth");
+			return;
+		}
+		/* Attempting to wield Grond isn't so bad. */
+		if (o_ptr->name1 == ART_GROND)
+		{
+			msg_print(Ind, "You are far too weak to wield the mighty Grond.");
+			return;
+		}
+	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Get a copy of the object to wield */
 	tmp_obj = *o_ptr;
@@ -535,7 +576,7 @@ void do_cmd_takeoff(int Ind, int item)
 
 
 	/* Take a partial turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth) / 2;
+	p_ptr->energy -= level_speed(p_ptr->dun_depth) / 2;
 
 	/* Take off the item */
 	inven_takeoff(Ind, item, 255);
@@ -600,7 +641,7 @@ void do_cmd_drop(int Ind, int item, int quantity)
 
 
 	/* Take a partial turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth) / 2;
+	p_ptr->energy -= level_speed(p_ptr->dun_depth) / 2;
 
 	/* Drop (some of) the item */
 	inven_drop(Ind, item, quantity);
@@ -653,6 +694,9 @@ void do_cmd_drop_gold(int Ind, s32b amt)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
+
+	/* Take a turn */
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 }
 
 
@@ -710,7 +754,7 @@ void do_cmd_destroy(int Ind, int item, int quantity)
 #endif
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
@@ -913,9 +957,6 @@ void do_cmd_inscribe(int Ind, int item, cptr inscription)
 
 /*
  * Attempt to steal from another player
- 
- -APD- fixed a major bug in this....... ghosts could steal from PCs!!!
- 
  */
 void do_cmd_steal(int Ind, int dir)
 {
@@ -925,7 +966,7 @@ void do_cmd_steal(int Ind, int dir)
 	int success, notice;
 
 	/* Ghosts cannot steal */
-	if ((p_ptr->ghost) || (p_ptr->fruit_bat))
+	if ((p_ptr->ghost))
 	{
 	        msg_print(Ind, "You cannot steal things!");
 	        return;
@@ -1076,7 +1117,7 @@ void do_cmd_steal(int Ind, int dir)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 }
 
 
@@ -1136,7 +1177,7 @@ static void do_cmd_refill_lamp(int Ind, int item)
 
 
 	/* Take a partial turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth) / 2;
+	p_ptr->energy -= level_speed(p_ptr->dun_depth) / 2;
 
 	/* Access the lantern */
 	j_ptr = &(p_ptr->inventory[INVEN_LITE]);
@@ -1224,7 +1265,7 @@ static void do_cmd_refill_torch(int Ind, int item)
 
 
 	/* Take a partial turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth) / 2;
+	p_ptr->energy -= level_speed(p_ptr->dun_depth) / 2;
 
 	/* Access the primary torch */
 	j_ptr = &(p_ptr->inventory[INVEN_LITE]);

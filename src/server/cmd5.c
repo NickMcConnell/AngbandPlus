@@ -77,8 +77,8 @@ static s16b spell_chance(int Ind, int spell)
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[p_ptr->mp_ptr->spell_stat]];
 
-	/* Non mage/priest characters never get too good */
-	if ((p_ptr->pclass != 1) && (p_ptr->pclass != 2))
+	/* Non mage/sorceror/priest characters never get too good */
+	if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_PRIEST) && (p_ptr->pclass != CLASS_SORCERER))
 	{
 		if (minfail < 5) minfail = 5;
 	}
@@ -168,7 +168,7 @@ static void spell_info(int Ind, char *p, int j)
 		/* Analyze the spell */
 		switch (j)
 		{
-			case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
+			case 0: sprintf(p, " dam %dd%d", 3+((plev-1)/5), 4 + (plev / 10)); break;
 			case 2: strcpy(p, " range 10"); break;
 			case 5: strcpy(p, " heal 2d8"); break;
 			case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
@@ -176,16 +176,17 @@ static void spell_info(int Ind, char *p, int j)
 			case 14: sprintf(p, " range %d", plev * 10); break;
 			case 15: strcpy(p, " dam 6d8"); break;
 			case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
+			case 20: sprintf(p, " dam %d", (60 + (plev * 2))); break;
 			case 24: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-			case 26: sprintf(p, " dam %d", 30 + plev); break;
+			case 26: sprintf(p, " dam %d", 40 + plev); break;
 			case 29: sprintf(p, " dur %d+d20", plev); break;
-			case 30: sprintf(p, " dam %d", 55 + plev); break;
-			case 38: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-			case 39: sprintf(p, " dam %d", 40 + plev/2); break;
-			case 40: sprintf(p, " dam %d", 40 + plev); break;
-			case 41: sprintf(p, " dam %d", 70 + plev); break;
-			case 42: sprintf(p, " dam %d", 65 + plev); break;
-			case 43: sprintf(p, " dam %d", 300 + plev*2); break;
+			case 30: sprintf(p, " dam %d", 75 + (plev * 3 / 2)); break;
+			case 38: sprintf(p, " dam %d", 50 + plev/2); break;
+			case 39: sprintf(p, " dam %d", 50 + plev); break;
+			case 40: sprintf(p, " dam %d", 80 + plev); break;
+			case 41: sprintf(p, " dam %d", 75 + plev); break;
+			case 42: sprintf(p, " dam %d", 400 + plev*2); break;
+			case 43: sprintf(p, " dam %d", 400 + (plev * 3)); break;
 			case 49: strcpy(p, " dur 20+d20"); break;
 			case 50: strcpy(p, " dur 20+d20"); break;
 			case 51: strcpy(p, " dur 20+d20"); break;
@@ -195,7 +196,7 @@ static void spell_info(int Ind, char *p, int j)
 			case 55: strcpy(p, " dur 30+d20"); break;
 			case 56: strcpy(p, " dur 25+d25"); break;
 			case 57: sprintf(p, " dur %d+d25", 30+plev); break;
-			case 58: strcpy(p, " dur 6+d8"); break;
+			case 58: strcpy(p, " dur 8+d8"); break;
 		}
 	}
 
@@ -237,6 +238,63 @@ static void spell_info(int Ind, char *p, int j)
 		}
 	}
 
+	/* Sorcery spells */
+	if (p_ptr->mp_ptr->spell_book == TV_SORCERY_BOOK)
+	{
+		int plev = p_ptr->lev;
+
+		/* Analyze the spell */
+		switch (j)
+		{
+			case  0: sprintf(p, " dam %dd%d", 3+((plev-1)/5), 4 + (plev / 10)); break;
+                        case  1: sprintf(p, " range %d", 10); break;
+                        case  6: sprintf(p, " power %d", (plev * 3) / 2); break;
+                        case  8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+                        case  9: sprintf(p, " range %d", plev * 5); break;
+                        case 12: sprintf(p, " dam %dd%d", 5 + ((plev - 5) / 4), 8); break;
+                        case 15: sprintf(p, " dur %d+d20", 10 + plev); break;
+                        case 14: sprintf(p, " dam %dd%d", 6+((plev-5)/4),8); break;
+                        case 16: sprintf(p, " dur %d+d20", 20); break;
+                        case 17: sprintf(p, " dam %dd%d", 9+((plev-5)/4), 8); break;
+                        case 21: sprintf(p, " dur %d+d%d", plev, 20 + plev); break;
+                        case 22: sprintf(p, " dam 4*%dd%d", 5+((plev-5)/4), 8); break;
+                        case 25: sprintf(p, " dur %d+d20", 20); break;
+                        case 28: sprintf(p, " dam %d", 100 + (3 * plev)); break;
+                        case 29: sprintf(p, " dur %d+d20", 30); break;
+                        case 30: sprintf(p, " dam %d", 130 + (plev * 5 / 2)); break;
+                        case 36: sprintf(p, " dur %d+d20", 20); break;
+                        case 38: sprintf(p, " dam 8*%dd%d", 15 + (plev / 10), 8); break;
+                        case 39: sprintf(p, " dur 8+d6"); break;
+                        case 44: sprintf(p, " dam %d", 100 + (3 * plev)); break;
+                        case 46: sprintf(p, " dam %d", 600 + (2 * plev)); break;
+                        case 56: sprintf(p, " dam 2*15d%d", 7); break;
+                        case 57: sprintf(p, " dam %d", 400 + (2 * plev)); break;
+                        case 58: sprintf(p, " dam %d", 500 + (2 * plev)); break;
+                        case 60: sprintf(p, " dam 8*%dd%d", 20 + (plev / 10), 10); break;
+                        case 61: sprintf(p, " dam %d", 450 + (2 * plev)); break;
+                        case 62: sprintf(p, " dam 5*%d", 250 + plev); break;
+                        case 63: sprintf(p, " dam %d", 800); break;
+		}
+	}
+	
+	/* Rogue spells */
+	if (p_ptr->mp_ptr->spell_book == TV_SHADOW_BOOK)
+	{
+		int plev = p_ptr->lev;
+
+		/* Analyze the spell */
+		switch (j)
+		{
+			case 0: strcpy(p, " range 10"); break;
+                        case 1: sprintf(p, " dam %d", 8 + (plev / 2)); break;
+                        case 9: sprintf(p, " power %d", 30 + (plev * 3)); break;
+                        case 13: sprintf(p, " dur %d+d20", 20 + plev); break;
+                        case 33: sprintf(p, " range %d", 10 + (plev / 5)); break;
+                        case 40: sprintf(p, " dur %d+d20", 20 + plev); break;
+                        case 43: sprintf(p, " dur %d+d20", 30 + plev); break;
+		}
+	}
+	
 #endif
 
 }
@@ -432,11 +490,16 @@ void do_cmd_study(int Ind, int book, int spell)
 
 	int			j = -1;
 
-	cptr p = ((p_ptr->mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((p_ptr->mp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
 
 	object_type		*o_ptr;
 
 	byte spells[64], num = 0;
+	
+	if (p_ptr->pclass == CLASS_WARRIOR)
+	{
+		p = "technic";
+	}
 
 
 	if (!p_ptr->mp_ptr->spell_book)
@@ -514,6 +577,81 @@ void do_cmd_study(int Ind, int book, int spell)
 		}
 	}
 
+	/* Sorcery -- Learn a selected spell */
+	if (p_ptr->mp_ptr->spell_book == TV_SORCERY_BOOK)
+	{
+		for (i = 0; i < 64; i++)
+		{
+			/* Check for this spell */
+			if ((i < 32) ?
+				(spell_flags[p_ptr->mp_ptr->spell_type][sval][0] & (1L << i)) :
+				(spell_flags[p_ptr->mp_ptr->spell_type][sval][1] & (1L << (i - 32))))
+			{
+				/* Collect this spell */
+				spells[num++] = i;
+			}
+		}
+
+		/* Set the spell number */
+		j = spells[spell];
+
+		if (!spell_okay(Ind, j, FALSE))
+		{
+			msg_print(Ind, "You cannot gain that spell!");
+			return;
+		}
+	}
+
+	/* Shadow -- Learn a selected spell */
+	if (p_ptr->mp_ptr->spell_book == TV_SHADOW_BOOK)
+	{
+		for (i = 0; i < 64; i++)
+		{
+			/* Check for this spell */
+			if ((i < 32) ?
+				(spell_flags[p_ptr->mp_ptr->spell_type][sval][0] & (1L << i)) :
+				(spell_flags[p_ptr->mp_ptr->spell_type][sval][1] & (1L << (i - 32))))
+			{
+				/* Collect this spell */
+				spells[num++] = i;
+			}
+		}
+
+		/* Set the spell number */
+		j = spells[spell];
+
+		if (!spell_okay(Ind, j, FALSE))
+		{
+			msg_print(Ind, "You cannot gain that spell!");
+			return;
+		}
+	}
+
+	/* Fighting -- Learn a selected technic */
+	if (p_ptr->mp_ptr->spell_book == TV_FIGHT_BOOK)
+	{
+		for (i = 0; i < 64; i++)
+		{
+			/* Check for this spell */
+			if ((i < 32) ?
+				(spell_flags[p_ptr->mp_ptr->spell_type][sval][0] & (1L << i)) :
+				(spell_flags[p_ptr->mp_ptr->spell_type][sval][1] & (1L << (i - 32))))
+			{
+				/* Collect this spell */
+				spells[num++] = i;
+			}
+		}
+
+		/* Set the spell number */
+		j = spells[spell];
+
+		if (!spell_okay(Ind, j, FALSE))
+		{
+			msg_print(Ind, "You cannot gain that technic!");
+			return;
+		}
+	}
+
 	/* Priest -- Learn a random prayer */
 	if (p_ptr->mp_ptr->spell_book == TV_PRAYER_BOOK)
 	{
@@ -551,7 +689,7 @@ void do_cmd_study(int Ind, int book, int spell)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Learn the spell */
 	if (j < 32)
@@ -858,8 +996,9 @@ void do_cmd_cast(int Ind, int book, int spell)
 
 			case 20:
 			{
-				(void)sleep_monsters_touch(Ind);
-				break;
+				p_ptr->current_spell = 20;
+				get_aim_dir(Ind);
+				return;
 			}
 
 			case 21:
@@ -1166,7 +1305,7 @@ void do_cmd_cast(int Ind, int book, int spell)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)
@@ -1240,7 +1379,7 @@ void do_cmd_cast_aux(int Ind, int dir)
 		{
 			msg_format_near(Ind, "%s fires a magic missile.", p_ptr->name);
 			fire_bolt_or_beam(Ind, beam-10, GF_MISSILE, dir,
-						damroll(3 + ((plev - 1) / 5), 4));
+						damroll(3 + ((plev - 1) / 5), 4 + (plev / 10)));
 			break;
 		}
 
@@ -1293,6 +1432,14 @@ void do_cmd_cast_aux(int Ind, int dir)
 			break;
 		}
 
+		/* Tidal Wave */
+		case 20:
+		{
+			msg_format_near(Ind, "%s invoke a tidal wave.", p_ptr->name);
+			fire_ball(Ind, GF_WATER, dir, 60 + (plev * 2), 2 + (plev / 30));
+			break;
+		}
+
 		case 21:
 		{
 			(void)poly_monster(Ind, dir);
@@ -1316,7 +1463,7 @@ void do_cmd_cast_aux(int Ind, int dir)
 		case 26:
 		{
 			msg_format_near(Ind, "%s casts a frost ball.", p_ptr->name);
-			fire_ball(Ind, GF_COLD, dir, 30 + (plev), 2);
+			fire_ball(Ind, GF_COLD, dir, 40 + (plev), 4);
 			break;
 		}
 
@@ -1329,50 +1476,49 @@ void do_cmd_cast_aux(int Ind, int dir)
 		case 30:
 		{
 			msg_format_near(Ind, "%s casts a fire ball.", p_ptr->name);
-			fire_ball(Ind, GF_FIRE, dir, 55 + (plev), 2);
+			fire_ball(Ind, GF_FIRE, dir, 75 + (plev * 3 / 2), 2);
 			break;
 		}
 
 		case 38:
 		{
-			msg_format_near(Ind, "%s casts an acid bolt.", p_ptr->name);
-			fire_bolt_or_beam(Ind, beam, GF_ACID, dir,
-				damroll(6+((plev-5)/4), 8));
+			msg_format_near(Ind, "%s casts a cloud of death.", p_ptr->name);
+			fire_ball(Ind, GF_POIS, dir, 30 + (plev / 2), 3);
 			break;
 		}
 
 		case 39:
 		{
-			msg_format_near(Ind, "%s casts a cloud of death.", p_ptr->name);
-			fire_ball(Ind, GF_POIS, dir, 20 + (plev / 2), 3);
+			msg_format_near(Ind, "%s casts an acid ball.", p_ptr->name);
+			fire_ball(Ind, GF_ACID, dir, 50 + (plev), 2);
 			break;
 		}
 
 		case 40:
 		{
-			msg_format_near(Ind, "%s casts an acid ball.", p_ptr->name);
-			fire_ball(Ind, GF_ACID, dir, 40 + (plev), 2);
+			msg_format_near(Ind, "%s casts a frost ball.", p_ptr->name);
+			fire_ball(Ind, GF_COLD, dir, 80 + (plev), 3);
 			break;
 		}
 
 		case 41:
 		{
-			msg_format_near(Ind, "%s casts a frost ball.", p_ptr->name);
-			fire_ball(Ind, GF_COLD, dir, 70 + (plev), 3);
+			msg_format_near(Ind, "%s casts a meteor shower.", p_ptr->name);
+			fire_ball(Ind, GF_METEOR, dir, 75 + (plev), 3);
 			break;
 		}
 
 		case 42:
 		{
-			msg_format_near(Ind, "%s casts a meteor shower.", p_ptr->name);
-			fire_ball(Ind, GF_METEOR, dir, 65 + (plev), 3);
+			msg_format_near(Ind, "%s casts a mana ball.", p_ptr->name);
+			fire_ball(Ind, GF_MANA, dir, 400 + (plev * 2), 3 + (plev / 45));
 			break;
 		}
 
 		case 43:
 		{
-			msg_format_near(Ind, "%s casts a mana ball.", p_ptr->name);
-			fire_ball(Ind, GF_MANA, dir, 300 + (plev * 2), 3);
+			msg_format_near(Ind, "%s casts a mana strike.", p_ptr->name);
+			fire_bolt(Ind, GF_MANA, dir, 400 + (plev * 3));
 			break;
 		}
 
@@ -1405,7 +1551,7 @@ void do_cmd_cast_aux(int Ind, int dir)
 		p_ptr->window |= PW_SPELL;
 	}
 
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	if (s_ptr->smana <= p_ptr->csp)
 	{
@@ -1451,6 +1597,744 @@ void do_cmd_cast_aux(int Ind, int dir)
 	p_ptr->window |= (PW_PLAYER);
 }
 
+
+/*
+ * Cast a sorcery spell
+ *
+ * Many of the spells have a strange get_aim_dir(), and then they return.
+ * What this does is it sends a PKT_GET_DIRECTION to the client, which then
+ * (when the player hits a direction key), send a response to the server.  The
+ * server then calls do_cmd_sorc_aux() with the direction.  This is a crappy
+ * way of doing things, but it should work.  Without this, the server is hung
+ * until the player hits a direction key, and we try very hard not to have
+ * any undue slowness in the server. --KLJ--
+ */
+void do_cmd_sorc(int Ind, int book, int spell)
+{
+	player_type *p_ptr = Players[Ind];
+
+	int			i, j, sval;
+	int			chance, beam;
+	int			plev = p_ptr->lev;
+
+	object_type		*o_ptr;
+
+	magic_type		*s_ptr;
+
+	byte spells[64], num = 0;
+
+	/* Require spell ability */
+	if (p_ptr->mp_ptr->spell_book != TV_SORCERY_BOOK)
+	{
+		msg_print(Ind, "You cannot cast spells!");
+		return;
+	}
+
+	/* Require lite */
+	if (p_ptr->blind || no_lite(Ind))
+	{
+		msg_print(Ind, "You cannot see!");
+		return;
+	}
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print(Ind, "You are too confused!");
+		return;
+	}
+
+
+	/* Restrict choices to spell books */
+	item_tester_tval = p_ptr->mp_ptr->spell_book;
+
+	/* Get the item (in the pack) */
+	if (book >= 0)
+	{
+		o_ptr = &p_ptr->inventory[book];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - book];
+	}
+
+	if (o_ptr->tval != p_ptr->mp_ptr->spell_book)
+	{
+		msg_print(Ind, "SERVER ERROR: Tried to cast spell from bad book!");
+		return;
+	}
+
+        if(check_guard_inscription(o_ptr->note, 'm')) {
+                msg_print(Ind, "The item's inscription prevents it");
+                return;
+        };
+
+	/* Access the item's sval */
+	sval = o_ptr->sval;
+
+	for (i = 0; i < 64; i++)
+	{
+		/* Check for this spell */
+		if ((i < 32) ?
+			(spell_flags[p_ptr->mp_ptr->spell_type][sval][0] & (1L << i)) :
+			(spell_flags[p_ptr->mp_ptr->spell_type][sval][1] & (1L << (i - 32))))
+		{
+			/* Collect this spell */
+			spells[num++] = i;
+		}
+	}
+
+	/* Set the spell number */
+	if (spell < 64) j = spells[spell];
+	/* Affecting other spells */
+	else j = spells[spell-64];
+
+	if (!spell_okay(Ind, j, 1))
+	{
+		msg_print(Ind, "You cannot cast that spell.");
+		return;
+	}
+
+	/* Access the spell */
+	s_ptr = &p_ptr->mp_ptr->info[j];
+
+	/* Check mana */
+	if (s_ptr->smana > p_ptr->csp)
+	{
+		msg_print(Ind, "You do not have enough mana.");
+		return;
+	}
+
+	/* Spell failure chance */
+	chance = spell_chance(Ind, j);
+
+	/* Failed spell */
+	if (rand_int(100) < chance)
+	{
+		if (flush_failure) flush();
+		msg_print(Ind, "You failed to get the spell off!");
+	}
+
+	/* Process spell */
+	else
+	{
+		/* Hack -- chance of "beam" instead of "bolt" */
+		beam = ((p_ptr->pclass == 1) ? plev : (plev / 2));
+		
+		if (spell >= 64) j += 64;
+
+		/* Spells.  */
+		switch (j)
+		{
+			/* Magic Missile */
+			case 0:
+			{
+				p_ptr->current_spell = j;
+				get_aim_dir(Ind);
+				return;
+			}
+	   case 1: /* Phase Door */
+                        teleport_player(Ind, 10);
+		       break;
+           case 2: /* Detect Monsters */
+			(void)detect_creatures(Ind);
+		       break;
+           case 3: /* Detect Traps */
+			(void)detect_trap(Ind);
+		       break;
+           case 4: /* Light Area */
+                        (void)lite_area(Ind, damroll(2, (plev / 2)), (plev / 10) + 1);
+                       break;
+           case 5: /* Detect Doors/Stairs */
+                        (void)detect_sdoor(Ind);
+		       break;
+           case 6: /* Confuse Monster */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 7: /* Detect Objects */
+                        (void)detect_object(Ind);
+                        break;
+
+                case 8: /* Noxious Cloud */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 9: /* Teleport */
+                        teleport_player(Ind, plev * 5);
+                        break;
+                case 10: /* Beam of Light */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 11: /* Sleep Monster */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 12: /* Lightning Bolt */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 13: /* Stone to Mud */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 14: /* Frost Bolt */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 15: /* Wraithform */
+                        set_tim_wraith(Ind, p_ptr->tim_wraith + 10 + plev + randint(20));
+                        break;
+                case 15+64: /* Wraithform someone else */
+			p_ptr->current_spell = 15;
+			get_aim_dir(Ind);
+                        return;
+
+                case 16: /* Ethereal Eye */
+                        map_area(Ind);
+                        set_tim_invis(Ind, p_ptr->tim_invis + 20 + randint(20));
+                        break;
+                case 17: /* Fire Bolt */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 18: /* Identify */
+			(void)ident_spell(Ind);
+                        break;
+                case 19: /* Typhoon Daze */
+                        fire_ball(Ind, GF_CONFUSION, 0, 30, 2);
+                        break;
+                case 20: /* Time Distortion */
+                        slow_monsters(Ind);
+                        break;
+                case 21: /* Haste Self */
+			if (!p_ptr->fast)
+			{
+                                (void)set_fast(Ind, randint(20 + (plev)) + plev);
+			}
+			else
+			{
+                                (void)set_fast(Ind, p_ptr->fast + randint(5));
+			}
+                        break;
+                case 21+64: /* Haste others */
+			p_ptr->current_spell = 21;
+			get_aim_dir(Ind);
+			return;
+                case 22: /* Elemental Blast */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 23: /* Teleport Away */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+
+                case 24: /* Summon Food */
+                {
+			(void)set_food(Ind, PY_FOOD_MAX - 1);
+                        break;
+                }
+                case 25: /* Meditation */
+                	if (!p_ptr->tim_meditation)
+                        	set_tim_meditation(Ind, p_ptr->tim_meditation + 20 + randint(20));
+	                 else
+                        	set_tim_meditation(Ind, p_ptr->tim_meditation + 5);
+                        break;
+                case 26: /* Gravitic Distortion */
+                        fire_ball(Ind, GF_GRAVITY, 0, 10, 2);
+                        break;
+                case 27: /* Collapse Cieling */
+                {
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+                        return;
+                }
+		       break;
+                case 28: /* Firestorm */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 29: /* Force Shield */
+                	if (!p_ptr->shield)
+                        	(void)set_shield(Ind, p_ptr->shield + randint(20) + 30);
+                 	else
+                        	(void)set_shield(Ind, p_ptr->shield + 10);
+		        break;
+                case 29+64: /* Force Shield others */
+			p_ptr->current_spell = 29;
+			get_aim_dir(Ind);
+			return;
+                case 30: /* Sunburn */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+                        return;
+                case 31: /* Safeguard */
+                {
+                	int i, j, rad = 2 + (plev / 20);
+                	
+			msg_format_near(Ind, "%s murmurs, glyphs of warding erupt!", p_ptr->name);
+                	
+                	for (i = p_ptr->px - rad; i <= p_ptr->px + rad; i++)
+                	for (j = p_ptr->py - rad; j <= p_ptr->py + rad; j++)
+                	{
+                		/* First we must be in the dungeon */
+                		if (!in_bounds(p_ptr->dun_depth, j, i)) continue;
+                		
+                		/* Is it a naked grid ? */
+                		if (!cave_naked_bold(p_ptr->dun_depth, j, i)) continue;
+                		
+                		/* Beware of the houses in town */
+                		if ((p_ptr->dun_depth <= 0) && (cave[p_ptr->dun_depth][j][i].info & CAVE_ICKY)) continue;
+                		
+                		/* Now we want a circle */
+                		if (distance(j, i, p_ptr->py, p_ptr->px) != rad) continue;
+                		
+                		/* Everything ok ? then put a glyph */
+				cave[p_ptr->dun_depth][j][i].feat = FEAT_GLYPH;
+				note_spot(Ind, j, i);
+				everyone_lite_spot(p_ptr->dun_depth, j, i);
+                	}
+		        break;
+                }
+
+                case 32: /* Gravitic Beam */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 33: /* Sanctuary */
+                        fire_ball(Ind, GF_STONE_WALL, 0, 1, 1 + (plev / 40));
+ 		        break;
+                case 34: /* Escape */
+                {
+			(void)stair_creation(Ind);
+                        break;
+                }
+                case 35: /* Statis Cage */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 36: /* Elemental Shield */
+                        (void)set_oppose_acid(Ind, p_ptr->oppose_acid + randint(20) + 20);
+                        (void)set_oppose_elec(Ind, p_ptr->oppose_elec + randint(20) + 20);
+                        (void)set_oppose_fire(Ind, p_ptr->oppose_fire + randint(20) + 20);
+                        (void)set_oppose_cold(Ind, p_ptr->oppose_cold + randint(20) + 20);
+                        (void)set_oppose_pois(Ind, p_ptr->oppose_pois + randint(20) + 20);
+                        break;
+                case 37: /*  Recall */
+			if (!p_ptr->word_recall)
+			{
+				set_recall_depth(p_ptr, o_ptr);
+				p_ptr->word_recall = rand_int(20) + 15;
+				msg_print(Ind, "The air about you becomes charged...");
+			}
+			else
+			{
+				p_ptr->word_recall = 0;
+				msg_print(Ind, "A tension leaves the air around you...");
+			}
+                        break;
+                case 37+64: /* Recall others */
+			p_ptr->current_spell = 37;
+			get_aim_dir(Ind);
+			return;
+                case 38: /* Force of the Elements */
+                {
+                        int i;
+
+                        for (i = 1; i < 10; i++)
+                        {
+                                if (i-5)
+                                {
+                                        if(magik(50)) fire_bolt(Ind, GF_FIRE, i, damroll(15 + (plev / 10), 8));
+                                        if(magik(50)) fire_bolt(Ind, GF_COLD, i, damroll(14 + (plev / 10), 8));
+                                        if(magik(50)) fire_bolt(Ind, GF_ELEC, i, damroll(12 + (plev / 10), 8));
+                                        if(magik(50)) fire_bolt(Ind, GF_ACID, i, damroll(18 + (plev / 10), 8));
+                                }
+                        }
+                        break;
+                }
+                case 39: /* Disruption Shield */
+			(void)set_invuln(Ind, p_ptr->invuln + randint(6) + 8);
+                        break;
+
+                case 40: /* Earthquake */
+                        earthquake(p_ptr->dun_depth, p_ptr->py, p_ptr->px, 5);
+                        break;
+                case 41: /* Polymorph */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 42: /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+                        break;
+                case 43: /* Warp Space */
+                        fire_ball(Ind, GF_GRAVITY, 0, 60, 4);
+                        break;
+                case 44: /* Chaos Blast */
+                        fire_ball(Ind, GF_CHAOS, 0, 100 + (3 * plev), 5);
+                        break;
+                case 45: /* Wipe */
+                	msg_format_near(Ind, "%s mumurs 'wipe'.", p_ptr->name);
+                	wipe_spell(p_ptr->dun_depth, p_ptr->py, p_ptr->px, 10);
+                        take_hit(Ind, 100, "the Wipe spell");
+                        break;
+                case 46: /* Pyrrhic Blast */
+                        fire_ball(Ind, GF_MANA, 0, 600 + (2 * plev), 3);
+                        take_hit(Ind, 90, "the heat of a Pyrrhic Blast");
+                        break;
+                case 47: /* Word of Destruction */
+                        destroy_area(p_ptr->dun_depth, p_ptr->py, p_ptr->px, 15, TRUE);
+                        break;
+
+                case 48: /* Radiate Fear */
+                        fire_ball(Ind, GF_TURN_ALL, 0, 20, 10);
+                        break;
+                case 49: /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+                        break;
+                case 50: /* Forcefull Graze */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 51: /* Recharging II */
+                        recharge(Ind, 40);
+                        break;
+                case 52: /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+                        break;
+                case 53: /* Self-Scan */
+			self_knowledge(Ind);
+                        break;
+                case 54: /* Id II */
+                        identify_fully(Ind);
+                        break;
+                case 55: /* Clairvoyance */
+                        wiz_lite(Ind);
+                        break;
+
+                case 56: /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+                        break;
+                case 57: /* Plasma Eruption */
+                        fire_ball(Ind, GF_PLASMA, 0, 400 + (2 * plev), 4);
+                        break;
+                case 58: /* Annihilate */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 59: /* Olbivion Blast */
+                        mass_genocide(Ind);
+                        break;
+                case 60: /* Mana Spin */
+                {
+                        int i;
+
+                        for (i = 1; i < 10; i++)
+                        {
+                                if (i-5)
+                                {
+                                        fire_bolt(Ind, GF_MANA, i, damroll(20 + (plev / 10), 10));
+                                }
+                        }
+                        break;
+                }
+                case 61: /* Tidal Wave */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+                case 62: /* Anarchy Strike */
+                {
+                        int i, j;
+
+                        for(j = 0; j < 5; j++)
+                        {
+                                i = randint(10);
+                                while(i == 5) i = randint(10);
+                                (void)fire_ball(Ind, GF_CHAOS, i, 250 + plev, 3);
+                        }
+                        break;
+                }
+                case 63: /* Mana Strike */
+			p_ptr->current_spell = j;
+			get_aim_dir(Ind);
+			return;
+		}
+
+		/* A spell was cast */
+		if (!((j < 32) ?
+		      (p_ptr->spell_worked1 & (1L << j)) :
+		      (p_ptr->spell_worked2 & (1L << (j - 32)))))
+		{
+			int e = s_ptr->sexp;
+
+			/* The spell worked */
+			if (j < 32)
+			{
+				p_ptr->spell_worked1 |= (1L << j);
+			}
+			else
+			{
+				p_ptr->spell_worked2 |= (1L << (j - 32));
+			}
+
+			/* Gain experience */
+			gain_exp(Ind, e * s_ptr->slevel);
+
+			/* Fix the spell info */
+			p_ptr->window |= PW_SPELL;
+		}
+	}
+
+	/* Take a turn */
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
+
+	/* Sufficient mana */
+	if (s_ptr->smana <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= s_ptr->smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = s_ptr->smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print(Ind, "You faint from the effort!");
+
+		/* Hack -- Bypass free action */
+		(void)set_paralyzed(Ind, p_ptr->paralyzed + randint(5 * oops + 1));
+
+		/* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+
+			/* Message */
+			msg_print(Ind, "You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(Ind, A_CON, 15 + randint(10), perm);
+		}
+	}
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+}
+
+
+/*
+ * Finish casting a spell that required a direction --KLJ--
+ */
+void do_cmd_sorc_aux(int Ind, int dir)
+{
+	player_type *p_ptr = Players[Ind];
+
+	int plev = p_ptr->lev;
+	int beam = ((p_ptr->pclass == CLASS_SORCERER) ? plev : (plev / 2));
+
+	magic_type *s_ptr = &p_ptr->mp_ptr->info[p_ptr->current_spell];
+
+	/* Only fire in direction 5 if we have a target */
+	if ((dir == 5) && !target_okay(Ind))
+	{
+		/* Reset current spell */
+		p_ptr->current_spell = -1;
+
+		/* Done */
+		return;
+	}
+
+	/* We assume that the spell can be cast, and so forth */
+	switch(p_ptr->current_spell)
+	{
+		case 0:
+		{
+			msg_format_near(Ind, "%s fires a magic missile.", p_ptr->name);
+			fire_bolt_or_beam(Ind, beam-10, GF_MISSILE, dir,
+						damroll(3 + ((plev - 1) / 5), 4 + (plev / 10)));
+			break;
+		}
+	        case 6: /* Confuse Monster */
+			msg_format_near(Ind, "%s looks mismerizing.", p_ptr->name);
+                        (void)confuse_monster(Ind, dir, ( plev * 3) / 2);
+			break;
+                case 8: /* Noxious Cloud */
+			msg_format_near(Ind, "%s fires a noxious cloud.", p_ptr->name);
+			fire_ball(Ind, GF_POIS, dir, 10 + (plev / 2), 2);
+                        break;
+                case 10: /* Beam of Light */
+			msg_format_near(Ind, "%s creates a line of blue shimmering light appears.", p_ptr->name);
+                        lite_line(Ind, dir);
+                        break;
+                case 11: /* Sleep Monster */
+                        (void)sleep_monster(Ind, dir);
+                        break;
+                case 12: /* Lightning Bolt */
+			msg_format_near(Ind, "%s fires a lightning bolt.", p_ptr->name);
+			fire_bolt_or_beam(Ind, beam-10, GF_ELEC, dir,
+                                          damroll(5+((plev-5)/4), 8));
+                        break;
+                case 13: /* Stone to Mud */
+			(void)wall_to_mud(Ind, dir);
+                        break;
+                case 14: /* Frost Bolt */
+			msg_format_near(Ind, "%s fires a frost bolt.", p_ptr->name);
+			fire_bolt_or_beam(Ind, beam-10, GF_COLD, dir, damroll(6+((plev-5)/4), 8));
+                        break;
+                case 15: /* Wraithform someone else */
+			project_hook(Ind, GF_WRAITH_PLAYER, dir, 10 + plev + randint(20), PROJECT_STOP | PROJECT_KILL);
+                        break;
+                case 17: /* Fire Bolt */
+			msg_format_near(Ind, "%s fires a fire bolt.", p_ptr->name);
+			fire_bolt_or_beam(Ind, beam, GF_FIRE, dir,
+                                damroll(9+((plev-5)/4), 8));
+                        break;
+                case 21: /* haste others */
+			project_hook(Ind, GF_SPEED_PLAYER, dir, randint(20 + (plev)) + plev, PROJECT_STOP | PROJECT_KILL);
+                        break;
+                case 22: /* Elemental Blast */
+			msg_format_near(Ind, "%s fires an elemental blast.", p_ptr->name);
+			fire_bolt_or_beam(Ind, beam, GF_FIRE, dir,
+                                damroll(5+((plev-5)/4), 8));
+                        fire_bolt_or_beam(Ind, beam, GF_COLD, dir,
+                                damroll(5+((plev-5)/4), 8));
+                        fire_bolt_or_beam(Ind, beam, GF_ACID, dir,
+                                damroll(5+((plev-5)/4), 8));
+                        fire_bolt_or_beam(Ind, beam, GF_ELEC, dir,
+                                damroll(5+((plev-5)/4), 8));
+		       break;
+                case 23: /* Teleport Away */
+                        (void)fire_beam(Ind, GF_AWAY_ALL, dir, plev);
+                        break;
+                case 27: /* Collapse Cieling */
+                        fire_bolt(Ind, GF_EARTHQUAKE, dir, 3);
+                        break;
+
+                case 28: /* Firestorm */
+ 			msg_format_near(Ind, "%s fires a firestorm.", p_ptr->name);
+                        (void)fire_ball(Ind, GF_FIRE, dir, 100 + (3 * plev), 2);
+		       break;
+                case 29: /* force shield others */
+			project_hook(Ind, GF_SHIELD_PLAYER, dir, randint(20) + 30, PROJECT_STOP | PROJECT_KILL);
+                        break;
+                case 30: /* Sunfire */
+ 			msg_format_near(Ind, "%s invokes the sunfire.", p_ptr->name);
+                        (void)fire_ball(Ind, GF_LITE, dir, 130 + (plev * 5 / 2), 3);
+		       break;
+                case 32: /* Gravitic Beam */
+			msg_format_near(Ind, "%s fires a gravitic beam", p_ptr->name);
+                       (void)fire_beam(Ind, GF_GRAVITY, dir, 20);
+		       break;
+                case 35: /* Statis Cage */
+			msg_format_near(Ind, "%s creates a static cage.", p_ptr->name);
+                        (void)fire_ball(Ind, GF_OLD_SLEEP, dir, 100, 0);
+                        break;
+                case 37: /* Recall others */
+			project_hook(Ind, GF_RECALL_PLAYER, dir, randint(20) + 15, PROJECT_STOP | PROJECT_KILL);
+                        break;
+                case 41: /* Polymorph */
+			(void)poly_monster(Ind, dir);
+                        break;
+                case 50: /* Forcefull Graze */
+			msg_format_near(Ind, "%s casts a forcefull graze.", p_ptr->name);
+                        (void)fire_bolt(Ind, GF_SOUND, dir, 50);
+                        break;
+                case 58: /* Annihilate */
+			msg_format_near(Ind, "%s fires an annihilation bolt.", p_ptr->name);
+                        (void)fire_bolt(Ind, GF_MISSILE, dir, 500 + (2 * plev));
+                        break;
+                case 61: /* Tidal Wave */
+			msg_format_near(Ind, "%s fires a tidal wave.", p_ptr->name);
+                        (void)fire_ball(Ind, GF_WATER, dir, 450 + (2 * plev), 3);
+                        break;
+                case 63: /* Mana Strike */
+			msg_format_near(Ind, "%s fires a mana strike.", p_ptr->name);
+                        (void)fire_ball(Ind, GF_MANA, dir, 800, 0);
+                        break;
+
+		default:  /* For some reason we got called for a spell that */
+		{         /* doesn't require a direction */
+			msg_print(Ind, "SERVER ERROR: do_cmd_sorc_aux() called for non-directional spell!");
+			p_ptr->current_spell = -1;
+			return;
+		}
+	}	
+
+	if (!((p_ptr->current_spell < 32) ?
+		(p_ptr->spell_worked1 & (1L << p_ptr->current_spell)) :
+		(p_ptr->spell_worked2 & (1L << (p_ptr->current_spell - 32)))))
+	{
+		int e = s_ptr->sexp;
+
+		if (p_ptr->current_spell < 32)
+		{
+			p_ptr->spell_worked1 |= (1L << p_ptr->current_spell);
+		}
+		else
+		{
+			p_ptr->spell_worked2 |= (1L << (p_ptr->current_spell - 32));
+		}
+
+		gain_exp(Ind, e * s_ptr->slevel);
+
+		/* Fix the spell info */
+		p_ptr->window |= PW_SPELL;
+	}
+
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
+
+	if (s_ptr->smana <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= s_ptr->smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = s_ptr->smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print(Ind, "You faint from the effort!");
+
+		/* Hack -- bypass free action */
+		(void)set_paralyzed(Ind, p_ptr->paralyzed + randint(5 * oops + 1));
+
+		/* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+
+			/* Message */
+			msg_print(Ind, "You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(Ind, A_CON, 15 + randint(10), perm);
+		}
+	}
+
+	/* Reset current spell */
+	p_ptr->current_spell = -1;
+
+	/* Resend mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+}
 
 	
 
@@ -2060,9 +2944,14 @@ void do_cmd_pray(int Ind, int book, int spell)
 
 			case 57:
 			{
+				// Temporily disabled until I have time to fix this.
+				// -APD
+				/*
 				msg_print(Ind, "The world changes!");
 				p_ptr->new_level_flag = TRUE;
 				p_ptr->new_level_method = LEVEL_RAND;
+				break;
+				*/
 				break;
 			}
 		}
@@ -2093,7 +2982,7 @@ void do_cmd_pray(int Ind, int book, int spell)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)
@@ -2201,7 +3090,11 @@ void do_cmd_pray_aux(int Ind, int dir)
 
 		case 45:
 		{
-			drain_life(Ind, dir, 200);
+			msg_print(Ind, "Gilthoniel A Elbereth!");
+			msg_format_near(Ind, "%s shouts 'Gilthoniel A Elbereth!'.", p_ptr->name);
+			fire_ball(Ind, GF_LITE, 0,
+			          plev * 5, plev / 7 + 2);
+			(void)hp_player(Ind, 500);
 			break;
 		}
 
@@ -2239,7 +3132,7 @@ void do_cmd_pray_aux(int Ind, int dir)
 		p_ptr->window |= PW_SPELL;
 	}
 
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	if (s_ptr->smana <= p_ptr->csp)
 	{
@@ -2306,7 +3199,7 @@ void show_ghost_spells(int Ind)
 
 		/* Format information */
 		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
-		        I2A(j), spell_names[2][i], s_ptr->slevel, s_ptr->smana, 0, comment);
+		        I2A(j), spell_names[GHOST_SPELLS][i], s_ptr->slevel, s_ptr->smana, 0, comment);
 
 		/* Send it */
 		Send_spell_info(Ind, 0, j, out_val);
@@ -2403,7 +3296,7 @@ void do_cmd_ghost_power(int Ind, int ability)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Take some experience */
 	p_ptr->max_exp -= s_ptr->slevel * s_ptr->smana;
@@ -2473,7 +3366,7 @@ void do_cmd_ghost_power_aux(int Ind, int dir)
 	p_ptr->current_spell = -1;
 
 	/* Take a turn */
-	p_ptr->energy_use = level_speed(p_ptr->dun_depth);
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
 
 	/* Take some experience */
 	p_ptr->max_exp -= s_ptr->slevel * s_ptr->smana;
@@ -2487,6 +3380,917 @@ void do_cmd_ghost_power_aux(int Ind, int dir)
 
 	/* Redraw experience */
 	p_ptr->redraw |= (PR_EXP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+}
+
+
+/*
+ * Use a warrior fighting technic
+ */
+void do_cmd_fight(int Ind, int book, int spell)
+{
+	player_type *p_ptr = Players[Ind];
+
+	int			i, j, sval;
+	int			chance;
+	int			plev = p_ptr->lev;
+
+	object_type		*o_ptr;
+
+	magic_type		*s_ptr;
+
+	byte spells[64], num = 0;
+
+	/* Require spell ability */
+	if (p_ptr->mp_ptr->spell_book != TV_FIGHT_BOOK)
+	{
+		msg_print(Ind, "You cannot use fighting technics!");
+		return;
+	}
+
+	/* Require lite */
+	if (p_ptr->blind || no_lite(Ind))
+	{
+		msg_print(Ind, "You cannot see!");
+		return;
+	}
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print(Ind, "You are too confused!");
+		return;
+	}
+
+
+	/* Restrict choices to spell books */
+	item_tester_tval = p_ptr->mp_ptr->spell_book;
+
+	/* Get the item (in the pack) */
+	if (book >= 0)
+	{
+		o_ptr = &p_ptr->inventory[book];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - book];
+	}
+
+	if (o_ptr->tval != p_ptr->mp_ptr->spell_book)
+	{
+		msg_print(Ind, "SERVER ERROR: Tried to use technic from bad book!");
+		return;
+	}
+
+        if(check_guard_inscription(o_ptr->note, 'n')) {
+                msg_print(Ind, "The item's inscription prevents it");
+                return;
+        };
+
+	/* Access the item's sval */
+	sval = o_ptr->sval;
+
+	for (i = 0; i < 64; i++)
+	{
+		/* Check for this spell */
+		if ((i < 32) ?
+			(spell_flags[p_ptr->mp_ptr->spell_type][sval][0] & (1L << i)) :
+			(spell_flags[p_ptr->mp_ptr->spell_type][sval][1] & (1L << (i - 32))))
+		{
+			/* Collect this spell */
+			spells[num++] = i;
+		}
+	}
+
+	/* Set the spell number */
+	j = spells[spell];
+
+	if (!spell_okay(Ind, j, 1))
+	{
+		msg_print(Ind, "You cannot use that technic.");
+		return;
+	}
+
+	/* Access the spell */
+	s_ptr = &p_ptr->mp_ptr->info[j];
+
+	/* Check mana */
+	if (s_ptr->smana > p_ptr->csp)
+	{
+		msg_print(Ind, "You do not have enough stamina.");
+		return;
+	}
+
+	/* Spell failure chance */
+	chance = spell_chance(Ind, j);
+
+	/* Failed spell */
+	if (rand_int(100) < chance)
+	{
+		if (flush_failure) flush();
+		msg_print(Ind, "You failed to get the technic off!");
+	}
+
+	/* Process spell */
+	else
+	{
+		/* Spells.  */
+		switch (j)
+		{
+			/* Confusing Strike */
+			case 0:
+			{
+				if (p_ptr->confusing == FALSE)
+				{
+					msg_print(Ind, "Your hands begin to glow.");
+					p_ptr->confusing = TRUE;
+				}
+				break;
+			}
+			
+			/* Heroism */
+			case 1:
+			{
+				msg_format_near(Ind, "%s enters in a battle rage.", p_ptr->name);
+				set_hero(Ind, p_ptr->hero + 20 + randint(20));
+				break;
+			}
+			
+			/* Jump */
+			case 2:
+			{
+				get_aim_dir(Ind);
+				p_ptr->current_spell = j;
+				return;
+			}
+			
+			/* Stunning Blow */
+			case 3:
+			{
+				if (p_ptr->stunning == FALSE)
+				{
+					msg_print(Ind, "Your hands get heavy.");
+					p_ptr->stunning = TRUE;
+				}
+				break;
+			}
+			
+			/* Berserk */
+			case 4:
+			{
+				msg_format_near(Ind, "%s enters in a battle RAGE.", p_ptr->name);
+				set_shero(Ind, p_ptr->hero + 20 + randint(20));
+				break;
+			}
+			
+			/* Iron Skin */
+			case 8:
+			{
+				msg_format_near(Ind, "%s skin turns into iron.", p_ptr->name);
+				set_shield(Ind, p_ptr->shield + 20 + randint(20) + plev);
+				break;
+			}
+			
+			/* Furry */
+			case 9:
+			{
+				msg_format_near(Ind, "%s enters a battle *RAGE*.", p_ptr->name);
+				set_shield(Ind, p_ptr->furry + 10 + randint(10) + (plev / 2));
+				break;
+			}
+		}
+
+		/* A spell was cast */
+		if (!((j < 32) ?
+		      (p_ptr->spell_worked1 & (1L << j)) :
+		      (p_ptr->spell_worked2 & (1L << (j - 32)))))
+		{
+			int e = s_ptr->sexp;
+
+			/* The spell worked */
+			if (j < 32)
+			{
+				p_ptr->spell_worked1 |= (1L << j);
+			}
+			else
+			{
+				p_ptr->spell_worked2 |= (1L << (j - 32));
+			}
+
+			/* Gain experience */
+			gain_exp(Ind, e * s_ptr->slevel);
+
+			/* Fix the spell info */
+			p_ptr->window |= PW_SPELL;
+		}
+	}
+
+	/* Take a turn */
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
+
+	/* Sufficient mana */
+	if (s_ptr->smana <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= s_ptr->smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = s_ptr->smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print(Ind, "You faint from the effort!");
+
+		/* Hack -- Bypass free action */
+		(void)set_paralyzed(Ind, p_ptr->paralyzed + randint(5 * oops + 1));
+
+		/* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+
+			/* Message */
+			msg_print(Ind, "You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(Ind, A_CON, 15 + randint(10), perm);
+		}
+	}
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+}
+
+/*
+ * Finish using a technic that required a direction --KLJ--
+ */
+void do_cmd_fight_aux(int Ind, int dir)
+{
+	player_type *p_ptr = Players[Ind];
+
+	int plev = p_ptr->lev;
+
+	magic_type *s_ptr = &p_ptr->mp_ptr->info[p_ptr->current_spell];
+
+	/* Only fire in direction 5 if we have a target */
+	if ((dir == 5) && !target_okay(Ind))
+	{
+		/* Reset current spell */
+		p_ptr->current_spell = -1;
+
+		/* Done */
+		return;
+	}
+
+	/* We assume that the technic can be used, and so forth */
+	switch(p_ptr->current_spell)
+	{
+		case 2:
+		{
+			int ty, tx, rad = 2 + (plev / 10);
+		
+			/* Use the given direction */
+			tx = p_ptr->px + rad * ddx[dir];
+			ty = p_ptr->py + rad * ddy[dir];
+
+			/* Hack -- Use an actual "target" */
+			if ((dir == 5) && target_okay(Ind))
+			{
+				tx = p_ptr->target_col;
+				ty = p_ptr->target_row;
+			
+				if (distance(ty, tx, p_ptr->py, p_ptr->px) > rad)
+				{
+					msg_print(Ind, "You can not jump that far.");
+					return;
+				}
+			}
+		
+			msg_format_near(Ind, "%s jumps.", p_ptr->name);
+			teleport_player_to(Ind, ty, tx);
+			break;
+		}
+		default:  /* For some reason we got called for a technic that */
+		{         /* doesn't require a direction */
+			msg_print(Ind, "SERVER ERROR: do_cmd_fight_aux() called for non-directional technic!");
+			p_ptr->current_spell = -1;
+			return;
+		}
+	}	
+
+	if (!((p_ptr->current_spell < 32) ?
+		(p_ptr->spell_worked1 & (1L << p_ptr->current_spell)) :
+		(p_ptr->spell_worked2 & (1L << (p_ptr->current_spell - 32)))))
+	{
+		int e = s_ptr->sexp;
+
+		if (p_ptr->current_spell < 32)
+		{
+			p_ptr->spell_worked1 |= (1L << p_ptr->current_spell);
+		}
+		else
+		{
+			p_ptr->spell_worked2 |= (1L << (p_ptr->current_spell - 32));
+		}
+
+		gain_exp(Ind, e * s_ptr->slevel);
+
+		/* Fix the spell info */
+		p_ptr->window |= PW_SPELL;
+	}
+
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
+
+	if (s_ptr->smana <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= s_ptr->smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = s_ptr->smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print(Ind, "You faint from the effort!");
+
+		/* Hack -- bypass free action */
+		(void)set_paralyzed(Ind, p_ptr->paralyzed + randint(5 * oops + 1));
+
+		/* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+
+			/* Message */
+			msg_print(Ind, "You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(Ind, A_CON, 15 + randint(10), perm);
+		}
+	}
+
+	/* Reset current spell */
+	p_ptr->current_spell = -1;
+
+	/* Resend mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+}
+
+/*
+ * Cast a shadow spell
+ */
+void do_cmd_shad(int Ind, int book, int spell)
+{
+	player_type *p_ptr = Players[Ind];
+
+	int			i, j, sval;
+	int			chance, beam;
+	int			plev = p_ptr->lev;
+
+	object_type		*o_ptr;
+
+	magic_type		*s_ptr;
+
+	byte spells[64], num = 0;
+
+	/* Require spell ability */
+	if (p_ptr->mp_ptr->spell_book != TV_SHADOW_BOOK)
+	{
+		msg_print(Ind, "You cannot cast spells!");
+		return;
+	}
+
+	/* Require lite */
+	if (p_ptr->blind || no_lite(Ind))
+	{
+		msg_print(Ind, "You cannot see!");
+		return;
+	}
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print(Ind, "You are too confused!");
+		return;
+	}
+
+
+	/* Restrict choices to spell books */
+	item_tester_tval = p_ptr->mp_ptr->spell_book;
+
+	/* Get the item (in the pack) */
+	if (book >= 0)
+	{
+		o_ptr = &p_ptr->inventory[book];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - book];
+	}
+
+	if (o_ptr->tval != p_ptr->mp_ptr->spell_book)
+	{
+		msg_print(Ind, "SERVER ERROR: Tried to cast spell from bad book!");
+		return;
+	}
+
+        if( check_guard_inscription( o_ptr->note, 'm' )) {
+                msg_print(Ind, "The item's inscription prevents it");
+                return;
+        };
+
+	/* Access the item's sval */
+	sval = o_ptr->sval;
+
+	for (i = 0; i < 64; i++)
+	{
+		/* Check for this spell */
+		if ((i < 32) ?
+			(spell_flags[p_ptr->mp_ptr->spell_type][sval][0] & (1L << i)) :
+			(spell_flags[p_ptr->mp_ptr->spell_type][sval][1] & (1L << (i - 32))))
+		{
+			/* Collect this spell */
+			spells[num++] = i;
+		}
+	}
+
+	/* Set the spell number */
+	j = spells[spell];
+
+	if (!spell_okay(Ind, j, 1))
+	{
+		msg_print(Ind, "You cannot cast that spell.");
+		return;
+	}
+
+	/* Access the spell */
+	s_ptr = &p_ptr->mp_ptr->info[j];
+
+	/* Check mana */
+	if (s_ptr->smana > p_ptr->csp)
+	{
+		msg_print(Ind, "You do not have enough mana.");
+		return;
+	}
+
+	/* Spell failure chance */
+	chance = spell_chance(Ind, j);
+
+	/* Failed spell */
+	if (rand_int(100) < chance)
+	{
+		if (flush_failure) flush();
+		msg_print(Ind, "You failed to get the spell off!");
+	}
+
+	/* Process spell */
+	else
+	{
+		/* Hack -- chance of "beam" instead of "bolt" */
+		beam = plev / 2;
+
+		/* Spells.  */
+		switch (j)
+		{
+			case 0: /* Blink */
+			{
+				teleport_player(Ind, 10);
+				break;
+			}
+			case 1: /* Stink cloud */
+			{
+				p_ptr->current_spell = j;
+				get_aim_dir(Ind);
+				return;
+			}
+			case 2: /* Light */
+			{
+				msg_format_near(Ind, "%s calls light.", p_ptr->name);
+				(void)lite_area(Ind, damroll(2, (plev / 2)), (plev / 10) + 1);
+				break;
+			}
+			case 3: /* M detect */
+			{
+				detect_creatures(Ind);
+				break;
+			}
+			case 4: /* O detect */
+			{
+				detect_object(Ind);
+				break;
+			}
+			case 5: /* T/D detect */
+			{
+				detect_trap(Ind);
+				detect_sdoor(Ind);
+				break;
+			}
+			case 6: /* Treasure detect */
+			{
+				detect_treasure(Ind);
+				break;
+			}
+			case 7: /* T/D dest */
+			{
+				destroy_doors_touch(Ind);
+				break;
+			}
+		
+			case 8: /* create doors */
+			{
+				door_creation(Ind);
+				break;
+			}
+			case 9: /* recharge */
+			{
+				recharge(Ind, 30 + plev * 3);
+				break;
+			}
+			case 10: /* id */
+			{
+				ident_spell(Ind);
+				break;
+			}
+			case 11: /* telep */
+			{
+				teleport_player(Ind, 200);
+				break;
+			}
+			case 12: /* deep nights */
+			{
+				wiz_dark(Ind);
+				break;
+			}
+			case 13: /* invis */
+			{
+				set_invis(Ind, p_ptr->tim_invisibility + 20 + randint(20) + plev, plev);
+				break;
+			}
+			case 14: /* create food */
+			{
+				(void)set_food(Ind, PY_FOOD_MAX - 1);
+				break;
+			}
+			case 15: /* create stairs */
+			{
+				stair_creation(Ind);
+				break;
+			}		
+			case 16: /* disarm beam */
+			{
+				p_ptr->current_spell = j;
+				get_aim_dir(Ind);
+				return;
+			}
+			
+		case 19: /* trap craetion */
+		  {
+		    trap_creation(Ind);
+		  }
+			case 20: /* fear monsters */
+			{
+				(void)fear_monsters(Ind);
+				break;
+			}
+			case 21: /* sleep monsters */
+			{
+				(void)sleep_monsters(Ind);
+				break;
+			}
+		
+			case 22: /* stun monsters */
+			{
+				(void)stun_monsters(Ind);
+				break;
+			}
+			
+			case 24: /* banish curses */
+			{
+				remove_curse(Ind);
+				break;
+			}
+			case 25: /* curse */
+			{
+//			
+				break;
+			}
+			case 26: /* id ball */
+			{
+				fire_ball(Ind, GF_IDENTIFY, 0, 1, 2 + (plev / 40));
+				break;
+			}
+			case 27: /* ench weap */
+			{
+				(void)enchant_spell(Ind, rand_int(4) + 1, rand_int(4) + 1, 0);
+				break;
+			}
+			case 28: /* ench arm */
+			{
+				(void)enchant_spell(Ind, 0, 0, rand_int(3) + 2);
+				break;
+			}
+			case 29: /* *banish curse* */
+			{
+				remove_all_curse(Ind);
+				break;
+			}		
+			case 30: /* *id* */
+			{
+				identify_fully(Ind);
+				break;
+			}
+			
+			case 32: /* telep lvl */				
+			{
+				teleport_player_level(Ind);
+				break;
+			}
+			case 33: /* tele to */
+			{
+				get_aim_dir(Ind);
+				p_ptr->current_spell = j;
+				return;
+			}
+			case 34: /* recall */
+			{
+				if (!p_ptr->word_recall)
+				{
+					set_recall_depth(p_ptr, o_ptr);
+					p_ptr->word_recall = rand_int(20) + 15;
+					msg_print(Ind, "The air about you becomes charged...");
+				}
+				else
+				{
+					p_ptr->word_recall = 0;
+					msg_print(Ind, "A tension leaves the air around you...");
+				}
+				break;
+			}
+		
+			case 35: /* f recall */
+			{
+				if (!p_ptr->word_recall)
+				{
+					set_recall_depth(p_ptr, o_ptr);
+					p_ptr->word_recall = rand_int(5) + 1;
+					msg_print(Ind, "The air about you becomes charged...");
+				}
+				else
+				{
+					p_ptr->word_recall = 0;
+					msg_print(Ind, "A tension leaves the air around you...");
+				}
+				break;
+			}
+			
+			case 40: /* armor of night */
+			{
+				set_shield(Ind, p_ptr->shield + randint(20) + 20 + plev);
+				break;
+			}
+			case 41: /* day of misrule */
+			{
+				int i = randint(30) + 30;
+				cptr p = ((!p_ptr->male) ? "Daughters" : "Sons");
+				msg_format(Ind, "%s of Night rejoice!  It's the Day of Misrule!", p);
+				(void)set_fast(Ind, i);
+				(void)set_shero(Ind, i);
+				break;
+			}
+			case 42: /* inner sight */
+			{
+				map_area(Ind);
+				break;
+			}
+			case 43: /* avoid traps */
+			{
+				set_tim_traps(Ind, p_ptr->tim_traps + 30 + randint(20) + plev);
+				break;
+			}
+		}
+
+		/* A spell was cast */
+		if (!((j < 32) ?
+		      (p_ptr->spell_worked1 & (1L << j)) :
+		      (p_ptr->spell_worked2 & (1L << (j - 32)))))
+		{
+			int e = s_ptr->sexp;
+
+			/* The spell worked */
+			if (j < 32)
+			{
+				p_ptr->spell_worked1 |= (1L << j);
+			}
+			else
+			{
+				p_ptr->spell_worked2 |= (1L << (j - 32));
+			}
+
+			/* Gain experience */
+			gain_exp(Ind, e * s_ptr->slevel);
+
+			/* Fix the spell info */
+			p_ptr->window |= PW_SPELL;
+		}
+	}
+
+	/* Take a turn */
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
+
+	/* Sufficient mana */
+	if (s_ptr->smana <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= s_ptr->smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = s_ptr->smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print(Ind, "You faint from the effort!");
+
+		/* Hack -- Bypass free action */
+		(void)set_paralyzed(Ind, p_ptr->paralyzed + randint(5 * oops + 1));
+
+		/* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+
+			/* Message */
+			msg_print(Ind, "You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(Ind, A_CON, 15 + randint(10), perm);
+		}
+	}
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+}
+
+
+/*
+ * Finish casting a spell that required a direction --KLJ--
+ */
+void do_cmd_shad_aux(int Ind, int dir)
+{
+	player_type *p_ptr = Players[Ind];
+
+	int plev = p_ptr->lev;
+	int beam = ((p_ptr->pclass == 1) ? plev : (plev / 2));
+
+	magic_type *s_ptr = &p_ptr->mp_ptr->info[p_ptr->current_spell];
+
+	/* Only fire in direction 5 if we have a target */
+	if ((dir == 5) && !target_okay(Ind))
+	{
+		/* Reset current spell */
+		p_ptr->current_spell = -1;
+
+		/* Done */
+		return;
+	}
+
+	/* We assume that the spell can be cast, and so forth */
+	switch(p_ptr->current_spell)
+	{
+		case 1:
+			msg_format_near(Ind, "%s fires a stinking cloud.", p_ptr->name);
+			fire_ball(Ind, GF_POIS, dir, 8 + (plev / 2), 2);
+			break;
+		case 16:
+			disarm_trap(Ind, dir);
+			break;
+		case 33:
+		{
+			int ty, tx, rad = 10 + (plev / 5);
+		
+			/* Hack -- Use an actual "target" */
+			if ((dir == 5) && target_okay(Ind))
+			{
+				tx = p_ptr->target_col;
+				ty = p_ptr->target_row;
+			
+				if (distance(ty, tx, p_ptr->py, p_ptr->px) > rad)
+				{
+					msg_print(Ind, "You can not blink that far.");
+					return;
+				}
+			}
+			else
+			{
+				msg_print(Ind, "You must have a target.");
+				return;
+			}
+		
+			teleport_player_to(Ind, ty, tx);
+			break;
+		}
+		default:  /* For some reason we got called for a spell that */
+		{         /* doesn't require a direction */
+			msg_print(Ind, "SERVER ERROR: do_cmd_shad_aux() called for non-directional spell!");
+			p_ptr->current_spell = -1;
+			return;
+		}
+	}	
+
+	if (!((p_ptr->current_spell < 32) ?
+		(p_ptr->spell_worked1 & (1L << p_ptr->current_spell)) :
+		(p_ptr->spell_worked2 & (1L << (p_ptr->current_spell - 32)))))
+	{
+		int e = s_ptr->sexp;
+
+		if (p_ptr->current_spell < 32)
+		{
+			p_ptr->spell_worked1 |= (1L << p_ptr->current_spell);
+		}
+		else
+		{
+			p_ptr->spell_worked2 |= (1L << (p_ptr->current_spell - 32));
+		}
+
+		gain_exp(Ind, e * s_ptr->slevel);
+
+		/* Fix the spell info */
+		p_ptr->window |= PW_SPELL;
+	}
+
+	p_ptr->energy -= level_speed(p_ptr->dun_depth);
+
+	if (s_ptr->smana <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= s_ptr->smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = s_ptr->smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print(Ind, "You faint from the effort!");
+
+		/* Hack -- bypass free action */
+		(void)set_paralyzed(Ind, p_ptr->paralyzed + randint(5 * oops + 1));
+
+		/* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+
+			/* Message */
+			msg_print(Ind, "You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(Ind, A_CON, 15 + randint(10), perm);
+		}
+	}
+
+	/* Reset current spell */
+	p_ptr->current_spell = -1;
+
+	/* Resend mana */
+	p_ptr->redraw |= (PR_MANA);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);

@@ -374,7 +374,7 @@ static cptr k_info_flags1[] =
 	"DEX",
 	"CON",
 	"CHR",
-	"XXX1",
+	"MANA",
 	"XXX2",
 	"STEALTH",
 	"SEARCH",
@@ -536,7 +536,8 @@ errr init_v_info_txt(FILE *fp, char *buf)
 			    (v2 != v_head->v_minor) ||
 			    (v3 != v_head->v_patch))
 			{
-				return (2);
+				/* It only annoying -- DG */
+//				return (2);
 			}
 
 			/* Okay to proceed */
@@ -714,7 +715,8 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			    (v2 != f_head->v_minor) ||
 			    (v3 != f_head->v_patch))
 			{
-				return (2);
+				/* It only annoying -- DG */
+//				return (2);
 			}
 
 			/* Okay to proceed */
@@ -965,7 +967,8 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			    (v2 != k_head->v_minor) ||
 			    (v3 != k_head->v_patch))
 			{
-				return (2);
+				/* It only annoying -- DG */
+//				return (2);
 			}
 
 			/* Okay to proceed */
@@ -1315,7 +1318,8 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			    (v2 != a_head->v_minor) ||
 			    (v3 != a_head->v_patch))
 			{
-				return (2);
+				/* It only annoying -- DG */
+//				return (2);
 			}
 
 			/* Okay to proceed */
@@ -1610,7 +1614,8 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			    (v2 != e_head->v_minor) ||
 			    (v3 != e_head->v_patch))
 			{
-				return (2);
+				/* It only annoying -- DG */
+//				return (2);
 			}
 
 			/* Okay to proceed */
@@ -1944,7 +1949,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			    (v2 != r_head->v_minor) ||
 			    (v3 != r_head->v_patch))
 			{
-				return (2);
+				/* It only annoying -- DG */
+//				return (2);
 			}
 
 			/* Okay to proceed */

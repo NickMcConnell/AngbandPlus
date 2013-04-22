@@ -87,6 +87,7 @@ s16b sex;
 
 s16b stat_order[6];			/* Desired order of stats */
 
+s16b class_extra;
 
 bool topline_icky;
 bool screen_icky;
@@ -95,12 +96,12 @@ bool party_mode;
 cptr race_title[] = {
 	"Human", "Half-elf", "Elf", "Hobbit",
 	"Gnome", "Dwarf", "Half-Orc", "Half-Troll",
-	"Dunadan", "High-elf"
+	"Dunadan", "High-elf", "Yeek"
 	};
 
 cptr class_title[] = {
 	"Warrior", "Mage", "Priest", "Rogue",
-	"Ranger", "Paladin"
+	"Ranger", "Paladin", "Sorceror"
 	};
 
 cptr ANGBAND_DIR;

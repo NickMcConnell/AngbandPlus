@@ -109,7 +109,7 @@
 
 # Version stamp (required)
 
-V:0.6.1
+V:2.9.9
 
 
 ##### The Player #####
@@ -262,7 +262,7 @@ D:amulets of adornment to buy.
 #F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 #F:EVIL
 #D:No job is too low for him.
-#
+
 #N:14:Battle scarred veteran
 #G:t:B
 #I:110:7d8:10:30:250
@@ -8181,12 +8181,11 @@ B:HIT:SHATTER:20d10
 B:HIT:SHATTER:20d10
 B:HIT:LOSE_ALL:10d12
 B:TOUCH:UN_POWER
-F:UNIQUE | QUESTOR | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | 
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
 F:DROP_GOOD | DROP_GREAT | DROP_CHOSEN | 
 F:SMART | KILL_WALL | MOVE_BODY | 
-F:REGENERATE | 
+F:REGENERATE | UNIQUE | QUESTOR | MALE
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_3 | 

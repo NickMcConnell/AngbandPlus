@@ -16,6 +16,7 @@
 
 #define PKT_START		10
 #define PKT_END			11
+#define PKT_KEEPALIVE		12
 
 
 /* Packet types 20-59 are info that is sent to the client */
@@ -107,6 +108,7 @@
 #define PKT_MAP			99
 
 #define PKT_SEARCH_MODE		100	
+#define PKT_FIGHT		101
 #define PKT_CLOSE		103
 #define PKT_GAIN		104
 #define PKT_GO_UP		105
@@ -129,6 +131,7 @@
 /* Packet types 121-122 are more administrative stuff */
 #define PKT_FAILURE		121
 #define PKT_SUCCESS		122
+#define PKT_CLEAR_BUFFER	123
 
 
 /* Packet type 150 are hacks */

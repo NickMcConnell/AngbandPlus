@@ -173,6 +173,7 @@ s32b m_top = 0;			/* Monster top size */
 
 bool cfg_report_to_meta = 0;
 char * cfg_meta_address;
+char * cfg_bind_name;
 char * cfg_console_password = "change_me";
 char * cfg_admin_wizard = "Serverchez";
 char * cfg_dungeon_master = "DungeonMaster";
@@ -184,6 +185,7 @@ bool cfg_door_bump_open = 1;
 s32b cfg_unique_respawn_time = 300;
 s32b cfg_unique_max_respawn_time = 50000;
 s32b cfg_level_unstatic_chance = 60;
+s32b cfg_retire_timer = -1;
 
 
 /*
@@ -787,6 +789,7 @@ bool (*get_obj_num_hook)(int k_idx);
  * (to make building large buildings / summoning hoards of mosnters 
  * easier)
  */
+//bool (*master_move_hook)(int Ind, char * args) = master_acquire;
 bool (*master_move_hook)(int Ind, char * args) = NULL;
 
 

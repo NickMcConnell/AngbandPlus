@@ -327,7 +327,7 @@ static int adjust_stat(int Ind, int value, s16b amount, int auto_roll)
 static void get_stats(int Ind, int stat_order[6])
 {
 	player_type *p_ptr = Players[Ind];
-	int		i, j;
+	int		i, j, tries = 1000;
 
 	int		bonus;
 
@@ -365,7 +365,7 @@ static void get_stats(int Ind, int stat_order[6])
 	}
 
 	/* Roll and verify some stats */
-	while (TRUE)
+	while (--tries)
 	{
 		/* Roll some dice */
 		for (j = i = 0; i < 18; i++)
@@ -450,7 +450,7 @@ static void get_extra(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
 	int		i, j, min_value, max_value;
-
+	int tries = 300;
 
 	/* Level one (never zero!) */
 	p_ptr->lev = 1;
@@ -477,7 +477,7 @@ static void get_extra(int Ind)
 	p_ptr->player_hp[0] = p_ptr->hitdie;
 
 	/* Roll out the hitpoints */
-	while (TRUE)
+	while (--tries)
 	{
 		/* Roll the hitpoint values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
@@ -505,7 +505,7 @@ static void get_history(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
 	int		i, n, chart, roll, social_class;
-
+	int tries = 500;
 	char	*s, *t;
 
 	char	buf[240];
@@ -527,6 +527,7 @@ static void get_history(int Ind)
 	{
 		case RACE_HUMAN:
 		case RACE_DUNADAN:
+		case RACE_YEEK:
 		{
 			chart = 1;
 			break;
@@ -564,6 +565,7 @@ static void get_history(int Ind)
 		}
 
 		case RACE_HALF_ORC:
+		case RACE_GOBLIN:
 		{
 			chart = 19;
 			break;
@@ -629,7 +631,7 @@ static void get_history(int Ind)
 	i = 0;
 
 	/* Collect the history */
-	while (TRUE)
+	while (--tries)
 	{
 		/* Extract remaining length */
 		n = strlen(s);
@@ -855,7 +857,7 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Rogue */
-		{ TV_MAGIC_BOOK, 0 },
+		{ TV_SHADOW_BOOK, 0 },
 		{ TV_SWORD, SV_SMALL_SWORD },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
 	},
@@ -872,7 +874,14 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_PRAYER_BOOK, 0 },
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
-	}
+	},
+
+	{
+		/* Sorcerer */
+		{ TV_SORCERY_BOOK, 0 },
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
+	},
 };
 
 
@@ -908,48 +917,29 @@ static void player_outfit(int Ind)
 	object_known(o_ptr);
 	(void)inven_carry(Ind, o_ptr);
 
-	/* 
+	/*
+	 * Some chars are always fruit bats :)
+	 */
+	 if (!strcmp(p_ptr->name, "Olofruit") || !strcmp(p_ptr->name, "Olobat") || !strcmp(p_ptr->name, "Norcofruit") || !strcmp(p_ptr->name, "Norcobat") || !strcmp(p_ptr->name, "Durbat"))
+	 {
+	 	p_ptr->fruit_bat = 1;
+	 }
+	
+#if 1
+	/*
 	 * Give the cfg_admin_wizard some interesting stuff.
 	 */
-#if 0
-	 if (!strcmp(p_ptr->name,cfg_admin_wizard))
-	{ 
-		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_EXPERIENCE));
-		o_ptr->number = 99;
-		o_ptr->discount = 100;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
-		o_ptr->number = 20;
-		o_ptr->discount = 100;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-/*
-		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_HEALING));
-		o_ptr->number = 18;
-		o_ptr->discount = 0;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_RESTORE_MANA));
-		o_ptr->number = 22;
-		o_ptr->discount = 0;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT));
-		o_ptr->number = 33;
-		o_ptr->discount = 0;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL));
-		o_ptr->number = 18;
-		o_ptr->discount = 0;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-		*/
+	 if (!strcmp(p_ptr->name,cfg_admin_wizard) || !strcmp(p_ptr->name, cfg_dungeon_master))
+	 {
+	 	for (i = 0; i < 0; i++)
+	 	{
+			invcopy(o_ptr, lookup_kind(TV_DRAG_ARMOR, SV_DRAGON_POWER));
+			o_ptr->number = 1;
+			apply_magic(100, o_ptr, 100, TRUE, TRUE, TRUE);
+			object_aware(Ind, o_ptr);
+			object_known(o_ptr);		
+			(void)inven_carry(Ind, o_ptr);
+		}
 
 		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY));
 		o_ptr->number = 99;
@@ -957,173 +947,40 @@ static void player_outfit(int Ind)
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-	/*	
-		invcopy(o_ptr, lookup_kind(TV_PRAYER_BOOK, 5));
-		o_ptr->number = 1;
+		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_EXPERIENCE));
+		o_ptr->number = 99;
+		o_ptr->discount = 100;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-		invcopy(o_ptr, lookup_kind(TV_PRAYER_BOOK, 6));
-		o_ptr->number = 1;
+		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_INC_INT));
+		o_ptr->number = 99;
+		o_ptr->discount = 100;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-		invcopy(o_ptr, lookup_kind(TV_PRAYER_BOOK, 7));
-		o_ptr->number = 1;
+		invcopy(o_ptr, lookup_kind(TV_SHIELD, SV_ORCISH_SHIELD));
+		o_ptr->number = 99;
+		o_ptr->bpval = 2;
+		o_ptr->discount = 100;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-		invcopy(o_ptr, lookup_kind(TV_PRAYER_BOOK, 8));
-		o_ptr->number = 1;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-	*/
-
-		invcopy(o_ptr, lookup_kind(TV_BOW, SV_HEAVY_XBOW));
-		o_ptr->number = 1;
-		o_ptr->name2 = EGO_VELOCITY;
-		o_ptr->to_h = 11;
-		o_ptr->to_d = 28;
+		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_CON));
+		o_ptr->number = 9;
+		o_ptr->pval = 7;
+		o_ptr->discount = 100;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-		invcopy(o_ptr, lookup_kind(TV_LITE, SV_LITE_FEANOR));
-		o_ptr->number = 1;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-		
-
-		invcopy(o_ptr, lookup_kind(TV_SWORD, SV_RAPIER));
-		o_ptr->number = 1;
-		o_ptr->name2 = EGO_WEST;
-		o_ptr->to_h = 10;
-		o_ptr->to_d = 15;
-		o_ptr->pval = 2; // plus 2
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		/*
-		invcopy(o_ptr, lookup_kind(TV_CLOAK, SV_CLOAK));
-		o_ptr->number = 1;
-		o_ptr->name2 = EGO_AMAN;
-		o_ptr->to_a = 25;
-		o_ptr->xtra1 = EGO_XTRA_POWER;
-		o_ptr->xtra2 = 2; // 2 should be resist sound...
-		o_ptr->pval = 3; // plus 3 to stealth (hopefully...)
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-		*/
-
-		invcopy(o_ptr, lookup_kind(TV_CLOAK, SV_CLOAK));
-		o_ptr->number = 1;
-		o_ptr->name2 = EGO_AMAN;
-		o_ptr->to_a = 24;
-		o_ptr->xtra1 = EGO_XTRA_POWER;
-		o_ptr->xtra2 = 6; // 6 should be chaos
-		o_ptr->pval = 2; // plus 2 to stealth 
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		/*
-		invcopy(o_ptr, lookup_kind(TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS));
-		o_ptr->number = 1;
-		o_ptr->name2 = EGO_SPEED;
-		o_ptr->to_a = 10;
-		o_ptr->pval = 10; // plus 10 to speed (hopefully...)
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-		*/
-
-		invcopy(o_ptr, lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS));
-		o_ptr->number = 1;
-		o_ptr->name2 = EGO_SPEED;
-		o_ptr->to_a = 10;
-		o_ptr->pval = 10; // plus 10 to speed (hopefully...)
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		invcopy(o_ptr, lookup_kind(TV_SHIELD, SV_SMALL_METAL_SHIELD));
-		o_ptr->number = 1;
-		o_ptr->name2 = EGO_ENDURANCE; // resistance
-		o_ptr->to_a = 15;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		invcopy(o_ptr, lookup_kind(TV_CROWN, SV_GOLDEN_CROWN));
-		o_ptr->number = 2;
-		o_ptr->name2 = EGO_MAGI;
-		o_ptr->xtra1 = EGO_XTRA_ABILITY;
-		o_ptr->xtra2 = 3; // telepathy...
-		o_ptr->pval = 2; // plus 2 to INT
-		o_ptr->to_a = 10;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		invcopy(o_ptr, lookup_kind(TV_GLOVES, SV_SET_OF_CESTI));
-		o_ptr->number = 2;
-		o_ptr->name2 = EGO_AGILITY;
-		o_ptr->pval = 4; 
-		o_ptr->to_a = 20;
-		//o_ptr->to_h = 5;
-		//o_ptr->to_d = 5;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		/*
-		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_SLAYING));
-		o_ptr->number = 1;
-		o_ptr->to_h = 9;
-		o_ptr->to_d = 15;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_INT));
-		o_ptr->number = 1;
-		o_ptr->pval = 6;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-		*/
-
-		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_SPEED));
-		o_ptr->number = 1;
-		o_ptr->pval = 12;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_DAMAGE));
-		o_ptr->number = 1;
-		o_ptr->to_d = 20;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		invcopy(o_ptr, lookup_kind(TV_AMULET, SV_AMULET_WISDOM));
-		o_ptr->number = 1;
-		o_ptr->pval = 6;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		/*
-		invcopy(o_ptr, lookup_kind(TV_DRAG_ARMOR, SV_DRAGON_CHAOS));
-		o_ptr->number = 1;
-		o_ptr->to_a = 23;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-		*/
-
-		invcopy(o_ptr, lookup_kind(TV_DRAG_ARMOR, SV_DRAGON_BALANCE));
-		o_ptr->number = 1;
-		o_ptr->to_a = 17;
-		object_known(o_ptr);
-		(void)inven_carry(Ind, o_ptr);
-
-		a_ptr = &a_info[ART_FINGOLFIN];
-		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-		invcopy(o_ptr, k_idx);
-		o_ptr->name1 = ART_FINGOLFIN;
-		o_ptr->number = 1;
-		apply_magic(0,o_ptr,0,0,0,0);
-		object_known(o_ptr);
-		inven_carry(Ind, o_ptr);
+	 	for (i = 1; i < 6; i++)
+	 	{
+			invcopy(o_ptr, lookup_kind(TV_SHADOW_BOOK, i));
+			o_ptr->number = 1;
+			o_ptr->discount = 100;
+			object_known(o_ptr);
+			(void)inven_carry(Ind, o_ptr);
+		}
 	}
 #endif
 	
@@ -1146,7 +1003,7 @@ static void player_setup(int Ind)
 	int y, x, i, d, count = 0, Depth = p_ptr->dun_depth;
 	cave_type *c_ptr;
 
-	bool dawn = ((turn % (10L * TOWN_DAWN)) < (10L * TOWN_DAWN / 2)); 
+	bool dawn = ((turn % (10L * TOWN_DAWN)) < (10L * TOWN_DAWN / 2)), unstaticed = 0; 
 
 	/* Count players on this depth */
 	for (i = 1; i <= NumPlayers; i++)
@@ -1178,6 +1035,11 @@ static void player_setup(int Ind)
 		}
 		/* He is now on the level, so add him to the player_on_depth list */
 		players_on_depth[Depth]++;
+
+		/* Set the unstaticed variable to true so we know to do a non-LOS requiring
+		 * scatter when we place the player.  See below.
+		 */
+		unstaticed = 1;
 	}
 
 	/* Rebuild the level if neccecary */
@@ -1232,6 +1094,12 @@ static void player_setup(int Ind)
 			}
 		}
 	}
+	
+	/* Hack be sure the player is inbounds */
+	if (p_ptr->px < 1) p_ptr->px = 1;
+	if (p_ptr->py < 1) p_ptr->py = 1;
+	if (p_ptr->px >= MAX_WID) p_ptr->px = MAX_WID - 1;
+	if (p_ptr->py >= MAX_HGT) p_ptr->py = MAX_HGT - 1;
 
 	/* Re-Place the player correctly */
 	for (i = 0; i < 3000; i++)
@@ -1239,11 +1107,15 @@ static void player_setup(int Ind)
 		d = (i + 4) / 10;
 
 		/* Pick a location */
-		/* Hack -- ghosts do not scatter, as they may not be in a line of sight
+		/* Hack -- ghosts&wraithly Sorcerors do not scatter, as they may not be in a line of sight
 		   with a valid region */
-		if (!p_ptr->ghost)
+		if (!p_ptr->ghost && !p_ptr->wraith_in_wall)
 		{
-			scatter(Depth, &y, &x, p_ptr->py, p_ptr->px, d, 0);
+			// Hack -- require line of sight if the level has not been unstaticed
+			// since the player was last on it.  If the player was on it, then
+			// don't require LOS since he might be stuck in rock and this will hang
+			// the game.
+			scatter(Depth, &y, &x, p_ptr->py, p_ptr->px, d, unstaticed);
 
 			if (!in_bounds(Depth, y, x) || !cave_empty_bold(Depth, y, x)) continue;
 		}
@@ -1256,7 +1128,6 @@ static void player_setup(int Ind)
 
 		break;
 	}
-
 	/* Set the player's location */
 	p_ptr->py = y;
 	p_ptr->px = x;
@@ -1320,7 +1191,7 @@ static void player_setup(int Ind)
 	p_ptr->redraw |= PR_PLUSSES;
 
 	/* Update his view, light, bonuses, and torch radius */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_BONUS | PU_TORCH | PU_DISTANCE);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_BONUS | PU_TORCH | PU_DISTANCE | PU_SPELLS);
 
 	/* Update his inventory, equipment, and spell info */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL);
@@ -1347,8 +1218,8 @@ bool player_birth(int Ind, cptr name, cptr pass, int conn, int race, int class, 
 
 
 	/* Do some consistency checks */
-	if (race < 0 || race > 9) race = 0;
-	if (class < 0 || class > 5) class = 0;
+	if (race < 0 || race >= MAX_RACES) race = 0;
+	if (class < 0 || class >= MAX_CLASS) class = 0;
 	if (sex < 0 || sex > 1) sex = 0;
 
 	/* Allocate memory for him */

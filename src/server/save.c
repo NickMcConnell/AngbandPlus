@@ -688,6 +688,7 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->tval);
 	wr_byte(o_ptr->sval);
+	wr_s32b(o_ptr->bpval);
 	wr_s32b(o_ptr->pval);
 
 	wr_byte(o_ptr->discount);
@@ -696,6 +697,7 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->name1);
 	wr_byte(o_ptr->name2);
+	wr_s32b(o_ptr->name3);
 	wr_s16b(o_ptr->timeout);
 
 	wr_s16b(o_ptr->to_h);
@@ -1135,16 +1137,24 @@ static void wr_extra(int Ind)
 	wr_s16b(p_ptr->oppose_pois);
 
 	wr_byte(p_ptr->confusing);
-	wr_byte(0);	/* oops */
-	wr_byte(0);	/* oops */
-	wr_byte(0);	/* oops */
+	wr_s16b(p_ptr->tim_wraith);
+	wr_byte(p_ptr->wraith_in_wall);
 	wr_byte(p_ptr->searching);
 	wr_byte(p_ptr->maximize);
 	wr_byte(p_ptr->preserve);
-	wr_byte(0);
+	wr_byte(p_ptr->stunning);
 
+	wr_s16b(p_ptr->tim_meditation);
+	
+	wr_s16b(p_ptr->tim_invisibility);
+	wr_s16b(p_ptr->tim_invis_power);
+
+	wr_s16b(p_ptr->furry);
+	
+	wr_s16b(p_ptr->tim_traps);
+	
 	/* Future use */
-	for (i = 0; i < 12; i++) wr_u32b(0L);
+	for (i = 0; i < 44; i++) wr_byte(0);
 
 	/* Ignore some flags */
 	wr_u32b(0L);	/* oops */
@@ -1160,6 +1170,7 @@ static void wr_extra(int Ind)
 	/* Special stuff */
 	wr_u16b(panic_save);
 	wr_u16b(p_ptr->total_winner);
+	wr_u16b(p_ptr->retire_timer);
 	wr_u16b(p_ptr->noscore);
 
 
@@ -1910,52 +1921,11 @@ bool load_player(int Ind)
 		sf_patch = vvv[2];
 		sf_extra = vvv[3];
 
-		/* Very old savefiles */
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-
-		/* Extremely old savefiles */
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
-
 		/* Clear screen */
 		/*Term_clear();*/
 
-#if 0
-		/* Parse "ancient" savefiles */
-		if (sf_major < 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "old" savefiles */
-		else if ((sf_major == 2) && (sf_minor < 7))
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-#endif
-
-		/* Parse "new" savefiles */
-		/* Parse "MAngband" savefiles */
-		if (sf_major == 0)
-		{
-			/* Attempt to load */
-			err = rd_savefile_new(Ind);
-		}
-
-		/* Parse "future" savefiles */
-		else
-		{
-			/* Error XXX XXX XXX */
-			err = -1;
-		}
+		/* Attempt to load */
+		err = rd_savefile_new(Ind);
 
 		/* Message (below) */
 		if (err) what = "Cannot parse savefile";
@@ -2358,18 +2328,12 @@ bool load_server_info(void)
                 sf_extra = vvv[3];
 
                 /* Parse "MAngband" savefiles */
-                if (sf_major == 0)
-                {
-                        /* Attempt to load */
-                        err = rd_server_savefile();
-                }
+                /* If I ever catch the one that put that STUPID UGLY IDIOT
+                 * HACK there he will know what *WRATH* means ... -- DG
+                 */
 
-                /* Parse "future" savefiles */
-                else
-                {
-                        /* Error XXX XXX XXX */
-                        err = -1;
-                }
+                /* Attempt to load */
+                err = rd_server_savefile();
 
                 /* Message (below) */
                 if (err) what = "Cannot parse savefile";

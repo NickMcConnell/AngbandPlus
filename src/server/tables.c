@@ -1472,8 +1472,44 @@ player_race race_info[MAX_RACES] =
 		82, 10, 180, 15,
 		4,
 		0x1F
-	}
+	},
+
+	{
+		"Yeek",
+		{  -5, -5, -5, -5, -5, -5 },
+		0,  0,  0,  0,  0,  10,  0,  0,
+		8,  30,
+		14,  6,
+		72,  6, 180, 25,
+		66,  4, 150, 20,
+		0,
+		0x3F
+	},
+
+	{
+		"Goblin",
+		{  0, -1, -5,  4,  2, -5 },
+		2, -3, -3,  0,  2, 8, 12, -5,
+		11,  115,
+		11,  4,
+		66,  1, 150,  5,
+		62,  1, 120,  5,
+		3,
+		0x0D
+	},
 };
+/*
+ * Player Race Information:
+ *    Title,
+ *    {STR,INT,WIS,DEX,CON,CHR},
+ *    r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
+ *    hitdie, exp base,
+ *    Age (Base, Mod),
+ *    Male (Hgt, Wgt),
+ *    Female (Hgt, Wgt)
+ *    infra,
+ *    class-choices
+ */
 
 
 /*
@@ -1533,8 +1569,25 @@ player_class class_info[MAX_CLASS] =
 		20, 24, 25, 1,  12, 2, 68, 40,
 		7,  10, 11, 0,  0,  0,  35, 30,
 		6, 35
+	},
+
+	{
+		"Sorceror",
+		{-5, 5, 1, 0, -1, 0},
+		35, 40, 30, 2, 16, 20, 30, 20,
+		8,  15,  9, 0,  0,  0, 11, 15,
+		0, 30
 	}
 };
+/*
+ * Player Classes.
+ *
+ *   Title,
+ *   {STR,INT,WIS,DEX,CON,CHR},
+ *   c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
+ *   x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
+ *   HD, Exp
+ */
 
 
 
@@ -1562,16 +1615,28 @@ player_magic magic_info[MAX_CLASS] =
 	{
 		/*** Warrior ***/
 
-		0,
+		TV_FIGHT_BOOK,
 		0,
 
 		A_STR,
-		0,
+		3,
 
-		99,
-		0,
+		5,
+		800,
 
 		{
+			{  5,  1, 18,   4},
+			{ 10,  2, 22,   4},
+			{ 15,  1, 24,   5},
+			{ 20,  2, 25,   5},			
+			{ 25,  3, 30,   6},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},			
+			{ 99,  0,  0,   0},
+			
+			{ 15,  5, 30,  15},
+			{ 30,  6, 50,  40},
+			
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -1581,7 +1646,6 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -1591,7 +1655,6 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -1600,7 +1663,6 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -1608,38 +1670,22 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -1683,7 +1729,7 @@ player_magic magic_info[MAX_CLASS] =
 
 			{  9,  7, 45,   8},
 			{  9,  7, 75,   9},
-			{  9,  7, 45,   8},
+			{  9,  7, 45,   9},
 			{ 11,  7, 45,   9},
 			{ 11,  7, 75,   6},
 			{ 13,  7, 50,   6},
@@ -1704,12 +1750,12 @@ player_magic magic_info[MAX_CLASS] =
 			{ 20, 18, 60,  24},
 			{ 25, 25, 75,  19},
 
-			{ 10,  6, 50,  12},
-			{ 12,  9, 60,  16},
-			{ 20, 15, 70,  20},
-			{ 27, 25, 75,  29},
-			{ 35, 35, 85,  34},
-			{ 42, 45, 95, 200},
+			{ 12,  9, 42,  16},
+			{ 20, 15, 50,  20},
+			{ 27, 20, 60,  29},
+			{ 35, 22, 65,  34},
+			{ 40, 25, 70, 200},
+			{ 41, 20, 75, 205},
 
 			{ 5,  5,  50,   8},
 			{ 10, 10, 70,  40},
@@ -1722,7 +1768,7 @@ player_magic magic_info[MAX_CLASS] =
 			{  4,  5, 50,  20},
 			{  8, 10, 75,  40},
 			{ 15, 20, 85,  60},
-
+			
 			{  5,  5, 50,  80},
 			{ 10, 12, 75, 120},
 			{ 15, 20, 80, 200},
@@ -1829,84 +1875,86 @@ player_magic magic_info[MAX_CLASS] =
 	{
 		/*** Rogue ***/
 
-		TV_MAGIC_BOOK,
+		TV_SHADOW_BOOK,
 		0,
 
 		A_INT,
-		0,
+		4,
 
 		5,
 		350,
 
 		{
-			{ 99,  0,  0,   0},
-			{  5,  1, 50,   1},
-			{  7,  2, 55,   1},
-			{  9,  3, 60,   1},
-			{ 10,  3, 60,   1},
-			{ 11,  4, 65,   1},
-			{ 12,  4, 65,   1},
-			{ 13,  5, 70,   1},
-			{ 99,  0,  0,   0},
-
-			{ 15,  6, 75,   1},
-			{ 99,  0,  0,   0},
-			{ 17,  7, 80,   1},
-			{ 19,  8, 85,   1},
-			{ 21,  9, 90,   1},
-			{ 22,  9, 50,   1},
-			{ 23, 10, 95,   1},
-			{ 99,  0,  0,   0},
-			{ 24, 11, 70,   1},
-
-			{ 25, 12, 95,   1},
-			{ 27, 15, 99,   1},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 28, 18, 50,   2},
+			/* Robbers handbook */
+			{  5,  1, 20,   4},
+			{  6,  2, 22,   5},			
+			{  8,  2, 22,   5},
+			{  9,  3, 23,   9},			
+			{ 10,  4, 25,  10},
+			{ 11,  5, 25,  12},
+			{ 12,  5, 25,  12},			
+			{ 13,  6, 28,  12},
+			
+			/* Shadows and Illusions */
+			{ 14,  6, 30,  12},
+			{ 16,  8, 35,  13},
+			{ 17, 10, 42,  18},
+			{ 19, 10, 26,  19},
+			{ 20, 12, 30,  20},
+			{ 21, 14, 39,  24},
+			{ 22, 16, 25,  26},
+			{ 23, 17, 30,  28},
+			{ 24, 17, 30,  30},
+			
+			/* Killing Made Easy */
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
+			{ 24, 15, 30,  32},
+			{ 25, 10, 38,  35},
+			{ 30, 15, 40,  40},
+			{ 35, 20, 42,  45},
 			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 30, 20, 99,   6},
-			{ 99,  0,  0,   0},
-			{ 32, 25, 70,   6},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{  7,  7, 20,  25},
-			{  9, 12, 40,  45},
-			{ 15, 17, 60,  30},
-			{ 99,  0,  0,   0},
-			{ 30, 35, 75,  15},
-
-			{ 13, 16, 50,  10},
-			{ 18, 20, 60,  10},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{  5,  5, 50,  10},
-			{ 10, 10, 70,  40},
-			{ 35, 40, 95, 100},
+			
+			/* Bilbo's Tome of Burglary */
+			{ 10,  9, 30,  15},
+			{ 15, 12, 10,  20},
+			{ 25, 20, 50,  40},
+			{ 26, 35, 50,  60},
+			{ 30, 40, 55,  70},
+			{ 31, 35, 50,  80},
+			{ 35, 50, 60,  90},
+			{ 99,  0,  0, 100},
+			
+			/* Shadows Escapes */
+			{ 20, 10, 30,  40},
+			{ 25, 15, 35,  60},
+			{ 30, 20, 40,  70},
+			{ 35, 40, 40,  80},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-
-			{ 10, 12, 50,  40},
-			{ 10, 12, 50,  40},
-			{ 10, 12, 50,  40},
-			{ 15, 20, 75,  60},
-			{ 25, 30, 85,  80},
-
-			{ 10, 11, 50,  40},
-			{ 15, 20, 75,  80},
-			{ 20, 25, 80, 160},
-			{ 26, 30, 50, 250},
 			{ 99,  0,  0,   0},
-
+			{ 99,  0,  0,   0},
+			
+			/* Great Shadows */
+			{  9,  8, 25,  10},
+			{ 19, 16, 35,  15},
+			{ 29, 20, 40,  30},
+			{ 39, 25, 45,  50},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -1950,7 +1998,7 @@ player_magic magic_info[MAX_CLASS] =
 
 			{ 17, 17, 55,   3},
 			{ 17, 17, 90,   4},
-			{ 21, 17, 55,   3},
+			{ 21, 34, 80,   3},
 			{ 21, 19, 60,   3},
 			{ 23, 25, 90,   3},
 			{ 23, 20, 60,   3},
@@ -1971,11 +2019,11 @@ player_magic magic_info[MAX_CLASS] =
 			{ 30, 28, 60,  16},
 			{ 35, 35, 75,  13},
 
-			{ 20, 16, 50,   6},
 			{ 22, 19, 60,   9},
 			{ 30, 25, 70,  13},
 			{ 33, 35, 75,  25},
 			{ 35, 45, 85,  35},
+			{ 99,  0, 0,    0},
 			{ 99,  0, 0,    0},
 
 			{ 10, 15, 50,   4},
@@ -2088,7 +2136,102 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0}
 		}
-	}
+	},
+
+	{
+		/*** Sorcerer ***/
+
+		TV_SORCERY_BOOK,
+		0,
+
+		A_INT,
+		2,
+
+		1,
+		300,
+
+		{
+	                /* Apprentice Handbook */
+	                { 1, 1, 10, 4 },
+        	        { 1, 1, 12, 4 },
+                	{ 2, 2, 12, 4 },
+	                { 2, 2, 12, 4 },
+        	        { 3, 2, 14, 4 },
+                	{ 3, 3, 14, 6 },
+	                { 4, 3, 15, 8 },
+        	        { 5, 6, 25, 8 },
+
+	                /* Mystical Words */
+                	{ 6, 5, 18, 8 },
+	                { 6, 6, 20, 9 },
+        	        { 7, 7, 22, 10 },
+                	{ 7, 7, 22, 11 },
+	                { 8, 7, 25, 12 },
+        	        { 8, 9, 30, 13 },
+                	{ 9, 8, 35, 14 },
+	                { 10, 10, 50, 15 },
+
+        	        /* Arcane Chants */
+	       	        { 11, 8, 40, 16 },
+                	{ 12, 9, 35, 17 },
+	                { 13, 10, 70, 17 },
+        	        { 13, 15, 45, 17 },
+                	{ 14, 15, 45, 19 },
+	                { 16, 18, 50, 20 },
+        	        { 17, 13, 40, 20 },
+                	{ 18, 15, 50, 20 },
+
+	                /* Locus of Force */
+	                { 20, 30, 65, 24 },
+        	        { 22, 5, 30, 25 },
+                	{ 23, 13, 50, 26 },
+	                { 24, 20, 55, 27 },
+        	        { 25, 21, 50, 29 },
+                	{ 25, 25, 55, 32 },
+	                { 27, 30, 75, 35 },
+        	        { 35, 50, 60, 45 },
+
+	                /* Powerfull Sigils */
+	                { 14, 25, 45, 55 },
+        	        { 20, 15, 44, 62 },
+                	{ 23, 24, 50, 70 },
+	                { 25, 25, 75, 100 },
+        	        { 28, 26, 35, 60 },
+                	{ 30, 33, 65, 140 },
+        	        { 40, 28, 66, 125 },
+	                { 45, 60, 75, 130 },
+
+	                /* Disruptive Forces */
+                	{ 16, 12, 35, 40 },
+	                { 18, 14, 44, 50 },
+        	        { 23, 24, 48, 75 },
+                	{ 24, 10, 30, 50 },
+        	        { 28, 27, 55, 100 },
+	                { 35, 40, 65, 150 },
+                	{ 38, 25, 10, 175 },
+        	        { 44, 50, 65, 250 },
+
+	                /* Forces of the Mind */
+	                { 10, 12, 22, 25 },
+                	{ 15, 16, 30, 45 },
+        	        { 18, 20, 45, 60 },
+	                { 22, 26, 65, 80 },
+                	{ 28, 50, 35, 100 },
+        	        { 33, 35, 50, 150 },
+	                { 36, 32, 85, 200 },
+                	{ 45, 60, 88, 210 },
+
+	                /* Power of Ancient Sorcerors */
+        	        { 32, 18, 40, 220 },
+	                { 36, 24, 45, 230 },
+                	{ 39, 30, 45, 235 },
+        	        { 42, 35, 50, 240 },
+	                { 44, 35, 50, 245 },
+                	{ 45, 40, 55, 250 },
+        	        { 47, 46, 55, 253 },
+	                { 49, 48, 65, 255 },
+		}
+	},
 };
 
 /*
@@ -2168,7 +2311,7 @@ magic_type ghost_spells[64] =
 /*
  * Spells in each book (mage spells then priest spells)
  */
-u32b spell_flags[2][9][2] =
+u32b spell_flags[5][9][2] =
 {
 	{
 		/*** Mage spell books ***/
@@ -2194,14 +2337,42 @@ u32b spell_flags[2][9][2] =
 		{ 0x00000000, 0x000001f0 },
 		{ 0x00000000, 0x000fc000 },
 		{ 0x00000000, 0x00003e00 }
-	}
+	},
+	
+	{
+		/*** Sorcery spell books(only 8 books) ***/
+                {0x000000ff, 0x00000000},
+                {0x0000ff00, 0x00000000},
+                {0x00ff0000, 0x00000000},
+                {0xff000000, 0x00000000},
+                {0x00000000, 0x000000ff},
+                {0x00000000, 0x0000ff00},
+                {0x00000000, 0x00ff0000},
+                {0x00000000, 0xff000000},
+	},
+	
+	{
+		/*** Warrior fight books(only 2 books) ***/
+                {0x0000001f, 0x00000000},
+                {0x00000300, 0x00000000},
+	},
+	
+	{
+		/*** Shadow spell books ***/
+                {0x000000ff, 0x00000000},
+                {0x0001ff00, 0x00000000},
+                {0x00780000, 0x00000000},
+                {0x7f000000, 0x00000000},
+                {0x00000000, 0x0000000f},
+                {0x00000000, 0x00000f00},
+	},
 };
 
 
 /*
  * Names of the spells (mage spells, priest spells, ghost spells)
  */
-cptr spell_names[3][64] =
+cptr spell_names[6][64] =
 {
 	/*** Mage Spells ***/
 
@@ -2231,10 +2402,10 @@ cptr spell_names[3][64] =
 		/* Incantations and Illusions (sval 2) */
 		"Satisfy Hunger",
 		"Recharge Item I",
-		"Sleep II",
+		"Tidal Wave",
 		"Polymorph Other",
 		"Identify",
-		"Sleep III",
+		"Sleep II",
 		"Fire Bolt",
 		"Slow Monster",
 
@@ -2255,12 +2426,12 @@ cptr spell_names[3][64] =
 		"Word of Recall",
 
 		/* Raal's Tome of Destruction (sval 8) */
-		"Acid Bolt",
 		"Cloud Kill",
 		"Acid Ball",
 		"Ice Storm",
 		"Meteor Swarm",
 		"Mana Storm",
+		"Mana Strike",
 
 		/* Kelek's Grimoire of Power (sval 6) */
 		"Detect Evil",
@@ -2352,7 +2523,7 @@ cptr spell_names[3][64] =
 		"Dispel Evil",
 		"Banishment",
 		"Word of Destruction",
-		"Annihilation",
+		"Call on Varda",
 
 		/* Holy Infusions (sval 7) */
 		"Unbarring Ways",
@@ -2376,7 +2547,166 @@ cptr spell_names[3][64] =
 		"(blank)",
 		"(blank)"
 	},
+	
+	/*** Sorcery Spells ***/
+	{
+                /* Apprentice Handbook */
+                "Magic Missile",
+                "Phase Door",
+                "Detect Monsters",
+                "Detect Traps",
+                "Light Area",
+                "Detect Doors/Stairs",
+                "Confuse Monster",
+                "Detect Object",
 
+                /* Mystical Words */
+                "Noxious Cloud",
+                "Teleport",
+                "Beam of Light",
+                "Sleep Monster",
+                "Lightning Bolt",
+                "Stone to Mud",
+                "Frost Bolt",
+                "Wraithform",
+
+                /* Arcane Chants */
+                "Ethereal Eye",
+                "Fire Bolt",
+                "Identification",
+                "Typhoon Daze",
+                "Time Distortion",
+                "Haste Self",
+                "Elemental Blast",
+                "Teleport Away",
+
+                /* Locus of Force */
+                "Summon Food",
+                "Meditation",
+                "Gravitic Distortion",
+                "Collapse Cieling",
+                "Firestorm",
+                "Force Shield",
+                "Sunfire",
+                "Safeguard",
+
+                /* Powerfull Sigils */
+                "Gravitic Beam",
+                "Sanctuary",
+                "Escape",
+                "Stasis Cage",
+                "Elemental Shield",
+                "Recall",
+                "Force of the Elements",
+                "Disruption Shield",
+
+                /* Disruptive Forces */
+                "Earthquake",
+                "Polymorph",
+                "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                "Warp Space",
+                "Chaos Blast",
+                "Wipe",
+                "Pyrrhic Blast",
+                "Word of Destruction",
+
+                /* Forces of the Mind */
+                "Radiate Fear",
+                "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                "Forceful Gaze",
+                "Recharging",
+                "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                "Self-Scan",
+                "*Identify*",
+                "Clairvoyance",
+
+                /* Power of Ancient Sorcerors */
+                "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                "Plasma Eruption",
+                "Annihilate",
+                "Oblivion Blast",
+                "Mana Spin",
+                "Tidal Wave",
+                "Anarchy Force",
+                "Mana Strike",
+	},
+	
+	/*** Fight Technics ***/
+	{
+                /* Bashing for beginners */
+                "Confusing Strike",
+                "Heroism",
+                "Jump",
+                "Stunning Blow",
+                "Berserk",
+                "",
+                "",
+                "",
+
+                /* Fingolfin's Combat Technics */
+                "Iron Skin",
+	},
+
+	
+	/*** Shadow Spells ***/
+	{
+		/* Robbers handbook */
+		"Blink",
+		"Stinking Cloud",
+		"Light Area",
+		"Monster Detection",
+		"Object Detection",
+		"Trap/Door Detection",
+		"Treasure Detection",
+		"Trap/Door Destruction",
+
+		/* Shadows and Illusions */
+		"Create Doors",
+		"Recharge Item",		
+		"Identify",
+		"Teleport",
+		"Deep Nights",
+		"Invisibility",
+		"Create Food",
+		"Create Stairs",
+		"Beam of Disarming",
+
+		/* Killing made easy */
+		"",
+		"",
+		"Create Traps",
+		"Fear Monsters",
+		"Sleep Monsters",
+		"Stun Monsters",
+		"",
+		
+		/* Bilbo's Tome of Burglary */
+		"Banish Curses",
+		"Curse Object",
+		"Knowledge Explosion",
+		"Enchant Weapon",
+		"Enchant Armor",
+		"*Banish Curses*",
+		"Greater Identification",
+		"",
+		
+		/* Shadows Escapes */
+		"Teleport Level",
+		"Teleport to Target",
+		"Recall",
+		"Fast Recall",
+		"",
+		"",
+		"",
+		"",
+		
+		/* Great Shadows */
+		"Armor of Night",
+		"Day of the Misrule",
+		"Inner Sight",
+		"Avoid Traps",
+	},
+	
 	/*** Ghost abilities ***/
 	{
 		/* Standard set */
@@ -2630,7 +2960,21 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Low Paladin",
 		"High Paladin",
 		"Paladin Lord",
-	}
+	},
+
+	/* Sorcerer */
+	{
+		"Novice",
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Evoker",
+		"Conjurer",
+		"Warlock",
+		"Spellmaster",
+		"Sorcerer",
+	},
 };
 
 

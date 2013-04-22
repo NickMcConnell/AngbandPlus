@@ -310,6 +310,9 @@ static bool object_easy_know(int i)
 		/* Spellbooks */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_SORCERY_BOOK:
+		case TV_FIGHT_BOOK:
+		case TV_SHADOW_BOOK:
 		{
 			return (TRUE);
 		}
@@ -470,9 +473,24 @@ static byte default_tval_to_attr(int tval)
 			return (TERM_L_RED);
 		}
 
+		case TV_SORCERY_BOOK:
+		{
+			return (TERM_ORANGE);
+		}
+
 		case TV_PRAYER_BOOK:
 		{
 			return (TERM_L_GREEN);
+		}
+
+		case TV_FIGHT_BOOK:
+		{
+			return (TERM_UMBER);
+		}
+
+		case TV_SHADOW_BOOK:
+		{
+			return (TERM_L_DARK);
 		}
 	}
 
@@ -872,7 +890,17 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	/* Artifact */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr;
+	
+		/* Hack -- Randarts! */
+		if (o_ptr->name1 == ART_RANDART)
+		{
+			a_ptr = randart_make(o_ptr);
+		}
+		else
+		{
+			a_ptr = &a_info[o_ptr->name1];
+		}
 
 		(*f1) = a_ptr->flags1;
 		(*f2) = a_ptr->flags2;
@@ -1321,11 +1349,33 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 
+			/* FIGHT Books */
+		case TV_FIGHT_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Fighting #";
+			break;
+		}
+			/* Shadow Books */
+		case TV_SHADOW_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Shadows #";
+			break;
+		}
 			/* Magic Books */
 		case TV_MAGIC_BOOK:
 		{
 			modstr = basenm;
 			basenm = "& Book~ of Magic Spells #";
+			break;
+		}
+
+			/* Sorcery Books */
+		case TV_SORCERY_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Book~ of Sorcery #";
 			break;
 		}
 
@@ -1498,8 +1548,18 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 	/* Hack -- Append "Artifact" or "Special" names */
 	if (known)
 	{
+		/* Grab any randart name */
+		if (o_ptr->name1 == ART_RANDART)
+		{
+			/* Create the name */
+			randart_name(o_ptr, tmp_val);
+			
+			t = object_desc_chr(t, ' ');
+			t = object_desc_str(t, tmp_val);
+		}
+			
 		/* Grab any artifact name */
-		if (o_ptr->name1)
+		else if (o_ptr->name1)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -1762,65 +1822,79 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 	/* Dump "pval" flags for wearable items */
 	if (known && (f1 & TR1_PVAL_MASK))
 	{
-		/* Start the display */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
-
-		/* Dump the "pval" itself */
-		t = object_desc_int(t, o_ptr->pval);
-
-		/* Do not display the "pval" flags */
-		if (f3 & TR3_HIDE_TYPE)
+		/* Hack -- first display any base pval bonuses.  
+		 * The "bpval" flags are never displayed.  */
+		if (o_ptr->bpval)
 		{
-			/* Nothing */
+			t = object_desc_chr(t, ' ');
+			t = object_desc_chr(t, p1);
+			/* Dump the "pval" itself */
+			t = object_desc_int(t, o_ptr->bpval);
+			t = object_desc_chr(t, p2);
 		}
-
-		/* Speed */
-		else if (f1 & TR1_SPEED)
+		/* Next, display any pval bonuses. */
+		if (o_ptr->pval)
 		{
-			/* Dump " to speed" */
-			t = object_desc_str(t, " to speed");
+			/* Start the display */
+			t = object_desc_chr(t, ' ');
+			t = object_desc_chr(t, p1);
+
+			/* Dump the "pval" itself */
+			t = object_desc_int(t, o_ptr->pval);
+
+			/* Do not display the "pval" flags */
+			if (f3 & TR3_HIDE_TYPE)
+			{
+				/* Nothing */
+			}
+
+			/* Speed */
+			else if (f1 & TR1_SPEED)
+			{
+				/* Dump " to speed" */
+				t = object_desc_str(t, " to speed");
+			}
+
+			/* Attack speed */
+			else if (f1 & TR1_BLOWS)
+			{
+				/* Add " attack" */
+				t = object_desc_str(t, " attack");
+
+				/* Add "attacks" */
+				if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
+			}
+
+			/* Stealth */
+			else if (f1 & TR1_STEALTH)
+			{
+				/* Dump " to stealth" */
+				t = object_desc_str(t, " to stealth");
+			}
+
+			/* Search */
+			else if (f1 & TR1_SEARCH)
+			{
+				/* Dump " to searching" */
+				t = object_desc_str(t, " to searching");
+			}
+
+			/* Infravision */
+			else if (f1 & TR1_INFRA)
+			{
+				/* Dump " to infravision" */
+				t = object_desc_str(t, " to infravision");
+			}
+
+			/* Tunneling */
+			else if (f1 & TR1_TUNNEL)
+			{
+				/* Nothing */
+			}
+
+			/* Finish the display */
+			t = object_desc_chr(t, p2);
 		}
-
-		/* Attack speed */
-		else if (f1 & TR1_BLOWS)
-		{
-			/* Add " attack" */
-			t = object_desc_str(t, " attack");
-
-			/* Add "attacks" */
-			if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
-		}
-
-		/* Stealth */
-		else if (f1 & TR1_STEALTH)
-		{
-			/* Dump " to stealth" */
-			t = object_desc_str(t, " to stealth");
-		}
-
-		/* Search */
-		else if (f1 & TR1_SEARCH)
-		{
-			/* Dump " to searching" */
-			t = object_desc_str(t, " to searching");
-		}
-
-		/* Infravision */
-		else if (f1 & TR1_INFRA)
-		{
-			/* Dump " to infravision" */
-			t = object_desc_str(t, " to infravision");
-		}
-
-		/* Tunneling */
-		else if (f1 & TR1_TUNNEL)
-		{
-			/* Nothing */
-		}
-
-		/* Finish the display */
-		t = object_desc_chr(t, p2);
 	}
 
 
@@ -1956,7 +2030,10 @@ cptr item_activation(object_type *o_ptr)
 
 	/* Require activation ability */
 	if (!(f3 & TR3_ACTIVATE)) return (NULL);
-
+	
+	/* For the moment ignore randarts */
+	if (o_ptr->name1 == ART_RANDART) return "a crash ;-)";
+	
 	/* Some artifacts can be activated */
 	switch (o_ptr->name1)
 	{
@@ -2174,6 +2251,19 @@ cptr item_activation(object_type *o_ptr)
 		}
 	}
 
+	/* Some ego items can be activated */
+	switch (o_ptr->name2)
+	{
+		case EGO_CLOAK_LORDLY_RES:
+		{
+			return "resistance every 150+d50 turns";
+		}
+	}
+
+	/* The amulet of the moon can be activated for sleep */
+	if ((o_ptr->tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_THE_MOON))
+		return "sleep monsters every 100+d100 turns";
+
 
 	/* Require dragon scale mail */
 	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
@@ -2317,6 +2407,11 @@ bool identify_fully_aux(int Ind, object_type *o_ptr)
 	if (f1 & TR1_CHR)
 	{
 		info[i++] = "It affects your charisma.";
+	}
+	
+	if (f1 & TR1_MANA)
+	{
+		info[i++] = "It affects your mana capacity.";
 	}
 
 	if (f1 & TR1_STEALTH)

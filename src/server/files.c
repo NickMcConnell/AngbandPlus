@@ -2500,6 +2500,136 @@ void display_scores(int Ind, int line)
 
 
 /*
+ * Get a random line from a file
+ * Based on the monster speech patch by Matt Graham,
+ */
+errr get_rnd_line(cptr file_name, int entry, char *output)
+{
+	FILE    *fp;
+	char    buf[1024];
+	int     line, counter, test, numentries;
+	int     line_num = 0;
+	bool    found = FALSE;
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_TEXT, file_name);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Failed */
+	if (!fp) return (-1);
+
+	/* Find the entry of the monster */
+	while (TRUE)
+	{
+		/* Get a line from the file */
+		if (my_fgets(fp, buf, 1024) == 0)
+		{
+			/* Count the lines */
+			line_num++;
+
+			/* Look for lines starting with 'N:' */
+			if ((buf[0] == 'N') && (buf[1] == ':'))
+			{
+				/* Allow default lines */
+				if (buf[2] == '*')
+				{
+					/* Default lines */
+					found = TRUE;
+					break;
+				}
+				/* Get the monster number */
+				else if (sscanf(&(buf[2]), "%d", &test) != EOF)
+				{
+					/* Is it the right monster? */
+					if (test == entry)
+					{
+						found = TRUE;
+						break;
+					}
+				}
+				else
+				{
+					my_fclose(fp);
+					return (-1);
+				}
+			}
+		}
+		else
+		{
+			/* Reached end of file */
+			my_fclose(fp);
+			return (-1);
+		}
+
+	}
+
+	/* Get the number of entries */
+	while (TRUE)
+	{
+		/* Get the line */
+		if (my_fgets(fp, buf, 1024) == 0)
+		{
+			/* Count the lines */
+			line_num++;
+
+			/* Look for the number of entries */
+			if (isdigit(buf[0]))
+			{
+				/* Get the number of entries */
+				numentries = atoi(buf);
+				break;
+			}
+		}
+		else
+		{
+			/* Count the lines */
+			line_num++;
+
+			my_fclose(fp);
+			return (-1);
+		}
+	}
+
+	if (numentries > 0)
+	{
+		/* Grab an appropriate line number */
+		line = rand_int(numentries);
+
+		/* Get the random line */
+		for (counter = 0; counter <= line; counter++)
+		{
+			/* Count the lines */
+			line_num++;
+
+			/* Try to read the line */
+			if (my_fgets(fp, buf, 1024) == 0)
+			{
+				/* Found the line */
+				if (counter == line) break;
+			}
+			else
+			{
+				my_fclose(fp);
+				return (-1);
+			}
+		}
+
+		/* Copy the line */
+		strcpy(output, buf);
+	}
+
+	/* Close the file */
+	my_fclose(fp);
+
+	/* Success */
+	return (0);
+}
+
+
+/*
  * Handle a fatal crash.
  *
  * Here we try to save every player's state, and the state of the server
@@ -2813,9 +2943,12 @@ void signals_init(void)
 	(void)signal(SIGTERM, handle_signal_abort);
 #endif
 
+	/*
+	 * This happens naturaly when clients disconnect.
 #ifdef SIGPIPE
 	(void)signal(SIGPIPE, handle_signal_abort);
 #endif
+*/
 
 #ifdef SIGEMT
 	(void)signal(SIGEMT, handle_signal_abort);
